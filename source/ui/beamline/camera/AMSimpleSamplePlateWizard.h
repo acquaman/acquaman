@@ -30,7 +30,7 @@ public:
 	virtual int nextId() const;
 	virtual void waitPage();
 	virtual QString message(int type);
-	bool isPointInShape(QPointF point);
+
 public slots:
 	void back();
 	void addShape(AMShapeData *shape);
@@ -49,7 +49,6 @@ class AMSimpleSampleSetPage : public AMViewPage
 	Q_OBJECT
 public:
 	void initializePage();
-	bool pointInShape(QPointF);
 protected slots:
 	void selectShape(QPointF);
 	void releaseShape();

@@ -91,7 +91,7 @@ void AMRegionOfInterestElementView::updateUpperBound(double value)
 
 void AMRegionOfInterestElementView::updateSpinBoxSingleStep()
 {
-	if (!((AMAnalysisBlock *)region_->valueSource())->inputDataSourceCount() > 0){
+	if( ((AMAnalysisBlock *)region_->valueSource())->inputDataSourceCount() > 0 && ((AMAnalysisBlock *)region_->valueSource())->inputDataSourceAt(0)->axes().count() > 0){
 
 		lowerBound_->setSingleStep(((AMAnalysisBlock *)region_->valueSource())->inputDataSourceAt(0)->axisInfoAt(0).increment);
 		upperBound_->setSingleStep(((AMAnalysisBlock *)region_->valueSource())->inputDataSourceAt(0)->axisInfoAt(0).increment);

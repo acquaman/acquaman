@@ -18,6 +18,10 @@ class QCheckBox;
 class QGraphicsTextItem;
 class QLineEdit;
 
+#define AMGRAPHICSVIEWWIZARD_PAGEWAIT_OUT_OF_BOUNDS_MAX 601001
+#define AMGRAPHICSVIEWWIZARD_PAGEWAIT_OUT_OF_BOUNDS_MIN 601002
+#define AMGRAPHICSVIEWWIZARD_PAGESET_OUT_OF_BOUNDS_MAX 601003
+#define AMGRAPHICSVIEWWIZARD_PAGESET_OUT_OF_BOUNDS_MIN 601004
 
 /// Wizard class
 /// contains a Graphics view with a video.
@@ -87,7 +91,6 @@ public:
 	/// number of set/wait type pages in the wizard
 	/// usually the same as number of points
 	int numberOfPages() const;
-
 
 	/// used to set all the text for the wizard in one easy to find
 	///  location.  Must be reimplemented to get desired text.
@@ -219,7 +222,6 @@ protected slots:
 	/// sets whether to show the option page next
 	void setShowOptionPage(bool showOptionPage);
 
-
 	/// append coordinates to the list
 	void coordinateListAppend(QVector3D *coordinate);
 	/// append points to the list
@@ -320,15 +322,22 @@ private:
 
 };
 
-
+/**
+ * @brief The AMWizardPage class is a standard page for the AMGraphicsViewWizard
+ * Any page that is used in the AMGraphicsViewWizard should be subclassed from this
+ */
 class AMWizardPage : public QWizardPage
 {
 	Q_OBJECT
 public:
+	/// Text type
 	enum {Title, Text, Help, Other, Default};
+	/// sets up the page layout
 	AMWizardPage(QWidget* parent = 0);
+	/// returns the wizard
 	AMGraphicsViewWizard* viewWizard() const;
 
+	/// sets up the title and text for the page
 	virtual void initializePage();
 
 	/// used to set messages using the message function
@@ -344,6 +353,11 @@ protected:
 };
 
 
+/**
+ * @brief The AMWaitPage class is a wizard page that waits while the motors move
+ * to a specified location before proceeding.  It runs a timer instead if motor
+ * movement has been disabled
+ */
 class AMWaitPage : public AMWizardPage
 {
 	Q_OBJECT
@@ -369,7 +383,8 @@ private:
 };
 
 
-/** AMViewPage is used to show the wizard view.
+/**
+  * @brief The AMViewPage class is used to show the wizard view.
   * Coordinates from this view can be mapped to the
   * sampleCamera view by using mapPointToVideo,
   * in AMGraphicsViewWizard.
@@ -402,6 +417,10 @@ private:
 
 };
 
+/**
+ * @brief The AMCheckPage class is a subclass of AMViewPage
+ * which shows the view and has a checkbox.
+ */
 class AMCheckPage : public AMViewPage
 {
 	Q_OBJECT
@@ -419,6 +438,15 @@ protected:
 	QCheckBox* isConfigured_;
 };
 
+
+/**
+ * @brief The AMWizardOptionPage class is a page for
+ *	configuring the coordinates which will be visited
+ *	by the wizard.  The AMWizardoptionPage may be added
+ *	to a wizard by calling setOptionPage with the id of
+ *	the page from which to access it.  From the option
+ *	page you may only go back
+ */
 class AMWizardOptionPage : public AMWizardPage
 {
 	Q_OBJECT
@@ -427,12 +455,14 @@ public:
 	virtual void initializePage();
 
 	virtual void cleanupPage();
-
+	/// is Complete must always return false so that next cannot be pressed
 	virtual bool isComplete() const;
+
 protected slots:
 	void textChanged();
 
 protected:
+	/// line edits with all the coordinates
 	QLineEdit** coordinateEdit_;
 	QFrame* coordinateFrame_;
 };

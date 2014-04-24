@@ -77,7 +77,6 @@ void SGMFastScanActionController::buildScanController()
 
 #include "ui/util/AMMessageBoxWTimeout.h"
 void SGMFastScanActionController::onFileWriterError(AMScanActionControllerBasicFileWriter::FileWriterError error){
-	qDebug() << "Got a file writer error in Fast Scan" << error;
 	QString userErrorString;
 	switch(error){
 	case AMScanActionControllerBasicFileWriter::AlreadyExistsError:
@@ -278,7 +277,6 @@ bool SGMFastScanActionController::event(QEvent *e){
 			for(int x = 0; x < detectorDataValues.count(); x++)
 				localDetectorData.append(detectorDataValues.at(x).toDouble());
 
-			//qDebug() << "Data for " << message.uniqueID() << " is:\n" << localDetectorData;
 			allDataMap_.insert(message.uniqueID(), localDetectorData);
 
 			break;}
@@ -349,7 +347,7 @@ void SGMFastScanActionController::writeDataToFiles(){
 
 		/* Stress testing
 		QTime endTime = QTime::currentTime();
-		qDebug() << "Time to ready data for writing " << startTime.msecsTo(endTime);
+		qdebug() << "Time to ready data for writing " << startTime.msecsTo(endTime);
 		*/
 
 		emit requestWriteToFile(0, rank1String);
@@ -515,9 +513,6 @@ AMAction3* SGMFastScanActionController::createInitializationActions(){
 	// Total Scans to 1000
 	// Turn off synchronized dwell coordination for the scaler
 	AMListAction3 *fastActionsScalerSettings = new AMListAction3(new AMListActionInfo3("SGM Fast Actions Scaler Settings", "SGM Fast Actions Scaler Settings"), AMListAction3::Parallel);
-	qDebug() << "settings->scalerTime is " << settings->scalerTime();
-	qDebug() << "settings->fastScanSettings->runSeconds is " << settings->fastScanSettings().runSeconds();
-	qDebug() << "arguments: " << QApplication::instance()->arguments();
 	if(QApplication::instance()->arguments().contains("--advanced"))
 		fastActionsScalerSettings->addSubAction(SGMBeamline::sgm()->scaler()->createDwellTimeAction3(settings->fastScanSettings().runSeconds()/1000));
 	else

@@ -198,7 +198,6 @@ bool AMGraphicsVideoSceneCopier::updateItem(QGraphicsItem *itemToUpdate, QGraphi
 		textTypes = (itemToUpdate->type() == QGraphicsTextItem::Type && itemToCopy->type() == AMGraphicsTextItem::Type) || (itemToUpdate->type() == AMGraphicsTextItem::Type && itemToCopy->type() == QGraphicsTextItem::Type);
 		if(!textTypes)
 			return false;
-		qDebug()<<"Text is fine";
 		return true;
 	}
 	bool equal = getEquivalent(itemToUpdate,itemToCopy);
@@ -212,22 +211,12 @@ bool AMGraphicsVideoSceneCopier::updateItem(QGraphicsItem *itemToUpdate, QGraphi
 
 bool AMGraphicsVideoSceneCopier::getEquivalent(QGraphicsItem *itemOne, QGraphicsItem *itemTwo)
 {
-	//    qDebug()<<"AMGraphicsVideoSceneCopier::getEquivalent - Checking QGraphicsItem properties";
 	if(itemOne->type() != itemTwo->type())
-	{
-		//        qDebug()<<itemOne->type()<<itemTwo->type();
 		return false;
-	}
 	else if(itemOne->pos() != itemTwo->pos())
-	{
-		//        qDebug()<<itemOne->pos()<<itemTwo->pos();
 		return false;
-	}
 	else if(itemOne->zValue() != itemTwo->zValue())
-	{
-		//        qDebug()<<itemOne->zValue()<<itemTwo->zValue();
 		return false;
-	}
 
 	QGraphicsRectItem* rectOne;
 	QGraphicsRectItem* rectTwo;
@@ -240,11 +229,6 @@ bool AMGraphicsVideoSceneCopier::getEquivalent(QGraphicsItem *itemOne, QGraphics
 	QGraphicsTextItem* textOne;
 	QGraphicsTextItem* textTwo;
 
-
-	//    qDebug()<<"AMGraphicsVideoSceneCopier::getEquivalent - performing cast";
-
-
-
 	switch(itemOne->type())
 	{
 	case QGraphicsRectItem::Type:
@@ -255,16 +239,12 @@ bool AMGraphicsVideoSceneCopier::getEquivalent(QGraphicsItem *itemOne, QGraphics
 			qDebug()<<"AMGraphicsVideoSceneCopier::getEquivalent - failed to cast rect";
 			return false;
 		}
-		//        qDebug()<<"Checking rect";
 		if(rectOne->rect() != rectTwo->rect())
 			return false;
-		//        qDebug()<<"Checking pen";
 		if(rectOne->pen() != rectTwo->pen())
 			return false;
-		//        qDebug()<<"Checking brush";
 		if(rectOne->brush() != rectTwo->brush())
 			return false;
-		//        qDebug()<<"the rects are equivalent";
 		return true;
 		break;
 	case QGraphicsPolygonItem::Type:
@@ -443,7 +423,7 @@ QGraphicsItem *AMGraphicsVideoSceneCopier::getCopy(QGraphicsItem *item)
 	/// correct type when casting
 	else if(type == QGraphicsItem::UserType)
 	{
-		#ifdef AM_MOBILITY_VIDEO_ENABLED
+#ifdef AM_MOBILITY_VIDEO_ENABLED
 		QGraphicsVideoItem* videoItem = dynamic_cast<QGraphicsVideoItem*>(item);
 		if(videoItem != 0)
 		{
@@ -463,17 +443,11 @@ QGraphicsItem *AMGraphicsVideoSceneCopier::getCopy(QGraphicsItem *item)
 			newItem = newVideoItem;
 		}
 		else
-		{
-			//            qDebug()<<"AMGraphicsVideoSceneCopier::getCopy - adding other custom";
 			newItem = new QGraphicsPolygonItem();
-		}
-		#endif
+#endif
 	}
 	else
-	{
-		//        qDebug()<<"AMGraphicsVideoSceneCopier::getCopy - adding other";
 		newItem = new QGraphicsPolygonItem();
-	}
 
 	newItem->setX(item->x());
 	newItem->setY(item->y());

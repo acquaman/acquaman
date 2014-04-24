@@ -41,7 +41,7 @@ AMControl::FailureExplanation IDEASMonochromatorControl::move(double setpoint)
 
     }
 
-//    qDebug() << "setpoint: " << setpoint  << "lastPositiveMove: " << lastPositiveMove_;
+//    qdebug() << "setpoint: " << setpoint  << "lastPositiveMove: " << lastPositiveMove_;
     if ( setpoint > (lastPositiveMove_ - 100))    //Allow small backward moves
 	return AMPVwStatusControl::move(setpoint);
 

@@ -28,9 +28,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QStringBuilder>
 
 #include "acquaman.h"
-
 #include "dataman/database/AMDbObjectSupport.h"
 #include "dataman/AMScan.h"
+#include "dataman/AMSample.h"
 
 #include "ui/AMDetailedItemDelegate.h"
 #include "ui/dataman/AMScanView.h"
@@ -304,15 +304,8 @@ void AMGenericScanEditor::setSingleSpectrumViewDataSourceName(const QString &nam
 }
 
 
-#include "dataman/AMSample.h"
 void AMGenericScanEditor::addScan(AMScan* newScan) {
 	scanSetModel_->addScan(newScan);
-
-	qDebug() << "In AMGSE::addScan";
-	if(newScan->sample())
-		qDebug() << "There is a sample set for this scan, its name is "  << newScan->sample()->name();
-	else
-		qDebug() << "There is no sample set for this scan.";
 
 	ui_.scanListView->setCurrentIndex(scanSetModel_->indexForScan(scanSetModel_->indexOf(newScan)));
 

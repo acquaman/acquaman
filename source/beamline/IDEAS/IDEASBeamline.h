@@ -151,6 +151,9 @@ protected:
 		CLSBiStateControl *safetyShutter_;
 		/// The second photon shutter.
 		CLSBiStateControl *photonShutter2_;
+		/// The safety shutter for the SOE.
+		CLSBiStateControl *safetyShutter2_;
+
 
 	/// Control for the mono
 		IDEASMonochromatorControl *monoEnergy_;

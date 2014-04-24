@@ -7,7 +7,7 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QUrl>
-
+#include <QApplication>
 #include <QMessageBox>
 #include <QStringBuilder>
 
@@ -18,13 +18,11 @@
 #include "beamline/camera/AMSampleCameraBrowser.h"
 #include <QLineEdit>
 
-#include <QDebug>
-
 AMSampleCameraBrowserView::AMSampleCameraBrowserView(AMSampleCameraBrowser *cameraBrowser, QWidget *parent, bool useOpenGlViewport) :
 	QWidget(parent)
 {
+	Q_UNUSED(useOpenGlViewport)
 	videoWidget_ = 0;
-	if(useOpenGlViewport)qDebug()<<"Using openGlViewport"; // but not really
 	init(cameraBrowser);
 
 }
@@ -32,20 +30,14 @@ AMSampleCameraBrowserView::AMSampleCameraBrowserView(AMSampleCameraBrowser *came
 AMSampleCameraBrowserView::AMSampleCameraBrowserView(QWidget *parent, bool useOpenGlViewport) :
 	QWidget(parent)
 {
+	Q_UNUSED(useOpenGlViewport)
 	videoWidget_ = 0;
-	if(useOpenGlViewport)qDebug()<<"Using openGlViewport";
 	init(new AMSampleCameraBrowser());
 }
 
-
-
-#include <QDebug>
-#include <QApplication>
 void AMSampleCameraBrowserView::onSourceComboBoxChanged(int index)
 {
-	qDebug() << "Here in onSourceComboBoxChanged";
 	if(index < 0) {
-		qDebug() << "Index is < 0";
 		setWindowTitle("AcquaCam");
 		#ifdef AM_MOBILITY_VIDEO_ENABLED
 		videoWidget_->setMedia(QMediaContent());
@@ -53,20 +45,15 @@ void AMSampleCameraBrowserView::onSourceComboBoxChanged(int index)
 	}
 
 	else {
-		qDebug() << "Valid index as " << index << " current count " << sourceComboBox_->model()->rowCount();
 		QString stringUrl = sourceComboBox_->itemText(index);
 		QUrl url = QUrl::fromUserInput(stringUrl);
 
 		if(url.isValid()) {
-			if(url.toString() != stringUrl){
-                                qDebug() << "Apparently doing a setItemText";
+			if(url.toString() != stringUrl)
 				sourceComboBox_->setItemText(index, url.toString());
-			}
 			setWindowTitle(url.toString());
 			#ifdef AM_MOBILITY_VIDEO_ENABLED
 			videoWidget_->setMedia(url);
-			qDebug() << "AMBeamlineCameraBrowser2: Loading and playing" << url.toString();
-			qDebug() << "Have a QApplication? " << QApplication::applicationName();
 			videoWidget_->play();
 			#endif
 		}
@@ -78,7 +65,7 @@ void AMSampleCameraBrowserView::onSourceComboBoxChanged(int index)
 }
 
 void AMSampleCameraBrowserView::onRowsInserted(const QModelIndex &index, int start, int end){
-	qDebug() << "Heard that combo box had a new row inserted " << sourceComboBox_->model()->data(sourceComboBox_->model()->index(start, 0, index));
+	Q_UNUSED(end)
 	cameraBrowser_->addURL(sourceComboBox_->model()->data(sourceComboBox_->model()->index(start, 0, index)).toString());
 }
 
@@ -145,10 +132,7 @@ void AMSampleCameraBrowserView::setCurrentSourceURL(const QString &sourceURL)
 #ifdef AM_MOBILITY_VIDEO_ENABLED
 void AMSampleCameraBrowserView::onMediaPlayerError(QMediaPlayer::Error e)
 {
-	qDebug() << "Error was " << e;
-	qDebug() << "Supported types? " << QMediaPlayer::supportedMimeTypes();
-        qDebug()<<"Error message "<<videoWidget_->mediaPlayer()->errorString();
-        qDebug()<<"Media content "<<videoWidget_->mediaPlayer()->media().canonicalUrl().toString();
+	Q_UNUSED(e)
 	QMessageBox::warning(this, "AcquaCam Error", "Sorry! There was an error trying to open that media URL.");
 	cameraBrowser_->removeURL(sourceComboBox_->currentText());
 	sourceComboBox_->removeItem(sourceComboBox_->currentIndex());

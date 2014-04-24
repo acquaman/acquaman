@@ -209,9 +209,7 @@ void AMWizardManager::rotationWizardUpdate()
 
 void AMWizardManager::updateBeamWizardShape(QGraphicsPolygonItem *item)
 {
-	qDebug()<<"Here in AMWizardManager::updateBeamWizardShape";
 	beamWizard_->updateShape(item);
-	qDebug()<<"Leaving AMWizardManager::updateBeamWizardShape";
 }
 
 void AMWizardManager::cameraWizardDone()
@@ -223,7 +221,6 @@ void AMWizardManager::cameraWizardDone()
 
 void AMWizardManager::beamWizardDone()
 {
-	qDebug()<<"Beam Wizard done";
 	emit beamWizardFinished();
 	delete beamWizard_;
 	beamWizard_ = 0;

@@ -38,7 +38,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QApplication>
 
 // fill the className, tableName, metaObject, columns, columnTypes, isVisible, isLoadable, and doNotReuseIds properties based on a prototype AMDbObject.
- AMDbObjectInfo::~AMDbObjectInfo(){}
 AMDbObjectInfo::AMDbObjectInfo(AMDbObject* prototype) {
 	initWithMetaObject(prototype->metaObject());
 }
@@ -47,6 +46,8 @@ AMDbObjectInfo::AMDbObjectInfo(AMDbObject* prototype) {
 AMDbObjectInfo::AMDbObjectInfo(const QMetaObject* classMetaObject) {
 	initWithMetaObject(classMetaObject);
 }
+
+AMDbObjectInfo::~AMDbObjectInfo(){}
 
 void AMDbObjectInfo::initWithMetaObject(const QMetaObject *classMetaObject) {
 	metaObject = classMetaObject;

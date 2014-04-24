@@ -259,10 +259,6 @@ void AMRotationWizard::addPoint(QPointF position)
 		newPoint = pointList()->at(index);
 		QPointF newPosition = mapPointToVideo(position);
 		*newPoint = newPosition;
-		for(int i = 0; i < pointList()->count(); i++)
-		{
-			qDebug()<<*pointList()->at(i);
-		}
 
 		next();
 	}

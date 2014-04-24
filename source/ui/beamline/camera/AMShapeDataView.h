@@ -11,6 +11,7 @@ class AMSampleAdvancedView;
 class QFrame;
 class QScrollArea;
 
+#define AMSHAPEDATAVIEW_UPDATEALL_FAILED_NOT_VALID 603001
 
 /// This class is a view for the AMShapeData class.
 class AMShapeDataView : public QWidget
@@ -28,8 +29,6 @@ public slots:
 	void setShapeData(AMShapeData*);
 	void setYAxisRotation(QString);
 
-
-
 	void nameChanged(QString);
 	void tiltChanged(QString);
 	void xChanged(QString);
@@ -40,30 +39,27 @@ public slots:
 	void yAxisRotationChanged(QString);
 
 	void toggleShapeVisible();
-
 	void setShapeVisible(bool visible);
-
 	void showSampleView();
-
 	void setCoordinate();
-
-
 
 signals:
 	void updateShapes();
 	void applyDistortion();
 	void newName();
 	void shapeVisible(bool);
+
 protected slots:
 	void xAxisRotation(int);
 	void yAxisRotation(int);
 	void zAxisRotation(int);
 	void updateAll();
-protected:
 
+protected:
 	bool isValid();
 	void updateCoordinateLabels();
 	int count();
+
 protected:
 	AMShapeData *shapeModel_;
 	QLineEdit *tiltEdit_;

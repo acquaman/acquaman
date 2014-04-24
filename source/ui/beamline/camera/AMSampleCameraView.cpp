@@ -1,4 +1,4 @@
- #include "AMSampleCameraView.h"
+#include "AMSampleCameraView.h"
 
 #include <limits>
 
@@ -67,9 +67,9 @@ AMSampleCameraView::AMSampleCameraView(AMSampleCamera *shapeModel, ViewType view
 	shapeScene_ = new AMSampleCameraGraphicsView(parent, useOpenGlViewport);
 	shapeScene_->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	shapeScene_->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-	#ifdef AM_MOBILITY_VIDEO_ENABLED
+#ifdef AM_MOBILITY_VIDEO_ENABLED
 	shapeScene_->videoItem()->setAspectRatioMode(Qt::KeepAspectRatio);
-	#endif
+#endif
 	cameraConfiguration_ = new AMCameraConfigurationView(shapeModel_->cameraConfiguration());
 	beamConfiguration_ = new AMBeamConfigurationView(shapeModel_->beamConfiguration());
 
@@ -104,8 +104,8 @@ AMSampleCameraView::AMSampleCameraView(AMSampleCamera *shapeModel, ViewType view
 
 	crosshairXLine_ = shapeScene_->scene()->addLine(0.5,0,0.5,1,pen);
 	crosshairYLine_ = shapeScene_->scene()->addLine(0,0.5,0,1,pen);
-//	crosshairXLine_->setVisible(true);
-//	crosshairYLine_->setVisible(true);
+	//	crosshairXLine_->setVisible(true);
+	//	crosshairYLine_->setVisible(true);
 
 	crosshairXLine_->setVisible(false);
 	crosshairYLine_->setVisible(false);
@@ -172,19 +172,19 @@ void AMSampleCameraView::refreshSceneView()
 
 	QSizeF viewSize = shapeScene_->sceneRect().size();
 	// first we need to find out the native size of the video. (Well, actually just the aspect ratio, but...)
-	#ifdef AM_MOBILITY_VIDEO_ENABLED
+#ifdef AM_MOBILITY_VIDEO_ENABLED
 	QSizeF videoSize = shapeScene_->videoItem()->nativeSize();
 	double videoTop = shapeScene_->videoItem()->boundingRect().topLeft().y();
-	#else
+#else
 	QSizeF videoSize(1, 1);
 	double videoTop = 0;
-	#endif
+#endif
 
 	// scale the video size to the view size, obeying the transformation mode
 	QSizeF scaledSize = videoSize;
-	#ifdef AM_MOBILITY_VIDEO_ENABLED
-        scaledSize.scale(viewSize, shapeScene_->videoItem()->aspectRatioMode());
-	#endif
+#ifdef AM_MOBILITY_VIDEO_ENABLED
+	scaledSize.scale(viewSize, shapeScene_->videoItem()->aspectRatioMode());
+#endif
 
 	shapeModel_->setViewSize(viewSize);
 	shapeModel_->setScaledSize(scaledSize, videoTop);
@@ -195,7 +195,7 @@ void AMSampleCameraView::refreshSceneView()
 
 	QRectF activeRect = QRectF(QPointF((viewSize.width()-scaledSize.width())/2,videoTop),
 				   //                                       (viewSize.height()-scaledSize.height())/2),
-                                    scaledSize);
+				   scaledSize);
 
 
 	// activeRect is now a rectangle in scene coordinates that covers the actual area of the video [not the area of the videoWidget, which may be smaller or larger depending on the aspect ratio mode and aspect ratio of the actual video feed]
@@ -204,11 +204,12 @@ void AMSampleCameraView::refreshSceneView()
 	qreal ySceneCoord = activeRect.top() + shapeModel_->crosshairY()*activeRect.height();
 
 
+	// this shows the outline of the video.  Is not necessary for anything but debugging
 	videoBorderItem_->setRect(activeRect);
 
 
 
-
+	/// \todo get rid of crosshair lines?
 	crosshairXLine_->setLine(xSceneCoord, activeRect.top(), xSceneCoord, activeRect.bottom());
 	crosshairYLine_->setLine(activeRect.left(), ySceneCoord, activeRect.right(), ySceneCoord);
 
@@ -262,7 +263,6 @@ void AMSampleCameraView::refreshSceneView()
 				}
 				else if(currentView_ == DATA)
 				{
-					qDebug()<<shapeModel_->otherDataOne(i);
 					textItems_[i]->setPlainText(shapeModel_->otherDataOne(i));
 					textItems_[i]->setTextInteractionFlags(Qt::NoTextInteraction);
 				}
@@ -618,7 +618,6 @@ void AMSampleCameraView::autoCompleteEnterPressed()
 
 void AMSampleCameraView::beamShape(int shapeNumber)
 {
-	qDebug()<<"Here in AMSampleCameraView::beamShape";
 	const QList<QPointF*>* points;
 	if(wizardManager_->beamWizard() != 0)
 		points = wizardManager_->beamWizard()->getPointList();
@@ -648,25 +647,17 @@ void AMSampleCameraView::beamShape(int shapeNumber)
 	}
 
 	updateTracker_ = shapeNumber;
-
-qDebug()<<"Leaving AMSampleCameraView::beamShape";
-
 }
 
 void AMSampleCameraView::createBeamShape(int index)
 {
-	qDebug()<<"Start AMSampleCameraView::createBeamShape";
 	shapeModel_->createBeamShape(index);
-	qDebug()<<"2 AMSampleCameraView::createBeamShape";
 	refreshSceneView();
-	qDebug()<<"3 AMSampleCameraView::createBeamShape";
 	wizardManager_->beamWizardUpdate();
-	qDebug()<<"Done AMSampleCameraView::createBeamShape";
 }
 
 void AMSampleCameraView::moveBeamShape(QPointF point, int index)
 {
-	qDebug()<<"AMSampleCameraView::moveBeamShape";
 	shapeModel_->moveBeamShape(point,index);
 	refreshSceneView();
 	wizardManager_->beamWizardUpdate();
@@ -682,9 +673,7 @@ void AMSampleCameraView::beamCalibrate()
 }
 
 void AMSampleCameraView::samplePlateCreate()
-{
-	qDebug()<<"Sample plate being created.";
-
+{	
 	const QList<QPointF*>* pointList = wizardManager_->samplePlateWizard()->getPointList();
 	int numberOfPoints = wizardManager_->samplePlateWizard()->numberOfPoints();
 	/// create sample plate takes a QVector of QVector3D and a QVector of QPointF
@@ -760,7 +749,6 @@ void AMSampleCameraView::simpleSamplePlateCreate()
 
 void AMSampleCameraView::rotationConfiguration()
 {
-	qDebug()<<"Calling configure rotation";
 	QList<QPointF*> pointList = *wizardManager_->rotationWizard()->getPointList();
 	QList<QVector3D*> coordinateList = *wizardManager_->rotationWizard()->getCoordinateList();
 	QList<double> rotationList = *wizardManager_->rotationWizard()->getRotationList();
@@ -795,17 +783,15 @@ void AMSampleCameraView::rotationConfiguration()
 	{
 		delete angle;
 	}
-
-	emit rotationWizardFinished();
 }
 
 bool AMSampleCameraView::samplePointListEmpty(QList<QPointF>*list, int numberOfPoints) const
 {
-    bool empty= true;
-    for(int i = 0; i < numberOfPoints; i++)
-    {
-        empty &= list[i].isEmpty();
-    }
+	bool empty= true;
+	for(int i = 0; i < numberOfPoints; i++)
+	{
+		empty &= list[i].isEmpty();
+	}
 	return empty;
 }
 
@@ -814,35 +800,23 @@ bool AMSampleCameraView::samplePointListEmpty(QList<QPointF>*list, int numberOfP
 /// also updates the scene of each wizard
 void AMSampleCameraView::moveBeamSamplePlate(QVector3D coordinate)
 {
-	qDebug()<<"Here in AMSampleCameraView::moveBeamSamplePlate(QVector3D coordinate)";
 	double rotation = sampleCamera()->motorRotation()->degrees();
 	moveBeamSamplePlate(coordinate,rotation);
-	qDebug()<<"leaving AMSampleCameraView::moveBeamSamplePlate(QVector3D coordinate)";
 }
 
 void AMSampleCameraView::moveBeamSamplePlate(QVector3D coordinate, double rotation)
 {
-	qDebug()<<"Here in AMSampleCameraView::moveBeamSamplePlate(QVector3D coordinate, double rotation)";
 	if(!shapeModel_->motorMovementEnabled())
-	{
-		qDebug()<<"AMSampleCameraView::moveBeamSamplePlate - setMotorCoordinate";
 		shapeModel_->setMotorCoordinate(coordinate.x(),coordinate.y(),coordinate.z(),rotation);
-		qDebug()<<"AMSampleCameraView::moveBeamSamplePlate - setMotorCoordinate done";
-	}
-	qDebug()<<"AMSampleCameraView::moveBeamSamplePlate - moveMotorTo";
+
 	shapeModel_->moveMotorTo(coordinate, rotation);
-	qDebug()<<"AMSampleCameraView::moveBeamSamplePlate - moveMotorTo done";
 	refreshSceneView();
-	qDebug()<<"AMSampleCameraView::moveBeamSamplePlate - refresh SceneView done";
 	AMSampleCameraGraphicsView* view = new AMSampleCameraGraphicsView();
 	view->setScene(shapeScene_->scene());
-	qDebug()<<"AMSampleCameraView::moveBeamSamplePlate About to update";
 	wizardManager_->beamWizardUpdate();
 	wizardManager_->cameraWizardUpdate();
 	wizardManager_->sampleWizardUpdate();
 	wizardManager_->rotationWizardUpdate();
-
-	qDebug()<<"leaving in AMSampleCameraView::moveBeamSamplePlate(QVector3D coordinate, double rotation)";
 }
 
 void AMSampleCameraView::showBeamMarker(int index)
@@ -864,6 +838,7 @@ void AMSampleCameraView::transmitMotorRotation()
 
 void AMSampleCameraView::updateShapeName(QString newName)
 {
+	Q_UNUSED(newName)
 	if(currentView_ == NAME)
 	{
 		if(currentIndex() >= 0 && textItems_.count() > currentIndex())
@@ -875,32 +850,29 @@ void AMSampleCameraView::updateShapeName(QString newName)
 
 void AMSampleCameraView::updateDataOne(QString data)
 {
+	Q_UNUSED(data)
 	if(currentView_ == DATA)
 	{
 		if(currentIndex() >= 0 && textItems_.count() > currentIndex())
-		{
-			qDebug()<<"AMSampleCameraView::updateDataOne - attempting to update textbox otherdata";
 			textItems_[currentIndex()]->setPlainText(shapeModel_->otherDataOne(currentIndex()));
-		}
 		else refreshSceneView();
 	}
 }
 
 void AMSampleCameraView::updateDataTwo(QString data)
 {
+	Q_UNUSED(data)
 	if(currentView_ == ID)
 	{
 		if(currentIndex() >= 0 && textItems_.count() > currentIndex())
-		{
-			qDebug()<<"AMSampleCameraView::updateDataTwo - attempting to update textbox otherdatatwo";
 			textItems_[currentIndex()]->setPlainText(shapeModel_->otherDataTwo(currentIndex()));
-		}
 		else refreshSceneView();
 	}
 }
 
 void AMSampleCameraView::onShowSamplePlateStateChanged(bool state)
 {
+	Q_UNUSED(state)
 	refreshSceneView();
 }
 
@@ -1136,8 +1108,8 @@ void AMSampleCameraView::reviewCameraConfiguration()
 	}
 
 	emit cameraWizardFinished();
-//	delete cameraWizard_;
-//	cameraWizard_ = NULL;
+	//	delete cameraWizard_;
+	//	cameraWizard_ = NULL;
 }
 
 void AMSampleCameraView::onMoveToBeamToggled(bool checked)
@@ -1187,13 +1159,10 @@ void AMSampleCameraView::toggleDistortion()
 void AMSampleCameraView::setMedia(QMediaContent url)
 {
 	shapeScene_->mediaPlayer()->setMedia(url);
-	qDebug() << "Status? " << shapeScene_->mediaPlayer()->mediaStatus();
 }
 
-#include <QApplication>
 void AMSampleCameraView::play()
 {
-	qDebug()<<"supported"<<QMediaPlayer::supportedMimeTypes();
 	shapeScene_->mediaPlayer()->play();
 }
 
@@ -1205,7 +1174,7 @@ QMediaPlayer* AMSampleCameraView::mediaPlayer() const
 
 QPointF AMSampleCameraView::mapPointToVideo(QPointF position)
 {
-	#ifdef AM_MOBILITY_VIDEO_ENABLED
+#ifdef AM_MOBILITY_VIDEO_ENABLED
 	QPointF topLeft = shapeScene_->mapSceneToVideo(shapeScene_->videoItem()->sceneBoundingRect().topLeft());
 	QPointF bottomRight = shapeScene_->mapSceneToVideo(shapeScene_->videoItem()->sceneBoundingRect().bottomRight());
 	QPointF factor = bottomRight - topLeft;
@@ -1215,9 +1184,9 @@ QPointF AMSampleCameraView::mapPointToVideo(QPointF position)
 	newPosition.setY(position.y()*factor.y());
 	newPosition += offset;
 	return newPosition;
-	#else
+#else
 	return QPointF(0, 0);
-	#endif
+#endif
 }
 
 bool AMSampleCameraView::isValid(int index) const
@@ -1307,7 +1276,6 @@ bool AMSampleCameraView::loadSamplePlate(int databaseId)
 		return false;
 	}
 
-	qDebug() << "Sample plate notes: " << samplePlate->notes();
 	QStringList positionsInNote = samplePlate->notes().split(';');
 	for(int x = 0; x < samplePositioner->count(); x++){
 		if(!samplePositioner->at(x)->withinTolerance(positionsInNote.at(x).toDouble())){
@@ -1570,20 +1538,12 @@ void AMSampleCameraView::shapeDrawingFinished()
 		{
 			textItems_[currentIndex()]->setSelectAll(true);
 			textItems_[currentIndex()]->setFocus();
-			/*
-   qDebug() << "Set focus, what is the selectedText()? " << textItems_[currentIndex()]->textCursor().selectedText();
-   QTextCursor selectText = textItems_[currentIndex()]->textCursor();
-   selectText.select(QTextCursor::Document);
-   textItems_[currentIndex()]->setTextCursor(selectText);
-   qDebug() << "Tried setting selected, what is the selectedText()? " << textItems_[currentIndex()]->textCursor().selectedText();
-   */
 		}
 	}
 }
 
 void AMSampleCameraView::initializeSampleShape()
 {
-	qDebug()<<"Initializing sample Shape!";
 	bool ok;
 	ok = true;
 	bool goodConversion = true;
@@ -1601,7 +1561,7 @@ void AMSampleCameraView::initializeSampleShape()
 	QVector3D simpleSamplePlateHeight = QVector3D(vectorValues[6],vectorValues[7],vectorValues[8]);
 	shapeModel_->setSimpleSamplePlate(simpleSamplePlateBase, simpleSamplePlateWidth, simpleSamplePlateHeight);
 	refreshSceneView();
-//	samplePlateWizard_->updateScene(shapeScene_);
+	//	samplePlateWizard_->updateScene(shapeScene_);
 	wizardManager_->sampleWizardUpdate();
 }
 
@@ -1609,7 +1569,7 @@ void AMSampleCameraView::shiftSampleShape(QPointF shift)
 {
 	shapeModel_->moveSamplePlate(shift);
 	refreshSceneView();
-//	samplePlateWizard_->updateScene(shapeScene_);
+	//	samplePlateWizard_->updateScene(shapeScene_);
 	wizardManager_->sampleWizardUpdate();
 }
 
@@ -1647,11 +1607,6 @@ void AMSampleCameraView::requestLoadSamplePlate()
 	bool success = loadSamplePlate();
 	if(success)
 		emit samplePlateWizardFinished(false);
-//	else
-//	{
-//		qDebug()<<"Loading default sample plate";
-//		shapeModel_->loadDefaultSamplePlate();
-//	}
 }
 
 void AMSampleCameraView::requestLoadRotationConfiguration()
@@ -1786,33 +1741,33 @@ void AMSampleCameraView::createIntersectionShapes(QVector<QPolygonF> shapes)
 	/*
 <<<<<<< HEAD
 */
-    intersections_.clear();
-    QPen pen(colour(SAMPLEPLATEINTERSECTION));
-    QBrush brush(colour(SAMPLEPLATEINTERSECTION));
-    QPolygonF polygon(QRectF(5,5,20,20));
-    if(!shapes.isEmpty())
-    {
-	if(!showBeamOutline_)
+	intersections_.clear();
+	QPen pen(colour(SAMPLEPLATEINTERSECTION));
+	QBrush brush(colour(SAMPLEPLATEINTERSECTION));
+	QPolygonF polygon(QRectF(5,5,20,20));
+	if(!shapes.isEmpty())
 	{
-		pen.setColor(colour(HIDEINTERSECTION));
-		brush.setColor(colour(HIDEINTERSECTION));
+		if(!showBeamOutline_)
+		{
+			pen.setColor(colour(HIDEINTERSECTION));
+			brush.setColor(colour(HIDEINTERSECTION));
+		}
+		intersections_<<shapeScene_->scene()->addPolygon(polygon, pen, brush);
+		intersections_[0]->setPolygon(shapes.last());
+		shapes.remove(shapes.indexOf(shapes.last()));
+		if(showBeamOutline_)
+		{
+			pen.setColor(colour(INTERSECTION));
+			brush.setColor(colour(INTERSECTION));
+		}
+		for(int i = 1; !shapes.isEmpty(); i++)
+		{
+			intersections_<<shapeScene_->scene()->addPolygon(polygon,pen,brush);
+			intersections_[i]->setPolygon(shapes.first());
+			shapes.remove(0);
+		}
 	}
-	intersections_<<shapeScene_->scene()->addPolygon(polygon, pen, brush);
-	intersections_[0]->setPolygon(shapes.last());
-	shapes.remove(shapes.indexOf(shapes.last()));
-	if(showBeamOutline_)
-	{
-		pen.setColor(colour(INTERSECTION));
-		brush.setColor(colour(INTERSECTION));
-	}
-	for(int i = 1; !shapes.isEmpty(); i++)
-	{
-		intersections_<<shapeScene_->scene()->addPolygon(polygon,pen,brush);
-		intersections_[i]->setPolygon(shapes.first());
-		shapes.remove(0);
-	}
-    }
-    /*
+	/*
 =======
 	intersections_.clear();
 	for(int i =0; !shapes.isEmpty(); i++)
@@ -2090,9 +2045,9 @@ void AMSampleCameraView::deleteShape()
 void AMSampleCameraView::currentSelectionChanged()
 {
 	if(isValid(current_))
-        {
+	{
 		shapes_[current_]->setPen(colour(BORDER));
-        }
+	}
 	current_ = shapeModel_->currentIndex();
 	if(motorREdit_)
 		motorREdit_->setText(QString::number(motorRotation()));
@@ -2296,21 +2251,16 @@ void AMSampleCameraView::setGUI(ViewType viewType)
 	labels[0] = "Base    ";
 	labels[1] = "Width ";
 	labels[2] = "Height";
-	qDebug() << "\n\n\n";
 	for(int i = 0; i < numberOfVectors; i++)
 	{
 		simpleSamplePlateHorizontalLayouts[i] = new QHBoxLayout();
 		simpleSamplePlateHorizontalLayouts[i]->addWidget(new QLabel(labels[i]));
 		for(int j = 0; j < dimensions; j++)
-		{
 			simpleSamplePlateHorizontalLayouts[i]->addWidget(simpleSamplePlateLineEdit_[dimensions*i+j]= new QLineEdit("0.0"));
-			qDebug() << "Instantiating lineEdit " << dimensions*i+j;
-		}
 		simpleSamplePlateHorizontalFrame[i] = new QFrame();
 		simpleSamplePlateHorizontalFrame[i]->setLayout(simpleSamplePlateHorizontalLayouts[i]);
 		simpleSamplePlateVerticalLayout->addWidget(simpleSamplePlateHorizontalFrame[i]);
 	}
-	qDebug() << "\n\n\n";
 	simpleSamplePlateConfiguration_->setLayout(simpleSamplePlateVerticalLayout);
 	/// set default width to 20 and height to -20
 	simpleSamplePlateLineEdit_[3]->setText(QString("%1").arg(18.5));
@@ -2594,7 +2544,7 @@ void AMSampleCameraView::makeConnections(ViewType viewType)
 
 	//mouse press -
 	connect(this, SIGNAL(mousePressed(QPointF)), shapeModel_, SLOT(startRectangle(QPointF)));
-//	connect(this, SIGNAL(mouseRightClicked(QPointF)), shapeModel_, SLOT(deleteRectangle(QPointF)));
+	//	connect(this, SIGNAL(mouseRightClicked(QPointF)), shapeModel_, SLOT(deleteRectangle(QPointF)));
 	connect(this, SIGNAL(mouseMovePressed(QPointF)), shapeModel_, SLOT(selectCurrentShape(QPointF)));
 	connect(this, SIGNAL(mouseMoveRightPressed(QPointF)), shapeModel_, SLOT(selectCurrentShape(QPointF)));
 	connect(this, SIGNAL(mouseMoveRightPressed(QPointF)), shapeModel_, SLOT(setZoomPoint(QPointF)));
@@ -2807,10 +2757,10 @@ void AMSampleCameraView::drawSamplePlate()
 
 		if(!(samplePlate_ && samplePlate_->polygon() == samplePlate))
 		{
-                    if(!samplePlate_)
-                    {
-                        qDebug()<<"AMSampleCameraView::drawSamplePlate - samplePlate_ is null";
-                    }
+			if(!samplePlate_)
+			{
+				qDebug()<<"AMSampleCameraView::drawSamplePlate - samplePlate_ is null";
+			}
 			shapeScene_->scene()->removeItem(samplePlate_);
 			samplePlate_ = shapeScene_->scene()->addPolygon(samplePlate, pen, brush);
 		}

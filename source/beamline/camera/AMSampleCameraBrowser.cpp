@@ -39,10 +39,8 @@ AMSampleCameraBrowser::AMSampleCameraBrowser(QObject *parent) :
 	for(int x = 0; x < allURLIds.count(); x++){
 		newURLObject = AMDbObjectSupport::s()->createAndLoadObjectAt(AMDatabase::database("user"), AMDbObjectSupport::s()->tableNameForClass<AMSampleCameraURL>(), allURLIds.at(x));
 		newURL = qobject_cast<AMSampleCameraURL*>(newURLObject);
-		if(newURL){
+		if(newURL)
 			urls_.append(newURL);
-			qDebug() << "Loading up url " << newURL->urlString();
-		}
 	}
 }
 
@@ -69,7 +67,6 @@ void AMSampleCameraBrowser::addURL(const QString &urlString){
 }
 
 void AMSampleCameraBrowser::removeURL(const QString &urlString){
-	qDebug() << "Going to remove url " << urlString;
 	AMSampleCameraURL *removeURL = 0;
 	for(int x = 0; x < urls_.count(); x++)
 		if(urls_.at(x)->urlString() == urlString)

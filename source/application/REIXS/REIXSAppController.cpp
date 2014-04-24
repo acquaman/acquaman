@@ -134,7 +134,6 @@ bool REIXSAppController::startupCreateUserInterface() {
 
 	REIXSXASScanConfiguration *xasScanConfiguration = new REIXSXASScanConfiguration();
 	xasScanConfiguration->xasRegions()->setEnergyControl(REIXSBeamline::bl()->photonSource()->directEnergy());
-	qDebug() << "Default control: " << xasScanConfiguration->regions()->defaultControl()->name() << xasScanConfiguration->xasRegions()->defaultControl()->name();
 	REIXSXASScanConfigurationView* xasConfigView = new REIXSXASScanConfigurationView(xasScanConfiguration);
 	scanConfigurationHolder = new AMScanConfigurationViewHolder3(xasConfigView);
 	mw_->addPane(scanConfigurationHolder, "Experiment Setup", "Absorption Scan", ":/utilities-system-monitor.png");

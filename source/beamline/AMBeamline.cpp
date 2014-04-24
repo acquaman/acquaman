@@ -105,12 +105,6 @@ void AMBeamline::setCurrentSamples(QList<AMSample*> sample){
 	if(!sameSampleList){
 		currentSamples_ = sample;
 		emit currentSampleChanged(currentSamples_);
-
-		if(currentSamples_.count() == 0)
-			qDebug() << "AMBeamline knows it has no current sample";
-		else
-			for(int x = 0, size = currentSamples_.count(); x < size; x++)
-				qDebug() << "AMBeamline knows it has a new current sample named " << currentSamples_.at(x)->name();
 	}
 }
 

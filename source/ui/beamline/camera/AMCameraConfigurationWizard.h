@@ -5,7 +5,6 @@
 #include <QList>
 #include "AMGraphicsViewWizard.h"
 
-
 class QLabel;
 class QCheckBox;
 class QTimer;
@@ -13,6 +12,8 @@ class AMSampleCameraGraphicsView;
 class QGraphicsItem;
 class QPointF;
 class QVector3D;
+
+#define AMCAMERACONFIGURATIONWIZARD_CANNOT_REACH_CORRECT_PAGE 598001
 
 /** The AMCameraConfigurationWizard is the wizard for configuring the camera
 *   The user is presented with an image and asked to check if it is already configured.

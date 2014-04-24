@@ -774,7 +774,13 @@ void REIXSXESImageAB::setCorrelationSmoothing(int type)
 	setModified(true);
 }
 
+REIXSFunctionFitter::REIXSFunctionFitter()
+{
+}
 
+REIXSFunctionFitter::~REIXSFunctionFitter()
+{
+}
 
 REIXSQuadraticFitter::REIXSQuadraticFitter()
 {

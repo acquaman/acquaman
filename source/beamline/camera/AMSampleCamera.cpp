@@ -537,10 +537,7 @@ void AMSampleCamera::setOtherDataOne(const QString &data, int index)
 void AMSampleCamera::setOtherDataTwo(QString data, int index)
 {
 	if(isValid(index))
-	{
-		qDebug()<<"AMSampleCamera::setOtherDataTwo - setting data to"<<data;
 		shapeList_[index]->setOtherDataFieldTwo(data);
-	}
 }
 
 /// sets the id number of the specifed index
@@ -631,9 +628,6 @@ void AMSampleCamera::onSamplePlateLoaded(AMSamplePlate* plate)
 	QVector3D currentPosition = motorCoordinate();
 	QVector3D shiftAmount = currentPosition - platePosition;
 	oldRotation_->setDegrees(plate->plateRotation());
-        qDebug()<<"AMSampleCamera::onSamplePlateLoaded - old position"<<platePosition;
-        qDebug()<<"AMSampleCamera::onSamplePlateLoaded - cur position"<<currentPosition;
-		qDebug()<<"AMSampleCamera::onSamplePlateLoaded"<<oldRotation_->radians();
 	AMAngle rotation (motorRotation()->degrees(), AMAngle::DEG);
 	foreach(AMShapeData* shape, shapeList_)
 	{
@@ -699,13 +693,13 @@ bool AMSampleCamera::isBackwards() const
 void AMSampleCamera::findCamera(QPointF points [], QVector3D coordinates[])
 {
 
-    /// center the image
+	/// center the image
 	QPointF point[SAMPLEPOINTS];
 	for(int i = 0; i < SAMPLEPOINTS; i++)
 	{
 		point[i].setX((points[i].x()-0.5));
 		point[i].setY((points[i].y()-0.5));
-//		point[i] = undistortPoint(point[i]);
+		//		point[i] = undistortPoint(point[i]);
 	}
 	/// auto draw shapes at the points, for convenience
 	/// these should appear at "points" if the calibration was successful
@@ -801,12 +795,13 @@ bool AMSampleCamera::findIntersections()
 	return true;
 }
 
+/// deletes the specifed shape
 void AMSampleCamera::deleteShape(int index)
 {
 	if(isValid(index))
 	{
-                AMShapeData* shape = takeItem(index);
-                shape->deleteLater();
+		AMShapeData* shape = takeItem(index);
+		shape->deleteLater();
 	}
 }
 
@@ -868,7 +863,7 @@ QVector<QVector3D> AMSampleCamera::lineOfBestFit(const QList<QVector3D> &points)
 	}
 
 
-// solution is first column of V matrix - solution for maximum singular value of m
+	// solution is first column of V matrix - solution for maximum singular value of m
 	MatrixXd solution = computeSVDHomogenous(mMatrix);
 
 
@@ -1081,7 +1076,6 @@ void AMSampleCamera::selectCurrentShape(QPointF position)
 /// moves the currently selected rectangle by position + currentVector_
 void AMSampleCamera::moveCurrentShape(QPointF position, int index)
 {
-	/// \todo store oldPosition as a vector?
 	position = undistortPoint(position);
 	if(index == -1) index = currentIndex_;
 	if(index <= index_ && isValid(index))
@@ -1093,7 +1087,6 @@ void AMSampleCamera::moveCurrentShape(QPointF position, int index)
 		{
 			/// don't need to offset as just calculating the shift
 			newPosition = getPointOnShape(samplePlateShape_,position);
-//			oldPosition = getPointOnShape(samplePlateShape_,currentVector_);
 			oldPosition = oldVector_;
 			shift = newPosition - oldPosition;
 			oldVector_ = newPosition;
@@ -1181,7 +1174,6 @@ void AMSampleCamera::zoomShape(QPointF position)
 }
 
 void AMSampleCamera::moveToSampleRequested(AMShapeData *shapeData){
-	qDebug() << "AMSampleCamera::moveToSampleRequested - Heard a request in AMSampleCamera to move to a particular shapeData named " << shapeData->name();
 	if(!moveToBeam())
 		return;
 
@@ -1248,7 +1240,6 @@ void AMSampleCamera::shiftToPoint(QPointF position, QPointF crosshairPosition)
 	QVector3D newPosition = camera_->transform2Dto3D(crosshairPosition, depth(oldCoordinate));
 	if(moveToBeam())
 		newPosition = beamIntersectionPoint(currentPosition);
-	//		newPosition = currentPosition;
 	QVector3D shift = newPosition - currentPosition;
 
 	qDebug() << "CurrentPosition: " << currentPosition;
@@ -1334,7 +1325,7 @@ void AMSampleCamera::finishShape()
 		currentPolygon_[i] = undistortPoint(currentPolygon_.at(i));
 		if(drawOnShapeValid())
 		{
-			 coordinates<<getPointOnShape(currentPolygon_.at(i),getNormal(drawOnShape_), useSampleOffset());
+			coordinates<<getPointOnShape(currentPolygon_.at(i),getNormal(drawOnShape_), useSampleOffset());
 		}
 		else
 		{
@@ -1446,33 +1437,33 @@ void AMSampleCamera::placeGrid(const QPointF &position)
 /// selects the first point for beam configuration
 void AMSampleCamera::oneSelect()
 {
-    if(isValid(currentIndex_))
-    {
-        QVector<QVector3D> newBeamPosition = rotateShape(shapeList_[currentIndex_]);
-        beamModel_->setPositionOne(newBeamPosition);
-        emit beamChanged(beamModel_);
-    }
-    else
-    {
-        qDebug()<<"Invalid index, cannot add beam shape";
-    }
+	if(isValid(currentIndex_))
+	{
+		QVector<QVector3D> newBeamPosition = rotateShape(shapeList_[currentIndex_]);
+		beamModel_->setPositionOne(newBeamPosition);
+		emit beamChanged(beamModel_);
+	}
+	else
+	{
+		qDebug()<<"Invalid index, cannot add beam shape";
+	}
 
 }
 
 /// selects the second point for beam configuration
 void AMSampleCamera::twoSelect()
 {
-    if(isValid(currentIndex_))
-    {
-        QVector<QVector3D> newBeamPosition = rotateShape(shapeList_[currentIndex_]);
-        beamModel_->setPositionTwo(newBeamPosition);
+	if(isValid(currentIndex_))
+	{
+		QVector<QVector3D> newBeamPosition = rotateShape(shapeList_[currentIndex_]);
+		beamModel_->setPositionTwo(newBeamPosition);
 
-        emit beamChanged(beamModel_);
-    }
-    else
-    {
-        qDebug()<<"Invalid index, cannot add beam shape";
-    }
+		emit beamChanged(beamModel_);
+	}
+	else
+	{
+		qDebug()<<"Invalid index, cannot add beam shape";
+	}
 
 }
 
@@ -1508,7 +1499,7 @@ void AMSampleCamera::deleteCalibrationPoints()
 {
 	/// delete the calibration squares
 	int index;
-        AMShapeData *shapeToDelete;
+	AMShapeData *shapeToDelete;
 	for(int i = 0; i < SAMPLEPOINTS; i++)
 	{
 		if(index_ >= 0)
@@ -1518,15 +1509,15 @@ void AMSampleCamera::deleteCalibrationPoints()
 				index = shapeList_.indexOf(calibrationPoints_[i]);
 				if(isValid(index))
 				{
-                                    shapeToDelete = takeItem(index);
-                                    shapeToDelete->deleteLater();
+					shapeToDelete = takeItem(index);
+					shapeToDelete->deleteLater();
 				}
-                                // if the calibration point is not in the list, make
-                                // sure it is still deleted.
-                                else
-                                {
-                                    calibrationPoints_[i]->deleteLater();
-                                }
+				// if the calibration point is not in the list, make
+				// sure it is still deleted.
+				else
+				{
+					calibrationPoints_[i]->deleteLater();
+				}
 				calibrationPoints_[i] = 0;
 			}
 		}
@@ -1566,11 +1557,11 @@ void AMSampleCamera::setBeamMarker(QPointF position, int index)
 {
 
 	int removalIndex = shapeList_.indexOf(beamMarkers_[index]);
-        AMShapeData* shapeToDelete;
-        if(isValid(removalIndex))
+	AMShapeData* shapeToDelete;
+	if(isValid(removalIndex))
 	{
-                shapeToDelete = takeItem(removalIndex);
-                shapeToDelete->deleteLater();
+		shapeToDelete = takeItem(removalIndex);
+		shapeToDelete->deleteLater();
 	}
 
 	startRectangle(position);
@@ -1625,7 +1616,6 @@ void AMSampleCamera::beamCalibrate()
 			AMShapeData* polygon = takeItem(index);
 			if(polygon == beamMarkers_[i])
 			{
-
 				if(plate != NULL)
 				{
 					plate->removeSample(plate->sampleFromShape(beamMarkers_[i]));
@@ -1636,8 +1626,6 @@ void AMSampleCamera::beamCalibrate()
 					beamMarkers_[i] = 0;
 					polygon = 0;
 				}
-
-
 			}
 			else
 			{
@@ -1651,35 +1639,27 @@ void AMSampleCamera::beamCalibrate()
 
 void AMSampleCamera::createBeamShape(int index)
 {
-	qDebug()<<"Start AMSampleCamera::createBeamShape";
 	int removalIndex = shapeList_.indexOf(beamMarkers_[index]);
 	AMShapeData* shapeToDelete;
-	qDebug()<<"Removing AMSampleCamera::createBeamShape";
 	if(isValid(removalIndex))
 	{
 		shapeToDelete = takeItem(removalIndex);
 		shapeToDelete->deleteLater();
 	}
-	qDebug()<<"Done Removing AMSampleCamera::createBeamShape";
 	startRectangle(QPointF(0.5,0.5));
-	qDebug()<<"Done StartRect AMSampleCamera::createBeamShape";
 	beamMarkers_[index] = shapeList_[index_];
 	beamMarkers_[index]->setName(QString("Beam Shape %1").arg(index + 1));
-	qDebug()<<"Done init beammark AMSampleCamera::createBeamShape";
 	QVector3D topRight = getWidthNormal(beamMarkers_[index]);
 	QVector3D base = beamMarkers_[index]->coordinate(TOPLEFT);
 	QVector3D bottomLeft = -0.1*getHeightNormal(beamMarkers_[index]);
-	qDebug()<<"Done setting vectors AMSampleCamera::createBeamShape";
 	beamMarkers_[index]->setCoordinate((base+topRight),TOPRIGHT);
 	beamMarkers_[index]->setCoordinate((base+bottomLeft),BOTTOMLEFT);
 	beamMarkers_[index]->setCoordinate(base+bottomLeft+topRight, BOTTOMRIGHT);
-	qDebug()<<"Done setting shape AMSampleCamera::createBeamShape";
 	for(int i = 0; i < 3; i++)
 	{
 		if(beamMarkers_[i] && i != index)
 			beamMarkers_[i]->setVisible(false);
 	}
-	qDebug()<<"Done AMSampleCamera::createBeamShape";
 }
 
 void AMSampleCamera::moveBeamShape(QPointF point, int index)
@@ -1712,7 +1692,7 @@ void AMSampleCamera::setSamplePlate()
 		// Make sure to delete the old shape if there is one.
 		if(samplePlateShape_)
 		{
-		    delete(samplePlateShape_);
+			delete(samplePlateShape_);
 		}
 		// remove from the list of samples.
 		samplePlateShape_ = new AMShapeData();
@@ -1725,12 +1705,10 @@ void AMSampleCamera::setSamplePlate()
 		currentShape->deleteLater();
 		if(currentSample)
 		{
-		    currentPlate->removeSample(currentSample);
+			currentPlate->removeSample(currentSample);
 		}
 
 		samplePlateShape_->setName("Sample Plate");
-		qDebug()<<"AMSampleCamera::setSamplePlate - getting name";
-		qDebug()<<"AMSampleCamera::setSamplePlate - sample plate name is "<<samplePlateShape_->name();
 		samplePlateShape_->setOtherDataFieldOne("Sample Plate");
 		samplePlateSelected_ = true;
 		setDrawOnSamplePlate();
@@ -1745,14 +1723,14 @@ void AMSampleCamera::setSamplePlate()
 
 void AMSampleCamera::setSamplePlate(AMShapeData *samplePlate)
 {
-//	insertItem(samplePlate);
-    samplePlateShape_ = samplePlate;
-    if(samplePlateShape_->name() != "Sample Plate")
-    {
-        samplePlateShape_->setName("Sample Plate");
-    }
-    samplePlateShape_->setOtherDataFieldOne("Sample Plate");
-    samplePlateSelected_ = true;
+	//	insertItem(samplePlate);
+	samplePlateShape_ = samplePlate;
+	if(samplePlateShape_->name() != "Sample Plate")
+	{
+		samplePlateShape_->setName("Sample Plate");
+	}
+	samplePlateShape_->setOtherDataFieldOne("Sample Plate");
+	samplePlateSelected_ = true;
 	setDrawOnSamplePlate();
 }
 
@@ -1762,17 +1740,16 @@ void AMSampleCamera::setSimpleSamplePlate(QVector3D base, QVector3D width, QVect
 
 	QVector<QVector3D> simpleSamplePlateShape;
 	simpleSamplePlateShape <<base
-							<<base + width
-							<<base + width + height
-							<<base + height
-							<<base;
+			      <<base + width
+			     <<base + width + height
+			    <<base + height
+			   <<base;
 	/// set the sample shape data
 	AMShapeData *simpleSamplePlate = new AMShapeData();
 	simpleSamplePlate->setCoordinateShape(simpleSamplePlateShape);
 	/// have to zero the old rotation so that the new shape may be properly rotated.
 	oldRotation_->setDegrees(0);
 	simpleSamplePlate->setCoordinateShape(applyMotorRotation(simpleSamplePlate,motorRotation()->radians()));
-	qDebug()<<"Motor rotation is "<<motorRotation()->degrees();
 	updateShape(simpleSamplePlate);
 	/// set the shape data as a sample plate
 	setSamplePlate(simpleSamplePlate);
@@ -1784,31 +1761,31 @@ void AMSampleCamera::setSimpleSamplePlate(QVector3D base, QVector3D width, QVect
 /// SamplePlate Wizard.
 void AMSampleCamera::createSamplePlate(QVector<QVector3D> coordinates, QVector<QPointF> points, QVector<double> rotations, int numberOfPoints)
 {
-    const int NUMBER_OF_COORDINATES = numberOfPoints;
-    const int MINIMUM_NUMBER_OF_POINTS = NUMBER_OF_COORDINATES*3; // minimal shape is a triangle, 3 points for each coordinate.
+	const int NUMBER_OF_COORDINATES = numberOfPoints;
+	const int MINIMUM_NUMBER_OF_POINTS = NUMBER_OF_COORDINATES*3; // minimal shape is a triangle, 3 points for each coordinate.
 
 	/// check that the expected number of coordinates matches the number of coordinates given
 	if(coordinates.count() != NUMBER_OF_COORDINATES)
-    {
-        qDebug()<<"AMSampleCamera::createSamplePlate - unexpected number of coordinates";
-        qDebug()<<"have "<<coordinates.count()<<" expected "<<NUMBER_OF_COORDINATES;
-    }
+	{
+		qDebug()<<"AMSampleCamera::createSamplePlate - unexpected number of coordinates";
+		qDebug()<<"have "<<coordinates.count()<<" expected "<<NUMBER_OF_COORDINATES;
+	}
 	/// check that the minimum number of points have been provided. If less than the
 	/// minimum number are provided, either some points were missed, or the
 	/// sample plate boundary was not properly defined (ex only two points per position)
 	if(points.count() < MINIMUM_NUMBER_OF_POINTS)
-    {
-        qDebug()<<"AMSampleCamera::createSamplePlate - unexpected number of points";
-        qDebug()<<"have "<<points.count()<<" expected at least "<<MINIMUM_NUMBER_OF_POINTS;
-    }
-        /// for n number of coordinates we need to do n(n-1)/2 iterations
-        /// to get n-1 results to average
-        /// need to do this for each vertex of the plate
-        // points should be in n-pairs for each vertex in that order
-        //points[vertexIndex][coordinateIndex]
-        int numberOfVertices = points.count()/NUMBER_OF_COORDINATES;
+	{
+		qDebug()<<"AMSampleCamera::createSamplePlate - unexpected number of points";
+		qDebug()<<"have "<<points.count()<<" expected at least "<<MINIMUM_NUMBER_OF_POINTS;
+	}
+	/// for n number of coordinates we need to do n(n-1)/2 iterations
+	/// to get n-1 results to average
+	/// need to do this for each vertex of the plate
+	// points should be in n-pairs for each vertex in that order
+	//points[vertexIndex][coordinateIndex]
+	int numberOfVertices = points.count()/NUMBER_OF_COORDINATES;
 	QPointF *pointList = new QPointF [numberOfVertices*NUMBER_OF_COORDINATES];
-//	QVector<QVector3D> *plateCoordinates = new QVector<QVector3D> [numberOfVertices*NUMBER_OF_COORDINATES];
+	//	QVector<QVector3D> *plateCoordinates = new QVector<QVector3D> [numberOfVertices*NUMBER_OF_COORDINATES];
 	/// fill pointList with the values from "points".
 	for(int i = 0; i < numberOfVertices; i++)
 	{
@@ -1851,11 +1828,11 @@ void AMSampleCamera::createSamplePlate(QVector<QVector3D> coordinates, QVector<Q
 	samplePlateShape->setOtherDataFieldOne("Sample Plate");
 	setSamplePlate(samplePlateShape);
 
-	qDebug()<<"Sample plate at:";
-	foreach(QVector3D sampleCoord, samplePlateShape_->coordinates())
-	{
-		qDebug()<<sampleCoord;
-	}
+//	qdebug()<<"Sample plate at:";
+//	foreach(QVector3D sampleCoord, samplePlateShape_->coordinates())
+//	{
+//		qdebug()<<sampleCoord;
+//	}
 
 	samplePlateShape_->setVisible(true);
 
@@ -1905,7 +1882,6 @@ void AMSampleCamera::setCameraConfigurationShape()
 void AMSampleCamera::configureRotation(const QVector<QVector3D> coordinates, const QVector<QPointF> points, const QVector<AMAngle *> rotations, const int numberOfPoints)
 {
 	typedef QPair<QVector3D,QVector3D> VectorPair;
-	qDebug()<<"AMSampleCamera::configureRotation";
 	/// solve the following equations:
 	/// CoRn + ln - tnVn = Bn
 	/// CoR = centre of rotation
@@ -1952,7 +1928,6 @@ void AMSampleCamera::configureRotation(const QVector<QVector3D> coordinates, con
 		return;
 	}
 
-
 	// need to find v1, B1, v2, B2 ...
 	// Bn is some point along the line clicked on, vn is a unit vector in the direction of that line
 	QVector<VectorPair> lines;
@@ -1990,11 +1965,10 @@ void AMSampleCamera::configureRotation(const QVector<QVector3D> coordinates, con
 	qDebug()<<"Computed RHS";
 	debugPrintMatrix(matrix*solution);
 
-
 	/// This requires that your are clicking on the point coordinates.at(0)
 	QVector3D centreOfRotationOffset = matrixToVector(solution);
 	QVector3D centreOfRotation = coordinates.at(0) - centreOfRotationOffset;
-	qDebug()<<centreOfRotationOffset;
+
 	setRotationalOffset(centreOfRotation - coordinates.at(0));
 	updateView();
 
@@ -2050,7 +2024,6 @@ void AMSampleCamera::addBeamMarker(int index)
 		qDebug()<<"Beam marker is null";
 		deleteShape(shapeList_.indexOf(beamMarkers_[index]));
 	}
-	qDebug()<<"creating new shape";
 	AMShapeData* newBeamShape = new AMShapeData();
 
 	if(samplePlateSelected_)
@@ -2114,7 +2087,7 @@ void AMSampleCamera::addSample(AMSample *sample){
 	int shapeIndex = indexOfShape(sample->sampleShapePositionData());
 	if(shapeIndex == -1){
 		sample->sampleShapePositionData()->setName(sample->name());
-        insertItem(sample->sampleShapePositionData());
+		insertItem(sample->sampleShapePositionData());
 	}
 }
 
@@ -2123,17 +2096,17 @@ void AMSampleCamera::addSample(AMSample *sample){
 /// the AMSample. Used for cleaning up the camera on sample plate change.
 void AMSampleCamera::removeSample(AMSample *sample){
 	int shapeIndex = indexOfShape(sample->sampleShapePositionData());
-        AMShapeData* shapeRetrieved;
+	AMShapeData* shapeRetrieved;
 	if(shapeIndex >= 0)
-        {
-               bool blockState = blockSignals(true);
-               shapeRetrieved = takeItem(shapeIndex);
-               blockSignals(blockState);
-               if(shapeRetrieved != sample->sampleShapePositionData())
-               {
-                   qDebug()<<"AMSampleCamera::removeSample failed";
-               }
-        }
+	{
+		bool blockState = blockSignals(true);
+		shapeRetrieved = takeItem(shapeIndex);
+		blockSignals(blockState);
+		if(shapeRetrieved != sample->sampleShapePositionData())
+		{
+			qDebug()<<"AMSampleCamera::removeSample failed";
+		}
+	}
 }
 
 void AMSampleCamera::removeShapeData(AMShapeData *shape)
@@ -2176,7 +2149,7 @@ void AMSampleCamera::loadDefaultCamera()
 	AMCameraConfiguration* defaultConfiguration = new AMCameraConfiguration();
 	QVector<QVector3D> cameraMatrix;
 	cameraMatrix<<QVector3D(0.0194118,-0.000294812,-0.00117781)<<QVector3D(0.00245398,0.00826314,0.000605619)
-			   <<QVector3D(0.000514431,-0.0221707,3.75237e-05)<<QVector3D(-0.185726,-0.243429,0.951474);
+		   <<QVector3D(0.000514431,-0.0221707,3.75237e-05)<<QVector3D(-0.185726,-0.243429,0.951474);
 	defaultConfiguration->setCameraMatrix(cameraMatrix);
 	defaultConfiguration->setName("Default Camera Configuration");
 	defaultConfiguration->setCameraDistortion(-0.09);
@@ -2194,11 +2167,8 @@ void AMSampleCamera::loadDefaultSamplePlate()
 {
 	AMShapeData* samplePlate = new AMShapeData();
 	QVector<QVector3D> samplePlateShape;
-        samplePlateShape<<QVector3D(0,2,0)<<QVector3D(20,2,0)<<QVector3D(20,2,-20)<<QVector3D(0,2,-20)<<QVector3D(0,2,0);
+	samplePlateShape<<QVector3D(0,2,0)<<QVector3D(20,2,0)<<QVector3D(20,2,-20)<<QVector3D(0,2,-20)<<QVector3D(0,2,0);
 	samplePlate->setCoordinateShape(samplePlateShape);
-        qDebug()<<"AMSampleCamera::loadDefaultSamplePlate - Sample Plate original position is"<<samplePlate->centerCoordinate();
-//        samplePlate->shift(motorCoordinate_);
-        qDebug()<<"AMSampleCamera::loadDefaultSamplePlate - Sample Plate position is"<<samplePlate->centerCoordinate();
 	setSamplePlate(samplePlate);
 	saveSamplePlate();
 }
@@ -2241,7 +2211,7 @@ void AMSampleCamera::motorTracking(double)
 
 	emit motorMoved();
 
-//	setMotorCoordinate(motorX,motorY,motorZ,motorRotation);
+	//	setMotorCoordinate(motorX,motorY,motorZ,motorRotation);
 	motorUpdateDeferredFunction_.schedule();
 
 
@@ -2386,30 +2356,9 @@ AMSampleCamera::AMSampleCamera(QObject *parent) :
 	ssaManipulatorZ_ = 0; //NULL
 	ssaManipulatorRot_ = 0; //NULL
 
-//	ssaManipulatorX_ = new CLSMAXvMotor("ssaManipulatorX", "SMTR16114I1022", "SSA Inboard/Outboard", true, 0.2, 2.0, this);
-//	ssaManipulatorX_->setContextKnownDescription("X");
-
-//	ssaManipulatorY_ = new CLSMAXvMotor("ssaManipulatorY", "SMTR16114I1023", "SSA Upstream/Downstream", true, 0.2, 2.0, this);
-//	ssaManipulatorY_->setContextKnownDescription("Y");
-
-//	ssaManipulatorZ_ = new CLSMAXvMotor("ssaManipulatorZ", "SMTR16114I1024", "SSA Up/Down", true, 0.2, 2.0, this);
-//	ssaManipulatorZ_->setContextKnownDescription("Z");
-
-//	ssaManipulatorRot_ = new CLSMAXvMotor("ssaManipulatorRot", "SMTR16114I1025", "SSA Rotation", false, 0.2, 2.0, this);
-//	ssaManipulatorRot_->setContextKnownDescription("R");
-
 	motorRotation_ = new AMAngle();
-	//motorRotation_->setDegrees(ssaManipulatorRot_->value());
-
 	connect(&motorUpdateDeferredFunction_, SIGNAL(executed()), this, SLOT(setMotorCoordinate()));//(double,double,double,double)));
-
-
 	connect(camera_, SIGNAL(configurationChanged(AMCameraConfiguration*)),this, SIGNAL(cameraConfigurationChanged(AMCameraConfiguration*)));
-
-//	connect(ssaManipulatorX_, SIGNAL(moveSucceeded()), this, SLOT(motorsFinishedMoving()));
-//	connect(ssaManipulatorY_, SIGNAL(moveSucceeded()), this, SLOT(motorsFinishedMoving()));
-//	connect(ssaManipulatorZ_, SIGNAL(moveSucceeded()), this, SLOT(motorsFinishedMoving()));
-//	connect(ssaManipulatorRot_, SIGNAL(moveSucceeded()), this, SLOT(motorsFinishedMoving()));
 }
 
 double AMSampleCamera::manipulatorX()
@@ -2596,7 +2545,7 @@ QVector3D AMSampleCamera::rotateCoordinateByMatrix(QVector3D coordinate, QVector
 {
 	MatrixXd rotationMatrix = constructRotationMatrix(direction,rotation.radians());
 	/// subtract the centre of rotation to the coordinate to shift the frame
-		// the rotation matrix is centred at 0, so must shift
+	// the rotation matrix is centred at 0, so must shift
 	MatrixXd originalPosition = vectorToMatrix(coordinate - center);
 	MatrixXd newPosition = rotationMatrix * originalPosition;
 	/// add center back to shift back to 0-centered coordinates
@@ -2607,10 +2556,10 @@ QVector3D AMSampleCamera::rotateCoordinateByMatrix(QVector3D coordinate, QVector
 /// applies rotation, tilt, and distortion to the shape
 QPolygonF AMSampleCamera::subShape(const AMShapeData* shape) const
 {
-    if(!(shape))
-    {
-        qDebug()<<"AMSampleCamera::subShape - shape is null";
-    }
+	if(!(shape))
+	{
+		qDebug()<<"AMSampleCamera::subShape - shape is null";
+	}
 	AMShapeData* rotatedShape = new AMShapeData();
 	rotatedShape->copy(shape);
 
@@ -2626,11 +2575,6 @@ QPolygonF AMSampleCamera::subShape(const AMShapeData* shape) const
 	{
 		rotatedShape = applySpecifiedRotation(rotatedShape,YAXIS);
 	}
-
-//	if(motorRotation() != 0)
-//	{
-//		rotatedShape = applyMotorRotation(rotatedShape,(motorRotation()/180*M_PI));
-//	}
 
 	QPolygonF newShape;
 	for(int i = 0; i < rotatedShape->count(); i++)
@@ -2677,20 +2621,13 @@ QPointF AMSampleCamera::undistortPoint(QPointF point) const
 /// moves all the shapes based on change in motor movement
 void AMSampleCamera::motorMovement(double x, double y, double z, double r)
 {
-
-//	QVector3D centerPlatePlane = samplePlateShape_->centerCoordinate();
-//	rotationalOffset += centerPlatePlane;
-//	qDebug()<<"AMSampleCamera::motorMovement"<<x<<y<<z<<r;
-        QVector3D newPosition(x,y,z);
+	QVector3D newPosition(x,y,z);
 	QVector3D shift = newPosition - motorCoordinate_;
 
-	qDebug()<<"AMSampleCamera::motorMovement centre of rotation is"<<centerOfRotation_;
+//	qdebug()<<"AMSampleCamera::motorMovement centre of rotation is"<<centerOfRotation_;
 
 	// This seems to work a lot better, switching the sign of the y-component when we change from +r to -r
 	QVector3D effectiveRotationalOffset = rotationalOffset();
-//	if(r < 0)
-//		effectiveRotationalOffset.setY(-1*effectiveRotationalOffset.y());
-	//QVector3D centerOfRotation = newPosition + rotationalOffset();
 
 	QVector3D centerOfRotation = newPosition + effectiveRotationalOffset;
 	QVector3D directionOfRotation = QVector3D(0,0,1);
@@ -2741,7 +2678,7 @@ QPointF AMSampleCamera::coordinateTransform(QPointF coordinate) const
 {
 
 	QRectF activeRect = QRectF(QPointF((viewSize().width()-scaledSize().width())/2,videoTop_),
-//					   (viewSize().height()-scaledSize().height())/2),
+				   //					   (viewSize().height()-scaledSize().height())/2),
 				   scaledSize());
 
 	QPointF fixedCoordinate;
@@ -2821,23 +2758,28 @@ QVector<QVector3D> AMSampleCamera::findIntersectionShape(int index, bool *isFull
 QVector<QVector3D> AMSampleCamera::findIntersectionShape(const AMShapeData* shapeToIntersect, bool boundIntersection, bool *isFullyWithinSample) const
 {
 	/// First find the shape on the same plane
+	// get the actual, rotated shape
 	QVector<QVector3D> rotatedShape = rotateShape(shapeToIntersect);
 	QVector<QVector3D> shape;
 	QVector3D topLeft = rotatedShape.at(TOPLEFT);
+	// get the height and width unit vectors of the shape
 	QVector3D hHat = getHeightNormal(shapeToIntersect);
 	QVector3D wHat = getWidthNormal(shapeToIntersect);
+	// cross the height and width to get the normal unit vector
 	QVector3D nHat = QVector3D::normal(wHat,hHat);
+	// cross the width and normal to get height, in case height and width are not at right angle
 	hHat = QVector3D::normal(nHat,wHat);
 	int count = beamModel_->count();
-	//QVector3D l0[count];
 	QVector<QVector3D> l0;
 	l0.resize(count);
-	//QVector3D lHat[count];
 	QVector<QVector3D> lHat;
 	lHat.resize(count);
 	double distance[count];
 	double numerator;
 	double denominator;
+	/// Find the shape of the beam on the plane of the shape
+	/// Done by projecting each ray until it hits the plane
+	/// then build a shape out of the points
 	for(int i = 0; i < count; i++)
 	{
 		l0[i] = beamModel_->ray(i).at(0);
@@ -2855,7 +2797,6 @@ QVector<QVector3D> AMSampleCamera::findIntersectionShape(const AMShapeData* shap
 		}
 		shape<<l0[i]+lHat[i]*distance[i];
 	}
-//	shape<<shape.first();
 
 	/// need to find if the two shapes have any overlap
 	/// transpose to h,w,n coordinates, and throw away the n part, to get two polygons
@@ -2876,7 +2817,7 @@ QVector<QVector3D> AMSampleCamera::findIntersectionShape(const AMShapeData* shap
 			beamHComponent[i] = dot(hHat,shape[i]);
 			beamWComponent[i] = dot(wHat,shape[i]);
 
-
+			// 2d beam shape
 			beamShape<<QPointF(beamWComponent[i],beamHComponent[i]);
 		}
 
@@ -2884,8 +2825,10 @@ QVector<QVector3D> AMSampleCamera::findIntersectionShape(const AMShapeData* shap
 		{
 			shapeHComponent[i] = dot(hHat,rotatedShape.at(i));
 			shapeWComponent[i] = dot(wHat,rotatedShape.at(i));
+			// need to save the n component for returning to 3d
 			shapeNComponent[i] = dot(nHat,rotatedShape.at(i));
 
+			// 2d sample shape
 			originalShape<<QPointF(shapeWComponent[i],shapeHComponent[i]);
 		}
 	}
@@ -2893,6 +2836,7 @@ QVector<QVector3D> AMSampleCamera::findIntersectionShape(const AMShapeData* shap
 	QPolygonF intersection;
 	if(boundIntersection)
 	{
+		// take only the part that lies on the shape
 		intersection = originalShape.intersected(beamShape);
 		if(beamShape == intersection && isFullyWithinSample)
 		{
@@ -2913,9 +2857,12 @@ QVector<QVector3D> AMSampleCamera::findIntersectionShape(const AMShapeData* shap
 	QPointF oldPoint;
 	QVector<QVector3D> intersectionShape;
 
+	/// create the 3D shape by placing back on the plane
 	for(int i = 0; i < intersection.count(); i++)
 	{
 		oldPoint = intersection.at(i);
+		/// the 3D position is x*wHat + y*hHat + n*nHat
+		// n is constant for all points, since it is on a plane
 		point = oldPoint.x()*wHat + oldPoint.y()*hHat + shapeNComponent[i%shapeCount]*nHat;
 		intersectionShape<<point;
 	}
@@ -2923,6 +2870,7 @@ QVector<QVector3D> AMSampleCamera::findIntersectionShape(const AMShapeData* shap
 	return intersectionShape;
 }
 
+/// returns true if beam is cut off by all shapes; returns false if beam is fully within one shape
 bool AMSampleCamera::isBeamCutOff()
 {
 	return beamCutOff_;
@@ -2941,6 +2889,7 @@ QPolygonF AMSampleCamera::intersectionScreenShape(QVector<QVector3D> shape3D) co
 
 	QPolygonF shape;
 	shape = subShape(newShape);
+	/// \todo delete newShape
 
 	shape = screenShape(shape);
 
@@ -2990,11 +2939,13 @@ QVector3D AMSampleCamera::getNormal(const AMShapeData* shape) const
 	return getNormal(getHeightNormal(shape),getWidthNormal(shape));
 }
 
+/// finds the point on the shape that is being drawn on (probably the sample plate)
 QVector3D AMSampleCamera::getPointOnShape(const QPointF &position, const QVector3D &nHat, bool useOffset) const
 {
 	return getPointOnShape(drawOnShape_, position, nHat, useOffset);
 }
 
+/// finds the point on a specified shape
 QVector3D AMSampleCamera::getPointOnShape(const AMShapeData *shape, const QPointF &position, const QVector3D &nHat, bool useOffset) const
 {
 	/// figure out line
@@ -3051,6 +3002,7 @@ QVector3D AMSampleCamera::rightVector() const
 	return rightVector;
 }
 
+/// Inserts an AMShapeData into the model and connects the necessary signals
 void AMSampleCamera::insertItem(AMShapeData *item)
 {
 	index_++;
@@ -3066,15 +3018,6 @@ void AMSampleCamera::insertItem(AMShapeData *item)
 	emit shapesChanged();
 }
 
-//void AMSampleCamera::removeItem(int index)
-//{
-//	index_--;
-//	beginRemoveRows(QModelIndex(),index,index);
-//	shapeList_.removeAt(index);
-//	endRemoveRows();
-//	emit shapesChanged();
-//}
-
 AMShapeData *AMSampleCamera::takeItem(int index)
 {
 	index_--;
@@ -3085,6 +3028,8 @@ AMShapeData *AMSampleCamera::takeItem(int index)
 	return oldShape;
 }
 
+/// finds the point to move the plate to intersect the beam with the given point.
+/// find corner determines whether to match beam corner to point (true) or beam centre to point(false)
 QVector3D AMSampleCamera::beamIntersectionPoint(QVector3D samplePoint, bool findCorner)
 {
 	// first find the plane that the clicked point lies on
@@ -3099,7 +3044,8 @@ QVector3D AMSampleCamera::beamIntersectionPoint(QVector3D samplePoint, bool find
 	QVector3D topLeftBeamIntersectionPoint;
 	for(int i = 0; i < beamConfiguration()->count()-1; i++)
 	{
-		// equation for line:	x = x0 + at
+		// equation for line:
+		//			x = x0 + at
 		//			y = y0 + bt
 		//			z = z0 + ct
 		// find abc for xyz
@@ -3145,8 +3091,9 @@ QVector3D AMSampleCamera::beamIntersectionPoint(QVector3D samplePoint, bool find
 
 
 	}
-//	insertItem(newShape);
+	//	insertItem(newShape);
 	// what is newShape for?
+	/// \todo get rid of newShape?
 	newShape->setName(QString("Shape %1").arg(index_));
 	updateShape(newShape);
 	// find the center of the point
@@ -3168,7 +3115,6 @@ bool AMSampleCamera::moveMotors(double x, double y, double z)
 /// moves the x, y, z, and rotation motors
 bool AMSampleCamera::moveMotors(double x, double y, double z, double rotation)
 {
-	qDebug()<<"AMSampleCamera::moveMotors"<<x<<y<<z<<rotation;
 	bool success = false;
 	if(motorMovementEnabled())
 	{
@@ -3214,9 +3160,9 @@ bool AMSampleCamera::moveMotors(double x, double y, double z, double rotation)
 /// "numberOfPoints" is the number of points used for calibration
 QVector<QVector3D> AMSampleCamera::findSamplePlateCoordinate(const QVector<QVector3D> coordinates, const QVector<QPointF> points, const QVector<double> rotations, const int numberOfPoints) const
 {
-		/// This function finds the coordinate of a sample plate point as it moves through each coordinate in "coordinates"
-		/// This is done using SVD decomposition to perform a least squares solution
-		/// to the matrix defined below.
+	/// This function finds the coordinate of a sample plate point as it moves through each coordinate in "coordinates"
+	/// This is done using SVD decomposition to perform a least squares solution
+	/// to the matrix defined below.
 
 	// first get rid of the lens distortion on the test points.
 	QVector<QPointF> adjustedPoints;
@@ -3337,16 +3283,16 @@ QVector<QVector3D> AMSampleCamera::findSamplePlateCoordinate(const QVector<QVect
 
 	MatrixXd coeffMatrix = constructSampleCoefficientMatrix(vectors,lnx,lny,lnz, numberOfPoints);
 
-	QString row = "";
-	for(int i = 0; i < coeffMatrix.rows(); i++)
-	{
-		for(int j = 0; j < coeffMatrix.cols(); j++)
-		{
-			row.append(QString("%1 ").arg(coeffMatrix(i,j)));
-		}
-		qDebug()<<row;
-		row = "";
-	}
+//	QString row = "";
+//	for(int i = 0; i < coeffMatrix.rows(); i++)
+//	{
+//		for(int j = 0; j < coeffMatrix.cols(); j++)
+//		{
+//			row.append(QString("%1 ").arg(coeffMatrix(i,j)));
+//		}
+//		qdebug()<<row;
+//		row = "";
+//	}
 
 	MatrixXd solutionMatrix (6*numberOfPoints,1);
 	for(int i = 0; i < solutionMatrix.rows(); i++)
@@ -3379,50 +3325,43 @@ QVector<QVector3D> AMSampleCamera::findSamplePlateCoordinate(const QVector<QVect
 		}
 	}
 
-	row = "";
-	for(int i = 0; i < solutionMatrix.rows(); i++)
-	{
-		for(int j = 0; j < solutionMatrix.cols(); j++)
-		{
-			row.append(QString("%1 ").arg(solutionMatrix(i,j)));
-		}
-		qDebug()<<row;
-		row = "";
-	}
+//	row = "";
+//	for(int i = 0; i < solutionMatrix.rows(); i++)
+//	{
+//		for(int j = 0; j < solutionMatrix.cols(); j++)
+//		{
+//			row.append(QString("%1 ").arg(solutionMatrix(i,j)));
+//		}
+//		qdebug()<<row;
+//		row = "";
+//	}
 
 	MatrixXd parameters = computeSVDLeastSquares(coeffMatrix,solutionMatrix);
 
 
-		// debugging output //////////////////////////////////////////////////////
-		MatrixXd sampleSolution = coeffMatrix*parameters;
-		qDebug()<<"Solution is - should be ";
-		for(int i = 0; i < sampleSolution.rows(); i++)
-			qDebug()<<sampleSolution(i)<<" ---" <<solutionMatrix(i)<< "Error ="<<100*(solutionMatrix(i)-sampleSolution(i))/solutionMatrix(i);
-//		qDebug()<<"Solution should be";
-//		for(int i = 0; i < solutionMatrix.rows(); i++)
-//			qDebug()<<solutionMatrix(i);
+	// debugging output //////////////////////////////////////////////////////
+	//		MatrixXd sampleSolution = coeffMatrix*parameters;
+	//		qdebug()<<"Solution is - should be ";
+	//		for(int i = 0; i < sampleSolution.rows(); i++)
+	//			qdebug()<<sampleSolution(i)<<" ---" <<solutionMatrix(i)<< "Error ="<<100*(solutionMatrix(i)-sampleSolution(i))/solutionMatrix(i);
 
 
 
-		qDebug()<<"x matrix";
-		for(int i = 0; i < parameters.rows(); i++)
-		{
-			qDebug()<<parameters(i);
-		}
+	//		qdebug()<<"x matrix";
+	//		for(int i = 0; i < parameters.rows(); i++)
+	//		{
+	//			qdebug()<<parameters(i);
+	//		}
 
+	QVector<QVector3D> solutions;
+	for(int i = 0; i < numberOfPoints; i++)
+	{
+		solutions<<QVector3D(parameters(3*i),parameters(3*i+1),parameters(3*i+2));
+	}
 
+	/// The last element of solutions should be the coordinate corresponding to the current motor coordinates
 
-
-
-		QVector<QVector3D> solutions;
-		for(int i = 0; i < numberOfPoints; i++)
-		{
-			solutions<<QVector3D(parameters(3*i),parameters(3*i+1),parameters(3*i+2));
-		}
-
-		/// The last element of solutions should be the coordinate corresponding to the current motor coordinates
-
-		return solutions;
+	return solutions;
 
 
 
@@ -3509,7 +3448,7 @@ Eigen::MatrixXd AMSampleCamera::constructSampleCoefficientMatrix(const QVector<Q
 		}
 	}
 
-	qDebug()<<"first rotation is "<<rotationX.at(0).x();
+	//	qdebug()<<"first rotation is "<<rotationX.at(0).x();
 
 	return coefficientMatrix;
 }
@@ -3551,6 +3490,7 @@ QVector3D AMSampleCamera::findRotationMatrixZRow(QVector3D rotationVector, doubl
 	return rotationParameter;
 }
 
+/// constructs a 3x3 general rotation matrix
 MatrixXd AMSampleCamera::constructRotationMatrix(QVector3D rotationVector, double angleOfRotation) const
 {
 	MatrixXd rotationMatrix (3,3);
@@ -3559,8 +3499,8 @@ MatrixXd AMSampleCamera::constructRotationMatrix(QVector3D rotationVector, doubl
 	QVector3D rotationMatrixZ = findRotationMatrixZRow(rotationVector,angleOfRotation);
 
 	rotationMatrix<<	rotationMatrixX.x(),rotationMatrixX.y(), rotationMatrixX.z(),
-						rotationMatrixY.x(),rotationMatrixY.y(), rotationMatrixY.z(),
-						rotationMatrixZ.x(),rotationMatrixZ.y(), rotationMatrixZ.z();
+			rotationMatrixY.x(),rotationMatrixY.y(), rotationMatrixY.z(),
+			rotationMatrixZ.x(),rotationMatrixZ.y(), rotationMatrixZ.z();
 	return rotationMatrix;
 }
 
@@ -3578,14 +3518,10 @@ QPair<QVector3D, QVector3D> AMSampleCamera::findScreenVector(QPointF point, QVec
 
 }
 
+/// construct the matrix used for determining the centre of rotation
 MatrixXd AMSampleCamera::constructCentreOfRotationMatrix(const QVector<AMAngle *> &rotations, const QVector<QVector3D> &vectors, const int &numberOfPoints)
 {
 	const int dimensions = 3;
-
-
-	qDebug()<<"AMSampleCamera::constructCentreOfRotationMatrix";
-
-
 	QVector3D rotationVector = directionOfRotation_;
 
 	QVector<QVector<QVector3D> > rotationRows;
@@ -3600,7 +3536,6 @@ MatrixXd AMSampleCamera::constructCentreOfRotationMatrix(const QVector<AMAngle *
 
 	int rows = dimensions * numberOfPoints;
 	int cols = dimensions + numberOfPoints;
-//	int cols = 2*dimensions + numberOfPoints;
 
 	MatrixXd matrix = MatrixXd::Zero(rows,cols);
 
@@ -3653,120 +3588,17 @@ MatrixXd AMSampleCamera::constructCentreOfRotationMatrix(const QVector<AMAngle *
 			}
 		}
 	}
-/// trying a new way here, not working yet...
-//	int subRow;
-//	int subCol;
-//	int elementRow;
-//	int elementCol;
-//	for(int i = 0; i < rows; i++)
-//	{
-//		for(int j = 0; j < cols; j++)
-//		{
-//			subRow = i%3;
-//			subCol = j%3;
-//			elementRow = i/3;
-//			elementCol = j/3;
 
-//			if(elementCol == 0)
-//			{
-//				if(subRow == subCol)
-//				{
-//					matrix(i,j) = 1;
-//				}
-
-//			}
-//			else if(elementCol == 1)
-//			{
-//				int offsetVal = 0;
-//				if(subRow == subCol)
-//				{
-//					offsetVal = 0;
-//				}
-
-//				QVector3D rotationSection = rotationRows.at(elementRow).at(subRow);
-//				switch(subCol)
-//				{
-//				case 0:
-//					matrix(i,j) = rotationSection.x() - offsetVal;
-//					break;
-//				case 1:
-//					matrix(i,j) = rotationSection.y() - offsetVal;
-//					break;
-//				case 2:
-//					matrix(i,j) = rotationSection.z() - offsetVal;
-//					break;
-//				}
-//			}
-//			else
-//			{
-//				if((j - 6) == elementRow)
-//				{
-//					qDebug()<<"Vector "<<elementRow<<vectors.at(elementRow);
-//					qDebug()<<"subRow"<<subRow;
-//					switch(subRow)
-//					{
-//					case 0:
-//						matrix(i,j) = vectors.at(elementRow).x();
-//						break;
-//					case 1:
-//						matrix(i,j) = vectors.at(elementRow).y();
-//						break;
-//					case 2:
-//						matrix(i,j) = vectors.at(elementRow).z();
-//						break;
-//					}
-//				}
-//			}
-//		}
-//	}
 	return matrix;
-
-
 }
 
+/// construct the solution matrix for the centre of rotation (right hand side)
 MatrixXd AMSampleCamera::constructCentreOfRotationCoordinateMatrix(const QVector<QVector3D> &coordinates, QVector<QVector3D> bases, const int &numberOfPoints)
 {
 	const int dimensions = 3;
-//	int rows = dimensions*(numberOfPoints+1); // need additional 3 points for implied point
-//	int rows = dimensions * numberOfPoints;
 	int rows = dimensions * numberOfPoints;
 	int cols = 1; // row matrix, it is the solution
 	MatrixXd matrix(rows,cols);
-
-	qDebug()<<"AMSampleCamera::constructCentreOfRotationCoordinateMatrix";
-
-//	/// j should just be 0
-//	for(int j = 0; j < matrix.cols(); j++)
-//	{
-//		for(int i = 0; i < matrix.rows(); i++)
-//		{
-//			QVector3D element;
-//			int index = i/dimensions - 1; // need to subtract one because of implied point
-////			int index = i / dimensions;
-//			if(i < dimensions)
-//			{
-//				element = originalCoordinate;
-//			}
-//			else
-//			{
-//				element = bases.at(index);
-//			}
-////			element = bases.at(index);
-//			switch(i%dimensions)
-//			{
-//			case 0:
-//				matrix(i,j) = element.x();
-//				break;
-//			case 1:
-//				matrix(i,j) = element.y();
-//				break;
-//			case 2:
-//				matrix(i,j) = element.z();
-//				break;
-
-//			}
-//		}
-//	}
 
 	for(int j = 0; j < matrix.cols(); j++)
 	{
@@ -3791,6 +3623,7 @@ MatrixXd AMSampleCamera::constructCentreOfRotationCoordinateMatrix(const QVector
 	return matrix;
 }
 
+/// Solve the centre of rotation matrix
 MatrixXd AMSampleCamera::solveCentreOfRotationMatrix(MatrixXd coeffMatrix, MatrixXd coordinateMatrix)
 {
 	if(coeffMatrix.rows() != coordinateMatrix.rows())
@@ -3816,13 +3649,16 @@ MatrixXd AMSampleCamera::computeSVDHomogenous(MatrixXd leftHandSide) const
 	return camera_->computeSVDHomogenous(leftHandSide);
 }
 
+/// converts a vector to a matrix.  Matrix is a column vector by default, but
+/// a row vector may be passed in instead
 MatrixXd AMSampleCamera::vectorToMatrix(QVector3D vector, MatrixXd matrix) const
 {
-//	MatrixXd vectorMatrix (3,1);
 	matrix<< vector.x(),vector.y(),vector.z();
 	return matrix;
 }
 
+/// copies the first three elements of a matrix into a vector
+/// there must be at least 3 rows or 3 columns in the matrix
 QVector3D AMSampleCamera::matrixToVector(MatrixXd matrix) const
 {
 	// need at least three rows or columns
@@ -3833,6 +3669,8 @@ QVector3D AMSampleCamera::matrixToVector(MatrixXd matrix) const
 	return QVector3D(matrix(0), matrix(1), matrix(2));
 }
 
+/// prints out a matrix for debuggging.
+/// not always consistent about negatives
 void AMSampleCamera::debugPrintMatrix(const Eigen::MatrixXd matrix) const
 {
 	QString row = "";
@@ -3848,11 +3686,13 @@ void AMSampleCamera::debugPrintMatrix(const Eigen::MatrixXd matrix) const
 
 }
 
+/// set if the beam is not fully within a sample
 void AMSampleCamera::setBeamCutOff(bool beamCutOff)
 {
 	beamCutOff_ = beamCutOff;
 }
 
+/// determines if any samples overlap
 bool AMSampleCamera::samplesOverlap()
 {
 	for(int i = 0; i < shapeList().length(); i++)
@@ -3868,19 +3708,15 @@ bool AMSampleCamera::samplesOverlap()
 	return false;
 }
 
+/// causes samples and sample plate to block the beam as it goes
 void AMSampleCamera::blockBeam()
 {
 
-	/// a work in progress.
-	/// still need to figure out how to find the intersection
-	/// of the 3D shapes and
-	/// figure out the union of the 3D shapes.
 	if(intersectionShapes_.isEmpty())
 	{
 		return;
 	}
 
-	qDebug()<<"Here in AMSampleCamera::blockBeam";
 	QVector3D beamDirection = beamModel_->ray(0).at(1) - beamModel_->ray(0).at(0);
 	beamDirection.normalize();
 	int count = intersectionShapes_.count();
@@ -3915,13 +3751,13 @@ void AMSampleCamera::blockBeam()
 		//[ v ]   [ za-zb z1-z0 z2-z0 ]   [ za-z0 ]
 		// Xa = la
 		// Xb = lb
-		// X0, X1, X2 are points on the plane (ie.points on the current intersection shape
+		// X0, X1, X2 are points on the plane (ie.points on the current intersection shape)
 		// each column represents a particular vector:
 		// a-b = -1*beamDirection
 		// 1-0 = currentIntersection[1] - currentIntersection[0]
 		// 2-0 same as above, but 2
 		// a - 0, same but current used beam point - point 0
-		qDebug()<<"AMSampleCamera::blockBeam - computing projection";
+		//		qdebug()<<"AMSampleCamera::blockBeam - computing projection";
 		for(int j = 0; j < usedBeam.count(); j++)
 		{
 			double t;
@@ -3932,9 +3768,10 @@ void AMSampleCamera::blockBeam()
 
 			MatrixXd matrixOne (3,3);
 			MatrixXd matrixTwo (3,1);
+
 			matrixOne<< ab.x(), x1x0.x(), x2x0.x(),
-				    ab.y(), x1x0.y(), x2x0.y(),
-				    ab.z(), x1x0.z(), x2x0.z();
+					ab.y(), x1x0.y(), x2x0.y(),
+					ab.z(), x1x0.z(), x2x0.z();
 
 			matrixTwo<<ax0.x(),
 				   ax0.y(),
@@ -3983,11 +3820,11 @@ void AMSampleCamera::blockBeam()
 		/// find the xHat, yHat components of each point, map it to xy in 2D, then get the new shapes,
 		/// map xy to xHat,yHat, keep the nHat component what it was (should be the same for all points)
 
-		/// continue on with this.
 		QVector<QVector3D> alternateProjectedCoordinates;
 		QPolygonF alternateProjectedShape;
 		QVector<QVector3D> alternateIntersectionCoordinates;
 		QPolygonF alternateIntersectionShape;
+		/// get each point in terms of the new orthogonal components
 		for(int pcount = 0; pcount < projectedUsedBeam.count(); pcount++)
 		{
 			QVector3D point = projectedUsedBeam.at(pcount);
@@ -4009,11 +3846,13 @@ void AMSampleCamera::blockBeam()
 			alternatePoint = matrixToVector(realCoordinate*planeMatrix);
 			alternateIntersectionCoordinates<<alternatePoint;
 			alternateIntersectionShape<<alternatePoint.toPointF();
-
 		}
-
+		/// find the total blocked beam
 		QPolygonF newUsedBeam = alternateProjectedShape.united(alternateIntersectionShape);
 		qDebug()<<"New total beam"<<newUsedBeam;
+		/// find the part of the beam that has not been blocked
+		/// \todo determine why subtracted sometimes fails
+		// this sometimes produces a zero shape when it should not
 		QPolygonF newIntersectionShape = alternateIntersectionShape.subtracted(alternateProjectedShape);
 		qDebug()<<"Old intersectionShape"<<alternateIntersectionShape;
 		qDebug()<<"Beam Shape"<<alternateProjectedShape;
@@ -4028,6 +3867,41 @@ void AMSampleCamera::blockBeam()
 
 		for(int pcount = 0; pcount < newUsedBeam.count(); pcount++)
 		{
+//<<<<<<< HEAD
+//			QVector3D pointOne = projectedUsedBeam.at(m);
+//			QVector3D pointTwo = projectedUsedBeam.at(m+1);
+//			for(int k = 0; k < currentIntersection.count() - 1; k++)
+//			{
+//				QVector3D currentPointOne = currentIntersection.at(k);
+//				QVector3D currentPointTwo = currentIntersection.at(k+1);
+
+//				/// find the intersection of the two lines, bounded by the points
+//				QVector3D intersectionPoint;
+//				/// intersection point is the point where P1+a*(P2-P1) = cP1 +b*(cP2-cP1)
+//				///  a and b are both <= 1;
+//				/// a = (cP1 -P1)x(cP2-cP1)/((P2-P1)x(cP2-cP1))
+//				QVector3D C = currentPointTwo - currentPointOne;
+//				QVector3D P = pointOne - pointTwo;
+//				QVector3D offset = currentPointOne - pointOne;
+//				if(C == QVector3D(0,0,0) || P == QVector3D(0,0,0) || offset == QVector3D(0,0,0))
+//				{
+//					/// can't continue, either intersect at corner or have a zero length line
+//					continue;
+//				}
+//				QVector3D PcrossC = QVector3D::crossProduct(P,C);
+////				QVector3D offsetcrossC = QVector3D::crossProduct(offset,C);
+//				if(PcrossC == QVector3D(0,0,0))
+//				{
+//					// can't find this point
+//					continue;
+//				}
+////				double a1 = offsetcrossC.x()/PcrossC.x();
+////				double a2 = offsetcrossC.y()/PcrossC.y();
+////				double a3 = offsetcrossC.z()/PcrossC.z();
+////				qdebug()<<"Edge"<<m<<"Compared with edge"<<k;
+////				qdebug()<<"Results are "<<a1<<a2<<a3;
+//			}
+//=======
 			alternateProjectedCoordinates<<QVector3D(newUsedBeam.at(pcount).x(),newUsedBeam.at(pcount).y(),zComponent);
 			MatrixXd coordinate (1,3);
 			coordinate = vectorToMatrix(alternateProjectedCoordinates.at(pcount),coordinate);
@@ -4047,6 +3921,7 @@ void AMSampleCamera::blockBeam()
 			qDebug()<<"coordinate";
 			debugPrintMatrix(coordinate);
 			newIntersectionCoords<<matrixToVector(coordinate*planeMatrix.transpose());
+//>>>>>>> Issue496ToMergeWithSGMRelease
 		}
 
 
@@ -4079,6 +3954,7 @@ void AMSampleCamera::blockBeam()
 
 }
 
+/// determines if two vectors are equal to the specified precision
 bool AMSampleCamera::equalVectors(QVector3D a, QVector3D b, double precision) const
 {
 	double maxError = 0;
@@ -4094,26 +3970,36 @@ bool AMSampleCamera::equalVectors(QVector3D a, QVector3D b, double precision) co
 
 	for(int i = 0; i < 3; i++)
 	{
+//		if(aV[i] == 0 && bV[i] == 0)
+//		{
+//			maxError = maxError;
+//		}
+//		else if(bV[i] == 0)
+//		{
+//			newError = aV[i]<0?-1*aV[i]:aV[i];
+//			maxError = newError>maxError?newError:maxError;
+//		}
+//		else if(aV[i] == 0)
+//		{
+//			newError = bV[i]<0?-1*bV[i]:bV[i];
+//			maxError = newError>maxError?newError:maxError;
+//		}
+//		else
+//		{
+//			newError = 1-aV[i]/bV[i];
+//			newError = newError<0?-1*newError:newError;
+//			maxError = newError>maxError?newError:maxError;
+//		}
 		if(aV[i] == 0 && bV[i] == 0)
-		{
-			maxError = maxError;
-		}
+			newError = maxError;
 		else if(bV[i] == 0)
-		{
-			newError = aV[i]<0?-1*aV[i]:aV[i];
-			maxError = newError>maxError?newError:maxError;
-		}
+			newError = fabs(aV[i]);
 		else if(aV[i] == 0)
-		{
-			newError = bV[i]<0?-1*bV[i]:bV[i];
-			maxError = newError>maxError?newError:maxError;
-		}
+			newError = fabs(bV[i]);
 		else
-		{
-			newError = 1-aV[i]/bV[i];
-			newError = newError<0?-1*newError:newError;
-			maxError = newError>maxError?newError:maxError;
-		}
+			newError = fabs(1-aV[i]/bV[i]);
+		if(newError > maxError)
+			maxError = newError;
 	}
 	return maxError<precision;
 }

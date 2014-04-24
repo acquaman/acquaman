@@ -1,5 +1,5 @@
-#ifndef AMSAMPLEETHANVIEW_H
-#define AMSAMPLEETHANVIEW_H
+#ifndef AMSAMPLEVIEW_H
+#define AMSAMPLEVIEW_H
 
 #include <QWidget>
 
@@ -17,6 +17,8 @@ class AMSample;
 class AMElementListEdit;
 class AMPeriodicTableDialog;
 class AMShapeDataView;
+
+#define AMSAMPLEVIEW_SAVE_FAILED 604001
 
 class AMSampleReadOnlyView : public QWidget{
 public:
@@ -150,4 +152,4 @@ protected:
 	AMShapeDataView* shapeDataView_;
 };
 
-#endif // AMSAMPLEETHANVIEW_H
+#endif // AMSAMPLEVIEW_H

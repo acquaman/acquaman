@@ -13,6 +13,10 @@
 class AMShapeData;
 class AMSamplePlate;
 
+#define AMSAMPLE_EDITCURRENTTAG_TAG_NOT_FOUND 592001
+#define AMSAMPLE_EDITCURRENTTAG_TAG_INDEX_OUT_OF_RANGE 592002
+#define AMSAMPLE_REQUEST_TO_REMOVE_NULL_POSITIION_DATA 592003
+
 /// Represents a sample to be scanned.  Holds the sample plate it is on, the scans
 /// that have been performed on it, as well as an element list, notes, image, dateTime.
 class AMSample : public AMDbObject

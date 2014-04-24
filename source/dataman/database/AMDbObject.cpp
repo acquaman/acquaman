@@ -31,7 +31,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QStringBuilder>
 
 // Default constructor
- AMDbThumbnail::~AMDbThumbnail(){}
 AMDbThumbnail::AMDbThumbnail(const QString& Title, const QString& Subtitle, ThumbnailType Type, const QByteArray& ThumbnailData)
 	: title(Title), subtitle(Subtitle), type(Type), thumbnail(ThumbnailData) {
 }
@@ -58,7 +57,7 @@ AMDbThumbnail::AMDbThumbnail(const QString& Title, const QString& Subtitle, cons
 	}
 }
 
-
+AMDbThumbnail::~AMDbThumbnail(){}
 
 QString AMDbThumbnail::typeString() const {
 	switch(type) {
@@ -72,7 +71,6 @@ QString AMDbThumbnail::typeString() const {
 	}
 }
 
- AMDbObject::~AMDbObject(){}
 AMDbObject::AMDbObject(QObject *parent) : QObject(parent) {
 	isReloading_ = false;
 	isStoring_ = false;
@@ -92,6 +90,8 @@ AMDbObject::AMDbObject(const AMDbObject &original) : QObject() {
 	modified_ = original.modified_;
 	name_ = original.name_;
 }
+
+AMDbObject::~AMDbObject(){}
 
 AMDbObject& AMDbObject::operator=(const AMDbObject& other) {
 	if(this != &other) {
@@ -258,10 +258,10 @@ bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 				bool constStore = (AMDbObjectSupport::dbPropertyAttribute(metaObject(), columnName, "constStore") == QString("true"));
 				// Handle situations where the object to be stored is already stored in another database (use redirection)
 				if(obj->database() && (obj->database() != db) ){
-					qDebug() << "obj->modified() is " << obj->modified() << " and obj->id() is " << obj->id() << " for " << obj->name() << obj->dbObjectInfo()->className;
+
 					if( (!obj->modified() && (obj->id() >= 1)) ||  constStore){
-						if(obj->modified() && constStore)
-							qDebug() << "Found a case where constStore is necessary because the object is modified";
+//						if(obj->modified() && constStore)
+//							qdebug() << "Found a case where constStore is necessary because the object is modified";
 
 						values << QString("%1%2%3%4%5%6").arg("|$^$|").arg(obj->database()->connectionName()).arg("|$^$|").arg(obj->dbTableName()).arg(AMDbObjectSupport::listSeparator()).arg(obj->id());
 					}
@@ -274,8 +274,8 @@ bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 				}
 
 				else if( (!obj->modified() && obj->database()==db && obj->id() >=1) || constStore){	// if it's not modified, and already part of this database... don't need to store it. Just remember where it is...
-					if(obj->modified() && constStore)
-						qDebug() << "Found a case where constStore is necessary because the object is modified";
+//					if(obj->modified() && constStore)
+//						qdebug() << "Found a case where constStore is necessary because the object is modified";
 					values << QString("%1%2%3").arg(obj->dbTableName()).arg(AMDbObjectSupport::listSeparator()).arg(obj->id());
 				}
 				else {
@@ -622,27 +622,17 @@ bool AMDbObject::loadFromDb(AMDatabase* db, int sourceId) {
 			}
 			else if(columnType == qMetaTypeId<AMConstDbObject*>()){
 				AMConstDbObject *constObject = 0;
-				AMDbObject* reloadedObject = 0;
 
 				QString columnValue = values.at(ri).toString();
 				QStringList objectLocation = columnValue.split(AMDbObjectSupport::listSeparator());	// location was saved as string: "tableName;id"
 				if(objectLocation.count() == 2) {
 					QString tableName = objectLocation.at(0);
 					int dbId = objectLocation.at(1).toInt();
-
-//					reloadedObject = AMDbObjectSupport::s()->createAndLoadObjectAt(db, tableName, dbId);
-//					if(!reloadedObject){
-//						//NEM
-//						//if(AMErrorMon::lastErrorCode() == AMDBOBJECTSUPPORT_CANNOT_LOAD_OBJECT_NOT_REGISTERED_TYPE)
-//						//loadingErrors_.insert(QString(columnName), new AMDbLoadErrorInfo(databaseToUse->connectionName(), tableName, dbId));
-//					}
-
 					constObject = new AMConstDbObject(db, tableName, dbId);
 				}
 				else
 					constObject = new AMConstDbObject(0);
 
-//				constObject = new AMConstDbObject(reloadedObject);
 				setProperty(columnName, QVariant::fromValue(constObject));
 			}
 			else if(columnType == qMetaTypeId<AMnDIndex>()) {
@@ -678,8 +668,6 @@ bool AMDbObject::loadFromDb(AMDatabase* db, int sourceId) {
 			}
 			else if(columnType == qMetaTypeId<AMQVector3DVector>())
 			{
-				qDebug() << "\n\nHere we have " << values.at(ri).toString();
-				qDebug() << "My name is " << name() << " in table " << dbTableName() << " we're looking at column " << columnName << "ri is " << ri;
 				AMQVector3DVector vector3DList;
 				QStringList stringList = values.at(ri).toString().split(AMDbObjectSupport::vectorSeparator(), QString::SkipEmptyParts);
 				foreach(QString i, stringList){

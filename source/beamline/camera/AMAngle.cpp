@@ -1,7 +1,8 @@
 #include "AMAngle.h"
 
-#include <QDebug>
 #include <math.h>
+
+#include "util/AMErrorMonitor.h"
 
 AMAngle::AMAngle()
 {
@@ -23,20 +24,15 @@ AMAngle::AMAngle(const AMAngle& angle)
 double AMAngle::radians()
 {
 	if(state() == RAD)
-	{
 		return angle();
-	}
-	else
-	{
-		if(state() == DEG)
-		{
+	else{
+		if(state() == DEG){
 			setState(RAD);
 			setAngle(degToRad(angle()));
 			return angle();
 		}
-		else
-		{
-			qDebug()<<"AMAngle::radians - unknown state";
+		else{
+			AMErrorMon::alert(0, AMANGLE_REQUEST_RADIANS_FROM_INVALID_STATE, QString("A call was made to AMAngle::radians() when the AMAngle instance was in an invalid state.") );
 			return -1;
 		}
 	}
@@ -45,20 +41,15 @@ double AMAngle::radians()
 double AMAngle::degrees()
 {
 	if(state() == DEG)
-	{
 		return angle();
-	}
-	else
-	{
-		if(state() == RAD)
-		{
+	else{
+		if(state() == RAD){
 			setState(DEG);
 			setAngle(radToDeg(angle()));
 			return angle();
 		}
-		else
-		{
-			qDebug()<<"AMAngle::degrees - unknown state";
+		else{
+			AMErrorMon::alert(0, AMANGLE_REQUEST_DEGREES_FROM_INVALID_STATE, QString("A call was made to AMAngle::degrees() when the AMAngle instance was in an invalid state.") );
 			return -1;
 		}
 	}
@@ -67,18 +58,12 @@ double AMAngle::degrees()
 double AMAngle::getDegrees() const
 {
 	if(state() == DEG)
-	{
 		return angle();
-	}
-	else
-	{
+	else{
 		if(state() == RAD)
-		{
 			return radToDeg(angle());
-		}
-		else
-		{
-			qDebug()<<"AMAngle::getDegrees - unkown state";
+		else{
+			AMErrorMon::alert(0, AMANGLE_REQUEST_GETDEGREES_FROM_INVALID_STATE, QString("A call was made to AMAngle::getDegrees() when the AMAngle instance was in an invalid state.") );
 			return 0;
 		}
 	}

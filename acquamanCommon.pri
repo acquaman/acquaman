@@ -301,7 +301,7 @@ HEADERS += source/acquaman/AMRegion.h \
 	source/beamline/AMControl.h \
 	source/beamline/AMPVControl.h \
 	source/beamline/AMControlSet.h \
-	source/beamline/AMControlState.h \
+#	source/beamline/AMControlState.h \
 	source/beamline/AMProcessVariable.h \
 	source/beamline/AMProcessVariablePrivate.h \
 	source/beamline/AMPVNames.h \
@@ -538,8 +538,6 @@ HEADERS += source/acquaman/AMRegion.h \
 	source/dataman/datastore/AMCDFDataStore.h \
 	source/util/amlikely.h \
 	source/ui/dataman/AMSimpleDataSourceEditor.h \
-	source/qttelnet/qttelnet.h \
-	source/beamline/CLS/CLSProcServManager.h \
 	source/dataman/REIXS/REIXSXESCalibration2.h \
 	source/ui/beamline/AMExtendedControlEditor.h \
 	source/ui/beamline/AMControlButton.h \
@@ -778,7 +776,7 @@ SOURCES += source/acquaman/AMRegion.cpp \
 	source/beamline/AMControl.cpp \
 	source/beamline/AMPVControl.cpp \
 	source/beamline/AMControlSet.cpp \
-	source/beamline/AMControlState.cpp \
+#	source/beamline/AMControlState.cpp \
 	source/beamline/AMProcessVariable.cpp \
 	source/beamline/AMProcessVariablePrivate.cpp \
 	source/beamline/AMPVNames.cpp \
@@ -992,8 +990,6 @@ SOURCES += source/acquaman/AMRegion.cpp \
 	source/ui/acquaman/AMScanConfigurationViewHolder3.cpp \
 	source/dataman/datastore/AMCDFDataStore.cpp \
 	source/ui/dataman/AMSimpleDataSourceEditor.cpp \
-	source/qttelnet/qttelnet.cpp \
-	source/beamline/CLS/CLSProcServManager.cpp \
 	source/dataman/REIXS/REIXSXESCalibration2.cpp \
 	source/ui/beamline/AMExtendedControlEditor.cpp \
 	source/ui/beamline/AMControlButton.cpp \

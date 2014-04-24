@@ -1,6 +1,7 @@
 #include "dataman/AMSample.h"
 
 #include "util/AMPeriodicTable.h"
+#include "util/AMErrorMonitor.h"
 
 #include "beamline/camera/AMShapeData.h"
 #include "dataman/database/AMConstDbObject.h"
@@ -309,9 +310,7 @@ void AMSample::editCurrentTag(QString tag)
 	QString oldTag = currentTag_;
 	int index = tags_.indexOf(oldTag);
 	if(index == -1)
-	{
-		qDebug()<<"AMSample::editCurrentTag - Cannot edit tag, tag not found.";
-	}
+		AMErrorMon::alert(this, AMSAMPLE_EDITCURRENTTAG_TAG_NOT_FOUND, QString("AMSample cannot find a tag named %1 to edit.").arg(tag) );
 	else if(index >= 0 && index < tags_.size())
 	{
 		tags_.removeAt(index);
@@ -320,9 +319,7 @@ void AMSample::editCurrentTag(QString tag)
 		emit sampleDetailsChanged();
 	}
 	else
-	{
-		qDebug()<<"AMSample::editCurrentTag - index out of range.";
-	}
+		AMErrorMon::alert(this, AMSAMPLE_EDITCURRENTTAG_TAG_INDEX_OUT_OF_RANGE, QString("AMSample found a tag named %1 but the index (%2) was somehow out of range.").arg(tag).arg(index) );
 }
 
 void AMSample::setElementList(const AMIntList& elements)
@@ -373,7 +370,7 @@ void AMSample::toggleElement(const AMElement *element)
 
 void AMSample::setSampleShapePositionData(AMShapeData *sampleShapePositionData)
 {
-	qDebug()<<"AMSample:setSampleShapePositionData";
+//	qdebug()<<"AMSample:setSampleShapePositionData";
 	if(sampleShapePositionData_ != sampleShapePositionData)
 	{
 		if(sampleShapePositionData_)
@@ -401,13 +398,13 @@ void AMSample::setSampleShapePositionData(AMShapeData *sampleShapePositionData)
 		emit currentTagChanged(currentTag_);
 		emit elementsChanged(elementString());
 	}
-	qDebug()<<"AMSample:setSampleShapePositionData - done";
+//	qdebug()<<"AMSample:setSampleShapePositionData - done";
 }
 
 /// deletes the sample shape position data.
 void AMSample::removeSampleShapePositionData()
 {
-	qDebug()<<"AMSample::removeSampleShapePositionData";
+//	qdebug()<<"AMSample::removeSampleShapePositionData";
 	if(sampleShapePositionData_)
 	{
 
@@ -415,14 +412,11 @@ void AMSample::removeSampleShapePositionData()
 		setSampleShapePositionData(0);
 	}
 	else
-	{
-		qDebug()<<"AMSample::removeSampleShapePositionData - sample shape is null.";
-	}
+		AMErrorMon::alert(this, AMSAMPLE_REQUEST_TO_REMOVE_NULL_POSITIION_DATA, QString("AMSample was asked to remove the sample shape position data, but it is currently null.") );
 }
 
 void AMSample::removeSample()
 {
-	qDebug()<<"AMSample::removeSample - calling removeSampleShapePostion Data";
 	removeSampleShapePositionData();
 	emit sampleAboutToBeRemoved();
 }

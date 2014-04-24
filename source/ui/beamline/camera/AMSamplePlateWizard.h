@@ -6,41 +6,41 @@
 class QSlider;
 class QGraphicsRectItem;
 
-
-
-// changing it to determine the exact sample plate position
+#define AMSAMPLEPLATEWIZARD_NEXTID_ERROR_FOR_WAITPAGE 602001
+#define AMSAMPLEPLATEWIZARD_NEXTID_ERROR_FOR_SETPAGE 602002
+#define AMSAMPLEPLATEWIZARD_TRIGGER_RESET_FROM_INVALID_PAGE 602003
 
 class AMSamplePlateWizard : public AMGraphicsViewWizard
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
 	enum
 	{
-                  Page_Intro = 0, // description -> should skip on start
-                  Page_Check = 1,  // check to see if the plate is where it should be
-                  Page_Final = 2,
-                  Page_Option = 3,
-                  Page_Free = 4
-	 };
-    AMSamplePlateWizard(QWidget* parent = 0);
-    virtual ~AMSamplePlateWizard();
+		Page_Intro = 0, // description -> should skip on start
+		Page_Check = 1,  // check to see if the plate is where it should be
+		Page_Final = 2,
+		Page_Option = 3,
+		Page_Free = 4
+	};
+	AMSamplePlateWizard(QWidget* parent = 0);
+	virtual ~AMSamplePlateWizard();
 
 	virtual int nextId() const;
 
 	virtual void waitPage();
 
-    virtual QString message(int type);
+	virtual QString message(int type);
 
-    double currentRotation();
+	double currentRotation();
 
 protected:
 
-    double requestMotorRotation();
+	double requestMotorRotation();
 
 
 
 public slots:
-    void back();
+	void back();
 	virtual void addPoint(QPointF position);
 
 	/// Will add duplicate points unless this is called when leaving the page
@@ -51,8 +51,8 @@ public slots:
 
 
 signals:
-    void movePlate(int);
-    void requestRotation();
+	void movePlate(int);
+	void requestRotation();
 
 protected:
 	double coordinateX(int id);
@@ -86,16 +86,16 @@ public:
 
 class AMSampleWaitPage : public AMWaitPage
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    void initializePage();
+	void initializePage();
 };
 
 class AMSampleSetPage : public AMViewPage
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-//    AMSampleSetPage(QWidget* parent = 0);
+	//    AMSampleSetPage(QWidget* parent = 0);
 	void initializePage();
 
 public slots:
@@ -114,9 +114,9 @@ private:
 
 class AMSampleCheckPage : public AMCheckPage
 {
-    Q_OBJECT
+	Q_OBJECT
 protected slots:
-    virtual void checkBoxChanged(bool state);
+	virtual void checkBoxChanged(bool state);
 };
 
 #endif // AMSAMPLEPLATEWIZARD_H

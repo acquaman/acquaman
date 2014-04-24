@@ -21,6 +21,7 @@
 
 #include "beamline/camera/AMGraphicsVideoSceneCopier.h"
 #include "AMSampleCameraGraphicsView.h"
+#include "util/AMErrorMonitor.h"
 
 AMGraphicsViewWizard::AMGraphicsViewWizard(QWidget* parent)
 	:QWizard(parent)
@@ -52,7 +53,6 @@ AMGraphicsViewWizard::AMGraphicsViewWizard(QWidget* parent)
 
 AMGraphicsViewWizard::~AMGraphicsViewWizard()
 {
-	qDebug()<<"AMGraphicsViewWizard::~AMGraphicsViewWizard";
 	#ifdef AM_MOBILITY_VIDEO_ENABLED
 	QGraphicsVideoItem* videoItem = 0;
 	foreach(QGraphicsItem* item, view_->scene()->items())
@@ -77,7 +77,6 @@ AMGraphicsViewWizard::~AMGraphicsViewWizard()
 		delete videoItem;
 	}
 	#endif
-	qDebug()<<"End AMGraphicsViewWizard::~AMGraphicsViewWizard";
 }
 
 AMSampleCameraGraphicsView *AMGraphicsViewWizard::view() const
@@ -288,7 +287,6 @@ void AMGraphicsViewWizard::setView(AMSampleCameraGraphicsView *view)
 	AMGraphicsVideoSceneCopier* copier = new AMGraphicsVideoSceneCopier();
 	copier->cloneScene(view->scene());
 	view_->setScene(copier->scene());
-	qDebug()<<copier->scene()<<copier->originalScene();
 	view_->scene()->setObjectName("AMGraphicsViewWizard scene 1");
 
 	/// fixItem_ prevents the screen from flashing or going blank
@@ -316,7 +314,6 @@ void AMGraphicsViewWizard::setView(AMSampleCameraGraphicsView *view)
 	/// get the mediaObject
 	foreach(QGraphicsItem* item, view_->scene()->items())
 	{
-		qDebug()<<"item "<<item->type()<<"::"<<QGraphicsItem::UserType;
 		if(item->type() == QGraphicsItem::UserType)
 		{
 			QGraphicsVideoItem* videoItem = qgraphicsitem_cast<QGraphicsVideoItem*>(item);
@@ -402,7 +399,6 @@ void AMGraphicsViewWizard::fixText()
 
 void AMGraphicsViewWizard::testMoveSlot()
 {
-	qDebug()<<"Move signal received by GraphicsViewWizard";
 	emit moveSucceeded();
 }
 
@@ -442,11 +438,8 @@ void AMGraphicsViewWizard::showOptionsButton(int id)
 #ifdef AM_MOBILITY_VIDEO_ENABLED
 void AMGraphicsViewWizard::mediaPlayerStateChanged(QMediaPlayer::MediaStatus state)
 {
-	qDebug()<<"AMGraphicsViewWizard::mediaPlayerStateChanged"<<state;
-	qDebug()<<"Media player error is"<<mediaPlayer_->error();
 	if(state == QMediaPlayer::InvalidMedia)
 	{
-		qDebug()<<"State is InvalidMedia";
 		// attempt to reload
 		QUrl mediaUrl = mediaPlayer_->media().canonicalUrl();
 		mediaPlayer_->stop();
@@ -457,10 +450,8 @@ void AMGraphicsViewWizard::mediaPlayerStateChanged(QMediaPlayer::MediaStatus sta
 
 void AMGraphicsViewWizard::mediaPlayerErrorChanged(QMediaPlayer::Error state)
 {
-	qDebug()<<"AMGraphicsViewWizard::mediaPlayerErrorChanged"<<state;
 	if(state == QMediaPlayer::NetworkError)
 	{
-		qDebug()<<"Error is NetworkError";
 		QUrl mediaUrl = mediaPlayer_->media().canonicalUrl();
 		QGraphicsVideoItem* videoItem;
 		bool success = false;
@@ -479,7 +470,6 @@ void AMGraphicsViewWizard::mediaPlayerErrorChanged(QMediaPlayer::Error state)
 		// attempt to restart player
 		if(success)
 		{
-			qDebug()<<"Deleting and adding new video";
 			delete mediaPlayer_;
 			mediaPlayer_ = new QMediaPlayer();
 			mediaPlayer_->setMedia(mediaUrl);
@@ -564,26 +554,18 @@ int AMGraphicsViewWizard::relativeId(int pageId) const
 int AMGraphicsViewWizard::pageWait(int relativeId) const
 {
 	if(relativeId >= numberOfPages())
-	{
-		qDebug()<<"AMGraphicsViewWizard::pageWait - cannot index page"<<relativeId<<". Max index is "<<numberOfPages()-1;
-	}
+		AMErrorMon::alert(this, AMGRAPHICSVIEWWIZARD_PAGEWAIT_OUT_OF_BOUNDS_MAX, QString("Page %1 is greater than the maximum index of %2").arg(relativeId).arg(numberOfPages()) );
 	else if(relativeId < 0)
-	{
-		qDebug()<<"AMGraphicsViewWizard::pageWait - cannot index page"<<relativeId<<". Min index is 0.";
-	}
+		AMErrorMon::alert(this, AMGRAPHICSVIEWWIZARD_PAGEWAIT_OUT_OF_BOUNDS_MIN, QString("Page %1 is less than the minimum index of 0").arg(relativeId) );
 	return freePage() + relativeId;
 }
 
 int AMGraphicsViewWizard::pageSet(int relativeId) const
 {
 	if(relativeId >= numberOfPages())
-	{
-		qDebug()<<"AMGraphicsViewWizard::pageSet - cannot index page"<<relativeId<<". Max index is "<<numberOfPages()-1;
-	}
+		AMErrorMon::alert(this, AMGRAPHICSVIEWWIZARD_PAGESET_OUT_OF_BOUNDS_MAX, QString("Page %1 is greater than the maximum index of %2").arg(relativeId).arg(numberOfPages()) );
 	else if(relativeId < 0)
-	{
-		qDebug()<<"AMGraphicsViewWizard::pageSet - cannot index page"<<relativeId<<". Min index is 0.";
-	}
+		AMErrorMon::alert(this, AMGRAPHICSVIEWWIZARD_PAGESET_OUT_OF_BOUNDS_MAX, QString("Page %1 is less than the minimum index of 0").arg(relativeId) );
 	return freePage() + numberOfPages() + relativeId;
 }
 
@@ -624,7 +606,6 @@ const QList<double> *AMGraphicsViewWizard::getRotationList() const
 
 void AMGraphicsViewWizard::setMotorMovementEnabled(bool motorMovementEnabled)
 {
-	qDebug()<<"AMGraphicsViewWizard::setMotorMovementEnabled - setting state";
 	motorMovementEnabled_ = motorMovementEnabled;
 }
 
@@ -835,7 +816,7 @@ void AMCheckPage::initializePage()
 
 void AMCheckPage::checkBoxChanged(bool state)
 {
-	qDebug()<<"Check box changed to"<<state;
+	Q_UNUSED(state)
 }
 
 
