@@ -41,6 +41,8 @@
 #include "beamline/camera/AMAngle.h"
 #include "beamline/camera/AMSampleCamera.h"
 #include "beamline/camera/AMCameraConfiguration.h"
+#include "util/AMErrorMonitor.h"
+
 #include "ui/beamline/camera/AMSampleCameraGraphicsView.h"
 #include "ui/beamline/camera/AMShapeDataView.h"
 #include "ui/beamline/camera/AMCameraConfigurationView.h"
@@ -284,7 +286,7 @@ void AMSampleCameraView::refreshSceneView()
 
 		}
 		else
-			qDebug()<<"Missing shape"<<i;
+			AMErrorMon::alert(this, AMSAMPLECAMERAVIEW_REFRESHSCENEVIEW_MISSING_SHAPE, QString("Detected a missing shape at index %1 when trying to refresh the scene.").arg(i) );
 	}
 	if(groupRectangleActive_)
 	{
@@ -406,7 +408,6 @@ void AMSampleCameraView::enableMotorMovement(bool isEnabled)
 {
 	if(isEnabled != enableMotorMovement_->isChecked())
 	{
-		qDebug()<<"enableMotorMovement has incorrect value";
 		enableMotorMovement_->setChecked(false);
 		isEnabled = false;
 	}
@@ -681,7 +682,7 @@ void AMSampleCameraView::samplePlateCreate()
 	// need to convert pointList into the correct format
 	if((pointList->count() - numberOfPoints - 1)%numberOfPoints  != 0)
 	{
-		qDebug()<<"AMSampleCameraView::samplePlateCreate - Invalid number of points. ";
+		AMErrorMon::alert(this, AMSAMPLECAMERAVIEW_SAMPLEPLATECREATE_INVALID_NUMBER_OF_POINTS, QString("A call samplePlateCreate had an invalid number of points. Count of point list: %1 Number of points: %2").arg(pointList->count()).arg(numberOfPoints) );
 		return;
 	}
 	int pointsPerSample = (pointList->count() - numberOfPoints -1)/numberOfPoints;
@@ -700,7 +701,7 @@ void AMSampleCameraView::samplePlateCreate()
 			index = (numberOfPoints+1)*i+1+j;
 			if(index >= pointList->size() || index < 0)
 			{
-				qDebug()<<"AMSampleCameraView::samplePlateCreate - Invalid sample index"<<index;
+				AMErrorMon::alert(this, AMSAMPLECAMERAVIEW_SAMPLEPLATECREATE_INVALID_SAMPLE_INDEX, QString("A call to samplePlateCreate had an invalid sample index. Index: %1 Point list size: %2").arg(index).arg(pointList->size()) );
 				return;
 			}
 			list[i].append(*pointList->at(index));
@@ -717,9 +718,7 @@ void AMSampleCameraView::samplePlateCreate()
 				combinedPoints<<(list[i].takeFirst());
 			}
 			else
-			{
-				qDebug()<<"AMSampleCameraView::samplePlateCreate - List"<<i<<"unexpectedly empty";
-			}
+				AMErrorMon::alert(this, AMSAMPLECAMERAVIEW_SAMPLEPLATECREATE_LIST_UNEXPECTEDLY_EMPTY, QString("A call to samplePlateCreate has an unexpectedly empty list at index %1.").arg(i) );
 		}
 	}
 
@@ -772,9 +771,7 @@ void AMSampleCameraView::rotationConfiguration()
 	}
 
 	if(pointList.count() != numberOfPoints || rotationList.count() != numberOfPoints)
-	{
-		qDebug()<<"AMSampleCameraView::rotationConfiguration - Incorrect number of points";
-	}
+		AMErrorMon::alert(this, AMSAMPLECAMERAVIEW_ROTATIONCONFIGURATION_INCORRECT_NUMBER_OF_POINTS, QString("A call to rotationConfiguration had an incorrect number of points. Count of point list: %1 Number of points: %2 Count of rotation list: %3").arg(pointList.count()).arg(numberOfPoints).arg(rotationList.count()) );
 
 	shapeModel_->configureRotation( coordinates, points, rotations, wizardManager_->rotationWizard()->numberOfPoints());
 	shapeModel_->saveRotationalOffset();
@@ -1585,7 +1582,7 @@ void AMSampleCameraView::requestLoadBeam()
 		emit beamWizardFinished();
 	else
 	{
-		qDebug()<<"Loading default beam configuration.";
+		AMErrorMon::alert(this, AMSAMPLECAMERAVIEW_LOADED_DEFAULT_BEAM, QString("Had to load the default beam configuration.") );
 		shapeModel_->loadDefaultBeam();
 	}
 }
@@ -1597,7 +1594,7 @@ void AMSampleCameraView::requestLoadCamera()
 		emit cameraWizardFinished();
 	else
 	{
-		qDebug()<<"Loading default camera configuration";
+		AMErrorMon::alert(this, AMSAMPLECAMERAVIEW_LOADED_DEFAULT_CAMERA, QString("Had to load the default camera configuration.") );
 		shapeModel_->loadDefaultCamera();
 	}
 }
@@ -1615,9 +1612,7 @@ void AMSampleCameraView::requestLoadRotationConfiguration()
 	if(success)
 		emit rotationWizardFinished();
 	else
-	{
-		qDebug()<<"Need to load default rotational offset";
-	}
+		AMErrorMon::alert(this, AMSAMPLECAMERAVIEW_LOADED_DEFAULT_ROTATION, QString("Had to load the default rotation configuration.") );
 }
 
 
@@ -1864,7 +1859,6 @@ void AMSampleCameraView::mousePressHandler(QPointF position)
 	else if (mode_ == OPERATION)
 	{
 		emit mouseOperationSelect((position));
-		qDebug() << "Position: " << position << " crosshair: " << shapeModel_->crosshair();
 		emit mouseOperationPressed((position),shapeModel_->crosshair());
 		currentSelectionChanged();
 	}
@@ -2758,9 +2752,7 @@ void AMSampleCameraView::drawSamplePlate()
 		if(!(samplePlate_ && samplePlate_->polygon() == samplePlate))
 		{
 			if(!samplePlate_)
-			{
-				qDebug()<<"AMSampleCameraView::drawSamplePlate - samplePlate_ is null";
-			}
+				AMErrorMon::alert(this, AMSAMPLECAMERAVIEW_DRAWSAMPLEPLATE_NULL_SAMPLEPLATE, QString("A call to drawSamplePlate has a null sample plate.") );
 			shapeScene_->scene()->removeItem(samplePlate_);
 			samplePlate_ = shapeScene_->scene()->addPolygon(samplePlate, pen, brush);
 		}
