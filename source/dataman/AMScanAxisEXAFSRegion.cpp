@@ -31,33 +31,48 @@ AMScanAxisRegion *AMScanAxisEXAFSRegion::createCopy() const
 
 void AMScanAxisEXAFSRegion::setInKSpace(bool flag)
 {
-	emit inKSpaceChanged(inKSpace_ = flag);
-	setModified(true);
-	switchSpace();
+	if (flag != inKSpace_){
+
+		emit inKSpaceChanged(inKSpace_ = flag);
+		setModified(true);
+		switchSpace();
+	}
 }
 
 void AMScanAxisEXAFSRegion::setEdgeEnergy(const AMNumber &energy)
 {
-	emit edgeEnergyChanged(edgeEnergy_ = energy);
-	setModified(true);
+	if (double(edgeEnergy_) != double(energy)){
+
+		emit edgeEnergyChanged(edgeEnergy_ = energy);
+		setModified(true);
+	}
 }
 
 void AMScanAxisEXAFSRegion::setMaximumTime(const AMNumber &newMaximumTime)
 {
-	emit maximumTimeChanged(maximumTime_ = newMaximumTime);
-	setModified(true);
+	if (double(maximumTime_) != double(newMaximumTime)){
+
+		emit maximumTimeChanged(maximumTime_ = newMaximumTime);
+		setModified(true);
+	}
 }
 
 void AMScanAxisEXAFSRegion::setA2(const AMNumber &newA2)
 {
-	emit a2Changed(a2_ = newA2);
-	setModified(true);
+	if (double(a2_) != double(newA2)){
+
+		emit a2Changed(a2_ = newA2);
+		setModified(true);
+	}
 }
 
 void AMScanAxisEXAFSRegion::setEquation(AMVariableIntegrationTime::Equation newEquation)
 {
-	emit equationChanged(equation_ = newEquation);
-	setModified(true);
+	if (double(equation_) != double(newEquation)){
+
+		emit equationChanged(equation_ = newEquation);
+		setModified(true);
+	}
 }
 
 void AMScanAxisEXAFSRegion::setEquation(int newEquation)
@@ -71,14 +86,12 @@ void AMScanAxisEXAFSRegion::switchSpace()
 	if (inKSpace_ && edgeEnergy_.isValid()){
 
 		setRegionStart(AMEnergyToKSpaceCalculator::k(edgeEnergy_, regionStart_));
-		setRegionStep(AMEnergyToKSpaceCalculator::k(edgeEnergy_, regionStep_));
 		setRegionEnd(AMEnergyToKSpaceCalculator::k(edgeEnergy_, regionEnd_));
 	}
 
 	else if (edgeEnergy_.isValid()){
 
 		setRegionStart(AMEnergyToKSpaceCalculator::energy(edgeEnergy_, regionStart_));
-		setRegionStep(AMEnergyToKSpaceCalculator::energy(edgeEnergy_, regionStep_));
 		setRegionEnd(AMEnergyToKSpaceCalculator::energy(edgeEnergy_, regionEnd_));
 	}
 }

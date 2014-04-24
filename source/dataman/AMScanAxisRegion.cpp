@@ -47,24 +47,36 @@ AMNumber AMScanAxisRegion::regionTime() const
 
 void AMScanAxisRegion::setRegionStart(const AMNumber &regionStart)
 {
-	emit regionStartChanged(regionStart_ = regionStart);
-	setModified(true);
+	if (double(regionStart_) != double(regionStart)){
+
+		emit regionStartChanged(regionStart_ = regionStart);
+		setModified(true);
+	}
 }
 
 void AMScanAxisRegion::setRegionStep(const AMNumber &regionStep)
 {
-	emit regionStepChanged(regionStep_ = regionStep);
-	setModified(true);
+	if (double(regionStep_) != double(regionStep)){
+
+		emit regionStepChanged(regionStep_ = regionStep);
+		setModified(true);
+	}
 }
 
 void AMScanAxisRegion::setRegionEnd(const AMNumber &regionEnd)
 {
-	emit regionEndChanged(regionEnd_ = regionEnd);
-	setModified(true);
+	if (double(regionEnd_) != double(regionEnd)){
+
+		emit regionEndChanged(regionEnd_ = regionEnd);
+		setModified(true);
+	}
 }
 
 void AMScanAxisRegion::setRegionTime(const AMNumber &regionTime)
 {
-	emit regionTimeChanged(regionTime_ = regionTime);
-	setModified(true);
+	if (double(regionTime_) != double(regionTime)){
+
+		emit regionTimeChanged(regionTime_ = regionTime);
+		setModified(true);
+	}
 }

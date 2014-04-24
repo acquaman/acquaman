@@ -94,6 +94,10 @@ protected:
 	void buildScanAxisRegionView(int index, AMScanAxisEXAFSRegion *region);
 	/// Returns whether the regions should be locked together or not.
 	bool regionsLocked() const { return !lockRegionsButton_->isChecked(); }
+	/// Connects start and end points of regions together.
+	void connectRegions() const;
+	/// Disconnects start and end points of regions from each other.
+	void disconnectRegions() const;
 
 	/// The pointer to the scan configuration that holds the container of the scan axes.
 	AMStepScanConfiguration *configuration_;

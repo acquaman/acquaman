@@ -64,22 +64,26 @@ AMStepScanAxisElementView::AMStepScanAxisElementView(AMScanAxisRegion *region, Q
 
 void AMStepScanAxisElementView::setStartSpinBox(const AMNumber &value)
 {
-	start_->setValue(double(value));
+	if (double(value) != start_->value())
+		start_->setValue(double(value));
 }
 
 void AMStepScanAxisElementView::setDeltaSpinBox(const AMNumber &value)
 {
-	delta_->setValue(double(value));
+	if (double(value) != delta_->value())
+		delta_->setValue(double(value));
 }
 
 void AMStepScanAxisElementView::setEndSpinBox(const AMNumber &value)
 {
-	end_->setValue(double(value));
+	if (double(value) != end_->value())
+		end_->setValue(double(value));
 }
 
 void AMStepScanAxisElementView::setTimeSpinBox(const AMNumber &value)
 {
-	time_->setValue(double(value));
+	if (double(value) != time_->value())
+		time_->setValue(double(value));
 }
 
 void AMStepScanAxisElementView::onStartPositionUpdated()
@@ -134,6 +138,8 @@ AMStepScanAxisView::AMStepScanAxisView(const QString &title, AMStepScanConfigura
 
 	connect(deleteButtonGroup_, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(onDeleteButtonClicked(QAbstractButton*)));
 
+	connectRegions();
+
 	setLayout(scanAxisViewLayout_);
 }
 
@@ -143,12 +149,38 @@ void AMStepScanAxisView::onLockRegionsToggled(bool toggled)
 
 		lockRegionsButton_->setIcon(QIcon(":22x22/unlock.png"));
 		lockRegionsButton_->setToolTip("Lock regions together.");
+		disconnectRegions();
 	}
 
 	else {
 
 		lockRegionsButton_->setIcon(QIcon(":/22x22/lock.png"));
 		lockRegionsButton_->setToolTip("Unlock the regions from each other.");
+		connectRegions();
+	}
+}
+
+void AMStepScanAxisView::connectRegions() const
+{
+	for (int i = 0, size = configuration_->scanAxisAt(0)->regionCount(); i < size; i++){
+
+		if (i != 0)
+			connect(configuration_->scanAxisAt(0)->regionAt(i), SIGNAL(regionStartChanged(AMNumber)), configuration_->scanAxisAt(0)->regionAt(i-1), SLOT(setRegionEnd(AMNumber)));
+
+		if (i != (size-1))
+			connect(configuration_->scanAxisAt(0)->regionAt(i), SIGNAL(regionEndChanged(AMNumber)), configuration_->scanAxisAt(0)->regionAt(i+1), SLOT(setRegionStart(AMNumber)));
+	}
+}
+
+void AMStepScanAxisView::disconnectRegions() const
+{
+	for (int i = 0, size = configuration_->scanAxisAt(0)->regionCount(); i < size; i++){
+
+		if (i != 0)
+			disconnect(configuration_->scanAxisAt(0)->regionAt(i), SIGNAL(regionStartChanged(AMNumber)), configuration_->scanAxisAt(0)->regionAt(i-1), SLOT(setRegionEnd(AMNumber)));
+
+		if (i != (size-1))
+			disconnect(configuration_->scanAxisAt(0)->regionAt(i), SIGNAL(regionEndChanged(AMNumber)), configuration_->scanAxisAt(0)->regionAt(i+1), SLOT(setRegionStart(AMNumber)));
 	}
 }
 
@@ -178,6 +210,9 @@ void AMStepScanAxisView::onAddRegionButtonClicked()
 
 		if (temp){
 
+			if (regionsLocked())
+				disconnectRegions();
+
 			if (temp->text() == "Beginning"){
 
 				AMScanAxisRegion *region = configuration_->scanAxisAt(0)->regionAt(0)->createCopy();
@@ -200,12 +235,18 @@ void AMStepScanAxisView::onAddRegionButtonClicked()
 				configuration_->scanAxisAt(0)->insertRegion(index, region);
 				buildScanAxisRegionView(index, region);
 			}
+
+			if (regionsLocked())
+				connectRegions();
 		}
 	}
 }
 
 void AMStepScanAxisView::onDeleteButtonClicked(QAbstractButton *button)
 {
+	if (regionsLocked())
+		disconnectRegions();
+
 	AMStepScanAxisElementView *view = regionMap_.value(button);
 	configuration_->scanAxisAt(0)->removeRegion(view->region());
 	deleteButtonGroup_->removeButton(button);
@@ -215,6 +256,9 @@ void AMStepScanAxisView::onDeleteButtonClicked(QAbstractButton *button)
 	view->region()->deleteLater();
 	view->deleteLater();
 	button->deleteLater();
+
+	if (regionsLocked())
+		connectRegions();
 }
 
 void AMStepScanAxisView::buildScanAxisRegionView(int index, AMScanAxisRegion *region)

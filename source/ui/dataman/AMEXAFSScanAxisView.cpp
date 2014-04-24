@@ -83,27 +83,32 @@ AMEXAFSScanAxisElementView::AMEXAFSScanAxisElementView(AMScanAxisEXAFSRegion *re
 
 void AMEXAFSScanAxisElementView::setStartSpinBox(const AMNumber &value)
 {
-	start_->setValue(double(value));
+	if (double(value) != start_->value())
+		start_->setValue(double(value));
 }
 
 void AMEXAFSScanAxisElementView::setDeltaSpinBox(const AMNumber &value)
 {
-	delta_->setValue(double(value));
+	if (double(value) != delta_->value())
+		delta_->setValue(double(value));
 }
 
 void AMEXAFSScanAxisElementView::setEndSpinBox(const AMNumber &value)
 {
-	end_->setValue(double(value));
+	if (double(value) != end_->value())
+		end_->setValue(double(value));
 }
 
 void AMEXAFSScanAxisElementView::setTimeSpinBox(const AMNumber &value)
 {
-	time_->setValue(double(value));
+	if (double(value) != time_->value())
+		time_->setValue(double(value));
 }
 
 void AMEXAFSScanAxisElementView::setMaximumTimeSpinBox(const AMNumber &value)
 {
-	maximumTime_->setValue(double(value));
+	if (double(value) != maximumTime_->value())
+		maximumTime_->setValue(double(value));
 }
 
 void AMEXAFSScanAxisElementView::onInKSpaceUpdated(bool inKSpace)
@@ -184,6 +189,8 @@ AMEXAFSScanAxisView::AMEXAFSScanAxisView(const QString &title, AMStepScanConfigu
 
 	connect(deleteButtonGroup_, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(onDeleteButtonClicked(QAbstractButton*)));
 
+	connectRegions();
+
 	setLayout(scanAxisViewLayout_);
 }
 
@@ -193,12 +200,38 @@ void AMEXAFSScanAxisView::onLockRegionsToggled(bool toggled)
 
 		lockRegionsButton_->setIcon(QIcon(":22x22/unlock.png"));
 		lockRegionsButton_->setToolTip("Lock regions together.");
+		disconnectRegions();
 	}
 
 	else {
 
 		lockRegionsButton_->setIcon(QIcon(":/22x22/lock.png"));
 		lockRegionsButton_->setToolTip("Unlock the regions from each other.");
+		connectRegions();
+	}
+}
+
+void AMEXAFSScanAxisView::connectRegions() const
+{
+	for (int i = 0, size = configuration_->scanAxisAt(0)->regionCount(); i < size; i++){
+
+		if (i != 0)
+			connect(configuration_->scanAxisAt(0)->regionAt(i), SIGNAL(regionStartChanged(AMNumber)), configuration_->scanAxisAt(0)->regionAt(i-1), SLOT(setRegionEnd(AMNumber)));
+
+		if (i != (size-1))
+			connect(configuration_->scanAxisAt(0)->regionAt(i), SIGNAL(regionEndChanged(AMNumber)), configuration_->scanAxisAt(0)->regionAt(i+1), SLOT(setRegionStart(AMNumber)));
+	}
+}
+
+void AMEXAFSScanAxisView::disconnectRegions() const
+{
+	for (int i = 0, size = configuration_->scanAxisAt(0)->regionCount(); i < size; i++){
+
+		if (i != 0)
+			disconnect(configuration_->scanAxisAt(0)->regionAt(i), SIGNAL(regionStartChanged(AMNumber)), configuration_->scanAxisAt(0)->regionAt(i-1), SLOT(setRegionEnd(AMNumber)));
+
+		if (i != (size-1))
+			disconnect(configuration_->scanAxisAt(0)->regionAt(i), SIGNAL(regionEndChanged(AMNumber)), configuration_->scanAxisAt(0)->regionAt(i+1), SLOT(setRegionStart(AMNumber)));
 	}
 }
 
@@ -228,6 +261,8 @@ void AMEXAFSScanAxisView::onAddRegionButtonClicked()
 
 		if (temp){
 
+			if (regionsLocked())
+				disconnectRegions();
 
 			if (temp->text() == "Beginning"){
 
@@ -251,12 +286,18 @@ void AMEXAFSScanAxisView::onAddRegionButtonClicked()
 				configuration_->scanAxisAt(0)->insertRegion(index, region);
 				buildScanAxisRegionView(index, region);
 			}
+
+			if (regionsLocked())
+				connectRegions();
 		}
 	}
 }
 
 void AMEXAFSScanAxisView::onDeleteButtonClicked(QAbstractButton *button)
 {
+	if (regionsLocked())
+		disconnectRegions();
+
 	AMEXAFSScanAxisElementView *view = regionMap_.value(button);
 	configuration_->scanAxisAt(0)->removeRegion(view->region());
 	deleteButtonGroup_->removeButton(button);
@@ -266,6 +307,9 @@ void AMEXAFSScanAxisView::onDeleteButtonClicked(QAbstractButton *button)
 	view->region()->deleteLater();
 	view->deleteLater();
 	button->deleteLater();
+
+	if (regionsLocked())
+		connectRegions();
 }
 
 void AMEXAFSScanAxisView::buildScanAxisRegionView(int index, AMScanAxisEXAFSRegion *region)
