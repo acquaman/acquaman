@@ -29,7 +29,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 VESPERS2DScanConfiguration::~VESPERS2DScanConfiguration(){}
 
 VESPERS2DScanConfiguration::VESPERS2DScanConfiguration(QObject *parent)
-	: AM2DScanConfiguration(parent), VESPERSScanConfiguration()
+	: AMStepScanConfiguration(parent), VESPERSScanConfiguration()
 {
 	setName("2D Map");
 	setUserScanName("2D Map");
@@ -43,18 +43,26 @@ VESPERS2DScanConfiguration::VESPERS2DScanConfiguration(QObject *parent)
 	setExportAsAscii(true);
 	setExportSpectraSources(true);
 	setExportSpectraInRows(true);
-	connect(this, SIGNAL(xStartChanged(double)), this, SLOT(computeTotalTime()));
-	connect(this, SIGNAL(xStepChanged(double)), this, SLOT(computeTotalTime()));
-	connect(this, SIGNAL(xEndChanged(double)), this, SLOT(computeTotalTime()));
-	connect(this, SIGNAL(yStartChanged(double)), this, SLOT(computeTotalTime()));
-	connect(this, SIGNAL(yStepChanged(double)), this, SLOT(computeTotalTime()));
-	connect(this, SIGNAL(yEndChanged(double)), this, SLOT(computeTotalTime()));
-	connect(this, SIGNAL(timeStepChanged(double)), this, SLOT(computeTotalTime()));
+
+	AMScanAxisRegion *region = new AMScanAxisRegion;
+	AMScanAxis *axis = new AMScanAxis(AMScanAxis::StepAxis, region);
+	appendScanAxis(axis);
+	region = new AMScanAxisRegion;
+	axis = new AMScanAxis(AMScanAxis::StepAxis, region);
+	appendScanAxis(axis);
+
+//	connect(this, SIGNAL(xStartChanged(double)), this, SLOT(computeTotalTime()));
+//	connect(this, SIGNAL(xStepChanged(double)), this, SLOT(computeTotalTime()));
+//	connect(this, SIGNAL(xEndChanged(double)), this, SLOT(computeTotalTime()));
+//	connect(this, SIGNAL(yStartChanged(double)), this, SLOT(computeTotalTime()));
+//	connect(this, SIGNAL(yStepChanged(double)), this, SLOT(computeTotalTime()));
+//	connect(this, SIGNAL(yEndChanged(double)), this, SLOT(computeTotalTime()));
+//	connect(this, SIGNAL(timeStepChanged(double)), this, SLOT(computeTotalTime()));
 	connect(dbObject_, SIGNAL(ccdDetectorChanged(int)), this, SLOT(computeTotalTime()));
 }
 
 VESPERS2DScanConfiguration::VESPERS2DScanConfiguration(const VESPERS2DScanConfiguration &original)
-	: AM2DScanConfiguration(original), VESPERSScanConfiguration(original)
+	: AMStepScanConfiguration(original), VESPERSScanConfiguration(original)
 {
 	setName(original.name());
 	setUserScanName(original.userScanName());
@@ -63,13 +71,13 @@ VESPERS2DScanConfiguration::VESPERS2DScanConfiguration(const VESPERS2DScanConfig
 	setExportSpectraSources(original.exportSpectraSources());
 	setExportSpectraInRows(original.exportSpectraInRows());
 	computeTotalTime();
-	connect(this, SIGNAL(xStartChanged(double)), this, SLOT(computeTotalTime()));
-	connect(this, SIGNAL(xStepChanged(double)), this, SLOT(computeTotalTime()));
-	connect(this, SIGNAL(xEndChanged(double)), this, SLOT(computeTotalTime()));
-	connect(this, SIGNAL(yStartChanged(double)), this, SLOT(computeTotalTime()));
-	connect(this, SIGNAL(yStepChanged(double)), this, SLOT(computeTotalTime()));
-	connect(this, SIGNAL(yEndChanged(double)), this, SLOT(computeTotalTime()));
-	connect(this, SIGNAL(timeStepChanged(double)), this, SLOT(computeTotalTime()));
+//	connect(this, SIGNAL(xStartChanged(double)), this, SLOT(computeTotalTime()));
+//	connect(this, SIGNAL(xStepChanged(double)), this, SLOT(computeTotalTime()));
+//	connect(this, SIGNAL(xEndChanged(double)), this, SLOT(computeTotalTime()));
+//	connect(this, SIGNAL(yStartChanged(double)), this, SLOT(computeTotalTime()));
+//	connect(this, SIGNAL(yStepChanged(double)), this, SLOT(computeTotalTime()));
+//	connect(this, SIGNAL(yEndChanged(double)), this, SLOT(computeTotalTime()));
+//	connect(this, SIGNAL(timeStepChanged(double)), this, SLOT(computeTotalTime()));
 	connect(dbObject_, SIGNAL(ccdDetectorChanged(int)), this, SLOT(computeTotalTime()));
 }
 
@@ -113,11 +121,11 @@ QString VESPERS2DScanConfiguration::headerText() const
 	header.append("\n");
 	header.append("Map Dimensions\n");
 	header.append("X Axis\n");
-	header.append(QString("Start:\t%1 mm\tEnd:\t%2 mm\n").arg(xStart()).arg(xEnd()));
-	header.append(QString("Step Size:\t%1 mm\n").arg(xStep()));
+	header.append(QString("Start:\t%1 mm\tEnd:\t%2 mm\n").arg(double(scanAxisAt(0)->regionAt(0)->regionStart())).arg(double(scanAxisAt(0)->regionAt(0)->regionEnd())));
+	header.append(QString("Step Size:\t%1 mm\n").arg(double(scanAxisAt(0)->regionAt(0)->regionStep())));
 	header.append("Y Axis\n");
-	header.append(QString("Start:\t%1 mm\tEnd:\t%2 mm\n").arg(yStart()).arg(yEnd()));
-	header.append(QString("Step Size:\t%1 mm\n").arg(yStep()));
+	header.append(QString("Start:\t%1 mm\tEnd:\t%2 mm\n").arg(double(scanAxisAt(1)->regionAt(0)->regionStart())).arg(double(scanAxisAt(1)->regionAt(0)->regionEnd())));
+	header.append(QString("Step Size:\t%1 mm\n").arg(double(scanAxisAt(1)->regionAt(0)->regionStep())));
 
 	if (normalPosition() != 888888.88){
 
@@ -185,15 +193,16 @@ void VESPERS2DScanConfiguration::computeTotalTimeImplementation()
 	double time = 0;
 
 	// Get the number of points.
-	time = 	fabs((xEnd()-xStart())/xStep()+1)*fabs((yEnd()-yStart())/yStep()+1);
+	time = 	fabs((double(scanAxisAt(0)->regionAt(0)->regionEnd())-double(scanAxisAt(0)->regionAt(0)->regionStart()))/double(scanAxisAt(0)->regionAt(0)->regionStep())+1)
+			*fabs((double(scanAxisAt(1)->regionAt(0)->regionEnd())-double(scanAxisAt(1)->regionAt(0)->regionStart()))/double(scanAxisAt(1)->regionAt(0)->regionStep())+1);
 
 	// Factor in the time per point.  There is an extra 6 seconds for CCD images for the Roper and Mar.
 	if (ccdDetector() == VESPERS::Roper)
-		time *= timeStep() + timeOffset_ + 6.0;
+		time *= double(scanAxisAt(0)->regionAt(0)->regionTime()) + timeOffset_ + 6.0;
 	else if (ccdDetector() == VESPERS::Mar)
-		time *= timeStep() + timeOffset_ + 3.0;
+		time *= double(scanAxisAt(0)->regionAt(0)->regionTime()) + timeOffset_ + 3.0;
 	else
-		time *= timeStep() + timeOffset_;
+		time *= double(scanAxisAt(0)->regionAt(0)->regionTime()) + timeOffset_;
 
 	totalTime_ = time + 9;
 	setExpectedDuration(totalTime_);

@@ -20,9 +20,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef VESPERS2DSCANCONFIGURATION_H
 #define VESPERS2DSCANCONFIGURATION_H
 
-#include "acquaman/AM2DScanConfiguration.h"
-#include "application/VESPERS/VESPERS.h"
+#include "acquaman/AMStepScanConfiguration.h"
 #include "acquaman/VESPERS/VESPERSScanConfiguration.h"
+#include "application/VESPERS/VESPERS.h"
 
 /// This class is the VESPERS specific 2D map scan configuration.
 /*!
@@ -35,7 +35,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 	file with XRD or not.
   */
 
-class VESPERS2DScanConfiguration : public AM2DScanConfiguration, public VESPERSScanConfiguration
+class VESPERS2DScanConfiguration : public AMStepScanConfiguration, public VESPERSScanConfiguration
 {
 	Q_OBJECT
 

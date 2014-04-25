@@ -29,8 +29,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QtConcurrentRun>
 #include <QStringBuilder>
 
+AMDbThumbnail::~AMDbThumbnail(){}
+
 // Default constructor
- AMDbThumbnail::~AMDbThumbnail(){}
 AMDbThumbnail::AMDbThumbnail(const QString& Title, const QString& Subtitle, ThumbnailType Type, const QByteArray& ThumbnailData)
 	: title(Title), subtitle(Subtitle), type(Type), thumbnail(ThumbnailData) {
 }
@@ -71,7 +72,8 @@ QString AMDbThumbnail::typeString() const {
 	}
 }
 
- AMDbObject::~AMDbObject(){}
+AMDbObject::~AMDbObject(){}
+
 AMDbObject::AMDbObject(QObject *parent) : QObject(parent) {
 	isReloading_ = false;
 	id_ = 0;

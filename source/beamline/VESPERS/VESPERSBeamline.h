@@ -37,6 +37,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "application/VESPERS/VESPERS.h"
 #include "beamline/AMMotorGroup.h"
 #include "beamline/CLS/CLSPseudoMotorGroup.h"
+#include "beamline/CLS/CLSPseudoMotorControl.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"

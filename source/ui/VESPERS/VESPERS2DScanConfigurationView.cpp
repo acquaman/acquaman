@@ -32,7 +32,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QSpinBox>
 #include <QMenu>
 
- VESPERS2DScanConfigurationView::~VESPERS2DScanConfigurationView(){}
+VESPERS2DScanConfigurationView::~VESPERS2DScanConfigurationView(){}
+
 VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConfiguration *config, QWidget *parent)
 	: VESPERSScanConfigurationView(parent)
 {
@@ -42,11 +43,11 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	// Setup the group box for setting the start and end points.
 	QGroupBox *positionsBox = new QGroupBox("Positions");
 
-	hStart_ = buildPositionDoubleSpinBox("H: ", " mm", config_->xStart(), 3);
+	hStart_ = buildPositionDoubleSpinBox("H: ", " mm", config_->scanAxisAt(0)->regionAt(0)->regionStart(), 3);
 	connect(hStart_, SIGNAL(editingFinished()), this, SLOT(onXStartChanged()));
 	connect(config_, SIGNAL(xStartChanged(double)), hStart_, SLOT(setValue(double)));
 
-	vStart_ = buildPositionDoubleSpinBox("V: ", " mm", config_->yStart(), 3);
+	vStart_ = buildPositionDoubleSpinBox("V: ", " mm", config_->scanAxisAt(1)->regionAt(0)->regionStart(), 3);
 	connect(vStart_, SIGNAL(editingFinished()), this, SLOT(onYStartChanged()));
 	connect(config_, SIGNAL(yStartChanged(double)), vStart_, SLOT(setValue(double)));
 
@@ -59,11 +60,11 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	startPointLayout->addWidget(vStart_);
 	startPointLayout->addWidget(startUseCurrentButton);
 
-	hEnd_ = buildPositionDoubleSpinBox("H: ", " mm", config_->xEnd(), 3);
+	hEnd_ = buildPositionDoubleSpinBox("H: ", " mm", config_->scanAxisAt(0)->regionAt(0)->regionEnd(), 3);
 	connect(hEnd_, SIGNAL(editingFinished()), this, SLOT(onXEndChanged()));
 	connect(config_, SIGNAL(xEndChanged(double)), hEnd_, SLOT(setValue(double)));
 
-	vEnd_ = buildPositionDoubleSpinBox("V: ", " mm", config_->yEnd(), 3);
+	vEnd_ = buildPositionDoubleSpinBox("V: ", " mm", config_->scanAxisAt(1)->regionAt(0)->regionEnd(), 3);
 	connect(vEnd_, SIGNAL(editingFinished()), this, SLOT(onYEndChanged()));
 	connect(config_, SIGNAL(yEndChanged(double)), vEnd_, SLOT(setValue(double)));
 
@@ -76,11 +77,11 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	endPointLayout->addWidget(vEnd_);
 	endPointLayout->addWidget(endUseCurrentButton);
 
-	hStep_ = buildPositionDoubleSpinBox("H: ", QString(" %1").arg(QString::fromUtf8("µm")), config_->xStep()*1000, 1);	// xStep needs to be in mm.
+	hStep_ = buildPositionDoubleSpinBox("H: ", QString(" %1").arg(QString::fromUtf8("µm")), double(config_->scanAxisAt(0)->regionAt(0)->regionStep())*1000, 1);	// xStep needs to be in mm.
 	connect(hStep_, SIGNAL(editingFinished()), this, SLOT(onXStepChanged()));
 	connect(config_, SIGNAL(xStepChanged(double)), this, SLOT(updateXStep(double)));
 
-	vStep_ = buildPositionDoubleSpinBox("V: ", QString(" %1").arg(QString::fromUtf8("µm")), config_->yStep()*1000, 1);	// yStep needs to be in mm.
+	vStep_ = buildPositionDoubleSpinBox("V: ", QString(" %1").arg(QString::fromUtf8("µm")), double(config_->scanAxisAt(1)->regionAt(0)->regionStep())*1000, 1);	// yStep needs to be in mm.
 	connect(vStep_, SIGNAL(editingFinished()), this, SLOT(onYStepChanged()));
 	connect(config_, SIGNAL(yStepChanged(double)), this, SLOT(updateYStep(double)));
 
@@ -102,7 +103,7 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	positionsBox->setLayout(positionsLayout);
 
 	// Dwell time.
-	dwellTime_ = addDwellTimeWidget(config_->timeStep());
+	dwellTime_ = addDwellTimeWidget(config_->scanAxisAt(0)->regionAt(0)->regionTime());
 	connect(dwellTime_, SIGNAL(editingFinished()), this, SLOT(onDwellTimeChanged()));
 	connect(config_, SIGNAL(timeStepChanged(double)), dwellTime_, SLOT(setValue(double)));
 
@@ -415,11 +416,11 @@ void VESPERS2DScanConfigurationView::onSetStartPosition()
 		n = VESPERSBeamline::vespers()->sampleStageY()->value();
 	}
 
-	config_->setXStart(h);
-	hStart_->setValue(h);
-	config_->setYStart(v);
-	vStart_->setValue(v);
+	config_->scanAxisAt(0)->regionAt(0)->setRegionStart(h);
+	config_->scanAxisAt(1)->regionAt(0)->setRegionStart(v);
 	config_->setNormalPosition(n);
+	hStart_->setValue(h);
+	vStart_->setValue(v);
 	updateMapInfo();
 	axesAcceptable();
 }
@@ -454,9 +455,9 @@ void VESPERS2DScanConfigurationView::onSetEndPosition()
 		v = VESPERSBeamline::vespers()->attoStageZ()->value();
 	}
 
-	config_->setXEnd(h);
+	config_->scanAxisAt(0)->regionAt(0)->setRegionEnd(h);
+	config_->scanAxisAt(1)->regionAt(0)->setRegionEnd(v);
 	hEnd_->setValue(h);
-	config_->setYEnd(v);
 	vEnd_->setValue(v);
 	updateMapInfo();
 	axesAcceptable();
@@ -464,64 +465,65 @@ void VESPERS2DScanConfigurationView::onSetEndPosition()
 
 void VESPERS2DScanConfigurationView::onXStartChanged()
 {
-	config_->setXStart(hStart_->value());
+	config_->scanAxisAt(0)->regionAt(0)->setRegionStart(hStart_->value());
 	updateMapInfo();
 	axesAcceptable();
 }
 
 void VESPERS2DScanConfigurationView::onXEndChanged()
 {
-	config_->setXEnd(hEnd_->value());
+	config_->scanAxisAt(0)->regionAt(0)->setRegionEnd(hEnd_->value());
 	updateMapInfo();
 	axesAcceptable();
 }
 
 void VESPERS2DScanConfigurationView::onXStepChanged()
 {
-	config_->setXStep(hStep_->value()/1000);
+	config_->scanAxisAt(0)->regionAt(0)->setRegionStep(hStep_->value()/1000);
 	updateMapInfo();
 	axesAcceptable();
 }
 
 void VESPERS2DScanConfigurationView::onYStartChanged()
 {
-	config_->setYStart(vStart_->value());
+	config_->scanAxisAt(1)->regionAt(0)->setRegionStart(vStart_->value());
 	updateMapInfo();
 	axesAcceptable();
 }
 
 void VESPERS2DScanConfigurationView::onYEndChanged()
 {
-	config_->setYEnd(vEnd_->value());
+	config_->scanAxisAt(1)->regionAt(0)->setRegionEnd(vEnd_->value());
 	updateMapInfo();
 	axesAcceptable();
 }
 
 void VESPERS2DScanConfigurationView::onYStepChanged()
 {
-	config_->setYStep(vStep_->value()/1000);
+	config_->scanAxisAt(1)->regionAt(0)->setRegionStep(vStep_->value()/1000);
 	updateMapInfo();
 	axesAcceptable();
 }
 
 void VESPERS2DScanConfigurationView::onDwellTimeChanged()
 {
-	config_->setTimeStep(dwellTime_->value());
+	config_->scanAxisAt(0)->regionAt(0)->setRegionTime(dwellTime_->value());
+	config_->scanAxisAt(1)->regionAt(0)->setRegionTime(dwellTime_->value());
 }
 
 void VESPERS2DScanConfigurationView::updateMapInfo()
 {
-	double hSize = fabs(config_->xEnd()-config_->xStart());
-	double vSize = fabs(config_->yEnd()-config_->yStart());
+	double hSize = fabs(double(config_->scanAxisAt(0)->regionAt(0)->regionEnd())-double(config_->scanAxisAt(0)->regionAt(0)->regionStart()));
+	double vSize = fabs(double(config_->scanAxisAt(1)->regionAt(0)->regionEnd())-double(config_->scanAxisAt(1)->regionAt(0)->regionStart()));
 
-	int hPoints = int((hSize)/config_->xStep());
-	if ((hSize - (hPoints + 0.01)*config_->xStep()) < 0)
+	int hPoints = int((hSize)/double(config_->scanAxisAt(0)->regionAt(0)->regionStep()));
+	if ((hSize - (hPoints + 0.01)*double(config_->scanAxisAt(0)->regionAt(0)->regionStep())) < 0)
 		hPoints += 1;
 	else
 		hPoints += 2;
 
-	int vPoints = int((vSize)/config_->yStep());
-	if ((vSize - (vPoints + 0.01)*config_->yStep()) < 0)
+	int vPoints = int((vSize)/double(config_->scanAxisAt(1)->regionAt(0)->regionStep()));
+	if ((vSize - (vPoints + 0.01)*double(config_->scanAxisAt(1)->regionAt(0)->regionStep())) < 0)
 		vPoints += 1;
 	else
 		vPoints += 2;
@@ -541,6 +543,6 @@ void VESPERS2DScanConfigurationView::axesAcceptable()
 	QPalette bad(good);
 	bad.setColor(QPalette::Base, Qt::red);
 
-	hStep_->setPalette(config_->validXAxis() ? good : bad);
-	vStep_->setPalette(config_->validYAxis() ? good : bad);
+//	hStep_->setPalette(config_->validXAxis() ? good : bad);
+//	vStep_->setPalette(config_->validYAxis() ? good : bad);
 }

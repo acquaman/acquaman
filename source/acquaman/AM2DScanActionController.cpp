@@ -6,7 +6,7 @@
 
 #include "application/AMAppController.h"
 #include "application/AMAppControllerSupport.h"
-#include "acquaman/AMScanActionControllerScanAssembler.h"
+#include "acquaman/AMGenericScanActionControllerAssembler.h"
 #include "acquaman/AM2DScanConfigurationConverter.h"
 #include "acquaman/AMAgnosticDataAPI.h"
 #include "beamline/AMBeamline.h"
@@ -29,7 +29,7 @@ AM2DScanActionController::AM2DScanActionController(AM2DScanConfiguration *config
 	yAxisName_ = "";
 	currentXAxisValue_ = 0.0;
 	currentYAxisValue_ = 0.0;
-	newScanAssembler_ = new AMScanActionControllerScanAssembler(this);
+	newScanAssembler_ = new AMGenericScanActionControllerAssembler(this);
 }
 
 AM2DScanActionController::~AM2DScanActionController()
@@ -209,7 +209,7 @@ bool AM2DScanActionController::event(QEvent *e)
 			emit finishWritingToFile();
 			break;}
 
-		case AMAgnosticDataAPIDefinitions::LoopIncremented:
+		case AMAgnosticDataAPIDefinitions::AxisValueFinished:
 
 			writeDataToFiles();
 

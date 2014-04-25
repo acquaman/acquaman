@@ -192,5 +192,11 @@
         <file>Yellow.png</file>
         <file>go-in.png</file>
         <file>go-out.png</file>
+        <file>16x16/lock.png</file>
+        <file>16x16/unlock.png</file>
+        <file>22x22/lock.png</file>
+        <file>22x22/unlock.png</file>
+        <file>32x32/lock.png</file>
+        <file>32x32/unlock.png</file>
     </qresource>
 </RCC>

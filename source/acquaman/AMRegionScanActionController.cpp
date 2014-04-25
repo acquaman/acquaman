@@ -6,7 +6,7 @@
 
 #include "application/AMAppController.h"
 #include "application/AMAppControllerSupport.h"
-#include "acquaman/AMScanActionControllerScanAssembler.h"
+#include "acquaman/AMGenericScanActionControllerAssembler.h"
 #include "acquaman/AMRegionScanConfigurationConverter.h"
 #include "acquaman/AMAgnosticDataAPI.h"
 #include "beamline/AMBeamline.h"
@@ -26,7 +26,7 @@ AMRegionScanActionController::AMRegionScanActionController(AMRegionScanConfigura
 	regionsConfiguration_ = configuration;
 	currentAxisValueIndex_ = AMnDIndex(0);
 	currentAxisValue_ = 0.0;
-	newScanAssembler_ = new AMScanActionControllerScanAssembler(this);
+	newScanAssembler_ = new AMGenericScanActionControllerAssembler(this);
 	useFeedback_ = false;
 }
 
@@ -200,7 +200,7 @@ bool AMRegionScanActionController::event(QEvent *e)
 			emit finishWritingToFile();
 			break;}
 
-		case AMAgnosticDataAPIDefinitions::LoopIncremented:
+		case AMAgnosticDataAPIDefinitions::AxisValueFinished:
 			scan_->rawData()->endInsertRows();
 			writeDataToFiles();
 			currentAxisValueIndex_[0] = currentAxisValueIndex_.i()+1;

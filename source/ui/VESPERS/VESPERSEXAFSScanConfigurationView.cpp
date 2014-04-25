@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMPeriodicTable.h"
 #include "beamline/VESPERS/VESPERSBeamline.h"
 #include "util/VESPERS/GeneralUtilities.h"
+#include "ui/dataman/AMEXAFSScanAxisView.h"
 
 #include <QGridLayout>
 #include <QVBoxLayout>
@@ -34,7 +35,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QPushButton>
 #include <QSpinBox>
 
- VESPERSEXAFSScanConfigurationView::~VESPERSEXAFSScanConfigurationView(){}
+VESPERSEXAFSScanConfigurationView::~VESPERSEXAFSScanConfigurationView(){}
+
 VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAFSScanConfiguration *config, QWidget *parent)
 	: VESPERSScanConfigurationView(parent)
 {
@@ -42,9 +44,7 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	AMTopFrame *frame = new AMTopFrame("VESPERS EXAFS Configuration");
 
 	// Regions setup
-	regionsView_ = new AMRegionsView(config_->regions());
-	regionsView_->setMinimumWidth(300);
-	regionsLineView_ = new AMEXAFSLineView(config_->exafsRegions());
+	AMEXAFSScanAxisView *regionsView = new AMEXAFSScanAxisView("XAS Region Configuration", config_);
 
 	// The fluorescence detector setup
 	QGroupBox *fluorescenceDetectorGroupBox = addFluorescenceDetectorSelectionView();
@@ -104,7 +104,7 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 
 	QCheckBox *useFixedTime = new QCheckBox("Use fixed time (EXAFS)");
 	useFixedTime->setEnabled(config_->useFixedTime());
-	connect(config_->exafsRegions(), SIGNAL(regionsHaveKSpaceChanged(bool)), useFixedTime, SLOT(setEnabled(bool)));
+//	connect(config_->exafsRegions(), SIGNAL(regionsHaveKSpaceChanged(bool)), useFixedTime, SLOT(setEnabled(bool)));
 	connect(useFixedTime, SIGNAL(toggled(bool)), config_, SLOT(setUseFixedTime(bool)));
 
 	QSpinBox *numberOfScans = new QSpinBox;
@@ -194,7 +194,8 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 
 	// Setting up the layout.
 	QGridLayout *contentsLayout = new QGridLayout;
-	contentsLayout->addWidget(regionsView_, 1, 1, 2, 2);
+//	contentsLayout->addWidget(regionsView_, 1, 1, 2, 2);
+	contentsLayout->addWidget(regionsView, 1, 1, 2, 2);
 	contentsLayout->addWidget(fluorescenceDetectorGroupBox, 1, 3);
 	contentsLayout->addLayout(scanNameLayout, 4, 1);
 	contentsLayout->addLayout(energyLayout, 0, 1, 1, 3);
@@ -217,7 +218,6 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	QVBoxLayout *configViewLayout = new QVBoxLayout;
 	configViewLayout->addWidget(frame);
 	configViewLayout->addStretch();
-	configViewLayout->addWidget(regionsLineView_, 0, Qt::AlignCenter);
 	configViewLayout->addSpacing(30);
 	configViewLayout->addLayout(squeezeContents);
 	configViewLayout->addSpacing(30);
@@ -365,37 +365,37 @@ void VESPERSEXAFSScanConfigurationView::onEdgeChanged()
 
 void VESPERSEXAFSScanConfigurationView::onDefaultXANESScanClicked()
 {
-	while (config_->regionCount() != 1)
-	{
-		config_->deleteRegion(0);
-	}
+//	while (config_->regionCount() != 1)
+//	{
+//		config_->deleteRegion(0);
+//	}
 
-	config_->setRegionStart(0, -30);
-	config_->setRegionDelta(0, 0.5);
-	config_->setRegionEnd(0, 40);
-	config_->setRegionTime(0, 1);
-	config_->exafsRegions()->setType(0, AMEXAFSRegion::Energy);
+//	config_->setRegionStart(0, -30);
+//	config_->setRegionDelta(0, 0.5);
+//	config_->setRegionEnd(0, 40);
+//	config_->setRegionTime(0, 1);
+//	config_->exafsRegions()->setType(0, AMEXAFSRegion::Energy);
 }
 
 void VESPERSEXAFSScanConfigurationView::onDefaultEXAFSScanClicked()
 {
-	while (config_->regionCount() != 1)
-	{
-		config_->deleteRegion(0);
-	}
+//	while (config_->regionCount() != 1)
+//	{
+//		config_->deleteRegion(0);
+//	}
 
-	config_->exafsRegions()->setType(0, AMEXAFSRegion::Energy);
-	config_->setRegionStart(0, -200);
-	config_->setRegionDelta(0, 10);
-	config_->setRegionEnd(0, -30);
-	config_->setRegionTime(0, 1);
+//	config_->exafsRegions()->setType(0, AMEXAFSRegion::Energy);
+//	config_->setRegionStart(0, -200);
+//	config_->setRegionDelta(0, 10);
+//	config_->setRegionEnd(0, -30);
+//	config_->setRegionTime(0, 1);
 
-	config_->regions()->addRegion(1, -30, 0.5, 40, 1);
-	config_->exafsRegions()->setType(1, AMEXAFSRegion::Energy);
+//	config_->regions()->addRegion(1, -30, 0.5, 40, 1);
+//	config_->exafsRegions()->setType(1, AMEXAFSRegion::Energy);
 
-	config_->regions()->addRegion(2, 40, 0.05, 857.4627, 10); // 857.4627 = 15k
-	config_->exafsRegions()->setType(2, AMEXAFSRegion::kSpace);
-	config_->exafsRegions()->setEndByType(2, 15, AMEXAFSRegion::kSpace);
+//	config_->regions()->addRegion(2, 40, 0.05, 857.4627, 10); // 857.4627 = 15k
+//	config_->exafsRegions()->setType(2, AMEXAFSRegion::kSpace);
+//	config_->exafsRegions()->setEndByType(2, 15, AMEXAFSRegion::kSpace);
 }
 
 void VESPERSEXAFSScanConfigurationView::onMotorsUpdated(int id)
