@@ -3816,11 +3816,11 @@ void AMSampleCamera::blockBeam()
 		// this sometimes produces a zero shape when it should not
 		QPolygonF newIntersectionShape = alternateIntersectionShape.subtracted(alternateProjectedShape);
 		for(int x = 0, size = alternateProjectedShape.count(); x < size; x++)
-			AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, QString("Old intersected shape (point %1): %1, %2").arg(x).arg(alternateProjectedShape.at(x).x()).arg(alternateProjectedShape.at(x).y()) );
+			AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, QString("Old intersected shape (point %1): %2, %3").arg(x).arg(alternateProjectedShape.at(x).x()).arg(alternateProjectedShape.at(x).y()) );
 		for(int x = 0, size = alternateProjectedShape.count(); x < size; x++)
-			AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, QString("Beam shape (point %1): %1, %2").arg(x).arg(alternateProjectedShape.at(x).x()).arg(alternateProjectedShape.at(x).y()) );
+			AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, QString("Beam shape (point %1): %2, %3").arg(x).arg(alternateProjectedShape.at(x).x()).arg(alternateProjectedShape.at(x).y()) );
 		for(int x = 0, size = newIntersectionShape.count(); x < size; x++)
-			AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, QString("New intersected shape (point %1): %1, %2").arg(x).arg(newIntersectionShape.at(x).x()).arg(newIntersectionShape.at(x).y()) );
+			AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, QString("New intersected shape (point %1): %2, %3").arg(x).arg(newIntersectionShape.at(x).x()).arg(newIntersectionShape.at(x).y()) );
 
 		double zComponent = alternateProjectedCoordinates.at(0).z();
 
