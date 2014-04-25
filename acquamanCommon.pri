@@ -14,10 +14,6 @@ USERNAME = $$system(whoami)
 
 # Automatically determines a user's home folder
 HOME_FOLDER = $$system(echo $HOME)
-user = $$system(whoami)
-contains(user,ludbae){
-    HOME_FOLDER=/home/ludbae
-}
 
 USERNAME = $$system(whoami)
 
@@ -162,7 +158,7 @@ linux-g++-64 {
 		DEV_PATH = beamline/programming
 
 		# The full path to the acquaman folder.  This MUST point to the location where acquamanCommon.pri lives.
-		PATH_TO_AM = $$HOME_FOLDER/$$DEV_PATH/acquamanTestSandbox
+		PATH_TO_AM = $$HOME_FOLDER/$$DEV_PATH/acquaman
 
 		# EPICS Dependencies:
 		EPICS_INCLUDE_DIRS = /home/epics/src/R3.14.12/base/include \
@@ -170,8 +166,8 @@ linux-g++-64 {
 		EPICS_LIB_DIR = /home/epics/src/R3.14.12/base/lib/linux-x86_64
 
 		# MPlot Source
-		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlotTestSandbox/include
-		MPLOT_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlotTestSandbox/lib
+		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/include
+		MPLOT_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/lib
 
 		# GSL Dependencies
 		GSL_INCLUDE_DIR = /home/beamline/tools/gsl/gsl-1.14-install/include

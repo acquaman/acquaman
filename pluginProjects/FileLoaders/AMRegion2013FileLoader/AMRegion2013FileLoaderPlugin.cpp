@@ -81,18 +81,18 @@ bool AMRegion2013FileLoaderPlugin::load(AMScan *scan, const QString &userDataFol
 				}
 
 				else {
-
 					QString oneString = lp.at(1);
 					AMTextStream axisInfoStreamOut(&oneString);
 					AMAxisInfo axisInfo = AMAxisInfo("tempName", 0);
-					axisInfoStreamOut.read(axisInfo);
 
 					// This is a catch all for old scans before we properly saved the scan axes.
-					if (axisInfo.name == "tempName")
+					if (lp.at(1) == "eV" && !lp.at(1).contains("|@|@|"))
 						scan->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));
 
-					else
+					else{
+						axisInfoStreamOut.read(axisInfo);
 						scan->rawData()->addScanAxis(axisInfo);
+					}
 				}
 			}
 		}

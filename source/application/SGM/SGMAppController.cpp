@@ -113,12 +113,12 @@ SGMAppController::SGMAppController(QObject *parent) :
 
 	// Don't need to do SGMBeamline ... that's not the user's responsibility unless we're SGM or fawkes
 	QString userName = QDir::fromNativeSeparators(QDir::homePath()).section("/", -1);
-	if( !(userName == "sgm" || userName == "fawkes" || userName == "ludbae" || userName == "chevrid" || userName == "helfrij") )
+	if( !(userName == "sgm" || userName == "fawkes" ||  userName == "chevrid" || userName == "helfrij") )
 		sgm1Pt1SGMDb->setIsResponsibleForUpgrade(false);
 	prependDatabaseUpgrade(sgm1Pt1SGMDb);
 
 	AMDbUpgrade *sgm1Pt1SGMPublicDb = new SGMDbUpgrade1Pt1("SGMPublic", this);
-	if( !(userName == "sgm" || userName == "fawkes" || userName == "ludbae" || userName == "chevrid" || userName == "helfrij") )
+	if( !(userName == "sgm" || userName == "fawkes" || userName == "chevrid" || userName == "helfrij") )
 		sgm1Pt1SGMPublicDb->setIsResponsibleForUpgrade(false);
 	prependDatabaseUpgrade(sgm1Pt1SGMPublicDb);
 
@@ -189,8 +189,10 @@ bool SGMAppController::startup() {
 		return false;
 
 	// Center the completed GUI on the screen (which is normally 0,0 but has to be 0 1081 on OPI1611-408)
-	if(QHostInfo::localHostName() == "OPI1611-408")
+	if(QHostInfo::localHostName() == "OPI1611-408"){
 		mw_->move(0, 1081);
+//		QTimer::singleShot(250, this, SLOT(resizeAfterStartup()));
+	}
 	else
 		mw_->move(0, 0);
 
@@ -654,6 +656,13 @@ void SGMAppController::onXRFDetectorViewResized(){
 void SGMAppController::resizeToMinimum(){
 	//mw_->resize(mw_->size().width(), mw_->minimumSizeHint().height());
 	mw_->resize(mw_->minimumSizeHint());
+}
+
+void SGMAppController::resizeAfterStartup(){
+	QSize afterSize(1800, 1400);
+	qDebug() << "Attempting to resize to " << afterSize;
+	mw_->resize(afterSize);
+	mw_->move(0, 1081);
 }
 
 void SGMAppController::onWorkflowActionAddedFromDialog(AMAction3 *action){

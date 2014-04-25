@@ -1,10 +1,6 @@
 USERNAME = $$system(whoami)
 
 HOME_FOLDER = $$system(echo $HOME)
-user = $$system(whoami)
-contains(user,ludbae){
-    HOME_FOLDER=/home/ludbae
-}
 
 USERNAME = $$system(whoami)
 
@@ -73,7 +69,7 @@ linux-g++-32 {
 		DEV_PATH = beamline/programming
 
 		# Where the acquaman source is
-		AM_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquamanTestSandbox/source
+		AM_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/source
 
 		# EPICS Dependencies:
 		EPICS_INCLUDE_DIRS = $$HOME_FOLDER/$$DEV_PATH/epics/base/include \
@@ -81,8 +77,8 @@ linux-g++-32 {
 		EPICS_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/epics/base/lib/linux-x86
 
 		# MPlot Source
-		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlotTestSandbox/include
-		MPLOT_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlotTestSandbox/lib
+		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/include
+		MPLOT_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/lib
 
 		# CDFlib dependencies
 		CDF_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/cdf34_1-dist/lib
@@ -100,7 +96,7 @@ linux-g++-64 {
 		DEV_PATH = beamline/programming
 
 		# Where the acquaman source is
-		AM_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquamanTestSandbox/source
+		AM_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/source
 
 		# EPICS Dependencies:
 		EPICS_INCLUDE_DIRS = /home/epics/src/R3.14.12/base/include \
@@ -108,8 +104,8 @@ linux-g++-64 {
 		EPICS_LIB_DIR = /home/epics/src/R3.14.12/base/lib/linux-x86_64
 
 		# MPlot Source
-		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlotTestSandbox/include
-		MPLOT_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlotTestSandbox/lib
+		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/include
+		MPLOT_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/lib
 
 		# CDFlib dependencies
 		CDF_LIB = -L/home/beamline/tools/cdf/lib -lcdf
