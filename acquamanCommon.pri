@@ -659,7 +659,8 @@ HEADERS += source/acquaman/AMRegion.h \
     source/actions3/actions/AMAxisValueFinishedAction.h \
     source/actions3/actions/AMAxisValueFinishedActionInfo.h \
     source/ui/dataman/AMStepScanAxisView.h \
-    source/ui/dataman/AMEXAFSScanAxisView.h
+    source/ui/dataman/AMEXAFSScanAxisView.h \
+    source/beamline/CLS/CLSPseudoMotorControl.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1084,7 +1085,8 @@ SOURCES += source/acquaman/AMRegion.cpp \
     source/actions3/actions/AMAxisValueFinishedAction.cpp \
     source/actions3/actions/AMAxisValueFinishedActionInfo.cpp \
     source/ui/dataman/AMStepScanAxisView.cpp \
-    source/ui/dataman/AMEXAFSScanAxisView.cpp
+    source/ui/dataman/AMEXAFSScanAxisView.cpp \
+    source/beamline/CLS/CLSPseudoMotorControl.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1108,6 +1110,8 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
 
 
 
