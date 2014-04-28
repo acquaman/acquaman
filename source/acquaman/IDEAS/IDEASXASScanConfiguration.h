@@ -1,9 +1,9 @@
 #ifndef IDEASXASSCANCONFIGURATION_H
 #define IDEASXASSCANCONFIGURATION_H
 
-#include "acquaman/AMXASScanConfiguration.h"
+#include "acquaman/AMStepScanConfiguration.h"
 
-class IDEASXASScanConfiguration : public AMXASScanConfiguration
+class IDEASXASScanConfiguration : public AMStepScanConfiguration
 {
 Q_OBJECT
 
@@ -35,11 +35,6 @@ public:
 
 	/// A human-readable synopsis of this scan configuration. Can be re-implemented to proved more details. Used by scan action to set the main text in the action view.
 	virtual QString detailedDescription() const;
-
-	/// Returns the AMControlInfo for the scanned region control.
-	AMControlInfo regionControlInfo() const { return regions_->defaultControl()->toInfo(); }
-	/// Returns the AMControlInfo for the time control.
-	AMControlInfo timeControlInfo() const { return regions_->defaultTimeControl()->toInfo(); }
 
 	// Scan configuration properties
 	/////////////////////////

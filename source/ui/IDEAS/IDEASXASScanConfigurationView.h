@@ -6,11 +6,12 @@
 #include <QPushButton>
 #include <QComboBox>
 #include <QCheckBox>
+#include <QDoubleSpinBox>
 #include <QLineEdit>
 
 class AMScanController;
 class IDEASXASScanConfiguration;
-class AMRegionsView;
+class AMEXAFSScanAxisView;
 class AMTopFrame;
 
 class IDEASXASScanConfigurationView : public AMScanConfigurationView
@@ -31,7 +32,7 @@ protected:
 	IDEASXASScanConfiguration *configuration_;
 
 	AMTopFrame *topFrame_;
-	AMRegionsView *regionsView_;
+	AMEXAFSScanAxisView *regionsView_;
         QPushButton *autoRegionButton_;
 	QPushButton *pseudoXAFSButton_;
 
@@ -42,6 +43,7 @@ protected:
 	QComboBox *IrChannelComboBox_;
 
 	QLineEdit *scanName_;
+	QDoubleSpinBox *edgeEnergy_;
 
 
 

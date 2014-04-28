@@ -1,12 +1,12 @@
 #ifndef IDEASXASSCANACTIONCONTROLLER_H
 #define IDEASXASSCANACTIONCONTROLLER_H
 
-#include "acquaman/AMRegionScanActionController.h"
+#include "acquaman/AMStepScanActionController.h"
 #include "acquaman/IDEAS/IDEASXASScanConfiguration.h"
 
 #include <QTimer>
 
-class IDEASXASScanActionController : public AMRegionScanActionController
+class IDEASXASScanActionController : public AMStepScanActionController
 {
 	Q_OBJECT
 
@@ -29,6 +29,8 @@ protected:
 
 	/// Sets the scan axis and adds anything extra.
 	virtual void buildScanControllerImplementation();
+	/// Reimplemented for EXAFS capabilities.  Creates the scan assembler that builds all the actions used to run the scan.
+	virtual void createScanAssembler();
 
         QTimer* pokeSyncDwell_;
 
