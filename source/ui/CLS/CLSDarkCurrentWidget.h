@@ -6,6 +6,7 @@
 #include <QPushButton>
 #include <QLayout>
 #include <QDebug>
+#include <QLabel>
 
 /// This is a class that allows a user to manually instigate the chain of events leading to a dark current correction measurement.
 class CLSDarkCurrentWidget : public QWidget

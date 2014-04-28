@@ -1,11 +1,11 @@
 #include "CLSDarkCurrentWidget.h"
 
-CLSDarkCurrentWidget::CLSDarkCurrentWidget(double initialDwellTime, QWidget *parent) :
+CLSDarkCurrentWidget::CLSDarkCurrentWidget(double dwellSeconds, QWidget *parent) :
     QWidget(parent)
 {
-    dwellTime_ = initialDwellTime;
+    dwellTime_ = dwellSeconds;
 
-    QLabel dwellTimeLabel = new QLabel("Dwell time (s): ");
+    QLabel *dwellTimeLabel = new QLabel("Dwell time (s): ");
     dwellTimeEntry_ = new QLineEdit(QString::number(dwellTime_));
     connect( dwellTimeEntry_, SIGNAL(textChanged(QString)), this, SLOT(onDwellTimeEntryChanged(QString)) );
 
