@@ -49,7 +49,6 @@ void AMDoDarkCurrentCorrectionAction::startImplementation() {
 
     setStarted();
     scaler->doDarkCurrentCorrection(dwellTime);
-//    goSucceed();
 }
 
 void AMDoDarkCurrentCorrectionAction::pauseImplementation() {

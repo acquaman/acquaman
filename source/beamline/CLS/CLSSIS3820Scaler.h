@@ -34,6 +34,7 @@ class CLSSR570;
 #include "util/AMRange.h"
 #include "actions3/actions/AMDoingDarkCurrentCorrectionAction.h"
 #include "actions3/AMListAction3.h"
+#include "source/beamline/AMDetector.h"
 
 /*!
   Builds an abstraction for the SIS 3820 scaler used throughout the CLS.  It takes in a base name of the PV's and builds all the PV's
@@ -247,6 +248,11 @@ public:
 	/// Returns the SR570 that this scaler channel uses for sensitivity changes.  Returns 0 if not set.
 	CLSSR570 *sr570() const { return sr570_; }
 
+    /// Sets an AMDetector to this particular channel. This connection grants us access to the detector's dark current measurement/correction abilities.
+    void setDetector(AMDetector *detector);
+    /// Returns the AMDetector that this scaler channel uses.
+    AMDetector* detector() const { return detector_; }
+
 	/// Returns the minimum voltage range for the ion chamber.
 	double minimumVoltage() const { return voltageRange_.minimum(); }
 	/// Returns the maximum voltage range for the ion chamber.
@@ -297,7 +303,7 @@ signals:
     /// Emitted when the scaler channel is notified of a change in the dark current measurement value. Communicates change to scaler channel view.
     void newDarkCurrentMeasurementValue(double newValue);
     /// Emitted when the scaler channel is notified of a change in the dark current measurement status. Communicates change to the scaler channel view.
-    void newDarkCurrentMeasurementState(CLSSIS3820Scaler::DarkCurrentCorrectionState newState);
+    void newDarkCurrentMeasurementState(bool);
 
 
 protected slots:
@@ -331,6 +337,9 @@ protected:
 
 	/// Holds the pointer to the CLSSR570 (if it has one), which controls the sensitivity of the scalar channel.
 	CLSSR570 *sr570_;
+
+    /// Holds the pointer to the AMDetector (if it has one).
+    AMDetector *detector_;
 };
 
 #endif // CLSSIS3820SCALER_H

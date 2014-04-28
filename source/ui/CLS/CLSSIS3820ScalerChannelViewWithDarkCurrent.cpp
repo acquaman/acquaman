@@ -8,11 +8,11 @@ CLSSIS3820ScalerChannelViewWithDarkCurrent::CLSSIS3820ScalerChannelViewWithDarkC
     QLabel *darkCurrentLabel = new QLabel("Dark current value : ");
     darkCurrentValue_ = new QLabel(" ");
 
-    QLayout *layout = new QHBoxLayout();
+    QHBoxLayout *layout = new QHBoxLayout();
     layout->addWidget(darkCurrentLabel);
     layout->addWidget(darkCurrentValue_);
 
-    darkCurrentContent_ = new QGroupBox(this);
+    darkCurrentContent_ = new QGroupBox();
     darkCurrentContent_->setLayout(layout);
     darkCurrentContent_->setFlat(true);
 
@@ -63,16 +63,16 @@ void CLSSIS3820ScalerChannelViewWithDarkCurrent::setDarkCurrentViewMode(DarkCurr
 void CLSSIS3820ScalerChannelViewWithDarkCurrent::onNewDarkCurrentMeasurementValue(double newValue)
 {
     qDebug() << "CLSSIS3820ScalerChannelView receives new dark current measurement value : " << newValue;
-    darkCurrentValue_->setText(QString("%1").arg(newValue, 0, 'g', 3));
+    darkCurrentValue_->setText(QString("%1").arg(newValue, 0, 'f', 2));
 }
 
 
 
-void CLSSIS3820ScalerChannelViewWithDarkCurrent::onNewDarkCurrentMeasurementState(CLSSIS3820Scaler::DarkCurrentCorrectionState newStatus)
+void CLSSIS3820ScalerChannelViewWithDarkCurrent::onNewDarkCurrentMeasurementState(bool measurementUpToDate)
 {
-    qDebug() << "CLSSIS3820ScalerChannelView receives new dark current status : " << newStatus;
+    qDebug() << "CLSSIS3820ScalerChannelView new dark current required status : " << measurementUpToDate;
 
-    if (newStatus == CLSSIS3820Scaler::SUCCEEDED)
+    if (measurementUpToDate)
         darkCurrentValue_->setStyleSheet("color: blue;");
 
     else

@@ -192,7 +192,7 @@ AMAction3* SGMXASScanActionController::createInitializationActions(){
                     sharedSourceFound = true;
                     initializationStage4->addSubAction(detector->createDarkCurrentCorrectionActions(10));
 
-                } else if (!isSourceShared){
+                } else if (!isSourceShared) {
                     initializationStage4->addSubAction(detector->createDarkCurrentCorrectionActions(10));
 
                 }

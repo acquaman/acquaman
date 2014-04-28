@@ -49,13 +49,13 @@ CLSSIS3820Scaler::CLSSIS3820Scaler(const QString &baseName, QObject *parent) :
 	synchronizedDwellKey_ = QString("%1:startScan NPP NMS").arg(baseName);
 
 	CLSSIS3820ScalerChannel *tmpChannel;
-	for(int x = 0; x < 32; x++){
+    for (int x = 0; x < 32; x++) {
 		tmpChannel = new CLSSIS3820ScalerChannel(baseName, x, this);
 		scalerChannels_.append(tmpChannel);
 		connect(tmpChannel, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
         connect( tmpChannel, SIGNAL(sensitivityChanged()), this, SIGNAL(sensitivityChanged()) );
-        connect( this, SIGNAL(newDarkCurrentMeasurementValue(double)), tmpChannel, SIGNAL(newDarkCurrentMeasurementValue(double)) );
-        connect( this, SIGNAL(newDarkCurrentMeasurementState(CLSSIS3820Scaler::DarkCurrentCorrectionState)), tmpChannel, SIGNAL(newDarkCurrentMeasurementState(CLSSIS3820Scaler::DarkCurrentCorrectionState)) );
+//        connect( this, SIGNAL(newDarkCurrentMeasurementValue(double)), tmpChannel, SIGNAL(newDarkCurrentMeasurementValue(double)) );
+//        connect( this, SIGNAL(newDarkCurrentMeasurementState(CLSSIS3820Scaler::DarkCurrentCorrectionState)), tmpChannel, SIGNAL(newDarkCurrentMeasurementState(CLSSIS3820Scaler::DarkCurrentCorrectionState)) );
 	}
 
 	startToggle_ = new AMPVControl("Start/Scanning", baseName+":startScan", baseName+":startScan", QString(), this, 0.1);
@@ -551,9 +551,10 @@ CLSSIS3820ScalerChannel::CLSSIS3820ScalerChannel(const QString &baseName, int in
 
 	wasConnected_ = false;
 
-	// No SR570 to start with.
+    // No SR570 or detector to start with.
 	sr570_ = 0;
 	voltageRange_ = AMRange();
+    detector_ = 0;
 
 	customChannelName_ = QString();
 
@@ -663,6 +664,18 @@ void CLSSIS3820ScalerChannel::setSR570(CLSSR570 *sr570)
 	connect(sr570_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
     connect( sr570_, SIGNAL(sensitivityChanged()), this, SIGNAL(sensitivityChanged()) );
 	emit sr570Attached();
+}
+
+void CLSSIS3820ScalerChannel::setDetector(AMDetector *detector)
+{
+    if (detector_) {
+        disconnect( detector_, SIGNAL(newDarkCurrentMeasurementValueReady(double)), this, SIGNAL(newDarkCurrentMeasurementValue(double)) );
+        disconnect( detector_, SIGNAL(requiresNewDarkCurrentMeasurement(bool)), this, SIGNAL(newDarkCurrentMeasurementState(bool)) );
+    }
+
+    detector_ = detector;
+    connect( detector_, SIGNAL(newDarkCurrentMeasurementValueReady(double)), this, SIGNAL(newDarkCurrentMeasurementValue(double)) );
+    connect( detector_, SIGNAL(requiresNewDarkCurrentMeasurement(bool)), this, SIGNAL(newDarkCurrentMeasurementState(bool)) );
 }
 
 void CLSSIS3820ScalerChannel::setMinimumVoltage(double min)

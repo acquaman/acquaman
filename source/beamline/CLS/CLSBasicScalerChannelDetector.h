@@ -25,6 +25,7 @@ public:
 	/// Clearing is not yet implemented for the scaler channels (but it can be in the future)
 	virtual bool canClear() const { return false; }
 
+    /// Returns boolean indicating that this particular implementation of AMDetector supports dark current correction.
     virtual bool canDoDarkCurrentCorrection() const { return true; }
 
 	/// Basic scaler channels cannot continuous acquire. This needs to be implemented in a subclass.
@@ -65,6 +66,7 @@ public:
 	/// Returns a AM1DProcessVariableDataSource suitable for viewing
 	virtual AMDataSource* dataSource() const { return 0; }
 
+    /// Returns a list of actions to perform dark current correction, using the provided dwell time.
     virtual AMAction3* createDarkCurrentCorrectionActions(double dwellTime);
 
 public slots:

@@ -37,7 +37,7 @@ protected slots:
     /// Handles updating the displayed dark current value as updates are made available.
     void onNewDarkCurrentMeasurementValue(double newValue);
     /// Handles updating the status of the displayed dark current value, as updates are made available.
-    void onNewDarkCurrentMeasurementState(CLSSIS3820Scaler::DarkCurrentCorrectionState newStatus);
+    void onNewDarkCurrentMeasurementState(bool measurementUpToDate);
 
 private:
     /// Enum value indicating whether or not to display dark current information.
