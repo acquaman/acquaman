@@ -421,6 +421,17 @@ void SGMSidebar::onScanningResetButtonClicked(){
     }
 }
 
+void SGMSidebar::toTakeDarkCurrentMeasurement()
+{
+    CLSBasicScalerChannelDetector *teyDetector = qobject_cast<CLSBasicScalerChannelDetector*>(SGMBeamline::sgm()->newTEYDetector());
+    if (teyDetector) {
+        qDebug() << "SGMSidebar :: got the TEY detector.";
+        
+        AMAction3 *darkCurrentCorrectionActions = teyDetector->createDarkCurrentCorrectionActions(10);
+        AMActionRunner3::workflow()->addActionToQueue(darkCurrentCorrectionActions);
+    }
+}
+
 void SGMSidebar::onStripToolTimerTimeout(){
 	if(i0Model_->count() <= 50) {
 		stripToolSpecialAxisScale_->setDataRange(MPlotAxisRange(-i0Model_->count(),0));	// would need to correct this if not doing exactly one model point per second
