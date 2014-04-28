@@ -5,15 +5,20 @@ CLSDarkCurrentWidget::CLSDarkCurrentWidget(double initialDwellTime, QWidget *par
 {
     dwellTime_ = initialDwellTime;
 
+    QLabel dwellTimeLabel = new QLabel("Dwell time (s): ");
     dwellTimeEntry_ = new QLineEdit(QString::number(dwellTime_));
     connect( dwellTimeEntry_, SIGNAL(textChanged(QString)), this, SLOT(onDwellTimeEntryChanged(QString)) );
+
+    QHBoxLayout *dwellLayout = new QHBoxLayout();
+    dwellLayout->addWidget(dwellTimeLabel);
+    dwellLayout->addWidget(dwellTimeEntry_);
 
     darkCurrentButton_ = new QPushButton("Dark Current Measurement");
     darkCurrentButton_->setEnabled(true);
     connect( darkCurrentButton_, SIGNAL(clicked()), this, SLOT(onDarkCurrentButtonClicked()) );
 
-    QHBoxLayout *layout = new QHBoxLayout();
-    layout->addWidget(dwellTimeEntry_);
+    QVBoxLayout *layout = new QVBoxLayout();
+    layout->addLayout(dwellLayout);
     layout->addWidget(darkCurrentButton_);
 
     setLayout(layout);
