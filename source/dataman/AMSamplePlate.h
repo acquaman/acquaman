@@ -46,7 +46,7 @@ public:
 	bool removeSample(AMSample *sample);
 
 	/// Returns the index of a given sample
-	int indexOfSample(AMSample *sample);
+	int indexOfSample(const AMSample *sample);
 
 	/// Returns the sample associated with the shapeData. If no sample is associated a null pointer is returned
 	AMSample* sampleFromShape(AMShapeData *shapeData);

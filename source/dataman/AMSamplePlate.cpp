@@ -86,7 +86,7 @@ bool AMSamplePlate::removeSample(AMSample *sample){
 	return false;
 }
 
-int AMSamplePlate::indexOfSample(AMSample *sample){
+int AMSamplePlate::indexOfSample(const AMSample *sample){
 	if(!sample)
 		return -1;
 	for(int x = 0; x < samples_.count(); x++)

@@ -353,6 +353,25 @@ bool AMSampleCamera::distortion()
 	return distortion_;
 }
 
+bool AMSampleCamera::cameraConfigured() const{
+	return cameraConfigured_;
+}
+
+bool AMSampleCamera::rotationConfigured() const{
+	return rotationConfigured_;
+}
+
+bool AMSampleCamera::samplePlateConfigured() const{
+	return samplePlateConfigured_;
+}
+
+bool AMSampleCamera::beamConfigured() const{
+	return beamConfigured_;
+}
+
+bool AMSampleCamera::allConfigured() const{
+	return cameraConfigured_ && rotationConfigured_ && samplePlateConfigured_ && beamConfigured_;
+}
 
 /// set the current index
 void AMSampleCamera::setCurrentIndex(int current)
@@ -2207,6 +2226,21 @@ void AMSampleCamera::setSamplePlateOffset(double offset)
 	sampleOffset_ = offset;
 }
 
+void AMSampleCamera::setCameraConfigured(bool cameraConfigured){
+	cameraConfigured_ = cameraConfigured;
+}
+
+void AMSampleCamera::setRotationConfigured(bool rotationConfigured){
+	rotationConfigured_ = rotationConfigured;
+}
+
+void AMSampleCamera::setSamplePlateConfigured(bool samplePlateConfigured){
+	samplePlateConfigured_ = samplePlateConfigured;
+}
+
+void AMSampleCamera::setBeamConfigured(bool beamConfigured){
+	beamConfigured_ = beamConfigured;
+}
 
 /// tracks motor movement and shifts drawings accordingly
 void AMSampleCamera::motorTracking(double)
@@ -2298,6 +2332,10 @@ AMSampleCamera::AMSampleCamera(QObject *parent) :
 
 	rotationalOffset_ = new AMRotationalOffset(10.5,2.35,0);
 
+	cameraConfigured_ = false;
+	rotationConfigured_ = false;
+	samplePlateConfigured_ = false;
+	beamConfigured_ = false;
 
 	emit rotationalOffsetChanged(rotationalOffset());
 

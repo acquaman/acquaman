@@ -80,7 +80,7 @@ public:
 
 	/// access to the AMSampleCamera
 	static AMSampleCamera* set();
- /// Define axis names for convenience
+	/// Define axis names for convenience
 	enum AxisDirection {XAXIS,YAXIS,ZAXIS};
 
 	/// Accessors
@@ -186,6 +186,17 @@ public:
 
 	/// returns whether distortion is being used
 	bool distortion();
+
+	/// Returns whether or not the camera has been configured successfully
+	bool cameraConfigured() const;
+	/// Returns whether or not the rotation has been configured successfully
+	bool rotationConfigured() const;
+	/// Returns whether or not the sample plate has been configured successfully
+	bool samplePlateConfigured() const;
+	/// Returns whether or not the beam has been configured successfully
+	bool beamConfigured() const;
+	/// Returns true only if all of the configurations are true (camera, rotation, sample plate, beam)
+	bool allConfigured() const;
 
 	/// -----------------------------------------------------------------------------------
 
@@ -517,6 +528,14 @@ public slots:
 	void setSamplePlateOffsetWafer();
 	void setSamplePlateOffset(double offset);
 
+	/// Sets the cameraConfigured value to the boolean
+	void setCameraConfigured(bool cameraConfigured);
+	/// Sets the rotationConfigured value to the boolean
+	void setRotationConfigured(bool rotationConfigured);
+	/// Sets the samplePlateConfigured value to the boolean
+	void setSamplePlateConfigured(bool samplePlateConfigured);
+	/// Sets the beamConfigured value to the boolean
+	void setBeamConfigured(bool beamConfigured);
 
 signals:
 	/// used to change the beam
@@ -882,6 +901,15 @@ protected:
 
 	/// if true, the beam is not fully within any sample's bounds
 	bool beamCutOff_;
+
+	/// Set to true if the camera configuration is successfully loaded
+	bool cameraConfigured_;
+	/// Set to true if the rotation configuration is successfully loaded
+	bool rotationConfigured_;
+	/// Set to true if the sample plate configuration is successfully loaded
+	bool samplePlateConfigured_;
+	/// Set to true if the beam configuration is successfully loaded
+	bool beamConfigured_;
 };
 
 #endif // AMSHAPEOVERLAYVIDEOWIDGETMODEL2_H

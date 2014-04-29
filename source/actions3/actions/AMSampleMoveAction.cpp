@@ -1,6 +1,9 @@
 #include "AMSampleMoveAction.h"
 
 #include "beamline/camera/AMSampleCamera.h"
+#include "beamline/AMBeamline.h"
+#include "dataman/AMSamplePlate.h"
+#include "util/AMErrorMonitor.h"
 
 AMSampleMoveAction::AMSampleMoveAction(AMSampleMoveActionInfo *info, QObject *parent) :
 	AMAction3(info, parent)
@@ -33,7 +36,7 @@ void AMSampleMoveAction::onMoveListFailed(){
 	disconnect(moveListAction_, SIGNAL(cancelled()), this, SLOT(onMoveListCancelled()));
 	disconnect(moveListAction_, SIGNAL(progressChanged(double,double)), this, SIGNAL(progressChanged(double,double)));
 
-//	AMErrorMon::alert(this, AMSAMPLEPLATEPRE2013MOVEACTION_MOVELIST_FAILED, QString("There was an error moving one or more motors after start was called."));
+	AMErrorMon::alert(this, AMSAMPLEMOVEACTION_MOVELIST_FAILED, QString("There was an error moving one or more motors after start was called."));
 	setFailed();
 }
 
@@ -58,11 +61,28 @@ void AMSampleMoveAction::onMoveListCancelled(){
 }
 
 void AMSampleMoveAction::startImplementation(){
-	// Check that the camera system is fully calibrated with a beam
-	// Check that we have a sample plate
-	// Check that this sample is on that plate
-
 	AMSampleCamera *camera = AMSampleCamera::set();
+	if(!camera){
+		AMErrorMon::alert(this, AMSAMPLEMOVEACTION_CAMERA_NOT_AVAILABLE, QString("The action could not start because there is no sample camera available."));
+		return;
+	}
+	// Check that the camera system is fully calibrated with a beam
+	if(!camera->allConfigured()){
+		AMErrorMon::alert(this, AMSAMPLEMOVEACTION_CAMERA_NOT_CONFIGURED, QString("The action could not start because the sample camera is not configured properly."));
+		return;
+	}
+
+	// Check that we have a sample plate
+	if(!AMBeamline::bl()->samplePlate()){
+		AMErrorMon::alert(this, AMSAMPLEMOVEACTION_NO_SAMPLE_PLATE, QString("The action could not start because there is no sample plate."));
+		return;
+	}
+	// Check that this sample is on that plate
+	if(AMBeamline::bl()->samplePlate()->indexOfSample(sampleMoveInfo()->sample()) == -1){
+		AMErrorMon::alert(this, AMSAMPLEMOVEACTION_SAMPLE_NOT_ON_PLATE, QString("The action could not start because the sample requested is not on the current plate."));
+		return;
+	}
+
 	moveListAction_ = camera->createMoveToSampleAction(sampleMoveInfo()->sample());
 
 	// connect to the list's signals

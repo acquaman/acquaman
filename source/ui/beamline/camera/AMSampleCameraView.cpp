@@ -1578,8 +1578,10 @@ void AMSampleCameraView::sampleShapeMousePressed(QPointF position)
 void AMSampleCameraView::requestLoadBeam()
 {
 	bool success = loadBeam();
-	if(success)
+	if(success){
 		emit beamWizardFinished();
+		shapeModel_->setBeamConfigured(true);
+	}
 	else
 	{
 		AMErrorMon::alert(this, AMSAMPLECAMERAVIEW_LOADED_DEFAULT_BEAM, QString("Had to load the default beam configuration.") );
@@ -1590,8 +1592,10 @@ void AMSampleCameraView::requestLoadBeam()
 void AMSampleCameraView::requestLoadCamera()
 {
 	bool success = loadCamera();
-	if(success)
+	if(success){
 		emit cameraWizardFinished();
+		shapeModel_->setCameraConfigured(true);
+	}
 	else
 	{
 		AMErrorMon::alert(this, AMSAMPLECAMERAVIEW_LOADED_DEFAULT_CAMERA, QString("Had to load the default camera configuration.") );
@@ -1602,15 +1606,19 @@ void AMSampleCameraView::requestLoadCamera()
 void AMSampleCameraView::requestLoadSamplePlate()
 {
 	bool success = loadSamplePlate();
-	if(success)
+	if(success){
 		emit samplePlateWizardFinished(false);
+		shapeModel_->setSamplePlateConfigured(true);
+	}
 }
 
 void AMSampleCameraView::requestLoadRotationConfiguration()
 {
 	bool success = loadRotationalOffset();
-	if(success)
+	if(success){
 		emit rotationWizardFinished();
+		shapeModel_->setRotationConfigured(true);
+	}
 	else
 		AMErrorMon::alert(this, AMSAMPLECAMERAVIEW_LOADED_DEFAULT_ROTATION, QString("Had to load the default rotation configuration.") );
 }
