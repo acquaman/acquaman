@@ -30,7 +30,9 @@ SGMFastScanActionController::SGMFastScanActionController(SGMFastScanConfiguratio
 	scan_->setRunId(AMUser::user()->currentRunId());
 	scan_->setScanConfiguration(configuration_);
 	configuration_->setEnergyParameters(SGMBeamlineInfo::sgmInfo()->energyParametersForGrating(SGMBeamline::sgm()->currentGrating()));
-	scan_->setSampleId(SGMBeamline::sgm()->currentSampleId());
+	scan_->setSample(SGMBeamline::sgm()->currentSample());
+	if(SGMBeamline::sgm()->currentSample())
+		SGMBeamline::sgm()->currentSample()->addScan(scan_);
 	scan_->setIndexType("fileSystem");
 
 	QString scanName;
