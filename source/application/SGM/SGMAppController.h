@@ -124,6 +124,8 @@ protected slots:
 	/// Actually handles the resize for the above function some time later. Looks like one of the widgets or layouts takes quite a while to recalculate its minimumSizeHint() or its minimumSize()
 	void resizeToMinimum();
 
+	void resizeAfterStartup();
+
 	void onWorkflowActionAddedFromDialog(AMAction3 *action);
 
 protected:

@@ -30,6 +30,8 @@
 #include "beamline/SGM/SGMBeamline.h"
 #include "beamline/SGM/SGMMAXvMotor.h"
 #include "util/AMErrorMonitor.h"
+#include "actions3/AMListAction3.h"
+#include "actions3/actions/AMControlMoveAction3.h"
 
 #define TOPLEFT 0
 #define TOPRIGHT 1
@@ -1214,6 +1216,49 @@ void AMSampleCamera::moveToSampleRequested(AMShapeData *shapeData){
 	}
 	emit motorCoordinateChanged(motorCoordinate());
 	emit motorRotationChanged(motorRotation()->degrees());
+}
+
+AMAction3* AMSampleCamera::createMoveToSampleAction(const AMSample *sample){
+	if(!moveToBeam() || !enableMotorMovement_)
+		return 0;
+
+	AMShapeData *shapeData = sample->sampleShapePositionData();
+	QVector3D currentPosition = getPointOnShape(shapeData, shapeData->shape()->at(0));
+	QVector3D newPosition = beamIntersectionPoint(currentPosition, true);
+
+	QVector3D shift = newPosition - currentPosition;
+
+	/// current
+	double inboardOutboard;
+	double upStreamDownStream;
+	double upDown;
+
+	shift += motorCoordinate();
+	inboardOutboard = shift.x();
+	upStreamDownStream = shift.y();
+	upDown = shift.z();
+
+	AMControlMoveAction3 *moveAction;
+	AMControlInfo moveControlInfo;
+
+	AMListAction3 *retVal = new AMListAction3(new AMListActionInfo3("Move to sample", "Move to sample"), AMListAction3::Parallel);
+
+	moveControlInfo = ssaManipulatorX_->toInfo();
+	moveControlInfo.setValue(inboardOutboard);
+	moveAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(moveControlInfo), ssaManipulatorX_);
+	retVal->addSubAction(moveAction);
+
+	moveControlInfo = ssaManipulatorY_->toInfo();
+	moveControlInfo.setValue(upStreamDownStream);
+	moveAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(moveControlInfo), ssaManipulatorY_);
+	retVal->addSubAction(moveAction);
+
+	moveControlInfo = ssaManipulatorZ_->toInfo();
+	moveControlInfo.setValue(upDown);
+	moveAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(moveControlInfo), ssaManipulatorZ_);
+	retVal->addSubAction(moveAction);
+
+	return retVal;
 }
 
 /// moves the clicked point to appear under the crosshair, and gives the predicted motor coordinate

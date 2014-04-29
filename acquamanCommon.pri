@@ -14,10 +14,6 @@ USERNAME = $$system(whoami)
 
 # Automatically determines a user's home folder
 HOME_FOLDER = $$system(echo $HOME)
-user = $$system(whoami)
-contains(user,ludbae){
-    HOME_FOLDER=/home/ludbae
-}
 
 USERNAME = $$system(whoami)
 
@@ -162,7 +158,7 @@ linux-g++-64 {
 		DEV_PATH = beamline/programming
 
 		# The full path to the acquaman folder.  This MUST point to the location where acquamanCommon.pri lives.
-		PATH_TO_AM = $$HOME_FOLDER/$$DEV_PATH/acquamanTestSandbox
+		PATH_TO_AM = $$HOME_FOLDER/$$DEV_PATH/acquaman
 
 		# EPICS Dependencies:
 		EPICS_INCLUDE_DIRS = /home/epics/src/R3.14.12/base/include \
@@ -170,8 +166,8 @@ linux-g++-64 {
 		EPICS_LIB_DIR = /home/epics/src/R3.14.12/base/lib/linux-x86_64
 
 		# MPlot Source
-		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlotTestSandbox/include
-		MPLOT_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlotTestSandbox/lib
+		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/include
+		MPLOT_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/lib
 
 		# GSL Dependencies
 		GSL_INCLUDE_DIR = /home/beamline/tools/gsl/gsl-1.14-install/include
@@ -727,7 +723,10 @@ HEADERS += source/acquaman/AMRegion.h \
 	source/acquaman/AMScanActionControllerBasicFileWriter.h \
 	source/acquaman/AMTimedScanActionController.h \
 	source/acquaman/AMTimedRegionScanConfiguration.h \
-	source/acquaman/AMTimedScanConfigurationConverter.h
+	source/acquaman/AMTimedScanConfigurationConverter.h \
+    source/actions3/actions/AMSampleMoveActionInfo.h \
+    source/actions3/actions/AMSampleMoveAction.h \
+    source/actions3/editors/AMSampleMoveActionEditor.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1177,7 +1176,10 @@ SOURCES += source/acquaman/AMRegion.cpp \
 	source/acquaman/AMScanActionControllerBasicFileWriter.cpp \
 	source/acquaman/AMTimedScanActionController.cpp \
 	source/acquaman/AMTimedRegionScanConfiguration.cpp \
-	source/acquaman/AMTimedScanConfigurationConverter.cpp
+	source/acquaman/AMTimedScanConfigurationConverter.cpp \
+    source/actions3/actions/AMSampleMoveActionInfo.cpp \
+    source/actions3/actions/AMSampleMoveAction.cpp \
+    source/actions3/editors/AMSampleMoveActionEditor.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1201,3 +1203,9 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
+
+
+
+

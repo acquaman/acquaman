@@ -544,9 +544,9 @@ AMAction3* SGMBeamline::createGoToTransferPositionActions3(){
 	AMControlInfo manipulatorXSetpoint = ssaManipulatorX_->toInfo();
 	manipulatorXSetpoint.setValue(0.0);
 	AMControlInfo manipulatorYSetpoint = ssaManipulatorY_->toInfo();
-	manipulatorYSetpoint.setValue(-13.17);
+	manipulatorYSetpoint.setValue(-9.1);
 	AMControlInfo manipulatorZSetpoint = ssaManipulatorZ_->toInfo();
-	manipulatorZSetpoint.setValue(-77.0);
+	manipulatorZSetpoint.setValue(151.0);
 	AMControlInfo manipulatorRSetpoint = ssaManipulatorRot_->toInfo();
 	manipulatorRSetpoint.setValue(0.0);
 

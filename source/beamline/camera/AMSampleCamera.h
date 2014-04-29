@@ -37,6 +37,7 @@ class AMSample;
 class AMSamplePlate;
 class AMRotationalOffset;
 class AMAngle;
+class AMAction3;
 
 using namespace Eigen;
 
@@ -384,6 +385,8 @@ public slots:
 
 	/// request to move to a particular sample
 	void moveToSampleRequested(AMShapeData *shapeData);
+	/// Returns an action (list of actions) to move to the requested sample
+	AMAction3* createMoveToSampleAction(const AMSample *sample);
 
 	/// shifts all shapes so that position coincides with crosshairPosition
 	void shiftToPoint(QPointF position, QPointF crosshairPosition);
