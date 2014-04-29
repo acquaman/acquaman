@@ -5,6 +5,8 @@
 #include <QMenu>
 #include <QAction>
 
+#include "util/AMEnergyToKSpaceCalculator.h"
+
 // AMEXAFSScanAxisElementView
 /////////////////////////////////////////////
 
@@ -21,9 +23,9 @@ AMEXAFSScanAxisElementView::AMEXAFSScanAxisElementView(AMScanAxisEXAFSRegion *re
 
 	start_ = new QDoubleSpinBox;
 	start_->setRange(-100000, 100000);
-	start_->setSuffix(region_->inKSpace() ? "k" : " eV");
+	start_->setSuffix(" eV");
 	start_->setDecimals(2);
-	start_->setValue(region_->regionStart());
+	start_->setValue(region_->inKSpace() ? AMEnergyToKSpaceCalculator::energy(region_->edgeEnergy(), region_->regionStart()) : region_->regionStart());
 	start_->setAlignment(Qt::AlignCenter);
 	connect(region_, SIGNAL(regionStartChanged(AMNumber)), this, SLOT(setStartSpinBox(AMNumber)));
 	connect(start_, SIGNAL(editingFinished()), this, SLOT(onStartPositionUpdated()));
@@ -64,18 +66,24 @@ AMEXAFSScanAxisElementView::AMEXAFSScanAxisElementView(AMScanAxisEXAFSRegion *re
 	connect(region_, SIGNAL(maximumTimeChanged(AMNumber)), this, SLOT(setMaximumTimeSpinBox(AMNumber)));
 	connect(maximumTime_, SIGNAL(editingFinished()), this, SLOT(onMaximumTimeUpdated()));
 
+	QLabel *maximumTimeLabel = new QLabel("Max Time");
+	connect(inKSpace_, SIGNAL(toggled(bool)), maximumTimeLabel, SLOT(setVisible(bool)));
+	connect(inKSpace_, SIGNAL(toggled(bool)), maximumTime_, SLOT(setVisible(bool)));
+
+	maximumTimeLabel->setVisible(region_->inKSpace());
+	maximumTime_->setVisible(region_->inKSpace());
 
 	QHBoxLayout *elementViewLayout = new QHBoxLayout;
 	elementViewLayout->addWidget(inKSpace_);
-	elementViewLayout->addWidget(new QLabel("Start"));
+	elementViewLayout->addWidget(new QLabel("Start"), 0, Qt::AlignRight);
 	elementViewLayout->addWidget(start_);
-	elementViewLayout->addWidget(new QLabel(QString::fromUtf8("Δ")));
+	elementViewLayout->addWidget(new QLabel(QString::fromUtf8("Δ")), 0, Qt::AlignRight);
 	elementViewLayout->addWidget(delta_);
-	elementViewLayout->addWidget(new QLabel("End"));
+	elementViewLayout->addWidget(new QLabel("End"), 0, Qt::AlignRight);
 	elementViewLayout->addWidget(end_);
-	elementViewLayout->addWidget(new QLabel("Time"));
+	elementViewLayout->addWidget(new QLabel("Time"), 0, Qt::AlignRight);
 	elementViewLayout->addWidget(time_);
-	elementViewLayout->addWidget(new QLabel("Max Time"));
+	elementViewLayout->addWidget(maximumTimeLabel);
 	elementViewLayout->addWidget(maximumTime_);
 
 	setLayout(elementViewLayout);
@@ -83,7 +91,15 @@ AMEXAFSScanAxisElementView::AMEXAFSScanAxisElementView(AMScanAxisEXAFSRegion *re
 
 void AMEXAFSScanAxisElementView::setStartSpinBox(const AMNumber &value)
 {
-	if (double(value) != start_->value())
+	if (region_->inKSpace()){
+
+		AMNumber energy = AMEnergyToKSpaceCalculator::k(region_->edgeEnergy(), value);
+
+		if (double(energy) != double(energy))
+			start_->setValue(double(value));
+	}
+
+	else if (double(value) != start_->value())
 		start_->setValue(double(value));
 }
 
@@ -117,7 +133,6 @@ void AMEXAFSScanAxisElementView::onInKSpaceUpdated(bool inKSpace)
 
 	if (inKSpace){
 
-		start_->setSuffix("k");
 		delta_->setSuffix("k");
 		end_->setSuffix("k");
 		maximumTime_->show();
@@ -125,7 +140,6 @@ void AMEXAFSScanAxisElementView::onInKSpaceUpdated(bool inKSpace)
 
 	else {
 
-		start_->setSuffix(" eV");
 		delta_->setSuffix(" eV");
 		end_->setSuffix(" eV");
 		maximumTime_->hide();

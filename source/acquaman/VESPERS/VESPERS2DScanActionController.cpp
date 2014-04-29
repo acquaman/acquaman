@@ -171,6 +171,11 @@ void VESPERS2DScanActionController::buildScanControllerImplementation()
 	}
 }
 
+void VESPERS2DScanActionController::createAxisOrderMap()
+{
+	axisOrderMap_.insert(scan_->rawData()->scanAxisAt(0).name, 1);
+	axisOrderMap_.insert(scan_->rawData()->scanAxisAt(1).name, 0);
+}
 
 AMAction3* VESPERS2DScanActionController::createInitializationActions()
 {
