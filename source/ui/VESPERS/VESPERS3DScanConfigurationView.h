@@ -24,7 +24,7 @@ public:
 	VESPERS3DScanConfigurationView(VESPERS3DScanConfiguration *config, QWidget *parent = 0);
 
 	/// Getter for the configuration.
-	const AMScanConfiguration *configuration() const { return config_; }
+	const AMScanConfiguration *configuration() const { return configuration_; }
 
 	/// Method that updates the map info label based on the current values of the start, end, and step size.
 	void updateMapInfo();
@@ -64,20 +64,20 @@ protected slots:
 	/// Handles setting the name of the configuration from the line edit.
 	void onScanNameEdited();
 	/// Passes on the selection for I0 to the configuration.
-	void onI0Clicked(int id) { config_->setIncomingChoice(id); }
+	void onI0Clicked(int id) { configuration_->setIncomingChoice(id); }
 	/// Handles changes to the fluorescence detector choice.
 	void onFluorescenceChoiceChanged(int id);
 	/// Handles changes in the motor selection choice.
 	void onMotorChanged(int id);
 	/// Helper slot that sets the time offset for the scan.
-	void setTimeOffset(double time) { config_->setTimeOffset(time); }
+	void setTimeOffset(double time) { configuration_->setTimeOffset(time); }
 	/// Helper slot that handles the setting the estimated time label.
 	void onEstimatedTimeChanged();
 
 	/// Helper slot that passes the signal on to the base method.
-	void onConfigureXRFDetectorClicked() { emit configureDetector(fluorescenceDetectorIdToString(int(config_->fluorescenceDetector()))); }
+	void onConfigureXRFDetectorClicked() { emit configureDetector(fluorescenceDetectorIdToString(int(configuration_->fluorescenceDetector()))); }
 	/// Emits the configureDetector signal based with 'Roper CCD'.
-	void onConfigureCCDDetectorClicked() { emit configureDetector(ccdDetectorIdToString(int(config_->ccdDetector()))); }
+	void onConfigureCCDDetectorClicked() { emit configureDetector(ccdDetectorIdToString(int(configuration_->ccdDetector()))); }
 	/// Updates roiText_ based on the current state of the ROI list.
 	void updateRoiText();
 
@@ -89,9 +89,9 @@ protected slots:
 	void updateZStep(double val) { wireStep_->setValue(val*1000); }
 
 	/// Helper slot that sets whether we use SMAK or Ascii for the auto exporter.
-	void updateAutoExporter(int useAscii) { config_->setExportAsAscii(useAscii == 0); }
+	void updateAutoExporter(int useAscii) { configuration_->setExportAsAscii(useAscii == 0); }
 	/// Helper slot that sets whether we export spectra in rows or columns.
-	void updateExportSpectraInRows(bool exportInColumns) { config_->setExportSpectraInRows(!exportInColumns); }
+	void updateExportSpectraInRows(bool exportInColumns) { configuration_->setExportSpectraInRows(!exportInColumns); }
 
 protected:
 	/// Reimplements the show event to update the Regions of Interest text.
@@ -102,7 +102,7 @@ protected:
 	void checkCCDFileNames(const QString &name) const;
 
 	/// Pointer to the specific scan config the view is modifying.
-	VESPERS3DScanConfiguration *config_;
+	VESPERS3DScanConfiguration *configuration_;
 
 	/// Pointer to the horizontal start point.
 	QDoubleSpinBox *hStart_;
