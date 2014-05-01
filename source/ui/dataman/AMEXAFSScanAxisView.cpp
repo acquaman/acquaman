@@ -4,6 +4,9 @@
 #include <QHBoxLayout>
 #include <QMenu>
 #include <QAction>
+#include <math.h>
+
+#include "util/AMEnergyToKSpaceCalculator.h"
 
 // AMEXAFSScanAxisElementView
 /////////////////////////////////////////////
@@ -13,19 +16,13 @@ AMEXAFSScanAxisElementView::AMEXAFSScanAxisElementView(AMScanAxisEXAFSRegion *re
 {
 	region_ = region;
 
-	inKSpace_ = new QCheckBox;
-	inKSpace_->setText("k-space");
-	inKSpace_->setChecked(region_->inKSpace());
-	connect(region_, SIGNAL(inKSpaceChanged(bool)), inKSpace_, SLOT(setChecked(bool)));
-	connect(inKSpace_, SIGNAL(toggled(bool)), this, SLOT(onInKSpaceUpdated(bool)));
-
 	start_ = new QDoubleSpinBox;
 	start_->setRange(-100000, 100000);
-	start_->setSuffix(region_->inKSpace() ? "k" : " eV");
+	start_->setSuffix(" eV");
 	start_->setDecimals(2);
-	start_->setValue(region_->regionStart());
+	start_->setValue(region_->inKSpace() ? double(AMEnergyToKSpaceCalculator::energy(region_->edgeEnergy(), region_->regionStart())) - double(region_->edgeEnergy()) : double(region_->regionStart()) - double(region_->edgeEnergy()));
+	start_->setDisabled(region_->inKSpace());
 	start_->setAlignment(Qt::AlignCenter);
-	connect(region_, SIGNAL(regionStartChanged(AMNumber)), this, SLOT(setStartSpinBox(AMNumber)));
 	connect(start_, SIGNAL(editingFinished()), this, SLOT(onStartPositionUpdated()));
 
 	delta_ = new QDoubleSpinBox;
@@ -41,9 +38,8 @@ AMEXAFSScanAxisElementView::AMEXAFSScanAxisElementView(AMScanAxisEXAFSRegion *re
 	end_->setRange(-100000, 100000);
 	end_->setSuffix(region_->inKSpace() ? "k" : " eV");
 	end_->setDecimals(2);
-	end_->setValue(region_->regionEnd());
+	end_->setValue(region_->inKSpace() ? double(region_->regionEnd()) : double(region_->regionEnd()) - double(region_->edgeEnergy()));
 	end_->setAlignment(Qt::AlignCenter);
-	connect(region_, SIGNAL(regionEndChanged(AMNumber)), this, SLOT(setEndSpinBox(AMNumber)));
 	connect(end_, SIGNAL(editingFinished()), this, SLOT(onEndPositionUpdated()));
 
 	time_ = new QDoubleSpinBox;
@@ -64,18 +60,20 @@ AMEXAFSScanAxisElementView::AMEXAFSScanAxisElementView(AMScanAxisEXAFSRegion *re
 	connect(region_, SIGNAL(maximumTimeChanged(AMNumber)), this, SLOT(setMaximumTimeSpinBox(AMNumber)));
 	connect(maximumTime_, SIGNAL(editingFinished()), this, SLOT(onMaximumTimeUpdated()));
 
+	QLabel *maximumTimeLabel = new QLabel("Max Time");
+	maximumTimeLabel->setVisible(region_->inKSpace());
+	maximumTime_->setVisible(region_->inKSpace());
 
 	QHBoxLayout *elementViewLayout = new QHBoxLayout;
-	elementViewLayout->addWidget(inKSpace_);
-	elementViewLayout->addWidget(new QLabel("Start"));
+	elementViewLayout->addWidget(new QLabel("Start"), 0, Qt::AlignCenter);
 	elementViewLayout->addWidget(start_);
-	elementViewLayout->addWidget(new QLabel(QString::fromUtf8("Δ")));
+	elementViewLayout->addWidget(new QLabel(QString::fromUtf8("Δ")), 0, Qt::AlignCenter);
 	elementViewLayout->addWidget(delta_);
-	elementViewLayout->addWidget(new QLabel("End"));
+	elementViewLayout->addWidget(new QLabel("End"), 0, Qt::AlignCenter);
 	elementViewLayout->addWidget(end_);
-	elementViewLayout->addWidget(new QLabel("Time"));
+	elementViewLayout->addWidget(new QLabel("Time"), 0, Qt::AlignCenter);
 	elementViewLayout->addWidget(time_);
-	elementViewLayout->addWidget(new QLabel("Max Time"));
+	elementViewLayout->addWidget(maximumTimeLabel);
 	elementViewLayout->addWidget(maximumTime_);
 
 	setLayout(elementViewLayout);
@@ -83,19 +81,24 @@ AMEXAFSScanAxisElementView::AMEXAFSScanAxisElementView(AMScanAxisEXAFSRegion *re
 
 void AMEXAFSScanAxisElementView::setStartSpinBox(const AMNumber &value)
 {
-	if (double(value) != start_->value())
+	if (double(value) != start_->value()){
+
 		start_->setValue(double(value));
+
+		if (region_->inKSpace())
+			region_->setRegionStart(AMEnergyToKSpaceCalculator::k(region_->edgeEnergy(), start_->value()+double(region_->edgeEnergy())));
+	}
 }
 
 void AMEXAFSScanAxisElementView::setDeltaSpinBox(const AMNumber &value)
 {
-	if (double(value) != delta_->value())
+	if ((double(value) - delta_->value()) < pow(1, -1*delta_->decimals()))
 		delta_->setValue(double(value));
 }
 
 void AMEXAFSScanAxisElementView::setEndSpinBox(const AMNumber &value)
 {
-	if (double(value) != end_->value())
+	if ((double(value) != end_->value()))
 		end_->setValue(double(value));
 }
 
@@ -111,30 +114,15 @@ void AMEXAFSScanAxisElementView::setMaximumTimeSpinBox(const AMNumber &value)
 		maximumTime_->setValue(double(value));
 }
 
-void AMEXAFSScanAxisElementView::onInKSpaceUpdated(bool inKSpace)
-{
-	region_->setInKSpace(inKSpace);
-
-	if (inKSpace){
-
-		start_->setSuffix("k");
-		delta_->setSuffix("k");
-		end_->setSuffix("k");
-		maximumTime_->show();
-	}
-
-	else {
-
-		start_->setSuffix(" eV");
-		delta_->setSuffix(" eV");
-		end_->setSuffix(" eV");
-		maximumTime_->hide();
-	}
-}
-
 void AMEXAFSScanAxisElementView::onStartPositionUpdated()
 {
-	region_->setRegionStart(start_->value());
+	if (region_->inKSpace())
+		region_->setRegionStart(AMEnergyToKSpaceCalculator::k(region_->edgeEnergy(), start_->value()+double(region_->edgeEnergy())));
+
+	else
+		region_->setRegionStart(start_->value() + double(region_->edgeEnergy()));
+
+	emit startValueChanged(start_->value());
 }
 
 void AMEXAFSScanAxisElementView::onDeltaPositionUpdated()
@@ -144,7 +132,13 @@ void AMEXAFSScanAxisElementView::onDeltaPositionUpdated()
 
 void AMEXAFSScanAxisElementView::onEndPositionUpdated()
 {
-	region_->setRegionEnd(end_->value());
+	if (region_->inKSpace())
+		region_->setRegionEnd(end_->value());
+
+	else
+		region_->setRegionEnd(end_->value() + double(region_->edgeEnergy()));
+
+	emit endValueChanged(end_->value());
 }
 
 void AMEXAFSScanAxisElementView::onTimeUpdated()
@@ -155,6 +149,17 @@ void AMEXAFSScanAxisElementView::onTimeUpdated()
 void AMEXAFSScanAxisElementView::onMaximumTimeUpdated()
 {
 	region_->setMaximumTime(maximumTime_->value());
+}
+
+void AMEXAFSScanAxisElementView::setEdgeEnergy(const AMNumber &energy)
+{
+	region_->setEdgeEnergy(energy);
+
+	if (!region_->inKSpace()){
+
+		region_->setRegionStart(start_->value() + double(energy));
+		region_->setRegionEnd(end_->value() + double(energy));
+	}
 }
 
 // AMEXAFSScanAxisView
@@ -213,25 +218,25 @@ void AMEXAFSScanAxisView::onLockRegionsToggled(bool toggled)
 
 void AMEXAFSScanAxisView::connectRegions() const
 {
-	for (int i = 0, size = configuration_->scanAxisAt(0)->regionCount(); i < size; i++){
+	for (int i = 0, size = lockedElementViewList_.size(); i < size; i++){
 
 		if (i != 0)
-			connect(configuration_->scanAxisAt(0)->regionAt(i), SIGNAL(regionStartChanged(AMNumber)), configuration_->scanAxisAt(0)->regionAt(i-1), SLOT(setRegionEnd(AMNumber)));
+			connect(lockedElementViewList_.at(i), SIGNAL(startValueChanged(AMNumber)), lockedElementViewList_.at(i-1), SLOT(setEndSpinBox(AMNumber)));
 
 		if (i != (size-1))
-			connect(configuration_->scanAxisAt(0)->regionAt(i), SIGNAL(regionEndChanged(AMNumber)), configuration_->scanAxisAt(0)->regionAt(i+1), SLOT(setRegionStart(AMNumber)));
+			connect(lockedElementViewList_.at(i), SIGNAL(endValueChanged(AMNumber)), lockedElementViewList_.at(i+1), SLOT(setStartSpinBox(AMNumber)));
 	}
 }
 
 void AMEXAFSScanAxisView::disconnectRegions() const
 {
-	for (int i = 0, size = configuration_->scanAxisAt(0)->regionCount(); i < size; i++){
+	for (int i = 0, size = lockedElementViewList_.size(); i < size; i++){
 
 		if (i != 0)
-			disconnect(configuration_->scanAxisAt(0)->regionAt(i), SIGNAL(regionStartChanged(AMNumber)), configuration_->scanAxisAt(0)->regionAt(i-1), SLOT(setRegionEnd(AMNumber)));
+			disconnect(lockedElementViewList_.at(i), SIGNAL(startValueChanged(AMNumber)), lockedElementViewList_.at(i-1), SLOT(setEndSpinBox(AMNumber)));
 
 		if (i != (size-1))
-			disconnect(configuration_->scanAxisAt(0)->regionAt(i), SIGNAL(regionEndChanged(AMNumber)), configuration_->scanAxisAt(0)->regionAt(i+1), SLOT(setRegionStart(AMNumber)));
+			disconnect(lockedElementViewList_.at(i), SIGNAL(endValueChanged(AMNumber)), lockedElementViewList_.at(i+1), SLOT(setStartSpinBox(AMNumber)));
 	}
 }
 
@@ -239,9 +244,17 @@ void AMEXAFSScanAxisView::onAddRegionButtonClicked()
 {
 	if (configuration_->scanAxisAt(0)->regionCount() == 0){
 
-		AMScanAxisEXAFSRegion *region = new AMScanAxisEXAFSRegion(-1, -1, -1, -1, false, -1);
-		configuration_->scanAxisAt(0)->appendRegion(region);
-		buildScanAxisRegionView(0, region);
+		QMenu menu(addRegionButton_);
+		menu.addAction("Add energy region...");
+		menu.addAction("Add k-space region...");
+		QAction *temp = menu.exec(mapToGlobal(addRegionButton_->pos()));
+
+		if (temp){
+
+			AMScanAxisEXAFSRegion *region = new AMScanAxisEXAFSRegion(-1, -1, -1, -1, temp->text().contains("k-space"), -1);
+			configuration_->scanAxisAt(0)->appendRegion(region);
+			buildScanAxisRegionView(0, region);
+		}
 	}
 
 	else {
@@ -250,12 +263,19 @@ void AMEXAFSScanAxisView::onAddRegionButtonClicked()
 		QAction *temp = menu.addAction("Add region to...");
 		temp->setDisabled(true);
 
-		menu.addAction("Beginning");
+		menu.addAction("Beginning as energy");
 
 		for (int i = 1, size = configuration_->scanAxisAt(0)->regionCount(); i < size; i++)
-			menu.addAction(QString("Between %1 and %2").arg(i).arg(i+1));
+			menu.addAction(QString("Between %1 and %2 as energy").arg(i).arg(i+1));
 
-		menu.addAction("End");
+		menu.addAction("End as energy");
+		menu.addSeparator();
+		menu.addAction("Beginning in k-space");
+
+		for (int i = 1, size = configuration_->scanAxisAt(0)->regionCount(); i < size; i++)
+			menu.addAction(QString("Between %1 and %2 in k-space").arg(i).arg(i+1));
+
+		menu.addAction("End in k-space");
 
 		temp = menu.exec(mapToGlobal(addRegionButton_->pos()));
 
@@ -264,17 +284,23 @@ void AMEXAFSScanAxisView::onAddRegionButtonClicked()
 			if (regionsLocked())
 				disconnectRegions();
 
-			if (temp->text() == "Beginning"){
+			if (temp->text().contains("Beginning")){
 
 				AMScanAxisEXAFSRegion *region = qobject_cast<AMScanAxisEXAFSRegion *>(configuration_->scanAxisAt(0)->regionAt(0)->createCopy());
+				region->setRegionEnd(configuration_->scanAxisAt(0)->regionAt(0)->regionStart());
+				region->setRegionStart(double(region->regionEnd())-10.0);
+				region->setInKSpace(temp->text().contains("k-space"));
 				configuration_->scanAxisAt(0)->insertRegion(0, region);
 				buildScanAxisRegionView(0, region);
 			}
 
-			else if (temp->text() == "End"){
+			else if (temp->text().contains("End")){
 
 				int indexOfEnd = configuration_->scanAxisAt(0)->regionCount();
 				AMScanAxisEXAFSRegion *region = qobject_cast<AMScanAxisEXAFSRegion *>(configuration_->scanAxisAt(0)->regionAt(indexOfEnd-1)->createCopy());
+				region->setRegionStart(configuration_->scanAxisAt(0)->regionAt(indexOfEnd-1)->regionEnd());
+				region->setRegionEnd(double(region->regionEnd())+10.0);
+				region->setInKSpace(temp->text().contains("k-space"));
 				configuration_->scanAxisAt(0)->insertRegion(indexOfEnd, region);
 				buildScanAxisRegionView(indexOfEnd, region);
 			}
@@ -283,6 +309,9 @@ void AMEXAFSScanAxisView::onAddRegionButtonClicked()
 
 				int index = temp->text().split(" ").at(1).toInt();
 				AMScanAxisEXAFSRegion *region = qobject_cast<AMScanAxisEXAFSRegion *>(configuration_->scanAxisAt(0)->regionAt(index)->createCopy());
+				region->setRegionStart(configuration_->scanAxisAt(0)->regionAt(index-1)->regionEnd());
+				region->setRegionEnd(configuration_->scanAxisAt(0)->regionAt(index+1)->regionStart());
+				region->setInKSpace(temp->text().contains("k-space"));
 				configuration_->scanAxisAt(0)->insertRegion(index, region);
 				buildScanAxisRegionView(index, region);
 			}
@@ -302,11 +331,35 @@ void AMEXAFSScanAxisView::onDeleteButtonClicked(QAbstractButton *button)
 	configuration_->scanAxisAt(0)->removeRegion(view->region());
 	deleteButtonGroup_->removeButton(button);
 	regionMap_.remove(button);
+	lockedElementViewList_.removeOne(view);
 	layout()->removeItem(layoutMap_.value(button));
 	layoutMap_.take(button)->deleteLater();
 	view->region()->deleteLater();
 	view->deleteLater();
 	button->deleteLater();
+
+	if (regionsLocked())
+		connectRegions();
+}
+
+void AMEXAFSScanAxisView::insertEXAFSRegion(int index, AMScanAxisEXAFSRegion *region)
+{
+	if (regionsLocked())
+		disconnectRegions();
+
+	configuration_->scanAxisAt(0)->insertRegion(index, region);
+	buildScanAxisRegionView(index, region);
+
+	if (regionsLocked())
+		connectRegions();
+}
+
+void AMEXAFSScanAxisView::removeEXAFSRegion(int index)
+{
+	if (regionsLocked())
+		disconnectRegions();
+
+	onDeleteButtonClicked(regionMap_.key(lockedElementViewList_.at(index)));
 
 	if (regionsLocked())
 		connectRegions();
@@ -326,11 +379,15 @@ void AMEXAFSScanAxisView::buildScanAxisRegionView(int index, AMScanAxisEXAFSRegi
 	layout->addWidget(deleteButton);
 
 	// Need to account for the title row.
-	index++;
-
-	scanAxisViewLayout_->insertLayout(index, layout);
+	scanAxisViewLayout_->insertLayout(index+1, layout);
 	deleteButtonGroup_->addButton(deleteButton);
 	regionMap_.insert(deleteButton, elementView);
 	layoutMap_.insert(deleteButton, layout);
+	lockedElementViewList_.insert(index, elementView);
 }
 
+void AMEXAFSScanAxisView::setEdgeEnergy(const AMNumber &energy)
+{
+	foreach (AMEXAFSScanAxisElementView *view, regionMap_.values())
+		view->setEdgeEnergy(energy);
+}

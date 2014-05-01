@@ -56,6 +56,11 @@ protected:
 
 	/// Creates the scan assembler that builds all the actions used to run the scan.
 	virtual void createScanAssembler();
+	/// Creates the axis order for higher dimensional scans.  The default order is the axis order, but if a different order is desired, then you should reimplement this in subclasses.
+	/*!
+		Be sure to use scan_->rawData() for access to the scan axes and not the configuration, as they haven't been properly configured by the time this has been called.
+	  */
+	virtual void createAxisOrderMap();
 
 	/// Method that writes out the header information into the scanning file.
 	void writeHeaderToFile();
@@ -79,6 +84,8 @@ protected:
 	QVector<double> currentAxisValues_;
 	/// The names of the axis controls.
 	QStringList axisNames_;
+	/// The axis order mapping.  The mapping is <scan axis name, desired index>.  As with any list, the index should be between 0 and scanRank()-1.
+	QMap<QString, int> axisOrderMap_;
 
 	/// Pointer to the thread that handles all the file writing.
 	QThread *fileWriterThread_;

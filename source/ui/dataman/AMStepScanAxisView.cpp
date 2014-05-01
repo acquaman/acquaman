@@ -162,25 +162,25 @@ void AMStepScanAxisView::onLockRegionsToggled(bool toggled)
 
 void AMStepScanAxisView::connectRegions() const
 {
-	for (int i = 0, size = configuration_->scanAxisAt(0)->regionCount(); i < size; i++){
+	for (int i = 0, size = lockedElementViewList_.size(); i < size; i++){
 
 		if (i != 0)
-			connect(configuration_->scanAxisAt(0)->regionAt(i), SIGNAL(regionStartChanged(AMNumber)), configuration_->scanAxisAt(0)->regionAt(i-1), SLOT(setRegionEnd(AMNumber)));
+			connect(lockedElementViewList_.at(i), SIGNAL(startValueChanged(AMNumber)), lockedElementViewList_.at(i-1), SLOT(setEndSpinBox(AMNumber)));
 
 		if (i != (size-1))
-			connect(configuration_->scanAxisAt(0)->regionAt(i), SIGNAL(regionEndChanged(AMNumber)), configuration_->scanAxisAt(0)->regionAt(i+1), SLOT(setRegionStart(AMNumber)));
+			connect(lockedElementViewList_.at(i), SIGNAL(endValueChanged(AMNumber)), lockedElementViewList_.at(i+1), SLOT(setStartSpinBox(AMNumber)));
 	}
 }
 
 void AMStepScanAxisView::disconnectRegions() const
 {
-	for (int i = 0, size = configuration_->scanAxisAt(0)->regionCount(); i < size; i++){
+	for (int i = 0, size = lockedElementViewList_.size(); i < size; i++){
 
 		if (i != 0)
-			disconnect(configuration_->scanAxisAt(0)->regionAt(i), SIGNAL(regionStartChanged(AMNumber)), configuration_->scanAxisAt(0)->regionAt(i-1), SLOT(setRegionEnd(AMNumber)));
+			disconnect(lockedElementViewList_.at(i), SIGNAL(startValueChanged(AMNumber)), lockedElementViewList_.at(i-1), SLOT(setEndSpinBox(AMNumber)));
 
 		if (i != (size-1))
-			disconnect(configuration_->scanAxisAt(0)->regionAt(i), SIGNAL(regionEndChanged(AMNumber)), configuration_->scanAxisAt(0)->regionAt(i+1), SLOT(setRegionStart(AMNumber)));
+			disconnect(lockedElementViewList_.at(i), SIGNAL(endValueChanged(AMNumber)), lockedElementViewList_.at(i+1), SLOT(setStartSpinBox(AMNumber)));
 	}
 }
 
@@ -275,10 +275,9 @@ void AMStepScanAxisView::buildScanAxisRegionView(int index, AMScanAxisRegion *re
 	layout->addWidget(deleteButton);
 
 	// Need to account for the title row.
-	index++;
-
-	scanAxisViewLayout_->insertLayout(index, layout);
+	scanAxisViewLayout_->insertLayout(index+1, layout);
 	deleteButtonGroup_->addButton(deleteButton);
 	regionMap_.insert(deleteButton, elementView);
 	layoutMap_.insert(deleteButton, layout);
+	lockedElementViewList_.insert(index, elementView);
 }

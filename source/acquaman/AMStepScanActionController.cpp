@@ -37,6 +37,12 @@ void AMStepScanActionController::createScanAssembler()
 	scanAssembler_ = new AMGenericScanActionControllerAssembler(this);
 }
 
+void AMStepScanActionController::createAxisOrderMap()
+{
+	for (int i = 0, size = stepConfiguration_->scanAxes().size(); i < size; i++)
+		axisOrderMap_.insert(scan_->rawData()->scanAxisAt(0).name, i);
+}
+
 void AMStepScanActionController::buildScanController()
 {
 	// Build the scan assembler.
@@ -50,10 +56,11 @@ void AMStepScanActionController::buildScanController()
 		currentAxisValues_ << 0;
 		stepConfiguration_->scanAxisAt(i)->setName(scan_->rawData()->scanAxisAt(i).name);
 
-		for (int j = 0, regionCount = stepConfiguration_->scanAxisAt(i)->regionCount(); j < regionCount; j++)
-			stepConfiguration_->scanAxisAt(i)->regionAt(j)->setName(QString("%1 %2 %3").arg(scan_->rawData()->scanAxisAt(i).name).arg("region").arg(j+1));
+		for (int j = 0, regionCount = stepConfiguration_->scanAxisAt(i)->regionCount(); j < regionCount; j++){
+			stepConfiguration_->scanAxisAt(i)->regionAt(j)->setName(QString("%1 %2 %3").arg(scan_->rawData()->scanAxisAt(i).name).arg("region").arg(j+1));qDebug() << double(stepConfiguration_->scanAxisAt(i)->regionAt(j)->regionStart()) << double(stepConfiguration_->scanAxisAt(i)->regionAt(j)->regionEnd());
+		}
 
-		scanAssembler_->appendAxis(AMBeamline::bl()->exposedControlByInfo(stepConfiguration_->axisControlInfos().at(i)), stepConfiguration_->scanAxisAt(i));
+		scanAssembler_->insertAxis(axisOrderMap_.value(scan_->rawData()->scanAxisAt(i).name), AMBeamline::bl()->exposedControlByInfo(stepConfiguration_->axisControlInfos().at(i)), stepConfiguration_->scanAxisAt(i));
 	}
 
 	// Add all the detectors.

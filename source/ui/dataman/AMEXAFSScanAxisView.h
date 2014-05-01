@@ -25,7 +25,13 @@ public:
 	/// Returns the region this view looks at.
 	AMScanAxisEXAFSRegion *region() const { return region_; }
 
-protected slots:
+signals:
+	/// Notifier that the start has changed.  This is ALWAYS in eV.
+	void startValueChanged(const AMNumber &);
+	/// Notifier that the end has changed.  This is ALWAYS in eV.
+	void endValueChanged(const AMNumber &);
+
+public slots:
 	/// Sets the value for the start spin box.
 	void setStartSpinBox(const AMNumber &value);
 	/// Sets the value for the delta spin box.
@@ -36,9 +42,10 @@ protected slots:
 	void setTimeSpinBox(const AMNumber &value);
 	/// Sets the value for the maximum time sping box.
 	void setMaximumTimeSpinBox(const AMNumber &value);
+	/// Sets the edge energy.  Readjusts the region based on current values inside of start and end spin boxes.
+	void setEdgeEnergy(const AMNumber &energy);
 
-	/// Handles setting the inKSpace flag of the region.
-	void onInKSpaceUpdated(bool inKSpace);
+protected slots:
 	/// Handles setting the start position of the region.
 	void onStartPositionUpdated();
 	/// Handles setting the delta position of the region.
@@ -54,8 +61,6 @@ protected:
 
 	/// The pointer to the region.
 	AMScanAxisEXAFSRegion *region_;
-	/// The check box that switches whether the region is in k space or not.
-	QCheckBox *inKSpace_;
 	/// The spin box that holds the start position.
 	QDoubleSpinBox *start_;
 	/// The spin box that holds the delta position.
@@ -80,6 +85,12 @@ public:
 signals:
 
 public slots:
+	/// Sets the edge energy for the main view.  Passes it along to all element views underneath.
+	void setEdgeEnergy(const AMNumber &energy);
+	/// Adds a region to the axis.
+	void insertEXAFSRegion(int index, AMScanAxisEXAFSRegion *region);
+	/// Removes a region from the given index.
+	void removeEXAFSRegion(int index);
 
 protected slots:
 	/// Handles adding a new region.
@@ -101,6 +112,8 @@ protected:
 
 	/// The pointer to the scan configuration that holds the container of the scan axes.
 	AMStepScanConfiguration *configuration_;
+	/// List specifically for locking the regions together properly.
+	QList<AMEXAFSScanAxisElementView *> lockedElementViewList_;
 	/// A mapping that maps the delete button to the region it is associated with.
 	QMap<QAbstractButton *, AMEXAFSScanAxisElementView *> regionMap_;
 	/// A map that holds the layout that holds the delete button and the element view for memory management.
