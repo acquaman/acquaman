@@ -64,22 +64,26 @@ void AMSampleMoveAction::startImplementation(){
 	AMSampleCamera *camera = AMSampleCamera::set();
 	if(!camera){
 		AMErrorMon::alert(this, AMSAMPLEMOVEACTION_CAMERA_NOT_AVAILABLE, QString("The action could not start because there is no sample camera available."));
+		setFailed();
 		return;
 	}
 	// Check that the camera system is fully calibrated with a beam
 	if(!camera->allConfigured()){
 		AMErrorMon::alert(this, AMSAMPLEMOVEACTION_CAMERA_NOT_CONFIGURED, QString("The action could not start because the sample camera is not configured properly."));
+		setFailed();
 		return;
 	}
 
 	// Check that we have a sample plate
 	if(!AMBeamline::bl()->samplePlate()){
 		AMErrorMon::alert(this, AMSAMPLEMOVEACTION_NO_SAMPLE_PLATE, QString("The action could not start because there is no sample plate."));
+		setFailed();
 		return;
 	}
 	// Check that this sample is on that plate
 	if(AMBeamline::bl()->samplePlate()->indexOfSample(sampleMoveInfo()->sample()) == -1){
 		AMErrorMon::alert(this, AMSAMPLEMOVEACTION_SAMPLE_NOT_ON_PLATE, QString("The action could not start because the sample requested is not on the current plate."));
+		setFailed();
 		return;
 	}
 

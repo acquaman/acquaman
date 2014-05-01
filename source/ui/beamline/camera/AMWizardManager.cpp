@@ -68,6 +68,9 @@ const AMGraphicsViewWizard *AMWizardManager::rotationWizard()
 void AMWizardManager::startCameraWizard()
 {
 	cameraWizard_ = new AMCameraConfigurationWizard();
+
+	cameraWizard_->setModal(true);
+
 	connect(cameraWizard_, SIGNAL(done(int)), this, SLOT(cameraWizardDone()));
 	connect(cameraWizard_, SIGNAL(requestMotorMovementEnabled()), this, SIGNAL(transmitMotorMovementEnabled()));
 	connect(cameraWizard_, SIGNAL(moveTo(QVector3D)), this, SIGNAL(moveBeamSamplePlate(QVector3D)));
@@ -86,6 +89,9 @@ void AMWizardManager::startBeamWizard()
 		beamWizard_ = new AMBeamConfigurationWizard();
 	else if(beamWizardType() == SIMPLE)
 		beamWizard_ = new AMSimpleBeamConfigurationWizard();
+
+	beamWizard_->setModal(true);
+
 	connect(beamWizard_, SIGNAL(showShape(int)), this, SIGNAL(beamShape(int)));
 	connect(beamWizard_, SIGNAL(done(int)), this, SLOT(beamWizardDone()));
 	connect(beamWizard_, SIGNAL(moveTo(QVector3D)), this, SIGNAL(moveBeamSamplePlate(QVector3D)));
@@ -117,14 +123,15 @@ void AMWizardManager::startSampleWizard()
 		samplePlateWizard_ = new AMSimpleSamplePlateWizard();
 		connect(samplePlateWizard_, SIGNAL(done(int)), this, SLOT(sampleWizardDone()));
 	}
+	samplePlateWizard_->setModal(true);
 
 	AMSampleCameraGraphicsView* view = new AMSampleCameraGraphicsView();
 	connect(samplePlateWizard_, SIGNAL(requestMotorMovementEnabled()), this, SIGNAL(transmitMotorMovementEnabled()));
 	connect(samplePlateWizard_, SIGNAL(moveTo(QVector3D,double)), this, SIGNAL(moveBeamSamplePlate(QVector3D,double)));
 	connect(this, SIGNAL(motorMovementEnabled(bool)), samplePlateWizard_, SLOT(setMotorMovementEnabled(bool)));
 	connect(this, SIGNAL(moveSucceeded()), samplePlateWizard_, SIGNAL(moveSucceeded()));
-	connect(samplePlateWizard_, SIGNAL(requestRotation()), this, SIGNAL(transmitMotorRotation()));
-	connect(this, SIGNAL(motorRotation(double)), samplePlateWizard_, SLOT(setCurrentRotation(double)));
+	//connect(samplePlateWizard_, SIGNAL(requestRotation()), this, SIGNAL(transmitMotorRotation()));
+	//connect(this, SIGNAL(motorRotation(double)), samplePlateWizard_, SLOT(setCurrentRotation(double)));
 	connect(samplePlateWizard_, SIGNAL(signalInitializeSampleShape()), this, SIGNAL(initializeSampleShape()));
 	connect(samplePlateWizard_, SIGNAL(signalShiftSampleShape(QPointF)), this, SIGNAL(shiftSampleShape(QPointF)));
 	connect(samplePlateWizard_, SIGNAL(signalSamplePlateWizardMousePressed(QPointF)), this, SIGNAL(sampleShapeMousePressed(QPointF)));
@@ -138,6 +145,9 @@ void AMWizardManager::startSampleWizard()
 void AMWizardManager::startRotationWizard()
 {
 	rotationWizard_ = new AMRotationWizard();
+
+	rotationWizard_->setModal(true);
+
 	AMSampleCameraGraphicsView* view = new AMSampleCameraGraphicsView();
 	/// \todo other things here
 	connect(rotationWizard_, SIGNAL(done(int)), this, SLOT(rotationWizardDone()));

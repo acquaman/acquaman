@@ -2396,17 +2396,9 @@ void AMSampleCameraView::setGUI(ViewType viewType)
 	groupAction_ = new QAction("Group", actionGroup);
 	groupAction_->setCheckable(true);
 
-
-
-
-
-
-
-
-
 	toolBar_->addAction(markAction_);
-	toolBar_->addAction(moveAction_);
-	toolBar_->addAction(editAction_);
+	//toolBar_->addAction(moveAction_);
+	//toolBar_->addAction(editAction_);
 	if(viewType == DEBUG)
 		toolBar_->addAction(shiftAction_);
 	toolBar_->addAction(operationAction_);
@@ -2427,8 +2419,8 @@ void AMSampleCameraView::setGUI(ViewType viewType)
 	viewName_->setChecked(true);
 
 	labelToolBar_->addAction(viewName_);
-	labelToolBar_->addAction(viewOtherData_);
-	labelToolBar_->addAction(viewIdNumber_);
+	//labelToolBar_->addAction(viewOtherData_);
+	//labelToolBar_->addAction(viewIdNumber_);
 	labelToolBar_->addAction(viewHidden_);
 
 	if(viewType == CONDENSED)

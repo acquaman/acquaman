@@ -27,8 +27,9 @@ AMSimpleSamplePlateWizard::AMSimpleSamplePlateWizard(QWidget *parent)
 
 	for(int i = 0; i < numberOfPages(); i++)
 	{
-		setPage(pageWait(i), new AMSimpleSampleWaitPage);
+		qDebug() << "Setting wait page and set page for index " << i;
 		setPage(pageSet(i), new AMSimpleSampleSetPage);
+		setPage(pageWait(i), new AMSimpleSampleWaitPage);
 		connect(page(pageSet(i)), SIGNAL(signalMousePressed(QPointF)), this, SLOT(setPageMousePressedHandler(QPointF)));
 	}
 
@@ -62,8 +63,10 @@ int AMSimpleSamplePlateWizard::nextId() const
 	case Page_Intro:
 		if(showOptionPage())
 			return Page_Option;
-		else
-			return pageSet(0);
+		else{
+			return pageWait(0);
+//			return pageSet(0);
+		}
 	case Page_Final:
 		return -1;
 	default:
@@ -290,5 +293,9 @@ void AMSimpleSampleSetPage::disconnectMouseSignal()
 
 void AMSimpleSampleWaitPage::initializePage()
 {
+	qDebug() << "Here in AMSimpleSampleWaitPage::initializePage";
+	AMWaitPage::initializePage();
+	AMWaitPage::startTimer(1000);
+	viewWizard()->waitPage();
 }
 

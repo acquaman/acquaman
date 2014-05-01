@@ -699,10 +699,7 @@ void AMWaitPage::startTimer(int msec)
 	if(!state)
 		waitTimer_->start(msec);
 	else
-	{
 		viewWizard()->waitPage();
-	}
-
 }
 
 void AMWaitPage::nextPage()
