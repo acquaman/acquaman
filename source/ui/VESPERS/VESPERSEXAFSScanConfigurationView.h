@@ -28,6 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/VESPERS/VESPERSEXAFSDacqScanController.h"
 #include "acquaman/VESPERS/VESPERSEXAFSScanConfiguration.h"
 #include "util/AMElement.h"
+#include "ui/dataman/AMEXAFSScanAxisView.h"
 
 #include <QLineEdit>
 #include <QTextEdit>
@@ -45,7 +46,7 @@ class VESPERSEXAFSScanConfigurationView : public VESPERSScanConfigurationView
 public:
 	/// Constructor.
 	/// \param config is the EXAFS configuration that the view will modify.
- 	virtual ~VESPERSEXAFSScanConfigurationView();
+	virtual ~VESPERSEXAFSScanConfigurationView();
 	VESPERSEXAFSScanConfigurationView(VESPERSEXAFSScanConfiguration *config, QWidget *parent = 0);
 
 	/// Getter for the configuration.
@@ -63,7 +64,7 @@ protected slots:
 	/// Handles changes to the fluorescence detector choice.
 	void onFluorescenceChoiceChanged(int id);
 	/// Sets the new energy.
-	void setEnergy() { config_->setEnergy(energy_->value()); }
+	void setEnergy();
 	/// Handles choosing a new element when the element button is clicked.
 	void onElementChoiceClicked();
 	/// Fills in the combo box with lines that can be scanned.
@@ -99,10 +100,12 @@ protected:
 	/// Pointer to the specific scan config the view is modifying.
 	VESPERSEXAFSScanConfiguration *config_;
 
-	/// This lets you setup regions.
-	AMRegionsView *regionsView_;
-	/// Visual box that shows the current regions.
-	AMRegionsLineView *regionsLineView_;
+	/// View for setting up the regions.
+	AMEXAFSScanAxisView *regionsView_;
+//	/// This lets you setup regions.
+//	AMRegionsView *regionsView_;
+//	/// Visual box that shows the current regions.
+//	AMRegionsLineView *regionsLineView_;
 
 	/// Double spin box for changing the energy.
 	QDoubleSpinBox *energy_;

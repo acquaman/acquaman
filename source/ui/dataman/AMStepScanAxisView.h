@@ -89,6 +89,8 @@ protected:
 
 	/// The pointer to the scan configuration that holds the container of the scan axes.
 	AMStepScanConfiguration *configuration_;
+	/// List specifically for locking the regions together properly.
+	QList<AMStepScanAxisElementView *> lockedElementViewList_;
 	/// A mapping that maps the delete button to the region it is associated with.
 	QMap<QAbstractButton *, AMStepScanAxisElementView *> regionMap_;
 	/// A map that holds the layout that holds the delete button and the element view for memory management.
