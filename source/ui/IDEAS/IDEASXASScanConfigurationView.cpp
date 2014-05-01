@@ -2,12 +2,14 @@
 
 #include <QBoxLayout>
 #include <QFormLayout>
+#include <QLabel>
+#include <QInputDialog>
 
 #include "acquaman/AMScanController.h"
 #include "acquaman/IDEAS/IDEASXASScanConfiguration.h"
 #include "beamline/IDEAS/IDEASBeamline.h"
-#include "ui/acquaman/AMRegionsView.h"
 #include "ui/AMTopFrame.h"
+#include "ui/dataman/AMEXAFSScanAxisView.h"
 
 IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfiguration *configuration, QWidget *parent) :
 	AMScanConfigurationView(parent)
@@ -17,13 +19,19 @@ IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfigu
         topFrame_ = new AMTopFrame("Configure an XAS Scan");
 	topFrame_->setIcon(QIcon(":/utilities-system-monitor.png"));
 
-        regionsView_ = new AMRegionsView(configuration_->regions(), this);
+	regionsView_ = new AMEXAFSScanAxisView("IDEAS Region Configuration", configuration_);
 
 	autoRegionButton_ = new QPushButton("Auto Set XANES Regions");
         connect(autoRegionButton_, SIGNAL(clicked()), this, SLOT(onAutoRegionButtonClicked()));
 
 	pseudoXAFSButton_ = new QPushButton("Auto Set EXAFS Regions");
 	connect(pseudoXAFSButton_, SIGNAL(clicked()), this, SLOT(onXAFSRegionButtonClicked()));
+
+	edgeEnergy_ = new QDoubleSpinBox();
+	edgeEnergy_->setRange(1800,20000);
+	edgeEnergy_->setValue(7112);
+	((AMScanAxisEXAFSRegion *)configuration_->scanAxisAt(0)->regionAt(0))->setEdgeEnergy(7112);
+	//connect(edgeEnergy_, SIGNAL(valueChanged(double)), regionsView_, SLOT())
 
 	scanName_ = new QLineEdit();
 	scanName_->setText(configuration_->userScanName());
@@ -123,58 +131,58 @@ const AMScanConfiguration* IDEASXASScanConfigurationView::configuration() const
 
 void IDEASXASScanConfigurationView::onAutoRegionButtonClicked()
 {
-    bool ok;
-    double edgeEnergy = QInputDialog::getDouble(this,"Auto Region Setup","Enter desired edge enegry:",IDEASBeamline::ideas()->monoEnergyControl()->value(),IDEASBeamline::ideas()->monoLowEV()->value(),IDEASBeamline::ideas()->monoHighEV()->value(),1,&ok);
+//    bool ok;
+//    double edgeEnergy = QInputDialog::getDouble(this,"Auto Region Setup","Enter desired edge enegry:",IDEASBeamline::ideas()->monoEnergyControl()->value(),IDEASBeamline::ideas()->monoLowEV()->value(),IDEASBeamline::ideas()->monoHighEV()->value(),1,&ok);
 
-    if(ok)
-    {
-        while (configuration_->regionCount() != 0)
-                configuration_->deleteRegion(0);
+//    if(ok)
+//    {
+//        while (configuration_->regionCount() != 0)
+//                configuration_->deleteRegion(0);
 
-        configuration_->addRegion(0, edgeEnergy - 200, 10, edgeEnergy -30, 1);
-	configuration_->addRegion(1, edgeEnergy - 30, 0.75, edgeEnergy + 45, 1);
-	configuration_->addRegion(2, edgeEnergy + 45 , 5, edgeEnergy + 300, 1);
+//        configuration_->addRegion(0, edgeEnergy - 200, 10, edgeEnergy -30, 1);
+//	configuration_->addRegion(1, edgeEnergy - 30, 0.75, edgeEnergy + 45, 1);
+//	configuration_->addRegion(2, edgeEnergy + 45 , 5, edgeEnergy + 300, 1);
 
-    }
+//    }
 }
 
 void IDEASXASScanConfigurationView::onXAFSRegionButtonClicked()
 {
-    bool ok;
-    bool ok2;
-    double edgeEnergy = QInputDialog::getDouble(this,"Auto XAFS Region Setup","Enter desired edge enegry:",IDEASBeamline::ideas()->monoEnergyControl()->value(),IDEASBeamline::ideas()->monoLowEV()->value(),IDEASBeamline::ideas()->monoHighEV()->value(),1,&ok);
+//    bool ok;
+//    bool ok2;
+//    double edgeEnergy = QInputDialog::getDouble(this,"Auto XAFS Region Setup","Enter desired edge enegry:",IDEASBeamline::ideas()->monoEnergyControl()->value(),IDEASBeamline::ideas()->monoLowEV()->value(),IDEASBeamline::ideas()->monoHighEV()->value(),1,&ok);
 
-    double kValue = QInputDialog::getDouble(this,"Auto XAFS Region Setup","Scan out to k = " ,9 ,0 , 99,1,&ok2);
+//    double kValue = QInputDialog::getDouble(this,"Auto XAFS Region Setup","Scan out to k = " ,9 ,0 , 99,1,&ok2);
 
-    if(ok && ok2)
-    {
-	while (configuration_->regionCount() != 0)
-    	    configuration_->deleteRegion(0);
+//    if(ok && ok2)
+//    {
+//	while (configuration_->regionCount() != 0)
+//    	    configuration_->deleteRegion(0);
 
-	configuration_->addRegion(0, edgeEnergy - 200, 10, edgeEnergy -30, 1);
-	configuration_->addRegion(1, edgeEnergy - 30, 0.75, edgeEnergy + 45, 1);
+//	configuration_->addRegion(0, edgeEnergy - 200, 10, edgeEnergy -30, 1);
+//	configuration_->addRegion(1, edgeEnergy - 30, 0.75, edgeEnergy + 45, 1);
 
-	int k = 3;
-	double start = edgeEnergy + 45;
-	double end = floor(3.80998 * (k + 1) * (k + 1) + edgeEnergy);
-	double idealDelta = floor(3.80998 * k * k * 0.05);
-	double delta = (end - start)/ceil((end - start)/idealDelta);
+//	int k = 3;
+//	double start = edgeEnergy + 45;
+//	double end = floor(3.80998 * (k + 1) * (k + 1) + edgeEnergy);
+//	double idealDelta = floor(3.80998 * k * k * 0.05);
+//	double delta = (end - start)/ceil((end - start)/idealDelta);
 
-	configuration_->addRegion(2, start, delta, end, qMin(int(0.13 * k * k),10));
+//	configuration_->addRegion(2, start, delta, end, qMin(int(0.13 * k * k),10));
 
-	for (k = 4; k < kValue; k++)
-	{
-	    double start = floor(3.80998 * k * k + edgeEnergy);
-	    double end = floor(3.80998 * (k + 1) * (k + 1) + edgeEnergy);
-	    double idealDelta = floor(3.80998 * k * k * 0.05);
-	    double delta = (end - start)/ceil((end - start)/idealDelta);
+//	for (k = 4; k < kValue; k++)
+//	{
+//	    double start = floor(3.80998 * k * k + edgeEnergy);
+//	    double end = floor(3.80998 * (k + 1) * (k + 1) + edgeEnergy);
+//	    double idealDelta = floor(3.80998 * k * k * 0.05);
+//	    double delta = (end - start)/ceil((end - start)/idealDelta);
 
-	    configuration_->addRegion(k-1, start, delta, end, qMin(int(0.13 * k * k),10));
-	}
+//	    configuration_->addRegion(k-1, start, delta, end, qMin(int(0.13 * k * k),10));
+//	}
 
 
 
-    }
+//    }
 
 
 }

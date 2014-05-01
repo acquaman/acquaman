@@ -13,12 +13,13 @@
 
 #include "actions3/AMListAction3.h"
 #include "actions3/actions/AMControlMoveAction3.h"
+#include "acquaman/AMEXAFSScanActionControllerAssembler.h"
 
 
 #include <QDebug>
 
 IDEASXASScanActionController::IDEASXASScanActionController(IDEASXASScanConfiguration *cfg, QObject *parent) :
-	AMRegionScanActionController(cfg, parent)
+	AMStepScanActionController(cfg, parent)
 {
 	configuration_ = cfg;
 
@@ -39,6 +40,9 @@ IDEASXASScanActionController::IDEASXASScanActionController(IDEASXASScanConfigura
 		scan_->setName(QString("%1").arg(scanName));
 	}
 
+	AMControlInfoList list;
+	list.append(IDEASBeamline::ideas()->monoEnergyControl()->toInfo());
+	configuration_->setAxisControlInfos(list);
 
 	AMDetectorInfoSet ideasDetectors;
 	ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->exposedDetectorByName("I_vac_6485")->toInfo());
@@ -50,8 +54,8 @@ IDEASXASScanActionController::IDEASXASScanActionController(IDEASXASScanConfigura
 	configuration_->setDetectorConfigurations(ideasDetectors);
 
         double longestTime = 0;
-        for(int i=0, cc=configuration_->regionCount(); i<cc; ++i)
-            if(configuration_->regionTime(i) > longestTime) longestTime = configuration_->regionTime(i);
+	for(int i=0, cc=configuration_->scanAxisAt(0)->regionCount(); i<cc; ++i)
+	    if(double(configuration_->scanAxisAt(0)->regionAt(i)->regionTime()) > longestTime) longestTime = double(configuration_->scanAxisAt(0)->regionAt(i)->regionTime());
 
         pokeSyncDwell_ = new QTimer(this);
 
@@ -64,6 +68,11 @@ IDEASXASScanActionController::IDEASXASScanActionController(IDEASXASScanConfigura
 }
 
 IDEASXASScanActionController::~IDEASXASScanActionController(){}
+
+void IDEASXASScanActionController::createScanAssembler()
+{
+    scanAssembler_ = new AMEXAFSScanActionControllerAssembler(this);
+}
 
 void IDEASXASScanActionController::buildScanControllerImplementation()
 {
@@ -197,13 +206,13 @@ AMAction3* IDEASXASScanActionController::createInitializationActions(){
 	tmpControl = IDEASBeamline::ideas()->monoDirectEnergyControl();
         AMControlInfo monoEnergy = tmpControl->toInfo();
 
-        double startE = configuration_->startEnergy();
+	double startE = double(configuration_->scanAxisAt(0)->regionAt(0)->regionStart());
         double mono2d = IDEASBeamline::ideas()->mono2d()->value();
         double braggAngle = asin(12398.4193 / mono2d / startE);
         double backlashDegrees = 4;
 
         double dE = (backlashDegrees / 180 * M_PI) * (mono2d * startE * startE * cos(braggAngle * M_PI / 180)) / (-12398.4193);
-        double backlashE = configuration_->startEnergy() + dE;
+	double backlashE = startE + dE;
         if(backlashE < IDEASBeamline::ideas()->monoLowEV()->value()) backlashE = IDEASBeamline::ideas()->monoLowEV()->value();
 
         monoEnergy.setValue(backlashE);

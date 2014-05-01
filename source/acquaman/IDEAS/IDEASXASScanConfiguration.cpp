@@ -3,19 +3,11 @@
 #include "beamline/AMBeamline.h"
 #include "acquaman/IDEAS/IDEASXASScanActionController.h"
 #include "ui/IDEAS/IDEASXASScanConfigurationView.h"
+#include "dataman/AMScanAxisEXAFSRegion.h"
 
 IDEASXASScanConfiguration::IDEASXASScanConfiguration(QObject *parent) :
-	AMXASScanConfiguration(parent)
+	AMStepScanConfiguration(parent)
 {
-	AMXASRegionsList *castToXASRegionsList = qobject_cast<AMXASRegionsList*>(regions_);
-	if(castToXASRegionsList)
-		castToXASRegionsList->setEnergyControl(AMBeamline::bl()->exposedControlByName("Energy"));
-	regions_->setDefaultTimeControl(AMBeamline::bl()->exposedControlByName("masterDwell"));
-
-	regions_->setSensibleRange(2000, 12000);
-	regions_->setDefaultUnits(" eV");
-	regions_->setDefaultTimeUnits(" s");
-
 	setName("Unnamed Scan");
 	setUserScanName("Unnamed Scan");
 	I0Channel_ = "I_0";
@@ -24,24 +16,14 @@ IDEASXASScanConfiguration::IDEASXASScanConfiguration(QObject *parent) :
 	isXRFScan_ = true;
 	isTransScan_ = true;
 
+	AMScanAxisRegion *region = new AMScanAxisEXAFSRegion(6900, 0.5, 7150.0, 1.0, false, 7112.0);
+	AMScanAxis *axis = new AMScanAxis(AMScanAxis::StepAxis, region);
+	appendScanAxis(axis);
 }
 
 IDEASXASScanConfiguration::IDEASXASScanConfiguration(const IDEASXASScanConfiguration &original) :
-	AMXASScanConfiguration(original)
+	AMStepScanConfiguration(original)
 {
-	AMXASRegionsList *castToXASRegionsList = qobject_cast<AMXASRegionsList*>(regions_);
-	if(castToXASRegionsList)
-		castToXASRegionsList->setEnergyControl(AMBeamline::bl()->exposedControlByName("Energy"));
-	regions_->setDefaultTimeControl(AMBeamline::bl()->exposedControlByName("masterDwell"));
-
-	regions_->setSensibleStart(original.regions()->sensibleStart());
-	regions_->setSensibleEnd(original.regions()->sensibleEnd());
-	regions_->setDefaultUnits(original.regions()->defaultUnits());
-	regions_->setDefaultTimeUnits(original.regions()->defaultTimeUnits());
-
-	for(int x = 0; x < original.regionCount(); x++)
-		regions_->addRegion(x, original.regionStart(x), original.regionDelta(x), original.regionEnd(x), original.regionTime(x));
-
 	setName(original.name());
 	setUserScanName(original.userScanName());
 	I0Channel_ = original.I0Channel();
@@ -75,5 +57,5 @@ AMScanConfigurationView* IDEASXASScanConfiguration::createView(){
 }
 
 QString IDEASXASScanConfiguration::detailedDescription() const{
-	return QString("XAS Scan from %1 to %2").arg(regionStart(0)).arg(regionEnd(regionCount()-1));
+	return QString("XAS Scan from %1 to %2").arg(double(scanAxisAt(0)->regionAt(0)->regionStart())).arg(double(scanAxisAt(0)->regionAt(scanAxisAt(0)->regionCount()-1)->regionEnd()));
 }
