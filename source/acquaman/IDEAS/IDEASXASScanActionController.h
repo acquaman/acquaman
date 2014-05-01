@@ -32,7 +32,7 @@ protected:
 	/// Reimplemented for EXAFS capabilities.  Creates the scan assembler that builds all the actions used to run the scan.
 	virtual void createScanAssembler();
 
-        QTimer* pokeSyncDwell_;
+//        QTimer* pokeSyncDwell_;
 
 
 protected:
@@ -40,7 +40,7 @@ protected:
 	IDEASXASScanConfiguration *configuration_;
 
 protected slots:
-        void onSyncDwellStatusChanged(bool);
+//        void onSyncDwellStatusChanged(bool);
 };
 
 #endif // IDEASXASSCANACTIONCONTROLLER_H

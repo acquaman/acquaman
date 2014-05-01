@@ -3,6 +3,8 @@
 
 #include "ui/acquaman/AMScanConfigurationView.h"
 
+#include "acquaman/IDEAS/IDEASXASScanConfiguration.h"
+
 #include <QPushButton>
 #include <QComboBox>
 #include <QCheckBox>
@@ -10,7 +12,6 @@
 #include <QLineEdit>
 
 class AMScanController;
-class IDEASXASScanConfiguration;
 class AMEXAFSScanAxisView;
 class AMTopFrame;
 
@@ -38,12 +39,13 @@ protected:
 
 	QCheckBox *isXRFScanCheckBox_;
 	QCheckBox *isTransScanCheckBox_;
-	QComboBox *I0ChannelComboBox_;
-	QComboBox *ItChannelComboBox_;
-	QComboBox *IrChannelComboBox_;
+	QCheckBox *useRefCheckBox_;
+
+//	QComboBox *I0ChannelComboBox_;
+//	QComboBox *ItChannelComboBox_;
+//	QComboBox *IrChannelComboBox_;
 
 	QLineEdit *scanName_;
-	QDoubleSpinBox *edgeEnergy_;
 
 
 

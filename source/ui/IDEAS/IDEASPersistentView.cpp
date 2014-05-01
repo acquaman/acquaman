@@ -72,7 +72,7 @@ IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
     IReferenceBar_->setTextVisible(false);
     IReferenceBar_->setRange(100,145);
 
-    connect(IDEASBeamline::bl()->exposedDetectorByName("I_vac_6485"), SIGNAL(newValuesAvailable()), this, SLOT(onOldCountsChanged()));
+//    connect(IDEASBeamline::bl()->exposedDetectorByName("I_vac_6485"), SIGNAL(newValuesAvailable()), this, SLOT(onOldCountsChanged()));
     connect(IDEASBeamline::bl()->exposedDetectorByName("I_0"), SIGNAL(newValuesAvailable()), this, SLOT(onI0CountsChanged()));
     connect(IDEASBeamline::bl()->exposedDetectorByName("I_sample"), SIGNAL(newValuesAvailable()), this, SLOT(onSampleCountsChanged()));
     connect(IDEASBeamline::bl()->exposedDetectorByName("I_ref"), SIGNAL(newValuesAvailable()), this, SLOT(onReferenceCountsChanged()));
@@ -168,7 +168,7 @@ void IDEASPersistentView::onShutterStatusChanged(bool state)
 void IDEASPersistentView::onOldCountsChanged()
 {
     double value = 0;
-    IDEASBeamline::bl()->exposedDetectorByName("I_vac_6485")->data(&value);
+//    IDEASBeamline::bl()->exposedDetectorByName("I_vac_6485")->data(&value);
     IOldBar_->setValue(int(200 + 10*log10(qAbs(value))));
     //IOldBar_->setValue(value/1000000);
     //qDebug() << "I_Old_bar" << int(200 + 10*log10(qAbs(value)));

@@ -6,7 +6,6 @@
 #include <QInputDialog>
 
 #include "acquaman/AMScanController.h"
-#include "acquaman/IDEAS/IDEASXASScanConfiguration.h"
 #include "beamline/IDEAS/IDEASBeamline.h"
 #include "ui/AMTopFrame.h"
 #include "ui/dataman/AMEXAFSScanAxisView.h"
@@ -27,9 +26,6 @@ IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfigu
 	pseudoXAFSButton_ = new QPushButton("Auto Set EXAFS Regions");
 	connect(pseudoXAFSButton_, SIGNAL(clicked()), this, SLOT(onXAFSRegionButtonClicked()));
 
-	edgeEnergy_ = new QDoubleSpinBox();
-	edgeEnergy_->setRange(1800,20000);
-	edgeEnergy_->setValue(7112);
 	((AMScanAxisEXAFSRegion *)configuration_->scanAxisAt(0)->regionAt(0))->setEdgeEnergy(7112);
 	//connect(edgeEnergy_, SIGNAL(valueChanged(double)), regionsView_, SLOT())
 
@@ -47,37 +43,45 @@ IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfigu
 	isTransScanCheckBox_->setChecked(configuration->isTransScan());
 	connect(isTransScanCheckBox_, SIGNAL(clicked(bool)), configuration_, SLOT(setIsTransScan(bool)));
 
-
-	I0ChannelComboBox_ = new QComboBox();
-	I0ChannelComboBox_->addItem("I_0");
-	I0ChannelComboBox_->addItem("I_vac_6485");
-	I0ChannelComboBox_->addItem("I_sample");
-	I0ChannelComboBox_->addItem("I_ref");
-	I0ChannelComboBox_->setCurrentIndex(0);
-	if(I0ChannelComboBox_->findText(configuration->I0Channel())) I0ChannelComboBox_->setCurrentIndex(I0ChannelComboBox_->findText(configuration->I0Channel()));
-	connect(I0ChannelComboBox_, SIGNAL(currentIndexChanged(QString)), configuration_, SLOT(setI0Channel(QString)));
-
-	ItChannelComboBox_ = new QComboBox();
-	ItChannelComboBox_->addItem("I_0");
-	ItChannelComboBox_->addItem("I_vac_6485");
-	ItChannelComboBox_->addItem("I_sample");
-	ItChannelComboBox_->addItem("I_ref");
-	ItChannelComboBox_->setCurrentIndex(2);
-	if(ItChannelComboBox_->findText(configuration->ItChannel())) ItChannelComboBox_->setCurrentIndex(ItChannelComboBox_->findText(configuration->ItChannel()));
-	connect(ItChannelComboBox_, SIGNAL(currentIndexChanged(QString)), configuration_, SLOT(setItChannel(QString)));
-	connect(isTransScanCheckBox_, SIGNAL(clicked(bool)), ItChannelComboBox_, SLOT(setEnabled(bool)));
+	useRefCheckBox_ = new QCheckBox("reference sample");
+	useRefCheckBox_->setChecked(configuration->useRef());
+	useRefCheckBox_->setEnabled(configuration->isTransScan());
+	connect(useRefCheckBox_, SIGNAL(clicked(bool)), configuration_, SLOT(setUseRef(bool)));
+	connect(isTransScanCheckBox_, SIGNAL(clicked(bool)),useRefCheckBox_,SLOT(setEnabled(bool)));
 
 
-	IrChannelComboBox_ = new QComboBox();
-	IrChannelComboBox_->addItem("I_0");
-	IrChannelComboBox_->addItem("I_vac_6485");
-	IrChannelComboBox_->addItem("I_sample");
-	IrChannelComboBox_->addItem("I_ref");
-	IrChannelComboBox_->addItem("None");
-	IrChannelComboBox_->setCurrentIndex(3);
-	if(IrChannelComboBox_->findText(configuration->IrChannel())) IrChannelComboBox_->setCurrentIndex(IrChannelComboBox_->findText(configuration->IrChannel()));
-	connect(IrChannelComboBox_, SIGNAL(currentIndexChanged(QString)), configuration_, SLOT(setIrChannel(QString)));
-	connect(isTransScanCheckBox_, SIGNAL(clicked(bool)), IrChannelComboBox_, SLOT(setEnabled(bool)));
+
+
+//	I0ChannelComboBox_ = new QComboBox();
+//	I0ChannelComboBox_->addItem("I_0");
+//	I0ChannelComboBox_->addItem("I_vac_6485");
+//	I0ChannelComboBox_->addItem("I_sample");
+//	I0ChannelComboBox_->addItem("I_ref");
+//	I0ChannelComboBox_->setCurrentIndex(0);
+//	if(I0ChannelComboBox_->findText(configuration->I0Channel())) I0ChannelComboBox_->setCurrentIndex(I0ChannelComboBox_->findText(configuration->I0Channel()));
+//	connect(I0ChannelComboBox_, SIGNAL(currentIndexChanged(QString)), configuration_, SLOT(setI0Channel(QString)));
+
+//	ItChannelComboBox_ = new QComboBox();
+//	ItChannelComboBox_->addItem("I_0");
+//	ItChannelComboBox_->addItem("I_vac_6485");
+//	ItChannelComboBox_->addItem("I_sample");
+//	ItChannelComboBox_->addItem("I_ref");
+//	ItChannelComboBox_->setCurrentIndex(2);
+//	if(ItChannelComboBox_->findText(configuration->ItChannel())) ItChannelComboBox_->setCurrentIndex(ItChannelComboBox_->findText(configuration->ItChannel()));
+//	connect(ItChannelComboBox_, SIGNAL(currentIndexChanged(QString)), configuration_, SLOT(setItChannel(QString)));
+//	connect(isTransScanCheckBox_, SIGNAL(clicked(bool)), ItChannelComboBox_, SLOT(setEnabled(bool)));
+
+
+//	IrChannelComboBox_ = new QComboBox();
+//	IrChannelComboBox_->addItem("I_0");
+//	IrChannelComboBox_->addItem("I_vac_6485");
+//	IrChannelComboBox_->addItem("I_sample");
+//	IrChannelComboBox_->addItem("I_ref");
+//	IrChannelComboBox_->addItem("None");
+//	IrChannelComboBox_->setCurrentIndex(3);
+//	if(IrChannelComboBox_->findText(configuration->IrChannel())) IrChannelComboBox_->setCurrentIndex(IrChannelComboBox_->findText(configuration->IrChannel()));
+//	connect(IrChannelComboBox_, SIGNAL(currentIndexChanged(QString)), configuration_, SLOT(setIrChannel(QString)));
+//	connect(isTransScanCheckBox_, SIGNAL(clicked(bool)), IrChannelComboBox_, SLOT(setEnabled(bool)));
 
 
 
@@ -93,11 +97,12 @@ IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfigu
 	configFL->setAlignment(Qt::AlignLeft);
 	configFL->setFieldGrowthPolicy(QFormLayout::FieldsStayAtSizeHint);
 	configFL->addRow("Scan Name: ", scanName_);
-	configFL->addRow("I_0 Chamber: ", I0ChannelComboBox_);
+//	configFL->addRow("I_0 Chamber: ", I0ChannelComboBox_);
 	configFL->addRow("Include: ",isXRFScanCheckBox_);
 	configFL->addRow("", isTransScanCheckBox_);
-	configFL->addRow("Sample Chamber: ", ItChannelComboBox_);
-	configFL->addRow("Reference Chamber: ", IrChannelComboBox_);
+	configFL->addRow("", useRefCheckBox_);
+	//	configFL->addRow("Sample Chamber: ", ItChannelComboBox_);
+//	configFL->addRow("Reference Chamber: ", IrChannelComboBox_);
 
 	QHBoxLayout *regionsHL = new QHBoxLayout();
 	regionsHL->addStretch();
