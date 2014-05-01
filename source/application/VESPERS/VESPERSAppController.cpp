@@ -315,30 +315,47 @@ void VESPERSAppController::setupUserInterface()
 	mw_->addPane(testView4, "Detectors", "New 4-el Vortex", ":/system-search.png");
 
 	// Setup XAS for the beamline.  Builds the config, view, and view holder.
-	exafsScanConfig_ = new VESPERSEXAFSScanConfiguration();
-//	exafsScanConfig_->addRegion(0, -30, 0.5, 40, 1);
-	exafsConfigView_ = new VESPERSEXAFSScanConfigurationView(exafsScanConfig_);
-	exafsConfigViewHolder3_ = new VESPERSScanConfigurationViewHolder3(exafsConfigView_);
+	exafsScanConfiguration_ = new VESPERSEXAFSScanConfiguration();
+	exafsConfigurationView_ = new VESPERSEXAFSScanConfigurationView(exafsScanConfiguration_);
+	exafsConfigurationView_->setupDefaultXANESScanRegions();
+	exafsConfigurationViewHolder3_ = new VESPERSScanConfigurationViewHolder3(exafsConfigurationView_);
 
 	// Setup 2D maps for the beamline.  Builds the config, view, and view holder.
 	mapScanConfiguration_ = new VESPERS2DScanConfiguration();
-//	mapScanConfiguration_->setStepSize(0.005, 0.005);
-//	mapScanConfiguration_->setTimeStep(1);
+	mapScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStart(0.0);
+	mapScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStart(0.005);
+	mapScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStart(1.0);
+	mapScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionTime(1.0);
+	mapScanConfiguration_->scanAxisAt(1)->regionAt(0)->setRegionStart(0.0);
+	mapScanConfiguration_->scanAxisAt(1)->regionAt(0)->setRegionStart(0.005);
+	mapScanConfiguration_->scanAxisAt(1)->regionAt(0)->setRegionStart(1.0);
+	mapScanConfiguration_->scanAxisAt(1)->regionAt(0)->setRegionTime(1.0);
 	mapScanConfigurationView_ = new VESPERS2DScanConfigurationView(mapScanConfiguration_);
 	mapScanConfigurationViewHolder3_ = new AMScanConfigurationViewHolder3(mapScanConfigurationView_);
 
 	// Setup 2D maps for the beamline.  Builds the config, view, and view holder.
 	map3DScanConfiguration_ = new VESPERS3DScanConfiguration();
-	map3DScanConfiguration_->setStepSize(0.005, 0.005, 0.005);
-	map3DScanConfiguration_->setTimeStep(1);
+	map3DScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStart(0.0);
+	map3DScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStart(0.005);
+	map3DScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStart(1.0);
+	map3DScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionTime(1.0);
+	map3DScanConfiguration_->scanAxisAt(1)->regionAt(0)->setRegionStart(0.0);
+	map3DScanConfiguration_->scanAxisAt(1)->regionAt(0)->setRegionStart(0.005);
+	map3DScanConfiguration_->scanAxisAt(1)->regionAt(0)->setRegionStart(1.0);
+	map3DScanConfiguration_->scanAxisAt(1)->regionAt(0)->setRegionTime(1.0);
+	map3DScanConfiguration_->scanAxisAt(2)->regionAt(0)->setRegionStart(0.0);
+	map3DScanConfiguration_->scanAxisAt(2)->regionAt(0)->setRegionStart(0.005);
+	map3DScanConfiguration_->scanAxisAt(2)->regionAt(0)->setRegionStart(1.0);
+	map3DScanConfiguration_->scanAxisAt(2)->regionAt(0)->setRegionTime(1.0);
 	map3DScanConfigurationView_ = new VESPERS3DScanConfigurationView(map3DScanConfiguration_);
 	map3DScanConfigurationViewHolder3_ = new AMScanConfigurationViewHolder3(map3DScanConfigurationView_);
 
 	// Setup line scans for the beamline.  Builds the config, view, and view holder.
 	lineScanConfiguration_ = new VESPERSSpatialLineScanConfiguration();
-//	lineScanConfiguration_->addRegion(0, 0, 0.005, 1, 1);
-//	lineScanConfiguration_->regions()->setUnits(0, "mm");
-//	lineScanConfiguration_->regions()->setTimeUnits(0, "s");
+	lineScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStart(0.0);
+	lineScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStart(0.005);
+	lineScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStart(1.0);
+	lineScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionTime(1.0);
 	lineScanConfigurationView_ = new VESPERSSpatialLineScanConfigurationView(lineScanConfiguration_);
 	lineScanConfigurationViewHolder3_ = new AMScanConfigurationViewHolder3(lineScanConfigurationView_);
 
@@ -348,9 +365,6 @@ void VESPERSAppController::setupUserInterface()
 	energyScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStep(1000);
 	energyScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionEnd(20000);
 	energyScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionTime(1);
-//	energyScanConfiguration_->addRegion(0, 10000, 1000, 20000, 1);
-//	energyScanConfiguration_->regions()->setUnits(0, " eV");
-//	energyScanConfiguration_->regions()->setTimeUnits(0, " s");
 	energyScanConfigurationView_ = new VESPERSEnergyScanConfigurationView(energyScanConfiguration_);
 	energyScanConfigurationViewHolder3_ = new AMScanConfigurationViewHolder3(energyScanConfigurationView_);
 
@@ -359,7 +373,7 @@ void VESPERSAppController::setupUserInterface()
 	AMScanConfigurationViewHolder3 *timeViewHolder = new AMScanConfigurationViewHolder3(timeView);
 
 	mw_->insertHeading("Scans", 2);
-	mw_->addPane(exafsConfigViewHolder3_, "Scans", "XAS", ":/utilities-system-monitor.png");
+	mw_->addPane(exafsConfigurationViewHolder3_, "Scans", "XAS", ":/utilities-system-monitor.png");
 	mw_->addPane(mapScanConfigurationViewHolder3_, "Scans", "2D Maps", ":/utilities-system-monitor.png");
 	mw_->addPane(lineScanConfigurationViewHolder3_, "Scans", "Line Scan", ":/utilities-system-monitor.png");
 	mw_->addPane(energyScanConfigurationViewHolder3_, "Scans", "XRD Energy Scan", ":/utilities-system-monitor.png");
@@ -383,7 +397,7 @@ void VESPERSAppController::makeConnections()
 	connect(this, SIGNAL(scanEditorCreated(AMGenericScanEditor*)), this, SLOT(onScanEditorCreated(AMGenericScanEditor*)));
 	connect(persistentView_, SIGNAL(currentSampleStageChanged(QString)), this, SLOT(onSampleStageChoiceChanged(QString)));
 
-	connect(exafsConfigView_, SIGNAL(configureDetector(QString)), this, SLOT(onConfigureDetectorRequested(QString)));
+	connect(exafsConfigurationView_, SIGNAL(configureDetector(QString)), this, SLOT(onConfigureDetectorRequested(QString)));
 	connect(mapScanConfigurationView_, SIGNAL(configureDetector(QString)), this, SLOT(onConfigureDetectorRequested(QString)));
 	connect(map3DScanConfigurationView_, SIGNAL(configureDetector(QString)), this, SLOT(onConfigureDetectorRequested(QString)));
 	connect(lineScanConfigurationView_, SIGNAL(configureDetector(QString)), this, SLOT(onConfigureDetectorRequested(QString)));
@@ -435,10 +449,10 @@ void VESPERSAppController::onCurrentScanActionStartedImplementation(AMScanAction
 
 void VESPERSAppController::onCurrentScanActionFinishedImplementation(AMScanAction *action)
 {
-//	QString fileFormat(action->controller()->scan()->fileFormat());
+	QString fileFormat(action->controller()->scan()->fileFormat());
 
-//	if (fileFormat == "vespersXRF" || fileFormat == "vespers2011XRF")
-//		return;
+	if (fileFormat == "vespersXRF" || fileFormat == "vespers2011XRF")
+		return;
 
 	disconnect(VESPERSBeamline::vespers(), SIGNAL(beamDumped()), this, SLOT(onBeamDump()));
 
@@ -617,9 +631,9 @@ void VESPERSAppController::cleanMoveImmediatelyAction()
 
 void VESPERSAppController::setupXASScan(const AMGenericScanEditor *editor, bool setupEXAFS)
 {
-	exafsScanConfig_->setGoToPosition(true);
-	exafsScanConfig_->setX(editor->dataPosition().x());
-	exafsScanConfig_->setY(editor->dataPosition().y());
+	exafsScanConfiguration_->setGoToPosition(true);
+	exafsScanConfiguration_->setX(editor->dataPosition().x());
+	exafsScanConfiguration_->setY(editor->dataPosition().y());
 
 	QString edge = editor->exclusiveDataSourceName();
 	edge = edge.remove("norm_");
@@ -629,46 +643,24 @@ void VESPERSAppController::setupXASScan(const AMGenericScanEditor *editor, bool 
 	if (edge.at(edge.size()-1) == 'L')
 		edge.append("1");
 
-	exafsScanConfig_->setEdge(edge);
+	exafsScanConfiguration_->setEdge(edge);
 
 	// This should always succeed because the only way to get into this function is using the 2D scan view which currently only is accessed by 2D scans.
-	VESPERS2DScanConfiguration *config = qobject_cast<VESPERS2DScanConfiguration *>(editor->currentScan()->scanConfiguration());
-	if (config){
+	VESPERS2DScanConfiguration *configuration = qobject_cast<VESPERS2DScanConfiguration *>(editor->currentScan()->scanConfiguration());
+	if (configuration){
 
-		exafsScanConfig_->setName(config->name());
-		exafsScanConfig_->setFluorescenceDetector(config->fluorescenceDetector());
-		exafsScanConfig_->setIncomingChoice(config->incomingChoice());
+		exafsScanConfiguration_->setName(configuration->name());
+		exafsScanConfiguration_->setFluorescenceDetector(configuration->fluorescenceDetector());
+		exafsScanConfiguration_->setIncomingChoice(configuration->incomingChoice());
 	}
 
-//	while (exafsScanConfig_->regionCount() != 1)
-//		exafsScanConfig_->deleteRegion(0);
+	if (setupEXAFS)
+		exafsConfigurationView_->setupDefaultEXAFSScanRegions();
 
-//	if (setupEXAFS){
+	else
+		exafsConfigurationView_->setupDefaultXANESScanRegions();
 
-//		exafsScanConfig_->exafsRegions()->setType(0, AMEXAFSRegion::Energy);
-//		exafsScanConfig_->setRegionStart(0, -200);
-//		exafsScanConfig_->setRegionDelta(0, 10);
-//		exafsScanConfig_->setRegionEnd(0, -30);
-//		exafsScanConfig_->setRegionTime(0, 1);
-
-//		exafsScanConfig_->regions()->addRegion(1, -30, 0.5, 40, 1);
-//		exafsScanConfig_->exafsRegions()->setType(1, AMEXAFSRegion::Energy);
-
-//		exafsScanConfig_->regions()->addRegion(2, 40, 0.05, 857.4627, 10); // 857.4627 = 15k
-//		exafsScanConfig_->exafsRegions()->setType(2, AMEXAFSRegion::kSpace);
-//		exafsScanConfig_->exafsRegions()->setEndByType(2, 15, AMEXAFSRegion::kSpace);
-//	}
-
-//	else {
-
-//		exafsScanConfig_->setRegionStart(0, -30);
-//		exafsScanConfig_->setRegionDelta(0, 0.5);
-//		exafsScanConfig_->setRegionEnd(0, 40);
-//		exafsScanConfig_->setRegionTime(0, 1);
-//		exafsScanConfig_->exafsRegions()->setType(0, AMEXAFSRegion::Energy);
-//	}
-
-	mw_->undock(exafsConfigViewHolder3_);
+	mw_->undock(exafsConfigurationViewHolder3_);
 }
 
 void VESPERSAppController::setupEnergyScan(const AMGenericScanEditor *editor)
@@ -716,7 +708,7 @@ void VESPERSAppController::onSampleStageChoiceChanged(const QString &name)
 	int motor = VESPERS::sampleStageNameToEnum(name);
 
 	if (exafsMotorAcceptable(motor))
-		exafsScanConfig_->setMotor(motor);
+		exafsScanConfiguration_->setMotor(motor);
 
 	if (energyScanMotorAcceptable(motor))
 		energyScanConfiguration_->setMotor(motor);
@@ -934,7 +926,7 @@ void VESPERSAppController::onPilatusCCDConnected(bool connected)
 void VESPERSAppController::onUserConfigurationLoadedFromDb()
 {
 	QList<VESPERSScanConfiguration *> configurations = QList<VESPERSScanConfiguration *>()
-			<< exafsScanConfig_
+			<< exafsScanConfiguration_
 			<< mapScanConfiguration_
 			<< lineScanConfiguration_
 			<< energyScanConfiguration_

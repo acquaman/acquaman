@@ -47,7 +47,7 @@ public:
 	virtual ~VESPERSEnergyScanConfigurationView();
 
 	/// Getter for the configuration.
-	const AMScanConfiguration *configuration() const { return config_; }
+	const AMScanConfiguration *configuration() const { return configuration_; }
 
 public slots:
 
@@ -59,21 +59,21 @@ protected slots:
 	/// Sets the current horizontal and vertical positions and saves them in the configuration.
 	void setScanPosition();
 	/// Helper slot that sets the time offset for the scan.
-	void setTimeOffset(double time) { config_->setTimeOffset(time); }
+	void setTimeOffset(double time) { configuration_->setTimeOffset(time); }
 	/// Helper slot that handles the setting the estimated time label.
 	void onEstimatedTimeChanged();
 	/// Handles making sure "Go To Position" looks appropriate when the motors change.
 	void onMotorsUpdated(int id);
 
 	/// Emits the configureDetector signal based with 'Roper CCD' or 'Mar CCD.
-	void onConfigureCCDDetectorClicked() { emit configureDetector(ccdDetectorIdToString(int(config_->ccdDetector()))); }
+	void onConfigureCCDDetectorClicked() { emit configureDetector(ccdDetectorIdToString(int(configuration_->ccdDetector()))); }
 
 protected:
 	/// Helper method that checks if the CCD files have the name given by \param name.  Does nothing if everything is okay.  Calls onCCDNameConflict if name conflicts exits.
 	void checkCCDFileNames(const QString &name) const;
 
 	/// Pointer to the specific scan config the view is modifying.
-	VESPERSEnergyScanConfiguration *config_;
+	VESPERSEnergyScanConfiguration *configuration_;
 
 	/// Pointer to the CCD help group box.
 	QGroupBox *ccdTextBox_;

@@ -40,12 +40,8 @@ VESPERSEXAFSScanConfiguration::VESPERSEXAFSScanConfiguration(QObject *parent)
 	useFixedTime_ = false;
 	numberOfScans_ = 1;
 
-	AMScanAxisRegion *region = new AMScanAxisEXAFSRegion(8800.0, 5.0, 8970.0, 1.0, false, 8979);
+	AMScanAxisRegion *region = new AMScanAxisEXAFSRegion;
 	AMScanAxis *axis = new AMScanAxis(AMScanAxis::StepAxis, region);
-	region = new AMScanAxisEXAFSRegion(8970, 0.5, 9040, 1, false, 8979);
-	axis->appendRegion(region);
-	region = new AMScanAxisEXAFSRegion(3.24, 0.01, 10, 1, true, 8979, 10);
-	axis->appendRegion(region);
 	appendScanAxis(axis);
 
 	goToPosition_ = false;

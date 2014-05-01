@@ -168,11 +168,11 @@ protected:
 	VESPERSPilatusCCDDetectorView *pilatusView_;
 
 	/// Pointer to the XAS scan configuration.
-	VESPERSEXAFSScanConfiguration *exafsScanConfig_;
+	VESPERSEXAFSScanConfiguration *exafsScanConfiguration_;
 	/// Pointer to the XAS scan configuration view.
-	VESPERSEXAFSScanConfigurationView *exafsConfigView_;
+	VESPERSEXAFSScanConfigurationView *exafsConfigurationView_;
 	/// The (new) holder for the XAS scan configuration.
-	VESPERSScanConfigurationViewHolder3 *exafsConfigViewHolder3_;
+	VESPERSScanConfigurationViewHolder3 *exafsConfigurationViewHolder3_;
 
 	/// Pointer to the 2D scan configuration.
 	VESPERS2DScanConfiguration *mapScanConfiguration_;

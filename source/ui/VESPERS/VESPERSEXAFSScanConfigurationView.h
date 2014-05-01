@@ -46,13 +46,18 @@ class VESPERSEXAFSScanConfigurationView : public VESPERSScanConfigurationView
 public:
 	/// Constructor.
 	/// \param config is the EXAFS configuration that the view will modify.
-	virtual ~VESPERSEXAFSScanConfigurationView();
 	VESPERSEXAFSScanConfigurationView(VESPERSEXAFSScanConfiguration *config, QWidget *parent = 0);
+	/// Destructor.
+	virtual ~VESPERSEXAFSScanConfigurationView();
 
 	/// Getter for the configuration.
-	const AMScanConfiguration* configuration() const { return config_; }
+	const AMScanConfiguration* configuration() const { return configuration_; }
 
 public slots:
+	/// Slot that sets up the regions for standard XANES scans.
+	void setupDefaultXANESScanRegions();
+	/// Slot that sets up the regions for standard EXAFS scans.
+	void setupDefaultEXAFSScanRegions();
 
 protected slots:
 	/// Handles setting the name of the configuration from the line edit.
@@ -60,7 +65,7 @@ protected slots:
 	/// Handles changing what are acceptable choices for I0 based on It clicks.  Takes in the id of the new It choice.  Passes choice on to the configuration.
 	void onItClicked(int id);
 	/// Passes on the selection for I0 to the configuration.
-	void onI0Clicked(int id) { config_->setIncomingChoice(id); }
+	void onI0Clicked(int id) { configuration_->setIncomingChoice(id); }
 	/// Handles changes to the fluorescence detector choice.
 	void onFluorescenceChoiceChanged(int id);
 	/// Sets the new energy.
@@ -78,35 +83,26 @@ protected slots:
 	/// Helper slot that handles the setting the estimated time label.
 	void onEstimatedTimeChanged();
 	/// Helper slot that sets the time offset for the scan.
-	void setTimeOffset(double time) { config_->setTimeOffset(time); }
-	/// Slot that sets up the regions for standard XANES scans.
-	void onDefaultXANESScanClicked();
-	/// Slot that sets up the regions for standard EXAFS scans.
-	void onDefaultEXAFSScanClicked();
+	void setTimeOffset(double time) { configuration_->setTimeOffset(time); }
 	/// Handles making sure "Go To Position" looks appropriate when the motors change.
 	void onMotorsUpdated(int id);
 
 	/// Emits the configureDetector signal based on the current fluorescence detector choice.
-	void onConfigureXRFDetectorClicked() { emit configureDetector(fluorescenceDetectorIdToString(int(config_->fluorescenceDetector()))); }
+	void onConfigureXRFDetectorClicked() { emit configureDetector(fluorescenceDetectorIdToString(int(configuration_->fluorescenceDetector()))); }
 	/// Updates roiText_ based on the current state of the ROI list.
 	void updateRoiText();
 	/// Helper slot that sets whether we export spectra in rows or columns.
-	void updateExportSpectraInRows(bool exportInColumns) { config_->setExportSpectraInRows(!exportInColumns); }
+	void updateExportSpectraInRows(bool exportInColumns) { configuration_->setExportSpectraInRows(!exportInColumns); }
 
 protected:
 	/// Reimplements the show event to update the Regions of Interest text.
 	virtual void showEvent(QShowEvent *e) { updateRoiText(); AMScanConfigurationView::showEvent(e); }
 
 	/// Pointer to the specific scan config the view is modifying.
-	VESPERSEXAFSScanConfiguration *config_;
+	VESPERSEXAFSScanConfiguration *configuration_;
 
 	/// View for setting up the regions.
 	AMEXAFSScanAxisView *regionsView_;
-//	/// This lets you setup regions.
-//	AMRegionsView *regionsView_;
-//	/// Visual box that shows the current regions.
-//	AMRegionsLineView *regionsLineView_;
-
 	/// Double spin box for changing the energy.
 	QDoubleSpinBox *energy_;
 	/// Button used to choose an element to scan over.
