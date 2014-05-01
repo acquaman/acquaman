@@ -19,7 +19,7 @@ IDEASXASScanConfiguration::IDEASXASScanConfiguration(QObject *parent) :
 
 
 	edge_ = "";
-	energy_ = 0.0;
+	energy_ = 7112;
 	useFixedTime_ = false;
 	numberOfScans_ = 1;
 

@@ -4,11 +4,16 @@
 #include <QFormLayout>
 #include <QLabel>
 #include <QInputDialog>
+#include <QStringBuilder>
 
 #include "acquaman/AMScanController.h"
 #include "beamline/IDEAS/IDEASBeamline.h"
 #include "ui/AMTopFrame.h"
 #include "ui/dataman/AMEXAFSScanAxisView.h"
+#include "util/AMEnergyToKSpaceCalculator.h"
+#include "ui/util/AMPeriodicTableDialog.h"
+#include "util/AMPeriodicTable.h"
+
 
 IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfiguration *configuration, QWidget *parent) :
 	AMScanConfigurationView(parent)
@@ -49,6 +54,48 @@ IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfigu
 	connect(useRefCheckBox_, SIGNAL(clicked(bool)), configuration_, SLOT(setUseRef(bool)));
 	connect(isTransScanCheckBox_, SIGNAL(clicked(bool)),useRefCheckBox_,SLOT(setEnabled(bool)));
 
+	// Energy (Eo) selection
+	energy_ = new QDoubleSpinBox;
+	energy_->setSuffix(" eV");
+	energy_->setMinimum(0);
+	energy_->setMaximum(30000);
+	connect(energy_, SIGNAL(editingFinished()), this, SLOT(setEnergy()));
+
+	elementChoice_ = new QToolButton;
+	connect(elementChoice_, SIGNAL(clicked()), this, SLOT(onElementChoiceClicked()));
+
+	lineChoice_ = new QComboBox;
+	connect(lineChoice_, SIGNAL(currentIndexChanged(int)), this, SLOT(onLinesComboBoxIndexChanged(int)));
+
+	if (configuration_->edge().isEmpty()){
+
+		elementChoice_->setText("Cu");
+		fillLinesComboBox(AMPeriodicTable::table()->elementBySymbol("Cu"));
+		lineChoice_->setCurrentIndex(0);
+	}
+	// Resets the view for the view to what it should be.  Using the saved for the energy in case it is different from the original line energy.
+	else
+		onEdgeChanged();
+
+	connect(configuration_, SIGNAL(edgeChanged(QString)), this, SLOT(onEdgeChanged()));
+
+	QSpinBox *numberOfScans = new QSpinBox;
+	numberOfScans->setMinimum(1);
+	numberOfScans->setValue(configuration_->numberOfScans());
+	numberOfScans->setAlignment(Qt::AlignCenter);
+	connect(numberOfScans, SIGNAL(valueChanged(int)), configuration_, SLOT(setNumberOfScans(int)));
+	connect(configuration_, SIGNAL(numberOfScansChanged(int)), this, SLOT(onEstimatedTimeChanged()));
+
+	QFormLayout *numberOfScansLayout = new QFormLayout;
+	numberOfScansLayout->addRow("Number of Scans:", numberOfScans);
+
+	QFormLayout *energySetpointLayout = new QFormLayout;
+	energySetpointLayout->addRow("Energy:", energy_);
+
+	QHBoxLayout *energyLayout = new QHBoxLayout;
+	energyLayout->addLayout(energySetpointLayout);
+	energyLayout->addWidget(elementChoice_);
+	energyLayout->addWidget(lineChoice_);
 
 
 
@@ -87,8 +134,11 @@ IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfigu
 
 
 	QVBoxLayout *mainVL = new QVBoxLayout();
+	mainVL->addLayout(energyLayout);
 	mainVL->addWidget(topFrame_);
 	mainVL->addWidget(regionsView_);
+	mainVL->addLayout(numberOfScansLayout);
+
 
 	QLabel *settingsLabel = new QLabel("Scan Settings:");
 	settingsLabel->setFont(QFont("Lucida Grande", 12, QFont::Bold));
@@ -149,6 +199,18 @@ void IDEASXASScanConfigurationView::onAutoRegionButtonClicked()
 //	configuration_->addRegion(2, edgeEnergy + 45 , 5, edgeEnergy + 300, 1);
 
 //    }
+    while (configuration_->scanAxisAt(0)->regionCount())
+    {
+	    regionsView_->removeEXAFSRegion(0);
+    }
+
+    AMScanAxisEXAFSRegion *region = new AMScanAxisEXAFSRegion;
+    region->setEdgeEnergy(configuration_->energy());
+    region->setRegionStart(configuration_->energy() - 30);
+    region->setRegionStep(0.5);
+    region->setRegionEnd(configuration_->energy() + 40);
+    region->setRegionTime(1.0);
+    regionsView_->insertEXAFSRegion(0, region);
 }
 
 void IDEASXASScanConfigurationView::onXAFSRegionButtonClicked()
@@ -188,7 +250,36 @@ void IDEASXASScanConfigurationView::onXAFSRegionButtonClicked()
 
 
 //    }
+    while (configuration_->scanAxisAt(0)->regionCount())
+    {
+	    regionsView_->removeEXAFSRegion(0);
+    }
 
+    AMScanAxisEXAFSRegion *region = new AMScanAxisEXAFSRegion;
+    region->setEdgeEnergy(configuration_->energy());
+    region->setRegionStart(configuration_->energy() - 200);
+    region->setRegionStep(10);
+    region->setRegionEnd(configuration_->energy() - 30);
+    region->setRegionTime(1.0);
+    regionsView_->insertEXAFSRegion(0, region);
+
+    region = new AMScanAxisEXAFSRegion;
+    region->setEdgeEnergy(configuration_->energy());
+    region->setRegionStart(configuration_->energy() - 30);
+    region->setRegionStep(0.5);
+    region->setRegionEnd(configuration_->energy() + 40);
+    region->setRegionTime(1.0);
+    regionsView_->insertEXAFSRegion(1, region);
+
+    region = new AMScanAxisEXAFSRegion;
+    region->setEdgeEnergy(configuration_->energy());
+    region->setInKSpace(true);
+    region->setRegionStart(AMEnergyToKSpaceCalculator::k(region->edgeEnergy(), configuration_->energy() + 40));
+    region->setRegionStep(0.05);
+    region->setRegionEnd(10);
+    region->setRegionTime(1.0);
+    region->setMaximumTime(10.0);
+    regionsView_->insertEXAFSRegion(2, region);
 
 }
 
@@ -198,3 +289,71 @@ void IDEASXASScanConfigurationView::onScanNameEdited()
 	configuration_->setUserScanName(scanName_->text());
 }
 
+void IDEASXASScanConfigurationView::setEnergy()
+{
+	configuration_->setEnergy(energy_->value());
+	regionsView_->setEdgeEnergy(energy_->value());
+}
+
+void IDEASXASScanConfigurationView::onElementChoiceClicked()
+{
+	AMElement *el = AMPeriodicTableDialog::getElement(this);
+
+	if (el){
+
+		elementChoice_->setText(el->symbol());
+		fillLinesComboBox(el);
+		lineChoice_->setCurrentIndex(0);
+	}
+}
+
+void IDEASXASScanConfigurationView::fillLinesComboBox(AMElement *el)
+{
+	if (!el)
+		return;
+
+	AMAbsorptionEdge edge;
+	lineChoice_->clear();
+
+	for (int i = 0; i < el->absorptionEdges().size(); i++){
+
+		edge = el->absorptionEdges().at(i);
+
+		if (edge.energy() <= 30000 && edge.energy() >= 6700)
+			lineChoice_->addItem(edge.name()+": "+edge.energyString()+" eV", edge.energy());
+	}
+
+	lineChoice_->setCurrentIndex(-1);
+}
+
+void IDEASXASScanConfigurationView::onLinesComboBoxIndexChanged(int index)
+{
+	if (lineChoice_->count() == 0 || index == -1)
+		return;
+
+	energy_->setValue(lineChoice_->itemData(index).toDouble());
+	setEnergy();
+	configuration_->setEdge(elementChoice_->text()+" "+lineChoice_->itemText(index).split(":").first());
+}
+
+void IDEASXASScanConfigurationView::onEdgeChanged()
+{
+	QString currentChoice = elementChoice_->text() % " " % lineChoice_->itemText(lineChoice_->currentIndex()).split(":").first();
+	if (configuration_->edge() == currentChoice)
+		return;
+
+	elementChoice_->setText(configuration_->edge().split(" ").first());
+	lineChoice_->blockSignals(true);
+	fillLinesComboBox(AMPeriodicTable::table()->elementBySymbol(elementChoice_->text()));
+	lineChoice_->blockSignals(false);
+	lineChoice_->setCurrentIndex(lineChoice_->findText(configuration_->edge().split(" ").last(), Qt::MatchStartsWith | Qt::MatchCaseSensitive));
+
+	if (energy_->value() != configuration_->energy())
+		energy_->setValue(configuration_->energy());
+}
+
+void IDEASXASScanConfigurationView::onEstimatedTimeChanged()
+{
+//	estimatedTime_->setText("Estimated time per scan:\t" + IDEAS::convertTimeToString(configuration_->totalTime()));
+//	estimatedSetTime_->setText("Estimated time for set:\t" + VESPERS::convertTimeToString(configuration_->totalTime()*configuration_->numberOfScans()));
+}
