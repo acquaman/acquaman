@@ -205,6 +205,7 @@ void IDEASAppController::onEnergyConnected(bool connected){
 
 
 		xasScanConfigurationView_ = new IDEASXASScanConfigurationView(xasScanConfiguration);
+		xasScanConfigurationView_->setupDefaultXANESScanRegions();
 		xasScanConfigurationHolder3_->setView(xasScanConfigurationView_);
 	}
 }
