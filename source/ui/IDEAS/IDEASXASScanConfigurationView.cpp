@@ -26,12 +26,12 @@ IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfigu
 	regionsView_ = new AMEXAFSScanAxisView("IDEAS Region Configuration", configuration_);
 
 	autoRegionButton_ = new QPushButton("Auto Set XANES Regions");
-        connect(autoRegionButton_, SIGNAL(clicked()), this, SLOT(onAutoRegionButtonClicked()));
+	connect(autoRegionButton_, SIGNAL(clicked()), this, SLOT(setupDefaultXANESScanRegions()));
 
 	pseudoXAFSButton_ = new QPushButton("Auto Set EXAFS Regions");
-	connect(pseudoXAFSButton_, SIGNAL(clicked()), this, SLOT(onXAFSRegionButtonClicked()));
+	connect(pseudoXAFSButton_, SIGNAL(clicked()), this, SLOT(setupDefaultEXAFSScanRegions()));
 
-	((AMScanAxisEXAFSRegion *)configuration_->scanAxisAt(0)->regionAt(0))->setEdgeEnergy(7112);
+	//((AMScanAxisEXAFSRegion *)configuration_->scanAxisAt(0)->regionAt(0))->setEdgeEnergy(7112);
 	//connect(edgeEnergy_, SIGNAL(valueChanged(double)), regionsView_, SLOT())
 
 	scanName_ = new QLineEdit();
@@ -134,8 +134,8 @@ IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfigu
 
 
 	QVBoxLayout *mainVL = new QVBoxLayout();
-	mainVL->addLayout(energyLayout);
 	mainVL->addWidget(topFrame_);
+	mainVL->addLayout(energyLayout);
 	mainVL->addWidget(regionsView_);
 	mainVL->addLayout(numberOfScansLayout);
 
@@ -184,7 +184,7 @@ const AMScanConfiguration* IDEASXASScanConfigurationView::configuration() const
 }
 
 
-void IDEASXASScanConfigurationView::onAutoRegionButtonClicked()
+void IDEASXASScanConfigurationView::setupDefaultXANESScanRegions()
 {
 //    bool ok;
 //    double edgeEnergy = QInputDialog::getDouble(this,"Auto Region Setup","Enter desired edge enegry:",IDEASBeamline::ideas()->monoEnergyControl()->value(),IDEASBeamline::ideas()->monoLowEV()->value(),IDEASBeamline::ideas()->monoHighEV()->value(),1,&ok);
@@ -213,7 +213,7 @@ void IDEASXASScanConfigurationView::onAutoRegionButtonClicked()
     regionsView_->insertEXAFSRegion(0, region);
 }
 
-void IDEASXASScanConfigurationView::onXAFSRegionButtonClicked()
+void IDEASXASScanConfigurationView::setupDefaultEXAFSScanRegions()
 {
 //    bool ok;
 //    bool ok2;
@@ -319,7 +319,7 @@ void IDEASXASScanConfigurationView::fillLinesComboBox(AMElement *el)
 
 		edge = el->absorptionEdges().at(i);
 
-		if (edge.energy() <= 30000 && edge.energy() >= 6700)
+		if (edge.energy() <= 24000 && edge.energy() >= 1500)
 			lineChoice_->addItem(edge.name()+": "+edge.energyString()+" eV", edge.energy());
 	}
 

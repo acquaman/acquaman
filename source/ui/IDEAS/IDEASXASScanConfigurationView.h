@@ -30,6 +30,11 @@ public:
 
 	virtual const AMScanConfiguration* configuration() const;
 
+public slots:
+	/// Slot that sets up the regions for standard XANES scans.
+	void setupDefaultXANESScanRegions();
+	/// Slot that sets up the regions for standard EXAFS scans.
+	void setupDefaultEXAFSScanRegions();
 
 protected:
 	IDEASXASScanConfiguration *configuration_;
@@ -62,10 +67,7 @@ protected:
 
 
 
-
 protected slots:
-        void onAutoRegionButtonClicked();
-	void onXAFSRegionButtonClicked();
 
 	/// Handles setting the name of the configuration from the line edit.
 	void onScanNameEdited();
