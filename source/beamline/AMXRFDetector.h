@@ -37,8 +37,9 @@ class AMXRFDetector : public AMDetector
 
 public:
 	/// Constructor.
- 	virtual ~AMXRFDetector();
 	AMXRFDetector(const QString &name, const QString &description, QObject *parent = 0);
+	/// Destructor.
+	virtual ~AMXRFDetector();
 
 	/// Returns the number of elements in the detector.
 	int elements() const { return rawSpectraSources_.size(); }
