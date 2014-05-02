@@ -129,7 +129,7 @@ IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
     QGroupBox *persistentPanel = new QGroupBox("IDEAS Beamline");
     persistentPanel->setLayout(mainPanelLayout);
 
-    QGroupBox *scalerPanel = new QGroupBox("Scaler Settings");
+    QGroupBox *scalerPanel = new QGroupBox("Preamp Settings");
     scalerPanel->setLayout(scalerPanelLayout);
 
     QGroupBox *detectorPanel = new QGroupBox("Ion Chamber Currents");
@@ -138,11 +138,11 @@ IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
     QVBoxLayout *layout = new QVBoxLayout;
     layout->addWidget(persistentPanel);
     layout->addWidget(scalerPanel);
-    layout->addWidget(detectorPanel);
+    //layout->addWidget(detectorPanel);
 
     setLayout(layout);
 
-    setMaximumWidth(250);
+    setMaximumWidth(400);
 }
 
 void IDEASPersistentView::onBeamOnClicked()
