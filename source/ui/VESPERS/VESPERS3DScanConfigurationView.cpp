@@ -25,104 +25,106 @@ VESPERS3DScanConfigurationView::VESPERS3DScanConfigurationView(VESPERS3DScanConf
 	// Setup the group box for setting the start and end points.
 	QGroupBox *positionsBox = new QGroupBox("Positions");
 
-//	hStart_ = buildPositionDoubleSpinBox("H: ", " mm", configuration_->xStart(), 3);
-//	connect(hStart_, SIGNAL(editingFinished()), this, SLOT(onXStartChanged()));
-//	connect(configuration_, SIGNAL(xStartChanged(double)), hStart_, SLOT(setValue(double)));
+	hStart_ = buildPositionDoubleSpinBox("H: ", " mm", configuration_->scanAxisAt(0)->regionAt(0)->regionStart(), 3);
+	connect(hStart_, SIGNAL(editingFinished()), this, SLOT(onXStartChanged()));
+	connect(configuration_->scanAxisAt(0)->regionAt(0), SIGNAL(regionStartChanged(AMNumber)), this, SLOT(setXAxisStart(AMNumber)));
 
-//	vStart_ = buildPositionDoubleSpinBox("V: ", " mm", configuration_->yStart(), 3);
-//	connect(vStart_, SIGNAL(editingFinished()), this, SLOT(onYStartChanged()));
-//	connect(configuration_, SIGNAL(yStartChanged(double)), vStart_, SLOT(setValue(double)));
+	vStart_ = buildPositionDoubleSpinBox("V: ", " mm", configuration_->scanAxisAt(1)->regionAt(0)->regionStart(), 3);
+	connect(vStart_, SIGNAL(editingFinished()), this, SLOT(onYStartChanged()));
+	connect(configuration_->scanAxisAt(1)->regionAt(0), SIGNAL(regionStartChanged(AMNumber)), this, SLOT(setYAxisStart(AMNumber)));
 
-//	QPushButton *startUseCurrentButton = new QPushButton("Use Current");
-//	connect(startUseCurrentButton, SIGNAL(clicked()), this, SLOT(onSetStartPosition()));
+	QPushButton *startUseCurrentButton = new QPushButton("Use Current");
+	connect(startUseCurrentButton, SIGNAL(clicked()), this, SLOT(onSetStartPosition()));
 
-//	QHBoxLayout *startPointLayout = new QHBoxLayout;
-//	startPointLayout->addWidget(new QLabel("Start:"));
-//	startPointLayout->addWidget(hStart_);
-//	startPointLayout->addWidget(vStart_);
-//	startPointLayout->addWidget(startUseCurrentButton);
+	QHBoxLayout *startPointLayout = new QHBoxLayout;
+	startPointLayout->addWidget(new QLabel("Start:"));
+	startPointLayout->addWidget(hStart_);
+	startPointLayout->addWidget(vStart_);
+	startPointLayout->addWidget(startUseCurrentButton);
 
-//	hEnd_ = buildPositionDoubleSpinBox("H: ", " mm", configuration_->xEnd(), 3);
-//	connect(hEnd_, SIGNAL(editingFinished()), this, SLOT(onXEndChanged()));
-//	connect(configuration_, SIGNAL(xEndChanged(double)), hEnd_, SLOT(setValue(double)));
+	hEnd_ = buildPositionDoubleSpinBox("H: ", " mm", configuration_->scanAxisAt(0)->regionAt(0)->regionEnd(), 3);
+	connect(hEnd_, SIGNAL(editingFinished()), this, SLOT(onXEndChanged()));
+	connect(configuration_->scanAxisAt(0)->regionAt(0), SIGNAL(regionEndChanged(AMNumber)), this, SLOT(setXAxisEnd(AMNumber)));
 
-//	vEnd_ = buildPositionDoubleSpinBox("V: ", " mm", configuration_->yEnd(), 3);
-//	connect(vEnd_, SIGNAL(editingFinished()), this, SLOT(onYEndChanged()));
-//	connect(configuration_, SIGNAL(yEndChanged(double)), vEnd_, SLOT(setValue(double)));
+	vEnd_ = buildPositionDoubleSpinBox("V: ", " mm", configuration_->scanAxisAt(1)->regionAt(0)->regionEnd(), 3);
+	connect(vEnd_, SIGNAL(editingFinished()), this, SLOT(onYEndChanged()));
+	connect(configuration_->scanAxisAt(1)->regionAt(0), SIGNAL(regionEndChanged(AMNumber)), this, SLOT(setYAxisEnd(AMNumber)));
 
-//	QPushButton *endUseCurrentButton = new QPushButton("Use Current");
-//	connect(endUseCurrentButton, SIGNAL(clicked()), this, SLOT(onSetEndPosition()));
+	QPushButton *endUseCurrentButton = new QPushButton("Use Current");
+	connect(endUseCurrentButton, SIGNAL(clicked()), this, SLOT(onSetEndPosition()));
 
-//	QHBoxLayout *endPointLayout = new QHBoxLayout;
-//	endPointLayout->addWidget(new QLabel("End:"));
-//	endPointLayout->addWidget(hEnd_);
-//	endPointLayout->addWidget(vEnd_);
-//	endPointLayout->addWidget(endUseCurrentButton);
+	QHBoxLayout *endPointLayout = new QHBoxLayout;
+	endPointLayout->addWidget(new QLabel("End:"));
+	endPointLayout->addWidget(hEnd_);
+	endPointLayout->addWidget(vEnd_);
+	endPointLayout->addWidget(endUseCurrentButton);
 
-//	hStep_ = buildPositionDoubleSpinBox("H: ", QString(" %1").arg(QString::fromUtf8("µm")), configuration_->xStep()*1000, 1);	// xStep needs to be in mm.
-//	connect(hStep_, SIGNAL(editingFinished()), this, SLOT(onXStepChanged()));
-//	connect(configuration_, SIGNAL(xStepChanged(double)), this, SLOT(updateXStep(double)));
+	hStep_ = buildPositionDoubleSpinBox("H: ", QString(" %1").arg(QString::fromUtf8("µm")), double(configuration_->scanAxisAt(0)->regionAt(0)->regionStep())*1000, 1);	// xStep needs to be in mm.
+	connect(hStep_, SIGNAL(editingFinished()), this, SLOT(onXStepChanged()));
+	connect(configuration_->scanAxisAt(0)->regionAt(0), SIGNAL(regionStepChanged(AMNumber)), this, SLOT(setXAxisStep(AMNumber)));
 
-//	vStep_ = buildPositionDoubleSpinBox("V: ", QString(" %1").arg(QString::fromUtf8("µm")), configuration_->yStep()*1000, 1);	// yStep needs to be in mm.
-//	connect(vStep_, SIGNAL(editingFinished()), this, SLOT(onYStepChanged()));
-//	connect(configuration_, SIGNAL(yStepChanged(double)), this, SLOT(updateYStep(double)));
+	vStep_ = buildPositionDoubleSpinBox("V: ", QString(" %1").arg(QString::fromUtf8("µm")), double(configuration_->scanAxisAt(1)->regionAt(0)->regionStep())*1000, 1);	// yStep needs to be in mm.
+	connect(vStep_, SIGNAL(editingFinished()), this, SLOT(onYStepChanged()));
+	connect(configuration_->scanAxisAt(1)->regionAt(0), SIGNAL(regionStepChanged(AMNumber)), this, SLOT(setYAxisStep(AMNumber)));
 
-//	QHBoxLayout *stepSizeLayout = new QHBoxLayout;
-//	stepSizeLayout->addWidget(new QLabel("Step Size:"));
-//	stepSizeLayout->addWidget(hStep_);
-//	stepSizeLayout->addWidget(vStep_);
-//	stepSizeLayout->addStretch();
+	QHBoxLayout *stepSizeLayout = new QHBoxLayout;
+	stepSizeLayout->addWidget(new QLabel("Step Size:"));
+	stepSizeLayout->addWidget(hStep_);
+	stepSizeLayout->addWidget(vStep_);
+	stepSizeLayout->addStretch();
 
-//	wireStart_ = buildPositionDoubleSpinBox("", " mm", configuration_->zStart(), 3);
-//	connect(wireStart_, SIGNAL(editingFinished()), this, SLOT(onZStartChanged()));
-//	connect(configuration_, SIGNAL(zStartChanged(double)), wireStart_, SLOT(setValue(double)));
+	wireStart_ = buildPositionDoubleSpinBox("", " mm", double(configuration_->scanAxisAt(2)->regionAt(0)->regionStart()), 3);
+	connect(wireStart_, SIGNAL(editingFinished()), this, SLOT(onWireStartChanged()));
+	connect(configuration_->scanAxisAt(2)->regionAt(0), SIGNAL(regionStartChanged(AMNumber)), this, SLOT(setWireAxisStart(AMNumber)));
 
-//	QPushButton *wireStartCurrentButton = new QPushButton("Use Current");
-//	connect(wireStartCurrentButton, SIGNAL(clicked()), this, SLOT(onSetWireStartPosition()));
+	QPushButton *wireStartCurrentButton = new QPushButton("Use Current");
+	connect(wireStartCurrentButton, SIGNAL(clicked()), this, SLOT(onSetWireStartPosition()));
 
-//	QHBoxLayout *wireStartLayout = new QHBoxLayout;
-//	wireStartLayout->addWidget(new QLabel("Wire Start:"));
-//	wireStartLayout->addWidget(wireStart_, 0, Qt::AlignCenter);
-//	wireStartLayout->addWidget(wireStartCurrentButton);
+	QHBoxLayout *wireStartLayout = new QHBoxLayout;
+	wireStartLayout->addWidget(new QLabel("Wire Start:"));
+	wireStartLayout->addWidget(wireStart_, 0, Qt::AlignCenter);
+	wireStartLayout->addWidget(wireStartCurrentButton);
 
-//	wireEnd_ = buildPositionDoubleSpinBox("", " mm", configuration_->zEnd(), 3);
-//	connect(wireEnd_, SIGNAL(editingFinished()), this, SLOT(onZEndChanged()));
-//	connect(configuration_, SIGNAL(zEndChanged(double)), wireEnd_, SLOT(setValue(double)));
+	wireEnd_ = buildPositionDoubleSpinBox("", " mm", double(configuration_->scanAxisAt(2)->regionAt(0)->regionEnd()), 3);
+	connect(wireEnd_, SIGNAL(editingFinished()), this, SLOT(onWireEndChanged()));
+	connect(configuration_->scanAxisAt(2)->regionAt(0), SIGNAL(regionEndChanged(AMNumber)), this, SLOT(setWireAxisEnd(AMNumber)));
 
-//	QPushButton *wireEndCurrentButton = new QPushButton("Use Current");
-//	connect(wireEndCurrentButton, SIGNAL(clicked()), this, SLOT(onSetWireEndPosition()));
+	QPushButton *wireEndCurrentButton = new QPushButton("Use Current");
+	connect(wireEndCurrentButton, SIGNAL(clicked()), this, SLOT(onSetWireEndPosition()));
 
-//	QHBoxLayout *wireEndLayout = new QHBoxLayout;
-//	wireEndLayout->addWidget(new QLabel("Wire End:"));
-//	wireEndLayout->addWidget(wireEnd_, 0, Qt::AlignCenter);
-//	wireEndLayout->addWidget(wireEndCurrentButton);
+	QHBoxLayout *wireEndLayout = new QHBoxLayout;
+	wireEndLayout->addWidget(new QLabel("Wire End:"));
+	wireEndLayout->addWidget(wireEnd_, 0, Qt::AlignCenter);
+	wireEndLayout->addWidget(wireEndCurrentButton);
 
-//	wireStep_ = buildPositionDoubleSpinBox("", QString(" %1").arg(QString::fromUtf8("µm")), configuration_->zStep()*1000, 1);	// yStep needs to be in mm.
-//	connect(wireStep_, SIGNAL(editingFinished()), this, SLOT(onZStepChanged()));
-//	connect(configuration_, SIGNAL(zStepChanged(double)), this, SLOT(updateZStep(double)));
+	wireStep_ = buildPositionDoubleSpinBox("", QString(" %1").arg(QString::fromUtf8("µm")), double(configuration_->scanAxisAt(2)->regionAt(0)->regionStep())*1000, 1);	// yStep needs to be in mm.
+	connect(wireStep_, SIGNAL(editingFinished()), this, SLOT(onWireStepChanged()));
+	connect(configuration_->scanAxisAt(0)->regionAt(0), SIGNAL(regionStepChanged(AMNumber)), this, SLOT(setWireAxisStep(AMNumber)));
 
-//	QHBoxLayout *wireStepLayout = new QHBoxLayout;
-//	wireStepLayout->addWidget(new QLabel("Wire Step:"));
-//	wireStepLayout->addWidget(wireStep_);
+	QHBoxLayout *wireStepLayout = new QHBoxLayout;
+	wireStepLayout->addWidget(new QLabel("Wire Step:"));
+	wireStepLayout->addWidget(wireStep_);
 
 	mapInfo_ = new QLabel;
 	updateMapInfo();
 
 	QVBoxLayout *positionsLayout = new QVBoxLayout;
-//	positionsLayout->addLayout(startPointLayout);
-//	positionsLayout->addLayout(endPointLayout);
-//	positionsLayout->addLayout(stepSizeLayout);
-//	positionsLayout->addLayout(wireStartLayout);
-//	positionsLayout->addLayout(wireEndLayout);
-//	positionsLayout->addLayout(wireStepLayout);
-//	positionsLayout->addWidget(mapInfo_);
+	positionsLayout->addLayout(startPointLayout);
+	positionsLayout->addLayout(endPointLayout);
+	positionsLayout->addLayout(stepSizeLayout);
+	positionsLayout->addLayout(wireStartLayout);
+	positionsLayout->addLayout(wireEndLayout);
+	positionsLayout->addLayout(wireStepLayout);
+	positionsLayout->addWidget(mapInfo_);
 
 	positionsBox->setLayout(positionsLayout);
 
 	// Dwell time.
 	dwellTime_ = addDwellTimeWidget(configuration_->scanAxisAt(0)->regionAt(0)->regionTime());
 	connect(dwellTime_, SIGNAL(editingFinished()), this, SLOT(onDwellTimeChanged()));
-	connect(configuration_, SIGNAL(timeStepChanged(double)), dwellTime_, SLOT(setValue(double)));
+	connect(configuration_->scanAxisAt(0)->regionAt(0), SIGNAL(regionTimeChanged(AMNumber)), this, SLOT(setDwellTime(AMNumber)));
+	connect(configuration_->scanAxisAt(0)->regionAt(0), SIGNAL(regionTimeChanged(AMNumber)), configuration_->scanAxisAt(1)->regionAt(0), SLOT(setRegionTime(AMNumber)));
+	connect(configuration_->scanAxisAt(0)->regionAt(0), SIGNAL(regionTimeChanged(AMNumber)), configuration_->scanAxisAt(2)->regionAt(0), SLOT(setRegionTime(AMNumber)));
 
 	QHBoxLayout *timeLayout = new QHBoxLayout;
 	timeLayout->addWidget(new QLabel("Dwell Time:"));
@@ -392,153 +394,155 @@ void VESPERS3DScanConfigurationView::onEstimatedTimeChanged()
 
 void VESPERS3DScanConfigurationView::onSetStartPosition()
 {
-//	double h = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->horizontalControl()->value();
-//	double v = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->verticalControl()->value();
-//	double n = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->normalControl()->value();
+	double h = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->horizontalControl()->value();
+	double v = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->verticalControl()->value();
+	double n = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->normalControl()->value();
 
-//	configuration_->setXStart(h);
-//	hStart_->setValue(h);
-//	configuration_->setYStart(v);
-//	vStart_->setValue(v);
-//	configuration_->setNormalPosition(n);
+	configuration_->scanAxisAt(0)->regionAt(0)->setRegionStart(h);
+	configuration_->scanAxisAt(1)->regionAt(0)->setRegionStart(v);
+	configuration_->setNormalPosition(n);
+	hStart_->setValue(h);
+	vStart_->setValue(v);
 	updateMapInfo();
 	axesAcceptable();
 }
 
 void VESPERS3DScanConfigurationView::onSetEndPosition()
 {
-//	double h = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->horizontalControl()->value();
-//	double v = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->verticalControl()->value();
+	double h = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->horizontalControl()->value();
+	double v = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->verticalControl()->value();
 
-//	configuration_->setXEnd(h);
-//	hEnd_->setValue(h);
-//	configuration_->setYEnd(v);
-//	vEnd_->setValue(v);
+	configuration_->scanAxisAt(0)->regionAt(0)->setRegionEnd(h);
+	configuration_->scanAxisAt(1)->regionAt(0)->setRegionEnd(v);
+	hEnd_->setValue(h);
+	vEnd_->setValue(v);
 	updateMapInfo();
 	axesAcceptable();
 }
 
 void VESPERS3DScanConfigurationView::onSetWireStartPosition()
 {
-//	double wire = VESPERSBeamline::vespers()->pseudoWireStageMotorGroupObject()->verticalControl()->value();
+	double wire = VESPERSBeamline::vespers()->pseudoWireStageMotorGroupObject()->verticalControl()->value();
 
-//	configuration_->setZStart(wire);
-//	wireStart_->setValue(wire);
+	configuration_->scanAxisAt(0)->regionAt(0)->setRegionStart(wire);
+	wireStart_->setValue(wire);
 	updateMapInfo();
 	axesAcceptable();
 }
 
 void VESPERS3DScanConfigurationView::onSetWireEndPosition()
 {
-//	double wire = VESPERSBeamline::vespers()->pseudoWireStageMotorGroupObject()->verticalControl()->value();
+	double wire = VESPERSBeamline::vespers()->pseudoWireStageMotorGroupObject()->verticalControl()->value();
 
-//	configuration_->setZEnd(wire);
-//	wireEnd_->setValue(wire);
+	configuration_->scanAxisAt(3)->regionAt(0)->setRegionEnd(wire);
+	wireEnd_->setValue(wire);
 	updateMapInfo();
 	axesAcceptable();
 }
 
 void VESPERS3DScanConfigurationView::onXStartChanged()
 {
-//	configuration_->setXStart(hStart_->value());
+	configuration_->scanAxisAt(0)->regionAt(0)->setRegionStart(hStart_->value());
 	updateMapInfo();
 	axesAcceptable();
 }
 
 void VESPERS3DScanConfigurationView::onXEndChanged()
 {
-//	configuration_->setXEnd(hEnd_->value());
+	configuration_->scanAxisAt(0)->regionAt(0)->setRegionEnd(hEnd_->value());
 	updateMapInfo();
 	axesAcceptable();
 }
 
 void VESPERS3DScanConfigurationView::onXStepChanged()
 {
-//	configuration_->setXStep(hStep_->value()/1000);
+	configuration_->scanAxisAt(0)->regionAt(0)->setRegionStep(hStep_->value()/1000);
 	updateMapInfo();
 	axesAcceptable();
 }
 
 void VESPERS3DScanConfigurationView::onYStartChanged()
 {
-//	configuration_->setYStart(vStart_->value());
+	configuration_->scanAxisAt(1)->regionAt(0)->setRegionStart(vStart_->value());
 	updateMapInfo();
 	axesAcceptable();
 }
 
 void VESPERS3DScanConfigurationView::onYEndChanged()
 {
-//	configuration_->setYEnd(vEnd_->value());
+	configuration_->scanAxisAt(1)->regionAt(0)->setRegionEnd(vEnd_->value());
 	updateMapInfo();
 	axesAcceptable();
 }
 
 void VESPERS3DScanConfigurationView::onYStepChanged()
 {
-//	configuration_->setYStep(vStep_->value()/1000);
+	configuration_->scanAxisAt(1)->regionAt(0)->setRegionStep(vStep_->value()/1000);
 	updateMapInfo();
 	axesAcceptable();
 }
 
-void VESPERS3DScanConfigurationView::onZStartChanged()
+void VESPERS3DScanConfigurationView::onWireStartChanged()
 {
-//	configuration_->setZStart(wireStart_->value());
+	configuration_->scanAxisAt(2)->regionAt(0)->setRegionStart(vStart_->value());
 	updateMapInfo();
 	axesAcceptable();
 }
 
-void VESPERS3DScanConfigurationView::onZEndChanged()
+void VESPERS3DScanConfigurationView::onWireEndChanged()
 {
-//	configuration_->setZEnd(wireEnd_->value());
+	configuration_->scanAxisAt(2)->regionAt(0)->setRegionEnd(vEnd_->value());
 	updateMapInfo();
 	axesAcceptable();
 }
 
-void VESPERS3DScanConfigurationView::onZStepChanged()
+void VESPERS3DScanConfigurationView::onWireStepChanged()
 {
-//	configuration_->setZStep(wireStep_->value()/1000);
+	configuration_->scanAxisAt(2)->regionAt(0)->setRegionStep(vStep_->value()/1000);
 	updateMapInfo();
 	axesAcceptable();
 }
 
 void VESPERS3DScanConfigurationView::onDwellTimeChanged()
 {
-//	configuration_->setTimeStep(dwellTime_->value());
+	configuration_->scanAxisAt(0)->regionAt(0)->setRegionTime(dwellTime_->value());
+	configuration_->scanAxisAt(1)->regionAt(0)->setRegionTime(dwellTime_->value());
+	configuration_->scanAxisAt(2)->regionAt(0)->setRegionTime(dwellTime_->value());
 }
 
 void VESPERS3DScanConfigurationView::updateMapInfo()
 {
-//	double hSize = fabs(configuration_->xEnd()-configuration_->xStart());
-//	double vSize = fabs(configuration_->yEnd()-configuration_->yStart());
-//	double wireSize = fabs(configuration_->zEnd()-configuration_->zStart());
+	double hSize = fabs(double(configuration_->scanAxisAt(0)->regionAt(0)->regionEnd())-double(configuration_->scanAxisAt(0)->regionAt(0)->regionStart()));
+	double vSize = fabs(double(configuration_->scanAxisAt(1)->regionAt(0)->regionEnd())-double(configuration_->scanAxisAt(1)->regionAt(0)->regionStart()));
+	double wireSize = fabs(double(configuration_->scanAxisAt(2)->regionAt(0)->regionEnd())-double(configuration_->scanAxisAt(2)->regionAt(0)->regionStart()));
 
-//	int hPoints = int((hSize)/configuration_->xStep());
-//	if ((hSize - (hPoints + 0.01)*configuration_->xStep()) < 0)
-//		hPoints += 1;
-//	else
-//		hPoints += 2;
+	int hPoints = int((hSize)/double(configuration_->scanAxisAt(0)->regionAt(0)->regionStep()));
+	if ((hSize - (hPoints + 0.01)*double(configuration_->scanAxisAt(0)->regionAt(0)->regionStep())) < 0)
+		hPoints += 1;
+	else
+		hPoints += 2;
 
-//	int vPoints = int((vSize)/configuration_->yStep());
-//	if ((vSize - (vPoints + 0.01)*configuration_->yStep()) < 0)
-//		vPoints += 1;
-//	else
-//		vPoints += 2;
+	int vPoints = int((vSize)/double(configuration_->scanAxisAt(1)->regionAt(0)->regionStep()));
+	if ((vSize - (vPoints + 0.01)*double(configuration_->scanAxisAt(1)->regionAt(0)->regionStep())) < 0)
+		vPoints += 1;
+	else
+		vPoints += 2;
 
-//	int wirePoints = int((wireSize)/configuration_->zStep());
-//	if ((vSize - (wirePoints + 0.01)*configuration_->zStep()) < 0)
-//		wirePoints += 1;
-//	else
-//		wirePoints += 2;
+	int wirePoints = int((wireSize)/double(configuration_->scanAxisAt(2)->regionAt(0)->regionStep()));
+	if ((wireSize - (wirePoints + 0.01)*double(configuration_->scanAxisAt(2)->regionAt(0)->regionStep())) < 0)
+		wirePoints += 1;
+	else
+		wirePoints += 2;
 
-//	mapInfo_->setText(QString("Map Size: %1 %2 x %3 %2 x %6 %2\t Points: %4 x %5 x %7")
-//					  .arg(QString::number(hSize*1000, 'f', 1))
-//					  .arg(QString::fromUtf8("µm"))
-//					  .arg(QString::number(vSize*1000, 'f', 1))
-//					  .arg(hPoints)
-//					  .arg(vPoints)
-//					  .arg(QString::number(wireSize*1000, 'f', 1))
-//					  .arg(wirePoints)
-//					  );
+	mapInfo_->setText(QString("Map Size: %1 %2 x %3 %2 x %6 %2\t Points: %4 x %5 x %7")
+					  .arg(QString::number(hSize*1000, 'f', 1))
+					  .arg(QString::fromUtf8("µm"))
+					  .arg(QString::number(vSize*1000, 'f', 1))
+					  .arg(hPoints)
+					  .arg(vPoints)
+					  .arg(QString::number(wireSize*1000, 'f', 1))
+					  .arg(wirePoints)
+					  );
 }
 
 void VESPERS3DScanConfigurationView::axesAcceptable()
@@ -551,3 +555,54 @@ void VESPERS3DScanConfigurationView::axesAcceptable()
 //	vStep_->setPalette(configuration_->validYAxis() ? good : bad);
 //	wireStep_->setPalette(configuration_->validZAxis() ? good : bad);
 }
+
+void VESPERS3DScanConfigurationView::setXAxisStart(const AMNumber &value)
+{
+	hStart_->setValue(double(value));
+}
+
+void VESPERS3DScanConfigurationView::setYAxisStart(const AMNumber &value)
+{
+	vStart_->setValue(double(value));
+}
+
+void VESPERS3DScanConfigurationView::setWireAxisStart(const AMNumber &value)
+{
+	wireStart_->setValue(double(value));
+}
+
+void VESPERS3DScanConfigurationView::setXAxisStep(const AMNumber &value)
+{
+	hStep_->setValue(double(value)*1000);
+}
+
+void VESPERS3DScanConfigurationView::setYAxisStep(const AMNumber &value)
+{
+	vStep_->setValue(double(value)*1000);
+}
+
+void VESPERS3DScanConfigurationView::setWireAxisStep(const AMNumber &value)
+{
+	wireStep_->setValue(double(value)*1000);
+}
+
+void VESPERS3DScanConfigurationView::setXAxisEnd(const AMNumber &value)
+{
+	hEnd_->setValue(double(value));
+}
+
+void VESPERS3DScanConfigurationView::setYAxisEnd(const AMNumber &value)
+{
+	vEnd_->setValue(double(value));
+}
+
+void VESPERS3DScanConfigurationView::setWireAxisEnd(const AMNumber &value)
+{
+	wireEnd_->setValue(double(value));
+}
+
+void VESPERS3DScanConfigurationView::setDwellTime(const AMNumber &value)
+{
+	dwellTime_->setValue(double(value));
+}
+

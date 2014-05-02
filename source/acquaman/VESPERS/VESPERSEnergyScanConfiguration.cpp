@@ -40,6 +40,13 @@ VESPERSEnergyScanConfiguration::VESPERSEnergyScanConfiguration(QObject *parent)
 	setCCDFileName("");
 	goToPosition_ = false;
 	position_ = QPointF(0.0, 0.0);
+
+	connect(axis, SIGNAL(regionAdded(AMScanAxisRegion*)), this, SLOT(onRegionAdded(AMScanAxisRegion*)));
+	connect(axis, SIGNAL(regionRemoved(AMScanAxisRegion*)), this, SLOT(onRegionRemoved(AMScanAxisRegion*)));
+	connect(region, SIGNAL(regionStartChanged(AMNumber)), this, SLOT(computeTotalTime()));
+	connect(region, SIGNAL(regionStepChanged(AMNumber)), this, SLOT(computeTotalTime()));
+	connect(region, SIGNAL(regionEndChanged(AMNumber)), this, SLOT(computeTotalTime()));
+	connect(region, SIGNAL(regionTimeChanged(AMNumber)), this, SLOT(computeTotalTime()));
 }
 
 VESPERSEnergyScanConfiguration::VESPERSEnergyScanConfiguration(const VESPERSEnergyScanConfiguration &original)
@@ -52,6 +59,17 @@ VESPERSEnergyScanConfiguration::VESPERSEnergyScanConfiguration(const VESPERSEner
 	goToPosition_ = original.goToPosition();
 	position_ = original.position();
 	computeTotalTime();
+
+	connect(scanAxisAt(0), SIGNAL(regionAdded(AMScanAxisRegion*)), this, SLOT(onRegionAdded(AMScanAxisRegion*)));
+	connect(scanAxisAt(0), SIGNAL(regionRemoved(AMScanAxisRegion*)), this, SLOT(onRegionRemoved(AMScanAxisRegion*)));
+
+	foreach (AMScanAxisRegion *region, scanAxisAt(0)->regions().toList()){
+
+		connect(region, SIGNAL(regionStartChanged(AMNumber)), this, SLOT(computeTotalTime()));
+		connect(region, SIGNAL(regionStepChanged(AMNumber)), this, SLOT(computeTotalTime()));
+		connect(region, SIGNAL(regionEndChanged(AMNumber)), this, SLOT(computeTotalTime()));
+		connect(region, SIGNAL(regionTimeChanged(AMNumber)), this, SLOT(computeTotalTime()));
+	}
 }
 
 AMScanConfiguration *VESPERSEnergyScanConfiguration::createCopy() const
@@ -99,13 +117,13 @@ QString VESPERSEnergyScanConfiguration::headerText() const
 	header.append("\n");
 	header.append("Regions Scanned\n");
 
-	for (int i = 0; i < scanAxisAt(0)->regionCount(); i++){
+	foreach (AMScanAxisRegion *region, scanAxisAt(0)->regions().toList()){
 
 		header.append(QString("Start: %1 eV\tDelta: %2 eV\tEnd: %3 eV\tTime: %4 s\n")
-						  .arg(double(scanAxisAt(0)->regionAt(i)->regionStart()))
-						  .arg(double(scanAxisAt(0)->regionAt(i)->regionStep()))
-						  .arg(double(scanAxisAt(0)->regionAt(i)->regionEnd()))
-						  .arg(double(scanAxisAt(0)->regionAt(i)->regionTime())));
+						  .arg(double(region->regionStart()))
+						  .arg(double(region->regionStep()))
+						  .arg(double(region->regionEnd()))
+						  .arg(double(region->regionTime())));
 	}
 
 	return header;
@@ -123,7 +141,7 @@ void VESPERSEnergyScanConfiguration::computeTotalTimeImplementation()
 		extraOffset = 3;
 
 	foreach (AMScanAxisRegion *region, scanAxisAt(0)->regions().toList())
-		time += ((double(region->regionEnd()) - double(region->regionStart()))/double(region->regionStep()))*(double(region->regionTime()) + timeOffset_ + extraOffset); // Seems to take about 0.7 seconds for extra beamline stuff to happen.
+		time += ((double(region->regionEnd()) - double(region->regionStart()))/double(region->regionStep()) + 1)*(double(region->regionTime()) + timeOffset_ + extraOffset); // Seems to take about 0.7 seconds for extra beamline stuff to happen.
 
 	totalTime_ = time + 9; // There is a 9 second miscellaneous startup delay.
 	setExpectedDuration(totalTime_);
@@ -164,4 +182,19 @@ void VESPERSEnergyScanConfiguration::setY(double yPos)
 		emit yPositionChanged(yPos);
 		setModified(true);
 	}
+}
+
+void VESPERSEnergyScanConfiguration::onRegionAdded(AMScanAxisRegion *region)
+{
+		connect(region, SIGNAL(regionStartChanged(AMNumber)), this, SLOT(computeTotalTime()));
+		connect(region, SIGNAL(regionStepChanged(AMNumber)), this, SLOT(computeTotalTime()));
+		connect(region, SIGNAL(regionEndChanged(AMNumber)), this, SLOT(computeTotalTime()));
+		connect(region, SIGNAL(regionTimeChanged(AMNumber)), this, SLOT(computeTotalTime()));
+		computeTotalTime();
+}
+
+void VESPERSEnergyScanConfiguration::onRegionRemoved(AMScanAxisRegion *region)
+{
+	region->disconnect(this);
+	computeTotalTime();
 }
