@@ -45,11 +45,11 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 
 	hStart_ = buildPositionDoubleSpinBox("H: ", " mm", configuration_->scanAxisAt(0)->regionAt(0)->regionStart(), 3);
 	connect(hStart_, SIGNAL(editingFinished()), this, SLOT(onXStartChanged()));
-	connect(configuration_, SIGNAL(xStartChanged(double)), hStart_, SLOT(setValue(double)));
+	connect(configuration_->scanAxisAt(0)->regionAt(0), SIGNAL(regionStartChanged(AMNumber)), hStart_, SLOT(setValue(double)));
 
 	vStart_ = buildPositionDoubleSpinBox("V: ", " mm", configuration_->scanAxisAt(1)->regionAt(0)->regionStart(), 3);
 	connect(vStart_, SIGNAL(editingFinished()), this, SLOT(onYStartChanged()));
-	connect(configuration_, SIGNAL(yStartChanged(double)), vStart_, SLOT(setValue(double)));
+	connect(configuration_->scanAxisAt(1)->regionAt(0), SIGNAL(regionStartChanged(AMNumber)), vStart_, SLOT(setValue(double)));
 
 	QPushButton *startUseCurrentButton = new QPushButton("Use Current");
 	connect(startUseCurrentButton, SIGNAL(clicked()), this, SLOT(onSetStartPosition()));
@@ -62,11 +62,11 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 
 	hEnd_ = buildPositionDoubleSpinBox("H: ", " mm", configuration_->scanAxisAt(0)->regionAt(0)->regionEnd(), 3);
 	connect(hEnd_, SIGNAL(editingFinished()), this, SLOT(onXEndChanged()));
-	connect(configuration_, SIGNAL(xEndChanged(double)), hEnd_, SLOT(setValue(double)));
+	connect(configuration_->scanAxisAt(0)->regionAt(0), SIGNAL(regionEndChanged(AMNumber)), hEnd_, SLOT(setValue(double)));
 
 	vEnd_ = buildPositionDoubleSpinBox("V: ", " mm", configuration_->scanAxisAt(1)->regionAt(0)->regionEnd(), 3);
 	connect(vEnd_, SIGNAL(editingFinished()), this, SLOT(onYEndChanged()));
-	connect(configuration_, SIGNAL(yEndChanged(double)), vEnd_, SLOT(setValue(double)));
+	connect(configuration_->scanAxisAt(1)->regionAt(0), SIGNAL(regionEndChanged(AMNumber)), vEnd_, SLOT(setValue(double)));
 
 	QPushButton *endUseCurrentButton = new QPushButton("Use Current");
 	connect(endUseCurrentButton, SIGNAL(clicked()), this, SLOT(onSetEndPosition()));
@@ -79,11 +79,11 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 
 	hStep_ = buildPositionDoubleSpinBox("H: ", QString(" %1").arg(QString::fromUtf8("µm")), double(configuration_->scanAxisAt(0)->regionAt(0)->regionStep())*1000, 1);	// xStep needs to be in mm.
 	connect(hStep_, SIGNAL(editingFinished()), this, SLOT(onXStepChanged()));
-	connect(configuration_, SIGNAL(xStepChanged(double)), this, SLOT(updateXStep(double)));
+	connect(configuration_->scanAxisAt(0)->regionAt(0), SIGNAL(regionStepChanged(AMNumber)), this, SLOT(setXAxisStep(AMNumber)));
 
 	vStep_ = buildPositionDoubleSpinBox("V: ", QString(" %1").arg(QString::fromUtf8("µm")), double(configuration_->scanAxisAt(1)->regionAt(0)->regionStep())*1000, 1);	// yStep needs to be in mm.
 	connect(vStep_, SIGNAL(editingFinished()), this, SLOT(onYStepChanged()));
-	connect(configuration_, SIGNAL(yStepChanged(double)), this, SLOT(updateYStep(double)));
+	connect(configuration_->scanAxisAt(1)->regionAt(0), SIGNAL(regionStepChanged(AMNumber)), this, SLOT(setYAxisStep(AMNumber)));
 
 	QHBoxLayout *stepSizeLayout = new QHBoxLayout;
 	stepSizeLayout->addWidget(new QLabel("Step Size:"));
@@ -105,7 +105,8 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	// Dwell time.
 	dwellTime_ = addDwellTimeWidget(configuration_->scanAxisAt(0)->regionAt(0)->regionTime());
 	connect(dwellTime_, SIGNAL(editingFinished()), this, SLOT(onDwellTimeChanged()));
-	connect(configuration_, SIGNAL(timeStepChanged(double)), dwellTime_, SLOT(setValue(double)));
+	connect(configuration_->scanAxisAt(0)->regionAt(0), SIGNAL(regionTimeChanged(AMNumber)), dwellTime_, SLOT(setValue(double)));
+	connect(configuration_->scanAxisAt(0)->regionAt(0), SIGNAL(regionTimeChanged(AMNumber)), configuration_->scanAxisAt(1)->regionAt(0), SLOT(setRegionTime(AMNumber)));
 
 	QHBoxLayout *timeLayout = new QHBoxLayout;
 	timeLayout->addWidget(new QLabel("Dwell Time:"));
@@ -545,4 +546,39 @@ void VESPERS2DScanConfigurationView::axesAcceptable()
 
 //	hStep_->setPalette(config_->validXAxis() ? good : bad);
 //	vStep_->setPalette(config_->validYAxis() ? good : bad);
+}
+
+void VESPERS2DScanConfigurationView::setXAxisStart(const AMNumber &value)
+{
+	hStart_->setValue(double(value));
+}
+
+void VESPERS2DScanConfigurationView::setYAxisStart(const AMNumber &value)
+{
+	vStart_->setValue(double(value));
+}
+
+void VESPERS2DScanConfigurationView::setXAxisStep(const AMNumber &value)
+{
+	hStep_->setValue(double(value)*1000);
+}
+
+void VESPERS2DScanConfigurationView::setYAxisStep(const AMNumber &value)
+{
+	vStep_->setValue(double(value)*1000);
+}
+
+void VESPERS2DScanConfigurationView::setXAxisEnd(const AMNumber &value)
+{
+	hEnd_->setValue(double(value));
+}
+
+void VESPERS2DScanConfigurationView::setYAxisEnd(const AMNumber &value)
+{
+	vEnd_->setValue(double(value));
+}
+
+void VESPERS2DScanConfigurationView::setDwellTime(const AMNumber &value)
+{
+	dwellTime_->setValue(double(value));
 }

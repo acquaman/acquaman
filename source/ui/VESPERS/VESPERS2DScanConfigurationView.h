@@ -50,6 +50,21 @@ public:
 	void updateMapInfo();
 
 protected slots:
+	/// Sets the x-axis start position.
+	void setXAxisStart(const AMNumber &value);
+	/// Sets the y-axis start position.
+	void setYAxisStart(const AMNumber &value);
+	/// Sets the x-axis step position.
+	void setXAxisStep(const AMNumber &value);
+	/// Sets the y-axis step position.
+	void setYAxisStep(const AMNumber &value);
+	/// Sets the x-axis end position.
+	void setXAxisEnd(const AMNumber &value);
+	/// Sets the y-axis start position.
+	void setYAxisEnd(const AMNumber &value);
+	/// Sets the dwell time.
+	void setDwellTime(const AMNumber &value);
+
 	/// Handles setting the start position when the "Use Current" button is pushed.
 	void onSetStartPosition();
 	/// Handles setting the end position when the "Use Current" button is pushed.
@@ -92,11 +107,6 @@ protected slots:
 	void onConfigureCCDDetectorClicked() { emit configureDetector(ccdDetectorIdToString(int(configuration_->ccdDetector()))); }
 	/// Updates roiText_ based on the current state of the ROI list.
 	void updateRoiText();
-
-	/// Slot that updates the horizontal step size spin box.
-	void updateXStep(double val) { hStep_->setValue(val*1000); }
-	/// Slot that updates the vertical step size spin box.
-	void updateYStep(double val) { vStep_->setValue(val*1000); }
 
 	/// Helper slot that sets whether we use SMAK or Ascii for the auto exporter.
 	void updateAutoExporter(int useAscii) { configuration_->setExportAsAscii(useAscii == 0); exportSpectraInRows_->setEnabled(useAscii == 0); }

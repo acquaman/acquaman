@@ -51,13 +51,13 @@ VESPERS2DScanConfiguration::VESPERS2DScanConfiguration(QObject *parent)
 	axis = new AMScanAxis(AMScanAxis::StepAxis, region);
 	appendScanAxis(axis);
 
-//	connect(this, SIGNAL(xStartChanged(double)), this, SLOT(computeTotalTime()));
-//	connect(this, SIGNAL(xStepChanged(double)), this, SLOT(computeTotalTime()));
-//	connect(this, SIGNAL(xEndChanged(double)), this, SLOT(computeTotalTime()));
-//	connect(this, SIGNAL(yStartChanged(double)), this, SLOT(computeTotalTime()));
-//	connect(this, SIGNAL(yStepChanged(double)), this, SLOT(computeTotalTime()));
-//	connect(this, SIGNAL(yEndChanged(double)), this, SLOT(computeTotalTime()));
-//	connect(this, SIGNAL(timeStepChanged(double)), this, SLOT(computeTotalTime()));
+	connect(scanAxisAt(0)->regionAt(0), SIGNAL(regionStartChanged(AMNumber)), this, SLOT(computeTotalTime()));
+	connect(scanAxisAt(0)->regionAt(0), SIGNAL(regionStepChanged(AMNumber)), this, SLOT(computeTotalTime()));
+	connect(scanAxisAt(0)->regionAt(0), SIGNAL(regionEndChanged(AMNumber)), this, SLOT(computeTotalTime()));
+	connect(scanAxisAt(0)->regionAt(0), SIGNAL(regionTimeChanged(AMNumber)), this, SLOT(computeTotalTime()));
+	connect(scanAxisAt(1)->regionAt(0), SIGNAL(regionStartChanged(AMNumber)), this, SLOT(computeTotalTime()));
+	connect(scanAxisAt(1)->regionAt(0), SIGNAL(regionStepChanged(AMNumber)), this, SLOT(computeTotalTime()));
+	connect(scanAxisAt(1)->regionAt(0), SIGNAL(regionEndChanged(AMNumber)), this, SLOT(computeTotalTime()));
 	connect(dbObject_, SIGNAL(ccdDetectorChanged(int)), this, SLOT(computeTotalTime()));
 }
 
@@ -71,13 +71,13 @@ VESPERS2DScanConfiguration::VESPERS2DScanConfiguration(const VESPERS2DScanConfig
 	setExportSpectraSources(original.exportSpectraSources());
 	setExportSpectraInRows(original.exportSpectraInRows());
 	computeTotalTime();
-//	connect(this, SIGNAL(xStartChanged(double)), this, SLOT(computeTotalTime()));
-//	connect(this, SIGNAL(xStepChanged(double)), this, SLOT(computeTotalTime()));
-//	connect(this, SIGNAL(xEndChanged(double)), this, SLOT(computeTotalTime()));
-//	connect(this, SIGNAL(yStartChanged(double)), this, SLOT(computeTotalTime()));
-//	connect(this, SIGNAL(yStepChanged(double)), this, SLOT(computeTotalTime()));
-//	connect(this, SIGNAL(yEndChanged(double)), this, SLOT(computeTotalTime()));
-//	connect(this, SIGNAL(timeStepChanged(double)), this, SLOT(computeTotalTime()));
+	connect(scanAxisAt(0)->regionAt(0), SIGNAL(regionStartChanged(AMNumber)), this, SLOT(computeTotalTime()));
+	connect(scanAxisAt(0)->regionAt(0), SIGNAL(regionStepChanged(AMNumber)), this, SLOT(computeTotalTime()));
+	connect(scanAxisAt(0)->regionAt(0), SIGNAL(regionEndChanged(AMNumber)), this, SLOT(computeTotalTime()));
+	connect(scanAxisAt(0)->regionAt(0), SIGNAL(regionTimeChanged(AMNumber)), this, SLOT(computeTotalTime()));
+	connect(scanAxisAt(1)->regionAt(0), SIGNAL(regionStartChanged(AMNumber)), this, SLOT(computeTotalTime()));
+	connect(scanAxisAt(1)->regionAt(0), SIGNAL(regionStepChanged(AMNumber)), this, SLOT(computeTotalTime()));
+	connect(scanAxisAt(1)->regionAt(0), SIGNAL(regionEndChanged(AMNumber)), this, SLOT(computeTotalTime()));
 	connect(dbObject_, SIGNAL(ccdDetectorChanged(int)), this, SLOT(computeTotalTime()));
 }
 

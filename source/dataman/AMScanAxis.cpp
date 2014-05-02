@@ -85,6 +85,8 @@ bool AMScanAxis::insertRegion(int index, AMScanAxisRegion *region)
 		return false;
 	}
 
+	emit regionAdded(region);
+
 	return true;
 }
 
@@ -100,6 +102,8 @@ bool AMScanAxis::appendRegion(AMScanAxisRegion *region)
 		regions_.remove(regions_.count()-1);
 		return false;
 	}
+
+	emit regionAdded(region);
 
 	return true;
 }
@@ -118,6 +122,8 @@ bool AMScanAxis::overwriteRegion(int index, AMScanAxisRegion *region)
 		return false;
 	}
 
+	emit regionOverwritten(region);
+
 	return true;
 }
 
@@ -130,6 +136,8 @@ bool AMScanAxis::removeRegion(AMScanAxisRegion *region)
 		regions_.remove(index);
 		return true;
 	}
+
+	emit regionRemoved(region);
 
 	return false;
 }

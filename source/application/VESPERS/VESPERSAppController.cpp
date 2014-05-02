@@ -323,12 +323,12 @@ void VESPERSAppController::setupUserInterface()
 	// Setup 2D maps for the beamline.  Builds the config, view, and view holder.
 	mapScanConfiguration_ = new VESPERS2DScanConfiguration();
 	mapScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStart(0.0);
-	mapScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStart(0.005);
-	mapScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStart(1.0);
+	mapScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStep(0.005);
+	mapScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionEnd(1.0);
 	mapScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionTime(1.0);
 	mapScanConfiguration_->scanAxisAt(1)->regionAt(0)->setRegionStart(0.0);
-	mapScanConfiguration_->scanAxisAt(1)->regionAt(0)->setRegionStart(0.005);
-	mapScanConfiguration_->scanAxisAt(1)->regionAt(0)->setRegionStart(1.0);
+	mapScanConfiguration_->scanAxisAt(1)->regionAt(0)->setRegionStep(0.005);
+	mapScanConfiguration_->scanAxisAt(1)->regionAt(0)->setRegionEnd(1.0);
 	mapScanConfiguration_->scanAxisAt(1)->regionAt(0)->setRegionTime(1.0);
 	mapScanConfigurationView_ = new VESPERS2DScanConfigurationView(mapScanConfiguration_);
 	mapScanConfigurationViewHolder3_ = new AMScanConfigurationViewHolder3(mapScanConfigurationView_);
@@ -336,16 +336,16 @@ void VESPERSAppController::setupUserInterface()
 	// Setup 2D maps for the beamline.  Builds the config, view, and view holder.
 	map3DScanConfiguration_ = new VESPERS3DScanConfiguration();
 	map3DScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStart(0.0);
-	map3DScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStart(0.005);
-	map3DScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStart(1.0);
+	map3DScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStep(0.005);
+	map3DScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionEnd(1.0);
 	map3DScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionTime(1.0);
 	map3DScanConfiguration_->scanAxisAt(1)->regionAt(0)->setRegionStart(0.0);
-	map3DScanConfiguration_->scanAxisAt(1)->regionAt(0)->setRegionStart(0.005);
-	map3DScanConfiguration_->scanAxisAt(1)->regionAt(0)->setRegionStart(1.0);
+	map3DScanConfiguration_->scanAxisAt(1)->regionAt(0)->setRegionStep(0.005);
+	map3DScanConfiguration_->scanAxisAt(1)->regionAt(0)->setRegionEnd(1.0);
 	map3DScanConfiguration_->scanAxisAt(1)->regionAt(0)->setRegionTime(1.0);
 	map3DScanConfiguration_->scanAxisAt(2)->regionAt(0)->setRegionStart(0.0);
-	map3DScanConfiguration_->scanAxisAt(2)->regionAt(0)->setRegionStart(0.005);
-	map3DScanConfiguration_->scanAxisAt(2)->regionAt(0)->setRegionStart(1.0);
+	map3DScanConfiguration_->scanAxisAt(2)->regionAt(0)->setRegionStep(0.005);
+	map3DScanConfiguration_->scanAxisAt(2)->regionAt(0)->setRegionEnd(1.0);
 	map3DScanConfiguration_->scanAxisAt(2)->regionAt(0)->setRegionTime(1.0);
 	map3DScanConfigurationView_ = new VESPERS3DScanConfigurationView(map3DScanConfiguration_);
 	map3DScanConfigurationViewHolder3_ = new AMScanConfigurationViewHolder3(map3DScanConfigurationView_);
@@ -353,8 +353,8 @@ void VESPERSAppController::setupUserInterface()
 	// Setup line scans for the beamline.  Builds the config, view, and view holder.
 	lineScanConfiguration_ = new VESPERSSpatialLineScanConfiguration();
 	lineScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStart(0.0);
-	lineScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStart(0.005);
-	lineScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStart(1.0);
+	lineScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStep(0.005);
+	lineScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionEnd(1.0);
 	lineScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionTime(1.0);
 	lineScanConfigurationView_ = new VESPERSSpatialLineScanConfigurationView(lineScanConfiguration_);
 	lineScanConfigurationViewHolder3_ = new AMScanConfigurationViewHolder3(lineScanConfigurationView_);

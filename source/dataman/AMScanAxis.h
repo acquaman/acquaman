@@ -55,6 +55,14 @@ public:
 	/// Returns the end of the axis. That is, the end of the final region. If this type of axis doesn't have a end, then an AMNumber with state of AMNumber::Null will be returned.
 	AMNumber axisEnd() const;
 
+signals:
+	/// Notifier that a scan axis region has been added to the axis.  Passes a pointer to the new region.
+	void regionAdded(AMScanAxisRegion *);
+	/// Notifier that a scan axis region has been removed from the axis.  Passes a pointer to the region.
+	void regionRemoved(AMScanAxisRegion *);
+	/// Notifier that a region has been overwritten.  Passes a pointer to the new region.
+	void regionOverwritten(AMScanAxisRegion *);
+
 public slots:
 	/// Inserts a the region at the index and returns true if successful. If this axis type cannot support more than one region, false is returned. If the axis would become invalid by inserting this region, the region is not inserted and false is returned.
 	bool insertRegion(int index, AMScanAxisRegion *region);

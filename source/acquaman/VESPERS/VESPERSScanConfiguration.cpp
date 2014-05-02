@@ -4,7 +4,7 @@
 VESPERSScanConfiguration::VESPERSScanConfiguration()
 {
 	dbObject_ = new VESPERSScanConfigurationDbObject;
-	timeOffset_ = 0.7;
+	timeOffset_ = 0.4;
 	totalTime_ = 0;
 }
 

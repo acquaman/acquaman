@@ -73,7 +73,7 @@ bool AMEXAFSScanActionControllerAssembler::generateActionTreeImplmentation()
 		AMScanAxisEXAFSRegion *exafsRegion = exafsRegions.at(i);
 
 		if (exafsRegion->inKSpace())
-			allRegionsList->addSubAction(generateActionTreeForEXAFSStepAxisRegion(axisControl, exafsRegion, (i == size-1) ));
+			allRegionsList->addSubAction(generateActionTreeForEXAFSStepAxisRegion(axisControl, exafsRegion));
 
 		else
 			allRegionsList->addSubAction(generateActionTreeForStepAxisRegion(axisControl, exafsRegion, (i == size-1) ));
@@ -125,7 +125,7 @@ bool AMEXAFSScanActionControllerAssembler::generateActionTreeImplmentation()
 	return true;
 }
 
-AMAction3 *AMEXAFSScanActionControllerAssembler::generateActionTreeForEXAFSStepAxisRegion(AMControl *axisControl, AMScanAxisEXAFSRegion *exafsRegion, bool isFinalRegion)
+AMAction3 *AMEXAFSScanActionControllerAssembler::generateActionTreeForEXAFSStepAxisRegion(AMControl *axisControl, AMScanAxisEXAFSRegion *exafsRegion)
 {
 	AMListAction3 *regionList = new AMListAction3(new AMListActionInfo3(QString("Region on %1").arg(exafsRegion->name()), QString("Region from %1 to %2 by %3 on %4").arg(exafsRegion->regionStart().toString()).arg(exafsRegion->regionEnd().toString()).arg(exafsRegion->regionStep().toString()).arg(exafsRegion->name())), AMListAction3::Sequential);
 
