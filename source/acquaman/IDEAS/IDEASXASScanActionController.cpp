@@ -89,8 +89,8 @@ void IDEASXASScanActionController::buildScanControllerImplementation()
 
 //    int rawIvacIndex = scan_->rawDataSources()->indexOfKey("I_vac_6485");
     int rawI0Index = scan_->rawDataSources()->indexOfKey("I_0");
-    int rawIsampleIndex = scan_->rawDataSources()->indexOfKey("I_sample");
-    int rawIrefIndex = scan_->rawDataSources()->indexOfKey("I_ref");
+    int rawIsampleIndex = scan_->rawDataSources()->indexOfKey("Sample");
+    int rawIrefIndex = scan_->rawDataSources()->indexOfKey("Reference");
 
     if (detector && configuration_->isXRFScan()){
 
@@ -109,7 +109,7 @@ void IDEASXASScanActionController::buildScanControllerImplementation()
         AM1DExpressionAB* NormSample = new AM1DExpressionAB("NormSample");
         NormSample->setDescription("NormSample");
         NormSample->setInputDataSources(raw1DDataSources);
-	NormSample->setExpression("ln(I_0/I_sample)");
+	NormSample->setExpression("ln(I_0/Sample)");
         scan_->addAnalyzedDataSource(NormSample);
      }
 
@@ -118,7 +118,7 @@ void IDEASXASScanActionController::buildScanControllerImplementation()
         AM1DExpressionAB* NormRef = new AM1DExpressionAB("NormRef");
         NormRef->setDescription("NormRef");
         NormRef->setInputDataSources(raw1DDataSources);
-	NormRef->setExpression("ln(I_sample/I_ref)");
+	NormRef->setExpression("ln(Sample/Reference)");
         scan_->addAnalyzedDataSource(NormRef);
     }
 
@@ -170,7 +170,8 @@ void IDEASXASScanActionController::buildScanControllerImplementation()
 	    AM1DExpressionAB* NormXRF = new AM1DExpressionAB(QString("Norm%1").arg(regionName));
 	    NormXRF->setDescription(QString("Norm%1").arg(regionName));
 	    NormXRF->setInputDataSources(all1DDataSources);
-	    NormXRF->setExpression(QString("%1/I_0/dwellTime").arg(regionName));
+//	    NormXRF->setExpression(QString("%1/I_0/dwellTime").arg(regionName));
+	    NormXRF->setExpression(QString("%1/I_0").arg(regionName));
 	    scan_->addAnalyzedDataSource(NormXRF);
 	}
     }
@@ -269,8 +270,10 @@ void IDEASXASScanActionController::onInitializationActionsListSucceeded(){
 	    positions.remove(positions.indexOf("XRF1E Baseline Threshold"));
 	    positions.remove(positions.indexOf("XRF1E Preamp Gain"));
 	}
-	qDebug() << positions;
-	scan_->scanInitialConditions()->setValuesFrom(positions);
+	//qDebug() << positions;
+
+	//scan_->scanInitialConditions()->setValuesFrom(positions);
+	scan_->setScanInitialConditions(positions);
 	AMScanActionController::onInitializationActionsListSucceeded();
 
 }
