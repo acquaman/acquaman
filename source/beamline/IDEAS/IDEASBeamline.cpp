@@ -155,7 +155,7 @@ void IDEASBeamline::setupComponents()
     scaler_->channelAt(1)->setSR570(tempSR570);
     scaler_->channelAt(1)->setVoltagRange(AMRange(1.0, 4.5));
 
-    scaler_->channelAt(2)->setCustomChannelName("Ref");
+    scaler_->channelAt(2)->setCustomChannelName("Reference");
     tempSR570 = new CLSSR570("AMP1608-1003:sens_num.VAL", "AMP1608-1003:sens_unit.VAL", this);
     scaler_->channelAt(2)->setSR570(tempSR570);
     scaler_->channelAt(2)->setVoltagRange(AMRange(1.0, 4.5));

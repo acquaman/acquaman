@@ -14,8 +14,8 @@ IDEASXASScanConfiguration::IDEASXASScanConfiguration(QObject *parent) :
 //	ItChannel_ = "I_sample";
 //	IrChannel_ = "I_ref";
 	isXRFScan_ = true;
-	isTransScan_ = false;
-	useRef_ = false;
+	isTransScan_ = true;
+	useRef_ = true;
 
 
 	edge_ = "";
@@ -24,12 +24,8 @@ IDEASXASScanConfiguration::IDEASXASScanConfiguration(QObject *parent) :
 	numberOfScans_ = 1;
 
 
-	AMScanAxisRegion *region = new AMScanAxisEXAFSRegion(8800.0, 5.0, 8970.0, 1.0);
+	AMScanAxisRegion *region = new AMScanAxisEXAFSRegion;
 	AMScanAxis *axis = new AMScanAxis(AMScanAxis::StepAxis, region);
-	region = new AMScanAxisEXAFSRegion(8970, 0.5, 9040, 1);
-	axis->appendRegion(region);
-	region = new AMScanAxisEXAFSRegion(3.24, 0.01, 10, 1, true, 9000, 10);
-	axis->appendRegion(region);
 	appendScanAxis(axis);
 }
 
@@ -43,6 +39,8 @@ IDEASXASScanConfiguration::IDEASXASScanConfiguration(const IDEASXASScanConfigura
 //	IrChannel_ = original.IrChannel();
 	isXRFScan_ = original.isXRFScan();
 	isTransScan_ = original.isTransScan();
+	useRef_ = original.useRef();
+
 
 	edge_ = original.edge();
 	energy_ = original.energy();
