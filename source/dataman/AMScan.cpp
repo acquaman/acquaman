@@ -176,6 +176,13 @@ void AMScan::setSampleId(int newSampleId) {
 	}
 }
 
+void AMScan::setScanInitialConditions(const AMControlInfoList &scanInitialConditions){
+    	scanInitialConditions_.clear();
+	scanInitialConditions_.setValuesFrom(scanInitialConditions);
+
+	emit scanInitialConditionsChanged();
+}
+
 QString AMScan::unEvaluatedName() const{
 	return unEvaluatedName_;
 }
