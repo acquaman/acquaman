@@ -26,6 +26,10 @@ public:
 signals:
     /// Emitted when darkCurrentViewMode_ is set to a new value.
     void darkCurrentViewModeChanged(CLSSIS3820ScalerChannelViewWithDarkCurrent::DarkCurrentViewMode newMode);
+    /// Emitted when the displayed dark current value is changed.
+    void darkCurrentValueChanged(double newValue);
+    /// Emitted when the displayed corrected measurement is changed.
+    void correctedMeasurementChanged(double newMeasurement);
 
 public:
     /// Returns the current dark current view mode.
@@ -38,16 +42,29 @@ protected slots:
     void onNewDarkCurrentMeasurementValue(double newValue);
     /// Handles updating the status of the displayed dark current value, as updates are made available.
     void onNewDarkCurrentMeasurementState(bool measurementUpToDate);
+    /// Handles updating the displayed corrected measurement, once a measurement with the detector has been made.
+    void onNewCorrectedMeasurement(double newMeasurement);
+
+protected:
+    /// Sets the text for the dark current value label.
+    void setDarkCurrentValueLabel(double displayValue);
+    /// Sets the text for the corrected measurement label.
+    void setCorrectedMeasurementLabel(double displayValue);
 
 private:
     /// Enum value indicating whether or not to display dark current information.
     DarkCurrentViewMode darkCurrentViewMode_;
 
     /// The content that is shown or hidden, depending on the dark current view mode.
-    QGroupBox *darkCurrentContent_;
+    QVBoxLayout *content_;
 
     /// Label displaying the latest dark current value measurement information. The status of this information (whether or not it's stale) is indicated by label color.
-    QLabel *darkCurrentValue_;
+    QLabel *darkCurrentValueLabel_;
+    double darkCurrentValue_;
+
+    /// Label displaying the latest dark current corrected measurement information.
+    QLabel *correctedMeasurementLabel_;
+    double correctedMeasurement_;
 
 };
 

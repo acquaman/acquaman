@@ -5,23 +5,30 @@
 CLSSIS3820ScalerChannelViewWithDarkCurrent::CLSSIS3820ScalerChannelViewWithDarkCurrent(CLSSIS3820ScalerChannel *channel, QWidget *parent) :
     CLSSIS3820ScalerChannelView(channel, parent)
 {
-    QLabel *darkCurrentLabel = new QLabel("Dark current value : ");
-    darkCurrentValue_ = new QLabel(" ");
+    darkCurrentValue_ = 0;
+    darkCurrentValueLabel_ = new QLabel();
+    setDarkCurrentValueLabel(darkCurrentValue_);
 
-    QHBoxLayout *layout = new QHBoxLayout();
-    layout->addWidget(darkCurrentLabel);
-    layout->addWidget(darkCurrentValue_);
+    correctedMeasurement_ = 0;
+    correctedMeasurementLabel_ = new QLabel();
+    setCorrectedMeasurementLabel(correctedMeasurement_);
 
-    darkCurrentContent_ = new QGroupBox();
-    darkCurrentContent_->setLayout(layout);
-    darkCurrentContent_->setFlat(true);
+    content_ = new QVBoxLayout(this);
+    content_->addWidget(darkCurrentValueLabel_);
+    content_->addWidget(correctedMeasurementLabel_);
 
-    setDarkCurrentViewMode(Hide);
+    if (channel_->detector()->canDoDarkCurrentCorrection()) {
+        connect( channel_, SIGNAL(newDarkCurrentMeasurementValue(double)), this, SLOT(onNewDarkCurrentMeasurementValue(double)) );
+        connect( channel_, SIGNAL(newDarkCurrentMeasurementState(CLSSIS3820Scaler::DarkCurrentCorrectionState)), this, SLOT(onNewDarkCurrentMeasurementState(CLSSIS3820Scaler::DarkCurrentCorrectionState)) );
 
-    connect( channel_, SIGNAL(newDarkCurrentMeasurementValue(double)), this, SLOT(onNewDarkCurrentMeasurementValue(double)) );
-    connect( channel_, SIGNAL(newDarkCurrentMeasurementState(CLSSIS3820Scaler::DarkCurrentCorrectionState)), this, SLOT(onNewDarkCurrentMeasurementState(CLSSIS3820Scaler::DarkCurrentCorrectionState)) );
+        setDarkCurrentViewMode(Show);
 
-    channelLayout_->addWidget(darkCurrentContent_);
+    } else {
+        setDarkCurrentViewMode(Hide);
+    }
+
+
+
 }
 
 
@@ -45,11 +52,11 @@ void CLSSIS3820ScalerChannelViewWithDarkCurrent::setDarkCurrentViewMode(DarkCurr
     darkCurrentViewMode_ = newMode;
 
     if (darkCurrentViewMode_ == Hide) {
-        darkCurrentContent_->hide();
+        channelLayout_->removeItem(content_);
         emit darkCurrentViewModeChanged(darkCurrentViewMode_);
 
     } else if (darkCurrentViewMode_ == Show) {
-        darkCurrentContent_->show();
+        channelLayout_->addLayout(content_);
         emit darkCurrentViewModeChanged(darkCurrentViewMode_);
 
     } else {
@@ -63,18 +70,65 @@ void CLSSIS3820ScalerChannelViewWithDarkCurrent::setDarkCurrentViewMode(DarkCurr
 void CLSSIS3820ScalerChannelViewWithDarkCurrent::onNewDarkCurrentMeasurementValue(double newValue)
 {
     qDebug() << "CLSSIS3820ScalerChannelView receives new dark current measurement value : " << newValue;
-    darkCurrentValue_->setText(QString("%1").arg(newValue, 0, 'f', 2));
+
+    if (newValue < 0) {
+        return;
+
+    }
+
+    if (newValue == darkCurrentValue_) {
+        return;
+    }
+
+    darkCurrentValue_ = newValue;
+    setDarkCurrentValueLabel(darkCurrentValue_);
 }
 
 
 
 void CLSSIS3820ScalerChannelViewWithDarkCurrent::onNewDarkCurrentMeasurementState(bool measurementUpToDate)
 {
-    qDebug() << "CLSSIS3820ScalerChannelView new dark current required status : " << measurementUpToDate;
+    qDebug() << "CLSSIS3820ScalerChannelView receives new dark current required status : " << measurementUpToDate;
 
     if (measurementUpToDate)
-        darkCurrentValue_->setStyleSheet("color: blue;");
+        darkCurrentValueLabel_->setStyleSheet("color: blue;");
 
     else
-        darkCurrentValue_->setStyleSheet("color: red;");
+        darkCurrentValueLabel_->setStyleSheet("color: red;");
 }
+
+
+
+void CLSSIS3820ScalerChannelViewWithDarkCurrent::onNewCorrectedMeasurement(double newMeasurement)
+{
+    qDebug() << "CLSSIS3820ScalerChannelView receives new corrected measurement value : " << newMeasurement;
+
+    if (newMeasurement < 0) {
+        return;
+    }
+
+    if (newMeasurement == correctedMeasurement_) {
+        return;
+    }
+
+    correctedMeasurement_ = newMeasurement;
+    setCorrectedMeasurementLabel(correctedMeasurement_);
+}
+
+
+
+void CLSSIS3820ScalerChannelViewWithDarkCurrent::setDarkCurrentValueLabel(double displayValue)
+{
+    darkCurrentValueLabel_->setText(QString("Dark current value : %1").arg(displayValue, 0, 'f', 2));
+}
+
+
+
+void CLSSIS3820ScalerChannelViewWithDarkCurrent::setCorrectedMeasurementLabel(double displayValue)
+{
+    correctedMeasurementLabel_->setText(QString("Corrected measurement : %1").arg(displayValue, 0, 'f', 2));
+}
+
+
+
+
