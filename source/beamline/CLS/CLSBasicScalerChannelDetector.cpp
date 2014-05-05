@@ -81,12 +81,9 @@ bool CLSBasicScalerChannelDetector::setAcquisitionTime(double seconds){
 	if(!isConnected())
 		return false;
 
-	if( !(fabs(scaler_->dwellTime()-seconds) < 0.001) ){
-		scaler_->setDwellTime(seconds);
-		return true;
-	}
-
-	return false;
+	scaler_->setDwellTime(seconds);
+	emit acquisitionTimeChanged(seconds);
+	return true;
 }
 
 bool CLSBasicScalerChannelDetector::setReadMode(AMDetectorDefinitions::ReadMode readMode){

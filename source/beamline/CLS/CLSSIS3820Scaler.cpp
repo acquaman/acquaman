@@ -154,9 +154,9 @@ AMOrderedList<CLSSIS3820ScalerChannel*> CLSSIS3820Scaler::channels(){
 	return scalerChannels_;
 }
 
-AMDetectorTriggerSource* CLSSIS3820Scaler::triggerSource(){
-	qDebug() << "The scaler trigger source is named " << triggerSource_->name();
-	return triggerSource_;
+AMDetectorTriggerSource* CLSSIS3820Scaler::triggerSource()
+{
+    return triggerSource_;
 }
 
 AMDetectorDwellTimeSource* CLSSIS3820Scaler::dwellTimeSource(){
@@ -433,7 +433,7 @@ void CLSSIS3820Scaler::onDwellTimeSourceSetDwellTime(double dwellSeconds){
 		return;
 	}
 
-	if(dwellSeconds != dwellTime())
+	if(!(fabs(dwellSeconds - dwellTime()) < dwellTimeTolerance()))
 		setDwellTime(dwellSeconds);
 	else
 		dwellTimeSource_->setSucceeded();
