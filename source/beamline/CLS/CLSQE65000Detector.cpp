@@ -16,7 +16,7 @@ CLSQE65000Detector::CLSQE65000Detector(const QString &name, const QString &descr
 	spectrumControl_->setContextKnownDescription("Spectrum");
 	binnedSpectrumControl_ = new AMReadOnlyWaveformBinningPVControl(name%"BinnedSpectrum", baseName%":DarkCorrectedSpectra", 0, 1024, this);
 	((AMReadOnlyWaveformBinningPVControl*)binnedSpectrumControl_)->setAttemptDouble(true);
-	integrationTimeControl_ = new AMPVControl(name%"IntegrationTime", baseName%":IntegrationTime:Value", baseName%":IntegrationTime:Value", "", this, 0.1);
+	integrationTimeControl_ = new AMPVControl(name%"IntegrationTime", baseName%":IntegrationTime:Value", baseName%":IntegrationTime:Value", "", this, 0.001);
 	integrationTimeControl_->setDescription("QE 65000 Integration Time");
 	integrationTimeControl_->setContextKnownDescription("Integration Time");
 
@@ -61,6 +61,14 @@ QList<AMAxisInfo> CLSQE65000Detector::axes() const{
 double CLSQE65000Detector::acquisitionTime() const{
 	if(isConnected())
 		return integrationTimeControl_->value();
+	return -1;
+}
+
+double CLSQE65000Detector::acquisitionTimeTolerance() const
+{
+	if (isConnected())
+		return integrationTimeControl_->tolerance();
+
 	return -1;
 }
 

@@ -3,7 +3,8 @@
 #include "beamline/AMBeamline.h"
 #include "util/AMErrorMonitor.h"
 
- AMDetector::~AMDetector(){}
+AMDetector::~AMDetector(){}
+
 AMDetector::AMDetector(const QString &name, const QString &description, QObject *parent) :
 	QObject(parent)
 {
@@ -614,4 +615,9 @@ void AMDetector::setHiddenFromUsers(bool hidden)
 		hiddenFromUsers_ = hidden;
 		emit isVisibleChanged(hiddenFromUsers_);
 	}
+}
+
+bool AMDetector::acquisitionTimeWithinTolerance(double value) const
+{
+	return fabs(value - acquisitionTime()) < acquisitionTimeTolerance();
 }

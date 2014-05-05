@@ -105,6 +105,14 @@ double CLSSIS3820Scaler::dwellTime() const{
 	return -1;
 }
 
+double CLSSIS3820Scaler::dwellTimeTolerance() const
+{
+	if (isConnected())
+		return dwellTime_->tolerance();
+
+	return -1;
+}
+
 int CLSSIS3820Scaler::scansPerBuffer() const{
 
 	if(isConnected())
@@ -147,7 +155,7 @@ AMOrderedList<CLSSIS3820ScalerChannel*> CLSSIS3820Scaler::channels(){
 }
 
 AMDetectorTriggerSource* CLSSIS3820Scaler::triggerSource(){
-    qDebug() << "The scaler trigger source is named " << triggerSource_->name();
+	qDebug() << "The scaler trigger source is named " << triggerSource_->name();
 	return triggerSource_;
 }
 
@@ -421,7 +429,7 @@ void CLSSIS3820Scaler::onReadingChanged(double value){
 
 void CLSSIS3820Scaler::onDwellTimeSourceSetDwellTime(double dwellSeconds){
 	if(!isConnected() || isScanning()){
-	    // NEM March 24th, 2014
+		// NEM March 24th, 2014
 		return;
 	}
 

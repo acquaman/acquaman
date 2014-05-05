@@ -145,6 +145,14 @@ double AMXRFDetector::acquisitionTime() const
 	return -1;
 }
 
+double AMXRFDetector::acquisitionTimeTolerance() const
+{
+	if (isConnected())
+		return acquireTimeControl_->tolerance();
+
+	return -1;
+}
+
 double AMXRFDetector::elapsedTime() const
 {
 	if (isConnected())

@@ -44,8 +44,9 @@ class CLSSIS3820Scaler : public QObject
 
 public:
 	/// Constructor.  Takes the baseName of the PV's as parameters.
- 	virtual ~CLSSIS3820Scaler();
 	CLSSIS3820Scaler(const QString &baseName, QObject *parent = 0);
+	/// Destructor.
+	virtual ~CLSSIS3820Scaler();
 
 	/// Returns whether the scaler is all connected.
 	bool isConnected() const;
@@ -56,6 +57,8 @@ public:
 	bool isContinuous() const;
 	/// Return the current dwell time.  Returns the value in seconds.
 	double dwellTime() const;
+	/// Returns the dwell time tolerance.  Passes the tolerance from the dwell time control.
+	double dwellTimeTolerance() const;
 	/// Returns the number of scans per buffer.
 	int scansPerBuffer() const;
 	/// Returns the total number of scans the scaler will do.
@@ -183,7 +186,7 @@ class CLSSIS3820ScalerChannel : public QObject
 
 public:
 	/// Constructor.  Takes in a base name and the index of the channel and builds all the necessary PV's.
- 	virtual ~CLSSIS3820ScalerChannel();
+	virtual ~CLSSIS3820ScalerChannel();
 	CLSSIS3820ScalerChannel(const QString &baseName, int index, QObject *parent = 0);
 
 	/// Returns whether the channel is connected.
