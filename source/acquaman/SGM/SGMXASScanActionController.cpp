@@ -47,6 +47,10 @@ void SGMXASScanActionController::buildScanControllerImplementation()
 {
 }
 
+QString SGMXASScanActionController::buildNotes()
+{
+}
+
 AMAction3* SGMXASScanActionController::createInitializationActions(){
 	AMControlMoveActionInfo3 *moveActionInfo;
 	AMControlMoveAction3 *moveAction;
