@@ -18,17 +18,16 @@ CLSSIS3820ScalerChannelViewWithDarkCurrent::CLSSIS3820ScalerChannelViewWithDarkC
     content_->addWidget(correctedMeasurementLabel_);
 
     if (channel_->detector()->canDoDarkCurrentCorrection()) {
-        connect( channel_, SIGNAL(newDarkCurrentMeasurementValue(double)), this, SLOT(onNewDarkCurrentMeasurementValue(double)) );
-        connect( channel_, SIGNAL(newDarkCurrentMeasurementState(CLSSIS3820Scaler::DarkCurrentCorrectionState)), this, SLOT(onNewDarkCurrentMeasurementState(CLSSIS3820Scaler::DarkCurrentCorrectionState)) );
+
+        connect( channel_->detector(), SIGNAL(newDarkCurrentMeasurementValueReady(double)), this, SLOT(onNewDarkCurrentMeasurementValue(double)) );
+        connect( channel_->detector(), SIGNAL(requiresNewDarkCurrentMeasurement(bool)), this, SLOT(onNewDarkCurrentMeasurementState(bool)) );
+//        connect( channel_->detector(), SIGNAL());
 
         setDarkCurrentViewMode(Show);
 
     } else {
         setDarkCurrentViewMode(Hide);
     }
-
-
-
 }
 
 

@@ -290,7 +290,7 @@ void CLSSIS3820Scaler::doDarkCurrentCorrection(double dwellSeconds)
 
     action->start();
 
-    qDebug() << "CLSSIS3820Scaler::doDarkCurrentCorrection executing.";
+//    qDebug() << "CLSSIS3820Scaler::doDarkCurrentCorrection executing.";
 }
 
 void CLSSIS3820Scaler::setScanning(bool isScanning){
@@ -668,14 +668,14 @@ void CLSSIS3820ScalerChannel::setSR570(CLSSR570 *sr570)
 
 void CLSSIS3820ScalerChannel::setDetector(AMDetector *detector)
 {
-    if (detector_) {
-        disconnect( detector_, SIGNAL(newDarkCurrentMeasurementValueReady(double)), this, SIGNAL(newDarkCurrentMeasurementValue(double)) );
-        disconnect( detector_, SIGNAL(requiresNewDarkCurrentMeasurement(bool)), this, SIGNAL(newDarkCurrentMeasurementState(bool)) );
-    }
+//    if (detector_) {
+//        disconnect( detector_, SIGNAL(newDarkCurrentMeasurementValueReady(double)), this, SIGNAL(newDarkCurrentMeasurementValue(double)) );
+//        disconnect( detector_, SIGNAL(requiresNewDarkCurrentMeasurement(bool)), this, SIGNAL(newDarkCurrentMeasurementState(bool)) );
+//    }
 
     detector_ = detector;
-    connect( detector_, SIGNAL(newDarkCurrentMeasurementValueReady(double)), this, SIGNAL(newDarkCurrentMeasurementValue(double)) );
-    connect( detector_, SIGNAL(requiresNewDarkCurrentMeasurement(bool)), this, SIGNAL(newDarkCurrentMeasurementState(bool)) );
+//    connect( detector_, SIGNAL(newDarkCurrentMeasurementValueReady(double)), this, SIGNAL(newDarkCurrentMeasurementValue(double)) );
+//    connect( detector_, SIGNAL(requiresNewDarkCurrentMeasurement(bool)), this, SIGNAL(newDarkCurrentMeasurementState(bool)) );
 }
 
 void CLSSIS3820ScalerChannel::setMinimumVoltage(double min)
