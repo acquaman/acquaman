@@ -143,6 +143,54 @@ double CLSAmptekSDD123DetectorNew::detectorTemperature() const{
 	return detectorTemperatureControl_->value();
 }
 
+double CLSAmptekSDD123DetectorNew::detectorTotalGain() const{
+	if (!isConnected())
+		return -1;
+	return totalGainControl_->value();
+}
+
+double CLSAmptekSDD123DetectorNew::mcaChannels() const{
+	if(!isConnected())
+		return -1;
+	return mcaChannelsControl_->value();
+}
+
+double CLSAmptekSDD123DetectorNew::pileUpRejection() const{
+	if(!isConnected())
+		return -1;
+	return pileUpRejectionControl_->value();
+}
+
+double CLSAmptekSDD123DetectorNew::thermoelectricCooler() const{
+	if(!isConnected())
+		return -1;
+	return thermoelectricCoolerControl_->value();
+}
+
+double CLSAmptekSDD123DetectorNew::fastThreshold() const{
+	if(!isConnected())
+		return -1;
+	return fastThresholdControl_->value;
+}
+
+double CLSAmptekSDD123DetectorNew::slowThreshold()  const{
+	if(!isConnected())
+		return -1;
+	return slowThresholdControl_->value();
+}
+
+double CLSAmptekSDD123DetectorNew::peakingTime() const{
+	if(!isConnected())
+		return -1;
+	return peakingTimeControl_->value();
+}
+
+double CLSAmptekSDD123DetectorNew::fastChannelPeakingTime() const{
+	if(!isConnected())
+		return -1;
+	return fastChannelPeakingTimeControl_->value();
+}
+
 double CLSAmptekSDD123DetectorNew::eVPerBin() const{
 	if(!isConnected())
 		return -1;

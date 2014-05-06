@@ -51,8 +51,32 @@ public:
 	/// Creates an action to enable or disable this amptek for in the array.
 	AMAction3* createEnableAction3(bool setEnabled);
 	bool isEnabled() const;
-
+	/// Returns the temperature of the detector
 	double detectorTemperature() const;
+
+	/// Returns the total gain of the detector
+	double detectorTotalGain() const;
+
+	/// Returns the MCA Channels
+	double mcaChannels() const;
+
+	/// Returns the Pile-up Rejection value
+	double pileUpRejection() const;
+
+	/// Returns the thermoelectric cooler value
+	double thermoelectricCooler() const;
+
+	/// Returns the fast threshold control value
+	double fastThreshold() const;
+
+	/// Returns the slow threshold control value
+	double slowThreshold() const;
+
+	/// Returns the peaking time control value
+	double peakingTime() const;
+
+	/// Returns the fast channel peaking time control value
+	double fastChannelPeakingTime() const;
 
 	/// Return the eV/bin ratio
 	double eVPerBin() const;
