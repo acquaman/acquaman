@@ -33,6 +33,7 @@ class CLSSIS3820Scaler;
 class CLSSIS3820ScalerChannel;
 
 #include "ui/CLS/CLSSR570View.h"
+#include "ui/CLS/CLSDarkCurrentWidget.h"
 
 /*!
   This class builds a view around a CLSSIS3820ScalerChannel.  It provides a simple view that has a check box

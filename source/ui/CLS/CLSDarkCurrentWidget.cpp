@@ -5,21 +5,20 @@ CLSDarkCurrentWidget::CLSDarkCurrentWidget(double dwellSeconds, QWidget *parent)
 {
     dwellTime_ = dwellSeconds;
 
+    QLabel *widgetTitle = new QLabel("Dark Current Correction");
+
     QLabel *dwellTimeLabel = new QLabel("Dwell time (s): ");
     dwellTimeEntry_ = new QLineEdit(QString::number(dwellTime_));
-    connect( dwellTimeEntry_, SIGNAL(textChanged(QString)), this, SLOT(onDwellTimeEntryChanged(QString)) );
 
-    QHBoxLayout *dwellLayout = new QHBoxLayout();
-    dwellLayout->addWidget(dwellTimeLabel);
-    dwellLayout->addWidget(dwellTimeEntry_);
-
-    darkCurrentButton_ = new QPushButton("Dark Current Measurement");
+    darkCurrentButton_ = new QPushButton("Collect");
     darkCurrentButton_->setEnabled(true);
     connect( darkCurrentButton_, SIGNAL(clicked()), this, SLOT(onDarkCurrentButtonClicked()) );
 
-    QVBoxLayout *layout = new QVBoxLayout();
-    layout->addLayout(dwellLayout);
-    layout->addWidget(darkCurrentButton_);
+    QGridLayout *layout = new QGridLayout();
+    layout->addWidget(widgetTitle, 0, 0);
+    layout->addWidget(dwellTimeLabel, 1, 0);
+    layout->addWidget(dwellTimeEntry_, 1, 1);
+    layout->addWidget(darkCurrentButton_, 2, 1);
 
     setLayout(layout);
 }
@@ -53,25 +52,14 @@ void CLSDarkCurrentWidget::setDarkCurrentButtonEnabled(bool isEnabled)
 
 
 
-void CLSDarkCurrentWidget::onDwellTimeEntryChanged(const QString &entryText)
-{
-    double entryNumber = entryText.toDouble();
-    dwellTime_ = entryNumber;
-}
-
-
-
 void CLSDarkCurrentWidget::onDarkCurrentButtonClicked()
 {
-    if (dwellTime_ <= 0) {
+    double dwellEntered = dwellTimeEntry_->text().toDouble();
+
+    if (dwellEntered <= 0) {
         qDebug() << "CLSDarkCurrentWidget :: the dwellTime_ is less than or equal to zero. Cannot complete dark current measurement.";
         return;
     }
 
-    if (dwellTime_ != dwellTimeEntry_->text().toDouble()) {
-        qDebug() << "CLSDarkCurrentWidget :: the dwellTime_ does not match what's entered in dwellTimeEntry_. Cannot complete dark current measurement.";
-        return;
-    }
-
-    emit darkCurrentButtonClicked(dwellTime_);
+    emit darkCurrentButtonClicked(dwellTime_ = dwellEntered);
 }

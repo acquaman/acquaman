@@ -31,9 +31,7 @@ public slots:
     void setDarkCurrentButtonEnabled(bool isEnabled);
 
 protected slots:
-    /// Updates the value stored in dwellTime_ according to the updated contents of dwellTimeEntry_.
-    void onDwellTimeEntryChanged(const QString &entryText);
-    /// Checks that the value of dwellTime_ is reasonable, assumes that it is possible to actually take a measurement now. Emits the 'darkCurrentButtonClicked' signal.
+    /// Checks that the dwell time entered is reasonable, assumes that it is possible to actually take a measurement now. Emits the 'darkCurrentButtonClicked' signal.
     void onDarkCurrentButtonClicked();
 
 protected:
