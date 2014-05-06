@@ -354,7 +354,6 @@ HEADERS += source/acquaman/AMRegion.h \
 	source/analysis/AM2DSummingABEditor.h \
 	source/util/AMOrderedList.h \
 	source/beamline/AMControlOptimization.h \
-	source/ui/beamline/AMControlOptimizationView.h \
 	source/dataman/REIXS/REIXSXESRawFileLoader.h \
 	source/util/AMDeferredFunctionCall.h \
 	source/ui/util/AMPeriodicTableView.h \
@@ -793,7 +792,6 @@ SOURCES += source/acquaman/AMRegion.cpp \
 	source/analysis/AMStandardAnalysisBlock.cpp \
 	source/analysis/AM2DSummingABEditor.cpp \
 	source/beamline/AMControlOptimization.cpp \
-	source/ui/beamline/AMControlOptimizationView.cpp \
 	source/dataman/REIXS/REIXSXESRawFileLoader.cpp \
 	source/util/AMDeferredFunctionCall.cpp \
 	source/ui/util/AMPeriodicTableView.cpp \
@@ -1110,6 +1108,8 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
 
 
 
