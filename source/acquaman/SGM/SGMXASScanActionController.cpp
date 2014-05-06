@@ -6,6 +6,8 @@
 #include "actions3/actions/AMControlMoveAction3.h"
 #include "actions3/AMListAction3.h"
 #include "beamline/CLS/CLSAmptekSDD123DetectorNew.h"
+#include "beamline/SGM/SGMMAXvMotor.h"
+#include "beamline/CLS/CLSSR570.h"
 
 SGMXASScanActionController::SGMXASScanActionController(SGMXASScanConfiguration2013 *cfg, QObject *parent) :
 	AMRegionScanActionController(cfg, parent)
@@ -39,6 +41,7 @@ SGMXASScanActionController::SGMXASScanActionController(SGMXASScanConfiguration20
 		scanName = configuration_->userScanName();
 		scan_->setName(QString("%1 - %2").arg(scanName).arg(sampleName));
 	}
+	scan_->setNotes(buildNotes());
 }
 
 SGMXASScanActionController::~SGMXASScanActionController(){}
@@ -49,6 +52,97 @@ void SGMXASScanActionController::buildScanControllerImplementation()
 
 QString SGMXASScanActionController::buildNotes()
 {
+	QString notes;
+	// Add X,Y,Z, Theta manip
+	notes.append(QString("%1:\t%2\n").arg("Manipulator X").arg(SGMBeamline::sgm()->ssaManipulatorX()->value()));
+	notes.append(QString("\n%1:\t%2\n").arg("Manipulator Y").arg(SGMBeamline::sgm()->ssaManipulatorY()->value()));
+	notes.append(QString("\n%1:\t%2\n").arg("Manipulator Z").arg(SGMBeamline::sgm()->ssaManipulatorZ()->value()));
+	notes.append(QString("\n%1:\t%2\n").arg("Manipulator Theta").arg(SGMBeamline::sgm()->ssaManipulatorRot()->value()));
+
+	// Add Exit and Entrance Slits
+	notes.append(QString("\n%1:\t%2\n").arg("Exit Slit Gap").arg(this->configuration_->exitSlitGap()));
+	notes.append(QString("\n%1:\t%2\n").arg("Entrance Slit Gap").arg(SGMBeamline::sgm()->entranceSlitGap()->value()));
+
+
+	// Add Grating
+	notes.append(QString("\n%1:\t%2\n").arg("Grating").arg(SGMBeamlineInfo::sgmInfo()->sgmGratingDescription(configuration_->grating())));
+
+	// Add Detector Info
+	// Scaler (gets scalar from beamline, iterates through each channel, if channel has a sr570 connected then adds its name, value and the units)
+	notes.append("Scaler:\n");
+	CLSSIS3820Scaler* scaler = SGMBeamline::sgm()->scaler();
+	for(int iChannel = 0; iChannel < scaler->channels().count(); iChannel++)
+	{
+		CLSSIS3820ScalerChannel* currentChannel = scaler->channelAt(iChannel);
+		if(currentChannel->sr570() != 0)
+		{
+			notes.append(QString("\n%1:\t%2 %3\n").arg(currentChannel->customChannelName()).arg(currentChannel->sr570()->value()).arg(currentChannel->sr570()->units()));
+		}
+	}
+
+	//Amptek (gets info for each AmptekSDD123 Detector from the beamline and adds its: Gain, Temperature, Pile-Upon Rejection, Peaking Time, Fast and Slow Thresholds)
+	notes.append("\nAmptek detectors:\n");
+	CLSAmptekSDD123DetectorNew* newAmptekSDD1 = qobject_cast<CLSAmptekSDD123DetectorNew*>(SGMBeamline::sgm()->newAmptekSDD1());
+	if(newAmptekSDD1 != 0)
+	{
+		notes.append("\nSDD1:\n");
+		notes.append(QString("\n%1:\t%2").arg("Gain").arg(newAmptekSDD1->detectorTotalGain()));
+		notes.append(QString("\n%1:\t%2").arg("Temperature").arg(newAmptekSDD1->detectorTemperature()));
+		notes.append(QString("\n%1:\t%2").arg("Pile-upon Rejection").arg(newAmptekSDD1->pileUpRejection()));
+		notes.append(QString("\n%1:\t%2").arg("Peaking Time").arg(newAmptekSDD1->peakingTime()));
+		notes.append(QString("\n%1:\t%2").arg("Fast Threshold").arg(newAmptekSDD1->fastThreshold()));
+		notes.append(QString("\n%1:\t%2").arg("Slow Threshold").arg(newAmptekSDD1->slowThreshold()));
+	}
+
+	CLSAmptekSDD123DetectorNew* newAmptekSDD2 = qobject_cast<CLSAmptekSDD123DetectorNew*>(SGMBeamline::sgm()->newAmptekSDD2());
+	if(newAmptekSDD2 != 0)
+	{
+		notes.append("\nSDD2:\n");
+		notes.append(QString("\n%1:\t%2").arg("Gain").arg(newAmptekSDD2->detectorTotalGain()));
+		notes.append(QString("\n%1:\t%2").arg("Temperature").arg(newAmptekSDD2->detectorTemperature()));
+		notes.append(QString("\n%1:\t%2").arg("Pile-upon Rejection").arg(newAmptekSDD2->pileUpRejection()));
+		notes.append(QString("\n%1:\t%2").arg("Peaking Time").arg(newAmptekSDD2->peakingTime()));
+		notes.append(QString("\n%1:\t%2").arg("Fast Threshold").arg(newAmptekSDD2->fastThreshold()));
+		notes.append(QString("\n%1:\t%2").arg("Slow Threshold").arg(newAmptekSDD2->slowThreshold()));
+	}
+
+	CLSAmptekSDD123DetectorNew* newAmptekSDD3 = qobject_cast<CLSAmptekSDD123DetectorNew*>(SGMBeamline::sgm()->newAmptekSDD3());
+	if(newAmptekSDD3 != 0)
+	{
+		notes.append("\nSDD3:\n");
+		notes.append(QString("\n%1:\t%2").arg("Gain").arg(newAmptekSDD3->detectorTotalGain()));
+		notes.append(QString("\n%1:\t%2").arg("Temperature").arg(newAmptekSDD3->detectorTemperature()));
+		notes.append(QString("\n%1:\t%2").arg("Pile-upon Rejection").arg(newAmptekSDD3->pileUpRejection()));
+		notes.append(QString("\n%1:\t%2").arg("Peaking Time").arg(newAmptekSDD3->peakingTime()));
+		notes.append(QString("\n%1:\t%2").arg("Fast Threshold").arg(newAmptekSDD3->fastThreshold()));
+		notes.append(QString("\n%1:\t%2").arg("Slow Threshold").arg(newAmptekSDD3->slowThreshold()));
+	}
+
+	CLSAmptekSDD123DetectorNew* newAmptekSDD4 = qobject_cast<CLSAmptekSDD123DetectorNew*>(SGMBeamline::sgm()->newAmptekSDD4());
+	if(newAmptekSDD4 != 0)
+	{
+		notes.append("\nSDD4:\n");
+		notes.append(QString("\n%1:\t%2").arg("Gain").arg(newAmptekSDD4->detectorTotalGain()));
+		notes.append(QString("\n%1:\t%2").arg("Temperature").arg(newAmptekSDD4->detectorTemperature()));
+		notes.append(QString("\n%1:\t%2").arg("Pile-upon Rejection").arg(newAmptekSDD4->pileUpRejection()));
+		notes.append(QString("\n%1:\t%2").arg("Peaking Time").arg(newAmptekSDD4->peakingTime()));
+		notes.append(QString("\n%1:\t%2").arg("Fast Threshold").arg(newAmptekSDD4->fastThreshold()));
+		notes.append(QString("\n%1:\t%2").arg("Slow Threshold").arg(newAmptekSDD4->slowThreshold()));
+	}
+
+	CLSAmptekSDD123DetectorNew* newAmptekSDD5 = qobject_cast<CLSAmptekSDD123DetectorNew*>(SGMBeamline::sgm()->newAmptekSDD5());
+	if(newAmptekSDD5 != 0)
+	{
+		notes.append("\nSDD5:\n");
+		notes.append(QString("\n%1:\t%2").arg("Gain").arg(newAmptekSDD5->detectorTotalGain()));
+		notes.append(QString("\n%1:\t%2").arg("Temperature").arg(newAmptekSDD5->detectorTemperature()));
+		notes.append(QString("\n%1:\t%2").arg("Pile-upon Rejection").arg(newAmptekSDD5->pileUpRejection()));
+		notes.append(QString("\n%1:\t%2").arg("Peaking Time").arg(newAmptekSDD5->peakingTime()));
+		notes.append(QString("\n%1:\t%2").arg("Fast Threshold").arg(newAmptekSDD5->fastThreshold()));
+		notes.append(QString("\n%1:\t%2").arg("Slow Threshold").arg(newAmptekSDD5->slowThreshold()));
+	}
+
+	return notes;
 }
 
 AMAction3* SGMXASScanActionController::createInitializationActions(){

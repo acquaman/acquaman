@@ -170,7 +170,7 @@ double CLSAmptekSDD123DetectorNew::thermoelectricCooler() const{
 double CLSAmptekSDD123DetectorNew::fastThreshold() const{
 	if(!isConnected())
 		return -1;
-	return fastThresholdControl_->value;
+	return fastThresholdControl_->value();
 }
 
 double CLSAmptekSDD123DetectorNew::slowThreshold()  const{
