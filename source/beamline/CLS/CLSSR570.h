@@ -118,7 +118,7 @@ private:
 	int nextValue(bool increase, int current);
 	/// Helper function that returns the next sensitivity units.  Uses the bool \param increase to determine whether it should look up or down.  Returns a null string if not possible to move or the given unit is invalid.
 	QString nextUnits(bool increase, QString current);
-	/// Helper method that turns an index into a value.
+    /// Helper method that turns an index into a value.
 	int valueToIndex(int value) const;
 	/// Helper method that turns a value into an index.
 	int indexToValue(int index) const;

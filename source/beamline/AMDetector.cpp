@@ -409,10 +409,8 @@ void AMDetector::setAsDarkCurrentMeasurementValue(){
 void AMDetector::setAsDarkCurrentMeasurementTime(double lastTime) {
     if (canDoDarkCurrentCorrection()) {
 
-//      bug (?) ----->
-//        if (lastTime > darkCurrentMeasurementTime_)
-//            setRequiresNewDarkCurrentMeasurement(true);
-//      <---------
+        if (lastTime > darkCurrentMeasurementTime_)
+            setRequiresNewDarkCurrentMeasurement(true);
 
         darkCurrentMeasurementTime_ = lastTime;
 

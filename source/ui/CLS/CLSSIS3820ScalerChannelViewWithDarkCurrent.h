@@ -43,7 +43,7 @@ protected slots:
     /// Handles updating the status of the displayed dark current value, as updates are made available.
     void onNewDarkCurrentMeasurementState(bool measurementUpToDate);
     /// Handles updating the displayed corrected measurement, once a measurement with the detector has been made.
-    void onNewCorrectedMeasurement(double newMeasurement);
+    void onDetectorNewValuesAvailable();
 
 protected:
     /// Sets the text for the dark current value label.
@@ -60,11 +60,9 @@ private:
 
     /// Label displaying the latest dark current value measurement information. The status of this information (whether or not it's stale) is indicated by label color.
     QLabel *darkCurrentValueLabel_;
-    double darkCurrentValue_;
 
     /// Label displaying the latest dark current corrected measurement information.
     QLabel *correctedMeasurementLabel_;
-    double correctedMeasurement_;
 
 };
 
