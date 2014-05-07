@@ -37,7 +37,7 @@ class CLSSR570 : public QObject
 	Q_OBJECT
 
 public:
-	/// Constructor.  Builds a SR570 model based on \param valueName and \param untisName.
+    /// Constructor.  Builds a SR570 model based on \param valueName and \param unitsName.
  	virtual ~CLSSR570();
 	explicit CLSSR570(const QString &valueName, const QString &unitsName, QObject *parent = 0);
 
