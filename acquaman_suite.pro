@@ -23,4 +23,8 @@ SUBDIRS +=	pluginProjects/FileLoaders/AMFileLoaderPlugins.pro \
 	SGMLookupTableCoordinator.pro \
 	StripToolProject.pro \
 	AMCrashReporter.pro \
-	IDEASAcquaman.pro
+	IDEASAcquaman.pro \
+	BioXASSideAcquaman.pro \
+	BioXASMainAcquaman.pro \
+	BioXASImagingAcquaman.pro
+

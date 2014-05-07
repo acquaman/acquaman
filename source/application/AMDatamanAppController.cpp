@@ -623,7 +623,12 @@ bool AMDatamanAppController::startupPopulateNewDatabase()
 	reixs.storeToDb(db);
 	AMFacility ideas("IDEAS", "CLS IDEAS Beamline", ":/clsIcon.png");
 	ideas.storeToDb(db);
-
+	AMFacility bioXASSide("BioXASSide", "CLS BioXAS Beamline - Side endstation", ":/clsIcon.png");
+	bioXASSide.storeToDb(db);
+	AMFacility bioXASMain("BioXASMain", "CLS BioXAS Beamline - Main endstation", ":/clsIcon.png");
+	bioXASMain.storeToDb(db);
+	AMFacility bioXASImaging("BioXASImaging", "CLS BioXAS Beamline - Imaging endstation", ":/clsIcon.png");
+	bioXASImaging.storeToDb(db);
 
 	return true;
 }
