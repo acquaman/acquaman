@@ -24,5 +24,6 @@ SUBDIRS +=	pluginProjects/FileLoaders/AMFileLoaderPlugins.pro \
 	SGMLookupTableCoordinator.pro \
 	StripToolProject.pro \
 	BioXASShutterTool.pro \
-	VESPERSDatabaseDuplicateEntryPatch.pro
+	VESPERSDatabaseDuplicateEntryPatch.pro \
+    StripTool2
 
