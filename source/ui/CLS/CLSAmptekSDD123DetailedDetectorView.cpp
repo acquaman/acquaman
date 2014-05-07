@@ -176,6 +176,9 @@ void CLSAmptekDetectorROIView::onDetectorConnected(bool isConnected){
 		onLowIndexValueChanged(x);
 		onHighIndexValueChanged(x);
 	}
+
+	//Set title of the window to match that of the detector:
+	this->setWindowTitle(QString("%1 - ROIs").arg(this->detector_->name()));
 }
 
 void CLSAmptekDetectorROIView::onLowIndexValueChanged(int index){
