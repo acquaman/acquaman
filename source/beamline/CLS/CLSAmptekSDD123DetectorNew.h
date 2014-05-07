@@ -65,6 +65,12 @@ public:
 	/// Returns the ROI high index for a given ROI index
 	int amptekHighROI(int index);
 
+	/// Returns the ROI low ev value for a given ROI index
+	double amptekLowROIEv(int index);
+
+	/// Returns the ROI high rv value for a given ROI index
+	double amptekHighROIEv(int index);
+
 	/// Returns the AMControl for fastCounts if the QObject type passed casts to CLSAmptekDetailedDetectorView or CLSAmptekDetectorConfigurationView
 	AMControl* fastCountsControl(const QObject *privelegedCaller) const;
 	/// Returns the AMControl for averageFastCounts if the QObject type passed casts to CLSAmptekDetailedDetectorView or CLSAmptekDetectorConfigurationView
@@ -123,6 +129,9 @@ public slots:
 	/// Set the internal amptek ROI to a given low and high channel number
 	void setAmptekROI(int index, int lowChannel, int highChannel);
 
+	/// Set the internal amptek ROI to a given low and high eV range
+	void setAmptekROIbyEv(int index, double lowEv, double highEv);
+
 	/// Sets the eV/bin ratio
 	void setEVPerBin(double eVPerBin);
 
@@ -146,6 +155,12 @@ protected slots:
 protected:
 	/// Returns true if the QObject type casts to the priveleged type of CLSAmptekDetailedDetectorView or CLSAmptekDetectorConfigurationView
 	bool isPrivelegedType(const QObject *privelegedCaller) const;
+
+	/// Helper function to convert bin value to eV value using current evPerBin value
+	double convertBinToEv(int binValue);
+
+	/// Helper function to convert eV value to bin value using current evPerBin value
+	int convertEvToBin(double eVValue);
 
 protected:
 	/// Control for the fast counts
