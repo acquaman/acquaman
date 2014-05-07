@@ -1088,6 +1088,7 @@ void SGMBeamline::setupExposedControls(){
 	addExposedControl(ssaManipulatorX_);
 	addExposedControl(ssaManipulatorY_);
 	addExposedControl(ssaManipulatorZ_);
+	addExposedControl(ssaManipulatorRot_);
 	addExposedControl(energy_);
 	addExposedControl(masterDwell_);
 	addExposedControl(exitSlitGap_);
