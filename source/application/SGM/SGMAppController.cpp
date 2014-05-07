@@ -464,7 +464,7 @@ void SGMAppController::onSGMScalerConnected(bool connected){
 	Q_UNUSED(connected)
 	if(SGMBeamline::sgm()->rawScaler() && SGMBeamline::sgm()->rawScaler()->isConnected() && !sgmScalerView_){
 		sgmScalerView_ = new SGMSIS3820ScalerView(SGMBeamline::sgm()->scaler());
-		mw_->addPane(sgmScalerView_, "Beamline Control", "SGM Scaler", ":/system-software-update.png", true);
+		mw_->addPane(sgmScalerView_, "Beamline Detectors", "SGM Scaler", ":/system-software-update.png", true);
 	}
 }
 
@@ -476,7 +476,7 @@ void SGMAppController::onSGMSynchronizedDwellTimeConnected(bool connected){
 		if(clsDwellTime)
 			sgmSynchronizedDwellTimeView_ = new CLSSynchronizedDwellTimeView(clsDwellTime);
 
-		mw_->addPane(sgmSynchronizedDwellTimeView_, "Beamline Control", "SGM Sync Dwell", ":/system-software-update.png", true);
+		mw_->addPane(sgmSynchronizedDwellTimeView_, "Beamline Detectors", "SGM Sync Dwell", ":/system-software-update.png", true);
 		sgmSynchronizedDwellTimeView_->setAdvancedViewVisible(true);
 	}
 }
@@ -1364,6 +1364,8 @@ bool SGMAppController::setupSGMViews(){
 	SGMAdvancedControls_ = new SGMAdvancedControlsView();
 	mw_->addPane(SGMAdvancedControls_, "Beamline Control", "SGM Advanced Controls", ":/system-software-update.png");
 
+	mw_->insertHeading("Beamline Detectors", 1);
+
 	sgmScalerView_ = 0;
 	connect(SGMBeamline::sgm()->rawScaler(), SIGNAL(connectedChanged(bool)), this, SLOT(onSGMScalerConnected(bool)));
 	onSGMScalerConnected(false);
@@ -1371,7 +1373,6 @@ bool SGMAppController::setupSGMViews(){
 	connect(SGMBeamline::sgm()->synchronizedDwellTime(), SIGNAL(connected(bool)), this, SLOT(onSGMSynchronizedDwellTimeConnected(bool)));
 	onSGMSynchronizedDwellTimeConnected(false);
 
-	mw_->insertHeading("Beamline Detectors", 1);
 
 	amptekSDD1XRFView_ = 0;
 	if(SGMBeamline::sgm()->newAmptekSDD1()){
