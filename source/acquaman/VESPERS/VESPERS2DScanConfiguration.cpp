@@ -22,7 +22,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QStringBuilder>
 #include <cmath>
 
-//#include "acquaman/VESPERS/VESPERS2DDacqScanController.h"
 #include "ui/VESPERS/VESPERS2DScanConfigurationView.h"
 #include "acquaman/VESPERS/VESPERS2DScanActionController.h"
 
@@ -39,7 +38,6 @@ VESPERS2DScanConfiguration::VESPERS2DScanConfiguration(QObject *parent)
 	setMotor(VESPERS::Motors(VESPERS::H | VESPERS::V));
 	setCCDDetector(VESPERS::NoCCD);
 	setCCDFileName("");
-	setRoiInfoList(AMROIInfoList());
 	setExportAsAscii(true);
 	setExportSpectraSources(true);
 	setExportSpectraInRows(true);
@@ -88,7 +86,6 @@ AMScanConfiguration *VESPERS2DScanConfiguration::createCopy() const
 
 AMScanController *VESPERS2DScanConfiguration::createController()
 {
-//	return new VESPERS2DDacqScanController(this);
 	AMScanActionController *controller = new VESPERS2DScanActionController(this);
 	controller->buildScanController();
 
@@ -114,7 +111,7 @@ QString VESPERS2DScanConfiguration::headerText() const
 
 	header.append(fluorescenceHeaderString(fluorescenceDetector()));
 	header.append(incomingChoiceHeaderString(incomingChoice()));
-	header.append(regionOfInterestHeaderString(roiList()) % "\n");
+//	header.append(regionOfInterestHeaderString(roiList()) % "\n");
 	header.append(motorHeaderString(motor()));
 	header.append(ccdDetectorHeaderString(ccdDetector()));
 

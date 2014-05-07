@@ -1,6 +1,7 @@
 #include "VESPERSScanConfigurationDbObject.h"
 
- VESPERSScanConfigurationDbObject::~VESPERSScanConfigurationDbObject(){}
+VESPERSScanConfigurationDbObject::~VESPERSScanConfigurationDbObject(){}
+
 VESPERSScanConfigurationDbObject::VESPERSScanConfigurationDbObject(QObject *parent)
 	: AMDbObject(parent)
 {
@@ -9,7 +10,6 @@ VESPERSScanConfigurationDbObject::VESPERSScanConfigurationDbObject(QObject *pare
 	fluorescenceDetector_ = VESPERS::NoXRF;
 	ccdDetector_ = VESPERS::NoCCD;
 	motor_ = VESPERS::NoMotor;
-	roiInfoList_ = AMROIInfoList();
 	ccdFileName_ = "";
 	normalPosition_ = 888888.88;
 }
@@ -22,7 +22,6 @@ VESPERSScanConfigurationDbObject::VESPERSScanConfigurationDbObject(const VESPERS
 	fluorescenceDetector_ = original.fluorescenceDetector();
 	ccdDetector_ = original.ccdDetector();
 	motor_ = original.motor();
-	roiInfoList_ = original.roiList();
 	ccdFileName_ = original.ccdFileName();
 	normalPosition_ = original.normalPosition();
 }
@@ -86,12 +85,6 @@ void VESPERSScanConfigurationDbObject::setCCDFileName(const QString &name)
 {
 	ccdFileName_ = name;
 	emit ccdFileNameChanged(ccdFileName_);
-	setModified(true);
-}
-
-void VESPERSScanConfigurationDbObject::setRoiInfoList(const AMROIInfoList &list)
-{
-	roiInfoList_ = list;
 	setModified(true);
 }
 

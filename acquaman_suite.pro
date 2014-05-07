@@ -13,7 +13,6 @@ SUBDIRS +=	pluginProjects/FileLoaders/AMFileLoaderPlugins.pro \
 	VESPERSAcquaman.pro \
 	# VESPERSDataman.pro \
 	# AcquaCam.pro \
-	VESPERSXRFSpectraViewer.pro \
 	MidIRBPM.pro \
 	CLSPGTDwellTimeCoordinator.pro \
 	SGMAddOnsCoordinator.pro \

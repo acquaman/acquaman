@@ -18,13 +18,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "VESPERSBeamline.h"
-#include "beamline/CLS/CLSMAXvMotor.h"
-//#include "beamline/AMSingleControlDetector.h"
 #include "actions3/AMListAction3.h"
 #include "actions3/actions/AMControlMoveAction3.h"
+#include "beamline/CLS/CLSMAXvMotor.h"
 #include "beamline/CLS/CLSBiStateControl.h"
-#include "beamline/VESPERS/VESPERSMonochomatorControl.h"
 #include "beamline/CLS/CLSSR570.h"
+#include "beamline/VESPERS/VESPERSMonochomatorControl.h"
 #include "beamline/VESPERS/VESPERSCCDBasicDetectorEmulator.h"
 
 VESPERSBeamline::VESPERSBeamline()
@@ -321,17 +320,6 @@ void VESPERSBeamline::setupEndstation()
 
 void VESPERSBeamline::setupDetectors()
 {
-	amNames2pvNames_.set("Isplit", "BL1607-B2-1:AddOns:Isplit");
-	amNames2pvNames_.set("Iprekb", "BL1607-B2-1:mcs07:fbk");
-	amNames2pvNames_.set("Imini", "BL1607-B2-1:mcs08:fbk");
-	amNames2pvNames_.set("Ipost", "BL1607-B2-1:mcs09:fbk");
-
-	vortex1E_ = new XRFDetector("1-el Vortex", 1, "IOC1607-004", this);
-	connect(vortexXRF1E(), SIGNAL(connected(bool)), this, SLOT(singleElVortexError(bool)));
-
-	vortex4E_ = new XRFDetector("4-el Vortex", 4, "dxp1607-B21-04", this);
-	connect(vortexXRF4E(), SIGNAL(connected(bool)), this, SLOT(fourElVortexError(bool)));
-
 	splitIonChamber_ = new CLSBasicCompositeScalerChannelDetector("SplitIonChamber", "Split Ion Chamber", scaler_, 5, 6, this);
 	preKBIonChamber_ = new CLSBasicScalerChannelDetector("PreKBIonChamber", "Pre KB Ion Chamber", scaler_, 7, this);
 	miniIonChamber_ = new CLSBasicScalerChannelDetector("MiniIonChamber", "Mini Ion Chamber", scaler_, 8, this);
@@ -1192,18 +1180,6 @@ void VESPERSBeamline::flowTransducerError()
 	}
 
 	emit flowTransducerStatus(error.isEmpty());
-}
-
-void VESPERSBeamline::singleElVortexError(bool isConnected)
-{
-	if (vortexXRF1E()->wasConnected() && !isConnected)
-		AMErrorMon::error(this, VESPERSBEAMLINE_SINGLE_ELEMENT_NOT_CONNECTED, "The single element vortex detector is no longer connected.");
-}
-
-void VESPERSBeamline::fourElVortexError(bool isConnected)
-{
-	if (vortexXRF4E()->wasConnected() && !isConnected)
-		AMErrorMon::error(this, VESPERSBEAMLINE_FOUR_ELEMENT_NOT_CONNECTED, "The four element vortex detector is no longer connected.");
 }
 
 void VESPERSBeamline::sampleStageError()

@@ -362,8 +362,6 @@ HEADERS += source/acquaman/AMRegion.h \
 	source/dataman/info/AMSpectralOutputDetectorInfo.h \
 	source/dataman/SGM/SGMMCPDetectorInfo.h \
 	source/dataman/info/CLSPGTDetectorInfo.h \
-	source/dataman/info/AMROIInfo.h \
-	source/beamline/AMROI.h \
 	source/ui/dataman/AMSamplePositionViewActionsWidget.h \
 	source/dataman/database/AMQueryTableModel.h \
 	source/dataman/export/AMExportController.h \
@@ -800,8 +798,6 @@ SOURCES += source/acquaman/AMRegion.cpp \
 	source/dataman/info/AMSpectralOutputDetectorInfo.cpp \
 	source/dataman/SGM/SGMMCPDetectorInfo.cpp \
 	source/dataman/info/CLSPGTDetectorInfo.cpp \
-	source/dataman/info/AMROIInfo.cpp \
-	source/beamline/AMROI.cpp \
 	source/ui/dataman/AMSamplePositionViewActionsWidget.cpp \
 	source/dataman/database/AMQueryTableModel.cpp \
 	source/dataman/export/AMExportController.cpp \
@@ -1108,6 +1104,10 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
+
+
 
 
 

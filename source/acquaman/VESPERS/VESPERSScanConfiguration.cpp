@@ -88,18 +88,6 @@ QString VESPERSScanConfiguration::transmissionChoiceHeaderString(VESPERS::IonCha
 	return string;
 }
 
-QString VESPERSScanConfiguration::regionOfInterestHeaderString(AMROIInfoList list) const
-{
-	QString string = "";
-
-	string.append("\nRegions of Interest\n");
-
-	for (int i = 0; i < list.count(); i++)
-		string.append(list.at(i).name() + "\t" + QString::number(list.at(i).low()) + " eV\t" + QString::number(list.at(i).high()) + " eV\n");
-
-	return string;
-}
-
 QString VESPERSScanConfiguration::motorHeaderString(VESPERS::Motors motor) const
 {
 	QString string = "";

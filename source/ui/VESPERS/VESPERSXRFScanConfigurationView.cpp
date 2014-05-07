@@ -27,67 +27,9 @@ VESPERSXRFScanConfigurationView::VESPERSXRFScanConfigurationView(VESPERSXRFScanC
 	: AMScanConfigurationView(parent)
 {
 	configuration_ = scanConfig;
-
-	integrationTime_ = new QDoubleSpinBox;
-	integrationTime_->setSuffix(" s");
-	integrationTime_->setSingleStep(0.1);
-	integrationTime_->setMaximum(1000.00);
-	integrationTime_->setAlignment(Qt::AlignCenter);
-	connect(integrationTime_, SIGNAL(editingFinished()), this, SLOT(onIntegrationTimeUpdate()));
-
-	QPushButton *customizeSettings = new QPushButton(QIcon(":/hammer.png"), "Settings");
-	customizeSettings->setCheckable(true);
-	connect(customizeSettings, SIGNAL(toggled(bool)), this, SLOT(onAdvancedSettingsChanged(bool)));
-
-	maxEnergy_ = new QDoubleSpinBox;
-	maxEnergy_->hide();
-	maxEnergy_->setSuffix(" keV");
-	maxEnergy_->setSingleStep(0.01);
-	maxEnergy_->setMaximum(30.00);
-	maxEnergy_->setAlignment(Qt::AlignCenter);
-	connect(maxEnergy_, SIGNAL(editingFinished()), this, SLOT(onMaximumEnergyUpdate()));
-
-	peakingTime_ = new QDoubleSpinBox;
-	peakingTime_->hide();
-	peakingTime_->setSuffix(QString::fromUtf8(" μs"));
-	peakingTime_->setSingleStep(0.01);
-	peakingTime_->setMaximum(100);
-	peakingTime_->setAlignment(Qt::AlignCenter);
-	connect(peakingTime_, SIGNAL(editingFinished()), this, SLOT(onPeakingTimeUpdate()));
-
-	QFont font(this->font());
-	font.setBold(true);
-
-	QLabel *timeLabel = new QLabel("Real Time");
-	timeLabel->setFont(font);
-	maxEnergyLabel_ = new QLabel("Max. Energy");
-	maxEnergyLabel_->hide();
-	maxEnergyLabel_->setFont(font);
-	peakingTimeLabel_ = new QLabel("Peaking Time");
-	peakingTimeLabel_->hide();
-	peakingTimeLabel_->setFont(font);
-
-	QVBoxLayout *controlLayout = new QVBoxLayout;
-	controlLayout->addWidget(timeLabel);
-	controlLayout->addWidget(integrationTime_);
-	controlLayout->addWidget(customizeSettings);
-	controlLayout->addWidget(maxEnergyLabel_);
-	controlLayout->addWidget(maxEnergy_);
-	controlLayout->addWidget(peakingTimeLabel_);
-	controlLayout->addWidget(peakingTime_);
-
-	setLayout(controlLayout);
 }
 
 VESPERSXRFScanConfigurationView::~VESPERSXRFScanConfigurationView()
 {
 
-}
-
-void VESPERSXRFScanConfigurationView::onAdvancedSettingsChanged(bool advanced)
-{
-	maxEnergyLabel_->setVisible(advanced);
-	maxEnergy_->setVisible(advanced);
-	peakingTimeLabel_->setVisible(advanced);
-	peakingTime_->setVisible(advanced);
 }

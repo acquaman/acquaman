@@ -22,7 +22,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/util/AMPeriodicTableDialog.h"
 #include "util/AMPeriodicTable.h"
 #include "beamline/VESPERS/VESPERSBeamline.h"
-#include "util/VESPERS/GeneralUtilities.h"
 #include "ui/dataman/AMEXAFSScanAxisView.h"
 #include "util/AMEnergyToKSpaceCalculator.h"
 
@@ -255,33 +254,33 @@ void VESPERSEXAFSScanConfigurationView::onScanNameEdited()
 
 void VESPERSEXAFSScanConfigurationView::updateRoiText()
 {
-	VESPERS::FluorescenceDetectors xrfFlag = configuration_->fluorescenceDetector();
+//	VESPERS::FluorescenceDetectors xrfFlag = configuration_->fluorescenceDetector();
 
-	if (xrfFlag == VESPERS::NoXRF)
-		configuration_->setRoiInfoList(AMROIInfoList());
+//	if (xrfFlag == VESPERS::NoXRF)
+//		configuration_->setRoiInfoList(AMROIInfoList());
 
-	else if (xrfFlag == VESPERS::SingleElement)
-		configuration_->setRoiInfoList(*VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList());
+//	else if (xrfFlag == VESPERS::SingleElement)
+//		configuration_->setRoiInfoList(*VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList());
 
-	else if (xrfFlag == VESPERS::FourElement)
-		configuration_->setRoiInfoList(*VESPERSBeamline::vespers()->vortexXRF4E()->roiInfoList());
+//	else if (xrfFlag == VESPERS::FourElement)
+//		configuration_->setRoiInfoList(*VESPERSBeamline::vespers()->vortexXRF4E()->roiInfoList());
 
-	else if (xrfFlag == (VESPERS::SingleElement | VESPERS::FourElement)){
+//	else if (xrfFlag == (VESPERS::SingleElement | VESPERS::FourElement)){
 
-		AMROIInfoList list;
-		AMROIInfoList singleElList = *VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList();
-		AMROIInfoList fourElList = *VESPERSBeamline::vespers()->vortexXRF4E()->roiInfoList();
+//		AMROIInfoList list;
+//		AMROIInfoList singleElList = *VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList();
+//		AMROIInfoList fourElList = *VESPERSBeamline::vespers()->vortexXRF4E()->roiInfoList();
 
-		for (int i = 0, count = singleElList.count(); i < count; i++)
-			list.append(singleElList.at(i));
+//		for (int i = 0, count = singleElList.count(); i < count; i++)
+//			list.append(singleElList.at(i));
 
-		for (int i = 0, count = fourElList.count(); i < count; i++)
-			list.append(fourElList.at(i));
+//		for (int i = 0, count = fourElList.count(); i < count; i++)
+//			list.append(fourElList.at(i));
 
-		configuration_->setRoiInfoList(list);
-	}
+//		configuration_->setRoiInfoList(list);
+//	}
 
-	updateAndSetRoiTextBox(int(xrfFlag));
+//	updateAndSetRoiTextBox(int(xrfFlag));
 }
 
 void VESPERSEXAFSScanConfigurationView::onElementChoiceClicked()
