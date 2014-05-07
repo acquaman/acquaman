@@ -122,12 +122,34 @@ CLSAmptekDetectorROIView::CLSAmptekDetectorROIView(CLSAmptekSDD123DetectorNew *d
 	QWidget(parent)
 {
 	detector_ = detector;
-
+	isInEvMode_ = true;
 	QVBoxLayout *mainVL = new QVBoxLayout();
 
 	roiLowIndexLineEditsMapper_ = new QSignalMapper();
 	roiHighIndexLineEditsMapper_ = new QSignalMapper();
 
+
+
+	//Set up header widgets (includes edit mode (eV or bin) and current detector eV->bin conversion)
+	QComboBox *roiEditModeComboBox;
+	QLabel* roiEditModeLabel;
+	QHBoxLayout* headerHBoxLayout;
+
+	headerHBoxLayout = new QHBoxLayout();
+	roiEditModeLabel = new QLabel(QString("Set ROIs by:"));
+	roiEditModeConversionRateLabel = new QLabel();
+	if(detector_->isConnected())
+		roiEditModeConversionRateLabel->setText(QString("%1 eV/bin").arg(detector_->eVPerBin()));
+	roiEditModeComboBox = new QComboBox();
+	roiEditModeComboBox->addItem(QString("eV"));
+	roiEditModeComboBox->addItem(QString("bin"));
+
+	headerHBoxLayout->addWidget(roiEditModeLabel);
+	headerHBoxLayout->addWidget(roiEditModeComboBox);
+	headerHBoxLayout->addWidget(roiEditModeConversionRateLabel);
+	mainVL->addLayout(headerHBoxLayout);
+
+	//Set up widgets for each ROI
 	QLabel *oneNameLabel;
 	QLineEdit *oneLowIndexLineEdit;
 	QLineEdit *oneHighIndexLineEdit;
@@ -156,10 +178,12 @@ CLSAmptekDetectorROIView::CLSAmptekDetectorROIView(CLSAmptekSDD123DetectorNew *d
 	}
 	connect(roiLowIndexLineEditsMapper_, SIGNAL(mapped(int)), this, SLOT(onLowIndexLineEditEditingFinished(int)));
 	connect(roiHighIndexLineEditsMapper_, SIGNAL(mapped(int)), this, SLOT(onHighIndexLineEditEditingFinished(int)));
+	connect(roiEditModeComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onRoiEditModeComboBoxIndexChanged(int)));
 
 	connect(detector_, SIGNAL(connected(bool)), this, SLOT(onDetectorConnected(bool)));
 	connect(detector_, SIGNAL(lowIndexValueChanged(int)), this, SLOT(onLowIndexValueChanged(int)));
 	connect(detector_, SIGNAL(highIndexValueChanged(int)), this, SLOT(onHighIndexValueChanged(int)));
+	connect(detector_, SIGNAL(eVPerBinChanged(double)), this, SLOT(onDetectorEvPerBinChanged(double)));
 	if(detector_->isConnected())
 		onDetectorConnected(detector_->isConnected());
 
@@ -182,10 +206,18 @@ void CLSAmptekDetectorROIView::onDetectorConnected(bool isConnected){
 }
 
 void CLSAmptekDetectorROIView::onLowIndexValueChanged(int index){
-	roiLowIndexLineEdits_.at(index)->setText(QString("%1").arg(detector_->amptekLowROI(index)));
+	//TODO: Check mode (eV or bin) and set text value accordingly
+	//if(this->isInEvMode_)
+		//roiLowIndexLineEdits_.at(index)->setText(QString("%1").arg(detector_->amptekLowROIEv(index)));
+	//else
+		roiLowIndexLineEdits_.at(index)->setText(QString("%1").arg(detector_->amptekLowROI(index)));
 }
 
 void CLSAmptekDetectorROIView::onHighIndexValueChanged(int index){
+	//TODO: Check mode (eV or bin) and set text value accordingly
+	//if(this->isInEvMode)
+		//roiHighIndexLineEdits_.at(index)->setText(QString("%1").arg(detector_->amptekHighROIEv(index)));
+	//else
 	roiHighIndexLineEdits_.at(index)->setText(QString("%1").arg(detector_->amptekHighROI(index)));
 }
 
@@ -197,13 +229,48 @@ void CLSAmptekDetectorROIView::onHighIndexLineEditEditingFinished(int index){
 	roiEditingFinishedHelper(index);
 }
 
+void CLSAmptekDetectorROIView::onDetectorEvPerBinChanged(double newValue){
+	roiEditModeConversionRateLabel->setText(QString("%1 ev/bin").arg(newValue));
+}
+
+void CLSAmptekDetectorROIView::onRoiEditModeComboBoxIndexChanged(int newIndex){
+	isInEvMode_ = (newIndex == 0);
+	//TODO: Change displayed values in the LineEdits to use the right value units (eV or bin)
+	for (int iLineEdit = 0; iLineEdit < this->roiLowIndexLineEdits_.count(); iLineEdit++)
+	{
+		if(isInEvMode_)
+		{
+			//roiHighIndexLineEdits_.at(index)->setText(QString("%1").arg(detector_->amptekHighROIEv(index)));
+			qDebug() << QString("ROI %1 Value: %2 eV to %3 eV").arg(iLineEdit+1).arg(detector_->amptekLowROIEv(iLineEdit)).arg(detector_->amptekHighROIEv(iLineEdit));
+		}
+		else
+		{
+			//roiHighIndexLineEdits_.at(index)->setText(QString("%1").arg(detector_->amptekHighROI(index)));
+			qDebug() << QString("ROI %1 Value: %2 to %3").arg(iLineEdit+1).arg(detector_->amptekLowROI(iLineEdit)).arg(detector_->amptekHighROI(iLineEdit));
+		}
+	}
+}
+
 void CLSAmptekDetectorROIView::roiEditingFinishedHelper(int index){
+	//TODO: Get current mode (eV or bin) and if eV convert to bin before settingROI
 	bool convertedLowSuccessfully = false;
 	bool convertedHighSuccessfully = false;
-	int convertedLowValue = roiLowIndexLineEdits_.at(index)->text().toInt(&convertedLowSuccessfully);
-	int convertedHighValue = roiHighIndexLineEdits_.at(index)->text().toInt(&convertedHighSuccessfully);
-	if(convertedLowSuccessfully && convertedHighSuccessfully)
-		detector_->setAmptekROI(index, convertedLowValue, convertedHighValue);
+	//if(this->isInEvMode_)
+	//{
+		int convertedLowValue = roiLowIndexLineEdits_.at(index)->text().toInt(&convertedLowSuccessfully);
+		int convertedHighValue = roiHighIndexLineEdits_.at(index)->text().toInt(&convertedHighSuccessfully);
+		if(convertedLowSuccessfully && convertedHighSuccessfully)
+			detector_->setAmptekROI(index, convertedLowValue, convertedHighValue);
+	//}
+	//else
+	//{
+		//double convertedLowValue = roiLowIndexLineEdits_.at(index)->text().toDouble(&convertedLowSuccessfully);
+		//double convertedHighValue = roiHighIndexLineEdits_.at(index)->text().toDobuel(&convertedHighSuccessfully);
+		//if(convertedLowValue && convertedHighSuccessfully)
+			//detector_->setAmptekROIbyEv(index, convertedLowValue, convertedHighValue);
+	//}
+
+
 }
 
 CLSAmptekDetectorConfigurationView::CLSAmptekDetectorConfigurationView(CLSAmptekSDD123DetectorNew *detector, QWidget *parent) :
