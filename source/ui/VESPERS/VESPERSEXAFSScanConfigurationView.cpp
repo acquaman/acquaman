@@ -322,7 +322,7 @@ void VESPERSEXAFSScanConfigurationView::onLinesComboBoxIndexChanged(int index)
 
 	energy_->setValue(lineChoice_->itemData(index).toDouble());
 	setEnergy();
-	configuration_->setEdge(elementChoice_->text()+" "+lineChoice_->itemText(index).split(":").first());
+	configuration_->setEdge(lineChoice_->itemText(index).split(":").first());
 }
 
 void VESPERSEXAFSScanConfigurationView::setEnergy()
@@ -354,7 +354,7 @@ void VESPERSEXAFSScanConfigurationView::onEstimatedTimeChanged()
 
 void VESPERSEXAFSScanConfigurationView::onEdgeChanged()
 {
-	QString currentChoice = elementChoice_->text() % " " % lineChoice_->itemText(lineChoice_->currentIndex()).split(":").first();
+	QString currentChoice = lineChoice_->itemText(lineChoice_->currentIndex()).split(":").first();
 	if (configuration_->edge() == currentChoice)
 		return;
 
@@ -362,7 +362,7 @@ void VESPERSEXAFSScanConfigurationView::onEdgeChanged()
 	lineChoice_->blockSignals(true);
 	fillLinesComboBox(AMPeriodicTable::table()->elementBySymbol(elementChoice_->text()));
 	lineChoice_->blockSignals(false);
-	lineChoice_->setCurrentIndex(lineChoice_->findText(configuration_->edge().split(" ").last(), Qt::MatchStartsWith | Qt::MatchCaseSensitive));
+	lineChoice_->setCurrentIndex(lineChoice_->findText(configuration_->edge(), Qt::MatchStartsWith | Qt::MatchCaseSensitive));
 
 	if (energy_->value() != configuration_->energy())
 		energy_->setValue(configuration_->energy());
