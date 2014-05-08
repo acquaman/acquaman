@@ -27,8 +27,9 @@ class VESPERSUserConfiguration : public AMDbObject
 
 public:
 	/// Constructor.  Builds a user configuration.
- 	virtual ~VESPERSUserConfiguration();
 	Q_INVOKABLE VESPERSUserConfiguration(QObject *parent = 0);
+	/// Destructor.
+	virtual ~VESPERSUserConfiguration();
 
 	/// Returns the current I0 ion chamber choice.
 	VESPERS::IonChamber incomingChoice() const { return I0_; }
@@ -42,10 +43,6 @@ public:
 	VESPERS::CCDDetectors ccdDetector() const { return ccdDetector_; }
 	/// Returns the list of regions the configuration has a hold of.
 	QList<AMRegionOfInterest *> regionsOfInterest() const { return regionsOfInterest_; }
-	/// Returns the regions of interest list.
-	AMDbObjectList dbReadRegionsOfInterest();
-	/// Called by the dtabase system on loadFromDb() to give us our new list of AMRegionOfInterest.
-	void dbLoadRegionsOfInterest(const AMDbObjectList &newRegions);
 
 public slots:
 	/// Sets the choice for I0 ion chamber.
@@ -74,6 +71,11 @@ public slots:
 	void removeRegionOfInterest(AMRegionOfInterest *region);
 
 protected:
+	/// Returns the regions of interest list.
+	AMDbObjectList dbReadRegionsOfInterest();
+	/// Called by the dtabase system on loadFromDb() to give us our new list of AMRegionOfInterest.
+	void dbLoadRegionsOfInterest(const AMDbObjectList &newRegions);
+
 	/// I0 ion chamber choice.
 	VESPERS::IonChamber I0_;
 	/// It ion chamber choice.
