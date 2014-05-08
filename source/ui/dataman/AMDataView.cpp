@@ -1328,6 +1328,7 @@ void AMLayoutControlledGraphicsWidget::resizeEvent(QGraphicsSceneResizeEvent *ev
 
 #include <QAbstractItemModel>
 #include "dataman/AMSamplePre2013.h"
+#include "dataman/AMSample.h"
 #include "dataman/AMRun.h"
 
 AMDataViewSectionListView::AMDataViewSectionListView(AMDatabase *db, const QString &dbTableName, const QString &whereClause, QGraphicsItem *parent, double initialWidthConstraint, int initialItemSize)
@@ -1371,7 +1372,7 @@ AMDataViewSectionListView::AMDataViewSectionListView(AMDatabase *db, const QStri
 										   << AMQueryTableModelColumnInfo("#", "number")
 										   << AMQueryTableModelColumnInfo("When", "dateTime")
 										   // << AMQueryTableModelColumnInfo("About", "scanInfo")
-										   << AMQueryTableModelColumnInfo("Sample", "sampleId", true, AMDbObjectSupport::s()->tableNameForClass<AMSamplePre2013>(), "name")
+										   // << AMQueryTableModelColumnInfo("Sample", "sampleId", true, AMDbObjectSupport::s()->tableNameForClass<AMSamplePre2013>(), "name")
 										   << AMQueryTableModelColumnInfo("Technique", "AMDbObjectType", true, "AMDbObjectTypes_table", "description", "AMDbObjectType")
 										   // << AMQueryTableModelColumnInfo("Where", "facilityId", true, AMDbObjectSupport::s()->tableNameForClass<AMFacility>(), "description")
 										   << AMQueryTableModelColumnInfo("Where", "runId", true, AMDbObjectSupport::s()->tableNameForClass<AMRun>(), "name")
