@@ -239,7 +239,8 @@ bool AMStepScanActionController::event(QEvent *e)
 
 		case AMAgnosticDataAPIDefinitions::AxisFinished:{
 
-			writeDataToFiles();
+			if (scan_->scanRank() == 0)
+			    writeDataToFiles();
 
 			if (scan_->rawData()->scanAxesCount() == 1){
 
