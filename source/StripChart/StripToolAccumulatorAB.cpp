@@ -211,12 +211,12 @@ AMNumber StripToolAccumulatorAB::value(const AMnDIndex& indexes) const {
 #endif
 
     double newVal = 0.0;
-    if(sumAxis_ == 0)
-        for(int i=sumRangeMin_; i<=sumRangeMax_; i++)
-            newVal += (double)inputSource_->value(AMnDIndex(i, indexes.i()));
-    else
-        for(int i=sumRangeMin_; i<=sumRangeMax_; i++)
-            newVal += (double)inputSource_->value(AMnDIndex(indexes.i(), i));
+//    if(sumAxis_ == 0)
+//        for(int i=sumRangeMin_; i<=sumRangeMax_; i++)
+//            newVal += (double)inputSource_->value(AMnDIndex(i, indexes.i()));
+//    else
+//        for(int i=sumRangeMin_; i<=sumRangeMax_; i++)
+//            newVal += (double)inputSource_->value(AMnDIndex(indexes.i(), i));
 
     return newVal;
 
