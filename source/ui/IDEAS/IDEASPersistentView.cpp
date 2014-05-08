@@ -73,9 +73,9 @@ IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
     IReferenceBar_->setRange(100,145);
 
 //    connect(IDEASBeamline::bl()->exposedDetectorByName("I_vac_6485"), SIGNAL(newValuesAvailable()), this, SLOT(onOldCountsChanged()));
-    connect(IDEASBeamline::bl()->exposedDetectorByName("I_0"), SIGNAL(newValuesAvailable()), this, SLOT(onI0CountsChanged()));
-    connect(IDEASBeamline::bl()->exposedDetectorByName("I_sample"), SIGNAL(newValuesAvailable()), this, SLOT(onSampleCountsChanged()));
-    connect(IDEASBeamline::bl()->exposedDetectorByName("I_ref"), SIGNAL(newValuesAvailable()), this, SLOT(onReferenceCountsChanged()));
+//    connect(IDEASBeamline::bl()->exposedDetectorByName("I_0"), SIGNAL(newValuesAvailable()), this, SLOT(onI0CountsChanged()));
+//    connect(IDEASBeamline::bl()->exposedDetectorByName("I_sample"), SIGNAL(newValuesAvailable()), this, SLOT(onSampleCountsChanged()));
+//    connect(IDEASBeamline::bl()->exposedDetectorByName("I_ref"), SIGNAL(newValuesAvailable()), this, SLOT(onReferenceCountsChanged()));
     connect(IDEASBeamline::bl()->exposedControlByName("ringCurrent"), SIGNAL(valueChanged(double)), this, SLOT(onRingCurrentChanged(double)));
 
     connect(IDEASBeamline::ideas()->monoLowEV(),   SIGNAL(valueChanged(double)), this, SLOT(onCrystalChanged()));
@@ -143,6 +143,7 @@ IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
     setLayout(layout);
 
     setMaximumWidth(400);
+    setMinimumWidth(400);
 }
 
 void IDEASPersistentView::onBeamOnClicked()
