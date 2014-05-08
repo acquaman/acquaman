@@ -245,12 +245,21 @@ bool AMVariableIntegrationTime::variableTime(double *times) const
 
 		break;
 
-	case Geometric:
+	case Geometric:{
 
-		for (double k = k0_; k <= kf_; k += kStep_)
-			variableTimes_.insert(k, a0_ + a1_*pow(k, a2_));
+	    int points = round((kf_-k0_)/kStep_);
+	    double k = k0_;
 
-		break;
+	    for (int i = 0; i < points; i++){
+
+		variableTimes_.insert(k, a0_ + a1_*pow(k, a2_));
+		k += kStep_;
+	    }
+//		for (double k = k0_; k <= kf_; k += kStep_)
+//			variableTimes_.insert(k, a0_ + a1_*pow(k, a2_));
+
+	    break;
+	}
 
 	case Exponential:
 
