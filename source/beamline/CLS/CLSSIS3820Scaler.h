@@ -28,7 +28,7 @@ class AMControl;
 class AMReadOnlyPVControl;
 class AMDetectorTriggerSource;
 class AMDetectorDwellTimeSource;
-class CLSSR570;
+class AMCurrentAmplifier;
 
 #include "dataman/info/AMDetectorInfo.h"
 #include "util/AMRange.h"
@@ -244,9 +244,9 @@ public:
 	QString customChannelName() const { return customChannelName_; }
 
 	/// Sets a SR570 to this particular channel.  It is assumed that the SR570 ACTUALLY corresponds to the scalar channel, otherwise, this is meaningless.
-	void setSR570(CLSSR570 *sr570);
+    void setCurrentAmplifier(AMCurrentAmplifier *amplifier);
 	/// Returns the SR570 that this scaler channel uses for sensitivity changes.  Returns 0 if not set.
-	CLSSR570 *sr570() const { return sr570_; }
+    AMCurrentAmplifier *currentAmplifier() const { return currentAmplifier_; }
 
     /// Sets an AMDetector to this particular channel. This connection grants us access to the detector's dark current measurement/correction abilities.
     void setDetector(AMDetector *detector);
@@ -292,7 +292,7 @@ signals:
 	/// Notifier that the connectivity of the channel has changed.  Passes the new state.
 	void connected(bool isConnected);
 	/// Notifier that a (new) SR570 mapping has been established.
-	void sr570Attached();
+    void currentAmplifierAttached();
 	/// Notifier that the custom name of the scaler channel has been changed.  Passes the new name.
 	void customNameChanged(const QString &);
 	/// Notifier that the voltage range has changed.  Passes the new range.
@@ -337,7 +337,7 @@ protected:
 	QString customChannelName_;
 
 	/// Holds the pointer to the CLSSR570 (if it has one), which controls the sensitivity of the scalar channel.
-	CLSSR570 *sr570_;
+    AMCurrentAmplifier *currentAmplifier_;
 
     /// Holds the pointer to the AMDetector (if it has one).
     AMDetector *detector_;

@@ -552,7 +552,7 @@ CLSSIS3820ScalerChannel::CLSSIS3820ScalerChannel(const QString &baseName, int in
 	wasConnected_ = false;
 
     // No SR570 or detector to start with.
-	sr570_ = 0;
+    currentAmplifier_ = 0;
 	voltageRange_ = AMRange();
     detector_ = 0;
 
@@ -579,8 +579,8 @@ CLSSIS3820ScalerChannel::~CLSSIS3820ScalerChannel(){}
 
 bool CLSSIS3820ScalerChannel::isConnected() const
 {
-	if (sr570_)
-		return allControls_->isConnected() && sr570_->isConnected();
+    if (currentAmplifier_)
+        return allControls_->isConnected() && currentAmplifier_->connected();
 
 	else
 		return allControls_->isConnected();
@@ -653,17 +653,17 @@ void CLSSIS3820ScalerChannel::onChannelReadingChanged(double reading)
 	emit readingChanged((int)reading);
 }
 
-void CLSSIS3820ScalerChannel::setSR570(CLSSR570 *sr570)
+void CLSSIS3820ScalerChannel::setCurrentAmplifier(AMCurrentAmplifier *amplifier)
 {
-    if (sr570_) {
-		disconnect(sr570_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
-        disconnect( sr570_, SIGNAL(sensitivityChanged()), this, SIGNAL(sensitivityChanged()) );
+    if (currentAmplifier_) {
+        disconnect(currentAmplifier_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
+        disconnect( currentAmplifier_, SIGNAL(sensitivityChanged()), this, SIGNAL(sensitivityChanged()) );
     }
 
-	sr570_ = sr570;
-	connect(sr570_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
-    connect( sr570_, SIGNAL(sensitivityChanged()), this, SIGNAL(sensitivityChanged()) );
-	emit sr570Attached();
+    currentAmplifier_ = amplifier;
+    connect(currentAmplifier_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
+    connect( currentAmplifier_, SIGNAL(sensitivityChanged()), this, SIGNAL(sensitivityChanged()) );
+    emit currentAmplifierAttached();
 }
 
 void CLSSIS3820ScalerChannel::setDetector(AMDetector *detector)

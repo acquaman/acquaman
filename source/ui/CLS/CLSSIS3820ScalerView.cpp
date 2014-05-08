@@ -275,11 +275,11 @@ CLSSIS3820ScalerChannelView::CLSSIS3820ScalerChannelView(CLSSIS3820ScalerChannel
 	channelName_ = new QLabel(channel_->customChannelName());
 
 	sr570View_ = 0;
-	connect(channel_, SIGNAL(sr570Attached()), this, SLOT(onNewSR570Attached()));
+    connect(channel_, SIGNAL(sr570Attached()), this, SLOT(onNewCurrentAmplifierAttached()));
 
-	if (channel_->sr570()){
+	if (channel_->currentAmplifier()){
 
-		sr570View_ = new CLSSR570View(channel_->sr570());
+        sr570View_ = new CLSSR570View(qobject_cast<CLSSR570*>(channel_->currentAmplifier()));
 		connect(sr570View_, SIGNAL(viewModeChanged(CLSSR570View::ViewMode)), this, SIGNAL(sr570ViewModeChanged(CLSSR570View::ViewMode)));
 	}
 
@@ -367,7 +367,7 @@ void CLSSIS3820ScalerChannelView::onScalerOutputClicked()
 
 void CLSSIS3820ScalerChannelView::setSR570ViewMode(CLSSR570View::ViewMode mode)
 {
-	if (channel_->sr570())
+	if (channel_->currentAmplifier())
 		sr570View_->setViewMode(mode);
 }
 
@@ -407,12 +407,12 @@ void CLSSIS3820ScalerChannelView::setStatusLabelVisibility(bool visible)
 	statusLabel_->setVisible(visible);
 }
 
-void CLSSIS3820ScalerChannelView::onNewSR570Attached()
+void CLSSIS3820ScalerChannelView::onNewCurrentAmplifierAttached()
 {
 	// If one already exists, lets get rid of it before doing anything else.
 	if (sr570View_)
 		delete channelLayout_->takeAt(channelLayout_->indexOf(sr570View_));
 
-	sr570View_ = new CLSSR570View(channel_->sr570());
+    sr570View_ = new CLSSR570View(qobject_cast<CLSSR570*>(channel_->currentAmplifier()));
 	channelLayout_->insertWidget(2, sr570View_, 0, Qt::AlignCenter);
 }

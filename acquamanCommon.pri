@@ -647,7 +647,8 @@ HEADERS += source/acquaman/AMRegion.h \
     source/actions3/actions/AMDoDarkCurrentCorrectionActionInfo.h \
     source/ui/CLS/CLSSIS3820ScalerChannelViewWithDarkCurrent.h \
     source/analysis/AM1DDarkCurrentCorrectionABEditor.h \
-    source/ui/CLS/CLSDarkCurrentWidget.h
+    source/ui/CLS/CLSDarkCurrentWidget.h \
+    source/beamline/AMCurrentAmplifier.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1066,7 +1067,8 @@ SOURCES += source/acquaman/AMRegion.cpp \
     source/actions3/actions/AMDoDarkCurrentCorrectionActionInfo.cpp \
     source/ui/CLS/CLSSIS3820ScalerChannelViewWithDarkCurrent.cpp \
     source/analysis/AM1DDarkCurrentCorrectionABEditor.cpp \
-    source/ui/CLS/CLSDarkCurrentWidget.cpp
+    source/ui/CLS/CLSDarkCurrentWidget.cpp \
+    source/beamline/AMCurrentAmplifier.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
