@@ -21,15 +21,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "VESPERSXRFScanConfiguration.h"
 #include "acquaman/VESPERS/VESPERSXRFScanController.h"
 
-VESPERSXRFScanConfiguration::VESPERSXRFScanConfiguration(XRFDetectorInfo detectorInfo, QObject *parent)
+VESPERSXRFScanConfiguration::VESPERSXRFScanConfiguration(QObject *parent)
 	: AMScanConfiguration(parent)
 {
-	xrfDetectorInfo_ = detectorInfo;
 	setAutoExportEnabled(false);
 }
 
-VESPERSXRFScanConfiguration::VESPERSXRFScanConfiguration(QObject *parent)
-	: AMScanConfiguration(parent)
+VESPERSXRFScanConfiguration::VESPERSXRFScanConfiguration(const VESPERSXRFScanConfiguration &other)
+	: AMScanConfiguration(other)
 {
 	setAutoExportEnabled(false);
 }
@@ -51,8 +50,5 @@ AMScanController *VESPERSXRFScanConfiguration::createController()
 
 QString VESPERSXRFScanConfiguration::detailedDescription() const
 {
-	if (!xrfDetectorInfo_.name().isEmpty())
-		return QString("XRF Free Run Scan\nDetector: %1\nReal time: %2 s").arg(xrfDetectorInfo_.name()).arg(xrfDetectorInfo_.integrationTime());
-
 	return QString();
 }

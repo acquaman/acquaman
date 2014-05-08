@@ -39,7 +39,6 @@ VESPERSSpatialLineScanConfiguration::VESPERSSpatialLineScanConfiguration(QObject
 	setMotor(VESPERS::H);
 	setCCDDetector(VESPERS::NoCCD);
 	setCCDFileName("");
-	setRoiInfoList(AMROIInfoList());
 	setExportSpectraSources(true);
 	setExportSpectraInRows(true);
 	setOtherPosition(-123456789.0);
@@ -104,7 +103,7 @@ QString VESPERSSpatialLineScanConfiguration::headerText() const
 
 	header.append(fluorescenceHeaderString(fluorescenceDetector()));
 	header.append(incomingChoiceHeaderString(incomingChoice()));
-	header.append(regionOfInterestHeaderString(roiList()) % "\n");
+//	header.append(regionOfInterestHeaderString(roiList()) % "\n");
 	header.append(motorHeaderString(motor()));
 	header.append(ccdDetectorHeaderString(ccdDetector()));
 

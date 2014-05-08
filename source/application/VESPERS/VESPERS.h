@@ -13,7 +13,6 @@
 #include <QList>
 #include <QStringBuilder>
 
-#include "dataman/info/AMROIInfo.h"
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
 #include "dataman/database/AMDbObjectSupport.h"
 #include "beamline/AMProcessVariable.h"

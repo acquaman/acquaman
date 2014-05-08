@@ -13,10 +13,11 @@ class VESPERSScanConfiguration
 {
 public:
 	/// Constructor.
-	virtual ~VESPERSScanConfiguration();
 	VESPERSScanConfiguration();
 	/// Copy constructor.
 	VESPERSScanConfiguration(const VESPERSScanConfiguration &original);
+	/// Destructor.
+	virtual ~VESPERSScanConfiguration();
 
 	// DbObject specific methods.
 	////////////////////////////////////////////
@@ -43,8 +44,6 @@ public:
 	VESPERS::CCDDetectors ccdDetector() const { return dbObject_->ccdDetector(); }
 	/// Returns the CCD file name.
 	QString ccdFileName() const { return dbObject_->ccdFileName(); }
-	/// Returns the ROI list.  The list is empty if not using a fluorescence detector.
-	AMROIInfoList roiList() const { return dbObject_->roiList(); }
 	/// Returns the normal position.
 	double normalPosition() const { return dbObject_->normalPosition(); }
 
@@ -80,8 +79,6 @@ public:
 	void setCCDDetector(int ccd) { setCCDDetector((VESPERS::CCDDetectors)ccd); }
 	/// Sets the file name for the CCD files.
 	void setCCDFileName(const QString &name) { dbObject_->setCCDFileName(name); }
-	/// Sets the ROI list.
-	void setRoiInfoList(const AMROIInfoList &list) { dbObject_->setRoiInfoList(list); }
 	/// Sets the normal position.
 	void setNormalPosition(double newPosition) { dbObject_->setNormalPosition(newPosition); }
 
@@ -105,8 +102,6 @@ protected:
 	QString incomingChoiceHeaderString(VESPERS::IonChamber detector) const;
 	/// Returns a string for the It ion chamber.
 	QString transmissionChoiceHeaderString(VESPERS::IonChamber detector) const;
-	/// Returns a string that is nicely formatted for the regions of interest.
-	QString regionOfInterestHeaderString(AMROIInfoList list) const;
 	/// Returns a string that with what motors were used based on \param motor.
 	QString motorHeaderString(VESPERS::Motors motor) const;
 	/// Returns a string that gives the name of the CCD images.

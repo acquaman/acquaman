@@ -73,7 +73,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <dataman/info/AMSpectralOutputDetectorInfo.h>
 #include "dataman/AMUser.h"
 #include "dataman/AMXESScan.h"
-#include "dataman/info/AMROIInfo.h"
 #include "analysis/AM1DExpressionAB.h"
 #include "analysis/AM2DSummingAB.h"
 #include "analysis/AM1DDerivativeAB.h"
@@ -587,8 +586,6 @@ bool AMDatamanAppController::startupRegisterDatabases()
 	success &= AMDbObjectSupport::s()->registerClass<AMDetectorInfoSet>();
 	success &= AMDbObjectSupport::s()->registerClass<AMSamplePosition>();
 	success &= AMDbObjectSupport::s()->registerClass<AMSamplePlate>();
-	success &= AMDbObjectSupport::s()->registerClass<AMROIInfo>();
-	success &= AMDbObjectSupport::s()->registerClass<AMROIInfoList>();
 	success &= AMDbObjectSupport::s()->registerClass<AMRegionOfInterest>();
 	success &= AMDbObjectSupport::s()->registerClass<AMRegionOfInterestAB>();
 
@@ -626,7 +623,12 @@ bool AMDatamanAppController::startupPopulateNewDatabase()
 	reixs.storeToDb(db);
 	AMFacility ideas("IDEAS", "CLS IDEAS Beamline", ":/clsIcon.png");
 	ideas.storeToDb(db);
-
+	AMFacility bioXASSide("BioXASSide", "CLS BioXAS Beamline - Side endstation", ":/clsIcon.png");
+	bioXASSide.storeToDb(db);
+	AMFacility bioXASMain("BioXASMain", "CLS BioXAS Beamline - Main endstation", ":/clsIcon.png");
+	bioXASMain.storeToDb(db);
+	AMFacility bioXASImaging("BioXASImaging", "CLS BioXAS Beamline - Imaging endstation", ":/clsIcon.png");
+	bioXASImaging.storeToDb(db);
 
 	return true;
 }

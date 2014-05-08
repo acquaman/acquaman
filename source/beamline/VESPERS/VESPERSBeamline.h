@@ -22,8 +22,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/AMBeamline.h"
 #include "beamline/AMControlSet.h"
-#include "beamline/VESPERS/XRFDetector.h"
-#include "beamline/AMROI.h"
 #include "beamline/VESPERS/VESPERSPIDLoopControl.h"
 #include "beamline/VESPERS/VESPERSMonochromator.h"
 #include "beamline/VESPERS/VESPERSIntermediateSlits.h"
@@ -77,21 +75,7 @@ public:
 	/// Returns the current beam in use by the beamline.
 	VESPERS::Beam currentBeam() const { return beam_; }
 
-	// Helper functions.
-	QString pvName(const QString &amName) const { return amNames2pvNames_.valueF(amName); }
-	QString amName(const QString &pvName) const { return amNames2pvNames_.valueR(pvName); }
-
 	// Accessing detectors.
-
-	/// Returns a general AMDetector pointer of the single element XRF detector.
-	AMOldDetector *vortexAM1E() const { return vortex1E_; }
-	/// Returns the specific XRFDetector pointer of the single element XRF detector.
-	XRFDetector *vortexXRF1E() const { return (XRFDetector *)vortex1E_; }
-	/// Returns a general AMDetector pointer of the four element XRF detector.
-	AMOldDetector *vortexAM4E() const { return vortex4E_; }
-	/// Returns the specific XRFDetector pointer of the single element XRF detector.
-	XRFDetector *vortexXRF4E() const { return (XRFDetector *)vortex4E_; }
-
 	/// Returns a general AMDetector pointer of the Roper CCD.
 	AMDetector *roperCCD() const { return roperCCD_; }
 	/// Returns the specific pointer to the Roper CCD.
@@ -601,10 +585,6 @@ protected slots:
 	void flowTransducerConnected(bool connected);
 	/// Slot used to deal with flow transducer errors.
 	void flowTransducerError();
-	/// Slot used to deal with single element detector errors.
-	void singleElVortexError(bool isConnected);
-	/// Slot used to deal with four element vortex detector errors.
-	void fourElVortexError(bool isConnected);
 	/// Slot used to dead with sample stage motor errors.
 	void sampleStageError();
 	/// Slot that is used for making sure the synchronized dwell time is configured properly once it is connected.
@@ -648,9 +628,6 @@ protected:
 	VESPERSBeamline();
 
 	// Detectors.
-	AMOldDetector *vortex1E_;
-	AMOldDetector *vortex4E_;
-
 	CLSBasicCompositeScalerChannelDetector *splitIonChamber_;
 	CLSBasicScalerChannelDetector *preKBIonChamber_;
 	CLSBasicScalerChannelDetector *miniIonChamber_;
@@ -826,7 +803,6 @@ protected:
 
 	// End General Controls.
 
-	// End ion chamber controls.
 
 	// Sample stage controls.
 	// CLS pseudo-motors.
@@ -878,9 +854,6 @@ protected:
 
 	// Scanning settings.
 	AMControl *masterDwellTime_;
-
-	// AM names bihash to/from PV names.
-	AMBiHash<QString, QString> amNames2pvNames_;
 
 	// The ring current.
 	AMControl *ringCurrent_;

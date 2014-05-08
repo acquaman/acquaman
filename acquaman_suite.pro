@@ -13,7 +13,6 @@ SUBDIRS +=	pluginProjects/FileLoaders/AMFileLoaderPlugins.pro \
 	VESPERSAcquaman.pro \
 	# VESPERSDataman.pro \
 	# AcquaCam.pro \
-	VESPERSXRFSpectraViewer.pro \
 	MidIRBPM.pro \
 	CLSPGTDwellTimeCoordinator.pro \
 	SGMAddOnsCoordinator.pro \
@@ -24,4 +23,8 @@ SUBDIRS +=	pluginProjects/FileLoaders/AMFileLoaderPlugins.pro \
 	SGMLookupTableCoordinator.pro \
 	StripToolProject.pro \
 	AMCrashReporter.pro \
-	IDEASAcquaman.pro
+	IDEASAcquaman.pro \
+	BioXASSideAcquaman.pro \
+	BioXASMainAcquaman.pro \
+	BioXASImagingAcquaman.pro
+

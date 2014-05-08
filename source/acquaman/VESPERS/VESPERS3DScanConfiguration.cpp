@@ -19,7 +19,6 @@ VESPERS3DScanConfiguration::VESPERS3DScanConfiguration(QObject *parent)
 	setMotor(VESPERS::Motors(VESPERS::H | VESPERS::V));
 	setCCDDetector(VESPERS::Pilatus);
 	setCCDFileName("3D Map");
-	setRoiInfoList(AMROIInfoList());
 	setExportAsAscii(true);
 	setExportSpectraSources(true);
 	setExportSpectraInRows(true);
@@ -97,7 +96,7 @@ QString  VESPERS3DScanConfiguration::headerText() const
 
 	header.append(fluorescenceHeaderString(fluorescenceDetector()));
 	header.append(incomingChoiceHeaderString(incomingChoice()));
-	header.append(regionOfInterestHeaderString(roiList()) % "\n");
+//	header.append(regionOfInterestHeaderString(roiList()) % "\n");
 	header.append(motorHeaderString(motor()));
 	header.append(ccdDetectorHeaderString(ccdDetector()));
 

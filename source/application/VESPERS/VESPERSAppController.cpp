@@ -32,9 +32,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/AMActionRunner3.h"
 #include "actions3/actions/AMScanAction.h"
 #include "actions3/AMListAction3.h"
+#include "acquaman/AMScanActionController.h"
 
-#include "ui/VESPERS/XRFDetectorView.h"
-#include "ui/VESPERS/VESPERSXRFFreeRunView.h"
+#include "ui/VESPERS/VESPERSXRFScanConfigurationView.h"
 #include "ui/VESPERS/VESPERSPersistentView.h"
 #include "dataman/VESPERS/AMXRFScan.h"
 #include "util/AMPeriodicTable.h"
@@ -85,9 +85,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "acquaman/VESPERS/VESPERSTimeScanConfiguration.h"
 #include "ui/VESPERS/VESPERSTimeScanConfigurationView.h"
-
-// For database registration:
-#include "dataman/VESPERS/XRFDetectorInfo.h"
 
 VESPERSAppController::VESPERSAppController(QObject *parent) :
 	AMAppController(parent)
@@ -168,7 +165,6 @@ bool VESPERSAppController::startup()
 		additionalIssueTypesAndAssignees_.append("I think it's a VESPERS specific issue", "dretrex");
 
 		// THIS IS HERE TO PASS ALONG THE INFORMATION TO THE SUM AND CORRECTEDSUM PVS IN THE FOUR ELEMENT DETECTOR.
-		roiHelper_ = new ROIHelper;
 		attoHack_ = new VESPERSAttoCubeHack(VESPERSBeamline::vespers()->attoStageRz());
 
 		return true;
@@ -208,7 +204,6 @@ bool VESPERSAppController::ensureProgramStructure()
 
 void VESPERSAppController::shutdown() {
 	// Make sure we release/clean-up the beamline interface
-	delete roiHelper_;
 	delete attoHack_;
 	AMBeamline::releaseBl();
 	AMAppController::shutdown();
@@ -216,7 +211,6 @@ void VESPERSAppController::shutdown() {
 
 void VESPERSAppController::registerClasses()
 {
-	AMDbObjectSupport::s()->registerClass<XRFDetectorInfo>();
 	AMDbObjectSupport::s()->registerClass<VESPERSXRFScanConfiguration>();
 	AMDbObjectSupport::s()->registerClass<AMXRFScan>();
 	AMDbObjectSupport::s()->registerClass<VESPERSEXAFSScanConfiguration>();
@@ -231,8 +225,6 @@ void VESPERSAppController::registerClasses()
 
 	AMDbObjectSupport::s()->registerClass<VESPERSTimeScanConfiguration>();
 
-	AMOldDetectorViewSupport::registerClass<XRFBriefDetectorView, XRFDetector>();
-	AMOldDetectorViewSupport::registerClass<XRFDetailedDetectorView, XRFDetector>();
 	AMOldDetectorViewSupport::registerClass<VESPERSCCDDetectorView, VESPERSRoperCCDDetector>();
 	AMOldDetectorViewSupport::registerClass<VESPERSCCDDetectorView, VESPERSMarCCDDetector>();
 	AMOldDetectorViewSupport::registerClass<VESPERSPilatusCCDDetectorView, VESPERSPilatusCCDDetector>();
@@ -280,39 +272,30 @@ void VESPERSAppController::setupUserInterface()
 	mw_->addPane(endstationView_, "General", "Endstation", ":/system-software-update.png");
 	mw_->addPane(statusPage_, "General", "Device Status", ":/system-software-update.png");
 
-	// Setup the XRF views for the single element vortex and the four element vortex detectors.  Since they have scans that are added to the workflow, it gets the workflow manager view passed into it as well.
-	// This means that the FreeRunView kind of doubles as a regular detector view and a configuration view holder.
-	xrf1ElFreeRun_ = new XRFFreeRun(VESPERSBeamline::vespers()->vortexXRF1E());
-	xrf1EFreeRunView_ = new VESPERSXRFFreeRunView(xrf1ElFreeRun_);
-	xrf4ElFreeRun_ = new XRFFreeRun(VESPERSBeamline::vespers()->vortexXRF4E());
-	xrf4EFreeRunView_ = new VESPERSXRFFreeRunView(xrf4ElFreeRun_);
-
 //	roperCCDView_ = new VESPERSCCDDetectorView(VESPERSBeamline::vespers()->roperCCD());
 //	marCCDView_ = new VESPERSCCDDetectorView(VESPERSBeamline::vespers()->marCCD());
 	pilatusView_ = new VESPERSPilatusCCDDetectorView(VESPERSBeamline::vespers()->vespersPilatusAreaDetector());
 
+	AMXRFDetailedDetectorView *singleElementVortexView = new AMXRFDetailedDetectorView(VESPERSBeamline::vespers()->vespersSingleElementVortexDetector());
+	singleElementVortexView->buildDetectorView();
+	singleElementVortexView->setEnergyRange(3000, 20000);
+	singleElementVortexView->addEmissionLineNameFilter(QRegExp("1"));
+	singleElementVortexView->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
+	singleElementVortexView->addCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));
+
+	AMXRFDetailedDetectorView *fourElementVortexView = new AMXRFDetailedDetectorView(VESPERSBeamline::vespers()->vespersFourElementVortexDetector());
+	fourElementVortexView->buildDetectorView();
+	fourElementVortexView->setEnergyRange(3000, 20000);
+	fourElementVortexView->addEmissionLineNameFilter(QRegExp("1"));
+	fourElementVortexView->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
+	fourElementVortexView->addCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));
+
 	mw_->insertHeading("Detectors", 1);
-	mw_->addPane(xrf1EFreeRunView_, "Detectors", "Fluorescence - 1-el", ":/system-search.png");
-	mw_->addPane(xrf4EFreeRunView_, "Detectors", "Fluorescence - 4-el", ":/system-search.png");
 //	mw_->addPane(roperCCDView_, "Detectors", "Area - Roper", ":/system-search.png");
 //	mw_->addPane(marCCDView_, "Detectors", "Area - Mar", ":/system-search.png");
+	mw_->addPane(fourElementVortexView, "Detectors", "New 4-el Vortex", ":/system-search.png");
+	mw_->addPane(singleElementVortexView, "Detectors", "New 1-el Vortex", ":/system-search.png");
 	mw_->addPane(pilatusView_, "Detectors", "Area - Pilatus", ":/system-search.png");
-
-	AMXRFDetailedDetectorView *testView1 = new AMXRFDetailedDetectorView(VESPERSBeamline::vespers()->vespersSingleElementVortexDetector());
-	testView1->buildDetectorView();
-	testView1->setEnergyRange(3000, 20000);
-	testView1->addEmissionLineNameFilter(QRegExp("1"));
-	testView1->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
-	testView1->addCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));
-	mw_->addPane(testView1, "Detectors", "New 1-el Vortex", ":/system-search.png");
-
-	AMXRFDetailedDetectorView *testView4 = new AMXRFDetailedDetectorView(VESPERSBeamline::vespers()->vespersFourElementVortexDetector());
-	testView4->buildDetectorView();
-	testView4->setEnergyRange(3000, 20000);
-	testView4->addEmissionLineNameFilter(QRegExp("1"));
-	testView4->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
-	testView4->addCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));
-	mw_->addPane(testView4, "Detectors", "New 4-el Vortex", ":/system-search.png");
 
 	// Setup XAS for the beamline.  Builds the config, view, and view holder.
 	exafsScanConfiguration_ = new VESPERSEXAFSScanConfiguration();
@@ -390,10 +373,6 @@ void VESPERSAppController::setupUserInterface()
 
 void VESPERSAppController::makeConnections()
 {
-	// copy ROIs from one detector to another.  Soon to be removed.
-	connect(xrf1ElFreeRun_, SIGNAL(copyRoisRequested(const XRFFreeRun*)), xrf4ElFreeRun_, SLOT(setFromXRFFreeRun(const XRFFreeRun*)));
-	connect(xrf4ElFreeRun_, SIGNAL(copyRoisRequested(const XRFFreeRun*)), xrf1ElFreeRun_, SLOT(setFromXRFFreeRun(const XRFFreeRun*)));
-
 	connect(this, SIGNAL(scanEditorCreated(AMGenericScanEditor*)), this, SLOT(onScanEditorCreated(AMGenericScanEditor*)));
 	connect(persistentView_, SIGNAL(currentSampleStageChanged(QString)), this, SLOT(onSampleStageChoiceChanged(QString)));
 
@@ -424,11 +403,7 @@ void VESPERSAppController::onStatusViewRequrested()
 
 void VESPERSAppController::onConfigureDetectorRequested(const QString &detector)
 {
-	if (detector == "Single Element")
-		mw_->setCurrentPane(xrf1EFreeRunView_);
-	else if (detector == "Four Element")
-		mw_->setCurrentPane(xrf4EFreeRunView_);
-	else if (detector == "Roper CCD")
+	if (detector == "Roper CCD")
 		mw_->setCurrentPane(roperCCDView_);
 	else if (detector == "Mar CCD")
 		mw_->setCurrentPane(marCCDView_);
