@@ -144,7 +144,7 @@ AMAction3 *AMEXAFSScanActionControllerAssembler::generateActionTreeForEXAFSStepA
 
 		regionList->addSubAction(detectorSetDwellList);
 
-		int extendedPoints = round(( ((double)exafsRegion->regionEnd()) - ((double)exafsRegion->regionStart()) )/ ((double)exafsRegion->regionStep()) );
+		int extendedPoints = int(round(( ((double)exafsRegion->regionEnd()) - ((double)exafsRegion->regionStart()) )/ ((double)exafsRegion->regionStep()) ));
 		QVector<double> energyPositions = QVector<double>(extendedPoints);
 		AMEnergyToKSpaceCalculator calculator = AMEnergyToKSpaceCalculator(exafsRegion->edgeEnergy());
 		calculator.energyValues(exafsRegion->regionStart(), exafsRegion->regionStep(), exafsRegion->regionEnd(), energyPositions.data());
@@ -170,7 +170,7 @@ AMAction3 *AMEXAFSScanActionControllerAssembler::generateActionTreeForEXAFSStepA
 	// Otherwise, we need a detector dwell set action and a control move position for each point in the region.
 	else {
 
-		int extendedPoints = round(( ((double)exafsRegion->regionEnd()) - ((double)exafsRegion->regionStart()) )/ ((double)exafsRegion->regionStep()) );
+		int extendedPoints = int(round(( ((double)exafsRegion->regionEnd()) - ((double)exafsRegion->regionStart()) )/ ((double)exafsRegion->regionStep()) ));
 		QVector<double> energyPositions = QVector<double>(extendedPoints);
 		AMEnergyToKSpaceCalculator kCalculator = AMEnergyToKSpaceCalculator(exafsRegion->edgeEnergy());
 		kCalculator.energyValues(exafsRegion->regionStart(), exafsRegion->regionStep(), exafsRegion->regionEnd(), energyPositions.data());

@@ -226,7 +226,7 @@ bool AMVariableIntegrationTime::variableTime(double *times) const
 
 	case Constant:{
 
-		int points = round((kf_-k0_)/kStep_);
+		int points = int(round((kf_-k0_)/kStep_));
 		double k = k0_;
 
 		for (int i = 0; i < points; i++){
@@ -240,7 +240,7 @@ bool AMVariableIntegrationTime::variableTime(double *times) const
 
 	case Linear:{
 
-		int points = round((kf_-k0_)/kStep_);
+		int points = int(round((kf_-k0_)/kStep_));
 		double k = k0_;
 
 		for (int i = 0; i < points; i++){
@@ -254,7 +254,7 @@ bool AMVariableIntegrationTime::variableTime(double *times) const
 
 	case Quadratic:{
 
-		int points = round((kf_-k0_)/kStep_);
+		int points = int(round((kf_-k0_)/kStep_));
 		double k = k0_;
 
 		for (int i = 0; i < points; i++){
@@ -268,7 +268,7 @@ bool AMVariableIntegrationTime::variableTime(double *times) const
 
 	case Geometric:{
 
-		int points = round((kf_-k0_)/kStep_);
+		int points = int(round((kf_-k0_)/kStep_));
 		double k = k0_;
 
 		for (int i = 0; i < points; i++){
@@ -283,7 +283,7 @@ bool AMVariableIntegrationTime::variableTime(double *times) const
 
 	case Exponential:{
 
-		int points = round((kf_-k0_)/kStep_);
+		int points = int(round((kf_-k0_)/kStep_));
 		double k = k0_;
 
 		for (int i = 0; i < points; i++){
@@ -297,7 +297,7 @@ bool AMVariableIntegrationTime::variableTime(double *times) const
 
 	case Logarithmic:{
 
-		int points = round((kf_-k0_)/kStep_);
+		int points = int(round((kf_-k0_)/kStep_));
 		double k = k0_;
 
 		for (int i = 0; i < points; i++){
@@ -311,7 +311,7 @@ bool AMVariableIntegrationTime::variableTime(double *times) const
 
 	case SmoothStep:{
 
-		int points = round((kf_-k0_)/kStep_);
+		int points = int(round((kf_-k0_)/kStep_));
 		double k = k0_;
 
 		for (int i = 0; i < points; i++){

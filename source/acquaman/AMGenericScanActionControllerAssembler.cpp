@@ -153,7 +153,7 @@ AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForStepAxis
 	regionList->addSubAction(detectorSetDwellList);
 
 	// generate axis loop for region
-	int loopIterations = round(( ((double)stepScanAxisRegion->regionEnd()) - ((double)stepScanAxisRegion->regionStart()) )/ ((double)stepScanAxisRegion->regionStep()) );
+	int loopIterations = int(round(( ((double)stepScanAxisRegion->regionEnd()) - ((double)stepScanAxisRegion->regionStart()) )/ ((double)stepScanAxisRegion->regionStep()) ));
 	AMLoopAction3 *axisLoop = new AMLoopAction3(new AMLoopActionInfo3(loopIterations, QString("Loop %1").arg(stepScanAxisRegion->name()), QString("Looping from %1 to %2 by %3 on %4").arg(stepScanAxisRegion->regionStart().toString()).arg(stepScanAxisRegion->regionEnd().toString()).arg(stepScanAxisRegion->regionStep().toString()).arg(stepScanAxisRegion->name())));
 	AMListAction3 *nextLevelHolderAction = new AMListAction3(new AMListActionInfo3("Holder Action for the Next Sublevel", "Holder Action for the Next Sublevel"));
 	axisLoop->addSubAction(nextLevelHolderAction);

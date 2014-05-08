@@ -240,7 +240,7 @@ bool AMStepScanActionController::event(QEvent *e)
 		case AMAgnosticDataAPIDefinitions::AxisFinished:{
 
 			if (scan_->scanRank() == 0)
-			    writeDataToFiles();
+				writeDataToFiles();
 
 			if (scan_->rawData()->scanAxesCount() == 1){
 
@@ -405,7 +405,7 @@ void AMStepScanActionController::prefillScanPoints()
 		QVector<double> starts;
 		QVector<double> steps;
 		QVector<double> ends;
-		QVector<double> counts;
+		QVector<int> axisSizes;
 
 		// This assumes only one region per axis for now.
 		foreach (AMScanAxis *axis, stepConfiguration_->scanAxes()){
@@ -414,16 +414,16 @@ void AMStepScanActionController::prefillScanPoints()
 			starts << region->regionStart();
 			steps << region->regionStep();
 			ends << region->regionEnd();
-			counts << (round((double(region->regionEnd())-double(region->regionStart()))/double(region->regionStep())) + 1);
+			axisSizes << (int(round((double(region->regionEnd())-double(region->regionStart()))/double(region->regionStep()))) + 1);
 		}
 
-		scan_->rawData()->beginInsertRows(counts.at(0), -1);
+		scan_->rawData()->beginInsertRows(axisSizes.at(0), -1);
 
 		if (scanRank == 2){
 
-			for (int j = 0; j < counts.at(1); j++){
+			for (int j = 0; j < axisSizes.at(1); j++){
 
-				for (int i = 0; i < counts.at(0); i++){
+				for (int i = 0; i < axisSizes.at(0); i++){
 
 					insertIndex = AMnDIndex(i, j);
 					scan_->rawData()->setAxisValue(0, insertIndex.i(), starts.at(0) + i*steps.at(0));
@@ -446,11 +446,11 @@ void AMStepScanActionController::prefillScanPoints()
 
 		else if (scan_->rawData()->scanRank() == 3){
 
-			for (int k = 0; k < counts.at(2); k++){
+			for (int k = 0; k < axisSizes.at(2); k++){
 
-				for (int j = 0; j < counts.at(1); j++){
+				for (int j = 0; j < axisSizes.at(1); j++){
 
-					for (int i = 0; i < counts.at(0); i++){
+					for (int i = 0; i < axisSizes.at(0); i++){
 
 						insertIndex = AMnDIndex(i, j, k);
 						scan_->rawData()->setAxisValue(0, insertIndex.i(), starts.at(0) + i*steps.at(0));
