@@ -29,6 +29,8 @@ IDEASXASScanActionController::IDEASXASScanActionController(IDEASXASScanConfigura
 	scan_->setIndexType("fileSystem");
 	scan_->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));
 
+	useFeedback_ = true;
+
 	QString scanName;
 
 	if(configuration_->userScanName() == ""){
@@ -53,9 +55,20 @@ IDEASXASScanActionController::IDEASXASScanActionController(IDEASXASScanConfigura
 	ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->dwellTime()->toInfo());
 	configuration_->setDetectorConfigurations(ideasDetectors);
 
-        double longestTime = 0;
-	for(int i=0, cc=configuration_->scanAxisAt(0)->regionCount(); i<cc; ++i)
-	    if(double(configuration_->scanAxisAt(0)->regionAt(i)->regionTime()) > longestTime) longestTime = double(configuration_->scanAxisAt(0)->regionAt(i)->regionTime());
+	secondsElapsed_ = 0;
+	secondsTotal_ = configuration_->totalTime();
+	elapsedTime_.setInterval(1000);
+	connect(this, SIGNAL(started()), &elapsedTime_, SLOT(start()));
+	connect(this, SIGNAL(cancelled()), &elapsedTime_, SLOT(stop()));
+	connect(this, SIGNAL(paused()), &elapsedTime_, SLOT(stop()));
+	connect(this, SIGNAL(resumed()), &elapsedTime_, SLOT(start()));
+	connect(this, SIGNAL(failed()), &elapsedTime_, SLOT(stop()));
+	connect(this, SIGNAL(finished()), &elapsedTime_, SLOT(stop()));
+	connect(&elapsedTime_, SIGNAL(timeout()), this, SLOT(onScanTimerUpdate()));
+
+	//        double longestTime = 0;
+//	for(int i=0, cc=configuration_->scanAxisAt(0)->regionCount(); i<cc; ++i)
+//	    if(double(configuration_->scanAxisAt(0)->regionAt(i)->regionTime()) > longestTime) longestTime = double(configuration_->scanAxisAt(0)->regionAt(i)->regionTime());
 
 //        pokeSyncDwell_ = new QTimer(this);
 
@@ -306,12 +319,12 @@ AMAction3* IDEASXASScanActionController::createCleanupActions(){
 //    moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
 //    cleanupActions->addSubAction(moveAction);
 
-    cleanupActions->addSubAction(IDEASBeamline::ideas()->scaler()->createDwellTimeAction3(1));
-    cleanupActions->addSubAction(IDEASBeamline::ideas()->scaler()->createContinuousEnableAction3(true));
+    cleanupActions->addSubAction(IDEASBeamline::ideas()->scaler()->createDwellTimeAction3(0.1));
+ //   cleanupActions->addSubAction(IDEASBeamline::ideas()->scaler()->createContinuousEnableAction3(true));
     cleanupActions->addSubAction(IDEASBeamline::ideas()->scaler()->createTotalScansAction3(0));
     cleanupActions->addSubAction(IDEASBeamline::ideas()->scaler()->createStartAction3(true));
 
-
+    qDebug() << "IDEASXASScanActionController::createCleanupActions() called";
 
     return cleanupActions;
 }
@@ -324,9 +337,25 @@ AMAction3* IDEASXASScanActionController::createCleanupActions(){
 
 void IDEASXASScanActionController::cancelImplementation(){
 
+
+    qDebug() << "IDEASXASScanActionController::cancelImplementation() called";
+
     AMAction3 *cleanupActions = createCleanupActions();
 
     cleanupActions->start();
 
     AMScanActionController::cancelImplementation();
+}
+
+void IDEASXASScanActionController::onScanTimerUpdate()
+{
+	if (elapsedTime_.isActive()){
+
+		if (secondsElapsed_ >= secondsTotal_)
+			secondsElapsed_ = secondsTotal_;
+		else
+			secondsElapsed_ += 1.0;
+
+		emit progress(secondsElapsed_, secondsTotal_);
+	}
 }

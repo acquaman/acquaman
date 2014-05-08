@@ -15,6 +15,10 @@ public:
 	IDEASXASScanActionController(IDEASXASScanConfiguration *cfg, QObject *parent = 0);
 	virtual ~IDEASXASScanActionController();
 
+protected slots:
+	/// Helper slot that handles the progress update.
+	void onScanTimerUpdate();
+
 protected:
 	/// Reimplemented to provide actions that will setupd the beamine for optimzed operation of the XAS scan.
 	AMAction3* createInitializationActions();
@@ -32,15 +36,16 @@ protected:
 	/// Reimplemented for EXAFS capabilities.  Creates the scan assembler that builds all the actions used to run the scan.
 	virtual void createScanAssembler();
 
-//        QTimer* pokeSyncDwell_;
-
-
-protected:
 	/// Specific scan configuration with all the SGM specific information inside.
 	IDEASXASScanConfiguration *configuration_;
 
-protected slots:
-//        void onSyncDwellStatusChanged(bool);
+	/// Timer used for determining the elapsed time for a scan.
+	QTimer elapsedTime_;
+	/// Number of seconds since the timer started.
+	double secondsElapsed_;
+	/// Number of seconds total for the scan to complete (estimate).
+	double secondsTotal_;
+
 };
 
 #endif // IDEASXASSCANACTIONCONTROLLER_H

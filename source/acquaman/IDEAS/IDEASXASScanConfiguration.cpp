@@ -22,11 +22,14 @@ IDEASXASScanConfiguration::IDEASXASScanConfiguration(QObject *parent) :
 	energy_ = 0.0;
 	useFixedTime_ = false;
 	numberOfScans_ = 1;
+	totalTime_ = 0;
+	timeOffset_ = 0.4;
 
 
 	AMScanAxisRegion *region = new AMScanAxisEXAFSRegion;
 	AMScanAxis *axis = new AMScanAxis(AMScanAxis::StepAxis, region);
 	appendScanAxis(axis);
+	computeTotalTime();
 }
 
 IDEASXASScanConfiguration::IDEASXASScanConfiguration(const IDEASXASScanConfiguration &original) :
@@ -40,6 +43,9 @@ IDEASXASScanConfiguration::IDEASXASScanConfiguration(const IDEASXASScanConfigura
 	isXRFScan_ = original.isXRFScan();
 	isTransScan_ = original.isTransScan();
 	useRef_ = original.useRef();
+	timeOffset_ = original.timeOffset();
+	totalTime_ = original.totalTime();
+
 
 
 	edge_ = original.edge();
@@ -88,13 +94,31 @@ QString IDEASXASScanConfiguration::headerText() const
 
 void IDEASXASScanConfiguration::computeTotalTimeImplementation()
 {
-	double time = 0;
+    double time = 0;
 
-	// Some region stuff.
+    // Some region stuff.
+    foreach (AMScanAxisRegion *region, scanAxisAt(0)->regions().toList()){
 
-	totalTime_ = time + 12; // There is a 9 second miscellaneous startup delay.
-	setExpectedDuration(totalTime_);
-	emit totalTimeChanged(totalTime_);
+	    AMScanAxisEXAFSRegion *exafsRegion = qobject_cast<AMScanAxisEXAFSRegion *>(region);
+	    int numberOfPoints = int((double(exafsRegion->regionEnd()) - double(exafsRegion->regionStart()))/double(exafsRegion->regionStep()) + 1);
+	    if (exafsRegion->inKSpace() && exafsRegion->maximumTime().isValid()){
+
+		    QVector<double> regionTimes = QVector<double>(numberOfPoints);
+		    AMVariableIntegrationTime calculator(exafsRegion->equation(), exafsRegion->regionTime(), exafsRegion->maximumTime(), exafsRegion->regionStart(), exafsRegion->regionStep(), exafsRegion->regionEnd(), exafsRegion->a2());
+		    calculator.variableTime(regionTimes.data());
+
+		    for (int i = 0; i < numberOfPoints; i++)
+			    time += regionTimes.at(i);
+	    }
+
+	    else
+		    time += double(exafsRegion->regionTime())*numberOfPoints;
+    }
+
+    totalTime_ = time + 27; // There is a 27 second miscellaneous startup delay.
+    setExpectedDuration(totalTime_);
+    emit totalTimeChanged(totalTime_);
+
 }
 
 void IDEASXASScanConfiguration::setEdge(QString edgeName)

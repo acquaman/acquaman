@@ -45,6 +45,18 @@ public:
 	/// A human-readable synopsis of this scan configuration. Can be re-implemented to proved more details. Used by scan action to set the main text in the action view.
 	virtual QString detailedDescription() const;
 
+	/// Returns the current total estimated time for a scan to complete.
+	double totalTime() const { return totalTime_; }
+	/// Overloaded.  Returns the current total estimated time but also specifies whether the time should be recomputed first.
+	double totalTime(bool recompute) { if (recompute) computeTotalTimeImplementation(); return totalTime_; }
+	/// Returns the time offset.
+	double timeOffset() const { return timeOffset_; }
+
+	/// Sets the time offset used for estimating the scan time.
+	void setTimeOffset(double offset) { timeOffset_ = offset; computeTotalTimeImplementation(); }
+
+
+
 	// Scan configuration properties
 	/////////////////////////
 
@@ -105,7 +117,6 @@ public slots:
 	void setUseFixedTime(bool fixed);
 	/// Sets the number of times this scan should be repeated.
 	void setNumberOfScans(int num);
-
 
 
 protected slots:
