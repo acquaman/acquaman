@@ -726,7 +726,8 @@ HEADERS += source/acquaman/AMRegion.h \
 	source/acquaman/AMTimedScanConfigurationConverter.h \
     source/actions3/actions/AMSampleMoveActionInfo.h \
     source/actions3/actions/AMSampleMoveAction.h \
-    source/actions3/editors/AMSampleMoveActionEditor.h
+    source/actions3/editors/AMSampleMoveActionEditor.h \
+    source/ui/dataman/AMScanSearchView.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1179,7 +1180,8 @@ SOURCES += source/acquaman/AMRegion.cpp \
 	source/acquaman/AMTimedScanConfigurationConverter.cpp \
     source/actions3/actions/AMSampleMoveActionInfo.cpp \
     source/actions3/actions/AMSampleMoveAction.cpp \
-    source/actions3/editors/AMSampleMoveActionEditor.cpp
+    source/actions3/editors/AMSampleMoveActionEditor.cpp \
+    source/ui/dataman/AMScanSearchView.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
