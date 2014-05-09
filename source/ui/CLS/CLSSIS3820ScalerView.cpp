@@ -24,6 +24,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 #include "ui/CLS/CLSSR570View.h"
 
+#include "ui/CLS/CLSSIS3820ScalerChannelViewWithDarkCurrent.h"
+
 // CLSSIS3820ScalerView
 ///////////////////////////////////////////////
 
@@ -118,26 +120,47 @@ CLSSIS3820ScalerView::CLSSIS3820ScalerView(CLSSIS3820Scaler *scaler, QWidget *pa
 	topLayout->addLayout(statusAndModeLayout);
 	topLayout->addLayout(spinBoxLayout);
 
+    // Dark current widget
+    CLSDarkCurrentWidget *darkCurrentWidget = new CLSDarkCurrentWidget(10, this);
+    bool showDarkCurrentWidget = false;
+    darkCurrentWidget->hide();
+
 	// Build the channel views.
 	channelLayout_ = new QVBoxLayout;
 
 	mainVL_ = new QVBoxLayout();
 	mainVL_->addLayout(topLayout);
 	mainVL_->addLayout(channelLayout_);
+    mainVL_->addWidget(darkCurrentWidget);
 
 	setLayout(mainVL_);
 
-	CLSSIS3820ScalerChannelView *channelView = 0;
+    //CLSSIS3820ScalerChannelView *channelView = 0;
+    CLSSIS3820ScalerChannelViewWithDarkCurrent *channelView = 0;
 	int channelCount = scaler_->channels().count();
+    
 	for (int i = 0; i < channelCount; i++){
+        CLSSIS3820ScalerChannel *channel = scaler_->channelAt(i);
 
-		channelView = new CLSSIS3820ScalerChannelView(scaler_->channelAt(i));
+        if (!showDarkCurrentWidget && channel->detector()->canDoDarkCurrentCorrection())
+            showDarkCurrentWidget = true;
+
+        //channelView = new CLSSIS3820ScalerChannelView(scaler_->channelAt(i));
+        channelView = new CLSSIS3820ScalerChannelViewWithDarkCurrent(channel);
+//        channelView->setDarkCurrentViewMode(CLSSIS3820ScalerChannelViewWithDarkCurrent::Show);
+
 		channelViews_ << channelView;
 		connect(channelView, SIGNAL(sr570ViewModeChanged(CLSSR570View::ViewMode)), this, SLOT(onSR570ViewChanged(CLSSR570View::ViewMode)));
 		connect(channelView, SIGNAL(outputViewModeChanged(CLSSIS3820ScalerChannelView::OutputViewMode)), this, SLOT(onOutputViewModeChanged(CLSSIS3820ScalerChannelView::OutputViewMode)));
-		channelLayout_->addWidget(channelView);
+
+        channelLayout_->addWidget(channelView);
 		channelView->setVisible(!scaler_->channelAt(i)->customChannelName().isEmpty());
 	}
+
+
+    // if one of the detectors associated with a channel can perform dark current correction, show the 'do dark current' widget.
+    if (showDarkCurrentWidget)
+        darkCurrentWidget->show();
 }
 
 void CLSSIS3820ScalerView::startScanning()
@@ -230,6 +253,7 @@ void CLSSIS3820ScalerView::onOutputViewModeChanged(CLSSIS3820ScalerChannelView::
 	}
 }
 
+
 // CLSSIS3820ScalerChannelView
 //////////////////////////////////////////////////////////////
 
@@ -251,11 +275,11 @@ CLSSIS3820ScalerChannelView::CLSSIS3820ScalerChannelView(CLSSIS3820ScalerChannel
 	channelName_ = new QLabel(channel_->customChannelName());
 
 	sr570View_ = 0;
-	connect(channel_, SIGNAL(sr570Attached()), this, SLOT(onNewSR570Attached()));
+    connect(channel_, SIGNAL(sr570Attached()), this, SLOT(onNewCurrentAmplifierAttached()));
 
-	if (channel_->sr570()){
+	if (channel_->currentAmplifier()){
 
-		sr570View_ = new CLSSR570View(channel_->sr570());
+        sr570View_ = new CLSSR570View(qobject_cast<CLSSR570*>(channel_->currentAmplifier()));
 		connect(sr570View_, SIGNAL(viewModeChanged(CLSSR570View::ViewMode)), this, SIGNAL(sr570ViewModeChanged(CLSSR570View::ViewMode)));
 	}
 
@@ -343,7 +367,7 @@ void CLSSIS3820ScalerChannelView::onScalerOutputClicked()
 
 void CLSSIS3820ScalerChannelView::setSR570ViewMode(CLSSR570View::ViewMode mode)
 {
-	if (channel_->sr570())
+	if (channel_->currentAmplifier())
 		sr570View_->setViewMode(mode);
 }
 
@@ -383,12 +407,12 @@ void CLSSIS3820ScalerChannelView::setStatusLabelVisibility(bool visible)
 	statusLabel_->setVisible(visible);
 }
 
-void CLSSIS3820ScalerChannelView::onNewSR570Attached()
+void CLSSIS3820ScalerChannelView::onNewCurrentAmplifierAttached()
 {
 	// If one already exists, lets get rid of it before doing anything else.
 	if (sr570View_)
 		delete channelLayout_->takeAt(channelLayout_->indexOf(sr570View_));
 
-	sr570View_ = new CLSSR570View(channel_->sr570());
+    sr570View_ = new CLSSR570View(qobject_cast<CLSSR570*>(channel_->currentAmplifier()));
 	channelLayout_->insertWidget(2, sr570View_, 0, Qt::AlignCenter);
 }

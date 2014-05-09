@@ -45,12 +45,15 @@ public:
 
 public slots:
 	void requestSetDwellTime(double dwellSeconds);
+    void requestSetDarkCurrentCorrectionTime(double timeSeconds);
 
 	void setSucceeded();
 	void setFailed();
 
 signals:
-	void setDwellTime(double dwellSeconds);
+    void setDwellTime(double dwellSeconds);
+    void setDarkCurrentCorrectionTime(double timeSeconds);
+    void darkCurrentTimeChanged(double timeSeconds);
 
 	void succeeded();
 	void failed();

@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/AMBeamline.h"
 #include "beamline/AMControlSet.h"
-#include "beamline/CLS/CLSSynchronizedDwellTime.h"
+//#include "beamline/CLS/CLSSynchronizedDwellTime.h"
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 #include "beamline/AMMotorGroup.h"
 #include "beamline/CLS/CLSPseudoMotorGroup.h"
@@ -66,8 +66,8 @@ public:
 		/// Creates an action that closes the shutters to act like a Beam Off.
 		AMAction3 *createBeamOffAction() const;
 
-	/// Returns the beamline's synchronized dwell time object if one is available. Returns 0 (NULL) otherwise.
-	virtual AMSynchronizedDwellTime* synchronizedDwellTime() const { return synchronizedDwellTime_; }
+//	/// Returns the beamline's synchronized dwell time object if one is available. Returns 0 (NULL) otherwise.
+//	virtual AMSynchronizedDwellTime* synchronizedDwellTime() const { return synchronizedDwellTime_; }
 
         /// Returns the monochromator control for the beamline.
         AMControl *monoEnergyControl() const { return monoEnergy_; }
@@ -88,12 +88,14 @@ public:
 	AMControl *ketekPreampGain() const { return ketekPreampGain_; }
 
 
-        AMPVControl *masterDwellControl() const { return masterDwell_; }
-        AMPVControl *ammeterGroupModeControl() const {return ammeterGroupMode_; }
+
+//        AMPVControl *masterDwellControl() const { return masterDwell_; }
+//        AMPVControl *ammeterGroupModeControl() const {return ammeterGroupMode_; }
 
 
 	/// Returns the KETEK detector pointer.
 	IDEASKETEKDetector *ketek() const { return ketek_; }
+	AMDetector *dwellTime() const {return ketekRealTime_; }
 
 	CLSBasicScalerChannelDetector *I_0() const {return I0IonChamberScaler_;}
 	CLSBasicScalerChannelDetector *Sample() const {return SampleIonChamberScaler_;}
@@ -121,8 +123,8 @@ protected slots:
 		void onShutterStatusChanged();
 
 protected:
-	/// Sets up the synchronized dwell time.
-	void setupSynchronizedDwellTime();
+//	/// Sets up the synchronized dwell time.
+//	void setupSynchronizedDwellTime();
 	/// Sets up the readings such as pressure, flow switches, temperature, etc.
 	void setupDiagnostics();
 	/// Sets up logical groupings of controls into sets.
@@ -159,29 +161,29 @@ protected:
 		IDEASMonochromatorControl *monoEnergy_;
 		IDEASDirectMonochromatorControl *monoDirectEnergy_;
 	/// Control for the master dwell time on the synchronized dwell time application
-	AMPVControl *masterDwell_;
+//	AMPVControl *masterDwell_;
         /// Control for the mode of the IDEAS Ammeter Group
         AMPVControl *ammeterGroupMode_;
 
-	/// The synchronized dwell time app for IDEAS
-	CLSSynchronizedDwellTime *synchronizedDwellTime_;
+//	/// The synchronized dwell time app for IDEAS
+//	CLSSynchronizedDwellTime *synchronizedDwellTime_;
 
-	AMReadOnlyPVControl *oldIonChamberAmmeter_;
-	AMReadOnlyPVControl *oxfordI0IonChamberAmmeter_;
-	AMReadOnlyPVControl *oxfordSampleIonChamberAmmeter_;
-	AMReadOnlyPVControl *oxfordReferenceIonChamberAmmeter_;
+//	AMReadOnlyPVControl *oldIonChamberAmmeter_;
+//	AMReadOnlyPVControl *oxfordI0IonChamberAmmeter_;
+//	AMReadOnlyPVControl *oxfordSampleIonChamberAmmeter_;
+//	AMReadOnlyPVControl *oxfordReferenceIonChamberAmmeter_;
 	AMReadOnlyPVControl *ketekRealTimeControl_;
 	AMControl *ketekPeakingTime_;
 	AMControl *ketekTriggerLevel_;
 	AMControl *ketekBaselineThreshold_;
 	AMControl *ketekPreampGain_;
 
-	AMDetector *oldIonChamberDetector_;
-	AMDetector *oxfordI0IonChamberDetector_;
-	AMDetector *oxfordSampleIonChamberDetector_;
-	AMDetector *oxfordReferenceIonChamberDetector_;
+//	AMDetector *oldIonChamberDetector_;
+//	AMDetector *oxfordI0IonChamberDetector_;
+//	AMDetector *oxfordSampleIonChamberDetector_;
+//	AMDetector *oxfordReferenceIonChamberDetector_;
 	AMDetector *ketekRealTime_;
-	AMDetector *masterDwellTime_;
+//	AMDetector *masterDwellTime_;
 
 	CLSBasicScalerChannelDetector *I0IonChamberScaler_;
 	CLSBasicScalerChannelDetector *SampleIonChamberScaler_;

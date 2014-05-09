@@ -2,8 +2,10 @@
 
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 #include "beamline/AMDetectorTriggerSource.h"
+#include "actions3/actions/AMDoDarkCurrentCorrectionAction.h"
+#include "actions3/AMListAction3.h"
 
- CLSBasicScalerChannelDetector::~CLSBasicScalerChannelDetector(){}
+
 CLSBasicScalerChannelDetector::CLSBasicScalerChannelDetector(const QString &name, const QString &description, CLSSIS3820Scaler *scaler, int channelIndex, QObject *parent) :
 	AMDetector(name, description, parent)
 {
@@ -12,7 +14,14 @@ CLSBasicScalerChannelDetector::CLSBasicScalerChannelDetector(const QString &name
 
 	connect(scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(onScalerConnected(bool)));
 	connect(scaler_, SIGNAL(scanningChanged(bool)), this, SLOT(onScalerScanningChanged(bool)));
+    connect(scaler_, SIGNAL(newDarkCurrentCorrectionValue()), this, SLOT(onScalerDarkCurrentValueChanged()) );
+    connect( scaler_, SIGNAL(newDarkCurrentMeasurementTime(double)), this, SLOT(onScalerDarkCurrentTimeChanged(double)) );
+    connect( scaler_, SIGNAL(sensitivityChanged()), this, SLOT(onScalerSensitivityChanged()) );
+
+    connect( this, SIGNAL(newDarkCurrentMeasurementValueReady(double)), scaler_, SIGNAL(newDarkCurrentMeasurementValue(double)) );
 }
+
+CLSBasicScalerChannelDetector::~CLSBasicScalerChannelDetector(){}
 
 int CLSBasicScalerChannelDetector::size(int axisNumber) const{
 	Q_UNUSED(axisNumber)
@@ -26,11 +35,18 @@ double CLSBasicScalerChannelDetector::acquisitionTime() const{
 	return -1;
 }
 
+double CLSBasicScalerChannelDetector::acquisitionTimeTolerance() const
+{
+	if (isConnected())
+		return scaler_->dwellTimeTolerance();
+
+	return -1;
+}
+
 QString CLSBasicScalerChannelDetector::synchronizedDwellKey() const{
 	return scaler_->synchronizedDwellKey();
 }
 
-#include "beamline/AMBeamline.h"
 AMDetectorTriggerSource* CLSBasicScalerChannelDetector::detectorTriggerSource(){
 	if(currentlySynchronizedDwell())
 		return AMBeamline::bl()->synchronizedDwellTime()->triggerSource();
@@ -68,16 +84,25 @@ bool CLSBasicScalerChannelDetector::lastContinuousReading(double *outputValues) 
 	return false;
 }
 
+AMAction3* CLSBasicScalerChannelDetector::createDarkCurrentCorrectionActions(double dwellTime){
+    if (dwellTime <= 0)
+        return 0;
+
+    AMListAction3* darkCurrentCorrectionActions = new AMListAction3(new AMListActionInfo3("BasicScalerChannelDetector Dark Current Correction", "BasicScalerChannelDetector Dark Current Correction"), AMListAction3::Sequential);
+    darkCurrentCorrectionActions->addSubAction(AMBeamline::bl()->createTurnOffBeamActions());
+    AMDoDarkCurrentCorrectionActionInfo *actionInfo = new AMDoDarkCurrentCorrectionActionInfo(scaler_, dwellTime);
+    AMDoDarkCurrentCorrectionAction *action = new AMDoDarkCurrentCorrectionAction(actionInfo);
+    darkCurrentCorrectionActions->addSubAction(action);
+    return darkCurrentCorrectionActions;
+}
+
 bool CLSBasicScalerChannelDetector::setAcquisitionTime(double seconds){
 	if(!isConnected())
 		return false;
 
-	if( !(fabs(scaler_->dwellTime()-seconds) < 0.001) ){
-		scaler_->setDwellTime(seconds);
-		return true;
-	}
-
-	return false;
+	scaler_->setDwellTime(seconds);
+	emit acquisitionTimeChanged(seconds);
+	return true;
 }
 
 bool CLSBasicScalerChannelDetector::setReadMode(AMDetectorDefinitions::ReadMode readMode){
@@ -114,6 +139,21 @@ bool CLSBasicScalerChannelDetector::triggerScalerAcquisition(bool isContinuous){
 	scaler_->setScanning(true);
 	return true;
 }
+
+
+void CLSBasicScalerChannelDetector::onScalerDarkCurrentTimeChanged(double dwellSeconds) {
+    setAsDarkCurrentMeasurementTime(dwellSeconds);
+}
+
+void CLSBasicScalerChannelDetector::onScalerDarkCurrentValueChanged() {
+    setAsDarkCurrentMeasurementValue();
+}
+
+void CLSBasicScalerChannelDetector::onScalerSensitivityChanged() {
+    qDebug() << "Scaler has reported sensitivity change.";
+    setRequiresNewDarkCurrentMeasurement(true);
+}
+
 
 bool CLSBasicScalerChannelDetector::initializeImplementation(){
 	//setInitializing();

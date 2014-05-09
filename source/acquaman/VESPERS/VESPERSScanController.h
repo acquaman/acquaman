@@ -44,20 +44,20 @@ protected:
 //	/// Helper method that adds the spectra PV's to the advAcq_ that is provided for the four element vortex detector.
 //	void addFourElementSpectraPVs(QEpicsAdvAcq *advAcq);
 
-	/// Helper method that adds the standard extra measurements and raw data sources.
-	void addStandardMeasurements(AMScan *scan, bool addEaAndDwellTime, bool addK);
-	/// Helper method that adds the measurements and raw data sources to the scan provided for the single element dead time information.
-	void addSingleElementDeadTimeMeasurements(AMScan *scan);
-	/// Helper method that adds the measurements and raw data sources to the scan using the provided ROI info list.  The add suffix is for when the name should be personalized with "-1el".
-	void addSingleElementRegionsOfInterestMeasurements(AMScan *scan, AMROIInfoList list, bool addSuffix);
-	/// Helper method that adds the measurements and raw data sources for the spectra.
-	void addSingleElementSpectraMeasurments(AMScan *scan, const AMMeasurementInfo &info);
-	/// Helper method that adds the measurements and raw data sources to the scan provided for the four element dead time information.
-	void addFourElementDeadTimeMeasurements(AMScan *scan);
-	/// Helper method that adds the measurements and raw data sources to the scan using the provided ROI info list.  The add suffix is for when the name should be personalized with "-1el".
-	void addFourElementRegionsOfInterestMeasurements(AMScan *scan, AMROIInfoList list, bool addSuffix);
-	/// Helper method that adds the measurements and raw data sources for the spectra.
-	void addFourElementSpectraMeasurments(AMScan *scan, const AMMeasurementInfo &info);
+//	/// Helper method that adds the standard extra measurements and raw data sources.
+//	void addStandardMeasurements(AMScan *scan, bool addEaAndDwellTime, bool addK);
+//	/// Helper method that adds the measurements and raw data sources to the scan provided for the single element dead time information.
+//	void addSingleElementDeadTimeMeasurements(AMScan *scan);
+//	/// Helper method that adds the measurements and raw data sources to the scan using the provided ROI info list.  The add suffix is for when the name should be personalized with "-1el".
+//	void addSingleElementRegionsOfInterestMeasurements(AMScan *scan, AMROIInfoList list, bool addSuffix);
+//	/// Helper method that adds the measurements and raw data sources for the spectra.
+//	void addSingleElementSpectraMeasurments(AMScan *scan, const AMMeasurementInfo &info);
+//	/// Helper method that adds the measurements and raw data sources to the scan provided for the four element dead time information.
+//	void addFourElementDeadTimeMeasurements(AMScan *scan);
+//	/// Helper method that adds the measurements and raw data sources to the scan using the provided ROI info list.  The add suffix is for when the name should be personalized with "-1el".
+//	void addFourElementRegionsOfInterestMeasurements(AMScan *scan, AMROIInfoList list, bool addSuffix);
+//	/// Helper method that adds the measurements and raw data sources for the spectra.
+//	void addFourElementSpectraMeasurments(AMScan *scan, const AMMeasurementInfo &info);
 
 	/// Helper method that checks the \param name provided for the CCD in \param path for uniqueness.  If it is unique it returns the provided string, otherwise it creates a unique "-xxx" to the end until a valid name is found.
 	QString getUniqueCCDName(const QString &path, const QString &name) const;

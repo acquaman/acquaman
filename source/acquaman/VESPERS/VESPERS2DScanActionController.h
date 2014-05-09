@@ -1,12 +1,12 @@
 #ifndef VESPERS2DSCANACTIONCONTROLLER_H
 #define VESPERS2DSCANACTIONCONTROLLER_H
 
-#include "acquaman/AM2DScanActionController.h"
+#include "acquaman/AMStepScanActionController.h"
 #include "acquaman/VESPERS/VESPERS2DScanConfiguration.h"
 #include "acquaman/VESPERS/VESPERSScanController.h"
 
 /// VESPERS specific 2D scan action controller.
-class VESPERS2DScanActionController : public AM2DScanActionController, public VESPERSScanController
+class VESPERS2DScanActionController : public AMStepScanActionController, public VESPERSScanController
 {
 	Q_OBJECT
 
@@ -28,6 +28,8 @@ protected:
 
 	/// Adds anything extra (eg: analysis blocks) to the scan before it's started.
 	virtual void buildScanControllerImplementation();
+	/// Creates the axis order for higher dimensional scans.  The default order is the axis order, but if a different order is desired, then you should reimplement this in subclasses.
+	virtual void createAxisOrderMap();
 
 	/// Specific scan configuration with all the VESPERS specific information inside.
 	VESPERS2DScanConfiguration *configuration_;

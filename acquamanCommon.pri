@@ -387,7 +387,6 @@ HEADERS += source/acquaman/AMRegion.h \
 	source/analysis/AM2DSummingABEditor.h \
 	source/util/AMOrderedList.h \
 	source/beamline/AMControlOptimization.h \
-	source/ui/beamline/AMControlOptimizationView.h \
 	source/dataman/REIXS/REIXSXESRawFileLoader.h \
 	source/util/AMDeferredFunctionCall.h \
 	source/ui/util/AMPeriodicTableView.h \
@@ -396,8 +395,6 @@ HEADERS += source/acquaman/AMRegion.h \
 	source/dataman/info/AMSpectralOutputDetectorInfo.h \
 	source/dataman/SGM/SGMMCPDetectorInfo.h \
 	source/dataman/info/CLSPGTDetectorInfo.h \
-	source/dataman/info/AMROIInfo.h \
-	source/beamline/AMROI.h \
 	source/dataman/database/AMQueryTableModel.h \
 	source/dataman/export/AMExportController.h \
 	source/dataman/export/AMExporter.h \
@@ -716,6 +713,19 @@ HEADERS += source/acquaman/AMRegion.h \
 	source/ui/dataman/AMControlInfoListView.h \
 	source/ui/dataman/AMOldDetectorInfoSetView.h \
 	source/ui/beamline/AMDetectorSelectorRequiredView.h \
+	source/actions3/actions/AMDetectorSetAsDarkCurrentCorrectionActionInfo.h \
+	source/actions3/actions/AMDetectorSetAsDarkCurrentCorrectionAction.h \
+	source/actions3/actions/AMControlWaitActionInfo.h \
+	source/actions3/actions/AMControlWaitAction.h \
+	source/analysis/AM1DDarkCurrentCorrectionAB.h \
+	source/actions3/actions/AMDoingDarkCurrentCorrectionActionInfo.h \
+	source/actions3/actions/AMDoingDarkCurrentCorrectionAction.h \
+	source/actions3/actions/AMDoDarkCurrentCorrectionAction.h \
+	source/actions3/actions/AMDoDarkCurrentCorrectionActionInfo.h \
+	source/ui/CLS/CLSSIS3820ScalerChannelViewWithDarkCurrent.h \
+	source/analysis/AM1DDarkCurrentCorrectionABEditor.h \
+	source/ui/CLS/CLSDarkCurrentWidget.h \
+	source/beamline/AMCurrentAmplifier.h \
 	source/beamline/AMAdvancedControlDetectorEmulator.h \
 	source/dataman/AMDbUpgrade1Pt3.h \
 	source/acquaman/AM2DScanConfigurationConverter.h \
@@ -724,9 +734,21 @@ HEADERS += source/acquaman/AMRegion.h \
 	source/acquaman/AMTimedScanActionController.h \
 	source/acquaman/AMTimedRegionScanConfiguration.h \
 	source/acquaman/AMTimedScanConfigurationConverter.h \
-    source/actions3/actions/AMSampleMoveActionInfo.h \
-    source/actions3/actions/AMSampleMoveAction.h \
-    source/actions3/editors/AMSampleMoveActionEditor.h
+	source/actions3/actions/AMSampleMoveActionInfo.h \
+	source/actions3/actions/AMSampleMoveAction.h \
+	source/actions3/editors/AMSampleMoveActionEditor.h \
+	source/util/AMVariableIntegrationTime.h \
+	source/acquaman/AMStepScanConfiguration.h \
+	source/acquaman/AMGenericScanActionControllerAssembler.h \
+	source/acquaman/AMStepScanActionController.h \
+	source/dataman/AMScanAxisEXAFSRegion.h \
+	source/acquaman/AMEXAFSScanActionControllerAssembler.h \
+	source/util/AMEnergyToKSpaceCalculator.h \
+	source/actions3/actions/AMAxisValueFinishedAction.h \
+	source/actions3/actions/AMAxisValueFinishedActionInfo.h \
+	source/ui/dataman/AMStepScanAxisView.h \
+	source/ui/dataman/AMEXAFSScanAxisView.h \
+	source/beamline/CLS/CLSPseudoMotorControl.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -854,7 +876,6 @@ SOURCES += source/acquaman/AMRegion.cpp \
 	source/analysis/AMStandardAnalysisBlock.cpp \
 	source/analysis/AM2DSummingABEditor.cpp \
 	source/beamline/AMControlOptimization.cpp \
-	source/ui/beamline/AMControlOptimizationView.cpp \
 	source/dataman/REIXS/REIXSXESRawFileLoader.cpp \
 	source/util/AMDeferredFunctionCall.cpp \
 	source/ui/util/AMPeriodicTableView.cpp \
@@ -863,8 +884,6 @@ SOURCES += source/acquaman/AMRegion.cpp \
 	source/dataman/info/AMSpectralOutputDetectorInfo.cpp \
 	source/dataman/SGM/SGMMCPDetectorInfo.cpp \
 	source/dataman/info/CLSPGTDetectorInfo.cpp \
-	source/dataman/info/AMROIInfo.cpp \
-	source/beamline/AMROI.cpp \
 	source/dataman/database/AMQueryTableModel.cpp \
 	source/dataman/export/AMExportController.cpp \
 	source/dataman/export/AMExporterOption.cpp \
@@ -1169,6 +1188,19 @@ SOURCES += source/acquaman/AMRegion.cpp \
 	source/ui/dataman/AMControlInfoListView.cpp \
 	source/ui/dataman/AMOldDetectorInfoSetView.cpp \
 	source/ui/beamline/AMDetectorSelectorRequiredView.cpp \
+	source/actions3/actions/AMDetectorSetAsDarkCurrentCorrectionActionInfo.cpp \
+	source/actions3/actions/AMDetectorSetAsDarkCurrentCorrectionAction.cpp \
+	source/actions3/actions/AMControlWaitActionInfo.cpp \
+	source/actions3/actions/AMControlWaitAction.cpp \
+	source/analysis/AM1DDarkCurrentCorrectionAB.cpp \
+	source/actions3/actions/AMDoingDarkCurrentCorrectionActionInfo.cpp \
+	source/actions3/actions/AMDoingDarkCurrentCorrectionAction.cpp \
+	source/actions3/actions/AMDoDarkCurrentCorrectionAction.cpp \
+	source/actions3/actions/AMDoDarkCurrentCorrectionActionInfo.cpp \
+	source/ui/CLS/CLSSIS3820ScalerChannelViewWithDarkCurrent.cpp \
+	source/analysis/AM1DDarkCurrentCorrectionABEditor.cpp \
+	source/ui/CLS/CLSDarkCurrentWidget.cpp \
+	source/beamline/AMCurrentAmplifier.cpp \
 	source/beamline/AMAdvancedControlDetectorEmulator.cpp \
 	source/dataman/AMDbUpgrade1Pt3.cpp \
 	source/acquaman/AM2DScanConfigurationConverter.cpp \
@@ -1177,9 +1209,21 @@ SOURCES += source/acquaman/AMRegion.cpp \
 	source/acquaman/AMTimedScanActionController.cpp \
 	source/acquaman/AMTimedRegionScanConfiguration.cpp \
 	source/acquaman/AMTimedScanConfigurationConverter.cpp \
-    source/actions3/actions/AMSampleMoveActionInfo.cpp \
-    source/actions3/actions/AMSampleMoveAction.cpp \
-    source/actions3/editors/AMSampleMoveActionEditor.cpp
+	source/actions3/actions/AMSampleMoveActionInfo.cpp \
+	source/actions3/actions/AMSampleMoveAction.cpp \
+	source/actions3/editors/AMSampleMoveActionEditor.cpp \
+	source/util/AMVariableIntegrationTime.cpp \
+	source/acquaman/AMStepScanConfiguration.cpp \
+	source/acquaman/AMGenericScanActionControllerAssembler.cpp \
+	source/acquaman/AMStepScanActionController.cpp \
+	source/dataman/AMScanAxisEXAFSRegion.cpp \
+	source/acquaman/AMEXAFSScanActionControllerAssembler.cpp \
+	source/util/AMEnergyToKSpaceCalculator.cpp \
+	source/actions3/actions/AMAxisValueFinishedAction.cpp \
+	source/actions3/actions/AMAxisValueFinishedActionInfo.cpp \
+	source/ui/dataman/AMStepScanAxisView.cpp \
+	source/ui/dataman/AMEXAFSScanAxisView.cpp \
+	source/beamline/CLS/CLSPseudoMotorControl.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1203,9 +1247,3 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
-
-
-
-
-
-

@@ -290,6 +290,13 @@ void AMScan::setSample(const AMSample *sample){
 	setModified(true);
 }
 
+void AMScan::setScanInitialConditions(const AMControlInfoList &scanInitialConditions){
+    	scanInitialConditions_.clear();
+	scanInitialConditions_.setValuesFrom(scanInitialConditions);
+
+	emit scanInitialConditionsChanged();
+}
+
 QString AMScan::unEvaluatedName() const{
 	return unEvaluatedName_;
 }

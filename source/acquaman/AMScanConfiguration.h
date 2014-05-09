@@ -70,7 +70,8 @@ class AMScanConfiguration : public AMDbObject
 public:
 	/// Default Constructor
 	explicit AMScanConfiguration(QObject *parent = 0);
-
+	/// Copy constructor.
+	AMScanConfiguration(const AMScanConfiguration &original);
 	/// Empty Destructor
 	virtual ~AMScanConfiguration() {}
 

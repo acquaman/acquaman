@@ -161,11 +161,6 @@ void AMLoopAction3::internalDoNextAction()
 		// done this loop.
 		emit currentIterationChanged(++currentIteration_);
 
-		if(generateScanActionMessages_){
-			AMAgnosticDataAPILoopIncrementMessage loopIncrementedMessage(info()->shortDescription(), currentIteration_);
-			AMAgnosticDataAPISupport::handlerFromLookupKey("ScanActions")->postMessage(loopIncrementedMessage);
-		}
-
 		// Are we stopping now that we are at the end of this iteration?
 		if (skipAfterCurrentIteration_)
 			setSkipped();

@@ -127,8 +127,8 @@ public slots:
 	void exportGraphicsToFile();
 	/// Call this to print the currently-visible plot.
 	void printGraphics();
-
-
+	/// Call this to update the Scan Conditions Table
+	void refreshScanConditions();
 
 protected slots:
 	///  This catches changes in the scan that is currently selected, and hooks it up to the editor widgets. \todo Ultimately, we might handle more than one scan being "selected" at once.
@@ -181,6 +181,7 @@ protected:
 	AMScanSetModel* scanSetModel_;
 	/// This is the currently-selected scan, or 0 non-existent
 	AMScan* currentScan_;
+
 
 	// UI Components
 

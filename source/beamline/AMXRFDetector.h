@@ -37,13 +37,16 @@ class AMXRFDetector : public AMDetector
 
 public:
 	/// Constructor.
- 	virtual ~AMXRFDetector();
 	AMXRFDetector(const QString &name, const QString &description, QObject *parent = 0);
+	/// Destructor.
+	virtual ~AMXRFDetector();
 
 	/// Returns the number of elements in the detector.
 	int elements() const { return rawSpectraSources_.size(); }
 	/// Returns the current acquisition dwell time from the integration time control
 	virtual double acquisitionTime() const;
+	/// Returns the acquisition time tolerance.  Used for automatic setting that should be re-implemented if you have specific requirements.
+	virtual double acquisitionTimeTolerance() const;
 	/// Returns the elapsed time from the elapsed time control.
 	virtual double elapsedTime() const;
 	/// Returns the dependent value at a (complete) set of axis indexes. Returns an invalid AMNumber if the indexes are insuffient or (if AM_ENABLE_BOUNDS_CHECKING is defined, any are out of range), or if the data is not ready.

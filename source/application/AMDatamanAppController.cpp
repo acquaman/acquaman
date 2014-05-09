@@ -57,6 +57,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMSettings.h"
 #include "dataman/AMScan.h"
 #include "acquaman/AMScanConfiguration.h"
+#include "acquaman/AMStepScanConfiguration.h"
 
 // Necessary for registering database types:
 ////////////////////////////
@@ -72,7 +73,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <dataman/info/AMSpectralOutputDetectorInfo.h>
 #include "dataman/AMUser.h"
 #include "dataman/AMXESScan.h"
-#include "dataman/info/AMROIInfo.h"
 #include "analysis/AM1DExpressionAB.h"
 #include "analysis/AM2DSummingAB.h"
 #include "analysis/AM1DDerivativeAB.h"
@@ -95,6 +95,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "analysis/AM3DDeadTimeCorrectionAB.h"
 #include "dataman/AMRegionOfInterest.h"
 #include "analysis/AMRegionOfInterestAB.h"
+
+#include "dataman/AMScanAxis.h"
+#include "dataman/AMScanAxisRegion.h"
+#include "dataman/AMScanAxisEXAFSRegion.h"
 
 #include "dataman/AMDbUpgrade1Pt1.h"
 #include "dataman/AMDbUpgrade1Pt2.h"
@@ -565,6 +569,8 @@ bool AMDatamanAppController::startupRegisterDatabases()
 	success &= AMDbObjectSupport::s()->registerClass<AM2DScan>();
 	success &= AMDbObjectSupport::s()->registerClass<AM3DScan>();
 
+	success &= AMDbObjectSupport::s()->registerClass<AMStepScanConfiguration>();
+
 	success &= AMDbObjectSupport::s()->registerClass<AMRun>();
 	success &= AMDbObjectSupport::s()->registerClass<AMExperiment>();
 	success &= AMDbObjectSupport::s()->registerClass<AMSamplePre2013>();
@@ -590,6 +596,10 @@ bool AMDatamanAppController::startupRegisterDatabases()
 	success &= AMDbObjectSupport::s()->registerClass<AM2DDeadTimeCorrectionAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AM3DDeadTimeCorrectionAB>();
 
+	success &= AMDbObjectSupport::s()->registerClass<AMScanAxis>();
+	success &= AMDbObjectSupport::s()->registerClass<AMScanAxisRegion>();
+	success &= AMDbObjectSupport::s()->registerClass<AMScanAxisEXAFSRegion>();
+
 	success &= AMDbObjectSupport::s()->registerClass<AMOldDetectorInfo>();
 	success &= AMDbObjectSupport::s()->registerClass<AMSpectralOutputDetectorInfo>();
 	success &= AMDbObjectSupport::s()->registerClass<AMDetectorInfo>();
@@ -600,8 +610,6 @@ bool AMDatamanAppController::startupRegisterDatabases()
 	success &= AMDbObjectSupport::s()->registerClass<AMDetectorInfoSet>();
 	success &= AMDbObjectSupport::s()->registerClass<AMSamplePositionPre2013>();
 	success &= AMDbObjectSupport::s()->registerClass<AMSamplePlatePre2013>();
-	success &= AMDbObjectSupport::s()->registerClass<AMROIInfo>();
-	success &= AMDbObjectSupport::s()->registerClass<AMROIInfoList>();
 	success &= AMDbObjectSupport::s()->registerClass<AMRegionOfInterest>();
 	success &= AMDbObjectSupport::s()->registerClass<AMRegionOfInterestAB>();
 
@@ -646,7 +654,12 @@ bool AMDatamanAppController::startupPopulateNewDatabase()
 	reixs.storeToDb(db);
 	AMFacility ideas("IDEAS", "CLS IDEAS Beamline", ":/clsIcon.png");
 	ideas.storeToDb(db);
-
+	AMFacility bioXASSide("BioXASSide", "CLS BioXAS Beamline - Side endstation", ":/clsIcon.png");
+	bioXASSide.storeToDb(db);
+	AMFacility bioXASMain("BioXASMain", "CLS BioXAS Beamline - Main endstation", ":/clsIcon.png");
+	bioXASMain.storeToDb(db);
+	AMFacility bioXASImaging("BioXASImaging", "CLS BioXAS Beamline - Imaging endstation", ":/clsIcon.png");
+	bioXASImaging.storeToDb(db);
 
 	return true;
 }

@@ -4,7 +4,6 @@
 #include "analysis/AM1DSummingAB.h"
 #include "analysis/AMnDDeadTimeAB.h"
 
-AMXRFDetector::~AMXRFDetector(){}
 
 AMXRFDetector::AMXRFDetector(const QString &name, const QString &description, QObject *parent)
 	: AMDetector(name, description, parent)
@@ -24,6 +23,8 @@ AMXRFDetector::AMXRFDetector(const QString &name, const QString &description, QO
 	connect(allControls_, SIGNAL(connected(bool)), this, SLOT(onControlsConnected(bool)));
 	connect(allControls_, SIGNAL(controlSetTimedOut()), this, SLOT(onControlsTimedOut()));
 }
+
+AMXRFDetector::~AMXRFDetector(){}
 
 void AMXRFDetector::allControlsCreated()
 {
@@ -141,6 +142,14 @@ double AMXRFDetector::acquisitionTime() const
 {
 	if (isConnected())
 		return acquireTimeControl_->value();
+
+	return -1;
+}
+
+double AMXRFDetector::acquisitionTimeTolerance() const
+{
+	if (isConnected())
+		return acquireTimeControl_->tolerance();
 
 	return -1;
 }

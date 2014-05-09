@@ -72,10 +72,10 @@ IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
     IReferenceBar_->setTextVisible(false);
     IReferenceBar_->setRange(100,145);
 
-    connect(IDEASBeamline::bl()->exposedDetectorByName("I_vac_6485"), SIGNAL(newValuesAvailable()), this, SLOT(onOldCountsChanged()));
-    connect(IDEASBeamline::bl()->exposedDetectorByName("I_0"), SIGNAL(newValuesAvailable()), this, SLOT(onI0CountsChanged()));
-    connect(IDEASBeamline::bl()->exposedDetectorByName("I_sample"), SIGNAL(newValuesAvailable()), this, SLOT(onSampleCountsChanged()));
-    connect(IDEASBeamline::bl()->exposedDetectorByName("I_ref"), SIGNAL(newValuesAvailable()), this, SLOT(onReferenceCountsChanged()));
+//    connect(IDEASBeamline::bl()->exposedDetectorByName("I_vac_6485"), SIGNAL(newValuesAvailable()), this, SLOT(onOldCountsChanged()));
+//    connect(IDEASBeamline::bl()->exposedDetectorByName("I_0"), SIGNAL(newValuesAvailable()), this, SLOT(onI0CountsChanged()));
+//    connect(IDEASBeamline::bl()->exposedDetectorByName("I_sample"), SIGNAL(newValuesAvailable()), this, SLOT(onSampleCountsChanged()));
+//    connect(IDEASBeamline::bl()->exposedDetectorByName("I_ref"), SIGNAL(newValuesAvailable()), this, SLOT(onReferenceCountsChanged()));
     connect(IDEASBeamline::bl()->exposedControlByName("ringCurrent"), SIGNAL(valueChanged(double)), this, SLOT(onRingCurrentChanged(double)));
 
     connect(IDEASBeamline::ideas()->monoLowEV(),   SIGNAL(valueChanged(double)), this, SLOT(onCrystalChanged()));
@@ -129,7 +129,7 @@ IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
     QGroupBox *persistentPanel = new QGroupBox("IDEAS Beamline");
     persistentPanel->setLayout(mainPanelLayout);
 
-    QGroupBox *scalerPanel = new QGroupBox("Scaler Settings");
+    QGroupBox *scalerPanel = new QGroupBox("Preamp Settings");
     scalerPanel->setLayout(scalerPanelLayout);
 
     QGroupBox *detectorPanel = new QGroupBox("Ion Chamber Currents");
@@ -138,11 +138,12 @@ IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
     QVBoxLayout *layout = new QVBoxLayout;
     layout->addWidget(persistentPanel);
     layout->addWidget(scalerPanel);
-    layout->addWidget(detectorPanel);
+    //layout->addWidget(detectorPanel);
 
     setLayout(layout);
 
-    setMaximumWidth(250);
+    setMaximumWidth(400);
+    setMinimumWidth(400);
 }
 
 void IDEASPersistentView::onBeamOnClicked()
@@ -168,7 +169,7 @@ void IDEASPersistentView::onShutterStatusChanged(bool state)
 void IDEASPersistentView::onOldCountsChanged()
 {
     double value = 0;
-    IDEASBeamline::bl()->exposedDetectorByName("I_vac_6485")->data(&value);
+//    IDEASBeamline::bl()->exposedDetectorByName("I_vac_6485")->data(&value);
     IOldBar_->setValue(int(200 + 10*log10(qAbs(value))));
     //IOldBar_->setValue(value/1000000);
     //qdebug() << "I_Old_bar" << int(200 + 10*log10(qAbs(value)));

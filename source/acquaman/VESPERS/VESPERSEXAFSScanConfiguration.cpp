@@ -18,24 +18,17 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "VESPERSEXAFSScanConfiguration.h"
-#include "acquaman/VESPERS/VESPERSEXAFSDacqScanController.h"
 #include "ui/VESPERS/VESPERSEXAFSScanConfigurationView.h"
 #include "beamline/VESPERS/VESPERSBeamline.h"
 #include "acquaman/VESPERS/VESPERSXASScanActionController.h"
+#include "dataman/AMScanAxisEXAFSRegion.h"
+#include "util/AMEnergyToKSpaceCalculator.h"
 
 VESPERSEXAFSScanConfiguration::~VESPERSEXAFSScanConfiguration(){}
 
 VESPERSEXAFSScanConfiguration::VESPERSEXAFSScanConfiguration(QObject *parent)
-	: AMEXAFSScanConfiguration(parent), VESPERSScanConfiguration()
+	: AMStepScanConfiguration(parent), VESPERSScanConfiguration()
 {
-	regions_->setSensibleRange(-30, 40);
-	exafsRegions()->setDefaultEdgeEnergy(0); // Everything for XAS related scans on VESPERS is done using relative energy to the edge on a PV level.
-	exafsRegions()->setEnergyControl(VESPERSBeamline::vespers()->energyRelative());
-	exafsRegions()->setTimeControl(VESPERSBeamline::vespers()->masterDwellTime());
-	exafsRegions()->setKControl(VESPERSBeamline::vespers()->kControl());
-	exafsRegions()->setDefaultIsRelative(true);
-	regions_->setDefaultUnits(" eV");
-	regions_->setDefaultTimeUnits(" s");
 	setName("XAS Scan");
 	setUserScanName("XAS Scan");
 	dbObject_->setParent(this);
@@ -52,34 +45,24 @@ VESPERSEXAFSScanConfiguration::VESPERSEXAFSScanConfiguration(QObject *parent)
 	position_ = QPointF(0.0, 0.0);
 	setExportSpectraSources(true);
 	setExportSpectraInRows(true);
-	connect(regions_, SIGNAL(regionsChanged()), this, SLOT(computeTotalTime()));
-	connect(regions_, SIGNAL(regionsChanged()), this, SLOT(onEXAFSRegionsChanged()));
-	connect(VESPERSBeamline::vespers()->variableIntegrationTime(), SIGNAL(a0Changed(double)), this, SLOT(computeTotalTime()));
-	connect(VESPERSBeamline::vespers()->variableIntegrationTime(), SIGNAL(a1Changed(double)), this, SLOT(computeTotalTime()));
-	connect(VESPERSBeamline::vespers()->variableIntegrationTime(), SIGNAL(a2Changed(double)), this, SLOT(computeTotalTime()));
+
+	AMScanAxisEXAFSRegion *region = new AMScanAxisEXAFSRegion;
+	AMScanAxis *axis = new AMScanAxis(AMScanAxis::StepAxis, region);
+	appendScanAxis(axis);
+
+	connect(axis, SIGNAL(regionAdded(AMScanAxisRegion*)), this, SLOT(onRegionAdded(AMScanAxisRegion*)));
+	connect(axis, SIGNAL(regionRemoved(AMScanAxisRegion*)), this, SLOT(onRegionRemoved(AMScanAxisRegion*)));
+	connect(region, SIGNAL(regionStartChanged(AMNumber)), this, SLOT(computeTotalTime()));
+	connect(region, SIGNAL(regionStepChanged(AMNumber)), this, SLOT(computeTotalTime()));
+	connect(region, SIGNAL(regionEndChanged(AMNumber)), this, SLOT(computeTotalTime()));
+	connect(region, SIGNAL(regionTimeChanged(AMNumber)), this, SLOT(computeTotalTime()));
+	connect(region, SIGNAL(maximumTimeChanged(AMNumber)), this, SLOT(computeTotalTime()));
+	connect(region, SIGNAL(equationChanged(AMVariableIntegrationTime::Equation)), this, SLOT(computeTotalTime()));
 }
 
 VESPERSEXAFSScanConfiguration::VESPERSEXAFSScanConfiguration(const VESPERSEXAFSScanConfiguration &original)
-	: AMEXAFSScanConfiguration(original), VESPERSScanConfiguration(original)
+	: AMStepScanConfiguration(original), VESPERSScanConfiguration(original)
 {
-	regions_->setSensibleStart(original.regions()->sensibleStart());
-	regions_->setSensibleEnd(original.regions()->sensibleEnd());
-	exafsRegions()->setDefaultEdgeEnergy(original.exafsRegions()->defaultEdgeEnergy());
-	exafsRegions()->setEnergyControl(VESPERSBeamline::vespers()->energyRelative());
-	exafsRegions()->setTimeControl(VESPERSBeamline::vespers()->masterDwellTime());
-	exafsRegions()->setKControl(VESPERSBeamline::vespers()->kControl());
-	regions_->setDefaultUnits(original.regions()->defaultUnits());
-	regions_->setDefaultTimeUnits(original.regions()->defaultTimeUnits());
-	exafsRegions()->setDefaultIsRelative(original.exafsRegions()->defaultIsRelative());
-
-	for (int i = 0; i < original.regionCount(); i++){
-
-		// Because I store the values in energy space, I need to ask for them explicitly with no converstion.  Otherwise, the k-space values will be converted twice.
-		regions_->addRegion(i, original.regionStartByType(i, AMEXAFSRegion::Energy), original.regionDelta(i), original.regionEndByType(i, AMEXAFSRegion::Energy), original.regionTime(i));
-		exafsRegions()->setType(i, original.regionType(i));
-		exafsRegions()->setEdgeEnergy(i, original.regionEdgeEnergy(i));
-	}
-
 	setName(original.name());
 	setUserScanName(original.userScanName());
 	dbObject_->setParent(this);
@@ -93,11 +76,20 @@ VESPERSEXAFSScanConfiguration::VESPERSEXAFSScanConfiguration(const VESPERSEXAFSS
 	setExportSpectraSources(original.exportSpectraSources());
 	setExportSpectraInRows(original.exportSpectraInRows());
 	computeTotalTime();
-	connect(regions_, SIGNAL(regionsChanged()), this, SLOT(computeTotalTime()));
-	connect(regions_, SIGNAL(regionsChanged()), this, SLOT(onEXAFSRegionsChanged()));
-	connect(VESPERSBeamline::vespers()->variableIntegrationTime(), SIGNAL(a0Changed(double)), this, SLOT(computeTotalTime()));
-	connect(VESPERSBeamline::vespers()->variableIntegrationTime(), SIGNAL(a1Changed(double)), this, SLOT(computeTotalTime()));
-	connect(VESPERSBeamline::vespers()->variableIntegrationTime(), SIGNAL(a2Changed(double)), this, SLOT(computeTotalTime()));
+
+	connect(scanAxisAt(0), SIGNAL(regionAdded(AMScanAxisRegion*)), this, SLOT(onRegionAdded(AMScanAxisRegion*)));
+	connect(scanAxisAt(0), SIGNAL(regionRemoved(AMScanAxisRegion*)), this, SLOT(onRegionRemoved(AMScanAxisRegion*)));
+
+	foreach (AMScanAxisRegion *region, scanAxisAt(0)->regions().toList()){
+
+		AMScanAxisEXAFSRegion *exafsRegion = qobject_cast<AMScanAxisEXAFSRegion *>(region);
+		connect(exafsRegion, SIGNAL(regionStartChanged(AMNumber)), this, SLOT(computeTotalTime()));
+		connect(exafsRegion, SIGNAL(regionStepChanged(AMNumber)), this, SLOT(computeTotalTime()));
+		connect(exafsRegion, SIGNAL(regionEndChanged(AMNumber)), this, SLOT(computeTotalTime()));
+		connect(exafsRegion, SIGNAL(regionTimeChanged(AMNumber)), this, SLOT(computeTotalTime()));
+		connect(exafsRegion, SIGNAL(maximumTimeChanged(AMNumber)), this, SLOT(computeTotalTime()));
+		connect(exafsRegion, SIGNAL(equationChanged(AMVariableIntegrationTime::Equation)), this, SLOT(computeTotalTime()));
+	}
 }
 
 AMScanConfiguration *VESPERSEXAFSScanConfiguration::createCopy() const
@@ -120,7 +112,7 @@ AMScanConfigurationView *VESPERSEXAFSScanConfiguration::createView()
 
 QString VESPERSEXAFSScanConfiguration::detailedDescription() const
 {
-	return exafsRegions()->hasKSpace() ? QString("VESPERS EXAFS Scan") : QString("VESPERS XANES Scan");
+	return QString("VESPERS XAS Scan");
 }
 
 QString VESPERSEXAFSScanConfiguration::headerText() const
@@ -146,94 +138,62 @@ QString VESPERSEXAFSScanConfiguration::headerText() const
 		header.append(QString("Focus position:\t%1 mm\n").arg(normalPosition()));
 	}
 
-	header.append(regionOfInterestHeaderString(roiList()));
+//	header.append(regionOfInterestHeaderString(roiList()));
 	header.append("\n");
 	header.append("Regions Scanned\n");
 
-	for (int i = 0; i < regionCount(); i++){
+	foreach (AMScanAxisRegion *region, scanAxisAt(0)->regions().toList()){
 
-		if (exafsRegions()->type(i) == AMEXAFSRegion::kSpace && useFixedTime())
+		AMScanAxisEXAFSRegion *exafsRegion = qobject_cast<AMScanAxisEXAFSRegion *>(region);
+
+		if (exafsRegion->inKSpace() && (exafsRegion->maximumTime().isValid() || exafsRegion->maximumTime() == exafsRegion->regionTime()))
 			header.append(QString("Start: %1 eV\tDelta: %2 k\tEnd: %3 k\tTime: %4 s\n")
-						  .arg(exafsRegions()->startByType(i, AMEXAFSRegion::Energy))
-						  .arg(exafsRegions()->delta(i))
-						  .arg(exafsRegions()->endByType(i, AMEXAFSRegion::kSpace))
-						  .arg(regions_->time(i)));
+						  .arg(double(AMEnergyToKSpaceCalculator::energy(energy_, exafsRegion->regionStart())))
+						  .arg(double(exafsRegion->regionStep()))
+						  .arg(double(exafsRegion->regionEnd()))
+						  .arg(double(exafsRegion->regionTime())));
 
-		else if (exafsRegions()->type(i) == AMEXAFSRegion::kSpace && !useFixedTime())
-			header.append(QString("Start: %1 eV\tDelta: %2 k\tEnd: %3 k\tMaximum time (used with variable integration time): %4 s\n")
-						  .arg(exafsRegions()->startByType(i, AMEXAFSRegion::Energy))
-						  .arg(exafsRegions()->delta(i))
-						  .arg(exafsRegions()->endByType(i, AMEXAFSRegion::kSpace))
-						  .arg(exafsRegions()->time(i)));
+		else if (exafsRegion->inKSpace() && exafsRegion->maximumTime().isValid())
+			header.append(QString("Start: %1 eV\tDelta: %2 k\tEnd: %3 k\tStart time: %4 s\tMaximum time (used with variable integration time): %5 s\n")
+						  .arg(double(AMEnergyToKSpaceCalculator::energy(energy_, exafsRegion->regionStart())))
+						  .arg(double(exafsRegion->regionStep()))
+						  .arg(double(exafsRegion->regionEnd()))
+						  .arg(double(exafsRegion->regionTime()))
+						  .arg(double(exafsRegion->maximumTime())));
 
 		else
 			header.append(QString("Start: %1 eV\tDelta: %2 eV\tEnd: %3 eV\tTime: %4 s\n")
-						  .arg(regionStart(i))
-						  .arg(regionDelta(i))
-						  .arg(regionEnd(i))
-						  .arg(regionTime(i)));
+						  .arg(double(exafsRegion->regionStart()))
+						  .arg(double(exafsRegion->regionStep()))
+						  .arg(double(exafsRegion->regionEnd()))
+						  .arg(double(exafsRegion->regionTime())));
 	}
 
 	return header;
-}
-
-void VESPERSEXAFSScanConfiguration::onEXAFSRegionsChanged()
-{
-	if (exafsRegions()->hasKSpace()){
-
-		CLSVariableIntegrationTime *timeApp = VESPERSBeamline::vespers()->variableIntegrationTime();
-		bool needToCompute = false;
-		int lastVal = exafsRegions()->count()-1;
-
-		if (exafsRegions()->count() > 1 && (exafsRegions()->time(lastVal-1) != timeApp->defautTime())){
-
-			timeApp->setDefaultTime(exafsRegions()->time(lastVal-1));
-			needToCompute = true;
-		}
-
-		if (exafsRegions()->startByType(lastVal, AMEXAFSRegion::kSpace) != timeApp->lowValue()){
-
-			timeApp->setLowValue(exafsRegions()->startByType(lastVal, AMEXAFSRegion::kSpace));
-			needToCompute = true;
-		}
-
-		if (exafsRegions()->endByType(lastVal, AMEXAFSRegion::kSpace) != timeApp->highValue()){
-
-			timeApp->setHighValue(exafsRegions()->endByType(lastVal, AMEXAFSRegion::kSpace));
-			needToCompute = true;
-		}
-
-		if (exafsRegions()->time(lastVal) != timeApp->maximumTime()){
-
-			timeApp->setMaximumTime(exafsRegions()->time(lastVal));
-			needToCompute = true;
-		}
-
-		if (needToCompute)
-			timeApp->compute();
-	}
 }
 
 void VESPERSEXAFSScanConfiguration::computeTotalTimeImplementation()
 {
 	double time = 0;
 
-	if (exafsRegions()->hasKSpace() && !useFixedTime_){
+	// Some region stuff.
+	foreach (AMScanAxisRegion *region, scanAxisAt(0)->regions().toList()){
 
-		for (int i = 0; i < regions_->count(); i++){
+		AMScanAxisEXAFSRegion *exafsRegion = qobject_cast<AMScanAxisEXAFSRegion *>(region);
+		int numberOfPoints = int((double(exafsRegion->regionEnd()) - double(exafsRegion->regionStart()))/double(exafsRegion->regionStep()) + 1);
 
-			if (exafsRegions()->type(i) == AMEXAFSRegion::kSpace)
-				time += VESPERSBeamline::vespers()->variableIntegrationTime()->totalTime(regions_->delta(i)) + ((regions_->end(i) - regions_->start(i))/regions_->delta(i))*timeOffset_;
+		if (exafsRegion->inKSpace() && exafsRegion->maximumTime().isValid()){
 
-			else
-				time += ((regions_->end(i) - regions_->start(i))/regions_->delta(i))*(regions_->time(i) + timeOffset_); // Seems to take about 0.7 seconds for extra beamline stuff to happen.
+			QVector<double> regionTimes = QVector<double>(numberOfPoints);
+			AMVariableIntegrationTime calculator(exafsRegion->equation(), exafsRegion->regionTime(), exafsRegion->maximumTime(), exafsRegion->regionStart(), exafsRegion->regionStep(), exafsRegion->regionEnd(), exafsRegion->a2());
+			calculator.variableTime(regionTimes.data());
+
+			for (int i = 0; i < numberOfPoints; i++)
+				time += regionTimes.at(i);
 		}
-	}
 
-	else{
-
-		for (int i = 0; i < regions_->count(); i++)
-			time += ((regions_->end(i) - regions_->start(i))/regions_->delta(i))*(regions_->time(i) + timeOffset_); // Seems to take about 0.7 seconds for extra beamline stuff to happen.
+		else
+			time += double(exafsRegion->regionTime())*numberOfPoints;
 	}
 
 	totalTime_ = time + 9; // There is a 9 second miscellaneous startup delay.
@@ -255,7 +215,9 @@ void VESPERSEXAFSScanConfiguration::setEnergy(double edgeEnergy)
 {
 	if (energy_ != edgeEnergy){
 
-		exafsRegions()->setDefaultEdgeEnergy(edgeEnergy);
+		foreach (AMScanAxisRegion *region, scanAxisAt(0)->regions().toList())
+			((AMScanAxisEXAFSRegion *)region)->setEdgeEnergy(edgeEnergy);
+
 		energy_ = edgeEnergy;
 		emit energyChanged(energy_);
 		setModified(true);
@@ -333,4 +295,26 @@ void VESPERSEXAFSScanConfiguration::setExportSpectraInRows(bool exportInRows)
 		return;
 
 	exportSpectraInRows_ = exportInRows;
+}
+
+void VESPERSEXAFSScanConfiguration::onRegionAdded(AMScanAxisRegion *region)
+{
+	AMScanAxisEXAFSRegion *exafsRegion = qobject_cast<AMScanAxisEXAFSRegion *>(region);
+
+	if (exafsRegion){
+
+		connect(exafsRegion, SIGNAL(regionStartChanged(AMNumber)), this, SLOT(computeTotalTime()));
+		connect(exafsRegion, SIGNAL(regionStepChanged(AMNumber)), this, SLOT(computeTotalTime()));
+		connect(exafsRegion, SIGNAL(regionEndChanged(AMNumber)), this, SLOT(computeTotalTime()));
+		connect(exafsRegion, SIGNAL(regionTimeChanged(AMNumber)), this, SLOT(computeTotalTime()));
+		connect(exafsRegion, SIGNAL(maximumTimeChanged(AMNumber)), this, SLOT(computeTotalTime()));
+		connect(exafsRegion, SIGNAL(equationChanged(AMVariableIntegrationTime::Equation)), this, SLOT(computeTotalTime()));
+		computeTotalTime();
+	}
+}
+
+void VESPERSEXAFSScanConfiguration::onRegionRemoved(AMScanAxisRegion *region)
+{
+	region->disconnect(this);
+	computeTotalTime();
 }

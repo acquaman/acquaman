@@ -11,8 +11,9 @@ class CLSBasicCompositeScalerChannelDetector : public AMDetector
 
 public:
 	/// Constructor takes a name and description as well as the scaler object pointer and the twi channel indices to use (index 0 - 31 for SIS3820)
- 	virtual ~CLSBasicCompositeScalerChannelDetector();
 	CLSBasicCompositeScalerChannelDetector(const QString &name, const QString &description, CLSSIS3820Scaler *scaler, int channelIndex1, int channelIndex2, QObject *parent = 0);
+	/// Destructor.
+	virtual ~CLSBasicCompositeScalerChannelDetector();
 
 	/// Returns 0, because there are no axes for the single point detector
 	virtual int size(int axisNumber) const;
@@ -30,6 +31,8 @@ public:
 
 	/// Returns the current acquisition dwell time from the scaler
 	virtual double acquisitionTime() const;
+	/// Returns the acquisition time tolerance.
+	virtual double acquisitionTimeTolerance() const;
 
 	/// The scaler channels can be configured to work with synchronized dwell time systems
 	virtual bool supportsSynchronizedDwell() const { return true; }

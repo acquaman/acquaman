@@ -20,7 +20,7 @@ bool AMTimedScanConfigurationConverter::convertImplementation(AMScanActionContro
 		return false;
 	}
 
-	AMScanAxisRegion region(0, timedConfiguration->time(), timedConfiguration->totalTime(), timedConfiguration->time());
+	AMScanAxisRegion *region = new AMScanAxisRegion(0, timedConfiguration->time(), timedConfiguration->totalTime(), timedConfiguration->time());
 	AMScanAxis *axis = new AMScanAxis(AMScanAxis::StepAxis, region);
 
 	if (!scanAssembler->appendAxis(0, axis)){

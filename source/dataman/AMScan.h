@@ -93,7 +93,7 @@ class AMScan : public AMDbObject {
 	Q_PROPERTY(QString fileFormat READ fileFormat WRITE setFileFormat)
 	Q_PROPERTY(QString filePath READ filePath WRITE setFilePath)
 	Q_PROPERTY(QStringList additionalFilePaths READ additionalFilePaths WRITE setAdditionalFilePaths)
-	Q_PROPERTY(AMDbObject* scanInitialConditions READ scanInitialConditions WRITE dbLoadScanInitialConditions)
+	Q_PROPERTY(AMDbObject* scanInitialConditions READ dbReadScanInitialConditions WRITE dbLoadScanInitialConditions)
 	Q_PROPERTY(AMDbObjectList rawDataSources READ dbReadRawDataSources WRITE dbLoadRawDataSources)
 	Q_PROPERTY(AMDbObjectList analyzedDataSources READ dbReadAnalyzedDataSources WRITE dbLoadAnalyzedDataSources)
 	Q_PROPERTY(QString analyzedDataSourcesConnections READ dbReadAnalyzedDataSourcesConnections WRITE dbLoadAnalyzedDataSourcesConnections)
@@ -458,6 +458,10 @@ public slots:
 	/// Any additional files of raw data that need to be referenced
 	void setAdditionalFilePaths(const QStringList& additionalFilePaths) { additionalFilePaths_ = additionalFilePaths; setModified(true); }
 
+
+	/// Change the scan initial conditions
+	void setScanInitialConditions(const AMControlInfoList &scanInitialConditions);
+
 signals:
 
 
@@ -483,6 +487,9 @@ signals:
 	/// Emitted after a data source was removed. \c index is the index the source used to occupy in dataSourceAt(); it's not there anymore.
 	void dataSourceRemoved(int index);
 
+
+	/// Emitted when the scan initial conditions are changed
+	void scanInitialConditionsChanged();
 
 
 protected slots:
@@ -552,6 +559,7 @@ protected:
 	// Database loading and storing.  Protected functions to support loading and storing of composite properties (scanInitialConditions, rawDataSources, analyzeDataSources) in the database. You should never need to use these directly.
 	///////////////////////////////
 
+	AMControlInfoList* dbReadScanInitialConditions() { return &scanInitialConditions_; }
 	/// Called when a stored scanInitialCondition is loaded out of the database, but scanInitialConditions() is not returning a pointer to a valid AMControlInfoList. Note: this should never happen, unless the database storage was corrupted and is loading the wrong object type.
 	void dbLoadScanInitialConditions(AMDbObject* newLoadedObject);
 	/// Returns a list of pointers to the raw data sources, to support db storage.

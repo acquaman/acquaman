@@ -27,6 +27,14 @@ double CLSBasicCompositeScalerChannelDetector::acquisitionTime() const{
 	return -1;
 }
 
+double CLSBasicCompositeScalerChannelDetector::acquisitionTimeTolerance() const
+{
+	if (isConnected())
+		return scaler_->dwellTimeTolerance();
+
+	return -1;
+}
+
 QString CLSBasicCompositeScalerChannelDetector::synchronizedDwellKey() const{
 	return scaler_->synchronizedDwellKey();
 }

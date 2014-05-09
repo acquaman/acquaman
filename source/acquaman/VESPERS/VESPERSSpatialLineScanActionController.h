@@ -1,12 +1,12 @@
 #ifndef VESPERSSPATIALLINESCANACTIONCONTROLLER_H
 #define VESPERSSPATIALLINESCANACTIONCONTROLLER_H
 
-#include "acquaman/AMRegionScanActionController.h"
+#include "acquaman/AMStepScanActionController.h"
 #include "acquaman/VESPERS/VESPERSSpatialLineScanConfiguration.h"
 #include "acquaman/VESPERS/VESPERSScanController.h"
 
 /// VESPERS specific subclass for spatial line scans.
-class VESPERSSpatialLineScanActionController : public AMRegionScanActionController, public VESPERSScanController
+class VESPERSSpatialLineScanActionController : public AMStepScanActionController, public VESPERSScanController
 {
 	Q_OBJECT
 
