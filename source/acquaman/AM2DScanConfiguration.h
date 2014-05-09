@@ -69,10 +69,11 @@ public:
 	enum Axis { X = 0, Y };
 
 	/// Constructor.
- 	virtual ~AM2DScanConfiguration();
 	AM2DScanConfiguration(QObject *parent = 0);
 	/// Copy constructor.
 	AM2DScanConfiguration(const AM2DScanConfiguration &original);
+	/// Destructor.
+	virtual ~AM2DScanConfiguration();
 
 	// Description and general info section
 	/////////////////////////////////////////////////

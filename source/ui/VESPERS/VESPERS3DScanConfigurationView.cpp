@@ -2,7 +2,6 @@
 
 #include "ui/AMTopFrame.h"
 #include "beamline/VESPERS/VESPERSBeamline.h"
-#include "util/VESPERS/GeneralUtilities.h"
 
 #include <QGridLayout>
 #include <QVBoxLayout>
@@ -14,23 +13,24 @@
 #include <QSpinBox>
 #include <QMenu>
 
- VESPERS3DScanConfigurationView::~VESPERS3DScanConfigurationView(){}
+VESPERS3DScanConfigurationView::~VESPERS3DScanConfigurationView(){}
+
 VESPERS3DScanConfigurationView::VESPERS3DScanConfigurationView(VESPERS3DScanConfiguration *config, QWidget *parent)
 	: VESPERSScanConfigurationView(parent)
 {
-	config_ = config;
+	configuration_ = config;
 	AMTopFrame *frame = new AMTopFrame("VESPERS 3D Map Configuration");
 
 	// Setup the group box for setting the start and end points.
 	QGroupBox *positionsBox = new QGroupBox("Positions");
 
-	hStart_ = buildPositionDoubleSpinBox("H: ", " mm", config_->xStart(), 3);
+	hStart_ = buildPositionDoubleSpinBox("H: ", " mm", configuration_->scanAxisAt(0)->regionAt(0)->regionStart(), 3);
 	connect(hStart_, SIGNAL(editingFinished()), this, SLOT(onXStartChanged()));
-	connect(config_, SIGNAL(xStartChanged(double)), hStart_, SLOT(setValue(double)));
+	connect(configuration_->scanAxisAt(0)->regionAt(0), SIGNAL(regionStartChanged(AMNumber)), this, SLOT(setXAxisStart(AMNumber)));
 
-	vStart_ = buildPositionDoubleSpinBox("V: ", " mm", config_->yStart(), 3);
+	vStart_ = buildPositionDoubleSpinBox("V: ", " mm", configuration_->scanAxisAt(1)->regionAt(0)->regionStart(), 3);
 	connect(vStart_, SIGNAL(editingFinished()), this, SLOT(onYStartChanged()));
-	connect(config_, SIGNAL(yStartChanged(double)), vStart_, SLOT(setValue(double)));
+	connect(configuration_->scanAxisAt(1)->regionAt(0), SIGNAL(regionStartChanged(AMNumber)), this, SLOT(setYAxisStart(AMNumber)));
 
 	QPushButton *startUseCurrentButton = new QPushButton("Use Current");
 	connect(startUseCurrentButton, SIGNAL(clicked()), this, SLOT(onSetStartPosition()));
@@ -41,13 +41,13 @@ VESPERS3DScanConfigurationView::VESPERS3DScanConfigurationView(VESPERS3DScanConf
 	startPointLayout->addWidget(vStart_);
 	startPointLayout->addWidget(startUseCurrentButton);
 
-	hEnd_ = buildPositionDoubleSpinBox("H: ", " mm", config_->xEnd(), 3);
+	hEnd_ = buildPositionDoubleSpinBox("H: ", " mm", configuration_->scanAxisAt(0)->regionAt(0)->regionEnd(), 3);
 	connect(hEnd_, SIGNAL(editingFinished()), this, SLOT(onXEndChanged()));
-	connect(config_, SIGNAL(xEndChanged(double)), hEnd_, SLOT(setValue(double)));
+	connect(configuration_->scanAxisAt(0)->regionAt(0), SIGNAL(regionEndChanged(AMNumber)), this, SLOT(setXAxisEnd(AMNumber)));
 
-	vEnd_ = buildPositionDoubleSpinBox("V: ", " mm", config_->yEnd(), 3);
+	vEnd_ = buildPositionDoubleSpinBox("V: ", " mm", configuration_->scanAxisAt(1)->regionAt(0)->regionEnd(), 3);
 	connect(vEnd_, SIGNAL(editingFinished()), this, SLOT(onYEndChanged()));
-	connect(config_, SIGNAL(yEndChanged(double)), vEnd_, SLOT(setValue(double)));
+	connect(configuration_->scanAxisAt(1)->regionAt(0), SIGNAL(regionEndChanged(AMNumber)), this, SLOT(setYAxisEnd(AMNumber)));
 
 	QPushButton *endUseCurrentButton = new QPushButton("Use Current");
 	connect(endUseCurrentButton, SIGNAL(clicked()), this, SLOT(onSetEndPosition()));
@@ -58,13 +58,13 @@ VESPERS3DScanConfigurationView::VESPERS3DScanConfigurationView(VESPERS3DScanConf
 	endPointLayout->addWidget(vEnd_);
 	endPointLayout->addWidget(endUseCurrentButton);
 
-	hStep_ = buildPositionDoubleSpinBox("H: ", QString(" %1").arg(QString::fromUtf8("µm")), config_->xStep()*1000, 1);	// xStep needs to be in mm.
+	hStep_ = buildPositionDoubleSpinBox("H: ", QString(" %1").arg(QString::fromUtf8("µm")), double(configuration_->scanAxisAt(0)->regionAt(0)->regionStep())*1000, 1);	// xStep needs to be in mm.
 	connect(hStep_, SIGNAL(editingFinished()), this, SLOT(onXStepChanged()));
-	connect(config_, SIGNAL(xStepChanged(double)), this, SLOT(updateXStep(double)));
+	connect(configuration_->scanAxisAt(0)->regionAt(0), SIGNAL(regionStepChanged(AMNumber)), this, SLOT(setXAxisStep(AMNumber)));
 
-	vStep_ = buildPositionDoubleSpinBox("V: ", QString(" %1").arg(QString::fromUtf8("µm")), config_->yStep()*1000, 1);	// yStep needs to be in mm.
+	vStep_ = buildPositionDoubleSpinBox("V: ", QString(" %1").arg(QString::fromUtf8("µm")), double(configuration_->scanAxisAt(1)->regionAt(0)->regionStep())*1000, 1);	// yStep needs to be in mm.
 	connect(vStep_, SIGNAL(editingFinished()), this, SLOT(onYStepChanged()));
-	connect(config_, SIGNAL(yStepChanged(double)), this, SLOT(updateYStep(double)));
+	connect(configuration_->scanAxisAt(1)->regionAt(0), SIGNAL(regionStepChanged(AMNumber)), this, SLOT(setYAxisStep(AMNumber)));
 
 	QHBoxLayout *stepSizeLayout = new QHBoxLayout;
 	stepSizeLayout->addWidget(new QLabel("Step Size:"));
@@ -72,9 +72,9 @@ VESPERS3DScanConfigurationView::VESPERS3DScanConfigurationView(VESPERS3DScanConf
 	stepSizeLayout->addWidget(vStep_);
 	stepSizeLayout->addStretch();
 
-	wireStart_ = buildPositionDoubleSpinBox("", " mm", config_->zStart(), 3);
-	connect(wireStart_, SIGNAL(editingFinished()), this, SLOT(onZStartChanged()));
-	connect(config_, SIGNAL(zStartChanged(double)), wireStart_, SLOT(setValue(double)));
+	wireStart_ = buildPositionDoubleSpinBox("", " mm", double(configuration_->scanAxisAt(2)->regionAt(0)->regionStart()), 3);
+	connect(wireStart_, SIGNAL(editingFinished()), this, SLOT(onWireStartChanged()));
+	connect(configuration_->scanAxisAt(2)->regionAt(0), SIGNAL(regionStartChanged(AMNumber)), this, SLOT(setWireAxisStart(AMNumber)));
 
 	QPushButton *wireStartCurrentButton = new QPushButton("Use Current");
 	connect(wireStartCurrentButton, SIGNAL(clicked()), this, SLOT(onSetWireStartPosition()));
@@ -84,9 +84,9 @@ VESPERS3DScanConfigurationView::VESPERS3DScanConfigurationView(VESPERS3DScanConf
 	wireStartLayout->addWidget(wireStart_, 0, Qt::AlignCenter);
 	wireStartLayout->addWidget(wireStartCurrentButton);
 
-	wireEnd_ = buildPositionDoubleSpinBox("", " mm", config_->zEnd(), 3);
-	connect(wireEnd_, SIGNAL(editingFinished()), this, SLOT(onZEndChanged()));
-	connect(config_, SIGNAL(zEndChanged(double)), wireEnd_, SLOT(setValue(double)));
+	wireEnd_ = buildPositionDoubleSpinBox("", " mm", double(configuration_->scanAxisAt(2)->regionAt(0)->regionEnd()), 3);
+	connect(wireEnd_, SIGNAL(editingFinished()), this, SLOT(onWireEndChanged()));
+	connect(configuration_->scanAxisAt(2)->regionAt(0), SIGNAL(regionEndChanged(AMNumber)), this, SLOT(setWireAxisEnd(AMNumber)));
 
 	QPushButton *wireEndCurrentButton = new QPushButton("Use Current");
 	connect(wireEndCurrentButton, SIGNAL(clicked()), this, SLOT(onSetWireEndPosition()));
@@ -96,9 +96,9 @@ VESPERS3DScanConfigurationView::VESPERS3DScanConfigurationView(VESPERS3DScanConf
 	wireEndLayout->addWidget(wireEnd_, 0, Qt::AlignCenter);
 	wireEndLayout->addWidget(wireEndCurrentButton);
 
-	wireStep_ = buildPositionDoubleSpinBox("", QString(" %1").arg(QString::fromUtf8("µm")), config_->zStep()*1000, 1);	// yStep needs to be in mm.
-	connect(wireStep_, SIGNAL(editingFinished()), this, SLOT(onZStepChanged()));
-	connect(config_, SIGNAL(zStepChanged(double)), this, SLOT(updateZStep(double)));
+	wireStep_ = buildPositionDoubleSpinBox("", QString(" %1").arg(QString::fromUtf8("µm")), double(configuration_->scanAxisAt(2)->regionAt(0)->regionStep())*1000, 1);	// yStep needs to be in mm.
+	connect(wireStep_, SIGNAL(editingFinished()), this, SLOT(onWireStepChanged()));
+	connect(configuration_->scanAxisAt(0)->regionAt(0), SIGNAL(regionStepChanged(AMNumber)), this, SLOT(setWireAxisStep(AMNumber)));
 
 	QHBoxLayout *wireStepLayout = new QHBoxLayout;
 	wireStepLayout->addWidget(new QLabel("Wire Step:"));
@@ -119,9 +119,11 @@ VESPERS3DScanConfigurationView::VESPERS3DScanConfigurationView(VESPERS3DScanConf
 	positionsBox->setLayout(positionsLayout);
 
 	// Dwell time.
-	dwellTime_ = addDwellTimeWidget(config_->timeStep());
+	dwellTime_ = addDwellTimeWidget(configuration_->scanAxisAt(0)->regionAt(0)->regionTime());
 	connect(dwellTime_, SIGNAL(editingFinished()), this, SLOT(onDwellTimeChanged()));
-	connect(config_, SIGNAL(timeStepChanged(double)), dwellTime_, SLOT(setValue(double)));
+	connect(configuration_->scanAxisAt(0)->regionAt(0), SIGNAL(regionTimeChanged(AMNumber)), this, SLOT(setDwellTime(AMNumber)));
+	connect(configuration_->scanAxisAt(0)->regionAt(0), SIGNAL(regionTimeChanged(AMNumber)), configuration_->scanAxisAt(1)->regionAt(0), SLOT(setRegionTime(AMNumber)));
+	connect(configuration_->scanAxisAt(0)->regionAt(0), SIGNAL(regionTimeChanged(AMNumber)), configuration_->scanAxisAt(2)->regionAt(0), SLOT(setRegionTime(AMNumber)));
 
 	QHBoxLayout *timeLayout = new QHBoxLayout;
 	timeLayout->addWidget(new QLabel("Dwell Time:"));
@@ -129,7 +131,7 @@ VESPERS3DScanConfigurationView::VESPERS3DScanConfigurationView(VESPERS3DScanConf
 
 	// The estimated scan time.
 	estimatedTime_ = new QLabel;
-	connect(config_, SIGNAL(totalTimeChanged(double)), this, SLOT(onEstimatedTimeChanged()));
+	connect(configuration_, SIGNAL(totalTimeChanged(double)), this, SLOT(onEstimatedTimeChanged()));
 	onEstimatedTimeChanged();
 
 	QVBoxLayout *timeBoxLayout = new QVBoxLayout;
@@ -142,32 +144,32 @@ VESPERS3DScanConfigurationView::VESPERS3DScanConfigurationView(VESPERS3DScanConf
 	// Using the CCD.
 	QGroupBox *ccdBox = addCCDDetectorSelectionView();
 	connect(ccdButtonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(onCCDDetectorChanged(int)));
-	connect(config_->dbObject(), SIGNAL(ccdDetectorChanged(int)), this, SLOT(updateCCDDetectorButtons(int)));
-	ccdButtonGroup_->button(int(config_->ccdDetector()))->setChecked(true);
+	connect(configuration_->dbObject(), SIGNAL(ccdDetectorChanged(int)), this, SLOT(updateCCDDetectorButtons(int)));
+	ccdButtonGroup_->button(int(configuration_->ccdDetector()))->setChecked(true);
 	ccdButtonGroup_->button((int)VESPERS::Roper)->hide();
 	ccdButtonGroup_->button((int)VESPERS::Mar)->hide();
 
 	configureCCDButton_ = new QPushButton(QIcon(":/hammer-wrench.png"), "Configure Area Detector");
-	configureCCDButton_->setEnabled(config_->ccdDetector());
+	configureCCDButton_->setEnabled(configuration_->ccdDetector());
 	connect(configureCCDButton_, SIGNAL(clicked()), this, SLOT(onConfigureCCDDetectorClicked()));
 
 	// The fluorescence detector setup
 	QGroupBox *fluorescenceDetectorGroupBox  = addFluorescenceDetectorSelectionView();
 	fluorescenceButtonGroup_->button(int(VESPERS::NoXRF))->setDisabled(true);
 	connect(fluorescenceButtonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(onFluorescenceChoiceChanged(int)));
-	connect(config_->dbObject(), SIGNAL(fluorescenceDetectorChanged(int)), this, SLOT(updateFluorescenceDetector(int)));
-	fluorescenceButtonGroup_->button((int)config_->fluorescenceDetector())->setChecked(true);
+	connect(configuration_->dbObject(), SIGNAL(fluorescenceDetectorChanged(int)), this, SLOT(updateFluorescenceDetector(int)));
+	fluorescenceButtonGroup_->button((int)configuration_->fluorescenceDetector())->setChecked(true);
 
 	// Ion chamber selection
 	QGroupBox *I0GroupBox = addI0SelectionView();
 	connect(I0Group_, SIGNAL(buttonClicked(int)), this, SLOT(onI0Clicked(int)));
-	connect(config_->dbObject(), SIGNAL(incomingChoiceChanged(int)), this, SLOT(updateI0Buttons(int)));
-	I0Group_->button((int)config_->incomingChoice())->click();
+	connect(configuration_->dbObject(), SIGNAL(incomingChoiceChanged(int)), this, SLOT(updateI0Buttons(int)));
+	I0Group_->button((int)configuration_->incomingChoice())->click();
 
 	// Motor selection.
 	QGroupBox *motorSetChoiceBox = addMotorSelectionView(QStringList() << "H and V", QList<int>() << (VESPERS::H | VESPERS::V));
 	connect(motorButtonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(onMotorChanged(int)));
-	motorButtonGroup_->button(int(config_->motor()))->click();
+	motorButtonGroup_->button(int(configuration_->motor()))->click();
 
 	// CCD label.
 	ccdText_ = new QLabel;
@@ -177,12 +179,12 @@ VESPERS3DScanConfigurationView::VESPERS3DScanConfigurationView(VESPERS3DScanConf
 	ccdTextLayout->addWidget(ccdText_);
 	ccdTextLayout->addWidget(ccdHelpText_);
 	ccdTextBox_->setLayout(ccdTextLayout);
-	ccdTextBox_->setVisible(config_->ccdDetector() != VESPERS::NoCCD);
+	ccdTextBox_->setVisible(configuration_->ccdDetector() != VESPERS::NoCCD);
 
 	// Scan name selection
-	scanName_ = addScanNameView(config_->name());
+	scanName_ = addScanNameView(configuration_->name());
 	connect(scanName_, SIGNAL(editingFinished()), this, SLOT(onScanNameEdited()));
-	connect(config_, SIGNAL(nameChanged(QString)), scanName_, SLOT(setText(QString)));
+	connect(configuration_, SIGNAL(nameChanged(QString)), scanName_, SLOT(setText(QString)));
 	// Only connecting this signal because it is the only CCD available currently.  It would need some logic for switching which CCD it was actually connected to.
 	connect(VESPERSBeamline::vespers()->vespersPilatusAreaDetector(), SIGNAL(ccdPathChanged(QString)), this, SLOT(onScanNameEdited()));
 	onScanNameEdited();
@@ -207,16 +209,16 @@ VESPERS3DScanConfigurationView::VESPERS3DScanConfigurationView(VESPERS3DScanConf
 	// Label showing where the data will be saved.
 	QLabel *exportPath = addExportPathLabel();
 
-	QGroupBox *timeOffsetBox = addTimeOffsetLabel(config_->timeOffset());
+	QGroupBox *timeOffsetBox = addTimeOffsetLabel(configuration_->timeOffset());
 	connect(timeOffset_, SIGNAL(valueChanged(double)), this, SLOT(setTimeOffset(double)));
 
 	// Auto-export option.
-	QGroupBox *autoExportGroupBox = addExporterOptionsView(QStringList() << "Ascii" << "SMAK", config_->exportSpectraSources(), config_->exportSpectraInRows());
+	QGroupBox *autoExportGroupBox = addExporterOptionsView(QStringList() << "Ascii" << "SMAK", configuration_->exportSpectraSources(), configuration_->exportSpectraInRows());
 	connect(autoExportButtonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(updateAutoExporter(int)));
-	connect(autoExportSpectra_, SIGNAL(toggled(bool)), config_, SLOT(setExportSpectraSources(bool)));
+	connect(autoExportSpectra_, SIGNAL(toggled(bool)), configuration_, SLOT(setExportSpectraSources(bool)));
 	connect(autoExportSpectra_, SIGNAL(toggled(bool)), exportSpectraInRows_, SLOT(setEnabled(bool)));
 	connect(exportSpectraInRows_, SIGNAL(toggled(bool)), this, SLOT(updateExportSpectraInRows(bool)));
-	autoExportButtonGroup_->button(config_->exportAsAscii() ? 0 : 1)->click();
+	autoExportButtonGroup_->button(configuration_->exportAsAscii() ? 0 : 1)->click();
 
 	// Setting up the layout.
 	QGridLayout *contentsLayout = new QGridLayout;
@@ -252,28 +254,28 @@ VESPERS3DScanConfigurationView::VESPERS3DScanConfigurationView(VESPERS3DScanConf
 void VESPERS3DScanConfigurationView::onScanNameEdited()
 {
 	QString name = scanName_->text();
-	config_->setName(name);
-	config_->setUserScanName(name);
+	configuration_->setName(name);
+	configuration_->setUserScanName(name);
 
-	if (config_->ccdDetector() != VESPERS::NoCCD){
+	if (configuration_->ccdDetector() != VESPERS::NoCCD){
 
 		QString path;
 
-		if (config_->ccdDetector() == VESPERS::Roper)
+		if (configuration_->ccdDetector() == VESPERS::Roper)
 			path = VESPERSBeamline::vespers()->vespersRoperCCD()->ccdFilePath();
 
-		else if (config_->ccdDetector() == VESPERS::Mar)
+		else if (configuration_->ccdDetector() == VESPERS::Mar)
 			path = VESPERSBeamline::vespers()->vespersMarCCD()->ccdFilePath();
 
-		else if (config_->ccdDetector() == VESPERS::Pilatus)
+		else if (configuration_->ccdDetector() == VESPERS::Pilatus)
 			path = VESPERSBeamline::vespers()->vespersPilatusAreaDetector()->ccdFilePath();
 
 		ccdText_->setText(QString("Path: %1\nName: %2").arg(path).arg(name));
-		config_->setCCDFileName(name);
+		configuration_->setCCDFileName(name);
 		checkCCDFileNames(name);
 	}
 
-	if (config_->ccdDetector() == VESPERS::Pilatus && name.contains(" ")){
+	if (configuration_->ccdDetector() == VESPERS::Pilatus && name.contains(" ")){
 
 		QPalette palette = scanName_->palette();
 		palette.setColor(QPalette::Base, Qt::red);
@@ -288,17 +290,17 @@ void VESPERS3DScanConfigurationView::checkCCDFileNames(const QString &name) cons
 {
 	QString path;
 
-	if (config_->ccdDetector() == VESPERS::Roper){
+	if (configuration_->ccdDetector() == VESPERS::Roper){
 
 		path = VESPERSBeamline::vespers()->vespersRoperCCD()->ccdFilePath();
 		path.replace("Y:\\", "/nas/vespers/");
 		path.replace('\\', '/');
 	}
 
-	else if (config_->ccdDetector() == VESPERS::Mar)
+	else if (configuration_->ccdDetector() == VESPERS::Mar)
 		path = VESPERSBeamline::vespers()->vespersMarCCD()->ccdFilePath();
 
-	else if (config_->ccdDetector() == VESPERS::Pilatus)
+	else if (configuration_->ccdDetector() == VESPERS::Pilatus)
 		path = VESPERSBeamline::vespers()->vespersPilatusAreaDetector()->ccdFilePath();
 
 	if (VESPERS::fileNameExists(path, name)){
@@ -316,77 +318,77 @@ void VESPERS3DScanConfigurationView::checkCCDFileNames(const QString &name) cons
 
 void VESPERS3DScanConfigurationView::onFluorescenceChoiceChanged(int id)
 {
-	config_->setFluorescenceDetector(id);
+	configuration_->setFluorescenceDetector(id);
 	updateRoiText();
 }
 
 void VESPERS3DScanConfigurationView::onMotorChanged(int id)
 {
-	config_->setMotor(id);
+	configuration_->setMotor(id);
 }
 
 void VESPERS3DScanConfigurationView::onCCDDetectorChanged(int id)
 {
-	config_->setCCDDetector(id);
+	configuration_->setCCDDetector(id);
 
-	if (config_->ccdDetector() != VESPERS::NoCCD){
+	if (configuration_->ccdDetector() != VESPERS::NoCCD){
 
 		QString path;
-		QString name = config_->ccdFileName().isEmpty() ? scanName_->text() : config_->ccdFileName();
+		QString name = configuration_->ccdFileName().isEmpty() ? scanName_->text() : configuration_->ccdFileName();
 
-		if (config_->ccdDetector() == VESPERS::Roper)
+		if (configuration_->ccdDetector() == VESPERS::Roper)
 			path = VESPERSBeamline::vespers()->vespersRoperCCD()->ccdFilePath();
 
-		else if (config_->ccdDetector() == VESPERS::Mar)
+		else if (configuration_->ccdDetector() == VESPERS::Mar)
 			path = VESPERSBeamline::vespers()->vespersMarCCD()->ccdFilePath();
 
-		else if (config_->ccdDetector() == VESPERS::Pilatus)
+		else if (configuration_->ccdDetector() == VESPERS::Pilatus)
 			path = VESPERSBeamline::vespers()->vespersPilatusAreaDetector()->ccdFilePath();
 
-		config_->setCCDFileName(name);
+		configuration_->setCCDFileName(name);
 		ccdText_->setText(QString("Path: %1\nName: %2").arg(path).arg(name));
 		checkCCDFileNames(name);
 	}
 
 	onScanNameEdited();
-	ccdTextBox_->setVisible(config_->ccdDetector() != VESPERS::NoCCD);
-	configureCCDButton_->setDisabled(config_->ccdDetector() == VESPERS::NoCCD);
+	ccdTextBox_->setVisible(configuration_->ccdDetector() != VESPERS::NoCCD);
+	configureCCDButton_->setDisabled(configuration_->ccdDetector() == VESPERS::NoCCD);
 }
 
 void VESPERS3DScanConfigurationView::updateRoiText()
 {
-	VESPERS::FluorescenceDetectors xrfFlag = config_->fluorescenceDetector();
+//	VESPERS::FluorescenceDetectors xrfFlag = configuration_->fluorescenceDetector();
 
-	if (xrfFlag == VESPERS::NoXRF)
-		config_->setRoiInfoList(AMROIInfoList());
+//	if (xrfFlag == VESPERS::NoXRF)
+//		configuration_->setRoiInfoList(AMROIInfoList());
 
-	else if (xrfFlag == VESPERS::SingleElement)
-		config_->setRoiInfoList(*VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList());
+//	else if (xrfFlag == VESPERS::SingleElement)
+//		configuration_->setRoiInfoList(*VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList());
 
-	else if (xrfFlag == VESPERS::FourElement)
-		config_->setRoiInfoList(*VESPERSBeamline::vespers()->vortexXRF4E()->roiInfoList());
+//	else if (xrfFlag == VESPERS::FourElement)
+//		configuration_->setRoiInfoList(*VESPERSBeamline::vespers()->vortexXRF4E()->roiInfoList());
 
-	else if (xrfFlag == (VESPERS::SingleElement | VESPERS::FourElement)){
+//	else if (xrfFlag == (VESPERS::SingleElement | VESPERS::FourElement)){
 
-		AMROIInfoList list;
-		AMROIInfoList singleElList = *VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList();
-		AMROIInfoList fourElList = *VESPERSBeamline::vespers()->vortexXRF4E()->roiInfoList();
+//		AMROIInfoList list;
+//		AMROIInfoList singleElList = *VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList();
+//		AMROIInfoList fourElList = *VESPERSBeamline::vespers()->vortexXRF4E()->roiInfoList();
 
-		for (int i = 0, count = singleElList.count(); i < count; i++)
-			list.append(singleElList.at(i));
+//		for (int i = 0, count = singleElList.count(); i < count; i++)
+//			list.append(singleElList.at(i));
 
-		for (int i = 0, count = fourElList.count(); i < count; i++)
-			list.append(fourElList.at(i));
+//		for (int i = 0, count = fourElList.count(); i < count; i++)
+//			list.append(fourElList.at(i));
 
-		config_->setRoiInfoList(list);
-	}
+//		configuration_->setRoiInfoList(list);
+//	}
 
-	updateAndSetRoiTextBox(int(config_->fluorescenceDetector()));
+//	updateAndSetRoiTextBox(int(configuration_->fluorescenceDetector()));
 }
 
 void VESPERS3DScanConfigurationView::onEstimatedTimeChanged()
 {
-	estimatedTime_->setText("Estimated time per scan:\t" + VESPERS::convertTimeToString(config_->totalTime()));
+	estimatedTime_->setText("Estimated time per scan:\t" + VESPERS::convertTimeToString(configuration_->totalTime()));
 }
 
 void VESPERS3DScanConfigurationView::onSetStartPosition()
@@ -395,11 +397,11 @@ void VESPERS3DScanConfigurationView::onSetStartPosition()
 	double v = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->verticalControl()->value();
 	double n = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->normalControl()->value();
 
-	config_->setXStart(h);
+	configuration_->scanAxisAt(0)->regionAt(0)->setRegionStart(h);
+	configuration_->scanAxisAt(1)->regionAt(0)->setRegionStart(v);
+	configuration_->setNormalPosition(n);
 	hStart_->setValue(h);
-	config_->setYStart(v);
 	vStart_->setValue(v);
-	config_->setNormalPosition(n);
 	updateMapInfo();
 	axesAcceptable();
 }
@@ -409,9 +411,9 @@ void VESPERS3DScanConfigurationView::onSetEndPosition()
 	double h = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->horizontalControl()->value();
 	double v = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->verticalControl()->value();
 
-	config_->setXEnd(h);
+	configuration_->scanAxisAt(0)->regionAt(0)->setRegionEnd(h);
+	configuration_->scanAxisAt(1)->regionAt(0)->setRegionEnd(v);
 	hEnd_->setValue(h);
-	config_->setYEnd(v);
 	vEnd_->setValue(v);
 	updateMapInfo();
 	axesAcceptable();
@@ -421,7 +423,7 @@ void VESPERS3DScanConfigurationView::onSetWireStartPosition()
 {
 	double wire = VESPERSBeamline::vespers()->pseudoWireStageMotorGroupObject()->verticalControl()->value();
 
-	config_->setZStart(wire);
+	configuration_->scanAxisAt(0)->regionAt(0)->setRegionStart(wire);
 	wireStart_->setValue(wire);
 	updateMapInfo();
 	axesAcceptable();
@@ -431,7 +433,7 @@ void VESPERS3DScanConfigurationView::onSetWireEndPosition()
 {
 	double wire = VESPERSBeamline::vespers()->pseudoWireStageMotorGroupObject()->verticalControl()->value();
 
-	config_->setZEnd(wire);
+	configuration_->scanAxisAt(3)->regionAt(0)->setRegionEnd(wire);
 	wireEnd_->setValue(wire);
 	updateMapInfo();
 	axesAcceptable();
@@ -439,92 +441,94 @@ void VESPERS3DScanConfigurationView::onSetWireEndPosition()
 
 void VESPERS3DScanConfigurationView::onXStartChanged()
 {
-	config_->setXStart(hStart_->value());
+	configuration_->scanAxisAt(0)->regionAt(0)->setRegionStart(hStart_->value());
 	updateMapInfo();
 	axesAcceptable();
 }
 
 void VESPERS3DScanConfigurationView::onXEndChanged()
 {
-	config_->setXEnd(hEnd_->value());
+	configuration_->scanAxisAt(0)->regionAt(0)->setRegionEnd(hEnd_->value());
 	updateMapInfo();
 	axesAcceptable();
 }
 
 void VESPERS3DScanConfigurationView::onXStepChanged()
 {
-	config_->setXStep(hStep_->value()/1000);
+	configuration_->scanAxisAt(0)->regionAt(0)->setRegionStep(hStep_->value()/1000);
 	updateMapInfo();
 	axesAcceptable();
 }
 
 void VESPERS3DScanConfigurationView::onYStartChanged()
 {
-	config_->setYStart(vStart_->value());
+	configuration_->scanAxisAt(1)->regionAt(0)->setRegionStart(vStart_->value());
 	updateMapInfo();
 	axesAcceptable();
 }
 
 void VESPERS3DScanConfigurationView::onYEndChanged()
 {
-	config_->setYEnd(vEnd_->value());
+	configuration_->scanAxisAt(1)->regionAt(0)->setRegionEnd(vEnd_->value());
 	updateMapInfo();
 	axesAcceptable();
 }
 
 void VESPERS3DScanConfigurationView::onYStepChanged()
 {
-	config_->setYStep(vStep_->value()/1000);
+	configuration_->scanAxisAt(1)->regionAt(0)->setRegionStep(vStep_->value()/1000);
 	updateMapInfo();
 	axesAcceptable();
 }
 
-void VESPERS3DScanConfigurationView::onZStartChanged()
+void VESPERS3DScanConfigurationView::onWireStartChanged()
 {
-	config_->setZStart(wireStart_->value());
+	configuration_->scanAxisAt(2)->regionAt(0)->setRegionStart(vStart_->value());
 	updateMapInfo();
 	axesAcceptable();
 }
 
-void VESPERS3DScanConfigurationView::onZEndChanged()
+void VESPERS3DScanConfigurationView::onWireEndChanged()
 {
-	config_->setZEnd(wireEnd_->value());
+	configuration_->scanAxisAt(2)->regionAt(0)->setRegionEnd(vEnd_->value());
 	updateMapInfo();
 	axesAcceptable();
 }
 
-void VESPERS3DScanConfigurationView::onZStepChanged()
+void VESPERS3DScanConfigurationView::onWireStepChanged()
 {
-	config_->setZStep(wireStep_->value()/1000);
+	configuration_->scanAxisAt(2)->regionAt(0)->setRegionStep(vStep_->value()/1000);
 	updateMapInfo();
 	axesAcceptable();
 }
 
 void VESPERS3DScanConfigurationView::onDwellTimeChanged()
 {
-	config_->setTimeStep(dwellTime_->value());
+	configuration_->scanAxisAt(0)->regionAt(0)->setRegionTime(dwellTime_->value());
+	configuration_->scanAxisAt(1)->regionAt(0)->setRegionTime(dwellTime_->value());
+	configuration_->scanAxisAt(2)->regionAt(0)->setRegionTime(dwellTime_->value());
 }
 
 void VESPERS3DScanConfigurationView::updateMapInfo()
 {
-	double hSize = fabs(config_->xEnd()-config_->xStart());
-	double vSize = fabs(config_->yEnd()-config_->yStart());
-	double wireSize = fabs(config_->zEnd()-config_->zStart());
+	double hSize = fabs(double(configuration_->scanAxisAt(0)->regionAt(0)->regionEnd())-double(configuration_->scanAxisAt(0)->regionAt(0)->regionStart()));
+	double vSize = fabs(double(configuration_->scanAxisAt(1)->regionAt(0)->regionEnd())-double(configuration_->scanAxisAt(1)->regionAt(0)->regionStart()));
+	double wireSize = fabs(double(configuration_->scanAxisAt(2)->regionAt(0)->regionEnd())-double(configuration_->scanAxisAt(2)->regionAt(0)->regionStart()));
 
-	int hPoints = int((hSize)/config_->xStep());
-	if ((hSize - (hPoints + 0.01)*config_->xStep()) < 0)
+	int hPoints = int((hSize)/double(configuration_->scanAxisAt(0)->regionAt(0)->regionStep()));
+	if ((hSize - (hPoints + 0.01)*double(configuration_->scanAxisAt(0)->regionAt(0)->regionStep())) < 0)
 		hPoints += 1;
 	else
 		hPoints += 2;
 
-	int vPoints = int((vSize)/config_->yStep());
-	if ((vSize - (vPoints + 0.01)*config_->yStep()) < 0)
+	int vPoints = int((vSize)/double(configuration_->scanAxisAt(1)->regionAt(0)->regionStep()));
+	if ((vSize - (vPoints + 0.01)*double(configuration_->scanAxisAt(1)->regionAt(0)->regionStep())) < 0)
 		vPoints += 1;
 	else
 		vPoints += 2;
 
-	int wirePoints = int((wireSize)/config_->zStep());
-	if ((vSize - (wirePoints + 0.01)*config_->zStep()) < 0)
+	int wirePoints = int((wireSize)/double(configuration_->scanAxisAt(2)->regionAt(0)->regionStep()));
+	if ((wireSize - (wirePoints + 0.01)*double(configuration_->scanAxisAt(2)->regionAt(0)->regionStep())) < 0)
 		wirePoints += 1;
 	else
 		wirePoints += 2;
@@ -546,7 +550,58 @@ void VESPERS3DScanConfigurationView::axesAcceptable()
 	QPalette bad(good);
 	bad.setColor(QPalette::Base, Qt::red);
 
-	hStep_->setPalette(config_->validXAxis() ? good : bad);
-	vStep_->setPalette(config_->validYAxis() ? good : bad);
-	wireStep_->setPalette(config_->validZAxis() ? good : bad);
+//	hStep_->setPalette(configuration_->validXAxis() ? good : bad);
+//	vStep_->setPalette(configuration_->validYAxis() ? good : bad);
+//	wireStep_->setPalette(configuration_->validZAxis() ? good : bad);
 }
+
+void VESPERS3DScanConfigurationView::setXAxisStart(const AMNumber &value)
+{
+	hStart_->setValue(double(value));
+}
+
+void VESPERS3DScanConfigurationView::setYAxisStart(const AMNumber &value)
+{
+	vStart_->setValue(double(value));
+}
+
+void VESPERS3DScanConfigurationView::setWireAxisStart(const AMNumber &value)
+{
+	wireStart_->setValue(double(value));
+}
+
+void VESPERS3DScanConfigurationView::setXAxisStep(const AMNumber &value)
+{
+	hStep_->setValue(double(value)*1000);
+}
+
+void VESPERS3DScanConfigurationView::setYAxisStep(const AMNumber &value)
+{
+	vStep_->setValue(double(value)*1000);
+}
+
+void VESPERS3DScanConfigurationView::setWireAxisStep(const AMNumber &value)
+{
+	wireStep_->setValue(double(value)*1000);
+}
+
+void VESPERS3DScanConfigurationView::setXAxisEnd(const AMNumber &value)
+{
+	hEnd_->setValue(double(value));
+}
+
+void VESPERS3DScanConfigurationView::setYAxisEnd(const AMNumber &value)
+{
+	vEnd_->setValue(double(value));
+}
+
+void VESPERS3DScanConfigurationView::setWireAxisEnd(const AMNumber &value)
+{
+	wireEnd_->setValue(double(value));
+}
+
+void VESPERS3DScanConfigurationView::setDwellTime(const AMNumber &value)
+{
+	dwellTime_->setValue(double(value));
+}
+

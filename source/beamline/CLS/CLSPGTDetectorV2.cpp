@@ -13,7 +13,7 @@ CLSPGTDetectorV2::CLSPGTDetectorV2(const QString &name, const QString &descripti
 
 	allControls_ = new AMControlSet(this);
 	statusControl_ = new AMReadOnlyPVControl(name%"Status", baseName%":GetAcquire", this);
-	integrationTimeControl_ = new AMPVControl(name%"IntegrationTime", "BL1611-ID-1:AddOns:PGTDwellTime", "BL1611-ID-1:AddOns:PGTDwellTime", "", this, 0.1);
+	integrationTimeControl_ = new AMPVControl(name%"IntegrationTime", "BL1611-ID-1:AddOns:PGTDwellTime", "BL1611-ID-1:AddOns:PGTDwellTime", "", this, 0.001);
 	integrationTimeControl_->setDescription("SDD Integration Time");
 	integrationTimeControl_->setContextKnownDescription("Integration Time");
 	integrationModeControl_ = new AMPVControl(name%"IntegrationMode", "BL1611-ID-1:AddOns:PGTDwellMode", "BL1611-ID-1:AddOns:PGTDwellMode", "", this, 0.1);
@@ -71,6 +71,14 @@ QList<AMAxisInfo> CLSPGTDetectorV2::axes() const{
 double CLSPGTDetectorV2::acquisitionTime() const{
 	if(isConnected())
 		return integrationTimeControl_->value();
+	return -1;
+}
+
+double CLSPGTDetectorV2::acquisitionTimeTolerance() const
+{
+	if (isConnected())
+		return integrationTimeControl_->tolerance();
+
 	return -1;
 }
 

@@ -1,7 +1,6 @@
 #include "VESPERSScanConfigurationView.h"
 
 #include "beamline/VESPERS/VESPERSBeamline.h"
-#include "util/VESPERS/GeneralUtilities.h"
 
  VESPERSScanConfigurationView::~VESPERSScanConfigurationView(){}
 VESPERSScanConfigurationView::VESPERSScanConfigurationView(QWidget *parent)
@@ -451,10 +450,10 @@ QDoubleSpinBox *VESPERSScanConfigurationView::addDwellTimeWidget(double time)
 {
 	QDoubleSpinBox *dwellTime = new QDoubleSpinBox;
 	dwellTime->setRange(0, 1000000);
-	dwellTime->setValue(time);
 	dwellTime->setSuffix(" s");
 	dwellTime->setAlignment(Qt::AlignCenter);
 	dwellTime->setDecimals(1);
+	dwellTime->setValue(time);
 
 	return dwellTime;
 }
@@ -465,8 +464,8 @@ QDoubleSpinBox *VESPERSScanConfigurationView::buildPositionDoubleSpinBox(const Q
 	box->setPrefix(prefix);
 	box->setRange(-100000, 100000);
 	box->setSuffix(suffix);
-	box->setValue(value);
 	box->setDecimals(decimals);
+	box->setValue(value);
 	box->setAlignment(Qt::AlignCenter);
 
 	return box;

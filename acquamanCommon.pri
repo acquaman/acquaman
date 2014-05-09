@@ -21,10 +21,10 @@ macx {
 		CONFIG -= mobility
 
 		# Where you want to do your acquaman development (as a path from $HOME). You don't need to include leading or trailing slashes.
-		DEV_PATH = dev
+		DEV_PATH = beamline/programming
 
 		# The full path to the acquaman folder.  This MUST point to the location where acquamanCommon.pri lives.
-		PATH_TO_AM = $$HOME_FOLDER/$$DEV_PATH/acquaman
+		PATH_TO_AM = $$HOME_FOLDER/$$DEV_PATH/acquaman_4_8
 
 		# EPICS Dependencies:
 		EPICS_INCLUDE_DIRS = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/epics/base/include \
@@ -32,8 +32,8 @@ macx {
 		EPICS_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/epics/base/lib/darwin-x86
 
 		# MPlot Source
-		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/include
-		MPLOT_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/lib
+		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot_4_8/include
+		MPLOT_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot_4_8/lib
 
 		GSL_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/gsl-install/include
 
@@ -42,8 +42,8 @@ macx {
 		GSL_CBLAS_LIB = -L$$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/gsl-install/lib -lgslcblas
 
 		# QwtPlot3d dependencies (Disabled for now...)
-		 #QWTPLOT3D_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/qwtplot3d/lib
-		 #QWTPLOT3D_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/qwtplot3d/include
+		 #QWTPLOT3D_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman_4_8/contrib/qwtplot3d/lib
+		 #QWTPLOT3D_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman_4_8/contrib/qwtplot3d/include
 
 		# CDFlib dependencies
 		CDF_LIB = /Applications/cdf34_0-dist/lib/libcdf.a
@@ -184,7 +184,6 @@ CONFIG(jenkins_build) {
 
 }
 
-
 QT += core gui sql opengl network
 
 # add video using Multimedia module from QtMobility, if we have it
@@ -229,6 +228,13 @@ contains(USERNAME, helfrij){
 
 	#QMAKE_LFLAGS_DEBUG += "-mmacosx-version-min=10.7"
 	#QMAKE_LFLAGS_RELEASE += "-mmacosx-version-min=10.7"
+}
+
+contains(USERNAME, chevrid){
+	QMAKE_CXXFLAGS_X86_64 += "-mmacosx-version-min=10.7"
+
+	QMAKE_LFLAGS_DEBUG += "-mmacosx-version-min=10.7"
+	QMAKE_LFLAGS_RELEASE += "-mmacosx-version-min=10.7"
 }
 
 QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR"
@@ -348,7 +354,6 @@ HEADERS += source/acquaman/AMRegion.h \
 	source/analysis/AM2DSummingABEditor.h \
 	source/util/AMOrderedList.h \
 	source/beamline/AMControlOptimization.h \
-	source/ui/beamline/AMControlOptimizationView.h \
 	source/dataman/REIXS/REIXSXESRawFileLoader.h \
 	source/util/AMDeferredFunctionCall.h \
 	source/ui/util/AMPeriodicTableView.h \
@@ -357,8 +362,6 @@ HEADERS += source/acquaman/AMRegion.h \
 	source/dataman/info/AMSpectralOutputDetectorInfo.h \
 	source/dataman/SGM/SGMMCPDetectorInfo.h \
 	source/dataman/info/CLSPGTDetectorInfo.h \
-	source/dataman/info/AMROIInfo.h \
-	source/beamline/AMROI.h \
 	source/ui/dataman/AMSamplePositionViewActionsWidget.h \
 	source/dataman/database/AMQueryTableModel.h \
 	source/dataman/export/AMExportController.h \
@@ -620,7 +623,6 @@ HEADERS += source/acquaman/AMRegion.h \
 	source/ui/beamline/AMDeadTimeButton.h \
 	source/analysis/AMRegionOfInterestAB.h \
 	source/ui/beamline/AMRegionOfInterestView.h \
-	source/acquaman/AMRegionScanActionControllerBasicFileWriter.h \
 	source/acquaman/AMRegionScanConfigurationConverter.h \
 	source/acquaman/AMRegionScanActionController.h \
 	source/ui/actions3/AMCancelActionPrompt.h \
@@ -648,7 +650,27 @@ HEADERS += source/acquaman/AMRegion.h \
     source/ui/CLS/CLSSIS3820ScalerChannelViewWithDarkCurrent.h \
     source/analysis/AM1DDarkCurrentCorrectionABEditor.h \
     source/ui/CLS/CLSDarkCurrentWidget.h \
-    source/beamline/AMCurrentAmplifier.h
+	source/beamline/AMCurrentAmplifier.h \
+	source/beamline/AMAdvancedControlDetectorEmulator.h \
+	source/dataman/AMDbUpgrade1Pt3.h \
+	source/acquaman/AM2DScanConfigurationConverter.h \
+	source/acquaman/AM2DScanActionController.h \
+    source/acquaman/AMScanActionControllerBasicFileWriter.h \
+    source/acquaman/AMTimedScanActionController.h \
+    source/acquaman/AMTimedRegionScanConfiguration.h \
+    source/acquaman/AMTimedScanConfigurationConverter.h \
+    source/util/AMVariableIntegrationTime.h \
+    source/acquaman/AMStepScanConfiguration.h \
+    source/acquaman/AMGenericScanActionControllerAssembler.h \
+    source/acquaman/AMStepScanActionController.h \
+    source/dataman/AMScanAxisEXAFSRegion.h \
+    source/acquaman/AMEXAFSScanActionControllerAssembler.h \
+    source/util/AMEnergyToKSpaceCalculator.h \
+    source/actions3/actions/AMAxisValueFinishedAction.h \
+    source/actions3/actions/AMAxisValueFinishedActionInfo.h \
+    source/ui/dataman/AMStepScanAxisView.h \
+    source/ui/dataman/AMEXAFSScanAxisView.h \
+    source/beamline/CLS/CLSPseudoMotorControl.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -781,7 +803,6 @@ SOURCES += source/acquaman/AMRegion.cpp \
 	source/analysis/AMStandardAnalysisBlock.cpp \
 	source/analysis/AM2DSummingABEditor.cpp \
 	source/beamline/AMControlOptimization.cpp \
-	source/ui/beamline/AMControlOptimizationView.cpp \
 	source/dataman/REIXS/REIXSXESRawFileLoader.cpp \
 	source/util/AMDeferredFunctionCall.cpp \
 	source/ui/util/AMPeriodicTableView.cpp \
@@ -790,8 +811,6 @@ SOURCES += source/acquaman/AMRegion.cpp \
 	source/dataman/info/AMSpectralOutputDetectorInfo.cpp \
 	source/dataman/SGM/SGMMCPDetectorInfo.cpp \
 	source/dataman/info/CLSPGTDetectorInfo.cpp \
-	source/dataman/info/AMROIInfo.cpp \
-	source/beamline/AMROI.cpp \
 	source/ui/dataman/AMSamplePositionViewActionsWidget.cpp \
 	source/dataman/database/AMQueryTableModel.cpp \
 	source/dataman/export/AMExportController.cpp \
@@ -1032,8 +1051,8 @@ SOURCES += source/acquaman/AMRegion.cpp \
 	source/util/AMRange.cpp \
 	source/ui/util/AMSelectableElementView.cpp \
 	source/ui/util/AMSelectableItemView.cpp \
-	source/ui/beamline/AMXRFDetailedDetectorView.cpp \
-	source/util/AMNameAndRangeValidator.cpp \
+		source/ui/beamline/AMXRFDetailedDetectorView.cpp \
+		source/util/AMNameAndRangeValidator.cpp \
 	source/dataman/AMRegionOfInterest.cpp \
 	source/analysis/AMnDDeadTimeAB.cpp \
 	source/ui/AMSelectionDialog.cpp \
@@ -1041,7 +1060,6 @@ SOURCES += source/acquaman/AMRegion.cpp \
 	source/ui/beamline/AMDeadTimeButton.cpp \
 	source/analysis/AMRegionOfInterestAB.cpp \
 	source/ui/beamline/AMRegionOfInterestView.cpp \
-	source/acquaman/AMRegionScanActionControllerBasicFileWriter.cpp \
 	source/acquaman/AMRegionScanConfigurationConverter.cpp \
 	source/acquaman/AMRegionScanActionController.cpp \
 	source/ui/actions3/AMCancelActionPrompt.cpp \
@@ -1068,7 +1086,27 @@ SOURCES += source/acquaman/AMRegion.cpp \
     source/ui/CLS/CLSSIS3820ScalerChannelViewWithDarkCurrent.cpp \
     source/analysis/AM1DDarkCurrentCorrectionABEditor.cpp \
     source/ui/CLS/CLSDarkCurrentWidget.cpp \
-    source/beamline/AMCurrentAmplifier.cpp
+	source/beamline/AMCurrentAmplifier.cpp \
+	source/beamline/AMAdvancedControlDetectorEmulator.cpp \
+	source/dataman/AMDbUpgrade1Pt3.cpp \
+	source/acquaman/AM2DScanConfigurationConverter.cpp \
+	source/acquaman/AM2DScanActionController.cpp \
+    source/acquaman/AMScanActionControllerBasicFileWriter.cpp \
+    source/acquaman/AMTimedScanActionController.cpp \
+    source/acquaman/AMTimedRegionScanConfiguration.cpp \
+    source/acquaman/AMTimedScanConfigurationConverter.cpp \
+    source/util/AMVariableIntegrationTime.cpp \
+    source/acquaman/AMStepScanConfiguration.cpp \
+    source/acquaman/AMGenericScanActionControllerAssembler.cpp \
+    source/acquaman/AMStepScanActionController.cpp \
+    source/dataman/AMScanAxisEXAFSRegion.cpp \
+    source/acquaman/AMEXAFSScanActionControllerAssembler.cpp \
+    source/util/AMEnergyToKSpaceCalculator.cpp \
+    source/actions3/actions/AMAxisValueFinishedAction.cpp \
+    source/actions3/actions/AMAxisValueFinishedActionInfo.cpp \
+    source/ui/dataman/AMStepScanAxisView.cpp \
+    source/ui/dataman/AMEXAFSScanAxisView.cpp \
+    source/beamline/CLS/CLSPseudoMotorControl.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1092,3 +1130,69 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

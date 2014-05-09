@@ -7,10 +7,10 @@
 
 class QLabel;
 class QFileDialog;
-class QLineEdit;
 class QCheckBox;
 class QDir;
 class QPushButton;
+class QComboBox;
 
 /// This class provides convience for getting the user data folder upon startup.  It provides a convience method of just entering in the proposal number and also a more general file dialog selection.
 class VESPERSChooseDataFolderDialog : public QDialog
@@ -19,8 +19,9 @@ class VESPERSChooseDataFolderDialog : public QDialog
 
 public:
 	/// Constructor.  Builds the dialog.
- 	virtual ~VESPERSChooseDataFolderDialog();
 	VESPERSChooseDataFolderDialog(const QString &dataFolder, QWidget *parent = 0);
+	/// Destructor.
+	virtual ~VESPERSChooseDataFolderDialog();
 
 	/// Static method that makes and pops up the dialog.  Returns whether it was successful at updating the user settings or not.
 	static bool getDataFolder(QWidget *parent = 0);
@@ -35,16 +36,20 @@ protected slots:
 
 protected:
 	/// Method that checks whether the input is valid or not.  Takes into account whether in advanced or not-advanced mode.
-	bool pathOk(const QString &path) const;
+	QString pathStatus(const QString &path) const;
 
 	/// The line edit that holds the proposal number or the path to a folder.
-	QLineEdit *path_;
+	QComboBox *path_;
 	/// The check box for the advanced choice.
 	QCheckBox *advancedCheck_;
 	/// The actual path stored as a string.
 	QString folder_;
+	/// The list of all the folders in the users folder.
+	QStringList directories_;
 	/// The okay button.
 	QPushButton *okButton_;
+	/// The path status label.
+	QLabel *pathStatusLabel_;
 };
 
 #endif // VESPERSCHOOSEDATAFOLDERDIALOG_H

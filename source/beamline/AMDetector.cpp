@@ -682,3 +682,8 @@ void AMDetector::setHiddenFromUsers(bool hidden)
 		emit isVisibleChanged(hiddenFromUsers_);
 	}
 }
+
+bool AMDetector::acquisitionTimeWithinTolerance(double value) const
+{
+	return fabs(value - acquisitionTime()) < acquisitionTimeTolerance();
+}

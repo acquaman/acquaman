@@ -18,12 +18,13 @@ class AMRegionOfInterest : public AMDbObject
 
 public:
 	/// Constructor.  Requires a name, energy, and range for the region of interest.
- 	virtual ~AMRegionOfInterest();
 	Q_INVOKABLE AMRegionOfInterest(const QString &name = "Invalid Region of Interest", double energy = 0.0, const AMRange &range = AMRange(), QObject *parent = 0);
 	/// Constructor.  Requires a name, energy, the minimum range value, and the maximum range value.
 	AMRegionOfInterest(const QString &name, double energy, double minimum, double maximum, QObject *parent);
 	/// Copy constructor.
 	AMRegionOfInterest(const AMRegionOfInterest &original);
+	/// Destructor.
+	virtual ~AMRegionOfInterest();
 
 	/// Virtual copy constructor.  Returns a copy of this region of interest.  Caller is responsible for memory.
 	AMRegionOfInterest *createCopy() const;

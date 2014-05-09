@@ -124,6 +124,10 @@ public slots:
 
 	/// Call this to export the currently-visible plot to a graphics file. (Currently, the only supported format is a vector PDF.) This routine will prompt the user to choose a file name for the plot, and confirm on overwrite.
 	void exportGraphicsToFile();
+	/// Call this to print the currently-visible plot.
+	void printGraphics();
+	/// Call this to update the Scan Conditions Table
+	void refreshScanConditions();
 
 protected slots:
 	///  This catches changes in the scan that is currently selected, and hooks it up to the editor widgets. \todo Ultimately, we might handle more than one scan being "selected" at once.
@@ -176,6 +180,7 @@ protected:
 	AMScanSetModel* scanSetModel_;
 	/// This is the currently-selected scan, or 0 non-existent
 	AMScan* currentScan_;
+
 
 	// UI Components
 

@@ -1,6 +1,7 @@
 #include "VESPERSSetStringActionInfo.h"
 
- VESPERSSetStringActionInfo::~VESPERSSetStringActionInfo(){}
+VESPERSSetStringActionInfo::~VESPERSSetStringActionInfo(){}
+
 VESPERSSetStringActionInfo::VESPERSSetStringActionInfo(const QString &newText, QObject *parent)
 	: AMActionInfo3("VESPERS Set String Action", "VESPERS Set String Action", ":/system-run.png", parent)
 {

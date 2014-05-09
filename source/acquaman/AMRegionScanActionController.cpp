@@ -6,7 +6,7 @@
 
 #include "application/AMAppController.h"
 #include "application/AMAppControllerSupport.h"
-#include "acquaman/AMScanActionControllerScanAssembler.h"
+#include "acquaman/AMGenericScanActionControllerAssembler.h"
 #include "acquaman/AMRegionScanConfigurationConverter.h"
 #include "acquaman/AMAgnosticDataAPI.h"
 #include "beamline/AMBeamline.h"
@@ -26,7 +26,7 @@ AMRegionScanActionController::AMRegionScanActionController(AMRegionScanConfigura
 	regionsConfiguration_ = configuration;
 	currentAxisValueIndex_ = AMnDIndex(0);
 	currentAxisValue_ = 0.0;
-	newScanAssembler_ = new AMScanActionControllerScanAssembler(this);
+	newScanAssembler_ = new AMGenericScanActionControllerAssembler(this);
 	useFeedback_ = false;
 }
 
@@ -57,7 +57,7 @@ void AMRegionScanActionController::buildScanController()
 		QFileInfo fullPath(AMUserSettings::defaultRelativePathForScan(QDateTime::currentDateTime()));	// ex: 2010/09/Mon_03_12_24_48_0000   (Relative, and with no extension)
 
 		// If using just the basic ascii files.
-		if (scan_->fileFormat() == "sgm2013XAS" || scan_->fileFormat() == "amRegionAscii2013"){
+		if (scan_->fileFormat() == "amRegionAscii2013"){
 
 			scan_->setFilePath(fullPath.filePath() % ".dat");	// relative path and extension (is what the database wants)
 
@@ -92,10 +92,10 @@ void AMRegionScanActionController::buildScanController()
 			flushToDiskTimer_.start();
 		}
 
-		qRegisterMetaType<AMRegionScanActionControllerBasicFileWriter::FileWriterError>("FileWriterError");
-		AMRegionScanActionControllerBasicFileWriter *fileWriter = new AMRegionScanActionControllerBasicFileWriter(AMUserSettings::userDataFolder % fullPath.filePath(), has1DDetectors);
+		qRegisterMetaType<AMScanActionControllerBasicFileWriter::FileWriterError>("FileWriterError");
+		AMScanActionControllerBasicFileWriter *fileWriter = new AMScanActionControllerBasicFileWriter(AMUserSettings::userDataFolder % fullPath.filePath(), has1DDetectors);
 		connect(fileWriter, SIGNAL(fileWriterIsBusy(bool)), this, SLOT(onFileWriterIsBusy(bool)));
-		connect(fileWriter, SIGNAL(fileWriterError(AMRegionScanActionControllerBasicFileWriter::FileWriterError)), this, SLOT(onFileWriterError(AMRegionScanActionControllerBasicFileWriter::FileWriterError)));
+		connect(fileWriter, SIGNAL(fileWriterError(AMScanActionControllerBasicFileWriter::FileWriterError)), this, SLOT(onFileWriterError(AMScanActionControllerBasicFileWriter::FileWriterError)));
 		connect(this, SIGNAL(requestWriteToFile(int,QString)), fileWriter, SLOT(writeToFile(int,QString)));
 		connect(this, SIGNAL(finishWritingToFile()), fileWriter, SLOT(finishWriting()));
 
@@ -137,7 +137,7 @@ void AMRegionScanActionController::flushCDFDataStoreToDisk()
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 38, "Error saving the currently-running scan's raw data file to disk. Watch out... your data may not be saved! Please report this bug to your beamline's software developers."));
 }
 
-void AMRegionScanActionController::onFileWriterError(AMRegionScanActionControllerBasicFileWriter::FileWriterError error)
+void AMRegionScanActionController::onFileWriterError(AMScanActionControllerBasicFileWriter::FileWriterError error)
 {
 	qDebug() << "Got a file writer error " << error;
 
@@ -145,12 +145,12 @@ void AMRegionScanActionController::onFileWriterError(AMRegionScanActionControlle
 
 	switch(error){
 
-	case AMRegionScanActionControllerBasicFileWriter::AlreadyExistsError:
+	case AMScanActionControllerBasicFileWriter::AlreadyExistsError:
 		AMErrorMon::alert(this, AMREGIONSCANACTIONCONTROLLER_FILE_ALREADY_EXISTS, QString("Error, the %1 Scan Action Controller attempted to write you data to file that already exists. This is a serious problem, please contact the Acquaman developers.").arg(regionsConfiguration_->technique()));
 		userErrorString = "Your scan has been aborted because the file Acquaman wanted to write to already exists (for internal storage). This is a serious problem and would have resulted in collecting data but not saving it. Please contact the Acquaman developers immediately.";
 		break;
 
-	case AMRegionScanActionControllerBasicFileWriter::CouldNotOpenError:
+	case AMScanActionControllerBasicFileWriter::CouldNotOpenError:
 		AMErrorMon::alert(this, AMREGIONSCANACTIONCONTROLLER_COULD_NOT_OPEN_FILE, QString("Error, the %1 Scan Action Controller failed to open the file to write your data. This is a serious problem, please contact the Acquaman developers.").arg(regionsConfiguration_->technique()));
 		userErrorString = "Your scan has been aborted because Acquaman was unable to open the desired file for writing (for internal storage). This is a serious problem and would have resulted in collecting data but not saving it. Please contact the Acquaman developers immediately.";
 		break;
@@ -198,10 +198,9 @@ bool AMRegionScanActionController::event(QEvent *e)
 			scan_->rawData()->endInsertRows();
 			writeDataToFiles();
 			emit finishWritingToFile();
-//			setFinished();
 			break;}
 
-		case AMAgnosticDataAPIDefinitions::LoopIncremented:
+		case AMAgnosticDataAPIDefinitions::AxisValueFinished:
 			scan_->rawData()->endInsertRows();
 			writeDataToFiles();
 			currentAxisValueIndex_[0] = currentAxisValueIndex_.i()+1;
@@ -258,7 +257,13 @@ void AMRegionScanActionController::writeHeaderToFile()
 	QString rank1String;
 	rank1String.append("Start Info\n");
 	rank1String.append("Version: Acquaman Generic Linear Step 0.1\n");
-	rank1String.append(QString("-1%1eV\n").arg(separator));
+
+	rank1String.append(QString("-1%1").arg(separator));
+	QString axisInfoString;
+	AMTextStream axisInfoStream(&axisInfoString);
+	axisInfoStream.write(scan_->rawData()->scanAxisAt(0));
+	rank1String.append(axisInfoString);
+	rank1String.append("\n");
 
 	for (int x = 0; x < scan_->rawData()->measurementCount(); x++){
 

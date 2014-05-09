@@ -12,8 +12,9 @@ class AMDeadTimeButton : public QToolButton
 
 public:
 	/// Constructor.  Takes two data sources (the data source is assumed to have rank 0), one for the input counts and one for the output counts, the good reference point, and the bad reference point.
- 	virtual ~AMDeadTimeButton();
 	AMDeadTimeButton(AMDataSource *inputCountSource, AMDataSource *outputCountSource, double goodReferencePoint, double badReferencePoint, QWidget *parent = 0);
+	/// Destructor.
+	virtual ~AMDeadTimeButton();
 
 	/// Returns the data source that this button is listening to.
 	AMDataSource *deadTimeSource() const { return inputCountSource_; }

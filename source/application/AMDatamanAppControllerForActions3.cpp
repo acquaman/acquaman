@@ -36,6 +36,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/actions/AMDetectorCleanupActionInfo.h"
 #include "actions3/actions/AMAxisStartedActionInfo.h"
 #include "actions3/actions/AMAxisFinishedActionInfo.h"
+#include "actions3/actions/AMAxisValueFinishedActionInfo.h"
 #include "actions3/actions/AMTimedWaitActionInfo3.h"
 #include "actions3/actions/AMControlWaitActionInfo.h"
 #include "actions3/actions/AMDoDarkCurrentCorrectionActionInfo.h"
@@ -48,7 +49,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
  AMDatamanAppControllerForActions3::~AMDatamanAppControllerForActions3(){}
 AMDatamanAppControllerForActions3::AMDatamanAppControllerForActions3(QObject *parent) :
-    AMDatamanAppController(parent)
+	AMDatamanAppController(parent)
 {
 	// Prepend the AM upgrade 1.1 to the list for the actions database
 	AMDbUpgrade *am1Pt1UserDb = new AMDbUpgrade1Pt1("actions", this);
@@ -120,6 +121,7 @@ bool AMDatamanAppControllerForActions3::startupRegisterDatabases()
 	AMDbObjectSupport::s()->registerClass<AMDetectorCleanupActionInfo>();
 	AMDbObjectSupport::s()->registerClass<AMAxisStartedActionInfo>();
 	AMDbObjectSupport::s()->registerClass<AMAxisFinishedActionInfo>();
+	AMDbObjectSupport::s()->registerClass<AMAxisValueFinishedActionInfo>();
 	AMDbObjectSupport::s()->registerClass<AMTimedWaitActionInfo3>();
 
     AMDbObjectSupport::s()->registerClass<AMControlWaitActionInfo>();

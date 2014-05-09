@@ -10,8 +10,8 @@
 class AMScanActionControllerScanAssembler;
 class AMListAction3;
 
-#include "acquaman/AMRegionScanActionControllerBasicFileWriter.h"
-Q_DECLARE_METATYPE(AMRegionScanActionControllerBasicFileWriter::FileWriterError)
+#include "acquaman/AMScanActionControllerBasicFileWriter.h"
+Q_DECLARE_METATYPE(AMScanActionControllerBasicFileWriter::FileWriterError)
 
 #define AMREGIONSCANACTIONCONTROLLER_CANNOT_CONVERT_CONFIGURATION 263002
 #define AMREGIONSCANACTIONCONTROLLER_FILE_ALREADY_EXISTS 263003
@@ -43,7 +43,7 @@ signals:
 
 protected slots:
 	/// Handles dealing with file writer errors.
-	void onFileWriterError(AMRegionScanActionControllerBasicFileWriter::FileWriterError error);
+	void onFileWriterError(AMScanActionControllerBasicFileWriter::FileWriterError error);
 	/// Handles dealing with the file writer when it changes busy state.
 	void onFileWriterIsBusy(bool isBusy);
 	/// Helper slot that tells AMCDFDataStore to flush it's contents to disk.  This prevents it from corrupting itself.

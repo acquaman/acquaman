@@ -5,6 +5,7 @@
 #include "actions3/actions/AMDoDarkCurrentCorrectionAction.h"
 #include "actions3/AMListAction3.h"
 
+
 CLSBasicScalerChannelDetector::CLSBasicScalerChannelDetector(const QString &name, const QString &description, CLSSIS3820Scaler *scaler, int channelIndex, QObject *parent) :
 	AMDetector(name, description, parent)
 {
@@ -31,6 +32,14 @@ int CLSBasicScalerChannelDetector::size(int axisNumber) const{
 double CLSBasicScalerChannelDetector::acquisitionTime() const{
 	if(isConnected())
 		return scaler_->dwellTime();
+	return -1;
+}
+
+double CLSBasicScalerChannelDetector::acquisitionTimeTolerance() const
+{
+	if (isConnected())
+		return scaler_->dwellTimeTolerance();
+
 	return -1;
 }
 
@@ -91,12 +100,9 @@ bool CLSBasicScalerChannelDetector::setAcquisitionTime(double seconds){
 	if(!isConnected())
 		return false;
 
-	if( !(fabs(scaler_->dwellTime()-seconds) < 0.001) ){
-		scaler_->setDwellTime(seconds);
-		return true;
-	}
-
-	return false;
+	scaler_->setDwellTime(seconds);
+	emit acquisitionTimeChanged(seconds);
+	return true;
 }
 
 bool CLSBasicScalerChannelDetector::setReadMode(AMDetectorDefinitions::ReadMode readMode){

@@ -60,11 +60,13 @@ CLSSIS3820Scaler::CLSSIS3820Scaler(const QString &baseName, QObject *parent) :
 
 	startToggle_ = new AMPVControl("Start/Scanning", baseName+":startScan", baseName+":startScan", QString(), this, 0.1);
 	continuousToggle_ = new AMPVControl("Continuous", baseName+":continuous", baseName+":continuous", QString(), this, 0.1);
-	dwellTime_ = new AMPVControl("DwellTime", baseName+":delay", baseName+":delay", QString(), this, 0.1);
+	dwellTime_ = new AMPVControl("DwellTime", baseName+":delay", baseName+":delay", QString(), this, 0.001);
 	scanPerBuffer_ = new AMPVControl("ScanPerBuffer", baseName+":nscan", baseName+":nscan", QString(), this, 0.5);
 	totalScans_ = new AMPVControl("TotalScans", baseName+":scanCount", baseName+":scanCount", QString(), this, 0.5);
 
 	reading_ = new AMReadOnlyPVControl("Reading", baseName+":scan", this);
+
+	dwellTime_->setAttemptMoveWhenWithinTolerance(false);
 
 	allControls_ = new AMControlSet(this);
 	allControls_->addControl(startToggle_);
@@ -114,6 +116,14 @@ double CLSSIS3820Scaler::dwellTime() const{
 	return -1;
 }
 
+double CLSSIS3820Scaler::dwellTimeTolerance() const
+{
+	if (isConnected())
+		return dwellTime_->tolerance();
+
+	return -1;
+}
+
 int CLSSIS3820Scaler::scansPerBuffer() const{
 
 	if(isConnected())
@@ -155,8 +165,9 @@ AMOrderedList<CLSSIS3820ScalerChannel*> CLSSIS3820Scaler::channels(){
 	return scalerChannels_;
 }
 
-AMDetectorTriggerSource* CLSSIS3820Scaler::triggerSource(){
-	return triggerSource_;
+AMDetectorTriggerSource* CLSSIS3820Scaler::triggerSource()
+{
+    return triggerSource_;
 }
 
 AMDetectorDwellTimeSource* CLSSIS3820Scaler::dwellTimeSource(){
@@ -496,10 +507,12 @@ void CLSSIS3820Scaler::onReadingChanged(double value){
 }
 
 void CLSSIS3820Scaler::onDwellTimeSourceSetDwellTime(double dwellSeconds){
-	if(!isConnected() || isScanning())
+	if(!isConnected() || isScanning()){
+		// NEM March 24th, 2014
 		return;
+	}
 
-	if(dwellSeconds != dwellTime())
+	if(!(fabs(dwellSeconds - dwellTime()) < dwellTimeTolerance()))
 		setDwellTime(dwellSeconds);
 	else
 		dwellTimeSource_->setSucceeded();

@@ -33,6 +33,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QAction>
 #include <QGroupBox>
 #include <QStringBuilder>
+#include <QPrintDialog>
 
 AMScanViewSourceSelector::AMScanViewSourceSelector(AMScanSetModel* model, QWidget* parent)
 	: QWidget(parent) {
@@ -676,6 +677,10 @@ AMScanViewExclusiveView::AMScanViewExclusiveView(AMScanView* masterView) : AMSca
 
 	connect(plot_->plot()->signalSource(), SIGNAL(dataPositionChanged(QPointF)), this, SIGNAL(dataPositionChanged(QPointF)));
 
+	plotCursor_ = new MPlotPoint;
+	plotCursor_->setMarker(MPlotMarkerShape::VerticalBeam, 1e6, QPen(Qt::black), QBrush(Qt::black));
+	connect(plot_->plot()->signalSource(), SIGNAL(dataPositionChanged(QPointF)), this, SLOT(setPlotCursorCoordinates(QPointF)));
+
 	QGraphicsLinearLayout* gl = new QGraphicsLinearLayout();
 	gl->setContentsMargins(0,0,0,0);
 	gl->setSpacing(0);
@@ -699,6 +704,31 @@ AMScanViewExclusiveView::~AMScanViewExclusiveView() {
 	// PlotSeries's will be deleted as children items of the plot.
 
 	delete plot_;
+}
+
+void AMScanViewExclusiveView::setPlotCursorVisibility(bool visible)
+{
+	if (visible)
+		plot_->plot()->addItem(plotCursor_);
+
+	else
+		plot_->plot()->removeItem(plotCursor_);
+}
+
+void AMScanViewExclusiveView::setPlotCursorCoordinates(const QPointF &coordinates)
+{
+	plotCursor_->setValue(coordinates);
+}
+
+void AMScanViewExclusiveView::setPlotCursorCoordinates(double xCoordinate)
+{
+	plotCursor_->setValue(QPointF(xCoordinate, plotCursor_->value().y()));
+}
+
+void AMScanViewExclusiveView::setPlotCursorColor(const QColor &color)
+{
+	plotCursor_->marker()->setPen(QPen(color));
+	plotCursor_->marker()->setBrush(QBrush(color));
 }
 
 void AMScanViewExclusiveView::onRowInserted(const QModelIndex& parent, int start, int end) {
@@ -999,6 +1029,12 @@ AMScanViewMultiView::AMScanViewMultiView(AMScanView* masterView) : AMScanViewInt
 	plot_ = createDefaultPlot();
 	plot_->plot()->legend()->enableDefaultLegend(false);	// turn on or turn off labels for individual scans in this plot
 
+	connect(plot_->plot()->signalSource(), SIGNAL(dataPositionChanged(QPointF)), this, SIGNAL(dataPositionChanged(QPointF)));
+
+	plotCursor_ = new MPlotPoint;
+	plotCursor_->setMarker(MPlotMarkerShape::VerticalBeam, 1e6, QPen(Qt::black), QBrush(Qt::black));
+	connect(plot_->plot()->signalSource(), SIGNAL(dataPositionChanged(QPointF)), this, SLOT(setPlotCursorCoordinates(QPointF)));
+
 	QGraphicsLinearLayout* gl = new QGraphicsLinearLayout();
 	gl->setContentsMargins(0,0,0,0);
 	gl->setSpacing(0);
@@ -1013,6 +1049,31 @@ AMScanViewMultiView::AMScanViewMultiView(AMScanView* masterView) : AMScanViewInt
 
 	reviewPlotAxesConfiguration(plot_);
 	refreshTitles();
+}
+
+void AMScanViewMultiView::setPlotCursorVisibility(bool visible)
+{
+	if (visible)
+		plot_->plot()->addItem(plotCursor_);
+
+	else
+		plot_->plot()->removeItem(plotCursor_);
+}
+
+void AMScanViewMultiView::setPlotCursorCoordinates(const QPointF &coordinates)
+{
+	plotCursor_->setValue(coordinates);
+}
+
+void AMScanViewMultiView::setPlotCursorCoordinates(double xCoordinate)
+{
+	plotCursor_->setValue(QPointF(xCoordinate, plotCursor_->value().y()));
+}
+
+void AMScanViewMultiView::setPlotCursorColor(const QColor &color)
+{
+	plotCursor_->marker()->setPen(QPen(color));
+	plotCursor_->marker()->setBrush(QBrush(color));
 }
 
 void AMScanViewMultiView::addScan(int si) {
@@ -2113,6 +2174,27 @@ void AMScanView::exportGraphicsFile(const QString& fileName)
 		painter.end();
 		image.save(fileName);
 	}
+}
+
+void AMScanView::printGraphics()
+{
+
+		QPrinter printer(QPrinter::HighResolution);
+		printer.setPageSize(QPrinter::Letter);
+		printer.setOutputFormat(QPrinter::PdfFormat);
+		printer.setOrientation(QPrinter::Landscape);
+
+		QPrintDialog *dialog = new QPrintDialog(&printer, this);
+		    dialog->setWindowTitle(tr("Print Spectra"));
+		    if (dialog->exec() != QDialog::Accepted)
+			return;
+
+		QPainter painter(&printer);
+		gview_->render(&painter);
+
+		painter.end();
+
+
 }
 
 QString AMScanViewInternal::bottomAxisName(AMScan *scan, AMDataSource *dataSource)

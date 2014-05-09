@@ -29,6 +29,15 @@ AMScanConfiguration::AMScanConfiguration(QObject *parent) :
 	expectedDuration_ = 0;
 }
 
+AMScanConfiguration::AMScanConfiguration(const AMScanConfiguration &original)
+	: AMDbObject(original)
+{
+	userScanName_ = original.userScanName();
+	userExportName_ = original.userExportName();
+	autoExportEnabled_ = original.autoExportEnabled();
+	expectedDuration_ = original.expectedDuration();
+}
+
 const QMetaObject* AMScanConfiguration::getMetaObject(){
 	return metaObject();
 }
@@ -108,10 +117,20 @@ void AMScanConfiguration::setExpectedDuration(double duration)
 	}
 }
 
-void AMScanConfiguration::setDetectorConfigurations(const AMDetectorInfoSet detectorConfigurations){
+void AMScanConfiguration::setDetectorConfigurations(const AMDetectorInfoSet &detectorConfigurations){
 	if(detectorConfigurations_ != detectorConfigurations){
 		detectorConfigurations_ = detectorConfigurations;
 		setModified(true);
 		emit detectorConfigurationsChanged();
+	}
+}
+
+void AMScanConfiguration::setAxisControlInfos(const AMControlInfoList &axisControlInfos)
+{
+	if (axisControlInfos_ != axisControlInfos){
+
+		axisControlInfos_ = axisControlInfos;
+		setModified(true);
+		emit axisControlInfosChanged();
 	}
 }

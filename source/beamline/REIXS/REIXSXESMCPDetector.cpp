@@ -188,11 +188,16 @@ void REIXSXESMCPDetector::onTriggerSourceTriggered(AMDetectorDefinitions::ReadMo
 	acquire(readMode);
 }
 
+double REIXSXESMCPDetector::acquisitionTimeTolerance() const
+{
+	return 0.001;	// This can probably be fine tuned to something more real.
+}
+
 void REIXSXESMCPDetector::onDwellTimeSourceSetDwellTime(double dwellSeconds){
 	if(!isConnected())
 		return;
 
-	if(dwellSeconds != acquisitionTime())
+	if(!acquisitionTimeWithinTolerance(dwellSeconds))
 		setAcquisitionTime(dwellSeconds);
 	else
 		dwellTimeSource_->setSucceeded();

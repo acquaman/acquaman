@@ -10,5 +10,5 @@ SUBDIRS += AMCDFv1FileLoader \
 	ALSBL8XASFileLoader \
 	VESPERS20122DFileLoader \
 	VESPERS2012SpatialLineScanFileLoader \
-	SGM2013XASFileLoader \
+	AMRegion2013FileLoader \
 	SGM2013FastFileLoader

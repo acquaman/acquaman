@@ -113,8 +113,9 @@ public:
 			  };
 
 	/// Default constructor. \c name is a unique programmer name to access this detector with. \c description is a human-readable version
- 	virtual ~AMDetector();
 	AMDetector(const QString &name, const QString &description, QObject *parent = 0);
+	/// Destructor.
+	virtual ~AMDetector();
 
 	/// One feature of a detector is that it can create a snapshot of its current state and pass it on as an AMDetectorInfo.
 	AMDetectorInfo toInfo() const;
@@ -158,6 +159,10 @@ public:
 
 	/// Returns the current acquisition dwell time which is only relevant for triggered (RequestRead) detectors
 	virtual double acquisitionTime() const = 0;
+	/// Returns whether \param value is already within acquisition time tolerance of the detector.
+	bool acquisitionTimeWithinTolerance(double value) const;
+	/// Returns the acquisition time tolerance.  This is defined by subclasses because this limitation will likely be detector specific.
+	virtual double acquisitionTimeTolerance() const = 0;
 
     virtual bool canDoDarkCurrentCorrection() const { return false;}
 

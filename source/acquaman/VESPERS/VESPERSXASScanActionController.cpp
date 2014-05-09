@@ -7,11 +7,12 @@
 #include "application/AMAppControllerSupport.h"
 #include "dataman/database/AMDbObjectSupport.h"
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
+#include "acquaman/AMEXAFSScanActionControllerAssembler.h"
 
 VESPERSXASScanActionController::~VESPERSXASScanActionController(){}
 
 VESPERSXASScanActionController::VESPERSXASScanActionController(VESPERSEXAFSScanConfiguration *configuration, QObject *parent)
-	: AMRegionScanActionController(configuration, parent), VESPERSScanController(configuration)
+	: AMStepScanActionController(configuration, parent), VESPERSScanController(configuration)
 {
 	configuration_ = configuration;
 
@@ -21,7 +22,12 @@ VESPERSXASScanActionController::VESPERSXASScanActionController(VESPERSEXAFSScanC
 	scan_->setFileFormat("amCDFv1");
 	scan_->setIndexType("fileSystem");
 	scan_->setNotes(buildNotes());
+
 	scan_->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));
+
+	AMControlInfoList list;
+	list.append(VESPERSBeamline::vespers()->energy()->toInfo());
+	configuration_->setAxisControlInfos(list);
 
 	AMExporterOptionGeneralAscii *vespersDefault = VESPERS::buildStandardExporterOption("VESPERSDefault", configuration_->exportSpectraSources(), true, true, configuration_->exportSpectraInRows());
 	if(vespersDefault->id() > 0)
@@ -93,6 +99,31 @@ VESPERSXASScanActionController::VESPERSXASScanActionController(VESPERSEXAFSScanC
 
 void VESPERSXASScanActionController::buildScanControllerImplementation()
 {
+	VESPERS::FluorescenceDetectors xrfDetector = configuration_->fluorescenceDetector();
+	AMXRFDetector *detector = 0;
+
+	if (xrfDetector.testFlag(VESPERS::SingleElement))
+		detector = qobject_cast<AMXRFDetector *>(VESPERSBeamline::vespers()->exposedDetectorByName("SingleElementVortex"));
+
+	else if (xrfDetector.testFlag(VESPERS::FourElement))
+		detector = qobject_cast<AMXRFDetector *>(VESPERSBeamline::vespers()->exposedDetectorByName("FourElementVortex"));
+
+	if (detector){
+
+		foreach (AMRegionOfInterest *region, detector->regionsOfInterest()){
+
+			AMRegionOfInterestAB *regionAB = (AMRegionOfInterestAB *)region->valueSource();
+			AMRegionOfInterestAB *newRegion = new AMRegionOfInterestAB(regionAB->name(), this);
+			newRegion->setBinningRange(regionAB->binningRange());
+			newRegion->setInputDataSources(QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource(detector->name())));
+			scan_->addAnalyzedDataSource(newRegion);
+		}
+	}
+}
+
+void VESPERSXASScanActionController::createScanAssembler()
+{
+	scanAssembler_ = new AMEXAFSScanActionControllerAssembler(this);
 }
 
 AMAction3* VESPERSXASScanActionController::createInitializationActions()

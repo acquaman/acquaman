@@ -2,7 +2,8 @@
 
 #include "acquaman/AMAgnosticDataAPI.h"
 
- AMAxisStartedAction::~AMAxisStartedAction(){}
+AMAxisStartedAction::~AMAxisStartedAction(){}
+
 AMAxisStartedAction::AMAxisStartedAction(AMAxisStartedActionInfo *info, QObject *parent) :
 	AMAction3(info, parent)
 {
@@ -12,7 +13,7 @@ AMAxisStartedAction::AMAxisStartedAction(AMAxisStartedActionInfo *info, QObject 
 AMAxisStartedAction::AMAxisStartedAction(const AMAxisStartedAction &other) :
 	AMAction3(other)
 {
-	generateScanActionMessages_ = true;
+	generateScanActionMessages_ = other.generateScanActionMessages();
 }
 
 void AMAxisStartedAction::startImplementation(){

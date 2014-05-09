@@ -2,7 +2,8 @@
 
 #include "beamline/AMBeamline.h"
 
- VESPERSSingleElementVortexDetector::~VESPERSSingleElementVortexDetector(){}
+VESPERSSingleElementVortexDetector::~VESPERSSingleElementVortexDetector(){}
+
 VESPERSSingleElementVortexDetector::VESPERSSingleElementVortexDetector(const QString &name, const QString &description, QObject *parent)
 	: AMXRFDetector(name, description, parent)
 {
@@ -17,7 +18,7 @@ VESPERSSingleElementVortexDetector::VESPERSSingleElementVortexDetector(const QSt
 	// Stuff required by AMXRFDetector.
 	acquireControl_ = new AMPVControl("Acquisition Time", "IOC1607-004:mca1EraseStart", "IOC1607-004:mca1EraseStart", "IOC1607-004:mca1Stop", this, 0.5);
 	acquisitionStatusControl_ = new AMReadOnlyPVControl("Status", "IOC1607-004:mca1.ACQG", this);
-	acquireTimeControl_ = new AMSinglePVControl("Integration Time", "IOC1607-004:mca1.PRTM", this, 0.05);
+	acquireTimeControl_ = new AMSinglePVControl("Integration Time", "IOC1607-004:mca1.PRTM", this, 0.001);
 	elapsedTimeControl_ = new AMReadOnlyPVControl("Elapsed Time", "IOC1607-004:mca1.ERTM", this);
 
 	icrControls_.append(new AMReadOnlyPVControl("Input Counts", "IOC1607-004:dxp1.ICR", this, "The input counts for the single element."));
@@ -73,11 +74,6 @@ bool VESPERSSingleElementVortexDetector::setReadMode(AMDetectorDefinitions::Read
 
 	return false;
 }
-
-//const double *VESPERSSingleElementVortexDetector::data() const
-//{
-//	return 0;
-//}
 
 void VESPERSSingleElementVortexDetector::setMaximumEnergy(double energy)
 {

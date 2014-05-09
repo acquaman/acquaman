@@ -1,6 +1,7 @@
 #include "AMAxisStartedActionInfo.h"
 
- AMAxisStartedActionInfo::~AMAxisStartedActionInfo(){}
+AMAxisStartedActionInfo::~AMAxisStartedActionInfo(){}
+
 AMAxisStartedActionInfo::AMAxisStartedActionInfo(const QString &axisName, AMScanAxis::AxisType axisType, QObject *parent) :
 	AMActionInfo3("Start Axis", "Start Axis", ":/system-run.png", parent)
 {

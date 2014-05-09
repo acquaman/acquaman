@@ -14,7 +14,8 @@
 
 #include "ui/AMHeaderButton.h"
 
- AMXRFDetailedDetectorView::~AMXRFDetailedDetectorView(){}
+AMXRFDetailedDetectorView::~AMXRFDetailedDetectorView(){}
+
 AMXRFDetailedDetectorView::AMXRFDetailedDetectorView(AMXRFDetector *detector, QWidget *parent)
 	: AMXRFBaseDetectorView(detector, parent)
 {
@@ -76,7 +77,7 @@ void AMXRFDetailedDetectorView::buildDeadTimeView()
 	deadTimeButtons_->setExclusive(false);
 	QGridLayout *deadTimeButtonLayout = new QGridLayout;
 
-	for (int i = 0, elements = detector_->elements(), factor = int(sqrt(elements)); i < elements; i++){
+	for (int i = 0, elements = detector_->elements(), factor = int(sqrt(elements)); i < elements && deadTimeEnabled; i++){
 
 		AMDeadTimeButton *deadTimeButton = new AMDeadTimeButton(detector_->inputCountSourceAt(i), detector_->outputCountSourceAt(i), 30.0, 50.0);
 		deadTimeButton->setCheckable(true);
@@ -280,7 +281,7 @@ void AMXRFDetailedDetectorView::onElementDeselected(AMElement *element)
 
 	foreach(MPlotItem *item, emissionLineMarkers_){
 
-		if (item->description().contains(QRegExp(symbol % " (K|L|M)")))
+                if (item->description().contains(QRegExp(QString("^%1 (K|L|M)").arg(symbol))))
 			if (plot_->removeItem(item)){
 
 				emissionLineMarkers_.removeOne(item);
@@ -730,7 +731,7 @@ void AMXRFDetailedDetectorView::onCombinationChoiceButtonClicked()
 
 void AMXRFDetailedDetectorView::onDeadTimeChanged()
 {
-	deadTimeLabel_->setText(QString("Dead Time:\t%1%").arg(detector_->deadTime(), 0, 'f', 0));
+		deadTimeLabel_->setText(QString("Dead Time:\t%1%").arg(detector_->deadTime()*100, 0, 'f', 0));
 }
 
 void AMXRFDetailedDetectorView::onDeadTimeButtonClicked()

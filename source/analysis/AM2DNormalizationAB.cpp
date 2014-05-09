@@ -19,7 +19,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AM2DNormalizationAB.h"
 
- AM2DNormalizationAB::~AM2DNormalizationAB(){}
+AM2DNormalizationAB::~AM2DNormalizationAB(){}
+
 AM2DNormalizationAB::AM2DNormalizationAB(const QString &outputName, QObject *parent)
 	: AMStandardAnalysisBlock(outputName, parent)
 {

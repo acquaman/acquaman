@@ -12,11 +12,14 @@ class VESPERSCCDDetector : public AMDetector
 
 public:
 	/// Constructor.
-	virtual ~VESPERSCCDDetector();
 	VESPERSCCDDetector(const QString &name, const QString &description, QObject *parent = 0);
+	/// Destructor.
+	virtual ~VESPERSCCDDetector();
 
 	/// Returns the current acquisition dwell time which is only relevant for triggered (RequestRead) detectors
 	virtual double acquisitionTime() const;
+	/// Returns the acquisition time tolerance.
+	virtual double acquisitionTimeTolerance() const;
 	/// Returns the elapsed time in seconds.
 	double elapsedTime() { return elapsedTime_.elapsed()/1000.0; }
 

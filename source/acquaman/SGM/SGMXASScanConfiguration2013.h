@@ -14,10 +14,10 @@ Q_CLASSINFO("AMDbObject_Attributes", "description=SGM XAS Scan Configuration 201
 
 public:
 	/// Constructor
- 	virtual ~SGMXASScanConfiguration2013();
 	Q_INVOKABLE SGMXASScanConfiguration2013(QObject *parent = 0);
 	/// Copy Constructor
 	SGMXASScanConfiguration2013(const SGMXASScanConfiguration2013 &original);
+	virtual ~SGMXASScanConfiguration2013();
 
 	/// Returns a pointer to a newly-created copy of this scan configuration.  (It takes the role of a copy constructor, but is virtual so that our high-level classes can copy a scan configuration without knowing exactly what kind it is.)
 	virtual AMScanConfiguration* createCopy() const;

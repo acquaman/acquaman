@@ -4,6 +4,7 @@
 #include "analysis/AM1DSummingAB.h"
 #include "analysis/AMnDDeadTimeAB.h"
 
+
 AMXRFDetector::AMXRFDetector(const QString &name, const QString &description, QObject *parent)
 	: AMDetector(name, description, parent)
 {
@@ -141,6 +142,14 @@ double AMXRFDetector::acquisitionTime() const
 {
 	if (isConnected())
 		return acquireTimeControl_->value();
+
+	return -1;
+}
+
+double AMXRFDetector::acquisitionTimeTolerance() const
+{
+	if (isConnected())
+		return acquireTimeControl_->tolerance();
 
 	return -1;
 }

@@ -43,9 +43,9 @@ class AMRegionScanConfiguration : public AMScanConfiguration
 
 public:
 	/// Constructor, needs a pointer to a QObject to act as a parent and needs to know whether it should new its own regions list.  This allows a way to not new the wrong type of regions list.
- 	virtual ~AMRegionScanConfiguration();
 	AMRegionScanConfiguration(QObject *parent = 0, bool setup = true);
 	AMRegionScanConfiguration(const AMRegionScanConfiguration &original, bool setup = true);
+	virtual ~AMRegionScanConfiguration();
 
 	const QMetaObject* getMetaObject();
 

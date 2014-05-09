@@ -2,7 +2,6 @@
 #define VESPERSSCANCONFIGURATIONDBOBJECT_H
 
 #include "dataman/database/AMDbObject.h"
-#include "dataman/info/AMROIInfo.h"
 #include "application/VESPERS/VESPERS.h"
 
 /// This class is the common database object for all scan configurations for the VESPERS beamline.
@@ -22,7 +21,6 @@ class VESPERSScanConfigurationDbObject : public AMDbObject
 	Q_PROPERTY(int fluorescenceDetector READ fluorescenceDetector WRITE setFluorescenceDetector)
 	Q_PROPERTY(int ccdDetector READ ccdDetector WRITE setCCDDetector)
 	Q_PROPERTY(QString ccdFileName READ ccdFileName WRITE setCCDFileName)
-	Q_PROPERTY(AMDbObject* roiInfoList READ dbGetROIInfoList WRITE dbLoadROIInfoList)
 	Q_PROPERTY(double normalPosition READ normalPosition WRITE setNormalPosition)
 
 	Q_CLASSINFO("normalPosition", "upgradeDefault=888888.88")
@@ -48,12 +46,6 @@ public:
 	VESPERS::CCDDetectors ccdDetector() const { return ccdDetector_; }
 	/// Returns the CCD file name.
 	QString ccdFileName() const { return ccdFileName_; }
-	/// Returns the ROI list.  The list is empty if not using a fluorescence detector.
-	AMROIInfoList roiList() const { return roiInfoList_; }
-	/// The database reading member function.
-	AMDbObject *dbGetROIInfoList() { return &roiInfoList_; }
-	/// Don't need to do anything because dbGetROIList always returns a valid AMDbObject.
-	void dbLoadROIInfoList(AMDbObject *) {}
 	/// Returns the normal position.
 	double normalPosition() const { return normalPosition_; }
 
@@ -106,8 +98,6 @@ public slots:
 	void setCCDDetector(int ccd) { setCCDDetector((VESPERS::CCDDetectors)ccd); }
 	/// Sets the file name for the CCD files.
 	void setCCDFileName(const QString &name);
-	/// Sets the ROI list.
-	void setRoiInfoList(const AMROIInfoList &list);
 	/// Sets the normal position.
 	void setNormalPosition(double newPosition);
 
@@ -124,8 +114,6 @@ protected:
 	VESPERS::CCDDetectors ccdDetector_;
 	/// The file name (minus number, path and extension of the file) for the CCD.
 	QString ccdFileName_;
-	/// The list holding all the current ROIs for the detector.
-	AMROIInfoList roiInfoList_;
 	/// The normal position of the scan.
 	double normalPosition_;
 };
