@@ -325,7 +325,6 @@ bool AMDbUpgradeSupport::dbObjectClassMerge(AMDatabase *databaseToEdit, const QS
 	q.prepare("PRAGMA table_info("%mergeFromTableName%")");
 	if(!AMDatabase::execQuery(q)) {
 		q.finish();
-		userDb->rollbackTransaction();
 		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -274, QString("Database support: There was an error while trying to read meta data on table %1.").arg(mergeFromTableName)));
 		return false;
 	}
@@ -341,7 +340,6 @@ bool AMDbUpgradeSupport::dbObjectClassMerge(AMDatabase *databaseToEdit, const QS
 		QVariantList valuesFromFromTable = userDb->retrieve(allFromIDs.at(x), mergeFromTableName, allTableColumns);
 		int fromIDInOldTable = userDb->insertOrUpdate(toCount+allFromIDs.at(x), mergeToTableName, allTableColumns, valuesFromFromTable );
 		if(fromIDInOldTable == 0){
-			userDb->rollbackTransaction();
 			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -275, QString("Database support: There was an error while trying to insert into to table format %1.").arg(mergeToTableName)));
 			return false;
 		}
@@ -356,7 +354,6 @@ bool AMDbUpgradeSupport::dbObjectClassMerge(AMDatabase *databaseToEdit, const QS
 			QString indexStringToUse = userDb->retrieve(parentTableIndices.at(x), j.key(), j.value()).toString();
 			int indexToUse = indexStringToUse.split(';').at(1).toInt() + toCount;
 			if(!userDb->update(parentTableIndices.at(x), j.key(), j.value(), QVariant(QString("%1;%2").arg(mergeToTableName).arg(indexToUse)))){
-				userDb->rollbackTransaction();
 				AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -282, QString("Database support: There was an error trying to update the %1 column for %2 table at id %2.").arg(j.value()).arg(j.key()).arg(parentTableIndices.at(x))));
 				return false;
 			}
@@ -376,7 +373,6 @@ bool AMDbUpgradeSupport::dbObjectClassMerge(AMDatabase *databaseToEdit, const QS
 			QVariantList updateValues;
 			updateValues << QVariant(currentId2) << QVariant(mergeToTableName);
 			if(!userDb->update(indexTableIndices.at(x), i.key(), updateColumns, updateValues)){
-				userDb->rollbackTransaction();
 				AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -276, QString("Database support: There was an error trying to update the %1 table at id %2.").arg(i.key()).arg(indexTableIndices.at(x))));
 				return false;
 			}
@@ -405,7 +401,6 @@ bool AMDbUpgradeSupport::dbObjectClassMerge(AMDatabase *databaseToEdit, const QS
 	relatedAMDbObjectTypesTables << "allColumns" << "visibleColumns" << "loadColumns";
 	for(int x = 0; x < relatedAMDbObjectTypesTables.count(); x++){
 		if(userDb->deleteRows("AMDbObjectTypes_"%relatedAMDbObjectTypesTables.at(x), QString("TypeId='%1'").arg(fromClassDbObjectId)) == 0){
-			userDb->rollbackTransaction();
 			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -279, QString("Database support: There was an error trying to rollback the AMDbObjectTypes related table %1.").arg("AMDbObjectTypes_"%relatedAMDbObjectTypesTables.at(x))));
 			return false;
 		}
@@ -416,7 +411,6 @@ bool AMDbUpgradeSupport::dbObjectClassMerge(AMDatabase *databaseToEdit, const QS
 	q.prepare("DROP TABLE "%mergeFromTableName);
 	if(!AMDatabase::execQuery(q)) {
 		q.finish();
-		userDb->rollbackTransaction();
 		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -280, QString("Database support: There was an error while trying to rollback table %1.").arg(mergeFromTableName)));
 		return false;
 	}
@@ -457,7 +451,6 @@ bool AMDbUpgradeSupport::changeColumnName(AMDatabase *databaseToEdit, const QStr
 	if (!db->execQuery(query)){
 
 		query.finish();
-		db->rollbackTransaction();
 		AMErrorMon::alert(0, AMDBUPGRADESUPPORT_COULD_NOT_RENAME_TABLE, QString("Could not rename %1.").arg(tableName));
 		return false;
 	}
@@ -488,7 +481,6 @@ bool AMDbUpgradeSupport::changeColumnName(AMDatabase *databaseToEdit, const QStr
 
 	if (!db->ensureTable(tableName, newColumnNames.mid(1), columnTypes.mid(1), reUseIds)){
 
-		db->rollbackTransaction();
 		AMErrorMon::alert(0, AMDBUPGRADESUPPORT_COULD_NOT_CREATE_NEW_TABLE, QString("Could not create a new table."));
 		return false;
 	}
@@ -499,7 +491,6 @@ bool AMDbUpgradeSupport::changeColumnName(AMDatabase *databaseToEdit, const QStr
 	if (!db->execQuery(query)){
 
 		query.finish();
-		db->rollbackTransaction();
 		AMErrorMon::alert(0, AMDBUPGRADESUPPORT_COULD_NOT_COPY_FROM_OLD_TABLE, QString("Could not copy the data from the old table."));
 		return false;
 	}
@@ -512,7 +503,6 @@ bool AMDbUpgradeSupport::changeColumnName(AMDatabase *databaseToEdit, const QStr
 	if (!db->execQuery(query)){
 
 		query.finish();
-		db->rollbackTransaction();
 		AMErrorMon::alert(0, AMDBUPGRADESUPPORT_COULD_NOT_DELETE_OLD_TABLE, QString("Could not delete the old table."));
 		return false;
 	}
@@ -536,7 +526,6 @@ bool AMDbUpgradeSupport::changeColumnName(AMDatabase *databaseToEdit, const QStr
 
 		if (!success){
 
-			db->rollbackTransaction();
 			AMErrorMon::alert(0, AMDBUPGRADESUPPORT_COULD_NOT_UPDATE_AMDBOBJECTTYPE_TABLES, "Could not update the AMDbObjectTypes associated tables.");
 			return false;
 		}
@@ -544,7 +533,6 @@ bool AMDbUpgradeSupport::changeColumnName(AMDatabase *databaseToEdit, const QStr
 
 	else{
 
-		db->rollbackTransaction();
 		AMErrorMon::alert(0, AMDBUPGRADESUPPORT_DUPLICATE_COLUMNS_IN_AMDBOBJECTTYPE_TABLES, "Somehow there are duplicate columns in the table.");
 		return false;
 	}
@@ -583,7 +571,6 @@ bool AMDbUpgradeSupport::removeColumn(AMDatabase *databaseToEdit, const QString 
 	if (!db->execQuery(query)){
 
 		query.finish();
-		db->rollbackTransaction();
 		AMErrorMon::alert(0, AMDBUPGRADESUPPORT_COULD_NOT_RENAME_TABLE, QString("Could not rename %1.").arg(tableName));
 		return false;
 	}
@@ -611,7 +598,6 @@ bool AMDbUpgradeSupport::removeColumn(AMDatabase *databaseToEdit, const QString 
 
 	if (!db->ensureTable(tableName, columnNames.mid(1), columnTypes.mid(1), reUseIds)){
 
-		db->rollbackTransaction();
 		AMErrorMon::alert(0, AMDBUPGRADESUPPORT_COULD_NOT_CREATE_NEW_TABLE, QString("Could not create a new table."));
 		return false;
 	}
@@ -622,7 +608,6 @@ bool AMDbUpgradeSupport::removeColumn(AMDatabase *databaseToEdit, const QString 
 	if (!db->execQuery(query)){
 
 		query.finish();
-		db->rollbackTransaction();
 		AMErrorMon::alert(0, AMDBUPGRADESUPPORT_COULD_NOT_COPY_FROM_OLD_TABLE, QString("Could not copy the data from the old table."));
 		return false;
 	}
@@ -635,7 +620,6 @@ bool AMDbUpgradeSupport::removeColumn(AMDatabase *databaseToEdit, const QString 
 	if (!db->execQuery(query)){
 
 		query.finish();
-		db->rollbackTransaction();
 		AMErrorMon::alert(0, AMDBUPGRADESUPPORT_COULD_NOT_DELETE_OLD_TABLE, QString("Could not delete the old table."));
 		return false;
 	}
@@ -666,7 +650,6 @@ bool AMDbUpgradeSupport::removeColumn(AMDatabase *databaseToEdit, const QString 
 
 		if (!success){
 
-			db->rollbackTransaction();
 			AMErrorMon::alert(0, AMDBUPGRADESUPPORT_COULD_NOT_UPDATE_AMDBOBJECTTYPE_TABLES, "Could not update the AMDbObjectTypes associated tables.");
 			return false;
 		}
@@ -674,7 +657,6 @@ bool AMDbUpgradeSupport::removeColumn(AMDatabase *databaseToEdit, const QString 
 
 	else{
 
-		db->rollbackTransaction();
 		AMErrorMon::alert(0, AMDBUPGRADESUPPORT_DUPLICATE_COLUMNS_IN_AMDBOBJECTTYPE_TABLES, "Somehow there are duplicate columns in the table.");
 		return false;
 	}
