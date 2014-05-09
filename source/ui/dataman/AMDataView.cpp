@@ -27,9 +27,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMUser.h"
 #include "dataman/AMScan.h"
 
+
 #include <QScrollBar>
 #include <QApplication>
 #include <QStringBuilder>
+#include <QPushButton>
 
 #include <QPen>
 #include <QBrush>
@@ -56,6 +58,9 @@ AMDataView::AMDataView(AMDatabase* database, QWidget *parent) :
 	gview_ = this->graphicsView;
 	gview_->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 	gview_->setAlignment(Qt::AlignLeft | Qt::AlignTop);
+
+	// initialise and add Search dialog window
+	searchDialog_ = new AMScanSearchView();
 
 	gscene_ = new QGraphicsScene(this);
 	// This is necessary to avoid Qt bug https://bugreports.qt.nokia.com/browse/QTBUG-18021
@@ -98,11 +103,16 @@ AMDataView::AMDataView(AMDatabase* database, QWidget *parent) :
 	viewModeButtonGroup_->addButton(viewModeB4_, AMDataViews::DetailView);
 	viewModeB1_->setChecked(true);
 
+	// Add Search... button
+	QPushButton* searchScans = new QPushButton(QString("Search Scans..."));
+	this->horizontalLayout->addSpacing(40);
+	horizontalLayout->addWidget(searchScans);
+
 	// connect buttons
 	/////////////////////////////
 	connect(viewModeButtonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(setViewMode(int)));
 	connect(organizeModeBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onOrganizeModeBoxCurrentIndexChanged(int)));
-
+	connect(searchScans, SIGNAL(clicked()), this, SLOT(OnSearchScansButtonClicked()));
 
 	// pick up database changes...
 	//////////////////////////////
@@ -218,6 +228,13 @@ void AMDataView::setViewMode(int mode) {
 
 	/// \todo optimization: changing the view mode doesn't necessarily need a refreshView, which would delete all the sections. Instead, we could have a AMDataViewSection::setViewMode().
 	refreshView(); // if removing this, make sure to set selectedUrlsUpdateRequired_ .
+}
+
+void AMDataView::OnSearchScansButtonClicked()
+{
+	if(!searchDialog_->isVisible())
+		searchDialog_->show();
+	searchDialog_->raise();
 }
 
 /// called when the combo box is used to change the organizeMode
