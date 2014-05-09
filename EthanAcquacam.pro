@@ -49,7 +49,7 @@ linux-g++ {
                 MOBILITY_QT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/qt-mobility-1.1.3-Ubuntu12.04/include
 
                 #Eigen
-                EIGEN_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/Eigen
+		EIGEN_INCLUDE_DIR = $$PATH_TO_AM/source/Eigen
 }
 
 macx {
@@ -107,7 +107,7 @@ macx {
 						$$HOME_FOLDER/$$DEV_PATH/qt-mobility/qt-mobility-opensource-src-1.1.3/install/include/QtMobility
 
                 #Eigen
-                EIGEN_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/Eigen
+		EIGEN_INCLUDE_DIR = $$PATH_TO_AM/source/Eigen
 }
 
 QT += core gui sql opengl network

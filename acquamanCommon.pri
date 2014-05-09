@@ -52,7 +52,7 @@ macx {
 		CDF_INCLUDE_DIR = /Applications/cdf34_0-dist/include
 
                 #Eigen
-                EIGEN_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/Eigen
+		EIGEN_INCLUDE_DIR = $$PATH_TO_AM/source/Eigen
 
 		MOBILITY_QT_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/qt-mobility/qt-mobility-opensource-src-1.1.3/install/Library/Frameworks/QtMultimediaKit.framework/Versions/Current
 		MOBILITY_QT_LIB = -L$$MOBILITY_QT_LIB_DIR -lQtMultimediaKit
@@ -98,7 +98,7 @@ linux-g++ {
                 MOBILITY_QT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/qt-mobility-1.1.3-Ubuntu12.04/include
 
                 #Eigen
-                EIGEN_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/Eigen
+		EIGEN_INCLUDE_DIR = $$PATH_TO_AM/source/Eigen
 
 		# CDFlib dependencies
 #		CDF_LIB = -lcdf
@@ -148,7 +148,7 @@ linux-g++-32 {
 		QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$CDF_LIB_DIR"
 
                 #Eigen
-                EIGEN_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/Eigen
+		EIGEN_INCLUDE_DIR = $$PATH_TO_AM/source/Eigen
 }
 # The following works well for CLS beamline OPI machines, built using VMSL54.cs.clsi.ca
 
@@ -187,7 +187,7 @@ linux-g++-64 {
 		QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$CDF_LIB_DIR"
 
                 #Eigen
-                EIGEN_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/Eigen
+		EIGEN_INCLUDE_DIR = $$PATH_TO_AM/source/Eigen
 
 }
 
