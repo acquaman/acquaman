@@ -1,5 +1,7 @@
 //#include "STVectorDataCollection.h"
 
+//#include <QDebug>
+
 //STVectorDataCollection::STVectorDataCollection(const QString &name, QObject *parent) :
 //    STDataCollection(name, parent)
 //{
@@ -7,9 +9,9 @@
 //    storeSize_ = 10;
 //    displaySize_ = 10;
 
-//    timeModel_ = new QVector<QTime>(storeSize_);
+//    timeModel_ = new QVector<QTime&>(storeSize_);
 //    valueModel_ = new QVector<double>(storeSize_);
-//    displayModel_ = new MPlotVectorSeriesData(this);
+//    displayModel_ = new MPlotVectorSeriesData();
 //}
 
 
@@ -42,7 +44,7 @@
 
 
 
-//QVector<QTime>* STVectorDataCollection::timeModel() const
+//QVector<QTime&> STVectorDataCollection::timeModel() const
 //{
 //    return timeModel_;
 //}
@@ -83,7 +85,7 @@
 
 
 
-//void STVectorDataCollection::addData(QTime time, double value)
+//void STVectorDataCollection::addData(QTime &time, double value)
 //{
 //    if (dataSize_ == 0 && storeSize_ <= 0) {
 //        qDebug() << "STVectorDataCollection :: the time/value vectors are empty and storeSize_ is not large enough to add new data values. Cannot add new value.";
@@ -121,32 +123,32 @@
 
 //void STVectorDataCollection::modelsShuffleDown()
 //{
-//    for (int i = 1; i < dataSize_; i++) {
-//        timeModel_[i - 1] = timeModel_->at(i);
-//        valueModel_[i - 1] = valueModel_->at(i);
-//    }
+////    for (int i = 1; i < dataSize_; i++) {
+////        timeModel_[i - 1] = timeModel_->at(i);
+////        valueModel_[i - 1] = valueModel_->at(i);
+////    }
 //}
 
 
 
-//void STVectorDataCollection::modelsAddLast(QTime time, double value)
+//void STVectorDataCollection::modelsAddLast(QTime &time, double value)
 //{
-//    timeModel_[dataSize_] = time;
-//    valueModel_[dataSize_] = value;
+////    timeModel_[dataSize_] = time;
+////    valueModel_[dataSize_] = value;
 
-//    dataSize_++;
+////    dataSize_++;
 
-//    emit dataAdded();
+////    emit dataAdded();
 //}
 
 
 
-//void STVectorDataCollection::modelsReplaceLast(QTime time, double value)
+//void STVectorDataCollection::modelsReplaceLast(QTime &time, double value)
 //{
-//    timeModel_[dataSize_ - 1] = time;
-//    valueModel_[dataSize_ - 1] = value;
+////    timeModel_[dataSize_ - 1] = time;
+////    valueModel_[dataSize_ - 1] = value;
 
-//    emit dataAdded();
+////    emit dataAdded();
 //}
 
 

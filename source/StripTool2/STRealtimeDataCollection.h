@@ -5,8 +5,6 @@
 
 #include "StripTool2/STDataCollection.h"
 
-class STData;
-
 class STRealtimeDataCollection : public STDataCollection
 {
     Q_OBJECT
@@ -20,7 +18,7 @@ public:
 signals:
 
 public slots:
-    virtual void addData(const QTime &time, double value);
+    virtual void addData(QTime &time, double value);
 
 protected slots:
 //    void onModelDataChanged(const QModelIndex &start, const QModelIndex &end);

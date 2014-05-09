@@ -16,8 +16,8 @@
 //    int storeSize() const;
 //    int displaySize() const;
 
-//    QVector<QTime>* timeModel() const;
-//    QVector<double>* valueModel() const;
+//    QVector<QTime &> timeModel() const;
+//    QVector<double> valueModel() const;
 //    MPlotVectorSeriesData *displayModel() const;
 
 //signals:
@@ -30,14 +30,14 @@
 //    void setStoreSize(int newStoreSize);
 //    void setDisplaySize(int newDisplaySize);
 
-//    void addData(QTime time, double value);
+//    virtual void addData(QTime &time, double value);
 //    void onDataAdded();
 
 //protected:
 //    void modelsRemoveFirst();
 //    void modelsShuffleDown();
-//    void modelsAddLast(QTime time, double value);
-//    void modelsReplaceLast(QTime time, double value);
+//    void modelsAddLast(QTime &time, double value);
+//    void modelsReplaceLast(QTime &time, double value);
 
 //    void updateDisplayModel();
 
@@ -49,8 +49,8 @@
 //    /// the number of valid points in the time/value models to display in the display model.
 //    int displaySize_;
 
-//    QVector<QTime> *timeModel_;
-//    QVector<double> *valueModel_;
+//    QVector<QTime&> timeModel_;
+//    QVector<double> valueModel_;
 //    MPlotVectorSeriesData *displayModel_;
 
 //};

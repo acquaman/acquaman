@@ -29,7 +29,7 @@ public slots:
     void setName(const QString &newName);
 
     /// Adds a new data point (time/value pair) to the STDataCollection object.
-    virtual void addData(const QTime &time, double value) = 0;
+    virtual void addData(QTime &time, double value) = 0;
 
 protected:
     /// The name of the STDataCollection object (usually the pv name of the STVariable that owns it).

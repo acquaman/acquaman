@@ -23,7 +23,7 @@ MPlotRealtimeModel* STRealtimeDataCollection::displayModel()
 
 
 
-void STRealtimeDataCollection::addData(const QTime &time, double value)
+void STRealtimeDataCollection::addData(QTime &time, double value)
 {
     Q_UNUSED(time)
     Q_UNUSED(value)
