@@ -3,7 +3,8 @@
 
 #include "MPlot/MPlotSeriesData.h"
 
-class STDataCollection;
+#include "StripTool2/STDataCollection.h"
+
 class STData;
 
 class STRealtimeDataCollection : public STDataCollection
@@ -12,17 +13,17 @@ class STRealtimeDataCollection : public STDataCollection
 
 public:
     explicit STRealtimeDataCollection(const QString &name, QObject *parent = 0);
-    ~STRealtimeDataCollection();
+    virtual ~STRealtimeDataCollection();
 
     MPlotRealtimeModel* displayModel();
 
 signals:
 
 public slots:
-    void addData(QTime time, double value);
+    virtual void addData(const QTime &time, double value);
 
 protected slots:
-    void onModelDataChanged(const QModelIndex &start, const QModelIndex &end);
+//    void onModelDataChanged(const QModelIndex &start, const QModelIndex &end);
 
 protected:
     MPlotRealtimeModel *displayModel_;

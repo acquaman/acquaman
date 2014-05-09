@@ -3,7 +3,7 @@
 STRealtimeDataCollection::STRealtimeDataCollection(const QString &name, QObject *parent) :
     STDataCollection(name, parent)
 {
-    displayModel_ = new MPlotRealtimeModel(this);
+    displayModel_ = new MPlotRealtimeModel();
     connect( displayModel_, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(onModelDataChanged(QModelIndex, QModelIndex)) );
 }
 
@@ -23,6 +23,8 @@ MPlotRealtimeModel* STRealtimeDataCollection::displayModel()
 
 
 
-void STRealtimeDataCollection::addData(QTime time, double value)
+void STRealtimeDataCollection::addData(const QTime &time, double value)
 {
+    Q_UNUSED(time)
+    Q_UNUSED(value)
 }
