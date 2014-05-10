@@ -25,6 +25,7 @@ REIXSXASScanActionController::REIXSXASScanActionController(REIXSXASScanConfigura
 	scan_ = new AMXASScan();
 	scan_->setFileFormat("amRegionAscii2013");
 	scan_->setScanConfiguration(cfg);
+	scan_->setName("REIXS XAS Scan");
 	scan_->setSampleId(REIXSBeamline::bl()->currentSampleId());
 	scan_->setIndexType("fileSystem");
 	scan_->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));
@@ -84,36 +85,83 @@ REIXSXASScanActionController::REIXSXASScanActionController(REIXSXASScanConfigura
 
 void REIXSXASScanActionController::onInitializationActionSucceeded(){
 
-	AMControlInfoList positions(REIXSBeamline::bl()->exposedControls()->toInfoList());
+	AMControlInfoList positions;
 
-	// add the spectrometer grating selection, since it's not a "control" anywhere.
-	AMControlInfo grating("spectrometerGrating", REIXSBeamline::bl()->spectrometer()->specifiedGrating(), 0, 0, "[choice]", 0.1, "Spectrometer Grating");
-	grating.setEnumString(REIXSBeamline::bl()->spectrometer()->spectrometerCalibration()->gratingAt(grating.value()).name());
-	positions.insert(9, grating);
-
+	positions.append(REIXSBeamline::bl()->photonSource()->energy()->toInfo());
+	positions.append(REIXSBeamline::bl()->photonSource()->userEnergyOffset()->toInfo());
+	positions.append(REIXSBeamline::bl()->photonSource()->monoSlit()->toInfo());
+	positions.append(REIXSBeamline::bl()->sampleChamber()->x()->toInfo());
+	positions.append(REIXSBeamline::bl()->sampleChamber()->y()->toInfo());
+	positions.append(REIXSBeamline::bl()->sampleChamber()->z()->toInfo());
+	positions.append(REIXSBeamline::bl()->sampleChamber()->r()->toInfo());
+	positions.append(REIXSBeamline::bl()->spectrometer()->gratingMask()->toInfo());  //D
+	positions.append(REIXSBeamline::bl()->spectrometer()->toInfo());
 	// add the polarization selection, since it's not a "control" anywhere.
 	AMControlInfo polarization("beamlinePolarization", REIXSBeamline::bl()->photonSource()->epuPolarization()->value(), 0, 0, "[choice]", 0.1, "EPU Polarization");
 	polarization.setEnumString(REIXSBeamline::bl()->photonSource()->epuPolarization()->enumNameAt(REIXSBeamline::bl()->photonSource()->epuPolarization()->value()));
 	positions.append(polarization);
+		if(REIXSBeamline::bl()->photonSource()->epuPolarization()->value() == 5)
+		{
+			AMControlInfo polarizationAngle("beamlinePolarizationAngle", REIXSBeamline::bl()->photonSource()->epuPolarizationAngle()->value(), 0, 0, "degrees", 0.1, "EPU Polarization Angle");
+			positions.append(polarizationAngle);
+		}
+	positions.append(REIXSBeamline::bl()->photonSource()->monoGratingSelector()->toInfo());
+	positions.append(REIXSBeamline::bl()->photonSource()->monoMirrorSelector()->toInfo());
+	positions.append(REIXSBeamline::bl()->spectrometer()->spectrometerRotationDrive()->toInfo());
+	positions.append(REIXSBeamline::bl()->spectrometer()->detectorTranslation()->toInfo());
+	positions.append(REIXSBeamline::bl()->spectrometer()->detectorTiltDrive()->toInfo());
+	// add the spectrometer grating selection, since it's not a "control" anywhere.
+	AMControlInfo grating("spectrometerGrating", REIXSBeamline::bl()->spectrometer()->specifiedGrating(), 0, 0, "[choice]", 0.1, "Spectrometer Grating");
+	grating.setEnumString(REIXSBeamline::bl()->spectrometer()->spectrometerCalibration()->gratingAt(grating.value()).name());
+	positions.append(grating);
+	positions.append(REIXSBeamline::bl()->spectrometer()->hexapod()->x()->toInfo());
+	positions.append(REIXSBeamline::bl()->spectrometer()->hexapod()->y()->toInfo());
+	positions.append(REIXSBeamline::bl()->spectrometer()->hexapod()->z()->toInfo());
+	positions.append(REIXSBeamline::bl()->spectrometer()->hexapod()->u()->toInfo());
+	positions.append(REIXSBeamline::bl()->spectrometer()->hexapod()->v()->toInfo());
+	positions.append(REIXSBeamline::bl()->spectrometer()->hexapod()->w()->toInfo());
+	positions.append(REIXSBeamline::bl()->spectrometer()->hexapod()->r()->toInfo());
+	positions.append(REIXSBeamline::bl()->spectrometer()->hexapod()->s()->toInfo());
+	positions.append(REIXSBeamline::bl()->spectrometer()->hexapod()->t()->toInfo());
+	positions.append(REIXSBeamline::bl()->spectrometer()->endstationTranslation()->toInfo());
+	positions.append(REIXSBeamline::bl()->photonSource()->M5Pitch()->toInfo());
+	positions.append(REIXSBeamline::bl()->photonSource()->M5Yaw()->toInfo());
 
-	if(REIXSBeamline::bl()->photonSource()->epuPolarization()->value() == 5)
-	{
-	AMControlInfo polarizationAngle("beamlinePolarizationAngle", REIXSBeamline::bl()->photonSource()->epuPolarizationAngle()->value(), 0, 0, "degrees", 0.1, "EPU Polarization Angle");
-	positions.append(polarizationAngle);
-	}
-
-
-//	AMControlInfo SOEtemp("SOETemp", REIXSBeamline::bl()->spectrometer()->tmSOE(), 0, 0, "C", 0.1, "SOE Temperature");
-//	positions.append(SOEtemp);
-//	AMControlInfo MCPtemp("MCPtemp", REIXSBeamline::bl()->spectrometer()->tmMCPPreamp(), 0, 0, "C", 0.1, "MCP Preamp Temperature");
-//	positions.append(MCPtemp);
-//	AMControlInfo Sampletemp("Sampletemp", REIXSBeamline::bl()->sampleChamber()->tmSample(), 0, 0, "C", 0.1, "Sample Temperature");
-//	positions.append(Sampletemp);
 	positions.append(REIXSBeamline::bl()->spectrometer()->tmSOE()->toInfo());
 	positions.append(REIXSBeamline::bl()->spectrometer()->tmMCPPreamp()->toInfo());
 	positions.append(REIXSBeamline::bl()->sampleChamber()->tmSample()->toInfo());
 
-	//scan_->scanInitialConditions()->setValuesFrom(positions);
+
+//	AMControlInfoList positions(REIXSBeamline::bl()->exposedControls()->toInfoList());
+
+//	// add the spectrometer grating selection, since it's not a "control" anywhere.
+//	AMControlInfo grating("spectrometerGrating", REIXSBeamline::bl()->spectrometer()->specifiedGrating(), 0, 0, "[choice]", 0.1, "Spectrometer Grating");
+//	grating.setEnumString(REIXSBeamline::bl()->spectrometer()->spectrometerCalibration()->gratingAt(grating.value()).name());
+//	positions.insert(9, grating);
+
+//	// add the polarization selection, since it's not a "control" anywhere.
+//	AMControlInfo polarization("beamlinePolarization", REIXSBeamline::bl()->photonSource()->epuPolarization()->value(), 0, 0, "[choice]", 0.1, "EPU Polarization");
+//	polarization.setEnumString(REIXSBeamline::bl()->photonSource()->epuPolarization()->enumNameAt(REIXSBeamline::bl()->photonSource()->epuPolarization()->value()));
+//	positions.append(polarization);
+
+//	if(REIXSBeamline::bl()->photonSource()->epuPolarization()->value() == 5)
+//	{
+//	AMControlInfo polarizationAngle("beamlinePolarizationAngle", REIXSBeamline::bl()->photonSource()->epuPolarizationAngle()->value(), 0, 0, "degrees", 0.1, "EPU Polarization Angle");
+//	positions.append(polarizationAngle);
+//	}
+
+
+////	AMControlInfo SOEtemp("SOETemp", REIXSBeamline::bl()->spectrometer()->tmSOE(), 0, 0, "C", 0.1, "SOE Temperature");
+////	positions.append(SOEtemp);
+////	AMControlInfo MCPtemp("MCPtemp", REIXSBeamline::bl()->spectrometer()->tmMCPPreamp(), 0, 0, "C", 0.1, "MCP Preamp Temperature");
+////	positions.append(MCPtemp);
+////	AMControlInfo Sampletemp("Sampletemp", REIXSBeamline::bl()->sampleChamber()->tmSample(), 0, 0, "C", 0.1, "Sample Temperature");
+////	positions.append(Sampletemp);
+//	positions.append(REIXSBeamline::bl()->spectrometer()->tmSOE()->toInfo());
+//	positions.append(REIXSBeamline::bl()->spectrometer()->tmMCPPreamp()->toInfo());
+//	positions.append(REIXSBeamline::bl()->sampleChamber()->tmSample()->toInfo());
+
+//	//scan_->scanInitialConditions()->setValuesFrom(positions);
 	scan_->setScanInitialConditions(positions);
 }
 
@@ -236,15 +284,16 @@ AMAction3* REIXSXASScanActionController::createInitializationActions(){
 }
 
 AMAction3* REIXSXASScanActionController::createCleanupActions(){
-	AMListAction3 *cleanupActions = new AMListAction3(new AMListActionInfo3("REIXS XAS Cleanup Actions", "REIXS XAS Cleanup Actions"), AMListAction3::Parallel);
+	AMListAction3 *cleanupActions = new AMListAction3(new AMListActionInfo3("REIXS XAS Cleanup Actions", "REIXS XAS Cleanup Actions"));//, AMListAction3::Parallel); sequentially set up scaler
 
 	CLSSIS3820Scaler *scaler = REIXSBeamline::bl()->scaler();
 //	cleanupActions->addSubAction(scaler->createContinuousEnableAction3(scaler->isConti/*nuous()));
 //	cleanupActions->addSubAction(scaler->createScansPerBufferAction3(scaler->scansPerBuffer()));
 //	cleanupActions->addSubAction(scaler->createTotalScansAction3(scaler->totalScans()));
-	cleanupActions->addSubAction(scaler->createContinuousEnableAction3(true));
+//	cleanupActions->addSubAction(scaler->createContinuousEnableAction3(true));
 	cleanupActions->addSubAction(scaler->createScansPerBufferAction3(1));
-	cleanupActions->addSubAction(scaler->createTotalScansAction3(1));
+	cleanupActions->addSubAction(scaler->createTotalScansAction3(0));
+	cleanupActions->addSubAction(scaler->createStartAction3(true));
 
 	return cleanupActions;
 }
