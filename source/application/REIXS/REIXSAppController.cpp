@@ -54,7 +54,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/REIXS/REIXSSidebar.h"
 
-#include "ui/VESPERS/VESPERSChooseDataFolderDialog.h"
 
 #include <QMessageBox>
 

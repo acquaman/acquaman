@@ -135,7 +135,7 @@ REIXSBeamline::~REIXSBeamline() {
 }
 
 void REIXSBeamline::setupExposedControls(){
-	addExposedControl(photonSource()->ringCurrent());
+	//addExposedControl(photonSource()->ringCurrent());
 	addExposedControl(photonSource()->energy());
 	addExposedControl(photonSource()->userEnergyOffset());
 	addExposedControl(photonSource()->monoSlit());
@@ -143,7 +143,7 @@ void REIXSBeamline::setupExposedControls(){
 	addExposedControl(sampleChamber()->y());
 	addExposedControl(sampleChamber()->z());
 	addExposedControl(sampleChamber()->r());
-	addExposedControl(spectrometer()->gratingMask());  //DAVID ADDED 005
+	addExposedControl(spectrometer()->gratingMask());
 	addExposedControl(spectrometer());
 
 
@@ -163,9 +163,9 @@ void REIXSBeamline::setupExposedControls(){
 		addExposedControl(spectrometer()->hexapod()->r());
 		addExposedControl(spectrometer()->hexapod()->s());
 		addExposedControl(spectrometer()->hexapod()->t());
-		addExposedControl(spectrometer()->endstationTranslation()); //DAVID 001 ADDED
-		addExposedControl(photonSource()->M5Pitch());   //DAVID ADDED 003
-		addExposedControl(photonSource()->M5Yaw());   //DAVID ADDED 003
+		addExposedControl(spectrometer()->endstationTranslation());
+		addExposedControl(photonSource()->M5Pitch());
+		addExposedControl(photonSource()->M5Yaw());
 	}
 }
 
