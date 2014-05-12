@@ -90,6 +90,20 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	stepSizeLayout->addWidget(vStep_);
 	stepSizeLayout->addStretch();
 
+	// DARREN, DID THIS SLIP IN FROM SOME STRANGE MERGE RESOLUTION?
+	normalPosition_ = buildPositionDoubleSpinBox("N: ", " mm", configuration_->normalPosition(), 3);
+	connect(normalPosition_, SIGNAL(editingFinished()), this, SLOT(onNormalPositionChanged()));
+	connect(configuration_->dbObject(), SIGNAL(normalPositionChanged(double)), normalPosition_, SLOT(setValue(double)));
+	// TO HERE?
+
+	QPushButton *updateNormalPosition = new QPushButton("Set Normal");
+	connect(updateNormalPosition, SIGNAL(clicked()), this, SLOT(onSetNormalPosition()));
+
+	QHBoxLayout *normalLayout = new QHBoxLayout;
+	normalLayout->addWidget(new QLabel("Focus Position:"));
+	normalLayout->addWidget(normalPosition_);
+	normalLayout->addWidget(updateNormalPosition);
+
 	mapInfo_ = new QLabel;
 	updateMapInfo();
 
@@ -97,6 +111,7 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	positionsLayout->addLayout(startPointLayout);
 	positionsLayout->addLayout(endPointLayout);
 	positionsLayout->addLayout(stepSizeLayout);
+	positionsLayout->addLayout(normalLayout);
 	positionsLayout->addWidget(mapInfo_);
 
 	positionsBox->setLayout(positionsLayout);
@@ -463,6 +478,39 @@ void VESPERS2DScanConfigurationView::onSetEndPosition()
 	axesAcceptable();
 }
 
+void VESPERS2DScanConfigurationView::onSetNormalPosition()
+{
+	double n = 0;
+
+	// DARREN, DID THIS SLIP IN FROM A MERGE RESOLUTION AS WELL? COMMENTED THIS SWITCH OUT BECAUSE IT WON'T COMPILE, DOESN'T LOOK LIKE NORMAL IS IN NEWXRFDETECTOR
+//	switch(int(configuration_->motor())){
+
+//	case VESPERS::H | VESPERS::V:
+
+//		n = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->normalControl()->value();
+//		break;
+
+//	case VESPERS::X | VESPERS::Z:
+
+//		n = VESPERSBeamline::vespers()->sampleStageY()->value();
+//		break;
+
+//	case VESPERS::AttoH | VESPERS::AttoV:
+
+//		n = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->normalControl()->value();  // focusing isn't done with attocube motors.
+//		break;
+
+//	case VESPERS::AttoX | VESPERS::AttoZ:
+
+//		n = VESPERSBeamline::vespers()->sampleStageY()->value();
+//		break;
+//	}
+
+//	configuration_->setNormalPosition(n);
+	// TO HERE?
+	updateMapInfo();
+}
+
 void VESPERS2DScanConfigurationView::onXStartChanged()
 {
 	configuration_->scanAxisAt(0)->regionAt(0)->setRegionStart(hStart_->value());
@@ -503,6 +551,13 @@ void VESPERS2DScanConfigurationView::onYStepChanged()
 	configuration_->scanAxisAt(1)->regionAt(0)->setRegionStep(vStep_->value()/1000);
 	updateMapInfo();
 	axesAcceptable();
+}
+
+void VESPERS2DScanConfigurationView::onNormalPositionChanged()
+{
+	// DARREN, MERGE RESOLUTION?
+	configuration_->setNormalPosition(normalPosition_->value());
+	updateMapInfo();
 }
 
 void VESPERS2DScanConfigurationView::onDwellTimeChanged()

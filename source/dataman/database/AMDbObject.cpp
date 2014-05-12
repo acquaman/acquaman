@@ -828,14 +828,14 @@ void AMDbObject::updateThumbnailsInCurrentThread(bool neverSavedHereBefore)
 		reuseThumbnailIds = (existingThumbnailIds.count() == thumbsCount);	// can reuse if the number of old and new ones matches.
 		// need to check that the existingThumbnailIds are consecutive as well... ie: in a sequential block. Otherwise can't reuse them.
 		// normally this is the case, unless we've forgotten / orphaned some. Doesn't hurt to check.
-		if(reuseThumbnailIds) {
-			for(int i=1; i<existingThumbnailIds.count(); i++) {
-				if(existingThumbnailIds.at(i) != existingThumbnailIds.at(i-1)+1) {
-					reuseThumbnailIds = false;
-					break;
-				}
-			}
-		}
+//		if(reuseThumbnailIds) {
+//			for(int i=1; i<existingThumbnailIds.count(); i++) {
+//				if(existingThumbnailIds.at(i) != existingThumbnailIds.at(i-1)+1) {
+//					reuseThumbnailIds = false;
+//					break;
+//				}
+//			}
+//		}
 
 		// If we shouldn't reuse existing rows in the thumbnail table: delete old before appending new ones.
 		if(!reuseThumbnailIds) {

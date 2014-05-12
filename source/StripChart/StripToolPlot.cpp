@@ -2,69 +2,20 @@
 
 StripToolPlot::StripToolPlot(QWidget *parent) : MPlotWidget(parent)
 {
-    model_ = 0;
+    selector_ = 0;
+    plot_ = 0;
 
-    MPlotDragZoomerTool *dragZoomer = new MPlotDragZoomerTool();
-    selector_ = new StripToolSelector();
+    buildComponents();
+    makeConnections();
+    defaultSettings();
 
-    connect( this, SIGNAL(setPlotSelection(MPlotItem*)), selector_, SLOT(setSelection(MPlotItem*)) );
-
-    connect( selector_, SIGNAL(itemSelected(MPlotItem*)), this, SIGNAL(seriesSelected(MPlotItem*)) );
-    connect( selector_, SIGNAL(deselected()), this, SIGNAL(seriesDeselected()) );
-
-    plot_ = new MPlot();
-
-    plot_->addTool(dragZoomer);
-    plot_->addTool(selector_);
-
-//    plot_->setAcceptDrops(true);
-
-    plot_->axisLeft()->showAxisName(false);
-    plot_->axisBottom()->showAxisName(false);
-
-    plot_->axisLeft()->showTickLabels(false);
-    plot_->axisBottom()->showTickLabels(false);
-
-    setPlot(plot_);
-
-    enableAntiAliasing(true);
-    setContextMenuPolicy(Qt::ActionsContextMenu);
-
-    connect( this, SIGNAL(removeSeries(QModelIndex, int, int)), this, SLOT(toRemoveSeries(QModelIndex,int,int)) );
-    connect( this, SIGNAL(addSeries(QModelIndex, int, int)), this, SLOT(toAddSeries(QModelIndex,int,int)) );
-
+    qDebug() << "StripToolPlot object created.";
 }
 
 
 
 StripToolPlot::~StripToolPlot()
 {
-}
-
-
-
-void StripToolPlot::setModel(StripToolModel *model)
-{
-    model_ = model;
-
-    connect( this, SIGNAL(seriesSelected(MPlotItem*)), model_, SLOT(seriesSelected(MPlotItem*)) );
-    connect( this, SIGNAL(seriesDeselected()), model_, SLOT(seriesDeselected()) );
-
-    connect( model_, SIGNAL(rowsInserted(QModelIndex, int, int)), this, SLOT(toAddSeries(QModelIndex, int, int)) );
-    connect( model_, SIGNAL(rowsAboutToBeRemoved(QModelIndex, int, int)), this, SLOT(toRemoveSeries(QModelIndex, int, int)) );
-    connect( model_, SIGNAL(seriesChanged(Qt::CheckState, int)), this, SLOT(onSeriesChanged(Qt::CheckState, int)) );
-    connect( model_, SIGNAL(setPlotAxesLabels(QString,QString)), this, SLOT(setPlotAxesLabels(QString, QString)) );
-    connect( model_, SIGNAL(setPlotTicksVisible(bool)), this, SLOT(setTicksVisible(bool)) );
-
-    connect( model_, SIGNAL(modelSelectionChange()), this, SLOT(onModelSelectionChange()) );
-}
-
-
-
-void StripToolPlot::createActions()
-{
-    toggleControls_ = new QAction("Control Panel", this);
-    connect( toggleControls_, SIGNAL(triggered()), this, SLOT(toToggleControls()) );
 }
 
 
@@ -76,153 +27,195 @@ bool StripToolPlot::contains(MPlotItem *series)
 
 
 
-void StripToolPlot::toAddSeries(const QModelIndex &parent, int rowStart, int rowFinish)
-{
-    Q_UNUSED(parent);
-
-    int row = rowStart;
-
-    while (row <= rowFinish)
-    {
-        qDebug() << "Successfully added series : " << addSeriesToPlot(model_->series(row));
-        row++;
-    }
+MPlotItem* StripToolPlot::selectedItem() const {
+    return selector_->selectedItem();
 }
 
 
 
-bool StripToolPlot::addSeriesToPlot(MPlotItem *newSeries)
-{
-    bool success = false;
+bool StripToolPlot::addPlotItem(MPlotItem *newSeries)
+{    
+    if (newSeries == 0) {
+        qDebug() << "StripToolPlot :: cannot add a series with an empty pointer! No changes made.";
+        return false;
+    }
 
-    if (!contains(newSeries))
-    {
-        plot_->addItem(newSeries);
+    if (contains(newSeries)) {
+        qDebug() << "StripToolPlot :: cannot add duplicate series to plot. No changes made.";
+        return false;
+    }
 
-        if (contains(newSeries))
-        {
-            success = true;
-        }
+    int oldItemNum = plot_->plotItems().size();
+    plot()->addItem(newSeries);
+    int newItemNum = plot_->plotItems().size();
+
+    if (contains(newSeries) && newItemNum == oldItemNum + 1) {
+        qDebug() << "StripToolPlot :: added new series to plot successfully.";
+        return true;
 
     } else {
-        qDebug() << "Series already a member of plot. Cannot add duplicate.";
+        qDebug() << "StripToolPlot :: adding new series to plot failed.";
+        return false;
     }
 
-    return success;
 }
 
 
 
-void StripToolPlot::toRemoveSeries(const QModelIndex &parent, int rowStart, int rowFinish)
+bool StripToolPlot::removePlotItem(MPlotItem *toRemove)
 {
-    Q_UNUSED(parent);
-
-    int row = rowStart;
-
-    while(row <= rowFinish)
-    {
-        bool success = removeSeriesFromPlot(model_->series(row));
-
-        if (!success)
-            qDebug() << "\nERROR removing series from plot!\n";
-
-        row++;
+    if (toRemove == 0) {
+        qDebug() << "StripToolPlot :: cannot remove a series with an empty pointer! No changes made.";
+        return false;
     }
-}
 
+    if (!contains(toRemove)) {
+        qDebug() << "StripToolPlot :: cannot remove a series that the plot doesn't contain! No changes made.";
+        return false;
+    }
 
+    int oldItemNum = plot_->plotItems().size();
+    plot()->removeItem(toRemove);
+    int newItemNum = plot_->plotItems().size();
 
-bool StripToolPlot::removeSeriesFromPlot(MPlotItem *toRemove)
-{
-    bool success = false;
-
-    if (contains(toRemove))
-    {
-        plot_->removeItem(toRemove);
-
-        if (!contains(toRemove))
-            success = true;
+    if (!contains(toRemove) && newItemNum == oldItemNum - 1) {
+        return true;
 
     } else {
-        qDebug() << "Series not found -- cannot remove.";
+        qDebug() << "StripToolPlot :: removing series failed.";
+        return false;
     }
 
-    return success;
 }
 
 
 
-void StripToolPlot::setPlotAxesLabels(const QString &bottomLabel, const QString &leftLabel)
-{
-    plot_->axisBottom()->setAxisName(bottomLabel);
-    plot_->axisBottom()->showAxisName(true);
+void StripToolPlot::setSelectedItem(MPlotItem *newSelection) {
+    selector_->setSelection(newSelection);
+}
 
-    plot_->axisLeft()->setAxisName(leftLabel);
+
+
+void StripToolPlot::setLeftAxisName(const QString &newName) {
+    plot_->axisLeft()->setAxisName(newName);
     plot_->axisLeft()->showAxisName(true);
 }
 
 
 
-void StripToolPlot::setPlotAxesRanges(const MPlotAxisRange &axisBottom)
-{
-    plot_->axisScaleBottom()->setDataRange(axisBottom);
-}
+void StripToolPlot::setLeftAxisRange(const MPlotAxisRange *newAxisRange) {
+    qreal rangeMin = newAxisRange->min();
+    qreal rangeMax = newAxisRange->max();
 
+    plot_->axisScaleLeft()->setDataRange(newAxisRange->normalized(), true);
 
+    int itemCount = plot_->plotItems().size();
 
-void StripToolPlot::setTicksVisible(bool isShown)
-{
-    plot_->axisLeft()->showTickLabels(isShown);
-    plot_->axisBottom()->showTickLabels(isShown);
-}
-
-
-
-void StripToolPlot::onSeriesChanged(Qt::CheckState newState, int rowChanged)
-{
-    //  if the series is already plotted and the new state indicates it should be hidden, remove it!
-    if (newState == Qt::Unchecked)
-        emit removeSeries(QModelIndex(), rowChanged, rowChanged);
-
-    //  if the series is NOT plotted and the new state indicates it should be shown, add it!
-    else if (newState == Qt::Checked)
-        emit addSeries(QModelIndex(), rowChanged, rowChanged);
-}
-
-
-
-void StripToolPlot::onModelSelectionChange()
-{
-    MPlotItem *modelSelection = model_->selectedSeries();
-
-    if (modelSelection && contains(modelSelection))
-    {
-        qDebug() << "Setting plot selection...";
-        emit setPlotSelection(modelSelection);
-
-    } else if (!modelSelection) {
-        qDebug() << "Plot item deselected.";
-        emit setPlotSelection(0);
-
-    } else {
-        qDebug() << "Attempting to select plot item that doesn't exist.";
+    for (int i = 0; i < itemCount; i++) {
+//        StripToolSeries* series = qgraphicsitem_cast<StripToolSeries*>(plot_->plotItems().at(i));
+//        series->enableWaterfall(waterfallOn_, i, itemCount);
+//        series->enableYNormalization(true, rangeMin, rangeMax);
     }
 }
 
 
 
-void StripToolPlot::contextMenuEvent(QContextMenuEvent *event)
-{
-    QMenu menu(this);
-    menu.addAction(toggleControls_);
-    menu.exec(event->globalPos());
+void StripToolPlot::setBottomAxisName(const QString &newName) {
+    plot_->axisBottom()->setAxisName(newName);
 }
 
 
 
-void StripToolPlot::toToggleControls()
+void StripToolPlot::setWaterfall(bool waterfallOn)
 {
+    waterfallOn_ = waterfallOn;
 
+    if (waterfallOn) {
+        qDebug() << "StripToolPlot :: waterfall feature is turning on:";
+    } else {
+        qDebug() << "StripToolPlot :: waterfall feature is turning off:";
+    }
+
+    int count = plot_->plotItems().size();
+
+    for (int i = 0; i < count; i++) {
+        StripToolSeries* series = qgraphicsitem_cast<StripToolSeries*>(plot_->plotItems().at(i));
+        series->enableWaterfall(waterfallOn_, i, count);
+    }
+}
+
+
+
+//void StripToolPlot::toUpdateLeftAxisRange(MPlotAxisRange *newAxisRange)
+//{
+//    qDebug() << "Updating left axis range...";
+//    qreal rangeMin = newAxisRange->min();
+//    qreal rangeMax = newAxisRange->max();
+
+//    plot_->axisScaleLeft()->setDataRange(newAxisRange->normalized(), true);
+
+////    int itemCount = plot_->plotItems().size();
+
+////    for (int i = 0; i < itemCount; i++) {
+////        StripToolSeries* series = qgraphicsitem_cast<StripToolSeries*>(plot_->plotItems().at(i));
+////        series->enableWaterfall(waterfallOn_, i, itemCount);
+////        series->enableYNormalization(true, rangeMin, rangeMax);
+////    }
+//}
+
+
+
+
+void StripToolPlot::onSelectionChange()
+{
+    if (selector_->selectedItem() == 0) {
+        plot_->axisLeft()->showTickLabels(false);
+        plot_->axisLeft()->showAxisName(false);
+
+    } else {
+        plot_->axisLeft()->showTickLabels(true);
+        plot_->axisLeft()->showAxisName(true);
+    }
+
+    emit selectionChanged(selector_->selectedItem());
+}
+
+
+
+void StripToolPlot::buildComponents()
+{
+    MPlotDragZoomerTool *dragZoomer = new MPlotDragZoomerTool();
+    selector_ = new StripToolSelector();
+    plot_ = new MPlot();
+
+    plot_->addTool(dragZoomer);
+    plot_->addTool(selector_);
+
+    setPlot(plot_);
+}
+
+
+
+void StripToolPlot::makeConnections()
+{
+    connect( selector_, SIGNAL(itemSelected(MPlotItem*)), this, SLOT(onSelectionChange()) );
+}
+
+
+
+void StripToolPlot::defaultSettings()
+{
+    waterfallOn_ = false;
+
+    plot_->axisBottom()->setAxisName("Time");
+    plot_->axisBottom()->showAxisName(true);
+    plot_->axisBottom()->showTickLabels(true);
+
+    plot_->axisLeft()->showAxisName(false);
+    plot_->axisLeft()->showTickLabels(false);
+
+    plot_->enableAxisNormalization(MPlot::Left, false);
+    plot_->axisScaleLeft()->setAutoScaleEnabled(false);
 }
 
 

@@ -21,11 +21,13 @@ SUBDIRS +=	pluginProjects/FileLoaders/AMFileLoaderPlugins.pro \
 	VESPERSBendingMirrors.pro \
 	SGMAmptekCoordinator.pro \
 	SGMLookupTableCoordinator.pro \
-	EthanAcquacam.pro \
+#	EthanAcquacam.pro \
 #	AMCrashReporter.pro \
+#	SGMNetworkMonitor.pro
 	StripToolProject.pro \
 	IDEASAcquaman.pro \
-#	SGMNetworkMonitor.pro
 	BioXASSideAcquaman.pro \
 	BioXASMainAcquaman.pro \
-	BioXASImagingAcquaman.pro
+	BioXASImagingAcquaman.pro \
+	BioXASShutterTool.pro \
+	VESPERSDatabaseDuplicateEntryPatch.pro

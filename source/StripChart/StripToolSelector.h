@@ -11,8 +11,18 @@ public:
     explicit StripToolSelector();
     virtual ~StripToolSelector();
 
+public slots:
+    void setSelection(MPlotItem *newSelection);
+
 protected slots:
-    void setSelection(MPlotItem* newSelection);
+    void onItemDeselected();
+
+protected:
+    void selectItem(MPlotItem* newSelection);
+    void deselectItem();
+
+private:
+    void makeConnections();
 
 };
 
