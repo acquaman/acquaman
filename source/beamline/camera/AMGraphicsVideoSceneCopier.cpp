@@ -113,6 +113,7 @@ void AMGraphicsVideoSceneCopier::updateChange(QGraphicsScene *sceneToUpdate, QGr
 	{
 		if(oldItems->type() == QGraphicsItem::UserType)
 		{
+			#ifdef AM_MOBILITY_VIDEO_ENABLED
 			QGraphicsVideoItem * videoItem = qgraphicsitem_cast<QGraphicsVideoItem*>(oldItems);
 			if(videoItem)
 			{
@@ -122,6 +123,7 @@ void AMGraphicsVideoSceneCopier::updateChange(QGraphicsScene *sceneToUpdate, QGr
 				sceneToUpdate->addItem(videoItem);
 				videoItem->setSize(sceneToUpdate->sceneRect().size());
 			}
+			#endif
 		}
 	}
 
