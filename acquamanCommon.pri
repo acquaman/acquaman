@@ -214,6 +214,8 @@ CONFIG(jenkins_build) {
 		MPLOT_INCLUDE_DIR = "/var/lib/jenkins/jobs/MPlotOnLinux_MasterBranch/workspace/include"
 		MPLOT_LIB_DIR = "/var/lib/jenkins/jobs/MPlotOnLinux_MasterBranch/workspace/lib"
 
+		#Eigen
+		EIGEN_INCLUDE_DIR = $$PATH_TO_AM/source/Eigen
 }
 
 QT += core gui sql opengl network
