@@ -15,19 +15,21 @@ void AMScanSearchView::initDialog()
 	setWindowTitle(QString("Search Scans"));
 	resize(750, 800);
 	// Set layout and widgets
-	QHBoxLayout* layout = new QHBoxLayout();
+	QVBoxLayout* mainLayout = new QVBoxLayout();
+
+	QFormLayout* filterLayout = new QFormLayout();
+
+	filterLayout->addRow(new QLabel(QString("Search:")), new QLineEdit);
+	filterLayout->addRow(new QLabel(QString("Filter Column:")), new QComboBox);
+	filterLayout->addRow(new QLabel(QString("Filter Syntax:")), new QComboBox);
+	mainLayout->addLayout(filterLayout);
+
 
 	QTableView* searchResults = new QTableView();
 	searchResults->setModel(new AMScanSearchInfoListModel());
-	layout->addWidget(searchResults);
+	mainLayout->addWidget(searchResults);
 
-	this->setLayout(layout);
-}
-
-void AMScanSearchView::refreshScanList()
-{
-
-
+	this->setLayout(mainLayout);
 }
 
 // Definitions for AMScanSearchInfo

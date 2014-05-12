@@ -8,7 +8,12 @@
 #include <dataman/AMSample.h>
 #include <dataman/database/AMDatabase.h>
 #include <QList>
-#include <QHBoxLayout>
+#include <QComboBox>
+#include <QLabel>
+#include <QLineEdit>
+#include <QCheckBox>
+#include <QFormLayout>
+#include <QVBoxLayout>
 #include <QDebug>
 
 /// A class representing a Dialog Window for searching scan's for:
@@ -27,8 +32,6 @@ public:
 protected:
 	/// Initialises all the needed settings for the window (constructs Widgets, sets title etc.)
 	void initDialog();
-	/// Gets a list of all the required scans
-	void refreshScanList();
 signals:
 	
 public slots:
