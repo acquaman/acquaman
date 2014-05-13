@@ -237,3 +237,4 @@ void AMSettings::setAnalysisBlockPluginsFolder(QString analysisBlockPluginsFolde
 
 
 
+ AMSettings::~AMSettings(){}

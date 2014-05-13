@@ -29,6 +29,7 @@ SGMBeamlineInfo* SGMBeamlineInfo::sgmInfo(){
 	return instance_;
 }
 
+ SGMBeamlineInfo::~SGMBeamlineInfo(){}
 SGMBeamlineInfo::SGMBeamlineInfo(QObject *parent) :
 	QObject(parent)
 {
@@ -154,16 +155,16 @@ QList< QPair<SGMBeamlineInfo::sgmGrating, SGMBeamlineInfo::sgmHarmonic> > SGMBea
 	return rVal;
 }
 
-QPair<double, double> SGMBeamlineInfo::energyRangeForGratingHarmonic(SGMBeamlineInfo::sgmGrating grating, SGMBeamlineInfo::sgmHarmonic harmonic){
-	QPair<double, double> rVal;
+AMRange SGMBeamlineInfo::energyRangeForGratingHarmonic(SGMBeamlineInfo::sgmGrating grating, SGMBeamlineInfo::sgmHarmonic harmonic){
+	AMRange rVal;
 	if( (grating == 0) && (harmonic == SGMBeamlineInfo::firstHarmonic) )
-		rVal = QPair<double, double>(240, 750);
+		rVal = AMRange(240, 750);
 	else if( (grating == 1) && (harmonic == SGMBeamlineInfo::firstHarmonic) )
-		rVal = QPair<double, double>(440, 1200);
+		rVal = AMRange(440, 1200);
 	else if( (grating == 2) && (harmonic == SGMBeamlineInfo::firstHarmonic) )
-		rVal = QPair<double, double>(800, 1100);
+		rVal = AMRange(800, 1100);
 	else if( (grating == 2) && (harmonic == SGMBeamlineInfo::thirdHarmonic) )
-		rVal = QPair<double, double>(1100, 2000);
+		rVal = AMRange(1100, 2000);
 	return rVal;
 }
 
@@ -221,6 +222,7 @@ QPair<SGMBeamlineInfo::sgmGrating, SGMBeamlineInfo::sgmHarmonic> SGMBeamlineInfo
 		return QPair<SGMBeamlineInfo::sgmGrating, SGMBeamlineInfo::sgmHarmonic>(SGMBeamlineInfo::highGrating, SGMBeamlineInfo::thirdHarmonic);
 }
 
+ SGMEnergyParameters::~SGMEnergyParameters(){}
 SGMEnergyParameters::SGMEnergyParameters(QObject *parent) : QObject(parent)
 {
 }
@@ -237,10 +239,10 @@ SGMEnergyParameters::SGMEnergyParameters(double spacingParameter, double c1Param
 
 bool SGMEnergyParameters::operator ==(const SGMEnergyParameters &other){
 	if( (fabs(spacingParameter() - other.spacingParameter() ) <= 0.001e-07) &&
-	    (fabs(c1Parameter() - other.c1Parameter()) <= 0.0001e-05) &&
-	    (fabs(c2Parameter() - other.c2Parameter()) <= 0.0001) &&
-	    (fabs(sParameter() - other.sParameter()) <= 0.01) &&
-	    (fabs(thetaParameter() - other.thetaParameter()) <= 0.00001) ){
+		(fabs(c1Parameter() - other.c1Parameter()) <= 0.0001e-05) &&
+		(fabs(c2Parameter() - other.c2Parameter()) <= 0.0001) &&
+		(fabs(sParameter() - other.sParameter()) <= 0.01) &&
+		(fabs(thetaParameter() - other.thetaParameter()) <= 0.00001) ){
 		return true;
 	}
 	return false;

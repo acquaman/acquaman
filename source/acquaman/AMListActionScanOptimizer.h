@@ -7,6 +7,7 @@ class AMEmptyListScanOptimizer : public AMScanActionControllerScanOptimizer
 {
 Q_OBJECT
 public:
+ 	virtual ~AMEmptyListScanOptimizer();
 	AMEmptyListScanOptimizer(AMAction3 *scanActionTree = 0, QObject *parent = 0);
 
 protected:
@@ -17,6 +18,7 @@ class AMSingleElementListOptimizer : public AMScanActionControllerScanOptimizer
 {
 Q_OBJECT
 public:
+ 	virtual ~AMSingleElementListOptimizer();
 	AMSingleElementListOptimizer(AMAction3 *scanActionTree = 0, QObject *parent = 0);
 
 protected:

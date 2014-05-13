@@ -22,18 +22,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/AMBeamline.h"
 #include "beamline/AMControlSet.h"
-#include "beamline/AMOldDetectorSet.h"
-#include "beamline/VESPERS/XRFDetector.h"
-#include "beamline/AMROI.h"
 #include "beamline/VESPERS/VESPERSPIDLoopControl.h"
 #include "beamline/VESPERS/VESPERSMonochromator.h"
 #include "beamline/VESPERS/VESPERSIntermediateSlits.h"
 #include "beamline/CLS/CLSSynchronizedDwellTime.h"
-#include "actions/AMBeamlineActionItem.h"
 #include "beamline/VESPERS/VESPERSEndstation.h"
-#include "beamline/AMIonChamber.h"
-#include "beamline/CLS/CLSIonChamber.h"
-#include "beamline/CLS/CLSSplitIonChamber.h"
 #include "beamline/CLS/CLSVariableIntegrationTime.h"
 #include "beamline/VESPERS/VESPERSRoperCCDDetector.h"
 #include "beamline/VESPERS/VESPERSMarCCDDetector.h"
@@ -42,9 +35,16 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "application/VESPERS/VESPERS.h"
 #include "beamline/AMMotorGroup.h"
 #include "beamline/CLS/CLSPseudoMotorGroup.h"
+#include "beamline/CLS/CLSPseudoMotorControl.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
+
+#include "beamline/VESPERS/VESPERSSingleElementVortexDetector.h"
+#include "beamline/VESPERS/VESPERSFourElementVortexDetector.h"
+#include "beamline/CLS/CLSBasicScalerChannelDetector.h"
+#include "beamline/CLS/CLSBasicCompositeScalerChannelDetector.h"
+#include "beamline/AMBasicControlDetectorEmulator.h"
 
 #define VESPERSBEAMLINE_PRESSURE_TOO_HIGH 67800
 #define VESPERSBEAMLINE_VALVES_CLOSED 67801
@@ -69,58 +69,34 @@ public:
 		return static_cast<VESPERSBeamline*>(instance_);
 	}
 
-	~VESPERSBeamline();
+	virtual ~VESPERSBeamline();
 
 	// Beam selection functions.
 	/// Returns the current beam in use by the beamline.
 	VESPERS::Beam currentBeam() const { return beam_; }
 
-	// Helper functions.
-	QString pvName(const QString &amName) const { return amNames2pvNames_.valueF(amName); }
-	QString amName(const QString &pvName) const { return amNames2pvNames_.valueR(pvName); }
-
 	// Accessing detectors.
-
-	/// Returns a general AMDetector pointer of the single element XRF detector.
-	AMOldDetector *vortexAM1E() const { return vortex1E_; }
-	/// Returns the specific XRFDetector pointer of the single element XRF detector.
-	XRFDetector *vortexXRF1E() const { return (XRFDetector *)vortex1E_; }
-	/// Returns a general AMDetector pointer of the four element XRF detector.
-	AMOldDetector *vortexAM4E() const { return vortex4E_; }
-	/// Returns the specific XRFDetector pointer of the single element XRF detector.
-	XRFDetector *vortexXRF4E() const { return (XRFDetector *)vortex4E_; }
-
 	/// Returns a general AMDetector pointer of the Roper CCD.
-	AMOldDetector *roperCCDDetector() const { return roperCCD_; }
+	AMDetector *roperCCD() const { return roperCCD_; }
 	/// Returns the specific pointer to the Roper CCD.
-	VESPERSRoperCCDDetector *roperCCD() const { return (VESPERSRoperCCDDetector *)roperCCD_; }
+	VESPERSRoperCCDDetector *vespersRoperCCD() const { return (VESPERSRoperCCDDetector *)roperCCD_; }
 	/// Returns a general AMDetector pointer of the Mar CCD.
-	AMOldDetector *marCCDDetector() const { return marCCD_; }
+	AMDetector *marCCD() const { return roperCCD_; }
 	/// Returns the specific pointer to the Mar CCD.
-	VESPERSMarCCDDetector *marCCD() const { return (VESPERSMarCCDDetector *)marCCD_; }
+	VESPERSMarCCDDetector *vespersMarCCD() const { return (VESPERSMarCCDDetector *)marCCD_; }
 	/// Returns a general AMDetector pointer of the Pilatus CCD.
-	AMOldDetector *pilatusCCDDetector() const { return pilatusCCD_; }
+	AMDetector *pilatusAreaDetector() const { return pilatusAreaDetector_; }
 	/// Returns the specific pointer to the Pilatus CCD.
-	VESPERSPilatusCCDDetector *pilatusCCD() const { return (VESPERSPilatusCCDDetector *)pilatusCCD_; }
+	VESPERSPilatusCCDDetector *vespersPilatusAreaDetector() const { return (VESPERSPilatusCCDDetector *)pilatusAreaDetector_; }
 
-	/// Returns a general AMDetector pointer to the split ion chamber.
-	AMOldDetector *iSplitDetector() const { return iSplit_; }
-	/// Returns a CLSIonChamber pointer to the split ion chamber.
-	CLSSplitIonChamber *iSplit() const { return (CLSSplitIonChamber *)iSplit_; }
-	/// Returns a general AMDetector pointer to the pre-KB ion chamber.
-	AMOldDetector *iPreKBDetector() const { return iPreKB_; }
-	/// Returns a CLSIonChamber pointer to the split ion chamber.
-	CLSIonChamber *iPreKB() const { return (CLSIonChamber *)iPreKB_; }
-	/// Returns a general AMDetector pointer to the mini ion chamber.
-	AMOldDetector *iMiniDetector() const { return iMini_; }
-	/// Returns a CLSIonChamber pointer to the split ion chamber.
-	CLSIonChamber *iMini() const { return (CLSIonChamber *)iMini_; }
-	/// Returns a general AMDetector pointer to the post sample ion chamber.
-	AMOldDetector *iPostDetector() const { return iPost_; }
-	/// Returns a CLSIonChamber pointer to the split ion chamber.
-	CLSIonChamber *iPost() const { return (CLSIonChamber *)iPost_; }
-	/// Returns the ion chamber detector set.
-	AMOldDetectorSet *ionChambers() const { return ionChambers_; }
+	/// Returns the single element vortex detector.
+	AMDetector *singleElementVortexDetector() const { return singleElementVortexDetector_; }
+	/// Returns the single element vortex detector as its full type.
+	VESPERSSingleElementVortexDetector *vespersSingleElementVortexDetector() const { return singleElementVortexDetector_; }
+	/// Returns the four element vortex detector.
+	AMDetector *fourElementVortexDetector() const { return fourElementVortexDetector_; }
+	/// Returns the four element vortex detector as its full type.
+	VESPERSFourElementVortexDetector *vespersFourElementVortexDetector() const { return fourElementVortexDetector_; }
 
 	// Accessing control elements:
 
@@ -138,7 +114,7 @@ public:
 
 	// The synchronized dwell time.
 	/// Returns the synchronized dwell time.
-	CLSSynchronizedDwellTime *synchronizedDwellTime() const { return synchronizedDwellTime_; }
+	AMSynchronizedDwellTime *synchronizedDwellTime() const { return synchronizedDwellTime_; }
 	/// Returns the synchronized dwell time configuration info's list.
 	QList<CLSSynchronizedDwellTimeConfigurationInfo *> synchronizedDwellTimeConfigurations() const { return synchronizedDwellTimeConfigurations_; }
 	/// Returns a synchronized dwell time configuration info from the index provided.
@@ -463,6 +439,8 @@ public:
 	AMControl *attoStageRx() const { return attoStageRx_; }
 
 	// The motor group and specific motor group object getters.
+	/// Helper method that returns a name of the motor group object given a VESPERS::Motor enum.
+	QString motorGroupName(VESPERS::Motors motor) const;
 	/// Returns the CLSPseudoMotorGroup pointer.
 	CLSPseudoMotorGroup *motorGroup() const { return motorGroup_; }
 	/// Returns the pseudo sample stage motor group object.
@@ -533,18 +511,18 @@ public:
 
 	// This is where the controls and PVs for scanning are.  They are reproduced somewhat because my encapsulation classes don't return AMControls.
 	/// Returns the energy control.
-	AMControl *energy() const { return energy_; }
+	AMControl *energy() const { return mono_->EaControl(); }
 	/// Returns the relative energy control.
-	AMControl *energyRelative() const { return energyRelative_; }
+	AMControl *energyRelative() const { return mono_->delEControl(); }
+	/// Returns the k control used for EXAFS scans.
+	AMControl *kControl() const { return mono_->KControl(); }
 	/// Returns the master dwell time control.
 	AMControl *masterDwellTime() const { return masterDwellTime_; }
-	/// Returns the k control used for EXAFS scans.
-	AMControl *kControl() const { return kControl_; }
 
 	//////////////////////////////////////////////////////////////////////////////////////
 	// Actions
 	/// Creates an action that changes the beam.  Returns 0 if unable to create.
-	AMBeamlineActionItem *createBeamChangeAction(VESPERS::Beam beam);
+	AMAction3 *createBeamChangeAction(VESPERS::Beam beam);
 
 	// End of Actions
 	//////////////////////////////////////////////////////////////////////////////////////
@@ -607,10 +585,6 @@ protected slots:
 	void flowTransducerConnected(bool connected);
 	/// Slot used to deal with flow transducer errors.
 	void flowTransducerError();
-	/// Slot used to deal with single element detector errors.
-	void singleElVortexError(bool isConnected);
-	/// Slot used to deal with four element vortex detector errors.
-	void fourElVortexError(bool isConnected);
 	/// Slot used to dead with sample stage motor errors.
 	void sampleStageError();
 	/// Slot that is used for making sure the synchronized dwell time is configured properly once it is connected.
@@ -643,29 +617,28 @@ protected:
 	void setupComponents();
 	/// Sets up the exposed actions.
 	void setupExposedControls();
+	/// Sets up the exposed detectors.
+	void setupExposedDetectors();
 	/// Sets up the motor group for the various sample stages.
 	void setupMotorGroup();
+	/// Sets up all of the detectors that need to be added to scans that aren't a part of typical detectors.  This may just be temporary, not sure.
+	void setupControlsAsDetectors();
 
 	/// Constructor. This is a singleton class; access it through VESPERSBeamline::vespers().
 	VESPERSBeamline();
 
 	// Detectors.
-	AMOldDetector *vortex1E_;
-	AMOldDetector *vortex4E_;
-	AMOldDetector *roperCCD_;
-	AMOldDetector *marCCD_;
-	AMOldDetector *pilatusCCD_;
-	AMOldDetector *iSplit_;
-	AMOldDetector *iPreKB_;
-	AMOldDetector *iMini_;
-	AMOldDetector *iPost_;
+	CLSBasicCompositeScalerChannelDetector *splitIonChamber_;
+	CLSBasicScalerChannelDetector *preKBIonChamber_;
+	CLSBasicScalerChannelDetector *miniIonChamber_;
+	CLSBasicScalerChannelDetector *postIonChamber_;
+	VESPERSSingleElementVortexDetector *singleElementVortexDetector_;
+	VESPERSFourElementVortexDetector *fourElementVortexDetector_;
+	VESPERSRoperCCDDetector *roperCCD_;
+	VESPERSMarCCDDetector *marCCD_;
+	VESPERSPilatusCCDDetector *pilatusAreaDetector_;
 
 	// End detectors.
-
-	// Detector sets.
-	AMOldDetectorSet *ionChambers_;
-
-	// End detector sets.
 
 	// VESPERS monochromator.
 	VESPERSMonochromator *mono_;
@@ -830,7 +803,6 @@ protected:
 
 	// End General Controls.
 
-	// End ion chamber controls.
 
 	// Sample stage controls.
 	// CLS pseudo-motors.
@@ -881,13 +853,73 @@ protected:
 	// End sample stage controls.
 
 	// Scanning settings.
-	AMControl *energy_;
-	AMControl *energyRelative_;
 	AMControl *masterDwellTime_;
-	AMControl *kControl_;
 
-	// AM names bihash to/from PV names.
-	AMBiHash<QString, QString> amNames2pvNames_;
+	// The ring current.
+	AMControl *ringCurrent_;
+	// The energy setpoint control.
+	AMControl *energySetpointControl_;
+
+	// Extra controls.
+	AMControl *singleElementVortexDeadTimeControl_;
+	AMControl *singleElementVortexRealTimeControl_;
+	AMControl *singleElementVortexLiveTimeControl_;
+	AMControl *singleElementVortexFastPeaksControl_;
+	AMControl *singleElementVortexSlowPeaksControl_;
+	AMControl *fourElementVortexDeadTime1Control_;
+	AMControl *fourElementVortexDeadTime2Control_;
+	AMControl *fourElementVortexDeadTime3Control_;
+	AMControl *fourElementVortexDeadTime4Control_;
+	AMControl *fourElementVortexRealTime1Control_;
+	AMControl *fourElementVortexRealTime2Control_;
+	AMControl *fourElementVortexRealTime3Control_;
+	AMControl *fourElementVortexRealTime4Control_;
+	AMControl *fourElementVortexLiveTime1Control_;
+	AMControl *fourElementVortexLiveTime2Control_;
+	AMControl *fourElementVortexLiveTime3Control_;
+	AMControl *fourElementVortexLiveTime4Control_;
+	AMControl *fourElementVortexFastPeaks1Control_;
+	AMControl *fourElementVortexFastPeaks2Control_;
+	AMControl *fourElementVortexFastPeaks3Control_;
+	AMControl *fourElementVortexFastPeaks4Control_;
+	AMControl *fourElementVortexSlowPeaks1Control_;
+	AMControl *fourElementVortexSlowPeaks2Control_;
+	AMControl *fourElementVortexSlowPeaks3Control_;
+	AMControl *fourElementVortexSlowPeaks4Control_;
+
+	// Extra AMDetectors for the various single controls added to scans.
+	AMDetector *energySetpointDetector_;
+	AMDetector *kEnergyDetector_;
+	AMDetector *masterDwellTimeDetector_;
+	AMDetector *ringCurrentDetector_;
+	AMDetector *roperCCDFileNumberDetector_;
+	AMDetector *marCCDFileNumberDetector_;
+	AMDetector *pilatusCCDFileNumberDetector_;
+	AMDetector *singleElementVortexDeadTime_;
+	AMDetector *singleElementVortexRealTime_;
+	AMDetector *singleElementVortexLiveTime_;
+	AMDetector *singleElementVortexFastPeaks_;
+	AMDetector *singleElementVortexSlowPeaks_;
+	AMDetector *fourElementVortexDeadTime1_;
+	AMDetector *fourElementVortexDeadTime2_;
+	AMDetector *fourElementVortexDeadTime3_;
+	AMDetector *fourElementVortexDeadTime4_;
+	AMDetector *fourElementVortexRealTime1_;
+	AMDetector *fourElementVortexRealTime2_;
+	AMDetector *fourElementVortexRealTime3_;
+	AMDetector *fourElementVortexRealTime4_;
+	AMDetector *fourElementVortexLiveTime1_;
+	AMDetector *fourElementVortexLiveTime2_;
+	AMDetector *fourElementVortexLiveTime3_;
+	AMDetector *fourElementVortexLiveTime4_;
+	AMDetector *fourElementVortexFastPeaks1_;
+	AMDetector *fourElementVortexFastPeaks2_;
+	AMDetector *fourElementVortexFastPeaks3_;
+	AMDetector *fourElementVortexFastPeaks4_;
+	AMDetector *fourElementVortexSlowPeaks1_;
+	AMDetector *fourElementVortexSlowPeaks2_;
+	AMDetector *fourElementVortexSlowPeaks3_;
+	AMDetector *fourElementVortexSlowPeaks4_;
 };
 
 #endif // VESPERSBEAMLINE_H

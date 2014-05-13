@@ -5,7 +5,9 @@
 #include <QMap>
 
 #include "beamline/AMControl.h"
-#include "actions/AMBeamlineActionItem.h"
+#include "actions3/AMAction3.h"
+
+class AMMotorGroupObjectView;
 
 /// The object that contains all the information necessary for viewing.  Contains extra information and a logical grouping for up to three controls.
 class AMMotorGroupObject : public QObject
@@ -14,11 +16,12 @@ class AMMotorGroupObject : public QObject
 
 public:
 	/// Enum for the orientation of motor.
-	enum Orientation { Horizontal = 0, Vertical, Normal };
+	enum Orientation { Horizontal = 0, Vertical, Normal, Other };
 	/// Enum for the motion type of the motor.
 	enum MotionType { None = -1, Translational = 0, Rotational = 1 };
 
 	/// Constructor.  Builds a new motor group object with a single control.
+ 	virtual ~AMMotorGroupObject();
 	AMMotorGroupObject(const QString &name, const QString &prefix, const QString &units, AMControl *control, Orientation orientation, MotionType motionType, QObject *parent = 0);
 	/// Constructor.  Builds a new motor group object with up to three controls.
 	AMMotorGroupObject(const QString &name, const QStringList &prefixes, const QStringList &units, const QList<AMControl *> controls, QList<Orientation> orientations, QList<MotionType> motionTypes, QObject *parent = 0);
@@ -86,19 +89,21 @@ public:
 
 	// Old actions.  Will update with new ones as soon as I can.
 	/// Returns a newly created move action for the horizontal postion.  Returns 0 if not connected.
-	AMBeamlineActionItem *createHorizontalMoveAction(double position);
+	AMAction3 *createHorizontalMoveAction(double position);
 	/// Returns a newly created stop action for the horizontal position.  Returns 0 if not connected.
-	AMBeamlineActionItem *createHorizontalStopAction();
+	AMAction3 *createHorizontalStopAction();
 	/// Returns a newly created move action for the vertical postion.  Returns 0 if not connected.
-	AMBeamlineActionItem *createVerticalMoveAction(double position);
+	AMAction3 *createVerticalMoveAction(double position);
 	/// Returns a newly created stop action for the vertical position.  Returns 0 if not connected.
-	AMBeamlineActionItem *createVerticalStopAction();
+	AMAction3 *createVerticalStopAction();
 	/// Returns a newly created move action for the normal postion.  Returns 0 if not connected.
-	AMBeamlineActionItem *createNormalMoveAction(double position);
+	AMAction3 *createNormalMoveAction(double position);
 	/// Returns a newly created stop action for the normal position.  Returns 0 if not connected.
-	AMBeamlineActionItem *createNormalStopAction();
+	AMAction3 *createNormalStopAction();
 	/// Returns a newly created action that stops ALL the motors.  Returns 0 if not all motors are connected.
-	AMBeamlineActionItem *createStopAllAction();
+	AMAction3 *createStopAllAction();
+
+	virtual AMMotorGroupObjectView *createMotorGroupObjectView();
 
 protected:
 	/// Holds the name of the info.

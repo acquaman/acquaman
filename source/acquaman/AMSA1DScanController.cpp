@@ -23,7 +23,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMControl.h"
 #include "acquaman/AMSADetector.h"
 #include "acquaman/AMRegionScanConfiguration.h"
-#include "actions2/actions/AMInternalControlMoveAction.h"
 #include "dataman/datastore/AMCDFDataStore.h"
 #include "dataman/AMUser.h"
 
@@ -46,7 +45,7 @@ AMSA1DScanController::AMSA1DScanController(AMControl *control, QList<AMSADetecto
 	initializingDetectors_ = false;
 	triggeringDetectors_ = false;
 
-	moveAction_ = 0;
+//	moveAction_ = 0;
 
 	// create our new scan object
 	scan_ = new AMXASScan();
@@ -62,8 +61,8 @@ AMSA1DScanController::AMSA1DScanController(AMControl *control, QList<AMSADetecto
 }
 
 AMSA1DScanController::~AMSA1DScanController() {
-	delete moveAction_;
-	moveAction_ = 0;
+//	delete moveAction_;
+//	moveAction_ = 0;
 }
 
 void AMSA1DScanController::createRawDataSources()
@@ -190,13 +189,12 @@ void AMSA1DScanController::doNextPosition()
 
 	emitProgressUpdate();
 
-//	qDebug() << "    AMSA: Moving to position:" << currentPosition();
 
 	// move to the position.
-	moveAction_ = new AMInternalControlMoveAction(control(), currentPosition());
-	connect(moveAction_, SIGNAL(succeeded()), this, SLOT(onMoveActionSucceeded()));
-	connect(moveAction_, SIGNAL(failed()), this, SLOT(onMoveActionFailed()));
-	moveAction_->start();
+//	moveAction_ = new AMInternalControlMoveAction(control(), currentPosition());
+//	connect(moveAction_, SIGNAL(succeeded()), this, SLOT(onMoveActionSucceeded()));
+//	connect(moveAction_, SIGNAL(failed()), this, SLOT(onMoveActionFailed()));
+//	moveAction_->start();
 }
 
 double AMSA1DScanController::currentPosition() const
@@ -206,18 +204,18 @@ double AMSA1DScanController::currentPosition() const
 
 void AMSA1DScanController::onMoveActionSucceeded()
 {
-	disconnect(moveAction_, 0, this, 0);
-	moveAction_->deleteLater();
-	moveAction_ = 0;
+//	disconnect(moveAction_, 0, this, 0);
+//	moveAction_->deleteLater();
+//	moveAction_ = 0;
 
 	doNextAcquisition();
 }
 
 void AMSA1DScanController::onMoveActionFailed()
 {
-	disconnect(moveAction_, 0, this, 0);
-	moveAction_->deleteLater();
-	moveAction_ = 0;
+//	disconnect(moveAction_, 0, this, 0);
+//	moveAction_->deleteLater();
+//	moveAction_ = 0;
 
 	AMErrorMon::alert(this, -14, QString("The scan failed because the control (%1)failed to move properly to %2 %3.").arg(control()->description()).arg(currentPosition()).arg(control()->units()));
 	setFailed();
@@ -225,7 +223,6 @@ void AMSA1DScanController::onMoveActionFailed()
 
 void AMSA1DScanController::doNextAcquisition()
 {
-//	qDebug() << "    AMSA: Starting acquisition at" << currentPosition();
 
 	// trigger all the detectors
 	detectorAcquisitionFailed_ = false;
@@ -261,7 +258,6 @@ void AMSA1DScanController::onDetectorAcquisitionFinished(bool succeeded)
 
 void AMSA1DScanController::onAllAcquisitionFinished()
 {
-//	qDebug() << "    AMSA: Acquisition finished at" << currentPosition();
 
 	// Disconnect signals from all detectors
 	foreach(AMSADetector* detector, detectors_)
@@ -313,24 +309,24 @@ void AMSA1DScanController::cancelImplementation()
 	flushRawData();
 
 	// currently moving?
-	if(moveAction_) {
-		connect(moveAction_, SIGNAL(stateChanged(int,int)), this, SLOT(onMoveActionStateChangedWhileCancelling()));
-		moveAction_->cancel();
-	}
-	else {
-		customCleanupImplementation();
-	}
+//	if(moveAction_) {
+//		connect(moveAction_, SIGNAL(stateChanged(int,int)), this, SLOT(onMoveActionStateChangedWhileCancelling()));
+//		moveAction_->cancel();
+//	}
+//	else {
+//		customCleanupImplementation();
+//	}
 }
 
 void AMSA1DScanController::onMoveActionStateChangedWhileCancelling()
 {
-	if(moveAction_->inFinalState()) {
-		disconnect(moveAction_, 0, this, 0);
-		moveAction_->deleteLater();
-		moveAction_ = 0;
+//	if(moveAction_->inFinalState()) {
+//		disconnect(moveAction_, 0, this, 0);
+//		moveAction_->deleteLater();
+//		moveAction_ = 0;
 
-		customCleanupImplementation();
-	}
+//		customCleanupImplementation();
+//	}
 }
 
 void AMSA1DScanController::setCustomInitializationFinished(bool succeeded)

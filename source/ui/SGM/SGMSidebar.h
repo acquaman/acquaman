@@ -28,15 +28,16 @@ class QVBoxLayout;
 class QGridLayout;
 class QRadioButton;
 class QCheckBox;
+class QToolButton;
 
 class AMControlButton;
 
 #include "ui/beamline/AMExtendedControlEditor.h"
 #include "beamline/SGM/SGMBeamline.h"
-#include "actions/AMBeamlineParallelActionsList.h"
 #include "MPlot/MPlotWidget.h"
 #include "MPlot/MPlotSeriesData.h"
 #include "MPlot/MPlotSeries.h"
+#include "source/ui/CLS/CLSDarkCurrentWidget.h"
 
 class SGMSidebar : public QWidget
 {
@@ -44,7 +45,7 @@ class SGMSidebar : public QWidget
 public:
 	explicit SGMSidebar(QWidget *parent = 0);
 
-	~SGMSidebar();
+	virtual ~SGMSidebar();
 
 protected:
 	void showEvent(QShowEvent *);
@@ -59,6 +60,7 @@ protected slots:
 	void onStopMotorsActionFinished();
 
 	void onScanningResetButtonClicked();
+    void toTakeDarkCurrentMeasurement();
 
 	void onStripToolTimerTimeout();
 	void onI0CheckBoxToggled(bool toggled);
@@ -76,6 +78,9 @@ protected slots:
 	void onLogCheckBoxToggled(bool toggled);
 
 	void onBeamlineWarnings(const QString &newWarnings);
+
+	void onBeamlineCriticalControlSetConnectedChanged(bool isConnected);
+	void onBeamlineCriticalDetectorSetConnectedChanged(bool isConnected);
 
 protected:
 	QGroupBox *mainBox_;
@@ -120,8 +125,13 @@ protected:
 	int stripToolCounter_;
 	MPlotAxisScale* stripToolSpecialAxisScale_;
 
-	AMBeamlineListAction *beamOnAction_;
-	AMBeamlineListAction *stopMotorsAction_;
+	AMAction3 *beamOnAction_;
+	AMAction3 *stopMotorsAction_;
+
+	QLabel *controlsConnectedLabel_;
+	QLabel *detectorsConnectedLabel_;
+    
+//    CLSDarkCurrentWidget *darkCurrentWidget_;
 };
 
 #endif // SGMSIDEBAR_H

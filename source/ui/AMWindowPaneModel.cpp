@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QWidget>
 
 
+ AMWindowPaneModel::~AMWindowPaneModel(){}
 AMWindowPaneModel::AMWindowPaneModel(QObject* parent)
 	: AMDragDropItemModel(parent) {
 

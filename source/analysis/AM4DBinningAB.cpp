@@ -2,6 +2,7 @@
 
 #include "AM4DBinningAB.h"
 
+ AM4DBinningAB::~AM4DBinningAB(){}
 AM4DBinningAB::AM4DBinningAB(const QString &outputName, QObject *parent)
 	: AMStandardAnalysisBlock(outputName, parent)
 {

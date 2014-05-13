@@ -42,6 +42,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class AMLayoutControlledGraphicsWidget : public QGraphicsWidget {
 	Q_OBJECT
 public:
+ 	virtual ~AMLayoutControlledGraphicsWidget();
 	AMLayoutControlledGraphicsWidget(QGraphicsItem* parent = 0, Qt::WindowFlags wFlags = 0);
 
 signals:
@@ -67,6 +68,7 @@ namespace AMDataViews {
 class AMAbstractDataViewSection : public QGraphicsWidget {
 	Q_OBJECT
 public:
+ 	virtual ~AMAbstractDataViewSection();
 	AMAbstractDataViewSection(QGraphicsItem* parent = 0) : QGraphicsWidget(parent) {}
 
 	/// Support for "heightForWidth" mode is broken in QGraphicsLayout, at least up to Qt 4.7.2.  This is a workaround: we create and call a setWidthConstraint() on all the items in the top-level layout; they use this width in their sizeHint() function if a constraint is not provided.
@@ -414,6 +416,7 @@ class AMIgnoreScrollTableView : public QTableView {
 	Q_OBJECT
 
 public:
+ 	virtual ~AMIgnoreScrollTableView();
 	AMIgnoreScrollTableView(QWidget* parent = 0) : QTableView(parent) {}
 
 	virtual bool event(QEvent *event);

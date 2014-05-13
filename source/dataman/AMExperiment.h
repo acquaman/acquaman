@@ -40,6 +40,7 @@ class AMExperiment : public AMDbObject
 
 public:
 	/// Default constructor. In it we initialize the extra fields we want to store inside metaData_.
+ 	virtual ~AMExperiment();
 	Q_INVOKABLE explicit AMExperiment(QObject *parent = 0);
 
 	/// This constructor initializes an experiment with a given name.

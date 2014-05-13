@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QObject>
 #include <QDebug>
+
 #include "util/AMElement.h"
 #include "util/AMOrderedSet.h"
 #include "dataman/database/AMDbObject.h"
@@ -42,6 +43,7 @@ Q_PROPERTY(int sgmGrating READ sgmGrating WRITE setSGMGrating)
 Q_CLASSINFO("AMDbObject_Attributes", "description=SGM Energy Settings")
 
 public:
+ 	virtual ~SGMEnergyPosition();
 	Q_INVOKABLE SGMEnergyPosition(const QString &name = QString(), double energy = -1, int monoEncoderTarget = -1, int undulatorStepSetpoint = -1, double exitSlitDistance = -1, int sgmGrating = -1);
 
 	QString descriptionFromName() const;
@@ -95,7 +97,10 @@ Q_PROPERTY(AMDbObject* end READ dbGetEnd WRITE dbLoadEnd)
 Q_CLASSINFO("AMDbObject_Attributes", "description=SGM Scan Info")
 
 public:
-	Q_INVOKABLE SGMScanInfo(const QString &scanName = QString(), QPair<QString, double> edgeAndEnergy = qMakePair(QString(), -1.0), SGMEnergyPosition start = SGMEnergyPosition(), SGMEnergyPosition middle = SGMEnergyPosition(), SGMEnergyPosition end = SGMEnergyPosition(), QObject *parent = 0);
+	/// This is the new SGMScanInfo constructor using the new AMAbsorptionEdge class.  It should clean some things up and should Dave want to later, maybe make some of these other things easier to handle.
+ 	virtual ~SGMScanInfo();
+	Q_INVOKABLE SGMScanInfo(const QString &scanName = QString(), AMAbsorptionEdge edge = AMAbsorptionEdge(), SGMEnergyPosition start = SGMEnergyPosition(), SGMEnergyPosition middle = SGMEnergyPosition(), SGMEnergyPosition end = SGMEnergyPosition(), QObject *parent = 0);
+	SGMScanInfo(const QString &scanName, QPair<QString, double> edgeAndEnergy, SGMEnergyPosition start = SGMEnergyPosition(), SGMEnergyPosition middle = SGMEnergyPosition(), SGMEnergyPosition end = SGMEnergyPosition(), QObject *parent = 0);
 
 	QString scanName() const;
 	QString descriptionFromName() const;
@@ -167,9 +172,10 @@ Q_PROPERTY(AMDbObjectList sgmFastScanParameters READ dbReadSGMFastScanParameters
 Q_CLASSINFO("AMDbObject_Attributes", "description=SGM Element Info")
 
 public:
-	Q_INVOKABLE SGMElementInfo(const QString &name = QString(), const AMElement *element = 0, QObject *parent = 0);
+ 	virtual ~SGMElementInfo();
+	Q_INVOKABLE SGMElementInfo(const QString &name = QString(), AMElement *element = 0, QObject *parent = 0);
 
-	const AMElement* element() const;
+	AMElement* element() const;
 
 	AMOrderedSet<QString, SGMScanInfo> sgmEdgeInfos() const;
 	AMOrderedSet<int, SGMFastScanParameters*> availableFastScanParameters() const;
@@ -188,7 +194,7 @@ protected:
 	void dbLoadSGMFastScanParameters(const AMDbObjectList &sgmFastScanParameters);
 
 protected:
-	const AMElement *element_;
+	AMElement *element_;
 	AMOrderedSet<QString, SGMScanInfo> sgmEdgeInfos_;
 	AMOrderedSet<int, SGMFastScanParameters*> availableFastScanParameters_;
 };
@@ -204,6 +210,7 @@ Q_PROPERTY(int baseLine READ baseLine WRITE setBaseLine)
 Q_PROPERTY(int undulatorVelocity READ undulatorVelocity WRITE setUndulatorVelocity)
 
 public:
+ 	virtual ~SGMFastScanSettings();
 	explicit SGMFastScanSettings(const QString &name = QString(), double runSeconds = -1, int motorSettings = 0, double scalerTime = -1, int baseLine = -1, int undulatorVelocity = 0, QObject *parent = 0);
 
 	QString descriptionFromName() const;
@@ -253,7 +260,9 @@ Q_PROPERTY(AMDbObject* fastScanSettings READ dbGetFastScanSettings WRITE dbLoadF
 Q_CLASSINFO("AMDbObject_Attributes", "description=SGM Fast Scan Parameters")
 
 public:
+ 	virtual ~SGMFastScanParameters();
 	Q_INVOKABLE SGMFastScanParameters(const QString &name = QString(), const QString &element = QString(), const SGMScanInfo &scanInfo = SGMScanInfo(), const SGMFastScanSettings &fastScanSettings = SGMFastScanSettings(), QObject *parent = 0);
+	Q_INVOKABLE SGMFastScanParameters(AMDatabase *db, int id);
 
 	SGMFastScanParameters& operator =(const SGMFastScanParameters &other);
 

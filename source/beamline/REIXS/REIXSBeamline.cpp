@@ -19,11 +19,17 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "REIXSBeamline.h"
 #include "util/AMErrorMonitor.h"
-#include "dataman/AMSamplePlate.h"
+#include "dataman/AMSamplePlatePre2013.h"
 
-#include "actions2/actions/AMWaitAction.h"
+#include "actions3/actions/AMControlMoveAction3.h"
+#include "actions3/AMListAction3.h"
+#include "actions3/AMActionSupport.h"
 
 #include "acquaman/CLS/CLSSIS3820ScalerSADetector.h"
+#include "beamline/CLS/CLSBasicScalerChannelDetector.h"
+#include "beamline/CLS/CLSSIS3820Scaler.h"
+
+#include <QApplication>
 
 REIXSBeamline::REIXSBeamline() :
 	AMBeamline("REIXSBeamline")
@@ -65,45 +71,120 @@ REIXSBeamline::REIXSBeamline() :
 	sampleManipulatorSet_->addControl(sampleChamber()->r());
 
 	// MCP detector
-	mcpDetector_ = new REIXSXESMCPDetector("xesImage", "CPD1610-01", this);
+	//mcpDetector_ = new REIXSXESMCPDetectorPre2013("xesImage", "CPD1610-01", this);
+	mcpDetector_ = new REIXSXESMCPDetector(this);
 
+	scaler_ = new CLSSIS3820Scaler("BL1610-ID-2:mcs", this);
+	scaler_->channelAt(3)->setCustomChannelName("PFY");
+	scaler_->channelAt(4)->setCustomChannelName("TFY");
+	scaler_->channelAt(18)->setCustomChannelName("TEY");
+	scaler_->channelAt(16)->setCustomChannelName("I0");
+
+	i0Detector_ = new CLSBasicScalerChannelDetector("I0", "I0", scaler_, 16, this);
+	teyDetector_ = new CLSBasicScalerChannelDetector("TEY", "TEY", scaler_, 18, this);
+	tfyDetector_ = new CLSBasicScalerChannelDetector("TFY", "TFY", scaler_, 4, this);
+	pfyDetector_ = new CLSBasicScalerChannelDetector("PFY", "PFY", scaler_, 3, this);
 
 	// Build a control set of all the controls we want to make available to REIXSControlMoveAction, as well as record in the scan's scanInitialConditions()
-	allControlsSet_ = new AMControlSet(this);
-	allControlsSet_->addControl(photonSource()->energy());
-	allControlsSet_->addControl(photonSource()->monoGratingSelector());
-	allControlsSet_->addControl(photonSource()->monoMirrorSelector());
-	allControlsSet_->addControl(photonSource()->monoSlit());
-	allControlsSet_->addControl(spectrometer());
-	allControlsSet_->addControl(spectrometer()->spectrometerRotationDrive());
-	allControlsSet_->addControl(spectrometer()->detectorTranslation());
-	allControlsSet_->addControl(spectrometer()->detectorTiltDrive());
-	allControlsSet_->addControl(spectrometer()->hexapod()->x());
-	allControlsSet_->addControl(spectrometer()->hexapod()->y());
-	allControlsSet_->addControl(spectrometer()->hexapod()->z());
-	allControlsSet_->addControl(spectrometer()->hexapod()->u());
-	allControlsSet_->addControl(spectrometer()->hexapod()->v());
-	allControlsSet_->addControl(spectrometer()->hexapod()->w());
-	allControlsSet_->addControl(spectrometer()->hexapod()->r());
-	allControlsSet_->addControl(spectrometer()->hexapod()->s());
-	allControlsSet_->addControl(spectrometer()->hexapod()->t());
-	allControlsSet_->addControl(sampleChamber()->x());
-	allControlsSet_->addControl(sampleChamber()->y());
-	allControlsSet_->addControl(sampleChamber()->z());
-	allControlsSet_->addControl(sampleChamber()->r());
-	allControlsSet_->addControl(spectrometer()->endstationTranslation());  //DAVID ADDED
+//	allControlsSet_ = new AMControlSet(this);
+//	allControlsSet_->addControl(photonSource()->energy());
+//	allControlsSet_->addControl(photonSource()->monoGratingSelector());
+//	allControlsSet_->addControl(photonSource()->monoMirrorSelector());
+//	allControlsSet_->addControl(photonSource()->monoSlit());
+//	allControlsSet_->addControl(spectrometer());
+//	allControlsSet_->addControl(spectrometer()->spectrometerRotationDrive());
+//	allControlsSet_->addControl(spectrometer()->detectorTranslation());
+//	allControlsSet_->addControl(spectrometer()->detectorTiltDrive());
+//	allControlsSet_->addControl(spectrometer()->hexapod()->x());
+//	allControlsSet_->addControl(spectrometer()->hexapod()->y());
+//	allControlsSet_->addControl(spectrometer()->hexapod()->z());
+//	allControlsSet_->addControl(spectrometer()->hexapod()->u());
+//	allControlsSet_->addControl(spectrometer()->hexapod()->v());
+//	allControlsSet_->addControl(spectrometer()->hexapod()->w());
+//	allControlsSet_->addControl(spectrometer()->hexapod()->r());
+//	allControlsSet_->addControl(spectrometer()->hexapod()->s());
+//	allControlsSet_->addControl(spectrometer()->hexapod()->t());
+//	allControlsSet_->addControl(sampleChamber()->x());
+//	allControlsSet_->addControl(sampleChamber()->y());
+//	allControlsSet_->addControl(sampleChamber()->z());
+//	allControlsSet_->addControl(sampleChamber()->r());
+//	allControlsSet_->addControl(spectrometer()->endstationTranslation()); //DAVID 001 ADDED
+//	allControlsSet_->addControl(photonSource()->M5Pitch());   //DAVID ADDED 003
+//	allControlsSet_->addControl(photonSource()->M5Yaw());   //DAVID ADDED 003
+//	allControlsSet_->addControl(spectrometer()->gratingMask());  //DAVID ADDED 005
 
+	setupExposedControls();
+	setupExposedDetectors();
 
-	samplePlate_ = new AMSamplePlate(this);
+	samplePlate_ = new AMSamplePlatePre2013(this);
 
 	xasDetectors_ = new REIXSXASDetectors(this);
 }
 
-
 REIXSBeamline::~REIXSBeamline() {
 }
 
+void REIXSBeamline::setupExposedControls(){
+	addExposedControl(photonSource()->energy());
+	addExposedControl(photonSource()->monoGratingSelector());
+	addExposedControl(photonSource()->monoMirrorSelector());
+	addExposedControl(photonSource()->monoSlit());
+	addExposedControl(spectrometer());
+	addExposedControl(spectrometer()->detectorTiltDrive());
+	addExposedControl(sampleChamber()->x());
+	addExposedControl(sampleChamber()->y());
+	addExposedControl(sampleChamber()->z());
+	addExposedControl(sampleChamber()->r());
+	addExposedControl(spectrometer()->gratingMask());  //DAVID ADDED 005
 
+	if(QApplication::instance()->arguments().contains("--admin")){
+		addExposedControl(spectrometer()->spectrometerRotationDrive());
+		addExposedControl(spectrometer()->detectorTranslation());
+		addExposedControl(spectrometer()->hexapod()->x());
+		addExposedControl(spectrometer()->hexapod()->y());
+		addExposedControl(spectrometer()->hexapod()->z());
+		addExposedControl(spectrometer()->hexapod()->u());
+		addExposedControl(spectrometer()->hexapod()->v());
+		addExposedControl(spectrometer()->hexapod()->w());
+		addExposedControl(spectrometer()->hexapod()->r());
+		addExposedControl(spectrometer()->hexapod()->s());
+		addExposedControl(spectrometer()->hexapod()->t());
+		addExposedControl(spectrometer()->endstationTranslation()); //DAVID 001 ADDED
+		addExposedControl(photonSource()->M5Pitch());   //DAVID ADDED 003
+		addExposedControl(photonSource()->M5Yaw());   //DAVID ADDED 003
+	}
+}
+
+void REIXSBeamline::setupExposedDetectors(){
+	addExposedDetector(i0Detector_);
+	addExposedDetector(teyDetector_);
+	addExposedDetector(tfyDetector_);
+	addExposedDetector(pfyDetector_);
+}
+
+AMAction3 *REIXSBeamline::buildBeamStateChangeAction(bool beamOn) const
+{
+	AMListAction3 *list = new AMListAction3(new AMListActionInfo3("REIXS Beam On", "REIXS Beam Off"));
+
+	if (beamOn){
+
+		if (REIXSBeamline::bl()->valvesAndShutters()->ssh1()->value() != 1.0)
+			list->addSubAction(AMActionSupport::buildControlMoveAction(REIXSBeamline::bl()->valvesAndShutters()->ssh1(), 1.0));
+
+		if (REIXSBeamline::bl()->valvesAndShutters()->psh2()->value() != 1.0)
+			list->addSubAction(AMActionSupport::buildControlMoveAction(REIXSBeamline::bl()->valvesAndShutters()->psh2(), 1.0));
+
+		if (REIXSBeamline::bl()->valvesAndShutters()->psh4()->value() != 1.0)
+			list->addSubAction(AMActionSupport::buildControlMoveAction(REIXSBeamline::bl()->valvesAndShutters()->psh4(), 1.0));
+	}
+
+	else if (!beamOn && REIXSBeamline::bl()->valvesAndShutters()->psh4()->value() != 0.0)
+		list->addSubAction(AMActionSupport::buildControlMoveAction(REIXSBeamline::bl()->valvesAndShutters()->psh4(), 1.0));
+
+	return list;
+}
+
+ REIXSPhotonSource::~REIXSPhotonSource(){}
 REIXSPhotonSource::REIXSPhotonSource(QObject *parent) :
 	AMCompositeControl("photonSource", "", parent, "EPU and Monochromator")
 {
@@ -112,11 +193,17 @@ REIXSPhotonSource::REIXSPhotonSource(QObject *parent) :
 	directEnergy_ = directEnergy;
 	directEnergy_->setDescription("Beamline Energy");
 
-	energy_ = new REIXSBrokenMonoControl(directEnergy, 1.05, 3, 0.5, 0.5, 100, 1, 0.1, this);
+	energy_ = new REIXSBrokenMonoControl(directEnergy, 1.05, 3, 0.5, 0.5, 150, 1, 0.1, this);
 	energy_->setDescription("Beamline Energy");
 
-	monoSlit_ = new AMPVwStatusAndUnitConversionControl("monoSlit", "SMTR1610-I20-10:mm:fbk", "SMTR1610-I20-10:mm", "SMTR1610-I20-10:status", "SMTR1610-I20-10:stop", new AMScaleAndOffsetUnitConverter("um", 1000), 0, this, 0.1);
+	monoSlit_ = new AMPVwStatusAndUnitConversionControl("monoSlit", "SMTR1610-I20-10:mm:fbk", "SMTR1610-I20-10:mm", "SMTR1610-I20-10:status", "SMTR1610-I20-10:stop", new AMScaleAndOffsetUnitConverter("um", 1000), 0, this, 0.5);  //DAVID changed tolerance from 0.1->0.5
 	monoSlit_->setDescription("Mono Slit Width");
+
+	M5Pitch_ = new AMPVwStatusControl("M5Pitch", "SMTR1610-4-I20-02:mm:fbk", "SMTR1610-4-I20-02:mm","SMTR1610-4-I20-02:status","SMTR1610-4-I20-02:stop",this,0.5); //DAVID ADDED
+	M5Pitch_->setDescription("M5 Mirror Pitch"); //DAVID ADDED
+
+	M5Yaw_ = new AMPVwStatusControl("M5Yaw", "SMTR1610-4-I20-04:mm:fbk", "SMTR1610-4-I20-04:mm","SMTR1610-4-I20-04:status","SMTR1610-4-I20-04:stop",this,0.5); //DAVID ADDED
+	M5Yaw_->setDescription("M5 Mirror Yaw"); //DAVID ADDED
 
 	monoGratingTranslation_ = new AMPVwStatusControl("monoGratingTranslation", "MONO1610-I20-01:grating:trans:mm:fbk", "MONO1610-I20-01:grating:trans:mm", "MONO1610-I20-01:grating:trans:status", "SMTR1610-I20-04:stop", this, 0.05);
 	monoGratingTranslation_->setDescription("Mono Grating Translation");
@@ -134,6 +221,7 @@ REIXSPhotonSource::REIXSPhotonSource(QObject *parent) :
 	epuPolarizationAngle_->setDescription("EPU Polarization Angle");
 }
 
+ REIXSValvesAndShutters::~REIXSValvesAndShutters(){}
 REIXSValvesAndShutters::REIXSValvesAndShutters(QObject *parent) : AMCompositeControl("valvesAndShutters", "", parent)
 {
 	beamIsOn_ = false;
@@ -180,6 +268,7 @@ void REIXSValvesAndShutters::reviewIsBeamOn()
 }
 
 
+ REIXSSampleChamber::~REIXSSampleChamber(){}
 REIXSSampleChamber::REIXSSampleChamber(QObject *parent)
 	: AMCompositeControl("sampleChamber", "", parent) {
 
@@ -233,6 +322,7 @@ REIXSSampleChamber::REIXSSampleChamber(QObject *parent)
 }
 
 
+ REIXSHexapod::~REIXSHexapod(){}
 REIXSHexapod::REIXSHexapod(QObject* parent)
 	: AMCompositeControl("hexapod", "", parent) {
 
@@ -244,43 +334,31 @@ REIXSHexapod::REIXSHexapod(QObject* parent)
 	x_->setDescription("Hexapod X");
 	x_->setAllowsMovesWhileMoving(true);
 	x_->setSettlingTime(0.1);
-	x_->setMoveStartTolerance(1e-4);
-	x_->setMoveTimeoutTolerance(1e-3);
 
 	y_ = new AMPVwStatusControl("hexapodY", baseName+"Y:sp", baseName+"Y", baseName+"moving", QString(), this, 0.01);
 	y_->setDescription("Hexapod Y");
 	y_->setAllowsMovesWhileMoving(true);
 	y_->setSettlingTime(0.1);
-	y_->setMoveStartTolerance(1e-4);
-	y_->setMoveTimeoutTolerance(1e-3);
 
 	z_ = new AMPVwStatusControl("hexapodZ", baseName+"Z:sp", baseName+"Z", baseName+"moving", QString(), this, 0.01);
 	z_->setDescription("Hexapod Z");
 	z_->setAllowsMovesWhileMoving(true);
 	z_->setSettlingTime(0.1);
-	z_->setMoveStartTolerance(1e-4);
-	z_->setMoveTimeoutTolerance(1e-3);
 
 	u_ = new AMPVwStatusControl("hexapodU", baseName+"U:sp", baseName+"U", baseName+"moving", QString(), this, 0.05);
 	u_->setDescription("Hexapod U");
 	u_->setAllowsMovesWhileMoving(true);
 	u_->setSettlingTime(0.1);
-	u_->setMoveStartTolerance(1e-4);
-	u_->setMoveTimeoutTolerance(1e-3);
 
 	v_ = new AMPVwStatusControl("hexapodV", baseName+"V:sp", baseName+"V", baseName+"moving", QString(), this, 0.05);
 	v_->setDescription("Hexapod V");
 	v_->setAllowsMovesWhileMoving(true);
 	v_->setSettlingTime(0.1);
-	v_->setMoveStartTolerance(1e-4);
-	v_->setMoveTimeoutTolerance(1e-3);
 
 	w_ = new AMPVwStatusControl("hexapodW", baseName+"W:sp", baseName+"W", baseName+"moving", QString(), this, 0.05);
 	w_->setDescription("Hexapod W");
 	w_->setAllowsMovesWhileMoving(true);
 	w_->setSettlingTime(0.1);
-	w_->setMoveStartTolerance(1e-4);
-	w_->setMoveTimeoutTolerance(1e-3);
 
 	r_ = new AMPVControl("hexapodR", baseName+"R:sp", baseName+"R", QString(), this, 0.001);
 	r_->setDescription("Hexapod R");
@@ -306,6 +384,7 @@ REIXSHexapod::REIXSHexapod(QObject* parent)
 
 }
 
+ REIXSSpectrometer::~REIXSSpectrometer(){}
 REIXSSpectrometer::REIXSSpectrometer(QObject *parent)
 	: AMCompositeControl("spectrometer", "eV", parent) {
 
@@ -346,6 +425,15 @@ REIXSSpectrometer::REIXSSpectrometer(QObject *parent)
 	endstationTranslation_->setDescription("Endstation Translation");
 	endstationTranslation_->setSettlingTime(0.2);
 
+	gratingMask_ = new AMPVwStatusControl("gratingMask",
+										  "SMTR1610-4-I21-03:mm:sp",
+										  "SMTR1610-4-I21-03:mm",
+										  "SMTR1610-4-I21-03:status",
+										  "SMTR1610-4-I21-03:stop",this,0.01); //DAVID ADDED 005
+	gratingMask_->setDescription("Grating Mask Position");
+	gratingMask_->setSettlingTime(0.2);
+
+
 	hexapod_ = new REIXSHexapod(this);
 
 	addChildControl(spectrometerRotationDrive_);
@@ -353,6 +441,7 @@ REIXSSpectrometer::REIXSSpectrometer(QObject *parent)
 	addChildControl(detectorTiltDrive_);
 	addChildControl(endstationTranslation_);  //DAVID ADDED
 	addChildControl(hexapod_);
+	addChildControl(gratingMask_);  //DAVID ADDED 005
 
 	currentGrating_ = -1; specifiedGrating_ = 0;
 	currentFocusOffset_ = 0; specifiedFocusOffset_ = 0;
@@ -375,15 +464,6 @@ REIXSSpectrometer::REIXSSpectrometer(QObject *parent)
 
 
 }
-
-
-
-
-
-
-
-#include "actions2/AMListAction.h"
-#include "actions2/actions/AMInternalControlMoveAction.h"
 
 AMControl::FailureExplanation REIXSSpectrometer::move(double setpoint)
 {
@@ -410,44 +490,44 @@ AMControl::FailureExplanation REIXSSpectrometer::move(double setpoint)
 	moveSetpoint_ = calibration_.computeSpectrometerPosition(specifiedGrating_, specifiedEV_, currentFocusOffset_, currentDetectorTiltOffset_);
 
 	// build the move action (With sub-actions to run in parallel)
-	moveAction_ = new AMListAction(new AMActionInfo("spectrometer eV move"), AMListAction::ParallelMode, this);
+	moveAction_ = new AMListAction3(new AMListActionInfo3("spectrometer eV move", "spectrometer eV move"), AMListAction3::Parallel, this);
 	// if we need to move the grating into position, add actions for that:
 	if(!gratingInPosition()) {
 		// make a sequential action for the grating moves
-		AMListAction* gratingAction = new AMListAction(new AMActionInfo("grating move"));	// sequential by default.
+		AMListAction3* gratingAction = new AMListAction3(new AMListActionInfo3("grating move", "grating move"));	// sequential by default.
 		// first, move Z to 0
-		gratingAction->addSubAction(new AMInternalControlMoveAction(hexapod_->z(), 0));
+		gratingAction->addSubAction(AMActionSupport::buildControlMoveAction(hexapod_->z(), 0));
 		// then move U,V,W to 0
-		AMListAction* uvw0Action = new AMListAction(new AMActionInfo("grating UVW move to 0"), AMListAction::ParallelMode);
-		uvw0Action->addSubAction(new AMInternalControlMoveAction(hexapod_->u(), 0));
-		uvw0Action->addSubAction(new AMInternalControlMoveAction(hexapod_->v(), 0));
-		uvw0Action->addSubAction(new AMInternalControlMoveAction(hexapod_->w(), 0));
+		AMListAction3* uvw0Action = new AMListAction3(new AMListActionInfo3("grating UVW move to 0"), AMListAction3::Parallel);
+		uvw0Action->addSubAction(AMActionSupport::buildControlMoveAction(hexapod_->u(), 0));
+		uvw0Action->addSubAction(AMActionSupport::buildControlMoveAction(hexapod_->v(), 0));
+		uvw0Action->addSubAction(AMActionSupport::buildControlMoveAction(hexapod_->w(), 0));
 		gratingAction->addSubAction(uvw0Action);
 		// then move R,S,T into position (Can do simultaneously with parallel action)
-		AMListAction* rstAction = new AMListAction(new AMActionInfo("grating RST move"), AMListAction::ParallelMode);
-		rstAction->addSubAction(new AMInternalControlMoveAction(hexapod_->r(), moveSetpoint_.controlNamed("hexapodR").value()));
-		rstAction->addSubAction(new AMInternalControlMoveAction(hexapod_->s(), moveSetpoint_.controlNamed("hexapodS").value()));
-		rstAction->addSubAction(new AMInternalControlMoveAction(hexapod_->t(), moveSetpoint_.controlNamed("hexapodT").value()));
+		AMListAction3* rstAction = new AMListAction3(new AMListActionInfo3("grating RST move"), AMListAction3::Parallel);
+		rstAction->addSubAction(AMActionSupport::buildControlMoveAction(hexapod_->r(), moveSetpoint_.controlNamed("hexapodR").value()));
+		rstAction->addSubAction(AMActionSupport::buildControlMoveAction(hexapod_->s(), moveSetpoint_.controlNamed("hexapodS").value()));
+		rstAction->addSubAction(AMActionSupport::buildControlMoveAction(hexapod_->t(), moveSetpoint_.controlNamed("hexapodT").value()));
 		gratingAction->addSubAction(rstAction);
 		// move U,V,W to actual position
-		AMListAction* uvwAction = new AMListAction(new AMActionInfo("grating UVW move"), AMListAction::ParallelMode);
-		uvwAction->addSubAction(new AMInternalControlMoveAction(hexapod_->u(), moveSetpoint_.controlNamed("hexapodU").value()));
-		uvwAction->addSubAction(new AMInternalControlMoveAction(hexapod_->v(), moveSetpoint_.controlNamed("hexapodV").value()));
-		uvwAction->addSubAction(new AMInternalControlMoveAction(hexapod_->w(), moveSetpoint_.controlNamed("hexapodW").value()));
+		AMListAction3* uvwAction = new AMListAction3(new AMListActionInfo3("grating UVW move"), AMListAction3::Parallel);
+		uvwAction->addSubAction(AMActionSupport::buildControlMoveAction(hexapod_->u(), moveSetpoint_.controlNamed("hexapodU").value()));
+		uvwAction->addSubAction(AMActionSupport::buildControlMoveAction(hexapod_->v(), moveSetpoint_.controlNamed("hexapodV").value()));
+		uvwAction->addSubAction(AMActionSupport::buildControlMoveAction(hexapod_->w(), moveSetpoint_.controlNamed("hexapodW").value()));
 		gratingAction->addSubAction(uvwAction);
 		// then move X,Y,Z into position (can do simultaneously with parallel action)
-		AMListAction* xyzAction = new AMListAction(new AMActionInfo("grating XYZ move"), AMListAction::ParallelMode);
-		xyzAction->addSubAction(new AMInternalControlMoveAction(hexapod_->x(), moveSetpoint_.controlNamed("hexapodX").value()));
-		xyzAction->addSubAction(new AMInternalControlMoveAction(hexapod_->y(), moveSetpoint_.controlNamed("hexapodY").value()));
-		xyzAction->addSubAction(new AMInternalControlMoveAction(hexapod_->z(), moveSetpoint_.controlNamed("hexapodZ").value()));
+		AMListAction3* xyzAction = new AMListAction3(new AMListActionInfo3("grating XYZ move"), AMListAction3::Parallel);
+		xyzAction->addSubAction(AMActionSupport::buildControlMoveAction(hexapod_->x(), moveSetpoint_.controlNamed("hexapodX").value()));
+		xyzAction->addSubAction(AMActionSupport::buildControlMoveAction(hexapod_->y(), moveSetpoint_.controlNamed("hexapodY").value()));
+		xyzAction->addSubAction(AMActionSupport::buildControlMoveAction(hexapod_->z(), moveSetpoint_.controlNamed("hexapodZ").value()));
 		gratingAction->addSubAction(xyzAction);
 
 		moveAction_->addSubAction(gratingAction);
 	}
 	// add Lift, Tilt, and Translation
-	moveAction_->addSubAction(new AMInternalControlMoveAction(spectrometerRotationDrive_, moveSetpoint_.controlNamed("spectrometerRotationDrive").value()));
-	moveAction_->addSubAction(new AMInternalControlMoveAction(detectorTiltDrive_, moveSetpoint_.controlNamed("detectorTiltDrive").value()));
-	moveAction_->addSubAction(new AMInternalControlMoveAction(detectorTranslation_, moveSetpoint_.controlNamed("detectorTranslation").value()));
+	moveAction_->addSubAction(AMActionSupport::buildControlMoveAction(spectrometerRotationDrive_, moveSetpoint_.controlNamed("spectrometerRotationDrive").value()));
+	moveAction_->addSubAction(AMActionSupport::buildControlMoveAction(detectorTiltDrive_, moveSetpoint_.controlNamed("detectorTiltDrive").value()));
+	moveAction_->addSubAction(AMActionSupport::buildControlMoveAction(detectorTranslation_, moveSetpoint_.controlNamed("detectorTranslation").value()));
 	// Disabled for now: moveAction_->addSubAction(new AMInternalControlMoveAction(endstationTranslation_, moveSetpoint_.controlNamed("endstationTranslation").value()));
 
 	// Watch the move action: succeeded or failed (or cancelled)
@@ -558,14 +638,14 @@ void REIXSSpectrometer::onMoveActionStateChanged(int state, int previousState)
 {
 	Q_UNUSED(previousState)
 
-	if(state == AMAction::Succeeded || state == AMAction::Failed || state == AMAction::Cancelled) {
+	if(state == AMAction3::Succeeded || state == AMAction3::Failed || state == AMAction3::Cancelled) {
 		moveAction_->deleteLater();	// cannot delete right away, because we might still be executing inside the moveAction_'s code.
 		moveAction_ = 0;
-		if(state == AMAction::Succeeded) {
+		if(state == AMAction3::Succeeded) {
 			emit moveSucceeded();
 //			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Information, 0, QString("Spectrometer move to %1 finished.").arg(value())));
 		}
-		else if(state == AMAction::Failed) {
+		else if(state == AMAction3::Failed) {
 			emit moveFailed(AMControl::OtherFailure);
 			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, AMControl::OtherFailure, "Spectrometer Move Failed."));
 		}
@@ -624,20 +704,78 @@ AMControl::FailureExplanation REIXSBrokenMonoControl::move(double setpoint)
 
 	setpoint_ = setpoint;
 	stopInProgress_ = false;
-	moveAction_ = new AMListAction(new AMActionInfo("REIXS mono move"));
-
-
+	moveAction_ = new AMListAction3(new AMListActionInfo3("REIXS mono move", "REIXS mono move"));
 
 	// n-step sub moves
 	if(fabs(value() - setpoint_) > repeatMoveThreshold_) {
-		control_->setSettlingTime(repeatMoveSettlingTime_);	// ensures we wait for this long before finishing each sub-move.
-		for(int i=0; i<repeatMoveAttempts_; ++i) {
-			moveAction_->addSubAction(new AMInternalControlMoveAction(control_, setpoint_));
-		}
+			control_->setSettlingTime(repeatMoveSettlingTime_);	// ensures we wait for this long before finishing each sub-move.
+			double movePoint_ = value();
+
+			if(setpoint_ > lowEnergyThreshold_ && value() < lowEnergyThreshold_) { //below lowEnergySetpoint moving up
+
+				while(movePoint_ < lowEnergyThreshold_) {
+					movePoint_ = movePoint_ + lowEnergyStepSize_;
+					moveAction_->addSubAction(AMActionSupport::buildControlMoveAction(control_, movePoint_));
+					qDebug() << "below lowEnergySetpoint moving up to " << movePoint_;
+				}
+
+
+			}
+
+			if(setpoint_ <= lowEnergyThreshold_ && value() > lowEnergyThreshold_) {   //above lowEnergySetpoint moving into
+
+				movePoint_ = lowEnergyThreshold_;
+
+				for(int i=0; i<repeatMoveAttempts_; ++i) {
+							moveAction_->addSubAction(AMActionSupport::buildControlMoveAction(control_, movePoint_));
+					}
+					qDebug() << "above lowEnergySetpoint moving to " << movePoint_;
+
+				while(movePoint_ - setpoint_ > lowEnergyStepSize_) {
+					movePoint_ = movePoint_ - lowEnergyStepSize_;
+					moveAction_->addSubAction(AMActionSupport::buildControlMoveAction(control_, movePoint_));
+					qDebug() << "above lowEnergySetpoint moving into " << movePoint_;
+				}
+
+
+			}
+
+			if(setpoint_ <= lowEnergyThreshold_ && value() <= lowEnergyThreshold_ && setpoint_ > value() ) {   //below lowEnergySetpoint moving up within
+
+
+				while(setpoint_ - movePoint_ > lowEnergyStepSize_) {
+					movePoint_ = movePoint_ + lowEnergyStepSize_;
+					moveAction_->addSubAction(AMActionSupport::buildControlMoveAction(control_, movePoint_));
+					qDebug() << "below lowEnergySetpoint moving up within " << movePoint_;
+				}
+
+			}
+
+			if(setpoint_ <= lowEnergyThreshold_ && value() <= lowEnergyThreshold_ && setpoint_ < value() ) {   //below lowEnergySetpoint moving down within
+
+
+				while(movePoint_ - setpoint_ > lowEnergyStepSize_) {
+					movePoint_ = movePoint_ - lowEnergyStepSize_;
+					moveAction_->addSubAction(AMActionSupport::buildControlMoveAction(control_, movePoint_));
+					qDebug() << "below lowEnergySetpoint moving down within " << movePoint_;
+				}
+
+			}
+
+			//Fall though or finalize move:
+
+			for(int i=0; i<repeatMoveAttempts_; ++i) {
+						moveAction_->addSubAction(AMActionSupport::buildControlMoveAction(control_, setpoint_));
+						qDebug() << "Fallthrough " << setpoint_;
+				}
+
+
+
 	}
 	else {
 		control_->setSettlingTime(singleMoveSettlingTime_);
-		moveAction_->addSubAction(new AMInternalControlMoveAction(control_, setpoint_));
+		moveAction_->addSubAction(AMActionSupport::buildControlMoveAction(control_, setpoint_));
+		qDebug() << "Small move " << setpoint_;
 	}
 
 	/// \todo Low-energy moves
@@ -711,10 +849,11 @@ REIXSBrokenMonoControl::~REIXSBrokenMonoControl() {
 	control_ = 0;
 }
 
+ REIXSXASDetectors::~REIXSXASDetectors(){}
 REIXSXASDetectors::REIXSXASDetectors(QObject *parent) : AMCompositeControl("xasDetectors", "", parent, "XAS Detectors")
 {
 	TEY_ = new AMReadOnlyPVControl("TEY", "BL1610-ID-2:mcs18:fbk", this, "TEY");
-	TFY_ = new AMReadOnlyPVControl("TFY", "BL1610-ID-2:mcs19:fbk", this, "TFY");
+	TFY_ = new AMReadOnlyPVControl("TFY", "BL1610-ID-2:mcs04:fbk", this, "TFY");
 	I0_ = new AMReadOnlyPVControl("I0", "BL1610-ID-2:mcs16:fbk", this, "I0");
 	scalerContinuousMode_ = new AMSinglePVControl("scalerContinuous", "BL1610-ID-2:mcs:continuous", this, 0.1);
 
@@ -723,8 +862,9 @@ REIXSXASDetectors::REIXSXASDetectors(QObject *parent) : AMCompositeControl("xasD
 	addChildControl(I0_);
 
 	saDetectors_ << new CLSSIS3820ScalerSADetector("TEY", "Electron Yield", "BL1610-ID-2:mcs", 18, true, this);
-	saDetectors_ << new CLSSIS3820ScalerSADetector("TFY", "Fluorescence Yield", "BL1610-ID-2:mcs", 19, false, this);
+	saDetectors_ << new CLSSIS3820ScalerSADetector("TFY", "Fluorescence Yield", "BL1610-ID-2:mcs", 4, false, this);
 	saDetectors_ << new CLSSIS3820ScalerSADetector("I0", "I0", "BL1610-ID-2:mcs", 16, false, this);
+	saDetectors_ << new CLSSIS3820ScalerSADetector("PFY", "PFY", "BL1610-ID-2:mcs", 3, false, this);
 	/// \todo XES detector PFY. Requires building a new AMSADetector subclass.
 }
 
@@ -736,7 +876,7 @@ int REIXSBeamline::currentSampleId()
 
 	// loop through all samples on the current plate.
 	for(int i=0; i<samplePlate_->count(); ++i) {
-		const AMSamplePosition& samplePos = samplePlate_->at(i);
+		const AMSamplePositionPre2013& samplePos = samplePlate_->at(i);
 
 		if(samplePos.position().count() != 4)
 			continue;

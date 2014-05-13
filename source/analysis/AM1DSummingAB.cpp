@@ -20,6 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AM1DSummingAB.h"
 
+ AM1DSummingAB::~AM1DSummingAB(){}
 AM1DSummingAB::AM1DSummingAB(const QString &outputName, QObject *parent)
 	: AMStandardAnalysisBlock(outputName, parent)
 {
@@ -175,7 +176,8 @@ void AM1DSummingAB::onInputSourceValuesChanged(const AMnDIndex& start, const AMn
 // Connected to be called when the size of the input source changes
 void AM1DSummingAB::onInputSourceSizeChanged()
 {
-	axes_[0] = sources_.at(0)->axisInfoAt(0);
+	if (sources_.at(0)->axes().size() > 0)
+		axes_[0] = sources_.at(0)->axisInfoAt(0);
 
 	emitSizeChanged();
 }

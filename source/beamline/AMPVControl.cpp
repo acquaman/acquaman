@@ -19,12 +19,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMPVControl.h"
 
-#include "util/AMErrorMonitor.h"
 #include <QDebug>
+
+#include "util/AMErrorMonitor.h"
 
 // Class AMReadOnlyPVControl
 ///////////////////////////////////////
 
+ AMReadOnlyPVControl::~AMReadOnlyPVControl(){}
 AMReadOnlyPVControl::AMReadOnlyPVControl(const QString& name, const QString& readPVname, QObject* parent, const QString description)
 	: AMControl(name, "?", parent, description)  {
 
@@ -77,6 +79,7 @@ void AMReadOnlyPVControl::onReadPVInitialized() {
 }
 
 
+ AMPVControl::~AMPVControl(){}
 AMPVControl::AMPVControl(const QString& name, const QString& readPVname, const QString& writePVname, const QString& stopPVname, QObject* parent, double tolerance, double completionTimeoutSeconds, int stopValue, const QString &description)
 	: AMReadOnlyPVControl(name, readPVname, parent, description)
 {
@@ -105,7 +108,7 @@ AMPVControl::AMPVControl(const QString& name, const QString& readPVname, const Q
 	connect(writePV_, SIGNAL(error(int)), this, SLOT(onWritePVError(int)));
 	connect(writePV_, SIGNAL(connectionTimeout()), this, SIGNAL(writeConnectionTimeoutOccurred()));
 	connect(writePV_, SIGNAL(connectionTimeout()), this, SLOT(onConnectionTimeout()));
-	connect(writePV_, SIGNAL(valueChanged(double)), this, SIGNAL(setpointChanged(double)));
+	connect(writePV_, SIGNAL(valueChanged(double)), this, SLOT(onSetpointChanged(double)));
 	connect(writePV_, SIGNAL(initialized()), this, SLOT(onWritePVInitialized()));
 
 	// We now need to monitor the feedback position ourselves, to see if we get where we want to go:
@@ -127,6 +130,12 @@ AMPVControl::AMPVControl(const QString& name, const QString& readPVname, const Q
 	wasConnected_ = (readPV_->readReady() && writePV_->writeReady());	// equivalent to isConnected(), but we cannot call virtual functions inside a constructor; that will break subclasses.
 	if(writePV_->isInitialized())
 		onWritePVInitialized();
+}
+
+void AMPVControl::onSetpointChanged(double newVal)
+{
+	setpoint_ = newVal;
+	emit setpointChanged(setpoint_);
 }
 
 void AMPVControl::onWritePVInitialized() {
@@ -174,22 +183,27 @@ AMControl::FailureExplanation AMPVControl::move(double setpoint) {
 
 		// new move target:
 		setpoint_ = setpoint;
-		// Issue the move
-		writePV_->setValue(setpoint_);
-
-		// We're now moving! Let's hope this control makes it... (No way to actually check.)
-		emit movingChanged(moveInProgress_ = true);
-		// emit the signal that we started:
-		emit moveStarted();
-
-		// Are we in-position? [With the default tolerance of AMCONTROL_TOLERANCE_DONT_CARE, we will always be in-position, and moves will complete right away; that's the intended behaviour, because we have no other way of knowing when they'll finish.]
-		if(inPosition()) {
-			emit movingChanged(moveInProgress_ = false);
+		// Issue the move, check on attemptMoveWhenWithinTolerance
+		if(!attemptMoveWhenWithinTolerance_ && inPosition()){
 			emit moveSucceeded();
 		}
-		else {
-			// start the countdown to see if we get there in time or stall out: (completionTimeout_ is in seconds)
-			completionTimer_.start(int(completionTimeout_*1000.0));
+		else{
+			writePV_->setValue(setpoint_);
+
+			// We're now moving! Let's hope this control makes it... (No way to actually check.)
+			emit movingChanged(moveInProgress_ = true);
+			// emit the signal that we started:
+			emit moveStarted();
+
+			// Are we in-position? [With the default tolerance of AMCONTROL_TOLERANCE_DONT_CARE, we will always be in-position, and moves will complete right away; that's the intended behaviour, because we have no other way of knowing when they'll finish.]
+			if(inPosition()) {
+				emit movingChanged(moveInProgress_ = false);
+				emit moveSucceeded();
+			}
+			else {
+				// start the countdown to see if we get there in time or stall out: (completionTimeout_ is in seconds)
+				completionTimer_.start(int(completionTimeout_*1000.0));
+			}
 		}
 	}
 	return NoFailure;
@@ -254,6 +268,7 @@ void AMPVControl::onCompletionTimeout() {
 // Class AMSinglePVControl
 ///////////////////////////////////////
 
+ AMSinglePVControl::~AMSinglePVControl(){}
 AMSinglePVControl::AMSinglePVControl(const QString &name, const QString &PVname, QObject *parent, double tolerance, double completionTimeoutSeconds, const QString &description)
 	: AMPVControl(name, PVname, PVname, QString(), parent, tolerance, completionTimeoutSeconds, 1, description)
 {
@@ -310,12 +325,11 @@ void AMReadOnlyPVwStatusControl::onMovingChanged(int movingValue) {
 		emit movingChanged(wasMoving_ = nowMoving);
 }
 
+ AMPVwStatusControl::~AMPVwStatusControl(){}
 AMPVwStatusControl::AMPVwStatusControl(const QString& name, const QString& readPVname, const QString& writePVname, const QString& movingPVname, const QString& stopPVname, QObject* parent, double tolerance, double moveStartTimeoutSeconds, AMAbstractControlStatusChecker* statusChecker, int stopValue, const QString &description)
 	: AMReadOnlyPVwStatusControl(name, readPVname, movingPVname, parent, statusChecker, description) {
 
 	// Initialize:
-	moveStartTolerance_ = 0;
-	moveTimeoutTolerance_ = 0;
 	moveInProgress_ = false;
 	stopInProgress_ = false;
 	startInProgress_ = false;
@@ -335,7 +349,7 @@ AMPVwStatusControl::AMPVwStatusControl(const QString& name, const QString& readP
 	connect(writePV_, SIGNAL(error(int)), this, SLOT(onWritePVError(int)));
 	connect(writePV_, SIGNAL(connectionTimeout()), this, SIGNAL(writeConnectionTimeoutOccurred()));
 	connect(writePV_, SIGNAL(connectionTimeout()), this, SLOT(onConnectionTimeout()));
-	connect(writePV_, SIGNAL(valueChanged(double)), this, SIGNAL(setpointChanged(double)));
+	connect(writePV_, SIGNAL(valueChanged(double)), this, SLOT(onSetpointChanged(double)));
 	connect(writePV_, SIGNAL(initialized()), this, SLOT(onWritePVInitialized()));
 
 	// connect the timer to the timeout handler:
@@ -361,6 +375,12 @@ AMPVwStatusControl::AMPVwStatusControl(const QString& name, const QString& readP
 	if(movingPV_->readReady())
 		hardwareWasMoving_ = (*statusChecker_)(movingPV_->lastValue());
 
+}
+
+void AMPVwStatusControl::onSetpointChanged(double newVal)
+{
+	setpoint_ = newVal;
+	emit setpointChanged(setpoint_);
 }
 
 void AMPVwStatusControl::onWritePVInitialized() {
@@ -403,17 +423,11 @@ AMControl::FailureExplanation AMPVwStatusControl::move(double Setpoint) {
 		// This is our new target:
 		setpoint_ = Setpoint;
 
-		// Special case: "null move" should complete immediately. Use only if moveStartTolerance() is non-zero, and the move distance is within moveStartTolerance().
-		if(moveStartTolerance() != 0 && fabs(setpoint()-value()) < moveStartTolerance()) {
-			startInProgress_ = false;
-			moveInProgress_ = true;
-			emit moveStarted();
-			moveInProgress_ = false;
-			emit moveSucceeded();
-		}
 		// Normal move:
-		else {
-			// Issue the move command:
+		// Issue the move command, check on attemptMoveWhenWithinTolerance
+		if(!attemptMoveWhenWithinTolerance_ && inPosition())
+			emit moveSucceeded();
+		else{
 			writePV_->setValue(setpoint_);
 			// start the timer to check if our move failed to start:
 			moveStartTimer_.start(int(moveStartTimeout_*1000.0));
@@ -459,17 +473,8 @@ void AMPVwStatusControl::onMoveStartTimeout() {
 		// give up on this move:
 		startInProgress_ = false;
 
-		// Special case: only applies if moveTimeoutTolerance_ != 0 AND we've gotten within moveTimeoutTolerance_ of the setpoint.
-		if(moveTimeoutTolerance() != 0.0 && fabs(setpoint() - value()) < moveTimeoutTolerance_) {
-			moveInProgress_ = true;
-			emit moveStarted();
-			moveInProgress_ = false;
-			emit moveSucceeded();
-		}
-		else {
-			// The move didn't start within our allowed start period. That counts as a move failed.
-			emit moveFailed(AMControl::TimeoutFailure);
-		}
+		// The move didn't start within our allowed start period. That counts as a move failed.
+		emit moveFailed(AMControl::TimeoutFailure);
 	}
 }
 
@@ -576,6 +581,7 @@ void AMPVwStatusControl::onSettlingTimeFinished()
 }
 
 
+ AMReadOnlyWaveformBinningPVControl::~AMReadOnlyWaveformBinningPVControl(){}
 AMReadOnlyWaveformBinningPVControl::AMReadOnlyWaveformBinningPVControl(const QString &name, const QString &readPVname, int lowIndex, int highIndex, QObject *parent, const QString &description) :
 	AMReadOnlyPVControl(name, readPVname, parent, description)
 {
@@ -664,3 +670,6 @@ void AMPVwStatusAndUnitConversionControl::setUnitConverters(AMAbstractUnitConver
 
 
 
+ AMControlStatusCheckerDefault::~AMControlStatusCheckerDefault(){}
+ AMControlStatusCheckerStopped::~AMControlStatusCheckerStopped(){}
+ AMScaleAndOffsetUnitConverter::~AMScaleAndOffsetUnitConverter(){}

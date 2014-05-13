@@ -13,6 +13,9 @@ public:
 	/// Constructor calls the base constructor for AMDbUpgrade
 	AMDbUpgrade1Pt1(QString databaseNameToUpgrade, QObject *parent = 0);
 
+	/// Destructor
+	virtual ~AMDbUpgrade1Pt1();
+
 	/// Indicates the dependencies of this upgrade (in this case there are no general dependencies, but beamline specific upgrades may need to be run first).
 	virtual QStringList upgradeFromTags() const;
 

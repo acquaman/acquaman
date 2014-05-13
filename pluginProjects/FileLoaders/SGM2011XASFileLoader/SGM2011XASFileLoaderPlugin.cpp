@@ -11,7 +11,6 @@
 #include "dataman/AMScan.h"
 
 bool SGM2011XASFileLoaderPlugin::accepts(AMScan *scan){
-	qDebug() << "SGM2011XAS trying to accept " << scan->fileFormat();
 	if(scan->fileFormat() == "sgm2011XAS")
 		return true;
 	return false;

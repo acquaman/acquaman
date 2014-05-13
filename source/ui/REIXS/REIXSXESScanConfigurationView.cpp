@@ -32,8 +32,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QLineEdit>
 #include <QSpinBox>
 
-#include "ui/dataman/AMSampleSelector.h"
+#include "ui/dataman/AMSamplePre2013Selector.h"
 
+ REIXSXESScanConfigurationView::~REIXSXESScanConfigurationView(){}
 REIXSXESScanConfigurationView::REIXSXESScanConfigurationView(REIXSXESScanConfiguration* config, QWidget *parent) :
 		AMScanConfigurationView(parent)
 {
@@ -70,7 +71,7 @@ REIXSXESScanConfigurationView::REIXSXESScanConfigurationView(REIXSXESScanConfigu
 	numberEdit_ = new QSpinBox();
 	numberEdit_->setRange(0, 10000);
 	nameEdit_ = new QLineEdit();
-	sampleSelector_ = new AMSampleSelector(AMDatabase::database("user"));
+	sampleSelector_ = new AMSamplePre2013Selector(AMDatabase::database("user"));
 	autoNamingCheckBox_ = new QCheckBox("from last sample move");
 
 	/////////////////////
@@ -106,7 +107,7 @@ REIXSXESScanConfigurationView::REIXSXESScanConfigurationView(REIXSXESScanConfigu
 
 	fl->addRow("Start from", startFromCurrentPositionOption_);
 	fl->addRow("Do not clear", doNotClearExistingCountsOption_);
-	fl->addRow("Calibration", calibrationSelector_);
+	//fl->addRow("Calibration", calibrationSelector_);
 
 	detectorOptions->setLayout(fl);
 

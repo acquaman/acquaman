@@ -2,24 +2,22 @@
 
 #include <QStringBuilder>
 
+ CLSQE65000Detector::~CLSQE65000Detector(){}
 CLSQE65000Detector::CLSQE65000Detector(const QString &name, const QString &description, const QString &baseName, QObject *parent) :
 	AMDetector(name, description, parent)
 {
 	baseName_ = baseName;
 	units_ = "Counts";
 
-	data_ = new double[1024];
-	for(int x = 0; x < 1024; x++)
-		data_[x] = 0;
-
 	allControls_ = new AMControlSet(this);
 
 	spectrumControl_ = new AMReadOnlyPVControl(name%"Spectrum", baseName%":DarkCorrectedSpectra", this);
 	spectrumControl_->setDescription("QE 65000 Spectrum");
 	spectrumControl_->setContextKnownDescription("Spectrum");
-	binnedSpectrumControl_ = new AMReadOnlyWaveformBinningPVControl(name%"BinnedSpectrum", baseName%":DarkCorrectedSpectra", 0, 1024, this);
+	//binnedSpectrumControl_ = new AMReadOnlyWaveformBinningPVControl(name%"BinnedSpectrum", baseName%":DarkCorrectedSpectra", 0, 1024, this);
+	binnedSpectrumControl_ = new AMReadOnlyWaveformBinningPVControl(name%"BinnedSpectrum", baseName%":DarkCorrectedSpectra", 0, 3648, this);
 	((AMReadOnlyWaveformBinningPVControl*)binnedSpectrumControl_)->setAttemptDouble(true);
-	integrationTimeControl_ = new AMPVControl(name%"IntegrationTime", baseName%":IntegrationTime:Value", baseName%":IntegrationTime:Value", "", this, 0.1);
+	integrationTimeControl_ = new AMPVControl(name%"IntegrationTime", baseName%":IntegrationTime:Value", baseName%":IntegrationTime:Value", "", this, 0.001);
 	integrationTimeControl_->setDescription("QE 65000 Integration Time");
 	integrationTimeControl_->setContextKnownDescription("Integration Time");
 
@@ -39,7 +37,6 @@ CLSQE65000Detector::CLSQE65000Detector(const QString &name, const QString &descr
 	connect(allControls_, SIGNAL(connected(bool)), this, SLOT(onControlsConnected(bool)));
 	connect(allControls_, SIGNAL(controlSetTimedOut()), this, SLOT(onControlsTimedOut()));
 
-	connect(spectrumControl_, SIGNAL(valueChanged(double)), this, SLOT(onSpectrumControlChanged(double)));
 	connect(integrationTimeControl_, SIGNAL(valueChanged(double)), this, SIGNAL(acquisitionTimeChanged(double)));
 	connect(statusControl_, SIGNAL(valueChanged(double)), this, SLOT(onStatusControlChanged(double)));
 
@@ -49,13 +46,15 @@ CLSQE65000Detector::CLSQE65000Detector(const QString &name, const QString &descr
 
 int CLSQE65000Detector::size(int axisNumber) const{
 	if(axisNumber == 0)
-		return 1024;
+		//return 1024;
+		return 3648;
 	return -1;
 }
 
 QList<AMAxisInfo> CLSQE65000Detector::axes() const{
 	QList<AMAxisInfo> axisInfo;
-	AMAxisInfo ai("Wavelength", 1024, "Wavelength", "nm");
+	//AMAxisInfo ai("Wavelength", 1024, "Wavelength", "nm");
+	AMAxisInfo ai("Wavelength", 3648, "Wavelength", "nm");
 	ai.start = AMNumber(0);
 	ai.isUniform = true;
 	axisInfo << ai;
@@ -65,6 +64,14 @@ QList<AMAxisInfo> CLSQE65000Detector::axes() const{
 double CLSQE65000Detector::acquisitionTime() const{
 	if(isConnected())
 		return integrationTimeControl_->value();
+	return -1;
+}
+
+double CLSQE65000Detector::acquisitionTimeTolerance() const
+{
+	if (isConnected())
+		return integrationTimeControl_->tolerance();
+
 	return -1;
 }
 
@@ -90,7 +97,8 @@ AMDetectorDwellTimeSource* CLSQE65000Detector::detectorDwellTimeSource(){
 }
 
 AMNumber CLSQE65000Detector::reading(const AMnDIndex &indexes) const{
-	if( (!isConnected()) || (indexes.rank() != 1) || (indexes.i() > 1024) )
+	//if( (!isConnected()) || (indexes.rank() != 1) || (indexes.i() > 1024) )
+	if( (!isConnected()) || (indexes.rank() != 1) || (indexes.i() > 3648) )
 		return AMNumber(AMNumber::DimensionError);
 
 	AMReadOnlyPVControl *tmpControl = qobject_cast<AMReadOnlyPVControl*>(spectrumControl_);
@@ -112,8 +120,9 @@ bool CLSQE65000Detector::lastContinuousReading(double *outputValues) const{
 	return false;
 }
 
-const double* CLSQE65000Detector::data() const{
-	return data_;
+bool CLSQE65000Detector::data(double *outputValues) const
+{
+	return spectrumDataSource_->values(AMnDIndex(0), AMnDIndex(spectrumDataSource_->size(0)-1), outputValues);
 }
 
 bool CLSQE65000Detector::setAcquisitionTime(double seconds){
@@ -166,22 +175,6 @@ void CLSQE65000Detector::onControlsConnected(bool connected){
 
 void CLSQE65000Detector::onControlsTimedOut(){
 	setConnected(false);
-}
-
-void CLSQE65000Detector::onSpectrumControlChanged(double newValue){
-	Q_UNUSED(newValue)
-
-	if(isConnected()){
-		AMReadOnlyPVControl *tmpControl = qobject_cast<AMReadOnlyPVControl*>(spectrumControl_);
-
-		memcpy(data_, tmpControl->readPV()->lastFloatingPointValues().constData(), 1024*sizeof(double));
-		/*
-		QVector<int> values = tmpControl->readPV()->lastIntegerValues();
-		//QVector<double> values = tmpControl->readPV()->lastFloatingPointValues();
-		for(int x = 0; x < values.count(); x++)
-			data_[x] = values.at(x);
-		*/
-	}
 }
 
 void CLSQE65000Detector::onStatusControlChanged(double value){

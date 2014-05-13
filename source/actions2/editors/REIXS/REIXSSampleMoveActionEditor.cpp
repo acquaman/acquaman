@@ -26,7 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QLabel>
 
 #include "beamline/REIXS/REIXSBeamline.h"
-#include "dataman/AMSamplePlate.h"
+#include "dataman/AMSamplePlatePre2013.h"
 
 REIXSSampleMoveActionEditor::REIXSSampleMoveActionEditor(REIXSSampleMoveActionInfo *info, QWidget *parent) : QFrame(parent) {
 
@@ -80,10 +80,10 @@ REIXSSampleMoveActionEditor::REIXSSampleMoveActionEditor(REIXSSampleMoveActionIn
 	// Initialize GUI:
 
 	// Fill the sample choices based on the beamline's _current_ sample plate. This is a dubious choice, and couples this widget to the beamline class.
-	AMSamplePlate* samplePlate = REIXSBeamline::bl()->samplePlate();
+	AMSamplePlatePre2013* samplePlate = REIXSBeamline::bl()->samplePlate();
 	for(int i=0, cc=samplePlate->count(); i<cc; ++i) {
 		int sampleId = samplePlate->at(i).sampleId();
-		AMSample s; s.loadFromDb(AMDatabase::database("user"), sampleId);
+		AMSamplePre2013 s; s.loadFromDb(AMDatabase::database("user"), sampleId);
 		sample_->addItem(s.name(), sampleId);
 	}
 	if(samplePlate->id() == info_->samplePlateId() && info_->samplePlateId() > 0) {	// If the beamline's current sample plate id matches the samplePlateId() of our action, set the currently-selected sample to match.

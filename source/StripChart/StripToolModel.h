@@ -17,7 +17,7 @@ class StripToolModel : public QAbstractListModel
 
 public:
     explicit StripToolModel(QObject *parent = 0);
-    ~StripToolModel();
+    virtual ~StripToolModel();
 
 signals:
 //    void savePVData(QObject *toSave);

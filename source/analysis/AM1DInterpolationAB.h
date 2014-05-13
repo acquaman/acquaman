@@ -31,6 +31,7 @@ Q_OBJECT
 Q_CLASSINFO("AMDbObject_Attributes", "description=1D Interpolation Block")
 
 public:
+ 	virtual ~AM1DInterpolationAB();
 	Q_INVOKABLE AM1DInterpolationAB(int interpolationPoints, const QString &outputName = "InvalidInput", QObject *parent = 0);
 
 	QString infoDescription() const { return QString(); }

@@ -18,11 +18,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef ACQMAN_SCANCONFIGURATION_H
-#define ACQMAN_SCANCONFIGURATION_H
+#ifndef AM_SCANCONFIGURATION_H
+#define AM_SCANCONFIGURATION_H
 
 #include "dataman/database/AMDbObject.h"
 #include "dataman/info/AMDetectorInfoSet.h"
+#include "dataman/info/AMControlInfoList.h"
 
 /// Forward declaration of AMScanController.  See note on circular coupling in AMScanConfiguration
 class AMScanController;
@@ -59,25 +60,27 @@ In theory, these relationships should normally be avoided.  However, at this poi
   */
 class AMScanConfiguration : public AMDbObject
 {
-Q_OBJECT
+	Q_OBJECT
 
-Q_PROPERTY(AMDbObject* detectorConfigurations READ dbReadDetectorConfigurations WRITE dbLoadDetectorConfigurations)
+	Q_PROPERTY(AMDbObject* detectorConfigurations READ dbReadDetectorConfigurations WRITE dbLoadDetectorConfigurations)
+	Q_PROPERTY(AMDbObject* axisControlInfos READ dbReadAxisControlInfos WRITE dbLoadAxisControlInfos)
 
-Q_CLASSINFO("AMDbObject_Attributes", "description=Generic Scan Configuration")
+	Q_CLASSINFO("AMDbObject_Attributes", "description=Generic Scan Configuration")
 
 public:
 	/// Default Constructor
 	explicit AMScanConfiguration(QObject *parent = 0);
-
+	/// Copy constructor.
+	AMScanConfiguration(const AMScanConfiguration &original);
 	/// Empty Destructor
 	virtual ~AMScanConfiguration() {}
 
 	virtual const QMetaObject* getMetaObject();
 
-	/// A human-readable description of this scan configuration. Can be re-implemented to provide more details. Used by AMBeamlineScanAction to set the title for the action view.
+	/// A human-readable description of this scan configuration. Can be re-implemented to provide more details. Used by scan action to set the title for the action view.
 	virtual QString description() const;
 
-	/// A human-readable synopsis of this scan configuration. Can be re-implemented to provide more details. Used by AMBeamlineScanAction to set the main text in the action view.
+	/// A human-readable synopsis of this scan configuration. Can be re-implemented to provide more details. Used by scan action to set the main text in the action view.
 	virtual QString detailedDescription() const;
 
 	/// The auto-generated scan name. Can be re-implemented to customize for each scan type.
@@ -118,6 +121,8 @@ public:
 
 	/// Returns the set of detector infos that we wish to use in this scan
 	AMDetectorInfoSet detectorConfigurations() const { return detectorConfigurations_; }
+	/// Returns the list of control infos that we use to associate with the axes of the scan.
+	AMControlInfoList axisControlInfos() const { return axisControlInfos_; }
 
 	/// Returns a string with any warnings that occured during the load from database phase. Can be overridden by subclasses. Empty string implies no warnings.
 	virtual QString dbLoadWarnings() const { return QString(); }
@@ -136,7 +141,9 @@ public slots:
 	void setExpectedDuration(double duration);
 
 	/// Sets the full list of detector infos
-	void setDetectorConfigurations(const AMDetectorInfoSet detectorConfigurations);
+	void setDetectorConfigurations(const AMDetectorInfoSet &detectorConfigurations);
+	/// Sets the full list for axis control infos.
+	void setAxisControlInfos(const AMControlInfoList &axisControlInfos);
 
 signals:
 	/// General signal that something about the configuration has changed
@@ -151,12 +158,18 @@ signals:
 	void expectedDurationChanged(double);
 	/// Notifier that the detector configuration list has changed (the list has changed, not the internal states of the items)
 	void detectorConfigurationsChanged();
+	/// Notifier that the axis control info list has changed (the list has changed, not the internal states of the items within the list).
+	void axisControlInfosChanged();
 
 protected:
 	/// Used to write the detector configurations to the database
 	AMDbObject* dbReadDetectorConfigurations() { return &detectorConfigurations_;}
 	/// For database loading (never called)
 	void dbLoadDetectorConfigurations(AMDbObject*) {} //Never called, detectorConfigurations_ is always valid
+	/// Used to write the axis control info's to the database.
+	AMDbObject *dbReadAxisControlInfos() { return &axisControlInfos_; }
+	/// For database loading (never called)
+	void dbLoadAxisControlInfos(AMDbObject *) {} // Never called, axisControlInfos_ is always valid.
 
 protected:
 	/// A user-defined name for this scan. If left blank an auto-generated name will be used.
@@ -171,6 +184,8 @@ protected:
 
 	/// A set of detector infos for this scan configuration (acts as both the detectors we wish to use and their configurations)
 	AMDetectorInfoSet detectorConfigurations_;
+	/// A set of control infos for this scan configuration (acts as the axis list).
+	AMControlInfoList axisControlInfos_;
 };
 
-#endif // ACQMAN_SCANCONFIGURATION_H
+#endif // AM_SCANCONFIGURATION_H

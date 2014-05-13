@@ -60,6 +60,7 @@ public:
 	/*! \param viewSet Pointer to the AMControlSet to view.
 	  \param parent Pointer to QWidget to act as parent.
 	  */
+ 	virtual ~AMControlSetView();
 	explicit AMControlSetView(AMControlSet *viewSet, bool configureOnly = false, QWidget *parent = 0);
 
 	AMExtendedControlEditor* boxByName(const QString &name){

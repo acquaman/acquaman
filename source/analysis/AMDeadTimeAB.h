@@ -32,6 +32,7 @@ class AMDeadTimeAB : public AMStandardAnalysisBlock
 
 public:
 	/// Constructor.
+ 	virtual ~AMDeadTimeAB();
 	Q_INVOKABLE AMDeadTimeAB(const QString &outputName = "InvalidInput", QObject *parent = 0);
 
 	/// Description.

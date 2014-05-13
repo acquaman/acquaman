@@ -21,7 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMErrorMonitor.h"
 #include "beamline/REIXS/REIXSBeamline.h"
 #include "actions2/actions/AMInternalControlMoveAction.h"
-#include "dataman/AMSamplePlate.h"
+#include "dataman/AMSamplePlatePre2013.h"
 
 REIXSSampleMoveAction::REIXSSampleMoveAction(REIXSSampleMoveActionInfo *info, QObject *parent) :
 	AMListAction(info, AMListAction::ParallelMode, parent)

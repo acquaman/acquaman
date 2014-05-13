@@ -23,6 +23,7 @@ class CLSSynchronizedDwellTimeConfiguration : public QObject
 
 public:
 	/// Constructor.  Requires the base name and element number.
+ 	virtual ~CLSSynchronizedDwellTimeConfiguration();
 	CLSSynchronizedDwellTimeConfiguration(const QString &name, int number, QObject *parent = 0);
 
 	/// Returns whether the configuration is connected.

@@ -65,12 +65,24 @@ REIXSXESImageABEditor::REIXSXESImageABEditor(REIXSXESImageAB *analysisBlock, QWi
 	tiltCalibrationOffsetBox_->setSingleStep(0.1);
 	tiltCalibrationOffsetBox_->setSuffix(" deg");
 
-	rangeMinControl_ = new QSpinBox();
-	rangeMinControl_->setSingleStep(1);
-	rangeMinControl_->setMinimum(0);
-	rangeMaxControl_ = new QSpinBox();
-	rangeMaxControl_->setSingleStep(1);
-	rangeMaxControl_->setMinimum(0);
+	rangeMinYControl_ = new QSpinBox();
+	rangeMinYControl_->setSingleStep(1);
+	rangeMinYControl_->setMinimum(0);
+	rangeMaxYControl_ = new QSpinBox();
+	rangeMaxYControl_->setSingleStep(1);
+	rangeMaxYControl_->setMinimum(0);
+
+	rangeMinXControl_ = new QSpinBox();
+	rangeMinXControl_->setSingleStep(1);
+	rangeMinXControl_->setMinimum(0);
+	rangeMaxXControl_ = new QSpinBox();
+	rangeMaxXControl_->setSingleStep(1);
+	rangeMaxXControl_->setMinimum(0);
+
+	rangeRoundControl_ = new QDoubleSpinBox();
+	rangeRoundControl_->setSingleStep(0.05);
+	rangeRoundControl_->setMinimum(0.0);
+	rangeRoundControl_->setMaximum(1.0);
 
 	correlationCenterBox_ = new QSpinBox();
 	correlationCenterBox_->setSingleStep(1);
@@ -143,6 +155,19 @@ REIXSXESImageABEditor::REIXSXESImageABEditor(REIXSXESImageAB *analysisBlock, QWi
 	plot_->addItem(shiftSeries_);
 	shiftSeries_->setZValue(2999);	// put on top of plot, but below range rectangles.
 
+
+	ellipseData_ = new REIXSXESImageABEditorEllipticalMask(analysisBlock_);
+	ellipseSeries_ = new MPlotSeriesBasic();
+	ellipseSeries_->setModel(ellipseData_, true);
+	ellipseSeries_->setIgnoreWhenAutoScaling(true);
+	ellipseSeries_->setLinePen(QPen(QBrush(QColor(Qt::white)),1));
+	ellipseSeries_->setMarker(MPlotMarkerShape::None);
+	plot_->addItem(ellipseSeries_);
+	ellipseSeries_->setZValue(2999);	// put on top of plot, but below range rectangles.
+
+
+
+
 	corrRegionLeft_ = new MPlotPoint(QPointF(analysisBlock_->correlationCenterPixel()-analysisBlock_->correlationHalfWidth(), 0));
 	corrRegionRight_ = new MPlotPoint(QPointF(analysisBlock_->correlationCenterPixel()+analysisBlock_->correlationHalfWidth(), 0));
 	corrRegionLeft_->setMarker(MPlotMarkerShape::VerticalBeam, 2000, QPen(QColor(Qt::black)));
@@ -157,18 +182,33 @@ REIXSXESImageABEditor::REIXSXESImageABEditor(REIXSXESImageAB *analysisBlock, QWi
 	QColor white(Qt::white);
 	QPen pen(white, 1, Qt::SolidLine, Qt::SquareCap, Qt::MiterJoin);
 	white.setAlphaF(0.6);
-	rangeRectangle1_ = new MPlotRectangle(QRectF(0,0,10,10), Qt::NoPen, QBrush(white));
-	rangeRectangle1_->setSelectable(false);
-	rangeRectangle1_->setIgnoreWhenAutoScaling(true);
-	rangeRectangle1_->setZValue(3000);
-	plot_->addItem(rangeRectangle1_);
-	rangeRectangle1_->setVisible(false);
-	rangeRectangle2_ = new MPlotRectangle(QRectF(0,0,10,10), Qt::NoPen, QBrush(white));
-	rangeRectangle2_->setSelectable(false);
-	rangeRectangle2_->setIgnoreWhenAutoScaling(true);
-	rangeRectangle2_->setZValue(3000);
-	plot_->addItem(rangeRectangle2_);
-	rangeRectangle2_->setVisible(false);
+	rangeRectangleY1_ = new MPlotRectangle(QRectF(0,0,10,10), Qt::NoPen, QBrush(white));
+	rangeRectangleY1_->setSelectable(false);
+	rangeRectangleY1_->setIgnoreWhenAutoScaling(true);
+	rangeRectangleY1_->setZValue(3000);
+	plot_->addItem(rangeRectangleY1_);
+	rangeRectangleY1_->setVisible(false);
+	rangeRectangleY2_ = new MPlotRectangle(QRectF(0,0,10,10), Qt::NoPen, QBrush(white));
+	rangeRectangleY2_->setSelectable(false);
+	rangeRectangleY2_->setIgnoreWhenAutoScaling(true);
+	rangeRectangleY2_->setZValue(3000);
+	plot_->addItem(rangeRectangleY2_);
+	rangeRectangleY2_->setVisible(false);
+
+	rangeRectangleX1_ = new MPlotRectangle(QRectF(0,0,10,10), Qt::NoPen, QBrush(white));
+	rangeRectangleX1_->setSelectable(false);
+	rangeRectangleX1_->setIgnoreWhenAutoScaling(true);
+	rangeRectangleX1_->setZValue(3000);
+	plot_->addItem(rangeRectangleX1_);
+	rangeRectangleX1_->setVisible(false);
+	rangeRectangleX2_ = new MPlotRectangle(QRectF(0,0,10,10), Qt::NoPen, QBrush(white));
+	rangeRectangleX2_->setSelectable(false);
+	rangeRectangleX2_->setIgnoreWhenAutoScaling(true);
+	rangeRectangleX2_->setZValue(3000);
+	plot_->addItem(rangeRectangleX2_);
+	rangeRectangleX2_->setVisible(false);
+
+
 	plot_->legend()->enableDefaultLegend(false);
 	plot_->axisBottom()->setTicks(3);
 	plot_->axisLeft()->setTicks(3);
@@ -182,10 +222,23 @@ REIXSXESImageABEditor::REIXSXESImageABEditor(REIXSXESImageAB *analysisBlock, QWi
 	QVBoxLayout* vl = new QVBoxLayout();
 	QFormLayout* fl = new QFormLayout();
 	QHBoxLayout* hl = new QHBoxLayout();
-	hl->addWidget(rangeMinControl_);
+
+	QHBoxLayout* h2 = new QHBoxLayout();
+
+	hl->addWidget(rangeMinYControl_);
 	hl->addWidget(new QLabel("To"));
-	hl->addWidget(rangeMaxControl_);
-	fl->addRow("From:", hl);
+	hl->addWidget(rangeMaxYControl_);
+
+	h2->addWidget(rangeMinXControl_);
+	h2->addWidget(new QLabel("To"));
+	h2->addWidget(rangeMaxXControl_);
+	h2->addWidget(new QLabel("Round:"));
+	h2->addWidget(rangeRoundControl_);
+
+	fl->addRow("From (y):", hl);
+
+	fl->addRow("From (x):", h2);
+
 	QHBoxLayout* hl4 = new QHBoxLayout();
 	hl4->addWidget(energyCalibrationOffsetBox_);
 	hl4->addWidget(tiltCalibrationOffsetBox_);
@@ -195,11 +248,14 @@ REIXSXESImageABEditor::REIXSXESImageABEditor(REIXSXESImageAB *analysisBlock, QWi
 	hl2->addWidget(new QLabel("#"));
 	hl2->addWidget(correlationPointsBox_);
 	fl->addRow("C. center:", hl2);
+
 	fl->addRow("C. smooth:", correlationSmoothingBox_);
+
 	QHBoxLayout* hl5 = new QHBoxLayout();
 	hl5->addWidget(liveCorrelationCheckBox_);
 	hl5->addWidget(correlateNowButton_);
 	fl->addRow("Correlate:", hl5);
+
 	vl->addLayout(fl);
 	QHBoxLayout* hl3 = new QHBoxLayout();
 	hl3->addWidget(manualShiftEntryButton_);
@@ -216,8 +272,14 @@ REIXSXESImageABEditor::REIXSXESImageABEditor(REIXSXESImageAB *analysisBlock, QWi
 	connect(analysisBlock_, SIGNAL(inputSourcesChanged()), this, SLOT(onAnalysisBlockInputDataSourcesChanged()));
 //	connect(analysisBlock_, SIGNAL(shiftValuesChanged()), this, SLOT(onShiftValuesChanged()));
 
-	connect(rangeMinControl_, SIGNAL(valueChanged(int)), this, SLOT(onRangeMinControlChanged(int)));
-	connect(rangeMaxControl_, SIGNAL(valueChanged(int)), this, SLOT(onRangeMaxControlChanged(int)));
+	connect(rangeMinYControl_, SIGNAL(valueChanged(int)), this, SLOT(onRangeMinYControlChanged(int)));
+	connect(rangeMaxYControl_, SIGNAL(valueChanged(int)), this, SLOT(onRangeMaxYControlChanged(int)));
+	connect(rangeMinXControl_, SIGNAL(valueChanged(int)), this, SLOT(onRangeMinXControlChanged(int)));
+	connect(rangeMaxXControl_, SIGNAL(valueChanged(int)), this, SLOT(onRangeMaxXControlChanged(int)));
+
+	connect(rangeRoundControl_,SIGNAL(valueChanged(double)),this, SLOT(onRangeRoundControlChanged(double)));
+
+
 	connect(correlationCenterBox_, SIGNAL(valueChanged(int)), this, SLOT(onCorrelationCenterBoxChanged(int)));
 	connect(correlationPointsBox_, SIGNAL(valueChanged(int)), this, SLOT(onCorrelationPointsBoxChanged(int)));
 
@@ -230,40 +292,96 @@ REIXSXESImageABEditor::REIXSXESImageABEditor(REIXSXESImageAB *analysisBlock, QWi
 	connect(liveCorrelationCheckBox_, SIGNAL(toggled(bool)), analysisBlock_, SLOT(enableLiveCorrelation(bool)));
 	connect(energyCalibrationOffsetBox_, SIGNAL(valueChanged(double)), analysisBlock_, SLOT(setEnergyCalibrationOffset(double)));
 	connect(tiltCalibrationOffsetBox_, SIGNAL(valueChanged(double)), analysisBlock_, SLOT(setTiltCalibrationOffset(double)));
+
+
 	connect(correlationSmoothingBox_, SIGNAL(currentIndexChanged(int)), analysisBlock_, SLOT(setCorrelationSmoothing(int)));
 
+	//connect(correlationSmoothingBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onCSmoothBoxChanged()));
+
+
 	connect(applyToOtherScansButton_, SIGNAL(clicked()), this, SLOT(onApplyToOtherScansMenuClicked()));
+
+
 }
 
 REIXSXESImageABEditor::~REIXSXESImageABEditor() {
 	delete colorMap_;
 }
 
-void REIXSXESImageABEditor::onRangeMinControlChanged(int newRangeMin)
+void REIXSXESImageABEditor::onRangeMinYControlChanged(int newRangeMinY)
 {
-	if(newRangeMin == analysisBlock_->sumRangeMin())
+	if(newRangeMinY == analysisBlock_->sumRangeMinY())
 		return;
 
-	analysisBlock_->setSumRangeMin(newRangeMin);
+	analysisBlock_->setSumRangeMinY(newRangeMinY);
 
 	// don't let the max go below the min.
-	if(rangeMaxControl_->value() < newRangeMin)
-		rangeMaxControl_->setValue(newRangeMin);
+	if(rangeMaxYControl_->value() < newRangeMinY)
+		rangeMaxYControl_->setValue(newRangeMinY);
 
 	placeRangeRectangle();
+	ellipseData_->rangeValuesChanged();
+
 }
 
-void REIXSXESImageABEditor::onRangeMaxControlChanged(int newRangeMax)
+
+void REIXSXESImageABEditor::onRangeMaxYControlChanged(int newRangeMaxY)
 {
-	if(newRangeMax == analysisBlock_->sumRangeMax())
+	if(newRangeMaxY == analysisBlock_->sumRangeMaxY())
 		return;
 
-	analysisBlock_->setSumRangeMax(newRangeMax);
+	analysisBlock_->setSumRangeMaxY(newRangeMaxY);
 
-	if(rangeMinControl_->value() > newRangeMax)
-		rangeMinControl_->setValue(newRangeMax);
+	if(rangeMinYControl_->value() > newRangeMaxY)
+		rangeMinYControl_->setValue(newRangeMaxY);
 
 	placeRangeRectangle();
+	ellipseData_->rangeValuesChanged();
+
+}
+
+void REIXSXESImageABEditor::onRangeMinXControlChanged(int newRangeMinX)
+{
+	if(newRangeMinX == analysisBlock_->sumRangeMinX())
+		return;
+
+	analysisBlock_->setSumRangeMinX(newRangeMinX);
+
+	// don't let the max go below the min.
+	if(rangeMaxXControl_->value() < newRangeMinX)
+		rangeMaxXControl_->setValue(newRangeMinX);
+
+	placeRangeRectangle();
+	ellipseData_->rangeValuesChanged();
+
+}
+
+
+void REIXSXESImageABEditor::onRangeMaxXControlChanged(int newRangeMaxX)
+{
+	if(newRangeMaxX == analysisBlock_->sumRangeMaxX())
+		return;
+
+	analysisBlock_->setSumRangeMaxX(newRangeMaxX);
+
+	if(rangeMinXControl_->value() > newRangeMaxX)
+		rangeMinXControl_->setValue(newRangeMaxX);
+
+	placeRangeRectangle();
+	ellipseData_->rangeValuesChanged();
+
+}
+
+void REIXSXESImageABEditor::onRangeRoundControlChanged(double newRangeRound)
+{
+	if(newRangeRound == analysisBlock_->rangeRound())
+		return;
+
+	analysisBlock_->setRangeRound(newRangeRound);
+
+	//update ellipse...
+	ellipseData_->rangeValuesChanged();
+
 }
 
 void REIXSXESImageABEditor::onCorrelationCenterBoxChanged(int center)
@@ -277,6 +395,8 @@ void REIXSXESImageABEditor::onCorrelationCenterBoxChanged(int center)
 	corrRegionLeft_->setValue(QPointF(analysisBlock_->correlationCenterPixel()-analysisBlock_->correlationHalfWidth(), 0));
 	corrRegionRight_->setValue(QPointF(analysisBlock_->correlationCenterPixel()+analysisBlock_->correlationHalfWidth(), 0));
 }
+
+
 
 void REIXSXESImageABEditor::onCorrelationPointsBoxChanged(int points)
 {
@@ -304,8 +424,12 @@ void REIXSXESImageABEditor::onAnalysisBlockInputDataSourcesChanged()
 
 		// inputSource is a valid data source
 
-		rangeMinControl_->setEnabled(true);
-		rangeMaxControl_->setEnabled(true);
+		rangeMinYControl_->setEnabled(true);
+		rangeMaxYControl_->setEnabled(true);
+		rangeMinXControl_->setEnabled(true);
+		rangeMaxXControl_->setEnabled(true);
+		rangeRoundControl_->setEnabled(true);
+
 		correlationCenterBox_->setEnabled(true);
 		correlationPointsBox_->setEnabled(true);
 		correlationSmoothingBox_->setEnabled(true);
@@ -324,15 +448,31 @@ void REIXSXESImageABEditor::onAnalysisBlockInputDataSourcesChanged()
 		tiltCalibrationOffsetBox_->setValue(analysisBlock_->tiltCalibrationOffset());
 		tiltCalibrationOffsetBox_->blockSignals(false);
 
-		rangeMinControl_->blockSignals(true);
-		rangeMinControl_->setMaximum(inputSource->size(1) - 1);
-		rangeMinControl_->setValue(analysisBlock_->sumRangeMin());
-		rangeMinControl_->blockSignals(false);
+		rangeMinYControl_->blockSignals(true);
+		rangeMinYControl_->setMaximum(inputSource->size(1) - 1);
+		rangeMinYControl_->setValue(analysisBlock_->sumRangeMinY());
+		rangeMinYControl_->blockSignals(false);
 
-		rangeMaxControl_->blockSignals(true);
-		rangeMaxControl_->setMaximum(inputSource->size(1) - 1);
-		rangeMaxControl_->setValue(analysisBlock_->sumRangeMax());
-		rangeMaxControl_->blockSignals(false);
+		rangeMaxYControl_->blockSignals(true);
+		rangeMaxYControl_->setMaximum(inputSource->size(1) - 1);
+		rangeMaxYControl_->setValue(analysisBlock_->sumRangeMaxY());
+		rangeMaxYControl_->blockSignals(false);
+
+		rangeMinXControl_->blockSignals(true);
+		rangeMinXControl_->setMaximum(inputSource->size(0) - 1);
+		rangeMinXControl_->setValue(analysisBlock_->sumRangeMinX());
+		rangeMinXControl_->blockSignals(false);
+
+		rangeMaxXControl_->blockSignals(true);
+		rangeMaxXControl_->setMaximum(inputSource->size(0) - 1);
+		rangeMaxXControl_->setValue(analysisBlock_->sumRangeMaxX());
+		rangeMaxXControl_->blockSignals(false);
+
+		rangeRoundControl_->blockSignals(true);
+		rangeRoundControl_->setMaximum(1.0);
+		rangeRoundControl_->setMinimum(0.0);
+		rangeRoundControl_->setValue(analysisBlock_->rangeRound());
+		rangeRoundControl_->blockSignals(false);
 
 		correlationCenterBox_->blockSignals(true);
 		correlationCenterBox_->setMaximum(inputSource->size(0) - 1);
@@ -367,8 +507,12 @@ void REIXSXESImageABEditor::onAnalysisBlockInputDataSourcesChanged()
 
 	else {
 		// no input source. Not much we can do.
-		rangeMinControl_->setEnabled(false);
-		rangeMaxControl_->setEnabled(false);
+		rangeMinYControl_->setEnabled(false);
+		rangeMaxYControl_->setEnabled(false);
+		rangeMinXControl_->setEnabled(false);
+		rangeMaxXControl_->setEnabled(false);
+		rangeRoundControl_->setEnabled(false);
+
 		correlationCenterBox_->setEnabled(false);
 		correlationPointsBox_->setEnabled(false);
 		correlationSmoothingBox_->setEnabled(false);
@@ -388,27 +532,48 @@ void REIXSXESImageABEditor::placeRangeRectangle()
 	AMDataSource* inputSource;
 	if(analysisBlock_->inputDataSourceCount() > 0 && (inputSource=analysisBlock_->inputDataSourceAt(0))) {
 
-		double dataMin = inputSource->axisValue(1,0);
-		double sumMin = inputSource->axisValue(1, analysisBlock_->sumRangeMin());
-		double sumMax = inputSource->axisValue(1, analysisBlock_->sumRangeMax());
-		double dataMax = inputSource->axisValue(1, inputSource->size(1)-1);
+		double dataYMin = inputSource->axisValue(1,0);
+		double sumYMin = inputSource->axisValue(1, analysisBlock_->sumRangeMinY());
+		double sumYMax = inputSource->axisValue(1, analysisBlock_->sumRangeMaxY());
+		double dataYMax = inputSource->axisValue(1, inputSource->size(1)-1);
 
-		rangeRectangle1_->setYAxisTarget(plot_->axisScaleLeft());	// note: does nothing if already correct
-		rangeRectangle2_->setYAxisTarget(plot_->axisScaleLeft());	// note: does nothing if already correct
-		rangeRectangle1_->setXAxisTarget(plot_->axisScaleHorizontalRelative());	// note: does nothing if already correct
-		rangeRectangle2_->setXAxisTarget(plot_->axisScaleHorizontalRelative());	// note: does nothing if already correct
+		double dataXMin = inputSource->axisValue(0,0);
+		double sumXMin = inputSource->axisValue(0, analysisBlock_->sumRangeMinX());
+		double sumXMax = inputSource->axisValue(0, analysisBlock_->sumRangeMaxX());
+		double dataXMax = inputSource->axisValue(0, inputSource->size(0)-1);
 
-		rangeRectangle1_->setRect(QRectF(QPointF(0,dataMin), QPointF(1,sumMin)).normalized());
-		rangeRectangle2_->setRect(QRectF(QPointF(0,sumMax), QPointF(1,dataMax)).normalized());
 
-		rangeRectangle1_->setVisible(true);
-		rangeRectangle2_->setVisible(true);
+		rangeRectangleY1_->setYAxisTarget(plot_->axisScaleLeft());	// note: does nothing if already correct
+		rangeRectangleY2_->setYAxisTarget(plot_->axisScaleLeft());	// note: does nothing if already correct
+		rangeRectangleY1_->setXAxisTarget(plot_->axisScaleHorizontalRelative());	// note: does nothing if already correct
+		rangeRectangleY2_->setXAxisTarget(plot_->axisScaleHorizontalRelative());	// note: does nothing if already correct
+
+		rangeRectangleX1_->setYAxisTarget(plot_->axisScaleLeft());	// note: does nothing if already correct
+		rangeRectangleX2_->setYAxisTarget(plot_->axisScaleLeft());	// note: does nothing if already correct
+		rangeRectangleX1_->setXAxisTarget(plot_->axisScaleBottom());	// note: does nothing if already correct
+		rangeRectangleX2_->setXAxisTarget(plot_->axisScaleBottom());	// note: does nothing if already correct
+
+		rangeRectangleY1_->setRect(QRectF(QPointF(0,dataYMin), QPointF(1,sumYMin)).normalized());
+		rangeRectangleY2_->setRect(QRectF(QPointF(0,sumYMax), QPointF(1,dataYMax)).normalized());
+		rangeRectangleX1_->setRect(QRectF(QPointF(dataXMin,sumYMin), QPointF(sumXMin,sumYMax)).normalized());
+		rangeRectangleX2_->setRect(QRectF(QPointF(sumXMax,sumYMin), QPointF(dataXMax,sumYMax)).normalized());
+
+
+		rangeRectangleY1_->setVisible(true);
+		rangeRectangleY2_->setVisible(true);
+		rangeRectangleX1_->setVisible(true);
+		rangeRectangleX2_->setVisible(true);
+
 	}
 	else {
-		rangeRectangle1_->setVisible(false);
-		rangeRectangle2_->setVisible(false);
+		rangeRectangleY1_->setVisible(false);
+		rangeRectangleY2_->setVisible(false);
+		rangeRectangleX1_->setVisible(false);
+		rangeRectangleX2_->setVisible(false);
 	}
 }
+
+
 
 //void REIXSXESImageABEditor::onShiftValuesChanged()
 //{
@@ -427,6 +592,217 @@ void REIXSXESImageABEditor::placeRangeRectangle()
 //	shiftData_->setValues(xs, ys);
 //}
 
+
+ REIXSXESImageABEditorEllipticalMask::~REIXSXESImageABEditorEllipticalMask(){}
+REIXSXESImageABEditorEllipticalMask::REIXSXESImageABEditorEllipticalMask(REIXSXESImageAB *analysisBlock, QObject *parent)
+	: QObject(parent)
+{
+	analysisBlock_ = analysisBlock;
+
+//	connect(analysisBlock_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onOutputSizeChanged()));
+//	connect(analysisBlock_, SIGNAL(inputSourcesChanged()), this, SLOT(onOutputSizeChanged()));
+//	connect(analysisBlock_, SIGNAL(shiftValuesChanged()), this, SLOT(onShiftValuesChanged()));
+}
+
+
+qreal REIXSXESImageABEditorEllipticalMask::x(unsigned index) const
+{
+	if(analysisBlock_->rangeRound() == 0.0) {
+		//rectangular masking
+		if(index == 0 || index == 3 || index == 4)
+			return (qreal)analysisBlock_->sumRangeMinX();
+		else
+			return (qreal)analysisBlock_->sumRangeMaxX();
+	}
+	else {
+		//rounded mask
+		if(index <= unsigned(analysisBlock_->sumRangeMaxX() - analysisBlock_->sumRangeMinX())) {
+			//upper half of ellipse
+			return (qreal)(analysisBlock_->sumRangeMinX() + index);
+		}
+		else {
+			//lower half of ellipse (counting down x values)
+			return (qreal)(analysisBlock_->sumRangeMaxX() - (index - (analysisBlock_->sumRangeMaxX() - analysisBlock_->sumRangeMinX())));
+		}
+	}
+}
+
+qreal REIXSXESImageABEditorEllipticalMask::y(unsigned index) const
+{
+	if(analysisBlock_->rangeRound() == 0.0) {
+		//rectangular masking
+		if(index == 0 || index == 1 || index == 4)
+			return (qreal)analysisBlock_->sumRangeMaxY();
+		else
+			return (qreal)analysisBlock_->sumRangeMinY();
+	}
+	else {
+		//rounded mask
+		qreal dx = analysisBlock_->sumRangeMaxX() - analysisBlock_->sumRangeMinX();
+		qreal dy = analysisBlock_->sumRangeMaxY() - analysisBlock_->sumRangeMinY();
+		double D = analysisBlock_->rangeRound(); //just for shorter formulas
+		qreal i = (qreal)index;
+
+		//done to here
+		if(index == 0 || index == (unsigned)dx || index == 2*(unsigned)dx) {
+			return (qreal)analysisBlock_->sumRangeMinY() + dy/2.0;
+		}
+		else if(i < D * dx/2.0) {
+			//upper left elliptical part
+			return sqrt(1.0 - ((i-D*dx/2.0)/(D*dx/2.0))*((i-D*dx/2.0)/(D*dx/2.0)))*(D*dy/2.0) + ((1.0-D)*dy/2.0) + (analysisBlock_->sumRangeMinY()) + dy/2.0;
+		}
+		else if(i < dx - D * dx/2.0) {
+			//upper flat part
+			return analysisBlock_->sumRangeMaxY();
+		}
+		else if(i < dx) {
+			//upper right elliptical part
+			return sqrt(1.0 - ((i-(dx-D*dx/2.0))/(D*dx/2.0))*((i-(dx-D*dx/2.0))/(D*dx/2.0)))*(D*dy/2.0) + ((1.0-D)*dy/2.0) + (analysisBlock_->sumRangeMinY()) + dy/2.0;
+		}
+		else if(i < dx + D * dx/2.0) {
+			//lower right elliptical part
+			return -(sqrt(1.0 - ((i-(dx + D*dx/2.0))/(D*dx/2.0))*((i-(dx+D*dx/2.0))/(D*dx/2.0)))*(D*dy/2.0) + ((1.0-D)*dy/2.0)) + ((analysisBlock_->sumRangeMinY()) + dy/2.0);
+		}
+		else if(i < 2*dx - D * dx/2.0) {
+			//lower flat part
+			return analysisBlock_->sumRangeMinY();
+		}
+		else if(i < 2*dx) {
+			//lower left elliptical part
+			return -(sqrt(1.0 - ((i- (2*dx-D*dx/2.0))/(D*dx/2.0))*((i-(2*dx-D*dx/2.0))/(D*dx/2.0)))*(D*dy/2.0) + ((1.0-D)*dy/2.0)) + ((analysisBlock_->sumRangeMinY()) + dy/2.0);
+		}
+		else {
+			//index out of range...shouldn't happen
+			return -1.0;
+		}
+	}
+}
+
+int REIXSXESImageABEditorEllipticalMask::count() const
+{
+	if(analysisBlock_->rangeRound() == 0.0) {
+		return 5; //rectangular masking, 5th point is to close rectangle (equals first point)
+	}
+	else {
+		//rounded mask
+		return (analysisBlock_->sumRangeMaxX() - analysisBlock_->sumRangeMinX() + 1)*2 - 1; //note that we include the first point twice, to close the ellipse
+	}
+}
+
+void REIXSXESImageABEditorEllipticalMask::rangeValuesChanged()
+{
+	emitDataChanged();
+}
+
+//void REIXSXESImageABEditorEllipticalMask::onOutputSizeChanged()
+//{
+//	emitDataChanged();
+//}
+void REIXSXESImageABEditorEllipticalMask::xValues(unsigned indexStart, unsigned indexEnd, qreal *outputValues) const
+{
+	for(unsigned index=indexStart; index<=indexEnd; ++index) {
+		if(analysisBlock_->rangeRound() == 0.0) {
+			//rectangular masking
+			if(index == 0 || index == 2 || index == 4)
+				*(outputValues++) = (qreal)analysisBlock_->sumRangeMinX();
+			else
+				*(outputValues++) = (qreal)analysisBlock_->sumRangeMaxX();
+		}
+		else {
+			//rounded mask
+			if(index <= unsigned(analysisBlock_->sumRangeMaxX() - analysisBlock_->sumRangeMinX())) {
+				//upper half of ellipse
+				*(outputValues++) = (qreal)(analysisBlock_->sumRangeMinX() + index);
+			}
+			else {
+				//lower half of ellipse (counting down x values)
+				*(outputValues++) = (qreal)(analysisBlock_->sumRangeMaxX() - (index - (analysisBlock_->sumRangeMaxX() - analysisBlock_->sumRangeMinX())));
+			}
+		}
+	}
+}
+
+void REIXSXESImageABEditorEllipticalMask::yValues(unsigned indexStart, unsigned indexEnd, qreal *outputValues) const
+{
+	for(unsigned index=indexStart; index<=indexEnd; ++index) {
+		if(analysisBlock_->rangeRound() == 0.0) {
+			//rectangular masking
+			if(index == 0 || index == 1 || index == 4)
+				*(outputValues++) = (qreal)analysisBlock_->sumRangeMaxY();
+			else
+				*(outputValues++) = (qreal)analysisBlock_->sumRangeMinY();
+		}
+		else {
+			//rounded mask
+			qreal dx = analysisBlock_->sumRangeMaxX() - analysisBlock_->sumRangeMinX();
+			qreal dy = analysisBlock_->sumRangeMaxY() - analysisBlock_->sumRangeMinY();
+			double D = analysisBlock_->rangeRound(); //just for shorter formulas
+			qreal i = (qreal)index;
+
+			//done to here
+			if(index == 0 || index == (unsigned)dx || index == 2*(unsigned)dx) {
+				*(outputValues++) = (qreal)analysisBlock_->sumRangeMinY() + dy/2.0;
+			}
+			else if(i < D * dx/2.0) {
+				//upper left elliptical part
+				*(outputValues++) = sqrt(1.0 - ((i-D*dx/2.0)/(D*dx/2.0))*((i-D*dx/2.0)/(D*dx/2.0)))*(D*dy/2.0) + ((1.0-D)*dy/2.0) + (analysisBlock_->sumRangeMinY()) + dy/2.0;
+			}
+			else if(i < dx - D * dx/2.0) {
+				//upper flat part
+				*(outputValues++) = analysisBlock_->sumRangeMaxY();
+			}
+			else if(i < dx) {
+				//upper right elliptical part
+				*(outputValues++) = sqrt(1.0 - ((i-(dx-D*dx/2.0))/(D*dx/2.0))*((i-(dx-D*dx/2.0))/(D*dx/2.0)))*(D*dy/2.0) + ((1.0-D)*dy/2.0) + (analysisBlock_->sumRangeMinY()) + dy/2.0;
+			}
+			else if(i < dx + D * dx/2.0) {
+				//lower right elliptical part
+				*(outputValues++) = -(sqrt(1.0 - ((i-(dx-D*dx/2.0))/(D*dx/2.0))*((i-(dx-D*dx/2.0))/(D*dx/2.0)))*(D*dy/2.0) + ((1.0-D)*dy/2.0) + (analysisBlock_->sumRangeMinY()) + dy/2.0);
+			}
+			else if(i < 2*dx - D * dx/2.0) {
+				//lower flat part
+				*(outputValues++) = analysisBlock_->sumRangeMinY();
+			}
+			else if(i < 2*dx) {
+				//lower left elliptical part
+				*(outputValues++) = -(sqrt(1.0 - ((i-D*dx/2.0)/(D*dx/2.0))*((i-D*dx/2.0)/(D*dx/2.0)))*(D*dy/2.0) + ((1.0-D)*dy/2.0) + (analysisBlock_->sumRangeMinY()) + dy/2.0);
+			}
+			else {
+				//index out of range...shouldn't happen
+				*(outputValues++) = -1.0;
+			}
+		}
+
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ REIXSXESImageABEditorShiftModel::~REIXSXESImageABEditorShiftModel(){}
 REIXSXESImageABEditorShiftModel::REIXSXESImageABEditorShiftModel(REIXSXESImageAB *analysisBlock, QObject *parent)
 	: QObject(parent)
 {
@@ -512,12 +888,10 @@ void REIXSXESImageABEditor::onApplyToOtherScansMenuClicked()
 #include <QProgressDialog>
 #include <QUrl>
 
-#include <QDebug>
 void REIXSXESImageABEditor::onApplyToOtherScansChosen()
 {
 	disconnect(chooseScanDialog_, SIGNAL(accepted()), this, SLOT(onApplyToOtherScansChosen()));
 
-	qDebug() << "Calling applyToOtherScansChosen.";
 	QList<QUrl> scans = chooseScanDialog_->getSelectedScans();
 	if(scans.isEmpty()) {
 		chooseScanDialog_->close();
@@ -551,8 +925,10 @@ void REIXSXESImageABEditor::onApplyToOtherScansChosen()
 			if(xesAB) {
 				xesABFound = true;
 				if(batchApplySumRange_->isChecked()) {
-					xesAB->setSumRangeMax(analysisBlock_->sumRangeMax());
-					xesAB->setSumRangeMin(analysisBlock_->sumRangeMin());
+					xesAB->setSumRangeMaxY(analysisBlock_->sumRangeMaxY());
+					xesAB->setSumRangeMinY(analysisBlock_->sumRangeMinY());
+					xesAB->setSumRangeMaxX(analysisBlock_->sumRangeMaxX());
+					xesAB->setSumRangeMinX(analysisBlock_->sumRangeMinX());
 				}
 				if(batchApplyCalibrationOffsets_->isChecked()) {
 					xesAB->setEnergyCalibrationOffset(analysisBlock_->energyCalibrationOffset());
@@ -632,4 +1008,3 @@ void REIXSXESImageABEditor::onManualShiftEntryButtonClicked()
 
 	analysisBlock_->setShiftValues(newShiftNumbers);
 }
-

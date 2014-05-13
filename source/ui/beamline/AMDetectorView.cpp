@@ -6,6 +6,7 @@
 #include "MPlot/MPlotTools.h"
 #include "dataman/datasource/AMDataSourceSeriesData.h"
 
+ AMDetectorGeneralBriefView::~AMDetectorGeneralBriefView(){}
 AMDetectorGeneralBriefView::AMDetectorGeneralBriefView(AMDetector *detector, QWidget *parent) :
 	QWidget(parent)
 {
@@ -47,6 +48,7 @@ void AMDetectorGeneralBriefView::onAcquisitionSucceeded(){
 		singleReadingLabel_->setText(singleReading.toString());
 }
 
+ AMDetectorGeneralDetailedView::~AMDetectorGeneralDetailedView(){}
 AMDetectorGeneralDetailedView::AMDetectorGeneralDetailedView(AMDetector *detector, QWidget *parent) :
 	QWidget(parent)
 {
@@ -218,6 +220,7 @@ void AMDetectorGeneralDetailedView::onReadModeSelectedCurrentIndexChanged(const 
 		detector_->setReadMode(AMDetectorDefinitions::ContinuousRead);
 }
 
+ AMDetectorViewStatusView::~AMDetectorViewStatusView(){}
 AMDetectorViewStatusView::AMDetectorViewStatusView(AMDetector *detector, QWidget *parent) :
 	QWidget(parent)
 {

@@ -34,6 +34,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 // AMActionLogItem
 ////////////////////////////
 
+ AMActionLogItem3::~AMActionLogItem3(){}
 AMActionLogItem3::AMActionLogItem3(AMDatabase *db, int id)
 {
 	db_ = db;
@@ -409,7 +410,7 @@ Qt::ItemFlags AMActionHistoryModel3::flags(const QModelIndex &index) const
 	if( index.column() != 0)
 		return Qt::ItemIsEnabled;
 	AMPointerTreeNode *indexNode = static_cast<AMPointerTreeNode*>(index.internalPointer());
-	AMActionLogItem3 *item;
+	AMActionLogItem3 *item = 0;
 	if(indexNode){
 		//NEM
 		item = static_cast<AMActionLogItem3*>(indexNode->item());

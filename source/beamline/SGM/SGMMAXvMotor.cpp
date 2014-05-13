@@ -19,9 +19,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "SGMMAXvMotor.h"
 
-#include "actions/AMBeamlineControlMoveAction.h"
-#include "actions/AMBeamlineControlStopAction.h"
+#include "actions3/actions/AMControlMoveAction3.h"
+#include "actions3/actions/AMControlStopAction.h"
 
+ SGMMAXvMotor::~SGMMAXvMotor(){}
 SGMMAXvMotor::SGMMAXvMotor(const QString &name, const QString &baseName, const QString &description, bool hasEncoder, double tolerance, double moveStartTimeoutSeconds, QObject *parent)
 	: CLSMAXvMotor(name, baseName, description, hasEncoder, tolerance, moveStartTimeoutSeconds, parent)
 {
@@ -109,30 +110,36 @@ double SGMMAXvMotor::actualRetries() const{
 	return 0.5;
 }
 
-AMBeamlineActionItem* SGMMAXvMotor::createEncoderCalibrationAbsoluteOffsetAction(double encoderCalibrationAbsoluteOffset){
+AMAction3* SGMMAXvMotor::createEncoderCalibrationAbsoluteOffsetAction(double encoderCalibrationAbsoluteOffset){
 	if(!isConnected())
 		return 0;
 
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(encoderCalibrationAbsoluteOffset_);
-	action->setSetpoint(encoderCalibrationAbsoluteOffset);
+	AMControlInfo controlInfo = encoderCalibrationAbsoluteOffset_->toInfo();
+	controlInfo.setValue(encoderCalibrationAbsoluteOffset);
+	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(controlInfo);
+	AMControlMoveAction3 *action = new AMControlMoveAction3(actionInfo, encoderCalibrationAbsoluteOffset_);
 	return action;
 }
 
-AMBeamlineActionItem* SGMMAXvMotor::createEncoderTypeAction(SGMMAXvMotor::EncoderType encoderType){
+AMAction3* SGMMAXvMotor::createEncoderTypeAction(SGMMAXvMotor::EncoderType encoderType){
 	if(!isConnected())
 		return 0;
 
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(encoderType_);
-	action->setSetpoint(encoderType);
+	AMControlInfo controlInfo = encoderType_->toInfo();
+	controlInfo.setValue(encoderType);
+	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(controlInfo);
+	AMControlMoveAction3 *action = new AMControlMoveAction3(actionInfo, encoderType_);
 	return action;
 }
 
-AMBeamlineActionItem* SGMMAXvMotor::createEncoderEncodingAction(SGMMAXvMotor::EncoderEncoding encoderEncoding){
+AMAction3* SGMMAXvMotor::createEncoderEncodingAction(SGMMAXvMotor::EncoderEncoding encoderEncoding){
 	if(!isConnected())
 		return 0;
 
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(encoderEncoding_);
-	action->setSetpoint(encoderEncoding);
+	AMControlInfo controlInfo = encoderEncoding_->toInfo();
+	controlInfo.setValue(encoderEncoding);
+	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(controlInfo);
+	AMControlMoveAction3 *action = new AMControlMoveAction3(actionInfo, encoderEncoding_);
 	return action;
 }
 

@@ -20,7 +20,7 @@ class StripTool : public QWidget
 
 public:
     explicit StripTool(QWidget *parent = 0);
-    ~StripTool();
+    virtual ~StripTool();
 
 signals:
 

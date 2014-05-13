@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/beamline/AMOldDetectorView.h"
 
+ AMOldDetectorViewObjectInfo::~AMOldDetectorViewObjectInfo(){}
 AMOldDetectorViewObjectInfo::AMOldDetectorViewObjectInfo(AMOldDetectorView *prototypeView, AMOldDetector *prototypeDetector){
 	initWithMetaObject(prototypeView->metaObject(), prototypeDetector->getMetaObject());
 }

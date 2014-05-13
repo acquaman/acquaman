@@ -1,5 +1,7 @@
 #include "AMDbUpgrade1Pt2.h"
 
+AMDbUpgrade1Pt2::~AMDbUpgrade1Pt2(){}
+
 AMDbUpgrade1Pt2::AMDbUpgrade1Pt2(QString databaseNameToUpgrade, QObject *parent) :
 	AMDbUpgrade(databaseNameToUpgrade, parent)
 {
@@ -41,7 +43,6 @@ bool AMDbUpgrade1Pt2::upgradeNecessary() const{
 }
 
 bool AMDbUpgrade1Pt2::upgradeImplementation(){
-	bool success = true;
 
 	QMap<QString, QString> parentTablesToColumnsNames;
 	parentTablesToColumnsNames.insert("SGMXASScanConfiguration_table", "detectorConfigs");
@@ -49,10 +50,16 @@ bool AMDbUpgrade1Pt2::upgradeImplementation(){
 	QMap<QString, int> indexTablesToIndexSide;
 	indexTablesToIndexSide.insert("AMDetectorInfoSet_table_detectorInfos", 1);
 
+	databaseToUpgrade_->startTransaction();
 	// Use dbObjectClassBecomes to upgrade each detectorInfo to its new counterpart
-	success &= AMDbUpgradeSupport::dbObjectClassBecomes(databaseToUpgrade_, "AMDetectorInfoSet", "AMOldDetectorInfoSet", parentTablesToColumnsNames, indexTablesToIndexSide);
+	if (!AMDbUpgradeSupport::dbObjectClassBecomes(databaseToUpgrade_, "AMDetectorInfoSet", "AMOldDetectorInfoSet", parentTablesToColumnsNames, indexTablesToIndexSide)){
 
-	return success;
+		databaseToUpgrade_->rollbackTransaction();
+		return false;
+	}
+
+	databaseToUpgrade_->commitTransaction();
+	return true;
 }
 
 AMDbUpgrade* AMDbUpgrade1Pt2::createCopy() const{

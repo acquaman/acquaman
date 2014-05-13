@@ -9,7 +9,7 @@ class StripToolSelector : public MPlotPlotSelectorTool
 
 public:
     explicit StripToolSelector();
-    ~StripToolSelector();
+    virtual ~StripToolSelector();
 
 public slots:
     void setSelection(MPlotItem *newSelection);

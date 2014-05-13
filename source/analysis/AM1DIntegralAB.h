@@ -39,6 +39,7 @@ class AM1DIntegralAB : public AMStandardAnalysisBlock
 
 public:
 	/// Constructor.
+ 	virtual ~AM1DIntegralAB();
 	Q_INVOKABLE AM1DIntegralAB(const QString &outputName = "InvalidInput", QObject *parent = 0);
 
 	QString infoDescription() const { return QString(); }

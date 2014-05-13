@@ -23,30 +23,40 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "application/AMAppController.h"
 
-class AMSampleManagementWidget;
 class CLSSIS3820ScalerView;
 class CLSSynchronizedDwellTimeView;
-class AMOldDetectorView;
 class AMDetectorGeneralDetailedView;
+class AMXRFDetailedDetectorView;
+
+class AMScanAction;
+class AMScanController;
+
+class AMSampleManagementWidget;
+class SGMSidebar;
+
 class AMScanConfigurationViewHolder3;
-class SGMXASScanConfigurationView;
-class SGMFastScanConfigurationView;
 class SGMXASScanConfiguration2013View;
 class SGMFastScanConfiguration2013View;
-class AMScanController;
-class SGMSidebar;
-class SGMSettingsMasterView;
-class AMGithubManager;
-class AMOldDetector;
-class AMScanAction;
-class CLSProcServManager;
-class CLSProcServManagerView;
-class SGMAdvancedControlsView;
 
+class AMDetector;
 class AMDetectorSelector;
 class AMDetectorSelectorView;
 
+class SGMSettingsMasterView;
+class AMGithubManager;
+
+class AMSampleCameraBrowserView;
+class AMSamplePlateView;
+class AMBeamlineSampleManagementView;
+class SGMAdvancedControlsView;
+class SGMAdvancedMirrorView;
+class AMAction3;
+
 #define SGMAPPCONTROLLER_COULD_NOT_RESET_FINISHED_SIGNAL 290301
+#define SGMAPPCONTROLLER_COULD_NOT_CREATE_SGM_DATABASE 290302
+#define SGMAPPCONTROLLER_COULD_NOT_CREATE_SGM_PUBLIC_DATABASE 290303
+#define SGMAPPCONTROLLER_COULD_NOT_REGISTER_SGM_DATABASE 290304
+#define SGMAPPCONTROLLER_COULD_NOT_REGISTER_SGM_PUBLIC_DATABASE 290305
 
 class SGMAppController : public AMAppController {
 	Q_OBJECT
@@ -94,22 +104,29 @@ protected slots:
 	void onSGMNewAmptekSDD2Connected(bool connected);
 	void onSGMNewAmptekSDD3Connected(bool connected);
 	void onSGMNewAmptekSDD4Connected(bool connected);
+	void onSGMNewAmptekSDD5Connected(bool connected);
 	void onSGMNewPGTDetectorConnected(bool connected);
 	void onSGMNewQE65000DetectorConnected(bool connected);
 	void onSGMNewTEYDetectorConnected(bool connected);
 
-	/// CURRENTLY UNUSED
-	void onCurrentScanControllerCreated();
-	/// CURRENTLY UNUSED
-	void onCurrentScanControllerDestroyed();
-
 	/// Creates the SGM settings view if necessary and shows it
 	void onActionSGMSettings();
-	/// Creates the SGM proc serv manager view if necessary and shows it
-	void onActionProcServManager();
+
+	void onAdvancedCameraOptionsRequested();
+	/// Create the SGM Advanced mirror veiw if necessary and shows it
+	void onActionMirrorVeiw();
 
 	/// Used during startup to display a list of detectors that the beamline is still looking for
-	void onSGMBeamlineDetectorAvailabilityChanged(AMOldDetector *detector, bool isAvailable);
+	void onSGMBeamlineDetectorAvailabilityChanged(AMDetector *detector, bool isAvailable);
+
+	/// Handles listening to size changes from the XRFDetectorViews, which can expand the main window significantly
+	void onXRFDetectorViewResized();
+	/// Actually handles the resize for the above function some time later. Looks like one of the widgets or layouts takes quite a while to recalculate its minimumSizeHint() or its minimumSize()
+	void resizeToMinimum();
+
+	void resizeAfterStartup();
+
+	void onWorkflowActionAddedFromDialog(AMAction3 *action);
 
 protected:
 	/// When a scan starts in the Workflow3 system, a scan editor is opened and the default data source is set as the viewed source
@@ -118,8 +135,6 @@ protected:
 	virtual void onCurrentScanActionFinishedImplementation(AMScanAction *action);
 	/// Installs the menu options for the settings manager and proc serv manager
 	bool startupSGMInstallActions();
-	/// Grabs the dacq configuration file locations
-	bool setupSGMConfigurationFiles();
 	/// Determines the plugin locations for file loaders
 	bool setupSGMPlugins();
 	/// Either creates, retrieves, or updates the exporter options for the provided and auto- export options
@@ -131,27 +146,27 @@ protected:
 	bool setupSGMViews();
 
 protected:
-	/// View to manage the sample positioner and the sample plates
-	AMSampleManagementWidget *samplePositionView_;
+	AMSamplePlateView *samplePlateView_;
+	AMBeamlineSampleManagementView *sampleManagementView_;
+
 	/// View for controlling the SGM scaler
 	CLSSIS3820ScalerView *sgmScalerView_;
 	/// View for controlling the synchronized dwell time application
 	CLSSynchronizedDwellTimeView *sgmSynchronizedDwellTimeView_;
 
 	/// View for controlling the new SGM amptek SDD (first)
-	AMDetectorGeneralDetailedView *newAmptekSDD1View_;
-	AMDetectorGeneralDetailedView *newAmptekSDD2View_;
-	AMDetectorGeneralDetailedView *newAmptekSDD3View_;
-	AMDetectorGeneralDetailedView *newAmptekSDD4View_;
+	AMXRFDetailedDetectorView *amptekSDD1XRFView_;
+	AMXRFDetailedDetectorView *amptekSDD2XRFView_;
+	AMXRFDetailedDetectorView *amptekSDD3XRFView_;
+	AMXRFDetailedDetectorView *amptekSDD4XRFView_;
+	AMXRFDetailedDetectorView *amptekSDD5XRFView_;
 	AMDetectorGeneralDetailedView *newPGTDetectorView_;
 	AMDetectorGeneralDetailedView *newQE65000DetectorView_;
 	AMDetectorGeneralDetailedView *newTEYDetectorView_;
 
 	/// View for the SGM's XAS scan configurations
-	SGMXASScanConfigurationView *xasScanConfigurationView_;
-	/// View for the SGM's Fast scan configurations
-	SGMFastScanConfigurationView *fastScanConfigurationView_;
 	SGMXASScanConfiguration2013View *xasScanConfiguration2013View_;
+	/// View for the SGM's Fast scan configurations
 	SGMFastScanConfiguration2013View *fastScanConfiguration2013View_;
 	AMDetectorSelector *xasDetectorSelector_;
 	AMDetectorSelector *fastDetectorSelector_;
@@ -163,14 +178,11 @@ protected:
 	SGMSidebar *sgmSidebar_;
 	/// Pane for SGM's advanced controls
 	SGMAdvancedControlsView *SGMAdvancedControls_;
+	/// Window for SGM mirrors
+	SGMAdvancedMirrorView *SGMAdvancedMirror_;
 
 	/// Persistent view for SGMSettings
 	SGMSettingsMasterView *sgmSettingsMasterView_;
-
-	/// List of procServs we might want to fiddle with
-	QList<CLSProcServManager*> procServs_;
-	/// View for the proc serv manager
-	CLSProcServManagerView *procServsView_;
 
 	/// Updating list of detectors we have been waiting for on startup
 	QString lastWaitingDetectors_;

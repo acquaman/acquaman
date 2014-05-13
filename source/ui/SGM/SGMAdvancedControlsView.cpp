@@ -27,6 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/beamline/AMExtendedControlEditor.h"
 
+ SGMAdvancedControlsView::~SGMAdvancedControlsView(){}
 SGMAdvancedControlsView::SGMAdvancedControlsView(QWidget *parent) :
 	QWidget(parent)
 {

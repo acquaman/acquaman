@@ -10,6 +10,7 @@ class AMMessageBoxWTimeout : public QMessageBox
 {
 Q_OBJECT
 public:
+ 	virtual ~AMMessageBoxWTimeout();
 	AMMessageBoxWTimeout(int mSecTimeout = 30000, QWidget *parent = 0);
 
 public slots:

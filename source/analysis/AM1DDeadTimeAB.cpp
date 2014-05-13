@@ -1,5 +1,6 @@
 #include "AM1DDeadTimeAB.h"
 
+ AM1DDeadTimeAB::~AM1DDeadTimeAB(){}
 AM1DDeadTimeAB::AM1DDeadTimeAB(const QString &outputName, QObject *parent)
 	: AMStandardAnalysisBlock(outputName, parent)
 {

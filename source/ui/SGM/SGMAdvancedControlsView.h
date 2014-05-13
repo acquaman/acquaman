@@ -33,6 +33,7 @@ class SGMAdvancedControlsView : public QWidget
 {
 Q_OBJECT
 public:
+ 	virtual ~SGMAdvancedControlsView();
 	SGMAdvancedControlsView(QWidget *parent = 0);
 
 protected slots:

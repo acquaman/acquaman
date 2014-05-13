@@ -29,6 +29,7 @@ class AMExporterGeneralAscii : public AMExporter
 {
 	Q_OBJECT
 public:
+ 	virtual ~AMExporterGeneralAscii();
 	Q_INVOKABLE explicit AMExporterGeneralAscii(QObject *parent = 0);
 
 	const QMetaObject* getMetaObject();

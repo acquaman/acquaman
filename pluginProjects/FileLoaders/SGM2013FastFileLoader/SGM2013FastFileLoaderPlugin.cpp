@@ -12,14 +12,12 @@
 #include "dataman/AMTextStream.h"
 
 bool SGM2013FastFileLoaderPlugin::accepts(AMScan *scan){
-	qDebug() << "SGM2013Fast trying to accept " << scan->fileFormat();
 	if(scan->fileFormat() == "sgm2013Fast")
 		return true;
 	return false;
 }
 
 bool SGM2013FastFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolder, AMErrorMon *errorMonitor){
-	qDebug() << "Trying to load with SGM2013Fast";
 	if(!scan)
 		return false;
 

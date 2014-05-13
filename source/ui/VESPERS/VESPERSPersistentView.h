@@ -39,17 +39,31 @@ class VESPERSPersistentView : public QWidget
 	Q_OBJECT
 public:
 	/// Default constructor.
+	virtual ~VESPERSPersistentView();
 	explicit VESPERSPersistentView(QWidget *parent = 0);
+
+	/// Returns the pointer to the motor group view.
+	CLSPseudoMotorGroupView *motorGroupView() const { return motorGroupView_; }
 
 signals:
 	/// Notifier that the current sample has changed.
 	void currentSampleStageChanged(const QString &name);
+	/// Notifier that one of the status buttons was clicked.  Passes the name of clicked status.
+	void statusButtonClicked(const QString &);
 
 public slots:
 
 protected slots:
 	/// Handles the valves button push.  Opens or closes based the current state of the current state.
 	void onValvesButtonPushed();
+	/// Handles emitting the statusButtonClicked signal for the valves.
+	void onValvesStatusClicked();
+	/// Handles emitting the statusButtonClicked signal for the pressure status.
+	void onPressureStatusClicked();
+	/// Handles emitting the statusButtonClicked signal for the water pressure status.
+	void onWaterTransducerStatusClicked();
+	/// Handles emitting the statusButtonClicked signal for the temperature status.
+	void onTemperatureStatusClicked();
 	/// Handles when the valves state changes.
 	void onValvesStateChanged();
 	/// Handles when the temperature state changes.  If any temperature control is bad, then the state is RED, otherwise it's green.
@@ -92,12 +106,12 @@ protected slots:
 protected:
 	/// Button and label for the valves.
 	QPushButton *valvesButton_;
-	QLabel *valvesStatus_;
+	QToolButton *valveStatusButton_;
 
-	/// Label for the temperature, pressure and water sensors.
-	QLabel *tempLabel_;
-	QLabel *pressureLabel_;
-	QLabel *waterLabel_;
+	/// Buttons for the temperature, pressure and water sensors.
+	QToolButton *temperatureStatusButton_;
+	QToolButton *pressureStatusButton_;
+	QToolButton *waterStatusButton_;
 
 	/// Button and label for the endstation shutter.
 	QPushButton *filterLowerButton_;
@@ -109,7 +123,8 @@ protected:
 	/// The icon label for the experiment status.
 	QLabel *experimentReady_;
 
-	/// The energy spin box and label.
+	/// The energy spin box and labels.
+	QLabel *energyLabel_;
 	QDoubleSpinBox *energySetpoint_;
 	QLabel *energyFeedback_;
 
@@ -118,13 +133,15 @@ protected:
 	/// Spin box handling the Z slit gap.
 	QDoubleSpinBox *zSlit_;
 
-	/// The temperature control.
+	/// The valves control set.
+	AMControlSet *valves_;
+	/// The temperature control set.
 	AMControlSet *temperature_;
-	/// The pressure control.
+	/// The pressure control set.
 	AMControlSet *pressure_;
-	/// The flow switches.
+	/// The flow switches set.
 	AMControlSet *flowSwitches_;
-	/// The flow transducers.
+	/// The flow transducers set.
 	AMControlSet *flowTransducers_;
 	/// The photon and safety shutters.
 	CLSStopLightButton *psh1_;

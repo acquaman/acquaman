@@ -366,6 +366,7 @@ void AMScanViewScanBarContextMenu::editColorAndStyle()
 #include <QCheckBox>
 #include <QPushButton>
 
+ AMScanViewSingleSpectrumView::~AMScanViewSingleSpectrumView(){}
 AMScanViewSingleSpectrumView::AMScanViewSingleSpectrumView(QWidget *parent)
 	: QWidget(parent)
 {
@@ -382,9 +383,11 @@ AMScanViewSingleSpectrumView::AMScanViewSingleSpectrumView(QWidget *parent)
 	plot_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 
 	table_ = new AMSelectablePeriodicTable(this);
-	connect(table_, SIGNAL(elementSelected(int)), this, SLOT(onElementSelected(int)));
-	connect(table_, SIGNAL(elementDeselected(int)), this, SLOT(onElementDeselected(int)));
+	table_->buildPeriodicTable();
+	connect(table_, SIGNAL(elementSelected(AMElement*)), this, SLOT(onElementSelected(AMElement*)));
+	connect(table_, SIGNAL(elementDeselected(AMElement*)), this, SLOT(onElementDeselected(AMElement*)));
 	tableView_ = new AMSelectablePeriodicTableView(table_);
+	tableView_->buildPeriodicTableView();
 
 	QVBoxLayout *layout = new QVBoxLayout;
 	layout->addWidget(plot_);
@@ -456,37 +459,35 @@ void AMScanViewSingleSpectrumView::setupPlot()
 	plot_->plot()->addTool(new MPlotWheelZoomerTool());
 }
 
-void AMScanViewSingleSpectrumView::onElementSelected(int atomicNumber)
+void AMScanViewSingleSpectrumView::onElementSelected(AMElement *element)
 {
-	QString symbol = table_->elementByAtomicNumber(atomicNumber)->symbol();
-	QList<QPair<QString, QString> > lines = table_->elementByAtomicNumber(atomicNumber)->emissionLines();
+	QList<AMEmissionLine> lines = element->emissionLines();
 	QColor color = AMDataSourcePlotSettings::nextColor();
 	MPlotPoint *newLine;
-	QPair<QString, QString> line;
 
-	foreach(line, lines){
+	foreach(AMEmissionLine line, lines){
 
-		if (line.second.toDouble() >= range_.first && line.second.toDouble() <= range_.second
-				&& line.first.contains("1") && line.first.compare("-"))	{
+		if (range_.withinRange(line.energy())
+				&& line.lineName().contains("1") && line.name().compare("-"))	{
 
-			newLine = new MPlotPoint(QPointF(line.second.toDouble(), 0));
+			newLine = new MPlotPoint(QPointF(line.energy(), 0));
 			newLine->setMarker(MPlotMarkerShape::VerticalBeam, 1e6, QPen(color), QBrush(color));
-			newLine->setDescription(symbol % " " % line.first);
+			newLine->setDescription(line.greekName() % ": " % line.energyString() % " eV");
 			plot_->plot()->addItem(newLine);
 		}
 	}
 }
 
-void AMScanViewSingleSpectrumView::onElementDeselected(int atomicNumber)
+void AMScanViewSingleSpectrumView::onElementDeselected(AMElement *element)
 {
-	QString symbol = table_->elementByAtomicNumber(atomicNumber)->symbol();
+	QString symbol = element->symbol();
 	MPlot *plot = plot_->plot();
 
 	foreach(MPlotItem *item, plot->plotItems()){
 
-		if (item->description().contains(symbol % " "))
-			if (plot->removeItem(item))
-				delete item;
+            if (item->description().contains(QRegExp(QString("^%1 (K|L|M)").arg(symbol))))
+                if (plot->removeItem(item))
+                    delete item;
 	}
 }
 
@@ -509,8 +510,8 @@ void AMScanViewSingleSpectrumView::onLogScaleEnabled(bool enable)
 
 void AMScanViewSingleSpectrumView::setPlotRange(double low, double high)
 {
-	range_ = qMakePair(low, high);
-	tableView_->setRange(low, high);
+	range_ = AMRange(low, high);
+	tableView_->setEnergyRange(low, high);
 
 	if (low != minimum_->value()){
 
@@ -526,21 +527,21 @@ void AMScanViewSingleSpectrumView::setPlotRange(double low, double high)
 		maximum_->blockSignals(false);
 	}
 
-	foreach(int atomicNumber, table_->selectedElements())
-		onElementDeselected(atomicNumber);
+	foreach(AMElement *element, table_->selectedElements())
+		onElementDeselected(element);
 
-	foreach(int atomicNumber, table_->selectedElements())
-		onElementSelected(atomicNumber);
+	foreach(AMElement *element, table_->selectedElements())
+		onElementSelected(element);
 }
 
 void AMScanViewSingleSpectrumView::onMinimumChanged()
 {
-	setPlotRange(minimum_->value(), range_.second);
+	setPlotRange(minimum_->value(), range_.maximum());
 }
 
 void AMScanViewSingleSpectrumView::onMaximumChanged()
 {
-	setPlotRange(range_.first, maximum_->value());
+	setPlotRange(range_.minimum(), maximum_->value());
 }
 
 void AMScanViewSingleSpectrumView::onDataPositionChanged(AMnDIndex index)
@@ -887,3 +888,4 @@ bool AMScanViewSingleSpectrumView::exportToFile(const QString &filename) const
 
 	return true;
 }
+ AMScanViewSourceSelector::~AMScanViewSourceSelector(){}

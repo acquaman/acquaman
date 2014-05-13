@@ -3,6 +3,7 @@
 #include "beamline/AMBeamline.h"
 #include "util/AMErrorMonitor.h"
 
+ AMDetectorCleanupAction::~AMDetectorCleanupAction(){}
 AMDetectorCleanupAction::AMDetectorCleanupAction(AMDetectorCleanupActionInfo *info, AMDetector *detector, QObject *parent) :
 	AMAction3(info, parent)
 {

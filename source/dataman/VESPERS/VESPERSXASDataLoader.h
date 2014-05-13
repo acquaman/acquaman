@@ -33,6 +33,7 @@ class VESPERSXASDataLoader : public AMAbstractFileLoader
 
 public:
 	/// Constructor.  Creates a file loader to load the scan from \param scan.
+ 	virtual ~VESPERSXASDataLoader();
 	explicit VESPERSXASDataLoader(AMXASScan *scan);
 
 	/// Format tag. a unique string identifying this format.

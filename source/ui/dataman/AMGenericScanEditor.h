@@ -34,7 +34,8 @@ class AMScanView;
 class AM2DScanView;
 class AMVerticalStackWidget;
 class AMRunSelector;
-class AMSampleEditor;
+class AMSamplePre2013Editor;
+class AMSampleBriefView;
 class AMDataSourcesEditor;
 class AMChooseScanDialog;
 class AMControlInfoListTableView;
@@ -124,6 +125,10 @@ public slots:
 
 	/// Call this to export the currently-visible plot to a graphics file. (Currently, the only supported format is a vector PDF.) This routine will prompt the user to choose a file name for the plot, and confirm on overwrite.
 	void exportGraphicsToFile();
+	/// Call this to print the currently-visible plot.
+	void printGraphics();
+	/// Call this to update the Scan Conditions Table
+	void refreshScanConditions();
 
 protected slots:
 	///  This catches changes in the scan that is currently selected, and hooks it up to the editor widgets. \todo Ultimately, we might handle more than one scan being "selected" at once.
@@ -177,6 +182,7 @@ protected:
 	/// This is the currently-selected scan, or 0 non-existent
 	AMScan* currentScan_;
 
+
 	// UI Components
 
 	/// UI object container
@@ -200,7 +206,9 @@ protected:
 	AM2DScanView *scanView2D_;
 
 	/// Sample editor
-	AMSampleEditor* sampleEditor_;
+	AMSamplePre2013Editor* sampleEditor_;
+	/// Alternative sample brief view for current AMSample class
+	AMSampleBriefView *sampleBriefView_;
 
 	/// Dialog to choose an existing scan to open/add.  Will be 0 until it is required/created.
 	AMChooseScanDialog* chooseScanDialog_;

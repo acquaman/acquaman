@@ -26,6 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman.h"
 
 
+ AMDetailedItemDelegate::~AMDetailedItemDelegate(){}
 AMDetailedItemDelegate::AMDetailedItemDelegate(QObject *parent) :
 		AMCloseItemDelegate(parent)
 {

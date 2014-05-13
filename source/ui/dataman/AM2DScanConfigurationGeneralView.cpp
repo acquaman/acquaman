@@ -26,6 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/database/AMDbObjectSupport.h"
 #include "util/AMErrorMonitor.h"
 
+ AM2DScanConfigurationGeneralView::~AM2DScanConfigurationGeneralView(){}
 AM2DScanConfigurationGeneralView::AM2DScanConfigurationGeneralView(QWidget *parent) :
 	AMDbObjectGeneralView(parent)
 {

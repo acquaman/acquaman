@@ -39,7 +39,7 @@ class AMJoystickTestView : public QWidget
 public:
     /// Constructor.  You must pass in a valid \c joystick.
     AMJoystickTestView(AMJoystick* joystick, QWidget *parent = 0);
-    ~AMJoystickTestView();
+    virtual ~AMJoystickTestView();
 
 protected:
     AMJoystick* joystick_;

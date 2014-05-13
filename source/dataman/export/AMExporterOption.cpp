@@ -20,6 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMExporterOption.h"
 
+ AMExporterOption::~AMExporterOption(){}
 AMExporterOption::AMExporterOption(QObject *parent) :
 	AMDbObject(parent)
 {

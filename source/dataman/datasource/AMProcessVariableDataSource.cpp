@@ -20,6 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMProcessVariableDataSource.h"
 
+ AM0DProcessVariableDataSource::~AM0DProcessVariableDataSource(){}
 AM0DProcessVariableDataSource::AM0DProcessVariableDataSource(const AMProcessVariable *data, const QString &name, QObject *parent)
 	: QObject(parent), AMDataSource(name)
 {
@@ -28,6 +29,7 @@ AM0DProcessVariableDataSource::AM0DProcessVariableDataSource(const AMProcessVari
 	connect(data_, SIGNAL(hasValuesChanged(bool)), this, SLOT(onStateChanged()));
 }
 
+ AM1DProcessVariableDataSource::~AM1DProcessVariableDataSource(){}
 AM1DProcessVariableDataSource::AM1DProcessVariableDataSource(const AMProcessVariable *data, const QString &name, QObject *parent)
 	: QObject(parent), AMDataSource(name)
 {
@@ -42,6 +44,7 @@ AM1DProcessVariableDataSource::AM1DProcessVariableDataSource(const AMProcessVari
 	axes_ << ai;
 }
 
+ AM2DProcessVariableDataSource::~AM2DProcessVariableDataSource(){}
 AM2DProcessVariableDataSource::AM2DProcessVariableDataSource(const AMProcessVariable *data, const QString &name, int rowLength, QObject *parent)
 	: QObject(parent), AMDataSource(name)
 {

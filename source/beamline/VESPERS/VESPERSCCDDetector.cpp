@@ -1,277 +1,250 @@
 #include "VESPERSCCDDetector.h"
 
-#include "actions/AMBeamlineControlMoveAction.h"
-#include "actions/VESPERS/VESPERSBeamlineSetStringAction.h"
+#include "actions3/actions/AMControlMoveAction3.h"
+#include "actions3/VESPERS/VESPERSSetStringAction.h"
+#include "beamline/AMBeamline.h"
 
 #include <QStringBuilder>
 
-VESPERSCCDDetector::VESPERSCCDDetector(const QString &name, const QString &description, const QString &pvBase, const AMnDIndex &detectorSize, QObject *parent)
-	: VESPERSCCDDetectorInfo(name, description, detectorSize, parent), AMOldDetector(name)
+VESPERSCCDDetector::~VESPERSCCDDetector(){}
+
+VESPERSCCDDetector::VESPERSCCDDetector(const QString &name, const QString &description, QObject *parent)
+	: AMDetector(name, description, parent)
 {
-	imageModeControl_ = new AMPVControl("Image Mode", pvBase % ":ImageMode_RBV", "ccd1607-002:cam1:ImageMode", QString(), this, 0.1);
-	triggerModeControl_ = new AMPVControl("Trigger Mode", pvBase % ":TriggerMode_RBV", "ccd1607-002:cam1:TriggerMode", QString(), this, 0.1);
-	operationControl_ = new AMSinglePVControl("Operation", pvBase % ":Acquire", this, 0.1);
-	stateControl_ = new AMReadOnlyPVControl("State", pvBase % ":DetectorState_RBV", this);
-	acquireTimeControl_ = new AMSinglePVControl("Acquire Time", pvBase % ":AcquireTime", this, 0.1);
-	autoSaveControl_ = new AMPVControl("AutoSave", pvBase % ":AutoSave_RBV", "ccd1607-002:cam1:AutoSave", QString(), this, 0.1);
-	saveFileControl_ = new AMPVwStatusControl("Save File", pvBase % ":WriteFile", "ccd1607-002:cam1:WriteFile", "ccd1607-002:cam1:WriteFile_RBV", QString(), this, 0.1);
+	units_ = "Counts";
 
-	// Various CCD file path PVs.
-	ccdPath_ = new AMProcessVariable(pvBase % ":FilePath", true, this);
-	ccdFile_ = new AMProcessVariable(pvBase % ":FileName", true, this);
-	ccdNumber_ = new AMSinglePVControl("File Number",pvBase % ":FileNumber", this);
+	allControls_ = new AMControlSet(this);
 
-	connect(signalSource(), SIGNAL(connected(bool)), this, SIGNAL(connected(bool)));
-	connect(imageModeControl_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
-	connect(triggerModeControl_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
-	connect(operationControl_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
-	connect(stateControl_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
-	connect(acquireTimeControl_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
-	connect(autoSaveControl_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
-	connect(saveFileControl_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
-	connect(ccdPath_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
-	connect(ccdFile_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
-	connect(ccdNumber_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
-
-	connect(imageModeControl_, SIGNAL(valueChanged(double)), this, SLOT(onImageModeChanged()));
-	connect(triggerModeControl_, SIGNAL(valueChanged(double)), this, SLOT(onTriggerModeChanged()));
-	connect(operationControl_, SIGNAL(valueChanged(double)), this, SLOT(onIsAcquiringChanged()));
-	connect(stateControl_, SIGNAL(valueChanged(double)), this, SLOT(onStateChanged()));
-	connect(acquireTimeControl_, SIGNAL(valueChanged(double)), this, SLOT(onAcquireTimeChanged(double)));
-	connect(autoSaveControl_, SIGNAL(valueChanged(double)), this, SLOT(onAutoSaveEnabledChanged()));
-	connect(saveFileControl_, SIGNAL(valueChanged(double)), this, SLOT(onSaveFileStateChanged()));
-	connect(ccdPath_, SIGNAL(valueChanged()), this, SLOT(onCCDPathChanged()));
-	connect(ccdFile_, SIGNAL(valueChanged()), this, SLOT(onCCDNameChanged()));
-	connect(ccdNumber_, SIGNAL(valueChanged(double)), this, SLOT(onCCDNumberChanged()));
+	connect(allControls_, SIGNAL(connected(bool)), this, SLOT(onControlsConnected(bool)));
+	connect(allControls_, SIGNAL(controlSetTimedOut()), this, SLOT(onControlsTimedOut()));
+	connect(&elapsedTimer_, SIGNAL(timeout()), this, SLOT(onElapsedTimeChanged()));
 }
 
-void VESPERSCCDDetector::onConnectedChanged()
+void VESPERSCCDDetector::allControlsCreated()
 {
-	if (isConnected() && !allControlsConnected())
-		setConnected(false);
+	allControls_->addControl(acquireControl_);
+	allControls_->addControl(acquireTimeControl_);
+	allControls_->addControl(acquisitionStatusControl_);
+	allControls_->addControl(ccdFilePathControl_);
+	allControls_->addControl(ccdFileBaseNameControl_);
+	allControls_->addControl(ccdFileNumberControl_);
 
-	else if (!isConnected() && allControlsConnected())
-		setConnected(true);
+	connect(acquireTimeControl_, SIGNAL(valueChanged(double)), this, SIGNAL(acquisitionTimeChanged(double)));
+	connect(acquisitionStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(onStatusControlChanged()));
+	connect(ccdFilePathControl_, SIGNAL(valueChanged(double)), this, SLOT(onCCDFilePathChanged()));
+	connect(ccdFileBaseNameControl_, SIGNAL(valueChanged(double)), this, SLOT(onCCDFileBaseNameChanged()));
+	connect(ccdFileNumberControl_, SIGNAL(valueChanged(double)), this, SLOT(onCCDFileNumberChanged()));
 }
 
-bool VESPERSCCDDetector::allControlsConnected() const
+void VESPERSCCDDetector::onControlsConnected(bool connected)
 {
-	return operationControl_->isConnected()
-			&& stateControl_->isConnected()
-			&& acquireTimeControl_->isConnected()
-			&& ccdPath_->isConnected()
-			&& ccdFile_->isConnected()
-			&& ccdNumber_->isConnected();
+	setConnected(connected);
+
+	if (connected)
+		setReadyForAcquisition();
+
+	else if (!isNotReadyForAcquisition())
+		setNotReadyForAcquisition();
 }
 
-VESPERSCCDDetector::ImageMode VESPERSCCDDetector::imageMode() const
+void VESPERSCCDDetector::onControlsTimedOut()
 {
-	ImageMode mode = Normal;
+	setConnected(false);
+}
 
-	switch((int)imageModeControl_->value()){
+void VESPERSCCDDetector::onStatusControlChanged()
+{
+	if (acquisitionStatusControl_->withinTolerance(1))
+		setAcquiring();
 
-	case 0:
-		mode = Normal;
-		break;
+	else if (acquisitionStatusControl_->withinTolerance(0)){
 
-	case 1:
-		mode = Continuous;
-		break;
+		if (isAcquiring())
+			setAcquisitionSucceeded();
 
-	case 2:
-		mode = Focus;
-		break;
+		if (!isConnected() && !isNotReadyForAcquisition())
+			setNotReadyForAcquisition();
+
+		else if (isConnected() && !isReadyForAcquisition())
+			setReadyForAcquisition();
 	}
-
-	return mode;
 }
 
-VESPERSCCDDetector::TriggerMode VESPERSCCDDetector::triggerMode() const
+AMAction3 *VESPERSCCDDetector::createFilePathAction(const QString &path)
 {
-	TriggerMode mode = FreeRun;
+	if (!ccdFilePathControl_->isConnected())
+		return 0;
 
-	switch((int)triggerModeControl_->value()){
-
-	case 0:
-		mode = FreeRun;
-		break;
-
-	case 1:
-		mode = ExtSync;
-		break;
-
-	case 2:
-		mode = BulbTrigger;
-		break;
-
-	case 3:
-		mode = SingleTrigger;
-		break;
-	}
-
-	return mode;
+	return new VESPERSSetStringAction(new VESPERSSetStringActionInfo(path), ccdFilePathControl_);
 }
 
-VESPERSCCDDetector::State VESPERSCCDDetector::state() const
+AMAction3 *VESPERSCCDDetector::createFileNameAction(const QString &name)
 {
-	State detectorState = Idle;
+	if (!ccdFileBaseNameControl_->isConnected())
+		return 0;
 
-	switch((int)stateControl_->value()){
-
-	case 0:
-		detectorState = Idle;
-		break;
-
-	case 1:
-		detectorState = Acquire;
-		break;
-
-	case 2:
-		detectorState = Readout;
-		break;
-
-	case 3:
-		detectorState = Correct;
-		break;
-
-	case 4:
-		detectorState = Saving;
-		break;
-
-	case 5:
-		detectorState = Aborting;
-		break;
-
-	case 6:
-		detectorState = Error;
-		break;
-
-	case 7:
-		detectorState = Waiting;
-		break;
-	}
-
-	return detectorState;
+	return new VESPERSSetStringAction(new VESPERSSetStringActionInfo(name), ccdFileBaseNameControl_);
 }
 
-bool VESPERSCCDDetector::setFromInfo(const AMOldDetectorInfo *info)
+AMAction3 *VESPERSCCDDetector::createFileNumberAction(int number)
 {
-	const VESPERSCCDDetectorInfo *detectorInfo = qobject_cast<const VESPERSCCDDetectorInfo *>(info);
+	if (!ccdFileNumberControl_->isConnected())
+		return 0;
 
-	// Check to make sure the detector info was valid.  If it isn't, then don't do anything to the detector.
-	if (!detectorInfo)
+	AMControlInfo setpoint = ccdFileNumberControl_->toInfo();
+	setpoint.setValue(number);
+	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
+	AMAction3 *action = new AMControlMoveAction3(actionInfo, ccdFileNumberControl_);
+
+	return action;
+}
+
+bool VESPERSCCDDetector::sharesDetectorTriggerSource()
+{
+	return currentlySynchronizedDwell();
+}
+
+AMDetectorTriggerSource* VESPERSCCDDetector::detectorTriggerSource()
+{
+	if(currentlySynchronizedDwell())
+		return AMBeamline::bl()->synchronizedDwellTime()->triggerSource();
+
+	return 0;
+}
+
+AMDetectorDwellTimeSource* VESPERSCCDDetector::detectorDwellTimeSource()
+{
+	if(currentlySynchronizedDwell())
+		return AMBeamline::bl()->synchronizedDwellTime()->dwellTimeSource();
+
+	return 0;
+}
+
+bool VESPERSCCDDetector::lastContinuousReading(double *outputValues) const
+{
+	Q_UNUSED(outputValues)
+
+	return false;
+}
+
+bool VESPERSCCDDetector::setReadMode(AMDetectorDefinitions::ReadMode readMode)
+{
+	Q_UNUSED(readMode)
+
+	return false;
+}
+
+bool VESPERSCCDDetector::initializeImplementation()
+{
+	setInitialized();
+	return true;
+}
+
+bool VESPERSCCDDetector::acquireImplementation(AMDetectorDefinitions::ReadMode readMode)
+{
+	if (!isConnected() || readMode != AMDetectorDefinitions::SingleRead)
 		return false;
 
-	setAcquireTime(detectorInfo->acquireTime());
+	elapsedTimer_.start();
+	elapsedTime_.restart();
+	AMControl::FailureExplanation failureExplanation = acquireControl_->move(1);
+	return failureExplanation == AMControl::NoFailure;
+}
+
+bool VESPERSCCDDetector::cleanupImplementation()
+{
+	elapsedTimer_.stop();
+	setCleanedUp();
+	return true;
+}
+
+bool VESPERSCCDDetector::cancelAcquisitionImplementation()
+{
+	elapsedTimer_.stop();
+	bool stopSuccessful = acquireControl_->stop();
+	setAcquisitionCancelled();
+	return stopSuccessful;
+}
+
+bool VESPERSCCDDetector::setAcquisitionTime(double seconds)
+{
+	if(!isConnected())
+		return false;
+
+	if(!acquireTimeControl_->withinTolerance(seconds))
+		acquireTimeControl_->move(seconds);
 
 	return true;
 }
 
-void VESPERSCCDDetector::setFromVESPERSInfo(const VESPERSCCDDetectorInfo &info)
+double VESPERSCCDDetector::acquisitionTime() const
 {
-	setFromInfo(&info);
+	if (isConnected())
+		return acquireTimeControl_->value();
+
+	return -1;
 }
 
-AMBeamlineActionItem *VESPERSCCDDetector::createAcquireTimeAction(double time)
+double VESPERSCCDDetector::acquisitionTimeTolerance() const
 {
-	if (!acquireTimeControl_->isConnected())
-		return 0;
+	if (isConnected())
+		return acquireTimeControl_->tolerance();
 
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(acquireTimeControl_);
-	action->setSetpoint(time);
-
-	return action;
+	return -1;
 }
 
-AMBeamlineActionItem *VESPERSCCDDetector::createImageModeAction(VESPERSCCDDetector::ImageMode mode)
+QString VESPERSCCDDetector::ccdFilePath() const
 {
-	if (!imageModeControl_->isConnected())
-		return 0;
-
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(imageModeControl_);
-	action->setSetpoint(int(mode));
-
-	return action;
+	const AMProcessVariable *pv = ccdFilePathControl_->readPV();
+	return VESPERS::pvToString(pv);
 }
 
-AMBeamlineActionItem *VESPERSCCDDetector::createTriggerModeAction(VESPERSCCDDetector::TriggerMode mode)
+QString VESPERSCCDDetector::ccdFileBaseName() const
 {
-	if (!triggerModeControl_->isConnected())
-		return 0;
-
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(triggerModeControl_);
-	action->setSetpoint(int(mode));
-
-	return action;
+	const AMProcessVariable *pv = ccdFileBaseNameControl_->readPV();
+	return VESPERS::pvToString(pv);
 }
 
-AMBeamlineActionItem *VESPERSCCDDetector::createStartAction()
+int VESPERSCCDDetector::ccdFileNumber() const
 {
-	if (!operationControl_->isConnected())
-		return 0;
-
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(operationControl_);
-	action->setSetpoint(1);
-
-	return action;
+	return int(ccdFileNumberControl_->value());
 }
 
-AMBeamlineActionItem *VESPERSCCDDetector::createStopAction()
+void VESPERSCCDDetector::onCCDFilePathChanged()
 {
-	if (!operationControl_->isConnected())
-		return 0;
-
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(operationControl_);
-	action->setSetpoint(0);
-
-	return action;
+	const AMProcessVariable *pv = ccdFilePathControl_->readPV();
+	emit ccdPathChanged(VESPERS::pvToString(pv));
 }
 
-AMBeamlineActionItem *VESPERSCCDDetector::createAutoSaveAction(bool autoSave)
+void VESPERSCCDDetector::onCCDFileBaseNameChanged()
 {
-	if (!autoSaveControl_->isConnected())
-		return 0;
-
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(autoSaveControl_);
-	action->setSetpoint(autoSave ? 1 : 0);
-
-	return action;
+	const AMProcessVariable *pv = ccdFileBaseNameControl_->readPV();
+	emit ccdNameChanged(VESPERS::pvToString(pv));
 }
 
-AMBeamlineActionItem *VESPERSCCDDetector::createSaveFileAction()
+void VESPERSCCDDetector::onCCDFileNumberChanged()
 {
-	if (!saveFileControl_->isConnected())
-		return 0;
-
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(saveFileControl_);
-	action->setSetpoint(1);
-
-	return action;
+	emit ccdNumberChanged(int(ccdFileNumberControl_->value()));
 }
 
-AMBeamlineActionItem *VESPERSCCDDetector::createFilePathAction(const QString &path)
+void VESPERSCCDDetector::setCCDFilePath(QString path)
 {
-	if (!ccdPath_->isConnected())
-		return 0;
-
-	return new VESPERSBeamlineSetStringAction(ccdPath_, path);
+	AMProcessVariable *pv = ccdFilePathControl_->writePV();
+	VESPERS::stringToPV(pv, path);
 }
 
-AMBeamlineActionItem *VESPERSCCDDetector::createFileNameAction(const QString &name)
+void VESPERSCCDDetector::setCCDFileBaseName(QString name)
 {
-	if (!ccdFile_->isConnected())
-		return 0;
-
-	return new VESPERSBeamlineSetStringAction(ccdFile_, name);
+	AMProcessVariable *pv = ccdFileBaseNameControl_->writePV();
+	VESPERS::stringToPV(pv, name);
 }
 
-AMBeamlineActionItem *VESPERSCCDDetector::createFileNumberAction(int number)
+void VESPERSCCDDetector::setCCDNumber(int number)
 {
-	if (!ccdNumber_->isConnected())
-		return 0;
+	ccdFileNumberControl_->move(double(number));
+}
 
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(ccdNumber_);
-	action->setSetpoint(number);
-
-	return action;
+void VESPERSCCDDetector::onElapsedTimeChanged()
+{
+	emit elapsedTimeChanged(elapsedTime_.elapsed()/1000.0);
 }

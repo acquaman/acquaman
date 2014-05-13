@@ -83,6 +83,8 @@ class AMDetectorDwellTimeSource;
 #define AMDETECTOR_NOTIFIED_CLEANEDUP_UNEXPECTEDLY 470012
 #define AMDETECTOR_NOTIFIED_CLEANUPREQUIRED_UNEXPECTEDLY 470013
 
+#define AMDETECTOR_DEFAULT_TIMEOUT_MS 5000
+
 class AMDetector : public QObject
 {
 Q_OBJECT
@@ -90,13 +92,13 @@ Q_OBJECT
 public:
 	/// This enum describes the states a detector can take on with regard to acquisition
 	enum AcqusitionState { NotReadyForAcquisition = 0,
-			       ReadyForAcquisition = 1,
-			       Acquiring = 2,
-			       Cancelling = 3,
-			       Cancelled = 4,
-			       Succeeded = 5,
-			       Failed = 6
-			     };
+				   ReadyForAcquisition = 1,
+				   Acquiring = 2,
+				   Cancelling = 3,
+				   Cancelled = 4,
+				   Succeeded = 5,
+				   Failed = 6
+				 };
 
 	/// This enum describes the states a detector can take on with regard to initialization
 	enum InitializationState { InitializationRequired = 0,
@@ -106,12 +108,14 @@ public:
 
 	/// This enum describes the states a detector can take on with regard to cleanup
 	enum CleanupState { CleanupRequired = 0,
-			    CleaningUp = 1,
-			    CleanedUp = 2
+				CleaningUp = 1,
+				CleanedUp = 2
 			  };
 
 	/// Default constructor. \c name is a unique programmer name to access this detector with. \c description is a human-readable version
 	AMDetector(const QString &name, const QString &description, QObject *parent = 0);
+	/// Destructor.
+	virtual ~AMDetector();
 
 	/// One feature of a detector is that it can create a snapshot of its current state and pass it on as an AMDetectorInfo.
 	AMDetectorInfo toInfo() const;
@@ -124,19 +128,23 @@ public:
 	QString units() const { return units_; }
 
 	/// Returns the number of dimensions in the output of this detector. A single point has rank 0. A spectrum output would have rank 1. An image output would have rank 2.
-	virtual int rank() const { return 0; }
+	virtual int rank() const { return axes_.size(); }
 	/// Returns the size (ie: number of elements) along each dimension of the detector.  For a single-point detector, returns an empty AMnDIndex(). For a spectrum output, this would contain one number (the number of pixels or points along the axis).  For an image output, this would contain the width and height.
-	virtual AMnDIndex size() const { return AMnDIndex(); }
+	virtual AMnDIndex size() const;
 	/// Returns the size along a single axis \c axisNumber. This should be fast. \c axisNumber is assumed to be between 0 and rank()-1.
-	virtual int size(int axisNumber) const = 0;
+	virtual int size(int axisNumber) const;
 	/// Returns a list of AMAxisInfo describing the size and nature of each detector axis, in order.
-	virtual QList<AMAxisInfo>  axes() const { return QList<AMAxisInfo>(); }
+	virtual QList<AMAxisInfo>  axes() const { return axes_; }
 
 	/// Returns (or casts) this AMDetector as an AMMeasurementInfo, which contains the bare-bones dimensional information.
 	operator AMMeasurementInfo();
 
 	/// Returns the current connected state (whether the detector has a connection to its constituent elements)
 	bool isConnected() const { return connected_; }
+	/// Returns whether or not the detector has timed out
+	bool isTimedOut() const { return timedOut_; }
+	/// Returns how long this detector will wait before timing out in milliseconds
+	int timeOutMS() const { return timeOutMS_; }
 	/// Returns the current powered state (whether the detector has it's high voltage on). Also see requiresPower().
 	bool isPowered() const { return powered_; }
 	/// Returns whether a detector requires power (high voltage, likely) to operate. Every detector subclass need to implement this function.
@@ -151,6 +159,17 @@ public:
 
 	/// Returns the current acquisition dwell time which is only relevant for triggered (RequestRead) detectors
 	virtual double acquisitionTime() const = 0;
+	/// Returns whether \param value is already within acquisition time tolerance of the detector.
+	bool acquisitionTimeWithinTolerance(double value) const;
+	/// Returns the acquisition time tolerance.  This is defined by subclasses because this limitation will likely be detector specific.
+	virtual double acquisitionTimeTolerance() const = 0;
+
+    virtual bool canDoDarkCurrentCorrection() const { return false;}
+
+    virtual double darkCurrentMeasurementValue() const;
+    virtual int darkCurrentMeasurementTime() const;
+
+    virtual bool requiresNewDarkCurrentMeasurement() const;
 
 	/// Returns the current acquisition state
 	AMDetector::AcqusitionState acquisitionState() const { return acquisitionState_; }
@@ -227,21 +246,20 @@ public:
 int outputSize = indexStart.totalPointsTo(indexEnd);
 \endcode
 */
-	// FINISH IMPLEMENTING THESE
 	virtual bool reading0D(const AMnDIndex &startIndex, const AMnDIndex &endIndex, double *outputValues) const;
 	virtual bool reading1D(const AMnDIndex &startIndex, const AMnDIndex &endIndex, double *outputValues) const;
 	virtual bool reading2D(const AMnDIndex &startIndex, const AMnDIndex &endIndex, double *outputValues) const;
 
-	/// Convenience call to access the three previous calls from a common interface. Pass 0, 1, or 2 into the dimensionality variable.
-	bool readingND(int dimensionality, const AMnDIndex &startIndex, const AMnDIndex &endIndex, double *outputValues) const;
+	/// Convenience call to access the three previous calls from a common interface.
+	bool readingND(const AMnDIndex &startIndex, const AMnDIndex &endIndex, double *outputValues) const;
 
 	// FLESH THIS ONE OUT
 	/// Returns the data from the last continuous reading in the outputValues
 	virtual bool lastContinuousReading(double *outputValues) const;
 	virtual int lastContinuousSize() const;
 
-	/// Returns a (hopefully) valid pointer to a block of detector data in row-major order (first axis varies slowest)
-	virtual const double* data() const = 0;
+	/// Fills the given double pointer with the current detector data in row-major order (first axis varies slowest).  Memory must be preallocated to the size of the detector data.
+	virtual bool data(double *outputValues) const = 0;
 
 	/// Returns a newly created action (possibly list of actions) to perform the detector initialization
 	virtual AMAction3* createInitializationActions();
@@ -257,8 +275,23 @@ int outputSize = indexStart.totalPointsTo(indexEnd);
 	/// Returns a newly created action (possibly list of actions) to perfrom the detector cleanup
 	virtual AMAction3* createCleanupActions();
 
+    /// Returns a (list of) actions that will do all necessary steps to do dark current correction. Your subclass needs to implement this function. Dwell time argument is in seconds.
+    virtual AMAction3* createDarkCurrentCorrectionActions(double dwellTime);
+    /// Returns an action that sets the current detector value as the dark current correction value. Your subclass will probably call this in createDarkCurrentCorrectionActions.
+    virtual AMAction3* createSetAsDarkCurrentCorrectionAction();
+
 	/// Returns a data source for viewing this detector's output
 	virtual AMDataSource* dataSource() const = 0;
+
+	/// Handles the default visibility of the detector when added to a scan.
+	bool isVisible() const { return isVisible_; }
+	/// Handles the default accessibility of the detector when added to a scan.  If true, this detector will be completely hidden within the user interface.
+	bool hiddenFromUsers() const { return hiddenFromUsers_; }
+
+	/// Changes the default visibility of the detector when added to a scan.
+	void setIsVisible(bool visible);
+	/// Changes the default accessibility of the detector when added to a scan.
+	void setHiddenFromUsers(bool hidden);
 
 public slots:
 	// External requests to change the state (initialization, acquisition, cleanup): initialize(), acquire(), cancelAcquisition(), cleanup()
@@ -290,9 +323,16 @@ public slots:
 	/// For clearable detectors, clears the current data. Returns whether the clear was possible.
 	bool clear();
 
+    virtual void setAsDarkCurrentMeasurementValue();
+    virtual void setAsDarkCurrentMeasurementTime(double lastTime);
+    virtual void setRequiresNewDarkCurrentMeasurement(bool needsNewDCC);
+
+
 signals:
 	/// Indicates that the detector's constituent elements are connected (each detector sub class can define this however makes most sense)
 	void connected(bool isConnected);
+	/// Indicates that the detector failed to connected within the defined timeout
+	void timedOut();
 	/// Indicates that the detector is currently powered (has it's high voltage on). Also see requiresPower().
 	void powered(bool isPowered);
 
@@ -337,6 +377,19 @@ signals:
 	/// Indicates that the detector's acquisition time has changed
 	void acquisitionTimeChanged(double seconds);
 	void newValuesAvailable();
+
+	/// Indicates that the axis values have changed.  This would affect things like size() and axes().
+	void axisValuesChanged();
+
+	/// Notifier that the default visibility of the detector has changed.
+	void isVisibleChanged(bool);
+	/// Notifier that the default accessibility of the detector has changed.
+	void hiddenFromUsersChanged(bool);
+
+    /// New dark current correction value ready, passes new dark current value.
+    void newDarkCurrentMeasurementValueReady(double newValue);
+    /// Indicates that the darkCurrentCorrection_ value stored is out of date. A new dark current measurement should be taken.
+    void requiresNewDarkCurrentMeasurement(bool needsUpdate);
 
 protected slots:
 	///
@@ -404,11 +457,26 @@ protected:
 	/// Changes the automatic behavior for calls to cleanup()
 	void setAutoSetCleaningUp(bool autoSetCleaningUp) { autoSetCleaningUp_ = autoSetCleaningUp; }
 
+	/// Sets the timeout time to a given value
+	void setTimeOutMS(int timeOutMS);
+
 protected:
 	/// A human-readable description
 	QString description_;
 	/// Units describing this detector's readings (ex: "counts", "milliAmps", etc.)
 	QString units_;
+	/// The axes that describe the dimensionality of the detector.
+	QList<AMAxisInfo> axes_;
+	/// The flag for the visibility of the detector when added to a scan.
+	bool isVisible_;
+	/// The flag for the default accessibility off the detector when added to a scan.
+	bool hiddenFromUsers_;
+    /// The most up-to-date value of the dark current for this detector.
+    double darkCurrentMeasurementValue_;
+    /// The dwell time used to for the darkCurrentMeasurementValue_ measurement.
+    double darkCurrentMeasurementTime_;
+    /// Flag indicating whether or not darkCurrentMeasurementValue_ needs to be updated.
+    bool requiresNewDarkCurrentMeasurement_;
 
 private:
 	/// Changes states in the acquisition state (if possible)
@@ -426,9 +494,26 @@ private:
 	/// Checks whether you canmake the transition to the new cleanup state
 	bool acceptableChangeCleanupState(CleanupState newState) const;
 
+	/// Helper function for cleaning up the timedOutTimer
+	void timedOutTimerCleanup();
+
+private slots:
+	/// Instantiates and starts the timedOutTimer
+	void initiateTimedOutTimer();
+	/// Handles the timedOutTimer finishing and emit the timedOut signal
+	void onTimedOutTimerTimedOut();
+
 private:
 	/// Internal state for connection, which referes to the constituent elements of the detector (likely AMControls) all being connected. Use setConnected(bool) to change so signals are emitted.
 	bool connected_;
+	/// Internal state for connection history. This value will start false and become true on the first connection.
+	bool wasConnected_;
+	/// Internal state for whether or not this detector is timed out
+	bool timedOut_;
+	/// Internal timer that controls the timed out signal
+	QTimer *timedOutTimer_;
+	/// Timeout that will be used in milliseconds
+	int timeOutMS_;
 	/// Internal state for powered, which refers to whether the detector is currently powered (many detectors require a high voltage to operate)
 	bool powered_;
 

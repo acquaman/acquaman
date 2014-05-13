@@ -99,7 +99,7 @@ public:
     ParserErrorMsg(const ParserErrorMsg&);
     ParserErrorMsg();
 
-   ~ParserErrorMsg();
+   virtual ~ParserErrorMsg();
 
     static const ParserErrorMsg& Instance();
     string_type operator[](unsigned a_iIdx) const;

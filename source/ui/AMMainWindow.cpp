@@ -327,6 +327,3 @@ QWidget * AMMainWindow::currentPane() const
 {
 	return stackWidget_->currentWidget();
 }
-
-
-

@@ -27,7 +27,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QHash>
 
 class AMWorkflowView3;
-class AMWorkflowManagerView;
 class AMMainWindow;
 class AMScan;
 class AMScanConfiguration;

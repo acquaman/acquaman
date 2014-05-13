@@ -12,6 +12,9 @@ public:
 	Q_INVOKABLE AMAxisStartedAction(AMAxisStartedActionInfo *info, QObject *parent = 0);
 	/// Copy Constructor
 	AMAxisStartedAction(const AMAxisStartedAction &other);
+	/// Destructor.
+	virtual ~AMAxisStartedAction();
+
 	/// Virtual copy constructor
 	virtual AMAction3* createCopy() const { return new AMAxisStartedAction(*this); }
 

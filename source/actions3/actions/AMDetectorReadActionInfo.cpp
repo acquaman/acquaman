@@ -1,5 +1,6 @@
 #include "AMDetectorReadActionInfo.h"
 
+ AMDetectorReadActionInfo::~AMDetectorReadActionInfo(){}
 AMDetectorReadActionInfo::AMDetectorReadActionInfo(const AMDetectorInfo &detectorInfo, QObject *parent) :
 	AMActionInfo3("Detector Read", "Detector Read", ":/system-run.png", parent)
 {

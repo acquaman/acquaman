@@ -31,6 +31,7 @@ class AMOldDetectorView : public QWidget
 Q_OBJECT
 
 public:
+ 	virtual ~AMOldDetectorView();
 	Q_INVOKABLE explicit AMOldDetectorView(bool configureOnly = false, QWidget *parent = 0);
 
 	virtual AMOldDetector* detector();
@@ -58,6 +59,7 @@ class AMBriefOldDetectorView : public AMOldDetectorView
 {
 Q_OBJECT
 public:
+ 	virtual ~AMBriefOldDetectorView();
 	Q_INVOKABLE explicit AMBriefOldDetectorView(bool configureOnly = false, QWidget *parent = 0);
 
 protected:
@@ -69,6 +71,7 @@ class AMDetailedOldDetectorView : public AMOldDetectorView
 {
 Q_OBJECT
 public:
+ 	virtual ~AMDetailedOldDetectorView();
 	Q_INVOKABLE explicit AMDetailedOldDetectorView(bool configureOnly = false, QWidget *parent = 0);
 
 protected:

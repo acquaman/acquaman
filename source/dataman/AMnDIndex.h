@@ -76,6 +76,8 @@ public:
 	AMnDIndex(long i, long j, long k, long l);
 	/// Create an index for 5D data
 	AMnDIndex(long i, long j, long k, long l, long m);
+	/// Destructor.
+	virtual ~AMnDIndex();
 
 	/// Flag to indicate whether the dimension values should be initialized in the following constructor.
 	enum InitializeFlag { DoNotInit, DoInit };
@@ -258,8 +260,8 @@ public:
 		case 4: {
 			rv = i()*fullSize.at(1)*fullSize.at(2)*fullSize.at(3)
 					+ j()*fullSize.at(2)*fullSize.at(3)
-                    + k()*fullSize.at(3)
-                    + l();
+					+ k()*fullSize.at(3)
+					+ l();
 			break; }
 
 		default: {

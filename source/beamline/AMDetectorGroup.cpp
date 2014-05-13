@@ -3,6 +3,7 @@
 #include "beamline/AMDetectorSet.h"
 #include "util/AMErrorMonitor.h"
 
+ AMDetectorGroup::~AMDetectorGroup(){}
 AMDetectorGroup::AMDetectorGroup(const QString &name, QObject *parent)
 	: QObject(parent)
 {
@@ -16,6 +17,8 @@ AMDetectorGroup::AMDetectorGroup(const QString &name, QObject *parent)
 
 	connect(connectedSet_, SIGNAL(detectorConnectedChanged(bool,AMDetector*)), this, SLOT(onConnectedSetDetectorConnectedChanged(bool,AMDetector*)));
 	connect(unconnectedSet_, SIGNAL(detectorConnectedChanged(bool,AMDetector*)), this, SLOT(onUnconnectedSetDetectorConnectedChanged(bool,AMDetector*)));
+
+	connect(unconnectedSet_, SIGNAL(allDetectorsResponded()), this, SIGNAL(allDetectorsResponded()));
 }
 
 QString AMDetectorGroup::name() const{

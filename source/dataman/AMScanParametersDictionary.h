@@ -37,6 +37,7 @@ public:
 				  OperateOnExportName = 2,
 				  OperateOnNotes = 3 };
 
+ 	virtual ~AMScanParametersDictionary();
 	AMScanParametersDictionary(AMScanParametersDictionary::OperatingParameter operatingOn,  QObject *parent = 0);
 
 	/// Returns the input string (the unparsed keyword string)
@@ -131,6 +132,7 @@ class AMOldScanParametersDictionary : public QObject
 {
 Q_OBJECT
 public:
+ 	virtual ~AMOldScanParametersDictionary();
 	AMOldScanParametersDictionary(QObject *parent = 0);
 
 	/// Parse an input string for recognizable "$keyword" tags, and return a converted string. The results depend on the currentScan_ and currentDataSourceIndex_;

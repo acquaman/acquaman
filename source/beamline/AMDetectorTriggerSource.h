@@ -9,6 +9,7 @@ class AMDetectorTriggerSource : public QObject
 Q_OBJECT
 public:
 	/// Constructor takes the programmer unique name for identification
+ 	virtual ~AMDetectorTriggerSource();
 	AMDetectorTriggerSource(const QString &name, QObject *parent = 0);
 
 	/// Returns the programmer name
@@ -37,18 +38,22 @@ class AMDetectorDwellTimeSource : public QObject
 {
 Q_OBJECT
 public:
+ 	virtual ~AMDetectorDwellTimeSource();
 	AMDetectorDwellTimeSource(const QString &name, QObject *parent = 0);
 
 	QString name() const { return name_; }
 
 public slots:
 	void requestSetDwellTime(double dwellSeconds);
+    void requestSetDarkCurrentCorrectionTime(double timeSeconds);
 
 	void setSucceeded();
 	void setFailed();
 
 signals:
-	void setDwellTime(double dwellSeconds);
+    void setDwellTime(double dwellSeconds);
+    void setDarkCurrentCorrectionTime(double timeSeconds);
+    void darkCurrentTimeChanged(double timeSeconds);
 
 	void succeeded();
 	void failed();

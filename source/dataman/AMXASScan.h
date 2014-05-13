@@ -34,6 +34,7 @@ class AMXASScan : public AMScan {
 
 public:
 	/// create a new XAS scan
+ 	virtual ~AMXASScan();
 	Q_INVOKABLE explicit AMXASScan(QObject *parent = 0);
 
 protected:

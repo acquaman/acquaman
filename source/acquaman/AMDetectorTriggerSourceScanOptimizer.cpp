@@ -4,6 +4,7 @@
 #include "actions3/actions/AMDetectorTriggerAction.h"
 #include "beamline/AMDetectorTriggerSource.h"
 
+ AMDetectorTriggerSourceScanOptimizer::~AMDetectorTriggerSourceScanOptimizer(){}
 AMDetectorTriggerSourceScanOptimizer::AMDetectorTriggerSourceScanOptimizer(AMAction3 *scanActionTree, QObject *parent) :
 	AMScanActionControllerScanOptimizer(scanActionTree, parent)
 {

@@ -49,6 +49,7 @@ namespace mu
       \sa Assign
       \throw nothrow
   */
+ ParserTokenReader::~ParserTokenReader(){}
   ParserTokenReader::ParserTokenReader(const ParserTokenReader &a_Reader) 
   { 
     Assign(a_Reader);

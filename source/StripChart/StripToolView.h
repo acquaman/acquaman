@@ -19,7 +19,7 @@ class StripToolView : public QWidget
     
 public:
     explicit StripToolView(QWidget *parent = 0);
-    ~StripToolView();
+    virtual ~StripToolView();
 
 signals:
     void nameEntered(const QString &newName);

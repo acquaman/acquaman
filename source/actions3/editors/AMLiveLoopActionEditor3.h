@@ -14,6 +14,7 @@ class AMLiveLoopActionEditor3 : public QFrame
 
 public:
 	/// Constructor.  Accepts an AMLoopAction (NOT info!).  If modifying actions becomes more necessary, this will need to be made Q_INVOKABLE.
+ 	virtual ~AMLiveLoopActionEditor3();
 	AMLiveLoopActionEditor3(AMLoopAction3 *action, QWidget *parent = 0);
 
 protected slots:

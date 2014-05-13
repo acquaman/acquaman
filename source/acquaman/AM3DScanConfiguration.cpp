@@ -1,12 +1,13 @@
 #include "AM3DScanConfiguration.h"
 
+ AM3DScanConfiguration::~AM3DScanConfiguration(){}
 AM3DScanConfiguration::AM3DScanConfiguration(QObject *parent)
 	: AMScanConfiguration(parent)
 {
 	setUserScanName("");
-	xRange_ = qMakePair(0.0, 0.0);
-	yRange_ = qMakePair(0.0, 0.0);
-	zRange_ = qMakePair(0.0, 0.0);
+	xRange_ = AMRange();
+	yRange_ = AMRange();
+	zRange_ = AMRange();
 	steps_ = QList<double>() << 0.0 << 0.0 << 0.0;
 	time_ = 0.0;
 	xPriority_ = 0;
@@ -31,14 +32,14 @@ AM3DScanConfiguration::AM3DScanConfiguration(const AM3DScanConfiguration &origin
 bool AM3DScanConfiguration::validXAxis() const
 {
 	// If there is no finite difference between the start and end points.
-	if (xRange_.first == xRange_.second)
+	if (xRange_.minimum() == xRange_.maximum())
 		return false;
 
 	// If the sign of the step size is different from the difference between start and end points then the scan cannot make it from the start to the end.
-	else if ((xRange_.second - xRange_.first) > 0 && steps_.at(0) < 0)
+	else if ((xRange_.maximum() - xRange_.minimum()) > 0 && steps_.at(0) < 0)
 		return false;
 
-	else if ((xRange_.second - xRange_.first) < 0 && steps_.at(0) > 0)
+	else if ((xRange_.maximum() - xRange_.minimum()) < 0 && steps_.at(0) > 0)
 		return false;
 
 	return true;
@@ -47,14 +48,14 @@ bool AM3DScanConfiguration::validXAxis() const
 bool AM3DScanConfiguration::validYAxis() const
 {
 	// If there is no finite difference between the start and end points.
-	if (yRange_.first == yRange_.second)
+	if (yRange_.minimum() == yRange_.maximum())
 		return false;
 
 	// If the sign of the step size is different from the difference between start and end points then the scan cannot make it from the start to the end.
-	else if ((yRange_.second - yRange_.first) > 0 && steps_.at(1) < 0)
+	else if ((yRange_.maximum() - yRange_.minimum()) > 0 && steps_.at(1) < 0)
 		return false;
 
-	else if ((yRange_.second - yRange_.first) < 0 && steps_.at(1) > 0)
+	else if ((yRange_.maximum() - yRange_.minimum()) < 0 && steps_.at(1) > 0)
 		return false;
 
 	return true;
@@ -63,14 +64,14 @@ bool AM3DScanConfiguration::validYAxis() const
 bool AM3DScanConfiguration::validZAxis() const
 {
 	// If there is no finite difference between the start and end points.
-	if (zRange_.first == zRange_.second)
+	if (zRange_.minimum() == zRange_.maximum())
 		return false;
 
 	// If the sign of the step size is different from the difference between start and end points then the scan cannot make it from the start to the end.
-	else if ((zRange_.second - zRange_.first) > 0 && steps_.at(2) < 0)
+	else if ((zRange_.maximum() - zRange_.minimum()) > 0 && steps_.at(2) < 0)
 		return false;
 
-	else if ((zRange_.second - zRange_.first) < 0 && steps_.at(2) > 0)
+	else if ((zRange_.maximum() - zRange_.minimum()) < 0 && steps_.at(2) > 0)
 		return false;
 
 	return true;
@@ -86,7 +87,7 @@ bool AM3DScanConfiguration::validTimeStep() const
 
 void AM3DScanConfiguration::setXStart(double start)
 {
-	xRange_.first = start;
+	xRange_.setMinimum(start);
 	emit xStartChanged(start);
 	setModified(true);
 }
@@ -100,14 +101,14 @@ void AM3DScanConfiguration::setXStep(double stepSize)
 
 void AM3DScanConfiguration::setXEnd(double end)
 {
-	xRange_.second = end;
+	xRange_.setMaximum(end);
 	emit xEndChanged(end);
 	setModified(true);
 }
 
 void AM3DScanConfiguration::setYStart(double start)
 {
-	yRange_.first = start;
+	yRange_.setMinimum(start);
 	emit yStartChanged(start);
 	setModified(true);
 }
@@ -121,14 +122,14 @@ void AM3DScanConfiguration::setYStep(double stepSize)
 
 void AM3DScanConfiguration::setYEnd(double end)
 {
-	yRange_.second = end;
+	yRange_.setMaximum(end);
 	emit yEndChanged(end);
 	setModified(true);
 }
 
 void AM3DScanConfiguration::setZStart(double start)
 {
-	zRange_.first = start;
+	zRange_.setMinimum(start);
 	emit zStartChanged(start);
 	setModified(true);
 }
@@ -142,7 +143,7 @@ void AM3DScanConfiguration::setZStep(double stepSize)
 
 void AM3DScanConfiguration::setZEnd(double end)
 {
-	zRange_.second = end;
+	zRange_.setMaximum(end);
 	emit zEndChanged(end);
 	setModified(true);
 }
@@ -184,10 +185,10 @@ void AM3DScanConfiguration::setZPriority(int priority)
 	}
 }
 
-void AM3DScanConfiguration::setXRange(QPair<double, double> x)
+void AM3DScanConfiguration::setXRange(AMRange x)
 {
-	setXStart(x.first);
-	setXEnd(x.second);
+	setXStart(x.minimum());
+	setXEnd(x.maximum());
 }
 
 void AM3DScanConfiguration::setXRange(double start, double end)
@@ -196,10 +197,10 @@ void AM3DScanConfiguration::setXRange(double start, double end)
 	setXEnd(end);
 }
 
-void AM3DScanConfiguration::setYRange(QPair<double, double> y)
+void AM3DScanConfiguration::setYRange(AMRange y)
 {
-	setYStart(y.first);
-	setYEnd(y.second);
+	setYStart(y.minimum());
+	setYEnd(y.maximum());
 }
 
 void AM3DScanConfiguration::setYRange(double start, double end)
@@ -208,10 +209,10 @@ void AM3DScanConfiguration::setYRange(double start, double end)
 	setYEnd(end);
 }
 
-void AM3DScanConfiguration::setZRange(QPair<double, double> z)
+void AM3DScanConfiguration::setZRange(AMRange z)
 {
-	setZStart(z.first);
-	setZEnd(z.second);
+	setZStart(z.minimum());
+	setZEnd(z.maximum());
 }
 
 void AM3DScanConfiguration::setZRange(double start, double end)

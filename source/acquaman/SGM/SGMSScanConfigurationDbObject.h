@@ -5,6 +5,8 @@
 #include "dataman/SGM/SGMBeamlineInfo.h"
 #include "dataman/info/AMControlInfoList.h"
 
+#include "dataman/AMSamplePre2013.h"
+
 /// This class is the common database object for all scan configurations for the SGM beamline.
 /*!
 	This class holds all of the persistent values that all scan configurations will need.  It is meant
@@ -23,6 +25,7 @@ Q_CLASSINFO("AMDbObject_Attributes", "description=SGM Scan Configuration Databas
 
 public:
 	/// Constructor
+ 	virtual ~SGMSScanConfigurationDbObject();
 	Q_INVOKABLE SGMSScanConfigurationDbObject(QObject *parent = 0);
 	/// Copy Constructor
 	SGMSScanConfigurationDbObject(const SGMSScanConfigurationDbObject &original);
@@ -102,3 +105,4 @@ protected:
 };
 
 #endif // SGMSSCANCONFIGURATIONDBOBJECT_H
+

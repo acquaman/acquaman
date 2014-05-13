@@ -31,6 +31,7 @@ class AMControlInfoListTableView : public QWidget
     Q_OBJECT
 public:
     /// Constructor.  The widget does not retain the reference to \c list, but simply uses it to initialize the table. If \c list is 0, the table is left empty.
+ 	virtual ~AMControlInfoListTableView();
     AMControlInfoListTableView(const AMControlInfoList* list = 0, QWidget *parent = 0);
 
     /// Update the view based on the contents of \c list. If \c list is 0, the table is cleared.

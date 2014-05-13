@@ -2,6 +2,8 @@
 
 #include "util/AMErrorMonitor.h"
 
+VESPERSDbUpgrade1Pt5::~VESPERSDbUpgrade1Pt5(){}
+
 VESPERSDbUpgrade1Pt5::VESPERSDbUpgrade1Pt5(const QString &databaseNameToUpgrade, QObject *parent)
 	: AMDbUpgrade(databaseNameToUpgrade, parent)
 {
@@ -480,8 +482,6 @@ bool VESPERSDbUpgrade1Pt5::upgradeImplementation()
 		}
 	}
 
-	databaseToUpgrade_->commitTransaction();
-
 	// Step 3)
 	/////////////////////////////////////
 
@@ -491,6 +491,7 @@ bool VESPERSDbUpgrade1Pt5::upgradeImplementation()
 		if (databaseToUpgrade_->columnExists("VESPERS2DScanConfiguration_table", "incomingChoice")
 				&& !AMDbUpgradeSupport::removeColumn(databaseToUpgrade_, "VESPERS2DScanConfiguration_table", "incomingChoice")){
 
+			databaseToUpgrade_->rollbackTransaction();
 			AMErrorMon::alert(this, VESPERSDBUPGRADE1PT5_COULD_NOT_REMOVE_OLD_COLUMNS_VESPERS2DSCANCONFIGURATION_TABLE, "Was unable to remove old columns from VESPERS2DScanConfiguration table.");
 			return false;
 		}
@@ -498,6 +499,7 @@ bool VESPERSDbUpgrade1Pt5::upgradeImplementation()
 		if (databaseToUpgrade_->columnExists("VESPERS2DScanConfiguration_table", "fluorescenceDetector")
 				&& !AMDbUpgradeSupport::removeColumn(databaseToUpgrade_, "VESPERS2DScanConfiguration_table", "fluorescenceDetector")){
 
+			databaseToUpgrade_->rollbackTransaction();
 			AMErrorMon::alert(this, VESPERSDBUPGRADE1PT5_COULD_NOT_REMOVE_OLD_COLUMNS_VESPERS2DSCANCONFIGURATION_TABLE, "Was unable to remove old columns from VESPERS2DScanConfiguration table.");
 			return false;
 		}
@@ -505,6 +507,7 @@ bool VESPERSDbUpgrade1Pt5::upgradeImplementation()
 		if (databaseToUpgrade_->columnExists("VESPERS2DScanConfiguration_table", "ccdDetector")
 			 && !AMDbUpgradeSupport::removeColumn(databaseToUpgrade_, "VESPERS2DScanConfiguration_table", "ccdDetector")){
 
+			databaseToUpgrade_->rollbackTransaction();
 			AMErrorMon::alert(this, VESPERSDBUPGRADE1PT5_COULD_NOT_REMOVE_OLD_COLUMNS_VESPERS2DSCANCONFIGURATION_TABLE, "Was unable to remove old columns from VESPERS2DScanConfiguration table.");
 			return false;
 		}
@@ -512,6 +515,7 @@ bool VESPERSDbUpgrade1Pt5::upgradeImplementation()
 		if (databaseToUpgrade_->columnExists("VESPERS2DScanConfiguration_table", "ccdFileName")
 				&& !AMDbUpgradeSupport::removeColumn(databaseToUpgrade_, "VESPERS2DScanConfiguration_table", "ccdFileName")){
 
+			databaseToUpgrade_->rollbackTransaction();
 			AMErrorMon::alert(this, VESPERSDBUPGRADE1PT5_COULD_NOT_REMOVE_OLD_COLUMNS_VESPERS2DSCANCONFIGURATION_TABLE, "Was unable to remove old columns from VESPERS2DScanConfiguration table.");
 			return false;
 		}
@@ -519,6 +523,7 @@ bool VESPERSDbUpgrade1Pt5::upgradeImplementation()
 		if (databaseToUpgrade_->columnExists("VESPERS2DScanConfiguration_table", "motor")
 				&& !AMDbUpgradeSupport::removeColumn(databaseToUpgrade_, "VESPERS2DScanConfiguration_table", "motor")){
 
+			databaseToUpgrade_->rollbackTransaction();
 			AMErrorMon::alert(this, VESPERSDBUPGRADE1PT5_COULD_NOT_REMOVE_OLD_COLUMNS_VESPERS2DSCANCONFIGURATION_TABLE, "Was unable to remove old columns from VESPERS2DScanConfiguration table.");
 			return false;
 		}
@@ -526,6 +531,7 @@ bool VESPERSDbUpgrade1Pt5::upgradeImplementation()
 		if (databaseToUpgrade_->columnExists("VESPERS2DScanConfiguration_table", "roiInfoList")
 				&& !AMDbUpgradeSupport::removeColumn(databaseToUpgrade_, "VESPERS2DScanConfiguration_table", "roiInfoList")){
 
+			databaseToUpgrade_->rollbackTransaction();
 			AMErrorMon::alert(this, VESPERSDBUPGRADE1PT5_COULD_NOT_REMOVE_OLD_COLUMNS_VESPERS2DSCANCONFIGURATION_TABLE, "Was unable to remove old columns from VESPERS2DScanConfiguration table.");
 			return false;
 		}
@@ -537,6 +543,7 @@ bool VESPERSDbUpgrade1Pt5::upgradeImplementation()
 		if (databaseToUpgrade_->columnExists("VESPERSSpatialLineScanConfiguration_table", "incomingChoice")
 				&& !AMDbUpgradeSupport::removeColumn(databaseToUpgrade_, "VESPERSSpatialLineScanConfiguration_table", "incomingChoice")){
 
+			databaseToUpgrade_->rollbackTransaction();
 			AMErrorMon::alert(this, VESPERSDBUPGRADE1PT5_COULD_NOT_REMOVE_OLD_COLUMNS_VESPERSSPATIALLINESCANCONFIGURATION_TABLE, "Was unable to remove old columns from VESPERSSpatialLineScanConfiguration table.");
 			return false;
 		}
@@ -544,6 +551,7 @@ bool VESPERSDbUpgrade1Pt5::upgradeImplementation()
 		if (databaseToUpgrade_->columnExists("VESPERSSpatialLineScanConfiguration_table", "fluorescenceDetector")
 				&& !AMDbUpgradeSupport::removeColumn(databaseToUpgrade_, "VESPERSSpatialLineScanConfiguration_table", "fluorescenceDetector")){
 
+			databaseToUpgrade_->rollbackTransaction();
 			AMErrorMon::alert(this, VESPERSDBUPGRADE1PT5_COULD_NOT_REMOVE_OLD_COLUMNS_VESPERSSPATIALLINESCANCONFIGURATION_TABLE, "Was unable to remove old columns from VESPERSSpatialLineScanConfiguration table.");
 			return false;
 		}
@@ -551,6 +559,7 @@ bool VESPERSDbUpgrade1Pt5::upgradeImplementation()
 		if (databaseToUpgrade_->columnExists("VESPERSSpatialLineScanConfiguration_table", "ccdDetector")
 			 && !AMDbUpgradeSupport::removeColumn(databaseToUpgrade_, "VESPERSSpatialLineScanConfiguration_table", "ccdDetector")){
 
+			databaseToUpgrade_->rollbackTransaction();
 			AMErrorMon::alert(this, VESPERSDBUPGRADE1PT5_COULD_NOT_REMOVE_OLD_COLUMNS_VESPERSSPATIALLINESCANCONFIGURATION_TABLE, "Was unable to remove old columns from VESPERSSpatialLineScanConfiguration table.");
 			return false;
 		}
@@ -558,6 +567,7 @@ bool VESPERSDbUpgrade1Pt5::upgradeImplementation()
 		if (databaseToUpgrade_->columnExists("VESPERSSpatialLineScanConfiguration_table", "ccdFileName")
 				&& !AMDbUpgradeSupport::removeColumn(databaseToUpgrade_, "VESPERSSpatialLineScanConfiguration_table", "ccdFileName")){
 
+			databaseToUpgrade_->rollbackTransaction();
 			AMErrorMon::alert(this, VESPERSDBUPGRADE1PT5_COULD_NOT_REMOVE_OLD_COLUMNS_VESPERSSPATIALLINESCANCONFIGURATION_TABLE, "Was unable to remove old columns from VESPERSSpatialLineScanConfiguration table.");
 			return false;
 		}
@@ -565,6 +575,7 @@ bool VESPERSDbUpgrade1Pt5::upgradeImplementation()
 		if (databaseToUpgrade_->columnExists("VESPERSSpatialLineScanConfiguration_table", "motor")
 				&& !AMDbUpgradeSupport::removeColumn(databaseToUpgrade_, "VESPERSSpatialLineScanConfiguration_table", "motor")){
 
+			databaseToUpgrade_->rollbackTransaction();
 			AMErrorMon::alert(this, VESPERSDBUPGRADE1PT5_COULD_NOT_REMOVE_OLD_COLUMNS_VESPERSSPATIALLINESCANCONFIGURATION_TABLE, "Was unable to remove old columns from VESPERSSpatialLineScanConfiguration table.");
 			return false;
 		}
@@ -572,6 +583,7 @@ bool VESPERSDbUpgrade1Pt5::upgradeImplementation()
 		if (databaseToUpgrade_->columnExists("VESPERSSpatialLineScanConfiguration_table", "roiInfoList")
 				&& !AMDbUpgradeSupport::removeColumn(databaseToUpgrade_, "VESPERSSpatialLineScanConfiguration_table", "roiInfoList")){
 
+			databaseToUpgrade_->rollbackTransaction();
 			AMErrorMon::alert(this, VESPERSDBUPGRADE1PT5_COULD_NOT_REMOVE_OLD_COLUMNS_VESPERSSPATIALLINESCANCONFIGURATION_TABLE, "Was unable to remove old columns from VESPERSSpatialLineScanConfiguration table.");
 			return false;
 		}
@@ -583,6 +595,7 @@ bool VESPERSDbUpgrade1Pt5::upgradeImplementation()
 		if (databaseToUpgrade_->columnExists("VESPERSEXAFSScanConfiguration_table", "incomingChoice")
 				&& !AMDbUpgradeSupport::removeColumn(databaseToUpgrade_, "VESPERSEXAFSScanConfiguration_table", "incomingChoice")){
 
+			databaseToUpgrade_->rollbackTransaction();
 			AMErrorMon::alert(this, VESPERSDBUPGRADE1PT5_COULD_NOT_REMOVE_OLD_COLUMNS_VESPERSEXAFSSCANCONFIGURATION_TABLE, "Was unable to remove old columns from VESPERSEXAFSScanConfiguration table.");
 			return false;
 		}
@@ -590,6 +603,7 @@ bool VESPERSDbUpgrade1Pt5::upgradeImplementation()
 		if (databaseToUpgrade_->columnExists("VESPERSEXAFSScanConfiguration_table", "transmissionChoice")
 				&& !AMDbUpgradeSupport::removeColumn(databaseToUpgrade_, "VESPERSEXAFSScanConfiguration_table", "transmissionChoice")){
 
+			databaseToUpgrade_->rollbackTransaction();
 			AMErrorMon::alert(this, VESPERSDBUPGRADE1PT5_COULD_NOT_REMOVE_OLD_COLUMNS_VESPERSEXAFSSCANCONFIGURATION_TABLE, "Was unable to remove old columns from VESPERSEXAFSScanConfiguration table.");
 			return false;
 		}
@@ -597,6 +611,7 @@ bool VESPERSDbUpgrade1Pt5::upgradeImplementation()
 		if (databaseToUpgrade_->columnExists("VESPERSEXAFSScanConfiguration_table", "fluorescenceDetector")
 				&& !AMDbUpgradeSupport::removeColumn(databaseToUpgrade_, "VESPERSEXAFSScanConfiguration_table", "fluorescenceDetector")){
 
+			databaseToUpgrade_->rollbackTransaction();
 			AMErrorMon::alert(this, VESPERSDBUPGRADE1PT5_COULD_NOT_REMOVE_OLD_COLUMNS_VESPERSEXAFSSCANCONFIGURATION_TABLE, "Was unable to remove old columns from VESPERSEXAFSScanConfiguration table.");
 			return false;
 		}
@@ -604,6 +619,7 @@ bool VESPERSDbUpgrade1Pt5::upgradeImplementation()
 		if (databaseToUpgrade_->columnExists("VESPERSEXAFSScanConfiguration_table", "roiInfoList")
 				&& !AMDbUpgradeSupport::removeColumn(databaseToUpgrade_, "VESPERSEXAFSScanConfiguration_table", "roiInfoList")){
 
+			databaseToUpgrade_->rollbackTransaction();
 			AMErrorMon::alert(this, VESPERSDBUPGRADE1PT5_COULD_NOT_REMOVE_OLD_COLUMNS_VESPERSEXAFSSCANCONFIGURATION_TABLE, "Was unable to remove old columns from VESPERSEXAFSScanConfiguration table.");
 			return false;
 		}
@@ -615,6 +631,7 @@ bool VESPERSDbUpgrade1Pt5::upgradeImplementation()
 		if (databaseToUpgrade_->columnExists("VESPERSEnergyScanConfiguration_table", "ccdDetector")
 			 && !AMDbUpgradeSupport::removeColumn(databaseToUpgrade_, "VESPERSEnergyScanConfiguration_table", "ccdDetector")){
 
+			databaseToUpgrade_->rollbackTransaction();
 			AMErrorMon::alert(this, VESPERSDBUPGRADE1PT5_COULD_NOT_REMOVE_OLD_COLUMNS_VESPERSENERGYSCANCONFIGURATION_TABLE, "Was unable to remove old columns from VESPERSEnergyScanConfiguration table.");
 			return false;
 		}
@@ -622,6 +639,7 @@ bool VESPERSDbUpgrade1Pt5::upgradeImplementation()
 		if (databaseToUpgrade_->columnExists("VESPERSEnergyScanConfiguration_table", "ccdFileName")
 				&& !AMDbUpgradeSupport::removeColumn(databaseToUpgrade_, "VESPERSEnergyScanConfiguration_table", "ccdFileName")){
 
+			databaseToUpgrade_->rollbackTransaction();
 			AMErrorMon::alert(this, VESPERSDBUPGRADE1PT5_COULD_NOT_REMOVE_OLD_COLUMNS_VESPERSENERGYSCANCONFIGURATION_TABLE, "Was unable to remove old columns from VESPERSEnergyScanConfiguration table.");
 			return false;
 		}
@@ -634,6 +652,7 @@ bool VESPERSDbUpgrade1Pt5::upgradeImplementation()
 			&& databaseToUpgrade_->columnExists("VESPERS2DScanConfiguration_table", "rois")
 			&& !AMDbUpgradeSupport::removeColumn(databaseToUpgrade_, "VESPERS2DScanConfiguration_table", "rois")){
 
+		databaseToUpgrade_->rollbackTransaction();
 		AMErrorMon::alert(this, VESPERSDBUPGRADE1PT5_COULD_NOT_REMOVE_ALL_INSTANCES_ROIS_COLUMN, "Was unable to remove all instances of the rois column from VESPERS2DScanConfiguration table.");
 		return false;
 	}
@@ -642,6 +661,7 @@ bool VESPERSDbUpgrade1Pt5::upgradeImplementation()
 			&& databaseToUpgrade_->columnExists("VESPERSSpatialLineScanConfiguration_table", "rois")
 			&& !AMDbUpgradeSupport::removeColumn(databaseToUpgrade_, "VESPERSSpatialLineScanConfiguration_table", "rois")){
 
+		databaseToUpgrade_->rollbackTransaction();
 		AMErrorMon::alert(this, VESPERSDBUPGRADE1PT5_COULD_NOT_REMOVE_ALL_INSTANCES_ROIS_COLUMN, "Was unable to remove all instances of the rois column from VESPERSSpatialLineScanConfiguration table.");
 		return false;
 	}
@@ -650,6 +670,7 @@ bool VESPERSDbUpgrade1Pt5::upgradeImplementation()
 			&& databaseToUpgrade_->columnExists("VESPERSEXAFSScanConfiguration_table", "rois")
 			&& !AMDbUpgradeSupport::removeColumn(databaseToUpgrade_, "VESPERSEXAFSScanConfiguration_table", "rois")){
 
+		databaseToUpgrade_->rollbackTransaction();
 		AMErrorMon::alert(this, VESPERSDBUPGRADE1PT5_COULD_NOT_REMOVE_ALL_INSTANCES_ROIS_COLUMN, "Was unable to remove all instances of the rois column from VEPSERSEXAFSScanConfiguration table.");
 		return false;
 	}
@@ -657,7 +678,6 @@ bool VESPERSDbUpgrade1Pt5::upgradeImplementation()
 	// 5)
 	//////////////////////////////////////////
 
-	databaseToUpgrade_->startTransaction();
 	QStringList dboColumnNames = QStringList() << "AMDbObjectType" << "tableName" << "description" << "version" << "inheritance";
 	QVariantList dboValues = QVariantList() << "VESPERSScanConfigurationDbObject" << "VESPERSScanConfigurationDbObject_table" << "VESPERS Scan Configuration Database Object" << 1 << "VESPERSScanConfigurationDbObject;AMDbObject;QObject";
 	databaseToUpgrade_->ensureColumn("AMDbObjectTypes_table", "inheritance", "TEXT");

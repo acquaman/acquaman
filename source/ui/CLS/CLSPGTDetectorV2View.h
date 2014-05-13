@@ -10,6 +10,7 @@ class CLSPGTDetectorV2View : public AMDetectorGeneralDetailedView
 {
 Q_OBJECT
 public:
+ 	virtual ~CLSPGTDetectorV2View();
 	CLSPGTDetectorV2View(CLSPGTDetectorV2 *detector, QWidget *parent = 0);
 
 protected:

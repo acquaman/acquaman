@@ -26,6 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/dataman/AMRunSelector.h"
 #include "dataman/database/AMDatabase.h"
 
+ AMStartScreen::~AMStartScreen(){}
 AMStartScreen::AMStartScreen(bool mustAccept, QWidget *parent) :
 	QDialog(parent)
 {

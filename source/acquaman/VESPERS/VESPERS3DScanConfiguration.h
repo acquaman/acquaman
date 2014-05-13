@@ -1,7 +1,7 @@
 #ifndef VESPERS3DSCANCONFIGURATION_H
 #define VESPERS3DSCANCONFIGURATION_H
 
-#include "acquaman/AM3DScanConfiguration.h"
+#include "acquaman/AMStepScanConfiguration.h"
 #include "application/VESPERS/VESPERS.h"
 #include "acquaman/VESPERS/VESPERSScanConfiguration.h"
 
@@ -16,7 +16,7 @@
 	file with XRD or not.
   */
 
-class VESPERS3DScanConfiguration : public AM3DScanConfiguration, public VESPERSScanConfiguration
+class VESPERS3DScanConfiguration : public AMStepScanConfiguration, public VESPERSScanConfiguration
 {
 	Q_OBJECT
 
@@ -30,6 +30,8 @@ public:
 	Q_INVOKABLE VESPERS3DScanConfiguration(QObject *parent = 0);
 	/// Copy constructor.
 	VESPERS3DScanConfiguration(const VESPERS3DScanConfiguration &original);
+	/// Destructor.
+	virtual ~VESPERS3DScanConfiguration();
 
 	/// Returns a pointer to a newly-created copy of this scan configuration.  (It takes the role of a copy constructor, but is virtual so that our high-level classes can copy a scan configuration without knowing exactly what kind it is.)
 	virtual AMScanConfiguration* createCopy() const;
@@ -40,7 +42,7 @@ public:
 	/// Returns a pointer to a newly-created AMScanConfigurationView that is appropriate for viewing and editing this kind of scan configuration. Ownership of the new controller becomes the responsibility of the caller.
 	virtual AMScanConfigurationView* createView();
 
-	/// A human-readable synopsis of this scan configuration. Can be re-implemented to proved more details. Used by AMBeamlineScanAction to set the main text in the action view.
+	/// A human-readable synopsis of this scan configuration. Can be re-implemented to proved more details. Used by scan action to set the main text in the action view.
 	virtual QString detailedDescription() const;
 
 	/// Returns the x-axis name.

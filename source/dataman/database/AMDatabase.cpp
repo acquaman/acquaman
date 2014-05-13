@@ -36,8 +36,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 QHash<QString, AMDatabase*> AMDatabase::connectionName2Instance_;
 QMutex AMDatabase::databaseLookupMutex_(QMutex::Recursive);
 
-#include <QDebug>
 // This constructor is protected; only access is through AMDatabase::createDatabase().
+ AMDatabase::~AMDatabase(){}
 AMDatabase::AMDatabase(const QString& connectionName, const QString& dbAccessString) :
 	QObject(),
 	connectionName_(connectionName),
@@ -655,7 +655,7 @@ bool AMDatabase::ensureTable(const QString& tableName, const QStringList& column
 	}
 	else {
 		q.finish();	// make sure that sqlite lock is released before emitting signals
-		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -6, QString("database table create failed. Could not execute query (%1). The SQL reply was: %2").arg(q.executedQuery()).arg(q.lastError().text())));
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -6, QString("database table create failed on database %3 (%4). Could not execute query (%1). The SQL reply was: %2").arg(q.executedQuery()).arg(q.lastError().text()).arg(connectionName()).arg(dbAccessString())));
 		return false;
 	}
 }

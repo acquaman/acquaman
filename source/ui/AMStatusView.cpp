@@ -27,6 +27,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QHeaderView>
 #include <QSystemTrayIcon>
 
+AMStatusView::~AMStatusView(){}
+
 AMStatusView::AMStatusView(QWidget *parent) : QAbstractButton(parent)
 {
 	connect(&systemTrayIconFunctionCall_, SIGNAL(executed()), this, SLOT(handleSystemTrayIconRequests()));
@@ -157,6 +159,7 @@ void AMStatusView::handleSystemTrayIconRequests(){
 	}
 }
 
+ AMStatusLogView::~AMStatusLogView(){}
 AMStatusLogView::AMStatusLogView(QWidget *parent)
 	: QWidget(parent, Qt::Tool)
 {

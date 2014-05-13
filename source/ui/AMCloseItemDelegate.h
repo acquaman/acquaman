@@ -35,6 +35,7 @@ public:
 	};
 
 	/// Default constructor. Close buttons are disabled, and the CloseButtonAction is SignalOnly by default.
+ 	virtual ~AMCloseItemDelegate();
 	explicit AMCloseItemDelegate(QObject *parent = 0);
 
 	/// Re-implemented from QStyledItemDelegate to draw the close button if closeButtonEnabled(). Drawing it is done by the protected drawCloseButton() function, which can be called by subclasses in their own paint functions.

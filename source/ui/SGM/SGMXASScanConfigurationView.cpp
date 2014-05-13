@@ -26,113 +26,60 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QSpacerItem>
 
 #include "ui/SGM/SGMFluxResolutionPickerView.h"
+#include "ui/dataman/AMControlInfoListView.h"
+#include "ui/dataman/AMOldDetectorInfoSetView.h"
 
 SGMXASScanConfigurationView::SGMXASScanConfigurationView(SGMXASScanConfiguration *sxsc, QWidget *parent)  :
-		AMScanConfigurationView(parent)
+	AMScanConfigurationView(parent)
 {
-	cfg_ = NULL;
-	if(SGMBeamline::sgm()->isConnected()){
-		cfg_ = sxsc;
+	cfg_ = sxsc;
 
-		topFrame_ = new AMTopFrame("Configure an XAS Scan to Run Later");
-		topFrame_->setIcon(QIcon(":/utilities-system-monitor.png"));
+	topFrame_ = new AMTopFrame("Configure an XAS Scan to Run Later");
+	topFrame_->setIcon(QIcon(":/utilities-system-monitor.png"));
 
-		//This should be done somewhere else
-		//sxsc->xasRegions()->setEnergyControl(SGMBeamline::sgm()->energy());
+	regionsLineView_ = new AMRegionsLineView(sxsc->regions(), this);
+	regionsView_ = new AMRegionsStaticView(sxsc->regions());
 
-		regionsLineView_ = new AMRegionsLineView(sxsc->regions(), this);
-		regionsView_ = new AMRegionsView(sxsc->regions(), this);
+	fluxResolutionView_ = new SGMFluxResolutionPickerStaticView(sxsc->xasRegions());
 
-		fluxResolutionView_ = new SGMFluxResolutionPickerView(sxsc->xasRegions(), this);
-		fluxResolutionView_->setFromInfoList(sxsc->fluxResolutionGroup());
-		fluxResolutionView_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
-		connect(fluxResolutionView_, SIGNAL(configValuesChanged(AMControlInfoList)), sxsc, SLOT(setFluxResolutionGroup(AMControlInfoList)));
-		connect(sxsc, SIGNAL(fluxResolutionGroupChanged(AMControlInfoList)), fluxResolutionView_, SLOT(setFromInfoList(AMControlInfoList)));
+	fluxResolutionView_->setFromInfoList(sxsc->fluxResolutionGroup());
+	fluxResolutionView_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
 
-		trackingView_ = new AMControlSetView(sxsc->trackingSet(), true, this);
-		trackingView_->setFromInfoList(sxsc->trackingGroup());
-		connect(trackingView_, SIGNAL(configValuesChanged(AMControlInfoList)), sxsc, SLOT(setTrackingGroup(AMControlInfoList)));
-		connect(sxsc, SIGNAL(trackingGroupChanged(AMControlInfoList)), trackingView_, SLOT(setFromInfoList(AMControlInfoList)));
+	QMap<int, QString> enumOverrides;
+	enumOverrides.insert(0, "Don't Track");
+	enumOverrides.insert(1, "Track");
+	trackingStaticView_ = new AMControlInfoListView(sxsc->trackingGroup(), enumOverrides);
+	trackingStaticView_->setTitle("Tracking");
+	xasDetectorsStaticView_ = new AMOldDetectorInfoSetView(sxsc->detectorChoiceConfigurations());
 
-		xasDetectorsView_ = new AMOldDetectorSetView(sxsc->detectorChoices(), sxsc->detectorChoiceConfigurations());
-		connect(xasDetectorsView_, SIGNAL(configValuesChanged()), this, SLOT(onDetectorConfigurationsChanged()));
+	mainVL_ = new QVBoxLayout();
+	mainVL_->addWidget(topFrame_);
+	mainVL_->addWidget(regionsLineView_);
+	bottomGL_ = new QGridLayout();
+	mainVL_->addLayout(bottomGL_, 10);
+	bottomGL_->addWidget(regionsView_,		0, 0);
+	bottomGL_->addWidget(fluxResolutionView_,	1, 0);
+	bottomGL_->addWidget(trackingStaticView_,	0, 2);
+	bottomGL_->addWidget(xasDetectorsStaticView_,	1, 2);
+	bottomGL_->setColumnStretch(0, 10);
+	bottomGL_->setColumnMinimumWidth(1, 40);
+	bottomGL_->setContentsMargins(10, 0, 0, 0);
+	mainVL_->addStretch(8);
+	mainVL_->setContentsMargins(0,0,0,0);
+	mainVL_->setSpacing(1);
+	setLayout(mainVL_);
 
-		warningsLabel_ = new QLabel("");
-		QFont warningsFont;
-		warningsFont.setPointSize(48);
-		warningsLabel_->setFont(warningsFont);
-		warningsLabel_->setStyleSheet( "QLabel{ color: red }" );
-
-		scanNameLabel_ = new QLabel("Scan Name");
-		scanNameEdit_ = new QLineEdit(this);
-		connect(scanNameEdit_, SIGNAL(textEdited(QString)), this, SLOT(onScanNameEditChanged(QString)));
-
-		mainVL_ = new QVBoxLayout();
-		mainVL_->addWidget(topFrame_);
-		mainVL_->addWidget(regionsLineView_);
-		bottomGL_ = new QGridLayout();
-		mainVL_->addLayout(bottomGL_, 10);
-		bottomGL_->addWidget(regionsView_,		0, 0);
-		bottomGL_->addWidget(fluxResolutionView_,	1, 0);
-		bottomGL_->addWidget(trackingView_,		0, 2);
-		bottomGL_->addWidget(xasDetectorsView_,	1, 2);
-		bottomGL_->setColumnStretch(0, 10);
-		bottomGL_->setColumnMinimumWidth(1, 40);
-		bottomGL_->setContentsMargins(10, 0, 0, 0);
-		mainVL_->addStretch(8);
-		QHBoxLayout *nameHL = new QHBoxLayout();
-		nameHL->addWidget(scanNameLabel_);
-		nameHL->addWidget(scanNameEdit_);
-		nameHL->setContentsMargins(10,0,0,0);
-		mainVL_->addLayout(nameHL);
-		mainVL_->setContentsMargins(0,0,0,0);
-		mainVL_->setSpacing(1);
-		setLayout(mainVL_);
-
-		this->setMaximumSize(800, 800);
-		connect(SGMBeamline::sgm(), SIGNAL(criticalControlsConnectionsChanged()), this, SLOT(onSGMBeamlineCriticalControlsConnectedChanged()));
-		onSGMBeamlineCriticalControlsConnectedChanged();
-	}
+	this->setMaximumSize(800, 800);
 }
 
 SGMXASScanConfigurationView::~SGMXASScanConfigurationView(){
 }
 
 const AMScanConfiguration* SGMXASScanConfigurationView::configuration() const{
-	cfg_->setDetectorConfigurations(xasDetectorsView_->configValues());
 	return cfg_;
 }
 
 void SGMXASScanConfigurationView::setDisabled(bool disabled){
 	regionsView_->setDisabled(disabled);
 	fluxResolutionView_->setDisabled(disabled);
-	trackingView_->setDisabled(disabled);
-	xasDetectorsView_->setDisabled(disabled);
-}
-
-void SGMXASScanConfigurationView::onDetectorConfigurationsChanged(){
-	cfg_->setDetectorConfigurations(xasDetectorsView_->configValues());
-}
-
-void SGMXASScanConfigurationView::onSGMBeamlineCriticalControlsConnectedChanged(){
-	if(SGMBeamline::sgm()->isConnected()){
-		regionsView_->setEnabled(true);
-		regionsLineView_->setEnabled(true);
-		fluxResolutionView_->setEnabled(true);
-		trackingView_->setEnabled(true);
-		xasDetectorsView_->setEnabled(true);
-		warningsLabel_->setText("");
-	}
-	else{
-		regionsView_->setEnabled(false);
-		regionsLineView_->setEnabled(false);
-		fluxResolutionView_->setEnabled(false);
-		trackingView_->setEnabled(false);
-		xasDetectorsView_->setEnabled(false);
-		warningsLabel_->setText("SGM Beamline Unavailable");
-	}
-}
-
-void SGMXASScanConfigurationView::onScanNameEditChanged(const QString &scanName){
-	cfg_->setUserScanName(scanName);
 }

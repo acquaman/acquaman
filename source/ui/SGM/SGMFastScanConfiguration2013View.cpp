@@ -11,6 +11,7 @@
 
 #include "ui/AMTopFrame.h"
 
+ SGMFastScanConfiguration2013View::~SGMFastScanConfiguration2013View(){}
 SGMFastScanConfiguration2013View::SGMFastScanConfiguration2013View(SGMFastScanConfiguration2013 *sfsc, QWidget *parent) :
 		AMScanConfigurationView(parent)
 {
@@ -168,9 +169,11 @@ void SGMFastScanConfiguration2013View::onParametersEndPositionChanged(){
 void SGMFastScanConfiguration2013View::onFastScanSettingsChanged(){
 	disconnect(&fastScanSettingsCopy_, 0);
 	disconnect(&fastScanSettingsCopy_, SIGNAL(fastScanSettingsChanged()), this, SLOT(onFastScanSettingsCopyChanged()));
+
 	fastScanSettingsCopy_ = cfg_->currentParameters()->fastScanSettings();
 	if(fastScanSettingsView_)
 		fastScanSettingsView_->setFastScanSettings(&fastScanSettingsCopy_);
+
 	connect(&fastScanSettingsCopy_, SIGNAL(fastScanSettingsChanged()), this, SLOT(onFastScanSettingsCopyChanged()));
 }
 

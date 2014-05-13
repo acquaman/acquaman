@@ -20,7 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef VESPERSSPATIALLINESCANCONFIGURATION_H
 #define VESPERSSPATIALLINESCANCONFIGURATION_H
 
-#include "acquaman/AMRegionScanConfiguration.h"
+#include "acquaman/AMStepScanConfiguration.h"
 #include "application/VESPERS/VESPERS.h"
 #include "acquaman/VESPERS/VESPERSScanConfiguration.h"
 
@@ -42,7 +42,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 	at the same time (identical to the 2D map).
   */
 
-class VESPERSSpatialLineScanConfiguration : public AMRegionScanConfiguration, public VESPERSScanConfiguration
+class VESPERSSpatialLineScanConfiguration : public AMStepScanConfiguration, public VESPERSScanConfiguration
 {
 	Q_OBJECT
 
@@ -63,6 +63,8 @@ public:
 	Q_INVOKABLE VESPERSSpatialLineScanConfiguration(QObject *parent = 0);
 	/// Copy constructor.
 	VESPERSSpatialLineScanConfiguration(const VESPERSSpatialLineScanConfiguration &original);
+	/// Destructor.
+	virtual ~VESPERSSpatialLineScanConfiguration();
 
 	/// Returns a pointer to a newly-created copy of this scan configuration.  (It takes the role of a copy constructor, but is virtual so that our high-level classes can copy a scan configuration without knowing exactly what kind it is.)
 	virtual AMScanConfiguration* createCopy() const;
@@ -73,7 +75,7 @@ public:
 	/// Returns a pointer to a newly-created AMScanConfigurationView that is appropriate for viewing and editing this kind of scan configuration. Ownership of the new controller becomes the responsibility of the caller.
 	virtual AMScanConfigurationView* createView();
 
-	/// A human-readable synopsis of this scan configuration. Can be re-implemented to proved more details. Used by AMBeamlineScanAction to set the main text in the action view.
+	/// A human-readable synopsis of this scan configuration. Can be re-implemented to proved more details. Used by scan action to set the main text in the action view.
 	virtual QString detailedDescription() const;
 
 	/// Returns whether we are going to export the spectra data sources or not.
@@ -84,30 +86,25 @@ public:
 	/// Get a nice looking string that contains all the standard information in an XAS scan.   Used when exporting.
 	QString headerText() const;
 
-	/// Returns the AMControlInfo for the scanned region control.
-	AMControlInfo regionControlInfo() const { return regions_->defaultControl()->toInfo(); }
-	/// Returns the AMControlInfo for the time control.
-	AMControlInfo timeControlInfo() const { return regions_->defaultTimeControl()->toInfo(); }
-
 	// Convience getters.
 	/// Returns the start position for the region.
-	double start() const { return regions_->start(0); }
+	double start() const { return scanAxisAt(0)->regionAt(0)->regionStart(); }
 	/// Returns the end position for the region.
-	double end() const { return regions_->end(0); }
+	double end() const { return scanAxisAt(0)->regionAt(0)->regionEnd(); }
 	/// Returns the step size for the region.
-	double step() const { return regions_->delta(0); }
+	double step() const { return scanAxisAt(0)->regionAt(0)->regionStep(); }
 	/// Returns the time for the region.
-	double time() const { return regions_->time(0); }
+	double time() const { return scanAxisAt(0)->regionAt(0)->regionTime(); }
 	/// Returns the other position.
 	double otherPosition() const { return otherPosition_; }
 	/// Returns whether the other position is valid or not.
 	bool hasOtherPosition() const { return otherPosition_ != -123456789.0; }
 	/// Returns the other motor that corresponds to the provided motor.  Ie: if \param motor is H the this returns V.
-	VESPERS::Motor otherMotor(VESPERS::Motor motor) const;
+	VESPERS::Motors otherMotor(VESPERS::Motors motor) const;
 	/// Returns a string of the other motor.
-	QString otherMotorString(VESPERS::Motor motor) const;
+	QString otherMotorString(VESPERS::Motors motor) const;
 	/// Returns whether the region is valid.
-	bool validAxis() const { return regions_->isValid(0); }
+	bool validAxis() const { return scanAxisAt(0)->axisValid(); }
 
 signals:
 	/// Notifier that the total time estimate has changed.

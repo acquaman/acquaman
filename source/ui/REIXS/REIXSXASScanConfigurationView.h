@@ -23,7 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/acquaman/AMScanConfigurationView.h"
 #include "acquaman/REIXS/REIXSXASScanConfiguration.h"
 
-class AMSampleSelector;
+class AMSamplePre2013Selector;
 class AMTopFrame2;
 
 namespace Ui {
@@ -53,7 +53,7 @@ protected slots:
 
 private:
 	Ui::REIXSXASScanConfigurationView *ui;
-	AMSampleSelector* sampleSelector_;
+	AMSamplePre2013Selector* sampleSelector_;
 	AMTopFrame2* topFrame_;
 };
 

@@ -58,6 +58,7 @@ namespace mu
 
   public:
 
+ 	virtual ~ParserTokenReader();
       ParserTokenReader(ParserBase *a_pParent);
       ParserTokenReader* Clone(ParserBase *a_pParent) const;
 

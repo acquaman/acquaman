@@ -28,8 +28,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QButtonGroup>
 #include <QCheckBox>
 #include <QDoubleSpinBox>
+#include <QToolButton>
 
 #include "ui/beamline/AMControlButton.h"
+
+#include "actions3/AMListAction3.h"
+#include "actions3/actions/AMControlMoveAction3.h"
 
 SGMSidebar::SGMSidebar(QWidget *parent) :
 	QWidget(parent)
@@ -107,9 +111,31 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	shl->setSpacing(0);
 	shl->setContentsMargins(2, 2, 2, 2);
 
+	controlsConnectedLabel_ = new QLabel();
+	detectorsConnectedLabel_ = new QLabel();
+	QVBoxLayout *vhl = new QVBoxLayout();
+	QHBoxLayout *tmpHL = new QHBoxLayout();
+	tmpHL->addWidget(controlsConnectedLabel_);
+	tmpHL->addWidget(new QLabel("  Controls"));
+	tmpHL->addStretch(10);
+	vhl->addLayout(tmpHL);
+	tmpHL = new QHBoxLayout();
+	tmpHL->addWidget(detectorsConnectedLabel_);
+	tmpHL->addWidget(new QLabel("  Detectors"));
+	tmpHL->addStretch(10);
+	vhl->addLayout(tmpHL);
+	vhl->setSpacing(0);
+	vhl->setContentsMargins(2, 2, 2, 2);
+
+	onBeamlineCriticalControlSetConnectedChanged(SGMBeamline::sgm()->criticalControlsSet()->isConnected());
+	onBeamlineCriticalDetectorSetConnectedChanged(SGMBeamline::sgm()->criticalDetectorSet()->isConnnected());
+
 	beamlineWarningsLabel_ = new QLabel(SGMBeamline::sgm()->beamlineWarnings());
 	connect(SGMBeamline::sgm(), SIGNAL(beamlineWarningsChanged(QString)), beamlineWarningsLabel_, SLOT(setText(QString)));
 	connect(SGMBeamline::sgm(), SIGNAL(beamlineWarningsChanged(QString)), this, SLOT(onBeamlineWarnings(QString)));
+
+	connect(SGMBeamline::sgm()->criticalControlsSet(), SIGNAL(connected(bool)), this, SLOT(onBeamlineCriticalControlSetConnectedChanged(bool)));
+	connect(SGMBeamline::sgm()->criticalDetectorSet(), SIGNAL(connected(bool)), this, SLOT(onBeamlineCriticalDetectorSetConnectedChanged(bool)));
 
 	i0CheckBox_ = new QCheckBox("I0");
 	teyCheckBox_ = new QCheckBox("TEY");
@@ -301,6 +327,7 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	gl_->addWidget(gratingNC_,		5, 0, 1, 6, 0);
 	gl_->addWidget(exitSlitNC_,		6, 0, 1, 3, 0);
 	gl_->addLayout(shl,			6, 3, 1, 3, 0);
+	gl_->addLayout(vhl,			7, 0, 1, 3, 0);
 	gl_->addLayout(warningAndPlotHL_,	10, 0, 1, 6, 0);
 
 	gl_->setRowStretch(9, 10);
@@ -342,8 +369,26 @@ void SGMSidebar::onVisibleLightStatusChanged(const QString &status){
 void SGMSidebar::onVisibleLightClicked(){
 	if(SGMBeamline::sgm()->isVisibleLightOn())
 		SGMBeamline::sgm()->visibleLightOff();
-	else
-		SGMBeamline::sgm()->visibleLightOn();
+	else{
+		//SGMBeamline::sgm()->visibleLightOn();
+
+		AMListAction3 *visibleLightOnListAction = new AMListAction3(new AMListActionInfo3("Move to visible light", "Move to visible light"));
+		if(SGMBeamline::sgm()->gratingVelocity()->value() != 10000){
+			AMControlInfo gratingControlInfo = SGMBeamline::sgm()->gratingVelocity()->toInfo();
+			gratingControlInfo.setValue(10000);
+			AMControlMoveActionInfo3 *gratingVelocityMoveActionInfo = new AMControlMoveActionInfo3(gratingControlInfo);
+			AMControlMoveAction3 *gratingVelocityMoveAction = new AMControlMoveAction3(gratingVelocityMoveActionInfo, SGMBeamline::sgm()->gratingVelocity());
+			visibleLightOnListAction->addSubAction(gratingVelocityMoveAction);
+		}
+
+		AMControlInfo visibleLightToggleInfo = SGMBeamline::sgm()->visibleLightToggle()->toInfo();
+		visibleLightToggleInfo.setValue(1);
+		AMControlMoveActionInfo3 *visibleLightToggleActionInfo = new AMControlMoveActionInfo3(visibleLightToggleInfo);
+		AMControlMoveAction3 *visibleLightToggleAction = new AMControlMoveAction3(visibleLightToggleActionInfo, SGMBeamline::sgm()->visibleLightToggle());
+		visibleLightOnListAction->addSubAction(visibleLightToggleAction);
+
+		visibleLightOnListAction->start();
+	}
 }
 
 void SGMSidebar::onCloseVacuumButtonClicked(){
@@ -353,34 +398,59 @@ void SGMSidebar::onCloseVacuumButtonClicked(){
 void SGMSidebar::onBeamOnButtonClicked(){
 	if(beamOnAction_)
 		return;
-	beamOnAction_ = SGMBeamline::sgm()->createBeamOnActions();
-	connect(beamOnAction_, SIGNAL(finished()), this, SLOT(onBeamOnActionFinished()));
+	beamOnAction_ = SGMBeamline::sgm()->createBeamOnActions3();
+	connect(beamOnAction_, SIGNAL(succeeded()), this, SLOT(onBeamOnActionFinished()));
+	connect(beamOnAction_, SIGNAL(failed()), this, SLOT(onBeamOnActionFinished()));
 	beamOnAction_->start();
 }
 
 void SGMSidebar::onBeamOnActionFinished(){
-	/* NTBA - August 25th, 2011 (David Chevrier)
-			Probably need to delete the internals too, list, actions, etc"
-	*/
-	delete beamOnAction_;
-	beamOnAction_ = 0;//NULL
+	disconnect(beamOnAction_, SIGNAL(succeeded()), this, SLOT(onBeamOnActionFinished()));
+	disconnect(beamOnAction_, SIGNAL(failed()), this, SLOT(onBeamOnActionFinished()));
+	beamOnAction_->deleteLater();
+	beamOnAction_ = 0;
 }
 
 void SGMSidebar::onStopMotorsButtonClicked(){
 	if(stopMotorsAction_)
 		return;
-	stopMotorsAction_ = SGMBeamline::sgm()->createStopMotorsAction();
-	connect(stopMotorsAction_, SIGNAL(finished()), this, SLOT(onStopMotorsActionFinished()));
+	stopMotorsAction_ = SGMBeamline::sgm()->createStopMotorsActions3();
+	connect(stopMotorsAction_, SIGNAL(succeeded()), this, SLOT(onStopMotorsActionFinished()));
+	connect(stopMotorsAction_, SIGNAL(failed()), this, SLOT(onStopMotorsActionFinished()));
 	stopMotorsAction_->start();
 }
 
 void SGMSidebar::onStopMotorsActionFinished(){
-	delete stopMotorsAction_;
-	stopMotorsAction_ = 0;//NULL
+	disconnect(stopMotorsAction_, SIGNAL(succeeded()), this, SLOT(onStopMotorsActionFinished()));
+	disconnect(stopMotorsAction_, SIGNAL(failed()), this, SLOT(onStopMotorsActionFinished()));
+	stopMotorsAction_->deleteLater();
+	stopMotorsAction_ = 0;
 }
 
+#include "beamline/CLS/CLSBasicScalerChannelDetector.h"
+#include "actions3/AMActionRunner3.h"
 void SGMSidebar::onScanningResetButtonClicked(){
 	SGMBeamline::sgm()->beamlineScanning()->move(0);
+
+    CLSBasicScalerChannelDetector *teyDetector = qobject_cast<CLSBasicScalerChannelDetector*>(SGMBeamline::sgm()->newTEYDetector());
+    if(teyDetector){
+        qDebug() << "Got the TEY detector";
+
+        AMAction3 *darkCurrentCorrectionActions = teyDetector->createDarkCurrentCorrectionActions(10);
+
+        AMActionRunner3::workflow()->addActionToQueue(darkCurrentCorrectionActions);
+    }
+}
+
+void SGMSidebar::toTakeDarkCurrentMeasurement()
+{
+    CLSBasicScalerChannelDetector *teyDetector = qobject_cast<CLSBasicScalerChannelDetector*>(SGMBeamline::sgm()->newTEYDetector());
+    if (teyDetector) {
+        qDebug() << "SGMSidebar :: got the TEY detector.";
+        
+        AMAction3 *darkCurrentCorrectionActions = teyDetector->createDarkCurrentCorrectionActions(10);
+        AMActionRunner3::workflow()->addActionToQueue(darkCurrentCorrectionActions);
+    }
 }
 
 void SGMSidebar::onStripToolTimerTimeout(){
@@ -400,22 +470,22 @@ void SGMSidebar::onStripToolTimerTimeout(){
 
 	// inserted to prevent crashes before SGM detectors connected
 	double i0Reading = 0, teyReading = 0, tfyReading = 0, pdReading = 0, fpd1Reading = 0, fpd2Reading = 0, fpd3Reading = 0, fpd4Reading = 0;
-	if(SGMBeamline::sgm()->i0Detector())
-		i0Reading = SGMBeamline::sgm()->i0Detector()->reading();
-	if(SGMBeamline::sgm()->teyDetector())
-		teyReading = SGMBeamline::sgm()->teyDetector()->reading();
-	if(SGMBeamline::sgm()->tfyDetector())
-		tfyReading = SGMBeamline::sgm()->tfyDetector()->reading();
-	if(SGMBeamline::sgm()->photodiodeDetector())
-		pdReading = SGMBeamline::sgm()->photodiodeDetector()->reading();
-	if(SGMBeamline::sgm()->filterPD1ScalarDetector())
-		fpd1Reading = SGMBeamline::sgm()->filterPD1ScalarDetector()->reading();
-	if(SGMBeamline::sgm()->filterPD2ScalarDetector())
-		fpd2Reading = SGMBeamline::sgm()->filterPD2ScalarDetector()->reading();
-	if(SGMBeamline::sgm()->filterPD3ScalarDetector())
-		fpd3Reading = SGMBeamline::sgm()->filterPD3ScalarDetector()->reading();
-	if(SGMBeamline::sgm()->filterPD4ScalarDetector())
-		fpd4Reading = SGMBeamline::sgm()->filterPD4ScalarDetector()->reading();
+	if(SGMBeamline::sgm()->newI0Detector())
+		i0Reading = SGMBeamline::sgm()->newI0Detector()->singleReading();
+	if(SGMBeamline::sgm()->newTEYDetector())
+		teyReading = SGMBeamline::sgm()->newTEYDetector()->singleReading();
+	if(SGMBeamline::sgm()->newTFYDetector())
+		tfyReading = SGMBeamline::sgm()->newTFYDetector()->singleReading();
+	if(SGMBeamline::sgm()->newPDDetector())
+		pdReading = SGMBeamline::sgm()->newPDDetector()->singleReading();
+	if(SGMBeamline::sgm()->newFilteredPD1Detector())
+		fpd1Reading = SGMBeamline::sgm()->newFilteredPD1Detector()->singleReading();
+	if(SGMBeamline::sgm()->newFilteredPD2Detector())
+		fpd2Reading = SGMBeamline::sgm()->newFilteredPD2Detector()->singleReading();
+	if(SGMBeamline::sgm()->newFilteredPD3Detector())
+		fpd3Reading = SGMBeamline::sgm()->newFilteredPD3Detector()->singleReading();
+	if(SGMBeamline::sgm()->newFilteredPD4Detector())
+		fpd4Reading = SGMBeamline::sgm()->newFilteredPD4Detector()->singleReading();
 
 	///////////////
 
@@ -612,4 +682,18 @@ void SGMSidebar::onBeamlineWarnings(const QString &newWarnings){
 		warningAndPlotHL_->addWidget(beamlineWarningsLabel_);
 		beamlineWarningsLabel_->show();
 	}
+}
+
+void SGMSidebar::onBeamlineCriticalControlSetConnectedChanged(bool isConnected){
+	if(isConnected)
+		controlsConnectedLabel_->setPixmap(QIcon(":/ON.png").pixmap(20));
+	else
+		controlsConnectedLabel_->setPixmap(QIcon(":/RED.png").pixmap(20));
+}
+
+void SGMSidebar::onBeamlineCriticalDetectorSetConnectedChanged(bool isConnected){
+	if(isConnected)
+		detectorsConnectedLabel_->setPixmap(QIcon(":/ON.png").pixmap(20));
+	else
+		detectorsConnectedLabel_->setPixmap(QIcon(":/RED.png").pixmap(20));
 }

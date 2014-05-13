@@ -34,6 +34,7 @@ class AMControlMoveActionEditor3 : public QFrame
     Q_OBJECT
 public:
 	/// Constructor: Must be invokable, and accept a AMControlMoveActionInfo as argument
+ 	virtual ~AMControlMoveActionEditor3();
 	Q_INVOKABLE AMControlMoveActionEditor3(AMControlMoveActionInfo3 *info, QWidget *parent = 0);
 
 signals:

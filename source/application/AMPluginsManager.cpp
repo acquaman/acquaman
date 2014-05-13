@@ -62,7 +62,6 @@ void AMPluginsManager::loadApplicationPlugins(){
 	loadApplicationPlugins(AMSettings::s()->fileLoaderPluginsFolder(), AMSettings::s()->analysisBlockPluginsFolder());
 }
 
-#include <QDebug>
 void AMPluginsManager::loadApplicationPlugins(const QString &fileLoaderFolder, const QString &analysisBlocksFolder) {
 	Q_UNUSED(analysisBlocksFolder) //Darren removed these a while ago
 
@@ -110,3 +109,4 @@ void AMPluginsManager::loadApplicationPlugins(const QString &fileLoaderFolder, c
 	}
 	*/
 }
+ AMPluginsManager::~AMPluginsManager(){}

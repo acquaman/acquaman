@@ -42,6 +42,7 @@ public:
    \param statusChecker is used to determine if the control is moving.
    \param parent provides a parent object.
    */
+ 	virtual ~CLSBiStateControl();
 	CLSBiStateControl(const QString &name,
 					  const QString &description,
 					  const QString &state,

@@ -25,6 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "actions3/actions/AMNumberChangeAction.h"
 
+ AMNumberChangeActionEditor::~AMNumberChangeActionEditor(){}
 AMNumberChangeActionEditor::AMNumberChangeActionEditor(AMNumberChangeActionInfo *info, QWidget *parent) :
 	QFrame(parent)
 {

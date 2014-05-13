@@ -30,6 +30,7 @@ class AMScanExemplar : public QObject
 {
 Q_OBJECT
 public:
+ 	virtual ~AMScanExemplar();
 	AMScanExemplar(QObject *parent = 0);
 
 	QString name() const;

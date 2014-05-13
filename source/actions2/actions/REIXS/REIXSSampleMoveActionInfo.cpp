@@ -18,7 +18,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "REIXSSampleMoveActionInfo.h"
-#include "dataman/AMSamplePlate.h"
+#include "dataman/AMSamplePlatePre2013.h"
 
 REIXSSampleMoveActionInfo::REIXSSampleMoveActionInfo(QObject *parent) :
 	AMActionInfo("REIXS Sample Move", "REIXS Sample Move", ":/32x32/gnome-display-properties.png", parent)
@@ -104,14 +104,14 @@ void REIXSSampleMoveActionInfo::updateDescriptions()
 {
 	// Working off a stored sample plate?
 	if(samplePlateId_ > 0) {
-		AMSamplePlate plate;
+		AMSamplePlatePre2013 plate;
 		if(!plate.loadFromDb(AMDatabase::database("user"), samplePlateId_) || sampleIndex_ >= plate.count() || sampleIndex_ < 0) {
 			setShortDescription("Sample Move to [Invalid Sample Plate]");
 			setLongDescription("Sample Move to [Invalid Sample Plate]");
 			return;
 		}
 //		AMControlInfoList positions = plate.at(sampleIndex_).position();
-		QString sampleName = AMSample::sampleNameForId(plate.database(), plate.at(sampleIndex_).sampleId());
+		QString sampleName = AMSamplePre2013::sampleNameForId(plate.database(), plate.at(sampleIndex_).sampleId());
 		QString shortDesc = QString("Move to sample '%1' on plate '%2'.").arg(sampleName).arg(plate.name());
 		// Problem with appending the positions: currently we don't update the description when that sample is re-marked, so this position string could be misleading in that situation. Just leave it out.
 //		QStringList posString;

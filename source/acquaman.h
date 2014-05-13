@@ -26,6 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QList>
 #include <QEvent>
 #include <QDateTime>
+#include <QVector3D>
 
 /// This namespace contains global definitions for the Acquaman / Dataman framework.
 
@@ -54,6 +55,7 @@ namespace AM {
 
 class AMAcqEvent : public QEvent{
 public:
+	virtual ~AMAcqEvent();
 	AMAcqEvent() : QEvent( (QEvent::Type)AM::AcqEvent)
 	{}
 
@@ -64,6 +66,7 @@ public:
 
 class AMAcqErrorEvent : public QEvent{
 public:
+	virtual ~AMAcqErrorEvent();
 	AMAcqErrorEvent() : QEvent( (QEvent::Type)AM::AcqErrorEvent)
 	{}
 
@@ -74,6 +77,7 @@ public:
 class AMHighPrecisionDateTime
 {
 public:
+	virtual ~AMHighPrecisionDateTime(){}
 	AMHighPrecisionDateTime(){}
 
 	QDateTime dateTime() const { return dateTime_; }
@@ -88,13 +92,18 @@ protected:
 };
 
 class AMDbObject;
+class AMConstDbObject;
 typedef QList<int> AMIntList;
 typedef QList<double> AMDoubleList;
 typedef QList<AMDbObject*> AMDbObjectList;
+typedef QList<AMConstDbObject*> AMConstDbObjectList;
+typedef QVector<QVector3D> AMQVector3DVector;
 
 Q_DECLARE_METATYPE(AMIntList);
 Q_DECLARE_METATYPE(AMDoubleList);
 Q_DECLARE_METATYPE(AMDbObjectList);
+Q_DECLARE_METATYPE(AMConstDbObjectList);
 Q_DECLARE_METATYPE(AMHighPrecisionDateTime);
+Q_DECLARE_METATYPE(AMQVector3DVector)
 
 #endif // ACQUAMAN_H

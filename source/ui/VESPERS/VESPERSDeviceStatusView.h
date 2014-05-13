@@ -31,28 +31,41 @@ class VESPERSDeviceStatusView : public QWidget
 public:
 	/// Constructor.  Builds the device status view.
 	explicit VESPERSDeviceStatusView(QWidget *parent = 0);
+	/// Destructor.
+	virtual ~VESPERSDeviceStatusView();
 
 signals:
 
 public slots:
+	/// Slot that takes a string command used to switch to the appropriate widget in the stack.
+	/*!
+		Commands:
+			- Valves
+			- Pressure
+			- Temperature
+			- Ion Pumps
+			- Water Switches
+			- Water Pressure
+	  */
+	void showDiagnosticsPage(const QString &name);
 
 protected slots:
 	/// Handles the pressure status signal from the VESPERSBeamline.
-	void onPressureStatusChanged(bool status) { device_->button(1)->setPalette(QPalette(status == true ? palette() : QPalette(Qt::red))); }
+	void onPressureStatusChanged(bool status) { deviceButtonGroup_->button(1)->setPalette(QPalette(status ? palette() : QPalette(Qt::red))); }
 	/// Handles the valve status signal from the VESPERSBeamline.
-	void onValveStatusChanged(bool status) { device_->button(2)->setPalette(QPalette(status == true ? palette() : QPalette(Qt::red))); }
+	void onValveStatusChanged(bool status) { deviceButtonGroup_->button(2)->setPalette(QPalette(status ? palette() : QPalette(Qt::red))); }
 	/// Handles the ion pump status signal from the VESPERSBeamline.
-	void onIonPumpStatusChanged(bool status) { device_->button(3)->setPalette(QPalette(status == true ? palette() : QPalette(Qt::red))); }
+	void onIonPumpStatusChanged(bool status) { deviceButtonGroup_->button(3)->setPalette(QPalette(status ? palette() : QPalette(Qt::red))); }
 	/// Handles the temperature status signal from the VESPERSBeamline.
-	void onTemperatureStatusChanged(bool status) { device_->button(0)->setPalette(QPalette(status == true ? palette() : QPalette(Qt::red))); }
+	void onTemperatureStatusChanged(bool status) { deviceButtonGroup_->button(0)->setPalette(QPalette(status ? palette() : QPalette(Qt::red))); }
 	/// Handles the flow switch status signal from the VESPERSBeamline.
-	void onFlowSwitchStatusChanged(bool status) { device_->button(4)->setPalette(QPalette(status == true ? palette() : QPalette(Qt::red))); }
+	void onFlowSwitchStatusChanged(bool status) { deviceButtonGroup_->button(4)->setPalette(QPalette(status ? palette() : QPalette(Qt::red))); }
 	/// Handles the flow transducer status signal from the VESPERSBeamline.
-	void onFlowTransducerStatusChanged(bool status) { device_->button(5)->setPalette(QPalette(status == true ? palette() : QPalette(Qt::red))); }
+	void onFlowTransducerStatusChanged(bool status) { deviceButtonGroup_->button(5)->setPalette(QPalette(status ? palette() : QPalette(Qt::red))); }
 
 protected:
 	/// The button group that holds the buttons in the homemade tool bar.
-	QButtonGroup *device_;
+	QButtonGroup *deviceButtonGroup_;
 };
 
 #endif // VESPERSDEVICESTATUSVIEW_H

@@ -15,6 +15,14 @@ class EditPVDialog : public QDialog
     Q_OBJECT
 
 public:
+//<<<<<<< HEAD
+//    EditPVDialog(QStringList pvNames, QWidget *parent = 0);
+//    virtual ~EditPVDialog();
+//    friend class StripToolModel;
+    
+//signals:
+    
+//=======
     EditPVDialog(QWidget *parent = 0);
 
 signals:
@@ -81,6 +89,7 @@ protected slots:
 
 //    void toUpdateDataRange(MPlotAxisRange *newRange);
 
+//>>>>>>> master
 private:
 //    QLayout* createFormGui();
     QLayout* createButtonGui();

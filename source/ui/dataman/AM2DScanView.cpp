@@ -34,7 +34,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QStringBuilder>
 #include <QFileInfo>
 #include <QMessageBox>
+#include <QPrintDialog>
 
+
+ AM2DScanBar::~AM2DScanBar(){}
 AM2DScanBar::AM2DScanBar(QWidget *parent)
 	: QWidget(parent)
 {
@@ -47,7 +50,7 @@ AM2DScanBar::AM2DScanBar(QWidget *parent)
 	position_ = QPointF();
 	rect_ = QRectF();
 	value_ = -1;
-	range_ = qMakePair(0.0, 0.0);
+	range_ = AMRange(0.0, 0.0);
 
 	showSpectra_ = new QCheckBox("Show Spectra");
 	showSpectra_->setChecked(false);
@@ -120,37 +123,37 @@ void AM2DScanBar::setValue(double value)
 	valueLabel_->setText(value_ == -1 ? QString("") : QString("Value: %1").arg(value, 0, 'g', 3));
 }
 
-void AM2DScanBar::setRange(QPair<double, double> range)
+void AM2DScanBar::setRange(const AMRange &range)
 {
 	range_ = range;
 
-	if (range_.first == range_.second)
+	if (range_.minimum() == range_.maximum())
 		dataRange_->setText("");
 
 	else
-		dataRange_->setText(QString("Data Range: %1, %2").arg(range_.first, 0, 'g', 3).arg(range_.second, 0, 'g', 3));
+		dataRange_->setText(QString("Data Range: %1, %2").arg(range_.minimum(), 0, 'g', 3).arg(range_.maximum(), 0, 'g', 3));
 }
 
 void AM2DScanBar::setMinimum(double min)
 {
-	range_.first = min;
+	range_.setMinimum(min);
 
-	if (range_.first == range_.second)
+	if (range_.minimum() == range_.maximum())
 		dataRange_->setText("");
 
 	else
-		dataRange_->setText(QString("Data Range: %1, %2").arg(range_.first).arg(range_.second));
+		dataRange_->setText(QString("Data Range: %1, %2").arg(range_.minimum()).arg(range_.maximum()));
 }
 
 void AM2DScanBar::setMaximum(double max)
 {
-	range_.second = max;
+	range_.setMaximum(max);
 
-	if (range_.first == range_.second)
+	if (range_.minimum() == range_.maximum())
 		dataRange_->setText("");
 
 	else
-		dataRange_->setText(QString("Data Range: %1, %2").arg(range_.first).arg(range_.second));
+		dataRange_->setText(QString("Data Range: %1, %2").arg(range_.minimum()).arg(range_.maximum()));
 }
 
 // AM2DScanView
@@ -301,8 +304,8 @@ void AM2DScanView::onExclusiveDataSourceChanged(const QString &name)
 
 	currentExclusiveDataSource_ = currentScan_->dataSourceAt(currentScan_->indexOfDataSource(name));
 	exclusive2DScanBar_->setValue(double(currentExclusiveDataSource_->value(getIndex(exclusive2DScanBar_->dataPosition()))));
-	QPair<double, double> range = getCurrentExclusiveDataSourceRange();
-	if (!(range.first == -1 && range.second == -1))
+	AMRange range = getCurrentExclusiveDataSourceRange();
+	if (!(range.minimum() == -1 && range.maximum() == -1))
 		exclusive2DScanBar_->setRange(range);
 	connect(currentExclusiveDataSource_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onExclusiveDataSourceValueChanged(AMnDIndex,AMnDIndex)));
 }
@@ -333,18 +336,18 @@ AMnDIndex AM2DScanView::getIndex(const QPointF &point) const
 	return AMnDIndex(x, y);
 }
 
-QPair<double, double> AM2DScanView::getCurrentExclusiveDataSourceRange(const AMnDIndex &start, const AMnDIndex &end) const
+AMRange AM2DScanView::getCurrentExclusiveDataSourceRange(const AMnDIndex &start, const AMnDIndex &end) const
 {
 	if (start == end && start.rank() == 2 && end.rank() == 2){
 
-		QPair<double, double> range = exclusive2DScanBar_->range();
+		AMRange range = exclusive2DScanBar_->range();
 		double val = double(currentExclusiveDataSource_->value(start));
 
-		if ((val != -1 && range.first > val) || range.first == -1)
-			range.first = val;
+		if ((val != -1 && range.minimum() > val) || range.minimum() == -1)
+			range.setMinimum(val);
 
-		if (range.second < val)
-			range.second = val;
+		if (range.maximum() < val)
+			range.setMaximum(val);
 
 		return range;
 	}
@@ -382,11 +385,11 @@ QPair<double, double> AM2DScanView::getCurrentExclusiveDataSourceRange(const AMn
 					max = value;
 			}
 
-			return qMakePair(min, max);
+			return AMRange(min, max);
 		}
 
 		else
-			return qMakePair(-1.0, -1.0);
+			return AMRange(-1.0, -1.0);
 	}
 }
 
@@ -544,9 +547,29 @@ void AM2DScanView::exportGraphicsFile(const QString& fileName)
 	}
 }
 
+void AM2DScanView::printGraphics()
+{
+		QPrinter printer(QPrinter::HighResolution);
+		printer.setPageSize(QPrinter::Letter);
+		printer.setOutputFormat(QPrinter::PdfFormat);
+		printer.setOrientation(QPrinter::Landscape);
+
+		QPrintDialog *dialog = new QPrintDialog(&printer, this);
+		    dialog->setWindowTitle(tr("Print Spectra"));
+		    if (dialog->exec() != QDialog::Accepted)
+			return;
+
+		QPainter painter(&printer);
+		gExclusiveView_->render(&painter);
+
+		painter.end();
+
+}
+
 // AM2DScanViewInternal
 ////////////////////////////////////////////////
 
+ AM2DScanViewInternal::~AM2DScanViewInternal(){}
 AM2DScanViewInternal::AM2DScanViewInternal(AM2DScanView* masterView)
 	: QGraphicsWidget(),
 	  masterView_(masterView)

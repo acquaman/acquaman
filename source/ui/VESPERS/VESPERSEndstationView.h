@@ -50,6 +50,7 @@ class VESPERSEndstationLimitsView : public QWidget
 
 public:
 	/// Constructor for the configuration.
+ 	virtual ~VESPERSEndstationLimitsView();
 	VESPERSEndstationLimitsView(QWidget *parent = 0);
 
 signals:
@@ -95,7 +96,7 @@ public:
 	/// Constructor.  Takes an instance of VESPERSEndstation and builds a view around it.
 	VESPERSEndstationView(VESPERSEndstation *endstation, QWidget *parent = 0);
 	/// Destructor.
-	~VESPERSEndstationView();
+	virtual ~VESPERSEndstationView();
 
 	/// Returns whether or not the view is showing the normal sample stage motor or the y motor.  True is the normal stage and false is the y motor.
 	bool usingNormalMotor() const { return usingNormal_; }
@@ -120,7 +121,7 @@ protected slots:
 		if (!endstation_->microscopeInSafePosition()){
 
 			AMControl *control = endstation_->control("Microscope motor");
-			QMessageBox::warning(this, tr("Move Error"), tr("The microscope is in an unsafe position.  You must move the microscope to its %1 position (%2 %3) before you can move the microscope.").arg(endstation_->microscopeNames().second).arg(endstation_->getLimits(control).second).arg(control->units()));
+			QMessageBox::warning(this, tr("Move Error"), tr("The microscope is in an unsafe position.  You must move the microscope to its %1 position (%2 %3) before you can move the microscope.").arg(endstation_->microscopeNames().second).arg(endstation_->getLimits(control).maximum()).arg(control->units()));
 			return;
 		}
 
@@ -137,7 +138,7 @@ protected slots:
 				QMessageBox::warning(this, tr("Move Error"), tr("The CCD is in an unsafe position.  You must move the CCD to %1 %2 before you can move the microscope.").arg(endstation_->ccdSafePositionwHeliumBuffer()).arg(control->units()));
 
 			else
-				QMessageBox::warning(this, tr("Move Error"), tr("The CCD is in an unsafe position.  You must move the CCD to %1 %2 before you can move the microscope.").arg(endstation_->getLimits(control).second).arg(control->units()));
+				QMessageBox::warning(this, tr("Move Error"), tr("The CCD is in an unsafe position.  You must move the CCD to %1 %2 before you can move the microscope.").arg(endstation_->getLimits(control).maximum()).arg(control->units()));
 
 			return;
 		}

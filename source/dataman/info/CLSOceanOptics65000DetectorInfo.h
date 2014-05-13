@@ -35,6 +35,7 @@ Q_PROPERTY(double integrationTime READ integrationTime WRITE setIntegrationTime)
 Q_CLASSINFO("AMDbObject_Attributes", "description=Ocean Optics 65000 USB Spectrometer Detector")
 
 public:
+ 	virtual ~CLSOceanOptics65000DetectorInfo();
 	Q_INVOKABLE CLSOceanOptics65000DetectorInfo(const QString &name = "oos65000", const QString &description = "OceanOptics 65000", QObject *parent = 0);
 
 	CLSOceanOptics65000DetectorInfo(const CLSOceanOptics65000DetectorInfo &original);

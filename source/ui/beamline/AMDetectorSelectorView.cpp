@@ -10,6 +10,7 @@
 #include "beamline/AMDetectorGroup.h"
 #include "beamline/AMDetectorSet.h"
 
+ AMDetectorSelectorView::~AMDetectorSelectorView(){}
 AMDetectorSelectorView::AMDetectorSelectorView(AMDetectorSelector *detectorSelector, QWidget *parent) :
 	QGroupBox(parent)
 {
@@ -26,6 +27,7 @@ AMDetectorSelectorView::AMDetectorSelectorView(AMDetectorSelector *detectorSelec
 	setLayout(vl);
 }
 
+ AMDetectorSelectorViewInternal::~AMDetectorSelectorViewInternal(){}
 AMDetectorSelectorViewInternal::AMDetectorSelectorViewInternal(AMDetectorSelector *detectorSelector, QWidget *parent) :
 	QWidget(parent)
 {
@@ -90,6 +92,7 @@ AMDetectorSelectorViewInternal::AMDetectorSelectorViewInternal(AMDetectorSelecto
 
 		connect(detectorSelector_, SIGNAL(detectorBecameConnected(AMDetector*)), this, SLOT(onDetectorBecameConnected(AMDetector*)));
 		connect(detectorSelector_, SIGNAL(detectorBecameUnconnected(AMDetector*)), this, SLOT(onDetectorBecameUnconnected(AMDetector*)));
+		connect(detectorSelector_, SIGNAL(selectedChanged(AMDetector*)), this, SLOT(onDetectorSelectorSelectedChanged(AMDetector*)));
 	}
 
 	QVBoxLayout *mainVL = new QVBoxLayout();
@@ -169,6 +172,12 @@ void AMDetectorSelectorViewInternal::onDetectorCheckedChanged(bool selected){
 		detectorSelector_->setDetectorSelectedByName(castToLineView->detectorName(), selected);
 }
 
+void AMDetectorSelectorViewInternal::onDetectorSelectorSelectedChanged(AMDetector *detector){
+	AMDetectorSelectorViewInternalLineView *lineView = allDetectorViews_.value(detector->name());
+	if(lineView)
+		lineView->setDetectorSelected(detectorSelector_->detectorIsSelected(detector));
+}
+
 int AMDetectorSelectorViewInternal::preferentialInsertionIndex(int preferentialListIndex, QVBoxLayout *layout){
 	if(preferentialListIndex == 0)
 		return -1;
@@ -185,6 +194,7 @@ int AMDetectorSelectorViewInternal::preferentialInsertionIndex(int preferentialL
 	return preferentialInsertionIndex(preferentialListIndex-1, layout);
 }
 
+ AMDetectorSelectorViewInternalLineView::~AMDetectorSelectorViewInternalLineView(){}
 AMDetectorSelectorViewInternalLineView::AMDetectorSelectorViewInternalLineView(AMDetector *detector, bool isSelected, QWidget *parent) :
 	QWidget(parent)
 {

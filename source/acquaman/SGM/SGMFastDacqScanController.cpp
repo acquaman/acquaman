@@ -180,7 +180,7 @@ bool SGMFastDacqScanController::startImplementation(){
 		return false;
 	}
 
-	bool loadSuccess;
+	bool loadSuccess = false;
 
 	SGMDacqConfigurationFile *configFile = new SGMDacqConfigurationFile();
 	QList<int> matchIDs = AMDatabase::database("SGMBeamline")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>(), "name", "FastScaler");

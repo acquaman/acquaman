@@ -31,6 +31,7 @@ class AMSimpleDataSourceEditor : public QWidget
     Q_OBJECT
 public:
 	/// Constructor requires a valid data source \c dataSource.
+ 	virtual ~AMSimpleDataSourceEditor();
 	AMSimpleDataSourceEditor(AMDataSource* dataSource, QWidget *parent = 0);
 
 signals:

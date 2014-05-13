@@ -12,6 +12,7 @@ class AMDetectorCleanupAction : public AMAction3
 Q_OBJECT
 public:
 	/// Constructor. Requires and takes ownership of an existing AMDetectorCleanupActionInfo \c info.  Provides a AMDetector \param control that will be controlled.  If the default is used instead, then a lookup based on AMBeamline::exposedControls will be used instead.
+ 	virtual ~AMDetectorCleanupAction();
 	Q_INVOKABLE AMDetectorCleanupAction(AMDetectorCleanupActionInfo *info, AMDetector *detector = 0, QObject *parent = 0);
 	/// Copy Constructor
 	AMDetectorCleanupAction(const AMDetectorCleanupAction &other);

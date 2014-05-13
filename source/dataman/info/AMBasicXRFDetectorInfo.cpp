@@ -19,6 +19,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMBasicXRFDetectorInfo.h"
 
+ AMBasicXRFDetectorInfo::~AMBasicXRFDetectorInfo(){}
 AMBasicXRFDetectorInfo::AMBasicXRFDetectorInfo(const QString &name, const QString &description, QObject *parent) :
 	AMOldDetectorInfo(name, description, parent)
 {

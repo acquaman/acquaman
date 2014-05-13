@@ -19,6 +19,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AM2DDeadTimeAB.h"
 
+ AM2DDeadTimeAB::~AM2DDeadTimeAB(){}
 AM2DDeadTimeAB::AM2DDeadTimeAB(const QString &outputName, QObject *parent)
 	: AMStandardAnalysisBlock(outputName, parent)
 {

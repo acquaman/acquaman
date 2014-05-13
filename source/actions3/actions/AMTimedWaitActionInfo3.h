@@ -10,6 +10,7 @@ Q_OBJECT
 Q_PROPERTY(double waitTime READ waitTime WRITE setWaitTime)
 public:
 	/// Constructor. You should always specify a valid \c setpoint, but we provide the default argument because we need a default constructor for database loading.
+ 	virtual ~AMTimedWaitActionInfo3();
 	Q_INVOKABLE AMTimedWaitActionInfo3(double waitTime = 1.000, QObject *parent = 0);
 
 	/// Copy Constructor

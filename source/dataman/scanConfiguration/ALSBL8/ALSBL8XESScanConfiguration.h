@@ -26,6 +26,7 @@ class ALSBL8XESScanConfiguration : public AMScanConfiguration
 {
     Q_OBJECT
 public:
+ 	virtual ~ALSBL8XESScanConfiguration();
     explicit ALSBL8XESScanConfiguration(QObject *parent = 0);
 
 signals:

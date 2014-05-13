@@ -21,7 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QLabel>
 #include <QHBoxLayout>
-#include <QDebug>
+
 AM1DBasicDerivativeABEditor::AM1DBasicDerivativeABEditor(AM1DDerivativeAB *analysisBlock, QWidget *parent)
 	: QWidget(parent)
 {
@@ -45,6 +45,8 @@ AM1DBasicDerivativeABEditor::AM1DBasicDerivativeABEditor(AM1DDerivativeAB *analy
 
 	setLayout(layout);
 }
+
+AM1DBasicDerivativeABEditor::~AM1DBasicDerivativeABEditor(){}
 
 void AM1DBasicDerivativeABEditor::populateComboBox()
 {

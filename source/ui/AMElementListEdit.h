@@ -31,6 +31,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class AMElementsModel: public QStandardItemModel {
 	Q_OBJECT
 public:
+ 	virtual ~AMElementsModel();
 	explicit AMElementsModel(QObject* parent = 0);
 
 	/// Re-implemented from QStandardItemModel to update the "indexing" on the columns
@@ -86,6 +87,7 @@ protected:
 class AMElementValidator : public QValidator {
 	Q_OBJECT
 public:
+ 	virtual ~AMElementValidator();
 	explicit AMElementValidator(AMElementsModel* model, QObject* parent = 0);
 	virtual void fixup(QString &) const;
 	virtual QValidator::State validate(QString &, int &) const;
@@ -111,6 +113,7 @@ class AMElementListEdit : public QLineEdit
 {
 Q_OBJECT
 public:
+ 	virtual ~AMElementListEdit();
 	explicit AMElementListEdit(QWidget *parent = 0);
 
 signals:

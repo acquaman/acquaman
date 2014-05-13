@@ -13,7 +13,6 @@
 #include <QList>
 #include <QStringBuilder>
 
-#include "dataman/info/AMROIInfo.h"
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
 #include "dataman/database/AMDbObjectSupport.h"
 #include "beamline/AMProcessVariable.h"
@@ -27,44 +26,64 @@ namespace VESPERS {
 	 - OnePointSixPercent (1.6%) is a narrow band pass filter.
 	 - Si is the monochromator with 0.01% band pass.
 	  */
-	enum Beam { NoBeam = 0, Pink, TenPercent, OnePointSixPercent, Si };
+	enum Beam
+	{
+		NoBeam = 0,
+		Pink,
+		TenPercent,
+		OnePointSixPercent,
+		Si
+	};
 
 	/// Enum for making the decision on what fluorescence detector the user wants to use.
-	enum FluorescenceDetector { NoXRF = 0, SingleElement = 1, FourElement = 2 };
+	enum FluorescenceDetector
+	{
+		NoXRF = 0,
+		SingleElement = 1,
+		FourElement = 2
+	};
+	Q_DECLARE_FLAGS(FluorescenceDetectors, FluorescenceDetector)
 
 	/// Enum for making the decision on what CCD detector the user wants to use.
-	enum CCDDetector { NoCCD = 0, Roper = 1, Mar = 2, Pilatus = 4 };
+	enum CCDDetector
+	{
+		NoCCD = 0,
+		Roper = 1,
+		Mar = 2,
+		Pilatus = 4
+	};
+	Q_DECLARE_FLAGS(CCDDetectors, CCDDetector)
 
 	/// Enum for the ion chambers used in scans.  These are used for the incoming or transmitted total intensity.
-	enum IonChamber { Isplit = 0, Iprekb, Imini, Ipost };
+	enum IonChamber
+	{
+		Isplit = 0,
+		Iprekb,
+		Imini,
+		Ipost
+	};
 
 	/// Enum for what motor(s) are going to be used.  Currently, there are only the motors and pseudo motors of the primary sample stage.  More will be added as they are added to the beamline.
-	enum Motor { NoMotor = 0, H = 1, V = 2, N = 4, X = 8, Z = 16, Y = 32, AttoH = 64, AttoV = 128, AttoN = 256, AttoX = 512, AttoZ = 1024, AttoY = 2048, AttoRz = 4096, AttoRy = 8192, AttoRx = 16384 };
-
-	/// Enum for choosing the geometry.
-	/*!
-		The following are the available choices for the geometry.  Note that the Big beam option is technically available, but most of the
-		hardware for that part of the endstation is not available currently.  What will be used there is still the same though.
-
-		- Invalid:	Used as the null or uninitialised value.
-		- StraightOn:  This has the sample sitting perpendicular to the beam.  When using the sample stage, it uses the x and z motors and
-					only has XAS and XRF mapping available.  The current setup has ion chambers and the single element vortex detector.
-		- Single45Vertical:	This has the sample sitting at 45 degrees vertically such that reflection based diffraction patterns can be
-					measured as well as any XRF or XAS measurements.  When using the sample stage, it uses the pseudo-motors H and V and
-					has all of the techniques available to it (XAS, XRF, XRD).  The current setup has ion chambers, single element vortex
-					detector, and the Roper CCD.
-		- Single45Horizontal:  This has the sample sitting at 45 degrees horizontally.  When using the sample stage, it uses the x and z
-					motors and only has XAS and XRF mapping available.  The current setup has ion chambers and the four element vortex
-					detector.
-		- Double45:	This has the sample sitting at 45 degrees both vertically and horizontally such that reflection based diffraction
-					patterns can be measured as well as XRF or XAS measurements.  When using the sample stage, it uses the pseudo-motors
-					H and V and has all of the techniques available to it (XAS, XRF, XRD).  The current setup has ion chambers, four element
-					vortex detector, and the Roper CCD.
-		- BigBeam:	This has the sample sitting upstream of the Pre-KB ion chamber.  This setup has a completely different sample stage
-					and the only techniques available to it are XAS and XRF mapping (macro-probe mapping).  The current setup has ion chambers
-					and the four element vortex detector.
-	  */
-	enum Geometry { Invalid = 0, StraightOn, Single45Vertical, Single45Horizontal, Double45, BigBeam };
+	enum Motor
+	{
+		NoMotor = 0,
+		H = 1,
+		V = 2,
+		N = 4,
+		X = 8,
+		Z = 16,
+		Y = 32,
+		AttoH = 64,
+		AttoV = 128,
+		AttoN = 256,
+		AttoX = 512,
+		AttoZ = 1024,
+		AttoY = 2048,
+		AttoRz = 4096,
+		AttoRy = 8192,
+		AttoRx = 16384
+	};
+	Q_DECLARE_FLAGS(Motors, Motor)
 
 	/// Helper method that takes a time in seconds and returns a string of d:h:m:s.
 	inline QString convertTimeToString(double time)
@@ -99,49 +118,6 @@ namespace VESPERS {
 		timeString += QString::number(seconds) + "s";
 
 		return timeString;
-	}
-
-	/// Helper method that returns a list of QPairs where each pair corresponds to the same ROIs.  Used only when using both vortex detectors together.
-	inline QList<QPair<int, int> > findRoiPairs(AMROIInfoList *list1, AMROIInfoList *list2)
-	{
-		QList<QPair<int, int> > list;
-
-		// Do it the easy way first.  Only possible when the sizes are the same.
-		if (list1->count() == list2->count()){
-
-			bool allLinedUp = true;
-
-			for (int i = 0, count = list1->count(); i < count; i++)
-				if (list1->at(i).name() != list2->at(i).name())
-					allLinedUp = false;
-
-			// If true, this is really straight forward.
-			if (allLinedUp){
-
-				for (int i = 0, count = list1->count(); i < count; i++)
-					list << qMakePair(i, i);
-			}
-
-			// Otherwise, we have to check each individually.  Not all may match and only matches will be added to the list.
-			else {
-
-				for (int i = 0, count = list1->count(); i < count; i++)
-					for (int j = 0; j < count; j++)
-						if (list1->at(i).name() == list2->at(j).name())
-							list << qMakePair(i, j);
-			}
-		}
-
-		// This is the same the above double for-loop but with different boundaries.
-		else {
-
-			for (int i = 0, count1 = list1->count(); i < count1; i++)
-				for (int j = 0, count4 = list2->count(); j < count4; j++)
-					if (list1->at(i).name() == list2->at(j).name())
-						list << qMakePair(i, j);
-		}
-
-		return list;
 	}
 
 	/// Returns the home directory for Acquaman.
@@ -228,7 +204,7 @@ namespace VESPERS {
 	}
 
 	/// Converts the bizarre string output of the pv to a real QString.
-	inline QString pvToString(AMProcessVariable *pv)
+	inline QString pvToString(const AMProcessVariable *pv)
 	{
 		int current;
 		QString name;
@@ -303,5 +279,9 @@ namespace VESPERS {
 		return pathParts.at(index);
 	}
 }
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(VESPERS::FluorescenceDetectors)
+Q_DECLARE_OPERATORS_FOR_FLAGS(VESPERS::CCDDetectors)
+Q_DECLARE_OPERATORS_FOR_FLAGS(VESPERS::Motors)
 
 #endif // VESPERS_H

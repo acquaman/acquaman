@@ -56,6 +56,7 @@ public:
 
 	  \note You cannot change the source scan or data source after constructing this object, since the new source might have a different rank than the old source. (AMDataSource outputs are not allowed to change in rank.)
 	  */
+ 	virtual ~AMExternalScanDataSourceAB();
 	explicit AMExternalScanDataSourceAB(AMDatabase* sourceDatabase, int sourceScanId, const QString& sourceDataSourceName, const QString& outputDataSourceName, RefreshDataWhenSpec whenToLoadData = DeferAfterConstructor, QObject *parent = 0);
 
 	/// Constructor which re-loads a previously-saved block from the database \c db at row \c id.  This is the version used when scans are opened and re-create their analysis blocks, so it loads the external scan data immediately.

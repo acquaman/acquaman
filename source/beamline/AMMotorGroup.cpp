@@ -1,13 +1,13 @@
 #include "AMMotorGroup.h"
 
-#include "actions/AMBeamlineControlMoveAction.h"
-#include "actions/AMBeamlineControlStopAction.h"
-#include "actions/AMBeamlineParallelActionsList.h"
-#include "actions/AMBeamlineListAction.h"
+#include "actions3/actions/AMControlMoveAction3.h"
+#include "actions3/actions/AMControlStopAction.h"
+#include "actions3/AMListAction3.h"
 
 // AMMotorGroupObject
 ////////////////////////////////////////
 
+ AMMotorGroupObject::~AMMotorGroupObject(){}
 AMMotorGroupObject::AMMotorGroupObject(const QString &name, const QString &prefix, const QString &units, AMControl *control, Orientation orientation, MotionType motionType, QObject *parent)
 	: QObject(parent)
 {
@@ -183,78 +183,97 @@ AMMotorGroupObject::MotionType AMMotorGroupObject::normalMotionType() const
 	return motionTypes_.at(index);
 }
 
-AMBeamlineActionItem *AMMotorGroupObject::createHorizontalMoveAction(double position)
+AMAction3 *AMMotorGroupObject::createHorizontalMoveAction(double position)
 {
 	if (!horizontalControl()->isConnected())
 		return 0;
 
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(horizontalControl());
-	action->setSetpoint(position);
+	AMControlInfo setpoint = horizontalControl()->toInfo();
+	setpoint.setValue(position);
+	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
+	AMAction3 *action = new AMControlMoveAction3(actionInfo, horizontalControl());
 
 	return action;
 }
 
-AMBeamlineActionItem *AMMotorGroupObject::createHorizontalStopAction()
+AMAction3 *AMMotorGroupObject::createHorizontalStopAction()
 {
 	if (!horizontalControl()->isConnected())
 		return 0;
 
-	return new AMBeamlineControlStopAction(horizontalControl());
-}
-
-AMBeamlineActionItem *AMMotorGroupObject::createVerticalMoveAction(double position)
-{
-	if (!verticalControl()->isConnected())
-		return 0;
-
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(verticalControl());
-	action->setSetpoint(position);
+	AMControlInfo info = horizontalControl()->toInfo();
+	AMControlStopActionInfo *actionInfo = new AMControlStopActionInfo(info);
+	AMAction3 *action = new AMControlStopAction(actionInfo, horizontalControl());
 
 	return action;
 }
 
-AMBeamlineActionItem *AMMotorGroupObject::createVerticalStopAction()
+AMAction3 *AMMotorGroupObject::createVerticalMoveAction(double position)
 {
 	if (!verticalControl()->isConnected())
 		return 0;
 
-	return new AMBeamlineControlStopAction(verticalControl());
-}
-
-AMBeamlineActionItem *AMMotorGroupObject::createNormalMoveAction(double position)
-{
-	if (!normalControl()->isConnected())
-		return 0;
-
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(normalControl());
-	action->setSetpoint(position);
+	AMControlInfo setpoint = verticalControl()->toInfo();
+	setpoint.setValue(position);
+	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
+	AMAction3 *action = new AMControlMoveAction3(actionInfo, verticalControl());
 
 	return action;
-
 }
 
-AMBeamlineActionItem *AMMotorGroupObject::createNormalStopAction()
+AMAction3 *AMMotorGroupObject::createVerticalStopAction()
+{
+	if (!verticalControl()->isConnected())
+		return 0;
+
+	AMControlInfo info = verticalControl()->toInfo();
+	AMControlStopActionInfo *actionInfo = new AMControlStopActionInfo(info);
+	AMAction3 *action = new AMControlStopAction(actionInfo, verticalControl());
+
+	return action;
+}
+
+AMAction3 *AMMotorGroupObject::createNormalMoveAction(double position)
 {
 	if (!normalControl()->isConnected())
 		return 0;
 
-	return new AMBeamlineControlStopAction(normalControl());
+	AMControlInfo setpoint = normalControl()->toInfo();
+	setpoint.setValue(position);
+	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
+	AMAction3 *action = new AMControlMoveAction3(actionInfo, normalControl());
+
+	return action;
 }
 
-AMBeamlineActionItem *AMMotorGroupObject::createStopAllAction()
+AMAction3 *AMMotorGroupObject::createNormalStopAction()
+{
+	if (!normalControl()->isConnected())
+		return 0;
+
+	AMControlInfo info = normalControl()->toInfo();
+	AMControlStopActionInfo *actionInfo = new AMControlStopActionInfo(info);
+	AMAction3 *action = new AMControlStopAction(actionInfo, normalControl());
+
+	return action;
+}
+
+AMAction3 *AMMotorGroupObject::createStopAllAction()
 {
 	if (!(horizontalControl()->isConnected() && verticalControl()->isConnected() && normalControl()->isConnected()))
 		return 0;
 
-	AMBeamlineParallelActionsList *stopAllActionsList = new AMBeamlineParallelActionsList;
-	AMBeamlineListAction *stopAllAction = new AMBeamlineListAction(stopAllActionsList);
+	AMListAction3 *list = new AMListAction3(new AMListActionInfo3("Stop all motors.", "Stop all motors in the motor group."), AMListAction3::Parallel);
+	list->addSubAction(createHorizontalStopAction());
+	list->addSubAction(createVerticalStopAction());
+	list->addSubAction(createNormalStopAction());
 
-	stopAllActionsList->appendStage(new QList<AMBeamlineActionItem *>());
-	stopAllActionsList->appendAction(0, new AMBeamlineControlStopAction(horizontalControl()));
-	stopAllActionsList->appendAction(0, new AMBeamlineControlStopAction(verticalControl()));
-	stopAllActionsList->appendAction(0, new AMBeamlineControlStopAction(normalControl()));
+	return list;
+}
 
-	return stopAllAction;
+#include "ui/AMMotorGroupView.h"
+AMMotorGroupObjectView* AMMotorGroupObject::createMotorGroupObjectView(){
+	return new AMMotorGroupObjectView(this);
 }
 
 // AMMotorGroup

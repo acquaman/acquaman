@@ -14,29 +14,29 @@ namespace AMAgnosticDataAPIDefinitions{
 	bool ensureDefinitionsPopulated(){
 		MessageTypeToNames_.insert(AMAgnosticDataAPIDefinitions::AxisStarted, "AxisStarted");
 		MessageTypeToNames_.insert(AMAgnosticDataAPIDefinitions::AxisFinished, "AxisFinished");
-		MessageTypeToNames_.insert(AMAgnosticDataAPIDefinitions::LoopIncremented, "LoopIncremented");
+		MessageTypeToNames_.insert(AMAgnosticDataAPIDefinitions::AxisValueFinished, "AxisValueFinished");
 		MessageTypeToNames_.insert(AMAgnosticDataAPIDefinitions::DataAvailable, "DataAvailable");
 		MessageTypeToNames_.insert(AMAgnosticDataAPIDefinitions::ControlMoved, "ControlMoved");
 		MessageTypeToNames_.insert(AMAgnosticDataAPIDefinitions::InvalidMessage, "INVALIDMESSAGE");
 
 		InputTypeToNames_.insert(AMAgnosticDataAPIDefinitions::UniqueID, "UniqueID");
-		InputTypeToNames_.insert(AMAgnosticDataAPIDefinitions::NextLoopValue, "NextLoopValue");
 		InputTypeToNames_.insert(AMAgnosticDataAPIDefinitions::DetectorData, "DetectorData");
 		InputTypeToNames_.insert(AMAgnosticDataAPIDefinitions::DetectorDimensionalitySize, "DetectorDimensionalitySize");
 		InputTypeToNames_.insert(AMAgnosticDataAPIDefinitions::DetectorDimensionalityName, "DetectorDimensionalityName");
 		InputTypeToNames_.insert(AMAgnosticDataAPIDefinitions::DetectorDimensionalityUnit, "DetectorDimensionalityUnit");
 		InputTypeToNames_.insert(AMAgnosticDataAPIDefinitions::ControlMovementType, "ControlMovementType");
 		InputTypeToNames_.insert(AMAgnosticDataAPIDefinitions::ControlMovementValue, "ControlMovementValue");
+		InputTypeToNames_.insert(AMAgnosticDataAPIDefinitions::ControlMovementFeedback, "ControlMovementFeedback");
 		InputTypeToNames_.insert(AMAgnosticDataAPIDefinitions::InvalidType, "INVALIDINPUT");
 
 		InputTypeToValueTypes_.insert(AMAgnosticDataAPIDefinitions::UniqueID, "QString");
-		InputTypeToValueTypes_.insert(AMAgnosticDataAPIDefinitions::NextLoopValue, "int");
 		InputTypeToValueTypes_.insert(AMAgnosticDataAPIDefinitions::DetectorData, "QList<double>");
 		InputTypeToValueTypes_.insert(AMAgnosticDataAPIDefinitions::DetectorDimensionalitySize, "QList<int>");
 		InputTypeToValueTypes_.insert(AMAgnosticDataAPIDefinitions::DetectorDimensionalityName, "QList<QString>");
 		InputTypeToValueTypes_.insert(AMAgnosticDataAPIDefinitions::DetectorDimensionalityUnit, "QList<QString>");
 		InputTypeToValueTypes_.insert(AMAgnosticDataAPIDefinitions::ControlMovementType, "QString");
 		InputTypeToValueTypes_.insert(AMAgnosticDataAPIDefinitions::ControlMovementValue, "double");
+		InputTypeToValueTypes_.insert(AMAgnosticDataAPIDefinitions::ControlMovementFeedback, "double");
 		InputTypeToValueTypes_.insert(AMAgnosticDataAPIDefinitions::InvalidType, "INVALID");
 
 		definitionsPopulated_ = true;
@@ -68,6 +68,7 @@ namespace AMAgnosticDataAPIDefinitions{
 	}
 }
 
+ AMAgnosticDataAPIMessage::~AMAgnosticDataAPIMessage(){}
 AMAgnosticDataAPIMessage::AMAgnosticDataAPIMessage(AMAgnosticDataAPIDefinitions::MessageType messageType, const QString &uniqueID)
 {
 	jsonData_["message"] = AMAgnosticDataAPIDefinitions::nameFromMessageType(messageType);
@@ -81,8 +82,7 @@ AMAgnosticDataAPIMessage::AMAgnosticDataAPIMessage(AMAgnosticDataAPIDefinitions:
 		break;
 	case AMAgnosticDataAPIDefinitions::AxisFinished:
 		break;
-	case AMAgnosticDataAPIDefinitions::LoopIncremented:
-		jsonData_[AMAgnosticDataAPIDefinitions::nameFromInputType(AMAgnosticDataAPIDefinitions::NextLoopValue)] = -1;
+	case AMAgnosticDataAPIDefinitions::AxisValueFinished:
 		break;
 	case AMAgnosticDataAPIDefinitions::DataAvailable:{
 		QVariantList uninitializedDetectorData;
@@ -101,6 +101,7 @@ AMAgnosticDataAPIMessage::AMAgnosticDataAPIMessage(AMAgnosticDataAPIDefinitions:
 	case AMAgnosticDataAPIDefinitions::ControlMoved:
 		jsonData_[AMAgnosticDataAPIDefinitions::nameFromInputType(AMAgnosticDataAPIDefinitions::ControlMovementType)] = "UNINITIALIZEDMOVEMENTTYPE";
 		jsonData_[AMAgnosticDataAPIDefinitions::nameFromInputType(AMAgnosticDataAPIDefinitions::ControlMovementValue)] = 0;
+		jsonData_[AMAgnosticDataAPIDefinitions::nameFromInputType(AMAgnosticDataAPIDefinitions::ControlMovementFeedback)] = 0;
 		break;
 	}
 }
@@ -151,11 +152,15 @@ void AMAgnosticDataAPIMessage::setValue(const QString &key, QVariant &value){
 }
 
 
+AMAgnosticDataAPIStartAxisMessage::~AMAgnosticDataAPIStartAxisMessage(){}
+
 AMAgnosticDataAPIStartAxisMessage::AMAgnosticDataAPIStartAxisMessage(const QString &uniqueID) :
 	AMAgnosticDataAPIMessage(AMAgnosticDataAPIDefinitions::AxisStarted, uniqueID)
 {
 
 }
+
+AMAgnosticDataAPIFinishAxisMessage::~AMAgnosticDataAPIFinishAxisMessage(){}
 
 AMAgnosticDataAPIFinishAxisMessage::AMAgnosticDataAPIFinishAxisMessage(const QString &uniqueID) :
 	AMAgnosticDataAPIMessage(AMAgnosticDataAPIDefinitions::AxisFinished, uniqueID)
@@ -163,51 +168,19 @@ AMAgnosticDataAPIFinishAxisMessage::AMAgnosticDataAPIFinishAxisMessage(const QSt
 
 }
 
-AMAgnosticDataAPILoopIncrementMessage::AMAgnosticDataAPILoopIncrementMessage(const QString &uniqueID, int nextLoopIncrement) :
-	AMAgnosticDataAPIMessage(AMAgnosticDataAPIDefinitions::LoopIncremented, uniqueID)
+AMAgnosticDataAPIAxisValueFinishedMessage::~AMAgnosticDataAPIAxisValueFinishedMessage(){}
+
+AMAgnosticDataAPIAxisValueFinishedMessage::AMAgnosticDataAPIAxisValueFinishedMessage(const QString &uniqueID) :
+	AMAgnosticDataAPIMessage(AMAgnosticDataAPIDefinitions::AxisValueFinished, uniqueID)
 {
-	//jsonData_[AMAgnosticDataAPIDefinitions::nameFromInputType(AMAgnosticDataAPIDefinitions::NextLoopValue)] = nextLoopIncrement;
-	setNextLoopIncrement(nextLoopIncrement);
+
 }
 
-int AMAgnosticDataAPILoopIncrementMessage::nextLoopIncrement() const{
-	QVariant nextLoopIncrementVariant = jsonData_.value(AMAgnosticDataAPIDefinitions::nameFromInputType(AMAgnosticDataAPIDefinitions::NextLoopValue));
-	int retVal;
-	bool successfulConversion = false;
-	retVal = nextLoopIncrementVariant.toInt(&successfulConversion);
-	if(!successfulConversion)
-		return -1;
-	return retVal;
-}
-
-void AMAgnosticDataAPILoopIncrementMessage::setNextLoopIncrement(int nextLoopIncrement){
-	jsonData_[AMAgnosticDataAPIDefinitions::nameFromInputType(AMAgnosticDataAPIDefinitions::NextLoopValue)] = nextLoopIncrement;
-}
+AMAgnosticDataAPIDataAvailableMessage::~AMAgnosticDataAPIDataAvailableMessage(){}
 
 AMAgnosticDataAPIDataAvailableMessage::AMAgnosticDataAPIDataAvailableMessage(const QString &uniqueID, QList<double> detectorData, QList<int> detectorDimensionalitySizes, QStringList detectorDimensionalityNames, QStringList detectorDimensionalityUnits) :
 	AMAgnosticDataAPIMessage(AMAgnosticDataAPIDefinitions::DataAvailable, uniqueID)
 {
-	/*
-	QVariantList initializedDetectorData;
-	for(int x = 0; x < detectorData.count(); x++)
-		initializedDetectorData.append(detectorData.at(x));
-	jsonData_[AMAgnosticDataAPIDefinitions::nameFromInputType(AMAgnosticDataAPIDefinitions::DetectorData)] = initializedDetectorData;
-
-	QVariantList initializedDetectorSizes;
-	for(int x = 0; x < detectorDimensionalitySizes.count(); x++)
-		initializedDetectorSizes.append(detectorDimensionalitySizes.at(x));
-	jsonData_[AMAgnosticDataAPIDefinitions::nameFromInputType(AMAgnosticDataAPIDefinitions::DetectorDimensionalitySize)] = initializedDetectorSizes;
-
-	QVariantList initializedDetectorNames;
-	for(int x = 0; x < detectorDimensionalityNames.count(); x++)
-		initializedDetectorNames.append(detectorDimensionalityNames.at(x));
-	jsonData_[AMAgnosticDataAPIDefinitions::nameFromInputType(AMAgnosticDataAPIDefinitions::DetectorDimensionalityName)] = initializedDetectorNames;
-
-	QVariantList initializedDetectorUnits;
-	for(int x = 0; x < detectorDimensionalityUnits.count(); x++)
-		initializedDetectorUnits.append(detectorDimensionalityUnits.at(x));
-	jsonData_[AMAgnosticDataAPIDefinitions::nameFromInputType(AMAgnosticDataAPIDefinitions::DetectorDimensionalityUnit)] = initializedDetectorUnits;
-	*/
 	setDetectorData(detectorData);
 	setDetectorDimensionalitySizes(detectorDimensionalitySizes);
 	setDetectorDimensionalityNames(detectorDimensionalityNames);
@@ -292,15 +265,13 @@ void AMAgnosticDataAPIDataAvailableMessage::setDetectorDimensionalityUnits(QStri
 	jsonData_[AMAgnosticDataAPIDefinitions::nameFromInputType(AMAgnosticDataAPIDefinitions::DetectorDimensionalityUnit)] = initializedDetectorUnits;
 }
 
-AMAgnosticDataAPIControlMovedMessage::AMAgnosticDataAPIControlMovedMessage(const QString &uniqueID, const QString &movementType, double movementValue) :
-	AMAgnosticDataAPIMessage(AMAgnosticDataAPIDefinitions::ControlMoved, uniqueID)
+ AMAgnosticDataAPIControlMovedMessage::~AMAgnosticDataAPIControlMovedMessage(){}
+AMAgnosticDataAPIControlMovedMessage::AMAgnosticDataAPIControlMovedMessage(const QString &uniqueID, const QString &movementType, double movementValue, double movementFeedback)
+	: AMAgnosticDataAPIMessage(AMAgnosticDataAPIDefinitions::ControlMoved, uniqueID)
 {
-	/*
-	jsonData_[AMAgnosticDataAPIDefinitions::nameFromInputType(AMAgnosticDataAPIDefinitions::ControlMovementType)] = movementType;
-	jsonData_[AMAgnosticDataAPIDefinitions::nameFromInputType(AMAgnosticDataAPIDefinitions::ControlMovementValue)] = movementValue;
-	*/
 	setControlMovementType(movementType);
 	setControlMovementValue(movementValue);
+	setControlMovementFeedback(movementFeedback);
 }
 
 QString AMAgnosticDataAPIControlMovedMessage::controlMovementType() const{
@@ -324,6 +295,16 @@ double AMAgnosticDataAPIControlMovedMessage::controlMovementValue() const{
 	return retVal;
 }
 
+double AMAgnosticDataAPIControlMovedMessage::controlMovementFeedback() const{
+	QVariant controlMovementFeedbackVariant = jsonData_.value(AMAgnosticDataAPIDefinitions::nameFromInputType(AMAgnosticDataAPIDefinitions::ControlMovementFeedback));
+	double retVal;
+	bool successfulConversion = false;
+	retVal = controlMovementFeedbackVariant.toDouble(&successfulConversion);
+	if(!successfulConversion)
+		return 0;
+	return retVal;
+}
+
 void AMAgnosticDataAPIControlMovedMessage::setControlMovementType(const QString &movementType){
 	jsonData_[AMAgnosticDataAPIDefinitions::nameFromInputType(AMAgnosticDataAPIDefinitions::ControlMovementType)] = movementType;
 }
@@ -332,12 +313,18 @@ void AMAgnosticDataAPIControlMovedMessage::setControlMovementValue(double moveme
 	jsonData_[AMAgnosticDataAPIDefinitions::nameFromInputType(AMAgnosticDataAPIDefinitions::ControlMovementValue)] = movementValue;
 }
 
+void AMAgnosticDataAPIControlMovedMessage::setControlMovementFeedback(double movementFeedback){
+	jsonData_[AMAgnosticDataAPIDefinitions::nameFromInputType(AMAgnosticDataAPIDefinitions::ControlMovementFeedback)] = movementFeedback;
+}
+
+ AMAgnosticDataMessageHandler::~AMAgnosticDataMessageHandler(){}
 AMAgnosticDataMessageHandler::AMAgnosticDataMessageHandler(QObject *parent) :
 	QObject(parent)
 {
 
 }
 
+ AMAgnosticDataMessageQEventHandler::~AMAgnosticDataMessageQEventHandler(){}
 AMAgnosticDataMessageQEventHandler::AMAgnosticDataMessageQEventHandler(QObject *parent) :
 	AMAgnosticDataMessageHandler(parent)
 {
@@ -390,3 +377,4 @@ namespace AMAgnosticDataAPISupport{
 		return 0;
 	}
 }
+ AMAgnositicDataEvent::~AMAgnositicDataEvent(){}

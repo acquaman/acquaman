@@ -14,7 +14,7 @@ class StripToolListView : public QListView
 
 public:
     explicit StripToolListView(QWidget *parent = 0);
-    ~StripToolListView();
+    virtual ~StripToolListView();
     
 signals:
     void itemToEdit(const QModelIndex &index);

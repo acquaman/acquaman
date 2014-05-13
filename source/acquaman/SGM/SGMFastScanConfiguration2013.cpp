@@ -54,7 +54,10 @@ AMScanConfiguration* SGMFastScanConfiguration2013::createCopy() const{
 
 #include "acquaman/SGM/SGMFastScanActionController.h"
 AMScanController* SGMFastScanConfiguration2013::createController(){
-	return new SGMFastScanActionController(this);
+	SGMFastScanActionController *controller = new SGMFastScanActionController(this);
+	controller->buildScanController();
+
+	return controller;
 }
 
 #include "ui/SGM/SGMFastScanConfiguration2013View.h"
@@ -168,7 +171,10 @@ QString SGMFastScanConfiguration2013::dbLoadWarnings() const{
 bool SGMFastScanConfiguration2013::setParametersFromPreset(int index){
 	if(index < 0 && index >= settings_.count())
 		return false;
-	return setParameters(settings_.at(index));
+
+	bool retVal = setParameters(settings_.at(index));
+
+	return retVal;
 }
 
 bool SGMFastScanConfiguration2013::setParameters(SGMFastScanParameters *settings){

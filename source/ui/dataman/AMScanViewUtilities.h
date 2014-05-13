@@ -33,6 +33,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dataman/AMScanSetModel.h"
 #include "ui/dataman/AMCramBarHorizontal.h"
+#include "util/AMRange.h"
 
 /// This file contains some common classes that are used with AMScanView classes.
 
@@ -41,7 +42,7 @@ class AMScanViewScanBarContextMenu : public QMenu {
 	Q_OBJECT
 public:
 	AMScanViewScanBarContextMenu(AMScanSetModel* model, int scanIndex, int dataSourceIndex, QWidget* parent = 0);
-	~AMScanViewScanBarContextMenu();
+	virtual ~AMScanViewScanBarContextMenu();
 
 protected:
 	/// The model this context menu was created within
@@ -111,6 +112,7 @@ class AMScanViewSourceSelector : public QWidget {
 	Q_OBJECT
 
 public:
+ 	virtual ~AMScanViewSourceSelector();
 	explicit AMScanViewSourceSelector(AMScanSetModel* model = 0, QWidget* parent = 0);
 	void setModel(AMScanSetModel* model);
 
@@ -210,6 +212,7 @@ class AMScanViewSingleSpectrumView : public QWidget
 
 public:
 	/// Constructor.  Builds a plot.
+ 	virtual ~AMScanViewSingleSpectrumView();
 	AMScanViewSingleSpectrumView(QWidget *parent = 0);
 
 	/// Sets the scale for each point along the x-axis. This also calls setPlotRange to make the ranges match. Set \param propogateToPlotRange to false if you don't want the information to propogate.
@@ -235,9 +238,9 @@ protected slots:
 	/// Overloaded.  Slot that updates the plot with the spectrum from datasource \param id.
 	void updatePlot(int id);
 	/// Helper slot that adds lines to the plot based on elements being selected from the table.
-	void onElementSelected(int atomicNumber);
+	void onElementSelected(AMElement *element);
 	/// Helper slot that removes lines from the plot based on elements being deselected fromm the table.
-	void onElementDeselected(int atomicNumber);
+	void onElementDeselected(AMElement *element);
 	/// Slot that helps handling adding and removing of MPlot items as check boxes are checked on and off.
 	void onCheckBoxChanged(int id);
 	/// Slot that handles getting the file name and then exporting the data sources to a file.
@@ -285,7 +288,7 @@ protected:
 	/// The view that looks at the selectable periodic table model.
 	AMSelectablePeriodicTableView *tableView_;
 	/// Pair that holds the plot range that should be considered.
-	QPair<double, double> range_;
+	AMRange range_;
 	/// Double spin box that holds the minimum energy of the range.
 	QDoubleSpinBox *minimum_;
 	/// Double spin box that holds the maximum energy of the range.

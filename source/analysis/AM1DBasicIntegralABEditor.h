@@ -36,6 +36,7 @@ class AM1DBasicIntegralABEditor : public QWidget
 public:
 	/// Constructor.  Takes in an AM1DIntegralAB pointer.
 	explicit AM1DBasicIntegralABEditor(AM1DIntegralAB *analysisBlock, QWidget *parent = 0);
+    virtual ~AM1DBasicIntegralABEditor();
 
 signals:
 

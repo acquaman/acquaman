@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dataman/info/AMControlInfoList.h"
 
+ AMControlInfoListTableView::~AMControlInfoListTableView(){}
 AMControlInfoListTableView::AMControlInfoListTableView(const AMControlInfoList* list, QWidget *parent) :
 	QWidget(parent)
 {

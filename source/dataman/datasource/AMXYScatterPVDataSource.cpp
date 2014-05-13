@@ -20,6 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMXYScatterPVDataSource.h"
 
+ AMXYScatterPVDataSource::~AMXYScatterPVDataSource(){}
 AMXYScatterPVDataSource::AMXYScatterPVDataSource(const AMProcessVariable *x, const AMProcessVariable *y, const QString &name, QObject *parent)
 	: QObject(parent), AMDataSource(name)
 {

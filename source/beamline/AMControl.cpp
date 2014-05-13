@@ -20,9 +20,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMControl.h"
 
-AMControl::AMControl(const QString& name, const QString& units, QObject* parent, const QString description) : QObject(parent), units_(units), description_(description) {
+ AMControl::~AMControl(){}
+AMControl::AMControl(const QString& name, const QString& units, QObject* parent, const QString description) : QObject(parent), units_(units), description_(description)
+{
 	setObjectName(name);
 	tolerance_ = AMCONTROL_TOLERANCE_DONT_CARE;
+	attemptMoveWhenWithinTolerance_ = true;
 	allowsMovesWhileMoving_ = false;
 	displayPrecision_ = 3;
 }

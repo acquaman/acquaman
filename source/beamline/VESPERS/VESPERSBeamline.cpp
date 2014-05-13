@@ -18,12 +18,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "VESPERSBeamline.h"
+#include "actions3/AMListAction3.h"
+#include "actions3/actions/AMControlMoveAction3.h"
 #include "beamline/CLS/CLSMAXvMotor.h"
-#include "beamline/AMSingleControlDetector.h"
-#include "actions/AMBeamlineControlMoveAction.h"
-#include "actions/AMBeamlineParallelActionsList.h"
-#include "actions/AMBeamlineListAction.h"
 #include "beamline/CLS/CLSBiStateControl.h"
+#include "beamline/CLS/CLSSR570.h"
+#include "beamline/VESPERS/VESPERSMonochomatorControl.h"
+#include "beamline/VESPERS/VESPERSCCDBasicDetectorEmulator.h"
 
 VESPERSBeamline::VESPERSBeamline()
 	: AMBeamline("VESPERS Beamline")
@@ -37,7 +38,9 @@ VESPERSBeamline::VESPERSBeamline()
 	setupControlSets();
 	setupMono();
 	setupMotorGroup();
+	setupControlsAsDetectors();
 	setupExposedControls();
+	setupExposedDetectors();
 }
 
 void VESPERSBeamline::setupDiagnostics()
@@ -167,21 +170,17 @@ void VESPERSBeamline::setupDiagnostics()
 void VESPERSBeamline::setupSampleStage()
 {
 	// Currently, the wire stage and sample stage have been flipped due to hardware problems with the sample stage.
-	sampleStageHorizontal_ = new AMPVwStatusControl("Horizontal Sample Stage", "TS1607-2-B21-02:H:user:mm:sp", "TS1607-2-B21-02:H:user:mm", "TS1607-2-B21-02:H:status", "TS1607-2-B21-02:HNV:stop.PROC", this, 0.01, 10.0);
-	sampleStageVertical_ = new AMPVwStatusControl("Vertical Sample Stage", "TS1607-2-B21-02:V:user:mm:sp", "TS1607-2-B21-02:V:user:mm", "TS1607-2-B21-02:V:status", "TS1607-2-B21-02:HNV:stop.PROC", this, 0.01, 10.0);
-	sampleStageNormal_ = new AMPVwStatusControl("Normal Sample Stage", "TS1607-2-B21-02:N:user:mm:sp", "TS1607-2-B21-02:N:user:mm", "TS1607-2-B21-02:N:status", "TS1607-2-B21-02:HNV:stop.PROC", this, 0.01, 10.0);
+	sampleStageHorizontal_ = new CLSPseudoMotorControl("Horizontal Sample Stage", "TS1607-2-B21-02:H:user:mm:sp", "TS1607-2-B21-02:H:user:mm", "TS1607-2-B21-02:H:status", "TS1607-2-B21-02:HNV:stop.PROC", this, 0.001, 10.0);
+	sampleStageVertical_ = new CLSPseudoMotorControl("Vertical Sample Stage", "TS1607-2-B21-02:V:user:mm:sp", "TS1607-2-B21-02:V:user:mm", "TS1607-2-B21-02:V:status", "TS1607-2-B21-02:HNV:stop.PROC", this, 0.001, 10.0);
+	sampleStageNormal_ = new CLSPseudoMotorControl("Normal Sample Stage", "TS1607-2-B21-02:N:user:mm:sp", "TS1607-2-B21-02:N:user:mm", "TS1607-2-B21-02:N:status", "TS1607-2-B21-02:HNV:stop.PROC", this, 0.001, 10.0);
 
-	((AMPVwStatusControl *)sampleStageHorizontal_)->setMoveStartTolerance(0.0001);
-	((AMPVwStatusControl *)sampleStageVertical_)->setMoveStartTolerance(0.0001);
-	((AMPVwStatusControl *)sampleStageNormal_)->setMoveStartTolerance(0.0001);
+	sampleStageHorizontal_->setAttemptMoveWhenWithinTolerance(false);
+	sampleStageVertical_->setAttemptMoveWhenWithinTolerance(false);
+	sampleStageNormal_->setAttemptMoveWhenWithinTolerance(false);
 
-	sampleStageX_ = new AMPVwStatusControl("X Motor Sample Stage", "TS1607-2-B21-02:X:user:mm:sp", "TS1607-2-B21-02:X:user:mm", "TS1607-2-B21-02:X:status", "TS1607-2-B21-02:XYZ:stop.PROC", this, 0.01, 10.0);
-	sampleStageY_ = new AMPVwStatusControl("Y Motor Sample Stage", "TS1607-2-B21-02:Y:user:mm:sp", "TS1607-2-B21-02:Y:user:mm", "TS1607-2-B21-02:Y:status", "TS1607-2-B21-02:XYZ:stop.PROC", this, 0.01, 10.0);
-	sampleStageZ_ = new AMPVwStatusControl("Z Motor Sample Stage", "TS1607-2-B21-02:Z:user:mm:sp", "TS1607-2-B21-02:Z:user:mm", "TS1607-2-B21-02:Z:status", "TS1607-2-B21-02:XYZ:stop.PROC", this, 0.01, 10.0);
-
-	((AMPVwStatusControl *)sampleStageX_)->setMoveStartTolerance(0.0001);
-	((AMPVwStatusControl *)sampleStageY_)->setMoveStartTolerance(0.0001);
-	((AMPVwStatusControl *)sampleStageZ_)->setMoveStartTolerance(0.0001);
+	sampleStageX_ = new CLSPseudoMotorControl("X Motor Sample Stage", "TS1607-2-B21-02:X:user:mm:sp", "TS1607-2-B21-02:X:user:mm", "TS1607-2-B21-02:X:status", "TS1607-2-B21-02:XYZ:stop.PROC", this, 0.001, 10.0);
+	sampleStageY_ = new CLSPseudoMotorControl("Y Motor Sample Stage", "TS1607-2-B21-02:Y:user:mm:sp", "TS1607-2-B21-02:Y:user:mm", "TS1607-2-B21-02:Y:status", "TS1607-2-B21-02:XYZ:stop.PROC", this, 0.001, 10.0);
+	sampleStageZ_ = new CLSPseudoMotorControl("Z Motor Sample Stage", "TS1607-2-B21-02:Z:user:mm:sp", "TS1607-2-B21-02:Z:user:mm", "TS1607-2-B21-02:Z:status", "TS1607-2-B21-02:XYZ:stop.PROC", this, 0.001, 10.0);
 
 	sampleStageMotorSet_ = new AMControlSet(this);
 	sampleStageMotorSet_->addControl(sampleStageHorizontal_);
@@ -205,38 +204,22 @@ void VESPERSBeamline::setupSampleStage()
 
 	wireStagePID_ = new VESPERSPIDLoopControl("PID - Wire Stage", wireStagePidX_, wireStagePidY_, wireStagePidZ_, this);
 
-	wireStageHorizontal_ = new AMPVwStatusControl("Horizontal Wire Stage", "TS1607-2-B21-01:H:user:mm:sp", "TS1607-2-B21-01:H:user:mm", "TS1607-2-B21-01:H:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.01, 10.0);
-	wireStageVertical_ = new AMPVwStatusControl("Vertical Wire Stage", "TS1607-2-B21-01:V:user:mm:sp", "TS1607-2-B21-01:V:user:mm", "TS1607-2-B21-01:V:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.01, 10.0);
-	wireStageNormal_ = new AMPVwStatusControl("Normal Wire Stage", "TS1607-2-B21-01:N:user:mm:sp", "TS1607-2-B21-01:N:user:mm", "TS1607-2-B21-01:N:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.01, 10.0);
-
-	((AMPVwStatusControl *)sampleStageHorizontal_)->setMoveStartTolerance(0.0001);
-	((AMPVwStatusControl *)sampleStageVertical_)->setMoveStartTolerance(0.0001);
-	((AMPVwStatusControl *)sampleStageNormal_)->setMoveStartTolerance(0.0001);
+	wireStageHorizontal_ = new CLSPseudoMotorControl("Horizontal Wire Stage", "TS1607-2-B21-01:H:user:mm:sp", "TS1607-2-B21-01:H:user:mm", "TS1607-2-B21-01:H:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.001, 10.0);
+	wireStageVertical_ = new CLSPseudoMotorControl("Vertical Wire Stage", "TS1607-2-B21-01:V:user:mm:sp", "TS1607-2-B21-01:V:user:mm", "TS1607-2-B21-01:V:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.001, 10.0);
+	wireStageNormal_ = new CLSPseudoMotorControl("Normal Wire Stage", "TS1607-2-B21-01:N:user:mm:sp", "TS1607-2-B21-01:N:user:mm", "TS1607-2-B21-01:N:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.001, 10.0);
 
 	// attocube
-	attoStageHorizontal_ = new AMPVwStatusControl("Horizontal Atto Stage", "TS1607-2-B21-07:H:user:mm:sp", "TS1607-2-B21-07:H:user:mm", "TS1607-2-B21-07:H:status", "TS1607-2-B21-07:HNV:stop.PROC", this, 0.01, 10.0);
-	attoStageVertical_ = new AMPVwStatusControl("Vertical Atto Stage", "TS1607-2-B21-07:V:user:mm:sp", "TS1607-2-B21-07:V:user:mm", "TS1607-2-B21-07:V:status", "TS1607-2-B21-07:HNV:stop.PROC", this, 0.01, 10.0);
-	attoStageNormal_ = new AMPVwStatusControl("Normal Atto Stage", "TS1607-2-B21-07:N:user:mm:sp", "TS1607-2-B21-07:N:user:mm", "TS1607-2-B21-07:N:status", "TS1607-2-B21-07:HNV:stop.PROC", this, 0.01, 10.0);
+	attoStageHorizontal_ = new CLSPseudoMotorControl("Horizontal Atto Stage", "TS1607-2-B21-07:H:user:mm:sp", "TS1607-2-B21-07:H:user:mm", "TS1607-2-B21-07:H:status", "TS1607-2-B21-07:HNV:stop.PROC", this, 0.01, 10.0);
+	attoStageVertical_ = new CLSPseudoMotorControl("Vertical Atto Stage", "TS1607-2-B21-07:V:user:mm:sp", "TS1607-2-B21-07:V:user:mm", "TS1607-2-B21-07:V:status", "TS1607-2-B21-07:HNV:stop.PROC", this, 0.01, 10.0);
+	attoStageNormal_ = new CLSPseudoMotorControl("Normal Atto Stage", "TS1607-2-B21-07:N:user:mm:sp", "TS1607-2-B21-07:N:user:mm", "TS1607-2-B21-07:N:status", "TS1607-2-B21-07:HNV:stop.PROC", this, 0.01, 10.0);
 
-	((AMPVwStatusControl *)attoStageHorizontal_)->setMoveStartTolerance(0.00001);
-	((AMPVwStatusControl *)attoStageVertical_)->setMoveStartTolerance(0.00001);
-	((AMPVwStatusControl *)attoStageNormal_)->setMoveStartTolerance(0.00001);
-
-	attoStageX_ = new AMPVwStatusControl("Atto X Stage", "TS1607-2-B21-07:X:user:mm:sp", "TS1607-2-B21-07:X:user:mm", "TS1607-2-B21-07:X:user:status", "TS1607-2-B21-07:XYZ:stop.PROC", this, 0.01, 10.0);
-	attoStageZ_ = new AMPVwStatusControl("Atto Z Stage", "TS1607-2-B21-07:Z:user:mm:sp", "TS1607-2-B21-07:Z:user:mm", "TS1607-2-B21-07:Z:user:status", "TS1607-2-B21-07:XYZ:stop.PROC", this, 0.01, 10.0);
-	attoStageY_ = new AMPVwStatusControl("Atto Y Stage", "TS1607-2-B21-07:Y:user:mm:sp", "TS1607-2-B21-07:Y:user:mm", "TS1607-2-B21-07:Y:user:status", "TS1607-2-B21-07:XYZ:stop.PROC", this, 0.01, 10.0);
-
-	((AMPVwStatusControl *)attoStageX_)->setMoveStartTolerance(0.00001);
-	((AMPVwStatusControl *)attoStageZ_)->setMoveStartTolerance(0.00001);
-	((AMPVwStatusControl *)attoStageY_)->setMoveStartTolerance(0.00001);
+	attoStageX_ = new CLSPseudoMotorControl("Atto X Stage", "TS1607-2-B21-07:X:user:mm:sp", "TS1607-2-B21-07:X:user:mm", "TS1607-2-B21-07:X:user:status", "TS1607-2-B21-07:XYZ:stop.PROC", this, 0.01, 10.0);
+	attoStageZ_ = new CLSPseudoMotorControl("Atto Z Stage", "TS1607-2-B21-07:Z:user:mm:sp", "TS1607-2-B21-07:Z:user:mm", "TS1607-2-B21-07:Z:user:status", "TS1607-2-B21-07:XYZ:stop.PROC", this, 0.01, 10.0);
+	attoStageY_ = new CLSPseudoMotorControl("Atto Y Stage", "TS1607-2-B21-07:Y:user:mm:sp", "TS1607-2-B21-07:Y:user:mm", "TS1607-2-B21-07:Y:user:status", "TS1607-2-B21-07:XYZ:stop.PROC", this, 0.01, 10.0);
 
 	attoStageRz_ = new AMPVwStatusControl("Atto Phi Stage", "SVM1607-2-B21-09:deg:sp", "SVM1607-2-B21-09:deg", "SVM1607-2-B21-09:status", "SVM1607-2-B21-09:stop.PROC", this, 0.01, 10.0);
 	attoStageRy_ = new AMPVwStatusControl("Atto Theta Stage", "SVM1607-2-B21-07:deg:sp", "SVM1607-2-B21-07:deg", "SVM1607-2-B21-07:status", "SVM1607-2-B21-07:stop.PROC", this, 0.01, 10.0);
 	attoStageRx_ = new AMPVwStatusControl("Atto Psi Stage", "SVM1607-2-B21-08:deg:sp", "SVM1607-2-B21-08:deg", "SVM1607-2-B21-08:status", "SVM1607-2-B21-08:stop.PROC", this, 0.01, 10.0);
-
-	((AMPVwStatusControl *)attoStageRz_)->setMoveStartTolerance(0.00001);
-	((AMPVwStatusControl *)attoStageRy_)->setMoveStartTolerance(0.00001);
-	((AMPVwStatusControl *)attoStageRx_)->setMoveStartTolerance(0.00001);
 
 	// Reset signals.
 	pseudoSampleStageResetControl_ = new AMSinglePVControl("Pseudo Sample Stage Reset Control", "TS1607-2-B21-02:HNV:loadOffsets.PROC", this, 0.1);
@@ -304,6 +287,32 @@ void VESPERSBeamline::setupMotorGroup()
 	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
 }
 
+QString VESPERSBeamline::motorGroupName(VESPERS::Motors motor) const
+{
+	if ((motor & VESPERS::H) || (motor & VESPERS::V))
+		return "Sample Stage - H, V, N";
+
+	else if ((motor & VESPERS::X) || (motor & VESPERS::Z))
+		return "Sample Stage - X, Z, Y";
+
+	else if ((motor & VESPERS::AttoH) || (motor & VESPERS::AttoV))
+		return "Attocube Stage - H, V, N";
+
+	else if ((motor & VESPERS::AttoX) || (motor & VESPERS::AttoZ))
+		return "Attocube Stage - X, Z, Y";
+
+	else if (motor == VESPERS::AttoRx)
+		return "Attocube Stage - Rx";
+
+	else if (motor == VESPERS::AttoRy)
+		return "Attocube Stage - Ry";
+
+	else if (motor == VESPERS::AttoRz)
+		return "Attocube Stage - Rz";
+
+	return "Sample Stage - H, V, N";
+}
+
 void VESPERSBeamline::setupEndstation()
 {
 	endstation_ = new VESPERSEndstation(this);
@@ -311,42 +320,20 @@ void VESPERSBeamline::setupEndstation()
 
 void VESPERSBeamline::setupDetectors()
 {
-	amNames2pvNames_.set("Isplit", "BL1607-B2-1:AddOns:Isplit");
-	amNames2pvNames_.set("Iprekb", "BL1607-B2-1:mcs07:fbk");
-	amNames2pvNames_.set("Imini", "BL1607-B2-1:mcs08:fbk");
-	amNames2pvNames_.set("Ipost", "BL1607-B2-1:mcs09:fbk");
+	splitIonChamber_ = new CLSBasicCompositeScalerChannelDetector("SplitIonChamber", "Split Ion Chamber", scaler_, 5, 6, this);
+	preKBIonChamber_ = new CLSBasicScalerChannelDetector("PreKBIonChamber", "Pre KB Ion Chamber", scaler_, 7, this);
+	miniIonChamber_ = new CLSBasicScalerChannelDetector("MiniIonChamber", "Mini Ion Chamber", scaler_, 8, this);
+	postIonChamber_  = new CLSBasicScalerChannelDetector("PostIonChamber", "Post Ion Chamber", scaler_, 9, this);
 
-	ionChambers_ = new AMOldDetectorSet(this);
+	singleElementVortexDetector_ = new VESPERSSingleElementVortexDetector("SingleElementVortex", "Single Element Vortex", this);
+	fourElementVortexDetector_ = new VESPERSFourElementVortexDetector("FourElementVortex", "Four Element Vortex", this);
 
-	CLSSplitIonChamber *tempSplit = new CLSSplitIonChamber("Isplit", "Split", "BL1607-B2-1:mcs05:fbk", "BL1607-B2-1:mcs06:fbk", "BL1607-B2-1:mcs05:userRate", "BL1607-B2-1:mcs06:userRate", "AMP1607-202:sens_num.VAL", "AMP1607-203:sens_num.VAL", "AMP1607-202:sens_unit.VAL", "AMP1607-203:sens_unit.VAL", this);
-	tempSplit->setVoltagRange(1.0, 4.5);
-	ionChambers_->addDetector(tempSplit);
-	iSplit_ = tempSplit;
+	roperCCD_ = new VESPERSRoperCCDDetector("RoperCCD", "Roper CCD Detector", this);
+	marCCD_ = new VESPERSMarCCDDetector("MarCCD", "Mar 165 CCD Camera", this);
+	pilatusAreaDetector_ = new VESPERSPilatusCCDDetector("PilatusPixelArrayDetector", "Pilatus Pixel Array Detector", this);
 
-	CLSIonChamber *temp = new CLSIonChamber("Iprekb", "Pre-KB", "BL1607-B2-1:mcs07:fbk", "BL1607-B2-1:mcs07:userRate", "AMP1607-204:sens_num.VAL", "AMP1607-204:sens_unit.VAL", this);
-	temp->setVoltagRange(1.0, 4.5);
-	ionChambers_->addDetector(temp);
-	iPreKB_ = temp;
-
-	temp = new CLSIonChamber("Imini", "Mini", "BL1607-B2-1:mcs08:fbk", "BL1607-B2-1:mcs08:userRate", "AMP1607-205:sens_num.VAL", "AMP1607-205:sens_unit.VAL", this);
-	temp->setVoltagRange(1.0, 4.5);
-	ionChambers_->addDetector(temp);
-	iMini_ = temp;
-
-	temp = new CLSIonChamber("Ipost", "Post", "BL1607-B2-1:mcs09:fbk", "BL1607-B2-1:mcs09:userRate", "AMP1607-206:sens_num.VAL", "AMP1607-206:sens_unit.VAL", this);
-	temp->setVoltagRange(1.0, 4.5);
-	ionChambers_->addDetector(temp);
-	iPost_ = temp;
-
-	vortex1E_ = new XRFDetector("1-el Vortex", 1, "IOC1607-004", this);
-	connect(vortexXRF1E(), SIGNAL(connected(bool)), this, SLOT(singleElVortexError(bool)));
-
-	vortex4E_ = new XRFDetector("4-el Vortex", 4, "dxp1607-B21-04", this);
-	connect(vortexXRF4E(), SIGNAL(connected(bool)), this, SLOT(fourElVortexError(bool)));
-
-	roperCCD_ = new VESPERSRoperCCDDetector("Roper CCD", "Roper CCD Camera", this);
-	marCCD_ = new VESPERSMarCCDDetector("Mar CCD", "Mar 165 CCD Camera", this);
-	pilatusCCD_ = new VESPERSPilatusCCDDetector("Pilatus", "Pilatus 1M Pixel Array Detector", this);
+	addSynchronizedXRFDetector(singleElementVortexDetector_);
+	addSynchronizedXRFDetector(fourElementVortexDetector_);
 }
 
 void VESPERSBeamline::setupControlSets()
@@ -474,13 +461,11 @@ void VESPERSBeamline::setupControlSets()
 
 void VESPERSBeamline::setupMono()
 {
-	energy_ = new AMPVwStatusControl("Energy", "07B2_Mono_SineB_Egec:eV", "07B2_Mono_SineB_Ea", "SMTR1607-1-B20-20:status", "SMTR1607-1-B20-20:stop", this, 20, 2.0, new AMControlStatusCheckerDefault(0), 1);
-	energyRelative_ = new AMPVwStatusControl("Relative Energy Movement", "07B2_Mono_SineB_delE", "07B2_Mono_SineB_delE", "SMTR1607-1-B20-20:status", "SMTR1607-1-B20-20:stop", this, 0.1, 2.0, new AMControlStatusCheckerDefault(0), 1);
-	masterDwellTime_ = new AMSinglePVControl("Master Dwell Time", "BL1607-B2-1:dwell:setTime", this, 0.1);
-	kControl_ = new AMPVwStatusControl("K-space", "07B2_Mono_SineB_K:fbk", "07B2_Mono_SineB_K", "SMTR1607-1-B20-20:status", QString(), this, 0.01);
-
 	mono_ = new VESPERSMonochromator(this);
+	masterDwellTime_ = new AMSinglePVControl("Master Dwell Time", "BL1607-B2-1:dwell:setTime", this);
 	intermediateSlits_ = new VESPERSIntermediateSlits(this);
+	ringCurrent_ = new AMReadOnlyPVControl("Ring Current", "PCT1402-01:mA:fbk", this);
+	energySetpointControl_ = new AMReadOnlyPVControl("EnergySetpoint", "07B2_Mono_SineB_Ea", this);
 }
 
 void VESPERSBeamline::setupSynchronizedDwellTime()
@@ -658,23 +643,23 @@ void VESPERSBeamline::synchronizedDwellTimeConnected(bool connected)
 {
 	if (connected){
 
-		if (synchronizedDwellTime()->elementAt(0)->name() != "Scaler")
-			synchronizedDwellTime()->elementAt(0)->configure(*synchronizedDwellTimeConfigurationByName("Scaler"));
+		if (synchronizedDwellTime_->elementAt(0)->name() != "Scaler")
+			synchronizedDwellTime_->elementAt(0)->configure(*synchronizedDwellTimeConfigurationByName("Scaler"));
 
-		if (synchronizedDwellTime()->elementAt(0)->name() != "1-El Vortex")
-			synchronizedDwellTime()->elementAt(1)->configure(*synchronizedDwellTimeConfigurationByName("1-El Vortex"));
+		if (synchronizedDwellTime_->elementAt(0)->name() != "1-El Vortex")
+			synchronizedDwellTime_->elementAt(1)->configure(*synchronizedDwellTimeConfigurationByName("1-El Vortex"));
 
-		if (synchronizedDwellTime()->elementAt(0)->name() != "Roper CCD")
-			synchronizedDwellTime()->elementAt(2)->configure(*synchronizedDwellTimeConfigurationByName("Roper CCD"));
+		if (synchronizedDwellTime_->elementAt(0)->name() != "Roper CCD")
+			synchronizedDwellTime_->elementAt(2)->configure(*synchronizedDwellTimeConfigurationByName("Roper CCD"));
 
-		if (synchronizedDwellTime()->elementAt(0)->name() != "Pilatus CCD")
-			synchronizedDwellTime()->elementAt(3)->configure(*synchronizedDwellTimeConfigurationByName("Pilatus CCD"));
+		if (synchronizedDwellTime_->elementAt(0)->name() != "Pilatus CCD")
+			synchronizedDwellTime_->elementAt(3)->configure(*synchronizedDwellTimeConfigurationByName("Pilatus CCD"));
 
-		if (synchronizedDwellTime()->elementAt(0)->name() != "4-El Vortex")
-			synchronizedDwellTime()->elementAt(4)->configure(*synchronizedDwellTimeConfigurationByName("4-El Vortex"));
+		if (synchronizedDwellTime_->elementAt(0)->name() != "4-El Vortex")
+			synchronizedDwellTime_->elementAt(4)->configure(*synchronizedDwellTimeConfigurationByName("4-El Vortex"));
 
-		if (synchronizedDwellTime()->elementAt(0)->name() != "Mar CCD")
-			synchronizedDwellTime()->elementAt(5)->configure(*synchronizedDwellTimeConfigurationByName("Mar CCD"));
+		if (synchronizedDwellTime_->elementAt(0)->name() != "Mar CCD")
+			synchronizedDwellTime_->elementAt(5)->configure(*synchronizedDwellTimeConfigurationByName("Mar CCD"));
 	}
 }
 
@@ -701,6 +686,26 @@ void VESPERSBeamline::setupComponents()
 	variableIntegrationTime_ = new CLSVariableIntegrationTime("BL1607-B2-1:VarStep", this);
 
 	scaler_ = new CLSSIS3820Scaler("BL1607-B2-1:mcs", this);
+	scaler_->channelAt(5)->setCustomChannelName("Split A");
+    CLSSR570 *tempSR570 = new CLSSR570("Split bottom", "AMP1607-202:sens_num.VAL", "AMP1607-202:sens_unit.VAL", this);
+    scaler_->channelAt(5)->setCurrentAmplifier(tempSR570);
+	scaler_->channelAt(5)->setVoltagRange(AMRange(1.0, 4.5));
+	scaler_->channelAt(6)->setCustomChannelName("Split B");
+    tempSR570 = new CLSSR570("Split top", "AMP1607-203:sens_num.VAL", "AMP1607-203:sens_unit.VAL", this);
+    scaler_->channelAt(6)->setCurrentAmplifier(tempSR570);
+	scaler_->channelAt(6)->setVoltagRange(AMRange(1.0, 4.5));
+	scaler_->channelAt(7)->setCustomChannelName("Pre-KB");
+    tempSR570 = new CLSSR570("Pre-KB", "AMP1607-204:sens_num.VAL", "AMP1607-204:sens_unit.VAL", this);
+    scaler_->channelAt(7)->setCurrentAmplifier(tempSR570);
+	scaler_->channelAt(7)->setVoltagRange(AMRange(1.0, 4.5));
+	scaler_->channelAt(8)->setCustomChannelName("Mini");
+    tempSR570 = new CLSSR570("Mini", "AMP1607-205:sens_num.VAL", "AMP1607-205:sens_unit.VAL", this);
+    scaler_->channelAt(8)->setCurrentAmplifier(tempSR570);
+	scaler_->channelAt(8)->setVoltagRange(AMRange(1.0, 4.5));
+	scaler_->channelAt(9)->setCustomChannelName("Post");
+    tempSR570 = new CLSSR570("Post", "AMP1607-206:sens_num.VAL", "AMP1607-206:sens_unit.VAL", this);
+    scaler_->channelAt(9)->setCurrentAmplifier(tempSR570);
+	scaler_->channelAt(9)->setVoltagRange(AMRange(1.0, 4.5));
 
 	poeBeamStatus_ = new AMReadOnlyPVControl("POE Beam Status", "07B2:POE_BeamStatus", this);
 	poeBeamStatusEnable_ = new AMSinglePVControl("POE Beam Status Enable", "07B2:EnablePOEStat", this, 0.1);
@@ -722,6 +727,134 @@ void VESPERSBeamline::setPOEStatusEnable(bool enabled)
 	poeBeamStatusEnable_->move(enabled ? 0 : 1);
 }
 
+void VESPERSBeamline::setupControlsAsDetectors()
+{
+	energySetpointDetector_ = new AMBasicControlDetectorEmulator("EnergySetpoint", "Energy Setpoint", energySetpointControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	energySetpointDetector_->setHiddenFromUsers(true);
+	energySetpointDetector_->setIsVisible(false);
+	kEnergyDetector_ = new AMBasicControlDetectorEmulator("KEnergy", "K Energy", mono_->KControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	kEnergyDetector_->setHiddenFromUsers(true);
+	kEnergyDetector_->setIsVisible(false);
+	masterDwellTimeDetector_ = new AMBasicControlDetectorEmulator("MasterDwellTime", "Master Dwell Time", synchronizedDwellTime_->dwellTimeControl(), synchronizedDwellTime_->startScanControl(), 1, 0, AMDetectorDefinitions::ImmediateRead, this);
+	masterDwellTimeDetector_->setHiddenFromUsers(true);
+	masterDwellTimeDetector_->setIsVisible(false);
+	ringCurrentDetector_ = new AMBasicControlDetectorEmulator("RingCurrent", "Ring Current", ringCurrent_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	ringCurrentDetector_->setHiddenFromUsers(true);
+	ringCurrentDetector_->setIsVisible(false);
+	roperCCDFileNumberDetector_ = new VESPERSCCDBasicDetectorEmulator(roperCCD_, "RoperFileNumber", "Roper File Number", roperCCD_->ccdFileNumberControl(), roperCCD_->statusControl(), 1, 0, AMDetectorDefinitions::RequestRead, this);
+	roperCCDFileNumberDetector_->setHiddenFromUsers(true);
+	roperCCDFileNumberDetector_->setIsVisible(false);
+	marCCDFileNumberDetector_ = new VESPERSCCDBasicDetectorEmulator(marCCD_, "MarFileNumber", "Mar File Number", marCCD_->ccdFileNumberControl(), marCCD_->statusControl(), 1, 0, AMDetectorDefinitions::RequestRead, this);
+	marCCDFileNumberDetector_->setHiddenFromUsers(true);
+	marCCDFileNumberDetector_->setIsVisible(false);
+	pilatusCCDFileNumberDetector_ = new VESPERSCCDBasicDetectorEmulator(pilatusAreaDetector_, "PilatusFileNumber", "Pilatus File Number", pilatusAreaDetector_->ccdFileNumberControl(), pilatusAreaDetector_->statusControl(), 1, 0, AMDetectorDefinitions::RequestRead, this);
+	pilatusCCDFileNumberDetector_->setHiddenFromUsers(true);
+	pilatusCCDFileNumberDetector_->setIsVisible(false);
+
+	// All the vortex controls and turning them into detectors.  Temporary solution.
+	singleElementVortexDeadTimeControl_ = new AMReadOnlyPVControl("Single Element Vortex Dead Time", "IOC1607-004:mca1.DTIM", this);
+	singleElementVortexRealTimeControl_ = new AMReadOnlyPVControl("Single Element Vortex Real Time", "IOC1607-004:mca1.ERTM", this);
+	singleElementVortexLiveTimeControl_ = new AMReadOnlyPVControl("Single Element Vortex Live Time", "IOC1607-004:mca1.ELTM", this);
+	singleElementVortexFastPeaksControl_ = new AMReadOnlyPVControl("Single Element Vortex Fast Peaks", "IOC1607-004:dxp1.FAST_PEAKS", this);
+	singleElementVortexSlowPeaksControl_ = new AMReadOnlyPVControl("Single Element Vortex Slow Peaks", "IOC1607-004:dxp1.SLOW_PEAKS", this);
+	fourElementVortexDeadTime1Control_ = new AMReadOnlyPVControl("Four Element Vortex Dead Time 1", "dxp1607-B21-04:dxp1:NetDTP", this);
+	fourElementVortexDeadTime2Control_ = new AMReadOnlyPVControl("Four Element Vortex Dead Time 2", "dxp1607-B21-04:dxp2:NetDTP", this);
+	fourElementVortexDeadTime3Control_ = new AMReadOnlyPVControl("Four Element Vortex Dead Time 3", "dxp1607-B21-04:dxp3:NetDTP", this);
+	fourElementVortexDeadTime4Control_ = new AMReadOnlyPVControl("Four Element Vortex Dead Time 4", "dxp1607-B21-04:dxp4:NetDTP", this);
+	fourElementVortexRealTime1Control_ = new AMReadOnlyPVControl("Four Element Vortex Real Time 1", "dxp1607-B21-04:dxp1:ElapsedRealTime", this);
+	fourElementVortexRealTime2Control_ = new AMReadOnlyPVControl("Four Element Vortex Real Time 2", "dxp1607-B21-04:dxp2:ElapsedRealTime", this);
+	fourElementVortexRealTime3Control_ = new AMReadOnlyPVControl("Four Element Vortex Real Time 3", "dxp1607-B21-04:dxp3:ElapsedRealTime", this);
+	fourElementVortexRealTime4Control_ = new AMReadOnlyPVControl("Four Element Vortex Real Time 4", "dxp1607-B21-04:dxp4:ElapsedRealTime", this);
+	fourElementVortexLiveTime1Control_ = new AMReadOnlyPVControl("Four Element Vortex Live Time 1", "dxp1607-B21-04:dxp1:ElapsedTriggerLiveTime", this);
+	fourElementVortexLiveTime2Control_ = new AMReadOnlyPVControl("Four Element Vortex Live Time 2", "dxp1607-B21-04:dxp2:ElapsedTriggerLiveTime", this);
+	fourElementVortexLiveTime3Control_ = new AMReadOnlyPVControl("Four Element Vortex Live Time 3", "dxp1607-B21-04:dxp3:ElapsedTriggerLiveTime", this);
+	fourElementVortexLiveTime4Control_ = new AMReadOnlyPVControl("Four Element Vortex Live Time 4", "dxp1607-B21-04:dxp4:ElapsedTriggerLiveTime", this);
+	fourElementVortexFastPeaks1Control_ = new AMReadOnlyPVControl("Four Element Vortex Fast Peaks 1", "dxp1607-B21-04:dxp1:Triggers", this);
+	fourElementVortexFastPeaks2Control_ = new AMReadOnlyPVControl("Four Element Vortex Fast Peaks 2", "dxp1607-B21-04:dxp2:Triggers", this);
+	fourElementVortexFastPeaks3Control_ = new AMReadOnlyPVControl("Four Element Vortex Fast Peaks 3", "dxp1607-B21-04:dxp3:Triggers", this);
+	fourElementVortexFastPeaks4Control_ = new AMReadOnlyPVControl("Four Element Vortex Fast Peaks 4", "dxp1607-B21-04:dxp4:Triggers", this);
+	fourElementVortexSlowPeaks1Control_ = new AMReadOnlyPVControl("Four Element Vortex Slow Peaks 1", "dxp1607-B21-04:dxp1:Events", this);
+	fourElementVortexSlowPeaks2Control_ = new AMReadOnlyPVControl("Four Element Vortex Slow Peaks 2", "dxp1607-B21-04:dxp2:Events", this);
+	fourElementVortexSlowPeaks3Control_ = new AMReadOnlyPVControl("Four Element Vortex Slow Peaks 3", "dxp1607-B21-04:dxp3:Events", this);
+	fourElementVortexSlowPeaks4Control_ = new AMReadOnlyPVControl("Four Element Vortex Slow Peaks 4", "dxp1607-B21-04:dxp4:Events", this);
+
+	singleElementVortexDeadTime_ = new AMBasicControlDetectorEmulator("SingleElementVortexDeadTime", "Single Element Vortex Dead Time", singleElementVortexDeadTimeControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	singleElementVortexDeadTime_->setHiddenFromUsers(true);
+	singleElementVortexDeadTime_->setIsVisible(false);
+	singleElementVortexRealTime_ = new AMBasicControlDetectorEmulator("SingleElementVortexRealTime", "Single Element Vortex Real Time", singleElementVortexRealTimeControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	singleElementVortexRealTime_->setHiddenFromUsers(true);
+	singleElementVortexRealTime_->setIsVisible(false);
+	singleElementVortexLiveTime_ = new AMBasicControlDetectorEmulator("SingleElementVortexLiveTime", "Single Element Vortex Live Time", singleElementVortexLiveTimeControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	singleElementVortexLiveTime_->setHiddenFromUsers(true);
+	singleElementVortexLiveTime_->setIsVisible(false);
+	singleElementVortexFastPeaks_ = new AMBasicControlDetectorEmulator("SingleElementVortexFastPeaks", "Single Element Vortex Fast Peaks", singleElementVortexFastPeaksControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	singleElementVortexFastPeaks_->setHiddenFromUsers(true);
+	singleElementVortexFastPeaks_->setIsVisible(false);
+	singleElementVortexSlowPeaks_ = new AMBasicControlDetectorEmulator("SingleElementVortexSlowPeaks", "Single Element Vortex Slow Peaks", singleElementVortexSlowPeaksControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	singleElementVortexSlowPeaks_->setHiddenFromUsers(true);
+	singleElementVortexSlowPeaks_->setIsVisible(false);
+	fourElementVortexDeadTime1_ = new AMBasicControlDetectorEmulator("FourElementVortexDeadTime1", "Four Element Vortex Dead Time 1", fourElementVortexDeadTime1Control_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	fourElementVortexDeadTime1_->setHiddenFromUsers(true);
+	fourElementVortexDeadTime1_->setIsVisible(false);
+	fourElementVortexDeadTime2_ = new AMBasicControlDetectorEmulator("FourElementVortexDeadTime2", "Four Element Vortex Dead Time 2", fourElementVortexDeadTime2Control_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	fourElementVortexDeadTime2_->setHiddenFromUsers(true);
+	fourElementVortexDeadTime2_->setIsVisible(false);
+	fourElementVortexDeadTime3_ = new AMBasicControlDetectorEmulator("FourElementVortexDeadTime3", "Four Element Vortex Dead Time 3", fourElementVortexDeadTime3Control_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	fourElementVortexDeadTime3_->setHiddenFromUsers(true);
+	fourElementVortexDeadTime3_->setIsVisible(false);
+	fourElementVortexDeadTime4_ = new AMBasicControlDetectorEmulator("FourElementVortexDeadTime4", "Four Element Vortex Dead Time 4", fourElementVortexDeadTime4Control_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	fourElementVortexDeadTime4_->setHiddenFromUsers(true);
+	fourElementVortexDeadTime4_->setIsVisible(false);
+	fourElementVortexRealTime1_ = new AMBasicControlDetectorEmulator("FourElementVortexRealTime1", "Four Element Vortex Real Time 1", fourElementVortexRealTime1Control_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	fourElementVortexRealTime1_->setHiddenFromUsers(true);
+	fourElementVortexRealTime1_->setIsVisible(false);
+	fourElementVortexRealTime2_ = new AMBasicControlDetectorEmulator("FourElementVortexRealTime2", "Four Element Vortex Real Time 2", fourElementVortexRealTime2Control_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	fourElementVortexRealTime2_->setHiddenFromUsers(true);
+	fourElementVortexRealTime2_->setIsVisible(false);
+	fourElementVortexRealTime3_ = new AMBasicControlDetectorEmulator("FourElementVortexRealTime3", "Four Element Vortex Real Time 3", fourElementVortexRealTime3Control_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	fourElementVortexRealTime3_->setHiddenFromUsers(true);
+	fourElementVortexRealTime3_->setIsVisible(false);
+	fourElementVortexRealTime4_ = new AMBasicControlDetectorEmulator("FourElementVortexRealTime4", "Four Element Vortex Real Time 4", fourElementVortexRealTime4Control_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	fourElementVortexRealTime4_->setHiddenFromUsers(true);
+	fourElementVortexRealTime4_->setIsVisible(false);
+	fourElementVortexLiveTime1_ = new AMBasicControlDetectorEmulator("FourElementVortexLiveTime1", "Four Element Vortex Live Time 1", fourElementVortexLiveTime1Control_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	fourElementVortexLiveTime1_->setHiddenFromUsers(true);
+	fourElementVortexLiveTime1_->setIsVisible(false);
+	fourElementVortexLiveTime2_ = new AMBasicControlDetectorEmulator("FourElementVortexLiveTime2", "Four Element Vortex Live Time 2", fourElementVortexLiveTime2Control_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	fourElementVortexLiveTime2_->setHiddenFromUsers(true);
+	fourElementVortexLiveTime2_->setIsVisible(false);
+	fourElementVortexLiveTime3_ = new AMBasicControlDetectorEmulator("FourElementVortexLiveTime3", "Four Element Vortex Live Time 3", fourElementVortexLiveTime3Control_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	fourElementVortexLiveTime3_->setHiddenFromUsers(true);
+	fourElementVortexLiveTime3_->setIsVisible(false);
+	fourElementVortexLiveTime4_ = new AMBasicControlDetectorEmulator("FourElementVortexLiveTime4", "Four Element Vortex Live Time 4", fourElementVortexLiveTime4Control_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	fourElementVortexLiveTime4_->setHiddenFromUsers(true);
+	fourElementVortexLiveTime4_->setIsVisible(false);
+	fourElementVortexFastPeaks1_ = new AMBasicControlDetectorEmulator("FourElementVortexFastPeaks1", "Four Element Vortex Fast Peaks 1", fourElementVortexFastPeaks1Control_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	fourElementVortexFastPeaks1_->setHiddenFromUsers(true);
+	fourElementVortexFastPeaks1_->setIsVisible(false);
+	fourElementVortexFastPeaks2_ = new AMBasicControlDetectorEmulator("FourElementVortexFastPeaks2", "Four Element Vortex Fast Peaks 2", fourElementVortexFastPeaks2Control_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	fourElementVortexFastPeaks2_->setHiddenFromUsers(true);
+	fourElementVortexFastPeaks2_->setIsVisible(false);
+	fourElementVortexFastPeaks3_ = new AMBasicControlDetectorEmulator("FourElementVortexFastPeaks3", "Four Element Vortex Fast Peaks 3", fourElementVortexFastPeaks3Control_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	fourElementVortexFastPeaks3_->setHiddenFromUsers(true);
+	fourElementVortexFastPeaks3_->setIsVisible(false);
+	fourElementVortexFastPeaks4_ = new AMBasicControlDetectorEmulator("FourElementVortexFastPeaks4", "Four Element Vortex Fast Peaks 4", fourElementVortexFastPeaks4Control_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	fourElementVortexFastPeaks4_->setHiddenFromUsers(true);
+	fourElementVortexFastPeaks4_->setIsVisible(false);
+	fourElementVortexSlowPeaks1_ = new AMBasicControlDetectorEmulator("FourElementVortexSlowPeaks1", "Four Element Vortex Slow Peaks 1", fourElementVortexSlowPeaks1Control_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	fourElementVortexSlowPeaks1_->setHiddenFromUsers(true);
+	fourElementVortexSlowPeaks1_->setIsVisible(false);
+	fourElementVortexSlowPeaks2_ = new AMBasicControlDetectorEmulator("FourElementVortexSlowPeaks2", "Four Element Vortex Slow Peaks 2", fourElementVortexSlowPeaks1Control_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	fourElementVortexSlowPeaks2_->setHiddenFromUsers(true);
+	fourElementVortexSlowPeaks2_->setIsVisible(false);
+	fourElementVortexSlowPeaks3_ = new AMBasicControlDetectorEmulator("FourElementVortexSlowPeaks3", "Four Element Vortex Slow Peaks 3", fourElementVortexSlowPeaks1Control_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	fourElementVortexSlowPeaks3_->setHiddenFromUsers(true);
+	fourElementVortexSlowPeaks3_->setIsVisible(false);
+	fourElementVortexSlowPeaks4_ = new AMBasicControlDetectorEmulator("FourElementVortexSlowPeaks4", "Four Element Vortex Slow Peaks 4", fourElementVortexSlowPeaks1Control_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	fourElementVortexSlowPeaks4_->setHiddenFromUsers(true);
+	fourElementVortexSlowPeaks4_->setIsVisible(false);
+}
+
 void VESPERSBeamline::setupExposedControls()
 {
 	addExposedControl(pseudoSampleStageMotorGroupObject()->horizontalControl());
@@ -730,9 +863,55 @@ void VESPERSBeamline::setupExposedControls()
 	addExposedControl(realSampleStageMotorGroupObject()->horizontalControl());
 	addExposedControl(realSampleStageMotorGroupObject()->verticalControl());
 	addExposedControl(realSampleStageMotorGroupObject()->normalControl());
+	addExposedControl(mono_->delEControl());
+	addExposedControl(mono_->EaControl());
 }
 
-AMBeamlineActionItem *VESPERSBeamline::createBeamChangeAction(VESPERS::Beam beam)
+void VESPERSBeamline::setupExposedDetectors()
+{
+	addExposedDetector(singleElementVortexDetector_);
+	addExposedDetector(fourElementVortexDetector_);
+	addExposedDetector(splitIonChamber_);
+	addExposedDetector(preKBIonChamber_);
+	addExposedDetector(miniIonChamber_);
+	addExposedDetector(postIonChamber_);
+	addExposedDetector(energySetpointDetector_);
+	addExposedDetector(kEnergyDetector_);
+	addExposedDetector(masterDwellTimeDetector_);
+	addExposedDetector(ringCurrentDetector_);
+	addExposedDetector(roperCCDFileNumberDetector_);
+	addExposedDetector(marCCDFileNumberDetector_);
+	addExposedDetector(pilatusCCDFileNumberDetector_);
+
+	// All the extras for vortex detectors.
+	addExposedDetector(singleElementVortexDeadTime_);
+	addExposedDetector(singleElementVortexRealTime_);
+	addExposedDetector(singleElementVortexLiveTime_);
+	addExposedDetector(singleElementVortexFastPeaks_);
+	addExposedDetector(singleElementVortexSlowPeaks_);
+	addExposedDetector(fourElementVortexDeadTime1_);
+	addExposedDetector(fourElementVortexDeadTime2_);
+	addExposedDetector(fourElementVortexDeadTime3_);
+	addExposedDetector(fourElementVortexDeadTime4_);
+	addExposedDetector(fourElementVortexRealTime1_);
+	addExposedDetector(fourElementVortexRealTime2_);
+	addExposedDetector(fourElementVortexRealTime3_);
+	addExposedDetector(fourElementVortexRealTime4_);
+	addExposedDetector(fourElementVortexLiveTime1_);
+	addExposedDetector(fourElementVortexLiveTime2_);
+	addExposedDetector(fourElementVortexLiveTime3_);
+	addExposedDetector(fourElementVortexLiveTime4_);
+	addExposedDetector(fourElementVortexFastPeaks1_);
+	addExposedDetector(fourElementVortexFastPeaks2_);
+	addExposedDetector(fourElementVortexFastPeaks3_);
+	addExposedDetector(fourElementVortexFastPeaks4_);
+	addExposedDetector(fourElementVortexSlowPeaks1_);
+	addExposedDetector(fourElementVortexSlowPeaks2_);
+	addExposedDetector(fourElementVortexSlowPeaks3_);
+	addExposedDetector(fourElementVortexSlowPeaks4_);
+}
+
+AMAction3 *VESPERSBeamline::createBeamChangeAction(VESPERS::Beam beam)
 {
 	// If we are already at the new beam position and the internal state of the beam is the same, then don't do anything.
 	if (beam_ == beam && beamSelectionMotor_->withinTolerance(beamPositions_.value(beam)))
@@ -744,22 +923,18 @@ AMBeamlineActionItem *VESPERSBeamline::createBeamChangeAction(VESPERS::Beam beam
 		Second: Move to the chosen beam.
 		Third (if applicable): If the new beam is a monochromatic beam, turn on the ability to scan the energy.
 	 */
-	AMBeamlineParallelActionsList *changeBeamActionsList = new AMBeamlineParallelActionsList;
-	AMBeamlineListAction *changeBeamAction = new AMBeamlineListAction(changeBeamActionsList);
 
-	changeBeamActionsList->appendStage(new QList<AMBeamlineActionItem*>());
-	changeBeamActionsList->appendAction(0, mono()->createAllowScanningAction(false));
+	AMListAction3 *changeBeamAction = new AMSequentialListAction3(new AMSequentialListActionInfo3("Change Beam Action", "Does all the necessary work to switch beams by ensuring all steps are done correctly."));
+	changeBeamAction->addSubAction(mono()->createAllowScanningAction(false));
 
-	changeBeamActionsList->appendStage(new QList<AMBeamlineActionItem*>());
-	AMBeamlineControlMoveAction *moveBeamAction = new AMBeamlineControlMoveAction(beamSelectionMotor());
-	moveBeamAction->setSetpoint(beamPositions_.value(beam));
-	changeBeamActionsList->appendAction(1, moveBeamAction);
+	AMControlInfo setpoint = beamSelectionMotor_->toInfo();
+	setpoint.setValue(beamPositions_.value(beam));
+	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
+	AMAction3 *action = new AMControlMoveAction3(actionInfo, beamSelectionMotor_);
+	changeBeamAction->addSubAction(action);
 
-	if (beam != VESPERS::Pink){
-
-		changeBeamActionsList->appendStage(new QList<AMBeamlineActionItem*>());
-		changeBeamActionsList->appendAction(2, mono()->createAllowScanningAction(true));
-	}
+	if (beam != VESPERS::Pink)
+		changeBeamAction->addSubAction(mono()->createAllowScanningAction(true));
 
 	return changeBeamAction;
 }
@@ -1005,18 +1180,6 @@ void VESPERSBeamline::flowTransducerError()
 	}
 
 	emit flowTransducerStatus(error.isEmpty());
-}
-
-void VESPERSBeamline::singleElVortexError(bool isConnected)
-{
-	if (vortexXRF1E()->wasConnected() && !isConnected)
-		AMErrorMon::error(this, VESPERSBEAMLINE_SINGLE_ELEMENT_NOT_CONNECTED, "The single element vortex detector is no longer connected.");
-}
-
-void VESPERSBeamline::fourElVortexError(bool isConnected)
-{
-	if (vortexXRF4E()->wasConnected() && !isConnected)
-		AMErrorMon::error(this, VESPERSBEAMLINE_FOUR_ELEMENT_NOT_CONNECTED, "The four element vortex detector is no longer connected.");
 }
 
 void VESPERSBeamline::sampleStageError()

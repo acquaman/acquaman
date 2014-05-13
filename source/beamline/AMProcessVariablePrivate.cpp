@@ -104,7 +104,6 @@ void AMProcessVariableSupport::removePVImplementation(chid c) {
 //		instance_ = 0;					// We are no more...
 //		deleteLater();					// We're gone.
 //	}
-
 }
 
 AMProcessVariablePrivate* AMProcessVariableSupport::getPrivateForPVNameImplementation(const QString &pvName)

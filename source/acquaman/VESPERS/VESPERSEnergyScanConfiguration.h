@@ -20,7 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef VESPERSENERGYSCANCONFIGURATION_H
 #define VESPERSENERGYSCANCONFIGURATION_H
 
-#include "acquaman/AMXASScanConfiguration.h"
+#include "acquaman/AMStepScanConfiguration.h"
 #include "application/VESPERS/VESPERS.h"
 #include "acquaman/VESPERS/VESPERSScanConfiguration.h"
 
@@ -36,7 +36,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 	Because of this, the fluorescence detectors are not a part of this scan type.
   */
-class VESPERSEnergyScanConfiguration : public AMXASScanConfiguration, public VESPERSScanConfiguration
+class VESPERSEnergyScanConfiguration : public AMStepScanConfiguration, public VESPERSScanConfiguration
 {
 	Q_OBJECT
 
@@ -53,6 +53,8 @@ public:
 	Q_INVOKABLE VESPERSEnergyScanConfiguration(QObject *parent = 0);
 	/// Copy constructor.
 	VESPERSEnergyScanConfiguration(const VESPERSEnergyScanConfiguration &original);
+	/// Destructor.
+	virtual ~VESPERSEnergyScanConfiguration();
 
 	/// Returns a pointer to a newly-created copy of this scan configuration.  (It takes the role of a copy constructor, but is virtual so that our high-level classes can copy a scan configuration without knowing exactly what kind it is.)
 	virtual AMScanConfiguration* createCopy() const;
@@ -65,22 +67,17 @@ public:
 
 	/// Returns the technique string.
 	QString technique() const { return "Energy Scan"; }
-	/// A human-readable synopsis of this scan configuration. Can be re-implemented to proved more details. Used by AMBeamlineScanAction to set the main text in the action view.
+	/// A human-readable synopsis of this scan configuration. Can be re-implemented to proved more details. Used by scan action to set the main text in the action view.
 	virtual QString detailedDescription() const;
 
 	/// Returns the scan should move to a new position before starting the scan.
 	bool goToPosition() const { return goToPosition_; }
 	/// Returns the position that the scan should move to.
-	QPair<double, double> position() const { return position_; }
+	QPointF position() const { return position_; }
 	/// Returns the x coordinate of the scan position.
-	double x() const { return position_.first; }
+	double x() const { return position_.x(); }
 	/// Returns the y coordinate of the scan position.
-	double y() const { return position_.second; }
-
-	/// Returns the AMControlInfo for the scanned region control.
-	AMControlInfo regionControlInfo() const { return regions_->defaultControl()->toInfo(); }
-	/// Returns the AMControlInfo for the time control.
-	AMControlInfo timeControlInfo() const { return regions_->defaultTimeControl()->toInfo(); }
+	double y() const { return position_.y(); }
 
 	/// Get a nice looking string that contains all the standard information in an XAS scan.   Used when exporting.
 	QString headerText() const;
@@ -99,9 +96,9 @@ public slots:
 	/// Sets whether the scan should move to a new position before starting.
 	void setGoToPosition(bool state);
 	/// Sets the position the scan should move to before starting.
-	void setPosition(QPair<double, double> pos);
+	void setPosition(const QPointF &pos);
 	/// Overloaded.  Takes the x and y position explicitly.
-	void setPosition(double xPos, double yPos) { setPosition(qMakePair(xPos, yPos)); }
+	void setPosition(double xPos, double yPos) { setPosition(QPointF(xPos, yPos)); }
 	/// Sets the x coordinate of the starting position of the scan.
 	void setX(double xPos);
 	/// Sets the y coordinate of the starting position of the scan.
@@ -110,6 +107,10 @@ public slots:
 protected slots:
 	/// Computes the total time any time the regions list changes.
 	void computeTotalTime() { computeTotalTimeImplementation(); }
+	/// Helper slot that connects the new region to the computeTotalTime slot.
+	void onRegionAdded(AMScanAxisRegion *region);
+	/// Helper slot that disconnects the region from the computTotalTime slot.
+	void onRegionRemoved(AMScanAxisRegion *region);
 
 protected:
 	/// Method that does all the calculations for calculating the estimated scan time.
@@ -118,7 +119,7 @@ protected:
 	/// Bool used to determine if the scan should go to a new location or stay wherever the current position is.
 	bool goToPosition_;
 	/// The position that the scan should go to when goToPosition_ is true.  \note Implementation detail: this currently assumes we are using the pseudomotor sample stage.
-	QPair<double, double> position_;
+	QPointF position_;
 };
 
 #endif // VESPERSENERGYSCANCONFIGURATION_H

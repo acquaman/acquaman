@@ -85,7 +85,6 @@ chtype AMProcessVariable::serverType2StatusType(chtype serverType)
 }
 
 
-
 AMProcessVariable::AMProcessVariable(const QString &pvName, bool monitor, QObject *parent, int connectionTimeoutMs) :
 	QObject(parent)
 {

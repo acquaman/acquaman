@@ -13,11 +13,14 @@ Q_OBJECT
 public:
 	/// Default constructor. Requires the name and base PV of the detector. It builds all the PV's and connects them accordingly.
 	CLSQE65000Detector(const QString &name, const QString &description, const QString &baseName, QObject *parent = 0);
+	/// Destructor.
+	virtual ~CLSQE65000Detector();
 
 	/// Returns the number of dimensions in the output of this detector. This is a spectrum detector, so it has a rank of 1.
 	virtual int rank() const { return 1; }
-	/// Returns the size (ie: number of elements) along each dimension of the detector.  Currently this is hardcoded to 1024.
-	virtual AMnDIndex size() const { return AMnDIndex(1024); }
+	/// Returns the size (ie: number of elements) along each dimension of the detector.  Currently this is hardcoded to 3648.
+	//virtual AMnDIndex size() const { return AMnDIndex(1024); }
+	virtual AMnDIndex size() const { return AMnDIndex(3648); }
 	/// Returns the size along a single axis \c axisNumber. This should be fast. \c axisNumber is assumed to be between 0 and rank()-1.
 	virtual int size(int axisNumber) const;
 	/// Returns a list of AMAxisInfo describing the size and nature of each detector axis, in order.
@@ -36,6 +39,8 @@ public:
 
 	/// Returns the current acquisition dwell time from the integration time control
 	virtual double acquisitionTime() const;
+	/// Returns the acquisition time tolerance for the detector.
+	virtual double acquisitionTimeTolerance() const;
 
 	/// The QE65000 can be configured to work with synchronized dwell time systems
 	virtual bool supportsSynchronizedDwell() const { return true; }
@@ -63,8 +68,8 @@ public:
 	/// Returns false, because the QE65000 detector does not support continuous reads
 	virtual bool lastContinuousReading(double *outputValues) const;
 
-	/// Returns a (hopefully) valid pointer to a block of detector data in row-major order (first axis varies slowest)
-	virtual const double* data() const;
+	/// Fills a (hopefully) valid pointer to a block of detector data in row-major order (first axis varies slowest)
+	virtual bool data(double *outputValues) const;
 
 	/// Returns a AM1DProcessVariableDataSource suitable for viewing
 	virtual AMDataSource* dataSource() const { return spectrumDataSource_; }
@@ -88,9 +93,6 @@ protected slots:
 	/// Handles if one or more the controls times out
 	void onControlsTimedOut();
 
-	/// Handles changes in the spectrum control
-	void onSpectrumControlChanged(double newValue);
-
 	/// Handles changes in the status control
 	void onStatusControlChanged(double value);
 
@@ -100,9 +102,6 @@ protected:
 	bool cleanupImplementation();
 
 protected:
-	/// Bool handling whether the detector was connected.
-	bool wasConnected_;
-
 	/// The status control
 	AMControl *statusControl_;
 	/// The integration time control
@@ -122,9 +121,6 @@ protected:
 
 	/// PV basename for the detector instance
 	QString baseName_;
-
-	/// Memory storage for values (used mainly for the data call).
-	double *data_;
 };
 
 #endif // CLSQE65000DETECTOR_H

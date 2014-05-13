@@ -39,6 +39,9 @@ public:
 	Q_INVOKABLE AMControlMoveAction3(AMControlMoveActionInfo3* info, AMControl *control = 0, QObject *parent = 0);
 	/// Copy constructor: must re-implement, but can simply use the AMAction copy constructor to make copies of the info and prereqs. We need to reset any internal state variables to make the copy a "like new" action - ie, not run yet.
 	AMControlMoveAction3(const AMControlMoveAction3& other);
+	/// Destructor.
+	virtual ~AMControlMoveAction3();
+
 	/// Virtual copy constructor
 	virtual AMAction3* createCopy() const { return new AMControlMoveAction3(*this); }
 

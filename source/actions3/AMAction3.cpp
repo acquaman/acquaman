@@ -333,7 +333,7 @@ bool AMAction3::canChangeState(State newState) const
 		break;
 
 	case Skipping:
-		if (canSkip() && state_ == Running)
+		if (canSkip() && (state_ == Running || state_ == Paused))
 			canTransition = true;
 		break;
 	}

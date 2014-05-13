@@ -30,6 +30,7 @@ class AMDbObjectGeneralView;
 class AMDbObjectGeneralViewObjectInfo{
 public:
 	/// The default constructor creates an invalid object
+ 	virtual ~AMDbObjectGeneralViewObjectInfo();
 	AMDbObjectGeneralViewObjectInfo(){
 		objectMetaObject = 0;
 		generalViewMetaObject = 0;

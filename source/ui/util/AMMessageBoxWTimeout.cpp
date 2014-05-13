@@ -2,6 +2,7 @@
 
 #include <QTimer>
 
+ AMMessageBoxWTimeout::~AMMessageBoxWTimeout(){}
 AMMessageBoxWTimeout::AMMessageBoxWTimeout(int mSecTimeout, QWidget *parent) :
 	QMessageBox(parent)
 {

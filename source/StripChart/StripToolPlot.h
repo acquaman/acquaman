@@ -19,7 +19,7 @@ class StripToolPlot : public MPlotWidget
 
 public:
     explicit StripToolPlot(QWidget *parent = 0);
-    ~StripToolPlot();
+    virtual ~StripToolPlot();
     
 signals:
     void selectionChanged(MPlotItem *plotSelection);

@@ -25,16 +25,21 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMediaObject>
 #include <QGraphicsVideoItem>
 
+ AMCrosshairOverlayVideoWidget::~AMCrosshairOverlayVideoWidget(){}
 AMCrosshairOverlayVideoWidget::AMCrosshairOverlayVideoWidget(QWidget *parent, bool useOpenGlViewport) :
 	AMOverlayVideoWidget(parent, useOpenGlViewport)
 {
 	crosshairX_ = 0.5;
 	crosshairY_ = 0.5;
 
-	QPen pen(QColor(Qt::red));
+	//QPen pen(QColor(Qt::red));
+	QPen pen(Qt::red);
 
 	crosshairXLine_ = scene()->addLine(0.5,0,0.5,1,pen);
 	crosshairYLine_ = scene()->addLine(0,0.5,0,1,pen);
+
+	crosshairXLine_->setVisible(false);
+	crosshairYLine_->setVisible(false);
 
 	reviewCrosshairLinePositions();
 
@@ -63,17 +68,17 @@ void AMCrosshairOverlayVideoWidget::reviewCrosshairLinePositions()
 		// One dimension the same, other dimension smaller than viewSize, if Qt::KeepAspectRatio
 		// or One dimension the same, other dimension LARGER than viewSize, if Qt::KeepAspectRatioByExpanding
 
-	QRectF activeRect = QRectF(QPointF((viewSize.width()-scaledSize.width())/2,
-									   (viewSize.height()-scaledSize.height())/2),
-							   scaledSize);
+//	QRectF activeRect = QRectF(QPointF((viewSize.width()-scaledSize.width())/2,
+//									   (viewSize.height()-scaledSize.height())/2),
+//							   scaledSize);
 
 	// activeRect is now a rectangle in scene coordinates that covers the actual area of the video [not the area of the videoWidget, which may be smaller or larger depending on the aspect ratio mode and aspect ratio of the actual video feed]
 
-	qreal xSceneCoord = activeRect.left() + crosshairX_*activeRect.width();
-	qreal ySceneCoord = activeRect.top() + crosshairY_*activeRect.height();
+//	qreal xSceneCoord = activeRect.left() + crosshairX_*activeRect.width();
+//	qreal ySceneCoord = activeRect.top() + crosshairY_*activeRect.height();
 
-	crosshairXLine_->setLine(xSceneCoord, activeRect.top(), xSceneCoord, activeRect.bottom());
-	crosshairYLine_->setLine(activeRect.left(), ySceneCoord, activeRect.right(), ySceneCoord);
+//	crosshairXLine_->setLine(xSceneCoord, activeRect.top(), xSceneCoord, activeRect.bottom());
+//	crosshairYLine_->setLine(activeRect.left(), ySceneCoord, activeRect.right(), ySceneCoord);
 }
 
 QPen AMCrosshairOverlayVideoWidget::crosshairPen() const

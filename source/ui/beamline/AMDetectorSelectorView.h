@@ -17,6 +17,7 @@ class AMDetectorSelectorView : public QGroupBox
 Q_OBJECT
 public:
 	/// Constructor for the top view. Going to put the internal view into a scroll area
+ 	virtual ~AMDetectorSelectorView();
 	AMDetectorSelectorView(AMDetectorSelector *detectorSelector, QWidget *parent = 0);
 
 protected:
@@ -33,6 +34,7 @@ class AMDetectorSelectorViewInternal : public QWidget
 Q_OBJECT
 public:
 	/// Constructor
+ 	virtual ~AMDetectorSelectorViewInternal();
 	AMDetectorSelectorViewInternal(AMDetectorSelector *detectorSelector, QWidget *parent = 0);
 
 protected slots:
@@ -41,7 +43,10 @@ protected slots:
 	/// Handles changes in the detector selector where detectors become unconnected
 	void onDetectorBecameUnconnected(AMDetector *detector);
 
+	/// Handles changes from the lineviews to the checked state (selected state)
 	void onDetectorCheckedChanged(bool selected);
+	/// Handles changes from the detectorSelected to the selected state
+	void onDetectorSelectorSelectedChanged(AMDetector *detector);
 
 protected:
 	/// Helper to locate insertion index for preferential ordering
@@ -75,6 +80,7 @@ class AMDetectorSelectorViewInternalLineView : public QWidget
 Q_OBJECT
 public:
 	/// Constructor. Creates a "single line" to view a single detector
+ 	virtual ~AMDetectorSelectorViewInternalLineView();
 	AMDetectorSelectorViewInternalLineView(AMDetector *detector, bool isSelected = false, QWidget *parent = 0);
 
 	/// Returns the detector name as a string

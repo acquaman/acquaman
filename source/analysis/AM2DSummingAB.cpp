@@ -21,6 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AM2DSummingAB.h"
 
 /// Constructor. \c outputName is the name() for the output data source.
+ AM2DSummingAB::~AM2DSummingAB(){}
 AM2DSummingAB::AM2DSummingAB(const QString& outputName, QObject* parent)
 	: AMStandardAnalysisBlock(outputName, parent) {
 
@@ -224,7 +225,7 @@ AMNumber AM2DSummingAB::value(const AMnDIndex& indexes) const {
 
 	AMNumber rv = cachedValues_.at(indexes.i());
 	// if we haven't calculated this sum yet, the cached value will be invalid. Sum and store.
-	if(!rv.isValid()) {
+        if(!rv.isValid() && sumRangeMin_ <= sumRangeMax_) {
 		double newVal = 0.0;	/// \todo preserve int/double nature of values
 		if(sumAxis_ == 0)
 			for(int i=sumRangeMin_; i<=sumRangeMax_; i++)
@@ -241,7 +242,7 @@ AMNumber AM2DSummingAB::value(const AMnDIndex& indexes) const {
 	else
 		return rv;
 }
-#include <QDebug>
+
 bool AM2DSummingAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
 {
 	if(indexStart.rank() != 1 || indexEnd.rank() != 1)
@@ -257,6 +258,9 @@ bool AM2DSummingAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEn
 	if((unsigned)indexEnd.i() >= (unsigned)axes_.at(0).size || (unsigned)indexStart.i() > (unsigned)indexEnd.i())
 		return false;
 #endif
+
+        if (sumRangeMin_ > sumRangeMax_)
+            return false;
 
 	int totalSize = indexStart.totalPointsTo(indexEnd);
 	int offset = indexStart.i();

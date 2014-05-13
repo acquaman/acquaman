@@ -25,6 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/datasource/AMDataSource.h"
 #include "dataman/AMScan.h"
 
+ AMDataSourcesEditor::~AMDataSourcesEditor(){}
 AMDataSourcesEditor::AMDataSourcesEditor(AMScanSetModel* model, QWidget *parent) :
 		QWidget(parent)
 {

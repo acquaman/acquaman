@@ -38,6 +38,7 @@ class SGMPeriodicTableView : public QWidget
 Q_OBJECT
 
 public:
+ 	virtual ~SGMPeriodicTableView();
 	SGMPeriodicTableView(SGMPeriodicTable *sgmPeriodicTable, QWidget *parent = 0);
 
 signals:
@@ -66,6 +67,7 @@ class SGMFastScanParametersModificationWizardPeriodicTablePage : public QWizardP
 {
 Q_OBJECT
 public:
+ 	virtual ~SGMFastScanParametersModificationWizardPeriodicTablePage();
 	SGMFastScanParametersModificationWizardPeriodicTablePage(QWidget *parent = 0);
 
 	virtual bool validatePage();
@@ -89,6 +91,7 @@ class SGMFastScanParametersModificationWizardEditOrCopyPage : public QWizardPage
 {
 Q_OBJECT
 public:
+ 	virtual ~SGMFastScanParametersModificationWizardEditOrCopyPage();
 	SGMFastScanParametersModificationWizardEditOrCopyPage(QWidget *parent = 0);
 
 	virtual bool validatePage();
@@ -117,6 +120,7 @@ class SGMFastScanParametersModificationWizardEditPage : public QWizardPage
 {
 Q_OBJECT
 public:
+ 	virtual ~SGMFastScanParametersModificationWizardEditPage();
 	SGMFastScanParametersModificationWizardEditPage(QWidget *parent = 0);
 
 	virtual bool validatePage();
@@ -147,6 +151,7 @@ class SGMFastScanParametersModificationWizardCopyDestinationSelectionPage : publ
 {
 Q_OBJECT
 public:
+ 	virtual ~SGMFastScanParametersModificationWizardCopyDestinationSelectionPage();
 	SGMFastScanParametersModificationWizardCopyDestinationSelectionPage(QWidget *parent = 0);
 
 	virtual bool validatePage();
@@ -177,6 +182,7 @@ class SGMFastScanParametersModificationWizardCopyShareEnergyPositionsPage : publ
 {
 Q_OBJECT
 public:
+ 	virtual ~SGMFastScanParametersModificationWizardCopyShareEnergyPositionsPage();
 	SGMFastScanParametersModificationWizardCopyShareEnergyPositionsPage(QWidget *parent = 0);
 
 	virtual bool validatePage();
@@ -206,6 +212,7 @@ class SGMFastScanParametersModificationWizardCopyEditFastScanParametersNamePage 
 {
 Q_OBJECT
 public:
+ 	virtual ~SGMFastScanParametersModificationWizardCopyEditFastScanParametersNamePage();
 	SGMFastScanParametersModificationWizardCopyEditFastScanParametersNamePage(QWidget *parent = 0);
 
 	virtual bool validatePage();
@@ -229,6 +236,7 @@ class SGMFastScanParametersModificationWizardCopyEditScanInfoPage : public QWiza
 {
 Q_OBJECT
 public:
+ 	virtual ~SGMFastScanParametersModificationWizardCopyEditScanInfoPage();
 	SGMFastScanParametersModificationWizardCopyEditScanInfoPage(QWidget *parent = 0);
 
 	virtual bool validatePage();
@@ -251,6 +259,7 @@ class SGMFastScanParametersModificationWizardCopyEditEnergyPositionsPage : publi
 {
 Q_OBJECT
 public:
+ 	virtual ~SGMFastScanParametersModificationWizardCopyEditEnergyPositionsPage();
 	SGMFastScanParametersModificationWizardCopyEditEnergyPositionsPage(QWidget *parent = 0);
 
 	virtual bool validatePage();
@@ -274,6 +283,7 @@ class SGMFastScanParametersModificationWizardCopyEditFastScanSettingsPage : publ
 {
 Q_OBJECT
 public:
+ 	virtual ~SGMFastScanParametersModificationWizardCopyEditFastScanSettingsPage();
 	SGMFastScanParametersModificationWizardCopyEditFastScanSettingsPage(QWidget *parent = 0);
 
 	virtual bool validatePage();
@@ -298,6 +308,7 @@ class SGMFastScanParametersModificationWizardCopyConfirmationPage : public QWiza
 {
 Q_OBJECT
 public:
+ 	virtual ~SGMFastScanParametersModificationWizardCopyConfirmationPage();
 	SGMFastScanParametersModificationWizardCopyConfirmationPage(QWidget *parent = 0);
 
 	virtual bool validatePage();
@@ -325,14 +336,14 @@ public:
 		EditEnergyPositionsPage = 7,
 		EditFastScanSettingsPage = 8,
 		CopyConfirmationPage = 9
-	     };
+		 };
 
 	enum CopyDestination{ CopySameSame = 0,
 		CopySameNew = 1,
 		CopyNewSame = 2,
 		CopyNewNew = 3,
 		CopyInvalidDestination = 4
-	     };
+		 };
 
 	SGMFastScanParametersModificationWizard(QWidget *parent = 0);
 
@@ -340,7 +351,7 @@ public:
 	SGMFastScanParameters* newFastScanParameters();
 
 	AMDatabase* newDatabase();
-	const AMElement* newElement();
+	AMElement* newElement();
 	SGMElementInfo* newElementInfo();
 	SGMScanInfo* newScanInfo();
 
@@ -348,7 +359,7 @@ public:
 
 public slots:
 	void setOriginatingFastScanIndex(int indexOfFastScan);
-	void copyOriginalFastScanParametersToNew(AMDatabase *database, const AMElement *element);
+	void copyOriginalFastScanParametersToNew(AMDatabase *database, AMElement *element);
 	void createNewElementInfo();
 	void createNewScanInfo();
 
@@ -359,7 +370,7 @@ protected:
 	SGMFastScanParameters *originatingFastScanParameters_;
 	SGMFastScanParameters *newFastScanParameters_;
 	AMDatabase *newDatabase_;
-	const AMElement *newElement_;
+	AMElement *newElement_;
 	SGMElementInfo *newElementInfo_;
 	SGMScanInfo *newScanInfo_;
 

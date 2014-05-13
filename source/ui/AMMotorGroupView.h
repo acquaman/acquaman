@@ -10,6 +10,10 @@
 
 #include "beamline/AMMotorGroup.h"
 
+class QGridLayout;
+class QVBoxLayout;
+class QHBoxLayout;
+
 /// This widget handles building a view for an AMMotorGroupObject.  Builds the view based on all the information provided in the object.
 class AMMotorGroupObjectView : public QWidget
 {
@@ -17,6 +21,7 @@ class AMMotorGroupObjectView : public QWidget
 
 public:
 	/// Constructor.  Builds a view based around the provided \param motorGroupObject.
+ 	virtual ~AMMotorGroupObjectView();
 	explicit AMMotorGroupObjectView(AMMotorGroupObject *motorGroupObject, QWidget *parent = 0);
 
 	/// Returns the AMMotorGroupObject that this view encapsulates.
@@ -26,30 +31,33 @@ public:
 	/// Sets whether the title is visible.  There may be cases when stacking many motors together where the default name placement is not necessary.
 	void setTitleVisible(bool visible) { titleLabel_->setVisible(visible); }
 
+	/// Sets the precision (number of decimals) for the control setpoint boxes (defaults to 3)
+	void setControlSetpointPrecision(int controlSetpointsPrecision);
+
 protected slots:
 	/// Slot that handles going up.
-	void onUpClicked();
+	virtual void onUpClicked();
 	/// Slot that handles going down.
-	void onDownClicked();
+	virtual void onDownClicked();
 	/// Slot that handles going left.
-	void onLeftClicked();
+	virtual void onLeftClicked();
 	/// Slot that handles going right.
-	void onRightClicked();
+	virtual void onRightClicked();
 	/// Slot that handles going in.
-	void onInClicked();
+	virtual void onInClicked();
 	/// Slot that handles going out.
-	void onOutClicked();
+	virtual void onOutClicked();
 	/// Slot that handles stopping.
 	void onStopClicked();
 	/// Slot that handles the first motor setpoint.
-	void onFirstControlSetpoint();
+	virtual void onFirstControlSetpoint();
 	/// Slot that handles the second motor setpoint.
-	void onSecondControlSetpoint();
+	virtual void onSecondControlSetpoint();
 	/// Slot that handles the third motor setpoint.
-	void onThirdControlSetpoint();
+	virtual void onThirdControlSetpoint();
 
 	/// Handles changes in the moving flags of the sample stages.
-	void onMovingChanged();
+	virtual void onMovingChanged();
 	/// Handles if the motors time out.
 	void onTimedOut() { setEnabled(false); }
 
@@ -63,10 +71,15 @@ protected:
 	QList<QLabel *> prefixLabels_;
 	/// List that holds the control setpoint spin boxes.
 	QList<QDoubleSpinBox *> controlSetpoints_;
+	/// List that holds the small horizontal layouts containing the controlSetpoints
+	QList<QHBoxLayout*> controlSetpointLayouts_;
 	/// Holds the jog spin box.
 	QDoubleSpinBox *jog_;
 	/// Holds the status label;
 	QLabel *status_;
+
+	/// Holds the precision (number of decimals) that will be displayed for the control setpoint boxes. Default is 3.
+	int controlSetpointsPrecision_;
 
 	// Buttons.
 	/// Stop button.
@@ -83,6 +96,11 @@ protected:
 	QToolButton *goIn_;
 	/// The jog out button.
 	QToolButton *goOut_;
+
+	QGridLayout *arrowLayout_;
+	QHBoxLayout *motorGroupLayout_;
+	QVBoxLayout *absoluteValueLayout_;
+	QHBoxLayout *jogLayout_;
 };
 
 /// This widget handles all of the AMMotorGroupObjectViews.
@@ -118,6 +136,7 @@ public:
 	enum ViewMode { Exclusive, Multiple };
 
 	/// Constructor.  Handles and builds all the views necessary for \param motorGroup.  Defaults to Exclusive view mode.
+ 	virtual ~AMMotorGroupView();
 	explicit AMMotorGroupView(AMMotorGroup *motorGroup, QWidget *parent = 0);
 	/// Constructor.  Handles and builds all the views necessary for \param motorGroup, also defines which view mode should be used.
 	explicit AMMotorGroupView(AMMotorGroup *motorGroup, ViewMode viewMode, QWidget *parent = 0);

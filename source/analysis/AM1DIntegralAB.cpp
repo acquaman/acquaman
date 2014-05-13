@@ -21,6 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "analysis/AM1DBasicIntegralABEditor.h"
 
+ AM1DIntegralAB::~AM1DIntegralAB(){}
 AM1DIntegralAB::AM1DIntegralAB(const QString &outputName, QObject *parent)
 	: AMStandardAnalysisBlock(outputName, parent)
 {

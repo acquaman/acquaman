@@ -2,6 +2,7 @@
 
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 
+ CLSAdvancedScalerChannelDetector::~CLSAdvancedScalerChannelDetector(){}
 CLSAdvancedScalerChannelDetector::CLSAdvancedScalerChannelDetector(const QString &name, const QString &description, CLSSIS3820Scaler *scaler, int channelIndex, QObject *parent) :
 	CLSBasicScalerChannelDetector(name, description, scaler, channelIndex, parent)
 {
@@ -32,10 +33,14 @@ int CLSAdvancedScalerChannelDetector::lastContinuousSize() const{
 	return continuousSize_;
 }
 
-const double* CLSAdvancedScalerChannelDetector::data() const{
+bool CLSAdvancedScalerChannelDetector::data(double *outputValues) const
+{
 	if(readMode_ == AMDetectorDefinitions::ContinuousRead)
-		return continuousData_.constData();
-	return data_;
+		return lastContinuousReading(outputValues);
+
+	outputValues[0] = singleReading();
+
+	return true;
 }
 
 bool CLSAdvancedScalerChannelDetector::setReadMode(AMDetectorDefinitions::ReadMode readMode){
@@ -93,7 +98,6 @@ void CLSAdvancedScalerChannelDetector::onScalerScanningChanged(bool isScanning){
 	if(isScanning)
 		setAcquiring();
 	else if(readMode_== AMDetectorDefinitions::SingleRead){
-		data_[0] = singleReading();
 
 		if(isAcquiring())
 			setAcquisitionSucceeded();
@@ -102,9 +106,8 @@ void CLSAdvancedScalerChannelDetector::onScalerScanningChanged(bool isScanning){
 }
 
 void CLSAdvancedScalerChannelDetector::onReadingChanged(){
-	if(readMode_ == AMDetectorDefinitions::SingleRead)
-		data_[0] = singleReading();
-	else if(readMode_ == AMDetectorDefinitions::ContinuousRead){
+
+	if(readMode_ == AMDetectorDefinitions::ContinuousRead){
 		QVector<int> allIntReadings = scaler_->reading();
 		int enabledChannelCount = scaler_->enabledChannelCount();
 		int totalDataCount = allIntReadings.at(0)/enabledChannelCount;
@@ -113,12 +116,11 @@ void CLSAdvancedScalerChannelDetector::onReadingChanged(){
 		continuousSize_ = totalDataCount;
 		for(int x = 0; x < totalDataCount; x++)
 			continuousData_.append(allIntReadings.at(x*enabledChannelCount + channelIndex_ + 1));
-
-		//qDebug() << "\n\n\nMy data is " << continuousData_;
 	}
 
 	if(isAcquiring())
 		setAcquisitionSucceeded();
+
 	checkReadyForAcquisition();
 }
 

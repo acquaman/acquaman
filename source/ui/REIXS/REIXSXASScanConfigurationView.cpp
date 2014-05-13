@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/AMTopFrame2.h"
 #include "ui/acquaman/AMRegionsView.h"
-#include "ui/dataman/AMSampleSelector.h"
+#include "ui/dataman/AMSamplePre2013Selector.h"
 #include "util/AMDateTimeUtils.h"
 #include <QStringBuilder>
 
@@ -45,7 +45,7 @@ REIXSXASScanConfigurationView::REIXSXASScanConfigurationView(REIXSXASScanConfigu
 	ui->innerVLayout->insertWidget(0, new AMRegionsView(config_->regions()));
 	ui->innerVLayout->addStretch();
 
-	sampleSelector_ = new AMSampleSelector(AMDatabase::database("user"));
+	sampleSelector_ = new AMSamplePre2013Selector(AMDatabase::database("user"));
 	ui->scanMetaInfoLayout->setWidget(2, QFormLayout::FieldRole, sampleSelector_);
 
 

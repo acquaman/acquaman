@@ -18,8 +18,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef ACQMAN_CONTROL_H
-#define ACQMAN_CONTROL_H
+#ifndef AM_CONTROL_H
+#define AM_CONTROL_H
 
 #include <QObject>
 #include <QString>
@@ -282,6 +282,7 @@ public:
   \param units The default unit description.
   \param parent QObject parent for memory management
   */
+ 	virtual ~AMControl();
 	AMControl(const QString& name, const QString& units = "", QObject* parent = 0, const QString description = "");
 
 	/// \name Control info
@@ -319,6 +320,9 @@ public:
 
 	/// This value defines how close the final value() must be to the setpoint(), for the move() to have succeeded.
 	double tolerance() const { return tolerance_; }
+
+	/// This flag determines if moves happen when already within tolerance. If true (default) then a control will attempt a move no matter what. If that control never switches to the moving state, then the move will likely timeout even though it is within tolerance.
+	bool attemptMoveWhenWithinTolerance() const { return attemptMoveWhenWithinTolerance_; }
 
 	/// This represents the current value/position of the control. Must reimplement for actual controls.
 	virtual double value() const { return -1; }
@@ -489,6 +493,9 @@ public slots:
 	/// This sets the tolerance level: the required level of accuracy for successful move()s.
 	void setTolerance(double newTolerance) { tolerance_ = newTolerance; }
 
+	/// This sets the flag to determine if moves happen when already within tolerance. If true (default) then a control will attempt a move no matter what. If that control never switches to the moving state, then the move will likely timeout even though it is within tolerance.
+	void setAttemptMoveWhenWithinTolerance(bool attemptMoveWhenWithinTolerance) { attemptMoveWhenWithinTolerance_ = attemptMoveWhenWithinTolerance; }
+
 	/// This sets the human-readable description for the control
 	void setDescription(const QString &description) { description_ = description; }
 
@@ -566,6 +573,8 @@ protected:
 	/// True if the control should allow additional move() commands while it's already moving. Some hardware can handle this. If this is false, move() requests issued while the control is moving are ignored.  It is false by default; subclassses should change this if required.
 	bool allowsMovesWhileMoving_;
 
+	/// A flag to tell controls whether or not to attempt a move when they are already within tolerance
+	bool attemptMoveWhenWithinTolerance_;
 
 
 protected slots:
@@ -597,8 +606,6 @@ private:
 	QString description_;
 	/// Human-readable description. Very short, for when the context is known. Might be "X" as opposed to "SSA Manipulator X"
 	QString contextKnownDescription_;
-
-
 };
 
 

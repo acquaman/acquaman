@@ -26,6 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/database/AMDbObjectSupport.h"
 #include "util/AMErrorMonitor.h"
 
+ AMDbObjectGeneralView::~AMDbObjectGeneralView(){}
 AMDbObjectGeneralView::AMDbObjectGeneralView(QWidget *parent) :
 	QWidget(parent)
 {

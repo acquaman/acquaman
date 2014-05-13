@@ -8,6 +8,7 @@ class AMPointerTreeNode : public QObject
 {
 Q_OBJECT
 public:
+ 	virtual ~AMPointerTreeNode();
 	AMPointerTreeNode(void *item, AMPointerTreeNode *parentNode, QObject *parent = 0);
 
 	void* item();

@@ -35,7 +35,7 @@ class REIXSSidebar : public QWidget
 
 public:
     explicit REIXSSidebar(QWidget *parent = 0);
-    ~REIXSSidebar();
+    virtual ~REIXSSidebar();
 
 private:
     Ui::REIXSSidebar *ui;
@@ -66,6 +66,8 @@ protected slots:
 
 	/// When the scaler's continuous mode is changed
 	void onScalerContinuousModeChanged(double on);
+private slots:
+	// void on_beamOnButton_clicked();  DAVID OOPS?
 };
 
 #endif // REIXSSIDEBAR_H

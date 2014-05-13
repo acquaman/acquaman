@@ -1,4 +1,4 @@
-/*
+ /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
@@ -19,6 +19,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMNumberChangeActionInfo.h"
 
+ AMNumberChangeActionInfo::~AMNumberChangeActionInfo(){}
 AMNumberChangeActionInfo::AMNumberChangeActionInfo(int newNumber, int indexToChange, QObject *parent) :
 	AMActionInfo3("Number Change", "Number Change", ":/system-run.png", parent)
 {

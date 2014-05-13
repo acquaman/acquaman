@@ -3,6 +3,7 @@
 #include <QHBoxLayout>
 #include "beamline/CLS/CLSAmptekSDD123DetectorNew.h"
 
+ CLSAmptekSDD123DetectorNewView::~CLSAmptekSDD123DetectorNewView(){}
 CLSAmptekSDD123DetectorNewView::CLSAmptekSDD123DetectorNewView(CLSAmptekSDD123DetectorNew *detector, QWidget *parent) :
 	AMDetectorGeneralDetailedView(detector, parent)
 {

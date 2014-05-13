@@ -8,6 +8,7 @@
 // CLSPseudoMotorGroupObjectView
 ////////////////////////////////////////////////////
 
+ CLSPseudoMotorGroupObjectView::~CLSPseudoMotorGroupObjectView(){}
 CLSPseudoMotorGroupObjectView::CLSPseudoMotorGroupObjectView(CLSPseudoMotorGroupObject *motorGroupObject, QWidget *parent)
 	: AMMotorGroupObjectView(motorGroupObject, parent)
 {
@@ -17,6 +18,7 @@ CLSPseudoMotorGroupObjectView::CLSPseudoMotorGroupObjectView(CLSPseudoMotorGroup
 // CLSPseudoMotorGroupView
 ////////////////////////////////////////////////////
 
+ CLSPseudoMotorGroupView::~CLSPseudoMotorGroupView(){}
 CLSPseudoMotorGroupView::CLSPseudoMotorGroupView(CLSPseudoMotorGroup *motorGroup, QWidget *parent)
 	: AMMotorGroupView(motorGroup, parent)
 {

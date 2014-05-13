@@ -9,6 +9,7 @@
 #include <QMenu>
 #include <QMessageBox>
 
+ AMActionRunnerBottomBarCurrentView3::~AMActionRunnerBottomBarCurrentView3(){}
 AMActionRunnerBottomBarCurrentView3::AMActionRunnerBottomBarCurrentView3(AMActionRunner3 *actionRunner, QWidget *parent)
 	: QWidget(parent)
 {
