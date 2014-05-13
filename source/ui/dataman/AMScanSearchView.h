@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QTableView>
 #include <QAbstractTableModel>
+#include <QSortFilterProxyModel>
 #include <acquaman/SGM/SGMXASScanConfiguration.h>
 #include <dataman/AMSample.h>
 #include <dataman/database/AMDatabase.h>
@@ -32,9 +33,16 @@ public:
 protected:
 	/// Initialises all the needed settings for the window (constructs Widgets, sets title etc.)
 	void initDialog();
+	QLineEdit* searchCriteria_;
+	QComboBox* searchFields_;
+	QSortFilterProxyModel* proxyModel_;
 signals:
 	
 public slots:
+
+protected slots:
+	void onSearchFieldChanged();
+	void onSearchCriteriaChanged();
 	
 };
 

@@ -59,8 +59,8 @@ AMDataView::AMDataView(AMDatabase* database, QWidget *parent) :
 	gview_->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 	gview_->setAlignment(Qt::AlignLeft | Qt::AlignTop);
 
-	// initialise and add Search dialog window
-	searchDialog_ = new AMScanSearchView();
+	// set Search Dialog to null, will be initialized on first call
+	searchDialog_ =0; // new AMScanSearchView();
 
 	gscene_ = new QGraphicsScene(this);
 	// This is necessary to avoid Qt bug https://bugreports.qt.nokia.com/browse/QTBUG-18021
@@ -232,6 +232,12 @@ void AMDataView::setViewMode(int mode) {
 
 void AMDataView::OnSearchScansButtonClicked()
 {
+	if(searchDialog_ == 0)
+	{
+		QApplication::setOverrideCursor(Qt::WaitCursor);
+		searchDialog_ = new AMScanSearchView();
+		QApplication::restoreOverrideCursor();
+	}
 	if(!searchDialog_->isVisible())
 		searchDialog_->show();
 	searchDialog_->raise();

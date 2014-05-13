@@ -1,5 +1,5 @@
 #include "AMScanSearchView.h"
-
+#include <QHeaderView>
 // Definitions for AMScanSearchView
 ///////////////////////////////////
 
@@ -13,23 +13,75 @@ void AMScanSearchView::initDialog()
 {
 	// Set Window properties
 	setWindowTitle(QString("Search Scans"));
-	resize(750, 800);
+	resize(1024, 640);
 	// Set layout and widgets
 	QVBoxLayout* mainLayout = new QVBoxLayout();
 
 	QFormLayout* filterLayout = new QFormLayout();
 
-	filterLayout->addRow(new QLabel(QString("Search:")), new QLineEdit);
-	filterLayout->addRow(new QLabel(QString("Filter Column:")), new QComboBox);
-	filterLayout->addRow(new QLabel(QString("Filter Syntax:")), new QComboBox);
+	searchCriteria_ = new QLineEdit();
+	searchFields_ = new QComboBox();
+
+	searchFields_->addItem(QString("Name"));
+	searchFields_->addItem(QString("#"));
+	searchFields_->addItem(QString("When"));
+	searchFields_->addItem(QString("Sample Name"));
+	searchFields_->addItem(QString("Sample Time"));
+	searchFields_->addItem(QString("Exit Slit"));
+	searchFields_->addItem(QString("Grating"));
+	searchFields_->addItem(QString("Harmonic"));
+
+
+	filterLayout->addRow(new QLabel(QString("Search:")), searchCriteria_);
+	filterLayout->addRow(new QLabel(QString("Filter Column:")), searchFields_);
 	mainLayout->addLayout(filterLayout);
 
 
+
 	QTableView* searchResults = new QTableView();
-	searchResults->setModel(new AMScanSearchInfoListModel());
+
+	searchResults->setAlternatingRowColors(true);
+	searchResults->setSelectionBehavior(QAbstractItemView::SelectRows);
+	searchResults->setSelectionMode(QAbstractItemView::ExtendedSelection);
+	searchResults->verticalHeader()->setVisible(false);
+	searchResults->setShowGrid(false);
+
+	AMScanSearchInfoListModel* infoListModel = new AMScanSearchInfoListModel(this);
+	proxyModel_ = new QSortFilterProxyModel(this);
+	proxyModel_->setSourceModel(infoListModel);
+	searchResults->setModel(proxyModel_);
 	mainLayout->addWidget(searchResults);
 
 	this->setLayout(mainLayout);
+
+	searchResults->setColumnHidden(0, true);
+	searchResults->setColumnWidth(1, 210);
+	searchResults->setColumnWidth(2, 40);
+	searchResults->setColumnWidth(3, 180);
+	searchResults->setColumnWidth(4, 120);
+	searchResults->setColumnWidth(5, 120);
+	searchResults->setColumnWidth(6, 120);
+	searchResults->setSortingEnabled(true);
+	QFont font = searchResults->font();
+	font.setPointSize(11);
+	searchResults->setFont(font);
+
+	connect(searchCriteria_, SIGNAL(editingFinished()), this, SLOT(onSearchCriteriaChanged()));
+	connect(searchFields_, SIGNAL(currentIndexChanged(int)), this, SLOT(onSearchFieldChanged()));
+	proxyModel_->setFilterKeyColumn(1);
+
+}
+
+void AMScanSearchView::onSearchFieldChanged()
+{
+	//+1 offset as id not searchable
+	proxyModel_->setFilterKeyColumn(searchFields_->currentIndex()+1);
+}
+
+void AMScanSearchView::onSearchCriteriaChanged()
+{
+	QRegExp regExp(searchCriteria_->text(), Qt::CaseInsensitive, QRegExp::Wildcard);
+	proxyModel_->setFilterRegExp(regExp);
 }
 
 // Definitions for AMScanSearchInfo
@@ -110,12 +162,14 @@ AMSample *AMScanSearchInfo::sample()
 void AMScanSearchInfo::initializeConfig(int configID)
 {
 
+
 	AMDatabase* database = AMDatabase::database("user");
 	if(database == 0)
 		return;
 
 	configuration_ = new SGMXASScanConfiguration();
 	configuration_->loadFromDb(database, configID);
+
 }
 
 void AMScanSearchInfo::initializeSample(int sampleID)
@@ -158,10 +212,6 @@ QVariant AMScanSearchInfoListModel::data(const QModelIndex &index, int role) con
 	if (role == Qt::TextAlignmentRole)
 		return Qt::AlignCenter;
 
-	// If handling the background color.
-	//if (role == Qt::BackgroundRole)
-		//return scans_->at(index.row())->isValid() ? Qt::white : Qt::red;
-
 	// We only answer to Qt::DisplayRole right now
 	if(role != Qt::DisplayRole)
 		return QVariant();
@@ -201,11 +251,11 @@ QVariant AMScanSearchInfoListModel::data(const QModelIndex &index, int role) con
 		break;
 	case 7: // The configuration grating
 		if(scanInfo->configuration() != 0)
-			dataVal = scanInfo->configuration()->grating();
+			dataVal = SGMBeamlineInfo::sgmInfo()->sgmGratingDescription(scanInfo->configuration()->grating());
 		break;
 	case 8: // The configuration harmonic
 		if(scanInfo->configuration() != 0)
-			dataVal = scanInfo->configuration()->harmonic();
+			dataVal = SGMBeamlineInfo::sgmInfo()->sgmHarmonicDescription(scanInfo->configuration()->harmonic());
 		break;
 	default:
 		break; // Return null if not a specific case.
@@ -259,6 +309,8 @@ QVariant AMScanSearchInfoListModel::headerData(int section, Qt::Orientation orie
 
 	return header;
 }
+
+
 
 
 
