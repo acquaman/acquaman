@@ -16,7 +16,7 @@ AMStepScanAxisElementView::AMStepScanAxisElementView(AMScanAxisRegion *region, Q
 	start_ = new QDoubleSpinBox;
 	start_->setRange(-100000, 100000);
 	start_->setSuffix(" eV");
-	start_->setDecimals(2);
+    start_->setDecimals(3);
 	start_->setValue(region_->regionStart());
 	start_->setAlignment(Qt::AlignCenter);
 	connect(region_, SIGNAL(regionStartChanged(AMNumber)), this, SLOT(setStartSpinBox(AMNumber)));
@@ -25,7 +25,7 @@ AMStepScanAxisElementView::AMStepScanAxisElementView(AMScanAxisRegion *region, Q
 	delta_ = new QDoubleSpinBox;
 	delta_->setRange(-100000, 100000);
 	delta_->setSuffix(" eV");
-	delta_->setDecimals(2);
+    delta_->setDecimals(3);
 	delta_->setValue(region_->regionStep());
 	delta_->setAlignment(Qt::AlignCenter);
 	connect(region_, SIGNAL(regionStepChanged(AMNumber)), this, SLOT(setDeltaSpinBox(AMNumber)));
@@ -34,7 +34,7 @@ AMStepScanAxisElementView::AMStepScanAxisElementView(AMScanAxisRegion *region, Q
 	end_ = new QDoubleSpinBox;
 	end_->setRange(-100000, 100000);
 	end_->setSuffix(" eV");
-	end_->setDecimals(2);
+    end_->setDecimals(3);
 	end_->setValue(region_->regionEnd());
 	end_->setAlignment(Qt::AlignCenter);
 	connect(region_, SIGNAL(regionEndChanged(AMNumber)), this, SLOT(setEndSpinBox(AMNumber)));
@@ -43,7 +43,7 @@ AMStepScanAxisElementView::AMStepScanAxisElementView(AMScanAxisRegion *region, Q
 	time_ = new QDoubleSpinBox;
 	time_->setRange(-100000, 100000);
 	time_->setSuffix(" s");
-	time_->setDecimals(2);
+    time_->setDecimals(2);
 	time_->setValue(region_->regionTime());
 	time_->setAlignment(Qt::AlignCenter);
 	connect(region_, SIGNAL(regionTimeChanged(AMNumber)), this, SLOT(setTimeSpinBox(AMNumber)));

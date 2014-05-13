@@ -23,12 +23,18 @@
 #include "ui/CLS/CLSSIS3820ScalerView.h"
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 #include "ui/BioXAS/BioXASSidePersistentView.h"
+#include "acquaman/BioXASSide/BioXASSideXASScanConfiguration.h"
+#include "ui/BioXAS/BioXASSideXASScanConfigurationView.h"
+#include "ui/acquaman/AMScanConfigurationViewHolder3.h"
 
 BioXASSideAppController::BioXASSideAppController(QObject *parent)
 	: AMAppController(parent)
 {
     scalerView_ = 0;
     persistentPanel_ = 0;
+    configuration_ = 0;
+    configurationView_ = 0;
+    configurationViewHolder_ = 0;
 }
 
 bool BioXASSideAppController::startup()
@@ -92,11 +98,25 @@ void BioXASSideAppController::onBeamlineConnected()
         mw_->addRightWidget(persistentPanel_);
     }
 
+    if (BioXASSideBeamline::bioXAS()->isConnected() && !configurationView_) {
+        configuration_ = new BioXASSideXASScanConfiguration();
+        configuration_->scanAxisAt(0)->regionAt(0)->setRegionStart(1.800);
+        configuration_->scanAxisAt(0)->regionAt(0)->setRegionStep(0.005);
+        configuration_->scanAxisAt(0)->regionAt(0)->setRegionEnd(1.850);
+        configuration_->scanAxisAt(0)->regionAt(0)->setRegionTime(1.0);
+
+        configurationView_ = new BioXASSideXASScanConfigurationView(configuration_);
+
+        configurationViewHolder_ = new AMScanConfigurationViewHolder3(configurationView_);
+
+        mw_->addPane(configurationViewHolder_, "Scans", "Test Scan", ":/utilities-system-monitor.png");
+    }
+
 }
 
 void BioXASSideAppController::registerClasses()
 {
-
+    AMDbObjectSupport::s()->registerClass<BioXASSideXASScanConfiguration>();
 }
 
 void BioXASSideAppController::setupExporterOptions()
@@ -124,6 +144,10 @@ void BioXASSideAppController::setupExporterOptions()
 	bioXASDefaultXAS->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.dat");
 	bioXASDefaultXAS->setHigherDimensionsInRows(true);
 	bioXASDefaultXAS->storeToDb(AMDatabase::database("user"));
+
+    if (bioXASDefaultXAS->id() > 0) {
+        AMAppControllerSupport::registerClass<BioXASSideXASScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(bioXASDefaultXAS->id());
+    }
 
 //	if(bioXASDefaultXAS->id() > 0)
 //			AMAppControllerSupport::registerClass<IDEASXASScanConfiguration, AMExporterAthena, AMExporterOptionGeneralAscii>(bioXASDefaultXAS->id());

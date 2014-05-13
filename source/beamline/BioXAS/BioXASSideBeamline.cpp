@@ -64,6 +64,8 @@ void BioXASSideBeamline::setupComponents()
 {
     scaler_ = new CLSSIS3820Scaler("BL07ID-Side:mcs", this);
 
+    testDetector_ = new CLSBasicScalerChannelDetector("TestDetector", "Test Detector", scaler_, 0, this);
+
     connect( scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(onScalerConnectedChanged(bool)) );
 
     scaler_->channelAt(0)->setCustomChannelName("Test channel");
@@ -81,12 +83,12 @@ void BioXASSideBeamline::setupControlsAsDetectors()
 
 void BioXASSideBeamline::setupExposedControls()
 {
-
+    addExposedControl(m1UpperSlit_);
 }
 
 void BioXASSideBeamline::setupExposedDetectors()
 {
-
+    addExposedDetector(testDetector_);
 }
 
 BioXASSideBeamline::~BioXASSideBeamline()
@@ -107,6 +109,11 @@ CLSMAXvMotor* BioXASSideBeamline::m1UpperSlit()
 bool BioXASSideBeamline::isConnected() const
 {
     return scaler_->isConnected() && m1UpperSlit_->isConnected();
+}
+
+CLSBasicScalerChannelDetector* BioXASSideBeamline::testDetector()
+{
+    return testDetector_;
 }
 
 void BioXASSideBeamline::onScalerConnectedChanged(bool connectionState)

@@ -42,6 +42,8 @@ public:
 
     virtual bool isConnected() const;
 
+    CLSBasicScalerChannelDetector* testDetector();
+
 protected slots:
     void onScalerConnectedChanged(bool connectionState);
     void onM1UpperSlitConnectedChanged(bool connectionState);
@@ -77,6 +79,8 @@ protected:
     CLSSIS3820Scaler *scaler_;
     CLSMAXvMotor *m1UpperSlit_;
     bool wasConnected_;
+
+    CLSBasicScalerChannelDetector *testDetector_;
 };
 
 #endif // BIOXASSIDEBEAMLINE_H

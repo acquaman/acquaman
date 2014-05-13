@@ -5,6 +5,9 @@
 
 class CLSSIS3820ScalerView;
 class BioXASSidePersistentView;
+class BioXASSideXASScanConfiguration;
+class BioXASSideXASScanConfigurationView;
+class AMScanConfigurationViewHolder3;
 
 class BioXASSideAppController : public AMAppController
 {
@@ -47,6 +50,13 @@ protected:
     CLSSIS3820ScalerView *scalerView_;
 
     BioXASSidePersistentView *persistentPanel_;
+
+    BioXASSideXASScanConfiguration *configuration_;
+
+    BioXASSideXASScanConfigurationView *configurationView_;
+
+    AMScanConfigurationViewHolder3 *configurationViewHolder_;
+
 
 };
 
