@@ -62,26 +62,31 @@ protected slots:
 	void onLowIndexLineEditEditingFinished(int index);
 	void onHighIndexLineEditEditingFinished(int index);
 
+	void onLowIndexDoubleSpinBoxEditingFinished(int index);
+	void onHighIndexDoubleSpinBoxEditingFinished(int index);
+
 	/// Slot for handling changes to the detectors evPerBit
 	void onDetectorEvPerBinChanged(double newValue);
 
-	/// Slot for handling changes to the ComboBox which specifies whether to use eV or bin for values
-	void onRoiEditModeComboBoxIndexChanged(int newIndex);
 protected:
-	void roiEditingFinishedHelper(int index);
+	void roiLineEditingFinishedHelper(int index);
+	void roiSpinBoxEditingFinishedHelper(int index);
 
 protected:
-	/// Whether edits to ROIs are interpreted in terms of eVs or bin
-	bool isInEvMode_;
 	CLSAmptekSDD123DetectorNew *detector_;
 
 	QList<QLineEdit*> roiLowIndexLineEdits_;
 	QList<QLineEdit*> roiHighIndexLineEdits_;
+	QList<QDoubleSpinBox*> roiLowIndexDoubleSpinBoxes_;
+	QList<QDoubleSpinBox*> roiHighIndexDoubleSpinBoxes_;
 	/// Widget for displaying the eV/bin value of the detector (declared here to allow it to be updated)
 	QLabel* roiEditModeConversionRateLabel;
 
 	QSignalMapper *roiLowIndexLineEditsMapper_;
 	QSignalMapper *roiHighIndexLineEditsMapper_;
+
+	QSignalMapper* roiLowIndexDoubleSpinBoxesMapper_;
+	QSignalMapper* roiHighIndexDoubleSpinBoxesMapper_;
 };
 
 class CLSAmptekDetectorConfigurationView : public QWidget
