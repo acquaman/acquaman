@@ -136,17 +136,14 @@ CLSAmptekDetectorROIView::CLSAmptekDetectorROIView(CLSAmptekSDD123DetectorNew *d
 	roiHighIndexDoubleSpinBoxesMapper_ = new QSignalMapper();
 
 
-	//Set up header widgets (includes edit mode (eV or bin) and current detector eV->bin conversion)
+	//Set up header widgets (current detector eV->bin conversion)
 	QTabWidget* editModeTab = new QTabWidget();
-	QHBoxLayout* headerHBoxLayout;
 
-	headerHBoxLayout = new QHBoxLayout();
 	roiEditModeConversionRateLabel = new QLabel();
 	if(detector_->isConnected())
-		roiEditModeConversionRateLabel->setText(QString("%1 eV/bin").arg(detector_->eVPerBin()));
+		roiEditModeConversionRateLabel->setText(QString("Note: Values will be set in increments of %1 eV/bin").arg(detector_->eVPerBin()));
 
-	headerHBoxLayout->addWidget(roiEditModeConversionRateLabel);
-	mainVL->addLayout(headerHBoxLayout);
+	page1VL->addWidget(roiEditModeConversionRateLabel);
 
 	//Set up widgets for each ROI
 	QLabel *oneLineEditNameLabel;
@@ -157,6 +154,8 @@ CLSAmptekDetectorROIView::CLSAmptekDetectorROIView(CLSAmptekSDD123DetectorNew *d
 	QDoubleSpinBox *oneLowIndexDoubleSpinBox;
 	QHBoxLayout *oneHBoxLayoutLineEdits;
 	QHBoxLayout *oneHBoxLayoutDoubleSpinBoxes;
+
+
 
 	for(int x = 0; x < 8; x++){
 		oneLineEditNameLabel = new QLabel(QString("ROI %1").arg(x+1));
@@ -327,16 +326,14 @@ void CLSAmptekDetectorROIView::roiSpinBoxEditingFinishedHelper(int index)
 {
 	double inputLowValue = roiLowIndexDoubleSpinBoxes_.at(index)->value();
 	double inputHighValue = roiHighIndexDoubleSpinBoxes_.at(index)->value();
-	detector_->setAmptekROIbyEv(index, roiLowIndexDoubleSpinBoxes_.at(index)->value(), roiHighIndexDoubleSpinBoxes_.at(index)->value());
-	if(inputLowValue < roiLowIndexDoubleSpinBoxes_.at(index)->value())
-		QToolTip::showText(roiLowIndexLineEdits_.at(index)->mapToGlobal(QPoint(roiLowIndexDoubleSpinBoxes_.at(index)->width(),0)), QString("Value rounded up (increments are in steps of %1").arg(detector_->eVPerBin()));
-	if(inputLowValue > roiLowIndexDoubleSpinBoxes_.at(index)->value())
-		QToolTip::showText(roiLowIndexLineEdits_.at(index)->mapToGlobal(QPoint(roiLowIndexDoubleSpinBoxes_.at(index)->width(),0)), QString("Value rounded down (increments are in steps of %1").arg(detector_->eVPerBin()));
 
-	if(inputHighValue < roiHighIndexDoubleSpinBoxes_.at(index)->value())
-		QToolTip::showText(roiHighIndexLineEdits_.at(index)->mapToGlobal(QPoint(roiHighIndexDoubleSpinBoxes_.at(index)->width(),0)), QString("Value rounded up (increments are in steps of %1").arg(detector_->eVPerBin()));
-	if(inputHighValue > roiHighIndexDoubleSpinBoxes_.at(index)->value())
-		QToolTip::showText(roiHighIndexLineEdits_.at(index)->mapToGlobal(QPoint(roiHighIndexDoubleSpinBoxes_.at(index)->width(),0)), QString("Value rounded down (increments are in steps of %1").arg(detector_->eVPerBin()));
+	detector_->setAmptekROIbyEv(index, roiLowIndexDoubleSpinBoxes_.at(index)->value(), roiHighIndexDoubleSpinBoxes_.at(index)->value());
+
+	if(!qFuzzyCompare(inputLowValue, detector_->amptekLowROIEv(index)))
+		roiLowIndexDoubleSpinBoxes_.at(index)->setValue(detector_->amptekLowROIEv(index));
+
+	if(!qFuzzyCompare(inputHighValue, detector_->amptekHighROIEv(index)))
+		roiHighIndexDoubleSpinBoxes_.at(index)->setValue(detector_->amptekHighROIEv(index));
 
 }
 
