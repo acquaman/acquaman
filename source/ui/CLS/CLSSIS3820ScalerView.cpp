@@ -25,6 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/CLS/CLSSR570View.h"
 
 #include "ui/CLS/CLSSIS3820ScalerChannelViewWithDarkCurrent.h"
+#include "ui/CLS/CLSDarkCurrentWidget.h"
 
 // CLSSIS3820ScalerView
 ///////////////////////////////////////////////
