@@ -1,29 +1,29 @@
-//#ifndef STVARIABLE_H
-//#define STVARIABLE_H
+#ifndef STVARIABLE_H
+#define STVARIABLE_H
 
-//#include <QObject>
+#include <QObject>
 
-//class STDataCollection;
+class STDataCollection;
 
-//class STVariable : public QObject
-//{
-//    Q_OBJECT
+class STVariable : public QObject
+{
+    Q_OBJECT
 
-//public:
-//    explicit STVariable(STDataCollection *data, QObject *parent = 0);
-//    virtual ~STVariable();
+public:
+    explicit STVariable(STDataCollection *data, QObject *parent = 0);
+    virtual ~STVariable();
 
-//    STDataCollection* dataCollection();
+    STDataCollection* dataCollection();
 
-//signals:
-//    void dataCollectionChanged(STDataCollection *newDataCollection);
+signals:
+    void dataCollectionChanged(STDataCollection *newDataCollection);
 
-//public slots:
-//    void setDataCollection(STDataCollection *newDataCollection);
+public slots:
+    void setDataCollection(STDataCollection *newDataCollection);
 
-//protected:
-//    STDataCollection dataCollection_;
+protected:
+    STDataCollection *dataCollection_;
 
-//};
+};
 
-//#endif // STVARIABLE_H
+#endif // STVARIABLE_H

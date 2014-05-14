@@ -1,29 +1,29 @@
-//#include "STVariable.h"
+#include "STVariable.h"
 
-//STVariable::STVariable(STDataCollection *dataCollection, QObject *parent) :
-//    QObject(parent)
-//{
-//    dataCollection_ = dataCollection;
-//}
-
-
-
-//STVariable::~STVariable()
-//{
-
-//}
+STVariable::STVariable(STDataCollection *dataCollection, QObject *parent) :
+    QObject(parent)
+{
+    dataCollection_ = dataCollection;
+}
 
 
 
-//STDataCollection* STVariable::dataCollection()
-//{
-//    return dataCollection_;
-//}
+STVariable::~STVariable()
+{
+
+}
 
 
 
-//void STVariable::setDataCollection(STDataCollection *newDataCollection)
-//{
-//    dataCollection_ = newDataCollection;
-//    emit dataCollectionChanged(dataCollection_);
-//}
+STDataCollection* STVariable::dataCollection()
+{
+    return dataCollection_;
+}
+
+
+
+void STVariable::setDataCollection(STDataCollection *newDataCollection)
+{
+    dataCollection_ = newDataCollection;
+    emit dataCollectionChanged(dataCollection_);
+}

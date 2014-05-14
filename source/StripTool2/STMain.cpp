@@ -1,11 +1,24 @@
-#include "StripTool2.h"
 #include <QApplication>
+#include "STAppController.h"
 
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv);
-    StripTool2 w;
-    w.show();
+    QApplication app(argc, argv);
+    app.setApplicationName("Strip Tool");
 
-    return a.exec();
+    STAppController *appController = new STAppController();
+
+    int returnVal = -1;
+
+    if (appController->startup()) {
+        returnVal = app.exec();
+    }
+
+    if (appController->isRunning()) {
+        appController->shutdown();
+    }
+
+    delete appController;
+
+    return returnVal;
 }
