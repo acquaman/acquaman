@@ -73,7 +73,7 @@ bool AMEXAFSScanActionControllerAssembler::generateActionTreeImplmentation()
 		AMScanAxisEXAFSRegion *exafsRegion = exafsRegions.at(i);
 
 		if (exafsRegion->inKSpace())
-			allRegionsList->addSubAction(generateActionTreeForEXAFSStepAxisRegion(axisControl, exafsRegion));
+			allRegionsList->addSubAction(generateActionTreeForEXAFSStepAxisRegion(axisControl, exafsRegion, (i == size-1)));
 
 		else
 			allRegionsList->addSubAction(generateActionTreeForStepAxisRegion(axisControl, exafsRegion, (i == size-1) ));
@@ -125,7 +125,7 @@ bool AMEXAFSScanActionControllerAssembler::generateActionTreeImplmentation()
 	return true;
 }
 
-AMAction3 *AMEXAFSScanActionControllerAssembler::generateActionTreeForEXAFSStepAxisRegion(AMControl *axisControl, AMScanAxisEXAFSRegion *exafsRegion)
+AMAction3 *AMEXAFSScanActionControllerAssembler::generateActionTreeForEXAFSStepAxisRegion(AMControl *axisControl, AMScanAxisEXAFSRegion *exafsRegion, bool isFinalRegion)
 {
 	AMListAction3 *regionList = new AMListAction3(new AMListActionInfo3(QString("Region on %1").arg(exafsRegion->name()), QString("Region from %1 to %2 by %3 on %4").arg(exafsRegion->regionStart().toString()).arg(exafsRegion->regionEnd().toString()).arg(exafsRegion->regionStep().toString()).arg(exafsRegion->name())), AMListAction3::Sequential);
 
@@ -153,6 +153,23 @@ AMAction3 *AMEXAFSScanActionControllerAssembler::generateActionTreeForEXAFSStepA
 
 			AMControlInfo controlLoopMoveInfoSetpoint = axisControl->toInfo();
 			controlLoopMoveInfoSetpoint.setValue(energyPositions.at(i));
+			AMControlMoveActionInfo3 *controlMoveInfo = new AMControlMoveActionInfo3(controlLoopMoveInfoSetpoint);
+			controlMoveInfo->setIsRelativeMove(false);
+			AMControlMoveAction3 *controlMove = new AMControlMoveAction3(controlMoveInfo, axisControl);
+			controlMove->setGenerateScanActionMessage(true);
+			regionList->addSubAction(controlMove);
+			AMListAction3 *nextLevelHolderAction = new AMListAction3(new AMListActionInfo3("Holder Action for the Next Sublevel", "Holder Action for the Next Sublevel"));
+			regionList->addSubAction(nextLevelHolderAction);
+			AMAxisValueFinishedActionInfo *axisValueFinishedInfo = new AMAxisValueFinishedActionInfo;
+			axisValueFinishedInfo->setShortDescription(QString("%1 axis value finshed").arg(exafsRegion->name()));
+			AMAxisValueFinishedAction *axisValueFinishedAction = new AMAxisValueFinishedAction(axisValueFinishedInfo);
+			regionList->addSubAction(axisValueFinishedAction);
+		}
+
+		if (isFinalRegion){
+
+			AMControlInfo controlLoopMoveInfoSetpoint = axisControl->toInfo();
+			controlLoopMoveInfoSetpoint.setValue(double(exafsRegion->regionEnd()));
 			AMControlMoveActionInfo3 *controlMoveInfo = new AMControlMoveActionInfo3(controlLoopMoveInfoSetpoint);
 			controlMoveInfo->setIsRelativeMove(false);
 			AMControlMoveAction3 *controlMove = new AMControlMoveAction3(controlMoveInfo, axisControl);
@@ -206,7 +223,37 @@ AMAction3 *AMEXAFSScanActionControllerAssembler::generateActionTreeForEXAFSStepA
 			AMAxisValueFinishedAction *axisValueFinishedAction = new AMAxisValueFinishedAction(axisValueFinishedInfo);
 			regionList->addSubAction(axisValueFinishedAction);
 		}
+
+		if (isFinalRegion){
+
+			AMListAction3 *detectorSetDwellList = new AMListAction3(new AMListActionInfo3(QString("Set All Detectors Dwell Times"), QString("Set %1 Detectors").arg(detectors_->count())), AMListAction3::Parallel);
+
+			for(int x = 0; x < detectors_->count(); x++){
+
+				AMAction3 *detectorSetDwellAction = detectors_->at(x)->createSetAcquisitionTimeAction(double(exafsRegion->maximumTime()));
+
+				if(detectorSetDwellAction)
+					detectorSetDwellList->addSubAction(detectorSetDwellAction);
+			}
+
+			regionList->addSubAction(detectorSetDwellList);
+
+			AMControlInfo controlLoopMoveInfoSetpoint = axisControl->toInfo();
+			controlLoopMoveInfoSetpoint.setValue(double(exafsRegion->regionEnd()));
+			AMControlMoveActionInfo3 *controlMoveInfo = new AMControlMoveActionInfo3(controlLoopMoveInfoSetpoint);
+			controlMoveInfo->setIsRelativeMove(false);
+			AMControlMoveAction3 *controlMove = new AMControlMoveAction3(controlMoveInfo, axisControl);
+			controlMove->setGenerateScanActionMessage(true);
+			regionList->addSubAction(controlMove);
+			AMListAction3 *nextLevelHolderAction = new AMListAction3(new AMListActionInfo3("Holder Action for the Next Sublevel", "Holder Action for the Next Sublevel"));
+			regionList->addSubAction(nextLevelHolderAction);
+			AMAxisValueFinishedActionInfo *axisValueFinishedInfo = new AMAxisValueFinishedActionInfo;
+			axisValueFinishedInfo->setShortDescription(QString("%1 axis value finshed").arg(exafsRegion->name()));
+			AMAxisValueFinishedAction *axisValueFinishedAction = new AMAxisValueFinishedAction(axisValueFinishedInfo);
+			regionList->addSubAction(axisValueFinishedAction);
+		}
 	}
+
 
 	return regionList;
 }
