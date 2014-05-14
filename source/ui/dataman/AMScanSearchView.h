@@ -65,7 +65,9 @@ protected:
 	QString scanName_;
 	SGMXASScanConfiguration* configuration_;
 	AMSample* sample_;
+	int configID_;
 	void initializeConfig(int configID);
+	int sampleID_;
 	void initializeSample(int sampleID);
 
 signals:

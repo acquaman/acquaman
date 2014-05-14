@@ -91,7 +91,9 @@ AMScanSearchInfo::AMScanSearchInfo(int scanID, QObject *parent)
 {
 	AMDatabase* database = AMDatabase::database("user");
 
+	configID_ = -1;
 	configuration_ = 0;
+	sampleID_ = -1;
 	sample_ = 0;
 
 	if(database == 0)
@@ -116,12 +118,14 @@ AMScanSearchInfo::AMScanSearchInfo(int scanID, QObject *parent)
 		QStringList configResult = results.at(4).toString().split(";");
 		if(configResult.count() > 1 && configResult.at(0).compare(QString("SGMXASScanConfiguration_table"))==0)
 		{
-			initializeConfig(configResult.at(1).toInt());
+			//initializeConfig(configResult.at(1).toInt());
+			configID_ = configResult.at(1).toInt();
 		}
 		QStringList sampleResult = results.at(5).toString().split(";");
 		if(sampleResult.count() > 1)
 		{
-			initializeSample(sampleResult.at(1).toInt());
+			//initializeSample(sampleResult.at(1).toInt());
+			sampleID_ = sampleResult.at(1).toInt();
 		}
 	}
 
@@ -151,11 +155,15 @@ QString AMScanSearchInfo::scanName()
 
 SGMXASScanConfiguration* AMScanSearchInfo::configuration()
 {
+	if(configuration_ == 0 && configID_ > -1)
+		initializeConfig(configID_);
 	return configuration_;
 }
 
 AMSample *AMScanSearchInfo::sample()
 {
+	if(sample_ == 0 && sampleID_ > -1)
+		initializeSample(sampleID_);
 	return sample_;
 }
 
