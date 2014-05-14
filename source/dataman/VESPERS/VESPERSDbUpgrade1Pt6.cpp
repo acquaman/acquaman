@@ -19,7 +19,7 @@ bool VESPERSDbUpgrade1Pt6::upgradeNecessary() const
 
 bool VESPERSDbUpgrade1Pt6::upgradeImplementation()
 {
-	return false;
+	return true;
 }
 
 AMDbUpgrade *VESPERSDbUpgrade1Pt6::createCopy() const
