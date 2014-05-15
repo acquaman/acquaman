@@ -38,7 +38,7 @@ class CLSSR570 : public AMCurrentAmplifier
 
 public:
     /// Constructor.  Builds a SR570 model based on \param valueName and \param unitsName.
-    explicit CLSSR570(const QString &name, AMCurrentAmplifier::ValueType valueType, const QString &valueName, const QString &unitsName, QObject *parent = 0);
+    explicit CLSSR570(const QString &name, const QString &valueName, const QString &unitsName, QObject *parent = 0);
     /// Destructor.
     virtual ~CLSSR570();
 

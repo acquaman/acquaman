@@ -21,8 +21,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "CLSSR570.h"
 
  CLSSR570::~CLSSR570(){}
-CLSSR570::CLSSR570(const QString &name, AMCurrentAmplifier::ValueType valueType, const QString &valueName, const QString &unitsName, QObject *parent)
-    : AMCurrentAmplifier(name, valueType, parent)
+CLSSR570::CLSSR570(const QString &name, const QString &valueName, const QString &unitsName, QObject *parent)
+    : AMCurrentAmplifier(name, AMCurrentAmplifier::Sensitivity, parent)
 {
 	atMinimumSensitivity_ = false;
 	atMaximumSensitivity_ = false;

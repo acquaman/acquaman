@@ -2,8 +2,8 @@
 
 #include <QDebug>
 
-CLSKeithley428::CLSKeithley428(const QString &name, AMCurrentAmplifier::ValueType valueType, const QString &valueName, const QString &unitsName, QObject *parent) :
-    AMCurrentAmplifier(name, valueType, parent)
+CLSKeithley428::CLSKeithley428(const QString &name, const QString &valueName, const QString &unitsName, QObject *parent) :
+    AMCurrentAmplifier(name, AMCurrentAmplifier::Gain, parent)
 {
     atMinimumGain_ = true;
     atMaximumGain_ = false;

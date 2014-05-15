@@ -13,7 +13,7 @@ class CLSKeithley428 : public AMCurrentAmplifier
 
 public:
     /// Constructor.
-    explicit CLSKeithley428(const QString &name, AMCurrentAmplifier::ValueType valueType, const QString &valueName, const QString &unitsName, QObject *parent = 0);
+    explicit CLSKeithley428(const QString &name, const QString &valueName, const QString &unitsName, QObject *parent = 0);
     /// Destructor.
     virtual ~CLSKeithley428();
 
