@@ -13,31 +13,41 @@ class CLSKeithley428 : public AMCurrentAmplifier
 
 public:
     /// Constructor.
-    explicit CLSKeithley428(const QString &name, const QString &valueName, const QString &unitsName, QObject *parent = 0);
+    explicit CLSKeithley428(const QString &name, AMCurrentAmplifier::ValueType valueType, const QString &valueName, const QString &unitsName, QObject *parent = 0);
     /// Destructor.
     virtual ~CLSKeithley428();
 
-    /// Returns whether the current amplifier is at maximum sensitivity.
-    virtual bool atMaximumSensitivity() const;
-    /// Returns whether the current amplifier is at minimum sensitivity.
-    virtual bool atMinimumSensitivity() const;
+    /// Returns the value of the gain.
+    int value();
+    /// Returns the index of the gain.
+    int valueIndex() const;
+    /// Returns the units of the gain.
+    QString units() const;
+
+    /// Returns whether the current amplifier is at maximum gain.
+    virtual bool atMaximumValue() const;
+    /// Returns whether the current amplifier is at minimum gain.
+    virtual bool atMinimumValue() const;
 
 signals:
+    /// Emitted when the value of the gain has changed.
+    void gainChanged(int newValue);
+    void unitsChanged(QString newUnits);
 
 public slots:
-    /// Increases sensitivity by one step, if the max sensitivity hasn't been reached.
-    virtual bool increaseSensitivity();
-    /// Decreases sensitivity by one step, if the min sensitivity hasn't been reached.
-    virtual bool decreaseSensitivity();
+    /// Sets the gain value.
+    void setValue(int newValue);
+    /// Sets the gain units.
+    void setUnits(QString newUnits);
+
+    /// Increases gain by one step, if the max gain hasn't been reached.
+    virtual bool increaseValue();
+    /// Decreases gain by one step, if the min gain hasn't been reached.
+    virtual bool decreaseValue();
 
 protected slots:
-    void onGainChanged(double newVal);
-
-protected:
-    bool decreaseGain();
-    bool increaseGain();
-    bool atMinimumGain() const;
-    bool atMaximumGain() const;
+    void onValueChanged(int newIndex);
+    void onUnitsChanged(QString newUnits);
 
 protected:
     /// Represents whether the maximum sensitivity has been reached.
@@ -47,6 +57,12 @@ protected:
 
     AMProcessVariable *valueControl_;
     AMProcessVariable *unitsControl_;
+
+private:
+    int valueToIndex(int value) const;
+    int indexToValue(int index) const;
+    bool indexOkay(int index);
+    bool unitsOkay(QString units);
 
 };
 

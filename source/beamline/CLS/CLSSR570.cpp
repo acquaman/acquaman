@@ -21,8 +21,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "CLSSR570.h"
 
  CLSSR570::~CLSSR570(){}
-CLSSR570::CLSSR570(const QString &name, const QString &valueName, const QString &unitsName, QObject *parent)
-    : AMCurrentAmplifier(name, parent)
+CLSSR570::CLSSR570(const QString &name, AMCurrentAmplifier::ValueType valueType, const QString &valueName, const QString &unitsName, QObject *parent)
+    : AMCurrentAmplifier(name, valueType, parent)
 {
 	atMinimumSensitivity_ = false;
 	atMaximumSensitivity_ = false;
@@ -132,7 +132,7 @@ int CLSSR570::indexToValue(int index) const
 	return val;
 }
 
-bool CLSSR570::increaseSensitivity()
+bool CLSSR570::increaseValue()
 {
 	// Don't do anything if we are already at the maximum sensitivity.
 	if (atMaximumSensitivity_)
@@ -159,7 +159,7 @@ bool CLSSR570::increaseSensitivity()
 	return true;
 }
 
-bool CLSSR570::decreaseSensitivity()
+bool CLSSR570::decreaseValue()
 {
 	// Don't do anything if we are already at the minimum sensitivity.
 	if (atMinimumSensitivity_)
@@ -216,17 +216,17 @@ QString CLSSR570::nextUnits(bool increase, QString current)
 
 void CLSSR570::onSensitivityChanged()
 {
-	if (!atMaximumSensitivity_ && (value_->getInt() == 0 && units_->getString() == "pA/V"))
-		emit maximumSensitivity(atMaximumSensitivity_ = true);
+    if (!atMaximumSensitivity_ && (value_->getInt() == 0 && units_->getString() == "pA/V"))
+        emit maximumValue(atMaximumSensitivity_ = true);
 
-	else if (atMaximumSensitivity_ && (value_->getInt() != 0 || units_->getString() != "pA/V"))
-		emit maximumSensitivity(atMaximumSensitivity_ = false);
+    else if (atMaximumSensitivity_ && (value_->getInt() != 0 || units_->getString() != "pA/V"))
+        emit maximumValue(atMaximumSensitivity_ = false);
 
-	else if (!atMinimumSensitivity_ && (value_->getInt() == 0 && units_->getString() == "mA/V"))
-		emit minimumSensitivity(atMinimumSensitivity_ = true);
+    else if (!atMinimumSensitivity_ && (value_->getInt() == 0 && units_->getString() == "mA/V"))
+        emit minimumValue(atMinimumSensitivity_ = true);
 
-	else if (atMinimumSensitivity_ && (value_->getInt() != 0 || units_->getString() != "mA/V"))
-		emit minimumSensitivity(atMinimumSensitivity_ = false);
+    else if (atMinimumSensitivity_ && (value_->getInt() != 0 || units_->getString() != "mA/V"))
+        emit minimumValue(atMinimumSensitivity_ = false);
 }
 
 void CLSSR570::setValue(int value)

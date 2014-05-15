@@ -38,7 +38,7 @@ class CLSSR570 : public AMCurrentAmplifier
 
 public:
     /// Constructor.  Builds a SR570 model based on \param valueName and \param unitsName.
-    explicit CLSSR570(const QString &name, const QString &valueName, const QString &unitsName, QObject *parent = 0);
+    explicit CLSSR570(const QString &name, AMCurrentAmplifier::ValueType valueType, const QString &valueName, const QString &unitsName, QObject *parent = 0);
     /// Destructor.
     virtual ~CLSSR570();
 
@@ -71,9 +71,9 @@ public slots:
 	void setUnits(QString units);
 
 	/// Increases the sensitivity of the ion chamber by one step.
-    virtual bool increaseSensitivity();
+    virtual bool increaseValue();
 	/// Decreases the sensitivity of the ion chamber by one step.
-    virtual bool decreaseSensitivity();
+    virtual bool decreaseValue();
 
 
 protected slots:
@@ -96,7 +96,7 @@ protected:
 	AMProcessVariable *units_;
 
 	/// Holds the state of whether the ion chamber is at its maximum sensitivity.
-	bool atMaximumSensitivity_;
+    bool atMaximumSensitivity_;
 	/// Holds the state of whether the ion chamber is at its minimum sensitivity.
 	bool atMinimumSensitivity_;
 

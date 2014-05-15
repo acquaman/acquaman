@@ -2,17 +2,17 @@
 
 #include <QDebug>
 
-CLSKeithley428::CLSKeithley428(const QString &name, const QString &valueName, const QString &unitsName, QObject *parent) :
-    AMCurrentAmplifier(name, parent)
+CLSKeithley428::CLSKeithley428(const QString &name, AMCurrentAmplifier::ValueType valueType, const QString &valueName, const QString &unitsName, QObject *parent) :
+    AMCurrentAmplifier(name, valueType, parent)
 {
     atMinimumGain_ = true;
     atMaximumGain_ = false;
 
     valueControl_ = new AMProcessVariable(valueName, true, this);
-    connect( valueControl_, SIGNAL(valueChanged(double)), this, SLOT(onGainChanged(double)) );
+    connect( valueControl_, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged(double)) );
 
     unitsControl_ = new AMProcessVariable(unitsName, true, this);
-
+    connect( unitsControl_, SIGNAL(valueChanged(QString)), this, SLOT(onUnitsChanged(QString)) );
 }
 
 CLSKeithley428::~CLSKeithley428()
@@ -20,44 +20,45 @@ CLSKeithley428::~CLSKeithley428()
 
 }
 
-bool CLSKeithley428::atMaximumSensitivity() const
+int CLSKeithley428::value()
 {
-    return atMinimumGain();
+    return indexToValue(valueControl_->getInt());
 }
 
-bool CLSKeithley428::atMinimumSensitivity() const
+int CLSKeithley428::valueIndex() const
 {
-    return atMaximumGain();
+    return valueControl_->getInt();
 }
 
-bool CLSKeithley428::increaseSensitivity()
+QString CLSKeithley428::units() const
 {
-    return decreaseGain();
+    return unitsControl_->getString();
 }
 
-bool CLSKeithley428::decreaseSensitivity()
+
+bool CLSKeithley428::atMaximumValue() const
 {
-    return increaseGain();
+    return atMaximumGain_;
 }
 
-void CLSKeithley428::onGainChanged(double newVal)
+bool CLSKeithley428::atMinimumValue() const
 {
-    qDebug() << "Gain changed : " << newVal;
+    return atMinimumGain_;
 }
 
-bool CLSKeithley428::decreaseGain()
+void CLSKeithley428::setValue(int newValue)
 {
-    // Don't do anything if the gain is already at a minimum.
-    if (atMinimumGain_)
-        return false;
-
-    // Decrease gain!
-
-    return true;
-
+    valueControl_->setValue(valueToIndex(newValue));
 }
 
-bool CLSKeithley428::increaseGain()
+void CLSKeithley428::setUnits(QString newUnits)
+{
+    if (unitsOkay(newUnits)) {
+        unitsControl_->setValue(newUnits);
+    }
+}
+
+bool CLSKeithley428::increaseValue()
 {
     // Don't do anything if the gain is already at a maximum.
     if (atMaximumGain_)
@@ -68,12 +69,51 @@ bool CLSKeithley428::increaseGain()
     return true;
 }
 
-bool CLSKeithley428::atMinimumGain() const
+bool CLSKeithley428::decreaseValue()
 {
-    return atMinimumGain_;
+    // Don't do anything if the gain is already at a minimum.
+    if (atMinimumGain_)
+        return false;
+
+    // Decrease gain!
+
+    return true;
 }
 
-bool CLSKeithley428::atMaximumGain() const
+void CLSKeithley428::onValueChanged(int newIndex)
 {
-    return atMaximumGain_;
+    qDebug() << "Gain value index changed : " << newIndex;
+    emit gainChanged(indexToValue(newIndex));
+}
+
+void CLSKeithley428::onUnitsChanged(QString newUnits)
+{
+    qDebug() << "Gain units changed : " << newUnits;
+    emit unitsChanged(newUnits);
+}
+
+int CLSKeithley428::valueToIndex(int value) const
+{
+    return 0;
+}
+
+int CLSKeithley428::indexToValue(int index) const
+{
+    return 0;
+}
+
+bool CLSKeithley428::indexOkay(int index)
+{
+    if (index > 0 && index <= 8)
+        return true;
+    else
+        return false;
+}
+
+bool CLSKeithley428::unitsOkay(QString units)
+{
+    if (units == "V/A")
+        return true;
+    else
+        return false;
 }
