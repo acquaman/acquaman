@@ -15,7 +15,6 @@
 #include <QCheckBox>
 #include <QFormLayout>
 #include <QVBoxLayout>
-#include <QDebug>
 
 /// A class representing a Dialog Window for searching scan's for:
 ///		Sample name
@@ -37,10 +36,12 @@ protected:
 	QComboBox* searchFields_;
 	QSortFilterProxyModel* proxyModel_;
 signals:
+	void searchDoubleClicked(int scanID);
 	
 public slots:
 
 protected slots:
+	void onTableDoubleClicked(QModelIndex);
 	void onSearchFieldChanged();
 	void onSearchCriteriaChanged();
 	
@@ -78,23 +79,25 @@ public slots:
 class AMScanSearchInfoListModel : public QAbstractTableModel{
 	Q_OBJECT
 public:
+	/// Initializes an instance of AMScanSearchInfoListModel by loading a list of ids from the user database
 	explicit AMScanSearchInfoListModel(QObject* parent = 0);
+	~AMScanSearchInfoListModel();
 	/// Returns the number of scans in the list to generate the number of rows in a table or list
-	int rowCount(const QModelIndex & /*parent*/) const { return scanInfos_->count(); }
+	int rowCount(const QModelIndex & /*parent*/) const { return scanIds_.count(); }
 	/// Returns "9" statically. There are always 9 fields in the ScanModel: id, name, number, dataTime, sampleName, sampleTime, configExitSlit, configGrating and configHarmonic
 	int columnCount(const QModelIndex & /*parent*/) const { return 9; }
 	/// Retrieves the data from an index (row and column) and returns as a QVariant. Only valid role is Qt::DisplayRole right now.
 	QVariant data(const QModelIndex &index, int role) const;
 	/// Retrieves the header data for a column or row and returns as a QVariant. Only valid role is Qt::DisplayRole right now.
 	QVariant headerData(int section, Qt::Orientation orientation, int role) const;
-
-	/// A list of the scans which the model represents
-	QList<AMScanSearchInfo*>* scanInfos() { return scanInfos_; }
-
+	/// Retrieves the Id of the scan info at the given index
+	int getID(QModelIndex& index);
 
 protected:
-	QList<AMScanSearchInfo*>* scanInfos_;
+	AMScanSearchInfo** scanCache_;
+	QVariantList scanIds_;
 
+	AMScanSearchInfo* scanInfoAt(int index, int id) const;
 signals:
 
 public slots:

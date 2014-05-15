@@ -1,5 +1,6 @@
 #include "AMScanSearchView.h"
 #include <QHeaderView>
+#include <QDebug>
 // Definitions for AMScanSearchView
 ///////////////////////////////////
 
@@ -13,7 +14,7 @@ void AMScanSearchView::initDialog()
 {
 	// Set Window properties
 	setWindowTitle(QString("Search Scans"));
-	resize(1024, 640);
+	resize(1032, 640);
 	// Set layout and widgets
 	QVBoxLayout* mainLayout = new QVBoxLayout();
 
@@ -54,7 +55,7 @@ void AMScanSearchView::initDialog()
 
 	this->setLayout(mainLayout);
 
-	searchResults->setColumnHidden(0, true);
+	//searchResults->setColumnHidden(0, true);
 	searchResults->setColumnWidth(1, 210);
 	searchResults->setColumnWidth(2, 40);
 	searchResults->setColumnWidth(3, 180);
@@ -68,8 +69,16 @@ void AMScanSearchView::initDialog()
 
 	connect(searchCriteria_, SIGNAL(editingFinished()), this, SLOT(onSearchCriteriaChanged()));
 	connect(searchFields_, SIGNAL(currentIndexChanged(int)), this, SLOT(onSearchFieldChanged()));
+	connect(searchResults, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(onTableDoubleClicked(QModelIndex)));
 	proxyModel_->setFilterKeyColumn(1);
 
+}
+
+void AMScanSearchView::onTableDoubleClicked(QModelIndex index)
+{
+	QVariant id = proxyModel_->data(index.sibling(index.row(), 0));
+	qDebug() << QString("%1 clicked").arg(id.toString());
+	emit searchDoubleClicked(id.toInt());
 }
 
 void AMScanSearchView::onSearchFieldChanged()
@@ -197,16 +206,23 @@ void AMScanSearchInfo::initializeSample(int sampleID)
 AMScanSearchInfoListModel::AMScanSearchInfoListModel(QObject *parent) :
 	QAbstractTableModel(parent)
 {
-	this->scanInfos_ = new QList<AMScanSearchInfo*>();
-	// Load Scans
+		// Load Scans
 	AMDatabase* database = AMDatabase::database("user");
 	if(database == 0)
 		return;
-	QVariantList scanIds = database->retrieve("AMScan_table", "id");
-	for(int iScanID = 0; iScanID < scanIds.count(); iScanID++)
+	scanIds_ = database->retrieve("AMScan_table", "id");
+	scanCache_ = new AMScanSearchInfo*[scanIds_.count()];
+	for(int iCachePosition = 0; iCachePosition < scanIds_.count(); iCachePosition++)
 	{
-		scanInfos_->append(new AMScanSearchInfo(iScanID));
+		scanCache_[iCachePosition] = 0;
 	}
+}
+
+AMScanSearchInfoListModel::~AMScanSearchInfoListModel()
+{
+	for (int iCache = 0; iCache < scanIds_.count(); iCache++)
+		delete scanCache_[iCache];
+	delete[] scanCache_;
 }
 
 
@@ -225,11 +241,13 @@ QVariant AMScanSearchInfoListModel::data(const QModelIndex &index, int role) con
 		return QVariant();
 
 	// Out of range: (Just checking for too big.  isValid() checked for < 0)
-	if(index.row() >= this->scanInfos_->count())
+	if(index.row() >= scanIds_.count())
 		return QVariant();
 
 	QVariant dataVal = QVariant();
-	AMScanSearchInfo *scanInfo = scanInfos_->at(index.row());
+	int scanID = scanIds_.at(index.row()).toInt();
+	int cacheIndex = index.row();
+	AMScanSearchInfo *scanInfo = this->scanInfoAt(cacheIndex, scanID);
 
 	switch(index.column()){
 
@@ -317,6 +335,23 @@ QVariant AMScanSearchInfoListModel::headerData(int section, Qt::Orientation orie
 
 	return header;
 }
+
+int AMScanSearchInfoListModel::getID(QModelIndex &index)
+{
+	return scanIds_.at(index.row()).toInt();
+}
+
+AMScanSearchInfo *AMScanSearchInfoListModel::scanInfoAt(int index, int id) const
+{
+	if(!scanCache_[index])
+	{
+		scanCache_[index] = new AMScanSearchInfo(id);
+	}
+	return scanCache_[index];
+
+}
+
+
 
 
 
