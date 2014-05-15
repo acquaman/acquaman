@@ -32,8 +32,13 @@ signals:
 protected slots:
 	//void onTrackingGroupChanged();
 	void onFluxResolutionGroupChanged();
-
 	void onScanNameEditChanged(const QString &scanName);
+	void onUndulatorTrackingChanged(bool isTracking);
+	void onUndulatorTrackingButtonClicked();
+	void onExitSlitTrackingChanged(bool isTracking);
+	void onExitSlitTrackingButtonClicked();
+	void onGratingTrackingChanged(bool isTracking);
+	void onGratingTrackingButtonClicked();
 
 protected:
 	SGMXASScanConfiguration2013 *configuration_;
@@ -57,6 +62,12 @@ protected:
 
 	QLabel *scanNameLabel_;
 	QLineEdit *scanNameEdit_;
+	QPushButton* undulatorTrackingButton_;
+	QPushButton* gratingTrackingButton_;
+	QPushButton* exitSlitTrackingButton_;
+
+	void updateTrackingButtonStatus(QPushButton* button, bool isTracking);
+
 };
 
 #endif // SGMXASSCANCONFIGURATION2013VIEW_H
