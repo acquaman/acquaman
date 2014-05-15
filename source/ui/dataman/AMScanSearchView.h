@@ -15,6 +15,7 @@
 #include <QCheckBox>
 #include <QFormLayout>
 #include <QVBoxLayout>
+#include <QUrl>
 
 /// A class representing a Dialog Window for searching scan's for:
 ///		Sample name
@@ -36,7 +37,8 @@ protected:
 	QComboBox* searchFields_;
 	QSortFilterProxyModel* proxyModel_;
 signals:
-	void searchDoubleClicked(int scanID);
+	void searchDoubleClicked(QList<QUrl> scanUrls);
+
 	
 public slots:
 

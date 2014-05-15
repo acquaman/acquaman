@@ -1,6 +1,7 @@
 #include "AMScanSearchView.h"
 #include <QHeaderView>
 #include <QDebug>
+
 // Definitions for AMScanSearchView
 ///////////////////////////////////
 
@@ -77,8 +78,10 @@ void AMScanSearchView::initDialog()
 void AMScanSearchView::onTableDoubleClicked(QModelIndex index)
 {
 	QVariant id = proxyModel_->data(index.sibling(index.row(), 0));
-	qDebug() << QString("%1 clicked").arg(id.toString());
-	emit searchDoubleClicked(id.toInt());
+	QList<QUrl> urls;
+	urls << QUrl(QString("amd://user/AMScan_table/%1").arg(id.toString()));
+	qDebug() << urls.at(0);
+	emit searchDoubleClicked(urls);
 }
 
 void AMScanSearchView::onSearchFieldChanged()
