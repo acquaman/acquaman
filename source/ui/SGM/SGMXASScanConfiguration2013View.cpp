@@ -15,8 +15,10 @@ SGMXASScanConfiguration2013View::SGMXASScanConfiguration2013View(SGMXASScanConfi
 	xasDetectorSelector_ = 0; //NULL
 	xasDetectorSelectorView_ = 0; //NULL
 
+	/* removed as temporary fix (see Issue579)
 	trackingSet_ = 0; //NULL
 	trackingSetView_ = 0; //NULL
+	*/
 
 	fluxResolutionView_ = new SGMFluxResolutionPickerView(configuration_->xasRegions(), this);
 	fluxResolutionView_->setFromInfoList(configuration_->fluxResolutionGroup());
@@ -64,6 +66,7 @@ void SGMXASScanConfiguration2013View::setDetectorSelector(AMDetectorSelector *xa
 	}
 }
 
+/* removed as temporary fix (see Issue579)
 void SGMXASScanConfiguration2013View::setTrackingSet(AMControlSet *trackingSet){
 	trackingSet_ = trackingSet;
 	if(!trackingSetView_){
@@ -74,11 +77,13 @@ void SGMXASScanConfiguration2013View::setTrackingSet(AMControlSet *trackingSet){
 		connect(configuration_->dbObject(), SIGNAL(trackingGroupChanged()), this, SLOT(onTrackingGroupChanged()));
 	}
 }
+*/
 
+/* removed as temporary fix (see Issue579)
 void SGMXASScanConfiguration2013View::onTrackingGroupChanged(){
 	trackingSetView_->setFromInfoList(configuration_->trackingGroup());
 }
-
+*/
 void SGMXASScanConfiguration2013View::onFluxResolutionGroupChanged(){
 	fluxResolutionView_->setFromInfoList(configuration_->fluxResolutionGroup());
 }
@@ -86,10 +91,11 @@ void SGMXASScanConfiguration2013View::onFluxResolutionGroupChanged(){
 void SGMXASScanConfiguration2013View::onScanNameEditChanged(const QString &scanName){
 	configuration_->setUserScanName(scanName);
 
-
+	/* removed as temporary fix (see Issue579)
 	for(int x = 0, size = trackingSet_->count(); x < size; x++)
 		qDebug() << "Tracking set at " << x << trackingSet_->at(x)->name() << trackingSet_->controlNamed(trackingSet_->at(x)->name())->value();
 
 	for(int x = 0, size = configuration_->trackingGroup().count(); x < size; x++)
 		qDebug() << "Tracking group at " << x << configuration_->trackingGroup().at(x).name() << configuration_->trackingGroup().controlNamed(configuration_->trackingGroup().at(x).name()).value();
+	*/
 }

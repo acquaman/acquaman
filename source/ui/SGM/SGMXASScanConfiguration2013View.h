@@ -24,13 +24,13 @@ public:
 	virtual const AMScanConfiguration* configuration() const;
 
 	void setDetectorSelector(AMDetectorSelector *xasDetectorSelector);
-	void setTrackingSet(AMControlSet *trackingSet);
+	//void setTrackingSet(AMControlSet *trackingSet);
 
 signals:
 	void scanControllerCreated(AMScanController *scanController);
 
 protected slots:
-	void onTrackingGroupChanged();
+	//void onTrackingGroupChanged();
 	void onFluxResolutionGroupChanged();
 
 	void onScanNameEditChanged(const QString &scanName);
@@ -42,8 +42,9 @@ protected:
 	// THINGS I SHOULDN'T HAVE ACCESS TO //
 	//////////////////////////////////////
 	AMDetectorSelector *xasDetectorSelector_;
-	AMControlSet *trackingSet_;
-	AMControlSetView *trackingSetView_;
+	// Two lines removed as temporary fix (see Issue579)
+	//AMControlSet *trackingSet_;
+	//AMControlSetView *trackingSetView_;
 	SGMFluxResolutionPickerView *fluxResolutionView_;
 
 	AMTopFrame *topFrame_;
