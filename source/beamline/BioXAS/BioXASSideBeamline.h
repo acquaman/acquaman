@@ -14,6 +14,7 @@
 #include "util/AMBiHash.h"
 
 #include "beamline/CLS/CLSBasicScalerChannelDetector.h"
+#include "beamline/CLS/CLSKeithley428.h"
 #include "beamline/CLS/CLSBasicCompositeScalerChannelDetector.h"
 
 class CLSMAXvMotor;

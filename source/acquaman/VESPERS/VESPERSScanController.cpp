@@ -7,13 +7,12 @@
 
 #include <QStringBuilder>
 
-
-VESPERSScanController::~VESPERSScanController(){}
-
 VESPERSScanController::VESPERSScanController(VESPERSScanConfiguration *configuration)
 {
 	config_ = configuration;
 }
+
+VESPERSScanController::~VESPERSScanController(){}
 
 AMAction3 *VESPERSScanController::buildBaseInitializationAction(const AMDetectorInfoSet &detectorConfigurations)
 {

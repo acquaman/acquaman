@@ -5,13 +5,15 @@
 
 #include "beamline/AMCurrentAmplifier.h"
 
+#include "beamline/AMProcessVariable.h"
+
 class CLSKeithley428 : public AMCurrentAmplifier
 {
     Q_OBJECT
 
 public:
     /// Constructor.
-    explicit CLSKeithley428(const QString &name, QObject *parent = 0);
+    explicit CLSKeithley428(const QString &name, const QString &valueName, const QString &unitsName, QObject *parent = 0);
     /// Destructor.
     virtual ~CLSKeithley428();
 
@@ -23,14 +25,28 @@ public:
 signals:
 
 public slots:
+    /// Increases sensitivity by one step, if the max sensitivity hasn't been reached.
     virtual bool increaseSensitivity();
+    /// Decreases sensitivity by one step, if the min sensitivity hasn't been reached.
     virtual bool decreaseSensitivity();
+
+protected slots:
+    void onGainChanged(double newVal);
+
+protected:
+    bool decreaseGain();
+    bool increaseGain();
+    bool atMinimumGain() const;
+    bool atMaximumGain() const;
 
 protected:
     /// Represents whether the maximum sensitivity has been reached.
-    bool atMaximumSensitivity_;
+    bool atMinimumGain_;
     /// Represents whether the minimum sensitivity has been reached.
-    bool atMinimumSensitivity_;
+    bool atMaximumGain_;
+
+    AMProcessVariable *valueControl_;
+    AMProcessVariable *unitsControl_;
 
 };
 
