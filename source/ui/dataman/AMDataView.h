@@ -142,12 +142,15 @@ signals:
 	void viewDoubleClicked();
 	/// Emitted when the user chooses to open a scan configuration from the database.
 	void launchScanConfigurationsFromDb();
+	void launchScanConfigurationsFromDb(const QList<QUrl>&);
 	/// Emitted when the user chooses to edit scans.
 	void editScansFromDb();
+	void editScansFromDb(const QList<QUrl>&);
 	/// Emitted when the user chooses to compare scans.
 	void compareScansFromDb();
 	/// Emitted when the user wants to export scans.
 	void exportScansFromDb();
+	void exportScansFromDb(const QList<QUrl>&);
 	/// Emitted when the user wants to fix a scan that uses CDF.
 	void fixCDF();
 
@@ -189,9 +192,10 @@ protected slots:
 	/// call this to adjust the accessible region of the graphicsview (gview_) to match the size of the graphicswidget gwidget_ inside it. (Called from a signal after the gwidget_ is resized.)
 	void adjustViewScrollableArea();
 
-
-
-
+	/// called when the scan search dialog emits editScanRequested()
+	void onScanSearchEditScanRequested(const QList<QUrl>& scanUrls);
+	void onScanSearchLaunchScanConfigurationRequested(const QList<QUrl>& scanUrls);
+	void onScanSearchExportScanRequested(const QList<QUrl>& scanUrls);
 
 	/// Drag handling
 	void onDragStarted(const QPoint& startPos, const QPoint& currentPos);

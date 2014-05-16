@@ -1,6 +1,7 @@
 #include "AMScanSearchView.h"
 #include <QHeaderView>
 #include <QDebug>
+#include <QMenu>
 
 // Definitions for AMScanSearchView
 ///////////////////////////////////
@@ -40,48 +41,84 @@ void AMScanSearchView::initDialog()
 
 
 
-	QTableView* searchResults = new QTableView();
+	searchResults_ = new QTableView(this);
 
-	searchResults->setAlternatingRowColors(true);
-	searchResults->setSelectionBehavior(QAbstractItemView::SelectRows);
-	searchResults->setSelectionMode(QAbstractItemView::ExtendedSelection);
-	searchResults->verticalHeader()->setVisible(false);
-	searchResults->setShowGrid(false);
+	searchResults_->setAlternatingRowColors(true);
+	searchResults_->setSelectionBehavior(QAbstractItemView::SelectRows);
+	searchResults_->setSelectionMode(QAbstractItemView::SingleSelection);
+	searchResults_->setSelectionMode(QAbstractItemView::ExtendedSelection);
+	searchResults_->verticalHeader()->setVisible(false);
+	searchResults_->setShowGrid(false);
 
 	AMScanSearchInfoListModel* infoListModel = new AMScanSearchInfoListModel(this);
 	proxyModel_ = new QSortFilterProxyModel(this);
 	proxyModel_->setSourceModel(infoListModel);
-	searchResults->setModel(proxyModel_);
-	mainLayout->addWidget(searchResults);
+	searchResults_->setModel(proxyModel_);
+	mainLayout->addWidget(searchResults_);
 
 	this->setLayout(mainLayout);
 
 	//searchResults->setColumnHidden(0, true);
-	searchResults->setColumnWidth(1, 210);
-	searchResults->setColumnWidth(2, 40);
-	searchResults->setColumnWidth(3, 180);
-	searchResults->setColumnWidth(4, 120);
-	searchResults->setColumnWidth(5, 120);
-	searchResults->setColumnWidth(6, 120);
-	searchResults->setSortingEnabled(true);
-	QFont font = searchResults->font();
+	searchResults_->setColumnWidth(1, 210);
+	searchResults_->setColumnWidth(2, 40);
+	searchResults_->setColumnWidth(3, 180);
+	searchResults_->setColumnWidth(4, 120);
+	searchResults_->setColumnWidth(5, 120);
+	searchResults_->setColumnWidth(6, 120);
+	searchResults_->setSortingEnabled(true);
+	QFont font = searchResults_->font();
 	font.setPointSize(11);
-	searchResults->setFont(font);
+	searchResults_->setFont(font);
+	searchResults_->setContextMenuPolicy(Qt::CustomContextMenu);
 
 	connect(searchCriteria_, SIGNAL(editingFinished()), this, SLOT(onSearchCriteriaChanged()));
 	connect(searchFields_, SIGNAL(currentIndexChanged(int)), this, SLOT(onSearchFieldChanged()));
-	connect(searchResults, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(onTableDoubleClicked(QModelIndex)));
+	connect(searchResults_, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(onTableDoubleClicked(QModelIndex)));
+	connect(searchResults_, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onContextMenuRequested(QPoint)));
+
 	proxyModel_->setFilterKeyColumn(1);
 
 }
+
+void AMScanSearchView::onContextMenuRequested(QPoint pos)
+{
+	QModelIndexList selectedItems = searchResults_->selectionModel()->selectedIndexes();
+	if(!selectedItems.count())
+		return;
+
+	QModelIndex selectedItem = selectedItems.at(0);
+	QVariant id = proxyModel_->data(selectedItem.sibling(selectedItem.row(), 0));
+	QList<QUrl> urls;
+	urls << QUrl(QString("amd://user/AMScan_table/%1").arg(id.toString()));
+
+	QMenu popup(this);
+	popup.addAction(QString("Show Scan Configuration"));
+	popup.addAction(QString("Edit"));
+	popup.addAction(QString("Export"));
+
+	QPoint globalPos = mapToGlobal(pos);
+	globalPos.setX(globalPos.x() + searchResults_->x());
+	globalPos.setY(globalPos.y() + searchResults_->y());
+
+	QAction* selectedAction = popup.exec(globalPos);
+	if(selectedAction)
+	{
+		if(selectedAction->text() == "Show Scan Configuration")
+			emit editConfigurationRequested(urls);
+		else if(selectedAction->text() == "Edit")
+			emit editScanRequested(urls);
+		else if(selectedAction->text() == "Export")
+			emit exportScanRequested(urls);
+	}
+}
+
 
 void AMScanSearchView::onTableDoubleClicked(QModelIndex index)
 {
 	QVariant id = proxyModel_->data(index.sibling(index.row(), 0));
 	QList<QUrl> urls;
 	urls << QUrl(QString("amd://user/AMScan_table/%1").arg(id.toString()));
-	qDebug() << urls.at(0);
-	emit searchDoubleClicked(urls);
+	emit editScanRequested(urls);
 }
 
 void AMScanSearchView::onSearchFieldChanged()
@@ -353,6 +390,7 @@ AMScanSearchInfo *AMScanSearchInfoListModel::scanInfoAt(int index, int id) const
 	return scanCache_[index];
 
 }
+
 
 
 

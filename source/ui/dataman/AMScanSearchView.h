@@ -36,13 +36,17 @@ protected:
 	QLineEdit* searchCriteria_;
 	QComboBox* searchFields_;
 	QSortFilterProxyModel* proxyModel_;
+	QTableView* searchResults_;
 signals:
-	void searchDoubleClicked(QList<QUrl> scanUrls);
+	void editScanRequested(QList<QUrl> scanUrls);
+	void editConfigurationRequested(QList<QUrl> scanUrls);
+	void exportScanRequested(QList<QUrl> scanUrls);
 
 	
 public slots:
 
 protected slots:
+	void onContextMenuRequested(QPoint pos);
 	void onTableDoubleClicked(QModelIndex);
 	void onSearchFieldChanged();
 	void onSearchCriteriaChanged();

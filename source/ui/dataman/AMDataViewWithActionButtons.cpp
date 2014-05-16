@@ -51,9 +51,12 @@ AMDataViewWithActionButtons::AMDataViewWithActionButtons(AMDatabase* database, Q
 	connect(dataView_, SIGNAL(viewDoubleClicked()), this, SLOT(onDoubleClick()));
 	connect(dataView_, SIGNAL(selectionChanged()), this, SLOT(onSelectionChanged()));
 	connect(dataView_, SIGNAL(editScansFromDb()), this, SLOT(onEditScansAction()));
+	connect(dataView_, SIGNAL(editScansFromDb(QList<QUrl>)), this, SLOT(onEditScansAction(QList<QUrl>)));
 	connect(dataView_, SIGNAL(compareScansFromDb()), this, SLOT(onCompareScansAction()));
 	connect(dataView_, SIGNAL(exportScansFromDb()), this, SLOT(onExportScansAction()));
+	connect(dataView_, SIGNAL(exportScansFromDb(QList<QUrl>)), this, SLOT(onExportScansAction(QList<QUrl>)));
 	connect(dataView_, SIGNAL(launchScanConfigurationsFromDb()), this, SLOT(onLaunchScanConfigurationsFromDb()));
+	connect(dataView_, SIGNAL(launchScanConfigurationsFromDb(QList<QUrl>)), this, SLOT(onLaunchScanConfigurationsFromDb(QList<QUrl>)));
 	connect(dataView_, SIGNAL(fixCDF()), this, SLOT(onFixCDF()));
 }
 

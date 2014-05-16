@@ -237,6 +237,10 @@ void AMDataView::OnSearchScansButtonClicked()
 		QApplication::setOverrideCursor(Qt::WaitCursor);
 		searchDialog_ = new AMScanSearchView();
 		QApplication::restoreOverrideCursor();
+		connect(searchDialog_, SIGNAL(editScanRequested(QList<QUrl>)), this, SLOT(onScanSearchEditScanRequested(QList<QUrl>)) );
+		connect(searchDialog_, SIGNAL(editConfigurationRequested(QList<QUrl>)), this, SLOT(onScanSearchLaunchScanConfigurationRequested(QList<QUrl>)));
+		connect(searchDialog_, SIGNAL(exportScanRequested(QList<QUrl>)), this, SLOT(onScanSearchExportScanRequested(QList<QUrl>)));
+
 	}
 	if(!searchDialog_->isVisible())
 		searchDialog_->show();
@@ -988,6 +992,22 @@ void AMDataView::refreshView() {
 
 void AMDataView::adjustViewScrollableArea() {
 	gview_->setSceneRect( gwidget_->rect() );
+}
+
+void AMDataView::onScanSearchEditScanRequested(const QList<QUrl> &scanUrls)
+{
+	emit editScansFromDb(scanUrls);
+}
+
+void AMDataView::onScanSearchLaunchScanConfigurationRequested(const QList<QUrl> &scanUrls)
+{
+	emit launchScanConfigurationsFromDb(scanUrls);
+}
+
+
+void AMDataView::onScanSearchExportScanRequested(const QList<QUrl> &scanUrls)
+{
+	emit exportScansFromDb(scanUrls);
 }
 
 void AMDataView::refreshOrganizeModeBox() {
