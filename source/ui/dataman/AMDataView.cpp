@@ -1367,7 +1367,7 @@ AMDataViewSectionListView::AMDataViewSectionListView(AMDatabase *db, const QStri
 									   whereClause,
 									   "dateTime ASC",
 									   QList<AMQueryTableModelColumnInfo>()
-										   << AMQueryTableModelColumnInfo("Row", "id")
+										   << AMQueryTableModelColumnInfo("Serial#", "id")
 										   << AMQueryTableModelColumnInfo("Name", "name")
 										   << AMQueryTableModelColumnInfo("#", "number")
 										   << AMQueryTableModelColumnInfo("When", "dateTime")
@@ -1384,7 +1384,8 @@ AMDataViewSectionListView::AMDataViewSectionListView(AMDatabase *db, const QStri
 	widthConstraint_ = initialWidthConstraint;
 
 	// For now, we know what's in the columns, so we'll resize the headers appropriately. In the future, it's possible that the columns are configurable, using AMScanQueryModel with non-default constructor.
-	tableView_->setColumnHidden(0, true);
+	//tableView_->setColumnHidden(0, true);
+	tableView_->setColumnWidth(0, 60);
 	tableView_->setColumnWidth(1, 120);
 	tableView_->setColumnWidth(2, 40);
 	tableView_->setColumnWidth(3, 180);
