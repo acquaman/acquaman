@@ -23,7 +23,13 @@ public:
 	/// Returns the region this view looks at.
 	AMScanAxisRegion *region() const { return region_; }
 
-protected slots:
+signals:
+	/// Notifier that the start has changed.  This is ALWAYS in eV.
+	void startValueChanged(const AMNumber &);
+	/// Notifier that the end has changed.  This is ALWAYS in eV.
+	void endValueChanged(const AMNumber &);
+
+public slots:
 	/// Sets the value for the start spin box.
 	void setStartSpinBox(const AMNumber &value);
 	/// Sets the value for the delta spin box.
@@ -33,6 +39,7 @@ protected slots:
 	/// Sets the value for the time spin box.
 	void setTimeSpinBox(const AMNumber &value);
 
+protected slots:
 	/// Handles setting the start position of the region.
 	void onStartPositionUpdated();
 	/// Handles setting the delta position of the region.
@@ -68,6 +75,10 @@ public:
 signals:
 
 public slots:
+	/// Adds a region to the axis.
+	void insertRegion(int index, AMScanAxisRegion *region);
+	/// Removes a region from the given index.
+	void removeRegion(int index);
 
 protected slots:
 	/// Handles adding a new region.
