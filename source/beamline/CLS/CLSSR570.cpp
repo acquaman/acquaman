@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
  CLSSR570::~CLSSR570(){}
 CLSSR570::CLSSR570(const QString &name, const QString &valueName, const QString &unitsName, QObject *parent)
-    : AMCurrentAmplifier(name, AMCurrentAmplifier::Sensitivity, parent)
+    : AMCurrentAmplifier(name, parent)
 {
 	atMinimumSensitivity_ = false;
 	atMaximumSensitivity_ = false;
@@ -217,16 +217,16 @@ QString CLSSR570::nextUnits(bool increase, QString current)
 void CLSSR570::onSensitivityChanged()
 {
     if (!atMaximumSensitivity_ && (value_->getInt() == 0 && units_->getString() == "pA/V"))
-        emit maximumValue(atMaximumSensitivity_ = true);
+        emit maximumSensitivity(atMaximumSensitivity_ = true);
 
     else if (atMaximumSensitivity_ && (value_->getInt() != 0 || units_->getString() != "pA/V"))
-        emit maximumValue(atMaximumSensitivity_ = false);
+        emit maximumSensitivity(atMaximumSensitivity_ = false);
 
     else if (!atMinimumSensitivity_ && (value_->getInt() == 0 && units_->getString() == "mA/V"))
-        emit minimumValue(atMinimumSensitivity_ = true);
+        emit minimumSensitivity(atMinimumSensitivity_ = true);
 
     else if (atMinimumSensitivity_ && (value_->getInt() != 0 || units_->getString() != "mA/V"))
-        emit minimumValue(atMinimumSensitivity_ = false);
+        emit minimumSensitivity(atMinimumSensitivity_ = false);
 }
 
 void CLSSR570::setValue(int value)

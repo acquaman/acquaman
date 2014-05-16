@@ -12,6 +12,15 @@ class CLSKeithley428 : public AMCurrentAmplifier
     Q_OBJECT
 
 public:
+    enum ValueChange {
+        IncreaseOne = 0,
+        DecreaseOne = 1
+    };
+
+    enum Value {
+
+    };
+
     /// Constructor.
     explicit CLSKeithley428(const QString &name, const QString &valueName, const QString &unitsName, QObject *parent = 0);
     /// Destructor.
@@ -41,9 +50,9 @@ public slots:
     void setUnits(QString newUnits);
 
     /// Increases gain by one step, if the max gain hasn't been reached.
-    virtual bool increaseValue();
+    virtual bool increaseSensitivity();
     /// Decreases gain by one step, if the min gain hasn't been reached.
-    virtual bool decreaseValue();
+    virtual bool decreaseSensitivity();
 
 protected slots:
     void onValueChanged(int newIndex);
@@ -63,6 +72,7 @@ private:
     int indexToValue(int index) const;
     bool indexOkay(int index);
     bool unitsOkay(QString units);
+    int nextValue(CLSKeithley428::ValueChange change, int currentValue);
 
 };
 

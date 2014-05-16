@@ -180,7 +180,7 @@ void AMStepScanAxisView::disconnectRegions() const
 			disconnect(lockedElementViewList_.at(i), SIGNAL(startValueChanged(AMNumber)), lockedElementViewList_.at(i-1), SLOT(setEndSpinBox(AMNumber)));
 
 		if (i != (size-1))
-			disconnect(lockedElementViewList_.at(i), SIGNAL(endValueChanged(AMNumber)), lockedElementViewList_.at(i+1), SLOT(setStartSpinBox(AMNumber)));
+            disconnect(lockedElementViewList_.at(i), SIGNAL(endValueChanged(AMNumber)), lockedElementViewList_.at(i+1), SLOT(setStartSpinBox(AMNumber)));
 	}
 }
 
@@ -251,6 +251,7 @@ void AMStepScanAxisView::onDeleteButtonClicked(QAbstractButton *button)
 	configuration_->scanAxisAt(0)->removeRegion(view->region());
 	deleteButtonGroup_->removeButton(button);
 	regionMap_.remove(button);
+    lockedElementViewList_.removeOne(view);
 	layout()->removeItem(layoutMap_.value(button));
 	layoutMap_.take(button)->deleteLater();
 	view->region()->deleteLater();
