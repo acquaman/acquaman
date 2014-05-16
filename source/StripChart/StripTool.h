@@ -1,6 +1,8 @@
 #ifndef STRIPTOOL_H
 #define STRIPTOOL_H
 
+#include "source/analysis/AM1DDerivativeAB.h"
+
 #include "StripChart/StripToolModel.h"
 #include "StripChart/StripToolDataController.h"
 #include "StripChart/StripToolView.h"
@@ -37,6 +39,10 @@ public:
 public slots:
     void setAppDirectory(const QDir &newDir);
 
+protected:
+    StripToolVariable* createDerivativeFromVariable(StripToolVariable *variable);
+
+
 protected slots:
     void onModelItemAdded(const QModelIndex &parent, int rowStart, int rowFinish);
     void onModelItemRemoved(const QModelIndex &parent, int rowStart, int rowFinish);
@@ -47,8 +53,13 @@ protected slots:
     void toImportVariables();
     void toExportVariables(StripToolVariableInfo* toExport);
     void toEditListItem(const QModelIndex &listItem);
+    void toRemoveListItem(const QModelIndex &listItem);
+    void toDeleteListItem(const QModelIndex &listItem);
+    void toAddDerivativeListItem(const QModelIndex &listItem);
     void onModelVariableCheckStateChanged(const QModelIndex &index);
     void addVariableToModel(const QString &name);
+    void onTimeUnitsChanged(TimeEntryWidget::TimeUnits units);
+    void toChangeVariableColor(const QModelIndex &index, const QColor &newColor);
 
 private:
     void buildComponents();

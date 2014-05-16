@@ -9,12 +9,6 @@ EntryWidget::EntryWidget(QWidget *parent) :
     buildComponents();
     makeConnections();
     defaultSettings();
-
-    QHBoxLayout *entryLayout = new QHBoxLayout();
-    entryLayout->addWidget(lineEdit_);
-    entryLayout->addWidget(addButton_);
-
-    setLayout(entryLayout);
 }
 
 
@@ -70,4 +64,9 @@ void EntryWidget::makeConnections()
 
 void EntryWidget::defaultSettings()
 {
+    QHBoxLayout *entryLayout = new QHBoxLayout();
+    entryLayout->addWidget(lineEdit_);
+    entryLayout->addWidget(addButton_);
+
+    setLayout(entryLayout);
 }

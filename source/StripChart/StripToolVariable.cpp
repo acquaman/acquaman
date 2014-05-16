@@ -1,5 +1,7 @@
 #include "StripToolVariable.h"
 
+#include <QVector>
+
 StripToolVariable::StripToolVariable(StripToolVariableInfo *info, QObject *parent) :
     QObject(parent)
 {
@@ -39,17 +41,17 @@ MPlotVectorSeriesData* StripToolVariable::data() const
 
 
 
-StripToolSeries2 *StripToolVariable::series() const
+StripToolSeries *StripToolVariable::series() const
 {
     return series_;
 }
 
 
 
-MPlotSeriesBasic* StripToolVariable::plotItem() const
-{
-    return series_->series();
-}
+//MPlotSeriesBasic* StripToolVariable::plotItem() const
+//{
+//    return series_;
+//}
 
 
 
@@ -68,7 +70,16 @@ void StripToolVariable::setIndex(const QModelIndex &index)
 void StripToolVariable::setInfo(StripToolVariableInfo *newInfo)
 {
     if (info_ != 0) {
-        disconnect(info_, SIGNAL(dataSourceValueUpdate(QTime, double)), this, SLOT(onDataSourceValuesChanged(QTime, double)) );
+        disconnect( info_, SIGNAL(dataSourceValueUpdate(QTime, double)), this, SLOT(onDataSourceValuesChanged(QTime, double)) );
+        disconnect( info_, SIGNAL(colorChanged(QString)), this, SLOT(toUpdateSeriesColor(QString)) );
+
+        disconnect( info_, SIGNAL(axisMaxChanged(double)), this, SLOT(setCustomAxisMax(double)) );
+        disconnect( info_, SIGNAL(axisMinChanged(double)), this, SLOT(setCustomAxisMin(double)) );
+        disconnect( info_, SIGNAL(axisMaxErased()), this, SLOT(eraseCustomAxisMax()) );
+        disconnect( info_, SIGNAL(axisMinErased()), this, SLOT(eraseCustomAxisMin()) );
+
+        disconnect( this, SIGNAL(dataMaxUpdated(double)), info_, SIGNAL(dataMaxChanged(double)) );
+        disconnect( this, SIGNAL(dataMinUpdated(double)), info_, SIGNAL(dataMinChanged(double)) );
 
         info_->deleteLater();
         info_ = 0;
@@ -79,6 +90,15 @@ void StripToolVariable::setInfo(StripToolVariableInfo *newInfo)
 
     if (info_ != 0) {
         connect( info_, SIGNAL(dataSourceValueUpdate(QTime, double)), this, SLOT(onDataSourceValuesChanged(QTime, double)) );
+        connect( info_, SIGNAL(colorChanged(QString)), this, SLOT(toUpdateSeriesColor(QString)) );
+
+        connect( info_, SIGNAL(axisMaxChanged(double)), this, SLOT(setCustomAxisMax(double)) );
+        connect( info_, SIGNAL(axisMinChanged(double)), this, SLOT(setCustomAxisMin(double)) );
+        connect( info_, SIGNAL(axisMaxErased()), this, SLOT(eraseCustomAxisMax()) );
+        connect( info_, SIGNAL(axisMinErased()), this, SLOT(eraseCustomAxisMin()) );
+
+        connect( this, SIGNAL(dataMaxUpdated(double)), info_, SIGNAL(dataMaxChanged(double)) );
+        connect( this, SIGNAL(dataMinUpdated(double)), info_, SIGNAL(dataMinChanged(double)) );
     }
 
     qDebug() << "StripToolVariable :: new info set for variable " << info()->name();
@@ -86,24 +106,47 @@ void StripToolVariable::setInfo(StripToolVariableInfo *newInfo)
 
 
 
-void StripToolVariable::onDataSourceValuesChanged(QTime measurementTime, double measurementValue)
+void StripToolVariable::setCustomAxisMax(double newMax)
 {
-//    qDebug() << "StripToolVariable :: value update for " << info()->name();
-    updateTotalValues(measurementTime, measurementValue);
-
-    if (info()->checkState() == Qt::Checked)
-        updateDisplayValues();
+    series_->setCustomMax(newMax);
 }
 
 
 
-void StripToolVariable::onDisplayRangeUpdated(const MPlotAxisRange *newRange)
+void StripToolVariable::setCustomAxisMin(double newMin)
 {
-    Q_UNUSED(newRange)
-//    if (info()->checkState() == Qt::Checked) {
-//        qDebug() << "StripToolVariable :: display range updated.";
-//        emit displayRangeUpdated(newRange);
-//    }
+    series_->setCustomMin(newMin);
+}
+
+
+
+void StripToolVariable::eraseCustomAxisMax()
+{
+    series_->eraseCustomMax();
+}
+
+
+
+void StripToolVariable::eraseCustomAxisMin()
+{
+    series_->eraseCustomMin();
+}
+
+
+
+void StripToolVariable::onDataSourceValuesChanged(QTime measurementTime, double measurementValue)
+{
+    updateTotalValues(measurementTime, measurementValue);
+
+    if (info()->checkState() == Qt::Checked)
+        updateDisplayValues(measurementTime, totalUpdateTimes_, totalUpdateValues_);
+}
+
+
+
+void StripToolVariable::toUpdateSeriesColor(const QString &colorName)
+{
+    series_->setLinePen( QPen(QColor(colorName)) );
 }
 
 
@@ -151,36 +194,37 @@ void StripToolVariable::updateTotalValues(QTime latestTime, double latestValue)
     totalUpdateTimes_[updateCount_ - 1] = latestTime;
     totalUpdateValues_[updateCount_ - 1] = latestValue;
 
-//    emit dataRangeUpdated(series()->dataRange());
+    emit dataMinUpdated(series()->dataRange()->min());
+    emit dataMaxUpdated(series()->dataRange()->max());
 }
 
 
 
-void StripToolVariable::updateDisplayValues()
+void StripToolVariable::updateDisplayValues(QTime latestTime, QVector<QTime> totalTimes, QVector<double> totalValues)
 {
-    if (updateCount_ > 0) {
-        QTime latestTime = totalUpdateTimes_.at(updateCount_ - 1);
+    int updateCount = totalTimes.size();
 
+    if (updateCount > 0 && totalTimes.size() == totalValues.size()) {
         // we generate two new vectors to house the subset of values that will be displayed.
         QVector<double> displayedTimes(0);
         QVector<double> displayedValues(0);
         bool arraysComplete = false;
 
-        int startIndex = updateCount_ - 1;
+        int startIndex = updateCount - 1;
         int index = startIndex;
 
-        while (index >= 0 && index < totalUpdateTimes_.size() && !arraysComplete) {
-
-            QTime measurementTime = totalUpdateTimes_.at(index);
-            double measurement = totalUpdateValues_.at(index);
+        while (index >= 0 && index < updateCount && !arraysComplete) {
+            QTime measurementTime = totalTimes.at(index);
+            double measurement = totalValues.at(index);
 
             // we want to ignore 'filler' values that don't represent actual measurements.
-            if (measurementTime != QTime()) {
-                double displayTime = latestTime.msecsTo(measurementTime);
+            if (measurementTime.isValid()) {
+
+                double displayTimeMS = latestTime.msecsTo(measurementTime);
 
                 // if the display time falls within the range we'd like to see on the plot, add the time and value to the display vectors.
-                if (qAbs(displayTime) <= qAbs(info()->displayedTimeMS())) {
-                    displayedTimes.prepend(displayTime);
+                if (qAbs(displayTimeMS) <= qAbs(info()->displayedTimeMS())) {
+                    displayedTimes.prepend(info()->timeMSToTimeUnits(displayTimeMS)); // convert the millisecond time to amount considering current units.
                     displayedValues.prepend(measurement);
 
                 } else {
@@ -192,41 +236,96 @@ void StripToolVariable::updateDisplayValues()
             index--;
         }
 
-        // update the series values plotted on the graph.
-        data()->setValues(displayedTimes, displayedValues);
-        emit displayRangeUpdated(series()->displayedRange());
+        if (updateCount%info()->granularity() == 0) {
+            // update the series values plotted on the graph.
+            data()->setValues(displayedTimes, displayedValues);
+
+            // we check that the display range values for this variable make sense, just in case.
+            qreal max = series()->displayedRange()->max();
+            qreal min = series()->displayedRange()->min();
+
+            if (max == min) {
+
+                if (min == 0) {
+                    qDebug() << "StripToolVariable :: the max and min values of the displayed range retrieved from StripToolSeries are both equal to zero! Setting each +/- 2.";
+                    max = 2;
+                    min = -2;
+                    series()->setCustomLimits(min, max);
+
+                } else {
+                    qDebug() << "StripToolVariable :: the max and min values of the displayed range retrieved from StripToolSeries are identical. Scaling each by +/- 5%.";
+                    min *= 0.95;
+                    max *= 1.05;
+                    series()->setCustomLimits(min, max);
+                }
+            }
+
+            MPlotAxisRange *displayRange = series()->displayedRange();
+            qDebug() << "StripToolVariable :: display range max : " << displayRange->max();
+
+            // emit signal containing the range used for the y axis.
+            emit displayRangeUpdated(displayRange);
+        }
+    }
+}
+
+
+
+QVector<double> StripToolVariable::applyAverage(QVector<double> toAverage)
+{
+    int binSize = info()->averageOverPoints();
+
+    // the group size of the points to average should never be less than 1. In case it has happened accidentally, we can fix it.
+    if (binSize < 1) {
+        qDebug() << "StripToolVariable :: cannot average points together in groups less than one. Setting group size to 1.";
+        info()->setAverageOverPoints(1);
+        return QVector<double>();
     }
 
+    // if the group size of the points to average together is 1, there is no real averaging happening! Return original array.
+    if (binSize == 1)
+        return toAverage;
+
+    // if we don't have enough points yet to fill one "bin", return an empty array.
+    if (toAverage.size() < binSize)
+        return QVector<double>();
+
+    // the number of points in the final, averaged array is going to be a function of how many points we have and the size of each bin.
+    int binNum = toAverage.size() / binSize;
+
+    QVector<double> averagedValues = QVector<double>(binNum, 0.0);
+
+    for (int averagedCount = 0; averagedCount < binNum; averagedCount++) {
+        qDebug() << "StripToolVariable :: beginning calculation of average for bin number : " << averagedCount;
+
+        double binSum = 0;
+
+        for (int toAverageCount = averagedCount*binSize; toAverageCount < averagedCount*binSize + binSize; toAverageCount++) {
+            binSum += toAverage.at(toAverageCount);
+        }
+
+        double binValue = binSum * 1.0 / binSize;
+        averagedValues[averagedCount] = binValue;
+
+        qDebug() << "StripToolVariable :: bin value : " << binValue;
+    }
+
+    return averagedValues;
+
+}
 
 
 
-    //    // if this variable is the selected variable, its values determine the range of the y axis.
-    //    if (info()->selectionState() && info()->checkState()) {
-    //        emit dataRangeUpdated(series()->dataRange());
+QVector<double> StripToolVariable::applyGranularity(QVector<double> toGranulize)
+{
+    int initialSize = toGranulize.size();
+    int granSize = info()->granularity();
+    int overage = initialSize%granSize;
 
-    //        // we check that the display range values for this variable make sense, just in case.
-    //        qreal max = series()->displayedRange()->max();
-    //        qreal min = series()->displayedRange()->min();
-
-    //        if (max == min) {
-
-    //            if (min == 0) {
-    //                qDebug() << "StripTool0DVariable :: the max and min values of the displayed range retrieved from StripToolSeries are both equal to zero! Setting each +/- 2.";
-    //                max = 2;
-    //                min = -2;
-    //                series()->setCustomLimits(min, max);
-
-    //            } else {
-    //                qDebug() << "StripTool0DVariable :: the max and min values of the displayed range retrieved from StripToolSeries are identical. Scaling each by +/- 5%.";
-    //                min *= 0.95;
-    //                max *= 1.05;
-    //                series()->setCustomLimits(min, max);
-    //            }
-    //        }
-
-    //        // emit signal containing the range used for the y axis.
-    //        emit displayRangeUpdated(series()->displayedRange());
-    //    }
+    if (overage == 0)
+        return toGranulize;
+    else
+        return toGranulize.mid(0, initialSize - overage);
 }
 
 
@@ -235,11 +334,22 @@ void StripToolVariable::buildComponents()
 {
     data_ = new MPlotVectorSeriesData();
 
-    series_ = new StripToolSeries2(this);
+    series_ = new StripToolSeries();
 
-    plotItem()->setModel(data_, true);
-    plotItem()->setDescription(" ");
-    plotItem()->setMarker(MPlotMarkerShape::None);
+    series_->setModel(data_, true);
+    series_->setDescription(" ");
+    series_->setMarker(MPlotMarkerShape::None);
+
+    if (info()->hasColor())
+        series_->setLinePen( QPen(info()->color()) );
+    else
+        info()->setColor(QColor(Qt::red));
+
+    if (info_->hasCustomAxisMax())
+        series_->setCustomMax(info_->customAxisMax());
+
+    if (info_->hasCustomAxisMin())
+        series_->setCustomMin(info_->customAxisMin());
 
 }
 
@@ -256,7 +366,5 @@ void StripToolVariable::defaultSettings()
 {
     index_ = QModelIndex();
     updateCount_ = 0;
-//    displayedTime_ = 1000; // milliseconds
-
     info()->setCreationDateTime(QDateTime::currentDateTime().toString());
 }

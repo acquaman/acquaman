@@ -9,13 +9,15 @@ StripToolVariableInfoExporter::StripToolVariableInfoExporter(QObject *parent) :
 
 
 
-QDir StripToolVariableInfoExporter::exportDirectory() const {
+QDir StripToolVariableInfoExporter::exportDirectory() const
+{
     return exportDirectory_;
 }
 
 
 
-void StripToolVariableInfoExporter::setExportDirectory(QDir newExportDirectory) {
+void StripToolVariableInfoExporter::setExportDirectory(QDir newExportDirectory)
+{
     if (newExportDirectory.exists()) {
         exportDirectory_ = newExportDirectory;
 
@@ -26,7 +28,8 @@ void StripToolVariableInfoExporter::setExportDirectory(QDir newExportDirectory) 
 
 
 
-bool StripToolVariableInfoExporter::exportInfo(StripToolVariableInfo *toExport) {
+bool StripToolVariableInfoExporter::exportInfo(StripToolVariableInfo *toExport)
+{
     if (!exportDirectory().exists()) {
         qDebug() << "StripToolVariableInfoExporter :: cannot export variable info to a directory that doesn't exist! No changes made.";
         return false;
@@ -34,11 +37,6 @@ bool StripToolVariableInfoExporter::exportInfo(StripToolVariableInfo *toExport) 
 
     QString filename = variableNameToFilename(toExport->name());
     QList<QString> newFileContents = infoToExport(toExport);
-
-    if (newFileContents.empty()) {
-        qDebug() << "StripToolVariableInfoExporter :: info has no information to export. Export successful.";
-        return true;
-    }
 
     QDir::setCurrent(exportDirectory().path());
     QFile file(filename);
@@ -61,41 +59,64 @@ bool StripToolVariableInfoExporter::exportInfo(StripToolVariableInfo *toExport) 
 
 
 
-QString StripToolVariableInfoExporter::variableNameToFilename(const QString &name) const {
+QString StripToolVariableInfoExporter::variableNameToFilename(const QString &name) const
+{
     QString filename = name;
     return filename.replace(":", "_").append(".txt");
 }
 
 
 
-QList<QString> StripToolVariableInfoExporter::infoToExport(StripToolVariableInfo *toExport) const {
+QList<QString> StripToolVariableInfoExporter::infoToExport(StripToolVariableInfo *toExport) const
+{
     QList<QString> infoToExport;
 
     if (toExport->hasName()) {
         infoToExport << "Name : " + toExport->name();
-        qDebug() << "Name : " << toExport->name();
+//        qDebug() << "Name : " << toExport->name();
     }
 
-    if (toExport->hasCreationDateTime())
-        qDebug() << "Created : " << toExport->creationDateTime();
+    if (toExport->importAutomatically() == true)
+        infoToExport << "Auto import : true";
+    else
+        infoToExport << "Auto import : false";
 
-    if (toExport->hasDescription())
+    if (toExport->hasCreationDateTime()) {
+        infoToExport << "Created : " + toExport->creationDateTime();
+//        qDebug() << "Created : " << toExport->creationDateTime();
+    }
+
+    if (toExport->hasDescription()) {
+        infoToExport << "Description : " + toExport->description();
         qDebug() << "Description : " << toExport->description();
+    }
 
-    if (toExport->hasUnits())
-        qDebug() << "Units : " << toExport->units();
+    if (toExport->hasUnits()) {
+        infoToExport << "Units : " + toExport->units();
+//        qDebug() << "Units : " << toExport->units();
+    }
 
-    if (toExport->hasCheckState())
-        qDebug() << "Check state : " << toExport->checkState();
+    if (toExport->hasGranularity()) {
+        infoToExport << "Granularity : " + QString::number(toExport->granularity());
+//        qDebug() << "Granularity : " << toExport->granularity();
+    }
 
-    if (toExport->hasSelectionState())
-        qDebug() << "Selection state : " << toExport->selectionState();
+    if (toExport->hasAverageOverPoints()) {
+        infoToExport << "Average : " + QString::number(toExport->averageOverPoints());
+    }
 
-    if (toExport->hasGranularity())
-        qDebug() << "Granularity : " << toExport->granularity();
+    if (toExport->hasColor()) {
+        infoToExport << "Color : " + toExport->colorName();
+//        qDebug() << "Color : " << toExport->colorName();
+    }
 
-    if (toExport->hasColor())
-        qDebug() << "Color : " << toExport->colorName();
+    if (toExport->hasCustomAxisMax()) {
+        infoToExport << "Max : " + QString::number(toExport->customAxisMax());
+    }
+
+    if (toExport->hasCustomAxisMin()) {
+        infoToExport << "Min : " + QString::number(toExport->customAxisMin());
+    }
 
     return infoToExport;
 }

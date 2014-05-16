@@ -4,6 +4,7 @@ StripToolListView::StripToolListView(QWidget *parent) :
     QListView(parent)
 {
     edit_ = 0;
+    remove_ = 0;
     delete_ = 0;
     color_ = 0;
 
@@ -64,7 +65,12 @@ void StripToolListView::updateContextMenu(const QPoint &position)
     QMenu menu(this);
 
     menu.addAction(edit_);
+    menu.addAction(remove_);
     menu.addAction(delete_);
+    menu.addSeparator();
+    menu.addAction(importAutomatically_);
+    menu.addSeparator();
+    menu.addAction(plotDerivative_);
     menu.addSeparator();
     menu.addAction(color_);
 
@@ -77,6 +83,15 @@ void StripToolListView::editSelection()
 {
     foreach (const QModelIndex &index, selectionModel()->selectedIndexes()) {
         emit itemToEdit(index);
+    }
+}
+
+
+
+void StripToolListView::removeSelection()
+{
+    foreach (const QModelIndex &index, selectionModel()->selectedIndexes()) {
+        emit itemToRemove(index);
     }
 }
 
@@ -101,6 +116,15 @@ void StripToolListView::colorSelection()
 
 
 
+void StripToolListView::findSelectionDerivative()
+{
+    foreach( const QModelIndex &index, selectionModel()->selectedIndexes()) {
+        emit itemToFindDerivative(index);
+    }
+}
+
+
+
 void StripToolListView::onSelectionChanged(QItemSelection newSelection, QItemSelection oldSelection)
 {
     if (newSelection == oldSelection) {
@@ -116,8 +140,13 @@ void StripToolListView::onSelectionChanged(QItemSelection newSelection, QItemSel
 void StripToolListView::buildComponents()
 {
     edit_ = new QAction("Edit", this);
+    remove_ = new QAction("Remove", this);
     delete_ = new QAction("Delete", this);
+    importAutomatically_ = new QAction("Automatic import", this);
+    importAutomatically_->setEnabled(false);
     color_ = new QAction("Line color", this);
+    plotDerivative_ = new QAction("Plot derivative", this);
+//    plotDerivative_->setEnabled(false);
 }
 
 
@@ -125,8 +154,10 @@ void StripToolListView::buildComponents()
 void StripToolListView::makeConnections()
 {
     connect( edit_, SIGNAL(triggered()), this, SLOT(editSelection()) );
+    connect( remove_, SIGNAL(triggered()), this, SLOT(removeSelection()) );
     connect( delete_, SIGNAL(triggered()), this, SLOT(deleteSelection()) );
     connect( color_, SIGNAL(triggered()), this, SLOT(colorSelection()) );
+    connect( plotDerivative_, SIGNAL(triggered()), this, SLOT(findSelectionDerivative()) );
 
     connect( this, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(updateContextMenu(const QPoint &)) );
 }

@@ -160,7 +160,7 @@ void IDEASAppController::setupUserInterface()
 		IDEASXRFDetailedDetectorViewWithSave_->addCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));
 		mw_->addPane(IDEASXRFDetailedDetectorViewWithSave_, "Detectors", "XRF Detector", ":/system-search.png");
 
-	mw_->insertHeading("Scans", 2);
+    mw_->insertHeading("Scans", 2);
 
 		IDEASPersistentView *persistentPanel = new IDEASPersistentView;
 		mw_->addRightWidget(persistentPanel);

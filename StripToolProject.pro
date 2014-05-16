@@ -29,7 +29,8 @@ SOURCES += source/StripChart/main.cpp \
     source/StripChart/StripToolVariableInfoExporter.cpp \
     source/StripChart/StripToolVariableInfo.cpp \
     source/StripChart/StripToolVariable.cpp \
-    source/StripChart/StripToolSeries2.cpp
+    source/StripChart/StripToolSeries2.cpp \
+	source/StripChart/StripToolAccumulatorAB.cpp
 
 HEADERS  += \
     source/StripChart/StripToolPlot.h \
@@ -52,6 +53,7 @@ HEADERS  += \
     source/StripChart/StripToolVariableInfoExporter.h \
     source/StripChart/StripToolVariableInfo.h \
     source/StripChart/StripToolVariable.h \
-    source/StripChart/StripToolSeries2.h
+    source/StripChart/StripToolSeries2.h \
+	source/StripChart/StripToolAccumulatorAB.h
 
 OTHER_FILES +=

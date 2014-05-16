@@ -136,17 +136,19 @@ CLSSIS3820ScalerView::CLSSIS3820ScalerView(CLSSIS3820Scaler *scaler, QWidget *pa
 	setLayout(mainVL_);
 
     //CLSSIS3820ScalerChannelView *channelView = 0;
-    CLSSIS3820ScalerChannelViewWithDarkCurrent *channelView = 0;
+    CLSSIS3820ScalerChannelView *channelView = 0;
 	int channelCount = scaler_->channels().count();
     
 	for (int i = 0; i < channelCount; i++){
         CLSSIS3820ScalerChannel *channel = scaler_->channelAt(i);
 
-        if (!showDarkCurrentWidget && channel->detector()->canDoDarkCurrentCorrection())
+        if (!showDarkCurrentWidget && channel->detector() && channel->detector()->canDoDarkCurrentCorrection())
             showDarkCurrentWidget = true;
 
-        //channelView = new CLSSIS3820ScalerChannelView(scaler_->channelAt(i));
-        channelView = new CLSSIS3820ScalerChannelViewWithDarkCurrent(channel);
+        if(channel->detector() && channel->detector()->canDoDarkCurrentCorrection())
+            channelView = new CLSSIS3820ScalerChannelViewWithDarkCurrent(channel);
+        else
+            channelView = new CLSSIS3820ScalerChannelView(scaler_->channelAt(i));
 //        channelView->setDarkCurrentViewMode(CLSSIS3820ScalerChannelViewWithDarkCurrent::Show);
 
 		channelViews_ << channelView;
@@ -275,7 +277,9 @@ CLSSIS3820ScalerChannelView::CLSSIS3820ScalerChannelView(CLSSIS3820ScalerChannel
 	channelName_ = new QLabel(channel_->customChannelName());
 
 	sr570View_ = 0;
-    connect(channel_, SIGNAL(sr570Attached()), this, SLOT(onNewCurrentAmplifierAttached()));
+
+    //connect(channel_, SIGNAL(sr570Attached()), this, SLOT(onNewCurrentAmplifierAttached()));
+    connect(channel_, SIGNAL(currentAmplifierAttached()), this, SLOT(onNewCurrentAmplifierAttached()));
 
 	if (channel_->currentAmplifier()){
 

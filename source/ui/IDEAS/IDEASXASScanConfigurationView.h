@@ -22,6 +22,7 @@ class AMTopFrame;
 
 class IDEASXASScanConfigurationView : public AMScanConfigurationView
 {
+
 Q_OBJECT
 
 public:

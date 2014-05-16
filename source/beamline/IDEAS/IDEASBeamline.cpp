@@ -128,8 +128,6 @@ void IDEASBeamline::setupMono()
 //	masterDwellTime_->setHiddenFromUsers(true);
 //	masterDwellTime_->setIsVisible(false);
 
-
-
 //}
 
 void IDEASBeamline::setupComponents()

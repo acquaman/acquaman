@@ -19,8 +19,30 @@ StripToolSidePanel::~StripToolSidePanel()
 
 
 
-StripToolListView* StripToolSidePanel::listView() const {
+StripToolListView* StripToolSidePanel::listView() const
+{
     return listView_;
+}
+
+
+
+EntryWidget* StripToolSidePanel::nameEntry() const
+{
+    return nameEntry_;
+}
+
+
+
+TimeEntryWidget* StripToolSidePanel::timeEntry() const
+{
+    return timeEntry_;
+}
+
+
+
+WaterfallEntryWidget* StripToolSidePanel::waterfallEntry() const
+{
+    return waterfallEntry_;
 }
 
 
@@ -28,6 +50,9 @@ StripToolListView* StripToolSidePanel::listView() const {
 void StripToolSidePanel::buildComponents()
 {
     listView_ = new StripToolListView(this);
+    nameEntry_ = new EntryWidget(this);
+    timeEntry_ = new TimeEntryWidget(this);
+    waterfallEntry_ = new WaterfallEntryWidget(this);
 }
 
 
@@ -42,6 +67,9 @@ void StripToolSidePanel::defaultSettings()
 {
     QVBoxLayout *controlsLayout = new QVBoxLayout();
     controlsLayout->addWidget(listView_);
+    controlsLayout->addWidget(nameEntry_);
+    controlsLayout->addWidget(timeEntry_);
+    controlsLayout->addWidget(waterfallEntry_);
 
     QGroupBox *controlsGroup = new QGroupBox();
     controlsGroup->setLayout(controlsLayout);
@@ -50,6 +78,6 @@ void StripToolSidePanel::defaultSettings()
     contentLayout->addWidget(controlsGroup);
 
     setLayout(contentLayout);
-    setMaximumWidth(205);
+    setMaximumWidth(250);
 }
 

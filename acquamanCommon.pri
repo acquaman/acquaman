@@ -19,6 +19,10 @@ USERNAME = $$system(whoami)
 
 macx {
 
+contains(USERNAME, helfrij){
+	CONFIG -= mobility
+}
+
 		# Disable Qt Mobility Video until everyone's Mac laptops support that
 		#CONFIG -= mobility
 

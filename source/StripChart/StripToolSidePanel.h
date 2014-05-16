@@ -6,6 +6,9 @@
 
 #include "StripChart/StripToolModel.h"
 #include "StripChart/StripToolListView.h"
+#include "StripChart/EntryWidget.h"
+#include "StripChart/TimeEntryWidget.h"
+#include "StripChart/WaterfallEntryWidget.h"
 
 /// This class is a sort of optional sidebar that provides a number of ways for the user to interact with an added pv, as well as a quick way to add a new one.
 class StripToolSidePanel : public QWidget
@@ -21,6 +24,9 @@ signals:
 
 public:
     StripToolListView* listView() const;
+    EntryWidget *nameEntry() const;
+    TimeEntryWidget *timeEntry() const;
+    WaterfallEntryWidget *waterfallEntry() const;
 
 private:
     void buildComponents();
@@ -29,6 +35,9 @@ private:
 
 private:
     StripToolListView *listView_;
+    EntryWidget *nameEntry_;
+    TimeEntryWidget *timeEntry_;
+    WaterfallEntryWidget *waterfallEntry_;
 
 };
 

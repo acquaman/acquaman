@@ -10,13 +10,6 @@ TimeEntryWidget::TimeEntryWidget(QWidget *parent) :
     buildComponents();
     makeConnections();
     defaultSettings();
-
-    QHBoxLayout *timeLayout = new QHBoxLayout();
-    timeLayout->addWidget(timeLabel_);
-    timeLayout->addWidget(timeAmount_);
-    timeLayout->addWidget(timeUnits_);
-
-    setLayout(timeLayout);
 }
 
 
@@ -34,9 +27,30 @@ int TimeEntryWidget::timeAmount() const
 
 
 
-QString TimeEntryWidget::timeUnits() const
+TimeEntryWidget::TimeUnits TimeEntryWidget::timeUnits() const
 {
-    return timeUnits_->currentText();
+    TimeEntryWidget::TimeUnits units;
+
+    switch (timeUnits_->currentIndex()) {
+    case (0) :
+        units = TimeEntryWidget::Seconds;
+        break;
+    case (1) :
+        units = TimeEntryWidget::Minutes;
+        break;
+
+    case (2) :
+        units = TimeEntryWidget::Hours;
+        break;
+
+    default:
+        qDebug() << "TimeEntryWidget::timeUnits() : unknown units encountered!! Setting units to seconds.";
+        units = TimeEntryWidget::Seconds;
+        timeUnits_->setCurrentIndex(TimeEntryWidget::Seconds);
+        break;
+    }
+
+    return units;
 }
 
 
@@ -48,22 +62,54 @@ void TimeEntryWidget::setTimeAmount(int amount)
 
 
 
-void TimeEntryWidget::setTimeUnits(const QString &units)
-{
-    if (units == "sec") {
-        timeUnits_->setCurrentIndex(TimeEntryWidget::Seconds);
+void TimeEntryWidget::setTimeUnits(TimeEntryWidget::TimeUnits newUnits)
+{   
+    timeUnits_->setCurrentIndex(newUnits);
+
+    switch (newUnits) {
+    case (TimeEntryWidget::Seconds) :
         timeAmount_->setMaximum(secondsMax_);
+        emit timeUnitsChanged(newUnits);
+        break;
 
-    } else if (units == "min") {
-        timeUnits_->setCurrentIndex(TimeEntryWidget::Minutes);
+    case (TimeEntryWidget::Minutes) :
         timeAmount_->setMaximum(minutesMax_);
+        emit timeUnitsChanged(newUnits);
+        break;
 
-    } else if (units == "hr") {
-        timeUnits_->setCurrentIndex(TimeEntryWidget::Hours);
+    case (TimeEntryWidget::Hours) :
         timeAmount_->setMaximum(hoursMax_);
+        emit timeUnitsChanged(newUnits);
+        break;
 
-    } else {
-        qDebug() << "TimeEntryWidget :: did not recognize " << units << " as valid time unit. No change made.";
+    default:
+        qDebug() << "TimeEntryWidget::setTimeUnits(...) : unknown units encountered!! Setting units to seconds.";
+        setTimeAmount(10);
+        setTimeUnits(TimeEntryWidget::Seconds);
+        break;
+    }
+}
+
+
+
+void TimeEntryWidget::onTimeUnitsChanged(int newUnitsIndex)
+{
+    switch (newUnitsIndex) {
+    case (0) :
+        emit timeUnitsChanged(TimeEntryWidget::Seconds);
+        break;
+    case (1) :
+        emit timeUnitsChanged(TimeEntryWidget::Minutes);
+        break;
+    case (2) :
+        emit timeUnitsChanged(TimeEntryWidget::Hours);
+        break;
+
+    default:
+        qDebug() << "TimeEntryWidget::onTimeUnitsChanged(int) : unknown units encountered!! Setting time to seconds.";
+        setTimeAmount(10);
+        setTimeUnits(TimeEntryWidget::Seconds);
+        break;
     }
 }
 
@@ -85,8 +131,7 @@ void TimeEntryWidget::buildComponents()
 void TimeEntryWidget::makeConnections()
 {
     connect( timeAmount_, SIGNAL(valueChanged(int)), this, SIGNAL(timeAmountChanged(int)) );
-    connect( timeUnits_, SIGNAL(currentIndexChanged(int)), this, SIGNAL(timeUnitsChanged(int)) );
-    connect( timeUnits_, SIGNAL(activated(int)), this, SIGNAL(timeUnitsChanged(int)) );
+    connect( timeUnits_, SIGNAL(currentIndexChanged(int)), this, SLOT(onTimeUnitsChanged(int)) );
 }
 
 
@@ -99,5 +144,13 @@ void TimeEntryWidget::defaultSettings()
     timeUnits_->addItem("sec");
     timeUnits_->addItem("min");
     timeUnits_->addItem("hr");
-    timeUnits_->setCurrentIndex(TimeEntryWidget::Seconds);
+
+    setTimeUnits(TimeEntryWidget::Seconds);
+
+    QHBoxLayout *timeLayout = new QHBoxLayout();
+//    timeLayout->addWidget(timeLabel_);
+    timeLayout->addWidget(timeAmount_);
+    timeLayout->addWidget(timeUnits_);
+
+    setLayout(timeLayout);
 }

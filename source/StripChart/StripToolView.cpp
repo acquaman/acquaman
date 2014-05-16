@@ -27,25 +27,25 @@ StripToolPlot* StripToolView::plotView() const {
 
 
 StripToolListView* StripToolView::listView() const {
-    return sidePanel()->listView();
+    return sidePanel_->listView();
 }
 
 
 
 EntryWidget* StripToolView::nameEntry() const {
-    return controlPanel_->nameEntry();
+    return sidePanel_->nameEntry();
 }
 
 
 
 WaterfallEntryWidget* StripToolView::waterfallEntry() const {
-    return controlPanel_->waterfallEntry();
+    return sidePanel_->waterfallEntry();
 }
 
 
 
 TimeEntryWidget* StripToolView::timeEntry() const {
-    return controlPanel_->timeEntry();
+    return sidePanel_->timeEntry();
 }
 
 
@@ -64,16 +64,16 @@ StripToolControlsPanel* StripToolView::controlPanel() const {
 
 void StripToolView::toggleSidePanel()
 {
-    if (sidePanelShown_) {
-        sidePanelShown_ = false;
-        sidePanel()->hide();
-        controlPanel()->sidebarButton()->setText("<");
+//    if (sidePanelShown_) {
+//        sidePanelShown_ = false;
+//        sidePanel()->hide();
+//        controlPanel()->sidebarButton()->setText("<");
 
-    } else {
-        sidePanelShown_ = true;
-        sidePanel()->show();
-        controlPanel()->sidebarButton()->setText(">");
-    }
+//    } else {
+//        sidePanelShown_ = true;
+//        sidePanel()->show();
+//        controlPanel()->sidebarButton()->setText(">");
+//    }
 }
 
 
@@ -104,7 +104,7 @@ void StripToolView::defaultSettings()
 
     QVBoxLayout *mainLayout = new QVBoxLayout();
     mainLayout->addLayout(upperLayout);
-    mainLayout->addWidget(controlPanel());
+//    mainLayout->addWidget(controlPanel());
 
     setLayout(mainLayout);
 }

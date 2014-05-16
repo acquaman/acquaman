@@ -25,8 +25,16 @@ public:
 //=======
     EditPVDialog(QWidget *parent = 0);
 
+signals:
+    void dataMaxUpdated(double newMax);
+    void dataMinUpdated(double newMin);
+
 public:
     void displayName(const QString &infoName, bool editEnabled);
+
+    void displayAutoImport(const QString autoImportEnabled, bool editEnabled);
+    bool importStateChanged() const;
+    QString importState() const;
 
     void displayCreationDateTime(const QString &infoCreation, bool editEnabled);
 
@@ -42,22 +50,32 @@ public:
     bool granularityChanged() const;
     QString granularity() const;
 
+    void displayAverageOverPoints(const QString &infoAverage, bool editEnabled);
+    bool averageOverPointsChanged() const;
+    QString averageOverPoints() const;
+
     void displayColorName(const QString &infoColorName, bool editEnabled);
     bool colorNameChanged() const;
     QString colorName() const;
 
+    void displayAxisMax(const QString &axisMax, bool editEnabled);
+    bool axisMaxChanged() const;
+    QString axisMax() const;
 
-//    QString displayMax();
-//    bool displayMaxChanged();
+    void displayAxisMin(const QString &axisMin, bool editEnabled);
+    bool axisMinChanged() const;
+    QString axisMin() const;
 
-//    QString displayMin();
-//    bool displayMinChanged();
-
-public slots:
+protected slots:
+    void autoImportStateChanged(const int state);
     void descriptionEntered(const QString &newDescription);
     void unitsEntered(const QString &newUnits);
     void granularityEntered(const QString &newGran);
+    void averageOverPointsEntered(const QString &newAverage);
     void colorNameEntered(const QString &newColor);
+    void axisMaxEntered(const QString &newMax);
+    void axisMinEntered(const QString &newMin);
+
 
 //    void displayMaxEntered(const QString &max);
 //    void displayMinEntered(const QString &min);
@@ -75,11 +93,14 @@ public slots:
 private:
 //    QLayout* createFormGui();
     QLayout* createButtonGui();
+    void defaultSettings();
 
 private:
-//    StripToolVariableInfo* info_;
     int componentCount_;
     QGridLayout *componentLayout_;
+
+    QString importState_;
+    bool importStateChanged_;
 
     QString description_;
     bool descriptionChanged_;
@@ -90,8 +111,17 @@ private:
     QString granularity_;
     bool granularityChanged_;
 
+    QString averageOverPoints_;
+    bool averageOverPointsChanged_;
+
     QString colorName_;
     bool colorNameChanged_;
+
+    QString axisMax_;
+    bool axisMaxChanged_;
+
+    QString axisMin_;
+    bool axisMinChanged_;
 
 //    QString gran_;
 //    bool granChanged_;

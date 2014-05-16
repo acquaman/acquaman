@@ -33,7 +33,7 @@ private:
 
 private:
     EntryWidget *nameEntry_;
-    DoubleButtonWidget *pauseResume_;
+//    DoubleButtonWidget *pauseResume_;
     TimeEntryWidget *timeEntry_;
     QPushButton *sidebarButton_;
     WaterfallEntryWidget *waterfallEntry_;

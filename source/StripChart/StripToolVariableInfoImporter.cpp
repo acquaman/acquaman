@@ -5,7 +5,6 @@ StripToolVariableInfoImporter::StripToolVariableInfoImporter(QObject *parent) :
     QObject(parent)
 {
     importDirectory_ = 0;
-
     defaultSettings();
 
     qDebug() << "StripToolVariableInfoImporter object created.";
@@ -30,7 +29,9 @@ void StripToolVariableInfoImporter::importInfos() {
 
     foreach (QString file, filesToAdd) {
         StripToolVariableInfo* variableInfo = loadInfoFromFile(file);
-        emit importedInfo(variableInfo);
+
+        if (variableInfo->importAutomatically())
+            emit importedInfo(variableInfo);
     }
 }
 
@@ -113,25 +114,45 @@ StripToolVariableInfo* StripToolVariableInfoImporter::loadInfoFromFile(const QSt
                 QString data = entry.mid(i + 1).trimmed();
 
                 if (header == "Name") {
-                    qDebug() << "StripToolVariableInfoImporter : setting info name from file.";
+                    qDebug() << "StripToolVariableInfoImporter : setting info name from file : " << data;
                     newInfo->setName(data);
 
+                } else if (header == "Auto import") {
+                    if (data == "true")
+                        newInfo->setToImportAutomatically(true);
+                    else
+                        newInfo->setToImportAutomatically(false);
+
                 } else if (header == "Description") {
-                    qDebug() << "StripToolVariableInfoImporter : setting description from file.";
+                    qDebug() << "StripToolVariableInfoImporter :: setting description from file : " << data;
                     newInfo->setDescription(data);
 
                 } else if (header == "Units") {
-                    qDebug() << "StripToolVariableInfoImporter : setting units from file.";
+                    qDebug() << "StripToolVariableInfoImporter :: setting units from file : " << data;
                     newInfo->setUnits(data);
 
                 } else if (header == "Color") {
-                    qDebug() << "StripToolVariableInfoImporter : setting color from file.";
+                    qDebug() << "StripToolVariableInfoImporter :: setting color from file : " << data;
                     newInfo->setColor(QColor(data));
 
                 } else if (header == "Granularity") {
-                    qDebug() << "StripToolVariableInfoImporter : setting granularity from file.";
+                    qDebug() << "StripToolVariableInfoImporter :: setting granularity from file : " << data;
                     newInfo->setGranularity(data.toInt());
+
+                } else if (header == "Average") {
+                    qDebug() << "StripToolVariableInfoImporter :: setting average over points from file : " << data;
+                    newInfo->setAverageOverPoints(data.toInt());
+
+                } else if (header == "Max") {
+                    qDebug() << "StripToolVariableInfoImporter :: setting axis max from file : " << data;
+                    newInfo->setCustomAxisMax(data.toDouble());
+
+                } else if (header == "Min") {
+                    qDebug() << "StripToolVariableInfoImporter :: setting axis min from file : " << data;
+                    newInfo->setCustomAxisMin(data.toDouble());
                 }
+
+                break;
             }
         }
     }

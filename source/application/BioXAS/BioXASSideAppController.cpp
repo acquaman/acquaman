@@ -20,9 +20,21 @@
 
 #include "util/AMPeriodicTable.h"
 
+#include "ui/CLS/CLSSIS3820ScalerView.h"
+#include "beamline/CLS/CLSSIS3820Scaler.h"
+#include "ui/BioXAS/BioXASSidePersistentView.h"
+#include "acquaman/BioXASSide/BioXASSideXASScanConfiguration.h"
+#include "ui/BioXAS/BioXASSideXASScanConfigurationView.h"
+#include "ui/acquaman/AMScanConfigurationViewHolder3.h"
+
 BioXASSideAppController::BioXASSideAppController(QObject *parent)
 	: AMAppController(parent)
 {
+    scalerView_ = 0;
+    persistentPanel_ = 0;
+    configuration_ = 0;
+    configurationView_ = 0;
+    configurationViewHolder_ = 0;
 }
 
 bool BioXASSideAppController::startup()
@@ -70,9 +82,41 @@ void BioXASSideAppController::shutdown()
 	AMAppController::shutdown();
 }
 
+void BioXASSideAppController::onScalerConnected()
+{
+    if (BioXASSideBeamline::bioXAS()->scaler()->isConnected() && !scalerView_) {
+        scalerView_ = new CLSSIS3820ScalerView(BioXASSideBeamline::bioXAS()->scaler());
+
+        mw_->addPane(scalerView_, "Detectors", "Scaler", ":/system-search.png", true);
+    }
+}
+
+void BioXASSideAppController::onBeamlineConnected()
+{
+    if (BioXASSideBeamline::bioXAS()->isConnected() && !persistentPanel_) {
+        persistentPanel_ = new BioXASSidePersistentView();
+        mw_->addRightWidget(persistentPanel_);
+    }
+
+    if (BioXASSideBeamline::bioXAS()->isConnected() && !configurationView_) {
+        configuration_ = new BioXASSideXASScanConfiguration();
+        configuration_->scanAxisAt(0)->regionAt(0)->setRegionStart(1.800);
+        configuration_->scanAxisAt(0)->regionAt(0)->setRegionStep(0.005);
+        configuration_->scanAxisAt(0)->regionAt(0)->setRegionEnd(1.850);
+        configuration_->scanAxisAt(0)->regionAt(0)->setRegionTime(1.0);
+
+        configurationView_ = new BioXASSideXASScanConfigurationView(configuration_);
+
+        configurationViewHolder_ = new AMScanConfigurationViewHolder3(configurationView_);
+
+        mw_->addPane(configurationViewHolder_, "Scans", "Test Scan", ":/utilities-system-monitor.png");
+    }
+
+}
+
 void BioXASSideAppController::registerClasses()
 {
-
+    AMDbObjectSupport::s()->registerClass<BioXASSideXASScanConfiguration>();
 }
 
 void BioXASSideAppController::setupExporterOptions()
@@ -101,6 +145,10 @@ void BioXASSideAppController::setupExporterOptions()
 	bioXASDefaultXAS->setHigherDimensionsInRows(true);
 	bioXASDefaultXAS->storeToDb(AMDatabase::database("user"));
 
+    if (bioXASDefaultXAS->id() > 0) {
+        AMAppControllerSupport::registerClass<BioXASSideXASScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(bioXASDefaultXAS->id());
+    }
+
 //	if(bioXASDefaultXAS->id() > 0)
 //			AMAppControllerSupport::registerClass<IDEASXASScanConfiguration, AMExporterAthena, AMExporterOptionGeneralAscii>(bioXASDefaultXAS->id());
 
@@ -116,7 +164,19 @@ void BioXASSideAppController::setupUserInterface()
 
 	mw_->insertHeading("Detectors", 1);
 
+    connect( BioXASSideBeamline::bioXAS()->scaler(), SIGNAL(connectedChanged(bool)), this, SLOT(onScalerConnected()) );
+
+    if (BioXASSideBeamline::bioXAS()->scaler()->isConnected()) {
+        onScalerConnected();
+    }
+
 	mw_->insertHeading("Scans", 2);
+
+    connect( BioXASSideBeamline::bioXAS(), SIGNAL(connected(bool)), this, SLOT(onBeamlineConnected()) );
+
+    if (BioXASSideBeamline::bioXAS()->isConnected()) {
+        onBeamlineConnected();
+    }
 
 }
 

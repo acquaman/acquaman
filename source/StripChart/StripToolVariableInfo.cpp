@@ -5,7 +5,6 @@ StripToolVariableInfo::StripToolVariableInfo(QObject *parent) :
     QObject(parent)
 {
     dataSource_ = 0;
-
     defaultSettings();
 
     qDebug() << "StripToolVariableInfo object created.";
@@ -69,6 +68,13 @@ bool StripToolVariableInfo::hasGranularity() const
 
 
 
+bool StripToolVariableInfo::hasAverageOverPoints() const
+{
+    return hasAverageOverPoints_;
+}
+
+
+
 bool StripToolVariableInfo::hasColor() const
 {
     return hasColor_;
@@ -86,6 +92,20 @@ bool StripToolVariableInfo::hasSelectionState() const
 bool StripToolVariableInfo::hasCheckState() const
 {
     return hasCheckState_;
+}
+
+
+
+bool StripToolVariableInfo::hasCustomAxisMax() const
+{
+    return hasCustomAxisMax_;
+}
+
+
+
+bool StripToolVariableInfo::hasCustomAxisMin() const
+{
+    return hasCustomAxisMin_;
 }
 
 
@@ -151,6 +171,16 @@ int StripToolVariableInfo::granularity() const
 
 
 
+int StripToolVariableInfo::averageOverPoints() const
+{
+    if (hasAverageOverPoints())
+        return averageOverPoints_;
+    else
+        return -1;
+}
+
+
+
 QColor StripToolVariableInfo::color() const
 {
     if (hasColor())
@@ -191,6 +221,26 @@ Qt::CheckState StripToolVariableInfo::checkState() const
 
 
 
+double StripToolVariableInfo::customAxisMax() const
+{
+    if (hasCustomAxisMax())
+        return customAxisMax_;
+    else
+        return -1;
+}
+
+
+
+double StripToolVariableInfo::customAxisMin() const
+{
+    if (hasCustomAxisMin())
+        return customAxisMin_;
+    else
+        return -1;
+}
+
+
+
 int StripToolVariableInfo::timeAmount() const
 {
     return timeAmount_;
@@ -198,7 +248,7 @@ int StripToolVariableInfo::timeAmount() const
 
 
 
-QString StripToolVariableInfo::timeUnits() const
+TimeEntryWidget::TimeUnits StripToolVariableInfo::timeUnits() const
 {
     return timeUnits_;
 }
@@ -208,25 +258,66 @@ QString StripToolVariableInfo::timeUnits() const
 int StripToolVariableInfo::displayedTimeMS() const
 {
     // want to return the number of milliseconds of data to display at a given time.
-    // this is a function of the current amount and units.
+    // this is a function of the current time amount and units.
 
     int displayedTime;
 
-    if (timeUnits_ == "sec") {
-        displayedTime = timeAmount_ * 1000;
+    switch (timeUnits_) {
+    case (TimeEntryWidget::Seconds) :
+        displayedTime = timeAmount_ * 1000.0;
+        break;
 
-    } else if (timeUnits_ == "min") {
-        displayedTime = timeAmount_ * 60 * 1000;
+    case (TimeEntryWidget::Minutes) :
+        displayedTime = timeAmount_ * 1000.0 * 60 * 60;
+        break;
 
-    } else if (timeUnits_ == "hr") {
-        displayedTime = timeAmount_ * 60 * 60 * 1000;
+    case (TimeEntryWidget::Hours) :
+        displayedTime = timeAmount_ * 1000.0 * 60 * 60;
+        break;
 
-    } else {
-        qDebug() << "StripToolVariableInfo :: unable to identify an appropriate display time from amount " << timeAmount_ << " and units " << timeUnits_ << ".";
-        displayedTime = -1;
+    default:
+        displayedTime = 0;
+        qDebug() << "StripToolVariableInfo::displayedTimeMS() : unknown units encountered!! Setting displayed time to zero.";
+        break;
     }
 
     return displayedTime;
+}
+
+
+
+double StripToolVariableInfo::timeMSToTimeUnits(int measurementTimeMS) const
+{
+    // want to take a value in milliseconds and return a 'proper' time--original value converted into timeUnits_.
+    double properTime;
+
+    switch (timeUnits_) {
+    case (TimeEntryWidget::Seconds) :
+        properTime = measurementTimeMS / 1000.0;
+        break;
+
+    case (TimeEntryWidget::Minutes) :
+        properTime = measurementTimeMS / 1000.0 / 60;
+        break;
+
+    case (TimeEntryWidget::Hours) :
+        properTime = measurementTimeMS / 1000.0 / 60 / 60;
+        break;
+
+    default:
+        properTime = 0;
+        qDebug() << "StripToolVariableInfo::timeMSToTimeUnits(...) : unknown units encountered!! Setting proper time to zero.";
+        break;
+    }
+
+    return properTime;
+}
+
+
+
+bool StripToolVariableInfo::importAutomatically() const
+{
+    return importAutomatically_;
 }
 
 
@@ -243,9 +334,12 @@ void StripToolVariableInfo::setName(const QString &sourceName)
     } else {
         hasName_ = true;
         name_ = sourceName;
-
-        setDataSource( new AM0DProcessVariableDataSource(new AMProcessVariable(name_, true, this), name_, this) );
         setDescription(name_);
+
+        if (dataSource_ == 0) {
+            setDataSource( new AM0DProcessVariableDataSource(new AMProcessVariable(name_, true, this), name_, this) );
+        }
+
     }
 
     emit nameChanged(name_);
@@ -256,19 +350,23 @@ void StripToolVariableInfo::setName(const QString &sourceName)
 
 
 
-void StripToolVariableInfo::setDataSource(AM0DProcessVariableDataSource *newSource)
+void StripToolVariableInfo::setDataSource(AMDataSource *newSource)
 {
     if (newSource == 0) {
         hasDataSource_ = false;
+        qDebug() << "StripToolVariableInfo :: removed data source for variable " << name();
 
     } else {
         hasDataSource_ = true;
+
+        if (name() == "")
+            setName(newSource->name());
     }
 
     if (dataSource_ != 0) {
         disconnect( dataSource_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onDataSourceValueUpdate(AMnDIndex,AMnDIndex)) );
 
-        dataSource_->deleteLater();
+//        dataSource_->deleteLater();
         dataSource_ = 0;
     }
 
@@ -339,10 +437,41 @@ void StripToolVariableInfo::setGranularity(const int newGranularity)
 
 
 
+void StripToolVariableInfo::setAverageOverPoints(const int avgPoints)
+{
+    if (avgPoints > 0) {
+        hasAverageOverPoints_ = true;
+
+        if (avgPoints != averageOverPoints()) {
+            averageOverPoints_ = avgPoints;
+            emit infoChanged();
+        }
+    }
+}
+
+
+
 void StripToolVariableInfo::setColor(const QColor &newColor)
 {
     hasColor_ = true;
-    color_ = newColor;
+
+    if (!newColor.isValid()) {
+        if (color_.isValid()) {
+            qDebug() << "StripToolVariableInfo::setColor(...) : cannot change color to an invalid QColor. No changes made.";
+            return;
+
+        } else {
+            qDebug() << "StripToolVariableInfo::setColor(...) : cannot change color to an invalid QColor. Restoring default color.";
+            color_ = QColor(Qt::red);
+        }
+
+    } else if (color_ == newColor) {
+        return;
+
+    } else {
+        qDebug() << "StripToolVariableInfo :: changing color from " << color_.name() << " to " << newColor.name();
+        color_ = newColor;
+    }
 
     emit colorChanged(color_.name());
     emit infoChanged();
@@ -380,6 +509,50 @@ void StripToolVariableInfo::setCheckState(Qt::CheckState checked)
 
 
 
+void StripToolVariableInfo::setCustomAxisMax(const double newMax)
+{
+    qDebug() << "StripToolVariableInfo :: setting custom axis max : " << newMax;
+    hasCustomAxisMax_ = true;
+    customAxisMax_ = newMax;
+    emit axisMaxChanged(newMax);
+    emit infoChanged();
+}
+
+
+
+void StripToolVariableInfo::setCustomAxisMin(const double newMin)
+{
+    qDebug() << "StripToolVariableInfo :: setting custom axis min : " << newMin;
+    hasCustomAxisMin_ = true;
+    customAxisMin_ = newMin;
+    emit axisMinChanged(newMin);
+    emit infoChanged();
+}
+
+
+
+void StripToolVariableInfo::eraseCustomAxisMax()
+{
+    qDebug() << "StripToolVariableInfo :: erasing custom axis max limits.";
+    hasCustomAxisMax_ = false;
+    customAxisMax_ = 0;
+    emit axisMaxErased();
+    emit infoChanged();
+}
+
+
+
+void StripToolVariableInfo::eraseCustomAxisMin()
+{
+    qDebug() << "StripToolVariableInfo :: erasing custom axis min limits.";
+    hasCustomAxisMin_ = false;
+    customAxisMin_ = 0;
+    emit axisMinErased();
+    emit infoChanged();
+}
+
+
+
 void StripToolVariableInfo::setTimeAmount(int newTime)
 {
     timeAmount_ = newTime;
@@ -387,9 +560,17 @@ void StripToolVariableInfo::setTimeAmount(int newTime)
 
 
 
-void StripToolVariableInfo::setTimeUnits(const QString &newUnits)
+void StripToolVariableInfo::setTimeUnits(TimeEntryWidget::TimeUnits units)
 {
-    timeUnits_ = newUnits;
+    timeUnits_ = units;
+}
+
+
+
+void StripToolVariableInfo::setToImportAutomatically(const bool import)
+{
+    importAutomatically_ = import;
+    emit infoChanged();
 }
 
 
@@ -415,13 +596,25 @@ void StripToolVariableInfo::defaultSettings()
     hasDescription_ = false;
     hasUnits_ = false;
     hasGranularity_ = false;
+    hasAverageOverPoints_ = false;
     hasColor_ = false;
     hasSelectionState_ = false;
     hasCheckState_ = false;
+    hasCustomAxisMax_ = false;
+    hasCustomAxisMin_ = false;
+
+    customAxisMax_ = 0;
+    customAxisMin_ = 0;
 
     setUnits("");
     setGranularity(1);
+    setAverageOverPoints(1);
     setColor(QColor(Qt::red));
     setSelectionState(false);
     setCheckState(Qt::Unchecked);
+
+    setTimeAmount(10);
+    setTimeAmount(TimeEntryWidget::Seconds);
+
+    setToImportAutomatically(true);
 }

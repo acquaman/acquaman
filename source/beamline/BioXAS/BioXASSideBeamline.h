@@ -16,6 +16,8 @@
 #include "beamline/CLS/CLSBasicScalerChannelDetector.h"
 #include "beamline/CLS/CLSBasicCompositeScalerChannelDetector.h"
 
+class CLSMAXvMotor;
+
 class BioXASSideBeamline : public AMBeamline
 {
 	Q_OBJECT
@@ -32,6 +34,19 @@ public:
 
 	/// Destructor.
 	virtual ~BioXASSideBeamline();
+
+    /// Returns the scaler.
+    CLSSIS3820Scaler* scaler();
+
+    CLSMAXvMotor* m1UpperSlit();
+
+    virtual bool isConnected() const;
+
+    CLSBasicScalerChannelDetector* testDetector();
+
+protected slots:
+    void onScalerConnectedChanged(bool connectionState);
+    void onM1UpperSlitConnectedChanged(bool connectionState);
 
 protected:
 	/// Sets up the synchronized dwell time.
@@ -58,7 +73,14 @@ protected:
 	void setupControlsAsDetectors();
 
 	/// Constructor. This is a singleton class; access it through BioXASSideBeamline::bioXAS().
-	BioXASSideBeamline();
+    BioXASSideBeamline();
+
+protected:
+    CLSSIS3820Scaler *scaler_;
+    CLSMAXvMotor *m1UpperSlit_;
+    bool wasConnected_;
+
+    CLSBasicScalerChannelDetector *testDetector_;
 };
 
 #endif // BIOXASSIDEBEAMLINE_H
