@@ -379,7 +379,8 @@ void SGMAppController::onSGMBeamlineConnected(){
 
 		xasScanConfiguration2013View_ = new SGMXASScanConfiguration2013View(xasScanConfiguration2013);
 		xasScanConfiguration2013View_->setDetectorSelector(xasDetectorSelector_);
-		xasScanConfiguration2013View_->setTrackingSet(SGMBeamline::sgm()->trackingSet());
+		// removed as temporary fix (see Issue579)
+		//xasScanConfiguration2013View_->setTrackingSet(SGMBeamline::sgm()->trackingSet());
 		xasScanConfiguration2013Holder3_->setView(xasScanConfiguration2013View_);
 		//End New XAS
 
