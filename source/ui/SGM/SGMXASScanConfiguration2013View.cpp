@@ -20,14 +20,17 @@ SGMXASScanConfiguration2013View::SGMXASScanConfiguration2013View(SGMXASScanConfi
 	trackingSetView_ = 0; //NULL
 	*/
 
-	undulatorTrackingButton_ = new QPushButton();
+	undulatorTrackingButton_ = new QPushButton(QString("Undulator"));
+	undulatorTrackingButton_->setCheckable(true);
 	updateTrackingButtonStatus(undulatorTrackingButton_, configuration_->undulatorTracking());
 
-	exitSlitTrackingButton_ = new QPushButton();
-	updateTrackingButtonStatus(exitSlitTrackingButton_, configuration_->exitSlitTracking());
+	gratingTrackingButton_ = new QPushButton(QString("Grating"));
+	gratingTrackingButton_->setCheckable(true);
+	updateTrackingButtonStatus(gratingTrackingButton_, configuration_->monoTracking());
 
-	undulatorTrackingButton_ = new QPushButton();
-	updateTrackingButtonStatus(undulatorTrackingButton_, configuration_->monoTracking());
+	exitSlitTrackingButton_ = new QPushButton(QString("Exit Slit"));
+	exitSlitTrackingButton_->setCheckable(true);
+	updateTrackingButtonStatus(exitSlitTrackingButton_, configuration_->exitSlitTracking());
 
 	// TODO: Need to find a way to get gratingSlitTracking()
 
@@ -40,8 +43,9 @@ SGMXASScanConfiguration2013View::SGMXASScanConfiguration2013View(SGMXASScanConfi
 	connect(configuration_->dbObject(), SIGNAL(undulatorTrackingChanged(bool)), this, SLOT(onUndulatorTrackingChanged(bool)));
 	connect(configuration_->dbObject(), SIGNAL(monoTrackingChanged(bool)), this, SLOT(onGratingTrackingChanged(bool)));
 	connect(undulatorTrackingButton_, SIGNAL(clicked()), this, SLOT(onUndulatorTrackingButtonClicked()));
-	connect(exitSlitTrackingButton_, SIGNAL(clicked()), this, SLOT(onExitSlitTrackingButtonClicked()));
 	connect(gratingTrackingButton_, SIGNAL(clicked()), this, SLOT(onGratingTrackingButtonClicked()));
+	connect(exitSlitTrackingButton_, SIGNAL(clicked()), this, SLOT(onExitSlitTrackingButtonClicked()));
+
 
 	scanNameLabel_ = new QLabel("Scan Name");
 	scanNameEdit_ = new QLineEdit(this);
@@ -57,9 +61,11 @@ SGMXASScanConfiguration2013View::SGMXASScanConfiguration2013View(SGMXASScanConfi
 	bottomGL_->setColumnStretch(0, 10);
 	bottomGL_->setColumnMinimumWidth(1, 40);
 	bottomGL_->setContentsMargins(10, 0, 0, 10);
-	bottomGL_->addWidget(undulatorTrackingButton_);
-	bottomGL_->addWidget(exitSlitTrackingButton_);
-	bottomGL_->addWidget(gratingTrackingButton_);
+	QVBoxLayout* trackingButtons = new QVBoxLayout();
+	trackingButtons->addWidget(undulatorTrackingButton_);
+	trackingButtons->addWidget(gratingTrackingButton_);
+	trackingButtons->addWidget(exitSlitTrackingButton_);
+	bottomGL_->addLayout(trackingButtons,0 , 2);
 	mainVL_->addStretch(8);
 
 	QHBoxLayout *nameHL = new QHBoxLayout();
@@ -152,15 +158,13 @@ void SGMXASScanConfiguration2013View::onGratingTrackingButtonClicked()
 
 void SGMXASScanConfiguration2013View::updateTrackingButtonStatus(QPushButton *button, bool isTracking)
 {
-	QString buttonText;
 	QColor buttonTextColor;
 
 
-	buttonText = (isTracking) ? ("Tracked") : ("Not Tracked");
 	buttonTextColor = (isTracking) ? (Qt::black) : (Qt::red);
+	button->setChecked(isTracking);
 
 	QPalette palette = button->palette();
-	palette.setColor(QPalette::Foreground, buttonTextColor);
+	palette.setColor(QPalette::ButtonText, buttonTextColor);
 	button->setPalette(palette);
-	button->setText(buttonText);
 }
