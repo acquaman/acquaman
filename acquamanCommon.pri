@@ -755,7 +755,8 @@ HEADERS += source/acquaman/AMRegion.h \
 	source/ui/dataman/AMStepScanAxisView.h \
 	source/ui/dataman/AMEXAFSScanAxisView.h \
 	source/beamline/CLS/CLSPseudoMotorControl.h \
-    source/beamline/CLS/CLSKeithley428.h
+    source/beamline/CLS/CLSKeithley428.h \
+    source/ui/beamline/AMCurrentAmplifierView.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1231,7 +1232,8 @@ SOURCES += source/acquaman/AMRegion.cpp \
 	source/ui/dataman/AMStepScanAxisView.cpp \
 	source/ui/dataman/AMEXAFSScanAxisView.cpp \
 	source/beamline/CLS/CLSPseudoMotorControl.cpp \
-    source/beamline/CLS/CLSKeithley428.cpp
+    source/beamline/CLS/CLSKeithley428.cpp \
+    source/ui/beamline/AMCurrentAmplifierView.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {

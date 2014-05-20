@@ -9,7 +9,7 @@ CLSKeithley428::CLSKeithley428(const QString &name, const QString &valueName, co
     atMaximumGain_ = false;
 
     valueControl_ = new AMProcessVariable(valueName, true, this);
-    connect( valueControl_, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged(double)) );
+    connect( valueControl_, SIGNAL(valueChanged(int)), this, SLOT(onValueChanged(int)) );
 
     unitsControl_ = new AMProcessVariable(unitsName, true, this);
     connect( unitsControl_, SIGNAL(valueChanged(QString)), this, SLOT(onUnitsChanged(QString)) );
@@ -71,7 +71,7 @@ bool CLSKeithley428::increaseSensitivity()
     return true;
 }
 
-bool CLSKeithley428::decreaseValue()
+bool CLSKeithley428::decreaseSensitivity()
 {
     // Don't do anything if the gain is already at a minimum.
     if (atMinimumGain_)

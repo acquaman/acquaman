@@ -132,7 +132,7 @@ int CLSSR570::indexToValue(int index) const
 	return val;
 }
 
-bool CLSSR570::increaseValue()
+bool CLSSR570::increaseSensitivity()
 {
 	// Don't do anything if we are already at the maximum sensitivity.
 	if (atMaximumSensitivity_)
@@ -159,7 +159,7 @@ bool CLSSR570::increaseValue()
 	return true;
 }
 
-bool CLSSR570::decreaseValue()
+bool CLSSR570::decreaseSensitivity()
 {
 	// Don't do anything if we are already at the minimum sensitivity.
 	if (atMinimumSensitivity_)

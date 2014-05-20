@@ -71,9 +71,9 @@ public slots:
 	void setUnits(QString units);
 
 	/// Increases the sensitivity of the ion chamber by one step.
-    virtual bool increaseValue();
+    virtual bool increaseSensitivity();
 	/// Decreases the sensitivity of the ion chamber by one step.
-    virtual bool decreaseValue();
+    virtual bool decreaseSensitivity();
 
 
 protected slots:

@@ -19,7 +19,37 @@ bool VESPERSDbUpgrade1Pt6::upgradeNecessary() const
 
 bool VESPERSDbUpgrade1Pt6::upgradeImplementation()
 {
-	return false;
+	databaseToUpgrade_->startTransaction();
+
+	// 1) Create the AMRegionOfInterest_table.
+	QStringList names;
+	names << "AMDbObjectType" << "thumbnailCount" << "thumbnailFirstId" << "name" << "energy" << "lowerBound" << "upperBound";
+	QStringList types;
+	types << "TEXT" << "INTEGER" << "INTEGER" << "TEXT" << "REAL" << "REAL" << "REAL";
+
+	if (!databaseToUpgrade_->ensureTable("AMRegionOfInterest_table", names, types)){
+
+		databaseToUpgrade_->rollbackTransaction();
+		AMErrorMon::alert(this, 0, "Was unable to create the AMRegionOfInterest table.");
+		return false;
+	}
+
+	// 2) Create the associated table for regions of interest, VESPERSScanConfigurationDbObject_table.
+	names = QStringList() << "id1" << "table1" << "id2" << "table2";
+	types = QStringList() << "INTEGER" << "TEXT" << "INTEGER" << "TEXT";
+
+//	if (!databaseToUpgrade_->ensureTable("VESPERSScanConfigurationDbObject_table_regionsOfInterest")){
+
+//		databaseToUpgrade_->rollbackTransaction();
+//		AMErrorMon::alert(this, 0, "Was unable to create the VESPERSScanConfigurationDbObjet_table_regionsOfInterest table.");
+//		return false;
+//	}
+
+
+
+	databaseToUpgrade_->commitTransaction();
+
+	return true;
 }
 
 AMDbUpgrade *VESPERSDbUpgrade1Pt6::createCopy() const

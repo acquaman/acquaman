@@ -22,7 +22,7 @@ protected:
 	virtual bool generateActionTreeImplmentation();
 
 	/// Method that builds an EXAFS region.
-	AMAction3 *generateActionTreeForEXAFSStepAxisRegion(AMControl *axisControl, AMScanAxisEXAFSRegion *exafsRegion);
+	AMAction3 *generateActionTreeForEXAFSStepAxisRegion(AMControl *axisControl, AMScanAxisEXAFSRegion *exafsRegion, bool isFinalRegion);
 };
 
 #endif // AMEXAFSSCANACTIONCONTROLLERASSEMBLER_H

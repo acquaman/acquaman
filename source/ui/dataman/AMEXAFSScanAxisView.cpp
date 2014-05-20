@@ -29,7 +29,7 @@ AMEXAFSScanAxisElementView::AMEXAFSScanAxisElementView(AMScanAxisEXAFSRegion *re
 	delta_->setRange(-100000, 100000);
 	delta_->setSuffix(region_->inKSpace() ? "k" : " eV");
 	delta_->setDecimals(2);
-	delta_->setValue(region_->regionStep());
+	delta_->setValue(double(region_->regionStep()));
 	delta_->setAlignment(Qt::AlignCenter);
 	connect(region_, SIGNAL(regionStepChanged(AMNumber)), this, SLOT(setDeltaSpinBox(AMNumber)));
 	connect(delta_, SIGNAL(editingFinished()), this, SLOT(onDeltaPositionUpdated()));
@@ -46,7 +46,7 @@ AMEXAFSScanAxisElementView::AMEXAFSScanAxisElementView(AMScanAxisEXAFSRegion *re
 	time_->setRange(-100000, 100000);
 	time_->setSuffix(" s");
 	time_->setDecimals(2);
-	time_->setValue(region_->regionTime());
+	time_->setValue(double(region_->regionTime()));
 	time_->setAlignment(Qt::AlignCenter);
 	connect(region_, SIGNAL(regionTimeChanged(AMNumber)), this, SLOT(setTimeSpinBox(AMNumber)));
 	connect(time_, SIGNAL(editingFinished()), this, SLOT(onTimeUpdated()));
@@ -310,7 +310,7 @@ void AMEXAFSScanAxisView::onAddRegionButtonClicked()
 				int index = temp->text().split(" ").at(1).toInt();
 				AMScanAxisEXAFSRegion *region = qobject_cast<AMScanAxisEXAFSRegion *>(configuration_->scanAxisAt(0)->regionAt(index)->createCopy());
 				region->setRegionStart(configuration_->scanAxisAt(0)->regionAt(index-1)->regionEnd());
-				region->setRegionEnd(configuration_->scanAxisAt(0)->regionAt(index+1)->regionStart());
+				region->setRegionEnd(configuration_->scanAxisAt(0)->regionAt(index)->regionStart());
 				region->setInKSpace(temp->text().contains("k-space"));
 				configuration_->scanAxisAt(0)->insertRegion(index, region);
 				buildScanAxisRegionView(index, region);
