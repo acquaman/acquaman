@@ -24,6 +24,7 @@ AMSample::AMSample(const QString &sampleName, QObject *parent)
 AMSample::AMSample(int databaseId, AMDatabase *database, QObject *parent)
 	: AMDbObject(parent)
 {
+	init("Loading sample");
 	loadFromDb(database, databaseId);
 }
 
