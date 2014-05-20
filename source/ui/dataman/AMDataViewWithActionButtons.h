@@ -51,9 +51,6 @@ signals:
 public slots:
 
 protected slots:
-
-
-
 	/// When the "open in same window" action happens
 	void onCompareScansAction() {
 		emit selectionActivated(dataView_->selectedItems());
@@ -64,17 +61,9 @@ protected slots:
 		emit selectionActivatedSeparateWindows(dataView_->selectedItems());
 	}
 
-	void onEditScansAction(const QList<QUrl>& scanUrls) {
-		emit selectionActivated(scanUrls);
-	}
-
 	/// When the "export scans" action happens
 	void onExportScansAction() {
 		emit selectionExported(dataView_->selectedItems());
-	}
-
-	void onExportScansAction(const QList<QUrl>& scanUrls){
-		emit selectionExported(scanUrls);
 	}
 
 	/// When anything is double-clicked.  If more than 0 items are selected, we emit selectionActivated().
@@ -85,11 +74,6 @@ protected slots:
 
 	/// When the user chooses to launch scan configurations from the database.  If more than 0 items are selected, we emit launchScanConfigurationsFromDb().
 	void onLaunchScanConfigurationsFromDb();
-
-	void onLaunchScanConfigurationsFromDb(const QList<QUrl>& scanUrls)
-	{
-		emit launchScanConfigurationsFromDb(scanUrls);
-	}
 
 	/// When the user chooses to fix a CDF file, this finds the QUrl associated with that scan and then passes it on.
 	void onFixCDF();

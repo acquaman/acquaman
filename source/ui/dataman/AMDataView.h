@@ -26,7 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui_AMDataViewSectionHeader.h"
 #include "ui_AMDataViewEmptyHeader.h"
 #include "dataman/database/AMDatabase.h"
-#include "AMScanSearchView.h"
+
 #include "util/AMDeferredFunctionCall.h"
 
 #include <QGraphicsView>
@@ -142,15 +142,12 @@ signals:
 	void viewDoubleClicked();
 	/// Emitted when the user chooses to open a scan configuration from the database.
 	void launchScanConfigurationsFromDb();
-	void launchScanConfigurationsFromDb(const QList<QUrl>&);
 	/// Emitted when the user chooses to edit scans.
 	void editScansFromDb();
-	void editScansFromDb(const QList<QUrl>&);
 	/// Emitted when the user chooses to compare scans.
 	void compareScansFromDb();
 	/// Emitted when the user wants to export scans.
 	void exportScansFromDb();
-	void exportScansFromDb(const QList<QUrl>&);
 	/// Emitted when the user wants to fix a scan that uses CDF.
 	void fixCDF();
 
@@ -166,9 +163,6 @@ public slots:
 
 	/// Set the view mode, where \c mode is one of AMDataViews::ViewMode (ThumbnailView, ListView, FlowView, or DetailView)
 	void setViewMode(int mode);
-
-	/// Opens the Search Scans dialog
-	void OnSearchScansButtonClicked();
 
 	/// Called when the user wants to expand all the sections in the view
 	void expandAll();
@@ -192,10 +186,9 @@ protected slots:
 	/// call this to adjust the accessible region of the graphicsview (gview_) to match the size of the graphicswidget gwidget_ inside it. (Called from a signal after the gwidget_ is resized.)
 	void adjustViewScrollableArea();
 
-	/// called when the scan search dialog emits editScanRequested()
-	void onScanSearchEditScanRequested(const QList<QUrl>& scanUrls);
-	void onScanSearchLaunchScanConfigurationRequested(const QList<QUrl>& scanUrls);
-	void onScanSearchExportScanRequested(const QList<QUrl>& scanUrls);
+
+
+
 
 	/// Drag handling
 	void onDragStarted(const QPoint& startPos, const QPoint& currentPos);
@@ -227,10 +220,6 @@ protected:
 	AMDataViews::OrganizeMode organizeMode_;
 	int runId_, experimentId_;
 	bool runOrExp_;
-
-	// Dialog window through which users can search scans
-	AMScanSearchView* searchDialog_;
-
 
 	/// All of the top-level sections in our view.
 	QList<AMAbstractDataViewSection*> sections_;
