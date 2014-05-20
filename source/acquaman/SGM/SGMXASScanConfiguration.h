@@ -106,6 +106,12 @@ public slots:
 	/// Sets the detector configurations based on a detector info set
 	bool setDetectorConfigurations(const AMOldDetectorInfoSet& xasDetectorsCfg);
 
+protected slots:
+	/// Checks whether the current beamline settings match that of the configuration, namely:
+	/// Exit Slit Gap, Grating, Harmonic, Undulator Tracking, Grating Tracking, Exit Slit Tracking
+	/// if the matching status has changed emits
+	void checkIfMatchesBeamline();
+
 signals:
 	/// Emitted when something about the tracking group changes (information in the control info list)
 	void trackingGroupChanged(AMControlInfoList);
@@ -118,12 +124,18 @@ signals:
 	void monoTrackingChanged(bool monoTracking);
 	/// Emitted when the requested tracking for the exit slit changes
 	void exitSlitTrackingChanged(bool exitSlitTracking);
+	/// Fired when a change to the configuration or beamline means that their respective settings no longer match, namely:
+	/// Exit Slit Gap, Grating, Harmonic, Undulator Tracking, Grating Tracking, Exit Slit Tracking
+	void matchingBeamlineStatusChanged(bool matchesBeamline);
 
 protected:
 	/// Used to write the detector configurations to the database
 	AMDbObject* dbReadDetectorConfigs() { return &xasDetectorsCfg_;}
 	/// For database loading (never called)
 	void dbLoadDetectorConfigs(AMDbObject*) {} //Never called, xasDetectorsCfg_ is always valid
+	/// Whether or not the current XASScanConfiguration matches that of the beamline, namely:
+	/// Exit Slit Gap, Grating, Harmonic, Undulator Tracking, Grating Tracking, Exit Slit Tracking
+	bool matchesCurrentBeamline_;
 
 protected:
 	/// The configurations for the detectors
