@@ -45,7 +45,17 @@ SGMXASScanConfiguration2013View::SGMXASScanConfiguration2013View(SGMXASScanConfi
 	connect(undulatorTrackingButton_, SIGNAL(clicked()), this, SLOT(onUndulatorTrackingButtonClicked()));
 	connect(gratingTrackingButton_, SIGNAL(clicked()), this, SLOT(onGratingTrackingButtonClicked()));
 	connect(exitSlitTrackingButton_, SIGNAL(clicked()), this, SLOT(onExitSlitTrackingButtonClicked()));
+	connect(configuration, SIGNAL(matchingBeamlineStatusChanged(bool)), this, SLOT(onMatchingBeamlineSettingsChanged(bool)));
 
+	matchesBeamlineWarning_ = new QLabel("Warning: Current Config does not match the beamline settings. \nStarting a scan now will override the beamline settings with those of the config.");
+	matchesBeamlineWarning_->setVisible(false);
+	QPalette warningPalette = matchesBeamlineWarning_->palette();
+	warningPalette.setColor(QPalette::WindowText, Qt::red);
+	matchesBeamlineWarning_->setPalette(warningPalette);
+
+	getBeamlineSettings_ = new QPushButton("Get Settings from Beamline");
+	getBeamlineSettings_->setVisible(false);
+	connect(getBeamlineSettings_, SIGNAL(clicked()), this, SLOT(onGetBeamlineSettingsClicked()));
 
 	scanNameLabel_ = new QLabel("Scan Name");
 	scanNameEdit_ = new QLineEdit(this);
@@ -66,6 +76,8 @@ SGMXASScanConfiguration2013View::SGMXASScanConfiguration2013View(SGMXASScanConfi
 	trackingButtons->addWidget(gratingTrackingButton_);
 	trackingButtons->addWidget(exitSlitTrackingButton_);
 	bottomGL_->addLayout(trackingButtons,0 , 2);
+	bottomGL_->addWidget(matchesBeamlineWarning_, 2, 0);
+	bottomGL_->addWidget(getBeamlineSettings_, 3, 0);
 	mainVL_->addStretch(8);
 
 	QHBoxLayout *nameHL = new QHBoxLayout();
@@ -156,6 +168,17 @@ void SGMXASScanConfiguration2013View::onGratingTrackingButtonClicked()
 	configuration_->dbObject()->setMonoTracking(!configuration_->dbObject()->monoTracking());
 }
 
+void SGMXASScanConfiguration2013View::onMatchingBeamlineSettingsChanged(bool matchedBeamline)
+{
+	matchesBeamlineWarning_->setVisible(!matchedBeamline);
+	getBeamlineSettings_->setVisible(!matchedBeamline);
+}
+
+void SGMXASScanConfiguration2013View::onGetBeamlineSettingsClicked()
+{
+	configuration_->getSettingsFromBeamline();
+}
+
 void SGMXASScanConfiguration2013View::updateTrackingButtonStatus(QPushButton *button, bool isTracking)
 {
 	QColor buttonTextColor;
@@ -168,3 +191,5 @@ void SGMXASScanConfiguration2013View::updateTrackingButtonStatus(QPushButton *bu
 	palette.setColor(QPalette::ButtonText, buttonTextColor);
 	button->setPalette(palette);
 }
+
+

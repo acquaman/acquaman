@@ -39,7 +39,8 @@ protected slots:
 	void onExitSlitTrackingButtonClicked();
 	void onGratingTrackingChanged(bool isTracking);
 	void onGratingTrackingButtonClicked();
-
+	void onMatchingBeamlineSettingsChanged(bool matchedBeamline);
+	void onGetBeamlineSettingsClicked();
 protected:
 	SGMXASScanConfiguration2013 *configuration_;
 
@@ -65,8 +66,11 @@ protected:
 	QPushButton* undulatorTrackingButton_;
 	QPushButton* gratingTrackingButton_;
 	QPushButton* exitSlitTrackingButton_;
+	QLabel *matchesBeamlineWarning_;
+	QPushButton* getBeamlineSettings_;
 
 	void updateTrackingButtonStatus(QPushButton* button, bool isTracking);
+
 
 };
 
