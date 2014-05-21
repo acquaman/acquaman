@@ -22,6 +22,10 @@ SGMXASScanConfiguration2013::SGMXASScanConfiguration2013(QObject *parent) :
 	connect(SGMBeamline::sgm()->monoTracking(), SIGNAL(valueChanged(double)), this, SLOT(checkIfMatchesBeamline()));
 	connect(SGMBeamline::sgm()->exitSlitTracking(), SIGNAL(valueChanged(double)), this,SLOT(checkIfMatchesBeamline()));
 	//connect(this, SIGNAL(configurationChanged()), this, SLOT(checkIfMatchesBeamline()));
+	connect(this->dbObject(), SIGNAL(exitSlitGapChanged(double)), this, SLOT(checkIfMatchesBeamline()));
+	connect(this->dbObject(), SIGNAL(gratingChanged(SGMBeamlineInfo::sgmGrating)), this, SLOT(checkIfMatchesBeamline()));
+	connect(this->dbObject(), SIGNAL(harmonicChanged(SGMBeamlineInfo::sgmHarmonic)), this, SLOT(checkIfMatchesBeamline()));
+	connect(this->dbObject(), SIGNAL(trackingGroupChanged()), this, SLOT(checkIfMatchesBeamline()));
 
 	//detectorConfigurations_ = AMBeamline::bl()->exposedDetectors()->toInfoSet();
 }
@@ -52,6 +56,11 @@ SGMXASScanConfiguration2013::SGMXASScanConfiguration2013(const SGMXASScanConfigu
 	connect(SGMBeamline::sgm()->monoTracking(), SIGNAL(valueChanged(double)), this, SLOT(checkIfMatchesBeamline()));
 	connect(SGMBeamline::sgm()->exitSlitTracking(), SIGNAL(valueChanged(double)), this,SLOT(checkIfMatchesBeamline()));
 	//connect(this, SIGNAL(configurationChanged()), this, SLOT(checkIfMatchesBeamline()));
+	connect(this->dbObject(), SIGNAL(exitSlitGapChanged(double)), this, SLOT(checkIfMatchesBeamline()));
+	connect(this->dbObject(), SIGNAL(gratingChanged(SGMBeamlineInfo::sgmGrating)), this, SLOT(checkIfMatchesBeamline()));
+	connect(this->dbObject(), SIGNAL(harmonicChanged(SGMBeamlineInfo::sgmHarmonic)), this, SLOT(checkIfMatchesBeamline()));
+	connect(this->dbObject(), SIGNAL(trackingGroupChanged()), this, SLOT(checkIfMatchesBeamline()));
+
 }
 
 AMScanConfiguration* SGMXASScanConfiguration2013::createCopy() const{
@@ -92,7 +101,8 @@ void SGMXASScanConfiguration2013::getSettingsFromBeamline()
 void SGMXASScanConfiguration2013::checkIfMatchesBeamline()
 {
 	bool currentMatchStatus;
-	if(SGMBeamline::sgm()->isConnected())
+	//Ensure bl is connected AND fluxResolutionGroup/TrackingGroup have been properly initialized
+	if(SGMBeamline::sgm()->isConnected() && fluxResolutionGroup().count() > 0 && trackingGroup().count() > 0)
 	{
 		currentMatchStatus =
 			(floatCompare(dbObject()->exitSlitGap() + 1.0e-200, SGMBeamline::sgm()->exitSlitGap()->value() + 1.0e-200, 0.01) &&

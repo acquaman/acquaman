@@ -77,7 +77,12 @@ SGMXASScanConfiguration2013View::SGMXASScanConfiguration2013View(SGMXASScanConfi
 	trackingButtons->addWidget(exitSlitTrackingButton_);
 	bottomGL_->addLayout(trackingButtons,0 , 2);
 	bottomGL_->addWidget(matchesBeamlineWarning_, 2, 0);
-	bottomGL_->addWidget(getBeamlineSettings_, 3, 0);
+	QGridLayout* bottomButtonL = new QGridLayout();
+
+	bottomButtonL->addWidget(getBeamlineSettings_, 0, 0);
+	bottomButtonL->addItem(new QSpacerItem(450, 10),0,1);
+	bottomGL_->addLayout(bottomButtonL,3,0);
+			//addWidget(getBeamlineSettings_, 3, 0);
 	mainVL_->addStretch(8);
 
 	QHBoxLayout *nameHL = new QHBoxLayout();
