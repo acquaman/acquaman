@@ -21,12 +21,17 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMDataViewWithActionButtons.h"
 #include <QBoxLayout>
 
- AMDataViewWithActionButtons::~AMDataViewWithActionButtons(){}
 AMDataViewWithActionButtons::AMDataViewWithActionButtons(AMDatabase* database, QWidget *parent) :
 	QWidget(parent)
 {
+	database_ = database;
+}
+
+AMDataViewWithActionButtons::~AMDataViewWithActionButtons(){}
+
+void AMDataViewWithActionButtons::buildView(){
 	QVBoxLayout* vl = new QVBoxLayout;
-	dataView_ = new AMDataView(database);
+	dataView_ = createDataView(database_);
 
 	QFrame* actionsBarFrame = new QFrame;
 	ui_ = new Ui::AMDataViewActionsBar;
@@ -74,6 +79,10 @@ void AMDataViewWithActionButtons::onFixCDF()
 
 	if (urls.count() == 1)
 		emit fixCDF(urls.at(0));
+}
+
+AMDataView* AMDataViewWithActionButtons::createDataView(AMDatabase *database){
+	return new AMDataView(database);
 }
 
 void AMDataViewWithActionButtons::onDoubleClick()

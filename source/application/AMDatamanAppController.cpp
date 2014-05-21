@@ -543,6 +543,10 @@ bool AMDatamanAppController::onEveryTimeDatabaseUpgrade(QList<AMDbUpgrade *> upg
 	return true;
 }
 
+AMDataViewWithActionButtons* AMDatamanAppController::createDataViewWithActionButtons(){
+	return new AMDataViewWithActionButtons();
+}
+
 bool AMDatamanAppController::startupRegisterDatabases()
 {
 	AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES, "Acquaman Startup: Registering Databases");
@@ -695,7 +699,8 @@ bool AMDatamanAppController::startupCreateUserInterface()
 
 	// Make a dataview widget and add it under two links/headings: "Runs" and "Experiments". See AMMainWindowModel for more information.
 	////////////////////////////////////
-	dataView_ = new AMDataViewWithActionButtons();
+	dataView_ = createDataViewWithActionButtons();
+	dataView_->buildView();
 	dataView_->setWindowTitle("Data");
 
 	QStandardItem* dataViewItem = new QStandardItem();

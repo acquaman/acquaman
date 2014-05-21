@@ -30,11 +30,15 @@ class AMDataViewWithActionButtons : public QWidget
 	Q_OBJECT
 public:
 	/// Constructs an AMDataView inside a widget that also provides buttons for the user to edit, compare, and export scans.
- 	virtual ~AMDataViewWithActionButtons();
 	explicit AMDataViewWithActionButtons(AMDatabase* database = AMDatabase::database("user"), QWidget *parent = 0);
+
+	virtual ~AMDataViewWithActionButtons();
 
 	/// Access the AMDataView contained inside this widget
 	AMDataView* dataView() const { return dataView_; }
+
+	/// Must be called after the constructor to create the correct views and connections by calling the virtual createDataView()
+	virtual void buildView();
 
 signals:
 	/// Emitted when the user attempts to open the selected scans
@@ -51,9 +55,6 @@ signals:
 public slots:
 
 protected slots:
-
-
-
 	/// When the "open in same window" action happens
 	void onCompareScansAction() {
 		emit selectionActivated(dataView_->selectedItems());
@@ -95,9 +96,14 @@ protected slots:
 	void onFixCDF();
 
 protected:
+	/// Called to instantiate dataview. If you wish to subclass AMDataView, you can instantiate your subclassed version by reimplementing this function.
+	virtual AMDataView* createDataView(AMDatabase *database);
+
+protected:
 	Ui::AMDataViewActionsBar* ui_;
 	AMDataView* dataView_;
 
+	AMDatabase *database_;
 };
 
 #endif // AMDATAVIEWWITHACTIONBUTTONS_H

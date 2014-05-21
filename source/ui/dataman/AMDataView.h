@@ -26,7 +26,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui_AMDataViewSectionHeader.h"
 #include "ui_AMDataViewEmptyHeader.h"
 #include "dataman/database/AMDatabase.h"
-#include "AMScanSearchView.h"
 #include "util/AMDeferredFunctionCall.h"
 
 #include <QGraphicsView>
@@ -167,9 +166,6 @@ public slots:
 	/// Set the view mode, where \c mode is one of AMDataViews::ViewMode (ThumbnailView, ListView, FlowView, or DetailView)
 	void setViewMode(int mode);
 
-	/// Opens the Search Scans dialog
-	void OnSearchScansButtonClicked();
-
 	/// Called when the user wants to expand all the sections in the view
 	void expandAll();
 	/// Called when the user wants to collapse all the sections in the view
@@ -227,9 +223,6 @@ protected:
 	AMDataViews::OrganizeMode organizeMode_;
 	int runId_, experimentId_;
 	bool runOrExp_;
-
-	// Dialog window through which users can search scans
-	AMScanSearchView* searchDialog_;
 
 
 	/// All of the top-level sections in our view.
