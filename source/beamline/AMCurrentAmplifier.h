@@ -28,6 +28,8 @@ public:
 signals:
     /// General notifier. Emitted when the sensitivity of the current amplifier is changed.
     void sensitivityChanged();
+    /// General notifier. Emitted when the gain of the current amplifier is changed.
+    void gainChanged();
     /// Notifier that the current amplifier is at the minimum sensitivity/gain.
     void minimumSensitivity(bool);
     /// Notifier that the current amplifier is at the maximum sensitivity/gain.
