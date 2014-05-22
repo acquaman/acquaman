@@ -4,76 +4,109 @@
 #include <QObject>
 
 #include "beamline/AMCurrentAmplifier.h"
-
 #include "beamline/AMProcessVariable.h"
 
-class CLSKeithley428 : public AMCurrentAmplifier
+class CLSKeithley428 : public QObject
 {
     Q_OBJECT
 
 public:
-    enum ValueChange {
+    enum IndexChange {
         IncreaseOne = 0,
         DecreaseOne = 1
     };
 
-    enum Value {
-
-    };
-
     /// Constructor.
-    explicit CLSKeithley428(const QString &name, const QString &valueName, const QString &unitsName, QObject *parent = 0);
+    explicit CLSKeithley428(const QString &name, const QString &valueName, QObject *parent = 0);
     /// Destructor.
     virtual ~CLSKeithley428();
 
-    /// Returns the value of the gain.
-    int value();
-    /// Returns the index of the gain.
-    int valueIndex() const;
-    /// Returns the units of the gain.
+    /// Returns the value of the sensitivity.
+    double value();
+    /// Returns the units of the sensitivity.
     QString units() const;
 
-    /// Returns whether the current amplifier is at maximum gain.
-    virtual bool atMaximumValue() const;
-    /// Returns whether the current amplifier is at minimum gain.
-    virtual bool atMinimumValue() const;
+    /// Returns whether the current amplifier is at maximum sensitivity.
+    virtual bool atMaximumSensitivity() const;
+    /// Returns whether the current amplifier is at minimum sensitivity.
+    virtual bool atMinimumSensitivity() const;
 
 signals:
-    /// Emitted when the value of the gain has changed.
-    void gainChanged(int newValue);
+    void gainChanged();
+    /// Notifier that the gain value has changed. Passes the new value.
+    void valueChanged(double newGain);
+    /// Notifier that the gain value index has changed. Passes the new index.
+    void valueIndexChanged(int newIndex);
+    /// Emitted when the units of the gain have changed.
     void unitsChanged(QString newUnits);
 
 public slots:
     /// Sets the gain value.
-    void setValue(int newValue);
+    void setGainValue(int newValue);
+    /// Sets the gain to value corresponding to provided index.
+    void setGainIndex(int newIndex);
     /// Sets the gain units.
     void setUnits(QString newUnits);
 
-    /// Increases gain by one step, if the max gain hasn't been reached.
+    /// Increases the sensitivity of the current amplifier.
     virtual bool increaseSensitivity();
-    /// Decreases gain by one step, if the min gain hasn't been reached.
+    /// Decreases the sensitivity of the current amplifier.
     virtual bool decreaseSensitivity();
 
 protected slots:
+    /// Increases the gain by one value index, if not at maximum.
+    bool increaseGain();
+    /// Decreases the gain by one value index, if not at minimum.
+    bool decreaseGain();
     void onValueChanged(int newIndex);
     void onUnitsChanged(QString newUnits);
 
 protected:
-    /// Represents whether the maximum sensitivity has been reached.
+    /// Returns the current gain value (V/A).
+    double gain();
+    /// Returns the gain units.
+    QString gainUnits() const;
+    /// Returns the index of current gain value.
+    int gainIndex() const;
+    /// Returns the sensitivity value corresponding to the current gain value (A/V).
+    double sensitivity();
+    /// Returns the index corresponding to the given gain exponent.
+    int expToIndex(int exp) const;
+    /// Returns the gain exponent corresponding to the given index.
+    int indexToExp(int index) const;
+    /// Returns the gain value corresponding to the given exponent.
+    double expToValue(int exp);
+    /// Returns the exponent corresponding to the given gain value.
+    int valueToExp(double value);
+    /// Returns the next index value, found by applying change to current index.
+    int nextIndex(IndexChange change, int currentIndex);
+    /// Returns true if the current gain is the maximum value allowed.
+    bool atMaximumGain() const;
+    /// Returns true if the current gain is the minimum value allowed.
+    bool atMinimumGain() const;
+
+protected:
+    /// Represents whether the minimum gain has been reached.
     bool atMinimumGain_;
-    /// Represents whether the minimum sensitivity has been reached.
+    /// Represents whether the maximum gain has been reached.
     bool atMaximumGain_;
 
+    /// Pointer to the pv controlling Keithley value.
     AMProcessVariable *valueControl_;
-    AMProcessVariable *unitsControl_;
+
+    QString gainUnits_;
 
 private:
-    int valueToIndex(int value) const;
-    int indexToValue(int index) const;
+    /// Returns true if the provided value is a valid gain option.
+    bool valueOkay(int value);
+    /// Returns true if the provided index is a valid index option.
     bool indexOkay(int index);
-    bool unitsOkay(QString units);
-    int nextValue(CLSKeithley428::ValueChange change, int currentValue);
+    /// Returns true if the provided exponent is a vlid option.
+    bool exponentOkay(int exp);
+    /// Returns true if the provided units are valid.
+    bool unitsOkay(QString &units);
 
 };
+
 
 #endif // CLSKEITHLEY428_H
