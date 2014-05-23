@@ -67,8 +67,10 @@ void BioXASSideBeamline::setupComponents()
     testDetector_ = new CLSBasicScalerChannelDetector("TestDetector", "Test Detector", scaler_, 0, this);
     connect( scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(onScalerConnectedChanged(bool)) );
 
-    scaler_->channelAt(0)->setCustomChannelName("Test channel");
     CLSKeithley428 *testChannel = new CLSKeithley428("Test channel", "AMP1607-601:Gain");
+    scaler_->channelAt(0)->setCurrentAmplifier(testChannel);
+    scaler_->channelAt(0)->setVoltagRange(AMRange(1.0, 6.5));
+    scaler_->channelAt(0)->setCustomChannelName("Test channel");
 
     m1UpperSlit_ = new CLSMAXvMotor("M1 Upper Slit", "SMTR1607-5-I22-08", "M1 Upper Slit Motor", true, 0.05, 2.0, this);
     m1UpperSlit_->setContextKnownDescription("Upper slit");
