@@ -52,7 +52,7 @@ REIXSXESSpectrometerControlEditor::REIXSXESSpectrometerControlEditor(REIXSSpectr
 	connect(spectrometer_->gratingMask(), SIGNAL(connected(bool)), this, SLOT(updateMaskPosition()));
 
 	connect(ui_->energyBox, SIGNAL(valueChanged(double)), this, SLOT(updateCurrentEnergyStatus()));
-		connect(ui_->gratingSelectorBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onGratingComboBoxActivated(int)));
+	connect(ui_->gratingSelectorBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onGratingComboBoxActivated(int)));
 
 
 	connect(ui_->moveNowButton, SIGNAL(clicked()), this, SLOT(onMoveButtonClicked()));
@@ -163,7 +163,7 @@ void REIXSXESSpectrometerControlEditor::updateMaskPosition()
 		ui_->maskComboBox->blockSignals(false);
 	}
 	else if (abs(arg1 - 12.9) < 0.01) {
-		ui_->maskFeedbackLabel->setText(QString("Currently: Slit"));
+		ui_->maskFeedbackLabel->setText(QString("Currently: Mask"));
 		ui_->maskComboBox->blockSignals(true);
 		ui_->maskComboBox->setCurrentIndex(1);
 		ui_->maskComboBox->blockSignals(false);
@@ -227,7 +227,7 @@ void REIXSXESSpectrometerControlEditor::on_maskComboBox_currentIndexChanged(cons
 {
 	if (arg1 == "Pinhole")
 		spectrometer_->gratingMask()->move(8.5);
-	else if (arg1 == "Slit")
+	else if (arg1 == "Mask")
 		spectrometer_->gratingMask()->move(13);
 	else if (arg1 == "Out")
 		spectrometer_->gratingMask()->move(1.0);

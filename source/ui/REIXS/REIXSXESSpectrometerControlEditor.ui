@@ -168,27 +168,12 @@
     <widget class="QComboBox" name="maskComboBox">
      <item>
       <property name="text">
-       <string>Pin Hole</string>
+       <string>Pinhole</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>LEG</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Impurity</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>MEG</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>HRMEG</string>
+       <string>Mask</string>
       </property>
      </item>
      <item>
