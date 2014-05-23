@@ -879,7 +879,7 @@ REIXSXESImageInterpolationABEditorShiftModel::REIXSXESImageInterpolationABEditor
 
 qreal REIXSXESImageInterpolationABEditorShiftModel::x(unsigned index) const
 {
-	return analysisBlock_->shiftValues().at(index) + displayXOffset_;
+	return analysisBlock_->shiftValues1().at(index) + displayXOffset_;
 }
 
 qreal REIXSXESImageInterpolationABEditorShiftModel::y(unsigned index) const
@@ -889,7 +889,7 @@ qreal REIXSXESImageInterpolationABEditorShiftModel::y(unsigned index) const
 
 int REIXSXESImageInterpolationABEditorShiftModel::count() const
 {
-	return analysisBlock_->shiftValues().count();
+	return analysisBlock_->shiftValues1().count();
 }
 
 void REIXSXESImageInterpolationABEditorShiftModel::setDisplayXOffset(int offset)
@@ -912,7 +912,7 @@ void REIXSXESImageInterpolationABEditorShiftModel::onShiftValuesChanged()
 void REIXSXESImageInterpolationABEditorShiftModel::xValues(unsigned indexStart, unsigned indexEnd, qreal *outputValues) const
 {
 	for(unsigned i=indexStart; i<=indexEnd; ++i)
-		*(outputValues++) = analysisBlock_->shiftValues().at(i) + displayXOffset_;
+		*(outputValues++) = analysisBlock_->shiftValues1().at(i) + displayXOffset_;
 }
 
 void REIXSXESImageInterpolationABEditorShiftModel::yValues(unsigned indexStart, unsigned indexEnd, qreal *outputValues) const
@@ -1005,7 +1005,7 @@ void REIXSXESImageInterpolationABEditor::onApplyToOtherScansChosen()
 					xesAB->enableLiveCorrelation(analysisBlock_->liveCorrelation());
 				}
 				if(batchApplyShiftCurve_->isChecked()) {
-					xesAB->setShiftValues(analysisBlock_->shiftValues());
+					xesAB->setShiftValues1(analysisBlock_->shiftValues1());
 				}
 			}
 		}
@@ -1046,7 +1046,7 @@ void REIXSXESImageInterpolationABEditor::onManualShiftEntryButtonClicked()
 {
 	// Grab the current shift and convert to text.
 	QStringList shifts;
-	foreach(int d, analysisBlock_->shiftValues())
+	foreach(int d, analysisBlock_->shiftValues1())
 		shifts << QString::number(d);
 
 	bool ok;
@@ -1070,5 +1070,5 @@ void REIXSXESImageInterpolationABEditor::onManualShiftEntryButtonClicked()
 		}
 	}
 
-	analysisBlock_->setShiftValues(newShiftNumbers);
+	analysisBlock_->setShiftValues1(newShiftNumbers);
 }

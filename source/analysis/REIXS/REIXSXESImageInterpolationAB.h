@@ -45,7 +45,12 @@ class REIXSXESImageInterpolationAB : public AMStandardAnalysisBlock
 	Q_PROPERTY(int sumRangeMaxX READ sumRangeMaxX WRITE setSumRangeMaxX)
 	Q_PROPERTY(double rangeRound READ rangeRound WRITE setRangeRound)
 
-	Q_PROPERTY(AMIntList shiftValues READ shiftValues WRITE setShiftValues)
+	Q_PROPERTY(AMIntList shiftValues1 READ shiftValues1 WRITE setShiftValues1)
+	Q_PROPERTY(AMIntList shiftValues2 READ shiftValues2 WRITE setShiftValues2)
+	Q_PROPERTY(int shiftPosition1 READ shiftPosition1 WRITE setShiftPosition1)
+	Q_PROPERTY(int shiftPosition2 READ shiftPosition2 WRITE setShiftPosition2)
+
+
 	Q_PROPERTY(int correlationCenterPixel READ correlationCenterPixel WRITE setCorrelationCenterPixel)
 	Q_PROPERTY(int correlationHalfWidth READ correlationHalfWidth WRITE setCorrelationHalfWidth)
 //	Q_PROPERTY(int correlationSmoothing READ correlationSmoothing WRITE setCorrelationSmoothing)
@@ -124,8 +129,16 @@ int outputSize = indexStart.totalPointsTo(indexEnd);
 	//The "roundness" of the mask (0 for rectangular, 1 for ellipse)
 	double rangeRound() const { return rangeRound_; }
 	
-	/// Returns the shift values used to offset each row before summing. This will have the same size as the height of the image.
+	/// Returns the last comupted shift values that are available for assignment to shiftValues1 or shiftValues2
 	AMIntList shiftValues() const { return shiftValues_; }
+	/// Returns the shift values used to offset each row before summing. This will have the same size as the height of the image.
+	AMIntList shiftValues1() const { return shiftValues1_; }
+	/// Returns the second shift values used interpolated offset of each row before summing. This will have the same size as the height of the image.
+	AMIntList shiftValues2() const { return shiftValues2_; }
+	/// Returns the correlation position of shiftValue1
+	int shiftPosition1() const { return shiftPosition1_; }
+	/// Returns the correlation position of shiftValue2
+	int shiftPosition2() const { return shiftPosition2_; }
 
 	/// The central pixel value to use when running an auto-correlation routine
 	int correlationCenterPixel() const { return correlationCenterPx_; }
@@ -161,8 +174,23 @@ public slots:
 	void setSumRangeMinX(int sumRangeMinX);
 	/// Set the maximum index in the region of interest. If the sum range is beyond the size of the summed axis, the output goes invalid. However, the value remains as set.
 	void setSumRangeMaxX(int sumRangeMaxX);
-	/// Sets the shift values for each row. This should have the same size as the height of the image.
-	void setShiftValues(const AMIntList& shiftValues);
+	/// Sets the comupted shift values
+	void setShiftValues(const AMIntList &shiftValues){shiftValues_ = shiftValues;}
+	/// Sets the first shift values for each row. This should have the same size as the height of the image.
+	void setShiftValues1(const AMIntList& shiftValues1);
+	/// Sets the second shift values for each row. This should have the same size as the height of the image.
+	void setShiftValues2(const AMIntList& shiftValues1);
+	/// Sets the position of the first shift values for each row. This should have the same size as the height of the image.
+	void setShiftPosition1(const int& shiftPosition1);
+	/// Sets the position of the second shift values for each row. This should have the same size as the height of the image.
+	void setShiftPosition2(const int& shiftPosition2);
+
+	/// Copies compute shiftValues into shiftValues1, and sets shiftPosition1
+	void assignShiftValues1(int position){setShiftValues1(shiftValues_); setShiftPosition1(position);}
+	/// Copies compute shiftValues into shiftValues2, and sets shiftPosition2
+	void assignShiftValues2(int position){setShiftValues2(shiftValues_); setShiftPosition2(position);}
+
+
 
 	void setRangeRound(double rangeRound);
 	
@@ -244,8 +272,20 @@ protected:
 	//int correlationSmoothingMode_;
 	/// True if the correlation routine should be run every time the data changes.
 	bool liveCorrelation_;
-	/// The shift values used to offset each row of the image when summing
+	/// The internal computed shift values that can be assigned to shiftValues1_ or shiftValues2_
 	AMIntList shiftValues_;
+	/// The first set of shift values used to offset each row of the image when summing
+	AMIntList shiftValues1_;
+	/// The second set of shift values used to offset each row of the image when summing
+	AMIntList shiftValues2_;
+	/// The position of the first set of shift values used to offset each row of the image when summing
+	int shiftPosition1_;
+	/// The position of the second set of shift values used to offset each row of the image when summing
+	int shiftPosition2_;
+	/// a 64x1024 shiftmap used for interpolation bethe two sets of shiftValues
+	mutable QList<QList <double> > shiftMap_;
+	/// The level of onterpolation, hard-coded for now
+	int interpolationLevel_;
 
 	/// Calibration tweaks: an artificial (user-supplied) offset for the detector energy, in eV
 	double energyCalibrationOffset_;
@@ -265,6 +305,8 @@ protected:
 
 	/// helper function to compute and fill cachedValues_.
 	void computeCachedValues() const;
+	/// Helper fucntion to compute interpolated shift map
+	void computeShiftMap() const;
 	/// Helper to compute energy axis scale, and fill cachedAxisValues_.
 	void computeCachedAxisValues() const;
 
