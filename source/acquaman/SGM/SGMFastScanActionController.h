@@ -65,6 +65,9 @@ protected:
 	/// Creates the list of actions required to put the beamline back in a normal state.
 	AMAction3* createCleanupActions();
 
+	/// Helper function to generate the notes for this Scan
+	void buildNotes();
+
 protected:
 	SGMFastScanConfiguration2013 *configuration_;
 

@@ -49,6 +49,7 @@ SGMFastScanActionController::SGMFastScanActionController(SGMFastScanConfiguratio
 		scanName = configuration_->userScanName();
 		scan_->setName(QString("%1 - %2").arg(scanName).arg(sampleName));
 	}
+	scan_->setNotes(buildNotes());
 }
 
 SGMFastScanActionController::~SGMFastScanActionController()
@@ -650,4 +651,22 @@ AMAction3* SGMFastScanActionController::createCleanupActions(){
 	// END CLEAN UP ///
 	//////////////////
 	return retVal;
+}
+
+void SGMFastScanActionController::buildNotes()
+{
+	QString returnString;
+
+	returnString.append(QString("Run Time:\t%1\n").arg(configuration_->runTime()));
+	returnString.append(QString("Motor Settings:\t%1\n").arg(configuration_->velocity()));
+	returnString.append(QString("Base Line:\t%1\n").arg(configuration_->baseLine()));
+	returnString.append(QString("Undulator Velocity:\t%1\n").arg(configuration_->undulatorVelocity()));
+	returnString.append(QString("Start Energy:\t%1\n").arg(configuration_->currentParameters()->scanInfo().start().energy()));
+	returnString.append(QString("Start Undulator Step:\t%1\n").arg(configuration_->currentParameters()->scanInfo().start.undulatorStepSetpoint()));
+	returnString.append(QString("Middle Energy:\t%1\n").arg(configuration_->currentParameters()->scanInfo().start().energy()));
+	returnString.append(QString("Middle Undulator Step:\t%1\n").arg(configuration_->currentParameters()->scanInfo().middle().undulatorStepSetpoint()));
+	returnString.append(QString("End Energy:\t%1\n").arg(configuration_->currentParameters()->scanInfo().end().energy()));
+	returnString.append(QString("End Undulator Step:\t%1\n").arg(configuration_->currentParameters()->scanInfo().end().undulatorStepSetpoint()));
+
+	return returnString;
 }
