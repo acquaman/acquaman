@@ -12,7 +12,7 @@ Q_OBJECT
 public:
  	virtual ~REIXSXASScanActionController();
 	REIXSXASScanActionController(REIXSXASScanConfiguration *cfg, QObject *parent = 0);
-	virtual bool canSkip() const { return false; }
+	//bool canSkip() const { return false; }
 
 
 protected slots:
@@ -23,8 +23,9 @@ protected slots:
 protected:
 	/// Adds anything extra (eg: analysis blocks) to the scan before it's started.
 	virtual void buildScanControllerImplementation();
-
+	/// Reimplemented to provide actions that will setupd the beamine for optimzed operation of the XAS scan.
 	AMAction3* createInitializationActions();
+	/// Reimplemented to put the beamline in a good state after a scan has been completed.
 	AMAction3* createCleanupActions();
 
 	QTimer *updateTimer_;
