@@ -193,7 +193,7 @@ AMAction3 *REIXSBeamline::buildBeamStateChangeAction(bool beamOn) const
 	}
 
 	else if (!beamOn && REIXSBeamline::bl()->valvesAndShutters()->psh4()->value() != 0.0)
-		list->addSubAction(AMActionSupport::buildControlMoveAction(REIXSBeamline::bl()->valvesAndShutters()->psh4(), 1.0));
+		list->addSubAction(AMActionSupport::buildControlMoveAction(REIXSBeamline::bl()->valvesAndShutters()->psh4(), 0.0));
 
 	return list;
 }
@@ -210,10 +210,10 @@ REIXSPhotonSource::REIXSPhotonSource(QObject *parent) :
 	userEnergyOffset_ = new AMPVControl("userEnergyOffset", "REIXS:user:energy:offset", "REIXS:user:energy:offset", QString(), this);
 	userEnergyOffset_->setDescription("User Energy Offest");
 
-	energy_ = new REIXSBrokenMonoControl(directEnergy, 1.05, 3, 0.5, 0.5, 150, 1, 0.1, this);
+	energy_ = new REIXSBrokenMonoControl(directEnergy, 1.05, 3, 0.5, 0.5, 150, 1, 0.25, this);
 	energy_->setDescription("Beamline Energy");
 
-	monoSlit_ = new AMPVwStatusAndUnitConversionControl("monoSlit", "SMTR1610-I20-10:mm:fbk", "SMTR1610-I20-10:mm", "SMTR1610-I20-10:status", "SMTR1610-I20-10:stop", new AMScaleAndOffsetUnitConverter("um", 1000), 0, this, 1.0);  //DAVID changed tolerance from 0.1->0.5
+	monoSlit_ = new AMPVwStatusAndUnitConversionControl("monoSlit", "SMTR1610-I20-10:mm:fbk", "SMTR1610-I20-10:mm", "SMTR1610-I20-10:status", "SMTR1610-I20-10:stop", new AMScaleAndOffsetUnitConverter("um", 1000), 0, this);  //DAVID changed tolerance from 0.1->0.5
 	monoSlit_->setDescription("Mono Slit Width");
 
 	M5Pitch_ = new AMPVwStatusControl("M5Pitch", "SMTR1610-4-I20-02:mm:fbk", "SMTR1610-4-I20-02:mm","SMTR1610-4-I20-02:status","SMTR1610-4-I20-02:stop",this,0.5); //DAVID ADDED
@@ -312,22 +312,22 @@ REIXSSampleChamber::REIXSSampleChamber(QObject *parent)
 
 	//								name	  PV base name        units unitsPerRev offset microsteps descript. tolerance startTimeoutSecs, parent
 	x_ = new CLSMDriveMotorControl("sampleX", "SMTR1610-4-I21-08", "mm", 2.116, 0, 256, "Sample Chamber X", 0.5, 2.0, this);
-	x_->setSettlingTime(0.2);
+	x_->setSettlingTime(0.5);
 	x_->setMoveStartTolerance(x_->writeUnitConverter()->convertFromRaw(5));
 	x_->setContextKnownDescription("X");
 
 	y_ = new CLSMDriveMotorControl("sampleY", "SMTR1610-4-I21-10", "mm", 2.116, 0, 256, "Sample Chamber Y", 0.5, 2.0, this);
-	y_->setSettlingTime(0.2);
+	y_->setSettlingTime(0.5);
 	y_->setMoveStartTolerance(y_->writeUnitConverter()->convertFromRaw(5));
 	y_->setContextKnownDescription("Y");
 
 	z_ = new CLSMDriveMotorControl("sampleZ", "SMTR1610-4-I21-07", "mm", 0.25, 0, 256, "Sample Chamber Z", 0.5, 2.0, this);
-	z_->setSettlingTime(0.2);
+	z_->setSettlingTime(0.5);
 	z_->setMoveStartTolerance(z_->writeUnitConverter()->convertFromRaw(5));
 	z_->setContextKnownDescription("Z");
 
 	r_ = new CLSMDriveMotorControl("sampleTheta", "SMTR1610-4-I21-11", "deg", 3.6, 0, 256, "Sample Chamber Theta", 0.5, 2.0, this);
-	r_->setSettlingTime(0.2);
+	r_->setSettlingTime(0.5);
 	r_->setMoveStartTolerance(r_->writeUnitConverter()->convertFromRaw(5));
 	r_->setContextKnownDescription("Theta");
 
@@ -425,17 +425,17 @@ REIXSSpectrometer::REIXSSpectrometer(QObject *parent)
 														"SMTR1610-4-I21-01:status",
 														"SMTR1610-4-I21-01:stop", this, 1.0);
 	spectrometerRotationDrive_->setDescription("XES Spectrometer Lift");
-	spectrometerRotationDrive_->setSettlingTime(0.2);
+	spectrometerRotationDrive_->setSettlingTime(1.0);
 
 
 	detectorTranslation_ = new AMPVwStatusControl("detectorTranslation",
 												  "SMTR1610-4-I21-04:mm:fbk",
 												  "SMTR1610-4-I21-04:mm",
 												  "SMTR1610-4-I21-04:status",
-												  "SMTR1610-4-I21-04:stop", this, 1.0);
+												  "SMTR1610-4-I21-04:stop", this, 2.0);
 
 	detectorTranslation_->setDescription("XES Detector Translation");
-	detectorTranslation_->setSettlingTime(0.2);
+	detectorTranslation_->setSettlingTime(1.0);
 
 	detectorTiltDrive_ = new AMPVwStatusControl("detectorTiltDrive",
 												"SMTR1610-4-I21-02:mm:sp",
@@ -443,7 +443,7 @@ REIXSSpectrometer::REIXSSpectrometer(QObject *parent)
 												"SMTR1610-4-I21-02:status",
 												"SMTR1610-4-I21-02:stop", this, 0.05);
 	detectorTiltDrive_->setDescription("XES Detector Tilt Stage");
-	detectorTiltDrive_->setSettlingTime(0.2);
+	detectorTiltDrive_->setSettlingTime(0.5);
 
 	endstationTranslation_ = new AMPVwStatusControl("endstationTranslation",
 														"SMTR1610-4-I21-05:mm:fbk",
