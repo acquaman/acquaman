@@ -34,17 +34,43 @@ bool VESPERSDbUpgrade1Pt6::upgradeImplementation()
 		return false;
 	}
 
-	// 2) Create the associated table for regions of interest, VESPERSScanConfigurationDbObject_table.
+	// 2) Fill the new region table.
+	QVariantList ids = databaseToUpgrade_->retrieve("AMROIInfo_table", "id");
+	QVariantList regionNames = databaseToUpgrade_->retrieve("AMROIInfo_table", "name");
+	QVariantList energies = databaseToUpgrade_->retrieve("AMROIInfo_table", "energy");
+	QVariantList lowerBounds = databaseToUpgrade_->retrieve("AMROIInfo_table", "low");
+	QVariantList upperBounds = databaseToUpgrade_->retrieve("AMROIInfo_table", "high");
+
+	for (int i = 0, size = ids.size(); i < size; i++){
+
+		int newId = databaseToUpgrade_->insertOrUpdate(0, "AMRegionOfInterest_table", names,
+													   QVariantList()
+													   << "AMRegionOfInterest"
+													   << 0
+													   << QVariant()
+													   << regionNames.at(i)
+													   << energies.at(i)
+													   << lowerBounds.at(i)
+													   << upperBounds.at(i));
+
+		if (newId == 0){
+
+			databaseToUpgrade_->rollbackTransaction();
+			AMErrorMon::alert(this, 0, "Was unable to copy the data from AMROIInfo columns to the new AMRegionOfInterest table.");
+			return false;
+		}
+	}
+
+	// 3) Create the associated table for regions of interest, VESPERSScanConfigurationDbObject_table.
 	names = QStringList() << "id1" << "table1" << "id2" << "table2";
 	types = QStringList() << "INTEGER" << "TEXT" << "INTEGER" << "TEXT";
 
-//	if (!databaseToUpgrade_->ensureTable("VESPERSScanConfigurationDbObject_table_regionsOfInterest")){
+	if (!databaseToUpgrade_->ensureTable("VESPERSScanConfigurationDbObject_table_regionsOfInterest", names, types)){
 
-//		databaseToUpgrade_->rollbackTransaction();
-//		AMErrorMon::alert(this, 0, "Was unable to create the VESPERSScanConfigurationDbObjet_table_regionsOfInterest table.");
-//		return false;
-//	}
-
+		databaseToUpgrade_->rollbackTransaction();
+		AMErrorMon::alert(this, 0, "Was unable to create the VESPERSScanConfigurationDbObjet_table_regionsOfInterest table.");
+		return false;
+	}
 
 
 	databaseToUpgrade_->commitTransaction();
