@@ -145,6 +145,9 @@ protected:
 	/// Creates views and makes connections. Some views have to wait for signals from the SGM Beamline object
 	bool setupSGMViews();
 
+	/// Subclass reimplementation to call SGMDataViewWithActionButtons rather than the AM version.
+	virtual AMDataViewWithActionButtons* createDataViewWithActionButtons();
+
 protected:
 	AMSamplePlateView *samplePlateView_;
 	AMBeamlineSampleManagementView *sampleManagementView_;
