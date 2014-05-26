@@ -25,6 +25,7 @@ void AMScanSearchView::initDialog()
 	searchCriteria_ = new QLineEdit();
 	searchFields_ = new QComboBox();
 
+	searchFields_->addItem(QString("Serial#"));
 	searchFields_->addItem(QString("Name"));
 	searchFields_->addItem(QString("#"));
 	searchFields_->addItem(QString("When"));
@@ -76,7 +77,7 @@ void AMScanSearchView::initDialog()
 	connect(searchResults_, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(onTableDoubleClicked(QModelIndex)));
 	connect(searchResults_, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onContextMenuRequested(QPoint)));
 
-	proxyModel_->setFilterKeyColumn(1);
+	proxyModel_->setFilterKeyColumn(0);
 
 }
 
@@ -123,8 +124,8 @@ void AMScanSearchView::onTableDoubleClicked(QModelIndex index)
 
 void AMScanSearchView::onSearchFieldChanged()
 {
-	//+1 offset as id not searchable
-	proxyModel_->setFilterKeyColumn(searchFields_->currentIndex()+1);
+
+	proxyModel_->setFilterKeyColumn(searchFields_->currentIndex());
 }
 
 void AMScanSearchView::onSearchCriteriaChanged()
@@ -346,7 +347,7 @@ QVariant AMScanSearchInfoListModel::headerData(int section, Qt::Orientation orie
 	switch(section){
 
 	case 0:
-		header = "id";
+		header = "Serial#";
 		break;
 	case 1:
 		header = "Name";
