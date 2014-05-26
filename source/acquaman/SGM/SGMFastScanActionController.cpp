@@ -13,7 +13,7 @@
 #include "application/AMAppController.h"
 #include "acquaman/AMAgnosticDataAPI.h"
 #include "dataman/AMTextStream.h"
-
+#include "beamline/CLS/CLSSR570.h"
 #include "dataman/AMSample.h"
 
 SGMFastScanActionController::SGMFastScanActionController(SGMFastScanConfiguration2013 *configuration, QObject *parent) :
@@ -49,6 +49,7 @@ SGMFastScanActionController::SGMFastScanActionController(SGMFastScanConfiguratio
 		scanName = configuration_->userScanName();
 		scan_->setName(QString("%1 - %2").arg(scanName).arg(sampleName));
 	}
+	scan_->setNotes(buildNotes());
 }
 
 SGMFastScanActionController::~SGMFastScanActionController()
@@ -650,4 +651,47 @@ AMAction3* SGMFastScanActionController::createCleanupActions(){
 	// END CLEAN UP ///
 	//////////////////
 	return retVal;
+}
+
+QString SGMFastScanActionController::buildNotes()
+{
+	QString returnString;
+
+	// Builds notes for current presets
+
+	returnString.append(QString("\nPreset:\t%1\n").arg(configuration_->currentParameters()->scanInfo().scanName()));
+	returnString.append(QString("Run Time:\t%1s\n").arg(configuration_->runTime()));
+	returnString.append(QString("Motor Settings:\t%1\n").arg(configuration_->velocity()));
+	returnString.append(QString("Base Line:\t%1\n").arg(configuration_->baseLine()));
+	returnString.append(QString("Undulator Velocity:\t%1\n").arg(configuration_->undulatorVelocity()));
+
+	returnString.append(QString("\nStart Energy:\t%1ev\n").arg(configuration_->currentParameters()->scanInfo().start().energy()));
+	returnString.append(QString("Start Undulator Step:\t%1\n").arg(configuration_->currentParameters()->scanInfo().start().undulatorStepSetpoint()));
+	returnString.append(QString("Start Exit Slit Position:\t%1\n").arg(configuration_->currentParameters()->scanInfo().start().exitSlitDistance()));
+	returnString.append(QString("Start Mono Encoder Target:\t%1\n").arg(configuration_->currentParameters()->scanInfo().start().monoEncoderTarget()));
+
+	returnString.append(QString("\nMiddle Energy:\t%1ev\n").arg(configuration_->currentParameters()->scanInfo().middle().energy()));
+	returnString.append(QString("Middle Undulator Step:\t%1\n").arg(configuration_->currentParameters()->scanInfo().middle().undulatorStepSetpoint()));
+	returnString.append(QString("Middle Exit Slit Position:\t%1\n").arg(configuration_->currentParameters()->scanInfo().middle().exitSlitDistance()));
+	returnString.append(QString("Middle Mono Encoder Target:\t%1\n").arg(configuration_->currentParameters()->scanInfo().middle().monoEncoderTarget()));
+
+	returnString.append(QString("\nStart Energy:\t%1ev\n").arg(configuration_->currentParameters()->scanInfo().end().energy()));
+	returnString.append(QString("Start Undulator Step:\t%1\n").arg(configuration_->currentParameters()->scanInfo().end().undulatorStepSetpoint()));
+	returnString.append(QString("Start Exit Slit Position:\t%1\n").arg(configuration_->currentParameters()->scanInfo().end().exitSlitDistance()));
+	returnString.append(QString("Start Mono Encoder Target:\t%1\n").arg(configuration_->currentParameters()->scanInfo().end().monoEncoderTarget()));
+
+	// Scaler (gets scalar from beamline, iterates through each channel, if channel has a sr570 connected then adds its name, value and the units)
+	returnString.append("\nScaler:\n");
+	CLSSIS3820Scaler* scaler = SGMBeamline::sgm()->scaler();
+	for(int iChannel = 0; iChannel < scaler->channels().count(); iChannel++)
+	{
+		CLSSIS3820ScalerChannel* currentChannel = scaler->channelAt(iChannel);
+		if(currentChannel->sr570() != 0)
+		{
+			returnString.append(QString("%1:\t%2 %3\n").arg(currentChannel->customChannelName()).arg(currentChannel->sr570()->value()).arg(currentChannel->sr570()->units()));
+		}
+	}
+
+
+	return returnString;
 }

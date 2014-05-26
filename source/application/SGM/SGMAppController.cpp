@@ -742,7 +742,8 @@ bool SGMAppController::setupSGMPlugins()
 }
 
 bool SGMAppController::setupSGMExporterOptions(){
-	AMExportController::registerExporter<SGMAxis2000Exporter>();
+	// Removed following line until the SGM Axis 2000 export is completed, in reference to Issue594
+	//AMExportController::registerExporter<SGMAxis2000Exporter>();
 
 	bool success = true;
 
