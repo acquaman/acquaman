@@ -659,23 +659,23 @@ QString SGMFastScanActionController::buildNotes()
 
 	// Builds notes for current presets
 
-	returnString.append(QString("Preset:\t%1\n").arg(configuration_->currentParameters()->element()));
-	returnString.append(QString("Run Time:\t%1\n").arg(configuration_->runTime()));
+	returnString.append(QString("\nPreset:\t%1\n").arg(configuration_->currentParameters()->scanInfo().scanName()));
+	returnString.append(QString("Run Time:\t%1s\n").arg(configuration_->runTime()));
 	returnString.append(QString("Motor Settings:\t%1\n").arg(configuration_->velocity()));
 	returnString.append(QString("Base Line:\t%1\n").arg(configuration_->baseLine()));
 	returnString.append(QString("Undulator Velocity:\t%1\n").arg(configuration_->undulatorVelocity()));
 
-	returnString.append(QString("\nStart Energy:\t%1\n").arg(configuration_->currentParameters()->scanInfo().start().energy()));
+	returnString.append(QString("\nStart Energy:\t%1ev\n").arg(configuration_->currentParameters()->scanInfo().start().energy()));
 	returnString.append(QString("Start Undulator Step:\t%1\n").arg(configuration_->currentParameters()->scanInfo().start().undulatorStepSetpoint()));
 	returnString.append(QString("Start Exit Slit Position:\t%1\n").arg(configuration_->currentParameters()->scanInfo().start().exitSlitDistance()));
 	returnString.append(QString("Start Mono Encoder Target:\t%1\n").arg(configuration_->currentParameters()->scanInfo().start().monoEncoderTarget()));
 
-	returnString.append(QString("\nMiddle Energy:\t%1\n").arg(configuration_->currentParameters()->scanInfo().middle().energy()));
+	returnString.append(QString("\nMiddle Energy:\t%1ev\n").arg(configuration_->currentParameters()->scanInfo().middle().energy()));
 	returnString.append(QString("Middle Undulator Step:\t%1\n").arg(configuration_->currentParameters()->scanInfo().middle().undulatorStepSetpoint()));
 	returnString.append(QString("Middle Exit Slit Position:\t%1\n").arg(configuration_->currentParameters()->scanInfo().middle().exitSlitDistance()));
 	returnString.append(QString("Middle Mono Encoder Target:\t%1\n").arg(configuration_->currentParameters()->scanInfo().middle().monoEncoderTarget()));
 
-	returnString.append(QString("\nStart Energy:\t%1\n").arg(configuration_->currentParameters()->scanInfo().end().energy()));
+	returnString.append(QString("\nStart Energy:\t%1ev\n").arg(configuration_->currentParameters()->scanInfo().end().energy()));
 	returnString.append(QString("Start Undulator Step:\t%1\n").arg(configuration_->currentParameters()->scanInfo().end().undulatorStepSetpoint()));
 	returnString.append(QString("Start Exit Slit Position:\t%1\n").arg(configuration_->currentParameters()->scanInfo().end().exitSlitDistance()));
 	returnString.append(QString("Start Mono Encoder Target:\t%1\n").arg(configuration_->currentParameters()->scanInfo().end().monoEncoderTarget()));
