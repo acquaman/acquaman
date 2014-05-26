@@ -401,6 +401,7 @@ void AMGenericScanEditor::updateEditor(AMScan *scan) {
 	if(scan) {
 
 		ui_.scanId->setText(QString("%1").arg(scan->id()));
+		connect(scan, SIGNAL(storedToDb()), this, SLOT(onScanSavedToDatabase()));
 		ui_.scanName->setText(scan->name());
 		ui_.scanNumber->setValue(scan->number());
 		ui_.scanDate->setText( AMDateTimeUtils::prettyDate(scan->dateTime()));
@@ -746,6 +747,11 @@ void AMGenericScanEditor::onOneSecondTimer()
 		}
 	}
 
+}
+
+void AMGenericScanEditor::onScanSavedToDatabase()
+{
+	ui_.scanId->setText(currentScan_->id());
 }
 
 #include <QFileDialog>
