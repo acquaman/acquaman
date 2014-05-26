@@ -66,7 +66,7 @@ protected:
 	AMAction3* createCleanupActions();
 
 	/// Helper function to generate the notes for this Scan
-	void buildNotes();
+	QString buildNotes();
 
 protected:
 	SGMFastScanConfiguration2013 *configuration_;

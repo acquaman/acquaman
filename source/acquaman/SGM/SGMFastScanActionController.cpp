@@ -653,7 +653,7 @@ AMAction3* SGMFastScanActionController::createCleanupActions(){
 	return retVal;
 }
 
-void SGMFastScanActionController::buildNotes()
+QString SGMFastScanActionController::buildNotes()
 {
 	QString returnString;
 
@@ -662,7 +662,7 @@ void SGMFastScanActionController::buildNotes()
 	returnString.append(QString("Base Line:\t%1\n").arg(configuration_->baseLine()));
 	returnString.append(QString("Undulator Velocity:\t%1\n").arg(configuration_->undulatorVelocity()));
 	returnString.append(QString("Start Energy:\t%1\n").arg(configuration_->currentParameters()->scanInfo().start().energy()));
-	returnString.append(QString("Start Undulator Step:\t%1\n").arg(configuration_->currentParameters()->scanInfo().start.undulatorStepSetpoint()));
+	returnString.append(QString("Start Undulator Step:\t%1\n").arg(configuration_->currentParameters()->scanInfo().start().undulatorStepSetpoint()));
 	returnString.append(QString("Middle Energy:\t%1\n").arg(configuration_->currentParameters()->scanInfo().start().energy()));
 	returnString.append(QString("Middle Undulator Step:\t%1\n").arg(configuration_->currentParameters()->scanInfo().middle().undulatorStepSetpoint()));
 	returnString.append(QString("End Energy:\t%1\n").arg(configuration_->currentParameters()->scanInfo().end().energy()));
