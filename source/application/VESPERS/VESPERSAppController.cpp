@@ -462,10 +462,18 @@ void VESPERSAppController::configureSingleSpectrumView(AMGenericScanEditor *edit
 
 void VESPERSAppController::onDataPositionChanged(AMGenericScanEditor *editor, const QPoint &pos)
 {
-	QString text = "Setup at: (";
+	// This should always succeed because the only way to get into this function is using the 2D scan view which currently only is accessed by 2D scans.
+	VESPERS2DScanConfiguration *config = qobject_cast<VESPERS2DScanConfiguration *>(editor->currentScan()->scanConfiguration());
+
+	if (!config)
+		return;
+
+	QString text = "Setup at (H,V,N): (";
 	text.append(QString::number(editor->dataPosition().x(), 'f', 3));
 	text.append(" mm, ");
 	text.append(QString::number(editor->dataPosition().y(), 'f', 3));
+	text.append(" mm, ");
+	text.append(QString::number(config->normalPosition(), 'f', 3));
 	text.append(" mm)");
 
 	QMenu popup(text, editor);
@@ -520,6 +528,12 @@ void VESPERSAppController::moveImmediately(const AMGenericScanEditor *editor)
 		moveImmediatelyList->appendStage(new QList<AMBeamlineActionItem *>());
 		moveImmediatelyList->appendAction(1, VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->createVerticalMoveAction(editor->dataPosition().y()));
 
+		if (config->normalPosition() != 888888.88){
+
+			moveImmediatelyList->appendStage(new QList<AMBeamlineActionItem *>());
+			moveImmediatelyList->appendAction(2, VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->createNormalMoveAction(config->normalPosition()));
+		}
+
 		connect(moveImmediatelyAction_, SIGNAL(succeeded()), this, SLOT(onMoveImmediatelySuccess()));
 		connect(moveImmediatelyAction_, SIGNAL(failed(int)), this, SLOT(onMoveImmediatelyFailure()));
 		moveImmediatelyAction_->start();
@@ -533,6 +547,12 @@ void VESPERSAppController::moveImmediately(const AMGenericScanEditor *editor)
 		moveImmediatelyList->appendAction(0, VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->createHorizontalMoveAction(editor->dataPosition().x()));
 		moveImmediatelyList->appendStage(new QList<AMBeamlineActionItem *>());
 		moveImmediatelyList->appendAction(1, VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->createVerticalMoveAction(editor->dataPosition().y()));
+
+		if (config->normalPosition() != 888888.88){
+
+			moveImmediatelyList->appendStage(new QList<AMBeamlineActionItem *>());
+			moveImmediatelyList->appendAction(2, VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->createNormalMoveAction(config->normalPosition()));
+		}
 
 		connect(moveImmediatelyAction_, SIGNAL(succeeded()), this, SLOT(onMoveImmediatelySuccess()));
 		connect(moveImmediatelyAction_, SIGNAL(failed(int)), this, SLOT(onMoveImmediatelyFailure()));
