@@ -48,6 +48,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/info/CLSOceanOptics65000DetectorInfo.h"
 #include "dataman/info/CLSPGTDetectorInfo.h"
 #include "dataman/info/CLSAmptekSDD123DetectorInfo.h"
+#include "dataman/SGM/SGMMCPDetectorInfo.h"
 
 #include "acquaman/AMScanController.h"
 #include "acquaman/AMScanActionControllerScanAssembler.h"
@@ -77,6 +78,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/SGM/SGMSampleManagementView.h"
 #include "ui/SGM/SGMSampleManipulatorView.h"
 #include "ui/SGM/SGMSIS3820ScalerView.h"
+#include "ui/SGM/SGMDataViewWithActionButtons.h"
 
 #include "ui/CLS/CLSAmptekSDD123DetailedDetectorView.h"
 #include "ui/CLS/CLSPGTDetectorV2View.h"
@@ -258,6 +260,7 @@ bool SGMAppController::startupRegisterDatabases(){
 	bool success = true;
 
 	// Register the detector and scan classes
+	success &= AMDbObjectSupport::s()->registerClass<SGMMCPDetectorInfo>();
 	success &= AMDbObjectSupport::s()->registerClass<CLSPGTDetectorInfo>();
 	success &= AMDbObjectSupport::s()->registerClass<CLSAmptekSDD123DetectorInfo>();
 	success &= AMDbObjectSupport::s()->registerClass<CLSOceanOptics65000DetectorInfo>();
@@ -1448,4 +1451,8 @@ bool SGMAppController::setupSGMViews(){
 	connect(workflowView_, SIGNAL(actionAddedFromDialog(AMAction3*)), this, SLOT(onWorkflowActionAddedFromDialog(AMAction3*)));
 
 	return true;
+}
+
+AMDataViewWithActionButtons* SGMAppController::createDataViewWithActionButtons(){
+	return new SGMDataViewWithActionButtons();
 }

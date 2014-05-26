@@ -26,7 +26,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui_AMDataViewSectionHeader.h"
 #include "ui_AMDataViewEmptyHeader.h"
 #include "dataman/database/AMDatabase.h"
-
 #include "util/AMDeferredFunctionCall.h"
 
 #include <QGraphicsView>
@@ -220,6 +219,7 @@ protected:
 	AMDataViews::OrganizeMode organizeMode_;
 	int runId_, experimentId_;
 	bool runOrExp_;
+
 
 	/// All of the top-level sections in our view.
 	QList<AMAbstractDataViewSection*> sections_;
