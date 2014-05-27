@@ -675,6 +675,8 @@ void SGMAppController::onWorkflowActionAddedFromDialog(AMAction3 *action){
 		AMControlMoveActionInfo3 *controlMoveActionInfo = qobject_cast<AMControlMoveActionInfo3*>(controlMoveAction->info());
 		if(controlMoveActionInfo)
 			controlMoveActionInfo->setIsRelativeMove(true);
+		controlMoveAction->setFailureResponseAsSubAction(AMAction3::AttemptAnotherCopyResponse);
+		controlMoveAction->setFailureResponseInActionRunner(AMAction3::AttemptAnotherCopyResponse);
 	}
 }
 
