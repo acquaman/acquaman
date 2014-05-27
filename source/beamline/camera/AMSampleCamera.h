@@ -538,7 +538,7 @@ public slots:
 	void setBeamConfigured(bool beamConfigured);
 
 	/// Returns whether debugging messages are currently to be sent to AMErrorMon
-	bool isDebuggingSuppressed();
+	bool debuggingSuppressed();
 
 	/// Sets whether debugging messages should be sent to AMErrorMon
 	void setDebuggingSuppressed(bool value);

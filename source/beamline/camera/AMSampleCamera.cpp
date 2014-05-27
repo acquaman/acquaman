@@ -452,7 +452,7 @@ void AMSampleCamera::toggleDistortion()
 
 	setDistortion(!distortion());
 
-	if(distortion() && _debuggingSuppressed)
+	if(distortion() && debuggingSuppressed_)
 		AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, QString("Distortion on") );
 	else if(!debuggingSuppressed_)
 		AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, QString("Distortion off") );
@@ -1002,8 +1002,10 @@ void AMSampleCamera::finishRectangle(QPointF position)
 	bottomLeft.normalize();
 	QVector3D shift = bottomRight - topLeft;
 	if(topRight.isNull() && bottomLeft.isNull())
+	{
 		if(!debuggingSuppressed_)
 			AMErrorMon::debug(this, AMSAMPLECAMERA_FINISHRECTANGLE_NULL_SHAPE, QString("Null shape in finishRectangle.") );
+	}
 	else if(topRight.isNull())
 		topRight = QVector3D::normal(QVector3D::normal(bottomLeft,shift),bottomLeft);
 	else if(bottomLeft.isNull())
@@ -2335,7 +2337,7 @@ void AMSampleCamera::saveCamera()
 AMSampleCamera::AMSampleCamera(QObject *parent) :
 	QAbstractListModel(parent)
 {
-	debuggingSuppressed_ = false;
+	debuggingSuppressed_ = true;
 	crosshair_ = QPointF(0.5,0.5);
 	crosshairLocked_ = false;
 	index_ = -1;
@@ -2395,8 +2397,10 @@ AMSampleCamera::AMSampleCamera(QObject *parent) :
 		// create the database
 		db = AMDatabase::createDatabase("user", "/home/sgm/AcquamanData/userdata.db");
 		if(!db)
+		{
 			if(!debuggingSuppressed_)
 				AMErrorMon::debug(this, AMSAMPLECAMERA_SEVERE_STARTUP_DATABASE_ISSUES, QString("This is very bad. AMSampleCamera tried to make its own databases and failed.") );
+		}
 		else
 		{
 			bool success = true;
