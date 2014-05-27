@@ -39,6 +39,8 @@ SGMFastScanActionController::SGMFastScanActionController(SGMFastScanConfiguratio
 	QString sampleName;
 	if(scan_->sampleId() == -1)
 		sampleName = "Unknown Sample";
+	else if(scan_->sample())
+			sampleName = scan_->sample()->name();
 	else
 		sampleName = AMSample(scan_->sampleId(), AMUser::user()->database()).name();
 	if(configuration_->userScanName() == ""){
