@@ -19,6 +19,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMDatamanAppControllerForActions3.h"
 
+#include <QStringBuilder>
+#include <QFileInfo>
+#include <QFile>
+#include <QDateTime>
+#include <QApplication>
+
 #include "dataman/database/AMDbObjectSupport.h"
 
 #include "actions3/AMLoopActionInfo3.h"
@@ -38,11 +44,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/actions/AMAxisStartedActionInfo.h"
 #include "actions3/actions/AMAxisFinishedActionInfo.h"
 #include "actions3/actions/AMTimedWaitActionInfo3.h"
+#include "util/AMErrorMonitor.h"
 
 #include "dataman/AMDbUpgrade1Pt1.h"
 #include "dataman/AMDbUpgrade1Pt2.h"
-
-#include <QStringBuilder>
 
 AMDatamanAppControllerForActions3::AMDatamanAppControllerForActions3(QObject *parent) :
     AMDatamanAppController(parent)
@@ -63,13 +68,60 @@ bool AMDatamanAppControllerForActions3::startupCreateDatabases()
 	if(!AMDatamanAppController::startupCreateDatabases())
 		return false;
 
+	QStringList applicationArguments = QApplication::instance()->arguments();
+	bool forceActionsDb = false;
+	bool forceScanActionsDb = false;
+	QString forcedActionsDb;
+	QString forcedScanActionsDb;
+	for(int x = 0, size = applicationArguments.size(); x < size; x++){
+
+		if(applicationArguments.at(x).contains("--forceActionsDb=")){
+			forceActionsDb = true;
+			forcedActionsDb = applicationArguments.at(x);
+			forcedActionsDb.remove("--forceActionsDb=");
+		}
+		else if(applicationArguments.at(x).contains("--forceScanActionsDb=")){
+			forceScanActionsDb = true;
+			forcedScanActionsDb = applicationArguments.at(x);
+			forcedScanActionsDb.remove("--forceScanActionsDb=");
+		}
+	}
+
+	QFileInfo actionsDatabaseFileInfo(AMUserSettings::userDataFolder%"/actionsData.db");
+	if((actionsDatabaseFileInfo.size() > 1000000) && !forceActionsDb){
+		int actionsDbSize = actionsDatabaseFileInfo.size();
+		QString backupSuffix = QDateTime::currentDateTime().toString("MMMddyyyy_hhmmss");
+		QFile::rename(QString("%1/actionsData.db").arg(AMUserSettings::userDataFolder) , QString("%1/actionsData.db.bk.%2").arg(AMUserSettings::userDataFolder).arg(backupSuffix));
+		AMErrorMon::alert(this, AMDATAMANAPPCONTROLLERFORACTIONS3_MOVED_LARGE_ACTIONSDB, QString("Detected the actions database size was %1, so moved it to a backup file with suffix %2").arg(actionsDbSize).arg(backupSuffix));
+	}
+
 	// Create the Actions database
-	AMDatabase *dbActions = AMDatabase::createDatabase("actions", AMUserSettings::userDataFolder%"/actionsData.db" );
+	QString actionsDbConnectionName;
+	if(!forceActionsDb || forcedActionsDb.isEmpty())
+		actionsDbConnectionName = QString("%1/%2").arg(AMUserSettings::userDataFolder).arg("actionsData.db");
+	else
+		actionsDbConnectionName = QString("%1/%2").arg(AMUserSettings::userDataFolder).arg(forcedActionsDb);
+
+	AMDatabase *dbActions = AMDatabase::createDatabase("actions",  actionsDbConnectionName);
 	if(!dbActions)
 		return false;
 
+	QFileInfo scanActionsDatabaseFileInfo(AMUserSettings::userDataFolder%"/scanActionsData.db");
+	if(scanActionsDatabaseFileInfo.size() > 1000000 && !forceScanActionsDb){
+		int scanActionsDbSize = scanActionsDatabaseFileInfo.size();
+		QString backupSuffix = QDateTime::currentDateTime().toString("MMMddyyyy_hhmmss");
+		QFile::rename(QString("%1/scanActionsData.db").arg(AMUserSettings::userDataFolder) , QString("%1/scanActionsData.db.bk.%2").arg(AMUserSettings::userDataFolder).arg(backupSuffix));
+		AMErrorMon::alert(this, AMDATAMANAPPCONTROLLERFORACTIONS3_MOVED_LARGE_SCANACTIONSDB, QString("Detected the scan actions database size was %1, so moved it to a backup file with suffix %2").arg(scanActionsDbSize).arg(backupSuffix));
+	}
+
 	// Create the ScanActions database
-	AMDatabase *dbScanActions = AMDatabase::createDatabase("scanActions", AMUserSettings::userDataFolder%"/scanActionsData.db" );
+	QString scanActionsDbConnectionName;
+	if(!forceScanActionsDb || forcedScanActionsDb.isEmpty())
+		scanActionsDbConnectionName = QString("%1/%2").arg(AMUserSettings::userDataFolder).arg("scanActionsData.db");
+	else
+		scanActionsDbConnectionName = QString("%1/%2").arg(AMUserSettings::userDataFolder).arg(forcedScanActionsDb);
+
+	AMDatabase *dbScanActions = AMDatabase::createDatabase("scanActions", scanActionsDbConnectionName );
 	if(!dbScanActions)
 		return false;
 
