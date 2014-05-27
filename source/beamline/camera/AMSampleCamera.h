@@ -537,6 +537,12 @@ public slots:
 	/// Sets the beamConfigured value to the boolean
 	void setBeamConfigured(bool beamConfigured);
 
+	/// Returns whether debugging messages are currently to be sent to AMErrorMon
+	bool isDebuggingSuppressed();
+
+	/// Sets whether debugging messages should be sent to AMErrorMon
+	void setDebuggingSuppressed(bool value);
+
 signals:
 	/// used to change the beam
 	void beamChanged(QObject*);
@@ -910,6 +916,8 @@ protected:
 	bool samplePlateConfigured_;
 	/// Set to true if the beam configuration is successfully loaded
 	bool beamConfigured_;
+	/// Whether or not to output debugging messages
+	bool debuggingSuppressed_;
 };
 
 #endif // AMSHAPEOVERLAYVIDEOWIDGETMODEL2_H
