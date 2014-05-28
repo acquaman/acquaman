@@ -457,6 +457,8 @@ public slots:
 	void setFileFormat(const QString& format) { fileFormat_ = format;  setModified(true); }
 	/// Any additional files of raw data that need to be referenced
 	void setAdditionalFilePaths(const QStringList& additionalFilePaths) { additionalFilePaths_ = additionalFilePaths; setModified(true); }
+	/// Override of AMDbObject::storeToDb(). Checks if first time stored and auto-generates a scan number before calling AMDbObject::storeToDb() if it is.
+	bool storeToDb(AMDatabase *db, bool generateThumbnails = true);
 
 signals:
 
@@ -482,8 +484,6 @@ signals:
 	void dataSourceAboutToBeRemoved(int index);
 	/// Emitted after a data source was removed. \c index is the index the source used to occupy in dataSourceAt(); it's not there anymore.
 	void dataSourceRemoved(int index);
-
-
 
 protected slots:
 
@@ -530,6 +530,7 @@ protected:
 	/// String holding what type of indexation the scan index can take.  This is a first attempt at actually using the scan index.  Currently, the only index type is fileSystem.
 	QString indexType_;
 
+
 	AMScanDictionary *nameDictionary_;
 	AMScanDictionary *exportNameDictionary_;
 
@@ -569,12 +570,6 @@ protected:
 	AMDbObject* dbGetScanConfiguration() const;
 	/// Used by the database system (loadFromDb()) to load a saved scan configuration (if there is no existing scan configuration yet, or if the existing one doesn't match the type stored in the database).
 	void dbLoadScanConfiguration(AMDbObject* newObject);
-
-	/// Override of AMDbObject::storeToDb(). Checks if first time stored and auto-generates a scan number before calling AMDbObject::storeToDb() if it is.
-	bool storeToDb(AMDatabase *db, bool generateThumbnails);
-
-	/// Helper function which queries the database to determine what the next number is for the given scan name
-	int getNextNumberByName(AMDatabase *db);
 
 	AMConstDbObject* dbReadSample() const;
 	void dbWriteSample(AMConstDbObject *newSample);

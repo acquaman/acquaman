@@ -523,15 +523,10 @@ bool AMScan::storeToDb(AMDatabase *db, bool generateThumbnails)
 {
 	if(number_ == 0)
 	{
-		number_ = getNextNumberByName(db);
+		number_ = largestNumberInScansWhere(db, QString(" name = '%1'").arg(name()));
+		number_++;
 	}
-	AMDbObject::storeToDb(db, generateThumbnails);
-}
-
-int AMScan::getNextNumberByName(AMDatabase *db)
-{
-	QVariant nextNumberInDb = db->retrieveMax("AMScan", "number", QString("name = '%1'").arg(name_));
-	return nextNumberInDb.toInt() + 1;
+	return AMDbObject::storeToDb(db, generateThumbnails);
 }
 
 AMConstDbObject* AMScan::dbReadSample() const{
@@ -966,18 +961,11 @@ int AMScan::largestNumberInScansWhere(AMDatabase* db, const QString &whereClause
 {
 	QString tableName = AMDbObjectSupport::s()->tableNameForClass<AMScan>();
 
-	QString query = QString("SELECT MAX(number) FROM %1").arg(tableName);
-	if(!whereClause.isEmpty())
-		query.append(" WHERE ").append(whereClause);
-
-	QSqlQuery q = db->query();
-	q.prepare(query);
-	if(q.exec() && q.first()) {
-		return q.value(0).toInt();
-	}
-	else {
+	QVariant dbMaxNumber = db->retrieveMax(tableName, "number", whereClause);
+	if(dbMaxNumber.isValid())
+		return dbMaxNumber.toInt();
+	else
 		return -1;
-	}
 }
 
 void AMScan::onDataSourceModified(bool isModified)

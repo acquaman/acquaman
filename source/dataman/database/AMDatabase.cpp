@@ -494,6 +494,7 @@ QVariant AMDatabase::retrieveMax(const QString &table, const QString &colName, c
 		return QVariant();
 	}
 
+	/*
 	if(!tableExists(table))
 	{
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -10, QString("Could not search the database. (Table %1 does not exist)").arg(table)));
@@ -505,6 +506,7 @@ QVariant AMDatabase::retrieveMax(const QString &table, const QString &colName, c
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -10, QString("Could not search the database. (Table %1 does not contain column %2").arg(table).arg(colName)));
 		return QVariant();
 	}
+	*/
 
 	QSqlQuery q( qdb() );
 
