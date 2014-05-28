@@ -521,7 +521,7 @@ void AMScan::dbLoadScanConfiguration(AMDbObject* newObject) {
 
 bool AMScan::storeToDb(AMDatabase *db, bool generateThumbnails)
 {
-	if(id_ == 0)
+	if(number_ == 0)
 	{
 		number_ = getNextNumberByName(db);
 	}
