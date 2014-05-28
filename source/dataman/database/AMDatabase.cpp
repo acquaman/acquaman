@@ -485,6 +485,54 @@ QVariant AMDatabase::retrieve(int id, const QString& table, const QString& colNa
 
 }
 
+QVariant AMDatabase::retrieveMax(const QString &table, const QString &colName, const QString &whereClause) const
+{
+	// Sanitize the options
+	if(table.isEmpty() || colName.isEmpty())
+	{
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -10, "Could not search the database. (Missing table name or column name)"));
+		return QVariant();
+	}
+
+	if(!tableExists(table))
+	{
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -10, QString("Could not search the database. (Table %1 does not exist)").arg(table)));
+		return QVariant();
+	}
+
+	if(!columnExists(table, colName))
+	{
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -10, QString("Could not search the database. (Table %1 does not contain column %2").arg(table).arg(colName)));
+		return QVariant();
+	}
+
+	QSqlQuery q( qdb() );
+
+	QString queryString = QString("SELECT MAX(%1) FROM %2").arg(colName).arg(table);
+
+	if(!whereClause.isEmpty())
+	{
+		queryString.append(" WHERE ").append(whereClause);
+	}
+
+	q.prepare(queryString);
+
+	if(!execQuery(q)) {
+		q.finish();	// make sure that sqlite lock is released before emitting signals
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -4, QString("database retrieve failed. Could not execute query (%1). The SQL reply was: %2").arg(q.executedQuery()).arg(q.lastError().text())));
+		return QVariant();
+	}
+	// If we found a record at this id:
+	if(q.first()) {
+		return q.value(0);
+	}
+	// else: didn't find this id.  That's normal if it's not there; just return null QVariant.
+	else {
+		return QVariant();
+	}
+
+}
+
 
 
 /// returns a list of all the objecst/rows (by id) that match a given condition. \c whereClause is a string suitable for appending after an SQL "WHERE" statement.

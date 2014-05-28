@@ -519,6 +519,21 @@ void AMScan::dbLoadScanConfiguration(AMDbObject* newObject) {
 		setScanConfiguration(sc);
 }
 
+bool AMScan::storeToDb(AMDatabase *db, bool generateThumbnails)
+{
+	if(id_ == 0)
+	{
+		number_ = getNextNumberByName(db);
+	}
+	AMDbObject::storeToDb(db, generateThumbnails);
+}
+
+int AMScan::getNextNumberByName(AMDatabase *db)
+{
+	QVariant nextNumberInDb = db->retrieveMax("AMScan", "number", QString("name = '%1'").arg(name_));
+	return nextNumberInDb.toInt() + 1;
+}
+
 AMConstDbObject* AMScan::dbReadSample() const{
 	return sample_;
 }

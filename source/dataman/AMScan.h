@@ -570,6 +570,12 @@ protected:
 	/// Used by the database system (loadFromDb()) to load a saved scan configuration (if there is no existing scan configuration yet, or if the existing one doesn't match the type stored in the database).
 	void dbLoadScanConfiguration(AMDbObject* newObject);
 
+	/// Override of AMDbObject::storeToDb(). Checks if first time stored and auto-generates a scan number before calling AMDbObject::storeToDb() if it is.
+	bool storeToDb(AMDatabase *db, bool generateThumbnails);
+
+	/// Helper function which queries the database to determine what the next number is for the given scan name
+	int getNextNumberByName(AMDatabase *db);
+
 	AMConstDbObject* dbReadSample() const;
 	void dbWriteSample(AMConstDbObject *newSample);
 	AMConstDbObject* dbReadSamplePre2013() const;
