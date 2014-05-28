@@ -436,7 +436,7 @@ void AMGenericScanEditor::updateEditor(AMScan *scan) {
 	}
 
 	else {
-		ui_.scanId->setText(QString());
+		ui_.scanId->setText(QString("Pending..."));
 		ui_.scanName->setText( QString() );
 		ui_.scanNumber->setValue(0);
 		ui_.scanDate->setText( QString() );
@@ -751,7 +751,7 @@ void AMGenericScanEditor::onOneSecondTimer()
 
 void AMGenericScanEditor::onScanSavedToDatabase()
 {
-	ui_.scanId->setText(currentScan_->id());
+	ui_.scanId->setText(QString("%1").arg(currentScan_->id()));
 }
 
 #include <QFileDialog>
