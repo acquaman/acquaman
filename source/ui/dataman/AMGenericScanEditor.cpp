@@ -752,6 +752,7 @@ void AMGenericScanEditor::onOneSecondTimer()
 void AMGenericScanEditor::onScanSavedToDatabase()
 {
 	ui_.scanId->setText(QString("%1").arg(currentScan_->id()));
+	ui_.scanNumber->setValue(currentScan_->number());
 }
 
 #include <QFileDialog>
