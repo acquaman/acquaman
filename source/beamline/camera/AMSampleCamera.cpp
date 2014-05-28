@@ -451,9 +451,10 @@ void AMSampleCamera::toggleDistortion()
 {
 
 	setDistortion(!distortion());
-	if(distortion())
+
+	if(distortion() && debuggingSuppressed_)
 		AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, QString("Distortion on") );
-	else
+	else if(!debuggingSuppressed_)
 		AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, QString("Distortion off") );
 	updateAllShapes();
 }
@@ -768,7 +769,8 @@ bool AMSampleCamera::findIntersections()
 	/// Cannot find the beam with an incomplete beam model
 	if(beamModel_->positionOne().isEmpty() || beamModel_->positionTwo().isEmpty())
 	{
-		AMErrorMon::alert(this, AMSAMPLECAMERA_INCOMPLETE_BEAM_MODEL, QString("Cannot find beam, the beam model is incomplete.") );
+		if(!debuggingSuppressed_)
+			AMErrorMon::debug(this, AMSAMPLECAMERA_INCOMPLETE_BEAM_MODEL, QString("Cannot find beam, the beam model is incomplete.") );
 		return false;
 	}
 	intersections_.clear();
@@ -1000,7 +1002,10 @@ void AMSampleCamera::finishRectangle(QPointF position)
 	bottomLeft.normalize();
 	QVector3D shift = bottomRight - topLeft;
 	if(topRight.isNull() && bottomLeft.isNull())
-		AMErrorMon::alert(this, AMSAMPLECAMERA_FINISHRECTANGLE_NULL_SHAPE, QString("Null shape in finishRectangle.") );
+	{
+		if(!debuggingSuppressed_)
+			AMErrorMon::debug(this, AMSAMPLECAMERA_FINISHRECTANGLE_NULL_SHAPE, QString("Null shape in finishRectangle.") );
+	}
 	else if(topRight.isNull())
 		topRight = QVector3D::normal(QVector3D::normal(bottomLeft,shift),bottomLeft);
 	else if(bottomLeft.isNull())
@@ -1201,7 +1206,8 @@ void AMSampleCamera::moveToSampleRequested(AMShapeData *shapeData){
 	QVector3D currentPosition = getPointOnShape(shapeData, shapeData->shape()->at(0));
 	QVector3D newPosition = beamIntersectionPoint(currentPosition, true);
 
-	AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, QString("AMSampleCamera::moveToSampleRequested. Current Position: %1 %2 %3 New Position: %4 %5 %6").arg(currentPosition.x()).arg(currentPosition.y()).arg(currentPosition.z()).arg(newPosition.x()).arg(newPosition.y()).arg(newPosition.z()) );
+	if(!debuggingSuppressed_)
+		AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, QString("AMSampleCamera::moveToSampleRequested. Current Position: %1 %2 %3 New Position: %4 %5 %6").arg(currentPosition.x()).arg(currentPosition.y()).arg(currentPosition.z()).arg(newPosition.x()).arg(newPosition.y()).arg(newPosition.z()) );
 
 	QVector3D shift = newPosition - currentPosition;
 
@@ -1283,7 +1289,8 @@ AMAction3* AMSampleCamera::createMoveToSampleAction(const AMSample *sample){
 /// moves the clicked point to appear under the crosshair, and gives the predicted motor coordinate
 void AMSampleCamera::shiftToPoint(QPointF position, QPointF crosshairPosition)
 {
-	AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, QString("AMSampleCamera::shiftToPosition. Position coming in is %1, %2").arg(position.x()).arg(position.y()) );
+	if(!debuggingSuppressed_)
+		AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, QString("AMSampleCamera::shiftToPosition. Position coming in is %1, %2").arg(position.x()).arg(position.y()) );
 
 	position = undistortPoint(position);
 	AMShapeData* shape;
@@ -1305,12 +1312,13 @@ void AMSampleCamera::shiftToPoint(QPointF position, QPointF crosshairPosition)
 	if(moveToBeam())
 		newPosition = beamIntersectionPoint(currentPosition);
 	QVector3D shift = newPosition - currentPosition;
-
-	AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, QString("AMSampleCamera::shiftToPoint. Current Position: %1 %2 %3").arg(currentPosition.x()).arg(currentPosition.y()).arg(currentPosition.z()) );
-	AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, QString("AMSampleCamera::shiftToPoint. New Position: %1 %2 %3").arg(newPosition.x()).arg(newPosition.y()).arg(newPosition.z()) );
-	AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, QString("AMSampleCamera::shiftToPoint. Manipulator Position: %1 %2 %3").arg(ssaManipulatorX_->value()).arg(ssaManipulatorY_->value()).arg(ssaManipulatorZ_->value()) );
-	AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, QString("AMSampleCamera::shiftToPoint. Shift: %1, %2").arg(shift.x()).arg(shift.y()) );
-
+	if(!debuggingSuppressed_)
+	{
+		AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, QString("AMSampleCamera::shiftToPoint. Current Position: %1 %2 %3").arg(currentPosition.x()).arg(currentPosition.y()).arg(currentPosition.z()) );
+		AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, QString("AMSampleCamera::shiftToPoint. New Position: %1 %2 %3").arg(newPosition.x()).arg(newPosition.y()).arg(newPosition.z()) );
+		AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, QString("AMSampleCamera::shiftToPoint. Manipulator Position: %1 %2 %3").arg(ssaManipulatorX_->value()).arg(ssaManipulatorY_->value()).arg(ssaManipulatorZ_->value()) );
+		AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, QString("AMSampleCamera::shiftToPoint. Shift: %1, %2").arg(shift.x()).arg(shift.y()) );
+	}
 	/// current
 	double inboardOutboard;
 	double upStreamDownStream;
@@ -1507,8 +1515,8 @@ void AMSampleCamera::oneSelect()
 		beamModel_->setPositionOne(newBeamPosition);
 		emit beamChanged(beamModel_);
 	}
-	else
-		AMErrorMon::alert(this, AMSAMPLECAMERA_ONESELECT_INVALID_INDEX, QString("Invalid index of %1, cannot add beam.").arg(currentIndex_) );
+	else if(!debuggingSuppressed_)
+		AMErrorMon::debug(this, AMSAMPLECAMERA_ONESELECT_INVALID_INDEX, QString("Invalid index of %1, cannot add beam.").arg(currentIndex_) );
 }
 
 /// selects the second point for beam configuration
@@ -1521,8 +1529,8 @@ void AMSampleCamera::twoSelect()
 
 		emit beamChanged(beamModel_);
 	}
-	else
-		AMErrorMon::alert(this, AMSAMPLECAMERA_TWOSELECT_INVALID_INDEX, QString("Invalid index of %1, cannot add beam.").arg(currentIndex_) );
+	else if(!debuggingSuppressed_)
+		AMErrorMon::debug(this, AMSAMPLECAMERA_TWOSELECT_INVALID_INDEX, QString("Invalid index of %1, cannot add beam.").arg(currentIndex_) );
 }
 
 /// sets whether to actually move the motors
@@ -1687,7 +1695,8 @@ void AMSampleCamera::beamCalibrate()
 			}
 			else
 			{
-				AMErrorMon::alert(this, AMSAMPLECAMERA_BEAMCALIBRATE_ERROR_DELETING_SHAPES, QString("Error deleting shapes with index %1 in beamCalibrate.").arg(index) );
+				if(!debuggingSuppressed_)
+					AMErrorMon::debug(this, AMSAMPLECAMERA_BEAMCALIBRATE_ERROR_DELETING_SHAPES, QString("Error deleting shapes with index %1 in beamCalibrate.").arg(index) );
 				insertItem(polygon);
 			}
 		}
@@ -1742,7 +1751,8 @@ void AMSampleCamera::setSamplePlate()
 		{
 			if(shapeList_[currentIndex_] == beamMarkers_[i])
 			{
-				AMErrorMon::alert(this, AMSAMPLECAMERA_SETSAMPLEPLATE_BAD_INDEX, QString("Cannot set a sample plate to be a beam shape. Shape list index %1").arg(currentIndex_) );
+				if(!debuggingSuppressed_)
+					AMErrorMon::debug(this, AMSAMPLECAMERA_SETSAMPLEPLATE_BAD_INDEX, QString("Cannot set a sample plate to be a beam shape. Shape list index %1").arg(currentIndex_) );
 				samplePlateSelected_ = false;
 				return;
 			}
@@ -1823,13 +1833,13 @@ void AMSampleCamera::createSamplePlate(QVector<QVector3D> coordinates, QVector<Q
 	const int MINIMUM_NUMBER_OF_POINTS = NUMBER_OF_COORDINATES*3; // minimal shape is a triangle, 3 points for each coordinate.
 
 	/// check that the expected number of coordinates matches the number of coordinates given
-	if(coordinates.count() != NUMBER_OF_COORDINATES)
-		AMErrorMon::alert(this, AMSAMPLECAMERA_CREATESAMPLEPLATE_UNEXPECTED_NUMBER_OF_COORDINATES, QString("There were an unexpected number of coordinates passed to createSamplePlate. Expected: %1 Received: %2").arg(NUMBER_OF_COORDINATES).arg(coordinates.count()) );
+	if(coordinates.count() != NUMBER_OF_COORDINATES && !debuggingSuppressed_)
+		AMErrorMon::debug(this, AMSAMPLECAMERA_CREATESAMPLEPLATE_UNEXPECTED_NUMBER_OF_COORDINATES, QString("There were an unexpected number of coordinates passed to createSamplePlate. Expected: %1 Received: %2").arg(NUMBER_OF_COORDINATES).arg(coordinates.count()) );
 	/// check that the minimum number of points have been provided. If less than the
 	/// minimum number are provided, either some points were missed, or the
 	/// sample plate boundary was not properly defined (ex only two points per position)
-	if(points.count() < MINIMUM_NUMBER_OF_POINTS)
-		AMErrorMon::alert(this, AMSAMPLECAMERA_CREATESAMPLEPLATE_TOO_FEW_POINTS, QString("Too few points passed to createSamplePlate. Required: %1 Received: %2").arg(points.count()).arg(MINIMUM_NUMBER_OF_POINTS) );
+	if(points.count() < MINIMUM_NUMBER_OF_POINTS && !debuggingSuppressed_)
+		AMErrorMon::debug(this, AMSAMPLECAMERA_CREATESAMPLEPLATE_TOO_FEW_POINTS, QString("Too few points passed to createSamplePlate. Required: %1 Received: %2").arg(points.count()).arg(MINIMUM_NUMBER_OF_POINTS) );
 	/// for n number of coordinates we need to do n(n-1)/2 iterations
 	/// to get n-1 results to average
 	/// need to do this for each vertex of the plate
@@ -1963,7 +1973,8 @@ void AMSampleCamera::configureRotation(const QVector<QVector3D> coordinates, con
 
 	if(numberOfPoints != coordinates.count() || numberOfPoints != points.count() || numberOfPoints != rotations.count())
 	{
-		AMErrorMon::alert(this, AMSAMPLECAMERA_CONFIGUREROTATION_LENGTH_MISMATCH, QString("Number of points doesn't match list length for configureRotation. Number of points: %1 Coordinate count: %2 Points count: %3 Rotations count: %4").arg(numberOfPoints).arg(coordinates.count()).arg(points.count()).arg(rotations.count()) );
+		if(!debuggingSuppressed_)
+			AMErrorMon::debug(this, AMSAMPLECAMERA_CONFIGUREROTATION_LENGTH_MISMATCH, QString("Number of points doesn't match list length for configureRotation. Number of points: %1 Coordinate count: %2 Points count: %3 Rotations count: %4").arg(numberOfPoints).arg(coordinates.count()).arg(points.count()).arg(rotations.count()) );
 		return;
 	}
 
@@ -1983,25 +1994,32 @@ void AMSampleCamera::configureRotation(const QVector<QVector3D> coordinates, con
 	}
 
 
-	AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, QString("AMSampleCamera::configureRotation - about to construct matrices") );
+	if(!debuggingSuppressed_)
+		AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, QString("AMSampleCamera::configureRotation - about to construct matrices") );
 
 	/// Construct the two known matrices
 	MatrixXd matrix = constructCentreOfRotationMatrix(rotations,vectors, numberOfPoints);
 	MatrixXd coordinateMatrix = constructCentreOfRotationCoordinateMatrix(coordinates, bases, numberOfPoints);
 
-	AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, QString("AMSampleCamera::configureRotation - done constructing matrices") );
+	if(!debuggingSuppressed_)
+		AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, QString("AMSampleCamera::configureRotation - done constructing matrices") );
 
 	/// solve for the unknown part
 	MatrixXd solution = solveCentreOfRotationMatrix(matrix,coordinateMatrix);
-	AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, QString("AMSampleCamera::configureRotation - done solving") );
+	if(!debuggingSuppressed_)
+		AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, QString("AMSampleCamera::configureRotation - done solving") );
 
-	AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, QString("Input matrix") );
+	if(!debuggingSuppressed_)
+		AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, QString("Input matrix") );
 	debugPrintMatrix(matrix);
-	AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, QString("RHS matrix") );
+	if(!debuggingSuppressed_)
+		AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, QString("RHS matrix") );
 	debugPrintMatrix(coordinateMatrix);
-	AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, QString("Solution Matrix") );
+	if(!debuggingSuppressed_)
+		AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, QString("Solution Matrix") );
 	debugPrintMatrix(solution);
-	AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, QString("Computed RHS") );
+	if(!debuggingSuppressed_)
+		AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, QString("Computed RHS") );
 	debugPrintMatrix(matrix*solution);
 
 	/// This requires that your are clicking on the point coordinates.at(0)
@@ -2060,7 +2078,8 @@ void AMSampleCamera::addBeamMarker(int index)
 {
 	if(beamMarkers_[index])
 	{
-		AMErrorMon::alert(this, AMSAMPLECAMERA_ADDBEAMMARKER_NULL_MARKER, QString("Beam marker is null at index %1.").arg(index) );
+		if(!debuggingSuppressed_)
+			AMErrorMon::debug(this, AMSAMPLECAMERA_ADDBEAMMARKER_NULL_MARKER, QString("Beam marker is null at index %1.").arg(index) );
 		deleteShape(shapeList_.indexOf(beamMarkers_[index]));
 	}
 	AMShapeData* newBeamShape = new AMShapeData();
@@ -2097,11 +2116,11 @@ void AMSampleCamera::moveMotorTo(QVector3D coordinate, double rotation)
 	if(enableMotorMovement_)
 	{
 		bool success = moveMotors(x,y,z,rotation);
-		if(!success)
-			AMErrorMon::alert(this, AMSAMPLECAMERA_MOVEMOTORTO_FAILED_TO_MOVE, QString("Failed to move motors in moveMotorTo (%1, %2, %3, %4)").arg(x).arg(y).arg(z).arg(rotation) );
+		if(!success && !debuggingSuppressed_)
+			AMErrorMon::debug(this, AMSAMPLECAMERA_MOVEMOTORTO_FAILED_TO_MOVE, QString("Failed to move motors in moveMotorTo (%1, %2, %3, %4)").arg(x).arg(y).arg(z).arg(rotation) );
 	}
-	else
-		AMErrorMon::alert(this, AMSAMPLECAMERA_MOVEMOTORTO_CANNOT_MOVE_MOTORS, QString("Cannot move motors because enableMotorMovement is off.") );
+	else if(!debuggingSuppressed_)
+		AMErrorMon::debug(this, AMSAMPLECAMERA_MOVEMOTORTO_CANNOT_MOVE_MOTORS, QString("Cannot move motors because enableMotorMovement is off.") );
 }
 
 void AMSampleCamera::stopMotors()
@@ -2113,8 +2132,8 @@ void AMSampleCamera::stopMotors()
 		ssaManipulatorY_->stop();
 		ssaManipulatorZ_->stop();
 	}
-	else
-		AMErrorMon::alert(this, AMSAMPLECAMERA_STOPMOTORS_CANNOT_STOP_MOTORS, QString("Cannot stop motors because enableMotorMovement is off") );
+	else if(!debuggingSuppressed_)
+		AMErrorMon::debug(this, AMSAMPLECAMERA_STOPMOTORS_CANNOT_STOP_MOTORS, QString("Cannot stop motors because enableMotorMovement is off") );
 }
 
 void AMSampleCamera::addSample(AMSample *sample){
@@ -2136,8 +2155,8 @@ void AMSampleCamera::removeSample(AMSample *sample){
 		bool blockState = blockSignals(true);
 		shapeRetrieved = takeItem(shapeIndex);
 		blockSignals(blockState);
-		if(shapeRetrieved != sample->sampleShapePositionData())
-			AMErrorMon::alert(this, AMSAMPLECAMERA_REMOVESAMPLE_FAILED, QString("Failed to remove sample at index %1.").arg(shapeIndex) );
+		if(shapeRetrieved != sample->sampleShapePositionData() && !debuggingSuppressed_)
+			AMErrorMon::debug(this, AMSAMPLECAMERA_REMOVESAMPLE_FAILED, QString("Failed to remove sample at index %1.").arg(shapeIndex) );
 	}
 }
 
@@ -2146,7 +2165,8 @@ void AMSampleCamera::removeShapeData(AMShapeData *shape)
 	AMShapeData *shapeToDelete;
 	if(!shape)
 	{
-		AMErrorMon::alert(this, AMSAMPLECAMERA_REMOVESHAPEDATA_FAILED_NULL_SHAPE, QString("Call to removeShapeData failed because a null shape was passed as an argument.") );
+		if(!debuggingSuppressed_)
+			AMErrorMon::debug(this, AMSAMPLECAMERA_REMOVESHAPEDATA_FAILED_NULL_SHAPE, QString("Call to removeShapeData failed because a null shape was passed as an argument.") );
 		return;
 	}
 	if(shapeList_.contains(shape))
@@ -2155,7 +2175,8 @@ void AMSampleCamera::removeShapeData(AMShapeData *shape)
 		shapeToDelete = takeItem(takeIndex);
 		if(shape != shapeToDelete)
 		{
-			AMErrorMon::alert(this, AMSAMPLECAMERA_REMOVESHAPEDATA_FAILED, QString("Failed to remove shape data at index %1.").arg(takeIndex) );
+			if(!debuggingSuppressed_)
+				AMErrorMon::debug(this, AMSAMPLECAMERA_REMOVESHAPEDATA_FAILED, QString("Failed to remove shape data at index %1.").arg(takeIndex) );
 			insertItem(shapeToDelete);
 		}
 		else
@@ -2242,6 +2263,16 @@ void AMSampleCamera::setBeamConfigured(bool beamConfigured){
 	beamConfigured_ = beamConfigured;
 }
 
+bool AMSampleCamera::debuggingSuppressed()
+{
+	return debuggingSuppressed_;
+}
+
+void AMSampleCamera::setDebuggingSuppressed(bool value)
+{
+	debuggingSuppressed_ = value;
+}
+
 /// tracks motor movement and shifts drawings accordingly
 void AMSampleCamera::motorTracking(double)
 {
@@ -2306,6 +2337,7 @@ void AMSampleCamera::saveCamera()
 AMSampleCamera::AMSampleCamera(QObject *parent) :
 	QAbstractListModel(parent)
 {
+	debuggingSuppressed_ = true;
 	crosshair_ = QPointF(0.5,0.5);
 	crosshairLocked_ = false;
 	index_ = -1;
@@ -2358,12 +2390,17 @@ AMSampleCamera::AMSampleCamera(QObject *parent) :
 	AMDatabase *db = AMDatabase::database("SGMPublic");
 
 	if(!db){
-		AMErrorMon::alert(this, AMSAMPLECAMERA_SEVERE_STARTUP_DATABASE_ISSUES, QString("This is very bad. AMSampleCamera is trying to make its own databases.") );
+
+		if(!debuggingSuppressed_)
+			AMErrorMon::debug(this, AMSAMPLECAMERA_SEVERE_STARTUP_DATABASE_ISSUES, QString("This is very bad. AMSampleCamera is trying to make its own databases.") );
 		db = AMDatabase::database("user");
 		// create the database
 		db = AMDatabase::createDatabase("user", "/home/sgm/AcquamanData/userdata.db");
 		if(!db)
-			AMErrorMon::alert(this, AMSAMPLECAMERA_SEVERE_STARTUP_DATABASE_ISSUES, QString("This is very bad. AMSampleCamera tried to make its own databases and failed.") );
+		{
+			if(!debuggingSuppressed_)
+				AMErrorMon::debug(this, AMSAMPLECAMERA_SEVERE_STARTUP_DATABASE_ISSUES, QString("This is very bad. AMSampleCamera tried to make its own databases and failed.") );
+		}
 		else
 		{
 			bool success = true;
@@ -2377,8 +2414,8 @@ AMSampleCamera::AMSampleCamera(QObject *parent) :
 			success &= AMDbObjectSupport::s()->registerClass<AMSample>();
 			success &= AMDbObjectSupport::s()->registerClass<AMSamplePlatePre2013>();
 			success &= AMDbObjectSupport::s()->registerClass<AMRotationalOffset>();
-
-			AMErrorMon::alert(this, AMSAMPLECAMERA_SEVERE_STARTUP_DATABASE_ISSUES, QString("This is very bad. AMSampleCamera made its own databases and registration was successful? %1.").arg(success) );
+			if(!debuggingSuppressed_)
+				AMErrorMon::debug(this, AMSAMPLECAMERA_SEVERE_STARTUP_DATABASE_ISSUES, QString("This is very bad. AMSampleCamera made its own databases and registration was successful? %1.").arg(success) );
 		}
 	}
 
@@ -2395,8 +2432,8 @@ AMSampleCamera::AMSampleCamera(QObject *parent) :
 		beamModel_->setPositionTwo(positionTwo);
 		beamModel_->setName("defaultConfiguration");
 		bool success = beamModel_->storeToDb(db);
-		if(!success)
-			AMErrorMon::alert(this, AMSAMPLECAMERA_FAILED_TO_STORE_DEFAULT_BEAM, QString("Failed to store default beam to the database.") );
+		if(!success && !debuggingSuppressed_)
+			AMErrorMon::debug(this, AMSAMPLECAMERA_FAILED_TO_STORE_DEFAULT_BEAM, QString("Failed to store default beam to the database.") );
 	}
 	else
 		beamModel_->loadFromDb(db,matchIDs.first());
@@ -2507,7 +2544,8 @@ AMShapeData* AMSampleCamera::applySpecifiedRotation(const AMShapeData* shape, AM
 	}
 	else
 	{
-		AMErrorMon::alert(this, AMSAMPLECAMERA_ROTATION_AXIS_NOT_SPECIFIED, QString("There was no axis specified for the rotation, using Z axis by default.") );
+		if(!debuggingSuppressed_)
+			AMErrorMon::debug(this, AMSAMPLECAMERA_ROTATION_AXIS_NOT_SPECIFIED, QString("There was no axis specified for the rotation, using Z axis by default.") );
 		angle = shape->rotation();
 		axis = QVector3D(0,0,1);
 	}
@@ -2608,8 +2646,8 @@ QVector3D AMSampleCamera::rotateCoordinateByMatrix(QVector3D coordinate, QVector
 /// applies rotation, tilt, and distortion to the shape
 QPolygonF AMSampleCamera::subShape(const AMShapeData* shape) const
 {
-	if(!(shape))
-		AMErrorMon::alert(this, AMSAMPLECAMERA_NULL_SUBSHAPE, QString("A call to subShape was made with a null shape.") );
+	if(!(shape) && !debuggingSuppressed_)
+		AMErrorMon::debug(this, AMSAMPLECAMERA_NULL_SUBSHAPE, QString("A call to subShape was made with a null shape.") );
 	AMShapeData* rotatedShape = new AMShapeData();
 	rotatedShape->copy(shape);
 
@@ -2673,8 +2711,8 @@ void AMSampleCamera::motorMovement(double x, double y, double z, double r)
 {
 	QVector3D newPosition(x,y,z);
 	QVector3D shift = newPosition - motorCoordinate_;
-
-	AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, QString("AMSampleCamera::motorMovement centre of rotation is %1 %2 %3").arg(centerOfRotation_.x()).arg(centerOfRotation_.y()).arg(centerOfRotation_.z()) );
+	if(!debuggingSuppressed_)
+		AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, QString("AMSampleCamera::motorMovement centre of rotation is %1 %2 %3").arg(centerOfRotation_.x()).arg(centerOfRotation_.y()).arg(centerOfRotation_.z()) );
 
 	// This seems to work a lot better, switching the sign of the y-component when we change from +r to -r
 	QVector3D effectiveRotationalOffset = rotationalOffset();
@@ -3014,10 +3052,10 @@ QVector3D AMSampleCamera::getPointOnShape(const AMShapeData *shape, const QPoint
 	double distance = 0;
 	if(denominator == 0)
 	{
-		if(numerator == 0)
-			AMErrorMon::alert(this, AMSAMPLECAMERA_GETPOINTONSHAPE_LINE_IS_ON_PLANE, QString("A call was made to getPointOnShape and the line is on the plane.") );
-		else
-			AMErrorMon::alert(this, AMSAMPLECAMERA_GETPOINTONSHAPE_LINE_IS_PARALLEL_TO_PLANE, QString("A call was made to getPointOnShape and the line is parallel to the plane.") );
+		if(numerator == 0 && !debuggingSuppressed_)
+			AMErrorMon::debug(this, AMSAMPLECAMERA_GETPOINTONSHAPE_LINE_IS_ON_PLANE, QString("A call was made to getPointOnShape and the line is on the plane.") );
+		else if (!debuggingSuppressed_)
+			AMErrorMon::debug(this, AMSAMPLECAMERA_GETPOINTONSHAPE_LINE_IS_PARALLEL_TO_PLANE, QString("A call was made to getPointOnShape and the line is parallel to the plane.") );
 	}
 	else
 	{
@@ -3117,7 +3155,8 @@ QVector3D AMSampleCamera::beamIntersectionPoint(QVector3D samplePoint, bool find
 		double b = bt/t;
 		if(b == 0)
 		{
-			AMErrorMon::alert(this, AMSAMPLECAMERA_BEAMINTERSECTIONPOINT_RAY_DOES_NOT_MOVE_IN_Y, QString("Ray does not move in y direction, cannot intersect it.") );
+			if(!debuggingSuppressed_)
+				AMErrorMon::debug(this, AMSAMPLECAMERA_BEAMINTERSECTIONPOINT_RAY_DOES_NOT_MOVE_IN_Y, QString("Ray does not move in y direction, cannot intersect it.") );
 			return samplePoint;
 		}
 		double c = ct/t;
@@ -3193,7 +3232,8 @@ bool AMSampleCamera::moveMotors(double x, double y, double z, double rotation)
 			if(failure[i] != AMControl::NoFailure)
 			{
 				success = false;
-				AMErrorMon::alert(this, AMSAMPLECAMERA_MOVEMOTORS_FAILURE, QString("Motors failed to move and reported an error: %1").arg(AMControl::failureExplanation(failure[i])) );
+				if(!debuggingSuppressed_)
+					AMErrorMon::debug(this, AMSAMPLECAMERA_MOVEMOTORS_FAILURE, QString("Motors failed to move and reported an error: %1").arg(AMControl::failureExplanation(failure[i])) );
 			}
 		}
 	}
@@ -3336,7 +3376,8 @@ QVector<QVector3D> AMSampleCamera::findSamplePlateCoordinate(const QVector<QVect
 		{
 			row.append(QString("%1 ").arg(coeffMatrix(i,j)));
 		}
-		AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, row );
+		if(!debuggingSuppressed_)
+			AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, row );
 		row = "";
 	}
 
@@ -3378,7 +3419,8 @@ QVector<QVector3D> AMSampleCamera::findSamplePlateCoordinate(const QVector<QVect
 		{
 			row.append(QString("%1 ").arg(solutionMatrix(i,j)));
 		}
-		AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, row );
+		if(!debuggingSuppressed_)
+			AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, row );
 		row = "";
 	}
 
@@ -3387,16 +3429,25 @@ QVector<QVector3D> AMSampleCamera::findSamplePlateCoordinate(const QVector<QVect
 
 	// Debugging output
 	MatrixXd sampleSolution = coeffMatrix*parameters;
-	AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, QString("Solution should be: ") );
-	for(int i = 0; i < sampleSolution.rows(); i++)
-		AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, QString("SampleSolution(i) %1 SolutionMatrix(i) %2 Error %3").arg(sampleSolution(i)).arg(solutionMatrix(i)).arg(100*(solutionMatrix(i)-sampleSolution(i))/solutionMatrix(i)) );
+	if(!debuggingSuppressed_)
+		AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, QString("Solution should be: ") );
+	if(!debuggingSuppressed_)
+	{
+		for(int i = 0; i < sampleSolution.rows(); i++)
+		{
+			AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, QString("SampleSolution(i) %1 SolutionMatrix(i) %2 Error %3").arg(sampleSolution(i)).arg(solutionMatrix(i)).arg(100*(solutionMatrix(i)-sampleSolution(i))/solutionMatrix(i)) );
+		}
+	}
 
 
-
-	AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, QString("X Matrix:") );
-	for(int i = 0; i < parameters.rows(); i++)
-		AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, QString("%1").arg(parameters(i)) );
-
+	if(!debuggingSuppressed_)
+	{
+		AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, QString("X Matrix:") );
+		for(int i = 0; i < parameters.rows(); i++)
+		{
+			AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, QString("%1").arg(parameters(i)) );
+		}
+	}
 	QVector<QVector3D> solutions;
 	for(int i = 0; i < numberOfPoints; i++)
 	{
@@ -3492,7 +3543,8 @@ Eigen::MatrixXd AMSampleCamera::constructSampleCoefficientMatrix(const QVector<Q
 		}
 	}
 
-	AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, QString("First rotation is %1").arg(rotationX.at(0).x()) );
+	if(!debuggingSuppressed_)
+		AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, QString("First rotation is %1").arg(rotationX.at(0).x()) );
 
 	return coefficientMatrix;
 }
@@ -3670,8 +3722,8 @@ MatrixXd AMSampleCamera::constructCentreOfRotationCoordinateMatrix(const QVector
 /// Solve the centre of rotation matrix
 MatrixXd AMSampleCamera::solveCentreOfRotationMatrix(MatrixXd coeffMatrix, MatrixXd coordinateMatrix)
 {
-	if(coeffMatrix.rows() != coordinateMatrix.rows())
-		AMErrorMon::alert(this, AMSAMPLECAMERA_ROTATION_MATRIX_COUNT_MISMATCH, QString("Cannot solve center of rotation matrix, rows of matrices do not match. Coefficient row count: %1 Coordinate row count: %2").arg(coeffMatrix.rows()).arg(coordinateMatrix.rows()) );
+	if(coeffMatrix.rows() != coordinateMatrix.rows() && !debuggingSuppressed_)
+		AMErrorMon::debug(this, AMSAMPLECAMERA_ROTATION_MATRIX_COUNT_MISMATCH, QString("Cannot solve center of rotation matrix, rows of matrices do not match. Coefficient row count: %1 Coordinate row count: %2").arg(coeffMatrix.rows()).arg(coordinateMatrix.rows()) );
 
 	MatrixXd solution = computeSVDLeastSquares(coeffMatrix,coordinateMatrix);
 	return solution;
@@ -3722,7 +3774,8 @@ void AMSampleCamera::debugPrintMatrix(const Eigen::MatrixXd matrix) const
 		{
 			row.append(QString("%1\t").arg(matrix(i,j),1,'f',4));
 		}
-		AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, QString("%1").arg(row) );
+		if(!debuggingSuppressed_)
+			AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, QString("%1").arg(row) );
 		row = "";
 	}
 
@@ -3836,15 +3889,19 @@ void AMSampleCamera::blockBeam()
 
 		} while (vector2 == vector1 && p < projectedUsedBeam.count());
 		QVector3D nHat = QVector3D::crossProduct(vector1,vector2);
-		AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, QString("Point 0: %1 %2 1: %3 %4 2:%5 %6").arg(projectedUsedBeam.at(0).x()).arg(projectedUsedBeam.at(0).y()).arg(projectedUsedBeam.at(1).x()).arg(projectedUsedBeam.at(1).y()).arg(projectedUsedBeam.at(2).x()).arg(projectedUsedBeam.at(2).y()) );
+		if(!debuggingSuppressed_)
+			AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, QString("Point 0: %1 %2 1: %3 %4 2:%5 %6").arg(projectedUsedBeam.at(0).x()).arg(projectedUsedBeam.at(0).y()).arg(projectedUsedBeam.at(1).x()).arg(projectedUsedBeam.at(1).y()).arg(projectedUsedBeam.at(2).x()).arg(projectedUsedBeam.at(2).y()) );
 		nHat = nHat/nHat.length();
-		AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, QString("Nhat: %1 %2 %3").arg(nHat.x()).arg(nHat.y()).arg(nHat.z()) );
+		if(!debuggingSuppressed_)
+			AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, QString("Nhat: %1 %2 %3").arg(nHat.x()).arg(nHat.y()).arg(nHat.z()) );
 		QVector3D xHat = (projectedUsedBeam.at(1) - projectedUsedBeam.at(0));
 		xHat = xHat/xHat.length();
-		AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, QString("Xhat: %1 %2 %3").arg(xHat.x()).arg(xHat.y()).arg(xHat.z()) );
+		if(!debuggingSuppressed_)
+			AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, QString("Xhat: %1 %2 %3").arg(xHat.x()).arg(xHat.y()).arg(xHat.z()) );
 		QVector3D yHat = QVector3D::crossProduct(nHat,xHat);
 		yHat = yHat/yHat.length();
-		AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, QString("Yhat: %1 %2 %3").arg(yHat.x()).arg(yHat.y()).arg(yHat.z()) );
+		if(!debuggingSuppressed_)
+			AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, QString("Yhat: %1 %2 %3").arg(yHat.x()).arg(yHat.y()).arg(yHat.z()) );
 
 		/// create a matrix for the transform
 		MatrixXd planeMatrix (3,3);
@@ -3891,20 +3948,26 @@ void AMSampleCamera::blockBeam()
 		}
 		/// find the total blocked beam
 		QPolygonF newUsedBeam = alternateProjectedShape.united(alternateIntersectionShape);
-		for(int x = 0, size = newUsedBeam.count(); x < size; x++)
-			AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, QString("New total beam is (point %1): %2, %3").arg(x).arg(newUsedBeam.at(x).x()).arg(newUsedBeam.at(x).y()) );
-
+		if(!debuggingSuppressed_)
+		{
+			for(int x = 0, size = newUsedBeam.count(); x < size; x++)
+			{
+				AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, QString("New total beam is (point %1): %2, %3").arg(x).arg(newUsedBeam.at(x).x()).arg(newUsedBeam.at(x).y()) );
+			}
+		}
 		/// find the part of the beam that has not been blocked
 		/// \todo determine why subtracted sometimes fails
 		// this sometimes produces a zero shape when it should not
 		QPolygonF newIntersectionShape = alternateIntersectionShape.subtracted(alternateProjectedShape);
-		for(int x = 0, size = alternateProjectedShape.count(); x < size; x++)
-			AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, QString("Old intersected shape (point %1): %2, %3").arg(x).arg(alternateProjectedShape.at(x).x()).arg(alternateProjectedShape.at(x).y()) );
-		for(int x = 0, size = alternateProjectedShape.count(); x < size; x++)
-			AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, QString("Beam shape (point %1): %2, %3").arg(x).arg(alternateProjectedShape.at(x).x()).arg(alternateProjectedShape.at(x).y()) );
-		for(int x = 0, size = newIntersectionShape.count(); x < size; x++)
-			AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, QString("New intersected shape (point %1): %2, %3").arg(x).arg(newIntersectionShape.at(x).x()).arg(newIntersectionShape.at(x).y()) );
-
+		if(!debuggingSuppressed_)
+		{
+			for(int x = 0, size = alternateProjectedShape.count(); x < size; x++)
+				AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, QString("Old intersected shape (point %1): %2, %3").arg(x).arg(alternateProjectedShape.at(x).x()).arg(alternateProjectedShape.at(x).y()) );
+			for(int x = 0, size = alternateProjectedShape.count(); x < size; x++)
+				AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, QString("Beam shape (point %1): %2, %3").arg(x).arg(alternateProjectedShape.at(x).x()).arg(alternateProjectedShape.at(x).y()) );
+			for(int x = 0, size = newIntersectionShape.count(); x < size; x++)
+				AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, QString("New intersected shape (point %1): %2, %3").arg(x).arg(newIntersectionShape.at(x).x()).arg(newIntersectionShape.at(x).y()) );
+		}
 		double zComponent = alternateProjectedCoordinates.at(0).z();
 
 		alternateProjectedCoordinates.clear();
@@ -3965,7 +4028,8 @@ void AMSampleCamera::blockBeam()
 			alternateIntersectionCoordinates<<point;
 			MatrixXd coordinate (1,3);
 			coordinate = vectorToMatrix(point,coordinate);
-			AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, QString("Coordinate: ") );
+			if(!debuggingSuppressed_)
+				AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, QString("Coordinate: ") );
 			debugPrintMatrix(coordinate);
 			newIntersectionCoords<<matrixToVector(coordinate*planeMatrix.transpose());
 //>>>>>>> Issue496ToMergeWithSGMRelease
@@ -3989,10 +4053,13 @@ void AMSampleCamera::blockBeam()
 	for(int i = 0; i < intersectionShapes_.count(); i++)
 	{
 		intersections_<<intersectionScreenShape(intersectionShapes_.at(i));
-		for(int x = 0, size = intersections_.count(); x < size; x++)
-			AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, QString("Intersection (point %1) %2: %3, %4").arg(x).arg(i).arg(intersections_.at(i).at(x).x()).arg(intersections_.at(i).at(x).y()) );
-		for(int x = 0, size = intersectionShapes_.at(i).count(); x < size; x++)
-			AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, QString("Intersection %1 %2: %3 %4 %5").arg(i).arg(x).arg(intersectionShapes_.at(i).at(x).x()).arg(intersectionShapes_.at(i).at(x).y()).arg(intersectionShapes_.at(i).at(x).z()) );
+		if(!debuggingSuppressed_)
+		{
+			for(int x = 0, size = intersections_.count(); x < size; x++)
+				AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, QString("Intersection (point %1) %2: %3, %4").arg(x).arg(i).arg(intersections_.at(i).at(x).x()).arg(intersections_.at(i).at(x).y()) );
+			for(int x = 0, size = intersectionShapes_.at(i).count(); x < size; x++)
+				AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, QString("Intersection %1 %2: %3 %4 %5").arg(i).arg(x).arg(intersectionShapes_.at(i).at(x).x()).arg(intersectionShapes_.at(i).at(x).y()).arg(intersectionShapes_.at(i).at(x).z()) );
+		}
 	}
 
 
