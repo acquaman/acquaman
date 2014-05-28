@@ -92,7 +92,7 @@ AMProcessVariable::AMProcessVariable(const QString &pvName, bool monitor, QObjec
 	shouldBeMonitoring_ = monitor;
 
 	d_ = AMProcessVariableSupport::getPrivateForPVName(pvName);
-	d_->attachProcessVariable(this);
+    d_->attachProcessVariable(this);
 
 	// This will notice if the connection times out:
 	QTimer::singleShot(connectionTimeoutMs, this, SLOT(onConnectionTimeout()));

@@ -1,7 +1,6 @@
 #include "VESPERSScanConfigurationView.h"
 
 #include "beamline/VESPERS/VESPERSBeamline.h"
-#include "util/VESPERS/GeneralUtilities.h"
 
  VESPERSScanConfigurationView::~VESPERSScanConfigurationView(){}
 VESPERSScanConfigurationView::VESPERSScanConfigurationView(QWidget *parent)

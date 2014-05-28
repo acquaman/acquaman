@@ -19,13 +19,15 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "AMDataSource.h"
-#include <QDebug>
 
- AMDataSourceSignalSource::~AMDataSourceSignalSource(){}
+#include "util/AMErrorMonitor.h"
+
 AMDataSourceSignalSource::AMDataSourceSignalSource(AMDataSource *parent)
 	: QObject() {
 	data_ = parent;
 }
+
+AMDataSourceSignalSource::~AMDataSourceSignalSource(){}
 
 AMDataSource::AMDataSource(const QString& name)
 	: name_(name)
@@ -48,7 +50,7 @@ bool AMDataSource::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd
 {
 	static bool programmerWarningIssued = false;
 	if(!programmerWarningIssued) {
-		qDebug() << "AMDataSource: Warning: Data source '" << name() << "' is using the base implementation of AMDataSource::values(), which is very inefficient. Re-implement values() to improve performance.  (This warning will only be given once.)";
+		AMErrorMon::debug(0, AMDATASOURCE_VALUES_BASE_IMPLEMENTATION_CALLED, QString("AMDataSource: Warning: Data source '%1' is using the base implementation of AMDataSource::values(), which is very inefficient. Re-implement values() to improve performance.  (This warning will only be given once.)").arg(name()));
 		programmerWarningIssued = true;	// one problem with this warning method: if multiple classes have this problem, it will only be given once, and the subsequent classes will not be named.
 	}
 

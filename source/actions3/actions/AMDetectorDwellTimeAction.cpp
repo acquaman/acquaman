@@ -51,6 +51,7 @@ void AMDetectorDwellTimeAction::startImplementation(){
 
 
 	if(detector_->detectorDwellTimeSource()){
+
 		dwellTimeSource_ = detector_->detectorDwellTimeSource();
 		connect(dwellTimeSource_, SIGNAL(setDwellTime(double)), this, SLOT(onDwellSetStarted(double)));
 		connect(dwellTimeSource_, SIGNAL(succeeded()), this, SLOT(onDwellSetSucceeded()));
@@ -60,14 +61,18 @@ void AMDetectorDwellTimeAction::startImplementation(){
 		detectorDwellTimeInfo()->setLongDescription(QString("Set %1 Dwell Time to %2").arg(dwellTimeSource_->name()).arg(detectorDwellTimeInfo()->dwellSeconds()));
 		dwellTimeSource_->requestSetDwellTime(detectorDwellTimeInfo()->dwellSeconds());
 	}
+
 	else{
 		// connect to detector initialization signals
-		if(detector_->acquisitionTime() != detectorDwellTimeInfo()->dwellSeconds()){
+		if(!detector_->acquisitionTimeWithinTolerance(detectorDwellTimeInfo()->dwellSeconds())){
+
 			connect(detector_, SIGNAL(acquisitionTimeChanged(double)), this, SLOT(onDwellTimeChanged(double)));
 			detector_->setAcquisitionTime(detectorDwellTimeInfo()->dwellSeconds());
 			setStarted();
 		}
+
 		else{
+
 			setStarted();
 			setSucceeded();
 		}

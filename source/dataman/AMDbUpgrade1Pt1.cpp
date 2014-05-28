@@ -1,10 +1,11 @@
 #include "AMDbUpgrade1Pt1.h"
 
- AMDbUpgrade1Pt1::~AMDbUpgrade1Pt1(){}
 AMDbUpgrade1Pt1::AMDbUpgrade1Pt1(QString databaseNameToUpgrade, QObject *parent) :
 	AMDbUpgrade(databaseNameToUpgrade, parent)
 {
 }
+
+AMDbUpgrade1Pt1::~AMDbUpgrade1Pt1(){}
 
 QStringList AMDbUpgrade1Pt1::upgradeFromTags() const{
 	// No dependecies for this upgrade
@@ -45,16 +46,21 @@ bool AMDbUpgrade1Pt1::upgradeNecessary() const{
 }
 
 bool AMDbUpgrade1Pt1::upgradeImplementation(){
-	bool success = true;
 
 	QMap<QString, QString> parentTablesToColumnsNames;
 	QMap<QString, int> indexTablesToIndexSide;
 	indexTablesToIndexSide.insert("AMDetectorInfoSet_table_detectorInfos", 2);
 
+	databaseToUpgrade_->startTransaction();
 	// Use dbObjectClassBecomes to upgrade each detectorInfo to its new counterpart
-	success &= AMDbUpgradeSupport::dbObjectClassBecomes(databaseToUpgrade_, "AMDetectorInfo", "AMOldDetectorInfo", parentTablesToColumnsNames, indexTablesToIndexSide);
+	if (!AMDbUpgradeSupport::dbObjectClassBecomes(databaseToUpgrade_, "AMDetectorInfo", "AMOldDetectorInfo", parentTablesToColumnsNames, indexTablesToIndexSide)){
 
-	return success;
+		databaseToUpgrade_->rollbackTransaction();
+		return false;
+	}
+
+	databaseToUpgrade_->commitTransaction();
+	return true;
 }
 
 AMDbUpgrade* AMDbUpgrade1Pt1::createCopy() const{

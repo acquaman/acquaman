@@ -26,15 +26,16 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 /// This AMActionInfo-subclass specifies the information for AMControlMoveAction -- an action that moves a control to a setpoint.  This info specifies the setpoint (the name of the control and where to move it to), in the form of an AMControlInfo.
 class AMControlMoveActionInfo3 : public AMActionInfo3
 {
-    Q_OBJECT
+	Q_OBJECT
 	Q_PROPERTY(AMDbObject* controlInfo READ dbReadControlInfo WRITE dbLoadControlInfo)
 	Q_PROPERTY(bool isRelativeMove READ isRelativeMove WRITE setIsRelativeMove)
 	Q_PROPERTY(bool isRelativeFromSetpoint READ isRelativeFromSetpoint WRITE setIsRelativeFromSetpoint)
 
 public:
 	/// Constructor. You should always specify a valid \c setpoint, but we provide the default argument because we need a default constructor for database loading.
- 	virtual ~AMControlMoveActionInfo3();
 	Q_INVOKABLE AMControlMoveActionInfo3(const AMControlInfo &setpoint = AMControlInfo(), QObject *parent = 0);
+	/// Destructor.
+	virtual ~AMControlMoveActionInfo3();
 
 	/// Copy Constructor
 	AMControlMoveActionInfo3(const AMControlMoveActionInfo3 &other);

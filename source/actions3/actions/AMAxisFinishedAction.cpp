@@ -12,7 +12,7 @@ AMAxisFinishedAction::AMAxisFinishedAction(AMAxisFinishedActionInfo *info, QObje
 AMAxisFinishedAction::AMAxisFinishedAction(const AMAxisFinishedAction &other) :
 	AMAction3(other)
 {
-	generateScanActionMessages_ = true;
+	generateScanActionMessages_ = other.generateScanActionMessages();
 }
 
 void AMAxisFinishedAction::startImplementation(){

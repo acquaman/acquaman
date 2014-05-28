@@ -15,7 +15,7 @@ VESPERSFourElementVortexDetector::VESPERSFourElementVortexDetector(const QString
 	// Stuff required by AMXRFDetector.
 	acquireControl_ = new AMPVControl("Acquisition Time", "dxp1607-B21-04:EraseStart", "dxp1607-B21-04:EraseStart", "dxp1607-B21-04:StopAll", this, 0.5);
 	acquisitionStatusControl_ = new AMReadOnlyPVControl("Status", "dxp1607-B21-04:Acquiring", this);
-	acquireTimeControl_ = new AMSinglePVControl("Integration Time", "dxp1607-B21-04:PresetReal", this, 0.05);
+	acquireTimeControl_ = new AMSinglePVControl("Integration Time", "dxp1607-B21-04:PresetReal", this, 0.001);
 	elapsedTimeControl_ = new AMReadOnlyPVControl("Elapsed Time", "dxp1607-B21-04:ElapsedReal", this);
 
 	for (int i = 0; i < 4; i++){

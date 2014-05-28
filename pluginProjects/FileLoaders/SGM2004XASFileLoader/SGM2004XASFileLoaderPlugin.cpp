@@ -11,15 +11,12 @@
 #include "dataman/AMScan.h"
 
 bool SGM2004XASFileLoaderPlugin::accepts(AMScan *scan){
-	qDebug() << "SGM2004XAS trying to accept " << scan->fileFormat();
 	if(scan->fileFormat() == "sgm2004")
 		return true;
 	return false;
 }
 
 bool SGM2004XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolder, AMErrorMon *errorMonitor){
-	// qdebug() << "\n\nTRYING TO LOAD WITH SGM2004XAS PLUGIN";
-
 	if(columns2pvNames_.count() == 0) {
 		columns2pvNames_.set("eV", "BL1611-ID-1:Energy");
 		columns2pvNames_.set("ringCurrent", "PCT1402-01:mA:fbk");
@@ -161,8 +158,9 @@ bool SGM2004XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 		}
 	}
 	if(postSddFileOffset){
-		if(scan->rawData()->addMeasurement(AMMeasurementInfo("SDDFileOffset", "SDDFileOffset")))
-			qDebug() << "Added measurement " << scan->rawData()->measurementAt(scan->rawData()->measurementCount()-1).name;
+		scan->rawData()->addMeasurement(AMMeasurementInfo("SDDFileOffset", "SDDFileOffset"));
+//		if(scan->rawData()->addMeasurement(AMMeasurementInfo("SDDFileOffset", "SDDFileOffset")))
+//			qdebug() << "Added measurement " << scan->rawData()->measurementAt(scan->rawData()->measurementCount()-1).name;
 	}
 	int sddOffsetIndex = colNames1.indexOf("SDDFileOffset");
 

@@ -28,7 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/database/AMDbObjectSupport.h"
 #include "analysis/AM1DExpressionAB.h"
 #include "dataman/datastore/AMInMemoryDataStore.h"
-#include "dataman/AMSamplePlate.h"
+#include "dataman/AMSamplePlatePre2013.h"
 #include "util/AMOrderedSet.h"
 
 #include "util/AMTagReplacementParser.h"
@@ -213,19 +213,19 @@ private slots:
 
 	void testAMSamplePlate() {
 
-		AMSamplePlate* p1 = new AMSamplePlate();
+		AMSamplePlatePre2013* p1 = new AMSamplePlatePre2013();
 
 		AMControlInfoList pos;
 		pos.append(AMControlInfo("testControl", 3.0, 1.0, 5.0, "pF"));
 
-		p1->append(AMSamplePosition(3, pos, 2));
+		p1->append(AMSamplePositionPre2013(3, pos, 2));
 
 		int dbId = p1->storeToDb(AMDatabase::database("user"));
 		QVERIFY(dbId > 0);
 
 		delete p1;
 
-		AMSamplePlate* p2 = new AMSamplePlate();
+		AMSamplePlatePre2013* p2 = new AMSamplePlatePre2013();
 		QVERIFY(p2->loadFromDb(AMDatabase::database("user"), dbId) == true);
 		QVERIFY(p2->modified() == false);
 

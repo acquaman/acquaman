@@ -31,7 +31,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dataman/AMRun.h"
 #include "dataman/AMExperiment.h"
-#include "dataman/AMSample.h"
+#include "dataman/AMSamplePre2013.h"
 #include "dataman/AMScan.h"
 
 #include "util/AMSettings.h"
@@ -229,7 +229,7 @@ void AMScanDatabaseImportController::analyzeSamplesForDuplicates()
 	emit stepProgress(-1);
 
 	// go through samples in source, and see if any exist in destination
-	QSqlQuery q = AMDbObjectSupport::s()->select<AMSample>(sourceDb_, "id, name, dateTime");
+	QSqlQuery q = AMDbObjectSupport::s()->select<AMSamplePre2013>(sourceDb_, "id, name, dateTime");
 	q.exec();
 	int stepIndex = 0;
 	int totalSteps = q.size();
@@ -243,7 +243,7 @@ void AMScanDatabaseImportController::analyzeSamplesForDuplicates()
 		sourceSamples_[id] = name % ", created " % AMDateTimeUtils::prettyDateTime(dateTime);
 
 		// Find a matching one in destinationDb_.
-		QSqlQuery q2 = AMDbObjectSupport::s()->select<AMSample>(destinationDb_, "id", "name = ? AND dateTime = ?");
+		QSqlQuery q2 = AMDbObjectSupport::s()->select<AMSamplePre2013>(destinationDb_, "id", "name = ? AND dateTime = ?");
 		q2.bindValue(0, name);
 		q2.bindValue(1, dateTime);
 		q2.exec();
@@ -387,7 +387,7 @@ void AMScanDatabaseImportController::copySamples()
 		// key is id; value is id in destination database, or -1 if not there yet. (if not there, need to insert)
 		int sourceId = i.key(), destinationId = i.value();
 		if(destinationId<1) {
-			AMSample s;
+			AMSamplePre2013 s;
 			s.loadFromDb(sourceDb_, sourceId);
 			if(s.storeToDb(destinationDb_))
 				i.setValue(s.id());

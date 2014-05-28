@@ -7,7 +7,7 @@
 VESPERSEnergyScanActionController::~VESPERSEnergyScanActionController(){}
 
 VESPERSEnergyScanActionController::VESPERSEnergyScanActionController(VESPERSEnergyScanConfiguration *configuration, QObject *parent)
-	: AMRegionScanActionController(configuration, parent), VESPERSScanController(configuration)
+	: AMStepScanActionController(configuration, parent), VESPERSScanController(configuration)
 {
 	configuration_ = configuration;
 
@@ -21,6 +21,10 @@ VESPERSEnergyScanActionController::VESPERSEnergyScanActionController(VESPERSEner
 
 	useFeedback_ = true;
 	originalEnergy_ = VESPERSBeamline::vespers()->mono()->energy();
+
+	AMControlInfoList list;
+	list.append(VESPERSBeamline::vespers()->energy()->toInfo());
+	configuration_->setAxisControlInfos(list);
 
 	AMDetectorInfoSet detectors;
 	detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("SplitIonChamber")->toInfo());

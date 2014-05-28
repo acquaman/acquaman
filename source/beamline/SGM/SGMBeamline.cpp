@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QStringBuilder>
 
-#include "dataman/AMSamplePlate.h"
+#include "dataman/AMSamplePlatePre2013.h"
 #include "dataman/AMUser.h"
 #include "beamline/SGM/SGMMAXvMotor.h"
 #include "beamline/CLS/CLSSynchronizedDwellTime.h"
@@ -33,7 +33,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/SGM/SGMXASScanConfiguration.h"
 #include "acquaman/SGM/SGMFastScanConfiguration.h"
 #include "actions3/actions/AMScanAction.h"
+
+#include "beamline/AMMotorGroup.h"
+#include "beamline/SGM/SGMSampleManipulatorMotorGroup.h"
 #include "actions3/actions/AMControlStopAction.h"
+
 
 #include "beamline/CLS/CLSAmptekSDD123DetectorNew.h"
 #include "beamline/CLS/CLSPGTDetectorV2.h"
@@ -41,6 +45,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSBasicScalerChannelDetector.h"
 #include "beamline/CLS/CLSAdvancedScalerChannelDetector.h"
 #include "beamline/AMBasicControlDetectorEmulator.h"
+#include "beamline/CLS/CLSSR570.h"
 
 #include "util/AMErrorMonitor.h"
 
@@ -127,11 +132,30 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	unconnectedSets_.append(beamOnControlSet_);
 	connect(beamOnControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
 
+	CLSSR570 *tempSR570;
+
 	scaler_ = new CLSSIS3820Scaler("BL1611-ID-1:mcs", this);
+
+	tempSR570 = new CLSSR570("TEY", "Amp1611-4-21:sens_num.VAL", "Amp1611-4-21:sens_unit.VAL", this);
+	scaler_->channelAt(0)->setCurrentAmplifier(tempSR570);
+	scaler_->channelAt(0)->setVoltagRange(AMRange(1.0, 6.5));
 	scaler_->channelAt(0)->setCustomChannelName("TEY");
+
+	tempSR570 = new CLSSR570("I0", "Amp1611-4-22:sens_num.VAL", "Amp1611-4-22:sens_unit.VAL", this);
+	scaler_->channelAt(1)->setCurrentAmplifier(tempSR570);
+	scaler_->channelAt(1)->setVoltagRange(AMRange(1.0, 6.5));
 	scaler_->channelAt(1)->setCustomChannelName("I0");
+
+	tempSR570 = new CLSSR570("TFY PD", "Amp1611-4-23:sens_num.VAL", "Amp1611-4-23:sens_unit.VAL", this);
+	scaler_->channelAt(2)->setCurrentAmplifier(tempSR570);
+	scaler_->channelAt(2)->setVoltagRange(AMRange(1.0, 6.5));
 	scaler_->channelAt(2)->setCustomChannelName("TFY PD ");
+
+	tempSR570 = new CLSSR570("PD", "Amp1611-4-24:sens_num.VAL", "Amp1611-4-24:sens_unit.VAL", this);
+	scaler_->channelAt(3)->setCurrentAmplifier(tempSR570);
+	scaler_->channelAt(3)->setVoltagRange(AMRange(1.0, 6.5));
 	scaler_->channelAt(3)->setCustomChannelName("PD");
+
 	scaler_->channelAt(4)->setCustomChannelName("UP");
 	scaler_->channelAt(5)->setCustomChannelName("DOWN");
 	scaler_->channelAt(6)->setCustomChannelName("FPD1");
@@ -150,6 +174,8 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	newPGTDetector_ = new CLSPGTDetectorV2("PGT", "PGT", "MCA1611-01", this);
 	newQE65000Detector_ = new CLSQE65000Detector("QE65000", "QE 65000", "SA0000-03", this);
 	newTEYDetector_ = new CLSAdvancedScalerChannelDetector("TEY", "TEY", scaler_, 0, this);
+    scaler_->channelAt(0)->setDetector(newTEYDetector_);
+
 	newTFYDetector_ = new CLSAdvancedScalerChannelDetector("TFY", "TFY", scaler_, 2, this);
 	newI0Detector_ = new CLSAdvancedScalerChannelDetector("I0", "I0", scaler_, 1, this);
 	newPDDetector_ = new CLSAdvancedScalerChannelDetector("PD", "PD", scaler_, 3, this);
@@ -165,6 +191,9 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	energyFeedbackDetector_ = new AMBasicControlDetectorEmulator("EnergyFeedback", "Energy Feedback", energyFeedbackControl, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 	AMControl *gratingEncoderFeedbackControl = new AMReadOnlyPVControl("GratingEncoderFeedback", "SMTR16114I1002:enc:fbk", this, "Grating Encoder Feedback");
 	gratingEncoderDetector_ = new AMBasicControlDetectorEmulator("GratingEncoderFeedback", "Grating Encoder Feedback", gratingEncoderFeedbackControl, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+    AMControl* scalerDwellTime = new AMReadOnlyPVControl("ScalerDwellTime", "BL1611-ID-1:mcs:delay", this, "Scaler Dwell Time");
+    dwellTimeDetector_ = new AMBasicControlDetectorEmulator("DwellTimeFeedback", "Dwell Time Feedback", scalerDwellTime, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+
 
 	allDetectorGroup_ = new AMDetectorGroup("All Detectors", this);
 	allDetectorGroup_->addDetector(newAmptekSDD1_);
@@ -184,6 +213,7 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	allDetectorGroup_->addDetector(newFilteredPD4Detector_);
 	allDetectorGroup_->addDetector(newFilteredPD5Detector_);
 	allDetectorGroup_->addDetector(energyFeedbackDetector_);
+    allDetectorGroup_->addDetector(dwellTimeDetector_);
 
 	connect(allDetectorGroup_, SIGNAL(allDetectorsResponded()), this, SLOT(onAllDetectorsGroupAllDetectorResponded()));
 
@@ -205,6 +235,7 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	XASDetectorGroup_->addDetector(newFilteredPD4Detector_);
 	XASDetectorGroup_->addDetector(newFilteredPD5Detector_);
 	XASDetectorGroup_->addDetector(energyFeedbackDetector_);
+    XASDetectorGroup_->addDetector(dwellTimeDetector_);
 
 	FastDetectorGroup_ = new AMDetectorGroup("Fast Detectors", this);
 	FastDetectorGroup_->addDetector(newTEYDetector_);
@@ -233,6 +264,7 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	criticalDetectorSet_->addDetector(newFilteredPD4Detector_);
 	criticalDetectorSet_->addDetector(newFilteredPD5Detector_);
 	criticalDetectorSet_->addDetector(energyFeedbackDetector_);
+    criticalDetectorSet_->addDetector(dwellTimeDetector_);
 
 	connect(criticalDetectorSet_, SIGNAL(connected(bool)), this, SLOT(onCriticalDetectorSetConnectedChanged(bool)));
 	connect(allDetectorGroup_, SIGNAL(detectorBecameConnected(AMDetector*)), this, SLOT(onAllDetectorGroupDetectorBecameConnected(AMDetector*)));
@@ -382,7 +414,7 @@ QString SGMBeamline::currentSampleDescription(){
 	if(currentId == -1)
 		return "<Unknown Sample>";
 	else
-		return AMSample(currentId, AMUser::user()->database()).name();
+		return AMSamplePre2013(currentId, AMUser::user()->database()).name();
 }
 
 AMDetector* SGMBeamline::newAmptekSDD1() const {
@@ -465,6 +497,10 @@ AMDetector* SGMBeamline::gratingEncoderDetector() const {
 	return gratingEncoderDetector_;
 }
 
+AMDetector* SGMBeamline::dwellTimeDetector() const {
+    return dwellTimeDetector_;
+}
+
 #include "actions3/AMListAction3.h"
 #include "actions3/actions/AMControlMoveAction3.h"
 AMAction3* SGMBeamline::createBeamOnActions3(){
@@ -484,6 +520,19 @@ AMAction3* SGMBeamline::createBeamOnActions3(){
 	beamOnActionsList->addSubAction(fastShutterAction);
 
 	return beamOnActionsList;
+}
+
+AMAction3* SGMBeamline::createTurnOffBeamActions(){
+    if(!SGMBeamline::sgm()->isConnected()) {
+        return 0;
+    }
+
+    AMControlInfo fastShutterSetpoint = fastShutterVoltage()->toInfo();
+    fastShutterSetpoint.setValue(5);
+    AMControlMoveActionInfo3* fastShutterActionInfo = new AMControlMoveActionInfo3(fastShutterSetpoint);
+    AMControlMoveAction3* fastShutterAction = new AMControlMoveAction3(fastShutterActionInfo, fastShutterVoltage());
+
+    return fastShutterAction;
 }
 
 AMAction3* SGMBeamline::createStopMotorsActions3(){
@@ -520,9 +569,9 @@ AMAction3* SGMBeamline::createGoToTransferPositionActions3(){
 	AMControlInfo manipulatorXSetpoint = ssaManipulatorX_->toInfo();
 	manipulatorXSetpoint.setValue(0.0);
 	AMControlInfo manipulatorYSetpoint = ssaManipulatorY_->toInfo();
-	manipulatorYSetpoint.setValue(-13.17);
+	manipulatorYSetpoint.setValue(-9.1);
 	AMControlInfo manipulatorZSetpoint = ssaManipulatorZ_->toInfo();
-	manipulatorZSetpoint.setValue(-77.0);
+	manipulatorZSetpoint.setValue(151.0);
 	AMControlInfo manipulatorRSetpoint = ssaManipulatorRot_->toInfo();
 	manipulatorRSetpoint.setValue(0.0);
 
@@ -587,7 +636,7 @@ bool SGMBeamline::isVisibleLightOn() const{
 	return false;
 }
 
-void SGMBeamline::setCurrentSamplePlate(AMSamplePlate *newSamplePlate){
+void SGMBeamline::setCurrentSamplePlate(AMSamplePlatePre2013 *newSamplePlate){
 	if(currentSamplePlate_ != newSamplePlate){
 		currentSamplePlate_ = newSamplePlate;
 		emit currentSamplePlateChanged(currentSamplePlate_);
@@ -1046,14 +1095,28 @@ void SGMBeamline::setupControls(){
 
 	if(amNames2pvNames_.lookupFailed())
 		AMErrorMon::alert(this, SGMBEAMLINE_PV_NAME_LOOKUPS_FAILED, "PV Name lookups in the SGM Beamline failed");
+
+	AMMotorGroupObject *motorObject = 0;
+	motorGroup_ = new AMMotorGroup(this);
+	//motorObject = new AMMotorGroupObject("Manipulator",
+	motorObject = new SGMSampleManipulatorMotorGroupObject("Manipulator",
+							       QStringList() << "X" << "Y" << "Z" << "R",
+							       QStringList() << "mm" << "mm" << "mm" << "deg",
+					     QList<AMControl*>() << ssaManipulatorX_ << ssaManipulatorY_ << ssaManipulatorZ_ << ssaManipulatorRot_,
+					     QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Horizontal << AMMotorGroupObject::Normal << AMMotorGroupObject::Vertical << AMMotorGroupObject::Other,
+					     QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational << AMMotorGroupObject::Rotational,
+					     this);
+	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
 }
 
 void SGMBeamline::setupExposedControls(){
 	addExposedControl(ssaManipulatorX_);
 	addExposedControl(ssaManipulatorY_);
 	addExposedControl(ssaManipulatorZ_);
+	addExposedControl(ssaManipulatorRot_);
 	addExposedControl(energy_);
 	addExposedControl(masterDwell_);
+	addExposedControl(exitSlitGap_);
 }
 
 void SGMBeamline::setupExposedDetectors(){
@@ -1077,6 +1140,7 @@ void SGMBeamline::setupExposedDetectors(){
 	addExposedDetector(newEncoderDownDetector_);
 	addExposedDetector(energyFeedbackDetector_);
 	addExposedDetector(gratingEncoderDetector_);
+    addExposedDetector(dwellTimeDetector_);
 
 	addExposedDetectorGroup(XASDetectorGroup_);
 	addExposedDetectorGroup(FastDetectorGroup_);

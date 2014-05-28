@@ -43,9 +43,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/actions/AMScanAction.h"
 #include "actions3/actions/AMScanActionInfo.h"
 #include "actions3/editors/AMScanActionEditor.h"
-#include "actions3/actions/AMSamplePlateMoveAction.h"
-#include "actions3/actions/AMSamplePlateMoveActionInfo.h"
-#include "actions3/editors/AMSamplePlateMoveActionEditor.h"
+#include "actions3/actions/AMSamplePlatePre2013MoveAction.h"
+#include "actions3/actions/AMSamplePlatePre2013MoveActionInfo.h"
+#include "actions3/editors/AMSamplePlatePre2013MoveActionEditor.h"
+#include "actions3/actions/AMSampleMoveAction.h"
+#include "actions3/actions/AMSampleMoveActionInfo.h"
+#include "actions3/editors/AMSampleMoveActionEditor.h"
+#include "actions3/actions/AMControlWaitAction.h"
+#include "actions3/actions/AMControlWaitActionInfo.h"
 
 #include "application/AMAppControllerSupport.h"
 #include "acquaman/AMDetectorTriggerSourceScanOptimizer.h"
@@ -83,8 +88,13 @@ bool AMAppController::startup(){
 		success &= AMActionRegistry3::s()->registerInfoAndAction<AMScanActionInfo, AMScanAction>("Scan Action", "Runs a scan.", ":/spectrum.png", false);
 		success &= AMActionRegistry3::s()->registerInfoAndEditor<AMScanActionInfo, AMScanActionEditor>();
 
-		success &= AMActionRegistry3::s()->registerInfoAndAction<AMSamplePlateMoveActionInfo, AMSamplePlateMoveAction>("Move Sample Position", "Move to a different marked sample position", ":system-run.png");
-		success &= AMActionRegistry3::s()->registerInfoAndEditor<AMSamplePlateMoveActionInfo, AMSamplePlateMoveActionEditor>();
+		success &= AMActionRegistry3::s()->registerInfoAndAction<AMSamplePlatePre2013MoveActionInfo, AMSamplePlatePre2013MoveAction>("Move Sample Position", "Move to a different marked sample position", ":system-run.png");
+		success &= AMActionRegistry3::s()->registerInfoAndEditor<AMSamplePlatePre2013MoveActionInfo, AMSamplePlatePre2013MoveActionEditor>();
+
+		success &= AMActionRegistry3::s()->registerInfoAndAction<AMSampleMoveActionInfo, AMSampleMoveAction>("Move to Beam Sample", "Move the beam over a given sample", ":system-run.png");
+		success &= AMActionRegistry3::s()->registerInfoAndEditor<AMSampleMoveActionInfo, AMSampleMoveActionEditor>();
+
+        success &= AMActionRegistry3::s()->registerInfoAndAction<AMControlWaitActionInfo, AMControlWaitAction>("Wait for Control", "Wait for Control", ":system-run.png", false);
 
 		AMAgnosticDataMessageQEventHandler *scanActionMessager = new AMAgnosticDataMessageQEventHandler();
 		AMAgnosticDataAPISupport::registerHandler("ScanActions", scanActionMessager);

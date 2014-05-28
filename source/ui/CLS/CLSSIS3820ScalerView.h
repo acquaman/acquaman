@@ -33,6 +33,7 @@ class CLSSIS3820Scaler;
 class CLSSIS3820ScalerChannel;
 
 #include "ui/CLS/CLSSR570View.h"
+#include "ui/CLS/CLSDarkCurrentWidget.h"
 
 /*!
   This class builds a view around a CLSSIS3820ScalerChannel.  It provides a simple view that has a check box
@@ -81,7 +82,7 @@ protected slots:
 	/// Handles updating the status label.  Includes the color and updating the tool tip.
 	void updateStatusLabel();
 	/// Handles setting up the SR570 view if it is added after the channel has been set inside the view.
-	void onNewSR570Attached();
+    void onNewCurrentAmplifierAttached();
 
 protected:
 	/// Pointer to the channel being viewed.

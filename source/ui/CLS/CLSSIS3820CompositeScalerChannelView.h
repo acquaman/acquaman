@@ -60,7 +60,7 @@ protected slots:
 	/// Handles updating the status label.  Includes the color and updating the tool tip.
 	void updateStatusLabel();
 	/// Handles setting up the SR570 view if it is added after the channel has been set inside the view.
-	void onNewSR570Attached();
+	void onNewCurrentAmplifierAttached();
 	/// Handles updating the name label when switching between views modes.
 	void updateCompositeNameLabel();
 	/// Builds a popup menu for switching view modes.

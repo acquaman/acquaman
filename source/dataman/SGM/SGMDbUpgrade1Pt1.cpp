@@ -19,11 +19,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "SGMDbUpgrade1Pt1.h"
 
- SGMDbUpgrade1Pt1::~SGMDbUpgrade1Pt1(){}
 SGMDbUpgrade1Pt1::SGMDbUpgrade1Pt1(QString databaseNameToUpgrade, QObject *parent) :
 	AMDbUpgrade(databaseNameToUpgrade, parent)
 {
 }
+
+SGMDbUpgrade1Pt1::~SGMDbUpgrade1Pt1(){}
 
 QStringList SGMDbUpgrade1Pt1::upgradeFromTags() const{
 	// No dependecies for this upgrade
@@ -46,18 +47,36 @@ bool SGMDbUpgrade1Pt1::upgradeNecessary() const{
 }
 
 bool SGMDbUpgrade1Pt1::upgradeImplementation(){
-	bool success = true;
 
 	QMap<QString, QString> parentTablesToColumnsNames;
 	QMap<QString, int> indexTablesToIndexSide;
 	indexTablesToIndexSide.insert("AMDetectorInfoSet_table_detectorInfos", 2);
 
-	// Use dbObjectClassBecomes to upgrade each detectorInfo to its new counterpart
-	success &= AMDbUpgradeSupport::dbObjectClassBecomes(databaseToUpgrade_, "PGTDetectorInfo", "CLSPGTDetectorInfo", parentTablesToColumnsNames, indexTablesToIndexSide);
-	success &= AMDbUpgradeSupport::dbObjectClassBecomes(databaseToUpgrade_, "OceanOptics65000DetectorInfo", "CLSOceanOptics65000DetectorInfo", parentTablesToColumnsNames, indexTablesToIndexSide);
-	success &= AMDbUpgradeSupport::dbObjectClassBecomes(databaseToUpgrade_, "MCPDetectorInfo", "SGMMCPDetectorInfo", parentTablesToColumnsNames, indexTablesToIndexSide);
+	databaseToUpgrade_->startTransaction();
 
-	return success;
+	// Use dbObjectClassBecomes to upgrade each detectorInfo to its new counterpart
+
+	if (!AMDbUpgradeSupport::dbObjectClassBecomes(databaseToUpgrade_, "PGTDetectorInfo", "CLSPGTDetectorInfo", parentTablesToColumnsNames, indexTablesToIndexSide)){
+
+		databaseToUpgrade_->rollbackTransaction();
+		return false;
+	}
+
+	if (!AMDbUpgradeSupport::dbObjectClassBecomes(databaseToUpgrade_, "OceanOptics65000DetectorInfo", "CLSOceanOptics65000DetectorInfo", parentTablesToColumnsNames, indexTablesToIndexSide)){
+
+		databaseToUpgrade_->rollbackTransaction();
+		return false;
+	}
+
+	if (!AMDbUpgradeSupport::dbObjectClassBecomes(databaseToUpgrade_, "MCPDetectorInfo", "SGMMCPDetectorInfo", parentTablesToColumnsNames, indexTablesToIndexSide)){
+
+		databaseToUpgrade_->rollbackTransaction();
+		return false;
+	}
+
+	databaseToUpgrade_->commitTransaction();
+
+	return true;
 }
 
 AMDbUpgrade* SGMDbUpgrade1Pt1::createCopy() const{

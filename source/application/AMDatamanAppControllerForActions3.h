@@ -27,8 +27,9 @@ class AMDatamanAppControllerForActions3 : public AMDatamanAppController
 {
     Q_OBJECT
 public:
- 	virtual ~AMDatamanAppControllerForActions3();
-    explicit AMDatamanAppControllerForActions3(QObject *parent = 0);
+	explicit AMDatamanAppControllerForActions3(QObject *parent = 0);
+
+	virtual ~AMDatamanAppControllerForActions3();
 
 	/// Re-implemented to create the user database and actions database
 	virtual bool startupCreateDatabases();

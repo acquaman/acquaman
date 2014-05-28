@@ -85,4 +85,11 @@ void SGMXASScanConfiguration2013View::onFluxResolutionGroupChanged(){
 
 void SGMXASScanConfiguration2013View::onScanNameEditChanged(const QString &scanName){
 	configuration_->setUserScanName(scanName);
+
+
+	for(int x = 0, size = trackingSet_->count(); x < size; x++)
+		qDebug() << "Tracking set at " << x << trackingSet_->at(x)->name() << trackingSet_->controlNamed(trackingSet_->at(x)->name())->value();
+
+	for(int x = 0, size = configuration_->trackingGroup().count(); x < size; x++)
+		qDebug() << "Tracking group at " << x << configuration_->trackingGroup().at(x).name() << configuration_->trackingGroup().controlNamed(configuration_->trackingGroup().at(x).name()).value();
 }

@@ -45,6 +45,7 @@ IDEASXRFScanController::IDEASXRFScanController(IDEASXRFScanConfiguration *scanCo
 
 
 
+
 }
 
 IDEASXRFScanController::~IDEASXRFScanController(){}
@@ -62,12 +63,11 @@ bool IDEASXRFScanController::startImplementation()
 
 
 		AMControlInfoList positions(IDEASBeamline::ideas()->exposedControls()->toInfoList());
-		positions.remove(positions.indexOf("masterDwell"));
+		positions.remove(positions.indexOf("DwellTime"));
 		positions.remove(positions.indexOf("DirectEnergy"));
 		//positions.remove(positions.indexOf("Energy"));
 
-
-		scan_->scanInitialConditions()->setValuesFrom(positions);
+		scan_->setScanInitialConditions(positions);
 
 		scan()->setScanController(0);
 

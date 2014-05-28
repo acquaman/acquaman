@@ -56,16 +56,18 @@ AMControlInfoList AMControlSetView::currentValues(){
 AMControlInfoList AMControlSetView::configValues(){
 	AMControlInfoList rv;
 
-	if(!configureOnly_)
-		return currentValues();
 
 	int numControls = viewSet_->count();
 	for(int i=0; i<numControls; i++) {
 		AMControlInfo info = boxAt(i)->control()->toInfo();
 		info.setValue(boxAt(i)->setpoint());
+		qDebug() << "At " << i << "box setpoint is " << boxAt(i)->setpoint();
 		rv.append(info);
 	}
 
+//	if(!configureOnly_){
+//		//return currentValues();
+//	}
 	return rv;
 }
 
@@ -92,6 +94,10 @@ void AMControlSetView::onControlSetValuesChanged(){
 }
 
 void AMControlSetView::onConfigurationValueChanged(){
-	if(configureOnly_)
+	if(configureOnly_){
+		qDebug() << "Config values are ";
+		for(int x = 0, size = configValues().count(); x < size; x++)
+			qDebug() << configValues().at(x).name() << configValues().at(x).value();
 		emit configValuesChanged(configValues());
+	}
 }

@@ -2,6 +2,8 @@
 #define IDEASPERSISTENTVIEW_H
 
 #include <QWidget>
+#include <QTimer>
+
 
 class QPushButton;
 class QLabel;
@@ -81,6 +83,8 @@ protected:
     QProgressBar *I0Bar_;
     QProgressBar *ISampleBar_;
     QProgressBar *IReferenceBar_;
+
+//    QTimer *crystalTimer_;
 
 
 

@@ -1,7 +1,7 @@
 #ifndef VESPERS3DSCANCONFIGURATION_H
 #define VESPERS3DSCANCONFIGURATION_H
 
-#include "acquaman/AM3DScanConfiguration.h"
+#include "acquaman/AMStepScanConfiguration.h"
 #include "application/VESPERS/VESPERS.h"
 #include "acquaman/VESPERS/VESPERSScanConfiguration.h"
 
@@ -16,7 +16,7 @@
 	file with XRD or not.
   */
 
-class VESPERS3DScanConfiguration : public AM3DScanConfiguration, public VESPERSScanConfiguration
+class VESPERS3DScanConfiguration : public AMStepScanConfiguration, public VESPERSScanConfiguration
 {
 	Q_OBJECT
 
@@ -27,10 +27,11 @@ class VESPERS3DScanConfiguration : public AM3DScanConfiguration, public VESPERSS
 
 public:
 	/// Constructor.
- 	virtual ~VESPERS3DScanConfiguration();
 	Q_INVOKABLE VESPERS3DScanConfiguration(QObject *parent = 0);
 	/// Copy constructor.
 	VESPERS3DScanConfiguration(const VESPERS3DScanConfiguration &original);
+	/// Destructor.
+	virtual ~VESPERS3DScanConfiguration();
 
 	/// Returns a pointer to a newly-created copy of this scan configuration.  (It takes the role of a copy constructor, but is virtual so that our high-level classes can copy a scan configuration without knowing exactly what kind it is.)
 	virtual AMScanConfiguration* createCopy() const;

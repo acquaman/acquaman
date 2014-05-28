@@ -34,7 +34,8 @@ class AMScanView;
 class AM2DScanView;
 class AMVerticalStackWidget;
 class AMRunSelector;
-class AMSampleEditor;
+class AMSamplePre2013Editor;
+class AMSampleBriefView;
 class AMDataSourcesEditor;
 class AMChooseScanDialog;
 class AMControlInfoListTableView;
@@ -126,14 +127,11 @@ public slots:
 	void exportGraphicsToFile();
 	/// Call this to print the currently-visible plot.
 	void printGraphics();
-
-
+	/// Call this to update the Scan Conditions Table
+	void refreshScanConditions();
 
 	/// Call this to update the window title when a scan is added or removed
 	void refreshWindowTitle();
-
-	/// Call this to update the Scan Conditions Table
-	void refreshScanConditions();
 
 protected slots:
 	///  This catches changes in the scan that is currently selected, and hooks it up to the editor widgets. \todo Ultimately, we might handle more than one scan being "selected" at once.
@@ -212,7 +210,9 @@ protected:
 	AM2DScanView *scanView2D_;
 
 	/// Sample editor
-	AMSampleEditor* sampleEditor_;
+	AMSamplePre2013Editor* sampleEditor_;
+	/// Alternative sample brief view for current AMSample class
+	AMSampleBriefView *sampleBriefView_;
 
 	/// Dialog to choose an existing scan to open/add.  Will be 0 until it is required/created.
 	AMChooseScanDialog* chooseScanDialog_;

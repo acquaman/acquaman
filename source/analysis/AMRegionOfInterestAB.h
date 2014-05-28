@@ -9,6 +9,9 @@ class AMRegionOfInterestAB : public AMStandardAnalysisBlock
 {
 	Q_OBJECT
 
+	Q_PROPERTY(double binningRangeUpperBound READ binningRangeUpperBound WRITE setBinningRangeUpperBound)
+	Q_PROPERTY(double binningRangeLowerBound READ binningRangeLowerBound WRITE setBinningRangeLowerBound)
+
 	Q_CLASSINFO("AMDbObject_Attributes", "description=Region of Interest Block")
 
 public:

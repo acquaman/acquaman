@@ -37,6 +37,7 @@ class AMControlButton;
 #include "MPlot/MPlotWidget.h"
 #include "MPlot/MPlotSeriesData.h"
 #include "MPlot/MPlotSeries.h"
+#include "source/ui/CLS/CLSDarkCurrentWidget.h"
 
 class SGMSidebar : public QWidget
 {
@@ -59,6 +60,7 @@ protected slots:
 	void onStopMotorsActionFinished();
 
 	void onScanningResetButtonClicked();
+    void toTakeDarkCurrentMeasurement();
 
 	void onStripToolTimerTimeout();
 	void onI0CheckBoxToggled(bool toggled);
@@ -128,6 +130,8 @@ protected:
 
 	QLabel *controlsConnectedLabel_;
 	QLabel *detectorsConnectedLabel_;
+    
+//    CLSDarkCurrentWidget *darkCurrentWidget_;
 };
 
 #endif // SGMSIDEBAR_H

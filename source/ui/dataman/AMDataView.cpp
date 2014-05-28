@@ -466,7 +466,7 @@ void AMDataView::refreshView() {
 			bool found = false;
 			QSqlQuery findSamples = db_->query();
 			findSamples.setForwardOnly(true);
-			findSamples.prepare("SELECT id, dateTime, name FROM AMSample_table");	/// \todo thumbnail for samples
+			findSamples.prepare("SELECT id, dateTime, name FROM AMSamplePre2013_table");	/// \todo thumbnail for samples
 			if(findSamples.exec()) {
 				QVector<int> sampleIds;
 				QVector<QDateTime> sampleDateTimes;
@@ -663,7 +663,7 @@ void AMDataView::refreshView() {
 			bool found = false;
 			QSqlQuery findSamples = db_->query();
 			findSamples.setForwardOnly(true);
-			findSamples.prepare("SELECT id, dateTime, name FROM AMSample_table WHERE id IN (SELECT sampleId FROM AMScan_table WHERE runId = ?)");	/// \todo add thumbnail icon!
+			findSamples.prepare("SELECT id, dateTime, name FROM AMSamplePre2013_table WHERE id IN (SELECT sampleId FROM AMScan_table WHERE runId = ?)");	/// \todo add thumbnail icon!
 			findSamples.bindValue(0, runId_);
 			if(findSamples.exec()) {
 				QVector<int> sampleIds;
@@ -868,7 +868,7 @@ void AMDataView::refreshView() {
 			bool found = false;
 			QSqlQuery findSamples = db_->query();
 			findSamples.setForwardOnly(true);
-			findSamples.prepare("SELECT id,dateTime,name FROM AMSample_table WHERE id IN (SELECT sampleId FROM AMScan_table WHERE id IN (SELECT objectId FROM ObjectExperimentEntries WHERE experimentId = ?))");	/// \todo add thumbnail icon!
+			findSamples.prepare("SELECT id,dateTime,name FROM AMSamplePre2013_table WHERE id IN (SELECT sampleId FROM AMScan_table WHERE id IN (SELECT objectId FROM ObjectExperimentEntries WHERE experimentId = ?))");	/// \todo add thumbnail icon!
 			findSamples.bindValue(0, experimentId_);
 			if(findSamples.exec()) {
 				QVector<int> sampleIds;
@@ -1327,7 +1327,7 @@ void AMLayoutControlledGraphicsWidget::resizeEvent(QGraphicsSceneResizeEvent *ev
 }
 
 #include <QAbstractItemModel>
-#include "dataman/AMSample.h"
+#include "dataman/AMSamplePre2013.h"
 #include "dataman/AMRun.h"
 
 AMDataViewSectionListView::AMDataViewSectionListView(AMDatabase *db, const QString &dbTableName, const QString &whereClause, QGraphicsItem *parent, double initialWidthConstraint, int initialItemSize)
@@ -1371,7 +1371,7 @@ AMDataViewSectionListView::AMDataViewSectionListView(AMDatabase *db, const QStri
 										   << AMQueryTableModelColumnInfo("#", "number")
 										   << AMQueryTableModelColumnInfo("When", "dateTime")
 										   // << AMQueryTableModelColumnInfo("About", "scanInfo")
-										   << AMQueryTableModelColumnInfo("Sample", "sampleId", true, AMDbObjectSupport::s()->tableNameForClass<AMSample>(), "name")
+										   << AMQueryTableModelColumnInfo("Sample", "sampleId", true, AMDbObjectSupport::s()->tableNameForClass<AMSamplePre2013>(), "name")
 										   << AMQueryTableModelColumnInfo("Technique", "AMDbObjectType", true, "AMDbObjectTypes_table", "description", "AMDbObjectType")
 										   // << AMQueryTableModelColumnInfo("Where", "facilityId", true, AMDbObjectSupport::s()->tableNameForClass<AMFacility>(), "description")
 										   << AMQueryTableModelColumnInfo("Where", "runId", true, AMDbObjectSupport::s()->tableNameForClass<AMRun>(), "name")

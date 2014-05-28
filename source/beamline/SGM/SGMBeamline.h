@@ -35,8 +35,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #define SGMBEAMLINE_PV_NAME_LOOKUPS_FAILED 312001
 
-class AMSamplePlate;
+class AMSamplePlatePre2013;
 class SGMMAXvMotor;
+class AMMotorGroup;
 
 class CLSAmptekSDD123DetectorNew;
 class CLSPGTDetectorV2;
@@ -122,6 +123,8 @@ public:
 	/// Returns the relative step for the undulator
 	AMControl* undulatorRelativeStep() const { return undulatorRelativeStep_; }
 
+	AMMotorGroup *motorGroup() const { return motorGroup_;}
+
 	/// Returns the vertical upstream step for M2
 	AMControl* m2VerticalUpstreamStep() const { return m2VerticalUpstreamStep_; }
 	/// Returns the vertical downstream step for M2
@@ -183,7 +186,7 @@ public:
 	virtual AMControlSet* currentSamplePositioner() { return ssaManipulatorSet(); }
 	virtual QList<AMControlInfoList> currentFiducializations() { return ssaFiducializations(); }
 
-	AMSamplePlate* currentSamplePlate() const { return currentSamplePlate_; }
+	AMSamplePlatePre2013* currentSamplePlate() const { return currentSamplePlate_; }
 	virtual int currentSamplePlateId() const;
 	int currentSampleId();
 	QString currentSampleDescription();
@@ -214,6 +217,8 @@ public:
 	AMDetector* energyFeedbackDetector() const;
 	AMDetector* gratingEncoderDetector() const;
 
+    AMDetector* dwellTimeDetector() const;
+
 	AMDetectorGroup* allDetectorGroup() const { return allDetectorGroup_;}
 	AMDetectorGroup* XASDetectorGroup() const { return XASDetectorGroup_;}
 	AMDetectorGroup* FastDetectorGroup() const { return FastDetectorGroup_;}
@@ -225,13 +230,15 @@ public:
 	bool detectorConnectedByName(QString name);
 
 	AMAction3* createBeamOnActions3();
+    /// Turn off beam on SGM.
+    AMAction3* createTurnOffBeamActions();
 	AMAction3* createStopMotorsActions3();
 
 	AMAction3* createGoToTransferPositionActions3();
 	AMAction3* createGoToMeasurementPositionActions3();
 
 public slots:
-	void setCurrentSamplePlate(AMSamplePlate *newSamplePlate);
+	void setCurrentSamplePlate(AMSamplePlatePre2013 *newSamplePlate);
 
 	void visibleLightOn();
 	void visibleLightOff();
@@ -253,7 +260,7 @@ signals:
 
 	void visibleLightStatusChanged(const QString& status);
 	void beamlineWarningsChanged(const QString& warnings);
-	void currentSamplePlateChanged(AMSamplePlate *newSamplePlate);
+	void currentSamplePlateChanged(AMSamplePlatePre2013 *newSamplePlate);
 
 	void currentEndstationChanged(SGMBeamlineInfo::sgmEndstation);
 	void currentMirrorStripeChanged(SGMBeamlineInfo::sgmMirrorStripe);
@@ -361,6 +368,8 @@ protected:
 	/// Control for the relative step setpoint on the undulator gap motor
 	AMControl *undulatorRelativeStep_;
 
+	AMMotorGroup *motorGroup_;
+
 	AMControl *m2VerticalUpstreamStep_;
 	AMControl *m2VerticalDownstreamStep_;
 	AMControl *m2HorizontalUpstreamStep_;
@@ -403,7 +412,8 @@ protected:
 	CLSAdvancedScalerChannelDetector *newEncoderDownDetector_;
 	AMBasicControlDetectorEmulator *energyFeedbackDetector_;
 	AMBasicControlDetectorEmulator *gratingEncoderDetector_;
-	AMDetectorGroup *allDetectorGroup_;
+    AMBasicControlDetectorEmulator *dwellTimeDetector_;
+    AMDetectorGroup *allDetectorGroup_;
 	AMDetectorGroup *XASDetectorGroup_;
 	AMDetectorGroup *FastDetectorGroup_;
 
@@ -428,7 +438,7 @@ protected:
 	QList<AMControlSet*> unconnectedSets_;
 
 	/// The sample plate currently in the SSA chamber:
-	AMSamplePlate* currentSamplePlate_;
+	AMSamplePlatePre2013* currentSamplePlate_;
 
 	CLSSIS3820Scaler *scaler_;
 

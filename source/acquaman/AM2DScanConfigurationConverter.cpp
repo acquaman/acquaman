@@ -26,8 +26,8 @@ bool AM2DScanConfigurationConverter::convertImplementation(AMScanActionControlle
 		return false;
 	}
 
-	AMScanAxisRegion xAxisRegion(configuration->xStart(), configuration->xStep(), configuration->xEnd(), configuration->timeStep());
-	xAxisRegion.setName("x-axis region");
+	AMScanAxisRegion *xAxisRegion = new AMScanAxisRegion(configuration->xStart(), configuration->xStep(), configuration->xEnd(), configuration->timeStep());
+	xAxisRegion->setName("x-axis region");
 	AMScanAxis *xAxis = new AMScanAxis(AMScanAxis::StepAxis, xAxisRegion);
 	xAxis->setName("x-axis");
 
@@ -37,8 +37,8 @@ bool AM2DScanConfigurationConverter::convertImplementation(AMScanActionControlle
 		return false;
 	}
 
-	AMScanAxisRegion yAxisRegion(configuration->xStart(), configuration->xStep(), configuration->xEnd(), configuration->timeStep());
-	yAxisRegion.setName("y-axis region");
+	AMScanAxisRegion *yAxisRegion = new AMScanAxisRegion(configuration->yStart(), configuration->yStep(), configuration->yEnd(), configuration->timeStep());
+	yAxisRegion->setName("y-axis region");
 	AMScanAxis *yAxis = new AMScanAxis(AMScanAxis::StepAxis, yAxisRegion);
 	yAxis->setName("y-axis");
 

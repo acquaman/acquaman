@@ -11,10 +11,11 @@ class AMAction3;
 
 class AMSynchronizedDwellTime : public QObject
 {
-Q_OBJECT
+	Q_OBJECT
+
 public:
- 	virtual ~AMSynchronizedDwellTime();
 	AMSynchronizedDwellTime(QObject *parent = 0);
+	virtual ~AMSynchronizedDwellTime();
 
 	/// Return the overall dwell time.  Value is in seconds.
 	virtual double time() const = 0;

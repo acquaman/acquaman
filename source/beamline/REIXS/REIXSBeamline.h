@@ -36,7 +36,7 @@ class AMSADetector;
 class AMDetector;
 class CLSSIS3820Scaler;
 
-class AMSamplePlate;
+class AMSamplePlatePre2013;
 
 class AMAction;
 
@@ -461,8 +461,8 @@ public:
 	/// Access the valves and shutters
 	REIXSValvesAndShutters* valvesAndShutters() { return valvesAndShutters_; }
 	/// Returns the current (active) sample plate, ie:the one that is currently loaded. When a user uses the UI to switch sample plates, we simple re-load this one from the database to become a different sample plate.
-	AMSamplePlate* samplePlate() { return samplePlate_; }
-	virtual int currentSamplePlateId() const;
+	AMSamplePlatePre2013* samplePlate() { return samplePlate_; }
+	int currentSamplePlateId() const;
 	/// Returns the id of the sample on the current plate that is in position.
 	int currentSampleId();
 	virtual AMControlSet* currentSamplePositioner() { return sampleManipulatorSet_; }
@@ -524,7 +524,7 @@ protected:
 	AMControlSet* tmSet_;
 
 	/// This is the active sample plate object, ie:the one that is currently loaded. When a user uses the UI to switch sample plates, we simple re-load this one from the database to become a different sample plate.
-	AMSamplePlate* samplePlate_;
+	AMSamplePlatePre2013* samplePlate_;
 
 	/// List of detectors used in XAS scans
 	REIXSXASDetectors* xasDetectors_;

@@ -116,8 +116,6 @@ void CLSAdvancedScalerChannelDetector::onReadingChanged(){
 		continuousSize_ = totalDataCount;
 		for(int x = 0; x < totalDataCount; x++)
 			continuousData_.append(allIntReadings.at(x*enabledChannelCount + channelIndex_ + 1));
-
-		//qDebug() << "\n\n\nMy data is " << continuousData_;
 	}
 
 	if(isAcquiring())

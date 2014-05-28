@@ -262,6 +262,7 @@ Q_CLASSINFO("AMDbObject_Attributes", "description=SGM Fast Scan Parameters")
 public:
  	virtual ~SGMFastScanParameters();
 	Q_INVOKABLE SGMFastScanParameters(const QString &name = QString(), const QString &element = QString(), const SGMScanInfo &scanInfo = SGMScanInfo(), const SGMFastScanSettings &fastScanSettings = SGMFastScanSettings(), QObject *parent = 0);
+	Q_INVOKABLE SGMFastScanParameters(AMDatabase *db, int id);
 
 	SGMFastScanParameters& operator =(const SGMFastScanParameters &other);
 

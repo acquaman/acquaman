@@ -23,6 +23,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QReadLocker>
 #include <QWriteLocker>
 
+SGMSettings::~SGMSettings(){}
+
 void SGMSettings::load(){
 	QWriteLocker wl(&mutex_);
 
@@ -39,11 +41,12 @@ void SGMSettings::load(){
 	// variable = settings.value(key, defaultValue).toType();
 
 #ifdef Q_WS_MAC
-    SGMDataFolder_ = settings.value("SGMDataFolder", "/Users/fawkes/Documents/CLS/SGM/ACQUAMANDATA").toString();
+	SGMDataFolder_ = settings.value("SGMDataFolder", "/Users/fawkes/Documents/CLS/SGM/ACQUAMANDATA").toString();
 #else
 	SGMDataFolder_ = settings.value("SGMDataFolder", "/home/sgm/beamline/programming").toString();
 #endif
-	SGMDatabaseFilename_ = settings.value("SGMDatabaseFilename", "sgmdata.db").toString();
+	SGMDatabaseFilename_ = settings.value("SGMDatabaseFilename", "sgmdata.db.bk.July182013NewScanController").toString();
+	SGMPublicDatabaseFilename_ = settings.value("SGMPublicDatabaseFilename", "sgmpublic.db").toString();
 }
 
 void SGMSettings::save(){
@@ -61,6 +64,7 @@ void SGMSettings::save(){
 
 	settings.setValue("SGMDataFolder", SGMDataFolder_);
 	settings.setValue("SGMDatabaseFilename", SGMDatabaseFilename_);
+	settings.setValue("SGMPublicDatabaseFilename", SGMPublicDatabaseFilename_);
 }
 
 
@@ -87,4 +91,8 @@ QString SGMSettings::SGMDatabaseFilename() const{
 	QReadLocker rl(&mutex_);
 	return SGMDatabaseFilename_;
 }
- SGMSettings::~SGMSettings(){}
+
+QString SGMSettings::SGMPublicDatabaseFilename() const{
+	QReadLocker rl(&mutex_);
+	return SGMPublicDatabaseFilename_;
+}

@@ -10,10 +10,6 @@
 #include "actions3/actions/AMControlMoveAction3.h"
 #include "actions3/AMActionRunner3.h"
 
-
-
- REIXSXESScanActionController::~REIXSXESScanActionController(){}
-
 REIXSXESScanActionController::REIXSXESScanActionController(REIXSXESScanConfiguration *configuration, QObject *parent) :
 	AMScanActionController(configuration, parent)
 {
@@ -49,6 +45,8 @@ REIXSXESScanActionController::REIXSXESScanActionController(REIXSXESScanConfigura
 	connect(&elapsedTime_, SIGNAL(timeout()), this, SLOT(onScanTimerUpdate()));
 
 }
+
+REIXSXESScanActionController::~REIXSXESScanActionController(){}
 
 void REIXSXESScanActionController::buildScanController()
 {
@@ -394,7 +392,7 @@ void REIXSXESScanActionController::initializeScanMetaData()
 	if(configuration_->namedAutomatically()) {  //Named Automatically
 		if(sampleId >= 1) {
 			scan_->setSampleId(sampleId);
-			QString sampleName = AMSample::sampleNameForId(AMDatabase::database("user"), sampleId); // scan_->sampleName() won't work until the scan is saved to the database.
+			QString sampleName = AMSamplePre2013::sampleNameForId(AMDatabase::database("user"), sampleId); // scan_->sampleName() won't work until the scan is saved to the database.
 			scan_->setName(QString("%1 %2 %3 eV").arg(sampleName).arg(configuration_->autoScanName()).arg(energyForName));
 
 			scan_->setNumber(scan_->largestNumberInScansWhere(AMDatabase::database("user"), QString("sampleId = %1").arg(sampleId))+1);

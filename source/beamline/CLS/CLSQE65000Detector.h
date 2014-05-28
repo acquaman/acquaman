@@ -12,13 +12,15 @@ class CLSQE65000Detector : public AMDetector
 Q_OBJECT
 public:
 	/// Default constructor. Requires the name and base PV of the detector. It builds all the PV's and connects them accordingly.
- 	virtual ~CLSQE65000Detector();
 	CLSQE65000Detector(const QString &name, const QString &description, const QString &baseName, QObject *parent = 0);
+	/// Destructor.
+	virtual ~CLSQE65000Detector();
 
 	/// Returns the number of dimensions in the output of this detector. This is a spectrum detector, so it has a rank of 1.
 	virtual int rank() const { return 1; }
-	/// Returns the size (ie: number of elements) along each dimension of the detector.  Currently this is hardcoded to 1024.
-	virtual AMnDIndex size() const { return AMnDIndex(1024); }
+	/// Returns the size (ie: number of elements) along each dimension of the detector.  Currently this is hardcoded to 3648.
+	//virtual AMnDIndex size() const { return AMnDIndex(1024); }
+	virtual AMnDIndex size() const { return AMnDIndex(3648); }
 	/// Returns the size along a single axis \c axisNumber. This should be fast. \c axisNumber is assumed to be between 0 and rank()-1.
 	virtual int size(int axisNumber) const;
 	/// Returns a list of AMAxisInfo describing the size and nature of each detector axis, in order.
@@ -37,6 +39,8 @@ public:
 
 	/// Returns the current acquisition dwell time from the integration time control
 	virtual double acquisitionTime() const;
+	/// Returns the acquisition time tolerance for the detector.
+	virtual double acquisitionTimeTolerance() const;
 
 	/// The QE65000 can be configured to work with synchronized dwell time systems
 	virtual bool supportsSynchronizedDwell() const { return true; }

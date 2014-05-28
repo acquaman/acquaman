@@ -21,12 +21,15 @@ protected slots:
 	void onEditAmptekROIsButtonClicked();
 	void onEditAmptekConfigurationButtonClicked();
 
+	void onDetectorTemperatureChanged(double temperature);
+
 protected:
 	CLSAmptekSDD123DetectorNew *amptekDetector_;
 
 	QPushButton *editAmptekROIsButton_;
 	QPushButton *editAmptekConfigurationButton_;
 	QDoubleSpinBox *eVPerBinDoubleSpinBox_;
+	QLabel *temperatureLabel_;
 
 	AMControlEditor *fastCountsControlEditor_;
 	AMControlEditor *averageFastCountsControlEditor_;

@@ -25,7 +25,7 @@ public:
 	Q_DECLARE_FLAGS(XESMCPFinishedConditions, XESMCPFinishedCondition)
 
 	/// Default constructor. It builds all of the PVs and connec to them accordingly.
- 	virtual ~REIXSXESMCPDetector();
+	virtual ~REIXSXESMCPDetector();
 	REIXSXESMCPDetector(QObject *parent = 0);
 
 	/// Returns the number of dimensions in the output of this detector. This is a image detector, so it has a rank of 2.
@@ -102,6 +102,8 @@ public:
 
 	/// Set the acquisition dwell time for triggered (RequestRead) detectors
 	virtual bool setAcquisitionTime(double seconds);
+	/// Returns the tolerance for the acquisition time.
+	virtual double acquisitionTimeTolerance() const;
 
 	AMControl* averagingPeriodControl();
 	AMControl* persistDurationControl();

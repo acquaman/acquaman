@@ -35,8 +35,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 /// Interface to define categories of curve fitting
 class REIXSFunctionFitter {
 public:
+	/// Constructor does nothing
+	REIXSFunctionFitter(){}
+	virtual ~REIXSFunctionFitter(){}
+
 	/// Function to fit a curve to a set of points, and return new points on the curve.
 	virtual QVector<int> smooth(const QVector<int>& input, const QVector<double>& weights) = 0;
+
 };
 
 /// Class to implement quadratic curve fitting

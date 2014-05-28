@@ -6,7 +6,7 @@
 
 #include "application/AMAppController.h"
 #include "application/AMAppControllerSupport.h"
-#include "acquaman/AMScanActionControllerScanAssembler.h"
+#include "acquaman/AMGenericScanActionControllerAssembler.h"
 #include "acquaman/AM2DScanConfigurationConverter.h"
 #include "acquaman/AMAgnosticDataAPI.h"
 #include "beamline/AMBeamline.h"
@@ -29,7 +29,7 @@ AM2DScanActionController::AM2DScanActionController(AM2DScanConfiguration *config
 	yAxisName_ = "";
 	currentXAxisValue_ = 0.0;
 	currentYAxisValue_ = 0.0;
-	newScanAssembler_ = new AMScanActionControllerScanAssembler(this);
+	newScanAssembler_ = new AMGenericScanActionControllerAssembler(this);
 }
 
 AM2DScanActionController::~AM2DScanActionController()
@@ -45,6 +45,9 @@ void AM2DScanActionController::buildScanController()
 
 		// Handle some general scan stuff, including setting the default file path.
 		scan_->setRunId(AMUser::user()->currentRunId());
+
+		xAxisName_ = configuration2D_->axisControlInfos().at(0).name();
+		yAxisName_ = configuration2D_->axisControlInfos().at(1).name();
 
 		bool has1DDetectors = false;
 
@@ -202,32 +205,26 @@ bool AM2DScanActionController::event(QEvent *e)
 
 		case AMAgnosticDataAPIDefinitions::AxisFinished:{
 
-//			scan_->rawData()->endInsertRows();
-//			currentAxisValueIndex_[1] = currentAxisValueIndex_.j()+1;
 			writeDataToFiles();
 			emit finishWritingToFile();
 			break;}
 
-		case AMAgnosticDataAPIDefinitions::LoopIncremented:
+		case AMAgnosticDataAPIDefinitions::AxisValueFinished:
 
-//			scan_->rawData()->endInsertRows();
 			writeDataToFiles();
 
-			if (message.uniqueID().contains("H"))
+			if (message.uniqueID().contains(xAxisName_))
 				currentAxisValueIndex_[0] = currentAxisValueIndex_.i()+1;
-			if (message.uniqueID().contains("V"))
+
+			if (message.uniqueID().contains(yAxisName_)){
+
 				currentAxisValueIndex_[1] = currentAxisValueIndex_.j()+1;
+				currentAxisValueIndex_[0] = 0;
+			}
 
 			break;
 
 		case AMAgnosticDataAPIDefinitions::DataAvailable:{
-
-//			if(currentAxisValueIndex_.i() >= scan_->rawData()->scanSize(0)){
-
-////				scan_->rawData()->beginInsertRows(currentAxisValueIndex_.i()-scan_->rawData()->scanSize(0)+1, -1);
-//				scan_->rawData()->setAxisValue(0, currentAxisValueIndex_.i(), currentXAxisValue_);
-//				scan_->rawData()->setAxisValue(1, currentAxisValueIndex_.j(), currentYAxisValue_);
-//			}
 
 			QVector<double> localDetectorData;
 			QVariantList detectorDataValues = message.value("DetectorData").toList();
@@ -258,6 +255,7 @@ bool AM2DScanActionController::event(QEvent *e)
 				else if(message.value("ControlMovementType") == "Relative")
 					currentYAxisValue_ += message.value("ControlMovementValue").toDouble();
 			}
+
 
 			break;
 
@@ -366,8 +364,8 @@ void AM2DScanActionController::prefillScanPoints()
 	double yStart = configuration2D_->yStart();
 	double yStep = configuration2D_->yStep();
 	double yEnd = configuration2D_->yEnd();
-	int xCount = ceil((xEnd-xStart)/xStep);
-	int yCount = ceil((yEnd-yStart)/yStep);
+	int xCount = int(round((xEnd-xStart)/xStep)) + 1;
+	int yCount = int(round((yEnd-yStart)/yStep)) + 1;
 
 	if (scan_->rawData()->scanSize(0) == 0)
 		scan_->rawData()->beginInsertRows(xCount, -1);

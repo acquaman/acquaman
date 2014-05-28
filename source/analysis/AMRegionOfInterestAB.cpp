@@ -85,11 +85,11 @@ AMNumber AMRegionOfInterestAB::value(const AMnDIndex &indexes) const
 		return AMNumber(AMNumber::InvalidError);
 
 	// Need to turn the range into index positions.
-	int minimum = binningRange_.minimum()/double(spectrum_->axisInfoAt(spectrum_->rank()-1).increment);
-	int maximum = binningRange_.maximum()/double(spectrum_->axisInfoAt(spectrum_->rank()-1).increment);
+	int minimum = int(binningRange_.minimum()/double(spectrum_->axisInfoAt(spectrum_->rank()-1).increment));
+	int maximum = int(binningRange_.maximum()/double(spectrum_->axisInfoAt(spectrum_->rank()-1).increment));
 
-	AMnDIndex start = AMnDIndex(indexes.rank()+1);
-	AMnDIndex end = AMnDIndex(indexes.rank()+1);
+	AMnDIndex start = AMnDIndex(indexes.rank()+1, AMnDIndex::DoNotInit);
+	AMnDIndex end = AMnDIndex(indexes.rank()+1, AMnDIndex::DoNotInit);
 
 	for (int i = 0, size = indexes.rank(); i < size; i++){
 
@@ -97,8 +97,9 @@ AMNumber AMRegionOfInterestAB::value(const AMnDIndex &indexes) const
 		end[i] = indexes.at(i);
 	}
 
-	start[start.rank()-1] = minimum;
-	end[end.rank()-1] = maximum;
+	start[indexes.rank()] = minimum;
+	end[indexes.rank()] = maximum;
+
 
 	QVector<double> data = QVector<double>(maximum - minimum + 1);
 
@@ -187,14 +188,20 @@ bool AMRegionOfInterestAB::values(const AMnDIndex &indexStart, const AMnDIndex &
 
 			for (int i = 0, iSize = end.i()-start.i()+1; i < iSize; i++){
 
-				for (int j = 0, jSize = end.j()-start.j()+1; j < jSize; i++){
+				for (int j = 0, jSize = end.j()-start.j()+1; j < jSize; j++){
 
 					double value = 0;
 
-					for (int k = 0, kSize = maximum - minimum + 1; j < kSize; k++)
-						value += data.at(i*jSize*axisLength+j*axisLength+k);
+					if (data.at(i*jSize*axisLength+j*axisLength) == -1)
+						outputValues[i*jSize+j] = -1;
 
-					outputValues[i*jSize+j] = value;
+					else {
+
+						for (int k = 0, kSize = maximum - minimum + 1; k < kSize; k++)
+							value += data.at(i*jSize*axisLength+j*axisLength+k);
+
+						outputValues[i*jSize+j] = value;
+					}
 				}
 			}
 

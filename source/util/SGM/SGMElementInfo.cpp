@@ -437,6 +437,7 @@ SGMFastScanSettings& SGMFastScanSettings::operator =(const SGMFastScanSettings &
 		setScalerTime(other.scalerTime());
 		setBaseLine(other.baseLine());
 		setUndulatorVelocity(other.undulatorVelocity());
+		setModified(false);
 	}
 	return *this;
 }
@@ -509,6 +510,12 @@ SGMFastScanParameters::SGMFastScanParameters(const QString &name, const QString 
 
 	setScanInfo(scanInfo);
 	setFastScanSettings(fastScanSettings);
+}
+
+SGMFastScanParameters::SGMFastScanParameters(AMDatabase *db, int id) :
+	AMDbObject(0)
+{
+	loadFromDb(db, id);
 }
 
 SGMFastScanParameters& SGMFastScanParameters::operator =(const SGMFastScanParameters &other){
@@ -730,9 +737,18 @@ void SGMFastScanParameters::setEndPosition(const SGMEnergyPosition &end){
 }
 
 void SGMFastScanParameters::setFastScanSettings(const SGMFastScanSettings &fastScanSettings){
+//<<<<<<< HEAD
+//	qdebug() << "Calling setFastScanSettings, modified is " << modified();
+//	if(fastScanSettings_ != fastScanSettings){
+//		disconnect(&fastScanSettings_, 0);
+//		qdebug() << "The same settings? " << (fastScanSettings_ == fastScanSettings);
+//		fastScanSettings_ = fastScanSettings;
+//		qdebug() << "Setting modified true in SGMFastScanParameters";
+//=======
 	if(fastScanSettings_ != fastScanSettings){
 		disconnect(&fastScanSettings_, 0);
 		fastScanSettings_ = fastScanSettings;
+//>>>>>>> SGM_Release
 		setModified(true);
 		connect(&fastScanSettings_, SIGNAL(runSecondsChanged(double)), this, SIGNAL(runSecondsChanged(double)));
 		connect(&fastScanSettings_, SIGNAL(motorSettingsChanged(int)), this, SIGNAL(velocityChanged(int)));
@@ -743,6 +759,11 @@ void SGMFastScanParameters::setFastScanSettings(const SGMFastScanSettings &fastS
 		connect(&fastScanSettings_, SIGNAL(undulatorVelocityChanged(int)), this, SIGNAL(undulatorVelocityChanged(int)));
 		connect(&fastScanSettings_, SIGNAL(fastScanSettingsChanged()), this, SIGNAL(fastScanSettingsChanged()));
 	}
+//<<<<<<< HEAD
+//	else
+//		qdebug() << "No need to setModified(true), they were the same";
+//=======
+//>>>>>>> SGM_Release
 }
 
 void SGMFastScanParameters::onStartChanged(){

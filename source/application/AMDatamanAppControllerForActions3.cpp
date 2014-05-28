@@ -27,7 +27,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/AMActionLog3.h"
 #include "actions3/actions/AMControlMoveAction3.h"
 #include "actions3/actions/AMScanAction.h"
-#include "actions3/actions/AMSamplePlateMoveAction.h"
+#include "actions3/actions/AMSamplePlatePre2013MoveAction.h"
+#include "actions3/actions/AMSampleMoveActionInfo.h"
 #include "actions3/actions/AMDetectorInitializeActionInfo.h"
 #include "actions3/actions/AMDetectorAcquisitionActionInfo.h"
 #include "actions3/actions/AMDetectorTriggerActionInfo.h"
@@ -36,25 +37,30 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/actions/AMDetectorCleanupActionInfo.h"
 #include "actions3/actions/AMAxisStartedActionInfo.h"
 #include "actions3/actions/AMAxisFinishedActionInfo.h"
+#include "actions3/actions/AMAxisValueFinishedActionInfo.h"
 #include "actions3/actions/AMTimedWaitActionInfo3.h"
+#include "actions3/actions/AMControlWaitActionInfo.h"
+#include "actions3/actions/AMDoDarkCurrentCorrectionActionInfo.h"
+#include "actions3/actions/AMDoingDarkCurrentCorrectionActionInfo.h"
 
 #include "dataman/AMDbUpgrade1Pt1.h"
 #include "dataman/AMDbUpgrade1Pt2.h"
 
 #include <QStringBuilder>
 
- AMDatamanAppControllerForActions3::~AMDatamanAppControllerForActions3(){}
 AMDatamanAppControllerForActions3::AMDatamanAppControllerForActions3(QObject *parent) :
-    AMDatamanAppController(parent)
+	AMDatamanAppController(parent)
 {
-	// Prepend the AM upgrade 1.1 to the list for the actions database
-	AMDbUpgrade *am1Pt1UserDb = new AMDbUpgrade1Pt1("actions", this);
-	prependDatabaseUpgrade(am1Pt1UserDb);
+//	// Prepend the AM upgrade 1.1 to the list for the actions database
+//	AMDbUpgrade *am1Pt1UserDb = new AMDbUpgrade1Pt1("actions", this);
+//	prependDatabaseUpgrade(am1Pt1UserDb);
 
-	// Append the AM upgrade 1.2 to the list for the actions database
-	AMDbUpgrade *am1Pt2UserDb = new AMDbUpgrade1Pt2("actions", this);
-	appendDatabaseUpgrade(am1Pt2UserDb);
+//	// Append the AM upgrade 1.2 to the list for the actions database
+//	AMDbUpgrade *am1Pt2UserDb = new AMDbUpgrade1Pt2("actions", this);
+//	appendDatabaseUpgrade(am1Pt2UserDb);
 }
+
+AMDatamanAppControllerForActions3::~AMDatamanAppControllerForActions3(){}
 
 bool AMDatamanAppControllerForActions3::startupCreateDatabases()
 {
@@ -108,7 +114,8 @@ bool AMDatamanAppControllerForActions3::startupRegisterDatabases()
 	AMDbObjectSupport::s()->registerClass<AMNumberChangeActionInfo>();
 	AMDbObjectSupport::s()->registerClass<AMControlMoveActionInfo3>();
 	AMDbObjectSupport::s()->registerClass<AMScanActionInfo>();
-	AMDbObjectSupport::s()->registerClass<AMSamplePlateMoveActionInfo>();
+	AMDbObjectSupport::s()->registerClass<AMSamplePlatePre2013MoveActionInfo>();
+	AMDbObjectSupport::s()->registerClass<AMSampleMoveActionInfo>();
 	AMDbObjectSupport::s()->registerClass<AMDetectorInitializeActionInfo>();
 	AMDbObjectSupport::s()->registerClass<AMDetectorAcquisitionActionInfo>();
 	AMDbObjectSupport::s()->registerClass<AMDetectorTriggerActionInfo>();
@@ -117,7 +124,13 @@ bool AMDatamanAppControllerForActions3::startupRegisterDatabases()
 	AMDbObjectSupport::s()->registerClass<AMDetectorCleanupActionInfo>();
 	AMDbObjectSupport::s()->registerClass<AMAxisStartedActionInfo>();
 	AMDbObjectSupport::s()->registerClass<AMAxisFinishedActionInfo>();
+	AMDbObjectSupport::s()->registerClass<AMAxisValueFinishedActionInfo>();
 	AMDbObjectSupport::s()->registerClass<AMTimedWaitActionInfo3>();
+
+    AMDbObjectSupport::s()->registerClass<AMControlWaitActionInfo>();
+
+    AMDbObjectSupport::s()->registerClass<AMDoDarkCurrentCorrectionActionInfo>();
+    AMDbObjectSupport::s()->registerClass<AMDoingDarkCurrentCorrectionActionInfo>();
 
 	return true;
 }

@@ -20,7 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef VESPERSENERGYSCANCONFIGURATION_H
 #define VESPERSENERGYSCANCONFIGURATION_H
 
-#include "acquaman/AMXASScanConfiguration.h"
+#include "acquaman/AMStepScanConfiguration.h"
 #include "application/VESPERS/VESPERS.h"
 #include "acquaman/VESPERS/VESPERSScanConfiguration.h"
 
@@ -36,7 +36,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 	Because of this, the fluorescence detectors are not a part of this scan type.
   */
-class VESPERSEnergyScanConfiguration : public AMXASScanConfiguration, public VESPERSScanConfiguration
+class VESPERSEnergyScanConfiguration : public AMStepScanConfiguration, public VESPERSScanConfiguration
 {
 	Q_OBJECT
 
@@ -50,10 +50,11 @@ class VESPERSEnergyScanConfiguration : public AMXASScanConfiguration, public VES
 
 public:
 	/// Constructor.
- 	virtual ~VESPERSEnergyScanConfiguration();
 	Q_INVOKABLE VESPERSEnergyScanConfiguration(QObject *parent = 0);
 	/// Copy constructor.
 	VESPERSEnergyScanConfiguration(const VESPERSEnergyScanConfiguration &original);
+	/// Destructor.
+	virtual ~VESPERSEnergyScanConfiguration();
 
 	/// Returns a pointer to a newly-created copy of this scan configuration.  (It takes the role of a copy constructor, but is virtual so that our high-level classes can copy a scan configuration without knowing exactly what kind it is.)
 	virtual AMScanConfiguration* createCopy() const;
@@ -77,11 +78,6 @@ public:
 	double x() const { return position_.x(); }
 	/// Returns the y coordinate of the scan position.
 	double y() const { return position_.y(); }
-
-	/// Returns the AMControlInfo for the scanned region control.
-	AMControlInfo regionControlInfo() const { return regions_->defaultControl()->toInfo(); }
-	/// Returns the AMControlInfo for the time control.
-	AMControlInfo timeControlInfo() const { return regions_->defaultTimeControl()->toInfo(); }
 
 	/// Get a nice looking string that contains all the standard information in an XAS scan.   Used when exporting.
 	QString headerText() const;
@@ -111,6 +107,10 @@ public slots:
 protected slots:
 	/// Computes the total time any time the regions list changes.
 	void computeTotalTime() { computeTotalTimeImplementation(); }
+	/// Helper slot that connects the new region to the computeTotalTime slot.
+	void onRegionAdded(AMScanAxisRegion *region);
+	/// Helper slot that disconnects the region from the computTotalTime slot.
+	void onRegionRemoved(AMScanAxisRegion *region);
 
 protected:
 	/// Method that does all the calculations for calculating the estimated scan time.

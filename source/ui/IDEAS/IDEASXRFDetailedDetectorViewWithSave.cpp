@@ -104,6 +104,7 @@ void IDEASXRFDetailedDetectorViewWithSave::buildScanSaveViews()
 void IDEASXRFDetailedDetectorViewWithSave::onSaveScanButtonClicked()
 {
 	config_->setDetectorInfo(detector_->toInfo());
+	config_->setIntegrationTime(detector_->elapsedTime());
         scanAction_ = new AMScanAction(new AMScanActionInfo(config_->createCopy()));
         scanAction_->start();
 }

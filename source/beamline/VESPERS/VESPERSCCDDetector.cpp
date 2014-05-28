@@ -185,6 +185,14 @@ double VESPERSCCDDetector::acquisitionTime() const
 	return -1;
 }
 
+double VESPERSCCDDetector::acquisitionTimeTolerance() const
+{
+	if (isConnected())
+		return acquireTimeControl_->tolerance();
+
+	return -1;
+}
+
 QString VESPERSCCDDetector::ccdFilePath() const
 {
 	const AMProcessVariable *pv = ccdFilePathControl_->readPV();

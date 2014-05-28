@@ -59,22 +59,22 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMSettings.h"
 #include "dataman/AMScan.h"
 #include "acquaman/AMScanConfiguration.h"
+#include "acquaman/AMStepScanConfiguration.h"
 
 // Necessary for registering database types:
 ////////////////////////////
 #include <dataman/AMXASScan.h>
 #include <dataman/AMFastScan.h>
 #include <dataman/AMRun.h>
-#include <dataman/AMSample.h>
+#include <dataman/AMSamplePre2013.h>
 #include <dataman/AMExperiment.h>
 #include <dataman/info/AMControlInfoList.h>
 #include <dataman/info/AMOldDetectorInfoSet.h>
 #include <dataman/info/AMDetectorInfoSet.h>
-#include <dataman/AMSamplePlate.h>
+#include <dataman/AMSamplePlatePre2013.h>
 #include <dataman/info/AMSpectralOutputDetectorInfo.h>
 #include "dataman/AMUser.h"
 #include "dataman/AMXESScan.h"
-#include "dataman/info/AMROIInfo.h"
 #include "analysis/AM1DExpressionAB.h"
 #include "analysis/AM2DSummingAB.h"
 #include "analysis/AM1DDerivativeAB.h"
@@ -99,15 +99,27 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMRegionOfInterest.h"
 #include "analysis/AMRegionOfInterestAB.h"
 
+#include "dataman/AMScanAxis.h"
+#include "dataman/AMScanAxisRegion.h"
+#include "dataman/AMScanAxisEXAFSRegion.h"
+
 #include "dataman/AMDbUpgrade1Pt1.h"
 #include "dataman/AMDbUpgrade1Pt2.h"
 #include "dataman/AMDbUpgrade1Pt3.h"
+#include "dataman/AMDbUpgrade1Pt4.h"
 
 #include "dataman/database/AMDbObjectSupport.h"
 #include "ui/dataman/AMDbObjectGeneralView.h"
 #include "ui/dataman/AMDbObjectGeneralViewSupport.h"
 #include "acquaman/AM2DScanConfiguration.h"
 #include "ui/dataman/AM2DScanConfigurationGeneralView.h"
+
+#include "beamline/camera/AMCameraConfiguration.h"
+#include "beamline/camera/AMRotationalOffset.h"
+#include "beamline/camera/AMBeamConfiguration.h"
+#include "dataman/AMSample.h"
+#include "dataman/AMSamplePlate.h"
+#include "beamline/camera/AMSampleCameraBrowser.h"
 
 
 AMDatamanAppController::AMDatamanAppController(QObject *parent) :
@@ -127,10 +139,18 @@ AMDatamanAppController::AMDatamanAppController(QObject *parent) :
 	// Prepend the AM upgrade 1.1 to the list for the user database
 	AMDbUpgrade *am1Pt1UserDb = new AMDbUpgrade1Pt1("user", this);
 	prependDatabaseUpgrade(am1Pt1UserDb);
+	AMDbUpgrade *am1Pt1ActionsDb = new AMDbUpgrade1Pt1("actions", this);
+	appendDatabaseUpgrade(am1Pt1ActionsDb);
+	AMDbUpgrade *am1Pt1ScanActionsDb = new AMDbUpgrade1Pt1("scanActions", this);
+	appendDatabaseUpgrade(am1Pt1ScanActionsDb);
 
 	// Append the AM upgrade 1.2 to the list for the user database
 	AMDbUpgrade *am1Pt2UserDb = new AMDbUpgrade1Pt2("user", this);
 	appendDatabaseUpgrade(am1Pt2UserDb);
+	AMDbUpgrade *am1Pt2ActionsDb = new AMDbUpgrade1Pt2("actions", this);
+	appendDatabaseUpgrade(am1Pt2ActionsDb);
+	AMDbUpgrade *am1Pt2ScanActionsDb = new AMDbUpgrade1Pt2("scanActions", this);
+	appendDatabaseUpgrade(am1Pt2ScanActionsDb);
 
 	// Append the AM upgrade 1.3 to the list for the user, actions, and scanActions database.
 	AMDbUpgrade *am1Pt3UserDb = new AMDbUpgrade1Pt3("user", this);
@@ -139,6 +159,14 @@ AMDatamanAppController::AMDatamanAppController(QObject *parent) :
 	appendDatabaseUpgrade(am1Pt3ActionsDb);
 	AMDbUpgrade *am1Pt3ScanActionsDb = new AMDbUpgrade1Pt3("scanActions", this);
 	appendDatabaseUpgrade(am1Pt3ScanActionsDb);
+
+	// Append the AM upgrade 1.4 to the list for the user database
+	AMDbUpgrade *am1Pt4UserDb = new AMDbUpgrade1Pt4("user", this);
+	appendDatabaseUpgrade(am1Pt4UserDb);
+	AMDbUpgrade *am1Pt4ActionsDb = new AMDbUpgrade1Pt4("actions", this);
+	appendDatabaseUpgrade(am1Pt4ActionsDb);
+	AMDbUpgrade *am1Pt4ScanActionsDb = new AMDbUpgrade1Pt4("scanActions", this);
+	appendDatabaseUpgrade(am1Pt4ScanActionsDb);
 }
 
 bool AMDatamanAppController::startup() {
@@ -384,7 +412,7 @@ bool AMDatamanAppController::onFirstTimeDatabaseUpgrade(QList<AMDbUpgrade *> upg
 		}
 		// For the databases we are responsible for (not the beamline database) this needs to return false on the first time through ... otherwise things are going really bad
 		if(upgrade->isResponsibleForUpgrade() && !upgrade->upgradeRequired()){
-			AMErrorMon::alert(0, AMDATAMANAPPCONTROLLER_DB_UPGRADE_FIRSTTIME_REQUIREMENT_FAILURE, "Failure in initialization of upgrade table, there must be tracking required for new databases that the user application is responsible for");
+			AMErrorMon::alert(0, AMDATAMANAPPCONTROLLER_DB_UPGRADE_FIRSTTIME_REQUIREMENT_FAILURE, QString("Failure in initialization of upgrade table, there must be tracking required for new databases that the user application is responsible for. Database: %1 Upgrade: %2.").arg(upgrade->databaseNameToUpgrade()).arg(upgrade->upgradeToTag()));
 			return false;
 		}
 
@@ -480,7 +508,7 @@ bool AMDatamanAppController::onEveryTimeDatabaseUpgrade(QList<AMDbUpgrade *> upg
 			if(success && upgrade->upgradeNecessary()){
 				upgradeIsNecessary = true;
 				if(!upgrade->upgrade()){
-					lastErrorString = QString("Upgrade run failed for upgrade %1").arg(upgrade->upgradeToTag());
+					lastErrorString = QString("Upgrade run failed for upgrade %1 on database %2").arg(upgrade->upgradeToTag()).arg(upgrade->databaseNameToUpgrade());
 					lastErrorCode = AMDATAMANAPPCONTROLLER_DB_UPGRADE_UPGRADE_FAILURE;
 					success = false;
 				}
@@ -544,9 +572,11 @@ bool AMDatamanAppController::startupRegisterDatabases()
 	success &= AMDbObjectSupport::s()->registerClass<AM2DScan>();
 	success &= AMDbObjectSupport::s()->registerClass<AM3DScan>();
 
+	success &= AMDbObjectSupport::s()->registerClass<AMStepScanConfiguration>();
+
 	success &= AMDbObjectSupport::s()->registerClass<AMRun>();
 	success &= AMDbObjectSupport::s()->registerClass<AMExperiment>();
-	success &= AMDbObjectSupport::s()->registerClass<AMSample>();
+	success &= AMDbObjectSupport::s()->registerClass<AMSamplePre2013>();
 	success &= AMDbObjectSupport::s()->registerClass<AMFacility>();
 
 	success &= AMDbObjectSupport::s()->registerClass<AMRawDataSource>();
@@ -570,6 +600,10 @@ bool AMDatamanAppController::startupRegisterDatabases()
 	success &= AMDbObjectSupport::s()->registerClass<AM2DDeadTimeCorrectionAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AM3DDeadTimeCorrectionAB>();
 
+	success &= AMDbObjectSupport::s()->registerClass<AMScanAxis>();
+	success &= AMDbObjectSupport::s()->registerClass<AMScanAxisRegion>();
+	success &= AMDbObjectSupport::s()->registerClass<AMScanAxisEXAFSRegion>();
+
 	success &= AMDbObjectSupport::s()->registerClass<AMOldDetectorInfo>();
 	success &= AMDbObjectSupport::s()->registerClass<AMSpectralOutputDetectorInfo>();
 	success &= AMDbObjectSupport::s()->registerClass<AMDetectorInfo>();
@@ -578,16 +612,21 @@ bool AMDatamanAppController::startupRegisterDatabases()
 	success &= AMDbObjectSupport::s()->registerClass<AMControlInfoList>();
 	success &= AMDbObjectSupport::s()->registerClass<AMOldDetectorInfoSet>();
 	success &= AMDbObjectSupport::s()->registerClass<AMDetectorInfoSet>();
-	success &= AMDbObjectSupport::s()->registerClass<AMSamplePosition>();
-	success &= AMDbObjectSupport::s()->registerClass<AMSamplePlate>();
-	success &= AMDbObjectSupport::s()->registerClass<AMROIInfo>();
-	success &= AMDbObjectSupport::s()->registerClass<AMROIInfoList>();
+	success &= AMDbObjectSupport::s()->registerClass<AMSamplePositionPre2013>();
+	success &= AMDbObjectSupport::s()->registerClass<AMSamplePlatePre2013>();
 	success &= AMDbObjectSupport::s()->registerClass<AMRegionOfInterest>();
 	success &= AMDbObjectSupport::s()->registerClass<AMRegionOfInterestAB>();
 
 	success &= AMDbObjectSupport::s()->registerClass<AMExporterOptionGeneralAscii>();
 
 	success &= AMDbObjectSupport::s()->registerClass<AMUser>();
+
+	success &= AMDbObjectSupport::s()->registerClass<AMCameraConfiguration>();
+	success &= AMDbObjectSupport::s()->registerClass<AMRotationalOffset>();
+	success &= AMDbObjectSupport::s()->registerClass<AMBeamConfiguration>();
+	success &= AMDbObjectSupport::s()->registerClass<AMSample>();
+	success &= AMDbObjectSupport::s()->registerClass<AMSamplePlate>();
+	success &= AMDbObjectSupport::s()->registerClass<AMSampleCameraURL>();
 
 	success &= AMDbObjectGeneralViewSupport::registerClass<AMDbObject, AMDbObjectGeneralView>();
 	success &= AMDbObjectGeneralViewSupport::registerClass<AM2DScanConfiguration, AM2DScanConfigurationGeneralView>();
@@ -619,7 +658,12 @@ bool AMDatamanAppController::startupPopulateNewDatabase()
 	reixs.storeToDb(db);
 	AMFacility ideas("IDEAS", "CLS IDEAS Beamline", ":/clsIcon.png");
 	ideas.storeToDb(db);
-
+	AMFacility bioXASSide("BioXASSide", "CLS BioXAS Beamline - Side endstation", ":/clsIcon.png");
+	bioXASSide.storeToDb(db);
+	AMFacility bioXASMain("BioXASMain", "CLS BioXAS Beamline - Main endstation", ":/clsIcon.png");
+	bioXASMain.storeToDb(db);
+	AMFacility bioXASImaging("BioXASImaging", "CLS BioXAS Beamline - Imaging endstation", ":/clsIcon.png");
+	bioXASImaging.storeToDb(db);
 
 	return true;
 }
@@ -1224,7 +1268,6 @@ bool AMDatamanAppController::dropScanURLs(const QList<QUrl> &urls, AMGenericScan
 				}
 
 				else{
-
 					if (!editor)
 						editor = createNewScanEditor();
 

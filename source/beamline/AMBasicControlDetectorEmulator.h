@@ -10,7 +10,7 @@ Q_OBJECT
 public:
 	/// Constructor takes a name and description as well as a pointer to the control you wish to acquire
 	AMBasicControlDetectorEmulator(const QString &name, const QString &description, AMControl *control, AMControl *statusControl, double statusAcquiringValue, double statusNotAcquiringValue, AMDetectorDefinitions::ReadMethod readMethod,  QObject *parent = 0);
-
+	/// Destructor.
 	virtual ~AMBasicControlDetectorEmulator();
 
 	/// Returns 0, because there are no axes for the single point detector
@@ -29,6 +29,8 @@ public:
 
 	/// Returns the -1, because these controls don't know have access to this information (they use the AMDetectorDefinitions::ReadMethod enum)
 	virtual double acquisitionTime() const { return -1; }
+	/// Returns the acquisition time tolerance.  Returns -1, not sure if that will provide the correct behaviour or not.
+	virtual double acquisitionTimeTolerance() const { return -1; }
 
 	/// The cannot be configured in this manner
 	virtual bool supportsSynchronizedDwell() const { return false; }

@@ -1,11 +1,11 @@
 #include "SGMSScanConfigurationDbObject.h"
 
- SGMSScanConfigurationDbObject::~SGMSScanConfigurationDbObject(){}
 SGMSScanConfigurationDbObject::SGMSScanConfigurationDbObject(QObject *parent) :
 	AMDbObject(parent)
 {
-
 }
+
+SGMSScanConfigurationDbObject::~SGMSScanConfigurationDbObject(){}
 
 SGMSScanConfigurationDbObject::SGMSScanConfigurationDbObject(const SGMSScanConfigurationDbObject &original) :
 	AMDbObject(original)
@@ -128,3 +128,4 @@ void SGMSScanConfigurationDbObject::setHarmonic(SGMBeamlineInfo::sgmHarmonic har
 		setModified(true);
 	}
 }
+

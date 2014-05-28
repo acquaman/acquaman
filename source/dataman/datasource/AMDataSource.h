@@ -27,8 +27,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMAxisInfo.h"
 #include "dataman/AMnDIndex.h"
 
-
 class AMDataSource;
+
+#define AMDATASOURCE_VALUES_BASE_IMPLEMENTATION_CALLED 595001
 
 /// This class acts as a proxy to emit signals for AMDataSource. You can receive the dataChanged(), sizeChanged(), etc. signals by hooking up to AMDataSource::signalSource().  You should never need to create an instance of this class directly.
 /*! To allow classes that implement AMDataSource to also inherit QObject, AMDataSource does NOT inherit QObject.  However, it still needs a way to emit signals notifying of changes to the data, which is the role of this class.

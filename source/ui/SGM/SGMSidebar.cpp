@@ -32,6 +32,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/beamline/AMControlButton.h"
 
+#include "actions3/AMListAction3.h"
+#include "actions3/actions/AMControlMoveAction3.h"
+
 SGMSidebar::SGMSidebar(QWidget *parent) :
 	QWidget(parent)
 {
@@ -366,8 +369,26 @@ void SGMSidebar::onVisibleLightStatusChanged(const QString &status){
 void SGMSidebar::onVisibleLightClicked(){
 	if(SGMBeamline::sgm()->isVisibleLightOn())
 		SGMBeamline::sgm()->visibleLightOff();
-	else
-		SGMBeamline::sgm()->visibleLightOn();
+	else{
+		//SGMBeamline::sgm()->visibleLightOn();
+
+		AMListAction3 *visibleLightOnListAction = new AMListAction3(new AMListActionInfo3("Move to visible light", "Move to visible light"));
+		if(SGMBeamline::sgm()->gratingVelocity()->value() != 10000){
+			AMControlInfo gratingControlInfo = SGMBeamline::sgm()->gratingVelocity()->toInfo();
+			gratingControlInfo.setValue(10000);
+			AMControlMoveActionInfo3 *gratingVelocityMoveActionInfo = new AMControlMoveActionInfo3(gratingControlInfo);
+			AMControlMoveAction3 *gratingVelocityMoveAction = new AMControlMoveAction3(gratingVelocityMoveActionInfo, SGMBeamline::sgm()->gratingVelocity());
+			visibleLightOnListAction->addSubAction(gratingVelocityMoveAction);
+		}
+
+		AMControlInfo visibleLightToggleInfo = SGMBeamline::sgm()->visibleLightToggle()->toInfo();
+		visibleLightToggleInfo.setValue(1);
+		AMControlMoveActionInfo3 *visibleLightToggleActionInfo = new AMControlMoveActionInfo3(visibleLightToggleInfo);
+		AMControlMoveAction3 *visibleLightToggleAction = new AMControlMoveAction3(visibleLightToggleActionInfo, SGMBeamline::sgm()->visibleLightToggle());
+		visibleLightOnListAction->addSubAction(visibleLightToggleAction);
+
+		visibleLightOnListAction->start();
+	}
 }
 
 void SGMSidebar::onCloseVacuumButtonClicked(){
@@ -406,8 +427,30 @@ void SGMSidebar::onStopMotorsActionFinished(){
 	stopMotorsAction_ = 0;
 }
 
+#include "beamline/CLS/CLSBasicScalerChannelDetector.h"
+#include "actions3/AMActionRunner3.h"
 void SGMSidebar::onScanningResetButtonClicked(){
 	SGMBeamline::sgm()->beamlineScanning()->move(0);
+
+    CLSBasicScalerChannelDetector *teyDetector = qobject_cast<CLSBasicScalerChannelDetector*>(SGMBeamline::sgm()->newTEYDetector());
+    if(teyDetector){
+        qDebug() << "Got the TEY detector";
+
+        AMAction3 *darkCurrentCorrectionActions = teyDetector->createDarkCurrentCorrectionActions(10);
+
+        AMActionRunner3::workflow()->addActionToQueue(darkCurrentCorrectionActions);
+    }
+}
+
+void SGMSidebar::toTakeDarkCurrentMeasurement()
+{
+    CLSBasicScalerChannelDetector *teyDetector = qobject_cast<CLSBasicScalerChannelDetector*>(SGMBeamline::sgm()->newTEYDetector());
+    if (teyDetector) {
+        qDebug() << "SGMSidebar :: got the TEY detector.";
+        
+        AMAction3 *darkCurrentCorrectionActions = teyDetector->createDarkCurrentCorrectionActions(10);
+        AMActionRunner3::workflow()->addActionToQueue(darkCurrentCorrectionActions);
+    }
 }
 
 void SGMSidebar::onStripToolTimerTimeout(){
@@ -642,7 +685,6 @@ void SGMSidebar::onBeamlineWarnings(const QString &newWarnings){
 }
 
 void SGMSidebar::onBeamlineCriticalControlSetConnectedChanged(bool isConnected){
-	//qDebug() << "I just heard that the critical controls became connected " << isConnected;
 	if(isConnected)
 		controlsConnectedLabel_->setPixmap(QIcon(":/ON.png").pixmap(20));
 	else
@@ -650,7 +692,6 @@ void SGMSidebar::onBeamlineCriticalControlSetConnectedChanged(bool isConnected){
 }
 
 void SGMSidebar::onBeamlineCriticalDetectorSetConnectedChanged(bool isConnected){
-	//qDebug() << "I just heard that the critical detectors became connected " << isConnected;
 	if(isConnected)
 		detectorsConnectedLabel_->setPixmap(QIcon(":/ON.png").pixmap(20));
 	else

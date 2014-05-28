@@ -44,7 +44,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/REIXS/REIXSXESSpectrometerControlEditor.h"
 #include "ui/REIXS/REIXSSampleChamberButtonPanel.h"
 
-#include "ui/dataman/AMSampleManagementWidget.h"	/// \todo This doesn't belong in dataman
+#include "ui/dataman/AMSampleManagementPre2013Widget.h"	/// \todo This doesn't belong in dataman
 #include "ui/AMBeamlineCameraWidgetWithSourceTabs.h"
 #include "dataman/AMRun.h"
 
@@ -153,6 +153,7 @@ bool REIXSAppController::startupCreateUserInterface() {
 	REIXSXASScanConfiguration *xasScanConfiguration = new REIXSXASScanConfiguration();
 	xasScanConfiguration->xasRegions()->setEnergyControl(REIXSBeamline::bl()->photonSource()->energy()); //->directEnergy());
 	qDebug() << "Default control: " << xasScanConfiguration->regions()->defaultControl()->name() << xasScanConfiguration->xasRegions()->defaultControl()->name();
+
 	REIXSXASScanConfigurationView* xasConfigView = new REIXSXASScanConfigurationView(xasScanConfiguration);
 	scanConfigurationHolder = new AMScanConfigurationViewHolder3(xasConfigView);
 	mw_->addPane(scanConfigurationHolder, "Experiment Setup", "Absorption Scan", ":/utilities-system-monitor.png");
@@ -160,8 +161,8 @@ bool REIXSAppController::startupCreateUserInterface() {
 
 
 	REIXSSampleChamberButtonPanel* buttonPanel = new REIXSSampleChamberButtonPanel();
-	AMSampleManagementWidget* sampleManagementPane = new AMSampleManagementWidget(buttonPanel,
-																				  QUrl("http://v2e1610-401.clsi.ca/mjpg/1/video.mjpg"),
+	AMSampleManagementPre2013Widget* sampleManagementPane = new AMSampleManagementPre2013Widget(buttonPanel,
+																				  QUrl("http://v2e1610-101.clsi.ca/mjpg/1/video.mjpg"),
 																				  "Sample Camera: down beam path",
 																				  REIXSBeamline::bl()->samplePlate(),
 																				  new REIXSSampleManipulator(),

@@ -2,6 +2,8 @@ USERNAME = $$system(whoami)
 
 HOME_FOLDER = $$system(echo $HOME)
 
+USERNAME = $$system(whoami)
+
 macx {
 
 		# Where you want to do your acquaman development (as a path from $HOME). You don't need to include leading or trailing slashes.
@@ -39,6 +41,13 @@ linux-g++ {
 		# MPlot Source
 		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/include
 		MPLOT_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/lib
+
+                #CDFLib dependencies
+                #CDF_LIB = -lcdf
+                #CDF_INCLUDE_DIR = /usr/local/include
+#                CDF_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/cdf34_1-dist/lib
+#                CDF_LIB = -L$$CDF_LIB_DIR -lcdf
+#                CDF_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/cdf34_1-dist/include
 
 		# CDFlib dependencies
 		CDF_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/cdf34_1-dist/lib
@@ -140,6 +149,13 @@ contains(USERNAME, helfrij){
 	QMAKE_LFLAGS_RELEASE += "-mmacosx-version-min=10.7"
 }
 
+contains(USERNAME, chevrid){
+	QMAKE_CXXFLAGS_X86_64 += "-mmacosx-version-min=10.7"
+
+	QMAKE_LFLAGS_DEBUG += "-mmacosx-version-min=10.7"
+	QMAKE_LFLAGS_RELEASE += "-mmacosx-version-min=10.7"
+}
+
 QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR"
 QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR"
 
@@ -167,7 +183,7 @@ HEADERS         = $$AM_INCLUDE_DIR/dataman/AMFileLoaderInterface.h \
 		$$AM_INCLUDE_DIR/dataman/AMAnalysisBlock.h \
 		$$AM_INCLUDE_DIR/dataman/AMAxisInfo.h \
 		$$AM_INCLUDE_DIR/dataman/AMNumber.h \
-		$$AM_INCLUDE_DIR/dataman/AMSample.h \
+		$$AM_INCLUDE_DIR/dataman/AMSamplePre2013.h \
 		$$AM_INCLUDE_DIR/acquaman/AMScanConfiguration.h \
 		$$AM_INCLUDE_DIR/util/AMSettings.h \
 		$$AM_INCLUDE_DIR/util/AMOrderedSetSignalSource.h \
@@ -181,7 +197,13 @@ HEADERS         = $$AM_INCLUDE_DIR/dataman/AMFileLoaderInterface.h \
 		$$AM_INCLUDE_DIR/ui/dataman/AMSimpleDataSourceEditor.h \
 		$$AM_INCLUDE_DIR/dataman/info/AMDetectorInfo.h \
 		$$AM_INCLUDE_DIR/dataman/info/AMDetectorInfoSet.h \
-		$$AM_INCLUDE_DIR/dataman/AMTextStream.h
+		$$AM_INCLUDE_DIR/dataman/AMTextStream.h \
+		$$AM_INCLUDE_DIR/dataman/database/AMConstDbObject.h \
+		$$AM_INCLUDE_DIR/dataman/AMSample.h \
+		$$AM_INCLUDE_DIR/dataman/AMSamplePlate.h \
+		$$AM_INCLUDE_DIR/beamline/camera/AMShapeData.h \
+		$$AM_INCLUDE_DIR/dataman/AMSamplePlatePre2013.h \
+		$$AM_INCLUDE_DIR/util/AMDataSourcePlotSettings.h
 
 SOURCES         = $$AM_INCLUDE_DIR/dataman/AMScan.cpp \
 		$$AM_INCLUDE_DIR/dataman/AMScanDictionary.cpp \
@@ -205,7 +227,7 @@ SOURCES         = $$AM_INCLUDE_DIR/dataman/AMScan.cpp \
 		$$AM_INCLUDE_DIR/dataman/AMAnalysisBlock.cpp \
 		$$AM_INCLUDE_DIR/dataman/AMAxisInfo.cpp \
 		$$AM_INCLUDE_DIR/dataman/AMNumber.cpp \
-		$$AM_INCLUDE_DIR/dataman/AMSample.cpp \
+		$$AM_INCLUDE_DIR/dataman/AMSamplePre2013.cpp \
 		$$AM_INCLUDE_DIR/acquaman/AMScanConfiguration.cpp \
 		$$AM_INCLUDE_DIR/util/AMSettings.cpp \
 		$$AM_INCLUDE_DIR/util/AMOrderedSetSignalSource.cpp \
@@ -219,4 +241,9 @@ SOURCES         = $$AM_INCLUDE_DIR/dataman/AMScan.cpp \
 		$$AM_INCLUDE_DIR/ui/dataman/AMSimpleDataSourceEditor.cpp \
 		$$AM_INCLUDE_DIR/dataman/info/AMDetectorInfo.cpp \
 		$$AM_INCLUDE_DIR/dataman/info/AMDetectorInfoSet.cpp \
-		$$AM_INCLUDE_DIR/dataman/AMTextStream.cpp
+		$$AM_INCLUDE_DIR/dataman/AMTextStream.cpp \
+		$$AM_INCLUDE_DIR/dataman/database/AMConstDbObject.cpp \
+		$$AM_INCLUDE_DIR/dataman/AMSample.cpp \
+		$$AM_INCLUDE_DIR/dataman/AMSamplePlate.cpp \
+		$$AM_INCLUDE_DIR/beamline/camera/AMShapeData.cpp \
+		$$AM_INCLUDE_DIR/dataman/AMSamplePlatePre2013.cpp

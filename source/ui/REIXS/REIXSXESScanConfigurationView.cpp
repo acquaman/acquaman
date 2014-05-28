@@ -34,7 +34,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QLabel>
 #include <QDebug>
 
-#include "ui/dataman/AMSampleSelector.h"
+#include "ui/dataman/AMSamplePre2013Selector.h"
 
  REIXSXESScanConfigurationView::~REIXSXESScanConfigurationView(){}
 REIXSXESScanConfigurationView::REIXSXESScanConfigurationView(REIXSXESScanConfiguration* config, QWidget *parent) :
@@ -115,7 +115,7 @@ REIXSXESScanConfigurationView::REIXSXESScanConfigurationView(REIXSXESScanConfigu
 	numberEdit_->setRange(0, 10000);
 	nameEdit_ = new QLineEdit();
 	nameEdit_->setText(configuration_->userScanName());
-	sampleSelector_ = new AMSampleSelector(AMDatabase::database("user"));
+	sampleSelector_ = new AMSamplePre2013Selector(AMDatabase::database("user"));
 	autoNamingCheckBox_ = new QCheckBox("from last sample move");
 
 	/////////////////////

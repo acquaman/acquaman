@@ -38,7 +38,9 @@ REIXSXASScanActionController::REIXSXASScanActionController(REIXSXASScanConfigura
 		int sampleId = REIXSBeamline::bl()->currentSampleId();
 		if(sampleId >= 1) {
 			scan_->setSampleId(sampleId);
-			QString sampleName = AMSample::sampleNameForId(AMDatabase::database("user"), sampleId); // scan_->sampleName() won't work until the scan is saved to the database.
+			//QString sampleName = AMSample::sampleNameForId(AMDatabase::database("user"), sampleId); // scan_->sampleName() won't work until the scan is saved to the database.
+			AMSample *currentSample = new AMSample(sampleId, AMDatabase::database("user"));
+			QString sampleName = currentSample->name();
 			scan_->setName(QString("%1 %2 %3").arg(sampleName).arg(configuration_->autoScanName()).arg(rangeString));
 			scan_->setNumber(scan_->largestNumberInScansWhere(AMDatabase::database("user"), QString("sampleId = %1").arg(sampleId))+1);
 		}

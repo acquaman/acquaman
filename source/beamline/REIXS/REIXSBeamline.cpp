@@ -19,7 +19,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "REIXSBeamline.h"
 #include "util/AMErrorMonitor.h"
-#include "dataman/AMSamplePlate.h"
+#include "dataman/AMSamplePlatePre2013.h"
 
 #include "actions3/actions/AMControlMoveAction3.h"
 #include "actions3/AMListAction3.h"
@@ -124,7 +124,7 @@ REIXSBeamline::REIXSBeamline() :
 	setupExposedControls();
 	setupExposedDetectors();
 
-	samplePlate_ = new AMSamplePlate(this);
+	samplePlate_ = new AMSamplePlatePre2013(this);
 
 	xasDetectors_ = new REIXSXASDetectors(this);
 
@@ -944,7 +944,7 @@ int REIXSBeamline::currentSampleId()
 
 	// loop through all samples on the current plate.
 	for(int i=0; i<samplePlate_->count(); ++i) {
-		const AMSamplePosition& samplePos = samplePlate_->at(i);
+		const AMSamplePositionPre2013& samplePos = samplePlate_->at(i);
 
 		if(samplePos.position().count() != 4)
 			continue;

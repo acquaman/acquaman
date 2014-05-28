@@ -18,28 +18,32 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <QApplication>
+
 #include <QFile>
 #include <QProcess>
 #include <QDir>
+#include <QHostInfo>
 #include "application/SGM/SGMAppController.h"
 
-#ifndef Q_WS_MAC
-#include <signal.h>
-#include <execinfo.h>
+#include <QDebug>
 
-void handle_signal(int signum);
-qint64 crashMonitorPID;
-QFile *errorFile;
+#ifndef Q_WS_MAC
+//#include <signal.h>
+//#include <execinfo.h>
+
+//void handle_signal(int signum);
+//qint64 crashMonitorPID;
+//QFile *errorFile;
 #endif
 
 int main(int argc, char *argv[])
 {
 #ifndef Q_WS_MAC
-	signal(SIGSEGV, handle_signal);
+//	signal(SIGSEGV, handle_signal);
 
-	QFile localErrorFile(QString("/tmp/ErrorFile%1.txt").arg(getpid()));
-	localErrorFile.open(QIODevice::WriteOnly | QIODevice::Text);
-	errorFile = &localErrorFile;
+//	QFile localErrorFile(QString("/tmp/ErrorFile%1.txt").arg(getpid()));
+//	localErrorFile.open(QIODevice::WriteOnly | QIODevice::Text);
+//	errorFile = &localErrorFile;
 #endif
 
 	/// Program Startup:
@@ -48,23 +52,23 @@ int main(int argc, char *argv[])
 	app.setApplicationName("Acquaman");
 
 #ifndef Q_WS_MAC
-	QString applicationPath = app.arguments().at(0);
-	QFileInfo applicationPathInfo(applicationPath);
-	QString applicationRootPath;
-	if(applicationPathInfo.isSymLink())
-		applicationRootPath = applicationPathInfo.symLinkTarget().section('/', 0, -2);
-	else
-		applicationRootPath = applicationPathInfo.absoluteDir().path();
+//	QString applicationPath = app.arguments().at(0);
+//	QFileInfo applicationPathInfo(applicationPath);
+//	QString applicationRootPath;
+//	if(applicationPathInfo.isSymLink())
+//		applicationRootPath = applicationPathInfo.symLinkTarget().section('/', 0, -2);
+//	else
+//		applicationRootPath = applicationPathInfo.absoluteDir().path();
 
 
-	//applicationRootPath.replace("SGMAcquaman.app", "AMCrashReporter.app");
+//	//applicationRootPath.replace("SGMAcquaman.app", "AMCrashReporter.app");
 
-	QStringList arguments;
-	arguments << "-m";
-	arguments << app.applicationFilePath();
-	arguments << "/home/acquaman/AcquamanApplicationCrashReports";
-	arguments << QString("%1").arg(getpid());
-	QProcess::startDetached(applicationRootPath+"/AMCrashReporter", arguments, QDir::currentPath(), &crashMonitorPID);
+//	QStringList arguments;
+//	arguments << "-m";
+//	arguments << app.applicationFilePath();
+//	arguments << "/home/acquaman/AcquamanApplicationCrashReports";
+//	arguments << QString("%1").arg(getpid());
+//	QProcess::startDetached(applicationRootPath+"/AMCrashReporter", arguments, QDir::currentPath(), &crashMonitorPID);
 #endif
 
 	SGMAppController* appController = new SGMAppController();
@@ -82,23 +86,24 @@ int main(int argc, char *argv[])
 		appController->shutdown();
 
 #ifndef Q_WS_MAC
-	kill(crashMonitorPID, SIGUSR2);
+//	kill(crashMonitorPID, SIGUSR2);
 #endif
 	delete appController;
 
 	return retVal;
 }
 
+
 #ifndef Q_WS_MAC
-void handle_signal(int signum){
-	void *array[100];
-	size_t size;
+//void handle_signal(int signum){
+//	void *array[100];
+//	size_t size;
 
-	size = backtrace(array, 100);
-	backtrace_symbols_fd(array, size, errorFile->handle());
+//	size = backtrace(array, 100);
+//	backtrace_symbols_fd(array, size, errorFile->handle());
 
-	kill(crashMonitorPID, SIGUSR1);
-	signal(signum, SIG_DFL);
-	kill(getpid(), signum);
-}
+//	kill(crashMonitorPID, SIGUSR1);
+//	signal(signum, SIG_DFL);
+//	kill(getpid(), signum);
+//}
 #endif

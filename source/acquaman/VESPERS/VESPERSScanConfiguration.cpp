@@ -4,7 +4,7 @@
 VESPERSScanConfiguration::VESPERSScanConfiguration()
 {
 	dbObject_ = new VESPERSScanConfigurationDbObject;
-	timeOffset_ = 0.7;
+	timeOffset_ = 0.4;
 	totalTime_ = 0;
 }
 
@@ -84,18 +84,6 @@ QString VESPERSScanConfiguration::transmissionChoiceHeaderString(VESPERS::IonCha
 		string.append("It:\tIpost - The ion chamber at the end of the beamline.\n");
 		break;
 	}
-
-	return string;
-}
-
-QString VESPERSScanConfiguration::regionOfInterestHeaderString(AMROIInfoList list) const
-{
-	QString string = "";
-
-	string.append("\nRegions of Interest\n");
-
-	for (int i = 0; i < list.count(); i++)
-		string.append(list.at(i).name() + "\t" + QString::number(list.at(i).low()) + " eV\t" + QString::number(list.at(i).high()) + " eV\n");
 
 	return string;
 }

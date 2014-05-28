@@ -29,6 +29,15 @@ AMScanConfiguration::AMScanConfiguration(QObject *parent) :
 	expectedDuration_ = 0;
 }
 
+AMScanConfiguration::AMScanConfiguration(const AMScanConfiguration &original)
+	: AMDbObject(original)
+{
+	userScanName_ = original.userScanName();
+	userExportName_ = original.userExportName();
+	autoExportEnabled_ = original.autoExportEnabled();
+	expectedDuration_ = original.expectedDuration();
+}
+
 const QMetaObject* AMScanConfiguration::getMetaObject(){
 	return metaObject();
 }

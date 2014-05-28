@@ -31,7 +31,7 @@ class QTimeEdit;
 class QLabel;
 class QRadioButton;
 class QCheckBox;
-class AMSampleSelector;
+class AMSamplePre2013Selector;
 class QLineEdit;
 class QSpinBox;
 
@@ -108,7 +108,7 @@ protected:
 
 	QLineEdit* nameEdit_;
 	QSpinBox* numberEdit_;
-	AMSampleSelector* sampleSelector_;
+	AMSamplePre2013Selector* sampleSelector_;
 	QCheckBox* autoNamingCheckBox_;
 
 

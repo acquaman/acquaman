@@ -22,16 +22,16 @@ bool AMRegionScanConfigurationConverter::convertImplementation(AMScanActionContr
 		return false;
 	}
 
-	AMScanAxisRegion firstRegion(regionScanConfiguration->regionStart(0), regionScanConfiguration->regionDelta(0), regionScanConfiguration->regionEnd(0), regionScanConfiguration->regionTime(0));
+	AMScanAxisRegion *firstRegion = new AMScanAxisRegion(regionScanConfiguration->regionStart(0), regionScanConfiguration->regionDelta(0), regionScanConfiguration->regionEnd(0), regionScanConfiguration->regionTime(0));
 	AMScanAxis *fullRegionAxis = new AMScanAxis(AMScanAxis::StepAxis, firstRegion);
 
 	for (int x = 1; x < regionScanConfiguration->regionCount(); x++){
 
-		AMScanAxisRegion anotherRegion(regionScanConfiguration->regionStart(x), regionScanConfiguration->regionDelta(x), regionScanConfiguration->regionEnd(x), regionScanConfiguration->regionTime(x));
+		AMScanAxisRegion *anotherRegion = new AMScanAxisRegion(regionScanConfiguration->regionStart(x), regionScanConfiguration->regionDelta(x), regionScanConfiguration->regionEnd(x), regionScanConfiguration->regionTime(x));
 
 		if (!fullRegionAxis->appendRegion(anotherRegion)){
 
-			AMErrorMon::alert(this, AMREGIONSCANCONFIGURATIONCONVERTER_INVALID_REGION, QString("Could not add %1 to the scan axis").arg(anotherRegion.name()));
+			AMErrorMon::alert(this, AMREGIONSCANCONFIGURATIONCONVERTER_INVALID_REGION, QString("Could not add %1 to the scan axis").arg(anotherRegion->name()));
 			return false;
 		}
 	}

@@ -30,8 +30,10 @@ class AMDbUpgrade : public QObject
 Q_OBJECT
 public:
 	/// The general constructor. The \c databaseNameToUpgrade is the name of the AMDatabases that you wish to apply this upgrade to.
- 	virtual ~AMDbUpgrade();
 	AMDbUpgrade(QString databaseNameToUpgrade, QObject *parent = 0);
+
+	/// Destructor
+	virtual ~AMDbUpgrade();
 
 	/// The tags that this upgrade depends on. If a particular upgrade cannot be attempted if certain upgrades haven't already happened, the list of tags should be returned by this function. This function can return an empty list (it has no dependencies).
 	virtual QStringList upgradeFromTags() const = 0;
@@ -111,7 +113,32 @@ protected:
 #define AMDBUPGRADESUPPORT_COULD_NOT_DELETE_OLD_TABLE 450106
 #define AMDBUPGRADESUPPORT_COULD_NOT_UPDATE_AMDBOBJECTTYPE_TABLES 450107
 #define AMDBUPGRADESUPPORT_DUPLICATE_COLUMNS_IN_AMDBOBJECTTYPE_TABLES 450108
+#define AMDBUPGRADESUPPORT_COULD_NOT_CHANGE_COLUMN_NAME 450109
+#define AMDBUPGRADESUPPORT_COULD_NOT_UPDATE_TO_TABLE_BASED_ID 450110
+#define AMDBUPGRADESUPPORT_COULD_NOT_UPDATE_EMPTY_VALUES 450111
 
+/// This namespace contains helper methods for commonly used actions inside of database upgrades.
+/*!	There is an important aspect to these helper methods.  Anyone who uses these functions should consider them the same as any
+  method inside of AMDatabase.  If you have not started a database transaction, it will start one, /emph however, it is not responsible
+  for commiting the transaction too the database.  For performance reasons, this stops unnecessary extra interactions with the database
+  and helps increase the performance of any AMDbUpgrade you create.  Since they all return bool's, you will know if the action
+  was successful or not.  In case it is not clear from AMDatabase, the expected usage for these methods goes as follows:
+
+				db->startTransaction();
+
+				<associated db actions>
+
+				if (!AMDbUpgradeSupport::changeColumnName(stuffz)){
+
+					db->rollbackTransaction();
+					return false;
+				}
+
+				<more associated db actions>
+
+				db->commitTransaction();
+				return true;
+  */
 namespace AMDbUpgradeSupport{
 	/// Upgrades an AMDbObject class originally called \c originalClassName to \c newClassName. Use this function carefully, incorrect or incomplete parameters can lead to corrupted databases.
 	/*! This takes care of the problem where a class used in the database needs to be renamed. There are several caveats on this one.
@@ -149,6 +176,18 @@ namespace AMDbUpgradeSupport{
 	  */
 
 	bool removeColumn(AMDatabase *databaseToEdit, const QString &tableName, const QString &columnName);
+
+	/// Facilitates changing an integer id column to an AMConstDbObject column
+	/*!
+	  This method can be used for transitioning database properties from integer ids to AMConstDbObjects. You need to do that part in your class by coding it yourself. Once that's done, you can use this function to help update the database.
+	  Pass in the database to edit.
+	  Pass in the typeTableName (for example, if you made changes to AMScan then pass in AMScan_table)
+	  Pass in the integer id column name (for example, the old colum name might have been sampleId)
+	  Pass in the new column name (for example, the new columnname might be sample)
+	  Pass in the related table name (for example, AMDbUpgrade1Pt4 changes AMScan from an integer sample id to an AMConstDbObject sample, so the related table name is AMSample_table)
+	  */
+	bool idColumnToConstDbObjectColumn(AMDatabase *databaseToEdit, const QString &typeTableName, const QString &idColumnName, const QString &constDbObjectColumnName, const QString &relatedTypeTableName);
+
 }
 
 #endif // AMDBUPGRADE_H

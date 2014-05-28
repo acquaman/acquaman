@@ -827,6 +827,7 @@ void REIXSXESImageAB::setCorrelationSmoothing(QPair<int,int> cSmooth)
 }
 
 REIXSMovingMedianFitter::REIXSMovingMedianFitter(int smoothMode)
+	: REIXSFunctionFitter()
 {
 	smoothMode_ = smoothMode;
 }
@@ -878,6 +879,7 @@ QVector<int> REIXSMovingMedianFitter::smooth(const QVector<int> &input, const QV
 }
 
 REIXSMovingAverageFitter::REIXSMovingAverageFitter(int smoothMode)
+	: REIXSFunctionFitter()
 {
 	smoothMode_ = smoothMode;
 }
@@ -1104,6 +1106,7 @@ QVector<int> REIXSCubicFitter::smooth(const QVector<int> &input, const QVector<d
 //
 
 REIXSQuarticFitter::REIXSQuarticFitter()
+	: REIXSFunctionFitter()
 {
 	// Fitting structures (unallocated)
 	fitWorkSpace_ = 0;

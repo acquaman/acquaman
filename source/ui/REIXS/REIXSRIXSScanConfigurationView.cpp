@@ -32,7 +32,7 @@
 
 #include "dataman/datasource/AMDataSourceImageData.h"
 #include "ui/dataman/AMChooseScanDialog.h"
-#include "ui/dataman/AMSampleSelector.h"
+#include "ui/dataman/AMSamplePre2013Editor.h"
 #include "dataman/AMScan.h"
 
 
@@ -118,7 +118,7 @@ REIXSRIXSScanConfigurationView::REIXSRIXSScanConfigurationView(REIXSXESScanConfi
 	numberEdit_ = new QSpinBox();
 	numberEdit_->setRange(0, 10000);
 	nameEdit_ = new QLineEdit();
-	sampleSelector_ = new AMSampleSelector(AMDatabase::database("user"));
+	sampleSelector_ = new AMSamplePre2013Editor(AMDatabase::database("user"));
 	autoNamingCheckBox_ = new QCheckBox("from last sample move");
 
 	maximumTotalCounts_->setDecimals(0);
@@ -214,7 +214,7 @@ REIXSRIXSScanConfigurationView::REIXSRIXSScanConfigurationView(REIXSXESScanConfi
 	doNotClearExistingCountsOption_->setChecked(configuration_->doNotClearExistingCounts());
 	nameEdit_->setText(configuration_->userScanName());
 	numberEdit_->setValue(configuration_->scanNumber());
-	sampleSelector_->setCurrentSample(configuration_->sampleId());
+	sampleSelector_->setCurrentSampleFromId(configuration_->sampleId());
 	autoNamingCheckBox_->setChecked(configuration_->namedAutomatically());
 	onAutoNamingCheckboxClicked(configuration_->namedAutomatically());
 

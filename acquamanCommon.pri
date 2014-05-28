@@ -15,10 +15,16 @@ USERNAME = $$system(whoami)
 # Automatically determines a user's home folder
 HOME_FOLDER = $$system(echo $HOME)
 
+USERNAME = $$system(whoami)
+
 macx {
 
+contains(USERNAME, helfrij){
+	CONFIG -= mobility
+}
+
 		# Disable Qt Mobility Video until everyone's Mac laptops support that
-		CONFIG -= mobility
+		#CONFIG -= mobility
 
 		# Where you want to do your acquaman development (as a path from $HOME). You don't need to include leading or trailing slashes.
 		DEV_PATH = beamline/programming
@@ -48,6 +54,19 @@ macx {
 		# CDFlib dependencies
 		CDF_LIB = /Applications/cdf34_0-dist/lib/libcdf.a
 		CDF_INCLUDE_DIR = /Applications/cdf34_0-dist/include
+
+                #Eigen
+		EIGEN_INCLUDE_DIR = $$PATH_TO_AM/source/Eigen
+
+		MOBILITY_QT_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/qt-mobility/qt-mobility-opensource-src-1.1.3/install/Library/Frameworks/QtMultimediaKit.framework/Versions/Current
+		MOBILITY_QT_LIB = -L$$MOBILITY_QT_LIB_DIR -lQtMultimediaKit
+		MOBILITY_QT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/qt-mobility/qt-mobility-opensource-src-1.1.3/install/include/QtMultimediaKit \
+						$$HOME_FOLDER/$$DEV_PATH/qt-mobility/qt-mobility-opensource-src-1.1.3/install/include/QtMobility
+
+		QMAKE_CXXFLAGS_X86_64 += "-mmacosx-version-min=10.7"
+
+		QMAKE_LFLAGS_DEBUG += "-mmacosx-version-min=10.7"
+		QMAKE_LFLAGS_RELEASE += "-mmacosx-version-min=10.7"
 }
 linux-g++ {
 
@@ -67,16 +86,27 @@ linux-g++ {
 		MPLOT_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/lib
 
 
+#                GSL_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/gsl-install/include
+#                GSL_LIB = -L$$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/gsl-install/lib -lgsl
+#                GSL_CBLAS_LIB = -lgslcblas
+
 		# GSL Dependencies
 		GSL_INCLUDE_DIR = $$PATH_TO_AM/contrib/gsl-install/include
 		GSL_LIB = -L$$PATH_TO_AM/contrib/gsl-install/lib -lgsl
 		GSL_CBLAS_LIB = -L$$PATH_TO_AM/contrib/gsl-install/lib -lgslcblas
 
-		#CDFLib dependencies
-		CDF_LIB = -lcdf
-		CDF_INCLUDE_DIR = /usr/local/include
+
+                #Qt Mobility Dependencies
+                MOBILITY_QT_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/qt-mobility-1.1.3-Ubuntu12.04/lib
+                MOBILITY_QT_LIB = -L$$MOBILITY_QT_LIB_DIR -lQtMultimediaKit
+                MOBILITY_QT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/qt-mobility-1.1.3-Ubuntu12.04/include
+
+                #Eigen
+		EIGEN_INCLUDE_DIR = $$PATH_TO_AM/source/Eigen
 
 		# CDFlib dependencies
+#		CDF_LIB = -lcdf
+#		CDF_INCLUDE_DIR = /usr/local/include
 		CDF_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/cdf34_1-dist/lib
 		CDF_LIB = -L$$CDF_LIB_DIR -lcdf
 		CDF_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/cdf34_1-dist/include
@@ -120,6 +150,9 @@ linux-g++-32 {
 
 		QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$CDF_LIB_DIR"
 		QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$CDF_LIB_DIR"
+
+                #Eigen
+		EIGEN_INCLUDE_DIR = $$PATH_TO_AM/source/Eigen
 }
 # The following works well for CLS beamline OPI machines, built using VMSL54.cs.clsi.ca
 
@@ -157,6 +190,9 @@ linux-g++-64 {
 		QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$CDF_LIB_DIR"
 		QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$CDF_LIB_DIR"
 
+                #Eigen
+		EIGEN_INCLUDE_DIR = $$PATH_TO_AM/source/Eigen
+
 }
 
 # Special build paths and options for running on the Jenkins auto-build server (currently at http://beamteam.usask.ca:8080)
@@ -182,6 +218,8 @@ CONFIG(jenkins_build) {
 		MPLOT_INCLUDE_DIR = "/var/lib/jenkins/jobs/MPlotOnLinux_MasterBranch/workspace/include"
 		MPLOT_LIB_DIR = "/var/lib/jenkins/jobs/MPlotOnLinux_MasterBranch/workspace/lib"
 
+		#Eigen
+		EIGEN_INCLUDE_DIR = $$PATH_TO_AM/source/Eigen
 }
 
 QT += core gui sql opengl network
@@ -200,7 +238,8 @@ INCLUDEPATH += $$EPICS_INCLUDE_DIRS \
 		$$MPLOT_INCLUDE_DIR \
 		$$GSL_INCLUDE_DIR \
 		$$QWTPLOT3D_INCLUDE_DIR \
-		$$CDF_INCLUDE_DIR
+                $$CDF_INCLUDE_DIR \
+                $$EIGEN_INCLUDE_DIR
 
 LIBS += $$GSL_LIB \
 		$$GSL_CBLAS_LIB \
@@ -208,6 +247,11 @@ LIBS += $$GSL_LIB \
 #		-L$$QWTPLOT3D_LIB_DIR -lqwtplot3d \
 		-L$$EPICS_LIB_DIR -lca -lCom \
 		$$CDF_LIB
+
+CONFIG(mobility) {
+        INCLUDEPATH += $$MOBILITY_QT_INCLUDE_DIR
+        LIBS += $$MOBILITY_QT_LIB
+}
 
 DEFINES += AM_ENABLE_BOUNDS_CHECKING
 
@@ -259,7 +303,7 @@ HEADERS += source/acquaman/AMRegion.h \
 	source/beamline/AMControl.h \
 	source/beamline/AMPVControl.h \
 	source/beamline/AMControlSet.h \
-	source/beamline/AMControlState.h \
+#	source/beamline/AMControlState.h \
 	source/beamline/AMProcessVariable.h \
 	source/beamline/AMProcessVariablePrivate.h \
 	source/beamline/AMPVNames.h \
@@ -268,7 +312,6 @@ HEADERS += source/acquaman/AMRegion.h \
 	source/dataman/AMExperiment.h \
 	source/dataman/AMImportController.h \
 	source/dataman/AMRun.h \
-	source/dataman/AMSample.h \
 	source/dataman/AMScan.h \
 	source/dataman/AMScanSetModel.h \
 	source/dataman/AMXASScan.h \
@@ -309,15 +352,11 @@ HEADERS += source/acquaman/AMRegion.h \
 	source/ui/AMPrefixSuffixLineEdit.h \
 	source/ui/AMDragDropItemModel.h \
 	source/dataman/AMRunExperimentItems.h \
-	source/ui/dataman/AMSampleManagementWidget.h \
-	source/ui/dataman/AMSamplePlateView.h \
 	source/dataman/info/AMControlInfoList.h \
-	source/dataman/AMSamplePlate.h \
 	source/ui/dataman/AMGenericScanEditor.h \
 	source/ui/AMDetailedItemDelegate.h \
 	source/ui/AMVerticalStackWidget.h \
 	source/ui/AMHeaderButton.h \
-	source/ui/dataman/AMSampleEditor.h \
 	source/util/AMDateTimeUtils.h \
 	source/ui/AMElementListEdit.h \
 	source/ui/AMCloseItemDelegate.h \
@@ -354,7 +393,6 @@ HEADERS += source/acquaman/AMRegion.h \
 	source/analysis/AM2DSummingABEditor.h \
 	source/util/AMOrderedList.h \
 	source/beamline/AMControlOptimization.h \
-	source/ui/beamline/AMControlOptimizationView.h \
 	source/dataman/REIXS/REIXSXESRawFileLoader.h \
 	source/util/AMDeferredFunctionCall.h \
 	source/ui/util/AMPeriodicTableView.h \
@@ -363,9 +401,6 @@ HEADERS += source/acquaman/AMRegion.h \
 	source/dataman/info/AMSpectralOutputDetectorInfo.h \
 	source/dataman/SGM/SGMMCPDetectorInfo.h \
 	source/dataman/info/CLSPGTDetectorInfo.h \
-	source/dataman/info/AMROIInfo.h \
-	source/beamline/AMROI.h \
-	source/ui/dataman/AMSamplePositionViewActionsWidget.h \
 	source/dataman/database/AMQueryTableModel.h \
 	source/dataman/export/AMExportController.h \
 	source/dataman/export/AMExporter.h \
@@ -504,11 +539,6 @@ HEADERS += source/acquaman/AMRegion.h \
 	source/dataman/datastore/AMCDFDataStore.h \
 	source/util/amlikely.h \
 	source/ui/dataman/AMSimpleDataSourceEditor.h \
-	source/actions3/actions/AMSamplePlateMoveActionInfo.h \
-	source/actions3/actions/AMSamplePlateMoveAction.h \
-	source/actions3/editors/AMSamplePlateMoveActionEditor.h \
-	source/qttelnet/qttelnet.h \
-	source/beamline/CLS/CLSProcServManager.h \
 	source/dataman/REIXS/REIXSXESCalibration2.h \
 	source/ui/beamline/AMExtendedControlEditor.h \
 	source/ui/beamline/AMControlButton.h \
@@ -518,7 +548,6 @@ HEADERS += source/acquaman/AMRegion.h \
 	source/acquaman/AMSADetector.h \
 	source/acquaman/CLS/CLSSIS3820ScalerSADetector.h \
 	source/ui/dataman/AMRegionScanConfigurationView.h \
-	source/ui/dataman/AMSampleSelector.h \
 	source/ui/AMTopFrame2.h \
 	source/application/AMDatamanAppControllerForActions3.h \
 	source/analysis/AM2DAdditionAB.h \
@@ -604,6 +633,50 @@ HEADERS += source/acquaman/AMRegion.h \
 	source/ui/CLS/CLSPseudoMotorGroupView.h \
 	source/beamline/CLS/CLSPseudoMotorGroup.h \
 	source/util/AMPointerTree.h \
+	source/dataman/database/AMConstDbObject.h \
+	source/dataman/AMDbUpgrade1Pt4.h \
+	source/dataman/AMSamplePre2013.h \
+	source/dataman/AMSamplePlatePre2013.h \
+	source/ui/dataman/AMSamplePlatePre2013View.h \
+	source/ui/dataman/AMSampleManagementPre2013Widget.h \
+	source/ui/dataman/AMSamplePre2013Editor.h \
+	source/ui/dataman/AMSamplePre2013Selector.h \
+	source/actions3/actions/AMSamplePlatePre2013MoveAction.h \
+	source/actions3/actions/AMSamplePlatePre2013MoveActionInfo.h \
+	source/ui/dataman/AMSamplePositionPre2013ViewActionsWidget.h \
+	source/actions3/editors/AMSamplePlatePre2013MoveActionEditor.h \
+	source/dataman/AMSample.h \
+	source/beamline/camera/AMShapeData.h \
+	source/beamline/camera/AMCamera.h \
+	source/beamline/camera/AMBeamConfiguration.h \
+	source/beamline/camera/AMCameraConfiguration.h \
+	source/ui/dataman/AMSampleView.h \
+	source/ui/beamline/camera/AMCameraConfigurationView.h \
+	source/ui/beamline/camera/AMBeamConfigurationView.h \
+	source/ui/beamline/camera/AMShapeDataView.h \
+	source/ui/beamline/camera/AMCameraConfigurationWizard.h \
+	source/ui/beamline/camera/AMBeamConfigurationWizard.h \
+	source/ui/beamline/camera/AMSamplePlateWizard.h \
+	source/ui/beamline/camera/AMGraphicsViewWizard.h \
+	source/ui/beamline/camera/AMRotationWizard.h \
+	source/ui/AMColorPickerButton2.h \
+	source/ui/util/AMSamplePeriodicTableDialog.h \
+	source/beamline/camera/AMGraphicsVideoSceneCopier.h \
+	source/ui/AMOverlayVideoWidget2.h \
+	source/ui/util/AMPeriodicTableDialog.h \
+	source/dataman/AMSamplePlate.h \
+	source/ui/dataman/AMSamplePlateView.h \
+	source/ui/beamline/AMBeamlineSampleManagementView.h \
+	source/ui/dataman/AMSamplePlateBrowserView.h \
+	source/beamline/camera/AMSampleCamera.h \
+	source/beamline/camera/AMSampleCameraBrowser.h \
+	source/ui/beamline/camera/AMSampleCameraView.h \
+	source/ui/beamline/camera/AMSampleCameraBrowserView.h \
+	source/ui/beamline/camera/AMSampleCameraGraphicsView.h \
+	source/ui/AMGraphicsTextItem.h \
+	source/ui/beamline/camera/AMSampleCameraWizardSelector.h \
+	source/ui/dataman/AMSampleEditor.h \
+	source/beamline/camera/AMRotationalOffset.h \
 	source/analysis/AM1DDeadTimeAB.h \
 	source/analysis/AM2DDeadTimeCorrectionAB.h \
 	source/analysis/AM3DDeadTimeCorrectionAB.h \
@@ -624,7 +697,6 @@ HEADERS += source/acquaman/AMRegion.h \
 	source/dataman/AMRegionOfInterest.h \
 	source/analysis/AMnDDeadTimeAB.h \
 	source/ui/AMSelectionDialog.h \
-	source/ui/util/AMPeriodicTableDialog.h \
 	source/ui/beamline/AMDeadTimeButton.h \
 	source/analysis/AMRegionOfInterestAB.h \
 	source/ui/beamline/AMRegionOfInterestView.h \
@@ -640,17 +712,51 @@ HEADERS += source/acquaman/AMRegion.h \
 	source/beamline/CLS/CLSBasicCompositeScalerChannelDetector.h \
 	source/actions3/actions/AMControlStopAction.h \
 	source/actions3/actions/AMControlStopActionInfo.h \
+	source/beamline/camera/AMAngle.h \
+	source/ui/dataman/AMSampleBriefView.h \
+	source/ui/beamline/camera/AMSimpleBeamConfigurationWizard.h \
+	source/ui/beamline/camera/AMWizardManager.h \
+	source/ui/beamline/camera/AMSimpleSamplePlateWizard.h \
+	source/dataman/database/AMDbObjectDefinitions.h \
 	source/ui/dataman/AMControlInfoListView.h \
 	source/ui/dataman/AMOldDetectorInfoSetView.h \
 	source/ui/beamline/AMDetectorSelectorRequiredView.h \
+	source/actions3/actions/AMDetectorSetAsDarkCurrentCorrectionActionInfo.h \
+	source/actions3/actions/AMDetectorSetAsDarkCurrentCorrectionAction.h \
+	source/actions3/actions/AMControlWaitActionInfo.h \
+	source/actions3/actions/AMControlWaitAction.h \
+	source/analysis/AM1DDarkCurrentCorrectionAB.h \
+	source/actions3/actions/AMDoingDarkCurrentCorrectionActionInfo.h \
+	source/actions3/actions/AMDoingDarkCurrentCorrectionAction.h \
+	source/actions3/actions/AMDoDarkCurrentCorrectionAction.h \
+	source/actions3/actions/AMDoDarkCurrentCorrectionActionInfo.h \
+	source/ui/CLS/CLSSIS3820ScalerChannelViewWithDarkCurrent.h \
+	source/analysis/AM1DDarkCurrentCorrectionABEditor.h \
+	source/ui/CLS/CLSDarkCurrentWidget.h \
+	source/beamline/AMCurrentAmplifier.h \
 	source/beamline/AMAdvancedControlDetectorEmulator.h \
 	source/dataman/AMDbUpgrade1Pt3.h \
 	source/acquaman/AM2DScanConfigurationConverter.h \
 	source/acquaman/AM2DScanActionController.h \
-    source/acquaman/AMScanActionControllerBasicFileWriter.h \
-    source/acquaman/AMTimedScanActionController.h \
-    source/acquaman/AMTimedRegionScanConfiguration.h \
-    source/acquaman/AMTimedScanConfigurationConverter.h
+	source/acquaman/AMScanActionControllerBasicFileWriter.h \
+	source/acquaman/AMTimedScanActionController.h \
+	source/acquaman/AMTimedRegionScanConfiguration.h \
+	source/acquaman/AMTimedScanConfigurationConverter.h \
+	source/actions3/actions/AMSampleMoveActionInfo.h \
+	source/actions3/actions/AMSampleMoveAction.h \
+	source/actions3/editors/AMSampleMoveActionEditor.h \
+	source/util/AMVariableIntegrationTime.h \
+	source/acquaman/AMStepScanConfiguration.h \
+	source/acquaman/AMGenericScanActionControllerAssembler.h \
+	source/acquaman/AMStepScanActionController.h \
+	source/dataman/AMScanAxisEXAFSRegion.h \
+	source/acquaman/AMEXAFSScanActionControllerAssembler.h \
+	source/util/AMEnergyToKSpaceCalculator.h \
+	source/actions3/actions/AMAxisValueFinishedAction.h \
+	source/actions3/actions/AMAxisValueFinishedActionInfo.h \
+	source/ui/dataman/AMStepScanAxisView.h \
+	source/ui/dataman/AMEXAFSScanAxisView.h \
+	source/beamline/CLS/CLSPseudoMotorControl.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -699,7 +805,7 @@ SOURCES += source/acquaman/AMRegion.cpp \
 	source/beamline/AMControl.cpp \
 	source/beamline/AMPVControl.cpp \
 	source/beamline/AMControlSet.cpp \
-	source/beamline/AMControlState.cpp \
+#	source/beamline/AMControlState.cpp \
 	source/beamline/AMProcessVariable.cpp \
 	source/beamline/AMProcessVariablePrivate.cpp \
 	source/beamline/AMPVNames.cpp \
@@ -708,7 +814,6 @@ SOURCES += source/acquaman/AMRegion.cpp \
 	source/dataman/AMExperiment.cpp \
 	source/dataman/AMImportController.cpp \
 	source/dataman/AMRun.cpp \
-	source/dataman/AMSample.cpp \
 	source/dataman/AMScan.cpp \
 	source/dataman/AMScanSetModel.cpp \
 	source/dataman/AMXASScan.cpp \
@@ -740,15 +845,11 @@ SOURCES += source/acquaman/AMRegion.cpp \
 	source/ui/AMPrefixSuffixLineEdit.cpp \
 	source/ui/AMDragDropItemModel.cpp \
 	source/dataman/AMRunExperimentItems.cpp \
-	source/ui/dataman/AMSampleManagementWidget.cpp \
-	source/ui/dataman/AMSamplePlateView.cpp \
 	source/dataman/info/AMControlInfoList.cpp \
-	source/dataman/AMSamplePlate.cpp \
 	source/ui/dataman/AMGenericScanEditor.cpp \
 	source/ui/AMDetailedItemDelegate.cpp \
 	source/ui/AMVerticalStackWidget.cpp \
 	source/ui/AMHeaderButton.cpp \
-	source/ui/dataman/AMSampleEditor.cpp \
 	source/util/AMDateTimeUtils.cpp \
 	source/ui/AMElementListEdit.cpp \
 	source/ui/AMCloseItemDelegate.cpp \
@@ -783,7 +884,6 @@ SOURCES += source/acquaman/AMRegion.cpp \
 	source/analysis/AMStandardAnalysisBlock.cpp \
 	source/analysis/AM2DSummingABEditor.cpp \
 	source/beamline/AMControlOptimization.cpp \
-	source/ui/beamline/AMControlOptimizationView.cpp \
 	source/dataman/REIXS/REIXSXESRawFileLoader.cpp \
 	source/util/AMDeferredFunctionCall.cpp \
 	source/ui/util/AMPeriodicTableView.cpp \
@@ -792,9 +892,6 @@ SOURCES += source/acquaman/AMRegion.cpp \
 	source/dataman/info/AMSpectralOutputDetectorInfo.cpp \
 	source/dataman/SGM/SGMMCPDetectorInfo.cpp \
 	source/dataman/info/CLSPGTDetectorInfo.cpp \
-	source/dataman/info/AMROIInfo.cpp \
-	source/beamline/AMROI.cpp \
-	source/ui/dataman/AMSamplePositionViewActionsWidget.cpp \
 	source/dataman/database/AMQueryTableModel.cpp \
 	source/dataman/export/AMExportController.cpp \
 	source/dataman/export/AMExporterOption.cpp \
@@ -921,11 +1018,6 @@ SOURCES += source/acquaman/AMRegion.cpp \
 	source/ui/acquaman/AMScanConfigurationViewHolder3.cpp \
 	source/dataman/datastore/AMCDFDataStore.cpp \
 	source/ui/dataman/AMSimpleDataSourceEditor.cpp \
-	source/actions3/actions/AMSamplePlateMoveActionInfo.cpp \
-	source/actions3/actions/AMSamplePlateMoveAction.cpp \
-	source/actions3/editors/AMSamplePlateMoveActionEditor.cpp \
-	source/qttelnet/qttelnet.cpp \
-	source/beamline/CLS/CLSProcServManager.cpp \
 	source/dataman/REIXS/REIXSXESCalibration2.cpp \
 	source/ui/beamline/AMExtendedControlEditor.cpp \
 	source/ui/beamline/AMControlButton.cpp \
@@ -935,7 +1027,6 @@ SOURCES += source/acquaman/AMRegion.cpp \
 	source/acquaman/AMSADetector.cpp \
 	source/acquaman/CLS/CLSSIS3820ScalerSADetector.cpp \
 	source/ui/dataman/AMRegionScanConfigurationView.cpp \
-	source/ui/dataman/AMSampleSelector.cpp \
 	source/ui/AMTopFrame2.cpp \
 	source/application/AMDatamanAppControllerForActions3.cpp \
 	source/analysis/AM2DAdditionAB.cpp \
@@ -1021,6 +1112,50 @@ SOURCES += source/acquaman/AMRegion.cpp \
 	source/ui/CLS/CLSPseudoMotorGroupView.cpp \
 	source/beamline/CLS/CLSPseudoMotorGroup.cpp \
 	source/util/AMPointerTree.cpp \
+	source/dataman/database/AMConstDbObject.cpp \
+	source/dataman/AMDbUpgrade1Pt4.cpp \
+	source/dataman/AMSamplePre2013.cpp \
+	source/dataman/AMSamplePlatePre2013.cpp \
+	source/ui/dataman/AMSamplePlatePre2013View.cpp \
+	source/ui/dataman/AMSampleManagementPre2013Widget.cpp \
+	source/ui/dataman/AMSamplePre2013Editor.cpp \
+	source/ui/dataman/AMSamplePre2013Selector.cpp \
+	source/actions3/actions/AMSamplePlatePre2013MoveAction.cpp \
+	source/actions3/actions/AMSamplePlatePre2013MoveActionInfo.cpp \
+	source/ui/dataman/AMSamplePositionPre2013ViewActionsWidget.cpp \
+	source/actions3/editors/AMSamplePlatePre2013MoveActionEditor.cpp \
+	source/dataman/AMSample.cpp \
+	source/beamline/camera/AMShapeData.cpp \
+	source/beamline/camera/AMCamera.cpp \
+	source/beamline/camera/AMBeamConfiguration.cpp \
+	source/beamline/camera/AMCameraConfiguration.cpp \
+	source/ui/dataman/AMSampleView.cpp \
+	source/ui/beamline/camera/AMCameraConfigurationView.cpp \
+	source/ui/beamline/camera/AMBeamConfigurationView.cpp \
+	source/ui/beamline/camera/AMShapeDataView.cpp \
+	source/ui/beamline/camera/AMCameraConfigurationWizard.cpp \
+	source/ui/beamline/camera/AMBeamConfigurationWizard.cpp \
+	source/ui/beamline/camera/AMSamplePlateWizard.cpp \
+	source/ui/beamline/camera/AMGraphicsViewWizard.cpp \
+	source/ui/beamline/camera/AMRotationWizard.cpp \
+	source/ui/AMColorPickerButton2.cpp \
+	source/ui/util/AMSamplePeriodicTableDialog.cpp \
+	source/beamline/camera/AMGraphicsVideoSceneCopier.cpp \
+	source/ui/AMOverlayVideoWidget2.cpp \
+	source/ui/util/AMPeriodicTableDialog.cpp \
+	source/dataman/AMSamplePlate.cpp \
+	source/ui/dataman/AMSamplePlateView.cpp \
+	source/ui/beamline/AMBeamlineSampleManagementView.cpp \
+	source/ui/dataman/AMSamplePlateBrowserView.cpp \
+	source/beamline/camera/AMSampleCamera.cpp \
+	source/beamline/camera/AMSampleCameraBrowser.cpp \
+	source/ui/beamline/camera/AMSampleCameraView.cpp \
+	source/ui/beamline/camera/AMSampleCameraBrowserView.cpp \
+	source/ui/beamline/camera/AMSampleCameraGraphicsView.cpp \
+	source/ui/AMGraphicsTextItem.cpp \
+	source/ui/beamline/camera/AMSampleCameraWizardSelector.cpp \
+	source/ui/dataman/AMSampleEditor.cpp \
+	source/beamline/camera/AMRotationalOffset.cpp \
 	source/analysis/AM1DDeadTimeAB.cpp \
 	source/analysis/AM2DDeadTimeCorrectionAB.cpp \
 	source/analysis/AM3DDeadTimeCorrectionAB.cpp \
@@ -1036,12 +1171,11 @@ SOURCES += source/acquaman/AMRegion.cpp \
 	source/util/AMRange.cpp \
 	source/ui/util/AMSelectableElementView.cpp \
 	source/ui/util/AMSelectableItemView.cpp \
-		source/ui/beamline/AMXRFDetailedDetectorView.cpp \
-		source/util/AMNameAndRangeValidator.cpp \
+	source/ui/beamline/AMXRFDetailedDetectorView.cpp \
+	source/util/AMNameAndRangeValidator.cpp \
 	source/dataman/AMRegionOfInterest.cpp \
 	source/analysis/AMnDDeadTimeAB.cpp \
 	source/ui/AMSelectionDialog.cpp \
-	source/ui/util/AMPeriodicTableDialog.cpp \
 	source/ui/beamline/AMDeadTimeButton.cpp \
 	source/analysis/AMRegionOfInterestAB.cpp \
 	source/ui/beamline/AMRegionOfInterestView.cpp \
@@ -1056,17 +1190,50 @@ SOURCES += source/acquaman/AMRegion.cpp \
 	source/beamline/CLS/CLSBasicCompositeScalerChannelDetector.cpp \
 	source/actions3/actions/AMControlStopAction.cpp \
 	source/actions3/actions/AMControlStopActionInfo.cpp \
+	source/beamline/camera/AMAngle.cpp \
+	source/ui/dataman/AMSampleBriefView.cpp \
+	source/ui/beamline/camera/AMSimpleBeamConfigurationWizard.cpp \
+	source/ui/beamline/camera/AMWizardManager.cpp \
+	source/ui/beamline/camera/AMSimpleSamplePlateWizard.cpp \
 	source/ui/dataman/AMControlInfoListView.cpp \
 	source/ui/dataman/AMOldDetectorInfoSetView.cpp \
 	source/ui/beamline/AMDetectorSelectorRequiredView.cpp \
+	source/actions3/actions/AMDetectorSetAsDarkCurrentCorrectionActionInfo.cpp \
+	source/actions3/actions/AMDetectorSetAsDarkCurrentCorrectionAction.cpp \
+	source/actions3/actions/AMControlWaitActionInfo.cpp \
+	source/actions3/actions/AMControlWaitAction.cpp \
+	source/analysis/AM1DDarkCurrentCorrectionAB.cpp \
+	source/actions3/actions/AMDoingDarkCurrentCorrectionActionInfo.cpp \
+	source/actions3/actions/AMDoingDarkCurrentCorrectionAction.cpp \
+	source/actions3/actions/AMDoDarkCurrentCorrectionAction.cpp \
+	source/actions3/actions/AMDoDarkCurrentCorrectionActionInfo.cpp \
+	source/ui/CLS/CLSSIS3820ScalerChannelViewWithDarkCurrent.cpp \
+	source/analysis/AM1DDarkCurrentCorrectionABEditor.cpp \
+	source/ui/CLS/CLSDarkCurrentWidget.cpp \
+	source/beamline/AMCurrentAmplifier.cpp \
 	source/beamline/AMAdvancedControlDetectorEmulator.cpp \
 	source/dataman/AMDbUpgrade1Pt3.cpp \
 	source/acquaman/AM2DScanConfigurationConverter.cpp \
 	source/acquaman/AM2DScanActionController.cpp \
-    source/acquaman/AMScanActionControllerBasicFileWriter.cpp \
-    source/acquaman/AMTimedScanActionController.cpp \
-    source/acquaman/AMTimedRegionScanConfiguration.cpp \
-    source/acquaman/AMTimedScanConfigurationConverter.cpp
+	source/acquaman/AMScanActionControllerBasicFileWriter.cpp \
+	source/acquaman/AMTimedScanActionController.cpp \
+	source/acquaman/AMTimedRegionScanConfiguration.cpp \
+	source/acquaman/AMTimedScanConfigurationConverter.cpp \
+	source/actions3/actions/AMSampleMoveActionInfo.cpp \
+	source/actions3/actions/AMSampleMoveAction.cpp \
+	source/actions3/editors/AMSampleMoveActionEditor.cpp \
+	source/util/AMVariableIntegrationTime.cpp \
+	source/acquaman/AMStepScanConfiguration.cpp \
+	source/acquaman/AMGenericScanActionControllerAssembler.cpp \
+	source/acquaman/AMStepScanActionController.cpp \
+	source/dataman/AMScanAxisEXAFSRegion.cpp \
+	source/acquaman/AMEXAFSScanActionControllerAssembler.cpp \
+	source/util/AMEnergyToKSpaceCalculator.cpp \
+	source/actions3/actions/AMAxisValueFinishedAction.cpp \
+	source/actions3/actions/AMAxisValueFinishedActionInfo.cpp \
+	source/ui/dataman/AMStepScanAxisView.cpp \
+	source/ui/dataman/AMEXAFSScanAxisView.cpp \
+	source/beamline/CLS/CLSPseudoMotorControl.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1090,27 +1257,3 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

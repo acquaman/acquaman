@@ -58,9 +58,6 @@ AMSidebar::AMSidebar(QWidget* parent)
 				  " QTreeView::item::selected { background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(91, 146, 213, 255), stop:1 rgba(22, 84, 170, 255)); } ");
 }
 
-/* unused: " QTreeView::item::hover { border-width: 1px; border-style: solid;	border-color: rgb(22, 84, 170); border-top-color: rgb(69, 128, 200); background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(91, 146, 213, 255), stop:1 rgba(22, 84, 170, 255)); } "
-				  "QTreeView::item::selected { border: 1px solid rgb(115, 122, 153); border-top-color: rgb(131, 137, 167);  background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(170, 176, 197, 255), stop:1 rgba(115, 122, 153, 255)); } " */
-
 /// add a category header with a certain \c weight
 void AMSidebar::addHeading(const QString& categoryName, double weight) {
 	if(headings_.contains(categoryName))
@@ -108,29 +105,6 @@ AMSidebarHeading* AMSidebar::heading(const QString& headingTitle) {
 	return headings_.value(headingTitle);
 }
 
-
-
-/*! Removing AMSidebar::onItemClicked() because it would be better to respond to selection changes (including keyboard selections).
-  Retaining this nugget that we learned about mouse events that are delivered during double-clicks.
-\note The ordering of mouse events during a double-click goes like this:
-  - [first release] onItemClicked()
-  - [second press] onItemDoubleClicked()
-  - [second release] onItemClicked() again. (for second click).
-  Need to ignore the second release click if we just experienced a double-click.
-
-void AMSidebar::onItemClicked(const QModelIndex & index) {
-	QVariant link = model_->itemFromIndex(index)->data(AM::LinkRole);
-
-	if(doubleClickInProgress_) {
-		doubleClickInProgress_ = false;
-		return;
-	}
-
-	if(!link.isNull())
-		emit linkClicked(link);
-}
-*/
-
 void AMSidebar::onItemDoubleClicked(const QModelIndex & index) {
 	QVariant link = model_->itemFromIndex(index)->data(AM::LinkRole);
 	if(!link.isNull())
@@ -145,70 +119,6 @@ void AMSidebar::currentChanged ( const QModelIndex & current, const QModelIndex 
 		emit linkSelected(link);
 }
 
-/* Removed: can simply use QTreeView's drag and drop handling of events, now that the model and item flags are configured properly.
+AMSidebarItem::~AMSidebarItem(){}
 
-#include <QDragEnterEvent>
-#include <QDropEvent>
-#include <QDragMoveEvent>
-
-void AMSidebar::dragEnterEvent(QDragEnterEvent *event) {
-	qDebug() << "Drag enter event!";
-	QTreeView::dragEnterEvent(event);
-	qDebug() << "   Was... accepted?" << event->isAccepted();
-}
-
-void AMSidebar::dropEvent(QDropEvent *event) {
-	qDebug() << "Drop event!";
-	QTreeView::dropEvent(event);
-	qDebug() << "   Was... accepted?" << event->isAccepted();
-}
-
-void AMSidebar::dragMoveEvent(QDragMoveEvent *event) {
-	QModelIndex idx = indexAt(event->pos());
-	qDebug() << "drag move. index under:" << idx;
-	QTreeView::dragMoveEvent(event);
-	qDebug() << "   Was... accepted?" << event->isAccepted();
-}
-*/
-
-
-
-
-/* This is a remnant from the old widget-based sidebar system, that needed this to catch and distinguish clicks from double-clicks
-
-bool AMSidebar::eventFilter(QObject* sourceObject, QEvent* event) {
-
-	QWidget* source = qobject_cast<QWidget*>(sourceObject);
-
-	if(selector2link_.contains(source)) {
-
-		switch(event->type()) {
-
-		case QEvent::MouseButtonRelease:
-			if(doubleClickInProgress_) {
-				emit linkDoubleClicked(selector2link_[source].payload_);
-			}
-			else {
-				emit linkClicked(selector2link_[source].payload_);
-				setHighlightedLink(source);
-			}
-
-			break;
-
-
-		case QEvent::MouseButtonDblClick:
-			doubleClickInProgress_ = true;
-			break;
-		case QEvent::MouseButtonPress:
-			doubleClickInProgress_ = false;
-			break;
-
-
-		default:
-			break;
-		}
-	}
-	return QFrame::eventFilter(source, event);
-}*/
- AMSidebarItem::~AMSidebarItem(){}
- AMSidebarHeading::~AMSidebarHeading(){}
+AMSidebarHeading::~AMSidebarHeading(){}

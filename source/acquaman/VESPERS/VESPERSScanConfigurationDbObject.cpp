@@ -1,6 +1,7 @@
 #include "VESPERSScanConfigurationDbObject.h"
 
- VESPERSScanConfigurationDbObject::~VESPERSScanConfigurationDbObject(){}
+VESPERSScanConfigurationDbObject::~VESPERSScanConfigurationDbObject(){}
+
 VESPERSScanConfigurationDbObject::VESPERSScanConfigurationDbObject(QObject *parent)
 	: AMDbObject(parent)
 {
@@ -9,7 +10,6 @@ VESPERSScanConfigurationDbObject::VESPERSScanConfigurationDbObject(QObject *pare
 	fluorescenceDetector_ = VESPERS::NoXRF;
 	ccdDetector_ = VESPERS::NoCCD;
 	motor_ = VESPERS::NoMotor;
-	roiInfoList_ = AMROIInfoList();
 	ccdFileName_ = "";
 	normalPosition_ = 888888.88;
 }
@@ -22,7 +22,6 @@ VESPERSScanConfigurationDbObject::VESPERSScanConfigurationDbObject(const VESPERS
 	fluorescenceDetector_ = original.fluorescenceDetector();
 	ccdDetector_ = original.ccdDetector();
 	motor_ = original.motor();
-	roiInfoList_ = original.roiList();
 	ccdFileName_ = original.ccdFileName();
 	normalPosition_ = original.normalPosition();
 }
@@ -89,12 +88,6 @@ void VESPERSScanConfigurationDbObject::setCCDFileName(const QString &name)
 	setModified(true);
 }
 
-void VESPERSScanConfigurationDbObject::setRoiInfoList(const AMROIInfoList &list)
-{
-	roiInfoList_ = list;
-	setModified(true);
-}
-
 void VESPERSScanConfigurationDbObject::setNormalPosition(double newPosition)
 {
 	if (normalPosition_ != newPosition){
@@ -104,3 +97,39 @@ void VESPERSScanConfigurationDbObject::setNormalPosition(double newPosition)
 		setModified(true);
 	}
 }
+
+AMDbObjectList VESPERSScanConfigurationDbObject::dbReadRegionsOfInterest()
+{
+	AMDbObjectList listToBeSaved;
+
+	foreach (AMRegionOfInterest *region, regionsOfInterest_)
+		listToBeSaved << region;
+
+	return listToBeSaved;
+}
+
+void VESPERSScanConfigurationDbObject::dbLoadRegionsOfInterest(const AMDbObjectList &newRegions)
+{
+	regionsOfInterest_.clear();
+
+	foreach (AMDbObject *newObject, newRegions){
+
+		AMRegionOfInterest *region = qobject_cast<AMRegionOfInterest *>(newObject);
+
+		if (region)
+			regionsOfInterest_.append(region);
+	}
+}
+
+void VESPERSScanConfigurationDbObject::addRegionOfInterest(AMRegionOfInterest *region)
+{
+	regionsOfInterest_.append(region);
+	setModified(true);
+}
+
+void VESPERSScanConfigurationDbObject::removeRegionOfInterest(AMRegionOfInterest *region)
+{
+	regionsOfInterest_.removeOne(region);
+	setModified(true);
+}
+
