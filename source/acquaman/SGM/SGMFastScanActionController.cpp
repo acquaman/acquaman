@@ -657,7 +657,20 @@ QString SGMFastScanActionController::buildNotes()
 {
 	QString returnString;
 
-	// Builds notes for current presets
+	// Scaler (gets scalar from beamline, iterates through each channel, if channel has a sr570 connected then adds its name, value and the units)
+	returnString.append("\nScaler:\n");
+	CLSSIS3820Scaler* scaler = SGMBeamline::sgm()->scaler();
+	for(int iChannel = 0; iChannel < scaler->channels().count(); iChannel++)
+	{
+		CLSSIS3820ScalerChannel* currentChannel = scaler->channelAt(iChannel);
+		if(currentChannel->sr570() != 0)
+		{
+			returnString.append(QString("%1:\t%2 %3\n").arg(currentChannel->customChannelName()).arg(currentChannel->sr570()->value()).arg(currentChannel->sr570()->units()));
+		}
+	}
+
+
+	// Current presets
 
 	returnString.append(QString("\nPreset:\t%1\n").arg(configuration_->currentParameters()->scanInfo().scanName()));
 	returnString.append(QString("Run Time:\t%1s\n").arg(configuration_->runTime()));
@@ -680,17 +693,20 @@ QString SGMFastScanActionController::buildNotes()
 	returnString.append(QString("Start Exit Slit Position:\t%1\n").arg(configuration_->currentParameters()->scanInfo().end().exitSlitDistance()));
 	returnString.append(QString("Start Mono Encoder Target:\t%1\n").arg(configuration_->currentParameters()->scanInfo().end().monoEncoderTarget()));
 
-	// Scaler (gets scalar from beamline, iterates through each channel, if channel has a sr570 connected then adds its name, value and the units)
-	returnString.append("\nScaler:\n");
-	CLSSIS3820Scaler* scaler = SGMBeamline::sgm()->scaler();
-	for(int iChannel = 0; iChannel < scaler->channels().count(); iChannel++)
-	{
-		CLSSIS3820ScalerChannel* currentChannel = scaler->channelAt(iChannel);
-		if(currentChannel->sr570() != 0)
-		{
-			returnString.append(QString("%1:\t%2 %3\n").arg(currentChannel->customChannelName()).arg(currentChannel->sr570()->value()).arg(currentChannel->sr570()->units()));
-		}
-	}
+	// Add X,Y,Z, Theta manip
+	returnString.append(QString("\nManipulator X:\t%1\n").arg(SGMBeamline::sgm()->ssaManipulatorX()->value()));
+	returnString.append(QString("Manipulator Y:\t%1\n").arg(SGMBeamline::sgm()->ssaManipulatorY()->value()));
+	returnString.append(QString("Manipulator X:\t%1\n").arg(SGMBeamline::sgm()->ssaManipulatorZ()->value()));
+	returnString.append(QString("Manipulator Theta:\t%2\n").arg(SGMBeamline::sgm()->ssaManipulatorRot()->value()));
+
+	// Add Exit Slit Gap
+	returnString.append(QString("Exit Slit Gap:\t%2\n").arg(configuration_->exitSlitGap()));
+
+	// Add Grating
+	returnString.append(QString("Grating:\t%2\n").arg(SGMBeamlineInfo::sgmInfo()->sgmGratingDescription(configuration_->grating())));
+
+	// Add Harmonic
+	returnString.appen(QString("Harmonic:\t%1\n").arg(SGMBeamlineInfo::sgmInfo()->sgmHarmonicDescription(configuration_->harmonic())));
 
 
 	return returnString;
