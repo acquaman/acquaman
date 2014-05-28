@@ -105,30 +105,50 @@ void AMBeamlineSampleManagementView::requestAdvancedCameraOptionsWindow(){
 }
 
 void AMBeamlineSampleManagementView::onCreateSamplePlateButtonClicked(){
-	if(!checkSamplePlateModifiedHelper())
-		return;
+	if(wizardSelectorView_->cameraWizardComplete() && wizardSelectorView_->rotationWizardComplete() && wizardSelectorView_->samplePlateWizardComplete())
+	{
+		if(!checkSamplePlateModifiedHelper())
+			return;
 
-	AMSamplePlateCreationDialog creationDialog;
-	int retVal = creationDialog.exec();
+		AMSamplePlateCreationDialog creationDialog;
+		int retVal = creationDialog.exec();
 
-	if(retVal == QDialog::Accepted){
-		AMSamplePlate *samplePlate = new AMSamplePlate();
-		samplePlate->setName(creationDialog.samplePlateName());
+		if(retVal == QDialog::Accepted){
+			AMSamplePlate *samplePlate = new AMSamplePlate();
+			samplePlate->setName(creationDialog.samplePlateName());
 
-		beamline_->samplePlateBrowser()->addSamplePlate(samplePlate);
-		beamline_->setSamplePlate(samplePlate);
+			beamline_->samplePlateBrowser()->addSamplePlate(samplePlate);
+			beamline_->setSamplePlate(samplePlate);
+		}
+	}
+	else
+	{
+		QMessageBox configurationNotCompleteWarningDialog;
+		configurationNotCompleteWarningDialog.setText("Cannot create sample plate until camera, rotation and the sample plate have been setup.");
+		configurationNotCompleteWarningDialog.setIcon(QMessageBox::Warning);
+		configurationNotCompleteWarningDialog.exec();
 	}
 }
 
 void AMBeamlineSampleManagementView::onLoadSamplePlateButtonClicked(){
-	if(!checkSamplePlateModifiedHelper())
-		return;
+	if(wizardSelectorView_->cameraWizardComplete() && wizardSelectorView_->rotationWizardComplete() && wizardSelectorView_->samplePlateWizardComplete())
+	{
+		if(!checkSamplePlateModifiedHelper())
+			return;
 
-	if(!samplePlateBrowserView_->isHidden())
-		samplePlateBrowserView_->raise();
+		if(!samplePlateBrowserView_->isHidden())
+			samplePlateBrowserView_->raise();
+		else
+			samplePlateBrowserView_->show();
+		samplePlateBrowserView_->clearViewSelection();
+	}
 	else
-		samplePlateBrowserView_->show();
-	samplePlateBrowserView_->clearViewSelection();
+	{
+		QMessageBox configurationNotCompleteWarningDialog;
+		configurationNotCompleteWarningDialog.setText("Cannot load sample plate until camera, rotation and the sample plate have been setup.");
+		configurationNotCompleteWarningDialog.setIcon(QMessageBox::Warning);
+		configurationNotCompleteWarningDialog.exec();
+	}
 }
 
 void AMBeamlineSampleManagementView::onBeamlineSamplePlateAboutToChange(AMSamplePlate *lastSamplePlate){
