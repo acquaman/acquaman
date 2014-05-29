@@ -7,6 +7,9 @@
 CLSKeithley428::CLSKeithley428(const QString &name, const QString &valueName, QObject *parent) :
     QObject(parent)
 {
+    connect( this, SIGNAL(atMaximumValue(bool)), this, SLOT(onMaximumGain()) );
+    connect( this, SIGNAL(atMinimumValue(bool)), this, SLOT(onMinimumGain()) );
+
     isConnected_ = false;
 
     name_ = name;
@@ -60,12 +63,12 @@ CLSKeithley428ValueMap* CLSKeithley428::valueMap() const
 
 bool CLSKeithley428::atMinimumGain() const
 {
-    return valueMap_->isMinIndex(valueControl_->getInt());
+    return valueMap_->isMinIndex(CLSKeithley428ValueMap::Gain, valueControl_->getInt());
 }
 
 bool CLSKeithley428::atMaximumGain() const
 {
-    return valueMap_->isMaxIndex(valueControl_->getInt());
+    return valueMap_->isMaxIndex(CLSKeithley428ValueMap::Gain, valueControl_->getInt());
 }
 
 void CLSKeithley428::setValueIndex(int valueIndex)
@@ -101,7 +104,6 @@ bool CLSKeithley428::decreaseGain()
 {
     // Don't do anything if the gain is already at a minimum.
     if (atMinimumGain()) {
-        emit atMaximumValue(true);
         return false;
     }
 
@@ -135,6 +137,16 @@ void CLSKeithley428::onConnectedStateChanged(bool isConnected)
         qDebug() << "New connection state, is connected : " << isConnected_;
         emit connected(isConnected_);
     }
+}
+
+void CLSKeithley428::onMaximumGain()
+{
+    qDebug() << "Maximum gain.";
+}
+
+void CLSKeithley428::onMinimumGain()
+{
+    qDebug() << "Minimum gain.";
 }
 
 int CLSKeithley428::nextIndex(IndexChange change, int currentIndex)

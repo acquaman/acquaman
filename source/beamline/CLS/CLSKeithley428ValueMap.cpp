@@ -29,25 +29,64 @@ QStringList CLSKeithley428ValueMap::valueStringList(ValueMode mode) const
     double toAdd = -1;
     QStringList *valueList = new QStringList();
 
-    qDebug() << "Mode : " << mode;
-
     foreach (int key, map_->uniqueKeys()) {
         toAdd = map_->values(key).at(mode);
-        qDebug() << toAdd;
         valueList->append(QString("%1").arg(toAdd, 0, 'e', 2));
     }
 
     return *valueList;
 }
 
-bool CLSKeithley428ValueMap::isMinIndex(int index)
+bool CLSKeithley428ValueMap::isMinIndex(ValueMode mode, int index)
 {
-    return (map_->keys().first() == index);
+    return (findMinIndex(mode) == index);
 }
 
-bool CLSKeithley428ValueMap::isMaxIndex(int index)
+bool CLSKeithley428ValueMap::isMaxIndex(ValueMode mode, int index)
 {
-    return (map_->keys().last() == index);
+    return (findMaxIndex(mode) == index);
+}
+
+int CLSKeithley428ValueMap::findMinIndex(ValueMode mode)
+{
+    double firstIndex = map_->uniqueKeys().first();
+    double firstValue = map_->values(firstIndex).at(mode);
+    double temp = firstValue;
+
+    int minIndex = firstIndex;
+    double minValue = firstValue;
+
+    foreach (int key, map_->uniqueKeys()) {
+        temp = map_->values(key).at(mode);
+
+        if (temp < minValue) {
+            minIndex = key;
+            minValue = temp;
+        }
+    }
+
+    return minIndex;
+}
+
+int CLSKeithley428ValueMap::findMaxIndex(ValueMode mode)
+{
+    double firstIndex = map_->uniqueKeys().first();
+    double firstValue = map_->values(firstIndex).at(mode);
+    double temp = firstValue;
+
+    int maxIndex = firstIndex;
+    double maxValue = firstValue;
+
+    foreach (int key, map_->uniqueKeys()) {
+        temp = map_->values(key).at(mode);
+
+        if (temp > maxValue) {
+            maxIndex = key;
+            maxValue = temp;
+        }
+    }
+
+    return maxIndex;
 }
 
 void CLSKeithley428ValueMap::addValue(int index, ValueMode mode, double value)

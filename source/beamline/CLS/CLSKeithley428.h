@@ -67,6 +67,9 @@ protected slots:
     void onValueChanged(int newIndex);
     void onConnectedStateChanged(bool isConnected);
 
+    void onMaximumGain();
+    void onMinimumGain();
+
 protected:
     /// Returns the next index value, found by applying change to current index.
     int nextIndex(IndexChange change, int currentIndex);

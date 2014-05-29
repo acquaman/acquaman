@@ -23,9 +23,11 @@ public:
 
     QStringList valueStringList(ValueMode mode) const;
 
-    bool isMinIndex(int index);
-    bool isMaxIndex(int index);
+    bool isMinIndex(ValueMode mode, int index);
+    bool isMaxIndex(ValueMode mode, int index);
 
+    int findMinIndex(ValueMode mode);
+    int findMaxIndex(ValueMode mode);
 
 signals:
     void valuesAdded(int index, double gain, double sensitivity);
