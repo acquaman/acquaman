@@ -53,6 +53,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QMessageBox>
 
+#include "actions3/AMActionRegistry3.h"
 #ifdef Q_OS_LINUX
 #include "util/AMGenericLinuxJoystick.h"
 #include "ui/util/AMJoystickTestView.h"
@@ -61,6 +62,17 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 REIXSAppController::REIXSAppController(QObject *parent) :
 	AMAppController(parent)
 {
+}
+
+bool REIXSAppController::startup()
+{
+	bool success = true;
+
+	success &= AMAppController::startup();
+	success &= AMActionRegistry3::s()->registerInfoAndAction<AMSamplePlatePre2013MoveActionInfo, AMSamplePlatePre2013MoveAction>("Move Sample Position", "Move to a different marked sample position", ":system-run.png");
+	success &= AMActionRegistry3::s()->registerInfoAndEditor<AMSamplePlatePre2013MoveActionInfo, AMSamplePlatePre2013MoveActionEditor>();
+
+	return success;
 }
 
 // Re-implemented to create the REIXSBeamline object
