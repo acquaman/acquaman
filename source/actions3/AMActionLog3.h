@@ -46,6 +46,7 @@ class AMActionLog3 : public AMDbObject
 	Q_PROPERTY(QString iconFileName READ iconFileName)
 	Q_PROPERTY(int parentId READ parentId WRITE setParentId)
 	Q_PROPERTY(bool actionInheritedLoop READ actionInheritedLoop WRITE dbLoadActionInheritedLoop)
+	Q_PROPERTY(QString failureMessage READ failureMessage)
 
 	Q_CLASSINFO("AMDbObject_Attributes", "description=Completed Action Log3")
 	// Index by completion time (This is how we will sort/present them in order.)
@@ -104,6 +105,8 @@ public:
 	/// Convenience function to get the database id of the parent (AMLogAction) of this AMLogAction. No parent returns -1.
 	int parentId() const { return parentId_;}
 
+	/// The failureMessage for the Action
+	QString failureMessage() const;
 	// Public setters:
 	/////////////////////////
 	/// Set up this log based on the given \c completedAction. If the action is not in a final state, does nothing and returns false.
@@ -134,6 +137,7 @@ protected:
 	bool actionInheritedLoop_;
 	int parentId_;
 	bool loadedInfoFromDb_;
+	QString failureMessage_;
 };
 
 #endif // AMACTIONLOG3_H

@@ -57,6 +57,7 @@ AMActionLog3::AMActionLog3(const AMAction3 *completedAction, QObject *parent) :
 			endDateTime_ = completedAction->endDateTime();
 		else
 			endDateTime_ = QDateTime::currentDateTime();
+		failureMessage_ = completedAction->failureMessage();
 	}
 	else{
 		info_ = 0;
@@ -80,6 +81,7 @@ AMActionLog3::AMActionLog3(const AMActionLog3 &other) :
 		startDateTime_ = other.startDateTime();
 		endDateTime_ = other.endDateTime();
 		setName(info_->shortDescription());
+		failureMessage_ = other.failureMessage();
 	}
 	else {
 		info_ = 0;
