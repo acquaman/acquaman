@@ -57,6 +57,7 @@ AMActionLogItem3::AMActionLogItem3(const AMActionLog3 &actionLog)
 	finalState_ = actionLog.finalState();
 	canCopy_ = actionLog.info()->canCopy();
 	parentId_ = actionLog.parentId();
+	failureMessage_ = actionLog.failureMessage();
 	actionInheritedLoop_ = actionLog.actionInheritedLoop();
 	// Only set number of loops from the database if this logAction inherited the loop action
 	if(actionInheritedLoop_){
@@ -94,6 +95,13 @@ QString AMActionLogItem3::longDescription() const
 	if(!loadedFromDb_)
 		loadLogDetailsFromDb();
 	return longDescription_;
+}
+
+QString AMActionLogItem3::failureMessage() const
+{
+	if(!loadedFromDb_)
+		loadLogDetailsFromDb();
+	return failureMessage_;
 }
 
 int AMActionLogItem3::finalState() const
@@ -165,7 +173,7 @@ bool AMActionLogItem3::loadLogDetailsFromDb() const
 		return false;
 
 	QStringList columns;
-	columns << "name" << "longDescription" << "iconFileName" << "startDateTime" << "endDateTime" << "finalState" << "info" << "parentId" << "actionInheritedLoop";
+	columns << "name" << "longDescription" << "iconFileName" << "startDateTime" << "endDateTime" << "finalState" << "info" << "parentId" << "failureMessage" << "actionInheritedLoop";
 	QVariantList values = db_->retrieve(id_, AMDbObjectSupport::s()->tableNameForClass<AMActionLog3>(), columns);
 	if(values.isEmpty())
 		return false;
@@ -181,7 +189,8 @@ bool AMActionLogItem3::loadLogDetailsFromDb() const
 	else
 		canCopy_ = db_->retrieve(values.at(6).toString().section(';', -1).toInt(), values.at(6).toString().split(';').first(), "canCopy").toBool();
 	parentId_ = values.at(7).toInt();
-	actionInheritedLoop_ = values.at(8).toBool();
+	failureMessage_ = values.at(8).toString();
+	actionInheritedLoop_ = values.at(9).toBool();
 	// Only set number of loops from the database if this logAction inherited the loop action
 	if(actionInheritedLoop_)
 		numberOfLoops_ = db_->retrieve(values.at(6).toString().section(';', -1).toInt(), values.at(6).toString().split(';').first(), "loopCount").toInt();
@@ -373,7 +382,11 @@ QVariant AMActionHistoryModel3::data(const QModelIndex &index, int role) const
 			switch(item->finalState()) {
 			case AMAction3::Succeeded: return "Succeeded";
 			case AMAction3::Cancelled: return "Cancelled";
-			case AMAction3::Failed: return "Failed";
+			case AMAction3::Failed:
+				if(item->failureMessage().isEmpty())
+					return "Failed";
+				else
+					return QString("Failed with message: %1").arg(item->failureMessage());
 			default: return "[?]";
 			}
 		}
