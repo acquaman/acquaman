@@ -15,13 +15,9 @@ CLSKeithley428::CLSKeithley428(const QString &name, const QString &valueName, QO
     connect( valueControl_, SIGNAL(connected(bool)), this, SLOT(onConnectedStateChanged(bool)) );
     connect( valueControl_, SIGNAL(valueChanged(int)), this, SLOT(onValueChanged(int)) );
 
-    gainUnits_ = "V/A";
+    valueMap_ = new CLSKeithley428ValueMap();
+    setValueMap();
 
-    // For testing.
-    connect( this, SIGNAL(maximumGain(bool)), this, SLOT(onMaximumGain(bool)) );
-    connect( this, SIGNAL(minimumGain(bool)), this, SLOT(onMinimumGain(bool)) );
-    connect( this, SIGNAL(gainValueChanged(double)), this, SLOT(onGainValueChanged(double)) );
-    connect( this, SIGNAL(gainIndexChanged(int)), this, SLOT(onGainIndexChanged(int)) );
 }
 
 CLSKeithley428::~CLSKeithley428()
@@ -31,50 +27,60 @@ CLSKeithley428::~CLSKeithley428()
 
 double CLSKeithley428::value()
 {
-    return gain();
+    return valueMap_->valueAt(valueControl_->getInt(), CLSKeithley428ValueMap::Gain);
 }
 
-QString CLSKeithley428::units() const
+int CLSKeithley428::index()
 {
-    return "V/A";
+    return valueControl_->getInt();
+}
+
+QString CLSKeithley428::units(CLSKeithley428ValueMap::ValueMode mode) const
+{
+    if (mode == CLSKeithley428ValueMap::Gain) {
+        return "V/A";
+
+    } else if (mode == CLSKeithley428ValueMap::Sensitivity) {
+        return "A/V";
+
+    } else {
+        return "";
+    }
+}
+
+bool CLSKeithley428::isConnected()
+{
+    return isConnected_;
+}
+
+CLSKeithley428ValueMap* CLSKeithley428::valueMap() const
+{
+    return valueMap_;
 }
 
 bool CLSKeithley428::atMinimumGain() const
 {
-    if (gainIndex() <= 0) {
-        return true;
-    }
-
-    return false;
+    return valueMap_->isMinIndex(valueControl_->getInt());
 }
 
 bool CLSKeithley428::atMaximumGain() const
 {
-    if (gainIndex() >= 7) {
-        return true;
+    return valueMap_->isMaxIndex(valueControl_->getInt());
+}
+
+void CLSKeithley428::setValueIndex(int valueIndex)
+{
+    // check that the given index corresponds to a gain value, then set the value control.
+    if (valueMap_->map()->contains(valueIndex)) {
+        valueControl_->setValue(valueIndex);
     }
 
-    return false;
-}
-
-void CLSKeithley428::setGainValue(int newValue)
-{
-    int newIndex = expToIndex(valueToExp(newValue));
-    setGainIndex(newIndex);
-}
-
-void CLSKeithley428::setGainIndex(int newIndex)
-{
-    if (indexOkay(newIndex)) {
-        valueControl_->setValue(newIndex);
+    if (atMaximumGain()) {
+        emit atMaximumGain();
     }
-}
 
-void CLSKeithley428::setUnits(QString newUnits)
-{
-    if (unitsOkay(newUnits) && newUnits != gainUnits_) {
-        gainUnits_ = newUnits;
-        emit unitsChanged(gainUnits_);
+    if (atMinimumGain()) {
+        emit atMinimumGain();
     }
 }
 
@@ -86,7 +92,7 @@ bool CLSKeithley428::increaseGain()
 
     // Increase gain!
     int newIndex = nextIndex(IncreaseOne, valueControl_->getInt());
-    setGainIndex(newIndex);
+    setValueIndex(newIndex);
 
     return true;
 }
@@ -95,13 +101,13 @@ bool CLSKeithley428::decreaseGain()
 {
     // Don't do anything if the gain is already at a minimum.
     if (atMinimumGain()) {
-        emit maximumGain(true);
+        emit atMaximumValue(true);
         return false;
     }
 
     // Decrease gain!
     int newIndex = nextIndex(DecreaseOne, valueControl_->getInt());
-    setGainIndex(newIndex);
+    setValueIndex(newIndex);
 
     return true;
 }
@@ -110,22 +116,16 @@ void CLSKeithley428::onValueChanged(int newIndex)
 {
     Q_UNUSED(newIndex)
 
-    emit gainValueChanged(value());
-    emit gainIndexChanged(gainIndex());
+    emit valueChanged(value());
+    emit indexChanged(index());
 
     if (atMaximumGain()) {
-        emit maximumGain(true);
+        emit atMaximumValue(true);
     }
 
     if (atMinimumGain()) {
-        emit minimumGain(true);
+        emit atMinimumValue(true);
     }
-}
-
-void CLSKeithley428::onUnitsChanged(QString newUnits)
-{
-    qDebug() << "Gain units changed : " << newUnits;
-    emit unitsChanged(newUnits);
 }
 
 void CLSKeithley428::onConnectedStateChanged(bool isConnected)
@@ -137,182 +137,46 @@ void CLSKeithley428::onConnectedStateChanged(bool isConnected)
     }
 }
 
-double CLSKeithley428::gain()
-{
-    int exp = indexToExp(valueControl_->getInt());
-    return expToValue(exp);
-}
-
-QString CLSKeithley428::gainUnits() const
-{
-    return gainUnits_;
-}
-
-int CLSKeithley428::gainIndex() const
-{
-    return valueControl_->getInt();
-}
-
-double CLSKeithley428::sensitivity()
-{
-    return 1/gain();
-}
-
-int CLSKeithley428::expToIndex(int exp) const
-{
-    int index = -1;
-
-    switch (exp) {
-    case 3:
-        index = 0;
-        break;
-    case 4:
-        index = 1;
-        break;
-    case 5:
-        index = 2;
-        break;
-    case 6:
-        index = 3;
-        break;
-    case 7:
-        index = 4;
-        break;
-    case 8:
-        index = 5;
-        break;
-    case 9:
-        index = 6;
-        break;
-    case 10:
-        index = 7;
-        break;
-    }
-
-    return index;
-}
-
-int CLSKeithley428::indexToExp(int index) const
-{
-    int exp = -1;
-
-    switch (index) {
-    case 0:
-        exp = 3;
-        break;
-    case 1:
-        exp = 4;
-        break;
-    case 2:
-        exp = 5;
-        break;
-    case 3:
-        exp = 6;
-        break;
-    case 4:
-        exp = 7;
-        break;
-    case 5:
-        exp = 8;
-        break;
-    case 6:
-        exp = 9;
-        break;
-    case 7:
-        exp = 10;
-        break;
-    }
-
-    return exp;
-}
-
-double CLSKeithley428::expToValue(int exp)
-{
-    return pow(10, exp);
-}
-
-int CLSKeithley428::valueToExp(double value)
-{
-    return log10(value);
-}
-
 int CLSKeithley428::nextIndex(IndexChange change, int currentIndex)
 {
-    if (!indexOkay(currentIndex))
-        return -1;
+    int nextIndex = -1;
 
-    if (change == IncreaseOne) {
-        if (!atMaximumGain()) {
-            return currentIndex + 1;
-        } else {
-            return -1;
-        }
+    if (valueMap_->map()->contains(currentIndex)) {
+        qDebug() << "Invalid initial index.";
+        nextIndex = -1;
+    }
+
+    if (change == IncreaseOne && atMaximumGain()) {
+        qDebug() << "At max index.";
+        nextIndex = currentIndex;
+
+    } else if (change == IncreaseOne) {
+        nextIndex = currentIndex++;
+
+    } else if (change == DecreaseOne && atMinimumGain()) {
+        qDebug() << "At min index.";
+        nextIndex = currentIndex;
 
     } else if (change == DecreaseOne) {
-        if (!atMinimumGain()) {
-            return currentIndex - 1;
-        } else {
-            return -1;
-        }
+        nextIndex = currentIndex--;
 
     } else {
         qDebug() << "CLSKeithley428 : Unknown change discovered--neither IncreaseOne nor DecreaseOne.";
-        return -1;
+        nextIndex = currentIndex;
     }
+
+    return nextIndex;
 }
 
-void CLSKeithley428::onMaximumGain(bool atMax)
+void CLSKeithley428::setValueMap()
 {
-    if (atMax) {
-        qDebug() << "At maximum gain.";
-    }
-}
-
-void CLSKeithley428::onMinimumGain(bool atMin)
-{
-    if (atMin) {
-        qDebug() << "At minimum gain.";
-    }
-}
-
-void CLSKeithley428::onGainValueChanged(double value)
-{
-    qDebug() << "New gain : " << value;
-}
-
-void CLSKeithley428::onGainIndexChanged(int index)
-{
-    qDebug() << "New index : " << index;
-}
-
-bool CLSKeithley428::valueOkay(int value)
-{
-    if (exponentOkay(valueToExp(value)))
-        return true;
-    else
-        return false;
-}
-
-bool CLSKeithley428::indexOkay(int index)
-{
-    if (index >=0 && index <= 7)
-        return true;
-    else
-        return false;
-}
-
-bool CLSKeithley428::exponentOkay(int exp)
-{
-    if (exp >= 3 && exp <= 10)
-        return true;
-    else
-        return false;
-}
-
-bool CLSKeithley428::unitsOkay(QString &units)
-{
-    if (units == "V/A")
-        return true;
-    else
-        return false;
+    valueMap_->map()->clear();
+    valueMap_->addValue(0, CLSKeithley428ValueMap::Gain, pow(10, 3));
+    valueMap_->addValue(1, CLSKeithley428ValueMap::Gain, pow(10, 4));
+    valueMap_->addValue(2, CLSKeithley428ValueMap::Gain, pow(10, 5));
+    valueMap_->addValue(3, CLSKeithley428ValueMap::Gain, pow(10, 6));
+    valueMap_->addValue(4, CLSKeithley428ValueMap::Gain, pow(10, 7));
+    valueMap_->addValue(5, CLSKeithley428ValueMap::Gain, pow(10, 8));
+    valueMap_->addValue(6, CLSKeithley428ValueMap::Gain, pow(10, 9));
+    valueMap_->addValue(7, CLSKeithley428ValueMap::Gain, pow(10, 10));
 }

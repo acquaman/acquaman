@@ -757,7 +757,9 @@ HEADERS += source/acquaman/AMRegion.h \
 	source/beamline/CLS/CLSPseudoMotorControl.h \
     source/beamline/CLS/CLSKeithley428.h \
     source/ui/beamline/AMCurrentAmplifierView.h \
-    source/ui/CLS/CLSKeithley428View.h
+    source/ui/CLS/CLSKeithley428View.h \
+    source/beamline/CLS/CLSKeithley428ValueOptions.h \
+    source/beamline/CLS/CLSKeithley428ValueMap.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1235,7 +1237,9 @@ SOURCES += source/acquaman/AMRegion.cpp \
 	source/beamline/CLS/CLSPseudoMotorControl.cpp \
     source/beamline/CLS/CLSKeithley428.cpp \
     source/ui/beamline/AMCurrentAmplifierView.cpp \
-    source/ui/CLS/CLSKeithley428View.cpp
+    source/ui/CLS/CLSKeithley428View.cpp \
+    source/beamline/CLS/CLSKeithley428ValueOptions.cpp \
+    source/beamline/CLS/CLSKeithley428ValueMap.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {

@@ -4,7 +4,11 @@
 #include <QWidget>
 #include <QLayout>
 
+#include "beamline/CLS/CLSKeithley428.h"
+#include "ui/CLS/CLSKeithley428View.h"
+
 class AMExtendedControlEditor;
+class CLSKeithley428ContainerView;
 
 class BioXASSidePersistentView : public QWidget
 {
@@ -20,6 +24,7 @@ public slots:
 
 protected:
     AMExtendedControlEditor *motorControlEditor_;
+    CLSKeithley428ContainerView *keithleyView_;
 
 };
 
