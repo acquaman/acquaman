@@ -48,6 +48,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/info/CLSOceanOptics65000DetectorInfo.h"
 #include "dataman/info/CLSPGTDetectorInfo.h"
 #include "dataman/info/CLSAmptekSDD123DetectorInfo.h"
+#include "dataman/SGM/SGMMCPDetectorInfo.h"
 
 #include "acquaman/AMScanController.h"
 #include "acquaman/AMScanActionControllerScanAssembler.h"
@@ -77,6 +78,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/SGM/SGMSampleManagementView.h"
 #include "ui/SGM/SGMSampleManipulatorView.h"
 #include "ui/SGM/SGMSIS3820ScalerView.h"
+#include "ui/SGM/SGMDataViewWithActionButtons.h"
 
 #include "ui/CLS/CLSAmptekSDD123DetailedDetectorView.h"
 #include "ui/CLS/CLSPGTDetectorV2View.h"
@@ -258,6 +260,7 @@ bool SGMAppController::startupRegisterDatabases(){
 	bool success = true;
 
 	// Register the detector and scan classes
+	success &= AMDbObjectSupport::s()->registerClass<SGMMCPDetectorInfo>();
 	success &= AMDbObjectSupport::s()->registerClass<CLSPGTDetectorInfo>();
 	success &= AMDbObjectSupport::s()->registerClass<CLSAmptekSDD123DetectorInfo>();
 	success &= AMDbObjectSupport::s()->registerClass<CLSOceanOptics65000DetectorInfo>();
@@ -384,7 +387,8 @@ void SGMAppController::onSGMBeamlineConnected(){
 
 		xasScanConfiguration2013View_ = new SGMXASScanConfiguration2013View(xasScanConfiguration2013);
 		xasScanConfiguration2013View_->setDetectorSelector(xasDetectorSelector_);
-		xasScanConfiguration2013View_->setTrackingSet(SGMBeamline::sgm()->trackingSet());
+		// removed as temporary fix (see Issue579)
+		//xasScanConfiguration2013View_->setTrackingSet(SGMBeamline::sgm()->trackingSet());
 		xasScanConfiguration2013Holder3_->setView(xasScanConfiguration2013View_);
 		//End New XAS
 
@@ -676,6 +680,8 @@ void SGMAppController::onWorkflowActionAddedFromDialog(AMAction3 *action){
 		AMControlMoveActionInfo3 *controlMoveActionInfo = qobject_cast<AMControlMoveActionInfo3*>(controlMoveAction->info());
 		if(controlMoveActionInfo)
 			controlMoveActionInfo->setIsRelativeMove(true);
+		controlMoveAction->setFailureResponseAsSubAction(AMAction3::AttemptAnotherCopyResponse);
+		controlMoveAction->setFailureResponseInActionRunner(AMAction3::AttemptAnotherCopyResponse);
 	}
 }
 
@@ -743,7 +749,8 @@ bool SGMAppController::setupSGMPlugins()
 }
 
 bool SGMAppController::setupSGMExporterOptions(){
-	AMExportController::registerExporter<SGMAxis2000Exporter>();
+	// Removed following line until the SGM Axis 2000 export is completed, in reference to Issue594
+	//AMExportController::registerExporter<SGMAxis2000Exporter>();
 
 	bool success = true;
 
@@ -761,7 +768,7 @@ bool SGMAppController::setupSGMExporterOptions(){
 			sgmDefault->loadFromDb(dbSGM, matchIDs.at(0));
 		sgmDefault->setName("SGMDefault");
 		sgmDefault->setFileName("$name_$fsIndex.txt");
-		sgmDefault->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\nGrating: $scanConfiguration[grating%enumConvert]\nHarmonic: $scanConfiguration[harmonic%enumConvert]\nExit Slit Gap: $scanConfiguration[exitSlitGap%double%2] um");
+		sgmDefault->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\nGrating: $scanConfiguration[grating%enumConvert]\nHarmonic: $scanConfiguration[harmonic%enumConvert]\nExit Slit Gap: $scanConfiguration[exitSlitGap%double%2] um\nNotes: $notes");
 		sgmDefault->setHeaderIncluded(true);
 		sgmDefault->setColumnHeader("$dataSetName $dataSetInfoDescription");
 		sgmDefault->setColumnHeaderIncluded(true);
@@ -1453,4 +1460,8 @@ bool SGMAppController::setupSGMViews(){
 	connect(workflowView_, SIGNAL(actionAddedFromDialog(AMAction3*)), this, SLOT(onWorkflowActionAddedFromDialog(AMAction3*)));
 
 	return true;
+}
+
+AMDataViewWithActionButtons* SGMAppController::createDataViewWithActionButtons(){
+	return new SGMDataViewWithActionButtons();
 }

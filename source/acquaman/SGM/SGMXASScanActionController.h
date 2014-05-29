@@ -26,6 +26,9 @@ protected:
 protected:
 	/// Specific scan configuration with all the SGM specific information inside.
 	SGMXASScanConfiguration2013 *configuration_;
+
+	/// Helper function to generate the notes for an SGMXAS scan
+	QString buildNotes();
 };
 
 #endif // SGMXASSCANACTIONCONTROLLER_H

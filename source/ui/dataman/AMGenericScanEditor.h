@@ -168,6 +168,8 @@ protected slots:
 	/// Helper slot that emits the dataPositionChanged signal.
 	void onDataPositionChanged(const QPoint &pos) { emit dataPositionChanged(this, pos); }
 
+	/// Slot which is called when the scan is saved to the database (sets ScanID to database value)
+	void onScanSavedToDatabase();
 
 protected:
 

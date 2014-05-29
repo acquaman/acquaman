@@ -51,8 +51,32 @@ public:
 	/// Creates an action to enable or disable this amptek for in the array.
 	AMAction3* createEnableAction3(bool setEnabled);
 	bool isEnabled() const;
-
+	/// Returns the temperature of the detector
 	double detectorTemperature() const;
+
+	/// Returns the total gain of the detector
+	double detectorTotalGain() const;
+
+	/// Returns the MCA Channels
+	double mcaChannels() const;
+
+	/// Returns the Pile-up Rejection value
+	double pileUpRejection() const;
+
+	/// Returns the thermoelectric cooler value
+	double thermoelectricCooler() const;
+
+	/// Returns the fast threshold control value
+	double fastThreshold() const;
+
+	/// Returns the slow threshold control value
+	double slowThreshold() const;
+
+	/// Returns the peaking time control value
+	double peakingTime() const;
+
+	/// Returns the fast channel peaking time control value
+	double fastChannelPeakingTime() const;
 
 	/// Return the eV/bin ratio
 	double eVPerBin() const;
@@ -64,6 +88,12 @@ public:
 	int amptekLowROI(int index);
 	/// Returns the ROI high index for a given ROI index
 	int amptekHighROI(int index);
+
+	/// Returns the ROI low ev value for a given ROI index
+	double amptekLowROIEv(int index);
+
+	/// Returns the ROI high rv value for a given ROI index
+	double amptekHighROIEv(int index);
 
 	/// Returns the AMControl for fastCounts if the QObject type passed casts to CLSAmptekDetailedDetectorView or CLSAmptekDetectorConfigurationView
 	AMControl* fastCountsControl(const QObject *privelegedCaller) const;
@@ -123,6 +153,9 @@ public slots:
 	/// Set the internal amptek ROI to a given low and high channel number
 	void setAmptekROI(int index, int lowChannel, int highChannel);
 
+	/// Set the internal amptek ROI to a given low and high eV range
+	void setAmptekROIbyEv(int index, double lowEv, double highEv);
+
 	/// Sets the eV/bin ratio
 	void setEVPerBin(double eVPerBin);
 
@@ -146,6 +179,12 @@ protected slots:
 protected:
 	/// Returns true if the QObject type casts to the priveleged type of CLSAmptekDetailedDetectorView or CLSAmptekDetectorConfigurationView
 	bool isPrivelegedType(const QObject *privelegedCaller) const;
+
+	/// Helper function to convert bin value to eV value using current evPerBin value
+	double convertBinToEv(int binValue);
+
+	/// Helper function to convert eV value to bin value using current evPerBin value
+	int convertEvToBin(double eVValue);
 
 protected:
 	/// Control for the fast counts

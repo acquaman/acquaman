@@ -313,6 +313,9 @@ protected:
 	/// Method that handles the database upgrades for every other time the database is loaded.  \param upgrades is the list of upgrades that need to be done.
 	bool onEveryTimeDatabaseUpgrade(QList<AMDbUpgrade *> upgrades);
 
+	/// Called to create the dataViewWithActionButtons view. Subclasses can reimplement this to call their own views if needed.
+	virtual AMDataViewWithActionButtons* createDataViewWithActionButtons();
+
 protected:
 	/// Helper method that returns the editor associated with a scan for the scanEditorsScanMapping list.  Returns 0 if not found.
 	AMGenericScanEditor *editorFromScan(AMScan *scan) const;
