@@ -15,6 +15,7 @@
 #include "dataman/AMTextStream.h"
 #include "beamline/CLS/CLSSR570.h"
 #include "dataman/AMSample.h"
+#include "beamline/SGM/SGMMAXvMotor.h"
 
 SGMFastScanActionController::SGMFastScanActionController(SGMFastScanConfiguration2013 *configuration, QObject *parent) :
 	AMScanActionController(configuration, parent)
@@ -708,7 +709,7 @@ QString SGMFastScanActionController::buildNotes()
 	returnString.append(QString("Grating:\t%2\n").arg(SGMBeamlineInfo::sgmInfo()->sgmGratingDescription(configuration_->grating())));
 
 	// Add Harmonic
-	returnString.appen(QString("Harmonic:\t%1\n").arg(SGMBeamlineInfo::sgmInfo()->sgmHarmonicDescription(configuration_->harmonic())));
+	returnString.append(QString("Harmonic:\t%1\n").arg(SGMBeamlineInfo::sgmInfo()->sgmHarmonicDescription(configuration_->harmonic())));
 
 
 	return returnString;
