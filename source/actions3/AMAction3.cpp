@@ -177,12 +177,13 @@ void AMAction3::setSucceeded()
 		AMErrorMon::debug(this, AMACTION3_NOTIFIED_SUCCEEDED_BUT_NOT_YET_POSSIBLE, QString("An implementation told us it had succeeded before it could possibly be running. Action name: %1. Current state: %2.").arg(info()->name()).arg(stateDescription(state())) );
 }
 
-void AMAction3::setFailed()
+void AMAction3::setFailed(const QString &message)
 {
 	if (canChangeState(Failed)){
 
 		endDateTime_ = QDateTime::currentDateTime();
 		setState(Failed);
+		failureMessage_ = message;
 		emit failed();
 	}
 

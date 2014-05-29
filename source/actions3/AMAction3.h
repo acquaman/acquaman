@@ -242,6 +242,9 @@ public:
 	/// Specific action types should check this flag to see if they need to send out messages with AMAgnositicDataAPI. If true, messages should be generated.
 	bool generateScanActionMessages() const { return generateScanActionMessages_; }
 
+	/// The message that is displayed to detail reasons why an action failed, or the settings of the action.
+	const QString failureMessage() const { return failureMessage_; }
+
 signals:
 
 	/// Emitted whenever the state() of the action changes
@@ -312,7 +315,7 @@ protected:
 	/// Call this to inform the base class that the action has succeeded. It should be OK to delete the action after receiving this.
 	void setSucceeded();
 	/// Call this to inform the base class that the action has failed. It should be OK to delete the action after receiving this.
-	void setFailed();
+	void setFailed(const QString& = QString());
 	/// Call this after receiving pauseImplementation() to inform the base class that the action has been paused, and we should go from Pausing to Paused.
 	void setPaused();
 	/// Call this after receiving resumeImplementation() to inform the base class that the action has been resumed, and we should go from Resuming to Running.
@@ -364,6 +367,8 @@ private:
 	double secondsSpentPaused_;
 	/// This variable stores the time at which we were last paused. It is set in pause().
 	QDateTime lastPausedAt_;
+	/// Optional failure string that Actions can use to report why they failed or their current settings
+	QString failureMessage_;
 };
 
 #endif // AMACTION3_H
