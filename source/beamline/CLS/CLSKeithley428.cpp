@@ -7,16 +7,12 @@
 CLSKeithley428::CLSKeithley428(const QString &name, const QString &valueName, QObject *parent) :
     AMCurrentAmplifier(name, parent)
 {
-    connect( this, SIGNAL(atMaximumValue(bool)), this, SLOT(onMaximumGain()) );
-    connect( this, SIGNAL(atMinimumValue(bool)), this, SLOT(onMinimumGain()) );
-
     valueControl_ = new AMProcessVariable(valueName, true, this);
     connect( valueControl_, SIGNAL(connected(bool)), this, SLOT(onConnectedStateChanged(bool)) );
     connect( valueControl_, SIGNAL(valueChanged(int)), this, SLOT(onValueChanged(int)) );
 
     valueMap_ = new CLSKeithley428ValueMap();
     setValueMap();
-
 }
 
 CLSKeithley428::~CLSKeithley428()
@@ -87,16 +83,6 @@ void CLSKeithley428::setValueIndex(int valueIndex)
     // check that the given index corresponds to a value, then set the value control.
     if (valueMap_->map()->contains(valueIndex)) {
         valueControl_->setValue(valueIndex);
-
-        if (atMaximumGain()) {
-            emit maximumGain(true);
-            emit minimumSensitivity(true);
-        }
-
-        if (atMinimumGain()) {
-            emit minimumGain(true);
-            emit maximumSensitivity(true);
-        }
     }
 }
 
@@ -153,6 +139,16 @@ void CLSKeithley428::onValueChanged(int newIndex)
 {
     emit valueChanged();
     emit indexChanged(newIndex);
+
+    if (atMaximumGain()) {
+        emit maximumGain(true);
+        emit minimumSensitivity(true);
+    }
+
+    if (atMinimumGain()) {
+        emit minimumGain(true);
+        emit maximumSensitivity(true);
+    }
 }
 
 void CLSKeithley428::onConnectedStateChanged(bool connectState)
