@@ -405,6 +405,8 @@ void AMGenericScanEditor::onCurrentChanged ( const QModelIndex & selected, const
 void AMGenericScanEditor::updateEditor(AMScan *scan) {
 	if(scan) {
 
+		ui_.scanId->setText(QString("%1").arg(scan->id()));
+		connect(scan, SIGNAL(storedToDb()), this, SLOT(onScanSavedToDatabase()));
 		ui_.scanName->setText(scan->name());
 		ui_.scanNumber->setValue(scan->number());
 		ui_.scanDate->setText( AMDateTimeUtils::prettyDate(scan->dateTime()));
@@ -439,6 +441,7 @@ void AMGenericScanEditor::updateEditor(AMScan *scan) {
 	}
 
 	else {
+		ui_.scanId->setText(QString("Pending..."));
 		ui_.scanName->setText( QString() );
 		ui_.scanNumber->setValue(0);
 		ui_.scanDate->setText( QString() );
@@ -749,6 +752,12 @@ void AMGenericScanEditor::onOneSecondTimer()
 		}
 	}
 
+}
+
+void AMGenericScanEditor::onScanSavedToDatabase()
+{
+	ui_.scanId->setText(QString("%1").arg(currentScan_->id()));
+	ui_.scanNumber->setValue(currentScan_->number());
 }
 
 #include <QFileDialog>

@@ -81,6 +81,11 @@ SGMAdvancedControlsView::SGMAdvancedControlsView(QWidget *parent) :
 	entranceSlitEditor_->overrideTitle("Entrance Slit");
 	entranceSlitEditor_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 
+	exitSlitEditor_ = new AMExtendedControlEditor(SGMBeamline::sgm()->exitSlit());
+	exitSlitEditor_->setControlFormat('f', 1);
+	exitSlitEditor_->overrideTitle("Exit Slit Position");
+	exitSlitEditor_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+
 	endstationsAvailable_ = new QButtonGroup();
 	scientaButton_ = new QRadioButton(SGMBeamlineInfo::sgmInfo()->sgmEndstationName(SGMBeamlineInfo::scienta));
 	ssaButton_ = new QRadioButton(SGMBeamlineInfo::sgmInfo()->sgmEndstationName(SGMBeamlineInfo::ssa));
@@ -101,6 +106,7 @@ SGMAdvancedControlsView::SGMAdvancedControlsView(QWidget *parent) :
 	mainVL_->addWidget(undulatorBox);
 	mainVL_->addWidget(masterMirrorStripBox);
 	mainVL_->addWidget(entranceSlitEditor_);
+	mainVL_->addWidget(exitSlitEditor_);
 	mainVL_->addWidget(endstationsBox);
 	mainVL_->addStretch(10);
 

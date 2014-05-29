@@ -104,7 +104,7 @@ void SGMSScanConfigurationDbObject::setFluxResolutionGroup(const AMControlInfoLi
 
 void SGMSScanConfigurationDbObject::setExitSlitGap(double exitSlitGapValue){
 	if(exitSlitGap() != exitSlitGapValue){
-		fluxResolutionGroup_.controlNamed("exitSlit").setValue(exitSlitGapValue);
+		fluxResolutionGroup_.controlNamed("exitSlitGap").setValue(exitSlitGapValue);
 		emit fluxResolutionGroupChanged();
 		emit exitSlitGapChanged(exitSlitGap());
 		setModified(true);

@@ -24,17 +24,23 @@ public:
 	virtual const AMScanConfiguration* configuration() const;
 
 	void setDetectorSelector(AMDetectorSelector *xasDetectorSelector);
-	void setTrackingSet(AMControlSet *trackingSet);
+	//void setTrackingSet(AMControlSet *trackingSet);
 
 signals:
 	void scanControllerCreated(AMScanController *scanController);
 
 protected slots:
-	void onTrackingGroupChanged();
+	//void onTrackingGroupChanged();
 	void onFluxResolutionGroupChanged();
-
 	void onScanNameEditChanged(const QString &scanName);
-
+	void onUndulatorTrackingChanged(bool isTracking);
+	void onUndulatorTrackingButtonClicked();
+	void onExitSlitTrackingChanged(bool isTracking);
+	void onExitSlitTrackingButtonClicked();
+	void onGratingTrackingChanged(bool isTracking);
+	void onGratingTrackingButtonClicked();
+	void onMatchingBeamlineSettingsChanged(bool matchedBeamline);
+	void onGetBeamlineSettingsClicked();
 protected:
 	SGMXASScanConfiguration2013 *configuration_;
 
@@ -42,8 +48,9 @@ protected:
 	// THINGS I SHOULDN'T HAVE ACCESS TO //
 	//////////////////////////////////////
 	AMDetectorSelector *xasDetectorSelector_;
-	AMControlSet *trackingSet_;
-	AMControlSetView *trackingSetView_;
+	// Two lines removed as temporary fix (see Issue579)
+	//AMControlSet *trackingSet_;
+	//AMControlSetView *trackingSetView_;
 	SGMFluxResolutionPickerView *fluxResolutionView_;
 
 	AMTopFrame *topFrame_;
@@ -56,6 +63,15 @@ protected:
 
 	QLabel *scanNameLabel_;
 	QLineEdit *scanNameEdit_;
+	QPushButton* undulatorTrackingButton_;
+	QPushButton* gratingTrackingButton_;
+	QPushButton* exitSlitTrackingButton_;
+	QLabel *matchesBeamlineWarning_;
+	QPushButton* getBeamlineSettings_;
+
+	void updateTrackingButtonStatus(QPushButton* button, bool isTracking);
+
+
 };
 
 #endif // SGMXASSCANCONFIGURATION2013VIEW_H

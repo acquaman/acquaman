@@ -82,6 +82,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
 #include "dataman/AM2DScan.h"
 #include "dataman/AM3DScan.h"
+#include "analysis/AM1DIntegralAB.h"
 #include "analysis/AM2DNormalizationAB.h"
 #include "analysis/AM1DNormalizationAB.h"
 #include "analysis/AM2DAdditionAB.h"
@@ -547,6 +548,10 @@ bool AMDatamanAppController::onEveryTimeDatabaseUpgrade(QList<AMDbUpgrade *> upg
 	return true;
 }
 
+AMDataViewWithActionButtons* AMDatamanAppController::createDataViewWithActionButtons(){
+	return new AMDataViewWithActionButtons();
+}
+
 bool AMDatamanAppController::startupRegisterDatabases()
 {
 	AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES, "Acquaman Startup: Registering Databases");
@@ -581,6 +586,7 @@ bool AMDatamanAppController::startupRegisterDatabases()
 	success &= AMDbObjectSupport::s()->registerClass<AM1DExpressionAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AM2DSummingAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AM1DDerivativeAB>();
+	success &= AMDbObjectSupport::s()->registerClass<AM1DIntegralAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AMExternalScanDataSourceAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AM1DSummingAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AMDeadTimeAB>();
@@ -708,7 +714,8 @@ bool AMDatamanAppController::startupCreateUserInterface()
 
 	// Make a dataview widget and add it under two links/headings: "Runs" and "Experiments". See AMMainWindowModel for more information.
 	////////////////////////////////////
-	dataView_ = new AMDataViewWithActionButtons();
+	dataView_ = createDataViewWithActionButtons();
+	dataView_->buildView();
 	dataView_->setWindowTitle("Data");
 
 	QStandardItem* dataViewItem = new QStandardItem();

@@ -124,6 +124,8 @@ void AMActionRunner3::onCurrentActionStateChanged(int state, int previousState)
 			failureResponse = internalAskUserWhatToDoAboutFailedAction(currentAction_);
 
 		if(failureResponse == AMAction3::AttemptAnotherCopyResponse) {
+			// if it fails again, we'll just make another one ... so we better change the response here
+			currentAction()->setFailureResponseInActionRunner(AMAction3::MoveOnResponse);
 			// make a fresh copy of this action and put it at the front of the queue to run again.
 			insertActionInQueue(currentAction_->createCopy(), 0);
 		}

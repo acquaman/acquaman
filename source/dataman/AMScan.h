@@ -457,6 +457,8 @@ public slots:
 	void setFileFormat(const QString& format) { fileFormat_ = format;  setModified(true); }
 	/// Any additional files of raw data that need to be referenced
 	void setAdditionalFilePaths(const QStringList& additionalFilePaths) { additionalFilePaths_ = additionalFilePaths; setModified(true); }
+	/// Override of AMDbObject::storeToDb(). Checks if first time stored and auto-generates a scan number before calling AMDbObject::storeToDb() if it is.
+	bool storeToDb(AMDatabase *db, bool generateThumbnails = true);
 
 
 	/// Change the scan initial conditions
@@ -487,10 +489,8 @@ signals:
 	/// Emitted after a data source was removed. \c index is the index the source used to occupy in dataSourceAt(); it's not there anymore.
 	void dataSourceRemoved(int index);
 
-
 	/// Emitted when the scan initial conditions are changed
 	void scanInitialConditionsChanged();
-
 
 protected slots:
 
@@ -536,6 +536,7 @@ protected:
 	QStringList additionalFilePaths_;
 	/// String holding what type of indexation the scan index can take.  This is a first attempt at actually using the scan index.  Currently, the only index type is fileSystem.
 	QString indexType_;
+
 
 	AMScanDictionary *nameDictionary_;
 	AMScanDictionary *exportNameDictionary_;
