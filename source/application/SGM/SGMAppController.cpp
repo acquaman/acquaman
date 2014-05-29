@@ -753,54 +753,120 @@ bool SGMAppController::setupSGMExporterOptions(){
 	if(!dbSGM)
 		return false;
 
-	QList<int> matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "SGMDefault");
+	success &= setupSGMXASExporterOptions(dbSGM);
+	success &= setupSGMFastScanExporterOptions(dbSGM);
+
+	return success;
+}
+
+bool SGMAppController::setupSGMXASExporterOptions(AMDatabase *dbSGM)
+{
+	bool success = true;
+
+		QList<int> matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "SGMXASScanDefault");
 
 	if(!dbSGM->isReadOnly()){
-		AMExporterOptionGeneralAscii *sgmDefault;
-		// Don't have one called "SGMDefault", so make one. If we have one, retreive it and check it.
-		sgmDefault = new AMExporterOptionGeneralAscii();
+		AMExporterOptionGeneralAscii *sgmXASDefault;
+		// Don't have one called "SGMXASScanDefault", so make one. If we have one, retreive it and check it.
+		sgmXASDefault = new AMExporterOptionGeneralAscii();
 		if(matchIDs.count() != 0)
-			sgmDefault->loadFromDb(dbSGM, matchIDs.at(0));
-		sgmDefault->setName("SGMDefault");
-		sgmDefault->setFileName("$name_$fsIndex.txt");
-		sgmDefault->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\nGrating: $scanConfiguration[grating%enumConvert]\nHarmonic: $scanConfiguration[harmonic%enumConvert]\nExit Slit Gap: $scanConfiguration[exitSlitGap%double%2] um\nNotes: $notes");
-		sgmDefault->setHeaderIncluded(true);
-		sgmDefault->setColumnHeader("$dataSetName $dataSetInfoDescription");
-		sgmDefault->setColumnHeaderIncluded(true);
-		sgmDefault->setColumnHeaderDelimiter("==========");
-		sgmDefault->setSectionHeader("");
-		sgmDefault->setSectionHeaderIncluded(true);
-		if(sgmDefault->dataSources().count() > 0 && sgmDefault->dataSources().at(0) == "EnergyFeedback")
-			sgmDefault->removeDataSourceAt(0);
-		sgmDefault->ensureDataSource("I0", false, AMExporterOptionGeneral::CombineInColumnsMode, false);
-		sgmDefault->ensureDataSource("EnergyFeedback", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
-		sgmDefault->ensureDataSource("Photodiode", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
-		sgmDefault->ensureDataSource("TEY", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
-		sgmDefault->ensureDataSource("TFY", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
-		sgmDefault->ensureDataSource("TEYNorm", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
-		sgmDefault->ensureDataSource("TFYNorm", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
-		sgmDefault->ensureDataSource("PFY", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
-		sgmDefault->ensureDataSource("IPFY", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
-		sgmDefault->ensureDataSource("SDD", false, AMExporterOptionGeneral::SeparateFilesMode, false);
-		sgmDefault->ensureDataSource("OceanOptics65000", false, AMExporterOptionGeneral::SeparateFilesMode, false);
-		sgmDefault->ensureDataSource("PLY", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
-		sgmDefault->ensureDataSource("PLYNorm", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
-		sgmDefault->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.txt");
-		sgmDefault->setIncludeAllDataSources(true);
-		sgmDefault->setFirstColumnOnly(true);
-		sgmDefault->setSeparateHigherDimensionalSources(true);
-		sgmDefault->storeToDb(dbSGM);
+			sgmXASDefault->loadFromDb(dbSGM, matchIDs.at(0));
+		sgmXASDefault->setName("SGMXASScanDefault");
+		sgmXASDefault->setFileName("$name_$fsIndex.txt");
+		sgmXASDefault->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\nGrating: $scanConfiguration[grating%enumConvert]\nHarmonic: $scanConfiguration[harmonic%enumConvert]\nExit Slit Gap: $scanConfiguration[exitSlitGap%double%2] um\nNotes: $notes");
+		sgmXASDefault->setHeaderIncluded(true);
+		sgmXASDefault->setColumnHeader("$dataSetName $dataSetInfoDescription");
+		sgmXASDefault->setColumnHeaderIncluded(true);
+		sgmXASDefault->setColumnHeaderDelimiter("==========");
+		sgmXASDefault->setSectionHeader("");
+		sgmXASDefault->setSectionHeaderIncluded(true);
+		if(sgmXASDefault->dataSources().count() > 0 && sgmXASDefault->dataSources().at(0) == "EnergyFeedback")
+			sgmXASDefault->removeDataSourceAt(0);
+		sgmXASDefault->ensureDataSource("I0", false, AMExporterOptionGeneral::CombineInColumnsMode, false);
+		sgmXASDefault->ensureDataSource("EnergyFeedback", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
+		sgmXASDefault->ensureDataSource("Photodiode", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
+		sgmXASDefault->ensureDataSource("TEY", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
+		sgmXASDefault->ensureDataSource("TFY", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
+		sgmXASDefault->ensureDataSource("TEYNorm", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
+		sgmXASDefault->ensureDataSource("TFYNorm", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
+		sgmXASDefault->ensureDataSource("PFY", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
+		sgmXASDefault->ensureDataSource("IPFY", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
+		sgmXASDefault->ensureDataSource("SDD", false, AMExporterOptionGeneral::SeparateFilesMode, false);
+		sgmXASDefault->ensureDataSource("OceanOptics65000", false, AMExporterOptionGeneral::SeparateFilesMode, false);
+		sgmXASDefault->ensureDataSource("PLY", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
+		sgmXASDefault->ensureDataSource("PLYNorm", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
+		sgmXASDefault->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.txt");
+		sgmXASDefault->setIncludeAllDataSources(true);
+		sgmXASDefault->setFirstColumnOnly(true);
+		sgmXASDefault->setSeparateHigherDimensionalSources(true);
+		sgmXASDefault->storeToDb(dbSGM);
 	}
 	else{
 		//Should I do a check of some sort to make sure this is up to date?
 	}
 
-	matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "SGMDefault");
+	matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "SGMXASScanDefault");
 
 	if(matchIDs.count() > 0){
 		success &= AMAppControllerSupport::registerClass<SGMXASScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(matchIDs.at(0), dbSGM->connectionName());
-		success &= AMAppControllerSupport::registerClass<SGMFastScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(matchIDs.at(0), dbSGM->connectionName());
 		success &= AMAppControllerSupport::registerClass<SGMXASScanConfiguration2013, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(matchIDs.at(0), dbSGM->connectionName());
+	}
+	else
+		return false;
+
+	return success;
+}
+
+bool SGMAppController::setupSGMFastScanExporterOptions(AMDatabase *dbSGM)
+{
+	bool success = true;
+
+		QList<int> matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "SGMFastScanDefault");
+
+	if(!dbSGM->isReadOnly()){
+		AMExporterOptionGeneralAscii *sgmFastScanDefault;
+		// Don't have one called "sgmFastScanDefault", so make one. If we have one, retreive it and check it.
+		sgmFastScanDefault = new AMExporterOptionGeneralAscii();
+		if(matchIDs.count() != 0)
+			sgmFastScanDefault->loadFromDb(dbSGM, matchIDs.at(0));
+		sgmFastScanDefault->setName("SGMFastScanDefault");
+		sgmFastScanDefault->setFileName("$name_$fsIndex.txt");
+		sgmFastScanDefault->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\nGrating: $scanConfiguration[grating%enumConvert]\nHarmonic: $scanConfiguration[harmonic%enumConvert]\nExit Slit Gap: $scanConfiguration[exitSlitGap%double%2] um\nNotes: $notes");
+		sgmFastScanDefault->setHeaderIncluded(true);
+		sgmFastScanDefault->setColumnHeader("$dataSetName $dataSetInfoDescription");
+		sgmFastScanDefault->setColumnHeaderIncluded(true);
+		sgmFastScanDefault->setColumnHeaderDelimiter("==========");
+		sgmFastScanDefault->setSectionHeader("");
+		sgmFastScanDefault->setSectionHeaderIncluded(true);
+		if(sgmFastScanDefault->dataSources().count() > 0 && sgmFastScanDefault->dataSources().at(0) == "EnergyFeedback")
+			sgmFastScanDefault->removeDataSourceAt(0);
+		sgmFastScanDefault->ensureDataSource("I0", false, AMExporterOptionGeneral::CombineInColumnsMode, false);
+		sgmFastScanDefault->ensureDataSource("EnergyFeedback", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
+		sgmFastScanDefault->ensureDataSource("Photodiode", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
+		sgmFastScanDefault->ensureDataSource("TEY", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
+		sgmFastScanDefault->ensureDataSource("TFY", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
+		sgmFastScanDefault->ensureDataSource("TEYNorm", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
+		sgmFastScanDefault->ensureDataSource("TFYNorm", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
+		sgmFastScanDefault->ensureDataSource("PFY", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
+		sgmFastScanDefault->ensureDataSource("IPFY", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
+		sgmFastScanDefault->ensureDataSource("SDD", false, AMExporterOptionGeneral::SeparateFilesMode, false);
+		sgmFastScanDefault->ensureDataSource("OceanOptics65000", false, AMExporterOptionGeneral::SeparateFilesMode, false);
+		sgmFastScanDefault->ensureDataSource("PLY", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
+		sgmFastScanDefault->ensureDataSource("PLYNorm", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
+		sgmFastScanDefault->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.txt");
+		sgmFastScanDefault->setIncludeAllDataSources(true);
+		sgmFastScanDefault->setFirstColumnOnly(true);
+		sgmFastScanDefault->setSeparateHigherDimensionalSources(true);
+		sgmFastScanDefault->storeToDb(dbSGM);
+	}
+	else{
+		//Should I do a check of some sort to make sure this is up to date?
+	}
+
+	matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionGeneralAscii>(), "name", "SGMFastScanDefault");
+
+	if(matchIDs.count() > 0){
+		success &= AMAppControllerSupport::registerClass<SGMFastScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(matchIDs.at(0), dbSGM->connectionName());
 		success &= AMAppControllerSupport::registerClass<SGMFastScanConfiguration2013, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(matchIDs.at(0), dbSGM->connectionName());
 	}
 	else
