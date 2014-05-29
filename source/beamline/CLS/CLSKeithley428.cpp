@@ -5,14 +5,10 @@
 #include <QDebug>
 
 CLSKeithley428::CLSKeithley428(const QString &name, const QString &valueName, QObject *parent) :
-    QObject(parent)
+    AMCurrentAmplifier(name, parent)
 {
     connect( this, SIGNAL(atMaximumValue(bool)), this, SLOT(onMaximumGain()) );
     connect( this, SIGNAL(atMinimumValue(bool)), this, SLOT(onMinimumGain()) );
-
-    isConnected_ = false;
-
-    name_ = name;
 
     valueControl_ = new AMProcessVariable(valueName, true, this);
     connect( valueControl_, SIGNAL(connected(bool)), this, SLOT(onConnectedStateChanged(bool)) );
@@ -28,9 +24,9 @@ CLSKeithley428::~CLSKeithley428()
 
 }
 
-double CLSKeithley428::value()
+double CLSKeithley428::value(CLSKeithley428ValueMap::ValueMode mode)
 {
-    return valueMap_->valueAt(valueControl_->getInt(), CLSKeithley428ValueMap::Gain);
+    return valueMap_->valueAt(index(), mode);
 }
 
 int CLSKeithley428::index()
@@ -51,40 +47,79 @@ QString CLSKeithley428::units(CLSKeithley428ValueMap::ValueMode mode) const
     }
 }
 
-bool CLSKeithley428::isConnected()
-{
-    return isConnected_;
-}
-
 CLSKeithley428ValueMap* CLSKeithley428::valueMap() const
 {
     return valueMap_;
 }
 
+bool CLSKeithley428::atMinimumSensitivity() const
+{
+    return atMinimumValue(CLSKeithley428ValueMap::Sensitivity);
+}
+
+bool CLSKeithley428::atMaximumSensitivity() const
+{
+    return atMaximumValue(CLSKeithley428ValueMap::Sensitivity);
+}
+
 bool CLSKeithley428::atMinimumGain() const
 {
-    return valueMap_->isMinIndex(CLSKeithley428ValueMap::Gain, valueControl_->getInt());
+    return atMinimumValue(CLSKeithley428ValueMap::Gain);
 }
 
 bool CLSKeithley428::atMaximumGain() const
 {
-    return valueMap_->isMaxIndex(CLSKeithley428ValueMap::Gain, valueControl_->getInt());
+    return atMaximumValue(CLSKeithley428ValueMap::Gain);
+}
+
+bool CLSKeithley428::atMaximumValue(CLSKeithley428ValueMap::ValueMode mode) const
+{
+    return valueMap_->isMaxIndex(mode, valueControl_->getInt());
+}
+
+bool CLSKeithley428::atMinimumValue(CLSKeithley428ValueMap::ValueMode mode) const
+{
+    return valueMap_->isMinIndex(mode, valueControl_->getInt());
 }
 
 void CLSKeithley428::setValueIndex(int valueIndex)
 {
-    // check that the given index corresponds to a gain value, then set the value control.
+    // check that the given index corresponds to a value, then set the value control.
     if (valueMap_->map()->contains(valueIndex)) {
         valueControl_->setValue(valueIndex);
-    }
 
-    if (atMaximumGain()) {
-        emit atMaximumGain();
-    }
+        if (atMaximumGain()) {
+            emit maximumGain(true);
+            emit minimumSensitivity(true);
+        }
 
-    if (atMinimumGain()) {
-        emit atMinimumGain();
+        if (atMinimumGain()) {
+            emit minimumGain(true);
+            emit maximumSensitivity(true);
+        }
     }
+}
+
+bool CLSKeithley428::increaseSensitivity()
+{
+    if (atMaximumSensitivity())
+        return false;
+
+    // Decrease the gain / increase the sensitivity.
+    int newIndex = nextIndex(IncreaseOne, CLSKeithley428ValueMap::Sensitivity, valueControl_->getInt());
+    setValueIndex(newIndex);
+    return true;
+}
+
+bool CLSKeithley428::decreaseSensitivity()
+{
+    if (atMinimumSensitivity())
+        return false;
+
+    // Increase the gain / decrease the sensitivity.
+    int newIndex = nextIndex(DecreaseOne, CLSKeithley428ValueMap::Sensitivity, valueControl_->getInt());
+    setValueIndex(newIndex);
+    return true;
 }
 
 bool CLSKeithley428::increaseGain()
@@ -94,7 +129,7 @@ bool CLSKeithley428::increaseGain()
         return false;
 
     // Increase gain!
-    int newIndex = nextIndex(IncreaseOne, valueControl_->getInt());
+    int newIndex = nextIndex(IncreaseOne, CLSKeithley428ValueMap::Gain, valueControl_->getInt());
     setValueIndex(newIndex);
 
     return true;
@@ -108,7 +143,7 @@ bool CLSKeithley428::decreaseGain()
     }
 
     // Decrease gain!
-    int newIndex = nextIndex(DecreaseOne, valueControl_->getInt());
+    int newIndex = nextIndex(DecreaseOne, CLSKeithley428ValueMap::Gain, valueControl_->getInt());
     setValueIndex(newIndex);
 
     return true;
@@ -116,26 +151,15 @@ bool CLSKeithley428::decreaseGain()
 
 void CLSKeithley428::onValueChanged(int newIndex)
 {
-    Q_UNUSED(newIndex)
-
-    emit valueChanged(value());
-    emit indexChanged(index());
-
-    if (atMaximumGain()) {
-        emit atMaximumValue(true);
-    }
-
-    if (atMinimumGain()) {
-        emit atMinimumValue(true);
-    }
+    emit valueChanged();
+    emit indexChanged(newIndex);
 }
 
-void CLSKeithley428::onConnectedStateChanged(bool isConnected)
+void CLSKeithley428::onConnectedStateChanged(bool connectState)
 {
-    if (isConnected != isConnected_) {
-        isConnected_ = isConnected;
-        qDebug() << "New connection state, is connected : " << isConnected_;
-        emit connected(isConnected_);
+    if (connected_ != connectState) {
+        connected_ = connectState;
+        emit isConnected(connected_);
     }
 }
 
@@ -149,23 +173,23 @@ void CLSKeithley428::onMinimumGain()
     qDebug() << "Minimum gain.";
 }
 
-int CLSKeithley428::nextIndex(IndexChange change, int currentIndex)
+int CLSKeithley428::nextIndex(IndexChange change, CLSKeithley428ValueMap::ValueMode mode, int currentIndex)
 {
     int nextIndex = -1;
 
-    if (valueMap_->map()->contains(currentIndex)) {
+    if (!valueMap_->map()->contains(currentIndex)) {
         qDebug() << "Invalid initial index.";
         nextIndex = -1;
     }
 
-    if (change == IncreaseOne && atMaximumGain()) {
+    if (change == IncreaseOne && atMaximumValue(mode)) {
         qDebug() << "At max index.";
         nextIndex = currentIndex;
 
     } else if (change == IncreaseOne) {
         nextIndex = currentIndex++;
 
-    } else if (change == DecreaseOne && atMinimumGain()) {
+    } else if (change == DecreaseOne && atMinimumValue(mode)) {
         qDebug() << "At min index.";
         nextIndex = currentIndex;
 

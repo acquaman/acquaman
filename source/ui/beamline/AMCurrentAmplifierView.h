@@ -21,7 +21,7 @@
 //    enum ValueMode { Sensitivity = 0, Gain = 1};
 
 //    /// Constructor. Takes in instance of AMCurrentAmplifier.
-//    explicit AMCurrentAmplifierView(AMCurrentAmplifier *amplifier, QWidget *parent = 0);
+//    explicit AMCurrentAmplifierView(AMCurrentAmplifier *amplifier, ValueMode mode, QWidget *parent = 0);
 //    virtual ~AMCurrentAmplifierView();
 
 //    /// Returns the pointer to the AMCurrentAmplifier this view is visualizing.
@@ -32,6 +32,11 @@
 //    /// Returns the current value mode.
 //    AMCurrentAmplifierView::ValueMode valueMode() const;
 
+//    /// Sets the current view mode.
+//    void setViewMode(ViewMode newMode);
+//    /// Sets the current value mode.
+//    void setValueMode(ValueMode newMode);
+
 //signals:
 //    /// Notifier that the view mode has changed. Passes the new view mode.
 //    void viewModeChanged(AMCurrentAmplifierView::ViewMode);
@@ -39,10 +44,6 @@
 //    void valueModeChanged(AMCurrentAmplifierView::ValueMode);
 
 //public slots:
-//    /// Sets the current view mode.
-//    void setViewMode(ViewMode newMode);
-//    /// Sets the current value mode.
-//    void setValueMode(ValueMode newMode);
 
 //protected slots:
 //    void onValueModeSelected(ValueMode newMode);

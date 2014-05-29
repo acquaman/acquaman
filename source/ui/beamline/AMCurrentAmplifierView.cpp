@@ -1,6 +1,6 @@
 //#include "AMCurrentAmplifierView.h"
 
-//AMCurrentAmplifierView::AMCurrentAmplifierView(AMCurrentAmplifier *amplifier, QWidget *parent) :
+//AMCurrentAmplifierView::AMCurrentAmplifierView(AMCurrentAmplifier *amplifier, ValueMode mode, QWidget *parent) :
 //    QWidget(parent)
 //{
 //    amplifier_ = amplifier;
@@ -47,6 +47,7 @@
 //    }
 
 //    setViewMode(Basic);
+//    setValueMode(mode);
 
 //    setContextMenuPolicy(Qt::CustomContextMenu);
 //    connect( this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)) );
