@@ -544,7 +544,7 @@ void REIXSXESImageInterpolationABEditor::onAnalysisBlockInputDataSourcesChanged(
 
 		smoothModeBox_->blockSignals(true);
 		smoothModeBox_->setValue(analysisBlock_->correlationSmoothing().second);
-		if(analysisBlock_->correlationSmoothing().first = 1)
+		if(analysisBlock_->correlationSmoothing().first == 1)
 			smoothModeBox_->setMinimum(2);
 		smoothModeBox_->blockSignals(false);
 
