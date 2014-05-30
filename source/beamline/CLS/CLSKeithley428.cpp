@@ -1,4 +1,5 @@
 #include "CLSKeithley428.h"
+#include "beamline/CLS/CLSKeithley428ValueMap.h"
 
 #include "math.h"
 
@@ -7,11 +8,16 @@
 CLSKeithley428::CLSKeithley428(const QString &name, const QString &valueName, QObject *parent) :
     AMCurrentAmplifier(name, parent)
 {
+    connect( this, SIGNAL(maximumValue(bool)), this, SLOT(onMaximumValue()) );
+    connect( this, SIGNAL(minimumValue(bool)), this, SLOT(onMinimumValue()) );
+
     valueControl_ = new AMProcessVariable(valueName, true, this);
     connect( valueControl_, SIGNAL(connected(bool)), this, SLOT(onConnectedStateChanged(bool)) );
     connect( valueControl_, SIGNAL(valueChanged(int)), this, SLOT(onValueChanged(int)) );
 
     valueMap_ = new CLSKeithley428ValueMap();
+
+    setAmplifierMode(Gain);
     setValueMap();
 }
 
@@ -20,9 +26,14 @@ CLSKeithley428::~CLSKeithley428()
 
 }
 
-double CLSKeithley428::value(CLSKeithley428ValueMap::ValueMode mode)
+CLSKeithley428::AmplifierMode CLSKeithley428::amplifierMode() const
 {
-    return valueMap_->valueAt(index(), mode);
+    return amplifierMode_;
+}
+
+double CLSKeithley428::value()
+{
+    return valueMap_->valueAt(index(), amplifierMode_);
 }
 
 int CLSKeithley428::index()
@@ -30,12 +41,12 @@ int CLSKeithley428::index()
     return valueControl_->getInt();
 }
 
-QString CLSKeithley428::units(CLSKeithley428ValueMap::ValueMode mode) const
+QString CLSKeithley428::units() const
 {
-    if (mode == CLSKeithley428ValueMap::Gain) {
+    if (amplifierMode_ == Gain) {
         return "V/A";
 
-    } else if (mode == CLSKeithley428ValueMap::Sensitivity) {
+    } else if (amplifierMode_ == Sensitivity) {
         return "A/V";
 
     } else {
@@ -50,32 +61,54 @@ CLSKeithley428ValueMap* CLSKeithley428::valueMap() const
 
 bool CLSKeithley428::atMinimumSensitivity() const
 {
-    return atMinimumValue(CLSKeithley428ValueMap::Sensitivity);
+    bool min = false;
+
+    if (amplifierMode_ == Sensitivity)
+        min = atMinimumValue();
+    else
+        min = atMaximumValue();
+
+    return min;
 }
 
 bool CLSKeithley428::atMaximumSensitivity() const
 {
-    return atMaximumValue(CLSKeithley428ValueMap::Sensitivity);
+    bool max = false;
+
+    if (amplifierMode_ == Sensitivity)
+        max = atMaximumValue();
+    else
+        max = atMinimumValue();
+
+    return max;
 }
 
-bool CLSKeithley428::atMinimumGain() const
+bool CLSKeithley428::atMaximumValue() const
 {
-    return atMinimumValue(CLSKeithley428ValueMap::Gain);
+    return valueMap_->isMaxIndex(amplifierMode_, valueControl_->getInt());
 }
 
-bool CLSKeithley428::atMaximumGain() const
+bool CLSKeithley428::atMinimumValue() const
 {
-    return atMaximumValue(CLSKeithley428ValueMap::Gain);
+    return valueMap_->isMinIndex(amplifierMode_, valueControl_->getInt());
 }
 
-bool CLSKeithley428::atMaximumValue(CLSKeithley428ValueMap::ValueMode mode) const
+QStringList CLSKeithley428::valueStringList()
 {
-    return valueMap_->isMaxIndex(mode, valueControl_->getInt());
+    return valueMap_->valueStringList(amplifierMode_);
 }
 
-bool CLSKeithley428::atMinimumValue(CLSKeithley428ValueMap::ValueMode mode) const
+//QStringList CLSKeithley428::unitsStringList()
+//{
+//    return
+//}
+
+void CLSKeithley428::setAmplifierMode(AmplifierMode newMode)
 {
-    return valueMap_->isMinIndex(mode, valueControl_->getInt());
+    if (newMode != amplifierMode_) {
+        amplifierMode_ = newMode;
+        emit amplifierModeChanged(newMode);
+    }
 }
 
 void CLSKeithley428::setValueIndex(int valueIndex)
@@ -88,48 +121,36 @@ void CLSKeithley428::setValueIndex(int valueIndex)
 
 bool CLSKeithley428::increaseSensitivity()
 {
-    if (atMaximumSensitivity())
-        return false;
-
-    // Decrease the gain / increase the sensitivity.
-    int newIndex = nextIndex(IncreaseOne, CLSKeithley428ValueMap::Sensitivity, valueControl_->getInt());
-    setValueIndex(newIndex);
-    return true;
+    return false;
 }
 
 bool CLSKeithley428::decreaseSensitivity()
 {
-    if (atMinimumSensitivity())
-        return false;
-
-    // Increase the gain / decrease the sensitivity.
-    int newIndex = nextIndex(DecreaseOne, CLSKeithley428ValueMap::Sensitivity, valueControl_->getInt());
-    setValueIndex(newIndex);
-    return true;
+    return false;
 }
 
-bool CLSKeithley428::increaseGain()
+bool CLSKeithley428::increaseValue()
 {
-    // Don't do anything if the gain is already at a maximum.
-    if (atMaximumGain())
+    // Don't do anything if the value is already at a maximum.
+    if (atMaximumValue())
         return false;
 
-    // Increase gain!
-    int newIndex = nextIndex(IncreaseOne, CLSKeithley428ValueMap::Gain, valueControl_->getInt());
+    // Increase value
+    int newIndex = nextIndex(IncreaseOne, valueControl_->getInt());
     setValueIndex(newIndex);
 
     return true;
 }
 
-bool CLSKeithley428::decreaseGain()
+bool CLSKeithley428::decreaseValue()
 {
-    // Don't do anything if the gain is already at a minimum.
-    if (atMinimumGain()) {
+    // Don't do anything if the value is already at a minimum.
+    if (atMinimumValue()) {
         return false;
     }
 
-    // Decrease gain!
-    int newIndex = nextIndex(DecreaseOne, CLSKeithley428ValueMap::Gain, valueControl_->getInt());
+    // Decrease value
+    int newIndex = nextIndex(DecreaseOne, valueControl_->getInt());
     setValueIndex(newIndex);
 
     return true;
@@ -140,14 +161,12 @@ void CLSKeithley428::onValueChanged(int newIndex)
     emit valueChanged();
     emit indexChanged(newIndex);
 
-    if (atMaximumGain()) {
-        emit maximumGain(true);
-        emit minimumSensitivity(true);
+    if (atMaximumValue()) {
+        emit maximumValue(true);
     }
 
-    if (atMinimumGain()) {
-        emit minimumGain(true);
-        emit maximumSensitivity(true);
+    if (atMinimumValue()) {
+        emit minimumValue(true);
     }
 }
 
@@ -159,17 +178,17 @@ void CLSKeithley428::onConnectedStateChanged(bool connectState)
     }
 }
 
-void CLSKeithley428::onMaximumGain()
+void CLSKeithley428::onMaximumValue()
 {
-    qDebug() << "Maximum gain.";
+    qDebug() << "Maximum value.";
 }
 
-void CLSKeithley428::onMinimumGain()
+void CLSKeithley428::onMinimumValue()
 {
-    qDebug() << "Minimum gain.";
+    qDebug() << "Minimum value.";
 }
 
-int CLSKeithley428::nextIndex(IndexChange change, CLSKeithley428ValueMap::ValueMode mode, int currentIndex)
+int CLSKeithley428::nextIndex(IndexChange change, int currentIndex)
 {
     int nextIndex = -1;
 
@@ -178,14 +197,14 @@ int CLSKeithley428::nextIndex(IndexChange change, CLSKeithley428ValueMap::ValueM
         nextIndex = -1;
     }
 
-    if (change == IncreaseOne && atMaximumValue(mode)) {
+    if (change == IncreaseOne && atMaximumValue()) {
         qDebug() << "At max index.";
         nextIndex = currentIndex;
 
     } else if (change == IncreaseOne) {
         nextIndex = currentIndex++;
 
-    } else if (change == DecreaseOne && atMinimumValue(mode)) {
+    } else if (change == DecreaseOne && atMinimumValue()) {
         qDebug() << "At min index.";
         nextIndex = currentIndex;
 
@@ -203,12 +222,12 @@ int CLSKeithley428::nextIndex(IndexChange change, CLSKeithley428ValueMap::ValueM
 void CLSKeithley428::setValueMap()
 {
     valueMap_->map()->clear();
-    valueMap_->addValue(0, CLSKeithley428ValueMap::Gain, pow(10, 3));
-    valueMap_->addValue(1, CLSKeithley428ValueMap::Gain, pow(10, 4));
-    valueMap_->addValue(2, CLSKeithley428ValueMap::Gain, pow(10, 5));
-    valueMap_->addValue(3, CLSKeithley428ValueMap::Gain, pow(10, 6));
-    valueMap_->addValue(4, CLSKeithley428ValueMap::Gain, pow(10, 7));
-    valueMap_->addValue(5, CLSKeithley428ValueMap::Gain, pow(10, 8));
-    valueMap_->addValue(6, CLSKeithley428ValueMap::Gain, pow(10, 9));
-    valueMap_->addValue(7, CLSKeithley428ValueMap::Gain, pow(10, 10));
+    valueMap_->addValue(0, amplifierMode_, pow(10, 3));
+    valueMap_->addValue(1, amplifierMode_, pow(10, 4));
+    valueMap_->addValue(2, amplifierMode_, pow(10, 5));
+    valueMap_->addValue(3, amplifierMode_, pow(10, 6));
+    valueMap_->addValue(4, amplifierMode_, pow(10, 7));
+    valueMap_->addValue(5, amplifierMode_, pow(10, 8));
+    valueMap_->addValue(6, amplifierMode_, pow(10, 9));
+    valueMap_->addValue(7, amplifierMode_, pow(10, 10));
 }

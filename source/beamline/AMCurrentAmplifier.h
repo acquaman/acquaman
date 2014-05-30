@@ -8,7 +8,6 @@ class AMCurrentAmplifier : public QObject
     Q_OBJECT
 
 public:
-
     /// Constructor. Sets up base requirements for current amplifier.
     explicit AMCurrentAmplifier(const QString &name, QObject *parent = 0);
     /// Destructor.

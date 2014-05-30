@@ -4,36 +4,35 @@
 #include <QMultiMap>
 #include <QStringList>
 
+#include "beamline/CLS/CLSKeithley428.h"
+
 class CLSKeithley428ValueMap : public QObject
 {
     Q_OBJECT
 
 public:
-    enum ValueMode {
-        Gain = 0,
-        Sensitivity = 1
-    };
-
+    /// Constructor.
     explicit CLSKeithley428ValueMap();
+    /// Destructor.
     virtual ~CLSKeithley428ValueMap();
 
     QMultiMap<int, double>* map() const;
 
-    double valueAt(int index, ValueMode mode);
+    double valueAt(int index, CLSKeithley428::AmplifierMode mode);
 
-    QStringList valueStringList(ValueMode mode) const;
+    QStringList valueStringList(CLSKeithley428::AmplifierMode mode) const;
 
-    bool isMinIndex(ValueMode mode, int index);
-    bool isMaxIndex(ValueMode mode, int index);
+    bool isMinIndex(CLSKeithley428::AmplifierMode mode, int index);
+    bool isMaxIndex(CLSKeithley428::AmplifierMode mode, int index);
 
-    int findMinIndex(ValueMode mode);
-    int findMaxIndex(ValueMode mode);
+    int findMinIndex(CLSKeithley428::AmplifierMode mode);
+    int findMaxIndex(CLSKeithley428::AmplifierMode mode);
 
 signals:
     void valuesAdded(int index, double gain, double sensitivity);
 
 public slots:
-    void addValue(int index, ValueMode mode, double value);
+    void addValue(int index, CLSKeithley428::AmplifierMode mode, double value);
 
 protected:
     double toGain(double sensitivity);

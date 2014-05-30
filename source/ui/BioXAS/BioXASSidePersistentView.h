@@ -24,7 +24,7 @@ public slots:
 
 protected:
     AMExtendedControlEditor *motorControlEditor_;
-    CLSKeithley428ContainerView *keithleyView_;
+    CLSKeithley428View *keithleyView_;
 
 };
 
