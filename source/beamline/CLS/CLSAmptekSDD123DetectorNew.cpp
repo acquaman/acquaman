@@ -143,6 +143,54 @@ double CLSAmptekSDD123DetectorNew::detectorTemperature() const{
 	return detectorTemperatureControl_->value();
 }
 
+double CLSAmptekSDD123DetectorNew::detectorTotalGain() const{
+	if (!isConnected())
+		return -1;
+	return totalGainControl_->value();
+}
+
+double CLSAmptekSDD123DetectorNew::mcaChannels() const{
+	if(!isConnected())
+		return -1;
+	return mcaChannelsControl_->value();
+}
+
+double CLSAmptekSDD123DetectorNew::pileUpRejection() const{
+	if(!isConnected())
+		return -1;
+	return pileUpRejectionControl_->value();
+}
+
+double CLSAmptekSDD123DetectorNew::thermoelectricCooler() const{
+	if(!isConnected())
+		return -1;
+	return thermoelectricCoolerControl_->value();
+}
+
+double CLSAmptekSDD123DetectorNew::fastThreshold() const{
+	if(!isConnected())
+		return -1;
+	return fastThresholdControl_->value();
+}
+
+double CLSAmptekSDD123DetectorNew::slowThreshold()  const{
+	if(!isConnected())
+		return -1;
+	return slowThresholdControl_->value();
+}
+
+double CLSAmptekSDD123DetectorNew::peakingTime() const{
+	if(!isConnected())
+		return -1;
+	return peakingTimeControl_->value();
+}
+
+double CLSAmptekSDD123DetectorNew::fastChannelPeakingTime() const{
+	if(!isConnected())
+		return -1;
+	return fastChannelPeakingTimeControl_->value();
+}
+
 double CLSAmptekSDD123DetectorNew::eVPerBin() const{
 	if(!isConnected())
 		return -1;
@@ -152,14 +200,34 @@ double CLSAmptekSDD123DetectorNew::eVPerBin() const{
 int CLSAmptekSDD123DetectorNew::amptekLowROI(int index){
 	if(!isConnected())
 		return -1;
-        return int(roiLowIndices_.at(index)->value());
+	return int(roiLowIndices_.at(index)->value());
 }
 
 int CLSAmptekSDD123DetectorNew::amptekHighROI(int index){
 	if(!isConnected())
 		return -1;
-        return int(roiHighIndices_.at(index)->value());
+	return int(roiHighIndices_.at(index)->value());
 }
+
+
+double CLSAmptekSDD123DetectorNew::amptekLowROIEv(int index){
+
+	int binValue = amptekLowROI(index);
+	if(binValue == -1)
+		return binValue;
+
+	return this->convertBinToEv(binValue);
+}
+
+double CLSAmptekSDD123DetectorNew::amptekHighROIEv(int index){
+
+	int binValue = amptekHighROI(index);
+	if(binValue == -1)
+		return binValue;
+
+	return this->convertBinToEv(binValue);
+}
+
 
 AMControl* CLSAmptekSDD123DetectorNew::fastCountsControl(const QObject *privelegedCaller) const{
 	if(!isPrivelegedType(privelegedCaller))
@@ -321,6 +389,17 @@ bool CLSAmptekSDD123DetectorNew::isPrivelegedType(const QObject *privelegedCalle
 	return false;
 }
 
+double CLSAmptekSDD123DetectorNew::convertBinToEv(int binValue){
+	return (binValue * eVPerBin());
+}
+
+int CLSAmptekSDD123DetectorNew::convertEvToBin(double eVValue){
+	if(eVPerBin() == 0)
+		return 0;
+
+	return (int)(eVValue / eVPerBin());
+}
+
 bool CLSAmptekSDD123DetectorNew::setReadMode(AMDetectorDefinitions::ReadMode readMode){
 	Q_UNUSED(readMode)
 
@@ -337,6 +416,15 @@ void CLSAmptekSDD123DetectorNew::setAmptekROI(int index, int lowChannel, int hig
 		roiLowIndices_.at(index)->move(lowChannel);
 	if(!roiHighIndices_.at(index)->withinTolerance(highChannel))
 		roiHighIndices_.at(index)->move(highChannel);
+}
+
+void CLSAmptekSDD123DetectorNew::setAmptekROIbyEv(int index, double lowEv, double highEv){
+
+	// Convert passed eV values into bin channel values
+	int lowChannel = convertEvToBin(lowEv);
+	int highChannel = convertEvToBin(highEv);
+	// Pass set resposibility off to setAmptekROI
+	setAmptekROI(index, lowChannel, highChannel);
 }
 
 void CLSAmptekSDD123DetectorNew::setEVPerBin(double eVPerBin){

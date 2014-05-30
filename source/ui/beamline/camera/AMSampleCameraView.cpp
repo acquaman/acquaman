@@ -780,6 +780,8 @@ void AMSampleCameraView::rotationConfiguration()
 	{
 		delete angle;
 	}
+
+	emit rotationWizardFinished();
 }
 
 bool AMSampleCameraView::samplePointListEmpty(QList<QPointF>*list, int numberOfPoints) const

@@ -51,13 +51,18 @@ REIXSXASScanConfigurationView::REIXSXASScanConfigurationView(REIXSXASScanConfigu
 
 	// Initialize widgets from config_
 
-	ui->applyGratingBox->setChecked(config_->applyMonoGrating());
+	ui->applyGratingBox->setChecked(false); //(config_->applyMonoGrating());
+	ui->applyGratingBox->setDisabled(true);
 	ui->gratingBox->setCurrentIndex(config_->monoGrating());
 	ui->gratingBox->setEnabled(config_->applyMonoGrating());
+	ui->gratingBox->setDisabled(true);
 
 	ui->applyMirrorBox->setChecked(config_->applyMonoMirror());
-	ui->mirrorBox->setCurrentIndex(config_->monoMirror());
+	ui->applyMirrorBox->setDisabled(true);
+	ui->mirrorBox->setCurrentIndex(false); //(config_->monoMirror());
 	ui->mirrorBox->setEnabled(config_->applyMonoMirror());
+	ui->mirrorBox->setDisabled(true);
+
 
 	ui->applySlitWidthBox->setChecked(config_->applySlitWidth());
 	ui->slitWidthBox->setValue(config_->slitWidth());
@@ -103,9 +108,9 @@ REIXSXASScanConfigurationView::REIXSXASScanConfigurationView(REIXSXASScanConfigu
 	connect(ui->applyPolarizationBox, SIGNAL(clicked(bool)), ui->polarizationBox, SLOT(setEnabled(bool)));
 	connect(ui->applyPolarizationBox, SIGNAL(clicked(bool)), this, SLOT(reviewPolarizationAngleBoxEnabled()));
 	connect(ui->polarizationBox, SIGNAL(activated(int)), this, SLOT(reviewPolarizationAngleBoxEnabled()));
-	connect(ui->namedAutomaticallyBox, SIGNAL(clicked(bool)), ui->nameEdit, SLOT(setEnabled(bool)));
-	connect(ui->namedAutomaticallyBox, SIGNAL(clicked(bool)), ui->numberEdit, SLOT(setEnabled(bool)));
-	connect(ui->namedAutomaticallyBox, SIGNAL(clicked(bool)), sampleSelector_, SLOT(setEnabled(bool)));
+	connect(ui->namedAutomaticallyBox, SIGNAL(clicked(bool)), ui->nameEdit, SLOT(setDisabled(bool)));
+	connect(ui->namedAutomaticallyBox, SIGNAL(clicked(bool)), ui->numberEdit, SLOT(setDisabled(bool)));
+	connect(ui->namedAutomaticallyBox, SIGNAL(clicked(bool)), sampleSelector_, SLOT(setDisabled(bool)));
 
 	connect(config_->regions(), SIGNAL(regionsChanged()), this, SLOT(onRegionsChanged()));
 	onRegionsChanged();

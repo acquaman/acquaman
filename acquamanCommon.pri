@@ -532,6 +532,8 @@ HEADERS += source/acquaman/AMRegion.h \
 	source/actions3/editors/AMScanActionEditor.h \
 	source/analysis/AM1DNormalizationAB.h \
 	source/analysis/AM1DNormalizationABEditor.h \
+	source/analysis/AM1DCalibrationAB.h \
+	source/analysis/AM1DCalibrationABEditor.h \
 	source/ui/AMAddAnalysisBlockDialog.h \
 	source/ui/acquaman/AMScanConfigurationViewHolder3.h \
 	source/dataman/datastore/AMCDFDataStore.h \
@@ -1010,6 +1012,8 @@ SOURCES += source/acquaman/AMRegion.cpp \
 	source/actions3/editors/AMScanActionEditor.cpp \
 	source/analysis/AM1DNormalizationAB.cpp \
 	source/analysis/AM1DNormalizationABEditor.cpp \
+	source/analysis/AM1DCalibrationAB.cpp \
+	source/analysis/AM1DCalibrationABEditor.cpp \
 	source/ui/AMAddAnalysisBlockDialog.cpp \
 	source/ui/acquaman/AMScanConfigurationViewHolder3.cpp \
 	source/dataman/datastore/AMCDFDataStore.cpp \

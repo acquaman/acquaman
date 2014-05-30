@@ -26,6 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/acquaman/AMScanConfigurationView.h"
 #include "ui/REIXS/REIXSXESScanConfigurationDetailedView.h"
 #include "ui/REIXS/REIXSXASScanConfigurationView.h"
+#include "ui/REIXS/REIXSRIXSScanConfigurationView.h"
 #include "acquaman/REIXS/REIXSXASScanConfiguration.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
 #include "ui/AMMainWindow.h"
@@ -48,8 +49,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMRun.h"
 
 #include "analysis/REIXS/REIXSXESImageAB.h"
+#include "analysis/REIXS/REIXSXESImageInterpolationAB.h"
+
 
 #include "ui/REIXS/REIXSSidebar.h"
+
 
 #include <QMessageBox>
 
@@ -68,11 +72,17 @@ bool REIXSAppController::startupBeforeAnything() {
 	if(!AMAppController::startupBeforeAnything()) return false;
 
 	// If a command-line option has been specified to choose a new userDataFolder:
-	if(qApp->arguments().contains("--ChooseUserDataFolder"))
+	//if(qApp->arguments().contains("--ChooseUserDataFolder"))
 		getUserDataFolderFromDialog();
+
+
+
+//	if (!VESPERSChooseDataFolderDialog::getDataFolder())
+//		return false;
 
 	// Initialize the central beamline object
 	REIXSBeamline::bl();
+	connect(REIXSBeamline::bl()->spectrometer(), SIGNAL(connected(bool)), REIXSBeamline::bl()->spectrometer(), SLOT(updateGrating()));
 
 	return true;
 }
@@ -86,6 +96,8 @@ bool REIXSAppController::startupRegisterDatabases() {
 	AMDbObjectSupport::s()->registerClass<REIXSXESMCPDetectorInfo>();
 	AMDbObjectSupport::s()->registerClass<REIXSXESCalibration>();
 	AMDbObjectSupport::s()->registerClass<REIXSXESImageAB>();
+	AMDbObjectSupport::s()->registerClass<REIXSXESImageInterpolationAB>();
+
 
 	//AMDbObjectSupport::s()->registerClass<REIXSControlMoveActionInfo>();
 	//AMDbObjectSupport::s()->registerClass<REIXSXESScanActionInfo>();
@@ -131,9 +143,17 @@ bool REIXSAppController::startupCreateUserInterface() {
 	mw_->addPane(scanConfigurationHolder, "Experiment Setup", "Emission Scan", ":/utilities-system-monitor.png");
 	connect(scanConfigurationHolder, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
 
+	//REIXSXESScanConfiguration *rixsScanConfiguration = new REIXSXESScanConfiguration();
+	REIXSRIXSScanConfigurationView* rixsConfigView = new REIXSRIXSScanConfigurationView();
+	scanConfigurationHolder = new AMScanConfigurationViewHolder3(rixsConfigView);
+	mw_->addPane(scanConfigurationHolder, "Experiment Setup", "RIXS Scan", ":/utilities-system-monitor.png");
+	connect(scanConfigurationHolder, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
+
 
 	REIXSXASScanConfiguration *xasScanConfiguration = new REIXSXASScanConfiguration();
-	xasScanConfiguration->xasRegions()->setEnergyControl(REIXSBeamline::bl()->photonSource()->directEnergy());
+	xasScanConfiguration->xasRegions()->setEnergyControl(REIXSBeamline::bl()->photonSource()->energy()); //->directEnergy());
+	qDebug() << "Default control: " << xasScanConfiguration->regions()->defaultControl()->name() << xasScanConfiguration->xasRegions()->defaultControl()->name();
+
 	REIXSXASScanConfigurationView* xasConfigView = new REIXSXASScanConfigurationView(xasScanConfiguration);
 	scanConfigurationHolder = new AMScanConfigurationViewHolder3(xasConfigView);
 	mw_->addPane(scanConfigurationHolder, "Experiment Setup", "Absorption Scan", ":/utilities-system-monitor.png");
@@ -158,31 +178,31 @@ bool REIXSAppController::startupCreateUserInterface() {
 #endif
 
 	////////////////// Temporary testing/commissioning widgets ////////////////////
-	QWidget* spectrometerControlWidget = new QWidget();
-	QHBoxLayout* hl = new QHBoxLayout();
-	hl->addWidget(new REIXSXESHexapodControlEditor(REIXSBeamline::bl()->spectrometer()->hexapod()));
+//	QWidget* spectrometerControlWidget = new QWidget();
+//	QHBoxLayout* hl = new QHBoxLayout();
+//	hl->addWidget(new REIXSXESHexapodControlEditor(REIXSBeamline::bl()->spectrometer()->hexapod()));
 
-	QGroupBox* gb = new QGroupBox("Motors");
-	QVBoxLayout* vl = new QVBoxLayout();
-	vl->addWidget(new QLabel("Spectrometer Rotation"));
-	vl->addWidget(new AMControlEditor(REIXSBeamline::bl()->spectrometer()->spectrometerRotationDrive()));
+//	QGroupBox* gb = new QGroupBox("Motors");
+//	QVBoxLayout* vl = new QVBoxLayout();
+//	vl->addWidget(new QLabel("Spectrometer Rotation"));
+//	vl->addWidget(new AMControlEditor(REIXSBeamline::bl()->spectrometer()->spectrometerRotationDrive()));
 
-	vl->addWidget(new QLabel("Detector Translation"));
-	vl->addWidget(new AMControlEditor(REIXSBeamline::bl()->spectrometer()->detectorTranslation()));
+//	vl->addWidget(new QLabel("Detector Translation"));
+//	vl->addWidget(new AMControlEditor(REIXSBeamline::bl()->spectrometer()->detectorTranslation()));
 
-	vl->addWidget(new QLabel("Detector Tilt"));
-	vl->addWidget(new AMControlEditor(REIXSBeamline::bl()->spectrometer()->detectorTiltDrive()));
+//	vl->addWidget(new QLabel("Detector Tilt"));
+//	vl->addWidget(new AMControlEditor(REIXSBeamline::bl()->spectrometer()->detectorTiltDrive()));
 
-	gb->setLayout(vl);
+//	gb->setLayout(vl);
 
-	hl->addWidget(gb);
+//	hl->addWidget(gb);
 
-	hl->addWidget(new REIXSXESSpectrometerControlEditor(REIXSBeamline::bl()->spectrometer()));
+//	hl->addWidget(new REIXSXESSpectrometerControlEditor(REIXSBeamline::bl()->spectrometer()));
 
-	hl->addStretch(1);
+//	hl->addStretch(1);
 
-	spectrometerControlWidget->setLayout(hl);
-	mw_->addPane(spectrometerControlWidget, "Experiment Setup", "Spectrometer controls", ":/utilities-system-monitor.png");
+//	spectrometerControlWidget->setLayout(hl);
+//	mw_->addPane(spectrometerControlWidget, "Experiment Setup", "Spectrometer controls", ":/utilities-system-monitor.png");
 	////////////////// End of Temporary testing/commissioning widgets ////////////////////
 
 

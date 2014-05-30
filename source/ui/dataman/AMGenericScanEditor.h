@@ -130,6 +130,9 @@ public slots:
 	/// Call this to update the Scan Conditions Table
 	void refreshScanConditions();
 
+	/// Call this to update the window title when a scan is added or removed
+	void refreshWindowTitle();
+
 protected slots:
 	///  This catches changes in the scan that is currently selected, and hooks it up to the editor widgets. \todo Ultimately, we might handle more than one scan being "selected" at once.
 	void onCurrentChanged ( const QModelIndex & selected, const QModelIndex & deselected );
@@ -151,11 +154,9 @@ protected slots:
 	/// Called when the 'Close' scan button is clicked
 	void onCloseScanButtonClicked();
 
-	/// Call this to update the window title when a scan is added or removed
-	void refreshWindowTitle();
-
 	/// Called when the open scan dialog is accepted with one or more new scans to open.
 	void onChooseScanDialogAccepted();
+
 
 	/// Call this function to open a set of scans from the database. The scan information is contained inside a list of "amd://..." URLs.  For more information on the format, see dropEvent().   Returns true if the list contains at least one valid scan that was added.
 	/*! This function is used as an internal helper function by dropEvent(); Normally you should use the dropScanURLs function in AMDatamanAppController() since it can check for scans being open in other editors*/
@@ -166,6 +167,9 @@ protected slots:
 
 	/// Helper slot that emits the dataPositionChanged signal.
 	void onDataPositionChanged(const QPoint &pos) { emit dataPositionChanged(this, pos); }
+
+	/// Slot which is called when the scan is saved to the database (sets ScanID to database value)
+	void onScanSavedToDatabase();
 
 protected:
 
@@ -182,6 +186,8 @@ protected:
 	/// This is the currently-selected scan, or 0 non-existent
 	AMScan* currentScan_;
 
+	/// This helper function refreshes the editor widgets with the values from a given scan
+	void updateEditor(AMScan* scan);
 
 	// UI Components
 
@@ -228,8 +234,6 @@ protected:
 	  */
 	void dropEvent(QDropEvent * event);
 
-	/// This helper function refreshes the editor widgets with the values from a given scan
-	void updateEditor(AMScan* scan);
 
 	/// Helper function to ask if a scan should be aborted when trying to close it. Returns true if the scan should be aborted.
 	bool shouldStopAcquiringScan(AMScan* scan);

@@ -26,6 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QUrl>
 #include <QTimer>
 #include <QStringBuilder>
+#include <QDebug>
 
 #include "acquaman.h"
 #include "dataman/database/AMDbObjectSupport.h"
@@ -69,6 +70,7 @@ AMGenericScanEditor::AMGenericScanEditor(QWidget *parent) :
 	scanView_ = new AMScanView();
 	scanView_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	ui_.leftVerticalLayout->insertWidget(0, scanView_, 2);
+
 
 	// Ensure that the 2D scan view is pointing to nowhere.
 	scanView2D_ = 0;
@@ -124,6 +126,9 @@ AMGenericScanEditor::AMGenericScanEditor(QWidget *parent) :
 
 	currentScan_ = 0;
 
+
+
+
 	// disable drops on text fields that we don't want to accept drops
 	ui_.scanName->setAcceptDrops(false);
 	ui_.notesEdit->setAcceptDrops(false);
@@ -134,14 +139,18 @@ AMGenericScanEditor::AMGenericScanEditor(QWidget *parent) :
 	connect(ui_.closeScanButton, SIGNAL(clicked()), this, SLOT(onCloseScanButtonClicked()));
 	connect(ui_.saveScanButton, SIGNAL(clicked()), this, SLOT(onSaveScanButtonClicked()));
 
+
 	// close button and save buttons are initially disabled; there's no scan to act on
 	ui_.closeScanButton->setEnabled(false);
 	ui_.saveScanButton->setEnabled(false);
+
+
 
 	chooseScanDialog_ = 0;
 
 	QTimer* oneSecondTimer = new QTimer(this);
 	connect(oneSecondTimer, SIGNAL(timeout()), this, SLOT(onOneSecondTimer()));
+
 	oneSecondTimer->start(1000);
 }
 
@@ -254,10 +263,12 @@ AMGenericScanEditor::AMGenericScanEditor(bool use2DScanView, QWidget *parent)
 }
 
 AMGenericScanEditor::~AMGenericScanEditor() {
+
 	while(scanSetModel_->scanCount()) {
 		AMScan* s = scanSetModel_->scanAt(scanSetModel_->scanCount()-1);
 		scanSetModel_->removeScan(s);
 	}
+
 }
 
 QPointF AMGenericScanEditor::dataPosition() const
@@ -340,6 +351,10 @@ void AMGenericScanEditor::refreshWindowTitle() {
 	setWindowTitle(windowTitle);
 }
 
+void AMGenericScanEditor::refreshScanConditions() {
+	conditionsTableView_->setFromInfoList(currentScan_->scanInitialConditions());
+}
+
 void AMGenericScanEditor::onCurrentChanged ( const QModelIndex & selected, const QModelIndex & deselected ) {
 
 	Q_UNUSED(deselected)
@@ -366,7 +381,6 @@ void AMGenericScanEditor::onCurrentChanged ( const QModelIndex & selected, const
 
 	// update all widgets to match the current scan
 	updateEditor(currentScan_);
-
 
 	if(currentScan_) {
 		// removed: connect(currentScan_, SIGNAL(metaDataChanged()), this, SLOT(onScanMetaDataChanged()));
@@ -398,13 +412,11 @@ void AMGenericScanEditor::onCurrentChanged ( const QModelIndex & selected, const
 
 }
 
-    void AMGenericScanEditor::refreshScanConditions() {
-	conditionsTableView_->setFromInfoList(currentScan_->scanInitialConditions());
-    }
-
 void AMGenericScanEditor::updateEditor(AMScan *scan) {
 	if(scan) {
 
+		ui_.scanId->setText(QString("%1").arg(scan->id()));
+		connect(scan, SIGNAL(storedToDb()), this, SLOT(onScanSavedToDatabase()));
 		ui_.scanName->setText(scan->name());
 		ui_.scanNumber->setValue(scan->number());
 		ui_.scanDate->setText( AMDateTimeUtils::prettyDate(scan->dateTime()));
@@ -439,6 +451,7 @@ void AMGenericScanEditor::updateEditor(AMScan *scan) {
 	}
 
 	else {
+		ui_.scanId->setText(QString("Pending..."));
 		ui_.scanName->setText( QString() );
 		ui_.scanNumber->setValue(0);
 		ui_.scanDate->setText( QString() );
@@ -749,6 +762,12 @@ void AMGenericScanEditor::onOneSecondTimer()
 		}
 	}
 
+}
+
+void AMGenericScanEditor::onScanSavedToDatabase()
+{
+	ui_.scanId->setText(QString("%1").arg(currentScan_->id()));
+	ui_.scanNumber->setValue(currentScan_->number());
 }
 
 #include <QFileDialog>

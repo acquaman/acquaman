@@ -148,6 +148,8 @@ public slots:
 	/// destroy all of the windows, widgets, and data objects created by applicationStartup(). Only call this if startup() has ran successfully.  If reimplementing, must call the base-class shutdown() as the last thing it does.
 	virtual void shutdown();
 
+	void saveAll();  //Save all open scans
+
 	// 2. Lifecycle status
 	//////////////////////////
 public:
@@ -310,6 +312,9 @@ protected:
 	bool onFirstTimeDatabaseUpgrade(QList<AMDbUpgrade *> upgrades);
 	/// Method that handles the database upgrades for every other time the database is loaded.  \param upgrades is the list of upgrades that need to be done.
 	bool onEveryTimeDatabaseUpgrade(QList<AMDbUpgrade *> upgrades);
+
+	/// Called to create the dataViewWithActionButtons view. Subclasses can reimplement this to call their own views if needed.
+	virtual AMDataViewWithActionButtons* createDataViewWithActionButtons();
 
 protected:
 	/// Helper method that returns the editor associated with a scan for the scanEditorsScanMapping list.  Returns 0 if not found.

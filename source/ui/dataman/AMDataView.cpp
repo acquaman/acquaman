@@ -103,7 +103,6 @@ AMDataView::AMDataView(AMDatabase* database, QWidget *parent) :
 	connect(viewModeButtonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(setViewMode(int)));
 	connect(organizeModeBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onOrganizeModeBoxCurrentIndexChanged(int)));
 
-
 	// pick up database changes...
 	//////////////////////////////
 	connect(db_, SIGNAL(created(QString,int)), this, SLOT(onDatabaseItemCreatedOrRemoved(QString,int)), Qt::QueuedConnection);
@@ -1328,6 +1327,7 @@ void AMLayoutControlledGraphicsWidget::resizeEvent(QGraphicsSceneResizeEvent *ev
 
 #include <QAbstractItemModel>
 #include "dataman/AMSamplePre2013.h"
+#include "dataman/AMSample.h"
 #include "dataman/AMRun.h"
 
 AMDataViewSectionListView::AMDataViewSectionListView(AMDatabase *db, const QString &dbTableName, const QString &whereClause, QGraphicsItem *parent, double initialWidthConstraint, int initialItemSize)
@@ -1366,12 +1366,12 @@ AMDataViewSectionListView::AMDataViewSectionListView(AMDatabase *db, const QStri
 									   whereClause,
 									   "dateTime ASC",
 									   QList<AMQueryTableModelColumnInfo>()
-										   << AMQueryTableModelColumnInfo("Row", "id")
+										   << AMQueryTableModelColumnInfo("Serial#", "id")
 										   << AMQueryTableModelColumnInfo("Name", "name")
 										   << AMQueryTableModelColumnInfo("#", "number")
 										   << AMQueryTableModelColumnInfo("When", "dateTime")
 										   // << AMQueryTableModelColumnInfo("About", "scanInfo")
-										   << AMQueryTableModelColumnInfo("Sample", "sampleId", true, AMDbObjectSupport::s()->tableNameForClass<AMSamplePre2013>(), "name")
+										   // << AMQueryTableModelColumnInfo("Sample", "sampleId", true, AMDbObjectSupport::s()->tableNameForClass<AMSamplePre2013>(), "name")
 										   << AMQueryTableModelColumnInfo("Technique", "AMDbObjectType", true, "AMDbObjectTypes_table", "description", "AMDbObjectType")
 										   // << AMQueryTableModelColumnInfo("Where", "facilityId", true, AMDbObjectSupport::s()->tableNameForClass<AMFacility>(), "description")
 										   << AMQueryTableModelColumnInfo("Where", "runId", true, AMDbObjectSupport::s()->tableNameForClass<AMRun>(), "name")
@@ -1383,7 +1383,8 @@ AMDataViewSectionListView::AMDataViewSectionListView(AMDatabase *db, const QStri
 	widthConstraint_ = initialWidthConstraint;
 
 	// For now, we know what's in the columns, so we'll resize the headers appropriately. In the future, it's possible that the columns are configurable, using AMScanQueryModel with non-default constructor.
-	tableView_->setColumnHidden(0, true);
+	//tableView_->setColumnHidden(0, true);
+	tableView_->setColumnWidth(0, 60);
 	tableView_->setColumnWidth(1, 120);
 	tableView_->setColumnWidth(2, 40);
 	tableView_->setColumnWidth(3, 180);

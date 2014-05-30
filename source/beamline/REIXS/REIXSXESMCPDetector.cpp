@@ -259,6 +259,17 @@ bool REIXSXESMCPDetector::acquireImplementation(AMDetectorDefinitions::ReadMode 
 	return true;
 }
 
+bool REIXSXESMCPDetector::cancelAcquisitionImplementation(){
+	if(!isConnected())
+		return false;
+	dwellTimeTimer_->stop();
+	disconnect(totalCountsControl_, SIGNAL(valueChanged(double)), this, SLOT(onTotalCountsControlValueChanged(double)));
+	dwellTimeTimer_->deleteLater();
+	dwellTimeTimer_ = 0;
+	acquisitionCancelledHelper();
+	return true;
+}
+
 bool REIXSXESMCPDetector::cleanupImplementation(){
 	setCleanedUp();
 	return true;
@@ -272,6 +283,8 @@ bool REIXSXESMCPDetector::clearImplementation(){
 	return false;
 }
 
+
+
 void REIXSXESMCPDetector::setFinishedCondition(REIXSXESMCPDetector::XESMCPFinishedConditions finishedConditions){
 	if(finishedConditions_ != finishedConditions)
 		finishedConditions_ = finishedConditions;
@@ -279,6 +292,17 @@ void REIXSXESMCPDetector::setFinishedCondition(REIXSXESMCPDetector::XESMCPFinish
 
 void REIXSXESMCPDetector::acquisitionSucceededHelper(){
 	setAcquisitionSucceeded();
+
+	if(!isConnected() && !isNotReadyForAcquisition())
+		setNotReadyForAcquisition();
+	else if(isConnected() && !isReadyForAcquisition())
+		setReadyForAcquisition();
+
+	emit imageDataChanged();
+}
+
+void REIXSXESMCPDetector::acquisitionCancelledHelper(){
+	setAcquisitionCancelled();
 
 	if(!isConnected() && !isNotReadyForAcquisition())
 		setNotReadyForAcquisition();
