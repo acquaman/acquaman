@@ -27,7 +27,7 @@ bool VESPERSDbUpgrade1Pt6::upgradeImplementation()
 	QStringList types;
 	types << "TEXT" << "INTEGER" << "INTEGER" << "TEXT" << "REAL" << "REAL" << "REAL";
 
-	if (!databaseToUpgrade_->ensureTable("AMRegionOfInterest_table", names, types)){
+	if (!databaseToUpgrade_->tableExists("AMRegionOfInterest_table") && !databaseToUpgrade_->ensureTable("AMRegionOfInterest_table", names, types)){
 
 		databaseToUpgrade_->rollbackTransaction();
 		AMErrorMon::alert(this, 0, "Was unable to create the AMRegionOfInterest table.");
