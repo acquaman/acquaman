@@ -25,8 +25,9 @@ public:
 	enum OutputViewMode { Counts = 0, Voltage = 1 };
 
 	/// Constructor.  Takes two CLSSIS3820ScalerChannels and builds a view around them.
- 	virtual ~CLSSIS3820CompositeScalerChannelView();
 	explicit CLSSIS3820CompositeScalerChannelView(CLSSIS3820ScalerChannel *channel1, CLSSIS3820ScalerChannel *channel2, QWidget *parent = 0);
+	/// Destructor.
+	virtual ~CLSSIS3820CompositeScalerChannelView();
 
 signals:
 	/// Notifier that the channel changed viewing mode.  Passes the new mode.
