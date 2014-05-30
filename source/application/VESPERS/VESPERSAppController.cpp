@@ -59,6 +59,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/VESPERS/VESPERSDbUpgrade1Pt3.h"
 #include "dataman/VESPERS/VESPERSDbUpgrade1Pt4.h"
 #include "dataman/VESPERS/VESPERSDbUpgrade1Pt5.h"
+#include "dataman/VESPERS/VESPERSDbUpgrade1Pt6.h"
 
 #include "dataman/export/AMExportController.h"
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
@@ -119,6 +120,10 @@ VESPERSAppController::VESPERSAppController(QObject *parent) :
 	appendDatabaseUpgrade(vespers1P5UserDb);
 	AMDbUpgrade *vespers1P5ActionDb = new VESPERSDbUpgrade1Pt5("actions", this);
 	appendDatabaseUpgrade(vespers1P5ActionDb);
+	AMDbUpgrade *vespers1P6UserDb = new VESPERSDbUpgrade1Pt6("user", this);
+	appendDatabaseUpgrade(vespers1P6UserDb);
+	AMDbUpgrade *vespers1P6ActionDb = new VESPERSDbUpgrade1Pt6("actions", this);
+	appendDatabaseUpgrade(vespers1P6ActionDb);
 }
 
 bool VESPERSAppController::startup()
