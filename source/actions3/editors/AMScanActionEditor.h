@@ -43,9 +43,8 @@ public slots:
 protected slots:
 	/// Helper slot that brings up the configuration for the scan.
 	void onScanConfigurationViewRequested();
-	/// Helper slot that sets the scan name if it is changed.
-	void onScanNameChanged();
-
+	/// Helper slot that changes the description of the scan if the info changes
+	void onScanInfoChanged();
 protected:
 	/// Label that holds the name of the scan.
 	QLabel *scanName_;
