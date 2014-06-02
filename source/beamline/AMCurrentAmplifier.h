@@ -8,10 +8,18 @@ class AMCurrentAmplifier : public QObject
     Q_OBJECT
 
 public:
+    enum AmplifierMode {
+        Gain = 0,
+        Sensitivity = 1
+    };
+
     /// Constructor. Sets up base requirements for current amplifier.
     explicit AMCurrentAmplifier(const QString &name, QObject *parent = 0);
     /// Destructor.
     virtual ~AMCurrentAmplifier();
+
+    /// Returns the current amplifier mode.
+    AmplifierMode amplifierMode() const;
 
     /// Returns whether the current amplifier is at maximum sensitivity.
     virtual bool atMaximumSensitivity() const = 0;
@@ -25,6 +33,8 @@ public:
     bool isConnected() const {return connected_;}
 
 signals:
+    /// Emitted when the amplifier mode has been changed.
+    void amplifierModeChanged(AmplifierMode newMode);
     /// General notifier. Emitted when the sensitivity of the current amplifier is changed.
     void sensitivityChanged();
     /// Notifier that the current amplifier is at the minimum sensitivity/gain.
@@ -37,6 +47,8 @@ signals:
     void isConnected(bool);
 
 public slots:
+    /// Sets the current amplifier mode.
+    void setAmplifierMode(AmplifierMode newMode);
     /// Sets a new name for the current amplifier.
     void setName(const QString &newName);
     /// Increases the sensitivity of the current amplifier.
@@ -47,6 +59,7 @@ public slots:
 protected:
     QString name_;
     bool connected_;
+    AmplifierMode amplifierMode_;
 
 };
 

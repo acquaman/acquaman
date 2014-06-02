@@ -20,7 +20,7 @@ public:
 
     double valueAt(int index, CLSKeithley428::AmplifierMode mode);
 
-    QStringList valueStringList(CLSKeithley428::AmplifierMode mode) const;
+    QStringList* valueStringList(CLSKeithley428::AmplifierMode mode) const;
 
     bool isIndexOfMin(CLSKeithley428::AmplifierMode mode, int index);
     bool isIndexOfMax(CLSKeithley428::AmplifierMode mode, int index);

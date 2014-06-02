@@ -23,7 +23,7 @@ double CLSKeithley428ValueMap::valueAt(int index, CLSKeithley428::AmplifierMode 
     return map_->values(index).at(mode);
 }
 
-QStringList CLSKeithley428ValueMap::valueStringList(CLSKeithley428::AmplifierMode mode) const
+QStringList* CLSKeithley428ValueMap::valueStringList(CLSKeithley428::AmplifierMode mode) const
 {
     double toAdd = -1;
     QStringList *valueList = new QStringList();
@@ -33,7 +33,7 @@ QStringList CLSKeithley428ValueMap::valueStringList(CLSKeithley428::AmplifierMod
         valueList->append(QString("%1").arg(toAdd, 0, 'e', 2));
     }
 
-    return *valueList;
+    return valueList;
 }
 
 bool CLSKeithley428ValueMap::isIndexOfMin(CLSKeithley428::AmplifierMode mode, int index)

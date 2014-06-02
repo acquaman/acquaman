@@ -8,6 +8,7 @@
 CLSKeithley428::CLSKeithley428(const QString &name, const QString &valueName, QObject *parent) :
     AMCurrentAmplifier(name, parent)
 {
+    // temporary, for testing.
     connect( this, SIGNAL(maximumValue(bool)), this, SLOT(onMaximumValue()) );
     connect( this, SIGNAL(minimumValue(bool)), this, SLOT(onMinimumValue()) );
 
@@ -17,18 +18,13 @@ CLSKeithley428::CLSKeithley428(const QString &name, const QString &valueName, QO
 
     valueMap_ = new CLSKeithley428ValueMap();
 
-    setAmplifierMode(Gain);
+    setAmplifierMode(AMCurrentAmplifier::Gain);
     setValueMap();
 }
 
 CLSKeithley428::~CLSKeithley428()
 {
 
-}
-
-CLSKeithley428::AmplifierMode CLSKeithley428::amplifierMode() const
-{
-    return amplifierMode_;
 }
 
 double CLSKeithley428::value()
@@ -43,10 +39,10 @@ int CLSKeithley428::index()
 
 QString CLSKeithley428::units() const
 {
-    if (amplifierMode_ == Gain) {
+    if (amplifierMode_ == AMCurrentAmplifier::Gain) {
         return "V/A";
 
-    } else if (amplifierMode_ == Sensitivity) {
+    } else if (amplifierMode_ == AMCurrentAmplifier::Sensitivity) {
         return "A/V";
 
     } else {
@@ -63,7 +59,7 @@ bool CLSKeithley428::atMinimumSensitivity() const
 {
     bool min = false;
 
-    if (amplifierMode_ == Sensitivity)
+    if (amplifierMode_ == AMCurrentAmplifier::Sensitivity)
         min = atMinimumValue();
     else
         min = atMaximumValue();
@@ -75,7 +71,7 @@ bool CLSKeithley428::atMaximumSensitivity() const
 {
     bool max = false;
 
-    if (amplifierMode_ == Sensitivity)
+    if (amplifierMode_ == AMCurrentAmplifier::Sensitivity)
         max = atMaximumValue();
     else
         max = atMinimumValue();
@@ -93,22 +89,22 @@ bool CLSKeithley428::atMinimumValue() const
     return valueMap_->isIndexOfMin(amplifierMode_, valueControl_->getInt());
 }
 
-QStringList CLSKeithley428::valueStringList()
+QStringList* CLSKeithley428::valueStringList()
 {
     return valueMap_->valueStringList(amplifierMode_);
 }
 
-//QStringList CLSKeithley428::unitsStringList()
-//{
-//    return
-//}
-
-void CLSKeithley428::setAmplifierMode(AmplifierMode newMode)
+QStringList* CLSKeithley428::unitsStringList()
 {
-    if (newMode != amplifierMode_) {
-        amplifierMode_ = newMode;
-        emit amplifierModeChanged(newMode);
+    QStringList *unitsList = new QStringList();
+
+    if (amplifierMode_ == AMCurrentAmplifier::Gain) {
+        unitsList->append("V/A");
+    } else {
+        unitsList->append("A/V");
     }
+
+    return unitsList;
 }
 
 void CLSKeithley428::setValueIndex(int valueIndex)
@@ -201,9 +197,4 @@ void CLSKeithley428::setValueMap()
     valueList->append(pow(10, 10));
 
     valueMap_->setValues(amplifierMode_, valueList);
-}
-
-void CLSKeithley428::setUnitsMap()
-{
-
 }

@@ -13,11 +13,6 @@ class CLSKeithley428 : public AMCurrentAmplifier
     Q_OBJECT
 
 public:
-    enum AmplifierMode {
-        Gain = 0,
-        Sensitivity = 1
-    };
-
     enum IndexChange {
         IncreaseOne = 0,
         DecreaseOne = 1
@@ -27,9 +22,6 @@ public:
     explicit CLSKeithley428(const QString &name, const QString &valueName, QObject *parent = 0);
     /// Destructor.
     virtual ~CLSKeithley428();
-
-    /// Returns the amplifier mode.
-    AmplifierMode amplifierMode() const;
 
     /// Returns the current value.
     double value();
@@ -49,14 +41,14 @@ public:
     bool atMaximumValue() const;
     bool atMinimumValue() const;
 
-    QStringList valueStringList();
-//    QStringList unitsStringList();
+    QStringList *valueStringList();
+    QStringList *unitsStringList();
 
 signals:
     /// Notifier that the Keithley class is connected to the amplifier.
     void connected(bool connectState);
     /// Notifier that the amplifier mode has changed.
-    void amplifierModeChanged(CLSKeithley428::AmplifierMode newMode);
+    void amplifierModeChanged(AMCurrentAmplifier::AmplifierMode newMode);
     /// Notifier that the gain/sensitivity value has changed.
     void valueChanged();
     /// Notifier that the gain units have changed. Passes the new units.
@@ -69,8 +61,6 @@ signals:
     void minimumValue(bool atMin);
 
 public slots:
-    /// Sets the amplifier value mode.
-    void setAmplifierMode(CLSKeithley428::AmplifierMode newMode);
     /// Sets the gain to value corresponding to provided index.
     void setValueIndex(int valueIndex);
 
@@ -97,11 +87,8 @@ protected:
     int nextIndex(IndexChange change, int currentIndex);
     /// Populates the value map with set gain values. Order corresponds to increasing pv value index.
     void setValueMap();
-    void setUnitsMap();
 
 protected:    
-    /// Flag indicating what mode the amplifier is operating in: sensitivity, gain.
-    AmplifierMode amplifierMode_;
     /// Pointer to the pv controlling Keithley value.
     AMProcessVariable *valueControl_;
     /// Pointer to a map between gain/sensitivity and value/index.

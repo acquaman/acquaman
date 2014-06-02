@@ -24,26 +24,27 @@ public:
     virtual ~CLSKeithley428View();
 
     /// Returns the currently displayed value mode.
-    CLSKeithley428::AmplifierMode valueMode() const;
-
-    /// Returns the current amplifier being viewed.
-    CLSKeithley428* currentAmplifier() const;
+    AMCurrentAmplifier::AmplifierMode valueMode() const;
 
 signals:
-    void amplifierChanged();
-    void viewModeChanged();
+    void amplifierChanged(AMCurrentAmplifier *newAmplifier);
+    void amplifierModeChanged();
 
 public slots:
-    void setValueMode(CLSKeithley428::AmplifierMode mode);
+    void setAmplifierMode(AMCurrentAmplifier::AmplifierMode mode);
     void setAmplifier(CLSKeithley428 *amplifier);
     void refreshDisplayValues();
 
 protected slots:
     void onButtonClicked();
+    void onAmplifierConnected(bool isConnected);
+
     /// Handles passing changes in the value combo box to the Keithley428.
     virtual void onValueComboBoxChanged(int newIndex);
+    virtual void onUnitsComboBoxChanged(int index);
     /// Handles setting the value combo box when the Keithley428's value has been changed independently.
     virtual void onValueChanged(int valueIndex);
+    virtual void onUnitsChanged(QString units);
 
 protected:
     /// Pointer to the Keithley428 amplifier this view manages.
@@ -51,7 +52,7 @@ protected:
     /// Combo box holding the available values.
     QComboBox *value_;
     /// Label holding the available units.
-    QLabel *units_;
+    QComboBox *units_;
 
     QRadioButton *gainButton_;
     QRadioButton *sensitivityButton_;

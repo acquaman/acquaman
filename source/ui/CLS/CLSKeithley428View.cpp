@@ -10,7 +10,8 @@ CLSKeithley428View::CLSKeithley428View(CLSKeithley428 *amplifier, QWidget *paren
     value_ = new QComboBox();
     connect( value_, SIGNAL(currentIndexChanged(int)), this, SLOT(onValueComboBoxChanged(int)) );
 
-    units_ = new QLabel();
+    units_ = new QComboBox();
+    connect( units_, SIGNAL(currentIndexChanged(int)), this, SLOT(onUnitsComboBoxChanged(int)) );
 
     QHBoxLayout *valueLayout = new QHBoxLayout();
     valueLayout->addWidget(value_);
@@ -46,24 +47,20 @@ CLSKeithley428::AmplifierMode CLSKeithley428View::valueMode() const
     return amplifier_->amplifierMode();
 }
 
-CLSKeithley428* CLSKeithley428View::currentAmplifier() const
-{
-    return amplifier_;
-}
-
-void CLSKeithley428View::setValueMode(CLSKeithley428::AmplifierMode newMode)
+void CLSKeithley428View::setAmplifierMode(CLSKeithley428::AmplifierMode newMode)
 {
     if (amplifier_) {
         amplifier_->setAmplifierMode(newMode);
-        emit viewModeChanged();
+        emit amplifierModeChanged();
     }
 }
 
 void CLSKeithley428View::setAmplifier(CLSKeithley428 *amplifier)
 {
     if (amplifier_) {
+        disconnect( amplifier_, SIGNAL(connected(bool)), this, SLOT(onAmplifierConnected(bool)) );
         disconnect( amplifier_, SIGNAL(indexChanged(int)), this, SLOT(onValueChanged(int)) );
-        disconnect( amplifier_, SIGNAL(amplifierModeChanged(CLSKeithley428::AmplifierMode)), this, SLOT(refreshDisplayValues()) );
+        disconnect( amplifier_, SIGNAL(amplifierModeChanged(AMCurrentAmplifier::AmplifierMode)), this, SLOT(refreshDisplayValues()) );
     }
 
     amplifier_ = amplifier;
@@ -76,11 +73,12 @@ void CLSKeithley428View::setAmplifier(CLSKeithley428 *amplifier)
             sensitivityButton_->setChecked(true);
         }
 
+        connect( amplifier_, SIGNAL(connected(bool)), this, SLOT(onAmplifierConnected(bool)) );
         connect( amplifier_, SIGNAL(indexChanged(int)), this, SLOT(onValueChanged(int)) );
-        connect( amplifier_, SIGNAL(amplifierModeChanged(CLSKeithley428::AmplifierMode)), this, SLOT(refreshDisplayValues()) );
+        connect( amplifier_, SIGNAL(amplifierModeChanged(AmplifierMode)), this, SLOT(refreshDisplayValues()) );
     }
 
-    emit amplifierChanged();
+    emit amplifierChanged(amplifier_);
 }
 
 void CLSKeithley428View::refreshDisplayValues()
@@ -88,19 +86,28 @@ void CLSKeithley428View::refreshDisplayValues()
     value_->clear();
     units_->clear();
 
-    value_->addItems(amplifier_->valueStringList());
-    units_->setText(amplifier_->units());
+    if (amplifier_) {
+        value_->addItems(*amplifier_->valueStringList());
+        value_->setCurrentIndex(amplifier_->index());
+        units_->addItems(*amplifier_->unitsStringList());
+    }
 }
 
 void CLSKeithley428View::onButtonClicked()
 {
     if (amplifier_) {
         if (gainButton_->isChecked())
-            amplifier_->setAmplifierMode(CLSKeithley428::Gain);
+            amplifier_->setAmplifierMode(AMCurrentAmplifier::Gain);
 
         else
-            amplifier_->setAmplifierMode(CLSKeithley428::Sensitivity);
+            amplifier_->setAmplifierMode(AMCurrentAmplifier::Sensitivity);
     }
+}
+
+void CLSKeithley428View::onAmplifierConnected(bool isConnected)
+{
+    Q_UNUSED(isConnected)
+    refreshDisplayValues();
 }
 
 void CLSKeithley428View::onValueComboBoxChanged(int newIndex)
@@ -108,9 +115,19 @@ void CLSKeithley428View::onValueComboBoxChanged(int newIndex)
     amplifier_->setValueIndex(newIndex);
 }
 
+void CLSKeithley428View::onUnitsComboBoxChanged(int index)
+{
+    Q_UNUSED(index)
+}
+
 void CLSKeithley428View::onValueChanged(int valueIndex)
 {
     amplifier_->blockSignals(true);
     value_->setCurrentIndex(valueIndex);
     amplifier_->blockSignals(false);
+}
+
+void CLSKeithley428View::onUnitsChanged(QString units)
+{
+    Q_UNUSED(units)
 }
