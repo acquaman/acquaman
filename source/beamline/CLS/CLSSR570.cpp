@@ -20,9 +20,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "CLSSR570.h"
 
- CLSSR570::~CLSSR570(){}
+CLSSR570::~CLSSR570(){}
+
 CLSSR570::CLSSR570(const QString &name, const QString &valueName, const QString &unitsName, QObject *parent)
-    : AMCurrentAmplifier(name, parent)
+	: AMCurrentAmplifier(name, parent)
 {
 	atMinimumSensitivity_ = false;
 	atMaximumSensitivity_ = false;
@@ -38,8 +39,8 @@ CLSSR570::CLSSR570(const QString &name, const QString &valueName, const QString 
 	connect(value_, SIGNAL(valueChanged()), this, SLOT(onSensitivityChanged()));
 	connect(units_, SIGNAL(valueChanged()), this, SLOT(onSensitivityChanged()));
 
-	connect(value_, SIGNAL(isConnected()), this, SLOT(onConnectedChanged()));
-	connect(units_, SIGNAL(isConnected()), this, SLOT(onConnectedChanged()));
+	connect(value_, SIGNAL(connected()), this, SLOT(onConnectedChanged()));
+	connect(units_, SIGNAL(connected()), this, SLOT(onConnectedChanged()));
 }
 
 void CLSSR570::onConnectedChanged()

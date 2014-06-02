@@ -27,7 +27,7 @@ bool VESPERSDbUpgrade1Pt6::upgradeImplementation()
 	QStringList types;
 	types << "TEXT" << "INTEGER" << "INTEGER" << "TEXT" << "REAL" << "REAL" << "REAL";
 
-	if (!databaseToUpgrade_->ensureTable("AMRegionOfInterest_table", names, types)){
+	if (!databaseToUpgrade_->tableExists("AMRegionOfInterest_table") && !databaseToUpgrade_->ensureTable("AMRegionOfInterest_table", names, types)){
 
 		databaseToUpgrade_->rollbackTransaction();
 		AMErrorMon::alert(this, 0, "Was unable to create the AMRegionOfInterest table.");
@@ -68,10 +68,105 @@ bool VESPERSDbUpgrade1Pt6::upgradeImplementation()
 	if (!databaseToUpgrade_->ensureTable("VESPERSScanConfigurationDbObject_table_regionsOfInterest", names, types)){
 
 		databaseToUpgrade_->rollbackTransaction();
-		AMErrorMon::alert(this, 0, "Was unable to create the VESPERSScanConfigurationDbObjet_table_regionsOfInterest table.");
+		AMErrorMon::alert(this, 0, "Was unable to create the VESPERSScanConfigurationDbObject_table_regionsOfInterest table.");
 		return false;
 	}
 
+	if (databaseToUpgrade_->tableExists("VESPERSScanConfigurationDbObject_table")){
+
+		QString firstElement = databaseToUpgrade_->retrieve(1, "VESPERSScanConfigurationDbObject_table", "roiInfoList").toString();
+
+		// It is possible that there are no entries if it is a REALLY old database.
+		if (!firstElement.isEmpty()){
+
+			int firstElementId = firstElement.split(";").last().toInt();
+			int correspondingId = 1;
+
+			if (firstElementId != 1)
+				correspondingId = databaseToUpgrade_->objectsMatching("AMROIInfoList_table_roiInfos", "id1", firstElementId).first();	// We only want the id of the where we need to start copying.
+
+			QVariantList roiInfosId1Column = databaseToUpgrade_->retrieve("AMROIInfoList_table_roiInfos", "id1");
+			QVariantList roiInfosId2Column = databaseToUpgrade_->retrieve("AMROIInfoList_table_roiInfos", "id2");
+
+			for (int i = correspondingId-1, size = roiInfosId1Column.size(); i < size; i++)
+				databaseToUpgrade_->insertOrUpdate(0, "VESPERSScanConfigurationDbObject_table_regionsOfInterest",
+												   QStringList()
+												   << "id1"
+												   << "table1"
+												   << "id2"
+												   << "table2",
+												   QVariantList()
+												   << roiInfosId1Column.at(i)
+												   << "VESPERSScanConfigurationDbObject_table"
+												   << roiInfosId2Column.at(i)
+												   << "AMRegionsOfInterest_table"
+												   );
+		}
+
+		if (!AMDbUpgradeSupport::removeColumn(databaseToUpgrade_, "VESPERSScanConfigurationDbObject_table", "roiInfoList")){
+
+			databaseToUpgrade_->rollbackTransaction();
+			AMErrorMon::alert(this, 0, "Was unable to remove the roiInfoList column from the VESPERSScanConfigurationDbObject_table_regionsOfInterest table.");
+			return false;
+		}
+	}
+
+	// 4)  Adding AMRegionOfInterest to the AMDbObjectType table.
+	//////////////////////////////////////////
+
+	QStringList dboColumnNames = QStringList() << "AMDbObjectType" << "tableName" << "description" << "version" << "inheritance";
+	QVariantList dboValues = QVariantList() << "AMRegionOfInterest" << "AMRegionOfInterest_table" << "Region Of Interest" << 1 << "AMRegionOfInterest;AMDbObject;QObject";
+
+	if (!databaseToUpgrade_->columnExists("AMDbObjectTypes_table", "inheritance"))
+		databaseToUpgrade_->ensureColumn("AMDbObjectTypes_table", "inheritance", "TEXT");
+
+	int newId = databaseToUpgrade_->insertOrUpdate(0, "AMDbObjectTypes_table", dboColumnNames, dboValues);
+
+	if (newId == 0){
+
+		databaseToUpgrade_->rollbackTransaction();
+		AMErrorMon::alert(this, 0, "Could not add the new VESPERSScanConfigurationDbObject entry to the AMDbObjectTypes table.");
+		return false;
+	}
+
+	// 6)  Filling out the other support tables.
+	//////////////////////////////////////////
+
+	// First: allColumns
+	if (databaseToUpgrade_->insertOrUpdate(0, "AMDbObjectTypes_allColumns", QStringList() << "typeId" << "columnName", QVariantList() << newId << "name") == 0
+			|| databaseToUpgrade_->insertOrUpdate(0, "AMDbObjectTypes_allColumns", QStringList() << "typeId" << "columnName", QVariantList() << newId << "energy") == 0
+			|| databaseToUpgrade_->insertOrUpdate(0, "AMDbObjectTypes_allColumns", QStringList() << "typeId" << "columnName", QVariantList() << newId << "lowerBound") == 0
+			|| databaseToUpgrade_->insertOrUpdate(0, "AMDbObjectTypes_allColumns", QStringList() << "typeId" << "columnName", QVariantList() << newId << "upperBound") == 0
+			){
+
+		databaseToUpgrade_->rollbackTransaction();
+		AMErrorMon::alert(this, 0, "Could not add the entries for VESPERSScanConfigurationDbObject to the allColumns associated table of AMDbObjectTypes table.");
+		return false;
+	}
+
+	// Second: visibleColumns
+	if (databaseToUpgrade_->insertOrUpdate(0, "AMDbObjectTypes_visibleColumns", QStringList() << "typeId" << "columnName", QVariantList() << newId << "name") == 0
+			|| databaseToUpgrade_->insertOrUpdate(0, "AMDbObjectTypes_visibleColumns", QStringList() << "typeId" << "columnName", QVariantList() << newId << "energy") == 0
+			|| databaseToUpgrade_->insertOrUpdate(0, "AMDbObjectTypes_visibleColumns", QStringList() << "typeId" << "columnName", QVariantList() << newId << "lowerBound") == 0
+			|| databaseToUpgrade_->insertOrUpdate(0, "AMDbObjectTypes_visibleColumns", QStringList() << "typeId" << "columnName", QVariantList() << newId << "upperBound") == 0
+			){
+
+		databaseToUpgrade_->rollbackTransaction();
+		AMErrorMon::alert(this, 0, "Could not add the entries for VESPERSScanConfigurationDbObject to the visibleColumns associated table of AMDbObjectTypes table.");
+		return false;
+	}
+
+	// Third: loadColumns
+	if (databaseToUpgrade_->insertOrUpdate(0, "AMDbObjectTypes_loadColumns", QStringList() << "typeId" << "columnName", QVariantList() << newId << "name") == 0
+			|| databaseToUpgrade_->insertOrUpdate(0, "AMDbObjectTypes_loadColumns", QStringList() << "typeId" << "columnName", QVariantList() << newId << "energy") == 0
+			|| databaseToUpgrade_->insertOrUpdate(0, "AMDbObjectTypes_loadColumns", QStringList() << "typeId" << "columnName", QVariantList() << newId << "lowerBound") == 0
+			|| databaseToUpgrade_->insertOrUpdate(0, "AMDbObjectTypes_loadColumns", QStringList() << "typeId" << "columnName", QVariantList() << newId << "upperBound") == 0
+			){
+
+		databaseToUpgrade_->rollbackTransaction();
+		AMErrorMon::alert(this, 0, "Could not add the entries for VESPERSScanConfigurationDbObject to the loadColumns associated table of AMDbObjectTypes table.");
+		return false;
+	}
 
 	databaseToUpgrade_->commitTransaction();
 
