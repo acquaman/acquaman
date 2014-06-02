@@ -28,7 +28,6 @@ public:
 
 signals:
     void amplifierChanged(AMCurrentAmplifier *newAmplifier);
-    void amplifierModeChanged();
 
 public slots:
     void setAmplifierMode(AMCurrentAmplifier::AmplifierMode mode);
@@ -37,7 +36,6 @@ public slots:
 
 protected slots:
     void onButtonClicked();
-    void onAmplifierConnected(bool isConnected);
 
     /// Handles passing changes in the value combo box to the Keithley428.
     virtual void onValueComboBoxChanged(int newIndex);
