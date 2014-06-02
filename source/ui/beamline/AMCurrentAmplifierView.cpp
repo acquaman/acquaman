@@ -21,7 +21,7 @@ AMCurrentAmplifierView::AMCurrentAmplifierView(AMCurrentAmplifier *amplifier, QW
     plus_->setIcon(QIcon(":/22x22/list-add.png"));
 
     connect( plus_, SIGNAL(clicked()), amplifier_, SLOT(increaseSensitivity()) );
-    connect( amplifier_, SIGNAL(maximumSensitivity(bool)), plus_, SLOT(setDisabled(bool)) );
+//    connect( amplifier_, SIGNAL(maximumSensitivity(bool)), plus_, SLOT(setDisabled(bool)) );
 
     if (amplifier_->isConnected() && amplifier_->atMaximumSensitivity()) {
         plus_->setDisabled(true);
@@ -32,7 +32,7 @@ AMCurrentAmplifierView::AMCurrentAmplifierView(AMCurrentAmplifier *amplifier, QW
 //    value_->addItems(amplifier_->valuesList());
 
     connect( value_, SIGNAL(currentIndexChanged(int)), this, SLOT(onValueComboBoxChanged(int)) );
-    connect( amplifier_, SIGNAL(valueIndexChanged(int)), this, SLOT(onValueChanged(int)) );
+//    connect( amplifier_, SIGNAL(valueIndexChanged(int)), this, SLOT(onValueChanged(int)) );
 
     if (amplifier_->isConnected()) {
 //        onValueChanged(amplifier_->valueIndex());
@@ -103,6 +103,11 @@ void AMCurrentAmplifierView::setViewMode(ViewMode newMode)
             setViewMode(Basic);
         }
     }
+}
+
+void AMCurrentAmplifierView::setAmplifier(AMCurrentAmplifier *amplifier)
+{
+    Q_UNUSED(amplifier)
 }
 
 void AMCurrentAmplifierView::onCustomContextMenuRequested(QPoint pos)

@@ -36,6 +36,7 @@ signals:
     void viewModeChanged(AMCurrentAmplifierView::ViewMode);
 
 public slots:
+    void setAmplifier(AMCurrentAmplifier *amplifier);
 
 protected slots:
     /// Handles passing changes in the value combo box to the amplifier.
