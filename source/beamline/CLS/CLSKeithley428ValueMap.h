@@ -22,22 +22,26 @@ public:
 
     QStringList valueStringList(CLSKeithley428::AmplifierMode mode) const;
 
-    bool isMinIndex(CLSKeithley428::AmplifierMode mode, int index);
-    bool isMaxIndex(CLSKeithley428::AmplifierMode mode, int index);
+    bool isIndexOfMin(CLSKeithley428::AmplifierMode mode, int index);
+    bool isIndexOfMax(CLSKeithley428::AmplifierMode mode, int index);
 
-    int findMinIndex(CLSKeithley428::AmplifierMode mode);
-    int findMaxIndex(CLSKeithley428::AmplifierMode mode);
+    int findIndexOfMin(CLSKeithley428::AmplifierMode mode);
+    int findIndexOfMax(CLSKeithley428::AmplifierMode mode);
+
+    int nextIndex(CLSKeithley428::IndexChange change, int currentIndex);
 
 signals:
     void valuesAdded(int index, double gain, double sensitivity);
 
 public slots:
-    void addValue(int index, CLSKeithley428::AmplifierMode mode, double value);
+    void setValues(CLSKeithley428::AmplifierMode mode, QList<double>* toAdd);
 
 protected:
+    void addValue(int index, CLSKeithley428::AmplifierMode mode, double value);
+    void addIndexValues(int index, double gain, double sensitivity);
+
     double toGain(double sensitivity);
     double toSensitivity(double gain);
-    void addValues(int index, double gain, double sensitivity);
 
 protected:
     QMultiMap<int, double> *map_;

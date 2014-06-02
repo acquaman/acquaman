@@ -17,11 +17,9 @@ class AMCurrentAmplifierView : public QWidget
 public:
     /// Simple enum holding whether the view should be either basic or advanced looking.
     enum ViewMode { Basic = 0, Advanced = 1 };
-    /// Enum holding whether the view should show value in terms of sensitivity or gain.
-    enum ValueMode { Sensitivity = 0, Gain = 1};
 
     /// Constructor. Takes in instance of AMCurrentAmplifier.
-    explicit AMCurrentAmplifierView(AMCurrentAmplifier *amplifier, ValueMode mode, QWidget *parent = 0);
+    explicit AMCurrentAmplifierView(AMCurrentAmplifier *amplifier, QWidget *parent = 0);
     virtual ~AMCurrentAmplifierView();
 
     /// Returns the pointer to the AMCurrentAmplifier this view is visualizing.
@@ -29,19 +27,13 @@ public:
 
     /// Returns the current view mode.
     AMCurrentAmplifierView::ViewMode viewMode() const;
-    /// Returns the current value mode.
-    AMCurrentAmplifierView::ValueMode valueMode() const;
 
     /// Sets the current view mode.
     void setViewMode(ViewMode newMode);
-    /// Sets the current value mode.
-    void setValueMode(ValueMode newMode);
 
 signals:
     /// Notifier that the view mode has changed. Passes the new view mode.
     void viewModeChanged(AMCurrentAmplifierView::ViewMode);
-    /// Notifier that the value mode has changed. Passes the new value mode.
-    void valueModeChanged(AMCurrentAmplifierView::ValueMode);
 
 public slots:
 
@@ -64,8 +56,6 @@ protected:
 
     /// Flag holding whether or not the view is basic or advanced.
     ViewMode viewMode_;
-    /// Flag holding whether or not the sensitivity or gain value is displayed.
-    ValueMode valueMode_;
 
     /// Combo box holding the amplifier value.
     QComboBox *value_;

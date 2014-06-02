@@ -85,12 +85,12 @@ bool CLSKeithley428::atMaximumSensitivity() const
 
 bool CLSKeithley428::atMaximumValue() const
 {
-    return valueMap_->isMaxIndex(amplifierMode_, valueControl_->getInt());
+    return valueMap_->isIndexOfMax(amplifierMode_, valueControl_->getInt());
 }
 
 bool CLSKeithley428::atMinimumValue() const
 {
-    return valueMap_->isMinIndex(amplifierMode_, valueControl_->getInt());
+    return valueMap_->isIndexOfMin(amplifierMode_, valueControl_->getInt());
 }
 
 QStringList CLSKeithley428::valueStringList()
@@ -136,7 +136,7 @@ bool CLSKeithley428::increaseValue()
         return false;
 
     // Increase value
-    int newIndex = nextIndex(IncreaseOne, valueControl_->getInt());
+    int newIndex = valueMap_->nextIndex(IncreaseOne, valueControl_->getInt());
     setValueIndex(newIndex);
 
     return true;
@@ -150,7 +150,7 @@ bool CLSKeithley428::decreaseValue()
     }
 
     // Decrease value
-    int newIndex = nextIndex(DecreaseOne, valueControl_->getInt());
+    int newIndex = valueMap_->nextIndex(DecreaseOne, valueControl_->getInt());
     setValueIndex(newIndex);
 
     return true;
@@ -188,46 +188,22 @@ void CLSKeithley428::onMinimumValue()
     qDebug() << "Minimum value.";
 }
 
-int CLSKeithley428::nextIndex(IndexChange change, int currentIndex)
-{
-    int nextIndex = -1;
-
-    if (!valueMap_->map()->contains(currentIndex)) {
-        qDebug() << "Invalid initial index.";
-        nextIndex = -1;
-    }
-
-    if (change == IncreaseOne && atMaximumValue()) {
-        qDebug() << "At max index.";
-        nextIndex = currentIndex;
-
-    } else if (change == IncreaseOne) {
-        nextIndex = currentIndex++;
-
-    } else if (change == DecreaseOne && atMinimumValue()) {
-        qDebug() << "At min index.";
-        nextIndex = currentIndex;
-
-    } else if (change == DecreaseOne) {
-        nextIndex = currentIndex--;
-
-    } else {
-        qDebug() << "CLSKeithley428 : Unknown change discovered--neither IncreaseOne nor DecreaseOne.";
-        nextIndex = currentIndex;
-    }
-
-    return nextIndex;
-}
-
 void CLSKeithley428::setValueMap()
 {
-    valueMap_->map()->clear();
-    valueMap_->addValue(0, amplifierMode_, pow(10, 3));
-    valueMap_->addValue(1, amplifierMode_, pow(10, 4));
-    valueMap_->addValue(2, amplifierMode_, pow(10, 5));
-    valueMap_->addValue(3, amplifierMode_, pow(10, 6));
-    valueMap_->addValue(4, amplifierMode_, pow(10, 7));
-    valueMap_->addValue(5, amplifierMode_, pow(10, 8));
-    valueMap_->addValue(6, amplifierMode_, pow(10, 9));
-    valueMap_->addValue(7, amplifierMode_, pow(10, 10));
+    QList<double> *valueList = new QList<double>();
+    valueList->append(pow(10, 3));
+    valueList->append(pow(10, 4));
+    valueList->append(pow(10, 5));
+    valueList->append(pow(10, 6));
+    valueList->append(pow(10, 7));
+    valueList->append(pow(10, 8));
+    valueList->append(pow(10, 9));
+    valueList->append(pow(10, 10));
+
+    valueMap_->setValues(amplifierMode_, valueList);
+}
+
+void CLSKeithley428::setUnitsMap()
+{
+
 }

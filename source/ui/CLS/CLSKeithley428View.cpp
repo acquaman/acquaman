@@ -61,10 +61,10 @@ void CLSKeithley428View::setValueMode(CLSKeithley428::AmplifierMode newMode)
 
 void CLSKeithley428View::setAmplifier(CLSKeithley428 *amplifier)
 {
-//    if (amplifier_) {
-//        disconnect( amplifier_, SIGNAL(indexChanged(int)), this, SLOT(onValueChanged(int)) );
-//        disconnect( amplifier_, SIGNAL(amplifierModeChanged(CLSKeithley428::AmplifierMode)), this, SLOT(refreshDisplayValues()) );
-//    }
+    if (amplifier_) {
+        disconnect( amplifier_, SIGNAL(indexChanged(int)), this, SLOT(onValueChanged(int)) );
+        disconnect( amplifier_, SIGNAL(amplifierModeChanged(CLSKeithley428::AmplifierMode)), this, SLOT(refreshDisplayValues()) );
+    }
 
     amplifier_ = amplifier;
 

@@ -18,6 +18,11 @@ public:
         Sensitivity = 1
     };
 
+    enum IndexChange {
+        IncreaseOne = 0,
+        DecreaseOne = 1
+    };
+
     /// Constructor.
     explicit CLSKeithley428(const QString &name, const QString &valueName, QObject *parent = 0);
     /// Destructor.
@@ -88,15 +93,11 @@ protected slots:
     void onMinimumValue();
 
 protected:
-    enum IndexChange {
-        IncreaseOne = 0,
-        DecreaseOne = 1
-    };
-
     /// Returns the next index value, found by applying change to current index.
     int nextIndex(IndexChange change, int currentIndex);
     /// Populates the value map with set gain values. Order corresponds to increasing pv value index.
     void setValueMap();
+    void setUnitsMap();
 
 protected:    
     /// Flag indicating what mode the amplifier is operating in: sensitivity, gain.

@@ -1,6 +1,6 @@
 #include "AMCurrentAmplifierView.h"
 
-AMCurrentAmplifierView::AMCurrentAmplifierView(AMCurrentAmplifier *amplifier, ValueMode mode, QWidget *parent) :
+AMCurrentAmplifierView::AMCurrentAmplifierView(AMCurrentAmplifier *amplifier, QWidget *parent) :
     QWidget(parent)
 {
     amplifier_ = amplifier;
@@ -47,7 +47,6 @@ AMCurrentAmplifierView::AMCurrentAmplifierView(AMCurrentAmplifier *amplifier, Va
     }
 
     setViewMode(Basic);
-    setValueMode(mode);
 
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect( this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)) );
@@ -78,11 +77,6 @@ AMCurrentAmplifierView::ViewMode AMCurrentAmplifierView::viewMode() const
     return viewMode_;
 }
 
-AMCurrentAmplifierView::ValueMode AMCurrentAmplifierView::valueMode() const
-{
-    return valueMode_;
-}
-
 void AMCurrentAmplifierView::setViewMode(ViewMode newMode)
 {
     if (newMode != viewMode_) {
@@ -108,14 +102,6 @@ void AMCurrentAmplifierView::setViewMode(ViewMode newMode)
             qDebug() << "AMCurrentAmplifierView : unknown view mode encountered. Setting mode to Basic.";
             setViewMode(Basic);
         }
-    }
-}
-
-void AMCurrentAmplifierView::setValueMode(ValueMode newMode)
-{
-    if (newMode != valueMode_) {
-        valueMode_ = newMode;
-        emit valueModeChanged(valueMode_);
     }
 }
 
