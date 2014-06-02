@@ -38,10 +38,14 @@ public:
     /// Returns true if the current sensitivity ist he minimum value allowed.
     virtual bool atMinimumSensitivity() const;
 
+    /// Returns true if the current index corresponds to the maximum value allowed.
     bool atMaximumValue() const;
+    /// Returns true if the current index corresponds to the minimum value allowed.
     bool atMinimumValue() const;
 
+    /// Returns a pointer to a string list of allowed values (according to the current amplifier mode), suitable for a view to display.
     QStringList *valueStringList();
+    /// Returns a pointer to a string list of allowed units (according to the current amplifier mode), suitable for a view to display.
     QStringList *unitsStringList();
 
 signals:
@@ -75,7 +79,9 @@ public slots:
     bool decreaseValue();
 
 protected slots:
+    /// Emits value/index changed signals and additionally performs max/min value test.
     void onValueChanged(int newIndex);
+    /// Updates the connected_ state.
     void onConnectedStateChanged(bool isConnected);
 
     // for testing only.
