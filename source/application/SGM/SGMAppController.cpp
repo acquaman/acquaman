@@ -56,6 +56,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/SGM/SGMXASScanConfiguration2013.h"
 #include "acquaman/SGM/SGMFastScanConfiguration2013.h"
 #include "acquaman/AMAgnosticDataAPI.h"
+#include "actions3/actions/AMSampleMoveActionInfo.h"
+#include "actions3/actions/AMSampleMoveAction.h"
+#include "actions3/editors/AMSampleMoveActionEditor.h"
 
 #include "actions3/AMActionRunner3.h"
 #include "ui/actions3/AMWorkflowView3.h"
@@ -103,6 +106,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "actions3/actions/AMControlMoveAction3.h"
+#include "actions3/AMActionRegistry3.h"
 
 SGMAppController::SGMAppController(QObject *parent) :
 	AMAppController(parent)
@@ -158,6 +162,11 @@ bool SGMAppController::startup() {
 
 	// Run all of the Acquaman App startup routines. Some of these are reimplemented in this class.
 	if(!AMAppController::startup())
+		return false;
+
+	if (!AMActionRegistry3::s()->registerInfoAndAction<AMSampleMoveActionInfo, AMSampleMoveAction>("Move to Beam Sample", "Move the beam over a given sample", ":system-run.png"))
+		return false;
+	if(!AMActionRegistry3::s()->registerInfoAndEditor<AMSampleMoveActionInfo, AMSampleMoveActionEditor>())
 		return false;
 
 	// Places the SGM specific actions in the menu bar
