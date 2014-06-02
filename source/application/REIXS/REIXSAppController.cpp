@@ -162,7 +162,7 @@ bool REIXSAppController::startupCreateUserInterface() {
 
 	REIXSSampleChamberButtonPanel* buttonPanel = new REIXSSampleChamberButtonPanel();
 	AMSampleManagementPre2013Widget* sampleManagementPane = new AMSampleManagementPre2013Widget(buttonPanel,
-																				  QUrl("http://v2e1610-101.clsi.ca/mjpg/1/video.mjpg"),
+																				  QUrl("http://v2e1610-401.clsi.ca/mjpg/1/video.mjpg"),
 																				  "Sample Camera: down beam path",
 																				  REIXSBeamline::bl()->samplePlate(),
 																				  new REIXSSampleManipulator(),
