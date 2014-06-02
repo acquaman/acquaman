@@ -56,6 +56,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/SGM/SGMXASScanConfiguration2013.h"
 #include "acquaman/SGM/SGMFastScanConfiguration2013.h"
 #include "acquaman/AMAgnosticDataAPI.h"
+#include "actions3/actions/AMSampleMoveActionInfo.h"
+#include "actions3/actions/AMSampleMoveAction.h"
+#include "actions3/editors/AMSampleMoveActionEditor.h"
 
 #include "actions3/AMActionRunner3.h"
 #include "ui/actions3/AMWorkflowView3.h"
