@@ -852,11 +852,11 @@ bool SGMAppController::setupSGMFastScanExporterOptions(AMDatabase *dbSGM)
 		sgmFastScanDefault->ensureDataSource("OceanOptics65000", false, AMExporterOptionGeneral::SeparateFilesMode, false);
 		sgmFastScanDefault->ensureDataSource("PLY", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
 		sgmFastScanDefault->ensureDataSource("PLYNorm", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
-		sgmXASDefault->ensureDataSource("FPD1", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
-		sgmXASDefault->ensureDataSource("FPD2", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
-		sgmXASDefault->ensureDataSource("FPD3", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
-		sgmXASDefault->ensureDataSource("FPD4", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
-		sgmXASDefault->ensureDataSource("FPD5", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
+		sgmFastScanDefault->ensureDataSource("FPD1", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
+		sgmFastScanDefault->ensureDataSource("FPD2", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
+		sgmFastScanDefault->ensureDataSource("FPD3", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
+		sgmFastScanDefault->ensureDataSource("FPD4", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
+		sgmFastScanDefault->ensureDataSource("FPD5", true, AMExporterOptionGeneral::CombineInColumnsMode, false);
 		sgmFastScanDefault->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.txt");
 		sgmFastScanDefault->setIncludeAllDataSources(true);
 		sgmFastScanDefault->setFirstColumnOnly(true);
