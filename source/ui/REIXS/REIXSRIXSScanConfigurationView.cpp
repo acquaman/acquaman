@@ -117,6 +117,7 @@ REIXSRIXSScanConfigurationView::REIXSRIXSScanConfigurationView(REIXSXESScanConfi
 
 	numberEdit_ = new QSpinBox();
 	numberEdit_->setRange(0, 10000);
+	numberEdit_->setEnabled(false);
 	nameEdit_ = new QLineEdit();
 	sampleSelector_ = new AMSamplePre2013Editor(AMDatabase::database("user"));
 	autoNamingCheckBox_ = new QCheckBox("from last sample move");
@@ -185,7 +186,7 @@ REIXSRIXSScanConfigurationView::REIXSRIXSScanConfigurationView(REIXSXESScanConfi
 
 	QFormLayout* scanMetaDataLayout = new QFormLayout();
 	scanMetaDataLayout->addRow("Scan base name", nameEdit_);
-	scanMetaDataLayout->addRow("Number", numberEdit_);
+	//scanMetaDataLayout->addRow("Number", numberEdit_);
 	scanMetaDataLayout->addRow("Sample", sampleSelector_);
 	scanMetaDataLayout->addRow("Set automatically", autoNamingCheckBox_);
 	nameOptions->setLayout(scanMetaDataLayout);
@@ -410,7 +411,7 @@ void REIXSRIXSScanConfigurationView::onMaximumTimeEditChanged(const QTime &time)
 void REIXSRIXSScanConfigurationView::onAutoNamingCheckboxClicked(bool autoOn)
 {
 	nameEdit_->setEnabled(!autoOn);
-	numberEdit_->setEnabled(!autoOn);
+	//numberEdit_->setEnabled(!autoOn);
 	sampleSelector_->setEnabled(!autoOn);
 }
 

@@ -175,7 +175,7 @@ REIXSXESScanConfigurationView::REIXSXESScanConfigurationView(REIXSXESScanConfigu
 
 	QFormLayout* fl3 = new QFormLayout();
 	fl3->addRow("Scan name", nameEdit_);
-	fl3->addRow("Number", numberEdit_);
+	//fl3->addRow("Number", numberEdit_);
 	fl3->addRow("Sample", sampleSelector_);
 	fl3->addRow("Set automatically", autoNamingCheckBox_);
 

@@ -46,7 +46,7 @@ REIXSXASScanConfigurationView::REIXSXASScanConfigurationView(REIXSXASScanConfigu
 	ui->innerVLayout->addStretch();
 
 	sampleSelector_ = new AMSamplePre2013Selector(AMDatabase::database("user"));
-	ui->scanMetaInfoLayout->setWidget(2, QFormLayout::FieldRole, sampleSelector_);
+	ui->scanMetaInfoLayout->setWidget(1, QFormLayout::FieldRole, sampleSelector_);
 
 
 	// Initialize widgets from config_
@@ -75,12 +75,12 @@ REIXSXASScanConfigurationView::REIXSXASScanConfigurationView(REIXSXASScanConfigu
 	ui->polarizationAngleBox->setEnabled(config_->applyPolarization() && config_->polarization() == 5);
 
 	ui->nameEdit->setText(config_->userScanName());
-	ui->numberEdit->setValue(config_->scanNumber());
+//	ui->numberEdit->setValue(config_->scanNumber());
 	sampleSelector_->setCurrentSample(config_->sampleId());
 
 	ui->namedAutomaticallyBox->setChecked(config_->namedAutomatically());
 	ui->nameEdit->setEnabled(!config_->namedAutomatically());
-	ui->numberEdit->setEnabled(!config_->namedAutomatically());
+//	ui->numberEdit->setEnabled(false);
 	sampleSelector_->setEnabled(!config_->namedAutomatically());
 
 
@@ -97,7 +97,7 @@ REIXSXASScanConfigurationView::REIXSXASScanConfigurationView(REIXSXASScanConfigu
 	connect(ui->polarizationBox, SIGNAL(currentIndexChanged(int)), config_, SLOT(setPolarization(int)));
 	connect(ui->polarizationAngleBox, SIGNAL(valueChanged(double)), config_, SLOT(setPolarizationAngle(double)));
 	connect(ui->nameEdit, SIGNAL(textEdited(QString)), config_, SLOT(setUserScanName(QString)));
-	connect(ui->numberEdit, SIGNAL(valueChanged(int)), config_, SLOT(setScanNumber(int)));
+//	connect(ui->numberEdit, SIGNAL(valueChanged(int)), config_, SLOT(setScanNumber(int)));
 	connect(sampleSelector_, SIGNAL(currentSampleChanged(int)), config_, SLOT(setSampleId(int)));
 	connect(ui->namedAutomaticallyBox, SIGNAL(clicked(bool)), config_, SLOT(setNamedAutomatically(bool)));
 
@@ -109,7 +109,7 @@ REIXSXASScanConfigurationView::REIXSXASScanConfigurationView(REIXSXASScanConfigu
 	connect(ui->applyPolarizationBox, SIGNAL(clicked(bool)), this, SLOT(reviewPolarizationAngleBoxEnabled()));
 	connect(ui->polarizationBox, SIGNAL(activated(int)), this, SLOT(reviewPolarizationAngleBoxEnabled()));
 	connect(ui->namedAutomaticallyBox, SIGNAL(clicked(bool)), ui->nameEdit, SLOT(setDisabled(bool)));
-	connect(ui->namedAutomaticallyBox, SIGNAL(clicked(bool)), ui->numberEdit, SLOT(setDisabled(bool)));
+//	connect(ui->namedAutomaticallyBox, SIGNAL(clicked(bool)), ui->numberEdit, SLOT(setDisabled(bool)));
 	connect(ui->namedAutomaticallyBox, SIGNAL(clicked(bool)), sampleSelector_, SLOT(setDisabled(bool)));
 
 	connect(config_->regions(), SIGNAL(regionsChanged()), this, SLOT(onRegionsChanged()));
