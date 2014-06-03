@@ -18,6 +18,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "REIXSXASScanConfiguration.h"
+#include "beamline/REIXS/REIXSBeamline.h"
 
 REIXSXASScanConfiguration::REIXSXASScanConfiguration(QObject *parent) :
 	AMXASScanConfiguration(parent)
@@ -55,8 +56,8 @@ REIXSXASScanConfiguration::REIXSXASScanConfiguration(const REIXSXASScanConfigura
 	for(int x = 0; x < other.regionCount(); x++)
 		regions_->addRegion(x, other.regionStart(x), other.regionDelta(x), other.regionEnd(x), other.regionTime(x));
 
-	regions_->setDefaultControl(other.regions()->defaultControl());
-
+	//regions_->setDefaultControl(other.regions()->defaultControl());
+	regions_->setDefaultControl(REIXSBeamline::bl()->photonSource()->energy());
 	scanNumber_ = other.scanNumber_;
 	sampleId_ = other.sampleId_;
 	namedAutomatically_ = other.namedAutomatically_;
@@ -71,6 +72,7 @@ REIXSXASScanConfiguration::REIXSXASScanConfiguration(const REIXSXASScanConfigura
 	polarizationAngle_ = other.polarizationAngle_;
 	applyPolarization_ = other.applyPolarization_;
 	////////////////////////
+	setAutoExportEnabled(false);
 }
 
 AMScanConfiguration * REIXSXASScanConfiguration::createCopy() const

@@ -168,6 +168,9 @@ The parameters by which to access the database are given in \c dbAccessString. (
 	/// Retrieve a single parameter/value for an object.  This is simpler than retrieve() when all you need is a single value.
 	QVariant retrieve(int id, const QString& table, const QString& colName) const;
 
+	/// Retrieves the maximum value stored in table.colName, with the option to match prior to detemining the max with a where clause.
+	QVariant retrieveMax(const QString& table, const QString& colName, const QString& whereClause = QString()) const;
+
 	/// Checks whether \param tableName exists within the database.
 	bool tableExists(const QString &tableName);
 	/// Checks whether \param columnName exists inside of \param tableName.  Assumes that table name exists.

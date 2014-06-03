@@ -37,10 +37,10 @@ class CLSSR570 : public AMCurrentAmplifier
 	Q_OBJECT
 
 public:
-    /// Constructor.  Builds a SR570 model based on \param valueName and \param unitsName.
-    explicit CLSSR570(const QString &name, const QString &valueName, const QString &unitsName, QObject *parent = 0);
-    /// Destructor.
-    virtual ~CLSSR570();
+	/// Constructor.  Builds a SR570 model based on \param valueName and \param unitsName.
+	explicit CLSSR570(const QString &name, const QString &valueName, const QString &unitsName, QObject *parent = 0);
+	/// Destructor.
+	virtual ~CLSSR570();
 
 	/// Returns the value of the sensitivity (ie: 1, 2, 5, 10, 20, 50, 100, 200, 500).
 	int value() const { return indexToValue(value_->getInt()); }
@@ -71,9 +71,9 @@ public slots:
 	void setUnits(QString units);
 
 	/// Increases the sensitivity of the ion chamber by one step.
-    virtual bool increaseSensitivity();
+	virtual bool increaseSensitivity();
 	/// Decreases the sensitivity of the ion chamber by one step.
-    virtual bool decreaseSensitivity();
+	virtual bool decreaseSensitivity();
 
 
 protected slots:
@@ -105,7 +105,7 @@ private:
 	int nextValue(bool increase, int current);
 	/// Helper function that returns the next sensitivity units.  Uses the bool \param increase to determine whether it should look up or down.  Returns a null string if not possible to move or the given unit is invalid.
 	QString nextUnits(bool increase, QString current);
-    /// Helper method that turns an index into a value.
+	/// Helper method that turns an index into a value.
 	int valueToIndex(int value) const;
 	/// Helper method that turns a value into an index.
 	int indexToValue(int index) const;
@@ -116,7 +116,7 @@ class AMControlSet;
 
 class CLSSR570New : public QObject
 {
-Q_OBJECT
+	Q_OBJECT
 public:
 	/// Constructor.  Builds a SR570 model based on \param valueName and \param untisName.
 	CLSSR570New(const QString &valueName, const QString &unitsName, QObject *parent = 0);

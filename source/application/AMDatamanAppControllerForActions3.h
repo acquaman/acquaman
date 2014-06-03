@@ -22,6 +22,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "application/AMDatamanAppController.h"
 
+#define AMDATAMANAPPCONTROLLERFORACTIONS3_MOVED_LARGE_ACTIONSDB 717001
+#define AMDATAMANAPPCONTROLLERFORACTIONS3_MOVED_LARGE_SCANACTIONSDB 717002
+
 /// This version of AMDatamanAppController is suitable for apps using the 'actions3' actions framework
 class AMDatamanAppControllerForActions3 : public AMDatamanAppController
 {

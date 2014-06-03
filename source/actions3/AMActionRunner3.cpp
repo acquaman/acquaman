@@ -124,6 +124,8 @@ void AMActionRunner3::onCurrentActionStateChanged(int state, int previousState)
 			failureResponse = internalAskUserWhatToDoAboutFailedAction(currentAction_);
 
 		if(failureResponse == AMAction3::AttemptAnotherCopyResponse) {
+			// if it fails again, we'll just make another one ... so we better change the response here
+			currentAction()->setFailureResponseInActionRunner(AMAction3::MoveOnResponse);
 			// make a fresh copy of this action and put it at the front of the queue to run again.
 			insertActionInQueue(currentAction_->createCopy(), 0);
 		}
@@ -212,6 +214,7 @@ void AMActionRunner3::insertActionInQueue(AMAction3 *action, int index)
 			return;
 	}
 
+	connect(action->info(), SIGNAL(infoChanged()), this, SIGNAL(queuedActionInfoChanged()));
 	emit queuedActionAboutToBeAdded(index);
 	queuedActions_.insert(index, action);
 	emit queuedActionAdded(index);
@@ -229,6 +232,7 @@ bool AMActionRunner3::deleteActionInQueue(int index)
 	emit queuedActionAboutToBeRemoved(index);
 	AMAction3* action= queuedActions_.takeAt(index);
 	emit queuedActionRemoved(index);
+	disconnect(action->info(), SIGNAL(infoChanged()), this, SIGNAL(queuedActionInfoChanged()));
 
 	delete action;
 
@@ -329,6 +333,7 @@ void AMActionRunner3::internalDoNextAction()
 		AMAction3* newAction = queuedActions_.takeAt(0);
 		emit queuedActionRemoved(0);
 
+		disconnect(newAction->info(), SIGNAL(infoChanged()), this, SIGNAL(queuedActionInfoChanged()));
 		emit currentActionChanged(currentAction_ = newAction);
 
 		if(oldAction) {
@@ -534,6 +539,7 @@ AMActionRunnerQueueModel3::AMActionRunnerQueueModel3(AMActionRunner3 *actionRunn
 	connect(actionRunner_, SIGNAL(queuedActionAdded(int)), this, SLOT(onActionAdded(int)));
 	connect(actionRunner_, SIGNAL(queuedActionAboutToBeRemoved(int)), this, SLOT(onActionAboutToBeRemoved(int)));
 	connect(actionRunner_, SIGNAL(queuedActionRemoved(int)), this, SLOT(onActionRemoved(int)));
+	connect(actionRunner_, SIGNAL(queuedActionInfoChanged()), this, SLOT(onActionInfoChanged()));
 }
 
 QModelIndex AMActionRunnerQueueModel3::index(int row, int column, const QModelIndex &parent) const
@@ -683,6 +689,11 @@ void AMActionRunnerQueueModel3::onActionRemoved(int index)
 {
 	Q_UNUSED(index)
 	endRemoveRows();
+}
+
+void AMActionRunnerQueueModel3::onActionInfoChanged()
+{
+	emit layoutChanged();
 }
 
 QModelIndex AMActionRunnerQueueModel3::indexForAction(AMAction3 *action) const

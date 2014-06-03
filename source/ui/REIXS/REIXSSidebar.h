@@ -41,7 +41,7 @@ private:
     Ui::REIXSSidebar *ui;
 
 	// Additional UI controls
-	REIXSActionBasedControlEditor* beamlineEnergyEditor_, *monoSlitEditor_, *gratingSelector_, *mirrorSelector_, *epuPolarizationEditor_, *epuPolarizationAngleEditor_;
+	REIXSActionBasedControlEditor* beamlineEnergyEditor_, *userEnergyOffestEditor_, *monoSlitEditor_, *gratingSelector_, *mirrorSelector_, *epuPolarizationEditor_, *epuPolarizationAngleEditor_;
 
 protected slots:
 	// Responding to GUI events
@@ -54,6 +54,8 @@ protected slots:
 
 	// Responding to beamline events:
 	///////////////////////////////////
+
+	void onRingCurrentChanged(double current);
 
 	/// This could be a little sub-widget:
 	void onMCPCountsPerSecondChanged(double countsPerSecond);
@@ -68,6 +70,7 @@ protected slots:
 	void onScalerContinuousModeChanged(double on);
 private slots:
 	// void on_beamOnButton_clicked();  DAVID OOPS?
+	void on_MonoStopButton_clicked();
 };
 
 #endif // REIXSSIDEBAR_H

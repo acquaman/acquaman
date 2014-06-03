@@ -71,8 +71,9 @@ class AMControlEditor : public QFrame
 {
 Q_OBJECT
 public:
-	/// Constructor: requires a pointer to the \c control to show, or 0.
-	AMControlEditor(AMControl *control, QWidget *parent = 0);
+	/// Constructor: requires a pointer to the \c control to show, or 0. Allows an optional secondary read only
+	/// control to display (eg. the average value of the control)
+	AMControlEditor(AMControl *control, AMControl* secondaryControl = 0, QWidget *parent = 0);
 
 	/// Returns true if the widget is in readOnly() mode, and cannot be used to move() the control.
 	bool readOnly() const { return readOnly_; }
@@ -96,6 +97,10 @@ protected slots:
 	void onUnitsChanged(const QString& units);
 	/// Called when the control's display precision changes; updates the number of decimals for the setpoint box.
 	void onDisplayPrecisionChanged(int displayPrecision);
+	/// Called when the secondary control's value changes; updates the secondaryValueLabel_.
+	void onSecondaryValueChanged(double newValue);
+	/// Called when the secondary control's units change; updates the value suffix.
+	void onSecondaryUnitsChanged(const QString& units);
 
 	/// Called when the control's isMoving() state changes; shows the moving icon.
 	void onMotion(bool moving);
@@ -111,6 +116,7 @@ protected slots:
 
 protected:
 	AMControl *control_;
+	AMControl *secondaryControl_;
 	QLabel *valueLabel_;
 	QFrame* statusFrame_;
 	QToolButton* enumButton_;

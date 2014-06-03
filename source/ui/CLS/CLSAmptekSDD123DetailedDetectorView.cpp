@@ -3,6 +3,8 @@
 #include <QLineEdit>
 #include <QSignalMapper>
 #include <QComboBox>
+#include <QTabWidget>
+#include <QToolTip>
 
 #include "beamline/CLS/CLSAmptekSDD123DetectorNew.h"
 #include "ui/beamline/AMControlEditor.h"
@@ -48,49 +50,49 @@ void CLSAmptekDetailedDetectorView::buildDetectorView(){
 
 	QLabel *tempLabel;
 
-	tempLabel = new QLabel("Fast Counts");
-	fastCountsControlEditor_ = new AMControlEditor(amptekDetector_->fastCountsControl(this));
-	averageFastCountsControlEditor_ = new AMControlEditor(amptekDetector_->averageFastCountsControl(this));
+	tempLabel = new QLabel("Fast Counts (avg.)");
+	fastCountsControlEditor_ = new AMControlEditor(amptekDetector_->fastCountsControl(this), amptekDetector_->averageFastCountsControl(this));
+	//averageFastCountsControlEditor_ = new AMControlEditor(amptekDetector_->averageFastCountsControl(this));
 	tempHBox = new QHBoxLayout();
 	tempHBox->addWidget(tempLabel);
 	tempHBox->addWidget(fastCountsControlEditor_);
-	tempHBox->addWidget(averageFastCountsControlEditor_);
+//	tempHBox->addWidget(averageFastCountsControlEditor_);
 	rightLayout_->addLayout(tempHBox);
 
-	tempLabel = new QLabel("Slow Counts");
-	slowCountsControlEditor_ = new AMControlEditor(amptekDetector_->slowCountsControl(this));
-	averageSlowCountsControlEditor_ = new AMControlEditor(amptekDetector_->averageSlowCountsControl(this));
+	tempLabel = new QLabel("Slow Counts (avg.)");
+	slowCountsControlEditor_ = new AMControlEditor(amptekDetector_->slowCountsControl(this), amptekDetector_->averageSlowCountsControl(this));
+	//averageSlowCountsControlEditor_ = new AMControlEditor(amptekDetector_->averageSlowCountsControl(this));
 	tempHBox = new QHBoxLayout();
 	tempHBox->addWidget(tempLabel);
 	tempHBox->addWidget(slowCountsControlEditor_);
-	tempHBox->addWidget(averageSlowCountsControlEditor_);
+	//tempHBox->addWidget(averageSlowCountsControlEditor_);
 	rightLayout_->addLayout(tempHBox);
 
-	tempLabel = new QLabel("Accumulation");
-	accumulationTimeControlEditor_ = new AMControlEditor(amptekDetector_->accumulationTimeControl(this));
-	averageAccumulationTimeControlEditor_ = new AMControlEditor(amptekDetector_->averageAccumulationTimeControl(this));
+	tempLabel = new QLabel("Accumulation (avg.)");
+	accumulationTimeControlEditor_ = new AMControlEditor(amptekDetector_->accumulationTimeControl(this), amptekDetector_->averageAccumulationTimeControl(this));
+	//averageAccumulationTimeControlEditor_ = new AMControlEditor(amptekDetector_->averageAccumulationTimeControl(this));
 	tempHBox = new QHBoxLayout();
 	tempHBox->addWidget(tempLabel);
 	tempHBox->addWidget(accumulationTimeControlEditor_);
-	tempHBox->addWidget(averageAccumulationTimeControlEditor_);
+	//tempHBox->addWidget(averageAccumulationTimeControlEditor_);
 	rightLayout_->addLayout(tempHBox);
 
-	tempLabel = new QLabel("Real Time");
-	realTimeControlEditor_ = new AMControlEditor(amptekDetector_->realTimeControl(this));
-	averageRealTimeControlEditor_ = new AMControlEditor(amptekDetector_->averageRealTimeControl(this));
+	tempLabel = new QLabel("Real Time (avg.)");
+	realTimeControlEditor_ = new AMControlEditor(amptekDetector_->realTimeControl(this), amptekDetector_->averageRealTimeControl(this));
+	//averageRealTimeControlEditor_ = new AMControlEditor(amptekDetector_->averageRealTimeControl(this));
 	tempHBox = new QHBoxLayout();
 	tempHBox->addWidget(tempLabel);
 	tempHBox->addWidget(realTimeControlEditor_);
-	tempHBox->addWidget(averageRealTimeControlEditor_);
+	//tempHBox->addWidget(averageRealTimeControlEditor_);
 	rightLayout_->addLayout(tempHBox);
 
-	tempLabel = new QLabel("Live Time");
-	liveTimeControlEditor_ = new AMControlEditor(amptekDetector_->liveTimeControl(this));
-	averageLiveTimeControlEditor_ = new AMControlEditor(amptekDetector_->averageLiveTimeControl(this));
+	tempLabel = new QLabel("Live Time (avg.)");
+	liveTimeControlEditor_ = new AMControlEditor(amptekDetector_->liveTimeControl(this), amptekDetector_->averageLiveTimeControl(this));
+	//averageLiveTimeControlEditor_ = new AMControlEditor(amptekDetector_->averageLiveTimeControl(this));
 	tempHBox = new QHBoxLayout();
 	tempHBox->addWidget(tempLabel);
 	tempHBox->addWidget(liveTimeControlEditor_);
-	tempHBox->addWidget(averageLiveTimeControlEditor_);
+	//tempHBox->addWidget(averageLiveTimeControlEditor_);
 	rightLayout_->addLayout(tempHBox);
 
 	roiView_ = new CLSAmptekDetectorROIView(amptekDetector_);
@@ -122,47 +124,113 @@ CLSAmptekDetectorROIView::CLSAmptekDetectorROIView(CLSAmptekSDD123DetectorNew *d
 	QWidget(parent)
 {
 	detector_ = detector;
-
 	QVBoxLayout *mainVL = new QVBoxLayout();
+	QWidget* page1 = new QWidget();
+	QWidget* page2 = new QWidget();
+	QVBoxLayout* page1VL = new QVBoxLayout();
+	QVBoxLayout* page2VL = new QVBoxLayout();
 
 	roiLowIndexLineEditsMapper_ = new QSignalMapper();
 	roiHighIndexLineEditsMapper_ = new QSignalMapper();
+	roiLowIndexDoubleSpinBoxesMapper_ = new QSignalMapper();
+	roiHighIndexDoubleSpinBoxesMapper_ = new QSignalMapper();
 
-	QLabel *oneNameLabel;
+
+	//Set up header widgets (current detector eV->bin conversion)
+	QTabWidget* editModeTab = new QTabWidget();
+
+	roiEditModeConversionRateLabel = new QLabel();
+	if(detector_->isConnected())
+		roiEditModeConversionRateLabel->setText(QString("Note: Values will be set in increments of %1 eV/bin").arg(detector_->eVPerBin()));
+
+	page1VL->addWidget(roiEditModeConversionRateLabel);
+
+	//Set up widgets for each ROI
+	QLabel *oneLineEditNameLabel;
+	QLabel *oneDoubleSpinBoxNameLabel;
 	QLineEdit *oneLowIndexLineEdit;
 	QLineEdit *oneHighIndexLineEdit;
-	QHBoxLayout *oneHBoxLayout;
+	QDoubleSpinBox *oneHighIndexDoubleSpinBox;
+	QDoubleSpinBox *oneLowIndexDoubleSpinBox;
+	QHBoxLayout *oneHBoxLayoutLineEdits;
+	QHBoxLayout *oneHBoxLayoutDoubleSpinBoxes;
+
+
 
 	for(int x = 0; x < 8; x++){
-		oneNameLabel = new QLabel(QString("ROI %1").arg(x+1));
+		oneLineEditNameLabel = new QLabel(QString("ROI %1").arg(x+1));
+		oneDoubleSpinBoxNameLabel = new QLabel(QString("ROI %1").arg(x+1));
 		oneLowIndexLineEdit = new QLineEdit();
 		oneHighIndexLineEdit = new QLineEdit();
+		oneHighIndexDoubleSpinBox = new QDoubleSpinBox();
+		oneLowIndexDoubleSpinBox = new QDoubleSpinBox();
+
+
+		if(detector_->isConnected())
+		{
+			oneLowIndexDoubleSpinBox->setMinimum(0);
+			oneLowIndexDoubleSpinBox->setMaximum(1023 * detector->eVPerBin());
+			oneLowIndexDoubleSpinBox->setSingleStep(detector_->eVPerBin());
+
+			oneHighIndexDoubleSpinBox->setMinimum(0);
+			oneHighIndexDoubleSpinBox->setMaximum(1023 * detector->eVPerBin());
+			oneHighIndexDoubleSpinBox->setSingleStep(detector_->eVPerBin());
+
+		}
+		oneLowIndexDoubleSpinBox->setSuffix(QString(" eV"));
+		oneHighIndexDoubleSpinBox->setSuffix(QString(" eV"));
 
 		roiLowIndexLineEdits_.append(oneLowIndexLineEdit);
 		roiHighIndexLineEdits_.append(oneHighIndexLineEdit);
 
+		roiLowIndexDoubleSpinBoxes_.append(oneLowIndexDoubleSpinBox);
+		roiHighIndexDoubleSpinBoxes_.append(oneHighIndexDoubleSpinBox);
+
 		roiLowIndexLineEditsMapper_->setMapping(oneLowIndexLineEdit, x);
 		roiHighIndexLineEditsMapper_->setMapping(oneHighIndexLineEdit, x);
+
+		roiLowIndexDoubleSpinBoxesMapper_->setMapping(oneLowIndexDoubleSpinBox, x);
+		roiHighIndexDoubleSpinBoxesMapper_->setMapping(oneHighIndexDoubleSpinBox, x);
 
 		connect(oneLowIndexLineEdit, SIGNAL(editingFinished()), roiLowIndexLineEditsMapper_, SLOT(map()));
 		connect(oneHighIndexLineEdit, SIGNAL(editingFinished()), roiHighIndexLineEditsMapper_, SLOT(map()));
 
-		oneHBoxLayout = new QHBoxLayout();
-		oneHBoxLayout->addWidget(oneNameLabel);
-		oneHBoxLayout->addWidget(oneLowIndexLineEdit);
-		oneHBoxLayout->addWidget(oneHighIndexLineEdit);
+		connect(oneLowIndexDoubleSpinBox, SIGNAL(editingFinished()), roiLowIndexDoubleSpinBoxesMapper_, SLOT(map()));
+		connect(oneHighIndexDoubleSpinBox, SIGNAL(editingFinished()), roiHighIndexDoubleSpinBoxesMapper_, SLOT(map()));
 
-		mainVL->addLayout(oneHBoxLayout);
+		oneHBoxLayoutLineEdits = new QHBoxLayout();
+		oneHBoxLayoutLineEdits->setSpacing(20);
+		oneHBoxLayoutLineEdits->addWidget(oneLineEditNameLabel);
+		oneHBoxLayoutLineEdits->addWidget(oneLowIndexLineEdit);
+		oneHBoxLayoutLineEdits->addWidget(oneHighIndexLineEdit);
+
+		oneHBoxLayoutDoubleSpinBoxes = new QHBoxLayout();
+		oneHBoxLayoutDoubleSpinBoxes->setSpacing(20);
+		oneHBoxLayoutDoubleSpinBoxes->addWidget(oneDoubleSpinBoxNameLabel);
+		oneHBoxLayoutDoubleSpinBoxes->addWidget(oneLowIndexDoubleSpinBox);
+		oneHBoxLayoutDoubleSpinBoxes->addWidget(oneHighIndexDoubleSpinBox);
+
+		page1VL->addLayout(oneHBoxLayoutDoubleSpinBoxes);
+		page2VL->addLayout(oneHBoxLayoutLineEdits);
 	}
 	connect(roiLowIndexLineEditsMapper_, SIGNAL(mapped(int)), this, SLOT(onLowIndexLineEditEditingFinished(int)));
 	connect(roiHighIndexLineEditsMapper_, SIGNAL(mapped(int)), this, SLOT(onHighIndexLineEditEditingFinished(int)));
 
+	connect(roiLowIndexDoubleSpinBoxesMapper_, SIGNAL(mapped(int)), this, SLOT(onLowIndexDoubleSpinBoxEditingFinished(int)));
+	connect(roiHighIndexDoubleSpinBoxesMapper_, SIGNAL(mapped(int)), this, SLOT(onHighIndexDoubleSpinBoxEditingFinished(int)));
+
 	connect(detector_, SIGNAL(connected(bool)), this, SLOT(onDetectorConnected(bool)));
 	connect(detector_, SIGNAL(lowIndexValueChanged(int)), this, SLOT(onLowIndexValueChanged(int)));
 	connect(detector_, SIGNAL(highIndexValueChanged(int)), this, SLOT(onHighIndexValueChanged(int)));
+	connect(detector_, SIGNAL(eVPerBinChanged(double)), this, SLOT(onDetectorEvPerBinChanged(double)));
 	if(detector_->isConnected())
 		onDetectorConnected(detector_->isConnected());
 
+	page1->setLayout(page1VL);
+	page2->setLayout(page2VL);
+	editModeTab->addTab(page1, QString("eV Mode"));
+	editModeTab->addTab(page2, QString("bin Mode"));
+	mainVL->addWidget(editModeTab);
 	setLayout(mainVL);
 }
 
@@ -176,31 +244,97 @@ void CLSAmptekDetectorROIView::onDetectorConnected(bool isConnected){
 		onLowIndexValueChanged(x);
 		onHighIndexValueChanged(x);
 	}
+
+	//Set title of the window to match that of the detector:
+	this->setWindowTitle(QString("%1 - ROIs").arg(this->detector_->name()));
 }
 
 void CLSAmptekDetectorROIView::onLowIndexValueChanged(int index){
+
 	roiLowIndexLineEdits_.at(index)->setText(QString("%1").arg(detector_->amptekLowROI(index)));
+	roiLowIndexDoubleSpinBoxes_.at(index)->setValue(detector_->amptekLowROIEv(index));
 }
 
 void CLSAmptekDetectorROIView::onHighIndexValueChanged(int index){
+
+
 	roiHighIndexLineEdits_.at(index)->setText(QString("%1").arg(detector_->amptekHighROI(index)));
+	roiHighIndexDoubleSpinBoxes_.at(index)->setValue(detector_->amptekHighROIEv(index));
 }
 
 void CLSAmptekDetectorROIView::onLowIndexLineEditEditingFinished(int index){
-	roiEditingFinishedHelper(index);
+	roiLineEditingFinishedHelper(index);
 }
 
 void CLSAmptekDetectorROIView::onHighIndexLineEditEditingFinished(int index){
-	roiEditingFinishedHelper(index);
+	roiLineEditingFinishedHelper(index);
 }
 
-void CLSAmptekDetectorROIView::roiEditingFinishedHelper(int index){
+void CLSAmptekDetectorROIView::onLowIndexDoubleSpinBoxEditingFinished(int index)
+{
+	roiSpinBoxEditingFinishedHelper(index);
+}
+
+void CLSAmptekDetectorROIView::onHighIndexDoubleSpinBoxEditingFinished(int index)
+{
+	roiSpinBoxEditingFinishedHelper(index);
+}
+
+void CLSAmptekDetectorROIView::onDetectorEvPerBinChanged(double newValue){
+	roiEditModeConversionRateLabel->setText(QString("%1 ev/bin").arg(newValue));
+	for(int iROI = 0; iROI < roiLowIndexDoubleSpinBoxes_.count(); iROI++)
+	{
+		roiLowIndexDoubleSpinBoxes_.at(iROI)->setSingleStep(detector_->eVPerBin());
+		roiLowIndexDoubleSpinBoxes_.at(iROI)->setMaximum(1023 * detector_->eVPerBin());
+		roiLowIndexDoubleSpinBoxes_.at(iROI)->setValue(detector_->amptekLowROIEv(iROI));
+
+		roiHighIndexDoubleSpinBoxes_.at(iROI)->setSingleStep(detector_->eVPerBin());
+		roiHighIndexDoubleSpinBoxes_.at(iROI)->setMaximum(1023 * detector_->eVPerBin());
+		roiHighIndexDoubleSpinBoxes_.at(iROI)->setValue(detector_->amptekHighROIEv(iROI));
+
+	}
+}
+
+void CLSAmptekDetectorROIView::roiLineEditingFinishedHelper(int index){
 	bool convertedLowSuccessfully = false;
 	bool convertedHighSuccessfully = false;
-	int convertedLowValue = roiLowIndexLineEdits_.at(index)->text().toInt(&convertedLowSuccessfully);
-	int convertedHighValue = roiHighIndexLineEdits_.at(index)->text().toInt(&convertedHighSuccessfully);
-	if(convertedLowSuccessfully && convertedHighSuccessfully)
-		detector_->setAmptekROI(index, convertedLowValue, convertedHighValue);
+
+		int convertedLowValue = roiLowIndexLineEdits_.at(index)->text().toInt(&convertedLowSuccessfully);
+		int convertedHighValue = roiHighIndexLineEdits_.at(index)->text().toInt(&convertedHighSuccessfully);
+		if(convertedLowSuccessfully && convertedHighSuccessfully && convertedLowValue < 1024 && convertedHighValue < 1024)
+		{
+			detector_->setAmptekROI(index, convertedLowValue, convertedHighValue);
+		}
+		else
+		{
+			roiLowIndexLineEdits_.at(index)->setText(QString("%1").arg(detector_->amptekLowROI(index)));
+			roiHighIndexLineEdits_.at(index)->setText(QString("%1").arg(detector_->amptekHighROI(index)));
+
+		}
+		if(!convertedLowSuccessfully)
+			QToolTip::showText(roiLowIndexLineEdits_.at(index)->mapToGlobal(QPoint(roiLowIndexLineEdits_.at(index)->width(),0)), QString("Could not convert input to integer"));
+		if(!convertedHighSuccessfully)
+			QToolTip::showText(roiHighIndexLineEdits_.at(index)->mapToGlobal(QPoint(roiHighIndexLineEdits_.at(index)->width(),0)), QString("Could not convert input to integer"));
+		if(convertedLowValue > 1023)
+			QToolTip::showText(roiLowIndexLineEdits_.at(index)->mapToGlobal(QPoint(roiLowIndexLineEdits_.at(index)->width(),0)), QString("Input must be within range 0-1023"));
+		if(convertedHighValue > 1023)
+			QToolTip::showText(roiHighIndexLineEdits_.at(index)->mapToGlobal(QPoint(roiHighIndexLineEdits_.at(index)->width(),0)), QString("Input must be within range 0-1023"));
+
+}
+
+void CLSAmptekDetectorROIView::roiSpinBoxEditingFinishedHelper(int index)
+{
+	double inputLowValue = roiLowIndexDoubleSpinBoxes_.at(index)->value();
+	double inputHighValue = roiHighIndexDoubleSpinBoxes_.at(index)->value();
+
+	detector_->setAmptekROIbyEv(index, roiLowIndexDoubleSpinBoxes_.at(index)->value(), roiHighIndexDoubleSpinBoxes_.at(index)->value());
+
+	if(!qFuzzyCompare(inputLowValue, detector_->amptekLowROIEv(index)))
+		roiLowIndexDoubleSpinBoxes_.at(index)->setValue(detector_->amptekLowROIEv(index));
+
+	if(!qFuzzyCompare(inputHighValue, detector_->amptekHighROIEv(index)))
+		roiHighIndexDoubleSpinBoxes_.at(index)->setValue(detector_->amptekHighROIEv(index));
+
 }
 
 CLSAmptekDetectorConfigurationView::CLSAmptekDetectorConfigurationView(CLSAmptekSDD123DetectorNew *detector, QWidget *parent) :

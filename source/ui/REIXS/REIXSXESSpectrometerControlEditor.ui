@@ -128,7 +128,14 @@
      </property>
     </widget>
    </item>
-   <item row="6" column="0">
+   <item row="6" column="1">
+    <widget class="QLabel" name="energyRangeLabel">
+     <property name="text">
+      <string>361 eV - 438 eV (78eV)</string>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="0">
     <widget class="QPushButton" name="stopButton">
      <property name="text">
       <string>Stop!</string>
@@ -139,7 +146,7 @@
      </property>
     </widget>
    </item>
-   <item row="6" column="1">
+   <item row="7" column="1">
     <widget class="QPushButton" name="moveNowButton">
      <property name="text">
       <string>Move Now</string>
@@ -150,38 +157,23 @@
      </property>
     </widget>
    </item>
-   <item row="8" column="0">
+   <item row="9" column="0">
     <widget class="QLabel" name="label">
      <property name="text">
       <string>Grating Mask</string>
      </property>
     </widget>
    </item>
-   <item row="8" column="1">
+   <item row="9" column="1">
     <widget class="QComboBox" name="maskComboBox">
      <item>
       <property name="text">
-       <string>Pin Hole</string>
+       <string>Pinhole</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>LEG</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Impurity</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>MEG</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>HRMEG</string>
+       <string>Mask</string>
       </property>
      </item>
      <item>
@@ -191,7 +183,7 @@
      </item>
     </widget>
    </item>
-   <item row="9" column="1">
+   <item row="10" column="1">
     <widget class="QLabel" name="maskFeedbackLabel">
      <property name="text">
       <string>Currently: Unknown</string>

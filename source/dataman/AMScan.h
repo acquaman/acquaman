@@ -370,7 +370,7 @@ Returns false and does nothing if the new \c dataStore is incompatible with any 
 	//////////////////////////////
 	/// Independent from the hardware you're connected to right now, an AMControlSetInfo can remember values and descriptions of how some hardware was set at the time of the scan.
 	const AMControlInfoList* scanInitialConditions() const { return &scanInitialConditions_; }
-	AMControlInfoList* scanInitialConditions() { return &scanInitialConditions_; }
+	//AMControlInfoList* scanInitialConditions() { return &scanInitialConditions_; }
 
 	// Role 7: Access to Scan Configuration and Scan Controller
 	///////////////////////////////
@@ -458,6 +458,9 @@ public slots:
 	/// Any additional files of raw data that need to be referenced
 	void setAdditionalFilePaths(const QStringList& additionalFilePaths) { additionalFilePaths_ = additionalFilePaths; setModified(true); }
 
+	/// Override of AMDbObject::storeToDb(). Checks if first time stored and auto-generates a scan number before calling AMDbObject::storeToDb() if it is.
+	bool storeToDb(AMDatabase *db, bool generateThumbnails = true);
+
 
 	/// Change the scan initial conditions
 	void setScanInitialConditions(const AMControlInfoList &scanInitialConditions);
@@ -471,6 +474,7 @@ signals:
 	void endDateTimeChanged(const QDateTime &);
 	void sampleIdChanged(int sampleId);
 	void numberChanged(int number);
+
 	void currentlyScanningChanged(bool currentlyScanning);
 	void scanConfigurationChanged();
 
@@ -487,10 +491,8 @@ signals:
 	/// Emitted after a data source was removed. \c index is the index the source used to occupy in dataSourceAt(); it's not there anymore.
 	void dataSourceRemoved(int index);
 
-
 	/// Emitted when the scan initial conditions are changed
 	void scanInitialConditionsChanged();
-
 
 protected slots:
 
@@ -536,6 +538,7 @@ protected:
 	QStringList additionalFilePaths_;
 	/// String holding what type of indexation the scan index can take.  This is a first attempt at actually using the scan index.  Currently, the only index type is fileSystem.
 	QString indexType_;
+
 
 	AMScanDictionary *nameDictionary_;
 	AMScanDictionary *exportNameDictionary_;

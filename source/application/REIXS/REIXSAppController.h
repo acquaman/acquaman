@@ -36,6 +36,8 @@ public:
 	/// Destructor
 	virtual ~REIXSAppController() {}
 
+	/// Re-implemented to add REIXS specific Info, Actions and Editors
+	virtual bool startup();
 	/// Re-implemented to create the REIXSBeamline object
 	virtual bool startupBeforeAnything();
 	/// Re-implemented to register REIXS-specific database classes

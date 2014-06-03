@@ -67,8 +67,7 @@ bool IDEASXRFScanController::startImplementation()
 		positions.remove(positions.indexOf("DirectEnergy"));
 		//positions.remove(positions.indexOf("Energy"));
 
-
-		scan_->scanInitialConditions()->setValuesFrom(positions);
+		scan_->setScanInitialConditions(positions);
 
 		scan()->setScanController(0);
 
