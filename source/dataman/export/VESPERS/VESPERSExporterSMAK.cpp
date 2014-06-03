@@ -29,7 +29,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QFileInfo>
 #include <QTextStream>
 
- VESPERSExporterSMAK::~VESPERSExporterSMAK(){}
+VESPERSExporterSMAK::~VESPERSExporterSMAK(){}
+
 VESPERSExporterSMAK::VESPERSExporterSMAK(QObject *parent)
 	: AMExporterGeneralAscii(parent)
 {
@@ -255,7 +256,7 @@ bool VESPERSExporterSMAK::writeSeparateFiles(const QString &destinationFolderPat
 				out << ++index;
 
 				for (int i = 0; i < spectraSize; i++)
-					out << "\t" << data.at(i);
+					out << "\t" << int(data.at(i));
 
 				out << "\n";
 			}
