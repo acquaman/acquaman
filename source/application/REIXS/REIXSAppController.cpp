@@ -51,12 +51,15 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "analysis/REIXS/REIXSXESImageAB.h"
 #include "analysis/REIXS/REIXSXESImageInterpolationAB.h"
 
+#include "actions3/actions/AMSamplePlatePre2013MoveAction.h"
+#include "actions3/editors/AMSamplePlatePre2013MoveActionEditor.h"
 
 #include "ui/REIXS/REIXSSidebar.h"
 
 
 #include <QMessageBox>
 
+#include "actions3/AMActionRegistry3.h"
 #ifdef Q_OS_LINUX
 #include "util/AMGenericLinuxJoystick.h"
 #include "ui/util/AMJoystickTestView.h"
@@ -65,6 +68,17 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 REIXSAppController::REIXSAppController(QObject *parent) :
 	AMAppController(parent)
 {
+}
+
+bool REIXSAppController::startup()
+{
+	bool success = true;
+
+	success &= AMAppController::startup();
+	success &= AMActionRegistry3::s()->registerInfoAndAction<AMSamplePlatePre2013MoveActionInfo, AMSamplePlatePre2013MoveAction>("Move Sample Position", "Move to a different marked sample position", ":system-run.png");
+	success &= AMActionRegistry3::s()->registerInfoAndEditor<AMSamplePlatePre2013MoveActionInfo, AMSamplePlatePre2013MoveActionEditor>();
+
+	return success;
 }
 
 // Re-implemented to create the REIXSBeamline object
@@ -162,7 +176,7 @@ bool REIXSAppController::startupCreateUserInterface() {
 
 	REIXSSampleChamberButtonPanel* buttonPanel = new REIXSSampleChamberButtonPanel();
 	AMSampleManagementPre2013Widget* sampleManagementPane = new AMSampleManagementPre2013Widget(buttonPanel,
-																				  QUrl("http://v2e1610-101.clsi.ca/mjpg/1/video.mjpg"),
+																				  QUrl("http://v2e1610-401.clsi.ca/mjpg/1/video.mjpg"),
 																				  "Sample Camera: down beam path",
 																				  REIXSBeamline::bl()->samplePlate(),
 																				  new REIXSSampleManipulator(),

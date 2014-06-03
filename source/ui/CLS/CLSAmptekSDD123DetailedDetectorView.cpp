@@ -50,49 +50,49 @@ void CLSAmptekDetailedDetectorView::buildDetectorView(){
 
 	QLabel *tempLabel;
 
-	tempLabel = new QLabel("Fast Counts");
-	fastCountsControlEditor_ = new AMControlEditor(amptekDetector_->fastCountsControl(this));
-	averageFastCountsControlEditor_ = new AMControlEditor(amptekDetector_->averageFastCountsControl(this));
+	tempLabel = new QLabel("Fast Counts (avg.)");
+	fastCountsControlEditor_ = new AMControlEditor(amptekDetector_->fastCountsControl(this), amptekDetector_->averageFastCountsControl(this));
+	//averageFastCountsControlEditor_ = new AMControlEditor(amptekDetector_->averageFastCountsControl(this));
 	tempHBox = new QHBoxLayout();
 	tempHBox->addWidget(tempLabel);
 	tempHBox->addWidget(fastCountsControlEditor_);
-	tempHBox->addWidget(averageFastCountsControlEditor_);
+//	tempHBox->addWidget(averageFastCountsControlEditor_);
 	rightLayout_->addLayout(tempHBox);
 
-	tempLabel = new QLabel("Slow Counts");
-	slowCountsControlEditor_ = new AMControlEditor(amptekDetector_->slowCountsControl(this));
-	averageSlowCountsControlEditor_ = new AMControlEditor(amptekDetector_->averageSlowCountsControl(this));
+	tempLabel = new QLabel("Slow Counts (avg.)");
+	slowCountsControlEditor_ = new AMControlEditor(amptekDetector_->slowCountsControl(this), amptekDetector_->averageSlowCountsControl(this));
+	//averageSlowCountsControlEditor_ = new AMControlEditor(amptekDetector_->averageSlowCountsControl(this));
 	tempHBox = new QHBoxLayout();
 	tempHBox->addWidget(tempLabel);
 	tempHBox->addWidget(slowCountsControlEditor_);
-	tempHBox->addWidget(averageSlowCountsControlEditor_);
+	//tempHBox->addWidget(averageSlowCountsControlEditor_);
 	rightLayout_->addLayout(tempHBox);
 
-	tempLabel = new QLabel("Accumulation");
-	accumulationTimeControlEditor_ = new AMControlEditor(amptekDetector_->accumulationTimeControl(this));
-	averageAccumulationTimeControlEditor_ = new AMControlEditor(amptekDetector_->averageAccumulationTimeControl(this));
+	tempLabel = new QLabel("Accumulation (avg.)");
+	accumulationTimeControlEditor_ = new AMControlEditor(amptekDetector_->accumulationTimeControl(this), amptekDetector_->averageAccumulationTimeControl(this));
+	//averageAccumulationTimeControlEditor_ = new AMControlEditor(amptekDetector_->averageAccumulationTimeControl(this));
 	tempHBox = new QHBoxLayout();
 	tempHBox->addWidget(tempLabel);
 	tempHBox->addWidget(accumulationTimeControlEditor_);
-	tempHBox->addWidget(averageAccumulationTimeControlEditor_);
+	//tempHBox->addWidget(averageAccumulationTimeControlEditor_);
 	rightLayout_->addLayout(tempHBox);
 
-	tempLabel = new QLabel("Real Time");
-	realTimeControlEditor_ = new AMControlEditor(amptekDetector_->realTimeControl(this));
-	averageRealTimeControlEditor_ = new AMControlEditor(amptekDetector_->averageRealTimeControl(this));
+	tempLabel = new QLabel("Real Time (avg.)");
+	realTimeControlEditor_ = new AMControlEditor(amptekDetector_->realTimeControl(this), amptekDetector_->averageRealTimeControl(this));
+	//averageRealTimeControlEditor_ = new AMControlEditor(amptekDetector_->averageRealTimeControl(this));
 	tempHBox = new QHBoxLayout();
 	tempHBox->addWidget(tempLabel);
 	tempHBox->addWidget(realTimeControlEditor_);
-	tempHBox->addWidget(averageRealTimeControlEditor_);
+	//tempHBox->addWidget(averageRealTimeControlEditor_);
 	rightLayout_->addLayout(tempHBox);
 
-	tempLabel = new QLabel("Live Time");
-	liveTimeControlEditor_ = new AMControlEditor(amptekDetector_->liveTimeControl(this));
-	averageLiveTimeControlEditor_ = new AMControlEditor(amptekDetector_->averageLiveTimeControl(this));
+	tempLabel = new QLabel("Live Time (avg.)");
+	liveTimeControlEditor_ = new AMControlEditor(amptekDetector_->liveTimeControl(this), amptekDetector_->averageLiveTimeControl(this));
+	//averageLiveTimeControlEditor_ = new AMControlEditor(amptekDetector_->averageLiveTimeControl(this));
 	tempHBox = new QHBoxLayout();
 	tempHBox->addWidget(tempLabel);
 	tempHBox->addWidget(liveTimeControlEditor_);
-	tempHBox->addWidget(averageLiveTimeControlEditor_);
+	//tempHBox->addWidget(averageLiveTimeControlEditor_);
 	rightLayout_->addLayout(tempHBox);
 
 	roiView_ = new CLSAmptekDetectorROIView(amptekDetector_);

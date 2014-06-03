@@ -42,11 +42,9 @@ REIXSXASScanActionController::REIXSXASScanActionController(REIXSXASScanConfigura
 			AMSample *currentSample = new AMSample(sampleId, AMDatabase::database("user"));
 			QString sampleName = currentSample->name();
 			scan_->setName(QString("%1 %2 %3").arg(sampleName).arg(configuration_->autoScanName()).arg(rangeString));
-			scan_->setNumber(scan_->largestNumberInScansWhere(AMDatabase::database("user"), QString("sampleId = %1").arg(sampleId))+1);
 		}
 		else {
 			scan_->setName(QString("%1 %2").arg(configuration_->autoScanName()).arg(rangeString));
-			scan_->setNumber(0);
 			scan_->setSampleId(-1);
 		}
 	}
@@ -54,7 +52,6 @@ REIXSXASScanActionController::REIXSXASScanActionController(REIXSXASScanConfigura
 		scan_->setName(configuration_->userScanName());
 		if(scan_->name().isEmpty())
 			scan_->setName(QString("%1 %2").arg(configuration_->autoScanName()).arg(rangeString));
-		scan_->setNumber(configuration_->scanNumber());
 		scan_->setSampleId(configuration_->sampleId());
 	}
 

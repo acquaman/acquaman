@@ -32,15 +32,15 @@ protected:
 	QLabel *temperatureLabel_;
 
 	AMControlEditor *fastCountsControlEditor_;
-	AMControlEditor *averageFastCountsControlEditor_;
+	//AMControlEditor *averageFastCountsControlEditor_;
 	AMControlEditor *slowCountsControlEditor_;
-	AMControlEditor *averageSlowCountsControlEditor_;
+	//AMControlEditor *averageSlowCountsControlEditor_;
 	AMControlEditor *accumulationTimeControlEditor_;
-	AMControlEditor *averageAccumulationTimeControlEditor_;
+	//AMControlEditor *averageAccumulationTimeControlEditor_;
 	AMControlEditor *realTimeControlEditor_;
-	AMControlEditor *averageRealTimeControlEditor_;
+	//AMControlEditor *averageRealTimeControlEditor_;
 	AMControlEditor *liveTimeControlEditor_;
-	AMControlEditor *averageLiveTimeControlEditor_;
+	//AMControlEditor *averageLiveTimeControlEditor_;
 
 	CLSAmptekDetectorROIView *roiView_;
 	CLSAmptekDetectorConfigurationView *configurationView_;
