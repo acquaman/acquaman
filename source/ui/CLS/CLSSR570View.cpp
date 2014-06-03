@@ -4,7 +4,6 @@
 #include <QAction>
 #include <QMenu>
 
- CLSSR570View::~CLSSR570View(){}
 CLSSR570View::CLSSR570View(CLSSR570 *sr570, QWidget *parent)
 	: QWidget(parent)
 {
@@ -55,6 +54,8 @@ CLSSR570View::CLSSR570View(CLSSR570 *sr570, QWidget *parent)
 
 	setLayout(layout);
 }
+
+CLSSR570View::~CLSSR570View(){}
 
 void CLSSR570View::onValueComboBoxChanged(int index)
 {
