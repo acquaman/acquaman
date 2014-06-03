@@ -16,10 +16,11 @@ CLSKeithley428::CLSKeithley428(const QString &name, const QString &valueName, QO
     connect( valueControl_, SIGNAL(connected(bool)), this, SLOT(onConnectedStateChanged(bool)) );
     connect( valueControl_, SIGNAL(valueChanged(int)), this, SLOT(onValueChanged(int)) );
 
-    valueMap_ = new CLSKeithley428ValueMap();
+    valueMap_ = new CLSKeithley428ValueMap(this);
 
     setAmplifierMode(AMCurrentAmplifier::Gain);
     setValueMap();
+
 }
 
 CLSKeithley428::~CLSKeithley428()
@@ -27,12 +28,12 @@ CLSKeithley428::~CLSKeithley428()
 
 }
 
-double CLSKeithley428::value()
+double CLSKeithley428::value() const
 {
     return valueMap_->valueAt(index(), amplifierMode_);
 }
 
-int CLSKeithley428::index()
+int CLSKeithley428::index() const
 {
     return valueControl_->getInt();
 }
@@ -89,12 +90,12 @@ bool CLSKeithley428::atMinimumValue() const
     return valueMap_->isIndexOfMin(amplifierMode_, valueControl_->getInt());
 }
 
-QStringList* CLSKeithley428::valueStringList()
+QStringList* CLSKeithley428::valueStringList() const
 {
     return valueMap_->valueStringList(amplifierMode_);
 }
 
-QStringList* CLSKeithley428::unitsStringList()
+QStringList* CLSKeithley428::unitsStringList() const
 {
     QStringList *unitsList = new QStringList();
 
@@ -110,7 +111,7 @@ QStringList* CLSKeithley428::unitsStringList()
 void CLSKeithley428::setValueIndex(int valueIndex)
 {
     // check that the given index corresponds to a value, then set the value control.
-    if (valueMap_->map()->contains(valueIndex)) {
+    if (valueMap_->map()->contains(valueIndex) && valueIndex != valueControl_->getInt()) {
         valueControl_->setValue(valueIndex);
     }
 }

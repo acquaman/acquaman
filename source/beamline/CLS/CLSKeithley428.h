@@ -24,9 +24,9 @@ public:
     virtual ~CLSKeithley428();
 
     /// Returns the current value.
-    double value();
+    double value() const;
     /// Returns the current value index.
-    int index();
+    int index() const;
     /// Returns string representing the units to use, depending on the display mode.
     QString units() const;
 
@@ -44,9 +44,9 @@ public:
     bool atMinimumValue() const;
 
     /// Returns a pointer to a string list of allowed values (according to the current amplifier mode), suitable for a view to display.
-    QStringList *valueStringList();
+    QStringList *valueStringList() const;
     /// Returns a pointer to a string list of allowed units (according to the current amplifier mode), suitable for a view to display.
-    QStringList *unitsStringList();
+    QStringList *unitsStringList() const;
 
 signals:
     /// Notifier that the Keithley class is connected to the amplifier.
