@@ -33,16 +33,16 @@ public:
     /// Returns true if the current amplifier supports Gain mode.
     bool supportsGainMode() const;
     /// Returns true if the current amplifier is at the minimum gain.
-    bool atMinimumGain() const;
+    virtual bool atMinimumGain() const;
     /// Returns true if the current amplifier is at the maximum gain.
-    bool atMaximumGain() const;
+    virtual bool atMaximumGain() const;
 
     /// Returns true if the current amplifier supports Sensitivity mode.
     bool supportsSensitivityMode() const;
     /// Returns whether the current amplifier is at minimum sensitivity.
-    bool atMinimumSensitivity() const;
+    virtual bool atMinimumSensitivity() const;
     /// Returns whether the current amplifier is at maximum sensitivity.
-    bool atMaximumSensitivity() const;
+    virtual bool atMaximumSensitivity() const;
 
 signals:
     /// Emitted when the amplifier mode has been changed.
