@@ -139,6 +139,10 @@ protected:
 	bool setupSGMPlugins();
 	/// Either creates, retrieves, or updates the exporter options for the provided and auto- export options
 	bool setupSGMExporterOptions();
+	/// Either creates, retrieves, or updates the exporter options for XASScans
+	bool setupSGMXASExporterOptions(AMDatabase* dbSGM);
+	/// Either creates, retrieves, or updates the exporter options for FastScans
+	bool setupSGMFastScanExporterOptions(AMDatabase* dbSGM);
 	/// Either creates or retrieves the SGM periodic table information
 	bool setupSGMPeriodicTable();
 
