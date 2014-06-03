@@ -26,18 +26,12 @@ bool AMCurrentAmplifier::supportsGainMode() const
 
 bool AMCurrentAmplifier::atMinimumGain() const
 {
-    if (!supportsGainMode())
-        return false;
-
-    return atMinimumGainImplementation();
+    return false;
 }
 
 bool AMCurrentAmplifier::atMaximumGain() const
 {
-    if (!supportsGainMode())
-        return false;
-
-    return atMaximumGainImplementation();
+    return false;
 }
 
 bool AMCurrentAmplifier::supportsSensitivityMode() const
@@ -47,18 +41,12 @@ bool AMCurrentAmplifier::supportsSensitivityMode() const
 
 bool AMCurrentAmplifier::atMinimumSensitivity() const
 {
-    if (!supportsSensitivityMode())
-        return false;
-
-    return atMinimumSensitivityImplementation();
+    return false;
 }
 
 bool AMCurrentAmplifier::atMaximumSensitivity() const
 {
-    if (!supportsSensitivityMode())
-        return false;
-
-    return atMaximumSensitivityImplementation();
+    return false;
 }
 
 void AMCurrentAmplifier::setAmplifierMode(AmplifierMode newMode)
@@ -82,32 +70,20 @@ void AMCurrentAmplifier::setValue(int valueIndex)
 
 bool AMCurrentAmplifier::increaseGain() const
 {
-    if (!supportsGainMode())
-        return false;
-
-    return increaseGainImplementation();
+    return false;
 }
 
 bool AMCurrentAmplifier::decreaseGain() const
 {
-    if (!supportsGainMode())
-        return false;
-
-    return decreaseGainImplementation();
+    return false;
 }
 
 bool AMCurrentAmplifier::increaseSensitivity() const
 {
-    if (!supportsSensitivityMode())
-        return false;
-
-    return increaseSensitivityImplementation();
+    return false;
 }
 
 bool AMCurrentAmplifier::decreaseSensitivity() const
 {
-    if (!supportsSensitivityMode())
-        return false;
-
-    return decreaseSensitivityImplementation();
+    return false;
 }

@@ -75,25 +75,17 @@ public slots:
     void setValue(int valueIndex);
 
     /// Increases the gain of the current amplifier.
-    bool increaseGain() const;
+    virtual bool increaseGain() const;
     /// Decreases the gain of the current amplifier.
-    bool decreaseGain() const;
+    virtual bool decreaseGain() const;
 
     /// Increases the sensitivity of the current amplifier.
-    bool increaseSensitivity() const;
+    virtual bool increaseSensitivity() const;
     /// Decreases the sensitivity of the current amplifier.
-    bool decreaseSensitivity() const;
+    virtual bool decreaseSensitivity() const;
 
 protected:
     virtual void setValueImplementation(int valueIndex);
-    virtual bool atMinimumGainImplementation() const;
-    virtual bool atMaximumGainImplementation() const;
-    virtual bool atMinimumSensitivityImplementation() const;
-    virtual bool atMaximumSensitivityImplementation() const;
-    virtual bool increaseGainImplementation() const;
-    virtual bool decreaseGainImplementation() const;
-    virtual bool increaseSensitivityImplementation() const;
-    virtual bool decreaseSensitivityImplementation() const;
 
 protected:
     QString name_;
