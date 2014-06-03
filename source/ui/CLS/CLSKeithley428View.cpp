@@ -47,7 +47,7 @@ CLSKeithley428::AmplifierMode CLSKeithley428View::valueMode() const
     return amplifier_->amplifierMode();
 }
 
-void CLSKeithley428View::setAmplifierMode(CLSKeithley428::AmplifierMode newMode)
+void CLSKeithley428View::setAmplifierMode(AMCurrentAmplifier::AmplifierMode newMode)
 {
     if (amplifier_) {
         amplifier_->setAmplifierMode(newMode);
@@ -65,7 +65,7 @@ void CLSKeithley428View::setAmplifier(CLSKeithley428 *amplifier)
     amplifier_ = amplifier;
 
     if (amplifier_) {
-        if (amplifier_->amplifierMode() == CLSKeithley428::Gain) {
+        if (amplifier_->amplifierMode() == AMCurrentAmplifier::Gain) {
             gainButton_->setChecked(true);
 
         } else {
@@ -77,6 +77,7 @@ void CLSKeithley428View::setAmplifier(CLSKeithley428 *amplifier)
         connect( amplifier_, SIGNAL(amplifierModeChanged(AmplifierMode)), this, SLOT(refreshDisplayValues()) );
     }
 
+    refreshDisplayValues();
     emit amplifierChanged(amplifier_);
 }
 
