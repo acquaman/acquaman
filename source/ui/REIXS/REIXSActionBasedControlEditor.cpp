@@ -25,12 +25,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QApplication>
 
- REIXSActionBasedControlEditor::~REIXSActionBasedControlEditor(){}
 REIXSActionBasedControlEditor::REIXSActionBasedControlEditor(AMControl* control, bool okToRunInBackground, QWidget *parent) :
-	AMControlEditor(control, parent)
+	AMControlEditor(control, 0, parent)
 {
 	okToRunInBackground_ = okToRunInBackground;
 }
+
+REIXSActionBasedControlEditor::~REIXSActionBasedControlEditor(){}
 
 void REIXSActionBasedControlEditor::onNewSetpointChosen(double value)
 {

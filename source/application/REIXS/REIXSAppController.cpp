@@ -51,6 +51,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "analysis/REIXS/REIXSXESImageAB.h"
 #include "analysis/REIXS/REIXSXESImageInterpolationAB.h"
 
+#include "actions3/actions/AMSamplePlatePre2013MoveAction.h"
+#include "actions3/editors/AMSamplePlatePre2013MoveActionEditor.h"
 
 #include "ui/REIXS/REIXSSidebar.h"
 
