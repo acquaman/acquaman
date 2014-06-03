@@ -12,7 +12,7 @@ class CLSKeithley428ValueMap : public QObject
 
 public:
     /// Constructor.
-    explicit CLSKeithley428ValueMap();
+    explicit CLSKeithley428ValueMap(QObject *parent = 0);
     /// Destructor.
     virtual ~CLSKeithley428ValueMap();
 

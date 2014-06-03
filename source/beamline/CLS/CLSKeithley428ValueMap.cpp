@@ -2,7 +2,7 @@
 
 #include <QDebug>
 
-CLSKeithley428ValueMap::CLSKeithley428ValueMap() : QObject()
+CLSKeithley428ValueMap::CLSKeithley428ValueMap(QObject *parent) : QObject(parent)
 {
     tolerance_ = 0.01;
     map_ = new QMultiMap<int, double>();
