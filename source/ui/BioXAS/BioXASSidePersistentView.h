@@ -8,7 +8,6 @@
 #include "ui/CLS/CLSKeithley428View.h"
 
 class AMExtendedControlEditor;
-class CLSKeithley428ContainerView;
 
 class BioXASSidePersistentView : public QWidget
 {

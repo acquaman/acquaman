@@ -57,7 +57,7 @@ void CLSKeithley428View::setAmplifierMode(AMCurrentAmplifier::AmplifierMode newM
 void CLSKeithley428View::setAmplifier(CLSKeithley428 *amplifier)
 {
     if (amplifier_) {
-        disconnect( amplifier_, SIGNAL(connected(bool)), this, SLOT(refreshDisplayValues()) );
+        disconnect( amplifier_, SIGNAL(isConnected(bool)), this, SLOT(refreshDisplayValues()) );
         disconnect( amplifier_, SIGNAL(indexChanged(int)), this, SLOT(onValueChanged(int)) );
         disconnect( amplifier_, SIGNAL(amplifierModeChanged(AMCurrentAmplifier::AmplifierMode)), this, SLOT(refreshDisplayValues()) );
     }
@@ -72,7 +72,7 @@ void CLSKeithley428View::setAmplifier(CLSKeithley428 *amplifier)
             sensitivityButton_->setChecked(true);
         }
 
-        connect( amplifier_, SIGNAL(connected(bool)), this, SLOT(refreshDisplayValues()) );
+        connect( amplifier_, SIGNAL(isConnected(bool)), this, SLOT(refreshDisplayValues()) );
         connect( amplifier_, SIGNAL(indexChanged(int)), this, SLOT(onValueChanged(int)) );
         connect( amplifier_, SIGNAL(amplifierModeChanged(AmplifierMode)), this, SLOT(refreshDisplayValues()) );
     }
