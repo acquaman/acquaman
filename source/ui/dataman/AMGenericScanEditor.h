@@ -27,7 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dataman/AMScanSetModel.h"
 #include "dataman/AMAxisInfo.h"
-
+#include "ui/AMRegExpLineEdit.h"
 class AMScan;
 
 class AMScanView;
@@ -218,6 +218,8 @@ protected:
 
 	/// Dialog to choose an existing scan to open/add.  Will be 0 until it is required/created.
 	AMChooseScanDialog* chooseScanDialog_;
+
+	AMRegExpLineEdit* scanNameEdit_;
 
 	/// Overloaded to enable drag-dropping scans (when Drag Action = Qt::CopyAction and mime-type = "text/uri-list" with the proper format.)
 	void dragEnterEvent(QDragEnterEvent *event);
