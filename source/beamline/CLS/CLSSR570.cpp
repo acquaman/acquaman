@@ -158,9 +158,13 @@ bool CLSSR570::unitsOkay(QString units) const
     return units.contains(QRegExp("^(p|n|u|m)A/V$"));
 }
 
-void CLSSR570::setValueImplementation(const QStringList &argList)
+void CLSSR570::setValueImplementation(const QString &valueArg)
 {
-    Q_UNUSED(argList)
+//    int valueIndex = argList.at(0).toInt();
+//    QString units = argList.at(1);
+
+//    setValueIndex(valueIndex);
+//    setUnits(units);
 }
 
 int CLSSR570::nextValue(bool increase, int current)

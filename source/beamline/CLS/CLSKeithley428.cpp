@@ -225,8 +225,8 @@ void CLSKeithley428::setValueMap()
     valueMap_->setValues(AMCurrentAmplifier::Gain, valueList);
 }
 
-void CLSKeithley428::setValueImplementation(const QStringList &argList)
+void CLSKeithley428::setValueImplementation(const QString &valueArg)
 {
-    int newIndex = argList.at(0).toInt();
-    setValueIndex(newIndex);
+//    int newIndex = valueArg.at(0).toInt();
+//    setValueIndex(newIndex);
 }

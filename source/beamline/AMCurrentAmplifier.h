@@ -76,7 +76,7 @@ public slots:
     void setName(const QString &newName);
 
     /// Sets the amplifier's value.
-    void setValue(const QStringList &argList);
+    void setValue(const QString &valueArg);
 
     /// Increases the gain of the current amplifier.
     virtual bool increaseGain();
@@ -90,7 +90,7 @@ public slots:
 
 protected:
     /// Sets the current amplifier's sensitivity/gain value.
-    virtual void setValueImplementation(const QStringList &argList) = 0;
+    virtual void setValueImplementation(const QString &valueArg) = 0;
 
 protected:
     QString name_;

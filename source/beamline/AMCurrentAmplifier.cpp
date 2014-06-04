@@ -63,9 +63,9 @@ void AMCurrentAmplifier::setName(const QString &newName)
     emit nameChanged(name_);
 }
 
-void AMCurrentAmplifier::setValue(const QStringList &argList)
+void AMCurrentAmplifier::setValue(const QString &valueArg)
 {
-    setValueImplementation(argList);
+    setValueImplementation(valueArg);
 }
 
 bool AMCurrentAmplifier::increaseGain()

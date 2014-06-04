@@ -88,7 +88,7 @@ protected:
 	bool unitsOkay(QString units) const;
 
     /// Sets the sensitivity value.
-    virtual void setValueImplementation(const QStringList &argList);
+    virtual void setValueImplementation(const QString &valueArg);
 
     /// Pointer to the value PV.  This is a specific implementation for the CLS and maybe should be migrated to an AMControl at the same time the units PV is migrated to an AMControl.
     AMProcessVariable *value_;
