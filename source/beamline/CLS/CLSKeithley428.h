@@ -31,7 +31,7 @@ public:
     int index() const;
 
     /// Returns string representing the units to use, depending on the display mode.
-    QString units() const;
+    virtual QString units() const;
 
     /// Returns the value map object for this amplifier.
     CLSKeithley428ValueMap* valueMap() const;

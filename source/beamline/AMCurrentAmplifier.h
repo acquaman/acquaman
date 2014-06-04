@@ -30,6 +30,9 @@ public:
     /// Returns the value at the given index.
     virtual double valueAt(int index) const = 0;
 
+    /// Returns the units.
+    virtual QString units() const = 0;
+
     /// Returns true if the current amplifier supports Gain mode.
     bool supportsGainMode() const;
     /// Returns true if the current amplifier is at the minimum gain.
