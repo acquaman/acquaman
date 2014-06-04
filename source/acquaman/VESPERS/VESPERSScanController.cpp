@@ -180,19 +180,19 @@ QString VESPERSScanController::buildNotes()
 	notes.append(QString("\nIon Chamber Gain Settings\n"));
 
 	CLSSIS3820ScalerChannel *channel = VESPERSBeamline::vespers()->scaler()->channelAt(5);
-    CLSSR570 *sr570 = qobject_cast<CLSSR570 *>(channel->currentAmplifier());
+    AMCurrentAmplifier *sr570 = channel->currentAmplifier();
     if (sr570)
         notes.append(QString("%1:\t%2 %3\n").arg("Split").arg(sr570->value()).arg(sr570->units()));
 	channel = VESPERSBeamline::vespers()->scaler()->channelAt(7);
-    sr570 = qobject_cast<CLSSR570 *>(channel->currentAmplifier());
+    sr570 = channel->currentAmplifier();
         if (sr570)
     notes.append(QString("%1:\t%2 %3\n").arg("Pre-KB").arg(sr570->value()).arg(sr570->units()));
 	channel = VESPERSBeamline::vespers()->scaler()->channelAt(8);
-    sr570 = qobject_cast<CLSSR570 *>(channel->currentAmplifier());
+    sr570 = channel->currentAmplifier();
         if (sr570)
     notes.append(QString("%1:\t%2 %3\n").arg("Mini").arg(sr570->value()).arg(sr570->units()));
 	channel = VESPERSBeamline::vespers()->scaler()->channelAt(9);
-    sr570 = qobject_cast<CLSSR570 *>(channel->currentAmplifier());
+    sr570 = channel->currentAmplifier();
         if (sr570)
     notes.append(QString("%1:\t%2 %3\n").arg("Post").arg(sr570->value()).arg(sr570->units()));
 
