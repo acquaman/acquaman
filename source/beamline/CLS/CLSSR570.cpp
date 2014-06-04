@@ -45,6 +45,17 @@ CLSSR570::CLSSR570(const QString &name, const QString &valueName, const QString 
 	connect(units_, SIGNAL(connected()), this, SLOT(onConnectedChanged()));
 }
 
+void CLSSR570::setValue(int value)
+{
+    setValueIndex(valueToIndex(value));
+}
+
+void CLSSR570::setValueIndex(int index)
+{
+    if (valueOkay(index))
+        value_->setValue(index);
+}
+
 void CLSSR570::setUnits(QString units)
 {
     if (unitsOkay(units))
@@ -147,15 +158,9 @@ bool CLSSR570::unitsOkay(QString units) const
     return units.contains(QRegExp("^(p|n|u|m)A/V$"));
 }
 
-void CLSSR570::setValueImplementation(double value)
+void CLSSR570::setValueImplementation(QStringList *argList)
 {
-    setValueIndex(valueToIndex(value));
-}
-
-void CLSSR570::setValueIndexImplementation(int index)
-{
-    if (valueOkay(index))
-        value_->setValue(index);
+    Q_UNUSED(argList)
 }
 
 int CLSSR570::nextValue(bool increase, int current)

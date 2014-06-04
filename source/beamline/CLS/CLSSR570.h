@@ -61,6 +61,10 @@ signals:
     void unitsChanged(QString);
 
 public slots:
+    /// Sets the sensitivity value. Must be 1, 2, 5, 10, 20, 50, 100, 200, or 500.  Does nothing otherwise.
+    void setValue(int newValue);
+    /// Sets the value index.  Must be between 0 and 8.
+    void setValueIndex(int index);
 	/// Sets the sensitivity units.  Must be pA/V, nA/V, uA/V, or mA/V.  Does nothing otherwise.
 	void setUnits(QString units);
 
@@ -68,7 +72,6 @@ public slots:
     virtual bool increaseSensitivity();
 	/// Decreases the sensitivity of the ion chamber by one step.
     virtual bool decreaseSensitivity();
-
 
 protected slots:
 	/// Turns the sensitivity value from an index to the value.
@@ -84,10 +87,8 @@ protected:
 	/// Determines if the new sensitivity units are acceptable.
 	bool unitsOkay(QString units) const;
 
-    /// Sets the sensitivity value.  Must be 1, 2, 5, 10, 20, 50, 100, 200, or 500.  Does nothing otherwise.
-    virtual void setValueImplementation(double value);
-    /// Sets the value index.  Must be between 0 and 8.
-    virtual void setValueIndexImplementation(int index);
+    /// Sets the sensitivity value.
+    virtual void setValueImplementation(QStringList *argList);
 
     /// Pointer to the value PV.  This is a specific implementation for the CLS and maybe should be migrated to an AMControl at the same time the units PV is migrated to an AMControl.
     AMProcessVariable *value_;

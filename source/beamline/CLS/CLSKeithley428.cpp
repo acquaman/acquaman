@@ -97,6 +97,19 @@ QStringList* CLSKeithley428::unitsStringList() const
     return unitsList;
 }
 
+void CLSKeithley428::setValue(double newValue)
+{
+    int index = valueMap_->map()->key(newValue);
+    setValueIndex(index);
+}
+
+void CLSKeithley428::setValueIndex(int newIndex)
+{
+    if (valueMap_->map()->contains(newIndex) && newIndex != valueControl_->getInt()) {
+        valueControl_->setValue(newIndex);
+    }
+}
+
 bool CLSKeithley428::increaseGain()
 {
     // Don't do anything if the value is already at a maximum.
@@ -212,15 +225,7 @@ void CLSKeithley428::setValueMap()
     valueMap_->setValues(AMCurrentAmplifier::Gain, valueList);
 }
 
-void CLSKeithley428::setValueImplementation(double newValue)
+void CLSKeithley428::setValueImplementation(QStringList *argList)
 {
-    int index = valueMap_->map()->key(newValue);
-    setValueIndexImplementation(index);
-}
-
-void CLSKeithley428::setValueIndexImplementation(int newIndex)
-{
-    if (valueMap_->map()->contains(newIndex) && newIndex != valueControl_->getInt()) {
-        valueControl_->setValue(newIndex);
-    }
+    Q_UNUSED(argList)
 }

@@ -51,6 +51,10 @@ public:
     QStringList *unitsStringList() const;
 
 public slots:
+    /// Sets the gain value.
+    void setValue(double newValue);
+    /// Sets the gain value by index.
+    void setValueIndex(int newIndex);
 
     /// Increases the gain by one value index, if not at maximum.
     virtual bool increaseGain();
@@ -72,9 +76,9 @@ protected:
     int nextIndex(IndexChange change, int currentIndex);
     /// Populates the value map with set gain values. Order corresponds to increasing pv value index.
     void setValueMap();
+
     /// Sets the gain to value corresponding to provided index.
-    virtual void setValueImplementation(double newValue);
-    virtual void setValueIndexImplementation(int newIndex);
+    virtual void setValueImplementation(QStringList *argList);
 
 protected:    
     /// Pointer to the pv controlling Keithley value.
