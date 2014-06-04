@@ -63,7 +63,7 @@ void AMCurrentAmplifier::setName(const QString &newName)
     emit nameChanged(name_);
 }
 
-void AMCurrentAmplifier::setValue(QStringList *argList)
+void AMCurrentAmplifier::setValue(const QStringList &argList)
 {
     setValueImplementation(argList);
 }

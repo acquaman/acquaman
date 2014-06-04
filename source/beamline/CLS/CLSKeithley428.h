@@ -78,7 +78,7 @@ protected:
     void setValueMap();
 
     /// Sets the gain to value corresponding to provided index.
-    virtual void setValueImplementation(QStringList *argList);
+    virtual void setValueImplementation(const QStringList &argList);
 
 protected:    
     /// Pointer to the pv controlling Keithley value.

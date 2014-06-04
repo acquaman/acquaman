@@ -158,7 +158,7 @@ bool CLSSR570::unitsOkay(QString units) const
     return units.contains(QRegExp("^(p|n|u|m)A/V$"));
 }
 
-void CLSSR570::setValueImplementation(QStringList *argList)
+void CLSSR570::setValueImplementation(const QStringList &argList)
 {
     Q_UNUSED(argList)
 }
