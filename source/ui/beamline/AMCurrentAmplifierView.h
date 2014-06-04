@@ -27,21 +27,29 @@ signals:
 
 public slots:
     void setCurrentAmplifier(AMCurrentAmplifier *amplifier);
+    void setViewMode(AMCurrentAmplifier::AmplifierMode newMode);
+    void refreshDisplayValues();
+    void clearDisplayValues();
 
 protected slots:
+
     /// Handles passing changes in the value combo box to the amplifier.
-    virtual void onValueComboBoxChanged(int index) = 0;
+    void onValueComboBoxChanged(int index);
     /// Handles passing changes in the units combo box to the amplifier.
-    virtual void onUnitsComboBoxChanged(int index) = 0;
+    void onUnitsComboBoxChanged(int index);
+
     /// Handles setting the value combo box when the amplifier's value has been changed independently.
-    virtual void onValueChanged(int value) = 0;
+    void onValueChanged(int value);
     /// Handles setting the units combo box when the amplifier's units have been changed independently.
-    virtual void onUnitsChanged(QString units) = 0;
+    void onUnitsChanged(QString units);
+
+    virtual void onCustomContextMenuRequested(QPoint position);
 
 protected:
     /// The pointer to the current amplifier this view manages.
     AMCurrentAmplifier *amplifier_;
-
+    /// The current view mode.
+    AMCurrentAmplifier::AmplifierMode viewMode_;
     /// Combo box holding the amplifier value.
     QComboBox *value_;
     /// Combo box holding the amplifier units.

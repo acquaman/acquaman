@@ -59,14 +59,14 @@ signals:
     void isConnected(bool);
 
     /// Emitted when the gain of the current amplifier is changed.
-    void gainChanged();
+    void gainChanged(int valueIndex);
     /// Emitted when the current amplifier has reached the minimum gain.
     void minimumGain(bool);
     /// Emitted when the current amplifier has reached the maximum gain.
     void maximumGain(bool);
 
     /// General notifier. Emitted when the sensitivity of the current amplifier is changed.
-    void sensitivityChanged();
+    void sensitivityChanged(int valueIndex);
     /// Notifier that the current amplifier is at the minimum sensitivity.
     void minimumSensitivity(bool);
     /// Notifier that the current amplifier is at the maximum sensitivity.

@@ -49,16 +49,65 @@ AMCurrentAmplifier* AMCurrentAmplifierView::currentAmplifier() const
 void AMCurrentAmplifierView::setCurrentAmplifier(AMCurrentAmplifier *amplifier)
 {
     if (amplifier_) {
-        // disconnects.
+        disconnect( amplifier_, SIGNAL(amplifierModeChanged(AMCurrentAmplifier::AmplifierMode)), this, SLOT(setViewMode(AMCurrentAmplifier::AmplifierMode)) );
+        disconnect( amplifier_, SIGNAL(gainChanged(int)), value_, SLOT(setCurrentIndex(int)) );
+        disconnect( amplifier_, SIGNAL(sensitivityChanged(int)), value_, SLOT(setCurrentIndex(int)) );
+        disconnect( amplifier_, SIGNAL(unitsChanged(int)), units_, SLOT(setCurrentIndex(int)) );
     }
-
-    value_->clear();
-    units_->clear();
 
     amplifier_ = amplifier;
     emit currentAmplifierChanged(amplifier_);
 
     if (amplifier_) {
-        // view should detect what information needs to be displayed--gain vs sensitivity.
+        setViewMode(amplifier_->amplifierMode());
+
+        connect( amplifier_, SIGNAL(amplifierModeChanged(AMCurrentAmplifier::AmplifierMode)), this, SLOT(setViewMode(AMCurrentAmplifier::AmplifierMode)) );
+        connect( amplifier_, SIGNAL(gainChanged(int)), value_, SLOT(setCurrentIndex(int)) );
+        connect( amplifier_, SIGNAL(sensitivityChanged(int)), value_, SLOT(setCurrentIndex(int)) );
+        connect( amplifier_, SIGNAL(unitsChanged(int)), units_, SLOT(setCurrentIndex(int)) );
     }
+}
+
+void AMCurrentAmplifierView::setViewMode(AMCurrentAmplifier::AmplifierMode newMode)
+{
+    viewMode_ = newMode;
+    refreshDisplayValues();
+}
+
+void AMCurrentAmplifierView::refreshDisplayValues()
+{
+    clearDisplayValues();
+
+    // repopulate value_ and units_ with appropriate options from the amplifier.
+}
+
+void AMCurrentAmplifierView::clearDisplayValues()
+{
+    value_->clear();
+    units_->clear();
+}
+
+void AMCurrentAmplifierView::onValueComboBoxChanged(int index)
+{
+    amplifier_->setValue(QString::number(index));
+}
+
+void AMCurrentAmplifierView::onUnitsComboBoxChanged(int index)
+{
+
+}
+
+void AMCurrentAmplifierView::onValueChanged(int value)
+{
+
+}
+
+void AMCurrentAmplifierView::onUnitsChanged(QString units)
+{
+
+}
+
+void AMCurrentAmplifierView::onCustomContextMenuRequested(QPoint position)
+{
+
 }

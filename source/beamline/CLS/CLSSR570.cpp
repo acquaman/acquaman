@@ -121,8 +121,7 @@ void CLSSR570::onValueChanged(int index)
 //	emit valueChanged(indexToValue(index));
 //	emit valueIndexChanged(index);
 
-    Q_UNUSED(index)
-    emit sensitivityChanged();
+    emit sensitivityChanged(index);
 }
 
 void CLSSR570::onSensitivityChanged()
@@ -160,6 +159,7 @@ bool CLSSR570::unitsOkay(QString units) const
 
 void CLSSR570::setValueImplementation(const QString &valueArg)
 {
+    Q_UNUSED(valueArg)
 //    int valueIndex = argList.at(0).toInt();
 //    QString units = argList.at(1);
 

@@ -169,11 +169,9 @@ bool CLSKeithley428::decreaseSensitivity()
 
 void CLSKeithley428::onValueChanged(int newIndex)
 {
-    Q_UNUSED(newIndex)
-
     if (amplifierMode_ == AMCurrentAmplifier::Gain) {
 
-        emit gainChanged();
+        emit gainChanged(newIndex);
 
         if (atMinimumGain())
             emit minimumGain(true);
@@ -187,7 +185,7 @@ void CLSKeithley428::onValueChanged(int newIndex)
 
     } else if (amplifierMode_ == AMCurrentAmplifier::Sensitivity) {
 
-        emit sensitivityChanged();
+        emit sensitivityChanged(newIndex);
 
         if (atMinimumSensitivity())
             emit minimumSensitivity(true);
