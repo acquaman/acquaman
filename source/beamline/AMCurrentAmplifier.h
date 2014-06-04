@@ -78,14 +78,14 @@ public slots:
     void setValueIndex(int newIndex);
 
     /// Increases the gain of the current amplifier.
-    virtual bool increaseGain() const;
+    virtual bool increaseGain();
     /// Decreases the gain of the current amplifier.
-    virtual bool decreaseGain() const;
+    virtual bool decreaseGain();
 
     /// Increases the sensitivity of the current amplifier.
-    virtual bool increaseSensitivity() const;
+    virtual bool increaseSensitivity();
     /// Decreases the sensitivity of the current amplifier.
-    virtual bool decreaseSensitivity() const;
+    virtual bool decreaseSensitivity();
 
 protected:
     virtual void setValueImplementation(double newValue) = 0;

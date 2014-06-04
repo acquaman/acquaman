@@ -73,22 +73,22 @@ void AMCurrentAmplifier::setValueIndex(int valueIndex)
     setValueIndexImplementation(valueIndex);
 }
 
-bool AMCurrentAmplifier::increaseGain() const
+bool AMCurrentAmplifier::increaseGain()
 {
     return false;
 }
 
-bool AMCurrentAmplifier::decreaseGain() const
+bool AMCurrentAmplifier::decreaseGain()
 {
     return false;
 }
 
-bool AMCurrentAmplifier::increaseSensitivity() const
+bool AMCurrentAmplifier::increaseSensitivity()
 {
     return false;
 }
 
-bool AMCurrentAmplifier::decreaseSensitivity() const
+bool AMCurrentAmplifier::decreaseSensitivity()
 {
     return false;
 }

@@ -45,12 +45,64 @@ CLSSR570::CLSSR570(const QString &name, const QString &valueName, const QString 
 	connect(units_, SIGNAL(connected()), this, SLOT(onConnectedChanged()));
 }
 
-void CLSSR570::onConnectedChanged()
+void CLSSR570::setUnits(QString units)
 {
-	if ((value_->isConnected() && units_->isConnected()) != connected_){
-		emit isConnected(connected_ = (value_->isConnected() && units_->isConnected()));
-		onSensitivityChanged();
-	}
+    if (unitsOkay(units))
+        units_->setValue(units);
+}
+
+bool CLSSR570::increaseSensitivity()
+{
+    // Don't do anything if we are already at the maximum sensitivity.
+    if (atMaximumSensitivity_)
+        return false;
+
+    int current = value_->getInt();
+    int next = nextValue(true, current);
+    QString units = nextUnits(true, units_->getString());
+
+    if (next == -1 && units.isEmpty())
+        return false;
+
+    // If possible to just move to the next lower value, do so.
+    if (current != 0 && next != -1)
+        value_->setValue(next);
+
+    // Otherwise, we need to move the sensitivity unit to the next more sensitive value.
+    else {
+
+        units_->setValue(units);
+        value_->setValue(8);
+    }
+
+    return true;
+}
+
+bool CLSSR570::decreaseSensitivity()
+{
+    // Don't do anything if we are already at the minimum sensitivity.
+    if (atMinimumSensitivity_)
+        return false;
+
+    int current = value_->getInt();
+    int next = nextValue(false, current);
+    QString units = nextUnits(false, units_->getString());
+
+    if (next == -1 && units.isEmpty())
+        return false;
+
+    // If possible to just move to the next higher value, do so.
+    if (current != 8 && next != -1)
+        value_->setValue(next);
+
+    // Otherwise, we need to move the sensitivity unit to the next less sensitive value.
+    else {
+
+        units_->setValue(units);
+        value_->setValue(0);
+    }
+
+    return true;
 }
 
 void CLSSR570::onValueChanged(int index)
@@ -60,6 +112,78 @@ void CLSSR570::onValueChanged(int index)
 
     Q_UNUSED(index)
     emit sensitivityChanged();
+}
+
+void CLSSR570::onSensitivityChanged()
+{
+    if (!atMaximumSensitivity_ && (value_->getInt() == 0 && units_->getString() == "pA/V"))
+        emit maximumSensitivity(atMaximumSensitivity_ = true);
+
+    else if (atMaximumSensitivity_ && (value_->getInt() != 0 || units_->getString() != "pA/V"))
+        emit maximumSensitivity(atMaximumSensitivity_ = false);
+
+    else if (!atMinimumSensitivity_ && (value_->getInt() == 0 && units_->getString() == "mA/V"))
+        emit minimumSensitivity(atMinimumSensitivity_ = true);
+
+    else if (atMinimumSensitivity_ && (value_->getInt() != 0 || units_->getString() != "mA/V"))
+        emit minimumSensitivity(atMinimumSensitivity_ = false);
+}
+
+void CLSSR570::onConnectedChanged()
+{
+	if ((value_->isConnected() && units_->isConnected()) != connected_){
+		emit isConnected(connected_ = (value_->isConnected() && units_->isConnected()));
+		onSensitivityChanged();
+	}
+}
+
+bool CLSSR570::valueOkay(int value) const
+{
+    return (value >= 0 && value <= 8);
+}
+
+bool CLSSR570::unitsOkay(QString units) const
+{
+    return units.contains(QRegExp("^(p|n|u|m)A/V$"));
+}
+
+void CLSSR570::setValueImplementation(double value)
+{
+    setValueIndex(valueToIndex(value));
+}
+
+void CLSSR570::setValueIndexImplementation(int index)
+{
+    if (valueOkay(index))
+        value_->setValue(index);
+}
+
+int CLSSR570::nextValue(bool increase, int current)
+{
+    if (increase)
+        return current == 0 ? -1 : current - 1;
+    else if (!increase)
+        return current == 8 ? -1 : current + 1;
+    else
+        return -1;
+}
+
+QString CLSSR570::nextUnits(bool increase, QString current)
+{
+    QString next;
+
+    if (current == "pA/V")
+        next = (increase) ? QString() : QString("nA/V");
+    else if (current == "nA/V")
+        next = (increase) ? QString("pA/V") : QString("uA/V");
+    else if (current == "uA/V")
+        next = (increase) ? QString("nA/V") : QString("mA/V");
+    else if (current == "mA/V")
+        next = (increase) ? QString("uA/V") : QString();
+    else
+        next = QString();
+
+    return next;
 }
 
 int CLSSR570::valueToIndex(int value) const
@@ -136,130 +260,6 @@ int CLSSR570::indexToValue(int index) const
 	}
 
 	return val;
-}
-
-bool CLSSR570::increaseSensitivity() const
-{
-	// Don't do anything if we are already at the maximum sensitivity.
-	if (atMaximumSensitivity_)
-		return false;
-
-	int current = value_->getInt();
-	int next = nextValue(true, current);
-	QString units = nextUnits(true, units_->getString());
-
-	if (next == -1 && units.isEmpty())
-		return false;
-
-	// If possible to just move to the next lower value, do so.
-	if (current != 0 && next != -1)
-		value_->setValue(next);
-
-	// Otherwise, we need to move the sensitivity unit to the next more sensitive value.
-	else {
-
-		units_->setValue(units);
-		value_->setValue(8);
-	}
-
-	return true;
-}
-
-bool CLSSR570::decreaseSensitivity() const
-{
-	// Don't do anything if we are already at the minimum sensitivity.
-	if (atMinimumSensitivity_)
-		return false;
-
-	int current = value_->getInt();
-	int next = nextValue(false, current);
-	QString units = nextUnits(false, units_->getString());
-
-	if (next == -1 && units.isEmpty())
-		return false;
-
-	// If possible to just move to the next higher value, do so.
-	if (current != 8 && next != -1)
-		value_->setValue(next);
-
-	// Otherwise, we need to move the sensitivity unit to the next less sensitive value.
-	else {
-
-		units_->setValue(units);
-		value_->setValue(0);
-	}
-
-	return true;
-}
-
-int CLSSR570::nextValue(bool increase, int current)
-{
-	if (increase)
-		return current == 0 ? -1 : current - 1;
-	else if (!increase)
-		return current == 8 ? -1 : current + 1;
-	else
-		return -1;
-}
-
-QString CLSSR570::nextUnits(bool increase, QString current)
-{
-	QString next;
-
-	if (current == "pA/V")
-		next = (increase) ? QString() : QString("nA/V");
-	else if (current == "nA/V")
-		next = (increase) ? QString("pA/V") : QString("uA/V");
-	else if (current == "uA/V")
-		next = (increase) ? QString("nA/V") : QString("mA/V");
-	else if (current == "mA/V")
-		next = (increase) ? QString("uA/V") : QString();
-	else
-		next = QString();
-
-	return next;
-}
-
-void CLSSR570::onSensitivityChanged()
-{
-    if (!atMaximumSensitivity_ && (value_->getInt() == 0 && units_->getString() == "pA/V"))
-        emit maximumSensitivity(atMaximumSensitivity_ = true);
-
-    else if (atMaximumSensitivity_ && (value_->getInt() != 0 || units_->getString() != "pA/V"))
-        emit maximumSensitivity(atMaximumSensitivity_ = false);
-
-    else if (!atMinimumSensitivity_ && (value_->getInt() == 0 && units_->getString() == "mA/V"))
-        emit minimumSensitivity(atMinimumSensitivity_ = true);
-
-    else if (atMinimumSensitivity_ && (value_->getInt() != 0 || units_->getString() != "mA/V"))
-        emit minimumSensitivity(atMinimumSensitivity_ = false);
-}
-
-void CLSSR570::setValue(int value)
-{
-	setValueIndex(valueToIndex(value));
-}
-
-void CLSSR570::setValueIndex(int index)
-{
-	if (valueOkay(index))
-		value_->setValue(index);
-}
-
-void CLSSR570::setUnits(QString units)
-{
-	if (unitsOkay(units))
-		units_->setValue(units);
-}
-
-bool CLSSR570::valueOkay(int value) const
-{
-	return (value >= 0 && value <= 8);
-}
-
-bool CLSSR570::unitsOkay(QString units) const
-{
-	return units.contains(QRegExp("^(p|n|u|m)A/V$"));
 }
 
 

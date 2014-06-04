@@ -43,7 +43,9 @@ public:
 	virtual ~CLSSR570();
 
 	/// Returns the value of the sensitivity (ie: 1, 2, 5, 10, 20, 50, 100, 200, 500).
-	int value() const { return indexToValue(value_->getInt()); }
+    virtual double value() const { return indexToValue(value_->getInt()); }
+    /// Returns the value of the sensitivity at the given index.
+    virtual double valueAt(int index) const { return indexToValue(index); }
 	/// Returns the index of the sensitivity (value between 0 and 8).
 	int valueIndex() const { return value_->getInt(); }
 	/// Returns the units of the sensitivity.
@@ -55,25 +57,17 @@ public:
 	virtual bool atMinimumSensitivity() const { return atMinimumSensitivity_; }
 
 signals:
-//	/// Notifier that the sensitivity value has changed.  Passes the new value.
-//	void valueChanged(int);
-//	/// Notifier that the sensitivity value index has changed.  Passes the new index.
-//	void valueIndexChanged(int);
     /// Notifier that the sensitivity units have changed.  Passes the new value.
     void unitsChanged(QString);
 
 public slots:
-	/// Sets the sensitivity value.  Must be 1, 2, 5, 10, 20, 50, 100, 200, or 500.  Does nothing otherwise.
-    void setValue(int value);
-	/// Sets the value index.  Must be between 0 and 8.
-	void setValueIndex(int index);
 	/// Sets the sensitivity units.  Must be pA/V, nA/V, uA/V, or mA/V.  Does nothing otherwise.
 	void setUnits(QString units);
 
 	/// Increases the sensitivity of the ion chamber by one step.
-    virtual bool increaseSensitivity() const;
+    virtual bool increaseSensitivity();
 	/// Decreases the sensitivity of the ion chamber by one step.
-    virtual bool decreaseSensitivity() const;
+    virtual bool decreaseSensitivity();
 
 
 protected slots:
@@ -90,15 +84,20 @@ protected:
 	/// Determines if the new sensitivity units are acceptable.
 	bool unitsOkay(QString units) const;
 
-	/// Pointer to the value PV.  This is a specific implementation for the CLS and maybe should be migrated to an AMControl at the same time the units PV is migrated to an AMControl.
-	AMProcessVariable *value_;
-	/// Pointer to the units PV.  This can be migrated to an AMControl once it has string functionality.
-	AMProcessVariable *units_;
+    /// Sets the sensitivity value.  Must be 1, 2, 5, 10, 20, 50, 100, 200, or 500.  Does nothing otherwise.
+    virtual void setValueImplementation(double value);
+    /// Sets the value index.  Must be between 0 and 8.
+    virtual void setValueIndexImplementation(int index);
 
-	/// Holds the state of whether the ion chamber is at its maximum sensitivity.
+    /// Pointer to the value PV.  This is a specific implementation for the CLS and maybe should be migrated to an AMControl at the same time the units PV is migrated to an AMControl.
+    AMProcessVariable *value_;
+    /// Pointer to the units PV.  This can be migrated to an AMControl once it has string functionality.
+    AMProcessVariable *units_;
+
+    /// Holds the state of whether the ion chamber is at its maximum sensitivity.
     bool atMaximumSensitivity_;
-	/// Holds the state of whether the ion chamber is at its minimum sensitivity.
-	bool atMinimumSensitivity_;
+    /// Holds the state of whether the ion chamber is at its minimum sensitivity.
+    bool atMinimumSensitivity_;
 
 private:
 	/// Helper function that returns the next sensitivity value.  Uses the bool \param increase to determine whether it should look up or down.  Returns -1 not possible to move or 0 if the given number is invalid.

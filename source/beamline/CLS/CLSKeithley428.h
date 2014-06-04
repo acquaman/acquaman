@@ -53,13 +53,13 @@ public:
 public slots:
 
     /// Increases the gain by one value index, if not at maximum.
-    virtual bool increaseGain() const;
+    virtual bool increaseGain();
     /// Decreases the gain by one value index, if not at minimum.
-    virtual bool decreaseGain() const;
+    virtual bool decreaseGain();
     /// Increases the sensitivity by one value index, if not at maximum.
-    virtual bool increaseSensitivity() const;
+    virtual bool increaseSensitivity();
     /// Decreases the sensitivity by one value index, if not at minimum.
-    virtual bool decreaseSensitivity() const;
+    virtual bool decreaseSensitivity();
 
 protected slots:
     /// Emits value/index changed signals and additionally performs max/min value test.

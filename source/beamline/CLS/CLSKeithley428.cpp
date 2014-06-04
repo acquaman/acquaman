@@ -97,7 +97,7 @@ QStringList* CLSKeithley428::unitsStringList() const
     return unitsList;
 }
 
-bool CLSKeithley428::increaseGain() const
+bool CLSKeithley428::increaseGain()
 {
     // Don't do anything if the value is already at a maximum.
     if (atMaximumGain())
@@ -110,7 +110,7 @@ bool CLSKeithley428::increaseGain() const
     return true;
 }
 
-bool CLSKeithley428::decreaseGain() const
+bool CLSKeithley428::decreaseGain()
 {
     // Don't do anything if the value is already at a minimum.
     if (atMinimumGain()) {
@@ -124,7 +124,7 @@ bool CLSKeithley428::decreaseGain() const
     return true;
 }
 
-bool CLSKeithley428::increaseSensitivity() const
+bool CLSKeithley428::increaseSensitivity()
 {
     if (atMaximumSensitivity()) {
         return false;
@@ -139,7 +139,7 @@ bool CLSKeithley428::increaseSensitivity() const
     return true;
 }
 
-bool CLSKeithley428::decreaseSensitivity() const
+bool CLSKeithley428::decreaseSensitivity()
 {
     if (atMinimumSensitivity()) {
         return false;
@@ -156,23 +156,36 @@ bool CLSKeithley428::decreaseSensitivity() const
 
 void CLSKeithley428::onValueChanged(int newIndex)
 {
-    emit valueChanged();
-    emit indexChanged(newIndex);
+    Q_UNUSED(newIndex)
 
-    if (atMinimumGain())
-        emit minimumGain(true);
-    else
-        emit minimumGain(false);
+    if (amplifierMode_ == AMCurrentAmplifier::Gain) {
 
-    if (atMaximumGain())
-        emit maximumGain(true);
-    else
-        emit maximumGain(false);
+        emit gainChanged();
 
-    if (atMinimumSensitivity())
-        emit minimumSensitivity(true);
-    else
-        emit minimumSensitivity(false);
+        if (atMinimumGain())
+            emit minimumGain(true);
+        else
+            emit minimumGain(false);
+
+        if (atMaximumGain())
+            emit maximumGain(true);
+        else
+            emit maximumGain(false);
+
+    } else if (amplifierMode_ == AMCurrentAmplifier::Sensitivity) {
+
+        emit sensitivityChanged();
+
+        if (atMinimumSensitivity())
+            emit minimumSensitivity(true);
+        else
+            emit minimumSensitivity(false);
+
+        if (atMaximumSensitivity())
+            emit maximumSensitivity(true);
+        else
+            emit maximumSensitivity(false);
+    }
 
 }
 
