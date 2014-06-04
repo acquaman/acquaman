@@ -63,9 +63,14 @@ void AMCurrentAmplifier::setName(const QString &newName)
     emit nameChanged(name_);
 }
 
-void AMCurrentAmplifier::setValue(int valueIndex)
+void AMCurrentAmplifier::setValue(double newValue)
 {
-    setValueImplementation(valueIndex);
+    setValueIndexImplementation(newValue);
+}
+
+void AMCurrentAmplifier::setValueIndex(int valueIndex)
+{
+    setValueIndexImplementation(valueIndex);
 }
 
 bool AMCurrentAmplifier::increaseGain() const

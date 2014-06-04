@@ -71,8 +71,11 @@ public slots:
     void setAmplifierMode(AmplifierMode newMode);
     /// Sets a new name for the current amplifier.
     void setName(const QString &newName);
+
     /// Sets the amplifier's value.
-    void setValue(int valueIndex);
+    void setValue(double newValue);
+    /// Sets the amplifier's value by an index.
+    void setValueIndex(int newIndex);
 
     /// Increases the gain of the current amplifier.
     virtual bool increaseGain() const;
@@ -85,7 +88,8 @@ public slots:
     virtual bool decreaseSensitivity() const;
 
 protected:
-    virtual void setValueImplementation(int valueIndex);
+    virtual void setValueImplementation(double newValue) = 0;
+    virtual void setValueIndexImplementation(int newIndex) = 0;
 
 protected:
     QString name_;

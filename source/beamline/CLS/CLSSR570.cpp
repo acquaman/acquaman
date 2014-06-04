@@ -25,6 +25,8 @@ CLSSR570::~CLSSR570(){}
 CLSSR570::CLSSR570(const QString &name, const QString &valueName, const QString &unitsName, QObject *parent)
 	: AMCurrentAmplifier(name, parent)
 {
+    supportsSensitivityMode_ = true;
+
 	atMinimumSensitivity_ = false;
 	atMaximumSensitivity_ = false;
 
@@ -53,8 +55,11 @@ void CLSSR570::onConnectedChanged()
 
 void CLSSR570::onValueChanged(int index)
 {
-	emit valueChanged(indexToValue(index));
-	emit valueIndexChanged(index);
+//	emit valueChanged(indexToValue(index));
+//	emit valueIndexChanged(index);
+
+    Q_UNUSED(index)
+    emit sensitivityChanged();
 }
 
 int CLSSR570::valueToIndex(int value) const
@@ -133,7 +138,7 @@ int CLSSR570::indexToValue(int index) const
 	return val;
 }
 
-bool CLSSR570::increaseSensitivity()
+bool CLSSR570::increaseSensitivity() const
 {
 	// Don't do anything if we are already at the maximum sensitivity.
 	if (atMaximumSensitivity_)
@@ -160,7 +165,7 @@ bool CLSSR570::increaseSensitivity()
 	return true;
 }
 
-bool CLSSR570::decreaseSensitivity()
+bool CLSSR570::decreaseSensitivity() const
 {
 	// Don't do anything if we are already at the minimum sensitivity.
 	if (atMinimumSensitivity_)

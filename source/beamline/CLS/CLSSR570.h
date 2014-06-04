@@ -55,25 +55,25 @@ public:
 	virtual bool atMinimumSensitivity() const { return atMinimumSensitivity_; }
 
 signals:
-	/// Notifier that the sensitivity value has changed.  Passes the new value.
-	void valueChanged(int);
-	/// Notifier that the sensitivity value index has changed.  Passes the new index.
-	void valueIndexChanged(int);
-	/// Notifier that the sensitivity units have changed.  Passes the new value.
-	void unitsChanged(QString);
+//	/// Notifier that the sensitivity value has changed.  Passes the new value.
+//	void valueChanged(int);
+//	/// Notifier that the sensitivity value index has changed.  Passes the new index.
+//	void valueIndexChanged(int);
+    /// Notifier that the sensitivity units have changed.  Passes the new value.
+    void unitsChanged(QString);
 
 public slots:
 	/// Sets the sensitivity value.  Must be 1, 2, 5, 10, 20, 50, 100, 200, or 500.  Does nothing otherwise.
-	void setValue(int value);
+    void setValue(int value);
 	/// Sets the value index.  Must be between 0 and 8.
 	void setValueIndex(int index);
 	/// Sets the sensitivity units.  Must be pA/V, nA/V, uA/V, or mA/V.  Does nothing otherwise.
 	void setUnits(QString units);
 
 	/// Increases the sensitivity of the ion chamber by one step.
-	virtual bool increaseSensitivity();
+    virtual bool increaseSensitivity() const;
 	/// Decreases the sensitivity of the ion chamber by one step.
-	virtual bool decreaseSensitivity();
+    virtual bool decreaseSensitivity() const;
 
 
 protected slots:
