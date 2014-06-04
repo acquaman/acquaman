@@ -22,6 +22,9 @@ public:
     /// Returns the pointer to the AMCurrentAmplifier this view is visualizing.
     AMCurrentAmplifier *currentAmplifier() const;
 
+    /// Returns the view mode currently being displayed.
+    AMCurrentAmplifier::AmplifierMode viewMode() const;
+
 signals:
     void currentAmplifierChanged(AMCurrentAmplifier *newAmplifier);
 
@@ -32,16 +35,13 @@ public slots:
     void clearDisplayValues();
 
 protected slots:
-
     /// Handles passing changes in the value combo box to the amplifier.
     void onValueComboBoxChanged(int index);
     /// Handles passing changes in the units combo box to the amplifier.
     void onUnitsComboBoxChanged(int index);
 
-    /// Handles setting the value combo box when the amplifier's value has been changed independently.
-    void onValueChanged(int value);
-    /// Handles setting the units combo box when the amplifier's units have been changed independently.
-    void onUnitsChanged(QString units);
+    void onMinusClicked();
+    void onPlusClicked();
 
     virtual void onCustomContextMenuRequested(QPoint position);
 
@@ -55,10 +55,10 @@ protected:
     /// Combo box holding the amplifier units.
     QComboBox *units_;
 
-//    /// The tool button for the minus button.
-//    QToolButton *minus_;
-//    /// The tool button for the plus button.
-//    QToolButton *plus_;
+    /// The tool button for the minus button.
+    QToolButton *minus_;
+    /// The tool button for the plus button.
+    QToolButton *plus_;
 };
 
 #endif // AMCURRENTAMPLIFIERVIEW_H
