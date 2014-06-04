@@ -79,12 +79,12 @@ bool CLSKeithley428::atMinimumSensitivity() const
     return valueMap_->isIndexOfMin(AMCurrentAmplifier::Sensitivity, valueControl_->getInt());
 }
 
-QStringList* CLSKeithley428::valueStringList() const
+QStringList CLSKeithley428::valuesList() const
 {
-    return valueMap_->valueStringList(amplifierMode_);
+    return *valueMap_->valueStringList(amplifierMode_);
 }
 
-QStringList* CLSKeithley428::unitsStringList() const
+QStringList CLSKeithley428::unitsList() const
 {
     QStringList *unitsList = new QStringList();
 
@@ -94,7 +94,7 @@ QStringList* CLSKeithley428::unitsStringList() const
         unitsList->append("A/V");
     }
 
-    return unitsList;
+    return *unitsList;
 }
 
 void CLSKeithley428::setValue(double newValue)

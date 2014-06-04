@@ -46,9 +46,9 @@ public:
     virtual bool atMinimumSensitivity() const;
 
     /// Returns a pointer to a string list of allowed values (according to the current amplifier mode), suitable for a view to display.
-    QStringList *valueStringList() const;
+    QStringList valuesList() const;
     /// Returns a pointer to a string list of allowed units (according to the current amplifier mode), suitable for a view to display.
-    QStringList *unitsStringList() const;
+    QStringList unitsList() const;
 
 public slots:
     /// Sets the gain value.
