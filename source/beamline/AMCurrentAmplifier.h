@@ -33,6 +33,9 @@ public:
     /// Returns the units.
     virtual QString units() const = 0;
 
+    /// Returns true if the given amplifier mode is supported.
+    bool supports(AmplifierMode mode);
+
     /// Returns true if the current amplifier supports Gain mode.
     bool supportsGainMode() const;
     /// Returns true if the current amplifier is at the minimum gain.

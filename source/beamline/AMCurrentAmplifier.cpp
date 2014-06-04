@@ -19,6 +19,19 @@ AMCurrentAmplifier::AmplifierMode AMCurrentAmplifier::amplifierMode() const
     return amplifierMode_;
 }
 
+bool AMCurrentAmplifier::supports(AmplifierMode mode)
+{
+    bool support = false;
+
+    if (mode == Gain && supportsGainMode_)
+        support = true;
+
+    else if (mode == Sensitivity && supportsSensitivityMode_)
+        support = true;
+
+    return support;
+}
+
 bool AMCurrentAmplifier::supportsGainMode() const
 {
     return supportsGainMode_;
