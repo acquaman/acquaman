@@ -19,6 +19,18 @@ AMCurrentAmplifier::AmplifierMode AMCurrentAmplifier::amplifierMode() const
     return amplifierMode_;
 }
 
+QStringList AMCurrentAmplifier::valuesList() const
+{
+    QStringList *list = new QStringList();
+    return *list;
+}
+
+QStringList AMCurrentAmplifier::unitsList() const
+{
+    QStringList *list = new QStringList();
+    return *list;
+}
+
 bool AMCurrentAmplifier::supports(AmplifierMode mode)
 {
     bool support = false;
@@ -64,7 +76,7 @@ bool AMCurrentAmplifier::atMaximumSensitivity() const
 
 void AMCurrentAmplifier::setAmplifierMode(AmplifierMode newMode)
 {
-    if (newMode != amplifierMode_) {
+    if (newMode != amplifierMode_ && supports(newMode)) {
         amplifierMode_ = newMode;
         emit amplifierModeChanged(newMode);
     }

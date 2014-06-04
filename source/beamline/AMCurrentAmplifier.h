@@ -2,6 +2,7 @@
 #define AMCURRENTAMPLIFIER_H
 
 #include <QObject>
+#include <QStringList>
 
 class AMCurrentAmplifier : public QObject
 {
@@ -29,9 +30,13 @@ public:
     virtual double value() const = 0;
     /// Returns the value at the given index.
     virtual double valueAt(int index) const = 0;
+    /// Returns a string list of the available value options, suitable for a view to display.
+    virtual QStringList valuesList() const;
 
-    /// Returns the units.
+    /// Returns the current units.
     virtual QString units() const = 0;
+    /// Returns a string list of the available units options, suitable for a view to display.
+    virtual QStringList unitsList() const;
 
     /// Returns true if the given amplifier mode is supported.
     bool supports(AmplifierMode mode);
@@ -52,7 +57,7 @@ public:
 
 signals:
     /// Emitted when the amplifier mode has been changed.
-    void amplifierModeChanged(AmplifierMode newMode);
+    void amplifierModeChanged(AMCurrentAmplifier::AmplifierMode newMode);
     /// Notifier that the name of the current amplifier has changed.
     void nameChanged(const QString &newName);
     /// Notifier that the connection state of the current amplifier has changed.
