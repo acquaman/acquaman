@@ -15,9 +15,6 @@ class AMCurrentAmplifierView : public QWidget
     Q_OBJECT
 
 public:
-    /// Simple enum holding whether the view should be either basic or advanced looking.
-    enum ViewMode { Basic = 0, Advanced = 1 };
-
     /// Constructor. Takes in instance of AMCurrentAmplifier.
     explicit AMCurrentAmplifierView(AMCurrentAmplifier *amplifier, QWidget *parent = 0);
     virtual ~AMCurrentAmplifierView();
@@ -25,18 +22,11 @@ public:
     /// Returns the pointer to the AMCurrentAmplifier this view is visualizing.
     AMCurrentAmplifier *currentAmplifier() const;
 
-    /// Returns the current view mode.
-    AMCurrentAmplifierView::ViewMode viewMode() const;
-
-    /// Sets the current view mode.
-    void setViewMode(ViewMode newMode);
-
 signals:
-    /// Notifier that the view mode has changed. Passes the new view mode.
-    void viewModeChanged(AMCurrentAmplifierView::ViewMode);
+    void currentAmplifierChanged(AMCurrentAmplifier *newAmplifier);
 
 public slots:
-    void setAmplifier(AMCurrentAmplifier *amplifier);
+    void setCurrentAmplifier(AMCurrentAmplifier *amplifier);
 
 protected slots:
     /// Handles passing changes in the value combo box to the amplifier.
@@ -48,27 +38,19 @@ protected slots:
     /// Handles setting the units combo box when the amplifier's units have been changed independently.
     virtual void onUnitsChanged(QString units) = 0;
 
-    /// Builds a popup menu for switching view modes.
-    virtual void onCustomContextMenuRequested(QPoint pos);
-
 protected:
     /// The pointer to the current amplifier this view manages.
     AMCurrentAmplifier *amplifier_;
-
-    /// Flag holding whether or not the view is basic or advanced.
-    ViewMode viewMode_;
 
     /// Combo box holding the amplifier value.
     QComboBox *value_;
     /// Combo box holding the amplifier units.
     QComboBox *units_;
 
-    /// The tool button for the minus button.
-    QToolButton *minus_;
-    /// The tool button for the plus button.
-    QToolButton *plus_;
-
-
+//    /// The tool button for the minus button.
+//    QToolButton *minus_;
+//    /// The tool button for the plus button.
+//    QToolButton *plus_;
 };
 
 #endif // AMCURRENTAMPLIFIERVIEW_H
