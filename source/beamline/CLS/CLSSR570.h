@@ -49,7 +49,7 @@ public:
 	/// Returns the index of the sensitivity (value between 0 and 8).
 	int valueIndex() const { return value_->getInt(); }
 	/// Returns the units of the sensitivity.
-	QString units() const { return units_->getString(); }
+    virtual QString units() const { return units_->getString(); }
 
 	/// Returns whether the ion chamber is at maximum senstivity.
 	virtual bool atMaximumSensitivity() const { return atMaximumSensitivity_; }
