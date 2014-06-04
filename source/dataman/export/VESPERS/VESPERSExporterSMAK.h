@@ -43,8 +43,9 @@ class VESPERSExporterSMAK : public AMExporterGeneralAscii
 
 public:
 	/// Constructor.
- 	virtual ~VESPERSExporterSMAK();
 	Q_INVOKABLE explicit VESPERSExporterSMAK(QObject *parent = 0);
+	/// Constructor.
+	virtual ~VESPERSExporterSMAK();
 
 	/// Description of the exporter.
 	virtual QString description() const { return "SMAK 2D Map (plain text file)"; }
