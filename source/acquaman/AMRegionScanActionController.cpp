@@ -196,7 +196,7 @@ bool AMRegionScanActionController::event(QEvent *e)
 
 		case AMAgnosticDataAPIDefinitions::AxisFinished:{
 			scan_->rawData()->endInsertRows();
-			writeDataToFiles();
+//			writeDataToFiles();
 			emit finishWritingToFile();
 			break;}
 
