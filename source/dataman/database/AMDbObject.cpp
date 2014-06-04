@@ -244,10 +244,8 @@ bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 			AMConstDbObject *constObject = property(columnName).value<AMConstDbObject*>();
 			if(constObject && !constObject->tableName().isEmpty() && constObject->id() > 0 && db != constObject->database())
 				values << QString("%1%2%3%4%5%6").arg("|$^$|").arg(constObject->database()->connectionName()).arg("|$^$|").arg(constObject->tableName()).arg(AMDbObjectSupport::listSeparator()).arg(constObject->id());
-//			values << QString("%1%2%3").arg(constObject->tableName()).arg(AMDbObjectSupport::listSeparator()).arg(constObject->id());
 			else if(constObject && !constObject->tableName().isEmpty() && constObject->id() > 0)
 				values << QString("%1%2%3").arg(constObject->tableName()).arg(AMDbObjectSupport::listSeparator()).arg(constObject->id());
-				//values << QString("%1%2%3").arg(constObject->object()->dbTableName()).arg(AMDbObjectSupport::listSeparator()).arg(constObject->object()->id());
 			else
 				values << QString();
 		}
@@ -632,7 +630,7 @@ bool AMDbObject::loadFromDb(AMDatabase* db, int sourceId) {
 					columnValue = columnValue.split("|$^$|").last();
 					databaseToUse = AMDatabase::database(databaseName);
 					if(!databaseToUse){
-						AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, AMDBOBJECT_CANNOT_LOAD_FROM_DB_BAD_DB_REDIRECT, QString("Could not load from database, id %1 in table %2 (%3 database) attempted to redirect to a bad database named %4. Please report this problem to the Acquaman developers.").arg(sourceId).arg(myInfo->tableName).arg(db->connectionName()).arg(databaseName)));
+						AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, AMDBOBJECT_CANNOT_LOAD_FROM_DB_BAD_CONSTDB_REDIRECT, QString("Could not load constDbObject from database, id %1 in table %2 (%3 database) attempted to redirect to a bad database named %4. Please report this problem to the Acquaman developers.").arg(sourceId).arg(myInfo->tableName).arg(db->connectionName()).arg(databaseName)));
 						isReloading_ = false;
 						return false;	// bad redirection to another database
 					}

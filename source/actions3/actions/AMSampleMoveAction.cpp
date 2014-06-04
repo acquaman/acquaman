@@ -4,6 +4,8 @@
 #include "beamline/AMBeamline.h"
 #include "dataman/AMSamplePlate.h"
 #include "util/AMErrorMonitor.h"
+#include "actions3/AMListAction3.h"
+#include "actions3/actions/AMControlMoveAction3.h"
 
 AMSampleMoveAction::AMSampleMoveAction(AMSampleMoveActionInfo *info, QObject *parent) :
 	AMAction3(info, parent)
@@ -99,6 +101,23 @@ void AMSampleMoveAction::startImplementation(){
 	}
 
 	moveListAction_ = camera->createMoveToSampleAction(sampleMoveInfo()->sample());
+
+	AMListAction3 *asListAction = qobject_cast<AMListAction3*>(moveListAction_);
+	if(asListAction){
+		for(int x = 0, size = asListAction->subActionCount(); x < size; x++){
+			AMControlMoveAction3 *subAsControlMoveAction = qobject_cast<AMControlMoveAction3*>(asListAction->subActionAt(x));
+			if(subAsControlMoveAction && subAsControlMoveAction->controlMoveInfo()->controlInfo()->value() > subAsControlMoveAction->controlMoveInfo()->controlInfo()->maximum()){
+				AMControlInfo newValueInfo(*(subAsControlMoveAction->controlMoveInfo()->controlInfo()));
+				newValueInfo.setValue(subAsControlMoveAction->controlMoveInfo()->controlInfo()->maximum());
+				subAsControlMoveAction->controlMoveInfo()->setControlInfo(newValueInfo);
+			}
+			else if(subAsControlMoveAction && subAsControlMoveAction->controlMoveInfo()->controlInfo()->value() < subAsControlMoveAction->controlMoveInfo()->controlInfo()->minimum()){
+				AMControlInfo newValueInfo(*(subAsControlMoveAction->controlMoveInfo()->controlInfo()));
+				newValueInfo.setValue(subAsControlMoveAction->controlMoveInfo()->controlInfo()->minimum());
+				subAsControlMoveAction->controlMoveInfo()->setControlInfo(newValueInfo);
+			}
+		}
+	}
 
 	// connect to the list's signals
 	connect(moveListAction_, SIGNAL(started()), this, SLOT(onMoveListStarted()));
