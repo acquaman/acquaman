@@ -227,6 +227,6 @@ void CLSKeithley428::setValueMap()
 
 void CLSKeithley428::setValueImplementation(const QString &valueArg)
 {
-//    int newIndex = valueArg.at(0).toInt();
-//    setValueIndex(newIndex);
+    int newIndex = valueArg.toInt();
+    setValueIndex(newIndex);
 }
