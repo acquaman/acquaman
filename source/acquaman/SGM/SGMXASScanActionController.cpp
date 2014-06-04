@@ -121,7 +121,7 @@ QString SGMXASScanActionController::buildNotes()
 		CLSSIS3820ScalerChannel* currentChannel = scaler->channelAt(iChannel);
 		if(currentChannel->currentAmplifier() != 0)
 		{
-			CLSSR570 *channelSR570 = qobject_cast<CLSSR570*>(currentChannel->currentAmplifier());
+            AMCurrentAmplifier *channelSR570 = currentChannel->currentAmplifier();
 			if(channelSR570)
 				notes.append(QString("%1:\t%2 %3\n").arg(currentChannel->customChannelName()).arg(channelSR570->value()).arg(channelSR570->units()));
 		}
