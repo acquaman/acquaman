@@ -25,12 +25,11 @@ public:
 
     /// Returns the current value.
     virtual double value() const;
-
     /// Returns the value at the given index.
     virtual double valueAt(int index) const;
-
     /// Returns the current value index.
     int index() const;
+
     /// Returns string representing the units to use, depending on the display mode.
     QString units() const;
 
@@ -74,7 +73,8 @@ protected:
     /// Populates the value map with set gain values. Order corresponds to increasing pv value index.
     void setValueMap();
     /// Sets the gain to value corresponding to provided index.
-    virtual void setValueImplementation(int valueIndex);
+    virtual void setValueImplementation(double newValue);
+    virtual void setValueIndexImplementation(int newIndex);
 
 protected:    
     /// Pointer to the pv controlling Keithley value.

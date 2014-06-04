@@ -199,10 +199,15 @@ void CLSKeithley428::setValueMap()
     valueMap_->setValues(AMCurrentAmplifier::Gain, valueList);
 }
 
-void CLSKeithley428::setValueImplementation(int valueIndex)
+void CLSKeithley428::setValueImplementation(double newValue)
 {
-    // check that the given index corresponds to a value, then set the value control.
-    if (valueMap_->map()->contains(valueIndex) && valueIndex != valueControl_->getInt()) {
-        valueControl_->setValue(valueIndex);
+    int index = valueMap_->map()->key(newValue);
+    setValueIndexImplementation(index);
+}
+
+void CLSKeithley428::setValueIndexImplementation(int newIndex)
+{
+    if (valueMap_->map()->contains(newIndex) && newIndex != valueControl_->getInt()) {
+        valueControl_->setValue(newIndex);
     }
 }
