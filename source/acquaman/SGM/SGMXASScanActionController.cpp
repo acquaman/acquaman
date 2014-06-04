@@ -50,49 +50,33 @@ SGMXASScanActionController::~SGMXASScanActionController(){}
 void SGMXASScanActionController::buildScanControllerImplementation()
 {
 
-    int dwellTimeIndex = scan_->indexOfDataSource(SGMBeamline::sgm()->dwellTimeDetector()->name());
+	int dwellTimeIndex = scan_->indexOfDataSource(SGMBeamline::sgm()->dwellTimeDetector()->name());
 
-//    if (dwellTimeIndex != -1 && teyIndex != -1) {
-//        AMDataSource* teySource = scan_->dataSourceAt(teyIndex);
-//        AMDataSource* dwellTimeSource = scan_->dataSourceAt(dwellTimeIndex);
+//	if (dwellTimeIndex != -1) {
+//		AMDataSource* dwellTimeSource = scan_->dataSourceAt(dwellTimeIndex);
 
-//        AM1DDarkCurrentCorrectionAB *teyCorrection = new AM1DDarkCurrentCorrectionAB("TEY_DarkCorrect");
-//        teyCorrection->setDescription("TEY Dark Current Correction");
-//        teyCorrection->setDataName(teySource->name());
-//        teyCorrection->setDwellTimeName(dwellTimeSource->name());
-//        teyCorrection->setInputDataSources(QList<AMDataSource*>() << teySource << dwellTimeSource);
-//        teyCorrection->setDarkCurrent(SGMBeamline::sgm()->newTEYDetector()->darkCurrentCorrection());
-//        teyCorrection->setTimeUnitMultiplier(.001);
-//        scan_->addAnalyzedDataSource(teyCorrection, true, false);
-//    }
+//		for (int i = 0, size = regionsConfiguration_->detectorConfigurations().count(); i < size; i++){
+//			AMDetector *detector = AMBeamline::bl()->exposedDetectorByInfo(regionsConfiguration_->detectorConfigurations().at(i));
 
-    if (dwellTimeIndex != -1) {
-        AMDataSource* dwellTimeSource = scan_->dataSourceAt(dwellTimeIndex);
+//			if (detector) {
+//				int detectorIndex = scan_->indexOfDataSource(detector->name());
 
-        for (int i = 0, size = regionsConfiguration_->detectorConfigurations().count(); i < size; i++){
-            AMDetector *detector = AMBeamline::bl()->exposedDetectorByInfo(regionsConfiguration_->detectorConfigurations().at(i));
+//				if (detectorIndex != -1 && detector->rank() == 0 && detector->canDoDarkCurrentCorrection()) {
 
-            if (detector) {
-                int detectorIndex = scan_->indexOfDataSource(detector->name());
+//					AMDataSource* detectorSource = scan_->dataSourceAt(detectorIndex);
 
-                if (detectorIndex != -1 && detector->rank() == 0 && detector->canDoDarkCurrentCorrection()) {
-
-                    AMDataSource* detectorSource = scan_->dataSourceAt(detectorIndex);
-
-                    AM1DDarkCurrentCorrectionAB *detectorCorrection = new AM1DDarkCurrentCorrectionAB(QString("%1_DarkCorrect").arg(detector->name()));
-                    detectorCorrection->setDescription(QString("%1 Dark Current Correction").arg(detector->name()));
-                    detectorCorrection->setDataName(detectorSource->name());
-                    detectorCorrection->setDwellTimeName(dwellTimeSource->name());
-                    detectorCorrection->setInputDataSources(QList<AMDataSource*>() << detectorSource << dwellTimeSource);
-//                    detectorCorrection->setDarkCurrent(detector->darkCurrentCorrection());
-                    connect( detector, SIGNAL(newDarkCurrentMeasurementValueReady(double)), detectorCorrection, SLOT(setDarkCurrent(double)) );
-                    detectorCorrection->setTimeUnitMultiplier(.001);
-                    scan_->addAnalyzedDataSource(detectorCorrection, true, false);
-                }
-            }
-        }
-    }
-
+//					AM1DDarkCurrentCorrectionAB *detectorCorrection = new AM1DDarkCurrentCorrectionAB(QString("%1_DarkCorrect").arg(detector->name()));
+//					detectorCorrection->setDescription(QString("%1 Dark Current Correction").arg(detector->name()));
+//					detectorCorrection->setDataName(detectorSource->name());
+//					detectorCorrection->setDwellTimeName(dwellTimeSource->name());
+//					detectorCorrection->setInputDataSources(QList<AMDataSource*>() << detectorSource << dwellTimeSource);
+//					connect( detector, SIGNAL(newDarkCurrentMeasurementValueReady(double)), detectorCorrection, SLOT(setDarkCurrent(double)) );
+//					detectorCorrection->setTimeUnitMultiplier(.001);
+//					scan_->addAnalyzedDataSource(detectorCorrection, true, false);
+//				}
+//			}
+//		}
+//	}
 }
 
 QString SGMXASScanActionController::buildNotes()
@@ -288,40 +272,40 @@ AMAction3* SGMXASScanActionController::createInitializationActions(){
 	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
 	initializationStage3->addSubAction(moveAction);
 
-    AMListAction3* initializationStage4 = new AMListAction3(new AMListActionInfo3("SGM XAS Initialization Stage 4", "SGM XAS Initialization Stage 4"), AMListAction3::Sequential);
+	AMListAction3* initializationStage4 = new AMListAction3(new AMListActionInfo3("SGM XAS Initialization Stage 4", "SGM XAS Initialization Stage 4"), AMListAction3::Sequential);
 
-    for (int i = 0, size = regionsConfiguration_->detectorConfigurations().count(); i < size; i++){
-        AMDetector *detector = AMBeamline::bl()->exposedDetectorByInfo(regionsConfiguration_->detectorConfigurations().at(i));
+//	for (int i = 0, size = regionsConfiguration_->detectorConfigurations().count(); i < size; i++){
+//		AMDetector *detector = AMBeamline::bl()->exposedDetectorByInfo(regionsConfiguration_->detectorConfigurations().at(i));
 
-        bool sharedSourceFound = false;
+//		bool sharedSourceFound = false;
 
-        if (detector) {
-            int detectorIndex = scan_->indexOfDataSource(detector->name());
+//		if (detector) {
+//			int detectorIndex = scan_->indexOfDataSource(detector->name());
 
-            if (detectorIndex != -1 && detector->rank() == 0 && detector->canDoDarkCurrentCorrection()) {
-                bool isSourceShared = detector->sharesDetectorTriggerSource();
+//			if (detectorIndex != -1 && detector->rank() == 0 && detector->canDoDarkCurrentCorrection()) {
+//				bool isSourceShared = detector->sharesDetectorTriggerSource();
 
-                if (isSourceShared && !sharedSourceFound) {
-                    sharedSourceFound = true;
-                    initializationStage4->addSubAction(detector->createDarkCurrentCorrectionActions(10));
+//				if (isSourceShared && !sharedSourceFound) {
+//					sharedSourceFound = true;
+//					initializationStage4->addSubAction(detector->createDarkCurrentCorrectionActions(10));
 
-                } else if (!isSourceShared) {
-                    initializationStage4->addSubAction(detector->createDarkCurrentCorrectionActions(10));
+//				} else if (!isSourceShared) {
+//					initializationStage4->addSubAction(detector->createDarkCurrentCorrectionActions(10));
 
-                }
-            }
-        }
-    }
+//				}
+//			}
+//		}
+//	}
 
 
-    AMListAction3 *initializationStage5 = new AMListAction3(new AMListActionInfo3("SGM XAS Initialization Stage 5", "SGM XAS Initialization Stage 5"), AMListAction3::Parallel);
-    initializationStage5->addSubAction(SGMBeamline::sgm()->createBeamOnActions3());
+	AMListAction3 *initializationStage5 = new AMListAction3(new AMListActionInfo3("SGM XAS Initialization Stage 5", "SGM XAS Initialization Stage 5"), AMListAction3::Parallel);
+	initializationStage5->addSubAction(SGMBeamline::sgm()->createBeamOnActions3());
 
 	initializationActions->addSubAction(initializationStage1);
 	initializationActions->addSubAction(initializationStage2);
 	initializationActions->addSubAction(initializationStage3);
-    initializationActions->addSubAction(initializationStage4);
-    initializationActions->addSubAction(initializationStage5);
+	initializationActions->addSubAction(initializationStage4);
+	initializationActions->addSubAction(initializationStage5);
 
 	return initializationActions;
 }
@@ -337,6 +321,9 @@ AMAction3* SGMXASScanActionController::createCleanupActions(){
 	CLSSynchronizedDwellTime *syncDwell = qobject_cast<CLSSynchronizedDwellTime*>(SGMBeamline::sgm()->synchronizedDwellTime());
 	for(int x = 0; x < syncDwell->elementCount(); x++)
 		cleanupActions->addSubAction(syncDwell->elementAt(x)->createEnableAction3(syncDwell->enabledAt(x)));
+
+	qDebug() << "Will go back to " << syncDwell->time();
+
 	cleanupActions->addSubAction(syncDwell->createMasterTimeAction3(syncDwell->time()));
 
 	CLSAmptekSDD123DetectorNew *amptek1 = qobject_cast<CLSAmptekSDD123DetectorNew*>(SGMBeamline::sgm()->newAmptekSDD1());

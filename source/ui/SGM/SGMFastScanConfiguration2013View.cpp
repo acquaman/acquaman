@@ -107,7 +107,11 @@ SGMFastScanConfiguration2013View::SGMFastScanConfiguration2013View(SGMFastScanCo
 }
 
 const AMScanConfiguration* SGMFastScanConfiguration2013View::configuration() const{
+	qDebug() << "Calling configuration, count is " << fastDetectorSelector_->selectedDetectorInfos().count();
+
 	cfg_->setDetectorConfigurations(fastDetectorSelector_->selectedDetectorInfos());
+
+	qDebug() << "And again, " << cfg_->detectorConfigurations().count();
 	return cfg_;
 }
 

@@ -20,13 +20,21 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMFastScanConfiguration.h"
 
- AMFastScanConfiguration::~AMFastScanConfiguration(){}
 AMFastScanConfiguration::AMFastScanConfiguration(QObject *parent) :
     AMScanConfiguration(parent)
 {
 	startEnergy_ = -1;
 	endEnergy_ = -1;
 }
+
+AMFastScanConfiguration::AMFastScanConfiguration(const AMFastScanConfiguration &original) :
+	AMScanConfiguration(original)
+{
+	startEnergy_ = original.startEnergy();
+	endEnergy_ = original.endEnergy();
+}
+
+AMFastScanConfiguration::~AMFastScanConfiguration(){}
 
 const QMetaObject* AMFastScanConfiguration::getMetaObject(){
 	return metaObject();

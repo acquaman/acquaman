@@ -40,6 +40,8 @@ SGMFastScanConfiguration2013::SGMFastScanConfiguration2013(const SGMFastScanConf
 
 	setEnergyParameters(original.currentEnergyParameters());
 
+	detectorConfigurations_ = original.detectorConfigurations();
+
 	dbLoadWarnings_ = original.dbLoadWarnings();
 }
 
