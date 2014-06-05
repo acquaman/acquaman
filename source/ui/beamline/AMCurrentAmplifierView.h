@@ -32,7 +32,7 @@ public slots:
     void setCurrentAmplifier(AMCurrentAmplifier *amplifier);
     void setViewMode(AMCurrentAmplifier::AmplifierMode newMode);
     void refreshDisplayValues();
-    void clearDisplayValues();
+    void refreshButtons();
 
 protected slots:
     /// Handles passing changes in the value combo box to the amplifier.

@@ -3,6 +3,8 @@
 AMCurrentAmplifierView::AMCurrentAmplifierView(AMCurrentAmplifier *amplifier, QWidget *parent) :
     QWidget(parent)
 {
+    amplifier_ = 0;
+
     minus_ = new QToolButton();
     minus_->setMaximumSize(25, 25);
     minus_->setIcon(QIcon(":/22x22/list-remove.png"));
@@ -12,8 +14,6 @@ AMCurrentAmplifierView::AMCurrentAmplifierView(AMCurrentAmplifier *amplifier, QW
     plus_->setMaximumSize(25, 25);
     plus_->setIcon(QIcon(":/22x22/list-add.png"));
     connect( plus_, SIGNAL(clicked()), this, SLOT(onPlusClicked()) );
-
-    amplifier_ = 0;
 
     value_ = new QComboBox();
     connect( value_, SIGNAL(currentIndexChanged(int)), this, SLOT(onValueComboBoxChanged(int)) );
@@ -89,30 +89,52 @@ void AMCurrentAmplifierView::setCurrentAmplifier(AMCurrentAmplifier *amplifier)
             connect( amplifier_, SIGNAL(minimumSensitivity(bool)), minus_, SLOT(setDisabled(bool)) );
             connect( amplifier_, SIGNAL(maximumSensitivity(bool)), plus_, SLOT(setDisabled(bool)) );
         }
-
-        // make sure that initial conditions happen here.
     }
+
+    refreshButtons();
+    refreshDisplayValues();
 }
 
 void AMCurrentAmplifierView::setViewMode(AMCurrentAmplifier::AmplifierMode newMode)
 {
     viewMode_ = newMode;
+
+    refreshButtons();
     refreshDisplayValues();
 }
 
 void AMCurrentAmplifierView::refreshDisplayValues()
 {
-    clearDisplayValues();
+    value_->clear();
+    units_->clear();
 
     // repopulate value_ and units_ with appropriate options from the amplifier.
     value_->addItems(amplifier_->valuesList());
     units_->addItems(amplifier_->unitsList());
 }
 
-void AMCurrentAmplifierView::clearDisplayValues()
+void AMCurrentAmplifierView::refreshButtons()
 {
-    value_->clear();
-    units_->clear();
+    if (!amplifier_) {
+        plus_->setDisabled(true);
+        minus_->setDisabled(true);
+
+    } else if (viewMode_ == AMCurrentAmplifier::Gain) {
+
+        if (amplifier_->atMinimumGain())
+            minus_->setDisabled(true);
+
+        if (amplifier_->atMaximumGain())
+            plus_->setDisabled(true);
+
+    } else if (viewMode_ == AMCurrentAmplifier::Sensitivity) {
+
+        if (amplifier_->atMinimumSensitivity())
+            minus_->setDisabled(true);
+
+        if (amplifier_->atMaximumSensitivity())
+            plus_->setDisabled(true);
+    }
 }
 
 void AMCurrentAmplifierView::onValueComboBoxChanged(int index)
@@ -129,6 +151,7 @@ void AMCurrentAmplifierView::onUnitsComboBoxChanged(int index)
 void AMCurrentAmplifierView::onMinusClicked()
 {
     if (amplifier_ && viewMode_ == AMCurrentAmplifier::Gain) {
+        qDebug() << "Gain, minus clicked.";
         amplifier_->decreaseGain();
 
     } else if (amplifier_ && viewMode_ == AMCurrentAmplifier::Sensitivity) {
