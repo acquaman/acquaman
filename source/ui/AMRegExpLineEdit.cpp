@@ -30,12 +30,12 @@ void AMRegExpLineEdit::validate()
 
 	bool valid = false;
 	if(validIfMatches_)
-		valid = (regExp_.indexIn(text()) == -1);
-	else
 		valid = (regExp_.indexIn(text()) != -1);
+	else
+		valid = (regExp_.indexIn(text()) == -1);
 
 
-	if(valid)
+	if(!valid)
 	{
 		if(isValid_)
 		{
@@ -71,7 +71,6 @@ void AMRegExpLineEdit::setPattern(const QString &pattern)
 	regExp_.setPattern(pattern);
 	validate();
 }
-
 
 void AMRegExpLineEdit::onTextChanged(const QString&)
 {
