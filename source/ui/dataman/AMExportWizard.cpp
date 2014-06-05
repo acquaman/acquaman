@@ -181,6 +181,7 @@ void AMExportWizardChooseExporterPage::onBrowseButtonClicked()
 {	
 	int pos(0);
 	QString inputText(QFileDialog::getExistingDirectory(this, "Export Location", destinationFolder_->text()));
+	destinationFolder_->setText(inputText);
 	destinationFolder_->validator()->validate(inputText, pos);
 }
 
