@@ -18,12 +18,12 @@ QMultiMap<int, double>* CLSKeithley428ValueMap::map() const
     return map_;
 }
 
-double CLSKeithley428ValueMap::valueAt(int index, CLSKeithley428::AmplifierMode mode)
+double CLSKeithley428ValueMap::valueAt(int index, AMCurrentAmplifier::AmplifierMode mode)
 {
     return map_->values(index).at(mode);
 }
 
-QStringList* CLSKeithley428ValueMap::valueStringList(CLSKeithley428::AmplifierMode mode) const
+QStringList* CLSKeithley428ValueMap::valueStringList(AMCurrentAmplifier::AmplifierMode mode) const
 {
     double toAdd = -1;
     QStringList *valueList = new QStringList();
@@ -36,17 +36,17 @@ QStringList* CLSKeithley428ValueMap::valueStringList(CLSKeithley428::AmplifierMo
     return valueList;
 }
 
-bool CLSKeithley428ValueMap::isIndexOfMin(CLSKeithley428::AmplifierMode mode, int index)
+bool CLSKeithley428ValueMap::isIndexOfMin(AMCurrentAmplifier::AmplifierMode mode, int index)
 {
     return (findIndexOfMin(mode) == index);
 }
 
-bool CLSKeithley428ValueMap::isIndexOfMax(CLSKeithley428::AmplifierMode mode, int index)
+bool CLSKeithley428ValueMap::isIndexOfMax(AMCurrentAmplifier::AmplifierMode mode, int index)
 {
     return (findIndexOfMax(mode) == index);
 }
 
-int CLSKeithley428ValueMap::findIndexOfMin(CLSKeithley428::AmplifierMode mode)
+int CLSKeithley428ValueMap::findIndexOfMin(AMCurrentAmplifier::AmplifierMode mode)
 {
     double firstIndex = map_->uniqueKeys().first();
     double firstValue = map_->values(firstIndex).at(mode);
@@ -67,7 +67,7 @@ int CLSKeithley428ValueMap::findIndexOfMin(CLSKeithley428::AmplifierMode mode)
     return minIndex;
 }
 
-int CLSKeithley428ValueMap::findIndexOfMax(CLSKeithley428::AmplifierMode mode)
+int CLSKeithley428ValueMap::findIndexOfMax(AMCurrentAmplifier::AmplifierMode mode)
 {
     double firstIndex = map_->uniqueKeys().first();
     double firstValue = map_->values(firstIndex).at(mode);
@@ -118,7 +118,7 @@ int CLSKeithley428ValueMap::nextIndex(CLSKeithley428::IndexChange change, int cu
     return nextIndex;
 }
 
-void CLSKeithley428ValueMap::setValues(CLSKeithley428::AmplifierMode mode, QList<double>* toAdd)
+void CLSKeithley428ValueMap::setValues(AMCurrentAmplifier::AmplifierMode mode, QList<double>* toAdd)
 {
     map_->clear();
 
@@ -127,7 +127,7 @@ void CLSKeithley428ValueMap::setValues(CLSKeithley428::AmplifierMode mode, QList
     }
 }
 
-void CLSKeithley428ValueMap::addValue(int index, CLSKeithley428::AmplifierMode mode, double value)
+void CLSKeithley428ValueMap::addValue(int index, AMCurrentAmplifier::AmplifierMode mode, double value)
 {
     if (!map_->contains(index)) {
         double gain, sensitivity;

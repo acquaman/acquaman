@@ -4,6 +4,7 @@
 #include <QMultiMap>
 #include <QStringList>
 
+//#include "beamline/AMCurrentAmplifier.h"
 #include "beamline/CLS/CLSKeithley428.h"
 
 class CLSKeithley428ValueMap : public QObject
@@ -18,15 +19,15 @@ public:
 
     QMultiMap<int, double>* map() const;
 
-    double valueAt(int index, CLSKeithley428::AmplifierMode mode);
+    double valueAt(int index, AMCurrentAmplifier::AmplifierMode mode);
 
-    QStringList* valueStringList(CLSKeithley428::AmplifierMode mode) const;
+    QStringList* valueStringList(AMCurrentAmplifier::AmplifierMode mode) const;
 
-    bool isIndexOfMin(CLSKeithley428::AmplifierMode mode, int index);
-    bool isIndexOfMax(CLSKeithley428::AmplifierMode mode, int index);
+    bool isIndexOfMin(AMCurrentAmplifier::AmplifierMode mode, int index);
+    bool isIndexOfMax(AMCurrentAmplifier::AmplifierMode mode, int index);
 
-    int findIndexOfMin(CLSKeithley428::AmplifierMode mode);
-    int findIndexOfMax(CLSKeithley428::AmplifierMode mode);
+    int findIndexOfMin(AMCurrentAmplifier::AmplifierMode mode);
+    int findIndexOfMax(AMCurrentAmplifier::AmplifierMode mode);
 
     int nextIndex(CLSKeithley428::IndexChange change, int currentIndex);
 
@@ -34,10 +35,10 @@ signals:
     void valuesAdded(int index, double gain, double sensitivity);
 
 public slots:
-    void setValues(CLSKeithley428::AmplifierMode mode, QList<double>* toAdd);
+    void setValues(AMCurrentAmplifier::AmplifierMode mode, QList<double>* toAdd);
 
 protected:
-    void addValue(int index, CLSKeithley428::AmplifierMode mode, double value);
+    void addValue(int index, AMCurrentAmplifier::AmplifierMode mode, double value);
     void addIndexValues(int index, double gain, double sensitivity);
 
     double toGain(double sensitivity);
