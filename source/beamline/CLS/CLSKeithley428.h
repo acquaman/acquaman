@@ -51,11 +51,6 @@ public:
     QStringList unitsList() const;
 
 public slots:
-    /// Sets the gain value.
-    void setValue(double newValue);
-    /// Sets the gain value by index.
-    void setValueIndex(int newIndex);
-
     /// Increases the gain by one value index, if not at maximum.
     virtual bool increaseGain();
     /// Decreases the gain by one value index, if not at minimum.
@@ -66,6 +61,8 @@ public slots:
     virtual bool decreaseSensitivity();
 
 protected slots:
+    /// Sets the gain value by index.
+    void setValueIndex(int newIndex);
     /// Emits value/index changed signals and additionally performs max/min value test.
     void onValueChanged(int newIndex);
     /// Updates the connected_ state.

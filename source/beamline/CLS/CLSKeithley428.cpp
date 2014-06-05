@@ -97,12 +97,6 @@ QStringList CLSKeithley428::unitsList() const
     return *unitsList;
 }
 
-void CLSKeithley428::setValue(double newValue)
-{
-    int index = valueMap_->map()->key(newValue);
-    setValueIndex(index);
-}
-
 void CLSKeithley428::setValueIndex(int newIndex)
 {
     if (valueMap_->map()->contains(newIndex) && newIndex != valueControl_->getInt()) {
