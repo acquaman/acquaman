@@ -106,7 +106,7 @@ void CLSKeithley428View::onButtonClicked()
 
 void CLSKeithley428View::onValueComboBoxChanged(int newIndex)
 {
-    amplifier_->setValueIndex(newIndex);
+//    amplifier_->setValueIndex(newIndex);
 }
 
 void CLSKeithley428View::onUnitsComboBoxChanged(int index)

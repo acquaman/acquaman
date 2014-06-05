@@ -59,12 +59,12 @@ CLSSR570View::~CLSSR570View(){}
 
 void CLSSR570View::onValueComboBoxChanged(int index)
 {
-	sr570_->setValueIndex(index);
+//	sr570_->setValueIndex(index);
 }
 
 void CLSSR570View::onUnitsComboBoxChanged(int index)
 {
-	sr570_->setUnits(units_->itemText(index));
+//	sr570_->setUnits(units_->itemText(index));
 }
 
 void CLSSR570View::onValueChanged(int value)
