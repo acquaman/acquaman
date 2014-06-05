@@ -45,23 +45,6 @@ CLSSR570::CLSSR570(const QString &name, const QString &valueName, const QString 
 	connect(units_, SIGNAL(connected()), this, SLOT(onConnectedChanged()));
 }
 
-void CLSSR570::setValue(int value)
-{
-    setValueIndex(valueToIndex(value));
-}
-
-void CLSSR570::setValueIndex(int index)
-{
-    if (valueOkay(index))
-        value_->setValue(index);
-}
-
-void CLSSR570::setUnits(QString units)
-{
-    if (unitsOkay(units))
-        units_->setValue(units);
-}
-
 bool CLSSR570::increaseSensitivity()
 {
     // Don't do anything if we are already at the maximum sensitivity.
@@ -114,6 +97,23 @@ bool CLSSR570::decreaseSensitivity()
     }
 
     return true;
+}
+
+void CLSSR570::setValue(int value)
+{
+    setValueIndex(valueToIndex(value));
+}
+
+void CLSSR570::setValueIndex(int index)
+{
+    if (valueOkay(index))
+        value_->setValue(index);
+}
+
+void CLSSR570::setUnits(QString units)
+{
+    if (unitsOkay(units))
+        units_->setValue(units);
 }
 
 void CLSSR570::onValueChanged(int index)

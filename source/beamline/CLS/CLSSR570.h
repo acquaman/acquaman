@@ -61,19 +61,18 @@ signals:
     void unitsChanged(QString);
 
 public slots:
-    /// Sets the sensitivity value. Must be 1, 2, 5, 10, 20, 50, 100, 200, or 500.  Does nothing otherwise.
-    void setValue(int newValue);
-    /// Sets the value index.  Must be between 0 and 8.
-    void setValueIndex(int index);
-	/// Sets the sensitivity units.  Must be pA/V, nA/V, uA/V, or mA/V.  Does nothing otherwise.
-	void setUnits(QString units);
-
 	/// Increases the sensitivity of the ion chamber by one step.
     virtual bool increaseSensitivity();
 	/// Decreases the sensitivity of the ion chamber by one step.
     virtual bool decreaseSensitivity();
 
 protected slots:
+    /// Sets the sensitivity value. Must be 1, 2, 5, 10, 20, 50, 100, 200, or 500.  Does nothing otherwise.
+    void setValue(int newValue);
+    /// Sets the value index.  Must be between 0 and 8.
+    void setValueIndex(int index);
+    /// Sets the sensitivity units.  Must be pA/V, nA/V, uA/V, or mA/V.  Does nothing otherwise.
+    void setUnits(QString units);
 	/// Turns the sensitivity value from an index to the value.
 	void onValueChanged(int index);
 	/// Determines whether the new state of the ion chamber is at either the minimum or maximum sensitivity.
