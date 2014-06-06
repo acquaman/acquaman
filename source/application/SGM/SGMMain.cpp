@@ -19,11 +19,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QApplication>
 
-#include <QFile>
-#include <QProcess>
-#include <QDir>
+//#include <QFile>
+//#include <QProcess>
+//#include <QDir>
 #include <QHostInfo>
 #include "application/SGM/SGMAppController.h"
+#include "application/AMCrashMonitorSupport.h"
 
 #include <QDebug>
 
@@ -73,6 +74,9 @@ int main(int argc, char *argv[])
 
 	SGMAppController* appController = new SGMAppController();
 
+#ifndef Q_WS_MAC
+	AMCrashMonitorSupport::s()->monitor();
+#endif
 
 	/// Program Run-loop:
 	// =================================
@@ -86,6 +90,7 @@ int main(int argc, char *argv[])
 		appController->shutdown();
 
 #ifndef Q_WS_MAC
+	AMCrashMonitorSupport::s()->report();
 //	kill(crashMonitorPID, SIGUSR2);
 #endif
 	delete appController;

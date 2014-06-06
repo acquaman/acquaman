@@ -328,6 +328,9 @@ bool SGMAppController::startupAfterEverything(){
 	if(isBadDatabaseDirectory_)
 		QMessageBox::warning(0, "Poor Choice of Database Folder", "The folder choosen for the user database is really not a good one.\n\nAcquaman will work, but some features may experience problems.\nThis can be fixed, please contact Tom or David to fix this.");
 
+	CLSSIS3820Scaler *crashIt = 0;
+	crashIt->channelAt(0);
+
 	return AMAppController::startupAfterEverything();
 }
 
