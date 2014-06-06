@@ -47,7 +47,7 @@ public:
     /// Returns the value of the sensitivity at the given index.
     virtual double valueAt(int index) const { return indexToValue(index); }
 	/// Returns the index of the sensitivity (value between 0 and 8).
-	int valueIndex() const { return value_->getInt(); }
+    virtual int valueIndex() const { return value_->getInt(); }
 	/// Returns the units of the sensitivity.
     virtual QString units() const { return units_->getString(); }
 
