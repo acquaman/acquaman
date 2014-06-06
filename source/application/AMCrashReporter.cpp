@@ -16,7 +16,6 @@
 int AMCrashReporterUnixSignalHandler::sigusr1Fd[2];
 int AMCrashReporterUnixSignalHandler::sigusr2Fd[2];
 
- AMCrashReporterUnixSignalHandler::~AMCrashReporterUnixSignalHandler(){}
 AMCrashReporterUnixSignalHandler::AMCrashReporterUnixSignalHandler(QObject *parent) :
 	QObject(parent)
 {
@@ -31,6 +30,10 @@ AMCrashReporterUnixSignalHandler::AMCrashReporterUnixSignalHandler(QObject *pare
 
 	snSigusr2 = new QSocketNotifier(sigusr2Fd[1], QSocketNotifier::Read, this);
 	connect(snSigusr2, SIGNAL(activated(int)), this, SLOT(handleSigusr2()));
+}
+
+AMCrashReporterUnixSignalHandler::~AMCrashReporterUnixSignalHandler()
+{
 }
 
 void AMCrashReporterUnixSignalHandler::handleSigusr1(){
@@ -71,7 +74,6 @@ void AMCrashReporterUnixSignalHandler::sigusr2SignalHandler(int signum){
 	Q_UNUSED(retVal);
 }
 
- AMCrashReporterStackTraceSymbol::~AMCrashReporterStackTraceSymbol(){}
 AMCrashReporterStackTraceSymbol::AMCrashReporterStackTraceSymbol(const QString &executable, const QString &address, QObject *parent) :
 	QObject(parent)
 {
@@ -80,7 +82,10 @@ AMCrashReporterStackTraceSymbol::AMCrashReporterStackTraceSymbol(const QString &
 	invalid_ = false;
 }
 
- AMCrashMonitor::~AMCrashMonitor(){}
+AMCrashReporterStackTraceSymbol::~AMCrashReporterStackTraceSymbol()
+{
+}
+
 AMCrashMonitor::AMCrashMonitor(const QString &executableFullPath, const QString &errorFilePath, int watchingPID, QObject *parent) :
 	QObject(parent)
 {
@@ -101,6 +106,10 @@ AMCrashMonitor::AMCrashMonitor(const QString &executableFullPath, const QString 
 	connect(crashReporterPIDTimer_, SIGNAL(timeout()), this, SLOT(onCrashReporterPIDTimerTimeout()));
 
 	watchingPIDTimer_->start();
+}
+
+AMCrashMonitor::~AMCrashMonitor()
+{
 }
 
 void AMCrashMonitor::onSiguser1Detected(){
@@ -153,6 +162,7 @@ AMCrashReporter::AMCrashReporter(const QString &executableFullPath, const QStrin
 	watchingPID_ = watchingPID;
 	monitorPID_ = monitorPID;
 	activeAddressConversion_ = 0;
+	successfullyProcessed_ = false;
 
 	unixSignalHandler_ = new AMCrashReporterUnixSignalHandler();
 	connect(unixSignalHandler_, SIGNAL(sigusr1Detected()), this, SLOT(onSiguser1Detected()));
@@ -276,6 +286,7 @@ void AMCrashReporter::onAllSymbolsProcessed(){
 
 	messageLabel_->setText("\nA report has been generated and sent to the Acquaman developers.\nThis window will close automatically, sorry for the inconveniece.");
 
+	successfullyProcessed_ = true;
 	QTimer::singleShot(4500, this, SLOT(requestMonitorClose()));
 	QTimer::singleShot(5000, this, SLOT(close()));
 }
@@ -286,23 +297,27 @@ void AMCrashReporter::requestMonitorClose(){
 }
 
 void AMCrashReporter::closeEvent(QCloseEvent *e){
-	QMessageBox msgBox;
-	msgBox.setText("Please Don't Close This Window.");
-	msgBox.setInformativeText("Please don't close this window unless it's really necessary. It should automatically close shortly.");
-	msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Ignore);
-	msgBox.setDefaultButton(QMessageBox::Ok);
-	int ret = msgBox.exec();
+	if(!successfullyProcessed_){
+		QMessageBox msgBox;
+		msgBox.setText("Please Don't Close This Window.");
+		msgBox.setInformativeText("Please don't close this window unless it's really necessary. It should automatically close shortly.");
+		msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Ignore);
+		msgBox.setDefaultButton(QMessageBox::Ok);
+		int ret = msgBox.exec();
 
-	switch(ret){
-	case QMessageBox::Ok :
-		e->ignore();
-		break;
-	case QMessageBox::Ignore :
-		QWidget::closeEvent(e);
-		break;
-	default:
-		e->ignore();
+		switch(ret){
+		case QMessageBox::Ok :
+			e->ignore();
+			break;
+		case QMessageBox::Ignore :
+			QWidget::closeEvent(e);
+			break;
+		default:
+			e->ignore();
+		}
 	}
+	else
+		QWidget::closeEvent(e);
 }
 
 AMProcessWatcher::AMProcessWatcher(qint64 watchPID, QObject *parent) :

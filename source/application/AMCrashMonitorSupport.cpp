@@ -17,6 +17,20 @@ AMCrashMonitorSupport* AMCrashMonitorSupport::crashMonitorSupportInstance_ = 0;
 
 AMCrashMonitorSupport::AMCrashMonitorSupport()
 {
+	errorFile_ = 0;
+
+	QCoreApplication *app = QApplication::instance();
+
+	QString applicationPath = app->arguments().at(0);
+	QFileInfo applicationPathInfo(applicationPath);
+
+	if(applicationPathInfo.isSymLink())
+		pathToCrashReporter_ = applicationPathInfo.symLinkTarget().section('/', 0, -2);
+	else
+		pathToCrashReporter_ = applicationPathInfo.absoluteDir().path();
+
+	pathToCrashReportFiles_ = "/home/acquaman/AcquamanApplicationCrashReports";
+
 	signal(SIGSEGV, handle_signal);
 }
 
@@ -26,42 +40,50 @@ AMCrashMonitorSupport* AMCrashMonitorSupport::s(){
 	return crashMonitorSupportInstance_;
 }
 
-qint64 AMCrashMonitorSupport::crashMonitorPID() const{
-	return crashMonitorPID_;
-}
-
 QFile* AMCrashMonitorSupport::errorFile() const{
 	return errorFile_;
 }
 
+QString AMCrashMonitorSupport::pathToCrashReporter() const{
+	return pathToCrashReporter_;
+}
+
+QString AMCrashMonitorSupport::pathToCrashReportFiles() const{
+	return pathToCrashReportFiles_;
+}
+
 void AMCrashMonitorSupport::setErrorFile(QFile *errorFile){
-	errorFile_ = errorFile;
-	globalErrorFile = errorFile;
+	if(!errorFile_){
+		errorFile_ = errorFile;
+		globalErrorFile = errorFile;
+	}
+}
+
+void AMCrashMonitorSupport::setPathToCrashReporter(const QString &pathToCrashReporter){
+	pathToCrashReporter_ = pathToCrashReporter;
+}
+
+void AMCrashMonitorSupport::setPathToCrashReportFiles(const QString &pathToCrashReportFiles){
+	pathToCrashReportFiles_ = pathToCrashReportFiles;
 }
 
 void AMCrashMonitorSupport::monitor(){
+	if(!errorFile_)
+		return;
+
 	QCoreApplication *app = QApplication::instance();
-
-	QString applicationPath = app->arguments().at(0);
-	QFileInfo applicationPathInfo(applicationPath);
-	QString applicationRootPath;
-	if(applicationPathInfo.isSymLink())
-		applicationRootPath = applicationPathInfo.symLinkTarget().section('/', 0, -2);
-	else
-		applicationRootPath = applicationPathInfo.absoluteDir().path();
-
 
 	QStringList arguments;
 	arguments << "-m";
 	arguments << app->applicationFilePath();
-	arguments << "/home/acquaman/AcquamanApplicationCrashReports";
+	arguments << pathToCrashReportFiles_;
 	arguments << QString("%1").arg(getpid());
 
-	QProcess::startDetached(applicationRootPath+"/AMCrashReporter", arguments, QDir::currentPath(), &globalCrashMonitorPID);
+	QProcess::startDetached(pathToCrashReporter_+"/AMCrashReporter", arguments, QDir::currentPath(), &globalCrashMonitorPID);
 }
 
 void AMCrashMonitorSupport::report(){
-	kill(crashMonitorPID_, SIGUSR2);
+	kill(globalCrashMonitorPID, SIGUSR2);
 }
 
 void handle_signal(int signum){
