@@ -8,6 +8,7 @@
 class QProcess;
 class QProgressBar;
 class QLabel;
+class QCloseEvent;
 
 class AMCrashReporterUnixSignalHandler : public QObject
 {
@@ -68,6 +69,12 @@ protected slots:
 	void onSiguser1Detected();
 	void onSiguser2Detected();
 
+	void onWatchingPIDTimerTimeout();
+	void onCrashReporterPIDTimerTimeout();
+
+	void onWatchingPIDFoundProcess(bool wasFound);
+	void onCrashReporterPIDFoundProcess(bool wasFound);
+
 protected:
 	QString executableFullPath_;
 	QString errorFilePath_;
@@ -76,6 +83,9 @@ protected:
 	qint64 crashReporterPID_;
 
 	AMCrashReporterUnixSignalHandler *unixSignalHandler_;
+
+	QTimer *watchingPIDTimer_;
+	QTimer *crashReporterPIDTimer_;
 };
 
 class AMCrashReporter : public QWidget
@@ -93,6 +103,9 @@ protected slots:
 	void requestMonitorClose();
 
 protected:
+	virtual void closeEvent(QCloseEvent *e);
+
+protected:
 	QString executableFullPath_;
 	QString errorFilePath_;
 	int watchingPID_;
@@ -107,4 +120,27 @@ protected:
 	QLabel *titleLabel_;
 	QLabel *messageLabel_;
 	QProgressBar *progressBar_;
+};
+
+class AMProcessWatcher : public QObject
+{
+Q_OBJECT
+public:
+	AMProcessWatcher(qint64 watchPID, QObject *parent = 0);
+
+public slots:
+	void startWatching();
+
+signals:
+	void foundWatchPID(bool wasFound);
+
+protected slots:
+	void onProcessReadReady();
+	void onProcessFinished();
+
+protected:
+	qint64 watchPID_;
+
+	QProcess *psCommand_;
+	bool foundProcess_;
 };

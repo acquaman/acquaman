@@ -10,15 +10,14 @@
 
 #include <QDebug>
 
+qint64 globalCrashMonitorPID;
+QFile *globalErrorFile;
+
 AMCrashMonitorSupport* AMCrashMonitorSupport::crashMonitorSupportInstance_ = 0;
 
 AMCrashMonitorSupport::AMCrashMonitorSupport()
 {
 	signal(SIGSEGV, handle_signal);
-
-	QFile localErrorFile(QString("/tmp/ErrorFile%1.txt").arg(getpid()));
-	localErrorFile.open(QIODevice::WriteOnly | QIODevice::Text);
-	errorFile_ = &localErrorFile;
 }
 
 AMCrashMonitorSupport* AMCrashMonitorSupport::s(){
@@ -37,6 +36,7 @@ QFile* AMCrashMonitorSupport::errorFile() const{
 
 void AMCrashMonitorSupport::setErrorFile(QFile *errorFile){
 	errorFile_ = errorFile;
+	globalErrorFile = errorFile;
 }
 
 void AMCrashMonitorSupport::monitor(){
@@ -51,19 +51,13 @@ void AMCrashMonitorSupport::monitor(){
 		applicationRootPath = applicationPathInfo.absoluteDir().path();
 
 
-	if(applicationRootPath.contains("SGMAcquaman.app"))
-		applicationRootPath.replace("SGMAcquaman.app", "AMCrashReporter.app");
-
-
-	qDebug() << "Going to try this on " << applicationRootPath;
-
 	QStringList arguments;
 	arguments << "-m";
 	arguments << app->applicationFilePath();
-	//arguments << "/home/acquaman/AcquamanApplicationCrashReports";
-	arguments << "/Users/chevrid/AcquamanApplicationCrashReports";
+	arguments << "/home/acquaman/AcquamanApplicationCrashReports";
 	arguments << QString("%1").arg(getpid());
-	QProcess::startDetached(applicationRootPath+"/AMCrashReporter", arguments, QDir::currentPath(), &crashMonitorPID_);
+
+	QProcess::startDetached(applicationRootPath+"/AMCrashReporter", arguments, QDir::currentPath(), &globalCrashMonitorPID);
 }
 
 void AMCrashMonitorSupport::report(){
@@ -75,9 +69,9 @@ void handle_signal(int signum){
 	size_t size;
 
 	size = backtrace(array, 100);
-	backtrace_symbols_fd(array, size, AMCrashMonitorSupport::s()->errorFile()->handle());
+	backtrace_symbols_fd(array, size, globalErrorFile->handle());
 
-	kill(AMCrashMonitorSupport::s()->crashMonitorPID(), SIGUSR1);
+	kill(globalCrashMonitorPID, SIGUSR1);
 	signal(signum, SIG_DFL);
 	kill(getpid(), signum);
 }
