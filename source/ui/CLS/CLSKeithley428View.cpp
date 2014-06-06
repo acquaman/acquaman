@@ -88,7 +88,7 @@ void CLSKeithley428View::refreshDisplayValues()
 
     if (amplifier_) {
         value_->addItems(amplifier_->valuesList());
-        value_->setCurrentIndex(amplifier_->index());
+        value_->setCurrentIndex(amplifier_->valueIndex());
         units_->addItems(amplifier_->unitsList());
     }
 }

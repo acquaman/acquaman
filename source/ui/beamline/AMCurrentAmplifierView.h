@@ -27,6 +27,7 @@ public:
 
 signals:
     void currentAmplifierChanged(AMCurrentAmplifier *newAmplifier);
+    void viewModeChanged(AMCurrentAmplifier::AmplifierMode viewMode);
 
 public slots:
     void setCurrentAmplifier(AMCurrentAmplifier *amplifier);
@@ -39,6 +40,8 @@ protected slots:
     void onValueComboBoxChanged(int index);
     /// Handles passing changes in the units combo box to the amplifier.
     void onUnitsComboBoxChanged(int index);
+
+    void onAmplifierValueChanged(int valueIndex);
 
     void onMinusClicked();
     void onPlusClicked();

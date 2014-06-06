@@ -21,10 +21,10 @@ AMCurrentAmplifierView::AMCurrentAmplifierView(AMCurrentAmplifier *amplifier, QW
     units_ = new QComboBox();
     connect( units_, SIGNAL(currentIndexChanged(int)), this, SLOT(onUnitsComboBoxChanged(int)) );
 
-    setCurrentAmplifier(amplifier);
-
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect( this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)) );
+
+    setCurrentAmplifier(amplifier);
 
     QHBoxLayout *layout = new QHBoxLayout();
 
@@ -57,47 +57,39 @@ void AMCurrentAmplifierView::setCurrentAmplifier(AMCurrentAmplifier *amplifier)
         disconnect( amplifier_, SIGNAL(amplifierModeChanged(AMCurrentAmplifier::AmplifierMode)), this, SLOT(setViewMode(AMCurrentAmplifier::AmplifierMode)) );
         disconnect( amplifier_, SIGNAL(unitsChanged(int)), units_, SLOT(setCurrentIndex(int)) );
 
+        disconnect( amplifier_, SIGNAL(gainChanged(int)), this, SLOT(onAmplifierValueChanged(int)) );
+        disconnect( amplifier_, SIGNAL(minimumGain(bool)), minus_, SLOT(setDisabled(bool)) );
+        disconnect( amplifier_, SIGNAL(maximumGain(bool)), plus_, SLOT(setDisabled(bool)) );
 
-        if (viewMode_ == AMCurrentAmplifier::Gain) {
-            disconnect( amplifier_, SIGNAL(gainChanged(int)), value_, SLOT(setCurrentIndex(int)) );
-            disconnect( amplifier_, SIGNAL(minimumGain(bool)), minus_, SLOT(setDisabled(bool)) );
-            disconnect( amplifier_, SIGNAL(maximumGain(bool)), plus_, SLOT(setDisabled(bool)) );
-
-        } else if (viewMode_ == AMCurrentAmplifier::Sensitivity) {
-            disconnect( amplifier_, SIGNAL(sensitivityChanged(int)), value_, SLOT(setCurrentIndex(int)) );
-            disconnect( amplifier_, SIGNAL(minimumSensitivity(bool)), minus_, SLOT(setDisabled(bool)) );
-            disconnect( amplifier_, SIGNAL(maximumSensitivity(bool)), plus_, SLOT(setDisabled(bool)) );
-        }
+        disconnect( amplifier_, SIGNAL(sensitivityChanged(int)), this, SLOT(onAmplifierValueChanged(int)) );
+        disconnect( amplifier_, SIGNAL(minimumSensitivity(bool)), minus_, SLOT(setDisabled(bool)) );
+        disconnect( amplifier_, SIGNAL(maximumSensitivity(bool)), plus_, SLOT(setDisabled(bool)) );
     }
 
     amplifier_ = amplifier;
-    emit currentAmplifierChanged(amplifier_);
 
     if (amplifier_) {
-        setViewMode(amplifier_->amplifierMode());
-
         connect( amplifier_, SIGNAL(amplifierModeChanged(AMCurrentAmplifier::AmplifierMode)), this, SLOT(setViewMode(AMCurrentAmplifier::AmplifierMode)) );
         connect( amplifier_, SIGNAL(unitsChanged(int)), units_, SLOT(setCurrentIndex(int)) );
 
-        if (viewMode_ == AMCurrentAmplifier::Gain) {
-            connect( amplifier_, SIGNAL(gainChanged(int)), value_, SLOT(setCurrentIndex(int)) );
-            connect( amplifier_, SIGNAL(minimumGain(bool)), minus_, SLOT(setDisabled(bool)) );
-            connect( amplifier_, SIGNAL(maximumGain(bool)), plus_, SLOT(setDisabled(bool)) );
+        connect( amplifier_, SIGNAL(gainChanged(int)), this, SLOT(onAmplifierValueChanged(int)) );
+        connect( amplifier_, SIGNAL(minimumGain(bool)), minus_, SLOT(setDisabled(bool)) );
+        connect( amplifier_, SIGNAL(maximumGain(bool)), plus_, SLOT(setDisabled(bool)) );
 
-        } else if (viewMode_ == AMCurrentAmplifier::Sensitivity) {
-            connect( amplifier_, SIGNAL(sensitivityChanged(int)), value_, SLOT(setCurrentIndex(int)) );
-            connect( amplifier_, SIGNAL(minimumSensitivity(bool)), minus_, SLOT(setDisabled(bool)) );
-            connect( amplifier_, SIGNAL(maximumSensitivity(bool)), plus_, SLOT(setDisabled(bool)) );
-        }
+        connect( amplifier_, SIGNAL(sensitivityChanged(int)), this, SLOT(onAmplifierValueChanged(int)) );
+        connect( amplifier_, SIGNAL(minimumSensitivity(bool)), minus_, SLOT(setDisabled(bool)) );
+        connect( amplifier_, SIGNAL(maximumSensitivity(bool)), plus_, SLOT(setDisabled(bool)) );
+
+        setViewMode(amplifier_->amplifierMode());
     }
 
-    refreshButtons();
-    refreshDisplayValues();
+    emit currentAmplifierChanged(amplifier_);
 }
 
 void AMCurrentAmplifierView::setViewMode(AMCurrentAmplifier::AmplifierMode newMode)
 {
     viewMode_ = newMode;
+    emit viewModeChanged(viewMode_);
 
     refreshButtons();
     refreshDisplayValues();
@@ -108,9 +100,15 @@ void AMCurrentAmplifierView::refreshDisplayValues()
     value_->clear();
     units_->clear();
 
-    // repopulate value_ and units_ with appropriate options from the amplifier.
-    value_->addItems(amplifier_->valuesList());
-    units_->addItems(amplifier_->unitsList());
+    // repopulate value_ and units_ with appropriate options provided by the amplifier.
+
+    if (amplifier_) {
+        int currentIndex = amplifier_->valueIndex();
+        value_->addItems(amplifier_->valuesList());
+        onAmplifierValueChanged(currentIndex);
+
+        units_->addItems(amplifier_->unitsList());
+    }
 }
 
 void AMCurrentAmplifierView::refreshButtons()
@@ -139,13 +137,25 @@ void AMCurrentAmplifierView::refreshButtons()
 
 void AMCurrentAmplifierView::onValueComboBoxChanged(int index)
 {
-    if (amplifier_)
-        amplifier_->setValue(QString::number(index));
+    if (amplifier_) {
+//        qDebug() << "Set amplifier : " << index;
+//        amplifier_->setValue(QString::number(index));
+    }
 }
 
 void AMCurrentAmplifierView::onUnitsComboBoxChanged(int index)
 {
     Q_UNUSED(index)
+}
+
+void AMCurrentAmplifierView::onAmplifierValueChanged(int valueIndex)
+{
+    if (amplifier_) {
+        amplifier_->blockSignals(true);
+        qDebug() << "Set combo box : " << valueIndex;
+        value_->setCurrentIndex(valueIndex);
+        amplifier_->blockSignals(false);
+    }
 }
 
 void AMCurrentAmplifierView::onMinusClicked()
@@ -155,7 +165,7 @@ void AMCurrentAmplifierView::onMinusClicked()
         amplifier_->decreaseGain();
 
     } else if (amplifier_ && viewMode_ == AMCurrentAmplifier::Sensitivity) {
-        amplifier_->decreaseSensitivity();
+//        amplifier_->decreaseSensitivity();
     }
 }
 
@@ -165,7 +175,7 @@ void AMCurrentAmplifierView::onPlusClicked()
         amplifier_->increaseGain();
 
     } else if (amplifier_ && viewMode_ == AMCurrentAmplifier::Sensitivity) {
-        amplifier_->increaseSensitivity();
+//        amplifier_->increaseSensitivity();
 
     }
 }

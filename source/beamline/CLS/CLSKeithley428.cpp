@@ -1,5 +1,4 @@
 #include "CLSKeithley428.h"
-#include "beamline/CLS/CLSKeithley428ValueMap.h"
 
 #include "math.h"
 
@@ -28,7 +27,7 @@ CLSKeithley428::~CLSKeithley428()
 
 double CLSKeithley428::value() const
 {
-    return valueMap_->valueAt(index(), amplifierMode_);
+    return valueMap_->valueAt(valueIndex(), amplifierMode_);
 }
 
 double CLSKeithley428::valueAt(int index) const
@@ -36,7 +35,7 @@ double CLSKeithley428::valueAt(int index) const
     return valueMap_->valueAt(index, amplifierMode_);
 }
 
-int CLSKeithley428::index() const
+int CLSKeithley428::valueIndex() const
 {
     return valueControl_->getInt();
 }
@@ -99,6 +98,8 @@ QStringList CLSKeithley428::unitsList() const
 
 void CLSKeithley428::setValueIndex(int newIndex)
 {
+    qDebug() << "About to set amplifier value to " << newIndex;
+
     if (valueMap_->map()->contains(newIndex) && newIndex != valueControl_->getInt()) {
         valueControl_->setValue(newIndex);
     }
@@ -106,6 +107,7 @@ void CLSKeithley428::setValueIndex(int newIndex)
 
 bool CLSKeithley428::increaseGain()
 {
+    qDebug() << "About to increase gain.";
     // Don't do anything if the value is already at a maximum.
     if (atMaximumGain())
         return false;
@@ -119,6 +121,8 @@ bool CLSKeithley428::increaseGain()
 
 bool CLSKeithley428::decreaseGain()
 {
+    qDebug() << "About to decrease gain.";
+
     // Don't do anything if the value is already at a minimum.
     if (atMinimumGain()) {
         return false;
@@ -221,4 +225,162 @@ void CLSKeithley428::setValueImplementation(const QString &valueArg)
 {
     int newIndex = valueArg.toInt();
     setValueIndex(newIndex);
+}
+
+CLSKeithley428ValueMap::CLSKeithley428ValueMap(QObject *parent) : QObject(parent)
+{
+    tolerance_ = 0.01;
+    map_ = new QMultiMap<int, double>();
+}
+
+CLSKeithley428ValueMap::~CLSKeithley428ValueMap()
+{
+
+}
+
+QMultiMap<int, double>* CLSKeithley428ValueMap::map() const
+{
+    return map_;
+}
+
+double CLSKeithley428ValueMap::valueAt(int index, AMCurrentAmplifier::AmplifierMode mode)
+{
+    return map_->values(index).at(mode);
+}
+
+QStringList* CLSKeithley428ValueMap::valueStringList(AMCurrentAmplifier::AmplifierMode mode) const
+{
+    double toAdd = -1;
+    QStringList *valueList = new QStringList();
+
+    foreach (int key, map_->uniqueKeys()) {
+        toAdd = map_->values(key).at(mode);
+        valueList->append(QString("%1").arg(toAdd, 0, 'e', 2));
+    }
+
+    return valueList;
+}
+
+bool CLSKeithley428ValueMap::isIndexOfMin(AMCurrentAmplifier::AmplifierMode mode, int index)
+{
+    return (findIndexOfMin(mode) == index);
+}
+
+bool CLSKeithley428ValueMap::isIndexOfMax(AMCurrentAmplifier::AmplifierMode mode, int index)
+{
+    return (findIndexOfMax(mode) == index);
+}
+
+int CLSKeithley428ValueMap::findIndexOfMin(AMCurrentAmplifier::AmplifierMode mode)
+{
+    double firstIndex = map_->uniqueKeys().first();
+    double firstValue = map_->values(firstIndex).at(mode);
+    double temp = firstValue;
+
+    int minIndex = firstIndex;
+    double minValue = firstValue;
+
+    foreach (int key, map_->uniqueKeys()) {
+        temp = map_->values(key).at(mode);
+
+        if (temp < minValue) {
+            minIndex = key;
+            minValue = temp;
+        }
+    }
+
+    return minIndex;
+}
+
+int CLSKeithley428ValueMap::findIndexOfMax(AMCurrentAmplifier::AmplifierMode mode)
+{
+    double firstIndex = map_->uniqueKeys().first();
+    double firstValue = map_->values(firstIndex).at(mode);
+    double temp = firstValue;
+
+    int maxIndex = firstIndex;
+    double maxValue = firstValue;
+
+    foreach (int key, map_->uniqueKeys()) {
+        temp = map_->values(key).at(mode);
+
+        if (temp > maxValue) {
+            maxIndex = key;
+            maxValue = temp;
+        }
+    }
+
+    return maxIndex;
+}
+
+int CLSKeithley428ValueMap::nextIndex(CLSKeithley428::IndexChange change, int currentIndex)
+{
+    qDebug() << "Initial index : " << currentIndex;
+
+    int nextIndex = -1;
+
+    if (!map_->contains(currentIndex)) {
+        qDebug() << "Invalid initial index.";
+
+    } else if (change == CLSKeithley428::IncreaseOne) {
+        qDebug() << "Increasing index.";
+        nextIndex = currentIndex + 1;
+
+    } else if (change == CLSKeithley428::DecreaseOne) {
+        qDebug() << "Decreasing index.";
+        nextIndex = currentIndex - 1;
+    }
+
+    qDebug() << "Next index : " << nextIndex;
+
+    return nextIndex;
+}
+
+void CLSKeithley428ValueMap::setValues(AMCurrentAmplifier::AmplifierMode mode, QList<double>* toAdd)
+{
+    map_->clear();
+
+    for (int i = 0; i < toAdd->size(); i++) {
+        addValue(i, mode, toAdd->at(i));
+    }
+}
+
+void CLSKeithley428ValueMap::addValue(int index, AMCurrentAmplifier::AmplifierMode mode, double value)
+{
+    if (!map_->contains(index)) {
+        double gain, sensitivity;
+
+        if (mode == AMCurrentAmplifier::Gain) {
+            gain = value;
+            sensitivity = toSensitivity(value);
+
+        } else if (mode == AMCurrentAmplifier::Sensitivity) {
+            gain = toGain(value);
+            sensitivity = value;
+
+        } else {
+            return;
+        }
+
+        addIndexValues(index, gain, sensitivity);
+    }
+}
+
+void CLSKeithley428ValueMap::addIndexValues(int index, double gain, double sensitivity)
+{
+    map_->insert(index, gain);
+    map_->insert(index, sensitivity);
+
+    emit valuesAdded(index, gain, sensitivity);
+
+}
+
+double CLSKeithley428ValueMap::toGain(double sensitivity)
+{
+    return 1.0/sensitivity;
+}
+
+double CLSKeithley428ValueMap::toSensitivity(double gain)
+{
+    return 1.0/gain;
 }

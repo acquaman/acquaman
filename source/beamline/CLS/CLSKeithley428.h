@@ -2,6 +2,7 @@
 #define CLSKEITHLEY428_H
 
 #include <QObject>
+#include <QMultiMap>
 
 #include "beamline/AMCurrentAmplifier.h"
 #include "beamline/AMProcessVariable.h"
@@ -28,7 +29,7 @@ public:
     /// Returns the value at the given index.
     virtual double valueAt(int index) const;
     /// Returns the current value index.
-    int index() const;
+    virtual int valueIndex() const;
 
     /// Returns string representing the units to use, depending on the display mode.
     virtual QString units() const;
@@ -82,6 +83,50 @@ protected:
     AMProcessVariable *valueControl_;
     /// Pointer to a map between gain/sensitivity and value/index.
     CLSKeithley428ValueMap *valueMap_;
+};
+
+
+class CLSKeithley428ValueMap : public QObject
+{
+    Q_OBJECT
+
+public:
+    /// Constructor.
+    explicit CLSKeithley428ValueMap(QObject *parent = 0);
+    /// Destructor.
+    virtual ~CLSKeithley428ValueMap();
+
+    QMultiMap<int, double>* map() const;
+
+    double valueAt(int index, AMCurrentAmplifier::AmplifierMode mode);
+
+    QStringList* valueStringList(AMCurrentAmplifier::AmplifierMode mode) const;
+
+    bool isIndexOfMin(AMCurrentAmplifier::AmplifierMode mode, int index);
+    bool isIndexOfMax(AMCurrentAmplifier::AmplifierMode mode, int index);
+
+    int findIndexOfMin(AMCurrentAmplifier::AmplifierMode mode);
+    int findIndexOfMax(AMCurrentAmplifier::AmplifierMode mode);
+
+    int nextIndex(CLSKeithley428::IndexChange change, int currentIndex);
+
+signals:
+    void valuesAdded(int index, double gain, double sensitivity);
+
+public slots:
+    void setValues(AMCurrentAmplifier::AmplifierMode mode, QList<double>* toAdd);
+
+protected:
+    void addValue(int index, AMCurrentAmplifier::AmplifierMode mode, double value);
+    void addIndexValues(int index, double gain, double sensitivity);
+
+    double toGain(double sensitivity);
+    double toSensitivity(double gain);
+
+protected:
+    QMultiMap<int, double> *map_;
+    double tolerance_;
+
 };
 
 
