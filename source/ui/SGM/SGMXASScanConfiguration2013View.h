@@ -12,7 +12,7 @@
 
 #include "ui/beamline/AMControlSetView.h"
 #include "ui/SGM/SGMFluxResolutionPickerView.h"
-
+#include "ui/AMRegExpLineEdit.h"
 class SGMXASScanConfiguration2013View : public AMScanConfigurationView
 {
 Q_OBJECT
@@ -62,7 +62,7 @@ protected:
 	QGridLayout *bottomGL_;
 
 	QLabel *scanNameLabel_;
-	QLineEdit *scanNameEdit_;
+	AMRegExpLineEdit *scanNameEdit_;
 	QPushButton* undulatorTrackingButton_;
 	QPushButton* gratingTrackingButton_;
 	QPushButton* exitSlitTrackingButton_;

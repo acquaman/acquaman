@@ -10,11 +10,12 @@
 #include <QDateTime>
 #include <QHostInfo>
 #include <QDesktopWidget>
+#include <QCloseEvent>
+#include <QMessageBox>
 
 int AMCrashReporterUnixSignalHandler::sigusr1Fd[2];
 int AMCrashReporterUnixSignalHandler::sigusr2Fd[2];
 
- AMCrashReporterUnixSignalHandler::~AMCrashReporterUnixSignalHandler(){}
 AMCrashReporterUnixSignalHandler::AMCrashReporterUnixSignalHandler(QObject *parent) :
 	QObject(parent)
 {
@@ -29,6 +30,10 @@ AMCrashReporterUnixSignalHandler::AMCrashReporterUnixSignalHandler(QObject *pare
 
 	snSigusr2 = new QSocketNotifier(sigusr2Fd[1], QSocketNotifier::Read, this);
 	connect(snSigusr2, SIGNAL(activated(int)), this, SLOT(handleSigusr2()));
+}
+
+AMCrashReporterUnixSignalHandler::~AMCrashReporterUnixSignalHandler()
+{
 }
 
 void AMCrashReporterUnixSignalHandler::handleSigusr1(){
@@ -69,7 +74,6 @@ void AMCrashReporterUnixSignalHandler::sigusr2SignalHandler(int signum){
 	Q_UNUSED(retVal);
 }
 
- AMCrashReporterStackTraceSymbol::~AMCrashReporterStackTraceSymbol(){}
 AMCrashReporterStackTraceSymbol::AMCrashReporterStackTraceSymbol(const QString &executable, const QString &address, QObject *parent) :
 	QObject(parent)
 {
@@ -78,7 +82,10 @@ AMCrashReporterStackTraceSymbol::AMCrashReporterStackTraceSymbol(const QString &
 	invalid_ = false;
 }
 
- AMCrashMonitor::~AMCrashMonitor(){}
+AMCrashReporterStackTraceSymbol::~AMCrashReporterStackTraceSymbol()
+{
+}
+
 AMCrashMonitor::AMCrashMonitor(const QString &executableFullPath, const QString &errorFilePath, int watchingPID, QObject *parent) :
 	QObject(parent)
 {
@@ -89,21 +96,62 @@ AMCrashMonitor::AMCrashMonitor(const QString &executableFullPath, const QString 
 	unixSignalHandler_ = new AMCrashReporterUnixSignalHandler();
 	connect(unixSignalHandler_, SIGNAL(sigusr1Detected()), this, SLOT(onSiguser1Detected()));
 	connect(unixSignalHandler_, SIGNAL(sigusr2Detected()), this, SLOT(onSiguser2Detected()));
+
+	watchingPIDTimer_ = new QTimer(this);
+	watchingPIDTimer_->setInterval(5000);
+	connect(watchingPIDTimer_, SIGNAL(timeout()), this, SLOT(onWatchingPIDTimerTimeout()));
+
+	crashReporterPIDTimer_ = new QTimer(this);
+	crashReporterPIDTimer_->setInterval(5000);
+	connect(crashReporterPIDTimer_, SIGNAL(timeout()), this, SLOT(onCrashReporterPIDTimerTimeout()));
+
+	watchingPIDTimer_->start();
+}
+
+AMCrashMonitor::~AMCrashMonitor()
+{
 }
 
 void AMCrashMonitor::onSiguser1Detected(){
+	watchingPIDTimer_->stop();
+
 	QStringList arguments;
 	arguments << executableFullPath_;
 	arguments << errorFilePath_;
 	arguments << QString("%1").arg(watchingPID_);
 	arguments << QString("%1").arg(getpid());
 	QProcess::startDetached(QCoreApplication::instance()->arguments().at(0), arguments, QDir::currentPath(), &crashReporterPID_);
+
+	crashReporterPIDTimer_->start();
 }
 
 void AMCrashMonitor::onSiguser2Detected(){
 	//qDebug() << "Detected SIGUSR2 in AMCrashMonitor, need to close this program now";
+	crashReporterPIDTimer_->stop();
 
 	QTimer::singleShot(1000, QCoreApplication::instance(), SLOT(quit()));
+}
+
+void AMCrashMonitor::onWatchingPIDTimerTimeout(){
+	AMProcessWatcher *checkForWatchingPID = new AMProcessWatcher(watchingPID_);
+	connect(checkForWatchingPID, SIGNAL(foundWatchPID(bool)), this, SLOT(onWatchingPIDFoundProcess(bool)));
+	checkForWatchingPID->startWatching();
+}
+
+void AMCrashMonitor::onCrashReporterPIDTimerTimeout(){
+	AMProcessWatcher *checkForWatchingPID = new AMProcessWatcher(crashReporterPID_);
+	connect(checkForWatchingPID, SIGNAL(foundWatchPID(bool)), this, SLOT(onCrashReporterPIDFoundProcess(bool)));
+	checkForWatchingPID->startWatching();
+}
+
+void AMCrashMonitor::onWatchingPIDFoundProcess(bool wasFound){
+	if(!wasFound)
+		QTimer::singleShot(1000, QCoreApplication::instance(), SLOT(quit()));
+}
+
+void AMCrashMonitor::onCrashReporterPIDFoundProcess(bool wasFound){
+	if(!wasFound)
+		QTimer::singleShot(1000, QCoreApplication::instance(), SLOT(quit()));
 }
 
 AMCrashReporter::AMCrashReporter(const QString &executableFullPath, const QString &errorFilePath, int watchingPID, int monitorPID, QWidget *parent) :
@@ -114,6 +162,7 @@ AMCrashReporter::AMCrashReporter(const QString &executableFullPath, const QStrin
 	watchingPID_ = watchingPID;
 	monitorPID_ = monitorPID;
 	activeAddressConversion_ = 0;
+	successfullyProcessed_ = false;
 
 	unixSignalHandler_ = new AMCrashReporterUnixSignalHandler();
 	connect(unixSignalHandler_, SIGNAL(sigusr1Detected()), this, SLOT(onSiguser1Detected()));
@@ -237,6 +286,7 @@ void AMCrashReporter::onAllSymbolsProcessed(){
 
 	messageLabel_->setText("\nA report has been generated and sent to the Acquaman developers.\nThis window will close automatically, sorry for the inconveniece.");
 
+	successfullyProcessed_ = true;
 	QTimer::singleShot(4500, this, SLOT(requestMonitorClose()));
 	QTimer::singleShot(5000, this, SLOT(close()));
 }
@@ -244,4 +294,60 @@ void AMCrashReporter::onAllSymbolsProcessed(){
 void AMCrashReporter::requestMonitorClose(){
 	//qDebug() << "Going to send SIGUSR2 to " << monitorPID_;
 	kill(monitorPID_, SIGUSR2);
+}
+
+void AMCrashReporter::closeEvent(QCloseEvent *e){
+	if(!successfullyProcessed_){
+		QMessageBox msgBox;
+		msgBox.setText("Please Don't Close This Window.");
+		msgBox.setInformativeText("Please don't close this window unless it's really necessary. It should automatically close shortly.");
+		msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Ignore);
+		msgBox.setDefaultButton(QMessageBox::Ok);
+		int ret = msgBox.exec();
+
+		switch(ret){
+		case QMessageBox::Ok :
+			e->ignore();
+			break;
+		case QMessageBox::Ignore :
+			QWidget::closeEvent(e);
+			break;
+		default:
+			e->ignore();
+		}
+	}
+	else
+		QWidget::closeEvent(e);
+}
+
+AMProcessWatcher::AMProcessWatcher(qint64 watchPID, QObject *parent) :
+	QObject(parent)
+{
+	watchPID_ = watchPID;
+	foundProcess_ = false;
+}
+
+void AMProcessWatcher::startWatching(){
+	psCommand_ = new QProcess(this);
+
+	QString programName = "ps";
+	QStringList programArguments;
+	programArguments << "ax";
+	programArguments << "-o";
+	programArguments << "pid";
+
+	connect(psCommand_, SIGNAL(readyReadStandardOutput()), this, SLOT(onProcessReadReady()));
+	connect(psCommand_, SIGNAL(finished(int)), this, SLOT(onProcessFinished()));
+
+	psCommand_->start(programName, programArguments);
+}
+
+void AMProcessWatcher::onProcessReadReady(){
+	QString someOutput = psCommand_->readAllStandardOutput();
+	if(!foundProcess_ && someOutput.contains(QString("%1").arg(watchPID_)))
+		foundProcess_ = true;
+}
+
+void AMProcessWatcher::onProcessFinished(){
+	emit foundWatchPID(foundProcess_);
 }

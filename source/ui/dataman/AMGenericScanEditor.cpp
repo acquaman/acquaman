@@ -56,6 +56,10 @@ AMGenericScanEditor::AMGenericScanEditor(QWidget *parent) :
 	QWidget(parent)
 {
 	ui_.setupUi(this);
+	scanNameEdit_ = new AMRegExpLineEdit("/|;|@|#|<|>", Qt::CaseInsensitive, "/;#>@< characters are not allowed.");
+	scanNameEdit_->setFrame(false);
+	scanNameEdit_->setValidIfMatches(false);
+	ui_.scanInfoGridLayout->addWidget(scanNameEdit_, 1, 1);
 	ui_.topFrameTitle->setStyleSheet("font: " AM_FONT_LARGE_ "pt \"Lucida Grande\";\ncolor: rgb(79, 79, 79);");
 	ui_.statusTextLabel->setStyleSheet("color: white;\nfont: bold " AM_FONT_SMALL_ "pt \"Lucida Grande\"");
 	setWindowTitle("Scan Editor");
@@ -94,6 +98,7 @@ AMGenericScanEditor::AMGenericScanEditor(QWidget *parent) :
 	ui_.scanInfoLayout->insertWidget(1, runSelector_);
 
 
+
 	// Add detailed editor widgets:
 	QWidget* sampleEditorHolder = new QWidget();	// just used to add a margin around the sample editor itself, which has no margins.
 	sampleEditorHolder->setLayout(new QVBoxLayout);
@@ -130,7 +135,7 @@ AMGenericScanEditor::AMGenericScanEditor(QWidget *parent) :
 
 
 	// disable drops on text fields that we don't want to accept drops
-	ui_.scanName->setAcceptDrops(false);
+	scanNameEdit_->setAcceptDrops(false);
 	ui_.notesEdit->setAcceptDrops(false);
 
 
@@ -158,6 +163,10 @@ AMGenericScanEditor::AMGenericScanEditor(bool use2DScanView, QWidget *parent)
 	: QWidget(parent)
 {
 	ui_.setupUi(this);
+	scanNameEdit_ = new AMRegExpLineEdit("/|;|@|#|<|>", Qt::CaseInsensitive, "/;#>@< characters are not allowed.");
+	scanNameEdit_->setFrame(false);
+	scanNameEdit_->setValidIfMatches(false);
+	ui_.scanInfoGridLayout->addWidget(scanNameEdit_, 1, 1);
 	ui_.topFrameTitle->setStyleSheet("font: " AM_FONT_LARGE_ "pt \"Lucida Grande\";\ncolor: rgb(79, 79, 79);");
 	ui_.statusTextLabel->setStyleSheet("color: white;\nfont: bold " AM_FONT_SMALL_ "pt \"Lucida Grande\"");
 	setWindowTitle("Scan Editor");
@@ -242,7 +251,7 @@ AMGenericScanEditor::AMGenericScanEditor(bool use2DScanView, QWidget *parent)
 
 
 	// disable drops on text fields that we don't want to accept drops
-	ui_.scanName->setAcceptDrops(false);
+	scanNameEdit_->setAcceptDrops(false);
 	ui_.notesEdit->setAcceptDrops(false);
 
 
@@ -365,7 +374,7 @@ void AMGenericScanEditor::onCurrentChanged ( const QModelIndex & selected, const
 
 	// disconnect the old scan:
 	if(currentScan_) {
-		disconnect(ui_.scanName, 0, currentScan_, 0);
+		disconnect(scanNameEdit_, 0, currentScan_, 0);
 		disconnect(ui_.scanNumber, 0, currentScan_, 0);
 		disconnect(this, SIGNAL(notesChanged(QString)), currentScan_, SLOT(setNotes(QString)));
 		disconnect(runSelector_, SIGNAL(currentRunIdChanged(int)), currentScan_, SLOT(setRunId(int)));
@@ -386,7 +395,7 @@ void AMGenericScanEditor::onCurrentChanged ( const QModelIndex & selected, const
 		// removed: connect(currentScan_, SIGNAL(metaDataChanged()), this, SLOT(onScanMetaDataChanged()));
 
 		// make connections to widgets, so that widgets edit this scan:
-		connect(ui_.scanName, SIGNAL(textChanged(QString)), currentScan_, SLOT(setName(QString)));
+		connect(scanNameEdit_, SIGNAL(textChanged(QString)), currentScan_, SLOT(setName(QString)));
 		connect(ui_.scanNumber, SIGNAL(valueChanged(int)), currentScan_, SLOT(setNumber(int)));
 		connect(this, SIGNAL(notesChanged(QString)), currentScan_, SLOT(setNotes(QString)));
 		connect(runSelector_, SIGNAL(currentRunIdChanged(int)), currentScan_, SLOT(setRunId(int)));
@@ -417,7 +426,7 @@ void AMGenericScanEditor::updateEditor(AMScan *scan) {
 
 		ui_.scanId->setText(QString("%1").arg(scan->id()));
 		connect(scan, SIGNAL(storedToDb()), this, SLOT(onScanSavedToDatabase()));
-		ui_.scanName->setText(scan->name());
+		scanNameEdit_->setText(scan->name());
 		ui_.scanNumber->setValue(scan->number());
 		ui_.scanDate->setText( AMDateTimeUtils::prettyDate(scan->dateTime()));
 		ui_.scanDuration->setText(scan->currentlyScanning() ? ("Acquiring " % AMDateTimeUtils::prettyDuration(currentScan_->dateTime(), QDateTime::currentDateTime(), true))
@@ -452,7 +461,7 @@ void AMGenericScanEditor::updateEditor(AMScan *scan) {
 
 	else {
 		ui_.scanId->setText(QString("Pending..."));
-		ui_.scanName->setText( QString() );
+		scanNameEdit_->setText( QString() );
 		ui_.scanNumber->setValue(0);
 		ui_.scanDate->setText( QString() );
 		ui_.scanDuration->setText( QString() );
