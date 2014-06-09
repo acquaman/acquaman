@@ -73,6 +73,10 @@ void AMCrashMonitorSupport::monitor(){
 
 	QCoreApplication *app = QApplication::instance();
 
+	QStringList appArguments = app->arguments();
+	if(!appArguments.contains("--enableCrashMonitor"))
+		return;
+
 	QStringList arguments;
 	arguments << "-m";
 	arguments << app->applicationFilePath();
@@ -83,6 +87,12 @@ void AMCrashMonitorSupport::monitor(){
 }
 
 void AMCrashMonitorSupport::report(){
+	QCoreApplication *app = QApplication::instance();
+
+	QStringList appArguments = app->arguments();
+	if(!appArguments.contains("--enableCrashMonitor"))
+		return;
+
 	kill(globalCrashMonitorPID, SIGUSR2);
 }
 
