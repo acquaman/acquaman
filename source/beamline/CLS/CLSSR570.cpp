@@ -20,8 +20,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "CLSSR570.h"
 
-CLSSR570::~CLSSR570(){}
-
 CLSSR570::CLSSR570(const QString &name, const QString &valueName, const QString &unitsName, QObject *parent)
 	: AMCurrentAmplifier(name, parent)
 {
@@ -44,6 +42,8 @@ CLSSR570::CLSSR570(const QString &name, const QString &valueName, const QString 
 	connect(value_, SIGNAL(connected()), this, SLOT(onConnectedChanged()));
 	connect(units_, SIGNAL(connected()), this, SLOT(onConnectedChanged()));
 }
+
+CLSSR570::~CLSSR570(){}
 
 bool CLSSR570::increaseSensitivity()
 {
