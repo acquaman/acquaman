@@ -42,6 +42,8 @@ CLSSR570::CLSSR570(const QString &name, const QString &valueName, const QString 
 	connect(value_, SIGNAL(connected()), this, SLOT(onConnectedChanged()));
 	connect(units_, SIGNAL(connected()), this, SLOT(onConnectedChanged()));
 
+    setAmplifierMode(AMCurrentAmplifier::Sensitivity);
+
     valueList_ << "1" << "2" << "5" << "10" << "20" << "50" << "100" << "200" << "500";
     unitsList_ << "pA/V" << "nA/V" << "uA/V" << "mA/V";
 }
@@ -169,12 +171,6 @@ void CLSSR570::setValueImplementation(const QString &valueArg)
 
     int unitsIndex = valueArg.split(" ").at(1).toInt();
     setUnitsIndex(unitsIndex);
-
-//    int valueIndex = argList.at(0).toInt();
-//    QString units = argList.at(1);
-
-//    setValueIndex(valueIndex);
-//    setUnits(units);
 }
 
 int CLSSR570::nextValue(bool increase, int current)
