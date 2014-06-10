@@ -10,9 +10,9 @@ class AMCurrentAmplifier : public QObject
 
 public:
     enum AmplifierMode {
-        None = 0,
-        Gain = 1,
-        Sensitivity = 2
+        Gain = 0,
+        Sensitivity = 1,
+        None = 2
     };
 
     /// Constructor. Sets up base requirements for current amplifier.
