@@ -93,7 +93,7 @@ QStringList CLSKeithley428::valuesList() const
 
 QStringList CLSKeithley428::unitsList() const
 {
-    return units_;
+    return QStringList() << units();
 }
 
 void CLSKeithley428::setValueIndex(int newIndex)
