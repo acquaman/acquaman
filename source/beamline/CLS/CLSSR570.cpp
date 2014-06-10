@@ -32,7 +32,7 @@ CLSSR570::CLSSR570(const QString &name, const QString &valueName, const QString 
 	units_ = new AMProcessVariable(unitsName, true, this);
 
 	connect(value_, SIGNAL(valueChanged(int)), this, SLOT(onValueChanged(int)));
-	connect(units_, SIGNAL(valueChanged(QString)), this, SIGNAL(unitsChanged(QString)));
+    connect(units_, SIGNAL(valueChanged(QString)), this, SLOT(onUnitsChanged(QString)) );
 	connect(value_, SIGNAL(valueChanged()), this, SIGNAL(sensitivityChanged()));
 	connect(units_, SIGNAL(valueChanged()), this, SIGNAL(sensitivityChanged()));
 
@@ -144,6 +144,12 @@ void CLSSR570::onSensitivityChanged()
 
     else if (atMinimumSensitivity_ && (value_->getInt() != 0 || units_->getString() != "mA/V"))
         emit minimumSensitivity(atMinimumSensitivity_ = false);
+}
+
+void CLSSR570::onUnitsChanged(const QString &newUnits)
+{
+    emit unitsChanged(newUnits);
+    emit unitsIndexChanged(unitsList_.indexOf(newUnits));
 }
 
 void CLSSR570::onConnectedChanged()
