@@ -23,8 +23,8 @@ AMCurrentAmplifierView::AMCurrentAmplifierView(AMCurrentAmplifier *amplifier, QW
 
     value_ = new QComboBox();
 //    connect( value_, SIGNAL(currentIndexChanged(int)), this, SLOT(onValueComboBoxChanged(int)) );
-//    connect( amplifier_, SIGNAL(gainChanged(int)), value_, SLOT(setCurrentIndex(int)) );
-//    connect( amplifier_, SIGNAL(sensitivityChanged(int)), value_, SLOT(setCurrentIndex(int)) );
+    connect( amplifier_, SIGNAL(gainChanged(int)), value_, SLOT(setCurrentIndex(int)) );
+    connect( amplifier_, SIGNAL(sensitivityChanged(int)), value_, SLOT(setCurrentIndex(int)) );
 
     units_ = new QComboBox();
 //    connect( units_, SIGNAL(currentIndexChanged(int)), this, SLOT(onUnitsComboBoxChanged(int)) );
