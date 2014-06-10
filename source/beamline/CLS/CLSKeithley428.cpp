@@ -98,16 +98,14 @@ QStringList CLSKeithley428::unitsList() const
 
 void CLSKeithley428::setValueIndex(int newIndex)
 {
-    qDebug() << "About to set amplifier value to " << newIndex;
-
     if (valueMap_->map()->contains(newIndex) && newIndex != valueControl_->getInt()) {
+        qDebug() << "Setting amplifier value to " << newIndex;
         valueControl_->setValue(newIndex);
     }
 }
 
 bool CLSKeithley428::increaseGain()
 {
-    qDebug() << "About to increase gain.";
     // Don't do anything if the value is already at a maximum.
     if (atMaximumGain())
         return false;
@@ -121,8 +119,6 @@ bool CLSKeithley428::increaseGain()
 
 bool CLSKeithley428::decreaseGain()
 {
-    qDebug() << "About to decrease gain.";
-
     // Don't do anything if the value is already at a minimum.
     if (atMinimumGain()) {
         return false;
