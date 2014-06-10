@@ -120,10 +120,10 @@ CLSSIS3820ScalerView::CLSSIS3820ScalerView(CLSSIS3820Scaler *scaler, QWidget *pa
 	topLayout->addLayout(statusAndModeLayout);
 	topLayout->addLayout(spinBoxLayout);
 
-    // Dark current widget
-    CLSDarkCurrentWidget *darkCurrentWidget = new CLSDarkCurrentWidget(10, this);
-    bool showDarkCurrentWidget = false;
-    darkCurrentWidget->hide();
+	// Dark current widget
+	CLSDarkCurrentWidget *darkCurrentWidget = new CLSDarkCurrentWidget(10, this);
+	bool showDarkCurrentWidget = false;
+	darkCurrentWidget->hide();
 
 	// Build the channel views.
 	channelLayout_ = new QVBoxLayout;
@@ -131,38 +131,38 @@ CLSSIS3820ScalerView::CLSSIS3820ScalerView(CLSSIS3820Scaler *scaler, QWidget *pa
 	mainVL_ = new QVBoxLayout();
 	mainVL_->addLayout(topLayout);
 	mainVL_->addLayout(channelLayout_);
-    mainVL_->addWidget(darkCurrentWidget);
+	mainVL_->addWidget(darkCurrentWidget);
 
 	setLayout(mainVL_);
 
-    //CLSSIS3820ScalerChannelView *channelView = 0;
-    CLSSIS3820ScalerChannelView *channelView = 0;
+	//CLSSIS3820ScalerChannelView *channelView = 0;
+	CLSSIS3820ScalerChannelView *channelView = 0;
 	int channelCount = scaler_->channels().count();
-    
+
 	for (int i = 0; i < channelCount; i++){
-        CLSSIS3820ScalerChannel *channel = scaler_->channelAt(i);
+		CLSSIS3820ScalerChannel *channel = scaler_->channelAt(i);
 
-        if (!showDarkCurrentWidget && channel->detector() && channel->detector()->canDoDarkCurrentCorrection())
-            showDarkCurrentWidget = true;
+		if (!showDarkCurrentWidget && channel->detector() && channel->detector()->canDoDarkCurrentCorrection())
+			showDarkCurrentWidget = true;
 
-        if(channel->detector() && channel->detector()->canDoDarkCurrentCorrection())
-            channelView = new CLSSIS3820ScalerChannelViewWithDarkCurrent(channel);
-        else
-            channelView = new CLSSIS3820ScalerChannelView(scaler_->channelAt(i));
-//        channelView->setDarkCurrentViewMode(CLSSIS3820ScalerChannelViewWithDarkCurrent::Show);
+		if(channel->detector() && channel->detector()->canDoDarkCurrentCorrection())
+			channelView = new CLSSIS3820ScalerChannelViewWithDarkCurrent(channel);
+		else
+			channelView = new CLSSIS3820ScalerChannelView(scaler_->channelAt(i));
+		//        channelView->setDarkCurrentViewMode(CLSSIS3820ScalerChannelViewWithDarkCurrent::Show);
 
 		channelViews_ << channelView;
 		connect(channelView, SIGNAL(sr570ViewModeChanged(CLSSR570View::ViewMode)), this, SLOT(onSR570ViewChanged(CLSSR570View::ViewMode)));
 		connect(channelView, SIGNAL(outputViewModeChanged(CLSSIS3820ScalerChannelView::OutputViewMode)), this, SLOT(onOutputViewModeChanged(CLSSIS3820ScalerChannelView::OutputViewMode)));
 
-        channelLayout_->addWidget(channelView);
+		channelLayout_->addWidget(channelView);
 		channelView->setVisible(!scaler_->channelAt(i)->customChannelName().isEmpty());
 	}
 
 
-    // if one of the detectors associated with a channel can perform dark current correction, show the 'do dark current' widget.
-    if (showDarkCurrentWidget)
-        darkCurrentWidget->show();
+	// if one of the detectors associated with a channel can perform dark current correction, show the 'do dark current' widget.
+	if (showDarkCurrentWidget)
+		darkCurrentWidget->show();
 }
 
 void CLSSIS3820ScalerView::startScanning()

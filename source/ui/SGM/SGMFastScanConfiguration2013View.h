@@ -20,6 +20,7 @@ class AMTopFrame;
 #include "ui/util/SGM/SGMFastScanSettingsView.h"
 #include "beamline/AMDetectorSelector.h"
 #include "ui/beamline/AMDetectorSelectorView.h"
+#include "ui/AMRegExpLineEdit.h"
 
 class SGMFastScanConfiguration2013View : public AMScanConfigurationView
 {
@@ -76,7 +77,7 @@ protected:
 	QLabel *warningsLabel_;
 
 	QLabel *scanNameLabel_;
-	QLineEdit *scanNameEdit_;
+	AMRegExpLineEdit *scanNameEdit_;
 };
 
 #endif // SGMFASTSCANCONFIGURATION2013VIEW_H
