@@ -55,11 +55,6 @@ AMCurrentAmplifier* AMCurrentAmplifierView::currentAmplifier() const
     return amplifier_;
 }
 
-AMCurrentAmplifier::AmplifierMode AMCurrentAmplifierView::viewMode() const
-{
-    return viewMode_;
-}
-
 void AMCurrentAmplifierView::refreshView()
 {
     refreshDisplayValues();
@@ -87,20 +82,20 @@ void AMCurrentAmplifierView::onAmplifierValueChanged(int valueIndex)
 
 void AMCurrentAmplifierView::onMinusClicked()
 {
-    if (amplifier_ && viewMode_ == AMCurrentAmplifier::Gain) {
+    if (amplifier_->amplifierMode() == AMCurrentAmplifier::Gain) {
         amplifier_->decreaseGain();
 
-    } else if (amplifier_ && viewMode_ == AMCurrentAmplifier::Sensitivity) {
+    } else if (amplifier_->amplifierMode() == AMCurrentAmplifier::Sensitivity) {
         amplifier_->decreaseSensitivity();
     }
 }
 
 void AMCurrentAmplifierView::onPlusClicked()
 {
-    if (amplifier_ && viewMode_ == AMCurrentAmplifier::Gain) {
+    if (amplifier_->amplifierMode() == AMCurrentAmplifier::Gain) {
         amplifier_->increaseGain();
 
-    } else if (amplifier_ && viewMode_ == AMCurrentAmplifier::Sensitivity) {
+    } else if (amplifier_->amplifierMode() == AMCurrentAmplifier::Sensitivity) {
         amplifier_->increaseSensitivity();
 
     }
@@ -113,10 +108,10 @@ void AMCurrentAmplifierView::onCustomContextMenuRequested(QPoint position)
         QMenu menu(this);
 
         QAction *gain = menu.addAction("Gain view");
-        gain->setDisabled(viewMode_ == AMCurrentAmplifier::Gain);
+        gain->setDisabled(amplifier_->amplifierMode() == AMCurrentAmplifier::Gain);
 
         QAction *sensitivity = menu.addAction("Sensitivity view");
-        sensitivity->setDisabled(viewMode_ == AMCurrentAmplifier::Sensitivity);
+        sensitivity->setDisabled(amplifier_->amplifierMode() == AMCurrentAmplifier::Sensitivity);
 
         QAction *selected = menu.exec(mapToGlobal(position));
 
