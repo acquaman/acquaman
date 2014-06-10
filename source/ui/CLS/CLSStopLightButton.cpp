@@ -23,8 +23,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QRadialGradient>
 #include <QStyleOption>
 #include <QFontMetrics>
-#include <QDebug>
 
+ CLSStopLightButton::~CLSStopLightButton(){}
 CLSStopLightButton::CLSStopLightButton(CLSBiStateControl *control, QWidget *parent)
 	: QPushButton(parent)
 {

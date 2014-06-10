@@ -27,33 +27,43 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMenu>
 #include <QCursor>
 
+AMRegionsStaticView::AMRegionsStaticView(AMRegionsList *regions, QWidget *parent) :
+	QWidget(parent)
+{
+	regions_ = regions;
+	tableView_ = new QTableView(this);
+	tableView_->setModel(regions_->model());
+	for (int i = 0; i < regions_->model()->columnCount(QModelIndex()); i++)
+		if (!(i == 1 || i == 2 || i == 3 || i == 7))
+			tableView_->hideColumn(i);
+	tableView_->verticalHeader()->setVisible(false);
+	tableView_->resize(tableView_->sizeHint());
+
+	mainVL_ = new QVBoxLayout();
+	mainVL_->addWidget(tableView_, 10);
+	mainVL_->setContentsMargins(5, 0, 5, 0);
+	setLayout(mainVL_);
+}
+
+AMRegionsStaticView::~AMRegionsStaticView()
+{
+}
+
 /// Creates buttons for add and delete region.
 /// Defines a new model and views using table view.
 /// Adds all items to form layout.
 /// \todo Connect add and delete to something.
 AMRegionsView::AMRegionsView(AMRegionsList *regions, QWidget *parent) :
-		QWidget(parent)
+	AMRegionsStaticView(regions, parent)
 {
 	addButton_ = new QPushButton("Add Region", this);
 	deleteButton_ = new QPushButton("Delete Region", this);
-	QHBoxLayout *hl_ = new QHBoxLayout();
-	hl_->addWidget(addButton_);
-	hl_->addWidget(deleteButton_);
-	hl_->setContentsMargins(0, 5, 5, 0);
-	regions_ = regions;
-	tv_ = new QTableView(this);
-	tv_->setModel(regions_->model());
-	for (int i = 0; i < regions_->model()->columnCount(QModelIndex()); i++)
-		if (!(i == 1 || i == 2 || i == 3 || i == 7))
-			tv_->hideColumn(i);
-	tv_->verticalHeader()->setVisible(false);
-	tv_->resize(tv_->sizeHint());
+	addDeleteHL_ = new QHBoxLayout();
+	addDeleteHL_->addWidget(addButton_);
+	addDeleteHL_->addWidget(deleteButton_);
+	addDeleteHL_->setContentsMargins(0, 5, 5, 0);
+	mainVL_->addLayout(addDeleteHL_);
 
-	QVBoxLayout *vl = new QVBoxLayout();
-	vl->addWidget(tv_, 10);
-	vl->addLayout(hl_);
-	vl->setContentsMargins(5, 0, 5, 0);
-	setLayout(vl);
 	addRegionMenu_= 0;//NULL
 	deleteRegionMenu_ = 0;//NULL
 	connect(addButton_, SIGNAL(clicked()), this, SLOT(addRegion()));
@@ -123,16 +133,16 @@ void AMRegionsView::setRemoveIndex(){
 }
 
 void AMRegionsView::setDisabled(bool disabled){
-	tv_->setDisabled(disabled);
+	tableView_->setDisabled(disabled);
 	addButton_->setDisabled(disabled);
 	deleteButton_->setDisabled(disabled);
 }
 
 void AMRegionsView::resizeEvent(QResizeEvent *event){
 	Q_UNUSED(event)
-	int totalWidth = tv_->size().width();
-	tv_->setColumnWidth(1, totalWidth/3-1);
-	tv_->setColumnWidth(2, totalWidth/6-1);
-	tv_->setColumnWidth(3, totalWidth/3-1);
-	tv_->setColumnWidth(7, totalWidth/6-1);
+	int totalWidth = tableView_->size().width();
+	tableView_->setColumnWidth(1, totalWidth/3-1);
+	tableView_->setColumnWidth(2, totalWidth/6-1);
+	tableView_->setColumnWidth(3, totalWidth/3-1);
+	tableView_->setColumnWidth(7, totalWidth/6-1);
 }

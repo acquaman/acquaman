@@ -26,6 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMDateTimeUtils.h"
 #include <QStringBuilder>
 
+ AMChooseScanDialog::~AMChooseScanDialog(){}
 AMChooseScanDialog::AMChooseScanDialog(AMDatabase* db, const QString& title, const QString& prompt, bool multipleSelectionAllowed, QWidget *parent) :
 	QDialog(parent)
 {
@@ -158,4 +159,15 @@ QString AMChooseScanDialog::getScanDetails(QUrl url)
 
 	return results.at(0).toString() % " #" % results.at(1).toString() % ", taken " % AMDateTimeUtils::prettyDateTime(results.at(2).toDateTime());
 }
+
+void AMChooseScanDialog::setPrompt(const QString &prompt)
+{
+	ui_->promptLabel->setText(prompt);
+}
+
+void AMChooseScanDialog::setTitle(const QString &title)
+{
+	ui_->titleLabel->setText(title);
+}
+
 

@@ -30,6 +30,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QGLColormap>
 
+ AM3dDataSourceView::~AM3dDataSourceView(){}
 AM3dDataSourceView::AM3dDataSourceView(const AMScan* scan, int dataSourceIndex, QWidget *parent) :
 	QWidget(parent)
 {

@@ -20,14 +20,18 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "VESPERSMonochromator.h"
 #include "beamline/AMPVControl.h"
+#include "actions3/actions/AMControlMoveAction3.h"
+#include "beamline/VESPERS/VESPERSMonochomatorControl.h"
+
+VESPERSMonochromator::~VESPERSMonochromator(){}
 
 VESPERSMonochromator::VESPERSMonochromator(QObject *parent) :
 	QObject(parent)
 {
-	Eo_ = new AMPVwStatusControl("Energy Setpoint", "07B2_Mono_SineB_Egec:eV", "07B2_Mono_SineB_Eo", "SMTR1607-1-B20-20:status", QString(), this, 20);
-	energy_ = new AMPVwStatusControl("Acutal Energy", "07B2_Mono_SineB_Egec:eV", "07B2_Mono_SineB_Ea", "SMTR1607-1-B20-20:status", QString(), this, 20);
-	delE_ = new AMPVwStatusControl("Relative Energy", "07B2_Mono_SineB_deltaE:fbk", "07B2_Mono_SineB_delE", "SMTR1607-1-B20-20:status", QString(), this, 20);
-	K_ = new AMPVwStatusControl("K-space", "07B2_Mono_SineB_K:fbk", "07B2_Mono_SineB_K", "SMTR1607-1-B20-20:status", QString(), this, 0.01);
+	Eo_ = new VESPERSMonochomatorControl("Energy Setpoint", "07B2_Mono_SineB_Egec:eV", "07B2_Mono_SineB_Eo", "SMTR1607-1-B20-20:status", QString(), this);
+	energy_ = new VESPERSMonochomatorControl("Energy", "07B2_Mono_SineB_Egec:eV", "07B2_Mono_SineB_Ea", "SMTR1607-1-B20-20:status", QString(), this);
+	delE_ = new VESPERSMonochomatorControl("Relative Energy", "07B2_Mono_SineB_deltaE:fbk", "07B2_Mono_SineB_delE", "SMTR1607-1-B20-20:status", QString(), this);
+	K_ = new AMPVwStatusControl("K-space", "07B2_Mono_SineB_K:fbk", "07B2_Mono_SineB_K", "SMTR1607-1-B20-20:status", QString(), this);
 	offsetAngle_ = new AMSinglePVControl("Offset Angle", "07B2_Mono_SineB_ThOS", this, 0.01);
 	allowScan_ = new AMSinglePVControl("Scan Allow Control", "07B2_Mono_ScanSineB", this, 0.1);
 	encoder_ = new AMSinglePVControl("Energy Encoder Precision", "07B2_Mono_SineB_Use_eV", this,  0.1);
@@ -43,79 +47,93 @@ VESPERSMonochromator::VESPERSMonochromator(QObject *parent) :
 	connect(encoder_, SIGNAL(valueChanged(double)), this, SLOT(onEncoderChanged(double)));
 }
 
-AMBeamlineActionItem *VESPERSMonochromator::createEoAction(double energy)
+AMAction3 *VESPERSMonochromator::createEoAction(double energy)
 {
 	if (!Eo_->isConnected())
 		return 0;
 
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(Eo_);
-	action->setSetpoint(energy);
+	AMControlInfo setpoint = Eo_->toInfo();
+	setpoint.setValue(energy);
+	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
+	AMAction3 *action = new AMControlMoveAction3(actionInfo, Eo_);
 
 	return action;
 }
 
-AMBeamlineActionItem *VESPERSMonochromator::createEaAction(double energy)
+AMAction3 *VESPERSMonochromator::createEaAction(double energy)
 {
 	if (!energy_->isConnected())
 		return 0;
 
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(energy_);
-	action->setSetpoint(energy);
+	AMControlInfo setpoint = energy_->toInfo();
+	setpoint.setValue(energy);
+	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
+	AMAction3 *action = new AMControlMoveAction3(actionInfo, energy_);
 
 	return action;
 }
 
-AMBeamlineActionItem *VESPERSMonochromator::createDelEAction(double energy)
+AMAction3 *VESPERSMonochromator::createDelEAction(double energy)
 {
 	if (!delE_->isConnected())
 		return 0;
 
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(delE_);
-	action->setSetpoint(energy);
+	AMControlInfo setpoint = delE_->toInfo();
+	setpoint.setValue(energy);
+	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
+	AMAction3 *action = new AMControlMoveAction3(actionInfo, delE_);
 
 	return action;
 }
 
-AMBeamlineActionItem *VESPERSMonochromator::createKAction(double k)
+AMAction3 *VESPERSMonochromator::createKAction(double k)
 {
 	if (!K_->isConnected())
 		return 0;
 
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(K_);
-	action->setSetpoint(k);
+	AMControlInfo setpoint = K_->toInfo();
+	setpoint.setValue(k);
+	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
+	AMAction3 *action = new AMControlMoveAction3(actionInfo, K_);
 
 	return action;
 }
 
-AMBeamlineActionItem *VESPERSMonochromator::createOffsetAngleAction(double angle)
+AMAction3 *VESPERSMonochromator::createOffsetAngleAction(double angle)
 {
 	if (!offsetAngle_->isConnected())
 		return 0;
 
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(offsetAngle_);
-	action->setSetpoint(angle);
+	AMControlInfo setpoint = offsetAngle_->toInfo();
+	setpoint.setValue(angle);
+	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
+	AMAction3 *action = new AMControlMoveAction3(actionInfo, offsetAngle_);
 
 	return action;
 }
 
-AMBeamlineActionItem *VESPERSMonochromator::createAllowScanningAction(bool allow)
+AMAction3 *VESPERSMonochromator::createAllowScanningAction(bool allow)
 {
 	if (!allowScan_->isConnected())
 		return 0;
 
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(allowScan_);
-	action->setSetpoint((allow == true) ? 1.0 : 0.0);
+	AMControlInfo setpoint = allowScan_->toInfo();
+	setpoint.setValue(allow ? 1.0 : 0.0);
+	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
+	AMAction3 *action = new AMControlMoveAction3(actionInfo, allowScan_);
 
 	return action;
 }
 
-AMBeamlineActionItem *VESPERSMonochromator::createUsingeVAction(bool useeV)
+AMAction3 *VESPERSMonochromator::createUsingeVAction(bool useeV)
 {
 	if (!encoder_->isConnected())
 		return 0;
 
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(encoder_);
-	action->setSetpoint((useeV == true) ? 1.0 : 0.0);
+	AMControlInfo setpoint = encoder_->toInfo();
+	setpoint.setValue(useeV ? 1.0 : 0.0);
+	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
+	AMAction3 *action = new AMControlMoveAction3(actionInfo, encoder_);
 
 	return action;
 }

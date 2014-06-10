@@ -46,11 +46,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QAction>
 #include <QStringBuilder>
 #include <QHeaderView>
-#include <QDebug>
 
 // AMActionHistoryView
 ////////////////////////////
 
+ AMActionHistoryView3::~AMActionHistoryView3(){}
 AMActionHistoryView3::AMActionHistoryView3(AMActionRunner3 *actionRunner, AMDatabase *db, QWidget *parent) : QWidget(parent)
 {
 	actionRunner_ = actionRunner;
@@ -60,11 +60,11 @@ AMActionHistoryView3::AMActionHistoryView3(AMActionRunner3 *actionRunner, AMData
 	countBeforeShowMoreActions_ = 0;
 
 	model_ = new AMActionHistoryModel3(db_, this);
-	model_->setMaximumActionsToDisplay(60);
+	model_->setMaximumActionsToDisplay(200);
 	//QDateTime fourHoursAgo = QDateTime::currentDateTime().addSecs(-4*60*60);
 	//model_->setVisibleDateTimeRange(fourHoursAgo);
-	QDateTime everAgo = QDateTime();
-	model_->setVisibleDateTimeRange(everAgo);
+//	QDateTime everAgo = QDateTime();
+//	model_->setVisibleDateTimeRange(everAgo);
 
 	// Setup UI
 	//////////////////////
@@ -109,6 +109,7 @@ AMActionHistoryView3::AMActionHistoryView3(AMActionRunner3 *actionRunner, AMData
 	QLabel* showLabel = new QLabel("Show: ");
 	showLabel->setStyleSheet("color: rgb(204, 204, 204);\nfont: " AM_FONT_REGULAR_ "pt \"Lucida Grande\"");
 	hl->addWidget(showLabel);
+	showLabel->hide();
 	rangeComboBox_ = new QComboBox();
 	rangeComboBox_->addItem("Last Hour");
 	rangeComboBox_->addItem("Last 4 Hours");
@@ -118,6 +119,7 @@ AMActionHistoryView3::AMActionHistoryView3(AMActionRunner3 *actionRunner, AMData
 	//rangeComboBox_->setCurrentIndex(1);
 	rangeComboBox_->setCurrentIndex(4);
 	hl->addWidget(rangeComboBox_);
+	rangeComboBox_->hide();
 
 	//treeView_ = new QTreeView();
 	treeView_ = new AMActionHistoryTreeView3();
@@ -161,7 +163,7 @@ AMActionHistoryView3::AMActionHistoryView3(AMActionRunner3 *actionRunner, AMData
 	connect(model_, SIGNAL(modelAboutToBeRefreshed()), this, SLOT(onModelAboutToBeRefreshed()));
 	connect(model_, SIGNAL(modelRefreshed()), this, SLOT(onModelRefreshed()));
 
-	connect(rangeComboBox_, SIGNAL(activated(int)), this, SLOT(onRangeComboBoxActivated(int)));
+	//connect(rangeComboBox_, SIGNAL(activated(int)), this, SLOT(onRangeComboBoxActivated(int)));
 	connect(showMoreActionsButton_, SIGNAL(clicked()), this, SLOT(onShowMoreActionsButtonClicked()));
 
 	connect(reRunActionButton_, SIGNAL(clicked()), this, SLOT(onReRunActionButtonClicked()));
@@ -193,9 +195,11 @@ void AMActionHistoryView3::onShowMoreActionsButtonClicked()
 	// Latch these states for when the deferred call in setMaximumActionsToDisplay finishes
 	showingMoreActions_ = true;
 	countBeforeShowMoreActions_ = model_->childrenCount();
-	model_->setMaximumActionsToDisplay(model_->maximumActionsToDisplay()*1.5 + 1);
+	//model_->setMaximumActionsToDisplay(model_->maximumActionsToDisplay()*1.5 + 1);
+	model_->setMaximumActionsToDisplay(model_->nextGoodMaximumActions());
 }
 
+/*
 void AMActionHistoryView3::onRangeComboBoxActivated(int rangeIndex)
 {
 	QDateTime oldest = QDateTime::currentDateTime();
@@ -225,6 +229,7 @@ void AMActionHistoryView3::onRangeComboBoxActivated(int rangeIndex)
 
 	model_->setVisibleDateTimeRange(oldest);
 }
+ */
 
 
 
@@ -236,11 +241,23 @@ void AMActionHistoryView3::onReRunActionButtonClicked()
 
 	// go through all selected rows.
 	bool success = true;
-	foreach(QModelIndex i, treeView_->selectionModel()->selectedIndexes())
-		success &= recurseDbLoadIndex(i, 0);
+	foreach(QModelIndex i, treeView_->selectionModel()->selectedIndexes()){
+
+		bool doLoad = true;
+		if(model_->logItem(i)->finalState() != 8){
+			int ret = QMessageBox::warning(this, tr("Acquaman - Workflow"),
+							   tr("The action you are copying did not succeed when it ran.\nYou are permitted to copy it, but you may not wish to do so."
+							  "\nProceed to copy?"),
+							   "Copy", "Cancel", QString(), 0);
+			if(ret == 1)
+				doLoad = false;
+		}
+		if(doLoad)
+			success &= recurseDbLoadIndex(i, 0);
+	}
 
 	if(!success)
-		AMErrorMon::debug(this, AMACTIONHISTORYVIEW_COULD_RERUN_ACTIONS, "Could not re-run action(s) because running one or more failed to load. Please report this to the Acquaman developers.");
+		AMErrorMon::alert(this, AMACTIONHISTORYVIEW_COULD_RERUN_ACTIONS, "Could not re-run action(s) because running one or more failed to load. Please report this to the Acquaman developers.");
 }
 
 void AMActionHistoryView3::onSelectionChanged()
@@ -304,7 +321,7 @@ void AMActionHistoryView3::onModelAboutToBeRefreshed()
 {
 	// we're scrolled to the bottom if the vertical scroll bar value is at maximum. Remember that so we can go back to the bottom after the refresh.
 	scrolledToBottom_ = (treeView_->verticalScrollBar()->value() == treeView_->verticalScrollBar()->maximum());
-	// qDebug() << "Scrolled to bottom:" << scrolledToBottom_;
+	// qdebug() << "Scrolled to bottom:" << scrolledToBottom_;
 }
 
 void AMActionHistoryView3::onModelRefreshed()
@@ -316,7 +333,7 @@ void AMActionHistoryView3::onModelRefreshed()
 		// also doesn't work... Sometimes only goes most of the way there.
 		treeView_->scrollToBottom();
 		// looks like if the tree view is not visible at this time, this won't take effect. Adding another check in our showEvent() to scroll the treeView_ to the bottom if should be scrolledToBottom_
-		// qDebug() << "ScrollING to bottom";
+		// qdebug() << "ScrollING to bottom";
 	}
 
 	// update subtitle text with how many, of how many total.
@@ -404,6 +421,11 @@ bool AMActionHistoryView3::recurseDbLoadIndex(const QModelIndex &index, AMListAc
 	// make a copy of the AMActionInfo.
 	AMActionInfo3* info = actionLog.info()->createCopy();
 
+	if(!info->dbLoadWarnings().isEmpty()){
+		QMessageBox::warning(this, "Warning from Action Reload", "Warning, the action is claiming that:\n\n " % info->dbLoadWarnings() % "\n\nYou may not wish to proceed." );
+		AMErrorMon::debug(this, AMACTIONHISTORYVIEW_DBLOADWARNING_IN_INFO, "There was a database load warning in the info: " % info->dbLoadWarnings());
+	}
+
 	// make an action (assuming the actionInfo is registered with a corresponding action)
 	AMAction3* action = AMActionRegistry3::s()->createActionFromInfo(info);
 	if(!action) {
@@ -420,13 +442,14 @@ bool AMActionHistoryView3::recurseDbLoadIndex(const QModelIndex &index, AMListAc
 		int effectiveNumberOfChildren = model_->rowCount(index);
 		if(loopAction)
 			effectiveNumberOfChildren = effectiveNumberOfChildren/loopAction->loopCount();
+
 		for(int x = 0; x < effectiveNumberOfChildren; x++)
 			childrenSuccess &= recurseDbLoadIndex(index.child(x, 0), listAction);
 	}
 	if(!childrenSuccess){
 		if(!parentAction)
 			delete action;
-		AMErrorMon::debug(this, AMACTIONHISTORYVIEW_COULD_NOT_LOAD_CHILD, "Could not re-run this action because running one or more children failed to load. Please report this to the Acquaman developers.");
+		AMErrorMon::alert(this, AMACTIONHISTORYVIEW_COULD_NOT_LOAD_CHILD, "Could not re-run this action because running one or more children failed to load. Please report this to the Acquaman developers.");
 		return false;
 	}
 

@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QStringBuilder>
 #include "util/AMTagReplacementParser.h"
 
+ AMScanParametersDictionary::~AMScanParametersDictionary(){}
 AMScanParametersDictionary::AMScanParametersDictionary(AMScanParametersDictionary::OperatingParameter operatingOn, QObject *parent) :
 	QObject(parent)
 {
@@ -206,6 +207,7 @@ QString AMScanParametersDictionary::krExportName(const QString &arg){
 
 /***************************************************/
 
+ AMOldScanParametersDictionary::~AMOldScanParametersDictionary(){}
 AMOldScanParametersDictionary::AMOldScanParametersDictionary(QObject *parent) :
 	QObject(parent)
 {
@@ -224,7 +226,6 @@ bool AMOldScanParametersDictionary::operatingOnExportName() const{
 	return operatingOnExportName_;
 }
 
-#include <QDebug>
 void AMOldScanParametersDictionary::reoperate(){
 	if(canOperate())
 		parseKeywordStringAndOperate(lastInputString_);

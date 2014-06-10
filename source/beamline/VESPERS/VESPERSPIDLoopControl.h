@@ -24,7 +24,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QObject>
 
 #include "beamline/AMPVControl.h"
-#include "actions/AMBeamlineActionItem.h"
+#include "actions3/AMAction3.h"
+#include "util/AMErrorMonitor.h"
 
 /*!
 	This class monitors the PID feedback loops for the sample stage or wire stage.  The motor behaves erratically when the loops are off, and thus there should be a mechanism to turn them back on.
@@ -34,7 +35,8 @@ class VESPERSPIDLoopControl : public QObject
 	Q_OBJECT
 public:
 	/// Constructor.  Takes in the three PID loops for each motor as well as a description.
-        explicit VESPERSPIDLoopControl(QString name, AMControl *pidX, AMControl *pidY, AMControl *pidZ, QObject *parent = 0);
+ 	virtual ~VESPERSPIDLoopControl();
+		explicit VESPERSPIDLoopControl(QString name, AMControl *pidX, AMControl *pidY, AMControl *pidZ, QObject *parent = 0);
 
 	/// Returns the name of the PID control.
 	QString name() const { return name_; }
@@ -50,13 +52,13 @@ public:
 
 	// Actions to turn them on and off.
 	/// Returns a newly created action that turns the PID X loop control on or off depending on \param turnOn.  Returns 0 if not connected.
-	AMBeamlineActionItem *createPIDXChangeStateAction(bool turnOn);
+	AMAction3 *createPIDXChangeStateAction(bool turnOn);
 	/// Returns a newly created action that turns the PID Y loop control on or off depending on \param turnOn.  Returns 0 if not connected.
-	AMBeamlineActionItem *createPIDYChangeStateAction(bool turnOn);
+	AMAction3 *createPIDYChangeStateAction(bool turnOn);
 	/// Returns a newly created action that turns the PID Z loop control on or off depending on \param turnOn.  Returns 0 if not connected.
-	AMBeamlineActionItem *createPIDZChangeStateAction(bool turnOn);
+	AMAction3 *createPIDZChangeStateAction(bool turnOn);
 	/// Returns a newly created action that turns all the PID loop controls on or off depending on \param turnOn.  Returns 0 if not all of the PID loop controls are connected.
-	AMBeamlineActionItem *createPIDChangeStateAction(bool turnOn);
+	AMAction3 *createPIDChangeStateAction(bool turnOn);
 
 signals:
 	/// Notifies if the overall state of the three PID loops changes.

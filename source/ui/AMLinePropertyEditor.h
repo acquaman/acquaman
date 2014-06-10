@@ -37,7 +37,7 @@ public:
 	/// Construct an editor with its widgets initialized according to these settings
 	AMLinePropertyEditor(const QPen& initialPenSettings, bool areaFilled = false, const QBrush& areaFillColor = Qt::darkGray, QWidget* parent = 0);
 	/// Destructor
-	~AMLinePropertyEditor();
+	virtual ~AMLinePropertyEditor();
 
 signals:
 	void linePenChanged(const QPen& newPenSettings);

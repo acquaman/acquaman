@@ -45,6 +45,7 @@ class AMRawDataSource : public AMDbObject, public AMDataSource
 
 public:
 	/// Construct a raw data source which exposes measurement number \c measurementId of the specified \c dataStore. Both \c dataStore and \c measurementId must be valid.
+ 	virtual ~AMRawDataSource();
 	AMRawDataSource(const AMDataStore* dataStore, int measurementId, QObject* parent = 0);
 	/// This constructor re-loads a previously-stored source from the database.
 	Q_INVOKABLE AMRawDataSource(AMDatabase* db, int id);
@@ -55,8 +56,13 @@ public:
 	/// Sets the description because currently we call AMDataSource::setDescription which doesn't take care of setting setModified.  This adds that.
 	void setDescription(const QString &description) { AMDataSource::setDescription(description); setModified(true); }
 
-	/// Provided to reconnect this source to a valid \c dataStore, after using the second constructor. The current measurementId() must be a valid id within the new \c dataStore, and the scan and measurement dimensions of the new datastore must match our old ones. (This is a requirement of AMDataSources never changing rank.). Returns false if the new \c dataStore cannot work, and this source is going to remain Invalid.
+	/// Provided to reconnect this source to a valid \c dataStore, either after using the second constructor, or when replacing an AMScan's underlying data store. The current measurementId() must be a valid id within the new \c dataStore, and the scan and measurement dimensions of the new datastore must match our old ones. (This is a requirement of AMDataSources never changing rank.).
+	/*! Returns false if the new \c dataStore cannot work.  (If this happens after using the second constructor, the source will remain in the Invalid state.) */
 	bool setDataStore(const AMDataStore* dataStore);
+
+	/// Returns true if a replacement \c dataStore would be valid for this data source.  The current measurementId() must be a valid id within the new \c dataStore, and the scan and measurement dimensions of the new datastore must match our old ones. (This is a requirement of AMDataSources never changing rank.).
+	/*! Called by setDataStore() to check these conditions before accepting the new \c dataStore. */
+	bool isDataStoreCompatible(const AMDataStore* dataStore) const;
 
 
 	/// Returns an OR-combination of StateFlags describing the current state of the data. Implementing classes should return InvalidFlag when they don't have valid data, and/or ProcessingFlag if their data might be changing. No flags indicate the data is valid and generally static.
@@ -73,7 +79,7 @@ public:
 	/// Returns the size of (ie: count along) each dimension
 	virtual AMnDIndex size() const {
 		int rank = axes_.count();
-		AMnDIndex s(rank, false);
+		AMnDIndex s(rank, AMnDIndex::DoNotInit);
 		for(int i=0; i<rank; i++)
 			s[i] = axes_.at(i).size;
 		return s;
@@ -95,36 +101,36 @@ public:
 	////////////////////////////
 
 	/// Returns the dependent value at a (complete) set of axis indexes. Returns an invalid AMNumber if the indexes are insuffient/wrong dimensionality, or if the data is not ready.
-	virtual AMNumber value(const AMnDIndex& indexes, bool doBoundsChecking = true) const {
+	virtual AMNumber value(const AMnDIndex& indexes) const {
 
 		if(!isValid())
 			return AMNumber(AMNumber::InvalidError);
-		if(doBoundsChecking && indexes.rank() != rank())
+		if(indexes.rank() != rank())
 			return AMNumber(AMNumber::DimensionError);
 
 
 		/// optimize for common dimensional cases, to avoid the for-loop overhead
 		switch(scanAxesCount_) {
 		case 0:	// scalar scan space. indexes are all in measurement space.
-			return dataStore_->value(AMnDIndex(), measurementId_, indexes, doBoundsChecking);
+			return dataStore_->value(AMnDIndex(), measurementId_, indexes);
 			break;
 		case 1:
 			switch(measurementAxesCount_) {
 			case 0:
-				return dataStore_->value(indexes.i(), measurementId_, AMnDIndex(), doBoundsChecking);	// 1d data: one scan axis, scalar measurements
+				return dataStore_->value(indexes.i(), measurementId_, AMnDIndex());	// 1d data: one scan axis, scalar measurements
 			case 1:
-				return dataStore_->value(indexes.i(), measurementId_, indexes.j(), doBoundsChecking); // 2d data: one scan axis, one measurement axis (ie: XAS scan with 1D detector, like SDD)
+				return dataStore_->value(indexes.i(), measurementId_, indexes.j()); // 2d data: one scan axis, one measurement axis (ie: XAS scan with 1D detector, like SDD)
 			case 2:
-				return dataStore_->value(indexes.i(), measurementId_, AMnDIndex(indexes.j(), indexes.k()), doBoundsChecking);	// 3d data: one scan axis, two measurement axes (ie: XAS scan with 2D detector, like XES)
+				return dataStore_->value(indexes.i(), measurementId_, AMnDIndex(indexes.j(), indexes.k()));	// 3d data: one scan axis, two measurement axes (ie: XAS scan with 2D detector, like XES)
 			}
 		case 2:
 			switch(measurementAxesCount_) {
 			case 0:
-				return dataStore_->value(AMnDIndex(indexes.i(), indexes.j()), measurementId_, AMnDIndex(), doBoundsChecking);
+				return dataStore_->value(AMnDIndex(indexes.i(), indexes.j()), measurementId_, AMnDIndex());
 			case 1:
-				return dataStore_->value(AMnDIndex(indexes.i(), indexes.j()), measurementId_, indexes.k(), doBoundsChecking);
+				return dataStore_->value(AMnDIndex(indexes.i(), indexes.j()), measurementId_, indexes.k());
 			case 2:
-				return dataStore_->value(AMnDIndex(indexes.i(), indexes.j()), measurementId_, AMnDIndex(indexes.k(), indexes.l()), doBoundsChecking);	// 4D data: really?
+				return dataStore_->value(AMnDIndex(indexes.i(), indexes.j()), measurementId_, AMnDIndex(indexes.k(), indexes.l()));	// 4D data: really?
 			}
 
 		default:
@@ -132,23 +138,90 @@ public:
 		}
 
 		// general case:
-		AMnDIndex scanIndex(scanAxesCount_, false);
+		AMnDIndex scanIndex(scanAxesCount_, AMnDIndex::DoNotInit);
 		for(int i=0; i<scanAxesCount_; i++)
 			scanIndex[i] = indexes.at(i);
 
-		AMnDIndex measurementIndex(measurementAxesCount_, false);
+		AMnDIndex measurementIndex(measurementAxesCount_, AMnDIndex::DoNotInit);
 		for(int i=0; i<measurementAxesCount_; i++)
 			measurementIndex[i] = indexes.at(i+scanAxesCount_);
 
-		return dataStore_->value(scanIndex, measurementId_, measurementIndex, doBoundsChecking);
+		return dataStore_->value(scanIndex, measurementId_, measurementIndex);
+	}
+
+
+	/// Performance optimization of value(): instead of a single value, copies a block of values from \c indexStart to \c indexEnd (inclusive), into \c outputValues.  The values are returned in row-major order (ie: with the first index varying the slowest). Returns false if the indexes have the wrong dimension, or (if AM_ENABLE_BOUNDS_CHECKING is defined, the indexes are out-of-range).
+	/*! 	It is the caller's responsibility to make sure that \c outputValues has sufficient size.  You can calculate this conviniently using:
+
+\code
+int outputSize = indexStart.totalPointsTo(indexEnd);
+\endcode
+*/
+	virtual bool values(const AMnDIndex& indexStart, const AMnDIndex& indexEnd, double* outputValues) const {
+		if(!isValid())
+			return false;
+		if(indexStart.rank() != rank() || indexEnd.rank() != rank())
+			return false;
+
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+		for(int mu=rank()-1; mu>=0; --mu) {
+			if(indexEnd.at(mu) >= size(mu))
+				return false;
+			if(indexEnd.at(mu) < indexStart.at(mu))
+				return false;
+		}
+#endif
+
+		// optimize for common dimensional cases
+		switch(scanAxesCount_) {
+		case 0:	// scalar scan space. indexes are all in measurement space.
+			return dataStore_->values(AMnDIndex(), AMnDIndex(), measurementId_, indexStart, indexEnd, outputValues);
+		case 1:
+			switch(measurementAxesCount_) {
+			case 0:  // 1d data: one scan axis, scalar measurements
+				return dataStore_->values(indexStart, indexEnd, measurementId_, AMnDIndex(), AMnDIndex(), outputValues);
+			case 1: // 2d data: one scan axis, one measurement axis (ie: XAS scan with 1D detector, like SDD)
+				return dataStore_->values(indexStart.i(), indexEnd.i(), measurementId_, indexStart.j(), indexEnd.j(), outputValues);
+			case 2: // 3d data: one scan axis, two measurement axes (ie: XAS scan with 2D detector, like XES)
+				return dataStore_->values(indexStart.i(), indexEnd.i(), measurementId_, AMnDIndex(indexStart.j(), indexStart.k()), AMnDIndex(indexEnd.j(), indexEnd.k()), outputValues);
+			}
+		case 2:
+			switch(measurementAxesCount_) {
+			case 0:
+				return dataStore_->values(AMnDIndex(indexStart.i(), indexStart.j()), AMnDIndex(indexEnd.i(), indexEnd.j()), measurementId_, AMnDIndex(), AMnDIndex(), outputValues);
+			case 1:
+				return dataStore_->values(AMnDIndex(indexStart.i(), indexStart.j()), AMnDIndex(indexEnd.i(), indexEnd.j()), measurementId_, indexStart.k(), indexEnd.k(), outputValues);
+			case 2: // 4D data: really?
+				return dataStore_->values(AMnDIndex(indexStart.i(), indexStart.j()), AMnDIndex(indexEnd.i(), indexEnd.j()), measurementId_, AMnDIndex(indexStart.k(), indexStart.l()), AMnDIndex(indexEnd.k(), indexEnd.l()), outputValues);
+			}
+
+		default: {
+			// general case:
+			AMnDIndex scanIndexStart(scanAxesCount_, AMnDIndex::DoNotInit);
+			AMnDIndex scanIndexEnd(scanAxesCount_, AMnDIndex::DoNotInit);
+			for(int mu=0; mu<scanAxesCount_; ++mu) {
+				scanIndexStart[mu] = indexStart.at(mu);
+				scanIndexEnd[mu] = indexEnd.at(mu);
+			}
+
+			AMnDIndex measurementIndexStart(measurementAxesCount_, AMnDIndex::DoNotInit);
+			AMnDIndex measurementIndexEnd(measurementAxesCount_, AMnDIndex::DoNotInit);
+			for(int mu=0; mu<measurementAxesCount_; ++mu) {
+				measurementIndexStart[mu] = indexStart.at(mu+scanAxesCount_);
+				measurementIndexEnd[mu] = indexEnd.at(mu+scanAxesCount_);
+			}
+
+			return dataStore_->values(scanIndexStart, scanIndexEnd, measurementId_, measurementIndexStart, measurementIndexEnd, outputValues);
+		}
+		}
 	}
 
 	/// When the independent values along an axis is not simply the axis index, this returns the independent value along an axis (specified by axis number and index)
-	virtual AMNumber axisValue(int axisNumber, int index, bool doBoundsChecking = true) const {
+	virtual AMNumber axisValue(int axisNumber, int index) const {
 		if(!isValid())
 			return AMNumber(AMNumber::InvalidError);
 		if(axisNumber < scanAxesCount_)
-			return dataStore_->axisValue(axisNumber, index, doBoundsChecking);	// value along a scan axis
+			return dataStore_->axisValue(axisNumber, index);	// value along a scan axis
 		else if (axisNumber < rank() ){
 
 			const AMAxisInfo& axis = axes_.at(axisNumber);
@@ -187,19 +260,22 @@ public:
 
 		// minimum of one axis, always.
 		//if(axes_.count() == 0)
-			//axes_ << AMAxisInfo("invalid", 0);
+		//axes_ << AMAxisInfo("invalid", 0);
 	}
 
 
 
 	/// Specify that this data source should be visible (in plots and graphical displays).  Users are free to toggle this visibility.
 	/*! Re-implemented from AMDataSource to call setModified().  */
-	virtual void setVisibleInPlots(bool isVisible) { AMDataSource::setVisibleInPlots(isVisible); setModified(true); }
+	virtual void setVisibleInPlots(bool isVisible) { if(isVisible == visibleInPlots()) return; AMDataSource::setVisibleInPlots(isVisible); setModified(true); }
 
 	/// Specify that this data source should be hidden from users by default. (ie: it contains some programming internals). This means that users shouldn't see it, or be able to toggle its visibility.
 	/*! Re-implemented from AMDataSource to call setModified().  */
 	virtual void setHiddenFromUsers(bool isHidden = true) { AMDataSource::setHiddenFromUsers(isHidden); setModified(true); }
 
+
+	/// Creates an editor widget that reports the dimensions and size of the data source... And for 0D data sources, includes the value.
+	virtual QWidget* createEditorWidget();
 
 protected slots:
 
@@ -207,8 +283,8 @@ protected slots:
 	//////////////////////
 	/// Called when the data changes within the region described. We only care when \c measurementId matches our measurementId_
 	void onDataChanged(const AMnDIndex& scanIndexStart, const AMnDIndex scanIndexEnd, int measurementId);
-	/// Called when the size of a scan axis changes.  \c axisId is the id of the changing axis, or -1 if they all did.
-	void onScanAxisSizeChanged(int axisId);
+	/// Called when the size of a scan axis changes. (Data stores can only change the size of their FIRST scan axis.)
+	void onScanAxisSizeChanged();
 
 protected:
 	/// Call to add the InvalidFlag to the state, and emit stateChanged() if required.

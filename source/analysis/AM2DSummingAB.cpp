@@ -21,6 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AM2DSummingAB.h"
 
 /// Constructor. \c outputName is the name() for the output data source.
+ AM2DSummingAB::~AM2DSummingAB(){}
 AM2DSummingAB::AM2DSummingAB(const QString& outputName, QObject* parent)
 	: AMStandardAnalysisBlock(outputName, parent) {
 
@@ -56,6 +57,7 @@ AM2DSummingAB::AM2DSummingAB(AMDatabase* db, int id)
 
 	loadFromDb(db, id);
 		// will restore sumAxis, sumRangeMin, and sumRangeMax. We'll remain invalid until we get connected.
+
 	AMDataSource::name_ = AMDbObject::name();	// normally it's not okay to change a dataSource's name. Here we get away with it because we're within the constructor, and nothing's watching us yet.
 }
 
@@ -116,9 +118,10 @@ void AM2DSummingAB::setInputDataSourcesImplementation(const QList<AMDataSource*>
 		int otherAxis = (sumAxis_ == 0) ? 1 : 0;
 		axes_[0] = inputSource_->axisInfoAt(otherAxis);
 
-		setDescription(QString("%1 Summed (over %2)")
-					   .arg(inputSource_->name())
-					   .arg(inputSource_->axisInfoAt(sumAxis_).name));
+		// Have to call into AMDataStore directly to avoid setModified(true)
+		AMDataSource::setDescription(QString("%1 Summed (over %2)")
+						 .arg(inputSource_->name())
+						 .arg(inputSource_->axisInfoAt(sumAxis_).name));
 
 		connect(inputSource_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
 		connect(inputSource_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
@@ -143,10 +146,20 @@ void AM2DSummingAB::setInputDataSourcesImplementation(const QList<AMDataSource*>
 
 void AM2DSummingAB::setAnalyzedName(const QString &name)
 {
+	if(analyzedName_ == name)
+		return;
 	analyzedName_ = name;
 	setModified(true);
 	canAnalyze_ = canAnalyze(name);
 	setInputSource();
+
+	invalidateCache();
+	reviewState();
+
+	emitSizeChanged(0);
+	emitValuesChanged();
+	emitAxisInfoChanged(0);
+	emitInfoChanged();
 }
 
 void AM2DSummingAB::setInputSource()
@@ -184,13 +197,6 @@ void AM2DSummingAB::setInputSource()
 		axes_[0] = AMAxisInfo("invalid", 0, "No input data");
 		setDescription("Sum");
 	}
-
-	reviewState();
-
-	emitSizeChanged(0);
-	emitValuesChanged();
-	emitAxisInfoChanged(0);
-	emitInfoChanged();
 }
 
 bool AM2DSummingAB::canAnalyze(const QString &name) const
@@ -203,6 +209,121 @@ bool AM2DSummingAB::canAnalyze(const QString &name) const
 		return true;
 
 	return false;
+}
+
+AMNumber AM2DSummingAB::value(const AMnDIndex& indexes) const {
+	if(indexes.rank() != 1)
+		return AMNumber(AMNumber::DimensionError);
+
+	if(!isValid())
+		return AMNumber(AMNumber::InvalidError);
+
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+	if((unsigned)indexes.i() >= (unsigned)axes_.at(0).size)
+		return AMNumber(AMNumber::OutOfBoundsError);
+#endif
+
+	AMNumber rv = cachedValues_.at(indexes.i());
+	// if we haven't calculated this sum yet, the cached value will be invalid. Sum and store.
+        if(!rv.isValid() && sumRangeMin_ <= sumRangeMax_) {
+		double newVal = 0.0;	/// \todo preserve int/double nature of values
+		if(sumAxis_ == 0)
+			for(int i=sumRangeMin_; i<=sumRangeMax_; i++)
+				newVal += (double)inputSource_->value(AMnDIndex(i, indexes.i()));
+		else
+			for(int i=sumRangeMin_; i<=sumRangeMax_; i++)
+				newVal += (double)inputSource_->value(AMnDIndex(indexes.i(), i));
+
+		cachedValues_[indexes.i()] = newVal;
+		cacheCompletelyInvalid_ = false;
+		return newVal;
+	}
+	// otherwise return the value we have.
+	else
+		return rv;
+}
+
+bool AM2DSummingAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
+{
+	if(indexStart.rank() != 1 || indexEnd.rank() != 1)
+		return false;
+
+	if(!isValid())
+		return false;
+
+	if (!canAnalyze())
+		return false;
+
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+	if((unsigned)indexEnd.i() >= (unsigned)axes_.at(0).size || (unsigned)indexStart.i() > (unsigned)indexEnd.i())
+		return false;
+#endif
+
+        if (sumRangeMin_ > sumRangeMax_)
+            return false;
+
+	int totalSize = indexStart.totalPointsTo(indexEnd);
+	int offset = indexStart.i();
+
+	if (sumAxis_ == 0){
+
+		double sum = 0;
+		AMnDIndex start = AMnDIndex(sumRangeMin_, indexStart.i());
+		AMnDIndex end = AMnDIndex(sumRangeMax_, indexEnd.i());
+		int axisLength = sumRangeMax_-sumRangeMin_+1;
+		QVector<double> data = QVector<double>(start.totalPointsTo(end));
+		inputSource_->values(start, end, data.data());
+
+		for (int i = 0; i < totalSize; i++){
+
+			sum = 0;
+
+			for (int j = 0; j < axisLength; j++)
+				sum += data[i+totalSize*j];
+
+			outputValues[i] = sum;
+		}
+	}
+
+	else {
+
+		double sum = 0;
+		AMnDIndex start = AMnDIndex(indexStart.i(), sumRangeMin_);
+		AMnDIndex end = AMnDIndex(indexEnd.i(), sumRangeMax_);
+		int axisLength = sumRangeMax_-sumRangeMin_+1;
+		QVector<double> data = QVector<double>(start.totalPointsTo(end));
+		inputSource_->values(start, end, data.data());
+
+		for (int i = 0; i < totalSize; i++){
+
+			sum = 0;
+
+			for (int j = 0; j < axisLength; j++)
+				sum += data[i*axisLength+j];
+
+			outputValues[i] = sum;
+		}
+	}
+
+	for (int i = 0; i < totalSize; i++)
+		cachedValues_[i+offset] = AMNumber(outputValues[i]);
+
+	cacheCompletelyInvalid_ = false;
+
+	return true;
+}
+
+AMNumber AM2DSummingAB::axisValue(int axisNumber, int index) const {
+
+	if(!isValid())
+		return AMNumber(AMNumber::InvalidError);
+
+	if(axisNumber != 0)
+		return AMNumber(AMNumber::DimensionError);
+
+	int otherAxis = (sumAxis_ == 0) ? 1 : 0;
+
+	return inputSource_->axisValue(otherAxis, index);
 }
 
 // Connected to be called when the values of the input data source change
@@ -238,10 +359,9 @@ void AM2DSummingAB::onInputSourceSizeChanged() {
 /// Connected to be called when the state() flags of any input source change
 void AM2DSummingAB::onInputSourceStateChanged() {
 
-	reviewState();
-
 	// just in case the size has changed while the input source was invalid, and now it's going valid.  Do we need this? probably not, if the input source is well behaved. But it's pretty inexpensive to do it twice... and we know we'll get the size right everytime it goes valid.
 	onInputSourceSizeChanged();
+	reviewState();
 }
 
 #include "analysis/AM2DSummingABEditor.h"

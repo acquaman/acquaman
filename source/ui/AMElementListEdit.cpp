@@ -20,6 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMElementListEdit.h"
 
+ AMElementsModel::~AMElementsModel(){}
 AMElementsModel::AMElementsModel(QObject *parent)
 	: QStandardItemModel(parent) {
 
@@ -111,32 +112,12 @@ AMElementValidator::AMElementValidator(AMElementsModel* model, QObject* parent)
 	model_ = model;
 	convertToSymbol_ = true;
 }
-#include <QDebug>
+
+AMElementValidator::~AMElementValidator(){}
 
 void AMElementValidator::fixup(QString & text) const {
 
 	Q_UNUSED(text)
-	/*
-	qDebug() << "calling fixup";
-
-	// fixup is only used to convert full element names to symbols, IF this is turned on.
-	if(!convertToSymbol_)
-		return;
-
-	QStringList split = text.split(QRegExp("\\s*,+\\s*|\\s+"), QString::SkipEmptyParts);
-
-	for(int i=0; i<split.count(); i++) {
-		// if element name matches, replace with symbol
-		int ind = model_->indexOfElement(model_->titleCase(split.at(i)));
-		if(ind != -1)
-			split[i] = model_->data(model_->index(ind,1)).toString();
-	}
-
-	text = split.join(", ");
-	if(!split.isEmpty()) {
-		text.append(", ");
-	}*/
-
 }
 
 
@@ -219,6 +200,7 @@ bool AMElementsModel::validSymbolStartsWith(const QString &string) {
 
    */
 
+ AMElementListEdit::~AMElementListEdit(){}
 AMElementListEdit::AMElementListEdit(QWidget *parent) :
 		QLineEdit(parent)
 {
@@ -244,7 +226,7 @@ AMElementListEdit::AMElementListEdit(QWidget *parent) :
 void AMElementListEdit::onTextEdited(const QString& text) {
 
 	QStringList split = text.split(QRegExp("\\s*,+\\s*|\\s+"));
-	// qDebug() << split;
+	// qdebug() << split;
 	if(split.isEmpty())
 		completer_->setCompletionPrefix(QString());
 	else
@@ -252,7 +234,7 @@ void AMElementListEdit::onTextEdited(const QString& text) {
 
 	priorToPrefix_ = split.join(", ");
 
-	// qDebug() << "completion prefix:" << completer_->completionPrefix();
+	// qdebug() << "completion prefix:" << completer_->completionPrefix();
 	if(!completer_->completionPrefix().isEmpty())
 		completer_->complete();
 	else {

@@ -32,6 +32,7 @@ class SGMFastScanSettingsView : public QGroupBox
 Q_OBJECT
 
 public:
+ 	virtual ~SGMFastScanSettingsView();
 	SGMFastScanSettingsView(SGMFastScanSettings *fastScanSettings, QWidget *parent = 0);
 
 public slots:

@@ -28,9 +28,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QLabel>
 #include <QTimer>
 
+ AMGithubIssueSubmissionView::~AMGithubIssueSubmissionView(){}
 AMGithubIssueSubmissionView::AMGithubIssueSubmissionView(QWidget *parent)
 	: QDialog(parent)
 {
+	issueCreatedSuccessfully_ = false;
 	exitCountDownTimer_ = 0;
 	issuesTypesAndAssignees_.setAllowsDuplicateKeys(true);
 	issuesTypesAndAssignees_.append("I think it's a general issue", "AcquamanIssues");
@@ -115,6 +117,7 @@ void AMGithubIssueSubmissionView::onSubmitIssueButtonClicked()
 
 	waitingBar_->show();
 	messageLabel_->show();
+	submitIssuesButton_->setEnabled(false);
 
 	messageLabel_->setText("Submitting Issue...");
 	issueManager_->createNewIssue(issueTitleEdit_->text(), issueBodyEdit_->document()->toPlainText(), assignee);
@@ -148,6 +151,7 @@ void AMGithubIssueSubmissionView::onGitIssueCreated(bool issueCreated)
 {
 	if(issueCreated){
 
+		issueCreatedSuccessfully_ = true;
 		waitingBar_->setMaximum(1);
 		waitingBar_->setValue(1);
 		messageLabel_->setText("Issue Submitted");
@@ -174,7 +178,7 @@ void AMGithubIssueSubmissionView::onGitIssueCreated(bool issueCreated)
 
 void AMGithubIssueSubmissionView::onEditsChanged()
 {
-	if(!issueTitleEdit_->text().isEmpty() && !issueBodyEdit_->document()->toPlainText().isEmpty())
+	if(!issueTitleEdit_->text().isEmpty() && !issueBodyEdit_->document()->toPlainText().isEmpty() && !issueCreatedSuccessfully_)
 		submitIssuesButton_->setEnabled(true);
 	else
 		submitIssuesButton_->setEnabled(false);

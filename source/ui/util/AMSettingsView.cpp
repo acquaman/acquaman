@@ -24,13 +24,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QPushButton>
-#include <QDebug>
 #include <QFontMetrics>
 #include <QMessageBox>
 
 #include "util/AMSettings.h"
 #include "application/AMPluginsManager.h"
 
+ AMUserSettingsView::~AMUserSettingsView(){}
 AMUserSettingsView::AMUserSettingsView(QWidget *parent) :
 	QGroupBox("User Settings", parent)
 {
@@ -61,6 +61,7 @@ AMUserSettingsView::AMUserSettingsView(QWidget *parent) :
 	setLayout(fl_);
 }
 
+ AMSettingsView::~AMSettingsView(){}
 AMSettingsView::AMSettingsView(QWidget *parent) :
 	QGroupBox("Public Settings", parent)
 {
@@ -167,6 +168,7 @@ void AMSettingsView::onLineEditsChanged(){
 	}
 }
 
+ AMSettingsMasterView::~AMSettingsMasterView(){}
 AMSettingsMasterView::AMSettingsMasterView(QWidget *parent) :
 	QWidget(parent)
 {

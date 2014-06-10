@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QColorDialog>
 
+ AMColorPickerButton::~AMColorPickerButton(){}
 AMColorPickerButton::AMColorPickerButton(const QColor& initialColor, QWidget *parent) :
 	QToolButton(parent)
 {

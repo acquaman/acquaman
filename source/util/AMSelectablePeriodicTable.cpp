@@ -19,25 +19,56 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMSelectablePeriodicTable.h"
 
-AMSelectablePeriodicTable::AMSelectablePeriodicTable(QObject *parent) :
-	QObject(parent)
+#include "util/AMSelectableElement.h"
+#include "util/AMPeriodicTable.h"
+
+ AMSelectablePeriodicTable::~AMSelectablePeriodicTable(){}
+AMSelectablePeriodicTable::AMSelectablePeriodicTable(QObject *parent)
+	: AMCustomizablePeriodicTable(parent)
 {
 }
 
-void AMSelectablePeriodicTable::selectElement(int atomicNumber)
+void AMSelectablePeriodicTable::selectElement(AMElement *element)
 {
-	savedElements_.append(atomicNumber);
-	emit elementSelected(atomicNumber);
+	savedElements_.append(element);
+	emit elementSelected(element);
 }
 
-void AMSelectablePeriodicTable::deselectElement(int atomicNumber)
+void AMSelectablePeriodicTable::deselectElement(AMElement *element)
 {
-	savedElements_.removeOne(atomicNumber);
-	emit elementDeselected(atomicNumber);
+	savedElements_.removeOne(element);
+	emit elementDeselected(element);
 }
 
-void AMSelectablePeriodicTable::clearList()
+void AMSelectablePeriodicTable::deselectAllElements()
 {
 	savedElements_.clear();
-	emit listCleared();
+	emit allElementsDeselected();
+}
+
+void AMSelectablePeriodicTable::buildPeriodicTable()
+{
+	QList<AMElement *> elements = AMPeriodicTable::table()->elements();
+
+	foreach (AMElement *element, elements){
+
+		AMSelectableElement *newElement = new AMSelectableElement(element->name());
+		periodicTable_ << newElement;
+
+		connect(newElement, SIGNAL(absorptionEdgeSelected(AMAbsorptionEdge)), this, SIGNAL(absorptionEdgeSelected(AMAbsorptionEdge)));
+		connect(newElement, SIGNAL(absorptionEdgeDeselected(AMAbsorptionEdge)), this, SIGNAL(absorptionEdgeDeselected(AMAbsorptionEdge)));
+		connect(newElement, SIGNAL(emissionLineSelected(AMEmissionLine)), this, SIGNAL(emissionLineSelected(AMEmissionLine)));
+		connect(newElement, SIGNAL(emissionLineDeselected(AMEmissionLine)), this, SIGNAL(emissionLineDeselected(AMEmissionLine)));
+	}
+}
+
+bool AMSelectablePeriodicTable::isSelected(AMElement *element) const
+{
+	bool selected = false;
+
+	foreach (AMElement *selectedElement, savedElements_)
+		if (selectedElement->name() == element->name())
+			selected = true;
+
+	return selected;
 }

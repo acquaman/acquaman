@@ -36,6 +36,7 @@ class AMDataSourceImageDatawDefault : public AMDataSourceImageData
 
 public:
 	/// Constructor. \param dataSource is the data source we wish to encapsulate and \param defaultValue is the value that is ignored when computing the range.
+ 	virtual ~AMDataSourceImageDatawDefault();
 	AMDataSourceImageDatawDefault(const AMDataSource *dataSource, double defaultValue, QObject *parent = 0);
 
 	/// Returns the default value.
@@ -44,8 +45,9 @@ public:
 	void setDefaultValue(double value) { defaultValue_ = value; MPlotAbstractImageData::emitDataChanged(); }
 
 protected:
-	/// Searches for minimum z value
-	virtual qreal minZ() const;
+	/// Searches for minimum and maximum z value; stores in minMaxCache_.  Re-implemented from MPlotAbstractImageData to ignore default values when computing the minimum.
+	virtual void minMaxSearch() const;
+
 
 	/// The default value.
 	qreal defaultValue_;

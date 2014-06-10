@@ -20,10 +20,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef AMBASICXRFDETECTORINFO_H
 #define AMBASICXRFDETECTORINFO_H
 
-#include "dataman/info/AMDetectorInfo.h"
+#include "dataman/info/AMOldDetectorInfo.h"
 
 /// This class contains the run-time configuration parameters for basic XRF detectors - those without regions of interest
-class AMBasicXRFDetectorInfo : public AMDetectorInfo
+class AMBasicXRFDetectorInfo : public AMOldDetectorInfo
 {
 Q_OBJECT
 
@@ -36,6 +36,7 @@ Q_CLASSINFO("AMDbObject_Attributes", "description=Basic XRF Detector")
 
 public:
 	/// Default Constructor
+ 	virtual ~AMBasicXRFDetectorInfo();
 	Q_INVOKABLE AMBasicXRFDetectorInfo(const QString& name = "BasicXRF", const QString& description = "Basic XRF Detector", QObject *parent = 0);
 	/// Copy Constructor
 	AMBasicXRFDetectorInfo(const AMBasicXRFDetectorInfo &original);

@@ -18,26 +18,36 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef ACQMAN_BOTTOMBAR_H
-#define ACQMAN_BOTTOMBAR_H
+#ifndef AM_BOTTOMBAR_H
+#define AM_BOTTOMBAR_H
 
 #include <QtGui/QWidget>
 #include <QTime>
-#include <QDebug>
+
 #include "ui_AMBottomBar.h"
 #include "AMStatusView.h"
 
-class AMBottomBar : public QWidget, private Ui::AMBottomBarClass {
+class AMBottomBar : public QWidget, public Ui::AMBottomBarClass {
 	Q_OBJECT
 
 public:
 	AMBottomBar(QWidget *parent = 0);
 
-	~AMBottomBar();
+	virtual ~AMBottomBar();
 
 public slots:
+	/// Set the progress bar fraction completed
+	void updateProgress(double fractionElapsed, double total);
+	/// Set the label for the time elapsed
+	void updateTimeElapsed(double seconds);
+	/// Set the label for the time remaining
+	void updateTimeRemaining(double seconds);
+
+	/// This version assumes the progress is given in seconds, and calls updateProgress(), updateTimeElapsed(), and updateTimeRemaining().
 	void updateScanProgress(double secondsElapsed, double secondsTotal);
-	void enableScanInProgressButtons() {}		// enables restartScan, stopScan, pauseScan
+
+	/// Set the text displayed on top of the progress bar
+	void setStatusText(const QString& text);
 
 protected:
 
@@ -51,10 +61,11 @@ protected slots:
 
  signals:
 	void searchIssued(const QString&);
+
 	void restartScanIssued();
 	void stopScanIssued();
 	void pauseScanIssued();
-	void continueScanIssued();
+	void resumeScanIssued();
 	void fullScreenIssued();
 	void adjustFinishPointsIssued();
 

@@ -4,6 +4,5 @@
 
 TEMPLATE = subdirs
 SUBDIRS +=	pluginProjects/FileLoaders/AMFileLoaderPlugins.pro \
-		VESPERSXRFSpectraViewer.pro \
 		VESPERSBendingMirrors.pro \
 		VESPERSAcquaman.pro

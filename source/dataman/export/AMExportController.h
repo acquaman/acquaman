@@ -33,6 +33,7 @@ class QStandardItemModel;
 class AMExporterInfo {
 public:
 	/// Constructor (Default values make an invalid AMExporterInfo)
+ 	virtual ~AMExporterInfo();
 	AMExporterInfo(const QMetaObject* exporterMetaObject = 0, QString exporterDescription = QString(), QString exporterOptionClassName = QString(), QString exporterLongDescription = QString() )
 		: description(exporterDescription),
 		  optionClassName(exporterOptionClassName),
@@ -94,7 +95,7 @@ public:
 
 	explicit AMExportController(const QList<AMScan*>& scansToExport);
 
-	~AMExportController();
+	virtual ~AMExportController();
 
 	/// The export system lets the user choose from the set of available "file formats", where each file format is defined by an AMExporter subclass.  Call this static function to register all available AMExporter subclasses with the export system first, before actually using an AMExportController instance.
 	template <class T>
@@ -199,7 +200,7 @@ public slots:
 	void searchForAvailableDataSources();
 
 	/// Call to start the export process.  Will return false if either chooseExporter() or setOption() haven't been called yet, or if an export has already been started.
-	bool start();
+	bool start(bool autoExport = false);
 
 	/// Call to cancel an export in progress. Will return false if the export is not currently in the Exporting or Paused state(). If successfully cancelled, the state() will become Cancelled.
 	bool cancel();

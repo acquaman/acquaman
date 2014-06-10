@@ -1,0 +1,58 @@
+#ifndef SGMXASSCANCONFIGURATION2013_H
+#define SGMXASSCANCONFIGURATION2013_H
+
+#include "acquaman/AMXASScanConfiguration.h"
+#include "SGMScanConfiguration2013.h"
+
+class SGMXASScanConfiguration2013 : public AMXASScanConfiguration, public SGMScanConfiguration2013
+{
+Q_OBJECT
+
+Q_PROPERTY(AMDbObject* configurationDbObject READ dbReadScanConfigurationDbObject WRITE dbWriteScanConfigurationDbObject)
+
+Q_CLASSINFO("AMDbObject_Attributes", "description=SGM XAS Scan Configuration 2013")
+
+public:
+	/// Constructor
+	Q_INVOKABLE SGMXASScanConfiguration2013(QObject *parent = 0);
+	/// Copy Constructor
+	SGMXASScanConfiguration2013(const SGMXASScanConfiguration2013 &original);
+	virtual ~SGMXASScanConfiguration2013();
+
+	/// Returns a pointer to a newly-created copy of this scan configuration.  (It takes the role of a copy constructor, but is virtual so that our high-level classes can copy a scan configuration without knowing exactly what kind it is.)
+	virtual AMScanConfiguration* createCopy() const;
+
+	/// Returns a pointer to a newly-created AMScanController that is appropriate for executing this kind of scan configuration.  The controller should be initialized to use this scan configuration object as its scan configuration.  Ownership of the new controller becomes the responsibility of the caller.
+	virtual AMScanController* createController();
+
+	/// Returns a pointer to a newly-created AMScanConfigurationView that is appropriate for viewing and editing this kind of scan configuration. Ownership of the new controller becomes the responsibility of the caller.
+	virtual AMScanConfigurationView* createView();
+
+	/// A human-readable synopsis of this scan configuration. Can be re-implemented to proved more details. Used by scan action to set the main text in the action view.
+	virtual QString detailedDescription() const;
+
+	/// Returns the AMControlInfo for the scanned region control.
+	AMControlInfo regionControlInfo() const { return regions_->defaultControl()->toInfo(); }
+	/// Returns the AMControlInfo for the time control.
+	AMControlInfo timeControlInfo() const { return regions_->defaultTimeControl()->toInfo(); }
+	/// Synchronizes this configuration with the beamline by copying settins from the beamline, namely:
+	/// Exit Slit Gap, Grating, Harmonic, Undulator Tracking, Grating Tracking, Exit Slit Tracking
+	void getSettingsFromBeamline();
+protected slots:
+	/// Checks whether the current beamline settings match that of the configuration, namely:
+	/// Exit Slit Gap, Grating, Harmonic, Undulator Tracking, Grating Tracking, Exit Slit Tracking
+	/// if the matching status has changed emits matchingBeamlineStatusCahanged()
+	void checkIfMatchesBeamline();
+signals:
+	/// Fired when a change to the configuration or beamline means that their status has changed from matched to not matched or vice versa, namely:
+	/// Exit Slit Gap, Grating, Harmonic, Undulator Tracking, Grating Tracking, Exit Slit Tracking
+	void matchingBeamlineStatusChanged(bool matchesBeamline);
+protected:
+	/// Whether or not the current XASScanConfiguration matches that of the beamline, namely:
+	/// Exit Slit Gap, Grating, Harmonic, Undulator Tracking, Grating Tracking, Exit Slit Tracking
+	bool matchesCurrentBeamline_;
+	/// Can't use qFuzzyCompare because need to specify epsilon for exitSlitGap
+	inline bool floatCompare(float x, float y, float epsilon);
+};
+
+#endif // SGMXASSCANCONFIGURATION2013_H

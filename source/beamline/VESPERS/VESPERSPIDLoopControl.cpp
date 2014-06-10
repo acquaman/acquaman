@@ -20,11 +20,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "VESPERSPIDLoopControl.h"
 
-#include "actions/AMBeamlineControlMoveAction.h"
-#include "actions/AMBeamlineParallelActionsList.h"
-#include "actions/AMBeamlineListAction.h"
 #include "beamline/VESPERS/VESPERSBeamline.h"
+#include "actions3/actions/AMControlMoveAction3.h"
+#include "actions3/AMListAction3.h"
 
+ VESPERSPIDLoopControl::~VESPERSPIDLoopControl(){}
 VESPERSPIDLoopControl::VESPERSPIDLoopControl(QString name, AMControl *pidX, AMControl *pidY, AMControl *pidZ, QObject *parent)
 	: QObject(parent)
 {
@@ -40,58 +40,61 @@ VESPERSPIDLoopControl::VESPERSPIDLoopControl(QString name, AMControl *pidX, AMCo
 	connect(z_, SIGNAL(valueChanged(double)), this, SLOT(onZStateChanged()));
 }
 
-AMBeamlineActionItem *VESPERSPIDLoopControl::createPIDXChangeStateAction(bool turnOn)
+AMAction3 *VESPERSPIDLoopControl::createPIDXChangeStateAction(bool turnOn)
 {
 	if (!x_->isConnected())
 		return 0;
 
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(x_);
-	action->setSetpoint(turnOn == true ? 1.0 : 0.0);
+	AMControlInfo setpoint = x_->toInfo();
+	setpoint.setValue(turnOn ? 1.0 : 0.0);
+	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
+	AMAction3 *action = new AMControlMoveAction3(actionInfo, x_);
 
 	return action;
 }
 
-AMBeamlineActionItem *VESPERSPIDLoopControl::createPIDYChangeStateAction(bool turnOn)
+AMAction3 *VESPERSPIDLoopControl::createPIDYChangeStateAction(bool turnOn)
 {
 	if (!y_->isConnected())
 		return 0;
 
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(y_);
-	action->setSetpoint(turnOn == true ? 1.0 : 0.0);
+	AMControlInfo setpoint = y_->toInfo();
+	setpoint.setValue(turnOn ? 1.0 : 0.0);
+	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
+	AMAction3 *action = new AMControlMoveAction3(actionInfo, y_);
 
 	return action;
 }
 
-AMBeamlineActionItem *VESPERSPIDLoopControl::createPIDZChangeStateAction(bool turnOn)
+AMAction3 *VESPERSPIDLoopControl::createPIDZChangeStateAction(bool turnOn)
 {
 	if (!z_->isConnected())
 		return 0;
 
-	AMBeamlineControlMoveAction *action = new AMBeamlineControlMoveAction(z_);
-	action->setSetpoint(turnOn == true ? 1.0 : 0.0);
+	AMControlInfo setpoint = z_->toInfo();
+	setpoint.setValue(turnOn ? 1.0 : 0.0);
+	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
+	AMAction3 *action = new AMControlMoveAction3(actionInfo, z_);
 
 	return action;
 }
 
-AMBeamlineActionItem *VESPERSPIDLoopControl::createPIDChangeStateAction(bool turnOn)
+AMAction3 *VESPERSPIDLoopControl::createPIDChangeStateAction(bool turnOn)
 {
 	if (!(x_->isConnected() && y_->isConnected() && z_->isConnected()))
 		return 0;
 
-	AMBeamlineParallelActionsList *turnOnAllActionsList = new AMBeamlineParallelActionsList;
-	AMBeamlineListAction *turnOnAllAction = new AMBeamlineListAction(turnOnAllActionsList);
+	AMListAction3 *list = new AMListAction3(new AMListActionInfo3("PID repair all action.", "Action that repairs all three PID controls at once."), AMListAction3::Parallel);
+	list->addSubAction(createPIDXChangeStateAction(turnOn));
+	list->addSubAction(createPIDYChangeStateAction(turnOn));
+	list->addSubAction(createPIDZChangeStateAction(turnOn));
 
-	turnOnAllActionsList->appendStage(new QList<AMBeamlineActionItem *>());
-	turnOnAllActionsList->appendAction(0, createPIDXChangeStateAction(turnOn));
-	turnOnAllActionsList->appendAction(0, createPIDYChangeStateAction(turnOn));
-	turnOnAllActionsList->appendAction(0, createPIDZChangeStateAction(turnOn));
-
-	return turnOnAllAction;
+	return list;
 }
 
 void VESPERSPIDLoopControl::repair()
 {
-	if (VESPERSBeamline::vespers()->pseudoSampleStage()->isConnected() && !(x_->isConnected() && y_->isConnected() && z_->isConnected()))
+	if (!(x_->isConnected() && y_->isConnected() && z_->isConnected()))
 		return;
 
 	// Repairing the sample stage is a two stage process.
@@ -100,16 +103,13 @@ void VESPERSPIDLoopControl::repair()
 		Second: Turn on all the PID loops.
 	 */
 
-	AMBeamlineParallelActionsList *repairActionsList = new AMBeamlineParallelActionsList;
-	AMBeamlineListAction *repairAction = new AMBeamlineListAction(repairActionsList);
+	AMListAction3 *list = new AMListAction3(new AMListActionInfo3("PID repair all action.", "Action that repairs all three PID controls at once."), AMListAction3::Sequential);
+	list->addSubAction(VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->createStopAllAction());
+	list->addSubAction(createPIDChangeStateAction(true));
 
-	repairActionsList->appendStage(new QList<AMBeamlineActionItem *>());
-	repairActionsList->appendAction(0, VESPERSBeamline::vespers()->pseudoSampleStage()->createStopAllAction());
+	connect(list, SIGNAL(succeeded()), list, SLOT(deleteLater()));
+	connect(list, SIGNAL(failed()), list, SLOT(deleteLater()));
+	connect(list, SIGNAL(cancelled()), this, SLOT(deleteLater()));
 
-	repairActionsList->appendStage(new QList<AMBeamlineActionItem *>());
-	repairActionsList->appendAction(1, createPIDChangeStateAction(true));
-
-	connect(repairAction, SIGNAL(failed(int)), this, SLOT(onRepairFailed()));
-
-	repairAction->start();
+	list->start();
 }

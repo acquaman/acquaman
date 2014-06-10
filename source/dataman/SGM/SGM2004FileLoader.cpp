@@ -33,9 +33,6 @@ AMBiHash<QString, QString> SGM2004FileLoader::columns2pvNames_;
 #include "analysis/AM1DExpressionAB.h"
 #include "analysis/AM2DSummingAB.h"
 
-#include <QDebug>
-
-
 SGM2004FileLoader::SGM2004FileLoader(AMXASScan* scan) : AMAbstractFileLoader(scan)
 {
 	// this static storage can be shared across all instances, but if we're the first, need to populate it.
@@ -70,6 +67,8 @@ SGM2004FileLoader::SGM2004FileLoader(AMXASScan* scan) : AMAbstractFileLoader(sca
 	defaultUserVisibleColumns_ << "ringCurrent";
 	defaultUserVisibleColumns_ << "SDD";
 }
+
+SGM2004FileLoader::~SGM2004FileLoader(){}
 
 /// load raw data from the SGM legacy file format into a scan's data tree.  If \c extractMetaData is set to true, this will also set the 'notes' and 'dateTime' meta-data fields.  If \c createChannels is set to true, it will create some default channels based on the data columns.
 bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, bool setRawDataSources, bool createDefaultAnalysisBlocks) {
@@ -192,19 +191,20 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 					AMMeasurementInfo sddInfo("SDD", "Silicon Drift Detector", "counts", sddAxes);
 					if(scan->rawData()->addMeasurement(sddInfo)){
 						/// \todo Throw an errorMon out?
-						//qDebug() << "Added measurement " << scan->rawData()->measurementAt(scan->rawData()->measurementCount()-1).name;
+						//qdebug() << "Added measurement " << scan->rawData()->measurementAt(scan->rawData()->measurementCount()-1).name;
 					}
 				}
 			}
 			else if(scan->rawData()->addMeasurement(AMMeasurementInfo(colName, colName))){
 				/// \todo Throw an errorMon out?
-				//qDebug() << "Added measurement " << scan->rawData()->measurementAt(scan->rawData()->measurementCount()-1).name;
+				//qdebug() << "Added measurement " << scan->rawData()->measurementAt(scan->rawData()->measurementCount()-1).name;
 			}
 		}
 	}
 	if(postSddFileOffset){
-		if(scan->rawData()->addMeasurement(AMMeasurementInfo("sdd_fileOffset", "sdd_fileOffset")))
-			qDebug() << "Added measurement " << scan->rawData()->measurementAt(scan->rawData()->measurementCount()-1).name;
+		scan->rawData()->addMeasurement(AMMeasurementInfo("sdd_fileOffset", "sdd_fileOffset"));
+		//if(scan->rawData()->addMeasurement(AMMeasurementInfo("sdd_fileOffset", "sdd_fileOffset")))
+		//	qdebug() << "Added measurement " << scan->rawData()->measurementAt(scan->rawData()->measurementCount()-1).name;
 	}
 	int sddOffsetIndex = colNames1.indexOf("sdd_fileOffset");
 
@@ -218,7 +218,7 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 		// event id 1.  If the line starts with "1," and there are the correct number of columns:
 		if(line.startsWith("1,") && (lp = line.split(',')).count() == colNames1.count() ) {
 
-			scan->rawData()->beginInsertRows(0);
+			scan->rawData()->beginInsertRows(1, -1);
 			scan->rawData()->setAxisValue(0, eVAxisIndex, lp.at(eVIndex).toDouble()); // insert eV
 
 			// add data from all columns (but ignore the first (Event-ID) and the eV column)
@@ -259,7 +259,7 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 		spectraFileInfo.setFile(spectraFile);
 		if(spectraFileInfo.isRelative())
 			spectraFileInfo.setFile(AMUserSettings::userDataFolder + "/" + spectraFile);
-		qDebug() << "SPECTRA FILE IS " << spectraFile;
+
 		//QFile sf(spectraFile);
 		QFile sf(spectraFileInfo.filePath());
 		if(!sf.open(QIODevice::ReadOnly)) {
@@ -319,7 +319,7 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 				memset(specValues+specCounter, 0,  (sddSize-specCounter)*sizeof(int));
 
 			// insert the detector values (all at once, for performance)
-			scan->rawData()->setValue(x, sddMeasurementId, specValues, sddSize);
+			scan->rawData()->setValue(x, sddMeasurementId, specValues);
 
 			// Check specCounter is the right size... Not too big, not too small.
 			if(specCounter != sddSize) {

@@ -171,5 +171,32 @@
         <file>integral.png</file>
         <file>expression.png</file>
         <file>derivative.png</file>
+        <file>16x16/dialog-error.png</file>
+        <file>16x16/dialog-information.png</file>
+        <file>16x16/dialog-question.png</file>
+        <file>16x16/dialog-warning.png</file>
+        <file>16x16/locked.png</file>
+        <file>16x16/network-error.png</file>
+        <file>16x16/loading1.gif</file>
+        <file>16x16/loading2_transparent.gif</file>
+        <file>16x16/loading2.gif</file>
+        <file>16x16/loading3.gif</file>
+        <file>16x16/loading4.gif</file>
+        <file>22x22/media-playback-stop.png</file>
+        <file>22x22/media-playback-pause-light.png</file>
+        <file>22x22/media-playback-start-light.png</file>
+        <file>22x22/media-playback-stop-light.png</file>
+        <file>32x32/format-line-spacing-triple.png</file>
+        <file>32x32/media-seek-forward-6.png</file>
+        <file>32x32/format-list-ordered.png</file>
+        <file>Yellow.png</file>
+        <file>go-in.png</file>
+        <file>go-out.png</file>
+        <file>16x16/lock.png</file>
+        <file>16x16/unlock.png</file>
+        <file>22x22/lock.png</file>
+        <file>22x22/unlock.png</file>
+        <file>32x32/lock.png</file>
+        <file>32x32/unlock.png</file>
     </qresource>
 </RCC>

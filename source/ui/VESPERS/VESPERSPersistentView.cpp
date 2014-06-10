@@ -19,20 +19,19 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "VESPERSPersistentView.h"
-#include "ui/VESPERS/VESPERSSampleStageView.h"
 #include "ui/VESPERS/VESPERSPIDLoopControlView.h"
 #include "ui/VESPERS/VESPERSBeamSelectorView.h"
-#include "ui/CLS/CLSIonChamberView.h"
-#include "ui/CLS/CLSSplitIonChamberView.h"
-
-#include "ui/beamline/AMIonChamberView.h"
+#include "ui/VESPERS/VESPERSScalerView.h"
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QFormLayout>
 #include <QGroupBox>
 #include <QMessageBox>
+#include <QMenu>
+#include <QAction>
 
+ VESPERSPersistentView::~VESPERSPersistentView(){}
 VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	QWidget(parent)
 {
@@ -46,12 +45,17 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	ssh2_ = new CLSStopLightButton(qobject_cast<CLSBiStateControl *>(VESPERSBeamline::vespers()->safetyShutter2()));
 	connect(ssh2_, SIGNAL(clicked()), this, SLOT(onSSH2Clicked()));
 
-	// Sample stage widget.
-	VESPERSSampleStageView *motors = new VESPERSSampleStageView;
+	motorGroupView_ = new CLSPseudoMotorGroupView(VESPERSBeamline::vespers()->motorGroup(), AMMotorGroupView::Exclusive);
+	connect(motorGroupView_, SIGNAL(currentMotorGroupObjectViewChanged(QString)), this, SIGNAL(currentSampleStageChanged(QString)));
+	motorGroupView_->setMotorGroupView("Sample Stage - H, V, N");
 
-	// PID control view widget.
-	VESPERSPIDLoopControlView *pidView = new VESPERSPIDLoopControlView(VESPERSBeamline::vespers()->sampleStagePID());
-	connect(VESPERSBeamline::vespers()->sampleStagePID(), SIGNAL(stateChanged(bool)), motors, SLOT(setEnabled(bool)));
+	// PID control view widgets.
+	VESPERSPIDLoopControlView *pidSampleStageView = new VESPERSPIDLoopControlView(VESPERSBeamline::vespers()->sampleStagePID());
+	VESPERSPIDLoopControlView *pidWireStageView = new VESPERSPIDLoopControlView(VESPERSBeamline::vespers()->wireStagePID());
+
+	// The valve control.
+	valves_ = VESPERSBeamline::vespers()->valveSet();
+	connect(valves_, SIGNAL(controlSetValuesChanged()), this, SLOT(onValvesStateChanged()));
 
 	// The temperature control.
 	temperature_ = VESPERSBeamline::vespers()->temperatureSet();
@@ -72,8 +76,6 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	QFont font(this->font());
 	font.setBold(true);
 
-	QLabel *sampleStageLabel = new QLabel("Sample Stage Control");
-	sampleStageLabel->setFont(font);
 	QLabel *pshShutterLabel = new QLabel("Front End Shutters");
 	pshShutterLabel->setFont(font);
 	QLabel *sshShutterLabel = new QLabel("Beamline Shutters");
@@ -88,7 +90,8 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	statusLabel->setFont(font);
 	QLabel *experimentReadyLabel = new QLabel("Experiment Ready Status");
 	experimentReadyLabel->setFont(font);
-	QLabel *ionChamberLabel = new QLabel("Ion Chamber Calibration");
+	experimentReadyLabel->setContextMenuPolicy(Qt::CustomContextMenu);
+	QLabel *ionChamberLabel = new QLabel("Ion Chamber Gain Setup");
 	ionChamberLabel->setFont(font);
 
 	// Shutter layout.
@@ -102,7 +105,9 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 
 	// Beam selection and mono energy setting.
 	VESPERSBeamSelectorView *beamSelectorView = new VESPERSBeamSelectorView;
-	connect(VESPERSBeamline::vespers(), SIGNAL(currentBeamChanged(VESPERSBeamline::Beam)), this, SLOT(onBeamChanged(VESPERSBeamline::Beam)));
+	connect(VESPERSBeamline::vespers(), SIGNAL(currentBeamChanged(VESPERS::Beam)), this, SLOT(onBeamChanged(VESPERS::Beam)));
+
+	energyLabel_ = new QLabel("Energy:");
 
 	// Energy (Eo) selection
 	energySetpoint_ = new QDoubleSpinBox;
@@ -118,7 +123,7 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	connect(VESPERSBeamline::vespers()->mono(), SIGNAL(energyChanged(double)), this, SLOT(onEnergyFeedbackChanged(double)));
 
 	QHBoxLayout *energySetpointLayout = new QHBoxLayout;
-	energySetpointLayout->addWidget(new QLabel("Energy:"));
+	energySetpointLayout->addWidget(energyLabel_);
 	energySetpointLayout->addWidget(energySetpoint_);
 	energySetpointLayout->addWidget(energyFeedback_);
 	energySetpointLayout->setContentsMargins(15, 11, 11, 11);
@@ -155,13 +160,17 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	// The Experiment Ready Status
 	experimentReady_ = new QLabel;
 	experimentReady_->setPixmap(QIcon(":/RED.png").pixmap(25));
-	connect(VESPERSBeamline::vespers()->experimentConfiguration(), SIGNAL(experimentReady(bool)), this, SLOT(onExperimentStatusChanged(bool)));
+	experimentReady_->setContextMenuPolicy(Qt::CustomContextMenu);
+	connect(experimentReady_, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onPOEStatusEnablePopupMenuRequested(QPoint)));
+	connect(experimentReadyLabel, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onPOEStatusEnablePopupMenuRequested(QPoint)));
+	connect(VESPERSBeamline::vespers(), SIGNAL(poeStatusChanged(bool)), this, SLOT(onExperimentStatusChanged()));
+	connect(VESPERSBeamline::vespers(), SIGNAL(poeStatusEnableChanged()), this, SLOT(onExperimentStatusChanged()));
 
 	QHBoxLayout *experimentReadyLayout = new QHBoxLayout;
 	experimentReadyLayout->addWidget(experimentReady_);
 	experimentReadyLayout->addWidget(experimentReadyLabel);
 	experimentReadyLayout->setSpacing(10);
-	experimentReadyLayout->setContentsMargins(15, 11, 11, 11);
+	experimentReadyLayout->setContentsMargins(15, 0, 11, 0);
 	experimentReadyLayout->addStretch();
 
 	// Endstation shutter control.
@@ -207,66 +216,57 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	valvesButton_ = new QPushButton("Open Valves");
 	connect(valvesButton_, SIGNAL(clicked()), this, SLOT(onValvesButtonPushed()));
 
-	valvesStatus_ = new QLabel;
-	valvesStatus_->setPixmap(QIcon(":/RED.png").pixmap(25));
-	connect(VESPERSBeamline::vespers()->valveSet(), SIGNAL(controlSetValuesChanged()), this, SLOT(onValvesStateChanged()));
+	valveStatusButton_ = new QToolButton;
+	valveStatusButton_->setIcon(QIcon(":/valveIcon.png"));
+	valveStatusButton_->setToolTip("Valve Indicator");
+	valveStatusButton_->setAutoRaise(true);
+	connect(valveStatusButton_, SIGNAL(clicked()), this, SLOT(onValvesStatusClicked()));
 
 	QLabel *valveIcon = new QLabel;
 	valveIcon->setPixmap(QIcon(":/valveIcon.png").pixmap(25));
 	valveIcon->setToolTip("Valve Indicator");
 
 	// Temp, water, and pressure labels.
-	tempLabel_ = new QLabel;
-	tempLabel_->setPixmap(QIcon(":/RED.png").pixmap(25));
-	QLabel *temperatureIcon = new QLabel;
-	temperatureIcon->setPixmap(QIcon(":/ThermometerIcon.png").pixmap(25));
-	temperatureIcon->setToolTip("Temperature Indicator");
+	temperatureStatusButton_ = new QToolButton;
+	temperatureStatusButton_->setIcon(QIcon(":/ThermometerIcon.png"));
+	temperatureStatusButton_->setToolTip("Temperature Indicator");
+	temperatureStatusButton_->setAutoRaise(true);
+	connect(temperatureStatusButton_, SIGNAL(clicked()), this, SLOT(onTemperatureStatusClicked()));
 
-	pressureLabel_ = new QLabel;
-	pressureLabel_->setPixmap(QIcon(":/RED.png").pixmap(25));
-	QLabel *pressureIcon = new QLabel;
-	pressureIcon->setPixmap(QIcon(":/PressureIcon.png").pixmap(25));
-	pressureIcon->setToolTip("Pressure Indicator");
+	pressureStatusButton_ = new QToolButton;
+	pressureStatusButton_->setIcon(QIcon(":/PressureIcon.png"));
+	pressureStatusButton_->setToolTip("Pressure Indicator");
+	pressureStatusButton_->setAutoRaise(true);
+	connect(pressureStatusButton_, SIGNAL(clicked()), this, SLOT(onPressureStatusClicked()));
 
-	waterLabel_ = new QLabel;
-	waterLabel_->setPixmap(QIcon(":/RED.png").pixmap(25));
-	QLabel *waterIcon = new QLabel;
-	waterIcon->setPixmap(QIcon(":/FaucetIcon.png").pixmap(25));
-	waterIcon->setToolTip("Water Indicator");
-
-	// Ion chambers.
-	QVBoxLayout *ionChamberLayout = new QVBoxLayout;
-	ionChamberLayout->addWidget(new CLSSplitIonChamberView(VESPERSBeamline::vespers()->iSplit()));
-	ionChamberLayout->addWidget(new CLSIonChamberView(VESPERSBeamline::vespers()->iPreKB()));
-	ionChamberLayout->addWidget(new CLSIonChamberView(VESPERSBeamline::vespers()->iMini()));
-	ionChamberLayout->addWidget(new CLSIonChamberView(VESPERSBeamline::vespers()->iPost()));
+	waterStatusButton_ = new QToolButton;
+	waterStatusButton_->setIcon(QIcon(":/FaucetIcon.png"));
+	waterStatusButton_->setToolTip("Water Indicator");
+	waterStatusButton_->setAutoRaise(true);
+	connect(waterStatusButton_, SIGNAL(clicked()), this, SLOT(onWaterTransducerStatusClicked()));
 
 	// Layout.
 	QGridLayout *statusLayout = new QGridLayout;
-	statusLayout->addWidget(temperatureIcon, 0, 0);
-	statusLayout->addWidget(pressureIcon, 0, 1);
-	statusLayout->addWidget(waterIcon, 0, 2);
-	statusLayout->addWidget(valveIcon, 0, 3);
-	statusLayout->addWidget(tempLabel_, 1, 0);
-	statusLayout->addWidget(pressureLabel_, 1, 1);
-	statusLayout->addWidget(waterLabel_, 1, 2);
-	statusLayout->addWidget(valvesStatus_, 1, 3);
-	statusLayout->addWidget(valvesButton_, 1, 4, 1, 2);
-	statusLayout->setContentsMargins(15, 7, 11, 7);
+	statusLayout->addWidget(temperatureStatusButton_, 0, 0);
+	statusLayout->addWidget(pressureStatusButton_, 0, 1);
+	statusLayout->addWidget(waterStatusButton_, 0, 2);
+	statusLayout->addWidget(valveStatusButton_, 0, 3);
+	statusLayout->addWidget(valvesButton_, 0, 4, 1, 2);
+	statusLayout->setContentsMargins(15, 0, 11, 0);
 
 	QVBoxLayout *persistentLayout = new QVBoxLayout;
 	persistentLayout->addLayout(shutterLayout);
 	persistentLayout->addLayout(beamSelectionLayout);
 	persistentLayout->addWidget(slitsLabel);
 	persistentLayout->addLayout(slitsLayout);
-	persistentLayout->addWidget(sampleStageLabel);
-	persistentLayout->addWidget(motors);
-	persistentLayout->addWidget(pidView);
+	persistentLayout->addWidget(motorGroupView_, 0, Qt::AlignLeft);
+	persistentLayout->addWidget(pidSampleStageView);
+	persistentLayout->addWidget(pidWireStageView);
 	persistentLayout->addLayout(experimentReadyLayout);
 	persistentLayout->addWidget(endstationShutterLabel);
 	persistentLayout->addLayout(filterLayout);
 	persistentLayout->addWidget(ionChamberLabel);
-	persistentLayout->addLayout(ionChamberLayout);
+	persistentLayout->addWidget(new VESPERSScalerView());
 	persistentLayout->addWidget(statusLabel);
 	persistentLayout->addLayout(statusLayout);
 	persistentLayout->addStretch();
@@ -278,24 +278,28 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	vespersLayout->addWidget(vespersBox);
 
 	setLayout(vespersLayout);
-	//setFixedSize(325, 1000);
-	setFixedSize(325, 900);
-//    setFixedSize(325, 800);
+//	setFixedSize(350, 800);
+	setFixedWidth(350);
+//	setFixedSize(350, 900);
 }
 
-void VESPERSPersistentView::onBeamChanged(VESPERSBeamline::Beam beam)
+void VESPERSPersistentView::onBeamChanged(VESPERS::Beam beam)
 {
 	switch(beam){
 
-	case VESPERSBeamline::None:
-	case VESPERSBeamline::Pink:
-		energySetpoint_->setEnabled(false);
+	case VESPERS::NoBeam:
+	case VESPERS::Pink:
+		energyLabel_->setVisible(false);
+		energySetpoint_->setVisible(false);
+		energyFeedback_->setVisible(false);
 		break;
 
-	case VESPERSBeamline::TenPercent:
-	case VESPERSBeamline::OnePointSixPercent:
-	case VESPERSBeamline::Si:
-		energySetpoint_->setEnabled(true);
+	case VESPERS::TenPercent:
+	case VESPERS::OnePointSixPercent:
+	case VESPERS::Si:
+		energyLabel_->setVisible(true);
+		energySetpoint_->setVisible(true);
+		energyFeedback_->setVisible(true);
 		break;
 	}
 }
@@ -307,11 +311,34 @@ void VESPERSPersistentView::onShutterStateChanged(bool state)
 		filterLabel_->setPixmap(QIcon(":/ON.png").pixmap(25));
 		filterLowerButton_->setText("Close Shutter");
 	}
+
 	else{
 
 		filterLabel_->setPixmap(QIcon(":/RED.png").pixmap(25));
 		filterLowerButton_->setText("Open Shutter");
 	}
+}
+
+void VESPERSPersistentView::onExperimentStatusChanged()
+{
+	if (VESPERSBeamline::vespers()->poeStatusEnable())
+		experimentReady_->setPixmap(QIcon(VESPERSBeamline::vespers()->poeStatus() ? ":/ON.png" : ":/RED.png").pixmap(25));
+
+	else
+		experimentReady_->setPixmap(QIcon(":/Yellow.png").pixmap(25));
+}
+
+void VESPERSPersistentView::onPOEStatusEnablePopupMenuRequested(const QPoint &point)
+{
+	QMenu popup(experimentReady_);
+	QAction *temp = popup.addAction("Enable POE Status");
+	temp->setCheckable(true);
+	temp->setChecked(VESPERSBeamline::vespers()->poeStatusEnable());
+
+	temp = popup.exec(experimentReady_->mapToGlobal(point));
+
+	if (temp)
+		VESPERSBeamline::vespers()->setPOEStatusEnable(!VESPERSBeamline::vespers()->poeStatusEnable());
 }
 
 void VESPERSPersistentView::toggleShutterState()
@@ -329,61 +356,55 @@ void VESPERSPersistentView::onValvesButtonPushed()
 
 void VESPERSPersistentView::onValvesStateChanged()
 {
-	if (VESPERSBeamline::vespers()->allValvesOpen()){
+	bool allGood = true;
 
-		valvesButton_->setText("Close Valves");
-		valvesStatus_->setPixmap(QIcon(":/ON.png").pixmap(25));
-	}
-	else{
+	for (int i = 0, size = valves_->count(); i < size; i++)
+		if (valves_->at(i)->isMoving())
+			allGood = false;
 
-		valvesButton_->setText("Open Valves");
-		valvesStatus_->setPixmap(QIcon(":/RED.png").pixmap(25));
-	}
+	valvesButton_->setText(allGood ? "Close Valves" : "Open Valves");
+	valveStatusButton_->setAutoRaise(allGood);
+	valveStatusButton_->setStyleSheet(allGood ? "" : "QToolButton { background-color: red }");
 }
 
 void VESPERSPersistentView::onPressureStateChanged()
 {
 	bool allGood = true;
 
-	for (int i = 0; i < pressure_->count(); i++){
-
+	for (int i = 0, size = pressure_->count(); i < size && allGood; i++)
 		if (pressure_->at(i)->isMoving())
 			allGood = false;
-	}
 
-	pressureLabel_->setPixmap(QIcon(allGood ? ":/ON.png" : ":/RED.png").pixmap(25));
+	pressureStatusButton_->setAutoRaise(allGood);
+	pressureStatusButton_->setStyleSheet(allGood ? "" : "QToolButton { background-color: red }");
 }
 
 void VESPERSPersistentView::onTemperatureStateChanged()
 {
 	bool allGood = true;
 
-	for (int i = 0; i < temperature_->count(); i++){
-
+	for (int i = 0, size = temperature_->count(); i < size && allGood; i++)
 		if (temperature_->at(i)->isMoving())
 			allGood = false;
-	}
 
-	tempLabel_->setPixmap(QIcon(allGood ? ":/ON.png" : ":/RED.png").pixmap(25));
+	temperatureStatusButton_->setAutoRaise(allGood);
+	temperatureStatusButton_->setStyleSheet(allGood ? "" : "QToolButton { background-color: red }");
 }
 
 void VESPERSPersistentView::onWaterStateChanged()
 {
 	bool allGood = true;
 
-	for (int i = 0; i < flowSwitches_->count(); i++){
-
+	for (int i = 0, size = flowSwitches_->count(); i < size && allGood; i++)
 		if (flowSwitches_->at(i)->value() == 0)
 			allGood = false;
-	}
 
-	for (int i = 0; i < flowTransducers_->count(); i++){
-
+	for (int i = 0, size = flowTransducers_->count(); i < size && allGood; i++)
 		if (flowTransducers_->at(i)->isMoving())
 			allGood = false;
-	}
 
-	waterLabel_->setPixmap(QIcon(allGood ? ":/ON.png" : ":/RED.png").pixmap(25));
+	waterStatusButton_->setAutoRaise(allGood);
+	waterStatusButton_->setStyleSheet(allGood ? "" : "QToolButton { background-color: red }");
 }
 
 void VESPERSPersistentView::onPSH1Clicked()
@@ -426,4 +447,24 @@ void VESPERSPersistentView::onSSH2Clicked()
 
 	else if (VESPERSBeamline::vespers()->safetyShutter2()->value() == 1)
 		VESPERSBeamline::vespers()->closeSafetyShutter2();
+}
+
+void VESPERSPersistentView::onValvesStatusClicked()
+{
+	emit statusButtonClicked("Valves");
+}
+
+void VESPERSPersistentView::onPressureStatusClicked()
+{
+	emit statusButtonClicked("Pressure");
+}
+
+void VESPERSPersistentView::onTemperatureStatusClicked()
+{
+	emit statusButtonClicked("Temperature");
+}
+
+void VESPERSPersistentView::onWaterTransducerStatusClicked()
+{
+	emit statusButtonClicked("Water Pressure");
 }

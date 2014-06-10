@@ -27,6 +27,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QHeaderView>
 #include <QSystemTrayIcon>
 
+AMStatusView::~AMStatusView(){}
+
 AMStatusView::AMStatusView(QWidget *parent) : QAbstractButton(parent)
 {
 	connect(&systemTrayIconFunctionCall_, SIGNAL(executed()), this, SLOT(handleSystemTrayIconRequests()));
@@ -39,15 +41,19 @@ AMStatusView::AMStatusView(QWidget *parent) : QAbstractButton(parent)
 
 	/// Icons representing the nature of the last notification
 	iconInfo_ = new QLabel("info!");
+	iconInfo_->setStyleSheet("border: 0px;");
 	iconInfo_->setPixmap(QPixmap(":/dialog-information.png"));
 	hl_->addWidget(iconInfo_);
 	iconAlert_ = new QLabel("alert!");
+	iconAlert_->setStyleSheet("border: 0px;");
 	iconAlert_->setPixmap(QPixmap(":/dialog-warning.png"));
 	hl_->addWidget(iconAlert_);
 	iconSerious_ = new QLabel("serious!");
+	iconSerious_->setStyleSheet("border: 0px;");
 	iconSerious_->setPixmap(QPixmap(":/dialog-error.png"));
 	hl_->addWidget(iconSerious_);
 	iconDebug_ = new QLabel("debug!");
+	iconDebug_->setStyleSheet("border: 0px;");
 	iconDebug_->setPixmap(QPixmap(":/applications-development.png"));
 	hl_->addWidget(iconDebug_);
 
@@ -57,14 +63,15 @@ AMStatusView::AMStatusView(QWidget *parent) : QAbstractButton(parent)
 	iconDebug_->hide();
 	currentIcon_ = iconInfo_;
 
-	setFixedWidth(250);
+	setFixedWidth(350);
 
 	/// last notification text (
 	shortText_ = new QLabel();
 	shortText_->setWordWrap(true);
-	QFont font = shortText_->font();
-	font.setPointSize(font.pointSize()-2);
-	shortText_->setFont(font);
+	shortText_->setStyleSheet("border: 0px;");
+	QPalette palette = shortText_->palette();
+	palette.setColor(QPalette::ButtonText, Qt::white);
+	shortText_->setPalette(palette);
 	hl_->addWidget(shortText_, 1, Qt::AlignLeft | Qt::AlignVCenter);
 
 	// hl_->addStretch(1);
@@ -77,6 +84,7 @@ AMStatusView::AMStatusView(QWidget *parent) : QAbstractButton(parent)
 	connect(AMErrorMon::mon(), SIGNAL(error(AMErrorReport)), this, SLOT(onAnyError(AMErrorReport)));
 
 	logView_ = new AMStatusLogView(this);
+	logView_->setStyleSheet("QTableView { alternate-background-color: light gray; background-color: white; } QTableView::QHeaderView::section { backround-color: white }");
 
 	setToolTip("Click for details... [Show log]");
 	connect(this, SIGNAL(clicked()), logView_, SLOT(show()));
@@ -124,10 +132,10 @@ void AMStatusView::onAnyError(AMErrorReport e) {
 
 	currentIcon_->show();
 
-	/// Append class name of source, if available:
-	if(e.source) {
-		msg.append(e.source->metaObject()->className()).append(": ");
-	}
+	// Append class name of source, if available:
+//	if(e.source) {
+//		msg.append(e.source->metaObject()->className()).append(": ");
+//	}
 
 	msg.append(QString("%1 (%2).").arg(e.description).arg(e.errorCode));
 
@@ -151,6 +159,7 @@ void AMStatusView::handleSystemTrayIconRequests(){
 	}
 }
 
+ AMStatusLogView::~AMStatusLogView(){}
 AMStatusLogView::AMStatusLogView(QWidget *parent)
 	: QWidget(parent, Qt::Tool)
 {
@@ -169,10 +178,15 @@ AMStatusLogView::AMStatusLogView(QWidget *parent)
 	setLayout(vl);
 
 	logModel_->setHeaderData(0, Qt::Horizontal, QString());
+	logModel_->setHeaderData(0, Qt::Horizontal, Qt::lightGray, Qt::BackgroundRole);
 	logModel_->setHeaderData(1, Qt::Horizontal, "Message");
+	logModel_->setHeaderData(1, Qt::Horizontal, Qt::lightGray, Qt::BackgroundRole);
 	logModel_->setHeaderData(2, Qt::Horizontal, "From");
+	logModel_->setHeaderData(2, Qt::Horizontal, Qt::lightGray, Qt::BackgroundRole);
 	logModel_->setHeaderData(3, Qt::Horizontal, "Time");
+	logModel_->setHeaderData(3, Qt::Horizontal, Qt::lightGray, Qt::BackgroundRole);
 	logModel_->setHeaderData(4, Qt::Horizontal, "Code");
+	logModel_->setHeaderData(4, Qt::Horizontal, Qt::lightGray, Qt::BackgroundRole);
 
 	debugIcon_ = QIcon(":/applications-development.png");
 	infoIcon_ = QIcon(":/dialog-information.png");
@@ -195,16 +209,16 @@ AMStatusLogView::AMStatusLogView(QWidget *parent)
 	logView_->horizontalHeader()->setResizeMode(4, QHeaderView::Interactive);
 	logView_->verticalHeader()->setResizeMode(QHeaderView::ResizeToContents);
 	logView_->setColumnWidth(0, 24);
-	logView_->setColumnWidth(2, 80);
+	logView_->setColumnWidth(2, 120);
 	logView_->setColumnWidth(3, 80);
-	logView_->setColumnWidth(4, 40);
+	logView_->setColumnWidth(4, 60);
 	logView_->setMinimumWidth(320);
 
 	logView_->setSelectionBehavior(QAbstractItemView::SelectRows);
 	logView_->setSelectionMode(QAbstractItemView::ExtendedSelection);
 	logView_->setEditTriggers(QTableView::NoEditTriggers);
 
-	resize(400, 120);
+	resize(700, 500);
 
 	connect(enableDebuggingCheckBox_, SIGNAL(stateChanged(int)), this, SLOT(onEnableDebuggingCheckBoxStateChanged(int)));
 }

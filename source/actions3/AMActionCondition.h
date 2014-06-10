@@ -73,6 +73,7 @@ class AMActionCondition : public QObject
 
 public:
 	/// Constructor.
+ 	virtual ~AMActionCondition();
 	explicit AMActionCondition(QObject *parent = 0);
 	
 signals:

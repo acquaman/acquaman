@@ -36,6 +36,7 @@ public:
 	  \param name is the specific name this element should be using.
 	  \param useValueAndUnits determines whether the view should show the value and units or a predetermined phrase of "GOOD" or "BAD".
 	  */
+ 	virtual ~VESPERSDiagnosticsViewElement();
 	explicit VESPERSDiagnosticsViewElement(AMControl *control, QString name, bool useValueAndUnits, QWidget *parent = 0);
 
 protected slots:

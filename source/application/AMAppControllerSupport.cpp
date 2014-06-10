@@ -26,26 +26,35 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/export/AMExporter.h"
 #include "dataman/export/AMExporterOption.h"
 
-AMScanConfigurationObjectInfo::AMScanConfigurationObjectInfo(AMScanConfiguration *prototypeScanConfiguration, AMExporter *prototypeExporter, AMExporterOption *prototypeExporterOption, int useExporterOptionId){
-	initWithMetaObject(prototypeScanConfiguration->metaObject(), prototypeExporter->metaObject(), prototypeExporterOption->metaObject(), useExporterOptionId);
+#include "acquaman/AMScanActionControllerScanOptimizer.h"
+#include "acquaman/AMScanActionControllerScanValidator.h"
+
+ AMScanConfigurationObjectInfo::~AMScanConfigurationObjectInfo(){}
+AMScanConfigurationObjectInfo::AMScanConfigurationObjectInfo(AMScanConfiguration *prototypeScanConfiguration, AMExporter *prototypeExporter, AMExporterOption *prototypeExporterOption, int useExporterOptionId, QString useDatabaseName){
+	initWithMetaObject(prototypeScanConfiguration->metaObject(), prototypeExporter->metaObject(), prototypeExporterOption->metaObject(), useExporterOptionId, useDatabaseName);
 }
 
-AMScanConfigurationObjectInfo::AMScanConfigurationObjectInfo(const QMetaObject *useScanConfigurationMetaObject, const QMetaObject *useExporterMetaObject, const QMetaObject *useExporterOptionMetaObject, int useExporterOptionId){
+AMScanConfigurationObjectInfo::AMScanConfigurationObjectInfo(const QMetaObject *useScanConfigurationMetaObject, const QMetaObject *useExporterMetaObject, const QMetaObject *useExporterOptionMetaObject, int useExporterOptionId, QString useDatabaseName){
 	if(inheritsScanConfiguration(useScanConfigurationMetaObject) && inheritsExporter(useExporterMetaObject) && inheritsExporterOption(useExporterOptionMetaObject) && (useExporterOptionId >= 1))
-		initWithMetaObject(useScanConfigurationMetaObject, useExporterMetaObject, useExporterOptionMetaObject, useExporterOptionId);
+		initWithMetaObject(useScanConfigurationMetaObject, useExporterMetaObject, useExporterOptionMetaObject, useExporterOptionId, useDatabaseName);
 	else{
 		scanConfigurationMetaObject = 0;
 		exporterMetaObject = 0;
 		exporterOptionMetaObject = 0;
 		exporterOptionId = 0;
+		databaseName = QString();
 	}
 }
 
-void AMScanConfigurationObjectInfo::initWithMetaObject(const QMetaObject *useScanConfigurationMetaObject, const QMetaObject *useExporterMetaObject, const QMetaObject *useExporterOptionMetaObject, int useExporterOptionId){
+void AMScanConfigurationObjectInfo::initWithMetaObject(const QMetaObject *useScanConfigurationMetaObject, const QMetaObject *useExporterMetaObject, const QMetaObject *useExporterOptionMetaObject, int useExporterOptionId, QString useDatabaseName){
 	scanConfigurationMetaObject = useScanConfigurationMetaObject;
 	exporterMetaObject = useExporterMetaObject;
 	exporterOptionMetaObject = useExporterOptionMetaObject;
 	exporterOptionId = useExporterOptionId;
+	if (useDatabaseName.isEmpty())
+		databaseName = "user";
+	else
+		databaseName = useDatabaseName;
 	scanConfigurationClassName = useScanConfigurationMetaObject->className();
 	exporterClassName = useExporterMetaObject->className();
 	exporterOptionClassName = useExporterOptionMetaObject->className();
@@ -114,7 +123,10 @@ namespace AMAppControllerSupport{
 		while( i != registeredClasses_.constEnd()){
 			if(i.value().scanConfigurationClassName == scanConfiguration->getMetaObject()->className()){
 				AMExporterOption *exporterOption = qobject_cast<AMExporterOption*>(i.value().exporterOptionMetaObject->newInstance());
-				if(exporterOption && exporterOption->loadFromDb(AMDatabase::database("user"), i.value().exporterOptionId))
+				QString useAsDatabase = QString();
+				if(!i.value().databaseName.isEmpty())
+					useAsDatabase = i.value().databaseName;
+				if(exporterOption && exporterOption->loadFromDb(AMDatabase::database(useAsDatabase), i.value().exporterOptionId))
 					return exporterOption;
 			}
 
@@ -122,5 +134,135 @@ namespace AMAppControllerSupport{
 		}
 		return 0;
 	}
+
+
+
+	QList<AMScanActionControllerScanOptimizer*> principleOptimizers_;
+	QList<AMScanActionControllerScanValidator*> principleValidators_;
+
+	int principleOptimizerCount(){
+		return principleOptimizers_.count();
+	}
+
+	int principleValidatorCount(){
+		return principleValidators_.count();
+	}
+
+	AMScanActionControllerScanOptimizer* principleOptimizerAt(int index){
+		if(index < 0 || index >= principleOptimizers_.count())
+			return 0;
+		return principleOptimizers_.at(index);
+	}
+
+	AMScanActionControllerScanValidator* principleValidatorAt(int index){
+		if(index < 0 || index >= principleValidators_.count())
+			return 0;
+		return principleValidators_.at(index);
+	}
+
+	void addPrincipleOptimizer(int index, AMScanActionControllerScanOptimizer *optimizer){
+		if(index < -1 || index > principleOptimizers_.count() || !optimizer)
+			return;
+		principleOptimizers_.insert(index, optimizer);
+	}
+
+	void addPrincipleValidator(int index, AMScanActionControllerScanValidator *validator){
+		if(index < -1 || index > principleValidators_.count() || !validator)
+			return;
+		principleValidators_.insert(index, validator);
+	}
+
+	void appendPrincipleOptimizer(AMScanActionControllerScanOptimizer *optimizer){
+		if(!optimizer)
+			return;
+		principleOptimizers_.append(optimizer);
+	}
+
+	void appendPrincipleValidator(AMScanActionControllerScanValidator *validator){
+		if(!validator)
+			return;
+		principleValidators_.append(validator);
+	}
+
+	void prependPrincipleOptimizer(AMScanActionControllerScanOptimizer *optimizer){
+		if(!optimizer)
+			return;
+		principleOptimizers_.prepend(optimizer);
+	}
+
+	void prependPrincipleValidator(AMScanActionControllerScanValidator *validator){
+		if(!validator)
+			return;
+		principleValidators_.prepend(validator);
+	}
+
+	AMScanActionControllerScanOptimizer* removePrincipleOptimizer(int index){
+		if(index < 0 || index >= principleOptimizers_.count())
+			return 0;
+		return principleOptimizers_.takeAt(index);
+	}
+
+	AMScanActionControllerScanValidator* removePrincipleValidator(int index){
+		if(index < 0 || index >= principleValidators_.count())
+			return 0;
+		return principleValidators_.takeAt(index);
+	}
+
+	QList<AMScanActionControllerScanOptimizer*> principleOptimizersCopy(){
+		QList<AMScanActionControllerScanOptimizer*> principleOptimizersCopy;
+		for(int x = 0; x < principleOptimizers_.count(); x++)
+			principleOptimizersCopy.append(principleOptimizers_.at(x));
+		return principleOptimizersCopy;
+	}
+
+	QList<AMScanActionControllerScanValidator*> principleValidatorsCopy(){
+		QList<AMScanActionControllerScanValidator*> principleValidatorsCopy;
+		for(int x = 0; x < principleValidators_.count(); x++)
+			principleValidatorsCopy.append(principleValidators_.at(x));
+		return principleValidatorsCopy;
+	}
+
+	void optimize(QList<AMScanActionControllerScanOptimizer *> optimizers, AMAction3 *scanActionTree){
+		if(!scanActionTree)
+			return;
+		for(int x = 0; x < optimizers.count(); x++){
+			optimizers.at(x)->setScanActionTree(scanActionTree);
+			optimizers.at(x)->optimize();
+		}
+	}
+
+	bool validate(QList<AMScanActionControllerScanValidator *> validators, AMAction3 *scanActionTree){
+		if(!scanActionTree)
+			return false;
+		for(int x = 0; x < validators.count(); x++){
+			validators.at(x)->setScanActionTree(scanActionTree);
+			if(!validators.at(x)->validate())
+				return false;
+		}
+		return true;
+	}
+
+	QList<AMActionRunnerGroup*> actionRunnerGroups_;
+
+	void addActionRunnerGroup(const QString &databaseName, AMActionRunner3 *actionRunner, AMActionHistoryModel3 *actionHistoryModel){
+		actionRunnerGroups_.append(new AMActionRunnerGroup(databaseName, actionRunner, actionHistoryModel));
+	}
+
+	AMActionRunner3* actionRunnerFromDatabaseName(const QString &databaseName){
+		for(int x = 0; x < actionRunnerGroups_.count(); x++)
+			if(actionRunnerGroups_.at(x)->databaseName() == databaseName)
+				return actionRunnerGroups_.at(x)->actionRunner();
+
+		return 0;
+	}
+
+	AMActionHistoryModel3* actionHistoryModelFromDatabaseName(const QString &databaseName){
+		for(int x = 0; x < actionRunnerGroups_.count(); x++)
+			if(actionRunnerGroups_.at(x)->databaseName() == databaseName)
+				return actionRunnerGroups_.at(x)->actionHistoryModel();
+
+		return 0;
+	}
 }
 
+ AMActionRunnerGroup::~AMActionRunnerGroup(){}

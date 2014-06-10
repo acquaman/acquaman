@@ -21,9 +21,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef ALSBL8XESDETECTORINFO_H
 #define ALSBL8XESDETECTORINFO_H
 
-#include "dataman/info/AMDetectorInfo.h"
+#include "dataman/info/AMOldDetectorInfo.h"
 
-class ALSBL8XESDetectorInfo : public AMDetectorInfo
+class ALSBL8XESDetectorInfo : public AMOldDetectorInfo
 {
 	Q_OBJECT
 
@@ -63,6 +63,7 @@ class ALSBL8XESDetectorInfo : public AMDetectorInfo
 	Q_CLASSINFO("AMDbObject_Attributes", "description=ALS BL8.0.1 XES Spectrometer Settings")
 
 public:
+ 	virtual ~ALSBL8XESDetectorInfo();
 	explicit ALSBL8XESDetectorInfo(QObject *parent = 0);
 
 	// Dimensionality and size:

@@ -22,11 +22,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMErrorMonitor.h"
 
 /// Note that AMDbObject and AMDataSource both have a name(). (These are not virtual, for now.)  In this constructor, we initialize AMDataSource() with \c outputName, and also AMDbObject::setName() with the same.  As long as no one calls AMDbObject::setName(), these will stay consistent.  AMDataSource names are not supposed to change...
+ AMAnalysisBlock::~AMAnalysisBlock(){}
 AMAnalysisBlock::AMAnalysisBlock(const QString& outputName, QObject* parent)
 	: AMDbObject(parent), AMDataSource(outputName)
 {
 	AMDbObject::setName(outputName);
 	state_ = AMDataSource::InvalidFlag;
+	scan_ = 0;
 }
 
 bool AMAnalysisBlock::setInputDataSources(const QList<AMDataSource*>& dataSources) {
@@ -68,3 +70,19 @@ void AMAnalysisBlock::onInputSourceDeleted(void* deletedSource) {
 	setInputDataSourcesImplementation(QList<AMDataSource*>());
 	emit inputSourcesChanged();
 }
+
+#include "ui/dataman/AMSimpleDataSourceEditor.h"
+
+QWidget* AMAnalysisBlock::createEditorWidget()
+{
+	return new AMSimpleDataSourceEditor(this);
+}
+
+void AMAnalysisBlock::setVisibleInPlots(bool isVisible){
+
+	if(isVisible == visibleInPlots()) return;
+
+	AMDataSource::setVisibleInPlots(isVisible);
+	setModified(true);
+}
+

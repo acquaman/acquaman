@@ -41,18 +41,17 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "acquaman.h"
 
-
-
-#include <QDebug>
-
 AMExportWizard::AMExportWizard(AMExportController* controller, QWidget *parent) :
 	QWizard(parent)
 {
 	controller_ = controller;
+	optionsDatabases_ << "user";
 	connect(controller_, SIGNAL(destroyed()), this, SLOT(onControllerDeleted()));
 
 	addPage(new AMExportWizardChooseExporterPage);
-	addPage(new AMExportWizardOptionPage);
+	optionsPage_ = new AMExportWizardOptionPage();
+	addPage(optionsPage_);
+	//addPage(new AMExportWizardOptionPage);
 	addPage(new AMExportWizardProgressPage);
 
 	setWindowTitle(QString("Exporting %1 Scans...").arg(controller_->scanCount()));
@@ -60,6 +59,11 @@ AMExportWizard::AMExportWizard(AMExportController* controller, QWidget *parent) 
 	setOption(QWizard::NoBackButtonOnLastPage, true);
 }
 
+void AMExportWizard::setOptionsDatabases(const QStringList &optionsDatabases){
+	 optionsDatabases_ = optionsDatabases;
+	 if(optionsPage_)
+		 optionsPage_->setOptionsDatabases(optionsDatabases_);
+}
 
 void AMExportWizard::done(int result) {
 
@@ -85,6 +89,7 @@ void AMExportWizard::done(int result) {
 	QWizard::done(result);
 }
 
+ AMExportWizardChooseExporterPage::~AMExportWizardChooseExporterPage(){}
 AMExportWizardChooseExporterPage::AMExportWizardChooseExporterPage(QWidget *parent)
 	: QWizardPage(parent)
 {
@@ -173,11 +178,15 @@ void AMExportWizardChooseExporterPage::initializePage()
 }
 
 void AMExportWizardChooseExporterPage::onBrowseButtonClicked()
-{
-	destinationFolder_->setText(QFileDialog::getExistingDirectory(this, "Export Location", destinationFolder_->text()));
+{	
+	int pos(0);
+	QString inputText(QFileDialog::getExistingDirectory(this, "Export Location", destinationFolder_->text()));
+	destinationFolder_->setText(inputText);
+	destinationFolder_->validator()->validate(inputText, pos);
 }
 
 
+ AMExportWizardOptionPage::~AMExportWizardOptionPage(){}
 AMExportWizardOptionPage::AMExportWizardOptionPage(QWidget *parent)
 {
 	Q_UNUSED(parent)
@@ -190,12 +199,14 @@ AMExportWizardOptionPage::AMExportWizardOptionPage(QWidget *parent)
 	optionViewContainer_->setLayout(new QVBoxLayout());
 	optionViewContainer_->layout()->setContentsMargins(0,0,0,0);
 	saveOptionButton_ = new QPushButton("Save Settings");
+	saveAsOptionButton_ = new QPushButton("Save As...");
 
 	QHBoxLayout* hl = new QHBoxLayout();
 	hl->addWidget(new QLabel("Saved Templates:"));
 	hl->addWidget(optionSelector_);
 	hl->addStretch();
 	hl->addWidget(saveOptionButton_);
+	hl->addWidget(saveAsOptionButton_);
 
 	QVBoxLayout* vl = new QVBoxLayout();
 	vl->addLayout(hl);
@@ -205,6 +216,7 @@ AMExportWizardOptionPage::AMExportWizardOptionPage(QWidget *parent)
 
 	connect(optionSelector_, SIGNAL(currentIndexChanged(int)), this, SLOT(onOptionSelectorIndexChanged(int)));
 	connect(saveOptionButton_, SIGNAL(clicked()), this, SLOT(onSaveOptionButtonClicked()));
+	connect(saveAsOptionButton_, SIGNAL(clicked()), this, SLOT(onSaveAsOptionButtonClicked()));
 
 	setTitle("Choose Export Options");
 	setSubTitle(("The options available here depend on the file format you've selected.  You can save a set of options as a template for next time using the 'Save'/'Save As...' button."));
@@ -213,8 +225,14 @@ AMExportWizardOptionPage::AMExportWizardOptionPage(QWidget *parent)
 bool AMExportWizardOptionPage::onSaveOptionButtonClicked() {
 	// is this option previously saved?
 	if(option_->database() != 0 && option_->id() > 0) {
-		option_->storeToDb(option_->database());
-		return true;
+		if(option_->database() == AMDatabase::database("user")){
+			option_->storeToDb(option_->database());
+			return true;
+		}
+		else{
+			QMessageBox::information(this, "Cannot Overwrite", "This template belongs to someone else, if you wish to alter it you can choose \"Save As...\" to make your own copy.", QMessageBox::Ok);
+			return false;
+		}
 	}
 
 	else {
@@ -236,11 +254,12 @@ bool AMExportWizardOptionPage::onSaveOptionButtonClicked() {
 				if(option_->storeToDb(AMDatabase::database("user"))) {
 					// populateOptionSelector(); instead... sneak it into the list without forcing a re-load.
 					optionSelector_->blockSignals(true);
-					optionSelector_->addItem(option_->name(), option_->id());
+					optionSelector_->addItem(option_->name(), QString("%1||%2").arg(option_->database()->connectionName()).arg(option_->id()));
 					optionSelector_->setCurrentIndex(optionSelector_->count()-1);
 					optionSelector_->blockSignals(false);
 					saveOptionButton_->setText("Save");
 					saveOptionButton_->setEnabled(option_->modified());
+					saveAsOptionButton_->setEnabled(option_->modified());
 					return true;
 				}
 				else
@@ -252,6 +271,42 @@ bool AMExportWizardOptionPage::onSaveOptionButtonClicked() {
 	}
 }
 
+bool AMExportWizardOptionPage::onSaveAsOptionButtonClicked(){
+	AMExporterOption *copiedOption = option_->createCopy();
+	controller_->setOption(copiedOption);
+	option_ = copiedOption;
+	// not stored yet... Need to ask for a name
+	bool ok = true;
+	QString name;
+	while(ok && name.isEmpty()) {	// on second round, means they accepted the dialog, but gave a blank name.
+		name = QInputDialog::getText(this, "Save Settings As...",
+									 "Please provide a name for this template:",
+									 QLineEdit::Normal,
+									 exporter_->description() % " " % QDateTime::currentDateTime().toString("MMM d yyyy"),
+									 &ok);
+
+		if(ok && name.isEmpty())
+			QMessageBox::information(this, "Missing name", "You must provide a name if you want to save this template.", QMessageBox::Ok);
+		else if(ok) {
+			option_->setName(name);
+			if(option_->storeToDb(AMDatabase::database("user"))) {
+				// populateOptionSelector(); instead... sneak it into the list without forcing a re-load.
+				optionSelector_->blockSignals(true);
+				optionSelector_->addItem(option_->name(), QString("%1||%2").arg(option_->database()->connectionName()).arg(option_->id()));
+				optionSelector_->setCurrentIndex(optionSelector_->count()-1);
+				optionSelector_->blockSignals(false);
+				saveOptionButton_->setText("Save");
+				saveOptionButton_->setEnabled(option_->modified());
+				saveAsOptionButton_->setEnabled(option_->modified());
+				return true;
+			}
+			else
+				return false;	// storeToDb save failed.
+		}
+	}
+	// prompt was cancelled; not saved.
+	return false;
+}
 
 bool AMExportWizardOptionPage::validatePage()
 {
@@ -285,7 +340,9 @@ bool AMExportWizardOptionPage::validatePage()
 	}
 }
 
-
+void AMExportWizardOptionPage::setOptionsDatabases(const QStringList &optionsDatabases){
+	optionsDatabases_ = optionsDatabases;
+}
 
 
 
@@ -307,16 +364,21 @@ void AMExportWizardOptionPage::onOptionSelectorIndexChanged(int index)
 	if(index < 1) {
 		option_ = exporter_->createDefaultOption();
 		controller_->setOption(option_);	// will delete the previous option_
-		saveOptionButton_->setText("Save As...");
+		//saveOptionButton_->setText("Save As...");
+		saveOptionButton_->setEnabled(false);
+		saveAsOptionButton_->setEnabled(true);
 	}
 
 	// or load saved option
 	else {
+		QString optionInfo = optionSelector_->itemData(optionSelector_->currentIndex()).toString();
+
 		option_ = qobject_cast<AMExporterOption*>(
 					AMDbObjectSupport::s()->createAndLoadObjectAt(
-						AMDatabase::database("user"),
+						AMDatabase::database(optionInfo.section("||", 0, 0)),
 						AMDbObjectSupport::s()->tableNameForClass(exporter_->exporterOptionClassName()),
-						optionSelector_->itemData(optionSelector_->currentIndex()).toInt()));
+						optionInfo.section("||", 1, 1).toInt()));
+
 		controller_->setOption(option_); // will delete the previous option_
 		saveOptionButton_->setText("Save");
 	}
@@ -328,7 +390,9 @@ void AMExportWizardOptionPage::onOptionSelectorIndexChanged(int index)
 
 
 	saveOptionButton_->setEnabled(option_->modified());
+	saveAsOptionButton_->setEnabled(option_->modified());
 	connect(option_, SIGNAL(modifiedChanged(bool)), saveOptionButton_, SLOT(setEnabled(bool)));
+	connect(option_, SIGNAL(modifiedChanged(bool)), saveAsOptionButton_, SLOT(setEnabled(bool)));
 }
 
 void AMExportWizardOptionPage::populateOptionSelector()
@@ -339,12 +403,18 @@ void AMExportWizardOptionPage::populateOptionSelector()
 	// add "New Option" item
 	optionSelector_->addItem("New Template", -1);
 
-	// fill option combo box
-	QSqlQuery q = AMDbObjectSupport::s()->select(AMDatabase::database("user"), exporter_->exporterOptionClassName(), "id, name");
-	q.exec();
-	while(q.next()) {
-		optionSelector_->addItem(q.value(1).toString(),
-								 q.value(0).toInt());	// note: putting the database id in Qt::UserRole.
+	// fill option combo box (loop over the requested databases)
+	QSqlQuery q;
+	for(int x = 0; x < optionsDatabases_.count(); x++){
+		q = AMDbObjectSupport::s()->select(AMDatabase::database(optionsDatabases_.at(x)), exporter_->exporterOptionClassName(), "id, name");
+		q.exec();
+
+		while(q.next()) {
+			int dbId = q.value(0).toInt();
+			optionSelector_->addItem(q.value(1).toString(),
+						 QString("%1||%2").arg(optionsDatabases_.at(x)).arg(dbId));	// note: putting the database id in Qt::UserRole.
+		}
+		q.finish();
 	}
 
 	optionSelector_->setCurrentIndex(optionSelector_->count()-1);
@@ -357,6 +427,7 @@ void AMExportWizardOptionPage::populateOptionSelector()
 // AMExportWizardProgressPage
 /////////////////////////////////
 
+ AMExportWizardProgressPage::~AMExportWizardProgressPage(){}
 AMExportWizardProgressPage::AMExportWizardProgressPage(QWidget *parent)
 {
 	Q_UNUSED(parent)

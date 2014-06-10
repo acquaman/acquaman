@@ -1,160 +1,155 @@
-/*
-Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
-
-This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
-
-Acquaman is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-Acquaman is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
-
 #include "AMSamplePlateView.h"
-#include "dataman/database/AMDbObjectSupport.h"
-#include "ui/dataman/AMSamplePositionViewActionsWidget.h"
 
-#include "ui/AMDetailedItemDelegate.h"
+#include <QListView>
+#include <QApplication>
+#include <QPainter>
+#include <QVBoxLayout>
+#include <QLabel>
+#include <QToolButton>
+#include <QPushButton>
 
-#include "beamline/AMSampleManipulator.h"
-#include "util/AMErrorMonitor.h"
+#include "util/AMDateTimeUtils.h"
+#include "ui/dataman/AMSampleView.h"
 
-AMSamplePlateItemModel::AMSamplePlateItemModel(AMSamplePlate* plate, QObject* parent) :
+AMSamplePlateItemModel::AMSamplePlateItemModel(AMSamplePlate *samplePlate, QObject *parent) :
 	QAbstractListModel(parent)
 {
-	plate_ = plate;
+	samplePlate_ = samplePlate;
 
-	sampleTableName_ = AMDbObjectSupport::s()->tableNameForClass<AMSample>();
-
-	connect(plate_, SIGNAL(samplePositionAboutToBeAdded(int)), this, SLOT(onSamplePositionAboutToBeAdded(int)));
-	connect(plate_, SIGNAL(samplePositionAdded(int)), this, SLOT(onSamplePositionAdded(int)));
-	connect(plate_, SIGNAL(samplePositionAboutToBeRemoved(int)), this, SLOT(onSamplePositionAboutToBeRemoved(int)));
-	connect(plate_, SIGNAL(samplePositionRemoved(int)), this, SLOT(onSamplePositionRemoved(int)));
-	connect(plate_, SIGNAL(samplePositionChanged(int)), this, SLOT(onSamplePositionChanged(int)));
-
-	connect(AMDatabase::database("user"), SIGNAL(updated(QString,int)), this, SLOT(onDatabaseItemUpdated(QString,int)), Qt::QueuedConnection);
-	connect(AMDatabase::database("user"), SIGNAL(removed(QString,int)), this, SLOT(onDatabaseItemRemoved(QString,int)), Qt::QueuedConnection);
-
-	cachedSamples_.reserve(plate_->count());
-	for(int i=plate_->count()-1; i>=0; i--)
-		cachedSamples_ << AMSample();
-}
-
-
-// Return the sample position, formatted as a string: ex: X: 33mm Y: 47.9mm Z: -92mm
-QString AMSamplePlateItemModel::positionsString(int index) const {
-
-	const AMControlInfoList& positions = plate_->at(index).position();
-
-	QStringList sl;
-	for(int i=0; i<positions.count(); i++) {
-		const AMControlInfo& pos = positions.at(i);
-
-		//QString s = QString("%1: %2%3").arg(pos.name()).arg(pos.value()).arg(pos.units());
-		QString s;
-		if(pos.contextKnownDescription() != "")
-			s = QString("%1: %2%3").arg(pos.contextKnownDescription()).arg(pos.value(), 0, 'g', 3).arg(pos.units());
-		else if(pos.description() != "")
-			s = QString("%1: %2%3").arg(pos.description()).arg(pos.value(), 0, 'g', 3).arg(pos.units());
-		else
-			s = QString("%1: %2%3").arg(pos.name()).arg(pos.value(), 0, 'g', 3).arg(pos.units());
-
-		sl << s;
+	if(samplePlate_){
+		connect(samplePlate_, SIGNAL(sampleAboutToBeAdded(int)), this, SLOT(onSampleAboutToBeAdded(int)));
+		connect(samplePlate_, SIGNAL(sampleAdded(int)), this, SLOT(onSampleAdded(int)));
+		connect(samplePlate_, SIGNAL(sampleAboutToBeRemoved(int)), this, SLOT(onSampleAboutToBeRemoved(int)));
+		connect(samplePlate_, SIGNAL(sampleRemoved(int)), this, SLOT(onSampleRemoved(int)));
+		connect(samplePlate_, SIGNAL(sampleChanged(int)), this, SLOT(onSampleChanged(int)));
 	}
-
-	return sl.join("  ");
-
 }
 
-// Received from AMSamplePlate. Used to implement beginInsertRows.
-void AMSamplePlateItemModel::onSamplePositionAboutToBeAdded(int index) {
-	beginInsertRows(QModelIndex(), index, index);
-	cachedSamples_.insert(index, AMSample());
+int AMSamplePlateItemModel::rowCount(const QModelIndex &parent) const
+{
+	if(parent.isValid() || !samplePlate_)
+		return 0;
+	return samplePlate_->sampleCount();
 }
 
-// Received from AMSamplePlate. Used to implement endInsertRows.
-void AMSamplePlateItemModel::onSamplePositionAdded(int index) {
+QVariant AMSamplePlateItemModel::data(const QModelIndex &index, int role) const
+{
+	if(index.parent().isValid() || index.column() > 0 || !samplePlate_)
+		return QVariant();
+	switch(role){
+	case Qt::DisplayRole:
+	case Qt::EditRole:
+		return samplePlate_->sampleAt(index.row())->name();
+	case Qt::DecorationRole:
+		return QApplication::style()->standardIcon(QStyle::SP_FileIcon);	/// \todo implement pictures
+	case AM::DateTimeRole:
+		return samplePlate_->sampleAt(index.row())->dateTime();
+	case AM::DescriptionRole:
+		if(samplePlate_->sampleAt(index.row())->modified())
+			return QString("MODIFIED");
+		else
+			return QString("created ") +  AMDateTimeUtils::prettyDateTime(samplePlate_->sampleAt(index.row())->dateTime());
+
+		/*
+	case AM::UserRole:
+		return sampleElements(index.row());
+	case AM::UserRole + 1:
+		return positionsString(index.row());
+	case AM::UserRole + 2:
+		return facilityName(index.row());
+
+		/// Returns a pointer to the AMSamplePosition object here. Can access all the additional information directly.
+	case AM::PointerRole:
+		return QVariant::fromValue((QObject*)&(plate_->at(index.row())));
+		*/
+
+	default:
+		return QVariant();
+	}
+}
+
+Qt::ItemFlags AMSamplePlateItemModel::flags(const QModelIndex &index) const
+{
 	Q_UNUSED(index)
 
+	//return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable;
+	return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable;
+}
+
+QVariant AMSamplePlateItemModel::headerData(int section, Qt::Orientation orientation, int role) const
+{
+	Q_UNUSED(section)
+
+	if(orientation == Qt::Horizontal && role == Qt::DisplayRole)
+		return QString("Samples");
+	else
+		return QVariant();
+}
+
+void AMSamplePlateItemModel::onSampleAboutToBeAdded(int index){
+	beginInsertRows(QModelIndex(), index, index);
+}
+
+void AMSamplePlateItemModel::onSampleAdded(int index){
+	Q_UNUSED(index);
 	endInsertRows();
 }
 
-// Received from AMSamplePlate. Used to implement beginRemoveRows.
-void AMSamplePlateItemModel::onSamplePositionAboutToBeRemoved(int index) {
-
+void AMSamplePlateItemModel::onSampleAboutToBeRemoved(int index){
 	beginRemoveRows(QModelIndex(), index, index);
 }
 
-// Received from AMSamplePlate. Used to implement endRemoveRows.
-void AMSamplePlateItemModel::onSamplePositionRemoved(int index) {
-
-	cachedSamples_.removeAt(index);
+void AMSamplePlateItemModel::onSampleRemoved(int index){
+	Q_UNUSED(index)
 	endRemoveRows();
 }
 
-// Access a cached sample object, ensuring it is loaded from the database and up-to-date
-const AMSample& AMSamplePlateItemModel::getCachedSample(int index) const {
-	int correctId = plate_->at(index).sampleId();
-
-	// we can tell if this one's been loaded by looking at its id. If it's 0 (or a wrong id), it's not the sample info we want.
-	if(cachedSamples_.at(index).id() != correctId) {
-		if(!cachedSamples_[index].loadFromDb(AMDatabase::database("user"), correctId)) {
-			cachedSamples_[index].setName("[Unknown Sample]");
-		}
-	}
-
-	return cachedSamples_.at(index);
+void AMSamplePlateItemModel::onSampleChanged(int index){
+	emit dataChanged(createIndex(index, 0, samplePlate_->sampleAt(index)), createIndex(index, 0, samplePlate_->sampleAt(index)));
 }
 
+AMSamplePlateItemEditor::AMSamplePlateItemEditor(int row, QWidget *parent) :
+	QWidget(parent)
+{
+	row_ = row;
 
-// Watches the database for update signals... To see if sample information changes for one of our existing sampleIds...
-void AMSamplePlateItemModel::onDatabaseItemUpdated(const QString &tableName, int id) {
-	if(tableName != sampleTableName_)
-		return;
+	moveToButton_ = new QToolButton();
+	moveToButton_->setText("Move To");
+	moreInfoButton_ = new QToolButton();
+	moreInfoButton_->setText("More Info");
+	closeButton_ = new QToolButton();
+	closeButton_->setIcon(QApplication::style()->standardIcon(QStyle::SP_DockWidgetCloseButton));
 
-	// ok, this update was on the sample table. Check all of our cached samples to see if it was their id that was updated.
-	for(int i=0; i<cachedSamples_.count(); i++) {
-		if(cachedSamples_.at(i).id() == id) {
-			// it was this sample! reload from db
-			if(!cachedSamples_[i].loadFromDb(AMDatabase::database("user"), id)) {
-				cachedSamples_[i].setName("[Unknown Sample]");
-			}
-			emit dataChanged(index(i), index(i));
-		}
-	}
+	QHBoxLayout *hl = new QHBoxLayout();
+	hl->addWidget(moveToButton_);
+	hl->addWidget(moreInfoButton_);
+	hl->addWidget(closeButton_);
+	hl->setContentsMargins(0,0,0,0);
+	setLayout(hl);
+
+	connect(moveToButton_, SIGNAL(pressed()), this, SLOT(onMoveToButtonClicked()));
+	connect(moreInfoButton_, SIGNAL(pressed()), this, SLOT(onMoreInfoButtonClicked()));
+	connect(closeButton_, SIGNAL(pressed()), this, SLOT(onCloseButtonPressed()));
 }
 
-void AMSamplePlateItemModel::onDatabaseItemRemoved(const QString &tableName, int id) {
-	if(tableName != sampleTableName_)
-		return;
-
-	// ok, this update was on the sample table. Check all of our cached samples to see if it was their id that was deleted.
-	for(int i=0; i<cachedSamples_.count(); i++) {
-		if(cachedSamples_.at(i).id() == id) {
-			// it was this sample! Oh dear, It's gone.. what to do?
-			cachedSamples_[i] = AMSample();
-			cachedSamples_[i].setName("[Deleted Sample]");
-			emit dataChanged(index(i), index(i));
-		}
-	}
+void AMSamplePlateItemEditor::onMoveToButtonClicked(){
+	emit rowMoveToPressed(row_);
 }
 
-
-
-AMSamplePlateItemDelegate::AMSamplePlateItemDelegate(QObject* parent) : QStyledItemDelegate(parent) {
-
+void AMSamplePlateItemEditor::onMoreInfoButtonClicked(){
+	emit rowMoreInfoPressed(row_);
 }
 
-AMSamplePlateItemDelegate::~AMSamplePlateItemDelegate() {
+void AMSamplePlateItemEditor::onCloseButtonPressed(){
+	emit rowClosedPressed(row_);
+}
 
+AMSamplePlateItemDelegate::AMSamplePlateItemDelegate(QObject *parent) :
+	QStyledItemDelegate(parent)
+{
+}
+
+AMSamplePlateItemDelegate::~AMSamplePlateItemDelegate(){
 }
 
 void AMSamplePlateItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const {
@@ -242,16 +237,16 @@ QSize AMSamplePlateItemDelegate::sizeHint(const QStyleOptionViewItem &option, co
 	return original.expandedTo(QSize(10, 66));
 }
 
+
 // create an editor widget with buttons to mark, move to, and remove this sample.
 QWidget* AMSamplePlateItemDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const {
 
 	Q_UNUSED(option)
+	AMSamplePlateItemEditor *editor = new AMSamplePlateItemEditor(index.row(), parent);
 
-	AMSamplePositionViewActionsWidget* editor = new AMSamplePositionViewActionsWidget(index.row(), parent);
-
-	connect(editor, SIGNAL(rowMarkPressed(int)), this, SIGNAL(rowMarkPressed(int)));
 	connect(editor, SIGNAL(rowMoveToPressed(int)), this, SIGNAL(rowMoveToPressed(int)));
-	connect(editor, SIGNAL(rowRemovePressed(int)), this, SIGNAL(rowRemovePressed(int)));
+	connect(editor, SIGNAL(rowMoreInfoPressed(int)), this, SIGNAL(rowMoreInfoPressed(int)));
+	connect(editor, SIGNAL(rowClosedPressed(int)), this, SIGNAL(rowClosedPressed(int)));
 
 	return editor;
 }
@@ -280,331 +275,117 @@ void AMSamplePlateItemDelegate::setModelData(QWidget *editor, QAbstractItemModel
 	Q_UNUSED(index)
 }
 
+AMSamplePlateView::AMSamplePlateView(AMSamplePlate *samplePlate, QWidget *parent) :
+	QGroupBox("No Sample Plate", parent)
+{
+	samplePlate_ = 0; //NULL
+	samplePlateItemModel_ = 0; //NULL
+	sampleListView_ = 0; //NULL
 
-
-
-AMSamplePlateSelector::AMSamplePlateSelector(AMSamplePlate* sourcePlate, QWidget *parent)
-	: QWidget(parent) {
-
-	samplePlateTableName_ = AMDbObjectSupport::s()->tableNameForClass<AMSamplePlate>();
-	// Either use an external plate (if specified in sourcePlate), or make an internal one.
-	plate_ = sourcePlate ? sourcePlate : new AMSamplePlate(this);
-
-	ui_.setupUi(this);
-	ui_.notesEditor->setObjectName("notesEditor");
-	ui_.notesEditor->setStyleSheet("#notesEditor { background-image: url(:/notepadBackground.png); font: bold 15px \"Marker Felt\";}");
-
-	AMDetailedItemDelegate* del = new AMDetailedItemDelegate(this);
-	// Setting a new view fixes a grayed-menu-background drawing bug on mac
-	QListView* lview = new QListView(this);
-	lview->setItemDelegate(del);
-	lview->setAlternatingRowColors(true);
-	ui_.plateComboBox->setView(lview);
-
-	ui_.notesEditor->setMaximumHeight(80);
-	this->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-
-	connect(&plateRefreshScheduler_, SIGNAL(executed()), this, SLOT(populateSamplePlates()));
-	plateRefreshScheduler_.schedule();
-
-	onSamplePlateChanged(/*plate_->valid()*/);
-
-	connect(AMDatabase::database("user"), SIGNAL(updated(QString,int)), this, SLOT(onDatabaseUpdated(QString,int)), Qt::QueuedConnection);
-	connect(AMDatabase::database("user"), SIGNAL(created(QString,int)), this, SLOT(onDatabaseCreated(QString,int)), Qt::QueuedConnection);
-	connect(AMDatabase::database("user"), SIGNAL(removed(QString,int)), this, SLOT(onDatabaseRemoved(QString,int)), Qt::QueuedConnection);
-
-	// GUI event connections
-	connect(ui_.plateComboBox, SIGNAL(activated(int)), this, SLOT(onComboBoxActivated(int)));
-	connect(ui_.nameEdit, SIGNAL(textEdited(QString)), this, SLOT(onNameEdited(QString)));
-	connect(ui_.nameEdit, SIGNAL(editingFinished()), this, SLOT(onPlateEditingFinished()));
-	connect(ui_.notesEditor, SIGNAL(textChanged()), this, SLOT(onNotesEdited()));
-	connect(ui_.notesEditor, SIGNAL(editingFinished(int)), this, SLOT(onPlateEditingFinished()));
-
-	ui_.notesHeaderButton->setChecked(false);
-	ui_.notesEditor->setVisible(false);
-	connect(ui_.notesHeaderButton, SIGNAL(clicked(bool)), ui_.notesEditor, SLOT(setVisible(bool)));
-
-	// when our current sample plate is re-loaded out of the database, respond to update the GUI values
-	connect(plate_, SIGNAL(loadedFromDb()), this, SLOT(onSamplePlateChanged()), Qt::QueuedConnection);
-}
-
-void AMSamplePlateSelector::onSamplePlateChanged(/*bool isValid*/) {
-	if(/*isValid &&*/ plate_->id() > 0) {
-		ui_.nameEdit->setText(plate_->name());
-		ui_.createdLabel->setText(AMDateTimeUtils::prettyDateTime(plate_->dateTime()));
-		ui_.notesEditor->setText("todo");
-
-		// select as current in combo box. If this plate's id is not in the list, findData will return -1 and setCurrentIndex() will select nothing
-		ui_.plateComboBox->setCurrentIndex( ui_.plateComboBox->findData(plate_->id(), AM::IdRole) );
-
-		emit samplePlateChanged();
-	}
-	else {
-		ui_.nameEdit->setText("[no sample plate selected]");
-		ui_.createdLabel->setText("");
-		ui_.notesEditor->setText("");
-
-		ui_.plateComboBox->setCurrentIndex( -1 );
-	}
-}
-
-
-
-void AMSamplePlateSelector::populateSamplePlates() {
-
-	plateRefreshScheduler_.unschedule();
-
-	ui_.plateComboBox->clear();
-	ui_.plateComboBox->addItem("Create New Sample Plate...");
-	ui_.plateComboBox->setItemData(0, -777);	// as a safety check, this makes sure that the "Sample Plate Id" of the "Create New..." item is an invalid index.
-
-	QSqlQuery q2 = AMDatabase::database("user")->query();
-	q2.prepare(QString("SELECT id,name,dateTime FROM %1 ORDER BY dateTime ASC").arg(samplePlateTableName_));
-	q2.exec();
-	int id;
-	QString name;
-	QDateTime dateTime;
-	int index = 0;
-	while(q2.next()) {
-		index++;
-		id = q2.value(0).toInt();
-		name = q2.value(1).toString();
-		dateTime = q2.value(2).toDateTime();
-		ui_.plateComboBox->addItem(name);
-		ui_.plateComboBox->setItemData(index, id, AM::IdRole);
-		ui_.plateComboBox->setItemData(index, dateTime, AM::DateTimeRole);
-		ui_.plateComboBox->setItemData(index, "created " + AMDateTimeUtils::prettyDateTime(dateTime), AM::DescriptionRole);
-	}
-	q2.finish();
-
-	// highlight the item corresponding to our current plate index
-	ui_.plateComboBox->setCurrentIndex( ui_.plateComboBox->findData(plate_->id(), AM::IdRole) );
-
-}
-
-
-void AMSamplePlateSelector::onComboBoxActivated(int index){
-
-	// index is the activated index within the existingPlates_ combo box. It could mean...
-
-	// nothing at all selected
-	if(index < 0)
-		return;
-
-	// 'Create New Plate..." option selected
-	else if(index == 0)
-		startCreatingNewPlate();
-
-	// In this case, someone has chosen an existing sample plate
-	else {
-		changeSamplePlate(ui_.plateComboBox->itemData(index, AM::IdRole).toInt());
-	}
-}
-
-
-void AMSamplePlateSelector::startCreatingNewPlate() {
-	// We're going to steal the name edit as the place for the user to enter the name of this new plate
-	disconnect(ui_.nameEdit, SIGNAL(textEdited(QString)), this, SLOT(onNameEdited(QString)));
-	disconnect(ui_.nameEdit, SIGNAL(editingFinished()), this, SLOT(onPlateEditingFinished()));
-	ui_.nameEdit->setText("[New Sample Plate Name]");
-	ui_.nameEdit->setFocus();
-	ui_.nameEdit->selectAll();
-	connect(ui_.nameEdit, SIGNAL(editingFinished()), this, SLOT(onFinishCreatingNewPlate()));
-
-}
-
-void AMSamplePlateSelector::onFinishCreatingNewPlate() {
-
-	// restore usual connections for the name edit box...
-	disconnect(ui_.nameEdit, SIGNAL(editingFinished()), this, SLOT(onFinishCreatingNewPlate()));
-
-	ui_.nameEdit->clearFocus();
-	connect(ui_.nameEdit, SIGNAL(textEdited(QString)), this, SLOT(onNameEdited(QString)));
-	connect(ui_.nameEdit, SIGNAL(editingFinished()), this, SLOT(onPlateEditingFinished()));
-
-	QString newName = ui_.nameEdit->text();
-	if(newName.isEmpty())
-		return;
-
-	AMSamplePlate newPlate;
-	newPlate.setName(ui_.nameEdit->text());
-	if(newPlate.storeToDb(AMDatabase::database("user")))
-		changeSamplePlate(newPlate.id());
-
-	// this update will be picked up by our 'onDatabaseUpdated()' slot
-
-}
-
-void AMSamplePlateSelector::onDatabaseUpdated(const QString &tableName, int id) {
-
-	if(tableName != samplePlateTableName_ )
-		return;
-
-	if(id < 1)	// invalid ids here mean need a full table update
-		return onDatabaseCreated(tableName, id);
-
-	int index = ui_.plateComboBox->findData(id, AM::IdRole);
-	// do we have it?
-	if(index == -1)
-		return;
-
-	/// \badcode Assuming here that it was this object that caused the update with a storeToDb, so the updated values are already inside it. This will be incorrect if someone else updated the database behind our back.  Maybe we need to implement some kind of locking, or some way to tell if this is "our" object's update or caused by another edit.
-	if(id == plate_->id()) {
-		// update combo box entries:
-		ui_.plateComboBox->setItemData(index, plate_->name(), Qt::DisplayRole);
-		ui_.plateComboBox->setItemData(index, plate_->dateTime(), AM::DateTimeRole);
-		ui_.plateComboBox->setItemData(index, "created " + AMDateTimeUtils::prettyDateTime(plate_->dateTime()), AM::DescriptionRole);
-
-		// update editor widgets
-		ui_.nameEdit->setText(plate_->name());
-		ui_.createdLabel->setText(AMDateTimeUtils::prettyDateTime(plate_->dateTime()));
-		ui_.notesEditor->setText("todo");
-	}
-	else {
-		AMSamplePlate p;
-		/// \todo optimize to not require a full loadFromDb.  All we care about is the name and the dateTime... don't need to load all the samples and positions.
-		p.loadFromDb(AMDatabase::database("user"), id);
-		ui_.plateComboBox->setItemData(index, p.name(), Qt::DisplayRole);
-		ui_.plateComboBox->setItemData(index, p.dateTime(), AM::DateTimeRole);
-		ui_.plateComboBox->setItemData(index, "created " + AMDateTimeUtils::prettyDateTime(p.dateTime()), AM::DescriptionRole);
-	}
-}
-
-void AMSamplePlateSelector::onDatabaseRemoved(const QString &tableName, int id) {
-	if(tableName == samplePlateTableName_ ) {
-		if(id == plate_->id()) {
-			// deleted the current sample plate... This could be a problem.
-			changeSamplePlate(plate_->id());	// will cause a failed load and trigger error handling as usual... hopefully
-			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -33, "Some part of the program has decided to delete the current sample plate. How rude!"));
-		}
-		plateRefreshScheduler_.schedule();
-	}
-}
-
-void AMSamplePlateSelector::onDatabaseCreated(const QString &tableName, int id) {
-	Q_UNUSED(id)
-	if(tableName != samplePlateTableName_)
-		return;
-
-	plateRefreshScheduler_.schedule();
-}
-
-#include <QGroupBox>
-AMSamplePlateView::AMSamplePlateView(AMSamplePlate *existingPlate, QWidget *parent) : QWidget(parent) {
-
-	manipulator_ = 0;
-
-	if(existingPlate)
-		samplePlate_ = existingPlate;
-	else
-		samplePlate_ = new AMSamplePlate(this);
-
-	QGroupBox* samplePlateGroupBox = new QGroupBox("Current sample plate");
-	QGroupBox* samplesGroupBox = new QGroupBox("Samples");
-	QVBoxLayout* vl1 = new QVBoxLayout();
-	QVBoxLayout* vl2 = new QVBoxLayout();
-
-	samplePlateSelector_ = new AMSamplePlateSelector(samplePlate_);
-	sampleSelector_ = new AMSampleEditor(AMDatabase::database("user"));
-	addSampleButton_ = new QPushButton("Add Sample to Plate");
-
-	sampleListView_ = new QListView();
-	AMSamplePlateItemDelegate* listViewDelegate = new AMSamplePlateItemDelegate;
-	sampleListView_->setItemDelegate(listViewDelegate);
-	samplePlateModel_ = new AMSamplePlateItemModel(samplePlate_, this);
-	sampleListView_->setIconSize(QSize(45, 60));
-	sampleListView_->setAlternatingRowColors(true);
-	sampleListView_->setModel(samplePlateModel_);
-	sampleListView_->setEditTriggers(QAbstractItemView::CurrentChanged | QAbstractItemView::SelectedClicked);
-	sampleListView_->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
-
-	vl1->addWidget(samplePlateSelector_);
-	vl1->addWidget(sampleListView_, 1);
-	samplePlateGroupBox->setLayout(vl1);
-
-	vl2->addWidget(sampleSelector_);
-	vl2->addWidget(addSampleButton_);
-	samplesGroupBox->setLayout(vl2);
+	emptyModel_ = new AMSamplePlateItemModel(0);
+	noSamplePlateLabel_ = new QLabel("No Sample Plate Selected");
+	samplePlateModifiedLabel_ = new QLabel("Sample Plate Modified");
+	QFont samplePlateModifiedLabelFont = samplePlateModifiedLabel_->font();
+	samplePlateModifiedLabelFont.setBold(true);
+	samplePlateModifiedLabelFont.setItalic(true);
+	samplePlateModifiedLabelFont.setPointSize(samplePlateModifiedLabelFont.pointSize()+2);
+	samplePlateModifiedLabel_->setFont(samplePlateModifiedLabelFont);
+	saveSamplePlateButton_ = new QPushButton("Save Plate");
+	connect(saveSamplePlateButton_, SIGNAL(clicked()), this, SLOT(onSaveSamplePlateButtonClicked()));
+	samplePlateModifiedHL_ = new QHBoxLayout();
+	samplePlateModifiedHL_->addWidget(samplePlateModifiedLabel_);
+	samplePlateModifiedHL_->addWidget(saveSamplePlateButton_);
 
 	vl_ = new QVBoxLayout();
-	vl_->addWidget(samplePlateGroupBox, 1);
-	vl_->addWidget(samplesGroupBox);
+	vl_->addWidget(noSamplePlateLabel_);
 	setLayout(vl_);
 
-	connect(addSampleButton_, SIGNAL(clicked()), this, SLOT(onAddSampleButtonClicked()));
-
-	connect(listViewDelegate, SIGNAL(rowMarkPressed(int)), this, SLOT(onRowMarkPressed(int)));
-	connect(listViewDelegate, SIGNAL(rowMoveToPressed(int)), this, SLOT(onRowMoveToPressed(int)));
-	connect(listViewDelegate, SIGNAL(rowRemovePressed(int)), this, SLOT(onRowRemovePressed(int)));
-
-	connect(samplePlateSelector_, SIGNAL(samplePlateChanged()), this, SIGNAL(newSamplePlateSelected()));
-
-	addSampleButton_->setIcon(QIcon(":/add.png"));
-
+	setSamplePlate(samplePlate);
 }
+#include "beamline/camera/AMSampleCamera.h"
+void AMSamplePlateView::setSamplePlate(AMSamplePlate *samplePlate){
 
-void AMSamplePlateView::onAddSampleButtonClicked() {
-
-
-	if(manipulator_)
-		samplePlate_->append(
-					AMSamplePosition(
-						sampleSelector_->currentSample(),
-						manipulator_->position(),
-						manipulator_->facilityId()));
-	else
-		samplePlate_->append(
-					AMSamplePosition(
-						sampleSelector_->currentSample(),
-						AMControlInfoList(),
-						0));
-
-	// save the sample plate, because it's been modified.
-	samplePlate_->storeToDb(AMDatabase::database("user"));
-
-}
-
-#include "util/AMErrorMonitor.h"
-
-// called by the delegate when the editor buttons (Mark, Move To, Remove) are clicked
-void AMSamplePlateView::onRowMarkPressed(int row) {
-	if(manipulator_)
-		(*samplePlate_)[row].setPosition( manipulator_->position() );
-	else {
-		(*samplePlate_)[row].setPosition( AMControlInfoList() );
-		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -3, "We couldn't mark that sample position, because we don't know how to move or measure the sample manipulator."));
+	if(samplePlate_)
+	{
+		disconnect(AMSampleCamera::set(), SIGNAL(motorCoordinateChanged(QVector3D)), samplePlate_, SLOT(setPlatePosition(QVector3D)));
+		disconnect(AMSampleCamera::set(), SIGNAL(motorRotationChanged(double)), samplePlate_, SLOT(setPlateRotation(double)));
+	}
+	samplePlate_ = samplePlate;
+	AMSamplePlateItemModel *oldSamplePlateItemModel = samplePlateItemModel_;
+	if(samplePlate_){
+		samplePlateItemModel_ = new AMSamplePlateItemModel(samplePlate_);
+		setTitle(samplePlate_->name());
+		connect(samplePlate_, SIGNAL(modifiedChanged(bool)), this, SLOT(onSamplePlateModifiedChanged(bool)));
+		connect(AMSampleCamera::set(), SIGNAL(motorCoordinateChanged(QVector3D)), samplePlate_, SLOT(setPlatePosition(QVector3D)));
+		connect(AMSampleCamera::set(), SIGNAL(motorRotationChanged(double)), samplePlate_, SLOT(setPlateRotation(double)));
+	}
+	else{
+		samplePlateItemModel_ = 0; //NULL
+		setTitle("No Sample Plate");
 	}
 
-	// save the sample plate, because it's been modified.
-	samplePlate_->storeToDb(AMDatabase::database("user"));
-}
+	if(!sampleListView_ && samplePlateItemModel_){
+		sampleListView_ = new QListView();
+		sampleListView_->setAlternatingRowColors(true);
+		AMSamplePlateItemDelegate *listViewDelegate = new AMSamplePlateItemDelegate();
+		sampleListView_->setItemDelegate(listViewDelegate);
 
+		connect(listViewDelegate, SIGNAL(rowMoveToPressed(int)), this, SLOT(onRowMoveToPressed(int)));
+		connect(listViewDelegate, SIGNAL(rowMoreInfoPressed(int)), this, SLOT(onRowMoreInfoPressed(int)));
+		connect(listViewDelegate, SIGNAL(rowClosedPressed(int)), this, SLOT(onRowClosedPressed(int)));
 
-// called by the delegate when the editor buttons (Mark, Move To, Remove) are clicked
-void AMSamplePlateView::onRowMoveToPressed(int row) {
-
-	if(manipulator_){
-
-		if(!manipulator_->moveToPosition(samplePlate_->at(row).position()))
-			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -6, "We couldn't move that sample into position, because the sample manipulator is not ready."));
+		vl_->addWidget(sampleListView_);
+		vl_->addLayout(samplePlateModifiedHL_);
+		samplePlateModifiedLabel_->hide();
+		saveSamplePlateButton_->hide();
 	}
-	else {
-		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -3, "We couldn't move that sample into position, because we don't know how to move the sample manipulator."));
+
+	if(!samplePlate_ && sampleListView_){
+		sampleListView_->hide();
+		noSamplePlateLabel_->show();
+	}
+	if(samplePlate_ && !noSamplePlateLabel_->isHidden())
+		noSamplePlateLabel_->hide();
+	if(samplePlate_ && sampleListView_->isHidden())
+		sampleListView_->show();
+
+	if(samplePlateItemModel_)
+		sampleListView_->setModel(samplePlateItemModel_);
+	else if(sampleListView_)
+		sampleListView_->setModel(emptyModel_);
+
+	if(oldSamplePlateItemModel)
+		oldSamplePlateItemModel->deleteLater();
+}
+
+void AMSamplePlateView::onRowMoveToPressed(int row){
+	samplePlate_->requestSampleMoveTo(row);
+}
+
+void AMSamplePlateView::onRowMoreInfoPressed(int row){
+	AMSampleView *sampleView = new AMSampleView(samplePlate_->sampleAt(row));
+	connect(sampleView, SIGNAL(aboutToClose()), sampleView, SLOT(deleteLater()));
+	sampleView->show();
+}
+
+void AMSamplePlateView::onRowClosedPressed(int row){
+	emit sampleAboutToBeRemoved(row);
+	samplePlate_->removeSample(samplePlate_->sampleAt(row));
+}
+
+void AMSamplePlateView::onSamplePlateModifiedChanged(bool isModified){
+	if(isModified){
+		samplePlateModifiedLabel_->show();
+		saveSamplePlateButton_->show();
+	}
+	else{
+		samplePlateModifiedLabel_->hide();
+		saveSamplePlateButton_->hide();
 	}
 }
 
-// called by the delegate when the editor buttons (Mark, Move To, Remove) are clicked
-void AMSamplePlateView::onRowRemovePressed(int row) {
-	samplePlate_->remove(row);
-
-	// save the sample plate, because it's been modified.
-	samplePlate_->storeToDb(AMDatabase::database("user"));
+void AMSamplePlateView::onSaveSamplePlateButtonClicked(){
+	if(samplePlate_)
+		samplePlate_->storeToDb(samplePlate_->database());
 }
 
-void AMSamplePlateItemModel::onSamplePositionChanged(int r)
-{
-	if(r < plate_->count()) {
-		QModelIndex i = index(r,0);
-		emit dataChanged(i,i);
-	}
-}

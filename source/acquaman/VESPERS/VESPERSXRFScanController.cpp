@@ -27,78 +27,111 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QDir>
 
+VESPERSXRFScanController::~VESPERSXRFScanController(){}
+
 VESPERSXRFScanController::VESPERSXRFScanController(VESPERSXRFScanConfiguration *scanConfig, QObject *parent)
 	: AMScanController(scanConfig, parent)
 {
-	if (scanConfig->detectorInfo().elements() == 1)
-		detector_ = VESPERSBeamline::vespers()->vortexXRF1E();
-	else
-		detector_ = VESPERSBeamline::vespers()->vortexXRF4E();
-
-	scanConfig->setDetectorInfo(detector_->toXRFInfo());
-
 	scan_ = new AMXRFScan;
 	scan_->setScanConfiguration(scanConfig);
-	scan_->setName(QString("XRF Scan - %1 el").arg(detector_->elements()));
+//	scan_->setName(QString("XRF Scan - %1 el").arg(detector_->elements()));
 
 	scan_->setFilePath(AMUserSettings::defaultRelativePathForScan(QDateTime::currentDateTime()) + ".dat");
 	scan_->setFileFormat("vespers2011XRF");
 	scan_->setRunId(AMUser::user()->currentRunId());
 
-	int elements = detector_->elements();
+//	int elements = detector_->elements();
 
-	for (int i = 0; i < elements; i++){
+//	QString notes;
 
-		scan_->rawData()->addMeasurement(AMMeasurementInfo(QString("raw%1").arg(i+1), QString("Element %1").arg(i+1), "eV", detector_->axes()));
-		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), i), true, false);
-	}
+//	if (elements == 1)
+//		notes.append(QString("\nDetector distance to sample:\t%1 mm\n").arg(VESPERSBeamline::vespers()->endstation()->distanceToSingleElementVortex(), 0, 'f', 1));
+//	else
+//		notes.append(QString("\nDetector distance to sample:\t%1 mm\n").arg(VESPERSBeamline::vespers()->endstation()->distanceToFourElementVortex(), 0, 'f', 1));
 
-	for (int i = 0; i < elements; i++){
+//	notes.append(QString("Filter thickness (aluminum):\t%1 %2m\n").arg(VESPERSBeamline::vespers()->endstation()->filterThickness()).arg(QString::fromUtf8("μ")));
+//	notes.append(QString("Horizontal slit separation:\t%1 mm\n").arg(VESPERSBeamline::vespers()->intermediateSlits()->gapX()));
+//	notes.append(QString("Vertical slit separation:\t%1 mm\n").arg(VESPERSBeamline::vespers()->intermediateSlits()->gapZ()));
 
-		scan_->rawData()->addMeasurement(AMMeasurementInfo(QString("icr%1").arg(i+1), QString("Input count rate %1").arg(i+1), "%", QList<AMAxisInfo>()));
-		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), i+elements), false, true);
-	}
+//	switch(VESPERSBeamline::vespers()->currentBeam()){
 
-	for (int i = 0; i < elements; i++){
+//	case VESPERS::NoBeam:
+//		// This should never happen.
+//		break;
 
-		scan_->rawData()->addMeasurement(AMMeasurementInfo(QString("ocr%1").arg(i+1), QString("Output count rate %1").arg(i+1), "%", QList<AMAxisInfo>()));
-		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), i+2*elements), false, true);
-	}
+//	case VESPERS::Pink:
+//		notes.append("Beam used:\tPink\n");
+//		break;
 
-	for (int i = 0; i < elements; i++){
+//	case VESPERS::TenPercent:
+//		notes.append(QString("Beam used:\t10% bandpass\nMonochromator energy:%1 eV\n").arg(VESPERSBeamline::vespers()->mono()->energy(), 0, 'f', 2));
+//		break;
 
-		AMDeadTimeAB *temp = new AMDeadTimeAB(QString("Corrected %1").arg(i+1));
-		temp->setInputDataSourcesImplementation(QList<AMDataSource *>() << (AMDataSource *)scan_->rawDataSources()->at(i) << (AMDataSource *)scan_->rawDataSources()->at(i+elements) << (AMDataSource *)scan_->rawDataSources()->at(i+2*elements));
-		scan_->addAnalyzedDataSource(temp, true, false);
-	}
+//	case VESPERS::OnePointSixPercent:
+//		notes.append(QString("Beam used:\t1.6% bandpass\nMonochromator energy:%1 eV\n").arg(VESPERSBeamline::vespers()->mono()->energy(), 0, 'f', 2));
+//		break;
 
-	if (elements > 1){
+//	case VESPERS::Si:
+//		notes.append(QString("Beam used:\tSi (%2E/E = 10^-4)\nMonochromator energy:%1 eV\n").arg(VESPERSBeamline::vespers()->mono()->energy(), 0, 'f', 2).arg(QString::fromUtf8("Δ")));
+//		break;
+//	}
 
-		AM1DSummingAB *corr = new AM1DSummingAB("corrSum");
-		QList<AMDataSource *> list;
-		for (int i = 0; i < scan_->analyzedDataSourceCount(); i++)
-			list << (AMDataSource *)scan_->analyzedDataSources()->at(i);
-		corr->setInputDataSourcesImplementation(list);
-		scan_->addAnalyzedDataSource(corr, true, false);
-	}
+//	notes.append("\n");
+//	detector_->setNotes(notes);
+//	scan_->setNotes(notes);
+
+//	for (int i = 0; i < elements; i++){
+
+//		scan_->rawData()->addMeasurement(AMMeasurementInfo(QString("raw%1").arg(i+1), QString("Element %1").arg(i+1), "eV", detector_->axes()));
+//		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), i), true, false);
+//	}
+
+//	for (int i = 0; i < elements; i++){
+
+//		scan_->rawData()->addMeasurement(AMMeasurementInfo(QString("icr%1").arg(i+1), QString("Input count rate %1").arg(i+1), "%", QList<AMAxisInfo>()));
+//		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), i+elements), false, true);
+//	}
+
+//	for (int i = 0; i < elements; i++){
+
+//		scan_->rawData()->addMeasurement(AMMeasurementInfo(QString("ocr%1").arg(i+1), QString("Output count rate %1").arg(i+1), "%", QList<AMAxisInfo>()));
+//		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), i+2*elements), false, true);
+//	}
+
+//	for (int i = 0; i < elements; i++){
+
+//		AMDeadTimeAB *temp = new AMDeadTimeAB(QString("Corrected %1").arg(i+1));
+//		temp->setInputDataSourcesImplementation(QList<AMDataSource *>() << (AMDataSource *)scan_->rawDataSources()->at(i) << (AMDataSource *)scan_->rawDataSources()->at(i+elements) << (AMDataSource *)scan_->rawDataSources()->at(i+2*elements));
+//		scan_->addAnalyzedDataSource(temp, true, false);
+//	}
+
+//	if (elements > 1){
+
+//		AM1DSummingAB *corr = new AM1DSummingAB("corrSum");
+//		QList<AMDataSource *> list;
+//		for (int i = 0; i < scan_->analyzedDataSourceCount(); i++)
+//			list << (AMDataSource *)scan_->analyzedDataSources()->at(i);
+//		corr->setInputDataSourcesImplementation(list);
+//		scan_->addAnalyzedDataSource(corr, true, false);
+//	}
 }
 
 void VESPERSXRFScanController::onProgressUpdate()
 {
-	emit progress(detector_->elapsedTime(), detector_->integrationTime());
+//	emit progress(detector_->elapsedTime(), detector_->integrationTime());
 }
 
 void VESPERSXRFScanController::onStatusChanged()
 {
-	if (!detector_->status())
-		onDetectorAcquisitionFinished();
+//	if (!detector_->status())
+//		onDetectorAcquisitionFinished();
 }
 
 bool VESPERSXRFScanController::startImplementation()
 {
-	connect(detector_, SIGNAL(statusChanged(bool)), this, SLOT(onStatusChanged()));
-	connect(detector_, SIGNAL(elapsedTimeChanged(double)), this, SLOT(onProgressUpdate()));
-	detector_->start();
+//	connect(detector_, SIGNAL(statusChanged(bool)), this, SLOT(onStatusChanged()));
+//	connect(detector_, SIGNAL(elapsedTimeChanged(double)), this, SLOT(onProgressUpdate()));
+//	detector_->start();
 
 	setStarted();
 
@@ -107,19 +140,19 @@ bool VESPERSXRFScanController::startImplementation()
 
 void VESPERSXRFScanController::onDetectorAcquisitionFinished()
 {
-	disconnect(detector_, SIGNAL(statusChanged(bool)), this, SLOT(onStatusChanged()));
-	disconnect(detector_, SIGNAL(elapsedTimeChanged(double)), this, SLOT(onProgressUpdate()));
+//	disconnect(detector_, SIGNAL(statusChanged(bool)), this, SLOT(onStatusChanged()));
+//	disconnect(detector_, SIGNAL(elapsedTimeChanged(double)), this, SLOT(onProgressUpdate()));
 
 
 	//scan_->rawData()->setAxisValue();
 
-	for (int i = 0; i < detector_->elements(); i++){
+//	for (int i = 0; i < detector_->elements(); i++){
 
-		QVector<int> currSpectra(detector_->spectraValues(i));
-		scan_->rawData()->setValue(AMnDIndex(), i, currSpectra.constData(), detector_->channels());
-		scan_->rawData()->setValue(AMnDIndex(), i+detector_->elements(), AMnDIndex(), detector_->inputCountRate(i));
-		scan_->rawData()->setValue(AMnDIndex(), i+2*detector_->elements(), AMnDIndex(), detector_->outputCountRate(i));
-	}
+//		QVector<int> currSpectra(detector_->spectraValues(i));
+//		scan_->rawData()->setValue(AMnDIndex(), i, currSpectra.constData());
+//		scan_->rawData()->setValue(AMnDIndex(), i+detector_->elements(), AMnDIndex(), detector_->inputCountRate(i));
+//		scan_->rawData()->setValue(AMnDIndex(), i+2*detector_->elements(), AMnDIndex(), detector_->outputCountRate(i));
+//	}
 
 	// MB: Notice for Darren: at setFinished(), AMScanController will automatically ensure scan()->setScanController(0), and this will trigger a change in the scan's db state. (currentlyScanning()).
 	// If you want this to not create a prompt in AMGenericScanEditor ("The scan has been modified... Do you want to save it?") can do this first:

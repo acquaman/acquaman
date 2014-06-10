@@ -26,16 +26,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QStringList>
 #include <QDateTime>
 #include "dataman/AMXASScan.h"
-#include "dataman/info/AMDetectorInfo.h"
+#include "dataman/info/AMOldDetectorInfo.h"
 #include "util/AMErrorMonitor.h"
 #include "analysis/AM1DExpressionAB.h"
-
-#include <QDebug>
-
 
 AMBiHash<QString, QString> ALSBL8XASFileLoader::columns2fileFormatHeaders_;
 
 
+ ALSBL8XASFileLoader::~ALSBL8XASFileLoader(){}
 ALSBL8XASFileLoader::ALSBL8XASFileLoader(AMXASScan* scan) : AMAbstractFileLoader(scan)
 {
 	// this static storage can be shared across all instances, but if we're the first, need to populate it.
@@ -169,7 +167,7 @@ bool ALSBL8XASFileLoader::loadFromFile(const QString& filepath, bool setMetaData
 		if( (lp = line.split('\t', QString::SkipEmptyParts)).count() == colNames1.count() ) {
 
 			// append a new datapoint to the data tree (supply primary eV value here)
-			scan->rawData()->beginInsertRows(0);
+			scan->rawData()->beginInsertRows(1, -1);
 			scan->rawData()->setAxisValue(0, eVAxisIndex, lp.at(eVIndex).toDouble());	// insert eV
 
 			// add all columns (but ignore the eV column)

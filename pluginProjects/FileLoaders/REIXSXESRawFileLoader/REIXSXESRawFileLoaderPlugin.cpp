@@ -19,7 +19,7 @@ bool REIXSXESRawFileLoaderPlugin::accepts(AMScan *scan){
 	return (scan->fileFormat() == "reixsXESRaw");
 }
 
-bool REIXSXESRawFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolder){
+bool REIXSXESRawFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolder, AMErrorMon *errorMonitor){
 
 	if(!scan)
 		return false;
@@ -37,7 +37,7 @@ bool REIXSXESRawFileLoaderPlugin::load(AMScan *scan, const QString &userDataFold
 	try {
 
 		if(!file.open(QIODevice::ReadOnly))
-			throw REIXSXESRawFileException(-1, "Could not open the data file");
+			throw REIXSXESRawFileException(REIXSXESRAWFILELOADERPLUGIN_CANNOT_OPEN_FILE, "Could not open the data file");
 
 
 		// check the magic string (ascii encoded string at the start of the file)
@@ -69,7 +69,7 @@ bool REIXSXESRawFileLoaderPlugin::load(AMScan *scan, const QString &userDataFold
 		file.close();
 	}
 	catch(REIXSXESRawFileException e) {
-		AMErrorMon::report(AMErrorReport(scan, AMErrorReport::Alert, e.first, QString("REIXS XES Raw File Loader: %1\n\nFile: '%2'").arg(e.second).arg(sourceFileInfo.filePath())));
+		errorMonitor->exteriorReport(AMErrorReport(scan, AMErrorReport::Alert, e.first, QString("REIXS XES Raw File Loader: %1\n\nFile: '%2'").arg(e.second).arg(sourceFileInfo.filePath())));
 		file.close();
 		if(imageArray)
 			delete [] imageArray;
@@ -85,8 +85,8 @@ bool REIXSXESRawFileLoaderPlugin::load(AMScan *scan, const QString &userDataFold
 													  "counts",
 													  detectorAxes));
 
-	if(!scan->rawData()->setValue(AMnDIndex(), 0, imageArray, pixelsX*pixelsY))
-		AMErrorMon::report(AMErrorReport(scan, AMErrorReport::Alert, -39, "Could not set detector image value. Please report this bug to the acquaman developers."));
+	if(!scan->rawData()->setValue(AMnDIndex(), 0, imageArray))
+		errorMonitor->exteriorReport(AMErrorReport(scan, AMErrorReport::Alert, REIXSXESRAWFILELOADERPLUGIN_CANNOT_SET_IMAGE_VALUE, "Could not set detector image value. Please report this bug to the acquaman developers."));
 
 	delete [] imageArray;
 
@@ -95,7 +95,7 @@ bool REIXSXESRawFileLoaderPlugin::load(AMScan *scan, const QString &userDataFold
 	// There's pre-existing raw data sources. make sure that there's only one raw data source: (integrity check: we only have one measurement in the raw data)
 	while(scan->rawDataSources()->count() > 1) {
 		int i = scan->rawDataSources()->count()-1;
-		AMErrorMon::report(AMErrorReport(scan, AMErrorReport::Debug, -97, QString("The data in the file (%1 columns) didn't match the raw data columns we were expecting (column %2). Removing the raw data column '%3')").arg(scan->rawData()->measurementCount()).arg(scan->rawDataSources()->at(i)->measurementId()).arg(scan->rawDataSources()->at(i)->name())));
+		errorMonitor->exteriorReport(AMErrorReport(scan, AMErrorReport::Debug, REIXSXESRAWFILELOADERPLUGIN_DATA_COLUMN_MISMATCH, QString("The data in the file (%1 columns) didn't match the raw data columns we were expecting (column %2). Removing the raw data column '%3')").arg(scan->rawData()->measurementCount()).arg(scan->rawDataSources()->at(i)->measurementId()).arg(scan->rawDataSources()->at(i)->name())));
 		scan->deleteRawDataSource(i);
 	}
 

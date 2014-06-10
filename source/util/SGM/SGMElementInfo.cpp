@@ -21,6 +21,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "SGMElementInfo.h"
 #include <cmath>
 
+#include "util/AMPeriodicTable.h"
+
+ SGMEnergyPosition::~SGMEnergyPosition(){}
 SGMEnergyPosition::SGMEnergyPosition(const QString &name, double energy, int monoEncoderTarget, int undulatorStepSetpoint, double exitSlitDistance, int sgmGrating)
 {
 	setName(name);
@@ -140,6 +143,7 @@ void SGMEnergyPosition::setSGMGrating(int sgmGrating) {
 	}
 }
 
+ SGMScanInfo::~SGMScanInfo(){}
 SGMScanInfo::SGMScanInfo(const QString &scanName, QPair<QString, double> edgeAndEnergy, SGMEnergyPosition start, SGMEnergyPosition middle, SGMEnergyPosition end, QObject *parent) :
 	AMDbObject(parent)
 {
@@ -151,6 +155,19 @@ SGMScanInfo::SGMScanInfo(const QString &scanName, QPair<QString, double> edgeAnd
 		hasEdge_ = false;
 	edge_ = edgeAndEnergy.first;
 	energy_ = edgeAndEnergy.second;
+	setStart(start);
+	setMiddle(middle);
+	setEnd(end);
+}
+
+SGMScanInfo::SGMScanInfo(const QString &scanName, AMAbsorptionEdge edge, SGMEnergyPosition start, SGMEnergyPosition middle, SGMEnergyPosition end, QObject *parent)
+	: AMDbObject(parent)
+{
+	setName(scanName);
+	setScanName(scanName);
+	hasEdge_ = !edge.isNull();
+	edge_ = edge.edgeName().left(1);
+	energy_ = edge.energy();
 	setStart(start);
 	setMiddle(middle);
 	setEnd(end);
@@ -265,8 +282,8 @@ void SGMScanInfo::setEnergy(double energy) {
 	}
 }
 
-void SGMScanInfo::setStart(const SGMEnergyPosition &start) {
-	if(start_ != start){
+void SGMScanInfo::setStart(const SGMEnergyPosition &start, bool ignoreDatabaseId) {
+	if( (start_ != start) || (!ignoreDatabaseId && ((start_.id() != start.id()) || (start_.name() != start.name())) ) ){
 		start_ = start;
 		setModified(true);
 		emit startChanged();
@@ -274,8 +291,8 @@ void SGMScanInfo::setStart(const SGMEnergyPosition &start) {
 	}
 }
 
-void SGMScanInfo::setMiddle(const SGMEnergyPosition &middle) {
-	if(middle_ != middle){
+void SGMScanInfo::setMiddle(const SGMEnergyPosition &middle, bool ignoreDatabaseId) {
+	if( (middle_ != middle)  || (!ignoreDatabaseId && ((middle_.id() != middle.id()) || (middle_.name() != middle.name())) ) ){
 		middle_ = middle;
 		setModified(true);
 		emit middleChanged();
@@ -283,8 +300,8 @@ void SGMScanInfo::setMiddle(const SGMEnergyPosition &middle) {
 	}
 }
 
-void SGMScanInfo::setEnd(const SGMEnergyPosition &end) {
-	if(end_ != end){
+void SGMScanInfo::setEnd(const SGMEnergyPosition &end, bool ignoreDatabaseId) {
+	if( (end_ != end)  || (!ignoreDatabaseId && ((end_.id() != end.id()) || (end_.name() != end.name())) ) ){
 		end_ = end;
 		setModified(true);
 		emit endChanged();
@@ -292,14 +309,15 @@ void SGMScanInfo::setEnd(const SGMEnergyPosition &end) {
 	}
 }
 
-SGMElementInfo::SGMElementInfo(const QString &name, const AMElement *element, QObject *parent) :
+ SGMElementInfo::~SGMElementInfo(){}
+SGMElementInfo::SGMElementInfo(const QString &name, AMElement *element, QObject *parent) :
 		AMDbObject(parent)
 {
 	setName(name);
 	element_ = element;
 }
 
-const AMElement* SGMElementInfo::element() const{
+AMElement* SGMElementInfo::element() const{
 	return element_;
 }
 
@@ -309,6 +327,13 @@ AMOrderedSet<QString, SGMScanInfo> SGMElementInfo::sgmEdgeInfos() const{
 
 AMOrderedSet<int, SGMFastScanParameters*> SGMElementInfo::availableFastScanParameters() const{
 	return availableFastScanParameters_;
+}
+
+bool SGMElementInfo::loadFromDb(AMDatabase *db, int id){
+	bool retVal = AMDbObject::loadFromDb(db, id);
+	if(retVal && availableFastScanParameters_.count() > 0)
+		element_ = AMPeriodicTable::table()->elementByName(availableFastScanParameters_.at(0)->element());
+	return retVal;
 }
 
 bool SGMElementInfo::addEdgeInfo(const SGMScanInfo &edgeInfo){
@@ -355,12 +380,11 @@ void SGMElementInfo::dbLoadSGMFastScanParameters(const AMDbObjectList &sgmFastSc
 		SGMFastScanParameters* newFastScanParameter = qobject_cast<SGMFastScanParameters*>(sgmFastScanParameters.at(x));
 		if(newFastScanParameter)
 			availableFastScanParameters_.append(newFastScanParameter, (int)newFastScanParameter->runSeconds());// note: makes a copy of object pointed to by newStandardScanInfo, and stores in our internal list.
-
-		//delete sgmFastScanParameters.at(x); // we're copying these; don't need to keep these ones around. They're our responsibility to delete.
 	}
 }
 
 
+ SGMFastScanSettings::~SGMFastScanSettings(){}
 SGMFastScanSettings::SGMFastScanSettings(const QString &name, double runSeconds, int motorSettings, double scalerTime, int baseLine, int undulatorVelocity, QObject *parent) :
 	AMDbObject(parent)
 {
@@ -413,13 +437,29 @@ SGMFastScanSettings& SGMFastScanSettings::operator =(const SGMFastScanSettings &
 		setScalerTime(other.scalerTime());
 		setBaseLine(other.baseLine());
 		setUndulatorVelocity(other.undulatorVelocity());
+		setModified(false);
 	}
 	return *this;
+}
+
+bool SGMFastScanSettings::operator ==(const SGMFastScanSettings &other) const{
+	if( fabs(runSeconds() - other.runSeconds()) < 0.01
+			&& motorSettings() == other.motorSettings()
+			&& fabs(scalerTime() - other.scalerTime()) < 0.01
+			&& baseLine() == other.baseLine()
+			&& undulatorVelocity() == other.undulatorVelocity())
+		return true;
+	return false;
+}
+
+bool SGMFastScanSettings::operator !=(const SGMFastScanSettings &other) const{
+	return !(this->operator ==(other));
 }
 
 void SGMFastScanSettings::setRunSeconds(double runSeconds){
 	if(runSeconds_ != runSeconds){
 		runSeconds_ = runSeconds;
+		setModified(true);
 		emit runSecondsChanged(runSeconds_);
 		emit fastScanSettingsChanged();
 	}
@@ -428,6 +468,7 @@ void SGMFastScanSettings::setRunSeconds(double runSeconds){
 void SGMFastScanSettings::setMotorSettings(int motorSettings){
 	if(motorSettings_ != motorSettings){
 		motorSettings_ = motorSettings;
+		setModified(true);
 		emit motorSettingsChanged(motorSettings_);
 		emit fastScanSettingsChanged();
 	}
@@ -436,6 +477,7 @@ void SGMFastScanSettings::setMotorSettings(int motorSettings){
 void SGMFastScanSettings::setScalerTime(double scalerTime){
 	if(scalerTime_ != scalerTime){
 		scalerTime_ = scalerTime;
+		setModified(true);
 		emit scalerTimeChanged(scalerTime_);
 		emit fastScanSettingsChanged();
 	}
@@ -444,6 +486,7 @@ void SGMFastScanSettings::setScalerTime(double scalerTime){
 void SGMFastScanSettings::setBaseLine(int baseLine){
 	if(baseLine_ != baseLine){
 		baseLine_ = baseLine;
+		setModified(true);
 		emit baseLineChanged(baseLine_);
 		emit fastScanSettingsChanged();
 	}
@@ -452,11 +495,13 @@ void SGMFastScanSettings::setBaseLine(int baseLine){
 void SGMFastScanSettings::setUndulatorVelocity(int undulatorVelocity){
 	if(undulatorVelocity_ != undulatorVelocity){
 		undulatorVelocity_ = undulatorVelocity;
+		setModified(true);
 		emit undulatorVelocityChanged(undulatorVelocity_);
 		emit fastScanSettingsChanged();
 	}
 }
 
+ SGMFastScanParameters::~SGMFastScanParameters(){}
 SGMFastScanParameters::SGMFastScanParameters(const QString &name, const QString &element, const SGMScanInfo &scanInfo, const SGMFastScanSettings &fastScanSettings, QObject *parent) :
 		AMDbObject(parent)
 {
@@ -465,6 +510,22 @@ SGMFastScanParameters::SGMFastScanParameters(const QString &name, const QString 
 
 	setScanInfo(scanInfo);
 	setFastScanSettings(fastScanSettings);
+}
+
+SGMFastScanParameters::SGMFastScanParameters(AMDatabase *db, int id) :
+	AMDbObject(0)
+{
+	loadFromDb(db, id);
+}
+
+SGMFastScanParameters& SGMFastScanParameters::operator =(const SGMFastScanParameters &other){
+	if(this != &other){
+		AMDbObject::operator=(other);
+		setElement(other.element());
+		setScanInfo(other.scanInfo());
+		setFastScanSettings(other.fastScanSettings());
+	}
+	return *this;
 }
 
 bool SGMFastScanParameters::operator ==(const SGMFastScanParameters &other){
@@ -646,9 +707,17 @@ void SGMFastScanParameters::setSGMGrating(int sgmGrating){
 	scanInfo_.setStart(newEnergyPosition);
 }
 
-void SGMFastScanParameters::setScanInfo(const SGMScanInfo &scanInfo){
+void SGMFastScanParameters::setScanInfo(const SGMScanInfo &scanInfo, bool ignoreDatabaseId){
 	disconnect(&scanInfo_, 0);
+
 	scanInfo_ = scanInfo;
+	if(!ignoreDatabaseId && (scanInfo_.start().id() != scanInfo.start().id()) )
+		scanInfo_.setStart(scanInfo.start(), false);
+	if(!ignoreDatabaseId && (scanInfo_.middle().id() != scanInfo.middle().id()) )
+		scanInfo_.setMiddle(scanInfo.middle(), false);
+	if(!ignoreDatabaseId && (scanInfo_.end().id() != scanInfo.end().id()) )
+		scanInfo_.setEnd(scanInfo.end(), false);
+
 	connect(&scanInfo_, SIGNAL(startChanged()), this, SLOT(onStartChanged()));
 	connect(&scanInfo_, SIGNAL(middleChanged()), this, SLOT(onMiddleChanged()));
 	connect(&scanInfo_, SIGNAL(endChanged()), this, SLOT(onEndChanged()));
@@ -668,16 +737,33 @@ void SGMFastScanParameters::setEndPosition(const SGMEnergyPosition &end){
 }
 
 void SGMFastScanParameters::setFastScanSettings(const SGMFastScanSettings &fastScanSettings){
-	disconnect(&fastScanSettings_, 0);
-	fastScanSettings_ = fastScanSettings;
-	connect(&fastScanSettings_, SIGNAL(runSecondsChanged(double)), this, SIGNAL(runSecondsChanged(double)));
-	connect(&fastScanSettings_, SIGNAL(motorSettingsChanged(int)), this, SIGNAL(velocityChanged(int)));
-	connect(&fastScanSettings_, SIGNAL(motorSettingsChanged(int)), this, SIGNAL(velocityBaseChanged(int)));
-	connect(&fastScanSettings_, SIGNAL(motorSettingsChanged(int)), this, SIGNAL(accelerationChanged(int)));
-	connect(&fastScanSettings_, SIGNAL(scalerTimeChanged(double)), this, SIGNAL(scalerTimeChanged(double)));
-	connect(&fastScanSettings_, SIGNAL(baseLineChanged(int)), this, SIGNAL(baseLineChanged(int)));
-	connect(&fastScanSettings_, SIGNAL(undulatorVelocityChanged(int)), this, SIGNAL(undulatorVelocityChanged(int)));
-	connect(&fastScanSettings_, SIGNAL(fastScanSettingsChanged()), this, SIGNAL(fastScanSettingsChanged()));
+//<<<<<<< HEAD
+//	qdebug() << "Calling setFastScanSettings, modified is " << modified();
+//	if(fastScanSettings_ != fastScanSettings){
+//		disconnect(&fastScanSettings_, 0);
+//		qdebug() << "The same settings? " << (fastScanSettings_ == fastScanSettings);
+//		fastScanSettings_ = fastScanSettings;
+//		qdebug() << "Setting modified true in SGMFastScanParameters";
+//=======
+	if(fastScanSettings_ != fastScanSettings){
+		disconnect(&fastScanSettings_, 0);
+		fastScanSettings_ = fastScanSettings;
+//>>>>>>> SGM_Release
+		setModified(true);
+		connect(&fastScanSettings_, SIGNAL(runSecondsChanged(double)), this, SIGNAL(runSecondsChanged(double)));
+		connect(&fastScanSettings_, SIGNAL(motorSettingsChanged(int)), this, SIGNAL(velocityChanged(int)));
+		connect(&fastScanSettings_, SIGNAL(motorSettingsChanged(int)), this, SIGNAL(velocityBaseChanged(int)));
+		connect(&fastScanSettings_, SIGNAL(motorSettingsChanged(int)), this, SIGNAL(accelerationChanged(int)));
+		connect(&fastScanSettings_, SIGNAL(scalerTimeChanged(double)), this, SIGNAL(scalerTimeChanged(double)));
+		connect(&fastScanSettings_, SIGNAL(baseLineChanged(int)), this, SIGNAL(baseLineChanged(int)));
+		connect(&fastScanSettings_, SIGNAL(undulatorVelocityChanged(int)), this, SIGNAL(undulatorVelocityChanged(int)));
+		connect(&fastScanSettings_, SIGNAL(fastScanSettingsChanged()), this, SIGNAL(fastScanSettingsChanged()));
+	}
+//<<<<<<< HEAD
+//	else
+//		qdebug() << "No need to setModified(true), they were the same";
+//=======
+//>>>>>>> SGM_Release
 }
 
 void SGMFastScanParameters::onStartChanged(){

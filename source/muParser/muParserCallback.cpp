@@ -33,6 +33,7 @@
 namespace mu
 {
   //---------------------------------------------------------------------------
+ ParserCallback::~ParserCallback(){}
   ParserCallback::ParserCallback(fun_type0 a_pFun, bool a_bAllowOpti)
     :m_pFun((void*)a_pFun)
     ,m_iArgc(0)

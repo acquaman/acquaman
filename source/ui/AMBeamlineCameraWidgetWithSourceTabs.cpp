@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QTabBar>
 #include <QVBoxLayout>
 
+ AMBeamlineCameraWidgetWithSourceTabs::~AMBeamlineCameraWidgetWithSourceTabs(){}
 AMBeamlineCameraWidgetWithSourceTabs::AMBeamlineCameraWidgetWithSourceTabs(const QUrl& initialSource, const QString& initialDescription, QWidget *parent, bool useOpenGl) :
 	AMBeamlineCameraWidget(parent, useOpenGl)
 {

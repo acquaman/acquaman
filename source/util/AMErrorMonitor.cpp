@@ -31,6 +31,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 AMErrorMon* AMErrorMon::instance_ = 0;
 QMutex AMErrorMon::instanceMutex_(QMutex::Recursive);
 
+ AMErrorMon::~AMErrorMon(){}
 AMErrorMon::AMErrorMon() : QObject(), subsMutex_(QReadWriteLock::Recursive) {
 	qRegisterMetaType<AMErrorReport>("AMErrorReport");
 
@@ -118,23 +119,22 @@ void AMErrorMon::reportI(AMErrorReport e) {
 
 	QString reportMessage = QString("%1 (code %2)").arg(e.description).arg(e.errorCode);
 
-	// Chapter 0: If we're in debug mode, throw a qDebug() for everything:
-	if(debugEnabled_) {
-		switch(e.level) {
-		case AMErrorReport::Debug:
-			qDebug() << "Debug:" << reportMessage;
-			break;
-		case AMErrorReport::Information:
-			qDebug() << "Information:" << reportMessage;
-			break;
-		case AMErrorReport::Alert:
-			qDebug() << "Alert:" << reportMessage;
-			break;
-		case AMErrorReport::Serious:
-			qDebug() << "Serious:" << reportMessage;
-			break;
-		}
+	// Chapter 0: Throw a qDebug() for everything:
+	switch(e.level) {
+	case AMErrorReport::Debug:
+		qDebug() << "Debug:" << reportMessage;
+		break;
+	case AMErrorReport::Information:
+		qDebug() << "Information:" << reportMessage;
+		break;
+	case AMErrorReport::Alert:
+		qDebug() << "Alert:" << reportMessage;
+		break;
+	case AMErrorReport::Serious:
+		qDebug() << "Serious:" << reportMessage;
+		break;
 	}
+
 
 
 	// Chapter 1: Emit signals, as long as it's not a debug message and debug is disabled.
@@ -194,3 +194,4 @@ AMErrorMon * AMErrorMon::mon() {
 	}
 	return instance_;
 }
+ AMErrorReport::~AMErrorReport(){}

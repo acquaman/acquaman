@@ -23,8 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "application/AMAppController.h"
 
-class SGMSampleTransferView;
-class AMSampleManagementWidget;
+class AMSampleManagementPre2013Widget;
 class SGMSampleManipulatorView;
 class SGMSidebar;
 
@@ -55,8 +54,6 @@ protected slots:
 	void onSGMBeamlineConnected();
 
 protected:
-
-	SGMSampleTransferView* sampleTransferView_;
 	//AMSampleManagementWidget* samplePositionView_;
 	SGMSampleManipulatorView* sampleManipulatorView_;
 	SGMSidebar* sgmSidebar_;

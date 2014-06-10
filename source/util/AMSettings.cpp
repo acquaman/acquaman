@@ -39,6 +39,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 QString AMUserSettings::userDataFolder;
 /// name of user database
 QString AMUserSettings::userDatabaseFilename;
+/// report startup errors for reading the settings file
+bool AMUserSettings::userSettingsStartupError;
 
 QString AMUserSettings::defaultRelativePathForScan(const QDateTime& dt) {
 	QDir dir;
@@ -82,10 +84,13 @@ QString AMUserSettings::relativePathFromUserDataFolder(const QString &absolutePa
 }
 
 
-
 /// Load settings from disk:
 void AMUserSettings::load() {
+	userSettingsStartupError = false;
 	QSettings settings(QSettings::IniFormat, QSettings::UserScope, "Acquaman", "Acquaman");
+
+	if(settings.status() != QSettings::NoError)
+		userSettingsStartupError = true;
 
 	// All settings variables are loaded here from disk. Default values must be provided -- they will be used if the particular setting doesn't exist yet.
 	// Don't forget to add here if you add new user options.
@@ -232,3 +237,4 @@ void AMSettings::setAnalysisBlockPluginsFolder(QString analysisBlockPluginsFolde
 
 
 
+ AMSettings::~AMSettings(){}

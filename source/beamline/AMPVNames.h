@@ -18,8 +18,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef ACQMAN_PVNAMES_H
-#define ACQMAN_PVNAMES_H
+#ifndef AM_PVNAMES_H
+#define AM_PVNAMES_H
 
 #include "util/AMErrorMonitor.h"
 
@@ -69,4 +69,4 @@ protected:
 
 };
 
-#endif // ACQMAN_PVNAMES_H
+#endif // AM_PVNAMES_H

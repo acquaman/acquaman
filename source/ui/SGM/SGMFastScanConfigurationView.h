@@ -43,6 +43,7 @@ class SGMFastScanConfigurationView : public AMScanConfigurationView
 {
 	Q_OBJECT
 public:
+ 	virtual ~SGMFastScanConfigurationView();
 	SGMFastScanConfigurationView(SGMFastScanConfiguration *sfsc, QWidget *parent = 0);
 
 	const AMScanConfiguration* configuration() const;
@@ -72,9 +73,12 @@ protected:
 	SGMEnergyPosition endPositionCopy_;
 	SGMFastScanSettings fastScanSettingsCopy_;
 
-	SGMEnergyPositionWBeamlineView *startPositionView_;
-	SGMEnergyPositionWBeamlineView *middlePositionView_;
-	SGMEnergyPositionWBeamlineView *endPositionView_;
+	//SGMEnergyPositionWBeamlineView *startPositionView_;
+	//SGMEnergyPositionWBeamlineView *middlePositionView_;
+	//SGMEnergyPositionWBeamlineView *endPositionView_;
+	SGMEnergyPositionView *startPositionView_;
+	SGMEnergyPositionView *middlePositionView_;
+	SGMEnergyPositionView *endPositionView_;
 	SGMFastScanSettingsView *fastScanSettingsView_;
 
 	AMTopFrame *topFrame_;

@@ -19,20 +19,23 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMControlMoveActionInfo3.h"
 
+ AMControlMoveActionInfo3::~AMControlMoveActionInfo3(){}
 AMControlMoveActionInfo3::AMControlMoveActionInfo3(const AMControlInfo &setpoint, QObject *parent)
 	: AMActionInfo3("Control Move", "Control Move", ":/system-run.png", parent)
 {
 	controlInfo_.setValuesFrom(setpoint);
-    isRelative_ = false;
+	isRelative_ = false;
+	isRelativeFromSetpoint_ = false;
 
-    updateDescriptionText();
+	updateDescriptionText();
 }
 
 AMControlMoveActionInfo3::AMControlMoveActionInfo3(const AMControlMoveActionInfo3 &other)
 	: AMActionInfo3(other)
 {
 	controlInfo_.setValuesFrom(*(other.controlInfo()));
-    isRelative_ = other.isRelative_;
+	isRelative_ = other.isRelativeMove();
+	isRelativeFromSetpoint_ = other.isRelativeFromSetpoint();
 }
 
 void AMControlMoveActionInfo3::setSetpoint(double setpoint)
@@ -54,6 +57,11 @@ void AMControlMoveActionInfo3::setIsRelativeMove(bool isRelative)
 	isRelative_ = isRelative;
 	setModified(true);
 	updateDescriptionText();
+}
+
+void AMControlMoveActionInfo3::setIsRelativeFromSetpoint(bool isRelativeFromSetpoint){
+	isRelativeFromSetpoint_ = isRelativeFromSetpoint;
+	setModified(true);
 }
 
 

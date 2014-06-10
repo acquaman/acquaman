@@ -96,3 +96,5 @@ bool AMExperimentModelItem::dropMimeData(const QMimeData *data, Qt::DropAction a
 	return accepted;
 }
 
+ AMRunModelItem::~AMRunModelItem(){}
+ AMExperimentModelItem::~AMExperimentModelItem(){}

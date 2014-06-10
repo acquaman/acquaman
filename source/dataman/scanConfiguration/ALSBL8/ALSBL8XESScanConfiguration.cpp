@@ -19,6 +19,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ALSBL8XESScanConfiguration.h"
 
+ ALSBL8XESScanConfiguration::~ALSBL8XESScanConfiguration(){}
 ALSBL8XESScanConfiguration::ALSBL8XESScanConfiguration(QObject *parent) :
     AMScanConfiguration(parent)
 {

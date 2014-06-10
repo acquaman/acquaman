@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 /// Sets the title of the group box based on the name() function of the AMControlSet.
 /// Loops through the list of AMControls in the AMControlSet and create an appropriate spinbox.
 /// Adds the spin box and a label (from the AMControl objectName() function) and add to an internal form layout.
+ AMControlSetView::~AMControlSetView(){}
 AMControlSetView::AMControlSetView(AMControlSet *viewSet, bool configureOnly, QWidget *parent) :
 		QGroupBox(parent)
 {
@@ -30,11 +31,11 @@ AMControlSetView::AMControlSetView(AMControlSet *viewSet, bool configureOnly, QW
 	configureOnly_ = configureOnly;
 	setTitle(viewSet->name());
 	QVBoxLayout *vl = new QVBoxLayout();
-	AMControlEditor *tmpCE;
+	AMExtendedControlEditor *tmpCE;
 	AMControl *tmpCtrl;
 	for(int x = 0; x < viewSet_->count(); x++){
 		tmpCtrl = viewSet_->at(x);
-		tmpCE = new AMControlEditor(tmpCtrl, 0, false, configureOnly_);
+		tmpCE = new AMExtendedControlEditor(tmpCtrl, 0, false, configureOnly_);
 		vl->addWidget(tmpCE);
 		controlBoxes_.append(tmpCE);
 		connect(tmpCE, SIGNAL(setpointRequested(double)), this, SLOT(onConfigurationValueChanged()));
@@ -55,16 +56,18 @@ AMControlInfoList AMControlSetView::currentValues(){
 AMControlInfoList AMControlSetView::configValues(){
 	AMControlInfoList rv;
 
-	if(!configureOnly_)
-		return currentValues();
 
 	int numControls = viewSet_->count();
 	for(int i=0; i<numControls; i++) {
 		AMControlInfo info = boxAt(i)->control()->toInfo();
 		info.setValue(boxAt(i)->setpoint());
+		qDebug() << "At " << i << "box setpoint is " << boxAt(i)->setpoint();
 		rv.append(info);
 	}
 
+//	if(!configureOnly_){
+//		//return currentValues();
+//	}
 	return rv;
 }
 
@@ -91,6 +94,10 @@ void AMControlSetView::onControlSetValuesChanged(){
 }
 
 void AMControlSetView::onConfigurationValueChanged(){
-	if(configureOnly_)
+	if(configureOnly_){
+		qDebug() << "Config values are ";
+		for(int x = 0, size = configValues().count(); x < size; x++)
+			qDebug() << configValues().at(x).name() << configValues().at(x).value();
 		emit configValuesChanged(configValues());
+	}
 }

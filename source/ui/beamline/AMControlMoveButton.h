@@ -35,6 +35,7 @@ class AMControlMoveButton : public QToolButton
 	Q_OBJECT
 public:
 	/// Create a move button for the given \c control. The available move step sizes (in the control's units) are given by \c stepSizes.  If you specify \c reverseDirection, the direction of the move will be opposite of the sign of the values in stepSizes.  It's okay for \c control to be 0; this button will simply do nothing (and be disabled) until you call setControl() with a valid control.  This widget does not take ownership of the control.
+ 	virtual ~AMControlMoveButton();
 	explicit AMControlMoveButton(QWidget *parent = 0,
 								 AMControl* control = 0,
 								 QList<double> stepSizes = QList<double>() << 1 << 10 << 100,
@@ -92,10 +93,11 @@ protected:
 };
 
 
-/// This widget is used as a custom context menu for AMControlMoveButton. It lets the user choose from a range of step sizes, and provides an AMBasicControlEditor for viewing and setting the absolute position.
+/// This widget is used as a custom context menu for AMControlMoveButton. It lets the user choose from a range of step sizes, and provides an AMControlEditor for viewing and setting the absolute position.
 class AMControlMoveButtonContextMenu : public QDialog {
 	Q_OBJECT
 public:
+ 	virtual ~AMControlMoveButtonContextMenu();
 	AMControlMoveButtonContextMenu(AMControlMoveButton* moveButton);
 
 protected slots:

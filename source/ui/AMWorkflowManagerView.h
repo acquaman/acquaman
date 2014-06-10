@@ -23,8 +23,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QWidget>
 
-class AMSamplePlate;
-class AMSamplePlateItemModel;
+class AMSamplePlatePre2013;
+class AMSamplePlatePre2013ItemModel;
 
 class QPushButton;
 class QVBoxLayout;
@@ -91,7 +91,7 @@ public slots:
 	void onMoveDownActionRequested(AMBeamlineActionItem *action);
 
 	/// Sets the current sample plate for populating the actions list
-	void setCurrentSamplePlate(AMSamplePlate *newSamplePlate);
+	void setCurrentSamplePlate(AMSamplePlatePre2013 *newSamplePlate);
 
 protected slots:
 	/// Triggered by changes in the beamline scanning status, queue size, and queue running state. Emits actionItemCountChanged(), runningChanged(), and workflowStatusChanged().
@@ -121,8 +121,8 @@ protected:
 	AMBeamlineActionsQueue *workflowQueue_;
 	AMBeamlineActionsListView *workflowView_;
 
-	AMSamplePlate *currentSamplePlate_;
-	AMSamplePlateItemModel *samplePlateModel_;
+	AMSamplePlatePre2013 *currentSamplePlate_;
+	AMSamplePlatePre2013ItemModel *samplePlateModel_;
 
 	// disabled for now: AMBeamlineActionAdder *adder_;
 };

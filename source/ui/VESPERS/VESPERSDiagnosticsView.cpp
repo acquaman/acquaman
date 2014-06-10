@@ -87,6 +87,7 @@ VESPERSDiagnosticsView::VESPERSDiagnosticsView(AMControlSet *set, int offset, bo
 	}
 }
 
+ VESPERSDiagnosticsViewElement::~VESPERSDiagnosticsViewElement(){}
 VESPERSDiagnosticsViewElement::VESPERSDiagnosticsViewElement(AMControl *control, QString name, bool useValueAndUnits, QWidget *parent)
 	: QWidget(parent)
 {

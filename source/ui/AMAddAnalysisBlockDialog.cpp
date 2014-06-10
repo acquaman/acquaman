@@ -1,3 +1,22 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "AMAddAnalysisBlockDialog.h"
 
 #include <QLabel>
@@ -10,6 +29,7 @@
 #include "util/AMFontSizes.h"
 #include "acquaman.h"
 
+ AMAddAnalysisBlockDialog::~AMAddAnalysisBlockDialog(){}
 AMAddAnalysisBlockDialog::AMAddAnalysisBlockDialog(int rank, QWidget *parent)
 	: QDialog(parent)
 {
@@ -18,9 +38,9 @@ AMAddAnalysisBlockDialog::AMAddAnalysisBlockDialog(int rank, QWidget *parent)
 
 	connect(listWidget_, SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)), this, SLOT(onCurrentItemChanged(QListWidgetItem*,QListWidgetItem*)));
 
-	if (rank == 1)
+	if (rank == 0 || rank == 1)
 		populateWith1D();
-	else if (rank == 2)
+	else if (rank == 2 || rank == 3)
 		populateWith2D();
 
 	QFont font;
@@ -118,10 +138,21 @@ void AMAddAnalysisBlockDialog::populateWith1D()
 
 	item = new QListWidgetItem(QIcon(":/22x22/gamma.png"), "Normalization", listWidget_);
 	item->setData(AM::DescriptionRole, "This tool normalizes its input.");
+
+	item = new QListWidgetItem(QIcon(":/22x22/gamma.png"), "Calibrated Normalization", listWidget_);
+	item->setData(AM::DescriptionRole, "This tool normalizes its input and allows for energy calibration.");
+
+	item = new QListWidgetItem(QIcon(":/spectrum.png"), "Interpolated Curve Correction", listWidget_);
+	item->setData(AM::DescriptionRole, "This tool interpolates between two shift curves for finer correction.");
+
 }
 
 void AMAddAnalysisBlockDialog::populateWith2D()
 {
-	QListWidgetItem *item = new QListWidgetItem(QIcon(":/22x22/gamma.png"), "Normalization", listWidget_);
+	QListWidgetItem *item = new QListWidgetItem(QIcon(":/22x22/gamma.png"), "2D Map Normalization", listWidget_);
 	item->setData(AM::DescriptionRole, "This tool normalizes its input.");
+
+	item = new QListWidgetItem(QIcon(":/spectrum.png"), "3D Binning", listWidget_);
+	item->setData(AM::DescriptionRole, "This tool bins a spectra to generate a 2D map.");
 }
+

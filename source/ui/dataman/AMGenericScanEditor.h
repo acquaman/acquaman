@@ -27,14 +27,15 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dataman/AMScanSetModel.h"
 #include "dataman/AMAxisInfo.h"
-
+#include "ui/AMRegExpLineEdit.h"
 class AMScan;
 
 class AMScanView;
 class AM2DScanView;
 class AMVerticalStackWidget;
 class AMRunSelector;
-class AMSampleEditor;
+class AMSamplePre2013Editor;
+class AMSampleBriefView;
 class AMDataSourcesEditor;
 class AMChooseScanDialog;
 class AMControlInfoListTableView;
@@ -105,18 +106,32 @@ public:
 	QRectF selectedRect() const;
 	/// Returns whether the generic scan editor is using AMScanView or AM2DScanView.
 	bool using2DScanView() const { return scanView2D_ ? true : false; }
-	/// Sets the axis information for the spectrum view.  Does nothing if not using 2D scan view.  This will automatically set the plot range for markers as well.  If you need to customize the plot range to something more specific, set \param propogateToPlotRange to false and call setPlotRange().
+	/// Sets the axis information for the spectrum view. Does nothing if not using 2D scan view. This will automatically set the plot range for markers as well. If you need to customize the plot range to something more specific, set \param propogateToPlotRange to false and call setPlotRange().
 	void setAxisInfoForSpectrumView(const AMAxisInfo &info, bool propogateToPlotRange = true);
 	/// Sets the plot range for markers to be displayed on the spectrum view.  Does nothing if not using 2D scan view.
 	void setPlotRange(double low, double high);
+	/// Sets the data source name that should be visualized when using AMSingleSpectrumView inside of AM2DScanView.  Does nothing if not using AM2DScanView.
+	void setSingleSpectrumViewDataSourceName(const QString &name);
 
 signals:
 	/// Internal signal to forward the textChanged() from ui_.notesEdit
 	void notesChanged(const QString&);
 	/// Emits a signal that the data position tool has changed positions.  This is only emitted if AMGenericScanEditor is using AM2DScanView.  Passes a reference to the scan editor and also the position of the mouse.
 	void dataPositionChanged(AMGenericScanEditor *, const QPoint &);
+	/// Notifier that a scan has been added for visualization to the editor.  Passes a reference to the editor for when there are many editors open at a time.
+	void scanAdded(AMGenericScanEditor *, AMScan *);
 
 public slots:
+
+	/// Call this to export the currently-visible plot to a graphics file. (Currently, the only supported format is a vector PDF.) This routine will prompt the user to choose a file name for the plot, and confirm on overwrite.
+	void exportGraphicsToFile();
+	/// Call this to print the currently-visible plot.
+	void printGraphics();
+	/// Call this to update the Scan Conditions Table
+	void refreshScanConditions();
+
+	/// Call this to update the window title when a scan is added or removed
+	void refreshWindowTitle();
 
 protected slots:
 	///  This catches changes in the scan that is currently selected, and hooks it up to the editor widgets. \todo Ultimately, we might handle more than one scan being "selected" at once.
@@ -139,11 +154,9 @@ protected slots:
 	/// Called when the 'Close' scan button is clicked
 	void onCloseScanButtonClicked();
 
-	/// Call this to update the window title when a scan is added or removed
-	void refreshWindowTitle();
-
 	/// Called when the open scan dialog is accepted with one or more new scans to open.
 	void onChooseScanDialogAccepted();
+
 
 	/// Call this function to open a set of scans from the database. The scan information is contained inside a list of "amd://..." URLs.  For more information on the format, see dropEvent().   Returns true if the list contains at least one valid scan that was added.
 	/*! This function is used as an internal helper function by dropEvent(); Normally you should use the dropScanURLs function in AMDatamanAppController() since it can check for scans being open in other editors*/
@@ -154,6 +167,9 @@ protected slots:
 
 	/// Helper slot that emits the dataPositionChanged signal.
 	void onDataPositionChanged(const QPoint &pos) { emit dataPositionChanged(this, pos); }
+
+	/// Slot which is called when the scan is saved to the database (sets ScanID to database value)
+	void onScanSavedToDatabase();
 
 protected:
 
@@ -169,6 +185,9 @@ protected:
 	AMScanSetModel* scanSetModel_;
 	/// This is the currently-selected scan, or 0 non-existent
 	AMScan* currentScan_;
+
+	/// This helper function refreshes the editor widgets with the values from a given scan
+	void updateEditor(AMScan* scan);
 
 	// UI Components
 
@@ -193,10 +212,14 @@ protected:
 	AM2DScanView *scanView2D_;
 
 	/// Sample editor
-	AMSampleEditor* sampleEditor_;
+	AMSamplePre2013Editor* sampleEditor_;
+	/// Alternative sample brief view for current AMSample class
+	AMSampleBriefView *sampleBriefView_;
 
 	/// Dialog to choose an existing scan to open/add.  Will be 0 until it is required/created.
 	AMChooseScanDialog* chooseScanDialog_;
+
+	AMRegExpLineEdit* scanNameEdit_;
 
 	/// Overloaded to enable drag-dropping scans (when Drag Action = Qt::CopyAction and mime-type = "text/uri-list" with the proper format.)
 	void dragEnterEvent(QDragEnterEvent *event);
@@ -213,8 +236,6 @@ protected:
 	  */
 	void dropEvent(QDropEvent * event);
 
-	/// This helper function refreshes the editor widgets with the values from a given scan
-	void updateEditor(AMScan* scan);
 
 	/// Helper function to ask if a scan should be aborted when trying to close it. Returns true if the scan should be aborted.
 	bool shouldStopAcquiringScan(AMScan* scan);

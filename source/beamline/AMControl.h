@@ -18,8 +18,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef ACQMAN_CONTROL_H
-#define ACQMAN_CONTROL_H
+#ifndef AM_CONTROL_H
+#define AM_CONTROL_H
 
 #include <QObject>
 #include <QString>
@@ -27,10 +27,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QPair>
 #include <QTimer>
 #include <cmath>
-
 #include <float.h>
 
-#include "dataman/info/AMControlInfoList.h"
+#include "dataman/info/AMControlInfo.h"
 
 /**
  * \defgroup control Beamline Control with AMControl and AMProcessVariable
@@ -49,7 +48,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
   \b actions:
 
-  - void move(double setpoint): set a Control to a requested target value
+  - FailureExplanation move(double setpoint): set a Control to a requested target value. Returns a FailureExplanation if the move() cannot be accepted for any reason [ex: control not connected, a move is already in progress and allowsMovesWhileMoving() is false, etc.].  Returns NoFailure (0) on success.
 
   \b properties:
 
@@ -68,13 +67,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
   - double maximumValue(): the limits of this control's range
 
   - double setpoint(): For Controls that can be moved, this is the most recently requested target (desired value)
-  - double tolerance(): This "deadband" or "epsilon" represents how close a AMControl must get to it's target value for it to count as inPosition() (or for the move to have succeeded).  It represents the level of accuracy the scientist requires for this quantity; ie: the maximum acceptable error between measure() and setpoint().  The default value is CONTROL_TOLERANCE_DONT_CARE -- a very large number.  Use setTolerance() to change it.
+  - double tolerance(): This "deadband" or "epsilon" represents how close a AMControl must get to it's target value for it to count as inPosition() (or for the move to have succeeded).  It represents the level of accuracy the scientist requires for this quantity; ie: the maximum acceptable error between value() and setpoint().  The default value is CONTROL_TOLERANCE_DONT_CARE -- a very large number.  Use setTolerance() to change it.
   - bool inPosition(): indicates the AMControl is within tolerance() of it's requested target.
   - bool withinTolerance(double target): indicates the AMControl is within tolerance() of a specified target
 
   <b>Monitoring Motion</b>
 
-  There are two useful but distinct ideas on whether a control is "moving", particularly for distributed control systems like in a synchrotron.  Often, beamline parameters can be controlled from a user's software interface, but they can also spontaneously start moving due to external events or other control interfaces.
+  There are two useful but distinct ideas on whether a control is "moving", particularly for distributed control systems.  Often, beamline parameters can be controlled from a user's software interface, but they can also spontaneously start moving due to external events or other control interfaces.
 
 One concept of moving simply reflects what you would see in the physical world: is the value of the Control currently changing? (either triggered by the user, or by external inputs)
 In other cases, what you really want to know is whether the Control started or stopped moving <em>in response to your instructions</em>.  This is useful when scanning a value, and wanting to receive confirmation that the Control is doing what you told it to.
@@ -89,20 +88,26 @@ The second category only reflects motion due to instructions sent by \em this so
 
   - bool moveInProgress(): A move that you requested is currently happening
   - signal: moveStarted(): emitted when moveInProgress first goes to true
-  - signal: moveSucceeded(): emitted when a move completes successfully, and the final measure()d value is within tolerance of the setpoint.
+  - signal: moveSucceeded(): emitted when a move completes successfully, and the final value() is within tolerance of the setpoint.
   - signal: moveFailed(int explanation): emitted when a move is not able to complete for some reason. Possible explanation codes are:
  -# Could not start the move because the control's not connected / responding
  -# The move finished, but failed to achieve the tolerance requested
  -# The move did not complete within a timeout period specified
  -# an error code defined by the specific control implementation
 
-<b>Warning About Expected Behaviour</b>
+<b>Re-targetting moves while already moving</b>
+Some devices can accept new setpoints while in motion toward a first setpoint, while others cannot.  Use setAllowsMovesWhileMoving() to specify whether move() commands should be accepted while the device is already moving.
 
-All behaviour about the current state of a control is based on whether the control has made it to its destination within the tolerance() that has been set for it.
-However, this assumes that you set this tolerance yourself because the default is CONTROL_TOLERANCE_DONT_CARE.
-If the tolerance is left to its default value you are not able to trust the signals such as moveSucceeded() because they will be emitted the first time the system gets a feedback value, <b>even if the control is still moving</b>!
-Therefore, in order to use AMControl to the fullest of its capabilities make sure you set the tolerance.
+Defaults:
+- AMControl: allowsMovesWhileMoving() == false
+- AMPVControl: allowsMovesWhileMoving() == true, since we have no really reliable way to tell if these controls are actually moving.
+- AMPVwStatusControl: allowsMovesWhileMoving() == false.
 
+If moves while moving are not accepted, move() will return AlreadyMovingFailure and do nothing.  If they are accepted, moveReTargetted() will be emitted for each re-targetted move(); however, no moveSucceeded() or moveFailed() will be emitted for the initial move.  Instead, only one moveSucceeded() or moveFailed() will be emitted when motion finally stops.  This behaviour is chosen so that the moveSucceeded() or moveFailed() from the intial move would not be confused as a moveSucceeded() or moveFailed() for the subsequent moves.
+
+<b>Normal move:</b> moveStarted().... ...[moveSucceeded() or moveFailed()]
+<b>Re-targetted once:</b> moveStarted()... moveReTargetted()... ...[moveSucceeded() or moveFailed()]
+<b>Re-targetted twice:</b> moveStarted()... moveReTargetted()... moveReTargetted()...[moveSucceeded() or moveFailed()]
 
 <b>Grouping Controls</b>
 
@@ -129,7 +134,7 @@ One powerful ability of the control grouping is being able to generate a list of
 
 <b> Implementing Real Controls</b>
 
-These properties are defined as the general characteristics that all Controls are expected to have, regardless of the actual hardware or connection method. (For example, they should be equally useful for representing Process Variables in an Epics-based control system, devices connected directly via TCP-IP or serial lines, or off-site hoofadinkuses interfaced using smoke signals or bongo drums.)
+These properties are defined as the general characteristics that all Controls are expected to have, regardless of the actual hardware or connection method. (For example, they should be equally useful for representing Process Variables in an Epics-based control system, devices connected directly via TCP-IP or serial lines, or off-site controls interfaced using smoke signals or bongo drums.)
 
 The AMControl interface should be inherited to implement real-world control devices.  The exact meaning of the properties might change depending on the physical device and its capabilities.  As a useful example, we've provided a set of real controls with different levels of capability that implement Epics Process-Variable type connections:
 
@@ -137,7 +142,7 @@ The AMControl interface should be inherited to implement real-world control devi
 <table>
 <tr><td>Class Name					<td>Description
 <tr><td>AMControl					<td>Interface definition. Can be instantiated, but not particularly useful.
-<tr><td>AMControlGroup				<td>Empty control that doesn't move or measure, but reports the combined moving status and connected status of its subcontrols
+<tr><td>AMCompositeControl			<td>Empty control that doesn't move or measure, but reports the combined moving status and connected status of its subcontrols
 <tr><td>AMReadOnlyPVControl			<td>Measures a single process variable.  Cannot be used to set values.
 <tr><td>AMPVControl					<td>Measures a feedback process variable, and moves a setpoint PV.
 <tr><td>AMReadOnlyPVwStatusControl	<td>Measures a single process variable, and monitors a second PV for moving status
@@ -149,7 +154,7 @@ The AMControl interface should be inherited to implement real-world control devi
 <table>
 <tr><td>Class Name					<td>Usage example
 <tr><td>AMControl					<td>
-<tr><td>AMControlGroup				<td>A "Beamline" group that shows whether anything on the beamline is moving or disconnected
+<tr><td>AMCompositeControl			<td>A "Beamline" group that shows whether anything on the beamline is moving or disconnected
 <tr><td>AMReadOnlyPVControl			<td>Observing the storage ring current ("isMoving()" is hard to define here, so its meaningless)
 <tr><td>AMPVControl					<td>High-voltage bias settings, with a setpoint and feedback value
 <tr><td>AMReadOnlyPVwStatusControl	<td>Another beamline's energy motor feedback, with moving/not-moving indicators
@@ -162,7 +167,7 @@ We need to carefully specify the behavior for all of these implementation-define
 
 <table>
 <tr><td>AMControl					<td>[is always false]
-<tr><td>AMControlGroup				<td>all children are connected
+<tr><td>AMCompositeControl			<td>all children are connected
 <tr><td>AMReadOnlyPVControl			<td>feedback PV is connected
 <tr><td>AMPVControl					<td>feedback and setpoint PVs are connected
 <tr><td>AMReadOnlyPVwStatusControl	<td>feedback and motion-status PVs are connected
@@ -173,7 +178,7 @@ We need to carefully specify the behavior for all of these implementation-define
 
 <table>
 <tr><td>AMControl					<td>[is always false]
-<tr><td>AMControlGroup				<td>any child is moving
+<tr><td>AMCompositeControl			<td>any child is moving
 <tr><td>AMReadOnlyPVControl			<td>[is always false: no good way to determine this]
 <tr><td>AMPVControl					<td>one of your moves is executing (moveInProgress = true)
 <tr><td>AMReadOnlyPVwStatusControl	<td>motion-status PV indicates that the control is moving
@@ -184,9 +189,9 @@ We need to carefully specify the behavior for all of these implementation-define
 
 <table>
 <tr><td>AMControl					<td>[never happens]
-<tr><td>AMControlGroup				<td>[never happens]
+<tr><td>AMCompositeControl			<td>[never happens]
 <tr><td>AMReadOnlyPVControl			<td>[never happens]
-<tr><td>AMPVControl					<td>after starting a move, the measure()d value came within tolerance() of setpoint() before completionTimeout()
+<tr><td>AMPVControl					<td>after starting a move, the value() came within tolerance() of setpoint() before completionTimeout()
 <tr><td>AMReadOnlyPVwStatusControl	<td>[never happens]
 <tr><td>AMPVwStatusControl			<td>motion-status PV indicates that the control stopped moving, and the value was not within tolerance of setpoint()
 </table>
@@ -194,12 +199,12 @@ We need to carefully specify the behavior for all of these implementation-define
 <b>moveFailed() means:</b>
 
 <table>
-<tr><td>AMControl					<td>[any move]
-<tr><td>AMControlGroup				<td>[any move]
-<tr><td>AMReadOnlyPVControl			<td>[any move]
-<tr><td>AMPVControl					<td>after starting a move, the completionTimeout() occured before measure()d value came within tolerance() of setpoint()
-<tr><td>AMReadOnlyPVwStatusControl	<td>[any move]
-<tr><td>AMPVwStatusControl			<td>motion-status PV indicated that the control stopped moving, and the value was not within tolerance() of setpoint.  OR... The PV did not start isMoving() within startTimeout().
+<tr><td>AMControl					<td>[never happens]
+<tr><td>AMCompositeControl			<td>[never happens]
+<tr><td>AMReadOnlyPVControl			<td>[never happens]
+<tr><td>AMPVControl					<td>after starting a move, the completionTimeout() occured before value() came within tolerance() of setpoint()
+<tr><td>AMReadOnlyPVControl			<td>[never happens]
+<tr><td>AMPVwStatusControl			<td>The motion-status PV indicated that the control stopped moving, and the value was not within tolerance() of setpoint.  OR... The PV did not start isMoving() within startTimeout().
 </table>
 
 
@@ -215,11 +220,43 @@ public:
 	/*! Possible explanation codes are:
  */
 	enum FailureExplanation {
-		NotConnectedFailure = 1, ///< Could not start the move because the control's not connected / responding
+		NoFailure = 0,
+		NotConnectedFailure, ///< Could not start the move because the control's not connected / responding
 		ToleranceFailure,		///< The move finished, but failed to achieve the tolerance requested
 		TimeoutFailure,			///< The move did not complete within a timeout period specified
 		WasStoppedFailure,		///< The move was prematurely stopped with the stop() command.
-		OtherFailure 			///<  an error code defined by the specific control implementation
+		AlreadyMovingFailure,	///< The move could not be started because the control was already moving, and it does not allowsMovesWhileMoving().
+		RedirectedFailure,		///< Never emitted by AMControl classes. Can be used to represent that a move was redirected while already moving.
+		OtherFailure 			///< An error code defined by the specific control implementation
+	};
+
+	/// An english-language version of FailureExplanation
+	static QString failureExplanation(FailureExplanation f) {
+		QString explanation;
+		switch(f) {
+		case AMControl::NoFailure:				explanation = "There was no actual failure."; break;	// Nobody should ever see this.
+		case AMControl::NotConnectedFailure:	explanation = "The control was not connected."; break;
+		case AMControl::ToleranceFailure:		explanation = "The required tolerance was not met."; break;
+		case AMControl::TimeoutFailure:			explanation = "The move timed out without starting or reaching its destination."; break;
+		case AMControl::WasStoppedFailure:		explanation = "The move was manually interrupted or stopped."; break;
+		case AMControl::AlreadyMovingFailure:	explanation = "The control was already moving."; break;
+		case AMControl::RedirectedFailure:		explanation = "The move was externally re-directed to another destination."; break;
+		case AMControl::OtherFailure:
+		default:
+			explanation = "An undocumented failure happened."; break;
+		}
+		return explanation;
+	}
+	/// An english-language version of FailureExplanation
+	static QString failureExplanation(int f) { return failureExplanation(FailureExplanation(f)); }
+
+	/// This enum type is used to describe the different types of relative moves that can be done
+	/*! Possible relative move types are:
+	*/
+	enum RelativeMoveType {
+		RelativeMoveFromValue = 0,	///< Relative move from the current value (if the control is has a setpoint of 100.00 and a feedback of 99.99, this type of relative move will set the setpoint to 100.99 on a relative move of +1.00)
+		RelativeMoveFromSetpoint = 1,	///< Relative move from the current setpoint (if the control is has a setpoint of 100.00 and a feedback of 99.99, this type of relative move will set the setpoint to 101.00 on a relative move of +1.00)
+		RelativeMoveInvalid = 2		///< Invalid enum holder
 	};
 
 	/// This enum type is used to describe problematic states the control can be in
@@ -232,21 +269,25 @@ public:
 		CannotGetStatusError	///< Cannot read the status when we are connected
 	};
 
+	/// Alarm levels defined for controls. These correspond to traditional EPICS alarm severity levels, but can be used by other control systems as well.
+	enum AlarmLevel {
+		NoAlarm = 0,
+		MinorAlarm,
+		MajorAlarm,
+		InvalidAlarm
+	};
+
 	/// Base Class Constructor
 	/*! \param name A unique descriptive name for this control.
   \param units The default unit description.
   \param parent QObject parent for memory management
   */
-	AMControl(const QString& name, const QString& units = "n/a", QObject* parent = 0, const QString description = "") : QObject(parent), units_(units), description_(description) {
-		setObjectName(name);
-		wasConnected_ = false;
-		tolerance_ = AMCONTROL_TOLERANCE_DONT_CARE;
-		contextKnownDescription_ = "";
-	}
+ 	virtual ~AMControl();
+	AMControl(const QString& name, const QString& units = "", QObject* parent = 0, const QString description = "");
 
 	/// \name Control info
 	/// One feature of a control is that it can create a snapshot of its current state and pass it on as an AMControlInfo.
-	AMControlInfo toInfo() { return AMControlInfo(name(), value(), minimumValue(), maximumValue(), units(), tolerance(), description(), contextKnownDescription()); }
+	AMControlInfo toInfo() { return AMControlInfo(name(), value(), minimumValue(), maximumValue(), units(), tolerance(), description(), contextKnownDescription(), isEnum() ? enumNameAt(value()) : QString() ); }
 
 	/// \name Accessing childControls() subcontrols:
 	/// One additional feature of Controls is the ability to logically group sets of sub-controls together. (For example, a Monochromator control could consist of a Grating angle control, exit slit position control, and grating selector.)  Every Control therefore has a list of subcontrols.
@@ -277,8 +318,11 @@ public:
 	/// Returns a short human-readable description for when the context is known or is implicit
 	QString contextKnownDescription() const { return contextKnownDescription_;}
 
-	/// This value defines how close the final measure()d position must be to the setpoint(), for the move() to have succeeded.
+	/// This value defines how close the final value() must be to the setpoint(), for the move() to have succeeded.
 	double tolerance() const { return tolerance_; }
+
+	/// This flag determines if moves happen when already within tolerance. If true (default) then a control will attempt a move no matter what. If that control never switches to the moving state, then the move will likely timeout even though it is within tolerance.
+	bool attemptMoveWhenWithinTolerance() const { return attemptMoveWhenWithinTolerance_; }
 
 	/// This represents the current value/position of the control. Must reimplement for actual controls.
 	virtual double value() const { return -1; }
@@ -289,7 +333,7 @@ public:
 	/// this indicates whether a control is "in position" (ie: its value is within tolerance of the setpoint)
 	virtual bool inPosition() const { return fabs(value()-setpoint()) < tolerance(); }
 
-	/// this indicates whether a contorl is "within tolerance" of a given target (ie: the target specified is the same as the current value within the set tolerance)
+	/// this indicates whether a control is "within tolerance" of a given target (ie: the target specified is the same as the current value within the set tolerance)
 	virtual bool withinTolerance(double target) const { return fabs(value()-target) < tolerance(); }
 
 	/// \name Capabilities
@@ -309,6 +353,8 @@ public:
 	virtual bool canStop() const { return false; }
 	/// Indicates that this control \em shoule (assuming it's connected) be able to issue stop() commands while moves are in progress.
 	virtual bool shouldStop() const { return false; }
+	/// Indicates that this control should accept move() requests while it is already isMoving(). Some hardware can handle this. If this is false, move() requests will be ignored when the control is already in motion.
+	bool allowsMovesWhileMoving() const { return allowsMovesWhileMoving_; }
 	//@}
 
 	/// Indicates that the Control's measurement is transient (ie: on its way toward a steady-state value)
@@ -337,20 +383,24 @@ The Control abstraction provides two different properties (and associated signal
 
   - bool moveInProgress(): A move that you requested is currently happening
   - signal: moveStarted(): emitted when moveInProgress first goes to true
-  - signal: moveSucceeded(): emitted when a move completes successfully, and the final measure()d value is within tolerance of the setpoint.
+  - signal: moveReTargetted(): emitted when allowsMovesWhileMoving() is true, and a move is re-directed to a different setpoint while already moving.
+  - signal: moveSucceeded(): emitted when a move completes successfully, and the final value() is within tolerance of the setpoint.
   - signal: moveFailed(int explanation): emitted when a move is not able to complete for some reason. Possible explanation codes are:
 
-  - \c AMControl::NotConnectedFailure: Could not start the move because the control's not connected or responding
-  - \c AMControl::ToleranceFailure: The move finished, but failed to achieve the tolerance requested
-  - \c AMControl::TimeoutFailure: The move failed to finish (or start) within a timeout period specified.
-  - \c AMControl::OtherFailure and higher: an error code defined by the specific control implementation
+  - \c AMControl::NotConnectedFailure (1): Could not start the move because the control's not connected or responding
+  - \c AMControl::ToleranceFailure (2): The move finished, but failed to achieve the tolerance requested
+  - \c AMControl::TimeoutFailure (3): The move failed to finish (or start) within a timeout period specified.
+  - \c AMContro::WasStoppedFailure (4): The move was interrupted by calling stop() before it could finish.
+  - \c AMControl::OtherFailure (5) and higher: an error code defined by the specific control implementation
 
 
 */
 	virtual bool moveInProgress() const { return false; }
 
 	/// Indicates the units associated with the value of this control.
-	virtual QString units() const { return units_; }
+	QString units() const { return units_; }
+	/// Indicates the number of digits after the decimal point that are recommended for displaying this control's value.
+	int displayPrecision() const { return displayPrecision_; }
 
 	/// \name Information on the allowed range for this control:
 	//@{
@@ -368,11 +418,11 @@ The Control abstraction provides two different properties (and associated signal
 
 	/// Indicates that a control is discrete.
 
-	/*! \note This may not be valid the instant you create the control.  Watch for enumChanges(const QStringList& newEnumNames).)
+	/*! \note This may not be valid the instant you create the control.  Watch for enumChanged().)
    \return true if this control represents a discrete set of choices.
   \sa enumNames(), enumCount()
   */
-	bool isEnum() const { return (enumNames_.count() > 0); }
+	bool isEnum() const { return (!enumNames_.isEmpty()); }
 
 	/// If it is a discrete control, this gives you a list of descriptions for each state. (They match with numerical values 0, 1, 2, ...)
 
@@ -380,9 +430,9 @@ The Control abstraction provides two different properties (and associated signal
 	QStringList enumNames() const { return enumNames_; }
 
 	/// If it is a discrete control, this tells you how many discrete options/states are available:
-	unsigned enumCount() const { return enumNames_.count(); }	// TODO: there could be problems if you use a feedback PV and a setpoint PV with different number of enum choices. How to handle this?
+	unsigned enumCount() const { return enumNames_.count(); }
 
-	/// Returns the enum string for a given \c controlValue. This function will check to make sure the control value is within the range of the set of enums.
+	/// Returns the enum string for a given \c controlValue. This function will check to make sure the control value is within the range of the set of enums, and return "[enum value out of range]" if not.
 	QString enumNameAt(double controlValue) {
 		int enumValue = (int)controlValue;
 		if((unsigned)enumValue < (unsigned)enumNames_.count())
@@ -391,21 +441,60 @@ The Control abstraction provides two different properties (and associated signal
 			return "[enum value out of range]";
 	}
 
+
+	/// Sometimes the valid enum choices to use for move() may be different than the choices that describe value().  For example, value() might be described by "Open", "Closed", and "Moving", whereas for move(), only "Open" and "Close" may be relevant. This returns the enum values acceptable for move().
+	/*! Note that if a control does not explicitly specify separate enums for move(), the regular enumNames() will be used.*/
+	QStringList moveEnumNames() const { if(moveEnumNames_.isEmpty()) return enumNames(); return moveEnumNames_; }
+
+	/// This indicates how many discrete options/states are available for move() choices.
+	/*! Note that if a control does not explicitly specify separate enums for move(), the regular enumCount() will be used.*/
+	unsigned moveEnumCount() const { if(moveEnumNames_.isEmpty()) return enumCount(); return moveEnumNames_.count(); }
+
+	/// Returns the move()-relevant enum string for a given \c controlValue. This function will check to make sure the control value is within the range of moveEnumCount(), and return "[enum value out of range]" if not.
+	/*! Note that if a control does not explicitly specify separate enums for move(), the regular enumNameAt() will be used.*/
+	QString moveEnumNameAt(double controlValue) {
+		if(moveEnumNames_.isEmpty())
+			return enumNameAt(controlValue);
+
+		int enumValue = (int)controlValue;
+		if((unsigned)enumValue < (unsigned)moveEnumNames_.count())
+			return moveEnumNames_.at(enumValue);
+		else
+			return "[enum value out of range]";
+	}
+
+
 	//@}
 
+
+	/// Returns the alarm severity for this control.  This indicates how "serious" the alarm is; it is one of the values in AMControl::AlarmLevel.
+	virtual int alarmSeverity() const { return NoAlarm; }
+	/// Returns the alarm status for this control.  The alarm status is an integer that can be defined by the control implementation to explain the reason for the alarm.
+	virtual int alarmStatus() const { return 0; }
+
 public slots:
-	/// This is used to move the control to a setpoint.  Must reimplement for actual controls
-	virtual void move(double setpoint) {
+	/// This is used to move the control to a \c setpoint.  Returns NoFailure (0) if the move command was sent. (Does not guarantee that the move was actually started.)  Returns a FailureExplanation if it is known immediately that the control cannot be moved. Must reimplement for actual controls.
+	virtual FailureExplanation move(double setpoint) {
 		Q_UNUSED(setpoint);
-		emit moveFailed(AMControl::NotConnectedFailure);  // The default implementation cannot move.
+		return NotConnectedFailure;
 	}
-	/// This is used to move a control a relative distance from its current position. The base class implementation simply issues a move() to the current value() plus \c distance. This may not be sufficient if moveRelative() will be called faster than value() updates in your implementation; in that case, it's recommended to re-implement this as appropriate.
-	virtual void moveRelative(double distance) {
-		move(value() + distance);
+	/// This is used to move a control a relative distance from its current position. Capable of moving relative from the feedback value or the setpoint (see enum documentation for details). For historic reasons, the default is relative from feedback value. The base class implementation simply issues a move() to the current value() plus \c distance. This may not be sufficient if moveRelative() will be called faster than value() updates in your implementation; in that case, it's recommended to re-implement this as appropriate.
+	virtual FailureExplanation moveRelative(double distance, AMControl::RelativeMoveType relativeMoveType = AMControl::RelativeMoveFromValue) {
+		switch(relativeMoveType){
+		case AMControl::RelativeMoveFromValue:
+			return move(value() + distance);
+		case AMControl::RelativeMoveFromSetpoint:
+			return move(setpoint() + distance);
+		default:
+			return move(value() + distance);
+		}
 	}
 
 	/// This sets the tolerance level: the required level of accuracy for successful move()s.
 	void setTolerance(double newTolerance) { tolerance_ = newTolerance; }
+
+	/// This sets the flag to determine if moves happen when already within tolerance. If true (default) then a control will attempt a move no matter what. If that control never switches to the moving state, then the move will likely timeout even though it is within tolerance.
+	void setAttemptMoveWhenWithinTolerance(bool attemptMoveWhenWithinTolerance) { attemptMoveWhenWithinTolerance_ = attemptMoveWhenWithinTolerance; }
 
 	/// This sets the human-readable description for the control
 	void setDescription(const QString &description) { description_ = description; }
@@ -416,12 +505,16 @@ public slots:
 	/// This is used to cancel or stop a move in progress. Must reimplement for actual controls.  It will be successful only if canStop() is true.  Returns true if the stop command was successfully sent.  (Note: this DOES NOT guarantee that the motor actually stopped!)
 	virtual bool stop() { return false; }
 
-	/// Moves all of the AMControl's subcontrols (children and grandchildren, etc) based on a \c controlList QMap of Control Names and setpoint values.
-	/*! \param controlList specifies a set of AMControls by their name(), and specifies a target value for each.
-  \param errorLevel specifies what counts as success. \todo David: write out what these are.
-  \todo Change name to setChildrenState().
-   */
-	bool setState(const QMap<QString, double> controlList, unsigned int errorLevel = 0);
+	/// Set this control to accept move() requests while it isMoving(). The default is to reject move() requests if the control is already moving. This should be changed for controls that are capable of being re-targetted while in motion.
+	void setAllowsMovesWhileMoving(bool allowMovesWhileMoving) { allowsMovesWhileMoving_ = allowMovesWhileMoving; }
+
+	// Deprecated:
+//	/// Moves all of the AMControl's subcontrols (children and grandchildren, etc) based on a \c controlList QMap of Control Names and setpoint values.
+//	/*! \param controlList specifies a set of AMControls by their name(), and specifies a target value for each.
+//  \param errorLevel specifies what counts as success. \todo David: write out what these are.
+//  \todo Change name to setChildrenState().
+//   */
+//	bool setState(const QMap<QString, double> controlList, unsigned int errorLevel = 0);
 
 
 signals:
@@ -430,6 +523,8 @@ signals:
 	//@{
 	/// Emitted when moveInProgress() goes to true.
 	void moveStarted();
+	/// Emitted when allowsMovesWhileMoving() is true, and a move() is commanded while already moving. You can call setpoint() to find out where it's been updated to go to.
+	void moveReTargetted();
 	/// Emitted when a move successfully completes. (This is up to the implementation to define what counts as successful and complete.)
 	void moveSucceeded();
 	/// Emitted when a move is not able to complete successfully for some reason.
@@ -450,11 +545,13 @@ signals:
 	void setpointChanged(double);
 	//@}
 
-	/// Announces when the unit string text has changed. Necessary because we might not know this until after a delayed control connects.
+	/// Announces when the unit string text has changed. Necessary because we might not know this until after a control connects.
 	void unitsChanged(const QString& units);
-	/// Announces when the number or descriptions of discrete states changes.  Necessary because we might not know this when the Control is first created.
-	/// \sa isEnum(), enumNames(), and enumCount().
-	void enumChanges(const QStringList& enumStateNames);
+	/// Announces when the displayPrecision() has changed. Necessary because we might not know this until after a control connects.
+	void displayPrecisionChanged(int displayPrecision);
+	/// Announces when the number or descriptions of discrete states changes.  Necessary because we might not know this until after a control connects.  When receiving this, you can check isEnum(), enumNames(), and moveEnumNames().
+	/// \sa isEnum(), enumNames(), enumCount(), moveEnumNames(), moveEnumCount().
+	void enumChanged();
 
 	/// Announces changes in isConnected().
 	/*! Emitted (true) when full functionality is achieved. Emitted (false) when full functionality is lost. What counts as functionality can be decided by the subclasses.
@@ -467,31 +564,48 @@ signals:
 	void error(int);
 	void error(const QString&);
 
+	/// Emitted when the control's alarm status or severity changes.  \c status is defined by the particular control implementation. \c severity is one of the levels in AMControl::AlarmLevel.
+	void alarmChanged(int status, int severity);
+
 protected:
 	/// List of pointers to our subcontrols
 	QList<AMControl*> children_;
-	/// Used to detect changes in isConnected()
-	bool wasConnected_;
+	/// True if the control should allow additional move() commands while it's already moving. Some hardware can handle this. If this is false, move() requests issued while the control is moving are ignored.  It is false by default; subclassses should change this if required.
+	bool allowsMovesWhileMoving_;
+
+	/// A flag to tell controls whether or not to attempt a move when they are already within tolerance
+	bool attemptMoveWhenWithinTolerance_;
 
 
 protected slots:
-	/// This is used internally to set the unit text:
-	virtual void setUnits(const QString& newUnits) { units_ = newUnits; emit unitsChanged(units()); }
-	/// This is used internally to flag whether a Control is labelled isEnum(), and add the names for each state. If it IS a discrete control (enumStateNames != 0), then the tolerance is set to a value less than 1.  This makes sense when the values must be integer (discrete) values.
-	virtual void setEnumStates(const QStringList& enumStateNames) { enumNames_ = enumStateNames; if(enumNames_.count() > 0) {setTolerance(0.1);} emit enumChanges(enumNames_); }
+	/// This is used internally by subclasses to set the unit text:
+	void setUnits(const QString& newUnits) { if(units_ == newUnits) return; units_ = newUnits; emit unitsChanged(units_); }
 
-	/// Used internally by setStateList, called recursively. \todo MIGHT NEED TO BE VIRTUAL for reimplementation in child classes
-	bool searchSetChildren(QMap<QString, double> *controlList, QMap<QString, AMControl*> *executeList, unsigned int errorLevel);
+	/// This is used internally by subclasses to set the display precision
+	void setDisplayPrecision(int displayPrecision) { if(displayPrecision_ == displayPrecision) return; displayPrecision_ = displayPrecision; emit displayPrecisionChanged(displayPrecision_); }
+
+	/// This is used internally to flag whether a Control is labelled isEnum(), and add the names for each state. If it IS a discrete control (\c enumStateNames is not empty), then the tolerance is automatically set to a value less than 1 (0.1).  This makes sense when the values must be integer (discrete) values.
+	void setEnumStates(const QStringList& enumStateNames) { if(enumNames_ == enumStateNames) return; enumNames_ = enumStateNames; if(enumNames_.count() > 0) {setTolerance(0.1);} emit enumChanged(); }
+
+	/// This is used internally to specify the allowed enum names for the move() aspect of the control, if they happen to be different than the enums that apply to value().  This can sometimes happen when there are status enums included in the value() [ex: "Open", "Closed", and "Moving"], so the valid choices for move() are different [ex: "Open" and "Close"].
+	/*! If isEnum() returns true and this is not specified by a subclass implementation, the regular enumNames() will be assumed to apply for both move() and value(). moveEnumNames() will return enumNames(). */
+	void setMoveEnumStates(const QStringList& enumStateNames) { if(moveEnumNames_ == enumStateNames) return; moveEnumNames_ = enumStateNames; emit enumChanged(); }
+
+	// Deprecated:
+//	/// Used internally by setStateList, called recursively. \todo MIGHT NEED TO BE VIRTUAL for reimplementation in child classes
+//	bool searchSetChildren(QMap<QString, double> *controlList, QMap<QString, AMControl*> *executeList, unsigned int errorLevel);
 
 private:
 	// subclasses should use the protected methods to access these, to ensure signal generation.
-
 	double tolerance_;
 	QString units_;
 	QStringList enumNames_;
-	QString description_; //Human-readable description
-	QString contextKnownDescription_; //Human-readable description. Very short, for when the context is known. Might be "X" as opposed to "SSA Manipulator X"
-
+	QStringList moveEnumNames_;
+	int displayPrecision_;
+	/// Human-readable description
+	QString description_;
+	/// Human-readable description. Very short, for when the context is known. Might be "X" as opposed to "SSA Manipulator X"
+	QString contextKnownDescription_;
 };
 
 

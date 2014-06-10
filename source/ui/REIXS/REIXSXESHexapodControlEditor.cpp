@@ -25,6 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QLabel>
 #include "ui/beamline/AMControlEditor.h"
 
+ REIXSXESHexapodControlEditor::~REIXSXESHexapodControlEditor(){}
 REIXSXESHexapodControlEditor::REIXSXESHexapodControlEditor(REIXSHexapod* hexapod, QWidget *parent) :
 	QGroupBox("Hexapod Control", parent)
 {
@@ -33,20 +34,20 @@ REIXSXESHexapodControlEditor::REIXSXESHexapodControlEditor(REIXSHexapod* hexapod
 	QVBoxLayout* vl = new QVBoxLayout();
 
 	vl->addWidget(new QLabel("X, Y, Z"));
-	vl->addWidget(new AMBasicControlEditor(hexapod->x()));
-	vl->addWidget(new AMBasicControlEditor(hexapod->y()));
-	vl->addWidget(new AMBasicControlEditor(hexapod->z()));
+	vl->addWidget(new AMControlEditor(hexapod->x()));
+	vl->addWidget(new AMControlEditor(hexapod->y()));
+	vl->addWidget(new AMControlEditor(hexapod->z()));
 
 	vl->addWidget(new QLabel("U,V,W"));
-	vl->addWidget(new AMBasicControlEditor(hexapod->u()));
-	vl->addWidget(new AMBasicControlEditor(hexapod->v()));
-	vl->addWidget(new AMBasicControlEditor(hexapod->w()));
+	vl->addWidget(new AMControlEditor(hexapod->u()));
+	vl->addWidget(new AMControlEditor(hexapod->v()));
+	vl->addWidget(new AMControlEditor(hexapod->w()));
 
 
 	vl->addWidget(new QLabel("R,S,T"));
-	vl->addWidget(new AMBasicControlEditor(hexapod->r()));
-	vl->addWidget(new AMBasicControlEditor(hexapod->s()));
-	vl->addWidget(new AMBasicControlEditor(hexapod->t()));
+	vl->addWidget(new AMControlEditor(hexapod->r()));
+	vl->addWidget(new AMControlEditor(hexapod->s()));
+	vl->addWidget(new AMControlEditor(hexapod->t()));
 
 	setLayout(vl);
 

@@ -39,6 +39,7 @@ class VESPERSExporter2DAscii : public AMExporterGeneralAscii
 
 public:
 	/// Constructor.
+ 	virtual ~VESPERSExporter2DAscii();
 	Q_INVOKABLE explicit VESPERSExporter2DAscii(QObject *parent = 0);
 
 	/// Description of the exporter.

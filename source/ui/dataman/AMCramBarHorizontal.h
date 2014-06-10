@@ -34,6 +34,7 @@ class AMDeferredFunctionCall;
 class AMScrollArea : public QScrollArea {
 	Q_OBJECT
 public:
+ 	virtual ~AMScrollArea();
 	explicit AMScrollArea(QWidget* parent = 0)
 		: QScrollArea(parent) {}
 
@@ -82,6 +83,7 @@ class AMCramBarHorizontal : public QWidget
 {
 Q_OBJECT
 public:
+ 	virtual ~AMCramBarHorizontal();
 	explicit AMCramBarHorizontal(QWidget *parent = 0);
 
 	void addWidget(QWidget* widget) {

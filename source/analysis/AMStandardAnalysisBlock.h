@@ -36,6 +36,7 @@ class AMStandardAnalysisBlock : public AMAnalysisBlock
 	Q_OBJECT
 public:
 	/// Create a new AMAnalysisBlock. The block is also an AMDataSource of output data; \c outputName is the name for this AMDataSource.
+ 	virtual ~AMStandardAnalysisBlock();
 	AMStandardAnalysisBlock(const QString& outputName, QObject *parent = 0);
 
 	// Access to input data sources
@@ -77,7 +78,7 @@ public:
 	/// Returns the size of (ie: count along) each dimension
 	virtual AMnDIndex size() const {
 		int r = axes_.count();
-		AMnDIndex rv(r, false);
+		AMnDIndex rv(r, AMnDIndex::DoNotInit);
 		for(int i=0; i<r; i++)
 			rv[i] = axes_.at(i).size;
 		return rv;

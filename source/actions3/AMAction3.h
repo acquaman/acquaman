@@ -23,6 +23,19 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QObject>
 #include "actions3/AMActionInfo3.h"
 
+#define AMACTION3_CANNOT_CANCEL_NOT_IN_FINAL_STATE 270701
+#define AMACTION3_CANNOT_PAUSE_ACCORDING_TO_ACTION 270702
+#define AMACTION3_CANNOT_PAUSE_NOT_IN_PAUSABLE_STATE 270703
+#define AMACTION3_CANNOT_RESUME_NOT_CURRENTLY_PAUSED 270704
+#define AMACTION3_NOTIFIED_STARTED_BUT_NOT_TOLD_TO_START 270705
+#define AMACTION3_NOTIFIED_SUCCEEDED_BUT_NOT_YET_POSSIBLE 270706
+#define AMACTION3_NOTIFIED_FAILED_BUT_NOT_YET_POSSIBLE 270707
+#define AMACTION3_NOTIFIED_PAUSED_BUT_NOT_CURRENTLY_POSSIBLE 270708
+#define AMACTION3_NOTIFIED_RESUMED_BUT_NOT_CURRENTLY_POSSIBLE 270709
+#define AMACTION3_NOTIFIED_CANCELLED_BUT_NOT_YET_POSSIBLE 270710
+#define AMACTION3_CANNOT_SKIP_NOT_POSSIBLE 270711
+#define AMACTION3_CANNOT_SKIP_NOT_CURRENTLY_RUNNING 270712
+
 /// AMAction defines the interface for "actions" which can be run asynchronously in Acquaman's Workflow system. Actions (especially AMListAction) can also be useful on their own, outside of the workflow environment, to (a) make a set of events happen in a defined order, and (b) receive notification when those events succeed or fail. They can be used to easily build up complicated behaviour when moving beamlines around or building scan controllers.
 /*!
   <b>Running actions</b>
@@ -46,17 +59,16 @@ When this one-to-one relationship between AMActions and AMActionInfos is used, t
 
 \todo detailed description
 
-<b>Prerequisites</b>
+<b>Skipping</b>
 
-AMActionPrereq defines an interface for "prerequisites" which must be satisfied before an action can run.  One example of this (for a scan action) could be to ensure that no other scans are currently running on the beamline.
+Actions also have the ability to "skip" or stop before they have finished as originally setup.  This is meant to be distinctly different from cancelling due to the fact that
+cancelling has an inherent meaning of "failed" or "not quite right".  Therefore, the skip quality is meant to provide the idea of "good enough".  Whether this is a scan that
+already has enough good data and you want to save time or you are doing a set of actions in a loop and figure it's good enough at 7 of 10, you can now successfully complete that
+action with the skip option.
 
-When you add one or more prereqs to an action with addPrereq(), the action can do one of four things (depending on the chosen prereqBehavior()) if any of them are not satisfied:
-
-- Wait patiently for all the prerequisites to be satisfied
-- Automatically cancel the action (like calling cancel())
-- Automatically fail the action  (like the action going into the Failed state)
-- Ask the user for whether to wait or cancel the action
-
+To use skip, actions must provide a set of "skip options" that are available and then implement what each of those options do in the skip() method.  The skip method takes a
+"command" which is a string - which obviously must match a skip option.  For generality, skip will do nothing so that if the action does not support skipping and the method
+is evoked regardless, nothing will break.
 
  */
 class AMAction3 : public QObject
@@ -76,13 +88,20 @@ public:
 			 Cancelling,
 			 Cancelled,
 			 Succeeded,
-			 Failed
+			 Failed,
+			 Skipping
 		   };
 	/// When running inside AMActionRunner, or as a sub-action in AMListAction, this enum specifies what to do if the action fails
 	enum FailureResponse { MoveOnResponse = 0,
 				   AttemptAnotherCopyResponse,
 				   PromptUserResponse
 				 };
+	/// ActionValidity says whether a potential workflow action is valid based on beamline knowledge
+	enum ActionValidity{
+		ActionNeverValid = 0,			///< NeverValid refers to actions which are entirely unsupported (possibly depricated or not yet implemented)
+		ActionCurrentlyValid = 1,		///< CurrentlyValid refers to actions which can be run at the moment
+		ActionNotCurrentlyValid = 2		///< NotCurrentlyValid refers to actions that cannot be run at the moment, but might be able to be run later. For example, a scan requiring a certain detector may not be runnable at the moment but could be runnable if the detector becomes available before the scan is actually run in the workflow.
+	};
 
 	// Constructor and life-cycle management
 	/////////////////
@@ -129,6 +148,10 @@ You can use a generic AMActionInfo in an AMAction-subclass constructor, but if y
 	/*! Even if you don't ever call this, the base class implementation will at at least call it on every state change with the name of the state. (For example: when the state changes to running, the status text will change to "Running".) You can always call it again after the state change/in-between state changes to provide more details to the user.*/
 	QString statusText() const { return statusText_; }
 
+	/// Returns an ActionValidity enum for whether this action is valid. Default is AMAction3::ActionCurrentlyValid
+	virtual AMAction3::ActionValidity isValid() { return AMAction3::ActionCurrentlyValid; }
+	virtual QString notValidWarning() { return ""; }
+
 
 	// States
 	///////////////////
@@ -144,6 +167,13 @@ You can use a generic AMActionInfo in an AMAction-subclass constructor, but if y
 
 	/// This virtual function can be re-implemented to specify whether the action has the capability to pause. By default, it returns false (ie: cannot pause).
 	virtual bool canPause() const { return false; }
+	/// This virtual function can be reimplemented to specify whether the action can be placed inside a parallel list.  By default, it returns true (eg: can be parallelized).
+	virtual bool canParallelize() const { return true; }
+
+	/// This virtual method returns whether the action supports skipping. By default, it returns false (ie: cannot skip).
+	virtual bool canSkip() const { return false; }
+	/// Returns the skip options that this action will support.
+	QStringList skipOptions() const { return skipOptions_; }
 
 
 	// Nesting actions
@@ -179,6 +209,14 @@ public slots:
 	/// For actions that support pausing, request to pause the action. Allowed from Paused only. The state will change to Resuming.
 	bool resume();
 
+	/// For actions that support skipping, uses \param command to successfully end the action perscribed by the command.  Returns true if it was successful.
+	bool skip(const QString &command);
+
+	/// Setting to true will cause the action to generate  messages with AMAgnositicDataAPI if it is capable of doing so.
+	void setGenerateScanActionMessage(bool generateScanActionMessages) { generateScanActionMessages_ = generateScanActionMessages; }
+
+	virtual void scheduleForDeletion();
+
 public:
 	// Progress API
 	////////////////////////
@@ -200,6 +238,9 @@ public:
 	void setFailureResponseInActionRunner(FailureResponse fr) { failureResponseInActionRunner_ = fr; }
 	/// Set the failure response that we would recommend when this action is run as a sub-action of another action.
 	void setFailureResponseAsSubAction(FailureResponse fr) { failureResponseAsSubAction_ = fr; }
+
+	/// Specific action types should check this flag to see if they need to send out messages with AMAgnositicDataAPI. If true, messages should be generated.
+	bool generateScanActionMessages() const { return generateScanActionMessages_; }
 
 signals:
 
@@ -231,7 +272,6 @@ signals:
 	void statusTextChanged(const QString& statusText);
 
 
-
 protected slots:
 	/// Implementations should call this to notify of their progress.   \c numerator gives the amount done, relative to the total expected amount \c denominator. For example, \c numerator could be a percentage value, and \c denominator could be 100.  If you don't know the level of progress, call this with (0,0).
 	void setProgress(double numerator, double denominator) { progress_ = QPair<double,double>(numerator,denominator); emit progressChanged(numerator, denominator); }
@@ -259,6 +299,9 @@ protected:
 	/*! \note If startImplementation() was never called, you won't receive this when a user tries to cancel(); the base class will handle it for you. */
 	virtual void cancelImplementation() = 0;
 
+	/// Implementation method for skipping.  If the action supports skipping then this should do all the necessary actions for stopping the action.  This method is a bit of an exception in that setSkipped() is not called inside this method (not an absolute, but likely).  Therefore, the part of the action that DOES do the actual work must call setSkipped().
+	virtual void skipImplementation(const QString &command) = 0;
+
 
 
 	// These functions should be called _by the implementation_ notify the base class when implementation-initiated state changes happen: Starting->Running, Running->Succeeded, Anything->Failed, Pausing->Paused, Cancelling->Cancelled.
@@ -276,6 +319,15 @@ protected:
 	void setResumed();
 	/// Call this after receiving cancelImplementation() to inform the base class that the action has been cancelled, and we should go from Cancelling to Cancelled.
 	void setCancelled();
+	/// Call this after receiving skipImplementation() to inform the base class that the action has is now being skipped and we should go from Skipping to Succeeded.
+	void setSkipped();
+
+protected:
+	/// The list of skip options that the scan can perform.
+	QStringList skipOptions_;
+
+	/// Specific action types should check this flag to see if they need to send out messages with AMAgnositicDataAPI. If true, messages should be generated.
+	bool generateScanActionMessages_;
 
 private:
 	/// Changes states (if possible).
@@ -303,12 +355,12 @@ private:
 	QString statusText_;
 
 	/// A pointer to the parent action of this action.  If this is not a list action this will likely always be 0.
-	AMAction3* parentAction_;
+	AMAction3 *parentAction_;
 
 	/// A pointer to our associated AMActionInfo object
-	AMActionInfo3* info_;
+	AMActionInfo3 *info_;
 	/// This variable tracks the number of seconds that the action has spent in the Paused or Pausing states; we use it to implement runningTime().
-	/*! \note It is only updated _after_ the action has resume()d.*/
+	/*! \note It is only updated _after_ the action has resumed().*/
 	double secondsSpentPaused_;
 	/// This variable stores the time at which we were last paused. It is set in pause().
 	QDateTime lastPausedAt_;

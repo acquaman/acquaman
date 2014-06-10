@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>246</width>
-    <height>362</height>
+    <width>263</width>
+    <height>466</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -30,9 +30,28 @@
        <number>6</number>
       </property>
       <item row="0" column="0">
-       <widget class="QLabel" name="label">
+       <widget class="QLabel" name="ringCurrentValue">
+        <property name="minimumSize">
+         <size>
+          <width>78</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>78</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>14</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
         <property name="text">
-         <string>Light</string>
+         <string>250 mA</string>
         </property>
        </widget>
       </item>
@@ -148,31 +167,56 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="0">
+      <item row="3" column="0">
        <widget class="QLabel" name="label_4">
         <property name="text">
          <string>Grating</string>
         </property>
        </widget>
       </item>
-      <item row="3" column="0">
+      <item row="4" column="0">
        <widget class="QLabel" name="label_5">
         <property name="text">
          <string>Mirror</string>
         </property>
        </widget>
       </item>
-      <item row="4" column="0">
+      <item row="5" column="0">
        <widget class="QLabel" name="label_6">
         <property name="text">
          <string>Exit slit</string>
         </property>
        </widget>
       </item>
-      <item row="5" column="0" colspan="2">
-       <widget class="QPushButton" name="fluxResolutionWizardButton">
+      <item row="6" column="0">
+       <widget class="QLabel" name="label_2">
         <property name="text">
-         <string>Flux/Resolution Wizard</string>
+         <string>Polarization</string>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="0">
+       <widget class="QLabel" name="label_11">
+        <property name="text">
+         <string>Angle</string>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="0" colspan="2">
+       <widget class="QPushButton" name="MonoStopButton">
+        <property name="text">
+         <string>Stop!</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../../icons/icons.qrc">
+          <normaloff>:/Close.png</normaloff>:/Close.png</iconset>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="newLabel">
+        <property name="text">
+         <string>User Offset</string>
         </property>
        </widget>
       </item>
@@ -184,7 +228,7 @@
      <property name="title">
       <string>Detector Signals</string>
      </property>
-     <layout class="QGridLayout" name="detectorGridLayout">
+     <layout class="QGridLayout" name="gridLayout">
       <item row="0" column="0">
        <widget class="QLabel" name="label_10">
         <property name="text">
@@ -362,6 +406,13 @@
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0" colspan="3">
+       <widget class="QCheckBox" name="scalerContinuousButton">
+        <property name="text">
+         <string>Enable realtime readings</string>
         </property>
        </widget>
       </item>

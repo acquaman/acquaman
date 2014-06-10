@@ -19,6 +19,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AM2DNormalizationAB.h"
 
+AM2DNormalizationAB::~AM2DNormalizationAB(){}
+
 AM2DNormalizationAB::AM2DNormalizationAB(const QString &outputName, QObject *parent)
 	: AMStandardAnalysisBlock(outputName, parent)
 {
@@ -209,7 +211,7 @@ bool AM2DNormalizationAB::canAnalyze(const QString &dataName, const QString &nor
 	return false;
 }
 
-AMNumber AM2DNormalizationAB::value(const AMnDIndex &indexes, bool doBoundsChecking) const
+AMNumber AM2DNormalizationAB::value(const AMnDIndex &indexes) const
 {
 	if (indexes.rank() != 2)
 		return AMNumber(AMNumber::DimensionError);
@@ -217,19 +219,61 @@ AMNumber AM2DNormalizationAB::value(const AMnDIndex &indexes, bool doBoundsCheck
 	if(!isValid())
 		return AMNumber(AMNumber::InvalidError);
 
-	if(doBoundsChecking)
-		if((unsigned)indexes.i() >= (unsigned)axes_.at(0).size
-				&& (unsigned)indexes.j() >= (unsigned)axes_.at(1).size)
-			return AMNumber(AMNumber::OutOfBoundsError);
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+	if((unsigned)indexes.i() >= (unsigned)axes_.at(0).size
+			&& (unsigned)indexes.j() >= (unsigned)axes_.at(1).size)
+		return AMNumber(AMNumber::OutOfBoundsError);
+#endif
 
 	// Can't divide by zero.
 	if (double(normalizer_->value(indexes)) == 0)
 		return 0;
 
+	// The normalizer must be positive.
+	if (double(normalizer_->value(indexes)) < 0)
+		return -1;
+
 	return double(data_->value(indexes))/double(normalizer_->value(indexes));
 }
 
-AMNumber AM2DNormalizationAB::axisValue(int axisNumber, int index, bool doBoundsChecking) const
+bool AM2DNormalizationAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
+{
+	if (indexStart.rank() != 2 || indexEnd.rank() != 2)
+		return false;
+
+	if(!isValid())
+		return false;
+
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+	if((unsigned)indexEnd.i() >= (unsigned)axes_.at(0).size || (unsigned)indexStart.i() > (unsigned)indexEnd.i()
+			|| (unsigned)indexEnd.j() >= (unsigned)axes_.at(1).size || (unsigned)indexStart.j() > (unsigned)indexEnd.j())
+		return false;
+#endif
+
+	int totalSize = indexStart.totalPointsTo(indexEnd);
+
+	QVector<double> data = QVector<double>(totalSize);
+	QVector<double> normalizer = QVector<double>(totalSize);
+
+	data_->values(indexStart, indexEnd, data.data());
+	normalizer_->values(indexStart, indexEnd, normalizer.data());
+
+	for (int i = 0; i < totalSize; i++){
+
+		if (normalizer.at(i) == 0)
+			outputValues[i] = 0;
+
+		else if (normalizer.at(i) < 0)
+			outputValues[i] = -1;
+
+		else
+			outputValues[i] = data.at(i)/normalizer.at(i);
+	}
+
+	return true;
+}
+
+AMNumber AM2DNormalizationAB::axisValue(int axisNumber, int index) const
 {
 	if (!isValid())
 		return AMNumber(AMNumber::InvalidError);
@@ -240,7 +284,7 @@ AMNumber AM2DNormalizationAB::axisValue(int axisNumber, int index, bool doBounds
 	if (index >= axes_.at(axisNumber).size)
 		return AMNumber(AMNumber::DimensionError);
 
-	return data_->axisValue(axisNumber, index, doBoundsChecking);
+	return data_->axisValue(axisNumber, index);
 }
 
 void AM2DNormalizationAB::onInputSourceValuesChanged(const AMnDIndex& start, const AMnDIndex& end)
@@ -265,10 +309,9 @@ void AM2DNormalizationAB::onInputSourceSizeChanged()
 
 void AM2DNormalizationAB::onInputSourceStateChanged() {
 
-	reviewState();
-
 	// just in case the size has changed while the input source was invalid, and now it's going valid.  Do we need this? probably not, if the input source is well behaved. But it's pretty inexpensive to do it twice... and we know we'll get the size right everytime it goes valid.
 	onInputSourceSizeChanged();
+	reviewState();
 }
 
 void AM2DNormalizationAB::reviewState(){

@@ -35,12 +35,15 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 class QDialog;
 
+//class REIXSXESMCPDetectorPre2013;
 class REIXSXESMCPDetector;
 
 class REIXSXESMCPDetectorView : public QWidget
 {
 	Q_OBJECT
 public:
+ 	virtual ~REIXSXESMCPDetectorView();
+	//REIXSXESMCPDetectorView(REIXSXESMCPDetectorPre2013* detector, QWidget *parent = 0);
 	REIXSXESMCPDetectorView(REIXSXESMCPDetector* detector, QWidget *parent = 0);
 
 signals:
@@ -60,6 +63,7 @@ protected slots:
 
 protected:
 	/// The detector we provide a view for
+	//REIXSXESMCPDetectorPre2013* detector_;
 	REIXSXESMCPDetector* detector_;
 
 	/// UI components:
@@ -70,9 +74,9 @@ protected:
 
 	QPushButton* clearButton_;
 	QComboBox* imageSelector_;
-	AMBasicControlEditor* averagingPeriodControl_;
-	AMBasicControlEditor* persistDurationControl_;
-	// removed: AMBasicControlEditor* orientationControl_;
+	AMControlEditor* averagingPeriodControl_;
+	AMControlEditor* persistDurationControl_;
+	// removed: AMControlEditor* orientationControl_;
 
 	QLabel* countsPerSecondIndicator_;
 	QProgressBar* countsPerSecondBar_;

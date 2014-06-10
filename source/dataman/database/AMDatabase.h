@@ -18,8 +18,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef ACQMAN_DATABASE_H
-#define ACQMAN_DATABASE_H
+#ifndef AM_DATABASE_H
+#define AM_DATABASE_H
 
 #include "util/AMSettings.h"
 #include <QObject>
@@ -32,6 +32,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QStringList>
 
 #define AMDATABASE_ERROR_COLUMN_VALUE_COUNT_MISMATCH -3102
+#define AMDATABASE_COMMIT_CONTENTION_SUCCEEDED -3103
+#define AMDATABASE_COMMIT_CONTENTION_FAILED -3104
+#define AMDATABASE_LOCK_FOR_EXECQUERY_CONTENTION_SUCCEEDED -3105
+#define AMDATABASE_LOCK_FOR_EXECQUERY_CONTENTION_FAILED -3106
+#define AMDATABASE_MISSING_TABLE_NAME_IN_RETRIEVE -3107
+#define AMDATABASE_RETRIEVE_QUERY_FAILED -3108
 
 /// This class provides thread-safe, general access to an SQL database.
 /*! Instances of this class are used to query or modify a database; all of the functions are thread-safe and will operate using a per-thread connection to the same underlying database.
@@ -46,6 +52,7 @@ class AMDatabase : public QObject {
 	Q_OBJECT
 
 public:
+ 	virtual ~AMDatabase();
 
 	// Multiton accessor functions: getting access to an AMDatabase instance.
 	/////////////////////////////////////
@@ -60,6 +67,8 @@ The parameters by which to access the database are given in \c dbAccessString. (
 	static AMDatabase* database(const QString& connectionName);
 	/// Delete a database instance that is not longer required.
 	static void deleteDatabase(const QString& connectionName);
+	/// Returns a list of all registered databases as given by connectionName
+	static QStringList registeredDatabases();
 
 
 	// Static functions
@@ -100,6 +109,11 @@ The parameters by which to access the database are given in \c dbAccessString. (
 		return dbAccessString_;
 	}
 
+	/// This returns whether or not this instance can be written to (all valid connections can be read from)
+	bool isReadOnly() const{
+		return isReadOnly_;
+	}
+
 	/// This returns whether or not the database has any tables (if no tables, then it's empty)
 	bool isEmpty() const{
 		if(qdb().tables().count() == 0)
@@ -115,7 +129,7 @@ The parameters by which to access the database are given in \c dbAccessString. (
 		\c values is a list of QVariants that provide the values to insert.
 		(Note that QList uses copy-on-write / implicit sharing, so you can pass a QList<QVariant> around very fast, as long as it isn't modified.)
 		Return value: (IMPORTANT) returns the id of the row that was inserted into or updated, or 0 on failure.
-		When inserting new objects, make sure to set their id to the return value afterwards, otherwise they will be duplicated on next insert.
+		When inserting new AMDbObjects, make sure to set their id to the return value afterwards, otherwise they will be duplicated on next insert.
 	*/
 	int insertOrUpdate(int id, const QString& table, const QStringList& colNames, const QVariantList& values);
 
@@ -141,9 +155,26 @@ The parameters by which to access the database are given in \c dbAccessString. (
 		Returns an empty list on failure.
 	*/
 	QVariantList retrieve(int id, const QString& table, const QStringList& colNames) const;
+	/// retrieve a column from the database
+	/*! \c table is the database table name
+		\c colName is the name of the column you wish to get all the values for
+		Returns a list of QVariants that will hold the results. Note that QList uses implicit sharing / copy-on-write, so returning the result is fast -- as long you don't modify the resulting list (ie: call non-const methods on it).
+
+		No id parameter is used, because a value for each id is returned
+		Returns an empty list on failure.
+	*/
+	QVariantList retrieve(const QString& table, const QString& colName) const;
+
 	/// Retrieve a single parameter/value for an object.  This is simpler than retrieve() when all you need is a single value.
 	QVariant retrieve(int id, const QString& table, const QString& colName) const;
 
+	/// Retrieves the maximum value stored in table.colName, with the option to match prior to detemining the max with a where clause.
+	QVariant retrieveMax(const QString& table, const QString& colName, const QString& whereClause = QString()) const;
+
+	/// Checks whether \param tableName exists within the database.
+	bool tableExists(const QString &tableName);
+	/// Checks whether \param columnName exists inside of \param tableName.  Assumes that table name exists.
+	bool columnExists(const QString &tableName, const QString &columnName);
 	/// ensure that a table of the given name exists. If it doesn't, it will be created with the columns contained in \c columnNames. \c columnTypes is a list of SQLite column types ("TEXT", "INTEGER", etc.), which must have an entry for each \c columnName.
 	bool ensureTable(const QString& tableName, const QStringList& columnNames, const QStringList& columnTypes, bool reuseDeletedIds = true);
 	/// ensure that a given column (with \c columName and \c columnType) exists, in the table \c tableName.  \c columnType is an SQLite type ("TEXT" or "INTEGER" recommended).
@@ -210,6 +241,8 @@ private:
 	QString connectionName_;
 	/// This is the string used to specify how to connect to the database.  (For the current SQLITE database, dbAccessString is just the path to the database file.)
 	QString dbAccessString_;
+	/// This holds whether or not the database can to written to as well as read from (all valid connections can be read from)
+	bool isReadOnly_;
 
 	/// For every AMDatabase instance, we can actually have multiple connections to the database: one for each thread. All connections are to the same underlying database. This is a set of the thread IDs for which we've already created connections. (The connection name for those is our connectionName_ with the threadId appended.)
 	mutable QSet<Qt::HANDLE> threadIDsOfOpenConnections_;

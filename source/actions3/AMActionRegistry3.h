@@ -29,6 +29,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class AMActionInfoActionRegistration3 {
 public:
 	/// This constructor creates an invalid AMActionInfoActionRegistration. We need it only so that QHash has a default constructor.
+ 	virtual ~AMActionInfoActionRegistration3();
 	AMActionInfoActionRegistration3() { actionInfoMetaObject = 0; actionMetaObject = 0; }
 	/// This constructor requires the static QMetaObject* for both the AMActionInfo and AMAction, as well as a \c shortDescription and \c longDescription of the type that will be exposed to users. For ex: "REIXS XES Scan" / "This action runs a single XES scan on the REIXS beamline at a given detector energy."  You can optionally include an \c iconFileName that will be presented to users in GUIs that let them choose from a set of registered actions.
 	/*! Assumes that \c actionInfoMetaObject and \c actionMetaObject are both valid pointers and of the correct type */
@@ -49,6 +50,7 @@ public:
 class AMActionInfoEditorRegistration3 {
 public:
 	/// Constructor requires the meta object for the AMActionInfo, and the meta object for the QWidget editor.  The default null values are required so that QHash has a default constructor.
+ 	virtual ~AMActionInfoEditorRegistration3();
 	AMActionInfoEditorRegistration3(const QMetaObject* actionInfoMetaObjectI = 0, const QMetaObject* editorMetaObjectI = 0) { actionInfoMetaObject = actionInfoMetaObjectI; editorMetaObject = editorMetaObjectI; }
 
 	const QMetaObject* actionInfoMetaObject;
@@ -162,6 +164,7 @@ private:
 	QHash<QString, AMActionInfoEditorRegistration3> actionInfo2Editors_;
 
 	/// This is a singleton class, so the constructor is private:
+ 	virtual ~AMActionRegistry3();
 	explicit AMActionRegistry3(QObject *parent = 0);
 
 

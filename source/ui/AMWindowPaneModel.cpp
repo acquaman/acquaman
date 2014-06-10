@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QWidget>
 
 
+ AMWindowPaneModel::~AMWindowPaneModel(){}
 AMWindowPaneModel::AMWindowPaneModel(QObject* parent)
 	: AMDragDropItemModel(parent) {
 
@@ -72,23 +73,23 @@ QVariant AMWindowPaneModel::data(const QModelIndex &index, int role) const {
 	case Qt::DisplayRole:
 	case Qt::EditRole:
 		// alias items can have separate descriptions, but for normal items, the DisplayRole and EditRole should be the window title
-		if(!isAlias(index) && pane_(index))
-			return pane_(index)->windowTitle();
+		if(!isAlias(index) && internalPane(index))
+			return internalPane(index)->windowTitle();
 		else
 			return AMDragDropItemModel::data(index, role);
 		break;
 
 
 	case Qt::DecorationRole:
-		if(!isAlias(index) && pane_(index))
-			return pane_(index)->windowIcon();
+		if(!isAlias(index) && internalPane(index))
+			return internalPane(index)->windowIcon();
 		else
 			return AMDragDropItemModel::data(index, role);
 		break;
 
 	// read-only property, defined as being (a) NOT an alias, AND (b) having no valid window pane widget set
 	case AMWindowPaneModel::IsHeadingRole:
-		return (index.isValid() && !isAlias(index) && pane_(index) == 0);
+		return (index.isValid() && !isAlias(index) && internalPane(index) == 0);
 		break;
 
 		// Dock state: alias items should return the dock state of their target. Other items simply return their dock state, as stored in the AMWindowPaneModel::DockStateRole.
@@ -127,8 +128,8 @@ bool AMWindowPaneModel::setData(const QModelIndex &index, const QVariant &value,
 		if(isAlias(index) || isHeading(index))
 			return AMDragDropItemModel::setData(index, value, role);
 
-		if(pane_(index)) {
-			pane_(index)->setWindowTitle(value.toString());
+		if(internalPane(index)) {
+			internalPane(index)->setWindowTitle(value.toString());
 			return true;
 		}
 		else
@@ -142,8 +143,8 @@ bool AMWindowPaneModel::setData(const QModelIndex &index, const QVariant &value,
 		if(isAlias(index) || isHeading(index))
 			return AMDragDropItemModel::setData(index, value, role);
 
-		if(pane_(index)) {
-			pane_(index)->setWindowIcon(value.value<QIcon>());
+		if(internalPane(index)) {
+			internalPane(index)->setWindowIcon(value.value<QIcon>());
 			return true;
 		}
 		else
@@ -168,7 +169,7 @@ bool AMWindowPaneModel::setData(const QModelIndex &index, const QVariant &value,
 		// set dock state like normal, but emit special signal dockStateChanged() if it's changing.
 		if(AMDragDropItemModel::setData(index, value, role)) {
 
-			QWidget* w = pane_(index);
+			QWidget* w = internalPane(index);
 
 			if(wasDocked && !nowDocked)
 				emit dockStateChanged(w, false, index.data(AMWindowPaneModel::UndockResizeRole).toBool());
@@ -252,7 +253,7 @@ bool AMWindowPaneModel::isAlias(const QModelIndex& index) const {
 
 /// Convenience function to check if this item is a header item. This is defined as being true when (a) the item is NOT an alias, AND (b) that the AM::Widget role is 0/unset.
 bool AMWindowPaneModel::isHeading(const QModelIndex &index) const {
-	return (index.isValid() && !isAlias(index) && pane_(index) == 0);
+	return (index.isValid() && !isAlias(index) && internalPane(index) == 0);
 }
 
 /// Convenience function to retrieve an alias item's target item. Returns 0 if the item at this \c index is not an alias.
@@ -280,17 +281,17 @@ QWidget* AMWindowPaneModel::pane(const QModelIndex& index) const {
 	if(isAlias(index)) {
 		QStandardItem* target = aliasTarget(index);
 		if(target)
-			return pane_(target->index());
+			return internalPane(target->index());
 		else
 			return 0;
 	}
 
 	else {
-		return pane_(index);
+		return internalPane(index);
 	}
 }
 
-QWidget* AMWindowPaneModel::pane_(const QModelIndex &index) const {
+QWidget* AMWindowPaneModel::internalPane(const QModelIndex &index) const {
 	QVariant widgetPointer = data(index, AM::WidgetRole);
 	if(widgetPointer.isValid())
 		return widgetPointer.value<QWidget*>();
@@ -328,7 +329,7 @@ void AMWindowPaneModel::onRowsInserted(const QModelIndex &parent, int first, int
 		QModelIndex i = index(row, 0, parent);
 
 		if(!isAlias(i)) {
-			QWidget* widget = pane_(i);
+			QWidget* widget = internalPane(i);
 			if(widget) {
 				widget2item_.insert(widget, itemFromIndex(i));
 				widget->installEventFilter(this);
@@ -343,7 +344,7 @@ void AMWindowPaneModel::onRowsAboutToBeRemoved(const QModelIndex &parent, int fi
 		QModelIndex i = index(row, 0, parent);
 
 		if(!isAlias(i)) {
-			QWidget* w = pane_(i);
+			QWidget* w = internalPane(i);
 			if(w) {
 				widget2item_.remove(w);
 				w->removeEventFilter(this);

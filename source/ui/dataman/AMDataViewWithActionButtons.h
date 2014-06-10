@@ -32,8 +32,13 @@ public:
 	/// Constructs an AMDataView inside a widget that also provides buttons for the user to edit, compare, and export scans.
 	explicit AMDataViewWithActionButtons(AMDatabase* database = AMDatabase::database("user"), QWidget *parent = 0);
 
+	virtual ~AMDataViewWithActionButtons();
+
 	/// Access the AMDataView contained inside this widget
 	AMDataView* dataView() const { return dataView_; }
+
+	/// Must be called after the constructor to create the correct views and connections by calling the virtual createDataView()
+	virtual void buildView();
 
 signals:
 	/// Emitted when the user attempts to open the selected scans
@@ -44,7 +49,8 @@ signals:
 	void selectionExported(const QList<QUrl>&);
 	/// Emitted when the user wants to open scan configurations of the selected scans from the database.
 	void launchScanConfigurationsFromDb(const QList<QUrl> &);
-
+	/// Emitted when the user wants to fix a scan that uses CDF files.
+	void fixCDF(const QUrl &);
 
 public slots:
 
@@ -73,10 +79,18 @@ protected slots:
 	/// When the user chooses to launch scan configurations from the database.  If more than 0 items are selected, we emit launchScanConfigurationsFromDb().
 	void onLaunchScanConfigurationsFromDb();
 
+	/// When the user chooses to fix a CDF file, this finds the QUrl associated with that scan and then passes it on.
+	void onFixCDF();
+
+protected:
+	/// Called to instantiate dataview. If you wish to subclass AMDataView, you can instantiate your subclassed version by reimplementing this function.
+	virtual AMDataView* createDataView(AMDatabase *database);
+
 protected:
 	Ui::AMDataViewActionsBar* ui_;
 	AMDataView* dataView_;
 
+	AMDatabase *database_;
 };
 
 #endif // AMDATAVIEWWITHACTIONBUTTONS_H

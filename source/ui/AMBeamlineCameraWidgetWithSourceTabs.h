@@ -34,6 +34,7 @@ class AMBeamlineCameraWidgetWithSourceTabs : public AMBeamlineCameraWidget
     Q_OBJECT
 public:
 	/// Constructor. If \c initialSource is a valid URL, an initial tab and source is created.
+ 	virtual ~AMBeamlineCameraWidgetWithSourceTabs();
 	AMBeamlineCameraWidgetWithSourceTabs(const QUrl& initialSource = QUrl(), const QString& initialDescription = QString(), QWidget *parent = 0, bool useOpenGl = true);
 
 	/// Adds a source. If it's the first source, we'll start playing it.

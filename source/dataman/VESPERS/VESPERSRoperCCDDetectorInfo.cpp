@@ -19,18 +19,18 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "VESPERSRoperCCDDetectorInfo.h"
 
+ VESPERSRoperCCDDetectorInfo::~VESPERSRoperCCDDetectorInfo(){}
 VESPERSRoperCCDDetectorInfo::VESPERSRoperCCDDetectorInfo(const QString &name, const QString &description, QObject *parent)
-	: AMDetectorInfo(name, description, parent)
+	: AMOldDetectorInfo(name, description, parent)
 {
 	acquireTime_ = 0;
 	temperature_ = 0;
-	QList<AMAxisInfo> axes_;
 	axes_ << AMAxisInfo("Width", 2084, "Pixels along x-direction");
 	axes_ << AMAxisInfo("Height", 2084, "Pixels along the y-direction");
 }
 
 VESPERSRoperCCDDetectorInfo::VESPERSRoperCCDDetectorInfo(const VESPERSRoperCCDDetectorInfo &original)
-	: AMDetectorInfo(original)
+	: AMOldDetectorInfo(original)
 {
 //	retreiveAndSetProperties(original);
 	this->operator =(original);
@@ -40,7 +40,8 @@ VESPERSRoperCCDDetectorInfo &VESPERSRoperCCDDetectorInfo::operator =(const VESPE
 {
 	if (this != &other){
 	//	retreiveAndSetProperties(other);
-		AMDetectorInfo::operator =(other);
+		AMOldDetectorInfo::operator =(other);
+		axes_ = other.axes();
 		setAcquireTime(other.acquireTime());
 		setTemperature(other.temperature());
 	}

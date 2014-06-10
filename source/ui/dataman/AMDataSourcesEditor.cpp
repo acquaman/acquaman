@@ -25,6 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/datasource/AMDataSource.h"
 #include "dataman/AMScan.h"
 
+ AMDataSourcesEditor::~AMDataSourcesEditor(){}
 AMDataSourcesEditor::AMDataSourcesEditor(AMScanSetModel* model, QWidget *parent) :
 		QWidget(parent)
 {
@@ -281,6 +282,9 @@ void AMDataSourcesEditor::onAddDataSourceButtonClicked() {
 #include "analysis/AM1DIntegralAB.h"
 #include "analysis/AM2DNormalizationAB.h"
 #include "analysis/AM1DNormalizationAB.h"
+#include "analysis/AM1DCalibrationAB.h"
+#include "analysis/AM3DBinningAB.h"
+//#include "analysis/REIXS/REIXSXESImageInterpolationAB.h"
 
 void AMDataSourcesEditor::onNewDataSourceNamed() {
 
@@ -313,6 +317,7 @@ void AMDataSourcesEditor::onNewDataSourceNamed() {
 	AMScan* scan = model_->scanAt(si);
 	QList<AMDataSource*> singleDimDataSources;
 	QList<AMDataSource *> twoDimDataSources;
+	QList<AMDataSource *> threeDimDataSources;
 	AMAnalysisBlock *newAnalysisBlock = 0;
 	AMDataSource *tempSource = 0;
 
@@ -329,6 +334,9 @@ void AMDataSourcesEditor::onNewDataSourceNamed() {
 
 		else if(tempSource->rank() == 2)
 			twoDimDataSources << tempSource;
+
+		else if (tempSource->rank() == 3)
+			threeDimDataSources << tempSource;
 	}
 
 	if (nameOfAnalysisBlockToBeAdded_ == "Derivative"){
@@ -361,11 +369,30 @@ void AMDataSourcesEditor::onNewDataSourceNamed() {
 		newAnalysisBlock->setInputDataSources(singleDimDataSources);
 	}
 
+	else if (nameOfAnalysisBlockToBeAdded_ == "Calibrated Normalization"){
+
+		newAnalysisBlock = new AM1DCalibrationAB(chName);
+		newAnalysisBlock->setInputDataSources(singleDimDataSources);
+	}
+
 	else if (nameOfAnalysisBlockToBeAdded_ == "2D Map Normalization"){
 
 		newAnalysisBlock = new AM2DNormalizationAB(chName);
 		newAnalysisBlock->setInputDataSources(twoDimDataSources);
 	}
+
+	else if (nameOfAnalysisBlockToBeAdded_ == "3D Binning"){
+
+		newAnalysisBlock = new AM3DBinningAB(chName);
+		newAnalysisBlock->setInputDataSources(threeDimDataSources);
+	}
+
+	else if (nameOfAnalysisBlockToBeAdded_ == "Interpolated Curve Correction"){
+
+//		newAnalysisBlock = new REIXSXESImageInterpolationAB(chName);
+//		newAnalysisBlock->setInputDataSources(twoDimDataSources);
+	}
+
 
 	// This should always happen.  But just to be safe.
 	if (newAnalysisBlock)

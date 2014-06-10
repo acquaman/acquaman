@@ -23,26 +23,26 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QObject>
 
-#include <application/AMDatamanAppController.h>
+#include "application/AMDatamanAppControllerForActions3.h"
 #include <QHash>
 
 class AMWorkflowView3;
-class AMWorkflowManagerView;
 class AMMainWindow;
 class AMScan;
 class AMScanConfiguration;
 class AMExporter;
 class AMExporterOption;
+class AMScanAction;
 
 /// This class extends the base dataman app controller class by adding the workflow.  This is the base class for all beamline acquisition app controllers.  The reason for the distinction between this class and the dataman version is a result for the desire to be able to take the dataman version home with the user whereas this version is meant to reside on beamlines that always have access to beamline components and controls.
-class AMAppController : public AMDatamanAppController
+class AMAppController : public AMDatamanAppControllerForActions3
 {
 Q_OBJECT
 public:
 	/// This constructor is empty. Call AMAppController::startup() to create all of the application windows, widgets, and data objects that are needed on program startup.
 	explicit AMAppController(QObject *parent = 0);
 	/// The destructor is empty.  Call AMAppController::shutdown() to delete all objects and clean up.
-	virtual ~AMAppController() {}
+	virtual ~AMAppController();
 
 	/// create and setup all of the application windows, widgets, communication connections, and data objects that are needed on program startup. Returns true on success.  If reimplementing, must call the base-class startup() as the first thing it does.
 	virtual bool startup();
@@ -52,40 +52,77 @@ public:
 	/// Re-implemented from AMDatamanAppController to provide a menu action for changing the current run.
 	virtual bool startupInstallActions();
 
-	/// Shutdown: nothing special to do except call the base class shutdown().
-	virtual void shutdown() { AMDatamanAppController::shutdown(); }
+	/// destroy all of the windows, widgets, and data objects created by applicationStartup(). Only call this if startup() has ran successfully.  If reimplementing, must call the base-class shutdown() as the last thing it does.
+	virtual void shutdown();
 
 signals:
 
 public slots:
 
-	/// This function can be used to "hand-off" a scan to the app controller (for example, a new scan from a scan controller). An editor will be opened for the scan, and the editor will take responsibility for deleting the scan in the future (but not without checking first whether it still has a scan controller.)
+	/// This function can be used to "hand-off" a scan to the app controller (for example, a new scan from a scan controller). An editor will be opened for the scan. (Thanks to AMScan's retain()/release() mechanism, the scan will be deleted automatically when all scan controllers and editors are done with it.)
 	/*! By default, the new scan editor will be brought to the front of the main window and presented to the user. You can suppress this by setting \c bringEditorToFront to false.
 
 If \c openInExistingEditor is set to true, and if there is an existing editor, the scan will be appended inside that editor. (If there is more than one open editor, the scan will be added to the most recently-created one.)  By default, a new editor window is created.*/
-	void openScanInEditorAndTakeOwnership(AMScan* scan, bool bringEditorToFront = true, bool openInExistingEditor = false);
+	void openScanInEditor(AMScan* scan, bool bringEditorToFront = true, bool openInExistingEditor = false);
 
 	/// Bring the Workflow view to the front.
 	virtual void goToWorkflow();
 
-	///	Opens a single scan configuration from a given database URL.  Reimplemented to put the scan into a config view holder to possibly add it to the workflow.
+	/// Opens a single scan configuration from a given database URL.  Reimplemented to put the scan into a config view holder to possibly add it to the workflow.
 	virtual void launchScanConfigurationFromDb(const QUrl &url);
 
 	/// Displays a dialog for changing the current run, if a user wants to do that while the app is still open.
 	void showChooseRunDialog();
 
+	/// Displays the view for the scanActions or brings it to the front
+	void showScanActionsView();
+
+	/// Helps force quit Acquaman by setting a flag to override the check in the event filter for QEvent::Close
+	void forceQuitAcquaman();
+
 	///////////////////////////////////
 
+protected slots:
+	/// Helper slot that builds a generic scan editor for the XAS scan.  \todo this seems like something that should be higher up in the framework.
+	void onCurrentScanActionStarted(AMScanAction *action);
+	/// Helper slot that handles disconnecting the current scan controller from the progress bar when it's done.
+	void onCurrentScanActionFinished(AMScanAction *action);
+	/// Slot that changes the state of the scanEditorModelItem state when the scan action state changes.
+	void updateScanEditorModelItem();
+
 protected:
-	/// Top-level panes in the main window
-	AMWorkflowManagerView* workflowManagerView_;
-	AMWorkflowView3* workflowView_;
+	/// Implementation method that individual applications can flesh out if extra setup is required when a scan action is started.  This is not pure virtual because there is no requirement to do anything to scan actions.
+	virtual void onCurrentScanActionStartedImplementation(AMScanAction *action) { Q_UNUSED(action); }
+	/// Implementation method that individual applications can flesh out if extra cleanup is required when a scan action finishes.  This is not pure virtual because there is no requirement to do anything to scan actions.
+	virtual void onCurrentScanActionFinishedImplementation(AMScanAction *action) { Q_UNUSED(action); }
+
+	/// Re-implementing the build bottom bar method to use the bottom bar built for the app controller that includes a mini workflow view.
+	virtual void addBottomPanel();
 
 	/// Filters the closeEvent on the main window, in case there's any reason why we can't quit directly. (ie: scans modified and still open, or an action is still running)
 	virtual bool eventFilter(QObject *, QEvent *);
 
 	/// Checks to make sure no actions are currently running in the AMActionRunner. If there are, asks user if they want to cancel them, but still returns false.
 	bool canCloseActionRunner();
+
+	/// Sets the flag that automatically brings new scan editors to the front on the stacked widget stack when the scan is running.
+	void setAutomaticBringScanEditorToFront(bool flag) { automaticBringScanEditorToFrontWithRunningScans_ = flag; }
+	/// Returns the flag that automatically brings new scan editors to the front on the stacked widget stack when the scan is running.
+	bool automaticBringScanEditorToFrontWithRunningScans() const { return automaticBringScanEditorToFrontWithRunningScans_; }
+	/// Set whether the action runner cancel prompt should be shown.
+	void setActionRunnerCancelPromptVisibility(bool showPrompt);
+
+	/// Top-level panes in the main window
+	AMWorkflowView3* workflowView_;
+	AMWorkflowView3 *scanActionRunnerView_;
+	/// Flag holding whether the AMGenericScanEditor's automatically are switched to when they have a running scan.  The default is true.
+	bool automaticBringScanEditorToFrontWithRunningScans_;
+
+	/// Menus
+	QMenu *viewMenu_;
+
+	/// Flag for overriding check on eventfilter for QEvent::Close
+	bool overrideCloseCheck_;
 };
 
 #endif // AMAPPCONTROLLER_H

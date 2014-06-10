@@ -21,9 +21,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef CLSOCEANOPTICS65000DETECTORINFO_H
 #define CLSOCEANOPTICS65000DETECTORINFO_H
 
-#include "AMDetectorInfo.h"
+#include "AMOldDetectorInfo.h"
 
-class CLSOceanOptics65000DetectorInfo : public AMDetectorInfo
+class CLSOceanOptics65000DetectorInfo : public AMOldDetectorInfo
 {
 Q_OBJECT
 
@@ -35,12 +35,13 @@ Q_PROPERTY(double integrationTime READ integrationTime WRITE setIntegrationTime)
 Q_CLASSINFO("AMDbObject_Attributes", "description=Ocean Optics 65000 USB Spectrometer Detector")
 
 public:
+ 	virtual ~CLSOceanOptics65000DetectorInfo();
 	Q_INVOKABLE CLSOceanOptics65000DetectorInfo(const QString &name = "oos65000", const QString &description = "OceanOptics 65000", QObject *parent = 0);
 
 	CLSOceanOptics65000DetectorInfo(const CLSOceanOptics65000DetectorInfo &original);
 
 	/// Creates a new info pointer from this one, caller is responsible for memory
-	virtual AMDetectorInfo* toNewInfo() const;
+	virtual AMOldDetectorInfo* toNewInfo() const;
 
 	CLSOceanOptics65000DetectorInfo& operator=(const CLSOceanOptics65000DetectorInfo& other);
 

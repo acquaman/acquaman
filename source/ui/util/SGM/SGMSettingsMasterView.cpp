@@ -20,19 +20,28 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "SGMSettingsMasterView.h"
 #include <QHBoxLayout>
 #include <QMessageBox>
+#include <QCheckBox>
+#include <QLabel>
+#include <QCloseEvent>
+#include <QShowEvent>
 
+#include "beamline/SGM/SGMBeamline.h"
+#include "beamline/AMDetectorSelector.h"
+#include "ui/beamline/AMDetectorSelectorRequiredView.h"
+
+ SGMSettingsMasterView::~SGMSettingsMasterView(){}
 SGMSettingsMasterView::SGMSettingsMasterView(QWidget *parent) :
 	QWidget(parent)
 {
 	sgmPluginsLocationView_ = new SGMPluginsLocationView();
-	sgmDacqConfigurationFileView_ = new SGMDacqConfigurationFileView();
+	sgmDetectorsMasterView_ = new SGMDetectorsMasterView();
 
 	connect(sgmPluginsLocationView_, SIGNAL(unsavedChanges(bool)), this, SLOT(onUnsavedChanges(bool)));
-	connect(sgmDacqConfigurationFileView_, SIGNAL(unsavedChanges(bool)), this, SLOT(onUnsavedChanges(bool)));
+	connect(sgmDetectorsMasterView_, SIGNAL(unsavedChanges(bool)), this, SLOT(onUnsavedChanges(bool)));
 
 	vl_ = new QVBoxLayout();
 	vl_->addWidget(sgmPluginsLocationView_);
-	vl_->addWidget(sgmDacqConfigurationFileView_);
+	vl_->addWidget(sgmDetectorsMasterView_);
 
 	applyButton_ = new QPushButton("Apply");
 	cancelButton_ = new QPushButton("Cancel");
@@ -62,13 +71,13 @@ void SGMSettingsMasterView::onUnsavedChanges(bool hasUnsavedChanges){
 
 void SGMSettingsMasterView::onCancelButtonClicked(){
 	sgmPluginsLocationView_->discardChanges();
-	sgmDacqConfigurationFileView_->discardChanges();
+	sgmDetectorsMasterView_->discardChanges();
 	close();
 }
 
 void SGMSettingsMasterView::onApplyButtonClicked(){
 	sgmPluginsLocationView_->applyChanges();
-	sgmDacqConfigurationFileView_->applyChanges();
+	sgmDetectorsMasterView_->applyChanges();
 }
 
 void SGMSettingsMasterView::onOkButtonClicked(){
@@ -76,9 +85,8 @@ void SGMSettingsMasterView::onOkButtonClicked(){
 	close();
 }
 
-#include <QCloseEvent>
 void SGMSettingsMasterView::closeEvent(QCloseEvent *e){
-	if(!sgmPluginsLocationView_->hasUnsavedChanges() && !sgmDacqConfigurationFileView_->hasUnsavedChanges()){
+	if(!sgmPluginsLocationView_->hasUnsavedChanges() && !sgmDetectorsMasterView_->hasUnsavedChanges()){
 		e->accept();
 		return;
 	}
@@ -90,12 +98,12 @@ void SGMSettingsMasterView::closeEvent(QCloseEvent *e){
 								   QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
 		if(ret == QMessageBox::Save){
 			sgmPluginsLocationView_->applyChanges();
-			sgmDacqConfigurationFileView_->applyChanges();
+			sgmDetectorsMasterView_->applyChanges();
 			e->accept();
 		}
 		else if(ret == QMessageBox::Discard){
 			sgmPluginsLocationView_->discardChanges();
-			sgmDacqConfigurationFileView_->discardChanges();
+			sgmDetectorsMasterView_->discardChanges();
 			e->accept();
 		}
 		else
@@ -103,6 +111,7 @@ void SGMSettingsMasterView::closeEvent(QCloseEvent *e){
 	}
 }
 
+ SGMPluginsLocationView::~SGMPluginsLocationView(){}
 SGMPluginsLocationView::SGMPluginsLocationView(QWidget *parent) :
 	QGroupBox("Plugin Locations", parent)
 {
@@ -111,7 +120,6 @@ SGMPluginsLocationView::SGMPluginsLocationView(QWidget *parent) :
 	AMDatabase *dbSGM = AMDatabase::database("SGMBeamline");
 	SGMPluginsLocation *tempFileLoaderLocation = new SGMPluginsLocation();
 	QList<int> matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMPluginsLocation>(), "name", "FileLoaders");
-	//QList<int> matchIDs = AMDatabase::database("SGMBeamine")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMPluginsLocation>(), "name", "FileLoaders");
 	if(matchIDs.count() > 0)
 		tempFileLoaderLocation->loadFromDb(dbSGM, matchIDs.at(0));
 	SGMPluginsLocation *tempAnalysisBlockLocation = new SGMPluginsLocation();
@@ -215,7 +223,6 @@ void SGMPluginsLocationView::discardChanges(){
 	}
 }
 
-#include <QShowEvent>
 void SGMPluginsLocationView::showEvent(QShowEvent *e){
 	storeInitialState();
 	e->accept();
@@ -248,137 +255,95 @@ void SGMPluginsLocationView::onLineEditsChanged(){
 	}
 }
 
-#include "util/SGM/SGMDacqConfigurationFile.h"
-
-SGMDacqConfigurationFileView::SGMDacqConfigurationFileView(QWidget *parent) :
-	QGroupBox("Configuration Files", parent)
+ SGMDetectorsMasterView::~SGMDetectorsMasterView(){}
+SGMDetectorsMasterView::SGMDetectorsMasterView(QWidget *parent) :
+	QGroupBox("Detectors", parent)
 {
 	unsavedChanges_ = false;
 
-	fl_ = new QFormLayout();
+	criticalDetectorSet_ = SGMBeamline::sgm()->criticalDetectorSet(this);
 
-	AMDatabase *dbSGM = AMDatabase::database("SGMBeamline");
-	SGMDacqConfigurationFile *configFile = new SGMDacqConfigurationFile();
-	QLineEdit *tempLineEdit;
-	QList<int> allConfigurationFileIDs = dbSGM->objectsWhere(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>());
+	requiredDetectorSelector_ = new AMDetectorSelector(SGMBeamline::sgm()->allDetectorGroup());
+	for(int x = 0, size = criticalDetectorSet_->count(); x < size; x++)
+		requiredDetectorSelector_->setDetectorDefault(criticalDetectorSet_->at(x), true);
+	requiredDetectorSelector_->setDefaultsSelected();
+	requiredDetectorSelectorView_ = new AMDetectorSelectorRequiredView(requiredDetectorSelector_);
 
-	for(int x = 0; x < allConfigurationFileIDs.count(); x++){
-		if(configFile->loadFromDb(dbSGM, allConfigurationFileIDs.at(x))){
-			tempLineEdit = new QLineEdit();
-			tempLineEdit->setText(configFile->configurationFileFullPath());
-			fl_->addRow(configFile->name(), tempLineEdit);
-			connect(tempLineEdit, SIGNAL(textEdited(QString)), this, SLOT(onLineEditsChanged()));
-			configurationFileIDs_.append(allConfigurationFileIDs.at(x));
-		}
-	}
+	connect(requiredDetectorSelector_, SIGNAL(selectedChanged(AMDetector*)), this, SLOT(onSelectedChanged(AMDetector*)));
 
-	int maxFontWidth = 0;
-	QLineEdit *lineEdit = qobject_cast<QLineEdit*>(fl_->itemAt(0, QFormLayout::FieldRole)->widget());
-	QFontMetrics fontMetric(lineEdit->font());
-	for(int x = 0; x < fl_->rowCount(); x++){
-		QLineEdit *lineEdit = qobject_cast<QLineEdit*>(fl_->itemAt(x, QFormLayout::FieldRole)->widget());
-		if(lineEdit && (fontMetric.width(lineEdit->text()) > maxFontWidth))
-			maxFontWidth = fontMetric.width(lineEdit->text());
-	}
-	if(maxFontWidth > 500)
-		maxFontWidth = 500;
-	for(int x = 0; x < fl_->rowCount(); x++)
-		fl_->itemAt(x, QFormLayout::FieldRole)->widget()->setMinimumWidth(maxFontWidth);
-
-
-	setLayout(fl_);
+	QVBoxLayout *vl = new QVBoxLayout();
+	vl->addWidget(requiredDetectorSelectorView_);
+	setLayout(vl);
 }
 
-bool SGMDacqConfigurationFileView::hasUnsavedChanges(){
+bool SGMDetectorsMasterView::hasUnsavedChanges() const{
 	return unsavedChanges_;
 }
 
-void SGMDacqConfigurationFileView::applyChanges() {
-
+void SGMDetectorsMasterView::applyChanges(){
 	if(unsavedChanges_){
-		AMDatabase *dbSGM = AMDatabase::database("SGMBeamline");
-		SGMDacqConfigurationFile *configFile = new SGMDacqConfigurationFile();
-		QList<int> allConfigurationFileIDs = dbSGM->objectsWhere(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>());
 
-		for(int x = 0; x < allConfigurationFileIDs.count(); x++){
-			if(allConfigurationFileIDs.at(x) != configurationFileIDs_.at(x)){
-				//errormon here
-				return;
-			}
-		}
+		AMDetectorInfoSet selectedDetectorInfos = requiredDetectorSelector_->selectedDetectorInfos();
+		AMDetectorInfoSet unselectedDetectorInfos = requiredDetectorSelector_->unselectedDetectorInfos();
 
-		for(int x = 0; x < configurationFileIDs_.count(); x++){
-			QLineEdit *lineEdit = qobject_cast<QLineEdit*>(fl_->itemAt(x, QFormLayout::FieldRole)->widget());
-			if(!configFile->loadFromDb(dbSGM, configurationFileIDs_.at(x))){
-				//errormon here
-				return;
-			}
-			if(configFile->configurationFileFullPath() != lineEdit->text()){
-				configFile->setConfigurationFileName(lineEdit->text().section('/', -1));
-				configFile->setConfigurationFilePath("/"+lineEdit->text().section('/', 1, -2));
-				configFile->storeToDb(dbSGM);
-			}
-		}
+		for(int x = 0, size = selectedDetectorInfos.count(); x < size; x++)
+			if(!criticalDetectorSet_->detectorNamed(selectedDetectorInfos.at(x).name()))
+				criticalDetectorSet_->addDetector(requiredDetectorSelector_->detectorGroup()->detectorByName(selectedDetectorInfos.at(x).name()));
 
-		storeInitialState();
+		for(int x = 0, size = unselectedDetectorInfos.count(); x < size; x++)
+			if(criticalDetectorSet_->detectorNamed(unselectedDetectorInfos.at(x).name()))
+				criticalDetectorSet_->removeDetector(requiredDetectorSelector_->detectorGroup()->detectorByName(unselectedDetectorInfos.at(x).name()));
 	}
 }
 
-void SGMDacqConfigurationFileView::discardChanges(){
+void SGMDetectorsMasterView::discardChanges(){
 	if(unsavedChanges_){
-		AMDatabase *dbSGM = AMDatabase::database("SGMBeamline");
-		SGMDacqConfigurationFile *configFile = new SGMDacqConfigurationFile();
-		QList<int> allConfigurationFileIDs = dbSGM->objectsWhere(AMDbObjectSupport::s()->tableNameForClass<SGMDacqConfigurationFile>());
+		disconnect(requiredDetectorSelector_, SIGNAL(selectedChanged(AMDetector*)), this, SLOT(onSelectedChanged(AMDetector*)));
 
-		for(int x = 0; x < allConfigurationFileIDs.count(); x++){
-			if(allConfigurationFileIDs.at(x) != configurationFileIDs_.at(x)){
-				//errormon here
-				return;
-			}
+		AMDetectorInfoSet selectedDetectorInfos = requiredDetectorSelector_->selectedDetectorInfos();
+		for(int x = 0, size = criticalDetectorSet_->count(); x < size; x++){
+			requiredDetectorSelector_->setDetectorSelected(criticalDetectorSet_->detectorAt(x), true);
+			selectedDetectorInfos.removeDetector(criticalDetectorSet_->detectorAt(x)->toInfo());
 		}
+		for(int x = 0, size = selectedDetectorInfos.count(); x < size; x++)
+			requiredDetectorSelector_->setDetectorSelectedByName(selectedDetectorInfos.at(x).name(), false);
 
-		for(int x = 0; x < configurationFileIDs_.count(); x++){
-			QLineEdit *lineEdit = qobject_cast<QLineEdit*>(fl_->itemAt(x, QFormLayout::FieldRole)->widget());
-			if(!configFile->loadFromDb(dbSGM, configurationFileIDs_.at(x))){
-				//errormon here
-				return;
-			}
-			lineEdit->setText(configFile->configurationFileFullPath());
-		}
+		connect(requiredDetectorSelector_, SIGNAL(selectedChanged(AMDetector*)), this, SLOT(onSelectedChanged(AMDetector*)));
 
-		storeInitialState();
+		unsavedChanges_ = false;
 	}
 }
 
-#include <QShowEvent>
-void SGMDacqConfigurationFileView::showEvent(QShowEvent *e){
-	storeInitialState();
+void SGMDetectorsMasterView::onSelectedChanged(AMDetector *detector){
+	Q_UNUSED(detector)
+	AMDetectorInfoSet selectedDetectorInfos = requiredDetectorSelector_->selectedDetectorInfos();
+	if(selectedDetectorInfos.count() != criticalDetectorSet_->count()){
+		unsavedChangesHelper(true);
+		return;
+	}
+
+	for(int x = 0, size = criticalDetectorSet_->count(); x < size; x++){
+		if(selectedDetectorInfos.indexOf(criticalDetectorSet_->detectorAt(x)->toInfo()) == -1){
+			unsavedChangesHelper(true);
+			return;
+		}
+		selectedDetectorInfos.removeDetector(criticalDetectorSet_->detectorAt(x)->toInfo());
+	}
+	if(selectedDetectorInfos.count() != 0){
+		unsavedChangesHelper(true);
+		return;
+	}
+	unsavedChangesHelper(false);
+}
+
+void SGMDetectorsMasterView::showEvent(QShowEvent *e){
+	unsavedChanges_ = false;
 	e->accept();
 }
 
-void SGMDacqConfigurationFileView::storeInitialState(){
-	unsavedChanges_ = false;
-	initialLineEdits_.clear();
-	for(int x = 0; x < fl_->rowCount(); x++){
-		QLineEdit *lineEdit = qobject_cast<QLineEdit*>(fl_->itemAt(x, QFormLayout::FieldRole)->widget());
-		if(lineEdit)
-			initialLineEdits_.append(lineEdit->text());
-	}
-}
-
-void SGMDacqConfigurationFileView::onLineEditsChanged(){
-	for(int x = 0; x < fl_->rowCount(); x++){
-		QLineEdit *lineEdit = qobject_cast<QLineEdit*>(fl_->itemAt(x, QFormLayout::FieldRole)->widget());
-		if(lineEdit && (initialLineEdits_.at(x) != lineEdit->text()) ){
-			if(!unsavedChanges_){
-				unsavedChanges_ = true;
-				emit unsavedChanges(true);
-			}
-			return;
-		}
-	}
-	if(unsavedChanges_){
-		unsavedChanges_ = false;
-		emit unsavedChanges(false);
+void SGMDetectorsMasterView::unsavedChangesHelper(bool newUnsavedChanges){
+	if(newUnsavedChanges != unsavedChanges_){
+		unsavedChanges_ = newUnsavedChanges;
+		emit unsavedChanges(unsavedChanges_);
 	}
 }

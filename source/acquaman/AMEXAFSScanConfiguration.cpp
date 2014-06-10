@@ -19,7 +19,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMEXAFSScanConfiguration.h"
 #include "util/AMErrorMonitor.h"
+#include <QDebug>
 
+ AMEXAFSScanConfiguration::~AMEXAFSScanConfiguration(){}
 AMEXAFSScanConfiguration::AMEXAFSScanConfiguration(QObject *parent, bool setup)
 	: AMXASScanConfiguration(parent, false)
 {
@@ -36,8 +38,6 @@ AMEXAFSScanConfiguration::AMEXAFSScanConfiguration(const AMEXAFSScanConfiguratio
 	: AMXASScanConfiguration(original, false)
 {
 	if (setup){
-
-		qDebug() << "Using AMEXAFSScanConfiguration copy constructor";
 		setUserScanName(original.userScanName());
 		regions_ = new AMEXAFSRegionsList(this);
 		connect(regions_, SIGNAL(regionsChanged()), this, SLOT(onRegionsChanged()));

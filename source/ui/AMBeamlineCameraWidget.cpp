@@ -32,6 +32,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/AMCrosshairOverlayVideoWidget.h"
 #include "ui/dataman/AMColorPickerButton.h"
 
+ AMBeamlineCameraWidget::~AMBeamlineCameraWidget(){}
 AMBeamlineCameraWidget::AMBeamlineCameraWidget(QWidget *parent, bool useOpenGlViewport) :
 	QWidget(parent)
 {
@@ -61,7 +62,7 @@ AMBeamlineCameraWidget::AMBeamlineCameraWidget(QWidget *parent, bool useOpenGlVi
 	chl->addWidget(lockCrosshairCheckBox_ = new QCheckBox("Lock position"));
 	chl->addStretch();
 	crosshairFrame->setLayout(chl);
-	showCrosshairCheckBox_->setChecked(true);
+	//showCrosshairCheckBox_->setChecked(true);
 
 	vl->addWidget(crosshairFrame);
 	vl->addWidget(videoWidget_ = new AMCrosshairOverlayVideoWidget(0, useOpenGlViewport));
@@ -161,7 +162,7 @@ int AMBeamlineCameraWidget::crosshairLineThickness() const
 void AMBeamlineCameraWidget::playSource(const QUrl& sourceUrl)
 {
 	videoWidget_->mediaPlayer()->setMedia(sourceUrl);
-	// qDebug() << "AMBeamlineCameraWidget: Loading and playing" << url.toString();
+	// qdebug() << "AMBeamlineCameraWidget: Loading and playing" << url.toString();
 	videoWidget_->mediaPlayer()->play();
 }
 

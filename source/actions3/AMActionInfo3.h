@@ -37,7 +37,7 @@ class AMActionInfo3 : public AMDbObject
 {
 	Q_OBJECT
 
-	// the shortDescription is stored in the AMDbObject name column
+	Q_PROPERTY(QString shortDescription READ shortDescription WRITE setShortDescription)
 	Q_PROPERTY(QString longDescription READ longDescription WRITE setLongDescription)
 	Q_PROPERTY(QString iconFileName READ iconFileName WRITE setIconFileName)
 	Q_PROPERTY(double expectedDuration READ expectedDuration WRITE setExpectedDuration)
@@ -64,7 +64,7 @@ public:
 
 	/// This description is presented to users in default views, for example: "Move to Sample Fe2O3". Unlike typeDescription(), it is intended to be usually unique to an action instance.
 	/*! This is actually just a synonym for AMDbObject::name(). */
-	QString shortDescription() const { return name(); }
+	QString shortDescription() const { return shortDescription_; }
 	/// This description is presented to users in default views, for example: "<b>Moving to Sample Fe2O3:</b>\n X=30.4mm,\n Y=12.1mm,\n Z=16.5mm,\n R=45.0deg"
 	QString longDescription() const { return longDescription_; }
 	/// This returns the path to an icon used to represent the action in default views. If none is provided, it returns a generic icon. PNG images are recommended.
@@ -76,10 +76,13 @@ public:
 	/// Returns whether this action can be copied.  There may be instances (ie: sub actions within a list) that you don't want to provide individual access to.  This way even if you see this action in the history, this flag will determine whether or not you can copy it or not.
 	bool canCopy() const { return canCopy_; }
 
+	/// Returns a string with any warnings that occured during the load from database phase. Can be overridden by subclasses. Empty string implies no warnings.
+	virtual QString dbLoadWarnings() const { return QString(); }
+
 public slots:
 
 	/// Set a short description of of the action, for ex: "Moving to Sample Fe2O3"
-	void setShortDescription(const QString& shortDescription) { setName(shortDescription); emit infoChanged(); }
+	void setShortDescription(const QString& shortDescription) { shortDescription_ = shortDescription; setModified(true); emit infoChanged(); }
 	/// Set a long description of the action, for example: "<b>Moving to Sample Fe2O3:</b>\n X=30.4mm,\n Y=12.1mm,\n Z=16.5mm,\n R=45.0deg"
 	void setLongDescription(const QString& longDescription) { longDescription_ = longDescription; setModified(true); emit infoChanged(); }
 	/// Set the path to an icon used to represent the action in default views. PNG images are recommended.
@@ -108,6 +111,7 @@ signals:
 
 
 protected:
+	QString shortDescription_;
 	QString longDescription_;
 	QString iconFileName_;
 	double expectedDuration_;

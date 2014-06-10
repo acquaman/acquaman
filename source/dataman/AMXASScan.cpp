@@ -19,22 +19,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "AMXASScan.h"
-#include "util/AMErrorMonitor.h"
-#include <qdebug.h>
 
+ AMXASScan::~AMXASScan(){}
 AMXASScan::AMXASScan(QObject *parent)
 	: AMScan(parent)
 {
 
 }
-
-
-#include "dataman/SGM/SGM2004FileLoader.h"
-#include "dataman/ALSBL8XASFileLoader.h"
-#include "dataman/SGM/SGM2011XASFileLoader.h"
-#include "dataman/VESPERS/VESPERSXASDataLoader.h"
-#include <QFileInfo>
-#include <QDir>
-#include <QPluginLoader>
-#include "util/AMSettings.h"
-

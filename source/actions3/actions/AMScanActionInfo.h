@@ -34,12 +34,15 @@ class AMScanActionInfo : public AMActionInfo3
 {
 	Q_OBJECT
 
+	Q_PROPERTY(AMDbObject* config READ dbGetConfig WRITE dbLoadConfig)
+	Q_PROPERTY(int scanID READ scanID WRITE setScanID)
 	Q_CLASSINFO("AMDbObject_Attributes", "description=Scan Action")
 
 public:
+	Q_INVOKABLE AMScanActionInfo(QObject *parent = 0);
 	/// Constructor.  Takes an AMScanConfiguration \param config and builds a scan action around it.  This will create a scan controller which can be controlled from within the workflow.
 	Q_INVOKABLE AMScanActionInfo(AMScanConfiguration *config, const QString& iconFileName = ":/spectrum.png", QObject *parent = 0);
-	/// Copy constructor.  Makes a copy of \param other's scan configuration.
+	/// Copy constructor.  Makes a copy of \param other's scan configuration but does not copy the scan ID
 	AMScanActionInfo(const AMScanActionInfo &other);
 	/// Destructor.
 	virtual ~AMScanActionInfo();
@@ -67,6 +70,19 @@ public:
 	int scanID() const { return scanID_; }
 	/// Sets the id of the scan this action is associated with.
 	void setScanID(int id) { scanID_ = id; }
+
+	/// Overrides the warnings string to check warnings from the scan configuration
+	virtual QString dbLoadWarnings() const;
+
+protected:
+	/// Helper to save to db
+	AMDbObject* dbGetConfig() const;
+	/// Helper to load from db
+	void dbLoadConfig(AMDbObject *newConfig);
+
+protected slots:
+	/// Responds to changes to the config, updates that scan action info
+	void onConfigChanged();
 
 protected:
 	/// The pointer holding the configuration that everything is based on.

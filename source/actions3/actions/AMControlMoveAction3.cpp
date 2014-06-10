@@ -22,13 +22,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMControl.h"
 #include "beamline/AMBeamline.h"
 #include "util/AMErrorMonitor.h"
+#include "acquaman/AMAgnosticDataAPI.h"
 
+ AMControlMoveAction3::~AMControlMoveAction3(){}
 AMControlMoveAction3::AMControlMoveAction3(AMControlMoveActionInfo3 *info, AMControl *control, QObject *parent)
 	: AMAction3(info, parent)
 {
 	if (control)
 		control_ = control;
-
 	else
 		control_ = AMBeamline::bl()->exposedControlByInfo(*(info->controlInfo()));
 }
@@ -40,7 +41,6 @@ AMControlMoveAction3::AMControlMoveAction3(const AMControlMoveAction3 &other)
 
 	if (info)
 		control_ = AMBeamline::bl()->exposedControlByInfo(*(info->controlInfo()));
-
 	else
 		control_ = 0;
 }
@@ -71,7 +71,7 @@ void AMControlMoveAction3::startImplementation()
 		return;
 	}
 	// check that the destination is in range...
-	if(control_->valueOutOfRange(setpoint.value())) {
+	if(control_->valueOutOfRange(controlMoveInfo()->isRelativeMove() ? control_->value()+setpoint.value() : setpoint.value())) {
 		AMErrorMon::alert(this,
 						  -13003,
 						  QString("There was an error moving the control '%1' into position, because the destination %2 %3 was outside its range. Please report this problem to the beamline staff.")
@@ -84,6 +84,7 @@ void AMControlMoveAction3::startImplementation()
 
 	// connect to its moveSucceeded and moveFailed signals
 	connect(control_, SIGNAL(moveStarted()), this, SLOT(onMoveStarted()));
+	connect(control_, SIGNAL(moveReTargetted()), this, SLOT(onMoveStarted()));	// For controls that support allowsMovesWhileMoving(), they might already be moving when we request our move(). A moveReTargetted() signal from them also counts as a moveStarted() for us.
 	connect(control_, SIGNAL(moveFailed(int)), this, SLOT(onMoveFailed(int)));
 	connect(control_, SIGNAL(moveSucceeded()), this, SLOT(onMoveSucceeded()));
 
@@ -91,19 +92,35 @@ void AMControlMoveAction3::startImplementation()
 	startPosition_ = control_->toInfo();
 
 	// start the move:
-	if(controlMoveInfo()->isRelativeMove())
-		control_->moveRelative(setpoint.value());
+	int failureExplanation;
+	if(controlMoveInfo()->isRelativeMove() && controlMoveInfo()->isRelativeFromSetpoint())
+		failureExplanation = control_->moveRelative(setpoint.value(), AMControl::RelativeMoveFromSetpoint);
+	else if(controlMoveInfo()->isRelativeMove())
+		failureExplanation = control_->moveRelative(setpoint.value(), AMControl::RelativeMoveFromValue);
 	else
-		control_->move(setpoint.value());
+		failureExplanation = control_->move(setpoint.value());
+
+	if(failureExplanation != AMControl::NoFailure)
+		onMoveFailed(failureExplanation);
 }
 
 void AMControlMoveAction3::onMoveStarted()
 {
 	disconnect(control_, SIGNAL(moveStarted()), this, SLOT(onMoveStarted()));
+	disconnect(control_, SIGNAL(moveReTargetted()), this, SLOT(onMoveStarted()));
+	// From now on, if we get a moveReTargetted() signal, this would be bad: someone is re-directing our move to a different setpoint, so this now counts as a failure.
+	connect(control_, SIGNAL(moveReTargetted()), this, SLOT(onMoveReTargetted()));
+
 	setStarted();
 	// start the progressTick timer
 	connect(&progressTick_, SIGNAL(timeout()), this, SLOT(onProgressTick()));
 	progressTick_.start(250);
+}
+
+void AMControlMoveAction3::onMoveReTargetted()
+{
+	// someone is re-directing our move to a different setpoint, so this now counts as a failure.
+	onMoveFailed(AMControl::RedirectedFailure);
 }
 
 void AMControlMoveAction3::onMoveFailed(int reason)
@@ -115,13 +132,14 @@ void AMControlMoveAction3::onMoveFailed(int reason)
 	// error message with reason
 	AMErrorMon::alert(this,
 					  13000+reason,
-					  QString("There was an error moving the control '%1' into position. Target: %2 %3. Actual position: %4 %5. Reason: %6. Please report this problem to the beamline staff.")
+					  QString("There was an error moving the control '%1' into position. Target: %2 %3. Actual position: %4 %5. Tolerance %6. Reason: %7. Please report this problem to the beamline staff.")
 					  .arg(control_->name())
 					  .arg(control_->setpoint())
 					  .arg(control_->units())
 					  .arg(control_->value())
 					  .arg(control_->units())
-					  .arg(reason));
+					  .arg(control_->tolerance())
+					  .arg(AMControl::failureExplanation(reason)));
 	setFailed();
 }
 
@@ -132,6 +150,17 @@ void AMControlMoveAction3::onMoveSucceeded()
 	disconnect(&progressTick_, 0, this, 0);
 
 	setProgress(100,100);
+
+	if(generateScanActionMessages_){
+
+		AMAgnosticDataAPIControlMovedMessage controlMovedMessage(control_->name(), "INVALIDMOVEMENTTYPE", controlMoveInfo()->controlInfo()->value(), control_->value());
+		if(controlMoveInfo()->isRelativeMove())
+			controlMovedMessage.setControlMovementType("Relative");
+		else
+			controlMovedMessage.setControlMovementType("Absolute");
+		AMAgnosticDataAPISupport::handlerFromLookupKey("ScanActions")->postMessage(controlMovedMessage);
+	}
+
 	setSucceeded();
 }
 
@@ -170,4 +199,6 @@ void AMControlMoveAction3::cancelImplementation()
 	// for now, cancel the action as long as we've sent the 'stop' request. This is an open question for debate.
 	setCancelled();
 }
+
+
 

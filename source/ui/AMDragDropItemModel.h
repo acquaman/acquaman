@@ -29,6 +29,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class AMDragDropItem : public QStandardItem {
 public:
 	/// Constructor
+ 	virtual ~AMDragDropItem();
 	AMDragDropItem(const QString& text = QString());
 
 	/// Reimplement this function to handle or reject a drop action. Return false to reject, or true to accept.
@@ -42,6 +43,7 @@ class AMDragDropItemModel : public QStandardItemModel
 {
 Q_OBJECT
 public:
+ 	virtual ~AMDragDropItemModel();
 	explicit AMDragDropItemModel(QObject *parent = 0);
 
 	/// Re-implemented to check if the item supports this drop, and if it does, passes the drop along to the item.

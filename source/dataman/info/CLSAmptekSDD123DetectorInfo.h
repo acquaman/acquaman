@@ -33,12 +33,13 @@ Q_CLASSINFO("AMDbObject_Attributes", "description=Amptek SDD123 Detector")
 
 public:
 	/// Default constructor
+ 	virtual ~CLSAmptekSDD123DetectorInfo();
 	Q_INVOKABLE CLSAmptekSDD123DetectorInfo(const QString &name = "amptekSDD123", const QString &description = "Amptek SDD Detector", QObject *parent = 0);
 	/// Copy constructor
 	CLSAmptekSDD123DetectorInfo(const CLSAmptekSDD123DetectorInfo &original);
 
 	/// Creates a new info pointer from this one, caller is responsible for memory
-	virtual AMDetectorInfo* toNewInfo() const;
+	virtual AMOldDetectorInfo* toNewInfo() const;
 
 	/// Implement assignment operator
 	CLSAmptekSDD123DetectorInfo& operator =(const CLSAmptekSDD123DetectorInfo &other);

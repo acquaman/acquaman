@@ -28,20 +28,24 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMDeferredFunctionCall.h"
 
 #define AMACTIONHISTORYMODEL_MODELINDEX_OUT_OF_BOUNDS 213001
-#define AMACTIONHISTORYMODEL_MODELINDEX_INDEX_NOT_IN_LIST 213002
-#define AMACTIONHISTORYMODEL_MODELINDEX_BAD_PARENT_ITEM 213003
 
 #define AMACTIONHISTORYMODEL_ROWCOUNT_BAD_PARENT_ITEM 213006
 #define AMACTIONHISTORYMODEL_MODELDATA_BAD_ITEM 213007
 #define AMACTIONHISTORYMODEL_HASCHILDREN_BAD_PARENT_ITEM 213008
-#define AMACTIONHISTORYMODEL_INDEXFORLOGITEM_INDEX_NOT_IN_LIST 213009
-#define AMACTIONHISTORYMODEL_INDEXFORLOGITEM_PARENT_NOT_IN_LIST 213010
-#define AMACTIONHISTORYMODEL_REFRESHFROMDB_FAILED_TO_CREATE_LIST 213011
-#define AMACTIONHISTORYMODEL_FAILED_TO_CLEAR_LIST 213012
+#define AMACTIONHISTORYMODEL_INDEXFORLOGITEM_ITEM_NOT_IN_TREE 213009
+#define AMACTIONHISTORYMODEL_INDEXFORNODE_NODE_NOT_IN_TREE 213010
+#define AMACTIONHISTORYMODEL_REFRESHFROMDB_FAILED_TO_CREATE_TREE 213011
 #define AMACTIONHISTORYMODEL_FAILED_TO_EXECUTE_DB_QUERY 213013
 #define AMACTIONHISTORYMODEL_FAILED_TO_EXECUTE_DB_QUERY_NUMBER_OF_ITEMS 213014
+#define AMACTIONHISTORYMODEL_FAILED_TO_EXECUTE_DB_QUERY_ALL_TOP_LEVELS 213015
 
 class AMDatabase;
+class AMAction3;
+class AMActionInfo3;
+class AMActionLog3;
+
+class AMPointerTreeNode;
+class AMPointerTree;
 
 /// typedef for using a QMap of QAbstractItemView pointers and bools. Used to map out which items have selected parents and should show a different color even though they're not selected. Mapping is to ensure that multiple views can look at the model. Introduces some coupling.
 typedef QMap<QAbstractItemView*, bool> ParentSelectMap;
@@ -52,7 +56,9 @@ Q_DECLARE_METATYPE(ParentSelectMap)
 class AMActionLogItem3 {
 public:
 	/// Constructor requires the \c id of the AMActionLog and the database \c db where it is stored.
+ 	virtual ~AMActionLogItem3();
 	AMActionLogItem3(AMDatabase* db, int id);
+	AMActionLogItem3(const AMActionLog3 &actionLog);
 
 	/// Call this to refresh the item's content from the database
 	void refresh() { loadedFromDb_ = false; }
@@ -82,6 +88,10 @@ public:
 	/// Returns the number of loops this action performed or -1 is this was not a loop action
 	int numberOfLoops() const;
 
+	int numberOfChildren() const;
+
+	void updateNumberOfChildren(int numberOfChildren) const;
+
 	/// Returns true if the this log item is to show a seleced-like color because its parent is selected. Pass in the item view you're working with.
 	bool parentSelected(QAbstractItemView *viewer) const;
 	/// Returns the full map of item views and whether this log item should show the selected-like color
@@ -101,6 +111,8 @@ protected:
 	int id_;
 	/// True if we've already loaded and cached the remaining information from the database
 	mutable bool loadedFromDb_;
+
+	mutable int numberOfChildren_;
 
 	// These variables cache the content that was loaded from the database
 	/////////////////
@@ -136,10 +148,8 @@ public:
 
 	/// Returns the limit on the number of actions that will be pulled from the database and displayed. This might be larger than rowCount() if there aren't enough actions in the visible range to hit the limit.  Caveat: sometimes it will also be smaller than rowCount(), if we've appended new recently-finished actions since a full database refresh -- In that operation, the limit is not obeyed.
 	int maximumActionsToDisplay() const { return maximumActionsLimit_; }
-	/// Returns the oldest dateTime limit of our visible range. Actions older than this will not be shown.  Returns an invalid QDateTime if there is no oldest limit.
-	QDateTime visibleRangeOldestDateTime() const { return visibleRangeOldest_; }
-	/// Returns the newest (ie: most recent) dateTime limit of our visible range.  Actions more recent than this will not be shown. Returns an invalid QDateTime if there is no newest limit.
-	QDateTime visibleRangeNewestDateTime() const { return visibleRangeNewest_; }
+	/// Returns a good number of actions for a new maximum. This value will either be enough to load the next top level action or 4/3 the current maximum, whichever is bigger.
+	int nextGoodMaximumActions() const;
 	/// Returns the total number of actions that would be included in the visible range, if maximumActionsToDisplay() was not restricting anything.
 	int visibleActionsCount() const { return visibleActionsCount_; }
 
@@ -157,9 +167,13 @@ public:
 	bool hasChildren(const QModelIndex &parent = QModelIndex()) const;
 	/// Returns the number of children below a certain model index (rowCount and combined rowCount of children recursively)
 	int childrenCount(const QModelIndex &parent = QModelIndex()) const;
+	/// Returns the number of children below a certain model index that actually succeeded (recursive)
+	int successfulChildrenCount(const QModelIndex &parent = QModelIndex()) const;
 
 	/// Returns the AMActionLogItem at \c index
 	AMActionLogItem3* logItem(const QModelIndex& index) const;
+	/// Returns the model index of a given AMPointerTreeNode
+	QModelIndex indexForNode(const AMPointerTreeNode *node) const;
 	/// Returns the model index for a given AMActionLogItem
 	QModelIndex indexForLogItem(AMActionLogItem3 *logItem) const;
 
@@ -180,16 +194,16 @@ public:
 	void markIndexGroupAsDeselected(const QModelIndex &index, QAbstractItemView *viewer);
 
 public slots:
-	/// Set the date/time range of actions that should be shown. Specificy an invalid QDateTime for \c oldest to show all.  Specify an invalid QDateTime for \c newest to always be the current date time.
-	/*! Automatically calls refreshFromDb() if the time range has changed, when control returns to the event loop.*/
-	void setVisibleDateTimeRange(const QDateTime& oldest, const QDateTime& newest = QDateTime());
-
 	/// Set the default maximum number of actions to show. If more actions exist within the visibleDateTimeRange, only the most recent \c maximumActionsCount will be shown.
 	/*! Automatically calls refreshFromDb() if the maximumActionsCount has changed, when control returns to the event loop.*/
 	void setMaximumActionsToDisplay(int maximumActionsLimit);
 
 	/// Refreshes the entire model immediately by reading from the database.
 	void refreshFromDb();
+
+	bool logUncompletedAction(const AMAction3 *uncompletedAction, AMDatabase* database, int parentLogId = -1);
+	bool updateCompletedAction(const AMAction3 *completedAction, AMDatabase* database);
+	bool logCompletedAction(const AMAction3* completedAction, AMDatabase* database, int parentLogId = -1);
 
 signals:
 	/// This signal is emitted before the model is refreshed or updated. Views might want to use it to remember their scrolling position, etc.
@@ -198,21 +212,10 @@ signals:
 	void modelRefreshed();
 
 protected slots:
-	/// Called when the database table has an actionLog added. If possible, simply appends that action to the model instead of doing a full refresh.
-	void onDatabaseItemCreated(const QString& tableName, int id);
-	/// Called when the database table has an actionLog changed. Simply updates the action instead of doing a full refresh.
-	void onDatabaseItemUpdated(const QString& tableName, int id);
-	/// Called when the database table has an actionLog removed. Triggers a full refresh of the model.
-	void onDatabaseItemRemoved(const QString& tableName, int id);
-
 	/// Called to refresh only the items belonging to a specific set of AMActionLog ids, found in idsRequiringRefresh_.  Used to optimize our response when one or more actionLogs are updated in the database. Note that these ids may or may not be visible for us.
 	void refreshSpecificIds();
 
 protected:
-	/// Helper function that returns true if the given \c dateTime is within the visibleDateTimeRange.
-	/*! Remember that visibleRangeOldest_ and visibleRangeNewest_ are ignored (no restrictions) if they are invalid. */
-	bool insideVisibleDateTimeRange(const QDateTime& dateTime);
-
 	/// Helper function to append a row to the model with a given AMActionLogItem \c item. We don't have a public addRow() / insertRow() interface.
 	void appendItem(AMActionLogItem3* item);
 
@@ -221,8 +224,6 @@ protected:
 
 	/// Helper function to recurse through the actions log database information and populate the list
 	bool recurseActionsLogLevelCreate(int parentId, QMap<int, int> parentIdsAndIds);
-	/// Helper function to recurse through the items list and clear each level in order
-	bool recurseActionsLogLevelClear(QModelIndex parentIndex);
 
 	/// Helper function to recursively mark children as parentSelected or not for a given item view in the mapping
 	void recurseMarkParentSelected(const QModelIndex &index, QAbstractItemView *viewer, bool selected);
@@ -232,18 +233,23 @@ protected:
 protected:
 	/// Database to be used
 	AMDatabase* db_;
-	/// Ranges for visible dates
-	QDateTime visibleRangeOldest_, visibleRangeNewest_;
 	/// Maximum number of action logs to show
 	int maximumActionsLimit_;
 	/// Count of the visible number of actions
 	int visibleActionsCount_;
+	/// A list of all the current top level ids loaded from the database. Used on refreshes to figure out how many more actions to show.
+	QList<int> topLevelIds_;
 
 	/// Database table name of the action log class
 	QString actionLogTableName_;
 
-	/// A list of these holds the actionLog data that we return in data()
-	QList<AMActionLogItem3*> items_;
+	/// The underlying tree model
+	AMPointerTree *itemTree_;
+	/// The root item of the underlying tree model
+	AMPointerTreeNode *itemTreeRoot_;
+	/// A quick mapping of actionLog id to its AMPointerTreeNode
+	QHash<int, AMPointerTreeNode*> idsToTreeNodes_;
+	QHash<const AMActionInfo3*, AMActionLog3*> infosToLogsForUncompletedActions_;
 
 	/// Used to schedule a delayed call to refreshFromDb()
 	AMDeferredFunctionCall refreshFunctionCall_;

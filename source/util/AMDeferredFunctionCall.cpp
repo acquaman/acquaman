@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 QEvent::Type AMDeferredFunctionCall::eventType_ = (QEvent::Type)0;
 
+ AMDeferredFunctionCall::~AMDeferredFunctionCall(){}
 AMDeferredFunctionCall::AMDeferredFunctionCall(QObject *parent) :
 	QObject(parent)
 {

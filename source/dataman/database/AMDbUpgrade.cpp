@@ -19,7 +19,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMDbUpgrade.h"
 
-#include <QDebug>
 #include <QDateTime>
 #include <QStringBuilder>
 #include "dataman/database/AMDbObjectSupport.h"
@@ -31,7 +30,10 @@ AMDbUpgrade::AMDbUpgrade(QString databaseNameToUpgrade, QObject *parent) :
 {
 	databaseToUpgrade_ = 0; //NULL
 	databaseNameToUpgrade_ = databaseNameToUpgrade;
+	isResponsibleForUpgrade_ = true; // responsible by default
 }
+
+AMDbUpgrade::~AMDbUpgrade(){}
 
 bool AMDbUpgrade::upgrade(){
 	// Make sure the dependencies in upgradeFromTags are present
@@ -71,7 +73,7 @@ bool AMDbUpgrade::updateUpgradeTable(bool isNecessary, bool duringCreation){
 	return true;
 }
 
-bool AMDbUpgrade::upgradeRequired() const{	
+bool AMDbUpgrade::upgradeRequired() const{
 	// Check to make sure each has the upgrade table using the PRAGMA query
 	QSqlQuery q = databaseToUpgrade_->query();
 	q.prepare("PRAGMA table_info(AMDbObjectUpgrades_table)");
@@ -89,9 +91,9 @@ bool AMDbUpgrade::upgradeRequired() const{
 	// If the upgrade table is missing, make it and log that at least one requested database is missing the table
 	if(upgradeTableColumns.count() == 0){
 		databaseToUpgrade_->ensureTable(AMDbObjectSupport::upgradesTableName(),
-						       QString("description,upgradeTag,necessaryUpgrade,upgradeDate,duringCreation").split(','),
-						       QString("TEXT,TEXT,TEXT,TEXT,TEXT").split(','),
-						       false);
+							   QString("description,upgradeTag,necessaryUpgrade,upgradeDate,duringCreation").split(','),
+							   QString("TEXT,TEXT,TEXT,TEXT,TEXT").split(','),
+							   false);
 
 		// Return true (upgrade is required) if the table was missing
 		return true;
@@ -99,6 +101,7 @@ bool AMDbUpgrade::upgradeRequired() const{
 
 	// Check to make sure that the specified upgrade tag is present. If not, return true (database upgrade is required).
 	QList<int> thisTagID = databaseToUpgrade_->objectsWhere("AMDbObjectUpgrades_table", QString("upgradeTag='%1'").arg(upgradeToTag()));
+
 	if(thisTagID.count() == 0)
 		return true;
 	return false;
@@ -111,6 +114,10 @@ bool AMDbUpgrade::loadDatabaseFromName(){
 		return false;
 	databaseToUpgrade_ = database;
 	return true;
+}
+
+bool AMDbUpgrade::isResponsibleForUpgrade() const{
+	return isResponsibleForUpgrade_;
 }
 
 QString AMDbUpgrade::databaseNameToUpgrade() const{
@@ -130,8 +137,11 @@ bool AMDbUpgrade::setDatabaseNameToUpgradeAndLoad(const QString &databaseNameToU
 	return loadDatabaseFromName();
 }
 
+void AMDbUpgrade::setIsResponsibleForUpgrade(bool isResponsibleForUpgrade){
+	isResponsibleForUpgrade_ = isResponsibleForUpgrade;
+}
+
 bool AMDbUpgradeSupport::dbObjectClassBecomes(AMDatabase *databaseToEdit, const QString &originalClassName, const QString &newClassName, QMap<QString, QString> parentTablesToColumnNames, QMap<QString, int> indexTablesToIndexSide){
-	//AMDatabase *userDb = AMDatabase::database("user");
 	AMDatabase *userDb = databaseToEdit;
 
 	QString originalTableName = originalClassName%"_table";
@@ -156,7 +166,8 @@ bool AMDbUpgradeSupport::dbObjectClassBecomes(AMDatabase *databaseToEdit, const 
 	// If there are no instances of the new class, then we can upgrade in this fashion
 	if(matchingOriginial.count() > 0 && matchingNew.count() == 0){
 		// Start the transaction, we can rollback to here if things go badly
-		userDb->startTransaction();
+		if (!userDb->transactionInProgress())
+			userDb->startTransaction();
 
 		// Update the AMDbObjectTypes_table to replace the AMDbObjectType and table name with the new values
 		QStringList columnsToChange;
@@ -164,7 +175,7 @@ bool AMDbUpgradeSupport::dbObjectClassBecomes(AMDatabase *databaseToEdit, const 
 		columnsToChange << "AMDbObjectType" << "tableName";
 		changesToMake << QVariant(newClassName) << QVariant(newTableName);
 		if(!userDb->update(matchingOriginial.at(0), "AMDbObjectTypes_table", columnsToChange, changesToMake)){
-			userDb->rollbackTransaction();
+
 			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -270, QString("Database support: There was an error trying to update the AMDbObjectTypes table for (%1) to become %2.").arg(originalClassName).arg(newClassName)));
 			return false;
 		}
@@ -178,7 +189,7 @@ bool AMDbUpgradeSupport::dbObjectClassBecomes(AMDatabase *databaseToEdit, const 
 				QString indexStringToUse = userDb->retrieve(parentTableIndices.at(x), j.key(), j.value()).toString();
 				int indexToUse = indexStringToUse.split(';').at(1).toInt();
 				if(!userDb->update(parentTableIndices.at(x), j.key(), j.value(), QVariant(QString("%1;%2").arg(newTableName).arg(indexToUse)))){
-					userDb->rollbackTransaction();
+
 					AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -281, QString("Database support: There was an error trying to update the %1 column for %2 table at id %2.").arg(j.value()).arg(j.key()).arg(parentTableIndices.at(x))));
 					return false;
 				}
@@ -193,17 +204,85 @@ bool AMDbUpgradeSupport::dbObjectClassBecomes(AMDatabase *databaseToEdit, const 
 			QList<int> indexTableIndices = userDb->objectsWhere(i.key(), QString("table%1='%2'").arg(i.value()).arg(originalTableName));
 			for(int x = 0; x < indexTableIndices.count(); x++){
 				if(!userDb->update(indexTableIndices.at(x), i.key(), QString("table%1").arg(i.value()), QVariant(newTableName))){
-					userDb->rollbackTransaction();
+
 					AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -271, QString("Database support: There was an error trying to update the %1 table at id %2.").arg(i.key()).arg(indexTableIndices.at(x))));
 					return false;
 				}
 			}
+
+			// If we're editing the left side (column 1) we need to update the name of the index table as well
+			//  (and possibly alter any indices associated with the table)
+			if(i.value() == 1 && i.key().contains(originalTableName)){
+				// Finally, rename the table from the original index table name to the new index table name
+				QString originalIndexTableName = i.key();
+				QString newIndexTableName = i.key();
+				newIndexTableName.remove(originalTableName);
+				newIndexTableName.prepend(newTableName);
+
+				// Query if this table has an index (or indices) defined for it
+				QSqlQuery q1 = userDb->query();
+				q1.prepare("PRAGMA index_list("%originalIndexTableName%")");
+				if(!AMDatabase::execQuery(q1)) {
+					q1.finish();
+					AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -291, QString("Database support: There was an error trying to find the index list for %1.").arg(originalIndexTableName)));
+					return false;
+				}
+				// Fill a stringList with the responses
+				QStringList indexListResponses;
+				while(q1.next()){
+					indexListResponses << q1.value(1).toString();
+				}
+				q1.finish();
+
+				// If there were any indices found, then loop over them and drop them from the database
+				for(int x = 0; x < indexListResponses.count(); x++){
+					QSqlQuery q1A = userDb->query();
+					q1A.prepare(QString("DROP INDEX %1;").arg(indexListResponses.at(x)));
+
+					if(AMDatabase::execQuery(q1A)){
+						q1A.finish();
+					}
+					else{
+						q1A.finish();
+						AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -292, QString("Database support: There was an error trying to drop the index %1 for %2.").arg(indexListResponses.at(x)).arg(originalIndexTableName)));
+						return false;
+					}
+				}
+
+				// Actually rename the table (we need to do this every time)
+				QSqlQuery q2 = userDb->query();
+				q2.prepare("ALTER table "%originalIndexTableName%" RENAME to "%newIndexTableName);
+				if(!AMDatabase::execQuery(q2)) {
+					q2.finish();
+					AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -283, QString("Database support: There was an error while trying to update table %1 to become %2.").arg(originalIndexTableName).arg(newIndexTableName)));
+					return false;
+				}
+
+				// If there were any indices found, then we need to re-add them using the new table name
+				for(int x = 0; x < indexListResponses.count(); x++){
+					QSqlQuery q2A = userDb->query();
+					QString tempIndexListResponse = indexListResponses.at(x);
+					QString columnName = tempIndexListResponse.split('_').last();
+					QString indexName = QString("idx_%1_%2").arg(newIndexTableName, columnName);
+					indexName.remove(QRegExp("[\\s\\,\\;]"));// remove whitespace, commas, and semicolons from index name...
+					q2A.prepare(QString("CREATE INDEX %1 ON %2(%3);").arg(indexName, newIndexTableName, columnName));
+
+					if(AMDatabase::execQuery(q2A)){
+						q2A.finish();
+					}
+					else{
+						q2A.finish();
+						AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -293, QString("Database support: There was an error trying to recreate index %1 for new table %2.").arg(indexName).arg(newIndexTableName)));
+						return false;
+					}
+				}
+			}
+
 			++i;
 		}
 
 		// Go to the actual class table (the original one) and update the AMDbObjectType column
 		if(!userDb->update(originalTableName, "AMDbObjectType='"%originalClassName%"'", "AMDbObjectType", QVariant(newClassName))){
-			userDb->rollbackTransaction();
 			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -272, QString("Database support: There was an error trying to update the %1 table for new AMDbObjectType %2.").arg(originalTableName).arg(newClassName)));
 			return false;
 		}
@@ -213,13 +292,9 @@ bool AMDbUpgradeSupport::dbObjectClassBecomes(AMDatabase *databaseToEdit, const 
 		q.prepare("ALTER table "%originalTableName%" RENAME to "%newTableName);
 		if(!AMDatabase::execQuery(q)) {
 			q.finish();
-			userDb->rollbackTransaction();
 			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -273, QString("Database support: There was an error while trying to update table %1 to become %2.").arg(originalClassName).arg(newClassName)));
 			return false;
 		}
-
-		// If there were no problems then commit the transaction
-		userDb->commitTransaction();
 	}
 	// If there are no instances of the original class then no upgrade is necessary
 	else if(matchingOriginial.count() == 0 && matchingNew.count() > 0){
@@ -243,14 +318,14 @@ bool AMDbUpgradeSupport::dbObjectClassMerge(AMDatabase *databaseToEdit, const QS
 	int toCount = allToIDs.count();
 
 	// Start the transaction so we can rollback to here if something goes wrong
-	userDb->startTransaction();
+	if (!userDb->transactionInProgress())
+		userDb->startTransaction();
 
 	// Query and record all the column names (except id) from the from table. We need this string list to pass around.
 	QSqlQuery q = userDb->query();
 	q.prepare("PRAGMA table_info("%mergeFromTableName%")");
 	if(!AMDatabase::execQuery(q)) {
 		q.finish();
-		userDb->rollbackTransaction();
 		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -274, QString("Database support: There was an error while trying to read meta data on table %1.").arg(mergeFromTableName)));
 		return false;
 	}
@@ -266,7 +341,6 @@ bool AMDbUpgradeSupport::dbObjectClassMerge(AMDatabase *databaseToEdit, const QS
 		QVariantList valuesFromFromTable = userDb->retrieve(allFromIDs.at(x), mergeFromTableName, allTableColumns);
 		int fromIDInOldTable = userDb->insertOrUpdate(toCount+allFromIDs.at(x), mergeToTableName, allTableColumns, valuesFromFromTable );
 		if(fromIDInOldTable == 0){
-			userDb->rollbackTransaction();
 			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -275, QString("Database support: There was an error while trying to insert into to table format %1.").arg(mergeToTableName)));
 			return false;
 		}
@@ -281,7 +355,6 @@ bool AMDbUpgradeSupport::dbObjectClassMerge(AMDatabase *databaseToEdit, const QS
 			QString indexStringToUse = userDb->retrieve(parentTableIndices.at(x), j.key(), j.value()).toString();
 			int indexToUse = indexStringToUse.split(';').at(1).toInt() + toCount;
 			if(!userDb->update(parentTableIndices.at(x), j.key(), j.value(), QVariant(QString("%1;%2").arg(mergeToTableName).arg(indexToUse)))){
-				userDb->rollbackTransaction();
 				AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -282, QString("Database support: There was an error trying to update the %1 column for %2 table at id %2.").arg(j.value()).arg(j.key()).arg(parentTableIndices.at(x))));
 				return false;
 			}
@@ -301,7 +374,6 @@ bool AMDbUpgradeSupport::dbObjectClassMerge(AMDatabase *databaseToEdit, const QS
 			QVariantList updateValues;
 			updateValues << QVariant(currentId2) << QVariant(mergeToTableName);
 			if(!userDb->update(indexTableIndices.at(x), i.key(), updateColumns, updateValues)){
-				userDb->rollbackTransaction();
 				AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -276, QString("Database support: There was an error trying to update the %1 table at id %2.").arg(i.key()).arg(indexTableIndices.at(x))));
 				return false;
 			}
@@ -330,7 +402,6 @@ bool AMDbUpgradeSupport::dbObjectClassMerge(AMDatabase *databaseToEdit, const QS
 	relatedAMDbObjectTypesTables << "allColumns" << "visibleColumns" << "loadColumns";
 	for(int x = 0; x < relatedAMDbObjectTypesTables.count(); x++){
 		if(userDb->deleteRows("AMDbObjectTypes_"%relatedAMDbObjectTypesTables.at(x), QString("TypeId='%1'").arg(fromClassDbObjectId)) == 0){
-			userDb->rollbackTransaction();
 			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -279, QString("Database support: There was an error trying to rollback the AMDbObjectTypes related table %1.").arg("AMDbObjectTypes_"%relatedAMDbObjectTypesTables.at(x))));
 			return false;
 		}
@@ -341,13 +412,322 @@ bool AMDbUpgradeSupport::dbObjectClassMerge(AMDatabase *databaseToEdit, const QS
 	q.prepare("DROP TABLE "%mergeFromTableName);
 	if(!AMDatabase::execQuery(q)) {
 		q.finish();
-		userDb->rollbackTransaction();
 		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -280, QString("Database support: There was an error while trying to rollback table %1.").arg(mergeFromTableName)));
 		return false;
 	}
 	q.finish();
 
-	// Commit this transaction
-	userDb->commitTransaction();
 	return true;
+}
+
+bool AMDbUpgradeSupport::changeColumnName(AMDatabase *databaseToEdit, const QString &tableName, const QString &oldColumnName, const QString &newColumnName, const QString &newType)
+{
+	// This method renames the table, makes a new one with the old name with the column named correctly.  Then it copies all of the data into the new table and deletes the old table.  Finally, the AMDbObjectTypes tables need to be updated.
+	AMDatabase *db = databaseToEdit;
+
+	if (!db->transactionInProgress())
+		db->startTransaction();
+
+	QString tempName = "temp_table";
+	QSqlQuery query = db->query();
+
+	// Find if the table uses ascending or auto increment for the id.
+	bool reUseIds = true;
+	query.prepare(QString("SELECT sql FROM sqlite_master WHERE type='table' AND name='%1'").arg(tableName));
+	db->execQuery(query);
+
+	if (query.first()){
+
+		QString reuseIdString;
+		do {
+			reuseIdString = query.value(0).toString();
+		}while(query.next());
+
+		reUseIds = reuseIdString.contains("PRIMARY KEY ASC") ? true : false;
+	}
+	query.finish();
+
+	// Change the name of the old table.
+	query.prepare(QString("ALTER TABLE %1 RENAME TO %2;").arg(tableName).arg(tempName));
+	if (!db->execQuery(query)){
+
+		query.finish();
+		AMErrorMon::alert(0, AMDBUPGRADESUPPORT_COULD_NOT_RENAME_TABLE, QString("Could not rename %1.").arg(tableName));
+		return false;
+	}
+
+	query.finish();
+
+	// Get the column names, make the change and create a new table with the original name but with the new column names.
+	query.prepare(QString("PRAGMA table_info(%1);").arg(tempName));
+	db->execQuery(query);
+	QStringList oldColumnNames;
+	QStringList columnTypes;
+	if (query.first()){
+
+		do {
+
+			oldColumnNames << query.value(1).toString();
+			columnTypes << query.value(2).toString();
+		}while(query.next());
+	}
+	query.finish();
+
+	QStringList newColumnNames(oldColumnNames);
+	int indexOfOldColumnName = newColumnNames.indexOf(oldColumnName);
+	newColumnNames.replace(indexOfOldColumnName, newColumnName);
+
+	if (!newType.isNull())
+		columnTypes.replace(indexOfOldColumnName, newType);
+
+	if (!db->ensureTable(tableName, newColumnNames.mid(1), columnTypes.mid(1), reUseIds)){
+
+		AMErrorMon::alert(0, AMDBUPGRADESUPPORT_COULD_NOT_CREATE_NEW_TABLE, QString("Could not create a new table."));
+		return false;
+	}
+
+	// Move the data from the old table to the new table.
+	query.prepare(QString("INSERT INTO %1 (%2) SELECT %3 FROM %4;").arg(tableName).arg(newColumnNames.join(", ")).arg(oldColumnNames.join(", ")).arg(tempName));
+
+	if (!db->execQuery(query)){
+
+		query.finish();
+		AMErrorMon::alert(0, AMDBUPGRADESUPPORT_COULD_NOT_COPY_FROM_OLD_TABLE, QString("Could not copy the data from the old table."));
+		return false;
+	}
+
+	query.finish();
+
+	// Delete the old table.
+	query.prepare(QString("DROP TABLE %1;").arg(tempName));
+
+	if (!db->execQuery(query)){
+
+		query.finish();
+		AMErrorMon::alert(0, AMDBUPGRADESUPPORT_COULD_NOT_DELETE_OLD_TABLE, QString("Could not delete the old table."));
+		return false;
+	}
+
+	query.finish();
+
+	// Finally, we need to update the AMDbObjectTypes_* tables (allColumns, visibleColumns, loadColumns).  The still have the old names and will corrupt the database if not updated.
+	QList<int> ids = db->objectsMatching("AMDbObjectTypes_table", "tableName", tableName);
+
+	if(tableName == "AMScan_table"){
+		for(int x = 0; x < ids.count(); x++){
+			bool success = true;
+			success &= db->update("AMDbObjectTypes_allColumns", QString("typeId=%1 AND columnName='%2'").arg(ids.at(x)).arg(oldColumnName), "columnName", newColumnName);
+
+			// It is possible that the column is not visible.  Check before updating.
+			if (db->objectsWhere("AMDbObjectTypes_visibleColumns", QString("typeId=%1 AND columnName='%2'").arg(ids.at(x)).arg(oldColumnName)).size() == 1)
+				success &= db->update("AMDbObjectTypes_visibleColumns", QString("typeId=%1 AND columnName='%2'").arg(ids.at(x)).arg(oldColumnName), "columnName", newColumnName);
+
+			if (db->objectsWhere("AMDbObjectTypes_loadColumns", QString("typeId=%1 AND columnName='%2'").arg(ids.first()).arg(oldColumnName)).size() == 1)
+				success &= db->update("AMDbObjectTypes_loadColumns", QString("typeId=%1 AND columnName='%2'").arg(ids.at(x)).arg(oldColumnName), "columnName", newColumnName);
+
+			if (!success){
+
+				db->rollbackTransaction();
+				AMErrorMon::alert(0, AMDBUPGRADESUPPORT_COULD_NOT_UPDATE_AMDBOBJECTTYPE_TABLES, "Could not update the AMDbObjectTypes associated tables.");
+				return false;
+			}
+		}
+	}
+	else if (ids.size() == 1){
+
+		bool success = true;
+		success &= db->update("AMDbObjectTypes_allColumns", QString("typeId=%1 AND columnName='%2'").arg(ids.first()).arg(oldColumnName), "columnName", newColumnName);
+
+		// It is possible that the column is not visible.  Check before updating.
+		if (db->objectsWhere("AMDbObjectTypes_visibleColumns", QString("typeId=%1 AND columnName='%2'").arg(ids.first()).arg(oldColumnName)).size() == 1)
+			success &= db->update("AMDbObjectTypes_visibleColumns", QString("typeId=%1 AND columnName='%2'").arg(ids.first()).arg(oldColumnName), "columnName", newColumnName);
+
+		if (db->objectsWhere("AMDbObjectTypes_loadColumns", QString("typeId=%1 AND columnName='%2'").arg(ids.first()).arg(oldColumnName)).size() == 1)
+			success &= db->update("AMDbObjectTypes_loadColumns", QString("typeId=%1 AND columnName='%2'").arg(ids.first()).arg(oldColumnName), "columnName", newColumnName);
+
+		if (!success){
+
+			AMErrorMon::alert(0, AMDBUPGRADESUPPORT_COULD_NOT_UPDATE_AMDBOBJECTTYPE_TABLES, "Could not update the AMDbObjectTypes associated tables.");
+			return false;
+		}
+	}
+
+	else{
+
+		AMErrorMon::alert(0, AMDBUPGRADESUPPORT_DUPLICATE_COLUMNS_IN_AMDBOBJECTTYPE_TABLES, "Somehow there are duplicate columns in the table.");
+		return false;
+	}
+
+	return true;
+}
+
+bool AMDbUpgradeSupport::removeColumn(AMDatabase *databaseToEdit, const QString &tableName, const QString &columnName)
+{
+	// This method renames the table, makes a new one with the old name with the column named correctly.  Then it copies all of the data into the new table and deletes the old table.  Finally, the AMDbObjectTypes tables need to be updated.
+	AMDatabase *db = databaseToEdit;
+
+	if (!db->transactionInProgress())
+		db->startTransaction();
+
+	QString tempName = "temp_table";
+	QSqlQuery query = db->query();
+
+	// Find if the table uses ascending or auto increment for the id.
+	bool reUseIds = true;
+	query.prepare(QString("SELECT sql FROM sqlite_master WHERE type='table' AND name='%1'").arg(tableName));
+	db->execQuery(query);
+
+	if (query.first()){
+		QString reuseIdString;
+		do {
+			reuseIdString = query.value(0).toString();
+		}while(query.next());
+
+		reUseIds = reuseIdString.contains("PRIMARY KEY ASC") ? true : false;
+	}
+	query.finish();
+
+	// Change the name of the old table.
+	query.prepare(QString("ALTER TABLE %1 RENAME TO %2;").arg(tableName).arg(tempName));
+	if (!db->execQuery(query)){
+
+		query.finish();
+		AMErrorMon::alert(0, AMDBUPGRADESUPPORT_COULD_NOT_RENAME_TABLE, QString("Could not rename %1.").arg(tableName));
+		return false;
+	}
+
+	query.finish();
+
+	// Get the column names, make the change and create a new table with the original name but with the column removed.
+	query.prepare(QString("PRAGMA table_info(%1);").arg(tempName));
+	db->execQuery(query);
+	QStringList columnNames;
+	QStringList columnTypes;
+	if (query.first()){
+
+		do {
+
+			columnNames << query.value(1).toString();
+			columnTypes << query.value(2).toString();
+		}while(query.next());
+	}
+	query.finish();
+
+	int indexOfColumnName = columnNames.indexOf(columnName);
+	columnNames.removeAt(indexOfColumnName);
+	columnTypes.removeAt(indexOfColumnName);
+
+	if (!db->ensureTable(tableName, columnNames.mid(1), columnTypes.mid(1), reUseIds)){
+
+		AMErrorMon::alert(0, AMDBUPGRADESUPPORT_COULD_NOT_CREATE_NEW_TABLE, QString("Could not create a new table."));
+		return false;
+	}
+
+	// Move the data from the old table to the new table.
+	query.prepare(QString("INSERT INTO %1 (%2) SELECT %3 FROM %4;").arg(tableName).arg(columnNames.join(", ")).arg(columnNames.join(", ")).arg(tempName));
+
+	if (!db->execQuery(query)){
+
+		query.finish();
+		AMErrorMon::alert(0, AMDBUPGRADESUPPORT_COULD_NOT_COPY_FROM_OLD_TABLE, QString("Could not copy the data from the old table."));
+		return false;
+	}
+
+	query.finish();
+
+	// Delete the old table.
+	query.prepare(QString("DROP TABLE %1;").arg(tempName));
+
+	if (!db->execQuery(query)){
+
+		query.finish();
+		AMErrorMon::alert(0, AMDBUPGRADESUPPORT_COULD_NOT_DELETE_OLD_TABLE, QString("Could not delete the old table."));
+		return false;
+	}
+
+	query.finish();
+
+	// Finally, we need to update the AMDbObjectTypes_* tables (allColumns, visibleColumns, loadColumns).  The still have the old names and will corrupt the database if not updated.
+	QList<int> ids = db->objectsMatching("AMDbObjectTypes_table", "tableName", tableName);
+
+	if (ids.size() == 1){
+
+		bool success = true;
+
+		QList<int> dbObjectIds = db->objectsWhere("AMDbObjectTypes_allColumns", QString("typeId=%1 AND columnName='%2'").arg(ids.first()).arg(columnName));
+		success &= db->deleteRow(dbObjectIds.first(), "AMDbObjectTypes_allColumns");
+
+		// It is possible that the column is not visible.  Check before updating.
+		dbObjectIds = db->objectsWhere("AMDbObjectTypes_visibleColumns", QString("typeId=%1 AND columnName='%2'").arg(ids.first()).arg(columnName));
+
+		if (dbObjectIds.size() == 1)
+			success &= db->deleteRow(dbObjectIds.first(), "AMDbObjectTypes_visibleColumns");
+
+		// It is possible that the column is not loaded.  Check before updating.
+		dbObjectIds = db->objectsWhere("AMDbObjectTypes_loadColumns", QString("typeId=%1 AND columnName='%2'").arg(ids.first()).arg(columnName));
+
+		if (dbObjectIds.size() == 1)
+			success &= db->deleteRow(dbObjectIds.first(), "AMDbObjectTypes_loadColumns");
+
+		if (!success){
+
+			AMErrorMon::alert(0, AMDBUPGRADESUPPORT_COULD_NOT_UPDATE_AMDBOBJECTTYPE_TABLES, "Could not update the AMDbObjectTypes associated tables.");
+			return false;
+		}
+	}
+
+	else{
+
+		AMErrorMon::alert(0, AMDBUPGRADESUPPORT_DUPLICATE_COLUMNS_IN_AMDBOBJECTTYPE_TABLES, "Somehow there are duplicate columns in the table.");
+		return false;
+	}
+
+	return true;
+}
+
+bool AMDbUpgradeSupport::idColumnToConstDbObjectColumn(AMDatabase *databaseToEdit, const QString &typeTableName, const QString &idColumnName, const QString &constDbObjectColumnName, const QString &relatedTypeTableName){
+	bool success = true;
+
+	// Change the column name from idColumnName to constDbObjectColumnName
+	success &= AMDbUpgradeSupport::changeColumnName(databaseToEdit, typeTableName, idColumnName, constDbObjectColumnName, "TEXT");
+	// If that worked, change all cases where the value was "-1" to "" (empty string)
+	if(success)
+		success &= databaseToEdit->update(typeTableName, QString("%1='-1'").arg(constDbObjectColumnName), constDbObjectColumnName, "");
+	else
+		AMErrorMon::alert(0, AMDBUPGRADESUPPORT_COULD_NOT_CHANGE_COLUMN_NAME, QString("Could not change the %1 column to %2 in %3.").arg(idColumnName).arg(constDbObjectColumnName).arg(typeTableName));
+	// If that worked, grab all of the other values and update them from "#" to "relatedTypeTableName;#"
+	if(success){
+		// Grab id and constDbObjectColumnName column for all rows in typeTableName where the constDbObjectColumnName isn't empty string
+		QSqlQuery query = databaseToEdit->select(typeTableName, QString("id,%2").arg(constDbObjectColumnName), QString("%1!=''").arg(constDbObjectColumnName));
+		databaseToEdit->execQuery(query);
+		QMap<int, QString> results;
+		// Iterate and place in a map
+		if (query.first()){
+
+			do {
+				results.insert(query.value(0).toInt(), query.value(1).toString());
+			}while(query.next());
+		}
+		query.finish();
+
+		// Start a transaction, for each value in the map update the constDbObjectColumnName column for that id from "#" to "relatedTypeTableName;#"
+		databaseToEdit->startTransaction();
+		QMap<int, QString>::const_iterator i = results.constBegin();
+		while (i != results.constEnd() && success) {
+			success &= databaseToEdit->update(i.key(), typeTableName, constDbObjectColumnName, QString("%1;%2").arg(relatedTypeTableName).arg(i.value()));
+			++i;
+		}
+		// Rollback if we failed, commit if we succeeded
+		if(!success){
+			databaseToEdit->rollbackTransaction();
+			AMErrorMon::alert(0, AMDBUPGRADESUPPORT_COULD_NOT_UPDATE_TO_TABLE_BASED_ID, QString("Could not change the %1 column value to a table based value for one of the indexes in %2.").arg(constDbObjectColumnName).arg(typeTableName));
+		}
+		else
+			databaseToEdit->commitTransaction();
+
+	}
+	else
+		AMErrorMon::alert(0, AMDBUPGRADESUPPORT_COULD_NOT_UPDATE_EMPTY_VALUES, QString("Could not update the empty values from -1 to an empty string in %1.").arg(typeTableName));
+
+	return success;
 }

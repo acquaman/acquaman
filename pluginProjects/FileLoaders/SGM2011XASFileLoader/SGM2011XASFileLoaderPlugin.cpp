@@ -11,13 +11,12 @@
 #include "dataman/AMScan.h"
 
 bool SGM2011XASFileLoaderPlugin::accepts(AMScan *scan){
-	qDebug() << "SGM2011XAS trying to accept " << scan->fileFormat();
 	if(scan->fileFormat() == "sgm2011XAS")
 		return true;
 	return false;
 }
 
-bool SGM2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolder){
+bool SGM2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolder, AMErrorMon *errorMonitor){
 	if(columns2pvNames_.count() == 0) {
 		columns2pvNames_.set("Event-ID", "Event-ID");
 		columns2pvNames_.set("eV", "BL1611-ID-1:Energy");
@@ -41,6 +40,8 @@ bool SGM2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 		columns2pvNames_.set("OceanOptics65000", "SA0000-03:DarkCorrectedSpectra");
 		columns2pvNames_.set("AmptekSDD1", "amptek:sdd1:spectrum");
 		columns2pvNames_.set("AmptekSDD2", "amptek:sdd2:spectrum");
+		columns2pvNames_.set("AmptekSDD3", "amptek:sdd3:spectrum");
+		columns2pvNames_.set("AmptekSDD4", "amptek:sdd4:spectrum");
 	}
 
 	if(offsets2MeasurementInfos_.isEmpty()) {
@@ -48,6 +49,8 @@ bool SGM2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 		offsets2MeasurementInfos_ << "OceanOptics65000";
 		offsets2MeasurementInfos_ << "AmptekSDD1";
 		offsets2MeasurementInfos_ << "AmptekSDD2";
+		offsets2MeasurementInfos_ << "AmptekSDD3";
+		offsets2MeasurementInfos_ << "AmptekSDD4";
 	}
 
 	if(defaultUserVisibleColumns_.isEmpty()) {
@@ -60,6 +63,8 @@ bool SGM2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 		defaultUserVisibleColumns_ << "OceanOptics65000";
 		defaultUserVisibleColumns_ << "AmptekSDD1";
 		defaultUserVisibleColumns_ << "AmptekSDD2";
+		defaultUserVisibleColumns_ << "AmptekSDD3";
+		defaultUserVisibleColumns_ << "AmptekSDD4";
 	}
 
 	if(!scan)
@@ -83,7 +88,7 @@ bool SGM2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 	// open the file:
 	QFile f(sourceFileInfo.filePath());
 	if(!f.open(QIODevice::ReadOnly)) {
-		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -1, "SGM2011XASFileLoader parse error while loading scan data from file. Missing file."));
+		errorMonitor->exteriorReport(AMErrorReport(0, AMErrorReport::Serious, SGM2011XASFILELOADERPLUGIN_CANNOT_OPEN_FILE, "SGM2011XASFileLoader parse error while loading scan data from file. Missing file."));
 		return false;
 	}
 	QTextStream fs(&f);
@@ -93,7 +98,7 @@ bool SGM2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 	while(!fs.atEnd() && !line.startsWith("#(1) "))
 		line = fs.readLine();
 	if(fs.atEnd()) {
-		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -2, "SGM2011XASFileLoader parse error while loading scan data from file. Missing #(1) event line."));
+		errorMonitor->exteriorReport(AMErrorReport(0, AMErrorReport::Serious, SGM2011XASFILELOADERPLUGIN_BAD_FORMAT_NO_EVENT_HEADER, "SGM2011XASFileLoader parse error while loading scan data from file. Missing #(1) event line."));
 		return false;	// bad format; missing the #1 event header
 	}
 	colNames1 = line.split(QChar(' '));
@@ -101,7 +106,7 @@ bool SGM2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 	colNames1.removeFirst();
 	for(int i=0; i<colNames1.count(); i++){
 		if(!pv2columnName(colNames1[i])){
-			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -2, QString("SGM2011XASFileLoader parse error while loading scan data from file. Unknown PV in header at %1 .").arg(i)));
+			errorMonitor->exteriorReport(AMErrorReport(0, AMErrorReport::Serious, SGM2011XASFILELOADERPLUGIN_BAD_FORMAT_NO_PV_CONVERSION, QString("SGM2011XASFileLoader parse error while loading scan data from file. Unknown PV in header at %1 .").arg(i)));
 			return false;	// bad format; no conversion column for this PV name
 		}
 	}
@@ -110,7 +115,7 @@ bool SGM2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 	// ensure that we have the basic "eV" column
 	int eVIndex = colNames1.indexOf("eV");
 	if(eVIndex < 0) {
-		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -3, "SGM2011XASFileLoader parse error while loading scan data from file. I couldn't find the energy (eV) column."));
+		errorMonitor->exteriorReport(AMErrorReport(0, AMErrorReport::Serious, SGM2011XASFILELOADERPLUGIN_BAD_FORMAT_NO_ENERGY_COLUMN, "SGM2011XASFileLoader parse error while loading scan data from file. I couldn't find the energy (eV) column."));
 		return false;	// bad format; no primary column
 
 	}
@@ -141,7 +146,7 @@ bool SGM2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 			if(afp.contains("_spectra.dat"))
 				spectraFile = afp;
 		if(spectraFile == ""){
-			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -3, "SGM2011XASFileLoader parse error while loading scan data from file. I couldn't find the the spectra.dat file when I need one."));
+			errorMonitor->exteriorReport(AMErrorReport(0, AMErrorReport::Serious, SGM2011XASFILELOADERPLUGIN_MISSING_SPECTRA_FILE, "SGM2011XASFileLoader parse error while loading scan data from file. I couldn't find the the spectra.dat file when I need one."));
 			return false;	// bad format; no spectra.dat file in the additional files paths
 		}
 		spectraFileInfo.setFile(spectraFile);
@@ -180,6 +185,20 @@ bool SGM2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 					AMMeasurementInfo sddInfo("Amptek SDD2", "Amptek Silicon Drift Detector 2", "counts", sddAxes);
 					scan->rawData()->addMeasurement(sddInfo);
 				}
+				else if(colName == "AmptekSDD3"){
+					AMAxisInfo sddEVAxisInfo("energy", 1024, "SDD Energy", "eV");
+					QList<AMAxisInfo> sddAxes;
+					sddAxes << sddEVAxisInfo;
+					AMMeasurementInfo sddInfo("Amptek SDD3", "Amptek Silicon Drift Detector 3", "counts", sddAxes);
+					scan->rawData()->addMeasurement(sddInfo);
+				}
+				else if(colName == "AmptekSDD4"){
+					AMAxisInfo sddEVAxisInfo("energy", 1024, "SDD Energy", "eV");
+					QList<AMAxisInfo> sddAxes;
+					sddAxes << sddEVAxisInfo;
+					AMMeasurementInfo sddInfo("Amptek SDD4", "Amptek Silicon Drift Detector 4", "counts", sddAxes);
+					scan->rawData()->addMeasurement(sddInfo);
+				}
 			}
 			else
 				scan->rawData()->addMeasurement(AMMeasurementInfo(colName, colName));
@@ -197,7 +216,7 @@ bool SGM2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 		// event id 1.  If the line starts with "1," and there are the correct number of columns:
 		if(line.startsWith("1,") && (lp = line.split(',')).count() == colNames1.count() ) {
 
-			scan->rawData()->beginInsertRows(0);
+			scan->rawData()->beginInsertRows(1, -1);
 			scan->rawData()->setAxisValue(0, eVAxisIndex, lp.at(eVIndex).toDouble()); // insert eV
 
 			// add data from all columns (but ignore the first (Event-ID) and the eV column)
@@ -223,7 +242,7 @@ bool SGM2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 		//QFile sf(spectraFile);
 		QFile sf(spectraFileInfo.filePath());
 		if(!sf.open(QIODevice::ReadOnly)) {
-			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -1, "SGM2011XASFileLoader parse error while loading scan data from file. Missing spectra.dat file."));
+			errorMonitor->exteriorReport(AMErrorReport(0, AMErrorReport::Serious, SGM2011XASFILELOADERPLUGIN_CANNOT_OPEN_SPECTRA_FILE, "SGM2011XASFileLoader parse error while loading scan data from file. Missing spectra.dat file."));
 			return false;
 		}
 
@@ -326,10 +345,10 @@ bool SGM2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 
 				// insert the detector values (all at once, for performance)
 				//offset two columns for event-ID and eV
-				scan->rawData()->setValue(x, offsetColumns.at(y)-2, allSpecValues[y], allSpecSizes.at(y));
+				scan->rawData()->setValue(x, offsetColumns.at(y)-2, allSpecValues[y]);
 				// Check specCounter is the right size... Not too big, not too small.
 				if(allSpecCounters.at(y) != allSpecSizes.at(y)) {
-					AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -1, QString("SGM2011XASFileLoader found corrupted data in the SDD spectra file '%1' on row %2. There should be %3 elements in the spectra, but we only found %4").arg(spectraFile).arg(x).arg(allSpecSizes.at(y)).arg(allSpecCounters.at(y))));
+					errorMonitor->exteriorReport(AMErrorReport(0, AMErrorReport::Alert, SGM2011XASFILELOADERPLUGIN_BAD_FORMAT_CORRUPTED_SPECTRA_DATA, QString("SGM2011XASFileLoader found corrupted data in the SDD spectra file '%1' on row %2. There should be %3 elements in the spectra, but we only found %4").arg(spectraFile).arg(x).arg(allSpecSizes.at(y)).arg(allSpecCounters.at(y))));
 				}
 				allSpecCounters[y] = 0;
 			}
@@ -341,7 +360,7 @@ bool SGM2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 
 	for(int i=0; i<scan->rawDataSources()->count(); i++) {
 		if(scan->rawDataSources()->at(i)->measurementId() >= scan->rawData()->measurementCount()) {
-			AMErrorMon::report(AMErrorReport(scan, AMErrorReport::Debug, -97, QString("The data in the file (%1 columns) didn't match the raw data columns we were expecting (column %2). Removing the raw data column '%3')").arg(scan->rawData()->measurementCount()).arg(scan->rawDataSources()->at(i)->measurementId()).arg(scan->rawDataSources()->at(i)->name())));
+			errorMonitor->exteriorReport(AMErrorReport(scan, AMErrorReport::Debug, SGM2011XASFILELOADERPLUGIN_DATA_COLUMN_MISMATCH, QString("The data in the file (%1 columns) didn't match the raw data columns we were expecting (column %2). Removing the raw data column '%3')").arg(scan->rawData()->measurementCount()).arg(scan->rawDataSources()->at(i)->measurementId()).arg(scan->rawDataSources()->at(i)->name())));
 			scan->deleteRawDataSource(i);
 		}
 	}

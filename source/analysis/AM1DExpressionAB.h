@@ -63,6 +63,7 @@ class AM1DExpressionAB : public AMAnalysisBlock
 
 public:
 	/// Constructor. \c outputName is the name() for the output data source.
+ 	virtual ~AM1DExpressionAB();
 	AM1DExpressionAB(const QString& outputName, QObject* parent = 0);
 	/// This constructor is used to reload analysis blocks directly out of the database
 	Q_INVOKABLE AM1DExpressionAB(AMDatabase* db, int id);
@@ -124,10 +125,21 @@ public:
 	////////////////////////////
 
 	/// Returns the dependent value at a (complete) set of axis indexes. Returns an invalid AMNumber if the indexes are insuffient or any are out of range, or if the data is not ready.
-	virtual AMNumber value(const AMnDIndex& indexes, bool doBoundsChecking = true) const;
-\
+	virtual AMNumber value(const AMnDIndex& indexes) const;
+
+	/// Performance optimization of value(): instead of a single value, copies a block of values from \c indexStart to \c indexEnd (inclusive), into \c outputValues.  The values are returned in row-major order (ie: with the first index varying the slowest). Returns false if the indexes have the wrong dimension, or (if AM_ENABLE_BOUNDS_CHECKING is defined, the indexes are out-of-range).
+	/*! The base-class implementation simply calls value() repeatedly, so you should absolutely re-implement this for better performance.
+
+	It is the caller's responsibility to make sure that \c outputValues has sufficient size.  You can calculate this conviniently using:
+
+\code
+int outputSize = indexStart.totalPointsTo(indexEnd);
+\endcode
+*/
+	virtual bool values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const;
+
 	/// When the independent values along an axis is not simply the axis index, this returns the independent value along an axis (specified by axis number and index)
-	virtual AMNumber axisValue(int axisNumber, int index, bool doBoundsChecking = true) const;
+	virtual AMNumber axisValue(int axisNumber, int index) const;
 
 	// Expression Setting for Y values
 	//////////////////////////////
@@ -166,13 +178,12 @@ protected slots:
 	void onInputSourceStateChanged();
 
 protected:
-
+	/// Method that checks whether all the sizes of used variables match.
+	bool allUsedSizesMatch() const;
 	/// caches whether the current expressions are valid. Set by setExpression(), setXExpression().
 	bool expressionValid_, xExpressionValid_;
 
-	/// caches whether the input sizes match. Set by setInputDataSourcesImplementation and updated in onInputSourceSizeChanged().
-	bool sizesMatch_;
-	/// Caches the size of the input/output data. Only meaningful when sizesMatch_ = true.
+	/// Caches the size of the input/output data.
 	int size_;
 
 	/// the combined state of the inputs. Set by setInputDataSourcesImplementation and updated in onInputSourceStateChanged().
@@ -195,6 +206,8 @@ protected:
 	/// When using direct evaluation, these are the variables to use
 	AMParserVariable directVar_, xDirectVar_;
 
+	/// Used to flag that we are currently setting new input sources, so the setExpression() and setXExpression() calls should not cause setModified(true).
+	bool currentlySettingInputSources_;
 
 	/// Axis meta-information for our single axis.
 	mutable AMAxisInfo axisInfo_;

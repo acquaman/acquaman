@@ -32,19 +32,21 @@ class AMFastScanConfiguration : public AMScanConfiguration
 	Q_CLASSINFO("AMDbObject_Attributes", "description=Generic Fast Scan Configuration")
 
 public:
+ 	virtual ~AMFastScanConfiguration();
 	AMFastScanConfiguration(QObject *parent = 0);
+	AMFastScanConfiguration(const AMFastScanConfiguration &original);
 
 	const QMetaObject* getMetaObject();
 
 	double startEnergy() const { return startEnergy_;}
 	double endEnergy() const { return endEnergy_;}
 
-	/// A human-readable description of this scan configuration. Can be re-implemented to provide more details. Used by AMBeamlineScanAction to set the title for the action view.
+	/// A human-readable description of this scan configuration. Can be re-implemented to provide more details. Used by scan action to set the title for the action view.
 	virtual QString description() const {
 		return QString("Fast Scan from %1 to %2").arg(startEnergy()).arg(endEnergy());
 	}
 
-	/// A human-readable synopsis of this scan configuration. Can be re-implemented to proved more details. Used by AMBeamlineScanAction to set the main text in the action view.
+	/// A human-readable synopsis of this scan configuration. Can be re-implemented to proved more details. Used by scan action to set the main text in the action view.
 	virtual QString detailedDescription() const{
 		return QString("Fast Scan from %1 to %2").arg(startEnergy()).arg(endEnergy());
 	}

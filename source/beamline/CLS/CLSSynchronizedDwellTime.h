@@ -23,8 +23,16 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QObject>
 
+#include "beamline/AMSynchronizedDwellTime.h"
 #include "beamline/AMPVControl.h"
-#include "actions/AMBeamlineControlMoveAction.h"
+#include "dataman/info/AMDetectorInfo.h"
+#include "dataman/info/CLSSynchronizedDwellTimeConfigurationInfo.h"
+#include "beamline/CLS/CLSSynchronizedDwellTimeConfiguration.h"
+
+class AMDetectorTriggerSource;
+class AMAction3;
+
+#define CLSSYNCHRONIZEDWELLTIME_INVALID_TRIGGER 289001
 
 /*!
   This class encapulates the process variables used for the detectors as a synchronized dwell element.  It assumes a standardized naming convention for the elements and builds all the
@@ -41,6 +49,7 @@ public:
 	  \param baseName is the base name used to build all the process varaibles.
 	  \param index is the index in the list of the current synchronized dwell time.
 	  */
+	virtual ~CLSSynchronizedDwellTimeElement();
 	explicit CLSSynchronizedDwellTimeElement(QString baseName, int index, QObject *parent = 0);
 
 	/// Returns the name.
@@ -48,18 +57,24 @@ public:
 	/// Returns the units.
 	QString units() const { return time_->units(); }
 	/// Returns the scan status.  True means scanning, false means idle.
-	bool status() const { return status_->getInt() == 1 ? true : false; }
+	bool status() const { return status_->getInt() == 1; }
 	/// Returns the time in the units given by units().
 	double time() const { return time_->value(); }
 	/// Returns whether the dwell element is enabled.
-	bool isEnabled() const { return ((int)enable_->value()) == 1 ? true : false; }
+	bool isEnabled() const { return ((int)enable_->value()) == 1; }
 	/// Returns whether all the controls are connected.
-	bool isConnected() const { return name_->isConnected() && enable_->isConnected() && status_->isConnected() && time_->isConnected(); }
+	bool isConnected() const { return name_->isConnected() && enable_->isConnected() && status_->isConnected() && time_->isConnected() && configuration_->isConnected(); }
+
+	/// Returns the trigger string, which acts as the key for identifying elements
+	virtual QString key() const;
+
+	/// Configures the element based on the provided configuration info.
+	void configure(const CLSSynchronizedDwellTimeConfigurationInfo &info);
 
 	/// Returns a newly created action that sets the time to \param time.  Returns 0 if not connected.
-	AMBeamlineActionItem *createTimeAction(double time);
+	AMAction3 *createTimeAction3(double time);
 	/// Returns a newly created action that enables/disables the dwell time element.  Returns 0 if not connected.
-	AMBeamlineActionItem *createEnableAction(bool enable);
+	AMAction3 *createEnableAction3(bool enable);
 
 public slots:
 	/// Set the time (in seconds).  This will automatically be converted to match whatever the units of the element are.
@@ -78,12 +93,14 @@ signals:
 	void statusChanged(bool);
 	/// Notifier that the element is fully connected or not.
 	void connected(bool);
+	/// Notifier that the trigger string has changed
+	void triggerChanged(QString);
 
 protected slots:
 	/// Transforms the int value for the enable status into a bool.
-	void onEnabledChanged(double status) { emit enabledChanged(((int)status) == 1 ? true : false); }
+	void onEnabledChanged(double status) { emit enabledChanged(((int)status) == 1); }
 	/// Transforms the int value for the scan status into a bool.
-	void onStatusChanged(int status) { emit statusChanged(status == 1 ? true : false); }
+	void onStatusChanged(int status) { emit statusChanged(status == 1); }
 	/// Handles changes to the connectivity of the element.
 	void onConnectedChanged() { emit connected(isConnected()); }
 
@@ -96,6 +113,10 @@ protected:
 	AMProcessVariable *status_;
 	/// The process variable that holds the time.
 	AMControl *time_;
+	/// The process variable that holds the trigger string (for key identification)
+	AMProcessVariable *trigger_;
+	/// The configuration of this element.
+	CLSSynchronizedDwellTimeConfiguration *configuration_;
 };
 
 /*!
@@ -107,7 +128,7 @@ protected:
   you need to go into the EDM screen and change it from there.
   */
 
-class CLSSynchronizedDwellTime : public QObject
+class CLSSynchronizedDwellTime : public AMSynchronizedDwellTime
 {
 	Q_OBJECT
 public:
@@ -134,7 +155,7 @@ public:
 	/// Returns the current mode.
 	Mode mode() const { return ((int)mode_->value()) == 0 ? Continuous : SingleShot; }
 	/// Returns whether the dwell time is scanning.
-	bool isScanning() const { return ((int)startScan_->value()) == 1 ? true : false; }
+	bool isScanning() const { return ((int)startScan_->value()) == 1; }
 	/// Returns whether all the controls are connected.
 	bool isConnected() const
 	{
@@ -155,19 +176,40 @@ public:
 	/// Convenience getter.  Returns the name of an individual element.  \param index must be between 0 and elementCount()-1.
 	QString nameAt(int index) const { return elements_.at(index)->name(); }
 
+	/// Returns the key for a given element
+	virtual QString keyAt(int index) const;
+	/// Returns all of the keys in element order
+	virtual QStringList keys() const;
+
 	/// Returns the number of elements in the dwell time list.
 	int elementCount() const { return elements_.size(); }
 	/// Adds an element based on the given \param index and the existing base name.  Assumes that the index given is valid because there is no way of knowing a priori how many have been configured.
 	void addElement(int index);
 	/// Returns the element at \param index.
 	CLSSynchronizedDwellTimeElement *elementAt(int index) const { return elements_.at(index); }
+	/// Returns the element based on the name provided.  Returns 0 if not found.
+	CLSSynchronizedDwellTimeElement *elementByName(const QString &name) const;
+
+	/// Returns the trigger source for the whole synchronized dwell time object
+	virtual AMDetectorTriggerSource* triggerSource();
+	/// Returns the dwell time source for the whole synchronzied dwell time object
+	virtual AMDetectorDwellTimeSource* dwellTimeSource();
 
 	/// Returns a newly created action that sets the master time for the synchronized dwell time to \param time.  Returns 0 if not connected.
-	AMBeamlineActionItem *createMasterTimeAction(double time);
+	AMAction3* createMasterTimeAction3(double time);
 	/// Returns a newly created action that starts or stops the synchronized dwell time scan based on \param scan.  Returns 0 if not connected.
-	AMBeamlineActionItem *createScanningAction(bool scan);
+	AMAction3* createScanningAction3(bool scan);
 	/// Returns a newly created action that changes the mode of the synchronized dwell time based on \param mode.  Returns 0 if not connected.
-	AMBeamlineActionItem *createModeAction(CLSSynchronizedDwellTime::Mode mode);
+	AMAction3* createModeAction3(CLSSynchronizedDwellTime::Mode mode);
+	/// Returns a newly created action that changes the enabled state of the synchronized dwell time.
+	AMAction3* createEnableAtAction3(int index, bool isEnabled);
+
+	/// Returns the control for the master dwell time.
+	AMControl *dwellTimeControl() const { return dwellTime_; }
+	/// Returns the scan trigger control.
+	AMControl *startScanControl() const { return startScan_; }
+	/// Returns the scan mode control.
+	AMControl *scanModeControl() const { return mode_; }
 
 signals:
 	/// Notifier that the Mode has changed.
@@ -196,13 +238,22 @@ public slots:
 
 protected slots:
 	/// Handles changes in the startScan PV and turns the int into a bool.  True is scanning, false is idle.
-	void onScanningChanged(double status) { emit scanningChanged((int)status == 1 ? true : false); }
+	void onScanningChanged(double status);
+	/// Handles changes in the time PV and passes along the signal as well as interacts with the dwell time source
+	void onDwellTimeChanged(double dwellTime);
 	/// Handles changes in the status.
 	void onStatusChanged() { emit statusChanged(status()); }
 	/// Handles changes in Mode.  Turns the int into the Mode enum.
 	void onModeChanged(double mode) { emit modeChanged((int)mode == 0 ? Continuous : SingleShot); }
 	/// Determines whether or not the synchronized dwell time is connected.
 	void onConnectedChanged() { emit connected(isConnected()); }
+
+	/// Handles forwarding the trigger source triggered() signal to starting the synchronized dwell time object
+	void onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode readMode);
+	void triggerSynchronizedDwellTimeAcquisition(CLSSynchronizedDwellTime::Mode newMode);
+
+	/// Handles forwarding the dwell time source setDwellTime() signal to the synchronized dwell time object
+	void onDwellTimeSourceSetDwellTime(double dwellSeconds);
 
 protected:
 	/// List holding the individual elements.
@@ -216,6 +267,11 @@ protected:
 
 	/// Holds the base name.  Used to build extra elements.
 	QString baseName_;
+
+	/// The trigger source for the whole synchronized dwell time object
+	AMDetectorTriggerSource *triggerSource_;
+	/// The dwell time source for the whole synchronized dwell time object
+	AMDetectorDwellTimeSource *dwellTimeSource_;
 };
 
 #endif // CLSSYNCHRONIZEDDWELLTIME_H

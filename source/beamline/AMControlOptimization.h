@@ -68,6 +68,7 @@ class AMCurve : public QObject
 {
 	Q_OBJECT
 public:
+ 	virtual ~AMCurve();
 	AMCurve(QMap<double, double> dataMap, QObject *parent = 0);
 
 	QPair<double, double> minX() const { return minX_;}
@@ -115,7 +116,7 @@ public:
 	/// Constructor, only requires a QObject pointer as a parent.
 	explicit AMControlOptimizationSet(QObject *parent=0) : AMControlSet(parent){;}
 
-	~AMControlOptimizationSet();
+	virtual ~AMControlOptimizationSet();
 
 	/// Adds an AMControlOptimization to the set.
 	void addOptimization(AMControlOptimization *optimization){ outputs_.append(optimization) ;}

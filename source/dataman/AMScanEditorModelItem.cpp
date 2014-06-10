@@ -27,20 +27,32 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QUrl>
 #include <QList>
 
-AMScanEditorModelItem::AMScanEditorModelItem(AMGenericScanEditor *editorWidget, AMDatamanAppController* controller,const QString &iconFileName) : AMDragDropItem()
+ AMScanEditorModelItem::~AMScanEditorModelItem(){}
+AMScanEditorModelItem::AMScanEditorModelItem(AMGenericScanEditor *editorWidget, AMDatamanAppController* controller)
+	: AMDragDropItem()
 {
 	appController_ = controller;
+
+	icons_.insert("default", QIcon(":/applications-science.png"));
+	icons_.insert("succeeded", QIcon(":/22x22/greenCheck.png"));
+	icons_.insert("cancelled", QIcon(":/22x22/orangeX.png"));
+	icons_.insert("failed", QIcon(":/22x22/redCrash.png"));
+	icons_.insert("running", QIcon(":/22x22/dialog-question.png"));
+
+	backgrounds_.insert("default", this->background());
+	backgrounds_.insert("succeeded", QBrush(QColor(126, 255, 106)));
+	backgrounds_.insert("cancelled", QBrush(QColor(255, 176, 106)));
+	backgrounds_.insert("failed", QBrush(QColor(255, 104, 106)));
+	backgrounds_.insert("running", QBrush(QColor(100, 149, 237)));
 
 	setData(qVariantFromValue(qobject_cast<QWidget*>(editorWidget)), AM::WidgetRole);
 	setData(true, AM::CanCloseRole);
 	setData(true, AMWindowPaneModel::DockStateRole);
 
-	if(!iconFileName.isEmpty())
-		editorWidget->setWindowIcon(QIcon(iconFileName));
+	editorWidget->setWindowIcon(QIcon(":/applications-science.png"));
 
 	setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsDropEnabled);
 	setDropEnabled(true);
-
 }
 
 
@@ -61,7 +73,20 @@ bool AMScanEditorModelItem::dropMimeData(const QMimeData *mimeData, Qt::DropActi
 
 }
 
-AMGenericScanEditor * AMScanEditorModelItem::editorWidget() const
+AMGenericScanEditor *AMScanEditorModelItem::editorWidget() const
 {
 	return qobject_cast<AMGenericScanEditor*>(data(AM::WidgetRole).value<QWidget*>());
+}
+
+void AMScanEditorModelItem::editorWasClicked()
+{
+	setBackground(backgrounds_.value("default"));
+}
+
+void AMScanEditorModelItem::scanActionStateChanged(const QString &state, bool isSelected)
+{
+	editorWidget()->setWindowIcon(icons_.value(state, icons_.value("default")));
+
+	if (!isSelected)
+		setBackground(backgrounds_.value(state, backgrounds_.value("default")));
 }

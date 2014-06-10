@@ -22,18 +22,19 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QDebug>
 
+ REIXSXESCalibration::~REIXSXESCalibration(){}
 REIXSXESCalibration::REIXSXESCalibration(QObject *parent) :
 	AMDbObject(parent)
 {
 	gratingNames_ << "LEG" << "Impurity" << "MEG" << "HEG*(HRHEG)" << "HRMEG";
 	gratingGrooveDensities_ << 593.02 << 892.86 << 1187.819 << 2600 << 1800;
-	gratingRadii_ << 5025.6 << 6699.8 << 10018 << 11461 << 10029;
+	gratingRadii_ << 5025.6 << 6699.8 << 10018 << 11461 << 10029 << 6699.8;
 	gratingCenterPositionsX_ << 20.529 << -14.970 << 20.374 << 20.278 << -15.220;
 	gratingCenterPositionsY_ << -25.865 << -25.723 << 2.697 << 26.808 << 26.535;
 	gratingCenterPositionsZ_ << 12.892 << 13.507 << -18.923 << 16.465 << 16.709;
 
-	gratingMountTilt_ << 5.01 << 4.011 << 3.005 << 2.764 << 3.013;
-	gratingMountRoll_ << .261 << .261 << .261 << .261 << .261;
+	gratingMountTilt_ << 5.01 << 4.011 << 2.73 << 2.764 << 3.013;//MEG chages from 3.005 for tip correction
+	gratingMountRoll_ << .261 << .261 << .13 << -.156 << .261;
 	// gratingMountTwist_ << 0.41 << 0.41 << 0.41 << 0.41;
 
 	hexapodOrigin_ = QVector3D(2.418, 4.145, -430.478);
@@ -42,9 +43,10 @@ REIXSXESCalibration::REIXSXESCalibration(QObject *parent) :
 
 	slitPos_ = QVector3D(-0.32, -349.95, -6.912450037);  //Initial Survey: (-0.32, -349.95, -6.10), -5.8422 for -0.06, -6.912450037 now at +0.115
 
+
 	opticalOriginsX_ << 0 << 0 << 0 << 0 << 0;
-	opticalOriginsY_ << 0 << 0 << 0 << 0 << 0;
-	opticalOriginsZ_ << 0 << 0 << 0 << 0 << 0;
+	opticalOriginsY_ << 0 << 0 << -0.014 << -.014 << 0;
+	opticalOriginsZ_ << 0 << 0 << -1 << 1 << 0;
 
 	detectorHeightError_ = 0;// !!!! -3.03 from old calculations. Who knows?; //mm
 
@@ -72,14 +74,14 @@ REIXSXESCalibration::REIXSXESCalibration(QObject *parent) :
 	gratingEVRangesMax_ << 1000 << 1000 << 1000 << 1000 << 1000;
 }
 
-AMControlInfoList REIXSXESCalibration::computeSpectrometerPosition(REIXSXESScanConfiguration *scanConfiguration) const
-{
-	return computeSpectrometerPosition(scanConfiguration->gratingNumber(),
-									   scanConfiguration->centerEV(),
-									   scanConfiguration->defocusDistanceMm(),
-									   scanConfiguration->detectorTiltOffset());
+//AMControlInfoList REIXSXESCalibration::computeSpectrometerPosition(REIXSXESScanConfiguration *scanConfiguration) const
+//{
+//	return computeSpectrometerPosition(scanConfiguration->gratingNumber(),
+//									   scanConfiguration->centerEV(),
+//									   scanConfiguration->defocusDistanceMm(),
+//									   scanConfiguration->detectorTiltOffset());
 
-}
+//}
 
 AMControlInfoList REIXSXESCalibration::computeSpectrometerPosition(int gratingIndex, double eV, double focusOffsetMm, double tiltOffsetDeg) const
 {

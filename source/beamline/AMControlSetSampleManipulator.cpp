@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/AMControlSet.h"
 
+ AMControlSetSampleManipulator::~AMControlSetSampleManipulator(){}
 AMControlSetSampleManipulator::AMControlSetSampleManipulator(AMControlSet* controlSet)
 {
 	controlSet_ = controlSet;

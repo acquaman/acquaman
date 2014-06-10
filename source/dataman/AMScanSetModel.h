@@ -72,6 +72,7 @@ public:
 	enum DataRoles { FilledRole = AM::UserRole + 20, FillColorRole, ColorMapRole, UseStandardColorMapRole, StandardColorMapRole, FirstColorRole, SecondColorRole, BrightnessRole, ContrastRole, GammaRole };
 
 	/// Default constructor
+ 	virtual ~AMScanSetModel();
 	AMScanSetModel(QObject* parent = 0) : QAbstractItemModel(parent) {}
 
 	/// Implemented from QAbstractItemModel.  Use this to create a QModelIndex to access a scan or data source in the data() function.  Scans are found by row-based indexing at the top level of the tree (ie: \c parent is an invalid QModelIndex() ).  Data sources are found by row-based indexing, using a valid \c parent corresponding to their Scan's index().
@@ -208,8 +209,16 @@ public slots:
 	void setVisible(int scanIndex, int dataSourceIndex, bool isVisible);
 	void setHiddenFromUsers(int scanIndex, int dataSourceIndex, bool isHiddenFromUsers);
 
+
+	/// Normally, the plot visibility is not persisted, so that simply toggling plots on or off does not prompt the user to save the scan.  Call this to transfer the current (temporary) visibility settings for all data sources in the model (isVisible()) to their persistent AMDataSource::visibleInPlots() properties.  The same data sources will then be visible when re-opening the scans out of the database later.
+	void saveVisibility();
+
 signals:
 	void exclusiveDataSourceChanged(QString exclusiveDataSourceName);
+	/// Notifier that a scan has been added.  Passes a reference to the new scan.
+	void scanAdded(AMScan *);
+	/// Notifier that a scan has been removed.
+	void scanRemoved();
 
 
 protected slots:

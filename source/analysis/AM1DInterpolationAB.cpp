@@ -20,6 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AM1DInterpolationAB.h"
 
+ AM1DInterpolationAB::~AM1DInterpolationAB(){}
 AM1DInterpolationAB::AM1DInterpolationAB(int interpolationPoints, const QString &outputName, QObject *parent) :
 	AMStandardAnalysisBlock(outputName, parent)
 {
@@ -88,23 +89,40 @@ void AM1DInterpolationAB::setInputDataSourcesImplementation(const QList<AMDataSo
 	emitInfoChanged();
 }
 
-AMNumber AM1DInterpolationAB::value(const AMnDIndex& indexes, bool doBoundsChecking) const{
+AMNumber AM1DInterpolationAB::value(const AMnDIndex& indexes) const{
 	if(indexes.rank() != 1)
 		return AMNumber(AMNumber::DimensionError);
 
 	if(!isValid())
 		return AMNumber(AMNumber::InvalidError);
 
-	if(doBoundsChecking)
+#ifdef AM_ENABLE_BOUNDS_CHECKING
 		if((unsigned)indexes.i() >= (unsigned)axes_.at(0).size)
 			return AMNumber(AMNumber::OutOfBoundsError);
+#endif
 
 	int index = indexes.i();
 
-	return inputSource_->value(index, doBoundsChecking);
+	return inputSource_->value(index);
 }
 
-AMNumber AM1DInterpolationAB::axisValue(int axisNumber, int index, bool doBoundsChecking) const{
+bool AM1DInterpolationAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
+{
+	if(indexStart.rank() != 1 || indexEnd.rank() != 1)
+		return false;
+
+	if(!isValid())
+		return false;
+
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+	if((unsigned)indexEnd.i() >= (unsigned)axes_.at(0).size || (unsigned)indexStart.i() > (unsigned)indexEnd.i())
+		return false;
+#endif
+
+	inputSource_->values(indexStart, indexEnd, outputValues);
+	return true;
+}
+AMNumber AM1DInterpolationAB::axisValue(int axisNumber, int index) const{
 
 	if(!isValid())
 		return AMNumber(AMNumber::InvalidError);
@@ -112,7 +130,7 @@ AMNumber AM1DInterpolationAB::axisValue(int axisNumber, int index, bool doBounds
 	if(axisNumber != 0)
 		return AMNumber(AMNumber::DimensionError);
 
-	return inputSource_->axisValue(0, index, doBoundsChecking);
+	return inputSource_->axisValue(0, index);
 
 }
 
@@ -130,10 +148,9 @@ void AM1DInterpolationAB::onInputSourceSizeChanged() {
 /// Connected to be called when the state() flags of any input source change
 void AM1DInterpolationAB::onInputSourceStateChanged() {
 
-	reviewState();
-
 	// just in case the size has changed while the input source was invalid, and now it's going valid.  Do we need this? probably not, if the input source is well behaved. But it's pretty inexpensive to do it twice... and we know we'll get the size right everytime it goes valid.
 	onInputSourceSizeChanged();
+	reviewState();
 }
 
 void AM1DInterpolationAB::reviewState(){

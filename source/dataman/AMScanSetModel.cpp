@@ -170,11 +170,11 @@ QVariant AMScanSetModel::data(const QModelIndex & index, int role) const {
 																//scan->evaluatedName(),
 																dataSource->typeDescription());
 				break;
-			case Qt::CheckStateRole:	// this controls visibility on plots. If the data source is hidden from users, it should not be visible regardless of the user's visibility setting.
-				if(dataSource->hiddenFromUsers() || !dataSource->visibleInPlots())
-					return Qt::Unchecked;
-				else
+			case Qt::CheckStateRole:	// this controls visibility on plots.
+				if(isVisible(index.internalId(), index.row()))
 					return Qt::Checked;
+				else
+					return Qt::Unchecked;
 				break;
 			case AM::PointerRole:
 				return qVariantFromValue(dataSource);
@@ -276,7 +276,7 @@ void AMScanSetModel::addScan(AMScan* newScan) {
 	QList<AMDataSourcePlotSettings> plotSettings;
 	for(int i=0; i<newScan->dataSourceCount(); i++) {
 		AMDataSourcePlotSettings ps; /// \todo set up nicer default colors (related within scans)
-		// Previously here: decided how many/which data sources to make visible.  Visibility is now controlled in AMDataSource::visibleInPlots().  Scan controllers can initialize this, and it will be saved in the database.
+		ps.visible = newScan->dataSourceAt(i)->visibleInPlots(); // Initial visibility is now controlled in AMDataSource::visibleInPlots().  Scan controllers can initialize this, and it will be saved in the database.
 
 		// Hack for Darren's 2D XRF maps and Mark's XES scans.
 		if (newScan->scanRank() == 0){
@@ -286,7 +286,7 @@ void AMScanSetModel::addScan(AMScan* newScan) {
 			ps.colorMap.setGamma(1);
 		}
 
-		else if (newScan->scanRank() == 2){
+		else if (newScan->scanRank() == 2 || newScan->scanRank() == 3){
 
 			ps.colorMap.setContrast(1);
 			ps.colorMap.setBrightness(0);
@@ -305,6 +305,7 @@ void AMScanSetModel::addScan(AMScan* newScan) {
 
 	endInsertRows();
 
+	emit scanAdded(newScan);
 	/// \todo this is a hack; should not be needed... But we do need it to keep QTreeViews from getting messed up. Why?
 	emit layoutChanged();
 }
@@ -325,6 +326,7 @@ bool AMScanSetModel::removeScan(AMScan* removeMe) {
 
 		removeMe->release(this);	// remove our interest in this scan.
 
+		emit scanRemoved();
 		/// \todo hack: should not be needed... But we do to keep QTreeViews from getting messed up. Why?
 		emit layoutChanged();
 		return true;
@@ -360,9 +362,7 @@ bool AMScanSetModel::setData ( const QModelIndex & index, const QVariant & value
 			emit dataChanged(index, index);
 			return true;
 		case Qt::CheckStateRole:
-			scans_.at(index.internalId())->dataSourceAt(index.row())->setVisibleInPlots(value.toBool());
-			// This won't be necessary when the data source's infoChanged() signal is propagated up to us:
-				emit dataChanged(index, index);
+			setVisible(index.internalId(), index.row(), value.toBool());
 			return true;
 		case AM::PriorityRole:
 			sourcePlotSettings_[index.internalId()][index.row()].priority = value.toDouble();
@@ -405,6 +405,8 @@ void AMScanSetModel::onDataSourceAdded(int dataSourceIndex) {
 	AMDataSourcePlotSettings ps; /// \todo set up nicer default colors (related within scans)
 	AMScan *scan = scanAt(scanIndex);
 
+	ps.visible = scan->dataSourceAt(dataSourceIndex)->visibleInPlots();
+
 	// Hack for Darren's 2D XRF maps and Mark's XES scans.
 	if (scan->scanRank() == 0){
 
@@ -413,7 +415,7 @@ void AMScanSetModel::onDataSourceAdded(int dataSourceIndex) {
 		ps.colorMap.setGamma(1);
 	}
 
-	else if (scan->scanRank() == 2){
+	else if (scan->scanRank() == 2 || scan->scanRank() == 3){
 
 		ps.colorMap.setContrast(1);
 		ps.colorMap.setBrightness(0);
@@ -514,26 +516,24 @@ QStringList AMScanSetModel::visibleDataSourceNames() const {
 
 void AMScanSetModel::setVisible(int scanIndex, int dataSourceIndex, bool isVisible)  {
 
-	// previously: sourcePlotSettings_[scanIndex][dataSourceIndex].visible = isVisible;
-	scans_.at(scanIndex)->dataSourceAt(dataSourceIndex)->setVisibleInPlots(isVisible);
+	if(sourcePlotSettings_.at(scanIndex).at(dataSourceIndex).visible == isVisible)
+		return;
 
-	// This won't be necessary when the data source's infoChanged() signal is propagated up to us.
+	sourcePlotSettings_[scanIndex][dataSourceIndex].visible = isVisible;
+
 	QModelIndex i = indexForDataSource(scanIndex, dataSourceIndex);
 	emit dataChanged(i, i);
 }
 
 bool AMScanSetModel::isVisible(int scanIndex, int dataSourceIndex) const
 {
-	return scans_.at(scanIndex)->dataSourceAt(dataSourceIndex)->visibleInPlots();
+	// If the data source is hidden from users, it should not be visible regardless of the user's visibility setting.
+	return !isHiddenFromUsers(scanIndex, dataSourceIndex) && sourcePlotSettings_.at(scanIndex).at(dataSourceIndex).visible;
 }
 
 void AMScanSetModel::setHiddenFromUsers(int scanIndex, int dataSourceIndex, bool isHiddenFromUsers)
 {
 	scans_.at(scanIndex)->dataSourceAt(dataSourceIndex)->setHiddenFromUsers(isHiddenFromUsers);
-
-	// This won't be necessary when the data source's infoChanged() signal is propagated up to us.
-	QModelIndex i = indexForDataSource(scanIndex, dataSourceIndex);
-	emit dataChanged(i,i);
 }
 
 bool AMScanSetModel::isHiddenFromUsers(int scanIndex, int dataSourceIndex) const
@@ -541,3 +541,14 @@ bool AMScanSetModel::isHiddenFromUsers(int scanIndex, int dataSourceIndex) const
 	return scans_.at(scanIndex)->dataSourceAt(dataSourceIndex)->hiddenFromUsers();
 }
 
+void AMScanSetModel::saveVisibility()
+{
+	// Save the visibility settings to the database for (all scans in the model?) and all data sources.
+	for(int si=0,cc=scanCount(); si<cc; si++) {
+		for(int di=0,dd=scanAt(si)->dataSourceCount(); di<dd; di++) {
+			dataSourceAt(si, di)->setVisibleInPlots(isVisible(si, di));
+		}
+	}
+}
+
+ AMScanSetModel::~AMScanSetModel(){}

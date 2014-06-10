@@ -26,6 +26,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class AMGenericScanEditor;
 class AMDatamanAppController;
 
+#include <QMap>
+
 /// This class provides a QStandardItem, representing a scan editor window, that is suitable for use in the AMWindowPaneModel.  It implements Drag-and-Drop capability so that any drop item containing a list of scans will be sent to the Application Controller to be opened by that scan editor window.  The drop item mime data is in the form of a uri-list containing "amd://databaseConnectionName/tableName/objectId" protocol URLs, as documented in AMDatamanAppController::dropScanURLs().
 class AMScanEditorModelItem : public AMDragDropItem
 {
@@ -33,7 +35,8 @@ public:
 
 	/// Constructor takes a pointer to a valid scan editor \c editorWidget, and an optional \c iconFileName
 	/*! This constructor will set the AM::WidgetRole to point this item at the editor widget. It will also set the AM::CanCloseRole to true, so that this editor can be closed from the window pane manager sidebar. (For more information, see AMWindowPaneModel.) Finally, it will set the item flags to enable drop capability.*/
-	AMScanEditorModelItem(AMGenericScanEditor* editorWidget, AMDatamanAppController* controller, const QString& iconFileName = QString());
+ 	virtual ~AMScanEditorModelItem();
+	AMScanEditorModelItem(AMGenericScanEditor* editorWidget, AMDatamanAppController* controller);
 
 	/// This function accepts Drag-and-Drop mime data when it is in the form of a uri-list containing "amd://databaseConnectionName/tableName/objectId" protocol URLs, as documented in AMGenericScanEditor::dropEvent().  Returns false to reject, or true to accept.
 	virtual bool dropMimeData(const QMimeData * data, Qt::DropAction action);
@@ -44,10 +47,18 @@ public:
 	/// Returns the app controller we relay drop events to.
 	AMDatamanAppController* appController() const { return appController_; }
 
+	/// Turns the background off highlighting when clicked.
+	void editorWasClicked();
+	/// Scan action state changed.  Updates the background if the item is not selected.  Acceptable state strings are default, succeeded, cancelled, failed, and running.
+	void scanActionStateChanged(const QString &state, bool isSelected);
+
 protected:
 	AMDatamanAppController* appController_;
 
-
+	/// A map between the state and it's icon.
+	QMap<QString, QIcon> icons_;
+	/// A map between the state and the background color.
+	QMap<QString, QBrush> backgrounds_;
 };
 
 #endif // AMSCANEDITORMODELITEM_H

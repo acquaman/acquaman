@@ -30,6 +30,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "source/qjson/serializer.h"
 #include "source/qjson/parser.h"
 
+#define AMGITHUBMANAGER_NETWORK_ERROR_OCCURRED 605001
+
 class AMGithubManager : public QObject
 {
 	Q_OBJECT
@@ -45,6 +47,7 @@ public:
 	enum IssuesDirection{ IssuesDirectionAscending, IssuesDirectionDescending};
 
 	/// Constructor.  Builds a default Github manager.
+ 	virtual ~AMGithubManager();
 	AMGithubManager(QObject *parent = 0);
 	/// Constructor.  Builds a default Github manager and attempts to connect to Github based on the given username, password, and respository.
 	AMGithubManager(const QString &userName, const QString &password, const QString &repository, QObject *parent = 0);
@@ -90,6 +93,8 @@ protected slots:
 	void onIssuesReturned();
 	/// Slot handling the response when creating a new issue.
 	void onCreateNewIssueReturned();
+
+	void onSomeErrorOccured(QNetworkReply::NetworkError nError);
 
 protected:
 	/// Helper method that intializes all of the classes member variables.

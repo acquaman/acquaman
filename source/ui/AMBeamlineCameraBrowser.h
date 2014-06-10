@@ -35,6 +35,7 @@ class AMBeamlineCameraBrowser : public AMBeamlineCameraWidget
 	Q_OBJECT
 public:
 	/// Constructor. OpenGL is enabled by default; you can set \c useOpenGlViewport to false if you cannot use OpenGl, but processor usage will be much higher.
+ 	virtual ~AMBeamlineCameraBrowser();
 	AMBeamlineCameraBrowser(QWidget *parent = 0, bool useOpenGlViewport = true);
 
 	/// Returns a list of the URLs of all the video sources in the history (including the current one)

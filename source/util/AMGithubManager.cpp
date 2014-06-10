@@ -19,13 +19,15 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMGithubManager.h"
 
-#include <QDebug>
+#include "util/AMErrorMonitor.h"
 
 AMGithubManager::AMGithubManager(QObject *parent) :
 	QObject(parent)
 {
 	initialize();
 }
+
+AMGithubManager::~AMGithubManager(){}
 
 AMGithubManager::AMGithubManager(const QString &userName, const QString &password, const QString &repository, QObject *parent) :
 	QObject(parent)
@@ -93,7 +95,10 @@ void AMGithubManager::authenticate(){
 	request.setRawHeader("Authorization", headerData.toLocal8Bit());
 
 	authenticateReply_ = manager_->get(request);
+	authenticateReply_->ignoreSslErrors();
 	connect(authenticateReply_, SIGNAL(readyRead()), this, SLOT(onAuthenicatedRequestReturned()));
+	connect(authenticateReply_, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(onSomeErrorOccured(QNetworkReply::NetworkError)));
+	//connect(authenticateReply_, SIGNAL(sslErrors(QList<QSslError>)), this, SLOT(onSomeSSLErrorOccurred(QList<QSslError>)));
 }
 
 void AMGithubManager::getIssues(AMGithubManager::IssuesFilter filter, AMGithubManager::IssuesState state, AMGithubManager::IssuesSort sort, AMGithubManager::IssuesDirection direction){
@@ -179,9 +184,10 @@ void AMGithubManager::createNewIssue(const QString &title, const QString &body, 
 		jdata["assignee"] = assignee;
 	QJson::Serializer jserializer;
 	QByteArray jsonData = jserializer.serialize(jdata);
-	qDebug() << jsonData;
+	//qdebug() << jsonData;
 
 	createNewIssueReply_ = manager_->post(request, jsonData);
+	createNewIssueReply_->ignoreSslErrors();
 	connect(createNewIssueReply_, SIGNAL(readyRead()), this, SLOT(onCreateNewIssueReturned()));
 }
 
@@ -206,7 +212,7 @@ void AMGithubManager::onAuthenicatedRequestReturned(){
 void AMGithubManager::onIssuesReturned(){
 	QJson::Parser parser;
 	QVariant githubFullReply = parser.parse(getIssuesReply_->readAll());
-	qDebug() << githubFullReply;
+	//qdebug() << githubFullReply;
 	bool doEmit = false;
 	QVariantMap retVal;
 	if(githubFullReply.canConvert(QVariant::List)){
@@ -232,6 +238,10 @@ void AMGithubManager::onCreateNewIssueReturned(){
 	createNewIssueReply_->deleteLater();
 	createNewIssueReply_ = 0;
 	emit issueCreated(retVal);
+}
+
+void AMGithubManager::onSomeErrorOccured(QNetworkReply::NetworkError nError){
+	AMErrorMon::alert(this, AMGITHUBMANAGER_NETWORK_ERROR_OCCURRED, QString("A network error (%1) occurred in AMGithubManager.").arg(nError) );
 }
 
 void AMGithubManager::initialize(){

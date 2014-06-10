@@ -20,6 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AM1DSummingAB.h"
 
+ AM1DSummingAB::~AM1DSummingAB(){}
 AM1DSummingAB::AM1DSummingAB(const QString &outputName, QObject *parent)
 	: AMStandardAnalysisBlock(outputName, parent)
 {
@@ -90,7 +91,7 @@ void AM1DSummingAB::setInputDataSourcesImplementation(const QList<AMDataSource*>
 	emitInfoChanged();
 }
 
-AMNumber AM1DSummingAB::value(const AMnDIndex &indexes, bool doBoundsChecking) const
+AMNumber AM1DSummingAB::value(const AMnDIndex &indexes) const
 {
 	if(indexes.rank() != 1)
 		return AMNumber(AMNumber::DimensionError);
@@ -98,12 +99,11 @@ AMNumber AM1DSummingAB::value(const AMnDIndex &indexes, bool doBoundsChecking) c
 	if(!isValid())
 		return AMNumber(AMNumber::InvalidError);
 
-	if (doBoundsChecking){
-
-		for (int i = 0; i < sources_.size(); i++)
-			if (indexes.i() >= sources_.at(i)->size(0))
-				return AMNumber(AMNumber::OutOfBoundsError);
-	}
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+	for (int i = 0; i < sources_.size(); i++)
+		if (indexes.i() >= sources_.at(i)->size(0))
+			return AMNumber(AMNumber::OutOfBoundsError);
+#endif
 
 	double val = 0;
 
@@ -113,7 +113,45 @@ AMNumber AM1DSummingAB::value(const AMnDIndex &indexes, bool doBoundsChecking) c
 	return val;
 }
 
-AMNumber AM1DSummingAB::axisValue(int axisNumber, int index, bool doBoundsChecking) const
+bool AM1DSummingAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
+{
+	if(indexStart.rank() != 1 || indexEnd.rank() != 1)
+		return false;
+
+	if(!isValid())
+		return false;
+
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+	for (int i = 0; i < sources_.size(); i++)
+		if ((unsigned)indexEnd.i() >= (unsigned)axes_.at(0).size)
+			return false;
+
+	if ((unsigned)indexStart.i() > (unsigned)indexEnd.i())
+		return false;
+#endif
+
+	int totalSize = indexStart.totalPointsTo(indexEnd);
+
+	QVector<double> data = QVector<double>(totalSize);
+	sources_.at(0)->values(indexStart, indexEnd, data.data());
+
+	// Do the first data source separately to initialize the values.
+	for (int i = 0; i < totalSize; i++)
+		outputValues[i] = data.at(i);
+
+	// Iterate through the rest of the sources.
+	for (int i = 1, count = sources_.size(); i < count; i++){
+
+		sources_.at(i)->values(indexStart, indexEnd, data.data());
+
+		for (int j = 0; j < totalSize; j++)
+			outputValues[j] += data.at(j);
+	}
+
+	return true;
+}
+
+AMNumber AM1DSummingAB::axisValue(int axisNumber, int index) const
 {
 	if(!isValid())
 		return AMNumber(AMNumber::InvalidError);
@@ -121,8 +159,10 @@ AMNumber AM1DSummingAB::axisValue(int axisNumber, int index, bool doBoundsChecki
 	if(axisNumber != 0)
 		return AMNumber(AMNumber::DimensionError);
 
-	if (doBoundsChecking && index >= sources_.first()->size(0))
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+	if (index >= sources_.first()->size(0))
 		return AMNumber(AMNumber::OutOfBoundsError);
+#endif
 
 	return sources_.first()->axisValue(0, index);
 }
@@ -136,7 +176,8 @@ void AM1DSummingAB::onInputSourceValuesChanged(const AMnDIndex& start, const AMn
 // Connected to be called when the size of the input source changes
 void AM1DSummingAB::onInputSourceSizeChanged()
 {
-	axes_[0] = sources_.at(0)->axisInfoAt(0);
+	if (sources_.at(0)->axes().size() > 0)
+		axes_[0] = sources_.at(0)->axisInfoAt(0);
 
 	emitSizeChanged();
 }
@@ -144,10 +185,9 @@ void AM1DSummingAB::onInputSourceSizeChanged()
 // Connected to be called when the state() flags of any input source change
 void AM1DSummingAB::onInputSourceStateChanged()
 {
-	reviewState();
-
 	// just in case the size has changed while the input source was invalid, and now it's going valid. Do we need this? probably not, if the input source is well behaved. But it's pretty inexpensive to do it twice... and we know we'll get the size right everytime it goes valid.
 	onInputSourceSizeChanged();
+	reviewState();
 }
 
 void AM1DSummingAB::reviewState()
@@ -164,7 +204,7 @@ void AM1DSummingAB::reviewState()
 
 	for (int i = 1; i < axes_.count(); i++){
 
-		if (axes_[0].size != axes_.at(i).size){
+		if (axes_[0].size != sources_.at(i)->axisInfoAt(0).size){
 
 			setState(AMDataSource::InvalidFlag);
 			return;

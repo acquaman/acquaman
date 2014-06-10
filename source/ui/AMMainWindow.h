@@ -88,6 +88,10 @@ public:
 	QTreeView* sidebar() const { return sidebar_; }
 
 
+	/// Returns the pane that is currently selected in the sidebar of the main window. (Does not consider undocked windows.)  Returns 0 if none exist.
+	QWidget* currentPane() const;
+
+
 public slots:
 	/// move a pane from inside the main window to a separate window.
 	void undock(QWidget* pane) {

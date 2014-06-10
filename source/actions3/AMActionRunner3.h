@@ -56,7 +56,13 @@ public:
 	/// This is a singleton class. You access the only instance of it using AMActionRunner::workflow().
 	static AMActionRunner3* workflow();
 	/// Release and delete the singleton instance
-	static void releaseActionRunner();
+	static void releaseWorkflow();
+
+	static AMActionRunner3* scanActionRunner();
+	static void releaseScanActionRunner();
+
+	/// Unique name for one of the preset action runner instances
+	QString actionRunnerTitle() { return actionRunnerTitle_; }
 
 	// The Queue of Upcoming Actions:  (These all refer to top-level actions. To manage ordering and moving sub-actions within list actions like loop actions, programmers should use the AMNestedAction interface.)
 	///////////////////////////////////
@@ -94,6 +100,10 @@ public:
 	/// This QAbstractItemModel is a useful model for standard Qt views of the AMActionRunner's queue (like AMActionRunnerQueueView). It simply wraps ourself (AMActionRunner) in the interface required of Qt models.
 	AMActionRunnerQueueModel3* queueModel() { return queueModel_; }
 
+	AMDatabase* loggingDatabase() const { return loggingDatabase_; }
+
+	int cachedLogCount() const { return cachedLogCount_; }
+
 
 	// The Current Action that we (might be)/are executing
 	////////////////////////////
@@ -104,9 +114,6 @@ public:
 	AMAction3* currentAction() { return currentAction_; }
 	/// A pointer to the current action. Will be 0 if actionRunning() is false, when no action is running.
 	const AMAction3* currentAction() const { return currentAction_; }
-
-	/// Convenience method that extracts the scan controller from scan actions.  Returns 0 if the action is not a scan action.
-	AMScanController *scanController() const;
 
 
 	// Immediate-mode interface
@@ -152,14 +159,15 @@ signals:
 	void queuedActionAdded(int index);
 	void queuedActionAboutToBeRemoved(int index);
 	void queuedActionRemoved(int index);
+	void queuedActionInfoChanged();
 
 	// Signals specific to AMScanAction.  Since other parts of the application will likely want to know some of these things.
 	/// Notifier that the scan action has been created.  Note that a scan controller is not created at this point.
-	void scanActionCreated();
+	void scanActionCreated(AMScanAction *);
 	/// Notifier that the scan action has been started.
-	void scanActionStarted();
+	void scanActionStarted(AMScanAction *);
 	/// Notifier that the scan action has finished (made it to either Succeeded, Failed, or Cancelled).
-	void scanActionFinished();
+	void scanActionFinished(AMScanAction *);
 
 public slots:
 
@@ -177,6 +185,9 @@ public slots:
 	/// This slot can be used to cancel all immediately-running actions. Returns true if there were any to cancel.
 	bool cancelImmediateActions();
 
+	void incrementCachedLogCount();
+	void resetCachedLogCount();
+
 protected slots:
 	/// Respond internally whenever the state of the currently-running action changes.
 	void onCurrentActionStateChanged(int state, int previousState);
@@ -191,22 +202,30 @@ protected:
 	QList<AMAction3*> queuedActions_;
 
 	AMActionRunnerQueueModel3* queueModel_;
+	AMDatabase *loggingDatabase_;
+	int cachedLogCount_;
+
+	/// Holds a unique title for the different action runner instances
+	QString actionRunnerTitle_;
 
 	/// Helper function called when the previous action finishes. If the queue is running and there are more actions, it starts the next one. If the queue is paused or if we're out of actions, it sets the currentAction() to 0. Either way, it emits the currentActionChanged() signal.
 	void internalDoNextAction();
 	/// Helper function to prompt the user about what to do given that the current action failed, and it specified a "prompt user" failure response. Do they want to retry or move on?
 	int internalAskUserWhatToDoAboutFailedAction(AMAction3* action);
 	/// Helper method that returns whether the current action is a scan action or not.
-	bool isScanAction() const { return qobject_cast<AMScanAction *>(currentAction_) ? true : false; }
+	bool isScanAction() const;
 
 private:
 	/// This is a singleton class, so the constructor is private. Access the only instance of it via s().
-	explicit AMActionRunner3(QObject *parent = 0);
+	explicit AMActionRunner3(AMDatabase *loggingDatabase, const QString &actionRunnerTitle, QObject *parent = 0);
 	/// Destructor. Deletes any actions in the queue. For implementation reasons, does not delete the currently running action, because it might take this action a while to stop and clean-up.
-	~AMActionRunner3();
+	virtual ~AMActionRunner3();
 
-	/// The singleton instance
-	static AMActionRunner3* instance_;
+	/// The singleton instance for the workflow
+	static AMActionRunner3 *workflowInstance_;
+
+	/// The singleton instance for the scan action runner
+	static AMActionRunner3 *scanActionRunnerInstance_;
 
 };
 
@@ -215,6 +234,7 @@ class AMActionRunnerQueueModel3 : public QAbstractItemModel {
 	Q_OBJECT
 public:
 	/// Constructor.
+ 	virtual ~AMActionRunnerQueueModel3();
 	AMActionRunnerQueueModel3(AMActionRunner3* actionRunner, QObject* parent = 0);
 
 	QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
@@ -263,6 +283,8 @@ protected slots:
 	void onActionAboutToBeRemoved(int index);
 	void onActionRemoved(int index);
 
+	void onActionInfoChanged();
+
 	// called when any list action
 	void onSubActionAboutToBeAdded(int index);
 	void onSubActionAdded(int index);
@@ -287,6 +309,7 @@ class AMModelIndexListMimeData3 : public QMimeData {
 	Q_OBJECT
 public:
 	/// Constructor
+ 	virtual ~AMModelIndexListMimeData3();
 	AMModelIndexListMimeData3(const QModelIndexList& mil) : QMimeData() {
 		foreach(const QModelIndex& mi, mil)
 			mil_ << mi;

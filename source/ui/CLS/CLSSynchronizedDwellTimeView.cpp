@@ -26,6 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMenu>
 #include <QAction>
 
+ CLSSynchronizedDwellTimeElementView::~CLSSynchronizedDwellTimeElementView(){}
 CLSSynchronizedDwellTimeElementView::CLSSynchronizedDwellTimeElementView(CLSSynchronizedDwellTimeElement *dwellTimeElement, QWidget *parent)
 	: QWidget(parent)
 {
@@ -63,6 +64,14 @@ CLSSynchronizedDwellTimeElementView::CLSSynchronizedDwellTimeElementView(CLSSync
 	elementLayout->addWidget(enable_);
 	elementLayout->addWidget(time_);
 
+	if(element_->isConnected()){
+		onStatusChanged(element_->status());
+		enable_->setChecked(element_->isEnabled());
+		onEnabledChanged(element_->isEnabled());
+		time_->setValue(element_->time());
+		checkTimeUnits();
+	}
+
 	setLayout(elementLayout);
 }
 
@@ -86,6 +95,7 @@ void CLSSynchronizedDwellTimeElementView::setTime()
 		element_->setTime(newTime);
 }
 
+ CLSSynchronizedDwellTimeView::~CLSSynchronizedDwellTimeView(){}
 CLSSynchronizedDwellTimeView::CLSSynchronizedDwellTimeView(CLSSynchronizedDwellTime *dwellTime, QWidget *parent)
 	: QWidget(parent)
 {
@@ -101,6 +111,8 @@ CLSSynchronizedDwellTimeView::CLSSynchronizedDwellTimeView(CLSSynchronizedDwellT
 	mode_->setCheckable(true);
 	mode_->setChecked(false);
 	connect(dwellTime_, SIGNAL(modeChanged(CLSSynchronizedDwellTime::Mode)), this, SLOT(onModeChanged(CLSSynchronizedDwellTime::Mode)));
+	if(dwellTime_->isConnected())
+		onModeChanged(dwellTime_->mode());
 	connect(mode_, SIGNAL(toggled(bool)), this, SLOT(setMode(bool)));
 
 	masterTime_ = new QDoubleSpinBox;
@@ -111,12 +123,16 @@ CLSSynchronizedDwellTimeView::CLSSynchronizedDwellTimeView(CLSSynchronizedDwellT
 	masterTime_->setSuffix(" s");
 	masterTime_->setAlignment(Qt::AlignCenter);
 	connect(dwellTime_, SIGNAL(timeChanged(double)), masterTime_, SLOT(setValue(double)));
+	if(dwellTime_->isConnected())
+		masterTime_->setValue(dwellTime_->time());
 	connect(masterTime_, SIGNAL(editingFinished()), this, SLOT(setTime()));
 
 	scanning_ = new QPushButton;
 	scanning_->setCheckable(true);
 	scanning_->setChecked(false);
 	connect(dwellTime_, SIGNAL(scanningChanged(bool)), this, SLOT(onScanningChanged(bool)));
+	if(dwellTime_->isConnected())
+		onScanningChanged(dwellTime_->isScanning());
 	connect(scanning_, SIGNAL(clicked()), this, SLOT(toggleScanning()));
 
 	QHBoxLayout *topRow = new QHBoxLayout;
@@ -147,6 +163,21 @@ CLSSynchronizedDwellTimeView::CLSSynchronizedDwellTimeView(CLSSynchronizedDwellT
 	setContextMenuPolicy(Qt::CustomContextMenu);
 
 	setLayout(dwellTimeLayout);
+}
+
+void CLSSynchronizedDwellTimeView::setAdvancedViewVisible(bool advancedViewVisible){
+	if(advancedView_ == advancedViewVisible)
+		return;
+
+	advancedView_ = advancedViewVisible;
+
+	if (advancedView_)
+		setMaximumHeight(105 + 50*dwellTime_->elementCount());
+	else
+		setMaximumHeight(105);
+
+	for (int i = 0; i < elViews_.size(); i++)
+		elViews_.at(i)->setVisible(advancedView_);
 }
 
 void CLSSynchronizedDwellTimeView::setTime()
@@ -187,6 +218,8 @@ void CLSSynchronizedDwellTimeView::onCustomContextMenuRequested(QPoint pos)
 	// If a valid action was selected.
 	if (temp && temp->text() == "Advanced View"){
 
+		setAdvancedViewVisible(!advancedView_);
+		/*
 		advancedView_ = !advancedView_;
 
 		if (advancedView_)
@@ -196,5 +229,6 @@ void CLSSynchronizedDwellTimeView::onCustomContextMenuRequested(QPoint pos)
 
 		for (int i = 0; i < elViews_.size(); i++)
 			elViews_.at(i)->setVisible(advancedView_);
+		*/
 	}
 }

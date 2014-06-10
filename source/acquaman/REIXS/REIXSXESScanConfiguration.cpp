@@ -20,25 +20,75 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "REIXSXESScanConfiguration.h"
 
+ REIXSXESScanConfiguration::~REIXSXESScanConfiguration(){}
 REIXSXESScanConfiguration::REIXSXESScanConfiguration(QObject *parent) :
 	AMScanConfiguration(parent), mcpDetectorInfo_()
 {
 	setAutoExportEnabled(false);
 
 	gratingNumber_ = 0;
-	centerEV_ = 200;
+
+	slitWidth_ = 25;
+	applySlitWidth_ = false;
+	energy_ = 400;
+	applyEnergy_ = false;
+
+	polarization_ = 1;
+	polarizationAngle_ = 0;
+	applyPolarization_ = false;
+
+
 	defocusDistanceMm_ = 0;
 	spectrometerCalibrationId_ = -1;
 	detectorTiltOffset_ = 0;
 	// removed: detectorOrientation_ = 0;
-	shouldStartFromCurrentPosition_ = false;
+	shouldStartFromCurrentPosition_ = true;
 	doNotClearExistingCounts_ = false;
 
-	// temporary, for comissioning
-	detectorHeightError_ = 0;	//mm
 
 	maximumTotalCounts_ = 1000000;
 	maximumDurationSeconds_ = 300;
+
+	userScanName_ = "XES";
+	scanNumber_ = 0;
+	sampleId_ = -1;
+	namedAutomatically_ = true;
+}
+
+REIXSXESScanConfiguration::REIXSXESScanConfiguration(const REIXSXESScanConfiguration &original)
+	: AMScanConfiguration()
+{
+	mcpDetectorInfo_ = *(original.mcpDetectorInfo());
+
+	setAutoExportEnabled(false);
+
+	gratingNumber_ = original.gratingNumber();
+
+	slitWidth_ = original.slitWidth();
+	applySlitWidth_ = original.applySlitWidth();
+	energy_ = original.energy();
+	applyEnergy_ = original.applyEnergy();
+
+	polarization_ = original.polarization();
+	polarizationAngle_ = original.polarizationAngle();
+	applyPolarization_ = original.applyPolarization();
+
+
+	defocusDistanceMm_ = original.defocusDistanceMm();
+	spectrometerCalibrationId_ = original.spectrometerCalibrationId();
+	detectorTiltOffset_ = original.detectorTiltOffset();
+	// removed: detectorOrientation_ = 0;
+	shouldStartFromCurrentPosition_ = original.shouldStartFromCurrentPosition();
+	doNotClearExistingCounts_ = original.doNotClearExistingCounts();
+
+
+	maximumTotalCounts_ = original.maximumTotalCounts();
+	maximumDurationSeconds_ = original.maximumDurationSeconds();
+
+	userScanName_ = original.userScanName();
+	scanNumber_ = original.scanNumber();
+	sampleId_ = original.sampleId();
+	namedAutomatically_ = original.namedAutomatically();
 }
 
 // Returns a pointer to a newly-created copy of this scan configuration.  (It takes the role of a copy constructor, but is virtual so that our high-level classes can copy a scan configuration without knowing exactly what kind it is.)
@@ -46,20 +96,33 @@ AMScanConfiguration* REIXSXESScanConfiguration::createCopy() const {
 	return new REIXSXESScanConfiguration(*this);	// can use the default auto-generated copy-constructor.
 }
 
-#include "acquaman/REIXS/REIXSXESScanController.h"
-
+//#include "acquaman/REIXS/REIXSXESScanController.h"
+#include "acquaman/REIXS/REIXSXESScanActionController.h"
 // Returns a pointer to a newly-created AMScanController that is appropriate for executing this scan configuration.
 AMScanController* REIXSXESScanConfiguration::createController() {
-	return new REIXSXESScanController(this);
+	//return new REIXSXESScanController(this);
+//	return new REIXSXESScanActionController(this);
+	AMScanActionController *controller = new REIXSXESScanActionController(this);
+	controller->buildScanController();
+
+	return controller;
 }
 
 QString REIXSXESScanConfiguration::description() const
 {
-	QString rv = QString("XES Scan at %1 eV").arg(centerEV());
-	if(defocusDistanceMm() != 0)
-		rv.append(QString(", Defocussed %1 mm").arg(defocusDistanceMm()));
-	if(detectorTiltOffset() != 0)
-		rv.append(QString(", Tilt offset %1 deg").arg(detectorTiltOffset()));
+	QString rv = QString("XES Scan");// at %1 eV  (%2 seconds or %3 counts)").arg(centerEV()).arg(maximumDurationSeconds()).arg(maximumTotalCounts(), 0, 'g', 0);
+	if(applyEnergy()) rv.append(QString(" at %1 eV").arg(energy()));
+//	if(defocusDistanceMm() != 0)
+//		rv.append(QString(", Defocussed %1 mm").arg(defocusDistanceMm()));
+//	if(detectorTiltOffset() != 0)
+//		rv.append(QString(", Tilt offset %1 deg").arg(detectorTiltOffset()));
 
 	return rv;
 }
+
+#include "ui/REIXS/REIXSXESScanConfigurationView.h"
+AMScanConfigurationView * REIXSXESScanConfiguration::createView()
+{
+	return new REIXSXESScanConfigurationView(this);
+}
+

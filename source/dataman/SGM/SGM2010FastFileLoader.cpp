@@ -28,7 +28,6 @@ AMBiHash<QString, QString> SGM2010FastFileLoader::columns2pvNames_;
 #include <QTextStream>
 #include <QDateTime>
 #include "dataman/AMFastScan.h"
-//#include "acquaman/SGM/SGMFastScanConfiguration.h"
 #include "acquaman/AMScanConfiguration.h"
 #include "util/AMErrorMonitor.h"
 #include "analysis/AM1DExpressionAB.h"
@@ -52,6 +51,8 @@ SGM2010FastFileLoader::SGM2010FastFileLoader(AMFastScan *scan) : AMAbstractFileL
 	defaultUserVisibleColumns_ << "I0";
 	defaultUserVisibleColumns_ << "Photodiode";
 }
+
+SGM2010FastFileLoader::~SGM2010FastFileLoader(){}
 
 /// load raw data from the SGM fast scan _spectra.dat file format into a scan's data tree.  If \c extractMetaData is set to true, this will also set the 'notes' and 'dateTime' meta-data fields.  If \c createChannels is set to true, it will create some default channels based on the data columns.
 bool SGM2010FastFileLoader::loadFromFile(const QString& filepath, bool setMetaData, bool setRawDataSources, bool createDefaultAnalysisBlocks) {
@@ -161,7 +162,7 @@ bool SGM2010FastFileLoader::loadFromFile(const QString& filepath, bool setMetaDa
 			for(int i=1; i<colNames1.count(); i++) {
 				if(colNames1.at(i) == "encoder"){
 					encoderEndpoint = int(lp.at(i).toDouble());
-					qDebug() << "Encoder endpoint set to " << encoderEndpoint;
+//					qdebug() << "Encoder endpoint set to " << encoderEndpoint;
 				}
 			}
 		}
@@ -207,10 +208,10 @@ bool SGM2010FastFileLoader::loadFromFile(const QString& filepath, bool setMetaDa
 			sfls.setString(&sfl, QIODevice::ReadOnly);
 			sfls >> numScalerReadings;
 			if(numScalerReadings == 4000){
-				qDebug() << "Going for fast scan without energy calib";
+//				qdebug() << "Going for fast scan without energy calib";
 				for(int x = 0; x < numScalerReadings; x++){
 					if(x%4 == 0){
-						scan->rawData()->beginInsertRows(0);
+						scan->rawData()->beginInsertRows(1, -1);
 						scan->rawData()->setAxisValue(0, x/4, x/4);
 					}
 					sfls >> scalerVal;
@@ -221,7 +222,7 @@ bool SGM2010FastFileLoader::loadFromFile(const QString& filepath, bool setMetaDa
 			}
 			else if(numScalerReadings == 6000){
 
-				qDebug() << "Going for fast scan with energy calib";
+//				qdebug() << "Going for fast scan with energy calib";
 				//int encoderStartPoint = 0;
 				int encoderReading = 0;
 				double energyFbk = 0.0;
@@ -249,7 +250,7 @@ bool SGM2010FastFileLoader::loadFromFile(const QString& filepath, bool setMetaDa
 				QList<double> readings;
 
 				if(!hasEncoderInfo){
-					qDebug() << "Need to back calculate encoder startpoint";
+//					qdebug() << "Need to back calculate encoder startpoint";
 					encoderStartPoint = encoderEndpoint;
 					for(int x = 0; x < numScalerReadings; x++){
 						sfls >> scalerVal;
@@ -261,7 +262,7 @@ bool SGM2010FastFileLoader::loadFromFile(const QString& filepath, bool setMetaDa
 							encoderStartPoint -= scalerVal;
 					}
 				}
-				qDebug() << "Encoder startpoint was " << encoderStartPoint;
+//				qdebug() << "Encoder startpoint was " << encoderStartPoint;
 				encoderReading = encoderStartPoint;
 				sfls.setString(&sfl, QIODevice::ReadOnly);
 				sfls >> scalerVal;
@@ -283,7 +284,7 @@ bool SGM2010FastFileLoader::loadFromFile(const QString& filepath, bool setMetaDa
 						//energyFbk = (1.0e-9*1239.842*511.292)/(2*9.16358e-7*2.46204e-5*-1.59047*(double)encoderReading*cos(3.05478/2));
 						energyFbk = (1.0e-9*1239.842*sParam)/(2*spacingParam*c1Param*c2Param*(double)encoderReading*cos(thetaParam/2));
 						//if( ( (readings.at(0) > 200) && (scan->rawData()->scanSize(0) == 0) ) || ( (scan->rawData()->scanSize(0) > 0) && (fabs(energyFbk - (double)scan->rawData()->axisValue(0, scan->rawData()->scanSize(0)-1)) > 0.001) ) ){
-							scan->rawData()->beginInsertRows(0);
+							scan->rawData()->beginInsertRows(1, -1);
 							scan->rawData()->setAxisValue(0, scan->rawData()->scanSize(0)-1, energyFbk);
 							//scan->rawData()->setValue(AMnDIndex(scan->rawData()->scanSize(0)-1), 0, AMnDIndex(), readings.at(0));
 							scan->rawData()->setValue(AMnDIndex(scan->rawData()->scanSize(0)-1), 0, AMnDIndex(), std::max(readings.at(0), 1.0));

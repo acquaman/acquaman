@@ -30,6 +30,7 @@ class AMStartScreen : public QDialog
 	Q_OBJECT
 public:
 	/// Default constructor. To prevent the dialog from being closed until the user accepts a choice, set \c mustAccept to true.
+ 	virtual ~AMStartScreen();
 	AMStartScreen(bool mustAccept = false, QWidget *parent = 0);
 
 signals:

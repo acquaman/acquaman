@@ -39,6 +39,9 @@ public:
 	Q_INVOKABLE AMControlMoveAction3(AMControlMoveActionInfo3* info, AMControl *control = 0, QObject *parent = 0);
 	/// Copy constructor: must re-implement, but can simply use the AMAction copy constructor to make copies of the info and prereqs. We need to reset any internal state variables to make the copy a "like new" action - ie, not run yet.
 	AMControlMoveAction3(const AMControlMoveAction3& other);
+	/// Destructor.
+	virtual ~AMControlMoveAction3();
+
 	/// Virtual copy constructor
 	virtual AMAction3* createCopy() const { return new AMControlMoveAction3(*this); }
 
@@ -53,11 +56,18 @@ public:
 
 	/// Specify that we cannot pause (since AMControl cannot pause).  If we wanted to get fancy, we might check if the control could stop, (and stop it for pause, and then start it again to resume). But this is much simpler for now.
 	virtual bool canPause() const { return false; }
+	/// This action cannot skip.
+	virtual bool canSkip() const { return false; }
 
 	/// Virtual function that denotes that this action has children underneath it or not.
 	virtual bool hasChildren() const { return false; }
 	/// Virtual function that returns the number of children for this action.
 	virtual int numberOfChildren() const { return 0; }
+
+	/// We can always access our info object via info_ or info(), but it will come back as a AMActionInfo* pointer that we would need to cast to AMControlMoveActionInfo. This makes it easier to access.
+	const AMControlMoveActionInfo3* controlMoveInfo() const { return qobject_cast<const AMControlMoveActionInfo3*>(info()); }
+	/// We can always access our info object via info_ or info(), but it will come back as a AMActionInfo* pointer that we would need to cast to AMControlMoveActionInfo. This makes it easier to access.
+	AMControlMoveActionInfo3* controlMoveInfo() { return qobject_cast<AMControlMoveActionInfo3*>(info()); }
 
 signals:
 
@@ -82,22 +92,20 @@ protected:
 	/*! \note If startImplementation() was never called, you won't receive this when a user tries to cancel(); the base class will handle it for you. */
 	virtual void cancelImplementation();
 
+	/// Since this action does not support skipping, the method is empty.
+	virtual void skipImplementation(const QString &command) { Q_UNUSED(command); }
+
 protected slots:
 	/// Every second, we emit a progress update with setProgress()
 	void onProgressTick();
 
 	/// Handle signals from our control:
 	void onMoveStarted();
+	void onMoveReTargetted();	///< Only connected after a control starts moving.  If it is re-directed in mid-move to a different setpoint, we can be sure our intended move failed.  Calls onMoveFailed(6);
 	void onMoveFailed(int reason);
 	void onMoveSucceeded();
 
 protected:
-
-	/// We can always access our info object via info_ or info(), but it will come back as a AMActionInfo* pointer that we would need to cast to AMControlMoveActionInfo. This makes it easier to access.
-	const AMControlMoveActionInfo3* controlMoveInfo() const { return qobject_cast<const AMControlMoveActionInfo3*>(info()); }
-	/// We can always access our info object via info_ or info(), but it will come back as a AMActionInfo* pointer that we would need to cast to AMControlMoveActionInfo. This makes it easier to access.
-	AMControlMoveActionInfo3* controlMoveInfo() { return qobject_cast<AMControlMoveActionInfo3*>(info()); }
-
 	// Internal variables:
 
 	/// Timer used to issue progress updates on a per-second basis
@@ -107,7 +115,6 @@ protected:
 	AMControl* control_;
 	/// Stores the start position, which we use for calculating progress
 	AMControlInfo startPosition_;
-
 };
 
 #endif // AMCONTROLMOVEACTION3_H

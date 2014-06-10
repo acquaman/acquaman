@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QStringList>
 
 class AMScan;
+class AMErrorMon;
 
 /// File loaders in Acquaman use a plugin system. This is the base class of all object which actually implement file loading.
 /*! To create a file loader plugin, you need to do 2 things:
@@ -54,7 +55,7 @@ public:
 	virtual bool accepts(AMScan *scan) = 0;
 
 	/// This function loads data into \c scan, by looking at the scan's AMScan::fileFormat(), AMScan::filePath(), and anything else you want to consider. The AMScan::filePath() is considered relative to \c userDataFolder.
-	virtual bool load(AMScan *scan, const QString &userDataFolder) = 0;
+	virtual bool load(AMScan *scan, const QString &userDataFolder, AMErrorMon *errorMonitor) = 0;
 };
 
 /// File loaders in Acquaman use a plugin system. This is the base class of all dynamically-loaded plugins which can create file loaders.

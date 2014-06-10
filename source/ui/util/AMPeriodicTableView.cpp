@@ -23,7 +23,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QToolButton>
 #include <QGridLayout>
 #include <QLabel>
-#include <QDebug>
 
 AMPeriodicTableView::AMPeriodicTableView(QWidget *parent)
 	: QWidget(parent)
@@ -68,8 +67,7 @@ AMPeriodicTableView::AMPeriodicTableView(QWidget *parent)
 
 	// End of build periodic table.
 
-	connect(elementMapper_, SIGNAL(mapped(int)), this, SIGNAL(clicked(int)));
-	connect(this, SIGNAL(clicked(int)), this, SLOT(showElement(int)));
+	connect(elementMapper_, SIGNAL(mapped(int)), this, SLOT(onElementClicked(int)));
 
 	setLayout(tableLayout);
 	setMaximumSize(750, 300);
@@ -77,10 +75,9 @@ AMPeriodicTableView::AMPeriodicTableView(QWidget *parent)
 
 AMPeriodicTableView::~AMPeriodicTableView()
 {
-	delete elementMapper_;
 }
 
-void AMPeriodicTableView::showElement(int number)
+void AMPeriodicTableView::onElementClicked(int number)
 {
 	emit elementSelected(AMPeriodicTable::table()->elementByAtomicNumber(number));
 }

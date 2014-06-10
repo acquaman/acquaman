@@ -20,6 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMColoredTextToolButton.h"
 
+ AMColoredTextToolButton::~AMColoredTextToolButton(){}
 AMColoredTextToolButton::AMColoredTextToolButton(const QColor& color, QWidget *parent) :
 	QToolButton(parent)
 {

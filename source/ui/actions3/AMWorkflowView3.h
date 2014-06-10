@@ -35,7 +35,8 @@ class AMWorkflowView3 : public QWidget
 	Q_OBJECT
 public:
 	/// Constructor
-	explicit AMWorkflowView3(QWidget *parent = 0);
+ 	virtual ~AMWorkflowView3();
+	explicit AMWorkflowView3(AMActionRunner3 *actionRunner, QWidget *parent = 0);
 
 	/// Access the queue view for upcoming actions
 	AMActionRunnerQueueView3* queueView() { return queueView_; }
@@ -47,6 +48,7 @@ public:
 	AMActionHistoryView3* historyView() { return historyView_; }
 
 signals:
+	void actionAddedFromDialog(AMAction3 *action);
 
 public slots:
 

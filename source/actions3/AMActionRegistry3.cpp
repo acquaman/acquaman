@@ -26,6 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QWidget>
 
+ AMActionInfoActionRegistration3::~AMActionInfoActionRegistration3(){}
 AMActionInfoActionRegistration3::AMActionInfoActionRegistration3(const QMetaObject *actionInfoMetaObjectI, const QMetaObject *actionMetaObjectI, const QString &shortDescriptionI, const QString &longDescriptionI, const QString& iconFileNameI, bool exposeToAddActionDialogI)
 	: shortDescription(shortDescriptionI), longDescription(longDescriptionI), iconFileName(iconFileNameI), exposeToAddActionDialog(exposeToAddActionDialogI)
 {
@@ -38,6 +39,7 @@ AMActionInfoActionRegistration3::AMActionInfoActionRegistration3(const QMetaObje
 
 AMActionRegistry3* AMActionRegistry3::instance_ = 0;
 
+ AMActionRegistry3::~AMActionRegistry3(){}
 AMActionRegistry3::AMActionRegistry3(QObject *parent) :
 	QObject(parent)
 {
@@ -208,3 +210,4 @@ QWidget * AMActionRegistry3::createEditorForInfo(AMActionInfo3 *info)
 						  QGenericArgument(infoClassName.append("*").toAscii().constData(),
 								   static_cast<const void*>(&info))));
 }
+ AMActionInfoEditorRegistration3::~AMActionInfoEditorRegistration3(){}

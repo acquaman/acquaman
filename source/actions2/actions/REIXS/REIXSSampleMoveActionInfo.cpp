@@ -18,15 +18,33 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "REIXSSampleMoveActionInfo.h"
+#include "dataman/AMSamplePlatePre2013.h"
 
 REIXSSampleMoveActionInfo::REIXSSampleMoveActionInfo(QObject *parent) :
 	AMActionInfo("REIXS Sample Move", "REIXS Sample Move", ":/32x32/gnome-display-properties.png", parent)
 {
 	// safe nominal measurement positions
-	positions_.append(AMControlInfo("sampleX", 3, 0, 0, "mm"));
-	positions_.append(AMControlInfo("sampleY", 4, 0, 0, "mm"));
-	positions_.append(AMControlInfo("sampleZ", 2, 0, 0, "mm"));
-	positions_.append(AMControlInfo("sampleTheta", 45, 0, 0, "deg"));
+	x_ = 0;
+	y_ = 0;
+	z_ = 0;
+	theta_ = 45;
+
+	samplePlateId_ = 0;
+	sampleIndex_ = 0;
+
+	updateDescriptions();
+}
+
+REIXSSampleMoveActionInfo::REIXSSampleMoveActionInfo(double x, double y, double z, double theta, QObject* parent) :
+	AMActionInfo("REIXS Sample Move", "REIXS Sample Move", ":/32x32/gnome-display-properties.png", parent)
+{
+	x_ = x;
+	y_ = y;
+	z_ = z;
+	theta_ = theta;
+
+	samplePlateId_ = 0;
+	sampleIndex_ = 0;
 
 	updateDescriptions();
 }
@@ -35,7 +53,37 @@ REIXSSampleMoveActionInfo::REIXSSampleMoveActionInfo(QObject *parent) :
 REIXSSampleMoveActionInfo::REIXSSampleMoveActionInfo(const AMControlInfoList &targetPosition, QObject *parent) :
 	AMActionInfo("REIXS Sample Move", "REIXS Sample Move", ":/32x32/gnome-display-properties.png", parent)
 {
-	positions_.setValuesFrom(targetPosition);
+	x_ = 0;
+	y_ = 0;
+	z_ = 0;
+	theta_ = 45;
+
+	samplePlateId_ = 0;
+	sampleIndex_ = 0;
+
+	int index;
+	if((index = targetPosition.indexOf("sampleX")) != -1)
+		x_ = targetPosition.at(index).value();
+	if((index = targetPosition.indexOf("sampleY")) != -1)
+		y_ = targetPosition.at(index).value();
+	if((index = targetPosition.indexOf("sampleZ")) != -1)
+		z_ = targetPosition.at(index).value();
+	if((index = targetPosition.indexOf("sampleTheta")) != -1)
+		theta_ = targetPosition.at(index).value();
+
+	updateDescriptions();
+}
+
+REIXSSampleMoveActionInfo::REIXSSampleMoveActionInfo(int samplePlateId, int sampleIndex, QObject* parent) :
+	AMActionInfo("REIXS Sample Move", "REIXSSampleMove", ":/32x32/gnome-display-properties.png", parent) {
+
+	x_ = 0;
+	y_ = 0;
+	z_ = 0;
+	theta_ = 45;
+
+	samplePlateId_ = samplePlateId;
+	sampleIndex_ = sampleIndex;
 
 	updateDescriptions();
 }
@@ -43,52 +91,51 @@ REIXSSampleMoveActionInfo::REIXSSampleMoveActionInfo(const AMControlInfoList &ta
 REIXSSampleMoveActionInfo::REIXSSampleMoveActionInfo(const REIXSSampleMoveActionInfo &other) :
 	AMActionInfo(other)
 {
-	positions_.setValuesFrom(other.positions_);	// remember: setValuesFrom() maintains unique database identifies and just copies the values.  If we used positions_ = other.positions_, we would end up sharing a database identity with other's AMControlInfoList, which is not what we want.
+	x_ = other.x_;
+	y_ = other.y_;
+	z_ = other.z_;
+	theta_ = other.theta_;
+
+	samplePlateId_ = other.samplePlateId_;
+	sampleIndex_ = other.sampleIndex_;
 }
 
 void REIXSSampleMoveActionInfo::updateDescriptions()
 {
-	if(!isValid()) {
-		setShortDescription("REIXS Sample Move to [Invalid Position]");
-		setLongDescription("REIXS Sample Move to [Invalid Position]");
-		return;
+	// Working off a stored sample plate?
+	if(samplePlateId_ > 0) {
+		AMSamplePlatePre2013 plate;
+		if(!plate.loadFromDb(AMDatabase::database("user"), samplePlateId_) || sampleIndex_ >= plate.count() || sampleIndex_ < 0) {
+			setShortDescription("Sample Move to [Invalid Sample Plate]");
+			setLongDescription("Sample Move to [Invalid Sample Plate]");
+			return;
+		}
+//		AMControlInfoList positions = plate.at(sampleIndex_).position();
+		QString sampleName = AMSamplePre2013::sampleNameForId(plate.database(), plate.at(sampleIndex_).sampleId());
+		QString shortDesc = QString("Move to sample '%1' on plate '%2'.").arg(sampleName).arg(plate.name());
+		// Problem with appending the positions: currently we don't update the description when that sample is re-marked, so this position string could be misleading in that situation. Just leave it out.
+//		QStringList posString;
+//		for(int i=0, cc=positions.count(); i<cc; ++i) {
+//			const AMControlInfo& pos = positions.at(i);
+//			posString << QString("%1: %2 %3  ").arg(pos.contextKnownDescription()).arg(pos.value()).arg(pos.units());
+//		}
+//		shortDesc.append(" (").append(posString.join(QString())).append(")");
+
+		setShortDescription(shortDesc);
+		setLongDescription(shortDesc);
 	}
 
-	const AMControlInfo& x = positions_.controlNamed("sampleX");
-	const AMControlInfo& y = positions_.controlNamed("sampleY");
-	const AMControlInfo& z= positions_.controlNamed("sampleZ");
-	const AMControlInfo& theta = positions_.controlNamed("sampleTheta");
+	// working off a fixed position.
+	else {
 
-	QString shortDesc = QString("REIXS Sample Move: X: %1 %2  Y: %3 %4  Z: %5 %6  Theta: %7 %8")
-			.arg(x.value()).arg(x.units())
-			.arg(y.value()).arg(y.units())
-			.arg(z.value()).arg(z.units())
-			.arg(theta.value()).arg(theta.units());
-	QString longDesc = QString("This action moves the REIXS sample manipulator to a predefined position:\n   X: %1 %2\n   Y: %3 %4\n   Z: %5 %6\n   Theta: %7 %8")
-			.arg(x.value()).arg(x.units())
-			.arg(y.value()).arg(y.units())
-			.arg(z.value()).arg(z.units())
-			.arg(theta.value()).arg(theta.units());
+		QString shortDesc = QString("Sample Move: X: %1 mm  Y: %2 mm  Z: %3 mm  Theta: %4 deg")
+				.arg(x_)
+				.arg(y_)
+				.arg(z_)
+				.arg(theta_);
 
-	setShortDescription(shortDesc);
-	setLongDescription(longDesc);
+		setShortDescription(shortDesc);
+		setLongDescription(shortDesc);
+	}
 }
 
-bool REIXSSampleMoveActionInfo::isValid() const
-{
-	if(positions_.indexOf("sampleX") == -1
-			|| positions_.indexOf("sampleY") == -1
-			|| positions_.indexOf("sampleZ") == -1
-			|| positions_.indexOf("sampleTheta") == -1)
-		return false;
-
-	return true;
-}
-
-void REIXSSampleMoveActionInfo::setTargetPositions(const AMControlInfoList &targetPositions)
-{
-	positions_.setValuesFrom(targetPositions);
-	setModified(true);
-
-	updateDescriptions();
-}

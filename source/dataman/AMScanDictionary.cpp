@@ -26,9 +26,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/AMScanConfiguration.h"	/// \todo Move to dataman!
 #include "util/AMDateTimeUtils.h"
 #include "dataman/AMRun.h"
-#include "dataman/info/AMControlInfoList.h"
-#include "dataman/AMSample.h"
+#include "dataman/info/AMControlInfo.h"
+#include "dataman/AMSamplePre2013.h"
 
+ AMScanDictionary::~AMScanDictionary(){}
 AMScanDictionary::AMScanDictionary(AMScan *scan, QObject *parent) :
 	AMOldScanParametersDictionary(parent)
 {
@@ -363,7 +364,7 @@ QString AMScanDictionary::krSampleElements(const QString& arg) {
 	if(!scan_)
 		return "[??]";
 
-	AMSample s;
+	AMSamplePre2013 s;
 	s.loadFromDb(scan_->database(), scan_->sampleId());
 	return s.elementString();
 }
@@ -372,7 +373,7 @@ QString AMScanDictionary::krSampleCreationDate(const QString& arg) {
 	if(!scan_)
 		return "[??]";
 
-	AMSample s;
+	AMSamplePre2013 s;
 	s.loadFromDb(scan_->database(), scan_->sampleId());
 
 	if(arg.isEmpty())
@@ -386,7 +387,7 @@ QString AMScanDictionary::krSampleNotes(const QString& arg) {
 	if(!scan_)
 		return "[??]";
 
-	AMSample s;
+	AMSamplePre2013 s;
 	s.loadFromDb(scan_->database(), scan_->sampleId());
 	return s.notes();
 }

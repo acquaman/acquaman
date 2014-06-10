@@ -20,6 +20,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMRegionScanConfiguration.h"
 #include "util/AMErrorMonitor.h"
 
+AMRegionScanConfiguration::~AMRegionScanConfiguration(){}
+
 AMRegionScanConfiguration::AMRegionScanConfiguration(QObject *parent, bool setup)
 	: AMScanConfiguration(parent)
 {
@@ -33,7 +35,7 @@ AMRegionScanConfiguration::AMRegionScanConfiguration(QObject *parent, bool setup
 }
 
 AMRegionScanConfiguration::AMRegionScanConfiguration(const AMRegionScanConfiguration &original, bool setup)
-	: AMScanConfiguration(original.parent())
+	: AMScanConfiguration()
 {
 	if (setup){
 		setUserScanName(original.userScanName());
@@ -110,6 +112,10 @@ QString AMRegionScanConfiguration::dbReadRegions() const{
 
 void AMRegionScanConfiguration::dbLoadRegions(const QString &regionsString)
 {
+	// delete existing regions, if any.
+	while(regions_->count())
+		regions_->deleteRegion(regions_->count()-1);
+
 	if(regionsString.isEmpty())
 		return;
 	QStringList allRegions = regionsString.split("\n", QString::SkipEmptyParts);
@@ -117,7 +123,7 @@ void AMRegionScanConfiguration::dbLoadRegions(const QString &regionsString)
 	bool addRegionSuccess = false;
 
 	for(int x = 0; x < allRegions.count(); x++){
-		oneRegion = allRegions.at(x).split(",", QString::SkipEmptyParts);
+		oneRegion = allRegions.at(x).split(",", QString::KeepEmptyParts);
 
 		// Legacy Acquaman XAS settings (version 1.0)
 		if (oneRegion.count() == 3)

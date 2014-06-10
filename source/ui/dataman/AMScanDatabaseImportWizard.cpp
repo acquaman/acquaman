@@ -69,6 +69,7 @@ void AMScanDatabaseImportWizard::done(int result)
 	QWizard::done(result);
 }
 
+ AMScanDatabaseImportWizardChooseSourcePage::~AMScanDatabaseImportWizardChooseSourcePage(){}
 AMScanDatabaseImportWizardChooseSourcePage::AMScanDatabaseImportWizardChooseSourcePage(AMScanDatabaseImportController* controller, QWidget *parent) : QWizardPage(parent)
 {
 	controller_ = controller;
@@ -192,6 +193,7 @@ bool AMScanDatabaseImportWizardReviewRunsPage::validatePage()
 	return true;
 }
 
+ AMScanDatabaseImportWizardReviewRunsPage::~AMScanDatabaseImportWizardReviewRunsPage(){}
 AMScanDatabaseImportWizardReviewRunsPage::AMScanDatabaseImportWizardReviewRunsPage(AMScanDatabaseImportController *controller, QWidget *parent) : QWizardPage(parent)
 {
 	controller_ = controller;
@@ -276,6 +278,7 @@ bool AMScanDatabaseImportWizardReviewExperimentsPage::validatePage()
 	return true;
 }
 
+ AMScanDatabaseImportWizardReviewExperimentsPage::~AMScanDatabaseImportWizardReviewExperimentsPage(){}
 AMScanDatabaseImportWizardReviewExperimentsPage::AMScanDatabaseImportWizardReviewExperimentsPage(AMScanDatabaseImportController *controller, QWidget *parent) : QWizardPage(parent)
 {
 	controller_ = controller;
@@ -364,6 +367,7 @@ bool AMScanDatabaseImportWizardReviewSamplesPage::validatePage()
 	return true;
 }
 
+ AMScanDatabaseImportWizardReviewSamplesPage::~AMScanDatabaseImportWizardReviewSamplesPage(){}
 AMScanDatabaseImportWizardReviewSamplesPage::AMScanDatabaseImportWizardReviewSamplesPage(AMScanDatabaseImportController *controller, QWidget *parent) : QWizardPage(parent)
 {
 	controller_ = controller;
@@ -428,6 +432,7 @@ bool AMScanDatabaseImportWizardDoImportPage::validatePage()
 	return true;
 }
 
+ AMScanDatabaseImportWizardDoImportPage::~AMScanDatabaseImportWizardDoImportPage(){}
 AMScanDatabaseImportWizardDoImportPage::AMScanDatabaseImportWizardDoImportPage(AMScanDatabaseImportController *controller, QWidget *parent) : QWizardPage(parent)
 {
 	controller_ = controller;

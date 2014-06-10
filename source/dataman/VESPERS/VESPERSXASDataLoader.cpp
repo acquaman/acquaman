@@ -25,6 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QFile>
 #include <QTextStream>
 
+ VESPERSXASDataLoader::~VESPERSXASDataLoader(){}
 VESPERSXASDataLoader::VESPERSXASDataLoader(AMXASScan *scan)
 	: AMAbstractFileLoader(scan)
 {
@@ -128,7 +129,7 @@ bool VESPERSXASDataLoader::loadFromFile(const QString &filepath, bool setMetaDat
 
 		lineTokenized << line.split(", ");
 
-		scan->rawData()->beginInsertRows(0);
+		scan->rawData()->beginInsertRows(1, -1);
 
 		scan_->rawData()->setAxisValue(0, axisValueIndex, lineTokenized.at(1).toDouble());
 
@@ -146,7 +147,7 @@ bool VESPERSXASDataLoader::loadFromFile(const QString &filepath, bool setMetaDat
 			for (int j = 0; j < 2048; j++)
 				data[j] = spectraTokenized.at(j).toInt();
 
-			scan_->rawData()->setValue(axisValueIndex, scan_->rawDataSourceCount()-1, data.constData(), data.size());
+			scan_->rawData()->setValue(axisValueIndex, scan_->rawDataSourceCount()-1, data.constData());
 		}
 
 		else{

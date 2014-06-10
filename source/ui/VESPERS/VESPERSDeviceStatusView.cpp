@@ -23,9 +23,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/VESPERS/VESPERSBeamline.h"
 #include "ui/AMTopFrame.h"
 
-#include <QStackedWidget>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
+#include <QStackedWidget>
 
 VESPERSDeviceStatusView::VESPERSDeviceStatusView(QWidget *parent) :
 	QWidget(parent)
@@ -47,15 +47,15 @@ VESPERSDeviceStatusView::VESPERSDeviceStatusView(QWidget *parent) :
 	connect(VESPERSBeamline::vespers(), SIGNAL(flowSwitchStatus(bool)), this, SLOT(onFlowSwitchStatusChanged(bool)));
 	connect(VESPERSBeamline::vespers(), SIGNAL(flowTransducerStatus(bool)), this, SLOT(onFlowTransducerStatusChanged(bool)));
 
-	QStackedWidget *stack = new QStackedWidget;
-	stack->addWidget(temperature);
-	stack->addWidget(pressure);
-	stack->addWidget(valves);
-	stack->addWidget(ionPumps);
-	stack->addWidget(flowSwitch);
-	stack->addWidget(flowTransducer);
+	QStackedWidget *diagnosticViews = new QStackedWidget;
+	diagnosticViews->addWidget(temperature);
+	diagnosticViews->addWidget(pressure);
+	diagnosticViews->addWidget(valves);
+	diagnosticViews->addWidget(ionPumps);
+	diagnosticViews->addWidget(flowSwitch);
+	diagnosticViews->addWidget(flowTransducer);
 
-	device_ = new QButtonGroup;
+	deviceButtonGroup_ = new QButtonGroup;
 	QHBoxLayout *buttons = new QHBoxLayout;
 	buttons->setSpacing(0);
 	buttons->addStretch();
@@ -65,54 +65,77 @@ VESPERSDeviceStatusView::VESPERSDeviceStatusView(QWidget *parent) :
 	temp->setChecked(true);
 	temp->setText("Temperature");
 	temp->setPalette(QPalette(Qt::red));
-	device_->addButton(temp, 0);
+	deviceButtonGroup_->addButton(temp, 0);
 	buttons->addWidget(temp);
 
 	temp = new QToolButton;
 	temp->setCheckable(true);
 	temp->setText("Pressure");
 	temp->setPalette(QPalette(Qt::red));
-	device_->addButton(temp, 1);
+	deviceButtonGroup_->addButton(temp, 1);
 	buttons->addWidget(temp);
 
 	temp = new QToolButton;
 	temp->setCheckable(true);
 	temp->setText("Valves");
 	temp->setPalette(QPalette(Qt::red));
-	device_->addButton(temp, 2);
+	deviceButtonGroup_->addButton(temp, 2);
 	buttons->addWidget(temp);
 
 	temp = new QToolButton;
 	temp->setCheckable(true);
 	temp->setText("Ion Pumps");
 	temp->setPalette(QPalette(Qt::red));
-	device_->addButton(temp, 3);
+	deviceButtonGroup_->addButton(temp, 3);
 	buttons->addWidget(temp);
 
 	temp = new QToolButton;
 	temp->setCheckable(true);
 	temp->setText("Flow Switches");
 	temp->setPalette(QPalette(Qt::red));
-	device_->addButton(temp, 4);
+	deviceButtonGroup_->addButton(temp, 4);
 	buttons->addWidget(temp);
 
 	temp = new QToolButton;
 	temp->setCheckable(true);
 	temp->setText("Flow Transducers");
 	temp->setPalette(QPalette(Qt::red));
-	device_->addButton(temp, 5);
+	deviceButtonGroup_->addButton(temp, 5);
 	buttons->addWidget(temp);
 
 	buttons->addStretch();
 
-	connect(device_, SIGNAL(buttonClicked(int)), stack, SLOT(setCurrentIndex(int)));
+	connect(deviceButtonGroup_, SIGNAL(buttonClicked(int)), diagnosticViews, SLOT(setCurrentIndex(int)));
 
 	QVBoxLayout *layout = new QVBoxLayout;
 	layout->addWidget(top);
 	layout->addStretch();
 	layout->addLayout(buttons);
-	layout->addWidget(stack);
+	layout->addWidget(diagnosticViews);
 	layout->addStretch();
 
 	setLayout(layout);
+}
+
+VESPERSDeviceStatusView::~VESPERSDeviceStatusView(){}
+
+void VESPERSDeviceStatusView::showDiagnosticsPage(const QString &name)
+{
+	if (name == "Valves")
+		deviceButtonGroup_->button(2)->click();
+
+	else if (name == "Pressure")
+		deviceButtonGroup_->button(1)->click();
+
+	else if (name == "Temperature")
+		deviceButtonGroup_->button(0)->click();
+
+	else if (name == "Ion Pumps")
+		deviceButtonGroup_->button(3)->click();
+
+	else if (name == "Water Switches")
+		deviceButtonGroup_->button(4)->click();
+
+	else if (name == "Water Pressure")
+		deviceButtonGroup_->button(5)->click();
 }

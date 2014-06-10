@@ -20,6 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "VESPERSIntermediateSlits.h"
 
+ VESPERSIntermediateSlits::~VESPERSIntermediateSlits(){}
 VESPERSIntermediateSlits::VESPERSIntermediateSlits(QObject *parent) :
 	QObject(parent)
 {

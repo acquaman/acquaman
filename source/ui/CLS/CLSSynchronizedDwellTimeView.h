@@ -38,6 +38,7 @@ class CLSSynchronizedDwellTimeElementView : public QWidget
 
 public:
 	/// Constructor.  Takes in a CLSSynchronizedDwellTimeElement.
+ 	virtual ~CLSSynchronizedDwellTimeElementView();
 	explicit CLSSynchronizedDwellTimeElementView(CLSSynchronizedDwellTimeElement *dwellTimeElement, QWidget *parent = 0);
 
 protected slots:
@@ -85,11 +86,13 @@ class CLSSynchronizedDwellTimeView : public QWidget
 	Q_OBJECT
 public:
 	/// Constructor.  Takes a CLSSynchronizedDwellTime object.
+ 	virtual ~CLSSynchronizedDwellTimeView();
 	explicit CLSSynchronizedDwellTimeView(CLSSynchronizedDwellTime *dwellTime, QWidget *parent = 0);
 
 signals:
 
 public slots:
+	void setAdvancedViewVisible(bool advancedViewVisible);
 
 protected slots:
 	/// Sets the time.

@@ -25,6 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMErrorMonitor.h"
 #include <QTimer>
 
+ AMExternalScanDataSourceAB::~AMExternalScanDataSourceAB(){}
 AMExternalScanDataSourceAB::AMExternalScanDataSourceAB(AMDatabase* sourceDatabase, int sourceScanId, const QString& sourceDataSourceName, const QString& outputDataSourceName, RefreshDataWhenSpec whenToLoadData, QObject *parent) :
 	AMStandardAnalysisBlock(outputDataSourceName, parent)
 {
@@ -157,7 +158,7 @@ bool AMExternalScanDataSourceAB::refreshData()
 	}
 }
 
-AMNumber AMExternalScanDataSourceAB::value(const AMnDIndex &indexes, bool doBoundsChecking) const
+AMNumber AMExternalScanDataSourceAB::value(const AMnDIndex &indexes) const
 {
 	if(!isValid())
 		return AMNumber::InvalidError;
@@ -170,25 +171,28 @@ AMNumber AMExternalScanDataSourceAB::value(const AMnDIndex &indexes, bool doBoun
 		return values_.at(0);
 
 	case 1:
-		if(doBoundsChecking &&
-				(unsigned)indexes.i() >= (unsigned)axes_.at(0).size)
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+		if((unsigned)indexes.i() >= (unsigned)axes_.at(0).size)
 				return AMNumber::OutOfBoundsError;
+#endif
 		return values_.at(indexes.i());
 
 	case 2:
-		if(doBoundsChecking &&
-				((unsigned)indexes.i() >= (unsigned)axes_.at(0).size ||
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+		if(((unsigned)indexes.i() >= (unsigned)axes_.at(0).size ||
 				(unsigned)indexes.j() >= (unsigned)axes_.at(1).size))
 			return AMNumber::OutOfBoundsError;
+#endif
 		return values_.at(indexes.i()*axes_.at(1).size
 						  + indexes.j());
 
 	case 3: {
-		if(doBoundsChecking &&
-				((unsigned)indexes.i() >= (unsigned)axes_.at(0).size ||
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+		if(((unsigned)indexes.i() >= (unsigned)axes_.at(0).size ||
 				(unsigned)indexes.j() >= (unsigned)axes_.at(1).size ||
 				(unsigned)indexes.k() >= (unsigned)axes_.at(2).size))
 			return AMNumber::OutOfBoundsError;
+#endif
 
 		int flatIndex = indexes.k();
 		int stride = axes_.at(2).size;
@@ -199,12 +203,13 @@ AMNumber AMExternalScanDataSourceAB::value(const AMnDIndex &indexes, bool doBoun
 	}
 
 	case 4: {
-		if(doBoundsChecking &&
-				((unsigned)indexes.i() >= (unsigned)axes_.at(0).size ||
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+		if(((unsigned)indexes.i() >= (unsigned)axes_.at(0).size ||
 				(unsigned)indexes.j() >= (unsigned)axes_.at(1).size ||
 				(unsigned)indexes.k() >= (unsigned)axes_.at(2).size ||
 				(unsigned)indexes.l() >= (unsigned)axes_.at(3).size))
 			return AMNumber::OutOfBoundsError;
+#endif
 
 		int flatIndex = indexes.l();
 		int stride = axes_.at(3).size;
@@ -217,13 +222,14 @@ AMNumber AMExternalScanDataSourceAB::value(const AMnDIndex &indexes, bool doBoun
 	}
 
 	case 5: {
-		if(doBoundsChecking &&
-				((unsigned)indexes.i() >= (unsigned)axes_.at(0).size ||
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+		if(((unsigned)indexes.i() >= (unsigned)axes_.at(0).size ||
 				(unsigned)indexes.j() >= (unsigned)axes_.at(1).size ||
 				(unsigned)indexes.k() >= (unsigned)axes_.at(2).size ||
 				(unsigned)indexes.l() >= (unsigned)axes_.at(3).size ||
 				(unsigned)indexes.m() >= (unsigned)axes_.at(4).size))
 			return AMNumber::OutOfBoundsError;
+#endif
 
 		int flatIndex = indexes.m();
 		int stride = axes_.at(4).size;
@@ -242,7 +248,7 @@ AMNumber AMExternalScanDataSourceAB::value(const AMnDIndex &indexes, bool doBoun
 	}
 }
 
-AMNumber AMExternalScanDataSourceAB::axisValue(int axisNumber, int index, bool doBoundsChecking) const
+AMNumber AMExternalScanDataSourceAB::axisValue(int axisNumber, int index) const
 {
 	if(axisNumber >= axes_.count())
 		return AMNumber::DimensionError;
@@ -252,9 +258,10 @@ AMNumber AMExternalScanDataSourceAB::axisValue(int axisNumber, int index, bool d
 	if(axisInfo.isUniform)
 		return (double)axisInfo.start + index*(double)axisInfo.increment;
 	else {
-
-		if(doBoundsChecking && (unsigned)index >= (unsigned)axisInfo.size)
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+		if((unsigned)index >= (unsigned)axisInfo.size)
 			return AMNumber::OutOfBoundsError;
+#endif
 		return axisValues_.at(axisNumber).at(index);
 	}
 }
@@ -267,20 +274,20 @@ void AMExternalScanDataSourceAB::copyValues(int dataSourceIndex)
 	switch(ds->rank()) {
 	case 0:
 		values_.clear();
-		values_ << ds->value(AMnDIndex(), false);
+		values_ << ds->value(AMnDIndex());
 		break;
 
 	case 1: {
 		values_.resize(size.i());
 		for(int i=0; i<size.i(); i++)
-			values_[i] = ds->value(i, false);
+			values_[i] = ds->value(i);
 		break;
 	}
 	case 2: {
 		values_.resize(size.i()*size.j());
 		for(int i=0; i<size.i(); i++)
 			for(int j=0; j<size.j(); j++)
-				values_[i*size.j() + j] = ds->value(AMnDIndex(i,j), false);
+				values_[i*size.j() + j] = ds->value(AMnDIndex(i,j));
 		break;
 	}
 	case 3: {
@@ -288,7 +295,7 @@ void AMExternalScanDataSourceAB::copyValues(int dataSourceIndex)
 		for(int i=0; i<size.i(); i++)
 			for(int j=0; j<size.j(); j++)
 				for(int k=0; k<size.k(); k++)
-					values_[i*size.j()*size.k() + j*size.k() + k] = ds->value(AMnDIndex(i,j,k), false);
+					values_[i*size.j()*size.k() + j*size.k() + k] = ds->value(AMnDIndex(i,j,k));
 		break;
 	}
 	case 4: {
@@ -297,7 +304,7 @@ void AMExternalScanDataSourceAB::copyValues(int dataSourceIndex)
 			for(int j=0; j<size.j(); j++)
 				for(int k=0; k<size.k(); k++)
 					for(int l=0; l<size.l(); l++)
-						values_[i*size.j()*size.k()*size.l() + j*size.k()*size.l() + k*size.l() + l] = ds->value(AMnDIndex(i,j,k,l), false);
+						values_[i*size.j()*size.k()*size.l() + j*size.k()*size.l() + k*size.l() + l] = ds->value(AMnDIndex(i,j,k,l));
 		break;
 	}
 	case 5: {
@@ -307,7 +314,7 @@ void AMExternalScanDataSourceAB::copyValues(int dataSourceIndex)
 				for(int k=0; k<size.k(); k++)
 					for(int l=0; l<size.l(); l++)
 						for(int m=0; m<size.m(); m++)
-							values_[i*size.j()*size.k()*size.l()*size.m() + j*size.k()*size.l()*size.m() + k*size.l()*size.m() + l*size.m() + m] = ds->value(AMnDIndex(i,j,k,l,m), false);
+							values_[i*size.j()*size.k()*size.l()*size.m() + j*size.k()*size.l()*size.m() + k*size.l()*size.m() + l*size.m() + m] = ds->value(AMnDIndex(i,j,k,l,m));
 		/// \todo oh god, we really need a block copy or a multi-dimensional iterator for AMDataSource::value()...
 		break;
 	}
@@ -327,7 +334,7 @@ void AMExternalScanDataSourceAB::copyAxisValues(int dataSourceIndex)
 		if(!axes_.at(mu).isUniform) {
 			int axisLength = size.at(mu);
 			for(int i=0; i<axisLength; i++)	// copy all the axis values
-				av << axisValue(mu, i, false);
+				av << axisValue(mu, i);
 		}
 
 		axisValues_ << av;

@@ -18,8 +18,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef ACQMAN_PROCESSVARIABLE_H_
-#define ACQMAN_PROCESSVARIABLE_H_
+#ifndef AM_PROCESSVARIABLE_H_
+#define AM_PROCESSVARIABLE_H_
 
 #include "beamline/AMProcessVariablePrivate.h"
 
@@ -82,7 +82,7 @@ public:
 	int connectionState() const { return d_->connectionState(); }
 	/// Indicates that a connection is established to the Epics CA server for this Process Variable.
 	bool isConnected() const { return d_->isConnected(); }
-	/// Indicates that a connection was established to the Epics CA server, and we managed to download control information (meta information) for this Process Variable. Does not mean that we've retrieved the values yet.
+	/// Indicates that a connection was established to the Epics CA server, and we managed to download control information (units, limits, enum strings, etc.) for this Process Variable. Does not mean that we've retrieved the values yet.
 	bool isInitialized() const { return d_->isInitialized(); }
 	/// Returns true if the connection has a monitoring subscription to receive value changes. \see startMonitoring(), startMonitoring().
 	bool isMonitoring() const { return d_->isMonitoring(); }
@@ -99,8 +99,8 @@ public:
 	/// Check that we are completely readdy to write(we are connected, initialized, have received at least one set of values, and we have both read and write access)
 	bool writeReady() const { return d_->writeReady(); }
 
-	/// Returns the current ca_put mode for the PV.  True means use ca_put() and false means use ca_put_callback().  ca_put_callback() is the default.   \see disablePutCallbackMode().
-	bool putCallbackMode() const { return d_->putCallbackMode(); }
+	/// Returns true if the AMProcessVariable has been configured to use ca_put_callback() for PV puts, instead of ca_put().   [ca_put() is the default.]   \see enablePutCallback().
+	bool putCallbackEnabled() const { return d_->putCallbackEnabled(); }
 
 
 	// Retrieving PV Values in various formats
@@ -204,7 +204,7 @@ public:
 	double lowerGraphicalLimit() const { return d_->lowerGraphicalLimit(); }
 
 
-	/// All PV dataTypes() except for String can always be retrieved as numbers. However, some integer types are used to provide a list of choices. For example, a grating selector might let you choose "Grating #1", "Grating #2", etc.  For PVs of this nature, isEnum() will be true.  This is just a convenient way of checking that dataType() == AMProcessVariable::Enum.
+	/// All PV dataTypes() except for String can always be retrieved as numbers. However, some integer types are used to provide a list of choices. For example, a grating selector might let you choose "LEG", "MEG", "HEG", etc.  For PVs of this nature, isEnum() will be true.  This is just a convenient way of checking that dataType() == AMProcessVariable::Enum.
 	bool isEnum() const { return d_->isEnum(); }
 	/// For Enum dataType()s, sometimes a list of descriptions are provided for each numeric option.  For example, the gratings might be described as "LEG", "MEG", and "HEG".  enumStrings() will give you these titles.
 	QStringList enumStrings() const { return d_->enumStrings(); }
@@ -249,17 +249,32 @@ public slots:
 	void setValues(const QStringList& values) { d_->setValues(values); }
 
 
-	/*! This function changes whether the the PV sets values through using ca_put() or ca_put_callback().  Generally ca_put_callback() is preferred since it returns debug messages after all process requests.  However, some of the more exotic record types in EPICS do not handle the ca_put_callback() effectively which causes the IOC to delay writing the value for a very long time (seconds per value).  An excerpt from Jeff Hill about the differences between ca_put() and ca_put_callback():
+	/// Configure whether the PV uses ca_put() or ca_put_callback() to send put requests.  ca_put() is the default.
+	/*! Channel access provides two mechanisms for sending put requests: ca_put() and ca_put_callback().  ca_put() simply sends a put request and does no further work; generally we can assume the put request will arrive at the IOC if the channel is connected().
 
-  Description (IOC Database Specific)
-  A ca put request causes the record to process if the record's SCAN field is set to passive, and the field being written has it's process passive attribute set to true. If such a record is already processing when a put request is initiated the specified field is written immediately, and the record is scheduled to process again as soon as it finishes processing. Earlier instances of multiple put requests initiated while the record is being processing may be discarded, but the last put request initiated is always written and processed.
+	  ca_put_callback() provides a more robust method, in which the IOC will respond after the record has been processed with the new value, triggering a callback in the client that sent the request. This is the most reliable way to ensure that a put request has been delivered and acted upon.  However, the ca_put_callback() mechanism triggers a change in IOC record processing from using dbPut to dbPutNotify; this becomes significant whenever put requests are being sent faster than the IOC can process the corresponding record [and any linked records that need to be processed along with the modified record].
+
+- If ca_put() is sent while a record is still being processed (PACT=1), a re-processing of that record is scheduled to do a dbPut with the most recent value. If more ca_put()s are received before the re-processing happens, the IOC simply updates what value it will use when the re-processing finally does happens.
+- If ca_put_callback() is sent while a record is still being processed, a queue is created of upcoming values to put, and all of these puts need to be processed individually. Additional ca_put_callback()s will append to this queue. Therefore, if ca_put_callback() is used faster than the record can be processed, a queue of ever-increasing length builds up. This can compounded if there are chains of linked records that all need to be processed for each put.
+
+In summary, during record processing, ca_put_callback() requests are queued, whereas ca_put() requests are simply cached. The result is that the record processing load on the IOC is much lower when using ca_put().
+
+Ref: http://www.aps.anl.gov/epics/base/R3-14/12-docs/AppDevGuide.pdf Section 5.10, 5.11
+
+ca_put_callback() would be preferred for the communication reliability if offers; however, there is no way to separate this communication behaviour from the record-processing behaviour.  We've found that some IOC applications and device drivers cannot process records fast enough when using ca_put_callback(), leading to bouts of "constipation" that can last for many seconds, or indefinitely, while the queue is processed. Therefore, we use ca_put() by default.
+
+Applications that want to make use of the extra delivery checking provided by ca_put_callback() can enable it using this function.
+
+
+<b>Reference:</b> An excerpt from Jeff Hill about the differences between ca_put() and ca_put_callback():
+
+<i>  A ca put request causes the record to process if the record's SCAN field is set to passive, and the field being written has it's process passive attribute set to true. If such a record is already processing when a put request is initiated the specified field is written immediately, and the record is scheduled to process again as soon as it finishes processing. Earlier instances of multiple put requests initiated while the record is being processing may be discarded, but the last put request initiated is always written and processed.
 
   A ca put callback request causes the record to process if the record's SCAN field is set to passive, and the field being written has it's process passive attribute set to true. For such a record, the user's put callback function is not called until after the record, and any records that the record links to, finish processing. If such a record is already processing when a put callback request is initiated the put callback request is postponed until the record, and any records it links to, finish processing.
   If the record's SCAN field is not set to passive, or the field being written has it's process passive attribute set to false then the ca put or ca put callback request cause the specified field to be immediately written, but they do not cause the record to be processed.
-
-  Setting this value to true will cause the PV to use ca_put(), and false will use ca_put_callback();
+  </i>
    */
-	void disablePutCallbackMode(bool disablePutCallback) { d_->disablePutCallbackMode(disablePutCallback); }
+	void enablePutCallback(bool putCallbackEnabled) { d_->enablePutCallback(putCallbackEnabled); }
 
 	////////////////////////////////////
 
@@ -277,7 +292,7 @@ signals:
 	/// PV failed to connect within the timeout.
 	void connectionTimeout();
 
-	/// Connection was established, and control information was retrieved. However, we may not have retrieved that actual values yet...
+	/// Connection was established, and control information was retrieved. After initialized() is emitted, we'll know the data type, units, limits, enum strings, etc.  However, we may not have retrieved the actual values yet...
 	void initialized();
 	/// Signals changes in hasValues(). \see hasValues().
 	void hasValuesChanged(bool);
@@ -307,7 +322,7 @@ signals:
 	void valueChanged(const QString&);
 	//@}
 
-	/// Emitted when a write-request comes back as completed or failed.
+	/// Emitted when a write-request comes back as completed or failed. Only available if enablePutCallback() has been set to true.
 	void putRequestReturned(int status);
 
 protected slots:
@@ -329,4 +344,4 @@ protected:
   @}
   */
 
-#endif /*ACQMAN_PROCESSVARIABLE_H_*/
+#endif /*AM_PROCESSVARIABLE_H_*/

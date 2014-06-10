@@ -20,8 +20,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "CLSOceanOptics65000DetectorInfo.h"
 
+ CLSOceanOptics65000DetectorInfo::~CLSOceanOptics65000DetectorInfo(){}
 CLSOceanOptics65000DetectorInfo::CLSOceanOptics65000DetectorInfo(const QString &name, const QString &description, QObject *parent) :
-		AMDetectorInfo(name, description, parent)
+		AMOldDetectorInfo(name, description, parent)
 {
 	binCount_ = 0;
 	axisName_ = "";
@@ -36,20 +37,20 @@ CLSOceanOptics65000DetectorInfo::CLSOceanOptics65000DetectorInfo(const QString &
 }
 
 CLSOceanOptics65000DetectorInfo::CLSOceanOptics65000DetectorInfo(const CLSOceanOptics65000DetectorInfo &original) :
-		AMDetectorInfo(original)
+		AMOldDetectorInfo(original)
 {
 //	retreiveAndSetProperties(original);
 	this->operator =(original);
 }
 
-AMDetectorInfo* CLSOceanOptics65000DetectorInfo::toNewInfo() const{
+AMOldDetectorInfo* CLSOceanOptics65000DetectorInfo::toNewInfo() const{
 	return new CLSOceanOptics65000DetectorInfo(*this);
 }
 
 CLSOceanOptics65000DetectorInfo& CLSOceanOptics65000DetectorInfo::operator =(const CLSOceanOptics65000DetectorInfo& other){
 	if(this != &other){
 //		retreiveAndSetProperties(other);
-		AMDetectorInfo::operator =(other);
+		AMOldDetectorInfo::operator =(other);
 		setBinCount(other.binCount());
 		setAxisName(other.axisName());
 		setAxisUnit(other.axisUnit());

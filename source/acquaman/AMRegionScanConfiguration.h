@@ -24,7 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QObject>
 #include "AMScanConfiguration.h"
 #include "acquaman/AMRegionsList.h"
-#include "dataman/info/AMControlInfoList.h"
+#include "dataman/info/AMControlInfo.h"
 
 /// An AMRegionScanConfiguration is the parent class for any beamline that wants to implement a simple regions based scan.
 /*!
@@ -45,6 +45,7 @@ public:
 	/// Constructor, needs a pointer to a QObject to act as a parent and needs to know whether it should new its own regions list.  This allows a way to not new the wrong type of regions list.
 	AMRegionScanConfiguration(QObject *parent = 0, bool setup = true);
 	AMRegionScanConfiguration(const AMRegionScanConfiguration &original, bool setup = true);
+	virtual ~AMRegionScanConfiguration();
 
 	const QMetaObject* getMetaObject();
 
@@ -74,12 +75,12 @@ public:
 	/// Quick accessor for the end of the final region. If no reginos are set, returns -1
 	virtual double endValue() const;
 
-	/// A human-readable description of this scan configuration. Can be re-implemented to provide more details. Used by AMBeamlineScanAction to set the title for the action view.
+	/// A human-readable description of this scan configuration. Can be re-implemented to provide more details. Used by scan action to set the title for the action view.
 	virtual QString description() const {
 		return QString("Region Scan from %1%3 to %2%4").arg(regionStart(0)).arg(regionEnd(regionCount()-1)).arg(regionUnits(0)).arg(regionUnits(regionCount()-1));
 	}
 
-	/// A human-readable synopsis of this scan configuration. Can be re-implemented to proved more details. Used by AMBeamlineScanAction to set the main text in the action view.
+	/// A human-readable synopsis of this scan configuration. Can be re-implemented to proved more details. Used by scan action to set the main text in the action view.
 	virtual QString detailedDescription() const{
 		return QString("Region Scan from %1%3 to %2%4").arg(regionStart(0)).arg(regionEnd(regionCount()-1)).arg(regionUnits(0)).arg(regionUnits(regionCount()-1));
 	}

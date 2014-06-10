@@ -27,6 +27,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <linux/joystick.h>
 
+#define AMGENERICLINUXJOYSTICK_READ_ERROR_POSSIBLE_DISCONNECT 290701
+
 /// Structure used to represent joystick events by the Linux joystick API.
 //typedef struct js_event {
 //    quint32 time;     /* event timestamp in milliseconds */
@@ -46,6 +48,7 @@ class AMGenericLinuxJoystickThread : public QThread {
     Q_OBJECT
 public:
     /// Constructor. \c fileDescriptor is the open file handle to read from.
+ 	virtual ~AMGenericLinuxJoystickThread();
     AMGenericLinuxJoystickThread(int fileDescriptor, QObject* parent = 0);
 
     /// Run function (in separate thread)

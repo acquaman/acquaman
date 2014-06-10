@@ -19,52 +19,90 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMSelectablePeriodicTableView.h"
 
+ AMSelectablePeriodicTableView::~AMSelectablePeriodicTableView(){}
 AMSelectablePeriodicTableView::AMSelectablePeriodicTableView(AMSelectablePeriodicTable *table, QWidget *parent)
-	: AMPeriodicTableView(parent)
+	: AMCustomizablePeriodicTableView(table, parent)
 {
-	table_ = table;
-	connect(this, SIGNAL(clicked(int)), this, SLOT(onClicked(int)));
+	selectablePeriodicTable_ = table;
+	connect(this, SIGNAL(elementSelected(AMElement*)), this, SLOT(onElementClicked(AMElement*)));
+	connect(selectablePeriodicTable_, SIGNAL(allElementsDeselected()), this, SLOT(onAllElementsDeselected()));
+
+	energyRange_ = AMRange();
+}
+
+void AMSelectablePeriodicTableView::buildPeriodicTableView()
+{
+	AMCustomizablePeriodicTableView::buildPeriodicTableView();
 
 	// Go through every button and make it checkable.
-	for (int i = 1; i <= table_->numberOfElements(); i++)
+	for (int i = 1, size = periodicTable_->numberOfElements(); i <= size; i++)
 		button(i)->setCheckable(true);
-
-	range_ = qMakePair(-1.0, -1.0);
 }
 
-void AMSelectablePeriodicTableView::onClicked(int id)
+void AMSelectablePeriodicTableView::onElementClicked(AMElement *element)
 {
-	QToolButton *clicked = button(id);
+	QAbstractButton *clicked = button(element->atomicNumber());
 
 	if (clicked->isChecked())
-		table_->selectElement(id);
+		selectablePeriodicTable_->selectElement(element);
 	else
-		table_->deselectElement(id);
+		selectablePeriodicTable_->deselectElement(element);
 }
 
-void AMSelectablePeriodicTableView::setRange(double low, double high)
+void AMSelectablePeriodicTableView::setEnergyRange(double low, double high)
 {
-	range_ = qMakePair(low, high);
-	const AMElement *temp;
+	setEnergyRange(AMRange(low, high));
+}
 
+void AMSelectablePeriodicTableView::setEnergyRange(const AMRange &range)
+{
+	if (energyRange_ != range){
+
+		energyRange_ = range;
+		updateTableView();
+	}
+}
+
+void AMSelectablePeriodicTableView::setMinimumEnergy(double newMinimum)
+{
+	if (energyRange_.minimum() != newMinimum){
+
+		energyRange_.setMinimum(newMinimum);
+		updateTableView();
+	}
+}
+
+void AMSelectablePeriodicTableView::setMaximumEnergy(double newMaximum)
+{
+	if (energyRange_.maximum() != newMaximum){
+
+		energyRange_.setMaximum(newMaximum);
+		updateTableView();
+	}
+}
+
+void AMSelectablePeriodicTableView::updateTableView()
+{
 	if (rangeIsValid()){
 
-		for (int i = 1; i <= table_->numberOfElements(); i++){
+		for (int i = 1, size = periodicTable_->numberOfElements(); i <= size; i++){
 
-			temp = table_->elementByAtomicNumber(i);
-
-			if (temp->Kalpha().second.toDouble() < low
-					|| (temp->Kalpha().second.toDouble() > high && temp->Lalpha().second.toDouble() < low)
-					|| temp->emissionLines().isEmpty())
-				button(i)->setEnabled(false);
-			else
-				button(i)->setEnabled(true);
+			AMElement *temp = periodicTable_->elementByAtomicNumber(i);
+			button(i)->setDisabled((temp->Kalpha().energy() < energyRange_.minimum())
+								   || ((temp->Kalpha().energy() > energyRange_.maximum() && temp->Lalpha().energy() < energyRange_.minimum()))
+								   || (temp->emissionLines().isEmpty()));
 		}
 	}
 
 	else {
 
-		for (int i = 1; i <= table_->numberOfElements(); i++)
+		for (int i = 1, size = periodicTable_->numberOfElements(); i <= size; i++)
 			button(i)->setEnabled(true);
 	}
+}
+
+void AMSelectablePeriodicTableView::onAllElementsDeselected()
+{
+	for (int i = 1, size = periodicTable_->numberOfElements(); i <= size; i++)
+		button(i)->setChecked(false);
 }

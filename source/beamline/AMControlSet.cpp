@@ -20,6 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMControlSet.h"
 
+ AMControlSet::~AMControlSet(){}
 AMControlSet::AMControlSet(QObject *parent) :
 	QObject(parent), AMOrderedSet<QString, AMControl*>(false)
 {
@@ -86,6 +87,17 @@ bool AMControlSet::removeControl(AMControl* control) {
 
 	disconnect(control, 0, this, 0);
 	remove(index);
+
+	if(wasConnected_ == true && !isConnected()){
+		wasConnected_ = false;
+		emit connected(false);
+	}
+
+	if(!wasConnected_ && isConnected()){
+		wasConnected_ = true;
+		emit connected(true);
+	}
+
 	return true;
 }
 

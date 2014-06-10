@@ -20,8 +20,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ALSBL8XESDetectorInfo.h"
 
+ ALSBL8XESDetectorInfo::~ALSBL8XESDetectorInfo(){}
 ALSBL8XESDetectorInfo::ALSBL8XESDetectorInfo(QObject *parent) :
-	AMDetectorInfo("xes", "XES Image Detector", parent)
+	AMOldDetectorInfo("xes", "XES Image Detector", parent)
 {
 	centerEnergy_ = (0.0);
 	gratingNumber_ = (1);

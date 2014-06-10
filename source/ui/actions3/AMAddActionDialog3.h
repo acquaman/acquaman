@@ -28,6 +28,8 @@ class AMAddActionDialog3;
 
 class QListWidgetItem;
 
+class AMAction3;
+
 class AMAddActionDialog3 : public QDialog
 {
 	Q_OBJECT
@@ -36,8 +38,10 @@ public:
 	/// Constructor. The view is populated during construction with all actions currently registered in the AMActionRegistry [ActionInfo/Action].
 	explicit AMAddActionDialog3(QWidget *parent = 0);
 
-	~AMAddActionDialog3();
+	virtual ~AMAddActionDialog3();
 
+signals:
+	void actionAddedFromDialog(AMAction3 *action);
 
 protected slots:
 	/// Called when the selected item is changed in the list view; this updates the item-specific title and description shown on the right of the dialog, and enables the 'Add to Workflow' button.

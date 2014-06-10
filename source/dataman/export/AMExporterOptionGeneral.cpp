@@ -20,14 +20,16 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMExporterOptionGeneral.h"
 
+ AMExporterOptionGeneral::~AMExporterOptionGeneral(){}
 AMExporterOptionGeneral::AMExporterOptionGeneral(QObject *parent) :
 	AMExporterOption(parent)
 {
 
 	includeAllDataSources_ = true;
+	includeHigherDimensionSources_ = true;
 	firstColumnOnly_ = false;
 	separateHigherDimensionalSources_ = false;
-
+	higherDimensionsInRows_ = true;
 	headerText_ =	"Scan: $name #$number\n"
 					"Date: $dateTime\n"
 					"Sample: $sample\n"

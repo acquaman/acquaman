@@ -35,6 +35,7 @@ class AMCrosshairOverlayVideoWidget : public AMOverlayVideoWidget
 	Q_OBJECT
 public:
 	/// Constructor.
+ 	virtual ~AMCrosshairOverlayVideoWidget();
 	explicit AMCrosshairOverlayVideoWidget(QWidget *parent = 0, bool usOpenGlViewport = true);
 
 	/// Returns the current pen used to draw the crosshair lines

@@ -103,7 +103,6 @@ AMDataView::AMDataView(AMDatabase* database, QWidget *parent) :
 	connect(viewModeButtonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(setViewMode(int)));
 	connect(organizeModeBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onOrganizeModeBoxCurrentIndexChanged(int)));
 
-
 	// pick up database changes...
 	//////////////////////////////
 	connect(db_, SIGNAL(created(QString,int)), this, SLOT(onDatabaseItemCreatedOrRemoved(QString,int)), Qt::QueuedConnection);
@@ -466,7 +465,7 @@ void AMDataView::refreshView() {
 			bool found = false;
 			QSqlQuery findSamples = db_->query();
 			findSamples.setForwardOnly(true);
-			findSamples.prepare("SELECT id, dateTime, name FROM AMSample_table");	/// \todo thumbnail for samples
+			findSamples.prepare("SELECT id, dateTime, name FROM AMSamplePre2013_table");	/// \todo thumbnail for samples
 			if(findSamples.exec()) {
 				QVector<int> sampleIds;
 				QVector<QDateTime> sampleDateTimes;
@@ -663,7 +662,7 @@ void AMDataView::refreshView() {
 			bool found = false;
 			QSqlQuery findSamples = db_->query();
 			findSamples.setForwardOnly(true);
-			findSamples.prepare("SELECT id, dateTime, name FROM AMSample_table WHERE id IN (SELECT sampleId FROM AMScan_table WHERE runId = ?)");	/// \todo add thumbnail icon!
+			findSamples.prepare("SELECT id, dateTime, name FROM AMSamplePre2013_table WHERE id IN (SELECT sampleId FROM AMScan_table WHERE runId = ?)");	/// \todo add thumbnail icon!
 			findSamples.bindValue(0, runId_);
 			if(findSamples.exec()) {
 				QVector<int> sampleIds;
@@ -868,7 +867,7 @@ void AMDataView::refreshView() {
 			bool found = false;
 			QSqlQuery findSamples = db_->query();
 			findSamples.setForwardOnly(true);
-			findSamples.prepare("SELECT id,dateTime,name FROM AMSample_table WHERE id IN (SELECT sampleId FROM AMScan_table WHERE id IN (SELECT objectId FROM ObjectExperimentEntries WHERE experimentId = ?))");	/// \todo add thumbnail icon!
+			findSamples.prepare("SELECT id,dateTime,name FROM AMSamplePre2013_table WHERE id IN (SELECT sampleId FROM AMScan_table WHERE id IN (SELECT objectId FROM ObjectExperimentEntries WHERE experimentId = ?))");	/// \todo add thumbnail icon!
 			findSamples.bindValue(0, experimentId_);
 			if(findSamples.exec()) {
 				QVector<int> sampleIds;
@@ -1129,7 +1128,7 @@ QSizeF AMDataViewSection::sizeHint(Qt::SizeHint which, const QSizeF &constraint)
 
 void AMDataViewSection::setGeometry(const QRectF &rect) {
 
-	// qDebug() << "calling section setGeometry with rect" << rect;
+	// qdebug() << "calling section setGeometry with rect" << rect;
 
 	QGraphicsWidget::setGeometry(rect);
 
@@ -1142,7 +1141,7 @@ void AMDataViewSection::layoutHeaderItem() {
 
 	/// \todo Optimization: if this is being called from above on all, get rid of calling proxyWidget_->effectiveSizeHint() on each scroll.
 	QRectF entireRect = rect();
-	// qDebug() << "Calling Layout Header. entireRect = " << entireRect;
+	// qdebug() << "Calling Layout Header. entireRect = " << entireRect;
 
 	qreal headerHeight = qMin(entireRect.height(),
 							  proxyWidget_->effectiveSizeHint(Qt::MinimumSize, QSizeF(entireRect.width(), -1)).height());
@@ -1176,7 +1175,7 @@ void AMDataViewSection::layoutHeaderItem() {
 
 	QRectF headerRect = QRectF(QPointF(entireRect.topLeft())+QPointF(0, yOffset),
 							   QSizeF(entireRect.width(), headerHeight));
-	// qDebug() << "Calling proxyWidget setGeometry with rect" << headerRect;
+	// qdebug() << "Calling proxyWidget setGeometry with rect" << headerRect;
 	proxyWidget_->setGeometry(headerRect);
 }
 
@@ -1186,7 +1185,7 @@ void AMDataViewSection::layoutContents() {
 
 	qreal verticalOffset = proxyWidget_->rect().height();
 	QSizeF size = rect().size() - QSizeF(0, verticalOffset);
-	// qDebug() << "calling contents setGeometry with rect" << QRectF(QPointF(0,verticalOffset), size);
+	// qdebug() << "calling contents setGeometry with rect" << QRectF(QPointF(0,verticalOffset), size);
 	subview_->setGeometry(QRectF(QPointF(0,verticalOffset), size));
 }
 
@@ -1241,7 +1240,7 @@ void AMDataViewSectionThumbnailView::populate() {
 
 	setVisible(false);
 
-	// qDebug() << "AMDataViewSectionThumbnailView::populate(): \n   starting at " << QTime::currentTime().toString("mm:ss.zzz");
+	// qdebug() << "AMDataViewSectionThumbnailView::populate(): \n   starting at " << QTime::currentTime().toString("mm:ss.zzz");
 
 	/// \todo This won't work for samples, because they don't have a number column. Generalize or specificized.
 	QSqlQuery q = db_->query();
@@ -1251,14 +1250,14 @@ void AMDataViewSectionThumbnailView::populate() {
 	query.append(" ORDER BY dateTime");
 	q.prepare( query );
 
-	//qDebug() << "   prior to executing database query: " << QTime::currentTime().toString("mm:ss.zzz");
+	//qdebug() << "   prior to executing database query: " << QTime::currentTime().toString("mm:ss.zzz");
 
 	if(!q.exec()) {
 		q.finish();
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, -1, QString("Error executing database query '%1'. The error was %2").arg(q.executedQuery()).arg(q.lastError().text())));
 	}
 
-	// qDebug() << "   after executing database query: " << QTime::currentTime().toString("mm:ss.zzz");
+	// qdebug() << "   after executing database query: " << QTime::currentTime().toString("mm:ss.zzz");
 
 	// int processEventsBreakCounter = 0;
 
@@ -1292,12 +1291,13 @@ void AMDataViewSectionThumbnailView::populate() {
 		}
 	}
 
-	// qDebug() << "   ending at " << QTime::currentTime().toString("mm:ss.zzz") << "\n";
+	// qdebug() << "   ending at " << QTime::currentTime().toString("mm:ss.zzz") << "\n";
 	// layout_->activate();
 
 	setVisible(true);
 }
 
+ AMLayoutControlledGraphicsWidget::~AMLayoutControlledGraphicsWidget(){}
 AMLayoutControlledGraphicsWidget::AMLayoutControlledGraphicsWidget(QGraphicsItem *parent, Qt::WindowFlags wFlags) : QGraphicsWidget(parent, wFlags)
 {
 }
@@ -1308,7 +1308,7 @@ bool AMLayoutControlledGraphicsWidget::event(QEvent *event)
 		if(layout()) {
 			QSizeF layoutSizeHint = layout()->effectiveSizeHint(Qt::PreferredSize);
 			if(size() != layoutSizeHint) {
-				//				qDebug() << "AMLayoutControlledGraphicsWidget: Catching a LayoutRequest and resizing ourself to match instead.";
+				//				qdebug() << "AMLayoutControlledGraphicsWidget: Catching a LayoutRequest and resizing ourself to match instead.";
 				resize(layoutSizeHint);
 				return true;	// don't pass this on like usual. Our resize() will trigger another LayoutRequest, but by then the size will match, so it'll be passed on through to the layout (below).
 			}
@@ -1320,12 +1320,13 @@ bool AMLayoutControlledGraphicsWidget::event(QEvent *event)
 
 void AMLayoutControlledGraphicsWidget::resizeEvent(QGraphicsSceneResizeEvent *event)
 {
-	//	qDebug() << "AMLayoutControlledGraphicsWidget: Getting resized, and emitting resized signal.";
+	//	qdebug() << "AMLayoutControlledGraphicsWidget: Getting resized, and emitting resized signal.";
 	QGraphicsWidget::resizeEvent(event);
 	emit resized();
 }
 
 #include <QAbstractItemModel>
+#include "dataman/AMSamplePre2013.h"
 #include "dataman/AMSample.h"
 #include "dataman/AMRun.h"
 
@@ -1365,12 +1366,12 @@ AMDataViewSectionListView::AMDataViewSectionListView(AMDatabase *db, const QStri
 									   whereClause,
 									   "dateTime ASC",
 									   QList<AMQueryTableModelColumnInfo>()
-										   << AMQueryTableModelColumnInfo("Row", "id")
+										   << AMQueryTableModelColumnInfo("Serial#", "id")
 										   << AMQueryTableModelColumnInfo("Name", "name")
 										   << AMQueryTableModelColumnInfo("#", "number")
 										   << AMQueryTableModelColumnInfo("When", "dateTime")
 										   // << AMQueryTableModelColumnInfo("About", "scanInfo")
-										   << AMQueryTableModelColumnInfo("Sample", "sampleId", true, AMDbObjectSupport::s()->tableNameForClass<AMSample>(), "name")
+										   // << AMQueryTableModelColumnInfo("Sample", "sampleId", true, AMDbObjectSupport::s()->tableNameForClass<AMSamplePre2013>(), "name")
 										   << AMQueryTableModelColumnInfo("Technique", "AMDbObjectType", true, "AMDbObjectTypes_table", "description", "AMDbObjectType")
 										   // << AMQueryTableModelColumnInfo("Where", "facilityId", true, AMDbObjectSupport::s()->tableNameForClass<AMFacility>(), "description")
 										   << AMQueryTableModelColumnInfo("Where", "runId", true, AMDbObjectSupport::s()->tableNameForClass<AMRun>(), "name")
@@ -1382,7 +1383,8 @@ AMDataViewSectionListView::AMDataViewSectionListView(AMDatabase *db, const QStri
 	widthConstraint_ = initialWidthConstraint;
 
 	// For now, we know what's in the columns, so we'll resize the headers appropriately. In the future, it's possible that the columns are configurable, using AMScanQueryModel with non-default constructor.
-	tableView_->setColumnHidden(0, true);
+	//tableView_->setColumnHidden(0, true);
+	tableView_->setColumnWidth(0, 60);
 	tableView_->setColumnWidth(1, 120);
 	tableView_->setColumnWidth(2, 40);
 	tableView_->setColumnWidth(3, 180);
@@ -1499,7 +1501,7 @@ void AMDataView::onDatabaseItemCreatedOrRemoved(const QString &tableName, int id
 
 void AMDataView::onDragStarted(const QPoint &startPos, const QPoint &currentPos)
 {
-	// qDebug() << "Drag started...";
+	// qdebug() << "Drag started...";
 
 	// we use this to indicate if we're tracking a rubber-band selection drag.
 	if(rubberBand_) {
@@ -1654,6 +1656,10 @@ void AMDataView::onCustomContextMenuRequested(QPoint pos)
 		break;
 	}
 
+	temp = popup.addAction("Fix CDF file");
+	if (numSelectedItems != 1)
+		temp->setEnabled(false);
+
 	temp = popup.exec(mapToGlobal(pos));
 
 	// If a valid action was selected.
@@ -1681,6 +1687,16 @@ void AMDataView::onCustomContextMenuRequested(QPoint pos)
 			}
 			else
 				emit launchScanConfigurationsFromDb();
+		}
+
+		else if (temp->text() == "Fix CDF file"){
+
+			QMessageBox::StandardButton button = QMessageBox::question(this, "Fixing CDF files",
+																		"You are about fix your scan that uses CDF files.  This may take a couple minutes.  Do you wish to proceed?",
+																		QMessageBox::Ok | QMessageBox::Cancel,
+																		QMessageBox::Cancel);
+			if (button == QMessageBox::Ok)
+				emit fixCDF();
 		}
 	}
 }
@@ -1851,3 +1867,5 @@ AMDataViewEmptyHeader::AMDataViewEmptyHeader(const QString &message, double init
 
 
 
+ AMAbstractDataViewSection::~AMAbstractDataViewSection(){}
+ AMIgnoreScrollTableView::~AMIgnoreScrollTableView(){}

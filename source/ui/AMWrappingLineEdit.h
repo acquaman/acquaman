@@ -31,6 +31,7 @@ public:
 	/// These values, or one of Qt::FocusReason, will be given as the reason why editing finished in the editingFinished(int) signal.
 	enum FinishReason { EscapePressedReason = Qt::OtherFocusReason + 1, EnterPressedReason, UnknownReason };
 
+ 	virtual ~AMWrappingLineEdit();
 	explicit AMWrappingLineEdit(QWidget *parent = 0);
 
 	/// Returns the contents of the text editor. ( same as QPlainTextEdit::toPlainText() )

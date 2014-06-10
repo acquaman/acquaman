@@ -23,6 +23,18 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/AMAction3.h"
 #include "actions3/AMListActionInfo3.h"
 
+#define AMLISTACTION3_CANNOT_ADD_SUBACTION_ONCE_RUNNING 270801
+#define AMLISTACTION3_CANNOT_REMOVE_SUBACTION_ONCE_RUNNING 270802
+#define AMLISTACTION3_PAUSE_CALLED_WITH_NO_ACTION_RUNNING 270803
+#define AMLISTACTION3_RESUME_CALLED_WHEN_NOT_PAUSED 270804
+#define AMLISTACTION3_RESUME_CALLED_WITH_NO_ACTION_RUNNING 270805
+#define AMLISTACTION3_SEQUENTIAL_SUBACTION_PAUSED_WITHOUT_PAUSING_PARENT 270806
+#define AMLISTACTION3_SEQUENTIAL_SUBACTION_CANCELLED_WITHOUT_CANCELLING_PARENT 270807
+#define AMLISTACTION3_PARALLEL_SUBACTION_PAUSED_WITHOUT_PAUSING_PARENT 270808
+#define AMLISTACTION3_PARALLEL_SUBACTION_CANCELLED_WITHOUT_CANCELLING_PARENT 270809
+
+class AMScanAction;
+
 /// This subclass of AMAction provides an easy way to run a list of sub-actions either sequentially or in parallel.
 class AMListAction3 : public AMAction3
 {
@@ -31,7 +43,7 @@ public:
 
 	/// Specifies whether the sub-actions should be run in parallel or sequentially.
 	enum SubActionMode { Sequential = 0,
-			     Parallel
+				 Parallel
 			   };
 
 	/// Constructor
@@ -52,6 +64,8 @@ public:
 
 	/// Re-implemented from AMAction to indicate we can pause. In sequential mode we can pause if the current action is running and can pause, OR if there's more than one action (ie: we can pause between actions). In parallel mode, we can pause if all of our still-running parallel actions can pause.  If there are no sub-actions, we cannot pause because the action would run instantly -- there would be no time to pause.
 	virtual bool canPause() const;
+	/// Re-implemented from AMAction to indicate we can skip.  Skipping is supported in sequential mode and NOT supported in parallel mode.
+	virtual bool canSkip() const { return subActionMode_ == Sequential; }
 
 	/// Pure virtual function that denotes that this action has children underneath it or not.
 	bool hasChildren() const { return true; }
@@ -100,6 +114,8 @@ public:
 	/// Remove and return the sub-action at \c index. Returns 0 if the index is out of range, or if the action is already running and this is not allowed. Ownership of the sub-action becomes the responsibility of the caller.
 	AMAction3* takeSubActionAt(int index);
 
+	AMDatabase* loggingDatabase() const;
+
 	// Other methods that should be reimplemented.
 	////////////////////////////////////////////
 
@@ -111,6 +127,8 @@ public:
 public slots:
 	/// Sets the database id of the log action associated with this instance
 	void setLogActionId(int logActionId);
+
+	void setLoggingDatabase(AMDatabase *loggingDatabase);
 
 signals:
 
@@ -130,6 +148,14 @@ signals:
 	void currentSubActionChanged(int newSubActionIndex);
 	/// Emitted when a sub-action completes.
 	void subActionCompleted(AMAction3* completedAction);
+
+	// Signals specific to AMScanAction.  Since other parts of the application will likely want to know some of these things.
+	/// Notifier that the scan action has been created.  Note that a scan controller is not created at this point.
+	void scanActionCreated(AMScanAction *);
+	/// Notifier that the scan action has been started.
+	void scanActionStarted(AMScanAction *);
+	/// Notifier that the scan action has finished (made it to either Succeeded, Failed, or Cancelled).
+	void scanActionFinished(AMScanAction *);
 
 protected slots:
 	/// Called when any of the sub-actions changes state.
@@ -151,6 +177,8 @@ protected:
 	virtual void resumeImplementation();
 	/// All implementations must support cancelling. This function will be called from the Cancelling state. In SequentialMode, we cancel() the currently running action (unless we're paused between actions.)  In ParallelMode, we cancel all the still-running actions.
 	virtual void cancelImplementation();
+	/// This method does the requisite work to ensure a sequential list can be skipped.  Does nothing if the list is in Parallel mode.
+	virtual void skipImplementation(const QString &command);
 
 	// Helper function to help move through a sequential list of actions.
 	//////////////////////////////////////
@@ -184,6 +212,9 @@ protected:
 	/// Helper function that returns true if we should log a sub-action ourselves when it finishes. True if: we're running inside AMActionRunner, we're supposed to log our sub-actions separately, AND \c action is not itself a nested action that is supposed to log its own sub-actions seperately.  (If \c action IS a nested action, but it's supposed to be logged as one unit, then we'll still log it ourselves.)
 	bool internalShouldLogSubAction(AMAction3* action);
 
+	/// Helper method that returns whether the current action is a scan action or not.
+	bool isScanAction() const;
+
 	/// Ordered list of sub-actions
 	QList<AMAction3*> subActions_;
 	/// Whether to run sub-actions sequentially or in parallel
@@ -195,6 +226,11 @@ protected:
 
 	/// Holds the id of the log action (these actions are logged first when they start). Will hold -1 until it gets something valid
 	int logActionId_;
+
+	/// Flag used when skipping after the next action.
+	bool skipAfterCurrentAction_;
+
+	AMDatabase *loggingDatabase_;
 };
 
 /// This is a convenience class that builds a sequential list action.  Equivalent to AMListAction(info, SubActionMode::Sequential, parent).
@@ -204,6 +240,7 @@ class AMSequentialListAction3 : public AMListAction3
 
 public:
 	/// Constructor.  Builds a sequential list action.
+ 	virtual ~AMSequentialListAction3();
 	Q_INVOKABLE AMSequentialListAction3(AMSequentialListActionInfo3 *info, QObject *parent = 0)
 		: AMListAction3(info, Sequential, parent)
 	{}
@@ -216,6 +253,7 @@ class AMParallelListAction3 : public AMListAction3
 
 public:
 	/// Constructor.  Builds a parallel list action.
+ 	virtual ~AMParallelListAction3();
 	Q_INVOKABLE AMParallelListAction3(AMParallelListActionInfo3 *info, QObject *parent = 0)
 		: AMListAction3(info, Parallel, parent)
 	{}

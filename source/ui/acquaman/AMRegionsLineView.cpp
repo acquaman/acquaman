@@ -20,6 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMRegionsLineView.h"
 
+ AMRegionItem::~AMRegionItem(){}
 AMRegionItem::AMRegionItem(double start, double delta, double end, double min, double max, int pixRange, const QString &units) : color(qrand() % 256, qrand() % 256, qrand() % 256)
 {
 	setToolTip(QString("QColor(%1, %2, %3)\n%4")
@@ -109,6 +110,7 @@ void AMRegionItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event){
 }
 
 
+ AMEnergyIndexItem::~AMEnergyIndexItem(){}
 AMEnergyIndexItem::AMEnergyIndexItem(double energy, double min, double max, int pixRange, const QString &units) : color(qrand() % 256, qrand() % 256, qrand() % 256)
 {
 	setToolTip(QString("QColor(%1, %2, %3)\n%4")
@@ -139,6 +141,7 @@ void AMEnergyIndexItem::paint(QPainter *painter, const QStyleOptionGraphicsItem 
 	painter->drawText(box, Qt::AlignHCenter, energyVal.setNum(energy_) + units_, textBox_);
 }
 
+ AMRegionsLineView::~AMRegionsLineView(){}
 AMRegionsLineView::AMRegionsLineView(AMRegionsList *regions, QWidget *parent) : QWidget(parent)
 {
 	regions_ = regions;
@@ -191,8 +194,23 @@ void AMRegionsLineView::handleRowsRemoved(const QModelIndex &parent, int start, 
 }
 
 void AMRegionsLineView::redrawRegionsLine(){
-	int nlSize = 800;
+	if(!regions_)
+		return;
+
 	scene->clear();
+
+	if(regions_->count() == 0){
+		QRectF rect(scene->itemsBoundingRect());
+		scene->addRect(rect, QPen(Qt::black), QBrush(Qt::red));
+		QFont font(this->font());
+		font.setBold(true);
+		font.setPointSize(24);
+		QGraphicsTextItem *text = scene->addText("No Regions", font);
+		text->setPos(10, 0);
+		return;
+	}
+
+	int nlSize = 800;
 	double range = regions_->maximumValue() - regions_->minimumValue();
 	double ratio = range/(nlSize-60);
 
@@ -233,6 +251,7 @@ void AMRegionsLineView::redrawRegionsLine(){
 // AMEXAFSLinesView
 ////////////////////////////////////////
 
+ AMEXAFSLineView::~AMEXAFSLineView(){}
 AMEXAFSLineView::AMEXAFSLineView(AMEXAFSRegionsList *regions, QWidget *parent)
 	: AMRegionsLineView(regions, parent)
 {

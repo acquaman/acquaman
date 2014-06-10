@@ -22,7 +22,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QGroupBox>
 #include <QBoxLayout>
+#include "ui/AMTopFrame2.h"
 
+ REIXSXESScanConfigurationDetailedView::~REIXSXESScanConfigurationDetailedView(){}
+//REIXSXESScanConfigurationDetailedView::REIXSXESScanConfigurationDetailedView(REIXSXESMCPDetectorPre2013* detector, QWidget *parent) :
 REIXSXESScanConfigurationDetailedView::REIXSXESScanConfigurationDetailedView(REIXSXESMCPDetector* detector, QWidget *parent) :
 	AMScanConfigurationView(parent)
 {
@@ -32,12 +35,20 @@ REIXSXESScanConfigurationDetailedView::REIXSXESScanConfigurationDetailedView(REI
 	detectorPreviewBox->setLayout(new QVBoxLayout());
 	detectorPreviewBox->layout()->addWidget(detectorView_);
 
+	QVBoxLayout* outerVLayout = new QVBoxLayout();
+	outerVLayout->setContentsMargins(0,0,0,0);
+	outerVLayout->setSpacing(0);
+	outerVLayout->addWidget(new AMTopFrame2("Setup XES Scan", QIcon(":/utilities-system-monitor.png")));
+
 	QHBoxLayout* hl = new QHBoxLayout();
+	hl->setContentsMargins(12,12,12,12);
+	hl->setSpacing(6);
 	QVBoxLayout* vl1 = new QVBoxLayout();
 	vl1->addWidget(basicConfigurationView_);
 	vl1->addStretch();
 	hl->addLayout(vl1);
 	hl->addWidget(detectorPreviewBox);
 
-	setLayout(hl);
+	outerVLayout->addLayout(hl);
+	setLayout(outerVLayout);
 }

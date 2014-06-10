@@ -26,6 +26,10 @@ class QSpinBox;
 class QCheckBox;
 class QPushButton;
 class QSlider;
+class QAction;
+class QToolButton;
+class QDoubleSpinBox;
+class QComboBox;
 
 
 class MPlotWidget;
@@ -36,6 +40,7 @@ class MPlotSeriesBasic;
 class MPlotColorMap;
 class MPlotPoint;
 
+class AMChooseScanDialog;
 class REIXSXESImageAB;
 
 #include "MPlot/MPlotSeriesData.h"
@@ -45,10 +50,13 @@ class REIXSXESImageABEditorShiftModel : public QObject, public MPlotAbstractSeri
 	Q_OBJECT
 public:
 	/// Constructor: exposes the shiftValues() in \c analysisBlock (must be valid).
+ 	virtual ~REIXSXESImageABEditorShiftModel();
 	REIXSXESImageABEditorShiftModel(REIXSXESImageAB* analysisBlock, QObject* parent = 0);
 
 	virtual qreal x(unsigned index) const;
+	virtual void xValues(unsigned indexStart, unsigned indexEnd, qreal *outputValues) const;
 	virtual qreal y(unsigned index) const;
+	virtual void yValues(unsigned indexStart, unsigned indexEnd, qreal *outputValues) const;
 	virtual int count() const;
 
 public slots:
@@ -69,6 +77,46 @@ protected:
 };
 
 
+
+/// Helper class for REIXSXESImageABEditor: Exposes REIXSXESImageAB's shift data as MPlotAbstractSeriesData
+class REIXSXESImageABEditorEllipticalMask : public QObject, public MPlotAbstractSeriesData {
+	Q_OBJECT
+public:
+	/// Constructor: exposes the shiftValues() in \c analysisBlock (must be valid).
+ 	virtual ~REIXSXESImageABEditorEllipticalMask();
+	REIXSXESImageABEditorEllipticalMask(REIXSXESImageAB* analysisBlock, QObject* parent = 0);
+
+	virtual qreal x(unsigned index) const;
+	virtual void xValues(unsigned indexStart, unsigned indexEnd, qreal *outputValues) const;
+	virtual qreal y(unsigned index) const;
+	virtual void yValues(unsigned indexStart, unsigned indexEnd, qreal *outputValues) const;
+	virtual int count() const;
+	//call when range or roundness changes: call emitDataChanged()
+	void rangeValuesChanged();
+	
+public slots:
+
+protected slots:
+	/// Called when the size of the analysis block changes: reset displayXOffset_.
+//	void onOutputSizeChanged();
+	/// Called when the shift values change: calls emitDataChanged().
+//	void onShiftValuesChanged();
+	
+
+
+
+protected:
+	REIXSXESImageAB* analysisBlock_;
+	/// Adds this offset to the x-values of the shift data, so that it can be shown at any point on the plot. Initialized to analysisBlock_->size(0)/2.
+//	int displayXOffset_;
+
+};
+
+
+
+
+
+
 /// Provides an editor widget for REIXSXESImageAB, showing the raw image, the shift curve, and options to control the summing range and correlation settings.
 class REIXSXESImageABEditor : public QWidget
 {
@@ -78,7 +126,10 @@ public:
 	explicit REIXSXESImageABEditor(REIXSXESImageAB* analysisBlock, QWidget *parent = 0);
 
 	/// Destructor
-	~REIXSXESImageABEditor();
+	virtual ~REIXSXESImageABEditor();
+
+	/// Enum describing the options for smoothing the auto-correlated shift curve.
+	enum smoothBoxType { None, Poly, Median, Average };
 
 
 signals:
@@ -87,13 +138,32 @@ signals:
 public slots:
 
 	/// signals from GUI objects: range minimum control
-	void onRangeMinControlChanged(int);
+	void onRangeMinYControlChanged(int);
 	/// signals from GUI objects: range maximum control
-	void onRangeMaxControlChanged(int);
+	void onRangeMaxYControlChanged(int);
+	/// signals from GUI objects: range minimum control
+	void onRangeMinXControlChanged(int);
+	/// signals from GUI objects: range maximum control
+	void onRangeMaxXControlChanged(int);
+	
+	/// signals from GUI objects: mask roundness control
+	void onRangeRoundControlChanged(double);
+	
+	
 	/// Called when the correlation settings are changed
 	void onCorrelationCenterBoxChanged(int);
 	void onCorrelationPointsBoxChanged(int);
+	void onCSmoothBoxChanged();
+	void onCSmoothModeChanged();
 
+
+	// The "Apply to other scans" button applies this shift curve to many scans at once.
+	/// Called to apply same shift curve to many XES scans. Shows the dialog to choose which scans.
+	void onApplyToOtherScansMenuClicked();
+	/// When a user chooses which scans to apply the current shift to.
+	void onApplyToOtherScansChosen();
+	/// When a user pushes the "manual shift entry" button.
+	void onManualShiftEntryButtonClicked();
 
 	/// signals from analysis block: if the block's input data source changes (to either null, or one with a different size.)
 	void onAnalysisBlockInputDataSourcesChanged();
@@ -109,25 +179,49 @@ protected:
 	REIXSXESImageAB* analysisBlock_;
 
 	// GUI elements:
-	QSpinBox* rangeMinControl_, *rangeMaxControl_;
-	QSpinBox* correlationCenterBox_, *correlationPointsBox_;
+	QSpinBox* rangeMinYControl_, *rangeMaxYControl_, *rangeMinXControl_, *rangeMaxXControl_;
+	QSpinBox* correlationCenterBox_, *correlationPointsBox_, *smoothModeBox_;
 	QPushButton* correlateNowButton_;
+	QComboBox* correlationSmoothingBox_;
 	QCheckBox* liveCorrelationCheckBox_;
+	QDoubleSpinBox* energyCalibrationOffsetBox_, *tiltCalibrationOffsetBox_, *rangeRoundControl_;
+
 	QSlider* shiftDisplayOffsetSlider_;
+
+	QToolButton* applyToOtherScansButton_;
+	QToolButton* manualShiftEntryButton_;
+
 
 	// plot widget to show what region is summed
 	MPlotWidget* plotWidget_;
 	MPlot* plot_;
 	MPlotColorMap* colorMap_;
 	MPlotImageBasic* image_;
-	MPlotRectangle* rangeRectangle1_, *rangeRectangle2_;
+	MPlotRectangle* rangeRectangleY1_, *rangeRectangleY2_, *rangeRectangleX1_, *rangeRectangleX2_;
+	
 	MPlotSeriesBasic* shiftSeries_;
 	MPlotPoint* corrRegionLeft_, * corrRegionRight_;
 	REIXSXESImageABEditorShiftModel* shiftData_;
+	
+	MPlotSeriesBasic* ellipseSeries_;
+	REIXSXESImageABEditorEllipticalMask* ellipseData_;
+	
+
+	/// Dialog to ask the user for a set of scans (to apply the same shift curve to many at once)
+	AMChooseScanDialog* chooseScanDialog_;
+	/// A checkable menu action that indicates "batch apply" should apply correlation settings to all scans.
+	QAction* batchApplyCorrelationSettings_;
+	/// A checkable menu action that indicates "batch apply" should apply the shift curve to all scans.
+	QAction* batchApplyShiftCurve_;
+	/// A checkable menu action that indicates "batch apply" should apply the sum range (min, max) to all scans.
+	QAction* batchApplySumRange_;
+	/// A checkable menu action that indicates "batch apply" shouuld apply the calibration offsets (energy, tilt) to all scans.
+	QAction* batchApplyCalibrationOffsets_;
 
 
 	/// called to position and show/hide the range rectangle, as appropriate.
 	void placeRangeRectangle();
+	
 
 };
 

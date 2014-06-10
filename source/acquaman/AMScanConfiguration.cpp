@@ -26,6 +26,16 @@ AMScanConfiguration::AMScanConfiguration(QObject *parent) :
 	userScanName_ = "";
 	userExportName_ = "$name.txt";
 	autoExportEnabled_ = true;
+	expectedDuration_ = 0;
+}
+
+AMScanConfiguration::AMScanConfiguration(const AMScanConfiguration &original)
+	: AMDbObject(original)
+{
+	userScanName_ = original.userScanName();
+	userExportName_ = original.userExportName();
+	autoExportEnabled_ = original.autoExportEnabled();
+	expectedDuration_ = original.expectedDuration();
 }
 
 const QMetaObject* AMScanConfiguration::getMetaObject(){
@@ -75,6 +85,8 @@ void AMScanConfiguration::setUserScanName(const QString &userScanName){
 	if(userScanName_ != userScanName){
 		userScanName_ = userScanName;
 		emit userScanNameChanged(userScanName_);
+		emit configurationChanged();
+		setModified(true);
 	}
 }
 
@@ -82,6 +94,8 @@ void AMScanConfiguration::setUserExportNmae(const QString &userExportName){
 	if(userExportName_ != userExportName){
 		userExportName_ = userExportName;
 		emit userExportNameChanged(userExportName_);
+		emit configurationChanged();
+		setModified(true);
 	}
 }
 
@@ -89,5 +103,34 @@ void AMScanConfiguration::setAutoExportEnabled(bool autoExportEnabled){
 	if(autoExportEnabled_ != autoExportEnabled){
 		autoExportEnabled_ = autoExportEnabled;
 		emit autoExportEnabledChanged(autoExportEnabled_);
+		emit configurationChanged();
+		setModified(true);
+	}
+}
+
+void AMScanConfiguration::setExpectedDuration(double duration)
+{
+	if (expectedDuration_ != duration){
+
+		expectedDuration_ = duration;
+		emit expectedDurationChanged(expectedDuration_);
+	}
+}
+
+void AMScanConfiguration::setDetectorConfigurations(const AMDetectorInfoSet &detectorConfigurations){
+	if(detectorConfigurations_ != detectorConfigurations){
+		detectorConfigurations_ = detectorConfigurations;
+		setModified(true);
+		emit detectorConfigurationsChanged();
+	}
+}
+
+void AMScanConfiguration::setAxisControlInfos(const AMControlInfoList &axisControlInfos)
+{
+	if (axisControlInfos_ != axisControlInfos){
+
+		axisControlInfos_ = axisControlInfos;
+		setModified(true);
+		emit axisControlInfosChanged();
 	}
 }

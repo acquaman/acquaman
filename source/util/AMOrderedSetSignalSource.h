@@ -33,6 +33,7 @@ class AMOrderedSetSignalSource : public QObject {
 	Q_OBJECT
 
 public:
+ 	virtual ~AMOrderedSetSignalSource();
 	AMOrderedSetSignalSource();
 
 	/// Do not call this function; it should be considered only available to AMOrderedSet.

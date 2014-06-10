@@ -21,70 +21,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef AMCONTROLSETINFO_H
 #define AMCONTROLSETINFO_H
 
-#include "dataman/database/AMDbObject.h"
-#include "util/AMOrderedList.h"
 #include <QDebug>
 
-/// This class can be used to store the essential information and state of an AMControl, without actually needing to have a live control object. This information includes the name, units, value, minimum value, and maximum value.
-class AMControlInfo : public AMDbObject {
-
-
-	Q_OBJECT
-
-	Q_PROPERTY(double value READ value WRITE setValue)
-	Q_PROPERTY(double minimum READ minimum WRITE setMinimum)
-	Q_PROPERTY(double maximum READ maximum WRITE setMaximum)
-	Q_PROPERTY(QString units READ units WRITE setUnits)
-	Q_PROPERTY(double tolerance READ tolerance WRITE setTolerance)
-	Q_PROPERTY(QString description READ description WRITE setDescription)
-	Q_PROPERTY(QString contextKnownDescription READ contextKnownDescription WRITE setContextKnownDescription)
-
-	Q_CLASSINFO("AMDbObject_Attributes", "description=Saved Control State")
-
-
-public:
-	Q_INVOKABLE AMControlInfo(const QString& name = "Invalid Control", double value = 0.0, double minimum = 0.0, double maximum = 0.0, const QString& units = "n/a", double tolerance = 0.0, const QString &description = "", const QString &contextKnownDescription = "", QObject* parent = 0);
-
-	double value() const { return value_; }
-	double minimum() const { return minimum_; }
-	double maximum() const { return maximum_; }
-	QString units() const { return units_; }
-	double tolerance() const { return tolerance_; }
-	QString description() const { return description_; }
-	QString contextKnownDescription() const { return contextKnownDescription_; }
-
-	/// The default copy constructor and assignment operator will copy the values from \c other, but they will also copy over the database identity (ie: id(), database(), modified() state, etc.).  This means that calling storeToDb() will now save to \c other's database location.  If you want to copy the values but retain your old database identity, call this function instead.
-	void setValuesFrom(const AMControlInfo& other) {
-		value_ = other.value_;
-		minimum_ = other.minimum_;
-		maximum_ = other.maximum_;
-		units_ = other.units_;
-		tolerance_ = other.tolerance_;
-		description_ = other.description_;
-		contextKnownDescription_ = other.contextKnownDescription_;
-		setName(other.name());
-		setModified(true);
-	}
-
-public slots:
-	void setValue(double value) { value_ = value; setModified(true); }
-	void setMinimum(double minimum) { minimum_ = minimum; setModified(true); }
-	void setMaximum(double maximum) { maximum_ = maximum; setModified(true); }
-	void setUnits(const QString &units) { units_ = units; setModified(true); }
-	void setTolerance(double tolerance) { tolerance_ = tolerance; setModified(true); }
-	void setDescription(const QString &description) { description_ = description; setModified(true); }
-	void setContextKnownDescription(const QString &contextKnownDescription) { contextKnownDescription_ = contextKnownDescription; setModified(true); }
-
-protected:
-	double value_;
-	double minimum_;
-	double maximum_;
-	QString units_;
-	double tolerance_;
-	QString description_;
-	QString contextKnownDescription_;
-};
-
+#include "dataman/info/AMControlInfo.h"
+#include "util/AMOrderedList.h"
 
 /// This is a container class for AMControlInfo, most commonly used to represent an arbitrary set of control positions.  It is an AMDbObject subclass that can be stored to the database, but it's also a lightweight class that can be copied and passed around by value.
 /*! Note that the assignment operator and copy constructor copy the other object's <i>database identity</i> as well as its values; these are a "shallow copy" from the perspective of the database: both source and destination will point to the same location in the database, although they are separate objects in C++ memory. If you want to copy all the values from another AMControlInfoList, but preserve your database identity, use setValuesFrom() instead. For more information, see setValuesFrom(). */
@@ -108,11 +48,14 @@ public:
 	/// Comparison operator. Returns true if and only if the values from the \c other list match the list of values in this within the tolerance of the
 	bool operator==(const AMControlInfoList &other) const;
 
+	/// Inequality operator. Returns !==
+	bool operator!=(const AMControlInfoList &other) const;
+
 	/// Compares this list to another with a list of alternate tolerances for the controls in the list. The lists must have the same items, in the same order, and the tolerances must be in the same order.
 	bool compareWithinTolerance(const AMControlInfoList &other, QList<double> tolerances) const;
 
 	/// Destructor
-	~AMControlInfoList() {}
+	virtual ~AMControlInfoList() {}
 
 	/// Allows you to push a ControlInfoList into a QDebug stream
 	friend QDebug operator<<(QDebug d, const AMControlInfoList& cil);

@@ -36,6 +36,8 @@ public:
 		units = mUnits;
 		axes = mAxes;
 	}
+	/// Destructor.
+	virtual ~AMMeasurementInfo(){}
 
 	/// A unique, variable-style name for this measurement
 	QString name;
@@ -52,21 +54,21 @@ public:
 	/// Returns the length of all the axes
 	AMnDIndex inline size() const {
 		int rank = axes.count();
-		AMnDIndex s(rank, false);
-		for(int i=0; i<rank; i++)
+		AMnDIndex s(rank, AMnDIndex::DoNotInit);
+		for(int i=0; i<rank; ++i)
 			s[i] = axes.at(i).size;
 		return s;
 	}
 
 	/// Returns the length of the specified axis \c axisId.  (\c axisId is assumed to be >= 0 and < rank().)
-	int inline size(int axisId) const {
+	long inline size(int axisId) const {
 		return axes.at(axisId).size;
 	}
 
 	/// Returns the number of points this measurement spans (A scalar value is "1" point, a 1D Detector is the same as its dimension, higher-D detectors are the products of their dimensions)
-	int inline spanSize() const {
-		int aSize = 1;
-		for(int i=0; i<axes.count(); i++)
+	long inline spanSize() const {
+		long aSize = 1;
+		for(int i=axes.count()-1; i>=0; --i)
 			aSize *= axes.at(i).size;
 		return aSize;
 	}

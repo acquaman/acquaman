@@ -31,6 +31,7 @@ class AMFolderPathValidator : public QValidator {
 	Q_OBJECT
 
 public:
+ 	virtual ~AMFolderPathValidator();
 	AMFolderPathValidator(QObject* parent = 0) : QValidator(parent) {}
 	State validate ( QString & input, int & pos ) const;
 
@@ -45,6 +46,7 @@ class AMFolderPathLineEdit : public QLineEdit
 {
 	Q_OBJECT
 public:
+ 	virtual ~AMFolderPathLineEdit();
 	explicit AMFolderPathLineEdit(QWidget *parent = 0);
 
 signals:

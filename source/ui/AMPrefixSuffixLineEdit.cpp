@@ -23,7 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 // Fortunately, this function gets called every single time the line edit is typed into. We use it to intercept and negate any editing of the prefix or suffix.
 AMPrefixSuffixValidator::State AMPrefixSuffixValidator::validate ( QString & input, int & pos ) const {
 
-	//qDebug() << "calling validate: incoming: '" << input << "'.";
+	//qdebug() << "calling validate: incoming: '" << input << "'.";
 
 	// possible situations:
 	/*	- normal editing inside the allowed "actual" text area
@@ -40,7 +40,7 @@ AMPrefixSuffixValidator::State AMPrefixSuffixValidator::validate ( QString & inp
 		input.prepend(AMPrefixSuffix::separator1());
 		input.prepend(prefix_);
 		pos = prefix_.length()+1;
-		//qDebug() << "  validate: missing sep1:" << input;
+		//qdebug() << "  validate: missing sep1:" << input;
 	}
 
 	// So we still have the separator.  What's before it might be bad or good.
@@ -50,7 +50,7 @@ AMPrefixSuffixValidator::State AMPrefixSuffixValidator::validate ( QString & inp
 		// all good?
 		if(input.left(indexOfSep) == prefix_) {
 			// do nothing...
-			//qDebug() << "  validate: prefix is good.";
+			//qdebug() << "  validate: prefix is good.";
 		}
 
 		else {
@@ -61,18 +61,18 @@ AMPrefixSuffixValidator::State AMPrefixSuffixValidator::validate ( QString & inp
 				input.remove(0, indexOfSep + 1);
 				input.prepend(rescued);
 				pos = prefix_.length() + 2;
-				//qDebug() << "  validate: edited prefix:" << input;
+				//qdebug() << "  validate: edited prefix:" << input;
 			}
 			// any other damage (or even non-damage, for now) we handle by deleting everything up to and including the separator, and adding it all back.
 			else {
 				input.remove(0, indexOfSep + 1);
-				//qDebug() << "  validate: generic prefix fix:" << input;
+				//qdebug() << "  validate: generic prefix fix:" << input;
 			}
 			// add the prefix back...
 			input.prepend(AMPrefixSuffix::separator1());
 			input.prepend(prefix_);
 
-			//qDebug() << "  validate: end of prefix fix:" << input;
+			//qdebug() << "  validate: end of prefix fix:" << input;
 		}
 	}
 
@@ -81,7 +81,7 @@ AMPrefixSuffixValidator::State AMPrefixSuffixValidator::validate ( QString & inp
 		input.chop(input.length() - pos);
 		input.append(AMPrefixSuffix::separator2());
 		input.append(suffix_);
-		//qDebug() << "  validate: missing sep2:" << input;
+		//qdebug() << "  validate: missing sep2:" << input;
 	}
 	// otherwise, we still have the separator
 	else {
@@ -89,7 +89,7 @@ AMPrefixSuffixValidator::State AMPrefixSuffixValidator::validate ( QString & inp
 
 		// all good?
 		if(input.mid(indexOfSep+1) == suffix_) {
-			//qDebug() << "  validate: suffix is good";
+			//qdebug() << "  validate: suffix is good";
 			// do nothing
 		}
 		else {
@@ -98,17 +98,17 @@ AMPrefixSuffixValidator::State AMPrefixSuffixValidator::validate ( QString & inp
 				QChar rescued = input.at(pos-1);
 				input.chop(input.length() - indexOfSep);
 				input.append(rescued);
-				//qDebug() << "  validate: edited suffix:" << input;
+				//qdebug() << "  validate: edited suffix:" << input;
 			}
 			// otherwise... (any other kind of damage, handle generically)
 			else {
 				input.chop(input.length() - indexOfSep);
-				//qDebug() << "  validate: generic suffix fix:" << input;
+				//qdebug() << "  validate: generic suffix fix:" << input;
 			}
 
 			input.append(AMPrefixSuffix::separator2());
 			input.append(suffix_);
-			//qDebug() << "  validate: end of suffix fix:" << input;
+			//qdebug() << "  validate: end of suffix fix:" << input;
 		}
 	}
 
@@ -120,10 +120,11 @@ AMPrefixSuffixValidator::State AMPrefixSuffixValidator::validate ( QString & inp
 	if( pos > input.length() - suffix_.length() - 1)
 		pos = input.length() - suffix_.length() - 1;
 
-	//qDebug() << "calling validate: output: '" << input << "'.";
+	//qdebug() << "calling validate: output: '" << input << "'.";
 	return QValidator::Acceptable;
 }
 
+ AMPrefixSuffixLineEdit::~AMPrefixSuffixLineEdit(){}
 AMPrefixSuffixLineEdit::AMPrefixSuffixLineEdit(const QString& prefix, const QString& suffix, QWidget *parent) :
 		QLineEdit(parent)
 {

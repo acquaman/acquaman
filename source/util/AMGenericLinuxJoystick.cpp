@@ -21,7 +21,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QFile>
 #include <QFileInfo>
-#include <QDebug>
 #include <QTimer>
 
 #include <sys/types.h>
@@ -174,6 +173,7 @@ void AMGenericLinuxJoystick::onJoystickEvents(QVector<AMGenericLinuxJoystickEven
 
 
 
+ AMGenericLinuxJoystickThread::~AMGenericLinuxJoystickThread(){}
 AMGenericLinuxJoystickThread::AMGenericLinuxJoystickThread(int fileDescriptor, QObject* parent) :
     QThread(parent)
 {
@@ -200,7 +200,7 @@ void AMGenericLinuxJoystickThread::run()
 
         /* EAGAIN is returned when the queue is empty */
         if(errno != EAGAIN) {
-            qWarning() << "AMGenericLinuxJoystick: Read error. Is it possible that the joystick was disconnected?";
+		AMErrorMon::alert(this, AMGENERICLINUXJOYSTICK_READ_ERROR_POSSIBLE_DISCONNECT, "AMGenericLinuxJoystick: Read error. Is it possible that the joystick was disconnected?");
             return;
         }
         usleep(250);

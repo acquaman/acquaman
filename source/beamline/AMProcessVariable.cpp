@@ -19,7 +19,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "AMProcessVariable.h"
-#include <QDebug>
 #include "util/AMErrorMonitor.h"
 
 // AMProcessVariable
@@ -86,7 +85,6 @@ chtype AMProcessVariable::serverType2StatusType(chtype serverType)
 }
 
 
-
 AMProcessVariable::AMProcessVariable(const QString &pvName, bool monitor, QObject *parent, int connectionTimeoutMs) :
 	QObject(parent)
 {
@@ -94,7 +92,7 @@ AMProcessVariable::AMProcessVariable(const QString &pvName, bool monitor, QObjec
 	shouldBeMonitoring_ = monitor;
 
 	d_ = AMProcessVariableSupport::getPrivateForPVName(pvName);
-	d_->attachProcessVariable(this);
+    d_->attachProcessVariable(this);
 
 	// This will notice if the connection times out:
 	QTimer::singleShot(connectionTimeoutMs, this, SLOT(onConnectionTimeout()));

@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AMDATASOURCEIMAGEDATA_H
 
 #include <QObject>
+
 #include "MPlot/MPlotImageData.h"
 #include "dataman/datasource/AMDataSource.h"
 
@@ -31,6 +32,7 @@ class AMDataSourceImageData : public QObject, public MPlotAbstractImageData
 	Q_OBJECT
 public:
 	/// Constructor. \c dataSource is the source to represent as Z=f(X,Y) image data.
+ 	virtual ~AMDataSourceImageData();
 	AMDataSourceImageData(const AMDataSource* dataSource, QObject* parent = 0);
 
 	/// Call this to switch to representing a different data source
@@ -40,12 +42,14 @@ public:
 	const inline AMDataSource* dataSource() const { return source_; }
 
 
-	/// Return the x (data value) corresponding an (x,y) \c index:
-	virtual inline double x(int indexX) const { return source_->axisValue(0, indexX, false); }
-	/// Return the y (data value) corresponding an (x,y) \c index:
-	virtual inline double y(int indexY) const { return source_->axisValue(1, indexY, false); }
-	/// Return the z = f(x,y) value corresponding an (x,y) \c index:
-	virtual inline double z(int xIndex, int yIndex) const { return source_->value(AMnDIndex(xIndex, yIndex), false); }
+	/// Return the x (data value) corresponding an (x,y) \c index.
+	virtual inline double x(int indexX) const { return source_->axisValue(0, indexX); }
+	/// Return the y (data value) corresponding an (x,y) \c index.
+	virtual inline double y(int indexY) const { return source_->axisValue(1, indexY); }
+	/// Return the z = f(x,y) value corresponding an index (\c xIndex, \c yIndex)
+	virtual inline double z(int xIndex, int yIndex) const { return source_->value(AMnDIndex(xIndex, yIndex)); }
+	/// Copy an entire block of z = f(x,y) values from (xStart,yStart) to (xEnd,yEnd) inclusive, into \c outputValues. The data is copied in row-major order, ie: with the x-axis varying the slowest. (Can assume \c outputValues has enough room to hold all the values, that (xStart,yStart) <= (xEnd,yEnd), and that the indexes are not out of range.)
+	virtual inline void zValues(int xStart, int yStart, int xEnd, int yEnd, double* outputValues) const { source_->values(AMnDIndex(xStart,yStart), AMnDIndex(xEnd,yEnd), outputValues); }
 
 
 	/// Return the number of elements in x and y

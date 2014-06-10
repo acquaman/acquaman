@@ -29,6 +29,7 @@ class AMColorPickerButton : public QToolButton
 {
 	Q_OBJECT
 public:
+ 	virtual ~AMColorPickerButton();
 	AMColorPickerButton(const QColor& initialColor, QWidget *parent = 0);
 	explicit AMColorPickerButton(QWidget* parent = 0);
 

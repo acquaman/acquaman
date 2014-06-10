@@ -18,8 +18,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef ACQMAN_XASSCANCONFIGURATION_H
-#define ACQMAN_XASSCANCONFIGURATION_H
+#ifndef AM_XASSCANCONFIGURATION_H
+#define AM_XASSCANCONFIGURATION_H
 
 #include "acquaman/AMRegionScanConfiguration.h"
 
@@ -36,6 +36,7 @@ class AMXASScanConfiguration : public AMRegionScanConfiguration
 
 public:
 	/// Constructor, needs a pointer to a QObject to act as a parent and needs to know whether it should new its own regions list.  This allows a way to not new the wrong type of regions list.
+ 	virtual ~AMXASScanConfiguration();
 	AMXASScanConfiguration(QObject *parent = 0, bool setup = true);
 	AMXASScanConfiguration(const AMXASScanConfiguration &original, bool setup = true);
 
@@ -44,12 +45,15 @@ public:
 	/// Convenience function for returning the ending position of all regions.  Quick accessor for the end of the final region. If no reginos are set, returns -1
 	double endEnergy() const { return endValue(); }
 
-	/// A human-readable description of this scan configuration. Can be re-implemented to provide more details. Used by AMBeamlineScanAction to set the title for the action view.
+	/// A human-readable description of this scan configuration. Can be re-implemented to provide more details. Used by scan action to set the title for the action view.
 	virtual QString description() const {
-		return QString("XAS Scan from %1%3 to %2%4").arg(regionStart(0)).arg(regionEnd(regionCount()-1)).arg(regionUnits(0)).arg(regionUnits(regionCount()-1));
+		if(regionCount() != 0)
+			return QString("XAS Scan from %1%3 to %2%4").arg(regionStart(0)).arg(regionEnd(regionCount()-1)).arg(regionUnits(0)).arg(regionUnits(regionCount()-1));
+		else
+			return QString("XAS Scan");
 	}
 
-	/// A human-readable synopsis of this scan configuration. Can be re-implemented to proved more details. Used by AMBeamlineScanAction to set the main text in the action view.
+	/// A human-readable synopsis of this scan configuration. Can be re-implemented to proved more details. Used by scan action to set the main text in the action view.
 	virtual QString detailedDescription() const{
 		return QString("XAS Scan from %1%3 to %2%4").arg(regionStart(0)).arg(regionEnd(regionCount()-1)).arg(regionUnits(0)).arg(regionUnits(regionCount()-1));
 	}
@@ -77,4 +81,4 @@ public slots:
 	bool setEndEnergy(double endEnergy) { return setEndValue(endEnergy); }
 };
 
-#endif // ACQMAN_XASSCANCONFIGURATION_H
+#endif // AM_XASSCANCONFIGURATION_H

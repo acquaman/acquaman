@@ -26,7 +26,7 @@ class AMScanConfiguration;
 class AMScanConfigurationView;
 
 /// This widget holds a scan configuration widget, and provides user controls to start the configured scan within the workflow.  It can be constructed to surround any AMScanConfigurationView. Below the widget, it adds buttons to start the configured scan or add it to the workflow queue (using AMActionRunner).
-/*! This class is an updated version of AMScanConfigurationViewHolder that uses the workflow system in actions3/AMActionRunner.
+/*! This class is an updated version of the old scan configuration view holder that uses the workflow system in actions3/AMActionRunner.
 
 This widget takes ownership of the view specifified in its constructor.
 
@@ -38,11 +38,15 @@ class AMScanConfigurationViewHolder3 : public AMActionRunnerAddActionBar3
 public:
 	/// Construct a holder for an AMScanConfigurationView \c view (or 0 if no view is ready yet).
 	/*! If provided, this widget takes ownership of the \c view */
+ 	virtual ~AMScanConfigurationViewHolder3();
 	AMScanConfigurationViewHolder3(AMScanConfigurationView* view = 0, QWidget *parent = 0);
 
 	/// Set the \c view contained within the holder.  If there is an existing view, the old view is deleted.
 	/*! You can pass in 0 to remove the existing view from the holder.*/
 	void setView(AMScanConfigurationView* view);
+
+	/// Set the \c view as enabled or disabled. If there is a scan configuration view present, a red overlay warning will be present when set as disabled
+	void setEnabled(bool enabled);
 
 protected:
 
@@ -51,6 +55,9 @@ protected:
 
 	/// This is the scan configuration widget we're wrapping
 	AMScanConfigurationView* view_;
+
+	/// Warning label for disabled state
+	QLabel *disabledWarning_;
 };
 
 #endif // AMSCANCONFIGURATIONVIEWHOLDER3_H

@@ -27,6 +27,7 @@ class AMListActionEditor3 : public QFrame
 {
 Q_OBJECT
 public:
+ 	virtual ~AMListActionEditor3();
 	Q_INVOKABLE AMListActionEditor3(AMListActionInfo3 *info, QWidget *parent = 0);
 
 protected:

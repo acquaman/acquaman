@@ -66,7 +66,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QtGui/qwidget.h>
 #include <QtCore/qmath.h>
 
-#include <QDebug>
 
 AMFlowGraphicsLayout::AMFlowGraphicsLayout()
 {

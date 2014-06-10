@@ -19,15 +19,16 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMBasicXRFDetectorInfo.h"
 
+ AMBasicXRFDetectorInfo::~AMBasicXRFDetectorInfo(){}
 AMBasicXRFDetectorInfo::AMBasicXRFDetectorInfo(const QString &name, const QString &description, QObject *parent) :
-	AMDetectorInfo(name, description, parent)
+	AMOldDetectorInfo(name, description, parent)
 {
 	setUnits("Counts");
 }
 
 
 AMBasicXRFDetectorInfo::AMBasicXRFDetectorInfo(const AMBasicXRFDetectorInfo &original) :
-	AMDetectorInfo(original)
+	AMOldDetectorInfo(original)
 {
 	this->operator =(original);
 }
@@ -35,7 +36,7 @@ AMBasicXRFDetectorInfo::AMBasicXRFDetectorInfo(const AMBasicXRFDetectorInfo &ori
 AMBasicXRFDetectorInfo& AMBasicXRFDetectorInfo::operator =(const AMBasicXRFDetectorInfo &other)
 {
 	if(this != &other){
-		AMDetectorInfo::operator =(other);
+		AMOldDetectorInfo::operator =(other);
 		setElements(other.elements());
 		setChannels(other.channels());
 		setIntegrationTime(other.integrationTime());

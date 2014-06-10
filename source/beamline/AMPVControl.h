@@ -23,6 +23,15 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMControl.h"
 #include "beamline/AMProcessVariable.h"
 
+#define AMPVCONTROL_READ_PROCESS_VARIABLE_ERROR 280401
+#define AMPVCONTROL_COULD_NOT_MOVE_BASED_ON_CANMOVE 280402
+#define AMPVCONTROL_WRITE_PROCESS_VARIABLE_ERROR 280403
+#define AMPVCONTROL_MOVE_TIMEOUT_OCCURED_NOT_DURING_MOVE 280404
+#define AMPVCONTROL_STATUS_PROCESS_VARIABLE_ERROR 280405
+#define AMPVCONTROL_STATUS_WRITE_PROCESS_VARIABLE_ERROR 280406
+#define AMPVCONTROL_COULD_NOT_MOVE_WHILE_MOVING 280407
+#define AMPVCONTROL_COULD_NOT_MOVE_WHILE_MOVING_EXTERNAL 280408
+
 /**
  * \defgroup control Beamline Control with AMControl and AMProcessVariable
  @{
@@ -61,6 +70,7 @@ public:
   \param readPVname The EPICS channel-access name for this Process Variable
   \param parent QObject parent class
   */
+	virtual ~AMReadOnlyPVControl();
 	AMReadOnlyPVControl(const QString& name, const QString& readPVname, QObject* parent = 0, const QString decription = "");
 
 	/// \name Reimplemented Public Functions:
@@ -79,6 +89,11 @@ public:
 	virtual double minimumValue() const { return readPV_->lowerGraphicalLimit(); }
 	/// Maximum value taken from the readPV's upper graphing limit within EPICS.
 	virtual double maximumValue() const { return readPV_->upperGraphicalLimit(); }
+
+	/// Returns the alarm severity for the readPV:
+	virtual int alarmSeverity() const { return readPV_->alarmSeverity(); }
+	/// Returns the alarm status for the readPV:
+	virtual int alarmStatus() const { return readPV_->alarmStatus(); }
 	//@}
 
 	/// \name Additional public functions:
@@ -100,18 +115,18 @@ signals:
 protected:
 	/// Pointer to ProcessVariable used to read feedback value
 	AMProcessVariable* readPV_;
+	/// Used for change-detection of isConnected() for the connected() signal
+	bool wasConnected_;
 
 
 protected slots:
 	/// This is called when reading the PV's control information completes successfully.
 	void onReadPVInitialized();
 
-	/// Override this if you want custom handling if the readPV fails to connect.
-
 	/// You can also monitor the readConnectionTimeoutOccurred() signal.
 	void onConnectionTimeout() { setUnits("?"); emit connected(false); emit error(AMControl::CannotConnectError); }
 
-	/// This is called when a PV channel connects or disconnects
+	/// This is called when a PV channel connects or disconnects. Emits connected(bool) if isConnected() has changed compared to wasConnected_.
 	void onPVConnected(bool connected);
 	/// This is called when there is a Read PV channel error:
 	void onReadPVError(int errorCode);
@@ -132,6 +147,8 @@ This class measures values using one Process Variable, and writes out a setpoint
 Since we don't have a way to determine if the control is actually moving, this class introduces a completionTimeout(). If the value doesn't reach within tolerance() of setpoint() within a certain time, the move will fail.  One limitation is that if the control overshoots the setpoint, we can't tell the difference between this, and a successful move that rises later.  See AMPVwStatusControl for more sophisticated move completion testing.
 
 For these to make sense, make sure to use intelligent values for the tolerance and the timeout.  The default (AMCONTROL_TOLERANCE_DONT_CARE) will result in moves completing right away, regardless of where they get to.
+
+Because we don't have a great idea of whether this control is actually moving or not, we set the default allowsMovesWhileMoving() to true... To make sure we never omit sending moves we actually should have, because we think we're moving.  Call setAllowsMovesWhileMoving(false) if your device does not support receiving move() commands while it's already in motion.
 
 <b>Most useful members for using this class:</b>
 
@@ -166,6 +183,7 @@ public:
   \param parent QObject parent class
   \param stopPVname The EPICS channel-access name for the process variable to write to cancel a move in progress. If empty (default), shouldStop() and canStop() both return false, and calls to stop() will not work.
   */
+	virtual ~AMPVControl();
 	AMPVControl(const QString& name,
 				const QString& readPVname,
 				const QString& writePVname,
@@ -210,18 +228,18 @@ public:
 	QString writePVName() const { return writePV_->pvName(); }
 	/// The value of the writePV. This will match setpoint() unless someone else (another program or person in the facility) is changing the setpoint.
 	double writePVValue() const { return writePV_->lastValue(); }
-	/// Read-only access to the writePV.  Using this to change the writePVs value by connecting to its slots is not allowed/not supported.
-	const AMProcessVariable* writePV() const { return writePV_; }
+	/// Access to the writePV.  Using this to change the writePVs value by connecting to its slots is allowed but possible abberant behivour is possibles.
+	AMProcessVariable* writePV() const { return writePV_; }
 	/// Returns the number of seconds allowed for a move() to reach its target setpoint().
 	double completionTimeout() const { return completionTimeout_; }
-	/// Switches the writePV to using ca_put instead of ca_put_callback.  This seems to be necessary when using some of the more exotic record types such as the mca record type.  This is set to false by default.
-	void disableWritePVPutCallback(bool disable) { writePV_->disablePutCallbackMode(disable); }
+	/// Switches the writePV to use ca_put_callback() instead of ca_put(), if you want confirmation from the IOC when the put is actually processed, and the IOC can handle queuing instead of caching of PV puts.  The default uses ca_put().  \see AMProcessVariable::enablePutCallback().
+	void enableWritePVPutCallback(bool putCallbackEnabled) { writePV_->enablePutCallback(putCallbackEnabled); }
 	//@}
 
 public slots:
 
 	/// Start a move to the value setpoint (reimplemented)
-	virtual void move(double setpoint);
+	virtual FailureExplanation move(double setpoint);
 
 	/// Stop a move in progress (reimplemented)
 	virtual bool stop() {
@@ -239,7 +257,6 @@ public slots:
 
 	/// set the completion timeout (new public slot)
 	void setCompletionTimeout(double seconds) { completionTimeout_ = seconds; }
-
 
 signals:
 	/// Reports that the writePV failed to connect to the EPICS server within the timeout.
@@ -267,9 +284,6 @@ protected:
 	/// the target of our attempted move:
 	double setpoint_;
 
-	/// used for change-detection of the connection state:
-	bool wasConnected_;
-
 	/// true if no stopPVname was provided... Means we can't stop(), and shouldStop() and canStop() are false.
 	bool noStopPV_;
 	/// The value written to the stopPV_ when attempting to stop().
@@ -282,9 +296,6 @@ protected slots:
   In any case, if either one doesn't connected, we're not connected.*/
 	void onConnectionTimeout() { if(sender() == readPV_) { setUnits("?"); } emit connected(false); emit error(AMControl::CannotConnectError); }
 
-	/// This is called when a PV channel (read or write) connects or disconnects
-	void onPVConnected(bool connected);
-
 	/// This is called when there is a Write PV channel error:
 	void onWritePVError(int errorCode);
 
@@ -293,6 +304,11 @@ protected slots:
 
 	/// This is used to check every new value, to see if we entered tolerance
 	void onNewFeedbackValue(double val);
+
+	/// Called when the writePV is initialized(); calls setMoveEnumStates() if applicable.
+	void onWritePVInitialized();
+	/// Handles updating the setpoint member when the writePV updates.
+	void onSetpointChanged(double newVal);
 
 
 };
@@ -316,6 +332,7 @@ public:
   \param completionTimeoutSeconds Maximum time allowed for the value() to get within tolerance() of the setpoint() after a move().
   \param parent QObject parent class
   */
+	virtual ~AMSinglePVControl();
 	AMSinglePVControl(const QString& name,
 					  const QString& PVname,
 					  QObject* parent = 0,
@@ -337,6 +354,7 @@ public:
 class AMControlStatusCheckerDefault : public AMAbstractControlStatusChecker {
 public:
 	/// Status values will be compared to \c isMovingValue, and return true if the status value is equal to isMovingValue.
+	virtual ~AMControlStatusCheckerDefault();
 	AMControlStatusCheckerDefault(quint32 isMovingValue) : isMovingValue_(isMovingValue) {}
 
 	/// Returns true (moving) if the \c statusValue matches isMovingValue_;
@@ -350,6 +368,7 @@ protected:
 class AMControlStatusCheckerStopped : public AMAbstractControlStatusChecker {
 public:
 	/// Status values will be compare to \c isStoppedValue, and return true if the status value is not equal to isStoppedValue (something that isn't stopped is moving)
+	virtual ~AMControlStatusCheckerStopped();
 	AMControlStatusCheckerStopped(quint32 isStoppedValue) : isStoppedValue_(isStoppedValue) {}
 
 	/// Return true (moving) if the \c statusValue does not matche isStoppedValue_
@@ -417,7 +436,7 @@ public:
 	//virtual bool isConnected() const { return canMeasure() && movingPV_->canRead(); }
 	virtual bool isConnected() const { return readPV_->readReady() && movingPV_->readReady(); }
 
-	/// The movingPV now provides our moving status. (Masked with isMovingMask and compared to isMovingValue)
+	/// The movingPV now provides our moving status.
 	virtual bool isMoving() const { return (*statusChecker_)(movingPV_->getInt()); }
 
 	// Additional public functions:
@@ -452,14 +471,11 @@ protected slots:
 	/// All connection timeouts cause us to be not connected.
 	void onConnectionTimeout() { if(sender() == readPV_) { setUnits("?"); } emit connected(false); emit error(AMControl::CannotConnectError); }
 
-	/// This is called when a PV channel connects or disconnects
-	void onPVConnected(bool connected);
-
 	/// This is called when there is a Status PV channel error:
 	void onStatusPVError(int errorCode);
 
 	/// This is called whenever there is an update from the move status PV
-	void onMovingChanged(int isMovingValue);
+	virtual void onMovingChanged(int isMovingValue);
 
 };
 
@@ -504,7 +520,6 @@ The unique behavior is defined as:
 
 */
 
-
 class AMPVwStatusControl : public AMReadOnlyPVwStatusControl {
 
 	Q_OBJECT
@@ -522,6 +537,7 @@ public:
   \param stopValue is the value that will be written to the stopPV when stop() is called.
   \param parent QObject parent class
   */
+	virtual ~AMPVwStatusControl();
 	AMPVwStatusControl(const QString& name,
 					   const QString& readPVname,
 					   const QString& writePVname,
@@ -555,6 +571,9 @@ public:
 	/// Maximum allowed value derived from the writePV's DRV_HIGH field, as defined by EPICS
 	virtual double maximumValue() const { return writePV_->upperControlLimit(); }
 
+	/// isMoving: according to the moving PV, and also while we're in the settling phase.
+	virtual bool isMoving() const { return (*statusChecker_)(movingPV_->getInt()) || settlingInProgress_; }
+
 	/// This is the target of the last requested move:
 	virtual double setpoint() const { return setpoint_; }
 	//@}
@@ -565,26 +584,37 @@ public:
 	QString writePVName() const { return writePV_->pvName(); }
 	/// The value of the writePV. This will match setpoint() unless someone else (another program or person in the facility) is changing the setpoint.
 	virtual double writePVValue() const { return writePV_->lastValue(); }
-	/// Read-only access to the writePV.  Using this to change the writePVs value by connecting to its slots is not allowed/not supported.
-	const AMProcessVariable* writePV() const { return writePV_; }
+	/// Access to the writePV.  Using this to change the writePVs value by connecting to its slots is allowed but abberant behaviour could be the result.
+	AMProcessVariable* writePV() const { return writePV_; }
 	/// The maximum time allowed for the Control to start isMoving() after a move() is issued.
 	double moveStartTimeout() { return moveStartTimeout_; }
-	/// Switches the writePV to using ca_put instead of ca_put_callback.  This seems to be necessary when using some of the more exotic record types such as the mca record type.  This is set to false by default.
-	void disableWritePVPutCallback(bool disable) { writePV_->disablePutCallbackMode(disable); }
+	/// Switches the writePV to use ca_put_callback() instead of ca_put(), if you want confirmation from the IOC when the put is actually processed, and the IOC can handle queuing instead of caching of PV puts. The default uses ca_put().  \see AMProcessVariable::enablePutCallback().
+	void enableWritePVPutCallback(bool putCallbackEnabled) { writePV_->enablePutCallback(putCallbackEnabled); }
+
+	/// The settling time that is allowed after the hardware reports "move done", in seconds, before checking the feedback and tolerance.
+	/*! EPICS channel access provides no guarantee on the order in which channel access monitors from different PVs are received. Therefore, it's highly likely that the status PV may receive the "Move Done" notification before the latest feedback value() is received from the read PV.  This can cause two problems: (1) depending on the tolerance and the monitoring rate, a physically-successful move may incorrectly report a tolerance failure, because the within-tolerance feedback value has not yet been received by the end of a move, and (2) the feedback value() read immediately after a move finishes may not actually be accurate. [In both cases, the true feedback value will probably be arriving a few ms later].
+
+	  If a settling time is specified, the control will wait for that many seconds before checking the tolerance and reporting either moveFailed() or moveSucceeded(), as well as changing isMoving() and moveInProgress().
+
+	  The default settling time is currently 0 [disabled].
+	  */
+	double settlingTime() const { return settlingTime_; }
 	//@}
 
 public slots:
 
 	/// Start a move to the value setpoint (reimplemented)
-	virtual void move(double setpoint);
-
-	/// Stop a move in progress (reimplemented)
+	virtual FailureExplanation move(double setpoint);
 
 	/// Tell the motor to stop.  (Note: For safety, this will send the stop instruction whether we think we're moving or not.)
 	virtual bool stop();
 
 	/// set the completion timeout:
 	void setMoveStartTimeout(double seconds) { moveStartTimeout_ = seconds; }
+
+	/// Set the settling time that is allowed after the hardware reports "move done", in seconds. \see settlingTime().
+	void setSettlingTime(double seconds) { settlingTime_ = seconds; }
+
 
 signals:
 	/// These are specialized to report on the writePV's channel connection status.  You should be free to ignore them and use the signals defined in AMControl.
@@ -601,7 +631,7 @@ protected:
 
 	/// Used to detect moveStart timeouts:
 	QTimer moveStartTimer_;
-	/// Used to detect moveStart timeouts:
+	/// Used to detect moveStart timeouts: timeout in seconds
 	double moveStartTimeout_;
 
 	/// used internally to track whether we're waiting for a physical control to actually start moving, after we've told it to.
@@ -619,19 +649,34 @@ protected:
 	/// The value written to the stopPV_ when attempting to stop().
 	int stopValue_;
 
+	/// If non-zero, the control waits this many seconds after receiving MOVE DONE notification from the status PV before checking tolerance and reporting the end of a move.
+	double settlingTime_;
+	/// Used to track that we are in the settling phase.  \see setSettlingTime().
+	bool settlingInProgress_;
+	/// Used to catch the end of settling
+	QTimer settlingTimer_;
+
+	/// Used for change detection of the hardware's moving state.  AMPVwStatus::wasMoving_ is used for change detection of our public isMoving() state, which includes settlingInProgress_.  Instead, this is the last raw moving state of the harware.
+	bool hardwareWasMoving_;
+
 protected slots:
 
 	/// This is called when there is a Status PV channel error:
 	void onWritePVError(int errorCode);
 
+	/// Re-implemented: This is used to handle when the movingPV_ changes.
+	virtual void onMovingChanged(int isMovingValue);
+
 	/// This is used to handle the timeout of a move start:
 	void onMoveStartTimeout();
 
-	/// This is used to add our own move tracking signals when isMoving() changes:
-	void onIsMovingChanged(bool);
+	/// Called when the settling time expires
+	void onSettlingTimeFinished();
 
-	/// This is called when a PV channel connects or disconnects
-	void onPVConnected(bool connected);
+	/// Called when the writePV is initialized(). Calls setMoveEnumStates() if applicable.
+	void onWritePVInitialized();
+	/// Handles updating the setpoint member when the writePV updates.
+	void onSetpointChanged(double newVal);
 
 };
 
@@ -653,6 +698,7 @@ public:
 class AMScaleAndOffsetUnitConverter : public AMAbstractUnitConverter {
 public:
 	/// Constructor
+	virtual ~AMScaleAndOffsetUnitConverter();
 	AMScaleAndOffsetUnitConverter(const QString& units, double scale = 1.0, double offset = 0.0) :
 		units_(units), scale_(scale), offset_(offset) {}
 	/// Convert raw units to output units
@@ -707,7 +753,7 @@ public:
 										const QString &description = "");
 
 	/// Destructor: deletes the unit converter
-	~AMPVwStatusAndUnitConversionControl() { delete readConverter_; delete writeConverter_; }
+	virtual ~AMPVwStatusAndUnitConversionControl() { delete readConverter_; delete writeConverter_; }
 
 	/// Set the unit converters. This class takes ownership of the new converters and deletes the old ones. \c readUnitConverter must be a pointer to a valid object; writeUnitConverter can be 0 if the same conversion is appropriate for both the readPV and writePV.
 	void setUnitConverters(AMAbstractUnitConverter* readUnitConverter, AMAbstractUnitConverter* writeUnitConverter = 0);
@@ -716,16 +762,14 @@ public:
 	/// Returns the unit converter currently in-use for the write (setpoint, move) values
 	AMAbstractUnitConverter* writeUnitConverter() const { return writeConverter_ ? writeConverter_ : readConverter_; }
 
-	/// For units, we return the units given by our unit converter
-	virtual QString units() const { return readConverter_->units(); }
-	/// But you can still access the underlying "raw" units if you want
-	virtual QString rawUnits() const { return AMPVwStatusControl::units(); }
+	/// For units(), we return the units given by our unit converter. But you can still access the underlying "raw" units if you want:
+	QString rawUnits() const { return AMPVwStatusControl::units(); }
 
 	/// We overload value() to convert to our desired units
 	virtual double value() const { return readUnitConverter()->convertFromRaw(AMPVwStatusControl::value()); }
 
 	/// We overload move() to convert our units back to raw units for the writePV
-	virtual void move(double setpoint) { AMPVwStatusControl::move(writeUnitConverter()->convertToRaw(setpoint)); }
+	virtual FailureExplanation move(double setpoint) { return AMPVwStatusControl::move(writeUnitConverter()->convertToRaw(setpoint)); }
 
 	/// We overload setpoint() to convert the units
 	virtual double setpoint() const { return writeUnitConverter()->convertFromRaw(AMPVwStatusControl::setpoint()); }
@@ -784,6 +828,7 @@ public:
   \param readPVname The EPICS channel-access name for this Process Variable
   \param parent QObject parent class
   */
+	virtual ~AMReadOnlyWaveformBinningPVControl();
 	AMReadOnlyWaveformBinningPVControl(const QString& name,
 									   const QString& readPVname,
 									   int lowIndex = 0,
@@ -804,6 +849,8 @@ public:
 	virtual void setBinParameters(int lowIndex, int highIndex);
 	//@}
 
+public slots:
+	void setAttemptDouble(bool attemptDouble);
 
 protected slots:
 	/// This is called when the read PV has new values
@@ -812,6 +859,8 @@ protected slots:
 protected:
 	int lowIndex_;
 	int highIndex_;
+
+	bool attemptDouble_;
 };
 
 // End of doxygen group: control

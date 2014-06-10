@@ -19,8 +19,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "AM1DRunningAverageFilterAB.h"
-#include <QDebug>
 
+ AM1DRunningAverageFilterAB::~AM1DRunningAverageFilterAB(){}
 AM1DRunningAverageFilterAB::AM1DRunningAverageFilterAB(int filterSize, const QString &outputName, QObject *parent) :
 	AMStandardAnalysisBlock(outputName, parent)
 {
@@ -89,37 +89,158 @@ void AM1DRunningAverageFilterAB::setInputDataSourcesImplementation(const QList<A
 	emitInfoChanged();
 }
 
-AMNumber AM1DRunningAverageFilterAB::value(const AMnDIndex& indexes, bool doBoundsChecking) const{
+AMNumber AM1DRunningAverageFilterAB::value(const AMnDIndex& indexes) const{
 	if(indexes.rank() != 1)
 		return AMNumber(AMNumber::DimensionError);
 
 	if(!isValid())
 		return AMNumber(AMNumber::InvalidError);
 
-	if(doBoundsChecking)
+#ifdef AM_ENABLE_BOUNDS_CHECKING
 		if((unsigned)indexes.i() >= (unsigned)axes_.at(0).size)
 			return AMNumber(AMNumber::OutOfBoundsError);
+#endif
 
 	int index = indexes.i();
 
 
 	double runningAverage = 0;
 	int numAvgPoints = 1;
-	runningAverage += (double)inputSource_->value(index, doBoundsChecking);
+
+	runningAverage += (double)inputSource_->value(index);
+
 	for(int x = 1; x <= (filterSize_-1)/2; x++){
+
 		if( (index-x) >= 0 ){
-			runningAverage += (double)inputSource_->value(index-x, doBoundsChecking);
+
+			runningAverage += (double)inputSource_->value(index-x);
 			numAvgPoints++;
 		}
+
 		if( (index+x) < axes_.at(0).size ){
-			runningAverage += (double)inputSource_->value(index+x, doBoundsChecking);
+
+			runningAverage += (double)inputSource_->value(index+x);
 			numAvgPoints++;
 		}
 	}
+
 	return runningAverage/((double)numAvgPoints);
 }
 
-AMNumber AM1DRunningAverageFilterAB::axisValue(int axisNumber, int index, bool doBoundsChecking) const{
+bool AM1DRunningAverageFilterAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
+{
+	if(indexStart.rank() != 1 || indexEnd.rank() != 1)
+		return false;
+
+	if(!isValid())
+		return false;
+
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+	if((unsigned)indexEnd.i() >= (unsigned)axes_.at(0).size || (unsigned)indexStart.i() > (unsigned)indexEnd.i())
+		return false;
+#endif
+
+	int totalSize = indexStart.totalPointsTo(indexEnd);
+
+	QVector<double> data = QVector<double>(totalSize);
+	inputSource_->values(indexStart, indexEnd, data.data());
+
+	int numberOfPoints = (filterSize_-1)/2;
+	double average = 0;
+	int tempNumberOfPoints = 1;
+
+	// If the filter size is bigger then the total size of the data then we will just check every point along the way.
+	if (numberOfPoints > totalSize){
+
+		for (int i = 0; i < totalSize; i++){
+
+			average = data.at(i);
+			tempNumberOfPoints = 1;
+
+			for (int j = 1; j < numberOfPoints; j++){
+
+				if ((i-j) >= 0){
+
+					average += data.at(i-j);
+					tempNumberOfPoints++;
+				}
+
+				if ((i+j) < totalSize){
+
+					average += data.at(i+j);
+					tempNumberOfPoints++;
+				}
+			}
+
+			outputValues[i] = average/double(tempNumberOfPoints);
+		}
+	}
+
+	// Otherwise, we can optimize the middle indices of the without having to check if we will be accessing data outside of the array range.
+	else {
+
+		// Compute the beginning values.
+		for (int i = 0; i < numberOfPoints; i++){
+
+			average = data.at(i);
+			tempNumberOfPoints = 1;
+
+			// Only need the substraction check at the beginning.
+			for (int j = 1; j < numberOfPoints; j++){
+
+				if ((i-j) >= 0){
+
+					average += data.at(i-j);
+					tempNumberOfPoints++;
+				}
+
+				average += data.at(i+j);
+				tempNumberOfPoints++;
+			}
+
+			outputValues[i] = average/double(tempNumberOfPoints);
+		}
+
+		// No need for conditionals in the middle of the data.
+		double averagePoints = double(numberOfPoints);
+
+		for (int i = numberOfPoints, count = totalSize-numberOfPoints; i < count; i++){
+
+			average = data.at(i);
+
+			for (int j = 1; j < numberOfPoints; j++)
+				average += data.at(i-j) + data.at(i+j);
+
+			outputValues[i] = average/averagePoints;
+		}
+
+		// Compute the last values.
+		for (int i = totalSize-numberOfPoints; i < totalSize; i++){
+
+			average = data.at(i);
+			tempNumberOfPoints = 1;
+
+			// Only need the addition check at the end.
+			for (int j = 1; j < numberOfPoints; j++){
+
+				average += data.at(i-j);
+				tempNumberOfPoints++;
+
+				if ((i+j) < totalSize){
+
+					average += data.at(i+j);
+					tempNumberOfPoints++;
+				}
+			}
+
+			outputValues[i] = average/double(tempNumberOfPoints);
+		}
+	}
+
+	return true;
+}
+
+AMNumber AM1DRunningAverageFilterAB::axisValue(int axisNumber, int index) const{
 
 	if(!isValid())
 		return AMNumber(AMNumber::InvalidError);
@@ -127,7 +248,7 @@ AMNumber AM1DRunningAverageFilterAB::axisValue(int axisNumber, int index, bool d
 	if(axisNumber != 0)
 		return AMNumber(AMNumber::DimensionError);
 
-	return inputSource_->axisValue(0, index, doBoundsChecking);
+	return inputSource_->axisValue(0, index);
 
 }
 
@@ -145,10 +266,9 @@ void AM1DRunningAverageFilterAB::onInputSourceSizeChanged() {
 /// Connected to be called when the state() flags of any input source change
 void AM1DRunningAverageFilterAB::onInputSourceStateChanged() {
 
-	reviewState();
-
 	// just in case the size has changed while the input source was invalid, and now it's going valid.  Do we need this? probably not, if the input source is well behaved. But it's pretty inexpensive to do it twice... and we know we'll get the size right everytime it goes valid.
 	onInputSourceSizeChanged();
+	reviewState();
 }
 
 void AM1DRunningAverageFilterAB::reviewState(){

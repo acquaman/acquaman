@@ -21,12 +21,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QFormLayout>
 #include <QLabel>
-#include <QDebug>
 #include <QStringBuilder>
 
 #include "dataman/database/AMDbObjectSupport.h"
 #include "util/AMErrorMonitor.h"
 
+ AMDbObjectGeneralView::~AMDbObjectGeneralView(){}
 AMDbObjectGeneralView::AMDbObjectGeneralView(QWidget *parent) :
 	QWidget(parent)
 {

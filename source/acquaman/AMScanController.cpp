@@ -17,7 +17,6 @@ You should have received a copy of the GNU General Public License
 along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <QDebug>
 #include <QDateTime>
 #include "AMScanController.h"
 
@@ -30,16 +29,22 @@ AMScanController::AMScanController(AMScanConfiguration *cfg, QObject *parent) :
 	scan_ = 0;
 
 	state_ = AMScanController::Constructed;
-
+	lastState_ = AMScanController::Constructed;
 }
 
 AMScanController::~AMScanController() {
 	if(scan_)
 		scan_->release(this);
+
+	//qdebug() << "A call to AMScanController destructor";
 }
 
 AMScanController::ScanState AMScanController::state() const {
 	return state_;
+}
+
+AMScanController::ScanState AMScanController::lastState() const{
+	return lastState_;
 }
 
 bool AMScanController::isInitializing() const {
@@ -84,6 +89,10 @@ bool AMScanController::isFinished() const {
 
 bool AMScanController::isFailed() const {
 	return state_ == AMScanController::Failed;
+}
+
+bool AMScanController::isReadyForDeletion() const {
+	return true;
 }
 
 bool AMScanController::initialize(){
@@ -263,9 +272,11 @@ bool AMScanController::canChangeStateTo(AMScanController::ScanState newState)
 
 bool AMScanController::changeState(ScanState newState){
 	if(canChangeStateTo(newState)) {
-		ScanState oldState = state_;
+		lastState_ = state_;
+		//ScanState oldState = state_;
 		state_= newState;
-		emit stateChanged(oldState, newState);
+		//qdebug() << "Changing from " << oldState << " to " << newState;
+		emit stateChanged(lastState_, newState);
 		return true;
 	}
 	else {

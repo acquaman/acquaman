@@ -28,7 +28,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QPixmap>
 #include <QPushButton>
 
-AMWorkflowView3::AMWorkflowView3(QWidget *parent) :
+ AMWorkflowView3::~AMWorkflowView3(){}
+AMWorkflowView3::AMWorkflowView3(AMActionRunner3 *actionRunner, QWidget *parent) :
 	QWidget(parent)
 {
 	layoutSpacer_ = 0;
@@ -42,16 +43,17 @@ AMWorkflowView3::AMWorkflowView3(QWidget *parent) :
 	titleIcon->setPixmap(QPixmap(":/user-away.png"));
 	titleIcon->setScaledContents(true);
 	hl->addWidget(titleIcon);
-	QLabel* titleLabel = new QLabel("Workflow");
+	//QLabel* titleLabel = new QLabel("Workflow");
+	QLabel* titleLabel = new QLabel(actionRunner->actionRunnerTitle());
 	titleLabel->setStyleSheet("font: " AM_FONT_XLARGE_ "pt \"Lucida Grande\";\ncolor: rgb(79, 79, 79);");
 	hl->addWidget(titleLabel);
 	hl->addStretch(1);
 	addActionButton_ = new QPushButton("Add Action...");
 	hl->addWidget(addActionButton_);
 
-	currentView_ = new AMActionRunnerCurrentView3(AMActionRunner3::workflow());
-	queueView_ = new AMActionRunnerQueueView3(AMActionRunner3::workflow());
-	historyView_ = new AMActionHistoryView3(AMActionRunner3::workflow());
+	currentView_ = new AMActionRunnerCurrentView3(actionRunner);
+	queueView_ = new AMActionRunnerQueueView3(actionRunner);
+	historyView_ = new AMActionHistoryView3(actionRunner, actionRunner->loggingDatabase());
 	addActionDialog_ = 0;
 
 	QVBoxLayout* vl = new QVBoxLayout(this);
@@ -93,6 +95,7 @@ void AMWorkflowView3::onAddActionButtonClicked()
 {
 	if(!addActionDialog_) {
 		addActionDialog_ = new AMAddActionDialog3(this);
+		connect(addActionDialog_, SIGNAL(actionAddedFromDialog(AMAction3*)), this, SIGNAL(actionAddedFromDialog(AMAction3*)));
 	}
 	addActionDialog_->show();
 }

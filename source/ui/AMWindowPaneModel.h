@@ -78,6 +78,7 @@ public:
 
 	enum DataRoles { DockStateRole = AM::UserRole + 1, IsHeadingRole, IsAliasRole, AliasTargetRole, AliasKeyRole, AliasValueRole, UndockResizeRole };
 
+ 	virtual ~AMWindowPaneModel();
 	AMWindowPaneModel(QObject* parent = 0);
 
 	/// Returns a heading item with the given text. Will create and add a new heading under \c parentIndex at \c position if no heading with that text exists yet.  (Use -1 for \c position to append at the bottom.) If \c text is empty, will return the top-level (invisible root) item.
@@ -170,7 +171,7 @@ protected:
 	bool eventFilter(QObject *source, QEvent *event);
 
 	/// Internal version of pane() that can be used when you know that index is not an alias item.
-	QWidget* pane_(const QModelIndex &index) const;
+	QWidget* internalPane(const QModelIndex &index) const;
 
 
 };

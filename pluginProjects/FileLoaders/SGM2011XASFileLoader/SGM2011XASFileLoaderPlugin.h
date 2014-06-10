@@ -3,6 +3,16 @@
 
 #include <QObject>
 #include <QStringList>
+
+#define SGM2011XASFILELOADERPLUGIN_CANNOT_OPEN_FILE 627501
+#define SGM2011XASFILELOADERPLUGIN_BAD_FORMAT_NO_EVENT_HEADER 627502
+#define SGM2011XASFILELOADERPLUGIN_BAD_FORMAT_NO_PV_CONVERSION 627503
+#define SGM2011XASFILELOADERPLUGIN_BAD_FORMAT_NO_ENERGY_COLUMN 627504
+#define SGM2011XASFILELOADERPLUGIN_MISSING_SPECTRA_FILE 627505
+#define SGM2011XASFILELOADERPLUGIN_CANNOT_OPEN_SPECTRA_FILE 627506
+#define SGM2011XASFILELOADERPLUGIN_BAD_FORMAT_CORRUPTED_SPECTRA_DATA 627507
+#define SGM2011XASFILELOADERPLUGIN_DATA_COLUMN_MISMATCH 627508
+
 #include "dataman/AMFileLoaderInterface.h"
 #include "util/AMBiHash.h"
 
@@ -15,7 +25,7 @@ public:
 
 	virtual bool accepts(AMScan *scan);
 
-	virtual bool load(AMScan *scan, const QString &userDataFolder);
+	virtual bool load(AMScan *scan, const QString &userDataFolder, AMErrorMon *errorMonitor);
 
 	/// translate a PV string from the file header to a meaningful name, if we recognize it.  Unrecognized PV strings are untouched and false is returned.
 	bool pv2columnName(QString& pv) {

@@ -44,6 +44,7 @@ namespace mu
 {
   //---------------------------------------------------------------------------
   /** Bytecode default constructor. */
+ ParserByteCode::~ParserByteCode(){}
   ParserByteCode::ParserByteCode()
     :m_iStackPos(0)
     ,m_iMaxStackSize(0)

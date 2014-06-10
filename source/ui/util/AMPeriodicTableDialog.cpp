@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QHBoxLayout>
 
+ AMPeriodicTableDialog::~AMPeriodicTableDialog(){}
 AMPeriodicTableDialog::AMPeriodicTableDialog(QWidget *parent)
 	: QDialog(parent)
 {
@@ -31,7 +32,7 @@ AMPeriodicTableDialog::AMPeriodicTableDialog(QWidget *parent)
 	element_ = 0;
 
 	AMPeriodicTableView *ptView = new AMPeriodicTableView;
-	connect(ptView, SIGNAL(elementSelected(const AMElement*)), this, SLOT(onElementSelected(const AMElement*)));
+	connect(ptView, SIGNAL(elementSelected(AMElement*)), this, SLOT(onElementSelected(AMElement*)));
 
 	QHBoxLayout *layout = new QHBoxLayout;
 	layout->addWidget(ptView);
@@ -39,13 +40,13 @@ AMPeriodicTableDialog::AMPeriodicTableDialog(QWidget *parent)
 	setLayout(layout);
 }
 
-void AMPeriodicTableDialog::onElementSelected(const AMElement *el)
+void AMPeriodicTableDialog::onElementSelected(AMElement *el)
 {
 	element_ = el;
 	accept();
 }
 
-const AMElement *AMPeriodicTableDialog::getElement(QWidget *parent)
+AMElement *AMPeriodicTableDialog::getElement(QWidget *parent)
 {
 	AMPeriodicTableDialog dialog(parent);
 

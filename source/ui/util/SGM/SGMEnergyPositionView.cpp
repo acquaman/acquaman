@@ -25,7 +25,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QFormLayout>
 #include <QPushButton>
 #include <QLabel>
+#include <QCheckBox>
+#include <QLineEdit>
+#include <QDialogButtonBox>
+#include <QStringBuilder>
 
+#include "dataman/database/AMDbObjectSupport.h"
+
+ SGMEnergyPositionView::~SGMEnergyPositionView(){}
 SGMEnergyPositionView::SGMEnergyPositionView(SGMEnergyPosition *energyPosition, SGMEnergyPositionView::EnergyPositionViewMode alternateViewMode, QWidget *parent) :
 	QGroupBox(parent)
 {
@@ -87,6 +94,17 @@ SGMEnergyPositionView::SGMEnergyPositionView(SGMEnergyPosition *energyPosition, 
 	vl1->addLayout(tmpHL);
 
 	alternateViewModeButton_ = new QPushButton("More");
+
+	vl2_ = new QVBoxLayout();
+	vl2_->addStretch(10);
+	vl2_->addWidget(alternateViewModeButton_);
+
+	hl_ = new QHBoxLayout();
+	hl_->addLayout(vl1);
+	hl_->addLayout(vl2_);
+
+	setLayout(hl_);
+
 	if(alternateViewMode_ == SGMEnergyPositionView::ViewModeAll)
 		alternateViewModeButton_->hide();
 	else{
@@ -94,19 +112,7 @@ SGMEnergyPositionView::SGMEnergyPositionView(SGMEnergyPosition *energyPosition, 
 		currentViewMode_ = alternateViewMode_;
 		onViewModeChanged();
 	}
-
 	setEnergyPosition(energyPosition);
-
-
-	vl2_ = new QVBoxLayout();
-	vl2_->addStretch(10);
-	vl2_->addWidget(alternateViewModeButton_);
-
-	QHBoxLayout *hl = new QHBoxLayout();
-	hl->addLayout(vl1);
-	hl->addLayout(vl2_);
-
-	setLayout(hl);
 }
 
 void SGMEnergyPositionView::onEnergyEditingFinished(){
@@ -215,6 +221,7 @@ void SGMEnergyPositionView::onViewModeChanged(){
 
 #include "beamline/SGM/SGMBeamline.h"
 
+ SGMEnergyPositionWBeamlineView::~SGMEnergyPositionWBeamlineView(){}
 SGMEnergyPositionWBeamlineView::SGMEnergyPositionWBeamlineView(SGMEnergyPosition *energyPosition, SGMEnergyPositionView::EnergyPositionViewMode alternateViewMode, QWidget *parent) :
 	SGMEnergyPositionView(energyPosition, alternateViewMode, parent)
 {
@@ -234,4 +241,136 @@ void SGMEnergyPositionWBeamlineView::onSetFromBeamlineButtonClicked(){
 	energyPosition_->setUndulatorStepSetpoint(SGMBeamline::sgm()->undulatorStep()->value());
 	energyPosition_->setExitSlitDistance(SGMBeamline::sgm()->exitSlit()->value());
 	energyPosition_->setSGMGrating(SGMBeamline::sgm()->grating()->value());
+}
+
+ SGMEnergyPositionDisassociateFromDbDialog::~SGMEnergyPositionDisassociateFromDbDialog(){}
+SGMEnergyPositionDisassociateFromDbDialog::SGMEnergyPositionDisassociateFromDbDialog(SGMEnergyPosition *energyPosition, QWidget *parent) :
+	QDialog(parent)
+{
+	energyPosition_ = energyPosition;
+
+	QLabel *instructionsLabel = new QLabel("You are about to break any existing associations this Energy Position has.\nEnter a unique name for the newly disassociated Energy Position.\n\n");
+
+	QLabel *newNameLabel = new QLabel("Name: ");
+	newNameLineEdit_ = new QLineEdit();
+
+	buttonBox_ = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+	buttonBox_->button(QDialogButtonBox::Ok)->setEnabled(false);
+
+	QHBoxLayout *hl = new QHBoxLayout();
+	hl->addWidget(newNameLabel);
+	hl->addWidget(newNameLineEdit_);
+
+	QVBoxLayout *vl = new QVBoxLayout();
+	vl->addWidget(instructionsLabel);
+	vl->addLayout(hl);
+	vl->addWidget(buttonBox_);
+
+	setLayout(vl);
+
+	QVariantList takenNamesAsVariants = energyPosition_->database()->retrieve(AMDbObjectSupport::s()->tableNameForClass<SGMEnergyPosition>(), "name");
+	for(int x = 0; x < takenNamesAsVariants.count(); x++)
+		takenNames_.append(takenNamesAsVariants.at(x).toString());
+
+	QString newNameGuess = energyPosition_->name()%"Copy0";
+	bool foundValidCopyIndex = false;
+	for(int x = 1; !foundValidCopyIndex; x++){
+		newNameGuess.remove(newNameGuess.count()-1, 1);
+		newNameGuess.append(QString("%1").arg(x));
+		if(!takenNames_.contains(newNameGuess)){
+			foundValidCopyIndex = true;
+			newNameLineEdit_->setText(newNameGuess);
+		}
+	}
+	onNewNameLineEditTextEdited(newNameLineEdit_->text());
+
+	connect(newNameLineEdit_, SIGNAL(textEdited(QString)), this, SLOT(onNewNameLineEditTextEdited(QString)));
+	connect(buttonBox_, SIGNAL(accepted()), this, SLOT(accept()));
+	connect(buttonBox_, SIGNAL(rejected()), this, SLOT(reject()));
+}
+
+void SGMEnergyPositionDisassociateFromDbDialog::accept(){
+	energyPosition_->setName(newNameLineEdit_->text());
+}
+
+void SGMEnergyPositionDisassociateFromDbDialog::onNewNameLineEditTextEdited(const QString &text){
+	QPalette editPalette = newNameLineEdit_->palette();
+
+	if(takenNames_.contains(text)){
+		buttonBox_->button(QDialogButtonBox::Ok)->setEnabled(false);
+		editPalette.setBrush(QPalette::WindowText, QBrush(Qt::red));
+		editPalette.setBrush(QPalette::HighlightedText, QBrush(Qt::red));
+		editPalette.setBrush(QPalette::Text, QBrush(Qt::red));
+	}
+	else{
+		buttonBox_->button(QDialogButtonBox::Ok)->setEnabled(true);
+		editPalette.setBrush(QPalette::WindowText, QBrush(Qt::green));
+		editPalette.setBrush(QPalette::HighlightedText, QBrush(Qt::green));
+		editPalette.setBrush(QPalette::Text, QBrush(Qt::green));
+	}
+
+	newNameLineEdit_->setPalette(editPalette);
+}
+
+ SGMEnergyPositionWBeamlineAndDatabaseView::~SGMEnergyPositionWBeamlineAndDatabaseView(){}
+SGMEnergyPositionWBeamlineAndDatabaseView::SGMEnergyPositionWBeamlineAndDatabaseView(SGMEnergyPosition *energyPosition, SGMEnergyPositionView::EnergyPositionViewMode alternateViewMode, QWidget *parent) :
+	SGMEnergyPositionWBeamlineView(energyPosition, alternateViewMode, parent)
+{
+	databaseUsedByLabel_ = new QLabel();
+	setUsedByLabelHelper();
+	disassociateButton_ = new QPushButton("Disassociate");
+	disassociateButton_->setEnabled(false);
+	unlockDisassociateCheckBox_ = new QCheckBox();
+
+	QHBoxLayout *hl = new QHBoxLayout();
+	hl->addWidget(disassociateButton_);
+	hl->addWidget(unlockDisassociateCheckBox_);
+
+	QVBoxLayout *databaseVL = new QVBoxLayout();
+	databaseVL->addWidget(databaseUsedByLabel_);
+	databaseVL->addLayout(hl);
+	hl_->addLayout(databaseVL);
+
+	connect(disassociateButton_, SIGNAL(clicked()), this, SLOT(onDisassociateButtonClicked()));
+	connect(unlockDisassociateCheckBox_, SIGNAL(toggled(bool)), this, SLOT(onUnlockDisassociateCheckBoxToggled(bool)));
+}
+
+QStringList SGMEnergyPositionWBeamlineAndDatabaseView::alsoUsedByList() const{
+	return alsoUsedByList_;
+}
+
+void SGMEnergyPositionWBeamlineAndDatabaseView::onDisassociateButtonClicked(){
+
+	SGMEnergyPositionDisassociateFromDbDialog disassociateDialog(energyPosition_, this);
+	if(disassociateDialog.exec() == QDialog::Accepted){
+		energyPosition_->dissociateFromDb();
+		setUsedByLabelHelper();
+	}
+}
+
+void SGMEnergyPositionWBeamlineAndDatabaseView::onUnlockDisassociateCheckBoxToggled(bool toggled){
+	disassociateButton_->setEnabled(toggled);
+}
+
+void SGMEnergyPositionWBeamlineAndDatabaseView::setUsedByLabelHelper(){
+	databaseUsedByLabel_->clear();
+	QString usedByNames = "Used by:";
+	if( (energyPosition_->id() > 0) && (energyPosition_->database()) ){
+		QList<int> scanInfoMatchIDs = energyPosition_->database()->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMScanInfo>(), "start", QString("SGMEnergyPosition_table;%1").arg(energyPosition_->id()));
+		scanInfoMatchIDs.append(energyPosition_->database()->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMScanInfo>(), "middle", QString("SGMEnergyPosition_table;%1").arg(energyPosition_->id())));
+		scanInfoMatchIDs.append(energyPosition_->database()->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMScanInfo>(), "end", QString("SGMEnergyPosition_table;%1").arg(energyPosition_->id())));
+
+		for(int x = 0; x < scanInfoMatchIDs.count(); x++){
+			QList<int> fastScanParametersMatchIDs = energyPosition_->database()->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMFastScanParameters>(), "scanInfo", QString("SGMScanInfo_table;%1").arg(scanInfoMatchIDs.at(x)));
+
+			for(int y = 0; y < fastScanParametersMatchIDs.count(); y++){
+				alsoUsedByList_.append(energyPosition_->database()->retrieve(fastScanParametersMatchIDs.at(y), AMDbObjectSupport::s()->tableNameForClass<SGMFastScanParameters>(), "name").toString());
+				usedByNames.append("\n"%alsoUsedByList_.last());
+			}
+		}
+	}
+	else{
+		usedByNames.append("\n<None>");
+	}
+	databaseUsedByLabel_->setText(usedByNames);
 }

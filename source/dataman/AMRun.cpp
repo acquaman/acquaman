@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QList>
 
 
+ AMRun::~AMRun(){}
 AMRun::AMRun(QObject *parent) :
 		AMDbObject(parent)
 {
@@ -68,3 +69,4 @@ QList<int> AMRun::scanIds() const {
 
 
 
+ AMFacility::~AMFacility(){}

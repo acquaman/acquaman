@@ -23,7 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dataman/AMAbstractFileLoader.h"
 #include "util/AMBiHash.h"
-#include "dataman/info/AMDetectorInfo.h"
+#include "dataman/info/AMOldDetectorInfo.h"
 
 class AMXASScan;
 
@@ -31,6 +31,7 @@ class AMXASScan;
 class SGM2011XASFileLoader : public AMAbstractFileLoader
 {
 public:
+ 	virtual ~SGM2011XASFileLoader();
 	SGM2011XASFileLoader(AMXASScan *scan = 0);
 
 	QString formatTag() const { return "sgm2011XAS"; }

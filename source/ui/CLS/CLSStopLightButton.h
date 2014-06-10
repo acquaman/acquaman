@@ -41,6 +41,7 @@ class CLSStopLightButton : public QPushButton
 	Q_OBJECT
 public:
 	/// Constructor.  Requires the CLSBiStateControl.
+ 	virtual ~CLSStopLightButton();
 	CLSStopLightButton(CLSBiStateControl *control, QWidget *parent = 0);
 
 protected slots:

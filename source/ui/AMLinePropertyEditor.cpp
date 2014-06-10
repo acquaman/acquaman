@@ -69,8 +69,6 @@ AMLinePropertyEditor::~AMLinePropertyEditor() {
 	delete ui_;
 }
 
-#include <QDebug>
-
 void AMLinePropertyEditor::onPenSettingsChanged()
 {
 	emit linePenChanged(QPen(ui_->colorButton->color(),

@@ -9,6 +9,7 @@ RESOURCES += \
 	source/beamline/SGM/TransferHelpImages/ChamberOutImages.qrc \
 	source/beamline/SGM/TransferHelpImages/ChamberInImages.qrc
 
-
 SOURCES += \
 	source/application/SGM/SGMMain.cpp
+
+

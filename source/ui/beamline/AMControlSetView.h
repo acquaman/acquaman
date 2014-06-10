@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AMCONTROLSETVIEW_H
 
 #include "beamline/AMControlSet.h"
-#include "ui/beamline/AMControlEditor.h"
+#include "ui/beamline/AMExtendedControlEditor.h"
 
 #include <QWidget>
 #include <QGroupBox>
@@ -60,13 +60,14 @@ public:
 	/*! \param viewSet Pointer to the AMControlSet to view.
 	  \param parent Pointer to QWidget to act as parent.
 	  */
+ 	virtual ~AMControlSetView();
 	explicit AMControlSetView(AMControlSet *viewSet, bool configureOnly = false, QWidget *parent = 0);
 
-	AMControlEditor* boxByName(const QString &name){
+	AMExtendedControlEditor* boxByName(const QString &name){
 		return controlBoxes_.at(viewSet_->indexOfKey(name));
 	}
 
-	AMControlEditor* boxAt(int row){
+	AMExtendedControlEditor* boxAt(int row){
 		return controlBoxes_.at(row);
 	}
 
@@ -97,7 +98,7 @@ protected:
 	/// Pointer to the AMControlSet which is the subject of this view.
 	AMControlSet *viewSet_;
 	bool configureOnly_;
-	QList<AMControlEditor*> controlBoxes_;
+	QList<AMExtendedControlEditor*> controlBoxes_;
 	QHBoxLayout *hl_;
 };
 

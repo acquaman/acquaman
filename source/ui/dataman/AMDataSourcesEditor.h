@@ -32,6 +32,7 @@ class AMDataSourcesEditor : public QWidget
 {
 Q_OBJECT
 public:
+ 	virtual ~AMDataSourcesEditor();
 	explicit AMDataSourcesEditor(AMScanSetModel* model, QWidget *parent = 0);
 
 

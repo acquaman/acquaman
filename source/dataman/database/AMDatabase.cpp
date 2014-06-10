@@ -21,31 +21,35 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMDatabase.h"
 
 #include <QStringList>
-
-#include "util/AMErrorMonitor.h"
 #include <QStringBuilder>
 #include <QThread>
 #include <QSet>
 #include <QMutexLocker>
 #include <QApplication>
 #include <QSqlDriver>
-
 #include <QTime>
-#include <QDebug>
+#include <QFileInfo>
 
-
+#include "util/AMErrorMonitor.h"
 
 // Internal instance records:
 QHash<QString, AMDatabase*> AMDatabase::connectionName2Instance_;
 QMutex AMDatabase::databaseLookupMutex_(QMutex::Recursive);
 
 // This constructor is protected; only access is through AMDatabase::createDatabase().
+ AMDatabase::~AMDatabase(){}
 AMDatabase::AMDatabase(const QString& connectionName, const QString& dbAccessString) :
 	QObject(),
 	connectionName_(connectionName),
 	dbAccessString_(dbAccessString),
 	qdbMutex_(QMutex::Recursive)
 {
+	QFileInfo accessInfo(dbAccessString_);
+	if(accessInfo.exists())
+		isReadOnly_ = !accessInfo.isWritable();
+	else
+		isReadOnly_ = false; // Probably not correct. If this the call that creates a new database, when does the .db file actually get created?
+
 	// Make sure the database is initialized in the creating thread:
 	qdb();
 
@@ -93,6 +97,19 @@ void AMDatabase::deleteDatabase(const QString& connectionName) {
 	}
 }
 
+QStringList AMDatabase::registeredDatabases() {
+	QMutexLocker ml(&databaseLookupMutex_);
+
+	QStringList retVal;
+
+	QHash<QString, AMDatabase*>::const_iterator i = connectionName2Instance_.begin();
+	while(i != connectionName2Instance_.end()){
+		retVal << i.key();
+		i++;
+	}
+
+	return retVal;
+}
 
 
 /// Inserting or updating objects in the database.
@@ -396,6 +413,44 @@ QVariantList AMDatabase::retrieve(int id, const QString& table, const QStringLis
 	return values;
 }
 
+/// retrieve a column of information from the database.
+/*! table is the database table name
+ colName is the name of the column you wish to get all the values for
+ values is a list of pointers to QVariants that will be modified with the retrived values.
+ (Note that the const and & arguments are designed to prevent memory copies, so this should be fast.)
+ Return value: returns the list of values
+*/
+QVariantList AMDatabase::retrieve(const QString& table, const QString& colName) const {
+
+	QVariantList values;	// return value
+
+	/// \todo sanitize more than this...
+	if(table.isEmpty()) {
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, AMDATABASE_MISSING_TABLE_NAME_IN_RETRIEVE, "Could not search the database. (Missing the table name.)"));
+		return values;
+	}
+
+	// create a query on our database connection:
+	QSqlQuery q( qdb() );
+
+	// Prepare the query.
+	q.prepare(QString("SELECT %1 FROM %2").arg(colName).arg(table));
+
+	// run query. Did it succeed?
+	if(!execQuery(q)) {
+		q.finish();	// make sure that sqlite lock is released before emitting signals
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, AMDATABASE_RETRIEVE_QUERY_FAILED, QString("database retrieve failed. Could not execute query (%1). The SQL reply was: %2").arg(q.executedQuery()).arg(q.lastError().text())));
+		return values;
+	}
+
+	while(q.next())
+		values << q.value(0);
+
+	q.finish();	// make sure that sqlite lock is released before emitting signals
+	// otherwise: didn't find this column.  That's normal if it's not there; just return empty list
+	return values;
+}
+
 
 QVariant AMDatabase::retrieve(int id, const QString& table, const QString& colName) const {
 
@@ -418,6 +473,56 @@ QVariant AMDatabase::retrieve(int id, const QString& table, const QString& colNa
 		q.finish();	// make sure that sqlite lock is released before emitting signals
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -4, QString("database retrieve failed. Could not execute query (%1). The SQL reply was: %2").arg(q.executedQuery()).arg(q.lastError().text())));
 		return false;
+	}
+	// If we found a record at this id:
+	if(q.first()) {
+		return q.value(0);
+	}
+	// else: didn't find this id.  That's normal if it's not there; just return null QVariant.
+	else {
+		return QVariant();
+	}
+
+}
+
+QVariant AMDatabase::retrieveMax(const QString &table, const QString &colName, const QString &whereClause) const
+{
+	// Sanitize the options
+	if(table.isEmpty() || colName.isEmpty())
+	{
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -10, "Could not search the database. (Missing table name or column name)"));
+		return QVariant();
+	}
+
+	/*
+	if(!tableExists(table))
+	{
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -10, QString("Could not search the database. (Table %1 does not exist)").arg(table)));
+		return QVariant();
+	}
+
+	if(!columnExists(table, colName))
+	{
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -10, QString("Could not search the database. (Table %1 does not contain column %2").arg(table).arg(colName)));
+		return QVariant();
+	}
+	*/
+
+	QSqlQuery q( qdb() );
+
+	QString queryString = QString("SELECT MAX(%1) FROM %2").arg(colName).arg(table);
+
+	if(!whereClause.isEmpty())
+	{
+		queryString.append(" WHERE ").append(whereClause);
+	}
+
+	q.prepare(queryString);
+
+	if(!execQuery(q)) {
+		q.finish();	// make sure that sqlite lock is released before emitting signals
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -4, QString("database retrieve failed. Could not execute query (%1). The SQL reply was: %2").arg(q.executedQuery()).arg(q.lastError().text())));
+		return QVariant();
 	}
 	// If we found a record at this id:
 	if(q.first()) {
@@ -526,6 +631,48 @@ QList<int> AMDatabase::objectsContaining(const QString& tableName, const QString
 	return rl;
 }
 
+bool AMDatabase::tableExists(const QString &tableName)
+{
+	QSqlQuery q = query();
+	q.prepare(QString("SELECT tbl_name FROM sqlite_master WHERE tbl_name='%1'").arg(tableName));
+	execQuery(q);
+
+	bool returnVal = false;
+
+	if (q.first()){
+
+		do {
+			if (q.value(0).toString() == tableName)
+				returnVal = true;
+		}while(q.next());
+	}
+
+	q.finish();
+
+	return returnVal;
+}
+
+bool AMDatabase::columnExists(const QString &tableName, const QString &columnName)
+{
+	QSqlQuery q = query();
+	q.prepare(QString("PRAGMA table_info(%1);").arg(tableName));
+	execQuery(q);
+
+	QStringList columnNames;
+
+	if (q.first()){
+
+		do {
+
+			columnNames << q.value(1).toString();
+		}while(q.next());
+	}
+
+	q.finish();
+
+	return columnNames.contains(columnName);
+}
+
 bool AMDatabase::ensureTable(const QString& tableName, const QStringList& columnNames, const QStringList& columnTypes, bool reuseDeletedIds) {
 
 	if(columnNames.count() != columnTypes.count()) {
@@ -558,7 +705,7 @@ bool AMDatabase::ensureTable(const QString& tableName, const QStringList& column
 	}
 	else {
 		q.finish();	// make sure that sqlite lock is released before emitting signals
-		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -6, QString("database table create failed. Could not execute query (%1). The SQL reply was: %2").arg(q.executedQuery()).arg(q.lastError().text())));
+		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -6, QString("database table create failed on database %3 (%4). Could not execute query (%1). The SQL reply was: %2").arg(q.executedQuery()).arg(q.lastError().text()).arg(connectionName()).arg(dbAccessString())));
 		return false;
 	}
 }
@@ -677,10 +824,10 @@ bool AMDatabase::commitTransaction(int timeoutMs)
 
 	if(attempt > 1) {
 		if(success) {
-			qWarning() << "Warning: AMDatabase detected contention for database access in commitTransaction(). It took" << attempt << "tries for the commit to succeed";
+			AMErrorMon::debug(this, AMDATABASE_COMMIT_CONTENTION_SUCCEEDED, QString("AMDatabase detected contention for database access in commitTransaction(). It took %1 tries for the commit to succeed.").arg(attempt) );
 		}
 		else {
-			qWarning() << "Warning: AMDatabase detected contention for database access in commitTransaction(). After" << attempt << "attempts, the commit still did not succeed.";
+			AMErrorMon::debug(this, AMDATABASE_COMMIT_CONTENTION_FAILED, QString("AMDatabase detected contention for database access in commitTransaction(). After %1 attempts, the commit still did not succeed.").arg(attempt) );
 		}
 	}
 
@@ -729,10 +876,10 @@ bool AMDatabase::execQuery(QSqlQuery &query, int timeoutMs)
 
 	if(attempt > 1) {
 		if(success) {
-			qWarning() << "Warning: AMDatabase detected contention for database locking in execQuery(). It took" << attempt << "tries for the query to succeed";
+			AMErrorMon::debug(0, AMDATABASE_LOCK_FOR_EXECQUERY_CONTENTION_SUCCEEDED, QString("AMDatabase detected contention for database locking in execQuery(). It took %1 tries for the query to succeed.").arg(attempt) );
 		}
 		else {
-			qWarning() << "Warning: AMDatabase detected contention for database locking in execQuery(). After" << attempt << "attempts, the query still did not succeed.";
+			AMErrorMon::debug(0, AMDATABASE_LOCK_FOR_EXECQUERY_CONTENTION_FAILED, QString("AMDatabase detected contention for database locking in execQuery(). After %1 attempts, the query still did not succeed.").arg(attempt) );
 		}
 	}
 

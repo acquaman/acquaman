@@ -43,6 +43,7 @@ class AMEXAFSScanConfiguration : public AMXASScanConfiguration
 
 public:
 	/// Constructor, needs a pointer to a QObject to act as a parent and needs to know whether it should new its own regions list.  This allows a way to not new the wrong type of regions list.
+ 	virtual ~AMEXAFSScanConfiguration();
 	AMEXAFSScanConfiguration(QObject *parent = 0, bool setup = true);
 	AMEXAFSScanConfiguration(const AMEXAFSScanConfiguration &original, bool setup = true);
 
@@ -64,7 +65,7 @@ public:
 	/// Re-implemented for EXAFS.  Quick accessor for the end of the final region. Will always return an energy.  If no reginos are set, returns -1
 	virtual double endValue() const;
 
-	/// A human-readable description of this scan configuration. Can be re-implemented to provide more details. Used by AMBeamlineScanAction to set the title for the action view.
+	/// A human-readable description of this scan configuration. Can be re-implemented to provide more details. Used by scan action to set the title for the action view.
 	virtual QString description() const {
 		return QString("%5 Scan from %1%3 to %2%4")
 				.arg(regionStart(0))
@@ -74,7 +75,7 @@ public:
 				.arg(exafsRegions()->hasKSpace() ? "EXAFS" : "XANES");
 	}
 
-	/// A human-readable synopsis of this scan configuration. Can be re-implemented to proved more details. Used by AMBeamlineScanAction to set the main text in the action view.
+	/// A human-readable synopsis of this scan configuration. Can be re-implemented to proved more details. Used by scan action to set the main text in the action view.
 	virtual QString detailedDescription() const{
 		return QString("%5 Scan from %1%3 to %2%4")
 				.arg(regionStart(0))

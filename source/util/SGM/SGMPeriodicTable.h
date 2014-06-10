@@ -35,19 +35,24 @@ public:
 		return instance_;
 	}
 
-	SGMElementInfo* elementInfoByName(const QString &elementName) const;
-	QStringList fastScanPresetsStrings() const;
-	QList<SGMFastScanParameters*> fastScanPresets() const;
+	static QString SGMPeriodicTableAllDatabasesConnectionName() { return SGMPeriodicTableAllDatabasesConnectionName_; }
+
+	SGMElementInfo* elementInfoByName(const QString &elementName, const QString &databaseConnectionName = "user") const;
+	QStringList fastScanPresetsStrings(const QString &databaseConnectionName = "user") const;
+	QList<SGMFastScanParameters*> fastScanPresets(const QString &databaseConnectionName = "user") const;
 
 
 protected:
 	/// Holds the additional SGM Information for elements
-	AMOrderedSet<const AMElement*, SGMElementInfo*> sgmPeriodicTableInfo_;
+	AMOrderedSet<AMDatabase *, AMOrderedSet<AMElement*, SGMElementInfo*>* > sgmPeriodicTableInfo_;
 
 	/// Singleton instance variable
 	static SGMPeriodicTable *instance_;
 
+	static QString SGMPeriodicTableAllDatabasesConnectionName_;
+
 	/// Constructor: Builds the SGM Element info attached to the periodic table (protected: access via sgmTable())
+ 	virtual ~SGMPeriodicTable();
 	explicit SGMPeriodicTable(QObject *parent = 0);
 };
 

@@ -20,6 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "SGMScanConfiguration.h"
 
+ SGMScanConfiguration::~SGMScanConfiguration(){}
 SGMScanConfiguration::SGMScanConfiguration()
 {
 	/*
@@ -29,8 +30,8 @@ SGMScanConfiguration::SGMScanConfiguration()
 	setHarmonic((SGMBeamline::sgm()->harmonic()->value() == 0) ? SGMBeamline::firstHarmonic : SGMBeamline::thirdHarmonic);
 	*/
 	exitSlitGap_ = -1;
-	grating_ = SGMBeamline::lowGrating;
-	harmonic_ = SGMBeamline::firstHarmonic;
+	grating_ = SGMBeamlineInfo::lowGrating;
+	harmonic_ = SGMBeamlineInfo::firstHarmonic;
 
 	setTrackingGroup(SGMBeamline::sgm()->trackingSet()->toInfoList());
 	setFluxResolutionGroup(SGMBeamline::sgm()->fluxResolutionSet()->toInfoList());
@@ -56,11 +57,11 @@ double SGMScanConfiguration::exitSlitGap() const{
 	return exitSlitGap_;
 }
 
-SGMBeamline::sgmGrating SGMScanConfiguration::grating() const{
+SGMBeamlineInfo::sgmGrating SGMScanConfiguration::grating() const{
 	return grating_;
 }
 
-SGMBeamline::sgmHarmonic SGMScanConfiguration::harmonic() const{
+SGMBeamlineInfo::sgmHarmonic SGMScanConfiguration::harmonic() const{
 	return harmonic_;
 }
 
@@ -95,9 +96,9 @@ bool SGMScanConfiguration::setFluxResolutionGroup(AMControlInfoList fluxResoluti
 			if(fluxResolutionGroup_.at(x).name() == SGMBeamline::sgm()->exitSlitGap()->name() && fluxResolutionGroup_.at(x).value() != exitSlitGap_)
 				exitSlitGap_ = fluxResolutionGroup_.at(x).value();
 			if(fluxResolutionGroup_.at(x).name() == SGMBeamline::sgm()->grating()->name() && fluxResolutionGroup_.at(x).value() != grating_)
-				grating_ = (SGMBeamline::sgmGrating)(fluxResolutionGroup_.at(x).value());
+				grating_ = (SGMBeamlineInfo::sgmGrating)(fluxResolutionGroup_.at(x).value());
 			if(fluxResolutionGroup_.at(x).name() == SGMBeamline::sgm()->harmonic()->name() && fluxResolutionGroup_.at(x).value() != harmonic_)
-				harmonic_ = (SGMBeamline::sgmHarmonic)(fluxResolutionGroup_.at(x).value());
+				harmonic_ = (SGMBeamlineInfo::sgmHarmonic)(fluxResolutionGroup_.at(x).value());
 		}
 		return true;
 	}
@@ -114,7 +115,7 @@ bool SGMScanConfiguration::setExitSlitGap(double exitSlitGap){
 	return true;
 }
 
-bool SGMScanConfiguration::setGrating(SGMBeamline::sgmGrating grating){
+bool SGMScanConfiguration::setGrating(SGMBeamlineInfo::sgmGrating grating){
 	grating_ = grating;
 	for(int x = 0; x < fluxResolutionGroup_.count(); x++)
 		if(fluxResolutionGroup_.at(x).name() == SGMBeamline::sgm()->grating()->name() && fluxResolutionGroup_.at(x).value() != grating_)
@@ -122,7 +123,7 @@ bool SGMScanConfiguration::setGrating(SGMBeamline::sgmGrating grating){
 	return true;
 }
 
-bool SGMScanConfiguration::setHarmonic(SGMBeamline::sgmHarmonic harmonic){
+bool SGMScanConfiguration::setHarmonic(SGMBeamlineInfo::sgmHarmonic harmonic){
 	harmonic_ = harmonic;
 	for(int x = 0; x < fluxResolutionGroup_.count(); x++)
 		if(fluxResolutionGroup_.at(x).name() == SGMBeamline::sgm()->harmonic()->name() && fluxResolutionGroup_.at(x).value() != harmonic_)

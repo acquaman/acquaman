@@ -12,7 +12,7 @@ bool ALSBL8XASFileLoaderPlugin::accepts(AMScan *scan){
 	return (scan->fileFormat() == "alsBl8Xas");
 }
 
-bool ALSBL8XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolder){
+bool ALSBL8XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolder, AMErrorMon *errorMonitor){
 
 	if(columns2fileFormatHeaders_.count() == 0) {
 		columns2fileFormatHeaders_.set("eV", "Mono Energy");
@@ -44,7 +44,7 @@ bool ALSBL8XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolder
 	// open the file:
 	QFile f(sourceFileInfo.filePath());
 	if(!f.open(QIODevice::ReadOnly)) {
-		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -1, "ALSBL8XASFileLoader parse error while loading scan data from file. Missing file."));
+		errorMonitor->exteriorReport(AMErrorReport(0, AMErrorReport::Serious, ALSBL8XASFileLoaderPLUGIN_CANNOT_OPEN_FILE, "ALSBL8XASFileLoader parse error while loading scan data from file. Missing file."));
 		return false;
 	}
 	QTextStream fs(&f);
@@ -53,7 +53,7 @@ bool ALSBL8XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolder
 	while(!fs.atEnd() && !line.startsWith("Time (s)"))
 		line = fs.readLine();
 	if(fs.atEnd()) {
-		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -2, "ALSBL8XASFileLoader parse error while loading scan data from file. Missing the Column Header line."));
+		errorMonitor->exteriorReport(AMErrorReport(0, AMErrorReport::Serious, ALSBL8XASFileLoaderPLUGIN_BAD_FORMAT_NO_EVENT1_HEADER, "ALSBL8XASFileLoader parse error while loading scan data from file. Missing the Column Header line."));
 		return false;	// bad format; missing the column header
 	}
 	colNames1 = line.split(QChar('\t'));
@@ -65,7 +65,7 @@ bool ALSBL8XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolder
 	// ensure that we have the basic "eV" column
 	int eVIndex = colNames1.indexOf("eV");
 	if(eVIndex < 0) {
-		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -3, "ALSBL8XASFileLoader parse error while loading scan data from file. I couldn't find the energy (eV) column."));
+		errorMonitor->exteriorReport(AMErrorReport(0, AMErrorReport::Serious, ALSBL8XASFileLoaderPLUGIN_BAD_FORMAT_NO_ENERGY_COLUMN, "ALSBL8XASFileLoader parse error while loading scan data from file. I couldn't find the energy (eV) column."));
 		return false;	// bad format; no primary column
 
 	}
@@ -93,7 +93,7 @@ bool ALSBL8XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolder
 		if( (lp = line.split('\t', QString::SkipEmptyParts)).count() == colNames1.count() ) {
 
 			// append a new datapoint to the data tree (supply primary eV value here)
-			scan->rawData()->beginInsertRows(0);
+			scan->rawData()->beginInsertRows(1, -1);
 			scan->rawData()->setAxisValue(0, eVAxisIndex, lp.at(eVIndex).toDouble());	// insert eV
 
 			// add all columns (but ignore the eV column)
@@ -111,7 +111,7 @@ bool ALSBL8XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolder
 
 	for(int i=0; i<scan->rawDataSources()->count(); i++) {
 		if(scan->rawDataSources()->at(i)->measurementId() >= scan->rawData()->measurementCount()) {
-			AMErrorMon::report(AMErrorReport(scan, AMErrorReport::Debug, -97, QString("The data in the file didn't match the raw data columns we were expecting. Removing the raw data column '%1')").arg(scan->rawDataSources()->at(i)->name())));
+			errorMonitor->exteriorReport(AMErrorReport(scan, AMErrorReport::Debug, ALSBL8XASFileLoaderPLUGIN_DATA_COLUMN_MISMATCH, QString("The data in the file didn't match the raw data columns we were expecting. Removing the raw data column '%1')").arg(scan->rawDataSources()->at(i)->name())));
 			scan->deleteRawDataSource(i);
 		}
 	}

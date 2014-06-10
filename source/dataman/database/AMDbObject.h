@@ -18,21 +18,23 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef ACQMAN_DBOBJECT_H
-#define ACQMAN_DBOBJECT_H
+#ifndef AM_DBOBJECT_H
+#define AM_DBOBJECT_H
 
-#include "acquaman.h"
 #include <QObject>
 #include <QDateTime>
 #include <QStringList>
-#include "dataman/database/AMDatabase.h"
-
 #include <QSet>
 #include <QImage>
 #include <QBuffer>
 
+#include "acquaman.h"
+#include "dataman/database/AMDatabase.h"
+#include "dataman/database/AMDbObjectDefinitions.h"
+
 #define AMDBOBJECT_ERROR_STORING_CHILD_OBJECT -47
 #define AMDBOBJECT_3D_POINT_MISSING_3_NUMBERS -57
+#define AMDBOBJECT_3D_POINT_MISSING_3_NUMBERS_IN_AMQVECTOR3DVECTOR -277009
 #define AMDBOBJECT_ERROR_LOADING_OBJECT_TO_CREATE_THUMBNAILS -1313
 #define AMDBOBJECT_ERROR_SAVING_THUMBNAILS -1314
 #define AMDBOBJECT_ERROR_STORING_UPDATED_THUMBNAIL_COUNT_AND_FIRST_ID -1315
@@ -48,6 +50,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AMDBOBJECT_CANNOT_LOAD_FROM_DB_CLASS_NOT_REGISTERED -277005
 #define AMDBOBJECT_CANNOT_LOAD_FROM_DB_NO_VALUES_RETRIEVED_FROM_TABLE -277006
 #define AMDBOBJECT_CANNOT_LOAD_FROM_DB_AMDBOBJECTLIST_TABLE_LOCATION_INVALID -277007
+#define AMDBOBJECT_CANNOT_LOAD_FROM_DB_BAD_DB_REDIRECT -277008
+#define AMDBOBJECT_CANNOT_LOAD_FROM_DB_AMCONSTDBOBJECTLIST_TABLE_LOCATION_INVALID -277009
+#define AMDBOBJECT_CANNOT_LOAD_FROM_DB_BAD_CONSTDB_REDIRECT -277010
+
+#define AMDBOBJECT_DEBUG_OUTPUT 881001
 
 /// Thumbnails are fast little blobs of data used as icons or images to visually represent AMDbObjects.
 class AMDbThumbnail {
@@ -57,6 +64,7 @@ public:
 	enum ThumbnailType { InvalidType, PNGType };
 
 	/// Default constructor
+	virtual ~AMDbThumbnail();
 	AMDbThumbnail(const QString& Title = QString(), const QString& Subtitle = QString(), ThumbnailType Type = InvalidType, const QByteArray& ThumbnailData = QByteArray());
 
 	/// This constructor takes an image of any size and saves it as a PNG type. (It will be saved at the current size of the image, so if you want to save at a reduced size, pass in image.scaledToWidth(240) or similar.)
@@ -75,6 +83,7 @@ class AMDbThumbnailsGeneratedEvent : public QEvent {
 
 public:
 	/// Constructor
+	virtual ~AMDbThumbnailsGeneratedEvent();
 	AMDbThumbnailsGeneratedEvent(const QList<AMDbThumbnail>& thumbnails, AMDatabase* db, const QString& dbTableName, int dbObjectId, bool neverSavedHereBefore);
 
 	/// The list of thumbnails that were rendered
@@ -248,6 +257,8 @@ public:
 	  The parent QObject is not set when using this copy constructor; the copy's parent() will be 0.  If you want the copy to share the same parent(), you must call QObject::setParent() afterward.
 	  */
 	AMDbObject(const AMDbObject& original);
+	/// Destructor.
+	virtual ~AMDbObject();
 
 	/// Assignment operator. QObject parent/child relationships are NOT copied, but the essential characteristics (id, database, and modified state) of the AMDbObject are.  Making a copy will create an independent instance in memory. However, if the original has been previously saved to or loaded from the database, both the original and the copy will store/restore to the same location in the database (ie: they refer to the same persistent object). If you want the copy to be an independent database object, you need to call dissociateFromDb() next.
 	/*! If the original has never been successfully saved or loaded (ie: id() and database() return 0) then the two instances remain fully independent objects (both in memory, and in the database after calling storeToDb() for the first time.)
@@ -274,6 +285,9 @@ public:
 
 	/// Return whether or not this object is currently being reloaded from the database
 	bool isReloading() const;
+
+	/// Returns whether or not this object is currently being stored to the database
+	bool isStoring() const;
 
 
 	/// returns the name of the database table where objects like this are stored.
@@ -355,6 +369,8 @@ signals:
 
 	/// Emitted when this object is fully re-loaded from the database
 	void loadedFromDb();
+	/// Emitted when this object is fully stored to the database
+	void storedToDb();
 	/// Emitted when the modified() state changes. Indicates that this object is in-sync or out-of-sync with the database version.
 	void modifiedChanged(bool isModified);
 
@@ -379,7 +395,6 @@ protected:
 	void setModified(bool isModified = true) {
 		if(isModified != modified_)
 			emit modifiedChanged(modified_ = isModified);
-		modified_ = isModified;
 	}
 
 
@@ -402,8 +417,11 @@ private:
 	/// This is a helper function used by storeToDb() to save the thumanils, in the current thread. It should only be called after the object has been stored in the main table and has a valid id() and database(). \c neverSavedHereBefore is an optimization for when we know there are no existing thumbnails.
 	void updateThumbnailsInCurrentThread(bool neverSavedHereBefore);
 
-	/// holds whether this object is currently being reloaded from the database
+	/// Holds whether this object is currently being reloaded from the database
 	bool isReloading_;
+
+	/// Holds whether this object is currently being stored to the database
+	bool isStoring_;
 
 	QMap<QString, AMDbLoadErrorInfo*> loadingErrors_;
 };

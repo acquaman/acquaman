@@ -27,6 +27,7 @@ class CLSPGTDwellTimeCoordinator : public QObject
 {
 Q_OBJECT
 public:
+ 	virtual ~CLSPGTDwellTimeCoordinator();
 	CLSPGTDwellTimeCoordinator(const QString &PGTStubName, const QString &beamlineStubName, QObject *parent = 0);
 
 protected slots:
@@ -35,7 +36,11 @@ protected slots:
 	void onPeakTimeControlChanged(double peakTime);
 	void onDwellTimeControlChanged(double dwellTime);
 	void onDwellTimeModeChanged(double dwellMode);
+	void onDwellTriggerControlChanged(double dwellTrigger);
 	void onAllControlsConnected(bool connected);
+
+	void onOldROI0Changed(double roi0);
+	void onOldAcquiringControlChanged(double acquiring);
 
 protected:
 	void internalSetRealTime(double realTime);
@@ -53,6 +58,12 @@ protected:
 	AMControl *peakTimeControl_;
 	AMControl *dwellTimeControl_;
 	AMControl *dwellModeControl_;
+	AMControl *dwellTriggerControl_;
+	AMControl *oldTriggerControl_;
+	AMControl *oldROI0Count_;
+	AMControl *oldClearSpectrumControl_;
+	AMControl *oldAcquiringControl_;
+	AMControl *oldElapsedEnableControl_;
 
 	AMControlSet *allControls_;
 	bool connectedOnce_;
@@ -64,6 +75,9 @@ protected:
 	bool internalDwellModeSet_;
 	double dwellTime_;
 	int dwellMode_;
+
+	bool internalDwellTrigger_;
+	bool internalDwellTriggerIgnoreZero_;
 };
 
 #endif // CLSPGTDWELLTIMECOORDINATOR_H

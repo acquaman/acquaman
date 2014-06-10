@@ -41,13 +41,14 @@ class AMNumberChangeAction : public AMAction3
 Q_OBJECT
 
 public:
+ 	virtual ~AMNumberChangeAction();
 	Q_INVOKABLE AMNumberChangeAction(AMNumberChangeActionInfo *info, QObject *parent = 0);
 	AMNumberChangeAction(const AMNumberChangeAction &other);
 
 	virtual AMAction3* createCopy() const;
 
 	virtual bool canPause() const;
-
+	virtual bool canSkip() const { return false; }
 	virtual bool hasChildren() const;
 	virtual int numberOfChildren() const;
 
@@ -60,6 +61,7 @@ protected:
 	virtual void pauseImplementation();
 	virtual void resumeImplementation();
 	virtual void cancelImplementation();
+	virtual void skipImplementation(const QString &command) { Q_UNUSED(command); }
 
 	const AMNumberChangeActionInfo* numberChangeInfo() const;
 	AMNumberChangeActionInfo* numberChangeInfo();

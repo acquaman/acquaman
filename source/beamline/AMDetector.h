@@ -1,155 +1,535 @@
-/*
-Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
-
-This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
-
-Acquaman is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-Acquaman is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
-
-#ifndef ACQMAN_AMDETECTOR_H
-#define ACQMAN_AMDETECTOR_H
+#ifndef AMDETECTOR_H
+#define AMDETECTOR_H
 
 #include <QObject>
+
+#include "dataman/AMMeasurementInfo.h"
 #include "dataman/info/AMDetectorInfo.h"
-#include "AMControl.h"
-#include "actions/AMBeamlineActionItem.h"
+#include "actions3/AMAction3.h"
+#include "dataman/datasource/AMDataSource.h"
 
-class AMDetector;
+class AMDetectorTriggerSource;
+class AMDetectorDwellTimeSource;
 
-/// This class acts as a proxy to emit signals for AMDetector. You can receive the connected(), etc. signals by hooking up to AMDetector::signalSource().  You should never need to create an instance of this class directly.
-/*! To allow classes that implement AMDetector to also inherit QObject, AMDetector does NOT inherit QObject.  However, it still needs a way to emit signals notifying of changes to the detector, which is the role of this class.
-  */
-class AMDetectorSignalSource : public QObject {
-	Q_OBJECT
-public:
-	AMDetector* detector() const { return detector_; }
+/// An AMDetector is an abstract representation of all scientific tools designed to report data
+/*!
+  As a programmer, you may wish to implement your own AMDetector subclass. Check around first! You may find that someone has already done the work.
 
-protected slots:
-	void emitConnected(bool isConnected);
-	void emitInfoChanged();
-	void emitReadingsChanged();
-	void emitSettingsChanged();
-	void emitDeleted();
+  You will need to look into three types of calls: functions you MUST implement, functions you MAY wish to reimplement, and functions you MUST call.
 
-protected:
-	AMDetectorSignalSource(AMDetector* parent);
-	AMDetector* detector_;
-	friend class AMDetector;
+  \b MUST Implement:
+  - size(int) Must be implemented to ensure that you return sensible information.
 
-signals:
-	/// Indicates that the detector is ready (each detector sub class can define this however makes most sense)
-	void connected(bool isConnected);
-	void availabilityChagned(AMDetector *detector, bool isAvailable);
-	/// Indicates that the meta-information for this detector (currently just description()) has changed.
-	void infoChanged();
-	void readingsChanged();
-	void settingsChanged();
-	/// Emitted before the data source is deleted. \c deletedSource is a pointer to the deleted source. Observers can use this to detect when AMDataSource objects no longer exist.
-	/*! (In a direct signal-slot connection, the \c deletedSource will still exist, inside ~AMDataSource(), when this is called. In a queued signal-slot connection, you should assume that \c deletedSource is already deleted. */
-	void deleted(void* deletedSource);
-};
+  - requiresPower() Must be implemented to say whether or not the detector needs additional powering.
 
-class AMDetector
+  - canContinuousAcquire() Must be implemented to say whether or not the detector can support continuous acquisitions.
+  - canCancel() Must be implemented to say if the detector's acquisition can be cancelled.
+  - canClear() Must be implemented to say if the detector's capable of clearing its current data.
+
+  - acquisitionTime() Must be implemented to return the detector's current dwell time.
+  - setAcquisitionTime() Must be implemented to change the detector's current dwell time. Return false if this cannot be set or is set incorreclty.
+  - createSetAcquisitionTimeAction() Must be implemented to return an action that can set the acquisition time for triggered detectors.
+
+  - supportsSynchronizedDwell() Must be implemented to say if the detector can be controlled by a synchronzed dwell time tool. FLESH THIS OUT.
+  - currentlySynchronizedDwell() Must be implemented to say if the detector is currently being controlled by a synchronized dwell time tool. FLESH THIS OUT.
+
+  - readMethod() Must be implemented to say how this detector reads (request/trigger, immedite, wait). While it's unlikely that your detector can change this on the fly, it is not impossible.
+  - readMode() Must be implemented to say how this detector is currently reading data (single acquisition, continuous). Some detectors can switch on the fly.
+  - setReadMode() Must be implemented to deal with switching on the fly. If your detector does not support this, simply return false and do nothing.
+
+  - reading() Must be implemented to pull out single-valued readings from your detector.
+  - data() Must be implemented to return a raw data pointer for fast access.
+
+  - dataSource() Must be implemented to return an appropriate data source for viewing the detector output.
+
+  - acquireImplementation(AMDetectorDefinitions::ReadMode) Must be implemented to start the internal acquisition process.
+  - initializeImplementation() Must be implemented to internally initialize the detector. If the detector requires no initialization you can call setInitialized() and return true. If you require many steps you may consider making a list of actions to do the work.
+  - cleanupImplementation() Must be implemented to internally cleanup the detector after acquisition/scans. If the detector requires no cleanup you can call setCleanedUp() and return true. If you require many steps you may consider making a list of actions to do the work.
+
+  \b MAY Reimplement:
+  - rank(), size(), axes() There are default implementations, but these are only valid for 0D detectors
+
+  - reading0D, reading1D, reading2D There are default implementations, but they are inefficient because they will call reading() repeatedly
+  - lastContinuousReadingImplementation(double*) May be implemented to return the continuous reading. Default implementation returns false. Also, lastContinuousReading() automatically checks canContinuousAcquire() and returns false if the detector doesn't support it.
+  - clearImplementation() May be implemented to internally clear the current data if possible. Default implementation returns false. Also, clear() automatically checks canClear() and returns false if the detector doesn't support it.
+
+  - createInitializationActions() A default action is created using the initialization functions and signals. If you wish to make a specific action or return a list of actions you may.
+  - createCleanupActions() A default action is created using the cleanup functions and signals. If you wish to make a specific action or return a list of actions you may.
+
+  \b MUST Call:
+  - setConnected() You must call this function when your detector has connected, this way the signals are always emitted correctly.
+  - setPowered() You must call this function if you detector requires some additional form of power (likely high voltage), this way signals are always emitted correctly.
+
+  - setInitializing(), setInitialized(), setInitializationRequired() You must call these functions to change the state of the initialization state machine (read more about the initializtion state machine for further details). Since these states can change due to external events, you can call these as slots if you like. If you never require any initialization, you can call setInitialized() in your constructor.
+  - setCleaningUp(), setCleanedUp(), setCleanupRequired() You must call these functions to change the state of the cleanup state machine (read more about the cleanup state machine for further details). Since these states can change due to external events, you can call these as slots if you like. If you never require any cleanup, you can call setCleanedUp() in your constructor.
+  - setAcquiring(), setAcquisitionSucceeded(), setAcquisitionFailed(), setCancelling(), setCancelled(), setReadyForAcquisition(), setNotReadyForAcquisition() You must call these functions to change the state of the acquisition state machine (read more about the acquisition state machine for further details). Since these states can change due to external events, you can call these as slots if you like.
+
+  - setAutoSetInitializing(), setAutoSetCancelling(), setAutoSetCleaningUp() You must call these functions in your constructor if you wish to redefine the automatic behavior for emitting these signals. If you expect external events to always signal these events (whether you call them in Acquaman or whether they happen elsewhere) then you can emit all of the signals yourself by turning these off.
+  !*/
+
+#define AMDETECTOR_NOTIFIED_INITIALIZING_UNEXPECTEDLY 470001
+#define AMDETECTOR_NOTIFIED_INITIALIZED_UNEXPECTEDLY 470002
+#define AMDETECTOR_NOTIFIED_INITIALIZATIONREQUIRED_UNEXPECTEDLY 470003
+
+#define AMDETECTOR_NOTIFIED_ACQUIRING_UNEXPECTEDLY 470004
+#define AMDETECTOR_NOTIFIED_CANCELLING_UNEXPECTEDLY 470005
+#define AMDETECTOR_NOTIFIED_CANCELLED_UNEXPECTEDLY 470006
+#define AMDETECTOR_NOTIFIED_SUCCEEDED_UNEXPECTEDLY 470007
+#define AMDETECTOR_NOTIFIED_FAILED_UNEXPECTEDLY 470008
+#define AMDETECTOR_NOTIFIED_READYFORACQUISITION_UNEXPECTEDLY 470009
+#define AMDETECTOR_NOTIFIED_NOTREADYFORACQUISITION_UNEXPECTEDLY 470010
+
+#define AMDETECTOR_NOTIFIED_CLEANINGUP_UNEXPECTEDLY 470011
+#define AMDETECTOR_NOTIFIED_CLEANEDUP_UNEXPECTEDLY 470012
+#define AMDETECTOR_NOTIFIED_CLEANUPREQUIRED_UNEXPECTEDLY 470013
+
+#define AMDETECTOR_DEFAULT_TIMEOUT_MS 5000
+
+class AMDetector : public QObject
 {
+Q_OBJECT
+
 public:
-	/// This enum type is used to describe the way a detector reports its readings.
-	/*! Possible explanation codes are:
-	*/
-	enum ReadMethod {
-		ImmediateRead = 1,	///< Just reports the current value (cached) for the readings (call value() for an AMControl)
-		RequestRead,		///< Should request a new value before reporting (probably need to set a trigger AMControl)
-		WaitRead		///< Should wait for a new value before reporting (connect to valueChanged() for an AMControl)
-	};
+	/// This enum describes the states a detector can take on with regard to acquisition
+	enum AcqusitionState { NotReadyForAcquisition = 0,
+				   ReadyForAcquisition = 1,
+				   Acquiring = 2,
+				   Cancelling = 3,
+				   Cancelled = 4,
+				   Succeeded = 5,
+				   Failed = 6
+				 };
 
-	AMDetector(const QString& name, AMDetector::ReadMethod readMethod = AMDetector::ImmediateRead);
+	/// This enum describes the states a detector can take on with regard to initialization
+	enum InitializationState { InitializationRequired = 0,
+				   Initializing = 1,
+				   Initialized = 2
+				 };
 
+	/// This enum describes the states a detector can take on with regard to cleanup
+	enum CleanupState { CleanupRequired = 0,
+				CleaningUp = 1,
+				CleanedUp = 2
+			  };
+
+	/// Default constructor. \c name is a unique programmer name to access this detector with. \c description is a human-readable version
+	AMDetector(const QString &name, const QString &description, QObject *parent = 0);
+	/// Destructor.
 	virtual ~AMDetector();
 
-	AMDetectorSignalSource* signalSource() const;
+	/// One feature of a detector is that it can create a snapshot of its current state and pass it on as an AMDetectorInfo.
+	AMDetectorInfo toInfo() const;
 
-	bool isConnected() const;
+	/// Access the programmer unique name
+	QString name() const { return objectName(); }
+	/// Access a human-readable description
+	QString description() const { return description_; }
+	/// Access the describing this detector's readings (ex: "counts", "milliAmps", etc.)
+	QString units() const { return units_; }
 
-	/// AMDetector is not a QObject, but it's children should be. To allow its for generalized GUI creation, children that are QObjects MUST implement this (likely just child->metaObject() )
-	virtual const QMetaObject* getMetaObject();
+	/// Returns the number of dimensions in the output of this detector. A single point has rank 0. A spectrum output would have rank 1. An image output would have rank 2.
+	virtual int rank() const { return axes_.size(); }
+	/// Returns the size (ie: number of elements) along each dimension of the detector.  For a single-point detector, returns an empty AMnDIndex(). For a spectrum output, this would contain one number (the number of pixels or points along the axis).  For an image output, this would contain the width and height.
+	virtual AMnDIndex size() const;
+	/// Returns the size along a single axis \c axisNumber. This should be fast. \c axisNumber is assumed to be between 0 and rank()-1.
+	virtual int size(int axisNumber) const;
+	/// Returns a list of AMAxisInfo describing the size and nature of each detector axis, in order.
+	virtual QList<AMAxisInfo>  axes() const { return axes_; }
 
-	/// The read method this detector is using (see AMDetector::ReadMethod enum)
-	virtual AMDetector::ReadMethod readMethod() const;
+	/// Returns (or casts) this AMDetector as an AMMeasurementInfo, which contains the bare-bones dimensional information.
+	operator AMMeasurementInfo();
 
-	/// Returns the PV name the dacq library wants to use
-	virtual QString dacqName() const;
+	/// Returns the current connected state (whether the detector has a connection to its constituent elements)
+	bool isConnected() const { return connected_; }
+	/// Returns whether or not the detector has timed out
+	bool isTimedOut() const { return timedOut_; }
+	/// Returns how long this detector will wait before timing out in milliseconds
+	int timeOutMS() const { return timeOutMS_; }
+	/// Returns the current powered state (whether the detector has it's high voltage on). Also see requiresPower().
+	bool isPowered() const { return powered_; }
+	/// Returns whether a detector requires power (high voltage, likely) to operate. Every detector subclass need to implement this function.
+	virtual bool requiresPower() const = 0;
 
-	/// Returns a string list of dacq "Action Begin" statements. The strings should be divided into three sections by ||=||. Three sections are the command (SetPV, WaitPV, etc), the PV, and the value.
-	virtual QStringList dacqBegin() const;
-	/// Returns a string list of dacq "Action Move" statements. The strings should be divided into three sections by ||=||. Three sections are the command (SetPV, WaitPV, etc), the PV, and the value.
-	virtual QStringList dacqMove() const;
-	/// Returns a string list of dacq "Action Dwell" statements. The strings should be divided into three sections by ||=||. Three sections are the command (SetPV, WaitPV, etc), the PV, and the value.
-	virtual QStringList dacqDwell() const;
-	/// Returns a string list of dacq "Action Finish" statements. The strings should be divided into three sections by ||=||. Three sections are the command (SetPV, WaitPV, etc), the PV, and the value.
-	virtual QStringList dacqFinish() const;
+	/// Returns whether a detector can (generally) have its acquisition cancelled
+	virtual bool canCancel() const = 0;
+	/// Returns whether a detector can (generally) be cleared
+	virtual bool canClear() const = 0;
+	/// Returns whether a detector is capable of running in continuous mode
+	virtual bool canContinuousAcquire() const = 0;
 
-	/// Get the current reading
-	virtual double reading() const;
+	/// Returns the current acquisition dwell time which is only relevant for triggered (RequestRead) detectors
+	virtual double acquisitionTime() const = 0;
+	/// Returns whether \param value is already within acquisition time tolerance of the detector.
+	bool acquisitionTimeWithinTolerance(double value) const;
+	/// Returns the acquisition time tolerance.  This is defined by subclasses because this limitation will likely be detector specific.
+	virtual double acquisitionTimeTolerance() const = 0;
 
-	/// AMDetector sub classes need to reimplement this to return their own detectorInfo class. NEEDS TO RETURN A NEW INSTANCE, CALLER IS RESPONSIBLE FOR MEMORY.
-	virtual AMDetectorInfo* toInfo() const = 0;
+	virtual bool canDoDarkCurrentCorrection() const { return false;}
 
-	/// the identifying name() of a detector can sometimes be used to select one from a set of detector. Therefore, it's not really recommended to change the name after a detector is created.
-	QString detectorName() const;
+	virtual double darkCurrentMeasurementValue() const;
+	virtual int darkCurrentMeasurementTime() const;
 
-	/// The description() of a detector is a human-readable, free-form string.
-	virtual QString description() const = 0;
+	virtual bool requiresNewDarkCurrentMeasurement() const;
 
-	/// Descriptions can be changed at will, and the detector will emit infoChanged() when this happens.
-	virtual void setDescription(const QString& description) = 0;
+	/// Returns the current acquisition state
+	AMDetector::AcqusitionState acquisitionState() const { return acquisitionState_; }
+	/// Returns a string describing the given state
+	QString acquisitionStateDescription(AMDetector::AcqusitionState state);
+	/// Returns true if the detector is currently acquiring.
+	bool isAcquiring() const { return acquisitionState() == AMDetector::Acquiring; }
+	/// Returns true if the detector is currently cancelling an acquisition
+	bool isCancellingAcquisition() const { return acquisitionState() == AMDetector::Cancelling; }
+	/// Returns true if the detector has just cancelled an acquisition
+	bool acquisitionCancelled() const { return acquisitionState() == AMDetector::Cancelled; }
+	/// Returns true if the detector has just succeeded in an acquisition
+	bool acquisitionSucceeded() const { return acquisitionState() == AMDetector::Succeeded; }
+	/// Returns true if the detector has just failed in an acquisition
+	bool acquisitionFailed() const { return acquisitionState() == AMDetector::Failed; }
+	/// Returns true if the detector is not ready for acquisition but also not currently acquiring
+	bool isNotReadyForAcquisition() const { return acquisitionState() == AMDetector::NotReadyForAcquisition; }
+	/// Returns true if the detector is ready to start an acquisition
+	bool isReadyForAcquisition() const { return acquisitionState() == AMDetector::ReadyForAcquisition; }
 
-	/// Read Method can be changed if necessary (see AMDetector::ReadMethod enum)
-	virtual void setReadMethod(AMDetector::ReadMethod readMethod);
+	/// Returns the current initialization state
+	AMDetector::InitializationState initializationState() const { return initializationState_; }
+	/// Returns a string describing the given state
+	QString initializationStateDescription(AMDetector::InitializationState state);
+	/// Returns whether or not this detector currently requires initialization
+	bool requiresInitialization() const { return initializationState() == AMDetector::requiresInitialization(); }
+	/// Returns whether or not this detector is currently initializing
+	bool isInitializing() const { return initializationState() == AMDetector::Initializing; }
+	/// Returns whether or not this detector has been initialized
+	bool isInitialized() const { return initializationState() == AMDetector::Initialized; }
 
-	/* NTBA March 14, 2011 David Chevrier
-	   Should have something like this
-	virtual bool setFromInfo(const AMDetectorInfo& info) = 0;
-	*/
-	virtual bool setFromInfo(const AMDetectorInfo *info) = 0;
+	/// Returns the current cleanup state
+	AMDetector::CleanupState cleanupState() const { return cleanupState_; }
+	/// Returns a string describing the given state
+	QString cleanupStateDescription(AMDetector::CleanupState state);
+	/// Returns whether or not this detector currently requires cleanup
+	bool requiresCleanup() const { return cleanupState() == AMDetector::CleanupRequired; }
+	/// Returns whether or not this detector is currently cleaning up
+	bool isCleaningUp() const { return cleanupState() == AMDetector::CleaningUp; }
+	/// Returns whether or not this detector has been cleaned up after use (probably a scan)
+	bool isCleanedUp() const { return cleanupState() == AMDetector::CleanedUp; }
 
-	/// Should be implemented such that a turnOnAction is successful. That is, if a detector needs its high voltage set to a given value, then activate performs that operation. The turnOnAction should only "flip the switch" for the detector's high voltage.
-	virtual bool activate() { return false;}
-	/// Returns an action that "flips the switch" to turn on a detector (normally turning on its high voltage channel)
-	virtual AMBeamlineActionItem* turnOnAction() { return 0;}
+	/// Returns whether or not this detector can be coordinated with a synchronized dwell system
+	virtual bool supportsSynchronizedDwell() const = 0;
+	/// Returns whether or not this detector is currently interfaced with a synchronized dwell system by querying the AMBeamline class. You may reimplement if you wish.
+	virtual bool currentlySynchronizedDwell() const;
+	/// Returns the key for this detector (for matching with synchronized dwell application)
+	virtual QString synchronizedDwellKey() const = 0;
+
+	/// Returns whether to not this detector shares a triggering source, such as synchronized dwell time or the main scaler trigger. Default implementation returns false.
+	virtual bool sharesDetectorTriggerSource() { return false; }
+	/// Returns the trigger source for this detector. Default implementation returns a NULL pointer.
+	virtual AMDetectorTriggerSource* detectorTriggerSource() { return 0; }
+	/// Returns the dwell time source for this detector. Default implementation returns a NULL pointer
+	virtual AMDetectorDwellTimeSource* detectorDwellTimeSource() { return 0; }
+
+	/// Returns the read method for this detector
+	virtual AMDetectorDefinitions::ReadMethod readMethod() const = 0;
+	/// Returns the read mode for this detector
+	virtual AMDetectorDefinitions::ReadMode readMode() const = 0;
+
+	/// Returns the dependent value at a (complete) set of axis indexes. Returns an invalid AMNumber if the indexes are insuffient or (if AM_ENABLE_BOUNDS_CHECKING is defined, any are out of range), or if the data is not ready.
+	virtual AMNumber reading(const AMnDIndex& indexes) const = 0;
+
+	/// Returns a total single reading for the detector (the value for 0D, possibliy a sum for 1D). If this is not possible, the default implementation is sufficient to return an invalid AMNumber.
+	virtual AMNumber singleReading() const { return AMNumber(AMNumber::Null); }
+
+	/// Copies a block of values from \c indexStart to \c indexEnd, into \c outputValues. 0D is an convenience call to reading, 1D copies a slice, 2D copies a plane.  The values are returned in row-major order (ie: with the first index varying the slowest). Returns false if the indexes have the wrong dimension, or (if AM_ENABLE_BOUNDS_CHECKING is defined, the indexes are out-of-range).
+	/*! The base-class implementation simply calls reading() repeatedly, so you should absolutely re-implement this for better performance.
+
+	It is the caller's responsibility to make sure that \c outputValues has sufficient size.  You can calculate this conviniently using:
+
+\code
+int outputSize = indexStart.totalPointsTo(indexEnd);
+\endcode
+*/
+	virtual bool reading0D(const AMnDIndex &startIndex, const AMnDIndex &endIndex, double *outputValues) const;
+	virtual bool reading1D(const AMnDIndex &startIndex, const AMnDIndex &endIndex, double *outputValues) const;
+	virtual bool reading2D(const AMnDIndex &startIndex, const AMnDIndex &endIndex, double *outputValues) const;
+
+	/// Convenience call to access the three previous calls from a common interface.
+	bool readingND(const AMnDIndex &startIndex, const AMnDIndex &endIndex, double *outputValues) const;
+
+	// FLESH THIS ONE OUT
+	/// Returns the data from the last continuous reading in the outputValues
+	virtual bool lastContinuousReading(double *outputValues) const;
+	virtual int lastContinuousSize() const;
+
+	/// Fills the given double pointer with the current detector data in row-major order (first axis varies slowest).  Memory must be preallocated to the size of the detector data.
+	virtual bool data(double *outputValues) const = 0;
+
+	/// Returns a newly created action (possibly list of actions) to perform the detector initialization
+	virtual AMAction3* createInitializationActions();
+
+	/// Returns a newly created action to set the acquisition time on this detector
+	virtual AMAction3* createSetAcquisitionTimeAction(double seconds);
+
+	virtual AMAction3* createAcquisitionAction(AMDetectorDefinitions::ReadMode readMode = AMDetectorDefinitions::SingleRead);
+
+	virtual AMAction3* createTriggerAction(AMDetectorDefinitions::ReadMode readMode = AMDetectorDefinitions::SingleRead);
+	virtual AMAction3* createReadAction();
+
+	/// Returns a newly created action (possibly list of actions) to perfrom the detector cleanup
+	virtual AMAction3* createCleanupActions();
+
+	/// Returns a (list of) actions that will do all necessary steps to do dark current correction. Your subclass needs to implement this function. Dwell time argument is in seconds.
+	virtual AMAction3* createDarkCurrentCorrectionActions(double dwellTime);
+	/// Returns an action that sets the current detector value as the dark current correction value. Your subclass will probably call this in createDarkCurrentCorrectionActions.
+	virtual AMAction3* createSetAsDarkCurrentCorrectionAction();
+
+	/// Returns a data source for viewing this detector's output
+	virtual AMDataSource* dataSource() const = 0;
+
+	/// Handles the default visibility of the detector when added to a scan.
+	bool isVisible() const { return isVisible_; }
+	/// Handles the default accessibility of the detector when added to a scan.  If true, this detector will be completely hidden within the user interface.
+	bool hiddenFromUsers() const { return hiddenFromUsers_; }
+
+	/// Changes the default visibility of the detector when added to a scan.
+	void setIsVisible(bool visible);
+	/// Changes the default accessibility of the detector when added to a scan.
+	void setHiddenFromUsers(bool hidden);
+
+public slots:
+	// External requests to change the state (initialization, acquisition, cleanup): initialize(), acquire(), cancelAcquisition(), cleanup()
+	//////////////////
+	// All of these requests to change the state return false if not allowed from the current state.
+
+	/// Initializes the detector (prepares it for acquisition). Allowed from InitializationRequired. State will change to Initializing if autoSetInitialzing has not been changed by the subclass.
+	bool initialize();
+
+	/// Triggers the detector to acquire. Allowed from ReadyForAcquisition.
+	/// For triggered detectors (RequestRead), starts the acquisition process. For other detectors (ImmediateRead, WaitRead), does nothing. Returns if the acquistion started successfully. Pass in the type of read you wish to trigger.
+	bool acquire(AMDetectorDefinitions::ReadMode readMode = AMDetectorDefinitions::SingleRead);
+
+	/// Cancels the acquisition if this is possible. Allowed from Acquiring. State will change to Cancelling if autoSetCancelling has not been changed by the subclass.
+	/// For triggered detectors (RequestRead), cancels the read if this is possible. Returns whether or not the cancelation was possible.
+	bool cancelAcquisition();
+
+	/// Cleans up the detector after its use is complete (likely after a scan). Allowed from CleanupRequired. State will change to CleaningUp if autoSetCleaningUp has not been changed by the subclass.
+	bool cleanup();
+
+	// Other non-state slots requests
+
+	/// Sets the read mode for this detector (if possible, check with canContinuousAcquire)
+	virtual bool setReadMode(AMDetectorDefinitions::ReadMode readMode) = 0;
+
+	/// Set the acquisition dwell time for triggered (RequestRead) detectors
+	virtual bool setAcquisitionTime(double seconds) = 0;
+
+	/// For clearable detectors, clears the current data. Returns whether the clear was possible.
+	bool clear();
+
+    virtual void setAsDarkCurrentMeasurementValue();
+    virtual void setAsDarkCurrentMeasurementTime(double lastTime);
+    virtual void setRequiresNewDarkCurrentMeasurement(bool needsNewDCC);
+
+
+signals:
+	/// Indicates that the detector's constituent elements are connected (each detector sub class can define this however makes most sense)
+	void connected(bool isConnected);
+	/// Indicates that the detector failed to connected within the defined timeout
+	void timedOut();
+	/// Indicates that the detector is currently powered (has it's high voltage on). Also see requiresPower().
+	void powered(bool isPowered);
+
+	/// Indicates that the detector's acquisition state has changed somehow
+	void acquisitionStateChanged(AMDetector::AcqusitionState newState);
+	/// Indicates that the detector's initialization state has changed somehow
+	void initializationStateChanged(AMDetector::InitializationState newState);
+	/// Indicates that the detector's cleanup state has changed somehow
+	void cleanupStateChanged(AMDetector::CleanupState newState);
+
+	/// Synonymous for acquisitionStateChanged(ReadyForAcquisition)
+	void readyForAcquisition();
+	/// Synonymous for acquisitionStateChanged(NotReadyForAcquisition)
+	void notReadyForAcquisition();
+	/// Synonymous for acquisitionStateChanged(Acquiring)
+	void acquiring();
+	/// Synonymous for acquisitionStateChanged(Cancelling)
+	void acquisitionCancelling();
+	/// Synonymous for acquisitionStateChanged(Cancelled)
+	void acquisitionCancelled();
+	/// Synonymous for acquisitionStateChanged(Succeeded)
+	void acquisitionSucceeded();
+	/// Synonymous for acquisitionStateChanged(Failed)
+	void acquisitionFailed();
+
+	/// Synonymous for initializationStateChanged(InitializationRequired)
+	void initializationRequired();
+	/// Synonymous for initializationStateChanged(Initializing)
+	void initializing();
+	/// Synonymous for initializationStateChanged(Initialized)
+	void initialized();
+
+	/// Synonymous for cleanupStateChanged(CleanupRequired)
+	void cleanupRequired();
+	/// Synonymous for cleanupStateChanged(CleaningUp)
+	void cleaningUp();
+	/// Synonymous for cleanupStateChanged(CleanedUp)
+	void cleanedUp();
+
+	/// Indicates that the detector's acquisition read mode has changed
+	void readModeChanged(AMDetectorDefinitions::ReadMode readMode);
+	/// Indicates that the detector's acquisition time has changed
+	void acquisitionTimeChanged(double seconds);
+	void newValuesAvailable();
+
+	/// Indicates that the axis values have changed.  This would affect things like size() and axes().
+	void axisValuesChanged();
+
+	/// Notifier that the default visibility of the detector has changed.
+	void isVisibleChanged(bool);
+	/// Notifier that the default accessibility of the detector has changed.
+	void hiddenFromUsersChanged(bool);
+
+    /// New dark current correction value ready, passes new dark current value.
+    void newDarkCurrentMeasurementValueReady(double newValue);
+    /// Indicates that the darkCurrentCorrection_ value stored is out of date. A new dark current measurement should be taken.
+    void requiresNewDarkCurrentMeasurement(bool needsUpdate);
+
+protected slots:
+	///
+	void setInitializing();
+	/// Call this after receiving initializeImplementation() to inform the base class that the detector has been initialized, and we should go from Initializing to Initialized
+	void setInitialized();
+	/// Call this after receiving initializeImplementation() to inform the base class that the detector initialization has failed, and we should go from Initializing to InitializationRequired
+	void setInitializationRequired();
+
+	/// Call this after receiving acquireImplementation() to inform the base class that the detector has started the acquisition, and we should go from ReadyForAcquisition to Acquiring
+	void setAcquiring();
+	/// Call this to inform the base class that the detector has succeeded in its acquisition, and we should go from Acquiring to Succeeded
+	void setAcquisitionSucceeded();
+	/// Call this to inform the base class the the detector has failed in its acquisition, and we should go from Acquiring to Failed
+	void setAcquisitionFailed();
+	///
+	void setAcquisitionCancelling();
+	/// Call this after receiving cancelImplementation() to inform the base class that the acquisition has been cancelled, and we should go from Cancelling to Cancelled
+	void setAcquisitionCancelled();
+
+	/// Call this to inform the base class that the detector is ready for acquisition (or ready again). Either this or setNotReadyForAcquisition() must be called after the Succeeded, Failed, and/or Cancelled states to declare that the detector can start another acquisition. This can also be called when the state is NotReadyForAcquisition to declare that the detector is now ready.
+	void setReadyForAcquisition();
+	/// Call this to inform the base class that the detector is NOT ready for acquisition (or somehow stopped being ready). Either this or setReadyForAcquisition() must be called after the Succeeded, Failed, and/or Cancelled states to declare that the detector cannot start another acquisition. This can also be called when the state is ReadyForAcquisition to declare that the detector is no longer ready.
+	void setNotReadyForAcquisition();
+
+	///
+	void setCleaningUp();
+	/// Call this after receiving cleanupImplementation() to inform the base class that the detector has been cleaned up, and we should go from CleaningUp to CleanedUp
+	void setCleanedUp();
+	/// Call this after receiving cleanupImplementation() to inform the base class that the detector clean up has failed, and we should go to from CleaningUp to CleanupRequired
+	void setCleanupRequired();
 
 protected:
+	// The following functions are used to define the unique behaviour of the detector.  We set them up in this way so that subclasses don't need to worry about (and cannot) break the state machine logic; they only need to fill in their pieces.
+
+	// These pure-virtual functions allow subclasses to implement their unique action behaviour.  They are called at the appropriate time by the base class, when base-class-initiated state changes happen: ->Acquiring, ->Cancelling, ->Initializing, ->CleaningUp
+	/////////////////////////
+
+	/// This function is called from the Initializing (intialization) state when the implementation should initialize the detector. Once the detector is initialized you must call setInitialized(), if initialization has failed you must call setInitializationRequired()
+	virtual bool initializeImplementation() = 0;
+	/// This function is called from the Acquiring (acquisition) state when the implementation should start the detector's acquisition. Once the detector is done acquiring you must call setAcquisitionSucceeded or setAcquisitionFailed
+	virtual bool acquireImplementation(AMDetectorDefinitions::ReadMode readMode) = 0;
+	/// This function is called from the Cancelling (acquisition) state for detectors that support cancelling acquisitions. Once the detector has successfully cancelled the acquisition you must call setAcquisitionCancelled()
+	virtual bool cancelAcquisitionImplementation();
+	/// This function is called from the CleaningUp (cleanup) state when the implementation should cleanup the detector. Once the detector is cleaned up you must call setCleanedUp(), if clean up has failed you must call setCleanupRequired()
+	virtual bool cleanupImplementation() = 0;
+
+	/// This function is called by lastContinuousReading(). It should place the values in the data pointer and return success/failure if your detector supports continuous reads.
+	virtual bool lastContinuousReadingImplementation(double *outputValues) const;
+	/// This function is called by clear(), it should internally clear the data. If the detector cannot support clearing, then it will fail before calling this function.
+	virtual bool clearImplementation();
+
+	/// Internal class trigger for setting the connected state. All AMDetector subclasses should call this to make sure that signals are emitted properly.
 	void setConnected(bool isConnected);
-	void setTimedOut();
+	/// Internal class trigger for setting the powered state. Also see requiresPower(). All AMDetector subclasses should call this to make sure that signals are emitted properly.
+	void setPowered(bool isPowered);
 
-	void emitConnected(bool isConnected);
-	/// This is emitted when the meta-info changes. (Right now, this only includes a detector's description() )
-	void emitInfoChanged();
-	void emitReadingsChanged();
-	void emitSettingsChanged();
+	/// Helper function for checking rank and bounds on readingXD functions
+	bool checkValid(const AMnDIndex &startIndex, const AMnDIndex &endIndex) const;
+
+	/// Changes the automatic behavior for calls to initialize()
+	void setAutoSetInitializing(bool autoSetInitializing) { autoSetInitializing_ = autoSetInitializing; }
+	/// Changes the automatic behvior for calls to cancelAcquisition()
+	void setAutoSetCancelling(bool autoSetCancelling) { autoSetCancelling_ = autoSetCancelling; }
+	/// Changes the automatic behavior for calls to cleanup()
+	void setAutoSetCleaningUp(bool autoSetCleaningUp) { autoSetCleaningUp_ = autoSetCleaningUp; }
+
+	/// Sets the timeout time to a given value
+	void setTimeOutMS(int timeOutMS);
 
 protected:
-	/// identifying name for this detector
-	QString name_;
-
-	/// Read Method for this detector (see readMethod enum)
-	AMDetector::ReadMethod readMethod_;
+	/// A human-readable description
+	QString description_;
+	/// Units describing this detector's readings (ex: "counts", "milliAmps", etc.)
+	QString units_;
+	/// The axes that describe the dimensionality of the detector.
+	QList<AMAxisInfo> axes_;
+	/// The flag for the visibility of the detector when added to a scan.
+	bool isVisible_;
+	/// The flag for the default accessibility off the detector when added to a scan.
+	bool hiddenFromUsers_;
+    /// The most up-to-date value of the dark current for this detector.
+    double darkCurrentMeasurementValue_;
+    /// The dwell time used to for the darkCurrentMeasurementValue_ measurement.
+    double darkCurrentMeasurementTime_;
+    /// Flag indicating whether or not darkCurrentMeasurementValue_ needs to be updated.
+    bool requiresNewDarkCurrentMeasurement_;
 
 private:
-	/// QObject proxy for emitting signals. (This interface class can't emit directly, because it doesn't want to inherit QObject.)
-	AMDetectorSignalSource* signalSource_;
-	/// Internal state for connection, use setConnected(bool) to change so signals are emitted
+	/// Changes states in the acquisition state (if possible)
+	void setAcquisitionState(AcqusitionState newState);
+	/// Checks whether you canmake the transition to the new acquisition state
+	bool acceptableChangeAcquisitionState(AcqusitionState newState) const;
+
+	/// Changes states in the initialization state (if possible)
+	void setInitializationState(InitializationState newState);
+	/// Checks whether you canmake the transition to the new initialization state
+	bool acceptableChangeInitializationState(InitializationState newState) const;
+
+	/// Changes states in the cleanup state (if possible)
+	void setCleanupState(CleanupState newState);
+	/// Checks whether you canmake the transition to the new cleanup state
+	bool acceptableChangeCleanupState(CleanupState newState) const;
+
+	/// Helper function for cleaning up the timedOutTimer
+	void timedOutTimerCleanup();
+
+private slots:
+	/// Instantiates and starts the timedOutTimer
+	void initiateTimedOutTimer();
+	/// Handles the timedOutTimer finishing and emit the timedOut signal
+	void onTimedOutTimerTimedOut();
+
+private:
+	/// Internal state for connection, which referes to the constituent elements of the detector (likely AMControls) all being connected. Use setConnected(bool) to change so signals are emitted.
 	bool connected_;
+	/// Internal state for connection history. This value will start false and become true on the first connection.
+	bool wasConnected_;
+	/// Internal state for whether or not this detector is timed out
+	bool timedOut_;
+	/// Internal timer that controls the timed out signal
+	QTimer *timedOutTimer_;
+	/// Timeout that will be used in milliseconds
+	int timeOutMS_;
+	/// Internal state for powered, which refers to whether the detector is currently powered (many detectors require a high voltage to operate)
+	bool powered_;
+
+	/// The current acquisition state
+	AcqusitionState acquisitionState_;
+	/// The current initialization state
+	InitializationState initializationState_;
+	/// The current cleanup state
+	CleanupState cleanupState_;
+
+	/// When true, calls to initialize() automatically set the initialization state to Initializing before entering initializeImplementation()
+	bool autoSetInitializing_;
+	/// When true, calls to cancelAcquisition() automatically set the acquisition state to Cancelling before entering cancelAcquisitionImplementation()
+	bool autoSetCancelling_;
+	/// When true, calls to cleanup() automatically set the cleanup state to CleaningUp before entering cleanupImplementation()
+	bool autoSetCleaningUp_;
 };
 
 #endif // AMDETECTOR_H

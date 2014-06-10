@@ -29,6 +29,7 @@ class AMHeaderButton : public QToolButton
 {
 Q_OBJECT
 public:
+ 	virtual ~AMHeaderButton();
 	explicit AMHeaderButton(QWidget *parent = 0);
 
 

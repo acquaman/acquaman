@@ -37,10 +37,8 @@ class AM2DSummingABEditor : public QWidget
 	Q_OBJECT
 public:
 	/// Construct an editor for the analysis block \c analysisBlock. (Must be valid)
+ 	virtual ~AM2DSummingABEditor();
 	AM2DSummingABEditor(AM2DSummingAB* analysisBlock, QWidget *parent = 0);
-
-
-
 
 signals:
 

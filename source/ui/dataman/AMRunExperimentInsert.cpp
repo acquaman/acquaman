@@ -32,6 +32,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMRun.h"
 #include "dataman/AMExperiment.h"
 
+#include <QStringBuilder>
 
 
 AMRunExperimentInsert::AMRunExperimentInsert(AMDatabase* db, QStandardItem* runParent, QStandardItem* experimentParent, QObject *parent) :
@@ -92,7 +93,7 @@ void AMRunExperimentInsert::refreshRuns() {
 	q.prepare(QString("SELECT %1.name, %1.dateTime, %2.description, AMDbObjectThumbnails_table.thumbnail, AMDbObjectThumbnails_table.type, %1.id "
 					  "FROM %1,%2,AMDbObjectThumbnails_table "
 					  "WHERE %2.id = %1.facilityId AND AMDbObjectThumbnails_table.id = %2.thumbnailFirstId "
-					  "ORDER BY %1.dateTime ASC").arg(AMDbObjectSupport::s()->tableNameForClass<AMRun>()).arg(AMDbObjectSupport::s()->tableNameForClass<AMFacility>()));
+					  "ORDER BY %1.dateTime DESC").arg(AMDbObjectSupport::s()->tableNameForClass<AMRun>()).arg(AMDbObjectSupport::s()->tableNameForClass<AMFacility>()));
 	if(!q.exec()) {
 		q.finish();
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, "Could not retrieve a list of run information from the database."));
@@ -113,8 +114,8 @@ void AMRunExperimentInsert::refreshRuns() {
 					item->setData(p.scaledToHeight(22, Qt::SmoothTransformation), Qt::DecorationRole);
 			}
 
-			/// "toolTipRole" is the long description of the facility
-			item->setData(q.value(2).toString(), Qt::ToolTipRole);
+			/// "toolTipRole" is the full name, followed by the long description of the facility
+			item->setData(QString(item->data(Qt::DisplayRole).toString() % ": " % q.value(2).toString()), Qt::ToolTipRole);
 
 			/// Fill the alias information for this to be a valid 'Alias' item
 			AMWindowPaneModel::initAliasItem(item, runItem_->data(AMWindowPaneModel::AliasTargetRole).value<QStandardItem*>(), "Runs", q.value(5).toInt());

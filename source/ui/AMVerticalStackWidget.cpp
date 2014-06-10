@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/AMHeaderButton.h"
 
 
+ AMVerticalStackWidget::~AMVerticalStackWidget(){}
 AMVerticalStackWidget::AMVerticalStackWidget(QWidget *parent) :
 		QFrame(parent)
 {
@@ -53,7 +54,6 @@ QWidget* AMVerticalStackWidget::widget(int index) const {
 	return model_.data(model_.index(index,0), AM::PointerRole).value<QWidget*>();
 }
 
-#include "actions/AMBeamlineActionItem.h"
 // Insert a widget at a specific index in the stack. Inserting at \c index = -1 is equivalent to appending to the end. The AMVerticalStackWidget takes ownership of the widget.
 void AMVerticalStackWidget::insertItem(int index, const QString& titleText, QWidget* widget, bool collapsable) {
 	if(index < 0 || index > count())
@@ -173,7 +173,7 @@ void AMVerticalStackWidget::collapseItem(int index) {
 	QWidget* w = model_.data(model_.index(index, 0), AM::PointerRole).value<QWidget*>();
 	if(w){
 		w->hide();
-		// qDebug() << "Is visible " << w->isVisible();
+		// qdebug() << "Is visible " << w->isVisible();
 	}
 	AMHeaderButton* h = model_.data(model_.index(index,0), AM::WidgetRole).value<AMHeaderButton*>();
 	if(h){

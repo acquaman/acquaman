@@ -3,9 +3,14 @@
 
 #include <QObject>
 #include <QStringList>
+
+#define REIXSXESRAWFILELOADERPLUGIN_CANNOT_OPEN_FILE 627701
+#define REIXSXESRAWFILELOADERPLUGIN_CANNOT_SET_IMAGE_VALUE 627702
+#define REIXSXESRAWFILELOADERPLUGIN_DATA_COLUMN_MISMATCH 627703
+
 #include "dataman/AMFileLoaderInterface.h"
 
-/// This class implements loading and saving of raw XES data in the "reixsXESRaw" file format.  The file format is binary, big endian format, and consists of the following data:
+/// THIS CLASS IS DEPRECATED: We now use AMCDFv1FileLoader. This class implements loading and saving of raw XES data in the "reixsXESRaw" file format.  The file format is binary, big endian format, and consists of the following data:
 /*!
  - Magic string, in ASCII encoding: "REIXSXESRAW2011.1"
  - Number of x pixels (32-bit integer)
@@ -21,7 +26,7 @@ public:
 	/// A more detailed way of determining whether we work for a given scan...
 	virtual bool accepts(AMScan *scan);
 	/// Load the data under AMScan::filePath() into the \c scan
-	virtual bool load(AMScan *scan, const QString &userDataFolder);
+	virtual bool load(AMScan *scan, const QString &userDataFolder, AMErrorMon *errorMonitor);
 
 
 protected:

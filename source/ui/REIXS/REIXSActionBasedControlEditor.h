@@ -22,17 +22,18 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/beamline/AMControlEditor.h"
 
-/// Re-implements AMBasicControlEditor to do its moves inside AMActionRunner with a REIXSControlMoveAction.
-class REIXSActionBasedControlEditor : public AMBasicControlEditor
+/// Re-implements AMControlEditor to do its moves inside AMActionRunner with a REIXSControlMoveAction.
+class REIXSActionBasedControlEditor : public AMControlEditor
 {
     Q_OBJECT
 public:
 	/// Construct an editor for \c control. If \c okToRunInBackground is true, the actions will be run regardless of what's going on in the AMActionRunner queue with AMActionRunner::runActionImmediately. Otherwise, they will only be run when no other actions are currently running. (This is best for things that could mess up scans.)
+ 	virtual ~REIXSActionBasedControlEditor();
 	REIXSActionBasedControlEditor(AMControl* control, bool okToRunInBackground = false, QWidget *parent = 0);
 
 
 protected slots:
-	/// Re-implemented from AMBasicControlEditor
+	/// Re-implemented from AMControlEditor
 	virtual void onNewSetpointChosen(double value);
 
 protected:

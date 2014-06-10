@@ -30,6 +30,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/AMCrosshairOverlayVideoWidget.h"
 
+ AMBeamlineCameraBrowser::~AMBeamlineCameraBrowser(){}
 AMBeamlineCameraBrowser::AMBeamlineCameraBrowser(QWidget *parent, bool useOpenGlViewport) :
 	AMBeamlineCameraWidget(parent, useOpenGlViewport)
 {
@@ -57,7 +58,10 @@ AMBeamlineCameraBrowser::AMBeamlineCameraBrowser(QWidget *parent, bool useOpenGl
 	// Make conections:
 	//////////////////////////
 	connect(sourceComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onSourceComboBoxChanged(int)));
+
+	#ifdef AM_MOBILITY_VIDEO_ENABLED
 	connect(videoWidget_->mediaPlayer(), SIGNAL(error(QMediaPlayer::Error)), this, SLOT(onMediaPlayerError()));
+	#endif
 }
 
 
@@ -65,7 +69,9 @@ void AMBeamlineCameraBrowser::onSourceComboBoxChanged(int index)
 {
 	if(index < 0) {
 		setWindowTitle("AcquaCam");
+		#ifdef AM_MOBILITY_VIDEO_ENABLED
 		videoWidget_->mediaPlayer()->setMedia(QMediaContent());
+		#endif
 	}
 
 	else {

@@ -29,6 +29,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QStringBuilder>
 
+ AMActionRunnerAddActionBar3::~AMActionRunnerAddActionBar3(){}
 AMActionRunnerAddActionBar3::AMActionRunnerAddActionBar3(const QString& actionCategoryName, QWidget *parent) :
 	QWidget(parent)
 {

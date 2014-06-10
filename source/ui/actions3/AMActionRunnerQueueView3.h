@@ -34,6 +34,7 @@ class AMActionRunnerQueueItemDelegate3 : public QStyledItemDelegate {
 	Q_OBJECT
 public:
 
+ 	virtual ~AMActionRunnerQueueItemDelegate3();
 	explicit AMActionRunnerQueueItemDelegate3(QObject* parent = 0) : QStyledItemDelegate(parent) {}
 
 	virtual QWidget* createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const;
@@ -50,6 +51,7 @@ class AMActionRunnerQueueView3 : public QWidget
 	Q_OBJECT
 public:
 	/// Constructor. Should pass in the instance of AMActionRunner::s() for \c actionRunner.
+ 	virtual ~AMActionRunnerQueueView3();
 	AMActionRunnerQueueView3(AMActionRunner3* actionRunner, QWidget *parent = 0);
 
 	/// Returns true if the view is currently collapsed to show only the header bar, and false if it is fully shown.

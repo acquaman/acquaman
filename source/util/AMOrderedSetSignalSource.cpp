@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QCoreApplication>
 #include "acquaman.h"
 
+ AMOrderedSetSignalSource::~AMOrderedSetSignalSource(){}
 AMOrderedSetSignalSource::AMOrderedSetSignalSource() :
 	QObject()
 {

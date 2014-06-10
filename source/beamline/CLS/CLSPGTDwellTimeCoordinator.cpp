@@ -21,6 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "CLSPGTDwellTimeCoordinator.h"
 #include "beamline/AMPVControl.h"
 
+ CLSPGTDwellTimeCoordinator::~CLSPGTDwellTimeCoordinator(){}
 CLSPGTDwellTimeCoordinator::CLSPGTDwellTimeCoordinator(const QString &PGTStubName, const QString &beamlineStubName, QObject *parent) :
 	QObject(parent)
 {
@@ -32,12 +33,20 @@ CLSPGTDwellTimeCoordinator::CLSPGTDwellTimeCoordinator(const QString &PGTStubNam
 	internalDwellModeSet_ = false;
 	dwellMode_ = 3;
 	dwellTime_ = 0;
+	internalDwellTrigger_ = false;
+	internalDwellTriggerIgnoreZero_ = false;
 
 	realTimeControl_ = new AMPVControl("PGTRealTime", PGTStubName+":Preset:Real", "MCA1611-01:Preset:Real", "", this, 0.1);
 	liveTimeControl_ = new AMPVControl("PGTLiveTime", PGTStubName+":Preset:Live", "MCA1611-01:Preset:Live", "", this, 0.1);
 	peakTimeControl_ = new AMPVControl("PGTPeakTime", PGTStubName+":Preset:Peak", "MCA1611-01:Preset:Peak", "", this, 0.1);
         dwellTimeControl_ = new AMPVControl("PGTDwellTime", beamlineStubName+":AddOns:PGTDwellTime", "BL1611-ID-1:AddOns:PGTDwellTime", "", this, 0.1);
         dwellModeControl_ = new AMPVControl("PGTDwellMode", beamlineStubName+":AddOns:PGTDwellMode", "BL1611-ID-1:AddOns:PGTDwellMode", "", this, 0.1);
+	dwellTriggerControl_ = new AMPVControl("PGTDwellTrigger", beamlineStubName+":AddOns:PGTDwellTrigger", beamlineStubName+":AddOns:PGTDwellTrigger", "", this, 0.1);
+	oldTriggerControl_ = new AMPVControl("PGTOldTrigger", PGTStubName+":StartAcquisition.PROC", PGTStubName+":StartAcquisition.PROC", "", this, 0.1);
+	oldROI0Count_ = new AMPVControl("PGTOldROI0", PGTStubName+":ROI:0", PGTStubName+":ROI:0", "", this, 0.1);
+	oldClearSpectrumControl_ = new AMPVControl("PGTOldClearSpectrum", PGTStubName+":ClearSpectrum.PROC", PGTStubName+":ClearSpectrum.PROC", "", this, 0.1);
+	oldAcquiringControl_ = new AMPVControl("PGTOldAcquiring", PGTStubName+":GetAcquire", PGTStubName+":GetAcquire", "", this, 0.1);
+	oldElapsedEnableControl_ = new AMPVControl("PGTOldElapsedEnable", PGTStubName+":Preset", PGTStubName+":Preset", "", this, 0.1);
 
 	allControls_ = new AMControlSet(this);
 	allControls_->addControl(realTimeControl_);
@@ -45,12 +54,20 @@ CLSPGTDwellTimeCoordinator::CLSPGTDwellTimeCoordinator(const QString &PGTStubNam
 	allControls_->addControl(peakTimeControl_);
 	allControls_->addControl(dwellTimeControl_);
 	allControls_->addControl(dwellModeControl_);
+	allControls_->addControl(dwellTriggerControl_);
+	allControls_->addControl(oldTriggerControl_);
+	allControls_->addControl(oldROI0Count_);
+	allControls_->addControl(oldClearSpectrumControl_);
+	allControls_->addControl(oldAcquiringControl_);
+	allControls_->addControl(oldElapsedEnableControl_);
 
 	connect(realTimeControl_, SIGNAL(valueChanged(double)), this, SLOT(onRealTimeControlChanged(double)));
 	connect(liveTimeControl_, SIGNAL(valueChanged(double)), this, SLOT(onLiveTimeControlChanged(double)));
 	connect(peakTimeControl_, SIGNAL(valueChanged(double)), this, SLOT(onPeakTimeControlChanged(double)));
 	connect(dwellTimeControl_, SIGNAL(valueChanged(double)), this, SLOT(onDwellTimeControlChanged(double)));
 	connect(dwellModeControl_, SIGNAL(valueChanged(double)), this, SLOT(onDwellTimeModeChanged(double)));
+	connect(dwellTriggerControl_, SIGNAL(valueChanged(double)), this, SLOT(onDwellTriggerControlChanged(double)));
+	connect(oldAcquiringControl_, SIGNAL(valueChanged(double)), this, SLOT(onOldAcquiringControlChanged(double)));
 	connect(allControls_, SIGNAL(connected(bool)), this, SLOT(onAllControlsConnected(bool)));
 }
 
@@ -62,7 +79,7 @@ void CLSPGTDwellTimeCoordinator::onRealTimeControlChanged(double realTime){
 	}
 	dwellMode_ = determineMode();
 	dwellTime_ = determineTime();
-	//qDebug() << "Real time says mode " << dwellMode_ << " time " << dwellTime_;
+	qDebug() << "Real time says mode " << dwellMode_ << " time " << dwellTime_;
 	internalSetDwellMode(dwellMode_);
 	internalSetDwellTime(dwellTime_);
 }
@@ -75,7 +92,7 @@ void CLSPGTDwellTimeCoordinator::onLiveTimeControlChanged(double liveTime){
 	}
 	dwellMode_ = determineMode();
 	dwellTime_ = determineTime();
-	//qDebug() << "Live time says mode " << dwellMode_ << " time " << dwellTime_;
+	qDebug() << "Live time says mode " << dwellMode_ << " time " << dwellTime_;
 	internalSetDwellMode(dwellMode_);
 	internalSetDwellTime(dwellTime_);
 }
@@ -88,7 +105,7 @@ void CLSPGTDwellTimeCoordinator::onPeakTimeControlChanged(double peakTime){
 	}
 	dwellMode_ = determineMode();
 	dwellTime_ = determineTime();
-	//qDebug() << "Peak time says mode " << dwellMode_ << " time " << dwellTime_;
+	qDebug() << "Peak time says mode " << dwellMode_ << " time " << dwellTime_;
 	internalSetDwellMode(dwellMode_);
 	internalSetDwellTime(dwellTime_);
 }
@@ -98,7 +115,7 @@ void CLSPGTDwellTimeCoordinator::onDwellTimeControlChanged(double dwellTime){
 		internalDwellTimeSet_ = false;
 		return;
 	}
-	//qDebug() << "Dwell time changing from " << dwellTime_ << " to " << dwellTime;
+	qDebug() << "Dwell time changing from " << dwellTime_ << " to " << dwellTime;
 	dwellTime_ = dwellTime;
 	switch(dwellMode_){
 	case 0:
@@ -120,7 +137,7 @@ void CLSPGTDwellTimeCoordinator::onDwellTimeModeChanged(double dwellMode){
 		internalDwellModeSet_ = false;
 		return;
 	}
-	//qDebug() << "Switch dwell mode from " << dwellMode_ << " to " << dwellMode << " with time " << dwellTime_;
+	qDebug() << "Switch dwell mode from " << dwellMode_ << " to " << dwellMode << " with time " << dwellTime_;
 	switch(dwellMode_){
 	case 0:
 		internalSetRealTime(0.0);
@@ -156,16 +173,77 @@ void CLSPGTDwellTimeCoordinator::onDwellTimeModeChanged(double dwellMode){
 	}
 }
 
+void CLSPGTDwellTimeCoordinator::onDwellTriggerControlChanged(double dwellTrigger){
+	if(!connectedOnce_)
+		return;
+
+	qDebug() << "New trigger value is " << dwellTrigger;
+
+	if(dwellTriggerControl_->withinTolerance(0.0))
+		return;
+
+	if(oldROI0Count_->withinTolerance(0.0)){
+		qDebug() << "I can trigger the PGT right away";
+		internalDwellTrigger_ = true;
+		oldTriggerControl_->move(1);
+		return;
+	}
+	else{
+		qDebug() << "I have to clear the PGT before I can trigger it";
+		internalDwellTriggerIgnoreZero_ = true;
+		connect(oldROI0Count_, SIGNAL(valueChanged(double)), this, SLOT(onOldROI0Changed(double)));
+		oldClearSpectrumControl_->move(1);
+	}
+}
+
 void CLSPGTDwellTimeCoordinator::onAllControlsConnected(bool connected){
-	//qDebug() << "Checking all PGT dwells";
+	qDebug() << "Checking all PGT dwells";
 	if(connected){
 		connectedOnce_ = true;
-		//qDebug() << "All PGT dwells connected";
+		qDebug() << "All PGT dwells connected";
 		dwellMode_ = determineMode();
 		dwellTime_ = determineTime();
 		internalSetDwellMode(dwellMode_);
 		internalSetDwellTime(dwellTime_);
 	}
+}
+
+void CLSPGTDwellTimeCoordinator::onOldROI0Changed(double roi0){
+	if(!connectedOnce_)
+		return;
+
+	qDebug() << "Old ROI value is " << roi0;
+
+	if(!oldROI0Count_->withinTolerance(0.0))
+		return;
+
+	qDebug() << "I've cleared the PGT, now I can trigger";
+	disconnect(oldROI0Count_, SIGNAL(valueChanged(double)), this, SLOT(onOldROI0Changed(double)));
+	internalDwellTrigger_ = true;
+	oldTriggerControl_->move(1);
+}
+
+void CLSPGTDwellTimeCoordinator::onOldAcquiringControlChanged(double acquiring){
+	if(!connectedOnce_)
+		return;
+
+	qDebug() << "Old acquiring value is " << acquiring;
+
+	if(internalDwellTrigger_ && oldAcquiringControl_->withinTolerance(1))
+		return;
+	else if(internalDwellTriggerIgnoreZero_ && oldAcquiringControl_->withinTolerance(0))
+		return;
+	else if(oldAcquiringControl_->withinTolerance(1)){
+		dwellTriggerControl_->move(1);
+		return;
+	}
+	else if(internalDwellTrigger_)
+		internalDwellTrigger_ = false;
+
+	qDebug() << "Everything is done with the PGT, I can set the trigger back to normal now";
+	if(internalDwellTriggerIgnoreZero_)
+		internalDwellTriggerIgnoreZero_ = false;
+	dwellTriggerControl_->move(0);
 }
 
 void CLSPGTDwellTimeCoordinator::internalSetRealTime(double realTime){

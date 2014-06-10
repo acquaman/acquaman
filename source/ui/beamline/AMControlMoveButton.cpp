@@ -26,6 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMControl.h"
 #include "ui/beamline/AMControlEditor.h"
 
+ AMControlMoveButton::~AMControlMoveButton(){}
 AMControlMoveButton::AMControlMoveButton(QWidget *parent, AMControl* control, QList<double> stepSizes,  bool directionReversed) :
     QToolButton(parent)
 {
@@ -133,6 +134,7 @@ void AMControlMoveButton::onCustomContextMenuRequested(const QPoint &point)
 
 
 
+ AMControlMoveButtonContextMenu::~AMControlMoveButtonContextMenu(){}
 AMControlMoveButtonContextMenu::AMControlMoveButtonContextMenu(AMControlMoveButton *moveButton)
 	: QDialog(moveButton, Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint)
 {
@@ -164,7 +166,7 @@ AMControlMoveButtonContextMenu::AMControlMoveButtonContextMenu(AMControlMoveButt
 	connect(&stepSizeButtons_, SIGNAL(buttonClicked(int)), this, SLOT(hide()));
 
 	if(moveButton_->control()) {
-		AMBasicControlEditor* editor = new AMBasicControlEditor(moveButton_->control());
+		AMControlEditor* editor = new AMControlEditor(moveButton_->control());
 		hl->addSpacing(10);
 		hl->addWidget(editor);
 	}

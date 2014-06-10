@@ -25,7 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMDataSource.h"
 #include "beamline/AMProcessVariable.h"
-#include <QDebug>
+
 /*!
   This class encapsulates AMProcessVariable and puts it into an AMDataSource.  This will allow easy insertion into MPlots for viewing purposes.  Must be a scalar PV.
   */
@@ -35,6 +35,7 @@ class AM0DProcessVariableDataSource : public QObject, public AMDataSource
 
 public:
 	/// Constructor.  Takes in an AMProcessVariable.
+ 	virtual ~AM0DProcessVariableDataSource();
 	AM0DProcessVariableDataSource(const AMProcessVariable *data, const QString& name, QObject *parent = 0);
 
 	// Data source type
@@ -76,11 +77,9 @@ public:
 	// Data value access
 	////////////////////////////
 
-	/// Returns the dependent value at a (complete) set of axis indexes. Returns an invalid AMNumber if the indexes are insuffient or any are out of range, or if the data is not ready.  If representing a scalar then provide a null AMnDIndex (ie: AMnDIndex()).
-	virtual AMNumber value(const AMnDIndex &indexes, bool doBoundsChecking = true) const
+	/// Returns the dependent value at a (complete) set of axis indexes. Returns an invalid AMNumber if the indexes are insuffient, or if the data is not ready.  If representing a scalar then provide a null AMnDIndex (ie: AMnDIndex()).
+	virtual AMNumber value(const AMnDIndex &indexes) const
 	{
-		Q_UNUSED(doBoundsChecking)
-
 		if(!data_->isConnected())
 			return AMNumber();
 		if (indexes.rank() != 0)
@@ -89,11 +88,10 @@ public:
 		return data_->lastValue();
 	}
 	/// When the independent values along an axis is not simply the axis index, this returns the independent value along an axis (specified by axis number and index).  Returns 0.
-	virtual AMNumber axisValue(int axisNumber, int index, bool doBoundsChecking = true) const
+	virtual AMNumber axisValue(int axisNumber, int index) const
 	{
 		Q_UNUSED(axisNumber)
 		Q_UNUSED(index)
-		Q_UNUSED(doBoundsChecking)
 
 		return 0;
 	}
@@ -118,6 +116,7 @@ class AM1DProcessVariableDataSource : public QObject, public AMDataSource
 
 public:
 	/// Constructor.  Takes in an AMProcessVariable.
+ 	virtual ~AM1DProcessVariableDataSource();
 	AM1DProcessVariableDataSource(const AMProcessVariable *data, const QString& name, QObject *parent = 0);
 
 	// Data source type
@@ -163,19 +162,56 @@ public:
 	////////////////////////////
 
 	/// Returns the dependent value at a (complete) set of axis indexes. Returns an invalid AMNumber if the indexes are insuffient or any are out of range, or if the data is not ready.
-	virtual AMNumber value(const AMnDIndex &indexes, bool doBoundsChecking = true) const
+	virtual AMNumber value(const AMnDIndex &indexes) const
 	{
 		if(!data_->isConnected())
 			return AMNumber();
 		if(indexes.rank() != 1)
 			return AMNumber(AMNumber::DimensionError);
-		if(doBoundsChecking && (unsigned)indexes.i() >= data_->count())
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+		if((unsigned)indexes.i() >= data_->count())
 			return AMNumber(AMNumber::OutOfBoundsError);
+#endif
 
 		return data_->lastValue(indexes.i());
 	}
+	/// Performance optimization of value(): instead of a single value, copies a block of values from \c indexStart to \c indexEnd (inclusive), into \c outputValues.  The values are returned in row-major order (ie: with the first index varying the slowest). Returns false if the indexes have the wrong dimension, or (if AM_ENABLE_BOUNDS_CHECKING is defined, the indexes are out-of-range).
+	/*! 	It is the caller's responsibility to make sure that \c outputValues has sufficient size.  You can calculate this conviniently using:
+
+	\code
+	int outputSize = indexStart.totalPointsTo(indexEnd);
+	\endcode
+	*/
+	virtual bool values(const AMnDIndex& indexStart, const AMnDIndex& indexEnd, double* outputValues) const
+	{
+		if (!data_->isConnected())
+			return false;
+
+		if (indexStart.rank() != 1 || indexEnd.rank() != 1)
+			return false;
+
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+		if((unsigned)indexStart.i() >= data_->count() || indexStart.i() > indexEnd.i())
+			return false;
+#endif
+
+		if (data_->dataType() == PVDataType::FloatingPoint)
+			memcpy(outputValues, data_->lastFloatingPointValues().constData(), indexStart.totalPointsTo(indexEnd)*sizeof(double));
+
+		else{
+
+			int totalSize = indexStart.totalPointsTo(indexEnd);
+			QVector<double> val = QVector<double>(totalSize);
+			for (int i = 0, offset = indexStart.i(); i < totalSize; i++)
+				val[i] = double(data_->lastIntegerValues().at(i+offset));
+
+			memcpy(outputValues, val.constData(), indexStart.totalPointsTo(indexEnd)*sizeof(double));
+		}
+		return true;
+	}
+
 	/// When the independent values along an axis is not simply the axis index, this returns the independent value along an axis (specified by axis number and index).
-	virtual AMNumber axisValue(int axisNumber, int index, bool doBoundsChecking = true) const
+	virtual AMNumber axisValue(int axisNumber, int index) const
 	{
 		Q_UNUSED(axisNumber)
 
@@ -183,8 +219,10 @@ public:
 			return AMNumber();
 		if(axisNumber != 0)
 			return AMNumber(AMNumber::DimensionError);
-		if (doBoundsChecking && (unsigned)index >= data_->count())
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+		if ((unsigned)index >= data_->count())
 			return AMNumber(AMNumber::OutOfBoundsError);
+#endif
 
 		return index*scale_;
 	}
@@ -194,7 +232,7 @@ public:
 
 public slots:
 	/// Changes the scale used in the plot if that scale changes.
-	void setScale(double scale) { scale_ = scale; axes_[0].increment = scale; emitValuesChanged(); }
+	void setScale(double scale) { scale_ = scale; axes_[0].increment = scale; emitValuesChanged(); emitAxisInfoChanged(); }
 
 protected slots:
 	/// Emits the data changed signal when the control gets new data.
@@ -220,6 +258,7 @@ class AM2DProcessVariableDataSource : public QObject, public AMDataSource
 
 public:
 	/// Constructor.  Takes in an AMProcessVariable.
+ 	virtual ~AM2DProcessVariableDataSource();
 	AM2DProcessVariableDataSource(const AMProcessVariable *data, const QString& name, int rowLength, QObject *parent = 0);
 
 	// Data source type
@@ -250,7 +289,7 @@ public:
 	/// Returns the size of (ie: count along) each dimension.  Returns a null AMnDIndex if it is a scalar quantity.
 	virtual AMnDIndex size() const { return AMnDIndex(length_, int(data_->count()/length_)); }
 	/// Returns the size along a single axis \c axisNumber. This should be fast. \c axisNumber is assumed to be be 0 or 1.
-	virtual int size(int axisNumber) const { return (axisNumber == 0) ? length_ : data_->count()/length_; }
+	virtual int size(int axisNumber) const { return (axisNumber == 0) ? length_ : int(data_->count())/length_; }
 	/// Returns a bunch of information about a particular axis. \c axisNumber is assumed to be between 0 and 1.
 	virtual AMAxisInfo axisInfoAt(int axisNumber) const { axes_[0].size = length_; axes_[1].size = data_->count()/length_; return axes_.at(axisNumber); }
 	/// Returns the id of an axis, by name. (By id, we mean the index of the axis. We called it id to avoid ambiguity with indexes <i>into</i> axes.) This could be slow, so users shouldn't call it repeatedly. Returns -1 if not found.
@@ -268,19 +307,46 @@ public:
 	////////////////////////////
 
 	/// Returns the dependent value at a (complete) set of axis indexes. Returns an invalid AMNumber if the indexes are insuffient or any are out of range, or if the data is not ready.
-	virtual AMNumber value(const AMnDIndex &indexes, bool doBoundsChecking = true) const
+	virtual AMNumber value(const AMnDIndex &indexes) const
 	{
 		if(!data_->isConnected())
 			return AMNumber();
 		if(indexes.rank() != 2)
 			return AMNumber(AMNumber::DimensionError);
-		if(doBoundsChecking && ((unsigned)indexes.i() >= (unsigned)length_ || (unsigned)indexes.j() >= data_->count()/length_))
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+		if(((unsigned)indexes.i() >= (unsigned)length_ || (unsigned)indexes.j() >= data_->count()/length_))
 			return AMNumber(AMNumber::OutOfBoundsError);
+#endif
 
 		return data_->lastValue(indexes.i() + indexes.j()*length_);	/// \todo Acquaman normally uses the opposite convention: the first index varies the slowest while iterating through a flat array.
 	}
+
+	/// Performance optimization of value(): instead of a single value, copies a block of values from \c indexStart to \c indexEnd (inclusive), into \c outputValues.  The values are returned in row-major order (ie: with the first index varying the slowest). Returns false if the indexes have the wrong dimension, or (if AM_ENABLE_BOUNDS_CHECKING is defined, the indexes are out-of-range).
+	/*! 	It is the caller's responsibility to make sure that \c outputValues has sufficient size.  You can calculate this conviniently using:
+
+	\code
+	int outputSize = indexStart.totalPointsTo(indexEnd);
+	\endcode
+	*/
+	virtual bool values(const AMnDIndex& indexStart, const AMnDIndex& indexEnd, double* outputValues) const
+	{
+		if (!data_->isConnected())
+			return false;
+
+		if (indexStart.rank() != 2 || indexEnd.rank() != 2)
+			return false;
+
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+		if((unsigned)indexStart.totalPointsTo(indexEnd) >= data_->count() || indexStart.i() > indexEnd.i() || indexStart.j() > indexEnd.j())
+			return false;
+#endif
+
+		memcpy(outputValues, data_->lastFloatingPointValues().constData(), indexStart.totalPointsTo(indexEnd)*sizeof(double));
+		return true;
+	}
+
 	/// When the independent values along an axis is not simply the axis index, this returns the independent value along an axis (specified by axis number and index).  Returns an invalid AMNumber if not a valid selection.
-	virtual AMNumber axisValue(int axisNumber, int index, bool doBoundsChecking = true) const
+	virtual AMNumber axisValue(int axisNumber, int index) const
 	{
 		if(!data_->isConnected())
 			return AMNumber();
@@ -289,13 +355,17 @@ public:
 
 
 		if (axisNumber == 0) {
-			if (doBoundsChecking && (unsigned)index >= (unsigned)length_)
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+			if ((unsigned)index >= (unsigned)length_)
 				return AMNumber(AMNumber::OutOfBoundsError);
+#endif
 			return index*sx_;
 		}
 		else {
-			if (doBoundsChecking && (unsigned)index >= data_->count()/length_)
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+			if ((unsigned)index >= data_->count()/length_)
 				return AMNumber(AMNumber::OutOfBoundsError);
+#endif
 			return index*sy_;
 		}
 	}

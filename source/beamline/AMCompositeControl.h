@@ -28,7 +28,8 @@ class AMCompositeControl : public AMControl
 {
 	Q_OBJECT
 public:
-	explicit AMCompositeControl(const QString& name, const QString& units = "n/a", QObject* parent = 0, const QString description = "");
+ 	virtual ~AMCompositeControl();
+	explicit AMCompositeControl(const QString& name, const QString& units = "", QObject* parent = 0, const QString description = "");
 
 	virtual void addChildControl(AMControl *control);
 
@@ -80,6 +81,8 @@ protected slots:
 protected:
 	/// used to detect changes in the moving state
 	bool wasMoving_;
+	/// Used to detect changes in isConnected()
+	bool wasConnected_;
 
 };
 

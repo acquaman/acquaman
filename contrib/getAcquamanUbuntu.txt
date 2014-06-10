@@ -1,0 +1,52 @@
+Install Ubuntu
+Download and install updates from update manager
+Install compiling tools
+	sudo apt-get install build-essential
+	(Or use Synaptic Package Manager: build-essential)
+Get git with Synaptic Package Manager
+Set git configs with
+	git config --global user.name "YOUR NAME"
+	git config --global user.email "YOUR.EMAIL"
+Create an SSH-RSA key with
+	ssh-keygen (use defaults)
+Copy the key with
+	cat ~/.ssh/id_rsa.pub
+Upload that to git hub as a public key
+Make a base directory (/home/<USERNAME>/beamline/programming)
+	mkdir -p ~/beamline/programming
+	cd ~/beamline/programming
+Get acquaman with
+	git clone git@github.com:acquaman/acquaman.git
+Get MPlot with
+	git clone git@github.com:acquaman/MPlot.git
+Go to contrib folder (/home/<USERNAME>/beamline/programming/acquaman/contrib)
+Get gsl with
+	wget http://mirror.csclub.uwaterloo.ca/gnu/gsl/gsl-1.14.tar.gz
+	tar -zxvf gsl-1.14.tar.gz
+	cd gsl-1.14
+	./configure --disable-shared --prefix=/home/<USERNAME>/beamline/programming/acquaman/contrib/gsl-install
+	make
+	make install
+	cd ../
+Get and build CDF library:
+	wget http://cdaweb.gsfc.nasa.gov/pub/cdf/dist/cdf34_1/linux/cdf34_1-dist-cdf.tar.gz
+	tar -zxvf cdf34_1-dist-cdf.tar.gz
+	cd cdf34_1-dist
+	make OS=linux ENV=gnu all
+	make install
+	cd ../
+Get readline with Synaptic Package Manager
+	libreadline5-dev
+Get EPICS
+	wget http://www.aps.anl.gov/epics/download/base/baseR3.14.12.tar.gz
+	tar -zxvf baseR3.14.12.tar.gz
+	cd base-3.14.12
+	export EPICS_HOST_ARCH=linux-x86_64
+	make
+	cd ../
+Get libxml with Synaptic Package Manager
+	libxml++2.6-dev
+Get qt4-opengl with Synaptic Package Manager
+	libqt4-opengl
+Get Qt SDK from qt.nokia.com
+	*** NOTE: Make sure you configure Qt with support for OpenSSL, other github features won't work***

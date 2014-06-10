@@ -204,7 +204,7 @@ void AMExportController::addFoundAvailableDataSource(const QString &name, const 
 	availableDataSourcesModel_->sort(1, Qt::AscendingOrder); // and (re)-sort by rank.
 }
 
-bool AMExportController::start()
+bool AMExportController::start(bool autoExport)
 {
 	if(!exporter_)
 		return false;
@@ -216,7 +216,12 @@ bool AMExportController::start()
 
 	exportScanIndex_ = 0;
 	emit stateChanged(state_ = Exporting);
-	QTimer::singleShot(0, this, SLOT(continueScanExport()));
+
+	if (autoExport)
+		continueScanExport();
+
+	else
+		QTimer::singleShot(0, this, SLOT(continueScanExport()));
 
 	return true;
 }
@@ -365,3 +370,4 @@ bool AMExportController::resume()
 	return true;
 }
 
+ AMExporterInfo::~AMExporterInfo(){}

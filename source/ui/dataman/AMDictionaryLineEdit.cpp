@@ -25,6 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dataman/AMScanParametersDictionary.h"
 
+ AMDictionaryLineEdit::~AMDictionaryLineEdit(){}
 AMDictionaryLineEdit::AMDictionaryLineEdit(AMOldScanParametersDictionary *dictionary, QLabel *exampleLabel, QWidget *parent) :
 	QLineEdit(parent)
 {

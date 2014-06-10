@@ -18,8 +18,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef ACQMAN_SCAN_H
-#define ACQMAN_SCAN_H
+#ifndef AM_SCAN_H
+#define AM_SCAN_H
 
 
 #include <QObject>
@@ -41,12 +41,19 @@ typedef AMOrderedSet<QString, AMAnalysisBlock*> AMAnalyzedDataSourceSet;
 class AMScanConfiguration;
 class AMScanDictionary;
 
+class AMSamplePre2013;
+class AMSample;
+class AMConstDbObject;
+
 #ifndef ACQUAMAN_NO_ACQUISITION
 class AMScanController;
 #endif
 
 #define AMSCAN_CANNOT_FIND_SUITABLE_PLUGIN_FOR_FILE_FORMAT -2147
 #define AMSCAN_DEBUG_DELETING_SCAN -2148
+#define AMSCAN_SCAN_DELETE_DIRECTLY -2149
+#define AMSCAN_ANALYZED_DATASOURCE_COUNT_MISMATCH -2150
+#define AMSCAN_THUMBNAIL_SCANNING_MESSAGE -2151
 
 /// This class is the base of all objects that represent a single 'scan' on a beamline.
 /*! AMScan provides access to the following information:
@@ -80,12 +87,13 @@ class AMScan : public AMDbObject {
 	Q_PROPERTY(QDateTime dateTime READ dateTime WRITE setDateTime NOTIFY dateTimeChanged)
 	Q_PROPERTY(QDateTime endDateTime READ endDateTime WRITE setEndDateTime NOTIFY endDateTimeChanged)
 	Q_PROPERTY(int runId READ runId WRITE setRunId)
-	Q_PROPERTY(int sampleId READ sampleId WRITE setSampleId NOTIFY sampleIdChanged)
+	Q_PROPERTY(AMConstDbObject* samplePre2013 READ dbReadSamplePre2013 WRITE dbWriteSamplePre2013)
+	Q_PROPERTY(AMConstDbObject* sample READ dbReadSample WRITE dbWriteSample)
 	Q_PROPERTY(QString notes READ notes WRITE setNotes)
 	Q_PROPERTY(QString fileFormat READ fileFormat WRITE setFileFormat)
 	Q_PROPERTY(QString filePath READ filePath WRITE setFilePath)
 	Q_PROPERTY(QStringList additionalFilePaths READ additionalFilePaths WRITE setAdditionalFilePaths)
-	Q_PROPERTY(AMDbObject* scanInitialConditions READ scanInitialConditions WRITE dbLoadScanInitialConditions)
+	Q_PROPERTY(AMDbObject* scanInitialConditions READ dbReadScanInitialConditions WRITE dbLoadScanInitialConditions)
 	Q_PROPERTY(AMDbObjectList rawDataSources READ dbReadRawDataSources WRITE dbLoadRawDataSources)
 	Q_PROPERTY(AMDbObjectList analyzedDataSources READ dbReadAnalyzedDataSources WRITE dbLoadAnalyzedDataSources)
 	Q_PROPERTY(QString analyzedDataSourcesConnections READ dbReadAnalyzedDataSourcesConnections WRITE dbLoadAnalyzedDataSourcesConnections)
@@ -94,7 +102,7 @@ class AMScan : public AMDbObject {
 	Q_PROPERTY(QString indexType READ indexType WRITE setIndexType)
 
 	Q_CLASSINFO("dateTime", "createIndex=true")
-	Q_CLASSINFO("sampleId", "createIndex=true")
+	//Q_CLASSINFO("sampleId", "createIndex=true")
 	Q_CLASSINFO("runId", "createIndex=true")
 
 	Q_CLASSINFO("rawDataSources", "hidden=true")
@@ -105,6 +113,8 @@ class AMScan : public AMDbObject {
 	Q_CLASSINFO("unEvaluatedName", "upgradeDefault=<none>")
 	Q_CLASSINFO("indexType", "upgradeDefault=<none>")
 
+	Q_CLASSINFO("sample", "constStore=true")
+
 	Q_CLASSINFO("AMDbObject_Attributes", "description=Generic Scan")
 
 public:
@@ -114,6 +124,16 @@ public:
 
 	/// default constructor
 	Q_INVOKABLE explicit AMScan(QObject *parent = 0);
+
+	/// Static convenience function to create an AMScan from a database URL in the Acquaman URL format ("amd://databaseConnection/tableName/id"). Returns 0 if the scan could not be found or the URL is invalid.
+	/*! It is generally not advisable to open a second instance of scan from the DB if there is one currently scanning because of the potential for overwriting/saving (and because raw data likely won't be available.)  If \c allowIfScanning is false, will return 0 if the database indicates the scan is still scanning ('currentlyScanning' column).
+
+	Optional outputs:
+
+		- If \c isScanning is provided, will be set with whether the scan is still scanning.
+		- If \c scanName is provided, will be set the full name of the scan (assuming it is found).
+*/
+	static AMScan* createFromDatabaseUrl(const QUrl& url, bool allowIfScanning = false, bool* isScanning = 0, QString* scanName = 0);
 
 
 	/// Destructor: deletes all channels.
@@ -136,7 +156,11 @@ public:
 	/// Returns the id of the run containing this scan, or (-1) if not associated with a run.
 	int runId() const { return runId_; }
 	/// Returns id of the scan's sample (or -1 if a sample has not been assigned)
-	int sampleId() const { return sampleId_; }
+	int sampleId() const;
+	const AMSamplePre2013* samplePre2013() const;
+	const AMSample* sample() const;
+
+
 	/// Returns notes/comments for scan
 	QString notes() const { return notes_; }
 
@@ -272,8 +296,26 @@ public:
 	/// Load raw data into memory from storage, using the AMFileLoaderInterface plugin system to find the appropriate file loader based on fileFormat(). Returns true on success.
 	bool loadData();
 
+	/// Replace the scan's raw data store (rawData()) with a different instance/implementation of AMDataStore.  Returns false and does nothing if the new \c dataStore is incompatible with any existing raw data sources.  The scan takes ownership of the new \c dataStore and will delete it when deleted.
+	/*! Some types of file loader plugins and scan controllers may recognize that it would be more efficient for a certain scan to use one of the disk-based raw data stores, rather than the default AMInMemoryDataStore implementation. (This is critically important for scans with huge data sets.)  They can call this function to replace the existing rawData() instance of AMDataStore with another instance.
 
-	/// Static function: Controls whether raw data is loaded automatically inside loadFromDb().  This function is thread-safe and can be set on a per-thread basis.
+	  For scan controllers, it is recommended to do this before creating any raw data sources.
+
+	  File loaders must remember that there will already be AMRawDataSources created when the scan was loaded from the database. Therefore...
+
+When the scan already has raw data sources present, the replacement \c dataStore must be compatible with all the existing raw data sources:
+
+- It must have the same scan rank
+- Each raw data source's \c measurementId must be valid within it, and
+- The measurement rank for each raw data source must match.
+
+[The easiest way to ensure this is to fill the new \c dataStore appropriately, and then call replaceDataStore().]
+
+Returns false and does nothing if the new \c dataStore is incompatible with any existing raw data sources.
+	  */
+	bool replaceRawDataStore(AMDataStore* dataStore);
+
+	/// Static function: Controls whether raw data is loaded automatically inside loadFromDb(), FOR ALL AMScan INSTANCES.  This function is thread-safe and can be set on a per-thread basis.
 	/*! If autoLoadData() is true, then whenever loadFromDb() is called and the new filePath() is different than the old filePath(), loadData() will be called as well.  If you want to turn off loading raw data for performance reasons, call setAutoLoadData(false).  Auto-loading is enabled by default.*/
 	static bool autoLoadData();
 
@@ -328,7 +370,7 @@ public:
 	//////////////////////////////
 	/// Independent from the hardware you're connected to right now, an AMControlSetInfo can remember values and descriptions of how some hardware was set at the time of the scan.
 	const AMControlInfoList* scanInitialConditions() const { return &scanInitialConditions_; }
-	AMControlInfoList* scanInitialConditions() { return &scanInitialConditions_; }
+	//AMControlInfoList* scanInitialConditions() { return &scanInitialConditions_; }
 
 	// Role 7: Access to Scan Configuration and Scan Controller
 	///////////////////////////////
@@ -380,6 +422,12 @@ public:
 
 
 
+	// Miscellaneous
+	/////////////////////////
+
+	/// Returns the largest AMScan::number() of all the scans in the scan table, subject to the provided WHERE clause (ex: "sampleId = 3").
+	static int largestNumberInScansWhere(AMDatabase* db, const QString& whereClause);
+
 public slots:
 
 	// Role 1: Setting Meta-Data
@@ -395,7 +443,9 @@ public slots:
 	/// associate this object with a particular run. Set to (-1) to dissociate with any run.  (Note: for now, it's the caller's responsibility to make sure the runId is valid.)
 	void setRunId(int newRunId);
 	/// Sets the sample associated with this scan.
-	void setSampleId(int newSampleId);
+	void setSampleId(int newSampleId, const QString &databaseTableName = "");
+	void setSamplePre2013(const AMSamplePre2013 *samplePre2013);
+	void setSample(const AMSample *sample);
 	/// Sets the indexation type.
 	void setIndexType(const QString &newType) { indexType_ = newType; setModified(true); }
 
@@ -408,6 +458,13 @@ public slots:
 	/// Any additional files of raw data that need to be referenced
 	void setAdditionalFilePaths(const QStringList& additionalFilePaths) { additionalFilePaths_ = additionalFilePaths; setModified(true); }
 
+	/// Override of AMDbObject::storeToDb(). Checks if first time stored and auto-generates a scan number before calling AMDbObject::storeToDb() if it is.
+	bool storeToDb(AMDatabase *db, bool generateThumbnails = true);
+
+
+	/// Change the scan initial conditions
+	void setScanInitialConditions(const AMControlInfoList &scanInitialConditions);
+
 signals:
 
 
@@ -417,6 +474,7 @@ signals:
 	void endDateTimeChanged(const QDateTime &);
 	void sampleIdChanged(int sampleId);
 	void numberChanged(int number);
+
 	void currentlyScanningChanged(bool currentlyScanning);
 	void scanConfigurationChanged();
 
@@ -433,7 +491,8 @@ signals:
 	/// Emitted after a data source was removed. \c index is the index the source used to occupy in dataSourceAt(); it's not there anymore.
 	void dataSourceRemoved(int index);
 
-
+	/// Emitted when the scan initial conditions are changed
+	void scanInitialConditionsChanged();
 
 protected slots:
 
@@ -450,7 +509,10 @@ protected slots:
 	/// Receives itemRemoved() signals from rawDataSources_ and analyzedDataSources_, and emits dataSourceRemoved.
 	void onDataSourceRemoved(int index);
 	/// Receives modified() signals from the rawDataSources_ and analyszedDataSources_ and calls setModified for the scan.
-	void onDataSourceModified() { setModified(true); }
+	void onDataSourceModified(bool modified);
+
+protected:
+	const AMDbObject* sampleHelper() const;
 
 protected:
 
@@ -465,7 +527,9 @@ protected:
 	/// Scan end time.
 	QDateTime endDateTime_;
 	/// database id of the run and sample that this scan is associated with
-	int runId_, sampleId_;
+	int runId_;
+	AMConstDbObject *samplePre2013_;
+	AMConstDbObject *sample_;
 	/// notes for this sample. Can be plain or rich text, as long as you want it...
 	QString notes_;
 	/// The absolute file path where this scan's data is stored (if there is an external data file), and the format tag describing the data format.
@@ -475,20 +539,14 @@ protected:
 	/// String holding what type of indexation the scan index can take.  This is a first attempt at actually using the scan index.  Currently, the only index type is fileSystem.
 	QString indexType_;
 
+
 	AMScanDictionary *nameDictionary_;
 	AMScanDictionary *exportNameDictionary_;
-
-	/// Caches the sample name
-	mutable QString sampleName_;
-	/// Status of sample name cache
-	mutable bool sampleNameLoaded_;
-	/// retrieves the sample name from the database, based on our sampleId. Sets sampleName_, and sets sampleNameLoaded_ = true;
-	void retrieveSampleName() const;
 
 	// Composite members
 	//////////////////////
 
-	/// Raw data storage. All scans will have one of these, but the implementation will vary.
+	/// Raw data storage. All scans will have one of these, but the implementation can vary.  The default is an AMInMemoryDataStore; replace using replaceDataStore().
 	AMDataStore* data_;
 	/// Raw data sources.  Provide AMDataSource interfaces to the data_.
 	AMRawDataSourceSet rawDataSources_;
@@ -504,6 +562,7 @@ protected:
 	// Database loading and storing.  Protected functions to support loading and storing of composite properties (scanInitialConditions, rawDataSources, analyzeDataSources) in the database. You should never need to use these directly.
 	///////////////////////////////
 
+	AMControlInfoList* dbReadScanInitialConditions() { return &scanInitialConditions_; }
 	/// Called when a stored scanInitialCondition is loaded out of the database, but scanInitialConditions() is not returning a pointer to a valid AMControlInfoList. Note: this should never happen, unless the database storage was corrupted and is loading the wrong object type.
 	void dbLoadScanInitialConditions(AMDbObject* newLoadedObject);
 	/// Returns a list of pointers to the raw data sources, to support db storage.
@@ -521,6 +580,11 @@ protected:
 	AMDbObject* dbGetScanConfiguration() const;
 	/// Used by the database system (loadFromDb()) to load a saved scan configuration (if there is no existing scan configuration yet, or if the existing one doesn't match the type stored in the database).
 	void dbLoadScanConfiguration(AMDbObject* newObject);
+
+	AMConstDbObject* dbReadSample() const;
+	void dbWriteSample(AMConstDbObject *newSample);
+	AMConstDbObject* dbReadSamplePre2013() const;
+	void dbWriteSamplePre2013(AMConstDbObject *newSample);
 
 	/// This returns a string describing the input connections of all the analyzed data sources. It's used to save and restore these connections when loading from the database.  (This system is necessary because AMAnalysisBlocks use pointers to AMDataSources to specify their inputs; these pointers will not be the same after new objects are created when restoring from the database.)
 	/*! Implementation note: The string contains one line for each AMAnalysisBlock in analyzedDataSources_, in order.  Every line is a sequence of comma-separated numbers, where the number represents the index of a datasource in dataSourceAt().  So for an analysis block using the 1st, 2nd, and 5th sources (in order), the line would be "0,1,4".

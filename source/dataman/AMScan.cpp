@@ -20,8 +20,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMScan.h"
 #include "dataman/database/AMDatabase.h"
+#include "dataman/database/AMConstDbObject.h"
 #include "acquaman.h"
 #include "dataman/AMRun.h"
+#include "dataman/AMSamplePre2013.h"
 #include "dataman/AMSample.h"
 #include "dataman/database/AMDbObjectSupport.h"
 #include "dataman/datastore/AMInMemoryDataStore.h"
@@ -30,7 +32,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMScanDictionary.h"
 #include "util/AMErrorMonitor.h"
 
-#include <QDebug>
+#include <QUrl>
+
+#include "dataman/datastore/AMCDFDataStore.h"
 
 AMScan::AMScan(QObject *parent)
 	: AMDbObject(parent)
@@ -39,7 +43,8 @@ AMScan::AMScan(QObject *parent)
 	dateTime_ = QDateTime::currentDateTime();
 	endDateTime_ = QDateTime();
 	runId_ = -1;
-	sampleId_ = -1;
+	samplePre2013_ = 0; //NULL
+	sample_ = 0; //NULL
 	notes_ = QString();
 	filePath_ = QString();
 	fileFormat_ = "unknown";
@@ -52,10 +57,10 @@ AMScan::AMScan(QObject *parent)
 
 	currentlyScanning_ = false;
 
-	data_ = new AMInMemoryDataStore();	// data store is initially empty. Needs axes configured in specific subclasses.
-	//data_ = new AMDataTreeDataStore(AMAxisInfo("eV", 0, "Incidence Energy", "eV"));
+	data_ = new AMInMemoryDataStore();	// data store is initially empty. Needs axes configured by scan controllers or file loader plugins.  The default implementation uses AMInMemoryDataStore(); replace via replaceDataStore() to use one of the disk-based data stores if you have a lot of data.
+//	data_ = new AMCDFDataStore();
 
-	sampleNameLoaded_ = false;
+	//sampleNameLoaded_ = false;
 
 	nameDictionary_ = new AMScanDictionary(this, this);
 	//nameDictionary_->setOperatingOnName(true);
@@ -78,10 +83,10 @@ AMScan::AMScan(QObject *parent)
 
 AMScan::~AMScan() {
 
-	AMErrorMon::debug(this, AMSCAN_DEBUG_DELETING_SCAN, QString("Deleting %1").arg(fullName()));
+//	AMErrorMon::debug(this, AMSCAN_DEBUG_DELETING_SCAN, QString("Deleting %1").arg(fullName()));
 
 	if(!owners_.isEmpty()) {
-		qWarning() << "AMScan: Warning: The scan was deleted while other objects were still interested in it. You should never delete a scan directly; instead, call AMScan::release().  Those objects might now attempt to access a deleted scan.";
+		AMErrorMon::alert(this, AMSCAN_SCAN_DELETE_DIRECTLY, "The scan was deleted while other objects were still interested in it. You should never delete a scan directly; instead, call AMScan::release().  Those objects might now attempt to access a deleted scan.");
 	}
 
 	// delete all data sources.
@@ -152,26 +157,144 @@ double AMScan::elapsedTime() const
 	return -1;
 }
 
+int AMScan::sampleId() const{
+	//if(samplePre2013_ && samplePre2013_->object())
+	//	return samplePre2013_->object()->id();
+	const AMDbObject *sampleObject = sampleHelper();
+	if(sampleObject)
+		return sampleObject->id();
+	return -1;
+}
+
+const AMSamplePre2013* AMScan::samplePre2013() const{
+	const AMSamplePre2013 *retVal = qobject_cast<const AMSamplePre2013*>(sampleHelper());
+	//const AMSamplePre2013 *retVal = qobject_cast<const AMSamplePre2013*>(samplePre2013_->object());
+	return retVal;
+}
+
+const AMSample* AMScan::sample() const{
+	const AMSample *retVal = qobject_cast<const AMSample*>(sampleHelper());
+	return retVal;
+}
+
 // associate this object with a particular run. Set to (-1) to dissociate with any run.  (Note: for now, it's the caller's responsibility to make sure the runId is valid.)
 void AMScan::setRunId(int newRunId) {
 
-	if(newRunId <= 0) runId_ = -1;
-	else runId_ = newRunId;
+	if(newRunId <= 0)
+		runId_ = -1;
+	else
+		runId_ = newRunId;
 	setModified(true);
 }
 
-// Sets name of sample
-void AMScan::setSampleId(int newSampleId) {
-	if(sampleId_ != newSampleId){
-		sampleNameLoaded_ = false;	// invalidate the sample name cache
-		if(newSampleId <= 0)
-			sampleId_ = -1;
-		else
-			sampleId_ = newSampleId;
 
-		setModified(true);
-		emit sampleIdChanged(sampleId_);
+// Sets name of sample
+void AMScan::setSampleId(int newSampleId, const QString &databaseTableName){
+	QString newDatabaseTableName;
+	if(databaseTableName.isEmpty())
+		newDatabaseTableName = AMDbObjectSupport::s()->tableNameForClass<AMSamplePre2013>();
+	else
+		newDatabaseTableName = databaseTableName;
+
+	if(newSampleId == sampleId()){
+		if(sample_ && newDatabaseTableName == AMDbObjectSupport::s()->tableNameForClass<AMSample>())
+			return;
+		if(samplePre2013_ && newDatabaseTableName == AMDbObjectSupport::s()->tableNameForClass<AMSamplePre2013>())
+			return;
 	}
+
+	if(newSampleId <= 0){
+		if(sample_)
+			sample_ = 0; //NULL
+		if(samplePre2013_)
+			samplePre2013_ = 0; //NULL
+	}
+	else if(newDatabaseTableName == AMDbObjectSupport::s()->tableNameForClass<AMSample>()){
+		if(samplePre2013_)
+			samplePre2013_ = 0; //NULL
+		AMDbObject *newSample = AMDbObjectSupport::s()->createAndLoadObjectAt(AMDatabase::database("user"), AMDbObjectSupport::s()->tableNameForClass<AMSample>(), newSampleId);
+		if(!sample_)
+			sample_ = new AMConstDbObject(newSample, this);
+		else
+			sample_->setObject(newSample);
+	}
+	else if(newDatabaseTableName == AMDbObjectSupport::s()->tableNameForClass<AMSamplePre2013>()){
+		if(sample_)
+			sample_ = 0; //NULL
+		AMDbObject *newSamplePre2013 = AMDbObjectSupport::s()->createAndLoadObjectAt(AMDatabase::database("user"), AMDbObjectSupport::s()->tableNameForClass<AMSamplePre2013>(), newSampleId);
+		if(!samplePre2013_)
+			samplePre2013_ = new AMConstDbObject(newSamplePre2013, this);
+		else
+			samplePre2013_->setObject(newSamplePre2013);
+	}
+	setModified(true);
+	emit sampleIdChanged(newSampleId);
+
+	/*
+	if(!samplePre2013_ || !samplePre2013_->object() || (samplePre2013_->object()->id() != newSampleId) ){
+		if(newSampleId <= 0)
+			samplePre2013_ = 0; //NULL
+		else{
+			AMDbObject *newSample = AMDbObjectSupport::s()->createAndLoadObjectAt(AMDatabase::database("user"), AMDbObjectSupport::s()->tableNameForClass<AMSamplePre2013>(), newSampleId);
+			if(!samplePre2013_)
+				samplePre2013_ = new AMConstDbObject(newSample, this);
+			else
+				samplePre2013_->setObject(newSample);
+		}
+		setModified(true);
+		emit sampleIdChanged(newSampleId);
+	}
+	*/
+}
+
+
+void AMScan::setSamplePre2013(const AMSamplePre2013 *samplePre2013){
+	if(!samplePre2013_ && !samplePre2013)
+		return;
+
+	if(sample_){
+		sample_ = 0; //NULL memory leaking
+	}
+	if(!samplePre2013_ && samplePre2013){
+		samplePre2013_ = new AMConstDbObject(samplePre2013, this);
+	}
+	else
+		samplePre2013_->setObject(samplePre2013);
+	setModified(true);
+
+	/*
+	if(!samplePre2013_->object() && !sample)
+		return;
+	if( (!samplePre2013_->object() && sample) || (samplePre2013_->object() && !sample) || (samplePre2013_->object()->id() != sample->id()) ){
+		if(!samplePre2013_)
+			samplePre2013_ = new AMConstDbObject(sample, this);
+		else
+			samplePre2013_->setObject(sample);
+		setModified(true);
+	}
+	*/
+}
+
+void AMScan::setSample(const AMSample *sample){
+	if(!sample_ && !sample)
+		return;
+
+	if(samplePre2013_){
+		samplePre2013_ = 0; //NULL memory leaking
+	}
+	if(!sample_ && sample){
+		sample_ = new AMConstDbObject(sample, this);
+	}
+	else
+		sample_->setObject(sample);
+	setModified(true);
+}
+
+void AMScan::setScanInitialConditions(const AMControlInfoList &scanInitialConditions){
+    	scanInitialConditions_.clear();
+	scanInitialConditions_.setValuesFrom(scanInitialConditions);
+
+	emit scanInitialConditionsChanged();
 }
 
 QString AMScan::unEvaluatedName() const{
@@ -184,28 +307,11 @@ QString AMScan::unEvaluatedName() const{
 
 // Convenience function: returns the name of the sample (if a sample is set)
 QString AMScan::sampleName() const {
-	if(!sampleNameLoaded_)
-		retrieveSampleName();
-
-	return sampleName_;
-
+	if(!sampleHelper())
+		return "[no sample]";
+	return sampleHelper()->name();
 }
 
-
-
-void AMScan::retrieveSampleName() const {
-	if(sampleId() <1 || database() == 0)
-		sampleName_ = "[no sample]";
-
-	else {
-		sampleNameLoaded_ = true;	// don't set sampleNameLoaded_ in the case above. That way we will keep checking until there's a valid database() (for ex: we get saved/stored.) The sampleNameLoaded_ cache is meant to speed up this database call.
-		QVariant vSampleName = database()->retrieve(sampleId(), AMDbObjectSupport::s()->tableNameForClass<AMSample>(), QString("name"));
-		if(vSampleName.isValid())
-			sampleName_ =  vSampleName.toString();
-		else
-			sampleName_ = "[no sample]";
-	}
-}
 
 // Loads a saved scan from the database into self. Returns true on success.
 /*! Re-implemented from AMDbObject::loadFromDb(), this version also loads the scan's raw data if autoLoadData() is set to true, and the stored filePath doesn't match the existing filePath()*/
@@ -276,7 +382,7 @@ void AMScan::dbLoadRawDataSources(const AMDbObjectList& newRawSources) {
 		if(newRawSource) {
 
 			rawDataSources_.append(newRawSource, newRawSource->name());
-			connect(newRawSource, SIGNAL(modifiedChanged(bool)), this, SLOT(onDataSourceModified()));
+			connect(newRawSource, SIGNAL(modifiedChanged(bool)), this, SLOT(onDataSourceModified(bool)));
 		}
 		else
 			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, "There was an error reloading one of this scan's raw data sources from the database. Your database might be corrupted. Please report this bug to the Acquaman developers."));
@@ -301,7 +407,8 @@ void AMScan::dbLoadAnalyzedDataSources(const AMDbObjectList& newAnalyzedSources)
 		if(newSource) {
 
 			analyzedDataSources_.append(newSource, newSource->name());
-			connect(newSource, SIGNAL(modifiedChanged(bool)), this, SLOT(onDataSourceModified()));
+			newSource->setScan(this);
+			connect(newSource, SIGNAL(modifiedChanged(bool)), this, SLOT(onDataSourceModified(bool)));
 		}
 		else
 			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, "There was an error reloading one of this scan's processed data sources from the database. Your database might be corrupted. Please report this bug to the Acquaman developers."));
@@ -338,9 +445,7 @@ void AMScan::dbLoadAnalyzedDataSourcesConnections(const QString& connectionStrin
 	QStringList allConnections = connectionString.split("\n", QString::SkipEmptyParts);
 
 	if(allConnections.count() != analyzedDataSources_.count()) {
-		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 0, "There was an error re-connecting the analysis and processing components for this scan; the number of analysis blocks didn't match. Your database might be corrupted. Please report this bug to the Acquaman developers."));
-		qDebug() << "    AMScan: loading analyzedDataSourcesConnections: allConnections is:" << allConnections;
-		qDebug() << "        but number of analyzedDataSources_ is : " << analyzedDataSources_.count();
+		AMErrorMon::alert(this, AMSCAN_ANALYZED_DATASOURCE_COUNT_MISMATCH, QString("There was an error re-connecting the analysis and processing components for this scan; the number of analysis blocks didn't match. Your database might be corrupted. Please report this bug to the Acquaman developers. All connection: %1. Number of analyzed datasources: %2").arg(allConnections.join(" ")).arg(analyzedDataSources_.count()) );
 		return;
 	}
 
@@ -357,6 +462,7 @@ void AMScan::dbLoadAnalyzedDataSourcesConnections(const QString& connectionStrin
 								AMErrorReport::Alert,
 								0,
 								QString("There was an error re-connecting the inputs for the analysis component '%1: %2', when reloading this scan from the database. Your database might be corrupted. Please report this bug to the Acquaman developers.").arg(analyzedDataSources_.at(i)->name()).arg(analyzedDataSources_.at(i)->description())));
+
 	}
 }
 
@@ -420,12 +526,41 @@ void AMScan::dbLoadScanConfiguration(AMDbObject* newObject) {
 		setScanConfiguration(sc);
 }
 
+bool AMScan::storeToDb(AMDatabase *db, bool generateThumbnails)
+{
+	if(number_ == 0)
+	{
+		number_ = largestNumberInScansWhere(db, QString(" name = '%1'").arg(name()));
+		if(number_ == -1)
+			number_ = 1;
+		else
+			number_++;
+	}
+	return AMDbObject::storeToDb(db, generateThumbnails);
+}
+
+AMConstDbObject* AMScan::dbReadSample() const{
+	return sample_;
+}
+
+void AMScan::dbWriteSample(AMConstDbObject *newSample){
+	sample_ = newSample;
+}
+
+AMConstDbObject* AMScan::dbReadSamplePre2013() const{
+	return samplePre2013_;
+}
+
+void AMScan::dbWriteSamplePre2013(AMConstDbObject *newSample){
+	samplePre2013_ = newSample;
+}
+
 // Publicly expose part of the rawData(), by adding a new AMRawDataSource to the scan. The new data source \c newRawDataSource should be valid, initialized and connected to the data store already.  The scan takes ownership of \c newRawDataSource.  This function returns false if raw data source already exists with the same name as the \c newRawDataSource.
 bool AMScan::addRawDataSource(AMRawDataSource *newRawDataSource)
 {
 	if(newRawDataSource && rawDataSources_.append(newRawDataSource, newRawDataSource->name())) {
 
-		connect(newRawDataSource, SIGNAL(modifiedChanged(bool)), this, SLOT(onDataSourceModified()));
+		connect(newRawDataSource, SIGNAL(modifiedChanged(bool)), this, SLOT(onDataSourceModified(bool)));
 		return true;
 	}
 
@@ -446,7 +581,8 @@ bool AMScan::addAnalyzedDataSource(AMAnalysisBlock *newAnalyzedDataSource)
 {
 	if(newAnalyzedDataSource && analyzedDataSources_.append(newAnalyzedDataSource, newAnalyzedDataSource->name())){
 
-		connect(newAnalyzedDataSource, SIGNAL(modifiedChanged(bool)), this, SLOT(onDataSourceModified()));
+		newAnalyzedDataSource->setScan(this);
+		connect(newAnalyzedDataSource, SIGNAL(modifiedChanged(bool)), this, SLOT(onDataSourceModified(bool)));
 		return true;
 	}
 
@@ -491,7 +627,7 @@ int AMScan::thumbnailCount() const{
 AMDbThumbnail AMScan::thumbnail(int index) const {
 	if(currentlyScanning()) {
 
-		qDebug() << "thumbnail: AMScan knows it's scanning.";
+		AMErrorMon::debug(this, AMSCAN_THUMBNAIL_SCANNING_MESSAGE, "Thumbnail: AMScan know it's scanning");
 		QFile file(":/240x180/currentlyScanningThumbnail.png");
 		file.open(QIODevice::ReadOnly);
 		return AMDbThumbnail("Started",
@@ -553,7 +689,8 @@ AMDbThumbnail AMScan::thumbnail(int index) const {
 		if (scanRank() == 2){
 
 			MPlotImageBasicwDefault* image = new MPlotImageBasicwDefault();
-			image->setModel(new AMDataSourceImageDatawDefault(dataSource, 0), true);
+			image->setDefaultValue(-1);
+			image->setModel(new AMDataSourceImageDatawDefault(dataSource, -1), true);
 			plot->addItem(image);
 			plot->doDelayedAutoScale();
 		}
@@ -567,6 +704,28 @@ AMDbThumbnail AMScan::thumbnail(int index) const {
 		}
 
 		break; }
+
+	case 3: {
+
+		if (scanRank() == 3){
+
+			MPlotImageBasicwDefault* image = new MPlotImageBasicwDefault();
+			image->setDefaultValue(-1);
+			image->setModel(new AMDataSourceImageDatawDefault(dataSource, -1), true);
+			plot->addItem(image);
+			plot->doDelayedAutoScale();
+		}
+
+		else{
+
+			MPlotImageBasic* image = new MPlotImageBasic();
+			image->setModel(new AMDataSourceImageData(dataSource), true);
+			plot->addItem(image);
+			plot->doDelayedAutoScale();
+		}
+
+		break;
+	}
 	default: {
 		// what?
 		break; }
@@ -593,7 +752,7 @@ bool AMScan::loadData()
 	for(int x = 0; x < acceptingFileLoaders.count(); x++) {
 		if((accepts = acceptingFileLoaders.at(x)->accepts(this))){
 			AMFileLoaderInterface* fileLoader = acceptingFileLoaders.at(x)->createFileLoader();
-			success = fileLoader->load(this, AMUserSettings::userDataFolder);
+			success = fileLoader->load(this, AMUserSettings::userDataFolder, AMErrorMon::mon());
 			break;
 		}
 
@@ -620,6 +779,7 @@ void AMScan::setScanController(AMScanController* scanController)
 		emit currentlyScanningChanged(currentlyScanning_);
 	}
 }
+#endif
 
 #include <QThread>
 #include <QMutexLocker>
@@ -716,4 +876,118 @@ void AMScan::release(QObject *pastOwner)
 		delete this;			// commit suicide.
 }
 
-#endif
+
+bool AMScan::replaceRawDataStore(AMDataStore *dataStore)
+{
+	if(data_ == dataStore)
+		return true;	// nothing to do.
+
+	// check first before we make any chagnes that it's compatible with any existing data sources.
+	for(int i=rawDataSourceCount()-1; i>=0; --i) {
+		if(!rawDataSources_.at(i)->isDataStoreCompatible(dataStore)) {
+			AMErrorMon::debug(this, -982, QString("Could not replace the scan's data store because the new one is not valid for the existing raw data source '%1'.").arg(rawDataSources_.at(i)->name()));
+			return false;
+		}
+	}
+
+	// Given that we checked already, this should always succeed.
+	for(int i=rawDataSourceCount()-1; i>=0; --i) {
+		rawDataSources_[i]->setDataStore(dataStore);
+	}
+
+	delete data_;
+	data_ = dataStore;
+
+	return true;
+}
+
+AMScan * AMScan::createFromDatabaseUrl(const QUrl &url, bool allowIfScanning, bool *wasScanning, QString *scanName)
+{
+	if(wasScanning)
+		*wasScanning = false;
+
+	// scheme correct?
+	if(url.scheme() != "amd")
+		return 0;
+
+	// Can we connect to the database?
+	AMDatabase* db = AMDatabase::database(url.host());
+	if(!db)
+		return 0;
+	// \bug This does not verify that the incoming scans came from the user database. In fact, it happily accepts scans from other databases. Check if we assume anywhere else inside AMGenericScanEditor that we're using the AMDatabase::database("user") database. (If we do, this could cause problems.)
+
+	QStringList path = url.path().split('/', QString::SkipEmptyParts);
+	if(path.count() != 2)
+		return 0;
+
+	QString tableName = path.at(0);
+	bool idOkay;
+	int id = path.at(1).toInt(&idOkay);
+	if(!idOkay || id < 1)
+		return 0;
+
+	// Only open AMScans or subclasses in the AMScans table.
+	if(tableName != AMDbObjectSupport::s()->tableNameForClass<AMScan>())
+		return 0;
+
+	// Check if this scan is acquiring.
+	// Use the currentlyScanning column stored in the database.
+	QVariant isScanning = db->retrieve(id, tableName, "currentlyScanning");
+	if(!isScanning.isValid())
+		return 0;
+
+	// Report back whether it was scanning, if \c wasScanning was provided.
+	if(wasScanning) {
+		*wasScanning = isScanning.toBool();
+	}
+
+	if(isScanning.toBool() && !allowIfScanning) {
+		// Don't allow because is scanning. We'll return false here; First, grab the name and number for feedback if requested.
+		if(scanName) {
+			QList<QVariant> nameAndNumber = db->retrieve(id, tableName, QStringList() << "name" << "number");
+			*scanName = QString("%1 (#%2)").arg(nameAndNumber.at(0).toString()).arg(nameAndNumber.at(1).toString());
+		}
+		return 0;
+	}
+
+	// Dynamically create and load a detailed subclass of AMDbObject from the database... whatever type it is.
+	AMDbObject* dbo = AMDbObjectSupport::s()->createAndLoadObjectAt(db, tableName, id);
+	if(!dbo)
+		return 0;
+
+	AMScan* scan = qobject_cast<AMScan*>( dbo );
+	if(!scan) {
+		delete dbo;
+		return 0;
+	}
+
+	if(scanName)
+		*scanName = scan->fullName();
+
+	return scan;
+}
+
+int AMScan::largestNumberInScansWhere(AMDatabase* db, const QString &whereClause)
+{
+	QString tableName = AMDbObjectSupport::s()->tableNameForClass<AMScan>();
+
+	QVariant dbMaxNumber = db->retrieveMax(tableName, "number", whereClause);
+	if(dbMaxNumber.isValid())
+		return dbMaxNumber.toInt();
+	else
+		return -1;
+}
+
+void AMScan::onDataSourceModified(bool isModified)
+{
+	if(isModified)
+		setModified(true);
+}
+
+const AMDbObject* AMScan::sampleHelper() const{
+	if(sample_ && sample_->object())
+		return sample_->object();
+	else if(samplePre2013_ && samplePre2013_->object())
+		return samplePre2013_->object();
+	return 0; //NULL
+}

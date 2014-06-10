@@ -1,3 +1,7 @@
+//WARNING																								WARNING
+//WARNING  This file has been depreciated, it has been replace with REIXSXESScanActionController.cpp	WARNING
+//WARNING																								WARNING
+
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 
@@ -27,7 +31,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QTimer>
 #include <QDateTime>
 
-class AMInternalControlMoveAction;
+//class AMInternalControlMoveAction;
 
 
 /// This is the implementation of AMScanController that executes a REIXS XES Scan, based on the parameters in a given REIXSXESScanConfiguration.
@@ -35,6 +39,7 @@ class REIXSXESScanController : public AMScanController
 {
 	Q_OBJECT
 public:
+ 	virtual ~REIXSXESScanController();
 	explicit REIXSXESScanController(REIXSXESScanConfiguration* configuration, QObject *parent = 0);
 
 signals:
@@ -46,6 +51,10 @@ protected:
 	virtual void cancelImplementation();
 	/// Called before starting to satisfy any prerequisites (ie: setting up the beamline, setting up files, etc.)
 	virtual bool initializeImplementation();
+
+
+	/// Fills the scan meta-data (scan name, number, sampleId) either automatically, or from the pre-set configuration values.
+	void initializeScanMetaData();
 
 
 protected slots:
@@ -73,7 +82,7 @@ protected:
 
 
 	/// This move action is used to implement the initial move of the spectrometer into position
-	AMInternalControlMoveAction* initialMoveAction_;
+//	AMInternalControlMoveAction* initialMoveAction_;
 
 
 private:

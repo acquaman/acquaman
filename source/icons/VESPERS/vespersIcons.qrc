@@ -1,20 +1,5 @@
 <RCC>
     <qresource prefix="/VESPERS">
         <file>Endstation-background.png</file>
-        <file>endstation-big-beam-unselected.png</file>
-        <file>endstation-unselected.png</file>
-        <file>endstation-straight-on-unselected.png</file>
-        <file>endstation-horizontal45-unselected.png</file>
-        <file>endstation-double45-unselected.png</file>
-        <file>endstation-vertical45-unselected.png</file>
-        <file>endstation-big-beam-ionChambers.png</file>
-        <file>endstation-big-beam-ionChambers-vortex4.png</file>
-        <file>endstation-big-beam-vortex4.png</file>
-        <file>endstation-straight-on-ionChambers.png</file>
-        <file>endstation-straight-on-ionChambers-vortex1.png</file>
-        <file>endstation-straight-on-vortex1.png</file>
-        <file>endstation-horizontal45-ionChambers.png</file>
-        <file>endstation-horizontal45-ionChambers-vortex4.png</file>
-        <file>endstation-horizontal45-vortex4.png</file>
     </qresource>
 </RCC>

@@ -31,9 +31,12 @@ class AMExporterOptionGeneralAscii : public AMExporterOptionGeneral
 	Q_PROPERTY(QString newlineDelimiter READ newlineDelimiter WRITE setNewlineDelimiter)
 
 public:
+ 	virtual ~AMExporterOptionGeneralAscii();
 	Q_INVOKABLE explicit AMExporterOptionGeneralAscii(QObject *parent = 0);
 
 	const QMetaObject* getMetaObject();
+
+	virtual AMExporterOption* createCopy() const { return new AMExporterOptionGeneralAscii(*this);}
 
 	/// The delimiter to use between columns
 	QString columnDelimiter() const { return columnDelimiter_; }

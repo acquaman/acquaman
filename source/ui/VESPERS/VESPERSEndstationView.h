@@ -35,6 +35,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QComboBox>
 #include <QPushButton>
 #include <QProcess>
+#include <QCheckBox>
 
 /// This class is used to configure the endstation control.  As the endstation expands, the things that will need to be modified will also change.  Therefore, this class should expand with any expansion of the endstation class.
 /// This will configure the buttons, as other things are added to the endstation it will do more.
@@ -49,6 +50,7 @@ class VESPERSEndstationLimitsView : public QWidget
 
 public:
 	/// Constructor for the configuration.
+ 	virtual ~VESPERSEndstationLimitsView();
 	VESPERSEndstationLimitsView(QWidget *parent = 0);
 
 signals:
@@ -79,6 +81,10 @@ protected:
 	QLineEdit *vortex4LowLimit_;
 	QLineEdit *vortex4HighLimit_;
 	QLineEdit *vortex4HomePosition_;
+
+	QLineEdit *ccdBufferSafePosition_;
+	QCheckBox *usingBuffer_;
+	QCheckBox *at90Deg_;
 };
 
 /// This class shows all the general endstation controls.
@@ -90,7 +96,12 @@ public:
 	/// Constructor.  Takes an instance of VESPERSEndstation and builds a view around it.
 	VESPERSEndstationView(VESPERSEndstation *endstation, QWidget *parent = 0);
 	/// Destructor.
-	~VESPERSEndstationView();
+	virtual ~VESPERSEndstationView();
+
+	/// Returns whether or not the view is showing the normal sample stage motor or the y motor.  True is the normal stage and false is the y motor.
+	bool usingNormalMotor() const { return usingNormal_; }
+
+public slots:
 
 protected slots:
 	/// Handles setting the microscope slider without creating a signal/slot loop.
@@ -107,10 +118,10 @@ protected slots:
 	/// Handles the CCD button being clicked.
 	void ccdClicked()
 	{
-		if (!endstation_->microscopeInHomePosition()){
+		if (!endstation_->microscopeInSafePosition()){
 
 			AMControl *control = endstation_->control("Microscope motor");
-			QMessageBox::warning(this, tr("Move Error"), tr("The microscope is in an unsafe position.  You must move the microscope to its %1 position (%2 %3) before you can move the microscope.").arg(endstation_->microscopeNames().second).arg(endstation_->getLimits(control).second).arg(control->units()));
+			QMessageBox::warning(this, tr("Move Error"), tr("The microscope is in an unsafe position.  You must move the microscope to its %1 position (%2 %3) before you can move the microscope.").arg(endstation_->microscopeNames().second).arg(endstation_->getLimits(control).maximum()).arg(control->units()));
 			return;
 		}
 
@@ -119,10 +130,16 @@ protected slots:
 	/// Handles the Microscope being clicked.
 	void microscopeClicked()
 	{
-		if (!endstation_->ccdInHomePosition()){
+		if (!endstation_->ccdInSafePosition()){
 
 			AMControl *control = endstation_->control("CCD motor");
-			QMessageBox::warning(this, tr("Move Error"), tr("The CCD is in an unsafe position.  You must move the CCD to %1 %2 before you can move the microscope.").arg(endstation_->getLimits(control).second).arg(control->units()));
+
+			if (endstation_->heliumBufferAttached())
+				QMessageBox::warning(this, tr("Move Error"), tr("The CCD is in an unsafe position.  You must move the CCD to %1 %2 before you can move the microscope.").arg(endstation_->ccdSafePositionwHeliumBuffer()).arg(control->units()));
+
+			else
+				QMessageBox::warning(this, tr("Move Error"), tr("The CCD is in an unsafe position.  You must move the CCD to %1 %2 before you can move the microscope.").arg(endstation_->getLimits(control).maximum()).arg(control->units()));
+
 			return;
 		}
 
@@ -132,8 +149,6 @@ protected slots:
 	void singleElClicked() { endstation_->setCurrent("1-Element Vortex motor"); }
 	/// Handles the 4-el vortex being clicked.
 	void fourElClicked() { endstation_->setCurrent("4-Element Vortex motor"); }
-	/// Handles the focus being clicked.
-	void focusClicked() { endstation_->setCurrent("Normal Sample Stage"); }
 
 	// Slots handling the feedback updates from the PV.
 	/// Handles the CCD distance update.
@@ -141,7 +156,7 @@ protected slots:
 	{
 		ccdButton_->setText(QString::number(val, 'f', 3) + " mm");
 
-		if (!endstation_->ccdInHomePosition(val))
+		if (!endstation_->ccdInSafePosition(val))
 			microscopeButton_->setStyleSheet(" background-color: rgb(255,140,0); ");
 		else
 			microscopeButton_->setStyleSheet(this->styleSheet());
@@ -151,7 +166,7 @@ protected slots:
 	{
 		microscopeButton_->setText(QString::number(val, 'f', 3) + " mm");
 
-		if (!endstation_->microscopeInHomePosition(val))
+		if (!endstation_->microscopeInSafePosition(val))
 			ccdButton_->setStyleSheet(" background-color: rgb(255,140,0); ");
 		else
 			ccdButton_->setStyleSheet(this->styleSheet());
@@ -160,18 +175,16 @@ protected slots:
 	void singleElUpdate(double val) { singleElButton_->setText(QString::number(val, 'f', 3) + " mm"); }
 	/// Handles the 4-el vortex distance update.
 	void fourElUpdate(double val) { fourElButton_->setText(QString::number(val, 'f', 3) + " mm"); }
-	/// Handles the focus distance update.
-	void focusUpdate(double val) { focusButton_->setText(QString::number(val, 'f', 3) + " mm"); }
-
-	/// Starts up a detached process for the microscope screen.  Starts a detached process because the view for the microscope does not depend on the user interface to be active.
-	void startMicroscope() { QProcess::startDetached("/home/vespers/bin/runCameraDisplay"); }
-	/// Starts the IDA software.  This is temporary until the XAS software is replaced.
-	void startXAS() { QProcess::startDetached("/home/vespers/bin/runIDA"); }
+	/// Handles the laser position value changed signal.
+	void onLaserDistanceChanged();
 
 protected:
 	// Microscope light setup.
 	QSlider *micLight_;
 	QToolButton *lightBulb_;
+
+	// Bool holding whether or not the normal or y motor should be shown.
+	bool usingNormal_;
 
 	// Laser button.
 	QToolButton *laserPowerButton_;
@@ -187,7 +200,6 @@ protected:
 	QToolButton *microscopeButton_;
 	QToolButton *fourElButton_;
 	QToolButton *singleElButton_;
-	QToolButton *focusButton_;
 
 	// The endstation model.
 	VESPERSEndstation *endstation_;

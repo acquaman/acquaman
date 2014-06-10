@@ -44,6 +44,7 @@ class VESPERSMotorView : public QWidget
 	  */
 public:
 	/// Constructor.  Builds the layout.
+ 	virtual ~VESPERSMotorView();
 	explicit VESPERSMotorView(QWidget *parent = 0);
 
 	/// This function sets all the aspects of the control to the widget with the default full layout.  Assigns units of mm if the control doesn't have units.

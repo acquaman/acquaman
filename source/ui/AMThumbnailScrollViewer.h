@@ -34,6 +34,7 @@ class AMThumbnailScrollViewer : public QLabel
 {
 	Q_OBJECT
 public:
+ 	virtual ~AMThumbnailScrollViewer();
 	explicit AMThumbnailScrollViewer(QWidget *parent = 0);
 
 	/// display the thumbnails from a given AMDbObject
@@ -83,6 +84,7 @@ protected:
 class AMThumbnailScrollWidget : public QWidget {
 	Q_OBJECT
 public:
+ 	virtual ~AMThumbnailScrollWidget();
 	explicit AMThumbnailScrollWidget(const QString& caption1 = QString(), const QString& caption2 = QString(), QWidget* parent = 0);
 
 	/// display the thumbnails from a given AMDbObject
@@ -116,7 +118,6 @@ protected:
 
 #include <QGraphicsItem>
 #include <QGraphicsLayoutItem>
-#include <QDebug>
 #include <QPainterPath>
 
 /// This is a high-performance version of AMThumbnailScrollWidget for use inside the QGraphicsView system

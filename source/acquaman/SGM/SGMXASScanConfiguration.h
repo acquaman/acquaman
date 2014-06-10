@@ -18,11 +18,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef ACQMAN_SGMXASSCANCONFIGURATION_H
-#define ACQMAN_SGMXASSCANCONFIGURATION_H
+#ifndef AM_SGMXASSCANCONFIGURATION_H
+#define AM_SGMXASSCANCONFIGURATION_H
 
 #include "acquaman/AMXASScanConfiguration.h"
 #include "SGMScanConfiguration.h"
+#include "dataman/info/AMOldDetectorInfoSet.h"
 
 class SGMXASScanConfiguration : public AMXASScanConfiguration, public SGMScanConfiguration
 {
@@ -40,22 +41,17 @@ class SGMXASScanConfiguration : public AMXASScanConfiguration, public SGMScanCon
 
 
 public:
+	/// Standard constructor, queries the SGMBeamline and retrieves some detector information
+ 	virtual ~SGMXASScanConfiguration();
 	Q_INVOKABLE explicit SGMXASScanConfiguration(QObject *parent=0);
+	/// Copy constructor
 	SGMXASScanConfiguration(const SGMXASScanConfiguration &original);
 
+	/// Returns the metaObject
 	const QMetaObject* getMetaObject();
 
-	AMControlSet *fluxResolutionSet() const { return fluxResolutionSet_;}
-	AMControlSet *trackingSet() const { return trackingSet_;}
-
-	/// Returns an AMDetectorSet that consists of the detectors a user can choose (or choose not) to use. In this case TEY, TFY, and SDD
-	AMDetectorSet* detectorChoices() const { return xasDetectors_; }
-	/// Returns an AMDetectorSet that consists of all the detectors this scan can/will use (adds detectors that are always collected to the detectorChoices(), such as I0 and energy feedback)
-	AMDetectorSet* allDetectors() const { return allDetectors_; }
 	/// Returns the current configuration requested for the user selectable detectors
-	AMDetectorInfoSet detectorChoiceConfigurations() const { return xasDetectorsCfg_; }
-	/// Returns the current configuration requested for all of the detectors
-	AMDetectorInfoSet allDetectorConfigurations() const;
+	AMOldDetectorInfoSet detectorChoiceConfigurations() const { return xasDetectorsCfg_; }
 
 	/// Returns whether or not this scan configuration can convert a property from an enum into a useful string. For use with the export systems. SGMXASScanConfiguration can convert grating and harmonic.
 	virtual bool canEnumConvert(const QString &enumName) const;
@@ -66,13 +62,13 @@ public:
 	/// Returns a pointer to a newly-created copy of this scan configuration.  (It takes the role of a copy constructor, but is virtual so that our high-level classes can copy a scan configuration without knowing exactly what kind it is.)
 	virtual AMScanConfiguration* createCopy() const;
 
-	/// Returns a pointer to a newly-created AMScanController that is appropriate for executing this kind of scan configuration.  The controller should be initialized to use this scan configuration object as its scan configuration.  Ownership of the new controller becomes the responsibility of the caller.
+	/// Returns a NULL pointer as this scan configuration is no longer supported for running scans
 	virtual AMScanController* createController();
 
 	/// Returns a pointer to a newly-created AMScanConfigurationView that is appropriate for viewing and editing this kind of scan configuration. Ownership of the new controller becomes the responsibility of the caller.
 	virtual AMScanConfigurationView* createView();
 
-	/// A human-readable synopsis of this scan configuration. Can be re-implemented to proved more details. Used by AMBeamlineScanAction to set the main text in the action view.
+	/// A human-readable synopsis of this scan configuration. Can be re-implemented to proved more details. Used by scan action to set the main text in the action view.
 	virtual QString detailedDescription() const;
 
 	/// Returns the AMControlInfo for the scanned region control.
@@ -80,55 +76,58 @@ public:
 	/// Returns the AMControlInfo for the time control.
 	AMControlInfo timeControlInfo() const { return regions_->defaultTimeControl()->toInfo(); }
 
+	/// Overrides the warnings string to check warnings from the detector info set
+	virtual QString dbLoadWarnings() const;
+
 public slots:
+	/// Sets the tracking group's values from an info list
 	bool setTrackingGroup(AMControlInfoList trackingList);
+	/// Sets the flux/resolution group's values from an info list
 	bool setFluxResolutionGroup(AMControlInfoList fluxResolutionList);
 
+	/// Sets the undulator tracking directly
 	bool setUndulatorTracking(bool undulatorTracking);
+	/// Sets the mono tracking directly
 	bool setMonoTracking(bool monoTracking);
+	/// Sets the exit slit tracking directly
 	bool setExitSlitTracking(bool exitSlitTracking);
 
+	/// Sets the exit slit gap value for this configuration
 	bool setExitSlitGap(double exitSlitGap);
-	bool setGrating(SGMBeamline::sgmGrating grating);
+	/// Sets the grating value for this configuration (as the SGMBeamline enum)
+	bool setGrating(SGMBeamlineInfo::sgmGrating grating);
+	/// Sets the grating value for this configuration (as an int)
 	bool setGrating(int grating);
-	bool setHarmonic(SGMBeamline::sgmHarmonic harmonic);
+	/// Sets the harmonvic value for this configuration (as the SGMBeamline enum)
+	bool setHarmonic(SGMBeamlineInfo::sgmHarmonic harmonic);
+	/// Sets the harmonvic value for this configuration (as an int)
 	bool setHarmonic(int harmonic);
 
-	/* NTBA March 14, 2011 David Chevrier
-	   Need something similar for detector set
-	*/
-
-	bool setDetectorConfigurations(const AMDetectorInfoSet& xasDetectorsCfg);
+	/// Sets the detector configurations based on a detector info set
+	bool setDetectorConfigurations(const AMOldDetectorInfoSet& xasDetectorsCfg);
 
 signals:
+	/// Emitted when something about the tracking group changes (information in the control info list)
 	void trackingGroupChanged(AMControlInfoList);
+	/// Emitted when something about the flux/resolution group changes (information in the control info list)
 	void fluxResolutionGroupChanged(AMControlInfoList);
 
+	/// Emitted when the requested tracking for the undulator changes
 	void undulatorTrackingChanged(bool undulatorTracking);
+	/// Emitted when the requested tracking for the mono changes
 	void monoTrackingChanged(bool monoTracking);
+	/// Emitted when the requested tracking for the exit slit changes
 	void exitSlitTrackingChanged(bool exitSlitTracking);
 
-	void exitSlitGapChanged(double exitSlitGap);
-	void gratingChanged(int grating);
-	void harmonicChanged(int harmonic);
-	/* NTBA March 14, 2011 David Chevrier
-	   Need something similar for detector set
-	*/
-
-protected slots:
-	void detectorAvailabilityChanged(AMDetector *detector, bool isAvailable);
-
 protected:
+	/// Used to write the detector configurations to the database
 	AMDbObject* dbReadDetectorConfigs() { return &xasDetectorsCfg_;}
+	/// For database loading (never called)
 	void dbLoadDetectorConfigs(AMDbObject*) {} //Never called, xasDetectorsCfg_ is always valid
 
 protected:
-	AMControlSet *fluxResolutionSet_;
-	AMControlSet *trackingSet_;
-
-	AMDetectorSet *xasDetectors_;
-	AMDetectorSet *allDetectors_;
-	AMDetectorInfoSet xasDetectorsCfg_;
+	/// The configurations for the detectors
+	AMOldDetectorInfoSet xasDetectorsCfg_;
 };
 
-#endif // ACQMAN_SGMXASSCANCONFIGURATION_H
+#endif // AM_SGMXASSCANCONFIGURATION_H

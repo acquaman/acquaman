@@ -21,6 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMNumber.h"
 
 /// Default constructor creates a Null AMNumber
+ AMNumber::~AMNumber(){}
 AMNumber::AMNumber() {
 	type_ = Integer;
 	state_ = Null;

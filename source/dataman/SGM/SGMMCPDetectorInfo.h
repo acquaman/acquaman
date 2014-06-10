@@ -21,9 +21,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef SGMMCPDETECTORINFO_H
 #define SGMMCPDETECTORINFO_H
 
-#include "dataman/info/AMDetectorInfo.h"
+#include "dataman/info/AMOldDetectorInfo.h"
+#include "util/AMRange.h"
 
-class SGMMCPDetectorInfo : public AMDetectorInfo
+class SGMMCPDetectorInfo : public AMOldDetectorInfo
 {
 Q_OBJECT
 	Q_PROPERTY(double hvSetpoint READ hvSetpoint WRITE setHVSetpoint)
@@ -33,12 +34,13 @@ Q_OBJECT
 	Q_CLASSINFO("AMDbObject_Attributes", "description=MCP Detector")
 
 public:
+ 	virtual ~SGMMCPDetectorInfo();
 	Q_INVOKABLE SGMMCPDetectorInfo(const QString& name = "tfy", const QString& description = "TFY", QObject *parent = 0);
 
 	SGMMCPDetectorInfo(const SGMMCPDetectorInfo &original);
 
 	/// Creates a new info pointer from this one, caller is responsible for memory
-	virtual AMDetectorInfo* toNewInfo() const;
+	virtual AMOldDetectorInfo* toNewInfo() const;
 
 	SGMMCPDetectorInfo& operator=(const SGMMCPDetectorInfo& other);
 
@@ -46,7 +48,7 @@ public:
 	double hvSetpoint() const;
 	double hvSetpointRangeMin() const;
 	double hvSetpointRangeMax() const;
-	QPair<double, double> hvSetpointRange() const;
+	AMRange hvSetpointRange() const;
 
 	QDebug qDebugPrint(QDebug &d) const;
 
@@ -63,7 +65,7 @@ public slots:
 	void setHVSetpoint(double hvSetpoint);
 	void setHVSetpointRangeMin(double min);
 	void setHVSetpointRangeMax(double max);
-	void setHVSetpointRange(QPair<double, double> range);
+	void setHVSetpointRange(const AMRange &range);
 
 protected:
 	double hvSetpointRangeMin_, hvSetpointRangeMax_, hvSetpoint_;

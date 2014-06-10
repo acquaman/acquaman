@@ -29,7 +29,8 @@ class AM2DScan : public AMScan
 
 	Q_CLASSINFO("AMDbObject_Attributes", "shareTableWithClass=AMScan;description=2D Scan")
 public:
-	/// Create a new 2D scan.  Sets the adds two scan axes.
+	/// Create a new 2D scan.
+ 	virtual ~AM2DScan();
 	Q_INVOKABLE explicit AM2DScan(QObject *parent = 0);
 };
 

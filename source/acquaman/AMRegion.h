@@ -18,8 +18,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef ACQMAN_AMREGION_H
-#define ACQMAN_AMREGION_H
+#ifndef AM_AMREGION_H
+#define AM_AMREGION_H
 
 #include <QObject>
 #include <QAbstractTableModel>
@@ -60,6 +60,7 @@ class AMRegion: public QObject
 
 public:
 	/// Constructor, only requires a QObject for a parent and defaults elastic start and end to false.
+ 	virtual ~AMRegion();
 	AMRegion(QObject *parent = 0);
 	/// Returns the stored start value as a double
 	virtual double start() const { return start_; }
@@ -149,6 +150,7 @@ class AMRegionsListModel : public QAbstractTableModel
 
 public:
 	/// Constructor, pass a pointer to a list of AMXASRegions to set up the model. Such a list can be easily returned with regionsPtr() function in AMXASScanConfiguration class.
+ 	virtual ~AMRegionsListModel();
 	AMRegionsListModel(QObject *parent = 0);
 
 	/// Returns the number of regions in the list to generate the number of rows in a table or list
@@ -205,6 +207,7 @@ Q_OBJECT
 
 public:
 	/// Constructor, takes an AMControl to act as the perminant control for this region, must be the beamline energy control.
+ 	virtual ~AMXASRegion();
 	AMXASRegion(AMControl* beamlineEnergy, QObject *parent = 0) : AMRegion(parent) { ctrl_ = beamlineEnergy; }
 	/// Re-implemented.  Forcing XAS scans to start from lower energy and go to higher energy.
 	virtual bool isValid() const { return (start_ < end_ && delta_ > 0) ? true : false; }
@@ -225,6 +228,7 @@ Q_OBJECT
 
 public:
 	/// Constructor.  Builds a model that is identical to AMRegionsListModel.  No new features added.
+ 	virtual ~AMXASRegionsListModel();
 	AMXASRegionsListModel(QObject *parent = 0) : AMRegionsListModel(parent) {}
 
 	/// Inserts an AMXASRegion into the model.  It builds a default AMXASRegion, sets the control to whatever the energy control is at the time.
@@ -259,6 +263,7 @@ public:
 	enum RegionType { Energy, kSpace };
 
 	/// Constructor.  Takes two AMControls to act as the perminant energy and k-space control for this region.  Must be the beamline energy and beamline k-space control.
+ 	virtual ~AMEXAFSRegion();
 	AMEXAFSRegion(AMControl *beamlineEnergy, AMControl *beamlineK, QObject *parent = 0)
 		: AMXASRegion(beamlineEnergy, parent)
 	{
@@ -373,6 +378,7 @@ Q_OBJECT
 
 public:
 	/// Constructor.  Builds a model that is identical to AMRegionsListModel.  No new features added.
+ 	virtual ~AMEXAFSRegionsListModel();
 	AMEXAFSRegionsListModel(QObject *parent = 0) : AMXASRegionsListModel(parent) { defaultKControl_ = 0; defaultEdgeEnergy_ = 0; defaultIsRelative_ = false; }
 
 	/// Returns "4" statically. There are always four fields in the region: start, delta, end, and time.  However, the total number is 10.
@@ -413,4 +419,4 @@ protected:
 	bool defaultIsRelative_;
 };
 
-#endif // ACQMAN_AMREGION_H
+#endif // AM_AMREGION_H

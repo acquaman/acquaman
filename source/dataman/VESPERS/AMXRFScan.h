@@ -38,6 +38,7 @@ class AMXRFScan : public AMScan
 
 public:
 	/// Constructor.  Creates a new XRF scan.
+ 	virtual ~AMXRFScan();
 	Q_INVOKABLE explicit AMXRFScan(QObject *parent = 0);
 
 };

@@ -30,8 +30,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QStandardItemModel>
 #include <QTableView>
 
-#include <QDebug>
-
 #include "util/AMErrorMonitor.h"
 #include "util/AMDeferredFunctionCall.h"
 
@@ -42,6 +40,7 @@ class AMStatusLogView : public QWidget {
 	Q_OBJECT
 
 public:
+ 	virtual ~AMStatusLogView();
 	explicit AMStatusLogView(QWidget* parent = 0);
 
 public slots:
@@ -67,6 +66,7 @@ class AMStatusView : public QAbstractButton
 Q_OBJECT
 public:
 	/// Constructor
+ 	virtual ~AMStatusView();
 	explicit AMStatusView(QWidget *parent = 0);
 
 signals:

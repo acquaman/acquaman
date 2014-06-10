@@ -24,27 +24,38 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QString>
 #include <QHash>
 
-class QMetaObject;
+#include "dataman/database/AMDatabase.h"
+
+//class QMetaObject;
 
 class AMScanConfiguration;
 class AMExporter;
 class AMExporterOption;
 
+class AMScanActionControllerScanOptimizer;
+class AMScanActionControllerScanValidator;
+class AMAction3;
+
+class AMActionRunner3;
+class AMActionHistoryModel3;
+
 class AMScanConfigurationObjectInfo{
 public:
 	/// The default constructor creates an invalid object
+ 	virtual ~AMScanConfigurationObjectInfo();
 	AMScanConfigurationObjectInfo(){
 		scanConfigurationMetaObject = 0;
 		exporterMetaObject = 0;
 		exporterOptionMetaObject = 0;
 		exporterOptionId = 0;
+		databaseName = QString();
 	}
 
 	/// fill the className
-	AMScanConfigurationObjectInfo(AMScanConfiguration *prototypeScanConfiguration, AMExporter *prototypeExporter, AMExporterOption *prototypeExporterOption, int useExporterOptionId);
+	AMScanConfigurationObjectInfo(AMScanConfiguration *prototypeScanConfiguration, AMExporter *prototypeExporter, AMExporterOption *prototypeExporterOption, int useExporterOptionId, QString useDatabaseName = QString());
 
 	/// fill the className (This version doesn't require an instance. The \c classMetaObject can be retrieved statically with Class::staticMetaObject. )
-	AMScanConfigurationObjectInfo(const QMetaObject *useScanConfigurationMetaObject, const QMetaObject *useExporterMetaObject, const QMetaObject *useExporterOptionMetaObject, int useExporterOptionId);
+	AMScanConfigurationObjectInfo(const QMetaObject *useScanConfigurationMetaObject, const QMetaObject *useExporterMetaObject, const QMetaObject *useExporterOptionMetaObject, int useExporterOptionId, QString useDatabaseName = QString());
 
 	/// Indicates this AMDbObjectInfo represents a valid object.
 	bool isValid() const {
@@ -58,10 +69,11 @@ public:
 	const QMetaObject *exporterMetaObject; ///< QMetaObject pointer with the complete meta-object for the exporter
 	const QMetaObject *exporterOptionMetaObject; ///< QMetaObject pointer with the complete meta-object for the exporter option
 	int exporterOptionId; ///< Database Id for the exporter option you want to use (right now assumes the userDb)
+	QString databaseName; ///< Database name where the exporter option is stored (an empty string implies "user" database)
 
 private:
 	/// used to implement both constructors
-	void initWithMetaObject(const QMetaObject *useScanConfigurationMetaObject, const QMetaObject *useExporterMetaObject, const QMetaObject *useExporterOptionMetaObject, int useExporterOptionId);
+	void initWithMetaObject(const QMetaObject *useScanConfigurationMetaObject, const QMetaObject *useExporterMetaObject, const QMetaObject *useExporterOptionMetaObject, int useExporterOptionId, QString useDatabaseName = QString());
 
 	/// checks to make sure a QMetaObject inherits AMScanConfiguration
 	bool inheritsScanConfiguration(const QMetaObject *metaObject) const;
@@ -73,16 +85,41 @@ private:
 	bool inheritsExporterOption(const QMetaObject *metaObject) const;
 };
 
+class AMActionRunnerGroup{
+public:
+ 	virtual ~AMActionRunnerGroup();
+	AMActionRunnerGroup(const QString &databaseName, AMActionRunner3 *actionRunner, AMActionHistoryModel3 *actionHistoryModel){
+		databaseName_ = databaseName;
+		actionRunner_ = actionRunner;
+		actionHistoryModel_ = actionHistoryModel;
+	}
+
+	QString databaseName() const { return databaseName_; }
+	AMActionRunner3* actionRunner() const { return actionRunner_; }
+	AMActionHistoryModel3* actionHistoryModel() const { return actionHistoryModel_; }
+
+protected:
+	QString databaseName_;
+	AMActionRunner3 *actionRunner_;
+	AMActionHistoryModel3 *actionHistoryModel_;
+};
+
 namespace AMAppControllerSupport{
 	extern QHash<QString, AMScanConfigurationObjectInfo> registeredClasses_;
 
 	// Registers the triplet of a scan configuration class (AMScanConfiguration descendant), an exporter class (AMExporter descendant), and an exporter option class (AMExporterOption descendent)
 	// Class T1 needs to inherit AMScanConfiguration, Class T3 needs to inherit AMExporter, and Class T3 needs to inherit AMExporterOption
 	template <class Ta, class Tb, class Tc>
-	bool registerClass(int exporterOptionId) {
+	bool registerClass(int exporterOptionId, QString databaseName = QString()) {
 		// make sure this is a valid database id
 		if( exporterOptionId < 1)
 			return false;
+
+		if(!databaseName.isEmpty()){
+			AMDatabase *useDatabase = AMDatabase::database(databaseName);
+			if(!useDatabase)
+				return false;
+		}
 
 		// create the meta object for the scan configuration
 		const QMetaObject *scanConfigurationMo = &(Ta::staticMetaObject);
@@ -123,12 +160,13 @@ namespace AMAppControllerSupport{
 
 		// is it already registered? return true.
 		QString className(scanConfigurationMo->className());
-		if(registeredClasses_.contains(className)) {
-			//AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, 0, QString("Detector View Support: The class '%1' has already been registered with detector view. Skipping duplicate registration.").arg(className)));
-			return true;
-		}
+//		if(registeredClasses_.contains(className)) {
+//			//AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, 0, QString("Detector View Support: The class '%1' has already been registered with detector view. Skipping duplicate registration.").arg(className)));
+//			return true;
+//		}
 
-		AMScanConfigurationObjectInfo newInfo(scanConfigurationMo, exporterMo, exporterOptionMo, exporterOptionId);
+		// Overwriting the old one.
+		AMScanConfigurationObjectInfo newInfo(scanConfigurationMo, exporterMo, exporterOptionMo, exporterOptionId, databaseName);
 
 		registeredClasses_.insert(className, newInfo);
 		return true;
@@ -144,6 +182,38 @@ namespace AMAppControllerSupport{
 	/// Useful for auto export, this creates the available AMExporterOption class for the AMScanConfiguration. You can use qobject_cast<>() or type() to find out the detailed type of the new object.  Returns 0 if no object found.
 	/*! Ownership of the newly-created object becomes the responsibility of the caller. */
 	AMExporterOption* createExporterOption(AMScanConfiguration *scanConfiguration);
+
+	extern QList<AMScanActionControllerScanOptimizer*> principleOptimizers_;
+	extern QList<AMScanActionControllerScanValidator*> principleValidators_;
+
+	int principleOptimizerCount();
+	int principleValidatorCount();
+
+	AMScanActionControllerScanOptimizer* principleOptimizerAt(int index);
+	AMScanActionControllerScanValidator* principleValidatorAt(int index);
+
+	void addPrincipleOptimizer(int index, AMScanActionControllerScanOptimizer *optimizer);
+	void addPrincipleValidator(int index, AMScanActionControllerScanValidator *validator);
+
+	void appendPrincipleOptimizer(AMScanActionControllerScanOptimizer *optimizer);
+	void appendPrincipleValidator(AMScanActionControllerScanValidator *validator);
+
+	void prependPrincipleOptimizer(AMScanActionControllerScanOptimizer *optimizer);
+	void prependPrincipleValidator(AMScanActionControllerScanValidator *validator);
+
+	AMScanActionControllerScanOptimizer* removePrincipleOptimizer(int index);
+	AMScanActionControllerScanValidator* removePrincipleValidator(int index);
+
+	QList<AMScanActionControllerScanOptimizer*> principleOptimizersCopy();
+	QList<AMScanActionControllerScanValidator*> principleValidatorsCopy();
+
+	void optimize(QList<AMScanActionControllerScanOptimizer*> optimizers, AMAction3 *scanActionTree);
+	bool validate(QList<AMScanActionControllerScanValidator*> validators, AMAction3 *scanActionTree);
+
+	extern QList<AMActionRunnerGroup*> actionRunnerGroups_;
+	void addActionRunnerGroup(const QString &databaseName, AMActionRunner3 *actionRunner, AMActionHistoryModel3 *actionHistoryModel);
+	AMActionRunner3* actionRunnerFromDatabaseName(const QString &databaseName);
+	AMActionHistoryModel3* actionHistoryModelFromDatabaseName(const QString &databaseName);
 }
 
 #endif // AMAPPCONTROLLERSUPPORT_H

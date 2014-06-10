@@ -32,6 +32,7 @@ class REIXSTest : public QObject
 	Q_OBJECT
 
 public:
+ 	virtual ~REIXSTest();
 	REIXSTest();
 
 private Q_SLOTS:
@@ -39,6 +40,7 @@ private Q_SLOTS:
 	void testHexapodPVChanges();
 };
 
+ REIXSTest::~REIXSTest(){}
 REIXSTest::REIXSTest()
 {
 }

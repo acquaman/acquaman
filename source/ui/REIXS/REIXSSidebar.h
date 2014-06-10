@@ -27,7 +27,6 @@ namespace Ui {
 }
 
 class REIXSActionBasedControlEditor;
-class REIXSActionBasedEnumControlEditor;
 
 /// This widget displays the real-time "at a glance" REIXS beamline controls / feedback monitors on the side of the application's main window.
 class REIXSSidebar : public QWidget
@@ -36,23 +35,42 @@ class REIXSSidebar : public QWidget
 
 public:
     explicit REIXSSidebar(QWidget *parent = 0);
-    ~REIXSSidebar();
+    virtual ~REIXSSidebar();
 
 private:
     Ui::REIXSSidebar *ui;
 
 	// Additional UI controls
-	REIXSActionBasedControlEditor* beamlineEnergyEditor_, *monoSlitEditor_;
-	REIXSActionBasedEnumControlEditor* gratingSelector_, *mirrorSelector_;
+	REIXSActionBasedControlEditor* beamlineEnergyEditor_, *userEnergyOffestEditor_, *monoSlitEditor_, *gratingSelector_, *mirrorSelector_, *epuPolarizationEditor_, *epuPolarizationAngleEditor_;
 
 protected slots:
 	// Responding to GUI events
 	////////////////////////////
 
-	void onMCPCountsPerSecondChanged(double countsPerSecond);
-
 	void onBeamOnButtonClicked();
 	void onBeamOffButtonClicked();
+
+	void onScalerContinuousButtonToggled(bool on);
+
+	// Responding to beamline events:
+	///////////////////////////////////
+
+	void onRingCurrentChanged(double current);
+
+	/// This could be a little sub-widget:
+	void onMCPCountsPerSecondChanged(double countsPerSecond);
+	void onTEYCountsChanged(double counts);
+	void onTFYCountsChanged(double counts);
+	void onI0CountsChanged(double counts);
+
+	/// Monitors REIXSBeamline::bl()->valvesAndShutters()::beamOnChanged() to light up the "beam on" summary LED.
+	void onBeamOnChanged(bool isOn);
+
+	/// When the scaler's continuous mode is changed
+	void onScalerContinuousModeChanged(double on);
+private slots:
+	// void on_beamOnButton_clicked();  DAVID OOPS?
+	void on_MonoStopButton_clicked();
 };
 
 #endif // REIXSSIDEBAR_H

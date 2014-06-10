@@ -21,26 +21,81 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMErrorMonitor.h"
 #include "beamline/REIXS/REIXSBeamline.h"
 #include "actions2/actions/AMInternalControlMoveAction.h"
+#include "dataman/AMSamplePlatePre2013.h"
 
 REIXSSampleMoveAction::REIXSSampleMoveAction(REIXSSampleMoveActionInfo *info, QObject *parent) :
-	AMListAction(info, AMListAction::SequentialMode, parent)
+	AMListAction(info, AMListAction::ParallelMode, parent)
 {
 
 }
 
 REIXSSampleMoveAction::REIXSSampleMoveAction(const AMControlInfoList &targetPositions, QObject *parent) :
-	AMListAction(new REIXSSampleMoveActionInfo(targetPositions), AMListAction::SequentialMode, parent)
+	AMListAction(new REIXSSampleMoveActionInfo(targetPositions), AMListAction::ParallelMode, parent)
 {
 
 }
 
 void REIXSSampleMoveAction::startImplementation()
 {
-	// check that the info is valid -- we know where we're supposed to be going
-	if(!sampleMoveInfo()->isValid()) {
-		AMErrorMon::alert(this, -3, "Could not move to the sample position because a valid position wasn't specified. Please report this problem to the Acquaman developers.");
-		notifyFailed();
-		return;
+	double x, y, z, theta;
+
+	// Mode 1: moving to sample on sample plate:
+	if(sampleMoveInfo()->samplePlateId() > 0) {
+
+		int infoPlateId = sampleMoveInfo()->samplePlateId();
+		int currentPlateId = REIXSBeamline::bl()->samplePlate()->id();
+		int sampleIndex = sampleMoveInfo()->sampleIndex();
+
+		if(infoPlateId != currentPlateId) {
+			AMErrorMon::alert(this, -2, "Could not move to the sample because the sample plate is not the current sample plate. Use the 'Sample Positions' page to change the current sample plate.");
+			notifyFailed();
+			return;
+		}
+
+		if(sampleIndex >= REIXSBeamline::bl()->samplePlate()->count()) {
+			AMErrorMon::alert(this, -201, QString("Could not move to the sample because the sample chosen (# %1) is not on the plate (%2 samples)").arg(sampleIndex).arg(REIXSBeamline::bl()->samplePlate()->count()));
+			notifyFailed();
+			return;
+		}
+
+		if(sampleIndex < 0) {
+			AMErrorMon::alert(this, -202, QString("Could not move to the sample because an invalid sample was chosen (# %1)").arg(sampleIndex));
+			notifyFailed();
+			return;
+		}
+
+		const AMControlInfoList& pos = REIXSBeamline::bl()->samplePlate()->at(sampleIndex).position();
+		try {
+		int index;
+		if((index = pos.indexOf("sampleX")) != -1)
+			x = pos.at(index).value();
+		else
+			throw 0;
+		if((index = pos.indexOf("sampleY")) != -1)
+			y = pos.at(index).value();
+		else
+			throw 1;
+		if((index = pos.indexOf("sampleZ")) != -1)
+			z = pos.at(index).value();
+		else
+			throw 2;
+		if((index = pos.indexOf("sampleTheta")) != -1)
+			theta = pos.at(index).value();
+		else
+			throw 3;
+		}
+		catch(int) {
+			AMErrorMon::alert(this, -3, "Could not move to the sample because the sample position has not been marked properly. Please report this problem to the REIXS software developers.");
+			notifyFailed();
+			return;
+		}
+	}
+	// Mode 2: manual fixed position:
+	else {
+		x = sampleMoveInfo()->x();
+		y = sampleMoveInfo()->y();
+		z = sampleMoveInfo()->z();
+		theta = sampleMoveInfo()->theta();
 	}
 
 	REIXSSampleChamber* sampleControls = REIXSBeamline::bl()->sampleChamber();
@@ -52,34 +107,38 @@ void REIXSSampleMoveAction::startImplementation()
 		return;
 	}
 
-	const AMControlInfo& xTarget = sampleMoveInfo()->targetPositions().controlNamed("sampleX");
-	const AMControlInfo& yTarget = sampleMoveInfo()->targetPositions().controlNamed("sampleY");
-	const AMControlInfo& zTarget = sampleMoveInfo()->targetPositions().controlNamed("sampleZ");
-	const AMControlInfo& thetaTarget = sampleMoveInfo()->targetPositions().controlNamed("sampleTheta");
 
-	// Add the move actions in order. If we have a negative X move, do that. Then, if there's a negative Y move, do that. This will take us as far as possible away from the slit.  Then do rotation, then Z move. Then do any positive Y move, and finally any positive X move.
+	// This is the old version, that did a complicated sequence of moves to move safely between positions in the vicinity of the entrance slit. Now that we are slitless, we can change this to a Parallel action, and just do the X,Y,Z,Theta moves immediately.
+	////////////////////////////////
 
-	// Move away as far as possible
-	if(xTarget.value() < sampleControls->x()->value()) {
-		addSubAction(new AMInternalControlMoveAction(sampleControls->x(), xTarget.value()));
-	}
-	if(yTarget.value() < sampleControls->y()->value()) {
-		addSubAction(new AMInternalControlMoveAction(sampleControls->y(), yTarget.value()));
-	}
+//	// Add the move actions in order. If we have a negative X move, do that. Then, if there's a negative Y move, do that. This will take us as far as possible away from the slit.  Then do rotation, then Z move. Then do any positive Y move, and finally any positive X move.
 
-	// Now rotation
-	addSubAction(new AMInternalControlMoveAction(sampleControls->r(), thetaTarget.value()));
-	// And height change
-	addSubAction(new AMInternalControlMoveAction(sampleControls->z(), zTarget.value()));
+//	// Move away as far as possible
+//	if(x < sampleControls->x()->value()) {
+//		addSubAction(new AMInternalControlMoveAction(sampleControls->x(), x));
+//	}
+//	if(y < sampleControls->y()->value()) {
+//		addSubAction(new AMInternalControlMoveAction(sampleControls->y(), y));
+//	}
 
-	// Now re-approach
-	if(yTarget.value() > sampleControls->y()->value()) {
-		addSubAction(new AMInternalControlMoveAction(sampleControls->y(), yTarget.value()));
-	}
-	if(xTarget.value() > sampleControls->x()->value()) {
-		addSubAction(new AMInternalControlMoveAction(sampleControls->x(), xTarget.value()));
-	}
+//	// Now rotation
+//	addSubAction(new AMInternalControlMoveAction(sampleControls->r(), theta));
+//	// And height change
+//	addSubAction(new AMInternalControlMoveAction(sampleControls->z(), z));
 
+//	// Now re-approach
+//	if(y > sampleControls->y()->value()) {
+//		addSubAction(new AMInternalControlMoveAction(sampleControls->y(), y));
+//	}
+//	if(x > sampleControls->x()->value()) {
+//		addSubAction(new AMInternalControlMoveAction(sampleControls->x(), x));
+//	}
+	////////////////////////////
+
+	addSubAction(new AMInternalControlMoveAction(sampleControls->x(), x));
+	addSubAction(new AMInternalControlMoveAction(sampleControls->y(), y));
+	addSubAction(new AMInternalControlMoveAction(sampleControls->z(), z));
+	addSubAction(new AMInternalControlMoveAction(sampleControls->r(), theta));
 
 	// Now that those sub-actions are setup, just let AMListAction do its job to run them.
 	AMListAction::startImplementation();

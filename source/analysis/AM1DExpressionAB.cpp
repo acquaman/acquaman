@@ -22,11 +22,15 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMErrorMonitor.h"
 #include "AM1DExpressionABEditor.h"
 #include <limits>
+#include <QDebug>
 
+ AM1DExpressionAB::~AM1DExpressionAB(){}
 AM1DExpressionAB::AM1DExpressionAB(const QString& outputName, QObject* parent)
 	: AMAnalysisBlock(outputName, parent),
 	  axisInfo_(outputName + "_x", 0)
 {
+	currentlySettingInputSources_ = false;
+
 	// We're not using direct evaluation at the start
 	direct_ = xDirect_ = false;
 
@@ -51,6 +55,7 @@ AM1DExpressionAB::AM1DExpressionAB(AMDatabase* db, int id)
 	: AMAnalysisBlock("tempName"),
 	  axisInfo_("tempName_x", 0)
 {
+	currentlySettingInputSources_ = false;
 	// We're not using direct evaluation at the start
 	direct_ = xDirect_ = false;
 
@@ -91,6 +96,8 @@ bool AM1DExpressionAB::areInputDataSourcesAcceptable(const QList<AMDataSource*>&
 // Set the data source inputs.
 /* \note Whenever new input sources are set, if the xExpression() is blank/invalid, it is automatically initialized to the axisValue() of the first input source. Otherwise it, like expression(), is left as it was prior to setting the new inputs. Note that if the names of the new inputs are different, the old expressions will both likely become invalid. */
 void AM1DExpressionAB::setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources) {
+
+	currentlySettingInputSources_ = true;
 
 	QString oldExpression = expression();
 	QString oldXExpression = xExpression();
@@ -142,32 +149,21 @@ void AM1DExpressionAB::setInputDataSourcesImplementation(const QList<AMDataSourc
 
 	// initialize the combination of state flags. These will be kept updated by onInputSourceStateChanged()
 	combinedInputState_ = 0;
-	for(int i=0; i<sources_.count(); i++)
-		combinedInputState_ |= sources_.at(i)->state();
-
-
-	// initialize whether the sizes all match. This will be kept updated by onInputSourceSizeChanged()
-	sizesMatch_ = true;
-	size_ = 0;
-	if(!sources_.isEmpty()) {
-		size_ = sources_.at(0)->size(0);
-		for(int i=1; i<sources_.count(); i++)
-			if(sources_.at(i)->size(0) != size_)
-				sizesMatch_ = false;
-	}
-
+	onInputSourceStateChanged();
 
 	setExpression(oldExpression);
 	setXExpression(oldXExpression);
 
 	// both the setExpression() and setXExpression() calls will end by calling reviewState(), which will call setState() appropriately, given the status of the inputs, their sizes, and the expression validity.
 
+	currentlySettingInputSources_ = false;
+
 }
 
 void AM1DExpressionAB::reviewState() {
 	int state = 0;
 
-	if(inputDataSourceCount() == 0 || !sizesMatch_ || !expressionValid_ || !xExpressionValid_)
+	if(inputDataSourceCount() == 0 || !allUsedSizesMatch() || !expressionValid_ || !xExpressionValid_)
 		state |= AMDataSource::InvalidFlag;
 
 	state |= combinedInputState_;
@@ -223,25 +219,26 @@ AMAxisInfo AM1DExpressionAB::axisInfoAt(int axisNumber) const {
 ////////////////////////////
 
 // Returns the dependent value at a (complete) set of axis indexes. Returns an invalid AMNumber if the indexes are insuffient or any are out of range, or if the data is not ready.
-AMNumber AM1DExpressionAB::value(const AMnDIndex& indexes, bool doBoundsChecking) const {
+AMNumber AM1DExpressionAB::value(const AMnDIndex& indexes) const {
 	if(!isValid())	// will catch most invalid situations: non matching sizes, invalid inputs, invalid expressions.
 		return AMNumber(AMNumber::InvalidError);
 
 	if(indexes.rank() != 1)
 		return AMNumber(AMNumber::DimensionError);
 
-	if(doBoundsChecking)
+#ifdef AM_ENABLE_BOUNDS_CHECKING
 		if(indexes.i() < 0 || indexes.i() >= size_)
 			return AMNumber(AMNumber::OutOfBoundsError);
+#endif
 
 
 	// can we get it directly? Single-value expressions don't require the parser.
 	if(direct_) {
 		// info on which variable to use is contained in directVar_.
 		if(directVar_.useAxisValue)
-			return sources_.at(directVar_.sourceIndex)->axisValue(0, indexes.i(), doBoundsChecking);
+			return sources_.at(directVar_.sourceIndex)->axisValue(0, indexes.i());
 		else
-			return sources_.at(directVar_.sourceIndex)->value(indexes, doBoundsChecking);
+			return sources_.at(directVar_.sourceIndex)->value(indexes);
 	}
 
 	// otherwise we need the parser
@@ -250,9 +247,9 @@ AMNumber AM1DExpressionAB::value(const AMnDIndex& indexes, bool doBoundsChecking
 		for(int i=0; i<usedVariables_.count(); i++) {
 			AMParserVariable* usedVar = usedVariables_.at(i);
 			if(usedVar->useAxisValue)
-				usedVar->value = sources_.at(usedVar->sourceIndex)->axisValue(0, indexes.i(), doBoundsChecking);
+				usedVar->value = sources_.at(usedVar->sourceIndex)->axisValue(0, indexes.i());
 			else
-				usedVar->value = sources_.at(usedVar->sourceIndex)->value(indexes, doBoundsChecking);
+				usedVar->value = sources_.at(usedVar->sourceIndex)->value(indexes);
 		}
 
 		// evaluate using the parser:
@@ -265,34 +262,113 @@ AMNumber AM1DExpressionAB::value(const AMnDIndex& indexes, bool doBoundsChecking
 			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, e.GetCode(), explanation));
 			return AMNumber(AMNumber::InvalidError);
 		}
+		if (rv == std::numeric_limits<qreal>::infinity() || rv == -std::numeric_limits<qreal>::infinity() || rv == std::numeric_limits<qreal>::quiet_NaN() || std::isnan(rv))
+                        return 0;
 
-		if (rv == std::numeric_limits<qreal>::infinity() || rv == -std::numeric_limits<qreal>::infinity() || rv == std::numeric_limits<qreal>::quiet_NaN())
-			return 0;
 
 		return rv;
 	}
 }
 
+bool AM1DExpressionAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
+{
+	if(!isValid())	// will catch most invalid situations: non matching sizes, invalid inputs, invalid expressions.
+		return false;
+
+	if(indexStart.rank() != 1 || indexEnd.rank() != 1)
+		return false;
+
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+		if((unsigned)indexEnd.i() >= (unsigned)size_ || indexStart.i() > indexEnd.i())
+			return false;
+#endif
+
+	int totalSize = indexEnd.i() - indexStart.i() + 1;
+	int offset = indexStart.i();
+
+	// can we get it directly? Single-value expressions don't require the parser.
+	if(direct_) {
+		// info on which variable to use is contained in directVar_.
+		if(directVar_.useAxisValue) {
+			for(int i=0; i<totalSize; i++)
+				outputValues[i] = sources_.at(directVar_.sourceIndex)->axisValue(0, i+offset);	/// \todo Create a AMDataSource::axisValues().
+			return true;
+		}
+		else {
+			return sources_.at(directVar_.sourceIndex)->values(indexStart, indexEnd, outputValues);
+		}
+	}
+
+	// otherwise we need the parser
+	else {
+		// block-copy all of the input data sources (that are actually used in the expression) into allVarData.
+		QList<QVector<double> > allVarData;
+		for(int v=0; v<usedVariables_.count(); ++v) {
+			QVector<double> varData(totalSize);
+
+			AMParserVariable* usedVar = usedVariables_.at(v);
+			if(usedVar->useAxisValue) {
+				for(int i=0; i<totalSize; i++)
+					varData[i] = sources_.at(usedVar->sourceIndex)->axisValue(0, i+offset);
+			}
+			else {
+				bool success = sources_.at(usedVar->sourceIndex)->values(indexStart, indexEnd, varData.data());
+				if(!success)
+					return false;
+			}
+			allVarData << varData;
+		}
+
+		// loop through and parse all values
+		for(int i=0; i<totalSize; ++i) {	// loop through points
+
+			for(int v=0,cc=usedVariables_.count(); v<cc; ++v) {
+				usedVariables_.at(v)->value = allVarData.at(v).at(i);
+			}
+
+			// evaluate using the parser:
+			double rv;
+			try {
+				rv = parser_.Eval();
+			}
+			catch(mu::Parser::exception_type& e) {
+				QString explanation = QString("AM1DExpressionAB Analysis Block: error evaluating value: %1: '%2'.  We found '%3' at position %4.").arg(QString::fromStdString(e.GetMsg()), QString::fromStdString(e.GetExpr()), QString::fromStdString(e.GetToken())).arg(e.GetPos());
+				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, e.GetCode(), explanation));
+				return false;
+			}
+
+			if (rv == std::numeric_limits<qreal>::infinity() || rv == -std::numeric_limits<qreal>::infinity() || rv == std::numeric_limits<qreal>::quiet_NaN() || std::isnan(rv))
+				rv = 0;
+
+			outputValues[i] = rv;
+		}
+
+		return true;
+	}
+}
+
+
 // When the independent values along an axis is not simply the axis index, this returns the independent value along an axis (specified by axis number and index)
-AMNumber AM1DExpressionAB::axisValue(int axisNumber, int index, bool doBoundsChecking) const  {
+AMNumber AM1DExpressionAB::axisValue(int axisNumber, int index) const  {
 	if(!isValid())	// will catch most invalid situations: non matching sizes, invalid inputs, invalid expressions.
 		return AMNumber(AMNumber::InvalidError);
 
 	if(axisNumber != 0)	// someone gave us a multi-dim index for a 1D dataset
 		return AMNumber(AMNumber::DimensionError);
 
-	if(doBoundsChecking)
+#ifdef AM_ENABLE_BOUNDS_CHECKING
 		if(index < 0 || index >= size_)
 			return AMNumber(AMNumber::OutOfBoundsError);
+#endif
 
 
 	// can we get it directly? Single-value expressions don't require the parser.
 	if(xDirect_) {
 		// info on which variable to use is contained in xDirectVar_.
 		if(xDirectVar_.useAxisValue)
-			return sources_.at(xDirectVar_.sourceIndex)->axisValue(0, index, doBoundsChecking);
+			return sources_.at(xDirectVar_.sourceIndex)->axisValue(0, index);
 		else
-			return sources_.at(xDirectVar_.sourceIndex)->value(index, doBoundsChecking);
+			return sources_.at(xDirectVar_.sourceIndex)->value(index);
 	}
 
 	// otherwise we need the parser
@@ -301,9 +377,9 @@ AMNumber AM1DExpressionAB::axisValue(int axisNumber, int index, bool doBoundsChe
 		for(int i=0; i<xUsedVariables_.count(); i++) {
 			AMParserVariable* usedVar = xUsedVariables_.at(i);
 			if(usedVar->useAxisValue)
-				usedVar->value = sources_.at(usedVar->sourceIndex)->axisValue(0, index, doBoundsChecking);
+				usedVar->value = sources_.at(usedVar->sourceIndex)->axisValue(0, index);
 			else
-				usedVar->value = sources_.at(usedVar->sourceIndex)->value(index, doBoundsChecking);
+				usedVar->value = sources_.at(usedVar->sourceIndex)->value(index);
 		}
 
 		// evaluate using the parser:
@@ -329,24 +405,41 @@ void AM1DExpressionAB::onInputSourceValuesChanged(const AMnDIndex& start, const 
 
 // If the inputs change size, this will affect the output state. All the inputs need to be the same size for now, otherwise the result is invalid.
 void AM1DExpressionAB::onInputSourceSizeChanged() {
-	size_ = inputDataSourceAt(0)->size(0);
-	sizesMatch_ = true;
-	for(int i=1; i<inputDataSourceCount(); i++)
-		if(inputDataSourceAt(i)->size(0) != size_)
-			sizesMatch_ = false;
 
-	// anything that could trigger a change in the output validity must call this
+	if (inputDataSourceCount() > 0){
+
+		size_ = inputDataSourceAt(0)->size(0);
+		emitSizeChanged(0);
+	}
+
 	reviewState();
 }
 
 // If the inputs change state, this will affect the output state.  If any inputs are InvalidState, then the output is InvalidState.  If any of the inputs are in ProcessingState, then the output is ProcessingState. Otherwise, it's ReadyState.
 void AM1DExpressionAB::onInputSourceStateChanged() {
 	combinedInputState_ = 0;
-	for(int i=0; i<inputDataSourceCount(); i++)
-		combinedInputState_ |= inputDataSourceAt(i)->state();
+	for(int i = 0; i < usedVariables_.size(); i++)
+		combinedInputState_ |= inputDataSourceAt(usedVariables_.at(i)->sourceIndex)->state();
 
 	// anything that could trigger a change in the output validity must call this
 	reviewState();
+}
+
+bool AM1DExpressionAB::allUsedSizesMatch() const
+{
+	int size = -1;
+	bool sizesMatch = true;
+
+	foreach (AMParserVariable *var, usedVariables_){
+
+		if (size == -1)
+			size = inputDataSourceAt(var->sourceIndex)->size(0);
+
+		else if (size != inputDataSourceAt(var->sourceIndex)->size(0))
+			sizesMatch = false;
+	}
+
+	return sizesMatch;
 }
 
 // Check if a given expression string is valid (for the current set of inputs)
@@ -417,10 +510,14 @@ bool AM1DExpressionAB::setExpression(const QString& newExpression) {
 		expressionValid_ = false;
 	}
 
-
 	// anything that could trigger a change in the output validity must call this
+	onInputSourceStateChanged();
+	onInputSourceSizeChanged();
 	reviewState();
 	emitValuesChanged();
+
+	if(!currentlySettingInputSources_)
+		setModified(true);
 
 	return expressionValid_;
 }
@@ -476,20 +573,14 @@ bool AM1DExpressionAB::setXExpression(const QString& xExpressionIn) {
 		xExpressionValid_ = false;
 	}
 
+	onInputSourceStateChanged();
+	onInputSourceSizeChanged();
 	// anything that could trigger a change in the output validity must call this
 	reviewState();
 	emitValuesChanged();	/// \todo: actually, we mean that the axis values changed. How to signal that?
 
+	if(!currentlySettingInputSources_)
+		setModified(true);
+
 	return xExpressionValid_;
 }
-
-
-
-
-
-
-
-
-
-
-

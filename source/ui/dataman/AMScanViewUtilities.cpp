@@ -137,7 +137,7 @@ void AMScanViewScanBar::onRowInserted(const QModelIndex& parent, int start, int 
 
 		newButton->setContextMenuPolicy(Qt::CustomContextMenu);
 		connect(newButton, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onDataSourceButtonRightClicked(QPoint)));
-		// qDebug() << "added a data source. exclusiveModeOn is: " << exclusiveModeOn_ << ", source name is:" << source->dataSourceAt(i)->name() << ", exclusiveDataSourceName is:" << model_->exclusiveDataSourceName();
+		// qdebug() << "added a data source. exclusiveModeOn is: " << exclusiveModeOn_ << ", source name is:" << source->dataSourceAt(i)->name() << ", exclusiveDataSourceName is:" << model_->exclusiveDataSourceName();
 	}
 
 }
@@ -250,8 +250,6 @@ AMScanViewScanBarContextMenu::AMScanViewScanBarContextMenu(AMScanSetModel *model
 	: QMenu(parent)
 {
 	model_ = model;
-	scanIndex_ = scanIndex;
-	dataSourceIndex_ = dataSourceIndex;
 	QModelIndex di = model_->indexForDataSource(scanIndex, dataSourceIndex);
 	pi_ = QPersistentModelIndex(di);
 
@@ -265,12 +263,16 @@ AMScanViewScanBarContextMenu::AMScanViewScanBarContextMenu(AMScanSetModel *model
 	if(dataSourceDescription != dataSourceName)
 		addAction(dataSourceDescription)->setDisabled(true);
 	addSeparator();
-	connect(addAction("Hide all except " % dataSourceName), SIGNAL(triggered()), this, SLOT(hideAllExceptDataSource()));
+	addAction("For this scan:")->setEnabled(false);
+	connect(addAction("   Show all"), SIGNAL(triggered()), this, SLOT(showAll()));
+	connect(addAction("   Hide all except " % dataSourceName), SIGNAL(triggered()), this, SLOT(hideAllExceptDataSource()));
+	addSeparator();
 	if(model_->scanCount() > 1)
-		connect(addAction("Show all " % dataSourceName), SIGNAL(triggered()), this, SLOT(showAllDataSource()));
-	connect(addAction("Show all"), SIGNAL(triggered()), this, SLOT(showAll()));
+		connect(addAction("Show only " % dataSourceName), SIGNAL(triggered()), this, SLOT(showAllDataSource()));
 	addSeparator();
 	connect(addAction("Color and style..."), SIGNAL(triggered()), this, SLOT(editColorAndStyle()));
+	addSeparator();
+	connect(addAction("Remember Visibility"), SIGNAL(triggered()), model_, SLOT(saveVisibility()));
 
 	connect(this, SIGNAL(aboutToHide()), this, SLOT(deleteLater()));
 }
@@ -281,7 +283,13 @@ AMScanViewScanBarContextMenu::~AMScanViewScanBarContextMenu() {
 
 void AMScanViewScanBarContextMenu::hideAllExceptDataSource()
 {
-	AMScan *scan = model_->scanAt(scanIndex_);
+	if(!pi_.isValid())
+		return;
+
+	int scanIndex = pi_.parent().row();
+	int dataSourceIndex = pi_.row();
+
+	AMScan *scan = model_->scanAt(scanIndex);
 	if (!scan)
 		return;
 
@@ -289,17 +297,23 @@ void AMScanViewScanBarContextMenu::hideAllExceptDataSource()
 
 	for (int i = 0; i < dataSourceCount; i++){
 
-		if (i == dataSourceIndex_)
-			model_->setVisible(scanIndex_, i, true);
+		if (i == dataSourceIndex)
+			model_->setVisible(scanIndex, i, true);
 
 		else
-			model_->setVisible(scanIndex_, i, false);
+			model_->setVisible(scanIndex, i, false);
 	}
 }
 
 void AMScanViewScanBarContextMenu::showAllDataSource()
 {
-	QString nameOfDataSource(model_->dataSourceAt(scanIndex_, dataSourceIndex_)->name());
+	if(!pi_.isValid())
+		return;
+
+	int scanIndex = pi_.parent().row();
+	int dataSourceIndex = pi_.row();
+
+	QString nameOfDataSource(model_->dataSourceAt(scanIndex, dataSourceIndex)->name());
 	int scanCount = model_->scanCount();
 	int dataSourceCount = 0;
 
@@ -320,14 +334,19 @@ void AMScanViewScanBarContextMenu::showAllDataSource()
 
 void AMScanViewScanBarContextMenu::showAll()
 {
-	AMScan *scan = model_->scanAt(scanIndex_);
+	if(!pi_.isValid())
+		return;
+
+	int scanIndex = pi_.parent().row();
+
+	AMScan *scan = model_->scanAt(scanIndex);
 	if (!scan)
 		return;
 
 	int dataSourceCount = scan->dataSourceCount();
 
 	for (int i = 0; i < dataSourceCount; i++)
-		model_->setVisible(scanIndex_, i, true);
+		model_->setVisible(scanIndex, i, true);
 }
 
 #include "ui/dataman/AMScanSetItemPropertyDialog.h"
@@ -338,3 +357,535 @@ void AMScanViewScanBarContextMenu::editColorAndStyle()
 		pd->show();
 	}
 }
+
+// AMScanViewSingleSpectrumView
+//////////////////////////////////////////////////
+
+#include "MPlot/MPlotTools.h"
+
+#include <QCheckBox>
+#include <QPushButton>
+
+ AMScanViewSingleSpectrumView::~AMScanViewSingleSpectrumView(){}
+AMScanViewSingleSpectrumView::AMScanViewSingleSpectrumView(QWidget *parent)
+	: QWidget(parent)
+{
+	addMultipleSpectra_ = false;
+
+	x_.resize(0);
+	sourceButtons_ = new QButtonGroup;
+	sourceButtons_->setExclusive(false);
+	connect(sourceButtons_, SIGNAL(buttonClicked(int)), this, SLOT(onCheckBoxChanged(int)));
+
+	setupPlot();
+
+	plot_->setMinimumSize(600, 400);
+	plot_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+
+	table_ = new AMSelectablePeriodicTable(this);
+	table_->buildPeriodicTable();
+	connect(table_, SIGNAL(elementSelected(AMElement*)), this, SLOT(onElementSelected(AMElement*)));
+	connect(table_, SIGNAL(elementDeselected(AMElement*)), this, SLOT(onElementDeselected(AMElement*)));
+	tableView_ = new AMSelectablePeriodicTableView(table_);
+	tableView_->buildPeriodicTableView();
+
+	QVBoxLayout *layout = new QVBoxLayout;
+	layout->addWidget(plot_);
+	layout->addWidget(tableView_, 0, Qt::AlignCenter);
+
+	sourceButtonsLayout_ = new QVBoxLayout;
+	sourceButtonsLayout_->addWidget(new QLabel("Available Spectra"), 0, Qt::AlignLeft);
+	sourceButtonsLayout_->addStretch();
+
+	logEnableButton_ = new QPushButton("Logarithmic");
+	logEnableButton_->setCheckable(true);
+	connect(logEnableButton_, SIGNAL(toggled(bool)), this, SLOT(onLogScaleEnabled(bool)));
+
+	minimum_ = new QDoubleSpinBox;
+	minimum_->setSuffix(" eV");
+	minimum_->setDecimals(0);
+	minimum_->setRange(0, 1000000);
+	connect(minimum_, SIGNAL(editingFinished()), this, SLOT(onMinimumChanged()));
+
+	maximum_ = new QDoubleSpinBox;
+	maximum_->setSuffix(" eV");
+	maximum_->setDecimals(0);
+	maximum_->setRange(0, 1000000);
+	connect(maximum_, SIGNAL(editingFinished()), this, SLOT(onMaximumChanged()));
+
+	exportButton_ = new QPushButton(QIcon(":/save.png"), "Save to file...");
+	exportButton_->setEnabled(false);
+	connect(exportButton_, SIGNAL(clicked()), this, SLOT(onExportClicked()));
+
+	QVBoxLayout *rightLayout = new QVBoxLayout;
+	rightLayout->addLayout(sourceButtonsLayout_);
+	rightLayout->addStretch();
+	rightLayout->addWidget(new QLabel("Left Axis Scale"));
+	rightLayout->addWidget(logEnableButton_);
+	rightLayout->addWidget(new QLabel("Min. Energy"));
+	rightLayout->addWidget(minimum_);
+	rightLayout->addWidget(new QLabel("Max. Energy"));
+	rightLayout->addWidget(maximum_);
+	rightLayout->addWidget(exportButton_);
+
+	QHBoxLayout *fullLayout = new QHBoxLayout;
+	fullLayout->addLayout(layout);
+	fullLayout->addLayout(rightLayout);
+
+	setLayout(fullLayout);
+}
+
+void AMScanViewSingleSpectrumView::setupPlot()
+{
+	MPlot *plot = new MPlot;
+	plot_ = new MPlotWidget(this);
+	plot_->setPlot(plot);
+
+	plot_->plot()->plotArea()->setBrush(QBrush(Qt::white));
+	plot_->plot()->axisBottom()->setTicks(5);
+	plot_->plot()->axisLeft()->setTicks(5);
+	plot_->plot()->axisBottom()->setAxisNameFont(QFont("Helvetica", 6));
+	plot_->plot()->axisBottom()->setTickLabelFont(QFont("Helvetica", 6));
+	plot_->plot()->axisBottom()->showAxisName(true);
+	plot_->plot()->axisLeft()->showAxisName(false);
+
+	// Set the margins for the plot.
+	plot_->plot()->setMarginLeft(10);
+	plot_->plot()->setMarginBottom(15);
+	plot_->plot()->setMarginRight(2);
+	plot_->plot()->setMarginTop(2);
+
+	plot_->plot()->addTool(new MPlotDragZoomerTool());
+	plot_->plot()->addTool(new MPlotWheelZoomerTool());
+}
+
+void AMScanViewSingleSpectrumView::onElementSelected(AMElement *element)
+{
+	QList<AMEmissionLine> lines = element->emissionLines();
+	QColor color = AMDataSourcePlotSettings::nextColor();
+	MPlotPoint *newLine;
+
+	foreach(AMEmissionLine line, lines){
+
+		if (range_.withinRange(line.energy())
+				&& line.lineName().contains("1") && line.name().compare("-"))	{
+
+			newLine = new MPlotPoint(QPointF(line.energy(), 0));
+			newLine->setMarker(MPlotMarkerShape::VerticalBeam, 1e6, QPen(color), QBrush(color));
+			newLine->setDescription(line.greekName() % ": " % line.energyString() % " eV");
+			plot_->plot()->addItem(newLine);
+		}
+	}
+}
+
+void AMScanViewSingleSpectrumView::onElementDeselected(AMElement *element)
+{
+	QString symbol = element->symbol();
+	MPlot *plot = plot_->plot();
+
+	foreach(MPlotItem *item, plot->plotItems()){
+
+            if (item->description().contains(QRegExp(QString("^%1 (K|L|M)").arg(symbol))))
+                if (plot->removeItem(item))
+                    delete item;
+	}
+}
+
+void AMScanViewSingleSpectrumView::onLogScaleEnabled(bool enable)
+{
+	if (enable){
+
+		plot_->plot()->axisScaleLeft()->setDataRangeConstraint(MPlotAxisRange(1, MPLOT_POS_INFINITY));
+		logEnableButton_->setText("Linear");
+	}
+
+	else {
+
+		plot_->plot()->axisScaleLeft()->setDataRangeConstraint(MPlotAxisRange(MPLOT_NEG_INFINITY, MPLOT_POS_INFINITY));
+		logEnableButton_->setText("Logarithmic");
+	}
+
+	plot_->plot()->axisScaleLeft()->setLogScaleEnabled(enable);
+}
+
+void AMScanViewSingleSpectrumView::setPlotRange(double low, double high)
+{
+	range_ = AMRange(low, high);
+	tableView_->setEnergyRange(low, high);
+
+	if (low != minimum_->value()){
+
+		minimum_->blockSignals(true);
+		minimum_->setValue(low);
+		minimum_->blockSignals(false);
+	}
+
+	if (high != maximum_->value()){
+
+		maximum_->blockSignals(true);
+		maximum_->setValue(high);
+		maximum_->blockSignals(false);
+	}
+
+	foreach(AMElement *element, table_->selectedElements())
+		onElementDeselected(element);
+
+	foreach(AMElement *element, table_->selectedElements())
+		onElementSelected(element);
+}
+
+void AMScanViewSingleSpectrumView::onMinimumChanged()
+{
+	setPlotRange(minimum_->value(), range_.maximum());
+}
+
+void AMScanViewSingleSpectrumView::onMaximumChanged()
+{
+	setPlotRange(range_.minimum(), maximum_->value());
+}
+
+void AMScanViewSingleSpectrumView::onDataPositionChanged(AMnDIndex index)
+{
+	if (isVisible()){
+
+		addMultipleSpectra_ = false;
+		updatePlot(index);
+	}
+}
+
+void AMScanViewSingleSpectrumView::onSelectedRectChanged(AMnDIndex start, AMnDIndex end)
+{
+	if (isVisible()){
+
+		addMultipleSpectra_ = true;
+		updatePlot(start, end);
+	}
+}
+
+void AMScanViewSingleSpectrumView::setAxisInfo(AMAxisInfo info, bool propogateToPlotRange)
+{
+	if (info.units.isEmpty())
+		plot_->plot()->axisBottom()->setAxisName(info.name);
+
+	else
+		plot_->plot()->axisBottom()->setAxisName(info.name % ", " % info.units);
+
+	x_.resize(info.size);
+
+	for (int i = 0; i < info.size; i++)
+		x_[i] = double(info.start) + i*double(info.increment);
+
+	if (propogateToPlotRange)
+		setPlotRange(double(info.start), double(info.start) + info.size*double(info.increment));
+}
+
+void AMScanViewSingleSpectrumView::onCheckBoxChanged(int id)
+{
+	if (sourceButtons_->button(id)->isChecked()){
+
+		plot_->plot()->addItem(series_.at(id));
+		updatePlot(id);
+	}
+
+	else
+		plot_->plot()->removeItem(series_.at(id));
+
+	exportButton_->setEnabled(plot_->plot()->numItems() > 0);
+}
+
+void AMScanViewSingleSpectrumView::updatePlot(const AMnDIndex &index)
+{
+	if (!sources_.isEmpty() && index.rank() == sources_.first()->rank()-1){
+
+		int size = sources_.first()->size(index.rank())-1;
+
+		switch(sources_.first()->rank()){
+
+		case 0: // 0D data source.  Not possible.
+			break;
+
+		case 1:	// 1D data source.  0D scan rank.
+
+			startIndex_ = AMnDIndex(0);
+			endIndex_ = AMnDIndex(size);
+			break;
+
+		case 2:	// 2D data source.  1D scan rank.
+
+			startIndex_ = AMnDIndex(index.i(), 0);
+			endIndex_ = AMnDIndex(index.i(), size);
+			break;
+
+		case 3:	// 3D data source.  2D scan rank.
+
+			startIndex_ = AMnDIndex(index.i(), index.j(), 0);
+			endIndex_ = AMnDIndex(index.i(), index.j(), size);
+			break;
+		}
+	}
+
+	for (int i = 0, count = sourceButtons_->buttons().size(); i < count; i++)
+		if (sourceButtons_->button(i)->isChecked())
+			updatePlot(i);
+}
+
+void AMScanViewSingleSpectrumView::updatePlot(const AMnDIndex &start, const AMnDIndex &end)
+{
+	if (!sources_.isEmpty() && start.rank() == sources_.first()->rank()-1 && start.rank() == end.rank()){
+
+		int size = sources_.first()->size(start.rank())-1;
+
+		switch(sources_.first()->rank()){
+
+		case 0: // 0D data source.  Not possible.
+			break;
+
+		case 1:	// 1D data source.  0D scan rank.
+
+			startIndex_ = AMnDIndex(0);
+			endIndex_ = AMnDIndex(size);
+			break;
+
+		case 2:	// 2D data source.  1D scan rank.
+
+			startIndex_ = AMnDIndex(start.i(), 0);
+			endIndex_ = AMnDIndex(end.i(), size);
+			break;
+
+		case 3:	// 3D data source.  2D scan rank.
+
+			startIndex_ = AMnDIndex(start.i(), start.j(), 0);
+			endIndex_ = AMnDIndex(end.i(), end.j(), size);
+			break;
+		}
+	}
+
+	for (int i = 0, count = sourceButtons_->buttons().size(); i < count; i++)
+		if (sourceButtons_->button(i)->isChecked())
+			updatePlot(i);
+}
+
+void AMScanViewSingleSpectrumView::updatePlot(int id)
+{
+	AMDataSource *source = sources_.at(id);
+
+	// If any AMDataSource::values() calls fail, the output should be set to zero to minimize the chance of using a bad data inside of the model.
+	if (!addMultipleSpectra_){
+
+		QVector<double> data(source->size(source->rank()-1));
+
+		if (!source->values(startIndex_, endIndex_, data.data()))
+			data.fill(0);
+
+		models_.at(id)->setValues(x_, data);
+	}
+
+	else {
+
+		switch(startIndex_.rank()){
+
+		case 1:{	// 1D data source.  0D scan rank.
+
+			QVector<double> output = QVector<double>(source->size(source->rank()-1), 0);
+
+			if (!source->values(AMnDIndex(0), AMnDIndex(output.size()-1), output.data()))
+				output.fill(0);
+
+			models_.at(id)->setValues(x_, output);
+
+			break;
+		}
+
+		case 2:{	// 2D data source.  1D scan rank.
+
+			QVector<double> output = QVector<double>(source->size(source->rank()-1), 0);
+			QVector<double> data = QVector<double>(source->size(source->rank()-1), 0);
+			bool valuesSuccess = true;
+
+			for (int i = startIndex_.i(), iSize = endIndex_.i()+1; i < iSize && valuesSuccess; i++){
+
+				valuesSuccess = source->values(AMnDIndex(i, 0), AMnDIndex(i, output.size()-1), data.data());
+
+				for (int j = 0, jSize = output.size(); j < jSize && valuesSuccess; j++)
+					output[j] += data.at(j);
+			}
+
+			if (!valuesSuccess)
+				output.fill(0);
+
+			models_.at(id)->setValues(x_, output);
+
+			break;
+		}
+
+		case 3:{	// 3D data source.  2D scan rank.
+
+			QVector<double> output = QVector<double>(source->size(source->rank()-1), 0);
+			QVector<double> data = QVector<double>(source->size(source->rank()-1), 0);
+			bool valuesSuccess = true;
+
+			for (int i = startIndex_.i(), iSize = endIndex_.i()+1; i < iSize && valuesSuccess; i++)
+				for (int j = startIndex_.j(), jSize = endIndex_.j()+1; j < jSize && valuesSuccess; j++){
+
+					valuesSuccess = source->values(AMnDIndex(i, j, 0), AMnDIndex(i, j, output.size()-1), data.data());
+
+					for (int k = 0, kSize = output.size(); k < kSize && valuesSuccess; k++)
+						output[k] += data.at(k);
+				}
+
+			if (!valuesSuccess)
+				output.fill(0);
+
+			models_.at(id)->setValues(x_, output);
+
+			break;
+		}
+		}
+	}
+}
+
+void AMScanViewSingleSpectrumView::setDataSourceByName(const QString &name)
+{
+	for (int i = 0, count = sources_.size(); i < count; i++)
+		if (sources_.at(i)->name() == name)
+			sourceButtons_->button(i)->click();
+
+	updatePlot();
+}
+
+void AMScanViewSingleSpectrumView::setDataSources(QList<AMDataSource *> sources)
+{
+	// Clean out the old buttons and models.
+	QList<QAbstractButton *> buttons = sourceButtons_->buttons();
+
+	foreach (QAbstractButton *button, buttons){
+
+		sourceButtons_->removeButton(button);
+		sourceButtonsLayout_->removeWidget(button);
+		delete button;
+	}
+
+	buttons.clear();
+
+	foreach (MPlotItem *item, plot_->plot()->plotItems())
+		if (item->type() == MPlotItem::Series)
+			plot_->plot()->removeItem(item);
+
+	foreach (MPlotSeriesBasic *series, series_)
+		delete series;
+
+	series_.clear();
+
+	foreach (MPlotVectorSeriesData *model, models_)
+		delete model;
+
+	models_.clear();
+
+	// Fill in the button groups and models.
+	sources_ = sources;
+
+	foreach (AMDataSource *source, sources_)
+		connect(source->signalSource(), SIGNAL(axisInfoChanged(int)), this, SLOT(onAxisInfoChanged()));
+
+	QAbstractButton *button = 0;
+	AMDataSource *source = 0;
+	MPlotVectorSeriesData *model = 0;
+	MPlotSeriesBasic *series;
+
+	for (int i = 0, count = sources_.size(); i < count; i++){
+
+		source = sources_.at(i);
+		button = new QCheckBox(source->name());
+		sourceButtons_->addButton(button, i);
+		sourceButtonsLayout_->insertWidget(sourceButtonsLayout_->count()-1, button, 0, Qt::AlignLeft);
+
+		model = new MPlotVectorSeriesData;
+		series = new MPlotSeriesBasic(model);
+		series->setMarker(MPlotMarkerShape::None);
+		series->setDescription(source->description());
+		series->setLinePen(AMDataSourcePlotSettings().linePen);
+		models_.append(model);
+		series_.append(series);
+	}
+
+	// Setup the plot's independant axis.
+	if (!sources_.isEmpty()){
+
+		onAxisInfoChanged();
+	}
+}
+
+void AMScanViewSingleSpectrumView::onAxisInfoChanged()
+{
+	AMAxisInfo info = sources_.first()->axisInfoAt(sources_.first()->rank()-1);
+
+	if (info.units.isEmpty())
+		plot_->plot()->axisBottom()->setAxisName(info.name);
+
+	else
+		plot_->plot()->axisBottom()->setAxisName(info.name % ", " % info.units);
+
+	x_.resize(info.size);
+
+	for (int i = 0; i < info.size; i++)
+		x_[i] = double(info.start) + i*double(info.increment);
+
+	setPlotRange(double(info.start), double(info.start) + info.size*double(info.increment));
+}
+
+#include <QFileDialog>
+#include <QMessageBox>
+
+void AMScanViewSingleSpectrumView::onExportClicked()
+{
+	QString filename = QFileDialog::getSaveFileName(this, "Choose file name for data.", QString(), "Data files (*.dat);;All files (*)");
+
+	if (!filename.isEmpty() && !filename.endsWith(".dat"))
+		filename.append(".dat");
+
+	if (!filename.isEmpty() && !exportToFile(filename))
+		QMessageBox::warning(this, "Unable to save!", "The file was unable to save correctly.  Maybe the file path does not exist?", QMessageBox::Ok);
+}
+
+#include <QFile>
+#include <QTextStream>
+
+bool AMScanViewSingleSpectrumView::exportToFile(const QString &filename) const
+{
+	QFile file(filename);
+
+	if (!file.open(QFile::WriteOnly))
+		return false;
+
+	// Get the checked sources.
+	QList<int> sources;
+
+	for (int i = 0, size = sourceButtons_->buttons().size(); i < size; i++)
+		if (sourceButtons_->button(i)->isChecked())
+			sources << i;
+
+	QTextStream out(&file);
+
+	out << "Spectra from the show spectra view\n";
+	out << "Energy";
+
+	for (int i = 0, size = sources.size(); i < size; i++)
+		out << QString("\t%1").arg(sourceButtons_->button(sources.at(i))->text());
+
+	out << "\n";
+
+	for (int i = 0, size = x_.size(); i < size; i++){
+
+		out << QString::number(x_.at(i));
+
+		for (int j = 0, modelSize = sources.size(); j < modelSize; j++)
+			out << QString("\t%1").arg(models_.at(sources.at(j))->y(i));
+
+		out << "\n";
+	}
+
+	file.close();
+
+	return true;
+}
+ AMScanViewSourceSelector::~AMScanViewSourceSelector(){}

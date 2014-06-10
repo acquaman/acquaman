@@ -21,45 +21,68 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMPeriodicTable.h"
 
 #include <QFile>
-#include <QMessageBox>
 #include <QTextStream>
-#include <QDebug>
+
+#include "util/AMErrorMonitor.h"
 
 // Singleton instance
 AMPeriodicTable* AMPeriodicTable::instance_ = 0;
 
+ AMPeriodicTable::~AMPeriodicTable(){}
 AMPeriodicTable::AMPeriodicTable(QObject *parent) :
 	QObject(parent)
 {
 	QFile file(":/ElementalInformation.txt");
 
+//<<<<<<< HEAD
+//    if (!file.open(QFile::ReadOnly | QFile::Text)){
+//        emit unableToLoad(file.fileName(), file.errorString());
+//=======
 	if (!file.open(QFile::ReadOnly | QFile::Text)){
-		emit unableToLoad(file.fileName(), file.errorString());
+		AMErrorMon::error(this, AMPERIODICTABLE_COULD_NOT_LOAD_ELEMENTAL_INFORMATION, "There was an error loading the elemental information for the periodic table.  Elemental information throughout the program may no longer be defined.");
+//>>>>>>> SGM_Release
 		return;
 	}
 
 	QTextStream in(&file);
 
-	AMElement *temp = 0;
-	QStringList current;
-
 	while(!in.atEnd()){
 
-		current << in.readLine().split(",");
+		QStringList current = in.readLine().split(",");
+
 		switch(current.size()){
+
 		case 3:
-			temp = new AMElement(current.first(), current.at(1), current.at(2), QStringList(), QStringList());
+			periodicTable_ << new AMElement(current.first(), current.at(1), current.at(2), QStringList(), QStringList());
 			break;
+
 		case 4:
-			temp = new AMElement(current.first(), current.at(1), current.at(2), ((QString)(current.at(3))).split(" "), QStringList());
+			periodicTable_ << new AMElement(current.first(), current.at(1), current.at(2), ((QString)(current.at(3))).split(" "), QStringList());
 			break;
+
 		case 5:
-			temp = new AMElement(current.first(), current.at(1), current.at(2), ((QString)(current.at(3))).split(" "), ((QString)(current.at(4))).split(" "));
+			periodicTable_ << new AMElement(current.first(), current.at(1), current.at(2), ((QString)(current.at(3))).split(" "), ((QString)(current.at(4))).split(" "));
 			break;
 		}
-		periodicTable_ << temp;
-		current.clear();
 	}
 
 	file.close();
+}
+
+AMElement *AMPeriodicTable::elementByName(QString name) const
+{
+	for (int i = 0; i < periodicTable_.size(); i++)
+		if (periodicTable_.at(i)->name() == name)
+			return periodicTable_.at(i);
+
+	return 0;
+}
+
+AMElement *AMPeriodicTable::elementBySymbol(QString symbol) const
+{
+	for (int i = 0; i < periodicTable_.size(); i++)
+		if (periodicTable_.at(i)->symbol() == symbol)
+			return periodicTable_.at(i);
+
+	return 0;
 }

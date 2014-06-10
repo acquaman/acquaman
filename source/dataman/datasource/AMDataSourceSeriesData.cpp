@@ -20,6 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMDataSourceSeriesData.h"
 
+ AMDataSourceSeriesData::~AMDataSourceSeriesData(){}
 AMDataSourceSeriesData::AMDataSourceSeriesData(const AMDataSource* dataSource, QObject* parent)
 	: QObject(parent), MPlotAbstractSeriesData()
 {

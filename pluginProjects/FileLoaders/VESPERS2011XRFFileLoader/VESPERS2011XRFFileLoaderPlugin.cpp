@@ -19,7 +19,7 @@ bool VESPERS2011XRFFileLoaderPlugin::accepts(AMScan *scan)
 	return false;
 }
 
-bool VESPERS2011XRFFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolder)
+bool VESPERS2011XRFFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolder, AMErrorMon *errorMonitor)
 {
 	// Check for null scan reference.
 	if (!scan)
@@ -31,7 +31,7 @@ bool VESPERS2011XRFFileLoaderPlugin::load(AMScan *scan, const QString &userDataF
 
 	QFile file(sourceFileInfo.filePath());
 	if(!file.open(QIODevice::ReadOnly)) {
-		AMErrorMon::error(0, -1, "XRFFileLoader parse error while loading scan data from file.");
+		errorMonitor->exteriorReport(AMErrorReport(0, AMErrorReport::Serious, VESPERS2011XRFFILELOADERPLUGIN_CANNOT_OPEN_FILE, "XRFFileLoader parse error while loading scan data from file."));
 		return false;
 	}
 
@@ -51,8 +51,7 @@ bool VESPERS2011XRFFileLoaderPlugin::load(AMScan *scan, const QString &userDataF
 	else if (scan->rawDataSourceCount() == 12)
 		elements = 4;
 	else{
-
-		AMErrorMon::alert(0, -1, "XRFFileLoader cannot recognize file.");
+		errorMonitor->exteriorReport(AMErrorReport(0, AMErrorReport::Alert, VESPERS2011XRFFILELOADERPLUGIN_UNRECOGNIZED_FILE_TYPE, "XRFFileLoader cannot recognize file."));
 		return false;
 	}
 
@@ -76,7 +75,7 @@ bool VESPERS2011XRFFileLoaderPlugin::load(AMScan *scan, const QString &userDataF
 			axisInfo << ai;
 
 			scan->rawData()->addMeasurement(AMMeasurementInfo(QString("Element %1").arg(i+1), QString("Element %1").arg(i+1), "eV", axisInfo));
-			scan->rawData()->setValue(AMnDIndex(), i, data.constData(), data.size());
+			scan->rawData()->setValue(AMnDIndex(), i, data.constData());
 		}
 		else{
 

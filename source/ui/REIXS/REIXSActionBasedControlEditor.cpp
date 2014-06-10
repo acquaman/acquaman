@@ -18,17 +18,20 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "REIXSActionBasedControlEditor.h"
-#include "actions2/actions/REIXS/REIXSControlMoveAction.h"
-#include "actions2/AMActionRunner.h"
 #include "util/AMErrorMonitor.h"
+#include "beamline/AMControl.h"
+#include "actions3/AMAction3.h"
+#include "actions3/actions/AMControlMoveAction3.h"
 
 #include <QApplication>
 
 REIXSActionBasedControlEditor::REIXSActionBasedControlEditor(AMControl* control, bool okToRunInBackground, QWidget *parent) :
-	AMBasicControlEditor(control, parent)
+	AMControlEditor(control, 0, parent)
 {
 	okToRunInBackground_ = okToRunInBackground;
 }
+
+REIXSActionBasedControlEditor::~REIXSActionBasedControlEditor(){}
 
 void REIXSActionBasedControlEditor::onNewSetpointChosen(double value)
 {
@@ -39,19 +42,18 @@ void REIXSActionBasedControlEditor::onNewSetpointChosen(double value)
 	setpoint.setValue(value);
 
 	if(okToRunInBackground_) {
-		AMAction* action = new REIXSControlMoveAction(new REIXSControlMoveActionInfo(setpoint));
-		AMActionRunner::s()->runActionImmediately(action);
+		AMAction3* action = new AMControlMoveAction3(new AMControlMoveActionInfo3(setpoint), control_);
+		connect(action, SIGNAL(succeeded()), action, SLOT(deleteLater()));
+		connect(action, SIGNAL(failed()), action, SLOT(deleteLater()));
+		connect(action, SIGNAL(cancelled()), action, SLOT(deleteLater()));
+		action->start();
 	}
 	else {
-		if(AMActionRunner::s()->actionRunning()) {
-			QApplication::beep();
-			// cannot run, because other actions are running in the queue.
-			AMErrorMon::alert(this, -1, QString("Cannot move '%1' right now, because this would interfere with other actions that are currently running in the workflow. You can try again when they are finished, or pause the workflow queue.").arg(control_->description().isEmpty() ? control_->name() : control_->description()));
-			return;
-		}
-		else {
-			AMAction* action = new REIXSControlMoveAction(new REIXSControlMoveActionInfo(setpoint));
-			AMActionRunner::s()->runActionImmediatelyInQueue(action);
-		}
+
+		AMAction3* action = new AMControlMoveAction3(new AMControlMoveActionInfo3(setpoint), control_);
+		connect(action, SIGNAL(succeeded()), action, SLOT(deleteLater()));
+		connect(action, SIGNAL(failed()), action, SLOT(deleteLater()));
+		connect(action, SIGNAL(cancelled()), action, SLOT(deleteLater()));
+		action->start();
 	}
 }

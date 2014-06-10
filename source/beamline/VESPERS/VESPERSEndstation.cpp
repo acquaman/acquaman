@@ -26,29 +26,27 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QFile>
 #include <QTextStream>
 
-VESPERSEndstation::VESPERSEndstation(AMControl *normal, QObject *parent)
+ VESPERSEndstation::~VESPERSEndstation(){}
+VESPERSEndstation::VESPERSEndstation(QObject *parent)
 	: QObject(parent)
 {
 	current_ = 0;
 	wasConnected_ = false;
 
 	// The controls used for the control window.
-	ccdControl_ = new CLSMAXvMotor("CCD motor", "SMTR1607-2-B21-18", "CCD motor", false, 1.0, 2.0, this);
+	ccdControl_ = new CLSMAXvMotor("CCD motor", "SMTR1607-2-B21-18", "CCD motor", true, 1.0, 2.0, this);
 	microscopeControl_ = new CLSMAXvMotor("Microscope motor", "SMTR1607-2-B21-17", "Microscope motor", false, 1.0, 2.0, this);
-	fourElControl_ = new CLSMAXvMotor("4-Element Vortex motor", "SMTR1607-2-B21-27", "4-Element Vortex motor", false, 1.0, 2.0, this);
-	singleElControl_ = new CLSMAXvMotor("1-Element Vortex motor", "SMTR1607-2-B21-15", "1-Element Vortex motor", false, 1.0, 2.0, this);
+	fourElControl_ = new CLSMAXvMotor("4-Element Vortex motor", "SMTR1607-2-B21-27", "4-Element Vortex motor", true, 1.0, 2.0, this);
+	singleElControl_ = new CLSMAXvMotor("1-Element Vortex motor", "SMTR1607-2-B21-15", "1-Element Vortex motor", true, 1.0, 2.0, this);
 
-	focusControl_ = normal;
+	laserPositionControl_ = new AMReadOnlyPVControl("Laser Position", "PSD1607-2-B20-01:OUT1:fbk", this);
+	laserPositionStatusControl_ = new AMReadOnlyPVControl("Laser Position Status", "PSD1607-2-B20-01:OUT1:fbk:status", this);
 
 	// Microscope light PV.
 	micLightPV_ = new AMProcessVariable("07B2_PLC_Mic_Light_Inten", true, this);
-	micLightPV_->disablePutCallbackMode(true);
 
 	// Laser on/off control.
 	laserPower_ = new AMPVControl("Laser Power Control", "07B2_PLC_LaserDistON", "07B2_PLC_LaserDistON_Tog", QString(), this);
-
-	// Pseudo-motor reset button.
-	resetPseudoMotors_ = new AMProcessVariable("TS1607-2-B21-01:HNV:loadOffsets.PROC", false, this);
 
 	// The beam attenuation filters.
 	filter250umA_ = new AMPVControl("Filter 250um A", "07B2_PLC_PFIL_01_F1_Ctrl", "07B2_PLC_PFIL_01_F1_Toggle", QString(), this);
@@ -59,6 +57,7 @@ VESPERSEndstation::VESPERSEndstation(AMControl *normal, QObject *parent)
 	filter50umB_ = new AMPVControl("Filter 50um B", "07B2_PLC_PFIL_02_F2_Ctrl", "07B2_PLC_PFIL_02_F2_Toggle", QString(), this);
 	filterShutterUpper_ = new AMPVControl("Filter Shutter Upper", "07B2_PLC_PFIL_01_F3_Ctrl", "07B2_PLC_PFIL_01_F3_Toggle", QString(), this);
 	filterShutterLower_ = new AMPVControl("Filter Shutter Lower", "07B2_PLC_PFIL_01_F4_Ctrl", "07B2_PLC_PFIL_01_F4_Toggle", QString(), this);
+	filterThickness_ = -1;
 
 	// Setup filters.
 	filterMap_.insert("50A", filter50umA_);
@@ -77,13 +76,19 @@ VESPERSEndstation::VESPERSEndstation(AMControl *normal, QObject *parent)
 	connect(micLightPV_, SIGNAL(valueChanged(int)), this, SIGNAL(lightIntensityChanged(int)));
 	connect(ccdControl_, SIGNAL(valueChanged(double)), this, SIGNAL(ccdFbkChanged(double)));
 	connect(microscopeControl_, SIGNAL(valueChanged(double)), this, SIGNAL(microscopeFbkChanged(double)));
-	connect(focusControl_, SIGNAL(valueChanged(double)), this, SIGNAL(focusFbkChanged(double)));
 	connect(singleElControl_, SIGNAL(valueChanged(double)), this, SIGNAL(singleElFbkChanged(double)));
 	connect(fourElControl_, SIGNAL(valueChanged(double)), this, SIGNAL(fourElFbkChanged(double)));
+	connect(laserPositionControl_, SIGNAL(valueChanged(double)), this, SIGNAL(laserPositionChanged(double)));
+	connect(laserPositionStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(onLaserPositionValidityChanged(double)));
 
 	QList<AMControl *> list(filterMap_.values());
 	for (int i = 0; i < list.size(); i++)
 		connect(list.at(i), SIGNAL(connected(bool)), this, SLOT(onFiltersConnected()));
+}
+
+void VESPERSEndstation::onLaserPositionValidityChanged(double value)
+{
+	emit laserPositionValidityChanged(value == 1.0);
 }
 
 bool VESPERSEndstation::loadConfiguration()
@@ -103,12 +108,15 @@ bool VESPERSEndstation::loadConfiguration()
 
 	softLimits_.clear();
 
-	softLimits_.insert(ccdControl_, qMakePair(((QString)contents.at(2)).toDouble(), ((QString)contents.at(3)).toDouble()));
-	softLimits_.insert(singleElControl_, qMakePair(((QString)contents.at(6)).toDouble(), ((QString)contents.at(7)).toDouble()));
-	softLimits_.insert(fourElControl_, qMakePair(((QString)contents.at(10)).toDouble(), ((QString)contents.at(11)).toDouble()));
-	softLimits_.insert(microscopeControl_, qMakePair(((QString)contents.at(14)).toDouble(), ((QString)contents.at(15)).toDouble()));
+	softLimits_.insert(ccdControl_, AMRange(((QString)contents.at(2)).toDouble(), ((QString)contents.at(4)).toDouble()));
+	softLimits_.insert(singleElControl_, AMRange(((QString)contents.at(6)).toDouble(), ((QString)contents.at(7)).toDouble()));
+	softLimits_.insert(fourElControl_, AMRange(((QString)contents.at(10)).toDouble(), ((QString)contents.at(11)).toDouble()));
+	softLimits_.insert(microscopeControl_, AMRange(((QString)contents.at(14)).toDouble(), ((QString)contents.at(15)).toDouble()));
 
 	microscopeNames_ = qMakePair((QString)contents.at(16), (QString)contents.at(17));
+	upperCcdSoftLimitwHeliumBuffer_ = contents.at(19).toDouble();
+	heliumBufferAttached_ = contents.at(20) == "YES";
+	ccdAt90Degrees_ = contents.at(21) == "YES";
 
 	updateControl(current_);
 
@@ -125,8 +133,6 @@ AMControl *VESPERSEndstation::control(QString name) const
 		return fourElControl_;
 	else if (name.compare("Microscope motor") == 0)
 		return microscopeControl_;
-	else if (name.compare("Normal Sample Stage") == 0)
-		return focusControl_;
 
 	return 0;
 }
@@ -141,8 +147,6 @@ void VESPERSEndstation::setCurrent(QString name)
 		updateControl(fourElControl_);
 	else if (name.compare("Microscope motor") == 0)
 		updateControl(microscopeControl_);
-	else if (name.compare("Normal Sample Stage") == 0)
-		updateControl(focusControl_);
 	else
 		current_ = 0;
 }
@@ -193,6 +197,7 @@ void VESPERSEndstation::onFiltersChanged()
 	if ((int)filterMap_.value("250B")->value() == 1)
 		sum += 5;
 
+	filterThickness_ = sum*50;
 	emit filterThicknessChanged(sum);
 }
 
@@ -298,4 +303,60 @@ void VESPERSEndstation::setShutterState(bool state)
 		toggleControl(filterShutterUpper_);
 
 	toggleControl(filterShutterLower_);
+}
+
+void VESPERSEndstation::setHeliumBufferFlag(bool attached)
+{
+	heliumBufferAttached_ = attached;
+}
+
+void VESPERSEndstation::setCCDAt90Degrees(bool at90Degrees)
+{
+	ccdAt90Degrees_ = at90Degrees;
+}
+
+bool VESPERSEndstation::microscopeInSafePosition(double value) const
+{
+	if (!ccdAt90Degrees_)
+		return true;
+	else if (heliumBufferAttached_)
+		return controlWithinTolerance(microscopeControl_, value, softLimits_.value(microscopeControl_).maximum()) || ccdControl_->value() > upperCcdSoftLimitwHeliumBuffer_;
+
+	else
+		return controlWithinTolerance(microscopeControl_, value, softLimits_.value(microscopeControl_).maximum());
+}
+
+bool VESPERSEndstation::microscopeInSafePosition() const
+{
+	if (!ccdAt90Degrees_)
+		return true;
+	else if (heliumBufferAttached_)
+		return controlWithinTolerance(microscopeControl_, microscopeControl_->value(), softLimits_.value(microscopeControl_).maximum()) || ccdControl_->value() > upperCcdSoftLimitwHeliumBuffer_;
+
+	else
+		return controlWithinTolerance(microscopeControl_, microscopeControl_->value(), softLimits_.value(microscopeControl_).maximum());
+}
+
+bool VESPERSEndstation::ccdInSafePosition(double value) const
+{
+	if (!ccdAt90Degrees_)
+		return true;
+
+	else if (heliumBufferAttached_)
+		return value > upperCcdSoftLimitwHeliumBuffer_ || controlWithinTolerance(ccdControl_, ccdControl_->value(), upperCcdSoftLimitwHeliumBuffer_);
+
+	else
+		return value > softLimits_.value(ccdControl_).maximum() || controlWithinTolerance(ccdControl_, value, softLimits_.value(ccdControl_).maximum());
+}
+
+bool VESPERSEndstation::ccdInSafePosition() const
+{
+	if (!ccdAt90Degrees_)
+		return true;
+
+	else if (heliumBufferAttached_)
+		return ccdControl_->value() > upperCcdSoftLimitwHeliumBuffer_ || controlWithinTolerance(ccdControl_, ccdControl_->value(), upperCcdSoftLimitwHeliumBuffer_);
+
+	else
+		return ccdControl_->value() > softLimits_.value(ccdControl_).maximum() || controlWithinTolerance(ccdControl_, ccdControl_->value(), softLimits_.value(ccdControl_).maximum());
 }

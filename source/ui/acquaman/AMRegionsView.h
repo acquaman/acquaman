@@ -31,6 +31,23 @@ class QMenu;
 
 #include "acquaman/AMRegionsList.h"
 
+class AMRegionsStaticView : public QWidget
+{
+Q_OBJECT
+public:
+	explicit AMRegionsStaticView(AMRegionsList *regions, QWidget *parent = 0);
+	virtual ~AMRegionsStaticView();
+
+protected:
+	/// The table view used to interact with the group of AMXASRegion.
+	QTableView *tableView_;
+	/// Vertical main layout
+	QVBoxLayout *mainVL_;
+
+	/// The model created from the AMRegion group to be used with the table view.
+	AMRegionsList *regions_;
+};
+
 /// An AMRegionsView is a means of generating a default view for a group of AMRegion
 /*!
   This default view utilizes a QTableView to interface with a group of AMRegion.
@@ -39,7 +56,7 @@ class QMenu;
   - uses the QList of AMRegion to make an AMRegionModel (the programmer need not do this nor understand how it works); and,
   - creates a table view on the newly created model.
   */
-class AMRegionsView : public QWidget
+class AMRegionsView : public AMRegionsStaticView
 {
 Q_OBJECT
 public:
@@ -49,7 +66,7 @@ public:
 	  \param parent Pointer to QWidget to act as parent.
 	  */
 	explicit AMRegionsView(AMRegionsList *regions, QWidget *parent = 0);
-	~AMRegionsView();
+	virtual ~AMRegionsView();
 
 signals:
 	/// Notifier that the add region button has been clicked.
@@ -78,15 +95,13 @@ protected:
 	void resizeEvent(QResizeEvent *event);
 
 protected:
-	/// The table view used to interact with the group of AMXASRegion.
-	QTableView *tv_;
+	/// Horizontal layout for add/delete buttons
+	QHBoxLayout *addDeleteHL_;
 
 	/// Button to add a region. \todo Figure out interface and hook up to something.
 	QPushButton *addButton_;
 	/// Button to delete a region. \todo Figure out interface and hook up to something.
 	QPushButton *deleteButton_;
-	/// The model created from the AMRegion group to be used with the table view.
-	AMRegionsList *regions_;
 	/// The pointer holding the menu used for creating the add region menu.
 	QMenu *addRegionMenu_;
 	/// The pointer holding the menu used for creating the remove region menu.

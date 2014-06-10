@@ -18,8 +18,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef ACQMAN_AMREGIONSLIST_H
-#define ACQMAN_AMREGIONSLIST_H
+#ifndef AM_AMREGIONSLIST_H
+#define AM_AMREGIONSLIST_H
 
 #include <QObject>
 
@@ -36,6 +36,7 @@ Q_OBJECT
 
 public:
 	/// Constructor.  Can choose to setup the model.  Valuable when you want subclases to setup their own model.
+ 	virtual ~AMRegionsList();
 	AMRegionsList(QObject *parent = 0, bool setup = true);
 
 	/// Returns the start value of the region referred to by index. If an invalid index is given, returns -1 (not a valid energy value).
@@ -75,6 +76,9 @@ public:
 	double sensibleStart() const { return sensibleStart_; }
 	/// Returns the sensible end position.
 	double sensibleEnd() const { return sensibleEnd_; }
+
+	/// Calculates the total time required to acquire all the regions. The base implementation assumes compatible/identical time units.
+	virtual double totalAcquisitionTime() const;
 
 public slots:
 	/// Sets the start value of the region refered to by index. Returns true if sucessful, returns false if the index is invalid or the energy is out of range.
@@ -209,6 +213,7 @@ Q_OBJECT
 
 public:
 	/// Constructor.  Sets up its own regions model.
+ 	virtual ~AMXASRegionsList();
 	AMXASRegionsList(QObject *parent = 0, bool setup = true) : AMRegionsList(parent, false) { if(setup) setupModel(); }
 
 public slots:
@@ -230,6 +235,7 @@ Q_OBJECT
 
 public:
 	/// Constructor.  Sets up its own regions model.
+ 	virtual ~AMEXAFSRegionsList();
 	AMEXAFSRegionsList(QObject *parent = 0, bool setup = true)
 		: AMXASRegionsList(parent, false)
 	{

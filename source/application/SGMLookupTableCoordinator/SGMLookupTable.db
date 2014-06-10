@@ -1,0 +1,27 @@
+record( mbbi, "BL1611-ID-1:AddOns:lookupTable:linkage" )
+{
+	field( VAL, "0x00")
+	field( ZRST, "Off")
+	field( ZRVL, "0x00")
+	field( ONST, "On")
+	field( ONVL, "0x01")
+}
+
+record( mbbi, "BL1611-ID-1:AddOns:lookupTable:loadLookup" )
+{
+	field( VAL, "0x00")
+	field( ZRST, "Off")
+	field( ZRVL, "0x00")
+	field( ONST, "Load")
+	field( ONVL, "0x01")
+}
+
+record( ao, "BL1611-ID-1:AddOns:lookupTable:fakeInput" )
+{
+	field( VAL, "0.00")
+}
+
+record( ao, "BL1611-ID-1:AddOns:lookupTable:fakeOutput" )
+{
+	field( VAL, "0.00")
+}

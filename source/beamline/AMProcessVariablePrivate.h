@@ -38,6 +38,33 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMDeferredFunctionCall.h"
 
 #define AMPROCESSVARIABLESUPPORT_STARTING_CHANNEL_ACCESS 113001
+#define AMPROCESSVARIABLESUPPORT_SHUTTING_DOWN_CHANNEL_ACCESS_MESSAGE 113002
+#define AMPROCESSVARIABLESUPPORT_EPICS_EXCEPTION_PVEXCEPTIONCB 113002
+#define AMPROCESSVARIABLESUPPORT_ERROR_INITIALIZING_PRIVATE 113002
+#define AMPROCESSVARIABLESUPPORT_CANNOT_ATTACH_ALREADY_ATTACHED 113002
+#define AMPROCESSVARIABLESUPPORT_CANNOT_DETACH_NOT_ATTACHED 113002
+#define AMPROCESSVARIABLESUPPORT_EPICS_EXCEPTION_EXCEPTIONCB 113002
+#define AMPROCESSVARIABLESUPPORT_ERROR_WHILE_REQUESTING_ENUM_INFO 113002
+#define AMPROCESSVARIABLESUPPORT_ERROR_WHILE_REQUESTING_INT_VALUE 113002
+#define AMPROCESSVARIABLESUPPORT_ERROR_WHILE_REQUESTING_STRING_VALUE 113002
+#define AMPROCESSVARIABLESUPPORT_ERROR_WHILE_REQUESTING_VALUE_GENERAL 113002
+#define AMPROCESSVARIABLESUPPORT_ERROR_WHILE_SUBSCRIBING_TO_ALARMS 113002
+#define AMPROCESSVARIABLESUPPORT_ERROR_WHILE_STARTING_MONITORING 113002
+#define AMPROCESSVARIABLESUPPORT_ERROR_IN_CONTROL_INFO_CHANGED_CB 113002
+#define AMPROCESSVARIABLESUPPORT_ERROR_IN_VALUE_CHANGED_CB 113002
+#define AMPROCESSVARIABLESUPPORT_ERROR_IN_ALARM 113002
+#define AMPROCESSVARIABLESUPPORT_ERROR_IN_PUT_REQUEST 113002
+#define AMPROCESSVARIABLESUPPORT_ERROR_WHILE_STARTING_MONITOR_NOT_CONNECTED 113002
+#define AMPROCESSVARIABLESUPPORT_ERROR_WHILE_STARTING_MONITOR_GENERAL 113002
+#define AMPROCESSVARIABLESUPPORT_CANNOT_STOP_MONITORING_NEVER_STARTED 113002
+#define AMPROCESSVARIABLESUPPORT_ERROR_WHILE_REQUESTING_VALUE 113002
+#define AMPROCESSVARIABLESUPPORT_ERROR_WHILE_PUTTING_VALUE_INTEGER 113002
+#define AMPROCESSVARIABLESUPPORT_ERROR_WHILE_PUTTING_VALUES_INTERGER 113002
+#define AMPROCESSVARIABLESUPPORT_ERROR_WHILE_PUTTING_VALUE_DOUBLE 113002
+#define AMPROCESSVARIABLESUPPORT_ERROR_WHILE_PUTTING_VALUES_DOUBLE 113002
+#define AMPROCESSVARIABLESUPPORT_ERROR_WHILE_PUTTING_VALUE_STRING 113002
+#define AMPROCESSVARIABLESUPPORT_ERROR_WHILE_PUTTING_VALUES_STRING 113002
+
 
 /// Qt does not register QVector<int> and QVector<double> with qRegisterMetaType(), so we'll need to do this to use them in queued signal-slot connections.
 typedef QVector<double> AMProcessVariableDoubleVector;
@@ -99,6 +126,9 @@ public:
 	/// Call this function to report that a timeout occured and AMProcessVariableSupport will schedule a deferred call to broadcast the error monitor
 	static void reportTimeoutError(QString pvName);
 
+	/// Destroys the namespace by ensuring the channel access is shut down properly.
+	static void shutdownChannelAccess();
+
 protected slots:
 	/// Executes one call to ca_flush_io() for all the flushIO() requests that happened during the past event loop.
 	void executeFlushIO() {
@@ -112,6 +142,8 @@ protected:
 
 	/// constructor: sets up the channel access environement and installs us as the global exception handler.
 	AMProcessVariableSupport();
+	/// Destructor.  Shuts down channel access.
+	virtual ~AMProcessVariableSupport();
 
 	/// singleton class. Use the s() method to access.
 	static AMProcessVariableSupport* s();
@@ -203,8 +235,8 @@ public:
 	bool writeReady() const { return readReady() && canWrite(); }
 
 
-	/// Returns the current ca_put mode for the PV.  True means use ca_put() and false means use ca_put_callback().  ca_put_callback() is the default.  \see disablePutCallbackMode()
-	bool putCallbackMode() const { return disablePutCallback_; }
+	/// Returns true if the AMProcessVariable has been configured to use ca_put_callback() for PV puts, instead of ca_put().   [ca_put() is the default.]   \see enablePutCallback().
+	bool putCallbackEnabled() const { return putCallbackEnabled_; }
 
 	/// Read the most recent value of the PV.
 	/*! (The Return value is a double, since this can hold any numeric value. See getInt, getDouble, and getString for other options.)  If you are monitoring (isMonitoring() == true), then the value is as recent as the last monitor notification received from the CA server.  Otherwise, it's as recent as the last time you called requestValue().  requestValue() is also called once when the connection is first established, so if you're using an AMProcessVariable to only read a value once, you don't have to explicitly start monitoring.*/
@@ -336,9 +368,9 @@ public slots:
   A ca put callback request causes the record to process if the record's SCAN field is set to passive, and the field being written has it's process passive attribute set to true. For such a record, the user's put callback function is not called until after the record, and any records that the record links to, finish processing. If such a record is already processing when a put callback request is initiated the put callback request is postponed until the record, and any records it links to, finish processing.
   If the record's SCAN field is not set to passive, or the field being written has it's process passive attribute set to false then the ca put or ca put callback request cause the specified field to be immediately written, but they do not cause the record to be processed.
 
-  Setting this value to true will cause the PV to use ca_put(), and false will use ca_put_callback();
+  Setting this value to true will cause the PV to use ca_put_callback() instead of ca_put().
    */
-	void disablePutCallbackMode(bool disablePutCallback) { disablePutCallback_ = disablePutCallback; }
+	void enablePutCallback(bool putCallbackEnabled) { putCallbackEnabled_ = putCallbackEnabled; }
 
 	////////////////////////////////////
 
@@ -385,7 +417,7 @@ signals:
 	void valueChanged(const QString&);
 	//@}
 
-	/// Emitted when a write-request comes back as completed or failed.
+	/// Emitted when a write-request comes back as completed or failed. Only available if enablePutCallback() has been set to true.
 	void putRequestReturned(int status);
 
 protected slots:
@@ -477,7 +509,7 @@ protected:
 	int lastError_;
 
 	/// Sets up whether the PV should use ca_put() or ca_put_callback().  If true will use ca_put() as the calling function, other will use ca_put_callback().
-	bool disablePutCallback_;
+	bool putCallbackEnabled_;
 
 	/// \name Control Group Storage
 	/// Storage of information on the PV's type and description.

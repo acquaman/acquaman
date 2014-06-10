@@ -25,27 +25,34 @@ REIXSXESImageAB::REIXSXESImageAB(const QString &outputName, QObject *parent) :
 	AMStandardAnalysisBlock(outputName, parent)
 {
 
-	sumRangeMin_ = 2;
-	sumRangeMax_ = 61;
+	curveSmoother_ = 0;
+
+	sumRangeMinY_ = 3;
+	sumRangeMaxY_ = 60;
+	sumRangeMinX_ = 50;
+	sumRangeMaxX_ = 950;
+	rangeRound_ = 1.0;
 	correlationCenterPx_ = 512;
 	correlationHalfWidth_ = 40;
+	correlationSmoothing_ = QPair<int,int>(-1,1);  //-1,1???
 	liveCorrelation_ = false;
+	setCorrelationSmoothing(QPair<int,int>(1,2)); //poly,quadratic
+
+	energyCalibrationOffset_ = 0;
+	tiltCalibrationOffset_ = 0;
+
+	// Live correlation turned on by default. Need to make sure that this is OK for performance; it should be now that we're using block access.
+	liveCorrelation_ = true;
 	// shift values can start out empty.
 
 	inputSource_ = 0;
-	cacheCompletelyInvalid_ = false;
+	cacheInvalid_ = true;
+	axisValueCacheInvalid_ = true;
+	axisValuesInvalid_ = false;
 
 	// leave sources_ empty for now.
 
 	axes_ << AMAxisInfo("invalid", 0, "No input data");
-
-	// Fitting structures (unallocated)
-	fitWorkSpace_ = 0;
-	fitXX_ = 0;
-	fitY_ = 0;
-	fitWeight_ = 0;
-	fitC_ = 0;
-	fitCov_ = 0;
 
 	connect(&callCorrelation_, SIGNAL(executed()), this, SLOT(correlateNow()));
 	setDescription("XES Analyzed Spectrum");
@@ -54,27 +61,28 @@ REIXSXESImageAB::REIXSXESImageAB(const QString &outputName, QObject *parent) :
 REIXSXESImageAB::REIXSXESImageAB(AMDatabase *db, int id) :
 	AMStandardAnalysisBlock("tempName", 0)
 {
-	sumRangeMin_ = 2;
-	sumRangeMax_ = 61;
+	curveSmoother_ = 0;
+
+	sumRangeMinY_ = 3;
+	sumRangeMaxY_ = 60;
+	sumRangeMinX_ = 50;
+	sumRangeMaxX_ = 950;
+	rangeRound_ = 1.0;
 	correlationCenterPx_ = 512;
 	correlationHalfWidth_ = 40;
+	correlationSmoothing_ = QPair<int,int>(-1,1);
+	energyCalibrationOffset_ = 0;
+	tiltCalibrationOffset_ = 0;
 	liveCorrelation_ = false;
 	// shift values can start out empty.
 
 	inputSource_ = 0;
-	cacheCompletelyInvalid_ = false;
+	cacheInvalid_ = true;
+	axisValueCacheInvalid_ = true;
 
 	// leave sources_ empty for now.
 
 	axes_ << AMAxisInfo("invalid", 0, "No input data");
-
-	// Fitting structures (unallocated)
-	fitWorkSpace_ = 0;
-	fitXX_ = 0;
-	fitY_ = 0;
-	fitWeight_ = 0;
-	fitC_ = 0;
-	fitCov_ = 0;
 
 	loadFromDb(db, id); // will restore the parameters sumRangeMin_, sumRangeMax_, correlation settings, and shift values. We'll remain invalid until we get connected to a data source.
 	AMDataSource::name_ = AMDbObject::name();	// normally it's not okay to change a dataSource's name. Here we get away with it because we're within the constructor, and nothing's watching us yet.
@@ -83,36 +91,68 @@ REIXSXESImageAB::REIXSXESImageAB(AMDatabase *db, int id) :
 }
 
 REIXSXESImageAB::~REIXSXESImageAB() {
-	releaseFittingStructures();
 }
 
-void REIXSXESImageAB::setSumRangeMin(int sumRangeMin)
+void REIXSXESImageAB::setSumRangeMinY(int sumRangeMinY)
 {
 	// no change
-	if(sumRangeMin == sumRangeMin_)
+	if(sumRangeMinY == sumRangeMinY_)
 		return;
 
-	sumRangeMin_ = sumRangeMin;
+	sumRangeMinY_ = sumRangeMinY;
 	if(liveCorrelation())
 		callCorrelation_.schedule();
 
-	invalidateCache();
+	cacheInvalid_ = true;
 	reviewState();
 
 	emitValuesChanged();
 	setModified(true);
 }
 
-void REIXSXESImageAB::setSumRangeMax(int sumRangeMax)
+void REIXSXESImageAB::setSumRangeMaxY(int sumRangeMaxY)
 {
-	if(sumRangeMax == sumRangeMax_)
+	if(sumRangeMaxY == sumRangeMaxY_)
 		return;
 
-	sumRangeMax_ = sumRangeMax;
+	sumRangeMaxY_ = sumRangeMaxY;
 	if(liveCorrelation())
 		callCorrelation_.schedule();
 
-	invalidateCache();
+	cacheInvalid_ = true;
+	reviewState();
+
+	emitValuesChanged();
+	setModified(true);
+}
+
+void REIXSXESImageAB::setSumRangeMinX(int sumRangeMinX)
+{
+	// no change
+	if(sumRangeMinX == sumRangeMinX_)
+		return;
+
+	sumRangeMinX_ = sumRangeMinX;
+	if(liveCorrelation())
+		callCorrelation_.schedule();
+
+	cacheInvalid_ = true;
+	reviewState();
+
+	emitValuesChanged();
+	setModified(true);
+}
+
+void REIXSXESImageAB::setSumRangeMaxX(int sumRangeMaxX)
+{
+	if(sumRangeMaxX == sumRangeMaxX_)
+		return;
+
+	sumRangeMaxX_ = sumRangeMaxX;
+	if(liveCorrelation())
+		callCorrelation_.schedule();
+
+	cacheInvalid_ = true;
 	reviewState();
 
 	emitValuesChanged();
@@ -125,7 +165,7 @@ void REIXSXESImageAB::setShiftValues(const AMIntList &shiftValues)
 		return;
 
 	shiftValues_ = shiftValues;
-	invalidateCache();	// could change all our cached values
+	cacheInvalid_ = true;	// could change all our cached values
 	reviewState();	// might change the state to valid, if we didn't have proper number of shift values before.
 
 	emitValuesChanged();
@@ -133,7 +173,21 @@ void REIXSXESImageAB::setShiftValues(const AMIntList &shiftValues)
 	setModified(true);
 }
 
+void REIXSXESImageAB::setRangeRound(double rangeRound)
+{
+	if(rangeRound == rangeRound_)
+		return;
 
+	rangeRound_ = rangeRound;
+	if(liveCorrelation())
+		callCorrelation_.schedule();
+
+	cacheInvalid_ = true;
+	reviewState();
+
+	emitValuesChanged();
+	setModified(true);
+}
 
 void REIXSXESImageAB::reviewState()
 {
@@ -145,11 +199,11 @@ void REIXSXESImageAB::reviewState()
 
 	int s = inputSource_->size(1);
 
-	if(sumRangeMin_ >= s || sumRangeMax_ >= s) {
+	if(sumRangeMinY_ >= s || sumRangeMaxY_ >= s) {
 		setState(AMDataSource::InvalidFlag);
 		return;
 	}
-	if(sumRangeMin_ > sumRangeMax_) {
+	if(sumRangeMinY_ > sumRangeMaxY_) {
 		setState(AMDataSource::InvalidFlag);
 		return;
 	}
@@ -162,13 +216,6 @@ void REIXSXESImageAB::reviewState()
 
 }
 
-void REIXSXESImageAB::invalidateCache()
-{
-	if(!cacheCompletelyInvalid_ || cachedValues_.size() != axes_.at(0).size) {
-		cachedValues_ = QVector<AMNumber>(axes_.at(0).size);	// everything in there is now AMNumber::Null.
-		cacheCompletelyInvalid_ = true;
-	}
-}
 
 bool REIXSXESImageAB::areInputDataSourcesAcceptable(const QList<AMDataSource *> &dataSources) const
 {
@@ -205,6 +252,8 @@ void REIXSXESImageAB::setInputDataSourcesImplementation(const QList<AMDataSource
 		sources_ = dataSources;
 
 		axes_[0] = inputSource_->axisInfoAt(0);	// take the X axis info from the data source.
+		axes_[0].description = "Emission Energy";
+		axes_[0].units = "eV";
 
 		if(shiftValues_.isEmpty()) {
 			for(int i=0,cc=inputSource_->size(1); i<cc; i++)
@@ -217,8 +266,10 @@ void REIXSXESImageAB::setInputDataSourcesImplementation(const QList<AMDataSource
 
 	}
 
-
-	invalidateCache();
+	cacheInvalid_ = true;
+	cachedValues_ = QVector<double>(axes_.at(0).size);
+	axisValueCacheInvalid_ = true;
+	cachedAxisValues_ = QVector<double>(axes_.at(0).size);
 	reviewState();
 
 	emitSizeChanged(0);
@@ -227,7 +278,7 @@ void REIXSXESImageAB::setInputDataSourcesImplementation(const QList<AMDataSource
 }
 
 
-AMNumber REIXSXESImageAB::value(const AMnDIndex &indexes, bool doBoundsChecking) const
+AMNumber REIXSXESImageAB::value(const AMnDIndex &indexes) const
 {
 	if((indexes.rank() != 1))
 		return AMNumber(AMNumber::DimensionError);
@@ -235,94 +286,166 @@ AMNumber REIXSXESImageAB::value(const AMnDIndex &indexes, bool doBoundsChecking)
 	if(!isValid())
 		return AMNumber(AMNumber::InvalidError);
 
-	// x pixel value:
-	int i = indexes.i();
+
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+	if(((unsigned long)indexes.i() >= (unsigned long)axes_.at(0).size))
+		return AMNumber(AMNumber::OutOfBoundsError);
+#endif
+
+	if(cacheInvalid_)
+		computeCachedValues();
+
+	return AMNumber(cachedValues_.at(indexes.i()));
+}
+
+bool REIXSXESImageAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
+{
+	if(indexStart.rank() != 1 || indexEnd.rank() != 1)
+		return false;	// dimension error
+
+	if(!isValid())
+		return false; // invalid error
+
 	// Max x pixel value:
 	int maxI = inputSource_->size(0);
 
-	if(doBoundsChecking)
-		if(((unsigned)i >= (unsigned)axes_.at(0).size))
-			return AMNumber(AMNumber::OutOfBoundsError);
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+	if(indexEnd.i() < indexStart.i())
+		return false;
+	if(indexEnd.i() >= maxI)
+		return false;
+#endif
 
-	AMNumber rv = cachedValues_.at(i);
-	// if we haven't calculated this sum yet, the cached value will be invalid. Sum using shifting, and store.
-	if(!rv.isValid()) {
 
+	if(cacheInvalid_)
+		computeCachedValues();
+
+	memcpy(outputValues, (cachedValues_.constData()+indexStart.i()), (indexEnd.i()-indexStart.i()+1)*sizeof(double));
+
+	return true;
+}
+
+
+void REIXSXESImageAB::computeCachedValues() const
+{
+	int maxI = inputSource_->size(0);
+	int maxJ = inputSource_->size(1);
+
+	// grab the full image
+	QVector<double> image(maxI*maxJ);
+	if(!inputSource_->values(AMnDIndex(0,0), AMnDIndex(maxI-1, maxJ-1), image.data())) {
+		AMErrorMon::report(this, AMErrorReport::Alert, -333, "Could not retrieve values from detector image. Please report this problem to the REIXS Acquaman developers.");
+		cacheInvalid_ = false;	// avoid repeating this error message for every single data point...
+		return;
+	}
+
+	//The center point of the sum region
+	double originX = (double)sumRangeMinX_ + ((double)sumRangeMaxX_ - (double)sumRangeMinX_)/2.0;
+	double originY = (double)sumRangeMinY_ + ((double)sumRangeMaxY_ - (double)sumRangeMinY_)/2.0;
+	//Width and height of the sum region, in pixels
+	double numX = (double)(sumRangeMaxX_ - sumRangeMinX_);
+	double numY = (double)(sumRangeMaxY_ - sumRangeMinY_);
+	
+	
+	for(int i=0; i<maxI; ++i) {
 		double newVal = 0.0;
 		int contributingRows = 0;
-		for(int j=sumRangeMin_; j<=sumRangeMax_; j++) { // loop through rows
-			int sourceI = i + shiftValues_.at(j);
-			if(sourceI < maxI && sourceI >= 0) {
-				newVal += double(inputSource_->value(AMnDIndex(sourceI, j), false));
-				contributingRows++;
+		if(i > sumRangeMinX_ && i < sumRangeMaxX_) {
+			double xVal = (double)i - originX;
+			for(int j=sumRangeMinY_; j<=sumRangeMaxY_; j++) { // loop through rows
+				if(rangeRound_ == 0.0) { //not ellipse
+					int sourceI = i + shiftValues_.at(j);
+					if(sourceI < maxI && sourceI >= 0) {
+						newVal += image.at(sourceI*maxJ + j);
+						contributingRows++;
+					}
+				}
+				else {
+					
+					double yVal = (double)j - originY;
+					if((fabs(xVal) <= numX/2.0*(1.0 - rangeRound_)) || (fabs(yVal) <= numY/2.0*(1.0 - rangeRound_)) || ((((xVal-(1-rangeRound_)*numX/2.0)/(rangeRound_*numX/2.0))*((xVal-(1-rangeRound_)*numX/2.0)/(rangeRound_*numX/2.0))+((yVal-(1-rangeRound_)*numY/2.0)/(rangeRound_*numY/2.0))*((yVal-(1-rangeRound_)*numY/2.0)/(rangeRound_*numY/2.0))) < 1)) { //within ellipse
+						int sourceI = i + shiftValues_.at(j);
+						if(sourceI < maxI && sourceI >= 0) {
+							newVal += image.at(sourceI*maxJ + j);
+							contributingRows++;
+						}
+					}
+				}
 			}
 		}
-
 		// normalize by dividing by the number of rows that contributed. Since we want to keep the output in units similar to raw counts, multiply by the nominal (usual) number of contributing rows.
 		// Essentially, this normalization prevents columns near the edge that miss out on some rows due to shifting from being artificially suppressed.  For inner columns, contributingRows will (sumRangeMax_ - sumRangeMin_ + 1).
 		if(contributingRows == 0)
 			newVal = 0;
 		else
-			newVal = newVal * double(sumRangeMax_ - sumRangeMin_ + 1) / double(contributingRows);
+			newVal = newVal * double(sumRangeMaxY_ - sumRangeMinY_ + 1) / double(contributingRows);
 
 		cachedValues_[i] = newVal;
-		cacheCompletelyInvalid_ = false;
-		return newVal;
 	}
-	// otherwise return the value we have cached.
-	else
-		return rv;
+	cacheInvalid_ = false;
 }
 
-AMNumber REIXSXESImageAB::axisValue(int axisNumber, int index, bool doBoundsChecking) const
+
+AMNumber REIXSXESImageAB::axisValue(int axisNumber, int index) const
 {
 	if((axisNumber != 0))
 		return AMNumber(AMNumber::DimensionError);
 
-	if(doBoundsChecking) {
-		if(((unsigned)index >= (unsigned)axes_.at(0).size))
-			return AMNumber(AMNumber::OutOfBoundsError);
-	}
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+	if(((unsigned)index >= (unsigned)axes_.at(0).size))
+		return AMNumber(AMNumber::OutOfBoundsError);
+#endif
 
-	return index;
+	if(axisValueCacheInvalid_)
+		computeCachedAxisValues();
+
+	if(axisValuesInvalid_)
+		return index;
+
+	return cachedAxisValues_.at(index);
 }
 
 void REIXSXESImageAB::onInputSourceValuesChanged(const AMnDIndex &start, const AMnDIndex &end)
 {
 	Q_UNUSED(start)
 	Q_UNUSED(end)
-	
+
 	if(liveCorrelation())
 		callCorrelation_.schedule();
 
-	// invalidate the cache. We're not summing straight down, so values outside of the start - end range may change; we just invalidate everything.
-	invalidateCache();
+	// invalidate the cache.
+	cacheInvalid_ = true;
 	emitValuesChanged();
 }
 
 void REIXSXESImageAB::onInputSourceSizeChanged()
 {
+	cacheInvalid_ = true;
+	axisValueCacheInvalid_ = true;
+
+	bool sizeChanged = false;
 	if(axes_.at(0).size != inputSource_->size(0)) {
 		axes_[0].size = inputSource_->size(0);
-		cachedValues_.resize(axes_.at(0).size);	// resize() will fill in with default-constructed value for AMNumber(), which is AMNumber::Null.
-		emitSizeChanged(0);
+		cachedValues_.resize(axes_.at(0).size);
+		cachedAxisValues_.resize(axes_.at(0).size);
+		sizeChanged = true;
 	}
 
 	if(liveCorrelation())
 		callCorrelation_.schedule();
 
-	// because of the shifting before summing, this could change values outside of the added/removed region; just invalidate everything.
-	invalidateCache();
 	// If the sumRangeMin/sumRangeMax were out of range before, they might be valid now.
 	reviewState();
+	if(sizeChanged)
+		emitSizeChanged(0);
 	emitValuesChanged();
 }
 
 
 void REIXSXESImageAB::onInputSourceStateChanged()
 {
-	reviewState();
 	onInputSourceSizeChanged();	// just in case the size has changed, while it was invalid.
+	reviewState();
 }
 
 
@@ -365,13 +488,15 @@ void REIXSXESImageAB::enableLiveCorrelation(bool enabled)
 
 void REIXSXESImageAB::correlateNow()
 {
+
 	if(!inputSource_ || !inputSource_->isValid())
 		return;
+
 
 	// variables:
 	int sizeY = inputSource_->size(1);
 	int sizeX = inputSource_->size(0);
-	int midY = (sumRangeMin()+sumRangeMax())/2;
+	int midY = (sumRangeMinY()+sumRangeMaxY())/2;
 
 	if(sizeY < 1 || sizeX < 1) {
 		AMErrorMon::alert(this, -37, "Image correlation routine should not be run with a size of 0. Please report this bug to the REIXS Acquaman developers.");
@@ -381,13 +506,22 @@ void REIXSXESImageAB::correlateNow()
 	int minShift = -correlationHalfWidth_;
 	int maxShift = correlationHalfWidth_;
 
+	// grab the whole input image for fast access. This is much faster than calling inputSource_->value() repeatedly.
+	QVector<double> image(sizeX*sizeY);
+	if(!inputSource_->values(AMnDIndex(0,0), AMnDIndex(sizeX-1, sizeY-1), image.data())) {
+		AMErrorMon::report(this, AMErrorReport::Alert, -333, "Could not retrieve values from detector image. Please report this problem to the REIXS Acquaman developers.");
+		return;
+	}
+
 	// initialize all shifts to 0.
 	QVector<int> shifts = QVector<int>(sizeY);
 
 	// Loop through all the rows (j), but skip the middle one. Find the best shift at each row.
 	for(int j=0; j<sizeY; j++) {
-		if(j == midY)
+		if(j == midY) {
+			shifts[j] = 0;
 			continue;
+		}
 
 		double bestSum = 0;
 		int bestShift = 0;
@@ -396,7 +530,7 @@ void REIXSXESImageAB::correlateNow()
 			double correlationSum = 0;
 			for(int i = correlationCenterPx_ - correlationHalfWidth_, ic = correlationCenterPx_+correlationHalfWidth_; i<=ic; i++)
 				if(i+shift<sizeX && i+shift>=0 && i<sizeX && i>=0)
-					correlationSum += double(inputSource_->value(AMnDIndex(i,midY), false)) * double(inputSource_->value(AMnDIndex(i+shift, j), false));
+					correlationSum += image.at(i*sizeY + midY) * image.at((i+shift)*sizeY + j);
 			if(correlationSum > bestSum) {
 				bestSum = correlationSum;
 				bestShift = shift;
@@ -407,33 +541,431 @@ void REIXSXESImageAB::correlateNow()
 	}
 
 
-	// Apply quadratic fit to smooth out the noise:
-	shifts = quadraticSmooth(shifts);
+	if(correlationSmoothing_.first != 0) { //0 is no smoothing
+
+
+		// Apply smoothing to reduce the noise:
+		QVector<double> weights(sizeY, 0.0);
+		weights[sumRangeMinY_] = 0.5;
+		weights[sumRangeMaxY_] = 0.5;
+		for(int j=sumRangeMinY_+1; j<sumRangeMaxY_; ++j)
+			weights[j] = 1.0;
+
+
+		if(curveSmoother_) shifts = curveSmoother_->smooth(shifts, weights);
+
+
+		// Ensure the center-row shift is 0. [Not sure why it ends up being non-zero]. Slide everything so it is.
+		int centerShift = shifts[midY];
+		for(int j=0; j<sizeY; ++j)
+			shifts[j] -= centerShift;
+	}
 
 	// use the new shift values.
 	setShiftValues(shifts.toList());
 }
 
-void REIXSXESImageAB::allocateFittingStructures(int numRows)
+
+
+#include "analysis/REIXS/REIXSXESImageABEditor.h"
+
+QWidget * REIXSXESImageAB::createEditorWidget()
+{
+	return new REIXSXESImageABEditor(this);
+}
+
+#include "dataman/AMScan.h"
+#include "dataman/REIXS/REIXSXESCalibration2.h"
+#include "dataman/AMScan.h"
+
+void REIXSXESImageAB::computeCachedAxisValues() const
+{
+	axisValueCacheInvalid_ = false;
+	axisValuesInvalid_ = true;
+
+	// Accessing spectrometer positions: get from scan's scanInitialConditions
+	if(scan() == 0) {
+		AMErrorMon::alert(this, -1, "Could not calculate energy axis: could not access the XES scan.");
+		return;
+	}
+	const AMControlInfoList* positions = scan()->scanInitialConditions();
+	if(!positions) {
+		AMErrorMon::alert(this, -1, "Could not calculate energy axis: could not access the spectrometer positions at the start of the scan.");
+		return;
+	}
+
+	// Grab position variables:
+	if(positions->indexOf("spectrometerGrating") == -1 ||
+			positions->indexOf("spectrometerRotationDrive") == -1 ||
+			positions->indexOf("detectorTranslation") == -1 ||
+			positions->indexOf("detectorTiltDrive") == -1) {
+		AMErrorMon::alert(this, -1, "Could not calculate energy axis: missing some required spectrometer positions at the start of the scan.");
+		return;
+	}
+
+	int grating = int(positions->controlNamed("spectrometerGrating").value());
+	double liftHeight = positions->controlNamed("spectrometerRotationDrive").value();
+	double rPrime = positions->controlNamed("detectorTranslation").value();
+	double tiltStage = positions->controlNamed("detectorTiltDrive").value();
+
+	// accessing the calibration. For dataman, what version to use? Ok to be compiled in? Need ability to have separate cal for each scan?
+	REIXSXESCalibration2 cal;
+	if(grating >= cal.gratingCount()) {
+		AMErrorMon::alert(this, -1, "Could not calculate energy axis: the scan's grating was not valid.");
+		return;
+	}
+
+
+	double mmPerPixel = cal.detectorWidth() / size(0);
+	double grooveDensity = cal.gratingAt(grating).grooveDensity();
+	double sinAlpha = sin(cal.d2r(cal.gratingAt(grating).alpha()));
+
+	// beta is also the nominal incidence angle onto the detector. Get beta from spectrometer position:
+	double beta = cal.betaFromPosition(grating, cal.spectrometerAngle(liftHeight), rPrime);
+	// Any detector tilt offset from nominal: get from position of tilt stage:
+	double tiltOffset = cal.tiltOffset(tiltStage, beta);
+
+	// Variables. From here on, we work in radians, instead of the degree convention used by REIXSXESCalibration.
+	beta = cal.d2r(beta);
+	tiltOffset = cal.d2r(tiltOffset + tiltCalibrationOffset_);	// NOTE: we're adding in the user-specified correction tilt here.
+
+	double sinBeta = sin(beta);
+	double cosBeta = cos(beta);
+
+	// Mark's Implementation: This algorithm taken from SXEDAQ and the old ALS BL8 software.
+	//////////////////////////////////////////////////////
+
+	// Gamma is the tilt offset:
+	double gamma = tiltOffset;
+
+	// Gamma' (gp) is the angle between the central ray and the detector surface; it is acute for higher-than-center energies, and obtuse for lower-than-center energies.
+	// higher-than-center energies: gp = pi/2 - beta + tiltOffset
+	// lower-than-center energies: gp = pi/2 + beta - tiltOffset.
+
+	// "sign" will be defined inside the loop to be '1' for higher energies (pixel i > 512), and '-1' for lower energies (pixel i < 512).
+	// We calculate sin(gp) and cos(gp) just once, recognizing that we'll need to multiply by sign once we get into the pixel-loop.
+
+	/* gamma' (gp) = pi/2 +(gamma-beta)*sign...so...
+
+		sin(gp) = sin(pi/2 + (gamma-beta)*sign)
+			 = cos( (gamma-beta)*sign )
+			 = cos(gamma-beta)
+			 = [ cosb*cos( gamma ) + sinb*sin( gamma ) ]
+		cos(gp) = cos(pi/2 + (gamma-beta)*sign)
+		  = -sin( (gamma-beta)*sign )
+		  = -sign* sin(gamma-beta)
+		  = sign* sin(beta - gamma)
+		  = sign* sinb*cos( gamma ) - sin( gamma )*cosb	// Note: we'll fill in the sign inside the loop.
+	*/
+	double singp = cosBeta*cos(gamma) + sinBeta*sin(gamma);
+	double cosgp = sinBeta*cos(gamma) - cosBeta*sin(gamma);
+
+	// Calculate bottom half of the axis. (low energies). Sign is -1
+	int sign = -1;
+	int centerPixel = size(0)/2;
+
+	for(int i=0; i<centerPixel; ++i) {
+		// distance away from center; always positive.
+		double dx = (centerPixel-i)*mmPerPixel;
+		// sindb: sin("delta Beta"): the angle difference from the nominal beta.
+		double sindb = sign*( dx*singp/sqrt(rPrime*rPrime + dx*dx - 2*rPrime*dx*cosgp*sign) );	//you can derive this from sinA/a=sinB/b and c^2=a^2+b^2-2ab*cosC
+		//bp ("beta-prime") is the diffraction angle at detector point 'i'; sinbp = sin( beta + db )
+		//																		 = sinb*cos(db) + cosb*sindb
+		//																		 = sinb*sqrt(1-sin^2(db)) + cosb*sindb
+		double sinbp = sinBeta*sqrt( 1.0-sindb*sindb ) + cosBeta*sindb;
+		//solving the grating equation for eV:
+		cachedAxisValues_[i] = 0.0012398417*grooveDensity / (sinAlpha - sinbp) + energyCalibrationOffset_;	// NOTE: we're adding in the user-specified energy offset here.
+	}
+
+	// midpoint:
+	cachedAxisValues_[centerPixel] = 0.0012398417*grooveDensity / (sinAlpha - sinBeta) + energyCalibrationOffset_;	// NOTE: we're adding in the user-specified energy offset here.
+
+	// Calculate top half of axis. (high energies). Sign is 1:
+	sign = 1;
+	for(int i=centerPixel+1, cc=size(0); i<cc; ++i) {
+		// distance away from center; always positive.
+		double dx = (i-centerPixel)*mmPerPixel;
+		double sindb = sign*( dx*singp/sqrt(rPrime*rPrime + dx*dx - 2*rPrime*dx*cosgp*sign) );
+		double sinbp = sinBeta*sqrt( 1.0-sindb*sindb ) + cosBeta*sindb;
+		cachedAxisValues_[i] = 0.0012398417*grooveDensity / (sinAlpha - sinbp) + energyCalibrationOffset_;	// NOTE: we're adding in the user-specified energy offset here.
+//		qDebug()<< "sindb = " << sindb;
+//		qDebug()<< "sinbp = " << sinbp;
+
+	}
+	//////////////////////////////////////////////////////
+
+
+	// David's implementation: (SUSPICIOUS?!?)
+	//////////////////////////////////////////////////////
+//	double singp = cos(beta);
+//	double cosgp = sin(beta);
+
+//	int centerPixel = size(0)/2;
+//	for(int i=0, cc=size(0); i<cc; ++i) {
+
+//		// distance away from center; always positive.
+//		double dx = (centerPixel-i)*mmPerPixel*singp;
+
+//		// db: "delta Beta": the angle difference from the nominal beta.
+
+//		double db = atan(dx/(rPrime-(centerPixel-i)*mmPerPixel*cosgp));
+
+
+//		//bp ("beta-prime") is the diffraction angle at detector point 'i'; sinbp = sin( beta + db )
+//		//																		 = sinb*cos(db) + cosb*sindb
+//		//																		 = sinb*sqrt(1-sin^2(db)) + cosb*sindb
+//		//double sinbp = sinBeta*sqrt( 1.0-sindb*sindb ) + cosBeta*sindb;
+//		double sinbp = sin(beta - db);
+
+
+//		//solving the grating equation for eV:
+//		cachedAxisValues_[i] = 0.0012398417*grooveDensity / (sinAlpha - sinbp);
+//	}
+	////////////////////////////////////////////////////////
+
+//	qDebug()<< "rPrime = " << rPrime;
+//	qDebug() <<"cosgp = " << cosgp;
+//	qDebug()<< "cosBeta = " << cosBeta;
+//	qDebug()<< "sinBeta = " << sinBeta;
+//	qDebug()<< "gamma = " << gamma;
+//	qDebug()<< "beta = " << beta;
+//	qDebug()<< "grooveDensity = " << grooveDensity;
+//	qDebug()<< "sinAlpha = " << sinAlpha;
+
+
+	axisValuesInvalid_ = false;
+}
+
+void REIXSXESImageAB::setEnergyCalibrationOffset(double energyCalibrationOffset)
+{
+	if(energyCalibrationOffset == energyCalibrationOffset_)
+		return;
+
+	energyCalibrationOffset_ = energyCalibrationOffset;
+	axisValueCacheInvalid_ = true;
+	emitValuesChanged();
+
+	setModified(true);
+}
+
+void REIXSXESImageAB::setTiltCalibrationOffset(double tiltCalibrationOffset)
+{
+	if(tiltCalibrationOffset == tiltCalibrationOffset_)
+		return;
+
+	tiltCalibrationOffset_ = tiltCalibrationOffset;
+	axisValueCacheInvalid_ = true;
+	emitValuesChanged();
+
+	setModified(true);
+}
+void REIXSXESImageAB::setCorrelationSmoothingType(int type)
+{
+	correlationSmoothing_.first = type;
+
+	emitValuesChanged();
+
+	if(liveCorrelation())
+			callCorrelation_.schedule();
+
+	setModified(true);
+
+}
+
+void REIXSXESImageAB::setCorrelationSmoothingMode(int mode)
+{
+	correlationSmoothing_.second = mode;
+
+	emitValuesChanged();
+
+	if(liveCorrelation())
+		callCorrelation_.schedule();
+
+	setModified(true);
+
+}
+
+void REIXSXESImageAB::setCorrelationSmoothing(QPair<int,int> cSmooth)
+{
+	int type = cSmooth.first;
+	int mode = cSmooth.second;
+
+	if(cSmooth == correlationSmoothing_)
+		return;
+
+	correlationSmoothing_ = cSmooth;
+
+	delete curveSmoother_;
+	switch((ShiftCurveSmoothing)type) {
+	case Poly:
+	{
+		if(mode == 2)
+			curveSmoother_ = new REIXSQuadraticFitter();
+		else if(mode == 3)
+			curveSmoother_ = new REIXSCubicFitter();
+		else
+			curveSmoother_ = new REIXSQuarticFitter();
+		break;
+	}
+	case Median:
+		curveSmoother_ = new REIXSMovingMedianFitter(mode);
+		break;
+	case Average:
+		curveSmoother_ = new REIXSMovingAverageFitter(mode);
+		break;
+	case None:
+	default:
+		curveSmoother_ = 0;
+		break;
+	}
+
+
+	if(liveCorrelation())
+			callCorrelation_.schedule();
+
+	setModified(true);
+}
+
+REIXSMovingMedianFitter::REIXSMovingMedianFitter(int smoothMode)
+	: REIXSFunctionFitter()
+{
+	smoothMode_ = smoothMode;
+}
+REIXSMovingMedianFitter::~REIXSMovingMedianFitter()
+{
+
+}
+void REIXSMovingMedianFitter::setSmoothMode(int smoothMode)
+{
+	smoothMode_ = smoothMode;
+}
+QVector<int> REIXSMovingMedianFitter::smooth(const QVector<int> &input, const QVector<double> &weights)
+{
+	if(input.isEmpty())
+		return QVector<int>();
+
+	int nPoints = (smoothMode_ - 1)/2;
+	QVector<int> outVec = input;
+
+	for(int i = 0; i < nPoints; i++)
+	{
+		//do the beginning and end
+		QVector<int> tempVec1, tempVec2;
+		int tempSum1 = 0.0, tempSum2 = 0.0;
+		for(int j = 0; j <= (i+nPoints); j++)
+		{
+			tempVec1.append(input[j]);
+			tempVec2.append(input[input.size() - j - 1]);
+		}
+		qSort(tempVec1);
+		qSort(tempVec2);
+
+		outVec[i] = tempVec1.at((tempVec1.size()+1)/2 - 1);
+		outVec[outVec.size() - i - 1] = tempVec2.at((tempVec2.size()+1)/2 - 1);
+	}
+
+	for(int i = nPoints; i < (input.size() - nPoints); i++)
+	{
+		QVector<int> tempVec;
+		for(int j = i - nPoints; j <= i + nPoints; j++)
+		{
+			tempVec.append(input[j]);
+		}
+		qSort(tempVec);
+		outVec[i] = tempVec.at((tempVec.size()+1)/2 - 1);
+	}
+
+	return outVec;
+}
+
+REIXSMovingAverageFitter::REIXSMovingAverageFitter(int smoothMode)
+	: REIXSFunctionFitter()
+{
+	smoothMode_ = smoothMode;
+}
+REIXSMovingAverageFitter::~REIXSMovingAverageFitter()
+{
+
+}
+void REIXSMovingAverageFitter::setSmoothMode(int smoothMode)
+{
+	smoothMode_ = smoothMode;
+}
+QVector<int> REIXSMovingAverageFitter::smooth(const QVector<int> &input, const QVector<double> &weights)
+{
+
+	if(input.isEmpty())
+		return QVector<int>();
+
+	int nPoints = (smoothMode_ - 1)/2;
+	QVector<int> outVec = input;
+
+	for(int i = 0; i < nPoints; i++)
+	{
+		//do the beginning and end
+		int tempSum1 = 0.0, tempSum2 = 0.0;
+		for(int j = 0; j <= (i+nPoints); j++)
+		{
+			tempSum1 += input[j];
+			tempSum2 += input[input.size() - j - 1];
+		}
+		outVec[i] = tempSum1/(i +nPoints);
+		outVec[outVec.size() - i - 1] = tempSum2/(i+nPoints);
+	}
+
+	for(int i = nPoints; i < (input.size() - nPoints); i++)
+	{
+		double tempSum = 0.0;
+		for(int j = i - nPoints; j <= i + nPoints; j++)
+		{
+			tempSum += input[j];
+		}
+		outVec[i] = tempSum/smoothMode_;
+	}
+
+	return outVec;
+}
+
+
+REIXSQuadraticFitter::REIXSQuadraticFitter()
+{
+	// Fitting structures (unallocated)
+	fitWorkSpace_ = 0;
+	fitXX_ = 0;
+	fitY_ = 0;
+	fitWeight_ = 0;
+	fitC_ = 0;
+	fitCov_ = 0;
+
+	numRows_ = -1;
+}
+
+REIXSQuadraticFitter::~REIXSQuadraticFitter() {
+	releaseFittingStructures();
+}
+
+void REIXSQuadraticFitter::allocateFittingStructures(int numRows)
 {
 	if(numRows < 1)
 		return;	// do not allocate if size is 0.
 
-	fitWorkSpace_ = gsl_multifit_linear_alloc(numRows, 3);
-	fitXX_ = gsl_matrix_calloc(numRows, 3);		// The matrix of predictor variables XX_ij = x_i^j;  In our case, x is the image row index (y!)
-	fitY_ = gsl_vector_calloc(numRows);		// The vector of observations;  In our case, fitY_i is the shiftnumber shiftnum_[i]
-	fitWeight_ = gsl_vector_calloc(numRows);	// The weight of the observation; In our case 1 for sourceRangeMin_ <= y <= sourceRangeMax_; 0 otherwise.
+	numRows_ = numRows;
+
+	fitWorkSpace_ = gsl_multifit_linear_alloc(numRows_, 3);
+	fitXX_ = gsl_matrix_calloc(numRows_, 3);		// The matrix of predictor variables XX_ij = x_i^j;  In our case, x is the image row index (y!)
+	fitY_ = gsl_vector_calloc(numRows_);		// The vector of observations;  In our case, fitY_i is the shiftnumber shiftnum_[i]
+	fitWeight_ = gsl_vector_calloc(numRows_);	// The weight of the observation; In our case 1 for sourceRangeMin_ <= y <= sourceRangeMax_; 0 otherwise.
 	fitC_ = gsl_vector_calloc(3);		// The vector of coefficients; In our case the 3 quadratic fit constants.
 	fitCov_ = gsl_matrix_calloc(3, 3);
 	// Fill the predictor matrix...
-	for(int j=0; j<numRows; j++) {
+	for(int j=0; j<numRows_; j++) {
 		gsl_matrix_set(fitXX_, j, 0, 1);
 		gsl_matrix_set(fitXX_, j, 1, j);
 		gsl_matrix_set(fitXX_, j, 2, j*j);
 	}
 }
 
-void REIXSXESImageAB::releaseFittingStructures()
+void REIXSQuadraticFitter::releaseFittingStructures()
 {
 	if(fitWorkSpace_) {
 		gsl_multifit_linear_free( fitWorkSpace_ );
@@ -452,39 +984,30 @@ void REIXSXESImageAB::releaseFittingStructures()
 	}
 }
 
-QVector<int> REIXSXESImageAB::quadraticSmooth(const QVector<int> &shifts)
+QVector<int> REIXSQuadraticFitter::smooth(const QVector<int> &input, const QVector<double>& weights)
 {
-	int sizeY = inputSource_->size(1);
-	QVector<int> rv(sizeY);	// initialize return value.
+	if(input.isEmpty())
+		return QVector<int>();
 
-	if(shifts.count() != sizeY) {
-		AMErrorMon::alert(this, -33, "Cannot conduct quadratic smoothing of the shift values, because the size of the input does not match the image vertical size. Please report this bug to the REIXS Acquaman developers.");
-		return rv;
-	}
-
-	// Do we need to allocate or re-size the fitting structures?
-	if(!fitWorkSpace_ || fitY_->size != size_t(sizeY)) {
+	if(input.size() != numRows_) {
 		releaseFittingStructures();
-		allocateFittingStructures(sizeY);
+		allocateFittingStructures(input.size());
 	}
 
-	// Copy the shiftnumbers into the 'observation' fitting vector
-	// Set the weights to 0 outside [sumRangeMin_, sumRangeMax_] and 1 inside. (0.5 on the boundary, for non-abruptness?)
-	for(int j=0; j<sizeY; j++) {
-		gsl_vector_set(fitY_, j, shifts.at(j));
-		if(j<sumRangeMin_ || j>sumRangeMax_)
-			gsl_vector_set(fitWeight_, j, 0);
-		else if(j==sumRangeMin_ || j==sumRangeMax_)
-			gsl_vector_set(fitWeight_, j, 0.5);
-		else
-			gsl_vector_set(fitWeight_, j, 1);
+	QVector<int> rv(numRows_);
+
+	// Copy the input into the 'observation' fitting vector
+	// Copy the weights into th weighting vector
+	for(int j=0; j<numRows_; ++j) {
+		gsl_vector_set(fitY_, j, input.at(j));
+		gsl_vector_set(fitWeight_, j, weights.at(j));
 	}
 
 	// Run the fitting procedure
-	if( gsl_multifit_linear (fitXX_, fitY_, fitC_, fitCov_, &fitChisq_, fitWorkSpace_) )
-		AMErrorMon::alert(this, -34, "A mathematical error occurred while fitting the correlated shift values to a quadratic curve. Please report this problem to the REIXS Acquaman developers");
+	if( gsl_multifit_linear (fitXX_, fitY_, fitC_, fitCov_, &fitChisq_, fitWorkSpace_) != GSL_SUCCESS )
+		AMErrorMon::alert(0, -34, "Curve Fitting: A mathematical error occurred while fitting the correlated shift values to a quadratic curve. Please report this problem to the REIXS Acquaman developers");
 	else
-		for(int j=0; j<sizeY; j++)
+		for(int j=0; j<numRows_; j++)
 			// The new quadratic has coefficients in fitC_
 			rv[j] = lround( gsl_vector_get(fitC_, 0) + gsl_vector_get(fitC_, 1)*j + gsl_vector_get(fitC_, 2)*j*j );
 
@@ -492,9 +1015,186 @@ QVector<int> REIXSXESImageAB::quadraticSmooth(const QVector<int> &shifts)
 }
 
 
-#include "analysis/REIXS/REIXSXESImageABEditor.h"
-
-QWidget * REIXSXESImageAB::createEditorWidget()
+REIXSCubicFitter::REIXSCubicFitter()
 {
-	return new REIXSXESImageABEditor(this);
+	// Fitting structures (unallocated)
+	fitWorkSpace_ = 0;
+	fitXX_ = 0;
+	fitY_ = 0;
+	fitWeight_ = 0;
+	fitC_ = 0;
+	fitCov_ = 0;
+
+	numRows_ = -1;
+}
+
+REIXSCubicFitter::~REIXSCubicFitter() {
+	releaseFittingStructures();
+}
+
+void REIXSCubicFitter::allocateFittingStructures(int numRows)
+{
+	if(numRows < 1)
+		return;	// do not allocate if size is 0.
+
+	numRows_ = numRows;
+
+	fitWorkSpace_ = gsl_multifit_linear_alloc(numRows_, 4);
+	fitXX_ = gsl_matrix_calloc(numRows_, 4);		// The matrix of predictor variables XX_ij = x_i^j;
+	fitY_ = gsl_vector_calloc(numRows_);		// The vector of observations;
+	fitWeight_ = gsl_vector_calloc(numRows_);	// The weight of the observation;
+	fitC_ = gsl_vector_calloc(4);		// The vector of coefficients; In our case the 4 Cubic fit constants.
+	fitCov_ = gsl_matrix_calloc(4, 4);
+	// Fill the predictor matrix...
+	for(int j=0; j<numRows_; j++) {
+		gsl_matrix_set(fitXX_, j, 0, 1);
+		gsl_matrix_set(fitXX_, j, 1, j);
+		gsl_matrix_set(fitXX_, j, 2, j*j);
+		gsl_matrix_set(fitXX_, j, 3, j*j*j);
+	}
+}
+
+void REIXSCubicFitter::releaseFittingStructures()
+{
+	if(fitWorkSpace_) {
+		gsl_multifit_linear_free( fitWorkSpace_ );
+		gsl_matrix_free( fitXX_ );
+		gsl_vector_free( fitY_ );
+		gsl_vector_free( fitWeight_ );
+		gsl_vector_free( fitC_ );
+		gsl_matrix_free( fitCov_ );
+
+		fitWorkSpace_ = 0;
+		fitXX_ = 0;
+		fitY_ = 0;
+		fitWeight_ = 0;
+		fitC_ = 0;
+		fitCov_ = 0;
+	}
+}
+
+QVector<int> REIXSCubicFitter::smooth(const QVector<int> &input, const QVector<double>& weights)
+{
+	if(input.isEmpty())
+		return QVector<int>();
+
+	if(input.size() != numRows_) {
+		releaseFittingStructures();
+		allocateFittingStructures(input.size());
+	}
+
+	QVector<int> rv(numRows_);
+
+	// Copy the input into the 'observation' fitting vector
+	// Copy the weights into th weighting vector
+	for(int j=0; j<numRows_; ++j) {
+		gsl_vector_set(fitY_, j, input.at(j));
+		gsl_vector_set(fitWeight_, j, weights.at(j));
+	}
+
+	// Run the fitting procedure
+	if( gsl_multifit_linear (fitXX_, fitY_, fitC_, fitCov_, &fitChisq_, fitWorkSpace_) != GSL_SUCCESS )
+		AMErrorMon::alert(0, -34, "Curve Fitting: A mathematical error occurred while fitting the correlated shift values to a Cubic curve. Please report this problem to the REIXS Acquaman developers");
+	else
+		for(int j=0; j<numRows_; j++)
+			// The new Cubic has coefficients in fitC_
+			rv[j] = lround( gsl_vector_get(fitC_, 0) + gsl_vector_get(fitC_, 1)*j + gsl_vector_get(fitC_, 2)*j*j + gsl_vector_get(fitC_, 3)*j*j*j );
+
+	return rv;
+}
+
+//
+
+REIXSQuarticFitter::REIXSQuarticFitter()
+	: REIXSFunctionFitter()
+{
+	// Fitting structures (unallocated)
+	fitWorkSpace_ = 0;
+	fitXX_ = 0;
+	fitY_ = 0;
+	fitWeight_ = 0;
+	fitC_ = 0;
+	fitCov_ = 0;
+
+	numRows_ = -1;
+}
+
+REIXSQuarticFitter::~REIXSQuarticFitter() {
+	releaseFittingStructures();
+}
+
+void REIXSQuarticFitter::allocateFittingStructures(int numRows)
+{
+	if(numRows < 1)
+		return;	// do not allocate if size is 0.
+
+	numRows_ = numRows;
+
+	fitWorkSpace_ = gsl_multifit_linear_alloc(numRows_, 5);
+	fitXX_ = gsl_matrix_calloc(numRows_, 5);		// The matrix of predictor variables XX_ij = x_i^j;
+	fitY_ = gsl_vector_calloc(numRows_);		// The vector of observations;
+	fitWeight_ = gsl_vector_calloc(numRows_);	// The weight of the observation;
+	fitC_ = gsl_vector_calloc(5);		// The vector of coefficients; In our case the 5 Quartic fit constants.
+	fitCov_ = gsl_matrix_calloc(5, 5);
+	// Fill the predictor matrix...
+	for(int j=0; j<numRows_; j++) {
+		gsl_matrix_set(fitXX_, j, 0, 1);
+		gsl_matrix_set(fitXX_, j, 1, j);
+		gsl_matrix_set(fitXX_, j, 2, j*j);
+		gsl_matrix_set(fitXX_, j, 3, j*j*j);
+		gsl_matrix_set(fitXX_, j, 4, j*j*j*j);
+	}
+}
+
+void REIXSQuarticFitter::releaseFittingStructures()
+{
+	if(fitWorkSpace_) {
+		gsl_multifit_linear_free( fitWorkSpace_ );
+		gsl_matrix_free( fitXX_ );
+		gsl_vector_free( fitY_ );
+		gsl_vector_free( fitWeight_ );
+		gsl_vector_free( fitC_ );
+		gsl_matrix_free( fitCov_ );
+
+		fitWorkSpace_ = 0;
+		fitXX_ = 0;
+		fitY_ = 0;
+		fitWeight_ = 0;
+		fitC_ = 0;
+		fitCov_ = 0;
+	}
+}
+
+QVector<int> REIXSQuarticFitter::smooth(const QVector<int> &input, const QVector<double>& weights)
+{
+	if(input.isEmpty())
+		return QVector<int>();
+
+	if(input.size() != numRows_) {
+		releaseFittingStructures();
+		allocateFittingStructures(input.size());
+	}
+
+	QVector<int> rv(numRows_);
+
+	// Copy the input into the 'observation' fitting vector
+	// Copy the weights into th weighting vector
+	for(int j=0; j<numRows_; ++j) {
+		gsl_vector_set(fitY_, j, input.at(j));
+		gsl_vector_set(fitWeight_, j, weights.at(j));
+	}
+
+	// Run the fitting procedure
+	if( gsl_multifit_linear (fitXX_, fitY_, fitC_, fitCov_, &fitChisq_, fitWorkSpace_) != GSL_SUCCESS )
+		AMErrorMon::alert(0, -34, "Curve Fitting: A mathematical error occurred while fitting the correlated shift values to a Quartic curve. Please report this problem to the REIXS Acquaman developers");
+	else
+		for(int j=0; j<numRows_; j++)
+			// The new Quartic has coefficients in fitC_
+			rv[j] = lround( gsl_vector_get(fitC_, 0)
+							+ gsl_vector_get(fitC_, 1)*j
+							+ gsl_vector_get(fitC_, 2)*j*j
+							+ gsl_vector_get(fitC_, 3)*j*j*j
+							+ gsl_vector_get(fitC_, 4)*j*j*j*j );
+
+	return rv;
 }

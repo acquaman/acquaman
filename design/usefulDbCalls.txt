@@ -1,0 +1,12 @@
+selecting filepath minus the ".dat" portion
+
+SELECT id,substr(filePath,1,length(filePath)-4) FROM AMScan_table WHERE id=94
+
+
+
+
+use filepath (less ".dat") to make the additionalFilePath with "_spectra.dat". The "||" is append ... somehow
+
+UPDATE AMScan_table
+SET additionalFilePaths=substr(filePath,1,length(filePath)-4)||'_spectra.dat'
+WHERE additionalFilePath IS NULL

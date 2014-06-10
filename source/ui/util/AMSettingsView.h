@@ -35,6 +35,7 @@ class AMUserSettingsView : public QGroupBox
 	Q_OBJECT
 public:
 	/// Standard constructor
+ 	virtual ~AMUserSettingsView();
 	AMUserSettingsView(QWidget *parent = 0);
 
 protected:
@@ -54,6 +55,7 @@ class AMSettingsView : public QGroupBox
 
 public:
 	/// Standard constructor
+ 	virtual ~AMSettingsView();
 	AMSettingsView(QWidget *parent = 0);
 
 	/// Returns whether or not there are unsaved changes (see unsavedChanges_ member variable)
@@ -103,6 +105,7 @@ class AMSettingsMasterView : public QWidget
 	Q_OBJECT
 public:
 	/// Standard Constructor
+ 	virtual ~AMSettingsMasterView();
 	AMSettingsMasterView(QWidget *parent = 0);
 
 protected slots:

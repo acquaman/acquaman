@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>595</width>
+    <width>608</width>
     <height>420</height>
    </rect>
   </property>
@@ -20,7 +20,7 @@
    <string>General Export Options</string>
   </property>
   <property name="currentIndex">
-   <number>2</number>
+   <number>1</number>
   </property>
   <widget class="QWidget" name="tabHeader">
    <attribute name="title">
@@ -147,6 +147,16 @@
      <widget class="QCheckBox" name="separateHigherDimensionSourcesCheck">
       <property name="text">
        <string>2D and higher data sources into separate files</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QCheckBox" name="higherDimensionsInRows">
+      <property name="text">
+       <string>Separate files in rows or columns</string>
+      </property>
+      <property name="checked">
+       <bool>false</bool>
       </property>
      </widget>
     </item>
@@ -739,6 +749,9 @@ If you've chosen to put any data sets into a separate file, provide the pattern 
   </widget>
  </widget>
  <resources>
+  <include location="../../icons/icons.qrc"/>
+  <include location="../../icons/icons.qrc"/>
+  <include location="../../icons/icons.qrc"/>
   <include location="../../icons/icons.qrc"/>
   <include location="../../icons/icons.qrc"/>
   <include location="../../icons/icons.qrc"/>

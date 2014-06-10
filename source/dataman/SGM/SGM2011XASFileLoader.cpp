@@ -81,6 +81,8 @@ SGM2011XASFileLoader::SGM2011XASFileLoader(AMXASScan *scan) :
 	defaultUserVisibleColumns_ << "OceanOptics65000";
 }
 
+SGM2011XASFileLoader::~SGM2011XASFileLoader(){}
+
 /// load raw data from the SGM dacqLibrary file format into a scan's data tree.  If \c createChannels is set to true, it will create some default channels based on the data columns, while \c extractMetaData is always ignored.
 bool SGM2011XASFileLoader::loadFromFile(const QString& filepath, bool setMetaData, bool setRawDataSources, bool createDefaultAnalysisBlocks) {
 
@@ -195,9 +197,9 @@ bool SGM2011XASFileLoader::loadFromFile(const QString& filepath, bool setMetaDat
 				scan->rawData()->addMeasurement(spectraInfo);
 				*/
 				/**/
-				qDebug() << "Column is a spectrum offset with name " << colName;
+//				qdebug() << "Column is a spectrum offset with name " << colName;
 				if(colName == "SDD"){
-					qDebug() << "Adding SDD column at " << x;
+//					qdebug() << "Adding SDD column at " << x;
 					AMAxisInfo sddEVAxisInfo("energy", 1024, "SDD Energy", "eV");
 					QList<AMAxisInfo> sddAxes;
 					sddAxes << sddEVAxisInfo;
@@ -205,7 +207,7 @@ bool SGM2011XASFileLoader::loadFromFile(const QString& filepath, bool setMetaDat
 					scan->rawData()->addMeasurement(sddInfo);
 				}
 				else if(colName == "OceanOptics65000"){
-					qDebug() << "Adding OOS column at " << x;
+//					qdebug() << "Adding OOS column at " << x;
 					AMAxisInfo oosWavelengthAxisInfo("wavelength", 1024, "Wavelength", "nm");
 					QList<AMAxisInfo> oosAxes;
 					oosAxes << oosWavelengthAxisInfo;
@@ -230,7 +232,7 @@ bool SGM2011XASFileLoader::loadFromFile(const QString& filepath, bool setMetaDat
 		// event id 1.  If the line starts with "1," and there are the correct number of columns:
 		if(line.startsWith("1,") && (lp = line.split(',')).count() == colNames1.count() ) {
 
-			scan->rawData()->beginInsertRows(0);
+			scan->rawData()->beginInsertRows(1, -1);
 			scan->rawData()->setAxisValue(0, eVAxisIndex, lp.at(eVIndex).toDouble()); // insert eV
 
 			// add data from all columns (but ignore the first (Event-ID) and the eV column)
@@ -261,7 +263,7 @@ bool SGM2011XASFileLoader::loadFromFile(const QString& filepath, bool setMetaDat
 			return false;
 		}
 
-		qDebug() << "Playing the spectra game, raw data measurement count is " << scan->rawData()->measurementCount();
+//		qdebug() << "Playing the spectra game, raw data measurement count is " << scan->rawData()->measurementCount();
 		//Prep the list of start and end bytes
 		// The initialFileOffsets is a list of lists of ints. The first list is the start offsets for the first spectra
 		//  This is not enough, as we as need the end (need to read from start to end). End is the start of the next spectra.
@@ -297,8 +299,8 @@ bool SGM2011XASFileLoader::loadFromFile(const QString& filepath, bool setMetaDat
 		//  Alloc a double array of that size and append it to the list of spectrum values
 		//  Start each spectrum counter at 0
 		for(int x = 0; x < offsetColumns.count(); x++){
-			qDebug() << "x is " << x << " means column is " << offsetColumns.at(x)-2;
-			qDebug() << "means size is " << scan->rawData()->measurementAt(offsetColumns.at(x)-2).size(0);
+//			qdebug() << "x is " << x << " means column is " << offsetColumns.at(x)-2;
+//			qdebug() << "means size is " << scan->rawData()->measurementAt(offsetColumns.at(x)-2).size(0);
 
 			//Offset two columns for event-ID and eV
 			allSpecSizes.append(scan->rawData()->measurementAt(offsetColumns.at(x)-2).size(0));
@@ -316,7 +318,7 @@ bool SGM2011XASFileLoader::loadFromFile(const QString& filepath, bool setMetaDat
 				endByte = fileOffsets.at(y).at(x).second;
 				if(endByte == -1){
 					endByte = spectraFileInfo.size();
-					qDebug() << "Old way says " << endByte << " info way says " << spectraFileInfo.size();
+//					qdebug() << "Old way says " << endByte << " info way says " << spectraFileInfo.size();
 				}
 
 				// Grab the text from the specified start to end and put it into a QByteArray
@@ -365,7 +367,7 @@ bool SGM2011XASFileLoader::loadFromFile(const QString& filepath, bool setMetaDat
 
 				// insert the detector values (all at once, for performance)
 				//offset two columns for event-ID and eV
-				scan->rawData()->setValue(x, offsetColumns.at(y)-2, allSpecValues[y], allSpecSizes.at(y));
+				scan->rawData()->setValue(x, offsetColumns.at(y)-2, allSpecValues[y]);
 				// Check specCounter is the right size... Not too big, not too small.
 				if(allSpecCounters.at(y) != allSpecSizes.at(y)) {
 					AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, -1, QString("SGM2011XASFileLoader found corrupted data in the SDD spectra file '%1' on row %2. There should be %3 elements in the spectra, but we only found %4").arg(spectraFile).arg(x).arg(allSpecSizes.at(y)).arg(allSpecCounters.at(y))));

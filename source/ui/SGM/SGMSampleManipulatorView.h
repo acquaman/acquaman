@@ -32,14 +32,15 @@ class QToolButton;
 class QButtonGroup;
 class QGridLayout;
 
-class AMBeamlineListAction;
+class AMAction3;
 class SGMMAXvMotor;
-class AMControlEditor;
+class AMExtendedControlEditor;
 
 class SGMSampleManipulatorView : public QGroupBox
 {
 Q_OBJECT
 public:
+ 	virtual ~SGMSampleManipulatorView();
 	SGMSampleManipulatorView(bool bigButtons = false, QWidget *parent = 0);
 
 protected slots:
@@ -67,9 +68,6 @@ protected slots:
 	void onTransferPositionButtonClicked();
 	void onMeasurePositionButtonClicked();
 
-	void onHVButtonClicked();
-	void onHVStateChanged();
-
 	void onIlluminatorSliderValueMoved(int newValue);
 	void onIlluminatorFeedbackChanged(double newValue);
 	void onIlluminatorPreset(int presetIndex);
@@ -89,26 +87,19 @@ protected:
 
 	QPushButton *stopAllButton_;
 	QPushButton *transferPositionButton_;
-	AMBeamlineListAction *transferPositionActions_;
+	AMAction3 *transferPositionActions_;
 	QPushButton *measurePositionButton_;
-	AMBeamlineListAction *measurementPositionActions_;
-	QPushButton *hvButton_;
+	AMAction3 *measurementPositionActions_;
 
-	/*
-	AMControl *mVerticalCtrl_;
-	AMControl *mHorizontalCtrl_;
-	AMControl *mInPlaneCtrl_;
-	AMControl *mRotationCtrl_;
-	*/
 	SGMMAXvMotor *mVerticalCtrl_;
 	SGMMAXvMotor *mHorizontalCtrl_;
 	SGMMAXvMotor *mInPlaneCtrl_;
 	SGMMAXvMotor *mRotationCtrl_;
 
-	AMControlEditor *mVerticalNC_;
-	AMControlEditor *mHorizontalNC_;
-	AMControlEditor *mInPlaneNC_;
-	AMControlEditor *mRotationNC_;
+	AMExtendedControlEditor *mVerticalNC_;
+	AMExtendedControlEditor *mHorizontalNC_;
+	AMExtendedControlEditor *mInPlaneNC_;
+	AMExtendedControlEditor *mRotationNC_;
 
 	QSlider *illuminatorSlider_;
 	QButtonGroup *illuminatorPresets_;

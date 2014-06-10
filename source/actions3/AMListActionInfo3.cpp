@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 // AMListActionInfo
 ////////////////////////////////
 
+ AMListActionInfo3::~AMListActionInfo3(){}
 AMListActionInfo3::AMListActionInfo3(const QString &shortDescription, const QString &longDescription, const QString &iconFileName, QObject *parent)
 	: AMActionInfo3(shortDescription, longDescription, iconFileName, parent)
 {
@@ -43,6 +44,7 @@ QString AMListActionInfo3::typeDescription() const{
 // AMSequentialListActionInfo
 ////////////////////////////////
 
+ AMSequentialListActionInfo3::~AMSequentialListActionInfo3(){}
 AMSequentialListActionInfo3::AMSequentialListActionInfo3(const QString &shortDescription, const QString &longDescription, const QString &iconFileName, QObject *parent)
 	: AMListActionInfo3(shortDescription, longDescription, iconFileName, parent)
 {
@@ -64,6 +66,7 @@ QString AMSequentialListActionInfo3::typeDescription() const{
 // AMParallelListActionInfo
 ////////////////////////////////
 
+ AMParallelListActionInfo3::~AMParallelListActionInfo3(){}
 AMParallelListActionInfo3::AMParallelListActionInfo3(const QString &shortDescription, const QString &longDescription, const QString &iconFileName, QObject *parent)
 	: AMListActionInfo3(shortDescription, longDescription, iconFileName, parent)
 {

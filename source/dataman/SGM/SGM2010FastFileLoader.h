@@ -29,6 +29,7 @@ class AMFastScan;
 class SGM2010FastFileLoader : public AMAbstractFileLoader
 {
 public:
+ 	virtual ~SGM2010FastFileLoader();
     SGM2010FastFileLoader(AMFastScan *scan = 0);
 
     QString formatTag() const { return "sgm2010Fast"; }

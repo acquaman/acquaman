@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 // AMRegion
 /////////////////////////////////////////////////////////
 
+ AMRegion::~AMRegion(){}
 AMRegion::AMRegion(QObject *parent) :
 	QObject(parent)
 {
@@ -42,7 +43,7 @@ AMRegion::AMRegion(QObject *parent) :
 
 // Sets the start value from the double passed in. Makes sure the energy is within the allowable range, otherwise returns false.
 bool AMRegion::setStart(double start) {
-	if(ctrl_->valueOutOfRange(start))
+	if(ctrl_ && ctrl_->valueOutOfRange(start))
 		return false;
 	start_ = start;
 	if(elasticStart_){
@@ -54,7 +55,7 @@ bool AMRegion::setStart(double start) {
 
 // Sets the end value from the double passed in. Makes sure the energy is within the allowable range, otherwise returns false.
 bool AMRegion::setEnd(double end) {
-	if(ctrl_->valueOutOfRange(end))
+	if(ctrl_ && ctrl_->valueOutOfRange(end))
 		return false;
 	end_ = end;
 	if(elasticEnd_){
@@ -84,8 +85,8 @@ bool AMRegion::setTime(double time)
 
 bool AMRegion::setUnits(const QString &units)
 {
-	if (units.isNull())
-		return false;
+//	if (units.isNull())
+//		return false;
 
 	units_ = units;
 	return true;
@@ -93,8 +94,8 @@ bool AMRegion::setUnits(const QString &units)
 
 bool AMRegion::setTimeUnits(const QString &units)
 {
-	if (units.isNull())
-		return false;
+//	if (units.isNull())
+//		return false;
 
 	timeUnits_ = units;
 	return true;
@@ -134,6 +135,7 @@ bool AMRegion::isValid() const
 // AMRegionsListModel
 /////////////////////////////////////////////////////////////////////////////
 
+ AMRegionsListModel::~AMRegionsListModel(){}
 AMRegionsListModel::AMRegionsListModel(QObject *parent)
 	: QAbstractTableModel(parent)
 {
@@ -333,7 +335,7 @@ bool AMRegionsListModel::setData(const QModelIndex &index, const QVariant &value
 }
 
 bool AMRegionsListModel::insertRows(int position, int rows, const QModelIndex &index){
-	if (index.row() <= regions_->count() && position <= regions_->count() && defaultControl_ && defaultTimeControl_) {
+	if (index.row() <= regions_->count() && position <= regions_->count() /*&& defaultControl_ && defaultTimeControl_*/) {
 
 		beginInsertRows(QModelIndex(), position, position+rows-1);
 
@@ -390,7 +392,7 @@ Qt::ItemFlags AMRegionsListModel::flags(const QModelIndex &index) const{
 ////////////////////////////////////////////////////////
 
 bool AMXASRegionsListModel::insertRows(int position, int rows, const QModelIndex &index){
-	if (index.row() <= regions_->count() && position <= regions_->count() && defaultControl_ && defaultTimeControl_) {
+	if (index.row() <= regions_->count() && position <= regions_->count() /*&& defaultControl_ && defaultTimeControl_*/) {
 
 		beginInsertRows(QModelIndex(), position, position+rows-1);
 
@@ -429,7 +431,7 @@ bool AMEXAFSRegion::setType(AMEXAFSRegion::RegionType type)
 
 // Sets the start value from the double passed in. Assumes the value passed in is in the space of the region.  Makes sure the energy is within the allowable range, otherwise returns false.
 bool AMEXAFSRegion::setStart(double start) {
-	if(control()->valueOutOfRange(start))
+	if(control() && control()->valueOutOfRange(start))
 		return false;
 
 	// k values can't be negative.
@@ -448,7 +450,7 @@ bool AMEXAFSRegion::setStart(double start) {
 
 // Sets the end value from the double passed in. Assumes the value passed in is in the space of the region.  Makes sure the energy is within the allowable range, otherwise returns false.
 bool AMEXAFSRegion::setEnd(double end) {
-	if(control()->valueOutOfRange(end))
+	if(control() && control()->valueOutOfRange(end))
 		return false;
 
 	// k values can't be negative.
@@ -468,7 +470,7 @@ bool AMEXAFSRegion::setEnd(double end) {
 // Sets the start value from the double and the method assumes that the value is in the space of the type passed in it.  For example, if you choose Energy, it will assume it is a value in eV.
 bool AMEXAFSRegion::setStartByType(double start, RegionType type)
 {
-	if(control()->valueOutOfRange(start))
+	if(control() && control()->valueOutOfRange(start))
 		return false;
 
 	// k values can't be negative.
@@ -488,7 +490,7 @@ bool AMEXAFSRegion::setStartByType(double start, RegionType type)
 // Sets the end value from the double and the method assumes that the value is in the space of the type passed in it.  For example, if you choose Energy, it will assume it is a value in eV.
 bool AMEXAFSRegion::setEndByType(double end, RegionType type)
 {
-	if(control()->valueOutOfRange(end))
+	if(control() && control()->valueOutOfRange(end))
 		return false;
 
 	// k values can't be negative.
@@ -559,7 +561,7 @@ bool AMEXAFSRegion::adjustEnd(double end){
 bool AMEXAFSRegionsListModel::insertRows(int position, int rows, const QModelIndex &index)
 {
 	if (index.row() <= regions_->count() && position <= regions_->count()
-			&& defaultControl_ && defaultKControl_ && defaultTimeControl_) {
+			/*&& defaultControl_ && defaultKControl_ && defaultTimeControl_*/) {
 
 		beginInsertRows(QModelIndex(), position, position+rows-1);
 
@@ -817,3 +819,7 @@ QVariant AMEXAFSRegionsListModel::headerData(int section, Qt::Orientation orient
 
 	return header;
 }
+ AMXASRegion::~AMXASRegion(){}
+ AMXASRegionsListModel::~AMXASRegionsListModel(){}
+ AMEXAFSRegion::~AMEXAFSRegion(){}
+ AMEXAFSRegionsListModel::~AMEXAFSRegionsListModel(){}

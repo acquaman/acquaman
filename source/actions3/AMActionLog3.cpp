@@ -28,6 +28,7 @@ AMActionLog3::AMActionLog3(QObject *parent) :
 {
 	info_ = 0;
 	finalState_ = 0;
+	loadedInfoFromDb_ = false;
 }
 
 AMActionLog3::AMActionLog3(const AMAction3 *completedAction, QObject *parent) :
@@ -36,18 +37,19 @@ AMActionLog3::AMActionLog3(const AMAction3 *completedAction, QObject *parent) :
 	if(completedAction){
 		const AMListAction3 *listAction = qobject_cast<const AMListAction3*>(completedAction);
 		const AMLoopAction3 *loopAction = qobject_cast<const AMLoopAction3*>(completedAction);
-		if(listAction){
+		if(listAction)
 			actionInheritedList_ = true;
-			info_ = const_cast<AMActionInfo3*>(completedAction->info());
-		}
-		else{
+		else
 			actionInheritedList_ = false;
-			info_ = completedAction->info()->createCopy();
-		}
 		if(loopAction)
 			actionInheritedLoop_ = true;
 		else
 			actionInheritedLoop_ = false;
+
+		info_ = const_cast<AMActionInfo3*>(completedAction->info());
+		connect(info_, SIGNAL(destroyed()), this, SLOT(onInfoDestroyed()));
+
+		loadedInfoFromDb_ = false;
 		startDateTime_ = completedAction->startDateTime();
 		finalState_ = completedAction->state();
 		setName(info_->shortDescription());
@@ -59,6 +61,7 @@ AMActionLog3::AMActionLog3(const AMAction3 *completedAction, QObject *parent) :
 	else{
 		info_ = 0;
 		finalState_ = 0;
+		loadedInfoFromDb_ = false;
 	}
 }
 
@@ -67,11 +70,12 @@ AMActionLog3::AMActionLog3(const AMActionLog3 &other) :
 {
 	if(other.isValid()) {
 		actionInheritedList_ = other.actionInheritedList();
-		if(actionInheritedList_)
-			info_ = const_cast<AMActionInfo3*>(other.info());
-		else
-			info_ = other.info()->createCopy();
 		actionInheritedLoop_ = other.actionInheritedLoop();
+
+		info_ = const_cast<AMActionInfo3*>(other.info());
+		connect(info_, SIGNAL(destroyed()), this, SLOT(onInfoDestroyed()));
+
+		loadedInfoFromDb_ = false;
 		finalState_ = other.finalState();
 		startDateTime_ = other.startDateTime();
 		endDateTime_ = other.endDateTime();
@@ -80,11 +84,13 @@ AMActionLog3::AMActionLog3(const AMActionLog3 &other) :
 	else {
 		info_ = 0;
 		finalState_ = 0;
+		loadedInfoFromDb_ = false;
 	}
 }
 
 AMActionLog3::~AMActionLog3() {
-	if(!actionInheritedList_)
+	disconnect(info_, SIGNAL(destroyed()), this, SLOT(onInfoDestroyed()));
+	if(loadedInfoFromDb_)
 		delete info_;
 	info_ = 0;
 }
@@ -92,9 +98,13 @@ AMActionLog3::~AMActionLog3() {
 bool AMActionLog3::setFromAction(const AMAction3 *completedAction)
 {
 	if(completedAction && completedAction->inFinalState()) {
-		if(!actionInheritedList_)
-			delete info_;
-		info_ = completedAction->info()->createCopy();
+		if(info_)
+			disconnect(info_, SIGNAL(destroyed()), this, SLOT(onInfoDestroyed()));
+
+		info_ = const_cast<AMActionInfo3*>(completedAction->info());
+		connect(info_, SIGNAL(destroyed()), this, SLOT(onInfoDestroyed()));
+
+		loadedInfoFromDb_ = false;
 		finalState_ = completedAction->state();
 		startDateTime_ = completedAction->startDateTime();
 		endDateTime_ = completedAction->endDateTime();
@@ -133,9 +143,13 @@ void AMActionLog3::dbLoadInfo(AMDbObject *newInfo)
 {
 	AMActionInfo3* info = qobject_cast<AMActionInfo3*>(newInfo);
 	if(info) {
-		if(!actionInheritedList_)
-			delete info_;
+		if(info_)
+			disconnect(info_, SIGNAL(destroyed()), this, SLOT(onInfoDestroyed()));
+
 		info_ = info;
+		connect(info_, SIGNAL(destroyed()), this, SLOT(onInfoDestroyed()));
+
+		loadedInfoFromDb_ = true;
 		setName(info_->shortDescription());
 		setModified(true);
 	}
@@ -150,53 +164,6 @@ void AMActionLog3::dbLoadActionInheritedLoop(bool actionInheritedLoop){
 	setModified(true);
 }
 
-bool AMActionLog3::logUncompletedAction(const AMAction3 *uncompletedAction, int parentLogId, AMDatabase *database){
-	if(uncompletedAction && !uncompletedAction->inFinalState()){
-		AMActionLog3 actionLog(uncompletedAction);
-		actionLog.setParentId(parentLogId);
-		bool success = actionLog.storeToDb(database);
-		const AMListAction3 *listAction = qobject_cast<const AMListAction3*>(uncompletedAction);
-		if(success && listAction){
-			AMListAction3 *modifyListAction = const_cast<AMListAction3*>(listAction);
-			modifyListAction->setLogActionId(actionLog.id());
-		}
-		return success;
-	}
-	return false;
-}
-
-bool AMActionLog3::updateCompletedAction(const AMAction3 *completedAction, AMDatabase *database){
-	if(completedAction && completedAction->inFinalState()) {
-		int infoId = completedAction->info()->id();
-		if(infoId < 1){
-			AMErrorMon::alert(0, AMACTIONLOG_CANNOT_UPDATE_UNSAVED_ACTIONLOG, "The actions logging system attempted to update a log action that hadn't already been saved. Please report this problem to the Acquaman developers.");
-			return false;
-		}
-		QString infoValue = QString("%1;%2").arg(AMDbObjectSupport::s()->tableNameForClass(completedAction->info()->metaObject()->className())).arg(infoId);
-		QList<int> matchingIds = database->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMActionLog3>(), "info", QVariant(infoValue));
-		if(matchingIds.count() == 0){
-			AMErrorMon::alert(0, AMACTIONLOG_CANNOT_UPDATE_BAD_INDEX, QString("The actions logging system attempted to update a log action with a bad database index (%1). Please report this problem to the Acquaman developers.").arg(infoId));
-			return false;
-		}
-		int logId = matchingIds.last();
-		AMActionLog3 actionLog;
-		actionLog.loadFromDb(database, logId);
-		actionLog.setFromAction(completedAction);
-		return actionLog.storeToDb(database);
-	}
-	else {
-		AMErrorMon::alert(0, AMACTIONLOG_CANNOT_UPDATE_UNCOMPLETED_ACTION, QString("The actions logging system attempted to update a log action that hadn't yet finished running. Please report this problem to the Acquaman developers."));
-		return false;
-	}
-}
-
-bool AMActionLog3::logCompletedAction(const AMAction3 *completedAction, int parentLogId, AMDatabase *database){
-	if(completedAction && completedAction->inFinalState()) {
-		AMActionLog3 actionLog(completedAction);
-		actionLog.setParentId(parentLogId);
-		return actionLog.storeToDb(database);
-	}
-	else {
-		return false;
-	}
+void AMActionLog3::onInfoDestroyed(){
+	info_ = 0; //NULL
 }

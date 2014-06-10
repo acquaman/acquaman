@@ -19,12 +19,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AM2DScanConfiguration.h"
 
+ AM2DScanConfiguration::~AM2DScanConfiguration(){}
 AM2DScanConfiguration::AM2DScanConfiguration(QObject *parent)
 	: AMScanConfiguration(parent)
 {
 	setUserScanName("");
-	xRange_ = qMakePair(0.0, 0.0);
-	yRange_ = qMakePair(0.0, 0.0);
+	xRange_ = AMRange();
+	yRange_ = AMRange();
 	steps_ = qMakePair(0.0, 0.0);
 	time_ = 0;
 	fast_ = X;
@@ -32,7 +33,7 @@ AM2DScanConfiguration::AM2DScanConfiguration(QObject *parent)
 }
 
 AM2DScanConfiguration::AM2DScanConfiguration(const AM2DScanConfiguration &original)
-	: AMScanConfiguration(original.parent())
+	: AMScanConfiguration()
 {
 	setUserScanName(original.userScanName());
 	xRange_ = original.xRange();
@@ -46,14 +47,14 @@ AM2DScanConfiguration::AM2DScanConfiguration(const AM2DScanConfiguration &origin
 bool AM2DScanConfiguration::validXAxis() const
 {
 	// If there is no finite difference between the start and end points.
-	if (xRange_.first == xRange_.second)
+	if (xRange_.minimum() == xRange_.maximum())
 		return false;
 
 	// If the sign of the step size is different from the difference between start and end points then the scan cannot make it from the start to the end.
-	else if ((xRange_.second - xRange_.first) > 0 && steps_.first < 0)
+	else if ((xRange_.maximum() - xRange_.minimum()) > 0 && steps_.first < 0)
 		return false;
 
-	else if ((xRange_.second - xRange_.first) < 0 && steps_.first > 0)
+	else if ((xRange_.maximum() - xRange_.minimum()) < 0 && steps_.first > 0)
 		return false;
 
 	return true;
@@ -62,14 +63,14 @@ bool AM2DScanConfiguration::validXAxis() const
 bool AM2DScanConfiguration::validYAxis() const
 {
 	// If there is no finite difference between the start and end points.
-	if (yRange_.first == yRange_.second)
+	if (yRange_.minimum() == yRange_.maximum())
 		return false;
 
 	// If the sign of the step size is different from the difference between start and end points then the scan cannot make it from the start to the end.
-	else if ((yRange_.second - yRange_.first) > 0 && steps_.second < 0)
+	else if ((yRange_.maximum() - yRange_.minimum()) > 0 && steps_.second < 0)
 		return false;
 
-	else if ((yRange_.second - yRange_.first) < 0 && steps_.second > 0)
+	else if ((yRange_.maximum() - yRange_.minimum()) < 0 && steps_.second > 0)
 		return false;
 
 	return true;
@@ -77,8 +78,5 @@ bool AM2DScanConfiguration::validYAxis() const
 
 bool AM2DScanConfiguration::validTimeStep() const
 {
-	if (time_ > 0)
-		return true;
-
-	return false;
+	return time_ > 0;
 }

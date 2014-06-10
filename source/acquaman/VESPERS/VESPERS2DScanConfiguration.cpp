@@ -19,51 +19,64 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "VESPERS2DScanConfiguration.h"
 
-#include "acquaman/VESPERS/VESPERS2DDacqScanController.h"
+#include <QStringBuilder>
+#include <cmath>
+
 #include "ui/VESPERS/VESPERS2DScanConfigurationView.h"
+#include "acquaman/VESPERS/VESPERS2DScanActionController.h"
+
+VESPERS2DScanConfiguration::~VESPERS2DScanConfiguration(){}
 
 VESPERS2DScanConfiguration::VESPERS2DScanConfiguration(QObject *parent)
-	: AM2DScanConfiguration(parent)
+	: AMStepScanConfiguration(parent), VESPERSScanConfiguration()
 {
 	setName("2D Map");
 	setUserScanName("2D Map");
-	I0_ = Imini;
-	fluorescenceDetectorChoice_ = SingleElement;
-	motorsChoice_ = HAndV;
-	usingCCD_ = false;
-	ccdFileName_ = "";
-	roiInfoList_ = AMROIInfoList();
-	totalTime_ = 0;
-	timeOffset_ = 0.7;
-	connect(this, SIGNAL(xStartChanged(double)), this, SLOT(computeTotalTime()));
-	connect(this, SIGNAL(xStepChanged(double)), this, SLOT(computeTotalTime()));
-	connect(this, SIGNAL(xEndChanged(double)), this, SLOT(computeTotalTime()));
-	connect(this, SIGNAL(yStartChanged(double)), this, SLOT(computeTotalTime()));
-	connect(this, SIGNAL(yStepChanged(double)), this, SLOT(computeTotalTime()));
-	connect(this, SIGNAL(yEndChanged(double)), this, SLOT(computeTotalTime()));
-	connect(this, SIGNAL(timeStepChanged(double)), this, SLOT(computeTotalTime()));
+	dbObject_->setParent(this);
+	setIncomingChoice(VESPERS::Imini);
+	setFluorescenceDetector(VESPERS::SingleElement);
+	setMotor(VESPERS::Motors(VESPERS::H | VESPERS::V));
+	setCCDDetector(VESPERS::NoCCD);
+	setCCDFileName("");
+	setExportAsAscii(true);
+	setExportSpectraSources(true);
+	setExportSpectraInRows(true);
+
+	AMScanAxisRegion *region = new AMScanAxisRegion;
+	AMScanAxis *axis = new AMScanAxis(AMScanAxis::StepAxis, region);
+	appendScanAxis(axis);
+	region = new AMScanAxisRegion;
+	axis = new AMScanAxis(AMScanAxis::StepAxis, region);
+	appendScanAxis(axis);
+
+	connect(scanAxisAt(0)->regionAt(0), SIGNAL(regionStartChanged(AMNumber)), this, SLOT(computeTotalTime()));
+	connect(scanAxisAt(0)->regionAt(0), SIGNAL(regionStepChanged(AMNumber)), this, SLOT(computeTotalTime()));
+	connect(scanAxisAt(0)->regionAt(0), SIGNAL(regionEndChanged(AMNumber)), this, SLOT(computeTotalTime()));
+	connect(scanAxisAt(0)->regionAt(0), SIGNAL(regionTimeChanged(AMNumber)), this, SLOT(computeTotalTime()));
+	connect(scanAxisAt(1)->regionAt(0), SIGNAL(regionStartChanged(AMNumber)), this, SLOT(computeTotalTime()));
+	connect(scanAxisAt(1)->regionAt(0), SIGNAL(regionStepChanged(AMNumber)), this, SLOT(computeTotalTime()));
+	connect(scanAxisAt(1)->regionAt(0), SIGNAL(regionEndChanged(AMNumber)), this, SLOT(computeTotalTime()));
+	connect(dbObject_, SIGNAL(ccdDetectorChanged(int)), this, SLOT(computeTotalTime()));
 }
 
 VESPERS2DScanConfiguration::VESPERS2DScanConfiguration(const VESPERS2DScanConfiguration &original)
-	: AM2DScanConfiguration(original)
+	: AMStepScanConfiguration(original), VESPERSScanConfiguration(original)
 {
 	setName(original.name());
 	setUserScanName(original.userScanName());
-	I0_ = original.incomingChoice();
-	fluorescenceDetectorChoice_ = original.fluorescenceDetectorChoice();
-	motorsChoice_ = original.motorsChoice();
-	usingCCD_ = original.usingCCD();
-	ccdFileName_ = original.ccdFileName();
-	roiInfoList_ = original.roiList();
-	totalTime_ = 0;
-	timeOffset_ = 0.7;
-	connect(this, SIGNAL(xStartChanged(double)), this, SLOT(computeTotalTime()));
-	connect(this, SIGNAL(xStepChanged(double)), this, SLOT(computeTotalTime()));
-	connect(this, SIGNAL(xEndChanged(double)), this, SLOT(computeTotalTime()));
-	connect(this, SIGNAL(yStartChanged(double)), this, SLOT(computeTotalTime()));
-	connect(this, SIGNAL(yStepChanged(double)), this, SLOT(computeTotalTime()));
-	connect(this, SIGNAL(yEndChanged(double)), this, SLOT(computeTotalTime()));
-	connect(this, SIGNAL(timeStepChanged(double)), this, SLOT(computeTotalTime()));
+	dbObject_->setParent(this);
+	setExportAsAscii(original.exportAsAscii());
+	setExportSpectraSources(original.exportSpectraSources());
+	setExportSpectraInRows(original.exportSpectraInRows());
+	computeTotalTime();
+	connect(scanAxisAt(0)->regionAt(0), SIGNAL(regionStartChanged(AMNumber)), this, SLOT(computeTotalTime()));
+	connect(scanAxisAt(0)->regionAt(0), SIGNAL(regionStepChanged(AMNumber)), this, SLOT(computeTotalTime()));
+	connect(scanAxisAt(0)->regionAt(0), SIGNAL(regionEndChanged(AMNumber)), this, SLOT(computeTotalTime()));
+	connect(scanAxisAt(0)->regionAt(0), SIGNAL(regionTimeChanged(AMNumber)), this, SLOT(computeTotalTime()));
+	connect(scanAxisAt(1)->regionAt(0), SIGNAL(regionStartChanged(AMNumber)), this, SLOT(computeTotalTime()));
+	connect(scanAxisAt(1)->regionAt(0), SIGNAL(regionStepChanged(AMNumber)), this, SLOT(computeTotalTime()));
+	connect(scanAxisAt(1)->regionAt(0), SIGNAL(regionEndChanged(AMNumber)), this, SLOT(computeTotalTime()));
+	connect(dbObject_, SIGNAL(ccdDetectorChanged(int)), this, SLOT(computeTotalTime()));
 }
 
 AMScanConfiguration *VESPERS2DScanConfiguration::createCopy() const
@@ -73,7 +86,10 @@ AMScanConfiguration *VESPERS2DScanConfiguration::createCopy() const
 
 AMScanController *VESPERS2DScanConfiguration::createController()
 {
-	return new VESPERS2DDacqScanController(this);
+	AMScanActionController *controller = new VESPERS2DScanActionController(this);
+	controller->buildScanController();
+
+	return controller;
 }
 
 AMScanConfigurationView *VESPERS2DScanConfiguration::createView()
@@ -83,7 +99,7 @@ AMScanConfigurationView *VESPERS2DScanConfiguration::createView()
 
 QString VESPERS2DScanConfiguration::detailedDescription() const
 {
-	if (usingCCD_)
+	if (ccdDetector() != VESPERS::NoCCD)
 		return "Spatial x-ray fluorescence 2D map using a CCD for x-ray diffraction.";
 
 	return "Spatial x-ray fluorescence 2D map";
@@ -93,180 +109,123 @@ QString VESPERS2DScanConfiguration::headerText() const
 {
 	QString header("Configuration of the Scan\n\n");
 
-	switch(fluorescenceDetectorChoice()){
-
-	case None:
-		header.append("Fluorescence Detector:\tNone\n");
-		break;
-	case SingleElement:
-		header.append("Fluorescence Detector:\tSingle Element Vortex Detector\n");
-		break;
-	case FourElement:
-		header.append("Fluorescence Detector:\tFour Element Vortex Detector\n");
-		break;
-	}
-
-	switch(incomingChoice()){
-
-	case Isplit:
-		header.append("I0:\tIsplit - The split ion chamber.\n");
-		break;
-	case Iprekb:
-		header.append("I0:\tIprekb - The ion chamber before the KB mirror box.\n");
-		break;
-	case Imini:
-		header.append("I0:\tImini - The small ion chamber immediately after the KB mirror box.\n");
-		break;
-	case Ipost:
-		header.append("I0:\tIpost - The ion chamber at the end of the beamline.\n");
-		break;
-	}
-
-	header.append("\nRegions of Interest\n");
-
-	for (int i = 0; i < roiInfoList_.count(); i++)
-		header.append(roiInfoList_.at(i).name() + "\t" + QString::number(roiInfoList_.at(i).low()) + " eV\t" + QString::number(roiInfoList_.at(i).high()) + " eV\n");
-
-	header.append("\n");
-
-	switch(motorsChoice()){
-
-	case HAndV:
-		header.append("Using pseudo motors: H and V.\n");
-		break;
-
-	case XAndZ:
-		header.append("Using real motors: X and Z.\n");
-		break;
-	}
+	header.append(fluorescenceHeaderString(fluorescenceDetector()));
+	header.append(incomingChoiceHeaderString(incomingChoice()));
+//	header.append(regionOfInterestHeaderString(roiList()) % "\n");
+	header.append(motorHeaderString(motor()));
+	header.append(ccdDetectorHeaderString(ccdDetector()));
 
 	header.append("\n");
 	header.append("Map Dimensions\n");
 	header.append("X Axis\n");
-	header.append(QString("Start:\t%1 mm\tEnd:\t%2 mm\n").arg(xStart()).arg(xEnd()));
-	header.append(QString("Step Size:\t%1 mm\n").arg(xStep()));
+	header.append(QString("Start:\t%1 mm\tEnd:\t%2 mm\n").arg(double(scanAxisAt(0)->regionAt(0)->regionStart())).arg(double(scanAxisAt(0)->regionAt(0)->regionEnd())));
+	header.append(QString("Step Size:\t%1 mm\n").arg(double(scanAxisAt(0)->regionAt(0)->regionStep())));
 	header.append("Y Axis\n");
-	header.append(QString("Start:\t%1 mm\tEnd:\t%2 mm\n").arg(yStart()).arg(yEnd()));
-	header.append(QString("Step Size:\t%1 mm\n").arg(yStep()));
+	header.append(QString("Start:\t%1 mm\tEnd:\t%2 mm\n").arg(double(scanAxisAt(1)->regionAt(0)->regionStart())).arg(double(scanAxisAt(1)->regionAt(0)->regionEnd())));
+	header.append(QString("Step Size:\t%1 mm\n").arg(double(scanAxisAt(1)->regionAt(0)->regionStep())));
 
-	if (usingCCD())
-		header.append(QString("\nFilename for XRD images:\t%1\n").arg(ccdFileName()));
+	if (normalPosition() != 888888.88){
+
+		header.append("\n");
+		header.append(QString("Focus position:\t%1 mm\n").arg(normalPosition()));
+	}
 
 	return header;
 }
 
-void VESPERS2DScanConfiguration::setIncomingChoice(IonChamber I0)
- {
-	if (I0_ != I0){
-
-		I0_ = I0;
-		emit incomingChoiceChanged(I0_);
-		emit incomingChoiceChanged(int(I0_));
-		setModified(true);
-	}
-}
-
-void VESPERS2DScanConfiguration::setFluorescenceDetectorChoice(FluorescenceDetector detector)
-{
-	if (fluorescenceDetectorChoice_ != detector){
-
-		fluorescenceDetectorChoice_ = detector;
-		emit fluorescenceDetectorChoiceChanged(fluorescenceDetectorChoice_);
-		emit fluorescenceDetectorChoiceChanged(int(fluorescenceDetectorChoice_));
-		setModified(true);
-	}
-}
-
-void VESPERS2DScanConfiguration::setMotorsChoice(MotorsChoice choice)
-{
-	if (motorsChoice_ != choice) {
-
-		motorsChoice_ = choice;
-		emit motorsChoiceChanged(motorsChoice_);
-		emit motorsChoiceChanged(int(motorsChoice_));
-		setModified(true);
-	}
-}
-
-QString VESPERS2DScanConfiguration::readRoiList() const
-{
-	QString prettyRois = "Regions of Interest\n";
-
-	for (int i = 0; i < roiInfoList_.count(); i++)
-		prettyRois.append(roiInfoList_.at(i).name() + "\t" + QString::number(roiInfoList_.at(i).low()) + " eV\t" + QString::number(roiInfoList_.at(i).high()) + " eV\n");
-
-	return prettyRois;
-}
-
 QString VESPERS2DScanConfiguration::xAxisName() const
 {
-	switch(motorsChoice_){
+	VESPERS::Motors motors = motor();
 
-	case HAndV:
+	if (motors == (VESPERS::H | VESPERS::V))
 		return "Horizontal (H)";
 
-	case XAndZ:
+	else if (motors == (VESPERS::X | VESPERS::Z))
 		return "Horizontal (X)";
-	}
 
 	return "Horizontal";
 }
 
 QString VESPERS2DScanConfiguration::xAxisUnits() const
 {
-	switch(motorsChoice_){
+	VESPERS::Motors motors = motor();
 
-	case HAndV:
+	if (motors == (VESPERS::H | VESPERS::V))
 		return "mm";
 
-	case XAndZ:
+	else if (motors == (VESPERS::X | VESPERS::Z))
 		return "mm";
-	}
 
 	return "mm";
 }
 
 QString VESPERS2DScanConfiguration::yAxisName() const
 {
-	switch(motorsChoice_){
+	VESPERS::Motors motors = motor();
 
-	case HAndV:
+	if (motors == (VESPERS::H | VESPERS::V))
 		return "Vertical (V)";
 
-	case XAndZ:
+	else if (motors == (VESPERS::X | VESPERS::Z))
 		return "Vertical (Z)";
-	}
 
 	return "Vertical";
 }
 
 QString VESPERS2DScanConfiguration::yAxisUnits() const
 {
-	switch(motorsChoice_){
+	VESPERS::Motors motors = motor();
 
-	case HAndV:
+	if (motors == (VESPERS::H | VESPERS::V))
 		return "mm";
 
-	case XAndZ:
+	else if (motors == (VESPERS::X | VESPERS::Z))
 		return "mm";
-	}
 
 	return "mm";
 }
 
-void VESPERS2DScanConfiguration::computeTotalTime()
+void VESPERS2DScanConfiguration::computeTotalTimeImplementation()
 {
 	double time = 0;
 
 	// Get the number of points.
-	time = 	fabs((xEnd()-xStart())/xStep()+1)*fabs((yEnd()-yStart())/yStep()+1);
+	time = 	fabs((double(scanAxisAt(0)->regionAt(0)->regionEnd())-double(scanAxisAt(0)->regionAt(0)->regionStart()))/double(scanAxisAt(0)->regionAt(0)->regionStep())+1)
+			*fabs((double(scanAxisAt(1)->regionAt(0)->regionEnd())-double(scanAxisAt(1)->regionAt(0)->regionStart()))/double(scanAxisAt(1)->regionAt(0)->regionStep())+1);
 
-	// Factor in the time per point.  There is an extra 6 seconds for CCD images.
-	if (usingCCD())
-		time *= timeStep() + timeOffset_ + 6.0;
+	// Factor in the time per point.  There is an extra 6 seconds for CCD images for the Roper and Mar.
+	if (ccdDetector() == VESPERS::Roper)
+		time *= double(scanAxisAt(0)->regionAt(0)->regionTime()) + timeOffset_ + 6.0;
+	else if (ccdDetector() == VESPERS::Mar)
+		time *= double(scanAxisAt(0)->regionAt(0)->regionTime()) + timeOffset_ + 3.0;
 	else
-		time *= timeStep() + timeOffset_;
+		time *= double(scanAxisAt(0)->regionAt(0)->regionTime()) + timeOffset_;
 
-	totalTime_ = time;
+	totalTime_ = time + 9;
+	setExpectedDuration(totalTime_);
 	emit totalTimeChanged(totalTime_);
+}
+
+void VESPERS2DScanConfiguration::setExportAsAscii(bool exportAsAscii)
+{
+	if (exportAsAscii_ == exportAsAscii)
+		return;
+
+	exportAsAscii_ = exportAsAscii;
+}
+
+void VESPERS2DScanConfiguration::setExportSpectraSources(bool exportSpectra)
+{
+	if (exportSpectraSources_ == exportSpectra)
+		return;
+
+	exportSpectraSources_ = exportSpectra;
+}
+
+void VESPERS2DScanConfiguration::setExportSpectraInRows(bool exportInRows)
+{
+	if (exportSpectraInRows_ == exportInRows)
+		return;
+
+	exportSpectraInRows_ = exportInRows;
 }

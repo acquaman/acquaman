@@ -1,3 +1,22 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #ifndef AM1DNORMALIZATIONABEDITOR_H
 #define AM1DNORMALIZATIONABEDITOR_H
 
@@ -16,6 +35,7 @@ class AM1DNormalizationABEditor : public QWidget
 	Q_OBJECT
 public:
 	/// Constructor.  Takes in an AM1DNormalizationAB pointer.
+ 	virtual ~AM1DNormalizationABEditor();
 	explicit AM1DNormalizationABEditor(AM1DNormalizationAB *analysisBlock, QWidget *parent = 0);
 
 signals:
@@ -31,7 +51,7 @@ protected slots:
 	void populateComboBox();
 
 protected:
-	/// Pointer to the derivative analysis block.
+	/// Pointer to the normalization analysis block.
 	AM1DNormalizationAB *analysisBlock_;
 
 	/// The combo box that contains all of the names.  Used for the data input source.

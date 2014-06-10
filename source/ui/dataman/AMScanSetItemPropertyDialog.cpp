@@ -108,6 +108,7 @@ void AMScanSetItemPropertyDialog::onModelDataChanged(const QModelIndex &topLeft,
 }
 
 
+ AMScanSetItem1DPropertyEditor::~AMScanSetItem1DPropertyEditor(){}
 AMScanSetItem1DPropertyEditor::AMScanSetItem1DPropertyEditor(AMScanSetModel* model, const QPersistentModelIndex &di, QWidget* parent)
 	: AMLinePropertyEditor(
 		  model->data(di, AM::LinePenRole).value<QPen>(),
@@ -129,6 +130,7 @@ void AMScanSetItem1DPropertyEditor::onLinePenChanged(const QPen &pen)
 	}
 }
 
+ AMScanSetItem2DPropertyEditor::~AMScanSetItem2DPropertyEditor(){}
 AMScanSetItem2DPropertyEditor::AMScanSetItem2DPropertyEditor(AMScanSetModel *model, const QPersistentModelIndex &di, QWidget *parent)
 	: AMImagePropertyEditor(
 		  model->plotColorMap(di.parent().row(), di.row()),

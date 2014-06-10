@@ -21,9 +21,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef AMSPECTRALOUTPUTDETECTORINFO_H
 #define AMSPECTRALOUTPUTDETECTORINFO_H
 
-#include "AMDetectorInfo.h"
+#include "AMOldDetectorInfo.h"
+#include "util/AMRange.h"
 
-class AMSpectralOutputDetectorInfo : public AMDetectorInfo
+class AMSpectralOutputDetectorInfo : public AMOldDetectorInfo
 {
 Q_OBJECT
 	Q_PROPERTY(int binCount READ binCount WRITE setBinCount)
@@ -38,6 +39,7 @@ Q_OBJECT
 	Q_CLASSINFO("AMDbObject_Attributes", "description=Generic Binning Spectrum-Output Detector")
 
 public:
+ 	virtual ~AMSpectralOutputDetectorInfo();
 	AMSpectralOutputDetectorInfo(const QString& name, const QString& description, int binCount = 0, QString axisName = "", QStringList binNames = QStringList(), QObject *parent = 0);
 
 	AMSpectralOutputDetectorInfo(const AMSpectralOutputDetectorInfo &original);
@@ -53,7 +55,7 @@ public:
 	QStringList binNames() const;
 	/// The sampling/integration time, in seconds
 	double integrationTime() const;
-	QPair<double, double> integrationTimeRange() const;
+	AMRange integrationTimeRange() const;
 	double integrationTimeRangeMin() const;
 	double integrationTimeRangeMax() const;
 	/// The integration mode (describes the integration time: real, ____, or \todo )
@@ -77,7 +79,7 @@ public slots:
 	void setIntegrationTime(double integrationTime);
 	void setIntegrationTimeRangeMin(double min);
 	void setIntegrationTimeRangeMax(double max);
-	void setIntegrationTimeRange(QPair<double, double> range);
+	void setIntegrationTimeRange(const AMRange &range);
 	void setIntegrationMode(const QString& integrationMode);
 
 protected:

@@ -21,10 +21,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef REIXSXESMCPDETECTORINFO_H
 #define REIXSXESMCPDETECTORINFO_H
 
-#include "dataman/info/AMDetectorInfo.h"
+#include "dataman/info/AMOldDetectorInfo.h"
 
 /// This class contains the run-time configuration parameters for the MCP detector in the REIXS XES Spectrometer
-class REIXSXESMCPDetectorInfo : public AMDetectorInfo
+class REIXSXESMCPDetectorInfo : public AMOldDetectorInfo
 {
 	Q_OBJECT
 	Q_PROPERTY(bool orientation READ orientation WRITE setOrientation)
@@ -34,6 +34,7 @@ class REIXSXESMCPDetectorInfo : public AMDetectorInfo
 
 public:
 	/// Default constructor
+ 	virtual ~REIXSXESMCPDetectorInfo();
 	Q_INVOKABLE REIXSXESMCPDetectorInfo(const QString& name = "xesImage", const QString& description = "XES Imaging Detector", QObject *parent = 0);
 
 	// Dimensionality and size:

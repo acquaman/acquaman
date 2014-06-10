@@ -19,7 +19,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMNumberChangeAction.h"
 
-#include <QDebug>
 #include <QTimer>
 
 namespace AMNumberChangeActionSupport{
@@ -49,6 +48,7 @@ namespace AMNumberChangeActionSupport{
 	}
 }
 
+ AMNumberChangeAction::~AMNumberChangeAction(){}
 AMNumberChangeAction::AMNumberChangeAction(AMNumberChangeActionInfo *info, QObject *parent) :
 	AMAction3(info, parent)
 {

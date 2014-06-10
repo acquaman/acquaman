@@ -31,15 +31,19 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QLayout>
 #include <QButtonGroup>
 #include <QStringList>
+#include <QMenu>
+#include <QCheckBox>
 
 #include "MPlot/MPlot.h"
-
+#include "MPlot/MPlotPoint.h"
 #include "dataman/AMScanSetModel.h"
 
 #include "ui/dataman/AMCramBarHorizontal.h"
 #include "ui/dataman/AMScanViewUtilities.h"
 
-#include <QMenu>
+
+#define AMSCANVIEW_CANNOT_CREATE_PLOT_ITEM_FOR_NULL_DATA_SOURCE 280101
+#define AMSCANVIEW_CANNOT_CREATE_PLOT_ITEM_FOR_UNHANDLED_RANK 280102
 
 class QCheckBox;
 class QDoubleSpinBox;
@@ -48,13 +52,18 @@ class QDoubleSpinBox;
 class AMScanViewModeBar : public QFrame {
 	Q_OBJECT
 public:
+	virtual ~AMScanViewModeBar();
+
 	explicit AMScanViewModeBar(QWidget* parent = 0);
 
 	QButtonGroup* modeButtons_;
 
+	QToolButton* showSourcesButton_;
+
 	QCheckBox *logCheckBox_;
 	QCheckBox* normalizationCheckBox_, *waterfallCheckBox_;
 	QDoubleSpinBox* waterfallAmount_;
+	QCheckBox *showSpectra_;
 
 signals:
 	void logScaleEnabled(bool);
@@ -71,7 +80,14 @@ class AMScanView;
 class AMScanViewInternal : public QGraphicsWidget {
 	Q_OBJECT
 public:
+
+	virtual ~AMScanViewInternal();
+
 	explicit AMScanViewInternal(AMScanView* masterView);
+
+signals:
+	/// Notifier that the data position marker has changed.
+	void dataPositionChanged(const QPointF &);
 
 public slots:
 	/// Must re-implement in subclasses: turn on log scale on the y-axis.
@@ -105,6 +121,11 @@ protected:
 	  */
 	void reviewPlotAxesConfiguration(MPlotGW* plot);
 
+	/// Returns a suitable bottom axis name for a \c scan and \c dataSource
+	QString bottomAxisName(AMScan* scan, AMDataSource* dataSource);
+	/// Returns a suitable right axis name for a \c scan and \c dataSource
+	QString rightAxisName(AMScan* scan, AMDataSource* dataSource);
+
 	AMScanView* masterView_;
 
 	AMScanSetModel* model() const;
@@ -117,6 +138,10 @@ protected:
 };
 
 #include <QPropertyAnimation>
+
+#define AM_SCAN_VIEW_HIDE_SCANBARS_AFTER_N_SCANS 7
+
+class QGroupBox;
 
 /// A GUI class that provides a several different ways to view a set of scans.  It is based on the contents of an AMScanSetModel, and a variety of different AMScanViewInternal views can be shown within it.
 class AMScanView : public QWidget
@@ -132,9 +157,28 @@ public:
 	/// returns the AMScanSetModel used internally to hold the scans/data sources.
 	AMScanSetModel* model() const { return scansModel_; }
 
+	/// Sets the default axis information for the spectrum view. Set \param propogateToPlotRange to false if you don't want the information to propogate.
+	void setAxisInfoForSpectrumView(const AMAxisInfo &info, bool propogateToPlotRange = true);
+	/// Sets the plot range for the spectrum view.
+	void setPlotRange(double low, double high);
+	/// Sets the single spectrum view data source using the name given by \param name.
+	void setSingleSpectrumDataSource(const QString &name);
+
 signals:
+	/// Notifier that the data position tool has changed locations.  Passes the location of the mouse.
+	void dataPositionChanged(const QPoint &);
+	/// Notifier that the data position marker has changed.
+	void dataPositionChanged(const QPointF &);
 
 public slots:
+	/// Sets the visibility of the plot item cursor.
+	void setPlotCursorVisibility(bool visible);
+	/// Sets the coordinates for the plot item cursor.
+	void setPlotCursorCoordinates(const QPointF &coordinates);
+	/// Overloaded.  Sets the x-axis coordinate only.
+	void setPlotCursorCoordinates(double xCoordinate);
+	/// Sets the color of the plot cursor.
+	void setPlotCursorColor(const QColor &color);
 
 	/// change the view mode (newMode is a ViewMode enum: 0 for one data source at a time; 1 for all data sources overplotted; 2 for one plot per scan; 3 for one plot per data source.
 	void changeViewMode(int newMode);
@@ -144,10 +188,38 @@ public slots:
 	/// remove a scan from the view:
 	void removeScan(AMScan* scan);
 
+	/// Export the current view to a PDF file with \c outputFileName. Overwrites \c outputFileName if it already exists.
+	void exportGraphicsFile(const QString& outputFileName);
+
+	/// Print the current view via print dialog.
+	void printGraphics();
+
+
+	/// Set the visibility of the data-source button bars.
+	void setScanBarsVisible(bool areVisible);
+
 protected slots:
 	void resizeViews();
 
+	/// Used to hide the scan bars if more than AM_SCAN_VIEW_HIDE_SCANBARS_AFTER_N_SCANS (7?) scans have been added to the model, otherwise the scan bars start to take up the whole vertical screen.
+	void onRowInserted(const QModelIndex& parent, int start, int end);
+	/// Helper slot that helps setup the single spectrum view after a scan has been added.
+	void onScanAdded(AMScan *scan);
+	/// Helper slot that makes sure all of the information that the spectrum fetcher needs is setup.
+	void onDataPositionChanged(const QPointF &point);
+	/// Slots that handles the visibility of the spectrum view based on the information from the scan bar.
+	void setSpectrumViewVisibility(bool visible);
+
 protected:
+	/// Reimplements the show event to hide the multi view.
+	virtual void showEvent(QShowEvent *e);
+	/// Reimplements the hide event to hide the multi view.
+	virtual void hideEvent(QHideEvent *e);
+	/// Reimplementing the mouse release event so that it will emit a signal on right clicks to notify parent classes that the data position tool has changed.
+	virtual void mousePressEvent(QMouseEvent *e);
+
+	/// Helper method that returns the AMnDIndex for a given QPoint of data coordinates.
+	AMnDIndex getIndex(const QPointF &point) const;
 
 	AMScanSetModel* scansModel_;
 
@@ -165,6 +237,11 @@ protected:
 
 	QPropertyAnimation* modeAnim_;
 
+	AMScanViewSingleSpectrumView *spectrumView_;
+	QGroupBox *spectrumViewBox_;
+	/// Flag used to determine whether the single spectrum view should be visible.
+	bool spectrumViewIsVisible_;
+
 	/// internal helper function to build the UI
 	void setupUI();
 	/// internal helper function to setup all UI event-handling connections
@@ -181,6 +258,15 @@ public:
 	virtual ~AMScanViewExclusiveView();
 
 public slots:
+
+	/// Sets the visibility of the plot item cursor.
+	void setPlotCursorVisibility(bool visible);
+	/// Sets the coordinates for the plot item cursor.
+	void setPlotCursorCoordinates(const QPointF &coordinates);
+	/// Overloaded.  Sets the x-axis coordinate only.
+	void setPlotCursorCoordinates(double xCoordinate);
+	/// Sets the color of the plot cursor.
+	void setPlotCursorColor(const QColor &color);
 
 	/// Re-implementing enabling the log scale.
 	virtual void enableLogScale(bool logScaleOn);
@@ -223,6 +309,9 @@ protected:
 
 	/// Our plot.
 	MPlotGW* plot_;
+
+	/// The plot item that holds the cursor that can be displayed on the screen.
+	MPlotPoint *plotCursor_;
 };
 
 /// This class implements an internal view for AMScanView, which shows all of the enabled data sources.
@@ -235,6 +324,16 @@ public:
 	virtual ~AMScanViewMultiView();
 
 public slots:
+
+	/// Sets the visibility of the plot item cursor.
+	void setPlotCursorVisibility(bool visible);
+	/// Sets the coordinates for the plot item cursor.
+	void setPlotCursorCoordinates(const QPointF &coordinates);
+	/// Overloaded.  Sets the x-axis coordinate only.
+	void setPlotCursorCoordinates(double xCoordinate);
+	/// Sets the color of the plot cursor.
+	void setPlotCursorColor(const QColor &color);
+
 	/// Re-implementing enabling the log scale.
 	virtual void enableLogScale(bool logScaleOn);
 	virtual void enableNormalization(bool normalizationOn, double min = 0, double max = 1);
@@ -267,6 +366,9 @@ protected:
 	QList<QList<MPlotItem*> > plotItems_;
 	/// Our plot.
 	MPlotGW* plot_;
+
+	/// The plot item that holds the cursor that can be displayed on the screen.
+	MPlotPoint *plotCursor_;
 };
 
 /// This class implements an internal view for AMScanView, which shows every scan in its own plot.

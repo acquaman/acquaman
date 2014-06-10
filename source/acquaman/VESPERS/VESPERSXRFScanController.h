@@ -23,7 +23,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "acquaman/VESPERS/VESPERSXRFScanConfiguration.h"
 #include "acquaman/AMScanController.h"
-#include "beamline/VESPERS/XRFDetector.h"
 #include "dataman/VESPERS/AMXRFScan.h"
 
 class VESPERSXRFScanController : public AMScanController
@@ -33,10 +32,11 @@ class VESPERSXRFScanController : public AMScanController
 public:
 	/// Default constructor.
 	VESPERSXRFScanController(VESPERSXRFScanConfiguration *scanConfig, QObject *parent = 0);
+	/// Destructor.
+	virtual ~VESPERSXRFScanController();
 
 public slots:
-	/// Finishes the scan prematurely.  Still a valid scan.
-	void finish() { detector_->stop(); onDetectorAcquisitionFinished(); }
+
 
 protected slots:
 	/// Helper slot to finish up a scan.
@@ -55,11 +55,6 @@ protected:
 	virtual void cancelImplementation() { setCancelled(); }
 	/// Saves the data after a scan is stopped.
 	void saveData();
-
-	// Member variables.
-	/// XRF detector.
-	XRFDetector *detector_;
-
 };
 
 #endif // VESPERSXRFSCANCONTROLLER_H

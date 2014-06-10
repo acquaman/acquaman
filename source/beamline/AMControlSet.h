@@ -18,8 +18,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef ACQMAN_AMCONTROLSET_H
-#define ACQMAN_AMCONTROLSET_H
+#ifndef AM_AMCONTROLSET_H
+#define AM_AMCONTROLSET_H
 
 #define AMCONTROLSET_CONTROL_TIMEOUT_MS 4000
 
@@ -45,6 +45,7 @@ class AMControlSet : public QObject, public AMOrderedSet<QString, AMControl*>
 Q_OBJECT
 public:
 	/// Constructor
+ 	virtual ~AMControlSet();
 	explicit AMControlSet(QObject *parent = 0);
 
 	/// Returns the name defined for the control set.
@@ -121,4 +122,4 @@ protected:
 
 
 
-#endif // ACQMAN_AMCONTROLSET_H
+#endif // AM_AMCONTROLSET_H

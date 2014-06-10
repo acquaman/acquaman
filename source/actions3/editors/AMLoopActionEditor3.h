@@ -31,6 +31,7 @@ class AMLoopActionEditor3 : public QFrame
 	Q_OBJECT
 public:
 	/// Constructor: Must be Q_INVOKABLE, and accept an AMLoopActionInfo as argument
+ 	virtual ~AMLoopActionEditor3();
 	Q_INVOKABLE AMLoopActionEditor3(AMLoopActionInfo3* info, QWidget *parent = 0);
 
 signals:
@@ -40,6 +41,8 @@ public slots:
 protected slots:
 	/// When editing is finished, calls info_->setLoopCount() with the value in the spin box.
 	void onSpinBoxEditingFinished();
+	/// When the info changes, we need to update the view here.
+	void onLoopCountChanged(int val);
 
 protected:
 	QSpinBox* spinBox_;

@@ -80,6 +80,7 @@ public slots:
 protected:
 
 	/// Protected constructor. Access the singleton instance with AMUser::user().
+ 	virtual ~AMUser();
 	explicit AMUser();
 
 	/// singleton instance variable:

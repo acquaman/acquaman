@@ -24,13 +24,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QVBoxLayout>
 #include <QMenu>
 
-#include "dataman/AMSamplePlate.h"
-#include "ui/dataman/AMSamplePlateView.h"
+#include "dataman/AMSamplePlatePre2013.h"
+#include "ui/dataman/AMSamplePlatePre2013View.h"
 
 #include "acquaman/AMScanConfiguration.h"
 #include "actions/AMBeamlineScanAction.h"
 //#include "actions/AMBeamlineControlSetMoveAction.h"
-#include "actions/AMBeamlineSamplePlateMoveAction.h"
+#include "actions/AMBeamlineSamplePlatePre2013MoveAction.h"
 #include "actions/AMBeamlineFiducializationMoveAction.h"
 
 #include "beamline/AMBeamline.h"
@@ -108,9 +108,9 @@ AMWorkflowManagerView::AMWorkflowManagerView(QWidget *parent) :
 
 void AMWorkflowManagerView::startQueue(){
 	if(!workflowQueue_->isEmpty()){
-//		qDebug() << "Trying to start queue";
+//		qdebug() << "Trying to start queue";
 		if(!workflowQueue_->head()->hasFinished() ){
-//			qDebug() << "Initialized, so just start, no reset";
+//			qdebug() << "Initialized, so just start, no reset";
 			workflowQueue_->startQueue();
 		}
 		else{
@@ -149,11 +149,11 @@ void AMWorkflowManagerView::onMoveDownActionRequested(AMBeamlineActionItem *acti
 	workflowView_->swap(indexOfAction);
 }
 
-void AMWorkflowManagerView::setCurrentSamplePlate(AMSamplePlate *newSamplePlate){
+void AMWorkflowManagerView::setCurrentSamplePlate(AMSamplePlatePre2013 *newSamplePlate){
 	if(!currentSamplePlate_){
 		qDebug() << "From NULL plate to real plate";
 		currentSamplePlate_ = newSamplePlate;
-		samplePlateModel_ = new AMSamplePlateItemModel(currentSamplePlate_, this);
+		samplePlateModel_ = new AMSamplePlatePre2013ItemModel(currentSamplePlate_, this);
 	}
 	if(!newSamplePlate){
 		qDebug() << "Set as NULL plate, delete model";
@@ -277,7 +277,7 @@ void AMWorkflowManagerView::setFiducializationHoverIndex(){
 }
 
 void AMWorkflowManagerView::onSamplePlateAddActionClicked(){
-	AMBeamlineSamplePlateMoveAction *sampleMoveAction = new AMBeamlineSamplePlateMoveAction(currentSamplePlate_->at(samplePlateHoverIndex_).sampleId(), samplePlateModel_);
+	AMBeamlineSamplePlatePre2013MoveAction *sampleMoveAction = new AMBeamlineSamplePlatePre2013MoveAction(currentSamplePlate_->at(samplePlateHoverIndex_).sampleId(), samplePlateModel_);
 	sampleMoveAction->setSetpoint(currentSamplePlate_->at(samplePlateHoverIndex_).position());
 	insertBeamlineAction(-1, sampleMoveAction);
 }
@@ -389,7 +389,7 @@ void AMBeamlineActionsListView::reindexViews(){
 			AMBeamlineScanAction *scanAction = qobject_cast<AMBeamlineScanAction*>(actionsList_->action(x));
 			if(scanAction)
 				scanAction->setLastSampleDescription(lastSampleDescription);
-			AMBeamlineSamplePlateMoveAction *sampleAction = qobject_cast<AMBeamlineSamplePlateMoveAction*>(actionsList_->action(x));
+			AMBeamlineSamplePlatePre2013MoveAction *sampleAction = qobject_cast<AMBeamlineSamplePlatePre2013MoveAction*>(actionsList_->action(x));
 			if(sampleAction)
 				lastSampleDescription = sampleAction->sampleDescription();
 			AMBeamlineFiducializationMoveAction *fiducializationAction = qobject_cast<AMBeamlineFiducializationMoveAction*>(actionsList_->action(x));

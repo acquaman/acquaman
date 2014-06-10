@@ -89,6 +89,7 @@ namespace mu
           \throw nothrow
           \sa ECmdCode
       */
+ 	virtual ~ParserToken(){}
       ParserToken()
         :m_iCode(cmUNKNOWN)
         ,m_iType(tpVOID)

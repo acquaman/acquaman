@@ -21,6 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMRawDataSource.h"
 
 
+ AMRawDataSource::~AMRawDataSource(){}
 AMRawDataSource::AMRawDataSource(const AMDataStore* dataStore, int measurementId, QObject* parent)
 	: AMDbObject(parent), AMDataSource( dataStore->measurementAt(measurementId).name )
 {
@@ -50,8 +51,8 @@ AMRawDataSource::AMRawDataSource(const AMDataStore* dataStore, int measurementId
 	stateFlags_ = 0;
 
 	// create connections to datastore:
-	connect(dataStore_->signalSource(), SIGNAL(dataChanged(AMnDIndex,AMnDIndex,int)), this, SLOT(onDataChanged(AMnDIndex, AMnDIndex,int)) );
-	connect(dataStore_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onScanAxisSizeChanged(int)));
+	connect(dataStore_, SIGNAL(dataChanged(AMnDIndex,AMnDIndex,int)), this, SLOT(onDataChanged(AMnDIndex, AMnDIndex,int)) );
+	connect(dataStore_, SIGNAL(sizeChanged()), this, SLOT(onScanAxisSizeChanged()));
 
 	// raw data sources shouldn't be visible in plots, usually.  This is just a default; programmers can always call setVisibleInPlots(), or use the AMScan::addRawDataSource() version which calls this internally.
 	visibleInPlots_ = false;
@@ -76,23 +77,20 @@ AMRawDataSource::AMRawDataSource(AMDatabase* db, int id)
 }
 
 bool AMRawDataSource::setDataStore(const AMDataStore *dataStore) {
-	// verify that this new dataStore is suitable. It needs to match our old sizes, and measurementId_ must be a valid for it.
-	if(!dataStore)
-		return false;
-	if(dataStore->scanRank() != scanAxesCount_)
-		return false;
-	if(measurementId_ >= dataStore->measurementCount())
-		return false;
-	AMMeasurementInfo measurementInfo = dataStore->measurementAt(measurementId_);
-	if(measurementInfo.rank() != measurementAxesCount_)
+	if(dataStore_ == dataStore)
+		return true;	// nothing to do.
+
+	if(!isDataStoreCompatible(dataStore))
 		return false;
 
 	// ok, you're good.
 
 	// existing data store? Disconnect signals.
 	if(dataStore_) {
-		disconnect(dataStore_->signalSource(), 0, this, 0);
+		disconnect(dataStore_, 0, this, 0);
 	}
+
+	AMMeasurementInfo measurementInfo = dataStore->measurementAt(measurementId_);
 
 	dataStore_ = dataStore;
 	axes_.clear();
@@ -107,8 +105,8 @@ bool AMRawDataSource::setDataStore(const AMDataStore *dataStore) {
 	}
 
 	// create connections to the new datastore:
-	connect(dataStore_->signalSource(), SIGNAL(dataChanged(AMnDIndex,AMnDIndex,int)), SLOT(onDataChanged(AMnDIndex, AMnDIndex,int)) );
-	connect(dataStore->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onScanAxisSizeChanged(int)));
+	connect(dataStore_, SIGNAL(dataChanged(AMnDIndex,AMnDIndex,int)), SLOT(onDataChanged(AMnDIndex, AMnDIndex,int)) );
+	connect(dataStore_, SIGNAL(sizeChanged()), this, SLOT(onScanAxisSizeChanged()));
 
 	setValid();
 	emitSizeChanged(-1);
@@ -134,18 +132,46 @@ void AMRawDataSource::onDataChanged(const AMnDIndex& scanIndexStart, const AMnDI
 }
 
 // Called when the size of a scan axis changes.  \c axisId is the id of the changing axis, or -1 if they all did.
-void AMRawDataSource::onScanAxisSizeChanged(int axisId) {
+void AMRawDataSource::onScanAxisSizeChanged() {
 	// the nice thing is that within our axes, the scan axes appear first, followed by the measurement axes. So an AMDataStore scan axis id is the same as one of our axis numbers.
 
-	if(axisId < 0) {	// all axes changed size?
-		for(int a=0; a<scanAxesCount_; a++)
-			axes_[a].size = dataStore_->scanSize(a);
-		emitSizeChanged(-1);
-	}
-	else if(axisId < scanAxesCount_) {	// just this axis changed size
-		axes_[axisId].size = dataStore_->scanSize(axisId);
-		emitSizeChanged(axisId);
-	}
+	// Changed in May 2012: the first axis is the only axis of a data store that can change size:
+	// removed:
+//	if(axisId < 0) {	// all axes changed size?
+//		for(int a=0; a<scanAxesCount_; a++)
+//			axes_[a].size = dataStore_->scanSize(a);
+//		emitSizeChanged(-1);
+//	}
+//	else if(axisId < scanAxesCount_) {	// just this axis changed size
+//		axes_[axisId].size = dataStore_->scanSize(axisId);
+//		emitSizeChanged(axisId);
+//	}
+
+	if(scanAxesCount_)
+		axes_[0].size = dataStore_->scanSize(0);
+	emitSizeChanged(0);
+}
+
+bool AMRawDataSource::isDataStoreCompatible(const AMDataStore *dataStore) const
+{
+	// verify that this new dataStore is suitable. It needs to match our old sizes, and measurementId_ must be a valid for it.
+	if(!dataStore)
+		return false;
+	if(dataStore->scanRank() != scanAxesCount_)
+		return false;
+	if(measurementId_ >= dataStore->measurementCount())
+		return false;
+	if(dataStore->measurementAt(measurementId_).rank() != measurementAxesCount_)
+		return false;
+
+	return true;
+}
+
+#include "ui/dataman/AMSimpleDataSourceEditor.h"
+
+QWidget* AMRawDataSource::createEditorWidget()
+{
+	return new AMSimpleDataSourceEditor(this);
 }
 
 

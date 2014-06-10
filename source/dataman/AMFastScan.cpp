@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QDir>
 
+ AMFastScan::~AMFastScan(){}
 AMFastScan::AMFastScan(QObject *parent) :
 		AMScan(parent)
 {

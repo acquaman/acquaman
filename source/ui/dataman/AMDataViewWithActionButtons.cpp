@@ -24,8 +24,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 AMDataViewWithActionButtons::AMDataViewWithActionButtons(AMDatabase* database, QWidget *parent) :
 	QWidget(parent)
 {
+	database_ = database;
+}
+
+AMDataViewWithActionButtons::~AMDataViewWithActionButtons(){}
+
+void AMDataViewWithActionButtons::buildView(){
 	QVBoxLayout* vl = new QVBoxLayout;
-	dataView_ = new AMDataView(database);
+	dataView_ = createDataView(database_);
 
 	QFrame* actionsBarFrame = new QFrame;
 	ui_ = new Ui::AMDataViewActionsBar;
@@ -53,6 +59,7 @@ AMDataViewWithActionButtons::AMDataViewWithActionButtons(AMDatabase* database, Q
 	connect(dataView_, SIGNAL(compareScansFromDb()), this, SLOT(onCompareScansAction()));
 	connect(dataView_, SIGNAL(exportScansFromDb()), this, SLOT(onExportScansAction()));
 	connect(dataView_, SIGNAL(launchScanConfigurationsFromDb()), this, SLOT(onLaunchScanConfigurationsFromDb()));
+	connect(dataView_, SIGNAL(fixCDF()), this, SLOT(onFixCDF()));
 }
 
 void AMDataViewWithActionButtons::onLaunchScanConfigurationsFromDb()
@@ -61,6 +68,18 @@ void AMDataViewWithActionButtons::onLaunchScanConfigurationsFromDb()
 
 	if(urls.count() > 0)
 		emit launchScanConfigurationsFromDb(urls);
+}
+
+void AMDataViewWithActionButtons::onFixCDF()
+{
+	QList<QUrl> urls = dataView_->selectedItems();
+
+	if (urls.count() == 1)
+		emit fixCDF(urls.at(0));
+}
+
+AMDataView* AMDataViewWithActionButtons::createDataView(AMDatabase *database){
+	return new AMDataView(database);
 }
 
 void AMDataViewWithActionButtons::onDoubleClick()

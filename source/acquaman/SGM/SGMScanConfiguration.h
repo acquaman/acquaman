@@ -18,53 +18,79 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef ACQMAN_SGMSCANCONFIG_H
-#define ACQMAN_SGMSCANCONFIG_H
+#ifndef AM_SGMSCANCONFIG_H
+#define AM_SGMSCANCONFIG_H
 
 #include "beamline/SGM/SGMBeamline.h"
 
 class SGMScanConfiguration
 {
 public:
+	/// Standard constructor, sets up nominal beamline values
+ 	virtual ~SGMScanConfiguration();
 	SGMScanConfiguration();
 
+	/// Returns a control info list regarding the tracking group (mono tracking, exit slit tracking, and undulator tracking)
 	AMControlInfoList trackingGroup() const;
+	/// Returns a control info list regarding the flux/resolution group (exit slit gap, grating, and harmonic)
 	AMControlInfoList fluxResolutionGroup() const;
 
+	/// Returns whether the undulator is tracking for this configuration
 	bool undulatorTracking() const;
+	/// Returns whether the mono is tracking for this configuration
 	bool monoTracking() const;
+	/// Returns whether the exit slit is tracking for this configuration
 	bool exitSlitTracking() const;
 
+	/// Returns the exit slit gap setting for this configuration
 	double exitSlitGap() const;
-	SGMBeamline::sgmGrating grating() const;
-	SGMBeamline::sgmHarmonic harmonic() const;
+	/// Returns the grating chosen for this configuration
+	SGMBeamlineInfo::sgmGrating grating() const;
+	/// Returns the harmonic chosen for this configuration
+	SGMBeamlineInfo::sgmHarmonic harmonic() const;
 
+	/// Sets the tracking group from an existing control info list
 	bool setTrackingGroup(AMControlInfoList trackingGroup);
+	/// Sets the flux/resolution group from an existing control info list
 	bool setFluxResolutionGroup(AMControlInfoList fluxResolutionGroup);
 
+	/// Sets the undulator tracking for this configuration
 	bool setUndulatorTracking(bool undulatorTracking);
+	/// Sets the mono tracking for this configuration
 	bool setMonoTracking(bool monoTracking);
+	/// Sets the exit slit tracking for this configuration
 	bool setExitSlitTracking(bool exitSlitTracking);
 
+	/// Sets the exit slit gap setting for this configuration
 	bool setExitSlitGap(double exitSlitGap);
-	bool setGrating(SGMBeamline::sgmGrating grating);
-	bool setHarmonic(SGMBeamline::sgmHarmonic harmonic);
+	/// Sets which grating to use for this configuration
+	bool setGrating(SGMBeamlineInfo::sgmGrating grating);
+	/// Sets which harmonic to use for this configuration
+	bool setHarmonic(SGMBeamlineInfo::sgmHarmonic harmonic);
 
 	/* NTBA March 14, 2011 David Chevrier
 	   Need something like setTrackingGroup for the detectorSet
 	*/
 
 protected:
+	/// Info list for the tracking group (track mono, track undulator, track exit slit)
 	AMControlInfoList trackingGroup_;
+	/// Info list for the flux/resolution group (exit slit gap, grating, harmonic)
 	AMControlInfoList fluxResolutionGroup_;
 
+	/// Whether or not the undulator tracking is on
 	bool undulatorTracking_;
+	/// Whether or not the mono tracking is on
 	bool monoTracking_;
+	/// Whether or not the exit slit tracking is on
 	bool exitSlitTracking_;
 
+	/// Value for the exit slit for this configuration
 	double exitSlitGap_;
-	SGMBeamline::sgmGrating grating_;
-	SGMBeamline::sgmHarmonic harmonic_;
+	/// Which grating will be used for this configuration
+	SGMBeamlineInfo::sgmGrating grating_;
+	/// Which harmonic will be used for this configuration
+	SGMBeamlineInfo::sgmHarmonic harmonic_;
 };
 
-#endif // ACQMAN_SGMSCANCONFIG_H
+#endif // AM_SGMSCANCONFIG_H

@@ -21,56 +21,63 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AMSELECTABLEPERIODICTABLE_H
 
 #include <QObject>
-#include "util/AMPeriodicTable.h"
 
-///	This class encapsulates the periodic table and extends it's functionality slightly by offering a "memory" of selected elements.
-class AMSelectablePeriodicTable : public QObject
+#include "util/AMCustomizablePeriodicTable.h"
+
+///	This class extends the customizable periodic table and extends it's functionality slightly by offering a "memory" of selected elements.
+class AMSelectablePeriodicTable : public AMCustomizablePeriodicTable
 {
 	Q_OBJECT
 public:
 	/// Constructor.
+ 	virtual ~AMSelectablePeriodicTable();
 	explicit AMSelectablePeriodicTable(QObject *parent = 0);
 
-	// Periodic table getters.
-	/////////////////////////////////////////
-
-	/// Returns the list of elements.
-	QList<const AMElement *> elements() const { return AMPeriodicTable::table()->elements(); }
-	/// Returns the number of elements in the periodic table.
-	int numberOfElements() const { return AMPeriodicTable::table()->numberOfElements(); }
-	/// Returns the element specified by the given \em name.  Returns 0 if \em name doesn't exist.
-	const AMElement *elementByName(QString name) const { return AMPeriodicTable::table()->elementByName(name); }
-	/// Returns the element specified by the given \em symbol.  Returns 0 if \em symbol doesn't exist.
-	const AMElement *elementBySymbol(QString symbol) const { return AMPeriodicTable::table()->elementBySymbol(symbol); }
-	/// Returns the element specified by the given atomic number.  The number must be a valid atomic number between 1 <= atomicNumber <= 109.
-	const AMElement *elementByAtomicNumber(int number) const { return AMPeriodicTable::table()->elementByAtomicNumber(number); }
+	/// Reimplemented to use AMSelectableElement instead of the base class AMElement.
+	virtual void buildPeriodicTable();
 
 	// Added features.
 	///////////////////////////////////////
 
-	/// Adds a selected element to the end of the list.
-	void selectElement(int atomicNumber);
-	/// Removes a selected element from the list.
-	void deselectElement(int atomicNumber);
-	/// Returns the list of selected elements.
-	QList<int> selectedElements() const { return savedElements_; }
+	/// Returns whether the element is selected.
+	bool isSelected(AMElement *element) const;
 
+	/// Returns whether there are any selected elements in this periodic table.
+	bool hasSelectedElements() const { return !savedElements_.isEmpty(); }
+	/// Adds a selected element to the end of the list.
+	void selectElement(AMElement *element);
+	/// Removes a selected element from the list.
+	void deselectElement(AMElement *element);
 	/// Clear the list.
-	void clearList();
+	void deselectAllElements();
+
+	/// Returns the list of selected elements.
+	QList<AMElement *> selectedElements() const { return savedElements_; }
 
 signals:
-	/// Notifier that an element has been selected.  Passes the atomic number.
-	void elementSelected(int);
-	/// Notifier that an element has been deselected.  Passes the atomic number.
-	void elementDeselected(int);
+	/// Notifier that an element has been selected.  Passes the element.
+	void elementSelected(AMElement *);
+	/// Notifier that an element has been deselected.  Passes the element.
+	void elementDeselected(AMElement *);
 	/// Notifier that all of the elments have been removed.
-	void listCleared();
+	void allElementsDeselected();
+
+	/// Notifier that an absorption edge was selected.  Passes the edge.
+	void absorptionEdgeSelected(const AMAbsorptionEdge &);
+	/// Notifier that an absorption edge was deselected.  Passes the edge.
+	void absorptionEdgeDeselected(const AMAbsorptionEdge &);
+	/// Notifier that an emission line was selected.  Passes the emission line.
+	void emissionLineSelected(const AMEmissionLine &);
+	/// Notifier that an emission line was deselected.  Passes the emission line.
+	void emissionLineDeselected(const AMEmissionLine &);
 
 public slots:
 
+protected slots:
+
 protected:
-	/// List of atomic numbers that have been saved.
-	QList<int> savedElements_;
+	/// List of elements that have been saved.
+	QList<AMElement *> savedElements_;
 };
 
 #endif // AMSELECTABLEPERIODICTABLE_H

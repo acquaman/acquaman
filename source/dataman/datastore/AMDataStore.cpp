@@ -22,72 +22,37 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
-
-AMDataStoreSignalSource::AMDataStoreSignalSource(AMDataStore *parent)
-	: QObject() {
-	data_ = parent;
-}
-
-AMDataStore::AMDataStore()
+AMDataStore::AMDataStore(QObject* parent) : QObject(parent)
 {
-	signalSource_ = new AMDataStoreSignalSource(this);
 	isInsertingRows_ = false;
 }
 
 AMDataStore::~AMDataStore() {
-	delete signalSource_;
-	signalSource_ = 0;
 }
 
 
-bool AMDataStore::beginInsertRows(int axisId, int numRows, int atRowIndex) {
+bool AMDataStore::beginInsertRows(long numRows, long atRowIndex) {
 	if(isInsertingRows_)
-		return false;	// nested inserts not supported.
+		return false;	// nested inserts not supported. Finish the last insert first, and then call endInsertRows().
+
+	// Cannot insert rows if we don't have any scan axes.
+	if(scanAxesCount() == 0)
+		return false;
 
 	// put atRowIndex within range. (-1, or anything beyond the rowCount, should append)
-	int rowCount = scanAxisAt(axisId).size;
+	long rowCount = scanSize(0);
 	if(atRowIndex < 0 || atRowIndex > rowCount)
 		atRowIndex = rowCount;
 
-	if(beginInsertRowsImplementation(axisId, numRows, atRowIndex) == false) {
+	if(beginInsertRowsImplementation(numRows, atRowIndex) == false) {
 		return false;
 	}
 	else {
 		isInsertingRows_ = true;
-		insertingAxisId_ = axisId;
 		insertingNumRows_ = numRows;
 		insertingAtRowIndex_ = atRowIndex;
-		multiAxisInsertInProgress_ = false;
 		return true;
 	}
-}
-
-bool AMDataStore::beginInsertRowsAsNecessaryForScanPoint(const AMnDIndex& scanIndex) {
-
-	if(isInsertingRows_)
-		return false; // nested inserts not supported.
-
-	if(scanIndex.rank() != scanRank())
-		return false;	// wrong dimensions of scanIndex.
-
-	/// \todo For now we trust that the inserts will succeed, when calling begingInsertRowsImplementation. Check on this...
-
-	isInsertingRows_ = true;
-	multiAxisInsertInProgress_ = true;
-	// the starting index of our insert (inclusive)
-	scanSpaceStartIndex_ = scanSize();
-	scanSpaceEndIndex_ = scanIndex;
-
-	// go through each axis and insert the number of rows required.
-	for(int mu=0; mu<scanRank(); mu++) {
-		if(scanIndex.at(mu) >= scanSpaceStartIndex_[mu]) {
-			int numRows = scanIndex.at(mu)-scanSpaceStartIndex_[mu]+1;
-			int atRowIndex = scanSpaceStartIndex_[mu];
-			beginInsertRowsImplementation(mu, numRows, atRowIndex);
-			endInsertRowsImplementation(mu, numRows, atRowIndex);	// need to do this here, so as not to nest inserts.
-		}
-	}
-	return true;
 }
 
 
@@ -97,41 +62,54 @@ void AMDataStore::endInsertRows() {
 
 	isInsertingRows_ = false;
 
-	// case of multi-axis insert
-	/////////////////////////////
-	if(multiAxisInsertInProgress_) {
+	endInsertRowsImplementation(insertingNumRows_, insertingAtRowIndex_);
 
-//		needs to be done after each beginInsertRowsImplementation instead:
-//		for(int mu=0; mu<scanRank(); mu++) {
-//			if(scanSpaceEndIndex_[mu] >= scanSpaceStartIndex_[mu])
-//				endInsertRowsImplementation(mu, scanSpaceEndIndex_[mu]-scanSpaceStartIndex_[mu]+1, scanSpaceStartIndex_[mu]);
-//		}
+	// determine a region that covers the whole new scan space. It will be from min to max index in all axes, except for the first axis, which we are inserting into.
+	AMnDIndex start(scanAxesCount(), AMnDIndex::DoNotInit);
+	AMnDIndex end(scanAxesCount(), AMnDIndex::DoNotInit);
 
-		emitSizeChanged(-1);	// multiple axes might have changed size.
-		for(int d=0; d<measurementCount(); d++)	// emit dataChanged for each measurement
-			emitDataChanged(scanSpaceStartIndex_, scanSpaceEndIndex_, d);
+	start[0] = insertingAtRowIndex_;
+	// any data that got pushed down by the insert should also be considered changed. Therefore, end should be the new maximum index
+	end[0] = scanSize(0)-1;
+	// Go through remaining axes and set start/end to cover the full range
+	for(int mu=scanAxesCount()-1; mu>=1; --mu) {
+		start[mu] = 0;
+		end[mu] = scanSize(mu);
 	}
 
-	// case of single-axis insert
-	///////////////////////
-	else {
-		endInsertRowsImplementation(insertingAxisId_, insertingNumRows_, insertingAtRowIndex_);
-
-		// determine a region that covers the whole new scan space. It will be from min to max index in all axes, except for the axis along which we're inserting.
-		AMnDIndex start, end;
-		for(int mu=0; mu<scanAxesCount(); mu++) {	// mu is a "meta-index"... iterating over the axis indexes.
-			if(mu == insertingAxisId_) {
-				start.append(insertingAtRowIndex_);	// any data that got pushed down should also be considered changed. end should be the max index for this axis.
-				end.append(scanAxisAt(mu).size-1);
-			}
-			else {	// in all other axes, it's the whole range (since these are all new points)
-				start.append(0);
-				end.append(scanAxisAt(mu).size-1);
-			}
-		}
-
-		emitSizeChanged(insertingAxisId_);
-		for(int d=0; d<measurementCount(); d++)
-			emitDataChanged(start, end, d);	// emitted once for each set of measurements.
-	}
+	emit sizeChanged();
+	for(int d=0; d<measurementCount(); d++)
+		emitDataChanged(start, end, d);	// emitted once for each set of measurements.
 }
+
+// This function calculates the total size of the array required for values(), spanned by \c scanIndexStart, \c scanIndexEnd, \c measurementIndexStart, and \c measurementIndexEnd.
+int AMDataStore::valuesSize(const AMnDIndex &scanIndexStart, const AMnDIndex &scanIndexEnd, const AMnDIndex &measurementIndexStart, const AMnDIndex &measurementIndexEnd) const
+{
+	if(scanIndexStart.rank() != scanIndexEnd.rank())
+		return -1;
+	if(measurementIndexStart.rank() != measurementIndexEnd.rank())
+		return -1;
+
+
+	int totalSize = 1;
+	for(int mu = 0; mu < scanIndexStart.rank(); mu++) {
+		if(scanIndexEnd.at(mu) < scanIndexStart.at(mu))
+			return -1;
+		totalSize *= (scanIndexEnd.at(mu) - scanIndexStart.at(mu) + 1);
+	}
+
+	for(int mu = 0; mu < measurementIndexStart.rank(); mu++) {
+		if(measurementIndexEnd.at(mu) < measurementIndexStart.at(mu))
+			return -1;
+		totalSize *= (measurementIndexEnd.at(mu) - measurementIndexStart.at(mu) + 1);
+	}
+
+	return totalSize;
+}
+
+QVector<double> AMDataStore::values(const AMnDIndex &scanIndexStart, const AMnDIndex &scanIndexEnd, int measurementId, const AMnDIndex &measurementIndexStart, const AMnDIndex &measurementIndexEnd) const {
+	   QVector<double> rv(valuesSize(scanIndexStart, scanIndexEnd, measurementIndexStart, measurementIndexEnd));
+	   if(!values(scanIndexStart, scanIndexEnd, measurementId, measurementIndexStart, measurementIndexEnd, rv.data()))
+		   return QVector<double>();
+	   return rv;
+   }

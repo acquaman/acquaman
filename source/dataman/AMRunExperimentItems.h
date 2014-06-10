@@ -32,6 +32,7 @@ class AMDatabase;
 class AMRunModelItem : public AMDragDropItem {
 
 public:
+ 	virtual ~AMRunModelItem();
 	explicit AMRunModelItem(AMDatabase* db, int id, const QString& editText = QString()) : AMDragDropItem(editText) {
 		db_ = db;
 		setData(id, AM::IdRole);
@@ -59,6 +60,7 @@ protected:
 class AMExperimentModelItem : public AMDragDropItem {
 
 public:
+ 	virtual ~AMExperimentModelItem();
 	explicit AMExperimentModelItem(AMDatabase* db, int id, const QString& editText = QString()) : AMDragDropItem(editText) {
 		db_ = db;
 		setData(id, AM::IdRole);

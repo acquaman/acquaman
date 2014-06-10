@@ -27,8 +27,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMAxisInfo.h"
 #include "dataman/AMnDIndex.h"
 
-
 class AMDataSource;
+
+#define AMDATASOURCE_VALUES_BASE_IMPLEMENTATION_CALLED 595001
 
 /// This class acts as a proxy to emit signals for AMDataSource. You can receive the dataChanged(), sizeChanged(), etc. signals by hooking up to AMDataSource::signalSource().  You should never need to create an instance of this class directly.
 /*! To allow classes that implement AMDataSource to also inherit QObject, AMDataSource does NOT inherit QObject.  However, it still needs a way to emit signals notifying of changes to the data, which is the role of this class.
@@ -47,6 +48,7 @@ protected slots:
 	void emitDeleted() { emit deleted(data_); }
 
 protected:
+ 	virtual ~AMDataSourceSignalSource();
 	AMDataSourceSignalSource(AMDataSource* parent);
 	AMDataSource* data_;
 	friend class AMDataSource;
@@ -136,11 +138,23 @@ public:
 	// Data value access
 	////////////////////////////
 
-	/// Returns the dependent value at a (complete) set of axis indexes. Returns an invalid AMNumber if the indexes are insuffient or any are out of range, or if the data is not ready.  If you know for sure that the index is within the valid data range, you can set \c doBoundsChecking to false for increased performance.
-	virtual AMNumber value(const AMnDIndex& indexes, bool doBoundsChecking = true) const = 0;
+	/// Returns the dependent value at a (complete) set of axis indexes. Returns an invalid AMNumber if the indexes are insuffient or (if AM_ENABLE_BOUNDS_CHECKING is defined, any are out of range), or if the data is not ready.
+	virtual AMNumber value(const AMnDIndex& indexes) const = 0;
 
-	/// When the independent values along an axis is not simply the axis index, this returns the independent value along an axis (specified by axis number and index).  If you know for sure that the index is within the valid data range, you can set \c doBoundsChecking to false for increased performance.
-	virtual AMNumber axisValue(int axisNumber, int index, bool doBoundsChecking = true) const = 0;
+	/// Performance optimization of value(): instead of a single value, copies a block of values from \c indexStart to \c indexEnd (inclusive), into \c outputValues.  The values are returned in row-major order (ie: with the first index varying the slowest). Returns false if the indexes have the wrong dimension, or (if AM_ENABLE_BOUNDS_CHECKING is defined, the indexes are out-of-range).
+	/*! The base-class implementation simply calls value() repeatedly, so you should absolutely re-implement this for better performance.
+
+	It is the caller's responsibility to make sure that \c outputValues has sufficient size.  You can calculate this conviniently using:
+
+\code
+int outputSize = indexStart.totalPointsTo(indexEnd);
+\endcode
+*/
+	virtual bool values(const AMnDIndex& indexStart, const AMnDIndex& indexEnd, double* outputValues) const;
+
+
+	/// When the independent values along an axis is not simply the axis index, this returns the independent value along an axis (specified by axis number and index).
+	virtual AMNumber axisValue(int axisNumber, int index) const = 0;
 
 	// Observers
 	//////////////////////////
@@ -177,12 +191,12 @@ public:
 	/// Hint to indicate that this data source should be visible (in plots and graphical displays).  Users are free to toggle this visibility.
 	virtual bool visibleInPlots() const { return visibleInPlots_; }
 	/// Specify that this data source should be visible (in plots and graphical displays).  Users are free to toggle this visibility.
-	virtual void setVisibleInPlots(bool isVisible) { visibleInPlots_ = isVisible; emitInfoChanged(); }
+	virtual void setVisibleInPlots(bool isVisible);
 
 	/// Hint to indicate that this data source should be hidden from users by default. (ie: it contains some programming internals). This means that users shouldn't see it, or be able to toggle its visibility.
 	virtual bool hiddenFromUsers() const { return hiddenFromUsers_; }
 	/// Specify that this data source should be hidden from users by default. (ie: it contains some programming internals). This means that users shouldn't see it, or be able to toggle its visibility.
-	virtual void setHiddenFromUsers(bool isHidden = true) { hiddenFromUsers_ = isHidden; emitInfoChanged(); }
+	virtual void setHiddenFromUsers(bool isHidden = true) { if(isHidden == hiddenFromUsers_) return; hiddenFromUsers_ = isHidden; emitInfoChanged(); }
 
 
 protected:
@@ -216,6 +230,9 @@ protected:
 private:
 	/// QObject proxy for emitting signals. (This interface class can't emit directly, because it doesn't want to inherit QObject.)
 	AMDataSourceSignalSource* signalSource_;
+
+	/// Helper function to implement the base-class version of values(), when rank > 4.
+	void valuesImplementationRecursive(const AMnDIndex& indexStart, const AMnDIndex& indexEnd, AMnDIndex current, int dimension, double** outputValues) const;
 
 };
 

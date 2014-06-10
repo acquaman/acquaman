@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AMDATETIMEUTILS_H
 #include <QString>
 #include <QDateTime>
+#include <QStringList>
 
 namespace AMDateTimeUtils
 {
@@ -40,6 +41,8 @@ namespace AMDateTimeUtils
 	/// Formats an approximate duration, depending on the size. (ex: "6 seconds", "3 minutes and 5 seconds", "1 hour and 13 minutes", "1 day and 4.5 hours"). If you want to save space, ask for \c shortForm = true (ex: "6s", "3m 5s", "1h 13m", "1d 4.5h")
 	QString prettyDuration(const QDateTime& start, const QDateTime& end, bool shortForm = false);
 
+	/// Formats a QStringList of items into a QString that is a gramatically correct list (using commas and the word "and")
+	QString gramaticallyCorrectList(const QStringList &listItems);
 
 };
 

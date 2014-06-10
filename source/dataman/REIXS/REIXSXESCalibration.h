@@ -67,6 +67,7 @@ class REIXSXESCalibration : public AMDbObject
 
 
 public:
+ 	virtual ~REIXSXESCalibration();
 	explicit REIXSXESCalibration(QObject *parent = 0);
 
 	int gratingCount() const { return gratingNames_.count(); } ///< returns the number of gratings defined in this calibration
@@ -148,7 +149,7 @@ public slots:
 
 	//////////////////////
 
-	AMControlInfoList computeSpectrometerPosition(REIXSXESScanConfiguration* scanConfiguration) const;
+//	AMControlInfoList computeSpectrometerPosition(REIXSXESScanConfiguration* scanConfiguration) const;
 	AMControlInfoList computeSpectrometerPosition(int gratingIndex, double eV, double focusOffsetMm, double tiltOffsetDeg) const;
 	double computeEVFromSpectrometerPosition(int gratingIndex, double spectrometerRotationDriveMm, double detectorTranslationMM) const;
 

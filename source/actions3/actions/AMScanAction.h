@@ -34,6 +34,9 @@ class AMScanController;
 #define AMSCANACTION_NO_REGISTERED_EXPORTER 103108
 #define AMSCANACTION_NO_REGISTERED_EXPORTER_OPTION 103109
 #define AMSCANACTION_DATABASE_NOT_FOUND 103110
+#define AMSCANACTION_CONTROLLER_NOT_VALID_FOR_AUTOEXPORT 103111
+#define AMSCANACTION_INVALILD_NO_VALID_ACTION_INFO 103112
+#define AMSCANACTION_INVALILD_BEAMLINE_CLAIMS_INVALID 103113
 
 class AMScanAction : public AMAction3
 {
@@ -53,6 +56,10 @@ public:
 	/// Returns a pointer to the scan controller that is encapsulated by this action.
 	AMScanController *controller() const { return controller_; }
 
+	/// Returns the ActionValidity of this scanAction
+	virtual AMAction3::ActionValidity isValid();
+	virtual QString notValidWarning();
+
 	// Re-implemented public functions.
 	//////////////////////////////////////////////////
 	/// Pure virtual function that denotes that this action has children underneath it or not.
@@ -62,6 +69,13 @@ public:
 
 	/// Scan actions have the ability to pause.
 	virtual bool canPause() const { return true; }
+	/// Scan actions MIGHT be able to skip.  It depends on which type of scan controller is being used.  In general, Dacq controllers can skip.
+	virtual bool canSkip() const;
+	/// Scan actions CAN NOT be parallelized.  This is for everyones sake, too many things need to be working syncronously.
+	virtual bool canParallelize() const { return false; }
+
+public slots:
+	virtual void scheduleForDeletion();
 
 protected slots:
 
@@ -83,6 +97,8 @@ protected slots:
 	/// Helper slot that updates the status text when the controller changes state.
 	void onControllerStateChanged();
 
+	void onReadyForDeletionChanged(bool isReady);
+
 protected:
 	/// This function is called from the Starting state when the implementation should initiate the action. Once the action is started, you should call notifyStarted().
 	virtual void startImplementation();
@@ -93,7 +109,11 @@ protected:
 	/// All implementations must support cancelling. This function will be called from the Cancelling state. Implementations will probably want to examine the previousState(), which could be any of Starting, Running, Pausing, Paused, or Resuming. Once the action is cancelled and can be deleted, you should call notifyCancelled().
 	/*! \note If startImplementation() was never called, you won't receive this when a user tries to cancel(); the base class will handle it for you. */
 	virtual void cancelImplementation();
+	/// For the controllers that support skipping, this will do the necessary work.
+	virtual void skipImplementation(const QString &command);
 
+	/// Exports a the scan with the registered exporter and option when a scan successfully completes.
+	void autoExportScan();
 	/// Method that returns a string with the state of the scan controller.
 	QString controllerStateString() const;
 
@@ -101,6 +121,8 @@ protected:
 	AMScanController *controller_;
 	/// A pointer to the specific scan info this action uses.
 	AMScanActionInfo *scanInfo_;
+
+	bool hasValidScanController_;
 };
 
 #endif // AMSCANACTION_H

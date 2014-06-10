@@ -36,6 +36,7 @@ class AM2DSummingAB : public AMStandardAnalysisBlock {
 
 public:
 	/// Constructor. \c outputName is the name() for the output data source.
+ 	virtual ~AM2DSummingAB();
 	AM2DSummingAB(const QString& outputName, QObject* parent = 0);
 	/// This constructor is used to reload analysis blocks directly out of the database
 	Q_INVOKABLE AM2DSummingAB(AMDatabase* db, int id);
@@ -73,50 +74,17 @@ public:
 	////////////////////////////
 
 	/// Returns the dependent value at a (complete) set of axis indexes. Returns an invalid AMNumber if the indexes are insuffient or any are out of range, or if the data is not ready.
-	virtual inline AMNumber value(const AMnDIndex& indexes, bool doBoundsChecking = true) const {
-		if(indexes.rank() != 1)
-			return AMNumber(AMNumber::DimensionError);
+	virtual AMNumber value(const AMnDIndex& indexes) const;
+	/// Performance optimization of value(): instead of a single value, copies a block of values from \c indexStart to \c indexEnd (inclusive), into \c outputValues.  The values are returned in row-major order (ie: with the first index varying the slowest). Returns false if the indexes have the wrong dimension, or (if AM_ENABLE_BOUNDS_CHECKING is defined, the indexes are out-of-range).
+	/*! 	It is the caller's responsibility to make sure that \c outputValues has sufficient size.  You can calculate this conviniently using:
 
-		if(!isValid())
-			return AMNumber(AMNumber::InvalidError);
-
-		if(doBoundsChecking)
-			if((unsigned)indexes.i() >= (unsigned)axes_.at(0).size)
-				return AMNumber(AMNumber::OutOfBoundsError);
-
-		AMNumber rv = cachedValues_.at(indexes.i());
-		// if we haven't calculated this sum yet, the cached value will be invalid. Sum and store.
-		if(!rv.isValid()) {
-			double newVal = 0.0;	/// \todo preserve int/double nature of values
-			if(sumAxis_ == 0)
-				for(int i=sumRangeMin_; i<=sumRangeMax_; i++)
-					newVal += (double)inputSource_->value(AMnDIndex(i, indexes.i()), false);
-			else
-				for(int i=sumRangeMin_; i<=sumRangeMax_; i++)
-					newVal += (double)inputSource_->value(AMnDIndex(indexes.i(), i), false);
-
-			cachedValues_[indexes.i()] = newVal;
-			cacheCompletelyInvalid_ = false;
-			return newVal;
-		}
-		// otherwise return the value we have.
-		else
-			return rv;
-	}
-
+	\code
+	int outputSize = indexStart.totalPointsTo(indexEnd);
+	\endcode
+	*/
+	virtual bool values(const AMnDIndex& indexStart, const AMnDIndex& indexEnd, double* outputValues) const;
 	/// When the independent values along an axis is not simply the axis index, this returns the independent value along an axis (specified by axis number and index)
-	virtual inline AMNumber axisValue(int axisNumber, int index, bool doBoundsChecking = true) const {
-
-		if(!isValid())
-			return AMNumber(AMNumber::InvalidError);
-
-		if(axisNumber != 0)
-			return AMNumber(AMNumber::DimensionError);
-
-		int otherAxis = (sumAxis_ == 0) ? 1 : 0;
-
-		return inputSource_->axisValue(otherAxis, index, doBoundsChecking);
-	}
+	virtual AMNumber axisValue(int axisNumber, int index) const;
 
 
 	// Analysis parameters

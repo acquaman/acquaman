@@ -36,7 +36,7 @@ public:
 	explicit REIXSXESSpectrometerControlEditor(REIXSSpectrometer* spectrometer, QWidget *parent = 0);
 
 
-	~REIXSXESSpectrometerControlEditor();
+	virtual ~REIXSXESSpectrometerControlEditor();
 
 protected:
 	REIXSSpectrometer* spectrometer_;
@@ -56,10 +56,16 @@ protected slots:
 	void updateCurrentEnergyStatus(double eV);
 	void updateCurrentEnergyStatus();
 	void updateCurrentGratingStatus();
+	void updateMaskPosition();
 
 	// Move failed: provide errorMon messages
 	void onSpectrometerMoveSucceeded();
 	void onSpectrometerMoveFailed(int reason);
+
+private slots:
+
+	void on_maskComboBox_currentIndexChanged(const QString &arg1);
+	void updateEnergyRange();
 
 private:
 	Ui::REIXSXESSpectrometerControlEditor *ui_;

@@ -18,8 +18,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef ACQMAN_AMSIDEBAR_H
-#define ACQMAN_AMSIDEBAR_H
+#ifndef AM_AMSIDEBAR_H
+#define AM_AMSIDEBAR_H
 
 #include <QStandardItem>
 #include <QStandardItemModel>
@@ -31,39 +31,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/AMDragDropItemModel.h"
 
-/* Unused / removed...
-
-#define AMSIDEBAR_BG_COLOR 221, 227, 234
-#define AMSIDEBAR_BORDER_COLOR 64, 64, 64
-
-#define AMSIDEBAR_SELECTED_COLOR1 131, 137, 167
-#define AMSIDEBAR_SELECTED_COLOR2 170, 176, 197
-#define AMSIDEBAR_SELECTED_COLOR3 115, 122, 153
-
-#define AMSIDEBAR_HIGHLIGHTED_COLOR1 69, 128, 200
-#define AMSIDEBAR_HIGHLIGHTED_COLOR2 91, 146, 213
-#define AMSIDEBAR_HIGHLIGHTED_COLOR3 22, 84, 170
-
-#define AMSIDEBAR_MIN_HEIGHT 30
-#define AMSIDEBAR_ICON_SIZE 22
-
-
-#define AMSIDEBAR_SELECTOR_STYLESHEET " #AMSidebarSelectorText { font: 500 10pt \"Lucida Grande\"; color: rgb(0, 0, 0); } QFrame#AMSidebarSelector { padding-left: 10px; padding-right: 14px; padding-top: 0px; padding-bottom: 1px; text-align: left; border: 1px none transparent; }  	QFrame#AMSidebarSelector:hover { border-width: 1px; border-style: solid;	border-color: rgb(22, 84, 170); border-top-color: rgb(69, 128, 200); background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(91, 146, 213, 255), stop:1 rgba(22, 84, 170, 255)); } #AMSidebarSelectorText[highlighted=\"true\"] { font: 500 10pt \"Lucida Grande\"; color: rgb(255, 255, 255); } QFrame#AMSidebarSelector[highlighted=\"true\"] { padding-left: 10px; padding-right: 14px; padding-top: 0px; padding-bottom: 1px; text-align: left; border: 1px solid rgb(115, 122, 153); border-top-color: rgb(131, 137, 167); background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(170, 176, 197, 255), stop:1 rgba(115, 122, 153, 255)); color: rgb(255, 255, 255); } "
-
-// removed from above: background-color: rgb(221, 227, 234);
-
-
-#define AMSIDEBAR_HEADER_STYLESHEET "QLabel { padding-left: 10px; padding-right: 14px; padding-top: 8px; padding-bottom: 4px; font: bold 10pt \"Lucida Grande\"; color: rgb(100, 109, 125); }"
-
-#define AMSIDEBAR_STYLESHEET " #AMSidebarFill { background-color: rgb(221, 227, 234); } AMSidebar { border-width: 1px;   border-style: solid;   border-color: rgb(221, 227, 234);  border-right-color: rgb(64, 64, 64); } "
-  */
-
 
 /// DEPRECATED CLASS -- An AMSidebarItem is a QStandardItem optimized for use as a "link" inside an AMSidebar. It has the usual name and icon, and it also has a QVariant \c link payload and a \c weight.  The weight is used in sorting (with lighter or more negative items on top), and the \c link is included as a parameter in the linkClicked() / linkDoubleClicked() signals emitted by AMSidebar.
 /*! The weight is stored under a user-role AM::WeightRole, and the link stored under AM::LinkRole. */
 class AMSidebarItem : public QStandardItem {
 public:
 	/// Default constructor
+ 	virtual ~AMSidebarItem();
 	explicit AMSidebarItem(const QString& name, const QVariant& link, const QIcon& icon = QIcon(), double weight = 0)
 		: QStandardItem(icon, name) {
 		setWeight(weight);
@@ -97,6 +71,7 @@ public:
 /// DEPRECATED CLASS -- AMSidebarHeadings are restricted version of AMSidebarItems, that are only used to act as headings (or category titles) in a sidebar.
 class AMSidebarHeading : public AMSidebarItem {
 public:
+ 	virtual ~AMSidebarHeading();
 	explicit AMSidebarHeading(const QString& name, double weight = 0)
 		: AMSidebarItem(name, QVariant(), QIcon(), weight) {
 		setFlags(Qt::ItemIsEnabled);
@@ -158,10 +133,6 @@ public slots:
 protected slots:
 	void onItemDoubleClicked(const QModelIndex & index);
 	virtual void currentChanged ( const QModelIndex & current, const QModelIndex & previous );
-
-protected:
-
-	// bool eventFilter(QObject* sourceObject, QEvent* event);
 
 signals:
 	void linkSelected(const QVariant& activatedLink);

@@ -33,6 +33,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "MPlot/MPlotTools.h"
 #include "dataman/datasource/AMDataSourceImageData.h"
 
+ AM2DSummingABEditor::~AM2DSummingABEditor(){}
 AM2DSummingABEditor::AM2DSummingABEditor(AM2DSummingAB* analysisBlock, QWidget *parent) :
 	QWidget(parent)
 {
@@ -44,9 +45,6 @@ AM2DSummingABEditor::AM2DSummingABEditor(AM2DSummingAB* analysisBlock, QWidget *
 
 	connect(names_, SIGNAL(currentIndexChanged(int)), this, SLOT(onNameChoiceChanged(int)));
 	connect(analysisBlock_, SIGNAL(inputSourcesChanged()), this, SLOT(populateComboBox()));
-
-	if (analysisBlock_->inputDataSourceCount() > 0)
-		onNameChoiceChanged(0);
 
 	axisSelector_ = new QComboBox();
 	axisSelector_->addItem("Horizontal");
@@ -110,6 +108,17 @@ AM2DSummingABEditor::AM2DSummingABEditor(AM2DSummingAB* analysisBlock, QWidget *
 
 	onAnalysisBlockInputDataSourcesChanged();
 
+	// This needs to be called last because it requires all of the pointers to be valid.  All of dem.
+	if (analysisBlock_->inputDataSourceCount() > 0){
+		if(analysisBlock_->analyzedName().isEmpty())
+			onNameChoiceChanged(0);
+		else{
+			for(int x = 0; x < names_->count(); x++)
+				if(names_->itemData(x).toString() == analysisBlock_->analyzedName())
+					names_->setCurrentIndex(x);
+		}
+	}
+
 	// make connections
 	connect(analysisBlock_, SIGNAL(inputSourcesChanged()), this, SLOT(onAnalysisBlockInputDataSourcesChanged()));
 
@@ -135,6 +144,7 @@ void AM2DSummingABEditor::onNameChoiceChanged(int index)
 {
 	QString name = names_->itemData(index).toString();
 	analysisBlock_->setAnalyzedName(name);
+	image_->setModel(new AMDataSourceImageData(analysisBlock_->inputDataSourceAt(analysisBlock_->indexOfInputSource(name))), true);
 }
 
 

@@ -34,6 +34,7 @@ class AMDetailedItemDelegate : public AMCloseItemDelegate
 Q_OBJECT
 public:
 
+ 	virtual ~AMDetailedItemDelegate();
 	explicit AMDetailedItemDelegate(QObject *parent = 0);
 
 	/// Re-implemented from QStyledItemDelegate to request the height requested in setItemHeight().

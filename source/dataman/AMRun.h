@@ -39,6 +39,7 @@ class AMFacility : public AMDbObject
 	Q_CLASSINFO("AMDbObject_Attributes", "description=Facility")
 
 public:
+ 	virtual ~AMFacility();
 	Q_INVOKABLE explicit AMFacility(const QString& shortDescription = "[Other]", const QString& longDescription = "Unknown Facility", const QString& iconFileName = QString(), QObject* parent = 0)
 		: AMDbObject(parent) {
 		setName(shortDescription);	// ex: "SGM"
@@ -101,7 +102,8 @@ class AMRun : public AMDbObject
 	Q_CLASSINFO("AMDbObject_Attributes", "description=Experimental Run")
 public:
 	/// Default constructor. In it we initialize the extra fields we want to store inside metaData_.
-	explicit AMRun(QObject *parent = 0);
+ 	virtual ~AMRun();
+	Q_INVOKABLE explicit AMRun(QObject *parent = 0);
 
 	/// This constructor initializes a run with a given name and facility id.
 	AMRun(const QString& runName, const int& facilityId=1, QObject* parent = 0);

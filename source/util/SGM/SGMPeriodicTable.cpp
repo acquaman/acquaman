@@ -21,61 +21,133 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "SGMPeriodicTable.h"
 #include "dataman/database/AMDbObjectSupport.h"
 
-#include <QDebug>
-
 //Singleton instance
 SGMPeriodicTable* SGMPeriodicTable::instance_ = 0;
+ SGMPeriodicTable::~SGMPeriodicTable(){}
+QString SGMPeriodicTable::SGMPeriodicTableAllDatabasesConnectionName_ = "^%^AllDatabases^%^";
 
 SGMPeriodicTable::SGMPeriodicTable(QObject *parent) :
 		QObject(parent)
 {
-	AMDatabase *dbSGM = AMDatabase::database("SGMBeamline");
-	if(dbSGM){
-		QList<int> matchIDs;
-		SGMElementInfo *elementInfo;
+	// Grab all the databases available but remove the "actions" database ... there shouldn't be anything in there
+	QStringList allDatabases = AMDatabase::registeredDatabases();
+	allDatabases.removeAll("actions");
 
-		QStringList elementsToLoad;
-		elementsToLoad << "Carbon" << "Nitrogen" << "Oxygen" << "Calcium" << "Titanium" << "Chromium" << "Iron" << "Nickel"
-			       << "Copper" <<  "Zinc" << "Sodium" << "Magnesium" << "Aluminum" << "Silicon";
-
-		foreach(QString elementName, elementsToLoad){
-			matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMElementInfo>(), "name", elementName+"ElementInfo");
-			if(matchIDs.count() > 0){
+	// Loop over all databases and load them up, if successful grab the elementInfos and load them
+	AMDatabase *tempDatabase;
+	SGMElementInfo *elementInfo;
+	QList<int> matchIDs;
+	for(int x = 0; x < allDatabases.count(); x++){
+		tempDatabase = AMDatabase::database(allDatabases.at(x));
+		if(tempDatabase){
+			AMOrderedSet<AMElement*, SGMElementInfo*> *thisDatabaseMapping = new AMOrderedSet<AMElement*, SGMElementInfo*>();
+			// Grab all the ids in this table (search for AMDbObjectType == SGMElementInfo should return everything)
+			matchIDs = tempDatabase->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMElementInfo>(), "AMDbObjectType", "SGMElementInfo");
+			for(int y = 0; y < matchIDs.count(); y++){
 				elementInfo = new SGMElementInfo();
-				if(elementInfo->loadFromDb(dbSGM, matchIDs.at(0)))
-					sgmPeriodicTableInfo_.append(elementInfo, elementInfo->element());
+				if(elementInfo->loadFromDb(tempDatabase, matchIDs.at(y)))
+					thisDatabaseMapping->append(elementInfo, elementInfo->element());
+//					sgmPeriodicTableInfo_.append(elementInfo, elementInfo->element());
 			}
+			sgmPeriodicTableInfo_.append(thisDatabaseMapping, tempDatabase);
 		}
 	}
-
 }
 
-SGMElementInfo* SGMPeriodicTable::elementInfoByName(const QString &elementName) const{
-	if(sgmPeriodicTableInfo_.contains(AMPeriodicTable::table()->elementByName(elementName)))
-		return sgmPeriodicTableInfo_.at(sgmPeriodicTableInfo_.indexOfKey(AMPeriodicTable::table()->elementByName(elementName)));
+SGMElementInfo* SGMPeriodicTable::elementInfoByName(const QString &elementName, const QString &databaseConnectionName) const{
+	AMDatabase *requestedDatabase = AMDatabase::database(databaseConnectionName);
+	if(!requestedDatabase || !sgmPeriodicTableInfo_.contains(requestedDatabase))
+		return 0; //NULL
+	if(sgmPeriodicTableInfo_.at(sgmPeriodicTableInfo_.indexOfKey(requestedDatabase))->contains(AMPeriodicTable::table()->elementByName(elementName)))
+		return sgmPeriodicTableInfo_.at(sgmPeriodicTableInfo_.indexOfKey(requestedDatabase))->at(sgmPeriodicTableInfo_.at(sgmPeriodicTableInfo_.indexOfKey(requestedDatabase))->indexOfKey(AMPeriodicTable::table()->elementByName(elementName)));
 	else
 		return 0; //NULL
+
+//	if(sgmPeriodicTableInfo_.contains(AMPeriodicTable::table()->elementByName(elementName)))
+//		return sgmPeriodicTableInfo_.at(sgmPeriodicTableInfo_.indexOfKey(AMPeriodicTable::table()->elementByName(elementName)));
+//	else
+//		return 0; //NULL
 }
 
-QStringList SGMPeriodicTable::fastScanPresetsStrings() const{
+QStringList SGMPeriodicTable::fastScanPresetsStrings(const QString &databaseConnectionName) const{
 	QStringList retVal;
 	QString tmpStr;
 	SGMElementInfo *tmpElementInfo;
-	for(int x = 0; x < sgmPeriodicTableInfo_.count(); x++){
-		tmpElementInfo = sgmPeriodicTableInfo_.at(x);
-		for(int y = 0; y < tmpElementInfo->availableFastScanParameters().count(); y++)
-			retVal << tmpElementInfo->availableFastScanParameters().at(y)->element() + " " + tmpElementInfo->availableFastScanParameters().at(y)->edge() + " " + tmpStr.setNum(tmpElementInfo->availableFastScanParameters().at(y)->runSeconds());
+	if(databaseConnectionName != SGMPeriodicTableAllDatabasesConnectionName()){
+		AMDatabase *requestedDatabase = AMDatabase::database(databaseConnectionName);
+		if(!requestedDatabase || !sgmPeriodicTableInfo_.contains(requestedDatabase))
+			return retVal;
+		for(int x = 0; x < sgmPeriodicTableInfo_.at(sgmPeriodicTableInfo_.indexOfKey(requestedDatabase))->count(); x++){
+			tmpElementInfo = sgmPeriodicTableInfo_.at(sgmPeriodicTableInfo_.indexOfKey(requestedDatabase))->at(x);
+			for(int y = 0; y < tmpElementInfo->availableFastScanParameters().count(); y++)
+				retVal << tmpElementInfo->availableFastScanParameters().at(y)->element() + " " + tmpElementInfo->availableFastScanParameters().at(y)->edge() + " " + tmpStr.setNum(tmpElementInfo->availableFastScanParameters().at(y)->runSeconds());
+		}
+	}
+	else{
+		QStringList allDatabaseConnectionNames = AMDatabase::registeredDatabases();
+		AMDatabase *requestedDatabase;
+		for(int z = 0; z < allDatabaseConnectionNames.count(); z++){
+			requestedDatabase = AMDatabase::database(allDatabaseConnectionNames.at(z));
+			if(requestedDatabase && sgmPeriodicTableInfo_.indexOfKey(requestedDatabase) >= 0 ){
+				for(int x = 0; x < sgmPeriodicTableInfo_.at(sgmPeriodicTableInfo_.indexOfKey(requestedDatabase))->count(); x++){
+					tmpElementInfo = sgmPeriodicTableInfo_.at(sgmPeriodicTableInfo_.indexOfKey(requestedDatabase))->at(x);
+					for(int y = 0; y < tmpElementInfo->availableFastScanParameters().count(); y++)
+						retVal << tmpElementInfo->availableFastScanParameters().at(y)->element() + " " + tmpElementInfo->availableFastScanParameters().at(y)->edge() + " " + tmpStr.setNum(tmpElementInfo->availableFastScanParameters().at(y)->runSeconds());
+				}
+			}
+		}
 	}
 	return retVal;
+
+
+//	QStringList retVal;
+//	QString tmpStr;
+//	SGMElementInfo *tmpElementInfo;
+//	for(int x = 0; x < sgmPeriodicTableInfo_.count(); x++){
+//		tmpElementInfo = sgmPeriodicTableInfo_.at(x);
+//		for(int y = 0; y < tmpElementInfo->availableFastScanParameters().count(); y++)
+//			retVal << tmpElementInfo->availableFastScanParameters().at(y)->element() + " " + tmpElementInfo->availableFastScanParameters().at(y)->edge() + " " + tmpStr.setNum(tmpElementInfo->availableFastScanParameters().at(y)->runSeconds());
+//	}
+//	return retVal;
 }
 
-QList<SGMFastScanParameters*> SGMPeriodicTable::fastScanPresets() const{
+QList<SGMFastScanParameters*> SGMPeriodicTable::fastScanPresets(const QString &databaseConnectionName) const{
 	QList<SGMFastScanParameters*> retVal;
-	SGMElementInfo *tmpElementInfo;
-	for(int x = 0; x < sgmPeriodicTableInfo_.count(); x++){
-		tmpElementInfo = sgmPeriodicTableInfo_.at(x);
-		for(int y = 0; y < tmpElementInfo->availableFastScanParameters().count(); y++)
-			retVal << tmpElementInfo->availableFastScanParameters().at(y);
+	if(databaseConnectionName != SGMPeriodicTableAllDatabasesConnectionName()){
+		AMDatabase *requestedDatabase = AMDatabase::database(databaseConnectionName);
+		if(!requestedDatabase || !sgmPeriodicTableInfo_.contains(requestedDatabase))
+			return retVal;
+		SGMElementInfo *tmpElementInfo;
+		for(int x = 0; x < sgmPeriodicTableInfo_.at(sgmPeriodicTableInfo_.indexOfKey(requestedDatabase))->count(); x++){
+			tmpElementInfo = sgmPeriodicTableInfo_.at(sgmPeriodicTableInfo_.indexOfKey(requestedDatabase))->at(x);
+			for(int y = 0; y < tmpElementInfo->availableFastScanParameters().count(); y++)
+				retVal << tmpElementInfo->availableFastScanParameters().at(y);
+		}
+	}
+	else{
+		QStringList allDatabaseConnectionNames = AMDatabase::registeredDatabases();
+		AMDatabase *requestedDatabase;
+		for(int z = 0; z < allDatabaseConnectionNames.count(); z++){
+			requestedDatabase = AMDatabase::database(allDatabaseConnectionNames.at(z));
+			if(requestedDatabase && sgmPeriodicTableInfo_.indexOfKey(requestedDatabase) >= 0 ){
+				SGMElementInfo *tmpElementInfo;
+				for(int x = 0; x < sgmPeriodicTableInfo_.at(sgmPeriodicTableInfo_.indexOfKey(requestedDatabase))->count(); x++){
+					tmpElementInfo = sgmPeriodicTableInfo_.at(sgmPeriodicTableInfo_.indexOfKey(requestedDatabase))->at(x);
+					for(int y = 0; y < tmpElementInfo->availableFastScanParameters().count(); y++)
+						retVal << tmpElementInfo->availableFastScanParameters().at(y);
+				}
+			}
+		}
 	}
 	return retVal;
+
+
+//	QList<SGMFastScanParameters*> retVal;
+//	SGMElementInfo *tmpElementInfo;
+//	for(int x = 0; x < sgmPeriodicTableInfo_.count(); x++){
+//		tmpElementInfo = sgmPeriodicTableInfo_.at(x);
+//		for(int y = 0; y < tmpElementInfo->availableFastScanParameters().count(); y++)
+//			retVal << tmpElementInfo->availableFastScanParameters().at(y);
+//	}
+//	return retVal;
 }

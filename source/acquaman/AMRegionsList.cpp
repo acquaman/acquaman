@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 // AMRegionsList
 ///////////////////////////////////////////////////////////
 
+ AMRegionsList::~AMRegionsList(){}
 AMRegionsList::AMRegionsList(QObject *parent, bool setup)
 	: QObject(parent)
 {
@@ -119,7 +120,10 @@ double AMRegionsList::time(int index) const
 
 QString AMRegionsList::units(int index) const
 {
-	if (index < regions_->regions()->size())
+	if(!regions_ || !regions_->regions())
+		return QString();
+
+	if (index < regions_->regions()->size() && regions_->regions()->at(index))
 		return regions_->regions()->at(index)->units();
 
 	return QString();
@@ -144,8 +148,8 @@ bool AMRegionsList::isValid() const
 
 bool AMRegionsList::addRegion(int index, double start, double delta, double end, double time)
 {
-	if(!defaultControl_ || !defaultTimeControl_)
-		return false;
+//	if(!defaultControl_ || !defaultTimeControl_)
+//		return false;
 
 	bool retVal;
 
@@ -462,3 +466,15 @@ bool AMEXAFSRegionsList::deleteRegionSqueeze(int index){
 
 	return retVal;
 }
+
+double AMRegionsList::totalAcquisitionTime() const
+{
+	double rv = 0;
+	for(int i=0, cc=count(); i<cc; ++i) {
+		AMRegion* r = region(i);
+		rv += (int((r->end() - r->start())/r->delta())+1)*r->time();
+	}
+	return rv;
+}
+ AMXASRegionsList::~AMXASRegionsList(){}
+ AMEXAFSRegionsList::~AMEXAFSRegionsList(){}

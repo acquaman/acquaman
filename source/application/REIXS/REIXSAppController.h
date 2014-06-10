@@ -36,6 +36,8 @@ public:
 	/// Destructor
 	virtual ~REIXSAppController() {}
 
+	/// Re-implemented to add REIXS specific Info, Actions and Editors
+	virtual bool startup();
 	/// Re-implemented to create the REIXSBeamline object
 	virtual bool startupBeforeAnything();
 	/// Re-implemented to register REIXS-specific database classes
@@ -48,19 +50,19 @@ public:
 	/// destroy all of the windows, widgets, and data objects created by applicationStartup(). Only call this if startup() has ran successfully.  If reimplementing, must call the base-class shutdown() as the last thing it does.
 	virtual void shutdown();
 
+
+	///	Opens a single scan configuration from a given database URL.  Reimplemented to put the scan into a config view holder to possibly add it to the workflow.
+	virtual void launchScanConfigurationFromDb(const QUrl &url);
+
+
 public slots:
-	virtual void goToWorkflow();
 
 protected slots:
-
-	/// This watches when the state of the current action changes (as notified by AMActionRunner). For now, we notice when an AMScanControllerAction starts, and create an editor for its scan.
-	virtual void onCurrentActionStateChanged(int newState, int oldState);
 
 
 protected:
 
 	REIXSXESScanConfigurationDetailedView* xesScanConfigurationView_;
-	AMWorkflowView* workflowView_;
 
 };
 

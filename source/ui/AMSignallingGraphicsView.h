@@ -28,6 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class AMSignallingGraphicsView : public QGraphicsView {
 	Q_OBJECT
 public:
+ 	virtual ~AMSignallingGraphicsView();
 	explicit AMSignallingGraphicsView(QWidget* parent = 0);
 
 signals:

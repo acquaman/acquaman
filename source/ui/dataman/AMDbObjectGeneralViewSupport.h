@@ -23,13 +23,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QString>
 #include <QHash>
 
-class QMetaObject;
+//class QMetaObject;
 class AMDbObject;
 class AMDbObjectGeneralView;
 
 class AMDbObjectGeneralViewObjectInfo{
 public:
 	/// The default constructor creates an invalid object
+ 	virtual ~AMDbObjectGeneralViewObjectInfo();
 	AMDbObjectGeneralViewObjectInfo(){
 		objectMetaObject = 0;
 		generalViewMetaObject = 0;

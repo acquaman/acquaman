@@ -21,18 +21,21 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AMCONTROLMOVEACTIONINFO3_H
 
 #include "actions3/AMActionInfo3.h"
-#include "dataman/info/AMControlInfoList.h"
+#include "dataman/info/AMControlInfo.h"
 
 /// This AMActionInfo-subclass specifies the information for AMControlMoveAction -- an action that moves a control to a setpoint.  This info specifies the setpoint (the name of the control and where to move it to), in the form of an AMControlInfo.
 class AMControlMoveActionInfo3 : public AMActionInfo3
 {
-    Q_OBJECT
+	Q_OBJECT
 	Q_PROPERTY(AMDbObject* controlInfo READ dbReadControlInfo WRITE dbLoadControlInfo)
 	Q_PROPERTY(bool isRelativeMove READ isRelativeMove WRITE setIsRelativeMove)
+	Q_PROPERTY(bool isRelativeFromSetpoint READ isRelativeFromSetpoint WRITE setIsRelativeFromSetpoint)
 
 public:
 	/// Constructor. You should always specify a valid \c setpoint, but we provide the default argument because we need a default constructor for database loading.
 	Q_INVOKABLE AMControlMoveActionInfo3(const AMControlInfo &setpoint = AMControlInfo(), QObject *parent = 0);
+	/// Destructor.
+	virtual ~AMControlMoveActionInfo3();
 
 	/// Copy Constructor
 	AMControlMoveActionInfo3(const AMControlMoveActionInfo3 &other);
@@ -53,6 +56,8 @@ public:
 	const AMControlInfo* controlInfo() const { return &controlInfo_; }
 	/// Returns true if this is to be a relative move (otherwise returns false for absolute).
 	bool isRelativeMove() const { return isRelative_; }
+	/// Returns true if this is to be a relative move from the setpoint as opposed to the feedback value
+	bool isRelativeFromSetpoint() const { return isRelativeFromSetpoint_; }
 
 	/// Set the move destination setpoint, including the control name, value, and description.
 	/*! \note We make a copy of \c controlInfo's values, and do not retain any reference to it afterward. */
@@ -61,6 +66,8 @@ public:
 	void setSetpoint(double setpoint);
 	/// Sets whether this should be a relative (rather than absolute) move.  Absolute is the default.
 	void setIsRelativeMove(bool isRelative);
+	/// Sets whether this should be a relative move from the setpoint as opposed to the feedback value.
+	void setIsRelativeFromSetpoint(bool isRelativeFromSetpoint);
 
 	// Database loading/storing
 	////////////////////////////
@@ -79,6 +86,8 @@ protected:
 	AMControlInfo controlInfo_;
 	/// A flag to indicate that this should be a relative (rather than absolute) move
 	bool isRelative_;
+	/// A flag to indicate that a relative move should be from the setpoint (rather than the feedback)
+	bool isRelativeFromSetpoint_;
 
 	/// A short helper function to update the action's description
 	void updateDescriptionText();

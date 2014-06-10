@@ -31,6 +31,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/acquaman/AMScanConfigurationView.h"
 #include "actions3/actions/AMScanAction.h"
 
+ AMScanConfigurationViewHolder3::~AMScanConfigurationViewHolder3(){}
 AMScanConfigurationViewHolder3::AMScanConfigurationViewHolder3(AMScanConfigurationView* view, QWidget *parent) :
 	AMActionRunnerAddActionBar3("Scan", parent)
 {
@@ -38,6 +39,15 @@ AMScanConfigurationViewHolder3::AMScanConfigurationViewHolder3(AMScanConfigurati
 
 	if(view_)
 		addWidget(view_);
+
+	disabledWarning_ = new QLabel("");
+	QFont warningsFont;
+	warningsFont.setPointSize(32);
+	disabledWarning_->setFont(warningsFont);
+	disabledWarning_->setStyleSheet( "QLabel{ color: red }" );
+	addWidget(disabledWarning_);
+
+
 }
 
 void AMScanConfigurationViewHolder3::setView(AMScanConfigurationView *view) {
@@ -51,6 +61,14 @@ void AMScanConfigurationViewHolder3::setView(AMScanConfigurationView *view) {
 	}
 }
 
+void AMScanConfigurationViewHolder3::setEnabled(bool enabled){
+	AMActionRunnerAddActionBar3::setEnabled(enabled);
+
+	if(view_ && enabled)
+		disabledWarning_->setText("");
+	else if(view_ && !enabled)
+		disabledWarning_->setText("This Configuration Is Disabled");
+}
 
 AMAction3 * AMScanConfigurationViewHolder3::createAction()
 {

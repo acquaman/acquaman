@@ -25,12 +25,20 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 class QLabel;
 class QProgressBar;
+class QVBoxLayout;
+class QHBoxLayout;
 
 class AMDatamanStartupSplashScreen : public QWidget
 {
 Q_OBJECT
 
 public:
+	enum splashScreenMode{
+		noMode = 0,
+		waitingMode = 1
+	};
+
+ 	virtual ~AMDatamanStartupSplashScreen();
 	AMDatamanStartupSplashScreen(QWidget *parent = 0);
 
 	int numberOfStages() const;
@@ -43,14 +51,21 @@ public slots:
 
 protected slots:
 	void onErrorMonDebug(AMErrorReport e);
+	void onErrorMonChangeMode(AMErrorReport e);
 
 protected:
 	QLabel *startupTextLabel_;
 	QProgressBar *startupProgressBar_;
 	QLabel *subStepTextLabel_;
+	QProgressBar *waitingProgressBar_;
+
+	QVBoxLayout *mainVL_;
+	QHBoxLayout *subTextHL_;
 
 	int numberOfStages_;
 	int currentStage_;
+
+	AMDatamanStartupSplashScreen::splashScreenMode specialMode_;
 };
 
 #endif // AMDATAMANSTARTUPSPLASHSCREEN_H

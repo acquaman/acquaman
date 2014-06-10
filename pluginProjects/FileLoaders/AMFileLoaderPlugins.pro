@@ -1,6 +1,6 @@
 TEMPLATE = subdirs
 
-SUBDIRS += \
+SUBDIRS += AMCDFv1FileLoader \
 	SGM2011XASFileLoader \
 	SGM2004XASFileLoader \
 	SGM2010FastFileLoader \
@@ -8,4 +8,7 @@ SUBDIRS += \
 	VESPERS2011XRFFileLoader \
 	REIXSXESRawFileLoader \
 	ALSBL8XASFileLoader \
-	VESPERS20122DFileLoader
+	VESPERS20122DFileLoader \
+	VESPERS2012SpatialLineScanFileLoader \
+	AMRegion2013FileLoader \
+	SGM2013FastFileLoader

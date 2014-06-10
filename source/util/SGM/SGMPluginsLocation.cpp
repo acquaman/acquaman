@@ -19,6 +19,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "SGMPluginsLocation.h"
 
+ SGMPluginsLocation::~SGMPluginsLocation(){}
 SGMPluginsLocation::SGMPluginsLocation(QObject *parent) :
 	AMDbObject(parent)
 {

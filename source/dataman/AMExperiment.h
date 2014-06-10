@@ -30,8 +30,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QByteArray>
 #include <QPixmap>
 
-#include <QDebug>
-
 /// This class represents instances of objects that map to Experiments in the database of user information.
 class AMExperiment : public AMDbObject
 {
@@ -42,7 +40,8 @@ class AMExperiment : public AMDbObject
 
 public:
 	/// Default constructor. In it we initialize the extra fields we want to store inside metaData_.
-	explicit AMExperiment(QObject *parent = 0);
+ 	virtual ~AMExperiment();
+	Q_INVOKABLE explicit AMExperiment(QObject *parent = 0);
 
 	/// This constructor initializes an experiment with a given name.
 	AMExperiment(const QString& experimentName, QObject* parent = 0);

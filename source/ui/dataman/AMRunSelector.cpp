@@ -25,7 +25,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QList>
 #include <QPixmap>
 #include <QListView>
-#include <QDebug>
 
 #include "acquaman.h"
 #include "util/AMErrorMonitor.h"

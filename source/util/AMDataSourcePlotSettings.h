@@ -29,9 +29,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class AMDataSourcePlotSettings {
 public:
 	/// Default Constructor
-	AMDataSourcePlotSettings(double Priority = 1, const QPen& LinePen = QPen(nextColor()))
+ 	virtual ~AMDataSourcePlotSettings(){}
+	AMDataSourcePlotSettings(bool Visible = true, double Priority = 1, const QPen& LinePen = QPen(nextColor()))
 		: priority(Priority),
-		  // visible(Visible),
+		  visible(Visible),
 		  linePen(LinePen),
 		  colorMap(MPlotColorMap::Jet)
 	{
@@ -47,8 +48,8 @@ public:
 
 	/// Priority level for this data source (used for ordering... lower numbers appear first.)
 	double priority;
-	/// Whether this data source is shown/enabled in non-exclusive views. This option is available to users; they can toggle it on or off.
-	// Now stored in AMDataSource::visibleInPlots(). bool visible;
+	/// Whether this data source is shown/enabled in non-exclusive views. This option is available to users; they can toggle it on or off. It is initialized from AMDataSource::visibleInPlots()
+	bool visible;
 
 	// 1D plot settings:
 	/// Pen used for this data source (dots, dashes, etc.), as well as width and color

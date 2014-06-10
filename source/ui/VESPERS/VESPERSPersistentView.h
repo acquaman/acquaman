@@ -27,23 +27,43 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDoubleSpinBox>
 #include <QComboBox>
 
+#include "application/VESPERS/VESPERS.h"
 #include "beamline/VESPERS/VESPERSBeamline.h"
 #include "ui/CLS/CLSStopLightButton.h"
+#include "ui/CLS/CLSPseudoMotorGroupView.h"
+
+class VESPERSSampleStageView;
 
 class VESPERSPersistentView : public QWidget
 {
 	Q_OBJECT
 public:
 	/// Default constructor.
+	virtual ~VESPERSPersistentView();
 	explicit VESPERSPersistentView(QWidget *parent = 0);
 
+	/// Returns the pointer to the motor group view.
+	CLSPseudoMotorGroupView *motorGroupView() const { return motorGroupView_; }
+
 signals:
+	/// Notifier that the current sample has changed.
+	void currentSampleStageChanged(const QString &name);
+	/// Notifier that one of the status buttons was clicked.  Passes the name of clicked status.
+	void statusButtonClicked(const QString &);
 
 public slots:
 
 protected slots:
 	/// Handles the valves button push.  Opens or closes based the current state of the current state.
 	void onValvesButtonPushed();
+	/// Handles emitting the statusButtonClicked signal for the valves.
+	void onValvesStatusClicked();
+	/// Handles emitting the statusButtonClicked signal for the pressure status.
+	void onPressureStatusClicked();
+	/// Handles emitting the statusButtonClicked signal for the water pressure status.
+	void onWaterTransducerStatusClicked();
+	/// Handles emitting the statusButtonClicked signal for the temperature status.
+	void onTemperatureStatusClicked();
 	/// Handles when the valves state changes.
 	void onValvesStateChanged();
 	/// Handles when the temperature state changes.  If any temperature control is bad, then the state is RED, otherwise it's green.
@@ -65,7 +85,7 @@ protected slots:
 	/// Handles the state change from the shutter.  Changes the label to the either a red or green light.  Green means open.
 	void onShutterStateChanged(bool state);
 	/// Handles the state change from the experiment ready status.
-	void onExperimentStatusChanged(bool ready) { experimentReady_->setPixmap(QIcon(ready == true ? ":/ON.png" : ":/RED.png").pixmap(25)); }
+	void onExperimentStatusChanged();
 	/// Handles changes to the energy from outside the program.
 	void onEnergyChanged(double energy) { energySetpoint_->blockSignals(true); energySetpoint_->setValue(energy); energySetpoint_->blockSignals(false); }
 	/// Sets the new energy.
@@ -73,23 +93,25 @@ protected slots:
 	/// Handles changes to the energy feedback.
 	void onEnergyFeedbackChanged(double energy) { energyFeedback_->setText(QString::number(energy, 'f', 2)+" eV"); }
 	/// Handles enabling and disabling the energy setpoint if the beam is either Pink or None.
-	void onBeamChanged(VESPERSBeamline::Beam beam);
+	void onBeamChanged(VESPERS::Beam beam);
 	/// Sets the filter combo box based on original values at start up and if they are changed outside of the program.
 	void onFiltersChanged(int index) { filterComboBox_->blockSignals(true); filterComboBox_->setCurrentIndex(index); filterComboBox_->blockSignals(false); }
 	/// If a new value for the X slit gap, passes it down to the slits model.
 	void setXGap() { if (xSlit_->value() != slits_->gapX()) slits_->setGapX(xSlit_->value()); }
 	/// If a new value for the Z slit gap, passes it down to the slits model.
 	void setZGap() { if (zSlit_->value() != slits_->gapZ()) slits_->setGapZ(zSlit_->value()); }
+	/// Handles the popup menu that enables or disables the POE beam status enable.
+	void onPOEStatusEnablePopupMenuRequested(const QPoint &point);
 
 protected:
 	/// Button and label for the valves.
 	QPushButton *valvesButton_;
-	QLabel *valvesStatus_;
+	QToolButton *valveStatusButton_;
 
-	/// Label for the temperature, pressure and water sensors.
-	QLabel *tempLabel_;
-	QLabel *pressureLabel_;
-	QLabel *waterLabel_;
+	/// Buttons for the temperature, pressure and water sensors.
+	QToolButton *temperatureStatusButton_;
+	QToolButton *pressureStatusButton_;
+	QToolButton *waterStatusButton_;
 
 	/// Button and label for the endstation shutter.
 	QPushButton *filterLowerButton_;
@@ -101,7 +123,8 @@ protected:
 	/// The icon label for the experiment status.
 	QLabel *experimentReady_;
 
-	/// The energy spin box and label.
+	/// The energy spin box and labels.
+	QLabel *energyLabel_;
 	QDoubleSpinBox *energySetpoint_;
 	QLabel *energyFeedback_;
 
@@ -110,13 +133,15 @@ protected:
 	/// Spin box handling the Z slit gap.
 	QDoubleSpinBox *zSlit_;
 
-	/// The temperature control.
+	/// The valves control set.
+	AMControlSet *valves_;
+	/// The temperature control set.
 	AMControlSet *temperature_;
-	/// The pressure control.
+	/// The pressure control set.
 	AMControlSet *pressure_;
-	/// The flow switches.
+	/// The flow switches set.
 	AMControlSet *flowSwitches_;
-	/// The flow transducers.
+	/// The flow transducers set.
 	AMControlSet *flowTransducers_;
 	/// The photon and safety shutters.
 	CLSStopLightButton *psh1_;
@@ -126,6 +151,9 @@ protected:
 
 	/// Pointer to the slits.
 	VESPERSIntermediateSlits *slits_;
+
+	/// Pointer to the motor group view.
+	CLSPseudoMotorGroupView *motorGroupView_;
 };
 
 #endif // VESPERSPERSISTENTVIEW_H

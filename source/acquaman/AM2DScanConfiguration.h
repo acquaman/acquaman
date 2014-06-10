@@ -21,6 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AM2DSCANCONFIGURATION_H
 
 #include "acquaman/AMScanConfiguration.h"
+#include "util/AMRange.h"
 
 /// An AM2DScanConfiguration is the parent class for any scan that wants to implement a simple rectangular 2D map.
 /*!
@@ -71,6 +72,8 @@ public:
 	AM2DScanConfiguration(QObject *parent = 0);
 	/// Copy constructor.
 	AM2DScanConfiguration(const AM2DScanConfiguration &original);
+	/// Destructor.
+	virtual ~AM2DScanConfiguration();
 
 	// Description and general info section
 	/////////////////////////////////////////////////
@@ -78,11 +81,11 @@ public:
 	/// Returns the pointer to the meta object.
 	virtual const QMetaObject* getMetaObject() { return metaObject(); }
 
-	/// A human-readable description of this scan configuration. Can be re-implemented to provide more details. Used by AMBeamlineScanAction to set the title for the action view.
+	/// A human-readable description of this scan configuration. Can be re-implemented to provide more details. Used by scan action to set the title for the action view.
 	virtual QString description() const {
 		return QString("2D Scan over %1 and %2").arg(xAxisName()).arg(yAxisName());
 	}
-	/// A human-readable synopsis of this scan configuration. Can be re-implemented to proved more details. Used by AMBeamlineScanAction to set the main text in the action view.
+	/// A human-readable synopsis of this scan configuration. Can be re-implemented to proved more details. Used by scan action to set the main text in the action view.
 	virtual QString detailedDescription() const{
 		return QString("2D Scan over %1 and %2 from (%3,%4) %5 and (%6,%7) %8")
 				.arg(xAxisName())
@@ -114,18 +117,18 @@ public:
 	/////////////////////////////////////////////////////
 
 	/// Returns the start position of the x axis.
-	double xStart() const { return xRange_.first; }
+	double xStart() const { return xRange_.minimum(); }
 	/// Returns the step size of the x axis.
 	double xStep() const { return steps_.first; }
 	/// Returns the end position of the x axis.
-	double xEnd() const { return xRange_.second; }
+	double xEnd() const { return xRange_.maximum(); }
 
 	/// Returns the start position of the y axis.
-	double yStart() const { return yRange_.first; }
+	double yStart() const { return yRange_.minimum(); }
 	/// Returns the step size of the y axis.
 	double yStep() const { return steps_.second; }
 	/// Returns the end position of the y axis.
-	double yEnd() const { return yRange_.second; }
+	double yEnd() const { return yRange_.maximum(); }
 
 	/// Returns the time step per point.
 	double timeStep() const { return time_; }
@@ -139,9 +142,9 @@ public:
 	/////////////////////////////////////////////////////
 
 	/// Returns the range of the x axis <min, max>.
-	QPair<double, double> xRange() const { return xRange_; }
+	AMRange xRange() const { return xRange_; }
 	/// Returns the range of the y axis <min, max>.
-	QPair<double, double> yRange() const { return yRange_; }
+	AMRange yRange() const { return yRange_; }
 	/// Returns the step size as a QPair<xStep, yStep>.
 	QPair<double, double> steps() const { return steps_; }
 
@@ -180,17 +183,17 @@ public slots:
 	//////////////////////////////////
 
 	/// Sets the start position for the x axis.
-	void setXStart(double start) { xRange_.first = start; emit xStartChanged(start); setModified(true); }
+	void setXStart(double start) { xRange_.setMinimum(start); emit xStartChanged(start); setModified(true); }
 	/// Sets the step size for the x axis.
 	void setXStep(double stepSize) { steps_.first = stepSize; emit xStepChanged(stepSize); setModified(true); }
 	/// Sets the end position for the x axis.
-	void setXEnd(double end) { xRange_.second = end; emit xEndChanged(end); setModified(true); }
+	void setXEnd(double end) { xRange_.setMaximum(end); emit xEndChanged(end); setModified(true); }
 	/// Sets the start position for the y axis.
-	void setYStart(double start) { yRange_.first = start; emit yStartChanged(start); setModified(true); }
+	void setYStart(double start) { yRange_.setMinimum(start); emit yStartChanged(start); setModified(true); }
 	/// Sets the step size for the y axis.
 	void setYStep(double stepSize) { steps_.second = stepSize; emit yStepChanged(stepSize); setModified(true); }
 	/// Sets the end position for the y axis.
-	void setYEnd(double end) { yRange_.second = end; emit yEndChanged(end); setModified(true); }
+	void setYEnd(double end) { yRange_.setMaximum(end); emit yEndChanged(end); setModified(true); }
 	/// Sets the time per point.
 	void setTimeStep(double time) { time_ = time; emit timeStepChanged(time); setModified(true); }
 	/// Sets the fast axis.  This will automatically change the slow axis as well.
@@ -206,11 +209,11 @@ public slots:
 	///////////////////////////////////
 
 	/// Sets the range for the x axis.
-	void setXRange(QPair<double, double> x) { setXStart(x.first); setXEnd(x.second); }
+	void setXRange(AMRange x) { setXStart(x.minimum()); setXEnd(x.maximum()); }
 	/// Overloaded.  Sets the range for the x axis.
 	void setXRange(double start, double end) { setXStart(start); setXEnd(end); }
 	/// Sets the range for the y axis.
-	void setYRange(QPair<double, double> y) { setYStart(y.first); setYEnd(y.second); }
+	void setYRange(AMRange y) { setYStart(y.minimum()); setYEnd(y.maximum()); }
 	/// Overloaded.  Sets the range for the y axis.
 	void setYRange(double start, double end) { setYStart(start); setYEnd(end); }
 	/// Sets the step size of both axes.
@@ -220,9 +223,9 @@ public slots:
 
 protected:
 	/// Holds the range for the x axis. <min, max>
-	QPair<double, double> xRange_;
+	AMRange xRange_;
 	/// Holds the range for the y axis. <min, max>
-	QPair<double, double> yRange_;
+	AMRange yRange_;
 	/// Holds the steps for both axes. <xStep, yStep>
 	QPair<double, double> steps_;
 	/// Holds the time per point.

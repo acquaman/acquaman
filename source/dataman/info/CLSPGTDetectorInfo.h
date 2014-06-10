@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define CLSPGTDETECTORINFO_H
 
 #include "AMSpectralOutputDetectorInfo.h"
+#include "util/AMRange.h"
 
 class CLSPGTDetectorInfo : public AMSpectralOutputDetectorInfo
 {
@@ -33,12 +34,13 @@ Q_OBJECT
 	Q_CLASSINFO("AMDbObject_Attributes", "description=PGT Detector")
 
 public:
+ 	virtual ~CLSPGTDetectorInfo();
 	Q_INVOKABLE CLSPGTDetectorInfo(const QString& name = "pgt", const QString& description = "SDD", QObject *parent = 0);
 
 	CLSPGTDetectorInfo(const CLSPGTDetectorInfo &original);
 
 	/// Creates a new info pointer from this one, caller is responsible for memory
-	virtual AMDetectorInfo* toNewInfo() const;
+	virtual AMOldDetectorInfo* toNewInfo() const;
 
 	CLSPGTDetectorInfo& operator=(const CLSPGTDetectorInfo& other);
 
@@ -46,14 +48,14 @@ public:
 	double hvSetpoint() const;
 	double hvSetpointRangeMin() const;
 	double hvSetpointRangeMax() const;
-	QPair<double, double> hvSetpointRange() const;
+	AMRange hvSetpointRange() const;
 
 	QDebug qDebugPrint(QDebug &d) const;
 
 	// Dimensionality and size:
 	////////////////////////////////////
 
-	// Using the base class (AMSpectralOutputDetector) for default rank(), size(), and axes().
+	// Using the base class (AMSpectralOutputDetectorInfo) for default rank(), size(), and axes().
 
 
 	virtual bool hasDetails() const;
@@ -63,7 +65,7 @@ public slots:
 	void setHVSetpoint(double hvSetpoint);
 	void setHVSetpointRangeMin(double min);
 	void setHVSetpointRangeMax(double max);
-	void setHVSetpointRange(QPair<double, double> range);
+	void setHVSetpointRange(const AMRange &range);
 
 protected:
 	double hvSetpointRangeMin_, hvSetpointRangeMax_, hvSetpoint_;

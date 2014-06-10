@@ -55,6 +55,10 @@ public:
 	/// Returns the currently-running sub-action, or 0 if none is running.
 	virtual AMAction3* currentSubAction() { return currentSubAction_; }
 
+	virtual bool canPause() const;
+	/// Returns whether the action can skip.  Loop actions can skip.
+	virtual bool canSkip() const { return true; }
+
 	// new public functions:
 	/////////////////////////////
 
@@ -88,6 +92,8 @@ protected:
 	/////////////////////////
 	/// This function is called from the Starting state when the implementation should initiate the action. Once the action is started, you should call notifyStarted().
 	virtual void startImplementation();
+	/// This function is called when the action should be skipped in some way.
+	virtual void skipImplementation(const QString &command);
 
 	/// Helper function to manage action and loop iterations. Does everything we need to do to move onto the next action (either at the beginning, or after the last one completes).
 	virtual void internalDoNextAction();
@@ -104,6 +110,8 @@ protected:
 	int currentIteration_;
 	/// The current action that is being run in the loop.
 	AMAction3 *currentSubAction_;
+	/// The flag for whether the action should be skipped after the current iteration.
+	bool skipAfterCurrentIteration_;
 };
 
 #endif // AMLOOPACTION_H

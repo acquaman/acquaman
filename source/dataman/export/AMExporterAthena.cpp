@@ -27,6 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QFile>
 #include <QTextStream>
 
+ AMExporterAthena::~AMExporterAthena(){}
 AMExporterAthena::AMExporterAthena(QObject *parent)
 	: AMExporterGeneralAscii(parent)
 {
@@ -55,7 +56,6 @@ QString AMExporterAthena::exportScan(const AMScan *scan, const QString &destinat
 
 	// prepare export file
 	mainFileName_ = parseKeywordString( destinationFolderPath % "/" % option->fileName() );
-	qDebug() << "Wants to save as " << mainFileName_;
 
 	if(!openFile(mainFileName_)) {
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -3, "Export failed: Could not open the file '" % mainFileName_ % "' for writing.  Check that you have permission to save files there, and that a file with that name doesn't already exists."));
@@ -66,7 +66,7 @@ QString AMExporterAthena::exportScan(const AMScan *scan, const QString &destinat
 	writeHeader();
 	writeMainTable();
 	writeSeparateSections();
-	if(!writeSeparateFiles(destinationFolderPath)) {
+	if(option_->includeHigherDimensionSources() && !writeSeparateFiles(destinationFolderPath)) {
 		file_->close();
 		return QString();
 	}

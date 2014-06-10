@@ -21,6 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AMACTIONRUNNERCURRENTVIEW3_H
 
 #include <QWidget>
+#include <QStandardItem>
 
 class AMActionRunner3;
 class AMAction3;
@@ -31,13 +32,19 @@ class QPushButton;
 class QStandardItemModel;
 class QProgressBar;
 
-#include <QStandardItem>
+#define AMACTIONRUNNERCURRENTMODEL3_REQUESTED_CHILD_INDEX_WITH_INVALID_PARENT_ACTION 270901
+#define AMACTIONRUNNERCURRENTMODEL3_SUBACTION_NOT_FOUND_AT_CHILD_INDEX_ROW 270902
+#define AMACTIONRUNNERCURRENTMODEL3_NO_ACTION_AT_INDEX 270903
+#define AMACTIONRUNNERCURRENTMODEL3_ACTION_NOT_FOUND_AS_CURRENT_ACTION 270904
+#define AMACTIONRUNNERCURRENTMODEL3_ACTION_NOT_FOUND_IN_LIST_ACTION 270905
+
 
 /// This QAbstractItemModel wraps the current action of AMActionRunner, and is used by AMActionRunnerCurrentView. It is hierarchical to display nested actions as they run.  You should never need to use this class directly.
 class AMActionRunnerCurrentModel3 : public QAbstractItemModel {
 	Q_OBJECT
 public:
 	/// Constructor.
+ 	virtual ~AMActionRunnerCurrentModel3();
 	AMActionRunnerCurrentModel3(AMActionRunner3* actionRunner, QObject* parent = 0);
 
 	QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
@@ -63,6 +70,23 @@ protected slots:
 protected:
 	AMActionRunner3* actionRunner_;
 	AMAction3* currentAction_;
+};
+
+#include <QStyledItemDelegate>
+/// This delegate is used by the tree view in AMActionRunnerCurrentView to show custom editor widgets depending on the action. The available editors depend on those that have been registered with AMActionRegistry.  You should never need to use this class directly.
+class AMActionRunnerCurrentItemDelegate3 : public QStyledItemDelegate {
+	Q_OBJECT
+public:
+
+ 	virtual ~AMActionRunnerCurrentItemDelegate3();
+	explicit AMActionRunnerCurrentItemDelegate3(QObject* parent = 0) : QStyledItemDelegate(parent) {}
+
+	virtual QWidget* createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+
+	//    virtual void updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+
+	virtual bool eventFilter(QObject *object, QEvent *event);
+
 };
 
 // Previously:
@@ -91,7 +115,13 @@ class AMActionRunnerCurrentView3 : public QWidget
 	Q_OBJECT
 public:
 	/// Constructor. Should pass in AMActionRunner::s() for \c actionRunner
+ 	virtual ~AMActionRunnerCurrentView3();
 	AMActionRunnerCurrentView3(AMActionRunner3* actionRunner, QWidget *parent = 0);
+
+	/// Sets whether the cancel prompt should be shown.
+	void setCancelPromptVisibility(bool showPrompt) { showCancelPrompt_ = showPrompt; }
+	/// Returns whether the cancel prompt will be shown.
+	bool showCancelPrompt() const { return showCancelPrompt_; }
 
 signals:
 
@@ -103,6 +133,10 @@ protected slots:
 
 	/// When the pause button is clicked for the current action
 	void onPauseButtonClicked();
+	/// When the skip button is pressed, it handles telling the action to skip.
+	void onSkipButtonClicked();
+	/// Handles when the cancel button is clicked.  Prompts the user if this was actually what they wanted to do.
+	void onCancelButtonClicked();
 
 	// Signals from the current action, forwarded through the Action Runner
 	/// When the action's status text changes
@@ -122,17 +156,20 @@ protected:
 	/// Helper function to format an amount of seconds into an hour-minute-seconds string.
 	QString formatSeconds(double seconds);
 
-	QTreeView* currentActionView_;
+	QTreeView *currentActionView_;
 	//	QStandardItemModel* currentActionModel_;
 
-	QPushButton* cancelButton_, *pauseButton_;
-	QProgressBar* progressBar_;
-	QLabel* timeElapsedLabel_, * timeRemainingLabel_, *headerTitle_, *headerSubTitle_;
+	QPushButton *cancelButton_, *pauseButton_;
+	QPushButton *skipButton_;
+	QProgressBar *progressBar_;
+	QLabel *timeElapsedLabel_, *timeRemainingLabel_, *headerTitle_, *headerSubTitle_;
 
-	AMActionRunner3* actionRunner_;
+	AMActionRunner3 *actionRunner_;
 
 	/// This string holds a small message that states what is currently running.  This is used when someone might be interested on what is "hanging up" the current action, or if they are just curious where they are.
 	QString whatIsRunning_;
+	/// The flag for determinining whether the cancel prompt should be displayed.
+	bool showCancelPrompt_;
 };
 
 #endif // AMACTIONRUNNERCURRENTVIEW3_H

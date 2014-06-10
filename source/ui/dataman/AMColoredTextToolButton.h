@@ -29,6 +29,7 @@ class AMColoredTextToolButton : public QToolButton
 	Q_OBJECT
 public:
 	/// Construct a QToolButton with the given \c textColor
+ 	virtual ~AMColoredTextToolButton();
 	explicit AMColoredTextToolButton(const QColor& textColor = Qt::black, QWidget *parent = 0);
 
 	/// Returns the current text color

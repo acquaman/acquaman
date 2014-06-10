@@ -20,8 +20,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMSpectralOutputDetectorInfo.h"
 
+ AMSpectralOutputDetectorInfo::~AMSpectralOutputDetectorInfo(){}
 AMSpectralOutputDetectorInfo::AMSpectralOutputDetectorInfo(const QString& name, const QString& description, int binCount, QString axisName, QStringList binNames, QObject *parent) :
-		AMDetectorInfo(name, description, parent)
+		AMOldDetectorInfo(name, description, parent)
 {
 	binCount_ = binCount;
 	axisName_ = axisName;
@@ -35,7 +36,7 @@ AMSpectralOutputDetectorInfo::AMSpectralOutputDetectorInfo(const QString& name, 
 }
 
 AMSpectralOutputDetectorInfo::AMSpectralOutputDetectorInfo(const AMSpectralOutputDetectorInfo &original) :
-		AMDetectorInfo(original)
+		AMOldDetectorInfo(original)
 {
 //	retreiveAndSetProperties(original);
 	integrationModeList_ << "Real" << "Live" << "Peak";
@@ -45,7 +46,7 @@ AMSpectralOutputDetectorInfo::AMSpectralOutputDetectorInfo(const AMSpectralOutpu
 AMSpectralOutputDetectorInfo& AMSpectralOutputDetectorInfo::operator =(const AMSpectralOutputDetectorInfo &other)
 {
 	if(this != &other){
-		AMDetectorInfo::operator =(other);
+		AMOldDetectorInfo::operator =(other);
 		setBinCount(other.binCount());
 		setAxisName(other.axisName());
 		setBinNames(other.binNames());
@@ -78,12 +79,9 @@ double AMSpectralOutputDetectorInfo::integrationTime() const
 	return integrationTime_;
 }
 
-QPair<double, double> AMSpectralOutputDetectorInfo::integrationTimeRange() const
+AMRange AMSpectralOutputDetectorInfo::integrationTimeRange() const
 {
-	QPair<double, double> rVal;
-	rVal.first = integrationTimeRangeMin_;
-	rVal.second =integrationTimeRangeMax_;
-	return rVal;
+	return AMRange(integrationTimeRangeMin_, integrationTimeRangeMax_);
 }
 
 double AMSpectralOutputDetectorInfo::integrationTimeRangeMin() const
@@ -161,10 +159,10 @@ void AMSpectralOutputDetectorInfo::setIntegrationTimeRangeMax(double max)
 	setModified(true);
 }
 
-void AMSpectralOutputDetectorInfo::setIntegrationTimeRange(QPair<double, double> range)
+void AMSpectralOutputDetectorInfo::setIntegrationTimeRange(const AMRange &range)
 {
-	integrationTimeRangeMin_ = range.first;
-	integrationTimeRangeMax_ = range.second;
+	integrationTimeRangeMin_ = range.minimum();
+	integrationTimeRangeMax_ = range.maximum();
 	setModified(true);
 }
 

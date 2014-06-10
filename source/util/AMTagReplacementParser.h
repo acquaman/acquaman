@@ -118,6 +118,7 @@ or
 class AMTagReplacementParser
 {
 public:
+ 	virtual ~AMTagReplacementParser();
 	AMTagReplacementParser(const QChar& tagStartCharacter = QChar('$'), const QChar& argumentStartCharacter = QChar('['), const QChar& argumentEndCharacter = QChar(']'));
 
 

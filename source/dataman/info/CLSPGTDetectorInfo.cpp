@@ -20,6 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "CLSPGTDetectorInfo.h"
 
+ CLSPGTDetectorInfo::~CLSPGTDetectorInfo(){}
 CLSPGTDetectorInfo::CLSPGTDetectorInfo(const QString& name, const QString& description, QObject *parent) : AMSpectralOutputDetectorInfo(name, description, 1024, "energy", QStringList(), parent)
 {
 	hvSetpoint_ = double(0.0);
@@ -34,7 +35,7 @@ CLSPGTDetectorInfo::CLSPGTDetectorInfo(const CLSPGTDetectorInfo &original) :
 	this->operator =(original);
 }
 
-AMDetectorInfo* CLSPGTDetectorInfo::toNewInfo() const{
+AMOldDetectorInfo* CLSPGTDetectorInfo::toNewInfo() const{
 	return new CLSPGTDetectorInfo(*this);
 }
 
@@ -62,8 +63,8 @@ double CLSPGTDetectorInfo::hvSetpointRangeMax() const {
 	return hvSetpointRangeMax_;
 }
 
-QPair<double, double> CLSPGTDetectorInfo::hvSetpointRange() const {
-	return QPair<double, double>(hvSetpointRangeMin_, hvSetpointRangeMax_);
+AMRange CLSPGTDetectorInfo::hvSetpointRange() const {
+	return AMRange(hvSetpointRangeMin_, hvSetpointRangeMax_);
 }
 
 QDebug CLSPGTDetectorInfo::qDebugPrint(QDebug &d) const{
@@ -92,8 +93,8 @@ void CLSPGTDetectorInfo::setHVSetpointRangeMax(double max) {
 	setModified(true);
 }
 
-void CLSPGTDetectorInfo::setHVSetpointRange(QPair<double, double> range){
-	hvSetpointRangeMin_ = range.first;
-	hvSetpointRangeMax_ = range.second;
+void CLSPGTDetectorInfo::setHVSetpointRange(const AMRange &range){
+	hvSetpointRangeMin_ = range.minimum();
+	hvSetpointRangeMax_ = range.maximum();
 	setModified(true);
 }

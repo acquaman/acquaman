@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMFontSizes.h"
 #include <QVBoxLayout>
 
+ AMThumbnailScrollViewer::~AMThumbnailScrollViewer(){}
 AMThumbnailScrollViewer::AMThumbnailScrollViewer(QWidget *parent) :
 		QLabel(parent)
 {
@@ -201,6 +202,7 @@ void AMThumbnailScrollViewer::mouseMoveEvent ( QMouseEvent * event ) {
 }
 
 
+ AMThumbnailScrollWidget::~AMThumbnailScrollWidget(){}
 AMThumbnailScrollWidget::AMThumbnailScrollWidget(const QString& caption1, const QString& caption2, QWidget* parent)
 	: QWidget(parent) {
 	tv_ = new AMThumbnailScrollViewer();
@@ -387,7 +389,7 @@ void AMThumbnailScrollGraphicsWidget::displayThumbnail(AMDatabase* db, int id) {
 		return;
 	}
 
-	// qDebug() << "AMThumbnailScrollGraphicsWidget::displayThumbnail() -- Doing database lookup";
+	// qdebug() << "AMThumbnailScrollGraphicsWidget::displayThumbnail() -- Doing database lookup";
 
 	QSqlQuery q = db->query();
 	q.prepare(QString("SELECT title,subtitle,type,thumbnail FROM %1 WHERE id = ?").arg(AMDbObjectSupport::thumbnailTableName()));
@@ -474,7 +476,6 @@ void AMThumbnailScrollGraphicsWidget::hoverMoveEvent(QGraphicsSceneHoverEvent *e
 }
 
 #include <QGraphicsDropShadowEffect>
-#include <QDebug>
 
 void AMThumbnailScrollGraphicsWidget::hoverEnterEvent(QGraphicsSceneHoverEvent *event) {
 
@@ -554,9 +555,16 @@ void AMThumbnailScrollGraphicsWidget::setSource(AMDatabase* db, int startId, int
 	objectId_ = -1;
 	tableName_.clear();
 
-	ids_.clear();
-	for(int i=startId; i<startId+count; i++)
-		ids_ << i;
+	QSqlQuery query = db->query();
+	query.prepare(QString("SELECT objectId FROM AMDbObjectThumbnails_table WHERE id=%1").arg(startId));
+	db->execQuery(query);
+	int scanId = 0;
+
+	while (query.next())
+		scanId = query.value(0).toInt();
+
+	ids_ = db->objectsWhere("AMDbObjectThumbnails_table", QString("objectId=%1 AND objectTableName='AMScan_table'").arg(scanId));
+
 	tIndex_ = 0;
 	if(ids_.count() > 0)
 		displayThumbnailDeferred(sourceDb_, ids_.at(tIndex_));

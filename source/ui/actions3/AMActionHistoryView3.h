@@ -32,6 +32,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AMACTIONHISTORYVIEW_COULD_NOT_CREATE_ACTION 212003
 #define AMACTIONHISTORYVIEW_COULD_NOT_LOAD_CHILD 212004
 #define AMACTIONHISTORYVIEW_COULD_RERUN_ACTIONS 212005
+#define AMACTIONHISTORYVIEW_DBLOADWARNING_IN_INFO 212006
 
 class AMActionHistoryModel3;
 class AMActionHistoryTreeView3;
@@ -51,10 +52,13 @@ class AMActionHistoryView3 : public QWidget
 	Q_OBJECT
 public:
 	/// Constructor. If you want this history view to be able to re-instantiate and re-queue actions, pass in valid AMActionRunner, ie: AMActionRunner::s().  The default (\c actionRunner = 0) is suitable for a Dataman-only program, and can only browse the user's action history.
-	AMActionHistoryView3(AMActionRunner3* actionRunner = 0, AMDatabase* db = AMDatabase::database("actions"), QWidget *parent = 0);
+ 	virtual ~AMActionHistoryView3();
+	AMActionHistoryView3(AMActionRunner3* actionRunner = 0, AMDatabase* db = 0, QWidget *parent = 0);
 
 	/// Returns true if the view is currently collapsed to show only the header bar, and false if it is fully shown.
 	bool isCollapsed() const { return isCollapsed_; }
+
+	AMActionHistoryModel3* model() const { return model_; }
 
 signals:
 	/// This signal is emitted with \c true when the view widget is collapsed to show only the header bar, and \c false when it is restored.
@@ -67,8 +71,8 @@ public slots:
 protected slots:
 	/// Called when the "show more actions" button is clicked. Doubles the model's maximumActionsToDisplay().
 	void onShowMoreActionsButtonClicked();
-	/// Called when one of the preset time-range filters is clicked. Calls the model's setVisibleTimeRange().
-	void onRangeComboBoxActivated(int rangeIndex);
+	// /// Called when one of the preset time-range filters is clicked. Calls the model's setVisibleTimeRange().
+	// void onRangeComboBoxActivated(int rangeIndex);
 	/// Called when the "Re-run this action" button is clicked. If we were constructed with access to an AMActionRunner, and the AMActionInfo associated with the selected items have been registered in AMActionRegistry, then we will re-queue copies of these actions in the AMActionRunner.
 	void onReRunActionButtonClicked();
 	/// Called when the selection changes... We use this to determine whether to enable the reRunActionButton_

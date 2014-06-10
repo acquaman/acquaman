@@ -20,9 +20,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMCompositeControl.h"
 
+ AMCompositeControl::~AMCompositeControl(){}
 AMCompositeControl::AMCompositeControl(const QString& name, const QString& units, QObject* parent, const QString description) :
 	AMControl(name, units, parent, description)
 {
+	wasConnected_ = false;
+	wasMoving_ = false;
 }
 
 void AMCompositeControl::addChildControl(AMControl *control)

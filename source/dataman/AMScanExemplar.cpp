@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "acquaman/AMScanConfiguration.h"
 
+ AMScanExemplar::~AMScanExemplar(){}
 AMScanExemplar::AMScanExemplar(QObject *parent) :
 	QObject(parent)
 {
