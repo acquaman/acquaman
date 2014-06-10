@@ -78,6 +78,8 @@ public:
         AMControl *monoHighEV() const { return monoHighEV_; }
         AMControl *monoLowEV() const { return monoLowEV_; }
         AMControl *ringCurrent() const { return ringCurrent_; }
+	AMControl *I0Current() const { return I0Current_; }
+
         AMControl *monoBraggAngle() const { return monoBraggAngle_; }
         AMControl *mono2d() const { return mono2d_; }
         AMControl *monoAngleOffset() const { return monoAngleOffset_; }
@@ -196,7 +198,7 @@ protected:
 
 	IDEASKETEKDetector *ketek_;
 
-        AMControl *monoCrystal_, *monoLowEV_, *monoHighEV_, *ringCurrent_, *monoBraggAngle_, *mono2d_, *monoAngleOffset_;
+	AMControl *monoCrystal_, *monoLowEV_, *monoHighEV_, *ringCurrent_, *I0Current_, *monoBraggAngle_, *mono2d_, *monoAngleOffset_;
 
 };
 
