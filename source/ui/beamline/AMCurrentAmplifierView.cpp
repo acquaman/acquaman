@@ -4,7 +4,7 @@ AMCurrentAmplifierView::AMCurrentAmplifierView(AMCurrentAmplifier *amplifier, QW
     QWidget(parent)
 {
     amplifier_ = amplifier;
-    connect( amplifier_, SIGNAL(amplifierModeChanged(AMCurrentAmplifier::AmplifierMode)), this, SLOT(setViewMode(AMCurrentAmplifier::AmplifierMode)) );
+    connect( amplifier_, SIGNAL(amplifierModeChanged(AMCurrentAmplifier::AmplifierMode)), this, SLOT(refreshView()) );
 
 
     minus_ = new QToolButton();
