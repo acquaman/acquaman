@@ -8,18 +8,17 @@ AMCurrentAmplifierView::AMCurrentAmplifierView(AMCurrentAmplifier *amplifier, QW
     amplifier_ = amplifier;
     connect( amplifier_, SIGNAL(amplifierModeChanged(AMCurrentAmplifier::AmplifierMode)), this, SLOT(refreshView()) );
 
-
     minus_ = new QToolButton();
     minus_->setMaximumSize(25, 25);
     minus_->setIcon(QIcon(":/22x22/list-remove.png"));
-//    connect( minus_, SIGNAL(clicked()), this, SLOT(onMinusClicked()) );
+    connect( minus_, SIGNAL(clicked()), this, SLOT(onMinusClicked()) );
     connect( amplifier_, SIGNAL(minimumGain(bool)), minus_, SLOT(setDisabled(bool)) );
     connect( amplifier_, SIGNAL(minimumSensitivity(bool)), minus_, SLOT(setDisabled(bool)) );
 
     plus_ = new QToolButton();
     plus_->setMaximumSize(25, 25);
     plus_->setIcon(QIcon(":/22x22/list-add.png"));
-//    connect( plus_, SIGNAL(clicked()), this, SLOT(onPlusClicked()) );
+    connect( plus_, SIGNAL(clicked()), this, SLOT(onPlusClicked()) );
     connect( amplifier_, SIGNAL(maximumGain(bool)), plus_, SLOT(setDisabled(bool)) );
     connect( amplifier_, SIGNAL(maximumSensitivity(bool)), plus_, SLOT(setDisabled(bool)) );
 
@@ -72,8 +71,8 @@ void AMCurrentAmplifierView::refreshView()
 
 void AMCurrentAmplifierView::onValueComboBoxChanged(int index)
 {
+    // the initialized_ boolean prevents the display from setting the amplifier value while initializing <- undesirable behavior.
     if (initialized_) {
-        qDebug() << "Set amplifier : " << index;
         amplifier_->setValue(QString::number(index));
     }
 }
@@ -86,7 +85,6 @@ void AMCurrentAmplifierView::onUnitsComboBoxChanged(int index)
 void AMCurrentAmplifierView::onAmplifierValueChanged(int valueIndex)
 {
     amplifier_->blockSignals(true);
-    qDebug() << "Set value combo box : " << valueIndex;
     value_->setCurrentIndex(valueIndex);
     amplifier_->blockSignals(false);
 }

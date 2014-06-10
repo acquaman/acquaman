@@ -99,7 +99,6 @@ QStringList CLSKeithley428::unitsList() const
 void CLSKeithley428::setValueIndex(int newIndex)
 {
     if (valueMap_->map()->contains(newIndex) && newIndex != valueControl_->getInt()) {
-        qDebug() << "Setting amplifier value to " << newIndex;
         valueControl_->setValue(newIndex);
     }
 }
@@ -110,8 +109,8 @@ bool CLSKeithley428::increaseGain()
     if (atMaximumGain())
         return false;
 
-    // Increase value
-    int newIndex = valueMap_->nextIndex(IncreaseOne, valueControl_->getInt());
+    // Increase gain. Values are listed in decreasing gain order. Decrease index.
+    int newIndex = valueMap_->nextIndex(DecreaseOne, valueControl_->getInt());
     setValueIndex(newIndex);
 
     return true;
@@ -124,8 +123,8 @@ bool CLSKeithley428::decreaseGain()
         return false;
     }
 
-    // Decrease value
-    int newIndex = valueMap_->nextIndex(DecreaseOne, valueControl_->getInt());
+    // Decrease gain. Values are listed in decreasing gain order. Increase index.
+    int newIndex = valueMap_->nextIndex(IncreaseOne, valueControl_->getInt());
     setValueIndex(newIndex);
 
     return true;
@@ -137,10 +136,8 @@ bool CLSKeithley428::increaseSensitivity()
         return false;
     }
 
-    // the values in the valueMap are organized by increasing gain.
-    // to increase sensitivity, must decrease index.
-
-    int newIndex = valueMap_->nextIndex(DecreaseOne, valueControl_->getInt());
+    // Increase sensitivity. Values are listed in increasing sensitivity order. Increase index.
+    int newIndex = valueMap_->nextIndex(IncreaseOne, valueControl_->getInt());
     setValueIndex(newIndex);
 
     return true;
@@ -152,10 +149,8 @@ bool CLSKeithley428::decreaseSensitivity()
         return false;
     }
 
-    // the values in the valueMap are organized by increasing gain.
-    // to decrease sensitivity, must increase index.
-
-    int newIndex = valueMap_->nextIndex(IncreaseOne, valueControl_->getInt());
+    // Decrease sensitivity. Values are listed in increasing sensitivity order. Decrease index.
+    int newIndex = valueMap_->nextIndex(DecreaseOne, valueControl_->getInt());
     setValueIndex(newIndex);
 
     return true;
@@ -311,23 +306,16 @@ int CLSKeithley428ValueMap::findIndexOfMax(AMCurrentAmplifier::AmplifierMode mod
 
 int CLSKeithley428ValueMap::nextIndex(CLSKeithley428::IndexChange change, int currentIndex)
 {
-    qDebug() << "Initial index : " << currentIndex;
-
     int nextIndex = -1;
 
     if (!map_->contains(currentIndex)) {
-        qDebug() << "Invalid initial index.";
 
     } else if (change == CLSKeithley428::IncreaseOne) {
-        qDebug() << "Increasing index.";
         nextIndex = currentIndex + 1;
 
     } else if (change == CLSKeithley428::DecreaseOne) {
-        qDebug() << "Decreasing index.";
         nextIndex = currentIndex - 1;
     }
-
-    qDebug() << "Next index : " << nextIndex;
 
     return nextIndex;
 }
