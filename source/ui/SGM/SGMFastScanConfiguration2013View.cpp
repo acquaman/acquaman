@@ -39,7 +39,8 @@ SGMFastScanConfiguration2013View::SGMFastScanConfiguration2013View(SGMFastScanCo
 		warningsLabel_->setStyleSheet( "QLabel{ color: red }" );
 
 		scanNameLabel_ = new QLabel("Scan Name");
-		scanNameEdit_ = new QLineEdit(this);
+		scanNameEdit_ = new AMRegExpLineEdit("/|;|@|#|<|>", Qt::CaseInsensitive, "/;#>@< characters are not allowed.");
+		scanNameEdit_->setValidIfMatches(false);
 
 		connect(scanNameEdit_, SIGNAL(textEdited(QString)), this, SLOT(onScanNameEditChanged(QString)));
 

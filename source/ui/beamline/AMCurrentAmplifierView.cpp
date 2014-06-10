@@ -8,18 +8,18 @@ AMCurrentAmplifierView::AMCurrentAmplifierView(AMCurrentAmplifier *amplifier, QW
     minus_ = new QToolButton();
     minus_->setMaximumSize(25, 25);
     minus_->setIcon(QIcon(":/22x22/list-remove.png"));
-    connect( minus_, SIGNAL(clicked()), this, SLOT(onMinusClicked()) );
+//    connect( minus_, SIGNAL(clicked()), this, SLOT(onMinusClicked()) );
 
     plus_ = new QToolButton();
     plus_->setMaximumSize(25, 25);
     plus_->setIcon(QIcon(":/22x22/list-add.png"));
-    connect( plus_, SIGNAL(clicked()), this, SLOT(onPlusClicked()) );
+//    connect( plus_, SIGNAL(clicked()), this, SLOT(onPlusClicked()) );
 
     value_ = new QComboBox();
-    connect( value_, SIGNAL(currentIndexChanged(int)), this, SLOT(onValueComboBoxChanged(int)) );
+//    connect( value_, SIGNAL(currentIndexChanged(int)), this, SLOT(onValueComboBoxChanged(int)) );
 
     units_ = new QComboBox();
-    connect( units_, SIGNAL(currentIndexChanged(int)), this, SLOT(onUnitsComboBoxChanged(int)) );
+//    connect( units_, SIGNAL(currentIndexChanged(int)), this, SLOT(onUnitsComboBoxChanged(int)) );
 
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect( this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)) );
@@ -55,30 +55,30 @@ void AMCurrentAmplifierView::setCurrentAmplifier(AMCurrentAmplifier *amplifier)
 {
     if (amplifier_) {
         disconnect( amplifier_, SIGNAL(amplifierModeChanged(AMCurrentAmplifier::AmplifierMode)), this, SLOT(setViewMode(AMCurrentAmplifier::AmplifierMode)) );
-        disconnect( amplifier_, SIGNAL(unitsChanged(int)), units_, SLOT(setCurrentIndex(int)) );
+//        disconnect( amplifier_, SIGNAL(unitsChanged(int)), units_, SLOT(setCurrentIndex(int)) );
 
-        disconnect( amplifier_, SIGNAL(gainChanged(int)), this, SLOT(onAmplifierValueChanged(int)) );
-        disconnect( amplifier_, SIGNAL(minimumGain(bool)), minus_, SLOT(setDisabled(bool)) );
-        disconnect( amplifier_, SIGNAL(maximumGain(bool)), plus_, SLOT(setDisabled(bool)) );
+//        disconnect( amplifier_, SIGNAL(gainChanged(int)), this, SLOT(onAmplifierValueChanged(int)) );
+//        disconnect( amplifier_, SIGNAL(minimumGain(bool)), minus_, SLOT(setDisabled(bool)) );
+//        disconnect( amplifier_, SIGNAL(maximumGain(bool)), plus_, SLOT(setDisabled(bool)) );
 
-        disconnect( amplifier_, SIGNAL(sensitivityChanged(int)), this, SLOT(onAmplifierValueChanged(int)) );
-        disconnect( amplifier_, SIGNAL(minimumSensitivity(bool)), minus_, SLOT(setDisabled(bool)) );
-        disconnect( amplifier_, SIGNAL(maximumSensitivity(bool)), plus_, SLOT(setDisabled(bool)) );
+//        disconnect( amplifier_, SIGNAL(sensitivityChanged(int)), this, SLOT(onAmplifierValueChanged(int)) );
+//        disconnect( amplifier_, SIGNAL(minimumSensitivity(bool)), minus_, SLOT(setDisabled(bool)) );
+//        disconnect( amplifier_, SIGNAL(maximumSensitivity(bool)), plus_, SLOT(setDisabled(bool)) );
     }
 
     amplifier_ = amplifier;
 
     if (amplifier_) {
         connect( amplifier_, SIGNAL(amplifierModeChanged(AMCurrentAmplifier::AmplifierMode)), this, SLOT(setViewMode(AMCurrentAmplifier::AmplifierMode)) );
-        connect( amplifier_, SIGNAL(unitsChanged(int)), units_, SLOT(setCurrentIndex(int)) );
+//        connect( amplifier_, SIGNAL(unitsChanged(int)), units_, SLOT(setCurrentIndex(int)) );
 
-        connect( amplifier_, SIGNAL(gainChanged(int)), this, SLOT(onAmplifierValueChanged(int)) );
-        connect( amplifier_, SIGNAL(minimumGain(bool)), minus_, SLOT(setDisabled(bool)) );
-        connect( amplifier_, SIGNAL(maximumGain(bool)), plus_, SLOT(setDisabled(bool)) );
+//        connect( amplifier_, SIGNAL(gainChanged(int)), this, SLOT(onAmplifierValueChanged(int)) );
+//        connect( amplifier_, SIGNAL(minimumGain(bool)), minus_, SLOT(setDisabled(bool)) );
+//        connect( amplifier_, SIGNAL(maximumGain(bool)), plus_, SLOT(setDisabled(bool)) );
 
-        connect( amplifier_, SIGNAL(sensitivityChanged(int)), this, SLOT(onAmplifierValueChanged(int)) );
-        connect( amplifier_, SIGNAL(minimumSensitivity(bool)), minus_, SLOT(setDisabled(bool)) );
-        connect( amplifier_, SIGNAL(maximumSensitivity(bool)), plus_, SLOT(setDisabled(bool)) );
+//        connect( amplifier_, SIGNAL(sensitivityChanged(int)), this, SLOT(onAmplifierValueChanged(int)) );
+//        connect( amplifier_, SIGNAL(minimumSensitivity(bool)), minus_, SLOT(setDisabled(bool)) );
+//        connect( amplifier_, SIGNAL(maximumSensitivity(bool)), plus_, SLOT(setDisabled(bool)) );
 
         setViewMode(amplifier_->amplifierMode());
     }
@@ -161,7 +161,6 @@ void AMCurrentAmplifierView::onAmplifierValueChanged(int valueIndex)
 void AMCurrentAmplifierView::onMinusClicked()
 {
     if (amplifier_ && viewMode_ == AMCurrentAmplifier::Gain) {
-        qDebug() << "Gain, minus clicked.";
         amplifier_->decreaseGain();
 
     } else if (amplifier_ && viewMode_ == AMCurrentAmplifier::Sensitivity) {

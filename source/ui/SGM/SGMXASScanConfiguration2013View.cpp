@@ -58,7 +58,8 @@ SGMXASScanConfiguration2013View::SGMXASScanConfiguration2013View(SGMXASScanConfi
 	connect(getBeamlineSettings_, SIGNAL(clicked()), this, SLOT(onGetBeamlineSettingsClicked()));
 
 	scanNameLabel_ = new QLabel("Scan Name");
-	scanNameEdit_ = new QLineEdit(this);
+	scanNameEdit_ = new AMRegExpLineEdit("/|;|@|#|<|>", Qt::CaseInsensitive, "/;#>@< characters are not allowed.");
+	scanNameEdit_->setValidIfMatches(false);
 	connect(scanNameEdit_, SIGNAL(textEdited(QString)), this, SLOT(onScanNameEditChanged(QString)));
 
 	mainVL_ = new QVBoxLayout();

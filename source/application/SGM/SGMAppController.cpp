@@ -164,7 +164,7 @@ bool SGMAppController::startup() {
 	if(!AMAppController::startup())
 		return false;
 
-	if (!AMActionRegistry3::s()->registerInfoAndAction<AMSampleMoveActionInfo, AMSampleMoveAction>("Move to Beam Sample", "Move the beam over a given sample", ":system-run.png"))
+	if (!AMActionRegistry3::s()->registerInfoAndAction<AMSampleMoveActionInfo, AMSampleMoveAction>("Move to Sample", "Move the beam over a given sample", ":system-run.png"))
 		return false;
 	if(!AMActionRegistry3::s()->registerInfoAndEditor<AMSampleMoveActionInfo, AMSampleMoveActionEditor>())
 		return false;
