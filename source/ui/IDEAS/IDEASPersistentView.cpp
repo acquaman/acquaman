@@ -86,11 +86,6 @@ IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
     connect(IDEASBeamline::ideas()->monoHighEV(),  SIGNAL(connected(bool)), this, SLOT(onCrystalChanged()));
     connect(IDEASBeamline::ideas()->monoCrystal(), SIGNAL(connected(bool)), this, SLOT(onCrystalChanged()));
 
-//	Not needed when above connect statements actually connect.
-//    crystalTimer_ = new QTimer();
-//    crystalTimer_->setInterval(1000);
-//    crystalTimer_->setSingleShot(true);
-//    connect(crystalTimer_, SIGNAL(timeout()),this,SLOT(onCrystalChanged()));
 
 
 
