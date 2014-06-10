@@ -38,6 +38,8 @@ public:
 
     /// Returns the current units.
     virtual QString units() const = 0;
+    /// Returns the units index.
+    virtual int unitsIndex() const = 0;
     /// Returns a string list of the available units options, suitable for a view to display.
     virtual QStringList unitsList() const = 0;
 

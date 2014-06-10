@@ -53,6 +53,8 @@ public:
 
 	/// Returns the units of the sensitivity.
     virtual QString units() const { return units_->getString(); }
+    /// Returns the index of the current units.
+    virtual int unitsIndex() const { return unitsList_.indexOf(units()); }
     /// Returns a string list of the available units options, suitable for a view to display.
     virtual QStringList unitsList() const { return unitsList_; }
 
@@ -60,10 +62,6 @@ public:
 	virtual bool atMaximumSensitivity() const { return atMaximumSensitivity_; }
 	/// Returns whether the ion chamber is at minimum sensitivity.
 	virtual bool atMinimumSensitivity() const { return atMinimumSensitivity_; }
-
-signals:
-    /// Notifier that the sensitivity units have changed.  Passes the new value.
-    void unitsChanged(QString);
 
 public slots:
 	/// Increases the sensitivity of the ion chamber by one step.
@@ -84,6 +82,7 @@ protected slots:
 	void onValueChanged(int index);
 	/// Determines whether the new state of the ion chamber is at either the minimum or maximum sensitivity.
 	void onSensitivityChanged();
+    void onUnitsChanged(const QString &newUnits);
 	/// Helper function that determines if the SR570 is connected.
 	void onConnectedChanged();
 

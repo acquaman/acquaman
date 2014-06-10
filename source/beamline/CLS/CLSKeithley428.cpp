@@ -61,6 +61,11 @@ QString CLSKeithley428::units() const
     return units;
 }
 
+int CLSKeithley428::unitsIndex() const
+{
+    return unitsIndex_;
+}
+
 CLSKeithley428ValueMap* CLSKeithley428::valueMap() const
 {
     return valueMap_;

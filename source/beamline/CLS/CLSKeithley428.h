@@ -33,6 +33,8 @@ public:
 
     /// Returns string representing the units to use, depending on the display mode.
     virtual QString units() const;
+    /// Returns the integer index referring to the current units.
+    virtual int unitsIndex() const;
 
     /// Returns the value map object for this amplifier.
     CLSKeithley428ValueMap* valueMap() const;

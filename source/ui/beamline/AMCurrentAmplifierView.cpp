@@ -30,7 +30,7 @@ AMCurrentAmplifierView::AMCurrentAmplifierView(AMCurrentAmplifier *amplifier, bo
     connect( amplifier_, SIGNAL(sensitivityChanged(int)), this, SLOT(onAmplifierValueChanged(int)) );
 
     units_ = new QComboBox();
-//    connect( units_, SIGNAL(currentIndexChanged(int)), this, SLOT(onUnitsComboBoxChanged(int)) );
+    connect( units_, SIGNAL(currentIndexChanged(int)), this, SLOT(onUnitsComboBoxChanged(int)) );
     connect( amplifier_, SIGNAL(unitsIndexChanged(int)), this, SLOT(onAmplifierUnitsChanged(int)) );
 
     setContextMenuPolicy(Qt::CustomContextMenu);
@@ -83,6 +83,7 @@ void AMCurrentAmplifierView::onValueComboBoxChanged(int index)
 
 void AMCurrentAmplifierView::onUnitsComboBoxChanged(int index)
 {
+    // the initialized_ boolean prevents the display from setting the amplifier value while initializing <- undesirable behavior.
     if (initialized_) {
         amplifier_->setValue( QString::number(value_->currentIndex()) + " " + QString::number(index) );
     }
@@ -98,7 +99,6 @@ void AMCurrentAmplifierView::onAmplifierValueChanged(int valueIndex)
 void AMCurrentAmplifierView::onAmplifierUnitsChanged(int unitsIndex)
 {
     amplifier_->blockSignals(true);
-    qDebug() << "Set units combo box : " << unitsIndex;
     units_->setCurrentIndex(unitsIndex);
     amplifier_->blockSignals(false);
 }
@@ -159,6 +159,7 @@ void AMCurrentAmplifierView::refreshDisplayValues()
     onAmplifierValueChanged(amplifier_->valueIndex());
 
     units_->addItems(amplifier_->unitsList());
+    onAmplifierUnitsChanged(amplifier_->unitsIndex());
 }
 
 void AMCurrentAmplifierView::refreshButtons()
