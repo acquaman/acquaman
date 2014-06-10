@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QComboBox>
+#include <QLabel>
 #include <QToolButton>
 #include <QLayout>
 #include <QDebug>
@@ -16,7 +17,7 @@ class AMCurrentAmplifierView : public QWidget
 
 public:
     /// Constructor. Takes in instance of AMCurrentAmplifier.
-    explicit AMCurrentAmplifierView(AMCurrentAmplifier *amplifier, QWidget *parent = 0);
+    explicit AMCurrentAmplifierView(AMCurrentAmplifier *amplifier, bool showName = false, QWidget *parent = 0);
     virtual ~AMCurrentAmplifierView();
 
     /// Returns the pointer to the AMCurrentAmplifier this view is visualizing.

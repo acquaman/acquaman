@@ -1,12 +1,14 @@
 #include "AMCurrentAmplifierView.h"
 
-AMCurrentAmplifierView::AMCurrentAmplifierView(AMCurrentAmplifier *amplifier, QWidget *parent) :
+AMCurrentAmplifierView::AMCurrentAmplifierView(AMCurrentAmplifier *amplifier, bool showName, QWidget *parent) :
     QWidget(parent)
 {
     initialized_ = false;
 
     amplifier_ = amplifier;
     connect( amplifier_, SIGNAL(amplifierModeChanged(AMCurrentAmplifier::AmplifierMode)), this, SLOT(refreshView()) );
+
+    QLabel *name = new QLabel(amplifier_->name());
 
     minus_ = new QToolButton();
     minus_->setMaximumSize(25, 25);
@@ -29,7 +31,7 @@ AMCurrentAmplifierView::AMCurrentAmplifierView(AMCurrentAmplifier *amplifier, QW
 
     units_ = new QComboBox();
 //    connect( units_, SIGNAL(currentIndexChanged(int)), this, SLOT(onUnitsComboBoxChanged(int)) );
-    connect( amplifier_, SIGNAL(unitsChanged(int)), this, SLOT(onAmplifierUnitsChanged(int)) );
+    connect( amplifier_, SIGNAL(unitsIndexChanged(int)), this, SLOT(onAmplifierUnitsChanged(int)) );
 
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect( this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)) );
@@ -38,6 +40,8 @@ AMCurrentAmplifierView::AMCurrentAmplifierView(AMCurrentAmplifier *amplifier, QW
 
     QHBoxLayout *layout = new QHBoxLayout();
 
+    if (showName)
+        layout->addWidget(name);
     layout->addWidget(minus_);
     layout->addWidget(plus_);
     layout->addWidget(value_);
@@ -73,13 +77,15 @@ void AMCurrentAmplifierView::onValueComboBoxChanged(int index)
 {
     // the initialized_ boolean prevents the display from setting the amplifier value while initializing <- undesirable behavior.
     if (initialized_) {
-        amplifier_->setValue(QString::number(index));
+        amplifier_->setValue( QString::number(index) + " " + QString::number(units_->currentIndex()) );
     }
 }
 
 void AMCurrentAmplifierView::onUnitsComboBoxChanged(int index)
 {
-    Q_UNUSED(index)
+    if (initialized_) {
+        amplifier_->setValue( QString::number(value_->currentIndex()) + " " + QString::number(index) );
+    }
 }
 
 void AMCurrentAmplifierView::onAmplifierValueChanged(int valueIndex)
