@@ -7,6 +7,8 @@ AMCurrentAmplifier::AMCurrentAmplifier(const QString &name, QObject *parent) :
     connected_ = false;
     supportsGainMode_ = false;
     supportsSensitivityMode_ = false;
+
+    setAmplifierMode(None);
 }
 
 AMCurrentAmplifier::~AMCurrentAmplifier()
@@ -19,23 +21,14 @@ AMCurrentAmplifier::AmplifierMode AMCurrentAmplifier::amplifierMode() const
     return amplifierMode_;
 }
 
-QStringList AMCurrentAmplifier::valuesList() const
-{
-    QStringList *list = new QStringList();
-    return *list;
-}
-
-QStringList AMCurrentAmplifier::unitsList() const
-{
-    QStringList *list = new QStringList();
-    return *list;
-}
-
 bool AMCurrentAmplifier::supports(AmplifierMode mode)
 {
     bool support = false;
 
-    if (mode == Gain && supportsGainMode_)
+    if (mode == None)
+        support = true;
+
+    else if (mode == Gain && supportsGainMode_)
         support = true;
 
     else if (mode == Sensitivity && supportsSensitivityMode_)
