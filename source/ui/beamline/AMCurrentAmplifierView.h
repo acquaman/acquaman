@@ -22,18 +22,10 @@ public:
     /// Returns the pointer to the AMCurrentAmplifier this view is visualizing.
     AMCurrentAmplifier *currentAmplifier() const;
 
-    /// Returns the view mode currently being displayed.
-    AMCurrentAmplifier::AmplifierMode viewMode() const;
-
 signals:
-    void currentAmplifierChanged(AMCurrentAmplifier *newAmplifier);
-    void viewModeChanged(AMCurrentAmplifier::AmplifierMode viewMode);
 
 public slots:
-    void setCurrentAmplifier(AMCurrentAmplifier *amplifier);
-    void setViewMode(AMCurrentAmplifier::AmplifierMode newMode);
-    void refreshDisplayValues();
-    void refreshButtons();
+    void refreshView();
 
 protected slots:
     /// Handles passing changes in the value combo box to the amplifier.
@@ -49,10 +41,12 @@ protected slots:
     virtual void onCustomContextMenuRequested(QPoint position);
 
 protected:
+    void refreshDisplayValues();
+    void refreshButtons();
+
+protected:
     /// The pointer to the current amplifier this view manages.
     AMCurrentAmplifier *amplifier_;
-    /// The current view mode.
-    AMCurrentAmplifier::AmplifierMode viewMode_;
     /// Combo box holding the amplifier value.
     QComboBox *value_;
     /// Combo box holding the amplifier units.
