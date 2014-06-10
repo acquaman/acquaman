@@ -121,6 +121,9 @@ public:
 	/// Adds an AMXRFDetector to the syncrhonized XRF detector list.
 	void addSynchronizedXRFDetector(AMXRFDetector *detector);
 
+    /// Returns an action that can turn off the beam.
+    virtual AMAction3* createTurnOffBeamActions();
+
 signals:
 	/// Emit this signal whenever isBeamlineScanning() changes.
 	void beamlineScanningChanged(bool isScanning);

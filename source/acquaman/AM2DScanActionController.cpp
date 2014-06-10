@@ -364,8 +364,8 @@ void AM2DScanActionController::prefillScanPoints()
 	double yStart = configuration2D_->yStart();
 	double yStep = configuration2D_->yStep();
 	double yEnd = configuration2D_->yEnd();
-	int xCount = round((xEnd-xStart)/xStep) + 1;
-	int yCount = round((yEnd-yStart)/yStep) + 1;
+	int xCount = int(round((xEnd-xStart)/xStep)) + 1;
+	int yCount = int(round((yEnd-yStart)/yStep)) + 1;
 
 	if (scan_->rawData()->scanSize(0) == 0)
 		scan_->rawData()->beginInsertRows(xCount, -1);

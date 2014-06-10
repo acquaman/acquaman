@@ -638,6 +638,19 @@ HEADERS += source/acquaman/AMRegion.h \
 	source/ui/dataman/AMControlInfoListView.h \
 	source/ui/dataman/AMOldDetectorInfoSetView.h \
 	source/ui/beamline/AMDetectorSelectorRequiredView.h \
+    source/actions3/actions/AMDetectorSetAsDarkCurrentCorrectionActionInfo.h \
+    source/actions3/actions/AMDetectorSetAsDarkCurrentCorrectionAction.h \
+    source/actions3/actions/AMControlWaitActionInfo.h \
+    source/actions3/actions/AMControlWaitAction.h \
+    source/analysis/AM1DDarkCurrentCorrectionAB.h \
+    source/actions3/actions/AMDoingDarkCurrentCorrectionActionInfo.h \
+    source/actions3/actions/AMDoingDarkCurrentCorrectionAction.h \
+    source/actions3/actions/AMDoDarkCurrentCorrectionAction.h \
+    source/actions3/actions/AMDoDarkCurrentCorrectionActionInfo.h \
+    source/ui/CLS/CLSSIS3820ScalerChannelViewWithDarkCurrent.h \
+    source/analysis/AM1DDarkCurrentCorrectionABEditor.h \
+    source/ui/CLS/CLSDarkCurrentWidget.h \
+	source/beamline/AMCurrentAmplifier.h \
 	source/beamline/AMAdvancedControlDetectorEmulator.h \
 	source/dataman/AMDbUpgrade1Pt3.h \
 	source/acquaman/AM2DScanConfigurationConverter.h \
@@ -1061,6 +1074,19 @@ SOURCES += source/acquaman/AMRegion.cpp \
 	source/ui/dataman/AMControlInfoListView.cpp \
 	source/ui/dataman/AMOldDetectorInfoSetView.cpp \
 	source/ui/beamline/AMDetectorSelectorRequiredView.cpp \
+    source/actions3/actions/AMDetectorSetAsDarkCurrentCorrectionActionInfo.cpp \
+    source/actions3/actions/AMDetectorSetAsDarkCurrentCorrectionAction.cpp \
+    source/actions3/actions/AMControlWaitActionInfo.cpp \
+    source/actions3/actions/AMControlWaitAction.cpp \
+    source/analysis/AM1DDarkCurrentCorrectionAB.cpp \
+    source/actions3/actions/AMDoingDarkCurrentCorrectionActionInfo.cpp \
+    source/actions3/actions/AMDoingDarkCurrentCorrectionAction.cpp \
+    source/actions3/actions/AMDoDarkCurrentCorrectionAction.cpp \
+    source/actions3/actions/AMDoDarkCurrentCorrectionActionInfo.cpp \
+    source/ui/CLS/CLSSIS3820ScalerChannelViewWithDarkCurrent.cpp \
+    source/analysis/AM1DDarkCurrentCorrectionABEditor.cpp \
+    source/ui/CLS/CLSDarkCurrentWidget.cpp \
+	source/beamline/AMCurrentAmplifier.cpp \
 	source/beamline/AMAdvancedControlDetectorEmulator.cpp \
 	source/dataman/AMDbUpgrade1Pt3.cpp \
 	source/acquaman/AM2DScanConfigurationConverter.cpp \

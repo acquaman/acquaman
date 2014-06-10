@@ -214,6 +214,8 @@ public:
 	AMDetector* energyFeedbackDetector() const;
 	AMDetector* gratingEncoderDetector() const;
 
+    AMDetector* dwellTimeDetector() const;
+
 	AMDetectorGroup* allDetectorGroup() const { return allDetectorGroup_;}
 	AMDetectorGroup* XASDetectorGroup() const { return XASDetectorGroup_;}
 	AMDetectorGroup* FastDetectorGroup() const { return FastDetectorGroup_;}
@@ -225,6 +227,8 @@ public:
 	bool detectorConnectedByName(QString name);
 
 	AMAction3* createBeamOnActions3();
+    /// Turn off beam on SGM.
+    AMAction3* createTurnOffBeamActions();
 	AMAction3* createStopMotorsActions3();
 
 	AMAction3* createGoToTransferPositionActions3();
@@ -403,7 +407,8 @@ protected:
 	CLSAdvancedScalerChannelDetector *newEncoderDownDetector_;
 	AMBasicControlDetectorEmulator *energyFeedbackDetector_;
 	AMBasicControlDetectorEmulator *gratingEncoderDetector_;
-	AMDetectorGroup *allDetectorGroup_;
+    AMBasicControlDetectorEmulator *dwellTimeDetector_;
+    AMDetectorGroup *allDetectorGroup_;
 	AMDetectorGroup *XASDetectorGroup_;
 	AMDetectorGroup *FastDetectorGroup_;
 

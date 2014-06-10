@@ -164,6 +164,13 @@ public:
 	/// Returns the acquisition time tolerance.  This is defined by subclasses because this limitation will likely be detector specific.
 	virtual double acquisitionTimeTolerance() const = 0;
 
+    virtual bool canDoDarkCurrentCorrection() const { return false;}
+
+    virtual double darkCurrentMeasurementValue() const;
+    virtual int darkCurrentMeasurementTime() const;
+
+    virtual bool requiresNewDarkCurrentMeasurement() const;
+
 	/// Returns the current acquisition state
 	AMDetector::AcqusitionState acquisitionState() const { return acquisitionState_; }
 	/// Returns a string describing the given state
@@ -268,6 +275,11 @@ int outputSize = indexStart.totalPointsTo(indexEnd);
 	/// Returns a newly created action (possibly list of actions) to perfrom the detector cleanup
 	virtual AMAction3* createCleanupActions();
 
+    /// Returns a (list of) actions that will do all necessary steps to do dark current correction. Your subclass needs to implement this function. Dwell time argument is in seconds.
+    virtual AMAction3* createDarkCurrentCorrectionActions(double dwellTime);
+    /// Returns an action that sets the current detector value as the dark current correction value. Your subclass will probably call this in createDarkCurrentCorrectionActions.
+    virtual AMAction3* createSetAsDarkCurrentCorrectionAction();
+
 	/// Returns a data source for viewing this detector's output
 	virtual AMDataSource* dataSource() const = 0;
 
@@ -310,6 +322,11 @@ public slots:
 
 	/// For clearable detectors, clears the current data. Returns whether the clear was possible.
 	bool clear();
+
+    virtual void setAsDarkCurrentMeasurementValue();
+    virtual void setAsDarkCurrentMeasurementTime(double lastTime);
+    virtual void setRequiresNewDarkCurrentMeasurement(bool needsNewDCC);
+
 
 signals:
 	/// Indicates that the detector's constituent elements are connected (each detector sub class can define this however makes most sense)
@@ -368,6 +385,11 @@ signals:
 	void isVisibleChanged(bool);
 	/// Notifier that the default accessibility of the detector has changed.
 	void hiddenFromUsersChanged(bool);
+
+    /// New dark current correction value ready, passes new dark current value.
+    void newDarkCurrentMeasurementValueReady(double newValue);
+    /// Indicates that the darkCurrentCorrection_ value stored is out of date. A new dark current measurement should be taken.
+    void requiresNewDarkCurrentMeasurement(bool needsUpdate);
 
 protected slots:
 	///
@@ -449,6 +471,12 @@ protected:
 	bool isVisible_;
 	/// The flag for the default accessibility off the detector when added to a scan.
 	bool hiddenFromUsers_;
+    /// The most up-to-date value of the dark current for this detector.
+    double darkCurrentMeasurementValue_;
+    /// The dwell time used to for the darkCurrentMeasurementValue_ measurement.
+    double darkCurrentMeasurementTime_;
+    /// Flag indicating whether or not darkCurrentMeasurementValue_ needs to be updated.
+    bool requiresNewDarkCurrentMeasurement_;
 
 private:
 	/// Changes states in the acquisition state (if possible)

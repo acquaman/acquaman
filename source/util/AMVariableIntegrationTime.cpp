@@ -224,63 +224,104 @@ bool AMVariableIntegrationTime::variableTime(double *times) const
 
 	switch(equation_){
 
-	case Constant:
+	case Constant:{
 
-		for (double k = k0_; k <= kf_; k += kStep_)
+		int points = int(round((kf_-k0_)/kStep_));
+		double k = k0_;
+
+		for (int i = 0; i < points; i++){
+
 			variableTimes_.insert(k, t0_);
+			k += kStep_;
+		}
 
 		break;
+	}
 
-	case Linear:
+	case Linear:{
 
-		for (double k = k0_; k <= kf_; k += kStep_)
+		int points = int(round((kf_-k0_)/kStep_));
+		double k = k0_;
+
+		for (int i = 0; i < points; i++){
+
 			variableTimes_.insert(k, a0_ + a1_*k);
+			k += kStep_;
+		}
 
 		break;
+	}
 
-	case Quadratic:
+	case Quadratic:{
 
-		for (double k = k0_; k <= kf_; k += kStep_)
+		int points = int(round((kf_-k0_)/kStep_));
+		double k = k0_;
+
+		for (int i = 0; i < points; i++){
+
 			variableTimes_.insert(k, a0_ + a1_*k*k);
+			k += kStep_;
+		}
 
 		break;
+	}
 
 	case Geometric:{
 
-	    int points = round((kf_-k0_)/kStep_);
-	    double k = k0_;
+		int points = int(round((kf_-k0_)/kStep_));
+		double k = k0_;
 
-	    for (int i = 0; i < points; i++){
+		for (int i = 0; i < points; i++){
 
-		variableTimes_.insert(k, a0_ + a1_*pow(k, a2_));
-		k += kStep_;
-	    }
-//		for (double k = k0_; k <= kf_; k += kStep_)
-//			variableTimes_.insert(k, a0_ + a1_*pow(k, a2_));
+			variableTimes_.insert(k, a0_ + a1_*pow(k, a2_));
+			k += kStep_;
+			k += kStep_;
+		}
 
-	    break;
+		break;
 	}
 
-	case Exponential:
+	case Exponential:{
 
-		for (double k = k0_; k <= kf_; k += kStep_)
+		int points = int(round((kf_-k0_)/kStep_));
+		double k = k0_;
+
+		for (int i = 0; i < points; i++){
+
 			variableTimes_.insert(k, a0_ + a1_*exp(a2_*k));
+			k += kStep_;
+		}
 
 		break;
+	}
 
-	case Logarithmic:
+	case Logarithmic:{
 
-		for (double k = k0_; k <= kf_; k += kStep_)
+		int points = int(round((kf_-k0_)/kStep_));
+		double k = k0_;
+
+		for (int i = 0; i < points; i++){
+
 			variableTimes_.insert(k, a0_ + a1_*log10(fabs(k + a2_)));
+			k += kStep_;
+		}
 
 		break;
+	}
 
-	case SmoothStep:
+	case SmoothStep:{
 
-		for (double k = k0_; k <= kf_; k += kStep_)
+		int points = int(round((kf_-k0_)/kStep_));
+		double k = k0_;
+
+		for (int i = 0; i < points; i++){
+
 			variableTimes_.insert(k, a0_ + a1_/(1 + exp(-1.0*a2_*(k - kf_/2)/2)));
+			k += kStep_;
+		}
 
 		break;
+	}
 	}
 
 	QVector<double> data = variableTimes_.values().toVector();

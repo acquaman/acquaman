@@ -149,18 +149,18 @@ void IDEASBeamline::setupComponents()
     scaler_ = new CLSSIS3820Scaler("BL08B2-1:mcs", this);
 
     scaler_->channelAt(0)->setCustomChannelName("I_0");
-    CLSSR570 *tempSR570 = new CLSSR570("AMP1608-1001:sens_num.VAL", "AMP1608-1001:sens_unit.VAL", this);
-    scaler_->channelAt(0)->setSR570(tempSR570);
+    CLSSR570 *tempSR570 = new CLSSR570("I_0", "AMP1608-1001:sens_num.VAL", "AMP1608-1001:sens_unit.VAL", this);
+    scaler_->channelAt(0)->setCurrentAmplifier(tempSR570);
     scaler_->channelAt(0)->setVoltagRange(AMRange(1.0, 4.5));
 
     scaler_->channelAt(1)->setCustomChannelName("Sample");
-    tempSR570 = new CLSSR570("AMP1608-1002:sens_num.VAL", "AMP1608-1002:sens_unit.VAL", this);
-    scaler_->channelAt(1)->setSR570(tempSR570);
+    tempSR570 = new CLSSR570("Sample", "AMP1608-1002:sens_num.VAL", "AMP1608-1002:sens_unit.VAL", this);
+    scaler_->channelAt(1)->setCurrentAmplifier(tempSR570);
     scaler_->channelAt(1)->setVoltagRange(AMRange(1.0, 4.5));
 
     scaler_->channelAt(2)->setCustomChannelName("Reference");
-    tempSR570 = new CLSSR570("AMP1608-1003:sens_num.VAL", "AMP1608-1003:sens_unit.VAL", this);
-    scaler_->channelAt(2)->setSR570(tempSR570);
+    tempSR570 = new CLSSR570("Reference", "AMP1608-1003:sens_num.VAL", "AMP1608-1003:sens_unit.VAL", this);
+    scaler_->channelAt(2)->setCurrentAmplifier(tempSR570);
     scaler_->channelAt(2)->setVoltagRange(AMRange(1.0, 4.5));
 
 }

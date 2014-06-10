@@ -2,6 +2,7 @@
 #define CLSBASICSCALERCHANNELDETECTOR_H
 
 #include "beamline/AMDetector.h"
+#include "beamline/AMBeamline.h"
 
 class CLSSIS3820Scaler;
 
@@ -24,6 +25,9 @@ public:
 	virtual bool canCancel() const { return false; }
 	/// Clearing is not yet implemented for the scaler channels (but it can be in the future)
 	virtual bool canClear() const { return false; }
+
+    /// Returns boolean indicating that this particular implementation of AMDetector supports dark current correction.
+    virtual bool canDoDarkCurrentCorrection() const { return true; }
 
 	/// Basic scaler channels cannot continuous acquire. This needs to be implemented in a subclass.
 	virtual bool canContinuousAcquire() const { return false; }
@@ -65,6 +69,9 @@ public:
 	/// Returns a AM1DProcessVariableDataSource suitable for viewing
 	virtual AMDataSource* dataSource() const { return 0; }
 
+    /// Returns a list of actions to perform dark current correction, using the provided dwell time.
+    virtual AMAction3* createDarkCurrentCorrectionActions(double dwellTime);
+
 public slots:
 	/// Set the acquisition dwell time for triggered (RequestRead) detectors
 	virtual bool setAcquisitionTime(double seconds);
@@ -83,6 +90,10 @@ protected slots:
 
 	/// Handles triggering the actual acquisition even if the scaler needs to switch to single read from continuous
 	bool triggerScalerAcquisition(bool isContinuous);
+
+    void onScalerDarkCurrentTimeChanged(double dwellSeconds);
+    void onScalerDarkCurrentValueChanged();
+    void onScalerSensitivityChanged();
 
 protected:
 	bool initializeImplementation();

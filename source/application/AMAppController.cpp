@@ -46,6 +46,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/actions/AMSamplePlateMoveAction.h"
 #include "actions3/actions/AMSamplePlateMoveActionInfo.h"
 #include "actions3/editors/AMSamplePlateMoveActionEditor.h"
+#include "actions3/actions/AMControlWaitAction.h"
+#include "actions3/actions/AMControlWaitActionInfo.h"
 
 #include "application/AMAppControllerSupport.h"
 #include "acquaman/AMDetectorTriggerSourceScanOptimizer.h"
@@ -85,6 +87,8 @@ bool AMAppController::startup(){
 
 		success &= AMActionRegistry3::s()->registerInfoAndAction<AMSamplePlateMoveActionInfo, AMSamplePlateMoveAction>("Move Sample Position", "Move to a different marked sample position", ":system-run.png");
 		success &= AMActionRegistry3::s()->registerInfoAndEditor<AMSamplePlateMoveActionInfo, AMSamplePlateMoveActionEditor>();
+
+        success &= AMActionRegistry3::s()->registerInfoAndAction<AMControlWaitActionInfo, AMControlWaitAction>("Wait for Control", "Wait for Control", ":system-run.png", false);
 
 		AMAgnosticDataMessageQEventHandler *scanActionMessager = new AMAgnosticDataMessageQEventHandler();
 		AMAgnosticDataAPISupport::registerHandler("ScanActions", scanActionMessager);

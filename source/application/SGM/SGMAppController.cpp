@@ -321,11 +321,16 @@ void SGMAppController::onSGMBeamlineConnected(){
 		}
 		if(SGMBeamline::sgm()->newTFYDetector()){
 			preferentialOrdering << SGMBeamline::sgm()->newTFYDetector()->name();
-			xasDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->energyFeedbackDetector(), true);
 		}
 		if(SGMBeamline::sgm()->newPDDetector()){
 			preferentialOrdering << SGMBeamline::sgm()->newPDDetector()->name();
 		}
+        if(SGMBeamline::sgm()->energyFeedbackDetector()) {
+            xasDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->energyFeedbackDetector(), true);
+        }
+        if(SGMBeamline::sgm()->dwellTimeDetector()) {
+            xasDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->dwellTimeDetector(), true);
+        }
 
 		xasDetectorSelector_->setPreferentialOrdering(preferentialOrdering);
 		xasDetectorSelector_->setDefaultsSelected();
