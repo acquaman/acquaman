@@ -33,12 +33,12 @@ public:
     /// Returns the value at the given index.
     virtual double valueAt(int index) const = 0;
     /// Returns a string list of the available value options, suitable for a view to display.
-    virtual QStringList valuesList() const;
+    virtual QStringList valuesList() const = 0;
 
     /// Returns the current units.
     virtual QString units() const = 0;
     /// Returns a string list of the available units options, suitable for a view to display.
-    virtual QStringList unitsList() const;
+    virtual QStringList unitsList() const = 0;
 
     /// Returns true if the given amplifier mode is supported.
     bool supports(AmplifierMode mode);
@@ -78,6 +78,11 @@ signals:
     void minimumSensitivity(bool);
     /// Notifier that the current amplifier is at the maximum sensitivity.
     void maximumSensitivity(bool);
+
+    /// Emitted when the amplifier's units have changed, passes new units.
+    void unitsChanged(const QString &newUnits);
+    /// Emitted when the amplifier's units have changed, passes new unit index.
+    void unitsIndexChanged(int unitIndex);
 
 public slots:
     /// Sets the current amplifier mode.

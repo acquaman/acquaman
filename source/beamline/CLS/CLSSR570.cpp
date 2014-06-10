@@ -41,6 +41,9 @@ CLSSR570::CLSSR570(const QString &name, const QString &valueName, const QString 
 
 	connect(value_, SIGNAL(connected()), this, SLOT(onConnectedChanged()));
 	connect(units_, SIGNAL(connected()), this, SLOT(onConnectedChanged()));
+
+    valueList_ << "1" << "2" << "5" << "10" << "20" << "50" << "100" << "200" << "500";
+    unitsList_ << "pA/V" << "nA/V" << "uA/V" << "mA/V";
 }
 
 CLSSR570::~CLSSR570(){}
@@ -99,7 +102,7 @@ bool CLSSR570::decreaseSensitivity()
     return true;
 }
 
-void CLSSR570::setValue(int value)
+void CLSSR570::setValueControl(int value)
 {
     setValueIndex(valueToIndex(value));
 }
@@ -116,11 +119,13 @@ void CLSSR570::setUnits(QString units)
         units_->setValue(units);
 }
 
+void CLSSR570::setUnitsIndex(int index)
+{
+    setUnits(unitsList_.at(index));
+}
+
 void CLSSR570::onValueChanged(int index)
 {
-//	emit valueChanged(indexToValue(index));
-//	emit valueIndexChanged(index);
-
     emit sensitivityChanged(index);
 }
 
@@ -159,7 +164,12 @@ bool CLSSR570::unitsOkay(QString units) const
 
 void CLSSR570::setValueImplementation(const QString &valueArg)
 {
-    Q_UNUSED(valueArg)
+    int valueIndex = valueArg.split(" ").at(0).toInt();
+    setValueIndex(valueIndex);
+
+    int unitsIndex = valueArg.split(" ").at(1).toInt();
+    setUnitsIndex(unitsIndex);
+
 //    int valueIndex = argList.at(0).toInt();
 //    QString units = argList.at(1);
 

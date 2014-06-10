@@ -18,6 +18,9 @@ CLSKeithley428::CLSKeithley428(const QString &name, const QString &valueName, QO
 
     setAmplifierMode(AMCurrentAmplifier::Gain);
     setValueMap();
+
+    units_ << "V/A";
+    unitsIndex_ = 0;
 }
 
 CLSKeithley428::~CLSKeithley428()
@@ -42,15 +45,20 @@ int CLSKeithley428::valueIndex() const
 
 QString CLSKeithley428::units() const
 {
+    QString units;
+
     if (amplifierMode_ == AMCurrentAmplifier::Gain) {
-        return "V/A";
+        units = units_.at(unitsIndex_);
 
     } else if (amplifierMode_ == AMCurrentAmplifier::Sensitivity) {
-        return "A/V";
+        QStringList split = units_.at(unitsIndex_).split("/");
+        units = split.at(1) + "/" + split.at(0);
 
     } else {
-        return "";
+        units = "";
     }
+
+    return units;
 }
 
 CLSKeithley428ValueMap* CLSKeithley428::valueMap() const
@@ -85,15 +93,7 @@ QStringList CLSKeithley428::valuesList() const
 
 QStringList CLSKeithley428::unitsList() const
 {
-    QStringList *unitsList = new QStringList();
-
-    if (amplifierMode_ == AMCurrentAmplifier::Gain) {
-        unitsList->append("V/A");
-    } else {
-        unitsList->append("A/V");
-    }
-
-    return *unitsList;
+    return units_;
 }
 
 void CLSKeithley428::setValueIndex(int newIndex)
@@ -214,7 +214,7 @@ void CLSKeithley428::setValueMap()
 
 void CLSKeithley428::setValueImplementation(const QString &valueArg)
 {
-    int newIndex = valueArg.toInt();
+    int newIndex = valueArg.split(" ").at(0).toInt();
     setValueIndex(newIndex);
 }
 
