@@ -668,13 +668,13 @@ void CLSSIS3820ScalerChannel::onChannelReadingChanged(double reading)
 void CLSSIS3820ScalerChannel::setCurrentAmplifier(AMCurrentAmplifier *amplifier)
 {
 	if (currentAmplifier_) {
-		disconnect(currentAmplifier_, SIGNAL(isConnected(bool)), this, SLOT(onConnectedChanged()));
-		disconnect( currentAmplifier_, SIGNAL(sensitivityChanged()), this, SIGNAL(sensitivityChanged()) );
+        disconnect( currentAmplifier_, SIGNAL(isConnected(bool)), this, SLOT(onConnectedChanged()));
+        disconnect( currentAmplifier_, SIGNAL(sensitivityChanged(int)), this, SIGNAL(sensitivityChanged()) );
 	}
 
 	currentAmplifier_ = amplifier;
-	connect(currentAmplifier_, SIGNAL(isConnected(bool)), this, SLOT(onConnectedChanged()));
-	connect( currentAmplifier_, SIGNAL(sensitivityChanged()), this, SIGNAL(sensitivityChanged()) );
+    connect( currentAmplifier_, SIGNAL(isConnected(bool)), this, SLOT(onConnectedChanged()) );
+    connect( currentAmplifier_, SIGNAL(sensitivityChanged(int)), this, SIGNAL(sensitivityChanged()) );
 	emit currentAmplifierAttached();
 }
 
