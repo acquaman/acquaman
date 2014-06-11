@@ -262,7 +262,7 @@ AMNumber AM1DExpressionAB::value(const AMnDIndex& indexes) const {
 			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, e.GetCode(), explanation));
 			return AMNumber(AMNumber::InvalidError);
 		}
-                if (rv == std::numeric_limits<qreal>::infinity() || rv == -std::numeric_limits<qreal>::infinity() || rv == std::numeric_limits<qreal>::quiet_NaN() || std::isnan(rv))
+		if (rv == std::numeric_limits<qreal>::infinity() || rv == -std::numeric_limits<qreal>::infinity() || rv == std::numeric_limits<qreal>::quiet_NaN() || std::isnan(rv))
                         return 0;
 
 
@@ -337,7 +337,7 @@ bool AM1DExpressionAB::values(const AMnDIndex &indexStart, const AMnDIndex &inde
 				return false;
 			}
 
-                        if (rv == std::numeric_limits<qreal>::infinity() || rv == -std::numeric_limits<qreal>::infinity() || rv == std::numeric_limits<qreal>::quiet_NaN() || std::isnan(rv))
+			if (rv == std::numeric_limits<qreal>::infinity() || rv == -std::numeric_limits<qreal>::infinity() || rv == std::numeric_limits<qreal>::quiet_NaN() || std::isnan(rv))
 				rv = 0;
 
 			outputValues[i] = rv;

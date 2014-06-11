@@ -21,23 +21,26 @@ protected slots:
 	void onEditAmptekROIsButtonClicked();
 	void onEditAmptekConfigurationButtonClicked();
 
+	void onDetectorTemperatureChanged(double temperature);
+
 protected:
 	CLSAmptekSDD123DetectorNew *amptekDetector_;
 
 	QPushButton *editAmptekROIsButton_;
 	QPushButton *editAmptekConfigurationButton_;
 	QDoubleSpinBox *eVPerBinDoubleSpinBox_;
+	QLabel *temperatureLabel_;
 
 	AMControlEditor *fastCountsControlEditor_;
-	AMControlEditor *averageFastCountsControlEditor_;
+	//AMControlEditor *averageFastCountsControlEditor_;
 	AMControlEditor *slowCountsControlEditor_;
-	AMControlEditor *averageSlowCountsControlEditor_;
+	//AMControlEditor *averageSlowCountsControlEditor_;
 	AMControlEditor *accumulationTimeControlEditor_;
-	AMControlEditor *averageAccumulationTimeControlEditor_;
+	//AMControlEditor *averageAccumulationTimeControlEditor_;
 	AMControlEditor *realTimeControlEditor_;
-	AMControlEditor *averageRealTimeControlEditor_;
+	//AMControlEditor *averageRealTimeControlEditor_;
 	AMControlEditor *liveTimeControlEditor_;
-	AMControlEditor *averageLiveTimeControlEditor_;
+	//AMControlEditor *averageLiveTimeControlEditor_;
 
 	CLSAmptekDetectorROIView *roiView_;
 	CLSAmptekDetectorConfigurationView *configurationView_;
@@ -59,17 +62,31 @@ protected slots:
 	void onLowIndexLineEditEditingFinished(int index);
 	void onHighIndexLineEditEditingFinished(int index);
 
+	void onLowIndexDoubleSpinBoxEditingFinished(int index);
+	void onHighIndexDoubleSpinBoxEditingFinished(int index);
+
+	/// Slot for handling changes to the detectors evPerBit
+	void onDetectorEvPerBinChanged(double newValue);
+
 protected:
-	void roiEditingFinishedHelper(int index);
+	void roiLineEditingFinishedHelper(int index);
+	void roiSpinBoxEditingFinishedHelper(int index);
 
 protected:
 	CLSAmptekSDD123DetectorNew *detector_;
 
 	QList<QLineEdit*> roiLowIndexLineEdits_;
 	QList<QLineEdit*> roiHighIndexLineEdits_;
+	QList<QDoubleSpinBox*> roiLowIndexDoubleSpinBoxes_;
+	QList<QDoubleSpinBox*> roiHighIndexDoubleSpinBoxes_;
+	/// Widget for displaying the eV/bin value of the detector (declared here to allow it to be updated)
+	QLabel* roiEditModeConversionRateLabel;
 
 	QSignalMapper *roiLowIndexLineEditsMapper_;
 	QSignalMapper *roiHighIndexLineEditsMapper_;
+
+	QSignalMapper* roiLowIndexDoubleSpinBoxesMapper_;
+	QSignalMapper* roiHighIndexDoubleSpinBoxesMapper_;
 };
 
 class CLSAmptekDetectorConfigurationView : public QWidget

@@ -514,10 +514,60 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 ////		}
 ////	}
 
-////	connect(initializationAction_, SIGNAL(succeeded()), this, SLOT(onInitializationActionsSucceeded()));
-////	connect(initializationAction_, SIGNAL(failed(int)), this, SLOT(onInitializationActionsFailed(int)));
-////	connect(initializationAction_, SIGNAL(progress(double,double)), this, SLOT(onInitializationActionsProgress(double,double)));
-////	initializationAction_->start();
+//<<<<<<< HEAD
+//////	connect(initializationAction_, SIGNAL(succeeded()), this, SLOT(onInitializationActionsSucceeded()));
+//////	connect(initializationAction_, SIGNAL(failed(int)), this, SLOT(onInitializationActionsFailed(int)));
+//////	connect(initializationAction_, SIGNAL(progress(double,double)), this, SLOT(onInitializationActionsProgress(double,double)));
+//////	initializationAction_->start();
+//=======
+//	if (config_->normalPosition() != 888888.88){
+
+//		setupActionsList->appendStage(new QList<AMBeamlineActionItem*>());
+
+//		switch(config_->motor()){
+
+//		case VESPERS::H:
+//			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->createNormalMoveAction(config_->normalPosition()));
+//			break;
+
+//		case VESPERS::V:
+//			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->createNormalMoveAction(config_->normalPosition()));
+//			break;
+
+//		case VESPERS::X:
+//			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->createNormalMoveAction(config_->normalPosition()));
+//			break;
+
+//		case VESPERS::Z:
+//			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->createNormalMoveAction(config_->normalPosition()));
+//			break;
+
+//		case VESPERS::AttoH:
+//			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->createNormalMoveAction(config_->normalPosition()));
+//			break;
+
+//		case VESPERS::AttoV:
+//			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->createNormalMoveAction(config_->normalPosition()));
+//			break;
+
+//		case VESPERS::AttoX:
+//			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->createNormalMoveAction(config_->normalPosition()));
+//			break;
+
+//		case VESPERS::AttoZ:
+//			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->createNormalMoveAction(config_->normalPosition()));
+//			break;
+
+//		default:
+//			break;
+//		}
+//	}
+
+//	connect(initializationAction_, SIGNAL(succeeded()), this, SLOT(onInitializationActionsSucceeded()));
+//	connect(initializationAction_, SIGNAL(failed(int)), this, SLOT(onInitializationActionsFailed(int)));
+//	connect(initializationAction_, SIGNAL(progress(double,double)), this, SLOT(onInitializationActionsProgress(double,double)));
+//	initializationAction_->start();
+//>>>>>>> master
 
 //	return true;
 //}

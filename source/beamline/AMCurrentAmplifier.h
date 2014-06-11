@@ -22,7 +22,7 @@ public:
     QString name() const {return name_;}
 
     /// Returns whether the current amplifier is connected.
-    bool connected() const {return connected_;}
+    bool isConnected() const {return connected_;}
 
 
 signals:
@@ -35,7 +35,7 @@ signals:
     /// Notifier that the name of the current amplifier has changed.
     void nameChanged(const QString &newName);
     /// Notifier that the connection state of the current amplifier has changed.
-    void connected(bool);
+    void isConnected(bool);
 
 public slots:
     /// Sets a new name for the current amplifier.

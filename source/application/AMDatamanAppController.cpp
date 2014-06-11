@@ -19,6 +19,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "AMDatamanAppController.h"
+#include "AMAppController.h"
+
 
 #include "util/AMSettings.h"
 #include "acquaman.h"
@@ -64,12 +66,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <dataman/AMXASScan.h>
 #include <dataman/AMFastScan.h>
 #include <dataman/AMRun.h>
-#include <dataman/AMSample.h>
+#include <dataman/AMSamplePre2013.h>
 #include <dataman/AMExperiment.h>
 #include <dataman/info/AMControlInfoList.h>
 #include <dataman/info/AMOldDetectorInfoSet.h>
 #include <dataman/info/AMDetectorInfoSet.h>
-#include <dataman/AMSamplePlate.h>
+#include <dataman/AMSamplePlatePre2013.h>
 #include <dataman/info/AMSpectralOutputDetectorInfo.h>
 #include "dataman/AMUser.h"
 #include "dataman/AMXESScan.h"
@@ -82,8 +84,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
 #include "dataman/AM2DScan.h"
 #include "dataman/AM3DScan.h"
+#include "analysis/AM1DIntegralAB.h"
 #include "analysis/AM2DNormalizationAB.h"
 #include "analysis/AM1DNormalizationAB.h"
+#include "analysis/AM1DCalibrationAB.h"
 #include "analysis/AM2DAdditionAB.h"
 #include "analysis/AM3DAdditionAB.h"
 #include "analysis/AM3DBinningAB.h"
@@ -103,12 +107,20 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMDbUpgrade1Pt1.h"
 #include "dataman/AMDbUpgrade1Pt2.h"
 #include "dataman/AMDbUpgrade1Pt3.h"
+#include "dataman/AMDbUpgrade1Pt4.h"
 
 #include "dataman/database/AMDbObjectSupport.h"
 #include "ui/dataman/AMDbObjectGeneralView.h"
 #include "ui/dataman/AMDbObjectGeneralViewSupport.h"
 #include "acquaman/AM2DScanConfiguration.h"
 #include "ui/dataman/AM2DScanConfigurationGeneralView.h"
+
+#include "beamline/camera/AMCameraConfiguration.h"
+#include "beamline/camera/AMRotationalOffset.h"
+#include "beamline/camera/AMBeamConfiguration.h"
+#include "dataman/AMSample.h"
+#include "dataman/AMSamplePlate.h"
+#include "beamline/camera/AMSampleCameraBrowser.h"
 
 
 AMDatamanAppController::AMDatamanAppController(QObject *parent) :
@@ -128,10 +140,18 @@ AMDatamanAppController::AMDatamanAppController(QObject *parent) :
 	// Prepend the AM upgrade 1.1 to the list for the user database
 	AMDbUpgrade *am1Pt1UserDb = new AMDbUpgrade1Pt1("user", this);
 	prependDatabaseUpgrade(am1Pt1UserDb);
+	AMDbUpgrade *am1Pt1ActionsDb = new AMDbUpgrade1Pt1("actions", this);
+	appendDatabaseUpgrade(am1Pt1ActionsDb);
+	AMDbUpgrade *am1Pt1ScanActionsDb = new AMDbUpgrade1Pt1("scanActions", this);
+	appendDatabaseUpgrade(am1Pt1ScanActionsDb);
 
 	// Append the AM upgrade 1.2 to the list for the user database
 	AMDbUpgrade *am1Pt2UserDb = new AMDbUpgrade1Pt2("user", this);
 	appendDatabaseUpgrade(am1Pt2UserDb);
+	AMDbUpgrade *am1Pt2ActionsDb = new AMDbUpgrade1Pt2("actions", this);
+	appendDatabaseUpgrade(am1Pt2ActionsDb);
+	AMDbUpgrade *am1Pt2ScanActionsDb = new AMDbUpgrade1Pt2("scanActions", this);
+	appendDatabaseUpgrade(am1Pt2ScanActionsDb);
 
 	// Append the AM upgrade 1.3 to the list for the user, actions, and scanActions database.
 	AMDbUpgrade *am1Pt3UserDb = new AMDbUpgrade1Pt3("user", this);
@@ -140,6 +160,14 @@ AMDatamanAppController::AMDatamanAppController(QObject *parent) :
 	appendDatabaseUpgrade(am1Pt3ActionsDb);
 	AMDbUpgrade *am1Pt3ScanActionsDb = new AMDbUpgrade1Pt3("scanActions", this);
 	appendDatabaseUpgrade(am1Pt3ScanActionsDb);
+
+	// Append the AM upgrade 1.4 to the list for the user database
+	AMDbUpgrade *am1Pt4UserDb = new AMDbUpgrade1Pt4("user", this);
+	appendDatabaseUpgrade(am1Pt4UserDb);
+	AMDbUpgrade *am1Pt4ActionsDb = new AMDbUpgrade1Pt4("actions", this);
+	appendDatabaseUpgrade(am1Pt4ActionsDb);
+	AMDbUpgrade *am1Pt4ScanActionsDb = new AMDbUpgrade1Pt4("scanActions", this);
+	appendDatabaseUpgrade(am1Pt4ScanActionsDb);
 }
 
 bool AMDatamanAppController::startup() {
@@ -385,7 +413,7 @@ bool AMDatamanAppController::onFirstTimeDatabaseUpgrade(QList<AMDbUpgrade *> upg
 		}
 		// For the databases we are responsible for (not the beamline database) this needs to return false on the first time through ... otherwise things are going really bad
 		if(upgrade->isResponsibleForUpgrade() && !upgrade->upgradeRequired()){
-			AMErrorMon::alert(0, AMDATAMANAPPCONTROLLER_DB_UPGRADE_FIRSTTIME_REQUIREMENT_FAILURE, "Failure in initialization of upgrade table, there must be tracking required for new databases that the user application is responsible for");
+			AMErrorMon::alert(0, AMDATAMANAPPCONTROLLER_DB_UPGRADE_FIRSTTIME_REQUIREMENT_FAILURE, QString("Failure in initialization of upgrade table, there must be tracking required for new databases that the user application is responsible for. Database: %1 Upgrade: %2.").arg(upgrade->databaseNameToUpgrade()).arg(upgrade->upgradeToTag()));
 			return false;
 		}
 
@@ -481,7 +509,7 @@ bool AMDatamanAppController::onEveryTimeDatabaseUpgrade(QList<AMDbUpgrade *> upg
 			if(success && upgrade->upgradeNecessary()){
 				upgradeIsNecessary = true;
 				if(!upgrade->upgrade()){
-					lastErrorString = QString("Upgrade run failed for upgrade %1").arg(upgrade->upgradeToTag());
+					lastErrorString = QString("Upgrade run failed for upgrade %1 on database %2").arg(upgrade->upgradeToTag()).arg(upgrade->databaseNameToUpgrade());
 					lastErrorCode = AMDATAMANAPPCONTROLLER_DB_UPGRADE_UPGRADE_FAILURE;
 					success = false;
 				}
@@ -523,6 +551,10 @@ bool AMDatamanAppController::onEveryTimeDatabaseUpgrade(QList<AMDbUpgrade *> upg
 	return true;
 }
 
+AMDataViewWithActionButtons* AMDatamanAppController::createDataViewWithActionButtons(){
+	return new AMDataViewWithActionButtons();
+}
+
 bool AMDatamanAppController::startupRegisterDatabases()
 {
 	AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES, "Acquaman Startup: Registering Databases");
@@ -549,7 +581,7 @@ bool AMDatamanAppController::startupRegisterDatabases()
 
 	success &= AMDbObjectSupport::s()->registerClass<AMRun>();
 	success &= AMDbObjectSupport::s()->registerClass<AMExperiment>();
-	success &= AMDbObjectSupport::s()->registerClass<AMSample>();
+	success &= AMDbObjectSupport::s()->registerClass<AMSamplePre2013>();
 	success &= AMDbObjectSupport::s()->registerClass<AMFacility>();
 
 	success &= AMDbObjectSupport::s()->registerClass<AMRawDataSource>();
@@ -557,11 +589,13 @@ bool AMDatamanAppController::startupRegisterDatabases()
 	success &= AMDbObjectSupport::s()->registerClass<AM1DExpressionAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AM2DSummingAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AM1DDerivativeAB>();
+	success &= AMDbObjectSupport::s()->registerClass<AM1DIntegralAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AMExternalScanDataSourceAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AM1DSummingAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AMDeadTimeAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AM2DNormalizationAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AM1DNormalizationAB>();
+	success &= AMDbObjectSupport::s()->registerClass<AM1DCalibrationAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AM2DAdditionAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AM3DAdditionAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AM3DBinningAB>();
@@ -584,14 +618,21 @@ bool AMDatamanAppController::startupRegisterDatabases()
 	success &= AMDbObjectSupport::s()->registerClass<AMControlInfoList>();
 	success &= AMDbObjectSupport::s()->registerClass<AMOldDetectorInfoSet>();
 	success &= AMDbObjectSupport::s()->registerClass<AMDetectorInfoSet>();
-	success &= AMDbObjectSupport::s()->registerClass<AMSamplePosition>();
-	success &= AMDbObjectSupport::s()->registerClass<AMSamplePlate>();
+	success &= AMDbObjectSupport::s()->registerClass<AMSamplePositionPre2013>();
+	success &= AMDbObjectSupport::s()->registerClass<AMSamplePlatePre2013>();
 	success &= AMDbObjectSupport::s()->registerClass<AMRegionOfInterest>();
 	success &= AMDbObjectSupport::s()->registerClass<AMRegionOfInterestAB>();
 
 	success &= AMDbObjectSupport::s()->registerClass<AMExporterOptionGeneralAscii>();
 
 	success &= AMDbObjectSupport::s()->registerClass<AMUser>();
+
+	success &= AMDbObjectSupport::s()->registerClass<AMCameraConfiguration>();
+	success &= AMDbObjectSupport::s()->registerClass<AMRotationalOffset>();
+	success &= AMDbObjectSupport::s()->registerClass<AMBeamConfiguration>();
+	success &= AMDbObjectSupport::s()->registerClass<AMSample>();
+	success &= AMDbObjectSupport::s()->registerClass<AMSamplePlate>();
+	success &= AMDbObjectSupport::s()->registerClass<AMSampleCameraURL>();
 
 	success &= AMDbObjectGeneralViewSupport::registerClass<AMDbObject, AMDbObjectGeneralView>();
 	success &= AMDbObjectGeneralViewSupport::registerClass<AM2DScanConfiguration, AM2DScanConfigurationGeneralView>();
@@ -677,7 +718,8 @@ bool AMDatamanAppController::startupCreateUserInterface()
 
 	// Make a dataview widget and add it under two links/headings: "Runs" and "Experiments". See AMMainWindowModel for more information.
 	////////////////////////////////////
-	dataView_ = new AMDataViewWithActionButtons();
+	dataView_ = createDataViewWithActionButtons();
+	dataView_->buildView();
 	dataView_->setWindowTitle("Data");
 
 	QStandardItem* dataViewItem = new QStandardItem();
@@ -737,6 +779,12 @@ bool AMDatamanAppController::startupInstallActions()
 	qApp->processEvents();
 	// make/install actions:
 	/////////////////////////////////
+	QAction *saveAllAction = new QAction("Save All Scans", mw_);
+	saveAllAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_S)); //+ Qt::SHIFT
+	saveAllAction->setStatusTip("Save all unsaved scans without prompting.");
+	connect(saveAllAction, SIGNAL(triggered()), this, SLOT(saveAll()));
+
+
 	QAction* importLegacyFilesAction = new QAction("Import Legacy Files...", mw_);
 	importLegacyFilesAction->setShortcut(QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_L));
 	importLegacyFilesAction->setStatusTip("Import raw data files (not collected with Acquaman) into the library");
@@ -777,6 +825,8 @@ bool AMDatamanAppController::startupInstallActions()
 #endif
 
 	fileMenu_ = menuBar_->addMenu("File");
+	fileMenu_->addAction(saveAllAction);
+	fileMenu_->addSeparator();
 	fileMenu_->addAction(importLegacyFilesAction);
 	fileMenu_->addAction(importAcquamanDatabaseAction);
 	fileMenu_->addSeparator();
@@ -1037,6 +1087,29 @@ void AMDatamanAppController::onStartupFinished(){
 
 void AMDatamanAppController::onDataViewItemsExported(const QList<QUrl> &itemUrls)
 {
+	QMessageBox shouldSave;
+	shouldSave.setText("Save changes to open scans before exporting?");
+	shouldSave.setInformativeText("Unsaved changes will not export.");
+	shouldSave.setStandardButtons(QMessageBox::Cancel | QMessageBox::No | QMessageBox::SaveAll);
+	shouldSave.setDefaultButton(QMessageBox::SaveAll);
+	shouldSave.setEscapeButton(QMessageBox::Cancel);
+	int ret = shouldSave.exec();
+	switch (ret) {
+	  case QMessageBox::SaveAll: saveAll();
+		  // Save was clicked
+		  break;
+	  case QMessageBox::No:
+		  // Don't Save was clicked
+		  break;
+	  case QMessageBox::Cancel: return;
+		  // Cancel was clicked
+		  break;
+	  default:
+		  // should never be reached
+		  break;
+	}
+
+
 	// will delete itself when finished
 	AMExportController* exportController = new AMExportController(itemUrls);
 	AMExportWizard* wizard = new AMExportWizard(exportController);
@@ -1202,7 +1275,6 @@ bool AMDatamanAppController::dropScanURLs(const QList<QUrl> &urls, AMGenericScan
 				}
 
 				else{
-
 					if (!editor)
 						editor = createNewScanEditor();
 
@@ -1459,5 +1531,23 @@ void AMDatamanAppController::getUserDataFolderFromDialog(bool presentAsParentFol
 	if (newFolder != AMUserSettings::userDataFolder){
 		AMUserSettings::userDataFolder = newFolder;
 		AMUserSettings::save();
+	}
+}
+
+void AMDatamanAppController::saveAll(){
+
+	for(int i=0, count = scanEditorCount(); i<count; i++) {
+		AMGenericScanEditor* editor = scanEditorAt(i);
+
+		if(editor){
+			for(int i=0; i < editor->scanCount(); i++)
+			{
+				AMScan* scan =  editor->scanAt(i);
+				if(scan->database())
+					scan->storeToDb(scan->database());
+				else
+					scan->storeToDb(AMDatabase::database("user"));
+			}
+		}
 	}
 }

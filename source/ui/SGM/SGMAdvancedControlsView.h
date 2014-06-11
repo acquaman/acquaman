@@ -51,6 +51,7 @@ protected:
 	QRadioButton *selectCarbonButton_;
 	QRadioButton *selectSiliconButton_;
 	AMExtendedControlEditor *entranceSlitEditor_;
+	AMExtendedControlEditor *exitSlitEditor_;
 	QButtonGroup *endstationsAvailable_;
 	QRadioButton *scientaButton_;
 	QRadioButton *ssaButton_;

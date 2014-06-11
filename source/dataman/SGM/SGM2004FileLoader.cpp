@@ -33,7 +33,6 @@ AMBiHash<QString, QString> SGM2004FileLoader::columns2pvNames_;
 #include "analysis/AM1DExpressionAB.h"
 #include "analysis/AM2DSummingAB.h"
 
- SGM2004FileLoader::~SGM2004FileLoader(){}
 SGM2004FileLoader::SGM2004FileLoader(AMXASScan* scan) : AMAbstractFileLoader(scan)
 {
 	// this static storage can be shared across all instances, but if we're the first, need to populate it.
@@ -68,6 +67,8 @@ SGM2004FileLoader::SGM2004FileLoader(AMXASScan* scan) : AMAbstractFileLoader(sca
 	defaultUserVisibleColumns_ << "ringCurrent";
 	defaultUserVisibleColumns_ << "SDD";
 }
+
+SGM2004FileLoader::~SGM2004FileLoader(){}
 
 /// load raw data from the SGM legacy file format into a scan's data tree.  If \c extractMetaData is set to true, this will also set the 'notes' and 'dateTime' meta-data fields.  If \c createChannels is set to true, it will create some default channels based on the data columns.
 bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, bool setRawDataSources, bool createDefaultAnalysisBlocks) {
@@ -203,7 +204,7 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 	if(postSddFileOffset){
 		scan->rawData()->addMeasurement(AMMeasurementInfo("sdd_fileOffset", "sdd_fileOffset"));
 		//if(scan->rawData()->addMeasurement(AMMeasurementInfo("sdd_fileOffset", "sdd_fileOffset")))
-		//	qDebug() << "Added measurement " << scan->rawData()->measurementAt(scan->rawData()->measurementCount()-1).name;
+		//	qdebug() << "Added measurement " << scan->rawData()->measurementAt(scan->rawData()->measurementCount()-1).name;
 	}
 	int sddOffsetIndex = colNames1.indexOf("sdd_fileOffset");
 

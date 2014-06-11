@@ -59,6 +59,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/VESPERS/VESPERSDbUpgrade1Pt3.h"
 #include "dataman/VESPERS/VESPERSDbUpgrade1Pt4.h"
 #include "dataman/VESPERS/VESPERSDbUpgrade1Pt5.h"
+#include "dataman/VESPERS/VESPERSDbUpgrade1Pt6.h"
 
 #include "dataman/export/AMExportController.h"
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
@@ -119,6 +120,10 @@ VESPERSAppController::VESPERSAppController(QObject *parent) :
 	appendDatabaseUpgrade(vespers1P5UserDb);
 	AMDbUpgrade *vespers1P5ActionDb = new VESPERSDbUpgrade1Pt5("actions", this);
 	appendDatabaseUpgrade(vespers1P5ActionDb);
+	AMDbUpgrade *vespers1P6UserDb = new VESPERSDbUpgrade1Pt6("user", this);
+	appendDatabaseUpgrade(vespers1P6UserDb);
+	AMDbUpgrade *vespers1P6ActionDb = new VESPERSDbUpgrade1Pt6("actions", this);
+	appendDatabaseUpgrade(vespers1P6ActionDb);
 }
 
 bool VESPERSAppController::startup()
@@ -512,11 +517,24 @@ void VESPERSAppController::configureSingleSpectrumView(AMGenericScanEditor *edit
 
 void VESPERSAppController::onDataPositionChanged(AMGenericScanEditor *editor, const QPoint &pos)
 {
-	QString text = "Setup at: (";
-	text.append(QString::number(editor->dataPosition().x(), 'f', 3));
-	text.append(" mm, ");
-	text.append(QString::number(editor->dataPosition().y(), 'f', 3));
-	text.append(" mm)");
+	// This should always succeed because the only way to get into this function is using the 2D scan view which currently only is accessed by 2D scans.
+	VESPERS2DScanConfiguration *config = qobject_cast<VESPERS2DScanConfiguration *>(editor->currentScan()->scanConfiguration());
+
+	if (!config)
+		return;
+
+	QString text;
+
+	if (config->normalPosition() != 888888.88)
+		text = QString("Setup at (H,V,N): (%1 mm, %2 mm, %3 mm)")
+				.arg(editor->dataPosition().x(), 0, 'f', 3)
+				.arg(editor->dataPosition().y(), 0, 'f', 3)
+				.arg(config->normalPosition());
+
+	else
+		text = QString("Setup at (H,V): (%1 mm, %2 mm)")
+				.arg(editor->dataPosition().x(), 0, 'f', 3)
+				.arg(editor->dataPosition().y(), 0, 'f', 3);
 
 	QMenu popup(text, editor);
 	QAction *temp = popup.addAction(text);
@@ -565,6 +583,9 @@ void VESPERSAppController::moveImmediately(const AMGenericScanEditor *editor)
 		moveImmediatelyAction_->addSubAction(VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->createHorizontalMoveAction(editor->dataPosition().x()));
 		moveImmediatelyAction_->addSubAction(VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->createVerticalMoveAction(editor->dataPosition().y()));
 
+		if (config->normalPosition() != 888888.88)
+			moveImmediatelyAction_->addSubAction(VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->createNormalMoveAction(config->normalPosition()));
+
 		connect(moveImmediatelyAction_, SIGNAL(succeeded()), this, SLOT(onMoveImmediatelySuccess()));
 		connect(moveImmediatelyAction_, SIGNAL(failed()), this, SLOT(onMoveImmediatelyFailure()));
 		moveImmediatelyAction_->start();
@@ -575,6 +596,9 @@ void VESPERSAppController::moveImmediately(const AMGenericScanEditor *editor)
 		moveImmediatelyAction_ = new AMListAction3(new AMListActionInfo3("Move immediately", "Moves sample stage to given coordinates."), AMListAction3::Sequential);
 		moveImmediatelyAction_->addSubAction(VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->createHorizontalMoveAction(editor->dataPosition().x()));
 		moveImmediatelyAction_->addSubAction(VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->createVerticalMoveAction(editor->dataPosition().y()));
+
+		if (config->normalPosition() != 888888.88)
+			moveImmediatelyAction_->addSubAction(VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->createNormalMoveAction(config->normalPosition()));
 
 		connect(moveImmediatelyAction_, SIGNAL(succeeded()), this, SLOT(onMoveImmediatelySuccess()));
 		connect(moveImmediatelyAction_, SIGNAL(failed()), this, SLOT(onMoveImmediatelyFailure()));

@@ -30,6 +30,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "source/qjson/serializer.h"
 #include "source/qjson/parser.h"
 
+#define AMGITHUBMANAGER_NETWORK_ERROR_OCCURRED 605001
+
 class AMGithubManager : public QObject
 {
 	Q_OBJECT
@@ -93,7 +95,6 @@ protected slots:
 	void onCreateNewIssueReturned();
 
 	void onSomeErrorOccured(QNetworkReply::NetworkError nError);
-	//void onSomeSSLErrorOccurred(QList<QSslError> sslErrors);
 
 protected:
 	/// Helper method that intializes all of the classes member variables.

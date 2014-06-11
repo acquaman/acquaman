@@ -37,6 +37,8 @@ public:
 	QString SGMDataFolder() const;
 	/// Name of SGM Beamline database
 	QString SGMDatabaseFilename() const;
+	/// Name of the SGM Beamline public database
+	QString SGMPublicDatabaseFilename() const;
 
 	/// Load settings from disk
 	void load();
@@ -45,11 +47,12 @@ public:
 
 protected:
 	/// This is a singleton class, so the constructor is protected
- 	virtual ~SGMSettings();
 	SGMSettings() : mutex_(QReadWriteLock::Recursive) {}
+	virtual ~SGMSettings();
 
 	QString SGMDataFolder_;
 	QString SGMDatabaseFilename_;
+	QString SGMPublicDatabaseFilename_;
 
 	// thread saftey
 	mutable QReadWriteLock mutex_;

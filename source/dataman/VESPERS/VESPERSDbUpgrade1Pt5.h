@@ -45,17 +45,18 @@ class VESPERSDbUpgrade1Pt5 : public AMDbUpgrade
 	Q_OBJECT
 
 public:
-	/// Constructor. need to proive the name of the database to upgrade.
- 	virtual ~VESPERSDbUpgrade1Pt5();
+	/// Constructor. Need to provide the name of the database to upgrade.
 	VESPERSDbUpgrade1Pt5(const QString &databaseNameToUpgrade, QObject *parent = 0);
+	/// Destructor.
+	virtual ~VESPERSDbUpgrade1Pt5();
 
-	/// Indicates the dependicies of this upgrade.  This requires all of the previous upgrades to have been performed already (1.1-1.4).
+	/// Indicates the dependencies of this upgrade.  This requires all of the previous upgrades to have been performed already (1.1-1.4).
 	virtual QStringList upgradeFromTags() const;
 
 	/// Returns true.  ALL modifications to the structure of the database need to be performed.
 	virtual bool upgradeNecessary() const;
 
-	/// Makes all the chagnes outlined in the class description.
+	/// Makes all the changes outlined in the class description.
 	virtual bool upgradeImplementation();
 
 	/// Creates a new copy of this upgrade (caller is responsible for memory).

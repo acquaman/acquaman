@@ -20,6 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMDbObject.h"
 #include "dataman/database/AMDbObjectSupport.h"
+#include "dataman/database/AMConstDbObject.h"
 #include "acquaman.h"
 #include "util/AMErrorMonitor.h"
 
@@ -28,8 +29,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QVector3D>
 #include <QtConcurrentRun>
 #include <QStringBuilder>
-
-AMDbThumbnail::~AMDbThumbnail(){}
 
 // Default constructor
 AMDbThumbnail::AMDbThumbnail(const QString& Title, const QString& Subtitle, ThumbnailType Type, const QByteArray& ThumbnailData)
@@ -58,7 +57,7 @@ AMDbThumbnail::AMDbThumbnail(const QString& Title, const QString& Subtitle, cons
 	}
 }
 
-
+AMDbThumbnail::~AMDbThumbnail(){}
 
 QString AMDbThumbnail::typeString() const {
 	switch(type) {
@@ -72,10 +71,9 @@ QString AMDbThumbnail::typeString() const {
 	}
 }
 
-AMDbObject::~AMDbObject(){}
-
 AMDbObject::AMDbObject(QObject *parent) : QObject(parent) {
 	isReloading_ = false;
+	isStoring_ = false;
 	id_ = 0;
 	database_ = 0;
 	modified_ = true;
@@ -86,11 +84,14 @@ AMDbObject::AMDbObject(QObject *parent) : QObject(parent) {
 
 AMDbObject::AMDbObject(const AMDbObject &original) : QObject() {
 	isReloading_ = false;
+	isStoring_ = false;
 	id_ = original.id_;
 	database_ = original.database_;
 	modified_ = original.modified_;
 	name_ = original.name_;
 }
+
+AMDbObject::~AMDbObject(){}
 
 AMDbObject& AMDbObject::operator=(const AMDbObject& other) {
 	if(this != &other) {
@@ -120,6 +121,10 @@ QMap<QString, AMDbLoadErrorInfo*> AMDbObject::loadingErrors() const{
 
 bool AMDbObject::isReloading() const{
 	return isReloading_;
+}
+
+bool AMDbObject::isStoring() const{
+	return isStoring_;
 }
 
 // returns the name of the database table where objects like this should be/are stored
@@ -163,6 +168,9 @@ bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 			return false;
 		}
 	}
+
+	isStoring_ = true;
+
 	// If this object has never been stored to this database before, we could optimize some things.
 	bool neverSavedHere = (id()<1 || db !=database());
 
@@ -177,12 +185,12 @@ bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 	//////////////////////////////////////////////////
 	for(int i=0; i<myInfo->columnCount; i++) {
 
-		int columnType = myInfo->columnTypes.at(i);
+        int columnType = myInfo->columnTypes.at(i);
 		QByteArray columnNameBA = myInfo->columns.at(i).toAscii();
-		const char* columnName = columnNameBA.constData();
+        const char* columnName = columnNameBA.constData();
 
 		// add column name to key list... UNLESS the type is an AMDbObjectList. In that case, it gets its own table instead of a column.
-		if(columnType != qMetaTypeId<AMDbObjectList>())
+		if(columnType != qMetaTypeId<AMDbObjectList>() && columnType != qMetaTypeId<AMConstDbObjectList>())
 			keys << myInfo->columns.at(i);
 
 		// add value to values list. First, some special processing is needed for StringList, IntList, and DoubleList types, to join their values into a single string. Other property types simply get written out in their native QVariant form. EXCEPTION: AMDbObjectList doesn't get written here; it gets its own table later.
@@ -219,8 +227,27 @@ bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 			values << resultString.join(AMDbObjectSupport::listSeparator());
 		}
 
+		else if(columnType == qMetaTypeId<AMQVector3DVector>()) {
+			AMQVector3DVector vectorList = property(columnName).value<AMQVector3DVector>();
+			QStringList resultString;
+			foreach(QVector3D d, vectorList)
+				resultString << QString("%1%2%3%2%4").arg(d.x()).arg(AMDbObjectSupport::listSeparator()).arg(d.y()).arg(d.z());
+			values << resultString.join(AMDbObjectSupport::vectorSeparator());
+		}
+
+
 		else if(columnType == QVariant::StringList || columnType == QVariant::List) {	// string lists, or lists of QVariants that can (hopefully) be converted to strings.
 			values << property(columnName).toStringList().join(AMDbObjectSupport::stringListSeparator());
+		}
+
+		else if(columnType == qMetaTypeId<AMConstDbObject*>()){
+			AMConstDbObject *constObject = property(columnName).value<AMConstDbObject*>();
+			if(constObject && !constObject->tableName().isEmpty() && constObject->id() > 0 && db != constObject->database())
+				values << QString("%1%2%3%4%5%6").arg("|$^$|").arg(constObject->database()->connectionName()).arg("|$^$|").arg(constObject->tableName()).arg(AMDbObjectSupport::listSeparator()).arg(constObject->id());
+			else if(constObject && !constObject->tableName().isEmpty() && constObject->id() > 0)
+				values << QString("%1%2%3").arg(constObject->tableName()).arg(AMDbObjectSupport::listSeparator()).arg(constObject->id());
+			else
+				values << QString();
 		}
 
 		// special case: pointers to AMDbObjects: we actually store the object in the database, and then store a string "tableName;id"... which will let us re-load it later.
@@ -228,10 +255,17 @@ bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 			AMDbObject* obj = property(columnName).value<AMDbObject*>();
 			if(obj && obj!=this) {	// if its a valid object, and not ourself (avoid recursion)
 
+				// NBTA David Aug 23, 2013
+				bool constStore = (AMDbObjectSupport::dbPropertyAttribute(metaObject(), columnName, "constStore") == QString("true"));
 				// Handle situations where the object to be stored is already stored in another database (use redirection)
 				if(obj->database() && (obj->database() != db) ){
-					if(!obj->modified() && (obj->id() >= 1) )
+
+					if( (!obj->modified() && (obj->id() >= 1)) ||  constStore){
+//						if(obj->modified() && constStore)
+//							qdebug() << "Found a case where constStore is necessary because the object is modified";
+
 						values << QString("%1%2%3%4%5%6").arg("|$^$|").arg(obj->database()->connectionName()).arg("|$^$|").arg(obj->dbTableName()).arg(AMDbObjectSupport::listSeparator()).arg(obj->id());
+					}
 					else{
 						if(obj->storeToDb(obj->database()))
 							values << QString("%1%2%3%4%5%6").arg("|$^$|").arg(obj->database()->connectionName()).arg("|$^$|").arg(obj->dbTableName()).arg(AMDbObjectSupport::listSeparator()).arg(obj->id());
@@ -240,7 +274,9 @@ bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 					}
 				}
 
-				else if(!obj->modified() && obj->database()==db && obj->id() >=1){	// if it's not modified, and already part of this database... don't need to store it. Just remember where it is...
+				else if( (!obj->modified() && obj->database()==db && obj->id() >=1) || constStore){	// if it's not modified, and already part of this database... don't need to store it. Just remember where it is...
+//					if(obj->modified() && constStore)
+//						qdebug() << "Found a case where constStore is necessary because the object is modified";
 					values << QString("%1%2%3").arg(obj->dbTableName()).arg(AMDbObjectSupport::listSeparator()).arg(obj->id());
 				}
 				else {
@@ -255,7 +291,7 @@ bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 		}
 
 		// special case: lists of AMDbObject pointers. Interpreted as a one-to-many (or maybe many-to-many) relationship.
-		else if(columnType == qMetaTypeId<AMDbObjectList>()) {
+		else if(columnType == qMetaTypeId<AMDbObjectList>() || columnType == qMetaTypeId<AMConstDbObjectList>()) {
 			// don't do anything here. Instead, we'll save all the objects, and add their location entries, once we know our id
 			// most importantly, DON'T add anything to values, since we didn't add a matching key.
 		}
@@ -290,6 +326,7 @@ bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 		if(openedTransaction)
 			db->rollbackTransaction();	// this is good for consistency. Even all the child object changes will be reverted if this save failed.
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, AMDBOBJECT_CANNOT_STORE_TO_DB_INSERT_OR_UPDATE_FAILED, QString("Could not store to db (%1), the insert or update call failed. Please report this problem to the Acquaman developers.").arg(db->connectionName())));
+		isStoring_ = false;
 		return false;
 	}
 
@@ -308,8 +345,10 @@ bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 
 			AMDbObjectList objList = property(columnName).value<AMDbObjectList>();
 			QString auxTableName = myInfo->tableName + "_" + myInfo->columns.at(i);
-			// delete old entries for this object and property:
-			db->deleteRows(auxTableName, QString("id1 = '%1'").arg(id()));
+			// delete old entries for this object and property if necessary:
+			QList<int> matchList = db->objectsMatching(auxTableName, "id1", id());
+			if(matchList.count() > 0)
+				db->deleteRows(auxTableName, QString("id1 = '%1'").arg(id()));
 
 			QStringList clist;
 			clist << "id1" << "table1" << "id2" << "table2";
@@ -334,6 +373,29 @@ bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 				}
 			}
 		}
+		else if(myInfo->columnTypes.at(i) == qMetaTypeId<AMConstDbObjectList>()){
+			QByteArray columnNameBA = myInfo->columns.at(i).toAscii();
+			const char* columnName = columnNameBA.constData();
+
+			AMConstDbObjectList objList = property(columnName).value<AMConstDbObjectList>();
+			QString auxTableName = myInfo->tableName + "_" + myInfo->columns.at(i);
+			// delete old entries for this object and property if necessary:
+			QList<int> matchList = db->objectsMatching(auxTableName, "id1", id());
+			if(matchList.count() > 0)
+				db->deleteRows(auxTableName, QString("id1 = '%1'").arg(id()));
+
+			QStringList clist;
+			clist << "id1" << "table1" << "id2" << "table2";
+			QVariantList vlist;
+			vlist << id() << myInfo->tableName << int(0) << "tableName2";	// int(0) and "tableName2" are dummy variables for now.
+			foreach(AMConstDbObject* constObject, objList) {
+				if(constObject){
+					vlist[2] = constObject->id();
+					vlist[3] = constObject->tableName();
+					db->insertOrUpdate(0, auxTableName, clist, vlist);
+				}
+			}
+		}
 	}
 
 
@@ -354,11 +416,14 @@ bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 			if(shouldGenerateThumbnailsInSeparateThread() && generateThumbnails && thumbnailCount() > 0) {
 				QtConcurrent::run(&AMDbObject::updateThumbnailsInSeparateThread, db, id_, myInfo->tableName, neverSavedHere);
 			}
+			isStoring_ = false;
+			emit storedToDb();
 			return true;
 		}
 		else {
 			db->rollbackTransaction();
 			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, AMDBOBJECT_CANNOT_COMPLETE_TRANSACTION_TO_SAVE_OBJECT, "Could not commit a transaction to save the object '" % myInfo->tableName % ":" % QString::number(id()) % "' in the database. Please report this problem to the Acquaman developers."));
+			isStoring_ = false;
 			return false;
 		}
 	}
@@ -370,15 +435,15 @@ bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 		if(shouldGenerateThumbnailsInSeparateThread() && generateThumbnails && thumbnailCount() > 0) {
 			QtConcurrent::run(&AMDbObject::updateThumbnailsInSeparateThread, db, id_, myInfo->tableName, neverSavedHere);
 		}
+		isStoring_ = false;
+		emit storedToDb();
 		return true;
 	}
 }
 
 
-
 // load a AMDbObject (set its properties) by retrieving it based on id.
 bool AMDbObject::loadFromDb(AMDatabase* db, int sourceId) {
-
 	// All valid database id's start at 1. This is an optimization to omit the db query if it won't find anything.
 	if(sourceId < 1){
 		AMErrorMon::debug(this, AMDBOBJECT_CANNOT_LOAD_FROM_DB_INVALID_ID, "Could not load from database, the database id is invalid. Please report this problem to the Acquaman developers.");
@@ -397,7 +462,7 @@ bool AMDbObject::loadFromDb(AMDatabase* db, int sourceId) {
 	// optimization: not necessary to retrieve anything with the doNotLoad attribute set. Also, if the type is AMDbObjectList, there is no actual database column for this "column"... instead, its an auxiliary table.
 	QStringList keys;	// keys is the set of database columns to retrieve; all the columns that are loadable, and are not of type AMDbObjectList.
 	for(int i=0; i<myInfo->columnCount; i++)
-		if(myInfo->columnTypes.at(i) != qMetaTypeId<AMDbObjectList>() && myInfo->isLoadable.at(i))
+		if(myInfo->columnTypes.at(i) != qMetaTypeId<AMDbObjectList>() && myInfo->columnTypes.at(i) != qMetaTypeId<AMConstDbObjectList>() && myInfo->isLoadable.at(i))
 			keys << myInfo->columns.at(i);
 
 	QVariantList values = db->retrieve( sourceId, myInfo->tableName, keys);
@@ -427,43 +492,89 @@ bool AMDbObject::loadFromDb(AMDatabase* db, int sourceId) {
 		// special action necessary to convert StringList, IntList, and DoubleList types which have been returned as strings, as well as re-load AMDbObjects or lists of AMDbObjects that are owned by this object. Determine based on column type:
 
 		// if its an AMDbObjectList property, it doesn't have an actual column. Look in the auxiliary table instead.
-		if(columnType == qMetaTypeId<AMDbObjectList>()) {
-			// grab current AMDbObjectList using property() and check if existing count and types match. In that case, can call loadFromDb() on each of them.
-			// otherwise, create new objects with createAndLoadObjectAt(), and then call setProperty().
-			AMDbObjectList reloadedObjects;
-			AMDbObjectList existingObjects = property(columnName).value<AMDbObjectList>();
+		if(columnType == qMetaTypeId<AMDbObjectList>() || columnType == qMetaTypeId<AMConstDbObjectList>()) {
 
-			QString auxTableName = myInfo->tableName + "_" + myInfo->columns.at(i);
-			QList<int> storedObjectRows = db->objectsMatching(auxTableName, "id1", id());
+			if(columnType == qMetaTypeId<AMDbObjectList>()){
+				// grab current AMDbObjectList using property() and check if existing count and types match. In that case, can call loadFromDb() on each of them.
+				// otherwise, create new objects with createAndLoadObjectAt(), and then call setProperty().
+				AMDbObjectList reloadedObjects;
+				AMDbObjectList existingObjects = property(columnName).value<AMDbObjectList>();
 
-			bool canUseExistingObjects = (storedObjectRows.count() == existingObjects.count());	// one prereq for reloading using existing objects: count is the same.
-			QStringList storedObjectTables;
-			QList<int> storedObjectIds;
-			QStringList clist;  clist << "id2" << "table2";
-			for(int r=0; r<storedObjectRows.count(); r++) {
-				QVariantList objectLocation = db->retrieve(storedObjectRows.at(r), auxTableName, clist);
-				if(objectLocation.isEmpty()){
-					AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, AMDBOBJECT_CANNOT_LOAD_FROM_DB_AMDBOBJECTLIST_TABLE_LOCATION_INVALID, "Could not load from database, the request to get an AMDbObjectList points to an invalid table location. Please report this problem to the Acquaman developers."));
-					return false;
+				QString auxTableName = myInfo->tableName + "_" + myInfo->columns.at(i);
+				QList<int> storedObjectRows = db->objectsMatching(auxTableName, "id1", id());
+
+				bool canUseExistingObjects = (storedObjectRows.count() == existingObjects.count());	// one prereq for reloading using existing objects: count is the same.
+				QStringList storedObjectTables;
+				QList<int> storedObjectIds;
+				QStringList clist;  clist << "id2" << "table2";
+				for(int r=0; r<storedObjectRows.count(); r++) {
+					QVariantList objectLocation = db->retrieve(storedObjectRows.at(r), auxTableName, clist);
+					if(objectLocation.isEmpty()){
+						AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, AMDBOBJECT_CANNOT_LOAD_FROM_DB_AMDBOBJECTLIST_TABLE_LOCATION_INVALID, "Could not load from database, the request to get an AMDbObjectList points to an invalid table location. Please report this problem to the Acquaman developers."));
+						isReloading_ = false;
+						return false;
+					}
+					QString objectTable = objectLocation.at(1).toString();
+					int objectId = objectLocation.at(0).toInt();
+					storedObjectTables << objectTable;
+					storedObjectIds << objectId;
+
+					// second prereq for re-using existing objects is that current types and stored types match.
+					canUseExistingObjects = (canUseExistingObjects &&
+								 existingObjects.at(r)->type() == AMDbObjectSupport::typeOfObjectAt(db, objectTable, objectId) );
 				}
-				QString objectTable = objectLocation.at(1).toString();
-				int objectId = objectLocation.at(0).toInt();
-				storedObjectTables << objectTable;
-				storedObjectIds << objectId;
 
-				// second prereq for re-using existing objects is that current types and stored types match.
-				canUseExistingObjects = (canUseExistingObjects &&
-										 existingObjects.at(r)->type() == AMDbObjectSupport::typeOfObjectAt(db, objectTable, objectId) );
+				if(canUseExistingObjects) {
+					for(int r=0; r<existingObjects.count(); r++)
+						existingObjects.at(r)->loadFromDb(db, storedObjectIds.at(r));
+				}
+				else {
+					for(int r=0; r<storedObjectIds.count(); r++)
+						reloadedObjects << AMDbObjectSupport::s()->createAndLoadObjectAt(db, storedObjectTables.at(r), storedObjectIds.at(r));
+					setProperty(columnName, QVariant::fromValue(reloadedObjects));
+				}
 			}
+			else if(columnType == qMetaTypeId<AMConstDbObjectList>()){
+				// grab current AMDbObjectList using property() and check if existing count and types match. In that case, can call loadFromDb() on each of them.
+				// otherwise, create new objects with createAndLoadObjectAt(), and then call setProperty().
+				AMConstDbObjectList reloadedObjects;
+				AMConstDbObjectList existingObjects = property(columnName).value<AMConstDbObjectList>();
 
-			if(canUseExistingObjects) {
-				for(int r=0; r<existingObjects.count(); r++)
-					existingObjects.at(r)->loadFromDb(db, storedObjectIds.at(r));
-			}
-			else {
-				for(int r=0; r<storedObjectIds.count(); r++)
-					reloadedObjects << AMDbObjectSupport::s()->createAndLoadObjectAt(db, storedObjectTables.at(r), storedObjectIds.at(r));
-				setProperty(columnName, QVariant::fromValue(reloadedObjects));
+				QString auxTableName = myInfo->tableName + "_" + myInfo->columns.at(i);
+				QList<int> storedObjectRows = db->objectsMatching(auxTableName, "id1", id());
+
+				bool canUseExistingObjects = (storedObjectRows.count() == existingObjects.count());	// one prereq for reloading using existing objects: count is the same.
+				QStringList storedObjectTables;
+				QList<int> storedObjectIds;
+				QStringList clist;  clist << "id2" << "table2";
+				for(int r=0; r<storedObjectRows.count(); r++) {
+					QVariantList objectLocation = db->retrieve(storedObjectRows.at(r), auxTableName, clist);
+					if(objectLocation.isEmpty()){
+						AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, AMDBOBJECT_CANNOT_LOAD_FROM_DB_AMCONSTDBOBJECTLIST_TABLE_LOCATION_INVALID, "Could not load from database, the request to get an AMConstDbObjectList points to an invalid table location. Please report this problem to the Acquaman developers."));
+						isReloading_ = false;
+						return false;
+					}
+					QString objectTable = objectLocation.at(1).toString();
+					int objectId = objectLocation.at(0).toInt();
+					storedObjectTables << objectTable;
+					storedObjectIds << objectId;
+
+//					// second prereq for re-using existing objects is that current types and stored types match.
+//					canUseExistingObjects = (canUseExistingObjects &&
+//								 existingObjects.at(r)->type() == AMDbObjectSupport::typeOfObjectAt(db, objectTable, objectId) );
+				}
+
+				if(canUseExistingObjects) {
+					for(int r=0; r<existingObjects.count(); r++)
+						existingObjects.at(r)->setLazyLoadingInfo(db, storedObjectTables.at(r), storedObjectIds.at(r));
+//						existingObjects.at(r)->loadFromDb(db, storedObjectIds.at(r));
+				}
+				else {
+					for(int r=0; r<storedObjectIds.count(); r++)
+						reloadedObjects << new AMConstDbObject(db, storedObjectTables.at(r), storedObjectIds.at(r));
+//						reloadedObjects << AMDbObjectSupport::s()->createAndLoadObjectAt(db, storedObjectTables.at(r), storedObjectIds.at(r));
+					setProperty(columnName, QVariant::fromValue(reloadedObjects));
+				}
 			}
 		}
 		// in all other cases, we're using up actual columns in the result set, so ri should be incremented after all of these:
@@ -480,6 +591,7 @@ bool AMDbObject::loadFromDb(AMDatabase* db, int sourceId) {
 					databaseToUse = AMDatabase::database(databaseName);
 					if(!databaseToUse){
 						AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, AMDBOBJECT_CANNOT_LOAD_FROM_DB_BAD_DB_REDIRECT, QString("Could not load from database, id %1 in table %2 (%3 database) attempted to redirect to a bad database named %4. Please report this problem to the Acquaman developers.").arg(sourceId).arg(myInfo->tableName).arg(db->connectionName()).arg(databaseName)));
+						isReloading_ = false;
 						return false;	// bad redirection to another database
 					}
 				}
@@ -508,6 +620,37 @@ bool AMDbObject::loadFromDb(AMDatabase* db, int sourceId) {
 				else
 					setProperty(columnName, QVariant::fromValue((AMDbObject*)0));	// if it wasn't reloaded successfully, you'll still get a setProperty call, but it will be with a null pointer.
 
+			}
+			else if(columnType == qMetaTypeId<AMConstDbObject*>()){
+				// Determine the database to load from, in case this is a redirected object
+				AMDatabase *databaseToUse;
+				QString columnValue = values.at(ri).toString();
+				if(columnValue.contains("|$^$|") && values.at(ri).toString().count("|$^$|") == 2 ){ // check to determine if this AMDbObject is actually in a differen database (in case this is in the actions database and some information it needs is in the user database)
+					QString databaseName = columnValue.split("|$^$|").at(1);
+					columnValue = columnValue.split("|$^$|").last();
+					databaseToUse = AMDatabase::database(databaseName);
+					if(!databaseToUse){
+						AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, AMDBOBJECT_CANNOT_LOAD_FROM_DB_BAD_CONSTDB_REDIRECT, QString("Could not load constDbObject from database, id %1 in table %2 (%3 database) attempted to redirect to a bad database named %4. Please report this problem to the Acquaman developers.").arg(sourceId).arg(myInfo->tableName).arg(db->connectionName()).arg(databaseName)));
+						isReloading_ = false;
+						return false;	// bad redirection to another database
+					}
+				}
+				else // not a redirected object
+					databaseToUse = db;
+
+				AMConstDbObject *constObject = 0;
+
+//				QString columnValue = values.at(ri).toString();
+				QStringList objectLocation = columnValue.split(AMDbObjectSupport::listSeparator());	// location was saved as string: "tableName;id"
+				if(objectLocation.count() == 2) {
+					QString tableName = objectLocation.at(0);
+					int dbId = objectLocation.at(1).toInt();
+					constObject = new AMConstDbObject(databaseToUse, tableName, dbId);
+				}
+				else
+					constObject = new AMConstDbObject(0);
+
+				setProperty(columnName, QVariant::fromValue(constObject));
 			}
 			else if(columnType == qMetaTypeId<AMnDIndex>()) {
 				AMnDIndex ndIndex;
@@ -539,6 +682,25 @@ bool AMDbObject::loadFromDb(AMDatabase* db, int sourceId) {
 				else
 					AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, AMDBOBJECT_3D_POINT_MISSING_3_NUMBERS, "Couldn't find 3 numbers when attempting to load a 3D geometry point from the database."));
 				setProperty(columnName, QVariant::fromValue(vector));
+			}
+			else if(columnType == qMetaTypeId<AMQVector3DVector>())
+			{
+				AMQVector3DVector vector3DList;
+				QStringList stringList = values.at(ri).toString().split(AMDbObjectSupport::vectorSeparator(), QString::SkipEmptyParts);
+				foreach(QString i, stringList){
+					QStringList subList = i.split(AMDbObjectSupport::listSeparator());
+					QVector3D vector;
+					if(subList.size() == 3)
+					{
+						vector = QVector3D(subList.at(0).toDouble(), subList.at(1).toDouble(), subList.at(2).toDouble());
+					}
+					else
+					{
+						AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, AMDBOBJECT_3D_POINT_MISSING_3_NUMBERS_IN_AMQVECTOR3DVECTOR, "Couldn't find 3 numbers when attempting to load a 3D geometry point for an AMQVector3DVector from the database."));
+					}
+					vector3DList<<vector;
+				}
+				setProperty(columnName, QVariant::fromValue(vector3DList));
 			}
 			else if(columnType == QVariant::StringList || columnType == QVariant::List) {	// string list, and anything-else-lists saved as string lists: must convert back from separated string.
 				setProperty(columnName, values.at(ri).toString().split(AMDbObjectSupport::stringListSeparator(), QString::SkipEmptyParts));
@@ -636,7 +798,7 @@ void AMDbObject::updateThumbnailsInSeparateThread(AMDatabase *db, int id, const 
 	for(int i=0; i<thumbsCount; i++)
 		thumbnails << object->thumbnail(i);
 
-	qDebug() << object->type() << "took" << renderTime.elapsed() << "ms to create thumbnails for saving.";
+	AMErrorMon::debug(0, AMDBOBJECT_DEBUG_OUTPUT, QString("%1 took %2ms to create thumbnails for saving.").arg(object->type()).arg(renderTime.elapsed()) );
 
 	QCoreApplication::postEvent(AMDbObjectSupport::s(), new AMDbThumbnailsGeneratedEvent(thumbnails, db, dbTableName, id, neverSavedHereBefore));
 
@@ -683,14 +845,14 @@ void AMDbObject::updateThumbnailsInCurrentThread(bool neverSavedHereBefore)
 		reuseThumbnailIds = (existingThumbnailIds.count() == thumbsCount);	// can reuse if the number of old and new ones matches.
 		// need to check that the existingThumbnailIds are consecutive as well... ie: in a sequential block. Otherwise can't reuse them.
 		// normally this is the case, unless we've forgotten / orphaned some. Doesn't hurt to check.
-		if(reuseThumbnailIds) {
-			for(int i=1; i<existingThumbnailIds.count(); i++) {
-				if(existingThumbnailIds.at(i) != existingThumbnailIds.at(i-1)+1) {
-					reuseThumbnailIds = false;
-					break;
-				}
-			}
-		}
+//		if(reuseThumbnailIds) {
+//			for(int i=1; i<existingThumbnailIds.count(); i++) {
+//				if(existingThumbnailIds.at(i) != existingThumbnailIds.at(i-1)+1) {
+//					reuseThumbnailIds = false;
+//					break;
+//				}
+//			}
+//		}
 
 		// If we shouldn't reuse existing rows in the thumbnail table: delete old before appending new ones.
 		if(!reuseThumbnailIds) {

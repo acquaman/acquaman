@@ -7,6 +7,8 @@
 #include "beamline/AMControl.h"
 #include "actions3/AMAction3.h"
 
+class AMMotorGroupObjectView;
+
 /// The object that contains all the information necessary for viewing.  Contains extra information and a logical grouping for up to three controls.
 class AMMotorGroupObject : public QObject
 {
@@ -14,7 +16,7 @@ class AMMotorGroupObject : public QObject
 
 public:
 	/// Enum for the orientation of motor.
-	enum Orientation { Horizontal = 0, Vertical, Normal };
+	enum Orientation { Horizontal = 0, Vertical, Normal, Other };
 	/// Enum for the motion type of the motor.
 	enum MotionType { None = -1, Translational = 0, Rotational = 1 };
 
@@ -100,6 +102,8 @@ public:
 	AMAction3 *createNormalStopAction();
 	/// Returns a newly created action that stops ALL the motors.  Returns 0 if not all motors are connected.
 	AMAction3 *createStopAllAction();
+
+	virtual AMMotorGroupObjectView *createMotorGroupObjectView();
 
 protected:
 	/// Holds the name of the info.

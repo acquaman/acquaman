@@ -67,9 +67,9 @@ bool AMExporter::openFile(QFile* file, const QString& filePath) {
 	else if (fileExists && overwriteAll_ == Default){
 
 		QMessageBox::StandardButton button = QMessageBox::question(0, "Overwrite file?",
-																   QString("%1 already exists.  Do you want to overwrite this file?").arg(filePath.split("/").last()),
-																   QMessageBox::Yes | QMessageBox::No | QMessageBox::YesToAll | QMessageBox::NoToAll,
-																   QMessageBox::Yes);
+									   QString("%1 already exists.  Do you want to overwrite this file?").arg(filePath.split("/").last()),
+									   QMessageBox::Yes | QMessageBox::No | QMessageBox::YesToAll | QMessageBox::NoToAll,
+									   QMessageBox::Yes);
 
 
 		if (button == QMessageBox::YesToAll)
@@ -398,14 +398,14 @@ QString AMExporter::krSampleName(const QString& arg) {
 	return currentScan_->sampleName();
 }
 
-#include "dataman/AMSample.h"
+#include "dataman/AMSamplePre2013.h"
 
 QString AMExporter::krSampleElements(const QString& arg) {
 	Q_UNUSED(arg)
 	if(!currentScan_)
 		return "[??]";
 
-	AMSample s;
+	AMSamplePre2013 s;
 	s.loadFromDb(currentScan_->database(), currentScan_->sampleId());
 	return s.elementString();
 }
@@ -414,7 +414,7 @@ QString AMExporter::krSampleCreationDate(const QString& arg) {
 	if(!currentScan_)
 		return "[??]";
 
-	AMSample s;
+	AMSamplePre2013 s;
 	s.loadFromDb(currentScan_->database(), currentScan_->sampleId());
 
 	if(arg.isEmpty())
@@ -428,7 +428,7 @@ QString AMExporter::krSampleNotes(const QString& arg) {
 	if(!currentScan_)
 		return "[??]";
 
-	AMSample s;
+	AMSamplePre2013 s;
 	s.loadFromDb(currentScan_->database(), currentScan_->sampleId());
 	return s.notes();
 }
@@ -527,16 +527,6 @@ QString AMExporter::krDataSourceInfoDescription(const QString &dataSourceName) {
 
 	AMDataSource* ds = currentScan_->dataSourceAt(dataSourceIndex);
 	return ds->infoDescription();
-	/*
- if(ds->infoDescription().isEmpty()){
-  qDebug() << "No info description, using name";
-  return ds->name();
- }
- else{
-  qDebug() << "Found info description";
-  return ds->infoDescription();
- }
- */
 }
 
 QString AMExporter::krDataSourceAxisValue(const QString& dataSourceName) {

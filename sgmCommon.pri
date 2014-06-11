@@ -55,6 +55,9 @@ HEADERS += \
 	source/beamline/SGM/SGMOptimizationSupport.h \
 	source/ui/SGM/SGMAdvancedControlsView.h \
 	source/ui/SGM/SGMPeriodicTableView.h \
+	source/ui/SGM/SGMSampleManipulatorMotorGroupView.h \
+	source/beamline/SGM/SGMSampleManipulatorMotorGroup.h \
+	source/ui/SGM/SGMSampleManagementView.h \
 	source/ui/util/SGM/SGMFastScanParametersView.h \
 	source/acquaman/SGM/SGMXASScanActionController.h \
 	source/acquaman/SGM/SGMScanConfiguration2013.h \
@@ -66,7 +69,9 @@ HEADERS += \
 	source/acquaman/SGM/SGMFastScanConfiguration2013.h \
 	source/ui/SGM/SGMFastScanConfiguration2013View.h \
 	source/ui/SGM/SGMAdvancedMirrorView.h \
-	source/ui/SGM/SGMSIS3820ScalerView.h
+	source/ui/SGM/SGMSIS3820ScalerView.h \
+	source/ui/dataman/AMScanSearchView.h \
+	source/ui/SGM/SGMDataViewWithActionButtons.h
 
 SOURCES += \
 	source/application/SGM/SGMAppController.cpp \
@@ -93,6 +98,9 @@ SOURCES += \
 	source/beamline/SGM/SGMOptimizationSupport.cpp \
 	source/ui/SGM/SGMAdvancedControlsView.cpp \
 	source/ui/SGM/SGMPeriodicTableView.cpp \
+	source/ui/SGM/SGMSampleManipulatorMotorGroupView.cpp \
+	source/beamline/SGM/SGMSampleManipulatorMotorGroup.cpp \
+	source/ui/SGM/SGMSampleManagementView.cpp \
 	source/ui/util/SGM/SGMFastScanParametersView.cpp \
 	source/acquaman/SGM/SGMXASScanActionController.cpp \
 	source/acquaman/SGM/SGMScanConfiguration2013.cpp \
@@ -104,4 +112,6 @@ SOURCES += \
 	source/acquaman/SGM/SGMFastScanConfiguration2013.cpp \
 	source/ui/SGM/SGMFastScanConfiguration2013View.cpp \
 	source/ui/SGM/SGMAdvancedMirrorView.cpp \
-	source/ui/SGM/SGMSIS3820ScalerView.cpp
+	source/ui/SGM/SGMSIS3820ScalerView.cpp \
+	source/ui/dataman/AMScanSearchView.cpp \
+	source/ui/SGM/SGMDataViewWithActionButtons.cpp

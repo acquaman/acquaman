@@ -555,9 +555,16 @@ void AMThumbnailScrollGraphicsWidget::setSource(AMDatabase* db, int startId, int
 	objectId_ = -1;
 	tableName_.clear();
 
-	ids_.clear();
-	for(int i=startId; i<startId+count; i++)
-		ids_ << i;
+	QSqlQuery query = db->query();
+	query.prepare(QString("SELECT objectId FROM AMDbObjectThumbnails_table WHERE id=%1").arg(startId));
+	db->execQuery(query);
+	int scanId = 0;
+
+	while (query.next())
+		scanId = query.value(0).toInt();
+
+	ids_ = db->objectsWhere("AMDbObjectThumbnails_table", QString("objectId=%1 AND objectTableName='AMScan_table'").arg(scanId));
+
 	tIndex_ = 0;
 	if(ids_.count() > 0)
 		displayThumbnailDeferred(sourceDb_, ids_.at(tIndex_));

@@ -41,6 +41,10 @@ typedef AMOrderedSet<QString, AMAnalysisBlock*> AMAnalyzedDataSourceSet;
 class AMScanConfiguration;
 class AMScanDictionary;
 
+class AMSamplePre2013;
+class AMSample;
+class AMConstDbObject;
+
 #ifndef ACQUAMAN_NO_ACQUISITION
 class AMScanController;
 #endif
@@ -83,7 +87,8 @@ class AMScan : public AMDbObject {
 	Q_PROPERTY(QDateTime dateTime READ dateTime WRITE setDateTime NOTIFY dateTimeChanged)
 	Q_PROPERTY(QDateTime endDateTime READ endDateTime WRITE setEndDateTime NOTIFY endDateTimeChanged)
 	Q_PROPERTY(int runId READ runId WRITE setRunId)
-	Q_PROPERTY(int sampleId READ sampleId WRITE setSampleId NOTIFY sampleIdChanged)
+	Q_PROPERTY(AMConstDbObject* samplePre2013 READ dbReadSamplePre2013 WRITE dbWriteSamplePre2013)
+	Q_PROPERTY(AMConstDbObject* sample READ dbReadSample WRITE dbWriteSample)
 	Q_PROPERTY(QString notes READ notes WRITE setNotes)
 	Q_PROPERTY(QString fileFormat READ fileFormat WRITE setFileFormat)
 	Q_PROPERTY(QString filePath READ filePath WRITE setFilePath)
@@ -97,7 +102,7 @@ class AMScan : public AMDbObject {
 	Q_PROPERTY(QString indexType READ indexType WRITE setIndexType)
 
 	Q_CLASSINFO("dateTime", "createIndex=true")
-	Q_CLASSINFO("sampleId", "createIndex=true")
+	//Q_CLASSINFO("sampleId", "createIndex=true")
 	Q_CLASSINFO("runId", "createIndex=true")
 
 	Q_CLASSINFO("rawDataSources", "hidden=true")
@@ -107,6 +112,8 @@ class AMScan : public AMDbObject {
 	Q_CLASSINFO("scanConfiguration", "hidden=true")
 	Q_CLASSINFO("unEvaluatedName", "upgradeDefault=<none>")
 	Q_CLASSINFO("indexType", "upgradeDefault=<none>")
+
+	Q_CLASSINFO("sample", "constStore=true")
 
 	Q_CLASSINFO("AMDbObject_Attributes", "description=Generic Scan")
 
@@ -149,7 +156,11 @@ public:
 	/// Returns the id of the run containing this scan, or (-1) if not associated with a run.
 	int runId() const { return runId_; }
 	/// Returns id of the scan's sample (or -1 if a sample has not been assigned)
-	int sampleId() const { return sampleId_; }
+	int sampleId() const;
+	const AMSamplePre2013* samplePre2013() const;
+	const AMSample* sample() const;
+
+
 	/// Returns notes/comments for scan
 	QString notes() const { return notes_; }
 
@@ -359,7 +370,7 @@ Returns false and does nothing if the new \c dataStore is incompatible with any 
 	//////////////////////////////
 	/// Independent from the hardware you're connected to right now, an AMControlSetInfo can remember values and descriptions of how some hardware was set at the time of the scan.
 	const AMControlInfoList* scanInitialConditions() const { return &scanInitialConditions_; }
-	AMControlInfoList* scanInitialConditions() { return &scanInitialConditions_; }
+	//AMControlInfoList* scanInitialConditions() { return &scanInitialConditions_; }
 
 	// Role 7: Access to Scan Configuration and Scan Controller
 	///////////////////////////////
@@ -432,7 +443,9 @@ public slots:
 	/// associate this object with a particular run. Set to (-1) to dissociate with any run.  (Note: for now, it's the caller's responsibility to make sure the runId is valid.)
 	void setRunId(int newRunId);
 	/// Sets the sample associated with this scan.
-	void setSampleId(int newSampleId);
+	void setSampleId(int newSampleId, const QString &databaseTableName = "");
+	void setSamplePre2013(const AMSamplePre2013 *samplePre2013);
+	void setSample(const AMSample *sample);
 	/// Sets the indexation type.
 	void setIndexType(const QString &newType) { indexType_ = newType; setModified(true); }
 
@@ -444,6 +457,9 @@ public slots:
 	void setFileFormat(const QString& format) { fileFormat_ = format;  setModified(true); }
 	/// Any additional files of raw data that need to be referenced
 	void setAdditionalFilePaths(const QStringList& additionalFilePaths) { additionalFilePaths_ = additionalFilePaths; setModified(true); }
+
+	/// Override of AMDbObject::storeToDb(). Checks if first time stored and auto-generates a scan number before calling AMDbObject::storeToDb() if it is.
+	bool storeToDb(AMDatabase *db, bool generateThumbnails = true);
 
 
 	/// Change the scan initial conditions
@@ -458,6 +474,7 @@ signals:
 	void endDateTimeChanged(const QDateTime &);
 	void sampleIdChanged(int sampleId);
 	void numberChanged(int number);
+
 	void currentlyScanningChanged(bool currentlyScanning);
 	void scanConfigurationChanged();
 
@@ -474,10 +491,8 @@ signals:
 	/// Emitted after a data source was removed. \c index is the index the source used to occupy in dataSourceAt(); it's not there anymore.
 	void dataSourceRemoved(int index);
 
-
 	/// Emitted when the scan initial conditions are changed
 	void scanInitialConditionsChanged();
-
 
 protected slots:
 
@@ -497,6 +512,9 @@ protected slots:
 	void onDataSourceModified(bool modified);
 
 protected:
+	const AMDbObject* sampleHelper() const;
+
+protected:
 
 	// meta data values
 	//////////////////////
@@ -509,7 +527,9 @@ protected:
 	/// Scan end time.
 	QDateTime endDateTime_;
 	/// database id of the run and sample that this scan is associated with
-	int runId_, sampleId_;
+	int runId_;
+	AMConstDbObject *samplePre2013_;
+	AMConstDbObject *sample_;
 	/// notes for this sample. Can be plain or rich text, as long as you want it...
 	QString notes_;
 	/// The absolute file path where this scan's data is stored (if there is an external data file), and the format tag describing the data format.
@@ -519,15 +539,9 @@ protected:
 	/// String holding what type of indexation the scan index can take.  This is a first attempt at actually using the scan index.  Currently, the only index type is fileSystem.
 	QString indexType_;
 
+
 	AMScanDictionary *nameDictionary_;
 	AMScanDictionary *exportNameDictionary_;
-
-	/// Caches the sample name
-	mutable QString sampleName_;
-	/// Status of sample name cache
-	mutable bool sampleNameLoaded_;
-	/// retrieves the sample name from the database, based on our sampleId. Sets sampleName_, and sets sampleNameLoaded_ = true;
-	void retrieveSampleName() const;
 
 	// Composite members
 	//////////////////////
@@ -566,6 +580,11 @@ protected:
 	AMDbObject* dbGetScanConfiguration() const;
 	/// Used by the database system (loadFromDb()) to load a saved scan configuration (if there is no existing scan configuration yet, or if the existing one doesn't match the type stored in the database).
 	void dbLoadScanConfiguration(AMDbObject* newObject);
+
+	AMConstDbObject* dbReadSample() const;
+	void dbWriteSample(AMConstDbObject *newSample);
+	AMConstDbObject* dbReadSamplePre2013() const;
+	void dbWriteSamplePre2013(AMConstDbObject *newSample);
 
 	/// This returns a string describing the input connections of all the analyzed data sources. It's used to save and restore these connections when loading from the database.  (This system is necessary because AMAnalysisBlocks use pointers to AMDataSources to specify their inputs; these pointers will not be the same after new objects are created when restoring from the database.)
 	/*! Implementation note: The string contains one line for each AMAnalysisBlock in analyzedDataSources_, in order.  Every line is a sequence of comma-separated numbers, where the number represents the index of a datasource in dataSourceAt().  So for an analysis block using the 1st, 2nd, and 5th sources (in order), the line would be "0,1,4".

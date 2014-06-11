@@ -23,7 +23,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QGLWidget>
 
+#ifdef AM_MOBILITY_VIDEO_ENABLED
 #include <QGraphicsVideoItem>
+#endif
 
 
 AMOverlayVideoWidget::AMOverlayVideoWidget(QWidget *parent, bool useOpenGlViewport) :
@@ -40,9 +42,11 @@ AMOverlayVideoWidget::AMOverlayVideoWidget(QWidget *parent, bool useOpenGlViewpo
 	setScene(new QGraphicsScene());
 	scene()->setBackgroundBrush(QBrush(QColor(50,50,50)));
 
+	#ifdef AM_MOBILITY_VIDEO_ENABLED
 	videoItem_ = new QGraphicsVideoItem();
 	mediaPlayer_ = new QMediaPlayer();
 	mediaPlayer_->setVideoOutput(videoItem_);
+	#endif
 
 	scene()->addItem(videoItem_);
 	resize(size());
@@ -60,10 +64,12 @@ AMOverlayVideoWidget::~AMOverlayVideoWidget() {
   QMediaService::~QMediaService()
   QMediaPlayer::~QMediaPlayer()
   */
+	#ifdef AM_MOBILITY_VIDEO_ENABLED
 	mediaPlayer_->setMedia(QMediaContent());
 
 	delete videoItem_;
 	delete mediaPlayer_;
+	#endif
 }
 
 void AMOverlayVideoWidget::resizeEvent(QResizeEvent *event)

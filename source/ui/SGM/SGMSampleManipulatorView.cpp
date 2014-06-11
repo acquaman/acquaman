@@ -233,7 +233,7 @@ void SGMSampleManipulatorView::onMUpButtonPressed(){
 	else{
 		mVerticalCtrl_->setStepVelocity(3000);
 		mVerticalCtrl_->setStepAcceleration(2000);
-		mVerticalCtrl_->move(50);
+		mVerticalCtrl_->move(152);
 	}
 }
 
@@ -251,7 +251,7 @@ void SGMSampleManipulatorView::onMDownButtonPressed(){
 	else{
 		mVerticalCtrl_->setStepVelocity(3000);
 		mVerticalCtrl_->setStepAcceleration(2000);
-		mVerticalCtrl_->move(-80);
+		mVerticalCtrl_->move(-7.5);
 	}
 }
 
@@ -267,8 +267,8 @@ void SGMSampleManipulatorView::onMInboardButtonPressed(){
 	if(isJogging_)
 		mHorizontalCtrl_->move(mHorizontalCtrl_->value()-jogStep_);
 	else{
-		mHorizontalCtrl_->setStepVelocity(3000);
-		mHorizontalCtrl_->setStepAcceleration(2000);
+		mHorizontalCtrl_->setStepVelocity(10000);
+		mHorizontalCtrl_->setStepAcceleration(5000);
 		mHorizontalCtrl_->move(-10.0);
 	}
 }
@@ -285,8 +285,8 @@ void SGMSampleManipulatorView::onMOutboardButtonPressed(){
 	if(isJogging_)
 		mHorizontalCtrl_->move(mHorizontalCtrl_->value()+jogStep_);
 	else{
-		mHorizontalCtrl_->setStepVelocity(3000);
-		mHorizontalCtrl_->setStepAcceleration(2000);
+		mHorizontalCtrl_->setStepVelocity(10000);
+		mHorizontalCtrl_->setStepAcceleration(5000);
 		mHorizontalCtrl_->move(10.0);
 	}
 }
@@ -294,10 +294,10 @@ void SGMSampleManipulatorView::onMOutboardButtonPressed(){
 void SGMSampleManipulatorView::onMOutboardButtonReleased(){
 	if(!isJogging_){
 		mHorizontalCtrl_->stop();
-		//mHorizontalCtrl_->setStepVelocity(10000);
-		//mHorizontalCtrl_->setStepAcceleration(5000);
-		mHorizontalCtrl_->setStepVelocity(3000);
-		mHorizontalCtrl_->setStepAcceleration(2000);
+		mHorizontalCtrl_->setStepVelocity(10000);
+		mHorizontalCtrl_->setStepAcceleration(5000);
+		//mHorizontalCtrl_->setStepVelocity(3000);
+		//mHorizontalCtrl_->setStepAcceleration(2000);
 	}
 }
 
@@ -305,9 +305,9 @@ void SGMSampleManipulatorView::onMUpstreamButtonPressed(){
 	if(isJogging_)
 		mInPlaneCtrl_->move(mInPlaneCtrl_->value()-jogStep_);
 	else{
-		mInPlaneCtrl_->setStepVelocity(3000);
-		mInPlaneCtrl_->setStepAcceleration(2000);
-		mInPlaneCtrl_->move(-15.0);
+		mInPlaneCtrl_->setStepVelocity(10000);
+		mInPlaneCtrl_->setStepAcceleration(5000);
+		mInPlaneCtrl_->move(-10.0);
 	}
 }
 
@@ -323,8 +323,8 @@ void SGMSampleManipulatorView::onMDownstreamButtonPressed(){
 	if(isJogging_)
 		mInPlaneCtrl_->move(mInPlaneCtrl_->value()+jogStep_);
 	else{
-		mInPlaneCtrl_->setStepVelocity(3000);
-		mInPlaneCtrl_->setStepAcceleration(2000);
+		mInPlaneCtrl_->setStepVelocity(10000);
+		mInPlaneCtrl_->setStepAcceleration(5000);
 		mInPlaneCtrl_->move(10.0);
 	}
 }

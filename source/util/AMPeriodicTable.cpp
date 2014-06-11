@@ -34,8 +34,13 @@ AMPeriodicTable::AMPeriodicTable(QObject *parent) :
 {
 	QFile file(":/ElementalInformation.txt");
 
+//<<<<<<< HEAD
+//    if (!file.open(QFile::ReadOnly | QFile::Text)){
+//        emit unableToLoad(file.fileName(), file.errorString());
+//=======
 	if (!file.open(QFile::ReadOnly | QFile::Text)){
 		AMErrorMon::error(this, AMPERIODICTABLE_COULD_NOT_LOAD_ELEMENTAL_INFORMATION, "There was an error loading the elemental information for the periodic table.  Elemental information throughout the program may no longer be defined.");
+//>>>>>>> SGM_Release
 		return;
 	}
 

@@ -59,7 +59,7 @@ public:
 	virtual AMNumber axisValue(int axisNumber, int index) const;
 
 	/// Re-implemented from AMDbObject to set the AMDataSource name once we have an AMDbObject::name()
-	bool loadFromDb(AMDatabase *db, int id);
+    bool loadFromDb(AMDatabase *db, int id);
 
 protected slots:
 	/// Connected to be called when the values of the input data source change

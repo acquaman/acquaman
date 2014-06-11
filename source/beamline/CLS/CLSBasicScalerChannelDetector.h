@@ -26,8 +26,8 @@ public:
 	/// Clearing is not yet implemented for the scaler channels (but it can be in the future)
 	virtual bool canClear() const { return false; }
 
-    /// Returns boolean indicating that this particular implementation of AMDetector supports dark current correction.
-    virtual bool canDoDarkCurrentCorrection() const { return true; }
+	/// Returns boolean indicating that this particular implementation of AMDetector supports dark current correction.
+	virtual bool canDoDarkCurrentCorrection() const { return true; }
 
 	/// Basic scaler channels cannot continuous acquire. This needs to be implemented in a subclass.
 	virtual bool canContinuousAcquire() const { return false; }

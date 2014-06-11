@@ -26,21 +26,24 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QUrl>
 #include <QTimer>
 #include <QStringBuilder>
+#include <QDebug>
 
 #include "acquaman.h"
-
 #include "dataman/database/AMDbObjectSupport.h"
 #include "dataman/AMScan.h"
+#include "dataman/AMSample.h"
 
 #include "ui/AMDetailedItemDelegate.h"
 #include "ui/dataman/AMScanView.h"
 #include "ui/AMVerticalStackWidget.h"
 #include "ui/dataman/AMRunSelector.h"
-#include "ui/dataman/AMSampleEditor.h"
+#include "ui/dataman/AMSamplePre2013Editor.h"
+#include "ui/dataman/AMSampleBriefView.h"
 #include "ui/dataman/AMDataSourcesEditor.h"
 #include "ui/dataman/AMChooseScanDialog.h"
 #include "ui/dataman/AMControlInfoListTableView.h"
 #include "ui/dataman/AM2DScanView.h"
+#include "ui/dataman/AMSampleEditor.h"
 
 #include "util/AMFontSizes.h"
 
@@ -53,6 +56,10 @@ AMGenericScanEditor::AMGenericScanEditor(QWidget *parent) :
 	QWidget(parent)
 {
 	ui_.setupUi(this);
+	scanNameEdit_ = new AMRegExpLineEdit("/|;|@|#|<|>", Qt::CaseInsensitive, "/;#>@< characters are not allowed.");
+	scanNameEdit_->setFrame(false);
+	scanNameEdit_->setValidIfMatches(false);
+	ui_.scanInfoGridLayout->addWidget(scanNameEdit_, 1, 1);
 	ui_.topFrameTitle->setStyleSheet("font: " AM_FONT_LARGE_ "pt \"Lucida Grande\";\ncolor: rgb(79, 79, 79);");
 	ui_.statusTextLabel->setStyleSheet("color: white;\nfont: bold " AM_FONT_SMALL_ "pt \"Lucida Grande\"");
 	setWindowTitle("Scan Editor");
@@ -67,6 +74,7 @@ AMGenericScanEditor::AMGenericScanEditor(QWidget *parent) :
 	scanView_ = new AMScanView();
 	scanView_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	ui_.leftVerticalLayout->insertWidget(0, scanView_, 2);
+
 
 	// Ensure that the 2D scan view is pointing to nowhere.
 	scanView2D_ = 0;
@@ -90,12 +98,20 @@ AMGenericScanEditor::AMGenericScanEditor(QWidget *parent) :
 	ui_.scanInfoLayout->insertWidget(1, runSelector_);
 
 
+
 	// Add detailed editor widgets:
 	QWidget* sampleEditorHolder = new QWidget();	// just used to add a margin around the sample editor itself, which has no margins.
 	sampleEditorHolder->setLayout(new QVBoxLayout);
-	sampleEditor_ = new AMSampleEditor(AMDatabase::database("user"));
+	sampleEditor_ = new AMSamplePre2013Editor(AMDatabase::database("user"));
 	sampleEditorHolder->layout()->addWidget(sampleEditor_);
+	sampleEditor_->hide();
+	//sampleEditorHolder->layout()->addWidget(new AMSampleEditor(AMDatabase::database("user")));
+	sampleBriefView_ = new AMSampleBriefView();
+	sampleEditorHolder->layout()->addWidget(sampleBriefView_);
+	sampleBriefView_->hide();
 	stackWidget_->addItem("Sample Information", sampleEditorHolder);
+
+
 
 	dataSourcesEditor_ = new AMDataSourcesEditor(scanSetModel_);
 	stackWidget_->addItem("Data Sets", dataSourcesEditor_);
@@ -115,8 +131,11 @@ AMGenericScanEditor::AMGenericScanEditor(QWidget *parent) :
 
 	currentScan_ = 0;
 
+
+
+
 	// disable drops on text fields that we don't want to accept drops
-	ui_.scanName->setAcceptDrops(false);
+	scanNameEdit_->setAcceptDrops(false);
 	ui_.notesEdit->setAcceptDrops(false);
 
 
@@ -125,14 +144,18 @@ AMGenericScanEditor::AMGenericScanEditor(QWidget *parent) :
 	connect(ui_.closeScanButton, SIGNAL(clicked()), this, SLOT(onCloseScanButtonClicked()));
 	connect(ui_.saveScanButton, SIGNAL(clicked()), this, SLOT(onSaveScanButtonClicked()));
 
+
 	// close button and save buttons are initially disabled; there's no scan to act on
 	ui_.closeScanButton->setEnabled(false);
 	ui_.saveScanButton->setEnabled(false);
+
+
 
 	chooseScanDialog_ = 0;
 
 	QTimer* oneSecondTimer = new QTimer(this);
 	connect(oneSecondTimer, SIGNAL(timeout()), this, SLOT(onOneSecondTimer()));
+
 	oneSecondTimer->start(1000);
 }
 
@@ -140,6 +163,10 @@ AMGenericScanEditor::AMGenericScanEditor(bool use2DScanView, QWidget *parent)
 	: QWidget(parent)
 {
 	ui_.setupUi(this);
+	scanNameEdit_ = new AMRegExpLineEdit("/|;|@|#|<|>", Qt::CaseInsensitive, "/;#>@< characters are not allowed.");
+	scanNameEdit_->setFrame(false);
+	scanNameEdit_->setValidIfMatches(false);
+	ui_.scanInfoGridLayout->addWidget(scanNameEdit_, 1, 1);
 	ui_.topFrameTitle->setStyleSheet("font: " AM_FONT_LARGE_ "pt \"Lucida Grande\";\ncolor: rgb(79, 79, 79);");
 	ui_.statusTextLabel->setStyleSheet("color: white;\nfont: bold " AM_FONT_SMALL_ "pt \"Lucida Grande\"");
 	setWindowTitle("Scan Editor");
@@ -195,8 +222,13 @@ AMGenericScanEditor::AMGenericScanEditor(bool use2DScanView, QWidget *parent)
 	// Add detailed editor widgets:
 	QWidget* sampleEditorHolder = new QWidget();	// just used to add a margin around the sample editor itself, which has no margins.
 	sampleEditorHolder->setLayout(new QVBoxLayout);
-	sampleEditor_ = new AMSampleEditor(AMDatabase::database("user"));
+	sampleEditor_ = new AMSamplePre2013Editor(AMDatabase::database("user"));
 	sampleEditorHolder->layout()->addWidget(sampleEditor_);
+	sampleEditor_->hide();
+	//sampleEditorHolder->layout()->addWidget(new AMSampleEditor(AMDatabase::database("user")));
+	sampleBriefView_ = new AMSampleBriefView();
+	sampleEditorHolder->layout()->addWidget(sampleBriefView_);
+	sampleBriefView_->hide();
 	stackWidget_->addItem("Sample Information", sampleEditorHolder);
 
 	dataSourcesEditor_ = new AMDataSourcesEditor(scanSetModel_);
@@ -219,7 +251,7 @@ AMGenericScanEditor::AMGenericScanEditor(bool use2DScanView, QWidget *parent)
 
 
 	// disable drops on text fields that we don't want to accept drops
-	ui_.scanName->setAcceptDrops(false);
+	scanNameEdit_->setAcceptDrops(false);
 	ui_.notesEdit->setAcceptDrops(false);
 
 
@@ -240,10 +272,12 @@ AMGenericScanEditor::AMGenericScanEditor(bool use2DScanView, QWidget *parent)
 }
 
 AMGenericScanEditor::~AMGenericScanEditor() {
+
 	while(scanSetModel_->scanCount()) {
 		AMScan* s = scanSetModel_->scanAt(scanSetModel_->scanCount()-1);
 		scanSetModel_->removeScan(s);
 	}
+
 }
 
 QPointF AMGenericScanEditor::dataPosition() const
@@ -289,8 +323,10 @@ void AMGenericScanEditor::setSingleSpectrumViewDataSourceName(const QString &nam
 		scanView2D_->setSingleSpectrumDataSource(name);
 }
 
+
 void AMGenericScanEditor::addScan(AMScan* newScan) {
 	scanSetModel_->addScan(newScan);
+
 	ui_.scanListView->setCurrentIndex(scanSetModel_->indexForScan(scanSetModel_->indexOf(newScan)));
 
 	if(scanSetModel_->exclusiveDataSourceName().isEmpty()) {
@@ -324,6 +360,10 @@ void AMGenericScanEditor::refreshWindowTitle() {
 	setWindowTitle(windowTitle);
 }
 
+void AMGenericScanEditor::refreshScanConditions() {
+	conditionsTableView_->setFromInfoList(currentScan_->scanInitialConditions());
+}
+
 void AMGenericScanEditor::onCurrentChanged ( const QModelIndex & selected, const QModelIndex & deselected ) {
 
 	Q_UNUSED(deselected)
@@ -334,11 +374,12 @@ void AMGenericScanEditor::onCurrentChanged ( const QModelIndex & selected, const
 
 	// disconnect the old scan:
 	if(currentScan_) {
-		disconnect(ui_.scanName, 0, currentScan_, 0);
+		disconnect(scanNameEdit_, 0, currentScan_, 0);
 		disconnect(ui_.scanNumber, 0, currentScan_, 0);
 		disconnect(this, SIGNAL(notesChanged(QString)), currentScan_, SLOT(setNotes(QString)));
 		disconnect(runSelector_, SIGNAL(currentRunIdChanged(int)), currentScan_, SLOT(setRunId(int)));
 		disconnect(sampleEditor_, SIGNAL(currentSampleChanged(int)), currentScan_, SLOT(setSampleId(int)));
+		disconnect(sampleEditor_, SIGNAL(currentSamplePointerChanged(const AMSamplePre2013*)), currentScan_, SLOT(setSamplePre2013(const AMSamplePre2013*)));
 		disconnect(currentScan_, SIGNAL(numberChanged(int)), this, SLOT(refreshWindowTitle()));
 		disconnect(currentScan_, SIGNAL(nameChanged(QString)), this, SLOT(refreshWindowTitle()));
 		disconnect(currentScan_, SIGNAL(scanInitialConditionsChanged()), this, SLOT(refreshScanConditions()));
@@ -350,16 +391,16 @@ void AMGenericScanEditor::onCurrentChanged ( const QModelIndex & selected, const
 	// update all widgets to match the current scan
 	updateEditor(currentScan_);
 
-
 	if(currentScan_) {
 		// removed: connect(currentScan_, SIGNAL(metaDataChanged()), this, SLOT(onScanMetaDataChanged()));
 
 		// make connections to widgets, so that widgets edit this scan:
-		connect(ui_.scanName, SIGNAL(textChanged(QString)), currentScan_, SLOT(setName(QString)));
+		connect(scanNameEdit_, SIGNAL(textChanged(QString)), currentScan_, SLOT(setName(QString)));
 		connect(ui_.scanNumber, SIGNAL(valueChanged(int)), currentScan_, SLOT(setNumber(int)));
 		connect(this, SIGNAL(notesChanged(QString)), currentScan_, SLOT(setNotes(QString)));
 		connect(runSelector_, SIGNAL(currentRunIdChanged(int)), currentScan_, SLOT(setRunId(int)));
 		connect(sampleEditor_, SIGNAL(currentSampleChanged(int)), currentScan_, SLOT(setSampleId(int)));
+		connect(sampleEditor_, SIGNAL(currentSamplePointerChanged(const AMSamplePre2013*)), currentScan_, SLOT(setSamplePre2013(const AMSamplePre2013*)));
 		connect(currentScan_, SIGNAL(numberChanged(int)), this, SLOT(refreshWindowTitle()));
 		connect(currentScan_, SIGNAL(nameChanged(QString)), this, SLOT(refreshWindowTitle()));
 		connect(currentScan_, SIGNAL(scanInitialConditionsChanged()), this, SLOT(refreshScanConditions()));
@@ -380,14 +421,12 @@ void AMGenericScanEditor::onCurrentChanged ( const QModelIndex & selected, const
 
 }
 
-    void AMGenericScanEditor::refreshScanConditions() {
-	conditionsTableView_->setFromInfoList(currentScan_->scanInitialConditions());
-    }
-
 void AMGenericScanEditor::updateEditor(AMScan *scan) {
 	if(scan) {
 
-		ui_.scanName->setText(scan->name());
+		ui_.scanId->setText(QString("%1").arg(scan->id()));
+		connect(scan, SIGNAL(storedToDb()), this, SLOT(onScanSavedToDatabase()));
+		scanNameEdit_->setText(scan->name());
 		ui_.scanNumber->setValue(scan->number());
 		ui_.scanDate->setText( AMDateTimeUtils::prettyDate(scan->dateTime()));
 		ui_.scanDuration->setText(scan->currentlyScanning() ? ("Acquiring " % AMDateTimeUtils::prettyDuration(currentScan_->dateTime(), QDateTime::currentDateTime(), true))
@@ -395,7 +434,20 @@ void AMGenericScanEditor::updateEditor(AMScan *scan) {
 		ui_.scanTime->setText( scan->dateTime().time().toString("h:mmap") );
 		ui_.notesEdit->setPlainText( scan->notes() );
 		runSelector_->setCurrentRunId(scan->runId());
-		sampleEditor_->setCurrentSample(scan->sampleId());
+		if(scan->samplePre2013()){
+			sampleEditor_->setCurrentSampleFromId(scan->sampleId());
+			if(sampleEditor_->isHidden()){
+				sampleEditor_->show();
+				sampleBriefView_->hide();
+			}
+		}
+		else{
+			sampleBriefView_->setSample(scan->sample());
+			if(sampleBriefView_->isHidden()){
+				sampleBriefView_->show();
+				sampleEditor_->hide();
+			}
+		}
 		dataSourcesEditor_->setCurrentScan(scan);
 		conditionsTableView_->setFromInfoList(scan->scanInitialConditions());
 
@@ -408,7 +460,8 @@ void AMGenericScanEditor::updateEditor(AMScan *scan) {
 	}
 
 	else {
-		ui_.scanName->setText( QString() );
+		ui_.scanId->setText(QString("Pending..."));
+		scanNameEdit_->setText( QString() );
 		ui_.scanNumber->setValue(0);
 		ui_.scanDate->setText( QString() );
 		ui_.scanDuration->setText( QString() );
@@ -417,7 +470,8 @@ void AMGenericScanEditor::updateEditor(AMScan *scan) {
 
 		// what to set run selector to?
 
-		sampleEditor_->setCurrentSample(-1);
+		sampleEditor_->setCurrentSampleFromId(-1);
+		sampleBriefView_->setSample(0);
 		dataSourcesEditor_->setCurrentScan(0);
 		conditionsTableView_->setFromInfoList(0);
 
@@ -496,7 +550,7 @@ bool AMGenericScanEditor::removeScanWithModifiedCheck(AMScan* scan) {
 
 // Overloaded to enable drag-dropping scans (when Drag Action = Qt::CopyAction and mime-type = "text/uri-list" with the proper format.)
 void AMGenericScanEditor::dragEnterEvent(QDragEnterEvent *event) {
-	if(	event->possibleActions() & Qt::CopyAction
+	if(event->possibleActions() & Qt::CopyAction
 			&& event->mimeData()->hasUrls()
 			&& event->mimeData()->urls().count() > 0
 			&& event->mimeData()->urls().at(0).scheme() == "amd"
@@ -522,7 +576,7 @@ void AMGenericScanEditor::dragEnterEvent(QDragEnterEvent *event) {
   */
 void AMGenericScanEditor::dropEvent(QDropEvent * event) {
 
-	if(	!( event->possibleActions() & Qt::CopyAction
+	if(!( event->possibleActions() & Qt::CopyAction
 		   && event->mimeData()->hasUrls()) )
 		return;
 
@@ -533,7 +587,7 @@ void AMGenericScanEditor::dropEvent(QDropEvent * event) {
 
 bool AMGenericScanEditor::dropScanURLs(const QList<QUrl>& urls) {
 
-	if(	!urls.count() )
+	if(!urls.count())
 		return false;
 
 	bool accepted = false;
@@ -717,6 +771,12 @@ void AMGenericScanEditor::onOneSecondTimer()
 		}
 	}
 
+}
+
+void AMGenericScanEditor::onScanSavedToDatabase()
+{
+	ui_.scanId->setText(QString("%1").arg(currentScan_->id()));
+	ui_.scanNumber->setValue(currentScan_->number());
 }
 
 #include <QFileDialog>

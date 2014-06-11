@@ -38,8 +38,6 @@ AMEXAFSScanConfiguration::AMEXAFSScanConfiguration(const AMEXAFSScanConfiguratio
 	: AMXASScanConfiguration(original, false)
 {
 	if (setup){
-
-		qDebug() << "Using AMEXAFSScanConfiguration copy constructor";
 		setUserScanName(original.userScanName());
 		regions_ = new AMEXAFSRegionsList(this);
 		connect(regions_, SIGNAL(regionsChanged()), this, SLOT(onRegionsChanged()));

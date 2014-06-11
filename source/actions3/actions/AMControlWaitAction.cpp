@@ -96,6 +96,7 @@ void AMControlWaitAction::cancelImplementation()
 
 void AMControlWaitAction::onControlValueChanged(double newValue)
 {
+	Q_UNUSED(newValue)
     if (checkCurrentControlValue()) {
         cleanup();
         setSucceeded();

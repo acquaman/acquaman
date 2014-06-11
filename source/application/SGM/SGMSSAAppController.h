@@ -23,7 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "application/AMAppController.h"
 
-class AMSampleManagementWidget;
+class AMSampleManagementPre2013Widget;
 class SGMSampleManipulatorView;
 class SGMSidebar;
 

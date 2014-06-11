@@ -80,6 +80,10 @@ protected:
 	/// Helper to load from db
 	void dbLoadConfig(AMDbObject *newConfig);
 
+protected slots:
+	/// Responds to changes to the config, updates that scan action info
+	void onConfigChanged();
+
 protected:
 	/// The pointer holding the configuration that everything is based on.
 	AMScanConfiguration *config_;

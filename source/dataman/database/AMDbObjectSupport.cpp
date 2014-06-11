@@ -21,6 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMDbObjectSupport.h"
 
 #include "dataman/database/AMDbObject.h"
+#include "dataman/database/AMConstDbObject.h"
 
 #include <QMetaObject>
 #include <QMetaProperty>
@@ -37,7 +38,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QApplication>
 
 // fill the className, tableName, metaObject, columns, columnTypes, isVisible, isLoadable, and doNotReuseIds properties based on a prototype AMDbObject.
- AMDbObjectInfo::~AMDbObjectInfo(){}
 AMDbObjectInfo::AMDbObjectInfo(AMDbObject* prototype) {
 	initWithMetaObject(prototype->metaObject());
 }
@@ -46,6 +46,8 @@ AMDbObjectInfo::AMDbObjectInfo(AMDbObject* prototype) {
 AMDbObjectInfo::AMDbObjectInfo(const QMetaObject* classMetaObject) {
 	initWithMetaObject(classMetaObject);
 }
+
+AMDbObjectInfo::~AMDbObjectInfo(){}
 
 void AMDbObjectInfo::initWithMetaObject(const QMetaObject *classMetaObject) {
 	metaObject = classMetaObject;
@@ -86,6 +88,64 @@ void AMDbObjectInfo::initWithMetaObject(const QMetaObject *classMetaObject) {
 	}
 }
 
+AMDbObjectRetainer::AMDbObjectRetainer(AMDbObject *object, void *watcher, QObject *parent) :
+	QObject(parent)
+{
+	object_ = object;
+	addVoidWatcher(watcher);
+
+	connect(object_, SIGNAL(destroyed()), this, SLOT(onObjectDestroyed()));
+}
+
+AMDbObjectRetainer::AMDbObjectRetainer(AMDbObject *object, QObject *watcher, QObject *parent) :
+	QObject(parent)
+{
+	object_ = object;
+	addWatcher(watcher);
+}
+
+void AMDbObjectRetainer::addWatcher(QObject *watcher){
+	if(watcher && !watchers_.contains(watcher)){
+		connect(watcher, SIGNAL(destroyed(QObject*)), this, SLOT(onWatcherDestroyed(QObject*)));
+		watchers_.append(watcher);
+	}
+}
+
+void AMDbObjectRetainer::removeWatcher(QObject *watcher){
+	if(watcher && watchers_.contains(watcher)){
+		disconnect(watcher, SIGNAL(destroyed(QObject*)), this, SLOT(onWatcherDestroyed(QObject*)));
+		watchers_.removeAll(watcher);
+	}
+
+	if(watchers_.count() == 0){
+		object_->deleteLater();
+		deleteLater();
+	}
+}
+
+void AMDbObjectRetainer::addVoidWatcher(void *watcher){
+	if(watcher && !watchers_.contains(watcher))
+		watchers_.append(watcher);
+}
+
+void AMDbObjectRetainer::removeVoidWatcher(void *watcher){
+	if(watcher && watchers_.contains(watcher))
+		watchers_.removeAll(watcher);
+
+	if(watchers_.count() == 0){
+		object_->deleteLater();
+		deleteLater();
+	}
+}
+
+void AMDbObjectRetainer::onWatcherDestroyed(QObject *watcher){
+	removeWatcher(watcher);
+}
+
+void AMDbObjectRetainer::onObjectDestroyed(){
+	emit objectPrematurelyDestroyed();
+	deleteLater();
+}
 
 AMDbObjectSupport* AMDbObjectSupport::instance_;
 QMutex AMDbObjectSupport::instanceMutex_(QMutex::Recursive);
@@ -388,8 +448,8 @@ bool AMDbObjectSupport::initializeDatabaseForClass(AMDatabase* db, const AMDbObj
 	// go through properties and create columns for each, (with some exceptions...)
 	for(int i=0; i<info.columns.count(); i++) {
 
-		// if type of property is AMDbObjectList (ie: it 'owns' a set of other AMDbObjects), then don't create a column at all. Instead, create an auxilliary table.  Table name is our table name + "_propertyName".
-		if( info.columnTypes.at(i) == qMetaTypeId<AMDbObjectList>() ) {
+		// if type of property is AMDbObjectList or AMConstDbObjectList (ie: it 'owns' a set of other AMDbObjects), then don't create a column at all. Instead, create an auxilliary table.  Table name is our table name + "_propertyName".
+		if( info.columnTypes.at(i) == qMetaTypeId<AMDbObjectList>() || info.columnTypes.at(i) == qMetaTypeId<AMConstDbObjectList>()) {
 			QString auxTableName = info.tableName % "_" % info.columns.at(i);
 			if( !db->ensureTable(auxTableName,
 								 QString("id1,table1,id2,table2").split(','),
@@ -462,15 +522,15 @@ bool AMDbObjectSupport::initializeDatabaseForClass(AMDatabase* db, const AMDbObj
 	vlist << typeId << "colName";
 	for(int i=0; i<info.columns.count(); i++) {	// loop over columns
 
-		// lists of AMDbObjects use aux. tables, not columns. So no column entry should appear for these.
-		if(info.columnTypes.at(i) == qMetaTypeId<AMDbObjectList>())
+		// lists of AMDbObjects and AMConstDbObject use aux. tables, not columns. So no column entry should appear for these.
+		if(info.columnTypes.at(i) == qMetaTypeId<AMDbObjectList>() || info.columnTypes.at(i) == qMetaTypeId<AMConstDbObjectList>())
 			continue;
 
 		vlist[1] = info.columns.at(i);// takes on the name of this column
 
 		bool success = db->insertOrUpdate(0, allColumnsTableName(), clist, vlist); // always add to the 'allColumns' table.
 
-		if(info.isVisible.at(i) && info.columnTypes.at(i) != qMetaTypeId<AMDbObject*>())	// no matter what, AMDbObject* reference columns aren't user-visible. There's nothing user-meaningful about a 'tableName;id' string.
+		if(info.isVisible.at(i) && info.columnTypes.at(i) != qMetaTypeId<AMDbObject*>() && info.columnTypes.at(i) != qMetaTypeId<AMConstDbObject*>())	// no matter what, AMDbObject* reference columns aren't user-visible. There's nothing user-meaningful about a 'tableName;id' string.
 			success = success && db->insertOrUpdate(0, visibleColumnsTableName(), clist, vlist);
 
 		if(info.isLoadable.at(i)) // if loadable, add to 'loadColumns' table.
@@ -511,8 +571,8 @@ bool AMDbObjectSupport::isUpgradeRequiredForClass(AMDatabase* db, const AMDbObje
 	// Determine which columns we need to have:
 	for(int i=0; i<info.columns.count(); i++) {
 
-		// if type of property is AMDbObjectList (ie: it 'owns' a set of other AMDbObjects), then there shouldn't be a column. Instead, should be an auxilliary table.  Table name is our table name + "_propertyName".
-		if( info.columnTypes.at(i) == qMetaTypeId<AMDbObjectList>() ) {
+		// if type of property is AMDbObjectList or AMConstDbObjectList (ie: it 'owns' a set of other AMDbObjects), then there shouldn't be a column. Instead, should be an auxilliary table.  Table name is our table name + "_propertyName".
+		if( info.columnTypes.at(i) == qMetaTypeId<AMDbObjectList>() || info.columnTypes.at(i) == qMetaTypeId<AMConstDbObjectList>()) {
 			QString auxTableName = info.tableName % "_" % info.columns.at(i);
 			// Does SQLite not support the SQL-92 standard INFORMATION_SCHEMA?
 			//				q.prepare("SELECT COUNT(1) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = " % auxTableName % ";");
@@ -569,9 +629,9 @@ bool AMDbObjectSupport::upgradeDatabaseForClass(AMDatabase* db, const AMDbObject
 	// 3) For all the columns we have:
 	for(int i=0; i<info.columns.count(); i++) {
 
-		// 3a) if type of property is AMDbObjectList (ie: it 'owns' a set of other AMDbObjects), then there shouldn't be a column. Instead, should be an auxilliary table.  Table name is our table name + "_propertyName".
+		// 3a) if type of property is AMDbObjectList or AMConstDbObjectList (ie: it 'owns' a set of other AMDbObjects), then there shouldn't be a column. Instead, should be an auxilliary table.  Table name is our table name + "_propertyName".
 		////////////////////////////////////////////
-		if( info.columnTypes.at(i) == qMetaTypeId<AMDbObjectList>() ) {
+		if( info.columnTypes.at(i) == qMetaTypeId<AMDbObjectList>() || info.columnTypes.at(i) == qMetaTypeId<AMConstDbObjectList>() ) {
 			QString auxTableName = info.tableName % "_" % info.columns.at(i);
 			// Does the table exist?
 			q.prepare("SELECT COUNT(1) FROM " % auxTableName % " WHERE 1=0;");	// as high-performance of a query as we can make on that table;
@@ -637,7 +697,7 @@ bool AMDbObjectSupport::upgradeDatabaseForClass(AMDatabase* db, const AMDbObject
 
 				bool success = db->insertOrUpdate(0, allColumnsTableName(), clist, vlist); // always add to the 'allColumns' table.
 
-				if(info.isVisible.at(i) && info.columnTypes.at(i) != qMetaTypeId<AMDbObject*>())	// no matter what, AMDbObject* reference columns aren't user-visible. There's nothing user-meaningful about a 'tableName;id' string.
+				if(info.isVisible.at(i) && info.columnTypes.at(i) != qMetaTypeId<AMDbObject*>() && info.columnTypes.at(i) != qMetaTypeId<AMConstDbObject*>())	// no matter what, AMDbObject* reference columns aren't user-visible. There's nothing user-meaningful about a 'tableName;id' string.
 					success = success && db->insertOrUpdate(0, visibleColumnsTableName(), clist, vlist);
 
 				if(info.isLoadable.at(i)) // if loadable, add to 'loadColumns' table.
@@ -681,6 +741,7 @@ QString AMDbObjectSupport::stringListSeparator() { return "|@^@|"; }
 // Separator used between items when exporting all other lists to the database (changed from comma to support french localizations which use une virgule for the decimal point. maybe this needs to be fully localized.)
 QString AMDbObjectSupport::listSeparator() { return ";"; }
 
+QString AMDbObjectSupport::vectorSeparator() { return "|^@^|"; }
 
 // Temporary tables (to be generalized)
 ///////////////////////
@@ -845,7 +906,7 @@ bool AMDbObjectSupport::event(QEvent *e)
 	if(db->supportsTransactions() && !db->transactionInProgress()) {
 		if(db->startTransaction()) {
 			openedTransaction = true;
-			qDebug() << "Opened transaction for thumbnail save of object at [" << dbTableName << id << "].";
+			AMErrorMon::debug(this, AMDBOBJECTSUPPORT_DEBUG_OUTPUT, QString("Opened transaction for thumbnail save of object at [%1:%2]").arg(dbTableName).arg(id) );
 		}
 		else {
 			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, AMDBOBJECTSUPPORT_CANNOT_START_TRANSACTION_TO_SAVE_THUMBNAILS, "Could not start a transaction to save the thumbnails for object '" % dbTableName % ":" % QString::number(id) % "' in the database. Please report this problem to the Acquaman developers."));
@@ -906,11 +967,11 @@ bool AMDbObjectSupport::event(QEvent *e)
 
 		int retVal;
 		if(reuseThumbnailIds) {
-			// qdebug() << "Thumbnail save: reusing row" << i+existingThumbnailIds.at(0) << "in other thread";
+			AMErrorMon::debug(this, AMDBOBJECTSUPPORT_DEBUG_OUTPUT, QString("Thumbnail save: reusing row %1 in other thread.").arg(i+existingThumbnailIds.at(0)) );
 			retVal = db->insertOrUpdate(i+existingThumbnailIds.at(0), AMDbObjectSupport::thumbnailTableName(), keys, values);
 		}
 		else {
-			// qdebug() << "THumnail save: inserting new row in other thread";
+			AMErrorMon::debug(this, AMDBOBJECTSUPPORT_DEBUG_OUTPUT, QString("Thumbnail save: inserting row in other thread.").arg(i+existingThumbnailIds.at(0)) );
 			retVal = db->insertOrUpdate(0, AMDbObjectSupport::thumbnailTableName(), keys, values);
 		}
 		if(retVal == 0) {
@@ -942,7 +1003,7 @@ bool AMDbObjectSupport::event(QEvent *e)
 		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Alert, AMDBOBJECTSUPPORT_CANNOT_COMPLETE_TRANSACTION_TO_SAVE_THUMBNAILS, "AMDbObject: Could not commit a transaction to save the thumbnails for object '" % dbTableName % ":" % QString::number(id) % "' in the database. Please report this problem to the Acquaman developers."));
 	}
 
-	qDebug() << "Storing thumbnails for [" << dbTableName << ":" << id << "] took" << saveTime.elapsed() << "ms to store thumbnails in the database. Used own transaction = " << openedTransaction;
+	AMErrorMon::debug(this, AMDBOBJECTSUPPORT_DEBUG_OUTPUT, QString("Storing thumbnails for [%1:%2] took %3ms to store thumbnails in the database. Used own transaction = %4").arg(dbTableName).arg(id).arg(saveTime.elapsed()).arg(openedTransaction) );
 	return true;
 }
 

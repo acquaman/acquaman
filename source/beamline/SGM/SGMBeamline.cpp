@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QStringBuilder>
 
-#include "dataman/AMSamplePlate.h"
+#include "dataman/AMSamplePlatePre2013.h"
 #include "dataman/AMUser.h"
 #include "beamline/SGM/SGMMAXvMotor.h"
 #include "beamline/CLS/CLSSynchronizedDwellTime.h"
@@ -33,7 +33,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/SGM/SGMXASScanConfiguration.h"
 #include "acquaman/SGM/SGMFastScanConfiguration.h"
 #include "actions3/actions/AMScanAction.h"
+
+#include "beamline/AMMotorGroup.h"
+#include "beamline/SGM/SGMSampleManipulatorMotorGroup.h"
 #include "actions3/actions/AMControlStopAction.h"
+
 
 #include "beamline/CLS/CLSAmptekSDD123DetectorNew.h"
 #include "beamline/CLS/CLSPGTDetectorV2.h"
@@ -41,6 +45,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSBasicScalerChannelDetector.h"
 #include "beamline/CLS/CLSAdvancedScalerChannelDetector.h"
 #include "beamline/AMBasicControlDetectorEmulator.h"
+#include "beamline/CLS/CLSSR570.h"
 
 #include "util/AMErrorMonitor.h"
 
@@ -127,11 +132,30 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	unconnectedSets_.append(beamOnControlSet_);
 	connect(beamOnControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
 
+	CLSSR570 *tempSR570;
+
 	scaler_ = new CLSSIS3820Scaler("BL1611-ID-1:mcs", this);
+
+	tempSR570 = new CLSSR570("TEY", "Amp1611-4-21:sens_num.VAL", "Amp1611-4-21:sens_unit.VAL", this);
+	scaler_->channelAt(0)->setCurrentAmplifier(tempSR570);
+	scaler_->channelAt(0)->setVoltagRange(AMRange(1.0, 6.5));
 	scaler_->channelAt(0)->setCustomChannelName("TEY");
+
+	tempSR570 = new CLSSR570("I0", "Amp1611-4-22:sens_num.VAL", "Amp1611-4-22:sens_unit.VAL", this);
+	scaler_->channelAt(1)->setCurrentAmplifier(tempSR570);
+	scaler_->channelAt(1)->setVoltagRange(AMRange(1.0, 6.5));
 	scaler_->channelAt(1)->setCustomChannelName("I0");
+
+	tempSR570 = new CLSSR570("TFY PD", "Amp1611-4-23:sens_num.VAL", "Amp1611-4-23:sens_unit.VAL", this);
+	scaler_->channelAt(2)->setCurrentAmplifier(tempSR570);
+	scaler_->channelAt(2)->setVoltagRange(AMRange(1.0, 6.5));
 	scaler_->channelAt(2)->setCustomChannelName("TFY PD ");
+
+	tempSR570 = new CLSSR570("PD", "Amp1611-4-24:sens_num.VAL", "Amp1611-4-24:sens_unit.VAL", this);
+	scaler_->channelAt(3)->setCurrentAmplifier(tempSR570);
+	scaler_->channelAt(3)->setVoltagRange(AMRange(1.0, 6.5));
 	scaler_->channelAt(3)->setCustomChannelName("PD");
+
 	scaler_->channelAt(4)->setCustomChannelName("UP");
 	scaler_->channelAt(5)->setCustomChannelName("DOWN");
 	scaler_->channelAt(6)->setCustomChannelName("FPD1");
@@ -390,7 +414,7 @@ QString SGMBeamline::currentSampleDescription(){
 	if(currentId == -1)
 		return "<Unknown Sample>";
 	else
-		return AMSample(currentId, AMUser::user()->database()).name();
+		return AMSamplePre2013(currentId, AMUser::user()->database()).name();
 }
 
 AMDetector* SGMBeamline::newAmptekSDD1() const {
@@ -545,9 +569,9 @@ AMAction3* SGMBeamline::createGoToTransferPositionActions3(){
 	AMControlInfo manipulatorXSetpoint = ssaManipulatorX_->toInfo();
 	manipulatorXSetpoint.setValue(0.0);
 	AMControlInfo manipulatorYSetpoint = ssaManipulatorY_->toInfo();
-	manipulatorYSetpoint.setValue(-13.17);
+	manipulatorYSetpoint.setValue(-9.1);
 	AMControlInfo manipulatorZSetpoint = ssaManipulatorZ_->toInfo();
-	manipulatorZSetpoint.setValue(-77.0);
+	manipulatorZSetpoint.setValue(151.0);
 	AMControlInfo manipulatorRSetpoint = ssaManipulatorRot_->toInfo();
 	manipulatorRSetpoint.setValue(0.0);
 
@@ -612,7 +636,7 @@ bool SGMBeamline::isVisibleLightOn() const{
 	return false;
 }
 
-void SGMBeamline::setCurrentSamplePlate(AMSamplePlate *newSamplePlate){
+void SGMBeamline::setCurrentSamplePlate(AMSamplePlatePre2013 *newSamplePlate){
 	if(currentSamplePlate_ != newSamplePlate){
 		currentSamplePlate_ = newSamplePlate;
 		emit currentSamplePlateChanged(currentSamplePlate_);
@@ -1071,14 +1095,28 @@ void SGMBeamline::setupControls(){
 
 	if(amNames2pvNames_.lookupFailed())
 		AMErrorMon::alert(this, SGMBEAMLINE_PV_NAME_LOOKUPS_FAILED, "PV Name lookups in the SGM Beamline failed");
+
+	AMMotorGroupObject *motorObject = 0;
+	motorGroup_ = new AMMotorGroup(this);
+	//motorObject = new AMMotorGroupObject("Manipulator",
+	motorObject = new SGMSampleManipulatorMotorGroupObject("Manipulator",
+							       QStringList() << "X" << "Y" << "Z" << "R",
+							       QStringList() << "mm" << "mm" << "mm" << "deg",
+					     QList<AMControl*>() << ssaManipulatorX_ << ssaManipulatorY_ << ssaManipulatorZ_ << ssaManipulatorRot_,
+					     QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Horizontal << AMMotorGroupObject::Normal << AMMotorGroupObject::Vertical << AMMotorGroupObject::Other,
+					     QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational << AMMotorGroupObject::Rotational,
+					     this);
+	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
 }
 
 void SGMBeamline::setupExposedControls(){
 	addExposedControl(ssaManipulatorX_);
 	addExposedControl(ssaManipulatorY_);
 	addExposedControl(ssaManipulatorZ_);
+	addExposedControl(ssaManipulatorRot_);
 	addExposedControl(energy_);
 	addExposedControl(masterDwell_);
+	addExposedControl(exitSlitGap_);
 }
 
 void SGMBeamline::setupExposedDetectors(){

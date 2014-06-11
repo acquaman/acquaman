@@ -1,10 +1,11 @@
 #include "AMDbUpgrade1Pt1.h"
 
- AMDbUpgrade1Pt1::~AMDbUpgrade1Pt1(){}
 AMDbUpgrade1Pt1::AMDbUpgrade1Pt1(QString databaseNameToUpgrade, QObject *parent) :
 	AMDbUpgrade(databaseNameToUpgrade, parent)
 {
 }
+
+AMDbUpgrade1Pt1::~AMDbUpgrade1Pt1(){}
 
 QStringList AMDbUpgrade1Pt1::upgradeFromTags() const{
 	// No dependecies for this upgrade

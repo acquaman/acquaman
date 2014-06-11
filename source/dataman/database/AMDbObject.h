@@ -21,18 +21,20 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef AM_DBOBJECT_H
 #define AM_DBOBJECT_H
 
-#include "acquaman.h"
 #include <QObject>
 #include <QDateTime>
 #include <QStringList>
-#include "dataman/database/AMDatabase.h"
-
 #include <QSet>
 #include <QImage>
 #include <QBuffer>
 
+#include "acquaman.h"
+#include "dataman/database/AMDatabase.h"
+#include "dataman/database/AMDbObjectDefinitions.h"
+
 #define AMDBOBJECT_ERROR_STORING_CHILD_OBJECT -47
 #define AMDBOBJECT_3D_POINT_MISSING_3_NUMBERS -57
+#define AMDBOBJECT_3D_POINT_MISSING_3_NUMBERS_IN_AMQVECTOR3DVECTOR -277009
 #define AMDBOBJECT_ERROR_LOADING_OBJECT_TO_CREATE_THUMBNAILS -1313
 #define AMDBOBJECT_ERROR_SAVING_THUMBNAILS -1314
 #define AMDBOBJECT_ERROR_STORING_UPDATED_THUMBNAIL_COUNT_AND_FIRST_ID -1315
@@ -49,6 +51,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AMDBOBJECT_CANNOT_LOAD_FROM_DB_NO_VALUES_RETRIEVED_FROM_TABLE -277006
 #define AMDBOBJECT_CANNOT_LOAD_FROM_DB_AMDBOBJECTLIST_TABLE_LOCATION_INVALID -277007
 #define AMDBOBJECT_CANNOT_LOAD_FROM_DB_BAD_DB_REDIRECT -277008
+#define AMDBOBJECT_CANNOT_LOAD_FROM_DB_AMCONSTDBOBJECTLIST_TABLE_LOCATION_INVALID -277009
+#define AMDBOBJECT_CANNOT_LOAD_FROM_DB_BAD_CONSTDB_REDIRECT -277010
+
+#define AMDBOBJECT_DEBUG_OUTPUT 881001
 
 /// Thumbnails are fast little blobs of data used as icons or images to visually represent AMDbObjects.
 class AMDbThumbnail {
@@ -280,6 +286,9 @@ public:
 	/// Return whether or not this object is currently being reloaded from the database
 	bool isReloading() const;
 
+	/// Returns whether or not this object is currently being stored to the database
+	bool isStoring() const;
+
 
 	/// returns the name of the database table where objects like this are stored.
 	QString dbTableName() const;
@@ -360,6 +369,8 @@ signals:
 
 	/// Emitted when this object is fully re-loaded from the database
 	void loadedFromDb();
+	/// Emitted when this object is fully stored to the database
+	void storedToDb();
 	/// Emitted when the modified() state changes. Indicates that this object is in-sync or out-of-sync with the database version.
 	void modifiedChanged(bool isModified);
 
@@ -406,8 +417,11 @@ private:
 	/// This is a helper function used by storeToDb() to save the thumanils, in the current thread. It should only be called after the object has been stored in the main table and has a valid id() and database(). \c neverSavedHereBefore is an optimization for when we know there are no existing thumbnails.
 	void updateThumbnailsInCurrentThread(bool neverSavedHereBefore);
 
-	/// holds whether this object is currently being reloaded from the database
+	/// Holds whether this object is currently being reloaded from the database
 	bool isReloading_;
+
+	/// Holds whether this object is currently being stored to the database
+	bool isStoring_;
 
 	QMap<QString, AMDbLoadErrorInfo*> loadingErrors_;
 };

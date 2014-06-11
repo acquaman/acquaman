@@ -97,3 +97,39 @@ void VESPERSScanConfigurationDbObject::setNormalPosition(double newPosition)
 		setModified(true);
 	}
 }
+
+AMDbObjectList VESPERSScanConfigurationDbObject::dbReadRegionsOfInterest()
+{
+	AMDbObjectList listToBeSaved;
+
+	foreach (AMRegionOfInterest *region, regionsOfInterest_)
+		listToBeSaved << region;
+
+	return listToBeSaved;
+}
+
+void VESPERSScanConfigurationDbObject::dbLoadRegionsOfInterest(const AMDbObjectList &newRegions)
+{
+	regionsOfInterest_.clear();
+
+	foreach (AMDbObject *newObject, newRegions){
+
+		AMRegionOfInterest *region = qobject_cast<AMRegionOfInterest *>(newObject);
+
+		if (region)
+			regionsOfInterest_.append(region);
+	}
+}
+
+void VESPERSScanConfigurationDbObject::addRegionOfInterest(AMRegionOfInterest *region)
+{
+	regionsOfInterest_.append(region);
+	setModified(true);
+}
+
+void VESPERSScanConfigurationDbObject::removeRegionOfInterest(AMRegionOfInterest *region)
+{
+	regionsOfInterest_.removeOne(region);
+	setModified(true);
+}
+

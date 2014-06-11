@@ -3,6 +3,7 @@
 
 #include "dataman/database/AMDbObject.h"
 #include "application/VESPERS/VESPERS.h"
+#include "dataman/AMRegionOfInterest.h"
 
 /// This class is the common database object for all scan configurations for the VESPERS beamline.
 /*!
@@ -22,6 +23,7 @@ class VESPERSScanConfigurationDbObject : public AMDbObject
 	Q_PROPERTY(int ccdDetector READ ccdDetector WRITE setCCDDetector)
 	Q_PROPERTY(QString ccdFileName READ ccdFileName WRITE setCCDFileName)
 	Q_PROPERTY(double normalPosition READ normalPosition WRITE setNormalPosition)
+	Q_PROPERTY(AMDbObjectList regionsOfInterest READ dbReadRegionsOfInterest WRITE dbLoadRegionsOfInterest)
 
 	Q_CLASSINFO("normalPosition", "upgradeDefault=888888.88")
 
@@ -29,10 +31,11 @@ class VESPERSScanConfigurationDbObject : public AMDbObject
 
 public:
 	/// Constructor.
-	virtual ~VESPERSScanConfigurationDbObject();
 	Q_INVOKABLE VESPERSScanConfigurationDbObject(QObject *parent = 0);
 	/// Copy Constructor.
 	VESPERSScanConfigurationDbObject(const VESPERSScanConfigurationDbObject &original);
+	/// Destructor.
+	virtual ~VESPERSScanConfigurationDbObject();
 
 	/// Returns the current I0 ion chamber choice.
 	VESPERS::IonChamber incomingChoice() const { return I0_; }
@@ -48,6 +51,8 @@ public:
 	QString ccdFileName() const { return ccdFileName_; }
 	/// Returns the normal position.
 	double normalPosition() const { return normalPosition_; }
+	/// Returns the list of regions the configuration has a hold of.
+	QList<AMRegionOfInterest *> regionsOfInterest() const { return regionsOfInterest_; }
 
 signals:
 	/// Notifier that the incoming choice has changed.
@@ -100,8 +105,17 @@ public slots:
 	void setCCDFileName(const QString &name);
 	/// Sets the normal position.
 	void setNormalPosition(double newPosition);
+	/// Adds a region of interest to the list.
+	void addRegionOfInterest(AMRegionOfInterest *region);
+	/// Removes a region of interest from the list.
+	void removeRegionOfInterest(AMRegionOfInterest *region);
 
 protected:
+	/// Returns the regions of interest list.
+	AMDbObjectList dbReadRegionsOfInterest();
+	/// Called by the dtabase system on loadFromDb() to give us our new list of AMRegionOfInterest.
+	void dbLoadRegionsOfInterest(const AMDbObjectList &newRegions);
+
 	/// I0 ion chamber choice.
 	VESPERS::IonChamber I0_;
 	/// It ion chamber choice.
@@ -116,6 +130,8 @@ protected:
 	QString ccdFileName_;
 	/// The normal position of the scan.
 	double normalPosition_;
+	/// The list of the regions of interest.
+	QList<AMRegionOfInterest *> regionsOfInterest_;
 };
 
 #endif // VESPERSSCANCONFIGURATIONDBOBJECT_H

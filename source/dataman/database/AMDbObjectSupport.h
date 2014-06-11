@@ -31,6 +31,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "acquaman.h"
 #include "dataman/database/AMDatabase.h"
+#include "dataman/database/AMDbObjectDefinitions.h"
 
 #define AMDBOBJECTSUPPORT_ERROR_CREATING_TABLE -1
 #define AMDBOBJECTSUPPORT_ERROR_CREATING_COLUMN -2
@@ -64,6 +65,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AMDBOBJECTSUPPORT_CANNOT_REGISTER_CLASS_CANNOT_READY_DATABASE -278002
 #define AMDBOBJECTSUPPORT_CANNOT_REGISTER_DATABASE_PREVIOUS_CLASSES_PROBLEM -278003
 #define AMDBOBJECTSUPPORT_CANNOT_WRITE_CLASS_INHERITANCE -278004
+
+#define AMDBOBJECTSUPPORT_DEBUG_OUTPUT 880001
 
 class AMDbObject;
 
@@ -108,7 +111,43 @@ private:
 
 };
 
-class AMDbObject;
+class AMDbObjectRetainer : public QObject{
+Q_OBJECT
+public:
+	/// Normal constructor take an AMDbObject and a pointer to another object that is watching it (probably its owner or creator to start with)
+	AMDbObjectRetainer(AMDbObject *object, void *watcher, QObject *parent = 0);
+	/// Normal constructor take an AMDbObject and a pointer to another object that is watching it (probably its owner or creator to start with)
+	AMDbObjectRetainer(AMDbObject *object, QObject *watcher, QObject *parent = 0);
+
+public slots:
+	/// Adds another watcher
+	void addWatcher(QObject *watcher);
+	/// Removes a watcher. If this is the last watcher, then the AMDbObject we're storing and this object will have deleteLater called on them
+	void removeWatcher(QObject *watcher);
+
+	/// Adds another watcher that isn't a QObject
+	void addVoidWatcher(void *watcher);
+	/// Removes a watcher that isn't a QObject. If this is the last watcher, then the AMDbObject we're storing and this object will have deleteLater called on them
+	void removeVoidWatcher(void *watcher);
+
+signals:
+	/// Emitted if the object is unexpectedly destroyed
+	void objectPrematurelyDestroyed();
+
+protected slots:
+	/// If a watcher is a qobject, then we can make sure that it is removed as a watcher even if the programmer forgets to
+	void onWatcherDestroyed(QObject *watcher);
+
+	/// If (somehow) the object is destroyed outside of removeWatcher, we should probably notify the watchers and delete ourself
+	void onObjectDestroyed();
+
+protected:
+	/// The object of interest
+	AMDbObject *object_;
+	/// The watcher for this object
+	QList<void*> watchers_;
+};
+
 
 /// The functions in the AMDbObjectSupport class provide support for registering AMDbObject classes into the AMDbObject system. This class is thread-safe.
 /*!
@@ -162,7 +201,7 @@ public:
 	const AMDbObjectInfo* objectInfoForClass(const QString& classsName) const;
 	/// \todo Overloads for objectInfoForClass<Class>().
 
-	// Public Functions: Dynamic Loading
+	// Public Functions: Dynamic Loading for AMDbObjects
 	////////////////////////////////////
 
 	/// Useful for database introspection, this creates and dynamically loads an object stored in database \c db, under table \c tableName, at row \c id. You can use qobject_cast<>() or type() to find out the detailed type of the new object.  Returns 0 if no object found.
@@ -180,10 +219,6 @@ public:
 		QString className = (T::staticMetaObject).className();
 		return select(db, className, columnNames, whereClause);
 	}
-
-
-
-
 
 	// Internal Helper functions
 	//////////////////////////////
@@ -203,6 +238,7 @@ public:
 	static QString stringListSeparator();
 	/// Separator used between items when exporting all other lists to the database (changed from comma to support french localizations which use une virgule for the decimal point. maybe this needs to be fully localized.)
 	static QString listSeparator();
+	static QString vectorSeparator();
 
 	/// Stores thumbnails for all AMDbObjects that use thumbnails
 	static QString thumbnailTableName();

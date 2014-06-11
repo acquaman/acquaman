@@ -1,5 +1,5 @@
 /*
-Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2010-2012 Mark Boots, David Chevrier, Darren Hunter and David Muir.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -36,7 +36,7 @@ class AMSADetector;
 class AMDetector;
 class CLSSIS3820Scaler;
 
-class AMSamplePlate;
+class AMSamplePlatePre2013;
 
 class AMAction;
 
@@ -50,6 +50,7 @@ public:
 	REIXSPhotonSource(QObject* parent = 0);
 
 	REIXSBrokenMonoControl* energy() { return energy_; }
+	AMControl* userEnergyOffset() {return userEnergyOffset_; }
 	AMControl* directEnergy() { return directEnergy_; }
 	AMControl* monoSlit() { return monoSlit_; }
 	AMControl* monoGratingTranslation() { return monoGratingTranslation_; }
@@ -58,12 +59,16 @@ public:
 	AMControl* monoMirrorSelector() { return monoMirrorSelector_; }
 	AMControl* epuPolarization() { return epuPolarization_; }
 	AMControl* epuPolarizationAngle() { return epuPolarizationAngle_; }
+	AMControl* ringCurrent()  { return ringCurrent_; }
 	AMControl* M5Pitch() { return M5Pitch_; } //DAVID ADDED
 	AMControl* M5Yaw() { return M5Yaw_; }  //DAVID ADDED
 
+
 protected:
-	AMControl* directEnergy_, *monoSlit_, *monoGratingTranslation_, *monoGratingSelector_, *monoMirrorTranslation_, *monoMirrorSelector_, *epuPolarization_, *epuPolarizationAngle_, *M5Pitch_, *M5Yaw_; //DAVID ADDED M5's
+	AMControl* directEnergy_, *userEnergyOffset_, *monoSlit_, *monoGratingTranslation_, *monoGratingSelector_, *monoMirrorTranslation_, *monoMirrorSelector_, *epuPolarization_, *epuPolarizationAngle_, *M5Pitch_, *M5Yaw_, *ringCurrent_;//DAVID ADDED M5's
 	REIXSBrokenMonoControl* energy_;
+
+
 
 };
 
@@ -247,6 +252,9 @@ public:
 	// removed motor from endstation in Dec. 2011:
 		// AMControl* detectorRotationDrive() { return detectorRotationDrive_; }
 	REIXSHexapod* hexapod() { return hexapod_; }
+	AMControl* tmMCPPreamp() { return tmMCPPreamp_; }
+	AMControl* tmSOE() { return tmSOE_; }
+
 
 public slots:
 	/// Specify which stored calibration to use.  Use a \c databaseId of 0 or -1 to reset to the default calibration (ie: a default-constructed REIXSXESCalibration).  Returns true on success.
@@ -254,13 +262,20 @@ public slots:
 
 	void specifyFocusOffset(double focusOffsetMm);
 	bool specifyGrating(int gratingIndex);
+	void updateGrating();
 	void specifyDetectorTiltOffset(double tiltOffsetDeg);
+
+protected slots:
+	void onConnected(bool isConnected);
 
 protected:
 	AMPVwStatusControl *spectrometerRotationDrive_, *detectorTranslation_, *detectorTiltDrive_, *endstationTranslation_, *gratingMask_;  //DAVID ADDED 001, 005
 	REIXSHexapod* hexapod_;
 
 	REIXSXESCalibration2 calibration_;
+
+//	Temperature
+	AMControl* tmMCPPreamp_, *tmSOE_;
 
 	/// Current grating is -1 if a grating hasn't been positioned yet
 	int currentGrating_, specifiedGrating_;
@@ -314,9 +329,15 @@ public:
 
 	AMControl* loadLockZ() { return loadLockZ_; }
 	AMControl* loadLockR() { return loadLockR_; }
+	AMControl* tmSample() { return tmSample_; }
+
+
 
 protected:
 	CLSMDriveMotorControl* x_, *y_, *z_, *r_, *loadLockZ_, *loadLockR_;
+
+	//	Temperature
+		AMControl* tmSample_;
 };
 
 /// This control provides a wrapper around the beamline energy PV control to correct some of its major deficiencies.
@@ -440,8 +461,8 @@ public:
 	/// Access the valves and shutters
 	REIXSValvesAndShutters* valvesAndShutters() { return valvesAndShutters_; }
 	/// Returns the current (active) sample plate, ie:the one that is currently loaded. When a user uses the UI to switch sample plates, we simple re-load this one from the database to become a different sample plate.
-	AMSamplePlate* samplePlate() { return samplePlate_; }
-	virtual int currentSamplePlateId() const;
+	AMSamplePlatePre2013* samplePlate() { return samplePlate_; }
+	int currentSamplePlateId() const;
 	/// Returns the id of the sample on the current plate that is in position.
 	int currentSampleId();
 	virtual AMControlSet* currentSamplePositioner() { return sampleManipulatorSet_; }
@@ -456,6 +477,8 @@ public:
 	/// All the controls we want to expose to users for available motions in REIXSControlMoveAction.
 	//AMControlSet* allControlsSet() { return allControlsSet_; }
 	AMControlSet* allControlsSet() { return 0; }
+	/// All temperature monitors set
+	AMControlSet* tmset() { return tmSet_; }
 
 	REIXSXASDetectors* xasDetectors() { return xasDetectors_; }
 	CLSSIS3820Scaler *scaler() { return scaler_; }
@@ -497,10 +520,11 @@ protected:
 	AMControlSet* spectrometerPositionSet_;
 	/// All the controls we want to expose to users for available motions in REIXSControlMoveAction.
 	//AMControlSet* allControlsSet_;
-
+	/// All tempertature monitors
+	AMControlSet* tmSet_;
 
 	/// This is the active sample plate object, ie:the one that is currently loaded. When a user uses the UI to switch sample plates, we simple re-load this one from the database to become a different sample plate.
-	AMSamplePlate* samplePlate_;
+	AMSamplePlatePre2013* samplePlate_;
 
 	/// List of detectors used in XAS scans
 	REIXSXASDetectors* xasDetectors_;

@@ -22,13 +22,17 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "application/AMDatamanAppController.h"
 
+#define AMDATAMANAPPCONTROLLERFORACTIONS3_MOVED_LARGE_ACTIONSDB 717001
+#define AMDATAMANAPPCONTROLLERFORACTIONS3_MOVED_LARGE_SCANACTIONSDB 717002
+
 /// This version of AMDatamanAppController is suitable for apps using the 'actions3' actions framework
 class AMDatamanAppControllerForActions3 : public AMDatamanAppController
 {
     Q_OBJECT
 public:
- 	virtual ~AMDatamanAppControllerForActions3();
-    explicit AMDatamanAppControllerForActions3(QObject *parent = 0);
+	explicit AMDatamanAppControllerForActions3(QObject *parent = 0);
+
+	virtual ~AMDatamanAppControllerForActions3();
 
 	/// Re-implemented to create the user database and actions database
 	virtual bool startupCreateDatabases();

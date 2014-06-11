@@ -410,7 +410,7 @@ Qt::ItemFlags AMActionHistoryModel3::flags(const QModelIndex &index) const
 	if( index.column() != 0)
 		return Qt::ItemIsEnabled;
 	AMPointerTreeNode *indexNode = static_cast<AMPointerTreeNode*>(index.internalPointer());
-	AMActionLogItem3 *item;
+	AMActionLogItem3 *item = 0;
 	if(indexNode){
 		//NEM
 		item = static_cast<AMActionLogItem3*>(indexNode->item());

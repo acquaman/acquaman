@@ -67,7 +67,7 @@ AMControl * REIXSXASScanController::control()
 		return REIXSBeamline::bl()->photonSource()->directEnergy();	// use for "little" moves.
 }
 
-#include "dataman/AMSample.h"
+#include "dataman/AMSamplePre2013.h"
 
 void REIXSXASScanController::initializeScanMetaData()
 {
@@ -79,7 +79,7 @@ void REIXSXASScanController::initializeScanMetaData()
 		int sampleId = REIXSBeamline::bl()->currentSampleId();
 		if(sampleId >= 1) {
 			scan_->setSampleId(sampleId);
-			QString sampleName = AMSample::sampleNameForId(AMDatabase::database("user"), sampleId); // scan_->sampleName() won't work until the scan is saved to the database.
+			QString sampleName = AMSamplePre2013::sampleNameForId(AMDatabase::database("user"), sampleId); // scan_->sampleName() won't work until the scan is saved to the database.
 			scan_->setName(QString("%1 %2 %3").arg(sampleName).arg(config_->autoScanName()).arg(rangeString));
 			scan_->setNumber(scan_->largestNumberInScansWhere(AMDatabase::database("user"), QString("sampleId = %1").arg(sampleId))+1);
 		}
@@ -164,7 +164,7 @@ void REIXSXASScanController::onInitializationMoveFailed()
 //	energy->setRepeatMoveSettlingTime(0);
 //	energy->setTolerance(1e10);	// that better be enough, pos.
 
-//	qDebug() << "Disabled settling times and tolerance.";
+//	qdebug() << "Disabled settling times and tolerance.";
 //	setCustomInitializationFinished(true);
 //	return true;
 //}
@@ -176,6 +176,6 @@ void REIXSXASScanController::onInitializationMoveFailed()
 //	energy->setRepeatMoveSettlingTime(repeatMoveSettlingTime_);
 //	energy->setTolerance(tolerance_);
 
-//	qDebug() << "Re-enabled settling times and tolerance.";
+//	qdebug() << "Re-enabled settling times and tolerance.";
 //	setCustomCleanupFinished();
 //}

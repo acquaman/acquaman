@@ -103,7 +103,6 @@ AMDataView::AMDataView(AMDatabase* database, QWidget *parent) :
 	connect(viewModeButtonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(setViewMode(int)));
 	connect(organizeModeBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onOrganizeModeBoxCurrentIndexChanged(int)));
 
-
 	// pick up database changes...
 	//////////////////////////////
 	connect(db_, SIGNAL(created(QString,int)), this, SLOT(onDatabaseItemCreatedOrRemoved(QString,int)), Qt::QueuedConnection);
@@ -466,7 +465,7 @@ void AMDataView::refreshView() {
 			bool found = false;
 			QSqlQuery findSamples = db_->query();
 			findSamples.setForwardOnly(true);
-			findSamples.prepare("SELECT id, dateTime, name FROM AMSample_table");	/// \todo thumbnail for samples
+			findSamples.prepare("SELECT id, dateTime, name FROM AMSamplePre2013_table");	/// \todo thumbnail for samples
 			if(findSamples.exec()) {
 				QVector<int> sampleIds;
 				QVector<QDateTime> sampleDateTimes;
@@ -663,7 +662,7 @@ void AMDataView::refreshView() {
 			bool found = false;
 			QSqlQuery findSamples = db_->query();
 			findSamples.setForwardOnly(true);
-			findSamples.prepare("SELECT id, dateTime, name FROM AMSample_table WHERE id IN (SELECT sampleId FROM AMScan_table WHERE runId = ?)");	/// \todo add thumbnail icon!
+			findSamples.prepare("SELECT id, dateTime, name FROM AMSamplePre2013_table WHERE id IN (SELECT sampleId FROM AMScan_table WHERE runId = ?)");	/// \todo add thumbnail icon!
 			findSamples.bindValue(0, runId_);
 			if(findSamples.exec()) {
 				QVector<int> sampleIds;
@@ -868,7 +867,7 @@ void AMDataView::refreshView() {
 			bool found = false;
 			QSqlQuery findSamples = db_->query();
 			findSamples.setForwardOnly(true);
-			findSamples.prepare("SELECT id,dateTime,name FROM AMSample_table WHERE id IN (SELECT sampleId FROM AMScan_table WHERE id IN (SELECT objectId FROM ObjectExperimentEntries WHERE experimentId = ?))");	/// \todo add thumbnail icon!
+			findSamples.prepare("SELECT id,dateTime,name FROM AMSamplePre2013_table WHERE id IN (SELECT sampleId FROM AMScan_table WHERE id IN (SELECT objectId FROM ObjectExperimentEntries WHERE experimentId = ?))");	/// \todo add thumbnail icon!
 			findSamples.bindValue(0, experimentId_);
 			if(findSamples.exec()) {
 				QVector<int> sampleIds;
@@ -1327,6 +1326,7 @@ void AMLayoutControlledGraphicsWidget::resizeEvent(QGraphicsSceneResizeEvent *ev
 }
 
 #include <QAbstractItemModel>
+#include "dataman/AMSamplePre2013.h"
 #include "dataman/AMSample.h"
 #include "dataman/AMRun.h"
 
@@ -1366,12 +1366,12 @@ AMDataViewSectionListView::AMDataViewSectionListView(AMDatabase *db, const QStri
 									   whereClause,
 									   "dateTime ASC",
 									   QList<AMQueryTableModelColumnInfo>()
-										   << AMQueryTableModelColumnInfo("Row", "id")
+										   << AMQueryTableModelColumnInfo("Serial#", "id")
 										   << AMQueryTableModelColumnInfo("Name", "name")
 										   << AMQueryTableModelColumnInfo("#", "number")
 										   << AMQueryTableModelColumnInfo("When", "dateTime")
 										   // << AMQueryTableModelColumnInfo("About", "scanInfo")
-										   << AMQueryTableModelColumnInfo("Sample", "sampleId", true, AMDbObjectSupport::s()->tableNameForClass<AMSample>(), "name")
+										   // << AMQueryTableModelColumnInfo("Sample", "sampleId", true, AMDbObjectSupport::s()->tableNameForClass<AMSamplePre2013>(), "name")
 										   << AMQueryTableModelColumnInfo("Technique", "AMDbObjectType", true, "AMDbObjectTypes_table", "description", "AMDbObjectType")
 										   // << AMQueryTableModelColumnInfo("Where", "facilityId", true, AMDbObjectSupport::s()->tableNameForClass<AMFacility>(), "description")
 										   << AMQueryTableModelColumnInfo("Where", "runId", true, AMDbObjectSupport::s()->tableNameForClass<AMRun>(), "name")
@@ -1383,7 +1383,8 @@ AMDataViewSectionListView::AMDataViewSectionListView(AMDatabase *db, const QStri
 	widthConstraint_ = initialWidthConstraint;
 
 	// For now, we know what's in the columns, so we'll resize the headers appropriately. In the future, it's possible that the columns are configurable, using AMScanQueryModel with non-default constructor.
-	tableView_->setColumnHidden(0, true);
+	//tableView_->setColumnHidden(0, true);
+	tableView_->setColumnWidth(0, 60);
 	tableView_->setColumnWidth(1, 120);
 	tableView_->setColumnWidth(2, 40);
 	tableView_->setColumnWidth(3, 180);

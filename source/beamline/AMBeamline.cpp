@@ -22,6 +22,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "util/AMErrorMonitor.h"
 
+#include "dataman/AMSamplePlate.h"
+
 AMBeamline* AMBeamline::instance_ = 0;
 
 
@@ -30,6 +32,9 @@ AMBeamline::AMBeamline(const QString& controlName)
 {
 	exposedControls_ = new AMControlSet(this);
 	exposedDetectors_ = new AMDetectorSet(this);
+	samplePlate_ = 0; //NULL
+	samplePlateBrowser_ = 0; //NULL
+	currentSamples_ = QList<AMSample*>();
 }
 
 AMBeamline::~AMBeamline()
@@ -54,6 +59,53 @@ AMBeamline * AMBeamline::bl()
 	 }
 
 	return instance_;
+}
+
+AMSamplePlate* AMBeamline::samplePlate(){
+	return samplePlate_;
+}
+
+AMSamplePlateBrowser* AMBeamline::samplePlateBrowser(){
+	if(!samplePlateBrowser_){
+		samplePlateBrowser_ = new AMSamplePlateBrowser(AMDatabase::database("user"), this);
+		connect(this, SIGNAL(samplePlateChanged(AMSamplePlate*)), samplePlateBrowser_, SLOT(setCurrentSamplePlate(AMSamplePlate*)));
+	}
+	return samplePlateBrowser_;
+}
+
+void AMBeamline::setSamplePlate(AMSamplePlate *samplePlate){
+	emit samplePlateAboutToChange(samplePlate_);
+	samplePlate_ = samplePlate;
+
+	if(samplePlate_)
+		samplePlate_->storeToDb(AMDatabase::database("user"));
+	emit samplePlateChanged(samplePlate_);
+}
+
+QList<AMSample*> AMBeamline::currentSamples() const{
+	return currentSamples_;
+}
+
+AMSample* AMBeamline::currentSample() const{
+	if(currentSamples_.count() == 1)
+		return currentSamples_.at(0);
+	return 0; //NULL
+}
+
+void AMBeamline::setCurrentSamples(QList<AMSample*> sample){
+	bool sameSampleList = true;
+
+	if(sample.count() != currentSamples_.count())
+		sameSampleList = false;
+	else
+		for(int x = 0, size = sample.count(); x < size; x++)
+			if(sample.at(x) != currentSamples_.at(x))
+				sameSampleList = false;
+
+	if(!sameSampleList){
+		currentSamples_ = sample;
+		emit currentSampleChanged(currentSamples_);
+	}
 }
 
 bool AMBeamline::detectorAvailable(const AMDetectorInfo &detectorInfo){

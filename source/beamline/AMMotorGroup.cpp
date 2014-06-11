@@ -271,6 +271,11 @@ AMAction3 *AMMotorGroupObject::createStopAllAction()
 	return list;
 }
 
+#include "ui/AMMotorGroupView.h"
+AMMotorGroupObjectView* AMMotorGroupObject::createMotorGroupObjectView(){
+	return new AMMotorGroupObjectView(this);
+}
+
 // AMMotorGroup
 //////////////////////////////////////////////////
 

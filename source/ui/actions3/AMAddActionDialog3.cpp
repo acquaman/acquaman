@@ -118,4 +118,6 @@ void AMAddActionDialog3::onAddToWorkflowButtonClicked()
 	}
 
 	AMActionRunner3::workflow()->addActionToQueue(action);
+
+	emit actionAddedFromDialog(action);
 }

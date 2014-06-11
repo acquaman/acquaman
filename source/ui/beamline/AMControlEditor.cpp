@@ -43,12 +43,13 @@ QPixmap* AMControlEditor::minorIcon_ = 0;
 QPixmap* AMControlEditor::majorIcon_ = 0;
 QPixmap* AMControlEditor::lockedIcon_ = 0;
 
-AMControlEditor::AMControlEditor(AMControl* control, QWidget *parent) :
+AMControlEditor::AMControlEditor(AMControl* control, AMControl* secondaryControl, QWidget *parent) :
 	QFrame(parent)
 {
 	setObjectName("AMControlEditor");
 
 	control_ = control;
+	secondaryControl_ = secondaryControl;
 	readOnly_ = false;
 
 	// create static caches, if not already here:
@@ -134,6 +135,11 @@ AMControlEditor::AMControlEditor(AMControl* control, QWidget *parent) :
 	connect(dialog_, SIGNAL(doubleValueSelected(double)), this, SLOT(onNewSetpointChosen(double)));
 
 	// Make connections:
+	if(secondaryControl_) {
+		connect(secondaryControl_, SIGNAL(valueChanged(double)), this, SLOT(onSecondaryValueChanged(double)));
+		connect(secondaryControl_, SIGNAL(unitsChanged(QString)), this, SLOT(onSecondaryUnitsChanged(QString)));
+	}
+
 	if(control_) {
 		connect(control_, SIGNAL(valueChanged(double)), this, SLOT(onValueChanged(double)));
 		connect(control_, SIGNAL(connected(bool)), this, SLOT(reviewControlState()));
@@ -147,6 +153,9 @@ AMControlEditor::AMControlEditor(AMControl* control, QWidget *parent) :
 			onValueChanged(control_->value());
 			onMotion(control_->isMoving());
 			onEnumChanged();
+			if(secondaryControl_ && secondaryControl_->isConnected()){
+				onSecondaryValueChanged(secondaryControl_->value());
+			}
 		}
 	}
 	connect(this, SIGNAL(clicked()), this, SLOT(onEditStart()));
@@ -171,7 +180,12 @@ void AMControlEditor::onValueChanged(double newVal) {
 
 void AMControlEditor::onUnitsChanged(const QString &units) {
 	if(control_->isConnected())
-		valueLabel_->setText(QString("%1 %2").arg(control_->value()).arg(units));
+	{
+		if(secondaryControl_ && secondaryControl_->isConnected())
+			valueLabel_->setText(QString("%1 %2 (%3 %4)").arg(control_->value()).arg(units).arg(secondaryControl_->value()).arg(secondaryControl_->units()));
+		else
+			valueLabel_->setText(QString("%1 %2").arg(control_->value()).arg(units));
+	}
 }
 
 void AMControlEditor::reviewControlState() {
@@ -343,5 +357,21 @@ void AMControlEditor::onNewSetpointChosen(double value)
 void AMControlEditor::onDisplayPrecisionChanged(int displayPrecision)
 {
 	dialog_->setDoubleDecimals(displayPrecision);
+}
+
+void AMControlEditor::onSecondaryValueChanged(double newValue)
+{
+	valueLabel_->setText(QString("%1 %2 (%3 %4)").arg(control_->value()).arg(control_->units()).arg(newValue).arg(secondaryControl_->units()));
+}
+
+void AMControlEditor::onSecondaryUnitsChanged(const QString &units)
+{
+	if(control_->isConnected())
+	{
+		if(secondaryControl_ && secondaryControl_->isConnected())
+			valueLabel_->setText(QString("%1 %2 (%3 %4)").arg(control_->value()).arg(units).arg(secondaryControl_->value()).arg(secondaryControl_->units()));
+		else
+			valueLabel_->setText(QString("%1 %2").arg(control_->value()).arg(units));
+	}
 }
 

@@ -164,12 +164,12 @@ public:
 	/// Returns the acquisition time tolerance.  This is defined by subclasses because this limitation will likely be detector specific.
 	virtual double acquisitionTimeTolerance() const = 0;
 
-    virtual bool canDoDarkCurrentCorrection() const { return false;}
+	virtual bool canDoDarkCurrentCorrection() const { return false;}
 
-    virtual double darkCurrentMeasurementValue() const;
-    virtual int darkCurrentMeasurementTime() const;
+	virtual double darkCurrentMeasurementValue() const;
+	virtual int darkCurrentMeasurementTime() const;
 
-    virtual bool requiresNewDarkCurrentMeasurement() const;
+	virtual bool requiresNewDarkCurrentMeasurement() const;
 
 	/// Returns the current acquisition state
 	AMDetector::AcqusitionState acquisitionState() const { return acquisitionState_; }
@@ -275,10 +275,10 @@ int outputSize = indexStart.totalPointsTo(indexEnd);
 	/// Returns a newly created action (possibly list of actions) to perfrom the detector cleanup
 	virtual AMAction3* createCleanupActions();
 
-    /// Returns a (list of) actions that will do all necessary steps to do dark current correction. Your subclass needs to implement this function. Dwell time argument is in seconds.
-    virtual AMAction3* createDarkCurrentCorrectionActions(double dwellTime);
-    /// Returns an action that sets the current detector value as the dark current correction value. Your subclass will probably call this in createDarkCurrentCorrectionActions.
-    virtual AMAction3* createSetAsDarkCurrentCorrectionAction();
+	/// Returns a (list of) actions that will do all necessary steps to do dark current correction. Your subclass needs to implement this function. Dwell time argument is in seconds.
+	virtual AMAction3* createDarkCurrentCorrectionActions(double dwellTime);
+	/// Returns an action that sets the current detector value as the dark current correction value. Your subclass will probably call this in createDarkCurrentCorrectionActions.
+	virtual AMAction3* createSetAsDarkCurrentCorrectionAction();
 
 	/// Returns a data source for viewing this detector's output
 	virtual AMDataSource* dataSource() const = 0;

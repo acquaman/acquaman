@@ -62,7 +62,7 @@ AMBeamlineCameraWidget::AMBeamlineCameraWidget(QWidget *parent, bool useOpenGlVi
 	chl->addWidget(lockCrosshairCheckBox_ = new QCheckBox("Lock position"));
 	chl->addStretch();
 	crosshairFrame->setLayout(chl);
-	showCrosshairCheckBox_->setChecked(true);
+	//showCrosshairCheckBox_->setChecked(true);
 
 	vl->addWidget(crosshairFrame);
 	vl->addWidget(videoWidget_ = new AMCrosshairOverlayVideoWidget(0, useOpenGlViewport));

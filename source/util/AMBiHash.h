@@ -104,14 +104,14 @@ public:
 
 	/// return the value for a key (forward lookup)
 	T2 valueF(const T1& key1) const {
-        if(!AMBiHash<T1, T2>::containsF(key1))
+		if(!AMBiHash<T1, T2>::containsF(key1))
 			lookupFailed_ = true;
 		return AMBiHash<T1, T2>::valueF(key1);
 	}
 
 	/// return a "key" for a "value" (reverse lookup)
 	T1 valueR(const T2& key2) const {
-        if(!AMBiHash<T1, T2>::containsR(key2))
+		if(!AMBiHash<T1, T2>::containsR(key2))
 			lookupFailed_ = true;
 		return AMBiHash<T1, T2>::valueR(key2);
 	}

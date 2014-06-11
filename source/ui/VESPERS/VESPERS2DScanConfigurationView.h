@@ -69,6 +69,8 @@ protected slots:
 	void onSetStartPosition();
 	/// Handles setting the end position when the "Use Current" button is pushed.
 	void onSetEndPosition();
+	/// Handles setting the normal position when the "Set Normal" button is pushed.
+	void onSetNormalPosition();
 	/// Helper slot that manages setting the x axis start position.
 	void onXStartChanged();
 	/// Helper slot that manages setting the x axis end position.
@@ -81,6 +83,8 @@ protected slots:
 	void onYEndChanged();
 	/// Helper slot that manages setting the y axis step size.
 	void onYStepChanged();
+	/// Helper slot that manages setting the normal position.
+	void onNormalPositionChanged();
 	/// Helper slot that manages setting the time per point.
 	void onDwellTimeChanged();
 
@@ -136,6 +140,8 @@ protected:
 	QDoubleSpinBox *hStep_;
 	/// Pointer to the vertical step size.
 	QDoubleSpinBox *vStep_;
+	/// Pointer to the normal position used for the scan.
+	QDoubleSpinBox *normalPosition_;
 
 	/// Pointer to the CCD help group box.
 	QGroupBox *ccdTextBox_;

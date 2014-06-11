@@ -18,57 +18,30 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <QApplication>
+
 #include <QFile>
-#include <QProcess>
-#include <QDir>
 #include "application/SGM/SGMAppController.h"
-
-#ifndef Q_WS_MAC
-#include <signal.h>
-#include <execinfo.h>
-
-void handle_signal(int signum);
-qint64 crashMonitorPID;
-QFile *errorFile;
-#endif
+#include "application/AMCrashMonitorSupport.h"
 
 int main(int argc, char *argv[])
 {
-#ifndef Q_WS_MAC
-	signal(SIGSEGV, handle_signal);
-
-	QFile localErrorFile(QString("/tmp/ErrorFile%1.txt").arg(getpid()));
-	localErrorFile.open(QIODevice::WriteOnly | QIODevice::Text);
-	errorFile = &localErrorFile;
-#endif
-
 	/// Program Startup:
 	// =================================
 	QApplication app(argc, argv);
 	app.setApplicationName("Acquaman");
 
-#ifndef Q_WS_MAC
-	QString applicationPath = app.arguments().at(0);
-	QFileInfo applicationPathInfo(applicationPath);
-	QString applicationRootPath;
-	if(applicationPathInfo.isSymLink())
-		applicationRootPath = applicationPathInfo.symLinkTarget().section('/', 0, -2);
-	else
-		applicationRootPath = applicationPathInfo.absoluteDir().path();
-
-
-	//applicationRootPath.replace("SGMAcquaman.app", "AMCrashReporter.app");
-
-	QStringList arguments;
-	arguments << "-m";
-	arguments << app.applicationFilePath();
-	arguments << "/home/acquaman/AcquamanApplicationCrashReports";
-	arguments << QString("%1").arg(getpid());
-	QProcess::startDetached(applicationRootPath+"/AMCrashReporter", arguments, QDir::currentPath(), &crashMonitorPID);
-#endif
 
 	SGMAppController* appController = new SGMAppController();
 
+#ifndef Q_WS_MAC
+	// Make a local QFile for the error file. It needs to be in this scope and get passed into AMCrashMonitorSupport, otherwise it won't work properly
+	// After doing so, star the monitor
+	// Ignore all of this for Mac OSX, it has it's own crash reporter and the two seem to compete
+	QFile localErrorFile(QString("/tmp/ErrorFile%1.txt").arg(getpid()));
+	localErrorFile.open(QIODevice::WriteOnly | QIODevice::Text);
+	AMCrashMonitorSupport::s()->setErrorFile(&localErrorFile);
+	AMCrashMonitorSupport::s()->monitor();
+#endif
 
 	/// Program Run-loop:
 	// =================================
@@ -82,23 +55,11 @@ int main(int argc, char *argv[])
 		appController->shutdown();
 
 #ifndef Q_WS_MAC
-	kill(crashMonitorPID, SIGUSR2);
+	// Make sure we have the crash reporter system actually generate a report
+	// Ignore all of this for Mac OSX, it has it's own crash reporter and the two seem to compete
+	AMCrashMonitorSupport::s()->report();
 #endif
 	delete appController;
 
 	return retVal;
 }
-
-#ifndef Q_WS_MAC
-void handle_signal(int signum){
-	void *array[100];
-	size_t size;
-
-	size = backtrace(array, 100);
-	backtrace_symbols_fd(array, size, errorFile->handle());
-
-	kill(crashMonitorPID, SIGUSR1);
-	signal(signum, SIG_DFL);
-	kill(getpid(), signum);
-}
-#endif

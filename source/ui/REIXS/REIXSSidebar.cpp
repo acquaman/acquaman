@@ -28,6 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "actions3/AMListAction3.h"
 #include "actions3/actions/AMControlMoveAction3.h"
+#include "actions3/AMActionRunner3.h"
 
 
 REIXSSidebar::REIXSSidebar(QWidget *parent) :
@@ -43,17 +44,21 @@ REIXSSidebar::REIXSSidebar(QWidget *parent) :
 	ui->beamlineFormLayout->setWidget(1, QFormLayout::FieldRole, beamlineEnergyEditor_);
 
 	monoSlitEditor_ = new REIXSActionBasedControlEditor(REIXSBeamline::bl()->photonSource()->monoSlit());
-	ui->beamlineFormLayout->setWidget(4, QFormLayout::FieldRole, monoSlitEditor_);
+	ui->beamlineFormLayout->setWidget(5, QFormLayout::FieldRole, monoSlitEditor_);
 
 	gratingSelector_ = new REIXSActionBasedControlEditor(REIXSBeamline::bl()->photonSource()->monoGratingSelector());
-	ui->beamlineFormLayout->setWidget(2, QFormLayout::FieldRole, gratingSelector_);
+	ui->beamlineFormLayout->setWidget(3, QFormLayout::FieldRole, gratingSelector_);
 	mirrorSelector_ = new REIXSActionBasedControlEditor(REIXSBeamline::bl()->photonSource()->monoMirrorSelector());
-	ui->beamlineFormLayout->setWidget(3, QFormLayout::FieldRole, mirrorSelector_);
+	ui->beamlineFormLayout->setWidget(4, QFormLayout::FieldRole, mirrorSelector_);
 
 	epuPolarizationEditor_ = new REIXSActionBasedControlEditor(REIXSBeamline::bl()->photonSource()->epuPolarization());
-	ui->beamlineFormLayout->setWidget(5, QFormLayout::FieldRole, epuPolarizationEditor_);
+	ui->beamlineFormLayout->setWidget(6, QFormLayout::FieldRole, epuPolarizationEditor_);
 	epuPolarizationAngleEditor_ = new REIXSActionBasedControlEditor(REIXSBeamline::bl()->photonSource()->epuPolarizationAngle());
-	ui->beamlineFormLayout->setWidget(6, QFormLayout::FieldRole, epuPolarizationAngleEditor_);
+	ui->beamlineFormLayout->setWidget(7, QFormLayout::FieldRole, epuPolarizationAngleEditor_);
+
+	userEnergyOffestEditor_ = new REIXSActionBasedControlEditor(REIXSBeamline::bl()->photonSource()->userEnergyOffset());
+	ui->beamlineFormLayout->setWidget(2, QFormLayout::FieldRole, userEnergyOffestEditor_);
+
 
 
 	// Make connections
@@ -68,11 +73,13 @@ REIXSSidebar::REIXSSidebar(QWidget *parent) :
 	connect(ui->scalerContinuousButton, SIGNAL(clicked(bool)), this, SLOT(onScalerContinuousButtonToggled(bool)));
 	connect(REIXSBeamline::bl()->xasDetectors()->scalerContinuousMode(), SIGNAL(valueChanged(double)), this, SLOT(onScalerContinuousModeChanged(double)));
 
-
+	connect(ui->MonoStopButton, SIGNAL(clicked()), this, SLOT(on_MonoStopButton_clicked()));
 
 	connect(REIXSBeamline::bl()->xasDetectors()->TEYFeedback(), SIGNAL(valueChanged(double)), this, SLOT(onTEYCountsChanged(double)));
 	connect(REIXSBeamline::bl()->xasDetectors()->TFYFeedback(), SIGNAL(valueChanged(double)), this, SLOT(onTFYCountsChanged(double)));
 	connect(REIXSBeamline::bl()->xasDetectors()->I0Feedback(), SIGNAL(valueChanged(double)), this, SLOT(onI0CountsChanged(double)));
+
+	connect(REIXSBeamline::bl()->photonSource()->ringCurrent(), SIGNAL(valueChanged(double)), this, SLOT(onRingCurrentChanged(double)));
 
 	// Get initial status:
 	//////////////////////////
@@ -158,3 +165,16 @@ void REIXSSidebar::onScalerContinuousModeChanged(double on)
 {
 	ui->scalerContinuousButton->setChecked(bool(on));
 }
+
+void REIXSSidebar::on_MonoStopButton_clicked()
+{
+	REIXSBeamline::bl()->photonSource()->energy()->stop();
+	AMActionRunner3::scanActionRunner()->cancelCurrentAction();
+	AMActionRunner3::workflow()->cancelCurrentAction();
+}
+
+void REIXSSidebar::onRingCurrentChanged(double current)
+{
+	ui->ringCurrentValue->setText((QString("%1 mA").arg(int(current)))); //REIXSBeamline::bl()->photonSource()->ringCurrent()));
+}
+

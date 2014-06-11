@@ -1,11 +1,11 @@
 #include "SGMSScanConfigurationDbObject.h"
 
- SGMSScanConfigurationDbObject::~SGMSScanConfigurationDbObject(){}
 SGMSScanConfigurationDbObject::SGMSScanConfigurationDbObject(QObject *parent) :
 	AMDbObject(parent)
 {
-
 }
+
+SGMSScanConfigurationDbObject::~SGMSScanConfigurationDbObject(){}
 
 SGMSScanConfigurationDbObject::SGMSScanConfigurationDbObject(const SGMSScanConfigurationDbObject &original) :
 	AMDbObject(original)
@@ -104,7 +104,7 @@ void SGMSScanConfigurationDbObject::setFluxResolutionGroup(const AMControlInfoLi
 
 void SGMSScanConfigurationDbObject::setExitSlitGap(double exitSlitGapValue){
 	if(exitSlitGap() != exitSlitGapValue){
-		fluxResolutionGroup_.controlNamed("exitSlit").setValue(exitSlitGapValue);
+		fluxResolutionGroup_.controlNamed("exitSlitGap").setValue(exitSlitGapValue);
 		emit fluxResolutionGroupChanged();
 		emit exitSlitGapChanged(exitSlitGap());
 		setModified(true);
@@ -128,3 +128,4 @@ void SGMSScanConfigurationDbObject::setHarmonic(SGMBeamlineInfo::sgmHarmonic har
 		setModified(true);
 	}
 }
+

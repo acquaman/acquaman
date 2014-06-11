@@ -1,279 +1,339 @@
-/*
-Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
-
-This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
-
-Acquaman is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-Acquaman is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
-
 #include "AMSamplePlate.h"
-#include "util/AMErrorMonitor.h"
+
+#include <QApplication>
+#include <QStyle>
+
 #include "util/AMDateTimeUtils.h"
+#include "beamline/camera/AMShapeData.h"
 
-#include "math.h"
-
-bool AMSamplePosition::positionWithinBounds() const{
-	if(topLeftPosition().isEmpty() || bottomRightPosition().isEmpty())
-		return true;
-
-	if( (position().count() != topLeftPosition().count()) || (position().count() != bottomRightPosition().count()) )
-		return false;
-
-	for(int x = 0; x < position().count(); x++){
-		double value = position().at(x).value();
-		double topLeftValue = topLeftPosition().at(x).value();
-		double topLeftTolerance = topLeftPosition().at(x).tolerance();
-		double bottomRightValue = bottomRightPosition().at(x).value();
-		double bottomRightTolerance = bottomRightPosition().at(x).tolerance();
-
-		if(value > std::max(topLeftValue+topLeftTolerance, bottomRightValue+bottomRightTolerance) )
-			return false;
-		if(value < std::min(topLeftValue-topLeftTolerance, bottomRightValue-bottomRightTolerance) )
-			return false;
-	}
-
-	return true;
-}
-
-bool AMSamplePosition::overlaps(const AMSamplePosition &other) const{
-	if( ((topLeftPosition().isEmpty()) || (bottomRightPosition().isEmpty())) && ((other.topLeftPosition().isEmpty()) || (other.bottomRightPosition().isEmpty())) )
-		return false;
-
-	if( (topLeftPosition().isEmpty()) || (bottomRightPosition().isEmpty()) ){
-		return other.matchesPosition(position());
-	}
-	else if( (other.topLeftPosition().isEmpty()) || (other.bottomRightPosition().isEmpty())){
-		return matchesPosition(other.position());
-	}
-	else{
-		double ax1, ax2, ay1, ay2, bx1, bx2, by1, by2;
-		ax1 = std::min(topLeftPosition().at(0).value(), bottomRightPosition().at(0).value());
-		ax2 = std::max(topLeftPosition().at(0).value(), bottomRightPosition().at(0).value());
-		ay1 = std::min(topLeftPosition().at(2).value(), bottomRightPosition().at(2).value());
-		ay2 = std::max(topLeftPosition().at(2).value(), bottomRightPosition().at(2).value());
-
-		bx1 = std::min(other.topLeftPosition().at(0).value(), other.bottomRightPosition().at(0).value());
-		bx2 = std::max(other.topLeftPosition().at(0).value(), other.bottomRightPosition().at(0).value());
-		by1 = std::min(other.topLeftPosition().at(2).value(), other.bottomRightPosition().at(2).value());
-		by2 = std::max(other.topLeftPosition().at(2).value(), other.bottomRightPosition().at(2).value());
-
-		return (ax1 < bx2) && (ax2 > bx1) && (ay1 < by2) && (ay2 > by1);
-	}
-}
-
-bool AMSamplePosition::matchesPosition(const AMControlInfoList &other) const{
-	if(position() == other)
-		return true;
-
-	if(topLeftPosition().isEmpty() || bottomRightPosition().isEmpty())
-		return false;
-
-	if(position().count() != other.count() || topLeftPosition().count() != other.count() || bottomRightPosition().count() != other.count())
-		return false;
-
-	for(int x = 0; x < position().count(); x++){
-		double otherValue = other.at(x).value();
-		double topLeftValue = topLeftPosition().at(x).value();
-		double topLeftTolerance = topLeftPosition().at(x).tolerance();
-		double bottomRightValue = bottomRightPosition().at(x).value();
-		double bottomRightTolerance = bottomRightPosition().at(x).tolerance();
-
-		if(otherValue > std::max(topLeftValue+topLeftTolerance, bottomRightValue+bottomRightTolerance) )
-			return false;
-		if(otherValue < std::min(topLeftValue-topLeftTolerance, bottomRightValue-bottomRightTolerance) )
-			return false;
-	}
-
-	return true;
-}
-
-bool AMSamplePosition::matchesPositionWithinTolerances(const AMControlInfoList &other, const QList<double> tolerances) const{
-	if(position() == other)
-		return true;
-
-	if( (topLeftPosition().isEmpty() || bottomRightPosition().isEmpty()) && (tolerances.count() != position().count()) )
-		return false;
-	else if( (topLeftPosition().isEmpty() || bottomRightPosition().isEmpty()) && (tolerances.count() == position().count()) ){
-		for(int x = 0; x < position().count(); x++){
-			double otherValue = other.at(x).value();
-			double topLeftValue = otherValue + tolerances.at(x);
-			double bottomRightValue = otherValue - tolerances.at(x);
-
-			if(otherValue > topLeftValue )
-				return false;
-			if(otherValue < bottomRightValue)
-				return false;
-		}
-		return true;
-	}
-
-	if(position().count() != other.count() || topLeftPosition().count() != other.count() || bottomRightPosition().count() != other.count())
-		return false;
-
-	for(int x = 0; x < position().count(); x++){
-		double otherValue = other.at(x).value();
-		double topLeftValue = topLeftPosition().at(x).value();
-		//double topLeftTolerance = topLeftPosition().at(x).tolerance();
-		double topLeftTolerance = tolerances.at(x);
-		double bottomRightValue = bottomRightPosition().at(x).value();
-		//double bottomRightTolerance = bottomRightPosition().at(x).tolerance();
-		double bottomRightTolerance = tolerances.at(x);
-
-		if(otherValue > std::max(topLeftValue+topLeftTolerance, bottomRightValue+bottomRightTolerance) )
-			return false;
-		if(otherValue < std::min(topLeftValue-topLeftTolerance, bottomRightValue-bottomRightTolerance) )
-			return false;
-	}
-
-	return true;
-}
-
-double AMSamplePosition::rms3SpaceDistance(const AMControlInfoList &other) const{
-	if(matchesPosition(other))
-		return 0;
-
-	if( (other.count() != position().count()) || (other.count() < 3) )
-		return 9999998;
-
-	if( (topLeftPosition().isEmpty() || bottomRightPosition().isEmpty()) ){
-		return sqrt( pow((position().at(0).value()-other.at(0).value()), 2) + pow((position().at(1).value()-other.at(1).value()), 2) + pow((position().at(2).value()-other.at(2).value()), 2) );
-	}
-
-	return 9999997;
-}
-
- AMSamplePlate::~AMSamplePlate(){}
-AMSamplePlate::AMSamplePlate(QObject *parent) : AMDbObject(parent), AMOrderedList<AMSamplePosition>() {
-
-	setName("New Sample Plate");
+AMSamplePlate::AMSamplePlate(QObject *parent) :
+	AMDbObject(parent)
+{
 	dateTime_ = QDateTime::currentDateTime();
 
 	// Forward internal signals (itemAdded, etc.) from our signalSource() as our own
-	connect(signalSource(), SIGNAL(itemAboutToBeAdded(int)), this, SIGNAL(samplePositionAboutToBeAdded(int)));
-	connect(signalSource(), SIGNAL(itemAdded(int)), this, SIGNAL(samplePositionAdded(int)));
-	connect(signalSource(), SIGNAL(itemAboutToBeRemoved(int)), this, SIGNAL(samplePositionAboutToBeRemoved(int)));
-	connect(signalSource(), SIGNAL(itemRemoved(int)), this, SIGNAL(samplePositionRemoved(int)));
-	connect(signalSource(), SIGNAL(itemChanged(int)), this, SIGNAL(samplePositionChanged(int)));
+	connect(samples_.signalSource(), SIGNAL(itemAboutToBeAdded(int)), this, SIGNAL(sampleAboutToBeAdded(int)));
+	connect(samples_.signalSource(), SIGNAL(itemAdded(int)), this, SIGNAL(sampleAdded(int)));
+	connect(samples_.signalSource(), SIGNAL(itemAboutToBeRemoved(int)), this, SIGNAL(sampleAboutToBeRemoved(int)));
+	connect(samples_.signalSource(), SIGNAL(itemRemoved(int)), this, SIGNAL(sampleRemoved(int)));
+	connect(samples_.signalSource(), SIGNAL(itemChanged(int)), this, SIGNAL(sampleChanged(int)));
 }
 
-AMSamplePlate::AMSamplePlate(const AMSamplePlate& other) : AMDbObject(), AMOrderedList<AMSamplePosition>(other) {
-	// Forward internal signals (itemAdded, etc.) from our signalSource() as our own
-	connect(signalSource(), SIGNAL(itemAboutToBeAdded(int)), this, SIGNAL(samplePositionAboutToBeAdded(int)));
-	connect(signalSource(), SIGNAL(itemAdded(int)), this, SIGNAL(samplePositionAdded(int)));
-	connect(signalSource(), SIGNAL(itemAboutToBeRemoved(int)), this, SIGNAL(samplePositionAboutToBeRemoved(int)));
-	connect(signalSource(), SIGNAL(itemRemoved(int)), this, SIGNAL(samplePositionRemoved(int)));
-	connect(signalSource(), SIGNAL(itemChanged(int)), this, SIGNAL(samplePositionChanged(int)));
+AMSamplePlate::~AMSamplePlate()
+{
 }
 
-// Using auto-generated assignment operator is fine
+QDateTime AMSamplePlate::dateTime() const{
+	return dateTime_;
+}
 
-int AMSamplePlate::sampleIdAtPosition(const AMControlInfoList &position, const QList<double> tolerances) const{
-	if( tolerances.count() == 0 ){
-		for(int x = count()-1; x >= 0; x--){
-			if( at(x).matchesPosition(position) ){
-				return at(x).sampleId();
-			}
-		}
+int AMSamplePlate::sampleCount() const{
+	return samples_.count();
+}
+
+const AMSample* AMSamplePlate::sampleAt(int index) const{
+	if(index == -1)
+		return samples_.at(samples_.count()-1);
+	if(index < 0 || index > sampleCount())
+		return 0; //NULL
+	return samples_.at(index);
+}
+
+AMSample* AMSamplePlate::sampleAt(int index){
+	if(index == -1)
+		return samples_.at(samples_.count()-1);
+	if(index < 0 || index > sampleCount())
+		return 0; //NULL
+	return samples_.at(index);
+}
+
+QList<AMSample*> AMSamplePlate::allSamples(){
+	return samples_.toList();
+}
+
+QVector3D AMSamplePlate::platePosition()
+{
+	return platePosition_;
+}
+
+double AMSamplePlate::plateRotation()
+{
+	return plateRotation_;
+}
+
+bool AMSamplePlate::addSample(AMSample *sample){
+	samples_.append(sample);
+	sample->setSamplePlate(this);
+	connect(sample, SIGNAL(sampleDetailsChanged()), this, SLOT(onSampleDetailsChanged()));
+	connect(sample, SIGNAL(modifiedChanged(bool)), this, SLOT(onSampleModified(bool)));
+	connect(sample, SIGNAL(requestStoreToDb()), this, SLOT(onSampleRequestStoreToDb()));
+	storeToDb(database());
+	return true;
+}
+
+bool AMSamplePlate::removeSample(AMSample *sample){
+	int sampleIndex = indexOfSample(sample);
+	if(sampleIndex != -1){
+		samples_.remove(sampleIndex);
+		disconnect(sample, SIGNAL(sampleDetailsChanged()), this, SLOT(onSampleDetailsChanged()));
+		disconnect(sample, SIGNAL(modifiedChanged(bool)), this, SLOT(onSampleModified(bool)));
+		disconnect(sample, SIGNAL(requestStoreToDb()), this, SLOT(onSampleRequestStoreToDb()));
+		storeToDb(database());
+		sample->removeSampleShapePositionData();
+		sample->deleteLater();
+		return true;
 	}
-	else{
-		double rmsDistance = 10000;
-		double tmpRMS;
-		int closestIndex = -1;
-		for(int x = count()-1; x >= 0; x--){
-			tmpRMS = 0;
-			//if( at(x).position().compareWithinTolerance(position, tolerances)){
-			if( at(x).matchesPositionWithinTolerances(position, tolerances)){
-				/*
-				for(int y = 0; y < position.count(); y++)
-					tmpRMS += fabs(at(x).position().at(y).value() - position.at(y).value()) * fabs(at(x).position().at(y).value() - position.at(y).value());
-				tmpRMS = sqrt(tmpRMS);
-				*/
-				tmpRMS = at(x).rms3SpaceDistance(position);
-				if(tmpRMS < rmsDistance){
-					rmsDistance = tmpRMS;
-					closestIndex = x;
-				}
-			}
-		}
-		if(closestIndex != -1)
-			return at(closestIndex).sampleId();
+	return false;
+}
+
+int AMSamplePlate::indexOfSample(const AMSample *sample){
+	if(!sample)
 		return -1;
-	}
+	for(int x = 0; x < samples_.count(); x++)
+		if(samples_.at(x) == sample)
+			return x;
 	return -1;
 }
 
-bool AMSamplePlate::sampleAtIndexOverlaps(int index) const{
-	for(int x = 0; x < count(); x++)
-		if( (x != index) && (at(x).overlaps(at(index))))
-			return true;
-
-	return false;
-}
-
-
-// Export the current positions to the database
-AMDbObjectList AMSamplePlate::dbGetPositions() {
-	AMDbObjectList rv;
-
-	for(int i=0; i<count(); i++)
-		rv << &(values_[i]);
-
-	return rv;
-}
-
-
-// Load the positions for an existing sample plate from the database
-void AMSamplePlate::dbLoadPositions(const AMDbObjectList& newPositions) {
-
-	//qdebug() << "AMSamplePlate: loading positions in loadFromDb()";
-
-	clear();	// get rid of our existing
-
-	for(int i=0; i<newPositions.count(); i++) {
-		AMSamplePosition* newSamplePosition = qobject_cast<AMSamplePosition*>(newPositions.at(i));
-		if(newSamplePosition) {
-			append(*newSamplePosition);	// note: makes a copy of object pointed to by newControlInfo, and stores in our internal list. Uses default copy constructor in AMControlInfoList
-		}
-		else {
-			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -1, "Invalid position object found when trying to re-load from the database. Please report this bug to the Acquaman developers."));
-		}
-
-		if(newPositions.at(i))
-			delete newPositions.at(i);	// we're copying these; don't need to keep these ones around. Our responsibility to delete.
-	}
-}
-
-bool AMSamplePlate::loadFromDb(AMDatabase *db, int id)
-{
-	int oldPositionsCount = count();
-
-	QDateTime beforeTime = QDateTime::currentDateTime();
-
-	if(AMDbObject::loadFromDb(db,id)) {	// use normal loadFromDb(), but...
-		if(count() == oldPositionsCount) {	// if the number of sample positions stayed the same, the dataChanged() notifications will be missing, because the new positions were loaded in-place to the old objects.
-			for(int i=0; i<oldPositionsCount; i++)
-				emit samplePositionChanged(i); // emit our own notification.
-		}
-
-		QDateTime afterTime = QDateTime::currentDateTime();
-		//qdebug() << "Started at " << beforeTime.toString("hh:mm:ss.zzz") << " Ended at " << afterTime.toString("hh:mm:ss.zzz") << " Difference of " << afterTime.msecsTo(beforeTime);
-
+bool AMSamplePlate::operator ==(const AMSamplePlate &other){
+	if((name() == other.name()) && (sampleCount() == other.sampleCount())){
+		for(int x = 0; x < sampleCount(); x++)
+			if(sampleAt(x)->name() != other.sampleAt(x)->name())
+				return false;
 		return true;
 	}
-
 	return false;
 }
 
- AMSamplePosition::~AMSamplePosition(){}
+void AMSamplePlate::onSampleCameraShapesChanged(const QList<AMShapeData*> shapeList){
+	AMSample *sample;
+	// if there aren't enough samples on the sample plate add some.
+	if(shapeList.count() > sampleCount())
+	{
+		foreach(AMShapeData* shape, shapeList)
+		{
+			if(!sampleFromShape(shape))
+			{
+				shape->blockSignals(true);
+				AMSample* newSample = new AMSample();
+				newSample->setSampleShapePositionData(shape);
+				newSample->setName(shape->name());
+				addSample(newSample);
+				shape->blockSignals(false);
+				emit sampleAddedThroughCamera(newSample);
+			}
+		}
+	}
+	// if there are too many samples on the sample plate delete some.
+	else if(shapeList.count() < sampleCount())
+	{
+		for(int i = 0; i < samples_.count(); i ++)
+		{
+			sample = samples_[i];
+			if(!shapeList.contains(sample->sampleShapePositionData()))
+			{
+				removeSample(sample);
+			}
+		}
+	}
+
+}
+
+void AMSamplePlate::onShapeDataPropertyUpdated(AMShapeData *shapeData){
+	AMSample *sample = sampleFromShape(shapeData);
+	if(sample)
+		sample->storeToDb(database());
+}
+
+void AMSamplePlate::requestSampleMoveTo(int index){
+	emit sampleMoveToRequested(sampleAt(index)->sampleShapePositionData());
+}
+
+void AMSamplePlate::setPlatePosition(QVector3D position)
+{
+	if(position != platePosition_)
+	{
+		platePosition_ = position;
+		setModified(true);
+	}
+}
+
+void AMSamplePlate::setPlateRotation(double rotation)
+{
+	if(rotation != plateRotation_)
+	{
+		plateRotation_ = rotation;
+		setModified(true);
+	}
+}
+
+void AMSamplePlate::onSampleDetailsChanged(){
+	AMSample *sample = qobject_cast<AMSample*>(QObject::sender());
+	if(sample)
+		emit sampleChanged(indexOfSample(sample));
+}
+
+void AMSamplePlate::onSampleModified(bool isModified){
+	Q_UNUSED(isModified)
+	bool modifiedBefore = modified();
+	bool modifiedNow = false;
+	for(int x = 0; x < sampleCount(); x++)
+		modifiedNow |= sampleAt(x)->modified();
+
+	if(modifiedNow != modifiedBefore)
+		setModified(modifiedNow);
+}
+
+void AMSamplePlate::onSampleRequestStoreToDb(){
+	storeToDb(database());
+}
+
+AMSample* AMSamplePlate::sampleFromShape(AMShapeData *shapeData){
+	for(int x = 0; x < sampleCount(); x++)
+		if(sampleAt(x)->sampleShapePositionData() == shapeData)
+			return sampleAt(x);
+	return 0; //NULL
+}
+
+void AMSamplePlate::dbLoadDateTime(const QDateTime &newDateTime){
+	dateTime_ = newDateTime;
+}
+
+AMDbObjectList AMSamplePlate::dbGetSamples(){
+	AMDbObjectList retVal;
+	for(int x = 0; x < samples_.count(); x++)
+		retVal << samples_[x];
+	return retVal;
+}
+
+void AMSamplePlate::dbLoadSamples(const AMDbObjectList &newSamples){
+	samples_.clear();
+
+	for(int x = 0; x < newSamples.count(); x++){
+		AMSample *newSample = qobject_cast<AMSample*>(newSamples.at(x));
+		if(newSample){
+			samples_.append(newSample);
+			connect(newSample, SIGNAL(sampleDetailsChanged()), this, SLOT(onSampleDetailsChanged()));
+			connect(newSample, SIGNAL(modifiedChanged(bool)), this, SLOT(onSampleModified(bool)));
+			connect(newSample, SIGNAL(requestStoreToDb()), this, SLOT(onSampleRequestStoreToDb()));
+		}
+	}
+}
+
+
+AMSamplePlateBrowser::AMSamplePlateBrowser(AMDatabase *database, QObject *parent) :
+	QAbstractListModel(parent)
+{
+	currentSamplePlateIndex_ = -1;
+	database_ = database;
+	reloadFromDatabase();
+}
+
+int AMSamplePlateBrowser::rowCount(const QModelIndex &parent) const
+{
+	if(parent.isValid())
+		return 0;
+	return allSamplePlates_.count();
+}
+
+
+QVariant AMSamplePlateBrowser::data(const QModelIndex &index, int role) const
+{
+	if(index.parent().isValid() || index.column() > 0)
+		return QVariant();
+
+	switch(role){
+	case Qt::DisplayRole:
+		return QString("%1 (created %2)").arg(allSamplePlates_.at(index.row())->name()).arg(AMDateTimeUtils::prettyDateTime(allSamplePlates_.at(index.row())->dateTime()));
+	case Qt::DecorationRole:
+		if(index.row() == currentSamplePlateIndex_)
+			return QApplication::style()->standardIcon(QStyle::SP_ArrowRight);
+		else
+			return QVariant();
+	case AM::PointerRole:
+		return QVariant::fromValue((QObject*)(allSamplePlates_.at(index.row())));
+	default:
+		return QVariant();
+	}
+}
+
+Qt::ItemFlags AMSamplePlateBrowser::flags(const QModelIndex &index) const
+{
+	Q_UNUSED(index)
+	return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+}
+
+QVariant AMSamplePlateBrowser::headerData(int section, Qt::Orientation orientation, int role) const
+{
+	Q_UNUSED(section)
+	if(orientation == Qt::Horizontal && role == Qt::DisplayRole)
+		return QString("Sample Plates");
+	else
+		return QVariant();
+}
+
+bool AMSamplePlateBrowser::hasSamplePlate(AMSamplePlate *samplePlate){
+	for(int x = 0; x < allSamplePlates_.count(); x++)
+		if( (allSamplePlates_.at(x) == samplePlate) || (allSamplePlates_.at(x)->operator ==(*samplePlate)) )
+			return true;
+	return false;
+}
+
+QList<AMSample*> AMSamplePlateBrowser::allSamples(){
+	QList<AMSample*> retVal;
+	for(int x = 0; x < allSamplePlates_.count(); x++)
+		retVal.append(allSamplePlates_.at(x)->allSamples());
+	return retVal;
+}
+
+void AMSamplePlateBrowser::reloadFromDatabase(){
+	allSamplePlates_.clear();
+	if(database_){
+		QList<int> allSamplePlateIds = database_->objectsWhere(AMDbObjectSupport::s()->tableNameForClass<AMSamplePlate>());
+		AMSamplePlate *tempPlate;
+		for(int x = 0; x < allSamplePlateIds.count(); x++){
+			tempPlate = new AMSamplePlate();
+			tempPlate->loadFromDb(database_, allSamplePlateIds.at(x));
+			//allSamplePlates_.append(tempPlate);
+			allSamplePlates_.prepend(tempPlate);
+		}
+	}
+}
+
+void AMSamplePlateBrowser::addSamplePlate(AMSamplePlate *samplePlate){
+	//	beginInsertRows(QModelIndex(), allSamplePlates_.count(), allSamplePlates_.count());
+	//	allSamplePlates_.append(samplePlate);
+	//	endInsertRows();
+
+	beginInsertRows(QModelIndex(), 0, 0);
+	allSamplePlates_.prepend(samplePlate);
+	endInsertRows();
+}
+
+void AMSamplePlateBrowser::setCurrentSamplePlate(AMSamplePlate *samplePlate){
+	int lastSamplePlateIndex = currentSamplePlateIndex_;
+
+	bool foundPlate = false;
+	for(int x = 0; x < allSamplePlates_.count(); x++){
+		if(allSamplePlates_.at(x) == samplePlate){
+			currentSamplePlateIndex_ = x;
+			foundPlate = true;
+		}
+	}
+
+	if(!foundPlate)
+		currentSamplePlateIndex_ = -1;
+
+	if(lastSamplePlateIndex == -1 && currentSamplePlateIndex_ == -1){
+		//do nothing
+	}
+	else{
+		int topLeft = std::min(lastSamplePlateIndex, currentSamplePlateIndex_);
+		int bottomRight = std::max(lastSamplePlateIndex, currentSamplePlateIndex_);
+		if(topLeft == -1)
+			topLeft = bottomRight;
+		QModelIndex topLeftIndex = createIndex(topLeft, 0, allSamplePlates_.at(topLeft));
+		QModelIndex bottomRightIndex = createIndex(bottomRight, 0, allSamplePlates_.at(bottomRight));
+		emit dataChanged(topLeftIndex, bottomRightIndex);
+	}
+}

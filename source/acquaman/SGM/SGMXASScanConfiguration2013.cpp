@@ -1,6 +1,7 @@
 #include "SGMXASScanConfiguration2013.h"
 
 #include "beamline/AMBeamline.h"
+#include "beamline/SGM/SGMBeamline.h"
 
  SGMXASScanConfiguration2013::~SGMXASScanConfiguration2013(){}
 SGMXASScanConfiguration2013::SGMXASScanConfiguration2013(QObject *parent) :
@@ -14,6 +15,17 @@ SGMXASScanConfiguration2013::SGMXASScanConfiguration2013(QObject *parent) :
 	regions_->setSensibleRange(200, 2000);
 	regions_->setDefaultUnits(" eV");
 	regions_->setDefaultTimeUnits(" s");
+	connect(SGMBeamline::sgm()->exitSlitGap(), SIGNAL(valueChanged(double)), this, SLOT(checkIfMatchesBeamline()));
+	connect(SGMBeamline::sgm()->grating(), SIGNAL(valueChanged(double)), this, SLOT(checkIfMatchesBeamline()));
+	connect(SGMBeamline::sgm()->harmonic(), SIGNAL(valueChanged(double)), this, SLOT(checkIfMatchesBeamline()));
+	connect(SGMBeamline::sgm()->undulatorTracking(), SIGNAL(valueChanged(double)), this, SLOT(checkIfMatchesBeamline()));
+	connect(SGMBeamline::sgm()->monoTracking(), SIGNAL(valueChanged(double)), this, SLOT(checkIfMatchesBeamline()));
+	connect(SGMBeamline::sgm()->exitSlitTracking(), SIGNAL(valueChanged(double)), this,SLOT(checkIfMatchesBeamline()));
+	//connect(this, SIGNAL(configurationChanged()), this, SLOT(checkIfMatchesBeamline()));
+	connect(this->dbObject(), SIGNAL(exitSlitGapChanged(double)), this, SLOT(checkIfMatchesBeamline()));
+	connect(this->dbObject(), SIGNAL(gratingChanged(SGMBeamlineInfo::sgmGrating)), this, SLOT(checkIfMatchesBeamline()));
+	connect(this->dbObject(), SIGNAL(harmonicChanged(SGMBeamlineInfo::sgmHarmonic)), this, SLOT(checkIfMatchesBeamline()));
+	connect(this->dbObject(), SIGNAL(trackingGroupChanged()), this, SLOT(checkIfMatchesBeamline()));
 
 	//detectorConfigurations_ = AMBeamline::bl()->exposedDetectors()->toInfoSet();
 }
@@ -37,6 +49,18 @@ SGMXASScanConfiguration2013::SGMXASScanConfiguration2013(const SGMXASScanConfigu
 	detectorConfigurations_ = original.detectorConfigurations();
 	setTrackingGroup(original.trackingGroup());
 	setFluxResolutionGroup(original.fluxResolutionGroup());
+	connect(SGMBeamline::sgm()->exitSlitGap(), SIGNAL(valueChanged(double)), this, SLOT(checkIfMatchesBeamline()));
+	connect(SGMBeamline::sgm()->grating(), SIGNAL(valueChanged(double)), this, SLOT(checkIfMatchesBeamline()));
+	connect(SGMBeamline::sgm()->harmonic(), SIGNAL(valueChanged(double)), this, SLOT(checkIfMatchesBeamline()));
+	connect(SGMBeamline::sgm()->undulatorTracking(), SIGNAL(valueChanged(double)), this, SLOT(checkIfMatchesBeamline()));
+	connect(SGMBeamline::sgm()->monoTracking(), SIGNAL(valueChanged(double)), this, SLOT(checkIfMatchesBeamline()));
+	connect(SGMBeamline::sgm()->exitSlitTracking(), SIGNAL(valueChanged(double)), this,SLOT(checkIfMatchesBeamline()));
+	//connect(this, SIGNAL(configurationChanged()), this, SLOT(checkIfMatchesBeamline()));
+	connect(this->dbObject(), SIGNAL(exitSlitGapChanged(double)), this, SLOT(checkIfMatchesBeamline()));
+	connect(this->dbObject(), SIGNAL(gratingChanged(SGMBeamlineInfo::sgmGrating)), this, SLOT(checkIfMatchesBeamline()));
+	connect(this->dbObject(), SIGNAL(harmonicChanged(SGMBeamlineInfo::sgmHarmonic)), this, SLOT(checkIfMatchesBeamline()));
+	connect(this->dbObject(), SIGNAL(trackingGroupChanged()), this, SLOT(checkIfMatchesBeamline()));
+
 }
 
 AMScanConfiguration* SGMXASScanConfiguration2013::createCopy() const{
@@ -61,4 +85,46 @@ AMScanConfigurationView* SGMXASScanConfiguration2013::createView(){
 
 QString SGMXASScanConfiguration2013::detailedDescription() const{
 	return QString("XAS Scan from %1 to %2\nExit Slit: %3\nGrating: %4\nHarmonic: %5").arg(regionStart(0)).arg(regionEnd(regionCount()-1)).arg(exitSlitGap(), 0, 'f', 1).arg(SGMBeamlineInfo::sgmInfo()->sgmGratingDescription(SGMBeamlineInfo::sgmGrating(grating()))).arg(SGMBeamlineInfo::sgmInfo()->sgmHarmonicDescription(SGMBeamlineInfo::sgmHarmonic(harmonic())));
+}
+
+void SGMXASScanConfiguration2013::getSettingsFromBeamline()
+{
+	dbObject()->setExitSlitGap(SGMBeamline::sgm()->exitSlitGap()->value());
+	dbObject()->setGrating((SGMBeamlineInfo::sgmGrating)SGMBeamline::sgm()->grating()->value());
+	dbObject()->setHarmonic((SGMBeamlineInfo::sgmHarmonic)SGMBeamline::sgm()->harmonic()->value());
+	dbObject()->setUndulatorTracking((int)SGMBeamline::sgm()->undulatorTracking()->value());
+	dbObject()->setMonoTracking((int)SGMBeamline::sgm()->monoTracking()->value());
+	dbObject()->setExitSlitTracking((int)SGMBeamline::sgm()->exitSlitTracking()->value());
+
+}
+
+void SGMXASScanConfiguration2013::checkIfMatchesBeamline()
+{
+	bool currentMatchStatus;
+	//Ensure bl is connected AND fluxResolutionGroup/TrackingGroup have been properly initialized
+	if(SGMBeamline::sgm()->isConnected() && fluxResolutionGroup().count() > 0 && trackingGroup().count() > 0)
+	{
+		currentMatchStatus =
+			(floatCompare(dbObject()->exitSlitGap() + 1.0e-200, SGMBeamline::sgm()->exitSlitGap()->value() + 1.0e-200, 0.20) &&
+			 floatCompare(dbObject()->grating() + 1.0e-200, SGMBeamline::sgm()->grating()->value()  + 1.0e-200, 0.0001) &&
+			 floatCompare(dbObject()->harmonic()  + 1.0e-200, SGMBeamline::sgm()->harmonic()->value()  + 1.0e-200, 0.001) &&
+			 floatCompare(dbObject()->undulatorTracking()  + 1.0e-200, SGMBeamline::sgm()->undulatorTracking()->value()  + 1.0e-200, 0.001) &&
+			 floatCompare(dbObject()->monoTracking()  + 1.0e-200, SGMBeamline::sgm()->monoTracking()->value()  + 1.0e-200, 0.001) &&
+			 floatCompare(dbObject()->exitSlitTracking()  + 1.0e-200, SGMBeamline::sgm()->exitSlitTracking()->value()  + 1.0e-200, 0.001));
+	}
+	else
+	{
+		currentMatchStatus = false;
+	}
+
+	if(currentMatchStatus != this->matchesCurrentBeamline_)
+	{
+		matchesCurrentBeamline_ = currentMatchStatus;
+		emit matchingBeamlineStatusChanged(currentMatchStatus);
+	}
+}
+
+inline bool SGMXASScanConfiguration2013::floatCompare(float x, float y, float epsilon)
+{
+	return fabs(x - y) <= ( (fabs(x) < fabs(y) ? fabs(y) : fabs(x)) * epsilon);
 }

@@ -212,6 +212,7 @@ public slots:
 	/// For actions that support skipping, uses \param command to successfully end the action perscribed by the command.  Returns true if it was successful.
 	bool skip(const QString &command);
 
+	/// Setting to true will cause the action to generate  messages with AMAgnositicDataAPI if it is capable of doing so.
 	void setGenerateScanActionMessage(bool generateScanActionMessages) { generateScanActionMessages_ = generateScanActionMessages; }
 
 	virtual void scheduleForDeletion();
@@ -238,6 +239,7 @@ public:
 	/// Set the failure response that we would recommend when this action is run as a sub-action of another action.
 	void setFailureResponseAsSubAction(FailureResponse fr) { failureResponseAsSubAction_ = fr; }
 
+	/// Specific action types should check this flag to see if they need to send out messages with AMAgnositicDataAPI. If true, messages should be generated.
 	bool generateScanActionMessages() const { return generateScanActionMessages_; }
 
 signals:
@@ -324,6 +326,7 @@ protected:
 	/// The list of skip options that the scan can perform.
 	QStringList skipOptions_;
 
+	/// Specific action types should check this flag to see if they need to send out messages with AMAgnositicDataAPI. If true, messages should be generated.
 	bool generateScanActionMessages_;
 
 private:

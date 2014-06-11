@@ -25,7 +25,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "util/AMErrorMonitor.h"
 
- AMDbUpgrade::~AMDbUpgrade(){}
 AMDbUpgrade::AMDbUpgrade(QString databaseNameToUpgrade, QObject *parent) :
 	QObject(parent)
 {
@@ -33,6 +32,8 @@ AMDbUpgrade::AMDbUpgrade(QString databaseNameToUpgrade, QObject *parent) :
 	databaseNameToUpgrade_ = databaseNameToUpgrade;
 	isResponsibleForUpgrade_ = true; // responsible by default
 }
+
+AMDbUpgrade::~AMDbUpgrade(){}
 
 bool AMDbUpgrade::upgrade(){
 	// Make sure the dependencies in upgradeFromTags are present
@@ -512,7 +513,27 @@ bool AMDbUpgradeSupport::changeColumnName(AMDatabase *databaseToEdit, const QStr
 	// Finally, we need to update the AMDbObjectTypes_* tables (allColumns, visibleColumns, loadColumns).  The still have the old names and will corrupt the database if not updated.
 	QList<int> ids = db->objectsMatching("AMDbObjectTypes_table", "tableName", tableName);
 
-	if (ids.size() == 1){
+	if(tableName == "AMScan_table"){
+		for(int x = 0; x < ids.count(); x++){
+			bool success = true;
+			success &= db->update("AMDbObjectTypes_allColumns", QString("typeId=%1 AND columnName='%2'").arg(ids.at(x)).arg(oldColumnName), "columnName", newColumnName);
+
+			// It is possible that the column is not visible.  Check before updating.
+			if (db->objectsWhere("AMDbObjectTypes_visibleColumns", QString("typeId=%1 AND columnName='%2'").arg(ids.at(x)).arg(oldColumnName)).size() == 1)
+				success &= db->update("AMDbObjectTypes_visibleColumns", QString("typeId=%1 AND columnName='%2'").arg(ids.at(x)).arg(oldColumnName), "columnName", newColumnName);
+
+			if (db->objectsWhere("AMDbObjectTypes_loadColumns", QString("typeId=%1 AND columnName='%2'").arg(ids.first()).arg(oldColumnName)).size() == 1)
+				success &= db->update("AMDbObjectTypes_loadColumns", QString("typeId=%1 AND columnName='%2'").arg(ids.at(x)).arg(oldColumnName), "columnName", newColumnName);
+
+			if (!success){
+
+				db->rollbackTransaction();
+				AMErrorMon::alert(0, AMDBUPGRADESUPPORT_COULD_NOT_UPDATE_AMDBOBJECTTYPE_TABLES, "Could not update the AMDbObjectTypes associated tables.");
+				return false;
+			}
+		}
+	}
+	else if (ids.size() == 1){
 
 		bool success = true;
 		success &= db->update("AMDbObjectTypes_allColumns", QString("typeId=%1 AND columnName='%2'").arg(ids.first()).arg(oldColumnName), "columnName", newColumnName);
@@ -662,4 +683,51 @@ bool AMDbUpgradeSupport::removeColumn(AMDatabase *databaseToEdit, const QString 
 	}
 
 	return true;
+}
+
+bool AMDbUpgradeSupport::idColumnToConstDbObjectColumn(AMDatabase *databaseToEdit, const QString &typeTableName, const QString &idColumnName, const QString &constDbObjectColumnName, const QString &relatedTypeTableName){
+	bool success = true;
+
+	// Change the column name from idColumnName to constDbObjectColumnName
+	success &= AMDbUpgradeSupport::changeColumnName(databaseToEdit, typeTableName, idColumnName, constDbObjectColumnName, "TEXT");
+	// If that worked, change all cases where the value was "-1" to "" (empty string)
+	if(success)
+		success &= databaseToEdit->update(typeTableName, QString("%1='-1'").arg(constDbObjectColumnName), constDbObjectColumnName, "");
+	else
+		AMErrorMon::alert(0, AMDBUPGRADESUPPORT_COULD_NOT_CHANGE_COLUMN_NAME, QString("Could not change the %1 column to %2 in %3.").arg(idColumnName).arg(constDbObjectColumnName).arg(typeTableName));
+	// If that worked, grab all of the other values and update them from "#" to "relatedTypeTableName;#"
+	if(success){
+		// Grab id and constDbObjectColumnName column for all rows in typeTableName where the constDbObjectColumnName isn't empty string
+		QSqlQuery query = databaseToEdit->select(typeTableName, QString("id,%2").arg(constDbObjectColumnName), QString("%1!=''").arg(constDbObjectColumnName));
+		databaseToEdit->execQuery(query);
+		QMap<int, QString> results;
+		// Iterate and place in a map
+		if (query.first()){
+
+			do {
+				results.insert(query.value(0).toInt(), query.value(1).toString());
+			}while(query.next());
+		}
+		query.finish();
+
+		// Start a transaction, for each value in the map update the constDbObjectColumnName column for that id from "#" to "relatedTypeTableName;#"
+		databaseToEdit->startTransaction();
+		QMap<int, QString>::const_iterator i = results.constBegin();
+		while (i != results.constEnd() && success) {
+			success &= databaseToEdit->update(i.key(), typeTableName, constDbObjectColumnName, QString("%1;%2").arg(relatedTypeTableName).arg(i.value()));
+			++i;
+		}
+		// Rollback if we failed, commit if we succeeded
+		if(!success){
+			databaseToEdit->rollbackTransaction();
+			AMErrorMon::alert(0, AMDBUPGRADESUPPORT_COULD_NOT_UPDATE_TO_TABLE_BASED_ID, QString("Could not change the %1 column value to a table based value for one of the indexes in %2.").arg(constDbObjectColumnName).arg(typeTableName));
+		}
+		else
+			databaseToEdit->commitTransaction();
+
+	}
+	else
+		AMErrorMon::alert(0, AMDBUPGRADESUPPORT_COULD_NOT_UPDATE_EMPTY_VALUES, QString("Could not update the empty values from -1 to an empty string in %1.").arg(typeTableName));
+
+	return success;
 }

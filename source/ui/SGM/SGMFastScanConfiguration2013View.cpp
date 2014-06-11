@@ -39,7 +39,8 @@ SGMFastScanConfiguration2013View::SGMFastScanConfiguration2013View(SGMFastScanCo
 		warningsLabel_->setStyleSheet( "QLabel{ color: red }" );
 
 		scanNameLabel_ = new QLabel("Scan Name");
-		scanNameEdit_ = new QLineEdit(this);
+		scanNameEdit_ = new AMRegExpLineEdit("/|;|@|#|<|>", Qt::CaseInsensitive, "/;#>@< characters are not allowed.");
+		scanNameEdit_->setValidIfMatches(false);
 
 		connect(scanNameEdit_, SIGNAL(textEdited(QString)), this, SLOT(onScanNameEditChanged(QString)));
 
@@ -107,7 +108,11 @@ SGMFastScanConfiguration2013View::SGMFastScanConfiguration2013View(SGMFastScanCo
 }
 
 const AMScanConfiguration* SGMFastScanConfiguration2013View::configuration() const{
+	qDebug() << "Calling configuration, count is " << fastDetectorSelector_->selectedDetectorInfos().count();
+
 	cfg_->setDetectorConfigurations(fastDetectorSelector_->selectedDetectorInfos());
+
+	qDebug() << "And again, " << cfg_->detectorConfigurations().count();
 	return cfg_;
 }
 
@@ -169,9 +174,11 @@ void SGMFastScanConfiguration2013View::onParametersEndPositionChanged(){
 void SGMFastScanConfiguration2013View::onFastScanSettingsChanged(){
 	disconnect(&fastScanSettingsCopy_, 0);
 	disconnect(&fastScanSettingsCopy_, SIGNAL(fastScanSettingsChanged()), this, SLOT(onFastScanSettingsCopyChanged()));
+
 	fastScanSettingsCopy_ = cfg_->currentParameters()->fastScanSettings();
 	if(fastScanSettingsView_)
 		fastScanSettingsView_->setFastScanSettings(&fastScanSettingsCopy_);
+
 	connect(&fastScanSettingsCopy_, SIGNAL(fastScanSettingsChanged()), this, SLOT(onFastScanSettingsCopyChanged()));
 }
 

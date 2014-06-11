@@ -53,6 +53,8 @@ public:
 
 	QString description();
 
+	bool warningsSuppressed() const;
+
 	/// Returns a list of pointers to the AMDetectorInfo objects we store, for use by the database system in storeToDb() / loadFromDb().
 	AMDbObjectList dbReadDetectorInfos();
 	/// Called by the database system on loadFromDb() to give us our new set of AMDetectorlInfo objects. We copy these ones into our internal list and then delete them.
@@ -108,6 +110,8 @@ public:
 public slots:
 	void setDescription(const QString& description);
 
+	void setWarningsSuppressed(bool warningsSuppressed);
+
 signals:
 	/// Forwarded from signalSource()->itemChanged(). Emitted when a detector is replaced, OR after a detector is accessed for modification and program execution returns back to the event loop.
 	void detectorValuesChanged(int index);
@@ -132,6 +136,8 @@ protected:
 
 	/// Holds on to any warnings during the database load phase
 	QString dbLoadWarnings_;
+
+	bool warningsSuppressed_;
 };
 
 #endif // AMDETECTORINFOSET_H

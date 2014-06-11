@@ -167,8 +167,8 @@ void IDEASPersistentView::onOldCountsChanged()
 //    IDEASBeamline::bl()->exposedDetectorByName("I_vac_6485")->data(&value);
     IOldBar_->setValue(int(200 + 10*log10(qAbs(value))));
     //IOldBar_->setValue(value/1000000);
-    //qDebug() << "I_Old_bar" << int(200 + 10*log10(qAbs(value)));
-    //qDebug() << "I_Old" << value << "log10(I_Old)" << log10(value) << log10(qAbs(value));
+    //qdebug() << "I_Old_bar" << int(200 + 10*log10(qAbs(value)));
+    //qdebug() << "I_Old" << value << "log10(I_Old)" << log10(value) << log10(qAbs(value));
     IOldValueLabel_->setText(QString::number(value, 'e', 2));
     //IOldValueLabel_->setText(value);
 }
@@ -179,7 +179,7 @@ void IDEASPersistentView::onI0CountsChanged()
     IDEASBeamline::bl()->exposedDetectorByName("I_0")->data(&value);
     //I0Bar_->setValue(int(200 + 10*log10(qAbs(value))));
     I0Bar_->setValue(int(value/1000000));
-    //qDebug() << "I_0" << int(-3.25/log10(qAbs(value)));
+    //qdebug() << "I_0" << int(-3.25/log10(qAbs(value)));
     //I0ValueLabel_->setText(QString::number(value, 'e', 2));
     I0ValueLabel_->setText(QString("%1k").arg(QString::number(value/1000,'f',0)));
 
@@ -214,7 +214,7 @@ void IDEASPersistentView::onCrystalChanged()
     monoEnergyRange_->setText(QString("%1 eV - %2 eV").arg(IDEASBeamline::ideas()->monoLowEV()->value()).arg(IDEASBeamline::ideas()->monoHighEV()->value()));
 
 //    if(IDEASBeamline::ideas()->monoLowEV()->value() == -1 || IDEASBeamline::ideas()->monoHighEV()->value() == -1){
-//	qDebug() << "Rechecking Energy Range";
+//	qdebug() << "Rechecking Energy Range";
 //	crystalTimer_->start();
 //    }
 }
@@ -250,7 +250,7 @@ void IDEASPersistentView::onCalibrateClicked()
         double angleDetla = -12398.4193 / (mono2d * currentE * currentE * cos(braggAngle * M_PI / 180)) * dE * 180 / M_PI;
 
         IDEASBeamline::ideas()->monoAngleOffset()->move(oldAngleOffset + angleDetla);
-        //qDebug() << newE << oldAngleOffset << currentE << mono2d << braggAngle << dE << angleDetla << oldAngleOffset + angleDetla;
+	//qdebug() << newE << oldAngleOffset << currentE << mono2d << braggAngle << dE << angleDetla << oldAngleOffset + angleDetla;
 
 
     }
