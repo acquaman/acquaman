@@ -6,6 +6,8 @@
 #include <QLayout>
 
 #include "beamline/AMPVControl.h"
+#include "source/analysis/AM1DSummingAB.h"
+#include "dataman/datasource/AMDataSourceSeriesData.h"
 
 #include "MPlot/MPlotSeriesData.h"
 #include "MPlot/MPlotWidget.h"
@@ -31,8 +33,14 @@ protected:
     AMReadOnlyPVControl *ringCurrentControl_;
     QLabel *ringCurrentLabel_;
 
-    MPlotRealtimeModel *ringCurrentModel_;
-    MPlotSeriesBasic *ringCurrentSeries_;
+    MPlotRealtimeModel *ringCurrentModel1_;
+    MPlotSeriesBasic *ringCurrentSeries1_;
+
+    MPlotRealtimeModel *ringCurrentModel2_;
+    MPlotSeriesBasic *ringCurrentSeries2_;
+
+    AM1DSummingAB *summedData_;
+    MPlotSeriesBasic *ringCurrentSeries3_;
 
     MPlotWidget *plotWidget_;
     MPlot *plot_;
