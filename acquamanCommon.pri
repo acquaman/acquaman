@@ -532,6 +532,8 @@ HEADERS += source/acquaman/AMRegion.h \
 	source/actions3/editors/AMScanActionEditor.h \
 	source/analysis/AM1DNormalizationAB.h \
 	source/analysis/AM1DNormalizationABEditor.h \
+	source/analysis/AM1DCalibrationAB.h \
+	source/analysis/AM1DCalibrationABEditor.h \
 	source/ui/AMAddAnalysisBlockDialog.h \
 	source/ui/acquaman/AMScanConfigurationViewHolder3.h \
 	source/dataman/datastore/AMCDFDataStore.h \
@@ -754,7 +756,9 @@ HEADERS += source/acquaman/AMRegion.h \
 	source/actions3/actions/AMAxisValueFinishedActionInfo.h \
 	source/ui/dataman/AMStepScanAxisView.h \
 	source/ui/dataman/AMEXAFSScanAxisView.h \
-	source/beamline/CLS/CLSPseudoMotorControl.h
+	source/beamline/CLS/CLSPseudoMotorControl.h \
+	source/ui/AMRegExpLineEdit.h \
+	source/application/AMCrashMonitorSupport.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1010,6 +1014,8 @@ SOURCES += source/acquaman/AMRegion.cpp \
 	source/actions3/editors/AMScanActionEditor.cpp \
 	source/analysis/AM1DNormalizationAB.cpp \
 	source/analysis/AM1DNormalizationABEditor.cpp \
+	source/analysis/AM1DCalibrationAB.cpp \
+	source/analysis/AM1DCalibrationABEditor.cpp \
 	source/ui/AMAddAnalysisBlockDialog.cpp \
 	source/ui/acquaman/AMScanConfigurationViewHolder3.cpp \
 	source/dataman/datastore/AMCDFDataStore.cpp \
@@ -1229,7 +1235,9 @@ SOURCES += source/acquaman/AMRegion.cpp \
 	source/actions3/actions/AMAxisValueFinishedActionInfo.cpp \
 	source/ui/dataman/AMStepScanAxisView.cpp \
 	source/ui/dataman/AMEXAFSScanAxisView.cpp \
-	source/beamline/CLS/CLSPseudoMotorControl.cpp
+	source/beamline/CLS/CLSPseudoMotorControl.cpp \
+	source/ui/AMRegExpLineEdit.cpp \
+	source/application/AMCrashMonitorSupport.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {

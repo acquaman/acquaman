@@ -34,6 +34,7 @@ class AMFastScanConfiguration : public AMScanConfiguration
 public:
  	virtual ~AMFastScanConfiguration();
 	AMFastScanConfiguration(QObject *parent = 0);
+	AMFastScanConfiguration(const AMFastScanConfiguration &original);
 
 	const QMetaObject* getMetaObject();
 

@@ -64,6 +64,11 @@ public:
 	/// Virtual function that returns the number of children for this action.
 	virtual int numberOfChildren() const { return 0; }
 
+	/// We can always access our info object via info_ or info(), but it will come back as a AMActionInfo* pointer that we would need to cast to AMControlMoveActionInfo. This makes it easier to access.
+	const AMControlMoveActionInfo3* controlMoveInfo() const { return qobject_cast<const AMControlMoveActionInfo3*>(info()); }
+	/// We can always access our info object via info_ or info(), but it will come back as a AMActionInfo* pointer that we would need to cast to AMControlMoveActionInfo. This makes it easier to access.
+	AMControlMoveActionInfo3* controlMoveInfo() { return qobject_cast<AMControlMoveActionInfo3*>(info()); }
+
 signals:
 
 public slots:
@@ -101,12 +106,6 @@ protected slots:
 	void onMoveSucceeded();
 
 protected:
-
-	/// We can always access our info object via info_ or info(), but it will come back as a AMActionInfo* pointer that we would need to cast to AMControlMoveActionInfo. This makes it easier to access.
-	const AMControlMoveActionInfo3* controlMoveInfo() const { return qobject_cast<const AMControlMoveActionInfo3*>(info()); }
-	/// We can always access our info object via info_ or info(), but it will come back as a AMActionInfo* pointer that we would need to cast to AMControlMoveActionInfo. This makes it easier to access.
-	AMControlMoveActionInfo3* controlMoveInfo() { return qobject_cast<AMControlMoveActionInfo3*>(info()); }
-
 	// Internal variables:
 
 	/// Timer used to issue progress updates on a per-second basis

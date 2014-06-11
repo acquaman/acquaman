@@ -74,14 +74,14 @@ REIXSXESCalibration::REIXSXESCalibration(QObject *parent) :
 	gratingEVRangesMax_ << 1000 << 1000 << 1000 << 1000 << 1000;
 }
 
-AMControlInfoList REIXSXESCalibration::computeSpectrometerPosition(REIXSXESScanConfiguration *scanConfiguration) const
-{
-	return computeSpectrometerPosition(scanConfiguration->gratingNumber(),
-									   scanConfiguration->centerEV(),
-									   scanConfiguration->defocusDistanceMm(),
-									   scanConfiguration->detectorTiltOffset());
+//AMControlInfoList REIXSXESCalibration::computeSpectrometerPosition(REIXSXESScanConfiguration *scanConfiguration) const
+//{
+//	return computeSpectrometerPosition(scanConfiguration->gratingNumber(),
+//									   scanConfiguration->centerEV(),
+//									   scanConfiguration->defocusDistanceMm(),
+//									   scanConfiguration->detectorTiltOffset());
 
-}
+//}
 
 AMControlInfoList REIXSXESCalibration::computeSpectrometerPosition(int gratingIndex, double eV, double focusOffsetMm, double tiltOffsetDeg) const
 {

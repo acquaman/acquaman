@@ -365,6 +365,8 @@ void AMScanView::makeConnections() {
 	connect(modeBar_->showSpectra_, SIGNAL(toggled(bool)), this, SLOT(setSpectrumViewVisibility(bool)));
 	connect((AMScanViewExclusiveView *)views_.first(), SIGNAL(dataPositionChanged(QPointF)), this, SLOT(onDataPositionChanged(QPointF)));
 
+	foreach (AMScanViewInternal *view, views_)
+		connect(view, SIGNAL(dataPositionChanged(QPointF)), this, SIGNAL(dataPositionChanged(QPointF)));
 
 	connect(scansModel_, SIGNAL(scanAdded(AMScan*)), this, SLOT(onScanAdded(AMScan*)));
 	connect(scansModel_, SIGNAL(rowsInserted(QModelIndex, int, int)), this, SLOT(onRowInserted(QModelIndex,int,int)));
@@ -518,6 +520,30 @@ void AMScanView::mousePressEvent(QMouseEvent *e)
 		emit dataPositionChanged(e->globalPos());
 
 	QWidget::mousePressEvent(e);
+}
+
+void AMScanView::setPlotCursorVisibility(bool visible)
+{
+	((AMScanViewExclusiveView *)(views_.at(0)))->setPlotCursorVisibility(visible);
+	((AMScanViewMultiView *)(views_.at(1)))->setPlotCursorVisibility(visible);
+}
+
+void AMScanView::setPlotCursorCoordinates(const QPointF &coordinates)
+{
+	((AMScanViewExclusiveView *)(views_.at(0)))->setPlotCursorCoordinates(coordinates);
+	((AMScanViewMultiView *)(views_.at(1)))->setPlotCursorCoordinates(coordinates);
+}
+
+void AMScanView::setPlotCursorCoordinates(double xCoordinate)
+{
+	((AMScanViewExclusiveView *)(views_.at(0)))->setPlotCursorCoordinates(xCoordinate);
+	((AMScanViewMultiView *)(views_.at(1)))->setPlotCursorCoordinates(xCoordinate);
+}
+
+void AMScanView::setPlotCursorColor(const QColor &color)
+{
+	((AMScanViewExclusiveView *)(views_.at(0)))->setPlotCursorColor(color);
+	((AMScanViewMultiView *)(views_.at(1)))->setPlotCursorColor(color);
 }
 
 #include <QSizePolicy>

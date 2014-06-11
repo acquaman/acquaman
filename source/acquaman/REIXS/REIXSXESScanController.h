@@ -1,3 +1,7 @@
+//WARNING																								WARNING
+//WARNING  This file has been depreciated, it has been replace with REIXSXESScanActionController.cpp	WARNING
+//WARNING																								WARNING
+
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 

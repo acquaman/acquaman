@@ -25,7 +25,7 @@ public:
 
 public slots:
 	/// Provides access AMAction::skip() which isn't part of the AMScanController API.
-	void skip(const QString &command);
+	virtual void skip(const QString &command);
 
 protected slots:
 	/// Helper slot that ensures all the necessary database and event handler clean up is done.  Closes any open database transaction and removes this object from the QEvent receiver list.

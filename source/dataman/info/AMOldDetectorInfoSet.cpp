@@ -25,6 +25,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 AMOldDetectorInfoSet::AMOldDetectorInfoSet(QObject *parent)
 	: AMDbObject(parent), AMOrderedSet<QString, QPair<AMOldDetectorInfo*, bool> >()
 {
+	warningsSuppressed_ = true;
+
 	connect(signalSource(), SIGNAL(itemAdded(int)), this, SLOT(onDetectorAdded(int)));
 	connect(signalSource(), SIGNAL(itemRemoved(int)), this, SLOT(onDetectorRemoved(int)));
 	connect(signalSource(), SIGNAL(itemChanged(int)), this, SLOT(onDetectorValuesChanged(int)));
@@ -33,6 +35,8 @@ AMOldDetectorInfoSet::AMOldDetectorInfoSet(QObject *parent)
 AMOldDetectorInfoSet::AMOldDetectorInfoSet(const AMOldDetectorInfoSet& other)
 	: AMDbObject(other), AMOrderedSet<QString, QPair<AMOldDetectorInfo*, bool> >(other)
 {
+	warningsSuppressed_ = true;
+
 	dbLoadWarnings_ = other.dbLoadWarnings();
 	connect(signalSource(), SIGNAL(itemAdded(int)), this, SLOT(onDetectorAdded(int)));
 	connect(signalSource(), SIGNAL(itemRemoved(int)), this, SLOT(onDetectorRemoved(int)));
@@ -40,7 +44,9 @@ AMOldDetectorInfoSet::AMOldDetectorInfoSet(const AMOldDetectorInfoSet& other)
 }
 
 AMOldDetectorInfoSet::AMOldDetectorInfoSet(AMDatabase* db, int id)
-	: AMDbObject(), AMOrderedSet<QString, QPair<AMOldDetectorInfo*, bool> >() {
+	: AMDbObject(), AMOrderedSet<QString, QPair<AMOldDetectorInfo*, bool> >()
+{
+	warningsSuppressed_ = true;
 
 	connect(signalSource(), SIGNAL(itemAdded(int)), this, SLOT(onDetectorAdded(int)));
 	connect(signalSource(), SIGNAL(itemRemoved(int)), this, SLOT(onDetectorRemoved(int)));
@@ -83,6 +89,10 @@ QString AMOldDetectorInfoSet::description(){
 	return description_;
 }
 
+bool AMOldDetectorInfoSet::warningsSuppressed() const{
+	return warningsSuppressed_;
+}
+
 /* NTBA March 14, 2011 David Chevrier
    Still not sure about these
 */
@@ -122,13 +132,15 @@ QString AMOldDetectorInfoSet::dbReadActiveDetectorInfos() {
 void AMOldDetectorInfoSet::dbLoadActiveDetectorInfos(const QString &activeDetectorInfos){
 	if(activeDetectorInfos.isEmpty() || !activeDetectorInfos.contains("activeDetectorInfosVersion1.0")){
 		dbLoadWarnings_ = "This scan was run before the detector enable states were saved, if you wish to proceed you may have to edit the configuration and reselect your detectors.";
-		AMErrorMon::alert(this, AMDETECTORSET_NO_ENABLE_INFO_IN_DB, "The detector info active states were not saved for this AMDetectorInfoSet");
+		if(!warningsSuppressed_)
+			AMErrorMon::alert(this, AMDETECTORSET_NO_ENABLE_INFO_IN_DB, "The detector info active states were not saved for this AMDetectorInfoSet");
 		return;
 	}
 
 	if(activeDetectorInfos.count(',') != count()){
 		dbLoadWarnings_ = "Somehow there is a mismatch between the number of detectors available and the information about which were selected, if you wish to proceed you may have to edit the configuration and reselect your detectors.";
-		AMErrorMon::alert(this, AMDETECTORSET_ENABLE_INFO_COUNT_MISMATCH, "There was a mismatch in the counts for the saved active states and the number of detector infos for this AMDetectorInfoSet");
+		if(!warningsSuppressed_)
+			AMErrorMon::alert(this, AMDETECTORSET_ENABLE_INFO_COUNT_MISMATCH, "There was a mismatch in the counts for the saved active states and the number of detector infos for this AMDetectorInfoSet");
 		return;
 	}
 
@@ -242,6 +254,10 @@ QString AMOldDetectorInfoSet::dbLoadWarnings() const{
 void AMOldDetectorInfoSet::setDescription(const QString &description){
 	description_ = description;
 	setModified(true);
+}
+
+void AMOldDetectorInfoSet::setWarningsSuppressed(bool warningsSuppressed){
+	warningsSuppressed_ = warningsSuppressed;
 }
 
 void AMOldDetectorInfoSet::onDetectorValuesChanged(int index) {

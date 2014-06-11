@@ -15,17 +15,51 @@ SGMXASScanConfiguration2013View::SGMXASScanConfiguration2013View(SGMXASScanConfi
 	xasDetectorSelector_ = 0; //NULL
 	xasDetectorSelectorView_ = 0; //NULL
 
+	/* removed as temporary fix (see Issue579)
 	trackingSet_ = 0; //NULL
 	trackingSetView_ = 0; //NULL
+	*/
+
+	undulatorTrackingButton_ = new QPushButton(QString("Undulator"));
+	undulatorTrackingButton_->setCheckable(true);
+	updateTrackingButtonStatus(undulatorTrackingButton_, configuration_->undulatorTracking());
+
+	gratingTrackingButton_ = new QPushButton(QString("Grating"));
+	gratingTrackingButton_->setCheckable(true);
+	updateTrackingButtonStatus(gratingTrackingButton_, configuration_->monoTracking());
+
+	exitSlitTrackingButton_ = new QPushButton(QString("Exit Slit"));
+	exitSlitTrackingButton_->setCheckable(true);
+	updateTrackingButtonStatus(exitSlitTrackingButton_, configuration_->exitSlitTracking());
+
+	// TODO: Need to find a way to get gratingSlitTracking()
 
 	fluxResolutionView_ = new SGMFluxResolutionPickerView(configuration_->xasRegions(), this);
 	fluxResolutionView_->setFromInfoList(configuration_->fluxResolutionGroup());
 	fluxResolutionView_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
 	connect(fluxResolutionView_, SIGNAL(configValuesChanged(AMControlInfoList)), configuration_->dbObject(), SLOT(setFluxResolutionGroup(AMControlInfoList)));
 	connect(configuration_->dbObject(), SIGNAL(fluxResolutionGroupChanged()), this, SLOT(onFluxResolutionGroupChanged()));
+	connect(configuration_->dbObject(), SIGNAL(exitSlitTrackingChanged(bool)), this, SLOT(onExitSlitTrackingChanged(bool)));
+	connect(configuration_->dbObject(), SIGNAL(undulatorTrackingChanged(bool)), this, SLOT(onUndulatorTrackingChanged(bool)));
+	connect(configuration_->dbObject(), SIGNAL(monoTrackingChanged(bool)), this, SLOT(onGratingTrackingChanged(bool)));
+	connect(undulatorTrackingButton_, SIGNAL(clicked()), this, SLOT(onUndulatorTrackingButtonClicked()));
+	connect(gratingTrackingButton_, SIGNAL(clicked()), this, SLOT(onGratingTrackingButtonClicked()));
+	connect(exitSlitTrackingButton_, SIGNAL(clicked()), this, SLOT(onExitSlitTrackingButtonClicked()));
+	connect(configuration, SIGNAL(matchingBeamlineStatusChanged(bool)), this, SLOT(onMatchingBeamlineSettingsChanged(bool)));
+
+	matchesBeamlineWarning_ = new QLabel("Warning: Current Config does not match the beamline settings. \nStarting a scan now will override the beamline settings with those of the config.");
+	matchesBeamlineWarning_->setVisible(false);
+	QPalette warningPalette = matchesBeamlineWarning_->palette();
+	warningPalette.setColor(QPalette::WindowText, Qt::red);
+	matchesBeamlineWarning_->setPalette(warningPalette);
+
+	getBeamlineSettings_ = new QPushButton("Get Settings from Beamline");
+	getBeamlineSettings_->setVisible(false);
+	connect(getBeamlineSettings_, SIGNAL(clicked()), this, SLOT(onGetBeamlineSettingsClicked()));
 
 	scanNameLabel_ = new QLabel("Scan Name");
-	scanNameEdit_ = new QLineEdit(this);
+	scanNameEdit_ = new AMRegExpLineEdit("/|;|@|#|<|>", Qt::CaseInsensitive, "/;#>@< characters are not allowed.");
+	scanNameEdit_->setValidIfMatches(false);
 	connect(scanNameEdit_, SIGNAL(textEdited(QString)), this, SLOT(onScanNameEditChanged(QString)));
 
 	mainVL_ = new QVBoxLayout();
@@ -38,6 +72,18 @@ SGMXASScanConfiguration2013View::SGMXASScanConfiguration2013View(SGMXASScanConfi
 	bottomGL_->setColumnStretch(0, 10);
 	bottomGL_->setColumnMinimumWidth(1, 40);
 	bottomGL_->setContentsMargins(10, 0, 0, 10);
+	QVBoxLayout* trackingButtons = new QVBoxLayout();
+	trackingButtons->addWidget(undulatorTrackingButton_);
+	trackingButtons->addWidget(gratingTrackingButton_);
+	trackingButtons->addWidget(exitSlitTrackingButton_);
+	bottomGL_->addLayout(trackingButtons,0 , 2);
+	bottomGL_->addWidget(matchesBeamlineWarning_, 2, 0);
+	QGridLayout* bottomButtonL = new QGridLayout();
+
+	bottomButtonL->addWidget(getBeamlineSettings_, 0, 0);
+	bottomButtonL->addItem(new QSpacerItem(450, 10),0,1);
+	bottomGL_->addLayout(bottomButtonL,3,0);
+			//addWidget(getBeamlineSettings_, 3, 0);
 	mainVL_->addStretch(8);
 
 	QHBoxLayout *nameHL = new QHBoxLayout();
@@ -64,6 +110,7 @@ void SGMXASScanConfiguration2013View::setDetectorSelector(AMDetectorSelector *xa
 	}
 }
 
+/* removed as temporary fix (see Issue579)
 void SGMXASScanConfiguration2013View::setTrackingSet(AMControlSet *trackingSet){
 	trackingSet_ = trackingSet;
 	if(!trackingSetView_){
@@ -74,11 +121,13 @@ void SGMXASScanConfiguration2013View::setTrackingSet(AMControlSet *trackingSet){
 		connect(configuration_->dbObject(), SIGNAL(trackingGroupChanged()), this, SLOT(onTrackingGroupChanged()));
 	}
 }
+*/
 
+/* removed as temporary fix (see Issue579)
 void SGMXASScanConfiguration2013View::onTrackingGroupChanged(){
 	trackingSetView_->setFromInfoList(configuration_->trackingGroup());
 }
-
+*/
 void SGMXASScanConfiguration2013View::onFluxResolutionGroupChanged(){
 	fluxResolutionView_->setFromInfoList(configuration_->fluxResolutionGroup());
 }
@@ -86,10 +135,67 @@ void SGMXASScanConfiguration2013View::onFluxResolutionGroupChanged(){
 void SGMXASScanConfiguration2013View::onScanNameEditChanged(const QString &scanName){
 	configuration_->setUserScanName(scanName);
 
-
+	/* removed as temporary fix (see Issue579)
 	for(int x = 0, size = trackingSet_->count(); x < size; x++)
 		qDebug() << "Tracking set at " << x << trackingSet_->at(x)->name() << trackingSet_->controlNamed(trackingSet_->at(x)->name())->value();
 
 	for(int x = 0, size = configuration_->trackingGroup().count(); x < size; x++)
 		qDebug() << "Tracking group at " << x << configuration_->trackingGroup().at(x).name() << configuration_->trackingGroup().controlNamed(configuration_->trackingGroup().at(x).name()).value();
+	*/
 }
+
+void SGMXASScanConfiguration2013View::onUndulatorTrackingChanged(bool isTracking)
+{
+	updateTrackingButtonStatus(undulatorTrackingButton_, isTracking);
+}
+
+void SGMXASScanConfiguration2013View::onUndulatorTrackingButtonClicked()
+{
+	configuration_->dbObject()->setUndulatorTracking(!configuration_->dbObject()->undulatorTracking());
+}
+
+void SGMXASScanConfiguration2013View::onExitSlitTrackingChanged(bool isTracking)
+{
+	updateTrackingButtonStatus(exitSlitTrackingButton_, isTracking);
+}
+
+void SGMXASScanConfiguration2013View::onExitSlitTrackingButtonClicked()
+{
+	configuration_->dbObject()->setExitSlitTracking(!configuration_->dbObject()->exitSlitTracking());
+}
+
+void SGMXASScanConfiguration2013View::onGratingTrackingChanged(bool isTracking)
+{
+	updateTrackingButtonStatus(gratingTrackingButton_, isTracking);
+}
+
+void SGMXASScanConfiguration2013View::onGratingTrackingButtonClicked()
+{
+	configuration_->dbObject()->setMonoTracking(!configuration_->dbObject()->monoTracking());
+}
+
+void SGMXASScanConfiguration2013View::onMatchingBeamlineSettingsChanged(bool matchedBeamline)
+{
+	matchesBeamlineWarning_->setVisible(!matchedBeamline);
+	getBeamlineSettings_->setVisible(!matchedBeamline);
+}
+
+void SGMXASScanConfiguration2013View::onGetBeamlineSettingsClicked()
+{
+	configuration_->getSettingsFromBeamline();
+}
+
+void SGMXASScanConfiguration2013View::updateTrackingButtonStatus(QPushButton *button, bool isTracking)
+{
+	QColor buttonTextColor;
+
+
+	buttonTextColor = (isTracking) ? (Qt::black) : (Qt::red);
+	button->setChecked(isTracking);
+
+	QPalette palette = button->palette();
+	palette.setColor(QPalette::ButtonText, buttonTextColor);
+	button->setPalette(palette);
+}
+
+

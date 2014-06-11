@@ -16,17 +16,16 @@ AMStepScanAxisElementView::AMStepScanAxisElementView(AMScanAxisRegion *region, Q
 	start_ = new QDoubleSpinBox;
 	start_->setRange(-100000, 100000);
 	start_->setSuffix(" eV");
-    start_->setDecimals(3);
-	start_->setValue(region_->regionStart());
+	start_->setDecimals(2);
+	start_->setValue(double(region_->regionStart()));
 	start_->setAlignment(Qt::AlignCenter);
-	connect(region_, SIGNAL(regionStartChanged(AMNumber)), this, SLOT(setStartSpinBox(AMNumber)));
 	connect(start_, SIGNAL(editingFinished()), this, SLOT(onStartPositionUpdated()));
 
 	delta_ = new QDoubleSpinBox;
 	delta_->setRange(-100000, 100000);
 	delta_->setSuffix(" eV");
-    delta_->setDecimals(3);
-	delta_->setValue(region_->regionStep());
+	delta_->setDecimals(2);
+	delta_->setValue(double(region_->regionStep()));
 	delta_->setAlignment(Qt::AlignCenter);
 	connect(region_, SIGNAL(regionStepChanged(AMNumber)), this, SLOT(setDeltaSpinBox(AMNumber)));
 	connect(delta_, SIGNAL(editingFinished()), this, SLOT(onDeltaPositionUpdated()));
@@ -34,17 +33,16 @@ AMStepScanAxisElementView::AMStepScanAxisElementView(AMScanAxisRegion *region, Q
 	end_ = new QDoubleSpinBox;
 	end_->setRange(-100000, 100000);
 	end_->setSuffix(" eV");
-    end_->setDecimals(3);
-	end_->setValue(region_->regionEnd());
+	end_->setDecimals(2);
+	end_->setValue(double(region_->regionEnd()));
 	end_->setAlignment(Qt::AlignCenter);
-	connect(region_, SIGNAL(regionEndChanged(AMNumber)), this, SLOT(setEndSpinBox(AMNumber)));
 	connect(end_, SIGNAL(editingFinished()), this, SLOT(onEndPositionUpdated()));
 
 	time_ = new QDoubleSpinBox;
 	time_->setRange(-100000, 100000);
 	time_->setSuffix(" s");
-    time_->setDecimals(2);
-	time_->setValue(region_->regionTime());
+	time_->setDecimals(2);
+	time_->setValue(double(region_->regionTime()));
 	time_->setAlignment(Qt::AlignCenter);
 	connect(region_, SIGNAL(regionTimeChanged(AMNumber)), this, SLOT(setTimeSpinBox(AMNumber)));
 	connect(time_, SIGNAL(editingFinished()), this, SLOT(onTimeUpdated()));
@@ -89,6 +87,7 @@ void AMStepScanAxisElementView::setTimeSpinBox(const AMNumber &value)
 void AMStepScanAxisElementView::onStartPositionUpdated()
 {
 	region_->setRegionStart(start_->value());
+	emit startValueChanged(start_->value());
 }
 
 void AMStepScanAxisElementView::onDeltaPositionUpdated()
@@ -99,6 +98,7 @@ void AMStepScanAxisElementView::onDeltaPositionUpdated()
 void AMStepScanAxisElementView::onEndPositionUpdated()
 {
 	region_->setRegionEnd(end_->value());
+	emit endValueChanged(end_->value());
 }
 
 void AMStepScanAxisElementView::onTimeUpdated()
@@ -216,6 +216,8 @@ void AMStepScanAxisView::onAddRegionButtonClicked()
 			if (temp->text() == "Beginning"){
 
 				AMScanAxisRegion *region = configuration_->scanAxisAt(0)->regionAt(0)->createCopy();
+				region->setRegionEnd(configuration_->scanAxisAt(0)->regionAt(0)->regionStart());
+				region->setRegionStart(double(region->regionEnd())-10.0);
 				configuration_->scanAxisAt(0)->insertRegion(0, region);
 				buildScanAxisRegionView(0, region);
 			}
@@ -224,6 +226,8 @@ void AMStepScanAxisView::onAddRegionButtonClicked()
 
 				int indexOfEnd = configuration_->scanAxisAt(0)->regionCount();
 				AMScanAxisRegion *region = configuration_->scanAxisAt(0)->regionAt(indexOfEnd-1)->createCopy();
+				region->setRegionStart(configuration_->scanAxisAt(0)->regionAt(indexOfEnd-1)->regionEnd());
+				region->setRegionEnd(double(region->regionEnd())+10.0);
 				configuration_->scanAxisAt(0)->insertRegion(indexOfEnd, region);
 				buildScanAxisRegionView(indexOfEnd, region);
 			}
@@ -232,6 +236,8 @@ void AMStepScanAxisView::onAddRegionButtonClicked()
 
 				int index = temp->text().split(" ").at(1).toInt();
 				AMScanAxisRegion *region = configuration_->scanAxisAt(0)->regionAt(index)->createCopy();
+				region->setRegionStart(configuration_->scanAxisAt(0)->regionAt(index-1)->regionEnd());
+				region->setRegionEnd(configuration_->scanAxisAt(0)->regionAt(index)->regionStart());
 				configuration_->scanAxisAt(0)->insertRegion(index, region);
 				buildScanAxisRegionView(index, region);
 			}
@@ -251,11 +257,35 @@ void AMStepScanAxisView::onDeleteButtonClicked(QAbstractButton *button)
 	configuration_->scanAxisAt(0)->removeRegion(view->region());
 	deleteButtonGroup_->removeButton(button);
 	regionMap_.remove(button);
+	lockedElementViewList_.removeOne(view);
 	layout()->removeItem(layoutMap_.value(button));
 	layoutMap_.take(button)->deleteLater();
 	view->region()->deleteLater();
 	view->deleteLater();
 	button->deleteLater();
+
+	if (regionsLocked())
+		connectRegions();
+}
+
+void AMStepScanAxisView::insertRegion(int index, AMScanAxisRegion *region)
+{
+	if (regionsLocked())
+		disconnectRegions();
+
+	configuration_->scanAxisAt(0)->insertRegion(index, region);
+	buildScanAxisRegionView(index, region);
+
+	if (regionsLocked())
+		connectRegions();
+}
+
+void AMStepScanAxisView::removeRegion(int index)
+{
+	if (regionsLocked())
+		disconnectRegions();
+
+	onDeleteButtonClicked(regionMap_.key(lockedElementViewList_.at(index)));
 
 	if (regionsLocked())
 		connectRegions();

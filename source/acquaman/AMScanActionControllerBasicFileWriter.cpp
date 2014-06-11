@@ -88,9 +88,12 @@ void AMScanActionControllerBasicFileWriter::writeToFile(int fileRank, const QStr
 void AMScanActionControllerBasicFileWriter::finishWriting()
 {
 	dataFile_->close();
+	dataFile_->deleteLater();
 
-	if(hasSpectraData_)
+	if(hasSpectraData_){
 		spectraFile_->close();
+		spectraFile_->deleteLater();
+	}
 
 	emit fileWriterIsBusy(false);
 }

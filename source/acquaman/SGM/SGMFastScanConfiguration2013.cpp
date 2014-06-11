@@ -7,6 +7,7 @@
 
 SGMFastScanConfiguration2013::SGMFastScanConfiguration2013(QObject *parent) : AMFastScanConfiguration(parent), SGMScanConfiguration()
 {
+	autoExportEnabled_ = false; // We're not going to do auto exporting for fast scans right now
 	currentSettings_ = 0; //NULL
 	currentEnergyParameters_ = 0; //NULL
 
@@ -21,6 +22,7 @@ SGMFastScanConfiguration2013::SGMFastScanConfiguration2013(QObject *parent) : AM
 SGMFastScanConfiguration2013::SGMFastScanConfiguration2013(const SGMFastScanConfiguration2013 &original) :
 		AMFastScanConfiguration(original), SGMScanConfiguration()
 {
+	autoExportEnabled_ = false; // We're not going to do auto exporting for fast scans right now
 	currentSettings_ = 0; //NULL
 	currentEnergyParameters_ = 0; //NULL
 
@@ -37,6 +39,8 @@ SGMFastScanConfiguration2013::SGMFastScanConfiguration2013(const SGMFastScanConf
 		setParameters(original.currentParameters());
 
 	setEnergyParameters(original.currentEnergyParameters());
+
+	detectorConfigurations_ = original.detectorConfigurations();
 
 	dbLoadWarnings_ = original.dbLoadWarnings();
 }

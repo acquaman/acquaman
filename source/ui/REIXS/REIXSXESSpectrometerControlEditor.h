@@ -65,6 +65,7 @@ protected slots:
 private slots:
 
 	void on_maskComboBox_currentIndexChanged(const QString &arg1);
+	void updateEnergyRange();
 
 private:
 	Ui::REIXSXESSpectrometerControlEditor *ui_;

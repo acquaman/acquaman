@@ -4,6 +4,8 @@
 #include "beamline/AMBeamline.h"
 #include "dataman/AMSamplePlate.h"
 #include "util/AMErrorMonitor.h"
+#include "actions3/AMListAction3.h"
+#include "actions3/actions/AMControlMoveAction3.h"
 
 AMSampleMoveAction::AMSampleMoveAction(AMSampleMoveActionInfo *info, QObject *parent) :
 	AMAction3(info, parent)
@@ -82,12 +84,40 @@ void AMSampleMoveAction::startImplementation(){
 	}
 	// Check that this sample is on that plate
 	if(AMBeamline::bl()->samplePlate()->indexOfSample(sampleMoveInfo()->sample()) == -1){
-		AMErrorMon::alert(this, AMSAMPLEMOVEACTION_SAMPLE_NOT_ON_PLATE, QString("The action could not start because the sample requested is not on the current plate."));
-		setFailed();
-		return;
+
+		if(sampleMoveInfo()->sample()){
+			// Last chance attempt to find sample. If this was reloaded from the database, it might have loaded the sample out of the database directly rather than got it from a sample plate. This is because we don't have a good retain/release system yet.
+			AMSamplePlate *currentSamplePlate = AMBeamline::bl()->samplePlate();
+			for(int x = 0, size = currentSamplePlate->sampleCount(); x < size; x++)
+				if(currentSamplePlate->sampleAt(x)->name() == sampleMoveInfo()->sample()->name())
+					sampleMoveInfo()->setSample(currentSamplePlate->sampleAt(x));
+		}
+
+		if(AMBeamline::bl()->samplePlate()->indexOfSample(sampleMoveInfo()->sample()) == -1){
+			AMErrorMon::alert(this, AMSAMPLEMOVEACTION_SAMPLE_NOT_ON_PLATE, QString("The action could not start because the sample requested is not on the current plate."));
+			setFailed();
+			return;
+		}
 	}
 
 	moveListAction_ = camera->createMoveToSampleAction(sampleMoveInfo()->sample());
+
+	AMListAction3 *asListAction = qobject_cast<AMListAction3*>(moveListAction_);
+	if(asListAction){
+		for(int x = 0, size = asListAction->subActionCount(); x < size; x++){
+			AMControlMoveAction3 *subAsControlMoveAction = qobject_cast<AMControlMoveAction3*>(asListAction->subActionAt(x));
+			if(subAsControlMoveAction && subAsControlMoveAction->controlMoveInfo()->controlInfo()->value() > subAsControlMoveAction->controlMoveInfo()->controlInfo()->maximum()){
+				AMControlInfo newValueInfo(*(subAsControlMoveAction->controlMoveInfo()->controlInfo()));
+				newValueInfo.setValue(subAsControlMoveAction->controlMoveInfo()->controlInfo()->maximum());
+				subAsControlMoveAction->controlMoveInfo()->setControlInfo(newValueInfo);
+			}
+			else if(subAsControlMoveAction && subAsControlMoveAction->controlMoveInfo()->controlInfo()->value() < subAsControlMoveAction->controlMoveInfo()->controlInfo()->minimum()){
+				AMControlInfo newValueInfo(*(subAsControlMoveAction->controlMoveInfo()->controlInfo()));
+				newValueInfo.setValue(subAsControlMoveAction->controlMoveInfo()->controlInfo()->minimum());
+				subAsControlMoveAction->controlMoveInfo()->setControlInfo(newValueInfo);
+			}
+		}
+	}
 
 	// connect to the list's signals
 	connect(moveListAction_, SIGNAL(started()), this, SLOT(onMoveListStarted()));

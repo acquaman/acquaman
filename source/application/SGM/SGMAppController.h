@@ -139,11 +139,18 @@ protected:
 	bool setupSGMPlugins();
 	/// Either creates, retrieves, or updates the exporter options for the provided and auto- export options
 	bool setupSGMExporterOptions();
+	/// Either creates, retrieves, or updates the exporter options for XASScans
+	bool setupSGMXASExporterOptions(AMDatabase* dbSGM);
+	/// Either creates, retrieves, or updates the exporter options for FastScans
+	bool setupSGMFastScanExporterOptions(AMDatabase* dbSGM);
 	/// Either creates or retrieves the SGM periodic table information
 	bool setupSGMPeriodicTable();
 
 	/// Creates views and makes connections. Some views have to wait for signals from the SGM Beamline object
 	bool setupSGMViews();
+
+	/// Subclass reimplementation to call SGMDataViewWithActionButtons rather than the AM version.
+	virtual AMDataViewWithActionButtons* createDataViewWithActionButtons();
 
 protected:
 	AMSamplePlateView *samplePlateView_;

@@ -179,6 +179,8 @@ void IDEASAppController::setupUserInterface()
 
 void IDEASAppController::makeConnections()
 {
+    connect(this, SIGNAL(scanEditorCreated(AMGenericScanEditor*)), this, SLOT(onScanEditorCreated(AMGenericScanEditor*)));
+
 }
 
 //void IDEASAppController::onSynchronizedDwellTimeConnected(bool connected){
@@ -219,6 +221,70 @@ void IDEASAppController::onCurrentScanActionFinishedImplementation(AMScanAction 
 {
 	Q_UNUSED(action)
 }
+
+void IDEASAppController::onScanEditorCreated(AMGenericScanEditor *editor)
+{
+	connect(editor, SIGNAL(scanAdded(AMGenericScanEditor*,AMScan*)), this, SLOT(onScanAddedToEditor(AMGenericScanEditor*,AMScan*)));
+	editor->setPlotRange(AMPeriodicTable::table()->elementBySymbol("K")->Kalpha().energy(), 20480);
+
+	if (editor->using2DScanView())
+		connect(editor, SIGNAL(dataPositionChanged(AMGenericScanEditor*,QPoint)), this, SLOT(onDataPositionChanged(AMGenericScanEditor*,QPoint)));
+}
+
+void IDEASAppController::onScanAddedToEditor(AMGenericScanEditor *editor, AMScan *scan)
+{
+	QString exclusiveName = QString();
+
+	for (int i = 0, count = scan->analyzedDataSourceCount(); i < count && exclusiveName.isNull(); i++){
+
+		AMDataSource *source = scan->analyzedDataSources()->at(i);
+
+		if (source->name().contains("norm") && source->name().contains("Ka") && !source->hiddenFromUsers())
+			exclusiveName = source->name();
+	}
+	if (!exclusiveName.isNull())
+	    for (int i = 0, count = scan->analyzedDataSourceCount(); i < count && exclusiveName.isNull(); i++){
+
+		    AMDataSource *source = scan->analyzedDataSources()->at(i);
+
+		    if (source->name().contains("normSample"))
+			    exclusiveName = source->name();
+	    }
+
+
+	if (!exclusiveName.isNull())
+		editor->setExclusiveDataSourceByName(exclusiveName);
+
+	else if (editor->scanAt(0)->analyzedDataSourceCount())
+		editor->setExclusiveDataSourceByName(editor->scanAt(0)->analyzedDataSources()->at(editor->scanAt(0)->analyzedDataSourceCount()-1)->name());
+
+	configureSingleSpectrumView(editor, scan);
+}
+
+void IDEASAppController::configureSingleSpectrumView(AMGenericScanEditor *editor, AMScan *scan)
+{
+	int scanRank = scan->scanRank();
+	QStringList spectraNames;
+
+	for (int i = 0, size = scan->dataSourceCount(); i < size; i++)
+		if (scan->dataSourceAt(i)->rank()-scanRank == 1)
+			spectraNames << scan->dataSourceAt(i)->name();
+
+//	if (spectraNames.contains("sumSpectra-1eland4el"))
+//		editor->setSingleSpectrumViewDataSourceName("correctedRawSpectra-1el");
+
+//	else if (spectraNames.contains("correctedSum-4el"))
+//		editor->setSingleSpectrumViewDataSourceName("correctedSum-4el");
+
+//	else if (spectraNames.contains("correctedRawSpectra-1el"))
+//		editor->setSingleSpectrumViewDataSourceName("correctedRawSpectra-1el");
+
+//	else if (!spectraNames.isEmpty())
+	editor->setSingleSpectrumViewDataSourceName(spectraNames.first());
+
+	editor->setPlotRange(AMPeriodicTable::table()->elementBySymbol("K")->Kalpha().energy(), 20480);
+}
+
 
 
 //AMScan *scan = action->controller()->scan();
