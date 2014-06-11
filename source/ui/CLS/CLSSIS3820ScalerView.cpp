@@ -30,7 +30,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 // CLSSIS3820ScalerView
 ///////////////////////////////////////////////
 
- CLSSIS3820ScalerView::~CLSSIS3820ScalerView(){}
 CLSSIS3820ScalerView::CLSSIS3820ScalerView(CLSSIS3820Scaler *scaler, QWidget *parent) :
 	QWidget(parent)
 {
@@ -166,6 +165,8 @@ CLSSIS3820ScalerView::CLSSIS3820ScalerView(CLSSIS3820Scaler *scaler, QWidget *pa
 		darkCurrentWidget->show();
 }
 
+CLSSIS3820ScalerView::~CLSSIS3820ScalerView(){}
+
 void CLSSIS3820ScalerView::startScanning()
 {
 	scaler_->setScanning(true);
@@ -236,15 +237,15 @@ void CLSSIS3820ScalerView::setTotalNumberOfScans()
 	scaler_->blockSignals(false);
 }
 
-void CLSSIS3820ScalerView::onSR570ViewChanged(CLSSR570View::ViewMode mode)
-{
-	foreach (CLSSIS3820ScalerChannelView *channel, channelViews_){
+//void CLSSIS3820ScalerView::onSR570ViewChanged(CLSSR570View::ViewMode mode)
+//{
+//	foreach (CLSSIS3820ScalerChannelView *channel, channelViews_){
 
-		channel->blockSignals(true);
-		channel->setSR570ViewMode(mode);
-		channel->blockSignals(false);
-	}
-}
+//		channel->blockSignals(true);
+//		channel->setSR570ViewMode(mode);
+//		channel->blockSignals(false);
+//	}
+//}
 
 void CLSSIS3820ScalerView::onOutputViewModeChanged(CLSSIS3820ScalerChannelView::OutputViewMode mode)
 {

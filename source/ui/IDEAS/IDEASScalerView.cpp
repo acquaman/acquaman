@@ -41,12 +41,12 @@ void IDEASScalerView::onSR570ViewChanged(CLSSR570View::ViewMode mode)
 //	compositeView_->setSR570ViewMode((CLSSR570CompositeView::ViewMode)mode);
 //	compositeView_->blockSignals(false);
 
-	foreach (CLSSIS3820ScalerChannelView *channel, singleViews_){
+//	foreach (CLSSIS3820ScalerChannelView *channel, singleViews_){
 
-		channel->blockSignals(true);
-		channel->setSR570ViewMode(mode);
-		channel->blockSignals(false);
-	}
+//		channel->blockSignals(true);
+//		channel->setSR570ViewMode(mode);
+//		channel->blockSignals(false);
+//	}
 }
 
 void IDEASScalerView::onSR570ViewChanged(CLSSR570CompositeView::ViewMode mode)
@@ -55,12 +55,12 @@ void IDEASScalerView::onSR570ViewChanged(CLSSR570CompositeView::ViewMode mode)
 //	compositeView_->setSR570ViewMode(mode);
 //	compositeView_->blockSignals(false);
 
-	foreach (CLSSIS3820ScalerChannelView *channel, singleViews_){
+//	foreach (CLSSIS3820ScalerChannelView *channel, singleViews_){
 
-		channel->blockSignals(true);
-		channel->setSR570ViewMode((CLSSR570View::ViewMode)mode);
-		channel->blockSignals(false);
-	}
+//		channel->blockSignals(true);
+//		channel->setSR570ViewMode((CLSSR570View::ViewMode)mode);
+//		channel->blockSignals(false);
+//	}
 }
 
 void IDEASScalerView::onOutputViewModeChanged(CLSSIS3820CompositeScalerChannelView::OutputViewMode mode)
