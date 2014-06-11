@@ -260,7 +260,6 @@ void CLSSIS3820ScalerView::onOutputViewModeChanged(CLSSIS3820ScalerChannelView::
 // CLSSIS3820ScalerChannelView
 //////////////////////////////////////////////////////////////
 
- CLSSIS3820ScalerChannelView::~CLSSIS3820ScalerChannelView(){}
 CLSSIS3820ScalerChannelView::CLSSIS3820ScalerChannelView(CLSSIS3820ScalerChannel *channel, QWidget *parent)
 	: QWidget(parent)
 {
@@ -284,8 +283,10 @@ CLSSIS3820ScalerChannelView::CLSSIS3820ScalerChannelView(CLSSIS3820ScalerChannel
 
 	if (channel_->currentAmplifier()){
 
-        sr570View_ = new CLSSR570View(qobject_cast<CLSSR570*>(channel_->currentAmplifier()));
-		connect(sr570View_, SIGNAL(viewModeChanged(CLSSR570View::ViewMode)), this, SIGNAL(sr570ViewModeChanged(CLSSR570View::ViewMode)));
+        sr570View_ = new AMCurrentAmplifierView(channel_->currentAmplifier(), false, this);
+
+//        sr570View_ = new CLSSR570View(qobject_cast<CLSSR570*>(channel_->currentAmplifier()));
+//		connect(sr570View_, SIGNAL(viewModeChanged(CLSSR570View::ViewMode)), this, SIGNAL(sr570ViewModeChanged(CLSSR570View::ViewMode)));
 	}
 
 	scalerOutput_ = new QToolButton;
@@ -317,6 +318,8 @@ CLSSIS3820ScalerChannelView::CLSSIS3820ScalerChannelView(CLSSIS3820ScalerChannel
 
 	statusLabel_->setVisible(channel_->voltageRange().isValid());
 }
+
+CLSSIS3820ScalerChannelView::~CLSSIS3820ScalerChannelView(){}
 
 void CLSSIS3820ScalerChannelView::onReadingChanged()
 {
@@ -370,11 +373,11 @@ void CLSSIS3820ScalerChannelView::onScalerOutputClicked()
 	onReadingChanged();
 }
 
-void CLSSIS3820ScalerChannelView::setSR570ViewMode(CLSSR570View::ViewMode mode)
-{
-	if (channel_->currentAmplifier())
-		sr570View_->setViewMode(mode);
-}
+//void CLSSIS3820ScalerChannelView::setSR570ViewMode(CLSSR570View::ViewMode mode)
+//{
+//	if (channel_->currentAmplifier())
+//		sr570View_->setViewMode(mode);
+//}
 
 void CLSSIS3820ScalerChannelView::setOutputViewMode(CLSSIS3820ScalerChannelView::OutputViewMode mode)
 {
@@ -418,6 +421,8 @@ void CLSSIS3820ScalerChannelView::onNewCurrentAmplifierAttached()
 	if (sr570View_)
 		delete channelLayout_->takeAt(channelLayout_->indexOf(sr570View_));
 
-    sr570View_ = new CLSSR570View(qobject_cast<CLSSR570*>(channel_->currentAmplifier()));
+    sr570View_ = new AMCurrentAmplifierView(channel_->currentAmplifier(), false, this);
+
+//    sr570View_ = new CLSSR570View(qobject_cast<CLSSR570*>(channel_->currentAmplifier()));
 	channelLayout_->insertWidget(2, sr570View_, 0, Qt::AlignCenter);
 }
