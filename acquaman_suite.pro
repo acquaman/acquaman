@@ -31,4 +31,4 @@ SUBDIRS +=	pluginProjects/FileLoaders/AMFileLoaderPlugins.pro \
 	BioXASImagingAcquaman.pro \
 	BioXASShutterTool.pro \
 	VESPERSDatabaseDuplicateEntryPatch.pro \
-    source/StripTool2
+	StripTool2.pro
