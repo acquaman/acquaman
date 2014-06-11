@@ -27,7 +27,7 @@ IDEASScalerView::IDEASScalerView(QWidget *parent)
 		view->setEnableCheckBoxVisibility(false);
 		singleViews_ << view;
 		view->setFixedHeight(55);
-		connect(view, SIGNAL(sr570ViewModeChanged(CLSSR570View::ViewMode)), this, SLOT(onSR570ViewChanged(CLSSR570View::ViewMode)));
+//		connect(view, SIGNAL(sr570ViewModeChanged(CLSSR570View::ViewMode)), this, SLOT(onSR570ViewChanged(CLSSR570View::ViewMode)));
 		connect(view, SIGNAL(outputViewModeChanged(CLSSIS3820ScalerChannelView::OutputViewMode)), this, SLOT(onOutputViewModeChanged(CLSSIS3820ScalerChannelView::OutputViewMode)));
 		layout->addWidget(view);
 	}
