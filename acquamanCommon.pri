@@ -759,7 +759,6 @@ HEADERS += source/acquaman/AMRegion.h \
 	source/beamline/CLS/CLSPseudoMotorControl.h \
     source/beamline/CLS/CLSKeithley428.h \
     source/ui/beamline/AMCurrentAmplifierView.h \
-	source/ui/CLS/CLSKeithley428View.h \
 	source/ui/AMRegExpLineEdit.h \
 	source/application/AMCrashMonitorSupport.h
 
@@ -1241,7 +1240,6 @@ SOURCES += source/acquaman/AMRegion.cpp \
 	source/beamline/CLS/CLSPseudoMotorControl.cpp \
     source/beamline/CLS/CLSKeithley428.cpp \
     source/ui/beamline/AMCurrentAmplifierView.cpp \
-	source/ui/CLS/CLSKeithley428View.cpp \
 	source/ui/AMRegExpLineEdit.cpp \
 	source/application/AMCrashMonitorSupport.cpp
 
