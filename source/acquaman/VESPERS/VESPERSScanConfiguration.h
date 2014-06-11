@@ -46,6 +46,8 @@ public:
 	QString ccdFileName() const { return dbObject_->ccdFileName(); }
 	/// Returns the normal position.
 	double normalPosition() const { return dbObject_->normalPosition(); }
+	/// Returns the list of regions of interest.
+	QList<AMRegionOfInterest *> regionsOfInterest() const { return dbObject_->regionsOfInterest(); }
 
 	/// Returns the current total estimated time for a scan to complete.
 	double totalTime() const { return totalTime_; }
@@ -81,6 +83,10 @@ public:
 	void setCCDFileName(const QString &name) { dbObject_->setCCDFileName(name); }
 	/// Sets the normal position.
 	void setNormalPosition(double newPosition) { dbObject_->setNormalPosition(newPosition); }
+	/// Adds a region of interest to the list.
+	void addRegionOfInterest(AMRegionOfInterest *region) { dbObject_->addRegionOfInterest(region); }
+	/// Removes a region of interest from the list.
+	void removeRegionOfInterest(AMRegionOfInterest *region) { dbObject_->removeRegionOfInterest(region); }
 
 	/// Sets the time offset used for estimating the scan time.
 	void setTimeOffset(double offset) { timeOffset_ = offset; computeTotalTimeImplementation(); }
@@ -106,6 +112,8 @@ protected:
 	QString motorHeaderString(VESPERS::Motors motor) const;
 	/// Returns a string that gives the name of the CCD images.
 	QString ccdDetectorHeaderString(VESPERS::CCDDetectors detector) const;
+	/// Returns a string that displays all the regions of interest.
+	QString regionsOfInterestHeaderString(const QList<AMRegionOfInterest *> &regions) const;
 
 	////////////////////////////////////////
 
