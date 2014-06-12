@@ -13,20 +13,20 @@ STWidget::STWidget(QWidget *parent)
     connect( ringCurrentControl_, SIGNAL(connected(bool)), this, SLOT(onRingCurrentConnected(bool)) );
 
     ringCurrentModel1_ = new MPlotRealtimeModel();
+
     ringCurrentSeries1_ = new MPlotSeriesBasic();
     ringCurrentSeries1_->setModel(ringCurrentModel1_, true);
     ringCurrentSeries1_->setDescription("Series 1");
 
-    ringCurrentModel2_ = new MPlotRealtimeModel();
     ringCurrentSeries2_ = new MPlotSeriesBasic();
-    ringCurrentSeries2_->setModel(ringCurrentModel2_, true);
+    ringCurrentSeries2_->setModel(ringCurrentModel1_, false);
     ringCurrentSeries2_->setDescription("Series 2");
 
-    summedData_ = new AM1DSummingAB("Summed Current", this);
-    summedData_->setInputDataSources(QList<AMDataSource*>() << ringCurrentModel1_ << ringCurrentModel2_);
+//    summedData_ = new AM1DSummingAB("Summed Current", this);
+//    summedData_->setInputDataSources(QList<AMDataSource*>() << ringCurrentModel1_ << ringCurrentModel2_);
 
     ringCurrentSeries3_ = new MPlotSeriesBasic();
-    ringCurrentSeries3_->setModel(new AMDataSourceSeriesData(summedData_), true);
+//    ringCurrentSeries3_->setModel(new AMDataSourceSeriesData(summedData_), true);
 
     // create plot and set up axes.
     plot_ = new MPlot();
@@ -62,13 +62,9 @@ void STWidget::onRingCurrentValueChanged(double newValue)
     ringCurrentLabel_->setText(QString("Storage ring current : %1 mA").arg(newValue, 0, 'f', 3));
 
     ringCurrentModel1_->insertPointBack(dataCount_, newValue);
-    ringCurrentModel2_->insertPointBack(dataCount_, newValue);
 
     if (ringCurrentModel1_->count() > displayCount_)
         ringCurrentModel1_->removePointFront();
-
-    if (ringCurrentModel2_->count() > displayCount_)
-        ringCurrentModel2_->removePointFront();
 
     dataCount_++;
 }
@@ -78,6 +74,6 @@ void STWidget::onRingCurrentConnected(bool isConnected)
     if (isConnected) {
         plot_->addItem(ringCurrentSeries1_);
         plot_->addItem(ringCurrentSeries2_);
-        plot_->addItem(ringCurrentSeries3_);
+//        plot_->addItem(ringCurrentSeries3_);
     }
 }

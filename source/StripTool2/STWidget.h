@@ -34,12 +34,11 @@ protected:
     QLabel *ringCurrentLabel_;
 
     MPlotRealtimeModel *ringCurrentModel1_;
+
+//    AM1DSummingAB *summedData_;
+
     MPlotSeriesBasic *ringCurrentSeries1_;
-
-    MPlotRealtimeModel *ringCurrentModel2_;
     MPlotSeriesBasic *ringCurrentSeries2_;
-
-    AM1DSummingAB *summedData_;
     MPlotSeriesBasic *ringCurrentSeries3_;
 
     MPlotWidget *plotWidget_;
