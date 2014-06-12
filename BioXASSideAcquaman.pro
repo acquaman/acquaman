@@ -20,8 +20,3 @@ SOURCES += \
     source/acquaman/BioXASSide/BioXASSideXASScanActionController.cpp \
     source/acquaman/BioXASSide/BioXASSideXASScanConfiguration.cpp \
     source/ui/BioXAS/BioXASSideXASScanConfigurationView.cpp
-
-
-
-
-

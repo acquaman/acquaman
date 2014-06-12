@@ -29,7 +29,7 @@ IDEASXASScanActionController::IDEASXASScanActionController(IDEASXASScanConfigura
 	scan_->setIndexType("fileSystem");
 	scan_->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));
 
-	useFeedback_ = true;
+	//useFeedback_ = true;
 
 	QString scanName;
 
@@ -417,13 +417,14 @@ AMAction3* IDEASXASScanActionController::createCleanupActions(){
 //    moveActionInfo = new AMControlMoveActionInfo3(masterDwell);
 //    moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
 //    cleanupActions->addSubAction(moveAction);
-
+    cleanupActions->addSubAction(IDEASBeamline::ideas()->scaler()->createStartAction3(false));
+    cleanupActions->addSubAction(IDEASBeamline::ideas()->scaler()->createContinuousEnableAction3(false));
     cleanupActions->addSubAction(IDEASBeamline::ideas()->scaler()->createDwellTimeAction3(0.1));
- //   cleanupActions->addSubAction(IDEASBeamline::ideas()->scaler()->createContinuousEnableAction3(true));
-    cleanupActions->addSubAction(IDEASBeamline::ideas()->scaler()->createTotalScansAction3(0));
-    cleanupActions->addSubAction(IDEASBeamline::ideas()->scaler()->createStartAction3(true));
+    cleanupActions->addSubAction(IDEASBeamline::ideas()->scaler()->createContinuousEnableAction3(true));
+ //   cleanupActions->addSubAction(IDEASBeamline::ideas()->scaler()->createTotalScansAction3(0));
+ //   cleanupActions->addSubAction(IDEASBeamline::ideas()->scaler()->createStartAction3(true));
 
-    qDebug() << "IDEASXASScanActionController::createCleanupActions() called";
+    //qDebug() << "IDEASXASScanActionController::createCleanupActions() called";
 
     return cleanupActions;
 }
@@ -436,15 +437,16 @@ AMAction3* IDEASXASScanActionController::createCleanupActions(){
 
 void IDEASXASScanActionController::cancelImplementation(){
 
+    AMStepScanActionController::cancelImplementation();
 
     qDebug() << "IDEASXASScanActionController::cancelImplementation() called";
 
     AMAction3 *cleanupActions = createCleanupActions();
 //>>>>>>> newXRFDetector
 
-	cleanupActions->start();
+    cleanupActions->start();
+    setCancelled();
 
-	AMScanActionController::cancelImplementation();
 }
 
 void IDEASXASScanActionController::onScanTimerUpdate()

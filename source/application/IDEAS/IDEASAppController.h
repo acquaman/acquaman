@@ -50,6 +50,12 @@ protected slots:
 //	void onSynchronizedDwellTimeConnected(bool connected);
 	/// Wait until the energy is connected before making the scan views
 	void onEnergyConnected(bool connected);
+	/// Helper slot that connects generic scan editors that use the 2D scan view to the app controller so that it can enable quick configuration of scans.
+	void onScanEditorCreated(AMGenericScanEditor *editor);
+	/// Helper slot that handles checking out scans when they are added to a scan editor.  For now, all this does is choose which data source is visualized in AMSingleSpectrumView in AM2DScanView.
+	void onScanAddedToEditor(AMGenericScanEditor *editor, AMScan *scan);
+
+
 
 protected:
 	/// Implementation method that individual applications can flesh out if extra setup is required when a scan action is started.  This is not pure virtual because there is no requirement to do anything to scan actions.
@@ -66,6 +72,9 @@ protected:
 	void setupUserInterface();
 	/// Sets up all of the connections.
 	void makeConnections();
+	/// Method that finds the spectra data sources and then sets the generic scan editor single spectra viewer properly.
+	void configureSingleSpectrumView(AMGenericScanEditor *editor, AMScan *scan);
+
 
 protected:
 //	/// View for controlling the synchronized dwell time application
