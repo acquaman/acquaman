@@ -8,19 +8,20 @@ STWidget::STWidget(QWidget *parent)
     dataCount_ = 0;
     displayCount_ = 10;
 
-    ringCurrentControl_ = new AMReadOnlyPVControl("PCT1402-01:mA:fbk", "PCT1402-01:mA:fbk", this);
+    ringCurrentControl_ = new AMProcessVariable("PCT1402-01:mA:fbk", true, this);
     connect( ringCurrentControl_, SIGNAL(valueChanged(double)), this, SLOT(onRingCurrentValueChanged(double)) );
     connect( ringCurrentControl_, SIGNAL(connected(bool)), this, SLOT(onRingCurrentConnected(bool)) );
 
     ringCurrentModel1_ = new MPlotRealtimeModel();
+//    ringCurrentModel2_ = new AMDataSourceSeriesData( new, this);
 
     ringCurrentSeries1_ = new MPlotSeriesBasic();
     ringCurrentSeries1_->setModel(ringCurrentModel1_, true);
     ringCurrentSeries1_->setDescription("Series 1");
 
     ringCurrentSeries2_ = new MPlotSeriesBasic();
-    ringCurrentSeries2_->setModel(ringCurrentModel1_, false);
-    ringCurrentSeries2_->setDescription("Series 2");
+//    ringCurrentSeries2_->setModel(ringCurrentModel1_, false);
+//    ringCurrentSeries2_->setDescription("Series 2");
 
 //    summedData_ = new AM1DSummingAB("Summed Current", this);
 //    summedData_->setInputDataSources(QList<AMDataSource*>() << ringCurrentModel1_ << ringCurrentModel2_);
@@ -73,7 +74,7 @@ void STWidget::onRingCurrentConnected(bool isConnected)
 {
     if (isConnected) {
         plot_->addItem(ringCurrentSeries1_);
-        plot_->addItem(ringCurrentSeries2_);
+//        plot_->addItem(ringCurrentSeries2_);
 //        plot_->addItem(ringCurrentSeries3_);
     }
 }

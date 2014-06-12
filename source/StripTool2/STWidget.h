@@ -8,6 +8,7 @@
 #include "beamline/AMPVControl.h"
 #include "source/analysis/AM1DSummingAB.h"
 #include "dataman/datasource/AMDataSourceSeriesData.h"
+#include "dataman/datasource/AMProcessVariableDataSource.h"
 
 #include "MPlot/MPlotSeriesData.h"
 #include "MPlot/MPlotWidget.h"
@@ -30,10 +31,11 @@ protected:
     int dataCount_;
     int displayCount_;
 
-    AMReadOnlyPVControl *ringCurrentControl_;
+    AMProcessVariable *ringCurrentControl_;
     QLabel *ringCurrentLabel_;
 
     MPlotRealtimeModel *ringCurrentModel1_;
+//    AMDataSourceSeriesData *ringCurrentModel2_;
 
 //    AM1DSummingAB *summedData_;
 
