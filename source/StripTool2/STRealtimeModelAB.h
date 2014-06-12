@@ -14,6 +14,9 @@ public:
     explicit STRealtimeModelAB(const QString &outputName = "InvalidInput", QObject *parent = 0);
     virtual ~STRealtimeModelAB();
 
+    int dataDisplayed() const;
+    int dataCounted() const;
+
     virtual bool areInputDataSourcesAcceptable(const QList<AMDataSource *> &dataSources) const;
 
     virtual void setInputDataSourcesImplementation(const QList<AMDataSource *> &dataSources);
@@ -23,6 +26,12 @@ public:
     virtual bool values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const;
 
     virtual AMNumber axisValue(int axisNumber, int index) const;
+
+signals:
+    void dataDisplayedChanged(int countDisplayed);
+
+public slots:
+    void setDataDisplayed(int countDisplayed);
 
 protected slots:
     void onInputSourceValuesChanged(const AMnDIndex &start, const AMnDIndex &end);

@@ -15,6 +15,16 @@ STRealtimeModelAB::~STRealtimeModelAB()
 
 }
 
+int STRealtimeModelAB::dataDisplayed() const
+{
+    return dataDisplayed_;
+}
+
+int STRealtimeModelAB::dataCounted() const
+{
+    return dataCount_;
+}
+
 bool STRealtimeModelAB::areInputDataSourcesAcceptable(const QList<AMDataSource *> &dataSources) const
 {
     // null input is acceptable.
@@ -128,6 +138,14 @@ AMNumber STRealtimeModelAB::axisValue(int axisNumber, int index) const
 #endif
 
     return sources_.first()->axisValue(0, index);
+}
+
+void STRealtimeModelAB::setDataDisplayed(int countDisplayed)
+{
+    if (countDisplayed >= 0 && countDisplayed != dataDisplayed_) {
+        dataDisplayed_ = countDisplayed;
+        emit dataDisplayedChanged(dataDisplayed_);
+    }
 }
 
 void STRealtimeModelAB::onInputSourceValuesChanged(const AMnDIndex &start, const AMnDIndex &end)
