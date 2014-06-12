@@ -111,7 +111,7 @@ bool STRealtimeModelAB::values(const AMnDIndex &indexStart, const AMnDIndex &ind
     // set output values to point to the subset of points saved for the data source.
     dataStored_->yValues(indexStart.i(), indexEnd.i(), outputValues);
 
-    return true;
+    return false;
 }
 
 AMNumber STRealtimeModelAB::axisValue(int axisNumber, int index) const
@@ -133,15 +133,15 @@ AMNumber STRealtimeModelAB::axisValue(int axisNumber, int index) const
 void STRealtimeModelAB::onInputSourceValuesChanged(const AMnDIndex &start, const AMnDIndex &end)
 {
     // update the values stored for this source.
-    double *newValue = 0;
-    sources_.at(0)->values(start, end, newValue);
+//    double *newValue = 0;
+//    sources_.at(0)->values(start, end, newValue);
 
-    dataStored_->insertPointBack(dataCount_, *newValue);
-    dataCount_++;
+//    dataStored_->insertPointBack(dataCount_, *newValue);
+//    dataCount_++;
 
-    if (dataStored_->count() > dataDisplayed_) {
-        dataStored_->removePointFront();
-    }
+//    if (dataStored_->count() > dataDisplayed_) {
+//        dataStored_->removePointFront();
+//    }
 
     emitValuesChanged(start, end);
 }
