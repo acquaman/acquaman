@@ -15,6 +15,8 @@
 #include "MPlot/MPlotSeries.h"
 #include "MPlot/MPlot.h"
 
+#include "STRealtimeModelAB.h"
+
 class STWidget : public QWidget
 {
     Q_OBJECT
@@ -35,7 +37,7 @@ protected:
     QLabel *ringCurrentLabel_;
 
     MPlotRealtimeModel *ringCurrentModel1_;
-//    AMDataSourceSeriesData *ringCurrentModel2_;
+    STRealtimeModelAB *ringCurrentModel2_;
 
 //    AM1DSummingAB *summedData_;
 

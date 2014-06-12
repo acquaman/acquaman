@@ -13,7 +13,7 @@ STWidget::STWidget(QWidget *parent)
     connect( ringCurrentControl_, SIGNAL(connected(bool)), this, SLOT(onRingCurrentConnected(bool)) );
 
     ringCurrentModel1_ = new MPlotRealtimeModel();
-//    ringCurrentModel2_ = new AMDataSourceSeriesData( new, this);
+    ringCurrentModel2_ = new STRealtimeModelAB();
 
     ringCurrentSeries1_ = new MPlotSeriesBasic();
     ringCurrentSeries1_->setModel(ringCurrentModel1_, true);
