@@ -35,11 +35,9 @@ bool STRealtimeModelAB::areInputDataSourcesAcceptable(const QList<AMDataSource *
     if (dataSources.size() > 1)
         return false;
 
-    // every data source must have rank zero.
-    for (int i = 0; i < dataSources.count(); i++) {
-        if (dataSources.at(i)->rank() != 0)
-            return false;
-    }
+    // the data source must have rank zero.
+    if (dataSources.at(0)->rank() != 0)
+        return false;
 
     return true;
 }
@@ -48,17 +46,12 @@ void STRealtimeModelAB::setInputDataSourcesImplementation(const QList<AMDataSour
 {
     // disconnect connections from old sources, if they exist.
     if (!sources_.isEmpty()) {
-
-        for (int i = 0; i < sources_.size(); i++) {
-            disconnect( sources_.at(i)->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)) );
-            disconnect( sources_.at(i)->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourcesStateChanged()) );
-        }
-
+        disconnect( sources_.at(0)->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)) );
+        disconnect( sources_.at(0)->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourcesStateChanged()) );
     }
 
     // set to invalid if new dataSources is empty.
     if (dataSources.isEmpty()) {
-
         sources_.clear();
         axes_[0] = AMAxisInfo("invalid", 0, "No input data");
         setDescription("-- No input data --");
@@ -66,14 +59,13 @@ void STRealtimeModelAB::setInputDataSourcesImplementation(const QList<AMDataSour
     // if data sources are valid, set sources_, axis info, description, and connections.
     // note that only one data source is necessary.
     } else {
-        sources_ = dataSources.mid(0, 1);
+
+        sources_ = QList<AMDataSource*>() << dataSources.at(0);
         axes_[0] = sources_.at(0)->axisInfoAt(0);
         setDescription(QString("Model for %1").arg(sources_.at(0)->name()));
 
-        for (int i = 0; i < sources_.size(); i++) {
-            connect( sources_.at(i)->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)) );
-            connect( sources_.at(i)->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()) );
-        }
+        connect( sources_.at(0)->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)) );
+        connect( sources_.at(0)->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()) );
     }
 
     reviewState();
