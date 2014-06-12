@@ -20,7 +20,6 @@ CLSKeithley428::CLSKeithley428(const QString &name, const QString &valueName, QO
     setValueMap();
 
     units_ << "V/A";
-    unitsIndex_ = 0;
 }
 
 CLSKeithley428::~CLSKeithley428()
@@ -48,10 +47,10 @@ QString CLSKeithley428::units() const
     QString units;
 
     if (amplifierMode_ == AMCurrentAmplifier::Gain) {
-        units = units_.at(unitsIndex_);
+        units = units_.at(unitsIndex());
 
     } else if (amplifierMode_ == AMCurrentAmplifier::Sensitivity) {
-        QStringList split = units_.at(unitsIndex_).split("/");
+        QStringList split = units_.at(unitsIndex()).split("/");
         units = split.at(1) + "/" + split.at(0);
 
     } else {
@@ -63,7 +62,7 @@ QString CLSKeithley428::units() const
 
 int CLSKeithley428::unitsIndex() const
 {
-    return unitsIndex_;
+    return 0;
 }
 
 CLSKeithley428ValueMap* CLSKeithley428::valueMap() const

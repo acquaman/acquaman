@@ -87,8 +87,6 @@ protected:
     CLSKeithley428ValueMap *valueMap_;
     /// String list of the available units.
     QStringList units_;
-    /// Index of the current unit in the units list.
-    int unitsIndex_;
 };
 
 
