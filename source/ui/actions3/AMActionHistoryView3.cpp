@@ -243,7 +243,7 @@ void AMActionHistoryView3::onReRunActionButtonClicked()
 	bool success = true;
 
 	QModelIndexList selectedIndices = treeView_->selectionModel()->selectedIndexes();
-	qSort(selectedIndices.begin(), selectedIndices.end(), qGreater<QModelIndex>());
+	qSort(selectedIndices.begin(), selectedIndices.end(), qLess<QModelIndex>());
 
 
 	foreach(QModelIndex i, selectedIndices){
