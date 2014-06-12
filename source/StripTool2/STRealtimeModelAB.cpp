@@ -90,7 +90,10 @@ AMNumber STRealtimeModelAB::value(const AMnDIndex &indexes) const
             return AMNumber(AMNumber::OutOfBoundsError);
 #endif
 
-    return 0;
+    if (indexes.i() < dataCount_ || indexes.i() < (dataCount_ - dataDisplayed_))
+        return AMNumber(AMNumber::OutOfBoundsError);
+
+    return dataStored_->y(indexes.i());
 }
 
 bool STRealtimeModelAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
