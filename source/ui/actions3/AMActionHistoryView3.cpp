@@ -241,13 +241,18 @@ void AMActionHistoryView3::onReRunActionButtonClicked()
 
 	// go through all selected rows.
 	bool success = true;
-	foreach(QModelIndex i, treeView_->selectionModel()->selectedIndexes()){
+
+	QModelIndexList selectedIndices = treeView_->selectionModel()->selectedIndexes();
+	qSort(selectedIndices.begin(), selectedIndices.end(), qGreater<QModelIndex>());
+
+
+	foreach(QModelIndex i, selectedIndices){
 
 		bool doLoad = true;
 		if(model_->logItem(i)->finalState() != 8){
 			int ret = QMessageBox::warning(this, tr("Acquaman - Workflow"),
-							   tr("The action you are copying did not succeed when it ran.\nYou are permitted to copy it, but you may not wish to do so."
-							  "\nProceed to copy?"),
+										   QString("The action you are copying ( %1 ) did not succeed when it ran.\nYou are permitted to copy it, but you may not wish to do so."
+							  "\nProceed to copy?").arg(model_->logItem(i)->shortDescription()),
 							   "Copy", "Cancel", QString(), 0);
 			if(ret == 1)
 				doLoad = false;
