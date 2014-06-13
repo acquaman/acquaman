@@ -33,8 +33,8 @@ CLSSR570::CLSSR570(const QString &name, const QString &valueName, const QString 
 
 	connect(value_, SIGNAL(valueChanged(int)), this, SLOT(onValueChanged(int)));
     connect(units_, SIGNAL(valueChanged(QString)), this, SLOT(onUnitsChanged(QString)) );
-//	connect(value_, SIGNAL(valueChanged()), this, SIGNAL(sensitivityChanged()));
-//	connect(units_, SIGNAL(valueChanged()), this, SIGNAL(sensitivityChanged()));
+    connect(value_, SIGNAL(valueChanged()), this, SIGNAL(sensitivityChanged()));
+    connect(units_, SIGNAL(valueChanged()), this, SIGNAL(sensitivityChanged()));
 
 	connect(value_, SIGNAL(valueChanged()), this, SLOT(onSensitivityChanged()));
 	connect(units_, SIGNAL(valueChanged()), this, SLOT(onSensitivityChanged()));
@@ -43,12 +43,19 @@ CLSSR570::CLSSR570(const QString &name, const QString &valueName, const QString 
 	connect(units_, SIGNAL(connected()), this, SLOT(onConnectedChanged()));
 
     setAmplifierMode(AMCurrentAmplifier::Sensitivity);
-
-    valueList_ << 1 << 2 << 5 << 10 << 20 << 50 << 100 << 200 << 500;
-    unitsList_ << "pA/V" << "nA/V" << "uA/V" << "mA/V";
 }
 
 CLSSR570::~CLSSR570(){}
+
+QList<double> CLSSR570::values() const
+{
+    return QList<double>() << 1 << 2 << 5 << 10 << 20 << 50 << 100 << 200 << 500;
+}
+
+QStringList CLSSR570::unitsList() const
+{
+    return QStringList() << "pA/V" << "nA/V" << "uA/V" << "mA/V";
+}
 
 bool CLSSR570::increaseSensitivity()
 {
@@ -119,11 +126,6 @@ void CLSSR570::setUnits(QString units)
 {
     if (unitsOkay(units))
         units_->setValue(units);
-}
-
-void CLSSR570::setUnitsIndex(int index)
-{
-    setUnits(unitsList_.at(index));
 }
 
 void CLSSR570::onValueChanged(int index)

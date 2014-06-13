@@ -49,12 +49,12 @@ public:
 	/// Returns the index of the sensitivity (value between 0 and 8).
     virtual int valueIndex() const { return value_->getInt(); }
     /// Returns a string list of the available value options, suitable for a view to display.
-    virtual QList<double> values() const { return valueList_; }
+    virtual QList<double> values() const;
 
 	/// Returns the units of the sensitivity.
     virtual QString units() const { return units_->getString(); }
     /// Returns a string list of the available units options, suitable for a view to display.
-    virtual QStringList unitsList() const { return unitsList_; }
+    virtual QStringList unitsList() const;
 
 	/// Returns whether the ion chamber is at maximum senstivity.
 	virtual bool atMaximumSensitivity() const { return atMaximumSensitivity_; }
@@ -74,8 +74,6 @@ protected slots:
     void setValueIndex(int index);
     /// Sets the sensitivity units.  Must be pA/V, nA/V, uA/V, or mA/V.  Does nothing otherwise.
     void setUnits(QString units);
-    /// Sets the sensitivity units by index.
-    void setUnitsIndex(int index);
 	/// Turns the sensitivity value from an index to the value.
 	void onValueChanged(int index);
 	/// Determines whether the new state of the ion chamber is at either the minimum or maximum sensitivity.
@@ -102,9 +100,6 @@ protected:
     bool atMaximumSensitivity_;
     /// Holds the state of whether the ion chamber is at its minimum sensitivity.
     bool atMinimumSensitivity_;
-
-    QList<double> valueList_;
-    QStringList unitsList_;
 
 private:
 	/// Helper function that returns the next sensitivity value.  Uses the bool \param increase to determine whether it should look up or down.  Returns -1 not possible to move or 0 if the given number is invalid.
