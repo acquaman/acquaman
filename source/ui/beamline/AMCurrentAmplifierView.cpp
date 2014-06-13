@@ -160,6 +160,13 @@ void AMCurrentAmplifierView::refreshDisplayValues()
 
 void AMCurrentAmplifierView::refreshButtons()
 {
-    minus_->setDisabled(amplifier_->atMinimumGain() || amplifier_->atMinimumSensitivity());
-    plus_->setDisabled(amplifier_->atMaximumGain() || amplifier_->atMaximumSensitivity());
+    if (amplifier_->inGainMode()) {
+        minus_->setDisabled(amplifier_->atMinimumGain());
+        plus_->setDisabled(amplifier_->atMaximumGain());
+
+    } else if (amplifier_->inSensitivityMode()) {
+        minus_->setDisabled(amplifier_->atMinimumSensitivity());
+        plus_->setDisabled(amplifier_->atMaximumSensitivity());
+
+    }
 }
