@@ -149,7 +149,6 @@ void CLSSR570::onSensitivityChanged()
 void CLSSR570::onUnitsChanged(const QString &newUnits)
 {
     emit unitsChanged(newUnits);
-    emit unitsIndexChanged(unitsList_.indexOf(newUnits));
 }
 
 void CLSSR570::onConnectedChanged()
