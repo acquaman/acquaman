@@ -45,9 +45,9 @@ public:
 	/// Returns the value of the sensitivity (ie: 1, 2, 5, 10, 20, 50, 100, 200, 500).
     virtual double value() const { return indexToValue(value_->getInt()); }
     /// Returns the value of the sensitivity at the given index.
-    virtual double valueAt(int index) const { return indexToValue(index); }
+    int valueAt(int index) const { return indexToValue(index); }
 	/// Returns the index of the sensitivity (value between 0 and 8).
-    virtual int valueIndex() const { return value_->getInt(); }
+    int valueIndex() const { return value_->getInt(); }
     /// Returns a string list of the available value options, suitable for a view to display.
     virtual QList<double> values() const;
 

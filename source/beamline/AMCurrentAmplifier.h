@@ -29,11 +29,7 @@ public:
 
     /// Returns the value.
     virtual double value() const = 0;
-    /// Returns the value index.
-    virtual int valueIndex() const = 0;
-    /// Returns the value at the given index.
-    virtual double valueAt(int index) const = 0;
-    /// Returns a string list of the available value options.
+    /// Returns a list of the available value options.
     virtual QList<double> values() const = 0;
 
     /// Returns the current units.

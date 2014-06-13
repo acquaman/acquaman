@@ -22,9 +22,9 @@ public:
     /// Returns the current value.
     virtual double value() const;
     /// Returns the value at the given index.
-    virtual double valueAt(int index) const;
+    double valueAt(int index) const;
     /// Returns the current value index.
-    virtual int valueIndex() const;
+    int valueIndex() const;
     /// Returns the list of possible values.
     virtual QList<double> values() const;
 
