@@ -269,23 +269,34 @@ void AMDeploy::onQMakeProcessReadReady(){
 }
 
 void AMDeploy::onQMakeProcessFinished(int status){
-	qDebug() << "qmake exited with " << status;
-//	makeProcess_ = new QProcess();
-//	QString program = "make";
-//	QStringList arguments;
-//	makeProcess_->setWorkingDirectory(workingDirectory_);
+	if(status != 0){
+		qDebug() << "The qmake process failed with an exit status of " << status;
+		QCoreApplication::instance()->exit(-1);
+	}
+	else{
+		makeProcess_ = new QProcess();
+		QString program = "make";
+		QStringList arguments;
+		makeProcess_->setWorkingDirectory(workingDirectory_);
 
-//	connect(makeProcess_, SIGNAL(readyRead()), this, SLOT(onMakeProcessReadReady()));
-//	connect(makeProcess_, SIGNAL(finished(int)), this, SLOT(onMakeProcessFinished(int)));
-//	makeProcess_->start(program, arguments);
+		connect(makeProcess_, SIGNAL(readyRead()), this, SLOT(onMakeProcessReadReady()));
+		connect(makeProcess_, SIGNAL(finished(int)), this, SLOT(onMakeProcessFinished(int)));
+		makeProcess_->start(program, arguments);
+	}
 }
 
 void AMDeploy::onMakeProcessReadReady(){
-
+	qDebug() << makeProcess_->readAll();
 }
 
 void AMDeploy::onMakeProcessFinished(int status){
-	QCoreApplication::instance()->quit();
+	if(status != 0){
+		qDebug() << "The make process failed with an exit status of " << status;
+		QCoreApplication::instance()->exit(-1);
+	}
+	else{
+		QCoreApplication::instance()->quit();
+	}
 }
 
 AMDeploy::~AMDeploy()
