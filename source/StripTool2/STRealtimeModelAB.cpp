@@ -98,7 +98,7 @@ AMNumber STRealtimeModelAB::value(const AMnDIndex &indexes) const
 
 bool STRealtimeModelAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
 {
-    if (indexStart.rank() != 0 || indexEnd.rank() != 0)
+    if (indexStart.rank() != 1 || indexEnd.rank() != 1)
         return false;
 
     if (!isValid())
@@ -115,8 +115,7 @@ bool STRealtimeModelAB::values(const AMnDIndex &indexStart, const AMnDIndex &ind
 
     // set output values to point to the subset of points saved for the data source.
     dataStored_->yValues(indexStart.i(), indexEnd.i(), outputValues);
-
-    return false;
+    return true;
 }
 
 AMNumber STRealtimeModelAB::axisValue(int axisNumber, int index) const
