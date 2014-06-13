@@ -39,8 +39,6 @@ protected:
     MPlotRealtimeModel *ringCurrentModel1_;
     STRealtimeModelAB *ringCurrentModel2_;
 
-//    AM1DSummingAB *summedData_;
-
     MPlotSeriesBasic *ringCurrentSeries1_;
     MPlotSeriesBasic *ringCurrentSeries2_;
     MPlotSeriesBasic *ringCurrentSeries3_;

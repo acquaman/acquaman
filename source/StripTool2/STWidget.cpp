@@ -24,9 +24,6 @@ STWidget::STWidget(QWidget *parent)
 //    ringCurrentSeries2_->setModel(ringCurrentModel1_, false);
 //    ringCurrentSeries2_->setDescription("Series 2");
 
-//    summedData_ = new AM1DSummingAB("Summed Current", this);
-//    summedData_->setInputDataSources(QList<AMDataSource*>() << ringCurrentModel1_ << ringCurrentModel2_);
-
     ringCurrentSeries3_ = new MPlotSeriesBasic();
 //    ringCurrentSeries3_->setModel(new AMDataSourceSeriesData(summedData_), true);
 

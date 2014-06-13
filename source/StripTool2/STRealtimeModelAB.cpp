@@ -146,15 +146,14 @@ void STRealtimeModelAB::setDataDisplayed(int countDisplayed)
 void STRealtimeModelAB::onInputSourceValuesChanged(const AMnDIndex &start, const AMnDIndex &end)
 {
     // update the values stored for this source.
-//    double *newValue = 0;
-//    sources_.at(0)->values(start, end, newValue);
+    double newValue = sources_.at(0)->value(start);
+    dataStored_->insertPointBack(dataCount_, newValue);
 
-//    dataStored_->insertPointBack(dataCount_, *newValue);
-//    dataCount_++;
+    dataCount_++;
 
-//    if (dataStored_->count() > dataDisplayed_) {
-//        dataStored_->removePointFront();
-//    }
+    if (dataStored_->count() > dataDisplayed_) {
+        dataStored_->removePointFront();
+    }
 
     emitValuesChanged(start, end);
 }
