@@ -106,6 +106,9 @@ void IDEASXRFDetailedDetectorViewWithSave::buildScanSaveViews()
 	connect(scanName, SIGNAL(textChanged(QString)), this, SLOT(onScanNameChanged(QString)));
 	connect(scanNumber, SIGNAL(valueChanged(int)), this, SLOT(onScanNumberChanged(int)));
 	connect(peakingTimeBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(onPeakingTimeBoxChanged(QString)));
+	connect(acquireButton_, SIGNAL(clicked(bool)),saveScanButton_, SLOT(setEnabled(bool)));
+	connect(IDEASBeamline::ideas()->ketek(), SIGNAL(acquisitionSucceeded()),this, SLOT(onAcquisitionSucceeded()));
+
 }
 
 void IDEASXRFDetailedDetectorViewWithSave::onSaveScanButtonClicked()
@@ -114,6 +117,8 @@ void IDEASXRFDetailedDetectorViewWithSave::onSaveScanButtonClicked()
 	config_->setIntegrationTime(detector_->elapsedTime());
         scanAction_ = new AMScanAction(new AMScanActionInfo(config_->createCopy()));
         scanAction_->start();
+	saveScanButton_->setEnabled(false);
+	saveScanButton_->setText("Scan Saved");
 }
 
 void IDEASXRFDetailedDetectorViewWithSave::onNotesTextChanged()
@@ -151,4 +156,10 @@ void IDEASXRFDetailedDetectorViewWithSave::onPeakingTimeBoxChanged(const QString
 
 	  }
 
+}
+
+void IDEASXRFDetailedDetectorViewWithSave::onAcquisitionSucceeded()
+{
+    saveScanButton_->setEnabled(true);
+    saveScanButton_->setText("Save Scan");
 }

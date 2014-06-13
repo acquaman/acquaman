@@ -32,6 +32,8 @@ protected slots:
 	void onNotesTextChanged();
 	void onScanNameChanged(QString name);
 	void onScanNumberChanged(int number);
+	void onPeakingTimeBoxChanged(const QString &arg1);
+	void onAcquisitionSucceeded();
 
 protected:
 	/// Method that builds the Scan Save Button and associated things.
@@ -56,8 +58,6 @@ protected:
         /// The scan action created when a scan is saved
         AMAction3* scanAction_;
 
-private slots:
-	void onPeakingTimeBoxChanged(const QString &arg1);
 
 };
 
