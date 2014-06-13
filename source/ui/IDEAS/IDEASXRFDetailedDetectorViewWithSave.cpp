@@ -107,6 +107,15 @@ void IDEASXRFDetailedDetectorViewWithSave::buildScanSaveViews()
 	rightLayout_->addWidget(saveScanButton_);
 
 
+	connect(saveScanButton_, SIGNAL(clicked()), this, SLOT(onSaveScanButtonClicked()));
+	connect(notesEdit, SIGNAL(textChanged()), this, SLOT(onNotesTextChanged()));
+	connect(scanName, SIGNAL(textChanged(QString)), this, SLOT(onScanNameChanged(QString)));
+	connect(scanNumber, SIGNAL(valueChanged(int)), this, SLOT(onScanNumberChanged(int)));
+	connect(peakingTimeBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(onPeakingTimeBoxChanged(QString)));
+	connect(acquireButton_, SIGNAL(clicked(bool)),saveScanButton_, SLOT(setEnabled(bool)));
+	connect(IDEASBeamline::ideas()->ketek(), SIGNAL(acquisitionSucceeded()),this, SLOT(onAcquisitionSucceeded()));
+
+
 }
 
 void IDEASXRFDetailedDetectorViewWithSave::onSaveScanButtonClicked()
@@ -187,7 +196,6 @@ void IDEASXRFDetailedDetectorViewWithSave::onKETEKPeakingTimeChanged()
     // HACK ugly hard coded magic numbers...   Works for now.
     peakingTimeBox->blockSignals(true);
 
-    qDebug()<< "ketekPeakingTime" <<IDEASBeamline::ideas()->ketekPeakingTime()->value();
     if (IDEASBeamline::ideas()->ketekPeakingTime()->value() == 0.3)
 	peakingTimeBox->setCurrentIndex(1);
     else if (IDEASBeamline::ideas()->ketekPeakingTime()->value() == 2.0)
