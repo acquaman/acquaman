@@ -30,14 +30,16 @@ public:
     virtual double valueAt(int index) const;
     /// Returns the current value index.
     virtual int valueIndex() const;
+    /// Returns the list of possible values.
+    virtual QList<double> values() const;
 
     /// Returns string representing the units to use, depending on the display mode.
     virtual QString units() const;
-    /// Returns the integer index referring to the current units.
-    virtual int unitsIndex() const;
+    /// Returns a string list of the available unit options.
+    virtual QStringList unitsList() const;
 
-    /// Returns the value map object for this amplifier.
-    CLSKeithley428ValueMap* valueMap() const;
+//    /// Returns the value map object for this amplifier.
+//    CLSKeithley428ValueMap* valueMap() const;
 
     /// Returns true if the current index corresponds to the maximum gain allowed, false otherwise.
     virtual bool atMaximumGain() const;
@@ -47,11 +49,6 @@ public:
     virtual bool atMaximumSensitivity() const;
     /// Returns true if the current index corresponds to the minimum sensitivity allowed, false otherwise.
     virtual bool atMinimumSensitivity() const;
-
-    /// Returns a pointer to a string list of allowed values (according to the current amplifier mode), suitable for a view to display.
-    QStringList valuesList() const;
-    /// Returns a pointer to a string list of allowed units (according to the current amplifier mode), suitable for a view to display.
-    QStringList unitsList() const;
 
 public slots:
     /// Increases the gain by one value index, if not at maximum.
@@ -72,21 +69,24 @@ protected slots:
     void onConnectedStateChanged(bool isConnected);
 
 protected:
+    /// Returns the sensitivity value corresponding to the given gain (simple inversion).
+    double toSensitivity(double gain) const;
     /// Returns the next index value, found by applying change to current index.
     int nextIndex(IndexChange change, int currentIndex);
-    /// Populates the value map with set gain values. Order corresponds to increasing pv value index.
-    void setValueMap();
-
+//    /// Populates the value map with set gain values. Order corresponds to increasing pv value index.
+//    void setValueMap();
     /// Sets the gain to value corresponding to provided index.
     virtual void setValueImplementation(const QString &valueArg);
 
 protected:    
     /// Pointer to the pv controlling Keithley value.
     AMProcessVariable *valueControl_;
+    /// List of available gain values.
+    QList<double> gains_;
     /// Pointer to a map between gain/sensitivity and value/index.
-    CLSKeithley428ValueMap *valueMap_;
+//    CLSKeithley428ValueMap *valueMap_;
     /// String list of the available units.
-    QStringList units_;
+    QString units_;
 };
 
 

@@ -14,12 +14,15 @@ CLSKeithley428::CLSKeithley428(const QString &name, const QString &valueName, QO
     connect( valueControl_, SIGNAL(connected(bool)), this, SLOT(onConnectedStateChanged(bool)) );
     connect( valueControl_, SIGNAL(valueChanged(int)), this, SLOT(onValueChanged(int)) );
 
-    valueMap_ = new CLSKeithley428ValueMap(this);
+    // populate gains list in increasing order.
+    gains_ << pow(10, 3) << pow(10, 4) << pow(10, 5) << pow(10, 6) << pow(10, 7) << pow(10, 8) << pow(10, 9) << pow(10, 10);
+
+//    valueMap_ = new CLSKeithley428ValueMap(this);
 
     setAmplifierMode(AMCurrentAmplifier::Gain);
-    setValueMap();
+//    setValueMap();
 
-    units_ << "V/A";
+    units_ = "V/A";
 }
 
 CLSKeithley428::~CLSKeithley428()
@@ -29,12 +32,19 @@ CLSKeithley428::~CLSKeithley428()
 
 double CLSKeithley428::value() const
 {
-    return valueMap_->valueAt(valueIndex(), amplifierMode_);
+    return valueAt(valueControl_->getInt());
 }
 
 double CLSKeithley428::valueAt(int index) const
 {
-    return valueMap_->valueAt(index, amplifierMode_);
+    double value = -1;
+
+    if (amplifierMode_ == Gain)
+        value = gains_.at(index);
+    else if (amplifierMode_ == Sensitivity)
+        value = toSensitivity(gains_.at(index));
+
+    return value;
 }
 
 int CLSKeithley428::valueIndex() const
@@ -42,57 +52,33 @@ int CLSKeithley428::valueIndex() const
     return valueControl_->getInt();
 }
 
-QString CLSKeithley428::units() const
+QList<double> CLSKeithley428::values() const
 {
-    QString units;
+    QList<double> values;
 
-    if (amplifierMode_ == AMCurrentAmplifier::Gain) {
-        units = units_.at(unitsIndex());
+    if (amplifierMode_ == Gain) {
+        values = gains_;
 
-    } else if (amplifierMode_ == AMCurrentAmplifier::Sensitivity) {
-        QStringList split = units_.at(unitsIndex()).split("/");
-        units = split.at(1) + "/" + split.at(0);
+    } else if (amplifierMode_ == Sensitivity) {
+        QList<double> sensitivities;
 
-    } else {
-        units = "";
+        foreach (double gain, gains_) {
+            sensitivities.append(toSensitivity(gain));
+        }
+
+        values = sensitivities;
     }
 
-    return units;
+    return values;
 }
 
-int CLSKeithley428::unitsIndex() const
+QString CLSKeithley428::units() const
 {
-    return 0;
-}
+    if (amplifierMode_ == Gain)
+        return units_;
 
-CLSKeithley428ValueMap* CLSKeithley428::valueMap() const
-{
-    return valueMap_;
-}
-
-bool CLSKeithley428::atMaximumGain() const
-{
-    return valueMap_->isIndexOfMax(AMCurrentAmplifier::Gain, valueControl_->getInt());
-}
-
-bool CLSKeithley428::atMinimumGain() const
-{
-    return valueMap_->isIndexOfMin(AMCurrentAmplifier::Gain, valueControl_->getInt());
-}
-
-bool CLSKeithley428::atMaximumSensitivity() const
-{
-    return valueMap_->isIndexOfMax(AMCurrentAmplifier::Sensitivity, valueControl_->getInt());
-}
-
-bool CLSKeithley428::atMinimumSensitivity() const
-{
-    return valueMap_->isIndexOfMin(AMCurrentAmplifier::Sensitivity, valueControl_->getInt());
-}
-
-QStringList CLSKeithley428::valuesList() const
-{
-    return *valueMap_->valueStringList(amplifierMode_);
+    else if (amplifierMode_ == Sensitivity)
+        return "A/V";
 }
 
 QStringList CLSKeithley428::unitsList() const
@@ -100,11 +86,35 @@ QStringList CLSKeithley428::unitsList() const
     return QStringList() << units();
 }
 
-void CLSKeithley428::setValueIndex(int newIndex)
+//CLSKeithley428ValueMap* CLSKeithley428::valueMap() const
+//{
+//    return valueMap_;
+//}
+
+bool CLSKeithley428::atMaximumGain() const
 {
-    if (valueMap_->map()->contains(newIndex) && newIndex != valueControl_->getInt()) {
+    return (valueControl_->getInt() == gains_.size() - 1);
+}
+
+bool CLSKeithley428::atMinimumGain() const
+{
+    return (valueControl_->getInt() == 0);
+}
+
+bool CLSKeithley428::atMaximumSensitivity() const
+{
+    return atMinimumGain();
+}
+
+bool CLSKeithley428::atMinimumSensitivity() const
+{
+    return atMaximumGain();
+}
+
+void CLSKeithley428::setValueIndex(int newIndex)
+{   
+    if (newIndex >= 0 && newIndex < gains_.size() && newIndex != valueControl_->getInt())
         valueControl_->setValue(newIndex);
-    }
 }
 
 bool CLSKeithley428::increaseGain()
@@ -113,9 +123,10 @@ bool CLSKeithley428::increaseGain()
     if (atMaximumGain())
         return false;
 
-    // Increase gain. Values are listed in decreasing gain order. Decrease index.
-    int newIndex = valueMap_->nextIndex(DecreaseOne, valueControl_->getInt());
-    setValueIndex(newIndex);
+    int currentIndex = valueControl_->getInt();
+
+    // The values are listed in order of increasing gain. Increasing index = increasing gain.
+    setValueIndex(currentIndex + 1);
 
     return true;
 }
@@ -127,9 +138,10 @@ bool CLSKeithley428::decreaseGain()
         return false;
     }
 
-    // Decrease gain. Values are listed in decreasing gain order. Increase index.
-    int newIndex = valueMap_->nextIndex(IncreaseOne, valueControl_->getInt());
-    setValueIndex(newIndex);
+    int currentIndex = valueControl_->getInt();
+
+    // The values are listed in order of increasing gain. Decreasing index = decreasing gain.
+    setValueIndex(currentIndex - 1);
 
     return true;
 }
@@ -140,9 +152,8 @@ bool CLSKeithley428::increaseSensitivity()
         return false;
     }
 
-    // Increase sensitivity. Values are listed in increasing sensitivity order. Increase index.
-    int newIndex = valueMap_->nextIndex(IncreaseOne, valueControl_->getInt());
-    setValueIndex(newIndex);
+    // Decreasing index = decreasing gain = increasing sensitivity.
+    decreaseGain();
 
     return true;
 }
@@ -153,9 +164,8 @@ bool CLSKeithley428::decreaseSensitivity()
         return false;
     }
 
-    // Decrease sensitivity. Values are listed in increasing sensitivity order. Decrease index.
-    int newIndex = valueMap_->nextIndex(DecreaseOne, valueControl_->getInt());
-    setValueIndex(newIndex);
+    // Increasing index = increasing gain = decreasing sensitivity.
+    increaseGain();
 
     return true;
 }
@@ -201,20 +211,25 @@ void CLSKeithley428::onConnectedStateChanged(bool connectState)
     }
 }
 
-void CLSKeithley428::setValueMap()
+double CLSKeithley428::toSensitivity(double gain) const
 {
-    QList<double> *valueList = new QList<double>();
-    valueList->append(pow(10, 3));
-    valueList->append(pow(10, 4));
-    valueList->append(pow(10, 5));
-    valueList->append(pow(10, 6));
-    valueList->append(pow(10, 7));
-    valueList->append(pow(10, 8));
-    valueList->append(pow(10, 9));
-    valueList->append(pow(10, 10));
-
-    valueMap_->setValues(AMCurrentAmplifier::Gain, valueList);
+    return 1.0/gain;
 }
+
+//void CLSKeithley428::setValueMap()
+//{
+//    QList<double> *valueList = new QList<double>();
+//    valueList->append(pow(10, 3));
+//    valueList->append(pow(10, 4));
+//    valueList->append(pow(10, 5));
+//    valueList->append(pow(10, 6));
+//    valueList->append(pow(10, 7));
+//    valueList->append(pow(10, 8));
+//    valueList->append(pow(10, 9));
+//    valueList->append(pow(10, 10));
+
+//    valueMap_->setValues(AMCurrentAmplifier::Gain, valueList);
+//}
 
 void CLSKeithley428::setValueImplementation(const QString &valueArg)
 {

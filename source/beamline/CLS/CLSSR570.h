@@ -49,12 +49,10 @@ public:
 	/// Returns the index of the sensitivity (value between 0 and 8).
     virtual int valueIndex() const { return value_->getInt(); }
     /// Returns a string list of the available value options, suitable for a view to display.
-    virtual QStringList valuesList() const { return valueList_; }
+    virtual QList<double> values() const { return valueList_; }
 
 	/// Returns the units of the sensitivity.
     virtual QString units() const { return units_->getString(); }
-    /// Returns the index of the current units.
-    virtual int unitsIndex() const { return unitsList_.indexOf(units()); }
     /// Returns a string list of the available units options, suitable for a view to display.
     virtual QStringList unitsList() const { return unitsList_; }
 
@@ -105,7 +103,7 @@ protected:
     /// Holds the state of whether the ion chamber is at its minimum sensitivity.
     bool atMinimumSensitivity_;
 
-    QStringList valueList_;
+    QList<double> valueList_;
     QStringList unitsList_;
 
 private:

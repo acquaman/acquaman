@@ -33,13 +33,11 @@ public:
     virtual int valueIndex() const = 0;
     /// Returns the value at the given index.
     virtual double valueAt(int index) const = 0;
-    /// Returns a string list of the available value options, suitable for a view to display.
-    virtual QStringList valuesList() const = 0;
+    /// Returns a string list of the available value options.
+    virtual QList<double> values() const = 0;
 
     /// Returns the current units.
     virtual QString units() const = 0;
-    /// Returns the units index.
-    virtual int unitsIndex() const = 0;
     /// Returns a string list of the available units options, suitable for a view to display.
     virtual QStringList unitsList() const = 0;
 

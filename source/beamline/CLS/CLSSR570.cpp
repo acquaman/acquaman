@@ -44,7 +44,7 @@ CLSSR570::CLSSR570(const QString &name, const QString &valueName, const QString 
 
     setAmplifierMode(AMCurrentAmplifier::Sensitivity);
 
-    valueList_ << "1" << "2" << "5" << "10" << "20" << "50" << "100" << "200" << "500";
+    valueList_ << 1 << 2 << 5 << 10 << 20 << 50 << 100 << 200 << 500;
     unitsList_ << "pA/V" << "nA/V" << "uA/V" << "mA/V";
 }
 
