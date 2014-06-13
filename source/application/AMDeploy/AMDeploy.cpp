@@ -243,29 +243,33 @@ void AMDeploy::onQMakeVersionProcessReadReady(){
 }
 
 void AMDeploy::onQMakeVersionProcessFinished(int status){
-	qDebug() << qmakeVersionOutput_;
-//	if(status != 0 || !qmakeVersionOutput_.contains()){
+	if(status != 0 || !qmakeVersionOutput_.contains("QMake version 2.")){
+		qDebug() << QString("The qmake version %1 is not supported, must be qmake 2.x or better.").arg(qmakeVersionOutput_);
+		QCoreApplication::instance()->exit(-1);
+	}
+	else{
+		qmakeProcess_ = new QProcess();
+		QString program = "qmake";
+		QStringList arguments;
+		arguments << "acquaman_suite.pro" << "-r";
+		#ifdef Q_WS_MAC
+		arguments << "-spec" << "unsupported/macx-clang" << "CONFIG+=x86_64";
+		#endif
+		arguments << "DEFINES+=AM_BUILD_REPORTER_ENABLED";
+		qmakeProcess_->setWorkingDirectory(workingDirectory_);
 
-//	}
-//	else{
-
-//	}
-//	qmakeProcess_ = new QProcess();
-//	QString program = "qmake";
-//	QStringList arguments;
-//	arguments << "--version";
-//	qmakeProcess_->setWorkingDirectory(workingDirectory_);
-
-//	connect(qmakeProcess_, SIGNAL(readyRead()), this, SLOT(onQMakeProcessReadReady()));
-//	connect(qmakeProcess_, SIGNAL(finished(int)), this, SLOT(onQMakeProcessFinished(int)));
-//	qmakeProcess_->start(program, arguments);
+		connect(qmakeProcess_, SIGNAL(readyRead()), this, SLOT(onQMakeProcessReadReady()));
+		connect(qmakeProcess_, SIGNAL(finished(int)), this, SLOT(onQMakeProcessFinished(int)));
+		qmakeProcess_->start(program, arguments);
+	}
 }
 
 void AMDeploy::onQMakeProcessReadReady(){
-
+	qDebug() << qmakeProcess_->readAll();
 }
 
 void AMDeploy::onQMakeProcessFinished(int status){
+	qDebug() << "qmake exited with " << status;
 //	makeProcess_ = new QProcess();
 //	QString program = "make";
 //	QStringList arguments;
