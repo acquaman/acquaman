@@ -66,6 +66,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/SGM/SGMSettings.h"
 #include "util/SGM/SGMPluginsLocation.h"
 #include "util/SGM/SGMPeriodicTable.h"
+#include "util/AMBuildReporter.h"
 
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
@@ -158,6 +159,13 @@ SGMAppController::SGMAppController(QObject *parent) :
 }
 
 bool SGMAppController::startup() {
+	qDebug() << "On startup the build reporter says:\n";
+	qDebug() << "Branch:" << AMBuildReporter::buildReporter()->buildInfo()->branchName();
+	qDebug() << "Commit:" << AMBuildReporter::buildReporter()->buildInfo()->commitSHA();
+	qDebug() << "Author:" << AMBuildReporter::buildReporter()->buildInfo()->lastCommitAuthor();
+	qDebug() << "Description:" << AMBuildReporter::buildReporter()->buildInfo()->describeName();
+	qDebug() << "Date:" << AMBuildReporter::buildReporter()->buildInfo()->commitDate();
+
 	SGMSettings::s()->load();
 
 	// Run all of the Acquaman App startup routines. Some of these are reimplemented in this class.

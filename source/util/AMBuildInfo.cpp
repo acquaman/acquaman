@@ -7,6 +7,7 @@ AMBuildInfo::AMBuildInfo()
 	tagName_ = "Invalid";
 	describeName_ = "Invalid";
 	lastCommitAuthor_ = "Invalid";
+	commitDate_ = "Invalid";
 }
 
 QString AMBuildInfo::commitSHA() const{
@@ -29,6 +30,10 @@ QString AMBuildInfo::lastCommitAuthor() const{
 	return lastCommitAuthor_;
 }
 
+QString AMBuildInfo::commitDate() const{
+	return commitDate_;
+}
+
 void AMBuildInfo::setCommitSHA(const QString &commitSHA){
 	commitSHA_ = commitSHA;
 }
@@ -47,4 +52,8 @@ void AMBuildInfo::setDescribeName(const QString &describeName){
 
 void AMBuildInfo::setLastCommitAuthor(const QString &lastCommitAuthor){
 	lastCommitAuthor_ = lastCommitAuthor;
+}
+
+void AMBuildInfo::setCommitDate(const QString &commitDate){
+	commitDate_ = commitDate;
 }

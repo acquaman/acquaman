@@ -14,6 +14,7 @@ public:
 	QString tagName() const;
 	QString describeName() const;
 	QString lastCommitAuthor() const;
+	QString commitDate() const;
 
 protected:
 	void setCommitSHA(const QString &commitSHA);
@@ -21,6 +22,7 @@ protected:
 	void setTagName(const QString &tagName);
 	void setDescribeName(const QString &describeName);
 	void setLastCommitAuthor(const QString &lastCommitAuthor);
+	void setCommitDate(const QString &commitDate);
 
 protected:
 	QString commitSHA_;
@@ -28,6 +30,7 @@ protected:
 	QString tagName_;
 	QString describeName_;
 	QString lastCommitAuthor_;
+	QString commitDate_;
 };
 
 #endif // AMBUILDINFO_H
