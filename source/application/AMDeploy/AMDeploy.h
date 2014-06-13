@@ -22,6 +22,15 @@ protected slots:
 	void onGitDescribeProcessReadReady();
 	void onGitDescribeProcessFinished(int status);
 
+	void onQMakeVersionProcessReadReady();
+	void onQMakeVersionProcessFinished(int status);
+
+	void onQMakeProcessReadReady();
+	void onQMakeProcessFinished(int status);
+
+	void onMakeProcessReadReady();
+	void onMakeProcessFinished(int status);
+
 protected:
 	QString workingDirectory_;
 
@@ -42,4 +51,9 @@ protected:
 	QString currentCommitAuthor_;
 	QString currentCommitDate_;
 	QString currentGitDescription_;
+
+	QProcess *qmakeVersionProcess_;
+	QString qmakeVersionOutput_;
+	QProcess *qmakeProcess_;
+	QProcess *makeProcess_;
 };

@@ -222,12 +222,66 @@ void AMDeploy::onGitDescribeProcessFinished(int status){
 		sourceOut << runTimeBuildInfoSource;
 		sourceFile.close();
 
-		QCoreApplication::instance()->quit();
+		qmakeVersionProcess_ = new QProcess();
+		QString program = "qmake";
+		QStringList arguments;
+		arguments << "--version";
+		qmakeVersionProcess_->setWorkingDirectory(workingDirectory_);
+
+		connect(qmakeVersionProcess_, SIGNAL(readyRead()), this, SLOT(onQMakeVersionProcessReadReady()));
+		connect(qmakeVersionProcess_, SIGNAL(finished(int)), this, SLOT(onQMakeVersionProcessFinished(int)));
+		qmakeVersionProcess_->start(program, arguments);
 	}
 	else{
 		qDebug() << QString("Cannot continue with deployment, git describe exited with status %1.").arg(status);
 		QCoreApplication::instance()->exit(-1);
 	}
+}
+
+void AMDeploy::onQMakeVersionProcessReadReady(){
+	qmakeVersionOutput_ = qmakeVersionProcess_->readAllStandardOutput();
+}
+
+void AMDeploy::onQMakeVersionProcessFinished(int status){
+	qDebug() << qmakeVersionOutput_;
+//	if(status != 0 || !qmakeVersionOutput_.contains()){
+
+//	}
+//	else{
+
+//	}
+//	qmakeProcess_ = new QProcess();
+//	QString program = "qmake";
+//	QStringList arguments;
+//	arguments << "--version";
+//	qmakeProcess_->setWorkingDirectory(workingDirectory_);
+
+//	connect(qmakeProcess_, SIGNAL(readyRead()), this, SLOT(onQMakeProcessReadReady()));
+//	connect(qmakeProcess_, SIGNAL(finished(int)), this, SLOT(onQMakeProcessFinished(int)));
+//	qmakeProcess_->start(program, arguments);
+}
+
+void AMDeploy::onQMakeProcessReadReady(){
+
+}
+
+void AMDeploy::onQMakeProcessFinished(int status){
+//	makeProcess_ = new QProcess();
+//	QString program = "make";
+//	QStringList arguments;
+//	makeProcess_->setWorkingDirectory(workingDirectory_);
+
+//	connect(makeProcess_, SIGNAL(readyRead()), this, SLOT(onMakeProcessReadReady()));
+//	connect(makeProcess_, SIGNAL(finished(int)), this, SLOT(onMakeProcessFinished(int)));
+//	makeProcess_->start(program, arguments);
+}
+
+void AMDeploy::onMakeProcessReadReady(){
+
+}
+
+void AMDeploy::onMakeProcessFinished(int status){
+	QCoreApplication::instance()->quit();
 }
 
 AMDeploy::~AMDeploy()
