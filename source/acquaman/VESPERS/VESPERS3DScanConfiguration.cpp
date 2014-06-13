@@ -96,7 +96,7 @@ QString  VESPERS3DScanConfiguration::headerText() const
 
 	header.append(fluorescenceHeaderString(fluorescenceDetector()));
 	header.append(incomingChoiceHeaderString(incomingChoice()));
-//	header.append(regionOfInterestHeaderString(roiList()) % "\n");
+	header.append(regionsOfInterestHeaderString(regionsOfInterest()) % "\n");
 	header.append(motorHeaderString(motor()));
 	header.append(ccdDetectorHeaderString(ccdDetector()));
 

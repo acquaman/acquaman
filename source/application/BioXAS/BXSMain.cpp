@@ -17,31 +17,21 @@ You should have received a copy of the GNU General Public License
 along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <QApplication>
 
-#include <QFile>
-#include "application/SGM/SGMAppController.h"
-#include "application/AMCrashMonitorSupport.h"
+
+
+#include <QApplication>
+#include "application/BioXAS/BXSAppController.h"
 
 int main(int argc, char *argv[])
 {
+
 	/// Program Startup:
 	// =================================
 	QApplication app(argc, argv);
-	app.setApplicationName("Acquaman");
+	app.setApplicationName("BXSAcquaman");
 
-
-	SGMAppController* appController = new SGMAppController();
-
-#ifndef Q_WS_MAC
-	// Make a local QFile for the error file. It needs to be in this scope and get passed into AMCrashMonitorSupport, otherwise it won't work properly
-	// After doing so, star the monitor
-	// Ignore all of this for Mac OSX, it has it's own crash reporter and the two seem to compete
-	QFile localErrorFile(QString("/tmp/ErrorFile%1.txt").arg(getpid()));
-	localErrorFile.open(QIODevice::WriteOnly | QIODevice::Text);
-	AMCrashMonitorSupport::s()->setErrorFile(&localErrorFile);
-	AMCrashMonitorSupport::s()->monitor();
-#endif
+	BXSAppController* appController = new BXSAppController();
 
 	/// Program Run-loop:
 	// =================================
@@ -51,14 +41,9 @@ int main(int argc, char *argv[])
 
 	/// Program Shutdown:
 	// =================================
-	if (appController->isRunning())
+	if(appController->isRunning())
 		appController->shutdown();
 
-#ifndef Q_WS_MAC
-	// Make sure we have the crash reporter system actually generate a report
-	// Ignore all of this for Mac OSX, it has it's own crash reporter and the two seem to compete
-	AMCrashMonitorSupport::s()->report();
-#endif
 	delete appController;
 
 	return retVal;

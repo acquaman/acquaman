@@ -22,7 +22,7 @@ SUBDIRS +=	pluginProjects/FileLoaders/AMFileLoaderPlugins.pro \
 	SGMAmptekCoordinator.pro \
 	SGMLookupTableCoordinator.pro \
 #	EthanAcquacam.pro \
-#	AMCrashReporter.pro \
+	AMCrashReporter.pro \
 #	SGMNetworkMonitor.pro
 	StripToolProject.pro \
 	IDEASAcquaman.pro \

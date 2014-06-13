@@ -45,6 +45,7 @@ IDEASBeamline::IDEASBeamline()
 void IDEASBeamline::setupDiagnostics()
 {
     ringCurrent_ = new AMReadOnlyPVControl("ringCurrent","PCT1402-01:mA:fbk", this, "Storage Ring Current");
+    I0Current_ = new AMReadOnlyPVControl("I0Current","A1608-10-01:A:fbk", this, "I0 Current");
 }
 
 void IDEASBeamline::setupSampleStage()
@@ -97,6 +98,8 @@ void IDEASBeamline::setupControlSets()
 void IDEASBeamline::setupMono()
 {
     monoEnergy_ = new IDEASMonochromatorControl(this);
+    //monoEnergy_->setSettlingTime(0.5); //HACK
+
     monoDirectEnergy_ = new IDEASDirectMonochromatorControl(this);
 
     monoDirectEnergy_->setSettlingTime(3);
@@ -146,17 +149,17 @@ void IDEASBeamline::setupComponents()
     scaler_->channelAt(0)->setCustomChannelName("I_0");
     CLSSR570 *tempSR570 = new CLSSR570("I_0", "AMP1608-1001:sens_num.VAL", "AMP1608-1001:sens_unit.VAL", this);
     scaler_->channelAt(0)->setCurrentAmplifier(tempSR570);
-    scaler_->channelAt(0)->setVoltagRange(AMRange(1.0, 4.5));
+    scaler_->channelAt(0)->setVoltagRange(AMRange(0.25, 4.75));
 
     scaler_->channelAt(1)->setCustomChannelName("Sample");
     tempSR570 = new CLSSR570("Sample", "AMP1608-1002:sens_num.VAL", "AMP1608-1002:sens_unit.VAL", this);
     scaler_->channelAt(1)->setCurrentAmplifier(tempSR570);
-    scaler_->channelAt(1)->setVoltagRange(AMRange(1.0, 4.5));
+    scaler_->channelAt(1)->setVoltagRange(AMRange(0.25, 4.75));
 
     scaler_->channelAt(2)->setCustomChannelName("Reference");
     tempSR570 = new CLSSR570("Reference", "AMP1608-1003:sens_num.VAL", "AMP1608-1003:sens_unit.VAL", this);
     scaler_->channelAt(2)->setCurrentAmplifier(tempSR570);
-    scaler_->channelAt(2)->setVoltagRange(AMRange(1.0, 4.5));
+    scaler_->channelAt(2)->setVoltagRange(AMRange(0.25, 4.75));
 
 }
 
@@ -168,6 +171,7 @@ void IDEASBeamline::setupControlsAsDetectors()
 void IDEASBeamline::setupExposedControls()
 {
         addExposedControl(ringCurrent_);
+	addExposedControl(I0Current_);
         addExposedControl(monoEnergy_);
 	addExposedControl(monoDirectEnergy_);
 //	addExposedControl(masterDwell_);
