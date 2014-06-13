@@ -35,6 +35,11 @@ void IDEASXRFDetailedDetectorViewWithSave::buildScanSaveViews()
 	scanInfoGridLayout->setVerticalSpacing(4);
 	scanInfoGridLayout->setContentsMargins(12, -1, -1, -1);
 
+	peakingTimeBox = new QComboBox();
+	peakingTimeBox->setObjectName(QString::fromUtf8("peakingTimeBox"));
+	peakingTimeBox->addItem("High Rate / Low Res");
+	peakingTimeBox->addItem("High Res / Low Rate");
+	peakingTimeBox->addItem("Ultra Res / Slow Rate");
 
 
 
@@ -85,6 +90,8 @@ void IDEASXRFDetailedDetectorViewWithSave::buildScanSaveViews()
 
 	scanInfoGridLayout->addWidget(scanNumber, 1, 1, 1, 1);
 
+	rightLayout_->addWidget(peakingTimeBox);
+
 	rightLayout_->addStretch();
 
 	rightLayout_->addLayout(scanInfoGridLayout);
@@ -98,6 +105,9 @@ void IDEASXRFDetailedDetectorViewWithSave::buildScanSaveViews()
 	connect(notesEdit, SIGNAL(textChanged()), this, SLOT(onNotesTextChanged()));
 	connect(scanName, SIGNAL(textChanged(QString)), this, SLOT(onScanNameChanged(QString)));
 	connect(scanNumber, SIGNAL(valueChanged(int)), this, SLOT(onScanNumberChanged(int)));
+	connect(peakingTimeBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(onPeakingTimeBoxChanged(QString)));
+	connect(acquireButton_, SIGNAL(clicked(bool)),saveScanButton_, SLOT(setEnabled(bool)));
+	connect(IDEASBeamline::ideas()->ketek(), SIGNAL(acquisitionSucceeded()),this, SLOT(onAcquisitionSucceeded()));
 
 }
 
@@ -107,6 +117,8 @@ void IDEASXRFDetailedDetectorViewWithSave::onSaveScanButtonClicked()
 	config_->setIntegrationTime(detector_->elapsedTime());
         scanAction_ = new AMScanAction(new AMScanActionInfo(config_->createCopy()));
         scanAction_->start();
+	saveScanButton_->setEnabled(false);
+	saveScanButton_->setText("Scan Saved");
 }
 
 void IDEASXRFDetailedDetectorViewWithSave::onNotesTextChanged()
@@ -122,4 +134,32 @@ void IDEASXRFDetailedDetectorViewWithSave::onScanNameChanged(QString name)
 void IDEASXRFDetailedDetectorViewWithSave::onScanNumberChanged(int number)
 {
 	config_->setScanNumber(number);
+}
+
+void IDEASXRFDetailedDetectorViewWithSave::onPeakingTimeBoxChanged(const QString &arg1)
+{
+
+	if (arg1 == "High Rate / Low Res")
+	{
+	    IDEASBeamline::ideas()->ketekPeakingTime()->move(0.300);
+	    IDEASBeamline::ideas()->ketekPreampGain()->move(1.2590);
+	}
+	else if (arg1 == "High Res / Low Rate")
+	{
+	    IDEASBeamline::ideas()->ketekPeakingTime()->move(2.00);
+	    IDEASBeamline::ideas()->ketekPreampGain()->move(1.235);
+	}
+	else if (arg1 == "Ultra Res / Slow Rate")
+	{
+	    IDEASBeamline::ideas()->ketekPeakingTime()->move(4.00);
+	    IDEASBeamline::ideas()->ketekPreampGain()->move(1.235);
+
+	  }
+
+}
+
+void IDEASXRFDetailedDetectorViewWithSave::onAcquisitionSucceeded()
+{
+    saveScanButton_->setEnabled(true);
+    saveScanButton_->setText("Save Scan");
 }
