@@ -10,6 +10,8 @@
 #include <QSignalMapper>
 #include <QPlainTextEdit>
 #include <QLineEdit>
+#include <QtGui/QComboBox>
+
 
 class IDEASXRFDetailedDetectorViewWithSave : public AMXRFDetailedDetectorView
 {
@@ -23,6 +25,7 @@ public:
 
 	/// Re-implementing but still going to use the base class buildDetectorView since this view is merely adding to it.
 	virtual void buildDetectorView();
+
 
 protected slots:
 	void onSaveScanButtonClicked();
@@ -45,12 +48,17 @@ protected:
 	QLineEdit *scanName;
 	QLabel *scanNumberLabel;
 	QSpinBox *scanNumber;
+	QComboBox *peakingTimeBox;
 
 	/// The scan configuration.  Contains some configuration details about the scan such as integration time, minimum energy, maximum energy.
 	IDEASXRFScanConfiguration *config_;
 
         /// The scan action created when a scan is saved
         AMAction3* scanAction_;
+
+private slots:
+	void onPeakingTimeBoxChanged(const QString &arg1);
+
 };
 
 #endif // IDEASXRFDETAILEDDETECTORVIEWWITHSAVE_H
