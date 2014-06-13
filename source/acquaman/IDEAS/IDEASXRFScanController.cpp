@@ -4,6 +4,10 @@
 #include "beamline/IDEAS/IDEASBeamline.h"
 #include "analysis/AMDeadTimeAB.h"
 #include "analysis/AM1DSummingAB.h"
+#include "ui/CLS/CLSSIS3820ScalerView.h"
+#include "beamline/CLS/CLSSIS3820Scaler.h"
+#include "beamline/CLS/CLSSR570.h"
+
 
 #include <QDir>
 
@@ -11,23 +15,25 @@ IDEASXRFScanController::IDEASXRFScanController(IDEASXRFScanConfiguration *scanCo
 	AMScanController(scanConfig, parent)
 {
 	detector_ = IDEASBeamline::ideas()->ketek();
+	configuration_ = scanConfig;
 
-	scanConfig->setDetectorInfo(detector_->toInfo());
+	configuration_->setDetectorInfo(detector_->toInfo());
+
 
 	scan_ = new AMScan;
-	scan_->setScanConfiguration(scanConfig);
+	scan_->setScanConfiguration(configuration_);
 	scan_->setName(QString("XRF Scan"));
 
 	scan_->setFilePath(AMUserSettings::defaultRelativePathForScan(QDateTime::currentDateTime()) + ".dat");
 	scan_->setFileFormat("vespers2011XRF");
 	scan_->setRunId(AMUser::user()->currentRunId());
 
-	if(scanConfig->userScanName() == "") scan_->setName(QString("XRF Scan"));
-	else scan_->setName(scanConfig->userScanName());
+	if(configuration_->userScanName() == "") scan_->setName(QString("XRF Scan"));
+	else scan_->setName(configuration_->userScanName());
 
 
-	scan_->setNumber(scanConfig->scanNumber());
-	scan_->setNotes(scanConfig->scanNotes());
+	scan_->setNumber(configuration_->scanNumber());
+	scan_->setNotes(configuration_->scanNotes());
 
 	scan_->rawData()->addMeasurement(AMMeasurementInfo(QString("raw"), QString("RAW XRF Data"), "eV", detector_->axes()));
 	scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), 0), true, false);
@@ -62,12 +68,27 @@ bool IDEASXRFScanController::startImplementation()
 		scan_->rawData()->setValue(AMnDIndex(), 2, AMnDIndex(), detector_->outputCountSourceAt(0)->value(AMnDIndex()));
 
 
-		AMControlInfoList positions(IDEASBeamline::ideas()->exposedControls()->toInfoList());
-		positions.remove(positions.indexOf("DwellTime"));
-		positions.remove(positions.indexOf("DirectEnergy"));
+//		AMControlInfoList positions(IDEASBeamline::ideas()->exposedControls()->toInfoList());
+//		positions.remove(positions.indexOf("DwellTime"));
+//		positions.remove(positions.indexOf("DirectEnergy"));
+
+//		CLSSR570* I0SR570 = qobject_cast<CLSSR570*>(IDEASBeamline::ideas()->scaler()->channelAt(0)->currentAmplifier());
+//		AMControlInfo I0Scaler("I0Scaler", IDEASBeamline::ideas()->scaler()->channelAt(0)->voltage(), 0, 0, QString("%1 %2").arg(I0SR570->value()).arg(I0SR570->units()) , 0.1, "I_0 Scaler Value");
+//		positions.insert(2, I0Scaler);
+
+//		CLSSR570* SampleSR570 = qobject_cast<CLSSR570*>(IDEASBeamline::ideas()->scaler()->channelAt(1)->currentAmplifier());
+//		AMControlInfo SampleScaler("SampleScaler", IDEASBeamline::ideas()->scaler()->channelAt(1)->voltage(), 0, 0, QString("%1 %2").arg(SampleSR570->value()).arg(SampleSR570->units()) , 0.1, "Sample Scaler Value");
+//		positions.insert(3, SampleScaler);
+
+//		CLSSR570* ReferenceSR570 = qobject_cast<CLSSR570*>(IDEASBeamline::ideas()->scaler()->channelAt(2)->currentAmplifier());
+//		AMControlInfo ReferenceScaler("ReferenceScaler", IDEASBeamline::ideas()->scaler()->channelAt(2)->voltage(), 0, 0, QString("%1 %2").arg(ReferenceSR570->value()).arg(ReferenceSR570->units()) , 0.1, "Reference Scaler Value");
+//		positions.insert(4, ReferenceScaler);
+
 		//positions.remove(positions.indexOf("Energy"));
 
-		scan_->setScanInitialConditions(positions);
+//		scan_->setScanInitialConditions(positions);
+
+		scan_->setScanInitialConditions(configuration_->positions());
 
 		scan()->setScanController(0);
 

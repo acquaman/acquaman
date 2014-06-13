@@ -38,6 +38,8 @@ protected:
 	// Member variables.
 	/// XRF detector.
 	AMXRFDetector *detector_;
+	/// The scan configuration
+	IDEASXRFScanConfiguration *configuration_;
 
 };
 
