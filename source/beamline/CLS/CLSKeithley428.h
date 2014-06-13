@@ -14,11 +14,6 @@ class CLSKeithley428 : public AMCurrentAmplifier
     Q_OBJECT
 
 public:
-    enum IndexChange {
-        IncreaseOne = 0,
-        DecreaseOne = 1
-    };
-
     /// Constructor.
     explicit CLSKeithley428(const QString &name, const QString &valueName, QObject *parent = 0);
     /// Destructor.
@@ -37,9 +32,6 @@ public:
     virtual QString units() const;
     /// Returns a string list of the available unit options.
     virtual QStringList unitsList() const;
-
-//    /// Returns the value map object for this amplifier.
-//    CLSKeithley428ValueMap* valueMap() const;
 
     /// Returns true if the current index corresponds to the maximum gain allowed, false otherwise.
     virtual bool atMaximumGain() const;
@@ -71,10 +63,8 @@ protected slots:
 protected:
     /// Returns the sensitivity value corresponding to the given gain (simple inversion).
     double toSensitivity(double gain) const;
-    /// Returns the next index value, found by applying change to current index.
-    int nextIndex(IndexChange change, int currentIndex);
-//    /// Populates the value map with set gain values. Order corresponds to increasing pv value index.
-//    void setValueMap();
+    /// Returns the gain value corresponding to the given sensitivity (simple inversion).
+    double toGain(double sensitivity) const;
     /// Sets the gain to value corresponding to provided index.
     virtual void setValueImplementation(const QString &valueArg);
 
@@ -83,54 +73,8 @@ protected:
     AMProcessVariable *valueControl_;
     /// List of available gain values.
     QList<double> gains_;
-    /// Pointer to a map between gain/sensitivity and value/index.
-//    CLSKeithley428ValueMap *valueMap_;
     /// String list of the available units.
     QString units_;
-};
-
-
-class CLSKeithley428ValueMap : public QObject
-{
-    Q_OBJECT
-
-public:
-    /// Constructor.
-    explicit CLSKeithley428ValueMap(QObject *parent = 0);
-    /// Destructor.
-    virtual ~CLSKeithley428ValueMap();
-
-    QMultiMap<int, double>* map() const;
-
-    double valueAt(int index, AMCurrentAmplifier::AmplifierMode mode);
-
-    QStringList* valueStringList(AMCurrentAmplifier::AmplifierMode mode) const;
-
-    bool isIndexOfMin(AMCurrentAmplifier::AmplifierMode mode, int index);
-    bool isIndexOfMax(AMCurrentAmplifier::AmplifierMode mode, int index);
-
-    int findIndexOfMin(AMCurrentAmplifier::AmplifierMode mode);
-    int findIndexOfMax(AMCurrentAmplifier::AmplifierMode mode);
-
-    int nextIndex(CLSKeithley428::IndexChange change, int currentIndex);
-
-signals:
-    void valuesAdded(int index, double gain, double sensitivity);
-
-public slots:
-    void setValues(AMCurrentAmplifier::AmplifierMode mode, QList<double>* toAdd);
-
-protected:
-    void addValue(int index, AMCurrentAmplifier::AmplifierMode mode, double value);
-    void addIndexValues(int index, double gain, double sensitivity);
-
-    double toGain(double sensitivity);
-    double toSensitivity(double gain);
-
-protected:
-    QMultiMap<int, double> *map_;
-    double tolerance_;
-
 };
 
 
