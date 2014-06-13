@@ -49,12 +49,12 @@ AMDeploy::AMDeploy(const QString &workingDirectory, QObject *parent) :
 
 void AMDeploy::onGitStatusProcessReadReady(){
 	gitStatusOutput_.append(gitStatusProcess_->readAllStandardOutput());
-	qDebug() << "Git status says: " << gitStatusOutput_;
+//	qDebug() << "Git status says: " << gitStatusOutput_;
 }
 
 void AMDeploy::onGitStatusProcessFinished(int status){
-	qDebug() << "Git status exited with " << status;
-	if(status == 0){
+//	qDebug() << "Git status exited with " << status;
+	if(status == 0 && gitStatusOutput_.isEmpty()){
 		gitBranchProcess_ = new QProcess();
 		QString program = "git";
 		QStringList arguments;
@@ -65,15 +65,19 @@ void AMDeploy::onGitStatusProcessFinished(int status){
 		connect(gitBranchProcess_, SIGNAL(finished(int)), this, SLOT(onGitBranchProcessFinished(int)));
 		gitBranchProcess_->start(program, arguments);
 	}
+	else{
+		qDebug() << "Cannot continue with deployment, there are uncommitted changes present.";
+		QCoreApplication::instance()->exit(-1);
+	}
 }
 
 void AMDeploy::onGitBranchProcessReadReady(){
 	gitBranchOutput_.append(gitBranchProcess_->readAllStandardOutput());
-	qDebug() << "Git branch says: " << gitBranchOutput_;
+//	qDebug() << "Git branch says: " << gitBranchOutput_;
 }
 
 void AMDeploy::onGitBranchProcessFinished(int status){
-	qDebug() << "Git branch exited with " << status;
+//	qDebug() << "Git branch exited with " << status;
 	if(status == 0){
 		QStringList branches = gitBranchOutput_.split("\n");
 		QString currentBranch;
@@ -101,11 +105,11 @@ void AMDeploy::onGitBranchProcessFinished(int status){
 
 void AMDeploy::onGitLogProcessReadReady(){
 	gitLogOutput_.append(gitLogProcess_->readAllStandardOutput());
-	qDebug() << "Git log says: " << gitLogOutput_;
+//	qDebug() << "Git log says: " << gitLogOutput_;
 }
 
 void AMDeploy::onGitLogProcessFinished(int status){
-	qDebug() << "Git log exited with " << status;
+//	qDebug() << "Git log exited with " << status;
 	if(status == 0){
 		QStringList logLines = gitLogOutput_.split("\n");
 		QString commitString;
@@ -151,15 +155,13 @@ void AMDeploy::onGitLogProcessFinished(int status){
 
 void AMDeploy::onGitDescribeProcessReadReady(){
 	gitDescribeOutput_.append(gitDescribeProcess_->readAllStandardOutput());
-	qDebug() << "Git describe says: " << gitDescribeOutput_;
+//	qDebug() << "Git describe says: " << gitDescribeOutput_;
 	currentGitDescription_ = gitDescribeOutput_.trimmed();
 }
 
 void AMDeploy::onGitDescribeProcessFinished(int status){
-	qDebug() << "Git describe exited with " << status;
+//	qDebug() << "Git describe exited with " << status;
 	if(status == 0){
-		qDebug() << "I think we've successfully done these steps";
-
 		qDebug() << "Branch: " << currentBranch_;
 		qDebug() << "Commit: " << currentCommitSHA_;
 		qDebug() << "Author: " << currentCommitAuthor_;
