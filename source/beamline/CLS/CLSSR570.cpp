@@ -42,6 +42,11 @@ CLSSR570::CLSSR570(const QString &name, const QString &valueName, const QString 
 	connect(value_, SIGNAL(connected()), this, SLOT(onConnectedChanged()));
 	connect(units_, SIGNAL(connected()), this, SLOT(onConnectedChanged()));
 
+    connect( this, SIGNAL(sensitivityChanged(int)), this, SIGNAL(valueChanged()) );
+    connect( this, SIGNAL(unitsChanged(QString)), this, SIGNAL(valueChanged()) );
+    connect( this, SIGNAL(maximumSensitivity(bool)), this, SIGNAL(maximumValue(bool)) );
+    connect( this, SIGNAL(minimumSensitivity(bool)), this, SIGNAL(minimumValue(bool)) );
+
     setAmplifierMode(AMCurrentAmplifier::Sensitivity);
 }
 
@@ -55,6 +60,68 @@ QList<double> CLSSR570::values() const
 QStringList CLSSR570::unitsList() const
 {
     return QStringList() << "pA/V" << "nA/V" << "uA/V" << "mA/V";
+}
+
+void CLSSR570::setValueControl(int value)
+{
+    setValueIndex(valueToIndex(value));
+}
+
+void CLSSR570::setValueIndex(int index)
+{
+    if (valueOkay(index))
+        value_->setValue(index);
+}
+
+void CLSSR570::setUnits(QString units)
+{
+    if (unitsOkay(units))
+        units_->setValue(units);
+}
+
+void CLSSR570::onValueChanged(int index)
+{
+    emit sensitivityChanged(index);
+    emit valueChanged();
+}
+
+void CLSSR570::onSensitivityChanged()
+{
+    if (!atMaximumSensitivity_ && (value_->getInt() == 0 && units_->getString() == "pA/V")) {
+        emit maximumSensitivity(atMaximumSensitivity_ = true);
+
+    } else if (atMaximumSensitivity_ && (value_->getInt() != 0 || units_->getString() != "pA/V")) {
+        emit maximumSensitivity(atMaximumSensitivity_ = false);
+
+    } else if (!atMinimumSensitivity_ && (value_->getInt() == 0 && units_->getString() == "mA/V")) {
+        emit minimumSensitivity(atMinimumSensitivity_ = true);
+
+    } else if (atMinimumSensitivity_ && (value_->getInt() != 0 || units_->getString() != "mA/V")) {
+        emit minimumSensitivity(atMinimumSensitivity_ = false);
+    }
+}
+
+void CLSSR570::onUnitsChanged(const QString &newUnits)
+{
+    emit unitsChanged(newUnits);
+}
+
+void CLSSR570::onConnectedChanged()
+{
+	if ((value_->isConnected() && units_->isConnected()) != connected_){
+		emit isConnected(connected_ = (value_->isConnected() && units_->isConnected()));
+		onSensitivityChanged();
+	}
+}
+
+bool CLSSR570::valueOkay(int value) const
+{
+    return (value >= 0 && value <= 8);
+}
+
+bool CLSSR570::unitsOkay(QString units) const
+{
+    return units.contains(QRegExp("^(p|n|u|m)A/V$"));
 }
 
 bool CLSSR570::increaseSensitivity()
@@ -109,66 +176,6 @@ bool CLSSR570::decreaseSensitivity()
     }
 
     return true;
-}
-
-void CLSSR570::setValueControl(int value)
-{
-    setValueIndex(valueToIndex(value));
-}
-
-void CLSSR570::setValueIndex(int index)
-{
-    if (valueOkay(index))
-        value_->setValue(index);
-}
-
-void CLSSR570::setUnits(QString units)
-{
-    if (unitsOkay(units))
-        units_->setValue(units);
-}
-
-void CLSSR570::onValueChanged(int index)
-{
-    emit sensitivityChanged(index);
-}
-
-void CLSSR570::onSensitivityChanged()
-{
-    if (!atMaximumSensitivity_ && (value_->getInt() == 0 && units_->getString() == "pA/V"))
-        emit maximumSensitivity(atMaximumSensitivity_ = true);
-
-    else if (atMaximumSensitivity_ && (value_->getInt() != 0 || units_->getString() != "pA/V"))
-        emit maximumSensitivity(atMaximumSensitivity_ = false);
-
-    else if (!atMinimumSensitivity_ && (value_->getInt() == 0 && units_->getString() == "mA/V"))
-        emit minimumSensitivity(atMinimumSensitivity_ = true);
-
-    else if (atMinimumSensitivity_ && (value_->getInt() != 0 || units_->getString() != "mA/V"))
-        emit minimumSensitivity(atMinimumSensitivity_ = false);
-}
-
-void CLSSR570::onUnitsChanged(const QString &newUnits)
-{
-    emit unitsChanged(newUnits);
-}
-
-void CLSSR570::onConnectedChanged()
-{
-	if ((value_->isConnected() && units_->isConnected()) != connected_){
-		emit isConnected(connected_ = (value_->isConnected() && units_->isConnected()));
-		onSensitivityChanged();
-	}
-}
-
-bool CLSSR570::valueOkay(int value) const
-{
-    return (value >= 0 && value <= 8);
-}
-
-bool CLSSR570::unitsOkay(QString units) const
-{
-    return units.contains(QRegExp("^(p|n|u|m)A/V$"));
 }
 
 void CLSSR570::setValueImplementation(const QString &valueArg)

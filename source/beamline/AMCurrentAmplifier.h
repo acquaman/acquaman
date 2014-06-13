@@ -39,50 +39,34 @@ public:
 
     /// Returns true if the given amplifier mode is supported.
     bool supports(AmplifierMode mode);
-
     /// Returns true if the current amplifier supports Gain mode.
     bool supportsGainMode() const;
-    /// Returns true if the current amplifier is at the minimum gain.
-    virtual bool atMinimumGain() const;
-    /// Returns true if the current amplifier is at the maximum gain.
-    virtual bool atMaximumGain() const;
-
     /// Returns true if the current amplifier supports Sensitivity mode.
     bool supportsSensitivityMode() const;
-    /// Returns whether the current amplifier is at minimum sensitivity.
-    virtual bool atMinimumSensitivity() const;
-    /// Returns whether the current amplifier is at maximum sensitivity.
-    virtual bool atMaximumSensitivity() const;
 
     /// Returns true if the current amplifier is in Gain mode, false otherwise.
     bool inGainMode() const;
     /// Returns true if the current amplifier is in Sensitivity mode, false otherwise.
     bool inSensitivityMode() const;
 
+    /// Returns true if, for the current amplifier mode, the amplifier is at a minimum value limit. False otherwise.
+    bool atMinimumValue() const;
+    /// Returns true if, for the current amplifier mode, the amplifier is at a maximum value limit. False otherwise.
+    bool atMaximumValue() const;
+
 signals:
     /// Emitted when the amplifier mode has been changed.
-    void amplifierModeChanged(AMCurrentAmplifier::AmplifierMode newMode);
+    void amplifierModeChanged();
     /// Notifier that the name of the current amplifier has changed.
     void nameChanged(const QString &newName);
     /// Notifier that the connection state of the current amplifier has changed.
     void isConnected(bool);
-
-    /// Emitted when the gain of the current amplifier is changed.
-    void gainChanged(int valueIndex);
-    /// Emitted when the current amplifier has reached the minimum gain.
-    void minimumGain(bool);
-    /// Emitted when the current amplifier has reached the maximum gain.
-    void maximumGain(bool);
-
-    /// General notifier. Emitted when the sensitivity of the current amplifier is changed.
-    void sensitivityChanged(int valueIndex);
-    /// Notifier that the current amplifier is at the minimum sensitivity.
-    void minimumSensitivity(bool);
-    /// Notifier that the current amplifier is at the maximum sensitivity.
-    void maximumSensitivity(bool);
-
-    /// Emitted when the amplifier's units have changed, passes new units.
-    void unitsChanged(const QString &newUnits);
+    /// Emitted when the value of the amplifier has changed.
+    void valueChanged();
+    /// Emitted when a minimum value limit for the amplifier has been reached.
+    void minimumValue(bool);
+    /// Emitted when a maximum value limit for the amplifier has been reached.
+    void maximumValue(bool);
 
 public slots:
     /// Sets the current amplifier mode. Returns true if successful.
@@ -91,11 +75,27 @@ public slots:
     bool setToGainMode();
     /// Sets the current amplifier mode to Sensitivity, if this mode is supported. Returns true if successful.
     bool setToSensitivityMode();
+
     /// Sets a new name for the current amplifier.
     void setName(const QString &newName);
 
     /// Sets the amplifier's value.
     void setValue(const QString &valueArg);
+    /// Increases the value of the current amplifier.
+    bool increaseValue();
+    /// Decreases the value of the current amplifier.
+    bool decreaseValue();
+
+protected:
+    /// Returns true if the current amplifier is at the minimum gain.
+    virtual bool atMinimumGain() const;
+    /// Returns true if the current amplifier is at the maximum gain.
+    virtual bool atMaximumGain() const;
+
+    /// Returns whether the current amplifier is at minimum sensitivity.
+    virtual bool atMinimumSensitivity() const;
+    /// Returns whether the current amplifier is at maximum sensitivity.
+    virtual bool atMaximumSensitivity() const;
 
     /// Increases the gain of the current amplifier.
     virtual bool increaseGain();
@@ -107,9 +107,6 @@ public slots:
     /// Decreases the sensitivity of the current amplifier.
     virtual bool decreaseSensitivity();
 
-protected slots:
-
-protected:
     /// Sets the current amplifier's sensitivity/gain value.
     virtual void setValueImplementation(const QString &valueArg) = 0;
 

@@ -56,16 +56,15 @@ public:
     /// Returns a string list of the available units options, suitable for a view to display.
     virtual QStringList unitsList() const;
 
-	/// Returns whether the ion chamber is at maximum senstivity.
-	virtual bool atMaximumSensitivity() const { return atMaximumSensitivity_; }
-	/// Returns whether the ion chamber is at minimum sensitivity.
-	virtual bool atMinimumSensitivity() const { return atMinimumSensitivity_; }
-
-public slots:
-	/// Increases the sensitivity of the ion chamber by one step.
-    virtual bool increaseSensitivity();
-	/// Decreases the sensitivity of the ion chamber by one step.
-    virtual bool decreaseSensitivity();
+signals:
+    /// General notifier. Emitted when the sensitivity of the current amplifier is changed.
+    void sensitivityChanged(int valueIndex);
+    /// Notifier that the current amplifier is at the minimum sensitivity.
+    void minimumSensitivity(bool);
+    /// Notifier that the current amplifier is at the maximum sensitivity.
+    void maximumSensitivity(bool);
+    /// Emitted when the amplifier's units have changed, passes new units.
+    void unitsChanged(const QString &newUnits);
 
 protected slots:
     /// Sets the sensitivity value. Must be 1, 2, 5, 10, 20, 50, 100, 200, or 500.  Does nothing otherwise.
@@ -87,6 +86,16 @@ protected:
 	bool valueOkay(int value) const;
 	/// Determines if the new sensitivity units are acceptable.
 	bool unitsOkay(QString units) const;
+
+    /// Returns whether the ion chamber is at maximum senstivity.
+    virtual bool atMaximumSensitivity() const { return atMaximumSensitivity_; }
+    /// Returns whether the ion chamber is at minimum sensitivity.
+    virtual bool atMinimumSensitivity() const { return atMinimumSensitivity_; }
+
+    /// Increases the sensitivity of the ion chamber by one step.
+    virtual bool increaseSensitivity();
+    /// Decreases the sensitivity of the ion chamber by one step.
+    virtual bool decreaseSensitivity();
 
     /// Sets the sensitivity value.
     virtual void setValueImplementation(const QString &valueArg);
