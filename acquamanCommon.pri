@@ -758,7 +758,9 @@ HEADERS += source/acquaman/AMRegion.h \
 	source/ui/dataman/AMEXAFSScanAxisView.h \
 	source/beamline/CLS/CLSPseudoMotorControl.h \
 	source/ui/AMRegExpLineEdit.h \
-	source/application/AMCrashMonitorSupport.h
+	source/application/AMCrashMonitorSupport.h \
+	source/util/AMBuildInfo.h \
+    source/util/AMBuildReporter.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1237,7 +1239,9 @@ SOURCES += source/acquaman/AMRegion.cpp \
 	source/ui/dataman/AMEXAFSScanAxisView.cpp \
 	source/beamline/CLS/CLSPseudoMotorControl.cpp \
 	source/ui/AMRegExpLineEdit.cpp \
-	source/application/AMCrashMonitorSupport.cpp
+	source/application/AMCrashMonitorSupport.cpp \
+	source/util/AMBuildInfo.cpp \
+    source/util/AMBuildReporter.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1261,3 +1265,9 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+contains(DEFINES, AM_BUILD_REPORTER_ENABLED){
+	HEADERS += source/util/AMRunTimeBuildInfo.h
+
+	SOURCES += source/util/AMRunTimeBuildInfo.cpp
+}
