@@ -70,8 +70,8 @@ void STWidget::onRingCurrentValueChanged(double newValue)
 void STWidget::onRingCurrentConnected(bool isConnected)
 {
     if (isConnected) {
-        plot_->addItem(ringCurrentSeries1_);
-//        plot_->addItem(ringCurrentSeries2_);
+//        plot_->addItem(ringCurrentSeries1_);
+        plot_->addItem(ringCurrentSeries2_);
 //        plot_->addItem(ringCurrentSeries3_);
     }
 }
