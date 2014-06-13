@@ -7,6 +7,9 @@ AMCurrentAmplifierView::AMCurrentAmplifierView(AMCurrentAmplifier *amplifier, bo
 
     amplifier_ = amplifier;
     connect( amplifier_, SIGNAL(amplifierModeChanged(AMCurrentAmplifier::AmplifierMode)), this, SLOT(refreshView()) );
+    connect( amplifier_, SIGNAL(gainChanged(int)), this, SLOT(onAmplifierValueChanged()) );
+    connect( amplifier_, SIGNAL(sensitivityChanged(int)), this, SLOT(onAmplifierValueChanged()) );
+    connect( amplifier_, SIGNAL(unitsChanged(QString)), this, SLOT(onAmplifierValueChanged()) );
 
     QLabel *name = new QLabel(amplifier_->name());
 
@@ -25,9 +28,7 @@ AMCurrentAmplifierView::AMCurrentAmplifierView(AMCurrentAmplifier *amplifier, bo
     connect( amplifier_, SIGNAL(maximumSensitivity(bool)), plus_, SLOT(setDisabled(bool)) );
 
     value_ = new QComboBox();
-//    connect( value_, SIGNAL(currentIndexChanged(int)), this, SLOT(onValueComboBoxChanged(int)) );
-//    connect( amplifier_, SIGNAL(gainChanged(int)), this, SLOT(onAmplifierValueChanged(int)) );
-//    connect( amplifier_, SIGNAL(sensitivityChanged(int)), this, SLOT(onAmplifierValueChanged(int)) );
+    connect( value_, SIGNAL(currentIndexChanged(QString)), this, SLOT(onValueComboBoxChanged(QString)) );
 
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect( this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)) );
@@ -68,44 +69,39 @@ void AMCurrentAmplifierView::refreshView()
     refreshButtons();
 }
 
-void AMCurrentAmplifierView::onValueComboBoxChanged()
+void AMCurrentAmplifierView::onValueComboBoxChanged(const QString &newText)
 {
-    // the initialized_ boolean prevents the display from setting the amplifier value while initializing <- undesirable behavior.
+    // the initialized_ boolean prevents the display from setting the amplifier value while view is initializing <- undesirable behavior.
     if (initialized_) {
-        amplifier_->setValue( value_->currentText() );
+        amplifier_->setValue(newText);
     }
 }
 
-void AMCurrentAmplifierView::onAmplifierValueChanged(int valueIndex)
+void AMCurrentAmplifierView::onAmplifierValueChanged()
 {
     amplifier_->blockSignals(true);
-    value_->setCurrentIndex(valueIndex);
-    amplifier_->blockSignals(false);
-}
-
-void AMCurrentAmplifierView::onAmplifierUnitsChanged(int unitsIndex)
-{
-    amplifier_->blockSignals(true);
-//    units_->setCurrentIndex(unitsIndex);
+    int newIndex = value_->findText( valueToString(amplifier_->value(), amplifier_->units()) );
+    if (newIndex != -1)
+        value_->setCurrentIndex(newIndex);
     amplifier_->blockSignals(false);
 }
 
 void AMCurrentAmplifierView::onMinusClicked()
 {
-    if (amplifier_->amplifierMode() == AMCurrentAmplifier::Gain) {
+    if (amplifier_->inGainMode()) {
         amplifier_->decreaseGain();
 
-    } else if (amplifier_->amplifierMode() == AMCurrentAmplifier::Sensitivity) {
+    } else if (amplifier_->inSensitivityMode()) {
         amplifier_->decreaseSensitivity();
     }
 }
 
 void AMCurrentAmplifierView::onPlusClicked()
 {
-    if (amplifier_->amplifierMode() == AMCurrentAmplifier::Gain) {
+    if (amplifier_->inGainMode()) {
         amplifier_->increaseGain();
 
-    } else if (amplifier_->amplifierMode() == AMCurrentAmplifier::Sensitivity) {
+    } else if (amplifier_->inSensitivityMode()) {
         amplifier_->increaseSensitivity();
     }
 }
@@ -117,10 +113,10 @@ void AMCurrentAmplifierView::onCustomContextMenuRequested(QPoint position)
         QMenu menu(this);
 
         QAction *gain = menu.addAction("Gain view");
-        gain->setDisabled(amplifier_->amplifierMode() == AMCurrentAmplifier::Gain);
+        gain->setDisabled(amplifier_->inGainMode());
 
         QAction *sensitivity = menu.addAction("Sensitivity view");
-        sensitivity->setDisabled(amplifier_->amplifierMode() == AMCurrentAmplifier::Sensitivity);
+        sensitivity->setDisabled(amplifier_->inSensitivityMode());
 
         QAction *selected = menu.exec(mapToGlobal(position));
 
@@ -134,8 +130,15 @@ void AMCurrentAmplifierView::onCustomContextMenuRequested(QPoint position)
     }
 }
 
+QString AMCurrentAmplifierView::valueToString(double value, const QString &units) const
+{
+    return QString("%1 %2").arg(value, 0, 'e', 2).arg(units);
+}
+
 void AMCurrentAmplifierView::refreshDisplayValues()
 {
+    initialized_ = false;
+
     value_->clear();
 
     // (re)populate value_ with appropriate options provided by the amplifier.
@@ -144,23 +147,19 @@ void AMCurrentAmplifierView::refreshDisplayValues()
 
     foreach (QString units, unitsList) {
         foreach (double value, valuesList) {
-            QString item = QString("%1 %2").arg(value, 0, 'e', 2).arg(units);
+            QString item = valueToString(value, units);
             value_->addItem(item);
         }
     }
 
     // values displayed should represent the amplifier's current state.
+    onAmplifierValueChanged();
 
+    initialized_ = true;
 }
 
 void AMCurrentAmplifierView::refreshButtons()
 {
-    if (amplifier_->amplifierMode() == AMCurrentAmplifier::Gain) {
-        minus_->setDisabled(amplifier_->atMinimumGain() == true);
-        plus_->setDisabled(amplifier_->atMaximumGain() == true);
-
-    } else if (amplifier_->amplifierMode() == AMCurrentAmplifier::Sensitivity) {
-        minus_->setDisabled(amplifier_->atMinimumSensitivity() == true);
-        plus_->setDisabled(amplifier_->atMaximumSensitivity() == true);
-    }
+    minus_->setDisabled(amplifier_->atMinimumGain() || amplifier_->atMinimumSensitivity());
+    plus_->setDisabled(amplifier_->atMaximumGain() || amplifier_->atMaximumSensitivity());
 }

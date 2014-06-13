@@ -58,6 +58,11 @@ public:
     /// Returns whether the current amplifier is at maximum sensitivity.
     virtual bool atMaximumSensitivity() const;
 
+    /// Returns true if the current amplifier is in Gain mode, false otherwise.
+    bool inGainMode() const;
+    /// Returns true if the current amplifier is in Sensitivity mode, false otherwise.
+    bool inSensitivityMode() const;
+
 signals:
     /// Emitted when the amplifier mode has been changed.
     void amplifierModeChanged(AMCurrentAmplifier::AmplifierMode newMode);
@@ -82,12 +87,14 @@ signals:
 
     /// Emitted when the amplifier's units have changed, passes new units.
     void unitsChanged(const QString &newUnits);
-    /// Emitted when the amplifier's units have changed, passes new unit index.
-    void unitsIndexChanged(int unitIndex);
 
 public slots:
-    /// Sets the current amplifier mode.
-    void setAmplifierMode(AmplifierMode newMode);
+    /// Sets the current amplifier mode. Returns true if successful.
+    bool setAmplifierMode(AmplifierMode newMode);
+    /// Sets the current amplifier mode to Gain, if this mode is supported. Returns true if successful.
+    bool setToGainMode();
+    /// Sets the current amplifier mode to Sensitivity, if this mode is supported. Returns true if successful.
+    bool setToSensitivityMode();
     /// Sets a new name for the current amplifier.
     void setName(const QString &newName);
 
@@ -103,6 +110,8 @@ public slots:
     virtual bool increaseSensitivity();
     /// Decreases the sensitivity of the current amplifier.
     virtual bool decreaseSensitivity();
+
+protected slots:
 
 protected:
     /// Sets the current amplifier's sensitivity/gain value.

@@ -67,12 +67,35 @@ bool AMCurrentAmplifier::atMaximumSensitivity() const
     return false;
 }
 
-void AMCurrentAmplifier::setAmplifierMode(AmplifierMode newMode)
+bool AMCurrentAmplifier::inGainMode() const
+{
+    return (amplifierMode() == AMCurrentAmplifier::Gain);
+}
+
+bool AMCurrentAmplifier::inSensitivityMode() const
+{
+    return (amplifierMode() == AMCurrentAmplifier::Sensitivity);
+}
+
+bool AMCurrentAmplifier::setAmplifierMode(AmplifierMode newMode)
 {
     if (newMode != amplifierMode_ && supports(newMode)) {
         amplifierMode_ = newMode;
         emit amplifierModeChanged(newMode);
+        return true;
     }
+
+    return false;
+}
+
+bool AMCurrentAmplifier::setToGainMode()
+{
+    return setAmplifierMode(AMCurrentAmplifier::Gain);
+}
+
+bool AMCurrentAmplifier::setToSensitivityMode()
+{
+    return setAmplifierMode(AMCurrentAmplifier::Sensitivity);
 }
 
 void AMCurrentAmplifier::setName(const QString &newName)

@@ -32,11 +32,9 @@ public slots:
 
 protected slots:
     /// Handles passing changes in the value combo box to the amplifier.
-    void onValueComboBoxChanged(int index);
+    void onValueComboBoxChanged(const QString &newText);
     /// Updates the value_ widget selection to reflect amplifier's new selection.
-    void onAmplifierValueChanged(int valueIndex);
-    /// Updates the units_ widget selection to reflect amplifier's new selection.
-    void onAmplifierUnitsChanged(int unitsIndex);
+    void onAmplifierValueChanged();
     /// Calls either AMCurrentAmplifier::decreaseGain/decreaseSensitivity depending on the amplifier mode.
     void onMinusClicked();
     /// Calls either AMCurrentAmplifier::increaseGain/increaseSensitivity depending on the amplifier mode.
@@ -45,6 +43,8 @@ protected slots:
     virtual void onCustomContextMenuRequested(QPoint position);
 
 protected:
+    /// Returns a string of the amplifier's value and units. Provides consistent formatting.
+    QString valueToString(double value, const QString &units) const;
     /// Clears and repopulates value_ and units_ widget with information from amplifier_.
     void refreshDisplayValues();
     /// Sets whether buttons should be en/disabled according to whether amplifier_ is at a max/min gain/sensitivity state.
