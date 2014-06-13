@@ -18,7 +18,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#include <QApplication>
+#include <QCoreApplication>
+#include <QStringList>
+
 #include "AMDeploy.h"
 
 int main(int argc, char *argv[])
@@ -26,7 +28,11 @@ int main(int argc, char *argv[])
 	QCoreApplication coreApp(argc, argv);
 	coreApp.setApplicationName("Deploy Acquaman");
 
-	AMDeploy *deployment = new AMDeploy();
+	QStringList arguments = coreApp.arguments();
+	if(arguments.count() < 2)
+		return -1;
+
+	AMDeploy *deployment = new AMDeploy(arguments.at(1));
 	Q_UNUSED(deployment)
 
 	return coreApp.exec();

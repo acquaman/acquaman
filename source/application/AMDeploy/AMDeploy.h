@@ -6,7 +6,7 @@ class AMDeploy : public QObject
 {
 Q_OBJECT
 public:
-	AMDeploy(QObject *parent = 0);
+	AMDeploy(const QString &workingDirectory, QObject *parent = 0);
 	virtual ~AMDeploy();
 
 protected slots:
@@ -23,6 +23,8 @@ protected slots:
 	void onGitDescribeProcessFinished(int status);
 
 protected:
+	QString workingDirectory_;
+
 	QProcess *gitStatusProcess_;
 	QString gitStatusOutput_;
 

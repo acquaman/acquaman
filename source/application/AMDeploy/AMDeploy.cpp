@@ -5,14 +5,16 @@
 
 #include <QDebug>
 
-AMDeploy::AMDeploy(QObject *parent) :
+AMDeploy::AMDeploy(const QString &workingDirectory, QObject *parent) :
 	QObject(parent)
 {
+	workingDirectory_ = workingDirectory;
+
 	gitStatusProcess_ = new QProcess();
 	QString program = "git";
 	QStringList arguments;
 	arguments << "status" << "--short";
-	gitStatusProcess_->setWorkingDirectory("/Users/chevrid/beamline/programming/acquaman");
+	gitStatusProcess_->setWorkingDirectory(workingDirectory_);
 
 	connect(gitStatusProcess_, SIGNAL(readyRead()), this, SLOT(onGitStatusProcessReadReady()));
 	connect(gitStatusProcess_, SIGNAL(finished(int)), this, SLOT(onGitStatusProcessFinished(int)));
@@ -31,7 +33,7 @@ void AMDeploy::onGitStatusProcessFinished(int status){
 		QString program = "git";
 		QStringList arguments;
 		arguments << "branch";
-		gitBranchProcess_->setWorkingDirectory("/Users/chevrid/beamline/programming/acquaman");
+		gitBranchProcess_->setWorkingDirectory(workingDirectory_);
 
 		connect(gitBranchProcess_, SIGNAL(readyRead()), this, SLOT(onGitBranchProcessReadReady()));
 		connect(gitBranchProcess_, SIGNAL(finished(int)), this, SLOT(onGitBranchProcessFinished(int)));
@@ -63,7 +65,7 @@ void AMDeploy::onGitBranchProcessFinished(int status){
 		QString program = "git";
 		QStringList arguments;
 		arguments << "log" << "-n" << "1";
-		gitLogProcess_->setWorkingDirectory("/Users/chevrid/beamline/programming/acquaman");
+		gitLogProcess_->setWorkingDirectory(workingDirectory_);
 
 		connect(gitLogProcess_, SIGNAL(readyRead()), this, SLOT(onGitLogProcessReadReady()));
 		connect(gitLogProcess_, SIGNAL(finished(int)), this, SLOT(onGitLogProcessFinished(int)));
@@ -113,7 +115,7 @@ void AMDeploy::onGitLogProcessFinished(int status){
 		QString program = "git";
 		QStringList arguments;
 		arguments << "describe";
-		gitDescribeProcess_->setWorkingDirectory("/Users/chevrid/beamline/programming/acquaman");
+		gitDescribeProcess_->setWorkingDirectory(workingDirectory_);
 
 		connect(gitDescribeProcess_, SIGNAL(readyRead()), this, SLOT(onGitDescribeProcessReadReady()));
 		connect(gitDescribeProcess_, SIGNAL(finished(int)), this, SLOT(onGitDescribeProcessFinished(int)));
