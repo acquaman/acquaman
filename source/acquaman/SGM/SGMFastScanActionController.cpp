@@ -123,7 +123,7 @@ bool SGMFastScanActionController::startImplementation(){
 	if(qFuzzyIsNull(SGMBeamline::sgm()->undulatorForcedOpen()->value() - 1))
 	{
 		this->setFailed();
-		return;
+		return false;
 	}
 	AMAgnosticDataMessageHandler *dataMessager = AMAgnosticDataAPISupport::handlerFromLookupKey("ScanActions");
 	AMAgnosticDataMessageQEventHandler *scanActionMessager = qobject_cast<AMAgnosticDataMessageQEventHandler*>(dataMessager);
