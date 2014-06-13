@@ -13,6 +13,25 @@ protected slots:
 	void onGitStatusProcessReadReady();
 	void onGitStatusProcessFinished(int status);
 
+	void onGitBranchProcessReadReady();
+	void onGitBranchProcessFinished(int status);
+
+	void onGitLogProcessReadReady();
+	void onGitLogProcessFinished(int status);
+
+	void onGitDescribeProcessReadReady();
+	void onGitDescribeProcessFinished(int status);
+
 protected:
 	QProcess *gitStatusProcess_;
+	QString gitStatusOutput_;
+
+	QProcess *gitBranchProcess_;
+	QString gitBranchOutput_;
+
+	QProcess *gitLogProcess_;
+	QString gitLogOutput_;
+
+	QProcess *gitDescribeProcess_;
+	QString gitDescribeOutput_;
 };
