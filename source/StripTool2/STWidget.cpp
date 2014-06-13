@@ -21,11 +21,10 @@ STWidget::STWidget(QWidget *parent)
     ringCurrentSeries1_->setDescription("Series 1");
 
     ringCurrentSeries2_ = new MPlotSeriesBasic();
-//    ringCurrentSeries2_->setModel(ringCurrentModel1_, false);
-//    ringCurrentSeries2_->setDescription("Series 2");
+    ringCurrentSeries2_->setModel( new AMDataSourceSeriesData(ringCurrentModel2_), true);
+    ringCurrentSeries2_->setDescription("Series 2");
 
     ringCurrentSeries3_ = new MPlotSeriesBasic();
-//    ringCurrentSeries3_->setModel(new AMDataSourceSeriesData(summedData_), true);
 
     // create plot and set up axes.
     plot_ = new MPlot();
