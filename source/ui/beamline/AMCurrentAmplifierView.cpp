@@ -25,13 +25,9 @@ AMCurrentAmplifierView::AMCurrentAmplifierView(AMCurrentAmplifier *amplifier, bo
     connect( amplifier_, SIGNAL(maximumSensitivity(bool)), plus_, SLOT(setDisabled(bool)) );
 
     value_ = new QComboBox();
-    connect( value_, SIGNAL(currentIndexChanged(int)), this, SLOT(onValueComboBoxChanged(int)) );
-    connect( amplifier_, SIGNAL(gainChanged(int)), this, SLOT(onAmplifierValueChanged(int)) );
-    connect( amplifier_, SIGNAL(sensitivityChanged(int)), this, SLOT(onAmplifierValueChanged(int)) );
-
-    units_ = new QComboBox();
-    connect( units_, SIGNAL(currentIndexChanged(int)), this, SLOT(onUnitsComboBoxChanged(int)) );
-    connect( amplifier_, SIGNAL(unitsIndexChanged(int)), this, SLOT(onAmplifierUnitsChanged(int)) );
+//    connect( value_, SIGNAL(currentIndexChanged(int)), this, SLOT(onValueComboBoxChanged(int)) );
+//    connect( amplifier_, SIGNAL(gainChanged(int)), this, SLOT(onAmplifierValueChanged(int)) );
+//    connect( amplifier_, SIGNAL(sensitivityChanged(int)), this, SLOT(onAmplifierValueChanged(int)) );
 
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect( this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)) );
@@ -45,7 +41,6 @@ AMCurrentAmplifierView::AMCurrentAmplifierView(AMCurrentAmplifier *amplifier, bo
     layout->addWidget(minus_);
     layout->addWidget(plus_);
     layout->addWidget(value_);
-    layout->addWidget(units_);
 
     setLayout(layout);
 
@@ -77,15 +72,7 @@ void AMCurrentAmplifierView::onValueComboBoxChanged(int index)
 {
     // the initialized_ boolean prevents the display from setting the amplifier value while initializing <- undesirable behavior.
     if (initialized_) {
-        amplifier_->setValue( QString::number(index) + " " + QString::number(units_->currentIndex()) );
-    }
-}
-
-void AMCurrentAmplifierView::onUnitsComboBoxChanged(int index)
-{
-    // the initialized_ boolean prevents the display from setting the amplifier value while initializing <- undesirable behavior.
-    if (initialized_) {
-        amplifier_->setValue( QString::number(value_->currentIndex()) + " " + QString::number(index) );
+//        amplifier_->setValue( QString::number(index) + " " + QString::number(units_->currentIndex()) );
     }
 }
 
@@ -99,7 +86,7 @@ void AMCurrentAmplifierView::onAmplifierValueChanged(int valueIndex)
 void AMCurrentAmplifierView::onAmplifierUnitsChanged(int unitsIndex)
 {
     amplifier_->blockSignals(true);
-    units_->setCurrentIndex(unitsIndex);
+//    units_->setCurrentIndex(unitsIndex);
     amplifier_->blockSignals(false);
 }
 
@@ -150,16 +137,30 @@ void AMCurrentAmplifierView::onCustomContextMenuRequested(QPoint position)
 void AMCurrentAmplifierView::refreshDisplayValues()
 {
     value_->clear();
-    units_->clear();
 
-    // repopulate value_ and units_ with appropriate options provided by the amplifier.
+    // repopulate value_ with appropriate options provided by the amplifier.
     // the values displayed should represent the amplifier's current state.
 
-    value_->addItems(amplifier_->valuesList());
-    onAmplifierValueChanged(amplifier_->valueIndex());
+//    foreach (double value, amplifier_->values()) {
+//        value_->addItem(QString)
+//    }
 
-    units_->addItems(amplifier_->unitsList());
-    onAmplifierUnitsChanged(amplifier_->unitsIndex());
+//    onAmplifierValueChanged(amplifier_->valueIndex());
+
+//    units_->addItems(amplifier_->unitsList());
+//    onAmplifierUnitsChanged(amplifier_->unitsIndex());
+
+    QStringList unitsList = amplifier_->unitsList();
+    QList<double> valuesList = amplifier_->values();
+
+    foreach (QString units, unitsList) {
+        foreach (double value, valuesList) {
+            QString item = QString("%1 %2").arg(value, 0, 'e', 2).arg(units);
+            value_->addItem(item);
+        }
+    }
+
+
 }
 
 void AMCurrentAmplifierView::refreshButtons()

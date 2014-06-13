@@ -33,8 +33,6 @@ public slots:
 protected slots:
     /// Handles passing changes in the value combo box to the amplifier.
     void onValueComboBoxChanged(int index);
-    /// Handles passing changes in the units combo box to the amplifier.
-    void onUnitsComboBoxChanged(int index);
     /// Updates the value_ widget selection to reflect amplifier's new selection.
     void onAmplifierValueChanged(int valueIndex);
     /// Updates the units_ widget selection to reflect amplifier's new selection.
@@ -57,10 +55,8 @@ protected:
     bool initialized_;
     /// The pointer to the current amplifier this view manages.
     AMCurrentAmplifier *amplifier_;
-    /// Combo box holding the amplifier value.
+    /// Combo box holding the available options for amplifier value.
     QComboBox *value_;
-    /// Combo box holding the amplifier units.
-    QComboBox *units_;
     /// The tool button for the minus button.
     QToolButton *minus_;
     /// The tool button for the plus button.
