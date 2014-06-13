@@ -34,4 +34,10 @@ protected:
 
 	QProcess *gitDescribeProcess_;
 	QString gitDescribeOutput_;
+
+	QString currentBranch_;
+	QString currentCommitSHA_;
+	QString currentCommitAuthor_;
+	QString currentCommitDate_;
+	QString currentGitDescription_;
 };

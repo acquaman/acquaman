@@ -47,6 +47,18 @@ void AMDeploy::onGitBranchProcessReadReady(){
 void AMDeploy::onGitBranchProcessFinished(int status){
 	qDebug() << "Git branch exited with " << status;
 	if(status == 0){
+		QStringList branches = gitBranchOutput_.split("\n");
+		QString currentBranch;
+		for(int x = 0, size = branches.count(); x < size && currentBranch.isNull(); x++)
+			if(branches.at(x).startsWith("* "))
+				currentBranch = branches.at(x);
+
+		if(!currentBranch.isNull())
+			currentBranch.remove("* ");
+
+//		qDebug() << "The current branch is " << currentBranch;
+		currentBranch_ = currentBranch;
+
 		gitLogProcess_ = new QProcess();
 		QString program = "git";
 		QStringList arguments;
@@ -67,6 +79,36 @@ void AMDeploy::onGitLogProcessReadReady(){
 void AMDeploy::onGitLogProcessFinished(int status){
 	qDebug() << "Git log exited with " << status;
 	if(status == 0){
+		QStringList logLines = gitLogOutput_.split("\n");
+		QString commitString;
+		QString authorString;
+		QString dateString;
+		for(int x = 0, size = logLines.count(); x < size && (commitString.isNull() || authorString.isNull() || dateString.isNull()); x++){
+			if(logLines.at(x).contains("commit ")){
+				commitString = logLines.at(x);
+				commitString.remove("commit ");
+				commitString = commitString.simplified();
+			}
+			else if(logLines.at(x).contains("Author: ")){
+				authorString = logLines.at(x);
+				authorString.remove("Author: ");
+				authorString = authorString.simplified();
+			}
+			else if(logLines.at(x).contains("Date: ")){
+				dateString = logLines.at(x);
+				dateString.remove("Date: ");
+				dateString = dateString.simplified();
+			}
+		}
+
+//		qDebug() << "Commit is " << commitString;
+//		qDebug() << "Author is " << authorString;
+//		qDebug() << "Date is " << dateString;
+
+		currentCommitSHA_ = commitString;
+		currentCommitAuthor_ = authorString;
+		currentCommitDate_ = dateString;
+
 		gitDescribeProcess_ = new QProcess();
 		QString program = "git";
 		QStringList arguments;
@@ -82,12 +124,20 @@ void AMDeploy::onGitLogProcessFinished(int status){
 void AMDeploy::onGitDescribeProcessReadReady(){
 	gitDescribeOutput_.append(gitDescribeProcess_->readAllStandardOutput());
 	qDebug() << "Git describe says: " << gitDescribeOutput_;
+	currentGitDescription_ = gitDescribeOutput_;
 }
 
 void AMDeploy::onGitDescribeProcessFinished(int status){
 	qDebug() << "Git describe exited with " << status;
 	if(status == 0){
 		qDebug() << "I think we've successfully done these steps";
+
+		qDebug() << "Branch: " << currentBranch_;
+		qDebug() << "Commit: " << currentCommitSHA_;
+		qDebug() << "Author: " << currentCommitAuthor_;
+		qDebug() << "Date: " << currentCommitDate_;
+		qDebug() << "Describe: " << currentGitDescription_;
+
 		QCoreApplication::instance()->quit();
 	}
 }
