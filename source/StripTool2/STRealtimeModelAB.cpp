@@ -1,28 +1,18 @@
 #include "STRealtimeModelAB.h"
 
+#include <QDebug>
+
 STRealtimeModelAB::STRealtimeModelAB(const QString &outputName, QObject *parent) : AMStandardAnalysisBlock(outputName, parent)
 {
     axes_ << AMAxisInfo("invalid", 0, "No input data");
     setState(AMDataSource::InvalidFlag);
 
-    dataCount_ = 0;
-    dataDisplayed_ = 10;
-    dataStored_ = new MPlotRealtimeModel(this);
+    dataStored_ = new QVector<double>(0);
 }
 
 STRealtimeModelAB::~STRealtimeModelAB()
 {
 
-}
-
-int STRealtimeModelAB::dataDisplayed() const
-{
-    return dataDisplayed_;
-}
-
-int STRealtimeModelAB::dataCounted() const
-{
-    return dataCount_;
 }
 
 bool STRealtimeModelAB::areInputDataSourcesAcceptable(const QList<AMDataSource *> &dataSources) const
@@ -78,22 +68,16 @@ void STRealtimeModelAB::setInputDataSourcesImplementation(const QList<AMDataSour
 
 AMNumber STRealtimeModelAB::value(const AMnDIndex &indexes) const
 {
-    if (indexes.rank() != 0)
+    if (indexes.rank() != 1)
         return AMNumber(AMNumber::DimensionError);
 
     if (!isValid())
         return AMNumber(AMNumber::InvalidError);
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
-    for (int i = 0; i < sources_.size(); i++)
-        if (indexes.i() >= sources_.at(i)->size(0))
-            return AMNumber(AMNumber::OutOfBoundsError);
-#endif
-
-    if (indexes.i() < dataCount_ || indexes.i() < (dataCount_ - dataDisplayed_))
+    if (indexes.i() < 0 || indexes.i() >= dataStored_->size())
         return AMNumber(AMNumber::OutOfBoundsError);
 
-    return dataStored_->y(indexes.i());
+    return dataStored_->at(indexes.i());
 }
 
 bool STRealtimeModelAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
@@ -104,17 +88,12 @@ bool STRealtimeModelAB::values(const AMnDIndex &indexStart, const AMnDIndex &ind
     if (!isValid())
         return false;
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
-    for (int i = 0; i < sources_.size(); i++)
-        if ((unsigned)indexEnd.i() >= (unsigned)axes_.at(0).size)
-            return false;
-
     if ((unsigned)indexStart.i() > (unsigned)indexEnd.i())
         return false;
-#endif
 
     // set output values to point to the subset of points saved for the data source.
-    dataStored_->yValues(indexStart.i(), indexEnd.i(), outputValues);
+    int totalSize = indexStart.totalPointsTo(indexEnd);
+    outputValues = dataStored_->mid(indexStart.i(), totalSize).data();
     return true;
 }
 
@@ -126,35 +105,26 @@ AMNumber STRealtimeModelAB::axisValue(int axisNumber, int index) const
     if (axisNumber != 0)
         return AMNumber(AMNumber::DimensionError);
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
-    if (index >= sources_.first()->size(0))
+    if (index < 0 || index >= dataStored_->size())
         return AMNumber(AMNumber::OutOfBoundsError);
-#endif
 
-    return sources_.first()->axisValue(0, index);
-}
-
-void STRealtimeModelAB::setDataDisplayed(int countDisplayed)
-{
-    if (countDisplayed >= 0 && countDisplayed != dataDisplayed_) {
-        dataDisplayed_ = countDisplayed;
-        emit dataDisplayedChanged(dataDisplayed_);
-    }
+    return index;
 }
 
 void STRealtimeModelAB::onInputSourceValuesChanged(const AMnDIndex &start, const AMnDIndex &end)
 {
+    Q_UNUSED(start)
+    Q_UNUSED(end)
+
     // update the values stored for this source.
-    double newValue = sources_.at(0)->value(start);
-    dataStored_->insertPointBack(dataCount_, newValue);
+    double newValue = sources_.at(0)->value(AMnDIndex());
+    qDebug() << "PV update : " << newValue;
 
-    dataCount_++;
+    dataStored_->append(newValue);
+    qDebug() << "Vector update : " << dataStored_->toList();
 
-    if (dataStored_->count() > dataDisplayed_) {
-        dataStored_->removePointFront();
-    }
-
-    emitValuesChanged(start, end);
+    emitValuesChanged(AMnDIndex(), AMnDIndex());
+    emitSizeChanged();
 }
 
 void STRealtimeModelAB::onInputSourceStateChanged()
@@ -177,8 +147,8 @@ void STRealtimeModelAB::reviewState()
         return;
     }
 
-    // is the data source the right size?
-    if (axes_[0].size != sources_.at(0)->axisInfoAt(0).size) {
+    // does the data source have rank 0?
+    if (sources_.at(0)->rank() != 0) {
         setState(AMDataSource::InvalidFlag);
         return;
     }
