@@ -68,11 +68,11 @@ void AMCurrentAmplifierView::refreshView()
     refreshButtons();
 }
 
-void AMCurrentAmplifierView::onValueComboBoxChanged(int index)
+void AMCurrentAmplifierView::onValueComboBoxChanged()
 {
     // the initialized_ boolean prevents the display from setting the amplifier value while initializing <- undesirable behavior.
     if (initialized_) {
-//        amplifier_->setValue( QString::number(index) + " " + QString::number(units_->currentIndex()) );
+        amplifier_->setValue( value_->currentText() );
     }
 }
 
@@ -138,18 +138,7 @@ void AMCurrentAmplifierView::refreshDisplayValues()
 {
     value_->clear();
 
-    // repopulate value_ with appropriate options provided by the amplifier.
-    // the values displayed should represent the amplifier's current state.
-
-//    foreach (double value, amplifier_->values()) {
-//        value_->addItem(QString)
-//    }
-
-//    onAmplifierValueChanged(amplifier_->valueIndex());
-
-//    units_->addItems(amplifier_->unitsList());
-//    onAmplifierUnitsChanged(amplifier_->unitsIndex());
-
+    // (re)populate value_ with appropriate options provided by the amplifier.
     QStringList unitsList = amplifier_->unitsList();
     QList<double> valuesList = amplifier_->values();
 
@@ -160,6 +149,7 @@ void AMCurrentAmplifierView::refreshDisplayValues()
         }
     }
 
+    // values displayed should represent the amplifier's current state.
 
 }
 

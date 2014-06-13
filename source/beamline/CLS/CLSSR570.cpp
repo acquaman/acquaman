@@ -172,11 +172,13 @@ bool CLSSR570::unitsOkay(QString units) const
 
 void CLSSR570::setValueImplementation(const QString &valueArg)
 {
-    int valueIndex = valueArg.split(" ").at(0).toInt();
-    setValueIndex(valueIndex);
+    int value = valueArg.split(" ").at(0).toInt();
+    if ( valueOkay(valueToIndex(value)) )
+        setValueIndex(valueToIndex(value));
 
-    int unitsIndex = valueArg.split(" ").at(1).toInt();
-    setUnitsIndex(unitsIndex);
+    QString units = valueArg.split(" ").at(1);
+    if ( unitsOkay(units) )
+        setUnits(units);
 }
 
 int CLSSR570::nextValue(bool increase, int current)
