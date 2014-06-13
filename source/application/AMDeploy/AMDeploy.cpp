@@ -65,6 +65,10 @@ void AMDeploy::onGitStatusProcessFinished(int status){
 		connect(gitBranchProcess_, SIGNAL(finished(int)), this, SLOT(onGitBranchProcessFinished(int)));
 		gitBranchProcess_->start(program, arguments);
 	}
+	else if(status != 0){
+		qDebug() << QString("Cannot continue with deployment, git status exited with status %1.").arg(status);
+		QCoreApplication::instance()->exit(-1);
+	}
 	else{
 		qDebug() << "Cannot continue with deployment, there are uncommitted changes present.";
 		QCoreApplication::instance()->exit(-1);
@@ -100,6 +104,10 @@ void AMDeploy::onGitBranchProcessFinished(int status){
 		connect(gitLogProcess_, SIGNAL(readyRead()), this, SLOT(onGitLogProcessReadReady()));
 		connect(gitLogProcess_, SIGNAL(finished(int)), this, SLOT(onGitLogProcessFinished(int)));
 		gitLogProcess_->start(program, arguments);
+	}
+	else{
+		qDebug() << QString("Cannot continue with deployment, git branch exited with status %1.").arg(status);
+		QCoreApplication::instance()->exit(-1);
 	}
 }
 
@@ -150,6 +158,10 @@ void AMDeploy::onGitLogProcessFinished(int status){
 		connect(gitDescribeProcess_, SIGNAL(readyRead()), this, SLOT(onGitDescribeProcessReadReady()));
 		connect(gitDescribeProcess_, SIGNAL(finished(int)), this, SLOT(onGitDescribeProcessFinished(int)));
 		gitDescribeProcess_->start(program, arguments);
+	}
+	else{
+		qDebug() << QString("Cannot continue with deployment, git log exited with status %1.").arg(status);
+		QCoreApplication::instance()->exit(-1);
 	}
 }
 
@@ -211,6 +223,10 @@ void AMDeploy::onGitDescribeProcessFinished(int status){
 		sourceFile.close();
 
 		QCoreApplication::instance()->quit();
+	}
+	else{
+		qDebug() << QString("Cannot continue with deployment, git describe exited with status %1.").arg(status);
+		QCoreApplication::instance()->exit(-1);
 	}
 }
 
