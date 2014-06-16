@@ -77,6 +77,8 @@ AMNumber STRealtimeModelAB::value(const AMnDIndex &indexes) const
     if (indexes.i() < 0 || indexes.i() >= dataStored_->size())
         return AMNumber(AMNumber::OutOfBoundsError);
 
+    qDebug() << "Value requested : " << dataStored_->at(indexes.i());
+
     return dataStored_->at(indexes.i());
 }
 
@@ -93,10 +95,8 @@ bool STRealtimeModelAB::values(const AMnDIndex &indexStart, const AMnDIndex &ind
 
     // set output values to point to the subset of points saved for the data source.
     int totalSize = indexStart.totalPointsTo(indexEnd);
-
-    qDebug() << "Output size : " << totalSize;
-
-    outputValues = dataStored_->mid(indexStart.i(), totalSize).data();
+    QVector<double> update = dataStored_->mid(indexStart.i(), totalSize);
+    outputValues = update.data();
 
     return true;
 }
