@@ -127,6 +127,8 @@ void STRealtimeModelAB::onInputSourceValuesChanged(const AMnDIndex &start, const
     dataStored_->append(newValue);
     qDebug() << "Vector update : " << dataStored_->toList();
 
+    axes_[0] = AMAxisInfo(sources_.at(0)->name(), dataStored_->size());
+
     emitValuesChanged();
     emitSizeChanged(0);
 }
