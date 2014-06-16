@@ -124,6 +124,8 @@ CLSSynchronizedDwellTimeView::CLSSynchronizedDwellTimeView(CLSSynchronizedDwellT
 	dwellTimeSpinBox_ = new QSpinBox();
 
 	dwellTimeSpinBox_->setSuffix(" s");
+	dwellTimeSpinBox_->setMinimum(0);
+	dwellTimeSpinBox_->setMaximum(1e6);
 
 	layout->addWidget(statusLabel_, 0, 0, 1, 2, Qt::AlignCenter);
 	layout->addWidget(startButton_, 1, 0, 1, 1);
