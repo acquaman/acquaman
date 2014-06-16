@@ -12,6 +12,7 @@ STWidget::STWidget(QWidget *parent) : QWidget(parent)
     connect( ringCurrentControl_, SIGNAL(connected(bool)), this, SLOT(onRingCurrentConnected(bool)) );
 
     ringCurrentModel1_ = new MPlotRealtimeModel();
+
     accumulator_ = new AM0DAccumulatorAB("Ring current AB", this);
     accumulator_->setInputDataSources(QList<AMDataSource*>() << new AM0DProcessVariableDataSource(ringCurrentControl_, "SR1 Current", this));
     ringCurrentModel2_ = new AMDataSourceSeriesData(accumulator_);
@@ -63,13 +64,14 @@ void STWidget::onRingCurrentValueChanged(double newValue)
 
     qDebug() << "\nNumber of counts : " << accumulator_->dataCount();
 
-    if (accumulator_->dataCount() >= 0) {
+    if (accumulator_->dataCount() > 0) {
         qDebug() << "First update : " << (double)accumulator_->value(AMnDIndex(0));
 
         qDebug() << "Latest update : " << (double)accumulator_->value( AMnDIndex(accumulator_->dataCount() - 1) );
 
-        QVector<double> vals;
+        QVector<double> vals = QVector<double>();
         accumulator_->values(AMnDIndex(0), AMnDIndex(accumulator_->dataCount() - 1), vals.data());
+        qDebug() << "Total values entries  :" << vals.size();
         qDebug() << "Total values : " << vals.toList();
     }
 

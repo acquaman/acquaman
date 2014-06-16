@@ -91,6 +91,19 @@ AMNumber AM0DAccumulatorAB::value(const AMnDIndex &indexes) const
 
 bool AM0DAccumulatorAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
 {
+    int start;
+    int end;
+
+    if (indexStart == AMnDIndex())
+        start = 0;
+    else
+        start = indexStart.i();
+
+    if (indexEnd == AMnDIndex())
+        end = dataStored_.size() - 1;
+    else
+        end = indexEnd.i();
+
     if (indexStart.rank() != 1 || indexEnd.rank() != 1)
         return false;
 
@@ -100,9 +113,15 @@ bool AM0DAccumulatorAB::values(const AMnDIndex &indexStart, const AMnDIndex &ind
     if ((unsigned)indexStart.i() > (unsigned)indexEnd.i())
         return false;
 
+    if (indexStart.i() < 0 || indexEnd.i() < 0)
+        return false;
+
+    if (indexStart.i() >= dataStored_.size() || indexEnd.i() >= dataStored_.size())
+        return false;
+
     // set output values to point to the subset of points saved for the data source.
     int totalSize = indexStart.totalPointsTo(indexEnd);
-    QVector<double> update = dataStored_.mid(indexStart.i(), totalSize);
+    QVector<double> update = dataStored_.mid(start, end - start);
     outputValues = update.data();
 
     return true;
@@ -140,10 +159,8 @@ void AM0DAccumulatorAB::onInputSourceValuesChanged(const AMnDIndex &start, const
 
     // update the values stored for this source. We assume the source is 0D, so the latest value is always recovered with an empty AMnDIndex.
     double newValue = sources_.at(0)->value(AMnDIndex());
-    qDebug() << "PV update : " << newValue;
 
     dataStored_.append(newValue);
-    qDebug() << "Vector update : " << dataStored_.toList();
 
     // update the axes info for this data source to reflect the (possibly) new number of points to plot.
     axes_[0] = AMAxisInfo(sources_.at(0)->name(), dataStored_.size());
