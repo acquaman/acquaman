@@ -15,8 +15,6 @@
 #include "MPlot/MPlotSeries.h"
 #include "MPlot/MPlot.h"
 
-#include "STRealtimeModelAB.h"
-
 class STWidget : public QWidget
 {
     Q_OBJECT

@@ -2,8 +2,7 @@
 
 #include <QDebug>
 
-STWidget::STWidget(QWidget *parent)
-    : QWidget(parent)
+STWidget::STWidget(QWidget *parent) : QWidget(parent)
 {
     dataCount_ = 0;
     displayCount_ = 10;
