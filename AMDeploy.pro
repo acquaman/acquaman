@@ -1,4 +1,4 @@
-TARGET = AMDeploy
+TARGET = build/AMDeploy
 
 HEADERS +=\
 	source/application/AMDeploy/AMDeploy.h
