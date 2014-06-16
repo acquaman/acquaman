@@ -704,7 +704,6 @@ HEADERS += source/acquaman/AMRegion.h \
 	source/acquaman/AMRegionScanActionController.h \
 	source/ui/actions3/AMCancelActionPrompt.h \
 	source/dataman/export/SGM/SGMAxis2000Exporter.h \
-	source/ui/CLS/CLSSR570View.h \
 	source/ui/CLS/CLSAmptekSDD123DetailedDetectorView.h \
 	source/actions3/AMActionSupport.h \
 	source/ui/CLS/CLSSIS3820CompositeScalerChannelView.h \
@@ -1187,7 +1186,6 @@ SOURCES += source/acquaman/AMRegion.cpp \
 	source/acquaman/AMRegionScanActionController.cpp \
 	source/ui/actions3/AMCancelActionPrompt.cpp \
 	source/dataman/export/SGM/SGMAxis2000Exporter.cpp \
-	source/ui/CLS/CLSSR570View.cpp \
 	source/ui/CLS/CLSAmptekSDD123DetailedDetectorView.cpp \
 	source/ui/CLS/CLSSIS3820CompositeScalerChannelView.cpp \
 	source/ui/CLS/CLSSR570CompositeView.cpp \
