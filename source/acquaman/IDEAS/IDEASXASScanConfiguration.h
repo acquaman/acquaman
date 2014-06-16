@@ -49,6 +49,12 @@ public:
 	double totalTime() const { return totalTime_; }
 	/// Overloaded.  Returns the current total estimated time but also specifies whether the time should be recomputed first.
 	double totalTime(bool recompute) { if (recompute) computeTotalTimeImplementation(); return totalTime_; }
+	/// Returns the current total points in the scan.
+	double totalPoints() const { return totalPoints_; }
+	/// Returns the starting energy for the scan.
+	double minEnergy() const { return minEnergy_; }
+	/// Returns the end energy for the scan.
+	double maxEnergy() const { return maxEnergy_; }
 	/// Returns the time offset.
 	double timeOffset() const { return timeOffset_; }
 
@@ -122,6 +128,10 @@ public slots:
 protected slots:
 	/// Computes the total time any time the regions list changes.
 	void computeTotalTime() { computeTotalTimeImplementation(); }
+	/// Helper slot that connects the new region to the computeTotalTime slot.
+	void onRegionAdded(AMScanAxisRegion *region);
+	/// Helper slot that disconnects the region from the computTotalTime slot.
+	void onRegionRemoved(AMScanAxisRegion *region);
 
 
 protected:
@@ -144,10 +154,17 @@ protected:
 	bool useFixedTime_;
 	/// Holds the number of times this scan should be repeated.
 	int numberOfScans_;
-	/// Holds the total time in seconds that the scan is estimated to take.
-	double totalTime_;
 	/// Holds the offset per point of extra time when doing a scan.
 	double timeOffset_;
+	/// Holds the total time in seconds that the scan is estimated to take.
+	double totalTime_;
+	/// Holds the total number of points in the scan.
+	double totalPoints_;
+	/// Holds the starting energy for the scan.
+	double minEnergy_;
+	/// Holds the finishing energy for the scan.
+	double maxEnergy_;
+
 
 
 

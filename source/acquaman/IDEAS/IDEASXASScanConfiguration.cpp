@@ -4,6 +4,7 @@
 #include "acquaman/IDEAS/IDEASXASScanActionController.h"
 #include "ui/IDEAS/IDEASXASScanConfigurationView.h"
 #include "dataman/AMScanAxisEXAFSRegion.h"
+#include "util/AMEnergyToKSpaceCalculator.h"
 
 IDEASXASScanConfiguration::IDEASXASScanConfiguration(QObject *parent) :
 	AMStepScanConfiguration(parent)
@@ -24,11 +25,24 @@ IDEASXASScanConfiguration::IDEASXASScanConfiguration(QObject *parent) :
 	numberOfScans_ = 1;
 	totalTime_ = 0;
 	timeOffset_ = 0.4;
+	minEnergy_ = 0;
+	maxEnergy_ = 0;
+	totalPoints_ = 0;
 
 
 	AMScanAxisRegion *region = new AMScanAxisEXAFSRegion;
 	AMScanAxis *axis = new AMScanAxis(AMScanAxis::StepAxis, region);
 	appendScanAxis(axis);
+
+	connect(axis, SIGNAL(regionAdded(AMScanAxisRegion*)), this, SLOT(onRegionAdded(AMScanAxisRegion*)));
+	connect(axis, SIGNAL(regionRemoved(AMScanAxisRegion*)), this, SLOT(onRegionRemoved(AMScanAxisRegion*)));
+	connect(region, SIGNAL(regionStartChanged(AMNumber)), this, SLOT(computeTotalTime()));
+	connect(region, SIGNAL(regionStepChanged(AMNumber)), this, SLOT(computeTotalTime()));
+	connect(region, SIGNAL(regionEndChanged(AMNumber)), this, SLOT(computeTotalTime()));
+	connect(region, SIGNAL(regionTimeChanged(AMNumber)), this, SLOT(computeTotalTime()));
+	connect(region, SIGNAL(maximumTimeChanged(AMNumber)), this, SLOT(computeTotalTime()));
+	connect(region, SIGNAL(equationChanged(AMVariableIntegrationTime::Equation)), this, SLOT(computeTotalTime()));
+
 	computeTotalTime();
 }
 
@@ -48,13 +62,31 @@ IDEASXASScanConfiguration::IDEASXASScanConfiguration(const IDEASXASScanConfigura
 
 
 
+
 	edge_ = original.edge();
 	energy_ = original.energy();
 	useFixedTime_ = original.useFixedTime();
 	numberOfScans_ = original.numberOfScans();
+	minEnergy_ = original.minEnergy();
+	maxEnergy_ = original.maxEnergy();
+	totalPoints_ = original.totalPoints();
+
 
 	computeTotalTime();
 
+	connect(scanAxisAt(0), SIGNAL(regionAdded(AMScanAxisRegion*)), this, SLOT(onRegionAdded(AMScanAxisRegion*)));
+	connect(scanAxisAt(0), SIGNAL(regionRemoved(AMScanAxisRegion*)), this, SLOT(onRegionRemoved(AMScanAxisRegion*)));
+
+	foreach (AMScanAxisRegion *region, scanAxisAt(0)->regions().toList()){
+
+		AMScanAxisEXAFSRegion *exafsRegion = qobject_cast<AMScanAxisEXAFSRegion *>(region);
+		connect(exafsRegion, SIGNAL(regionStartChanged(AMNumber)), this, SLOT(computeTotalTime()));
+		connect(exafsRegion, SIGNAL(regionStepChanged(AMNumber)), this, SLOT(computeTotalTime()));
+		connect(exafsRegion, SIGNAL(regionEndChanged(AMNumber)), this, SLOT(computeTotalTime()));
+		connect(exafsRegion, SIGNAL(regionTimeChanged(AMNumber)), this, SLOT(computeTotalTime()));
+		connect(exafsRegion, SIGNAL(maximumTimeChanged(AMNumber)), this, SLOT(computeTotalTime()));
+		connect(exafsRegion, SIGNAL(equationChanged(AMVariableIntegrationTime::Equation)), this, SLOT(computeTotalTime()));
+	}
 
 }
 
@@ -95,24 +127,30 @@ QString IDEASXASScanConfiguration::headerText() const
 void IDEASXASScanConfiguration::computeTotalTimeImplementation()
 {
     double time = 0;
+    totalPoints_ = 0;
 
     // Some region stuff.
+    minEnergy_ = scanAxisAt(0)->regionAt(0)->regionStart();
     foreach (AMScanAxisRegion *region, scanAxisAt(0)->regions().toList()){
 
 	    AMScanAxisEXAFSRegion *exafsRegion = qobject_cast<AMScanAxisEXAFSRegion *>(region);
 	    int numberOfPoints = int((double(exafsRegion->regionEnd()) - double(exafsRegion->regionStart()))/double(exafsRegion->regionStep()) + 1);
+	    totalPoints_ += numberOfPoints;
 	    if (exafsRegion->inKSpace() && exafsRegion->maximumTime().isValid()){
 
+		    maxEnergy_ = AMEnergyToKSpaceCalculator::energy(energy_, exafsRegion->regionEnd());
 		    QVector<double> regionTimes = QVector<double>(numberOfPoints);
 		    AMVariableIntegrationTime calculator(exafsRegion->equation(), exafsRegion->regionTime(), exafsRegion->maximumTime(), exafsRegion->regionStart(), exafsRegion->regionStep(), exafsRegion->regionEnd(), exafsRegion->a2());
 		    calculator.variableTime(regionTimes.data());
 
 		    for (int i = 0; i < numberOfPoints; i++)
-			    time += regionTimes.at(i);
+			    time = time + regionTimes.at(i) + 0.54;
 	    }
 
-	    else
-		    time += double(exafsRegion->regionTime())*numberOfPoints;
+	    else{
+		maxEnergy_ = exafsRegion->regionEnd();
+		time += (0.54 + double(exafsRegion->regionTime()))*numberOfPoints;
+	    }
     }
 
     totalTime_ = time + 27; // There is a 27 second miscellaneous startup delay.
@@ -164,4 +202,26 @@ void IDEASXASScanConfiguration::setNumberOfScans(int num)
 		emit numberOfScansChanged(numberOfScans_);
 		setModified(true);
 	}
+}
+
+void IDEASXASScanConfiguration::onRegionAdded(AMScanAxisRegion *region)
+{
+	AMScanAxisEXAFSRegion *exafsRegion = qobject_cast<AMScanAxisEXAFSRegion *>(region);
+
+	if (exafsRegion){
+
+		connect(exafsRegion, SIGNAL(regionStartChanged(AMNumber)), this, SLOT(computeTotalTime()));
+		connect(exafsRegion, SIGNAL(regionStepChanged(AMNumber)), this, SLOT(computeTotalTime()));
+		connect(exafsRegion, SIGNAL(regionEndChanged(AMNumber)), this, SLOT(computeTotalTime()));
+		connect(exafsRegion, SIGNAL(regionTimeChanged(AMNumber)), this, SLOT(computeTotalTime()));
+		connect(exafsRegion, SIGNAL(maximumTimeChanged(AMNumber)), this, SLOT(computeTotalTime()));
+		connect(exafsRegion, SIGNAL(equationChanged(AMVariableIntegrationTime::Equation)), this, SLOT(computeTotalTime()));
+		computeTotalTime();
+	}
+}
+
+void IDEASXASScanConfiguration::onRegionRemoved(AMScanAxisRegion *region)
+{
+	region->disconnect(this);
+	computeTotalTime();
 }

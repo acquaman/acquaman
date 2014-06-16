@@ -28,6 +28,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/CLS/CLSSIS3820ScalerSADetector.h"
 #include "beamline/CLS/CLSBasicScalerChannelDetector.h"
 #include "beamline/CLS/CLSSIS3820Scaler.h"
+#include "beamline/CLS/CLSSR570.h"
+
 
 #include <QApplication>
 #include <QDebug>
@@ -77,10 +79,20 @@ REIXSBeamline::REIXSBeamline() :
 	mcpDetector_ = new REIXSXESMCPDetector(this);
 
 	scaler_ = new CLSSIS3820Scaler("BL1610-ID-2:mcs", this);
+
 	scaler_->channelAt(3)->setCustomChannelName("PFY");
+
 	scaler_->channelAt(4)->setCustomChannelName("TFY");
+
 	scaler_->channelAt(18)->setCustomChannelName("TEY");
+	CLSSR570 *tempSR570 = new CLSSR570("TEY", "AMP1610-4-03:sens_num.VAL", "AMP1610-4-03:sens_unit.VAL", this);
+	scaler_->channelAt(18)->setCurrentAmplifier(tempSR570);
+	scaler_->channelAt(18)->setVoltagRange(AMRange(0.25, 4.75));
+
 	scaler_->channelAt(16)->setCustomChannelName("I0");
+	tempSR570 = new CLSSR570("I0", "AMP1610-4-02:sens_num.VAL", "AMP1610-4-02:sens_unit.VAL", this);
+	scaler_->channelAt(16)->setCurrentAmplifier(tempSR570);
+	scaler_->channelAt(16)->setVoltagRange(AMRange(0.25, 4.75));
 
 	i0Detector_ = new CLSBasicScalerChannelDetector("I0", "I0", scaler_, 16, this);
 	teyDetector_ = new CLSBasicScalerChannelDetector("TEY", "TEY", scaler_, 18, this);

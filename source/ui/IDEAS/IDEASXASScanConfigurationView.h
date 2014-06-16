@@ -65,6 +65,11 @@ protected:
 	QLabel *estimatedTime_;
 	/// Label holding the current estimated time for the set of scans to complete.
 	QLabel *estimatedSetTime_;
+	/// Label holding the current number of points in a scan.
+	QLabel *pointPerScan_;
+	/// Label holding the energy space scan range.
+	QLabel *scanEnergyRange_;
+
 
 
 

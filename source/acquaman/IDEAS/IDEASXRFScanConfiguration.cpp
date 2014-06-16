@@ -10,6 +10,8 @@ IDEASXRFScanConfiguration::IDEASXRFScanConfiguration(AMDetectorInfo detectorInfo
 	scanName_ = "XRF Scan";
 	scanNumber_ = 0;
 	scanNotes_ = "";
+	positions_.clear();
+
 }
 
 IDEASXRFScanConfiguration::IDEASXRFScanConfiguration(QObject *parent)

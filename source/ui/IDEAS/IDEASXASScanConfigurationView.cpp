@@ -74,8 +74,25 @@ IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfigu
 		lineChoice_->setCurrentIndex(0);
 	}
 	// Resets the view for the view to what it should be.  Using the saved for the energy in case it is different from the original line energy.
-	else
-		onEdgeChanged();
+	else {
+		//onEdgeChanged(); //Breaks custom energy set points
+		elementChoice_->setText(configuration_->edge().split(" ").first());
+		lineChoice_->blockSignals(true);
+		fillLinesComboBox(AMPeriodicTable::table()->elementBySymbol(elementChoice_->text()));
+		lineChoice_->setCurrentIndex(lineChoice_->findText(configuration_->edge(), Qt::MatchStartsWith | Qt::MatchCaseSensitive));
+		lineChoice_->blockSignals(false);
+		energy_->setValue(configuration_->energy());
+	}
+
+	estimatedTime_ = new QLabel;
+	estimatedSetTime_ = new QLabel;
+	pointPerScan_ = new QLabel;
+	scanEnergyRange_ = new QLabel;
+	connect(configuration_, SIGNAL(totalTimeChanged(double)), this, SLOT(onEstimatedTimeChanged()));
+	connect(configuration_, SIGNAL(scanAxisAdded(AMScanAxis*)), this, SLOT(onEstimatedTimeChanged()));
+	connect(configuration_, SIGNAL(scanAxisRemoved(AMScanAxis*)), this, SLOT(onEstimatedTimeChanged()));
+	connect(configuration_, SIGNAL(modifiedChanged(bool)), this, SLOT(onEstimatedTimeChanged()));
+	connect(configuration_, SIGNAL(configurationChanged()), this, SLOT(onEstimatedTimeChanged()));
 
 	connect(configuration_, SIGNAL(edgeChanged(QString)), this, SLOT(onEdgeChanged()));
 
@@ -88,6 +105,11 @@ IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfigu
 
 	QFormLayout *numberOfScansLayout = new QFormLayout;
 	numberOfScansLayout->addRow("Number of Scans:", numberOfScans);
+	numberOfScansLayout->addRow("", estimatedTime_);
+	numberOfScansLayout->addRow("", estimatedSetTime_);
+	numberOfScansLayout->addRow("", pointPerScan_);
+	numberOfScansLayout->addRow("", scanEnergyRange_);
+
 
 	QFormLayout *energySetpointLayout = new QFormLayout;
 	energySetpointLayout->addRow("Energy:", energy_);
@@ -280,7 +302,6 @@ void IDEASXASScanConfigurationView::setupDefaultEXAFSScanRegions()
     region->setRegionTime(1.0);
     region->setMaximumTime(10.0);
     regionsView_->insertEXAFSRegion(2, region);
-
 }
 
 void IDEASXASScanConfigurationView::onScanNameEdited()
@@ -333,12 +354,12 @@ void IDEASXASScanConfigurationView::onLinesComboBoxIndexChanged(int index)
 
 	energy_->setValue(lineChoice_->itemData(index).toDouble());
 	setEnergy();
-	configuration_->setEdge(elementChoice_->text()+" "+lineChoice_->itemText(index).split(":").first());
+	configuration_->setEdge(lineChoice_->itemText(index).split(":").first());
 }
 
 void IDEASXASScanConfigurationView::onEdgeChanged()
 {
-	QString currentChoice = elementChoice_->text() % " " % lineChoice_->itemText(lineChoice_->currentIndex()).split(":").first();
+	QString currentChoice = lineChoice_->itemText(lineChoice_->currentIndex()).split(":").first();
 	if (configuration_->edge() == currentChoice)
 		return;
 
@@ -346,7 +367,7 @@ void IDEASXASScanConfigurationView::onEdgeChanged()
 	lineChoice_->blockSignals(true);
 	fillLinesComboBox(AMPeriodicTable::table()->elementBySymbol(elementChoice_->text()));
 	lineChoice_->blockSignals(false);
-	lineChoice_->setCurrentIndex(lineChoice_->findText(configuration_->edge().split(" ").last(), Qt::MatchStartsWith | Qt::MatchCaseSensitive));
+	lineChoice_->setCurrentIndex(lineChoice_->findText(configuration_->edge(), Qt::MatchStartsWith | Qt::MatchCaseSensitive));
 
 	if (energy_->value() != configuration_->energy())
 		energy_->setValue(configuration_->energy());
@@ -354,6 +375,77 @@ void IDEASXASScanConfigurationView::onEdgeChanged()
 
 void IDEASXASScanConfigurationView::onEstimatedTimeChanged()
 {
-//	estimatedTime_->setText("Estimated time per scan:\t" + IDEAS::convertTimeToString(configuration_->totalTime()));
-//	estimatedSetTime_->setText("Estimated time for set:\t" + VESPERS::convertTimeToString(configuration_->totalTime()*configuration_->numberOfScans()));
+    QString timeString = "";
+
+    configuration_->blockSignals(true);
+    double time = configuration_->totalTime(true);
+    configuration_->blockSignals(false);
+
+    pointPerScan_->setText(QString("%1 points per scan").arg(configuration_->totalPoints()));
+    scanEnergyRange_->setText(QString("from %1 to %2 eV").arg(configuration_->minEnergy()).arg(configuration_->maxEnergy()));
+
+    int days = int(time/3600.0/24.0);
+
+    if (days > 0){
+
+	    time -= days*3600.0*24;
+	    timeString += QString::number(days) + "d:";
+    }
+
+    int hours = int(time/3600.0);
+
+    if (hours > 0){
+
+	    time -= hours*3600;
+	    timeString += QString::number(hours) + "h:";
+    }
+
+    int minutes = int(time/60.0);
+
+    if (minutes > 0){
+
+	    time -= minutes*60;
+	    timeString += QString::number(minutes) + "m:";
+    }
+
+    int seconds = ((int)time)%60;
+    timeString += QString::number(seconds) + "s";
+
+    estimatedTime_->setText("Estimated time per scan:\t" + timeString);
+
+
+
+
+    time = configuration_->totalTime()*configuration_->numberOfScans();
+    timeString = "";
+
+    days = int(time/3600.0/24.0);
+
+    if (days > 0){
+
+	    time -= days*3600.0*24;
+	    timeString += QString::number(days) + "d:";
+    }
+
+    hours = int(time/3600.0);
+
+    if (hours > 0){
+
+	    time -= hours*3600;
+	    timeString += QString::number(hours) + "h:";
+    }
+
+    minutes = int(time/60.0);
+
+    if (minutes > 0){
+
+	    time -= minutes*60;
+	    timeString += QString::number(minutes) + "m:";
+    }
+
+    seconds = ((int)time)%60;
+    timeString += QString::number(seconds) + "s";
+
+    estimatedSetTime_->setText("Estimated time for set:\t" + timeString);
+
 }
