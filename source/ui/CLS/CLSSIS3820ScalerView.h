@@ -58,12 +58,14 @@ signals:
 	void outputViewModeChanged(CLSSIS3820ScalerChannelView::OutputViewMode);
 //	/// Notifier that passes along that the SR570 view changed.
 //	void sr570ViewModeChanged(CLSSR570View::ViewMode);
+    void amplifierViewModeChanged(AMCurrentAmplifierView::ViewMode);
 
 public slots:
 	/// Convenience method that sets the output view mode for the channel.
 	void setOutputViewMode(CLSSIS3820ScalerChannelView::OutputViewMode mode);
 //	/// Convenience method that sets the view mode of the SR570.
 //	void setSR570ViewMode(CLSSR570View::ViewMode mode);
+    void setAmplifierViewMode(AMCurrentAmplifierView::ViewMode newMode);
 	/// Sets the visibility for the enable check box.
 	void setEnableCheckBoxVisibility(bool visible);
 	/// Sets the custom name visibility.

@@ -279,15 +279,13 @@ CLSSIS3820ScalerChannelView::CLSSIS3820ScalerChannelView(CLSSIS3820ScalerChannel
 
 	sr570View_ = 0;
 
-    //connect(channel_, SIGNAL(sr570Attached()), this, SLOT(onNewCurrentAmplifierAttached()));
     connect(channel_, SIGNAL(currentAmplifierAttached()), this, SLOT(onNewCurrentAmplifierAttached()));
 
 	if (channel_->currentAmplifier()){
 
         sr570View_ = new AMCurrentAmplifierView(channel_->currentAmplifier(), false, this);
+        connect( sr570View_, SIGNAL(viewModeChanged(AMCurrentAmplifierView::ViewMode)), this, SIGNAL(amplifierViewModeChanged(AMCurrentAmplifierView::ViewMode)) );
 
-//        sr570View_ = new CLSSR570View(qobject_cast<CLSSR570*>(channel_->currentAmplifier()));
-//		connect(sr570View_, SIGNAL(viewModeChanged(CLSSR570View::ViewMode)), this, SIGNAL(sr570ViewModeChanged(CLSSR570View::ViewMode)));
 	}
 
 	scalerOutput_ = new QToolButton;
@@ -374,11 +372,11 @@ void CLSSIS3820ScalerChannelView::onScalerOutputClicked()
 	onReadingChanged();
 }
 
-//void CLSSIS3820ScalerChannelView::setSR570ViewMode(CLSSR570View::ViewMode mode)
-//{
-//	if (channel_->currentAmplifier())
-//		sr570View_->setViewMode(mode);
-//}
+void CLSSIS3820ScalerChannelView::setAmplifierViewMode(AMCurrentAmplifierView::ViewMode newMode)
+{
+    if (channel_->currentAmplifier())
+        sr570View_->setViewMode(newMode);
+}
 
 void CLSSIS3820ScalerChannelView::setOutputViewMode(CLSSIS3820ScalerChannelView::OutputViewMode mode)
 {
