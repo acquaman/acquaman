@@ -93,7 +93,11 @@ bool STRealtimeModelAB::values(const AMnDIndex &indexStart, const AMnDIndex &ind
 
     // set output values to point to the subset of points saved for the data source.
     int totalSize = indexStart.totalPointsTo(indexEnd);
+
+    qDebug() << "Output size : " << totalSize;
+
     outputValues = dataStored_->mid(indexStart.i(), totalSize).data();
+
     return true;
 }
 
@@ -123,8 +127,8 @@ void STRealtimeModelAB::onInputSourceValuesChanged(const AMnDIndex &start, const
     dataStored_->append(newValue);
     qDebug() << "Vector update : " << dataStored_->toList();
 
-    emitValuesChanged(AMnDIndex(), AMnDIndex());
-    emitSizeChanged();
+    emitValuesChanged();
+    emitSizeChanged(0);
 }
 
 void STRealtimeModelAB::onInputSourceStateChanged()
@@ -158,6 +162,8 @@ void STRealtimeModelAB::reviewState()
         setState(AMDataSource::InvalidFlag);
         return;
     }
+
+    qDebug() << "Valid state.";
 
     setState(0);
 }
