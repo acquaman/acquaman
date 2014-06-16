@@ -41,7 +41,6 @@ protected:
 
     MPlotSeriesBasic *ringCurrentSeries1_;
     MPlotSeriesBasic *ringCurrentSeries2_;
-    MPlotSeriesBasic *ringCurrentSeries3_;
 
     MPlotWidget *plotWidget_;
     MPlot *plot_;

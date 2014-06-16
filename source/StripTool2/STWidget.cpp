@@ -24,8 +24,6 @@ STWidget::STWidget(QWidget *parent)
     ringCurrentSeries2_->setModel( new AMDataSourceSeriesData(ringCurrentModel2_), true);
     ringCurrentSeries2_->setDescription("Series 2");
 
-    ringCurrentSeries3_ = new MPlotSeriesBasic();
-
     // create plot and set up axes.
     plot_ = new MPlot();
     plot_->axisBottom()->setAxisNameFont(QFont("Helvetica", 6));
@@ -63,8 +61,8 @@ void STWidget::onRingCurrentValueChanged(double newValue)
 
     ringCurrentModel1_->insertPointBack(dataCount_, newValue);
 
-    if (ringCurrentModel1_->count() > displayCount_)
-        ringCurrentModel1_->removePointFront();
+//    if (ringCurrentModel1_->count() > displayCount_)
+//        ringCurrentModel1_->removePointFront();
 
     dataCount_++;
 }
@@ -72,8 +70,7 @@ void STWidget::onRingCurrentValueChanged(double newValue)
 void STWidget::onRingCurrentConnected(bool isConnected)
 {
     if (isConnected) {
-//        plot_->addItem(ringCurrentSeries1_);
+        plot_->addItem(ringCurrentSeries1_);
         plot_->addItem(ringCurrentSeries2_);
-//        plot_->addItem(ringCurrentSeries3_);
     }
 }
