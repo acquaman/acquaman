@@ -15,6 +15,11 @@ STRealtimeModelAB::~STRealtimeModelAB()
 
 }
 
+QVector<double>* STRealtimeModelAB::dataStored() const
+{
+    return dataStored_;
+}
+
 bool STRealtimeModelAB::areInputDataSourcesAcceptable(const QList<AMDataSource *> &dataSources) const
 {
     // null input is acceptable.
@@ -28,6 +33,8 @@ bool STRealtimeModelAB::areInputDataSourcesAcceptable(const QList<AMDataSource *
     // the data source must have rank zero.
     if (dataSources.at(0)->rank() != 0)
         return false;
+
+    qDebug() << "Data sources okay.";
 
     return true;
 }
@@ -54,7 +61,7 @@ void STRealtimeModelAB::setInputDataSourcesImplementation(const QList<AMDataSour
         axes_[0] = sources_.at(0)->axisInfoAt(0);
         setDescription(QString("Model for %1").arg(sources_.at(0)->name()));
 
-        connect( sources_.at(0)->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)) );
+        connect( sources_.at(0)->signalSource(), SIGNAL(valuesChanged(AMnDIndex, AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex, AMnDIndex)) );
         connect( sources_.at(0)->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()) );
     }
 
@@ -76,8 +83,6 @@ AMNumber STRealtimeModelAB::value(const AMnDIndex &indexes) const
 
     if (indexes.i() < 0 || indexes.i() >= dataStored_->size())
         return AMNumber(AMNumber::OutOfBoundsError);
-
-    qDebug() << "Value requested : " << dataStored_->at(indexes.i());
 
     return dataStored_->at(indexes.i());
 }
@@ -112,9 +117,18 @@ AMNumber STRealtimeModelAB::axisValue(int axisNumber, int index) const
     if (index < 0 || index >= dataStored_->size())
         return AMNumber(AMNumber::OutOfBoundsError);
 
-//    qDebug() << "Axis value : " << index;
-
     return index;
+}
+
+bool STRealtimeModelAB::loadFromDb(AMDatabase *db, int id)
+{
+    bool success = AMDbObject::loadFromDb(db, id);
+
+    if (success) {
+        AMDataSource::name_ = AMDbObject::name();
+    }
+
+    return success;
 }
 
 void STRealtimeModelAB::onInputSourceValuesChanged(const AMnDIndex &start, const AMnDIndex &end)
@@ -129,6 +143,7 @@ void STRealtimeModelAB::onInputSourceValuesChanged(const AMnDIndex &start, const
     dataStored_->append(newValue);
     qDebug() << "Vector update : " << dataStored_->toList();
 
+    // update the axes info for this data source to reflect the (possibly) new number of points to plot.
     axes_[0] = AMAxisInfo(sources_.at(0)->name(), dataStored_->size());
 
     emitValuesChanged();
