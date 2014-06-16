@@ -27,7 +27,7 @@ IDEASScalerView::IDEASScalerView(QWidget *parent)
 		view->setEnableCheckBoxVisibility(false);
 		singleViews_ << view;
 		view->setFixedHeight(55);
-//		connect(view, SIGNAL(sr570ViewModeChanged(CLSSR570View::ViewMode)), this, SLOT(onSR570ViewChanged(CLSSR570View::ViewMode)));
+        connect(view, SIGNAL(amplifierViewModeChanged(AMCurrentAmplifierView::ViewMode)), this, SLOT(onSR570ViewChanged(AMCurrentAmplifier::ViewMode)) );
 		connect(view, SIGNAL(outputViewModeChanged(CLSSIS3820ScalerChannelView::OutputViewMode)), this, SLOT(onOutputViewModeChanged(CLSSIS3820ScalerChannelView::OutputViewMode)));
 		layout->addWidget(view);
 	}
@@ -35,18 +35,18 @@ IDEASScalerView::IDEASScalerView(QWidget *parent)
 	setLayout(layout);
 }
 
-void IDEASScalerView::onSR570ViewChanged(CLSSR570View::ViewMode mode)
+void IDEASScalerView::onSR570ViewChanged(AMCurrentAmplifierView::ViewMode mode)
 {
 //	compositeView_->blockSignals(true);
 //	compositeView_->setSR570ViewMode((CLSSR570CompositeView::ViewMode)mode);
 //	compositeView_->blockSignals(false);
 
-//	foreach (CLSSIS3820ScalerChannelView *channel, singleViews_){
+    foreach (CLSSIS3820ScalerChannelView *channel, singleViews_){
 
-//		channel->blockSignals(true);
-//		channel->setSR570ViewMode(mode);
-//		channel->blockSignals(false);
-//	}
+        channel->blockSignals(true);
+        channel->setAmplifierViewMode(mode);
+        channel->blockSignals(false);
+    }
 }
 
 void IDEASScalerView::onSR570ViewChanged(CLSSR570CompositeView::ViewMode mode)
@@ -55,12 +55,12 @@ void IDEASScalerView::onSR570ViewChanged(CLSSR570CompositeView::ViewMode mode)
 //	compositeView_->setSR570ViewMode(mode);
 //	compositeView_->blockSignals(false);
 
-//	foreach (CLSSIS3820ScalerChannelView *channel, singleViews_){
+    foreach (CLSSIS3820ScalerChannelView *channel, singleViews_){
 
-//		channel->blockSignals(true);
-//		channel->setSR570ViewMode((CLSSR570View::ViewMode)mode);
-//		channel->blockSignals(false);
-//	}
+        channel->blockSignals(true);
+        channel->setAmplifierViewMode((AMCurrentAmplifierView::ViewMode)mode);
+        channel->blockSignals(false);
+    }
 }
 
 void IDEASScalerView::onOutputViewModeChanged(CLSSIS3820CompositeScalerChannelView::OutputViewMode mode)
