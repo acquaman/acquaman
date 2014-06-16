@@ -166,6 +166,9 @@ bool SGMAppController::startup() {
 	qDebug() << "Description:" << AMBuildReporter::buildReporter()->buildInfo()->describeName();
 	qDebug() << "Date:" << AMBuildReporter::buildReporter()->buildInfo()->commitDate();
 
+	if(AMBuildReporter::buildReporter()->buildInfo()->branchName() != "SGM_Release")
+		QMessageBox::warning(0, "Deployment Warning", QString("Acquaman has detected that this application has been deployed from the wrong branch (%1).\nPlease contact David Chevrier immediately for assistance.").arg(AMBuildReporter::buildReporter()->buildInfo()->branchName()), QMessageBox::Ok, QMessageBox::NoButton);
+
 	SGMSettings::s()->load();
 
 	// Run all of the Acquaman App startup routines. Some of these are reimplemented in this class.

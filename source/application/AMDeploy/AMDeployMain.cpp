@@ -29,10 +29,10 @@ int main(int argc, char *argv[])
 	coreApp.setApplicationName("Deploy Acquaman");
 
 	QStringList arguments = coreApp.arguments();
-	if(arguments.count() < 2)
+	if(arguments.count() < 3)
 		return -1;
 
-	AMDeploy *deployment = new AMDeploy(arguments.at(1));
+	AMDeploy *deployment = new AMDeploy(arguments.at(1), arguments.at(2));
 	Q_UNUSED(deployment)
 
 	return coreApp.exec();

@@ -7,11 +7,11 @@
 
 #include <QDebug>
 
-AMDeploy::AMDeploy(const QString &workingDirectory, QObject *parent) :
+AMDeploy::AMDeploy(const QString &workingDirectory, const QString &projectFile, QObject *parent) :
 	QObject(parent)
 {
 	workingDirectory_ = workingDirectory;
-
+	projectFile_ = projectFile;
 
 	bool foundExclusion = false;
 	QFile gitExcludeFile(QString("%1/.git/info/exclude").arg(workingDirectory_));
@@ -251,7 +251,7 @@ void AMDeploy::onQMakeVersionProcessFinished(int status){
 		qmakeProcess_ = new QProcess();
 		QString program = "qmake";
 		QStringList arguments;
-		arguments << "sgm_beamline.pro" << "-r";
+		arguments << projectFile_ << "-r";
 		#ifdef Q_WS_MAC
 		arguments << "-spec" << "unsupported/macx-clang" << "CONFIG+=x86_64";
 		#endif
