@@ -34,6 +34,7 @@ protected slots:
 	void onScanNumberChanged(int number);
 	void onPeakingTimeBoxChanged(const QString &arg1);
 	void onAcquisitionSucceeded();
+	void onKETEKPeakingTimeChanged();
 
 protected:
 	/// Method that builds the Scan Save Button and associated things.

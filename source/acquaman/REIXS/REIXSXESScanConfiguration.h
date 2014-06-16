@@ -61,9 +61,15 @@ public:
 	REIXSXESScanConfiguration(const REIXSXESScanConfiguration &original);
 	virtual ~REIXSXESScanConfiguration();
 
+	/// The auto-generated scan name. Can be re-implemented to customize for each scan type.
+	virtual QString autoScanName() const { return "XES"; }
+
+	/// A human-readable description of this scan configuration. Used by scan action to set the title for the action view.
 	virtual QString description() const;
 
-	virtual QString autoScanName() const { return "XES"; }
+	/// A human-readable synopsis of this scan configuration.  Used by scan action to set the main text in the action view.
+	virtual QString detailedDescription() const { return "XRay Emission Scan"; }
+
 
 	/// The number of the grating to use for this scan
 	int gratingNumber() const { return gratingNumber_; }

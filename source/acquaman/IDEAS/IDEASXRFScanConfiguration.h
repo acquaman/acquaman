@@ -2,6 +2,8 @@
 #define IDEASXRFSCANCONFIGURATION_H
 
 #include "acquaman/AMScanConfiguration.h"
+#include "dataman/info/AMControlInfoList.h"
+
 #include <QDebug>
 
 class IDEASXRFScanConfiguration : public AMScanConfiguration
@@ -50,6 +52,8 @@ public:
 	QString scanName() const { return scanName_; }
 	/// Returns the scan number
 	int scanNumber() const { return scanNumber_; }
+	/// Returns initial positions
+	AMControlInfoList positions() const { return positions_; }
 
 
 public slots:
@@ -68,6 +72,11 @@ public slots:
 	void setScanName(QString name)  {  scanName_ = name; }
 	/// Sets the scan number
 	void setScanNumber(int number)  {  scanNumber_ = number;}
+
+	/// sets initial positions
+	void setPositions(AMControlInfoList positions) { positions_ = positions; }
+
+
 
 
 
@@ -94,6 +103,8 @@ protected:
 	QString scanName_;
 	/// the scan number
 	int scanNumber_;
+	/// Beamline conditions at the time a scan is started
+	AMControlInfoList positions_;
 
 };
 
