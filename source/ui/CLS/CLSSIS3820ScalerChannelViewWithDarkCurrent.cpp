@@ -57,7 +57,6 @@ void CLSSIS3820ScalerChannelViewWithDarkCurrent::setDarkCurrentViewMode(DarkCurr
         emit darkCurrentViewModeChanged(darkCurrentViewMode_);
 
     } else {
-        qDebug() << "Unknown dark current view mode encountered. Setting view mode to 'Hide'.";
         setDarkCurrentViewMode(Hide);
     }
 }
@@ -66,7 +65,6 @@ void CLSSIS3820ScalerChannelViewWithDarkCurrent::setDarkCurrentViewMode(DarkCurr
 
 void CLSSIS3820ScalerChannelViewWithDarkCurrent::onNewDarkCurrentMeasurementValue(double newValue)
 {
-    qDebug() << "CLSSIS3820ScalerChannelView receives new dark current measurement value : " << newValue;
     setDarkCurrentValueLabel(newValue);
 }
 
@@ -74,8 +72,6 @@ void CLSSIS3820ScalerChannelViewWithDarkCurrent::onNewDarkCurrentMeasurementValu
 
 void CLSSIS3820ScalerChannelViewWithDarkCurrent::onNewDarkCurrentMeasurementState(bool measurementUpToDate)
 {
-    qDebug() << "CLSSIS3820ScalerChannelView receives new dark current required status : " << measurementUpToDate;
-
     if (measurementUpToDate)
         darkCurrentValueLabel_->setStyleSheet("color: blue;");
 

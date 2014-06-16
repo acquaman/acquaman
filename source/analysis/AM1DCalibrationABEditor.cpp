@@ -112,6 +112,7 @@ void AM1DCalibrationABEditor::onEnergyCalibrationOffsetChanged(double offset)
 		return;
 
 	analysisBlock_->setEnergyCalibrationOffset(offset);
+	applyToAllSources();
 
 }
 
