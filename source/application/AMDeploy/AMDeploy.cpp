@@ -251,7 +251,7 @@ void AMDeploy::onQMakeVersionProcessFinished(int status){
 		qmakeProcess_ = new QProcess();
 		QString program = "qmake";
 		QStringList arguments;
-		arguments << "acquaman_suite.pro" << "-r";
+		arguments << "sgm_beamline.pro" << "-r";
 		#ifdef Q_WS_MAC
 		arguments << "-spec" << "unsupported/macx-clang" << "CONFIG+=x86_64";
 		#endif
