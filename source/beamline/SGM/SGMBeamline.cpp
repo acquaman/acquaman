@@ -32,6 +32,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "acquaman/SGM/SGMXASScanConfiguration.h"
 #include "acquaman/SGM/SGMFastScanConfiguration.h"
+#include "acquaman/SGM/SGMFastScanConfiguration2013.h"
 #include "actions3/actions/AMScanAction.h"
 
 #include "beamline/AMMotorGroup.h"
@@ -377,6 +378,10 @@ AMAction3::ActionValidity SGMBeamline::validateAction(AMAction3 *action){
 		SGMFastScanConfiguration *oldFastScanConfiguration = qobject_cast<SGMFastScanConfiguration*>(scanActionInfo->config());
 		if(oldXASScanConfiguration || oldFastScanConfiguration)
 			return AMAction3::ActionNeverValid;
+		SGMFastScanConfiguration2013 *currentFastScanConfiguration = qobject_cast<SGMFastScanConfiguration2013*>(scanActionInfo->config());
+		if(currentFastScanConfiguration && qFuzzyIsNull(undulatorForcedOpen_->value() - 1.0))
+			return AMAction3::ActionNotCurrentlyValid;
+
 	}
 
 	return AMAction3::ActionCurrentlyValid;
@@ -392,6 +397,9 @@ QString SGMBeamline::validateActionMessage(AMAction3 *action){
 			return QString("The SGM Beamline no longer supports this type of XAS Scan configuration. While you may inspect the configuration you cannot run it. Please transfer these settings to a new scan configuration.");
 		if(oldFastScanConfiguration)
 			return QString("The SGM Beamline no longer supports this type of Fast Scan configuration. While you may inspect the configuration you cannot run it. Please transfer these settings to a new scan configuration.");
+		SGMFastScanConfiguration2013 *currentFastScanConfiguration = qobject_cast<SGMFastScanConfiguration2013*>(scanActionInfo->config());
+		if(currentFastScanConfiguration && qFuzzyIsNull(undulatorForcedOpen_->value() - 1.0))
+			return QString("The Undulator has been forced open, and as such running a Fast Scan is not currently possible.");
 	}
 
 	return QString("Action is Currently Valid");
@@ -1092,6 +1100,7 @@ void SGMBeamline::setupControls(){
 	m3HorizontalDownstreamEncoder_ = new AMReadOnlyPVControl("m3HorizontalDownstreamEncoder", "SMTR16113I1018:enc:fbk", this);
 	m3RotationalEncoder_ = new AMReadOnlyPVControl("m3RotationalEncoder", "SMTR16113I1019:encod:fbk", this);
 
+	undulatorForcedOpen_ = new AMReadOnlyPVControl("UndulatorForcedOpen", "UND1411-01:openID", this);
 
 	if(amNames2pvNames_.lookupFailed())
 		AMErrorMon::alert(this, SGMBEAMLINE_PV_NAME_LOOKUPS_FAILED, "PV Name lookups in the SGM Beamline failed");
