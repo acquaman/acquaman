@@ -135,24 +135,39 @@ void AMCurrentAmplifierView::onPlusClicked()
 void AMCurrentAmplifierView::onCustomContextMenuRequested(QPoint position)
 {
     // only show the menu if there is a valid amplifier and that amplifier supports multiple view options.
+
+    QMenu menu(this);
+
+    QAction *basic = menu.addAction("Basic view");
+    basic->setDisabled(mode_ == Basic);
+
+    QAction *advanced = menu.addAction("Advanced view");
+    advanced->setDisabled(mode_ == Advanced);
+
     if (amplifier_ && amplifier_->supportsGainMode() && amplifier_->supportsSensitivityMode()) {
-        QMenu menu(this);
+        menu.addSeparator();
 
         QAction *gain = menu.addAction("Gain view");
-        gain->setDisabled(amplifier_->inGainMode());
+        gain->setDisabled(mode_ == Basic || amplifier_->inGainMode());
 
         QAction *sensitivity = menu.addAction("Sensitivity view");
-        sensitivity->setDisabled(amplifier_->inSensitivityMode());
+        sensitivity->setDisabled(mode_ == Basic || amplifier_->inSensitivityMode());
+    }
 
-        QAction *selected = menu.exec(mapToGlobal(position));
+    QAction *selected = menu.exec(mapToGlobal(position));
 
-        if (selected) {
-            if (selected->text() == "Gain view")
-                amplifier_->setAmplifierMode(AMCurrentAmplifier::Gain);
+    if (selected) {
+        if (selected->text() == "Basic view")
+            setViewMode(Basic);
 
-            else if (selected->text() == "Sensitivity view")
-                amplifier_->setAmplifierMode(AMCurrentAmplifier::Sensitivity);
-        }
+        else if (selected->text() == "Advanced view")
+            setViewMode(Advanced);
+
+        else if (selected->text() == "Gain view")
+            amplifier_->setAmplifierMode(AMCurrentAmplifier::Gain);
+
+        else if (selected->text() == "Sensitivity view")
+            amplifier_->setAmplifierMode(AMCurrentAmplifier::Sensitivity);
     }
 }
 
