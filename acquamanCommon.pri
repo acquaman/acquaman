@@ -758,7 +758,8 @@ HEADERS += source/acquaman/AMRegion.h \
 	source/ui/dataman/AMEXAFSScanAxisView.h \
 	source/beamline/CLS/CLSPseudoMotorControl.h \
 	source/ui/AMRegExpLineEdit.h \
-	source/application/AMCrashMonitorSupport.h
+	source/application/AMCrashMonitorSupport.h \
+    source/analysis/AM0DAccumulatorAB.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1237,7 +1238,8 @@ SOURCES += source/acquaman/AMRegion.cpp \
 	source/ui/dataman/AMEXAFSScanAxisView.cpp \
 	source/beamline/CLS/CLSPseudoMotorControl.cpp \
 	source/ui/AMRegExpLineEdit.cpp \
-	source/application/AMCrashMonitorSupport.cpp
+	source/application/AMCrashMonitorSupport.cpp \
+    source/analysis/AM0DAccumulatorAB.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {

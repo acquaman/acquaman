@@ -6,7 +6,7 @@
 #include <QLayout>
 
 #include "beamline/AMPVControl.h"
-#include "source/analysis/AM1DSummingAB.h"
+#include "source/analysis/AM0DAccumulatorAB.h"
 #include "dataman/datasource/AMDataSourceSeriesData.h"
 #include "dataman/datasource/AMProcessVariableDataSource.h"
 
@@ -37,7 +37,7 @@ protected:
     QLabel *ringCurrentLabel_;
 
     MPlotRealtimeModel *ringCurrentModel1_;
-    STRealtimeModelAB *ringCurrentModel2_;
+    AM0DAccumulatorAB *ringCurrentModel2_;
 
     MPlotSeriesBasic *ringCurrentSeries1_;
     MPlotSeriesBasic *ringCurrentSeries2_;

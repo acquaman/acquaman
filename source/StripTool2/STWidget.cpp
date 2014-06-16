@@ -13,7 +13,7 @@ STWidget::STWidget(QWidget *parent)
     connect( ringCurrentControl_, SIGNAL(connected(bool)), this, SLOT(onRingCurrentConnected(bool)) );
 
     ringCurrentModel1_ = new MPlotRealtimeModel();
-    ringCurrentModel2_ = new STRealtimeModelAB("Ring current AB", this);
+    ringCurrentModel2_ = new AM0DAccumulatorAB("Ring current AB", this);
     ringCurrentModel2_->setInputDataSources(QList<AMDataSource*>() << new AM0DProcessVariableDataSource(ringCurrentControl_, "SR1 Current", this));
 
     ringCurrentSeries1_ = new MPlotSeriesBasic();
