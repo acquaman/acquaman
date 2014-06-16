@@ -8,9 +8,6 @@ AMCurrentAmplifierView::AMCurrentAmplifierView(AMCurrentAmplifier *amplifier, bo
     amplifier_ = amplifier;
     connect( amplifier_, SIGNAL(amplifierModeChanged()), this, SLOT(refreshView()) );
     connect( amplifier_, SIGNAL(valueChanged()), this, SLOT(onAmplifierValueChanged()) );
-//    connect( amplifier_, SIGNAL(gainChanged(int)), this, SLOT(onAmplifierValueChanged()) );
-//    connect( amplifier_, SIGNAL(sensitivityChanged(int)), this, SLOT(onAmplifierValueChanged()) );
-//    connect( amplifier_, SIGNAL(unitsChanged(QString)), this, SLOT(onAmplifierValueChanged()) );
 
     QLabel *name = new QLabel(amplifier_->name());
 
@@ -20,20 +17,16 @@ AMCurrentAmplifierView::AMCurrentAmplifierView(AMCurrentAmplifier *amplifier, bo
     connect( minus_, SIGNAL(clicked()), this, SLOT(onMinusClicked()) );
     connect( amplifier_, SIGNAL(minimumValue(bool)), minus_, SLOT(setDisabled(bool)) );
 
-//    connect( amplifier_, SIGNAL(minimumGain(bool)), minus_, SLOT(setDisabled(bool)) );
-//    connect( amplifier_, SIGNAL(minimumSensitivity(bool)), minus_, SLOT(setDisabled(bool)) );
-
     plus_ = new QToolButton();
     plus_->setMaximumSize(25, 25);
     plus_->setIcon(QIcon(":/22x22/list-add.png"));
     connect( plus_, SIGNAL(clicked()), this, SLOT(onPlusClicked()) );
     connect( amplifier_, SIGNAL(maximumValue(bool)), plus_, SLOT(setDisabled(bool)) );
 
-//    connect( amplifier_, SIGNAL(maximumGain(bool)), plus_, SLOT(setDisabled(bool)) );
-//    connect( amplifier_, SIGNAL(maximumSensitivity(bool)), plus_, SLOT(setDisabled(bool)) );
-
     value_ = new QComboBox();
     connect( value_, SIGNAL(currentIndexChanged(QString)), this, SLOT(onValueComboBoxChanged(QString)) );
+
+    setViewMode(Basic);
 
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect( this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)) );
@@ -66,6 +59,31 @@ AMCurrentAmplifier* AMCurrentAmplifierView::currentAmplifier() const
 bool AMCurrentAmplifierView::initialized() const
 {
     return initialized_;
+}
+
+AMCurrentAmplifierView::ViewMode AMCurrentAmplifierView::viewMode() const
+{
+    return mode_;
+}
+
+void AMCurrentAmplifierView::setViewMode(ViewMode newMode)
+{
+    if (newMode != mode_) {
+        mode_ = newMode;
+
+        if (mode_ == Basic) {
+            value_->hide();
+            plus_->show();
+            minus_->show();
+
+        } else {
+            value_->show();
+            plus_->hide();
+            minus_->hide();
+        }
+
+        emit viewModeChanged(mode_);
+    }
 }
 
 void AMCurrentAmplifierView::refreshView()

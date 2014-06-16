@@ -16,17 +16,26 @@ class AMCurrentAmplifierView : public QWidget
     Q_OBJECT
 
 public:
+    /// Simple enum holding whether the view should be either basic or advanced looking.
+    enum ViewMode { Basic = 0, Advanced = 1 };
+
     /// Constructor. Takes in instance of AMCurrentAmplifier.
     explicit AMCurrentAmplifierView(AMCurrentAmplifier *amplifier, bool showName = false, QWidget *parent = 0);
     virtual ~AMCurrentAmplifierView();
 
     /// Returns the pointer to the AMCurrentAmplifier this view is visualizing.
     AMCurrentAmplifier *currentAmplifier() const;
-
     /// Returns boolean indicating whether this view has been initialized.
     bool initialized() const;
+    /// Returns the current view mode.
+    AMCurrentAmplifierView::ViewMode viewMode() const;
+
+signals:
+    void viewModeChanged(AMCurrentAmplifierView::ViewMode newMode);
 
 public slots:
+    /// Sets the view mode.
+    void setViewMode(ViewMode newMode);
     /// Clears and resets view widgets.
     void refreshView();
 
@@ -55,6 +64,8 @@ protected:
     bool initialized_;
     /// The pointer to the current amplifier this view manages.
     AMCurrentAmplifier *amplifier_;
+    /// Flag holding whether or not the view is basic or advanced.
+    ViewMode mode_;
     /// Combo box holding the available options for amplifier value.
     QComboBox *value_;
     /// The tool button for the minus button.
