@@ -30,10 +30,12 @@ STWidget::STWidget(QWidget *parent)
     plot_ = new MPlot();
     plot_->axisBottom()->setAxisNameFont(QFont("Helvetica", 6));
     plot_->axisBottom()->setTickLabelFont(QFont("Helvetica", 6));
-    plot_->axisBottom()->setAxisName("X");
+    plot_->axisBottom()->setAxisName("Counts");
     plot_->axisLeft()->setAxisNameFont(QFont("Helvetica", 6));
     plot_->axisLeft()->setTickLabelFont(QFont("Helvetica", 6));
-    plot_->axisLeft()->setAxisName("Y");
+    plot_->axisLeft()->setAxisName("Storage ring current [mA]");
+
+    plot_->axisScaleLeft()->setAutoScaleEnabled();
 
     // create plot window
     plotWidget_ = new MPlotWidget(this);
