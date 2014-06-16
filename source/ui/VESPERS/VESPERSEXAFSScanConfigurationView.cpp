@@ -47,10 +47,10 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	regionsView_ = new AMEXAFSScanAxisView("XAS Region Configuration", configuration_);
 
 	// The fluorescence detector setup
-	QGroupBox *fluorescenceDetectorGroupBox = addFluorescenceDetectorSelectionView();
-	connect(fluorescenceButtonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(onFluorescenceChoiceChanged(int)));
+	QComboBox *fluorescenceDetectorComboBox  = createFluorescenceComboBox();
+	connect(fluorescenceDetectorComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onFluorescenceChoiceChanged(int)));
 	connect(configuration_->dbObject(), SIGNAL(fluorescenceDetectorChanged(int)), this, SLOT(updateFluorescenceDetector(int)));
-	fluorescenceButtonGroup_->button((int)configuration_->fluorescenceDetector())->setChecked(true);
+	fluorescenceDetectorComboBox->setCurrentIndex((int)configuration_->fluorescenceDetector());
 
 	// Ion chamber selection
 	QGroupBox *ItGroupBox = addItSelectionView();
@@ -194,7 +194,7 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	// Setting up the layout.
 	QGridLayout *contentsLayout = new QGridLayout;
 	contentsLayout->addWidget(regionsView_, 1, 1, 2, 2);
-	contentsLayout->addWidget(fluorescenceDetectorGroupBox, 1, 3);
+	contentsLayout->addWidget(fluorescenceDetectorComboBox, 1, 3);
 	contentsLayout->addLayout(scanNameLayout, 4, 1);
 	contentsLayout->addLayout(energyLayout, 0, 1, 1, 3);
 	contentsLayout->addWidget(goToPositionGroupBox, 4, 3, 4, 1);

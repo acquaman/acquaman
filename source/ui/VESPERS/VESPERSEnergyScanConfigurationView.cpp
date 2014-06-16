@@ -45,13 +45,10 @@ VESPERSEnergyScanConfigurationView::VESPERSEnergyScanConfigurationView(VESPERSEn
 	AMStepScanAxisView *regionsView = new AMStepScanAxisView("Energy Region Configuration", configuration_);
 
 	// The CCD detector setup.
-	QGroupBox *ccdDetectorGroupBox = addCCDDetectorSelectionView();
-	ccdButtonGroup_->button(int(VESPERS::NoCCD))->setDisabled(true);
-	ccdButtonGroup_->button((int)VESPERS::Roper)->hide();
-	ccdButtonGroup_->button((int)VESPERS::Mar)->hide();
-	connect(ccdButtonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(onCCDDetectorChanged(int)));
+	QComboBox *ccdComboBox = createCCDComboBox();
+	connect(ccdComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onCCDDetectorChanged(int)));
 	connect(configuration_->dbObject(), SIGNAL(ccdDetectorChanged(int)), this, SLOT(updateCCDDetectorButtons(int)));
-	ccdButtonGroup_->button(int(configuration_->ccdDetector()))->setChecked(true);
+	ccdComboBox->setCurrentIndex(int(configuration_->ccdDetector()));
 
 	// CCD label.
 	ccdText_ = new QLabel;
@@ -113,7 +110,7 @@ VESPERSEnergyScanConfigurationView::VESPERSEnergyScanConfigurationView(VESPERSEn
 	QHBoxLayout *topRowLayout = new QHBoxLayout;
 	topRowLayout->addStretch();
 	topRowLayout->addWidget(regionsView);
-	topRowLayout->addWidget(ccdDetectorGroupBox);
+	topRowLayout->addWidget(ccdComboBox);
 	topRowLayout->addWidget(goToPositionGroupBox);
 	topRowLayout->addStretch();
 

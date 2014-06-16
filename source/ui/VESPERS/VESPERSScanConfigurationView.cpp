@@ -2,7 +2,8 @@
 
 #include "beamline/VESPERS/VESPERSBeamline.h"
 
- VESPERSScanConfigurationView::~VESPERSScanConfigurationView(){}
+VESPERSScanConfigurationView::~VESPERSScanConfigurationView(){}
+
 VESPERSScanConfigurationView::VESPERSScanConfigurationView(QWidget *parent)
 	: AMScanConfigurationView(parent)
 {
@@ -87,12 +88,12 @@ void VESPERSScanConfigurationView::updateI0Buttons(int I0)
 
 void VESPERSScanConfigurationView::updateFluorescenceDetector(int detector)
 {
-	fluorescenceButtonGroup_->button(detector)->setChecked(true);
+//	fluorescenceButtonGroup_->button(detector)->setChecked(true);
 }
 
 void VESPERSScanConfigurationView::updateCCDDetectorButtons(int detector)
 {
-	ccdButtonGroup_->button(detector)->setChecked(true);
+//	ccdButtonGroup_->button(detector)->setChecked(true);
 }
 
 void VESPERSScanConfigurationView::updateMotor(int choice)
@@ -203,54 +204,26 @@ void VESPERSScanConfigurationView::updateAndSetRoiTextBox(int xrfId)
 //	}
 }
 
-QGroupBox *VESPERSScanConfigurationView::addFluorescenceDetectorSelectionView()
+QComboBox *VESPERSScanConfigurationView::createFluorescenceComboBox()
 {
-	fluorescenceButtonGroup_ = new QButtonGroup;
-	QRadioButton *tempButton;
-	QVBoxLayout *fluorescenceDetectorLayout = new QVBoxLayout;
+	QComboBox *newComboBox = new QComboBox;
+	newComboBox->insertItem(0, "None");
+	newComboBox->insertItem(1, "Single Element Vortex");
+	newComboBox->insertItem(2, "Four Element Vortex");
+	newComboBox->insertItem(3, "Single & Four");
 
-	tempButton = new QRadioButton("None");
-	fluorescenceButtonGroup_->addButton(tempButton, 0);
-	fluorescenceDetectorLayout->addWidget(tempButton);
-	tempButton = new QRadioButton("Single Element Vortex");
-	fluorescenceButtonGroup_->addButton(tempButton, 1);
-	fluorescenceDetectorLayout->addWidget(tempButton);
-	tempButton = new QRadioButton("Four Element Vortex");
-	fluorescenceButtonGroup_->addButton(tempButton, 2);
-	fluorescenceDetectorLayout->addWidget(tempButton);
-	tempButton = new QRadioButton("Single && Four");
-	fluorescenceButtonGroup_->addButton(tempButton, 3);	// 3 is SingleElement | FourElement
-	fluorescenceDetectorLayout->addWidget(tempButton);
-
-	QGroupBox *fluorescenceDetectorGroupBox = new QGroupBox("Fluorescence Detector");
-	fluorescenceDetectorGroupBox->setLayout(fluorescenceDetectorLayout);
-
-	return fluorescenceDetectorGroupBox;
+	return newComboBox;
 }
 
-QGroupBox *VESPERSScanConfigurationView::addCCDDetectorSelectionView()
+QComboBox *VESPERSScanConfigurationView::createCCDComboBox()
 {
-	ccdButtonGroup_ = new QButtonGroup;
-	QRadioButton *tempButton;
-	QVBoxLayout *ccdDetectorLayout = new QVBoxLayout;
+	QComboBox *newComboBox = new QComboBox;
+	newComboBox->insertItem(0, "None");
+	newComboBox->insertItem(1, "Roper");
+	newComboBox->insertItem(2, "Mar");
+	newComboBox->insertItem(3, "Pilatus");
 
-	tempButton = new QRadioButton("None");
-	ccdButtonGroup_->addButton(tempButton, 0);
-	ccdDetectorLayout->addWidget(tempButton);
-	tempButton = new QRadioButton("Roper");
-	ccdButtonGroup_->addButton(tempButton, 1);
-	ccdDetectorLayout->addWidget(tempButton);
-	tempButton = new QRadioButton("Mar");
-	ccdButtonGroup_->addButton(tempButton, 2);
-	ccdDetectorLayout->addWidget(tempButton);
-	tempButton = new QRadioButton("Pilatus");
-	ccdButtonGroup_->addButton(tempButton, 4);
-	ccdDetectorLayout->addWidget(tempButton);
-
-	QGroupBox *ccdDetectorGroupBox = new QGroupBox("Area Detector");
-	ccdDetectorGroupBox->setLayout(ccdDetectorLayout);
-
-	return ccdDetectorGroupBox;
+	return newComboBox;
 }
 
 QGroupBox *VESPERSScanConfigurationView::addI0SelectionView()
@@ -279,6 +252,16 @@ QGroupBox *VESPERSScanConfigurationView::addI0SelectionView()
 	return I0GroupBox;
 }
 
+QComboBox *VESPERSScanConfigurationView::createIonChamberComboBox()
+{
+	QComboBox *newComboBox = new QComboBox;
+	newComboBox->insertItem(0, "Isplit");
+	newComboBox->insertItem(1, "Iprekb");
+	newComboBox->insertItem(2, "Imini");
+	newComboBox->insertItem(3, "Ipost");
+
+	return newComboBox;
+}
 QGroupBox *VESPERSScanConfigurationView::addItSelectionView()
 {
 	QRadioButton *tempButton;

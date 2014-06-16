@@ -19,6 +19,7 @@
 #include <QCheckBox>
 #include <QPushButton>
 #include <QMenu>
+#include <QComboBox>
 
 /*! This class is primarily for having helper methods to all of the subclasses for when
 	they build up the varios GUI elements.  Because many of them use the exact same code
@@ -31,8 +32,9 @@ class VESPERSScanConfigurationView : public AMScanConfigurationView
 
 public:
 	/// Constructor.  Passes in the configuraiton that this view will modify.
- 	virtual ~VESPERSScanConfigurationView();
 	VESPERSScanConfigurationView(QWidget *parent = 0);
+	/// Destructor.
+	virtual ~VESPERSScanConfigurationView();
 
 signals:
 	/// Sends out a request that the current detector based on FluorescenceDetector to be configured.  Asks the app controller to change to the detector view.  String will be either "Single Element" or "Four Element".
@@ -61,10 +63,12 @@ protected:
 	/// Figure out the current configuration of the regions of interest and write it out in a readable way.
 	void updateAndSetRoiTextBox(int xrfId);
 
-	/// Add the fluorescenceDetector view.  Returns a pointer to the widget.
-	QGroupBox *addFluorescenceDetectorSelectionView();
-	/// Add the ccdDetector view.  Returns a pointer to the widget.
-	QGroupBox *addCCDDetectorSelectionView();
+	/// Creates a combo box for the fluorescenceDetector enum.  Returns a pointer to the widget.
+	QComboBox *createFluorescenceComboBox();
+	/// Creates a combo box for the CCDDetector enum.  Returns a pointer to the widget.
+	QComboBox *createCCDComboBox();
+	/// Creates a combo box for the I0 selection.  Returns a pointer to the widget.
+	QComboBox *createIonChamberComboBox();
 	/// Add the I0 selection view.  Returns a pointer to the widget.
 	QGroupBox *addI0SelectionView();
 	/// Add the It selection view.  Returns a pointer to the widget.

@@ -119,22 +119,20 @@ VESPERSSpatialLineScanConfigurationView::VESPERSSpatialLineScanConfigurationView
 	timeGroupBox->setLayout(timeBoxLayout);
 
 	// Using the CCD.
-	QGroupBox *ccdBox = addCCDDetectorSelectionView();
-	connect(ccdButtonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(onCCDDetectorChanged(int)));
+	QComboBox *ccdComboBox = createCCDComboBox();
+	connect(ccdComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onCCDDetectorChanged(int)));
 	connect(configuration_->dbObject(), SIGNAL(ccdDetectorChanged(int)), this, SLOT(updateCCDDetectorButtons(int)));
-	ccdButtonGroup_->button(int(configuration_->ccdDetector()))->setChecked(true);
-	ccdButtonGroup_->button((int)VESPERS::Roper)->hide();
-	ccdButtonGroup_->button((int)VESPERS::Mar)->hide();
+	ccdComboBox->setCurrentIndex(int(configuration_->ccdDetector()));
 
 	configureCCDButton_ = new QPushButton(QIcon(":/hammer-wrench.png"), "Configure Area Detector");
 	configureCCDButton_->setEnabled(configuration_->ccdDetector());
 	connect(configureCCDButton_, SIGNAL(clicked()), this, SLOT(onConfigureCCDDetectorClicked()));
 
 	// The fluorescence detector setup
-	QGroupBox *fluorescenceDetectorGroupBox  = addFluorescenceDetectorSelectionView();
-	connect(fluorescenceButtonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(onFluorescenceDetectorChanged(int)));
+	QComboBox *fluorescenceDetectorComboBox  = createFluorescenceComboBox();
+	connect(fluorescenceDetectorComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onFluorescenceChoiceChanged(int)));
 	connect(configuration_->dbObject(), SIGNAL(fluorescenceDetectorChanged(int)), this, SLOT(updateFluorescenceDetector(int)));
-	fluorescenceButtonGroup_->button((int)configuration_->fluorescenceDetector())->setChecked(true);
+	fluorescenceDetectorComboBox->setCurrentIndex((int)configuration_->fluorescenceDetector());
 
 	// Ion chamber selection
 	QGroupBox *ItGroupBox = addItSelectionView();
@@ -212,12 +210,12 @@ VESPERSSpatialLineScanConfigurationView::VESPERSSpatialLineScanConfigurationView
 	QGridLayout *contentsLayout = new QGridLayout;
 	contentsLayout->addWidget(positionsBox, 0, 0, 2, 3);
 	contentsLayout->addWidget(timeGroupBox, 2, 0, 1, 1);
-	contentsLayout->addWidget(ccdBox, 3, 3, 1, 1);
+	contentsLayout->addWidget(ccdComboBox, 3, 3, 1, 1);
 	contentsLayout->addLayout(scanNameLayout, 3, 0, 1, 1);
 	contentsLayout->addWidget(timeOffsetBox, 5, 0, 1, 1);
 	contentsLayout->addWidget(configureCCDButton_, 6, 3, 1, 1);
 	contentsLayout->addWidget(motorSetChoiceBox, 0, 4, 3, 1);
-	contentsLayout->addWidget(fluorescenceDetectorGroupBox, 0, 3, 1, 1);
+	contentsLayout->addWidget(fluorescenceDetectorComboBox, 0, 3, 1, 1);
 	contentsLayout->addLayout(ionChambersLayout, 1, 3, 2, 1);
 	contentsLayout->addWidget(ccdTextBox_, 7, 0, 1, 6);
 	contentsLayout->addWidget(roiTextBox, 0, 6, 3, 3);
