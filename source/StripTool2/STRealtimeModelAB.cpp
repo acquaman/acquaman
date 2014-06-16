@@ -112,6 +112,8 @@ AMNumber STRealtimeModelAB::axisValue(int axisNumber, int index) const
     if (index < 0 || index >= dataStored_->size())
         return AMNumber(AMNumber::OutOfBoundsError);
 
+//    qDebug() << "Axis value : " << index;
+
     return index;
 }
 
