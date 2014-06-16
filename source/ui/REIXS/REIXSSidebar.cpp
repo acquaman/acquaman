@@ -25,6 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/REIXS/REIXSXESSpectrometerControlEditor.h"
 #include "beamline/REIXS/REIXSBeamline.h"
 #include "ui/REIXS/REIXSActionBasedControlEditor.h"
+#include "ui/REIXS/REIXSScalerView.h"
 
 #include "actions3/AMListAction3.h"
 #include "actions3/actions/AMControlMoveAction3.h"
@@ -59,6 +60,15 @@ REIXSSidebar::REIXSSidebar(QWidget *parent) :
 	userEnergyOffestEditor_ = new REIXSActionBasedControlEditor(REIXSBeamline::bl()->photonSource()->userEnergyOffset());
 	ui->beamlineFormLayout->setWidget(2, QFormLayout::FieldRole, userEnergyOffestEditor_);
 
+//	QVBoxLayout *DetectorPanelLayout = new QVBoxLayout;
+
+//	DetectorPanelLayout->addWidget(new REIXSScalerView());
+//	DetectorPanelLayout->addLayout(ui->gridLayout);
+//	ui->gridLayout->addWidget(new REIXSScalerView(),1,1,2,2);
+//	ui->detectorSignalsGroupBox->setLayout(DetectorPanelLayout);
+	ui->verticalLayout->addWidget(new REIXSScalerView());
+
+
 
 
 	// Make connections
@@ -76,8 +86,8 @@ REIXSSidebar::REIXSSidebar(QWidget *parent) :
 	connect(ui->MonoStopButton, SIGNAL(clicked()), this, SLOT(on_MonoStopButton_clicked()));
 
 	connect(REIXSBeamline::bl()->xasDetectors()->TEYFeedback(), SIGNAL(valueChanged(double)), this, SLOT(onTEYCountsChanged(double)));
-	connect(REIXSBeamline::bl()->xasDetectors()->TFYFeedback(), SIGNAL(valueChanged(double)), this, SLOT(onTFYCountsChanged(double)));
-	connect(REIXSBeamline::bl()->xasDetectors()->I0Feedback(), SIGNAL(valueChanged(double)), this, SLOT(onI0CountsChanged(double)));
+//	connect(REIXSBeamline::bl()->xasDetectors()->TFYFeedback(), SIGNAL(valueChanged(double)), this, SLOT(onTFYCountsChanged(double)));
+//	connect(REIXSBeamline::bl()->xasDetectors()->I0Feedback(), SIGNAL(valueChanged(double)), this, SLOT(onI0CountsChanged(double)));
 
 	connect(REIXSBeamline::bl()->photonSource()->ringCurrent(), SIGNAL(valueChanged(double)), this, SLOT(onRingCurrentChanged(double)));
 
@@ -133,11 +143,11 @@ void REIXSSidebar::onBeamOnChanged(bool isOn)
 	}
 }
 
-void REIXSSidebar::onTEYCountsChanged(double counts)
-{
-	ui->signalTEYBar->setValue(int(counts*600./1.e6));
-	ui->signalTEYValue->setText(QString::number(counts, 'e', 2));
-}
+//void REIXSSidebar::onTEYCountsChanged(double counts)
+//{
+//	ui->signalTEYBar->setValue(int(counts*600./1.e6));
+//	ui->signalTEYValue->setText(QString::number(counts, 'e', 2));
+//}
 
 void REIXSSidebar::onTFYCountsChanged(double counts)
 {
@@ -145,11 +155,11 @@ void REIXSSidebar::onTFYCountsChanged(double counts)
 	ui->signalTFYValue->setText(QString::number(counts, 'e', 2));
 }
 
-void REIXSSidebar::onI0CountsChanged(double counts)
-{
-	ui->signalI0Bar->setValue(int(counts*600./1.e6));
-	ui->signalI0Value->setText(QString::number(counts, 'e', 2));
-}
+//void REIXSSidebar::onI0CountsChanged(double counts)
+//{
+//	ui->signalI0Bar->setValue(int(counts*600./1.e6));
+//	ui->signalI0Value->setText(QString::number(counts, 'e', 2));
+//}
 
 void REIXSSidebar::onScalerContinuousButtonToggled(bool on)
 {

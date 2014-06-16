@@ -59,9 +59,9 @@ protected slots:
 
 	/// This could be a little sub-widget:
 	void onMCPCountsPerSecondChanged(double countsPerSecond);
-	void onTEYCountsChanged(double counts);
+//	void onTEYCountsChanged(double counts);
 	void onTFYCountsChanged(double counts);
-	void onI0CountsChanged(double counts);
+//	void onI0CountsChanged(double counts);
 
 	/// Monitors REIXSBeamline::bl()->valvesAndShutters()::beamOnChanged() to light up the "beam on" summary LED.
 	void onBeamOnChanged(bool isOn);
