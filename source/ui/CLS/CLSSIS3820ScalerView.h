@@ -98,7 +98,6 @@ protected:
 	/// Label holding the name of the scaler channel.
 	QLabel *channelName_;
 	/// Holds the SR570, should there be a SR570 bound to this channel.
-//	CLSSR570View *sr570View_;
     AMCurrentAmplifierView *sr570View_;
 	/// Holds the label for the status.
 	QLabel *statusLabel_;
@@ -140,8 +139,8 @@ protected slots:
 	/// Handles setting the number of total scans.
 	void setTotalNumberOfScans();
 
-//	/// Handles switching all the SR570 views to match the most recent change.
-//	void onSR570ViewChanged(CLSSR570View::ViewMode mode);
+    /// Handles switching all the SR570 views to match the most recent change.
+    void onAmplifierViewChanged(AMCurrentAmplifierView::ViewMode mode);
 	/// Handles switching all the output views to match the most recent change.
 	void onOutputViewModeChanged(CLSSIS3820ScalerChannelView::OutputViewMode mode);
 

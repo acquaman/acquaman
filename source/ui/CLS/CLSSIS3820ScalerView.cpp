@@ -237,15 +237,15 @@ void CLSSIS3820ScalerView::setTotalNumberOfScans()
 	scaler_->blockSignals(false);
 }
 
-//void CLSSIS3820ScalerView::onSR570ViewChanged(CLSSR570View::ViewMode mode)
-//{
-//	foreach (CLSSIS3820ScalerChannelView *channel, channelViews_){
+void CLSSIS3820ScalerView::onAmplifierViewChanged(AMCurrentAmplifierView::ViewMode mode)
+{
+    foreach (CLSSIS3820ScalerChannelView *channel, channelViews_){
 
-//		channel->blockSignals(true);
-//		channel->setSR570ViewMode(mode);
-//		channel->blockSignals(false);
-//	}
-//}
+        channel->blockSignals(true);
+        channel->setAmplifierViewMode(mode);
+        channel->blockSignals(false);
+    }
+}
 
 void CLSSIS3820ScalerView::onOutputViewModeChanged(CLSSIS3820ScalerChannelView::OutputViewMode mode)
 {
