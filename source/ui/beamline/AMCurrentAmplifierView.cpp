@@ -1,6 +1,6 @@
 #include "AMCurrentAmplifierView.h"
 
-AMCurrentAmplifierView::AMCurrentAmplifierView(AMCurrentAmplifier *amplifier, bool showName, QWidget *parent) :
+AMCurrentAmplifierView::AMCurrentAmplifierView(AMCurrentAmplifier *amplifier, QWidget *parent) :
     QWidget(parent)
 {
     initialized_ = false;
@@ -9,24 +9,28 @@ AMCurrentAmplifierView::AMCurrentAmplifierView(AMCurrentAmplifier *amplifier, bo
     connect( amplifier_, SIGNAL(amplifierModeChanged()), this, SLOT(refreshView()) );
     connect( amplifier_, SIGNAL(valueChanged()), this, SLOT(onAmplifierValueChanged()) );
 
-    QLabel *name = new QLabel(amplifier_->name());
+    name_ = new QLabel(amplifier_->name());
 
     minus_ = new QToolButton();
+    minus_->show();
     minus_->setMaximumSize(25, 25);
     minus_->setIcon(QIcon(":/22x22/list-remove.png"));
     connect( minus_, SIGNAL(clicked()), this, SLOT(onMinusClicked()) );
     connect( amplifier_, SIGNAL(minimumValue(bool)), minus_, SLOT(setDisabled(bool)) );
 
     plus_ = new QToolButton();
+    plus_->show();
     plus_->setMaximumSize(25, 25);
     plus_->setIcon(QIcon(":/22x22/list-add.png"));
     connect( plus_, SIGNAL(clicked()), this, SLOT(onPlusClicked()) );
     connect( amplifier_, SIGNAL(maximumValue(bool)), plus_, SLOT(setDisabled(bool)) );
 
     value_ = new QComboBox();
+    value_->hide();
     connect( value_, SIGNAL(currentIndexChanged(QString)), this, SLOT(onValueComboBoxChanged(QString)) );
 
     setViewMode(Basic);
+    showName(false);
 
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect( this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)) );
@@ -35,8 +39,7 @@ AMCurrentAmplifierView::AMCurrentAmplifierView(AMCurrentAmplifier *amplifier, bo
 
     QHBoxLayout *layout = new QHBoxLayout();
 
-    if (showName)
-        layout->addWidget(name);
+    layout->addWidget(name_);
     layout->addWidget(minus_);
     layout->addWidget(plus_);
     layout->addWidget(value_);
@@ -83,6 +86,16 @@ void AMCurrentAmplifierView::setViewMode(ViewMode newMode)
         }
 
         emit viewModeChanged(mode_);
+    }
+}
+
+void AMCurrentAmplifierView::showName(bool show)
+{
+    if (show) {
+        name_->show();
+
+    } else {
+        name_->hide();
     }
 }
 
