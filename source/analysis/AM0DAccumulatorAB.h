@@ -19,7 +19,10 @@ public:
     virtual ~AM0DAccumulatorAB();
 
     /// Returns the data stored in this analysis block, for the input data source.
-    QVector<double> *dataStored() const;
+    QVector<double> dataStored() const;
+
+    /// Returns the total number of elements stored.
+    int dataCount() const;
 
     /// Check that the input sources are acceptable. The empty list is always valid. For non-empty list of sources, the list must be of size 1 and the source must have rank 1."
     virtual bool areInputDataSourcesAcceptable(const QList<AMDataSource *> &dataSources) const;
@@ -50,7 +53,7 @@ protected:
 
 protected:
     /// Pointer to the data stored in this analysis block.
-    QVector<double> *dataStored_;
+    QVector<double> dataStored_;
 
 };
 

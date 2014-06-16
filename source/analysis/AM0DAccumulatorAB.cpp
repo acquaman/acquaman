@@ -6,7 +6,7 @@ AM0DAccumulatorAB::AM0DAccumulatorAB(const QString &outputName, QObject *parent)
     axes_ << AMAxisInfo("invalid", 0, "No input data");
     setState(AMDataSource::InvalidFlag);
 
-    dataStored_ = new QVector<double>(0);
+    dataStored_ = QVector<double>();
 }
 
 AM0DAccumulatorAB::~AM0DAccumulatorAB()
@@ -14,9 +14,14 @@ AM0DAccumulatorAB::~AM0DAccumulatorAB()
 
 }
 
-QVector<double>* AM0DAccumulatorAB::dataStored() const
+QVector<double> AM0DAccumulatorAB::dataStored() const
 {
     return dataStored_;
+}
+
+int AM0DAccumulatorAB::dataCount() const
+{
+    return dataStored_.size();
 }
 
 bool AM0DAccumulatorAB::areInputDataSourcesAcceptable(const QList<AMDataSource *> &dataSources) const
@@ -32,8 +37,6 @@ bool AM0DAccumulatorAB::areInputDataSourcesAcceptable(const QList<AMDataSource *
     // the data source must have rank zero.
     if (dataSources.at(0)->rank() != 0)
         return false;
-
-    qDebug() << "Data sources okay.";
 
     return true;
 }
@@ -80,10 +83,10 @@ AMNumber AM0DAccumulatorAB::value(const AMnDIndex &indexes) const
     if (!isValid())
         return AMNumber(AMNumber::InvalidError);
 
-    if (indexes.i() < 0 || indexes.i() >= dataStored_->size())
+    if (indexes.i() < 0 || indexes.i() >= dataStored_.size())
         return AMNumber(AMNumber::OutOfBoundsError);
 
-    return dataStored_->at(indexes.i());
+    return dataStored_.at(indexes.i());
 }
 
 bool AM0DAccumulatorAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
@@ -99,7 +102,7 @@ bool AM0DAccumulatorAB::values(const AMnDIndex &indexStart, const AMnDIndex &ind
 
     // set output values to point to the subset of points saved for the data source.
     int totalSize = indexStart.totalPointsTo(indexEnd);
-    QVector<double> update = dataStored_->mid(indexStart.i(), totalSize);
+    QVector<double> update = dataStored_.mid(indexStart.i(), totalSize);
     outputValues = update.data();
 
     return true;
@@ -113,7 +116,7 @@ AMNumber AM0DAccumulatorAB::axisValue(int axisNumber, int index) const
     if (axisNumber != 0)
         return AMNumber(AMNumber::DimensionError);
 
-    if (index < 0 || index >= dataStored_->size())
+    if (index < 0 || index >= dataStored_.size())
         return AMNumber(AMNumber::OutOfBoundsError);
 
     return index;
@@ -135,15 +138,15 @@ void AM0DAccumulatorAB::onInputSourceValuesChanged(const AMnDIndex &start, const
     Q_UNUSED(start)
     Q_UNUSED(end)
 
-    // update the values stored for this source.
+    // update the values stored for this source. We assume the source is 0D, so the latest value is always recovered with an empty AMnDIndex.
     double newValue = sources_.at(0)->value(AMnDIndex());
     qDebug() << "PV update : " << newValue;
 
-    dataStored_->append(newValue);
-    qDebug() << "Vector update : " << dataStored_->toList();
+    dataStored_.append(newValue);
+    qDebug() << "Vector update : " << dataStored_.toList();
 
     // update the axes info for this data source to reflect the (possibly) new number of points to plot.
-    axes_[0] = AMAxisInfo(sources_.at(0)->name(), dataStored_->size());
+    axes_[0] = AMAxisInfo(sources_.at(0)->name(), dataStored_.size());
 
     emitValuesChanged();
     emitSizeChanged(0);
@@ -180,8 +183,6 @@ void AM0DAccumulatorAB::reviewState()
         setState(AMDataSource::InvalidFlag);
         return;
     }
-
-    qDebug() << "Valid state.";
 
     setState(0);
 }
