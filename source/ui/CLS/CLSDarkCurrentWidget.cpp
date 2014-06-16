@@ -57,7 +57,6 @@ void CLSDarkCurrentWidget::onDarkCurrentButtonClicked()
     double dwellEntered = dwellTimeEntry_->text().toDouble();
 
     if (dwellEntered <= 0) {
-        qDebug() << "CLSDarkCurrentWidget :: the dwellTime_ is less than or equal to zero. Cannot complete dark current measurement.";
         return;
     }
 
