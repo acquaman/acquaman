@@ -12,15 +12,16 @@ STWidget::STWidget(QWidget *parent) : QWidget(parent)
     connect( ringCurrentControl_, SIGNAL(connected(bool)), this, SLOT(onRingCurrentConnected(bool)) );
 
     ringCurrentModel1_ = new MPlotRealtimeModel();
-    ringCurrentModel2_ = new AM0DAccumulatorAB("Ring current AB", this);
-    ringCurrentModel2_->setInputDataSources(QList<AMDataSource*>() << new AM0DProcessVariableDataSource(ringCurrentControl_, "SR1 Current", this));
+    accumulator_ = new AM0DAccumulatorAB("Ring current AB", this);
+    accumulator_->setInputDataSources(QList<AMDataSource*>() << new AM0DProcessVariableDataSource(ringCurrentControl_, "SR1 Current", this));
+    ringCurrentModel2_ = new AMDataSourceSeriesData(accumulator_);
 
     ringCurrentSeries1_ = new MPlotSeriesBasic();
     ringCurrentSeries1_->setModel(ringCurrentModel1_, true);
     ringCurrentSeries1_->setDescription("Series 1");
 
     ringCurrentSeries2_ = new MPlotSeriesBasic();
-    ringCurrentSeries2_->setModel( new AMDataSourceSeriesData(ringCurrentModel2_), true);
+    ringCurrentSeries2_->setModel( ringCurrentModel2_, true);
     ringCurrentSeries2_->setDescription("Series 2");
 
     // create plot and set up axes.
@@ -60,8 +61,8 @@ void STWidget::onRingCurrentValueChanged(double newValue)
 
     ringCurrentModel1_->insertPointBack(dataCount_, newValue);
 
-//    if (ringCurrentModel1_->count() > displayCount_)
-//        ringCurrentModel1_->removePointFront();
+    qDebug() << "Number of counts : " << accumulator_->dataCount();
+    qDebug() << "Latest update : " << (double)accumulator_->value( AMnDIndex(accumulator_->dataCount()) );
 
     dataCount_++;
 }

@@ -35,7 +35,8 @@ protected:
     QLabel *ringCurrentLabel_;
 
     MPlotRealtimeModel *ringCurrentModel1_;
-    AM0DAccumulatorAB *ringCurrentModel2_;
+    AM0DAccumulatorAB *accumulator_;
+    AMDataSourceSeriesData *ringCurrentModel2_;
 
     MPlotSeriesBasic *ringCurrentSeries1_;
     MPlotSeriesBasic *ringCurrentSeries2_;
