@@ -61,8 +61,17 @@ void STWidget::onRingCurrentValueChanged(double newValue)
 
     ringCurrentModel1_->insertPointBack(dataCount_, newValue);
 
-    qDebug() << "Number of counts : " << accumulator_->dataCount();
-    qDebug() << "Latest update : " << (double)accumulator_->value( AMnDIndex(accumulator_->dataCount()) );
+    qDebug() << "\nNumber of counts : " << accumulator_->dataCount();
+
+    if (accumulator_->dataCount() >= 0) {
+        qDebug() << "First update : " << (double)accumulator_->value(AMnDIndex(0));
+
+        qDebug() << "Latest update : " << (double)accumulator_->value( AMnDIndex(accumulator_->dataCount() - 1) );
+
+        QVector<double> vals;
+        accumulator_->values(AMnDIndex(0), AMnDIndex(accumulator_->dataCount() - 1), vals.data());
+        qDebug() << "Total values : " << vals.toList();
+    }
 
     dataCount_++;
 }
