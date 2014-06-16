@@ -10,9 +10,7 @@ TEMPLATE = app
 
 SOURCES +=\
 	source/StripTool2/STWidget.cpp \
-	source/StripTool2/STMain.cpp \
-    source/StripTool2/STRealtimeModelAB.cpp
+	source/StripTool2/STMain.cpp
 
 HEADERS  += \
-	source/StripTool2/STWidget.h \
-    source/StripTool2/STRealtimeModelAB.h
+	source/StripTool2/STWidget.h
