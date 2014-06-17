@@ -22,7 +22,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QVBoxLayout>
 
 #include "beamline/CLS/CLSSIS3820Scaler.h"
-#include "ui/CLS/CLSSR570View.h"
 
 #include "ui/CLS/CLSSIS3820ScalerChannelViewWithDarkCurrent.h"
 #include "ui/CLS/CLSDarkCurrentWidget.h"
