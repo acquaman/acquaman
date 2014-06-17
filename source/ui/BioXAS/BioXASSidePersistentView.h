@@ -5,9 +5,9 @@
 #include <QLayout>
 
 #include "beamline/CLS/CLSKeithley428.h"
-#include "ui/beamline/AMCurrentAmplifierView.h"
 
 class AMExtendedControlEditor;
+class AMCurrentAmplifierView;
 
 class BioXASSidePersistentView : public QWidget
 {
