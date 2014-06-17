@@ -55,8 +55,7 @@ void AM0DAccumulatorAB::setInputDataSourcesImplementation(const QList<AMDataSour
         axes_[0] = AMAxisInfo("invalid", 0, "No input data");
         setDescription("-- No input data --");
 
-    // if data sources are valid, set sources_, axis info, description, and connections.
-    // note that only one data source is necessary.
+    // if data source is valid, set sources_, axis info, description, and connections.
     } else {
 
         sources_ = QList<AMDataSource*>() << dataSources.at(0);
@@ -83,46 +82,36 @@ AMNumber AM0DAccumulatorAB::value(const AMnDIndex &indexes) const
     if (!isValid())
         return AMNumber(AMNumber::InvalidError);
 
-    if (indexes.i() < 0 || indexes.i() >= dataStored_.size())
+    int index = indexes.i();
+
+    if (index < 0 || index >= dataStored_.size())
         return AMNumber(AMNumber::OutOfBoundsError);
 
-    return dataStored_.at(indexes.i());
+    return dataStored_.at(index);
 }
 
 bool AM0DAccumulatorAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
 {
-    int start;
-    int end;
-
-    if (indexStart == AMnDIndex())
-        start = 0;
-    else
-        start = indexStart.i();
-
-    if (indexEnd == AMnDIndex())
-        end = dataStored_.size() - 1;
-    else
-        end = indexEnd.i();
-
     if (indexStart.rank() != 1 || indexEnd.rank() != 1)
         return false;
 
     if (!isValid())
         return false;
 
-    if ((unsigned)indexStart.i() > (unsigned)indexEnd.i())
+    int start = indexStart.i();
+    int end = indexEnd.i();
+
+    if (start > end)
         return false;
 
-    if (indexStart.i() < 0 || indexEnd.i() < 0)
+    if (start < 0 || end < 0)
         return false;
 
-    if (indexStart.i() >= dataStored_.size() || indexEnd.i() >= dataStored_.size())
+    if (start >= dataStored_.size() || end >= dataStored_.size())
         return false;
 
     // set output values to point to the subset of points saved for the data source.
-    int totalSize = indexStart.totalPointsTo(indexEnd);
-    QVector<double> update = dataStored_.mid(start, end - start);
-    outputValues = update.data();
+    outputValues = dataStored_.mid(start, end - start).data();
 
     return true;
 }
@@ -181,7 +170,6 @@ void AM0DAccumulatorAB::reviewState()
         setState(AMDataSource::InvalidFlag);
         return;
     }
-
 
     // is there one data source?
     if (sources_.size() != 1) {

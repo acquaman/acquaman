@@ -52,7 +52,7 @@ protected:
     void reviewState();
 
 protected:
-    /// Pointer to the data stored in this analysis block.
+    /// Data stored in this analysis block.
     QVector<double> dataStored_;
 
 };
