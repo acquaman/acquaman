@@ -169,7 +169,7 @@ AMAction3 *AMEXAFSScanActionControllerAssembler::generateActionTreeForEXAFSStepA
 		if (isFinalRegion){
 
 			AMControlInfo controlLoopMoveInfoSetpoint = axisControl->toInfo();
-			controlLoopMoveInfoSetpoint.setValue(double(exafsRegion->regionEnd()));
+			controlLoopMoveInfoSetpoint.setValue(double(calculator.energy(exafsRegion->regionEnd())));
 			AMControlMoveActionInfo3 *controlMoveInfo = new AMControlMoveActionInfo3(controlLoopMoveInfoSetpoint);
 			controlMoveInfo->setIsRelativeMove(false);
 			AMControlMoveAction3 *controlMove = new AMControlMoveAction3(controlMoveInfo, axisControl);
@@ -239,7 +239,7 @@ AMAction3 *AMEXAFSScanActionControllerAssembler::generateActionTreeForEXAFSStepA
 			regionList->addSubAction(detectorSetDwellList);
 
 			AMControlInfo controlLoopMoveInfoSetpoint = axisControl->toInfo();
-			controlLoopMoveInfoSetpoint.setValue(double(exafsRegion->regionEnd()));
+			controlLoopMoveInfoSetpoint.setValue(double(kCalculator.energy(exafsRegion->regionEnd())));
 			AMControlMoveActionInfo3 *controlMoveInfo = new AMControlMoveActionInfo3(controlLoopMoveInfoSetpoint);
 			controlMoveInfo->setIsRelativeMove(false);
 			AMControlMoveAction3 *controlMove = new AMControlMoveAction3(controlMoveInfo, axisControl);
