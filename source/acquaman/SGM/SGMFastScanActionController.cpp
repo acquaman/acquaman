@@ -119,7 +119,21 @@ void SGMFastScanActionController::onFileWriterIsBusy(bool isBusy){
 	emit readyForDeletion(!fileWriterIsBusy_);
 }
 
+void SGMFastScanActionController::onEverythingFinished(){
+	qDebug() << "Looks like the SGMFastScan is completely done running";
+}
+
 bool SGMFastScanActionController::startImplementation(){
+	if(qFuzzyIsNull(SGMBeamline::sgm()->undulatorForcedOpen()->value() - 1))
+	{
+		this->setFailed();
+		return false;
+	}
+
+	connect(this, SIGNAL(cancelled()), this, SLOT(onEverythingFinished()));
+	connect(this, SIGNAL(finished()), this, SLOT(onEverythingFinished()));
+	connect(this, SIGNAL(failed()), this, SLOT(onEverythingFinished()));
+
 	AMAgnosticDataMessageHandler *dataMessager = AMAgnosticDataAPISupport::handlerFromLookupKey("ScanActions");
 	AMAgnosticDataMessageQEventHandler *scanActionMessager = qobject_cast<AMAgnosticDataMessageQEventHandler*>(dataMessager);
 	if(scanActionMessager)

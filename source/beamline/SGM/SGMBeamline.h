@@ -85,6 +85,7 @@ public:
 	AMControl* undulatorFastTracking() const { return undulatorFastTracking_;}
 	AMControl* undulatorFastTrackingTrigger() const { return undulatorFastTrackingTrigger_;}
 	AMControl* undulatorTracking() const { return undulatorTracking_;}
+	AMControl* undulatorForcedOpen() const { return undulatorForcedOpen_;}
 	AMControl* monoTracking() const { return monoTracking_;}
 	AMControl* exitSlitTracking() const { return exitSlitTracking_;}
 	SGMMAXvMotor* ssaManipulatorX() const { return ssaManipulatorX_;}
@@ -327,6 +328,7 @@ protected:
 	AMControl *undulatorFastTracking_;
 	AMControl *undulatorFastTrackingTrigger_;
 	AMControl *undulatorTracking_;
+	AMControl *undulatorForcedOpen_;
 	AMControl *monoTracking_;
 	AMControl *exitSlitTracking_;
 	AMControl *tfyHV_;
