@@ -6,18 +6,18 @@
 #include "actions3/AMListAction3.h"
 #include "actions3/actions/AMControlMoveAction3.h"
 
-#include "dataman/AMSample.h"
+#include "dataman/AMSamplePre2013.h"
 
 #include "analysis/AM1DExpressionAB.h"
 #include "analysis/AM1DNormalizationAB.h"
 #include "analysis/AM1DCalibrationAB.h"
 
 #include "beamline/CLS/CLSSIS3820Scaler.h"
-#include "dataman/AMSample.h"
 
- REIXSXASScanActionController::~REIXSXASScanActionController(){}
+REIXSXASScanActionController::~REIXSXASScanActionController(){}
+
 REIXSXASScanActionController::REIXSXASScanActionController(REIXSXASScanConfiguration *cfg, QObject *parent) :
-	AMRegionScanActionController(cfg, parent)
+	AMStepScanActionController(cfg, parent)
 {
 	fileWriterIsBusy_ = false;
 	configuration_ = cfg;
@@ -31,16 +31,16 @@ REIXSXASScanActionController::REIXSXASScanActionController(REIXSXASScanConfigura
 	scan_->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));
 
 	QString rangeString;
-	if(configuration_->regionCount())
-		rangeString = QString("%1-%2 eV").arg(configuration_->regionStart(0)).arg(configuration_->regionEnd(configuration_->regionCount()-1));
+	if(configuration_->scanAxisAt(0)->regionCount())
+		rangeString = QString("%1-%2 eV").arg(double(configuration_->scanAxisAt(0)->regionAt(0)->regionStart())).arg(double(configuration_->scanAxisAt(0)->regionAt(configuration_->scanAxisAt(0)->regionCount()-1)->regionEnd()));
 
 	if(configuration_->namedAutomatically()) {
 		int sampleId = REIXSBeamline::bl()->currentSampleId();
 		if(sampleId >= 1) {
 			scan_->setSampleId(sampleId);
 			//QString sampleName = AMSample::sampleNameForId(AMDatabase::database("user"), sampleId); // scan_->sampleName() won't work until the scan is saved to the database.
-			AMSample *currentSample = new AMSample(sampleId, AMDatabase::database("user"));
-			QString sampleName = currentSample->name();
+			//AMSamplePre2013 *currentSample = new AMSamplePre2013(sampleId, AMDatabase::database("user"));
+			QString sampleName = scan_->sampleName();
 			scan_->setName(QString("%1 %2 %3").arg(sampleName).arg(configuration_->autoScanName()).arg(rangeString));
 		}
 		else {
@@ -55,6 +55,10 @@ REIXSXASScanActionController::REIXSXASScanActionController(REIXSXASScanConfigura
 		scan_->setSampleId(configuration_->sampleId());
 	}
 
+	AMControlInfoList list;
+	list.append(REIXSBeamline::bl()->photonSource()->energy()->toInfo());
+	configuration_->setAxisControlInfos(list);
+
 	AMDetectorInfoSet reixsDetectors;
 	reixsDetectors.addDetectorInfo(REIXSBeamline::bl()->exposedDetectorByName("I0")->toInfo());
 	reixsDetectors.addDetectorInfo(REIXSBeamline::bl()->exposedDetectorByName("TEY")->toInfo());
@@ -66,12 +70,8 @@ REIXSXASScanActionController::REIXSXASScanActionController(REIXSXASScanConfigura
 
 
 	secondsElapsed_ = 0;
-	secondsTotal_ = 1;
-	for (int i = 0; i < configuration_->regions()->count(); i++)
-		secondsTotal_ += ((configuration_->regions()->end(i) - configuration_->regions()->start(i))/configuration_->regions()->delta(i))*(configuration_->regions()->time(i) + 0.2);
-	qDebug() << "Seconds Total is:" << secondsTotal_;
+	secondsTotal_ = configuration_->totalTime(true);
 	elapsedTime_.setInterval(1000);
-
 	connect(this, SIGNAL(started()), &elapsedTime_, SLOT(start()));
 	connect(this, SIGNAL(cancelled()), &elapsedTime_, SLOT(stop()));
 	connect(this, SIGNAL(paused()), &elapsedTime_, SLOT(stop()));
@@ -259,29 +259,13 @@ AMAction3* REIXSXASScanActionController::createInitializationActions(){
 	initializationStage2->addSubAction(REIXSBeamline::bl()->scaler()->createScansPerBufferAction3(1));
 	initializationStage2->addSubAction(REIXSBeamline::bl()->scaler()->createTotalScansAction3(1));
 
-
-
-
-
-	AMListAction3 *initializationStage3 = new AMListAction3(new AMListActionInfo3("REIXS XAS Initialization Stage 3", "REIXS XAS Initialization Stage 3"), AMListAction3::Parallel);
-
-	tmpControl = REIXSBeamline::bl()->photonSource()->energy();
-	AMControlInfo initialEnergySetpoint = tmpControl->toInfo();
-	initialEnergySetpoint.setValue(configuration_->startEnergy());
-	moveActionInfo = new AMControlMoveActionInfo3(initialEnergySetpoint);
-	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
-	initializationStage3->addSubAction(moveAction);
-
-
-
-
 	initializationActions->addSubAction(initializationStage1);
 	initializationActions->addSubAction(initializationStage2);
-	initializationActions->addSubAction(initializationStage3);
 
 	return initializationActions;
 }
 
+#include "actions3/actions/AMTimedWaitAction3.h"
 AMAction3* REIXSXASScanActionController::createCleanupActions(){
 	AMListAction3 *cleanupActions = new AMListAction3(new AMListActionInfo3("REIXS XAS Cleanup Actions", "REIXS XAS Cleanup Actions"));//, AMListAction3::Parallel); sequentially set up scaler
 
@@ -290,25 +274,40 @@ AMAction3* REIXSXASScanActionController::createCleanupActions(){
 //	cleanupActions->addSubAction(scaler->createScansPerBufferAction3(scaler->scansPerBuffer()));
 //	cleanupActions->addSubAction(scaler->createTotalScansAction3(scaler->totalScans()));
 //	cleanupActions->addSubAction(scaler->createContinuousEnableAction3(true));
-	cleanupActions->addSubAction(scaler->createScansPerBufferAction3(1));
-	cleanupActions->addSubAction(scaler->createTotalScansAction3(0));
-	cleanupActions->addSubAction(scaler->createStartAction3(true));
+//	cleanupActions->addSubAction(scaler->createScansPerBufferAction3(1));
+//	cleanupActions->addSubAction(scaler->createTotalScansAction3(0));
+	cleanupActions->addSubAction(scaler->createStartAction3(false));
+	cleanupActions->addSubAction(new AMTimedWaitAction3(new AMTimedWaitActionInfo3(1.0)));
+	cleanupActions->addSubAction(scaler->createDwellTimeAction3(1.0));
+	cleanupActions->addSubAction(new AMTimedWaitAction3(new AMTimedWaitActionInfo3(1.0)));
+	cleanupActions->addSubAction(scaler->createContinuousEnableAction3(true));
 
 	return cleanupActions;
 }
 
+void REIXSXASScanActionController::cancelImplementation(){
+
+	AMStepScanActionController::cancelImplementation();
+
+	AMAction3 *cleanupActions = createCleanupActions();
+	cleanupActions->start();
+	//setCancelled();  //should be handled by AMStepScanActionController::cancelImplementation();
+
+}
+
+
 
 void REIXSXASScanActionController::onScanTimerUpdate()
 {
-
 	if (elapsedTime_.isActive()){
 
 		if (secondsElapsed_ >= secondsTotal_)
 			secondsElapsed_ = secondsTotal_;
 		else
 			secondsElapsed_ += 1.0;
-		qDebug() << secondsElapsed_ << " elasped of " << secondsTotal_ ;
-		emit timeRemaining(secondsTotal_-secondsElapsed_);
+
+		//emit timeRemaining(secondsTotal_-secondsElapsed_); Not in IDEAS controller?
+		//qDebug() << "scan timer updated to" << secondsElapsed_ << "of" << secondsTotal_;
 		emit progress(secondsElapsed_, secondsTotal_);
 	}
 }
