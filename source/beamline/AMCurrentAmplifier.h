@@ -57,7 +57,7 @@ public:
     bool atMaximumValue() const;
 
     /// Returns the view for this amplifier.
-    virtual AMCurrentAmplifierView* createView() const;
+    virtual AMCurrentAmplifierView* createView();
 
 signals:
     /// Emitted when the amplifier mode has been changed.

@@ -83,10 +83,9 @@ bool AMCurrentAmplifier::atMaximumValue() const
     return true;
 }
 
-AMCurrentAmplifierView* AMCurrentAmplifier::createView() const
+AMCurrentAmplifierView* AMCurrentAmplifier::createView()
 {
-//    return new AMCurrentAmplifierView(this);
-    return 0;
+    return new AMCurrentAmplifierView(this);
 }
 
 bool AMCurrentAmplifier::setAmplifierMode(AmplifierMode newMode)
