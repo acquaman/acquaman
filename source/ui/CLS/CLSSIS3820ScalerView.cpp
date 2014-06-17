@@ -282,7 +282,8 @@ CLSSIS3820ScalerChannelView::CLSSIS3820ScalerChannelView(CLSSIS3820ScalerChannel
 
 	if (channel_->currentAmplifier()){
 
-        sr570View_ = new AMCurrentAmplifierView(channel_->currentAmplifier(), this);
+        sr570View_ = channel_->currentAmplifier()->createView();
+        sr570View_->setParent(this);
         connect( sr570View_, SIGNAL(viewModeChanged(AMCurrentAmplifierView::ViewMode)), this, SIGNAL(amplifierViewModeChanged(AMCurrentAmplifierView::ViewMode)) );
 
 	}
