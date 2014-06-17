@@ -283,7 +283,6 @@ CLSSIS3820ScalerChannelView::CLSSIS3820ScalerChannelView(CLSSIS3820ScalerChannel
 	if (channel_->currentAmplifier()){
 
         sr570View_ = channel_->currentAmplifier()->createView();
-        sr570View_->setParent(this);
         connect( sr570View_, SIGNAL(viewModeChanged(AMCurrentAmplifierView::ViewMode)), this, SIGNAL(amplifierViewModeChanged(AMCurrentAmplifierView::ViewMode)) );
 
 	}
@@ -420,8 +419,6 @@ void CLSSIS3820ScalerChannelView::onNewCurrentAmplifierAttached()
 	if (sr570View_)
 		delete channelLayout_->takeAt(channelLayout_->indexOf(sr570View_));
 
-    sr570View_ = new AMCurrentAmplifierView(channel_->currentAmplifier(), this);
-
-//    sr570View_ = new CLSSR570View(qobject_cast<CLSSR570*>(channel_->currentAmplifier()));
+    sr570View_ = channel_->currentAmplifier()->createView();
 	channelLayout_->insertWidget(2, sr570View_, 0, Qt::AlignCenter);
 }
