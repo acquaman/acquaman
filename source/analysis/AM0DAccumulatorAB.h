@@ -20,10 +20,12 @@ public:
 
     /// Returns the data stored in this analysis block, for the input data source.
     QVector<double> dataStored() const;
-    /// Returns the total number of elements stored.
-    int dataCount() const;
+    /// Returns the number of updates presently stored.
+    int updatesStored() const;
     /// Returns the maximum number of elements stored.
     int maximumStored() const;
+    /// Returns the total number of updates that have happened.
+    int updateCount() const;
 
     /// Check that the input sources are acceptable. The empty list is always valid. For non-empty list of sources, the list must be of size 1 and the source must have rank 1."
     virtual bool areInputDataSourcesAcceptable(const QList<AMDataSource *> &dataSources) const;
@@ -58,8 +60,10 @@ protected:
 protected:
     /// Data stored in this analysis block.
     QVector<double> dataStored_;
-    /// Maximum number of elements to save.
-    int maximumStored_;
+    /// Number of updates presently stored.
+    int updatesStored_;
+    /// Number of updates that have happened in total.
+    int updateCount_;
 
 };
 
