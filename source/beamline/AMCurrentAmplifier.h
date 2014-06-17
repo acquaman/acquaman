@@ -4,6 +4,8 @@
 #include <QObject>
 #include <QStringList>
 
+class AMCurrentAmplifierView;
+
 class AMCurrentAmplifier : public QObject
 {
     Q_OBJECT
@@ -53,6 +55,9 @@ public:
     bool atMinimumValue() const;
     /// Returns true if, for the current amplifier mode, the amplifier is at a maximum value limit. False otherwise.
     bool atMaximumValue() const;
+
+    /// Returns the view for this amplifier.
+    virtual AMCurrentAmplifierView* createView() const;
 
 signals:
     /// Emitted when the amplifier mode has been changed.

@@ -1,5 +1,7 @@
 #include "AMCurrentAmplifier.h"
 
+#include "source/ui/beamline/AMCurrentAmplifierView.h"
+
 AMCurrentAmplifier::AMCurrentAmplifier(const QString &name, QObject *parent) :
     QObject(parent)
 {
@@ -64,6 +66,9 @@ bool AMCurrentAmplifier::atMinimumValue() const
 
     else if (inSensitivityMode())
         return atMinimumSensitivity();
+
+    // this statement should never be reached.
+    return true;
 }
 
 bool AMCurrentAmplifier::atMaximumValue() const
@@ -73,6 +78,15 @@ bool AMCurrentAmplifier::atMaximumValue() const
 
     else if (inSensitivityMode())
         return atMaximumSensitivity();
+
+    // this statement should never be reached.
+    return true;
+}
+
+AMCurrentAmplifierView* AMCurrentAmplifier::createView() const
+{
+//    return new AMCurrentAmplifierView(this);
+    return 0;
 }
 
 bool AMCurrentAmplifier::setAmplifierMode(AmplifierMode newMode)

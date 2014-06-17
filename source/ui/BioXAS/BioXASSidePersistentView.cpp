@@ -11,7 +11,7 @@ BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
     motorControlEditor_ = new AMExtendedControlEditor(BioXASSideBeamline::bioXAS()->m1UpperSlit());
     motorControlEditor_->setControlFormat('g', 4);
 
-    keithleyView_ = new AMCurrentAmplifierView(BioXASSideBeamline::bioXAS()->keithley(), this);
+    keithleyView_ = BioXASSideBeamline::bioXAS()->keithley()->createView();
 
     QVBoxLayout *layout = new QVBoxLayout();
     layout->addWidget(motorControlEditor_);
