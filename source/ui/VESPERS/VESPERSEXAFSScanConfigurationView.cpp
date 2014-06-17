@@ -47,29 +47,26 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	regionsView_ = new AMEXAFSScanAxisView("XAS Region Configuration", configuration_);
 
 	// The fluorescence detector setup
-	QComboBox *fluorescenceDetectorComboBox  = createFluorescenceComboBox();
-	connect(fluorescenceDetectorComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onFluorescenceChoiceChanged(int)));
-	connect(configuration_->dbObject(), SIGNAL(fluorescenceDetectorChanged(int)), this, SLOT(updateFluorescenceDetector(int)));
-	fluorescenceDetectorComboBox->setCurrentIndex((int)configuration_->fluorescenceDetector());
+	fluorescenceDetectorComboBox_  = createFluorescenceComboBox();
+	connect(fluorescenceDetectorComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onFluorescenceChoiceChanged(int)));
+	connect(configuration_->dbObject(), SIGNAL(fluorescenceDetectorChanged(int)), this, SLOT(updateFluorescenceDetectorComboBox(int)));
+	fluorescenceDetectorComboBox_->setCurrentIndex((int)configuration_->fluorescenceDetector());
 
 	// Ion chamber selection
-	QGroupBox *ItGroupBox = addItSelectionView();
-	connect(ItGroup_, SIGNAL(buttonClicked(int)), this, SLOT(onItClicked(int)));
-	connect(configuration_->dbObject(), SIGNAL(transmissionChoiceChanged(int)), this, SLOT(updateItButtons(int)));
+	itComboBox_ = createIonChamberComboBox();
+	connect(itComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onItClicked(int)));
+	connect(configuration_->dbObject(), SIGNAL(transmissionChoiceChanged(int)), this, SLOT(updateItComboBox(int)));
 
-	QGroupBox *I0GroupBox = addI0SelectionView();
-	connect(I0Group_, SIGNAL(buttonClicked(int)), this, SLOT(onI0Clicked(int)));
-	connect(configuration_->dbObject(), SIGNAL(incomingChoiceChanged(int)), this, SLOT(updateI0Buttons(int)));
-
-	I0Group_->button((int)configuration_->incomingChoice())->click();
-	ItGroup_->button((int)configuration_->transmissionChoice())->click();
+	i0ComboBox_ = createIonChamberComboBox();
+	connect(i0ComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onI0Clicked(int)));
+	connect(configuration_->dbObject(), SIGNAL(incomingChoiceChanged(int)), this, SLOT(updateI0ComboBox(int)));
 
 	QHBoxLayout *ionChambersLayout = new QHBoxLayout;
-	ionChambersLayout->addWidget(I0GroupBox);
-	ionChambersLayout->addWidget(ItGroupBox);
+	ionChambersLayout->addWidget(i0ComboBox_);
+	ionChambersLayout->addWidget(itComboBox_);
 
 	// Scan name selection
-	scanName_ = addScanNameView(configuration_->name());
+	scanName_ = createScanNameView(configuration_->name());
 	connect(scanName_, SIGNAL(editingFinished()), this, SLOT(onScanNameEdited()));
 	connect(configuration_, SIGNAL(nameChanged(QString)), scanName_, SLOT(setText(QString)));
 	onScanNameEdited();
@@ -191,10 +188,14 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	connect(autoExportSpectra_, SIGNAL(toggled(bool)), exportSpectraInRows_, SLOT(setEnabled(bool)));
 	connect(exportSpectraInRows_, SIGNAL(toggled(bool)), this, SLOT(updateExportSpectraInRows(bool)));
 
+	fluorescenceDetectorComboBox_->setCurrentIndex((int)configuration_->fluorescenceDetector());
+	i0ComboBox_->setCurrentIndex((int)configuration_->incomingChoice());
+	itComboBox_->setCurrentIndex((int)configuration_->transmissionChoice());
+
 	// Setting up the layout.
 	QGridLayout *contentsLayout = new QGridLayout;
 	contentsLayout->addWidget(regionsView_, 1, 1, 2, 2);
-	contentsLayout->addWidget(fluorescenceDetectorComboBox, 1, 3);
+	contentsLayout->addWidget(fluorescenceDetectorComboBox_, 1, 3);
 	contentsLayout->addLayout(scanNameLayout, 4, 1);
 	contentsLayout->addLayout(energyLayout, 0, 1, 1, 3);
 	contentsLayout->addWidget(goToPositionGroupBox, 4, 3, 4, 1);
@@ -333,14 +334,14 @@ void VESPERSEXAFSScanConfigurationView::setEnergy()
 void VESPERSEXAFSScanConfigurationView::onItClicked(int id)
 {
 	// If the new It is at or upstream of I0, move I0.  Using id-1 is safe because Isplit can't be chosen for It.
-	if (id <= I0Group_->checkedId())
-		I0Group_->button(id-1)->click();
+//	if (id <= I0Group_->checkedId())
+//		I0Group_->button(id-1)->click();
 
-	for (int i = 0; i < id; i++)
-		I0Group_->button(i)->setEnabled(true);
+//	for (int i = 0; i < id; i++)
+//		I0Group_->button(i)->setEnabled(true);
 
-	for (int i = id; i < 4; i++)
-		I0Group_->button(i)->setEnabled(false);
+//	for (int i = id; i < 4; i++)
+//		I0Group_->button(i)->setEnabled(false);
 
 	configuration_->setTransmissionChoice(id);
 }

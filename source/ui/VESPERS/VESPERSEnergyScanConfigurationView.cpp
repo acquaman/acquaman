@@ -44,12 +44,6 @@ VESPERSEnergyScanConfigurationView::VESPERSEnergyScanConfigurationView(VESPERSEn
 	// Regions setup
 	AMStepScanAxisView *regionsView = new AMStepScanAxisView("Energy Region Configuration", configuration_);
 
-	// The CCD detector setup.
-	QComboBox *ccdComboBox = createCCDComboBox();
-	connect(ccdComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onCCDDetectorChanged(int)));
-	connect(configuration_->dbObject(), SIGNAL(ccdDetectorChanged(int)), this, SLOT(updateCCDDetectorButtons(int)));
-	ccdComboBox->setCurrentIndex(int(configuration_->ccdDetector()));
-
 	// CCD label.
 	ccdText_ = new QLabel;
 	ccdHelpText_ = new QLabel;
@@ -60,8 +54,13 @@ VESPERSEnergyScanConfigurationView::VESPERSEnergyScanConfigurationView(VESPERSEn
 	ccdTextBox_->setLayout(ccdTextLayout);
 	ccdTextBox_->setVisible(configuration_->ccdDetector() != VESPERS::NoCCD);
 
+	// The CCD detector setup.
+	ccdComboBox_ = createCCDComboBox();
+	connect(ccdComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onCCDDetectorChanged(int)));
+	connect(configuration_->dbObject(), SIGNAL(ccdDetectorChanged(int)), this, SLOT(updateCCDDetectorComboBox(int)));
+
 	// Scan name selection
-	scanName_ = addScanNameView(configuration_->name());
+	scanName_ = createScanNameView(configuration_->name());
 	connect(scanName_, SIGNAL(editingFinished()), this, SLOT(onScanNameEdited()));
 	connect(configuration_, SIGNAL(nameChanged(QString)), scanName_, SLOT(setText(QString)));
 	// Only connecting this signal because it is the only CCD available currently.  It would need some logic for switching which CCD it was actually connected to.
@@ -106,11 +105,13 @@ VESPERSEnergyScanConfigurationView::VESPERSEnergyScanConfigurationView(VESPERSEn
 	// Label showing where the data will be saved.
 	QLabel *exportPath = addExportPathLabel();
 
+	ccdComboBox_->setCurrentIndex(int(configuration_->ccdDetector()));
+
 	// Setting up the layout.
 	QHBoxLayout *topRowLayout = new QHBoxLayout;
 	topRowLayout->addStretch();
 	topRowLayout->addWidget(regionsView);
-	topRowLayout->addWidget(ccdComboBox);
+	topRowLayout->addWidget(ccdComboBox_);
 	topRowLayout->addWidget(goToPositionGroupBox);
 	topRowLayout->addStretch();
 

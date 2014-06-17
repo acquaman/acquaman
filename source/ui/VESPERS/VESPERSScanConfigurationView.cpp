@@ -76,29 +76,29 @@ QString VESPERSScanConfigurationView::ccdDetectorIdToString(int id)
 	return string;
 }
 
-void VESPERSScanConfigurationView::updateItButtons(int It)
+void VESPERSScanConfigurationView::updateItComboBox(int It)
 {
-	ItGroup_->button(It)->setChecked(true);
+	itComboBox_->setCurrentIndex(It);
 }
 
-void VESPERSScanConfigurationView::updateI0Buttons(int I0)
+void VESPERSScanConfigurationView::updateI0ComboBox(int I0)
 {
-	I0Group_->button(I0)->setChecked(true);
+	i0ComboBox_->setCurrentIndex(I0);
 }
 
-void VESPERSScanConfigurationView::updateFluorescenceDetector(int detector)
+void VESPERSScanConfigurationView::updateFluorescenceDetectorComboBox(int detector)
 {
-//	fluorescenceButtonGroup_->button(detector)->setChecked(true);
+	fluorescenceDetectorComboBox_->setCurrentIndex(detector);
 }
 
-void VESPERSScanConfigurationView::updateCCDDetectorButtons(int detector)
+void VESPERSScanConfigurationView::updateCCDDetectorComboBox(int detector)
 {
-//	ccdButtonGroup_->button(detector)->setChecked(true);
+	ccdComboBox_->setCurrentIndex(detector);
 }
 
-void VESPERSScanConfigurationView::updateMotor(int choice)
+void VESPERSScanConfigurationView::updateMotorSelectionComboBox(int choice)
 {
-	motorButtonGroup_->button(choice)->setChecked(true);
+	motorSelectionComboBox_->setCurrentIndex(choice);
 }
 
 void VESPERSScanConfigurationView::updateAndSetRoiTextBox(int xrfId)
@@ -226,32 +226,6 @@ QComboBox *VESPERSScanConfigurationView::createCCDComboBox()
 	return newComboBox;
 }
 
-QGroupBox *VESPERSScanConfigurationView::addI0SelectionView()
-{
-	QRadioButton *tempButton;
-	QVBoxLayout *I0GroupLayout = new QVBoxLayout;
-
-	I0Group_ = new QButtonGroup;
-	tempButton = new QRadioButton("Isplit");
-	I0Group_->addButton(tempButton, 0);
-	I0GroupLayout->addWidget(tempButton);
-	tempButton = new QRadioButton("Iprekb");
-	I0Group_->addButton(tempButton, 1);
-	I0GroupLayout->addWidget(tempButton);
-	tempButton = new QRadioButton("Imini");
-	tempButton->setChecked(true);
-	I0Group_->addButton(tempButton, 2);
-	I0GroupLayout->addWidget(tempButton);
-	tempButton = new QRadioButton("Ipost");
-	I0Group_->addButton(tempButton, 3);
-	I0GroupLayout->addWidget(tempButton);
-
-	QGroupBox *I0GroupBox = new QGroupBox("I0");
-	I0GroupBox->setLayout(I0GroupLayout);
-
-	return I0GroupBox;
-}
-
 QComboBox *VESPERSScanConfigurationView::createIonChamberComboBox()
 {
 	QComboBox *newComboBox = new QComboBox;
@@ -262,53 +236,18 @@ QComboBox *VESPERSScanConfigurationView::createIonChamberComboBox()
 
 	return newComboBox;
 }
-QGroupBox *VESPERSScanConfigurationView::addItSelectionView()
+
+QComboBox *VESPERSScanConfigurationView::createMotorSelectionComboBox(QStringList labels, QList<int> ids)
 {
-	QRadioButton *tempButton;
-	QVBoxLayout *ItGroupLayout = new QVBoxLayout;
+	QComboBox *newComboBox = new QComboBox;
 
-	ItGroup_ = new QButtonGroup;
-	tempButton = new QRadioButton("Isplit");
-	tempButton->setEnabled(false);
-	ItGroup_->addButton(tempButton, 0);
-	ItGroupLayout->addWidget(tempButton);
-	tempButton = new QRadioButton("Iprekb");
-	ItGroup_->addButton(tempButton, 1);
-	ItGroupLayout->addWidget(tempButton);
-	tempButton = new QRadioButton("Imini");
-	ItGroup_->addButton(tempButton, 2);
-	ItGroupLayout->addWidget(tempButton);
-	tempButton = new QRadioButton("Ipost");
-	ItGroup_->addButton(tempButton, 3);
-	ItGroupLayout->addWidget(tempButton);
+	for (int i = 0, size = ids.size(); i < size; i++)
+		newComboBox->insertItem(ids.at(i), labels.at(i));
 
-	QGroupBox *ItGroupBox = new QGroupBox("It");
-	ItGroupBox->setLayout(ItGroupLayout);
-
-	return ItGroupBox;
+	return newComboBox;
 }
 
-QGroupBox *VESPERSScanConfigurationView::addMotorSelectionView(QStringList labels, QList<int> ids)
-{
-	QRadioButton *tempButton;
-	QVBoxLayout *motorChoiceLayout = new QVBoxLayout;
-
-	motorButtonGroup_ = new QButtonGroup;
-
-	for (int i = 0, iSize = labels.size(); i < iSize; i++){
-
-		tempButton = new QRadioButton(labels.at(i));
-		motorButtonGroup_->addButton(tempButton, ids.at(i));
-		motorChoiceLayout->addWidget(tempButton);
-	}
-
-	QGroupBox *motorSelectionBox = new QGroupBox("Motors");
-	motorSelectionBox->setLayout(motorChoiceLayout);
-
-	return motorSelectionBox;
-}
-
-QLineEdit *VESPERSScanConfigurationView::addScanNameView(const QString &name)
+QLineEdit *VESPERSScanConfigurationView::createScanNameView(const QString &name)
 {
 	QLineEdit *scanName = new QLineEdit;
 	scanName->setText(name);
@@ -429,7 +368,7 @@ QGroupBox *VESPERSScanConfigurationView::addExporterOptionsView(QStringList list
 	return autoExportGroupBox;
 }
 
-QDoubleSpinBox *VESPERSScanConfigurationView::addDwellTimeWidget(double time)
+QDoubleSpinBox *VESPERSScanConfigurationView::createDwellTimeSpinBox(double time)
 {
 	QDoubleSpinBox *dwellTime = new QDoubleSpinBox;
 	dwellTime->setRange(0, 1000000);
@@ -441,7 +380,7 @@ QDoubleSpinBox *VESPERSScanConfigurationView::addDwellTimeWidget(double time)
 	return dwellTime;
 }
 
-QDoubleSpinBox *VESPERSScanConfigurationView::buildPositionDoubleSpinBox(const QString &prefix, const QString &suffix, double value, int decimals)
+QDoubleSpinBox *VESPERSScanConfigurationView::createPositionDoubleSpinBox(const QString &prefix, const QString &suffix, double value, int decimals)
 {
 	QDoubleSpinBox *box = new QDoubleSpinBox;
 	box->setPrefix(prefix);

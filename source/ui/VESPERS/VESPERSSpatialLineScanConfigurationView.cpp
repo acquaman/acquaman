@@ -42,7 +42,7 @@ VESPERSSpatialLineScanConfigurationView::VESPERSSpatialLineScanConfigurationView
 	// Setup the group box for setting the start and end points.
 	QGroupBox *positionsBox = new QGroupBox("Positions");
 
-	start_ = buildPositionDoubleSpinBox("", " mm", configuration_->start(), 3);
+	start_ = createPositionDoubleSpinBox("", " mm", configuration_->start(), 3);
 	connect(start_, SIGNAL(editingFinished()), this, SLOT(onStartChanged()));
 	connect(configuration_, SIGNAL(startChanged(double)), start_, SLOT(setValue(double)));
 
@@ -54,7 +54,7 @@ VESPERSSpatialLineScanConfigurationView::VESPERSSpatialLineScanConfigurationView
 	startPointLayout->addWidget(start_);
 	startPointLayout->addWidget(startUseCurrentButton);
 
-	end_ = buildPositionDoubleSpinBox("", " mm", configuration_->end(), 3);
+	end_ = createPositionDoubleSpinBox("", " mm", configuration_->end(), 3);
 	connect(end_, SIGNAL(editingFinished()), this, SLOT(onEndChanged()));
 	connect(configuration_, SIGNAL(endChanged(double)), end_, SLOT(setValue(double)));
 
@@ -66,7 +66,7 @@ VESPERSSpatialLineScanConfigurationView::VESPERSSpatialLineScanConfigurationView
 	endPointLayout->addWidget(end_);
 	endPointLayout->addWidget(endUseCurrentButton);
 
-	step_ = buildPositionDoubleSpinBox("", QString(" %1").arg(QString::fromUtf8("µm")), configuration_->step()*1000, 1);	// xStep needs to be in mm.
+	step_ = createPositionDoubleSpinBox("", QString(" %1").arg(QString::fromUtf8("µm")), configuration_->step()*1000, 1);	// xStep needs to be in mm.
 	connect(step_, SIGNAL(editingFinished()), this, SLOT(onStepChanged()));
 	connect(configuration_, SIGNAL(stepChanged(double)), this, SLOT(updateStep(double)));
 
@@ -76,7 +76,7 @@ VESPERSSpatialLineScanConfigurationView::VESPERSSpatialLineScanConfigurationView
 	stepSizeLayout->addStretch();
 
 	otherPositionLabel_ = new QLabel(configuration_->otherMotorString(configuration_->motor()));
-	otherPosition_ = buildPositionDoubleSpinBox("", " mm", configuration_->hasOtherPosition() ? configuration_->otherPosition() : 0, 3);
+	otherPosition_ = createPositionDoubleSpinBox("", " mm", configuration_->hasOtherPosition() ? configuration_->otherPosition() : 0, 3);
 	connect(otherPosition_, SIGNAL(editingFinished()), this, SLOT(onOtherPositionChanged()));
 	connect(configuration_, SIGNAL(otherPositionChanged(double)), otherPosition_, SLOT(setValue(double)));
 
@@ -98,7 +98,7 @@ VESPERSSpatialLineScanConfigurationView::VESPERSSpatialLineScanConfigurationView
 	positionsBox->setLayout(positionsLayout);
 
 	// Dwell time.
-	dwellTime_ = addDwellTimeWidget(configuration_->time());
+	dwellTime_ = createDwellTimeSpinBox(configuration_->time());
 	connect(dwellTime_, SIGNAL(editingFinished()), this, SLOT(onDwellTimeChanged()));
 	connect(configuration_, SIGNAL(timeChanged(double)), dwellTime_, SLOT(setValue(double)));
 
@@ -118,46 +118,6 @@ VESPERSSpatialLineScanConfigurationView::VESPERSSpatialLineScanConfigurationView
 	QGroupBox *timeGroupBox = new QGroupBox("Time");
 	timeGroupBox->setLayout(timeBoxLayout);
 
-	// Using the CCD.
-	QComboBox *ccdComboBox = createCCDComboBox();
-	connect(ccdComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onCCDDetectorChanged(int)));
-	connect(configuration_->dbObject(), SIGNAL(ccdDetectorChanged(int)), this, SLOT(updateCCDDetectorButtons(int)));
-	ccdComboBox->setCurrentIndex(int(configuration_->ccdDetector()));
-
-	configureCCDButton_ = new QPushButton(QIcon(":/hammer-wrench.png"), "Configure Area Detector");
-	configureCCDButton_->setEnabled(configuration_->ccdDetector());
-	connect(configureCCDButton_, SIGNAL(clicked()), this, SLOT(onConfigureCCDDetectorClicked()));
-
-	// The fluorescence detector setup
-	QComboBox *fluorescenceDetectorComboBox  = createFluorescenceComboBox();
-	connect(fluorescenceDetectorComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onFluorescenceChoiceChanged(int)));
-	connect(configuration_->dbObject(), SIGNAL(fluorescenceDetectorChanged(int)), this, SLOT(updateFluorescenceDetector(int)));
-	fluorescenceDetectorComboBox->setCurrentIndex((int)configuration_->fluorescenceDetector());
-
-	// Ion chamber selection
-	QGroupBox *ItGroupBox = addItSelectionView();
-	connect(ItGroup_, SIGNAL(buttonClicked(int)), this, SLOT(onItClicked(int)));
-	connect(configuration_->dbObject(), SIGNAL(transmissionChoiceChanged(int)), this, SLOT(updateItButtons(int)));
-
-	QGroupBox *I0GroupBox = addI0SelectionView();
-	connect(I0Group_, SIGNAL(buttonClicked(int)), this, SLOT(onI0Clicked(int)));
-	connect(configuration_->dbObject(), SIGNAL(incomingChoiceChanged(int)), this, SLOT(updateI0Buttons(int)));
-
-	I0Group_->button((int)configuration_->incomingChoice())->click();
-	ItGroup_->button((int)configuration_->transmissionChoice())->click();
-
-	QHBoxLayout *ionChambersLayout = new QHBoxLayout;
-	ionChambersLayout->addWidget(I0GroupBox);
-	ionChambersLayout->addWidget(ItGroupBox);
-
-	// Motor selection.
-	QGroupBox *motorSetChoiceBox = addMotorSelectionView(
-				QStringList() << "H" << "X" << "V" << "Z" << "Atto H" << "Atto V" << "Atto X" << "Atto Z" << "Atto Rz" << "Atto Ry" << "Atto Rx",
-				QList<int>() << VESPERS::H << VESPERS::X << VESPERS::V << VESPERS::Z << VESPERS::AttoH << VESPERS::AttoV << VESPERS::AttoX << VESPERS::AttoZ << VESPERS::AttoRz << VESPERS::AttoRy << VESPERS::AttoRx);
-	motorButtonGroup_->button(int(configuration_->motor()))->click();
-	connect(configuration_->dbObject(), SIGNAL(motorChanged(int)), this, SLOT(onMotorUpdated(int)));
-	connect(motorButtonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(onMotorChanged(int)));
-
 	// CCD label.
 	ccdText_ = new QLabel;
 	ccdHelpText_ = new QLabel;
@@ -168,8 +128,43 @@ VESPERSSpatialLineScanConfigurationView::VESPERSSpatialLineScanConfigurationView
 	ccdTextBox_->setLayout(ccdTextLayout);
 	ccdTextBox_->setVisible(configuration_->ccdDetector() != VESPERS::NoCCD);
 
+	// Using the CCD.
+	ccdComboBox_ = createCCDComboBox();
+	connect(ccdComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onCCDDetectorChanged(int)));
+	connect(configuration_->dbObject(), SIGNAL(ccdDetectorChanged(int)), this, SLOT(updateCCDDetectorComboBox(int)));
+
+	configureCCDButton_ = new QPushButton(QIcon(":/hammer-wrench.png"), "Configure Area Detector");
+	configureCCDButton_->setEnabled(configuration_->ccdDetector());
+	connect(configureCCDButton_, SIGNAL(clicked()), this, SLOT(onConfigureCCDDetectorClicked()));
+
+	// The fluorescence detector setup
+	fluorescenceDetectorComboBox_  = createFluorescenceComboBox();
+	connect(fluorescenceDetectorComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onFluorescenceChoiceChanged(int)));
+	connect(configuration_->dbObject(), SIGNAL(fluorescenceDetectorChanged(int)), this, SLOT(updateFluorescenceDetectorComboBox(int)));
+
+	// Ion chamber selection
+	itComboBox_ = createIonChamberComboBox();
+	connect(itComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onItClicked(int)));
+	connect(configuration_->dbObject(), SIGNAL(transmissionChoiceChanged(int)), this, SLOT(updateItComboBox(int)));
+
+	i0ComboBox_ = createIonChamberComboBox();
+	connect(i0ComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onI0Clicked(int)));
+	connect(configuration_->dbObject(), SIGNAL(incomingChoiceChanged(int)), this, SLOT(updateI0ComboBox(int)));
+
+	QHBoxLayout *ionChambersLayout = new QHBoxLayout;
+	ionChambersLayout->addWidget(i0ComboBox_);
+	ionChambersLayout->addWidget(itComboBox_);
+
+	// Motor selection.
+	motorSelectionComboBox_ = createMotorSelectionComboBox(
+				QStringList() << "H" << "X" << "V" << "Z" << "Atto H" << "Atto V" << "Atto X" << "Atto Z" << "Atto Rz" << "Atto Ry" << "Atto Rx",
+				QList<int>() << VESPERS::H << VESPERS::X << VESPERS::V << VESPERS::Z << VESPERS::AttoH << VESPERS::AttoV << VESPERS::AttoX << VESPERS::AttoZ << VESPERS::AttoRz << VESPERS::AttoRy << VESPERS::AttoRx);
+	connect(motorSelectionComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onMotorChanged(int)));
+	connect(configuration_->dbObject(), SIGNAL(motorChanged(int)), this, SLOT(updateMotorSelectionComboBox(int)));
+	motorSelectionComboBox_->setCurrentIndex(int(configuration_->motor()));
+
 	// Scan name selection
-	scanName_ = addScanNameView(configuration_->name());
+	scanName_ = createScanNameView(configuration_->name());
 	connect(scanName_, SIGNAL(editingFinished()), this, SLOT(onScanNameEdited()));
 	connect(configuration_, SIGNAL(nameChanged(QString)), scanName_, SLOT(setText(QString)));
 	// Only connecting this signal because it is the only CCD available currently.  It would need some logic for switching which CCD it was actually connected to.
@@ -206,16 +201,21 @@ VESPERSSpatialLineScanConfigurationView::VESPERSSpatialLineScanConfigurationView
 	connect(autoExportSpectra_, SIGNAL(toggled(bool)), exportSpectraInRows_, SLOT(setEnabled(bool)));
 	connect(exportSpectraInRows_, SIGNAL(toggled(bool)), this, SLOT(updateExportSpectraInRows(bool)));
 
+	i0ComboBox_->setCurrentIndex((int)configuration_->incomingChoice());
+	itComboBox_->setCurrentIndex((int)configuration_->transmissionChoice());
+	fluorescenceDetectorComboBox_->setCurrentIndex((int)configuration_->fluorescenceDetector());
+	ccdComboBox_->setCurrentIndex(int(configuration_->ccdDetector()));
+
 	// Setting up the layout.
 	QGridLayout *contentsLayout = new QGridLayout;
 	contentsLayout->addWidget(positionsBox, 0, 0, 2, 3);
 	contentsLayout->addWidget(timeGroupBox, 2, 0, 1, 1);
-	contentsLayout->addWidget(ccdComboBox, 3, 3, 1, 1);
+	contentsLayout->addWidget(ccdComboBox_, 3, 3, 1, 1);
 	contentsLayout->addLayout(scanNameLayout, 3, 0, 1, 1);
 	contentsLayout->addWidget(timeOffsetBox, 5, 0, 1, 1);
 	contentsLayout->addWidget(configureCCDButton_, 6, 3, 1, 1);
-	contentsLayout->addWidget(motorSetChoiceBox, 0, 4, 3, 1);
-	contentsLayout->addWidget(fluorescenceDetectorComboBox, 0, 3, 1, 1);
+	contentsLayout->addWidget(motorSelectionComboBox_, 0, 4, 3, 1);
+	contentsLayout->addWidget(fluorescenceDetectorComboBox_, 0, 3, 1, 1);
 	contentsLayout->addLayout(ionChambersLayout, 1, 3, 2, 1);
 	contentsLayout->addWidget(ccdTextBox_, 7, 0, 1, 6);
 	contentsLayout->addWidget(roiTextBox, 0, 6, 3, 3);
@@ -368,22 +368,17 @@ void VESPERSSpatialLineScanConfigurationView::onMotorChanged(int id)
 	otherPosition_->setVisible(configuration_->otherMotor(configuration_->motor()) != VESPERS::NoMotor);
 }
 
-void VESPERSSpatialLineScanConfigurationView::onMotorUpdated(int id)
-{
-	motorButtonGroup_->button(id)->setChecked(true);
-}
-
 void VESPERSSpatialLineScanConfigurationView::onItClicked(int id)
 {
 	// If the new It is at or upstream of I0, move I0.  Using id-1 is safe because Isplit can't be chosen for It.
-	if (id <= I0Group_->checkedId())
-		I0Group_->button(id-1)->click();
+//	if (id <= I0Group_->checkedId())
+//		I0Group_->button(id-1)->click();
 
-	for (int i = 0; i < id; i++)
-		I0Group_->button(i)->setEnabled(true);
+//	for (int i = 0; i < id; i++)
+//		I0Group_->button(i)->setEnabled(true);
 
-	for (int i = id; i < 4; i++)
-		I0Group_->button(i)->setEnabled(false);
+//	for (int i = id; i < 4; i++)
+//		I0Group_->button(i)->setEnabled(false);
 
 	configuration_->setTransmissionChoice(id);
 }

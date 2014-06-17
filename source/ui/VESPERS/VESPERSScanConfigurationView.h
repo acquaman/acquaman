@@ -42,15 +42,15 @@ signals:
 
 protected slots:
 	/// Handles propogating changes in the config to the It buttons.
-	void updateItButtons(int It);
+	void updateItComboBox(int It);
 	/// Handles propogating changes in the config to the I0 buttons.
-	void updateI0Buttons(int I0);
+	void updateI0ComboBox(int I0);
 	/// Slot that updates the fluorescence detector buttons.
-	void updateFluorescenceDetector(int detector);
+	void updateFluorescenceDetectorComboBox(int detector);
 	/// Slot that updates the ccd detector buttons.
-	void updateCCDDetectorButtons(int detector);
+	void updateCCDDetectorComboBox(int detector);
 	/// Slot that updates the motor choice buttons.
-	void updateMotor(int choice);
+	void updateMotorSelectionComboBox(int choice);
 
 	/// Handles the context menu.
 	void onCustomContextMenuRequested(QPoint pos);
@@ -69,14 +69,10 @@ protected:
 	QComboBox *createCCDComboBox();
 	/// Creates a combo box for the I0 selection.  Returns a pointer to the widget.
 	QComboBox *createIonChamberComboBox();
-	/// Add the I0 selection view.  Returns a pointer to the widget.
-	QGroupBox *addI0SelectionView();
-	/// Add the It selection view.  Returns a pointer to the widget.
-	QGroupBox *addItSelectionView();
-	/// Add the motor group view.  Returns a pointer to the widget.  \note Both lists must be the same size!
-	QGroupBox *addMotorSelectionView(QStringList labels, QList<int> ids);
+	/// Creates a combo box for the motor selection.  Returns a pointer to the widget.  \note Both lists must be the same size!
+	QComboBox *createMotorSelectionComboBox(QStringList labels, QList<int> ids);
 	/// Add the scan name view.  Returns the widget.
-	QLineEdit *addScanNameView(const QString &name);
+	QLineEdit *createScanNameView(const QString &name);
 	/// Add the goToPosition group box.  Returns a pointer to the widget.
 	QGroupBox *addGoToPositionView(bool goToPosition, double x, double y);
 	/// Add the export path label.  Returns a pointer to the widget.
@@ -86,22 +82,12 @@ protected:
 	/// Add the export options view.  Returns a pointer to the widget.
 	QGroupBox *addExporterOptionsView(QStringList list, bool exportSpectra, bool exportSpectraInRows);
 	/// Add the dwell time box.  Returns a pointer to the widget.
-	QDoubleSpinBox *addDwellTimeWidget(double time);
+	QDoubleSpinBox *createDwellTimeSpinBox(double time);
 	/// Build a position QDoubleSpinBox based on the prefix, suffix and value.  They have the same format, this should cut down on duplicate code.
-	QDoubleSpinBox *buildPositionDoubleSpinBox(const QString &prefix, const QString &suffix, double value, int decimals);
+	QDoubleSpinBox *createPositionDoubleSpinBox(const QString &prefix, const QString &suffix, double value, int decimals);
 
-	/// Button group for the fluorescence detector selection.
-	QButtonGroup *fluorescenceButtonGroup_;
-	/// Button group for the ccd detector selection.
-	QButtonGroup *ccdButtonGroup_;
-	/// Button group for the It ion chamber selection.
-	QButtonGroup *ItGroup_;
-	/// Button group for the I0 ion chamber selection.
-	QButtonGroup *I0Group_;
 	/// Button group for the exporter options.
 	QButtonGroup *autoExportButtonGroup_;
-	/// Button group for the motor choice selection.
-	QButtonGroup *motorButtonGroup_;
 
 	/// Label holding what the currently saved x position is in the scan configuration.
 	QLabel *savedXPosition_;
@@ -131,6 +117,16 @@ protected:
 	QDoubleSpinBox *dwellTime_;
 	/// Line edit for changing the name of the scan.
 	QLineEdit *scanName_;
+	/// Combo box for choosing the fluorescence detector.
+	QComboBox *fluorescenceDetectorComboBox_;
+	/// Combo box for choosing the I0 ion chamber.
+	QComboBox *i0ComboBox_;
+	/// Combo box for choosing the It ion chamber.
+	QComboBox *itComboBox_;
+	/// Combo box for choosing the CCD detector.
+	QComboBox *ccdComboBox_;
+	/// Combo box for choosing the motors.
+	QComboBox *motorSelectionComboBox_;
 };
 
 #endif // VESPERSSCANCONFIGURATIONVIEW_H

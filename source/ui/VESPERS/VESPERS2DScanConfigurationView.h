@@ -98,8 +98,6 @@ protected slots:
 	void onFluorescenceChoiceChanged(int id);
 	/// Handles changes in the motor selection choice.
 	void onMotorChanged(int id);
-	/// Updates the button group if the motor is changed from elsewhere in the program.
-	void onMotorUpdated(int id);
 	/// Helper slot that sets the time offset for the scan.
 	void setTimeOffset(double time) { configuration_->setTimeOffset(time); }
 	/// Helper slot that handles the setting the estimated time label.
