@@ -20,6 +20,8 @@
 SGMFastScanActionController::SGMFastScanActionController(SGMFastScanConfiguration2013 *configuration, QObject *parent) :
 	AMScanActionController(configuration, parent)
 {
+	goodInitialState_ = false;
+
 	fileWriterIsBusy_ = false;
 	configuration_ = configuration;
 	insertionIndex_ = AMnDIndex(0);
@@ -121,6 +123,14 @@ void SGMFastScanActionController::onFileWriterIsBusy(bool isBusy){
 
 void SGMFastScanActionController::onEverythingFinished(){
 	qDebug() << "Looks like the SGMFastScan is completely done running";
+	qDebug() << "Undulator tracking: " << SGMBeamline::sgm()->undulatorTracking()->value();
+	qDebug() << "Exit slit tracking: " << SGMBeamline::sgm()->exitSlitTracking()->value();
+
+	if(goodInitialState_ && (!SGMBeamline::sgm()->undulatorTracking()->withinTolerance(1) || !SGMBeamline::sgm()->exitSlitTracking()->withinTolerance(1)) ){
+		qDebug() << "\n\n\nDETECTED A LOSS OF TRACKING STATE\n\n";
+		QWidget *crash = 0;
+		crash->layout();
+	}
 }
 
 bool SGMFastScanActionController::startImplementation(){
@@ -130,9 +140,7 @@ bool SGMFastScanActionController::startImplementation(){
 		return false;
 	}
 
-	connect(this, SIGNAL(cancelled()), this, SLOT(onEverythingFinished()));
 	connect(this, SIGNAL(finished()), this, SLOT(onEverythingFinished()));
-	connect(this, SIGNAL(failed()), this, SLOT(onEverythingFinished()));
 
 	AMAgnosticDataMessageHandler *dataMessager = AMAgnosticDataAPISupport::handlerFromLookupKey("ScanActions");
 	AMAgnosticDataMessageQEventHandler *scanActionMessager = qobject_cast<AMAgnosticDataMessageQEventHandler*>(dataMessager);
@@ -284,7 +292,6 @@ bool SGMFastScanActionController::event(QEvent *e){
 						}
 			*/
 			writeDataToFiles();
-			setFinished();
 
 			break;}
 		case AMAgnosticDataAPIDefinitions::AxisValueFinished:
@@ -610,6 +617,9 @@ AMAction3* SGMFastScanActionController::createCleanupActions(){
 	fastActionsTrackingRestore->addSubAction(moveAction);
 	retVal->addSubAction(fastActionsTrackingRestore);
 	// End Tracking Off
+
+	if(SGMBeamline::sgm()->undulatorTracking()->withinTolerance(1))
+		goodInitialState_ = true;
 
 	// Grating Restore:
 	// Grating Velocity, Velocity Base, Acceleration to current settings
