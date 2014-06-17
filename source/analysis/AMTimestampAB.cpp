@@ -9,6 +9,7 @@ AMTimestampAB::AMTimestampAB(const QString &outputName, QObject *parent) :
     dataStored_ = QVector<QDateTime>();
 
     setTimeUnits(msec);
+    setMaximumStored(10);
 }
 
 AMTimestampAB::~AMTimestampAB()
@@ -24,6 +25,11 @@ QVector<QDateTime> AMTimestampAB::dataStored() const
 int AMTimestampAB::dataCount() const
 {
     return dataStored_.size();
+}
+
+int AMTimestampAB::maximumStored() const
+{
+    return maximumStored_;
 }
 
 AMTimestampAB::TimeUnits AMTimestampAB::timeUnits() const
@@ -113,6 +119,14 @@ bool AMTimestampAB::loadFromDb(AMDatabase *db, int id)
     }
 
     return success;
+}
+
+void AMTimestampAB::setMaximumStored(int newMax)
+{
+    if (maximumStored_ != newMax) {
+        maximumStored_ = newMax;
+        emit maximumStoredChanged(maximumStored_);
+    }
 }
 
 void AMTimestampAB::setTimeUnits(TimeUnits newUnits)

@@ -22,6 +22,8 @@ public:
     QVector<QDateTime> dataStored() const;
     /// Returns the total number of elements stored.
     int dataCount() const;
+    /// Returns the maximum number of elements stored.
+    int maximumStored() const;
     /// Returns the current time units.
     TimeUnits timeUnits() const;
 
@@ -39,9 +41,13 @@ public:
     virtual bool loadFromDb(AMDatabase *db, int id);
 
 signals:
+    void maximumStoredChanged(int newMax);
     void timeUnitsChanged(TimeUnits newUnits);
 
 public slots:
+    /// Sets the maximum number of elements stored.
+    void setMaximumStored(int newMax);
+    /// Sets the current time units.
     void setTimeUnits(TimeUnits newUnits);
 
 protected slots:
@@ -63,6 +69,8 @@ protected:
     QDateTime latestUpdate_;
     /// The current time units.
     TimeUnits units_;
+    /// The maximum number of elements to store.
+    int maximumStored_;
 
 };
 

@@ -7,6 +7,7 @@ AM0DAccumulatorAB::AM0DAccumulatorAB(const QString &outputName, QObject *parent)
     setState(AMDataSource::InvalidFlag);
 
     dataStored_ = QVector<double>();
+    setMaximumStored(10);
 }
 
 AM0DAccumulatorAB::~AM0DAccumulatorAB()
@@ -22,6 +23,11 @@ QVector<double> AM0DAccumulatorAB::dataStored() const
 int AM0DAccumulatorAB::dataCount() const
 {
     return dataStored_.size();
+}
+
+int AM0DAccumulatorAB::maximumStored() const
+{
+    return maximumStored_;
 }
 
 bool AM0DAccumulatorAB::areInputDataSourcesAcceptable(const QList<AMDataSource *> &dataSources) const
@@ -156,6 +162,14 @@ void AM0DAccumulatorAB::onInputSourceValuesChanged(const AMnDIndex &start, const
 
     emitValuesChanged();
     emitSizeChanged(0);
+}
+
+void AM0DAccumulatorAB::setMaximumStored(int newMax)
+{
+    if (maximumStored_ != newMax) {
+        maximumStored_ = newMax;
+        emit maximumStoredChanged(maximumStored_);
+    }
 }
 
 void AM0DAccumulatorAB::onInputSourceStateChanged()
