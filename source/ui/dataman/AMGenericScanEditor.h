@@ -171,6 +171,8 @@ protected slots:
 	/// Slot which is called when the scan is saved to the database (sets ScanID to database value)
 	void onScanSavedToDatabase();
 
+	void onScanDetailsChanged();
+
 protected:
 
 	// Re-implemented functions

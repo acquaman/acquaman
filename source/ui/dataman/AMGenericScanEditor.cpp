@@ -335,6 +335,9 @@ void AMGenericScanEditor::addScan(AMScan* newScan) {
 			scanSetModel_->setExclusiveDataSourceByName(newScan->dataSourceAt(nonHiddenDataSourceIndexes.first())->name());
 	}
 
+	connect(newScan, SIGNAL(nameChanged(QString)), this, SLOT(onScanDetailsChanged()));
+	connect(newScan, SIGNAL(numberChanged(int)), this, SLOT(onScanDetailsChanged()));
+
 	emit scanAdded(this, newScan);
 	refreshWindowTitle();
 }
@@ -358,6 +361,7 @@ void AMGenericScanEditor::refreshWindowTitle() {
 		windowTitle.append(")");
 	}
 	setWindowTitle(windowTitle);
+	ui_.topFrameTitle->setText(windowTitle);
 }
 
 void AMGenericScanEditor::refreshScanConditions() {
@@ -777,6 +781,11 @@ void AMGenericScanEditor::onScanSavedToDatabase()
 {
 	ui_.scanId->setText(QString("%1").arg(currentScan_->id()));
 	ui_.scanNumber->setValue(currentScan_->number());
+}
+
+void AMGenericScanEditor::onScanDetailsChanged()
+{
+	refreshWindowTitle();
 }
 
 #include <QFileDialog>

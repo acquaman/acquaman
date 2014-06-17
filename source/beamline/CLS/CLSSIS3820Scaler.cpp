@@ -529,8 +529,6 @@ void CLSSIS3820Scaler::onDarkCurrentCorrectionDwellTimeReset() {
 	doingDarkCurrentCorrection_ = false;
 	emit newDarkCurrentMeasurementState(SUCCEEDED);
 	disconnect(this, SLOT(onDarkCurrentCorrectionDwellTimeReset()));
-
-	qDebug() << "Dark current correction dwell time reset.";
 }
 
 void CLSSIS3820Scaler::onDarkCurrentCorrectionStateChanged(CLSSIS3820Scaler::DarkCurrentCorrectionState) {

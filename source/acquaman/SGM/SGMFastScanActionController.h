@@ -44,6 +44,8 @@ protected slots:
 	/// Handles dealing with the file writer when it changes busy state.
 	void onFileWriterIsBusy(bool isBusy);
 
+	void onEverythingFinished();
+
 protected:
 	/// Re-implemented due to the extra complexity of setting up a fast scan.
 	virtual bool startImplementation();
@@ -83,6 +85,8 @@ protected:
 
 	QThread *fileWriterThread_;
 	bool fileWriterIsBusy_;
+
+	bool goodInitialState_;
 };
 
 #endif // SGMFASTSCANACTIONCONTROLLER_H
