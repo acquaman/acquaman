@@ -47,7 +47,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSAdvancedScalerChannelDetector.h"
 #include "beamline/AMBasicControlDetectorEmulator.h"
 #include "beamline/CLS/CLSSR570.h"
-
+#include "actions3/actions/AMControlWaitAction.h"
 #include "util/AMErrorMonitor.h"
 
 SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
@@ -97,6 +97,27 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	addChildControl(ea2CloseVacuum_);
 	addChildControl(beamOn_);
 	addChildControl(visibleLightToggle_);
+
+	addChildControl(vvr1611_3_I10_01Shutter_);
+	addChildControl(vvr1611_3_I10_02Shutter_);
+	addChildControl(vvr1611_3_I10_03Shutter_);
+	addChildControl(vvr1611_3_I10_04Shutter_);
+	addChildControl(psh1611_3_I10_01Shutter_);
+	addChildControl(vvr1611_4_I10_01Shutter_);
+	addChildControl(vvr1611_4_I10_02Shutter_);
+	addChildControl(vvr1611_4_I10_03Shutter_);
+	addChildControl(vvr1611_4_I10_04Shutter_);
+	addChildControl(vvr1611_4_I10_05Shutter_);
+	addChildControl(vvr1611_4_I10_06Shutter_);
+	addChildControl(vvr1611_4_I10_07Shutter_);
+	addChildControl(vvr1611_4_I10_08Shutter_);
+	addChildControl(psh1411_I00_01Shutter_);
+	addChildControl(vvr1411_I00_01Shutter_);
+	addChildControl(vvf1411_I00_01Shutter_);
+	addChildControl(psh1411_I00_02Shutter_);
+	addChildControl(ssh1411_I00_01Shutter_);
+	addChildControl(vvr1611_3_I00_01Shutter_);
+
 	connect(visibleLightToggle_, SIGNAL(valueChanged(double)), this, SLOT(onVisibleLightChanged(double)));
 	addChildControl(visibleLightStatus_);
 	connect(visibleLightStatus_, SIGNAL(valueChanged(double)), this, SLOT(onVisibleLightChanged(double)));
@@ -104,6 +125,29 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	connect(activeEndstation_, SIGNAL(valueChanged(double)), this, SLOT(onActiveEndstationChanged(double)));
 	addChildControl(ssaIllumination_);
 	connect(mirrorStripeSelection_, SIGNAL(valueChanged(double)), this, SLOT(onMirrorStripeChanged(double)));
+
+	shutterControlSet_ = new AMControlSet(this);
+	shutterControlSet_->setName("Shutter State Controls");
+	shutterControlSet_->addControl(vvr1611_3_I10_01Shutter_);
+	shutterControlSet_->addControl(vvr1611_3_I10_02Shutter_);
+	shutterControlSet_->addControl(vvr1611_3_I10_03Shutter_);
+	shutterControlSet_->addControl(vvr1611_3_I10_04Shutter_);
+	shutterControlSet_->addControl(psh1611_3_I10_01Shutter_);
+	shutterControlSet_->addControl(vvr1611_4_I10_01Shutter_);
+	shutterControlSet_->addControl(vvr1611_4_I10_02Shutter_);
+	shutterControlSet_->addControl(vvr1611_4_I10_03Shutter_);
+	shutterControlSet_->addControl(vvr1611_4_I10_04Shutter_);
+	shutterControlSet_->addControl(vvr1611_4_I10_05Shutter_);
+	shutterControlSet_->addControl(vvr1611_4_I10_06Shutter_);
+	shutterControlSet_->addControl(vvr1611_4_I10_07Shutter_);
+	shutterControlSet_->addControl(vvr1611_4_I10_08Shutter_);
+	shutterControlSet_->addControl(psh1411_I00_01Shutter_);
+	shutterControlSet_->addControl(vvr1411_I00_01Shutter_);
+	shutterControlSet_->addControl(vvf1411_I00_01Shutter_);
+	shutterControlSet_->addControl(psh1411_I00_02Shutter_);
+	shutterControlSet_->addControl(ssh1411_I00_01Shutter_);
+	shutterControlSet_->addControl(vvr1611_3_I00_01Shutter_);
+	shutterControlSet_->addControl(vvr1611_3_I00_02Shutter_);
 
 	criticalControlsSet_ = new AMControlSet(this);
 	criticalControlsSet_->setName("Critical Beamline Controls");
@@ -512,7 +556,7 @@ AMDetector* SGMBeamline::dwellTimeDetector() const {
 #include "actions3/AMListAction3.h"
 #include "actions3/actions/AMControlMoveAction3.h"
 AMAction3* SGMBeamline::createBeamOnActions3(){
-	if(!beamOnControlSet_->isConnected())
+	if(!beamOnControlSet_->isConnected() || !shutterControlSet_->isConnected())
 		return 0;
 
 	AMListAction3 *beamOnActionsList = new AMListAction3(new AMListActionInfo3("SGM Beam On", "SGM Beam On"), AMListAction3::Parallel);
@@ -526,6 +570,106 @@ AMAction3* SGMBeamline::createBeamOnActions3(){
 	fastShutterSetpoint.setValue(0);
 	AMControlMoveAction3 *fastShutterAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(fastShutterSetpoint), fastShutterVoltage_);
 	beamOnActionsList->addSubAction(fastShutterAction);
+
+	AMControlInfo vvr1611_3_I10_01Info = vvr1611_3_I10_01Shutter_->toInfo();
+	vvr1611_3_I10_01Info.setValue(1);
+	AMControlWaitAction *waitForvvr1611_3_I10_01Shutter = new AMControlWaitAction(new AMControlWaitActionInfo(vvr1611_3_I10_01Info, 30000, AMControlWaitActionInfo::MatchEqual),vvr1611_3_I10_01Shutter_);
+	beamOnActionsList->addSubAction(waitForvvr1611_3_I10_01Shutter);
+
+	AMControlInfo vvr1611_3_I10_02Info = vvr1611_3_I10_02Shutter_->toInfo();
+	vvr1611_3_I10_02Info.setValue(1);
+	AMControlWaitAction *waitForvvr1611_3_I10_02Shutter = new AMControlWaitAction(new AMControlWaitActionInfo(vvr1611_3_I10_02Info, 30000, AMControlWaitActionInfo::MatchEqual),vvr1611_3_I10_02Shutter_);
+	beamOnActionsList->addSubAction(waitForvvr1611_3_I10_02Shutter);
+
+	AMControlInfo vvr1611_3_I10_03Info = vvr1611_3_I10_03Shutter_->toInfo();
+	vvr1611_3_I10_03Info.setValue(1);
+	AMControlWaitAction *waitForvvr1611_3_I10_03Shutter = new AMControlWaitAction(new AMControlWaitActionInfo(vvr1611_3_I10_03Info, 30000, AMControlWaitActionInfo::MatchEqual),vvr1611_3_I10_03Shutter_);
+	beamOnActionsList->addSubAction(waitForvvr1611_3_I10_03Shutter);
+
+	AMControlInfo vvr1611_3_I10_04Info = vvr1611_3_I10_04Shutter_->toInfo();
+	vvr1611_3_I10_04Info.setValue(1);
+	AMControlWaitAction *waitForvvr1611_3_I10_04Shutter = new AMControlWaitAction(new AMControlWaitActionInfo(vvr1611_3_I10_04Info, 30000, AMControlWaitActionInfo::MatchEqual),vvr1611_3_I10_04Shutter_);
+	beamOnActionsList->addSubAction(waitForvvr1611_3_I10_04Shutter);
+
+	AMControlInfo psh1611_3_I10_01Info = psh1611_3_I10_01Shutter_->toInfo();
+	psh1611_3_I10_01Info.setValue(1);
+	AMControlWaitAction *waitForpsh1611_3_I10_01Shutter = new AMControlWaitAction(new AMControlWaitActionInfo(psh1611_3_I10_01Info, 30000, AMControlWaitActionInfo::MatchEqual), psh1611_3_I10_01Shutter_);
+	beamOnActionsList->addSubAction(waitForpsh1611_3_I10_01Shutter);
+
+	AMControlInfo vvr1611_4_I10_01Info = vvr1611_4_I10_01Shutter_->toInfo();
+	vvr1611_4_I10_01Info.setValue(1);
+	AMControlWaitAction *waitForvvr1611_4_I10_01Shutter = new AMControlWaitAction(new AMControlWaitActionInfo(vvr1611_4_I10_01Info, 30000, AMControlWaitActionInfo::MatchEqual),vvr1611_4_I10_01Shutter_);
+	beamOnActionsList->addSubAction(waitForvvr1611_4_I10_01Shutter);
+
+	AMControlInfo vvr1611_4_I10_02Info = vvr1611_4_I10_02Shutter_->toInfo();
+	vvr1611_4_I10_02Info.setValue(1);
+	AMControlWaitAction *waitForvvr1611_4_I10_02Shutter = new AMControlWaitAction(new AMControlWaitActionInfo(vvr1611_4_I10_02Info, 30000, AMControlWaitActionInfo::MatchEqual),vvr1611_4_I10_02Shutter_);
+	beamOnActionsList->addSubAction(waitForvvr1611_4_I10_02Shutter);
+
+	AMControlInfo vvr1611_4_I10_03Info = vvr1611_4_I10_03Shutter_->toInfo();
+	vvr1611_4_I10_03Info.setValue(1);
+	AMControlWaitAction *waitForvvr1611_4_I10_03Shutter = new AMControlWaitAction(new AMControlWaitActionInfo(vvr1611_4_I10_03Info, 30000, AMControlWaitActionInfo::MatchEqual),vvr1611_4_I10_03Shutter_);
+	beamOnActionsList->addSubAction(waitForvvr1611_4_I10_03Shutter);
+
+	AMControlInfo vvr1611_4_I10_04Info = vvr1611_4_I10_04Shutter_->toInfo();
+	vvr1611_4_I10_04Info.setValue(1);
+	AMControlWaitAction *waitForvvr1611_4_I10_04Shutter = new AMControlWaitAction(new AMControlWaitActionInfo(vvr1611_4_I10_04Info, 30000, AMControlWaitActionInfo::MatchEqual),vvr1611_4_I10_04Shutter_);
+	beamOnActionsList->addSubAction(waitForvvr1611_4_I10_04Shutter);
+
+	AMControlInfo vvr1611_4_I10_05Info = vvr1611_4_I10_05Shutter_->toInfo();
+	vvr1611_4_I10_05Info.setValue(1);
+	AMControlWaitAction *waitForvvr1611_4_I10_05Shutter = new AMControlWaitAction(new AMControlWaitActionInfo(vvr1611_4_I10_05Info, 30000, AMControlWaitActionInfo::MatchEqual),vvr1611_4_I10_05Shutter_);
+	beamOnActionsList->addSubAction(waitForvvr1611_4_I10_05Shutter);
+
+	AMControlInfo vvr1611_4_I10_06Info = vvr1611_4_I10_06Shutter_->toInfo();
+	vvr1611_4_I10_06Info.setValue(1);
+	AMControlWaitAction *waitForvvr1611_4_I10_06Shutter = new AMControlWaitAction(new AMControlWaitActionInfo(vvr1611_4_I10_06Info, 30000, AMControlWaitActionInfo::MatchEqual),vvr1611_4_I10_06Shutter_);
+	beamOnActionsList->addSubAction(waitForvvr1611_4_I10_06Shutter);
+
+	AMControlInfo vvr1611_4_I10_07Info = vvr1611_4_I10_07Shutter_->toInfo();
+	vvr1611_4_I10_07Info.setValue(1);
+	AMControlWaitAction *waitForvvr1611_4_I10_07Shutter = new AMControlWaitAction(new AMControlWaitActionInfo(vvr1611_4_I10_07Info, 30000, AMControlWaitActionInfo::MatchEqual),vvr1611_4_I10_07Shutter_);
+	beamOnActionsList->addSubAction(waitForvvr1611_4_I10_07Shutter);
+
+	AMControlInfo vvr1611_4_I10_08Info = vvr1611_4_I10_08Shutter_->toInfo();
+	vvr1611_4_I10_08Info.setValue(1);
+	AMControlWaitAction *waitForvvr1611_4_I10_08Shutter = new AMControlWaitAction(new AMControlWaitActionInfo(vvr1611_4_I10_08Info, 30000, AMControlWaitActionInfo::MatchEqual),vvr1611_4_I10_08Shutter_);
+	beamOnActionsList->addSubAction(waitForvvr1611_4_I10_08Shutter);
+
+	AMControlInfo psh1411_I00_01Info = psh1411_I00_01Shutter_->toInfo();
+	psh1411_I00_01Info.setValue(1);
+	AMControlWaitAction *waitForpsh1411_I00_01Shutter = new AMControlWaitAction(new AMControlWaitActionInfo(psh1411_I00_01Info, 30000, AMControlWaitActionInfo::MatchEqual), psh1411_I00_01Shutter_);
+	beamOnActionsList->addSubAction(waitForpsh1411_I00_01Shutter);
+
+	AMControlInfo vvr1411_I00_01Info = vvr1411_I00_01Shutter_->toInfo();
+	vvr1411_I00_01Info.setValue(1);
+	AMControlWaitAction *waitForvvr1411_I00_01Shutter = new AMControlWaitAction(new AMControlWaitActionInfo(vvr1411_I00_01Info, 30000, AMControlWaitActionInfo::MatchEqual), vvr1411_I00_01Shutter_);
+	beamOnActionsList->addSubAction(waitForvvr1411_I00_01Shutter);
+
+	AMControlInfo vvf1411_I00_01Info = vvf1411_I00_01Shutter_->toInfo();
+	vvf1411_I00_01Info.setValue(1);
+	AMControlWaitAction *waitForvvf1411_I00_01Shutter = new AMControlWaitAction(new AMControlWaitActionInfo(vvf1411_I00_01Info, 30000, AMControlWaitActionInfo::MatchEqual), vvf1411_I00_01Shutter_);
+	beamOnActionsList->addSubAction(waitForvvf1411_I00_01Shutter);
+
+	AMControlInfo psh1411_I00_02Info = psh1411_I00_02Shutter_->toInfo();
+	psh1411_I00_02Info.setValue(1);
+	AMControlWaitAction *waitForpsh1411_I00_02Shutter = new AMControlWaitAction(new AMControlWaitActionInfo(psh1411_I00_02Info, 30000, AMControlWaitActionInfo::MatchEqual), psh1411_I00_02Shutter_);
+	beamOnActionsList->addSubAction(waitForpsh1411_I00_02Shutter);
+
+	AMControlInfo ssh1411_I00_01Info = ssh1411_I00_01Shutter_->toInfo();
+	ssh1411_I00_01Info.setValue(1);
+	AMControlWaitAction *waitForssh1411_I00_01Shutter = new AMControlWaitAction(new AMControlWaitActionInfo(ssh1411_I00_01Info, 30000, AMControlWaitActionInfo::MatchEqual), ssh1411_I00_01Shutter_);
+	beamOnActionsList->addSubAction(waitForssh1411_I00_01Shutter);
+
+	AMControlInfo vvr1611_3_I00_01Info = vvr1611_3_I00_01Shutter_->toInfo();
+	vvr1611_3_I00_01Info.setValue(1);
+	AMControlWaitAction *waitForvvr1611_3_I00_01Shutter = new AMControlWaitAction(new AMControlWaitActionInfo(vvr1611_3_I00_01Info, 30000, AMControlWaitActionInfo::MatchEqual), vvr1611_3_I00_01Shutter_);
+	beamOnActionsList->addSubAction(waitForvvr1611_3_I00_01Shutter);
+
+	AMControlInfo vvr1611_3_I00_02Info = vvr1611_3_I00_02Shutter_->toInfo();
+	vvr1611_3_I00_02Info.setValue(1);
+	AMControlWaitAction *waitForvvr1611_3_I00_02Shutter = new AMControlWaitAction(new AMControlWaitActionInfo(vvr1611_3_I00_02Info, 30000, AMControlWaitActionInfo::MatchEqual), vvr1611_3_I00_02Shutter_);
+	beamOnActionsList->addSubAction(waitForvvr1611_3_I00_02Shutter);
 
 	return beamOnActionsList;
 }
@@ -1101,6 +1245,27 @@ void SGMBeamline::setupControls(){
 	m3RotationalEncoder_ = new AMReadOnlyPVControl("m3RotationalEncoder", "SMTR16113I1019:encod:fbk", this);
 
 	undulatorForcedOpen_ = new AMReadOnlyPVControl("UndulatorForcedOpen", "UND1411-01:openID", this);
+
+	vvr1611_3_I10_01Shutter_ = new AMReadOnlyPVControl("VVR1611-3-I10-01Open", "VVR1611-3-I10-01:state", this);
+	vvr1611_3_I10_02Shutter_ = new AMReadOnlyPVControl("VVR1611-3-I10-02Open", "VVR1611-3-I10-02:state", this);
+	vvr1611_3_I10_03Shutter_= new AMReadOnlyPVControl("VVR1611-3-I10-03Open", "VVR1611-3-I10-03:state", this);
+	vvr1611_3_I10_04Shutter_= new AMReadOnlyPVControl("VVR1611-3-I10-04Open", "VVR1611-3-I10-04:state", this);
+	psh1611_3_I10_01Shutter_ = new AMReadOnlyPVControl("PSH1611-3-I10-01Open", "PSH1611-3-I10-01:state", this);
+	vvr1611_4_I10_01Shutter_ = new AMReadOnlyPVControl("VVR1611-4-I10-01Open", "VVR1611-4-I10-01:state", this);
+	vvr1611_4_I10_02Shutter_ = new AMReadOnlyPVControl("VVR1611-4-I10-02Open", "VVR1611-4-I10-02:state", this);
+	vvr1611_4_I10_03Shutter_ = new AMReadOnlyPVControl("VVR1611-4-I10-03Open", "VVR1611-4-I10-03:state", this);
+	vvr1611_4_I10_04Shutter_ = new AMReadOnlyPVControl("VVR1611-4-I10-04Open", "VVR1611-4-I10-04:state", this);
+	vvr1611_4_I10_05Shutter_ = new AMReadOnlyPVControl("VVR1611-4-I10-05Open", "VVR1611-4-I10-05:state", this);
+	vvr1611_4_I10_06Shutter_ = new AMReadOnlyPVControl("VVR1611-4-I10-06Open", "VVR1611-4-I10-06:state", this);
+	vvr1611_4_I10_07Shutter_ = new AMReadOnlyPVControl("VVR1611-4-I10-07Open", "VVR1611-4-I10-07:state", this);
+	vvr1611_4_I10_08Shutter_ = new AMReadOnlyPVControl("VVR1611-4-I10-08Open", "VVR1611-4-I10-08:state", this);
+	psh1411_I00_01Shutter_ = new AMReadOnlyPVControl("PSH1411-I00-01Open", "PSH1411-I00-01:state", this);
+	vvr1411_I00_01Shutter_ = new AMReadOnlyPVControl("VVR1411-I00-01Open", "VVR1411-I00-01:state", this);
+	vvf1411_I00_01Shutter_ = new AMReadOnlyPVControl("VVF1411-I00-01Open", "VVF1411-I00-01:state", this);
+	psh1411_I00_02Shutter_ = new AMReadOnlyPVControl("PSH1411-I00-01Open", "PSH1411-I00-02:state", this);
+	ssh1411_I00_01Shutter_ = new AMReadOnlyPVControl("SSH1411_I00_01Open", "SSH1411_I00_01:state", this);
+	vvr1611_3_I00_01Shutter_ = new AMReadOnlyPVControl("VVR1611_3_I00_01Open", "VVR1611_3_I00_01:state", this);
+	vvr1611_3_I00_02Shutter_ = new AMReadOnlyPVControl("VVR1611_3_I00_02Open", "VVR1611_3_I00_01:state", this);
 
 	if(amNames2pvNames_.lookupFailed())
 		AMErrorMon::alert(this, SGMBEAMLINE_PV_NAME_LOOKUPS_FAILED, "PV Name lookups in the SGM Beamline failed");
