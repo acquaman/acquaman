@@ -11,6 +11,8 @@ class AMTimestampAB : public AMStandardAnalysisBlock
     Q_OBJECT
 
 public:
+    enum TimeUnits {msec = 0, sec = 1, min = 2, hour = 3};
+
     /// Constructor.
     Q_INVOKABLE AMTimestampAB(const QString &outputName, QObject *parent = 0);
     /// Destructor.
@@ -18,9 +20,10 @@ public:
 
     /// Returns the times stored in this analysis block, for the input data source.
     QVector<QDateTime> dataStored() const;
-
     /// Returns the total number of elements stored.
     int dataCount() const;
+    /// Returns the current time units.
+    TimeUnits timeUnits() const;
 
     /// Check that the input sources are acceptable. The empty list is always valid. For non-empty list of sources, the list must be of size 1."
     virtual bool areInputDataSourcesAcceptable(const QList<AMDataSource *> &dataSources) const;
@@ -36,8 +39,10 @@ public:
     virtual bool loadFromDb(AMDatabase *db, int id);
 
 signals:
+    void timeUnitsChanged(TimeUnits newUnits);
 
 public slots:
+    void setTimeUnits(TimeUnits newUnits);
 
 protected slots:
     /// Handles adding the new value to the dataStored_ for this particular data source.
@@ -46,13 +51,18 @@ protected slots:
     void onInputSourceStateChanged();
 
 protected:
+    /// Converts the millisecond argument to another TimeUnit.
+    double msecTo(double msecVal, TimeUnits newUnit) const;
     /// Helper function that reviews this AB's current state.
     void reviewState();
 
 protected:
     /// List storing the times saved in this analysis block.
     QVector<QDateTime> dataStored_;
+    /// The datetime of the latest data source value update.
     QDateTime latestUpdate_;
+    /// The current time units.
+    TimeUnits units_;
 
 };
 

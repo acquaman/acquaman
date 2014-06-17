@@ -7,6 +7,8 @@ AMTimestampAB::AMTimestampAB(const QString &outputName, QObject *parent) :
     setState(AMDataSource::InvalidFlag);
 
     dataStored_ = QVector<QDateTime>();
+
+    setTimeUnits(msec);
 }
 
 AMTimestampAB::~AMTimestampAB()
@@ -22,6 +24,11 @@ QVector<QDateTime> AMTimestampAB::dataStored() const
 int AMTimestampAB::dataCount() const
 {
     return dataStored_.size();
+}
+
+AMTimestampAB::TimeUnits AMTimestampAB::timeUnits() const
+{
+    return units_;
 }
 
 bool AMTimestampAB::areInputDataSourcesAcceptable(const QList<AMDataSource *> &dataSources) const
@@ -94,7 +101,7 @@ AMNumber AMTimestampAB::axisValue(int axisNumber, int index) const
     if (!latestUpdate_.isValid())
         return AMNumber(AMNumber::InvalidError);
 
-    return (double)latestUpdate_.msecsTo(dataStored_.at(index));
+    return msecTo(latestUpdate_.msecsTo(dataStored_.at(index)), units_);
 }
 
 bool AMTimestampAB::loadFromDb(AMDatabase *db, int id)
@@ -106,6 +113,14 @@ bool AMTimestampAB::loadFromDb(AMDatabase *db, int id)
     }
 
     return success;
+}
+
+void AMTimestampAB::setTimeUnits(TimeUnits newUnits)
+{
+    if (units_ != newUnits) {
+        units_ = newUnits;
+        emit timeUnitsChanged(units_);
+    }
 }
 
 void AMTimestampAB::onInputSourceValuesChanged(const AMnDIndex &start, const AMnDIndex &end)
@@ -126,6 +141,26 @@ void AMTimestampAB::onInputSourceValuesChanged(const AMnDIndex &start, const AMn
 void AMTimestampAB::onInputSourceStateChanged()
 {
     reviewState();
+}
+
+double AMTimestampAB::msecTo(double msecVal, TimeUnits newUnit) const
+{
+    double result = 0;
+
+    if (newUnit == msec) {
+        result = msecVal;
+
+    } else if (newUnit == sec) {
+        result = msecVal / 1000;
+
+    } else if (newUnit == min) {
+        result = msecVal / 1000 / 60;
+
+    } else if (newUnit == hour) {
+        result = msecVal / 1000 / 60 / 60;
+    }
+
+    return result;
 }
 
 void AMTimestampAB::reviewState()

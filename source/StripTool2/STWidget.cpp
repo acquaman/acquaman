@@ -69,8 +69,8 @@ void STWidget::onRingCurrentValueChanged(double newValue)
 
         qDebug() << "Latest update : " << (double)accumulator_->value( AMnDIndex(accumulator_->dataCount() - 1) );
 
-        QVector<double> vals = QVector<double>();
-        accumulator_->values(AMnDIndex(0), AMnDIndex(accumulator_->dataCount() - 1), vals.data());
+        QVector<double> vals = QVector<double>(0);
+        accumulator_->values(AMnDIndex(), AMnDIndex(accumulator_->dataCount() - 1), vals.data());
         qDebug() << "Total values entries  :" << vals.size();
         qDebug() << "Total values : " << vals.toList();
     }
