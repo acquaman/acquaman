@@ -120,6 +120,11 @@ void SGMFastScanActionController::onFileWriterIsBusy(bool isBusy){
 }
 
 bool SGMFastScanActionController::startImplementation(){
+	if(qFuzzyIsNull(SGMBeamline::sgm()->undulatorForcedOpen()->value() - 1))
+	{
+		this->setFailed();
+		return false;
+	}
 	AMAgnosticDataMessageHandler *dataMessager = AMAgnosticDataAPISupport::handlerFromLookupKey("ScanActions");
 	AMAgnosticDataMessageQEventHandler *scanActionMessager = qobject_cast<AMAgnosticDataMessageQEventHandler*>(dataMessager);
 	if(scanActionMessager)
