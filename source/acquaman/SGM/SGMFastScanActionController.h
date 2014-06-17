@@ -85,6 +85,8 @@ protected:
 
 	QThread *fileWriterThread_;
 	bool fileWriterIsBusy_;
+
+	bool goodInitialState_;
 };
 
 #endif // SGMFASTSCANACTIONCONTROLLER_H
