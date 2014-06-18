@@ -67,9 +67,9 @@ void AM0DAccumulatorAB::setInputDataSourcesImplementation(const QList<AMDataSour
 
     reviewState();
 
-    emitSizeChanged(0);
+    emitSizeChanged();
     emitValuesChanged();
-    emitAxisInfoChanged(0);
+    emitAxisInfoChanged();
     emitInfoChanged();
 }
 
@@ -153,7 +153,7 @@ void AM0DAccumulatorAB::onInputSourceValuesChanged(const AMnDIndex &start, const
     axes_[0] = AMAxisInfo(sources_.at(0)->name(), dataStored_.size());
 
     emitValuesChanged();
-    emitSizeChanged(0);
+    emitSizeChanged();
 }
 
 void AM0DAccumulatorAB::onInputSourceStateChanged()
