@@ -6,10 +6,10 @@ AMTimestampAB::AMTimestampAB(const QString &outputName, QObject *parent) :
     axes_ << AMAxisInfo("invalid", 0, "No input data");
     setState(AMDataSource::InvalidFlag);
 
-    dataStored_ = QVector<QDateTime>();
+    dataStored_ = QList<QDateTime>();
+    dataMax_ = 10;
 
     setTimeUnits(mSeconds);
-    setMaximumStored(10);
 }
 
 AMTimestampAB::~AMTimestampAB()
@@ -17,19 +17,19 @@ AMTimestampAB::~AMTimestampAB()
 
 }
 
-QVector<QDateTime> AMTimestampAB::dataStored() const
+QList<QDateTime> AMTimestampAB::dataStored() const
 {
     return dataStored_;
 }
 
-int AMTimestampAB::dataCount() const
+int AMTimestampAB::dataStoredCount() const
 {
     return dataStored_.size();
 }
 
-int AMTimestampAB::maximumStored() const
+int AMTimestampAB::dataStoredCountMax() const
 {
-    return maximumStored_;
+    return dataMax_;
 }
 
 AMTimestampAB::TimeUnits AMTimestampAB::timeUnits() const
@@ -121,14 +121,6 @@ bool AMTimestampAB::loadFromDb(AMDatabase *db, int id)
     return success;
 }
 
-void AMTimestampAB::setMaximumStored(int newMax)
-{
-    if (maximumStored_ != newMax) {
-        maximumStored_ = newMax;
-        emit maximumStoredChanged(maximumStored_);
-    }
-}
-
 void AMTimestampAB::setTimeUnits(TimeUnits newUnits)
 {
     if (units_ != newUnits) {
@@ -143,7 +135,15 @@ void AMTimestampAB::onInputSourceValuesChanged(const AMnDIndex &start, const AMn
     Q_UNUSED(end)
 
     latestUpdate_ = QDateTime::currentDateTime();
-    dataStored_.append(latestUpdate_);
+
+    // if we are less than the data stored max, append the new value to the end of the data stored list.
+    if (dataStored_.size() <= dataMax_) {
+        dataStored_.append(latestUpdate_);
+
+    } else {
+        dataStored_.removeFirst();
+        dataStored_.append(latestUpdate_);
+    }
 
     // update the axes info for this data source to reflect the (possibly) new number of points to plot.
     axes_[0] = AMAxisInfo(sources_.at(0)->name(), dataStored_.size());

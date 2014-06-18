@@ -5,7 +5,8 @@ AM0DAccumulatorAB::AM0DAccumulatorAB(const QString &outputName, QObject *parent)
     axes_ << AMAxisInfo("invalid", 0, "No input data");
     setState(AMDataSource::InvalidFlag);
 
-    dataStored_ = QVector<double>();
+    dataStored_ = QList<double>();
+    dataMax_ = 10;
 }
 
 AM0DAccumulatorAB::~AM0DAccumulatorAB()
@@ -13,14 +14,19 @@ AM0DAccumulatorAB::~AM0DAccumulatorAB()
 
 }
 
-QVector<double> AM0DAccumulatorAB::dataStored() const
+QList<double> AM0DAccumulatorAB::dataStored() const
 {
     return dataStored_;
 }
 
-int AM0DAccumulatorAB::dataCount() const
+int AM0DAccumulatorAB::dataStoredCount() const
 {
     return dataStored_.size();
+}
+
+int AM0DAccumulatorAB::dataStoredCountMax() const
+{
+    return dataMax_;
 }
 
 bool AM0DAccumulatorAB::areInputDataSourcesAcceptable(const QList<AMDataSource *> &dataSources) const
@@ -149,7 +155,15 @@ void AM0DAccumulatorAB::onInputSourceValuesChanged(const AMnDIndex &start, const
 
     // update the values stored for this source. We assume the source is 0D, so the latest value is always recovered with an empty AMnDIndex.
     double newValue = sources_.at(0)->value(AMnDIndex());
-    dataStored_.append(newValue);
+
+    // if we are less than the data stored max, append the new value to the end of the data stored list.
+    if (dataStored_.size() <= dataMax_) {
+        dataStored_.append(newValue);
+
+    } else {
+        dataStored_.removeFirst();
+        dataStored_.append(newValue);
+    }
 
     // update the axes info for this data source to reflect the (possibly) new number of points to plot.
     axes_[0] = AMAxisInfo(sources_.at(0)->name(), dataStored_.size());

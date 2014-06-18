@@ -36,13 +36,13 @@ protected:
     AMProcessVariable *ringCurrentControl_;
     QLabel *ringCurrentLabel_;
 
-    MPlotRealtimeModel *ringCurrentModel1_;
+//    MPlotRealtimeModel *ringCurrentModel1_;
 //    AM0DAccumulatorAB *accumulator_;
 //    AMTimestampAB *timer_;
     AMTimestampAccumulatorAB *timedDataSource_;
     AMDataSourceSeriesData *ringCurrentModel2_;
 
-    MPlotSeriesBasic *ringCurrentSeries1_;
+//    MPlotSeriesBasic *ringCurrentSeries1_;
     MPlotSeriesBasic *ringCurrentSeries2_;
 
     MPlotWidget *plotWidget_;

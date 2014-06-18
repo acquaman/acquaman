@@ -19,11 +19,11 @@ public:
     virtual ~AMTimestampAB();
 
     /// Returns the times stored in this analysis block, for the input data source.
-    QVector<QDateTime> dataStored() const;
+    QList<QDateTime> dataStored() const;
     /// Returns the total number of elements stored.
-    int dataCount() const;
+    int dataStoredCount() const;
     /// Returns the maximum number of elements stored.
-    int maximumStored() const;
+    int dataStoredCountMax() const;
     /// Returns the current time units.
     TimeUnits timeUnits() const;
 
@@ -41,12 +41,9 @@ public:
     virtual bool loadFromDb(AMDatabase *db, int id);
 
 signals:
-    void maximumStoredChanged(int newMax);
     void timeUnitsChanged(TimeUnits newUnits);
 
 public slots:
-    /// Sets the maximum number of elements stored.
-    void setMaximumStored(int newMax);
     /// Sets the current time units.
     void setTimeUnits(TimeUnits newUnits);
 
@@ -64,13 +61,13 @@ protected:
 
 protected:
     /// List storing the times saved in this analysis block.
-    QVector<QDateTime> dataStored_;
+    QList<QDateTime> dataStored_;
+    /// The maximum number of items stored in this analysis block.
+    int dataMax_;
     /// The datetime of the latest data source value update.
     QDateTime latestUpdate_;
     /// The current time units.
     TimeUnits units_;
-    /// The maximum number of elements to store.
-    int maximumStored_;
 
 };
 

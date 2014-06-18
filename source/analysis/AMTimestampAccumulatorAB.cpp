@@ -63,12 +63,12 @@ void AMTimestampAccumulatorAB::setInputDataSourcesImplementation(const QList<AMD
 
 AMNumber AMTimestampAccumulatorAB::value(const AMnDIndex &indexes) const
 {
-    return accumulator_->value(indexes);
+    return timestamp_->value(indexes);
 }
 
 bool AMTimestampAccumulatorAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
 {
-    return accumulator_->values(indexStart, indexEnd, outputValues);
+    return timestamp_->values(indexStart, indexEnd, outputValues);
 }
 
 AMNumber AMTimestampAccumulatorAB::axisValue(int axisNumber, int index) const
