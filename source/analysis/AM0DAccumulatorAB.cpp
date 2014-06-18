@@ -6,9 +6,6 @@ AM0DAccumulatorAB::AM0DAccumulatorAB(const QString &outputName, QObject *parent)
     setState(AMDataSource::InvalidFlag);
 
     dataStored_ = QVector<double>();
-
-    updatesStored_ = 0;
-    setMaximumStored(10);
 }
 
 AM0DAccumulatorAB::~AM0DAccumulatorAB()
@@ -21,19 +18,9 @@ QVector<double> AM0DAccumulatorAB::dataStored() const
     return dataStored_;
 }
 
-int AM0DAccumulatorAB::updatesStored() const
-{
-    return updatesStored_;
-}
-
-int AM0DAccumulatorAB::maximumStored() const
+int AM0DAccumulatorAB::dataCount() const
 {
     return dataStored_.size();
-}
-
-int AM0DAccumulatorAB::updateCount() const
-{
-    return updateCount_;
 }
 
 bool AM0DAccumulatorAB::areInputDataSourcesAcceptable(const QList<AMDataSource *> &dataSources) const
@@ -153,33 +140,6 @@ bool AM0DAccumulatorAB::loadFromDb(AMDatabase *db, int id)
     return success;
 }
 
-void AM0DAccumulatorAB::setMaximumStored(int newMax)
-{
-    int storedSize = dataStored_.size();
-
-    // in order to update the number of points stored, the new number must be different than the old one and must be greater than zero.
-    if (storedSize != newMax && newMax > 0) {
-
-        // if we are growing the number of points stored, we are resizing dataStored_. The number of updates actually stored does not change.
-        if (storedSize < newMax) {
-            dataStored_.resize(newMax);
-
-        // if we are shrinking the number of points stored, we want to fill a new vector with the biggest number of updates possible.
-        } else {
-
-            if (newMax < updatesStored_) {
-                dataStored_ = dataStored_.mid(0, updatesStored_ - newMax);
-                updatesStored_ = newMax;
-
-            } else {
-                dataStored_ = dataStored_.mid(0, updatesStored_ + (newMax - updatesStored_));
-            }
-        }
-
-        emit maximumStoredChanged(dataStored_.size());
-    }
-}
-
 void AM0DAccumulatorAB::onInputSourceValuesChanged(const AMnDIndex &start, const AMnDIndex &end)
 {
     Q_UNUSED(start)
@@ -187,18 +147,7 @@ void AM0DAccumulatorAB::onInputSourceValuesChanged(const AMnDIndex &start, const
 
     // update the values stored for this source. We assume the source is 0D, so the latest value is always recovered with an empty AMnDIndex.
     double newValue = sources_.at(0)->value(AMnDIndex());
-
-    if (updateCount_ >= dataStored_.size()) {
-        dataStored_.remove(0);
-        dataStored_.squeeze();
-        dataStored_.append(newValue);
-
-    } else {
-        dataStored_[updatesStored_] = newValue;
-        updatesStored_++;
-    }
-
-    updateCount_++;
+    dataStored_.append(newValue);
 
     // update the axes info for this data source to reflect the (possibly) new number of points to plot.
     axes_[0] = AMAxisInfo(sources_.at(0)->name(), dataStored_.size());

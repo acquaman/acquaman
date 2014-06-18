@@ -15,7 +15,6 @@ STWidget::STWidget(QWidget *parent) : QWidget(parent)
 
     accumulator_ = new AM0DAccumulatorAB("Ring current AB", this);
     accumulator_->setInputDataSources(QList<AMDataSource*>() << new AM0DProcessVariableDataSource(ringCurrentControl_, "SR1 Current", this));
-    accumulator_->setMaximumStored(10);
     ringCurrentModel2_ = new AMDataSourceSeriesData(accumulator_);
 
     ringCurrentSeries1_ = new MPlotSeriesBasic();
@@ -59,7 +58,7 @@ STWidget::~STWidget()
 
 void STWidget::onRingCurrentValueChanged(double newValue)
 {
-    qDebug() << "PV update : " << newValue;
+    qDebug() << "\nPV update : " << newValue;
 
     ringCurrentLabel_->setText(QString("Storage ring current : %1 mA").arg(newValue, 0, 'f', 3));
 
@@ -70,20 +69,18 @@ void STWidget::onRingCurrentValueChanged(double newValue)
         ringCurrentModel1_->removePointFront();
     }
 
-    if (accumulator_->updatesStored() > 0) {
-        qDebug() << "AB update : " << (double)accumulator_->value( AMnDIndex(accumulator_->updatesStored() - 1) );
+    qDebug() << "AB update : " << (double)accumulator_->value( AMnDIndex(accumulator_->dataCount() - 1) );
 
-        QVector<double> vals = QVector<double>(0);
-        accumulator_->values(AMnDIndex(), AMnDIndex(accumulator_->updatesStored() - 1), vals.data());
-        qDebug() << "Total values entries  :" << vals.size();
-        qDebug() << "Total values : " << vals.toList();
-    }
+    QVector<double> vals = QVector<double>(0);
+    accumulator_->values(AMnDIndex(), AMnDIndex(accumulator_->dataCount() - 1), vals.data());
+//    qDebug() << "Total values entries  :" << vals.size();
+//    qDebug() << "Total values : " << vals.toList();
 }
 
 void STWidget::onRingCurrentConnected(bool isConnected)
 {
     if (isConnected) {
-        plot_->addItem(ringCurrentSeries1_);
+//        plot_->addItem(ringCurrentSeries1_);
         plot_->addItem(ringCurrentSeries2_);
     }
 }

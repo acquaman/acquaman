@@ -20,12 +20,8 @@ public:
 
     /// Returns the data stored in this analysis block, for the input data source.
     QVector<double> dataStored() const;
-    /// Returns the number of updates presently stored.
-    int updatesStored() const;
-    /// Returns the maximum number of elements stored.
-    int maximumStored() const;
-    /// Returns the total number of updates that have happened.
-    int updateCount() const;
+    /// Returns the number of data elements stored in this analysis block.
+    int dataCount() const;
 
     /// Check that the input sources are acceptable. The empty list is always valid. For non-empty list of sources, the list must be of size 1 and the source must have rank 1."
     virtual bool areInputDataSourcesAcceptable(const QList<AMDataSource *> &dataSources) const;
@@ -41,11 +37,8 @@ public:
     virtual bool loadFromDb(AMDatabase *db, int id);
 
 signals:
-    void maximumStoredChanged(int newMax);
 
 public slots:
-    /// Sets the maximum number of elements to store.
-    void setMaximumStored(int newMax);
 
 protected slots:
     /// Handles adding the new value to the dataStored_ for this particular data source.
@@ -60,10 +53,6 @@ protected:
 protected:
     /// Data stored in this analysis block.
     QVector<double> dataStored_;
-    /// Number of updates presently stored.
-    int updatesStored_;
-    /// Number of updates that have happened in total.
-    int updateCount_;
 
 };
 
