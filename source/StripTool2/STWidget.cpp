@@ -16,7 +16,7 @@ STWidget::STWidget(QWidget *parent) : QWidget(parent)
     accumulator_ = new AM0DAccumulatorAB("Ring current AB", this);
     accumulator_->setInputDataSources(QList<AMDataSource*>() << new AM0DProcessVariableDataSource(ringCurrentControl_, "SR1 Current", this));
     timer_ = new AMTimestampAB("Timestamp data", this);
-    timer_->setTimeUnits(AMTimestampAB::sec);
+    timer_->setTimeUnits(AMTimestampAB::Seconds);
     timer_->setInputDataSources(QList<AMDataSource*>() << accumulator_);
     ringCurrentModel2_ = new AMDataSourceSeriesData(timer_);
 

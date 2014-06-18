@@ -11,7 +11,7 @@ class AMTimestampAB : public AMStandardAnalysisBlock
     Q_OBJECT
 
 public:
-    enum TimeUnits {msec = 0, sec = 1, min = 2, hour = 3};
+    enum TimeUnits {mSeconds = 0, Seconds = 1, Minutes = 2, Hours = 3};
 
     /// Constructor.
     Q_INVOKABLE AMTimestampAB(const QString &outputName, QObject *parent = 0);
@@ -54,7 +54,7 @@ protected slots:
     /// Handles adding the new value to the dataStored_ for this particular data source.
     void onInputSourceValuesChanged(const AMnDIndex &start, const AMnDIndex &end);
     /// Handles checking whether this AB is valid if the state of any sources changes.
-    void onInputSourceStateChanged();
+    void onInputSourcesStateChanged();
 
 protected:
     /// Converts the millisecond argument to another TimeUnit.

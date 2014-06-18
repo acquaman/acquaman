@@ -8,7 +8,7 @@ AMTimestampAB::AMTimestampAB(const QString &outputName, QObject *parent) :
 
     dataStored_ = QVector<QDateTime>();
 
-    setTimeUnits(msec);
+    setTimeUnits(mSeconds);
     setMaximumStored(10);
 }
 
@@ -72,7 +72,7 @@ void AMTimestampAB::setInputDataSourcesImplementation(const QList<AMDataSource *
         setDescription(QString("Timestamps for %1 value updates").arg(sources_.at(0)->name()));
 
         connect( sources_.at(0)->signalSource(), SIGNAL(valuesChanged(AMnDIndex, AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex, AMnDIndex)) );
-        connect( sources_.at(0)->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()) );
+        connect( sources_.at(0)->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourcesStateChanged()) );
     }
 
     reviewState();
@@ -152,7 +152,7 @@ void AMTimestampAB::onInputSourceValuesChanged(const AMnDIndex &start, const AMn
     emitSizeChanged(0);
 }
 
-void AMTimestampAB::onInputSourceStateChanged()
+void AMTimestampAB::onInputSourcesStateChanged()
 {
     reviewState();
 }
@@ -161,16 +161,16 @@ double AMTimestampAB::msecTo(double msecVal, TimeUnits newUnit) const
 {
     double result = 0;
 
-    if (newUnit == msec) {
+    if (newUnit == mSeconds) {
         result = msecVal;
 
-    } else if (newUnit == sec) {
+    } else if (newUnit == Seconds) {
         result = msecVal / 1000;
 
-    } else if (newUnit == min) {
+    } else if (newUnit == Minutes) {
         result = msecVal / 1000 / 60;
 
-    } else if (newUnit == hour) {
+    } else if (newUnit == Hours) {
         result = msecVal / 1000 / 60 / 60;
     }
 
