@@ -52,6 +52,26 @@ AMRecursiveDirectoryCompare::DirectoryCompareResult AMRecursiveDirectoryCompare:
 	}
 }
 
+QStringList AMRecursiveDirectoryCompare::uniqueSide1Files() const
+{
+	return uniqueSide1Files_;
+}
+
+QStringList AMRecursiveDirectoryCompare::uniqueSide2Files() const
+{
+	return uniqueSide2Files_;
+}
+
+QStringList AMRecursiveDirectoryCompare::uniqueSide1Directories() const
+{
+	return uniqueSide1Directories_;
+}
+
+QStringList AMRecursiveDirectoryCompare::uniqueSide2Directories() const
+{
+	return uniqueSide2Directories_;
+}
+
 bool AMRecursiveDirectoryCompare::compareOneLevel(const QString &path1, const QString &path2){
 	QDir directory1(path1);
 	QDir directory2(path2);

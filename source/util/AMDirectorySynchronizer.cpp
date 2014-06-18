@@ -48,19 +48,40 @@ bool AMDirectorySynchronizer::start()
 
 	AMRecursiveDirectoryCompare::DirectoryCompareResult result = compareDirectories();
 
-	if(result != AMRecursiveDirectoryCompare::FullyMatchingResult)
+	if(result == AMRecursiveDirectoryCompare::FullyMatchingResult)
 	{
-		setLastMessage(QString("There are notable differences between the contents of %1 and %2 which will require human interaction").arg(sourceDirectory_).arg(destinationDirectory_));
+		setLastMessage(QString("Contents of %1 and %2 are the same, no copying necessary.").arg(sourceDirectory_).arg(destinationDirectory_));
 		return false;
 	}
+
+	if(result == AMRecursiveDirectoryCompare::InvalidResult)
+	{
+		setLastMessage(QString("Unknown error has occured in AMDirectorySynchronizer"));
+		return false;
+	}
+
+	if(result == AMRecursiveDirectoryCompare::BothSidesModifiedResult)
+	{
+		setLastMessage(QString("Contents of %1 and %2 have both changed, cannot proceed").arg(sourceDirectory_).arg(destinationDirectory_));
+	}
+
+
 
 	QString process = "cp";
 	QStringList args;
 	args << "-u"
-		 << "-r"
-		 << sourcePath_
-		 << destinationPath_;
+		 << "-r";
 
+	if(result == AMRecursiveDirectoryCompare::Side1ModifiedResult)
+	{
+		args << sourcePath_
+			 << destinationPath_;
+	}
+	else
+	{
+		args << destinationPath_
+			 << sourcePath_;
+	}
 	copyProcess_.start(process, args);
 	return true;
 }

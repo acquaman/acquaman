@@ -17,6 +17,11 @@ public:
 
 	AMRecursiveDirectoryCompare::DirectoryCompareResult compare();
 
+	QStringList uniqueSide1Files() const;
+	QStringList uniqueSide2Files() const;
+	QStringList uniqueSide1Directories() const;
+	QStringList uniqueSide2Directories() const;
+
 protected:
 	bool compareOneLevel(const QString &path1, const QString &path2);
 
