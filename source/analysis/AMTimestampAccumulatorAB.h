@@ -36,8 +36,11 @@ public:
 signals:
 
 public slots:
+    void setDisplayTime(int time, AMTimestampAB::TimeUnits units);
 
 protected slots:
+    /// Handles setting the maximum number of data points and times to store.
+    void setDataCountMax(int newMax);
     /// Handles adding the new value to the dataStored_ for this particular data source.
     void onInputSourceValuesChanged(const AMnDIndex &start, const AMnDIndex &end);
     /// Handles checking whether this AB is valid if the state of any sources changes.

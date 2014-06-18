@@ -87,6 +87,17 @@ bool AMTimestampAccumulatorAB::loadFromDb(AMDatabase *db, int id)
     return success;
 }
 
+void AMTimestampAccumulatorAB::setDisplayTime(int time, AMTimestampAB::TimeUnits units)
+{
+    timestamp_->setTimeUnits(units);
+}
+
+void AMTimestampAccumulatorAB::setDataCountMax(int newMax)
+{
+    accumulator_->setDataStoredCountMax(newMax);
+    timestamp_->setDataStoredCountMax(newMax);
+}
+
 void AMTimestampAccumulatorAB::onInputSourceValuesChanged(const AMnDIndex &start, const AMnDIndex &end)
 {
     Q_UNUSED(start)

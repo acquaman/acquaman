@@ -129,6 +129,19 @@ void AMTimestampAB::setTimeUnits(TimeUnits newUnits)
     }
 }
 
+void AMTimestampAB::setDataStoredCountMax(int newMax)
+{
+    if (dataMax_ != newMax && newMax > 0) {
+
+        if (newMax < dataStored_.size()) {
+            dataStored_ = dataStored_.mid(dataStored_.size() - 1 - newMax, newMax);
+        }
+
+        dataMax_ = newMax;
+        emit dataStoredMaxChanged(dataMax_);
+    }
+}
+
 void AMTimestampAB::onInputSourceValuesChanged(const AMnDIndex &start, const AMnDIndex &end)
 {
     Q_UNUSED(start)

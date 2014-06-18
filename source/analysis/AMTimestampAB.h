@@ -42,10 +42,13 @@ public:
 
 signals:
     void timeUnitsChanged(TimeUnits newUnits);
+    void dataStoredMaxChanged(int newMax);
 
 public slots:
     /// Sets the current time units.
     void setTimeUnits(TimeUnits newUnits);
+    /// Sets the maximum number of elements stored.
+    void setDataStoredCountMax(int newMax);
 
 protected slots:
     /// Handles adding the new value to the dataStored_ for this particular data source.

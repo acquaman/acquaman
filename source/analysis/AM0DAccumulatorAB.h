@@ -39,8 +39,12 @@ public:
     virtual bool loadFromDb(AMDatabase *db, int id);
 
 signals:
+    /// Emitted when the maximum number of elements stored has been changed.
+    void dataStoredMaxChanged(int newMax);
 
 public slots:
+    /// Sets the maximum number of elements stored.
+    void setDataStoredCountMax(int newMax);
 
 protected slots:
     /// Handles adding the new value to the dataStored_ for this particular data source.

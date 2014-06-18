@@ -148,6 +148,19 @@ bool AM0DAccumulatorAB::loadFromDb(AMDatabase *db, int id)
     return success;
 }
 
+void AM0DAccumulatorAB::setDataStoredCountMax(int newMax)
+{
+    if (dataMax_ != newMax && newMax > 0) {
+
+        if (newMax < dataStored_.size()) {
+            dataStored_ = dataStored_.mid(dataStored_.size() - 1 - newMax, newMax);
+        }
+
+        dataMax_ = newMax;
+        emit dataStoredMaxChanged(dataMax_);
+    }
+}
+
 void AM0DAccumulatorAB::onInputSourceValuesChanged(const AMnDIndex &start, const AMnDIndex &end)
 {
     Q_UNUSED(start)
