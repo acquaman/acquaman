@@ -58,8 +58,6 @@ STWidget::~STWidget()
 
 void STWidget::onRingCurrentValueChanged(double newValue)
 {
-    qDebug() << "\nStripTool : PV update : " << newValue;
-
     ringCurrentLabel_->setText(QString("Storage ring current : %1 mA").arg(newValue, 0, 'f', 3));
 
     ringCurrentModel1_->insertPointBack(dataCount_, newValue);
@@ -67,18 +65,6 @@ void STWidget::onRingCurrentValueChanged(double newValue)
 
     if (dataCount_ > 10) {
         ringCurrentModel1_->removePointFront();
-    }
-
-    if (accumulator_->dataCount() > 0) {
-        int valNum = accumulator_->dataCount();
-        qDebug() << "StripTool : AB value count : " << valNum;
-
-        qDebug() << "StripTool : AB value : " << (double)accumulator_->value( AMnDIndex(accumulator_->dataCount() - 1) );
-
-        double outputValues[valNum];
-        accumulator_->values(AMnDIndex(0), AMnDIndex(accumulator_->dataCount() - 1), outputValues);
-        qDebug() << "StripTool : AB values : " << *outputValues;
-
     }
 }
 
