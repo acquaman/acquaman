@@ -171,7 +171,6 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 				QList<int>() << (VESPERS::H | VESPERS::V) << (VESPERS::X | VESPERS::Z) << (VESPERS::AttoH | VESPERS::AttoV) << (VESPERS::AttoX | VESPERS::AttoZ));
 	connect(motorSelectionComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onMotorChanged(int)));
 	connect(configuration_->dbObject(), SIGNAL(motorChanged(int)), this, SLOT(updateMotorSelectionComboBox(int)));
-	motorSelectionComboBox_->setCurrentIndex(int(configuration_->motor()));
 
 	// Scan name selection
 	scanName_ = createScanNameView(configuration_->name());
@@ -215,6 +214,7 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	ccdComboBox_->setCurrentIndex(int(configuration_->ccdDetector()));
 	i0ComboBox_->setCurrentIndex((int)configuration_->incomingChoice());
 	fluorescenceDetectorComboBox_->setCurrentIndex((int)configuration_->fluorescenceDetector());
+	motorSelectionComboBox_->setCurrentIndex(int(configuration_->motor()));
 
 	// Setting up the layout.
 	QGridLayout *contentsLayout = new QGridLayout;
@@ -320,7 +320,7 @@ void VESPERS2DScanConfigurationView::onFluorescenceChoiceChanged(int id)
 
 void VESPERS2DScanConfigurationView::onMotorChanged(int id)
 {
-	configuration_->setMotor(id);
+	configuration_->setMotor(motorSelectionComboBox_->itemData(id).toInt());
 }
 
 void VESPERS2DScanConfigurationView::onCCDDetectorChanged(int id)

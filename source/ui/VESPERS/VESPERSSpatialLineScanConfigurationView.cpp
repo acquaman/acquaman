@@ -161,7 +161,6 @@ VESPERSSpatialLineScanConfigurationView::VESPERSSpatialLineScanConfigurationView
 				QList<int>() << VESPERS::H << VESPERS::X << VESPERS::V << VESPERS::Z << VESPERS::AttoH << VESPERS::AttoV << VESPERS::AttoX << VESPERS::AttoZ << VESPERS::AttoRz << VESPERS::AttoRy << VESPERS::AttoRx);
 	connect(motorSelectionComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onMotorChanged(int)));
 	connect(configuration_->dbObject(), SIGNAL(motorChanged(int)), this, SLOT(updateMotorSelectionComboBox(int)));
-	motorSelectionComboBox_->setCurrentIndex(int(configuration_->motor()));
 
 	// Scan name selection
 	scanName_ = createScanNameView(configuration_->name());
@@ -205,6 +204,7 @@ VESPERSSpatialLineScanConfigurationView::VESPERSSpatialLineScanConfigurationView
 	itComboBox_->setCurrentIndex((int)configuration_->transmissionChoice());
 	fluorescenceDetectorComboBox_->setCurrentIndex((int)configuration_->fluorescenceDetector());
 	ccdComboBox_->setCurrentIndex(int(configuration_->ccdDetector()));
+	motorSelectionComboBox_->setCurrentIndex(int(configuration_->motor()));
 
 	// Setting up the layout.
 	QGridLayout *contentsLayout = new QGridLayout;
@@ -310,7 +310,7 @@ void VESPERSSpatialLineScanConfigurationView::checkCCDFileNames(const QString &n
 
 void VESPERSSpatialLineScanConfigurationView::onMotorChanged(int id)
 {
-	configuration_->setMotor(id);
+	configuration_->setMotor(motorSelectionComboBox_->itemData(id).toInt());
 
 	otherPositionLabel_->setText(configuration_->otherMotorString(configuration_->motor()));
 

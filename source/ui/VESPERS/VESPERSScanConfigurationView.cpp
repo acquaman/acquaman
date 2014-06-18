@@ -98,7 +98,7 @@ void VESPERSScanConfigurationView::updateCCDDetectorComboBox(int detector)
 
 void VESPERSScanConfigurationView::updateMotorSelectionComboBox(int choice)
 {
-	motorSelectionComboBox_->setCurrentIndex(choice);
+	motorSelectionComboBox_->setCurrentIndex(motorSelectionComboBox_->findData(choice));
 }
 
 void VESPERSScanConfigurationView::updateAndSetRoiTextBox(int xrfId)
@@ -242,7 +242,7 @@ QComboBox *VESPERSScanConfigurationView::createMotorSelectionComboBox(QStringLis
 	QComboBox *newComboBox = new QComboBox;
 
 	for (int i = 0, size = ids.size(); i < size; i++)
-		newComboBox->insertItem(ids.at(i), labels.at(i));
+		newComboBox->addItem(labels.at(i), ids.at(i));
 
 	return newComboBox;
 }
