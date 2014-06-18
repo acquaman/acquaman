@@ -110,7 +110,8 @@ bool AM0DAccumulatorAB::values(const AMnDIndex &indexStart, const AMnDIndex &ind
         return false;
 
     // set output values to point to the subset of points saved for the data source.
-    outputValues = dataStored_.mid(start, end - start).data();
+    QVector<double> vals = dataStored_.mid(start, end - start);
+    outputValues = vals.data();
 
     return true;
 }

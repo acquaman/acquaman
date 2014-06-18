@@ -58,7 +58,7 @@ STWidget::~STWidget()
 
 void STWidget::onRingCurrentValueChanged(double newValue)
 {
-    qDebug() << "\nPV update : " << newValue;
+    qDebug() << "\nStripTool : PV update : " << newValue;
 
     ringCurrentLabel_->setText(QString("Storage ring current : %1 mA").arg(newValue, 0, 'f', 3));
 
@@ -69,12 +69,16 @@ void STWidget::onRingCurrentValueChanged(double newValue)
         ringCurrentModel1_->removePointFront();
     }
 
-    qDebug() << "AB update : " << (double)accumulator_->value( AMnDIndex(accumulator_->dataCount() - 1) );
+    if (accumulator_->dataCount() > 0) {
+        qDebug() << "StripTool : AB value : " << (double)accumulator_->value( AMnDIndex(accumulator_->dataCount() - 1) );
 
-    QVector<double> vals = QVector<double>();
-    accumulator_->values(AMnDIndex(0), AMnDIndex(accumulator_->dataCount() - 1), vals.data());
-    qDebug() << "Total values entries  :" << vals.size();
-    qDebug() << "Total values : " << vals.toList();
+        int valNum = accumulator_->dataCount();
+        QVector<double> vals(valNum);
+        double *valsData = vals.data();
+        accumulator_->values(AMnDIndex(0), AMnDIndex(accumulator_->dataCount() - 1), valsData);
+        qDebug() << "StripTool : AB values : " << *valsData;
+
+    }
 }
 
 void STWidget::onRingCurrentConnected(bool isConnected)
