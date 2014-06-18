@@ -2,6 +2,7 @@
 
 AMTimestampAccumulatorAB::AMTimestampAccumulatorAB(const QString &outputName, QObject *parent) : AMStandardAnalysisBlock(outputName, parent)
 {
+    axes_ << AMAxisInfo("invalid", 0, "No input data");
     setState(AMDataSource::InvalidFlag);
 
     dataCount_ = 0;
@@ -12,7 +13,6 @@ AMTimestampAccumulatorAB::AMTimestampAccumulatorAB(const QString &outputName, QO
     timestamp_->setInputDataSources(QList<AMDataSource*>() << accumulator_);
 
     sources_ = QList<AMDataSource*>() << timestamp_;
-    axes_[0] = sources_.at(0)->axisInfoAt(0);
 
     connect( timestamp_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)) );
     connect( timestamp_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()) );
@@ -63,12 +63,12 @@ void AMTimestampAccumulatorAB::setInputDataSourcesImplementation(const QList<AMD
 
 AMNumber AMTimestampAccumulatorAB::value(const AMnDIndex &indexes) const
 {
-    return timestamp_->value(indexes);
+    return accumulator_->value(indexes);
 }
 
 bool AMTimestampAccumulatorAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
 {
-    return timestamp_->values(indexStart, indexEnd, outputValues);
+    return accumulator_->values(indexStart, indexEnd, outputValues);
 }
 
 AMNumber AMTimestampAccumulatorAB::axisValue(int axisNumber, int index) const
@@ -114,12 +114,6 @@ void AMTimestampAccumulatorAB::reviewState()
 
     // is there one data source?
     if (sources_.size() != 1) {
-        setState(AMDataSource::InvalidFlag);
-        return;
-    }
-
-    // does the data source have rank 0?
-    if (sources_.at(0)->rank() != 0) {
         setState(AMDataSource::InvalidFlag);
         return;
     }
