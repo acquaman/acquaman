@@ -57,7 +57,7 @@ void AM0DAccumulatorAB::setInputDataSourcesImplementation(const QList<AMDataSour
     // if data source is valid, set sources_, axis info, description, and connections.
     } else {
 
-        sources_ = QList<AMDataSource*>() << dataSources.at(0);
+        sources_ = dataSources;
         axes_[0] = sources_.at(0)->axisInfoAt(0);
         setDescription(QString("Model for %1").arg(sources_.at(0)->name()));
 

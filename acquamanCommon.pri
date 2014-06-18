@@ -762,7 +762,8 @@ HEADERS += source/acquaman/AMRegion.h \
 	source/analysis/AM0DAccumulatorAB.h \
 	source/util/AMBuildInfo.h \
     source/util/AMBuildReporter.h \
-    source/analysis/AMTimestampAB.h
+    source/analysis/AMTimestampAB.h \
+    source/analysis/AMTimestampAccumulatorAB.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1245,7 +1246,8 @@ SOURCES += source/acquaman/AMRegion.cpp \
 	source/analysis/AM0DAccumulatorAB.cpp \
 	source/util/AMBuildInfo.cpp \
     source/util/AMBuildReporter.cpp \
-    source/analysis/AMTimestampAB.cpp
+    source/analysis/AMTimestampAB.cpp \
+    source/analysis/AMTimestampAccumulatorAB.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
