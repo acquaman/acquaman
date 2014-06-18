@@ -20,6 +20,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QCoreApplication>
 #include <QStringList>
+#include <QDir>
+
+#include <QDebug>
 
 #include "AMDeploy.h"
 
@@ -29,10 +32,24 @@ int main(int argc, char *argv[])
 	coreApp.setApplicationName("Deploy Acquaman");
 
 	QStringList arguments = coreApp.arguments();
-	if(arguments.count() < 3)
+	if(arguments.count() < 2){
+		qDebug() << "Invalid use. Expected either AMDeploy <project file> or AMDeploy <project file> <working directory>";
 		return -1;
+	}
 
-	AMDeploy *deployment = new AMDeploy(arguments.at(1), arguments.at(2));
+	if(arguments.count() >= 2 && !arguments.at(1).contains(".pro")){
+		qDebug() << "Invalid use. Expected either AMDeploy <project file> or AMDeploy <project file> <working directory>";
+		return -2;
+	}
+
+	QString projectFile = arguments.at(1);
+	QString workingDirectory;
+	if(arguments.count() >= 3)
+		workingDirectory = arguments.at(2);
+	else
+		workingDirectory = QDir::currentPath();
+
+	AMDeploy *deployment = new AMDeploy(projectFile, workingDirectory);
 	Q_UNUSED(deployment)
 
 	return coreApp.exec();
