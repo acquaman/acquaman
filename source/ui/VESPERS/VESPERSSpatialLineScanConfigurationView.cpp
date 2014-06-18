@@ -32,7 +32,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QSpinBox>
 #include <QMenu>
 
- VESPERSSpatialLineScanConfigurationView::~VESPERSSpatialLineScanConfigurationView(){}
+VESPERSSpatialLineScanConfigurationView::~VESPERSSpatialLineScanConfigurationView(){}
+
 VESPERSSpatialLineScanConfigurationView::VESPERSSpatialLineScanConfigurationView(VESPERSSpatialLineScanConfiguration *config, QWidget *parent)
 	: VESPERSScanConfigurationView(parent)
 {
@@ -133,10 +134,6 @@ VESPERSSpatialLineScanConfigurationView::VESPERSSpatialLineScanConfigurationView
 	connect(ccdComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onCCDDetectorChanged(int)));
 	connect(configuration_->dbObject(), SIGNAL(ccdDetectorChanged(int)), this, SLOT(updateCCDDetectorComboBox(int)));
 
-	configureCCDButton_ = new QPushButton(QIcon(":/hammer-wrench.png"), "Configure Area Detector");
-	configureCCDButton_->setEnabled(configuration_->ccdDetector());
-	connect(configureCCDButton_, SIGNAL(clicked()), this, SLOT(onConfigureCCDDetectorClicked()));
-
 	// The fluorescence detector setup
 	fluorescenceDetectorComboBox_  = createFluorescenceComboBox();
 	connect(fluorescenceDetectorComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onFluorescenceChoiceChanged(int)));
@@ -173,20 +170,6 @@ VESPERSSpatialLineScanConfigurationView::VESPERSSpatialLineScanConfigurationView
 	QFormLayout *scanNameLayout = new QFormLayout;
 	scanNameLayout->addRow("Scan Name:", scanName_);
 
-	// The roi text edit and configuration.
-	roiText_ = new QTextEdit;
-	roiText_->setReadOnly(true);
-
-	QPushButton *configureXRFDetectorButton = new QPushButton(QIcon(":/hammer-wrench.png"), "Configure XRF Detector");
-	connect(configureXRFDetectorButton, SIGNAL(clicked()), this, SLOT(onConfigureXRFDetectorClicked()));
-
-	QFormLayout *roiTextLayout = new QFormLayout;
-	roiTextLayout->addRow(roiText_);
-	roiTextLayout->addRow(configureXRFDetectorButton);
-
-	QGroupBox *roiTextBox = new QGroupBox("Regions Of Interest");
-	roiTextBox->setLayout(roiTextLayout);
-
 	// Label showing where the data will be saved.
 	QLabel *exportPath = addExportPathLabel();
 
@@ -203,22 +186,27 @@ VESPERSSpatialLineScanConfigurationView::VESPERSSpatialLineScanConfigurationView
 	i0ComboBox_->setCurrentIndex((int)configuration_->incomingChoice());
 	itComboBox_->setCurrentIndex((int)configuration_->transmissionChoice());
 	fluorescenceDetectorComboBox_->setCurrentIndex((int)configuration_->fluorescenceDetector());
-	ccdComboBox_->setCurrentIndex(int(configuration_->ccdDetector()));
-	motorSelectionComboBox_->setCurrentIndex(int(configuration_->motor()));
+	ccdComboBox_->setCurrentIndex(ccdComboBox_->findData(int(configuration_->ccdDetector())));
+	motorSelectionComboBox_->setCurrentIndex(motorSelectionComboBox_->findData(int(configuration_->motor())));
+
+	QFormLayout *detectorLayout = new QFormLayout;
+	detectorLayout->addRow("XRF:", fluorescenceDetectorComboBox_);
+	detectorLayout->addRow("XRD:", ccdComboBox_);
+	detectorLayout->addRow("I0:", i0ComboBox_);
+	detectorLayout->addRow("It:", itComboBox_);
+	detectorLayout->addRow("Stage:", motorSelectionComboBox_);
+
+	QGroupBox *detectorGroupBox = new QGroupBox("Detectors");
+	detectorGroupBox->setLayout(detectorLayout);
 
 	// Setting up the layout.
 	QGridLayout *contentsLayout = new QGridLayout;
 	contentsLayout->addWidget(positionsBox, 0, 0, 2, 3);
 	contentsLayout->addWidget(timeGroupBox, 2, 0, 1, 1);
-	contentsLayout->addWidget(ccdComboBox_, 3, 3, 1, 1);
 	contentsLayout->addLayout(scanNameLayout, 3, 0, 1, 1);
 	contentsLayout->addWidget(timeOffsetBox, 5, 0, 1, 1);
-	contentsLayout->addWidget(configureCCDButton_, 6, 3, 1, 1);
-	contentsLayout->addWidget(motorSelectionComboBox_, 0, 4, 3, 1);
-	contentsLayout->addWidget(fluorescenceDetectorComboBox_, 0, 3, 1, 1);
-	contentsLayout->addLayout(ionChambersLayout, 1, 3, 2, 1);
+	contentsLayout->addWidget(detectorGroupBox, 0, 5);
 	contentsLayout->addWidget(ccdTextBox_, 7, 0, 1, 6);
-	contentsLayout->addWidget(roiTextBox, 0, 6, 3, 3);
 	contentsLayout->addWidget(autoExportGroupBox, 3, 6, 1, 3);
 
 	QHBoxLayout *squeezeContents = new QHBoxLayout;
@@ -237,10 +225,9 @@ VESPERSSpatialLineScanConfigurationView::VESPERSSpatialLineScanConfigurationView
 	setLayout(configViewLayout);
 }
 
-void VESPERSSpatialLineScanConfigurationView::onFluorescenceDetectorChanged(int id)
+void VESPERSSpatialLineScanConfigurationView::onFluorescenceChoiceChanged(int id)
 {
 	configuration_->setFluorescenceDetector(id);
-	updateRoiText();
 }
 
 void VESPERSSpatialLineScanConfigurationView::onScanNameEdited()
@@ -368,24 +355,23 @@ void VESPERSSpatialLineScanConfigurationView::onMotorChanged(int id)
 	otherPosition_->setVisible(configuration_->otherMotor(configuration_->motor()) != VESPERS::NoMotor);
 }
 
-void VESPERSSpatialLineScanConfigurationView::onItClicked(int id)
+void VESPERSSpatialLineScanConfigurationView::onItClicked(int index)
 {
 	// If the new It is at or upstream of I0, move I0.  Using id-1 is safe because Isplit can't be chosen for It.
-//	if (id <= I0Group_->checkedId())
-//		I0Group_->button(id-1)->click();
+	if (index <= i0ComboBox_->currentIndex())
+		i0ComboBox_->setCurrentIndex(index-1);
 
-//	for (int i = 0; i < id; i++)
-//		I0Group_->button(i)->setEnabled(true);
+	QStandardItemModel *model = qobject_cast<QStandardItemModel *>(i0ComboBox_->model());
 
-//	for (int i = id; i < 4; i++)
-//		I0Group_->button(i)->setEnabled(false);
+	for (int i = 0; i < i0ComboBox_->count(); i++)
+		model->item(i)->setFlags(i < index ? Qt::ItemIsEnabled : Qt::NoItemFlags);
 
-	configuration_->setTransmissionChoice(id);
+	configuration_->setTransmissionChoice(index);
 }
 
 void VESPERSSpatialLineScanConfigurationView::onCCDDetectorChanged(int id)
 {
-	configuration_->setCCDDetector(id);
+	configuration_->setCCDDetector(ccdComboBox_->itemData(id).toInt());
 
 	if (configuration_->ccdDetector() != VESPERS::NoCCD){
 
@@ -408,38 +394,6 @@ void VESPERSSpatialLineScanConfigurationView::onCCDDetectorChanged(int id)
 
 	onScanNameEdited();
 	ccdTextBox_->setVisible(configuration_->ccdDetector() != VESPERS::NoCCD);
-	configureCCDButton_->setDisabled(configuration_->ccdDetector() == VESPERS::NoCCD);
-}
-
-void VESPERSSpatialLineScanConfigurationView::updateRoiText()
-{
-//	VESPERS::FluorescenceDetectors xrfFlag = configuration_->fluorescenceDetector();
-
-//	if (xrfFlag == VESPERS::NoXRF)
-//		configuration_->setRoiInfoList(AMROIInfoList());
-
-//	else if (xrfFlag == VESPERS::SingleElement)
-//		configuration_->setRoiInfoList(*VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList());
-
-//	else if (xrfFlag == VESPERS::FourElement)
-//		configuration_->setRoiInfoList(*VESPERSBeamline::vespers()->vortexXRF4E()->roiInfoList());
-
-//	else if (xrfFlag == (VESPERS::SingleElement | VESPERS::FourElement)){
-
-//		AMROIInfoList list;
-//		AMROIInfoList singleElList = *VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList();
-//		AMROIInfoList fourElList = *VESPERSBeamline::vespers()->vortexXRF4E()->roiInfoList();
-
-//		for (int i = 0, count = singleElList.count(); i < count; i++)
-//			list.append(singleElList.at(i));
-
-//		for (int i = 0, count = fourElList.count(); i < count; i++)
-//			list.append(fourElList.at(i));
-
-//		configuration_->setRoiInfoList(list);
-//	}
-
-//	updateAndSetRoiTextBox(int(configuration_->fluorescenceDetector()));
 }
 
 void VESPERSSpatialLineScanConfigurationView::onEstimatedTimeChanged()

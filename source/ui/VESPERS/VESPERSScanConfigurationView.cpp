@@ -93,7 +93,7 @@ void VESPERSScanConfigurationView::updateFluorescenceDetectorComboBox(int detect
 
 void VESPERSScanConfigurationView::updateCCDDetectorComboBox(int detector)
 {
-	ccdComboBox_->setCurrentIndex(detector);
+	ccdComboBox_->setCurrentIndex(ccdComboBox_->findData(detector));
 }
 
 void VESPERSScanConfigurationView::updateMotorSelectionComboBox(int choice)
@@ -101,116 +101,13 @@ void VESPERSScanConfigurationView::updateMotorSelectionComboBox(int choice)
 	motorSelectionComboBox_->setCurrentIndex(motorSelectionComboBox_->findData(choice));
 }
 
-void VESPERSScanConfigurationView::updateAndSetRoiTextBox(int xrfId)
-{Q_UNUSED(xrfId);
-//	roiText_->clear();
-
-//	if (xrfId ==  (VESPERS::SingleElement | VESPERS::FourElement)){
-
-//		AMROIInfoList singleElList = *VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList();
-//		AMROIInfoList fourElList = *VESPERSBeamline::vespers()->vortexXRF4E()->roiInfoList();
-//		QList<QPair<int, int> > sameList = VESPERS::findRoiPairs(&singleElList, &fourElList);
-
-//		if (!sameList.isEmpty()){
-
-//			QList<int> singleRoiList;
-//			QList<int> fourRoiList;
-
-//			roiText_->insertPlainText("Same ROI's\n");
-//			roiText_->insertPlainText("Name\tLow (eV)\tHigh (eV)\n");
-
-//			for (int i = 0, count = sameList.size(); i < count; i++){
-
-//				QPair<int, int> temp = sameList.at(i);
-//				singleRoiList << temp.first;
-//				fourRoiList << temp.second;
-//				AMROIInfo info = singleElList.at(temp.first);
-//				roiText_->insertPlainText(GeneralUtilities::addGreek(info.name())+"\t" + QString::number(info.low()) + "\t" + QString::number(info.high()) +"\n");
-//			}
-
-//			if (singleRoiList.size() < singleElList.count() || fourRoiList.size() < fourElList.count()){
-
-//				roiText_->insertPlainText("\nDifferent ROI's\n");
-
-//				if (singleRoiList.size() < singleElList.count()){
-
-//					roiText_->insertPlainText("Single Element Vortex\n");
-//					roiText_->insertPlainText("Name\tLow (eV)\tHigh (eV)\n");
-
-//					for (int i = 0, count = singleElList.count(); i < count; i++){
-
-//						if (!singleRoiList.contains(i)){
-
-//							AMROIInfo info = singleElList.at(i);
-//							roiText_->insertPlainText(GeneralUtilities::addGreek(info.name())+"\t" + QString::number(info.low()) + "\t" + QString::number(info.high()) +"\n");
-//						}
-//					}
-
-//					roiText_->insertPlainText("\n");
-//				}
-
-//				if (fourRoiList.size() < fourElList.count()){
-
-//					roiText_->insertPlainText("Four Element Vortex\n");
-//					roiText_->insertPlainText("Name\tLow (eV)\tHigh (eV)\n");
-
-//					for (int i = 0, count = fourElList.count(); i < count; i++){
-
-//						if (!fourRoiList.contains(i)){
-
-//							AMROIInfo info = fourElList.at(i);
-//							roiText_->insertPlainText(GeneralUtilities::addGreek(info.name())+"\t" + QString::number(info.low()) + "\t" + QString::number(info.high()) +"\n");
-//						}
-//					}
-//				}
-//			}
-//		}
-
-//		else {
-
-//			roiText_->insertPlainText("Different ROI's\n");
-//			roiText_->insertPlainText("Single Element Vortex\n");
-
-//			for (int i = 0, count = singleElList.count(); i < count; i++){
-
-//				AMROIInfo info = singleElList.at(i);
-//				roiText_->insertPlainText(GeneralUtilities::addGreek(info.name())+"\t" + QString::number(info.low()) + "\t" + QString::number(info.high()) +"\n");
-//			}
-
-//			roiText_->insertPlainText("\nFour Element Vortex\n");
-
-//			for (int i = 0, count = fourElList.count(); i < count; i++){
-
-//				AMROIInfo info = fourElList.at(i);
-//				roiText_->insertPlainText(GeneralUtilities::addGreek(info.name())+"\t" + QString::number(info.low()) + "\t" + QString::number(info.high()) +"\n");
-//			}
-//		}
-//	}
-
-//	else {
-
-//		AMROIInfoList list = AMROIInfoList();
-
-//		if (xrfId == VESPERS::SingleElement)
-//			list = *VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList();
-
-//		else if (xrfId == VESPERS::FourElement)
-//			list = *VESPERSBeamline::vespers()->vortexXRF4E()->roiInfoList();
-
-//		roiText_->insertPlainText("Name\tLow (eV)\tHigh (eV)\n");
-
-//		for (int i = 0; i < list.count(); i++)
-//			roiText_->insertPlainText(GeneralUtilities::addGreek(list.at(i).name())+"\t" + QString::number(list.at(i).low()) + "\t" + QString::number(list.at(i).high()) +"\n");
-//	}
-}
-
 QComboBox *VESPERSScanConfigurationView::createFluorescenceComboBox()
 {
 	QComboBox *newComboBox = new QComboBox;
 	newComboBox->insertItem(0, "None");
-	newComboBox->insertItem(1, "Single Element Vortex");
-	newComboBox->insertItem(2, "Four Element Vortex");
-	newComboBox->insertItem(3, "Single & Four");
+	newComboBox->insertItem(1, "1E Vortex");
+	newComboBox->insertItem(2, "4E Vortex");
+	newComboBox->insertItem(3, "1E & 4E");
 
 	return newComboBox;
 }
@@ -218,10 +115,10 @@ QComboBox *VESPERSScanConfigurationView::createFluorescenceComboBox()
 QComboBox *VESPERSScanConfigurationView::createCCDComboBox()
 {
 	QComboBox *newComboBox = new QComboBox;
-	newComboBox->insertItem(0, "None");
-	newComboBox->insertItem(1, "Roper");
-	newComboBox->insertItem(2, "Mar");
-	newComboBox->insertItem(3, "Pilatus");
+	newComboBox->addItem("None", 0);
+	newComboBox->addItem("Roper", 1);
+	newComboBox->addItem("Mar", 2);
+	newComboBox->addItem("Pilatus", 4);
 
 	return newComboBox;
 }

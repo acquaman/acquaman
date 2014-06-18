@@ -156,10 +156,6 @@ VESPERS3DScanConfigurationView::VESPERS3DScanConfigurationView(VESPERS3DScanConf
 	connect(ccdComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onCCDDetectorChanged(int)));
 	connect(configuration_->dbObject(), SIGNAL(ccdDetectorChanged(int)), this, SLOT(updateCCDDetectorComboBox(int)));
 
-	configureCCDButton_ = new QPushButton(QIcon(":/hammer-wrench.png"), "Configure Area Detector");
-	configureCCDButton_->setEnabled(configuration_->ccdDetector());
-	connect(configureCCDButton_, SIGNAL(clicked()), this, SLOT(onConfigureCCDDetectorClicked()));
-
 	// The fluorescence detector setup
 	fluorescenceDetectorComboBox_  = createFluorescenceComboBox();
 	connect(fluorescenceDetectorComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onFluorescenceChoiceChanged(int)));
@@ -173,7 +169,7 @@ VESPERS3DScanConfigurationView::VESPERS3DScanConfigurationView(VESPERS3DScanConf
 	// Motor selection.
 	motorSelectionComboBox_ = createMotorSelectionComboBox(QStringList() << "H & V", QList<int>() << (VESPERS::H | VESPERS::V));
 	connect(motorSelectionComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onMotorChanged(int)));
-	connect(configuration_->dbObject(), SIGNAL(motorChanged(int)), this, SLOT(onMotorUpdated(int)));
+	connect(configuration_->dbObject(), SIGNAL(motorChanged(int)), this, SLOT(updateMotorSelectionComboBox(int)));
 
 	// Scan name selection
 	scanName_ = createScanNameView(configuration_->name());
@@ -185,20 +181,6 @@ VESPERS3DScanConfigurationView::VESPERS3DScanConfigurationView(VESPERS3DScanConf
 
 	QFormLayout *scanNameLayout = new QFormLayout;
 	scanNameLayout->addRow("Scan Name:", scanName_);
-
-	// The roi text edit and configuration.
-	roiText_ = new QTextEdit;
-	roiText_->setReadOnly(true);
-
-	QPushButton *configureXRFDetectorButton = new QPushButton(QIcon(":/hammer-wrench.png"), "Configure XRF Detector");
-	connect(configureXRFDetectorButton, SIGNAL(clicked()), this, SLOT(onConfigureXRFDetectorClicked()));
-
-	QFormLayout *roiTextLayout = new QFormLayout;
-	roiTextLayout->addRow(roiText_);
-	roiTextLayout->addRow(configureXRFDetectorButton);
-
-	QGroupBox *roiTextBox = new QGroupBox("Regions Of Interest");
-	roiTextBox->setLayout(roiTextLayout);
 
 	// Label showing where the data will be saved.
 	QLabel *exportPath = addExportPathLabel();
@@ -214,24 +196,28 @@ VESPERS3DScanConfigurationView::VESPERS3DScanConfigurationView(VESPERS3DScanConf
 	connect(exportSpectraInRows_, SIGNAL(toggled(bool)), this, SLOT(updateExportSpectraInRows(bool)));
 	autoExportButtonGroup_->button(configuration_->exportAsAscii() ? 0 : 1)->click();
 
-	ccdComboBox_->setCurrentIndex(int(configuration_->ccdDetector()));
+	ccdComboBox_->setCurrentIndex(ccdComboBox_->findData(int(configuration_->ccdDetector())));
 	i0ComboBox_->setCurrentIndex((int)configuration_->incomingChoice());
 	fluorescenceDetectorComboBox_->setCurrentIndex((int)configuration_->fluorescenceDetector());
-	motorSelectionComboBox_->setCurrentIndex(int(configuration_->motor()));
+	motorSelectionComboBox_->setCurrentIndex(motorSelectionComboBox_->findData(int(configuration_->motor())));
+
+	QFormLayout *detectorLayout = new QFormLayout;
+	detectorLayout->addRow("XRF:", fluorescenceDetectorComboBox_);
+	detectorLayout->addRow("XRD:", ccdComboBox_);
+	detectorLayout->addRow("I0:", i0ComboBox_);
+	detectorLayout->addRow("Stage:", motorSelectionComboBox_);
+
+	QGroupBox *detectorGroupBox = new QGroupBox("Detectors");
+	detectorGroupBox->setLayout(detectorLayout);
 
 	// Setting up the layout.
 	QGridLayout *contentsLayout = new QGridLayout;
 	contentsLayout->addWidget(positionsBox, 0, 0, 2, 3);
 	contentsLayout->addWidget(timeGroupBox, 2, 0, 1, 1);
-	contentsLayout->addWidget(ccdComboBox_, 3, 0, 1, 1);
 	contentsLayout->addLayout(scanNameLayout, 4, 0, 1, 1);
 	contentsLayout->addWidget(timeOffsetBox, 5, 0, 1, 1);
-	contentsLayout->addWidget(configureCCDButton_, 6, 0, 1, 1);
-	contentsLayout->addWidget(motorSelectionComboBox_, 0, 3, 1, 1);
-	contentsLayout->addWidget(fluorescenceDetectorComboBox_, 1, 3, 2, 1);
-	contentsLayout->addWidget(i0ComboBox_, 3, 3, 2, 1);
+	contentsLayout->addWidget(detectorGroupBox, 0, 5);
 	contentsLayout->addWidget(ccdTextBox_, 7, 0, 1, 6);
-	contentsLayout->addWidget(roiTextBox, 0, 5, 3, 3);
 	contentsLayout->addWidget(autoExportGroupBox, 3, 5, 2, 3);
 
 	QHBoxLayout *squeezeContents = new QHBoxLayout;
@@ -318,7 +304,6 @@ void VESPERS3DScanConfigurationView::checkCCDFileNames(const QString &name) cons
 void VESPERS3DScanConfigurationView::onFluorescenceChoiceChanged(int id)
 {
 	configuration_->setFluorescenceDetector(id);
-	updateRoiText();
 }
 
 void VESPERS3DScanConfigurationView::onMotorChanged(int id)
@@ -328,7 +313,7 @@ void VESPERS3DScanConfigurationView::onMotorChanged(int id)
 
 void VESPERS3DScanConfigurationView::onCCDDetectorChanged(int id)
 {
-	configuration_->setCCDDetector(id);
+	configuration_->setCCDDetector(ccdComboBox_->itemData(id).toInt());
 
 	if (configuration_->ccdDetector() != VESPERS::NoCCD){
 
@@ -351,38 +336,6 @@ void VESPERS3DScanConfigurationView::onCCDDetectorChanged(int id)
 
 	onScanNameEdited();
 	ccdTextBox_->setVisible(configuration_->ccdDetector() != VESPERS::NoCCD);
-	configureCCDButton_->setDisabled(configuration_->ccdDetector() == VESPERS::NoCCD);
-}
-
-void VESPERS3DScanConfigurationView::updateRoiText()
-{
-//	VESPERS::FluorescenceDetectors xrfFlag = configuration_->fluorescenceDetector();
-
-//	if (xrfFlag == VESPERS::NoXRF)
-//		configuration_->setRoiInfoList(AMROIInfoList());
-
-//	else if (xrfFlag == VESPERS::SingleElement)
-//		configuration_->setRoiInfoList(*VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList());
-
-//	else if (xrfFlag == VESPERS::FourElement)
-//		configuration_->setRoiInfoList(*VESPERSBeamline::vespers()->vortexXRF4E()->roiInfoList());
-
-//	else if (xrfFlag == (VESPERS::SingleElement | VESPERS::FourElement)){
-
-//		AMROIInfoList list;
-//		AMROIInfoList singleElList = *VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList();
-//		AMROIInfoList fourElList = *VESPERSBeamline::vespers()->vortexXRF4E()->roiInfoList();
-
-//		for (int i = 0, count = singleElList.count(); i < count; i++)
-//			list.append(singleElList.at(i));
-
-//		for (int i = 0, count = fourElList.count(); i < count; i++)
-//			list.append(fourElList.at(i));
-
-//		configuration_->setRoiInfoList(list);
-//	}
-
-//	updateAndSetRoiTextBox(int(configuration_->fluorescenceDetector()));
 }
 
 void VESPERS3DScanConfigurationView::onEstimatedTimeChanged()

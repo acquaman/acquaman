@@ -84,12 +84,6 @@ VESPERSEnergyScanConfigurationView::VESPERSEnergyScanConfigurationView(VESPERSEn
 
 	onMotorsUpdated(configuration_->motor());
 
-	QPushButton *configureRoperDetectorButton = new QPushButton(QIcon(":/hammer-wrench.png"), "Configure Area Detector");
-	connect(configureRoperDetectorButton, SIGNAL(clicked()), this, SLOT(onConfigureCCDDetectorClicked()));
-
-	QHBoxLayout *ccdBoxFirstRowLayout = new QHBoxLayout;
-	ccdBoxFirstRowLayout->addWidget(configureRoperDetectorButton);
-
 	// The estimated scan time.
 	estimatedTime_ = new QLabel;
 	connect(configuration_, SIGNAL(totalTimeChanged(double)), this, SLOT(onEstimatedTimeChanged()));
@@ -105,7 +99,7 @@ VESPERSEnergyScanConfigurationView::VESPERSEnergyScanConfigurationView(VESPERSEn
 	// Label showing where the data will be saved.
 	QLabel *exportPath = addExportPathLabel();
 
-	ccdComboBox_->setCurrentIndex(int(configuration_->ccdDetector()));
+	ccdComboBox_->setCurrentIndex(ccdComboBox_->findData(int(configuration_->ccdDetector())));
 
 	// Setting up the layout.
 	QHBoxLayout *topRowLayout = new QHBoxLayout;
@@ -118,7 +112,6 @@ VESPERSEnergyScanConfigurationView::VESPERSEnergyScanConfigurationView(VESPERSEn
 	QHBoxLayout *secondRowLayout = new QHBoxLayout;
 	secondRowLayout->addStretch();
 	secondRowLayout->addLayout(scanNameLayout);
-	secondRowLayout->addLayout(ccdBoxFirstRowLayout);
 	secondRowLayout->addStretch();
 
 	QHBoxLayout *thirdRowLayout = new QHBoxLayout;
@@ -222,7 +215,7 @@ void VESPERSEnergyScanConfigurationView::checkCCDFileNames(const QString &name) 
 
 void VESPERSEnergyScanConfigurationView::onCCDDetectorChanged(int id)
 {
-	configuration_->setCCDDetector(id);
+	configuration_->setCCDDetector(ccdComboBox_->itemData(id).toInt());
 
 	QString path;
 	QString name = configuration_->ccdFileName().isEmpty() ? scanName_->text() : configuration_->ccdFileName();

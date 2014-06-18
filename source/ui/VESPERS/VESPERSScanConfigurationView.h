@@ -60,9 +60,6 @@ protected slots:
 	QString ccdDetectorIdToString(int id);
 
 protected:
-	/// Figure out the current configuration of the regions of interest and write it out in a readable way.
-	void updateAndSetRoiTextBox(int xrfId);
-
 	/// Creates a combo box for the fluorescenceDetector enum.  Returns a pointer to the widget.
 	QComboBox *createFluorescenceComboBox();
 	/// Creates a combo box for the CCDDetector enum.  Returns a pointer to the widget.
@@ -107,8 +104,6 @@ protected:
 	QLabel *timeOffsetLabel_;
 	/// A spin box holding the time offset.
 	QDoubleSpinBox *timeOffset_;
-	/// The text edit that holds all the names of the regions of interest.
-	QTextEdit *roiText_;
 	/// The label that holds useful information about the CCD - such as path and name.
 	QLabel *ccdText_;
 	/// The label that holds the help message when CCD file names conflict.
