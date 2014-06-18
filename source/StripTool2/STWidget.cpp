@@ -70,13 +70,14 @@ void STWidget::onRingCurrentValueChanged(double newValue)
     }
 
     if (accumulator_->dataCount() > 0) {
+        int valNum = accumulator_->dataCount();
+        qDebug() << "StripTool : AB value count : " << valNum;
+
         qDebug() << "StripTool : AB value : " << (double)accumulator_->value( AMnDIndex(accumulator_->dataCount() - 1) );
 
-        int valNum = accumulator_->dataCount();
-        QVector<double> vals(valNum);
-        double *valsData = vals.data();
-        accumulator_->values(AMnDIndex(0), AMnDIndex(accumulator_->dataCount() - 1), valsData);
-        qDebug() << "StripTool : AB values : " << *valsData;
+        double outputValues[valNum];
+        accumulator_->values(AMnDIndex(0), AMnDIndex(accumulator_->dataCount() - 1), outputValues);
+        qDebug() << "StripTool : AB values : " << *outputValues;
 
     }
 }
