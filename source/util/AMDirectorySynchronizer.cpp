@@ -3,17 +3,26 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QDir>
+#include <QDebug>
 AMDirectorySynchronizer::AMDirectorySynchronizer(const QString &sourceDirectory, const QString &destinationDirectory, QObject *parent)
+	:QObject(parent)
 {
 	sourceDirectory_ = sourceDirectory;
 	destinationDirectory_ = destinationDirectory;
+	copyProcess_ = new QProcess(this);
+	isRunning_ = false;
+	percentProgress_ = 0;
 
-	connect(&copyProcess_, SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(onCopyFinished(int, QProcess::ExitStatusi)));
-	connect(&copyProcess_, SIGNAL(readyReadStandardError()), this, SLOT(onCopyReadyReadStdErr()));
+	connect(copyProcess_, SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(onCopyFinished(int, QProcess::ExitStatus)));
+	connect(copyProcess_, SIGNAL(readyReadStandardError()), this, SLOT(onCopyReadyReadStdErr()));
+	connect(copyProcess_, SIGNAL(readyReadStandardOutput()), this, SLOT(onCopyReadyReadStdOut()));
+	connect(copyProcess_, SIGNAL(started()), this, SLOT(onCopyStarted()));
+	appendToProgressMessage("Copy not yet started");
 }
 
 bool AMDirectorySynchronizer::validatePath(const QString &path)
 {
+
 	if(!QFile::exists(path))
 	{
 		// Doesn't exit, create:
@@ -22,7 +31,7 @@ bool AMDirectorySynchronizer::validatePath(const QString &path)
 		// Check if has been created properly
 		if(!QFile::exists(path))
 		{
-			setLastMessage(QString("Error: Path %1 does not exist, and could not be created").arg(path));
+			appendToErrorMessage(QString("Error: Path %1 does not exist, and could not be created").arg(path));
 			return false;
 		}
 
@@ -33,7 +42,7 @@ bool AMDirectorySynchronizer::validatePath(const QString &path)
 	QFileInfo pathInfo(path);
 	if(pathInfo.isFile())
 	{
-		setLastMessage(QString("Error: Path %1 exists, but refers to a file, not a directory").arg(path));
+		appendToErrorMessage(QString("Error: Path %1 exists, but refers to a file, not a directory").arg(path));
 		return false;
 	}
 
@@ -43,6 +52,18 @@ bool AMDirectorySynchronizer::validatePath(const QString &path)
 
 bool AMDirectorySynchronizer::start()
 {
+	errorMessages_.clear();
+	progressMessages_.clear();
+
+	emit errorMessagesChanged(errorMessages_);
+	emit progressMessageChanged(progressMessages_);
+
+	if(isRunning_)
+	{
+		appendToErrorMessage(QString("Process is already running"));
+		return false;
+	}
+
 	if(!(validatePath(sourceDirectory_) && validatePath(destinationDirectory_)))
 		return false;
 
@@ -50,71 +71,123 @@ bool AMDirectorySynchronizer::start()
 
 	if(result == AMRecursiveDirectoryCompare::FullyMatchingResult)
 	{
-		setLastMessage(QString("Contents of %1 and %2 are the same, no copying necessary.").arg(sourceDirectory_).arg(destinationDirectory_));
+		appendToErrorMessage(QString("Contents of %1 and %2 are the same, no copying necessary.").arg(sourceDirectory_).arg(destinationDirectory_));
 		return false;
 	}
 
 	if(result == AMRecursiveDirectoryCompare::InvalidResult)
 	{
-		setLastMessage(QString("Unknown error has occured in AMDirectorySynchronizer"));
+		appendToErrorMessage(QString("Unknown error has occured in AMDirectorySynchronizer"));
 		return false;
 	}
 
 	if(result == AMRecursiveDirectoryCompare::BothSidesModifiedResult)
 	{
-		setLastMessage(QString("Contents of %1 and %2 have both changed, cannot proceed").arg(sourceDirectory_).arg(destinationDirectory_));
+		appendToErrorMessage(QString("Contents of %1 and %2 have both changed, cannot proceed").arg(sourceDirectory_).arg(destinationDirectory_));
+		return false;
 	}
 
-
-
-	QString process = "cp";
+	QString process = "rsync";
 	QStringList args;
-	args << "-u"
-		 << "-r";
+	args << "-avz"
+		 << "--progress";
 
 	if(result == AMRecursiveDirectoryCompare::Side1ModifiedResult)
 	{
-		args << sourcePath_
-			 << destinationPath_;
+		args << QString("%1/.").arg(sourceDirectory_)
+			 << QString("%1/").arg(destinationDirectory_);
 	}
 	else
 	{
-		args << destinationPath_
-			 << sourcePath_;
+		args << QString("%1/.").arg(destinationDirectory_)
+			 << QString("%1/").arg(sourceDirectory_);
 	}
-	copyProcess_.start(process, args);
-	return true;
+	copyProcess_->start(process, args);
+	if(copyProcess_->waitForStarted(30000))
+	{
+		isRunning_ = true;
+		return true;
+	}
+	else
+		appendToErrorMessage("Could not start the sync process");
+	return false;
 }
 
-
-void AMDirectorySynchronizer::setLastMessage(const QString &message)
-{
-	lastMessage_ = message;
-	emit lastMessageChanged(lastMessage_);
-}
 
 
 AMRecursiveDirectoryCompare::DirectoryCompareResult AMDirectorySynchronizer::compareDirectories()
 {
-	AMRecursiveDirectoryCompare compare(source, destination);
+	AMRecursiveDirectoryCompare compare(sourceDirectory_, destinationDirectory_);
 
 	return compare.compare();
+}
+
+void AMDirectorySynchronizer::appendToErrorMessage(const QString &message)
+{
+	errorMessages_ << message;
+	emit errorMessagesChanged(errorMessages_);
+}
+
+void AMDirectorySynchronizer::appendToProgressMessage(const QString &message)
+{
+	progressMessages_ << message;
+	emit progressMessageChanged(progressMessages_);
+}
+
+void AMDirectorySynchronizer::parseProgressInput(const QString &input)
+{
+
+	QString simplifiedInput = input.simplified();
+
+	QStringList separatedInput = simplifiedInput.split(" ");
+
+	for(int i = 0; i < separatedInput.count(); i++)
+		qDebug() << QString("%1 : %2").arg(i).arg(separatedInput.at(i));
+
+	if(separatedInput.count() > 1)
+	{
+		QString valueString = separatedInput.at(1);
+		valueString.replace("%", "", Qt::CaseInsensitive);
+		qDebug() << valueString;
+		bool successfulParse = false;
+
+		int valueConvert = valueString.toInt(&successfulParse);
+
+		if(successfulParse)
+		{
+			percentProgress_ = valueConvert;
+			emit percentageProgressChanged(percentProgress_);
+		}
+	}
 }
 
 
 void AMDirectorySynchronizer::onCopyReadyReadStdErr()
 {
-	setLastMessage(copyProcess_.readAllStandardError().data());
+	appendToErrorMessage(copyProcess_->readAllStandardError().data());
+}
+
+void AMDirectorySynchronizer::onCopyReadyReadStdOut()
+{
+	QString message = copyProcess_->readAllStandardOutput().data();
+	parseProgressInput(message);
+	appendToProgressMessage(message);
 }
 
 void AMDirectorySynchronizer::onCopyFinished(int exitCode, QProcess::ExitStatus status)
 {
+	isRunning_ = false;
 	if(exitCode == 1 || status == QProcess::CrashExit)
 	{
-		emit copyError();
+		emit copyFailed();
 	}
 	else
 	{
 		emit copyCompleted();
 	}
+}
+
+void AMDirectorySynchronizer::onCopyStarted()
+{
+	appendToProgressMessage("Started");
 }
