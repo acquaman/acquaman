@@ -115,7 +115,6 @@ bool AM0DAccumulatorAB::values(const AMnDIndex &indexStart, const AMnDIndex &ind
     if (start >= dataStored_.size() || end >= dataStored_.size())
         return false;
 
-    // set output values to point to the subset of points saved for the data source.
     for (int i = 0; i <= end - start; i++) {
         outputValues[i] = dataStored_.at(start + i);
     }

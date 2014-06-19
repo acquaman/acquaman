@@ -5,22 +5,36 @@ AMTimestampAccumulatorAB::AMTimestampAccumulatorAB(const QString &outputName, QO
     axes_ << AMAxisInfo("invalid", 0, "No input data");
     setState(AMDataSource::InvalidFlag);
 
-    dataCount_ = 0;
+    timeValue_ = 10;
 
     accumulator_ = new AM0DAccumulatorAB("Accumulated 0D data", this);
 
     timestamp_ = new AMTimestampAB("Timestamp data", this);
+    timestamp_->setTimeUnits(AMTimestampAB::Seconds);
     timestamp_->setInputDataSources(QList<AMDataSource*>() << accumulator_);
 
     sources_ = QList<AMDataSource*>() << timestamp_;
 
     connect( timestamp_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)) );
     connect( timestamp_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()) );
+    connect( timestamp_, SIGNAL(timeUnitsChanged(AMTimestampAB::TimeUnits)), this, SIGNAL(timeUnitsChanged(AMTimestampAB::TimeUnits)) );
+
+    setDataStoredCountMax(100);
 }
 
 AMTimestampAccumulatorAB::~AMTimestampAccumulatorAB()
 {
 
+}
+
+int AMTimestampAccumulatorAB::timeValue() const
+{
+    return timeValue_;
+}
+
+AMTimestampAB::TimeUnits AMTimestampAccumulatorAB::timeUnits() const
+{
+    return timestamp_->timeUnits();
 }
 
 bool AMTimestampAccumulatorAB::areInputDataSourcesAcceptable(const QList<AMDataSource *> &dataSources) const
@@ -63,6 +77,12 @@ void AMTimestampAccumulatorAB::setInputDataSourcesImplementation(const QList<AMD
 
 AMNumber AMTimestampAccumulatorAB::value(const AMnDIndex &indexes) const
 {
+    if (indexes.rank() != 1)
+        return AMNumber(AMNumber::DimensionError);
+
+    if (!isValid())
+        return AMNumber(AMNumber::InvalidError);
+
     return timestamp_->value(indexes);
 }
 
@@ -87,16 +107,31 @@ bool AMTimestampAccumulatorAB::loadFromDb(AMDatabase *db, int id)
     return success;
 }
 
-void AMTimestampAccumulatorAB::setDisplayTime(int time, AMTimestampAB::TimeUnits units)
+void AMTimestampAccumulatorAB::setTimeWindow(int newValue, AMTimestampAB::TimeUnits newUnits)
 {
-    timestamp_->setTimeUnits(units);
+    setTimeValue(newValue);
+    setTimeUnits(newUnits);
 }
 
-void AMTimestampAccumulatorAB::setDataCountMax(int newMax)
+void AMTimestampAccumulatorAB::setTimeValue(int newValue)
+{
+    if (timeValue_ != newValue && newValue > 0) {
+        timeValue_ = newValue;
+        emit timeValueChanged(timeValue_);
+    }
+}
+
+void AMTimestampAccumulatorAB::setTimeUnits(AMTimestampAB::TimeUnits newUnits)
+{
+    timestamp_->setTimeUnits(newUnits);
+}
+
+void AMTimestampAccumulatorAB::setDataStoredCountMax(int newMax)
 {
     accumulator_->setDataStoredCountMax(newMax);
     timestamp_->setDataStoredCountMax(newMax);
 }
+
 
 void AMTimestampAccumulatorAB::onInputSourceValuesChanged(const AMnDIndex &start, const AMnDIndex &end)
 {

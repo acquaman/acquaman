@@ -34,7 +34,7 @@ int AMTimestampAB::dataStoredCountMax() const
 
 AMTimestampAB::TimeUnits AMTimestampAB::timeUnits() const
 {
-    return units_;
+    return timeUnits_;
 }
 
 bool AMTimestampAB::areInputDataSourcesAcceptable(const QList<AMDataSource *> &dataSources) const
@@ -107,7 +107,7 @@ AMNumber AMTimestampAB::axisValue(int axisNumber, int index) const
     if (!latestUpdate_.isValid())
         return AMNumber(AMNumber::InvalidError);
 
-    return msecTo(latestUpdate_.msecsTo(dataStored_.at(index)), units_);
+    return msecTo(latestUpdate_.msecsTo(dataStored_.at(index)), timeUnits_);
 }
 
 bool AMTimestampAB::loadFromDb(AMDatabase *db, int id)
@@ -123,9 +123,9 @@ bool AMTimestampAB::loadFromDb(AMDatabase *db, int id)
 
 void AMTimestampAB::setTimeUnits(TimeUnits newUnits)
 {
-    if (units_ != newUnits) {
-        units_ = newUnits;
-        emit timeUnitsChanged(units_);
+    if (timeUnits_ != newUnits) {
+        timeUnits_ = newUnits;
+        emit timeUnitsChanged(timeUnits_);
     }
 }
 
@@ -148,14 +148,23 @@ void AMTimestampAB::onInputSourceValuesChanged(const AMnDIndex &start, const AMn
     Q_UNUSED(end)
 
     latestUpdate_ = QDateTime::currentDateTime();
+    appendToDataStored(latestUpdate_);
+}
 
+void AMTimestampAB::onInputSourcesStateChanged()
+{
+    reviewState();
+}
+
+void AMTimestampAB::appendToDataStored(QDateTime newDateTime)
+{
     // if we are less than the data stored max, append the new value to the end of the data stored list.
     if (dataStored_.size() <= dataMax_) {
-        dataStored_.append(latestUpdate_);
+        dataStored_.append(newDateTime);
 
     } else {
         dataStored_.removeFirst();
-        dataStored_.append(latestUpdate_);
+        dataStored_.append(newDateTime);
     }
 
     // update the axes info for this data source to reflect the (possibly) new number of points to plot.
@@ -163,11 +172,6 @@ void AMTimestampAB::onInputSourceValuesChanged(const AMnDIndex &start, const AMn
 
     emitValuesChanged();
     emitSizeChanged(0);
-}
-
-void AMTimestampAB::onInputSourcesStateChanged()
-{
-    reviewState();
 }
 
 double AMTimestampAB::msecTo(double msecVal, TimeUnits newUnit) const
@@ -188,6 +192,19 @@ double AMTimestampAB::msecTo(double msecVal, TimeUnits newUnit) const
     }
 
     return result;
+}
+
+int AMTimestampAB::pointsInTimeWindow(int time, TimeUnits units)
+{
+    int i;
+
+    for (i = 0; i < dataStored_.size(); i++) {
+        if ( msecTo(latestUpdate_.msecsTo(dataStored_.at(i)), units) <= time ) {
+            break;
+        }
+    }
+
+    return dataStored_.mid(i).size();
 }
 
 void AMTimestampAB::reviewState()

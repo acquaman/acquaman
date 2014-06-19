@@ -20,6 +20,11 @@ public:
     /// Destructor.
     virtual ~AMTimestampAccumulatorAB();
 
+    /// Returns the time amount.
+    int timeValue() const;
+    /// Returns the time units.
+    AMTimestampAB::TimeUnits timeUnits() const;
+
     /// Check that the input sources are acceptable. The empty list is always valid. For non-empty list of sources, the list must be of size 1 and the sources must have rank 0.
     virtual bool areInputDataSourcesAcceptable(const QList<AMDataSource *> &dataSources) const;
     /// Set the data source inputs.
@@ -34,13 +39,20 @@ public:
     virtual bool loadFromDb(AMDatabase *db, int id);
 
 signals:
+    void timeValueChanged(int newValue);
+    void timeUnitsChanged(AMTimestampAB::TimeUnits newUnits);
 
 public slots:
-    void setDisplayTime(int time, AMTimestampAB::TimeUnits units);
+    /// Sets the time window for which values() can be retrieved.
+    void setTimeWindow(int newValue, AMTimestampAB::TimeUnits newUnits);
+    /// Sets the time value.
+    void setTimeValue(int newValue);
+    /// Sets the time units.
+    void setTimeUnits(AMTimestampAB::TimeUnits newUnits);
 
 protected slots:
     /// Handles setting the maximum number of data points and times to store.
-    void setDataCountMax(int newMax);
+    void setDataStoredCountMax(int newMax);
     /// Handles adding the new value to the dataStored_ for this particular data source.
     void onInputSourceValuesChanged(const AMnDIndex &start, const AMnDIndex &end);
     /// Handles checking whether this AB is valid if the state of any sources changes.
@@ -50,7 +62,7 @@ protected:
     void reviewState();
 
 protected:
-    int dataCount_;
+    int timeValue_;
 
     AM0DAccumulatorAB *accumulator_;
     AMTimestampAB *timestamp_;
