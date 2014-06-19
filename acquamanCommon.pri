@@ -760,7 +760,8 @@ HEADERS += source/acquaman/AMRegion.h \
 	source/ui/AMRegExpLineEdit.h \
 	source/application/AMCrashMonitorSupport.h \
 	source/util/AMBuildInfo.h \
-    source/util/AMBuildReporter.h
+    source/util/AMBuildReporter.h \
+    source/analysis/AM1DKSpaceCalculatorAB.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1241,7 +1242,8 @@ SOURCES += source/acquaman/AMRegion.cpp \
 	source/ui/AMRegExpLineEdit.cpp \
 	source/application/AMCrashMonitorSupport.cpp \
 	source/util/AMBuildInfo.cpp \
-    source/util/AMBuildReporter.cpp
+    source/util/AMBuildReporter.cpp \
+    source/analysis/AM1DKSpaceCalculatorAB.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1271,3 +1273,5 @@ contains(DEFINES, AM_BUILD_REPORTER_ENABLED){
 
 	SOURCES += source/util/AMRunTimeBuildInfo.cpp
 }
+
+
