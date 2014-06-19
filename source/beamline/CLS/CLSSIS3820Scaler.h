@@ -339,7 +339,7 @@ protected:
 	/// Holds a custom setable name for the channel
 	QString customChannelName_;
 
-	/// Holds the pointer to the CLSSR570 (if it has one), which controls the sensitivity of the scalar channel.
+    /// Holds the pointer to the current amplifier (if it has one), which controls the sensitivity of the scalar channel.
     AMCurrentAmplifier *currentAmplifier_;
 
     /// Holds the pointer to the AMDetector (if it has one).
