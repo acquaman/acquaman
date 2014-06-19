@@ -14,6 +14,7 @@
 #include "util/AMBiHash.h"
 
 #include "beamline/CLS/CLSBasicScalerChannelDetector.h"
+#include "beamline/CLS/CLSKeithley428.h"
 #include "beamline/CLS/CLSBasicCompositeScalerChannelDetector.h"
 
 class CLSMAXvMotor;
@@ -38,7 +39,11 @@ public:
     /// Returns the scaler.
     CLSSIS3820Scaler* scaler();
 
+    /// Returns the m1 upper slit blade motor control.
     CLSMAXvMotor* m1UpperSlit();
+
+    /// Returns an instance of the keithley428 amplifier.
+    CLSKeithley428* keithley();
 
     virtual bool isConnected() const;
 
@@ -81,6 +86,7 @@ protected:
     bool wasConnected_;
 
     CLSBasicScalerChannelDetector *testDetector_;
+    CLSKeithley428 *keithley_;
 };
 
 #endif // BIOXASSIDEBEAMLINE_H
