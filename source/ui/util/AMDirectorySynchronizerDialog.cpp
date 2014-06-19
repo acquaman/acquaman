@@ -2,8 +2,10 @@
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
+#include <QLabel>
+#include <QCloseEvent>
 AMDirectorySynchronizerDialog::AMDirectorySynchronizerDialog(QWidget *parent) :
-	QWidget(parent)
+	QDialog(parent)
 {
 	QVBoxLayout* mainLayout = new QVBoxLayout();
 
@@ -11,30 +13,44 @@ AMDirectorySynchronizerDialog::AMDirectorySynchronizerDialog(QWidget *parent) :
 	progressBar_->setRange(0, 100);
 	errorTextEdit_ = new QTextEdit();
 	errorTextEdit_->setReadOnly(true);
-	progressTextEdit_ = new QTextEdit();
-	progressTextEdit_->setReadOnly(true);
-	startButton_ = new QPushButton("Start Copy");
+	errorTextEdit_->setVisible(false);
+	errorCloseButton_ = new QPushButton("Close");
+	errorCloseButton_->setVisible(false);
 
-	mainLayout->addWidget(startButton_, Qt::AlignCenter);
+	mainLayout->addWidget(new QLabel("Acquaman is currently backing up your data. Please wait till complete..."));
 	mainLayout->addWidget(progressBar_, Qt::AlignCenter);
+	mainLayout->addWidget(errorTextEdit_);
+	mainLayout->addWidget(errorCloseButton_, Qt::AlignCenter);
 
-	QHBoxLayout* progressLayout = new QHBoxLayout();
-	progressLayout->addWidget(errorTextEdit_);
-	progressLayout->addWidget(progressTextEdit_);
-
-	mainLayout->addLayout(progressLayout);
 	setLayout(mainLayout);
 	synchronizer_ = new AMDirectorySynchronizer("/home/sgm/Documents/CopyTests/Source", "/home/sgm/Documents/CopyTests/Destination");
 
 	connect(synchronizer_, SIGNAL(copyCompleted()), this, SLOT(onSynchronizerComplete()));
 	connect(synchronizer_, SIGNAL(copyFailed()), this, SLOT(onSynchronizerComplete()));
 	connect(synchronizer_, SIGNAL(errorMessagesChanged(const QStringList&)), this, SLOT(onSynchronizerErrorTextChanged(const QStringList&)));
-	connect(synchronizer_, SIGNAL(progressMessageChanged(const QStringList&)), this, SLOT(onSynchronizerProgressTextChanges(const QStringList&)));
 	connect(synchronizer_, SIGNAL(percentageProgressChanged(int)), this, SLOT(onPercentageProgressChanged(int)));
-	connect(startButton_, SIGNAL(clicked()), this, SLOT(onStartButtonClicked()));
+	connect(errorCloseButton_, SIGNAL(clicked()), this, SLOT(onCloseButtonClicked()));
+	setModal(true);
+}
 
-	setWindowModality(Qt::WindowModal);
+AMDirectorySynchronizerDialog::~AMDirectorySynchronizerDialog()
+{
+	synchronizer_->deleteLater();
+}
 
+void AMDirectorySynchronizerDialog::closeEvent(QCloseEvent *ce)
+{
+	if(synchronizer_->isRunning())
+		ce->setAccepted(false);
+	else
+		ce->setAccepted(true);
+
+}
+
+void AMDirectorySynchronizerDialog::start()
+{
+	if(synchronizer_->start())
+		show();
 }
 
 void AMDirectorySynchronizerDialog::onSynchronizerErrorTextChanged(const QStringList &list)
@@ -46,27 +62,25 @@ void AMDirectorySynchronizerDialog::onSynchronizerErrorTextChanged(const QString
 	}
 }
 
-void AMDirectorySynchronizerDialog::onSynchronizerProgressTextChanges(const QStringList &list)
-{
-	progressTextEdit_->clear();
-	for(int iMessage = 0; iMessage < list.count(); iMessage++)
-	{
-		progressTextEdit_->append(list.at(iMessage));
-	}
-}
-
 void AMDirectorySynchronizerDialog::onSynchronizerComplete()
 {
 	setCursor(Qt::ArrowCursor);
+	if(errorTextEdit_->toPlainText().length() != 0)
+	{
+		errorTextEdit_->setVisible(true);
+		errorCloseButton_->setVisible(true);
+	}
+	else
+		close();
 }
 
-void AMDirectorySynchronizerDialog::onStartButtonClicked()
-{
-	if(synchronizer_->start())
-		this->setCursor(Qt::WaitCursor);
-}
 
 void AMDirectorySynchronizerDialog::onPercentageProgressChanged(int value)
 {
 	progressBar_->setValue(value);
+}
+
+void AMDirectorySynchronizerDialog::onCloseButtonClicked()
+{
+	close();
 }

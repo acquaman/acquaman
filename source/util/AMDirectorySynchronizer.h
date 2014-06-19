@@ -38,7 +38,8 @@ public:
 	bool validatePath(const QString& path);
 	/// @brief Starts the process of copying the files from the source to the destination
 	bool start();
-
+	/// @brief Whether or not the process is currently copying files
+	bool isRunning();
 
 protected:
 	/// @brief Checks to see if any files exist in the source but not the directory, or
@@ -60,7 +61,7 @@ signals:
 	/// @brief Signal emitted when the copy terminates unexpectedly after starting
 	void copyFailed();
 	/// @brief Signal emitted whenever the Progress Messages changes
-	void progressMessageChanged(const QStringList& values);
+	void progressMessagesChanged(const QStringList& values);
 	/// @brief Signal emitted whenever the Error Messages changes
 	void errorMessagesChanged(const QStringList& values);
 	/// @brief Signal emitted whenever the percentageProgress value changes

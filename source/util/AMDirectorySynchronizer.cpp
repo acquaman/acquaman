@@ -56,7 +56,7 @@ bool AMDirectorySynchronizer::start()
 	progressMessages_.clear();
 
 	emit errorMessagesChanged(errorMessages_);
-	emit progressMessageChanged(progressMessages_);
+	emit progressMessagesChanged(progressMessages_);
 
 	if(isRunning_)
 	{
@@ -113,7 +113,10 @@ bool AMDirectorySynchronizer::start()
 	return false;
 }
 
-
+bool AMDirectorySynchronizer::isRunning()
+{
+	return isRunning_;
+}
 
 AMRecursiveDirectoryCompare::DirectoryCompareResult AMDirectorySynchronizer::compareDirectories()
 {
@@ -131,7 +134,7 @@ void AMDirectorySynchronizer::appendToErrorMessage(const QString &message)
 void AMDirectorySynchronizer::appendToProgressMessage(const QString &message)
 {
 	progressMessages_ << message;
-	emit progressMessageChanged(progressMessages_);
+	emit progressMessagesChanged(progressMessages_);
 }
 
 void AMDirectorySynchronizer::parseProgressInput(const QString &input)
@@ -140,9 +143,6 @@ void AMDirectorySynchronizer::parseProgressInput(const QString &input)
 	QString simplifiedInput = input.simplified();
 
 	QStringList separatedInput = simplifiedInput.split(" ");
-
-	for(int i = 0; i < separatedInput.count(); i++)
-		qDebug() << QString("%1 : %2").arg(i).arg(separatedInput.at(i));
 
 	if(separatedInput.count() > 1)
 	{
