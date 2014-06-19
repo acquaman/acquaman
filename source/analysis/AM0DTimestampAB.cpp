@@ -47,6 +47,10 @@ bool AM0DTimestampAB::areInputDataSourcesAcceptable(const QList<AMDataSource *> 
     if (dataSources.size() > 1)
         return false;
 
+    // we expect the source to be of rank 0 (though maybe this shouldn't be a requirement?)
+    if (dataSources.at(0)->rank() != 0)
+        return false;
+
     return true;
 }
 
@@ -77,20 +81,51 @@ void AM0DTimestampAB::setInputDataSourcesImplementation(const QList<AMDataSource
 
     reviewState();
 
-    emitSizeChanged(0);
+    emitSizeChanged();
     emitValuesChanged();
-    emitAxisInfoChanged(0);
+    emitAxisInfoChanged();
     emitInfoChanged();
 }
 
 AMNumber AM0DTimestampAB::value(const AMnDIndex &indexes) const
 {
-    return sources_.at(0)->value(indexes);
+    if(indexes.rank() != 1)
+        return AMNumber(AMNumber::DimensionError);
+
+    if(!isValid())
+        return AMNumber(AMNumber::InvalidError);
+
+    for (int i = 0; i < sources_.size(); i++)
+        if (indexes.i() >= dataStored_.size())
+            return AMNumber(AMNumber::OutOfBoundsError);
+
+    return msecTo(latestUpdate_.msecsTo(dataStored_.at(indexes.i())), timeUnits_);
 }
 
 bool AM0DTimestampAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
 {
-    return sources_.at(0)->values(indexStart, indexEnd, outputValues);
+    if(indexStart.rank() != 1 || indexEnd.rank() != 1)
+        return false;
+
+    if(!isValid())
+        return false;
+
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+    for (int i = 0; i < sources_.size(); i++)
+        if ((unsigned)indexEnd.i() >= (unsigned)axes_.at(0).size)
+            return false;
+
+    if ((unsigned)indexStart.i() > (unsigned)indexEnd.i())
+        return false;
+#endif
+
+    int totalSize = indexStart.totalPointsTo(indexEnd);
+
+    for (int i = 0; i < totalSize; i++) {
+        outputValues[i] = value(AMnDIndex(i + indexStart.i()));
+    }
+
+    return true;
 }
 
 AMNumber AM0DTimestampAB::axisValue(int axisNumber, int index) const
@@ -104,10 +139,7 @@ AMNumber AM0DTimestampAB::axisValue(int axisNumber, int index) const
     if (index < 0 || index >= dataStored_.size())
         return AMNumber(AMNumber::OutOfBoundsError);
 
-    if (!latestUpdate_.isValid())
-        return AMNumber(AMNumber::InvalidError);
-
-    return msecTo(latestUpdate_.msecsTo(dataStored_.at(index)), timeUnits_);
+    return index;
 }
 
 bool AM0DTimestampAB::loadFromDb(AMDatabase *db, int id)
@@ -171,7 +203,8 @@ void AM0DTimestampAB::appendToDataStored(QDateTime newDateTime)
     axes_[0] = AMAxisInfo(sources_.at(0)->name(), dataStored_.size());
 
     emitValuesChanged();
-    emitSizeChanged(0);
+    emitAxisInfoChanged();
+    emitSizeChanged();
 }
 
 double AM0DTimestampAB::msecTo(double msecVal, TimeUnits newUnit) const
