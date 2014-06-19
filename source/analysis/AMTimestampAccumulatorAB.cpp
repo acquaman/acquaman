@@ -9,15 +9,15 @@ AMTimestampAccumulatorAB::AMTimestampAccumulatorAB(const QString &outputName, QO
 
     accumulator_ = new AM0DAccumulatorAB("Accumulated 0D data", this);
 
-    timestamp_ = new AMTimestampAB("Timestamp data", this);
-    timestamp_->setTimeUnits(AMTimestampAB::Seconds);
+    timestamp_ = new AM0DTimestampAB("Timestamp data", this);
+    timestamp_->setTimeUnits(AM0DTimestampAB::Seconds);
     timestamp_->setInputDataSources(QList<AMDataSource*>() << accumulator_);
 
     sources_ = QList<AMDataSource*>() << timestamp_;
 
     connect( timestamp_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)) );
     connect( timestamp_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()) );
-    connect( timestamp_, SIGNAL(timeUnitsChanged(AMTimestampAB::TimeUnits)), this, SIGNAL(timeUnitsChanged(AMTimestampAB::TimeUnits)) );
+    connect( timestamp_, SIGNAL(timeUnitsChanged(AM0DTimestampAB::TimeUnits)), this, SIGNAL(timeUnitsChanged(AM0DTimestampAB::TimeUnits)) );
 
     setDataStoredCountMax(100);
 }
@@ -32,7 +32,7 @@ int AMTimestampAccumulatorAB::timeValue() const
     return timeValue_;
 }
 
-AMTimestampAB::TimeUnits AMTimestampAccumulatorAB::timeUnits() const
+AM0DTimestampAB::TimeUnits AMTimestampAccumulatorAB::timeUnits() const
 {
     return timestamp_->timeUnits();
 }
@@ -107,7 +107,7 @@ bool AMTimestampAccumulatorAB::loadFromDb(AMDatabase *db, int id)
     return success;
 }
 
-void AMTimestampAccumulatorAB::setTimeWindow(int newValue, AMTimestampAB::TimeUnits newUnits)
+void AMTimestampAccumulatorAB::setTimeWindow(int newValue, AM0DTimestampAB::TimeUnits newUnits)
 {
     setTimeValue(newValue);
     setTimeUnits(newUnits);
@@ -121,7 +121,7 @@ void AMTimestampAccumulatorAB::setTimeValue(int newValue)
     }
 }
 
-void AMTimestampAccumulatorAB::setTimeUnits(AMTimestampAB::TimeUnits newUnits)
+void AMTimestampAccumulatorAB::setTimeUnits(AM0DTimestampAB::TimeUnits newUnits)
 {
     timestamp_->setTimeUnits(newUnits);
 }

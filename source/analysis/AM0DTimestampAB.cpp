@@ -1,6 +1,6 @@
-#include "AMTimestampAB.h"
+#include "AM0DTimestampAB.h"
 
-AMTimestampAB::AMTimestampAB(const QString &outputName, QObject *parent) :
+AM0DTimestampAB::AM0DTimestampAB(const QString &outputName, QObject *parent) :
     AMStandardAnalysisBlock(outputName, parent)
 {
     axes_ << AMAxisInfo("invalid", 0, "No input data");
@@ -12,32 +12,32 @@ AMTimestampAB::AMTimestampAB(const QString &outputName, QObject *parent) :
     setTimeUnits(mSeconds);
 }
 
-AMTimestampAB::~AMTimestampAB()
+AM0DTimestampAB::~AM0DTimestampAB()
 {
 
 }
 
-QList<QDateTime> AMTimestampAB::dataStored() const
+QList<QDateTime> AM0DTimestampAB::dataStored() const
 {
     return dataStored_;
 }
 
-int AMTimestampAB::dataStoredCount() const
+int AM0DTimestampAB::dataStoredCount() const
 {
     return dataStored_.size();
 }
 
-int AMTimestampAB::dataStoredCountMax() const
+int AM0DTimestampAB::dataStoredCountMax() const
 {
     return dataMax_;
 }
 
-AMTimestampAB::TimeUnits AMTimestampAB::timeUnits() const
+AM0DTimestampAB::TimeUnits AM0DTimestampAB::timeUnits() const
 {
     return timeUnits_;
 }
 
-bool AMTimestampAB::areInputDataSourcesAcceptable(const QList<AMDataSource *> &dataSources) const
+bool AM0DTimestampAB::areInputDataSourcesAcceptable(const QList<AMDataSource *> &dataSources) const
 {
     // null input is acceptable.
     if (dataSources.isEmpty())
@@ -50,7 +50,7 @@ bool AMTimestampAB::areInputDataSourcesAcceptable(const QList<AMDataSource *> &d
     return true;
 }
 
-void AMTimestampAB::setInputDataSourcesImplementation(const QList<AMDataSource *> &dataSources)
+void AM0DTimestampAB::setInputDataSourcesImplementation(const QList<AMDataSource *> &dataSources)
 {
     // disconnect connections from old sources, if they exist.
     if (!sources_.isEmpty()) {
@@ -83,17 +83,17 @@ void AMTimestampAB::setInputDataSourcesImplementation(const QList<AMDataSource *
     emitInfoChanged();
 }
 
-AMNumber AMTimestampAB::value(const AMnDIndex &indexes) const
+AMNumber AM0DTimestampAB::value(const AMnDIndex &indexes) const
 {
     return sources_.at(0)->value(indexes);
 }
 
-bool AMTimestampAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
+bool AM0DTimestampAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
 {
     return sources_.at(0)->values(indexStart, indexEnd, outputValues);
 }
 
-AMNumber AMTimestampAB::axisValue(int axisNumber, int index) const
+AMNumber AM0DTimestampAB::axisValue(int axisNumber, int index) const
 {
     if (!isValid())
         return AMNumber(AMNumber::InvalidError);
@@ -110,7 +110,7 @@ AMNumber AMTimestampAB::axisValue(int axisNumber, int index) const
     return msecTo(latestUpdate_.msecsTo(dataStored_.at(index)), timeUnits_);
 }
 
-bool AMTimestampAB::loadFromDb(AMDatabase *db, int id)
+bool AM0DTimestampAB::loadFromDb(AMDatabase *db, int id)
 {
     bool success = AMDbObject::loadFromDb(db, id);
 
@@ -121,7 +121,7 @@ bool AMTimestampAB::loadFromDb(AMDatabase *db, int id)
     return success;
 }
 
-void AMTimestampAB::setTimeUnits(TimeUnits newUnits)
+void AM0DTimestampAB::setTimeUnits(TimeUnits newUnits)
 {
     if (timeUnits_ != newUnits) {
         timeUnits_ = newUnits;
@@ -129,7 +129,7 @@ void AMTimestampAB::setTimeUnits(TimeUnits newUnits)
     }
 }
 
-void AMTimestampAB::setDataStoredCountMax(int newMax)
+void AM0DTimestampAB::setDataStoredCountMax(int newMax)
 {
     if (dataMax_ != newMax && newMax > 0) {
 
@@ -142,7 +142,7 @@ void AMTimestampAB::setDataStoredCountMax(int newMax)
     }
 }
 
-void AMTimestampAB::onInputSourceValuesChanged(const AMnDIndex &start, const AMnDIndex &end)
+void AM0DTimestampAB::onInputSourceValuesChanged(const AMnDIndex &start, const AMnDIndex &end)
 {
     Q_UNUSED(start)
     Q_UNUSED(end)
@@ -151,12 +151,12 @@ void AMTimestampAB::onInputSourceValuesChanged(const AMnDIndex &start, const AMn
     appendToDataStored(latestUpdate_);
 }
 
-void AMTimestampAB::onInputSourcesStateChanged()
+void AM0DTimestampAB::onInputSourcesStateChanged()
 {
     reviewState();
 }
 
-void AMTimestampAB::appendToDataStored(QDateTime newDateTime)
+void AM0DTimestampAB::appendToDataStored(QDateTime newDateTime)
 {
     // if we are less than the data stored max, append the new value to the end of the data stored list.
     if (dataStored_.size() <= dataMax_) {
@@ -174,7 +174,7 @@ void AMTimestampAB::appendToDataStored(QDateTime newDateTime)
     emitSizeChanged(0);
 }
 
-double AMTimestampAB::msecTo(double msecVal, TimeUnits newUnit) const
+double AM0DTimestampAB::msecTo(double msecVal, TimeUnits newUnit) const
 {
     double result = 0;
 
@@ -194,7 +194,7 @@ double AMTimestampAB::msecTo(double msecVal, TimeUnits newUnit) const
     return result;
 }
 
-int AMTimestampAB::pointsInTimeWindow(int time, TimeUnits units)
+int AM0DTimestampAB::pointsInTimeWindow(int time, TimeUnits units)
 {
     int i;
 
@@ -207,7 +207,7 @@ int AMTimestampAB::pointsInTimeWindow(int time, TimeUnits units)
     return dataStored_.mid(i).size();
 }
 
-void AMTimestampAB::reviewState()
+void AM0DTimestampAB::reviewState()
 {
     // are there data sources?
     if (sources_.isEmpty()) {

@@ -1,12 +1,12 @@
-#ifndef AMTIMESTAMPAB_H
-#define AMTIMESTAMPAB_H
+#ifndef AM0DTIMESTAMPAB_H
+#define AM0DTIMESTAMPAB_H
 
 #include <QObject>
 #include <QDebug>
 
 #include "analysis/AMStandardAnalysisBlock.h"
 
-class AMTimestampAB : public AMStandardAnalysisBlock
+class AM0DTimestampAB : public AMStandardAnalysisBlock
 {
     Q_OBJECT
 
@@ -14,9 +14,9 @@ public:
     enum TimeUnits {mSeconds = 0, Seconds = 1, Minutes = 2, Hours = 3};
 
     /// Constructor.
-    Q_INVOKABLE AMTimestampAB(const QString &outputName, QObject *parent = 0);
+    Q_INVOKABLE AM0DTimestampAB(const QString &outputName, QObject *parent = 0);
     /// Destructor.
-    virtual ~AMTimestampAB();
+    virtual ~AM0DTimestampAB();
 
     /// Returns the times stored in this analysis block, for the input data source.
     QList<QDateTime> dataStored() const;
