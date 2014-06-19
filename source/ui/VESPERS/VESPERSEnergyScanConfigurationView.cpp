@@ -42,7 +42,13 @@ VESPERSEnergyScanConfigurationView::VESPERSEnergyScanConfigurationView(VESPERSEn
 	AMTopFrame *frame = new AMTopFrame("VESPERS Energy Scan Configuration");
 
 	// Regions setup
-	AMStepScanAxisView *regionsView = new AMStepScanAxisView("Energy Region Configuration", configuration_);
+	AMStepScanAxisView *regionsView = new AMStepScanAxisView("", configuration_);
+
+	QVBoxLayout *regionsViewLayout = new QVBoxLayout;
+	regionsViewLayout->addWidget(regionsView);
+
+	QGroupBox *regionsViewGroupBox = new QGroupBox("Regions Setup");
+	regionsViewGroupBox->setLayout(regionsViewLayout);
 
 	// CCD label.
 	ccdText_ = new QLabel;
@@ -69,6 +75,9 @@ VESPERSEnergyScanConfigurationView::VESPERSEnergyScanConfigurationView(VESPERSEn
 
 	QFormLayout *scanNameLayout = new QFormLayout;
 	scanNameLayout->addRow("Scan Name:", scanName_);
+
+	QGroupBox *scanNameGroupBox = new QGroupBox("Scan Name");
+	scanNameGroupBox->setLayout(scanNameLayout);
 
 	// Setting the scan position.
 	QGroupBox *goToPositionGroupBox = addGoToPositionView(configuration_->goToPosition(), configuration_->x(), configuration_->y());
@@ -101,38 +110,32 @@ VESPERSEnergyScanConfigurationView::VESPERSEnergyScanConfigurationView(VESPERSEn
 
 	ccdComboBox_->setCurrentIndex(ccdComboBox_->findData(int(configuration_->ccdDetector())));
 
+	QFormLayout *detectorLayout = new QFormLayout;
+	detectorLayout->addRow("XRD:", ccdComboBox_);
+
+	QGroupBox *detectorGroupBox = new QGroupBox("Detectors");
+	detectorGroupBox->setLayout(detectorLayout);
+
 	// Setting up the layout.
-	QHBoxLayout *topRowLayout = new QHBoxLayout;
-	topRowLayout->addStretch();
-	topRowLayout->addWidget(regionsView);
-	topRowLayout->addWidget(ccdComboBox_);
-	topRowLayout->addWidget(goToPositionGroupBox);
-	topRowLayout->addStretch();
+	QGridLayout *contentsLayout = new QGridLayout;
+	contentsLayout->addWidget(regionsViewGroupBox, 0, 0, 2, 4);
+	contentsLayout->addWidget(scanNameGroupBox, 2, 0, 1, 2);
+	contentsLayout->addWidget(ccdTextBox_, 2, 2, 1, 2);
+	contentsLayout->addWidget(timeOffsetBox, 3, 1, 1, 1);
+	contentsLayout->addWidget(detectorGroupBox, 0, 4, 1, 1);
+	contentsLayout->addWidget(goToPositionGroupBox, 1, 4, 2, 1);
 
-	QHBoxLayout *secondRowLayout = new QHBoxLayout;
-	secondRowLayout->addStretch();
-	secondRowLayout->addLayout(scanNameLayout);
-	secondRowLayout->addStretch();
-
-	QHBoxLayout *thirdRowLayout = new QHBoxLayout;
-	thirdRowLayout->addStretch();
-	thirdRowLayout->addWidget(estimatedTime_, 0, Qt::AlignLeft);
-	thirdRowLayout->addWidget(timeOffsetBox);
-	thirdRowLayout->addStretch();
-
-	QVBoxLayout *contentsLayout = new QVBoxLayout;
-	contentsLayout->addLayout(topRowLayout);
-	contentsLayout->addLayout(secondRowLayout);
-	contentsLayout->addLayout(thirdRowLayout);
-	contentsLayout->addWidget(ccdTextBox_);
+	QHBoxLayout *squeezeContents = new QHBoxLayout;
+	squeezeContents->addStretch();
+	squeezeContents->addLayout(contentsLayout);
+	squeezeContents->addStretch();
 
 	QVBoxLayout *configViewLayout = new QVBoxLayout;
 	configViewLayout->addWidget(frame);
 	configViewLayout->addStretch();
-	configViewLayout->addLayout(contentsLayout);
-	configViewLayout->addStretch();
+	configViewLayout->addLayout(squeezeContents);
 	configViewLayout->addWidget(exportPath, 0, Qt::AlignCenter);
-	configViewLayout->addSpacing(30);
+	configViewLayout->addStretch();
 
 	setLayout(configViewLayout);
 }

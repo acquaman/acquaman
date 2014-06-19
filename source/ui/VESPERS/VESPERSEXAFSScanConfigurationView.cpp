@@ -44,7 +44,13 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	AMTopFrame *frame = new AMTopFrame("VESPERS EXAFS Configuration");
 
 	// Regions setup
-	regionsView_ = new AMEXAFSScanAxisView("XAS Region Configuration", configuration_);
+	regionsView_ = new AMEXAFSScanAxisView("", configuration_);
+
+	QVBoxLayout *regionsViewLayout = new QVBoxLayout;
+	regionsViewLayout->addWidget(regionsView_);
+
+	QGroupBox *regionsViewGroupBox = new QGroupBox("Regions Setup");
+	regionsViewGroupBox->setLayout(regionsViewLayout);
 
 	// The fluorescence detector setup
 	fluorescenceDetectorComboBox_  = createFluorescenceComboBox();
@@ -71,8 +77,27 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	connect(configuration_, SIGNAL(nameChanged(QString)), scanName_, SLOT(setText(QString)));
 	onScanNameEdited();
 
+	QSpinBox *numberOfScans = new QSpinBox;
+	numberOfScans->setMinimum(1);
+	numberOfScans->setValue(configuration_->numberOfScans());
+	numberOfScans->setAlignment(Qt::AlignCenter);
+	connect(numberOfScans, SIGNAL(valueChanged(int)), configuration_, SLOT(setNumberOfScans(int)));
+	connect(configuration_, SIGNAL(numberOfScansChanged(int)), this, SLOT(onEstimatedTimeChanged()));
+
+	// The estimated scan time.
+	estimatedTime_ = new QLabel;
+	estimatedSetTime_ = new QLabel;
+	connect(configuration_, SIGNAL(totalTimeChanged(double)), this, SLOT(onEstimatedTimeChanged()));
+	onEstimatedTimeChanged();
+
 	QFormLayout *scanNameLayout = new QFormLayout;
 	scanNameLayout->addRow("Scan Name:", scanName_);
+	scanNameLayout->addRow("Number of Scans:", numberOfScans);
+	scanNameLayout->addRow(estimatedTime_);
+	scanNameLayout->addRow(estimatedSetTime_);
+
+	QGroupBox *scanNameGroupBox = new QGroupBox("Scan Name");
+	scanNameGroupBox->setLayout(scanNameLayout);
 
 	// Energy (Eo) selection
 	energy_ = new QDoubleSpinBox;
@@ -99,16 +124,6 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 
 	connect(configuration_, SIGNAL(edgeChanged(QString)), this, SLOT(onEdgeChanged()));
 
-	QSpinBox *numberOfScans = new QSpinBox;
-	numberOfScans->setMinimum(1);
-	numberOfScans->setValue(configuration_->numberOfScans());
-	numberOfScans->setAlignment(Qt::AlignCenter);
-	connect(numberOfScans, SIGNAL(valueChanged(int)), configuration_, SLOT(setNumberOfScans(int)));
-	connect(configuration_, SIGNAL(numberOfScansChanged(int)), this, SLOT(onEstimatedTimeChanged()));
-
-	QFormLayout *numberOfScansLayout = new QFormLayout;
-	numberOfScansLayout->addRow("Number of Scans:", numberOfScans);
-
 	QFormLayout *energySetpointLayout = new QFormLayout;
 	energySetpointLayout->addRow("Energy:", energy_);
 
@@ -131,17 +146,8 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 
 	onMotorsUpdated(configuration_->motor());
 
-	// The estimated scan time.
-	estimatedTime_ = new QLabel;
-	estimatedSetTime_ = new QLabel;
-	connect(configuration_, SIGNAL(totalTimeChanged(double)), this, SLOT(onEstimatedTimeChanged()));
-	onEstimatedTimeChanged();
-
 	// Label showing where the data will be saved.
 	QLabel *exportPath = addExportPathLabel();
-
-	// Label with a help message for EXAFS.
-	QLabel *helpMessage = new QLabel("Note when using EXAFS: when using variable integration time, the time column is the maximum time.");
 
 	// Default XANES and EXAFS buttons.
 	QPushButton *defaultXANESButton = new QPushButton("Default XANES");
@@ -156,12 +162,6 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	QGroupBox *timeOffsetBox = addTimeOffsetLabel(configuration_->timeOffset());
 	connect(timeOffset_, SIGNAL(valueChanged(double)), this, SLOT(setTimeOffset(double)));
 
-	QVBoxLayout *defaultLayout = new QVBoxLayout;
-	defaultLayout->addSpacing(35);
-	defaultLayout->addWidget(defaultXANESButton);
-	defaultLayout->addWidget(defaultEXAFSButton);
-	defaultLayout->addStretch();
-
 	// Auto-export option.
 	QGroupBox *autoExportGroupBox = addExporterOptionsView(QStringList(), configuration_->exportSpectraSources(), configuration_->exportSpectraInRows());
 	connect(autoExportSpectra_, SIGNAL(toggled(bool)), configuration_, SLOT(setExportSpectraSources(bool)));
@@ -171,6 +171,12 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	fluorescenceDetectorComboBox_->setCurrentIndex((int)configuration_->fluorescenceDetector());
 	i0ComboBox_->setCurrentIndex((int)configuration_->incomingChoice());
 	itComboBox_->setCurrentIndex((int)configuration_->transmissionChoice());
+
+	QVBoxLayout *defaultLayout = new QVBoxLayout;
+	defaultLayout->addSpacing(35);
+	defaultLayout->addWidget(defaultXANESButton);
+	defaultLayout->addWidget(defaultEXAFSButton);
+	defaultLayout->addStretch();
 
 	QFormLayout *detectorLayout = new QFormLayout;
 	detectorLayout->addRow("XRF:", fluorescenceDetectorComboBox_);
@@ -182,16 +188,13 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 
 	// Setting up the layout.
 	QGridLayout *contentsLayout = new QGridLayout;
-	contentsLayout->addWidget(regionsView_, 1, 1, 2, 2);
-	contentsLayout->addLayout(scanNameLayout, 4, 1);
-	contentsLayout->addLayout(energyLayout, 0, 1, 1, 3);
-	contentsLayout->addWidget(goToPositionGroupBox, 4, 3, 4, 1);
-	contentsLayout->addWidget(estimatedTime_, 6, 1, 1, 2);
-	contentsLayout->addWidget(estimatedSetTime_, 7, 1, 1, 2);
-	contentsLayout->addLayout(numberOfScansLayout, 5, 1);
-	contentsLayout->addWidget(timeOffsetBox, 8, 1, 1, 2);
-	contentsLayout->addWidget(detectorGroupBox, 0, 5);
-	contentsLayout->addWidget(autoExportGroupBox, 4, 5, 2, 3);
+	contentsLayout->addLayout(energyLayout, 0, 0, 1, 3);
+	contentsLayout->addWidget(regionsViewGroupBox, 1, 0, 2, 3);
+	contentsLayout->addWidget(scanNameGroupBox, 3, 0, 1, 2);
+	contentsLayout->addWidget(goToPositionGroupBox, 3, 2, 1, 1);
+	contentsLayout->addWidget(timeOffsetBox, 5, 1, 1, 1);
+	contentsLayout->addWidget(detectorGroupBox, 1, 3, 2, 1);
+	contentsLayout->addWidget(autoExportGroupBox, 3, 3, 1, 1);
 
 	QHBoxLayout *squeezeContents = new QHBoxLayout;
 	squeezeContents->addStretch();
@@ -206,8 +209,6 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	configViewLayout->addLayout(squeezeContents);
 	configViewLayout->addSpacing(30);
 	configViewLayout->addWidget(exportPath, 0, Qt::AlignCenter);
-	configViewLayout->addSpacing(30);
-	configViewLayout->addWidget(helpMessage, 0, Qt::AlignCenter);
 	configViewLayout->addStretch();
 
 	setLayout(configViewLayout);

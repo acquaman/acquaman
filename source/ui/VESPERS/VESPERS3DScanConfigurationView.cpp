@@ -182,6 +182,9 @@ VESPERS3DScanConfigurationView::VESPERS3DScanConfigurationView(VESPERS3DScanConf
 	QFormLayout *scanNameLayout = new QFormLayout;
 	scanNameLayout->addRow("Scan Name:", scanName_);
 
+	QGroupBox *scanNameGroupBox = new QGroupBox("Scan Name");
+	scanNameGroupBox->setLayout(scanNameLayout);
+
 	// Label showing where the data will be saved.
 	QLabel *exportPath = addExportPathLabel();
 
@@ -213,12 +216,12 @@ VESPERS3DScanConfigurationView::VESPERS3DScanConfigurationView(VESPERS3DScanConf
 	// Setting up the layout.
 	QGridLayout *contentsLayout = new QGridLayout;
 	contentsLayout->addWidget(positionsBox, 0, 0, 2, 3);
-	contentsLayout->addWidget(timeGroupBox, 2, 0, 1, 1);
-	contentsLayout->addLayout(scanNameLayout, 4, 0, 1, 1);
-	contentsLayout->addWidget(timeOffsetBox, 5, 0, 1, 1);
-	contentsLayout->addWidget(detectorGroupBox, 0, 5);
-	contentsLayout->addWidget(ccdTextBox_, 7, 0, 1, 6);
-	contentsLayout->addWidget(autoExportGroupBox, 3, 5, 2, 3);
+	contentsLayout->addWidget(timeGroupBox, 2, 0, 1, 3);
+	contentsLayout->addWidget(scanNameGroupBox, 3, 0, 1, 3);
+	contentsLayout->addWidget(ccdTextBox_, 4, 0, 1, 3);
+	contentsLayout->addWidget(timeOffsetBox, 5, 0, 1, 3);
+	contentsLayout->addWidget(detectorGroupBox, 0, 3, 2, 1);
+	contentsLayout->addWidget(autoExportGroupBox, 2, 3, 2, 1);
 
 	QHBoxLayout *squeezeContents = new QHBoxLayout;
 	squeezeContents->addStretch();
