@@ -333,15 +333,24 @@ void AMDeploy::onQMakeVersionProcessFinished(int status){
 		qDebug() << QString("The qmake version %1 is not supported, must be qmake 2.x or better.").arg(qmakeVersionOutput_);
 		QCoreApplication::instance()->exit(-1);
 	}
-	else
-		startCleanupObjectFilesProcess();
+	else{
+		if(QFile::exists(QString("%1/%2").arg(workingDirectory_).arg("AMRunTimeBuildInfo.o")) || QFile::exists(QString("%1/%2").arg(workingDirectory_).arg("AMBuildInfo.o")) || QFile::exists(QString("%1/%2").arg(workingDirectory_).arg("AMBuildReporter.o")))
+			startCleanupObjectFilesProcess();
+		else
+			startQMakeProcess();
+	}
 }
 
 void AMDeploy::startCleanupObjectFilesProcess(){
 	cleanupObjectFilesProcess_ = new QProcess();
 	QString program = "rm";
 	QStringList arguments;
-	arguments << "AMRunTimeBuildInfo.o" << "AMBuildInfo.o" << "AMBuildReporter.o";
+	if(QFile::exists(QString("%1/%2").arg(workingDirectory_).arg("AMRunTimeBuildInfo.o")))
+		arguments << "AMRunTimeBuildInfo.o";
+	if(QFile::exists(QString("%1/%2").arg(workingDirectory_).arg("AMBuildInfo.o")))
+		arguments << "AMBuildInfo.o";
+	if(QFile::exists(QString("%1/%2").arg(workingDirectory_).arg("AMBuildReporter.o")))
+		arguments << "AMBuildReporter.o";
 	cleanupObjectFilesProcess_->setWorkingDirectory(workingDirectory_);
 
 	connect(cleanupObjectFilesProcess_, SIGNAL(readyRead()), this, SLOT(onCleanupObjectFilesProcessReadReady()));
@@ -350,12 +359,11 @@ void AMDeploy::startCleanupObjectFilesProcess(){
 }
 
 void AMDeploy::onCleanupObjectFilesProcessReadReady(){
-	qDebug() << cleanupObjectFilesProcess_->readAll();
 }
 
 void AMDeploy::onCleanupObjectFilesProcessFinished(int status){
 	if(status != 0){
-		qDebug() << QString("Failed to cleanup old buildInfo files.");
+		qDebug() << QString("Failed to cleanup old buildInfo files, exit status %1.").arg(status);
 		QCoreApplication::instance()->exit(-1);
 	}
 	else

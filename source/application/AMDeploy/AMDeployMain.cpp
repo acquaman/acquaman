@@ -32,20 +32,25 @@ int main(int argc, char *argv[])
 	coreApp.setApplicationName("Deploy Acquaman");
 
 	QStringList arguments = coreApp.arguments();
-	if(arguments.count() < 2){
+	QStringList keyArguments;
+	for(int x = 0, size = arguments.count(); x < size; x++)
+		if(!arguments.at(x).contains("--"))
+			keyArguments.append(arguments.at(x));
+	if(keyArguments.count() < 2){
 		qDebug() << "Invalid use. Expected either AMDeploy <project file> or AMDeploy <project file> <working directory>";
 		return -1;
 	}
 
-	if(arguments.count() >= 2 && !arguments.at(1).contains(".pro")){
+	if(keyArguments.count() >= 2 && !keyArguments.at(1).contains(".pro")){
 		qDebug() << "Invalid use. Expected either AMDeploy <project file> or AMDeploy <project file> <working directory>";
 		return -2;
 	}
 
-	QString projectFile = arguments.at(1);
+	QString projectFile = keyArguments.at(1);
 	QString workingDirectory;
-	if(arguments.count() >= 3)
-		workingDirectory = arguments.at(2);
+
+	if(keyArguments.count() >= 3)
+		workingDirectory = keyArguments.at(2);
 	else
 		workingDirectory = QDir::currentPath();
 
