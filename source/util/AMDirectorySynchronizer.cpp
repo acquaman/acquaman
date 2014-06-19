@@ -89,7 +89,7 @@ bool AMDirectorySynchronizer::start()
 
 	QString process = "rsync";
 	QStringList args;
-	args << "-avz"
+	args << "-avt"
 		 << "--progress";
 
 	if(result == AMRecursiveDirectoryCompare::Side1ModifiedResult)

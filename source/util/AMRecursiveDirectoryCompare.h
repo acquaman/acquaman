@@ -22,7 +22,8 @@ public:
 	QStringList uniqueSide2Files() const;
 	QStringList uniqueSide1Directories() const;
 	QStringList uniqueSide2Directories() const;
-
+	QStringList newerSide1Files() const;
+	QStringList newerSide2Files() const;
 protected:
 	bool compareOneLevel(const QString &path1, const QString &path2);
 protected:
