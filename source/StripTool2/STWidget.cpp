@@ -23,6 +23,7 @@ STWidget::STWidget(QWidget *parent) : QWidget(parent)
     data_->setInputDataSources(QList<AMDataSource*>() << new AM0DProcessVariableDataSource(ringCurrentControl_, "SR1 Current", this));
 
     times_ = new AM0DTimestampAB("Timestamps", this);
+    times_->setTimeUnits(AM0DTimestampAB::Seconds);
     times_->setInputDataSources(QList<AMDataSource*>() << new AM0DProcessVariableDataSource(ringCurrentControl_, "SR1 Current", this));
 
     timedData_ = new AM1DTimedDataAB("TimedData", this);

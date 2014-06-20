@@ -57,8 +57,6 @@ public slots:
 protected slots:
     /// Connected to be called when the values of the input data source change
     void onInputSourceValuesChanged(const AMnDIndex& start, const AMnDIndex& end);
-    /// Connected to be called when the size of the input source changes
-    void onInputSourceSizeChanged();
     /// Connected to be called when the state() flags of any input source change
     void onInputSourceStateChanged();
 

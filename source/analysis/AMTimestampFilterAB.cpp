@@ -20,45 +20,91 @@ int AMTimestampFilterAB::timeValue() const
 
 bool AMTimestampFilterAB::areInputDataSourcesAcceptable(const QList<AMDataSource *> &dataSources) const
 {
-    Q_UNUSED(dataSources)
-    return false;
+    // null input is acceptable.
+    if (dataSources.count() == 0)
+        return true;
+
+    // we expect there to be max 1 data source input.
+    if (dataSources.count() != 1)
+        return false;
+
+    // the rank of the input source should be 1.
+    if (dataSources.at(0)->rank() != 1)
+        return false;
+
+    // else, input is acceptable.
+    return true;
 }
 
 void AMTimestampFilterAB::setInputDataSourcesImplementation(const QList<AMDataSource *> &dataSources)
 {
-    Q_UNUSED(dataSources)
+    // disconnect old sources, if they exist.
+    if (!sources_.isEmpty()) {
+        disconnect( sources_.at(0)->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)) );
+        disconnect( sources_.at(0)->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()) );
+    }
+
+    // set this AB to invalid if new dataSources is empty.
+    if (dataSources.isEmpty()) {
+        sources_.clear();
+        axes_[0] = AMAxisInfo("invalid", 0, "No input data");
+        setDescription("-- No input data --");
+    }
+
+    // if data source is valid, set sources_, axis info, description and connections.
+    else {
+        sources_ = dataSources;
+        axes_[0] = sources_.at(0)->axisInfoAt(0);
+        setDescription(QString("Time filtering for %1").arg(sources_.at(0)->name()));
+
+        connect( sources_.at(0)->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)) );
+        connect( sources_.at(0)->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()) );
+    }
+
+    reviewState();
+
+    emitSizeChanged();
+    emitValuesChanged();
+    emitAxisInfoChanged();
+    emitInfoChanged();
 }
 
 
 AMNumber AMTimestampFilterAB::value(const AMnDIndex &indexes) const
 {
-    Q_UNUSED(indexes)
-    return AMNumber(AMNumber::InvalidError);
+    if(!isValid())
+        return AMNumber(AMNumber::InvalidError);
+
+    return sources_.at(0)->value(indexes);
 }
 
 bool AMTimestampFilterAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
 {
-    Q_UNUSED(indexStart)
-    Q_UNUSED(indexEnd)
-    Q_UNUSED(outputValues)
+    if (!isValid()) {
+        outputValues = 0;
+        return false;
+    }
 
-    return false;
+    return sources_.at(0)->values(indexStart, indexEnd, outputValues);
 }
 
 AMNumber AMTimestampFilterAB::axisValue(int axisNumber, int index) const
 {
-    Q_UNUSED(axisNumber)
-    Q_UNUSED(index)
+    if (!isValid())
+        return AMNumber(AMNumber::InvalidError);
 
-    return AMNumber(AMNumber::InvalidError);
+    return sources_.at(0)->axisValue(axisNumber, index);
 }
 
 bool AMTimestampFilterAB::loadFromDb(AMDatabase *db, int id)
 {
-    Q_UNUSED(db)
-    Q_UNUSED(id)
+    bool success = AMDbObject::loadFromDb(db, id);
 
-    return false;
+    if (success) {
+        AMDataSource::name_ = AMDbObject::name();
+    }
+
+    return success;
 }
 
 void AMTimestampFilterAB::setTimeValue(int newValue)
@@ -71,13 +117,22 @@ void AMTimestampFilterAB::setTimeValue(int newValue)
 
 void AMTimestampFilterAB::onInputSourceValuesChanged(const AMnDIndex &start, const AMnDIndex &end)
 {
-    Q_UNUSED(start)
-    Q_UNUSED(end)
-}
+    int totalPoints = start.totalPointsTo(end);
 
-void AMTimestampFilterAB::onInputSourceSizeChanged()
-{
-    return;
+    if (totalPoints <= timeValue_) {
+        // update the axes info for this data source to reflect the (possibly) new number of points to plot.
+        axes_[0] = sources_.at(0)->axisInfoAt(0);
+
+        emitValuesChanged(start, end);
+        emitAxisInfoChanged();
+        emitSizeChanged();
+
+    } else {
+        axes_[0] = AMAxisInfo(sources_.at(0)->name(), timeValue_);
+
+        emitValuesChanged(end - timeValue_, end);
+        emitAxisInfoChanged();
+    }
 }
 
 void AMTimestampFilterAB::onInputSourceStateChanged()
@@ -87,5 +142,31 @@ void AMTimestampFilterAB::onInputSourceStateChanged()
 
 void AMTimestampFilterAB::reviewState()
 {
-    return;
+    // are there data sources?
+    if (sources_.isEmpty()) {
+        setState(AMDataSource::InvalidFlag);
+        return;
+    }
+
+    // is there one data source?
+    if (sources_.count() != 1) {
+        setState(AMDataSource::InvalidFlag);
+        return;
+    }
+
+    // is the data source valid?
+    if (!sources_.at(0)->isValid()) {
+        setState(AMDataSource::InvalidFlag);
+        return;
+    }
+
+    // is timeValue_ positive?
+    if (timeValue_ <= 0) {
+        setState(AMDataSource::InvalidFlag);
+        return;
+    }
+
+    // else, this AB is valid.
+    setState(0);
+
 }
