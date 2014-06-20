@@ -135,7 +135,16 @@ bool AM1DTimedDataAB::loadFromDb(AMDatabase *db, int id)
 
 void AM1DTimedDataAB::onInputSourceValuesChanged(const AMnDIndex &start, const AMnDIndex &end)
 {
-    emitValuesChanged(start, end);
+    // attempting to find a way to make sure AM1DTimedDataAB doesn't announce an update until both sources have updated (not just data_).
+
+    QVector<double> temp;
+    if (timestamps_->values(start, end, temp.data())) {
+        emitValuesChanged(start, end);
+
+    } else if (end.i() > 0) {
+        emitValuesChanged(start, AMnDIndex(end.i() - 1));
+
+    }
 }
 
 void AM1DTimedDataAB::onInputSourceSizeChanged()

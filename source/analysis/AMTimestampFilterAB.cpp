@@ -176,9 +176,6 @@ void AMTimestampFilterAB::onInputSourceValuesChanged(const AMnDIndex &start, con
             times_[i] = sources_.at(0)->axisValue(0, i);
         }
 
-        qDebug() << "Filter source values : " << values_.toList();
-        qDebug() << "Filter source times : " << times_.toList();
-
         // update the axes info for this data source to reflect the (possibly) new number of points to plot.
         axes_[0] = sources_.at(0)->axisInfoAt(0);
 
@@ -194,9 +191,6 @@ void AMTimestampFilterAB::onInputSourceValuesChanged(const AMnDIndex &start, con
             values_[i] = sources_.at(0)->value(AMnDIndex(end.i() - timeValue_ + 1 + i));
             times_[i] = sources_.at(0)->axisValue(0, end.i() - timeValue_ + 1 + i);
         }
-
-        qDebug() << "Filter source values : " << values_.toList();
-        qDebug() << "Filter source times : " << times_.toList();
 
         axes_[0] = AMAxisInfo(sources_.at(0)->name(), timeValue_);
 

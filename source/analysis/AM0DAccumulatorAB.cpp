@@ -168,8 +168,6 @@ void AM0DAccumulatorAB::onInputSourceValuesChanged(const AMnDIndex &start, const
     // update the values stored for this source. We assume the source is 0D, so the latest value is always recovered with an empty AMnDIndex.
     double newValue = sources_.at(0)->value(AMnDIndex());
 
-    qDebug() << "Accumulator source update : " << newValue;
-
     // if we are less than the data stored max, append the new value to the end of the data stored list.
     if (dataStored_.size() <= dataMax_) {
         dataStored_.append(newValue);

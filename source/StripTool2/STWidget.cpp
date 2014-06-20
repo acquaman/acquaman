@@ -10,16 +10,18 @@ STWidget::STWidget(QWidget *parent) : QWidget(parent)
     connect( ringCurrentControl_, SIGNAL(valueChanged(double)), this, SLOT(onRingCurrentValueChanged(double)) );
 
     data_ = new AM0DAccumulatorAB("RingCurrent", this);
+    data_->setDataStoredCountMax(50);
     data_->setInputDataSources(QList<AMDataSource*>() << new AM0DProcessVariableDataSource(ringCurrentControl_, "SR1 Current", this));
 
     times_ = new AM0DTimestampAB("Timestamps", this);
+    times_->setDataStoredCountMax(50);
     times_->setTimeUnits(AM0DTimestampAB::Seconds);
     times_->setInputDataSources(QList<AMDataSource*>() << new AM0DProcessVariableDataSource(ringCurrentControl_, "SR1 Current", this));
 
     timedData_ = new AM1DTimedDataAB("TimedData", this);
     timedData_->setInputDataSources(QList<AMDataSource*>() << data_ << times_);
 
-    filteredData_ = new AMTimestampFilterAB("TimeFiltered", this);
+    filteredData_ = new AMTimestampFilterAB("TimeFilteredData", this);
     filteredData_->setTimeValue(10);
     filteredData_->setInputDataSources(QList<AMDataSource*>() << timedData_);
 
@@ -31,11 +33,7 @@ STWidget::STWidget(QWidget *parent) : QWidget(parent)
 
     // create plot and set up axes.
     plot_ = new MPlot();
-    plot_->axisBottom()->setAxisNameFont(QFont("Helvetica", 6));
-    plot_->axisBottom()->setTickLabelFont(QFont("Helvetica", 6));
     plot_->axisBottom()->setAxisName("Time");
-    plot_->axisLeft()->setAxisNameFont(QFont("Helvetica", 6));
-    plot_->axisLeft()->setTickLabelFont(QFont("Helvetica", 6));
     plot_->axisLeft()->setAxisName("Storage ring current [mA]");
 
     // add series to plot.
@@ -63,7 +61,5 @@ STWidget::~STWidget()
 
 void STWidget::onRingCurrentValueChanged(double newValue)
 {
-    qDebug() << "Ring current update.";
-
     ringCurrentLabel_->setText(QString("Storage ring current : %1 mA").arg(newValue, 0, 'f', 3));
 }

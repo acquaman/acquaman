@@ -57,8 +57,6 @@ protected slots:
     void onInputSourcesStateChanged();
 
 protected:
-    /// Appends the new value to the data stored.
-    void appendToDataStored(QDateTime newDateTime);
     /// Converts the millisecond argument to another TimeUnit.
     double convertMS(double msecVal, TimeUnits newUnit) const;
     /// Helper function that reviews this AB's current state.

@@ -179,25 +179,14 @@ void AM0DTimestampAB::onInputSourceValuesChanged(const AMnDIndex &start, const A
     Q_UNUSED(end)
 
     latestUpdate_ = QDateTime::currentDateTime();
-    qDebug() << "Timestamp source update: " << latestUpdate_;
 
-    appendToDataStored(latestUpdate_);
-}
-
-void AM0DTimestampAB::onInputSourcesStateChanged()
-{
-    reviewState();
-}
-
-void AM0DTimestampAB::appendToDataStored(QDateTime newDateTime)
-{
     // if we are less than the data stored max, append the new value to the end of the data stored list.
     if (dataStored_.size() <= dataMax_) {
-        dataStored_.append(newDateTime);
+        dataStored_.append(latestUpdate_);
 
     } else {
         dataStored_.removeFirst();
-        dataStored_.append(newDateTime);
+        dataStored_.append(latestUpdate_);
     }
 
     // update the axes info for this data source to reflect the (possibly) new number of points to plot.
@@ -205,7 +194,11 @@ void AM0DTimestampAB::appendToDataStored(QDateTime newDateTime)
 
     emitValuesChanged(AMnDIndex(0), AMnDIndex(dataStored_.size() - 1));
     emitAxisInfoChanged();
-    emitSizeChanged();
+    emitSizeChanged();}
+
+void AM0DTimestampAB::onInputSourcesStateChanged()
+{
+    reviewState();
 }
 
 double AM0DTimestampAB::convertMS(double msecVal, TimeUnits newUnit) const
