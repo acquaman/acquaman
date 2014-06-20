@@ -179,6 +179,8 @@ void AM0DTimestampAB::onInputSourceValuesChanged(const AMnDIndex &start, const A
     Q_UNUSED(start)
     Q_UNUSED(end)
 
+    qDebug() << "Timestamp source update.";
+
     latestUpdate_ = QDateTime::currentDateTime();
     appendToDataStored(latestUpdate_);
 }
@@ -202,7 +204,7 @@ void AM0DTimestampAB::appendToDataStored(QDateTime newDateTime)
     // update the axes info for this data source to reflect the (possibly) new number of points to plot.
     axes_[0] = AMAxisInfo(sources_.at(0)->name(), dataStored_.size());
 
-    emitValuesChanged();
+    emitValuesChanged(AMnDIndex(0), AMnDIndex(dataStored_.size() - 1));
     emitAxisInfoChanged();
     emitSizeChanged();
 }

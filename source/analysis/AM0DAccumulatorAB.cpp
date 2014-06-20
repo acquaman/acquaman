@@ -65,7 +65,7 @@ void AM0DAccumulatorAB::setInputDataSourcesImplementation(const QList<AMDataSour
 
         sources_ = dataSources;
         axes_[0] = sources_.at(0)->axisInfoAt(0);
-        setDescription(QString("Model for %1").arg(sources_.at(0)->name()));
+        setDescription(QString("Value updates for %1").arg(sources_.at(0)->name()));
 
         connect( sources_.at(0)->signalSource(), SIGNAL(valuesChanged(AMnDIndex, AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex, AMnDIndex)) );
         connect( sources_.at(0)->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()) );
@@ -165,6 +165,8 @@ void AM0DAccumulatorAB::onInputSourceValuesChanged(const AMnDIndex &start, const
     Q_UNUSED(start)
     Q_UNUSED(end)
 
+    qDebug() << "Accumulator source update.";
+
     // update the values stored for this source. We assume the source is 0D, so the latest value is always recovered with an empty AMnDIndex.
     double newValue = sources_.at(0)->value(AMnDIndex());
 
@@ -180,7 +182,7 @@ void AM0DAccumulatorAB::onInputSourceValuesChanged(const AMnDIndex &start, const
     // update the axes info for this data source to reflect the (possibly) new number of points to plot.
     axes_[0] = AMAxisInfo(sources_.at(0)->name(), dataStored_.size());
 
-    emitValuesChanged();
+    emitValuesChanged(AMnDIndex(0), AMnDIndex(dataStored_.size() - 1));
     emitSizeChanged();
 }
 

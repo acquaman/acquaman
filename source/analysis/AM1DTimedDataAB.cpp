@@ -135,6 +135,7 @@ bool AM1DTimedDataAB::loadFromDb(AMDatabase *db, int id)
 
 void AM1DTimedDataAB::onInputSourceValuesChanged(const AMnDIndex &start, const AMnDIndex &end)
 {
+    qDebug() << "Timed data source points changed : " << start.totalPointsTo(end);
     emitValuesChanged(start, end);
 }
 
