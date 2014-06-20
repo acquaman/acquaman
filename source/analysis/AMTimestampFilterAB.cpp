@@ -111,10 +111,7 @@ void AMTimestampFilterAB::setTimeValue(int newValue)
 {
     if (timeValue_ != newValue) {
         timeValue_ = newValue;
-        axes_[0] = AMAxisInfo(sources_.at(0)->name(), timeValue_);
-
         emit timeValueChanged(timeValue_);
-        emitAxisInfoChanged();
     }
 }
 
