@@ -20,16 +20,16 @@ STWidget::STWidget(QWidget *parent) : QWidget(parent)
 //    timer_->setInputDataSources(QList<AMDataSource*>() << accumulator_);
 //    ringCurrentModel2_ = new AMDataSourceSeriesData(timer_);
 
-    timedDataSource_ = new AMTimestampAccumulatorAB("Ring current AB", this);
-    timedDataSource_->setInputDataSources(QList<AMDataSource*>() << new AM0DProcessVariableDataSource(ringCurrentControl_, "SR1 Current", this));
-    ringCurrentModel2_ = new AMDataSourceSeriesData(timedDataSource_);
+//    timedDataSource_ = new AMTimestampAccumulatorAB("Ring current AB", this);
+//    timedDataSource_->setInputDataSources(QList<AMDataSource*>() << new AM0DProcessVariableDataSource(ringCurrentControl_, "SR1 Current", this));
+//    ringCurrentModel2_ = new AMDataSourceSeriesData(timedDataSource_);
 
 //    ringCurrentSeries1_ = new MPlotSeriesBasic();
 //    ringCurrentSeries1_->setModel(ringCurrentModel1_, true);
 //    ringCurrentSeries1_->setDescription("Series 1");
 
     ringCurrentSeries2_ = new MPlotSeriesBasic();
-    ringCurrentSeries2_->setModel( ringCurrentModel2_, true);
+//    ringCurrentSeries2_->setModel( ringCurrentModel2_, true);
     ringCurrentSeries2_->setDescription(" ");
 
     // create plot and set up axes.
