@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QProcess>
+#include <QTimer>
 #include "AMRecursiveDirectoryCompare.h"
 /**
  * @brief Class designed to recursively synchronize the data in two folders, while
@@ -24,8 +25,10 @@ private:
 	QProcess* copyProcess_;
 	/// @brief Value that tells the progress of the copy
 	int percentProgress_;
-	/// @brieg Whether the process is currently running
+	/// @brief Whether the process is currently running
 	bool isRunning_;
+	/// @brief Timer used when no copying is necessary to wait a few seconds before emitting the copyComplete signal
+	QTimer* timer_;
 public:
 	/**
 	 * @brief Creates an instance of an AMDirectorySynchronizer with the provided sourceDirectory
@@ -40,6 +43,10 @@ public:
 	bool start();
 	/// @brief Whether or not the process is currently copying files
 	bool isRunning();
+	/// @brief The source directory from which the copy is performed
+	QString sourceDirectory() const { return sourceDirectory_; }
+	/// @brief The destination directory to which the data is copied
+	QString destinationDirectory() const { return destinationDirectory_; }
 
 protected:
 	/// @brief Checks to see if any files exist in the source but not the directory, or
@@ -61,9 +68,9 @@ signals:
 	/// @brief Signal emitted when the copy terminates unexpectedly after starting
 	void copyFailed();
 	/// @brief Signal emitted whenever the Progress Messages changes
-	void progressMessagesChanged(const QStringList& values);
+	void progressMessagesChanged(const QString& value);
 	/// @brief Signal emitted whenever the Error Messages changes
-	void errorMessagesChanged(const QStringList& values);
+	void errorMessagesChanged(const QString& value);
 	/// @brief Signal emitted whenever the percentageProgress value changes
 	void percentageProgressChanged(int);
 protected slots:
@@ -75,6 +82,8 @@ protected slots:
 	void onCopyFinished(int, QProcess::ExitStatus);
 	/// @brief Handles to copy process starting
 	void onCopyStarted();
+	/// @brief Handles the timer timeout signal. Emits copyComplete
+	void onTimerTimeout();
 public slots:
 	
 };

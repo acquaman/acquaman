@@ -27,7 +27,7 @@ AMDirectorySynchronizerDialog::AMDirectorySynchronizerDialog(QWidget *parent) :
 
 	connect(synchronizer_, SIGNAL(copyCompleted()), this, SLOT(onSynchronizerComplete()));
 	connect(synchronizer_, SIGNAL(copyFailed()), this, SLOT(onSynchronizerComplete()));
-	connect(synchronizer_, SIGNAL(errorMessagesChanged(const QStringList&)), this, SLOT(onSynchronizerErrorTextChanged(const QStringList&)));
+	connect(synchronizer_, SIGNAL(errorMessagesChanged(const QString&)), this, SLOT(onSynchronizerErrorTextChanged(const QString&)));
 	connect(synchronizer_, SIGNAL(percentageProgressChanged(int)), this, SLOT(onPercentageProgressChanged(int)));
 	connect(errorCloseButton_, SIGNAL(clicked()), this, SLOT(onCloseButtonClicked()));
 	setModal(true);
@@ -53,13 +53,9 @@ void AMDirectorySynchronizerDialog::start()
 		show();
 }
 
-void AMDirectorySynchronizerDialog::onSynchronizerErrorTextChanged(const QStringList &list)
+void AMDirectorySynchronizerDialog::onSynchronizerErrorTextChanged(const QString &message)
 {
-	errorTextEdit_->clear();
-	for(int iMessage = 0; iMessage < list.count(); iMessage++)
-	{
-		errorTextEdit_->append(list.at(iMessage));
-	}
+	errorTextEdit_->append(message);
 }
 
 void AMDirectorySynchronizerDialog::onSynchronizerComplete()

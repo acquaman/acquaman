@@ -25,7 +25,7 @@ signals:
 	
 public slots:
 protected slots:
-	void onSynchronizerErrorTextChanged(const QStringList& list);
+	void onSynchronizerErrorTextChanged(const QString& message);
 	void onSynchronizerComplete();
 	void onPercentageProgressChanged(int);
 	void onCloseButtonClicked();

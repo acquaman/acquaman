@@ -12,11 +12,14 @@ AMDirectorySynchronizer::AMDirectorySynchronizer(const QString &sourceDirectory,
 	copyProcess_ = new QProcess(this);
 	isRunning_ = false;
 	percentProgress_ = 0;
+	timer_ = new QTimer(this);
+	timer_->setInterval(5000);
 
 	connect(copyProcess_, SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(onCopyFinished(int, QProcess::ExitStatus)));
 	connect(copyProcess_, SIGNAL(readyReadStandardError()), this, SLOT(onCopyReadyReadStdErr()));
 	connect(copyProcess_, SIGNAL(readyReadStandardOutput()), this, SLOT(onCopyReadyReadStdOut()));
 	connect(copyProcess_, SIGNAL(started()), this, SLOT(onCopyStarted()));
+	connect(timer_, SIGNAL(timeout()), this, SLOT(onTimerTimeout()));
 	appendToProgressMessage("Copy not yet started");
 }
 
@@ -55,9 +58,6 @@ bool AMDirectorySynchronizer::start()
 	errorMessages_.clear();
 	progressMessages_.clear();
 
-	emit errorMessagesChanged(errorMessages_);
-	emit progressMessagesChanged(progressMessages_);
-
 	if(isRunning_)
 	{
 		appendToErrorMessage(QString("Process is already running"));
@@ -71,8 +71,9 @@ bool AMDirectorySynchronizer::start()
 
 	if(result == AMRecursiveDirectoryCompare::FullyMatchingResult)
 	{
-		appendToErrorMessage(QString("Contents of %1 and %2 are the same, no copying necessary.").arg(sourceDirectory_).arg(destinationDirectory_));
-		return false;
+		appendToProgressMessage(QString("Contents of %1 and %2 are the same, no copying necessary.").arg(sourceDirectory_).arg(destinationDirectory_));
+		timer_->start();
+		return true;
 	}
 
 	if(result == AMRecursiveDirectoryCompare::InvalidResult)
@@ -128,13 +129,13 @@ AMRecursiveDirectoryCompare::DirectoryCompareResult AMDirectorySynchronizer::com
 void AMDirectorySynchronizer::appendToErrorMessage(const QString &message)
 {
 	errorMessages_ << message;
-	emit errorMessagesChanged(errorMessages_);
+	emit errorMessagesChanged(message);
 }
 
 void AMDirectorySynchronizer::appendToProgressMessage(const QString &message)
 {
 	progressMessages_ << message;
-	emit progressMessagesChanged(progressMessages_);
+	emit progressMessagesChanged(message);
 }
 
 void AMDirectorySynchronizer::parseProgressInput(const QString &input)
@@ -190,4 +191,9 @@ void AMDirectorySynchronizer::onCopyFinished(int exitCode, QProcess::ExitStatus 
 void AMDirectorySynchronizer::onCopyStarted()
 {
 	appendToProgressMessage("Started");
+}
+
+void AMDirectorySynchronizer::onTimerTimeout()
+{
+	emit copyCompleted();
 }

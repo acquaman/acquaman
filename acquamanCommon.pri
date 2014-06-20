@@ -763,7 +763,8 @@ HEADERS += source/acquaman/AMRegion.h \
     source/util/AMBuildReporter.h \
     source/util/AMRecursiveDirectoryCompare.h \
     source/util/AMDirectorySynchronizer.h \
-    source/ui/util/AMDirectorySynchronizerDialog.h
+    source/ui/util/AMDirectorySynchronizerDialog.h \
+    source/actions3/actions/AMDirectorySynchronizationAction.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1247,7 +1248,8 @@ SOURCES += source/acquaman/AMRegion.cpp \
     source/util/AMBuildReporter.cpp \
     source/util/AMRecursiveDirectoryCompare.cpp \
     source/util/AMDirectorySynchronizer.cpp \
-    source/ui/util/AMDirectorySynchronizerDialog.cpp
+    source/ui/util/AMDirectorySynchronizerDialog.cpp \
+    source/actions3/actions/AMDirectorySynchronizationAction.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
