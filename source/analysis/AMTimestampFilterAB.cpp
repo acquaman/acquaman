@@ -3,6 +3,8 @@
 AMTimestampFilterAB::AMTimestampFilterAB(const QString &outputName, QObject *parent) : AMStandardAnalysisBlock(outputName, parent)
 {
     timeValue_ = 10;
+    values_ = QVector<double>();
+    times_ = QVector<double>();
 
     axes_ << AMAxisInfo("invalid", 0, "No input data");
     setState(AMDataSource::InvalidFlag);
@@ -75,7 +77,12 @@ AMNumber AMTimestampFilterAB::value(const AMnDIndex &indexes) const
     if(!isValid())
         return AMNumber(AMNumber::InvalidError);
 
-    return sources_.at(0)->value(indexes);
+    if (indexes.i() < 0 || indexes.i() >= values_.size())
+        return AMNumber(AMNumber::DimensionError);
+
+//    return sources_.at(0)->value(indexes);
+
+    return values_.at(indexes.i());
 }
 
 bool AMTimestampFilterAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
@@ -85,15 +92,55 @@ bool AMTimestampFilterAB::values(const AMnDIndex &indexStart, const AMnDIndex &i
         return false;
     }
 
-    return sources_.at(0)->values(indexStart, indexEnd, outputValues);
+    if (indexStart.rank() != 1 || indexEnd.rank() != 1){
+        outputValues = 0;
+        return false;
+    }
+
+    if (indexStart.i() < 0 || indexStart.i() >= values_.size()) {
+        outputValues = 0;
+        return false;
+    }
+
+    if (indexEnd.i() < 0 || indexEnd.i() >= values_.size()) {
+        outputValues = 0;
+        return false;
+    }
+
+    if (indexStart.i() > indexEnd.i()) {
+        outputValues = 0;
+        return false;
+    }
+
+    int totalPoints = indexStart.totalPointsTo(indexEnd);
+
+    if (totalPoints > values_.size()) {
+        outputValues = 0;
+        return false;
+    }
+
+    for (int i = 0; i < totalPoints; i++) {
+        outputValues[i] = values_.at(i);
+    }
+
+//    return sources_.at(0)->values(indexStart, indexEnd, outputValues);
+
+    return true;
 }
 
 AMNumber AMTimestampFilterAB::axisValue(int axisNumber, int index) const
 {
+//    if (axisNumber != 0)
+//        return AMNumber(AMNumber::DimensionError);
+
     if (!isValid())
         return AMNumber(AMNumber::InvalidError);
 
+//    if (index < 0 || index >= times_.size())
+//        return AMNumber(AMNumber::DimensionError);
+
     return sources_.at(0)->axisValue(axisNumber, index);
+//    return times_.at(index);
 }
 
 bool AMTimestampFilterAB::loadFromDb(AMDatabase *db, int id)
@@ -123,18 +170,39 @@ void AMTimestampFilterAB::onInputSourceValuesChanged(const AMnDIndex &start, con
     qDebug() << "Filter source point start : " << start.i();
     qDebug() << "Filter source point end : " << end.i();
 
+    values_.clear();
+    times_.clear();
+
     if (totalPoints <= timeValue_) {
+        values_.resize(totalPoints);
+        times_.resize(totalPoints);
+
+        for (int i = 0; i < totalPoints; i++) {
+            values_[i] = sources_.at(0)->value(AMnDIndex(i));
+        }
+
+        qDebug() << "Filter source values : " << values_.toList();
+
         // update the axes info for this data source to reflect the (possibly) new number of points to plot.
         axes_[0] = sources_.at(0)->axisInfoAt(0);
 
         emitValuesChanged(start, end);
-        emitAxisInfoChanged();
-        emitSizeChanged();
+        emitAxisInfoChanged(0);
+        emitSizeChanged(0);
 
     } else {
+        values_.resize(timeValue_);
+        times_.resize(timeValue_);
+
+        for (int i = 0; i < timeValue_; i++) {
+            values_[i] = sources_.at(0)->value(AMnDIndex(end.i() - timeValue_ + 1 + i));
+        }
+
+        qDebug() << "Filter source values : " << values_.toList();
+
         axes_[0] = AMAxisInfo(sources_.at(0)->name(), timeValue_);
 
-        emitValuesChanged(AMnDIndex(end.i() - timeValue_), end);
+        emitValuesChanged(AMnDIndex(0), AMnDIndex(timeValue_ - 1));
         emitAxisInfoChanged();
     }
 }

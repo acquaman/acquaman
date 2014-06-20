@@ -66,6 +66,8 @@ protected:
 
 protected:
     int timeValue_;
+    QVector<double> values_;
+    QVector<double> times_;
 
 };
 

@@ -182,6 +182,8 @@ void AM0DAccumulatorAB::onInputSourceValuesChanged(const AMnDIndex &start, const
     // update the axes info for this data source to reflect the (possibly) new number of points to plot.
     axes_[0] = AMAxisInfo(sources_.at(0)->name(), dataStored_.size());
 
+    qDebug() << "Accumulator points saved : " << AMnDIndex(0).totalPointsTo(AMnDIndex(dataStored_.size() - 1));
+
     emitValuesChanged(AMnDIndex(0), AMnDIndex(dataStored_.size() - 1));
     emitSizeChanged();
 }

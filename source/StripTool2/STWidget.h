@@ -28,23 +28,19 @@ public:
 
 protected slots:
     void onRingCurrentValueChanged(double newValue);
-    void onRingCurrentConnected(bool isConnected);
 
 protected:
     int dataCount_;
-    int displayCount_;
 
     AMProcessVariable *ringCurrentControl_;
     QLabel *ringCurrentLabel_;
 
-//    MPlotRealtimeModel *ringCurrentModel1_;
     AM0DAccumulatorAB *data_;
     AM0DTimestampAB *times_;
     AM1DTimedDataAB *timedData_;
     AMTimestampFilterAB *filteredData_;
     AMDataSourceSeriesData *ringCurrentModel2_;
 
-//    MPlotSeriesBasic *ringCurrentSeries1_;
     MPlotSeriesBasic *ringCurrentSeries2_;
 
     MPlotWidget *plotWidget_;

@@ -5,19 +5,9 @@
 STWidget::STWidget(QWidget *parent) : QWidget(parent)
 {
     dataCount_ = 0;
-    displayCount_ = 10;
 
     ringCurrentControl_ = new AMProcessVariable("PCT1402-01:mA:fbk", true, this);
     connect( ringCurrentControl_, SIGNAL(valueChanged(double)), this, SLOT(onRingCurrentValueChanged(double)) );
-    connect( ringCurrentControl_, SIGNAL(connected(bool)), this, SLOT(onRingCurrentConnected(bool)) );
-
-//    ringCurrentModel1_ = new MPlotRealtimeModel();
-
-//    accumulator_ = new AM0DAccumulatorAB("Ring current AB", this);
-//    accumulator_->setInputDataSources(QList<AMDataSource*>() << new AM0DProcessVariableDataSource(ringCurrentControl_, "SR1 Current", this));
-//    timer_ = new AMTimestampAB("Timestamp data", this);
-//    timer_->setTimeUnits(AMTimestampAB::Seconds);
-//    timer_->setInputDataSources(QList<AMDataSource*>() << accumulator_);
 
     data_ = new AM0DAccumulatorAB("RingCurrent", this);
     data_->setInputDataSources(QList<AMDataSource*>() << new AM0DProcessVariableDataSource(ringCurrentControl_, "SR1 Current", this));
@@ -35,14 +25,6 @@ STWidget::STWidget(QWidget *parent) : QWidget(parent)
 
     ringCurrentModel2_ = new AMDataSourceSeriesData(filteredData_);
 
-//    timedDataSource_ = new AMTimestampAccumulatorAB("Ring current AB", this);
-//    timedDataSource_->setInputDataSources(QList<AMDataSource*>() << new AM0DProcessVariableDataSource(ringCurrentControl_, "SR1 Current", this));
-//    ringCurrentModel2_ = new AMDataSourceSeriesData(timedDataSource_);
-
-//    ringCurrentSeries1_ = new MPlotSeriesBasic();
-//    ringCurrentSeries1_->setModel(ringCurrentModel1_, true);
-//    ringCurrentSeries1_->setDescription("Series 1");
-
     ringCurrentSeries2_ = new MPlotSeriesBasic();
     ringCurrentSeries2_->setModel( ringCurrentModel2_, true);
     ringCurrentSeries2_->setDescription(" ");
@@ -55,6 +37,9 @@ STWidget::STWidget(QWidget *parent) : QWidget(parent)
     plot_->axisLeft()->setAxisNameFont(QFont("Helvetica", 6));
     plot_->axisLeft()->setTickLabelFont(QFont("Helvetica", 6));
     plot_->axisLeft()->setAxisName("Storage ring current [mA]");
+
+    // add series to plot.
+    plot_->addItem(ringCurrentSeries2_);
 
     // create plot window
     plotWidget_ = new MPlotWidget(this);
@@ -78,13 +63,7 @@ STWidget::~STWidget()
 
 void STWidget::onRingCurrentValueChanged(double newValue)
 {
-    ringCurrentLabel_->setText(QString("Storage ring current : %1 mA").arg(newValue, 0, 'f', 3));
-}
+    qDebug() << "Ring current update.";
 
-void STWidget::onRingCurrentConnected(bool isConnected)
-{
-    if (isConnected) {
-//        plot_->addItem(ringCurrentSeries1_);
-        plot_->addItem(ringCurrentSeries2_);
-    }
+    ringCurrentLabel_->setText(QString("Storage ring current : %1 mA\n%2").arg(newValue, 0, 'f', 3).arg(dataCount_));
 }
