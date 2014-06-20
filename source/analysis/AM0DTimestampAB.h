@@ -60,9 +60,7 @@ protected:
     /// Appends the new value to the data stored.
     void appendToDataStored(QDateTime newDateTime);
     /// Converts the millisecond argument to another TimeUnit.
-    double msecTo(double msecVal, TimeUnits newUnit) const;
-    /// Returns the number of points stored within the given time window.
-    int pointsInTimeWindow(int time, TimeUnits units);
+    double convertMS(double msecVal, TimeUnits newUnit) const;
     /// Helper function that reviews this AB's current state.
     void reviewState();
 

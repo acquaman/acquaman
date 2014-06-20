@@ -165,10 +165,10 @@ void AM0DAccumulatorAB::onInputSourceValuesChanged(const AMnDIndex &start, const
     Q_UNUSED(start)
     Q_UNUSED(end)
 
-    qDebug() << "Accumulator source update.";
-
     // update the values stored for this source. We assume the source is 0D, so the latest value is always recovered with an empty AMnDIndex.
     double newValue = sources_.at(0)->value(AMnDIndex());
+
+    qDebug() << "Accumulator source update : " << newValue;
 
     // if we are less than the data stored max, append the new value to the end of the data stored list.
     if (dataStored_.size() <= dataMax_) {
@@ -181,8 +181,6 @@ void AM0DAccumulatorAB::onInputSourceValuesChanged(const AMnDIndex &start, const
 
     // update the axes info for this data source to reflect the (possibly) new number of points to plot.
     axes_[0] = AMAxisInfo(sources_.at(0)->name(), dataStored_.size());
-
-    qDebug() << "Accumulator points saved : " << AMnDIndex(0).totalPointsTo(AMnDIndex(dataStored_.size() - 1));
 
     emitValuesChanged(AMnDIndex(0), AMnDIndex(dataStored_.size() - 1));
     emitSizeChanged();

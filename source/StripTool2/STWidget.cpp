@@ -65,5 +65,5 @@ void STWidget::onRingCurrentValueChanged(double newValue)
 {
     qDebug() << "Ring current update.";
 
-    ringCurrentLabel_->setText(QString("Storage ring current : %1 mA\n%2").arg(newValue, 0, 'f', 3).arg(dataCount_));
+    ringCurrentLabel_->setText(QString("Storage ring current : %1 mA").arg(newValue, 0, 'f', 3));
 }

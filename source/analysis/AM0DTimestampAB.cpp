@@ -95,11 +95,10 @@ AMNumber AM0DTimestampAB::value(const AMnDIndex &indexes) const
     if(!isValid())
         return AMNumber(AMNumber::InvalidError);
 
-    for (int i = 0; i < sources_.size(); i++)
-        if (indexes.i() >= dataStored_.size())
-            return AMNumber(AMNumber::OutOfBoundsError);
+    if (indexes.i() < 0 || indexes.i() >= dataStored_.size())
+        return AMNumber(AMNumber::OutOfBoundsError);
 
-    return msecTo(latestUpdate_.msecsTo(dataStored_.at(indexes.i())), timeUnits_);
+    return convertMS(latestUpdate_.msecsTo(dataStored_.at(indexes.i())), timeUnits_);
 }
 
 bool AM0DTimestampAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
@@ -110,14 +109,14 @@ bool AM0DTimestampAB::values(const AMnDIndex &indexStart, const AMnDIndex &index
     if(!isValid())
         return false;
 
-#ifdef AM_ENABLE_BOUNDS_CHECKING
-    for (int i = 0; i < sources_.size(); i++)
-        if ((unsigned)indexEnd.i() >= (unsigned)axes_.at(0).size)
-            return false;
-
-    if ((unsigned)indexStart.i() > (unsigned)indexEnd.i())
+    if (indexStart.i() < 0 || indexStart.i() >= dataStored_.size())
         return false;
-#endif
+
+    if (indexEnd.i() < 0 || indexEnd.i() >= dataStored_.size())
+        return false;
+
+    if (indexStart.i() > indexEnd.i())
+        return false;
 
     int totalSize = indexStart.totalPointsTo(indexEnd);
 
@@ -179,9 +178,9 @@ void AM0DTimestampAB::onInputSourceValuesChanged(const AMnDIndex &start, const A
     Q_UNUSED(start)
     Q_UNUSED(end)
 
-    qDebug() << "Timestamp source update.";
-
     latestUpdate_ = QDateTime::currentDateTime();
+    qDebug() << "Timestamp source update: " << latestUpdate_;
+
     appendToDataStored(latestUpdate_);
 }
 
@@ -209,7 +208,7 @@ void AM0DTimestampAB::appendToDataStored(QDateTime newDateTime)
     emitSizeChanged();
 }
 
-double AM0DTimestampAB::msecTo(double msecVal, TimeUnits newUnit) const
+double AM0DTimestampAB::convertMS(double msecVal, TimeUnits newUnit) const
 {
     double result = 0;
 
@@ -227,19 +226,6 @@ double AM0DTimestampAB::msecTo(double msecVal, TimeUnits newUnit) const
     }
 
     return result;
-}
-
-int AM0DTimestampAB::pointsInTimeWindow(int time, TimeUnits units)
-{
-    int i;
-
-    for (i = 0; i < dataStored_.size(); i++) {
-        if ( msecTo(latestUpdate_.msecsTo(dataStored_.at(i)), units) <= time ) {
-            break;
-        }
-    }
-
-    return dataStored_.mid(i).size();
 }
 
 void AM0DTimestampAB::reviewState()

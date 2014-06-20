@@ -74,13 +74,14 @@ void AMTimestampFilterAB::setInputDataSourcesImplementation(const QList<AMDataSo
 
 AMNumber AMTimestampFilterAB::value(const AMnDIndex &indexes) const
 {
+    if (indexes.rank() != 1)
+        return AMNumber(AMNumber::DimensionError);
+
     if(!isValid())
         return AMNumber(AMNumber::InvalidError);
 
     if (indexes.i() < 0 || indexes.i() >= values_.size())
-        return AMNumber(AMNumber::DimensionError);
-
-//    return sources_.at(0)->value(indexes);
+        return AMNumber(AMNumber::OutOfBoundsError);
 
     return values_.at(indexes.i());
 }
@@ -123,24 +124,21 @@ bool AMTimestampFilterAB::values(const AMnDIndex &indexStart, const AMnDIndex &i
         outputValues[i] = values_.at(i);
     }
 
-//    return sources_.at(0)->values(indexStart, indexEnd, outputValues);
-
     return true;
 }
 
 AMNumber AMTimestampFilterAB::axisValue(int axisNumber, int index) const
 {
-//    if (axisNumber != 0)
-//        return AMNumber(AMNumber::DimensionError);
+    if (axisNumber != 0)
+        return AMNumber(AMNumber::DimensionError);
 
     if (!isValid())
         return AMNumber(AMNumber::InvalidError);
 
-//    if (index < 0 || index >= times_.size())
-//        return AMNumber(AMNumber::DimensionError);
+    if (index < 0 || index >= times_.size())
+        return AMNumber(AMNumber::DimensionError);
 
-    return sources_.at(0)->axisValue(axisNumber, index);
-//    return times_.at(index);
+    return times_.at(index);
 }
 
 bool AMTimestampFilterAB::loadFromDb(AMDatabase *db, int id)
@@ -166,10 +164,6 @@ void AMTimestampFilterAB::onInputSourceValuesChanged(const AMnDIndex &start, con
 {
     int totalPoints = start.totalPointsTo(end);
 
-    qDebug() << "Filter source points changed : " << totalPoints;
-    qDebug() << "Filter source point start : " << start.i();
-    qDebug() << "Filter source point end : " << end.i();
-
     values_.clear();
     times_.clear();
 
@@ -179,9 +173,11 @@ void AMTimestampFilterAB::onInputSourceValuesChanged(const AMnDIndex &start, con
 
         for (int i = 0; i < totalPoints; i++) {
             values_[i] = sources_.at(0)->value(AMnDIndex(i));
+            times_[i] = sources_.at(0)->axisValue(0, i);
         }
 
         qDebug() << "Filter source values : " << values_.toList();
+        qDebug() << "Filter source times : " << times_.toList();
 
         // update the axes info for this data source to reflect the (possibly) new number of points to plot.
         axes_[0] = sources_.at(0)->axisInfoAt(0);
@@ -196,14 +192,15 @@ void AMTimestampFilterAB::onInputSourceValuesChanged(const AMnDIndex &start, con
 
         for (int i = 0; i < timeValue_; i++) {
             values_[i] = sources_.at(0)->value(AMnDIndex(end.i() - timeValue_ + 1 + i));
+            times_[i] = sources_.at(0)->axisValue(0, end.i() - timeValue_ + 1 + i);
         }
 
         qDebug() << "Filter source values : " << values_.toList();
+        qDebug() << "Filter source times : " << times_.toList();
 
         axes_[0] = AMAxisInfo(sources_.at(0)->name(), timeValue_);
 
         emitValuesChanged(AMnDIndex(0), AMnDIndex(timeValue_ - 1));
-        emitAxisInfoChanged();
     }
 }
 
