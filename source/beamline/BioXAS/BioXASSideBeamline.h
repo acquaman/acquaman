@@ -87,6 +87,23 @@ protected:
 
     CLSBasicScalerChannelDetector *testDetector_;
     CLSKeithley428 *keithley_;
+
+    // Shutters
+    CLSBiStateControl *psh1_;
+    CLSBiStateControl *psh2_;
+    CLSBiStateControl *ssh1_;
+
+//    // Pressure controls
+//    AMControl *ccg1_;
+//    AMControl *ccg2_;
+//    AMControl *ccg3_;
+
+//    // Ion pump controls
+//    AMControl *iop1_;
+//    AMControl *iop2_;
+//    AMControl *iop3_;
+//    AMControl *iop4_;
+//    AMControl *iop5_;
 };
 
 #endif // BIOXASSIDEBEAMLINE_H
