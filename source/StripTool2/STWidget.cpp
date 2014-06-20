@@ -28,6 +28,11 @@ STWidget::STWidget(QWidget *parent) : QWidget(parent)
 
     timedData_ = new AM1DTimedDataAB("TimedData", this);
     timedData_->setInputDataSources(QList<AMDataSource*>() << data_ << times_);
+
+    filteredData_ = new AMTimestampFilterAB("TimeFiltered", this);
+    filteredData_->setTimeValue(10);
+    filteredData_->setInputDataSources(QList<AMDataSource*>() << timedData_);
+
     ringCurrentModel2_ = new AMDataSourceSeriesData(timedData_);
 
 //    timedDataSource_ = new AMTimestampAccumulatorAB("Ring current AB", this);

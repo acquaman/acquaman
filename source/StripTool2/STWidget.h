@@ -9,6 +9,7 @@
 #include "source/analysis/AM0DAccumulatorAB.h"
 #include "source/analysis/AM0DTimestampAB.h"
 #include "analysis/AM1DTimedDataAB.h"
+#include "analysis/AMTimestampFilterAB.h"
 #include "dataman/datasource/AMDataSourceSeriesData.h"
 #include "dataman/datasource/AMProcessVariableDataSource.h"
 
@@ -40,6 +41,7 @@ protected:
     AM0DAccumulatorAB *data_;
     AM0DTimestampAB *times_;
     AM1DTimedDataAB *timedData_;
+    AMTimestampFilterAB *filteredData_;
     AMDataSourceSeriesData *ringCurrentModel2_;
 
 //    MPlotSeriesBasic *ringCurrentSeries1_;

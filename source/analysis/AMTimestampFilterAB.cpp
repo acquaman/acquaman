@@ -168,5 +168,4 @@ void AMTimestampFilterAB::reviewState()
 
     // else, this AB is valid.
     setState(0);
-
 }
