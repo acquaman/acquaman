@@ -43,6 +43,8 @@ protected:
 	QLineEdit *userDataFolderLineEdit_;
 	/// Interface to the userDatabaseFileName
 	QLineEdit *userDatabaseFileNameLineEdit_;
+	/// Interface to the remote backup location
+	QLineEdit* remoteDataFolderLineEdit_;
 
 	/// Form layout
 	QFormLayout *fl_;

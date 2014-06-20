@@ -4,6 +4,7 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QCloseEvent>
+#include "util/AMSettings.h"
 AMDirectorySynchronizerDialog::AMDirectorySynchronizerDialog(QWidget *parent) :
 	QDialog(parent)
 {
@@ -23,7 +24,7 @@ AMDirectorySynchronizerDialog::AMDirectorySynchronizerDialog(QWidget *parent) :
 	mainLayout->addWidget(errorCloseButton_, Qt::AlignCenter);
 
 	setLayout(mainLayout);
-	synchronizer_ = new AMDirectorySynchronizer("/home/sgm/Documents/CopyTests/Source", "/home/sgm/Documents/CopyTests/Destination");
+	synchronizer_ = new AMDirectorySynchronizer(AMUserSettings::userDataFolder, AMUserSettings::remoteDataFolder);
 
 	connect(synchronizer_, SIGNAL(copyCompleted()), this, SLOT(onSynchronizerComplete()));
 	connect(synchronizer_, SIGNAL(copyFailed()), this, SLOT(onSynchronizerComplete()));

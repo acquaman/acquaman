@@ -3,7 +3,7 @@
 AMDirectorySynchronizationAction::AMDirectorySynchronizationAction(AMActionInfo3* info, QObject *parent) :
 	AMAction3(info, parent)
 {
-	synchronizer_ = new AMDirectorySynchronizer("/home/sgm/Documents/CopyTests/Source", "/home/sgm/Documents/CopyTests/Destination");
+		synchronizer_ = new AMDirectorySynchronizer(AMUserSettings::userDataFolder, AMUserSettings::remoteDataFolder);
 
 	if(info){
 		info->setShortDescription(QString("Data Backup"));

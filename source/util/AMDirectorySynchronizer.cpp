@@ -13,7 +13,7 @@ AMDirectorySynchronizer::AMDirectorySynchronizer(const QString &sourceDirectory,
 	isRunning_ = false;
 	percentProgress_ = 0;
 	timer_ = new QTimer(this);
-	timer_->setInterval(5000);
+	timer_->setInterval(1000);
 
 	connect(copyProcess_, SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(onCopyFinished(int, QProcess::ExitStatus)));
 	connect(copyProcess_, SIGNAL(readyReadStandardError()), this, SLOT(onCopyReadyReadStdErr()));
