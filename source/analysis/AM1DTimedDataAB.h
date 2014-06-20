@@ -42,6 +42,10 @@ protected slots:
 protected:
     void reviewState();
 
+protected:
+    AMDataSource *data_;
+    AMDataSource *timestamps_;
+
 };
 
 #endif // AM1DTIMEDDATAAB_H

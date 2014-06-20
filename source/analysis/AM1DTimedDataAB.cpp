@@ -2,6 +2,9 @@
 
 AM1DTimedDataAB::AM1DTimedDataAB(const QString &outputName, QObject *parent) : AMStandardAnalysisBlock(outputName, parent)
 {
+    data_ = 0;
+    timestamps_ = 0;
+
     axes_ << AMAxisInfo("invalid", 0, "No input data");
     setState(AMDataSource::InvalidFlag);
 }
@@ -18,7 +21,7 @@ bool AM1DTimedDataAB::areInputDataSourcesAcceptable(const QList<AMDataSource *> 
         return true;
 
     // we expect two input sources.
-    if (dataSources.size() != 2)
+    if (dataSources.count() != 2)
         return false;
 
     // both input sources must have rank 1.
@@ -31,7 +34,60 @@ bool AM1DTimedDataAB::areInputDataSourcesAcceptable(const QList<AMDataSource *> 
 
 void AM1DTimedDataAB::setInputDataSourcesImplementation(const QList<AMDataSource *> &dataSources)
 {
-    Q_UNUSED(dataSources)
+    // disconnect old connections, if they exist.
+    if (data_){
+
+        disconnect(data_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
+        disconnect(data_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
+        disconnect(data_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
+        data_ = 0;
+    }
+
+    if (timestamps_){
+
+        disconnect(timestamps_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
+        disconnect(timestamps_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
+        disconnect(timestamps_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
+        timestamps_ = 0;
+    }
+
+    if (dataSources.isEmpty()){
+
+        data_ = 0;
+        timestamps_ = 0;
+        sources_.clear();
+
+        axes_[0] = AMAxisInfo("invalid", 0, "No input data");
+        setDescription("Timed 1D Data Source");
+    }
+
+    else if (dataSources.count() == 2) {
+        data_ = dataSources.at(0);
+        timestamps_ = dataSources.at(1);
+        sources_ = dataSources;
+
+        axes_[0] = data_->axisInfoAt(0);
+        setDescription(QString("Timed updates for %1").arg(data_->name()));
+
+        connect(data_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
+        connect(data_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
+        connect(data_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
+
+        connect(timestamps_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
+        connect(timestamps_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
+        connect(timestamps_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
+    }
+
+    else {
+        sources_ = dataSources;
+    }
+
+    reviewState();
+
+    emitSizeChanged();
+    emitValuesChanged();
+    emitAxisInfoChanged();
+    emitInfoChanged();
 }
 
 
