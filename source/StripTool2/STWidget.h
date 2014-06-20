@@ -8,6 +8,7 @@
 #include "beamline/AMPVControl.h"
 #include "source/analysis/AM0DAccumulatorAB.h"
 #include "source/analysis/AM0DTimestampAB.h"
+#include "analysis/AM1DTimedDataAB.h"
 #include "dataman/datasource/AMDataSourceSeriesData.h"
 #include "dataman/datasource/AMProcessVariableDataSource.h"
 
@@ -36,8 +37,9 @@ protected:
     QLabel *ringCurrentLabel_;
 
 //    MPlotRealtimeModel *ringCurrentModel1_;
-//    AM0DAccumulatorAB *accumulator_;
-//    AMTimestampAB *timer_;
+    AM0DAccumulatorAB *data_;
+    AM0DTimestampAB *times_;
+    AM1DTimedDataAB *timedData_;
     AMDataSourceSeriesData *ringCurrentModel2_;
 
 //    MPlotSeriesBasic *ringCurrentSeries1_;

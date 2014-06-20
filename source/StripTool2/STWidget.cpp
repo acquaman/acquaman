@@ -18,7 +18,16 @@ STWidget::STWidget(QWidget *parent) : QWidget(parent)
 //    timer_ = new AMTimestampAB("Timestamp data", this);
 //    timer_->setTimeUnits(AMTimestampAB::Seconds);
 //    timer_->setInputDataSources(QList<AMDataSource*>() << accumulator_);
-//    ringCurrentModel2_ = new AMDataSourceSeriesData(timer_);
+
+    data_ = new AM0DAccumulatorAB("RingCurrent", this);
+    data_->setInputDataSources(QList<AMDataSource*>() << new AM0DProcessVariableDataSource(ringCurrentControl_, "SR1 Current", this));
+
+    times_ = new AM0DTimestampAB("Timestamps", this);
+    times_->setInputDataSources(QList<AMDataSource*>() << new AM0DProcessVariableDataSource(ringCurrentControl_, "SR1 Current", this));
+
+    timedData_ = new AM1DTimedDataAB("TimedData", this);
+    timedData_->setInputDataSources(QList<AMDataSource*>() << data_ << times_);
+    ringCurrentModel2_ = new AMDataSourceSeriesData(timedData_);
 
 //    timedDataSource_ = new AMTimestampAccumulatorAB("Ring current AB", this);
 //    timedDataSource_->setInputDataSources(QList<AMDataSource*>() << new AM0DProcessVariableDataSource(ringCurrentControl_, "SR1 Current", this));
@@ -29,7 +38,7 @@ STWidget::STWidget(QWidget *parent) : QWidget(parent)
 //    ringCurrentSeries1_->setDescription("Series 1");
 
     ringCurrentSeries2_ = new MPlotSeriesBasic();
-//    ringCurrentSeries2_->setModel( ringCurrentModel2_, true);
+    ringCurrentSeries2_->setModel( ringCurrentModel2_, true);
     ringCurrentSeries2_->setDescription(" ");
 
     // create plot and set up axes.
