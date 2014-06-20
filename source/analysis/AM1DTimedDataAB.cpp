@@ -93,23 +93,34 @@ void AM1DTimedDataAB::setInputDataSourcesImplementation(const QList<AMDataSource
 
 AMNumber AM1DTimedDataAB::value(const AMnDIndex &indexes) const
 {
-    Q_UNUSED(indexes)
+    if (data_)
+        return data_->value(indexes);
+
     return AMNumber(AMNumber::InvalidError);
 }
 
 bool AM1DTimedDataAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
 {
-    Q_UNUSED(indexStart)
-    Q_UNUSED(indexEnd)
-    Q_UNUSED(outputValues)
+    if (data_)
+        return data_->values(indexStart, indexEnd, outputValues);
 
+    outputValues = 0;
     return false;
 }
 
 AMNumber AM1DTimedDataAB::axisValue(int axisNumber, int index) const
 {
-    Q_UNUSED(axisNumber)
-    Q_UNUSED(index)
+    if (!isValid())
+        return AMNumber(AMNumber::InvalidError);
+
+    if (axisNumber != 0)
+        return AMNumber(AMNumber::DimensionError);
+
+    if (index >= axes_.at(axisNumber).size)
+        return AMNumber(AMNumber::DimensionError);
+
+    if (timestamps_)
+        return timestamps_->value(AMnDIndex(index));
 
     return AMNumber(AMNumber::InvalidError);
 }
