@@ -5,6 +5,7 @@
 #include <QDebug>
 
 #include "analysis/AMStandardAnalysisBlock.h"
+#include "analysis/AM0DTimestampAB.h"
 
 class AMTimestampFilterAB : public AMStandardAnalysisBlock
 {
@@ -16,9 +17,12 @@ public:
     /// Destructor.
     virtual ~AMTimestampFilterAB();
 
+    /// Returns the current time value.
+    int timeValue() const;
+
     /// Check if a set of inputs is valid. The empty list (no inputs) must always be valid. For non-empty lists, our specific requirements are...
-    /*! - there must be two input sources.
-    - the rank() of both input source must be 1.
+    /*! - there must be one input source.
+    - the rank() of the input source must be 1.
     */
     virtual bool areInputDataSourcesAcceptable(const QList<AMDataSource*>& dataSources) const;
 
@@ -44,8 +48,11 @@ public:
     bool loadFromDb(AMDatabase *db, int id);
 
 signals:
+    void timeValueChanged(int newValue);
 
 public slots:
+    /// Sets the time value.
+    void setTimeValue(int newValue);
 
 protected slots:
     /// Connected to be called when the values of the input data source change
@@ -58,6 +65,9 @@ protected slots:
 protected:
     /// Helper function to look at our overall situation and determine what the output state should be.
     void reviewState();
+
+protected:
+    int timeValue_;
 
 };
 

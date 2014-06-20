@@ -6,7 +6,7 @@ AM0DAccumulatorAB::AM0DAccumulatorAB(const QString &outputName, QObject *parent)
     setState(AMDataSource::InvalidFlag);
 
     dataStored_ = QList<double>();
-    dataMax_ = 10;
+    dataMax_ = 50;
 }
 
 AM0DAccumulatorAB::~AM0DAccumulatorAB()

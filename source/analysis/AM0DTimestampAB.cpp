@@ -7,7 +7,7 @@ AM0DTimestampAB::AM0DTimestampAB(const QString &outputName, QObject *parent) :
     setState(AMDataSource::InvalidFlag);
 
     dataStored_ = QList<QDateTime>();
-    dataMax_ = 10;
+    dataMax_ = 50;
 
     setTimeUnits(mSeconds);
 }
