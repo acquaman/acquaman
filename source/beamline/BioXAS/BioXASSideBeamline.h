@@ -113,26 +113,26 @@ protected:
     AMControl *iop5_;
 
     // Flow transducer controls
-//    AMControl *flt1_;
-//    AMControl *flt2_;
-//    AMControl *flt3_;
-//    AMControl *flt4_;
-//    AMControl *flt5_;
-//    AMControl *flt6_;
-//    AMControl *flt7_;
-//    AMControl *flt8_;
-//    AMControl *flt9_;
-//    AMControl *flt10_;
-//    AMControl *flt11_;
-//    AMControl *flt12_;
-//    AMControl *flt13_;
-//    AMControl *flt14_;
-//    AMControl *flt15_;
-//    AMControl *flt16_;
-//    AMControl *flt17_;
-//    AMControl *flt18_;
-//    AMControl *flt19_;
-//    AMControl *flt20_;
+    AMControl *flt1_;
+    AMControl *flt2_;
+    AMControl *flt3_;
+    AMControl *flt4_;
+    AMControl *flt5_;
+    AMControl *flt6_;
+    AMControl *flt7_;
+    AMControl *flt8_;
+    AMControl *flt9_;
+    AMControl *flt10_;
+    AMControl *flt11_;
+    AMControl *flt12_;
+    AMControl *flt13_;
+    AMControl *flt14_;
+    AMControl *flt15_;
+    AMControl *flt16_;
+    AMControl *flt17_;
+    AMControl *flt18_;
+    AMControl *flt19_;
+    AMControl *flt20_;
 
 
 };
