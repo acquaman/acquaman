@@ -1,0 +1,8 @@
+#!/bin/bash
+
+if [ -e build/AMDeploy.app ]
+then
+	build/AMDeploy.app/Contents/MacOS/AMDeploy "$@"
+else
+	build/AMDeploy "$@"
+fi

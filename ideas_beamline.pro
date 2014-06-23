@@ -4,4 +4,5 @@
 
 TEMPLATE = subdirs
 SUBDIRS +=	pluginProjects/FileLoaders/AMFileLoaderPlugins.pro \
+		AMCrashReporter.pro \
 		IDEASAcquaman.pro
