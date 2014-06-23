@@ -93,17 +93,26 @@ protected:
     CLSBiStateControl *psh2_;
     CLSBiStateControl *ssh1_;
 
+//    CLSBiStateControl *sshSide1_;
+
 //    // Pressure controls
     AMControl *ccg1_;
     AMControl *ccg2_;
     AMControl *ccg3_;
 
-    // vacuum value controls
+    // vacuum valve controls
     CLSBiStateControl *vvr1_;
     CLSBiStateControl *vvr2_;
     CLSBiStateControl *vvr3_;
     CLSBiStateControl *vvr4_;
     CLSBiStateControl *vvr5_;
+
+    CLSBiStateControl *vvrSide1_;
+    CLSBiStateControl *vvrSide2_;
+    CLSBiStateControl *vvrSide3_;
+    CLSBiStateControl *vvrSide4_;
+    CLSBiStateControl *vvrSide5_;
+    CLSBiStateControl *vvrSide6_;
 
     // Ion pump controls
     AMControl *iop1_;
