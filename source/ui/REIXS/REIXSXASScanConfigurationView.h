@@ -50,6 +50,8 @@ protected slots:
 	void reviewPolarizationAngleBoxEnabled();
 	/// Computes the expected acquisition time when the regions change.
 	void onRegionsChanged();
+	/// Helper slot that handles the setting the estimated time label.
+	void onEstimatedTimeChanged();
 
 private:
 	Ui::REIXSXASScanConfigurationView *ui;
