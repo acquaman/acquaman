@@ -31,7 +31,8 @@ AMCrashMonitorSupport::AMCrashMonitorSupport()
 
 	pathToCrashReportFiles_ = "/home/acquaman/AcquamanApplicationCrashReports";
 
-	signal(SIGSEGV, handle_signal);
+	signal(SIGSEGV, handle_signal_sigsev);
+	signal(SIGABRT, handle_signal_sigabrt);
 }
 
 AMCrashMonitorSupport* AMCrashMonitorSupport::s(){
@@ -96,13 +97,25 @@ void AMCrashMonitorSupport::report(){
 	kill(globalCrashMonitorPID, SIGUSR2);
 }
 
-void handle_signal(int signum){
+void handle_signal_sigsev(int signum){
 	void *array[100];
 	size_t size;
 
 	size = backtrace(array, 100);
 	backtrace_symbols_fd(array, size, globalErrorFile->handle());
 
+	kill(globalCrashMonitorPID, SIGUSR1);
+	signal(signum, SIG_DFL);
+	kill(getpid(), signum);
+}
+
+void handle_signal_sigabrt(int signum){
+	void *array[100];
+	size_t size;
+
+	size = backtrace(array, 100);
+	backtrace_symbols_fd(array, size, globalErrorFile->handle());
+                
 	kill(globalCrashMonitorPID, SIGUSR1);
 	signal(signum, SIG_DFL);
 	kill(getpid(), signum);

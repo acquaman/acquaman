@@ -128,7 +128,7 @@ void BioXASSideAppController::setupExporterOptions()
 	if (matchIDs.count() != 0)
 			bioXASDefaultXAS->loadFromDb(AMDatabase::database("user"), matchIDs.at(0));
 
-	bioXASDefaultXAS->setName("IDEAS Default XAS");
+    bioXASDefaultXAS->setName("BioXAS Default XAS");
 	bioXASDefaultXAS->setFileName("$name_$fsIndex.dat");
 	bioXASDefaultXAS->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[header]\n\n$notes\n\n");
 	bioXASDefaultXAS->setHeaderIncluded(true);

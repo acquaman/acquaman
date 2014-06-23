@@ -56,14 +56,14 @@ CLSSR570CompositeView::CLSSR570CompositeView(CLSSR570 *sr1, CLSSR570 *sr2, QWidg
 
 void CLSSR570CompositeView::onValueComboBoxChanged(int index)
 {
-	firstSR570_->setValueIndex(index);
-	secondSR570_->setValueIndex(index);
+//	firstSR570_->setValueIndex(index);
+//	secondSR570_->setValueIndex(index);
 }
 
 void CLSSR570CompositeView::onUnitsComboBoxChanged(int index)
 {
-	firstSR570_->setUnits(units_->itemText(index));
-	secondSR570_->setUnits(units_->itemText(index));
+//	firstSR570_->setUnits(units_->itemText(index));
+//	secondSR570_->setUnits(units_->itemText(index));
 }
 
 void CLSSR570CompositeView::onValueChanged(int value)
