@@ -122,31 +122,13 @@ AMNumber AM1DTimedDataAB::axisValue(int axisNumber, int index) const
 void AM1DTimedDataAB::onDataSourceValuesChanged(const AMnDIndex &start, const AMnDIndex &end)
 {
     updateOffset_++;
-
-    // the number of points to save will be pointsUpdated at minimum, timeValue_ at maximum.
-    int pointsUpdated = start.totalPointsTo(end);
-
-    if (pointsUpdated <= timeValue_) {
-        reviewValuesChanged(AMnDIndex(0), AMnDIndex(pointsUpdated - 1));
-
-    } else {
-        reviewValuesChanged(AMnDIndex(0), AMnDIndex(timeValue_ - 1));
-    }
+    reviewValuesChanged(start, end);
 }
 
 void AM1DTimedDataAB::onTimeSourceValuesChanged(const AMnDIndex &start, const AMnDIndex &end)
 {
     updateOffset_--;
-
-    // the number of points to save will be pointsUpdated at minimum, timeValue_ at maximum.
-    int pointsUpdated = start.totalPointsTo(end);
-
-    if (pointsUpdated <= timeValue_) {
-        reviewValuesChanged(AMnDIndex(0), AMnDIndex(pointsUpdated - 1));
-
-    } else {
-        reviewValuesChanged(AMnDIndex(0), AMnDIndex(timeValue_ - 1));
-    }
+    reviewValuesChanged(start, end);
 }
 
 void AM1DTimedDataAB::onInputSourceStateChanged()
