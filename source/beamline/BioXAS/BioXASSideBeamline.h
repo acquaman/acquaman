@@ -95,10 +95,17 @@ protected:
 
 //    CLSBiStateControl *sshSide1_;
 
-//    // Pressure controls
+    // Pressure controls
     AMControl *ccg1_;
     AMControl *ccg2_;
     AMControl *ccg3_;
+
+    AMControl *ccgSide1_;
+    AMControl *ccgSide2_;
+    AMControl *ccgSide3_;
+    AMControl *ccgSide4_;
+    AMControl *ccgSide5_;
+    AMControl *ccgSide6_;
 
     // vacuum valve controls
     CLSBiStateControl *vvr1_;
