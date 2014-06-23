@@ -93,7 +93,7 @@ protected:
     CLSBiStateControl *psh2_;
     CLSBiStateControl *ssh1_;
 
-//    CLSBiStateControl *sshSide1_;
+    CLSBiStateControl *sshSide1_;
 
     // Pressure controls
     AMControl *ccg1_;
