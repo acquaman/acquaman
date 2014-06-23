@@ -3,13 +3,17 @@
 AM0DTimestampAB::AM0DTimestampAB(const QString &outputName, QObject *parent) :
     AMStandardAnalysisBlock(outputName, parent)
 {
-    axes_ << AMAxisInfo("invalid", 0, "No input data");
-    setState(AMDataSource::InvalidFlag);
-
     dataStored_ = QList<QDateTime>();
     dataMax_ = 50;
 
-    setTimeUnits(mSeconds);
+    timeValue_ = 10;
+    timeUnits_ = Seconds;
+
+    timeFilteringEnabled_ = false;
+
+    axes_ << AMAxisInfo("invalid", 0, "No input data");
+    setState(AMDataSource::InvalidFlag);
+
 }
 
 AM0DTimestampAB::~AM0DTimestampAB()
@@ -35,6 +39,16 @@ int AM0DTimestampAB::dataStoredCountMax() const
 AM0DTimestampAB::TimeUnits AM0DTimestampAB::timeUnits() const
 {
     return timeUnits_;
+}
+
+int AM0DTimestampAB::timeValue() const
+{
+    return timeValue_;
+}
+
+bool AM0DTimestampAB::timeFilteringEnabled() const
+{
+    return timeFilteringEnabled_;
 }
 
 bool AM0DTimestampAB::areInputDataSourcesAcceptable(const QList<AMDataSource *> &dataSources) const
@@ -160,6 +174,14 @@ void AM0DTimestampAB::setTimeUnits(TimeUnits newUnits)
     }
 }
 
+void AM0DTimestampAB::setTimeValue(int newValue)
+{
+    if (timeValue_ != newValue && newValue > 0) {
+        timeValue_ = newValue;
+        emit timeValueChanged(timeValue_);
+    }
+}
+
 void AM0DTimestampAB::setDataStoredCountMax(int newMax)
 {
     if (dataMax_ != newMax && newMax > 0) {
@@ -170,6 +192,14 @@ void AM0DTimestampAB::setDataStoredCountMax(int newMax)
 
         dataMax_ = newMax;
         emit dataStoredMaxChanged(dataMax_);
+    }
+}
+
+void AM0DTimestampAB::enableTimeFiltering(bool isEnabled)
+{
+    if (timeFilteringEnabled_ != isEnabled) {
+        timeFilteringEnabled_ = isEnabled;
+        emit timeFilteringEnabled(timeFilteringEnabled_);
     }
 }
 
@@ -189,12 +219,10 @@ void AM0DTimestampAB::onInputSourceValuesChanged(const AMnDIndex &start, const A
         dataStored_.append(latestUpdate_);
     }
 
-    // update the axes info for this data source to reflect the (possibly) new number of points to plot.
-    axes_[0] = AMAxisInfo(sources_.at(0)->name(), dataStored_.size());
-
-    emitValuesChanged(AMnDIndex(0), AMnDIndex(dataStored_.size() - 1));
+    reviewValuesChanged(AMnDIndex(0), AMnDIndex(dataStored_.size() - 1));
     emitAxisInfoChanged();
-    emitSizeChanged();}
+    emitSizeChanged();
+}
 
 void AM0DTimestampAB::onInputSourcesStateChanged()
 {
@@ -219,6 +247,47 @@ double AM0DTimestampAB::convertMS(double msecVal, TimeUnits newUnit) const
     }
 
     return result;
+}
+
+void AM0DTimestampAB::reviewValuesChanged(const AMnDIndex &start, const AMnDIndex &end)
+{
+    if (start.i() != 0)
+        return;
+
+    if (start.totalPointsTo(end) > dataStored_.size())
+        return;
+
+    if (timeFilteringEnabled_) {
+
+        int totalPoints = start.totalPointsTo(end);
+        AMnDIndex newEnd;
+
+        for (int i = 0; i < totalPoints; i++) {
+            newEnd = AMnDIndex(i);
+
+            if ((double)value(newEnd) > timeValue_) {
+                break;
+            }
+        }
+
+        if (newEnd.i() == 0)
+            return;
+
+        axes_[0] = AMAxisInfo(sources_.at(0)->name(), newEnd.i());
+
+        emitValuesChanged(start, newEnd);
+        emitAxisInfoChanged(0);
+        emitSizeChanged(0);
+
+    } else {
+
+        axes_[0] = AMAxisInfo(sources_.at(0)->name(), end.i());
+
+        emitValuesChanged(start, end);
+        emitAxisInfoChanged(0);
+        emitSizeChanged(0);
+    }
+
 }
 
 void AM0DTimestampAB::reviewState()

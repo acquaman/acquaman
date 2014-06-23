@@ -28,6 +28,10 @@ public:
     int dataStoredCountMax() const;
     /// Returns the current time units.
     TimeUnits timeUnits() const;
+    /// Returns the current time value.
+    int timeValue() const;
+    /// Returns bool indicating whether time filtering is enabled.
+    bool timeFilteringEnabled() const;
 
     /// Check that the input sources are acceptable. The empty list is always valid. For non-empty list of sources, the list must be of size 1."
     virtual bool areInputDataSourcesAcceptable(const QList<AMDataSource *> &dataSources) const;
@@ -44,13 +48,19 @@ public:
 
 signals:
     void timeUnitsChanged(TimeUnits newUnits);
+    void timeValueChanged(int newValue);
     void dataStoredMaxChanged(int newMax);
+    void timeFilteringEnabled(bool isEnabled);
 
 public slots:
     /// Sets the current time units.
     void setTimeUnits(TimeUnits newUnits);
+    /// Sets the current time value.
+    void setTimeValue(int newValue);
     /// Sets the maximum number of elements stored.
     void setDataStoredCountMax(int newMax);
+    /// Enables time filtering.
+    void enableTimeFiltering(bool isEnabled);
 
 protected slots:
     /// Handles adding the new value to the dataStored_ for this particular data source.
@@ -61,6 +71,8 @@ protected slots:
 protected:
     /// Converts the millisecond argument to another TimeUnit.
     double convertMS(double msecVal, TimeUnits newUnit) const;
+    /// Helper function that reviews what this AB should emit as changed indices.
+    void reviewValuesChanged(const AMnDIndex &start, const AMnDIndex &end);
     /// Helper function that reviews this AB's current state.
     void reviewState();
 
@@ -73,6 +85,10 @@ protected:
     QDateTime latestUpdate_;
     /// The current time units.
     TimeUnits timeUnits_;
+    /// The current time value.
+    int timeValue_;
+    /// Bool indicating whether time filtering is enabled.
+    bool timeFilteringEnabled_;
 
 };
 
