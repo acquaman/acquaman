@@ -2,6 +2,8 @@
 
 AM1DTimedDataAB::AM1DTimedDataAB(const QString &outputName, QObject *parent) : AMStandardAnalysisBlock(outputName, parent)
 {
+    updateOffset_ = 0;
+
     data_ = 0;
     timestamps_ = 0;
 
@@ -36,18 +38,15 @@ void AM1DTimedDataAB::setInputDataSourcesImplementation(const QList<AMDataSource
 {
     // disconnect old connections, if they exist.
     if (data_){
-
-        disconnect(data_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
-        disconnect(data_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
-        disconnect(data_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
+        disconnect( data_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onDataSourceValuesChanged(AMnDIndex,AMnDIndex)) );
+        disconnect( data_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()) );
         data_ = 0;
     }
 
     if (timestamps_){
 
-//        disconnect(timestamps_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
-//        disconnect(timestamps_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
-        disconnect(timestamps_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
+        disconnect( timestamps_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onTimeSourceValuesChanged(AMnDIndex,AMnDIndex)));
+        disconnect( timestamps_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
         timestamps_ = 0;
     }
 
@@ -58,7 +57,7 @@ void AM1DTimedDataAB::setInputDataSourcesImplementation(const QList<AMDataSource
         sources_.clear();
 
         axes_[0] = AMAxisInfo("invalid", 0, "No input data");
-        setDescription("Timed 1D Data Source");
+        setDescription("-- No input data --");
     }
 
     else if (dataSources.count() == 2) {
@@ -69,12 +68,10 @@ void AM1DTimedDataAB::setInputDataSourcesImplementation(const QList<AMDataSource
         axes_[0] = data_->axisInfoAt(0);
         setDescription(QString("Timed updates for %1").arg(data_->name()));
 
-        connect(data_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
-        connect(data_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
+        connect(data_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onDataSourceValuesChanged(AMnDIndex,AMnDIndex)));
         connect(data_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
 
-//        connect(timestamps_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
-//        connect(timestamps_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
+        connect(timestamps_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onTimeSourceValuesChanged(AMnDIndex,AMnDIndex)));
         connect(timestamps_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
     }
 
@@ -116,51 +113,57 @@ AMNumber AM1DTimedDataAB::axisValue(int axisNumber, int index) const
     if (axisNumber != 0)
         return AMNumber(AMNumber::DimensionError);
 
-    if (index >= axes_.at(axisNumber).size)
-        return AMNumber(AMNumber::DimensionError);
-
     if (timestamps_)
         return timestamps_->value(AMnDIndex(index));
 
     return AMNumber(AMNumber::InvalidError);
 }
 
-bool AM1DTimedDataAB::loadFromDb(AMDatabase *db, int id)
+void AM1DTimedDataAB::onDataSourceValuesChanged(const AMnDIndex &start, const AMnDIndex &end)
 {
-    bool success = AMDbObject::loadFromDb(db, id);
-    if(success)
-        AMDataSource::name_ = AMDbObject::name();	/// \todo This might change the name of a data-source in mid-life, which is technically not allowed.
-    return success;
-}
+    updateOffset_++;
 
-void AM1DTimedDataAB::onInputSourceValuesChanged(const AMnDIndex &start, const AMnDIndex &end)
-{
-    // attempting to find a way to make sure AM1DTimedDataAB doesn't announce an update until both sources have updated (not just data_).
+    // the number of points to save will be pointsUpdated at minimum, timeValue_ at maximum.
+    int pointsUpdated = start.totalPointsTo(end);
 
-    QVector<double> temp;
-    if (timestamps_->values(start, end, temp.data())) {
-        emitValuesChanged(start, end);
+    if (pointsUpdated <= timeValue_) {
+        reviewValuesChanged(AMnDIndex(0), AMnDIndex(pointsUpdated - 1));
 
-    } else if (end.i() > 0) {
-        emitValuesChanged(start, AMnDIndex(end.i() - 1));
-
+    } else {
+        reviewValuesChanged(AMnDIndex(0), AMnDIndex(timeValue_ - 1));
     }
 }
 
-void AM1DTimedDataAB::onInputSourceSizeChanged()
+void AM1DTimedDataAB::onTimeSourceValuesChanged(const AMnDIndex &start, const AMnDIndex &end)
 {
-    if(axes_.at(0).size != data_->size(0)){
+    updateOffset_--;
 
-        axes_[0].size = data_->size(0);
-        emitSizeChanged(0);
+    // the number of points to save will be pointsUpdated at minimum, timeValue_ at maximum.
+    int pointsUpdated = start.totalPointsTo(end);
+
+    if (pointsUpdated <= timeValue_) {
+        reviewValuesChanged(AMnDIndex(0), AMnDIndex(pointsUpdated - 1));
+
+    } else {
+        reviewValuesChanged(AMnDIndex(0), AMnDIndex(timeValue_ - 1));
     }
 }
 
 void AM1DTimedDataAB::onInputSourceStateChanged()
 {
-    // just in case the size has changed while the input source was invalid, and now it's going valid.  Do we need this? probably not, if the input source is well behaved. But it's pretty inexpensive to do it twice... and we know we'll get the size right everytime it goes valid.
-    onInputSourceSizeChanged();
     reviewState();
+}
+
+void AM1DTimedDataAB::reviewValuesChanged(const AMnDIndex &start, const AMnDIndex &end)
+{
+    if (updateOffset_ != 0)
+        return;
+
+    axes_[0] = AMAxisInfo(sources_.at(0)->name(), end.i() - start.i());
+
+    emitValuesChanged(start, end);
+    emitAxisInfoChanged(0);
+    emitSizeChanged(0);
 }
 
 void AM1DTimedDataAB::reviewState()

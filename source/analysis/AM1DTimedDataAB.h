@@ -28,23 +28,21 @@ public:
 
     virtual AMNumber axisValue(int axisNumber, int index) const;
 
-    bool loadFromDb(AMDatabase *db, int id);
-
 signals:
 
 public slots:
 
 protected slots:
-    void onInputSourceValuesChanged(const AMnDIndex &start, const AMnDIndex &end);
-
-    void onInputSourceSizeChanged();
-
+    void onDataSourceValuesChanged(const AMnDIndex &start, const AMnDIndex &end);
+    void onTimeSourceValuesChanged(const AMnDIndex &start, const AMnDIndex &end);
     void onInputSourceStateChanged();
 
 protected:
+    void reviewValuesChanged(const AMnDIndex &start, const AMnDIndex &end);
     void reviewState();
 
 protected:
+    int updateOffset_;
     AMDataSource *data_;
     AMDataSource *timestamps_;
 
