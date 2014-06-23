@@ -220,8 +220,6 @@ void AM0DTimestampAB::onInputSourceValuesChanged(const AMnDIndex &start, const A
     }
 
     reviewValuesChanged(AMnDIndex(0), AMnDIndex(dataStored_.size() - 1));
-    emitAxisInfoChanged();
-    emitSizeChanged();
 }
 
 void AM0DTimestampAB::onInputSourcesStateChanged()
@@ -251,16 +249,20 @@ double AM0DTimestampAB::convertMS(double msecVal, TimeUnits newUnit) const
 
 void AM0DTimestampAB::reviewValuesChanged(const AMnDIndex &start, const AMnDIndex &end)
 {
-    if (start.i() != 0)
+    if (start.i() != 0) {
+        qDebug() << "AM0DTimestampAB : start index to be emitted is not zero.";
         return;
+    }
 
-    if (start.totalPointsTo(end) > dataStored_.size())
+    if (start.totalPointsTo(end) > dataStored_.size()) {
+        qDebug() << "AM0DTimestampAB : cannot emit indices that exceed the number of data points stored.";
         return;
+    }
 
     if (timeFilteringEnabled_) {
 
         int totalPoints = start.totalPointsTo(end);
-        AMnDIndex newEnd;
+        AMnDIndex newEnd = AMnDIndex(0);
 
         for (int i = 0; i < totalPoints; i++) {
             newEnd = AMnDIndex(i);
@@ -270,8 +272,10 @@ void AM0DTimestampAB::reviewValuesChanged(const AMnDIndex &start, const AMnDInde
             }
         }
 
-        if (newEnd.i() == 0)
+        if (newEnd.i() == 0) {
+            qDebug() << "AM0DTimestampAB : there are no data points within the time filter range.";
             return;
+        }
 
         axes_[0] = AMAxisInfo(sources_.at(0)->name(), newEnd.i());
 
