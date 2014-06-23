@@ -42,7 +42,7 @@ REIXSXESImageAB::REIXSXESImageAB(const QString &outputName, QObject *parent) :
 	tiltCalibrationOffset_ = 0;
 
 	// Live correlation turned on by default. Need to make sure that this is OK for performance; it should be now that we're using block access.
-	liveCorrelation_ = true;
+	liveCorrelation_ = false;
 	// shift values can start out empty.
 
 	inputSource_ = 0;
