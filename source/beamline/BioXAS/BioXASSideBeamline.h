@@ -134,6 +134,12 @@ protected:
     AMControl *flt19_;
     AMControl *flt20_;
 
+    // Flow switch controls
+    AMControl *swf1_;
+    AMControl *swf2_;
+    AMControl *swf3_;
+    AMControl *swf4_;
+
 
 };
 

@@ -74,6 +74,10 @@ void BioXASSideBeamline::setupDiagnostics()
     flt20_ = new AMReadOnlyPVwStatusControl("Flow transducer 20", "FLT1607-5-I22-04", "FLT1607-5-I22-04:lowflow", this, new AMControlStatusCheckerDefault(0));
 
     // Flow switch controls
+    swf1_ = new AMReadOnlyPVControl("Flow switch 1", "SWF1407-I00-01", this);
+    swf2_ = new AMReadOnlyPVControl("Flow switch 2", "SWF1407-I00-02", this);
+    swf3_ = new AMReadOnlyPVControl("Flow switch 3", "SWF1407-I00-03", this);
+    swf4_ = new AMReadOnlyPVControl("Flow switch 4", "SWF1607-5-I00-01", this);
 
     // Temperature controls
 
