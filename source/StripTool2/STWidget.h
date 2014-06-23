@@ -38,7 +38,7 @@ protected:
     AM0DAccumulatorAB *data_;
     AM0DTimestampAB *times_;
     AM1DTimedDataAB *timedData_;
-    AMTimestampFilterAB *filteredData_;
+//    AMTimestampFilterAB *filteredData_;
     AMDataSourceSeriesData *ringCurrentModel2_;
 
     MPlotSeriesBasic *ringCurrentSeries2_;
