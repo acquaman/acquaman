@@ -45,6 +45,11 @@ void BioXASSideBeamline::setupDiagnostics()
     vvr5_ = new CLSBiStateControl("Valve control 5", "Valve control 5", "VVR1607-5-I10-01:state", "VVR1607-5-I10-01:opr:open", "VVR1607-5-I10-01:opr:close", new AMControlStatusCheckerDefault(4), this);
 
     // Ion pump controls
+    iop1_ = new AMReadOnlyPVControl("Ion pump 1", "IOP1407-I00-01", this);
+    iop2_ = new AMReadOnlyPVControl("Ion pump 2", "IOP1407-I00-02", this);
+    iop3_ = new AMReadOnlyPVControl("Ion pump 3", "IOP1407-I00-03", this);
+    iop4_ = new AMReadOnlyPVControl("Ion pump 4", "IOP1607-5-I00-01", this);
+    iop5_ = new AMReadOnlyPVControl("Ion pump 5", "IOP1607-5-I00-02", this);
 
     // Flow transducer controls
 
