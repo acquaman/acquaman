@@ -532,9 +532,9 @@ bool AMScan::storeToDb(AMDatabase *db, bool generateThumbnails)
 	{
 		number_ = largestNumberInScansWhere(db, QString(" name = '%1'").arg(name()));
 		if(number_ == -1)
-			number_ = 1;
+			setNumber(1);
 		else
-			number_++;
+			setNumber(number_+1);
 	}
 	return AMDbObject::storeToDb(db, generateThumbnails);
 }

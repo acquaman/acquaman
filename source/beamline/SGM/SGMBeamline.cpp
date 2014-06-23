@@ -32,6 +32,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "acquaman/SGM/SGMXASScanConfiguration.h"
 #include "acquaman/SGM/SGMFastScanConfiguration.h"
+#include "acquaman/SGM/SGMFastScanConfiguration2013.h"
 #include "actions3/actions/AMScanAction.h"
 
 #include "beamline/AMMotorGroup.h"
@@ -46,6 +47,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSAdvancedScalerChannelDetector.h"
 #include "beamline/AMBasicControlDetectorEmulator.h"
 #include "beamline/CLS/CLSSR570.h"
+#include "beamline/CLS/CLSBiStateControl.h"
+
+#include "actions3/AMListAction3.h"
+#include "actions3/actions/AMControlMoveAction3.h"
 
 #include "util/AMErrorMonitor.h"
 
@@ -174,7 +179,7 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	newPGTDetector_ = new CLSPGTDetectorV2("PGT", "PGT", "MCA1611-01", this);
 	newQE65000Detector_ = new CLSQE65000Detector("QE65000", "QE 65000", "SA0000-03", this);
 	newTEYDetector_ = new CLSAdvancedScalerChannelDetector("TEY", "TEY", scaler_, 0, this);
-    scaler_->channelAt(0)->setDetector(newTEYDetector_);
+	scaler_->channelAt(0)->setDetector(newTEYDetector_);
 
 	newTFYDetector_ = new CLSAdvancedScalerChannelDetector("TFY", "TFY", scaler_, 2, this);
 	newI0Detector_ = new CLSAdvancedScalerChannelDetector("I0", "I0", scaler_, 1, this);
@@ -191,8 +196,8 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	energyFeedbackDetector_ = new AMBasicControlDetectorEmulator("EnergyFeedback", "Energy Feedback", energyFeedbackControl, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 	AMControl *gratingEncoderFeedbackControl = new AMReadOnlyPVControl("GratingEncoderFeedback", "SMTR16114I1002:enc:fbk", this, "Grating Encoder Feedback");
 	gratingEncoderDetector_ = new AMBasicControlDetectorEmulator("GratingEncoderFeedback", "Grating Encoder Feedback", gratingEncoderFeedbackControl, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-    AMControl* scalerDwellTime = new AMReadOnlyPVControl("ScalerDwellTime", "BL1611-ID-1:mcs:delay", this, "Scaler Dwell Time");
-    dwellTimeDetector_ = new AMBasicControlDetectorEmulator("DwellTimeFeedback", "Dwell Time Feedback", scalerDwellTime, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	AMControl* scalerDwellTime = new AMReadOnlyPVControl("ScalerDwellTime", "BL1611-ID-1:mcs:delay", this, "Scaler Dwell Time");
+	dwellTimeDetector_ = new AMBasicControlDetectorEmulator("DwellTimeFeedback", "Dwell Time Feedback", scalerDwellTime, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 
 
 	allDetectorGroup_ = new AMDetectorGroup("All Detectors", this);
@@ -377,6 +382,10 @@ AMAction3::ActionValidity SGMBeamline::validateAction(AMAction3 *action){
 		SGMFastScanConfiguration *oldFastScanConfiguration = qobject_cast<SGMFastScanConfiguration*>(scanActionInfo->config());
 		if(oldXASScanConfiguration || oldFastScanConfiguration)
 			return AMAction3::ActionNeverValid;
+		SGMFastScanConfiguration2013 *currentFastScanConfiguration = qobject_cast<SGMFastScanConfiguration2013*>(scanActionInfo->config());
+		if(currentFastScanConfiguration && qFuzzyIsNull(undulatorForcedOpen_->value() - 1.0))
+			return AMAction3::ActionNotCurrentlyValid;
+
 	}
 
 	return AMAction3::ActionCurrentlyValid;
@@ -392,6 +401,9 @@ QString SGMBeamline::validateActionMessage(AMAction3 *action){
 			return QString("The SGM Beamline no longer supports this type of XAS Scan configuration. While you may inspect the configuration you cannot run it. Please transfer these settings to a new scan configuration.");
 		if(oldFastScanConfiguration)
 			return QString("The SGM Beamline no longer supports this type of Fast Scan configuration. While you may inspect the configuration you cannot run it. Please transfer these settings to a new scan configuration.");
+		SGMFastScanConfiguration2013 *currentFastScanConfiguration = qobject_cast<SGMFastScanConfiguration2013*>(scanActionInfo->config());
+		if(currentFastScanConfiguration && qFuzzyIsNull(undulatorForcedOpen_->value() - 1.0))
+			return QString("The Undulator has been forced open, and as such running a Fast Scan is not currently possible.");
 	}
 
 	return QString("Action is Currently Valid");
@@ -501,8 +513,6 @@ AMDetector* SGMBeamline::dwellTimeDetector() const {
     return dwellTimeDetector_;
 }
 
-#include "actions3/AMListAction3.h"
-#include "actions3/actions/AMControlMoveAction3.h"
 AMAction3* SGMBeamline::createBeamOnActions3(){
 	if(!beamOnControlSet_->isConnected())
 		return 0;
@@ -518,6 +528,16 @@ AMAction3* SGMBeamline::createBeamOnActions3(){
 	fastShutterSetpoint.setValue(0);
 	AMControlMoveAction3 *fastShutterAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(fastShutterSetpoint), fastShutterVoltage_);
 	beamOnActionsList->addSubAction(fastShutterAction);
+
+	AMControlInfo frontBypassValveSetpoint = frontBypassValve_->toInfo();
+	frontBypassValveSetpoint.setValue(1);
+	AMControlMoveAction3 *frontBypassValveAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(frontBypassValveSetpoint), frontBypassValve_);
+	beamOnActionsList->addSubAction(frontBypassValveAction);
+
+	AMControlInfo backBypassValveSetpoint = backBypassValve_->toInfo();
+	backBypassValveSetpoint.setValue(1);
+	AMControlMoveAction3 *backBypassValveAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(backBypassValveSetpoint), backBypassValve_);
+	beamOnActionsList->addSubAction(backBypassValveAction);
 
 	return beamOnActionsList;
 }
@@ -1092,6 +1112,10 @@ void SGMBeamline::setupControls(){
 	m3HorizontalDownstreamEncoder_ = new AMReadOnlyPVControl("m3HorizontalDownstreamEncoder", "SMTR16113I1018:enc:fbk", this);
 	m3RotationalEncoder_ = new AMReadOnlyPVControl("m3RotationalEncoder", "SMTR16113I1019:encod:fbk", this);
 
+	frontBypassValve_ = new CLSBiStateControl("FrontBypassValve", "Before Bypass Valve", "VVR1611-4-I10-09:state", "VVR1611-4-I10-09:opr:open", "VVR1611-4-I10-09:opr:close", new AMControlStatusCheckerDefault(2), this);;
+	backBypassValve_ = new CLSBiStateControl("BackBypassValve", "Behind Bypass Valve", "VVR1611-4-I10-10:state", "VVR1611-4-I10-10:opr:open", "VVR1611-4-I10-10:opr:close", new AMControlStatusCheckerDefault(2), this);;
+
+	undulatorForcedOpen_ = new AMReadOnlyPVControl("UndulatorForcedOpen", "UND1411-01:openID", this);
 
 	if(amNames2pvNames_.lookupFailed())
 		AMErrorMon::alert(this, SGMBEAMLINE_PV_NAME_LOOKUPS_FAILED, "PV Name lookups in the SGM Beamline failed");

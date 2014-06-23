@@ -20,6 +20,8 @@
 SGMFastScanActionController::SGMFastScanActionController(SGMFastScanConfiguration2013 *configuration, QObject *parent) :
 	AMScanActionController(configuration, parent)
 {
+	goodInitialState_ = false;
+
 	fileWriterIsBusy_ = false;
 	configuration_ = configuration;
 	insertionIndex_ = AMnDIndex(0);
@@ -119,7 +121,25 @@ void SGMFastScanActionController::onFileWriterIsBusy(bool isBusy){
 	emit readyForDeletion(!fileWriterIsBusy_);
 }
 
+void SGMFastScanActionController::onEverythingFinished(){
+//	qDebug() << "Looks like the SGMFastScan is completely done running";
+//	qDebug() << "Undulator tracking: " << SGMBeamline::sgm()->undulatorTracking()->value();
+//	qDebug() << "Exit slit tracking: " << SGMBeamline::sgm()->exitSlitTracking()->value();
+
+	if(goodInitialState_ && (!SGMBeamline::sgm()->undulatorTracking()->withinTolerance(1) || !SGMBeamline::sgm()->exitSlitTracking()->withinTolerance(1)) ){
+		qDebug() << "\n\n\nDETECTED A LOSS OF TRACKING STATE\n\n";
+	}
+}
+
 bool SGMFastScanActionController::startImplementation(){
+	if(qFuzzyIsNull(SGMBeamline::sgm()->undulatorForcedOpen()->value() - 1))
+	{
+		this->setFailed();
+		return false;
+	}
+
+	connect(this, SIGNAL(finished()), this, SLOT(onEverythingFinished()));
+
 	AMAgnosticDataMessageHandler *dataMessager = AMAgnosticDataAPISupport::handlerFromLookupKey("ScanActions");
 	AMAgnosticDataMessageQEventHandler *scanActionMessager = qobject_cast<AMAgnosticDataMessageQEventHandler*>(dataMessager);
 	if(scanActionMessager)
@@ -270,7 +290,6 @@ bool SGMFastScanActionController::event(QEvent *e){
 						}
 			*/
 			writeDataToFiles();
-			setFinished();
 
 			break;}
 		case AMAgnosticDataAPIDefinitions::AxisValueFinished:
@@ -597,6 +616,9 @@ AMAction3* SGMFastScanActionController::createCleanupActions(){
 	retVal->addSubAction(fastActionsTrackingRestore);
 	// End Tracking Off
 
+	if(SGMBeamline::sgm()->undulatorTracking()->withinTolerance(1))
+		goodInitialState_ = true;
+
 	// Grating Restore:
 	// Grating Velocity, Velocity Base, Acceleration to current settings
 	AMListAction3 *fastActionsGratingRestore = new AMListAction3(new AMListActionInfo3("SGM Fast Actions Grating Restore", "SGM Fast Actions Grating Restore"), AMListAction3::Parallel);
@@ -667,8 +689,8 @@ QString SGMFastScanActionController::buildNotes()
 		CLSSIS3820ScalerChannel* currentChannel = scaler->channelAt(iChannel);
 		if(currentChannel->currentAmplifier() != 0)
 		{
-			CLSSR570 *channelSR570 = qobject_cast<CLSSR570*>(currentChannel->currentAmplifier());
-			if(channelSR570)
+            AMCurrentAmplifier *channelSR570 = currentChannel->currentAmplifier();
+            if(channelSR570)
 				returnString.append(QString("%1:\t%2 %3\n").arg(currentChannel->customChannelName()).arg(channelSR570->value()).arg(channelSR570->units()));
 		}
 	}
