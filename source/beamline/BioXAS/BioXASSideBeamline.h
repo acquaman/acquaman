@@ -112,6 +112,14 @@ protected:
     AMControl *iop4_;
     AMControl *iop5_;
 
+    AMControl *iopSide1_;
+    AMControl *iopSide2_;
+    AMControl *iopSide3_;
+    AMControl *iopSide4_;
+    AMControl *iopSide5_;
+    AMControl *iopSide6_;
+    AMControl *iopSide7_;
+
     // Flow transducer controls
     AMControl *flt1_;
     AMControl *flt2_;
