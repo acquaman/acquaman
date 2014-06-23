@@ -140,6 +140,13 @@ protected:
     AMControl *swf3_;
     AMControl *swf4_;
 
+    // Temperature monitor controls
+    AMControl *tm1_;
+    AMControl *tm2_;
+    AMControl *tm3_;
+    AMControl *tm4_;
+    AMControl *tm5_;
+
 
 };
 
