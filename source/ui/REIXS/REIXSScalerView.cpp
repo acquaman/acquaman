@@ -24,7 +24,7 @@ REIXSScalerView::REIXSScalerView(QWidget *parent)
 		CLSSIS3820ScalerChannelView *view = new CLSSIS3820ScalerChannelView(scaler->channelAt(16));
 		view->setEnableCheckBoxVisibility(false);
 		singleViews_ << view;
-		view->setFixedHeight(55);
+		view->setFixedHeight(40);
 		connect(view, SIGNAL(sr570ViewModeChanged(CLSSR570View::ViewMode)), this, SLOT(onSR570ViewChanged(CLSSR570View::ViewMode)));
 		connect(view, SIGNAL(outputViewModeChanged(CLSSIS3820ScalerChannelView::OutputViewMode)), this, SLOT(onOutputViewModeChanged(CLSSIS3820ScalerChannelView::OutputViewMode)));
 		layout->addWidget(view);
@@ -32,7 +32,7 @@ REIXSScalerView::REIXSScalerView(QWidget *parent)
 		view = new CLSSIS3820ScalerChannelView(scaler->channelAt(18));
 		view->setEnableCheckBoxVisibility(false);
 		singleViews_ << view;
-		view->setFixedHeight(55);
+		view->setFixedHeight(40);
 		connect(view, SIGNAL(sr570ViewModeChanged(CLSSR570View::ViewMode)), this, SLOT(onSR570ViewChanged(CLSSR570View::ViewMode)));
 		connect(view, SIGNAL(outputViewModeChanged(CLSSIS3820ScalerChannelView::OutputViewMode)), this, SLOT(onOutputViewModeChanged(CLSSIS3820ScalerChannelView::OutputViewMode)));
 		layout->addWidget(view);
