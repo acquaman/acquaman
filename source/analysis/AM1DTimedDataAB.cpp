@@ -121,8 +121,11 @@ AMNumber AM1DTimedDataAB::axisValue(int axisNumber, int index) const
 
 void AM1DTimedDataAB::onDataSourceValuesChanged(const AMnDIndex &start, const AMnDIndex &end)
 {
+    Q_UNUSED(start)
+    Q_UNUSED(end)
+
     updateOffset_++;
-    reviewValuesChanged(start, end);
+//    reviewValuesChanged(start, end);
 }
 
 void AM1DTimedDataAB::onTimeSourceValuesChanged(const AMnDIndex &start, const AMnDIndex &end)
