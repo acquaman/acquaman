@@ -272,7 +272,7 @@ void AM0DTimestampAB::reviewValuesChanged(const AMnDIndex &start, const AMnDInde
             }
         }
 
-        if (newEnd.i() == 0) {
+        if (newEnd.i() == 0 && totalPoints > 1) {
             qDebug() << "AM0DTimestampAB : there are no data points within the time filter range.";
             return;
         }
