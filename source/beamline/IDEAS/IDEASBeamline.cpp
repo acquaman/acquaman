@@ -46,6 +46,7 @@ void IDEASBeamline::setupDiagnostics()
 {
     ringCurrent_ = new AMReadOnlyPVControl("ringCurrent","PCT1402-01:mA:fbk", this, "Storage Ring Current");
     I0Current_ = new AMReadOnlyPVControl("I0Current","A1608-10-01:A:fbk", this, "I0 Current");
+    sampleTemp_ = new AMReadOnlyPVControl("sampleTemp","TC1608-10-02:reading", this, "Sample Temperature");
 }
 
 void IDEASBeamline::setupSampleStage()
@@ -172,6 +173,7 @@ void IDEASBeamline::setupExposedControls()
 {
         addExposedControl(ringCurrent_);
 	addExposedControl(I0Current_);
+	addExposedControl(sampleTemp_);
         addExposedControl(monoEnergy_);
 	addExposedControl(monoDirectEnergy_);
 //	addExposedControl(masterDwell_);
