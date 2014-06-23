@@ -10,6 +10,8 @@ class AM1DTimedDataAB : public AMStandardAnalysisBlock
 {
     Q_OBJECT
 
+    Q_CLASSINFO("AMDbObject_Attributes", "description=1D Relative Time Block")
+
 public:
     /// Constructor.
     Q_INVOKABLE AM1DTimedDataAB(const QString &outputName, QObject *parent = 0);

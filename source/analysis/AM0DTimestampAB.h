@@ -10,6 +10,8 @@ class AM0DTimestampAB : public AMStandardAnalysisBlock
 {
     Q_OBJECT
 
+    Q_CLASSINFO("AMDbObject_Attributes", "description=0D Timestamp Block")
+
 public:
     enum TimeUnits {mSeconds = 0, Seconds = 1, Minutes = 2, Hours = 3};
 
