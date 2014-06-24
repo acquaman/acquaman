@@ -13,6 +13,8 @@ Q_OBJECT
 public:
 	SGMSampleManagementView(QWidget *parent = 0);
 
+	~SGMSampleManagementView();
+
 protected slots:
 	/// Handles moving to the transfer position
 	void onTransferPositionButtonClicked();

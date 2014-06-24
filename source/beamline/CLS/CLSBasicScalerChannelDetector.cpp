@@ -150,13 +150,11 @@ void CLSBasicScalerChannelDetector::onScalerDarkCurrentValueChanged() {
 }
 
 void CLSBasicScalerChannelDetector::onScalerSensitivityChanged() {
-    qDebug() << "Scaler has reported sensitivity change.";
     setRequiresNewDarkCurrentMeasurement(true);
 }
 
 
 bool CLSBasicScalerChannelDetector::initializeImplementation(){
-	//setInitializing();
 	setInitialized();
 	return true;
 }

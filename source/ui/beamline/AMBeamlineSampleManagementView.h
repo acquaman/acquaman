@@ -23,6 +23,8 @@ public:
 	/// Constructor takes pointer to beamline to operate on (samplePlate and samplePlateBrowser live in AMBeamline)
 	AMBeamlineSampleManagementView(AMBeamline *beamline, AMMotorGroup *motorGroup, QWidget *parent = 0);
 
+	virtual ~AMBeamlineSampleManagementView();
+
 public slots:
 	void requestAdvancedCameraOptionsWindow();
 

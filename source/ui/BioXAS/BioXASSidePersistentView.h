@@ -4,7 +4,10 @@
 #include <QWidget>
 #include <QLayout>
 
+#include "beamline/CLS/CLSKeithley428.h"
+
 class AMExtendedControlEditor;
+class AMCurrentAmplifierView;
 
 class BioXASSidePersistentView : public QWidget
 {
@@ -20,6 +23,7 @@ public slots:
 
 protected:
     AMExtendedControlEditor *motorControlEditor_;
+    AMCurrentAmplifierView *keithleyView_;
 
 };
 

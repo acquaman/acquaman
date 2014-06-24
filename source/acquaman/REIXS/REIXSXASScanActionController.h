@@ -1,17 +1,17 @@
 #ifndef REIXSXASSCANACTIONCONTROLLER_H
 #define REIXSXASSCANACTIONCONTROLLER_H
 
-#include "acquaman/AMRegionScanActionController.h"
+#include "acquaman/AMStepScanActionController.h"
 #include "acquaman/REIXS/REIXSXASScanConfiguration.h"
 #include "dataman/AMUser.h"
 #include "actions3/AMAction3.h"
 
-class REIXSXASScanActionController : public AMRegionScanActionController
+class REIXSXASScanActionController : public AMStepScanActionController
 {
 Q_OBJECT
 public:
- 	virtual ~REIXSXASScanActionController();
 	REIXSXASScanActionController(REIXSXASScanConfiguration *cfg, QObject *parent = 0);
+	virtual ~REIXSXASScanActionController();
 	//bool canSkip() const { return false; }
 
 
@@ -27,6 +27,9 @@ protected:
 	AMAction3* createInitializationActions();
 	/// Reimplemented to put the beamline in a good state after a scan has been completed.
 	AMAction3* createCleanupActions();
+	/// Re-implemented due to the extra complexity of setting up IDEAS.
+	virtual void cancelImplementation();
+
 
 	QTimer *updateTimer_;
 	AMListAction3 *xesActionsInitializationList_;

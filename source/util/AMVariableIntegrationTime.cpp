@@ -275,7 +275,6 @@ bool AMVariableIntegrationTime::variableTime(double *times) const
 
 			variableTimes_.insert(k, a0_ + a1_*pow(k, a2_));
 			k += kStep_;
-			k += kStep_;
 		}
 
 		break;

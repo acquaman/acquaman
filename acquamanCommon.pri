@@ -704,7 +704,6 @@ HEADERS += source/acquaman/AMRegion.h \
 	source/acquaman/AMRegionScanActionController.h \
 	source/ui/actions3/AMCancelActionPrompt.h \
 	source/dataman/export/SGM/SGMAxis2000Exporter.h \
-	source/ui/CLS/CLSSR570View.h \
 	source/ui/CLS/CLSAmptekSDD123DetailedDetectorView.h \
 	source/actions3/AMActionSupport.h \
 	source/ui/CLS/CLSSIS3820CompositeScalerChannelView.h \
@@ -757,8 +756,13 @@ HEADERS += source/acquaman/AMRegion.h \
 	source/ui/dataman/AMStepScanAxisView.h \
 	source/ui/dataman/AMEXAFSScanAxisView.h \
 	source/beamline/CLS/CLSPseudoMotorControl.h \
+    source/beamline/CLS/CLSKeithley428.h \
+    source/ui/beamline/AMCurrentAmplifierView.h \
 	source/ui/AMRegExpLineEdit.h \
-	source/application/AMCrashMonitorSupport.h
+	source/application/AMCrashMonitorSupport.h \
+	source/util/AMBuildInfo.h \
+    source/util/AMBuildReporter.h \
+    source/analysis/AM1DKSpaceCalculatorAB.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1185,7 +1189,6 @@ SOURCES += source/acquaman/AMRegion.cpp \
 	source/acquaman/AMRegionScanActionController.cpp \
 	source/ui/actions3/AMCancelActionPrompt.cpp \
 	source/dataman/export/SGM/SGMAxis2000Exporter.cpp \
-	source/ui/CLS/CLSSR570View.cpp \
 	source/ui/CLS/CLSAmptekSDD123DetailedDetectorView.cpp \
 	source/ui/CLS/CLSSIS3820CompositeScalerChannelView.cpp \
 	source/ui/CLS/CLSSR570CompositeView.cpp \
@@ -1236,8 +1239,13 @@ SOURCES += source/acquaman/AMRegion.cpp \
 	source/ui/dataman/AMStepScanAxisView.cpp \
 	source/ui/dataman/AMEXAFSScanAxisView.cpp \
 	source/beamline/CLS/CLSPseudoMotorControl.cpp \
+    source/beamline/CLS/CLSKeithley428.cpp \
+    source/ui/beamline/AMCurrentAmplifierView.cpp \
 	source/ui/AMRegExpLineEdit.cpp \
-	source/application/AMCrashMonitorSupport.cpp
+	source/application/AMCrashMonitorSupport.cpp \
+	source/util/AMBuildInfo.cpp \
+    source/util/AMBuildReporter.cpp \
+    source/analysis/AM1DKSpaceCalculatorAB.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1261,3 +1269,11 @@ RESOURCES = source/icons/icons.qrc \
 OTHER_FILES += \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
+
+contains(DEFINES, AM_BUILD_REPORTER_ENABLED){
+	HEADERS += source/util/AMRunTimeBuildInfo.h
+
+	SOURCES += source/util/AMRunTimeBuildInfo.cpp
+}
+
+

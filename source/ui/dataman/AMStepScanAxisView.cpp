@@ -16,7 +16,7 @@ AMStepScanAxisElementView::AMStepScanAxisElementView(AMScanAxisRegion *region, Q
 	start_ = new QDoubleSpinBox;
 	start_->setRange(-100000, 100000);
 	start_->setSuffix(" eV");
-	start_->setDecimals(2);
+    start_->setDecimals(3);
 	start_->setValue(double(region_->regionStart()));
 	start_->setAlignment(Qt::AlignCenter);
 	connect(start_, SIGNAL(editingFinished()), this, SLOT(onStartPositionUpdated()));
@@ -24,7 +24,7 @@ AMStepScanAxisElementView::AMStepScanAxisElementView(AMScanAxisRegion *region, Q
 	delta_ = new QDoubleSpinBox;
 	delta_->setRange(-100000, 100000);
 	delta_->setSuffix(" eV");
-	delta_->setDecimals(2);
+    delta_->setDecimals(3);
 	delta_->setValue(double(region_->regionStep()));
 	delta_->setAlignment(Qt::AlignCenter);
 	connect(region_, SIGNAL(regionStepChanged(AMNumber)), this, SLOT(setDeltaSpinBox(AMNumber)));
@@ -33,7 +33,7 @@ AMStepScanAxisElementView::AMStepScanAxisElementView(AMScanAxisRegion *region, Q
 	end_ = new QDoubleSpinBox;
 	end_->setRange(-100000, 100000);
 	end_->setSuffix(" eV");
-	end_->setDecimals(2);
+    end_->setDecimals(3);
 	end_->setValue(double(region_->regionEnd()));
 	end_->setAlignment(Qt::AlignCenter);
 	connect(end_, SIGNAL(editingFinished()), this, SLOT(onEndPositionUpdated()));
@@ -180,7 +180,7 @@ void AMStepScanAxisView::disconnectRegions() const
 			disconnect(lockedElementViewList_.at(i), SIGNAL(startValueChanged(AMNumber)), lockedElementViewList_.at(i-1), SLOT(setEndSpinBox(AMNumber)));
 
 		if (i != (size-1))
-			disconnect(lockedElementViewList_.at(i), SIGNAL(endValueChanged(AMNumber)), lockedElementViewList_.at(i+1), SLOT(setStartSpinBox(AMNumber)));
+            disconnect(lockedElementViewList_.at(i), SIGNAL(endValueChanged(AMNumber)), lockedElementViewList_.at(i+1), SLOT(setStartSpinBox(AMNumber)));
 	}
 }
 

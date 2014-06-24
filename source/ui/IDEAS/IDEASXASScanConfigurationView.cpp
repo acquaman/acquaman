@@ -86,6 +86,8 @@ IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfigu
 
 	estimatedTime_ = new QLabel;
 	estimatedSetTime_ = new QLabel;
+	pointPerScan_ = new QLabel;
+	scanEnergyRange_ = new QLabel;
 	connect(configuration_, SIGNAL(totalTimeChanged(double)), this, SLOT(onEstimatedTimeChanged()));
 	connect(configuration_, SIGNAL(scanAxisAdded(AMScanAxis*)), this, SLOT(onEstimatedTimeChanged()));
 	connect(configuration_, SIGNAL(scanAxisRemoved(AMScanAxis*)), this, SLOT(onEstimatedTimeChanged()));
@@ -105,6 +107,8 @@ IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfigu
 	numberOfScansLayout->addRow("Number of Scans:", numberOfScans);
 	numberOfScansLayout->addRow("", estimatedTime_);
 	numberOfScansLayout->addRow("", estimatedSetTime_);
+	numberOfScansLayout->addRow("", pointPerScan_);
+	numberOfScansLayout->addRow("", scanEnergyRange_);
 
 
 	QFormLayout *energySetpointLayout = new QFormLayout;
@@ -377,6 +381,9 @@ void IDEASXASScanConfigurationView::onEstimatedTimeChanged()
     double time = configuration_->totalTime(true);
     configuration_->blockSignals(false);
 
+    pointPerScan_->setText(QString("%1 points per scan").arg(configuration_->totalPoints()));
+    scanEnergyRange_->setText(QString("from %1 to %2 eV").arg(configuration_->minEnergy()).arg(configuration_->maxEnergy()));
+
     int days = int(time/3600.0/24.0);
 
     if (days > 0){
@@ -440,4 +447,5 @@ void IDEASXASScanConfigurationView::onEstimatedTimeChanged()
     timeString += QString::number(seconds) + "s";
 
     estimatedSetTime_->setText("Estimated time for set:\t" + timeString);
+
 }

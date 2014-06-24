@@ -43,9 +43,9 @@ AMSamplePlatePre2013ItemModel::AMSamplePlatePre2013ItemModel(AMSamplePlatePre201
 	connect(AMDatabase::database("user"), SIGNAL(updated(QString,int)), this, SLOT(onDatabaseItemUpdated(QString,int)), Qt::QueuedConnection);
 	connect(AMDatabase::database("user"), SIGNAL(removed(QString,int)), this, SLOT(onDatabaseItemRemoved(QString,int)), Qt::QueuedConnection);
 
-	cachedSamples_.reserve(plate_->count());
-	for(int i=plate_->count()-1; i>=0; i--)
-		cachedSamples_ << AMSamplePre2013();
+//	cachedSamples_.reserve(plate_->count());
+//	for(int i=plate_->count()-1; i>=0; i--)
+//		cachedSamples_ << AMSamplePre2013();
 }
 
 
@@ -77,7 +77,7 @@ QString AMSamplePlatePre2013ItemModel::positionsString(int index) const {
 // Received from AMSamplePlate. Used to implement beginInsertRows.
 void AMSamplePlatePre2013ItemModel::onSamplePositionAboutToBeAdded(int index) {
 	beginInsertRows(QModelIndex(), index, index);
-	cachedSamples_.insert(index, AMSamplePre2013());
+//	cachedSamples_.insert(index, AMSamplePre2013());
 }
 
 // Received from AMSamplePlate. Used to implement endInsertRows.
@@ -96,23 +96,23 @@ void AMSamplePlatePre2013ItemModel::onSamplePositionAboutToBeRemoved(int index) 
 // Received from AMSamplePlate. Used to implement endRemoveRows.
 void AMSamplePlatePre2013ItemModel::onSamplePositionRemoved(int index) {
 
-	cachedSamples_.removeAt(index);
+//	cachedSamples_.removeAt(index);
 	endRemoveRows();
 }
 
 // Access a cached sample object, ensuring it is loaded from the database and up-to-date
-const AMSamplePre2013& AMSamplePlatePre2013ItemModel::getCachedSample(int index) const {
-	int correctId = plate_->at(index).sampleId();
+//const AMSamplePre2013& AMSamplePlatePre2013ItemModel::getCachedSample(int index) const {
+//	int correctId = plate_->at(index).sampleId();
 
-	// we can tell if this one's been loaded by looking at its id. If it's 0 (or a wrong id), it's not the sample info we want.
-	if(cachedSamples_.at(index).id() != correctId) {
-		if(!cachedSamples_[index].loadFromDb(AMDatabase::database("user"), correctId)) {
-			cachedSamples_[index].setName("[Unknown Sample]");
-		}
-	}
+//	// we can tell if this one's been loaded by looking at its id. If it's 0 (or a wrong id), it's not the sample info we want.
+//	if(cachedSamples_.at(index).id() != correctId) {
+//		if(!cachedSamples_[index].loadFromDb(AMDatabase::database("user"), correctId)) {
+//			cachedSamples_[index].setName("[Unknown Sample]");
+//		}
+//	}
 
-	return cachedSamples_.at(index);
-}
+//	return cachedSamples_.at(index);
+//}
 
 
 // Watches the database for update signals... To see if sample information changes for one of our existing sampleIds...
@@ -121,15 +121,16 @@ void AMSamplePlatePre2013ItemModel::onDatabaseItemUpdated(const QString &tableNa
 		return;
 
 	// ok, this update was on the sample table. Check all of our cached samples to see if it was their id that was updated.
-	for(int i=0; i<cachedSamples_.count(); i++) {
-		if(cachedSamples_.at(i).id() == id) {
-			// it was this sample! reload from db
-			if(!cachedSamples_[i].loadFromDb(AMDatabase::database("user"), id)) {
-				cachedSamples_[i].setName("[Unknown Sample]");
-			}
-			emit dataChanged(index(i), index(i));
-		}
-	}
+//	for(int i=0; i<cachedSamples_.count(); i++) {
+//		if(cachedSamples_.at(i).id() == id) {
+//			// it was this sample! reload from db
+//			if(!cachedSamples_[i].loadFromDb(AMDatabase::database("user"), id)) {
+//				cachedSamples_[i].setName("[Unknown Sample]");
+//			}
+//			emit dataChanged(index(i), index(i));
+//		}
+//	}
+	emit dataChanged(index(id), index(id));
 }
 
 void AMSamplePlatePre2013ItemModel::onDatabaseItemRemoved(const QString &tableName, int id) {
@@ -137,14 +138,15 @@ void AMSamplePlatePre2013ItemModel::onDatabaseItemRemoved(const QString &tableNa
 		return;
 
 	// ok, this update was on the sample table. Check all of our cached samples to see if it was their id that was deleted.
-	for(int i=0; i<cachedSamples_.count(); i++) {
-		if(cachedSamples_.at(i).id() == id) {
-			// it was this sample! Oh dear, It's gone.. what to do?
-			cachedSamples_[i] = AMSamplePre2013();
-			cachedSamples_[i].setName("[Deleted Sample]");
-			emit dataChanged(index(i), index(i));
-		}
-	}
+//	for(int i=0; i<cachedSamples_.count(); i++) {
+//		if(cachedSamples_.at(i).id() == id) {
+//			// it was this sample! Oh dear, It's gone.. what to do?
+//			cachedSamples_[i] = AMSamplePre2013();
+//			cachedSamples_[i].setName("[Deleted Sample]");
+//			emit dataChanged(index(i), index(i));
+//		}
+//	}
+	emit dataChanged(index(id), index(id));
 }
 
 
@@ -553,18 +555,22 @@ AMSamplePlatePre2013View::AMSamplePlatePre2013View(AMSamplePlatePre2013 *existin
 void AMSamplePlatePre2013View::onAddSampleButtonClicked() {
 
 
-	if(manipulator_)
+	if(manipulator_){
+		qDebug() << "Apparently we have a manipulator";
 		samplePlate_->append(
 					AMSamplePositionPre2013(
 						sampleSelector_->currentSampleId(),
 						manipulator_->position(),
 						manipulator_->facilityId()));
-	else
+	}
+	else{
+		qDebug() << "Apparently we DO NOT have a manipulator";
 		samplePlate_->append(
 					AMSamplePositionPre2013(
 						sampleSelector_->currentSampleId(),
 						AMControlInfoList(),
 						0));
+	}
 
 	// save the sample plate, because it's been modified.
 	samplePlate_->storeToDb(AMDatabase::database("user"));
