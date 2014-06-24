@@ -60,7 +60,7 @@ protected slots:
 	void onStopMotorsActionFinished();
 
 	void onScanningResetButtonClicked();
-    void toTakeDarkCurrentMeasurement();
+//    void toTakeDarkCurrentMeasurement();
 
 	void onStripToolTimerTimeout();
 	void onI0CheckBoxToggled(bool toggled);

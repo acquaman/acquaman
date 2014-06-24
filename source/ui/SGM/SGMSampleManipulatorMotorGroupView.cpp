@@ -24,8 +24,11 @@ SGMSampleManipulatorMotorGroupObjectView::SGMSampleManipulatorMotorGroupObjectVi
 	arrowLayout_->addWidget(rotateCCW_, 2, 2);
 
 	motorGroupLayout_->removeItem(arrowLayout_);
+	arrowLayout_->setParent(0);
 	absoluteValueLayout_->removeItem(jogLayout_);
+	jogLayout_->setParent(0);
 	motorGroupLayout_->removeItem(absoluteValueLayout_);
+	absoluteValueLayout_->setParent(0);
 
 	QVBoxLayout *leftVL = new QVBoxLayout();
 	leftVL->addLayout(arrowLayout_);
@@ -35,8 +38,7 @@ SGMSampleManipulatorMotorGroupObjectView::SGMSampleManipulatorMotorGroupObjectVi
 	leftVL->addLayout(bottomHL);
 
 	motorGroupLayout_->addLayout(leftVL);
-	motorGroupLayout_->addStretch(10);
-	motorGroupLayout_->addLayout(bottomHL);
+	motorGroupLayout_->addStretch(0);
 	motorGroupLayout_->addLayout(absoluteValueLayout_);
 
 	connect(rotateCW_, SIGNAL(clicked()), this, SLOT(onRotateCWClicked()));
@@ -55,6 +57,12 @@ SGMSampleManipulatorMotorGroupObjectView::SGMSampleManipulatorMotorGroupObjectVi
 
 		absoluteValueLayout_->addWidget(oneControlEditor);
 	}
+}
+
+SGMSampleManipulatorMotorGroupObjectView::~SGMSampleManipulatorMotorGroupObjectView()
+{
+	while(controlEditors_.count() != 0)
+		controlEditors_.removeAt(controlEditors_.count()-1);
 }
 
 
@@ -122,5 +130,9 @@ void SGMSampleManipulatorMotorGroupObjectView::onMovingChanged(){
 
 SGMSampleManipulatorMotorGroupView::SGMSampleManipulatorMotorGroupView(AMMotorGroup *motorGroup, QWidget *parent) :
 	AMMotorGroupView(motorGroup, parent)
+{
+}
+
+SGMSampleManipulatorMotorGroupView::~SGMSampleManipulatorMotorGroupView()
 {
 }

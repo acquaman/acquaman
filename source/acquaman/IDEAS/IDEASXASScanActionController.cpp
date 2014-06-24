@@ -351,6 +351,7 @@ void IDEASXASScanActionController::onInitializationActionsListSucceeded(){
 
 }
 
+#include "actions3/actions/AMTimedWaitAction3.h"
 
 AMAction3* IDEASXASScanActionController::createCleanupActions(){
 
@@ -417,12 +418,17 @@ AMAction3* IDEASXASScanActionController::createCleanupActions(){
 //    moveActionInfo = new AMControlMoveActionInfo3(masterDwell);
 //    moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
 //    cleanupActions->addSubAction(moveAction);
-    cleanupActions->addSubAction(IDEASBeamline::ideas()->scaler()->createStartAction3(false));
-    cleanupActions->addSubAction(IDEASBeamline::ideas()->scaler()->createContinuousEnableAction3(false));
-    cleanupActions->addSubAction(IDEASBeamline::ideas()->scaler()->createDwellTimeAction3(0.1));
-    cleanupActions->addSubAction(IDEASBeamline::ideas()->scaler()->createContinuousEnableAction3(true));
+//    cleanupActions->addSubAction(IDEASBeamline::ideas()->scaler()->createContinuousEnableAction3(false));
+
+	cleanupActions->addSubAction(new AMTimedWaitAction3(new AMTimedWaitActionInfo3(IDEASBeamline::ideas()->scaler()->dwellTime())));
+	cleanupActions->addSubAction(IDEASBeamline::ideas()->scaler()->createStartAction3(false));
+	cleanupActions->addSubAction(IDEASBeamline::ideas()->scaler()->createContinuousEnableAction3(false));
+	cleanupActions->addSubAction(IDEASBeamline::ideas()->scaler()->createDwellTimeAction3(0.1));
+	cleanupActions->addSubAction(IDEASBeamline::ideas()->scaler()->createContinuousEnableAction3(true));
+
  //   cleanupActions->addSubAction(IDEASBeamline::ideas()->scaler()->createTotalScansAction3(0));
  //   cleanupActions->addSubAction(IDEASBeamline::ideas()->scaler()->createStartAction3(true));
+
 
     //qDebug() << "IDEASXASScanActionController::createCleanupActions() called";
 
