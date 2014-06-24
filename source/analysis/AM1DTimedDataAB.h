@@ -18,6 +18,9 @@ public:
     /// Destructor.
     virtual ~AM1DTimedDataAB();
 
+    QVector<double> dataValues() const;
+    QVector<double> timeValues() const;
+
     virtual bool areInputDataSourcesAcceptable(const QList<AMDataSource *> &dataSources) const;
 
     virtual void setInputDataSourcesImplementation(const QList<AMDataSource *> &dataSources);

@@ -19,13 +19,23 @@ AM1DTimedDataAB::~AM1DTimedDataAB()
 
 }
 
+QVector<double> AM1DTimedDataAB::dataValues() const
+{
+    return values_;
+}
+
+QVector<double> AM1DTimedDataAB::timeValues() const
+{
+    return times_;
+}
+
 bool AM1DTimedDataAB::areInputDataSourcesAcceptable(const QList<AMDataSource *> &dataSources) const
 {
     // null input always acceptable.
     if (dataSources.isEmpty())
         return true;
 
-    // we expect two input sources.
+    // otherwise, we expect two input sources.
     if (dataSources.count() != 2)
         return false;
 
@@ -39,7 +49,7 @@ bool AM1DTimedDataAB::areInputDataSourcesAcceptable(const QList<AMDataSource *> 
 
 void AM1DTimedDataAB::setInputDataSourcesImplementation(const QList<AMDataSource *> &dataSources)
 {
-    // disconnect old connections, if they exist.
+    // disconnect from old sources, if they exist.
     if (data_){
         disconnect( data_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onDataSourceValuesChanged(AMnDIndex,AMnDIndex)) );
         disconnect( data_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()) );
