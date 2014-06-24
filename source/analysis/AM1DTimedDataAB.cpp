@@ -53,7 +53,7 @@ void AM1DTimedDataAB::setInputDataSourcesImplementation(const QList<AMDataSource
         timestamps_ = 0;
     }
 
-    if (dataSources.isEmpty()){
+    if (dataSources.isEmpty()) {
 
         data_ = 0;
         timestamps_ = 0;
@@ -92,20 +92,43 @@ void AM1DTimedDataAB::setInputDataSourcesImplementation(const QList<AMDataSource
 
 
 AMNumber AM1DTimedDataAB::value(const AMnDIndex &indexes) const
-{
-    if (data_)
-        return data_->value(indexes);
+{    
+    if (!isValid())
+        return AMNumber(AMNumber::InvalidError);
 
-    return AMNumber(AMNumber::InvalidError);
+    if (indexes.i() < 0 || indexes.i() >= values_.size())
+        return AMNumber(AMNumber::OutOfBoundsError);
+
+    if (indexes.rank() != 1)
+        return AMNumber(AMNumber::DimensionError);
+
+    return values_.at(indexes.i());
 }
 
 bool AM1DTimedDataAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
 {
-    if (data_)
-        return data_->values(indexStart, indexEnd, outputValues);
+    if (!isValid())
+        return false;
 
-    outputValues = 0;
-    return false;
+    if (indexStart.i() < 0 || indexStart.i() >= values_.size())
+        return false;
+
+    if (indexEnd.i() < 0 || indexEnd.i() >= values_.size())
+        return false;
+
+    if (indexStart.i() > indexEnd.i())
+        return false;
+
+    if (indexStart.rank() != 1 || indexEnd.rank() != 1)
+        return false;
+
+    int totalPoints = indexStart.totalPointsTo(indexEnd);
+
+    for (int i = 0; i < totalPoints; i++) {
+        outputValues[i] = values_.at(i);
+    }
+
+    return true;
 }
 
 AMNumber AM1DTimedDataAB::axisValue(int axisNumber, int index) const
@@ -116,10 +139,10 @@ AMNumber AM1DTimedDataAB::axisValue(int axisNumber, int index) const
     if (axisNumber != 0)
         return AMNumber(AMNumber::DimensionError);
 
-    if (timestamps_)
-        return timestamps_->value(AMnDIndex(index));
+    if (index < 0 || index >= times_.size())
+        return AMNumber(AMNumber::OutOfBoundsError);
 
-    return AMNumber(AMNumber::InvalidError);
+    return times_.at(index);
 }
 
 bool AM1DTimedDataAB::loadFromDb(AMDatabase *db, int id)
@@ -139,13 +162,11 @@ void AM1DTimedDataAB::onDataSourceValuesChanged(const AMnDIndex &start, const AM
     Q_UNUSED(end)
 
     updateOffset_++;
-    qDebug() << "AM1DTimedDataAB : data source update.";
 }
 
 void AM1DTimedDataAB::onTimeSourceValuesChanged(const AMnDIndex &start, const AMnDIndex &end)
 {
     updateOffset_--;
-    qDebug() << "AM1DTimedDataAB : time source update.";
     reviewValuesChanged(start, end);
 }
 
@@ -161,13 +182,35 @@ void AM1DTimedDataAB::reviewValuesChanged(const AMnDIndex &start, const AMnDInde
         return;
     }
 
-    qDebug() << "AM1DTimedDataAB :" << end.i() - start.i() << "values changed.";
+    int pointsChanged = start.totalPointsTo(end);
+    qDebug() << "Points to display :" << pointsChanged;
 
-    axes_[0] = AMAxisInfo(sources_.at(0)->name(), end.i() - start.i());
+    if (pointsChanged > 0) {
 
-    emitValuesChanged(start, end);
-    emitAxisInfoChanged(0);
-    emitSizeChanged(0);
+        values_.clear();
+        times_.clear();
+
+        values_.reserve(pointsChanged);
+        times_.reserve(pointsChanged);
+
+        bool dataSuccess = data_->values(start, end, values_.data());
+        bool timeSuccess = timestamps_->values(start, end, times_.data());
+
+        if (dataSuccess && timeSuccess) {
+
+            qDebug() << "AM1DTimedDataAB // values to display : " << values_.toList();
+            qDebug() << "AM1DTimedDataAB //  times to display : " << times_.toList();
+
+            axes_[0] = AMAxisInfo(sources_.at(0)->name(), pointsChanged);
+
+            emitValuesChanged(AMnDIndex(0), AMnDIndex(pointsChanged - 1));
+            emitAxisInfoChanged(0);
+            emitSizeChanged(0);
+
+        } else {
+            qDebug() << "AM1DTimedDataAB : update unsuccessful.";
+        }
+    }
 }
 
 void AM1DTimedDataAB::reviewState()

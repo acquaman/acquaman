@@ -117,9 +117,6 @@ AMNumber AM0DTimestampAB::value(const AMnDIndex &indexes) const
 
 bool AM0DTimestampAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
 {
-    if(indexStart.rank() != 1 || indexEnd.rank() != 1)
-        return false;
-
     if(!isValid())
         return false;
 
@@ -132,10 +129,13 @@ bool AM0DTimestampAB::values(const AMnDIndex &indexStart, const AMnDIndex &index
     if (indexStart.i() > indexEnd.i())
         return false;
 
+    if(indexStart.rank() != 1 || indexEnd.rank() != 1)
+        return false;
+
     int totalSize = indexStart.totalPointsTo(indexEnd);
 
     for (int i = 0; i < totalSize; i++) {
-        outputValues[i] = value(AMnDIndex(i + indexStart.i()));
+        outputValues[i] = (double)value(AMnDIndex(i + indexStart.i()));
     }
 
     return true;
@@ -273,14 +273,11 @@ void AM0DTimestampAB::reviewValuesChanged(const AMnDIndex &start, const AMnDInde
         int i = 0;
 
         while (!newStartFound && i < totalPoints) {
-
-            qDebug() << "AM0DTimestampAB : testing start index" << i;
-
             double indexValue = (double)value(AMnDIndex(end.i() - i));
-            qDebug() << "AM0DTimestampAB : value at start index" << indexValue;
+            qDebug() << "AM0DTimestampAB : testing index" << i << ", value" << indexValue;
 
             if (qAbs(indexValue) > qAbs(timeValue_)) {
-                qDebug() << "AM0DTimestampAB : start index" << i << "exceeds time value limit.";
+                qDebug() << "AM0DTimestampAB : index" << i << "exceeds time value limit.";
                 newStart = AMnDIndex(end.i() - i + 1);
                 newStartFound = true;
             }
