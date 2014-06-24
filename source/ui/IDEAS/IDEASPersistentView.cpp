@@ -103,12 +103,19 @@ IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
     mainPanelLayout->addWidget(monoEnergyRange_);
     mainPanelLayout->addStretch();
 
-    QVBoxLayout *cameraPanelLayout = new QVBoxLayout;
-    cameraWidget = new AMBeamlineCameraWidgetWithSourceTabs(QUrl("http://v2e1608-102.clsi.ca/mjpg/2/video.mjpg"),"Sample 1",0,false);
-    cameraWidget->addSource("Sample 2", QUrl("http://v2e1608-102.clsi.ca/mjpg/3/video.mjpg"));
-    cameraWidget->addSource("Vacuum", QUrl("http://v2e1608-102.clsi.ca/mjpg/1/video.mjpg"));
-    cameraWidget->addSource("POE", QUrl("http://v2e1608-102.clsi.ca/mjpg/4/video.mjpg"));
-    cameraPanelLayout->addWidget(cameraWidget);
+#ifdef AM_MOBILITY_VIDEO_ENABLED
+
+	#include "ui/AMBeamlineCameraWidgetWithSourceTabs.h"
+
+	AMBeamlineCameraWidgetWithSourceTabs *cameraWidget;
+
+	QVBoxLayout *cameraPanelLayout = new QVBoxLayout;
+	cameraWidget = new AMBeamlineCameraWidgetWithSourceTabs(QUrl("http://v2e1608-102.clsi.ca/mjpg/2/video.mjpg"),"Sample 1",0,false);
+	cameraWidget->addSource("Sample 2", QUrl("http://v2e1608-102.clsi.ca/mjpg/3/video.mjpg"));
+	cameraWidget->addSource("Vacuum", QUrl("http://v2e1608-102.clsi.ca/mjpg/1/video.mjpg"));
+	cameraWidget->addSource("POE", QUrl("http://v2e1608-102.clsi.ca/mjpg/4/video.mjpg"));
+	cameraPanelLayout->addWidget(cameraWidget);
+#endif
 
     QVBoxLayout *scalerPanelLayout = new QVBoxLayout;
     scalerPanelLayout->addWidget(new IDEASScalerView());
