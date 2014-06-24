@@ -138,7 +138,6 @@ void AM1DDarkCurrentCorrectionAB::setDwellTimeName(const QString &name)
 void AM1DDarkCurrentCorrectionAB::setDarkCurrent(const double newValue)
 {
     if (darkCurrent_ != newValue && newValue >= 0) {
-        qDebug() << "Dark current value set : " << newValue;
         darkCurrent_ = newValue;
         setModified(true);
     }

@@ -21,6 +21,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define REIXSSIDEBAR_H
 
 #include <QWidget>
+#include <QGroupBox>
+#include <QVBoxLayout>
+#include <QLabel>
+#include <QCheckBox>
 
 namespace Ui {
     class REIXSSidebar;
@@ -39,6 +43,11 @@ public:
 
 private:
     Ui::REIXSSidebar *ui;
+	QGroupBox *detectorsGroupBox;
+	QVBoxLayout *detectorPanelLayout;
+	QCheckBox *scalerContinuousButton;
+	QLabel *XESValue;
+	QLabel *TFYValue;
 
 	// Additional UI controls
 	REIXSActionBasedControlEditor* beamlineEnergyEditor_, *userEnergyOffestEditor_, *monoSlitEditor_, *gratingSelector_, *mirrorSelector_, *epuPolarizationEditor_, *epuPolarizationAngleEditor_;
@@ -59,9 +68,9 @@ protected slots:
 
 	/// This could be a little sub-widget:
 	void onMCPCountsPerSecondChanged(double countsPerSecond);
-	void onTEYCountsChanged(double counts);
+//	void onTEYCountsChanged(double counts);
 	void onTFYCountsChanged(double counts);
-	void onI0CountsChanged(double counts);
+//	void onI0CountsChanged(double counts);
 
 	/// Monitors REIXSBeamline::bl()->valvesAndShutters()::beamOnChanged() to light up the "beam on" summary LED.
 	void onBeamOnChanged(bool isOn);

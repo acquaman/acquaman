@@ -59,8 +59,9 @@ IDEASAppController::IDEASAppController(QObject *parent)
 
 bool IDEASAppController::startup()
 {
-		getUserDataFolderFromDialog();
-		// Start up the main program.
+
+	getUserDataFolderFromDialog();
+	// Start up the main program.
 	if(AMAppController::startup()) {
 
 

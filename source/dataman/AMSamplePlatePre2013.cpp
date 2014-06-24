@@ -177,15 +177,33 @@ double AMSamplePositionPre2013::rms3SpaceDistance(const AMControlInfoList &other
 }
 
 void AMSamplePositionPre2013::setSampleId(int newSampleId){
+	qDebug() << "Here wer are in setSampleId, which is - by the way - totally retarded, and the id is " << newSampleId;
+	if(!sample_)
+		qDebug() << "No sample pointer";
+	if(!sample_ || !sample_->object())
+		qDebug() << "No sample pointer or no sample object";
 	if(!sample_ || !sample_->object() || (sample_->object()->id() != newSampleId) ){
 		if(newSampleId <= 0)
 			sample_ = 0; //NULL
 		else{
 			AMDbObject *newSample = AMDbObjectSupport::s()->createAndLoadObjectAt(AMDatabase::database("user"), AMDbObjectSupport::s()->tableNameForClass<AMSamplePre2013>(), newSampleId);
-			if(!sample_)
-				sample_ = new AMConstDbObject(newSample, this);
-			else
+			if(!newSample)
+				qDebug() << "Holy crap, we didn't get a sample from the database";
+			if(!sample_){
+				qDebug() << "With id " << newSampleId << " we do not have a constObject yet, so make one";
+				sample_ = new AMConstDbObject(newSample);
+			}
+			else{
+				qDebug() << "With id " << newSampleId << " we do have a constObject, so reset the underlying sample";
 				sample_->setObject(newSample);
+			}
+
+			const AMSamplePre2013 *ourSample = qobject_cast<const AMSamplePre2013*>(sample_->object());
+			if(ourSample){
+				qDebug() << "The sample we claim to have is " << ourSample->name();
+				qDebug() << "The sample id is " << ourSample->id();
+				qDebug() << "The sample database is " << ourSample->database()->connectionName();
+			}
 		}
 		setModified(true);
 	}

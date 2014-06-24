@@ -64,6 +64,7 @@ public:
 	AMControl* M5Yaw() { return M5Yaw_; }  //DAVID ADDED
 
 
+
 protected:
 	AMControl* directEnergy_, *userEnergyOffset_, *monoSlit_, *monoGratingTranslation_, *monoGratingSelector_, *monoMirrorTranslation_, *monoMirrorSelector_, *epuPolarization_, *epuPolarizationAngle_, *M5Pitch_, *M5Yaw_, *ringCurrent_;//DAVID ADDED M5's
 	REIXSBrokenMonoControl* energy_;
@@ -127,6 +128,7 @@ public:
 
 	/// A list of AMSADetectors used by the XAS scan controller: TEY, TFY, I0.
 	QList<AMSADetector*> saDetectors() { return saDetectors_; }
+
 
 protected:
 	AMReadOnlyPVControl* I0_, * TEY_, *TFY_;

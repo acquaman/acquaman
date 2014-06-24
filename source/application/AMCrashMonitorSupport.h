@@ -44,6 +44,7 @@ private:
 	static AMCrashMonitorSupport *crashMonitorSupportInstance_;
 };
 
-void handle_signal(int signum);
+void handle_signal_sigsev(int signum);
+void handle_signal_sigabrt(int signum);
 
 #endif // AMCRASHMONITORSUPPORT_H
