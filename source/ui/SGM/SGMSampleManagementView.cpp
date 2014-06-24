@@ -62,6 +62,10 @@ SGMSampleManagementView::SGMSampleManagementView(QWidget *parent) :
 		onLightLevelControlValueChanged(SGMBeamline::sgm()->ssaIllumination()->value());
 }
 
+SGMSampleManagementView::~SGMSampleManagementView()
+{
+}
+
 void SGMSampleManagementView::onTransferPositionButtonClicked(){
 	if(transferPositionActions_ && !transferPositionActions_->inFinalState())
 		return;

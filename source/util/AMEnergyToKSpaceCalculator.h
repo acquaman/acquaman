@@ -26,7 +26,7 @@ public:
 
 	/// Returns the k-value associated with the given energy.
 	AMNumber k(const AMNumber &energy) const;
-	/// Sets all the k values fromm the start to the end in the given steps.  Requires a valid double pointer to fill the data into.
+	/// Sets all the k values from the start to the end in the given steps.  Requires a valid double pointer to fill the data into.
 	bool kValues(const AMNumber &start, const AMNumber &step, const AMNumber &end, double *kValues) const;
 
 	/// Static method.  Provide an edge energy and a given k value and it will return the energy associated with it.
