@@ -165,8 +165,8 @@ bool REIXSAppController::startupCreateUserInterface() {
 
 
 	REIXSXASScanConfiguration *xasScanConfiguration = new REIXSXASScanConfiguration();
-	xasScanConfiguration->xasRegions()->setEnergyControl(REIXSBeamline::bl()->photonSource()->energy()); //->directEnergy());
-	qDebug() << "Default control: " << xasScanConfiguration->regions()->defaultControl()->name() << xasScanConfiguration->xasRegions()->defaultControl()->name();
+	//xasScanConfiguration->xasRegions()->setEnergyControl(REIXSBeamline::bl()->photonSource()->energy()); //->directEnergy());
+	//qDebug() << "Default control: " << xasScanConfiguration->regions()->defaultControl()->name() << xasScanConfiguration->xasRegions()->defaultControl()->name();
 
 	REIXSXASScanConfigurationView* xasConfigView = new REIXSXASScanConfigurationView(xasScanConfiguration);
 	scanConfigurationHolder = new AMScanConfigurationViewHolder3(xasConfigView);

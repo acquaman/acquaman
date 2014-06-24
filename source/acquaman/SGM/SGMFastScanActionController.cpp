@@ -122,14 +122,12 @@ void SGMFastScanActionController::onFileWriterIsBusy(bool isBusy){
 }
 
 void SGMFastScanActionController::onEverythingFinished(){
-	qDebug() << "Looks like the SGMFastScan is completely done running";
-	qDebug() << "Undulator tracking: " << SGMBeamline::sgm()->undulatorTracking()->value();
-	qDebug() << "Exit slit tracking: " << SGMBeamline::sgm()->exitSlitTracking()->value();
+//	qDebug() << "Looks like the SGMFastScan is completely done running";
+//	qDebug() << "Undulator tracking: " << SGMBeamline::sgm()->undulatorTracking()->value();
+//	qDebug() << "Exit slit tracking: " << SGMBeamline::sgm()->exitSlitTracking()->value();
 
 	if(goodInitialState_ && (!SGMBeamline::sgm()->undulatorTracking()->withinTolerance(1) || !SGMBeamline::sgm()->exitSlitTracking()->withinTolerance(1)) ){
 		qDebug() << "\n\n\nDETECTED A LOSS OF TRACKING STATE\n\n";
-		QWidget *crash = 0;
-		crash->layout();
 	}
 }
 

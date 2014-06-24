@@ -28,7 +28,6 @@ HEADERS +=	source/application/REIXS/REIXSAppController.h \
 	source/analysis/REIXS/REIXSXESImageInterpolationAB.h \
 	source/analysis/REIXS/REIXSXESImageInterpolationABEditor.h \
 	source/acquaman/REIXS/REIXSXASScanConfiguration.h \
-	source/acquaman/REIXS/REIXSXASScanController.h \
 	source/ui/REIXS/REIXSXASScanConfigurationView.h \
     source/acquaman/REIXS/REIXSXASScanActionController.h \
     source/beamline/REIXS/REIXSXESMCPDetector.h \
@@ -60,7 +59,6 @@ SOURCES +=	source/application/REIXS/REIXSAppController.cpp \
 	source/analysis/REIXS/REIXSXESImageAB.cpp \
 	source/analysis/REIXS/REIXSXESImageABEditor.cpp \
 	source/acquaman/REIXS/REIXSXASScanConfiguration.cpp \
-	source/acquaman/REIXS/REIXSXASScanController.cpp \
 	source/ui/REIXS/REIXSXASScanConfigurationView.cpp \
     source/acquaman/REIXS/REIXSXASScanActionController.cpp \
     source/beamline/REIXS/REIXSXESMCPDetector.cpp \
@@ -70,6 +68,8 @@ SOURCES +=	source/application/REIXS/REIXSAppController.cpp \
 	source/ui/REIXS/REIXSRIXSScanConfigurationView.cpp \
     source/actions3/REIXS/REIXSBeamOnOffAction.cpp \
     source/ui/REIXS/REIXSScalerView.cpp
+
+
 
 
 
