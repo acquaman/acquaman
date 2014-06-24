@@ -10,7 +10,6 @@
 
 // AMMotorGroupObjectView
 //////////////////////////////////////////////
- AMMotorGroupObjectView::~AMMotorGroupObjectView(){}
 AMMotorGroupObjectView::AMMotorGroupObjectView(AMMotorGroupObject *motorGroupObject, QWidget *parent)
 	: QWidget(parent)
 {
@@ -197,6 +196,10 @@ AMMotorGroupObjectView::AMMotorGroupObjectView(AMMotorGroupObject *motorGroupObj
 	setLayout(fullLayout);
 }
 
+AMMotorGroupObjectView::~AMMotorGroupObjectView()
+{
+}
+
 void AMMotorGroupObjectView::setControlSetpointPrecision(int controlSetpointsPrecision){
 	controlSetpointsPrecision_ = controlSetpointsPrecision;
 	for(int x = 0, size = controlSetpoints_.count(); x < size; x++)
@@ -279,7 +282,6 @@ void AMMotorGroupObjectView::onThirdControlSetpoint()
 
 // AMMotorGroupView
 /////////////////////////////////////////////
- AMMotorGroupView::~AMMotorGroupView(){}
 AMMotorGroupView::AMMotorGroupView(AMMotorGroup *motorGroup, QWidget *parent)
 	: QWidget(parent)
 {
@@ -319,6 +321,10 @@ AMMotorGroupView::AMMotorGroupView(AMMotorGroup *motorGroup, QWidget *parent)
 		groupLayout->addWidget(view);
 
 	setLayout(groupLayout);
+}
+
+AMMotorGroupView::~AMMotorGroupView()
+{
 }
 
 AMMotorGroupView::AMMotorGroupView(AMMotorGroup *motorGroup, ViewMode viewMode, QWidget *parent)

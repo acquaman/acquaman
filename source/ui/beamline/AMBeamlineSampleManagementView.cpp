@@ -99,6 +99,10 @@ AMBeamlineSampleManagementView::AMBeamlineSampleManagementView(AMBeamline *beaml
 	connect(samplePlateBrowserView_, SIGNAL(samplePlateSelected(AMSamplePlate*)), AMSampleCamera::set(), SLOT(onSamplePlateLoaded(AMSamplePlate*)));
 }
 
+AMBeamlineSampleManagementView::~AMBeamlineSampleManagementView()
+{
+}
+
 void AMBeamlineSampleManagementView::requestAdvancedCameraOptionsWindow(){
 	if(cameraBrowserView_)
 		cameraBrowserView_->requestAdvancedCameraOptionsWindow();
