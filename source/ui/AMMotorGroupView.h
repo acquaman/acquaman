@@ -21,8 +21,9 @@ class AMMotorGroupObjectView : public QWidget
 
 public:
 	/// Constructor.  Builds a view based around the provided \param motorGroupObject.
- 	virtual ~AMMotorGroupObjectView();
 	explicit AMMotorGroupObjectView(AMMotorGroupObject *motorGroupObject, QWidget *parent = 0);
+
+	virtual ~AMMotorGroupObjectView();
 
 	/// Returns the AMMotorGroupObject that this view encapsulates.
 	AMMotorGroupObject *motorGroupObject() const { return motorGroupObject_; }
@@ -136,10 +137,11 @@ public:
 	enum ViewMode { Exclusive, Multiple };
 
 	/// Constructor.  Handles and builds all the views necessary for \param motorGroup.  Defaults to Exclusive view mode.
- 	virtual ~AMMotorGroupView();
 	explicit AMMotorGroupView(AMMotorGroup *motorGroup, QWidget *parent = 0);
 	/// Constructor.  Handles and builds all the views necessary for \param motorGroup, also defines which view mode should be used.
 	explicit AMMotorGroupView(AMMotorGroup *motorGroup, ViewMode viewMode, QWidget *parent = 0);
+
+	virtual ~AMMotorGroupView();
 
 	/// Returns the view mode of this widget.
 	ViewMode viewMode() const { return viewMode_; }

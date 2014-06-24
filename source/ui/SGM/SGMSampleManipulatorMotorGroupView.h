@@ -13,6 +13,8 @@ Q_OBJECT
 public:
 	SGMSampleManipulatorMotorGroupObjectView(AMMotorGroupObject *motorGroupObject, QWidget *parent = 0);
 
+	virtual ~SGMSampleManipulatorMotorGroupObjectView();
+
 protected slots:
 	/// Slot that handles going up.
 	virtual void onUpClicked();
@@ -54,6 +56,8 @@ class SGMSampleManipulatorMotorGroupView : public AMMotorGroupView
 Q_OBJECT
 public:
 	SGMSampleManipulatorMotorGroupView(AMMotorGroup *motorGroup, QWidget *parent = 0);
+
+	virtual ~SGMSampleManipulatorMotorGroupView();
 };
 
 #endif // SGMSAMPLEMANIPULATORMOTORGROUPVIEW_H
