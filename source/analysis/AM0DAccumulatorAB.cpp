@@ -97,26 +97,25 @@ AMNumber AM0DAccumulatorAB::value(const AMnDIndex &indexes) const
 
 bool AM0DAccumulatorAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
 {
-    if (indexStart.rank() != 1 || indexEnd.rank() != 1)
-        return false;
-
     if (!isValid())
         return false;
 
-    int start = indexStart.i();
-    int end = indexEnd.i();
-
-    if (start > end)
+    if (indexStart.rank() != 1 || indexEnd.rank() != 1)
         return false;
 
-    if (start < 0 || end < 0)
+    if (indexStart.i() < 0 || indexStart.i() >= dataStored_.size())
         return false;
 
-    if (start >= dataStored_.size() || end >= dataStored_.size())
+    if (indexEnd.i() < 0 || indexEnd.i() >= dataStored_.size())
         return false;
 
-    for (int i = 0; i <= end - start; i++) {
-        outputValues[i] = dataStored_.at(start + i);
+    if (indexStart.i() > indexEnd.i())
+        return false;
+
+    int totalPoints = indexStart.totalPointsTo(indexEnd);
+
+    for (int i = 0; i < totalPoints; i++) {
+        outputValues[i] = dataStored_.at(indexStart.i() + i);
     }
 
     return true;
@@ -168,19 +167,18 @@ void AM0DAccumulatorAB::onInputSourceValuesChanged(const AMnDIndex &start, const
     // update the values stored for this source. We assume the source is 0D, so the latest value is always recovered with an empty AMnDIndex.
     double newValue = sources_.at(0)->value(AMnDIndex());
 
-    // if we are less than the data stored max, append the new value to the end of the data stored list.
-    if (dataStored_.size() <= dataMax_) {
-        dataStored_.append(newValue);
-
-    } else {
+    // if we are greater than the data stored max, remove the first value from the list.
+    if (dataStored_.size() > dataMax_) {
         dataStored_.removeFirst();
-        dataStored_.append(newValue);
     }
+
+    dataStored_.append(newValue);
 
     // update the axes info for this data source to reflect the (possibly) new number of points to plot.
     axes_[0] = AMAxisInfo(sources_.at(0)->name(), dataStored_.size());
 
     emitValuesChanged(AMnDIndex(0), AMnDIndex(dataStored_.size() - 1));
+    emitAxisInfoChanged(0);
     emitSizeChanged();
 }
 
