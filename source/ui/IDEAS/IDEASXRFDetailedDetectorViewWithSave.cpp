@@ -103,6 +103,7 @@ void IDEASXRFDetailedDetectorViewWithSave::buildScanSaveViews()
 	rightLayout_->addWidget(notesEdit);
 
 	saveScanButton_ = new QPushButton("Save Scan");
+	saveScanButton_->setEnabled(false);
 
 	rightLayout_->addWidget(saveScanButton_);
 
@@ -114,6 +115,7 @@ void IDEASXRFDetailedDetectorViewWithSave::buildScanSaveViews()
 	connect(peakingTimeBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(onPeakingTimeBoxChanged(QString)));
 	connect(acquireButton_, SIGNAL(clicked(bool)),saveScanButton_, SLOT(setEnabled(bool)));
 	connect(IDEASBeamline::ideas()->ketek(), SIGNAL(acquisitionSucceeded()),this, SLOT(onAcquisitionSucceeded()));
+	connect(cancelButton_, SIGNAL(clicked()),this, SLOT(onAcquisitionSucceeded()));
 
 
 }
