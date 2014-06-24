@@ -889,7 +889,7 @@ protected:
 
 	// Extra AMDetectors for the various single controls added to scans.
 	AMDetector *energySetpointDetector_;
-	AMDetector *kEnergyDetector_;
+	AMDetector *energyFeedbackDetector_;
 	AMDetector *masterDwellTimeDetector_;
 	AMDetector *ringCurrentDetector_;
 	AMDetector *roperCCDFileNumberDetector_;

@@ -158,7 +158,7 @@ void AM1DKSpaceCalculatorAB::onInputSourceStateChanged() {
 
 void AM1DKSpaceCalculatorAB::reviewState(){
 
-	if(data_ == 0 || !data_->isValid()) {
+	if(data_ == 0 || !data_->isValid() || edgeEnergy_ <= 0) {
 		setState(AMDataSource::InvalidFlag);
 		return;
 	}
