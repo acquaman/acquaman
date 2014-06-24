@@ -1,6 +1,8 @@
 #ifndef IDEASPERSISTENTVIEW_H
 #define IDEASPERSISTENTVIEW_H
 
+#include "ui/AMBeamlineCameraWidgetWithSourceTabs.h"
+
 #include <QWidget>
 #include <QTimer>
 
@@ -83,6 +85,8 @@ protected:
     QProgressBar *I0Bar_;
     QProgressBar *ISampleBar_;
     QProgressBar *IReferenceBar_;
+
+    AMBeamlineCameraWidgetWithSourceTabs *cameraWidget;
 
 //    QTimer *crystalTimer_;
 

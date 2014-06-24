@@ -103,6 +103,13 @@ IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
     mainPanelLayout->addWidget(monoEnergyRange_);
     mainPanelLayout->addStretch();
 
+    QVBoxLayout *cameraPanelLayout = new QVBoxLayout;
+    cameraWidget = new AMBeamlineCameraWidgetWithSourceTabs(QUrl("http://v2e1608-102.clsi.ca/mjpg/2/video.mjpg"),"Sample 1",0,false);
+    cameraWidget->addSource("Sample 2", QUrl("http://v2e1608-102.clsi.ca/mjpg/3/video.mjpg"));
+    cameraWidget->addSource("Vacuum", QUrl("http://v2e1608-102.clsi.ca/mjpg/1/video.mjpg"));
+    cameraWidget->addSource("POE", QUrl("http://v2e1608-102.clsi.ca/mjpg/4/video.mjpg"));
+    cameraPanelLayout->addWidget(cameraWidget);
+
     QVBoxLayout *scalerPanelLayout = new QVBoxLayout;
     scalerPanelLayout->addWidget(new IDEASScalerView());
 
@@ -124,6 +131,9 @@ IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
     QGroupBox *persistentPanel = new QGroupBox("IDEAS Beamline");
     persistentPanel->setLayout(mainPanelLayout);
 
+    QGroupBox *cameraPanel = new QGroupBox("Camera Settings");
+    cameraPanel->setLayout(cameraPanelLayout);
+
     QGroupBox *scalerPanel = new QGroupBox("Preamp Settings");
     scalerPanel->setLayout(scalerPanelLayout);
 
@@ -132,6 +142,7 @@ IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
 
     QVBoxLayout *layout = new QVBoxLayout;
     layout->addWidget(persistentPanel);
+    layout->addWidget(cameraPanel);
     layout->addWidget(scalerPanel);
     //layout->addWidget(detectorPanel);
 
