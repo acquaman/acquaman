@@ -8,6 +8,7 @@
 #include "dataman/database/AMDbObjectSupport.h"
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
 #include "acquaman/AMEXAFSScanActionControllerAssembler.h"
+#include "analysis/AM1DKSpaceCalculatorAB.h"
 
 VESPERSXASScanActionController::~VESPERSXASScanActionController(){}
 
@@ -41,10 +42,10 @@ VESPERSXASScanActionController::VESPERSXASScanActionController(VESPERSEXAFSScanC
 	detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("MiniIonChamber")->toInfo());
 	detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("PostIonChamber")->toInfo());
 
-	detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("EnergySetpoint")->toInfo());
-	detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("KEnergy")->toInfo());
 	detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("MasterDwellTime")->toInfo());
 	detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("RingCurrent")->toInfo());
+	detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("EnergySetpoint")->toInfo());
+	detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("EnergyFeedback")->toInfo());
 
 	VESPERS::FluorescenceDetectors xrfDetector = configuration_->fluorescenceDetector();
 
@@ -83,6 +84,8 @@ VESPERSXASScanActionController::VESPERSXASScanActionController(VESPERSEXAFSScanC
 		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("FourElementVortexSlowPeaks4")->toInfo());
 	}
 
+	detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("KEnergy")->toInfo());
+
 	configuration_->setDetectorConfigurations(detectors);
 
 	secondsElapsed_ = 0;
@@ -99,6 +102,11 @@ VESPERSXASScanActionController::VESPERSXASScanActionController(VESPERSEXAFSScanC
 
 void VESPERSXASScanActionController::buildScanControllerImplementation()
 {
+	AM1DKSpaceCalculatorAB *kCalculator = new AM1DKSpaceCalculatorAB("k-Space");
+	kCalculator->setEdgeEnergy(configuration_->energy());
+	kCalculator->setInputDataSources(QList<AMDataSource *>() << scan_->rawDataSources()->at(scan_->indexOfDataSource("EnergyFeedback")));
+	scan_->addAnalyzedDataSource(kCalculator, false, true);
+
 	VESPERS::FluorescenceDetectors xrfDetector = configuration_->fluorescenceDetector();
 	AMXRFDetector *detector = 0;
 
@@ -113,7 +121,7 @@ void VESPERSXASScanActionController::buildScanControllerImplementation()
 		foreach (AMRegionOfInterest *region, detector->regionsOfInterest()){
 
 			AMRegionOfInterestAB *regionAB = (AMRegionOfInterestAB *)region->valueSource();
-			AMRegionOfInterestAB *newRegion = new AMRegionOfInterestAB(regionAB->name(), this);
+			AMRegionOfInterestAB *newRegion = new AMRegionOfInterestAB(regionAB->name());
 			newRegion->setBinningRange(regionAB->binningRange());
 			newRegion->setInputDataSources(QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource(detector->name())));
 			scan_->addAnalyzedDataSource(newRegion);

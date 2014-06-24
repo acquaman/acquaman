@@ -19,16 +19,22 @@ void AMEnergyToKSpaceCalculator::setEdgeEnergy(const AMNumber &edge)
 
 AMNumber AMEnergyToKSpaceCalculator::k(const AMNumber &energy) const
 {
-	if (edgeEnergy_.isValid())
+	if (edgeEnergy_.isValid() && double(energy) > double(edgeEnergy_))
 		return AMNumber(sqrt((double(energy)-double(edgeEnergy_))/3.810945497));
+
+	else if (edgeEnergy_.isValid())
+		return AMNumber(0.0);
 
 	return AMNumber();
 }
 
 AMNumber AMEnergyToKSpaceCalculator::k(const AMNumber &edgeEnergy, const AMNumber &energy)
 {
-	if (edgeEnergy.isValid() && energy.isValid())
+	if (edgeEnergy.isValid() && energy.isValid() && double(energy) > double(edgeEnergy))
 		return AMNumber(sqrt((double(energy)-double(edgeEnergy))/3.810945497));
+
+	else if (edgeEnergy.isValid() && energy.isValid())
+		return AMNumber(0.0);
 
 	return AMNumber();
 }
@@ -43,8 +49,16 @@ bool AMEnergyToKSpaceCalculator::kValues(const AMNumber &start, const AMNumber &
 		double energyEnd = double(end);
 		int points = int(round((energyEnd-energyStart)/energyStep));
 
-		for (int i = 0; i < points; i++)
-			kValues[i] = sqrt(((energyStart + i*energyStep) - edge)/3.810945497);
+		for (int i = 0; i < points; i++){
+
+			double energy = energyStart + i*energyStep;
+
+			if (energy > edge)
+				kValues[i] = sqrt(((energyStart + i*energyStep) - edge)/3.810945497);
+
+			else
+				kValues[i] = 0.0;
+		}
 
 		return true;
 	}
