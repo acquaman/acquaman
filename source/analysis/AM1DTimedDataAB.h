@@ -47,6 +47,8 @@ protected:
     int updateOffset_;
     AMDataSource *data_;
     AMDataSource *timestamps_;
+    QVector<double> values_;
+    QVector<double> times_;
 
 };
 

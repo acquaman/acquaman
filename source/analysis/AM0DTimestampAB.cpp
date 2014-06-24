@@ -269,25 +269,10 @@ void AM0DTimestampAB::reviewValuesChanged(const AMnDIndex &start, const AMnDInde
     if (timeFilteringEnabled_) {
         AMnDIndex newStart;
 
-//        for (int i = 0; i < totalPoints; i++) {
-//            newStart = AMnDIndex(end.i() - i);
-
-//            qDebug() << "AM0DTimestampAB : testing start index" << newStart.i();
-
-//            double indexValue = (double)value(newStart);
-//            qDebug() << "AM0DTimestampAB : value at start index" << indexValue;
-
-//            if (qAbs(indexValue) > qAbs(timeValue_)) {
-//                qDebug() << "AM0DTimestampAB : start index" << newStart.i() << "exceeds time value limit.";
-//                newStart = AMnDIndex()
-//                break;
-//            }
-//        }
-
         bool newStartFound = false;
         int i = 0;
 
-        while (!newStartFound || i < totalPoints) {
+        while (!newStartFound && i < totalPoints) {
 
             qDebug() << "AM0DTimestampAB : testing start index" << i;
 
@@ -295,7 +280,7 @@ void AM0DTimestampAB::reviewValuesChanged(const AMnDIndex &start, const AMnDInde
             qDebug() << "AM0DTimestampAB : value at start index" << indexValue;
 
             if (qAbs(indexValue) > qAbs(timeValue_)) {
-                qDebug() << "AM0DTimestampAB : start index" << newStart.i() << "exceeds time value limit.";
+                qDebug() << "AM0DTimestampAB : start index" << i << "exceeds time value limit.";
                 newStart = AMnDIndex(end.i() - i + 1);
                 newStartFound = true;
             }

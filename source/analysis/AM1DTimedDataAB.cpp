@@ -7,6 +7,9 @@ AM1DTimedDataAB::AM1DTimedDataAB(const QString &outputName, QObject *parent) : A
     data_ = 0;
     timestamps_ = 0;
 
+    values_ = QVector<double>();
+    times_ = QVector<double>();
+
     axes_ << AMAxisInfo("invalid", 0, "No input data");
     setState(AMDataSource::InvalidFlag);
 }
