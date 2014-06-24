@@ -44,29 +44,46 @@ REIXSSidebar::REIXSSidebar(QWidget *parent) :
 	beamlineEnergyEditor_ = new REIXSActionBasedControlEditor(REIXSBeamline::bl()->photonSource()->energy());
 	ui->beamlineFormLayout->setWidget(1, QFormLayout::FieldRole, beamlineEnergyEditor_);
 
-	monoSlitEditor_ = new REIXSActionBasedControlEditor(REIXSBeamline::bl()->photonSource()->monoSlit());
-	ui->beamlineFormLayout->setWidget(5, QFormLayout::FieldRole, monoSlitEditor_);
-
-	gratingSelector_ = new REIXSActionBasedControlEditor(REIXSBeamline::bl()->photonSource()->monoGratingSelector());
-	ui->beamlineFormLayout->setWidget(3, QFormLayout::FieldRole, gratingSelector_);
-	mirrorSelector_ = new REIXSActionBasedControlEditor(REIXSBeamline::bl()->photonSource()->monoMirrorSelector());
-	ui->beamlineFormLayout->setWidget(4, QFormLayout::FieldRole, mirrorSelector_);
-
-	epuPolarizationEditor_ = new REIXSActionBasedControlEditor(REIXSBeamline::bl()->photonSource()->epuPolarization());
-	ui->beamlineFormLayout->setWidget(6, QFormLayout::FieldRole, epuPolarizationEditor_);
-	epuPolarizationAngleEditor_ = new REIXSActionBasedControlEditor(REIXSBeamline::bl()->photonSource()->epuPolarizationAngle());
-	ui->beamlineFormLayout->setWidget(7, QFormLayout::FieldRole, epuPolarizationAngleEditor_);
-
 	userEnergyOffestEditor_ = new REIXSActionBasedControlEditor(REIXSBeamline::bl()->photonSource()->userEnergyOffset());
 	ui->beamlineFormLayout->setWidget(2, QFormLayout::FieldRole, userEnergyOffestEditor_);
 
-//	QVBoxLayout *DetectorPanelLayout = new QVBoxLayout;
+//	gratingSelector_ = new REIXSActionBasedControlEditor(REIXSBeamline::bl()->photonSource()->monoGratingSelector());
+//	ui->beamlineFormLayout->setWidget(3, QFormLayout::FieldRole, gratingSelector_);
+//	mirrorSelector_ = new REIXSActionBasedControlEditor(REIXSBeamline::bl()->photonSource()->monoMirrorSelector());
+//	ui->beamlineFormLayout->setWidget(4, QFormLayout::FieldRole, mirrorSelector_);
 
-//	DetectorPanelLayout->addWidget(new REIXSScalerView());
-//	DetectorPanelLayout->addLayout(ui->gridLayout);
+	monoSlitEditor_ = new REIXSActionBasedControlEditor(REIXSBeamline::bl()->photonSource()->monoSlit());
+	ui->beamlineFormLayout->setWidget(3, QFormLayout::FieldRole, monoSlitEditor_);
+
+	epuPolarizationEditor_ = new REIXSActionBasedControlEditor(REIXSBeamline::bl()->photonSource()->epuPolarization());
+	ui->beamlineFormLayout->setWidget(4, QFormLayout::FieldRole, epuPolarizationEditor_);
+	epuPolarizationAngleEditor_ = new REIXSActionBasedControlEditor(REIXSBeamline::bl()->photonSource()->epuPolarizationAngle());
+	ui->beamlineFormLayout->setWidget(5, QFormLayout::FieldRole, epuPolarizationAngleEditor_);
+
+
+
+	detectorsGroupBox = new QGroupBox("Detector Signals:");
+
+	detectorPanelLayout = new QVBoxLayout();
+
+	XESValue = new QLabel("XES:\t\t0 counts");
+	XESValue->setFixedHeight(35);
+	TFYValue = new QLabel("TFY:\t\t0 counts");
+	TFYValue->setFixedHeight(35);
+	scalerContinuousButton = new QCheckBox("Enable Real-Time Updates");
+	scalerContinuousButton->setChecked(REIXSBeamline::bl()->scaler()->isContinuous());
+	detectorPanelLayout->addWidget(XESValue);
+	detectorPanelLayout->addWidget(TFYValue);
+	detectorPanelLayout->addWidget(new REIXSScalerView());
+	detectorPanelLayout->addWidget(scalerContinuousButton);
+	detectorsGroupBox->setLayout(detectorPanelLayout);
+	ui->verticalLayout->addWidget(detectorsGroupBox);
+
+	//	DetectorPanelLayout->addLayout(ui->gridLayout);
 //	ui->gridLayout->addWidget(new REIXSScalerView(),1,1,2,2);
 //	ui->detectorSignalsGroupBox->setLayout(DetectorPanelLayout);
-	ui->verticalLayout->addWidget(new REIXSScalerView());
+//	ui->verticalLayout->addWidget(new REIXSScalerView());
+
 
 
 
@@ -80,13 +97,13 @@ REIXSSidebar::REIXSSidebar(QWidget *parent) :
 	connect(ui->beamOnButton, SIGNAL(clicked()), this, SLOT(onBeamOnButtonClicked()));
 	connect(ui->beamOffButton, SIGNAL(clicked()), this, SLOT(onBeamOffButtonClicked()));
 
-	connect(ui->scalerContinuousButton, SIGNAL(clicked(bool)), this, SLOT(onScalerContinuousButtonToggled(bool)));
+	connect(scalerContinuousButton, SIGNAL(clicked(bool)), this, SLOT(onScalerContinuousButtonToggled(bool)));
 	connect(REIXSBeamline::bl()->xasDetectors()->scalerContinuousMode(), SIGNAL(valueChanged(double)), this, SLOT(onScalerContinuousModeChanged(double)));
 
 	connect(ui->MonoStopButton, SIGNAL(clicked()), this, SLOT(on_MonoStopButton_clicked()));
 
-	connect(REIXSBeamline::bl()->xasDetectors()->TEYFeedback(), SIGNAL(valueChanged(double)), this, SLOT(onTEYCountsChanged(double)));
-//	connect(REIXSBeamline::bl()->xasDetectors()->TFYFeedback(), SIGNAL(valueChanged(double)), this, SLOT(onTFYCountsChanged(double)));
+//	connect(REIXSBeamline::bl()->xasDetectors()->TEYFeedback(), SIGNAL(valueChanged(double)), this, SLOT(onTEYCountsChanged(double)));
+	connect(REIXSBeamline::bl()->xasDetectors()->TFYFeedback(), SIGNAL(valueChanged(double)), this, SLOT(onTFYCountsChanged(double)));
 //	connect(REIXSBeamline::bl()->xasDetectors()->I0Feedback(), SIGNAL(valueChanged(double)), this, SLOT(onI0CountsChanged(double)));
 
 	connect(REIXSBeamline::bl()->photonSource()->ringCurrent(), SIGNAL(valueChanged(double)), this, SLOT(onRingCurrentChanged(double)));
@@ -104,12 +121,15 @@ REIXSSidebar::~REIXSSidebar()
 
 void REIXSSidebar::onMCPCountsPerSecondChanged(double countsPerSecond)
 {
-	ui->signalXESValue->setText(QString("%1").arg(countsPerSecond, 0, 'f', 0));
+	//ui->signalXESValue->setText(QString("%1").arg(countsPerSecond, 0, 'f', 0));
+	//ui->signalXESValue->setText(QLocale(QLocale::English).toString(countsPerSecond, 'f', 0));
+	XESValue->setText("XES\t\t" + QLocale(QLocale::English).toString(countsPerSecond, 'f', 0) + " counts");
 
-	if(countsPerSecond == 0)
-		countsPerSecond = 1;	// log(0) is undefined.
+//	if(countsPerSecond == 0)
+//		countsPerSecond = 1;	// log(0) is undefined.
 
-	ui->signalXESBar->setValue(int(log10(countsPerSecond)*100));	// integer scale goes up to 600.  Highest count rate we'll see is 1e6.
+	//ui->signalXESBar->setValue(int(log10(countsPerSecond)*100));	// integer scale goes up to 600.  Highest count rate we'll see is 1e6.
+
 
 }
 
@@ -151,8 +171,11 @@ void REIXSSidebar::onBeamOnChanged(bool isOn)
 
 void REIXSSidebar::onTFYCountsChanged(double counts)
 {
-	ui->signalTFYBar->setValue(int(counts*600./1.e6));
-	ui->signalTFYValue->setText(QString::number(counts, 'e', 2));
+	//ui->signalTFYBar->setValue(int(counts*600./1.e6));
+	//ui->signalTFYValue->setText(QString::number(counts, 'e', 2));
+	//ui->signalTFYValue->setText(QLocale(QLocale::English).toString(counts, 'f', 0));
+	TFYValue->setText("TFY\t\t" + QLocale(QLocale::English).toString(counts, 'f', 0) + " counts");
+
 }
 
 //void REIXSSidebar::onI0CountsChanged(double counts)
@@ -173,7 +196,7 @@ void REIXSSidebar::onScalerContinuousButtonToggled(bool on)
 
 void REIXSSidebar::onScalerContinuousModeChanged(double on)
 {
-	ui->scalerContinuousButton->setChecked(bool(on));
+	scalerContinuousButton->setChecked(bool(on));
 }
 
 void REIXSSidebar::on_MonoStopButton_clicked()

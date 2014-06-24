@@ -21,6 +21,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define REIXSSIDEBAR_H
 
 #include <QWidget>
+#include <QGroupBox>
+#include <QVBoxLayout>
+#include <QLabel>
+#include <QCheckBox>
 
 namespace Ui {
     class REIXSSidebar;
@@ -39,6 +43,11 @@ public:
 
 private:
     Ui::REIXSSidebar *ui;
+	QGroupBox *detectorsGroupBox;
+	QVBoxLayout *detectorPanelLayout;
+	QCheckBox *scalerContinuousButton;
+	QLabel *XESValue;
+	QLabel *TFYValue;
 
 	// Additional UI controls
 	REIXSActionBasedControlEditor* beamlineEnergyEditor_, *userEnergyOffestEditor_, *monoSlitEditor_, *gratingSelector_, *mirrorSelector_, *epuPolarizationEditor_, *epuPolarizationAngleEditor_;

@@ -788,7 +788,7 @@ AMControl::FailureExplanation REIXSBrokenMonoControl::move(double setpoint)
 				while(movePoint_ < lowEnergyThreshold_) {
 					movePoint_ = movePoint_ + lowEnergyStepSize_;
 					moveAction_->addSubAction(AMActionSupport::buildControlMoveAction(control_, movePoint_));
-					qDebug() << "below lowEnergySetpoint moving up to " << movePoint_;
+					//qDebug() << "below lowEnergySetpoint moving up to " << movePoint_;
 				}
 
 
@@ -801,12 +801,12 @@ AMControl::FailureExplanation REIXSBrokenMonoControl::move(double setpoint)
 				for(int i=0; i<repeatMoveAttempts_; ++i) {
 							moveAction_->addSubAction(AMActionSupport::buildControlMoveAction(control_, movePoint_));
 					}
-					qDebug() << "above lowEnergySetpoint moving to " << movePoint_;
+					//qDebug() << "above lowEnergySetpoint moving to " << movePoint_;
 
 				while(movePoint_ - setpoint_ > lowEnergyStepSize_) {
 					movePoint_ = movePoint_ - lowEnergyStepSize_;
 					moveAction_->addSubAction(AMActionSupport::buildControlMoveAction(control_, movePoint_));
-					qDebug() << "above lowEnergySetpoint moving into " << movePoint_;
+					//qDebug() << "above lowEnergySetpoint moving into " << movePoint_;
 				}
 
 
@@ -818,7 +818,7 @@ AMControl::FailureExplanation REIXSBrokenMonoControl::move(double setpoint)
 				while(setpoint_ - movePoint_ > lowEnergyStepSize_) {
 					movePoint_ = movePoint_ + lowEnergyStepSize_;
 					moveAction_->addSubAction(AMActionSupport::buildControlMoveAction(control_, movePoint_));
-					qDebug() << "below lowEnergySetpoint moving up within " << movePoint_;
+					//qDebug() << "below lowEnergySetpoint moving up within " << movePoint_;
 				}
 
 			}
@@ -829,7 +829,7 @@ AMControl::FailureExplanation REIXSBrokenMonoControl::move(double setpoint)
 				while(movePoint_ - setpoint_ > lowEnergyStepSize_) {
 					movePoint_ = movePoint_ - lowEnergyStepSize_;
 					moveAction_->addSubAction(AMActionSupport::buildControlMoveAction(control_, movePoint_));
-					qDebug() << "below lowEnergySetpoint moving down within " << movePoint_;
+					//qDebug() << "below lowEnergySetpoint moving down within " << movePoint_;
 				}
 
 			}
@@ -838,7 +838,7 @@ AMControl::FailureExplanation REIXSBrokenMonoControl::move(double setpoint)
 
 			for(int i=0; i<repeatMoveAttempts_; ++i) {
 						moveAction_->addSubAction(AMActionSupport::buildControlMoveAction(control_, setpoint_));
-						qDebug() << "Fallthrough " << setpoint_;
+						//qDebug() << "Fallthrough " << setpoint_;
 				}
 
 
@@ -849,7 +849,7 @@ AMControl::FailureExplanation REIXSBrokenMonoControl::move(double setpoint)
 		control_->setSettlingTime(0);
 		setTolerance(AMCONTROL_TOLERANCE_DONT_CARE);
 		moveAction_->addSubAction(AMActionSupport::buildControlMoveAction(control_, setpoint_));
-		qDebug() << "Small move " << setpoint_;
+		//qDebug() << "Small move " << setpoint_;
 	}
 
 	/// \todo Low-energy moves

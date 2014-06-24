@@ -21,7 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui_REIXSXASScanConfigurationView.h"
 
 #include "ui/AMTopFrame2.h"
-#include "ui/acquaman/AMRegionsView.h"
+#include "ui/dataman/AMStepScanAxisView.h"
 #include "ui/dataman/AMSamplePre2013Selector.h"
 #include "util/AMDateTimeUtils.h"
 #include <QStringBuilder>
@@ -42,7 +42,7 @@ REIXSXASScanConfigurationView::REIXSXASScanConfigurationView(REIXSXASScanConfigu
 	topFrame_ = new AMTopFrame2("Setup XAS Scan", QIcon(":/utilities-system-monitor.png"));
 	ui->outerVLayout->insertWidget(0, topFrame_);
 
-	ui->innerVLayout->insertWidget(0, new AMRegionsView(config_->regions()));
+	ui->innerVLayout->insertWidget(0, new AMStepScanAxisView("Region Configuration", config_));
 	ui->innerVLayout->addStretch();
 
 	sampleSelector_ = new AMSamplePre2013Selector(AMDatabase::database("user"));
@@ -112,7 +112,12 @@ REIXSXASScanConfigurationView::REIXSXASScanConfigurationView(REIXSXASScanConfigu
 //	connect(ui->namedAutomaticallyBox, SIGNAL(clicked(bool)), ui->numberEdit, SLOT(setDisabled(bool)));
 	connect(ui->namedAutomaticallyBox, SIGNAL(clicked(bool)), sampleSelector_, SLOT(setDisabled(bool)));
 
-	connect(config_->regions(), SIGNAL(regionsChanged()), this, SLOT(onRegionsChanged()));
+	connect(config_, SIGNAL(totalTimeChanged(double)), this, SLOT(onEstimatedTimeChanged()));
+	connect(config_, SIGNAL(scanAxisAdded(AMScanAxis*)), this, SLOT(onEstimatedTimeChanged()));
+	connect(config_, SIGNAL(scanAxisRemoved(AMScanAxis*)), this, SLOT(onEstimatedTimeChanged()));
+	connect(config_, SIGNAL(modifiedChanged(bool)), this, SLOT(onEstimatedTimeChanged()));
+	connect(config_, SIGNAL(configurationChanged()), this, SLOT(onEstimatedTimeChanged()));
+
 	onRegionsChanged();
 }
 
@@ -128,7 +133,51 @@ void REIXSXASScanConfigurationView::reviewPolarizationAngleBoxEnabled()
 
 void REIXSXASScanConfigurationView::onRegionsChanged()
 {
-	QDateTime t1 = QDateTime::currentDateTime();
-	topFrame_->setLeftSubText("Expected acquisition time: " % AMDateTimeUtils::prettyDuration(t1, t1.addSecs(config_->regions()->totalAcquisitionTime())));
+	config_->totalTime(true);
+	//	QDateTime t1 = QDateTime::currentDateTime();
+	//	topFrame_->setLeftSubText("Expected acquisition time: " % AMDateTimeUtils::prettyDuration(t1, t1.addSecs(config_->regions()->totalAcquisitionTime())));
+
+}
+
+void REIXSXASScanConfigurationView::onEstimatedTimeChanged()
+{
+	QString timeString = "";
+
+	config_->blockSignals(true);
+	double time = config_->totalTime(true);
+	config_->blockSignals(false);
+
+	ui->totalPointsLabel->setText(QString("%1").arg(config_->totalPoints()));
+
+	int days = int(time/3600.0/24.0);
+
+	if (days > 0){
+
+		time -= days*3600.0*24;
+		timeString += QString::number(days) + "d:";
+	}
+
+	int hours = int(time/3600.0);
+
+	if (hours > 0){
+
+		time -= hours*3600;
+		timeString += QString::number(hours) + "h:";
+	}
+
+	int minutes = int(time/60.0);
+
+	if (minutes > 0){
+
+		time -= minutes*60;
+		timeString += QString::number(minutes) + "m:";
+	}
+
+	int seconds = ((int)time)%60;
+	timeString += QString::number(seconds) + "s";
+
+	ui->estimatedTimeLabel->setText(timeString);
+	topFrame_->setLeftSubText("Expected acquisition time: " % timeString);
+
 
 }
