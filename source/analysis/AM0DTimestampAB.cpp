@@ -249,43 +249,75 @@ double AM0DTimestampAB::convertMS(double msecVal, TimeUnits newUnit) const
 
 void AM0DTimestampAB::reviewValuesChanged(const AMnDIndex &start, const AMnDIndex &end)
 {
-    if (start.i() != 0) {
-        qDebug() << "AM0DTimestampAB : start index to be emitted is not zero.";
+    if (end.i() != dataStored_.size() - 1) {
+        qDebug() << "AM0DTimestampAB : end index to be emitted is not the last index of dataStored.";
         return;
     }
 
-    if (start.totalPointsTo(end) > dataStored_.size()) {
+    int totalPoints = start.totalPointsTo(end);
+
+    if (totalPoints > dataStored_.size()) {
         qDebug() << "AM0DTimestampAB : cannot emit indices that exceed the number of data points stored.";
         return;
     }
 
+    if (totalPoints <= 0) {
+        qDebug() << "AM0DTimestampAB : cannot emit indices with totalPoints <= zero.";
+        return;
+    }
+
     if (timeFilteringEnabled_) {
+        AMnDIndex newStart;
 
-        int totalPoints = start.totalPointsTo(end);
-        AMnDIndex newEnd = AMnDIndex(0);
+//        for (int i = 0; i < totalPoints; i++) {
+//            newStart = AMnDIndex(end.i() - i);
 
-        for (int i = 0; i < totalPoints; i++) {
-            newEnd = AMnDIndex(i);
+//            qDebug() << "AM0DTimestampAB : testing start index" << newStart.i();
 
-            if ((double)value(newEnd) > timeValue_) {
-                break;
-            }
-        }
+//            double indexValue = (double)value(newStart);
+//            qDebug() << "AM0DTimestampAB : value at start index" << indexValue;
 
-//        if (newEnd.i() == 0 && totalPoints > 2) {
-//            qDebug() << "AM0DTimestampAB : there are no data points within the time filter range.";
-//            return;
+//            if (qAbs(indexValue) > qAbs(timeValue_)) {
+//                qDebug() << "AM0DTimestampAB : start index" << newStart.i() << "exceeds time value limit.";
+//                newStart = AMnDIndex()
+//                break;
+//            }
 //        }
 
-        axes_[0] = AMAxisInfo(sources_.at(0)->name(), newEnd.i());
+        bool newStartFound = false;
+        int i = 0;
 
-        emitValuesChanged(start, newEnd);
+        while (!newStartFound || i < totalPoints) {
+
+            qDebug() << "AM0DTimestampAB : testing start index" << i;
+
+            double indexValue = (double)value(AMnDIndex(end.i() - i));
+            qDebug() << "AM0DTimestampAB : value at start index" << indexValue;
+
+            if (qAbs(indexValue) > qAbs(timeValue_)) {
+                qDebug() << "AM0DTimestampAB : start index" << newStart.i() << "exceeds time value limit.";
+                newStart = AMnDIndex(end.i() - i + 1);
+                newStartFound = true;
+            }
+
+            i++;
+        }
+
+        if (!newStartFound) {
+            newStart = start;
+        }
+
+        qDebug() << "AM0DTimestampAB // start index :" << newStart.i() << ", end index :" << end.i();
+
+        axes_[0] = AMAxisInfo(sources_.at(0)->name(), end.i() - newStart.i());
+
+        emitValuesChanged(newStart, end);
         emitAxisInfoChanged(0);
         emitSizeChanged(0);
 
     } else {
 
-        axes_[0] = AMAxisInfo(sources_.at(0)->name(), end.i());
+        axes_[0] = AMAxisInfo(sources_.at(0)->name(), end.i() - start.i());
 
         emitValuesChanged(start, end);
         emitAxisInfoChanged(0);

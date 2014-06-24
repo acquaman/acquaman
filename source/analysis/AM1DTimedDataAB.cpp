@@ -137,7 +137,6 @@ void AM1DTimedDataAB::onDataSourceValuesChanged(const AMnDIndex &start, const AM
 
     updateOffset_++;
     qDebug() << "AM1DTimedDataAB : data source update.";
-//    reviewValuesChanged(start, end);
 }
 
 void AM1DTimedDataAB::onTimeSourceValuesChanged(const AMnDIndex &start, const AMnDIndex &end)
@@ -158,6 +157,8 @@ void AM1DTimedDataAB::reviewValuesChanged(const AMnDIndex &start, const AMnDInde
         qDebug() << "Sources are not updating properly--not in lockstep.";
         return;
     }
+
+    qDebug() << "AM1DTimedDataAB :" << end.i() - start.i() << "values changed.";
 
     axes_[0] = AMAxisInfo(sources_.at(0)->name(), end.i() - start.i());
 
