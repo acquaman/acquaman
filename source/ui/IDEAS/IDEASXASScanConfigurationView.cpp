@@ -347,6 +347,16 @@ void IDEASXASScanConfigurationView::onEstimatedTimeChanged()
     double time = configuration_->totalTime(true);
     configuration_->blockSignals(false);
 
+    if (time < 0)
+    {
+	estimatedTime_->setText("WARNING!     SCAN CONFIGURATION IS INVALID     START OR QUEUE SCAN AT YOUR OWN RISK!     WARNING!");
+	estimatedSetTime_->setText("WARNING!     SCAN CONFIGURATION IS INVALID     START OR QUEUE SCAN AT YOUR OWN RISK!     WARNING!");
+	pointPerScan_->setText("WARNING!     SCAN CONFIGURATION IS INVALID     START OR QUEUE SCAN AT YOUR OWN RISK!     WARNING!");
+	scanEnergyRange_->setText("WARNING!     SCAN CONFIGURATION IS INVALID     START OR QUEUE SCAN AT YOUR OWN RISK!     WARNING!");
+	return;
+    }
+
+
     pointPerScan_->setText(QString("%1 points per scan").arg(configuration_->totalPoints()));
     scanEnergyRange_->setText(QString("from %1 to %2 eV").arg(configuration_->minEnergy()).arg(configuration_->maxEnergy()));
 

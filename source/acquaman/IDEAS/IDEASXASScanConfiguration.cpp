@@ -135,21 +135,45 @@ void IDEASXASScanConfiguration::computeTotalTimeImplementation()
 
 	    AMScanAxisEXAFSRegion *exafsRegion = qobject_cast<AMScanAxisEXAFSRegion *>(region);
 	    int numberOfPoints = int((double(exafsRegion->regionEnd()) - double(exafsRegion->regionStart()))/double(exafsRegion->regionStep()) + 1);
-	    totalPoints_ += numberOfPoints;
-	    if (exafsRegion->inKSpace() && exafsRegion->maximumTime().isValid()){
 
-		    maxEnergy_ = AMEnergyToKSpaceCalculator::energy(energy_, exafsRegion->regionEnd());
-		    QVector<double> regionTimes = QVector<double>(numberOfPoints);
-		    AMVariableIntegrationTime calculator(exafsRegion->equation(), exafsRegion->regionTime(), exafsRegion->maximumTime(), exafsRegion->regionStart(), exafsRegion->regionStep(), exafsRegion->regionEnd(), exafsRegion->a2());
-		    calculator.variableTime(regionTimes.data());
+	    if (numberOfPoints > 0) totalPoints_ += numberOfPoints;
 
-		    for (int i = 0; i < numberOfPoints; i++)
-			    time = time + regionTimes.at(i) + 0.54;
+	    if (exafsRegion->inKSpace()){
+		if (exafsRegion->maximumTime().isValid() &&
+			double(exafsRegion->maximumTime()) > double(exafsRegion->regionTime()) &&
+			double(exafsRegion->regionTime()) > 0 &&
+			double(exafsRegion->regionStep()) > 0 &&
+			double(exafsRegion->regionEnd()) > double(exafsRegion->regionStart())){
+		maxEnergy_ = AMEnergyToKSpaceCalculator::energy(energy_, exafsRegion->regionEnd());
+		QVector<double> regionTimes = QVector<double>(numberOfPoints);
+		AMVariableIntegrationTime calculator(exafsRegion->equation(), exafsRegion->regionTime(), exafsRegion->maximumTime(), exafsRegion->regionStart(), exafsRegion->regionStep(), exafsRegion->regionEnd(), exafsRegion->a2());
+		calculator.variableTime(regionTimes.data());
+
+		for (int i = 0; i < numberOfPoints; i++)
+			time = time + regionTimes.at(i) + 0.54;
+		}
+		else {
+		    totalTime_ = -1; //negative value used to trigger feedback to user in IDEASXASScanConfigurationView... Hope this doesn't cause an issue elsewhere.
+		    setExpectedDuration(totalTime_);
+		    emit totalTimeChanged(totalTime_);
+		    return;
+		}
 	    }
 
+
 	    else{
+
 		maxEnergy_ = exafsRegion->regionEnd();
-		time += (0.54 + double(exafsRegion->regionTime()))*numberOfPoints;
+		if (double(exafsRegion->regionTime()) > 0 &&
+			double(exafsRegion->regionStep()) > 0 &&
+			double(exafsRegion->regionEnd()) > double(exafsRegion->regionStart()))
+		    time += (0.52 + double(exafsRegion->regionTime()))*numberOfPoints;
+		else {
+		    totalTime_ = -1; //negative value used to trigger feedback to user in IDEASXASScanConfigurationView... Hope this doesn't cause an issue elsewhere.
+		    setExpectedDuration(totalTime_);
+		    emit totalTimeChanged(totalTime_);
+		    return;
+		}
 	    }
     }
 
