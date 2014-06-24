@@ -84,8 +84,6 @@ VESPERSXASScanActionController::VESPERSXASScanActionController(VESPERSEXAFSScanC
 		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("FourElementVortexSlowPeaks4")->toInfo());
 	}
 
-	detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("KEnergy")->toInfo());
-
 	configuration_->setDetectorConfigurations(detectors);
 
 	secondsElapsed_ = 0;
