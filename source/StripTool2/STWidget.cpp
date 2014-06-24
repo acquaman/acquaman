@@ -4,10 +4,9 @@
 
 STWidget::STWidget(QWidget *parent) : QWidget(parent)
 {
-    dataCount_ = 0;
-
     ringCurrentControl_ = new AMProcessVariable("PCT1402-01:mA:fbk", true, this);
     connect( ringCurrentControl_, SIGNAL(valueChanged(double)), this, SLOT(onRingCurrentValueChanged(double)) );
+    connect( ringCurrentControl_, SIGNAL(connected(bool)), this, SLOT(onRingCurrentConnected(bool)) );
 
     data_ = new AM0DAccumulatorAB("RingCurrent", this);
     data_->setDataStoredCountMax(50);
@@ -16,8 +15,8 @@ STWidget::STWidget(QWidget *parent) : QWidget(parent)
     times_ = new AM0DTimestampAB("Timestamps", this);
     times_->setDataStoredCountMax(50);
     times_->setTimeUnits(AM0DTimestampAB::Seconds);
-    times_->setTimeValue(10);
-    times_->enableTimeFiltering(true);
+    times_->setTimeValue(-10);
+    times_->enableTimeFiltering(false);
     times_->setInputDataSources(QList<AMDataSource*>() << new AM0DProcessVariableDataSource(ringCurrentControl_, "SR1 Current", this));
 
     timedData_ = new AM1DTimedDataAB("TimedData", this);
@@ -40,8 +39,8 @@ STWidget::STWidget(QWidget *parent) : QWidget(parent)
     plot_->axisBottom()->setAxisName("Time");
     plot_->axisLeft()->setAxisName("Storage ring current [mA]");
 
-    // add series to plot.
-    plot_->addItem(ringCurrentSeries2_);
+//    // add series to plot.
+//    plot_->addItem(ringCurrentSeries2_);
 
     // create plot window
     plotWidget_ = new MPlotWidget(this);
@@ -61,6 +60,14 @@ STWidget::STWidget(QWidget *parent) : QWidget(parent)
 STWidget::~STWidget()
 {
 
+}
+
+void STWidget::onRingCurrentConnected(bool isConnected)
+{
+    if (isConnected) {
+        // add series to plot.
+        plot_->addItem(ringCurrentSeries2_);
+    }
 }
 
 void STWidget::onRingCurrentValueChanged(double newValue)

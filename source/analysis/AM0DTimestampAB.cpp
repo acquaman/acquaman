@@ -272,10 +272,10 @@ void AM0DTimestampAB::reviewValuesChanged(const AMnDIndex &start, const AMnDInde
             }
         }
 
-        if (newEnd.i() == 0 && totalPoints > 1) {
-            qDebug() << "AM0DTimestampAB : there are no data points within the time filter range.";
-            return;
-        }
+//        if (newEnd.i() == 0 && totalPoints > 2) {
+//            qDebug() << "AM0DTimestampAB : there are no data points within the time filter range.";
+//            return;
+//        }
 
         axes_[0] = AMAxisInfo(sources_.at(0)->name(), newEnd.i());
 

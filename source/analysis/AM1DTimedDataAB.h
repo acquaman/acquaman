@@ -28,6 +28,8 @@ public:
 
     virtual AMNumber axisValue(int axisNumber, int index) const;
 
+    virtual bool loadFromDb(AMDatabase *db, int id);
+
 signals:
 
 public slots:

@@ -27,11 +27,10 @@ public:
     ~STWidget();
 
 protected slots:
+    void onRingCurrentConnected(bool isConnected);
     void onRingCurrentValueChanged(double newValue);
 
 protected:
-    int dataCount_;
-
     AMProcessVariable *ringCurrentControl_;
     QLabel *ringCurrentLabel_;
 
