@@ -7,6 +7,7 @@
 #include "beamline/AMProcessVariable.h"
 #include "analysis/AM0DAccumulatorAB.h"
 #include "analysis/AM0DTimestampAB.h"
+#include "analysis/AM1DTimedDataAB.h"
 #include "dataman/datasource/AMDataSourceSeriesData.h"
 #include "dataman/datasource/AMProcessVariableDataSource.h"
 
@@ -24,7 +25,7 @@ public:
 
 
 signals:
-    void variableConnected(bool isConnected);
+    void connected(bool isConnected);
 
 public slots:
 
@@ -33,8 +34,10 @@ protected slots:
 
 protected:
     AMProcessVariable *pv_;
+
     AM0DAccumulatorAB *data_;
     AM0DTimestampAB *times_;
+    AM1DTimedDataAB *timedData_;
 
     AMDataSourceSeriesData *seriesData_;
     MPlotSeriesBasic *series_;

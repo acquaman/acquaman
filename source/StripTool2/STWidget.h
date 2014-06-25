@@ -6,11 +6,7 @@
 #include <QLayout>
 
 #include "beamline/AMPVControl.h"
-#include "source/analysis/AM0DAccumulatorAB.h"
-#include "source/analysis/AM0DTimestampAB.h"
-#include "analysis/AM1DTimedDataAB.h"
-#include "dataman/datasource/AMDataSourceSeriesData.h"
-#include "dataman/datasource/AMProcessVariableDataSource.h"
+#include "STVariable.h"
 
 #include "MPlot/MPlotSeriesData.h"
 #include "MPlot/MPlotWidget.h"
@@ -33,12 +29,7 @@ protected:
     AMProcessVariable *ringCurrentControl_;
     QLabel *ringCurrentLabel_;
 
-    AM0DAccumulatorAB *data_;
-    AM0DTimestampAB *times_;
-    AM1DTimedDataAB *timedData_;
-    AMDataSourceSeriesData *ringCurrentModel2_;
-
-    MPlotSeriesBasic *ringCurrentSeries2_;
+    STVariable *ringCurrent_;
 
     MPlotWidget *plotWidget_;
     MPlot *plot_;

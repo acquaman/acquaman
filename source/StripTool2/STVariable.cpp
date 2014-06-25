@@ -3,14 +3,31 @@
 STVariable::STVariable(const QString &name, QObject *parent) :
     QObject(parent)
 {
-    Q_UNUSED(name)
+    pv_ = new AMProcessVariable(name, true, this);
 
-    pv_ = 0;
-    data_ = 0;
-    times_ = 0;
+    data_ = new AM0DAccumulatorAB("PVData", this);
+    data_->setDataStoredCountMax(50);
+    data_->setInputDataSources(QList<AMDataSource*>() << new AM0DProcessVariableDataSource(pv_, pv_->pvName(), this));
 
-    seriesData_ = 0;
-    series_ = 0;
+    times_ = new AM0DTimestampAB("Timestamps", this);
+    times_->setDataStoredCountMax(50);
+    times_->setTimeUnits(AM0DTimestampAB::Seconds);
+    times_->setTimeValue(10);
+    times_->enableTimeFiltering(true);
+    times_->setInputDataSources(QList<AMDataSource*>() << new AM0DProcessVariableDataSource(pv_, pv_->pvName(), this));
+
+    timedData_ = new AM1DTimedDataAB("TimedData", this);
+    timedData_->setInputDataSources(QList<AMDataSource*>() << data_ << times_);
+
+    seriesData_ = new AMDataSourceSeriesData(timedData_);
+    series_ = new MPlotSeriesBasic();
+    series_->setModel(seriesData_, true);
+    series_->setDescription(" ");
+
+    connect( pv_, SIGNAL(connected(bool)), this, SLOT(onVariableConnected(bool)) );
+    if (pv_->isConnected())
+        onVariableConnected(true);
+
 }
 
 STVariable::~STVariable()
@@ -32,4 +49,6 @@ void STVariable::onVariableConnected(bool isConnected)
 {
     if (isConnected)
         qDebug() << "Variable is connected.";
+
+    emit connected(isConnected);
 }
