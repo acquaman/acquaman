@@ -45,6 +45,18 @@ MPlotSeriesBasic* STVariable::series() const
     return series_;
 }
 
+void STVariable::setDataBufferSize(int bufferSize)
+{
+    data_->setDataStoredCountMax(bufferSize);
+    times_->setDataStoredCountMax(bufferSize);
+}
+
+void STVariable::setTimeFilter(int interval, AM0DTimestampAB::TimeUnits units)
+{
+    times_->setTimeValue(interval);
+    times_->setTimeUnits(units);
+}
+
 void STVariable::onVariableConnected(bool isConnected)
 {
     if (isConnected)

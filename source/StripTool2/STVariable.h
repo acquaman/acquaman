@@ -16,7 +16,9 @@
 class STVariable : public QObject
 {
     Q_OBJECT
+
 public:
+
     explicit STVariable(const QString &name, QObject *parent = 0);
     virtual ~STVariable();
 
@@ -28,6 +30,8 @@ signals:
     void connected(bool isConnected);
 
 public slots:
+    void setDataBufferSize(int bufferSize);
+    void setTimeFilter(int interval, AM0DTimestampAB::TimeUnits units);
 
 protected slots:
     void onVariableConnected(bool isConnected);

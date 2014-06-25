@@ -10,7 +10,6 @@ STWidget::STWidget(QWidget *parent) : QWidget(parent)
     ringCurrent_ = new STVariable("PCT1402-01:mA:fbk", this);
     connect( ringCurrent_, SIGNAL(connected(bool)), this, SLOT(onRingCurrentConnected(bool)) );
 
-
     // create plot and set up axes.
     plot_ = new MPlot();
     plot_->axisBottom()->setAxisName("Time");
