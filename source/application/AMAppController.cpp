@@ -61,7 +61,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/AMAgnosticDataAPI.h"
 
 #include "beamline/AMProcessVariablePrivate.h"
-
+#include "actions3/actions/AMDirectorySynchronizationAction.h"
 AMAppController::AMAppController(QObject *parent)
 	: AMDatamanAppControllerForActions3(parent)
 {
@@ -95,6 +95,8 @@ bool AMAppController::startup(){
 		success &= AMActionRegistry3::s()->registerInfoAndAction<AMSampleMoveActionInfo, AMSampleMoveAction>("Move to Beam Sample", "Move the beam over a given sample", ":system-run.png");
 		success &= AMActionRegistry3::s()->registerInfoAndEditor<AMSampleMoveActionInfo, AMSampleMoveActionEditor>();
 		*/
+
+		success &= AMActionRegistry3::s()->registerInfoAndAction<AMActionInfo3, AMDirectorySynchronizationAction>("Backup Data", "Ensure data on remote and local directories are the same",":system-run.png");
 
         success &= AMActionRegistry3::s()->registerInfoAndAction<AMControlWaitActionInfo, AMControlWaitAction>("Wait for Control", "Wait for Control", ":system-run.png", false);
 

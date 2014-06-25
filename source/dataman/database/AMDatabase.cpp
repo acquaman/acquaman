@@ -535,6 +535,23 @@ QVariant AMDatabase::retrieveMax(const QString &table, const QString &colName, c
 
 }
 
+bool AMDatabase::lock()
+{
+	QString lockString = QString("PRAGMA locking_mode = EXCLUSIVE; BEGIN EXCLUSIVE; COMMIT");
+	QSqlQuery lockQuery (qdb());
+	lockQuery.prepare(lockString);
+	return execQuery(lockQuery);
+}
+
+bool AMDatabase::unlock()
+{
+	QString unlockString = QString("PRAGMA locking_mode = NORMAL; BEGIN NORMAL; COMMIT");
+	QSqlQuery unlockQuery (qdb());
+	unlockQuery.prepare(unlockString);
+	return execQuery(unlockQuery);
+
+}
+
 
 
 /// returns a list of all the objecst/rows (by id) that match a given condition. \c whereClause is a string suitable for appending after an SQL "WHERE" statement.

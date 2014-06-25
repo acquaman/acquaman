@@ -62,6 +62,11 @@ protected:
 	/// @brief Parses input, checks if it of the rsync --progress format, strips and
 	/// coverts the percentage into a value, sets the percentProgress to this and emits percentageProgressChanged
 	void parseProgressInput(const QString& input);
+
+	/// @brief Recursively makes the contents of the given path read only
+	void lockDirectory(const QString& path);
+	/// @brief Recusively makes the contents of the given path read/write
+	void unlockDirectory(const QString &path);
 signals:
 	/// @brief Signal emitted when the copy is completed successfully
 	void copyCompleted();

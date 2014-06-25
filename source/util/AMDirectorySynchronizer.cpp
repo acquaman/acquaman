@@ -1,5 +1,5 @@
 #include "AMDirectorySynchronizer.h"
-
+#include "dataman/database/AMDatabase.h"
 #include <QFile>
 #include <QFileInfo>
 #include <QDir>
@@ -95,13 +95,16 @@ bool AMDirectorySynchronizer::start()
 
 	if(result == AMRecursiveDirectoryCompare::Side1ModifiedResult)
 	{
+		lockDirectory(sourceDirectory_);
 		args << QString("%1/.").arg(sourceDirectory_)
-			 << QString("%1/").arg(destinationDirectory_);
+			 << QString("%1/").arg(destinationDirectory_);		
 	}
 	else
 	{
+		lockDirectory(destinationDirectory_);
 		args << QString("%1/.").arg(destinationDirectory_)
 			 << QString("%1/").arg(sourceDirectory_);
+
 	}
 	copyProcess_->start(process, args);
 	if(copyProcess_->waitForStarted(30000))
@@ -162,6 +165,61 @@ void AMDirectorySynchronizer::parseProgressInput(const QString &input)
 	}
 }
 
+void AMDirectorySynchronizer::lockDirectory(const QString &path)
+{
+	QDir directory(path);
+
+	directory.setFilter(QDir::NoDotAndDotDot | QDir::Dirs | QDir::Files);
+
+	// Get a list of all direct subdirectories of this directory, and files it contains
+	QFileInfoList directoryEntries = directory.entryInfoList();
+
+	for (int iDirectoryEntry = 0; iDirectoryEntry < directoryEntries.count(); iDirectoryEntry++)
+	{
+		QFileInfo currentDirectoryEntry = directoryEntries.at(iDirectoryEntry);
+
+		if(currentDirectoryEntry.isFile()) {
+			QFile currentFile(currentDirectoryEntry.absoluteFilePath());
+			currentFile.setPermissions(QFile::ReadOwner | QFile::ReadGroup | QFile::ReadOther);
+		}
+		else if(currentDirectoryEntry.isDir()) {
+			lockDirectory(currentDirectoryEntry.absoluteFilePath());
+		}
+
+	}
+	AMDatabase::database("user")->lock();
+	AMDatabase::database("actions")->lock();
+	AMDatabase::database("scanActions")->lock();
+
+}
+
+void AMDirectorySynchronizer::unlockDirectory(const QString &path)
+{
+	QDir directory(path);
+
+	directory.setFilter(QDir::NoDotAndDotDot | QDir::Dirs | QDir::Files);
+
+	// Get a list of all direct subdirectories of this directory, and files it contains
+	QFileInfoList directoryEntries = directory.entryInfoList();
+
+	for (int iDirectoryEntry = 0; iDirectoryEntry < directoryEntries.count(); iDirectoryEntry++)
+	{
+		QFileInfo currentDirectoryEntry = directoryEntries.at(iDirectoryEntry);
+
+		if(currentDirectoryEntry.isFile()) {
+			QFile currentFile(currentDirectoryEntry.absoluteFilePath());
+			currentFile.setPermissions(QFile::ReadOwner | QFile::ReadGroup | QFile::ReadOther | QFile::WriteOwner );
+		}
+		else if(currentDirectoryEntry.isDir()) {
+			unlockDirectory(currentDirectoryEntry.absoluteFilePath());
+		}
+
+	}
+	AMDatabase::database("user")->unlock();
+	AMDatabase::database("actions")->unlock();
+	AMDatabase::database("scanActions")->unlock();
+}
+
 
 void AMDirectorySynchronizer::onCopyReadyReadStdErr()
 {
@@ -178,6 +236,8 @@ void AMDirectorySynchronizer::onCopyReadyReadStdOut()
 void AMDirectorySynchronizer::onCopyFinished(int exitCode, QProcess::ExitStatus status)
 {
 	isRunning_ = false;
+	unlockDirectory(destinationDirectory_);
+	unlockDirectory(sourceDirectory_);
 	if(exitCode == 1 || status == QProcess::CrashExit)
 	{
 		emit copyFailed();
