@@ -240,7 +240,6 @@ void IDEASXASScanActionController::cancelImplementation(){
     AMAction3 *cleanupActions = createCleanupActions();
 
     cleanupActions->start();
-    setCancelled();  //Is this need?
 
 }
 
