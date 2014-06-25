@@ -16,6 +16,10 @@
 #include <QInputDialog>
 #include <QDebug>
 
+#ifdef AM_MOBILITY_VIDEO_ENABLED
+#include "ui/AMBeamlineCameraWidgetWithSourceTabs.h"
+#endif
+
 IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
     QWidget(parent)
 {
@@ -103,6 +107,17 @@ IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
     mainPanelLayout->addWidget(monoEnergyRange_);
     mainPanelLayout->addStretch();
 
+#ifdef AM_MOBILITY_VIDEO_ENABLED
+	AMBeamlineCameraWidgetWithSourceTabs *cameraWidget;
+
+	QVBoxLayout *cameraPanelLayout = new QVBoxLayout;
+	cameraWidget = new AMBeamlineCameraWidgetWithSourceTabs(QUrl("http://v2e1608-102.clsi.ca/mjpg/2/video.mjpg"),"Sample 1",0,false);
+	cameraWidget->addSource("Sample 2", QUrl("http://v2e1608-102.clsi.ca/mjpg/3/video.mjpg"));
+	cameraWidget->addSource("Vacuum", QUrl("http://v2e1608-102.clsi.ca/mjpg/1/video.mjpg"));
+	cameraWidget->addSource("POE", QUrl("http://v2e1608-102.clsi.ca/mjpg/4/video.mjpg"));
+	cameraPanelLayout->addWidget(cameraWidget);
+#endif
+
     QVBoxLayout *scalerPanelLayout = new QVBoxLayout;
     scalerPanelLayout->addWidget(new IDEASScalerView());
 
@@ -124,6 +139,8 @@ IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
     QGroupBox *persistentPanel = new QGroupBox("IDEAS Beamline");
     persistentPanel->setLayout(mainPanelLayout);
 
+
+
     QGroupBox *scalerPanel = new QGroupBox("Preamp Settings");
     scalerPanel->setLayout(scalerPanelLayout);
 
@@ -132,6 +149,14 @@ IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
 
     QVBoxLayout *layout = new QVBoxLayout;
     layout->addWidget(persistentPanel);
+
+    #ifdef AM_MOBILITY_VIDEO_ENABLED
+    QGroupBox *cameraPanel = new QGroupBox("Camera Settings");
+    cameraPanel->setLayout(cameraPanelLayout);
+    layout->addWidget(cameraPanel);
+    #endif
+
+
     layout->addWidget(scalerPanel);
     //layout->addWidget(detectorPanel);
 

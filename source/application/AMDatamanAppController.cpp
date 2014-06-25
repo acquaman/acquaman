@@ -99,7 +99,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "analysis/AM3DDeadTimeCorrectionAB.h"
 #include "dataman/AMRegionOfInterest.h"
 #include "analysis/AMRegionOfInterestAB.h"
+<<<<<<< HEAD
 #include "analysis/AM0DAccumulatorAB.h"
+=======
+#include "analysis/AM1DKSpaceCalculatorAB.h"
+>>>>>>> fd73336889250cb17d5c5f73ad1906d01f9d3fe9
 
 #include "dataman/AMScanAxis.h"
 #include "dataman/AMScanAxisRegion.h"
@@ -606,7 +610,11 @@ bool AMDatamanAppController::startupRegisterDatabases()
 	success &= AMDbObjectSupport::s()->registerClass<AM1DDeadTimeAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AM2DDeadTimeCorrectionAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AM3DDeadTimeCorrectionAB>();
+<<<<<<< HEAD
     success &= AMDbObjectSupport::s()->registerClass<AM0DAccumulatorAB>();
+=======
+	success &= AMDbObjectSupport::s()->registerClass<AM1DKSpaceCalculatorAB>();
+>>>>>>> fd73336889250cb17d5c5f73ad1906d01f9d3fe9
 
 	success &= AMDbObjectSupport::s()->registerClass<AMScanAxis>();
 	success &= AMDbObjectSupport::s()->registerClass<AMScanAxisRegion>();
@@ -1502,20 +1510,6 @@ void AMDatamanAppController::getUserDataFolderFromDialog(bool presentAsParentFol
 
 	if(newFolder.isEmpty())
 		return;	// user cancelled; do nothing.
-
-	//If User chose a folder in the old actions to data folder, alter user and prompt for new folder
-
-	while(newFolder.contains("XES DATA (old acquaman)")){
-		QMessageBox wrongFolderWarning;
-		wrongFolderWarning.setWindowTitle("Warning");
-		wrongFolderWarning.setText("This folder contains data for the previous version of Acquaman.");
-		wrongFolderWarning.setInformativeText("Please choose a different folder.");
-		wrongFolderWarning.setStandardButtons(QMessageBox::Ok);
-		wrongFolderWarning.setDefaultButton(QMessageBox::Ok);
-		wrongFolderWarning.exec();
-
-		newFolder = QFileDialog::getExistingDirectory(0, "Choose the folder for your NEW Acquaman data...", initialFolder, QFileDialog::ShowDirsOnly);
-	}
 
 	newFolder = QDir::fromNativeSeparators(newFolder);
 	newFolder.append("/");

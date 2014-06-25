@@ -482,7 +482,6 @@ HEADERS += source/acquaman/AMRegion.h \
 	source/util/AMJoystick.h \
 	source/ui/util/AMJoystickTestView.h \
 	source/ui/dataman/AMControlInfoListTableView.h \
-	source/acquaman/AM2DDacqScanController.h \
 	source/acquaman/AM2DScanConfiguration.h \
 	source/dataman/AM2DScan.h \
 	source/dataman/info/CLSAmptekSDD123DetectorInfo.h \
@@ -607,7 +606,6 @@ HEADERS += source/acquaman/AMRegion.h \
 	source/acquaman/AMScanActionTreeSupport.h \
 	source/acquaman/AMNestedAxisTypeValidator.h \
 	source/acquaman/AMScanActionControllerScanConfigurationConverter.h \
-	source/acquaman/AM3DDacqScanController.h \
 	source/acquaman/AM3DScanConfiguration.h \
 	source/dataman/AM3DScan.h \
 	source/dataman/AMTextStream.h \
@@ -765,7 +763,8 @@ HEADERS += source/acquaman/AMRegion.h \
     source/util/AMBuildReporter.h \
     source/analysis/AM0DTimestampAB.h \
     source/analysis/AM1DTimedDataAB.h \
-    source/StripTool2/STVariable.h
+	source/StripTool2/STVariable.h \
+    source/analysis/AM1DKSpaceCalculatorAB.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -973,7 +972,6 @@ SOURCES += source/acquaman/AMRegion.cpp \
 	source/util/AMJoystick.cpp \
 	source/ui/util/AMJoystickTestView.cpp \
 	source/ui/dataman/AMControlInfoListTableView.cpp \
-	source/acquaman/AM2DDacqScanController.cpp \
 	source/acquaman/AM2DScanConfiguration.cpp \
 	source/dataman/AM2DScan.cpp \
 	source/dataman/info/CLSAmptekSDD123DetectorInfo.cpp \
@@ -1095,7 +1093,6 @@ SOURCES += source/acquaman/AMRegion.cpp \
 	source/acquaman/AMScanActionTreeSupport.cpp \
 	source/acquaman/AMNestedAxisTypeValidator.cpp \
 	source/acquaman/AMScanActionControllerScanConfigurationConverter.cpp \
-	source/acquaman/AM3DDacqScanController.cpp \
 	source/acquaman/AM3DScanConfiguration.cpp \
 	source/dataman/AM3DScan.cpp \
 	source/dataman/AMTextStream.cpp \
@@ -1251,7 +1248,8 @@ SOURCES += source/acquaman/AMRegion.cpp \
     source/util/AMBuildReporter.cpp \
     source/analysis/AM0DTimestampAB.cpp \
     source/analysis/AM1DTimedDataAB.cpp \
-    source/StripTool2/STVariable.cpp
+	source/StripTool2/STVariable.cpp \
+    source/analysis/AM1DKSpaceCalculatorAB.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1281,3 +1279,9 @@ contains(DEFINES, AM_BUILD_REPORTER_ENABLED){
 
 	SOURCES += source/util/AMRunTimeBuildInfo.cpp
 }
+
+
+
+
+
+

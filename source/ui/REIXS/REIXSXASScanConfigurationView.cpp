@@ -147,7 +147,7 @@ void REIXSXASScanConfigurationView::onEstimatedTimeChanged()
 	double time = config_->totalTime(true);
 	config_->blockSignals(false);
 
-	ui->totalPointsLabel->setText(QString("%1").arg(config_->totalPoints()));
+	//ui->totalPointsLabel->setText(QString("%1").arg(config_->totalPoints()));
 
 	int days = int(time/3600.0/24.0);
 
@@ -176,7 +176,7 @@ void REIXSXASScanConfigurationView::onEstimatedTimeChanged()
 	int seconds = ((int)time)%60;
 	timeString += QString::number(seconds) + "s";
 
-	ui->estimatedTimeLabel->setText(timeString);
+	//ui->estimatedTimeLabel->setText(timeString);
 	topFrame_->setLeftSubText("Expected acquisition time: " % timeString);
 
 

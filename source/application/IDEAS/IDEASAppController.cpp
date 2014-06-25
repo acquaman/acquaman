@@ -122,8 +122,8 @@ void IDEASAppController::setupExporterOptions()
 			ideasDefaultXAS->loadFromDb(AMDatabase::database("user"), matchIDs.at(0));
 
 	ideasDefaultXAS->setName("IDEAS Default XAS");
-	ideasDefaultXAS->setFileName("$name_$fsIndex.dat");
-	ideasDefaultXAS->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[header]\n\n$notes\n\n");
+	ideasDefaultXAS->setFileName("$name_$number.dat");
+	ideasDefaultXAS->setHeaderText("Scan: $name #$number\nDate: $dateTime\n\nRing Current: $control[ringCurrent]\nInitial I_0: $control[I0Current]");
 	ideasDefaultXAS->setHeaderIncluded(true);
 	ideasDefaultXAS->setColumnHeader("$dataSetName $dataSetInfoDescription");
 	ideasDefaultXAS->setColumnHeaderIncluded(true);
@@ -134,7 +134,7 @@ void IDEASAppController::setupExporterOptions()
 	ideasDefaultXAS->setFirstColumnOnly(true);
 	ideasDefaultXAS->setIncludeHigherDimensionSources(true);
 	ideasDefaultXAS->setSeparateHigherDimensionalSources(true);
-	ideasDefaultXAS->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.dat");
+	ideasDefaultXAS->setSeparateSectionFileName("$name_$dataSetName_$number.dat");
 	ideasDefaultXAS->setHigherDimensionsInRows(true);
 	ideasDefaultXAS->storeToDb(AMDatabase::database("user"));
 
@@ -283,7 +283,7 @@ void IDEASAppController::configureSingleSpectrumView(AMGenericScanEditor *editor
 //	else if (!spectraNames.isEmpty())
 	editor->setSingleSpectrumViewDataSourceName(spectraNames.first());
 
-	editor->setPlotRange(AMPeriodicTable::table()->elementBySymbol("K")->Kalpha().energy(), 20480);
+	editor->setPlotRange(AMPeriodicTable::table()->elementBySymbol("Al")->Kalpha().energy(), 20480);
 }
 
 

@@ -25,7 +25,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/acquaman/AMRegionsView.h"
 #include "ui/acquaman/AMRegionsLineView.h"
 #include "ui/VESPERS/VESPERSScanConfigurationView.h"
-#include "acquaman/VESPERS/VESPERSEXAFSDacqScanController.h"
 #include "acquaman/VESPERS/VESPERSEXAFSScanConfiguration.h"
 #include "util/AMElement.h"
 #include "ui/dataman/AMEXAFSScanAxisView.h"

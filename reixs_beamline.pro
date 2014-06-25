@@ -4,4 +4,5 @@
 
 TEMPLATE = subdirs
 SUBDIRS +=	REIXSAcquaman.pro \
-		pluginProjects/FileLoaders/AMFileLoaderPlugins.pro
+		pluginProjects/FileLoaders/AMFileLoaderPlugins.pro \
+		AMCrashReporter.pro

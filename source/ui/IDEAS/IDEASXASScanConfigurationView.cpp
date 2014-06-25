@@ -237,41 +237,7 @@ void IDEASXASScanConfigurationView::setupDefaultXANESScanRegions()
 
 void IDEASXASScanConfigurationView::setupDefaultEXAFSScanRegions()
 {
-//    bool ok;
-//    bool ok2;
-//    double edgeEnergy = QInputDialog::getDouble(this,"Auto XAFS Region Setup","Enter desired edge enegry:",IDEASBeamline::ideas()->monoEnergyControl()->value(),IDEASBeamline::ideas()->monoLowEV()->value(),IDEASBeamline::ideas()->monoHighEV()->value(),1,&ok);
 
-//    double kValue = QInputDialog::getDouble(this,"Auto XAFS Region Setup","Scan out to k = " ,9 ,0 , 99,1,&ok2);
-
-//    if(ok && ok2)
-//    {
-//	while (configuration_->regionCount() != 0)
-//    	    configuration_->deleteRegion(0);
-
-//	configuration_->addRegion(0, edgeEnergy - 200, 10, edgeEnergy -30, 1);
-//	configuration_->addRegion(1, edgeEnergy - 30, 0.75, edgeEnergy + 45, 1);
-
-//	int k = 3;
-//	double start = edgeEnergy + 45;
-//	double end = floor(3.80998 * (k + 1) * (k + 1) + edgeEnergy);
-//	double idealDelta = floor(3.80998 * k * k * 0.05);
-//	double delta = (end - start)/ceil((end - start)/idealDelta);
-
-//	configuration_->addRegion(2, start, delta, end, qMin(int(0.13 * k * k),10));
-
-//	for (k = 4; k < kValue; k++)
-//	{
-//	    double start = floor(3.80998 * k * k + edgeEnergy);
-//	    double end = floor(3.80998 * (k + 1) * (k + 1) + edgeEnergy);
-//	    double idealDelta = floor(3.80998 * k * k * 0.05);
-//	    double delta = (end - start)/ceil((end - start)/idealDelta);
-
-//	    configuration_->addRegion(k-1, start, delta, end, qMin(int(0.13 * k * k),10));
-//	}
-
-
-
-//    }
     while (configuration_->scanAxisAt(0)->regionCount())
     {
 	    regionsView_->removeEXAFSRegion(0);
@@ -380,6 +346,16 @@ void IDEASXASScanConfigurationView::onEstimatedTimeChanged()
     configuration_->blockSignals(true);
     double time = configuration_->totalTime(true);
     configuration_->blockSignals(false);
+
+    if (time < 0)
+    {
+	estimatedTime_->setText("WARNING!     SCAN CONFIGURATION IS INVALID     START OR QUEUE SCAN AT YOUR OWN RISK!     WARNING!");
+	estimatedSetTime_->setText("WARNING!     SCAN CONFIGURATION IS INVALID     START OR QUEUE SCAN AT YOUR OWN RISK!     WARNING!");
+	pointPerScan_->setText("WARNING!     SCAN CONFIGURATION IS INVALID     START OR QUEUE SCAN AT YOUR OWN RISK!     WARNING!");
+	scanEnergyRange_->setText("WARNING!     SCAN CONFIGURATION IS INVALID     START OR QUEUE SCAN AT YOUR OWN RISK!     WARNING!");
+	return;
+    }
+
 
     pointPerScan_->setText(QString("%1 points per scan").arg(configuration_->totalPoints()));
     scanEnergyRange_->setText(QString("from %1 to %2 eV").arg(configuration_->minEnergy()).arg(configuration_->maxEnergy()));
