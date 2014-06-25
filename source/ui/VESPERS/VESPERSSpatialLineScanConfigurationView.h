@@ -23,7 +23,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/acquaman/AMScanConfigurationView.h"
 #include "ui/VESPERS/VESPERSScanConfigurationView.h"
 #include "acquaman/VESPERS/VESPERSSpatialLineScanConfiguration.h"
-#include "acquaman/VESPERS/VESPERSSpatialLineDacqScanController.h"
 
 #include <QLineEdit>
 #include <QTextEdit>
@@ -40,7 +39,7 @@ class VESPERSSpatialLineScanConfigurationView : public VESPERSScanConfigurationV
 	Q_OBJECT
 public:
 	/// Constructor.
- 	virtual ~VESPERSSpatialLineScanConfigurationView();
+	virtual ~VESPERSSpatialLineScanConfigurationView();
 	explicit VESPERSSpatialLineScanConfigurationView(VESPERSSpatialLineScanConfiguration *config, QWidget *parent = 0);
 
 	/// Getter for the configuration.

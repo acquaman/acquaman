@@ -24,7 +24,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/acquaman/AMRegionsView.h"
 #include "ui/VESPERS/VESPERSScanConfigurationView.h"
-#include "acquaman/VESPERS/VESPERSEnergyDacqScanController.h"
 #include "acquaman/VESPERS/VESPERSEnergyScanConfiguration.h"
 
 #include <QLineEdit>

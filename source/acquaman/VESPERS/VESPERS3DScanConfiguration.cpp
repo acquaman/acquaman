@@ -3,7 +3,6 @@
 #include <QStringBuilder>
 #include <cmath>
 
-#include "acquaman/VESPERS/VESPERS3DDacqScanController.h"
 #include "ui/VESPERS/VESPERS3DScanConfigurationView.h"
 
 VESPERS3DScanConfiguration::~VESPERS3DScanConfiguration(){}
@@ -76,7 +75,6 @@ AMScanConfiguration * VESPERS3DScanConfiguration::createCopy() const
 
 AMScanController * VESPERS3DScanConfiguration::createController()
 {
-//	return new VESPERS3DDacqScanController(this);
 	return 0; //NULL
 }
 
