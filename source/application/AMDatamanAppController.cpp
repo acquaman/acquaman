@@ -1503,20 +1503,6 @@ void AMDatamanAppController::getUserDataFolderFromDialog(bool presentAsParentFol
 	if(newFolder.isEmpty())
 		return;	// user cancelled; do nothing.
 
-	//If User chose a folder in the old actions to data folder, alter user and prompt for new folder
-
-	while(newFolder.contains("XES DATA (old acquaman)")){
-		QMessageBox wrongFolderWarning;
-		wrongFolderWarning.setWindowTitle("Warning");
-		wrongFolderWarning.setText("This folder contains data for the previous version of Acquaman.");
-		wrongFolderWarning.setInformativeText("Please choose a different folder.");
-		wrongFolderWarning.setStandardButtons(QMessageBox::Ok);
-		wrongFolderWarning.setDefaultButton(QMessageBox::Ok);
-		wrongFolderWarning.exec();
-
-		newFolder = QFileDialog::getExistingDirectory(0, "Choose the folder for your NEW Acquaman data...", initialFolder, QFileDialog::ShowDirsOnly);
-	}
-
 	newFolder = QDir::fromNativeSeparators(newFolder);
 	newFolder.append("/");
 
