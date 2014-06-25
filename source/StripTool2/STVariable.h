@@ -1,29 +1,60 @@
-//#ifndef STVARIABLE_H
-//#define STVARIABLE_H
+#ifndef STVARIABLE_H
+#define STVARIABLE_H
 
-//#include <QObject>
+#include <QObject>
+#include <QDebug>
 
-//class STDataCollection;
+#include "beamline/AMProcessVariable.h"
+#include "analysis/AM0DAccumulatorAB.h"
+#include "analysis/AM0DTimestampAB.h"
+#include "analysis/AM1DTimedDataAB.h"
+#include "dataman/datasource/AMDataSourceSeriesData.h"
+#include "dataman/datasource/AMProcessVariableDataSource.h"
 
-//class STVariable : public QObject
-//{
-//    Q_OBJECT
+#include "MPlot/MPlotSeries.h"
 
-//public:
-//    explicit STVariable(STDataCollection *data, QObject *parent = 0);
-//    virtual ~STVariable();
+class STVariable : public QObject
+{
+    Q_OBJECT
 
-//    STDataCollection* dataCollection();
+public:
+    /// Constructor. Takes process variable name argument.
+    explicit STVariable(const QString &name, QObject *parent = 0);
+    /// Destructor.
+    virtual ~STVariable();
 
-//signals:
-//    void dataCollectionChanged(STDataCollection *newDataCollection);
+    /// Returns the process variable.
+    AMProcessVariable *pv() const;
+    /// Returns the series tracking pv data updates.
+    MPlotSeriesBasic *series() const;
 
-//public slots:
-//    void setDataCollection(STDataCollection *newDataCollection);
 
-//protected:
-//    STDataCollection dataCollection_;
+signals:
+    /// Emitted when the process variable is connected.
+    void connected(bool isConnected);
 
-//};
+public slots:
+    /// Sets the number of data points and time points that are saved in total.
+    void setDataBufferSize(int bufferSize);
+    /// Sets the time window to be displayed, relative to now.
+    void setTimeFilter(int interval, AM0DTimestampAB::TimeUnits units);
 
-//#endif // STVARIABLE_H
+protected slots:
+
+protected:
+    /// The process variable that this class listens to for value updates.
+    AMProcessVariable *pv_;
+
+    /// Produces a list of value updates from the pv_.
+    AM0DAccumulatorAB *data_;
+    /// Produces a list of time updates from the pv_.
+    AM0DTimestampAB *times_;
+    /// Produces the values (y) and times (x) to be displayed at a given time.
+    AM1DTimedDataAB *timedData_;
+
+    AMDataSourceSeriesData *seriesData_;
+    MPlotSeriesBasic *series_;
+
+};
+
+#endif // STVARIABLE_H

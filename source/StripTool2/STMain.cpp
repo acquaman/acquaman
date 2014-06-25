@@ -1,10 +1,10 @@
-#include "StripTool2.h"
+#include "STWidget.h"
 #include <QApplication>
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    StripTool2 w;
+    STWidget w;
     w.show();
 
     return a.exec();
