@@ -21,7 +21,9 @@ AMCrashMonitorSupport::AMCrashMonitorSupport()
 
 	QCoreApplication *app = QApplication::instance();
 
-	QString applicationPath = app->arguments().at(0);
+	QStringList applicationArguments = app->arguments();
+
+	QString applicationPath = applicationArguments.at(0);
 	QFileInfo applicationPathInfo(applicationPath);
 
 	if(applicationPathInfo.isSymLink())
@@ -31,8 +33,10 @@ AMCrashMonitorSupport::AMCrashMonitorSupport()
 
 	pathToCrashReportFiles_ = "/home/acquaman/AcquamanApplicationCrashReports";
 
-	signal(SIGSEGV, handle_signal_sigsev);
-	signal(SIGABRT, handle_signal_sigabrt);
+	if(applicationArguments.contains("--enableCrashMonitor")){
+		signal(SIGSEGV, handle_signal_sigsev);
+		signal(SIGABRT, handle_signal_sigabrt);
+	}
 }
 
 AMCrashMonitorSupport* AMCrashMonitorSupport::s(){

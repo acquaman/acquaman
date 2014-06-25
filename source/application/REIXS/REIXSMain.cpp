@@ -22,8 +22,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include <QApplication>
-#include "application/REIXS/REIXSAppController.h"
 #include <QFile>
+
+#include "application/REIXS/REIXSAppController.h"
 #include "application/AMCrashMonitorSupport.h"
 
 
