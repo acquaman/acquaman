@@ -7,8 +7,8 @@ AM1DTimedDataAB::AM1DTimedDataAB(const QString &outputName, QObject *parent) : A
     data_ = 0;
     timestamps_ = 0;
 
-    values_ = QVector<double>();
-    times_ = QVector<double>();
+    values_ = QVector<double>(0);
+    times_ = QVector<double>(0);
 
     axes_ << AMAxisInfo("invalid", 0, "No input data");
     setState(AMDataSource::InvalidFlag);
@@ -40,9 +40,10 @@ bool AM1DTimedDataAB::areInputDataSourcesAcceptable(const QList<AMDataSource *> 
         return false;
 
     // both input sources must have rank 1.
-    foreach (AMDataSource* source, dataSources)
+    foreach (AMDataSource* source, dataSources) {
         if (source->rank() != 1)
             return false;
+    }
 
     return true;
 }
@@ -50,14 +51,13 @@ bool AM1DTimedDataAB::areInputDataSourcesAcceptable(const QList<AMDataSource *> 
 void AM1DTimedDataAB::setInputDataSourcesImplementation(const QList<AMDataSource *> &dataSources)
 {
     // disconnect from old sources, if they exist.
-    if (data_){
+    if (data_) {
         disconnect( data_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onDataSourceValuesChanged(AMnDIndex,AMnDIndex)) );
         disconnect( data_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()) );
         data_ = 0;
     }
 
-    if (timestamps_){
-
+    if (timestamps_) {
         disconnect( timestamps_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onTimeSourceValuesChanged(AMnDIndex,AMnDIndex)));
         disconnect( timestamps_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
         timestamps_ = 0;
@@ -73,7 +73,7 @@ void AM1DTimedDataAB::setInputDataSourcesImplementation(const QList<AMDataSource
         setDescription("-- No input data --");
     }
 
-    else if (dataSources.count() == 2) {
+    else {
         data_ = dataSources.at(0);
         timestamps_ = dataSources.at(1);
         sources_ = dataSources;
@@ -88,15 +88,11 @@ void AM1DTimedDataAB::setInputDataSourcesImplementation(const QList<AMDataSource
         connect(timestamps_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
     }
 
-    else {
-        sources_ = dataSources;
-    }
-
     reviewState();
 
-    emitSizeChanged();
+    emitSizeChanged(0);
     emitValuesChanged();
-    emitAxisInfoChanged();
+    emitAxisInfoChanged(0);
     emitInfoChanged();
 }
 
@@ -193,33 +189,23 @@ void AM1DTimedDataAB::reviewValuesChanged(const AMnDIndex &start, const AMnDInde
     }
 
     int pointsChanged = start.totalPointsTo(end);
-    qDebug() << "Points to display :" << pointsChanged;
 
     if (pointsChanged > 0) {
 
         values_.clear();
         times_.clear();
 
-        values_.reserve(pointsChanged);
-        times_.reserve(pointsChanged);
+        values_.resize(pointsChanged);
+        times_.resize(pointsChanged);
 
-        bool dataSuccess = data_->values(start, end, values_.data());
-        bool timeSuccess = timestamps_->values(start, end, times_.data());
+        data_->values(start, end, values_.data());
+        timestamps_->values(start, end, times_.data());
 
-        if (dataSuccess && timeSuccess) {
+        axes_[0] = AMAxisInfo(sources_.at(0)->name(), pointsChanged);
 
-            qDebug() << "AM1DTimedDataAB // values to display : " << values_.toList();
-            qDebug() << "AM1DTimedDataAB //  times to display : " << times_.toList();
-
-            axes_[0] = AMAxisInfo(sources_.at(0)->name(), pointsChanged);
-
-            emitValuesChanged(AMnDIndex(0), AMnDIndex(pointsChanged - 1));
-            emitAxisInfoChanged(0);
-            emitSizeChanged(0);
-
-        } else {
-            qDebug() << "AM1DTimedDataAB : update unsuccessful.";
-        }
+        emitValuesChanged(AMnDIndex(0), AMnDIndex(pointsChanged - 1));
+        emitAxisInfoChanged(0);
+        emitSizeChanged(0);
     }
 }
 

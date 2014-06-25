@@ -73,9 +73,9 @@ void AM0DAccumulatorAB::setInputDataSourcesImplementation(const QList<AMDataSour
 
     reviewState();
 
-    emitSizeChanged();
+    emitSizeChanged(0);
     emitValuesChanged();
-    emitAxisInfoChanged();
+    emitAxisInfoChanged(0);
     emitInfoChanged();
 }
 
@@ -177,9 +177,9 @@ void AM0DAccumulatorAB::onInputSourceValuesChanged(const AMnDIndex &start, const
     // update the axes info for this data source to reflect the (possibly) new number of points to plot.
     axes_[0] = AMAxisInfo(sources_.at(0)->name(), dataStored_.size());
 
+    emitSizeChanged(0);
     emitValuesChanged(AMnDIndex(0), AMnDIndex(dataStored_.size() - 1));
     emitAxisInfoChanged(0);
-    emitSizeChanged();
 }
 
 void AM0DAccumulatorAB::onInputSourceStateChanged()
