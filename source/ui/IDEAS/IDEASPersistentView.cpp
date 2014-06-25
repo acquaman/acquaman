@@ -16,6 +16,10 @@
 #include <QInputDialog>
 #include <QDebug>
 
+#ifdef AM_MOBILITY_VIDEO_ENABLED
+#include "ui/AMBeamlineCameraWidgetWithSourceTabs.h"
+#endif
+
 IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
     QWidget(parent)
 {
@@ -104,9 +108,6 @@ IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
     mainPanelLayout->addStretch();
 
 #ifdef AM_MOBILITY_VIDEO_ENABLED
-
-	#include "ui/AMBeamlineCameraWidgetWithSourceTabs.h"
-
 	AMBeamlineCameraWidgetWithSourceTabs *cameraWidget;
 
 	QVBoxLayout *cameraPanelLayout = new QVBoxLayout;
@@ -138,8 +139,7 @@ IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
     QGroupBox *persistentPanel = new QGroupBox("IDEAS Beamline");
     persistentPanel->setLayout(mainPanelLayout);
 
-    QGroupBox *cameraPanel = new QGroupBox("Camera Settings");
-    cameraPanel->setLayout(cameraPanelLayout);
+
 
     QGroupBox *scalerPanel = new QGroupBox("Preamp Settings");
     scalerPanel->setLayout(scalerPanelLayout);
@@ -149,7 +149,14 @@ IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
 
     QVBoxLayout *layout = new QVBoxLayout;
     layout->addWidget(persistentPanel);
+
+    #ifdef AM_MOBILITY_VIDEO_ENABLED
+    QGroupBox *cameraPanel = new QGroupBox("Camera Settings");
+    cameraPanel->setLayout(cameraPanelLayout);
     layout->addWidget(cameraPanel);
+    #endif
+
+
     layout->addWidget(scalerPanel);
     //layout->addWidget(detectorPanel);
 
