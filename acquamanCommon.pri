@@ -764,7 +764,6 @@ HEADERS += source/acquaman/AMRegion.h \
 	source/util/AMBuildInfo.h \
     source/util/AMBuildReporter.h \
     source/analysis/AM0DTimestampAB.h \
-#    source/analysis/AMTimestampFilterAB.h \
     source/analysis/AM1DTimedDataAB.h
 
 # OS-specific files:
@@ -1250,7 +1249,6 @@ SOURCES += source/acquaman/AMRegion.cpp \
 	source/util/AMBuildInfo.cpp \
     source/util/AMBuildReporter.cpp \
     source/analysis/AM0DTimestampAB.cpp \
-#    source/analysis/AMTimestampFilterAB.cpp \
     source/analysis/AM1DTimedDataAB.cpp
 
 # OS-specific files
