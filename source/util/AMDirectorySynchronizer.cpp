@@ -187,9 +187,6 @@ void AMDirectorySynchronizer::lockDirectory(const QString &path)
 		}
 
 	}
-	AMDatabase::database("user")->lock();
-	AMDatabase::database("actions")->lock();
-	AMDatabase::database("scanActions")->lock();
 
 }
 
@@ -215,9 +212,6 @@ void AMDirectorySynchronizer::unlockDirectory(const QString &path)
 		}
 
 	}
-	AMDatabase::database("user")->unlock();
-	AMDatabase::database("actions")->unlock();
-	AMDatabase::database("scanActions")->unlock();
 }
 
 

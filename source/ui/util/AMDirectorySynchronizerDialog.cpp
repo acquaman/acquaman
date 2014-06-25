@@ -51,7 +51,7 @@ void AMDirectorySynchronizerDialog::closeEvent(QCloseEvent *ce)
 void AMDirectorySynchronizerDialog::start()
 {
 	if(synchronizer_->start())
-		show();
+		exec();
 }
 
 void AMDirectorySynchronizerDialog::onSynchronizerErrorTextChanged(const QString &message)

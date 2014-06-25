@@ -47,6 +47,7 @@ class QStandardItem;
 class AMDatabase;
 class AMDbUpgrade;
 class AMScan;
+class AMDirectorySynchronizerDialog;
 
 #define AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES 42001
 #define AMDATAMANAPPCONTROLLER_STARTUP_FINISHED 42002
@@ -130,13 +131,14 @@ public slots:
 	virtual bool startupLoadSettings();
 	virtual bool startupLoadPlugins();
 	virtual bool startupIsFirstTime();
-		virtual bool startupOnFirstTime(); ///< Run on first time only
-		virtual bool startupOnEveryTime(); ///< Run on every time except the first time
-		virtual bool startupCreateDatabases(); ///< Run every time to create the databases (reimplement to create additional databases). This is always called before startupDatabaseUpgrades().
-		bool startupDatabaseUpgrades(); ///< Run every time except the first time, to see if non-trivial database upgrades are necessary. This SHOULD NOT BE SUBCLASSED, if you want other upgrades completed, add them to the databaseUpgrades_.
+	virtual bool startupOnFirstTime(); ///< Run on first time only
+	virtual bool startupOnEveryTime(); ///< Run on every time except the first time
+	virtual bool startupCreateDatabases(); ///< Run every time to create the databases (reimplement to create additional databases). This is always called before startupDatabaseUpgrades().
+	bool startupDatabaseUpgrades(); ///< Run every time except the first time, to see if non-trivial database upgrades are necessary. This SHOULD NOT BE SUBCLASSED, if you want other upgrades completed, add them to the databaseUpgrades_.
+	virtual bool startupBackupDataDirectory();
 	virtual bool startupRegisterDatabases();
-		virtual bool startupPopulateNewDatabase(); ///< Run on first time only
-		virtual bool startupLoadFromExistingDatabase(); ///< Run on every time except the first time
+	virtual bool startupPopulateNewDatabase(); ///< Run on first time only
+	virtual bool startupLoadFromExistingDatabase(); ///< Run on every time except the first time
 	virtual bool startupRegisterExporters();
 	virtual bool startupBeforeUserInterface()  { return true; }
 	virtual bool startupCreateUserInterface();
@@ -372,6 +374,7 @@ protected:
 	/// List that organizes active scans with editors for updating the ScanEditorModelItem's.  Although the list currently will only be populated AMAppController, the clean up is very general and is done in the onWindowPaneCloseClicked() method.
 	QList<QPair<AMScan *, AMGenericScanEditor *> > scanEditorScanMapping_;
 
+	AMDirectorySynchronizerDialog* synchronizer_;
 private:
 	/// Holds the QObject whose signal is currently being used to connect to the onStartupFinished slot
 	QObject *finishedSender_;

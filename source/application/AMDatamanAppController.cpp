@@ -121,7 +121,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMSample.h"
 #include "dataman/AMSamplePlate.h"
 #include "beamline/camera/AMSampleCameraBrowser.h"
-
+#include "ui/util/AMDirectorySynchronizerDialog.h"
 
 AMDatamanAppController::AMDatamanAppController(QObject *parent) :
 	QObject(parent)
@@ -201,6 +201,8 @@ bool AMDatamanAppController::startup() {
 		if(!startupOnEveryTime())
 			return AMErrorMon::errorAndReturn(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_HANDING_NON_FIRST_TIME_USER, "Problem with Acquaman startup: handling non-first-time user.");
 	}
+
+	startupBackupDataDirectory();
 
 	if(!startupRegisterDatabases())
 		return AMErrorMon::errorAndReturn(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_REGISTERING_DATABASES, "Problem with Acquaman startup: registering databases.");
@@ -397,6 +399,15 @@ bool AMDatamanAppController::startupDatabaseUpgrades()
 	}
 
 	return true;
+}
+
+bool AMDatamanAppController::startupBackupDataDirectory()
+{
+	if(AMUserSettings::remoteDataFolder.length() > 0)
+	{
+		synchronizer_ = new AMDirectorySynchronizerDialog();
+		synchronizer_->start();
+	}
 }
 
 bool AMDatamanAppController::onFirstTimeDatabaseUpgrade(QList<AMDbUpgrade *> upgrades)

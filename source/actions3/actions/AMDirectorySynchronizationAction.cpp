@@ -25,7 +25,7 @@ void AMDirectorySynchronizationAction::startImplementation()
 
 	if(info()){
 		info()->setShortDescription(QString("Data Backup on %1").arg(QDateTime::currentDateTime().toString(Qt::SystemLocaleShortDate)));
-		info()->setLongDescription(QString("Date Backup from %1 to %2 at %3").arg(synchronizer_->sourceDirectory()).arg(synchronizer_->destinationDirectory().arg(QDateTime::currentDateTime().toString(Qt::SystemLocaleShortDate))));
+		info()->setLongDescription(QString("Date Backup from %1 to %2 at %3").arg(synchronizer_->sourceDirectory()).arg(synchronizer_->destinationDirectory()).arg(QDateTime::currentDateTime().toString(Qt::SystemLocaleShortDate)));
 	}
 	if(!synchronizer_->start())
 		setFailed();
