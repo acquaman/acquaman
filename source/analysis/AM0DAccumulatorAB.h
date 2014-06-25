@@ -25,11 +25,11 @@ public:
     /// Returns the maximum number of data elements stored in this analysis block.
     int dataStoredCountMax() const;
 
-    /// Check that the input sources are acceptable. The empty list is always valid. For non-empty list of sources, the list must be of size 1 and the source must have rank 0."
+    /// Check that the input sources are acceptable. The empty list is always valid. For non-empty list of sources, the list must be of size 1 and the source must have rank 0.
     virtual bool areInputDataSourcesAcceptable(const QList<AMDataSource *> &dataSources) const;
     /// Set the data source inputs.
     virtual void setInputDataSourcesImplementation(const QList<AMDataSource *> &dataSources);
-    /// Returns the dependent value at a (complete) set of axis indexes. Returns an invalid AMNumber if the indexes are out of range, are incomplete, or the data is not ready."
+    /// Returns the dependent value at a (complete) set of axis indexes. Returns an invalid AMNumber if the indexes are out of range, are incomplete, or the data is not ready.
     virtual AMNumber value(const AMnDIndex &indexes) const;
     /// Returns the block of values from indexStart to indexEnd, copied into outputValues. Returns false if the provided AMnDIndex values have the wrong dimension or if they are out of range.
     virtual bool values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const;

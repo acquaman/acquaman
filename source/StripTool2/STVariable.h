@@ -18,29 +18,38 @@ class STVariable : public QObject
     Q_OBJECT
 
 public:
-
+    /// Constructor. Takes process variable name argument.
     explicit STVariable(const QString &name, QObject *parent = 0);
+    /// Destructor.
     virtual ~STVariable();
 
+    /// Returns the process variable.
     AMProcessVariable *pv() const;
+    /// Returns the series tracking pv data updates.
     MPlotSeriesBasic *series() const;
 
 
 signals:
+    /// Emitted when the process variable is connected.
     void connected(bool isConnected);
 
 public slots:
+    /// Sets the number of data points and time points that are saved in total.
     void setDataBufferSize(int bufferSize);
+    /// Sets the time window to be displayed, relative to now.
     void setTimeFilter(int interval, AM0DTimestampAB::TimeUnits units);
 
 protected slots:
-    void onVariableConnected(bool isConnected);
 
 protected:
+    /// The process variable that this class listens to for value updates.
     AMProcessVariable *pv_;
 
+    /// Produces a list of value updates from the pv_.
     AM0DAccumulatorAB *data_;
+    /// Produces a list of time updates from the pv_.
     AM0DTimestampAB *times_;
+    /// Produces the values (y) and times (x) to be displayed at a given time.
     AM1DTimedDataAB *timedData_;
 
     AMDataSourceSeriesData *seriesData_;

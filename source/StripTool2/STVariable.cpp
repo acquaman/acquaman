@@ -24,9 +24,9 @@ STVariable::STVariable(const QString &name, QObject *parent) :
     series_->setModel(seriesData_, true);
     series_->setDescription(" ");
 
-    connect( pv_, SIGNAL(connected(bool)), this, SLOT(onVariableConnected(bool)) );
+    connect( pv_, SIGNAL(connected(bool)), this, SIGNAL(connected(bool)) );
     if (pv_->isConnected())
-        onVariableConnected(true);
+        emit connected(true);
 
 }
 
@@ -55,12 +55,4 @@ void STVariable::setTimeFilter(int interval, AM0DTimestampAB::TimeUnits units)
 {
     times_->setTimeValue(interval);
     times_->setTimeUnits(units);
-}
-
-void STVariable::onVariableConnected(bool isConnected)
-{
-    if (isConnected)
-        qDebug() << "Variable is connected.";
-
-    emit connected(isConnected);
 }
