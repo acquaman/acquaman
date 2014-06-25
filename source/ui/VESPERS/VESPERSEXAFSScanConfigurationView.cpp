@@ -194,7 +194,7 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	contentsLayout->addWidget(goToPositionGroupBox, 3, 2, 1, 1);
 	contentsLayout->addWidget(timeOffsetBox, 5, 1, 1, 1);
 	contentsLayout->addWidget(detectorGroupBox, 1, 3, 2, 1);
-	contentsLayout->addWidget(autoExportGroupBox, 3, 3, 1, 1);
+	contentsLayout->addWidget(autoExportGroupBox, 3, 3, 1, 2);
 
 	QHBoxLayout *squeezeContents = new QHBoxLayout;
 	squeezeContents->addStretch();
