@@ -26,8 +26,8 @@ AMCurrentAmplifierView::AMCurrentAmplifierView(AMCurrentAmplifier *amplifier, QW
     connect( amplifier_, SIGNAL(maximumValue(bool)), plus_, SLOT(setDisabled(bool)) );
 
     value_ = new QComboBox();
-    value_->hide();
     value_->setMaxVisibleItems(5);
+    value_->hide();
     connect( value_, SIGNAL(currentIndexChanged(QString)), this, SLOT(onValueComboBoxChanged(QString)) );
 
     setViewMode(Basic);
@@ -179,7 +179,7 @@ void AMCurrentAmplifierView::onCustomContextMenuRequested(QPoint position)
 
 QString AMCurrentAmplifierView::valueToString(double value, const QString &units) const
 {
-    return QString("%1 %2").arg(value, 0, 'e', 2).arg(units);
+    return QString("%1 %2").arg(value, 0, 'g', 2).arg(units);
 }
 
 void AMCurrentAmplifierView::refreshDisplayValues()
