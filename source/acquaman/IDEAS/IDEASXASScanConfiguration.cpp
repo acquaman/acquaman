@@ -150,7 +150,7 @@ void IDEASXASScanConfiguration::computeTotalTimeImplementation()
 		calculator.variableTime(regionTimes.data());
 
 		for (int i = 0; i < numberOfPoints; i++)
-			time = time + regionTimes.at(i) + 0.54;
+			time = time + regionTimes.at(i) + 0.54 + 0.25;  //0.25
 		}
 		else {
 		    totalTime_ = -1; //negative value used to trigger feedback to user in IDEASXASScanConfigurationView... Hope this doesn't cause an issue elsewhere.
