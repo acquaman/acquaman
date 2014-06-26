@@ -22,7 +22,7 @@ protected slots:
 	/// Handles switching all the SR570 views to match the most recent change.
     void onSR570ViewChanged(AMCurrentAmplifierView::ViewMode mode);
 	/// Handles switching all the SR570 views to match the most recent change.
-    void onSR570ViewChanged(CLSSR570CompositeView::ViewMode mode);
+    void onSR570ViewChanged(AMCurrentAmplifierView::ViewMode mode);
 	/// Handles switching all the output views to match the new composite view mode.
 	void onOutputViewModeChanged(CLSSIS3820CompositeScalerChannelView::OutputViewMode mode);
 	/// Handles switching all the output views to match the most recent change.
