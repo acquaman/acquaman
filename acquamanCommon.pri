@@ -764,7 +764,10 @@ HEADERS += source/acquaman/AMRegion.h \
     source/analysis/AM0DTimestampAB.h \
     source/analysis/AM1DTimedDataAB.h \
 	source/StripTool2/STVariable.h \
-    source/analysis/AM1DKSpaceCalculatorAB.h
+    source/analysis/AM1DKSpaceCalculatorAB.h \
+    source/actions3/actions/AMWaitActionInfo.h \
+    source/actions3/actions/AMWaitAction.h \
+    source/actions3/editors/AMWaitActionEditor.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1249,7 +1252,10 @@ SOURCES += source/acquaman/AMRegion.cpp \
     source/analysis/AM0DTimestampAB.cpp \
     source/analysis/AM1DTimedDataAB.cpp \
 	source/StripTool2/STVariable.cpp \
-    source/analysis/AM1DKSpaceCalculatorAB.cpp
+    source/analysis/AM1DKSpaceCalculatorAB.cpp \
+    source/actions3/actions/AMWaitActionInfo.cpp \
+    source/actions3/actions/AMWaitAction.cpp \
+    source/actions3/editors/AMWaitActionEditor.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1279,6 +1285,12 @@ contains(DEFINES, AM_BUILD_REPORTER_ENABLED){
 
 	SOURCES += source/util/AMRunTimeBuildInfo.cpp
 }
+
+
+
+
+
+
 
 
 
