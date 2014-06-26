@@ -1,6 +1,6 @@
-#include "AMCurrentAmplifierView.h"
+#include "AMCurrentAmplifierSingleView.h"
 
-AMCurrentAmplifierView::AMCurrentAmplifierView(AMCurrentAmplifier *amplifier, QWidget *parent) :
+AMCurrentAmplifierSingleView::AMCurrentAmplifierSingleView(AMCurrentAmplifier *amplifier, QWidget *parent) :
     QWidget(parent)
 {
     initialized_ = false;
@@ -50,27 +50,27 @@ AMCurrentAmplifierView::AMCurrentAmplifierView(AMCurrentAmplifier *amplifier, QW
     initialized_ = true;
 }
 
-AMCurrentAmplifierView::~AMCurrentAmplifierView()
+AMCurrentAmplifierSingleView::~AMCurrentAmplifierView()
 {
 
 }
 
-AMCurrentAmplifier* AMCurrentAmplifierView::currentAmplifier() const
+AMCurrentAmplifier* AMCurrentAmplifierSingleView::amplifier() const
 {
     return amplifier_;
 }
 
-bool AMCurrentAmplifierView::initialized() const
+bool AMCurrentAmplifierSingleView::initialized() const
 {
     return initialized_;
 }
 
-AMCurrentAmplifierView::ViewMode AMCurrentAmplifierView::viewMode() const
+AMCurrentAmplifierView::ViewMode AMCurrentAmplifierSingleView::viewMode() const
 {
     return mode_;
 }
 
-void AMCurrentAmplifierView::setViewMode(ViewMode newMode)
+void AMCurrentAmplifierSingleView::setViewMode(ViewMode newMode)
 {
     if (newMode != mode_) {
         mode_ = newMode;
@@ -90,7 +90,7 @@ void AMCurrentAmplifierView::setViewMode(ViewMode newMode)
     }
 }
 
-void AMCurrentAmplifierView::showName(bool show)
+void AMCurrentAmplifierSingleView::showName(bool show)
 {
     if (show) {
         name_->show();
@@ -100,18 +100,18 @@ void AMCurrentAmplifierView::showName(bool show)
     }
 }
 
-void AMCurrentAmplifierView::setViewableValuesMax(int newMax)
+void AMCurrentAmplifierSingleView::setViewableValuesMax(int newMax)
 {
     value_->setMaxVisibleItems(newMax);
 }
 
-void AMCurrentAmplifierView::refreshView()
+void AMCurrentAmplifierSingleView::refreshView()
 {
     refreshDisplayValues();
     refreshButtons();
 }
 
-void AMCurrentAmplifierView::onValueComboBoxChanged(const QString &newText)
+void AMCurrentAmplifierSingleView::onValueComboBoxChanged(const QString &newText)
 {
     // the initialized_ boolean prevents the display from setting the amplifier value while view is initializing <- undesirable behavior.
     if (initialized_) {
@@ -119,7 +119,7 @@ void AMCurrentAmplifierView::onValueComboBoxChanged(const QString &newText)
     }
 }
 
-void AMCurrentAmplifierView::onAmplifierValueChanged()
+void AMCurrentAmplifierSingleView::onAmplifierValueChanged()
 {
     amplifier_->blockSignals(true);
     int newIndex = value_->findText( valueToString(amplifier_->value(), amplifier_->units()) );
@@ -128,17 +128,17 @@ void AMCurrentAmplifierView::onAmplifierValueChanged()
     amplifier_->blockSignals(false);
 }
 
-void AMCurrentAmplifierView::onMinusClicked()
+void AMCurrentAmplifierSingleView::onMinusClicked()
 {
     amplifier_->decreaseValue();
 }
 
-void AMCurrentAmplifierView::onPlusClicked()
+void AMCurrentAmplifierSingleView::onPlusClicked()
 {
     amplifier_->increaseValue();
 }
 
-void AMCurrentAmplifierView::onCustomContextMenuRequested(QPoint position)
+void AMCurrentAmplifierSingleView::onCustomContextMenuRequested(QPoint position)
 {
     // only show the menu if there is a valid amplifier and that amplifier supports multiple view options.
 
@@ -177,12 +177,12 @@ void AMCurrentAmplifierView::onCustomContextMenuRequested(QPoint position)
     }
 }
 
-QString AMCurrentAmplifierView::valueToString(double value, const QString &units) const
+QString AMCurrentAmplifierSingleView::valueToString(double value, const QString &units) const
 {
     return QString("%1 %2").arg(value, 0, 'g', 2).arg(units);
 }
 
-void AMCurrentAmplifierView::refreshDisplayValues()
+void AMCurrentAmplifierSingleView::refreshDisplayValues()
 {
     initialized_ = false;
 
@@ -205,7 +205,7 @@ void AMCurrentAmplifierView::refreshDisplayValues()
     initialized_ = true;
 }
 
-void AMCurrentAmplifierView::refreshButtons()
+void AMCurrentAmplifierSingleView::refreshButtons()
 {
     minus_->setDisabled(amplifier_->atMinimumValue());
     plus_->setDisabled(amplifier_->atMaximumValue());

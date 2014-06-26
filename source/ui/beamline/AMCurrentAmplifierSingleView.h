@@ -1,5 +1,5 @@
-#ifndef AMCURRENTAMPLIFIERVIEW_H
-#define AMCURRENTAMPLIFIERVIEW_H
+#ifndef AMCURRENTAMPLIFIERSINGLEVIEW_H
+#define AMCURRENTAMPLIFIERSINGLEVIEW_H
 
 #include <QWidget>
 #include <QComboBox>
@@ -11,7 +11,7 @@
 
 #include "beamline/AMCurrentAmplifier.h"
 
-class AMCurrentAmplifierView : public QWidget
+class AMCurrentAmplifierSingleView : public QWidget
 {
     Q_OBJECT
 
@@ -20,11 +20,11 @@ public:
     enum ViewMode { Basic = 0, Advanced = 1 };
 
     /// Constructor. Takes in instance of AMCurrentAmplifier.
-    explicit AMCurrentAmplifierView(AMCurrentAmplifier *amplifier, QWidget *parent = 0);
-    virtual ~AMCurrentAmplifierView();
+    explicit AMCurrentAmplifierSingleView(AMCurrentAmplifier *amplifier, QWidget *parent = 0);
+    virtual ~AMCurrentAmplifierSingleView();
 
     /// Returns the pointer to the AMCurrentAmplifier this view is visualizing.
-    AMCurrentAmplifier *currentAmplifier() const;
+    AMCurrentAmplifier *amplifier() const;
     /// Returns boolean indicating whether this view has been initialized.
     bool initialized() const;
     /// Returns the current view mode.
@@ -80,4 +80,4 @@ protected:
     QComboBox *value_;
 };
 
-#endif // AMCURRENTAMPLIFIERVIEW_H
+#endif // AMCURRENTAMPLIFIERSINGLEVIEW_H
