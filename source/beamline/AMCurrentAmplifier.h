@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QStringList>
 
-class AMCurrentAmplifierView;
+class AMCurrentAmplifierSingleView;
 
 class AMCurrentAmplifier : public QObject
 {
@@ -57,7 +57,7 @@ public:
     bool atMaximumValue() const;
 
     /// Returns the view for this amplifier.
-    virtual AMCurrentAmplifierView* createView();
+    virtual AMCurrentAmplifierSingleView *createView();
 
 signals:
     /// Emitted when the amplifier mode has been changed.
