@@ -10,17 +10,9 @@ STWidget::STWidget(QWidget *parent) : QWidget(parent)
     ringCurrent_ = new STVariable("PCT1402-01:mA:fbk", this);
     connect( ringCurrent_, SIGNAL(connected(bool)), this, SLOT(onRingCurrentConnected(bool)) );
 
-    // create plot and set up axes.
-    plot_ = new MPlot();
-    plot_->axisBottom()->setAxisName("Time");
-    plot_->axisLeft()->setAxisName("Storage ring current [mA]");
-
-    // create plot window
-    plotWidget_ = new MPlotWidget(this);
-    plotWidget_->enableAntiAliasing(true);
-    plotWidget_->setPlot(plot_);
-
     ringCurrentLabel_ = new QLabel("Storage ring current : ---");
+
+    plotWidget_ = new STPlotWidget();
 
     QVBoxLayout *layout = new QVBoxLayout();
     layout->addWidget(ringCurrentLabel_);
@@ -39,7 +31,7 @@ void STWidget::onRingCurrentConnected(bool isConnected)
 {
     if (isConnected) {
         // add series to plot.
-        plot_->addItem(ringCurrent_->series());
+        plotWidget_->plot()->addItem(ringCurrent_->series());
     }
 }
 

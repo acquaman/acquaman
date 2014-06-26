@@ -6,12 +6,13 @@
 #include <QLayout>
 
 #include "beamline/AMPVControl.h"
-#include "STVariable.h"
 
 #include "MPlot/MPlotSeriesData.h"
-#include "MPlot/MPlotWidget.h"
 #include "MPlot/MPlotSeries.h"
-#include "MPlot/MPlot.h"
+
+#include "STVariable.h"
+#include "STPlotWidget.h"
+#include "STPlotEditor.h"
 
 class STWidget : public QWidget
 {
@@ -26,13 +27,14 @@ protected slots:
     void onRingCurrentValueChanged(double newValue);
 
 protected:
-    AMProcessVariable *ringCurrentControl_;
     QLabel *ringCurrentLabel_;
-
+    AMProcessVariable *ringCurrentControl_;
     STVariable *ringCurrent_;
 
-    MPlotWidget *plotWidget_;
-    MPlot *plot_;
+    STPlotWidget *plotWidget_;
+
+//    STPlotEditor *plotEditor_;
+//    QPushButton *showPlotEditor_;
 };
 
 #endif // STWIDGET_H
