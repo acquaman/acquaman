@@ -33,7 +33,7 @@ class CLSSIS3820Scaler;
 class CLSSIS3820ScalerChannel;
 
 #include "ui/CLS/CLSDarkCurrentWidget.h"
-#include "source/ui/beamline/AMCurrentAmplifierView.h"
+#include "source/ui/beamline/AMCurrentAmplifierSingleView.h"
 
 /*!
   This class builds a view around a CLSSIS3820ScalerChannel.  It provides a simple view that has a check box
@@ -97,7 +97,7 @@ protected:
 	/// Label holding the name of the scaler channel.
 	QLabel *channelName_;
 	/// Holds the SR570, should there be a SR570 bound to this channel.
-    AMCurrentAmplifierView *sr570View_;
+    AMCurrentAmplifierSingleView *sr570View_;
 	/// Holds the label for the status.
 	QLabel *statusLabel_;
 	/// The layout that holds all elements of the view.
