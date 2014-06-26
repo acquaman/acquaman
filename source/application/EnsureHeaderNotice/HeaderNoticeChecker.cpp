@@ -15,8 +15,14 @@ HeaderNoticeChecker::HeaderNoticeChecker(const QString &oldNotice, const QString
 	QDir sourceDirectory(directoryPath);
 	recurseDirectories(sourceDirectory.path(), sourceDirectory.entryList(QStringList(), QDir::Dirs | QDir::NoDotAndDotDot));
 
-	qDebug() << "Updated: " << oldToNew_;
-	qDebug() << "Newly added to: " << nothingToNew_;
+	//qDebug() << "Updated: " << oldToNew_;
+	//qDebug() << "Newly added to: " << nothingToNew_;
+	qDebug() << "Updated: ";
+	for(int x = 0, size = oldToNew_.count(); x < size; x++)
+		qDebug() << oldToNew_.at(x);
+	qDebug() << "Newly added to: ";
+	for(int x = 0, size = nothingToNew_.count(); x < size; x++)
+		qDebug() << nothingToNew_.at(x);
 }
 
 void HeaderNoticeChecker::recurseDirectories(const QString &currentPath, const QStringList &directories){
