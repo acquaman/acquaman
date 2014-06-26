@@ -38,7 +38,6 @@ public slots:
     void setName(const QString &newName);
     void showName(bool show);
     void setViewableValuesMax(int newMax);
-    void refreshView();
 
 protected slots:
     virtual void onValueComboBoxChanged(const QString &newText) = 0;

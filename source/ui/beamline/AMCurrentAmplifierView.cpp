@@ -4,7 +4,7 @@
 AMCurrentAmplifierView::AMCurrentAmplifierView(QWidget *parent) :
     QWidget(parent)
 {
-    setInitialized(false);
+    initialized_ = false;
 
     viewMode_ = Basic;
 
@@ -39,8 +39,6 @@ AMCurrentAmplifierView::AMCurrentAmplifierView(QWidget *parent) :
     layout_->addWidget(value_);
 
     setLayout(layout_);
-
-    refreshView();
 
     setInitialized(true);
 }
