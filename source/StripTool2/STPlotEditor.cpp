@@ -45,3 +45,8 @@ void STPlotEditor::setTimeEntry(int timeValue)
 {
     timeEntry_->setText(QString::number(timeValue));
 }
+
+void STPlotEditor::setTimeUnits()
+{
+
+}

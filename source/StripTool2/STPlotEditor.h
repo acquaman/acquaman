@@ -31,6 +31,8 @@ signals:
 public slots:
     /// Sets the value to appear in the timeEntry widget.
     void setTimeEntry(int timeValue);
+    /// Sets the current time units. Not implemented yet.
+    void setTimeUnits();
 
 protected:
     QLineEdit *timeEntry_;
