@@ -202,7 +202,8 @@ bool AMDatamanAppController::startup() {
 			return AMErrorMon::errorAndReturn(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_HANDING_NON_FIRST_TIME_USER, "Problem with Acquaman startup: handling non-first-time user.");
 	}
 
-	startupBackupDataDirectory();
+	if(!startupBackupDataDirectory())
+		return AMErrorMon::errorAndReturn(this, AMDATAMANAPPCONTROLLER_DATA_DIR_BACKUP_ERROR, "Problem with Acquaman startup: backing up data directory.");
 
 	if(!startupRegisterDatabases())
 		return AMErrorMon::errorAndReturn(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_REGISTERING_DATABASES, "Problem with Acquaman startup: registering databases.");
@@ -405,9 +406,10 @@ bool AMDatamanAppController::startupBackupDataDirectory()
 {
 	if(AMUserSettings::remoteDataFolder.length() > 0)
 	{
-		synchronizer_ = new AMDirectorySynchronizerDialog();
-		synchronizer_->start();
+		AMDirectorySynchronizerDialog synchronizer;
+		return synchronizer.start();
 	}
+	return true;
 }
 
 bool AMDatamanAppController::onFirstTimeDatabaseUpgrade(QList<AMDbUpgrade *> upgrades)

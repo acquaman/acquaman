@@ -15,10 +15,11 @@ private:
 	QTextEdit* errorTextEdit_;
 	QPushButton* errorCloseButton_;
 	AMDirectorySynchronizer* synchronizer_;
+	bool successfulSync_;
 public:
 	explicit AMDirectorySynchronizerDialog(QWidget *parent = 0);
 	~AMDirectorySynchronizerDialog();
-	void start();
+	bool start();
 protected:
 	void closeEvent(QCloseEvent *);
 signals:
@@ -27,6 +28,7 @@ public slots:
 protected slots:
 	void onSynchronizerErrorTextChanged(const QString& message);
 	void onSynchronizerComplete();
+	void onSynchronizerFailed();
 	void onPercentageProgressChanged(int);
 	void onCloseButtonClicked();
 };

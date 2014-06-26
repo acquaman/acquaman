@@ -17,6 +17,7 @@ AMDirectorySynchronizerDialog::AMDirectorySynchronizerDialog(QWidget *parent) :
 	errorTextEdit_->setVisible(false);
 	errorCloseButton_ = new QPushButton("Close");
 	errorCloseButton_->setVisible(false);
+	successfulSync_ = false;
 
 	mainLayout->addWidget(new QLabel("Acquaman is currently backing up your data. Please wait till complete..."));
 	mainLayout->addWidget(progressBar_, Qt::AlignCenter);
@@ -48,10 +49,12 @@ void AMDirectorySynchronizerDialog::closeEvent(QCloseEvent *ce)
 
 }
 
-void AMDirectorySynchronizerDialog::start()
+bool AMDirectorySynchronizerDialog::start()
 {
 	if(synchronizer_->start())
 		exec();
+
+	return successfulSync_;
 }
 
 void AMDirectorySynchronizerDialog::onSynchronizerErrorTextChanged(const QString &message)
@@ -62,6 +65,20 @@ void AMDirectorySynchronizerDialog::onSynchronizerErrorTextChanged(const QString
 void AMDirectorySynchronizerDialog::onSynchronizerComplete()
 {
 	setCursor(Qt::ArrowCursor);
+	successfulSync_ = true;
+	if(errorTextEdit_->toPlainText().length() != 0)
+	{
+		errorTextEdit_->setVisible(true);
+		errorCloseButton_->setVisible(true);
+	}
+	else
+		close();
+}
+
+void AMDirectorySynchronizerDialog::onSynchronizerFailed()
+{
+	setCursor(Qt::ArrowCursor);
+	successfulSync_ = false;
 	if(errorTextEdit_->toPlainText().length() != 0)
 	{
 		errorTextEdit_->setVisible(true);

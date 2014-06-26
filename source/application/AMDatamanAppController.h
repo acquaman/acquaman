@@ -84,7 +84,7 @@ class AMDirectorySynchronizerDialog;
 #define AMDATAMANAPPCONTROLLER_DB_UPGRADE_EVERY_TIME_UPGRADES_FAILED 270225
 
 #define AMDATAMANAPPCONTROLLER_USER_SETTINGS_STARTUP_ERROR 270226
-
+#define AMDATAMANAPPCONTROLLER_DATA_DIR_BACKUP_ERROR 270227
 /// This class takes the role of the main application controller for your particular version of the Acquaman program. It marshalls communication between separate widgets/objects, handles menus and menu actions, and all other cross-cutting issues that don't reside within a specific view or controller.  It creates and knows about all top-level GUI objects, and manages them within an AMMainWindow.
 /// This is the bare bones version of the GUI framework because it has no acquisition code inside and therefore forms the basis of a take home Dataman program for users.  It contains the ability to scan through the database, create experiments, and view scans using the scan editor.
 /*! The AMMainWindow class is a reusable GUI framework class that should not contain application-specific code.  Instead, you should subclass this class for your specific version of Acquaman.
@@ -374,7 +374,6 @@ protected:
 	/// List that organizes active scans with editors for updating the ScanEditorModelItem's.  Although the list currently will only be populated AMAppController, the clean up is very general and is done in the onWindowPaneCloseClicked() method.
 	QList<QPair<AMScan *, AMGenericScanEditor *> > scanEditorScanMapping_;
 
-	AMDirectorySynchronizerDialog* synchronizer_;
 private:
 	/// Holds the QObject whose signal is currently being used to connect to the onStartupFinished slot
 	QObject *finishedSender_;
