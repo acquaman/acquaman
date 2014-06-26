@@ -5,6 +5,7 @@
 #include <QLayout>
 
 #include "beamline/CLS/CLSKeithley428.h"
+#include "ui/beamline/AMCurrentAmplifierSingleView.h"
 
 class AMExtendedControlEditor;
 class AMCurrentAmplifierView;
@@ -23,7 +24,7 @@ public slots:
 
 protected:
     AMExtendedControlEditor *motorControlEditor_;
-    AMCurrentAmplifierView *keithleyView_;
+    AMCurrentAmplifierSingleView *keithleyView_;
 
 };
 
