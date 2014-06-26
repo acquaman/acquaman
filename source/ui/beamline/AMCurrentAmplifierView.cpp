@@ -27,6 +27,7 @@ AMCurrentAmplifierView::AMCurrentAmplifierView(AMCurrentAmplifier *amplifier, QW
 
     value_ = new QComboBox();
     value_->hide();
+    value_->setMaxVisibleItems(5);
     connect( value_, SIGNAL(currentIndexChanged(QString)), this, SLOT(onValueComboBoxChanged(QString)) );
 
     setViewMode(Basic);
@@ -97,6 +98,11 @@ void AMCurrentAmplifierView::showName(bool show)
     } else {
         name_->hide();
     }
+}
+
+void AMCurrentAmplifierView::setViewableValuesMax(int newMax)
+{
+    value_->setMaxVisibleItems(newMax);
 }
 
 void AMCurrentAmplifierView::refreshView()

@@ -38,6 +38,8 @@ public slots:
     void setViewMode(ViewMode newMode);
     /// Sets whether the amplifier name should be shown.
     void showName(bool showName);
+    /// Sets the maximum viewable elements in the combo box.
+    void setViewableValuesMax(int newMax);
     /// Clears and resets view widgets.
     void refreshView();
 
