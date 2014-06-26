@@ -4,13 +4,8 @@
 
 STWidget::STWidget(QWidget *parent) : QWidget(parent)
 {
-    ringCurrentControl_ = new AMProcessVariable("PCT1402-01:mA:fbk", true, this);
-    connect( ringCurrentControl_, SIGNAL(valueChanged(double)), this, SLOT(onRingCurrentValueChanged(double)) );
-
     ringCurrent_ = new STVariable("PCT1402-01:mA:fbk", this);
     connect( ringCurrent_, SIGNAL(connected(bool)), this, SLOT(onRingCurrentConnected(bool)) );
-
-    ringCurrentLabel_ = new QLabel("Storage ring current : ---");
 
     plotWidget_ = new STPlotWidget();
     plotWidget_->setPlotName("Storage ring current");
@@ -18,7 +13,6 @@ STWidget::STWidget(QWidget *parent) : QWidget(parent)
     connect( plotWidget_, SIGNAL(showPlotEditor(bool)), this, SLOT(showPlotEditor(bool)) );
 
     QVBoxLayout *layout = new QVBoxLayout();
-    layout->addWidget(ringCurrentLabel_);
     layout->addWidget(plotWidget_);
 
     setLayout(layout);
@@ -36,11 +30,6 @@ void STWidget::onRingCurrentConnected(bool isConnected)
         // add series to plot.
         plotWidget_->plot()->addItem(ringCurrent_->series());
     }
-}
-
-void STWidget::onRingCurrentValueChanged(double newValue)
-{
-    ringCurrentLabel_->setText(QString("Storage ring current : %1 mA").arg(newValue, 0, 'f', 3));
 }
 
 void STWidget::showPlotEditor(bool show)

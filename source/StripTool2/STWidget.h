@@ -28,11 +28,8 @@ public slots:
 
 protected slots:
     void onRingCurrentConnected(bool isConnected);
-    void onRingCurrentValueChanged(double newValue);
 
 protected:
-    QLabel *ringCurrentLabel_;
-    AMProcessVariable *ringCurrentControl_;
     STVariable *ringCurrent_;
 
     STPlotWidget *plotWidget_;
