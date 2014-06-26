@@ -1,12 +1,12 @@
-#ifndef LEGALHEADERCHECKER_H
-#define LEGALHEADERCHECKER_H
+#ifndef HEADERNOTICECHECKER_H
+#define HEADERNOTICECHECKER_H
 
 #include <QDir>
 
-class LegalHeaderChecker
+class HeaderNoticeChecker
 {
 public:
-	LegalHeaderChecker(const QString &oldNotice, const QString &newNotice);
+	HeaderNoticeChecker(const QString &oldNotice, const QString &newNotice, const QString &directoryPath);
 
 protected:
 	void recurseDirectories(const QString &currentPath, const QStringList &directories);
@@ -21,4 +21,4 @@ protected:
 	QStringList ignoreDirectories_;
 };
 
-#endif // LEGALHEADERCHECKER_H
+#endif // HEADERNOTICECHECKER_H
