@@ -755,7 +755,6 @@ HEADERS += source/acquaman/AMRegion.h \
 	source/ui/dataman/AMEXAFSScanAxisView.h \
 	source/beamline/CLS/CLSPseudoMotorControl.h \
     source/beamline/CLS/CLSKeithley428.h \
-    source/ui/beamline/AMCurrentAmplifierView.h \
 	source/ui/AMRegExpLineEdit.h \
 	source/application/AMCrashMonitorSupport.h \
 	source/analysis/AM0DAccumulatorAB.h \
@@ -765,7 +764,8 @@ HEADERS += source/acquaman/AMRegion.h \
     source/analysis/AM1DTimedDataAB.h \
 	source/StripTool2/STVariable.h \
     source/analysis/AM1DKSpaceCalculatorAB.h \
-    source/ui/beamline/AMCurrentAmplifierCompositeView.h
+    source/ui/beamline/AMCurrentAmplifierCompositeView.h \
+    source/ui/beamline/AMCurrentAmplifierSingleView.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1241,7 +1241,6 @@ SOURCES += source/acquaman/AMRegion.cpp \
 	source/ui/dataman/AMEXAFSScanAxisView.cpp \
 	source/beamline/CLS/CLSPseudoMotorControl.cpp \
     source/beamline/CLS/CLSKeithley428.cpp \
-    source/ui/beamline/AMCurrentAmplifierView.cpp \
 	source/ui/AMRegExpLineEdit.cpp \
 	source/application/AMCrashMonitorSupport.cpp \
 	source/analysis/AM0DAccumulatorAB.cpp \
@@ -1251,7 +1250,8 @@ SOURCES += source/acquaman/AMRegion.cpp \
     source/analysis/AM1DTimedDataAB.cpp \
 	source/StripTool2/STVariable.cpp \
     source/analysis/AM1DKSpaceCalculatorAB.cpp \
-    source/ui/beamline/AMCurrentAmplifierCompositeView.cpp
+    source/ui/beamline/AMCurrentAmplifierCompositeView.cpp \
+    source/ui/beamline/AMCurrentAmplifierSingleView.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
