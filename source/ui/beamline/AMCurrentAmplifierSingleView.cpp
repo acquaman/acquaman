@@ -1,56 +1,56 @@
 #include "AMCurrentAmplifierSingleView.h"
 
 AMCurrentAmplifierSingleView::AMCurrentAmplifierSingleView(AMCurrentAmplifier *amplifier, QWidget *parent) :
-    QWidget(parent)
+    AMCurrentAmplifierView(parent)
 {
-    initialized_ = false;
+//    initialized_ = false;
 
     amplifier_ = amplifier;
     connect( amplifier_, SIGNAL(amplifierModeChanged()), this, SLOT(refreshView()) );
     connect( amplifier_, SIGNAL(valueChanged()), this, SLOT(onAmplifierValueChanged()) );
 
-    name_ = new QLabel(amplifier_->name());
+//    name_ = new QLabel(amplifier_->name());
 
-    minus_ = new QToolButton();
-    minus_->show();
-    minus_->setMaximumSize(25, 25);
-    minus_->setIcon(QIcon(":/22x22/list-remove.png"));
-    connect( minus_, SIGNAL(clicked()), this, SLOT(onMinusClicked()) );
+//    minus_ = new QToolButton();
+//    minus_->show();
+//    minus_->setMaximumSize(25, 25);
+//    minus_->setIcon(QIcon(":/22x22/list-remove.png"));
+//    connect( minus_, SIGNAL(clicked()), this, SLOT(onMinusClicked()) );
     connect( amplifier_, SIGNAL(minimumValue(bool)), minus_, SLOT(setDisabled(bool)) );
 
-    plus_ = new QToolButton();
-    plus_->show();
-    plus_->setMaximumSize(25, 25);
-    plus_->setIcon(QIcon(":/22x22/list-add.png"));
-    connect( plus_, SIGNAL(clicked()), this, SLOT(onPlusClicked()) );
+//    plus_ = new QToolButton();
+//    plus_->show();
+//    plus_->setMaximumSize(25, 25);
+//    plus_->setIcon(QIcon(":/22x22/list-add.png"));
+//    connect( plus_, SIGNAL(clicked()), this, SLOT(onPlusClicked()) );
     connect( amplifier_, SIGNAL(maximumValue(bool)), plus_, SLOT(setDisabled(bool)) );
 
-    value_ = new QComboBox();
-    value_->setMaxVisibleItems(5);
-    value_->hide();
-    connect( value_, SIGNAL(currentIndexChanged(QString)), this, SLOT(onValueComboBoxChanged(QString)) );
+//    value_ = new QComboBox();
+//    value_->setMaxVisibleItems(5);
+//    value_->hide();
+//    connect( value_, SIGNAL(currentIndexChanged(QString)), this, SLOT(onValueComboBoxChanged(QString)) );
 
-    setViewMode(Basic);
-    showName(false);
+//    setViewMode(Basic);
+//    showName(false);
 
-    setContextMenuPolicy(Qt::CustomContextMenu);
-    connect( this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)) );
+//    setContextMenuPolicy(Qt::CustomContextMenu);
+//    connect( this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)) );
 
     refreshView();
 
-    QHBoxLayout *layout = new QHBoxLayout();
+//    QHBoxLayout *layout = new QHBoxLayout();
 
-    layout->addWidget(name_);
-    layout->addWidget(minus_);
-    layout->addWidget(plus_);
-    layout->addWidget(value_);
+//    layout->addWidget(name_);
+//    layout->addWidget(minus_);
+//    layout->addWidget(plus_);
+//    layout->addWidget(value_);
 
-    setLayout(layout);
+//    setLayout(layout);
 
-    initialized_ = true;
+//    initialized_ = true;
 }
 
-AMCurrentAmplifierSingleView::~AMCurrentAmplifierView()
+AMCurrentAmplifierSingleView::~AMCurrentAmplifierSingleView()
 {
 
 }
@@ -60,50 +60,50 @@ AMCurrentAmplifier* AMCurrentAmplifierSingleView::amplifier() const
     return amplifier_;
 }
 
-bool AMCurrentAmplifierSingleView::initialized() const
-{
-    return initialized_;
-}
+//bool AMCurrentAmplifierSingleView::initialized() const
+//{
+//    return initialized_;
+//}
 
-AMCurrentAmplifierView::ViewMode AMCurrentAmplifierSingleView::viewMode() const
-{
-    return mode_;
-}
+//AMCurrentAmplifierView::ViewMode AMCurrentAmplifierSingleView::viewMode() const
+//{
+//    return mode_;
+//}
 
-void AMCurrentAmplifierSingleView::setViewMode(ViewMode newMode)
-{
-    if (newMode != mode_) {
-        mode_ = newMode;
+//void AMCurrentAmplifierSingleView::setViewMode(ViewMode newMode)
+//{
+//    if (newMode != mode_) {
+//        mode_ = newMode;
 
-        if (mode_ == Basic) {
-            value_->hide();
-            plus_->show();
-            minus_->show();
+//        if (mode_ == Basic) {
+//            value_->hide();
+//            plus_->show();
+//            minus_->show();
 
-        } else {
-            value_->show();
-            plus_->hide();
-            minus_->hide();
-        }
+//        } else {
+//            value_->show();
+//            plus_->hide();
+//            minus_->hide();
+//        }
 
-        emit viewModeChanged(mode_);
-    }
-}
+//        emit viewModeChanged(mode_);
+//    }
+//}
 
-void AMCurrentAmplifierSingleView::showName(bool show)
-{
-    if (show) {
-        name_->show();
+//void AMCurrentAmplifierSingleView::showName(bool show)
+//{
+//    if (show) {
+//        name_->show();
 
-    } else {
-        name_->hide();
-    }
-}
+//    } else {
+//        name_->hide();
+//    }
+//}
 
-void AMCurrentAmplifierSingleView::setViewableValuesMax(int newMax)
-{
-    value_->setMaxVisibleItems(newMax);
-}
+//void AMCurrentAmplifierSingleView::setViewableValuesMax(int newMax)
+//{
+//    value_->setMaxVisibleItems(newMax);
+//}
 
 void AMCurrentAmplifierSingleView::refreshView()
 {
@@ -140,24 +140,22 @@ void AMCurrentAmplifierSingleView::onPlusClicked()
 
 void AMCurrentAmplifierSingleView::onCustomContextMenuRequested(QPoint position)
 {
-    // only show the menu if there is a valid amplifier and that amplifier supports multiple view options.
-
     QMenu menu(this);
 
     QAction *basic = menu.addAction("Basic view");
-    basic->setDisabled(mode_ == Basic);
+    basic->setDisabled(viewMode_ == AMCurrentAmplifierView::Basic);
 
     QAction *advanced = menu.addAction("Advanced view");
-    advanced->setDisabled(mode_ == Advanced);
+    advanced->setDisabled(viewMode_ == AMCurrentAmplifierView::Advanced);
 
     if (amplifier_ && amplifier_->supportsGainMode() && amplifier_->supportsSensitivityMode()) {
         menu.addSeparator();
 
         QAction *gain = menu.addAction("Gain view");
-        gain->setDisabled(mode_ == Basic || amplifier_->inGainMode());
+        gain->setDisabled(viewMode_ == AMCurrentAmplifierView::Basic || amplifier_->inGainMode());
 
         QAction *sensitivity = menu.addAction("Sensitivity view");
-        sensitivity->setDisabled(mode_ == Basic || amplifier_->inSensitivityMode());
+        sensitivity->setDisabled(viewMode_ == AMCurrentAmplifierView::Basic || amplifier_->inSensitivityMode());
     }
 
     QAction *selected = menu.exec(mapToGlobal(position));
