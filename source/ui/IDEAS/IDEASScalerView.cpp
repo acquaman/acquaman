@@ -27,7 +27,7 @@ IDEASScalerView::IDEASScalerView(QWidget *parent)
 		view->setEnableCheckBoxVisibility(false);
 		singleViews_ << view;
 		view->setFixedHeight(55);
-        connect(view, SIGNAL(amplifierViewModeChanged(AMCurrentAmplifierView::ViewMode)), this, SLOT(onSR570ViewChanged(AMCurrentAmplifier::ViewMode)) );
+        connect(view, SIGNAL(amplifierViewModeChanged(AMCurrentAmplifierView::ViewMode)), this, SLOT(onSR570ViewChanged(AMCurrentAmplifierView::ViewMode)) );
 		connect(view, SIGNAL(outputViewModeChanged(CLSSIS3820ScalerChannelView::OutputViewMode)), this, SLOT(onOutputViewModeChanged(CLSSIS3820ScalerChannelView::OutputViewMode)));
 		layout->addWidget(view);
 	}
@@ -49,7 +49,7 @@ void IDEASScalerView::onSR570ViewChanged(AMCurrentAmplifierView::ViewMode mode)
     }
 }
 
-void IDEASScalerView::onSR570ViewChanged(CLSSR570CompositeView::ViewMode mode)
+void IDEASScalerView::onSR570ViewChanged(AMCurrentAmplifierView::ViewMode mode)
 {
 //	compositeView_->blockSignals(true);
 //	compositeView_->setSR570ViewMode(mode);
