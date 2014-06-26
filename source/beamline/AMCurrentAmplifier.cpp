@@ -1,6 +1,7 @@
 #include "AMCurrentAmplifier.h"
 
 #include "source/ui/beamline/AMCurrentAmplifierView.h"
+#include "source/ui/beamline/AMCurrentAmplifierSingleView.h"
 
 AMCurrentAmplifier::AMCurrentAmplifier(const QString &name, QObject *parent) :
     QObject(parent)
@@ -85,7 +86,7 @@ bool AMCurrentAmplifier::atMaximumValue() const
 
 AMCurrentAmplifierView* AMCurrentAmplifier::createView()
 {
-    return new AMCurrentAmplifierView(this);
+    return new AMCurrentAmplifierSingleView(this);
 }
 
 bool AMCurrentAmplifier::setAmplifierMode(AmplifierMode newMode)

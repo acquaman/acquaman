@@ -1,7 +1,7 @@
 #include "AMCurrentAmplifierCompositeView.h"
 
 AMCurrentAmplifierCompositeView::AMCurrentAmplifierCompositeView(AMCurrentAmplifier *amp1, AMCurrentAmplifier *amp2, QWidget *parent) :
-    QWidget(parent)
+    AMCurrentAmplifierView(parent)
 {
     amplifier1_ = amp1;
     amplifier2_ = amp2;
@@ -20,6 +20,21 @@ AMCurrentAmplifier* AMCurrentAmplifierCompositeView::amplifier1() const
 AMCurrentAmplifier* AMCurrentAmplifierCompositeView::amplifier2() const
 {
     return amplifier2_;
+}
+
+void AMCurrentAmplifierCompositeView::onValueComboBoxChanged(const QString &newText)
+{
+    Q_UNUSED(newText)
+}
+
+void AMCurrentAmplifierCompositeView::onMinusClicked()
+{
+
+}
+
+void AMCurrentAmplifierCompositeView::onPlusClicked()
+{
+
 }
 
 

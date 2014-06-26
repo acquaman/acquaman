@@ -4,8 +4,9 @@
 #include <QWidget>
 
 #include "beamline/AMCurrentAmplifier.h"
+#include "ui/beamline/AMCurrentAmplifierView.h"
 
-class AMCurrentAmplifierCompositeView : public QWidget
+class AMCurrentAmplifierCompositeView : public AMCurrentAmplifierView
 {
     Q_OBJECT
 
@@ -23,6 +24,11 @@ public:
 signals:
 
 public slots:
+
+protected slots:
+    virtual void onValueComboBoxChanged(const QString &newText);
+    virtual void onMinusClicked();
+    virtual void onPlusClicked();
 
 protected:
     /// The first amplifier.
