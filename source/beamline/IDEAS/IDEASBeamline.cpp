@@ -99,7 +99,7 @@ void IDEASBeamline::setupControlSets()
 void IDEASBeamline::setupMono()
 {
     monoEnergy_ = new IDEASMonochromatorControl(this);
-    //monoEnergy_->setSettlingTime(0.5); //HACK
+    monoEnergy_->setSettlingTime(0.25); //HACK
 
     monoDirectEnergy_ = new IDEASDirectMonochromatorControl(this);
 
