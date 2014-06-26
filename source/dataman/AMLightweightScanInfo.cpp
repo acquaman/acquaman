@@ -1,6 +1,6 @@
 #include "AMLightweightScanInfo.h"
 
-AMLightweightScanInfo::LightweightScanInfo(
+AMLightweightScanInfo::AMLightweightScanInfo(
 		int id,
 		const QString &name,
 		int number, const
@@ -8,8 +8,7 @@ AMLightweightScanInfo::LightweightScanInfo(
 		const QString &scanType,
 		const QString &runName,
 		const QString &notes,
-		const QString &sampleName,
-		const QString &elementName)
+		const QString &sampleName)
 {
 	id_ = id;
 	name_ = name;
@@ -19,7 +18,6 @@ AMLightweightScanInfo::LightweightScanInfo(
 	runName_ = runName;
 	notes_ = notes;
 	sampleName_ = sampleName;
-	elementName_ = elementName;
 }
 
 int AMLightweightScanInfo::id() const
@@ -30,6 +28,11 @@ int AMLightweightScanInfo::id() const
 QString AMLightweightScanInfo::name() const
 {
 	return name_;
+}
+
+int AMLightweightScanInfo::number() const
+{
+	return number_;
 }
 
 QDateTime AMLightweightScanInfo::dateTime() const
@@ -55,9 +58,4 @@ QString AMLightweightScanInfo::notes() const
 QString AMLightweightScanInfo::sampleName() const
 {
 	return sampleName_;
-}
-
-QString AMLightweightScanInfo::elementName() const
-{
-	return elementName_;
 }

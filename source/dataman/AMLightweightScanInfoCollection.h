@@ -7,7 +7,8 @@
 #include "AMLightweightScanInfo.h"
 
 class AMDatabase;
-class AMLightweightScanInfoCollection : QList<AMLightweightScanInfo>
+/// A class representing a bulk loaded collection of Scan's database info
+class AMLightweightScanInfoCollection : public QList<AMLightweightScanInfo>
 {
 private:
 	/// The database from which the scan infos will be retrieved
@@ -21,14 +22,23 @@ private:
 	QHash< QString, QHash < int, QString> > sampleNameMap_;
 
 public:
+	/// Creates an instance of an AMLightweightScanInfoCollection loaded from the provided database
 	AMLightweightScanInfoCollection(AMDatabase* database);
 protected:
+	/// Builds the mapping of SampleTable -> (SampleId -> SampleName)
 	void populateSampleNames();
+	/// Builds the mapping of ObjectName -> ObjectDescription
 	void populateObjectTypes();
+	/// Builds the collection by loading scan's info from the database
 	void populateCollection();
+	/// Builds the mapping of RunId -> RunName
 	void populateRuns();
+	/// Looks up the run name from the mapping using the runId
 	QString getRunName(int runId);
+	/// Looks up the scan type description from the object type mapping using the dbObjectName
 	QString getScanType(const QString& dbObjectType);
+	/// Looks up the sample name from the relevant table mapping and id using the return results of the
+	/// format TABLE_NAME;ID
 	QString getSampleName(const QString& sampleResult);
 
 

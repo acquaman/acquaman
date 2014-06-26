@@ -19,7 +19,6 @@ private:
 	QString runName_;
 	QString notes_;
 	QString sampleName_;
-	QString elementName_;
 
 public:
 	AMLightweightScanInfo(int id,
@@ -29,17 +28,16 @@ public:
 						const QString& scanType,
 						const QString& runName,
 						const QString& notes,
-						const QString& sampleName,
-						const QString& elementName);
+						const QString& sampleName);
 
 	int id() const;
 	QString name() const;
+	int number() const;
 	QDateTime dateTime() const;
 	QString scanType() const;
 	QString runName() const;
 	QString notes() const;
 	QString sampleName() const;
-	QString elementName() const;
 };
 
 #endif // AMLIGHTWEIGHTSCANINFO_H

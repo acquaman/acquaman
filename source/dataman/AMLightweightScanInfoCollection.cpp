@@ -27,7 +27,7 @@ void AMLightweightScanInfoCollection::populateSampleNames()
 		QStringList splitResults = sampleResults.split(";");
 
 		if(!sampleNameMap_.contains(splitResults.at(0)))
-			sampleNameMap_.insert(splitResults.at(0), QHash<int, QString>);
+			sampleNameMap_.insert(splitResults.at(0), QHash<int, QString>());
 	}
 
 	selectQuery.finish();
@@ -42,12 +42,17 @@ void AMLightweightScanInfoCollection::populateSampleNames()
 
 		QSqlQuery sampleSelectQuery = database_->select(tableName, "id, name");
 
-		while(selectQuery.next())
+		if(sampleSelectQuery.exec())
 		{
-			int sampleId = sampleSelectQuery.value(0).toInt();
-			QString sampleName = sampleSelectQuery.value(1).toString();
+			while(sampleSelectQuery.next())
+			{
+				int sampleId = sampleSelectQuery.value(0).toInt();
+				QString sampleName = sampleSelectQuery.value(1).toString();
 
-			sampleNameMap_.value(tableName).insert(sampleId, sampleName);
+				sampleNameMap_[tableName].insert(sampleId, sampleName);
+			}
+
+			sampleSelectQuery.finish();
 		}
 	}
 
@@ -55,7 +60,7 @@ void AMLightweightScanInfoCollection::populateSampleNames()
 
 void AMLightweightScanInfoCollection::populateObjectTypes()
 {
-	QSqlQuery selectQuery = database_->select("AMDbObjectTypes_table", "AMDbObject, description");
+	QSqlQuery selectQuery = database_->select("AMDbObjectTypes_table", "AMDbObjectType, description");
 
 	if(!selectQuery.exec())
 		return;
@@ -85,12 +90,12 @@ void AMLightweightScanInfoCollection::populateCollection()
 		QString name = selectQuery.value(currentRecord.indexOf("name")).toString();
 		int number = selectQuery.value(currentRecord.indexOf("number")).toInt();
 		QDateTime dateTime = selectQuery.value(currentRecord.indexOf("dateTime")).toDateTime();
-		QString runName = getRunName(selectQuery.value(currentRecord.indexOf("runId")));
+		QString runName = getRunName(selectQuery.value(currentRecord.indexOf("runId")).toInt());
 		QString scanType = getScanType(selectQuery.value(currentRecord.indexOf("AMDbObjectType")).toString());
 		QString notes = selectQuery.value(currentRecord.indexOf("notes")).toString();
 		QString sampleName = getSampleName(selectQuery.value(currentRecord.indexOf("Sample")).toString());
 
-		append(AMLightweightScanInfo(id, name, number, dateTime, scanType, runName, notes, sampleName, ""));
+		append(AMLightweightScanInfo(id, name, number, dateTime, scanType, runName, notes, sampleName));
 
 	}
 
@@ -143,7 +148,7 @@ QString AMLightweightScanInfoCollection::getSampleName(const QString &sampleResu
 
 	QString tableName = splitResult.at(0);
 	bool parseSuccess = false;
-	int id = splitResult.at(1).toInt(parseSuccess);
+	int id = splitResult.at(1).toInt(&parseSuccess);
 
 	if(!parseSuccess)
 		return QString();
