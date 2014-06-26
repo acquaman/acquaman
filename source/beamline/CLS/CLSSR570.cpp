@@ -33,8 +33,6 @@ CLSSR570::CLSSR570(const QString &name, const QString &valueName, const QString 
 
 	connect(value_, SIGNAL(valueChanged(int)), this, SLOT(onValueChanged(int)));
     connect(units_, SIGNAL(valueChanged(QString)), this, SLOT(onUnitsChanged(QString)) );
-    connect(value_, SIGNAL(valueChanged()), this, SIGNAL(sensitivityChanged()));
-    connect(units_, SIGNAL(valueChanged()), this, SIGNAL(sensitivityChanged()));
 
 	connect(value_, SIGNAL(valueChanged()), this, SLOT(onSensitivityChanged()));
 	connect(units_, SIGNAL(valueChanged()), this, SLOT(onSensitivityChanged()));
