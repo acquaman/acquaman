@@ -13,6 +13,9 @@ STWidget::STWidget(QWidget *parent) : QWidget(parent)
     ringCurrentLabel_ = new QLabel("Storage ring current : ---");
 
     plotWidget_ = new STPlotWidget();
+    plotWidget_->setPlotName("Storage ring current");
+    plotWidget_->showPlotName(true);
+    connect( plotWidget_, SIGNAL(showPlotEditor(bool)), this, SLOT(showPlotEditor(bool)) );
 
     QVBoxLayout *layout = new QVBoxLayout();
     layout->addWidget(ringCurrentLabel_);
@@ -38,4 +41,11 @@ void STWidget::onRingCurrentConnected(bool isConnected)
 void STWidget::onRingCurrentValueChanged(double newValue)
 {
     ringCurrentLabel_->setText(QString("Storage ring current : %1 mA").arg(newValue, 0, 'f', 3));
+}
+
+void STWidget::showPlotEditor(bool show)
+{
+    if (show) {
+        QDialog editor;
+    }
 }

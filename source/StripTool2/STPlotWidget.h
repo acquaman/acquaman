@@ -2,6 +2,8 @@
 #define STPLOTWIDGET_H
 
 #include <QWidget>
+#include <QMenu>
+#include <QLayout>
 
 #include "MPlot/MPlot.h"
 #include "MPlot/MPlotWidget.h"
@@ -14,10 +16,19 @@ public:
     virtual ~STPlotWidget();
 
 signals:
+    void showPlotEditor(bool show);
+    void plotNameChanged(const QString &name);
 
 public slots:
+    void setPlotName(const QString &newName);
+    void showPlotName(bool show);
+
+protected slots:
+    void onCustomContextMenuRequested(QPoint position);
 
 protected:
+    QString plotName_;
+    bool plotNameVisible_;
 
 };
 

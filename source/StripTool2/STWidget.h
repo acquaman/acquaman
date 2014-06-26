@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QLabel>
 #include <QLayout>
+#include <QDialog>
 
 #include "beamline/AMPVControl.h"
 
@@ -22,6 +23,9 @@ public:
     STWidget(QWidget *parent = 0);
     ~STWidget();
 
+public slots:
+    void showPlotEditor(bool show);
+
 protected slots:
     void onRingCurrentConnected(bool isConnected);
     void onRingCurrentValueChanged(double newValue);
@@ -33,8 +37,7 @@ protected:
 
     STPlotWidget *plotWidget_;
 
-//    STPlotEditor *plotEditor_;
-//    QPushButton *showPlotEditor_;
+    STPlotEditor *plotEditor_;
 };
 
 #endif // STWIDGET_H
