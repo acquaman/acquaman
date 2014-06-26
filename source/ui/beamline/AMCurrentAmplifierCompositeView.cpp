@@ -12,12 +12,12 @@ AMCurrentAmplifierCompositeView::~AMCurrentAmplifierCompositeView()
 
 }
 
-AMCurrentAmplifier* AMCurrentAmplifierView::amplifier1() const
+AMCurrentAmplifier* AMCurrentAmplifierCompositeView::amplifier1() const
 {
     return amplifier1_;
 }
 
-AMCurrentAmplifier* AMCurrentAmplifierView::amplifier2() const
+AMCurrentAmplifier* AMCurrentAmplifierCompositeView::amplifier2() const
 {
     return amplifier2_;
 }
