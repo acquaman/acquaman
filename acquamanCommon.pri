@@ -765,7 +765,8 @@ HEADERS += source/acquaman/AMRegion.h \
 	source/StripTool2/STVariable.h \
     source/analysis/AM1DKSpaceCalculatorAB.h \
     source/ui/beamline/AMCurrentAmplifierCompositeView.h \
-    source/ui/beamline/AMCurrentAmplifierSingleView.h
+    source/ui/beamline/AMCurrentAmplifierSingleView.h \
+    source/ui/beamline/AMCurrentAmplifierView.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1251,7 +1252,8 @@ SOURCES += source/acquaman/AMRegion.cpp \
 	source/StripTool2/STVariable.cpp \
     source/analysis/AM1DKSpaceCalculatorAB.cpp \
     source/ui/beamline/AMCurrentAmplifierCompositeView.cpp \
-    source/ui/beamline/AMCurrentAmplifierSingleView.cpp
+    source/ui/beamline/AMCurrentAmplifierSingleView.cpp \
+    source/ui/beamline/AMCurrentAmplifierView.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
