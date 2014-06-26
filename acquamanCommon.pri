@@ -765,7 +765,8 @@ HEADERS += source/acquaman/AMRegion.h \
     source/analysis/AM1DTimedDataAB.h \
 	source/StripTool2/STVariable.h \
     source/analysis/AM1DKSpaceCalculatorAB.h \
-    source/dataman/AMLightweightScanInfo.h
+    source/dataman/AMLightweightScanInfo.h \
+    source/dataman/AMLightweightScanInfoCollection.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1251,7 +1252,8 @@ SOURCES += source/acquaman/AMRegion.cpp \
     source/analysis/AM1DTimedDataAB.cpp \
 	source/StripTool2/STVariable.cpp \
     source/analysis/AM1DKSpaceCalculatorAB.cpp \
-    source/dataman/AMLightweightScanInfo.cpp
+    source/dataman/AMLightweightScanInfo.cpp \
+    source/dataman/AMLightweightScanInfoCollection.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
