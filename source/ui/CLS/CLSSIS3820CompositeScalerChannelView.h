@@ -13,7 +13,7 @@
 class CLSSIS3820ScalerChannel;
 
 #include "beamline/CLS/CLSSIS3820Scaler.h"
-#include "ui/CLS/CLSSR570CompositeView.h"
+#include "ui/beamline/AMCurrentAmplifierCompositeView.h"
 
 /// This view mimics the standard CLSSIS3820ScalerChannelView, but uses two scaler channels instead of one.
 class CLSSIS3820CompositeScalerChannelView : public QWidget
@@ -33,7 +33,7 @@ signals:
 	/// Notifier that the channel changed viewing mode.  Passes the new mode.
 	void outputViewModeChanged(CLSSIS3820CompositeScalerChannelView::OutputViewMode);
 	/// Notifier that passes along that the SR570 view changed.
-	void sr570ViewModeChanged(CLSSR570CompositeView::ViewMode);
+    void amplifierViewModeChanged(AMCurrentAmplifierView::ViewMode);
 
 public slots:
 	/// Sets the custom name for the composite scaler channel view.
@@ -41,13 +41,13 @@ public slots:
 	/// Convenience method that sets the output view mode for the channel.
 	void setOutputViewMode(CLSSIS3820CompositeScalerChannelView::OutputViewMode mode);
 	/// Convenience method that sets the view mode of the SR570.
-	void setSR570ViewMode(CLSSR570CompositeView::ViewMode mode);
+    void setAmplifierViewMode(AMCurrentAmplifierView::ViewMode mode);
 	/// Sets the visibility for the enable check box.
 	void setEnableCheckBoxVisibility(bool visible);
 	/// Sets the custom name visibility.
 	void setCustomNameVisibility(bool visible);
 	/// Sets the SR570 visibility (does nothing if no SR570 is set).
-	void setSR570Visibility(bool visible);
+    void setAmplifierVisibility(bool visible);
 	/// Sets the output visibility.
 	void setOutputVisibility(bool visible);
 	/// Sets the status label visibility.
@@ -87,7 +87,7 @@ protected:
 	/// Label holding the name of the scaler channel.
 	QLabel *channelName_;
 	/// Holds the SR570, should there be a SR570 bound to this channel.
-	CLSSR570CompositeView *sr570View_;
+    AMCurrentAmplifierCompositeView *amplifierView_;
 	/// Holds the label for the status.
 	QLabel *statusLabel_;
 	/// The layout that holds all elements of the view.
