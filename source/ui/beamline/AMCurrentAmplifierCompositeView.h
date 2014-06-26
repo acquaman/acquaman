@@ -30,6 +30,11 @@ protected slots:
     virtual void onMinusClicked();
     virtual void onPlusClicked();
 
+    void onAmplifierValueChanged();
+
+protected:
+    QString valueToString(double value, const QString &units) const;
+
 protected:
     /// The first amplifier.
     AMCurrentAmplifier *amplifier1_;
