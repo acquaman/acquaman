@@ -148,10 +148,9 @@ CLSSIS3820ScalerView::CLSSIS3820ScalerView(CLSSIS3820Scaler *scaler, QWidget *pa
 			channelView = new CLSSIS3820ScalerChannelViewWithDarkCurrent(channel);
 		else
 			channelView = new CLSSIS3820ScalerChannelView(scaler_->channelAt(i));
-		//        channelView->setDarkCurrentViewMode(CLSSIS3820ScalerChannelViewWithDarkCurrent::Show);
 
 		channelViews_ << channelView;
-//		connect(channelView, SIGNAL(sr570ViewModeChanged(CLSSR570View::ViewMode)), this, SLOT(onSR570ViewChanged(CLSSR570View::ViewMode)));
+        connect(channelView, SIGNAL(amplifierViewModeChanged(AMCurrentAmplifierView::ViewMode)), this, SLOT(onAmplifierViewChanged(AMCurrentAmplifierView::ViewMode)));
 		connect(channelView, SIGNAL(outputViewModeChanged(CLSSIS3820ScalerChannelView::OutputViewMode)), this, SLOT(onOutputViewModeChanged(CLSSIS3820ScalerChannelView::OutputViewMode)));
 
 		channelLayout_->addWidget(channelView);
