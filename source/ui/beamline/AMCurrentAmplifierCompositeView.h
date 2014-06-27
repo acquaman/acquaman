@@ -20,6 +20,8 @@ public:
     AMCurrentAmplifier *amplifier1() const;
     /// Returns the second amplifier.
     AMCurrentAmplifier *amplifier2() const;
+    /// Returns boolean indicating whether this view is valid.
+    bool isValid() const;
 
 signals:
 
@@ -40,6 +42,8 @@ protected:
     AMCurrentAmplifier *amplifier1_;
     /// The second amplifier.
     AMCurrentAmplifier *amplifier2_;
+    /// Bool indicating whether the composite view is valid--if both amplifiers entered are valid.
+    bool isValid_;
 
 };
 
