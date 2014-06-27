@@ -24,6 +24,7 @@ public:
     virtual ~AMCurrentAmplifierView();
 
     bool initialized() const;
+    virtual bool isValid() const = 0;
     AMCurrentAmplifierView::ViewMode viewMode() const;
     QString name() const;
 
@@ -33,16 +34,26 @@ signals:
     void nameChanged(const QString &name);
 
 public slots:
-    void setInitialized(bool isInitialized);
     void setViewMode(ViewMode newMode);
     void setName(const QString &newName);
     void showName(bool show);
     void setViewableValuesMax(int newMax);
 
 protected slots:
-    virtual void onValueComboBoxChanged(const QString &newText) = 0;
-    virtual void onMinusClicked() = 0;
-    virtual void onPlusClicked() = 0;
+    void setInitialized(bool isInitialized);
+
+    void onValueComboBoxChanged(const QString &newText);
+    virtual void onValueComboBoxChangedImplementation(const QString &newText) = 0;
+
+    void onMinusClicked();
+    virtual void onMinusClickedImplementation() = 0;
+
+    void onPlusClicked();
+    virtual void onPlusClickedImplementation() = 0;
+
+    void refreshView();
+    virtual void refreshViewImplementation() = 0;
+
     virtual void onCustomContextMenuRequested(QPoint position);
 
 protected:

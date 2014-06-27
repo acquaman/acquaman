@@ -22,39 +22,46 @@ AMCurrentAmplifier* AMCurrentAmplifierSingleView::amplifier() const
     return amplifier_;
 }
 
-void AMCurrentAmplifierSingleView::refreshView()
+bool AMCurrentAmplifierSingleView::isValid() const
 {
-    refreshValues();
-    refreshButtons();
+    if (amplifier_)
+        return true;
+    else
+        return false;
 }
 
 void AMCurrentAmplifierSingleView::onAmplifierValueChanged()
 {
-    amplifier_->blockSignals(true);
+    if (isValid()) {
+        amplifier_->blockSignals(true);
 
-    int newIndex = value_->findText( valueToString(amplifier_->value(), amplifier_->units()) );
-    if (newIndex != -1)
-        value_->setCurrentIndex(newIndex);
+        int newIndex = value_->findText( valueToString(amplifier_->value(), amplifier_->units()) );
+        if (newIndex != -1)
+            value_->setCurrentIndex(newIndex);
 
-    amplifier_->blockSignals(false);
-}
-
-void AMCurrentAmplifierSingleView::onValueComboBoxChanged(const QString &newText)
-{
-    // the initialized_ boolean prevents the display from setting the amplifier value while view is initializing <- undesirable behavior.
-    if (initialized_) {
-        amplifier_->setValue(newText);
+        amplifier_->blockSignals(false);
     }
 }
 
-void AMCurrentAmplifierSingleView::onMinusClicked()
+void AMCurrentAmplifierSingleView::onValueComboBoxChangedImplementation(const QString &newText)
+{
+    amplifier_->setValue(newText);
+}
+
+void AMCurrentAmplifierSingleView::onMinusClickedImplementation()
 {
     amplifier_->decreaseValue();
 }
 
-void AMCurrentAmplifierSingleView::onPlusClicked()
+void AMCurrentAmplifierSingleView::onPlusClickedImplementation()
 {
     amplifier_->increaseValue();
+}
+
+void AMCurrentAmplifierSingleView::refreshViewImplementation()
+{
+    refreshValues();
+    refreshButtons();
 }
 
 void AMCurrentAmplifierSingleView::onCustomContextMenuRequested(QPoint position)
@@ -101,8 +108,6 @@ QString AMCurrentAmplifierSingleView::valueToString(double value, const QString 
 
 void AMCurrentAmplifierSingleView::refreshValues()
 {
-    initialized_ = false;
-
     value_->clear();
 
     // (re)populate value_ with appropriate options provided by the amplifier.
@@ -118,8 +123,6 @@ void AMCurrentAmplifierSingleView::refreshValues()
 
     // values displayed should represent the amplifier's current state.
     onAmplifierValueChanged();
-
-    initialized_ = true;
 }
 
 void AMCurrentAmplifierSingleView::refreshButtons()

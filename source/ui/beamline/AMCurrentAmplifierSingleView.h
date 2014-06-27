@@ -24,22 +24,24 @@ public:
     /// Returns the pointer to the AMCurrentAmplifier this view is visualizing.
     AMCurrentAmplifier *amplifier() const;
 
+    virtual bool isValid() const;
+
 signals:
 
 public slots:
-    /// Clears and resets view widgets.
-    void refreshView();
 
 protected slots:
     /// Updates the value_ widget selection to reflect amplifier's new selection.
     void onAmplifierValueChanged();
 
     /// Handles passing changes in the value combo box to the amplifier.
-    virtual void onValueComboBoxChanged(const QString &newText);
+    virtual void onValueComboBoxChangedImplementation(const QString &newText);
     /// Calls either AMCurrentAmplifier::decreaseGain/decreaseSensitivity depending on the amplifier mode.
-    virtual void onMinusClicked();
+    virtual void onMinusClickedImplementation();
     /// Calls either AMCurrentAmplifier::increaseGain/increaseSensitivity depending on the amplifier mode.
-    virtual void onPlusClicked();
+    virtual void onPlusClickedImplementation();
+    /// Clears and resets view widgets.
+    virtual void refreshViewImplementation();
     /// If multiple modes are supported by the amplifier, context menu allows user to select gain/sensitivity preference.
     virtual void onCustomContextMenuRequested(QPoint position);
 

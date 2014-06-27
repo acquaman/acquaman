@@ -3,8 +3,6 @@
 AMCurrentAmplifierCompositeView::AMCurrentAmplifierCompositeView(AMCurrentAmplifier *amp1, AMCurrentAmplifier *amp2, QWidget *parent) :
     AMCurrentAmplifierView(parent)
 {
-    isValid_ = false;
-
     amplifier1_ = amp1;
 
     if (amplifier1_) {
@@ -15,8 +13,7 @@ AMCurrentAmplifierCompositeView::AMCurrentAmplifierCompositeView(AMCurrentAmplif
 
     amplifier2_ = amp2;
 
-    if (amplifier1_ && amplifier2_)
-        isValid_ = true;
+    refreshView();
 }
 
 AMCurrentAmplifierCompositeView::~AMCurrentAmplifierCompositeView()
@@ -36,40 +33,48 @@ AMCurrentAmplifier* AMCurrentAmplifierCompositeView::amplifier2() const
 
 bool AMCurrentAmplifierCompositeView::isValid() const
 {
-    return isValid_;
+    if (amplifier1_ && amplifier2_ && amplifier1_->amplifierMode() == amplifier2_->amplifierMode())
+        return true;
+    else
+        return false;
 }
 
-void AMCurrentAmplifierCompositeView::onValueComboBoxChanged(const QString &newText)
+void AMCurrentAmplifierCompositeView::onValueComboBoxChangedImplementation(const QString &newText)
 {
-    // the initialized_ boolean prevents the display from setting the amplifier values while view is initializing <- undesirable behavior.
-    if (!initialized_ )
-        return;
-
-    if (isValid_ && amplifier1_->amplifierMode() == amplifier2_->amplifierMode()) {
-        amplifier1_->setValue(newText);
-        amplifier2_->setValue(newText);
-    }
+    amplifier1_->setValue(newText);
+    amplifier2_->setValue(newText);
 }
 
-void AMCurrentAmplifierCompositeView::onMinusClicked()
+void AMCurrentAmplifierCompositeView::onMinusClickedImplementation()
 {
-    if (isValid_) {
-        amplifier1_->decreaseValue();
-        amplifier2_->decreaseValue();
-    }
+    amplifier1_->decreaseValue();
+    amplifier2_->decreaseValue();
 }
 
-void AMCurrentAmplifierCompositeView::onPlusClicked()
+void AMCurrentAmplifierCompositeView::onPlusClickedImplementation()
 {
-    if (isValid_) {
-        amplifier1_->increaseValue();
-        amplifier2_->increaseValue();
+    amplifier1_->increaseValue();
+    amplifier2_->increaseValue();
+}
+
+void AMCurrentAmplifierCompositeView::refreshViewImplementation()
+{
+    value_->clear();
+
+    QStringList unitsList = amplifier1_->unitsList();
+    QList<double> valuesList = amplifier1_->values();
+
+    foreach (QString units, unitsList) {
+        foreach (double value, valuesList) {
+            QString item = valueToString(value, units);
+            value_->addItem(item);
+        }
     }
 }
 
 void AMCurrentAmplifierCompositeView::onAmplifierValueChanged()
 {
-    if (isValid_) {
+    if (isValid()) {
         amplifier1_->blockSignals(true);
         amplifier2_->blockSignals(true);
 

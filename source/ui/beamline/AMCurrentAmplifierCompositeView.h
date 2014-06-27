@@ -20,17 +20,18 @@ public:
     AMCurrentAmplifier *amplifier1() const;
     /// Returns the second amplifier.
     AMCurrentAmplifier *amplifier2() const;
-    /// Returns boolean indicating whether this view is valid.
-    bool isValid() const;
+    virtual bool isValid() const;
+
 
 signals:
 
 public slots:
 
 protected slots:
-    virtual void onValueComboBoxChanged(const QString &newText);
-    virtual void onMinusClicked();
-    virtual void onPlusClicked();
+    virtual void onValueComboBoxChangedImplementation(const QString &newText);
+    virtual void onMinusClickedImplementation();
+    virtual void onPlusClickedImplementation();
+    virtual void refreshViewImplementation();
 
     void onAmplifierValueChanged();
 
@@ -42,8 +43,6 @@ protected:
     AMCurrentAmplifier *amplifier1_;
     /// The second amplifier.
     AMCurrentAmplifier *amplifier2_;
-    /// Bool indicating whether the composite view is valid--if both amplifiers entered are valid.
-    bool isValid_;
 
 };
 

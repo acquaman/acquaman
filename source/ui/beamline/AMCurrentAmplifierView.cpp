@@ -9,7 +9,7 @@ AMCurrentAmplifierView::AMCurrentAmplifierView(QWidget *parent) :
     viewMode_ = Basic;
 
     name_ = new QLabel();
-    showName(false);
+    name_->hide();
 
     minus_ = new QToolButton();
     minus_->show();
@@ -63,14 +63,6 @@ QString AMCurrentAmplifierView::name() const
     return name_->text();
 }
 
-void AMCurrentAmplifierView::setInitialized(bool isInitialized)
-{
-    if (initialized_ != isInitialized) {
-        initialized_ = isInitialized;
-        emit initialized(initialized_);
-    }
-}
-
 void AMCurrentAmplifierView::setViewMode(ViewMode newMode)
 {
     if (viewMode_ != newMode) {
@@ -110,6 +102,42 @@ void AMCurrentAmplifierView::showName(bool show)
 void AMCurrentAmplifierView::setViewableValuesMax(int newMax)
 {
     value_->setMaxVisibleItems(newMax);
+}
+
+void AMCurrentAmplifierView::setInitialized(bool isInitialized)
+{
+    if (initialized_ != isInitialized) {
+        initialized_ = isInitialized;
+        emit initialized(initialized_);
+    }
+}
+
+void AMCurrentAmplifierView::onValueComboBoxChanged(const QString &newText)
+{
+    if (initialized_ && isValid())
+        onValueComboBoxChangedImplementation(newText);
+}
+
+void AMCurrentAmplifierView::onMinusClicked()
+{
+    if (isValid())
+        onMinusClickedImplementation();
+}
+
+void AMCurrentAmplifierView::onPlusClicked()
+{
+    if (isValid())
+        onPlusClickedImplementation();
+}
+
+void AMCurrentAmplifierView::refreshView()
+{
+    // initialized_ = false here prevents the view from changing the amplifier value while populating <-- undesireable behavior.
+    if (isValid()) {
+        initialized_ = false;
+        refreshViewImplementation();
+        initialized_ = true;
+    }
 }
 
 void AMCurrentAmplifierView::onCustomContextMenuRequested(QPoint position)
