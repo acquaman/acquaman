@@ -618,8 +618,6 @@ HEADERS += source/acquaman/AMRegion.h \
 	source/beamline/CLS/CLSAdvancedScalerChannelDetector.h \
 	source/dataman/info/CLSSynchronizedDwellTimeConfigurationInfo.h \
 	source/beamline/CLS/CLSSynchronizedDwellTimeConfiguration.h \
-	source/actions3/actions/AMTimedWaitActionInfo3.h \
-	source/actions3/actions/AMTimedWaitAction3.h \
 	source/analysis/AM3DNormalizationAB.h \
 	source/analysis/AM3DNormalizationABEditor.h \
 	source/analysis/AM4DBinningAB.h \
@@ -765,7 +763,10 @@ HEADERS += source/acquaman/AMRegion.h \
     source/analysis/AM1DKSpaceCalculatorAB.h \
     source/ui/beamline/AMCurrentAmplifierCompositeView.h \
     source/ui/beamline/AMCurrentAmplifierSingleView.h \
-    source/ui/beamline/AMCurrentAmplifierView.h
+	source/ui/beamline/AMCurrentAmplifierView.h \
+    source/actions3/actions/AMWaitActionInfo.h \
+    source/actions3/actions/AMWaitAction.h \
+    source/actions3/editors/AMWaitActionEditor.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1106,8 +1107,6 @@ SOURCES += source/acquaman/AMRegion.cpp \
 	source/beamline/CLS/CLSAdvancedScalerChannelDetector.cpp \
 	source/dataman/info/CLSSynchronizedDwellTimeConfigurationInfo.cpp \
 	source/beamline/CLS/CLSSynchronizedDwellTimeConfiguration.cpp \
-	source/actions3/actions/AMTimedWaitActionInfo3.cpp \
-	source/actions3/actions/AMTimedWaitAction3.cpp \
 	source/analysis/AM3DNormalizationAB.cpp \
 	source/analysis/AM3DNormalizationABEditor.cpp \
 	source/analysis/AM4DBinningAB.cpp \
@@ -1251,7 +1250,10 @@ SOURCES += source/acquaman/AMRegion.cpp \
     source/analysis/AM1DKSpaceCalculatorAB.cpp \
     source/ui/beamline/AMCurrentAmplifierCompositeView.cpp \
     source/ui/beamline/AMCurrentAmplifierSingleView.cpp \
-    source/ui/beamline/AMCurrentAmplifierView.cpp
+	source/ui/beamline/AMCurrentAmplifierView.cpp \
+    source/actions3/actions/AMWaitActionInfo.cpp \
+    source/actions3/actions/AMWaitAction.cpp \
+    source/actions3/editors/AMWaitActionEditor.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1281,6 +1283,16 @@ contains(DEFINES, AM_BUILD_REPORTER_ENABLED){
 
 	SOURCES += source/util/AMRunTimeBuildInfo.cpp
 }
+
+
+
+
+
+
+
+
+
+
 
 
 

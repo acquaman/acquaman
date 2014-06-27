@@ -5,6 +5,7 @@
 
 #include "actions3/AMListAction3.h"
 #include "actions3/actions/AMControlMoveAction3.h"
+#include "actions3/actions/AMWaitAction.h"
 
 #include "dataman/AMSamplePre2013.h"
 
@@ -265,7 +266,6 @@ AMAction3* REIXSXASScanActionController::createInitializationActions(){
 	return initializationActions;
 }
 
-#include "actions3/actions/AMTimedWaitAction3.h"
 AMAction3* REIXSXASScanActionController::createCleanupActions(){
 	AMListAction3 *cleanupActions = new AMListAction3(new AMListActionInfo3("REIXS XAS Cleanup Actions", "REIXS XAS Cleanup Actions"));//, AMListAction3::Parallel); sequentially set up scaler
 
@@ -277,9 +277,9 @@ AMAction3* REIXSXASScanActionController::createCleanupActions(){
 //	cleanupActions->addSubAction(scaler->createScansPerBufferAction3(1));
 //	cleanupActions->addSubAction(scaler->createTotalScansAction3(0));
 	cleanupActions->addSubAction(scaler->createStartAction3(false));
-	cleanupActions->addSubAction(new AMTimedWaitAction3(new AMTimedWaitActionInfo3(1.0)));
+	cleanupActions->addSubAction(new AMWaitAction(new AMWaitActionInfo(1.0)));
 	cleanupActions->addSubAction(scaler->createDwellTimeAction3(1.0));
-	cleanupActions->addSubAction(new AMTimedWaitAction3(new AMTimedWaitActionInfo3(1.0)));
+	cleanupActions->addSubAction(new AMWaitAction(new AMWaitActionInfo(1.0)));
 	cleanupActions->addSubAction(scaler->createContinuousEnableAction3(true));
 
 	return cleanupActions;

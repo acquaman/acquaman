@@ -28,7 +28,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/export/AMExporterOption.h"
 
 // These are here for the time being.  When AMScanController is updated to accommodate skipping in a more general way these need to be added here.
-//#include "acquaman/AM2DDacqScanController.h"
 #include "acquaman/AMScanActionController.h"
 
 #include "beamline/AMBeamline.h"
