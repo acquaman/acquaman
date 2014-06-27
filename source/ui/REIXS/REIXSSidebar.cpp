@@ -39,7 +39,7 @@ REIXSSidebar::REIXSSidebar(QWidget *parent) :
 	// Setup additional UI elements
 	////////////////////////
 	ui->setupUi(this);
-	ui->verticalLayout->insertWidget(1, new REIXSXESSpectrometerControlEditor(REIXSBeamline::bl()->spectrometer()));
+	//ui->verticalLayout->insertWidget(1, new REIXSXESSpectrometerControlEditor(REIXSBeamline::bl()->spectrometer()));
 
 	beamlineEnergyEditor_ = new REIXSActionBasedControlEditor(REIXSBeamline::bl()->photonSource()->energy());
 	ui->beamlineFormLayout->setWidget(1, QFormLayout::FieldRole, beamlineEnergyEditor_);
@@ -47,29 +47,31 @@ REIXSSidebar::REIXSSidebar(QWidget *parent) :
 	userEnergyOffestEditor_ = new REIXSActionBasedControlEditor(REIXSBeamline::bl()->photonSource()->userEnergyOffset());
 	ui->beamlineFormLayout->setWidget(2, QFormLayout::FieldRole, userEnergyOffestEditor_);
 
-//	gratingSelector_ = new REIXSActionBasedControlEditor(REIXSBeamline::bl()->photonSource()->monoGratingSelector());
-//	ui->beamlineFormLayout->setWidget(3, QFormLayout::FieldRole, gratingSelector_);
-//	mirrorSelector_ = new REIXSActionBasedControlEditor(REIXSBeamline::bl()->photonSource()->monoMirrorSelector());
-//	ui->beamlineFormLayout->setWidget(4, QFormLayout::FieldRole, mirrorSelector_);
+	gratingSelector_ = new REIXSActionBasedControlEditor(REIXSBeamline::bl()->photonSource()->monoGratingSelector());
+	ui->beamlineFormLayout->setWidget(3, QFormLayout::FieldRole, gratingSelector_);
+	gratingSelector_->setEnabled(false);
+	mirrorSelector_ = new REIXSActionBasedControlEditor(REIXSBeamline::bl()->photonSource()->monoMirrorSelector());
+	ui->beamlineFormLayout->setWidget(4, QFormLayout::FieldRole, mirrorSelector_);
+	mirrorSelector_->setEnabled(false);
 
 	monoSlitEditor_ = new REIXSActionBasedControlEditor(REIXSBeamline::bl()->photonSource()->monoSlit());
-	ui->beamlineFormLayout->setWidget(3, QFormLayout::FieldRole, monoSlitEditor_);
+	ui->beamlineFormLayout->setWidget(5, QFormLayout::FieldRole, monoSlitEditor_);
 
 	epuPolarizationEditor_ = new REIXSActionBasedControlEditor(REIXSBeamline::bl()->photonSource()->epuPolarization());
-	ui->beamlineFormLayout->setWidget(4, QFormLayout::FieldRole, epuPolarizationEditor_);
+	ui->beamlineFormLayout->setWidget(6, QFormLayout::FieldRole, epuPolarizationEditor_);
 	epuPolarizationAngleEditor_ = new REIXSActionBasedControlEditor(REIXSBeamline::bl()->photonSource()->epuPolarizationAngle());
-	ui->beamlineFormLayout->setWidget(5, QFormLayout::FieldRole, epuPolarizationAngleEditor_);
+	ui->beamlineFormLayout->setWidget(7, QFormLayout::FieldRole, epuPolarizationAngleEditor_);
 
-
+	ui->verticalLayout->addStretch();
 
 	detectorsGroupBox = new QGroupBox("Detector Signals:");
 
 	detectorPanelLayout = new QVBoxLayout();
 
 	XESValue = new QLabel("XES:\t\t0 counts");
-	XESValue->setFixedHeight(35);
+	XESValue->setFixedHeight(55);
 	TFYValue = new QLabel("TFY:\t\t0 counts");
-	TFYValue->setFixedHeight(35);
+	TFYValue->setFixedHeight(55);
 	scalerContinuousButton = new QCheckBox("Enable Real-Time Updates");
 	scalerContinuousButton->setChecked(REIXSBeamline::bl()->scaler()->isContinuous());
 	detectorPanelLayout->addWidget(XESValue);
