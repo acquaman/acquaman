@@ -49,19 +49,19 @@ void IDEASScalerView::onSR570ViewChanged(AMCurrentAmplifierView::ViewMode mode)
     }
 }
 
-void IDEASScalerView::onSR570ViewChanged(AMCurrentAmplifierView::ViewMode mode)
-{
-//	compositeView_->blockSignals(true);
-//	compositeView_->setSR570ViewMode(mode);
-//	compositeView_->blockSignals(false);
+//void IDEASScalerView::onSR570ViewChanged(AMCurrentAmplifierView::ViewMode mode)
+//{
+////	compositeView_->blockSignals(true);
+////	compositeView_->setSR570ViewMode(mode);
+////	compositeView_->blockSignals(false);
 
-    foreach (CLSSIS3820ScalerChannelView *channel, singleViews_){
+//    foreach (CLSSIS3820ScalerChannelView *channel, singleViews_){
 
-        channel->blockSignals(true);
-        channel->setAmplifierViewMode((AMCurrentAmplifierView::ViewMode)mode);
-        channel->blockSignals(false);
-    }
-}
+//        channel->blockSignals(true);
+//        channel->setAmplifierViewMode((AMCurrentAmplifierView::ViewMode)mode);
+//        channel->blockSignals(false);
+//    }
+//}
 
 void IDEASScalerView::onOutputViewModeChanged(CLSSIS3820CompositeScalerChannelView::OutputViewMode mode)
 {
