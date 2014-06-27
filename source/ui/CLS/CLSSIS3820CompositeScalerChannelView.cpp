@@ -30,7 +30,7 @@ CLSSIS3820CompositeScalerChannelView::CLSSIS3820CompositeScalerChannelView(CLSSI
 	if (channel1_->currentAmplifier() && channel2_->currentAmplifier()){
 
         amplifierView_ = new AMCurrentAmplifierCompositeView(channel1_->currentAmplifier(), channel2_->currentAmplifier());
-        connect(amplifierView_, SIGNAL(viewModeChanged(AMCurrentAmplifierView::ViewMode)), this, SIGNAL(sr570ViewModeChanged(AMCurrentAmplifierView::ViewMode)));
+        connect(amplifierView_, SIGNAL(viewModeChanged(AMCurrentAmplifierView::ViewMode)), this, SIGNAL(amplifierViewModeChanged(AMCurrentAmplifierView::ViewMode)));
 	}
 
 	scalerOutput_ = new QToolButton;

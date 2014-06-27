@@ -4,8 +4,6 @@
 #include "ui/beamline/AMExtendedControlEditor.h"
 
 #include "beamline/CLS/CLSMAXvMotor.h"
-#include "ui/beamline/AMCurrentAmplifierView.h"
-
 
 BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
     QWidget(parent)

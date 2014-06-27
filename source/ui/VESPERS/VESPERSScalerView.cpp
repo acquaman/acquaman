@@ -52,7 +52,7 @@ void VESPERSScalerView::onSR570ViewChanged(AMCurrentAmplifierView::ViewMode mode
 //void VESPERSScalerView::onSR570ViewChanged(AMCurrentAmplifierView::ViewMode mode)
 //{
 //	compositeView_->blockSignals(true);
-//    compositeView_->setSR570ViewMode(mode);
+//    compositeView_->setAmplifierViewMode(mode);
 //	compositeView_->blockSignals(false);
 
 //    foreach (CLSSIS3820ScalerChannelView *channel, singleViews_){
