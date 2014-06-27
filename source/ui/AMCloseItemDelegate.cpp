@@ -21,7 +21,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMCloseItemDelegate.h"
 #include "acquaman.h"
 
- AMCloseItemDelegate::~AMCloseItemDelegate(){}
+AMCloseItemDelegate::~AMCloseItemDelegate(){}
+
 AMCloseItemDelegate::AMCloseItemDelegate(QObject *parent) :
 		QStyledItemDelegate(parent)
 {
@@ -64,7 +65,7 @@ void AMCloseItemDelegate::drawCloseButton(QPainter *painter, const QStyleOptionV
 
 	Q_UNUSED(index)
 
-	/// Display close button?
+	// Display close button?
 	if(closeButtonEnabled_ && index.data(AM::CanCloseRole).toBool()) {
 		// "local" rectangle of the close button.
 		closeButtonRect_ = QRect(
