@@ -1,7 +1,7 @@
 #include "AMScanDataChildTableView.h"
 
 AMScanDataChildTableView::AMScanDataChildTableView(QWidget *parent)
-	: AMAbstractScanDataChildView("Table View", QIcon(), parent)
+	: AMAbstractScanDataChildView("Table View", parent)
 {
 	scanDataTable_ = new QTableView();
 	QHBoxLayout* mainLayout = new QHBoxLayout();
