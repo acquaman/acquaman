@@ -13,6 +13,7 @@
 
 #include "actions3/AMListAction3.h"
 #include "actions3/actions/AMControlMoveAction3.h"
+#include "actions3/actions/AMWaitAction.h"
 #include "acquaman/AMEXAFSScanActionControllerAssembler.h"
 
 
@@ -71,7 +72,7 @@ IDEASXASScanActionController::~IDEASXASScanActionController(){}
 
 void IDEASXASScanActionController::createScanAssembler()
 {
-    scanAssembler_ = new AMEXAFSScanActionControllerAssembler(this);
+	scanAssembler_ = new AMEXAFSScanActionControllerAssembler(this);
 }
 
 void IDEASXASScanActionController::buildScanControllerImplementation()
@@ -87,9 +88,9 @@ void IDEASXASScanActionController::buildScanControllerImplementation()
 		if(scan_->rawDataSources()->at(i)->rank() == 1)
 			raw1DDataSources << scan_->rawDataSources()->at(i);
 
-    int rawI0Index = scan_->rawDataSources()->indexOfKey("I_0");
-    int rawIsampleIndex = scan_->rawDataSources()->indexOfKey("Sample");
-    int rawIrefIndex = scan_->rawDataSources()->indexOfKey("Reference");
+	int rawI0Index = scan_->rawDataSources()->indexOfKey("I_0");
+	int rawIsampleIndex = scan_->rawDataSources()->indexOfKey("Sample");
+	int rawIrefIndex = scan_->rawDataSources()->indexOfKey("Reference");
 
 	if (detector && configuration_->isXRFScan()){
 
@@ -105,21 +106,21 @@ void IDEASXASScanActionController::buildScanControllerImplementation()
 
 	if(rawI0Index != -1 && rawIsampleIndex != -1 && configuration_->isTransScan()) {
 
-        AM1DExpressionAB* NormSample = new AM1DExpressionAB("NormSample");
-        NormSample->setDescription("NormSample");
-        NormSample->setInputDataSources(raw1DDataSources);
+		AM1DExpressionAB* NormSample = new AM1DExpressionAB("NormSample");
+		NormSample->setDescription("NormSample");
+		NormSample->setInputDataSources(raw1DDataSources);
 	NormSample->setExpression("ln(I_0/Sample)");
-        scan_->addAnalyzedDataSource(NormSample);
-     }
+		scan_->addAnalyzedDataSource(NormSample);
+	 }
 
-    if(rawIrefIndex != -1 && rawIsampleIndex != -1 && configuration_->isTransScan() && configuration_->useRef()) {
+	if(rawIrefIndex != -1 && rawIsampleIndex != -1 && configuration_->isTransScan() && configuration_->useRef()) {
 
-        AM1DExpressionAB* NormRef = new AM1DExpressionAB("NormRef");
-        NormRef->setDescription("NormRef");
-        NormRef->setInputDataSources(raw1DDataSources);
+		AM1DExpressionAB* NormRef = new AM1DExpressionAB("NormRef");
+		NormRef->setDescription("NormRef");
+		NormRef->setInputDataSources(raw1DDataSources);
 	NormRef->setExpression("ln(Sample/Reference)");
-        scan_->addAnalyzedDataSource(NormRef);
-    }
+		scan_->addAnalyzedDataSource(NormRef);
+	}
 
 	QList<AMDataSource*> raw2DDataSources;
 	for(int i=0; i<scan_->rawDataSources()->count(); i++)
@@ -137,13 +138,13 @@ void IDEASXASScanActionController::buildScanControllerImplementation()
 	if (detector && configuration_->isXRFScan()){
 
 	foreach (AMRegionOfInterest *region, detector->regionsOfInterest()){
-	    AMRegionOfInterestAB *regionAB = (AMRegionOfInterestAB *)region->valueSource();
-	    QString regionName = regionAB->name().replace(" ","_");
-	    AM1DExpressionAB* NormXRF = new AM1DExpressionAB(QString("Norm%1").arg(regionName));
-	    NormXRF->setDescription(QString("Norm%1").arg(regionName));
-	    NormXRF->setInputDataSources(all1DDataSources);
-	    NormXRF->setExpression(QString("%1/I_0").arg(regionName));
-	    scan_->addAnalyzedDataSource(NormXRF);
+		AMRegionOfInterestAB *regionAB = (AMRegionOfInterestAB *)region->valueSource();
+		QString regionName = regionAB->name().replace(" ","_");
+		AM1DExpressionAB* NormXRF = new AM1DExpressionAB(QString("Norm%1").arg(regionName));
+		NormXRF->setDescription(QString("Norm%1").arg(regionName));
+		NormXRF->setInputDataSources(all1DDataSources);
+		NormXRF->setExpression(QString("%1/I_0").arg(regionName));
+		scan_->addAnalyzedDataSource(NormXRF);
 	}
 
 
@@ -165,13 +166,13 @@ AMAction3* IDEASXASScanActionController::createInitializationActions(){
 	AMControlInfo monoEnergy = tmpControl->toInfo();
 
 	double startE = double(configuration_->scanAxisAt(0)->regionAt(0)->regionStart());
-        double mono2d = IDEASBeamline::ideas()->mono2d()->value();
-        double braggAngle = asin(12398.4193 / mono2d / startE);
-        double backlashDegrees = 4;
+		double mono2d = IDEASBeamline::ideas()->mono2d()->value();
+		double braggAngle = asin(12398.4193 / mono2d / startE);
+		double backlashDegrees = 4;
 
-        double dE = (backlashDegrees / 180 * M_PI) * (mono2d * startE * startE * cos(braggAngle * M_PI / 180)) / (-12398.4193);
+		double dE = (backlashDegrees / 180 * M_PI) * (mono2d * startE * startE * cos(braggAngle * M_PI / 180)) / (-12398.4193);
 	double backlashE = startE + dE;
-        if(backlashE < IDEASBeamline::ideas()->monoLowEV()->value()) backlashE = IDEASBeamline::ideas()->monoLowEV()->value();
+		if(backlashE < IDEASBeamline::ideas()->monoLowEV()->value()) backlashE = IDEASBeamline::ideas()->monoLowEV()->value();
 
 
 	monoEnergy.setValue(backlashE);
@@ -217,27 +218,27 @@ void IDEASXASScanActionController::onInitializationActionsListSucceeded(){
 
 }
 
-#include "actions3/actions/AMTimedWaitAction3.h"
-
 AMAction3* IDEASXASScanActionController::createCleanupActions(){
 
-    AMListAction3 *cleanupActions = new AMListAction3(new AMListActionInfo3("IDEAS XAS Cleanup Actions", "IDEAS XAS Cleanup Actions"));
+	AMListAction3 *cleanupActions = new AMListAction3(new AMListActionInfo3("IDEAS XAS Cleanup Actions", "IDEAS XAS Cleanup Actions"));
 
-	cleanupActions->addSubAction(new AMTimedWaitAction3(new AMTimedWaitActionInfo3(IDEASBeamline::ideas()->scaler()->dwellTime())));
+	cleanupActions->addSubAction(new AMWaitAction(new AMWaitActionInfo(IDEASBeamline::ideas()->scaler()->dwellTime())));
+	cleanupActions->addSubAction(IDEASBeamline::ideas()->scaler()->createStartAction3(false));
+	cleanupActions->addSubAction(IDEASBeamline::ideas()->scaler()->createContinuousEnableAction3(false));
 	cleanupActions->addSubAction(IDEASBeamline::ideas()->scaler()->createDwellTimeAction3(0.1));
 	cleanupActions->addSubAction(IDEASBeamline::ideas()->scaler()->createContinuousEnableAction3(true));
 
-    return cleanupActions;
+	return cleanupActions;
 }
 
 
 void IDEASXASScanActionController::cancelImplementation(){
 
-    AMStepScanActionController::cancelImplementation();
+	AMStepScanActionController::cancelImplementation();
 
-    AMAction3 *cleanupActions = createCleanupActions();
+	AMAction3 *cleanupActions = createCleanupActions();
 
-    cleanupActions->start();
+	cleanupActions->start();
 
 }
 
