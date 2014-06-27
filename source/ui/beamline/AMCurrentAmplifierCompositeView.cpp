@@ -39,6 +39,23 @@ bool AMCurrentAmplifierCompositeView::isValid() const
         return false;
 }
 
+void AMCurrentAmplifierCompositeView::onAmplifierValueChanged()
+{
+    if (isValid()) {
+        amplifier1_->blockSignals(true);
+        amplifier2_->blockSignals(true);
+
+        int newIndex = value_->findText( valueToString(amplifier1_->value(), amplifier1_->units()) );
+
+        if (newIndex != -1) {
+            value_->setCurrentIndex(newIndex);
+        }
+
+        amplifier1_->blockSignals(false);
+        amplifier2_->blockSignals(false);
+    }
+}
+
 void AMCurrentAmplifierCompositeView::onValueComboBoxChangedImplementation(const QString &newText)
 {
     amplifier1_->setValue(newText);
@@ -59,8 +76,20 @@ void AMCurrentAmplifierCompositeView::onPlusClickedImplementation()
 
 void AMCurrentAmplifierCompositeView::refreshViewImplementation()
 {
+    refreshValues();
+    refreshButtons();
+}
+
+QString AMCurrentAmplifierCompositeView::valueToString(double value, const QString &units) const
+{
+    return QString("%1 %2").arg(value, 0, 'g', 2).arg(units);
+}
+
+void AMCurrentAmplifierCompositeView::refreshValues()
+{
     value_->clear();
 
+    // (re)populate value_ with appropriate options provided by the amplifier.
     QStringList unitsList = amplifier1_->unitsList();
     QList<double> valuesList = amplifier1_->values();
 
@@ -70,28 +99,15 @@ void AMCurrentAmplifierCompositeView::refreshViewImplementation()
             value_->addItem(item);
         }
     }
+
+    // values displayed should represent the amplifier's current state.
+    onAmplifierValueChanged();
 }
 
-void AMCurrentAmplifierCompositeView::onAmplifierValueChanged()
+void AMCurrentAmplifierCompositeView::refreshButtons()
 {
-    if (isValid()) {
-        amplifier1_->blockSignals(true);
-        amplifier2_->blockSignals(true);
-
-        int newIndex = value_->findText( valueToString(amplifier1_->value(), amplifier1_->units()) );
-
-        if (newIndex != -1) {
-            value_->setCurrentIndex(newIndex);
-        }
-
-        amplifier1_->blockSignals(false);
-        amplifier2_->blockSignals(false);
-    }
-}
-
-QString AMCurrentAmplifierCompositeView::valueToString(double value, const QString &units) const
-{
-    return QString("%1 %2").arg(value, 0, 'g', 2).arg(units);
+    minus_->setDisabled(amplifier1_->atMinimumValue());
+    plus_->setDisabled(amplifier1_->atMaximumValue());
 }
 
 

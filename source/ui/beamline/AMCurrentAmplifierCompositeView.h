@@ -43,6 +43,10 @@ protected slots:
 protected:
     /// Returns a string of the amplifier value and units. Provides consistent formatting.
     QString valueToString(double value, const QString &units) const;
+    /// Clears and repopulates value_ widget with information from amplifier1_.
+    void refreshValues();
+    /// Sets whether buttons should be en/disabled according to the min/max value state of amplifier1_.
+    void refreshButtons();
 
 protected:
     /// The first amplifier.
