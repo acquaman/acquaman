@@ -767,7 +767,8 @@ HEADERS += source/acquaman/AMRegion.h \
     source/analysis/AM1DKSpaceCalculatorAB.h \
     source/dataman/AMLightweightScanInfo.h \
     source/dataman/AMLightweightScanInfoCollection.h \
-    source/dataman/AMLightweightScanInfoModel.h
+    source/dataman/AMLightweightScanInfoModel.h \
+    source/ui/util/AMSortFilterWidget.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1255,7 +1256,8 @@ SOURCES += source/acquaman/AMRegion.cpp \
     source/analysis/AM1DKSpaceCalculatorAB.cpp \
     source/dataman/AMLightweightScanInfo.cpp \
     source/dataman/AMLightweightScanInfoCollection.cpp \
-    source/dataman/AMLightweightScanInfoModel.cpp
+    source/dataman/AMLightweightScanInfoModel.cpp \
+    source/ui/util/AMSortFilterWidget.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
