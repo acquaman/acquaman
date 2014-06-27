@@ -17,7 +17,7 @@ IDEASScalerView::IDEASScalerView(QWidget *parent)
 //	compositeView_->setCustomCompositeName("Split");
 //	compositeView_->setFixedHeight(55);
 //	compositeView_->setFixedWidth(300);
-//	connect(compositeView_, SIGNAL(sr570ViewModeChanged(CLSSR570CompositeView::ViewMode)), this, SLOT(onSR570ViewChanged(CLSSR570CompositeView::ViewMode)));
+//	connect(compositeView_, SIGNAL(sr570ViewModeChanged(AMCurrentAmplifierView::ViewMode)), this, SLOT(onSR570ViewChanged(AMCurrentAmplifierView::ViewMode)));
 //	connect(compositeView_, SIGNAL(outputViewModeChanged(CLSSIS3820CompositeScalerChannelView::OutputViewMode)), this, SLOT(onOutputViewModeChanged(CLSSIS3820CompositeScalerChannelView::OutputViewMode)));
 //	layout->addWidget(compositeView_);
 
@@ -38,7 +38,7 @@ IDEASScalerView::IDEASScalerView(QWidget *parent)
 void IDEASScalerView::onSR570ViewChanged(AMCurrentAmplifierView::ViewMode mode)
 {
 //	compositeView_->blockSignals(true);
-//	compositeView_->setSR570ViewMode((CLSSR570CompositeView::ViewMode)mode);
+//	compositeView_->setSR570ViewMode((AMCurrentAmplifierView::ViewMode)mode);
 //	compositeView_->blockSignals(false);
 
     foreach (CLSSIS3820ScalerChannelView *channel, singleViews_){

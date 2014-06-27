@@ -17,7 +17,7 @@ REIXSScalerView::REIXSScalerView(QWidget *parent)
 //	compositeView_->setCustomCompositeName("Split");
 //	compositeView_->setFixedHeight(55);
 //	compositeView_->setFixedWidth(300);
-//	connect(compositeView_, SIGNAL(sr570ViewModeChanged(CLSSR570CompositeView::ViewMode)), this, SLOT(onSR570ViewChanged(CLSSR570CompositeView::ViewMode)));
+//	connect(compositeView_, SIGNAL(sr570ViewModeChanged(AMCurrentAmplifierView::ViewMode)), this, SLOT(onSR570ViewChanged(AMCurrentAmplifierView::ViewMode)));
 //	connect(compositeView_, SIGNAL(outputViewModeChanged(CLSSIS3820CompositeScalerChannelView::OutputViewMode)), this, SLOT(onOutputViewModeChanged(CLSSIS3820CompositeScalerChannelView::OutputViewMode)));
 //	layout->addWidget(compositeView_);
 
@@ -25,7 +25,7 @@ REIXSScalerView::REIXSScalerView(QWidget *parent)
 		view->setEnableCheckBoxVisibility(false);
 		singleViews_ << view;
 		view->setFixedHeight(40);
-		connect(view, SIGNAL(sr570ViewModeChanged(CLSSR570View::ViewMode)), this, SLOT(onSR570ViewChanged(CLSSR570View::ViewMode)));
+        connect(view, SIGNAL(amplifierViewModeChanged(AMCurrentAmplifierView::ViewMode)), this, SLOT(onSR570ViewChanged(AMCurrentAmplifierView::ViewMode)));
 		connect(view, SIGNAL(outputViewModeChanged(CLSSIS3820ScalerChannelView::OutputViewMode)), this, SLOT(onOutputViewModeChanged(CLSSIS3820ScalerChannelView::OutputViewMode)));
 		layout->addWidget(view);
 
@@ -33,7 +33,7 @@ REIXSScalerView::REIXSScalerView(QWidget *parent)
 		view->setEnableCheckBoxVisibility(false);
 		singleViews_ << view;
 		view->setFixedHeight(40);
-		connect(view, SIGNAL(sr570ViewModeChanged(CLSSR570View::ViewMode)), this, SLOT(onSR570ViewChanged(CLSSR570View::ViewMode)));
+        connect(view, SIGNAL(amplifierViewModeChanged(AMCurrentAmplifierView::ViewMode)), this, SLOT(onSR570ViewChanged(AMCurrentAmplifierView::ViewMode)));
 		connect(view, SIGNAL(outputViewModeChanged(CLSSIS3820ScalerChannelView::OutputViewMode)), this, SLOT(onOutputViewModeChanged(CLSSIS3820ScalerChannelView::OutputViewMode)));
 		layout->addWidget(view);
 
@@ -44,7 +44,7 @@ REIXSScalerView::REIXSScalerView(QWidget *parent)
 void REIXSScalerView::onSR570ViewChanged(AMCurrentAmplifierView::ViewMode mode)
 {
 //	compositeView_->blockSignals(true);
-//	compositeView_->setSR570ViewMode((CLSSR570CompositeView::ViewMode)mode);
+//	compositeView_->setSR570ViewMode((AMCurrentAmplifierView::ViewMode)mode);
 //	compositeView_->blockSignals(false);
 
 	foreach (CLSSIS3820ScalerChannelView *channel, singleViews_){
@@ -55,7 +55,7 @@ void REIXSScalerView::onSR570ViewChanged(AMCurrentAmplifierView::ViewMode mode)
 	}
 }
 
-void REIXSScalerView::onSR570ViewChanged(CLSSR570CompositeView::ViewMode mode)
+void REIXSScalerView::onSR570ViewChanged(AMCurrentAmplifierView::ViewMode mode)
 {
 //	compositeView_->blockSignals(true);
 //	compositeView_->setSR570ViewMode(mode);
@@ -64,7 +64,7 @@ void REIXSScalerView::onSR570ViewChanged(CLSSR570CompositeView::ViewMode mode)
 	foreach (CLSSIS3820ScalerChannelView *channel, singleViews_){
 
 		channel->blockSignals(true);
-        channel->setAmplifierViewMode((AMCurrentAmplifierView::ViewMode)mode);
+        channel->setAmplifierViewMode(mode);
 		channel->blockSignals(false);
 	}
 }

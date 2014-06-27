@@ -17,7 +17,7 @@ VESPERSScalerView::VESPERSScalerView(QWidget *parent)
 	compositeView_->setCustomCompositeName("Split");
 	compositeView_->setFixedHeight(55);
 	compositeView_->setFixedWidth(300);
-    connect(compositeView_, SIGNAL(sr570ViewModeChanged(AMCurrentAmplifierView::ViewMode)), this, SLOT(onSR570ViewChanged(CLSSR570CompositeView::ViewMode)));
+    connect(compositeView_, SIGNAL(sr570ViewModeChanged(AMCurrentAmplifierView::ViewMode)), this, SLOT(onSR570ViewChanged(AMCurrentAmplifierView::ViewMode)));
 	connect(compositeView_, SIGNAL(outputViewModeChanged(CLSSIS3820CompositeScalerChannelView::OutputViewMode)), this, SLOT(onOutputViewModeChanged(CLSSIS3820CompositeScalerChannelView::OutputViewMode)));
 	layout->addWidget(compositeView_);
 
