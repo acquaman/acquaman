@@ -618,8 +618,6 @@ HEADERS += source/acquaman/AMRegion.h \
 	source/beamline/CLS/CLSAdvancedScalerChannelDetector.h \
 	source/dataman/info/CLSSynchronizedDwellTimeConfigurationInfo.h \
 	source/beamline/CLS/CLSSynchronizedDwellTimeConfiguration.h \
-	source/actions3/actions/AMTimedWaitActionInfo3.h \
-	source/actions3/actions/AMTimedWaitAction3.h \
 	source/analysis/AM3DNormalizationAB.h \
 	source/analysis/AM3DNormalizationABEditor.h \
 	source/analysis/AM4DBinningAB.h \
@@ -1108,8 +1106,6 @@ SOURCES += source/acquaman/AMRegion.cpp \
 	source/beamline/CLS/CLSAdvancedScalerChannelDetector.cpp \
 	source/dataman/info/CLSSynchronizedDwellTimeConfigurationInfo.cpp \
 	source/beamline/CLS/CLSSynchronizedDwellTimeConfiguration.cpp \
-	source/actions3/actions/AMTimedWaitActionInfo3.cpp \
-	source/actions3/actions/AMTimedWaitAction3.cpp \
 	source/analysis/AM3DNormalizationAB.cpp \
 	source/analysis/AM3DNormalizationABEditor.cpp \
 	source/analysis/AM4DBinningAB.cpp \
@@ -1285,6 +1281,10 @@ contains(DEFINES, AM_BUILD_REPORTER_ENABLED){
 
 	SOURCES += source/util/AMRunTimeBuildInfo.cpp
 }
+
+
+
+
 
 
 
