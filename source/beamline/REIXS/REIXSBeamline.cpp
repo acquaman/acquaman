@@ -29,7 +29,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSBasicScalerChannelDetector.h"
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 #include "beamline/CLS/CLSSR570.h"
-
+#include "beamline/CLS/CLSMAXvMotor.h"
 
 #include <QApplication>
 #include <QDebug>
@@ -219,6 +219,8 @@ REIXSPhotonSource::REIXSPhotonSource(QObject *parent) :
 	directEnergy_ = directEnergy;
 	directEnergy_->setDescription("Beamline Energy");
 
+	bipassEnergy_ = new AMPVControl("bipassBeamlineEV", "REIXS:user:energy", "REIXS:user:energy", "REIXS:energy:stop");
+
 	userEnergyOffset_ = new AMPVControl("userEnergyOffset", "REIXS:user:energy:offset", "REIXS:user:energy:offset", QString(), this);
 	userEnergyOffset_->setDescription("User Energy Offest");
 
@@ -243,6 +245,10 @@ REIXSPhotonSource::REIXSPhotonSource(QObject *parent) :
 	monoMirrorTranslation_->setDescription("Mono Mirror Translation");
 	monoMirrorSelector_ = new AMPVwStatusControl("monoMirrorSelector", "MONO1610-I20-01:mirror:select:fbk", "MONO1610-I20-01:mirror:select", "MONO1610-I20-01:mirror:trans:status", "SMTR1610-I20-02:stop", this, 1);
 	monoMirrorSelector_->setDescription("Mono Mirror");
+
+//	monoMirrorAngle_ = new CLSMAXvMotor("monoMirrorAngle","MONO1610-I20-01:mirror","Mono Mirror Angle",true,0.00001,2.0,this);
+//	monoMirrorAngle_ = new AMReadOnlyPVwStatusControl("monoMirrorAngle","ENC1610-I20-02:average:deg:fbk","MONO1610-I20-01:mirror:status",this, new AMControlStatusCheckerCLSMAXv(),"Mono Mirror Angle");
+	monoMirrorAngleStatus_ = new AMReadOnlyPVControl("monoMirrorAngleStatus","MONO1610-I20-01:mirror:status",this,"Mono Mirror Angle Status");
 
 	epuPolarization_ = new AMPVwStatusControl("epuPolarization", "REIXS:UND1410-02:polarization", "REIXS:UND1410-02:polarization", "REIXS:UND1410-02:energy:status", QString(), this, 0.1);
 	epuPolarization_->setDescription("EPU Polarization");
@@ -756,6 +762,7 @@ REIXSBrokenMonoControl::REIXSBrokenMonoControl(AMPVwStatusControl *underlyingCon
 	// require some parsing on our part:
 	connect(control_, SIGNAL(movingChanged(bool)), this, SLOT(onControlMovingChanged(bool)));
 
+
 }
 
 void REIXSBrokenMonoControl::onControlMovingChanged(bool)
@@ -859,6 +866,9 @@ AMControl::FailureExplanation REIXSBrokenMonoControl::move(double setpoint)
 	connect(moveAction_, SIGNAL(cancelled()), this, SLOT(onMoveActionFailed()));
 	connect(moveAction_, SIGNAL(succeeded()), this, SLOT(onMoveActionSucceeded()));
 
+	// monitor mono angle for error state, clear and restart move if detected
+	connect(REIXSBeamline::bl()->photonSource()->monoMirrorAngleStatus(), SIGNAL(valueChanged(double)), this, SLOT(onMonoMirrorAngleError(double)));
+
 	moveAction_->start();
 
 	return AMControl::NoFailure;
@@ -885,6 +895,8 @@ bool REIXSBrokenMonoControl::stop()
 void REIXSBrokenMonoControl::onMoveActionFailed()
 {
 	disconnect(moveAction_, 0, this, 0);
+	disconnect(REIXSBeamline::bl()->photonSource()->monoMirrorAngleStatus(),0, this, 0);
+
 	moveAction_->deleteLater();
 	moveAction_ = 0;
 
@@ -906,6 +918,7 @@ void REIXSBrokenMonoControl::onMoveActionFailed()
 void REIXSBrokenMonoControl::onMoveActionSucceeded()
 {
 	disconnect(moveAction_, 0, this, 0);
+	disconnect(REIXSBeamline::bl()->photonSource()->monoMirrorAngleStatus(),0, this, 0);
 	moveAction_->deleteLater();
 	moveAction_ = 0;
 
@@ -919,6 +932,15 @@ void REIXSBrokenMonoControl::onMoveActionSucceeded()
 	}
 	else {
 		emit moveFailed(AMControl::ToleranceFailure);
+	}
+}
+
+void REIXSBrokenMonoControl::onMonoMirrorAngleError(double error)
+{
+	//qDebug() << "Mono Mirror Angle move error detected with error code" << error;
+	if(qFuzzyCompare(error,4)){
+	REIXSBeamline::bl()->photonSource()->bipassEnergy()->stop();
+	REIXSBeamline::bl()->photonSource()->bipassEnergy()->move(REIXSBeamline::bl()->photonSource()->directEnergy()->setpoint());
 	}
 }
 

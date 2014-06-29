@@ -52,11 +52,13 @@ public:
 	REIXSBrokenMonoControl* energy() { return energy_; }
 	AMControl* userEnergyOffset() {return userEnergyOffset_; }
 	AMControl* directEnergy() { return directEnergy_; }
+	AMControl* bipassEnergy() { return bipassEnergy_; }
 	AMControl* monoSlit() { return monoSlit_; }
 	AMControl* monoGratingTranslation() { return monoGratingTranslation_; }
 	AMControl* monoGratingSelector() { return monoGratingSelector_; }
 	AMControl* monoMirrorTranslation() { return monoMirrorTranslation_; }
 	AMControl* monoMirrorSelector() { return monoMirrorSelector_; }
+	AMControl* monoMirrorAngleStatus() { return monoMirrorAngleStatus_; }
 	AMControl* epuPolarization() { return epuPolarization_; }
 	AMControl* epuPolarizationAngle() { return epuPolarizationAngle_; }
 	AMControl* ringCurrent()  { return ringCurrent_; }
@@ -66,10 +68,8 @@ public:
 
 
 protected:
-	AMControl* directEnergy_, *userEnergyOffset_, *monoSlit_, *monoGratingTranslation_, *monoGratingSelector_, *monoMirrorTranslation_, *monoMirrorSelector_, *epuPolarization_, *epuPolarizationAngle_, *M5Pitch_, *M5Yaw_, *ringCurrent_;//DAVID ADDED M5's
+	AMControl* directEnergy_, *bipassEnergy_,*userEnergyOffset_, *monoSlit_, *monoGratingTranslation_, *monoGratingSelector_, *monoMirrorAngleStatus_, *monoMirrorTranslation_, *monoMirrorSelector_, *epuPolarization_, *epuPolarizationAngle_, *M5Pitch_, *M5Yaw_, *ringCurrent_;
 	REIXSBrokenMonoControl* energy_;
-
-
 
 };
 
@@ -416,6 +416,8 @@ protected slots:
 	void onMoveActionFailed();
 	/// Called while one of our moves is in progress, and the complete move action succeeded.
 	void onMoveActionSucceeded();
+	/// Called when monoMirrorAngle reports an error, which stalls the energy application unless the move is stopped and restarted
+	void onMonoMirrorAngleError(double error);
 
 protected:
 	double repeatMoveThreshold_, repeatMoveSettlingTime_, singleMoveSettlingTime_, lowEnergyThreshold_, lowEnergyStepSize_;
