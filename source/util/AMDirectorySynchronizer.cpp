@@ -69,11 +69,10 @@ bool AMDirectorySynchronizer::start()
 
 	AMRecursiveDirectoryCompare::DirectoryCompareResult result = compareDirectories();
 
-	if(result == AMRecursiveDirectoryCompare::FullyMatchingResult)
+	if(result == AMRecursiveDirectoryCompare::UnableToDetermineResult)
 	{
-		appendToProgressMessage(QString("Contents of %1 and %2 are the same, no copying necessary.").arg(sourceDirectory_).arg(destinationDirectory_));
-		timer_->start();
-		return true;
+		appendToErrorMessage(QString("Unable to determine which directory contains the newest version."));
+		return false;
 	}
 
 	if(result == AMRecursiveDirectoryCompare::InvalidResult)
@@ -87,6 +86,15 @@ bool AMDirectorySynchronizer::start()
 		appendToErrorMessage(QString("Contents of %1 and %2 have both changed, cannot proceed").arg(sourceDirectory_).arg(destinationDirectory_));
 		return false;
 	}
+
+	if(result == AMRecursiveDirectoryCompare::FullyMatchingResult)
+	{
+		appendToProgressMessage(QString("Contents of %1 and %2 are the same, no copying necessary.").arg(sourceDirectory_).arg(destinationDirectory_));
+		timer_->start();
+		return true;
+	}
+
+
 
 	QString process = "rsync";
 	QStringList args;

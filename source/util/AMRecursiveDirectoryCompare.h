@@ -11,6 +11,7 @@ public:
 		Side1ModifiedResult = 1,
 		Side2ModifiedResult = 2,
 		BothSidesModifiedResult = 3,
+		UnableToDetermineResult  = 4,
 		InvalidResult
 	};
 
@@ -24,6 +25,7 @@ public:
 	QStringList uniqueSide2Directories() const;
 	QStringList newerSide1Files() const;
 	QStringList newerSide2Files() const;
+	QStringList unknownFiles() const;
 protected:
 	bool compareOneLevel(const QString &path1, const QString &path2);
 protected:
@@ -37,6 +39,8 @@ protected:
 
 	QStringList newerSide1Files_;
 	QStringList newerSide2Files_;
+
+	QStringList unknownFiles_;
 };
 
 #endif // AMRECURSIVEDIRECTORYCOMPARE_H

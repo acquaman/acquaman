@@ -18,7 +18,11 @@ AMRecursiveDirectoryCompare::DirectoryCompareResult AMRecursiveDirectoryCompare:
 	compareOneLevel(directoryPath1_, directoryPath2_);
 	qDebug() << "Done the compare";
 
-	if(uniqueSide1Directories_.isEmpty() && uniqueSide1Files_.isEmpty() &&
+	if (!unknownFiles_.isEmpty()) {
+		qDebug() << "Unable to determine most recent version of some files";
+		return AMRecursiveDirectoryCompare::UnableToDetermineResult;
+	}
+	else if(uniqueSide1Directories_.isEmpty() && uniqueSide1Files_.isEmpty() &&
 	   uniqueSide2Directories_.isEmpty() && uniqueSide2Files_.isEmpty() &&
 	   newerSide1Files_.isEmpty() && newerSide2Files().isEmpty())
 	{
@@ -113,6 +117,7 @@ bool AMRecursiveDirectoryCompare::compareOneLevel(const QString &path1, const QS
 	QStringList onlySide2SubDirectories;
 	QStringList newerSide1Files;
 	QStringList newerSide2Files;
+	QStringList unknownFiles;
 
 	// Builds side 1 lists: adds files to file hash, appends directories to directory list
 	for(int x = 0, size = directory1Entries.count(); x < size; x++)
@@ -136,10 +141,18 @@ bool AMRecursiveDirectoryCompare::compareOneLevel(const QString &path1, const QS
 			if(side1Files.contains(currentSide2Entry.absoluteFilePath().remove(path2)))
 			{
 				QFileInfo side1Match = side1Files.value(currentSide2Entry.absoluteFilePath().remove(path2));
-				if(side1Match.lastModified() < currentSide2Entry.lastModified())
-					newerSide2Files.append(currentSide2Entry.absoluteFilePath().remove(path2));
-				else if(currentSide2Entry.lastModified() < side1Match.lastModified())
-					newerSide1Files.append(side1Match.absoluteFilePath().remove(path1));
+				if(side1Match.lastModified() < currentSide2Entry.lastModified()) {
+					if(side1Match.size() > currentSide2Entry.size())
+						unknownFiles.append(currentSide2Entry.absoluteFilePath().remove(path2));
+					else
+						newerSide2Files.append(currentSide2Entry.absoluteFilePath().remove(path2));
+				}
+				else if(currentSide2Entry.lastModified() < side1Match.lastModified()) {
+					if(currentSide2Entry.size() > side1Match.size())
+						unknownFiles.append(side1Match.absoluteFilePath().remove(path1));
+					else
+						newerSide1Files.append(side1Match.absoluteFilePath().remove(path1));
+				}
 				side1Files.remove(currentSide2Entry.absoluteFilePath().remove(path2));
 			}
 			else
@@ -164,6 +177,11 @@ bool AMRecursiveDirectoryCompare::compareOneLevel(const QString &path1, const QS
 			onlySide2SubDirectories.append(side2SubDirectories.at(x));
 	}
 	onlySide1SubDirectories = side1SubDirectories;
+
+	for (int x = 0, size = unknownFiles.count(); x < size; x++) {
+		qDebug() << "Found files for which the more up-to-date version cannot be determined";
+		unknownFiles_.append(QDir::cleanPath(QString(".../%1").arg(unknownFiles_.at(x))));
+	}
 
 	for(int x = 0, size = newerSide1Files.count(); x < size; x++){
 		qDebug() << "Found newer files on side 1";
@@ -193,7 +211,6 @@ bool AMRecursiveDirectoryCompare::compareOneLevel(const QString &path1, const QS
 			++j;
 		}
 	}
-
 
 	for(int x = 0, size = dualSideSubDirectories.count(); x < size; x++){
 		compareOneLevel(QDir::cleanPath(QString("%1/%2").arg(path1).arg(dualSideSubDirectories.at(x))), QDir::cleanPath(QString("%1/%2").arg(path2).arg(dualSideSubDirectories.at(x))));
