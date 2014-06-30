@@ -46,7 +46,9 @@ void HeaderNoticeChecker::recurseDirectories(const QString &currentPath, const Q
 	for(int x = 0; x < allHeadersWithOldNotice.count(); x++){
 			QProcess fixText;
 			QStringList arguments;
-			arguments << "-c" << "sed -i '' 's/"+oldNotice_+"/"+newNotice_+"/g' "+allHeadersWithOldNotice.at(x);
+			//arguments << "-c" << "sed -i '' 's/"+oldNotice_+"/"+newNotice_+"/g' "+allHeadersWithOldNotice.at(x);
+			arguments << "-c" << "perl -pi -e 's/"+oldNotice_+"/"+newNotice_+"/g' "+allHeadersWithOldNotice.at(x);
+
 			fixText.start("/bin/sh", arguments );
 			if (!fixText.waitForStarted())
 				return;
@@ -75,7 +77,8 @@ void HeaderNoticeChecker::recurseDirectories(const QString &currentPath, const Q
 	for(int x = 0; x < allCppsWithOldNotice.count(); x++){
 			QProcess fixText;
 			QStringList arguments;
-			arguments << "-c" << "sed -i '' 's/"+oldNotice_+"/"+newNotice_+"/g' "+allCppsWithOldNotice.at(x);
+			//arguments << "-c" << "sed -i '' 's/"+oldNotice_+"/"+newNotice_+"/g' "+allCppsWithOldNotice.at(x);
+			arguments << "-c" << "perl -pi -e 's/"+oldNotice_+"/"+newNotice_+"/g' "+allCppsWithOldNotice.at(x);
 			fixText.start("/bin/sh", arguments );
 			if (!fixText.waitForStarted())
 				return;
