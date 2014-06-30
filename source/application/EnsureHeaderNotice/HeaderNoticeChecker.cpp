@@ -27,6 +27,8 @@ HeaderNoticeChecker::HeaderNoticeChecker(const QString &oldNotice, const QString
 
 void HeaderNoticeChecker::recurseDirectories(const QString &currentPath, const QStringList &directories){
 
+	QStringList arguments;
+	/*
 	QProcess findOldHeaders;
 	QStringList arguments;
 	arguments << "-c" << "grep \""+oldNotice_+"\" -l "+currentPath+"/*.h";
@@ -42,6 +44,28 @@ void HeaderNoticeChecker::recurseDirectories(const QString &currentPath, const Q
 	QString resultOldAsString(resultOld);
 	QStringList allHeadersWithOldNotice = resultOldAsString.split('\n');
 	allHeadersWithOldNotice.removeLast();
+	*/
+	QStringList allHeadersWithOldNotice;
+	QDir currentDirectory(currentPath);
+	QStringList onlyHeadersFilter;
+	onlyHeadersFilter << "*.h";
+	QFileInfoList headerEntries = currentDirectory.entryInfoList(onlyHeadersFilter, QDir::Files);
+	QString fileText;
+	for(int x = 0, size = headerEntries.size(); x < size; x++){
+		fileText.clear();
+		QFile readFile(headerEntries.at(x).absoluteFilePath());
+		if (!readFile.open(QIODevice::ReadOnly | QIODevice::Text))
+			return;
+
+		QTextStream fileIn(&readFile);
+		//while (!fileIn.atEnd())
+		//	fileText.append(fileIn.readLine());
+		fileText = fileIn.readAll();
+
+		if(fileText.contains(oldNotice_) && !fileText.contains(newNotice_))
+			allHeadersWithOldNotice.append(headerEntries.at(x).absoluteFilePath());
+	}
+
 
 	for(int x = 0; x < allHeadersWithOldNotice.count(); x++){
 			QProcess fixText;
@@ -58,6 +82,7 @@ void HeaderNoticeChecker::recurseDirectories(const QString &currentPath, const Q
 			oldToNew_ << allHeadersWithOldNotice.at(x);
 	}
 
+	/*
 	QProcess findOldCpps;
 	arguments.clear();
 	arguments << "-c" << "grep \""+oldNotice_+"\" -l "+currentPath+"/*.cpp";
@@ -73,6 +98,30 @@ void HeaderNoticeChecker::recurseDirectories(const QString &currentPath, const Q
 	QString resultOldCppAsString(resultOldCpp);
 	QStringList allCppsWithOldNotice = resultOldCppAsString.split('\n');
 	allCppsWithOldNotice.removeLast();
+	*/
+	QStringList allCppsWithOldNotice;
+	QStringList onlyCppsFilter;
+	onlyCppsFilter << "*.cpp";
+	QFileInfoList cppEntries = currentDirectory.entryInfoList(onlyCppsFilter, QDir::Files);
+	for(int x = 0, size = cppEntries.size(); x < size; x++){
+		fileText.clear();
+		QFile readFile(cppEntries.at(x).absoluteFilePath());
+		if (!readFile.open(QIODevice::ReadOnly | QIODevice::Text))
+			return;
+
+		QTextStream fileIn(&readFile);
+//		while (!fileIn.atEnd())
+//			fileText.append(fileIn.readLine());
+		fileText = fileIn.readAll();
+
+		if(fileText.contains(oldNotice_) && fileText.contains(newNotice_))
+			qDebug() << "Found a new notice in " << cppEntries.at(x).absoluteFilePath();
+		else
+			qDebug() << fileText;
+
+		if(fileText.contains(oldNotice_) && !fileText.contains(newNotice_))
+			allCppsWithOldNotice.append(cppEntries.at(x).absoluteFilePath());
+	}
 
 	for(int x = 0; x < allCppsWithOldNotice.count(); x++){
 			QProcess fixText;
@@ -155,3 +204,4 @@ void HeaderNoticeChecker::recurseDirectories(const QString &currentPath, const Q
 			qDebug() << "Ignoring " << currentPath+"/"+directories.at(x);
 	}
 }
+
