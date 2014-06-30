@@ -24,6 +24,7 @@ AMSortFilterWidget::AMSortFilterWidget(QSortFilterProxyModel *model, QWidget *pa
 	initLayout();
 	setCurrentlyFiltered(false);
 
+
 	connect(criteriaLineEdit_, SIGNAL(returnPressed()), this, SLOT(onFilterApplied()));
 	connect(applyFilterPushButton_, SIGNAL(clicked()), this, SLOT(onFilterApplied()));
 	connect(clearFilterPushButton_, SIGNAL(clicked()), this, SLOT(onClearFilterButtonClicked()));
@@ -87,6 +88,11 @@ void AMSortFilterWidget::initCaseSensitivity()
 void AMSortFilterWidget::setCurrentlyFiltered(bool value)
 {
 	clearFilterPushButton_->setEnabled(value);
+}
+
+void AMSortFilterWidget::focusOutEvent(QFocusEvent *)
+{
+	emit lostFocus();
 }
 
 void AMSortFilterWidget::onFilterApplied()

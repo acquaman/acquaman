@@ -43,8 +43,11 @@ protected:
 	void initPushButtons();
 	/// Handles changes between a filter being applied to the data and not
 	void setCurrentlyFiltered(bool value);
+	///	Event fired whenever this widget loses focus
+	virtual void focusOutEvent(QFocusEvent *);
 signals:
-	
+	/// Signal emitted whenever the Widget loses focus
+	void lostFocus();
 protected slots:
 	/// Slot to handle requests to apply the filter, either through clicking the button or pressing return
 	/// when in the criteria line edit

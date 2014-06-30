@@ -17,6 +17,10 @@ class AMScanDataView : public QWidget
 {
 	Q_OBJECT
 private:
+	/// A widget which controls the filtering of data within all the contained views
+	AMSortFilterWidget* sortFilterWidget_;
+	/// A tool button for displaying the sortFilterWidget
+	QToolButton* searchButton_;
 	/// A tab widget containing the child views
 	QTabWidget* tabWidget_;
 	/// The layout containing the buttons to switch between child views
@@ -34,6 +38,15 @@ protected:
 signals:
 	
 public slots:
+	/// Specifies that the AMScanDataView should filter for all runs that match the passed id. -1 indicates
+	/// that all runs should be shown.
+	void showRun(int runId = -1);
+
+protected slots:
+	/// Handles the search button being clicked. Shows the sortFilterWidget.
+	void onSearchButtonClicked();
+
+	void onSortFilterWidgetLostFocus();
 	
 };
 
