@@ -26,12 +26,16 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 class AMListActionEditor3 : public QFrame
 {
-Q_OBJECT
+	Q_OBJECT
+
 public:
- 	virtual ~AMListActionEditor3();
+	/// Constructor.
 	Q_INVOKABLE AMListActionEditor3(AMListActionInfo3 *info, QWidget *parent = 0);
+	/// Destructor.
+	virtual ~AMListActionEditor3();
 
 protected:
+	/// Holds onto the info.
 	AMListActionInfo3 *info_;
 };
 

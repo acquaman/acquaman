@@ -29,7 +29,6 @@ AMControlInfoList REIXSSampleManipulator::position() const {
 
 bool REIXSSampleManipulator::moveToPosition(const AMControlInfoList &newPosition) {
 
-//	AMActionRunner::s()->runActionImmediatelyInQueue(new REIXSSampleMoveAction(newPosition));
 	REIXSBeamline::bl()->currentSamplePositioner()->setFromInfoList(newPosition);
 	return true;
 }

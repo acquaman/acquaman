@@ -186,14 +186,6 @@ void AMDataSourcesEditor::onSetViewIndexChanged(const QModelIndex &selected, con
 	ui_.descriptionEdit->setReadOnly(false);
 
 	installDetailEditor(dataSource->createEditorWidget());
-
-	/* AM1DExpressionAB detail editor should now do this on startup:
-	ui_.expressionEdit->setText(dataSource->expression());
-	ui_.expressionEdit->setReadOnly(false);
-	ui_.insertButton->setEnabled(true);
-	populateExpressionMenu(si);
-	*/
-
 }
 
 void AMDataSourcesEditor::onDataSourceDescriptionChanged()
@@ -210,7 +202,7 @@ void AMDataSourcesEditor::onDataSourceDescriptionChanged()
 #include <QMessageBox>
 void AMDataSourcesEditor::onCloseButtonClicked(const QModelIndex &index) {
 
-	/// handle data source-level indexes only:
+	// handle data source-level indexes only:
 	if(!index.parent().isValid())
 		return;
 
@@ -220,6 +212,12 @@ void AMDataSourcesEditor::onCloseButtonClicked(const QModelIndex &index) {
 	AMScan* scan = model_->scanAt(scanIndex);
 	if(!scan || dataSourceIndex >= scan->dataSourceCount())
 		return;
+
+	if (dataSourceIndex < scan->rawDataSourceCount()){
+
+		QMessageBox::warning(this, "Can not remove raw data sources.", QString("Acquaman does not allow the deletion of raw data sources."));
+		return;
+	}
 
 	AMDataSource* dataSource = scan->dataSourceAt(dataSourceIndex);
 	int response = QMessageBox::question(this, "Remove Data Source?", QString("Remove this data source? \n\n'%1' (%2)\n\nThe data source will be deleted, and no longer visible in any plots. Any other data sources that depend on this data source will be reset.  Raw data will NOT be deleted, and you can re-create the data source later if you need it.").arg(dataSource->description()).arg(dataSource->name()), QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Ok);

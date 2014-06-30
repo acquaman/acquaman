@@ -30,7 +30,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/actions/AMControlMoveAction3.h"
 #include "actions3/actions/AMAxisStartedAction.h"
 #include "actions3/actions/AMAxisFinishedAction.h"
-#include "actions3/actions/AMTimedWaitAction3.h"
+#include "actions3/actions/AMWaitAction.h"
 #include "application/AMAppController.h"
 #include "acquaman/AMAgnosticDataAPI.h"
 #include "dataman/AMTextStream.h"
@@ -197,7 +197,7 @@ bool SGMFastScanActionController::startImplementation(){
 	masterFastScanActionList->addSubAction(axisStartAction);
 
 	// Wait 1.0 seconds
-	masterFastScanActionList->addSubAction(new AMTimedWaitAction3(new AMTimedWaitActionInfo3(1.0)));
+	masterFastScanActionList->addSubAction(new AMWaitAction(new AMWaitActionInfo(1.0)));
 
 	// Energy and Scaler:
 	// Energy to end energy
@@ -710,8 +710,8 @@ QString SGMFastScanActionController::buildNotes()
 		CLSSIS3820ScalerChannel* currentChannel = scaler->channelAt(iChannel);
 		if(currentChannel->currentAmplifier() != 0)
 		{
-            AMCurrentAmplifier *channelSR570 = currentChannel->currentAmplifier();
-            if(channelSR570)
+			AMCurrentAmplifier *channelSR570 = currentChannel->currentAmplifier();
+			if(channelSR570)
 				returnString.append(QString("%1:\t%2 %3\n").arg(currentChannel->customChannelName()).arg(channelSR570->value()).arg(channelSR570->units()));
 		}
 	}

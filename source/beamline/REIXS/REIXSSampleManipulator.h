@@ -23,11 +23,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/AMSampleManipulator.h"
 
-/// Implements the AMSampleManipulator interface for the REIXS beamline, so that AMSamplePlateView can measure and move to sample positions.  For measuring, we grab the sample manipulator positions from the beamline controls. For moving, we add a REIXSSampleMoveAction to the front of the workflow and run it (assuming nothing else is currently running. If something is running, we return that we cannot move right now.)
+/// Implements the AMSampleManipulator interface for the REIXS beamline, so that AMSamplePlateView can measure and move to sample positions.  For measuring, we grab the sample manipulator positions from the beamline controls.
 class REIXSSampleManipulator : public AMSampleManipulator {
 public:
 	/// Constructor
- 	virtual ~REIXSSampleManipulator();
+	virtual ~REIXSSampleManipulator();
 	REIXSSampleManipulator() : AMSampleManipulator() {}
 
 	/// Returns the current position of the sample manipulator, as an AMControlInfoList.

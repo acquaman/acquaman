@@ -26,8 +26,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QStyleOptionButton>
 #include "acquaman.h"
 
+AMDetailedItemDelegate::~AMDetailedItemDelegate(){}
 
- AMDetailedItemDelegate::~AMDetailedItemDelegate(){}
 AMDetailedItemDelegate::AMDetailedItemDelegate(QObject *parent) :
 		AMCloseItemDelegate(parent)
 {
@@ -65,12 +65,10 @@ void AMDetailedItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem
 	QStyleOptionViewItemV4 opt(option);
 	initStyleOption(&opt, index);
 
-
 	QStyle* sty = QApplication::style();
 
 	// Draw the background: (this will handle selection for us. You can also probe selection directly with opt.state & QStyle::State_Selected)
 	sty->drawPrimitive(QStyle::PE_PanelItemViewItem, &opt, painter);
-
 
 	int textStartingPoint = horizontalMargin();
 	// Do we have a pixmap available?
@@ -112,47 +110,8 @@ void AMDetailedItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem
 
 	}
 
-	/// call base class to draw close button:
+	// call base class to draw close button:
 	drawCloseButton(painter, opt, index);
-
-
-	/* What info is available:
-enum OptionType
-enum Position
-enum StyleOptionType
-enum StyleOptionVersion
-enum ViewItemFeature
-flags ViewItemFeatures
-enum ViewItemPosition
-QStyleOptionViewItemV4 ()
-QStyleOptionViewItemV4 ( const QStyleOptionViewItemV4 & )
-QStyleOptionViewItemV4 ( const QStyleOptionViewItem & )
-backgroundBrush : QBrush
-checkState : Qt::CheckState
-decorationAlignment : Qt::Alignment
-decorationPosition : Position
-decorationSize : QSize
-direction : Qt::LayoutDirection
-displayAlignment : Qt::Alignment
-features : ViewItemFeatures
-font : QFont
-fontMetrics : QFontMetrics
-icon : QIcon
-index : QModelIndex
-initFrom ( const QWidget * )
-locale : QLocale
-palette : QPalette
-rect : QRect
-showDecorationSelected : bool
-state : QStyle::State
-text : QString
-textElideMode : Qt::TextElideMode
-type : int
-version : int
-viewItemPosition : ViewItemPosition
-widget : const QWidget *
-operator= ( const QStyleOptionViewItem & ) : QStyleOption
-*/
 }
 
 
