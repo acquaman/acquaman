@@ -8,7 +8,7 @@ HeaderNoticeChecker::HeaderNoticeChecker(const QString &oldNotice, const QString
 	oldNotice_ = oldNotice;
 	newNotice_ = newNotice;
 	anyNotice_ = "This file is part of the Acquaman Data Acquisition and Management framework (\\\"Acquaman\\\").";
-	fullNotice_ = "\n\nThis file is part of the Acquaman Data Acquisition and Management framework (\\\"Acquaman\\\").\nAcquaman is free software: you can redistribute it and/or modify\nit under the terms of the GNU General Public License as published by\nthe Free Software Foundation, either version 3 of the License, or\n(at your option) any later version.\n\nAcquaman is distributed in the hope that it will be useful,\nbut WITHOUT ANY WARRANTY; without even the implied warranty of\nMERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\nGNU General Public License for more details.\n\nYou should have received a copy of the GNU General Public License\nalong with Acquaman.  If not, see <http://www.gnu.org/licenses/>.\n";
+	fullNotice_ = "\nThis file is part of the Acquaman Data Acquisition and Management framework (\\\"Acquaman\\\").\nAcquaman is free software: you can redistribute it and/or modify\nit under the terms of the GNU General Public License as published by\nthe Free Software Foundation, either version 3 of the License, or\n(at your option) any later version.\n\nAcquaman is distributed in the hope that it will be useful,\nbut WITHOUT ANY WARRANTY; without even the implied warranty of\nMERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\nGNU General Public License for more details.\n\nYou should have received a copy of the GNU General Public License\nalong with Acquaman.  If not, see <http://www.gnu.org/licenses/>.\n";
 
 	ignoreDirectories_ << "muParser" << "qjson" << "Eigen";
 
