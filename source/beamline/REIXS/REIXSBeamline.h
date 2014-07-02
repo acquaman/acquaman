@@ -46,7 +46,7 @@ class REIXSBrokenMonoControl;
 class REIXSPhotonSource : public AMCompositeControl {
 	Q_OBJECT
 public:
- 	virtual ~REIXSPhotonSource();
+	virtual ~REIXSPhotonSource();
 	REIXSPhotonSource(QObject* parent = 0);
 
 	REIXSBrokenMonoControl* energy() { return energy_; }
@@ -77,7 +77,7 @@ protected:
 class REIXSValvesAndShutters : public AMCompositeControl {
 	Q_OBJECT
 public:
- 	virtual ~REIXSValvesAndShutters();
+	virtual ~REIXSValvesAndShutters();
 	REIXSValvesAndShutters(QObject* parent = 0);
 
 	/// Safety shutter 1
@@ -108,35 +108,6 @@ protected:
 
 };
 
-
-/// Organizes the group of XAS detectors
-class REIXSXASDetectors : public AMCompositeControl {
-	Q_OBJECT
-public:
- 	virtual ~REIXSXASDetectors();
-	REIXSXASDetectors(QObject* parent = 0);
-
-	/// Feedback for I0
-	AMReadOnlyPVControl* I0Feedback() { return I0_; }
-	/// Feedback for TEY
-	AMReadOnlyPVControl* TEYFeedback() { return TEY_; }
-	/// Feedback for TFY
-	AMReadOnlyPVControl* TFYFeedback() { return TFY_; }
-
-	/// Control for continuous mode
-	AMSinglePVControl* scalerContinuousMode() { return scalerContinuousMode_; }
-
-	/// A list of AMSADetectors used by the XAS scan controller: TEY, TFY, I0.
-	QList<AMSADetector*> saDetectors() { return saDetectors_; }
-
-
-protected:
-	AMReadOnlyPVControl* I0_, * TEY_, *TFY_;
-	AMSinglePVControl* scalerContinuousMode_;
-	QList<AMSADetector*> saDetectors_;
-
-};
-
 /// The REIXSHexapod control is just a container for the set of coupled controls which make up the hexapod:
 /*!
 - x(), y(), z(): Stage position in mm
@@ -147,7 +118,7 @@ protected:
 class REIXSHexapod : public AMCompositeControl {
 	Q_OBJECT
 public:
- 	virtual ~REIXSHexapod();
+	virtual ~REIXSHexapod();
 	REIXSHexapod(QObject* parent = 0);
 
 	AMControl* x() { return x_; }
@@ -181,7 +152,7 @@ class AMListAction3;
 class REIXSSpectrometer : public AMCompositeControl {
 	Q_OBJECT
 public:
- 	virtual ~REIXSSpectrometer();
+	virtual ~REIXSSpectrometer();
 	REIXSSpectrometer(QObject* parent = 0);
 
 	/// The spectrometer calibration object we are using
@@ -321,7 +292,7 @@ protected slots:
 class REIXSSampleChamber : public AMCompositeControl {
 	Q_OBJECT
 public:
- 	virtual ~REIXSSampleChamber();
+	virtual ~REIXSSampleChamber();
 	REIXSSampleChamber(QObject* parent = 0);
 
 	AMControl* x() { return x_; }
