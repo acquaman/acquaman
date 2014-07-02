@@ -63,6 +63,7 @@ bool AMDirectorySynchronizerDialog::start()
 	QMessageBox syncNotStartedMessageBox;
 	syncNotStartedMessageBox.setText(errorTextEdit_->toPlainText());
 	syncNotStartedMessageBox.exec();
+	return false;
 }
 
 void AMDirectorySynchronizerDialog::onSynchronizerErrorTextChanged(const QString &message)
