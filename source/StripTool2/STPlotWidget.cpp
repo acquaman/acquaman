@@ -37,16 +37,44 @@ void STPlotWidget::showPlotName(bool show)
     plot_->axisTop()->showAxisName(show);
 }
 
+void STPlotWidget::showPlotEditor(bool show)
+{
+    if (show) {
+        STPlotEditor *plotEditor = new STPlotEditor(this);
+    }
+}
+
+void STPlotWidget::showAddVariableDialog()
+{
+    bool ok;
+    QString name = QInputDialog::getText(this, "Add Variable", "PV Name :", QLineEdit::Normal, "", &ok);
+
+    if (ok && !name.isEmpty())
+        emit addVariable(name);
+}
+
 void STPlotWidget::onCustomContextMenuRequested(QPoint position)
 {
     QMenu menu(this);
 
+    QAction *add = menu.addAction("Add variable");
     QAction *edit = menu.addAction("Edit plot");
 
     QAction *selected = menu.exec(mapToGlobal(position));
 
     if (selected) {
-        if (selected->text() == "Edit plot")
-            emit showPlotEditor(true);
+
+        if (selected->text() == "Add variable") {
+            showAddVariableDialog();
+
+        } else if (selected->text() == "Edit plot") {
+            showPlotEditor(true);
+
+        }
     }
+}
+
+STPlotEditor* STPlotWidget::createPlotEditor()
+{
+    return new STPlotEditor();
 }

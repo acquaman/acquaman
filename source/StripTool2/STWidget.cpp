@@ -25,13 +25,17 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 STWidget::STWidget(QWidget *parent) : QWidget(parent)
 {
-    ringCurrent_ = new STVariable("PCT1402-01:mA:fbk", this);
-    connect( ringCurrent_, SIGNAL(connected(bool)), this, SLOT(onRingCurrentConnected(bool)) );
+//    ringCurrent_ = new STVariable("PCT1402-01:mA:fbk", this);
+//    connect( ringCurrent_, SIGNAL(connected(bool)), this, SLOT(onRingCurrentConnected(bool)) );
+
+    variables_ = new STVariableCollection(this);
+    connect( variables_, SIGNAL(variableConnected(bool, QString)), this, SLOT(onVariableConnected(bool, QString)) );
 
     plotWidget_ = new STPlotWidget();
     plotWidget_->setPlotName("Storage ring current");
     plotWidget_->showPlotName(true);
-    connect( plotWidget_, SIGNAL(showPlotEditor(bool)), this, SLOT(showPlotEditor(bool)) );
+
+//    plotWidget_->plot()->addItem(ringCurrent_->series());
 
     QVBoxLayout *layout = new QVBoxLayout();
     layout->addWidget(plotWidget_);
@@ -45,17 +49,13 @@ STWidget::~STWidget()
 
 }
 
-void STWidget::onRingCurrentConnected(bool isConnected)
+void STWidget::onVariableConnected(bool isConnected, const QString &name)
 {
+    STVariable *variable = variables_->variablesWithName(name);
+
     if (isConnected) {
         // add series to plot.
-        plotWidget_->plot()->addItem(ringCurrent_->series());
-    }
-}
 
-void STWidget::showPlotEditor(bool show)
-{
-    if (show) {
-        QDialog editor;
+        plotWidget_->plot()->addItem(ringCurrent_->series());
     }
 }

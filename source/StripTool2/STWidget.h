@@ -34,7 +34,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "STVariable.h"
 #include "STPlotWidget.h"
-#include "STPlotEditor.h"
+#include "STVariableCollection.h"
 
 class STWidget : public QWidget
 {
@@ -45,17 +45,13 @@ public:
     ~STWidget();
 
 public slots:
-    void showPlotEditor(bool show);
 
 protected slots:
-    void onRingCurrentConnected(bool isConnected);
+    void onVariableConnected(bool isConnected, const QString &name);
 
 protected:
-    STVariable *ringCurrent_;
-
+    STVariableCollection *variables_;
     STPlotWidget *plotWidget_;
-
-    STPlotEditor *plotEditor_;
 };
 
 #endif // STWIDGET_H

@@ -34,6 +34,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "MPlot/MPlotSeries.h"
 
+#include "STVariableEditor.h"
+
 class STVariable : public QObject
 {
     Q_OBJECT
@@ -44,10 +46,22 @@ public:
     /// Destructor.
     virtual ~STVariable();
 
+    QString name() const;
+
+    /// Returns this variable's creation datetime.
+    QDateTime created() const;
+
     /// Returns the process variable.
     AMProcessVariable *pv() const;
+
+    /// Returns true if this variable is connected, false otherwise.
+    bool isConnected() const;
+
     /// Returns the series tracking pv data updates.
     MPlotSeriesBasic *series() const;
+
+    /// Returns the variable editor.
+    //STVariableEditor* editor();
 
 
 signals:
@@ -63,6 +77,12 @@ public slots:
 protected slots:
 
 protected:
+    STVariableEditor* createVariableEditor();
+
+protected:
+    /// The datetime for this variable's initial creation.
+    QDateTime created_;
+
     /// The process variable that this class listens to for value updates.
     AMProcessVariable *pv_;
 

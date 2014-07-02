@@ -24,6 +24,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 STVariable::STVariable(const QString &name, QObject *parent) :
     QObject(parent)
 {
+    created_ = QDateTime::currentDateTime();
+
     pv_ = new AMProcessVariable(name, true, this);
 
     data_ = new AM0DAccumulatorAB("PVData", this);
@@ -56,6 +58,21 @@ STVariable::~STVariable()
 
 }
 
+QString STVariable::name() const
+{
+    return pv_->pvName();
+}
+
+QDateTime STVariable::created() const
+{
+    return created_;
+}
+
+bool STVariable::isConnected() const
+{
+    return pv_->isConnected();
+}
+
 AMProcessVariable* STVariable::pv() const
 {
     return pv_;
@@ -76,4 +93,9 @@ void STVariable::setTimeFilter(int interval, AM0DTimestampAB::TimeUnits units)
 {
     times_->setTimeValue(interval);
     times_->setTimeUnits(units);
+}
+
+STVariableEditor* STVariable::createVariableEditor()
+{
+    return new STVariableEditor();
 }
