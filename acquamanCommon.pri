@@ -731,7 +731,6 @@ HEADERS += source/acquaman/AMRegion.h \
 	source/beamline/AMAdvancedControlDetectorEmulator.h \
 	source/dataman/AMDbUpgrade1Pt3.h \
 	source/acquaman/AM2DScanConfigurationConverter.h \
-	source/acquaman/AM2DScanActionController.h \
 	source/acquaman/AMScanActionControllerBasicFileWriter.h \
 	source/acquaman/AMTimedScanActionController.h \
 	source/acquaman/AMTimedRegionScanConfiguration.h \
@@ -1218,7 +1217,6 @@ SOURCES += source/acquaman/AMRegion.cpp \
 	source/beamline/AMAdvancedControlDetectorEmulator.cpp \
 	source/dataman/AMDbUpgrade1Pt3.cpp \
 	source/acquaman/AM2DScanConfigurationConverter.cpp \
-	source/acquaman/AM2DScanActionController.cpp \
 	source/acquaman/AMScanActionControllerBasicFileWriter.cpp \
 	source/acquaman/AMTimedScanActionController.cpp \
 	source/acquaman/AMTimedRegionScanConfiguration.cpp \
@@ -1291,6 +1289,7 @@ contains(DEFINES, AM_BUILD_REPORTER_ENABLED){
 
 
 
+<<<<<<< HEAD
 
 
 
@@ -1299,3 +1298,5 @@ contains(DEFINES, AM_BUILD_REPORTER_ENABLED){
 
 
 
+=======
+>>>>>>> Issue698
