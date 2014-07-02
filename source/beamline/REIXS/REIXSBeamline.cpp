@@ -26,7 +26,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/AMListAction3.h"
 #include "actions3/AMActionSupport.h"
 
-#include "acquaman/CLS/CLSSIS3820ScalerSADetector.h"
 #include "beamline/CLS/CLSBasicScalerChannelDetector.h"
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 #include "beamline/CLS/CLSSR570.h"
@@ -138,10 +137,6 @@ REIXSBeamline::REIXSBeamline() :
 	setupExposedDetectors();
 
 	samplePlate_ = new AMSamplePlatePre2013(this);
-
-	xasDetectors_ = new REIXSXASDetectors(this);
-
-
 }
 
 REIXSBeamline::~REIXSBeamline() {
