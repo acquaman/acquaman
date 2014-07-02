@@ -1,3 +1,24 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "IDEASXASScanConfiguration.h"
 
 #include "beamline/AMBeamline.h"
@@ -150,7 +171,7 @@ void IDEASXASScanConfiguration::computeTotalTimeImplementation()
 		calculator.variableTime(regionTimes.data());
 
 		for (int i = 0; i < numberOfPoints; i++)
-			time = time + regionTimes.at(i) + 0.54;
+			time = time + regionTimes.at(i) + 0.54 + 0.25;  //0.25
 		}
 		else {
 		    totalTime_ = -1; //negative value used to trigger feedback to user in IDEASXASScanConfigurationView... Hope this doesn't cause an issue elsewhere.

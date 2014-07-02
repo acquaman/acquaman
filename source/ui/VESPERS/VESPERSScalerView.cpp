@@ -1,3 +1,24 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "VESPERSScalerView.h"
 
 #include "beamline/VESPERS/VESPERSBeamline.h"
@@ -17,7 +38,7 @@ VESPERSScalerView::VESPERSScalerView(QWidget *parent)
 	compositeView_->setCustomCompositeName("Split");
 	compositeView_->setFixedHeight(55);
 	compositeView_->setFixedWidth(300);
-	connect(compositeView_, SIGNAL(sr570ViewModeChanged(CLSSR570CompositeView::ViewMode)), this, SLOT(onSR570ViewChanged(CLSSR570CompositeView::ViewMode)));
+    connect(compositeView_, SIGNAL(amplifierViewModeChanged(AMCurrentAmplifierView::ViewMode)), this, SLOT(onSR570ViewChanged(AMCurrentAmplifierView::ViewMode)));
 	connect(compositeView_, SIGNAL(outputViewModeChanged(CLSSIS3820CompositeScalerChannelView::OutputViewMode)), this, SLOT(onOutputViewModeChanged(CLSSIS3820CompositeScalerChannelView::OutputViewMode)));
 	layout->addWidget(compositeView_);
 
@@ -38,7 +59,7 @@ VESPERSScalerView::VESPERSScalerView(QWidget *parent)
 void VESPERSScalerView::onSR570ViewChanged(AMCurrentAmplifierView::ViewMode mode)
 {
 	compositeView_->blockSignals(true);
-	compositeView_->setSR570ViewMode((CLSSR570CompositeView::ViewMode)mode);
+    compositeView_->setAmplifierViewMode(mode);
 	compositeView_->blockSignals(false);
 
     foreach (CLSSIS3820ScalerChannelView *channel, singleViews_){
@@ -49,19 +70,19 @@ void VESPERSScalerView::onSR570ViewChanged(AMCurrentAmplifierView::ViewMode mode
     }
 }
 
-void VESPERSScalerView::onSR570ViewChanged(CLSSR570CompositeView::ViewMode mode)
-{
-	compositeView_->blockSignals(true);
-    compositeView_->setSR570ViewMode(mode);
-	compositeView_->blockSignals(false);
+//void VESPERSScalerView::onSR570ViewChanged(AMCurrentAmplifierView::ViewMode mode)
+//{
+//	compositeView_->blockSignals(true);
+//    compositeView_->setAmplifierViewMode(mode);
+//	compositeView_->blockSignals(false);
 
-    foreach (CLSSIS3820ScalerChannelView *channel, singleViews_){
+//    foreach (CLSSIS3820ScalerChannelView *channel, singleViews_){
 
-        channel->blockSignals(true);
-        channel->setAmplifierViewMode((AMCurrentAmplifierView::ViewMode)mode);
-        channel->blockSignals(false);
-    }
-}
+//        channel->blockSignals(true);
+//        channel->setAmplifierViewMode((AMCurrentAmplifierView::ViewMode)mode);
+//        channel->blockSignals(false);
+//    }
+//}
 
 void VESPERSScalerView::onOutputViewModeChanged(CLSSIS3820CompositeScalerChannelView::OutputViewMode mode)
 {

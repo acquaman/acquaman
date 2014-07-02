@@ -1,0 +1,59 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
+#ifndef STWIDGET_H
+#define STWIDGET_H
+
+#include <QWidget>
+#include <QLabel>
+#include <QLayout>
+
+#include "beamline/AMPVControl.h"
+#include "STVariable.h"
+
+#include "MPlot/MPlotSeriesData.h"
+#include "MPlot/MPlotWidget.h"
+#include "MPlot/MPlotSeries.h"
+#include "MPlot/MPlot.h"
+
+class STWidget : public QWidget
+{
+    Q_OBJECT
+
+public:
+    STWidget(QWidget *parent = 0);
+    ~STWidget();
+
+protected slots:
+    void onRingCurrentConnected(bool isConnected);
+    void onRingCurrentValueChanged(double newValue);
+
+protected:
+    AMProcessVariable *ringCurrentControl_;
+    QLabel *ringCurrentLabel_;
+
+    STVariable *ringCurrent_;
+
+    MPlotWidget *plotWidget_;
+    MPlot *plot_;
+};
+
+#endif // STWIDGET_H

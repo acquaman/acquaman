@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -879,9 +880,12 @@ void VESPERSBeamline::setupExposedDetectors()
 	addExposedDetector(energyFeedbackDetector_);
 	addExposedDetector(masterDwellTimeDetector_);
 	addExposedDetector(ringCurrentDetector_);
+	addExposedDetector(roperCCD_);
 	addExposedDetector(roperCCDFileNumberDetector_);
+	addExposedDetector(marCCD_);
 	addExposedDetector(marCCDFileNumberDetector_);
 	addExposedDetector(pilatusCCDFileNumberDetector_);
+	addExposedDetector(pilatusAreaDetector_);
 
 	// All the extras for vortex detectors.
 	addExposedDetector(singleElementVortexDeadTime_);

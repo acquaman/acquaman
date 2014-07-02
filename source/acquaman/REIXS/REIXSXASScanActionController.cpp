@@ -1,3 +1,24 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "REIXSXASScanActionController.h"
 
 #include "dataman/AMXASScan.h"
@@ -5,6 +26,7 @@
 
 #include "actions3/AMListAction3.h"
 #include "actions3/actions/AMControlMoveAction3.h"
+#include "actions3/actions/AMWaitAction.h"
 
 #include "dataman/AMSamplePre2013.h"
 
@@ -265,7 +287,6 @@ AMAction3* REIXSXASScanActionController::createInitializationActions(){
 	return initializationActions;
 }
 
-#include "actions3/actions/AMTimedWaitAction3.h"
 AMAction3* REIXSXASScanActionController::createCleanupActions(){
 	AMListAction3 *cleanupActions = new AMListAction3(new AMListActionInfo3("REIXS XAS Cleanup Actions", "REIXS XAS Cleanup Actions"));//, AMListAction3::Parallel); sequentially set up scaler
 
@@ -277,9 +298,9 @@ AMAction3* REIXSXASScanActionController::createCleanupActions(){
 //	cleanupActions->addSubAction(scaler->createScansPerBufferAction3(1));
 //	cleanupActions->addSubAction(scaler->createTotalScansAction3(0));
 	cleanupActions->addSubAction(scaler->createStartAction3(false));
-	cleanupActions->addSubAction(new AMTimedWaitAction3(new AMTimedWaitActionInfo3(1.0)));
+	cleanupActions->addSubAction(new AMWaitAction(new AMWaitActionInfo(1.0)));
 	cleanupActions->addSubAction(scaler->createDwellTimeAction3(1.0));
-	cleanupActions->addSubAction(new AMTimedWaitAction3(new AMTimedWaitActionInfo3(1.0)));
+	cleanupActions->addSubAction(new AMWaitAction(new AMWaitActionInfo(1.0)));
 	cleanupActions->addSubAction(scaler->createContinuousEnableAction3(true));
 
 	return cleanupActions;
