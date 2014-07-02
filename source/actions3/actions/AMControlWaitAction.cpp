@@ -11,6 +11,8 @@ AMControlWaitAction::AMControlWaitAction(AMControlWaitActionInfo *info, AMContro
        control_ = control;
    else
        control_ = AMBeamline::bl()->exposedControlByInfo(*(info->controlInfo()));
+
+   info->setShortDescription(QString("Wait for Control: %1").arg(control_->name()));
 }
 
 AMControlWaitAction::~AMControlWaitAction(){}
@@ -117,6 +119,8 @@ void AMControlWaitAction::onTimeoutTimerTimedOut()
 bool AMControlWaitAction::checkCurrentControlValue()
 {
     const AMControlInfo& setpoint = *(controlWaitInfo()->controlInfo());
+
+    qDebug() << control_->name() << " Current: " << control_->value() << " New: " << setpoint.value();
 
     if (controlWaitInfo()->matchType() == AMControlWaitActionInfo::MatchEqual) {
         if (control_->value() == setpoint.value())

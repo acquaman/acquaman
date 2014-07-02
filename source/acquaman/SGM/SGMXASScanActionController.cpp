@@ -272,7 +272,7 @@ AMAction3* SGMXASScanActionController::createInitializationActions(){
 	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
 	initializationStage3->addSubAction(moveAction);
 
-	AMListAction3* initializationStage4 = new AMListAction3(new AMListActionInfo3("SGM XAS Initialization Stage 4", "SGM XAS Initialization Stage 4"), AMListAction3::Sequential);
+	//AMListAction3* initializationStage4 = new AMListAction3(new AMListActionInfo3("SGM XAS Initialization Stage 4", "SGM XAS Initialization Stage 4"), AMListAction3::Sequential);
 
 //	for (int i = 0, size = regionsConfiguration_->detectorConfigurations().count(); i < size; i++){
 //		AMDetector *detector = AMBeamline::bl()->exposedDetectorByInfo(regionsConfiguration_->detectorConfigurations().at(i));
@@ -304,7 +304,7 @@ AMAction3* SGMXASScanActionController::createInitializationActions(){
 	initializationActions->addSubAction(initializationStage1);
 	initializationActions->addSubAction(initializationStage2);
 	initializationActions->addSubAction(initializationStage3);
-	initializationActions->addSubAction(initializationStage4);
+	//initializationActions->addSubAction(initializationStage4);
 	initializationActions->addSubAction(initializationStage5);
 
 	return initializationActions;
