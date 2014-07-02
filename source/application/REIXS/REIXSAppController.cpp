@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -28,6 +29,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/REIXS/REIXSXASScanConfigurationView.h"
 #include "ui/REIXS/REIXSRIXSScanConfigurationView.h"
 #include "acquaman/REIXS/REIXSXASScanConfiguration.h"
+#include "ui/REIXS/REIXSXESSpectrometerControlPanel.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
 #include "ui/AMMainWindow.h"
 
@@ -169,6 +171,9 @@ bool REIXSAppController::startupCreateUserInterface() {
 	scanConfigurationHolder = new AMScanConfigurationViewHolder3(xasConfigView);
 	mw_->addPane(scanConfigurationHolder, "Experiment Setup", "Absorption Scan", ":/utilities-system-monitor.png");
 	connect(scanConfigurationHolder, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
+
+	REIXSXESSpectrometerControlPanel* spectrometerPanel = new REIXSXESSpectrometerControlPanel(REIXSBeamline::bl()->mcpDetector(), 0);
+	mw_->addPane(spectrometerPanel, "Experiment Setup", "Spectromter Setup", ":/22x22/gnome-display-properties.png");
 
 
 	REIXSSampleChamberButtonPanel* buttonPanel = new REIXSSampleChamberButtonPanel();
