@@ -3,8 +3,6 @@
 #include "beamline/BioXAS/BioXASSideBeamline.h"
 #include "ui/beamline/AMExtendedControlEditor.h"
 
-#include "beamline/CLS/CLSMAXvMotor.h"
-
 BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
     QWidget(parent)
 {
@@ -13,6 +11,8 @@ BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
 
     keithleyView_ = BioXASSideBeamline::bioXAS()->keithley()->createView();
     keithleyView_->setParent(this);
+
+    testView_ = new AMCurrentAmplifierCompositeView(BioXASSideBeamline::bioXAS()->keithley(), 0, this);
 
     QVBoxLayout *layout = new QVBoxLayout();
     layout->addWidget(motorControlEditor_);
