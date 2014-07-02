@@ -4,6 +4,7 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QCloseEvent>
+#include <QMessageBox>
 #include "util/AMSettings.h"
 AMDirectorySynchronizerDialog::AMDirectorySynchronizerDialog(QWidget *parent) :
 	QDialog(parent)
@@ -18,7 +19,6 @@ AMDirectorySynchronizerDialog::AMDirectorySynchronizerDialog(QWidget *parent) :
 	errorCloseButton_ = new QPushButton("Close");
 	errorCloseButton_->setVisible(false);
 	successfulSync_ = false;
-
 	mainLayout->addWidget(new QLabel("Acquaman is currently backing up your data. Please wait till complete..."));
 	mainLayout->addWidget(progressBar_, Qt::AlignCenter);
 	mainLayout->addWidget(errorTextEdit_);
@@ -32,6 +32,8 @@ AMDirectorySynchronizerDialog::AMDirectorySynchronizerDialog(QWidget *parent) :
 	connect(synchronizer_, SIGNAL(errorMessagesChanged(const QString&)), this, SLOT(onSynchronizerErrorTextChanged(const QString&)));
 	connect(synchronizer_, SIGNAL(percentageProgressChanged(int)), this, SLOT(onPercentageProgressChanged(int)));
 	connect(errorCloseButton_, SIGNAL(clicked()), this, SLOT(onCloseButtonClicked()));
+
+
 	setModal(true);
 }
 
@@ -52,9 +54,15 @@ void AMDirectorySynchronizerDialog::closeEvent(QCloseEvent *ce)
 bool AMDirectorySynchronizerDialog::start()
 {
 	if(synchronizer_->start())
+	{
 		exec();
+		return successfulSync_;
+	}
 
-	return successfulSync_;
+
+	QMessageBox syncNotStartedMessageBox;
+	syncNotStartedMessageBox.setText(errorTextEdit_->toPlainText());
+	syncNotStartedMessageBox.exec();
 }
 
 void AMDirectorySynchronizerDialog::onSynchronizerErrorTextChanged(const QString &message)
@@ -83,7 +91,7 @@ void AMDirectorySynchronizerDialog::onSynchronizerFailed()
 	{
 		errorTextEdit_->setVisible(true);
 		errorCloseButton_->setVisible(true);
-	}
+	}	
 	else
 		close();
 }

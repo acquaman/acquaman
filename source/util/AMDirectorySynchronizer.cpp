@@ -90,6 +90,8 @@ bool AMDirectorySynchronizer::start()
 	if(result == AMRecursiveDirectoryCompare::FullyMatchingResult)
 	{
 		appendToProgressMessage(QString("Contents of %1 and %2 are the same, no copying necessary.").arg(sourceDirectory_).arg(destinationDirectory_));
+		percentProgress_ = 100;
+		emit percentageProgressChanged(100);
 		timer_->start();
 		return true;
 	}
