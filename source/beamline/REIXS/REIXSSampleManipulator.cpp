@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 Acquaman is free software: you can redistribute it and/or modify
@@ -28,7 +29,6 @@ AMControlInfoList REIXSSampleManipulator::position() const {
 
 bool REIXSSampleManipulator::moveToPosition(const AMControlInfoList &newPosition) {
 
-//	AMActionRunner::s()->runActionImmediatelyInQueue(new REIXSSampleMoveAction(newPosition));
 	REIXSBeamline::bl()->currentSamplePositioner()->setFromInfoList(newPosition);
 	return true;
 }

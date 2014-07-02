@@ -8,17 +8,17 @@ QT       += core
 
 QT       -= gui
 
-TARGET = EnsureLegalHeader
+TARGET = build/EnsureHeaderNotice
 CONFIG   += console
 CONFIG   -= app_bundle
 
 TEMPLATE = app
 
 
-SOURCES += main.cpp \
-    LegalHeaderChecker.cpp
+SOURCES += source/application/EnsureHeaderNotice/EnsureHeaderNoticeMain.cpp \
+	source/application/EnsureHeaderNotice/HeaderNoticeChecker.cpp
 
 HEADERS += \
-    LegalHeaderChecker.h
+	source/application/EnsureHeaderNotice/HeaderNoticeChecker.h
 
 
