@@ -436,8 +436,6 @@ void AMDetector::setAsDarkCurrentMeasurementTime(double lastTime) {
 
 void AMDetector::setRequiresNewDarkCurrentMeasurement(bool needsNewDCC) {
     if (canDoDarkCurrentCorrection()) {
-        if (needsNewDCC)
-            qDebug() << "AMDetector::setRequiresNewDarkCurrentCorrection : " << name() << "requires new dark current correction measurement.";
 
         emit requiresNewDarkCurrentMeasurement(requiresNewDarkCurrentMeasurement_ = needsNewDCC);
     }
