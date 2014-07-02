@@ -40,6 +40,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QCheckBox>
 #include <QPushButton>
 #include <QMenu>
+#include <QComboBox>
 
 /*! This class is primarily for having helper methods to all of the subclasses for when
 	they build up the varios GUI elements.  Because many of them use the exact same code
@@ -52,8 +53,9 @@ class VESPERSScanConfigurationView : public AMScanConfigurationView
 
 public:
 	/// Constructor.  Passes in the configuraiton that this view will modify.
- 	virtual ~VESPERSScanConfigurationView();
 	VESPERSScanConfigurationView(QWidget *parent = 0);
+	/// Destructor.
+	virtual ~VESPERSScanConfigurationView();
 
 signals:
 	/// Sends out a request that the current detector based on FluorescenceDetector to be configured.  Asks the app controller to change to the detector view.  String will be either "Single Element" or "Four Element".
@@ -61,15 +63,15 @@ signals:
 
 protected slots:
 	/// Handles propogating changes in the config to the It buttons.
-	void updateItButtons(int It);
+	void updateItComboBox(int It);
 	/// Handles propogating changes in the config to the I0 buttons.
-	void updateI0Buttons(int I0);
+	void updateI0ComboBox(int I0);
 	/// Slot that updates the fluorescence detector buttons.
-	void updateFluorescenceDetector(int detector);
+	void updateFluorescenceDetectorComboBox(int detector);
 	/// Slot that updates the ccd detector buttons.
-	void updateCCDDetectorButtons(int detector);
+	void updateCCDDetectorComboBox(int detector);
 	/// Slot that updates the motor choice buttons.
-	void updateMotor(int choice);
+	void updateMotorSelectionComboBox(int choice);
 
 	/// Handles the context menu.
 	void onCustomContextMenuRequested(QPoint pos);
@@ -79,21 +81,16 @@ protected slots:
 	QString ccdDetectorIdToString(int id);
 
 protected:
-	/// Figure out the current configuration of the regions of interest and write it out in a readable way.
-	void updateAndSetRoiTextBox(int xrfId);
-
-	/// Add the fluorescenceDetector view.  Returns a pointer to the widget.
-	QGroupBox *addFluorescenceDetectorSelectionView();
-	/// Add the ccdDetector view.  Returns a pointer to the widget.
-	QGroupBox *addCCDDetectorSelectionView();
-	/// Add the I0 selection view.  Returns a pointer to the widget.
-	QGroupBox *addI0SelectionView();
-	/// Add the It selection view.  Returns a pointer to the widget.
-	QGroupBox *addItSelectionView();
-	/// Add the motor group view.  Returns a pointer to the widget.  \note Both lists must be the same size!
-	QGroupBox *addMotorSelectionView(QStringList labels, QList<int> ids);
+	/// Creates a combo box for the fluorescenceDetector enum.  Returns a pointer to the widget.
+	QComboBox *createFluorescenceComboBox();
+	/// Creates a combo box for the CCDDetector enum.  Returns a pointer to the widget.
+	QComboBox *createCCDComboBox();
+	/// Creates a combo box for the I0 selection.  Returns a pointer to the widget.
+	QComboBox *createIonChamberComboBox();
+	/// Creates a combo box for the motor selection.  Returns a pointer to the widget.  \note Both lists must be the same size!
+	QComboBox *createMotorSelectionComboBox(QStringList labels, QList<int> ids);
 	/// Add the scan name view.  Returns the widget.
-	QLineEdit *addScanNameView(const QString &name);
+	QLineEdit *createScanNameView(const QString &name);
 	/// Add the goToPosition group box.  Returns a pointer to the widget.
 	QGroupBox *addGoToPositionView(bool goToPosition, double x, double y);
 	/// Add the export path label.  Returns a pointer to the widget.
@@ -103,22 +100,21 @@ protected:
 	/// Add the export options view.  Returns a pointer to the widget.
 	QGroupBox *addExporterOptionsView(QStringList list, bool exportSpectra, bool exportSpectraInRows);
 	/// Add the dwell time box.  Returns a pointer to the widget.
-	QDoubleSpinBox *addDwellTimeWidget(double time);
+	QDoubleSpinBox *createDwellTimeSpinBox(double time);
 	/// Build a position QDoubleSpinBox based on the prefix, suffix and value.  They have the same format, this should cut down on duplicate code.
-	QDoubleSpinBox *buildPositionDoubleSpinBox(const QString &prefix, const QString &suffix, double value, int decimals);
+	QDoubleSpinBox *createPositionDoubleSpinBox(const QString &prefix, const QString &suffix, double value, int decimals);
 
-	/// Button group for the fluorescence detector selection.
-	QButtonGroup *fluorescenceButtonGroup_;
-	/// Button group for the ccd detector selection.
-	QButtonGroup *ccdButtonGroup_;
-	/// Button group for the It ion chamber selection.
-	QButtonGroup *ItGroup_;
-	/// Button group for the I0 ion chamber selection.
-	QButtonGroup *I0Group_;
+	/// This disables the common items for the fluorescence detector (disables None).
+	void disableStandardFluorescenceOptions();
+	/// This disables the common items for the CCD detectors (disables Mar and Roper).
+	void disableStandardXRDOptions();
+	/// This disables the common items for the I0 (Ipost).
+	void disableStandardI0Options();
+	/// This disables the common items for the It (Isplit).
+	void disableStandardItOptions();
+
 	/// Button group for the exporter options.
 	QButtonGroup *autoExportButtonGroup_;
-	/// Button group for the motor choice selection.
-	QButtonGroup *motorButtonGroup_;
 
 	/// Label holding what the currently saved x position is in the scan configuration.
 	QLabel *savedXPosition_;
@@ -138,8 +134,6 @@ protected:
 	QLabel *timeOffsetLabel_;
 	/// A spin box holding the time offset.
 	QDoubleSpinBox *timeOffset_;
-	/// The text edit that holds all the names of the regions of interest.
-	QTextEdit *roiText_;
 	/// The label that holds useful information about the CCD - such as path and name.
 	QLabel *ccdText_;
 	/// The label that holds the help message when CCD file names conflict.
@@ -148,6 +142,16 @@ protected:
 	QDoubleSpinBox *dwellTime_;
 	/// Line edit for changing the name of the scan.
 	QLineEdit *scanName_;
+	/// Combo box for choosing the fluorescence detector.
+	QComboBox *fluorescenceDetectorComboBox_;
+	/// Combo box for choosing the I0 ion chamber.
+	QComboBox *i0ComboBox_;
+	/// Combo box for choosing the It ion chamber.
+	QComboBox *itComboBox_;
+	/// Combo box for choosing the CCD detector.
+	QComboBox *ccdComboBox_;
+	/// Combo box for choosing the motors.
+	QComboBox *motorSelectionComboBox_;
 };
 
 #endif // VESPERSSCANCONFIGURATIONVIEW_H
