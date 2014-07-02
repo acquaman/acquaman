@@ -31,8 +31,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMDeferredFunctionCall.h"
 #include "beamline/CLS/CLSBiStateControl.h"
 
-
-class AMSADetector;
 class AMDetector;
 class CLSSIS3820Scaler;
 
@@ -455,7 +453,6 @@ public:
 	/// All temperature monitors set
 	AMControlSet* tmset() { return tmSet_; }
 
-	REIXSXASDetectors* xasDetectors() { return xasDetectors_; }
 	CLSSIS3820Scaler *scaler() { return scaler_; }
 
 	/// Build a list of actions that opens/closes necessary shutters.
@@ -500,9 +497,6 @@ protected:
 
 	/// This is the active sample plate object, ie:the one that is currently loaded. When a user uses the UI to switch sample plates, we simple re-load this one from the database to become a different sample plate.
 	AMSamplePlatePre2013* samplePlate_;
-
-	/// List of detectors used in XAS scans
-	REIXSXASDetectors* xasDetectors_;
 
 	CLSSIS3820Scaler *scaler_;
 
