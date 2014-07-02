@@ -192,6 +192,10 @@ VESPERSSpatialLineScanConfigurationView::VESPERSSpatialLineScanConfigurationView
 	ccdComboBox_->setCurrentIndex(ccdComboBox_->findData(int(configuration_->ccdDetector())));
 	motorSelectionComboBox_->setCurrentIndex(motorSelectionComboBox_->findData(int(configuration_->motor())));
 
+	disableStandardXRDOptions();
+	disableStandardI0Options();
+	disableStandardItOptions();
+
 	QFormLayout *detectorLayout = new QFormLayout;
 	detectorLayout->addRow("XRF:", fluorescenceDetectorComboBox_);
 	detectorLayout->addRow("XRD:", ccdComboBox_);

@@ -110,6 +110,8 @@ VESPERSEnergyScanConfigurationView::VESPERSEnergyScanConfigurationView(VESPERSEn
 
 	ccdComboBox_->setCurrentIndex(ccdComboBox_->findData(int(configuration_->ccdDetector())));
 
+	disableStandardXRDOptions();
+
 	QFormLayout *detectorLayout = new QFormLayout;
 	detectorLayout->addRow("XRD:", ccdComboBox_);
 

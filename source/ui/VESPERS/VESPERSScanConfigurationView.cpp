@@ -289,3 +289,39 @@ QDoubleSpinBox *VESPERSScanConfigurationView::createPositionDoubleSpinBox(const 
 
 	return box;
 }
+
+void VESPERSScanConfigurationView::disableStandardFluorescenceOptions()
+{
+	QStandardItemModel *model = qobject_cast<QStandardItemModel *>(fluorescenceDetectorComboBox_->model());
+
+	for (int i = 0; i < fluorescenceDetectorComboBox_->count(); i++)
+		if (model->item(i)->text() == "None")
+			model->item(i)->setFlags(Qt::NoItemFlags);
+}
+
+void VESPERSScanConfigurationView::disableStandardXRDOptions()
+{
+	QStandardItemModel *model = qobject_cast<QStandardItemModel *>(ccdComboBox_->model());
+
+	for (int i = 0; i < ccdComboBox_->count(); i++)
+		if (model->item(i)->text() == "Roper" || model->item(i)->text() == "Mar")
+			model->item(i)->setFlags(Qt::NoItemFlags);
+}
+
+void VESPERSScanConfigurationView::disableStandardI0Options()
+{
+	QStandardItemModel *model = qobject_cast<QStandardItemModel *>(i0ComboBox_->model());
+
+	for (int i = 0; i < i0ComboBox_->count(); i++)
+		if (model->item(i)->text() == "Ipost")
+			model->item(i)->setFlags(Qt::NoItemFlags);
+}
+
+void VESPERSScanConfigurationView::disableStandardItOptions()
+{
+	QStandardItemModel *model = qobject_cast<QStandardItemModel *>(itComboBox_->model());
+
+	for (int i = 0; i < itComboBox_->count(); i++)
+		if (model->item(i)->text() == "Isplit")
+			model->item(i)->setFlags(Qt::NoItemFlags);
+}

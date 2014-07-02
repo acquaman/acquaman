@@ -201,6 +201,10 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 	fluorescenceDetectorComboBox_->setCurrentIndex((int)configuration_->fluorescenceDetector());
 	motorSelectionComboBox_->setCurrentIndex(motorSelectionComboBox_->findData(int(configuration_->motor())));
 
+	disableStandardFluorescenceOptions();
+	disableStandardXRDOptions();
+	disableStandardI0Options();
+
 	QFormLayout *detectorLayout = new QFormLayout;
 	detectorLayout->addRow("XRF:", fluorescenceDetectorComboBox_);
 	detectorLayout->addRow("XRD:", ccdComboBox_);

@@ -172,6 +172,9 @@ VESPERSEXAFSScanConfigurationView::VESPERSEXAFSScanConfigurationView(VESPERSEXAF
 	i0ComboBox_->setCurrentIndex((int)configuration_->incomingChoice());
 	itComboBox_->setCurrentIndex((int)configuration_->transmissionChoice());
 
+	disableStandardI0Options();
+	disableStandardItOptions();
+
 	QVBoxLayout *defaultLayout = new QVBoxLayout;
 	defaultLayout->addSpacing(35);
 	defaultLayout->addWidget(defaultXANESButton);

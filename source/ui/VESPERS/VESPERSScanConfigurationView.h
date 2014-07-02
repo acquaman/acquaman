@@ -83,6 +83,15 @@ protected:
 	/// Build a position QDoubleSpinBox based on the prefix, suffix and value.  They have the same format, this should cut down on duplicate code.
 	QDoubleSpinBox *createPositionDoubleSpinBox(const QString &prefix, const QString &suffix, double value, int decimals);
 
+	/// This disables the common items for the fluorescence detector (disables None).
+	void disableStandardFluorescenceOptions();
+	/// This disables the common items for the CCD detectors (disables Mar and Roper).
+	void disableStandardXRDOptions();
+	/// This disables the common items for the I0 (Ipost).
+	void disableStandardI0Options();
+	/// This disables the common items for the It (Isplit).
+	void disableStandardItOptions();
+
 	/// Button group for the exporter options.
 	QButtonGroup *autoExportButtonGroup_;
 

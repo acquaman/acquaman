@@ -204,6 +204,10 @@ VESPERS3DScanConfigurationView::VESPERS3DScanConfigurationView(VESPERS3DScanConf
 	fluorescenceDetectorComboBox_->setCurrentIndex((int)configuration_->fluorescenceDetector());
 	motorSelectionComboBox_->setCurrentIndex(motorSelectionComboBox_->findData(int(configuration_->motor())));
 
+	disableStandardFluorescenceOptions();
+	disableStandardI0Options();
+	disableStandardXRDOptions();
+
 	QFormLayout *detectorLayout = new QFormLayout;
 	detectorLayout->addRow("XRF:", fluorescenceDetectorComboBox_);
 	detectorLayout->addRow("XRD:", ccdComboBox_);
@@ -218,10 +222,10 @@ VESPERS3DScanConfigurationView::VESPERS3DScanConfigurationView(VESPERS3DScanConf
 	contentsLayout->addWidget(positionsBox, 0, 0, 2, 3);
 	contentsLayout->addWidget(timeGroupBox, 2, 0, 1, 3);
 	contentsLayout->addWidget(scanNameGroupBox, 3, 0, 1, 3);
-	contentsLayout->addWidget(ccdTextBox_, 4, 0, 1, 3);
 	contentsLayout->addWidget(timeOffsetBox, 5, 0, 1, 3);
-	contentsLayout->addWidget(detectorGroupBox, 0, 3, 2, 1);
-	contentsLayout->addWidget(autoExportGroupBox, 2, 3, 2, 1);
+	contentsLayout->addWidget(detectorGroupBox, 0, 3, 1, 1);
+	contentsLayout->addWidget(autoExportGroupBox, 1, 3, 2, 1);
+	contentsLayout->addWidget(ccdTextBox_, 3, 3, 1, 1);
 
 	QHBoxLayout *squeezeContents = new QHBoxLayout;
 	squeezeContents->addStretch();
