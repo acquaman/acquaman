@@ -759,7 +759,6 @@ HEADERS += source/acquaman/AMRegion.h \
     source/util/AMBuildReporter.h \
     source/analysis/AM0DTimestampAB.h \
     source/analysis/AM1DTimedDataAB.h \
-	source/StripTool2/STVariable.h \
     source/analysis/AM1DKSpaceCalculatorAB.h \
     source/ui/beamline/AMCurrentAmplifierCompositeView.h \
     source/ui/beamline/AMCurrentAmplifierSingleView.h \
@@ -1246,7 +1245,6 @@ SOURCES += source/acquaman/AMRegion.cpp \
     source/util/AMBuildReporter.cpp \
     source/analysis/AM0DTimestampAB.cpp \
     source/analysis/AM1DTimedDataAB.cpp \
-	source/StripTool2/STVariable.cpp \
     source/analysis/AM1DKSpaceCalculatorAB.cpp \
     source/ui/beamline/AMCurrentAmplifierCompositeView.cpp \
     source/ui/beamline/AMCurrentAmplifierSingleView.cpp \
