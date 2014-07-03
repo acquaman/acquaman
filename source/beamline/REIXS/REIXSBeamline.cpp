@@ -26,7 +26,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/AMListAction3.h"
 #include "actions3/AMActionSupport.h"
 
-#include "acquaman/CLS/CLSSIS3820ScalerSADetector.h"
 #include "beamline/CLS/CLSBasicScalerChannelDetector.h"
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 #include "beamline/CLS/CLSSR570.h"
@@ -138,10 +137,6 @@ REIXSBeamline::REIXSBeamline() :
 	setupExposedDetectors();
 
 	samplePlate_ = new AMSamplePlatePre2013(this);
-
-	xasDetectors_ = new REIXSXASDetectors(this);
-
-
 }
 
 REIXSBeamline::~REIXSBeamline() {
@@ -950,25 +945,6 @@ void REIXSBrokenMonoControl::onMonoMirrorAngleError(double error)
 REIXSBrokenMonoControl::~REIXSBrokenMonoControl() {
 	delete control_;
 	control_ = 0;
-}
-
- REIXSXASDetectors::~REIXSXASDetectors(){}
-REIXSXASDetectors::REIXSXASDetectors(QObject *parent) : AMCompositeControl("xasDetectors", "", parent, "XAS Detectors")
-{
-	TEY_ = new AMReadOnlyPVControl("TEY", "BL1610-ID-2:mcs18:fbk", this, "TEY");
-	TFY_ = new AMReadOnlyPVControl("TFY", "BL1610-ID-2:mcs04:fbk", this, "TFY");
-	I0_ = new AMReadOnlyPVControl("I0", "BL1610-ID-2:mcs16:fbk", this, "I0");
-	scalerContinuousMode_ = new AMSinglePVControl("scalerContinuous", "BL1610-ID-2:mcs:continuous", this, 0.1);
-
-	addChildControl(TEY_);
-	addChildControl(TFY_);
-	addChildControl(I0_);
-
-	saDetectors_ << new CLSSIS3820ScalerSADetector("TEY", "Electron Yield", "BL1610-ID-2:mcs", 18, true, this);
-	saDetectors_ << new CLSSIS3820ScalerSADetector("TFY", "Fluorescence Yield", "BL1610-ID-2:mcs", 4, false, this);
-	saDetectors_ << new CLSSIS3820ScalerSADetector("I0", "I0", "BL1610-ID-2:mcs", 16, false, this);
-	saDetectors_ << new CLSSIS3820ScalerSADetector("PFY", "PFY", "BL1610-ID-2:mcs", 3, false, this);
-	/// \todo XES detector PFY. Requires building a new AMSADetector subclass.
 }
 
 // To have a current sample in position, there must be a marked sample on the beamline's current plate, which has four positions set, and the sample manipulator is within tolerance of the X,Y,Z position. (We ignore theta, to allow different incident angles to all count as the same sample. Only works if the sample is at the center of rotation of the plate, unfortunately.)

@@ -400,8 +400,32 @@ protected:
 	AMControl *m3HorizontalDownstreamEncoder_;
 	AMControl *m3RotationalEncoder_;
 
+	// Controls for the new valves on the bypass line
 	AMControl *frontBypassValve_;
 	AMControl *backBypassValve_;
+
+	// Shutter controls (readonly), sorry for the names but it was either the PV name or
+	// shutter_, anotherShutter_, yetAnotherShutter_ etc.
+	AMControl *vvr1611_3_I10_01Shutter_;
+	AMControl *vvr1611_3_I10_02Shutter_;
+	AMControl *vvr1611_3_I10_03Shutter_;
+	AMControl *vvr1611_3_I10_04Shutter_;
+	AMControl *psh1611_3_I10_01Shutter_;
+	AMControl *vvr1611_4_I10_01Shutter_;
+	AMControl *vvr1611_4_I10_02Shutter_;
+	AMControl *vvr1611_4_I10_03Shutter_;
+	AMControl *vvr1611_4_I10_04Shutter_;
+	AMControl *vvr1611_4_I10_05Shutter_;
+	AMControl *vvr1611_4_I10_06Shutter_;
+	AMControl *vvr1611_4_I10_07Shutter_;
+	AMControl *vvr1611_4_I10_08Shutter_;
+	AMControl *psh1411_I00_01Shutter_;
+	AMControl *vvr1411_I00_01Shutter_;
+	AMControl *vvf1411_I00_01Shutter_;
+	AMControl *psh1411_I00_02Shutter_;
+	AMControl *ssh1411_I00_01Shutter_;
+	AMControl *vvr1611_3_I00_01Shutter_;
+	AMControl *vvr1611_3_I00_02Shutter_;
 
 	CLSAmptekSDD123DetectorNew *newAmptekSDD1_;
 	CLSAmptekSDD123DetectorNew *newAmptekSDD2_;
@@ -427,6 +451,8 @@ protected:
 	AMDetectorGroup *allDetectorGroup_;
 	AMDetectorGroup *XASDetectorGroup_;
 	AMDetectorGroup *FastDetectorGroup_;
+
+	AMControlSet *shutterControlSet_;
 
 	AMControlSet *criticalControlsSet_;
 	AMDetectorSet *criticalDetectorSet_;

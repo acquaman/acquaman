@@ -65,9 +65,6 @@ protected slots:
 	/// Handles making sure "Go To Position" looks appropriate when the motors change.
 	void onMotorsUpdated(int id);
 
-	/// Emits the configureDetector signal based with 'Roper CCD' or 'Mar CCD.
-	void onConfigureCCDDetectorClicked() { emit configureDetector(ccdDetectorIdToString(int(configuration_->ccdDetector()))); }
-
 protected:
 	/// Helper method that checks if the CCD files have the name given by \param name.  Does nothing if everything is okay.  Calls onCCDNameConflict if name conflicts exits.
 	void checkCCDFileNames(const QString &name) const;

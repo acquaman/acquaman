@@ -31,8 +31,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMDeferredFunctionCall.h"
 #include "beamline/CLS/CLSBiStateControl.h"
 
-
-class AMSADetector;
 class AMDetector;
 class CLSSIS3820Scaler;
 
@@ -46,7 +44,7 @@ class REIXSBrokenMonoControl;
 class REIXSPhotonSource : public AMCompositeControl {
 	Q_OBJECT
 public:
- 	virtual ~REIXSPhotonSource();
+	virtual ~REIXSPhotonSource();
 	REIXSPhotonSource(QObject* parent = 0);
 
 	REIXSBrokenMonoControl* energy() { return energy_; }
@@ -77,7 +75,7 @@ protected:
 class REIXSValvesAndShutters : public AMCompositeControl {
 	Q_OBJECT
 public:
- 	virtual ~REIXSValvesAndShutters();
+	virtual ~REIXSValvesAndShutters();
 	REIXSValvesAndShutters(QObject* parent = 0);
 
 	/// Safety shutter 1
@@ -108,35 +106,6 @@ protected:
 
 };
 
-
-/// Organizes the group of XAS detectors
-class REIXSXASDetectors : public AMCompositeControl {
-	Q_OBJECT
-public:
- 	virtual ~REIXSXASDetectors();
-	REIXSXASDetectors(QObject* parent = 0);
-
-	/// Feedback for I0
-	AMReadOnlyPVControl* I0Feedback() { return I0_; }
-	/// Feedback for TEY
-	AMReadOnlyPVControl* TEYFeedback() { return TEY_; }
-	/// Feedback for TFY
-	AMReadOnlyPVControl* TFYFeedback() { return TFY_; }
-
-	/// Control for continuous mode
-	AMSinglePVControl* scalerContinuousMode() { return scalerContinuousMode_; }
-
-	/// A list of AMSADetectors used by the XAS scan controller: TEY, TFY, I0.
-	QList<AMSADetector*> saDetectors() { return saDetectors_; }
-
-
-protected:
-	AMReadOnlyPVControl* I0_, * TEY_, *TFY_;
-	AMSinglePVControl* scalerContinuousMode_;
-	QList<AMSADetector*> saDetectors_;
-
-};
-
 /// The REIXSHexapod control is just a container for the set of coupled controls which make up the hexapod:
 /*!
 - x(), y(), z(): Stage position in mm
@@ -147,7 +116,7 @@ protected:
 class REIXSHexapod : public AMCompositeControl {
 	Q_OBJECT
 public:
- 	virtual ~REIXSHexapod();
+	virtual ~REIXSHexapod();
 	REIXSHexapod(QObject* parent = 0);
 
 	AMControl* x() { return x_; }
@@ -181,7 +150,7 @@ class AMListAction3;
 class REIXSSpectrometer : public AMCompositeControl {
 	Q_OBJECT
 public:
- 	virtual ~REIXSSpectrometer();
+	virtual ~REIXSSpectrometer();
 	REIXSSpectrometer(QObject* parent = 0);
 
 	/// The spectrometer calibration object we are using
@@ -321,7 +290,7 @@ protected slots:
 class REIXSSampleChamber : public AMCompositeControl {
 	Q_OBJECT
 public:
- 	virtual ~REIXSSampleChamber();
+	virtual ~REIXSSampleChamber();
 	REIXSSampleChamber(QObject* parent = 0);
 
 	AMControl* x() { return x_; }
@@ -484,7 +453,6 @@ public:
 	/// All temperature monitors set
 	AMControlSet* tmset() { return tmSet_; }
 
-	REIXSXASDetectors* xasDetectors() { return xasDetectors_; }
 	CLSSIS3820Scaler *scaler() { return scaler_; }
 
 	/// Build a list of actions that opens/closes necessary shutters.
@@ -529,9 +497,6 @@ protected:
 
 	/// This is the active sample plate object, ie:the one that is currently loaded. When a user uses the UI to switch sample plates, we simple re-load this one from the database to become a different sample plate.
 	AMSamplePlatePre2013* samplePlate_;
-
-	/// List of detectors used in XAS scans
-	REIXSXASDetectors* xasDetectors_;
 
 	CLSSIS3820Scaler *scaler_;
 

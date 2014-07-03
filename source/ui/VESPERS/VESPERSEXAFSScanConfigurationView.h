@@ -63,9 +63,9 @@ protected slots:
 	/// Handles setting the name of the configuration from the line edit.
 	void onScanNameEdited();
 	/// Handles changing what are acceptable choices for I0 based on It clicks.  Takes in the id of the new It choice.  Passes choice on to the configuration.
-	void onItClicked(int id);
+	void onItClicked(int index);
 	/// Passes on the selection for I0 to the configuration.
-	void onI0Clicked(int id) { configuration_->setIncomingChoice(id); }
+	void onI0Clicked(int index) { configuration_->setIncomingChoice(index); }
 	/// Handles changes to the fluorescence detector choice.
 	void onFluorescenceChoiceChanged(int id);
 	/// Sets the new energy.
@@ -87,17 +87,10 @@ protected slots:
 	/// Handles making sure "Go To Position" looks appropriate when the motors change.
 	void onMotorsUpdated(int id);
 
-	/// Emits the configureDetector signal based on the current fluorescence detector choice.
-	void onConfigureXRFDetectorClicked() { emit configureDetector(fluorescenceDetectorIdToString(int(configuration_->fluorescenceDetector()))); }
-	/// Updates roiText_ based on the current state of the ROI list.
-	void updateRoiText();
 	/// Helper slot that sets whether we export spectra in rows or columns.
 	void updateExportSpectraInRows(bool exportInColumns) { configuration_->setExportSpectraInRows(!exportInColumns); }
 
 protected:
-	/// Reimplements the show event to update the Regions of Interest text.
-	virtual void showEvent(QShowEvent *e) { updateRoiText(); AMScanConfigurationView::showEvent(e); }
-
 	/// Pointer to the specific scan config the view is modifying.
 	VESPERSEXAFSScanConfiguration *configuration_;
 
@@ -113,8 +106,6 @@ protected:
 	QLabel *estimatedTime_;
 	/// Label holding the current estimated time for the set of scans to complete.
 	QLabel *estimatedSetTime_;
-	/// Group box holding the roiText information.
-	QGroupBox *roiTextBox_;
 };
 
 #endif // VESPERSEXAFSSCANCONFIGURATIONVIEW_H

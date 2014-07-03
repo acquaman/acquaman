@@ -40,8 +40,9 @@ class VESPERSSpatialLineScanConfigurationView : public VESPERSScanConfigurationV
 	Q_OBJECT
 public:
 	/// Constructor.
-	virtual ~VESPERSSpatialLineScanConfigurationView();
 	explicit VESPERSSpatialLineScanConfigurationView(VESPERSSpatialLineScanConfiguration *config, QWidget *parent = 0);
+	/// Destructor.
+	virtual ~VESPERSSpatialLineScanConfigurationView();
 
 	/// Getter for the configuration.
 	const AMScanConfiguration* configuration() const { return configuration_; }
@@ -70,26 +71,17 @@ protected slots:
 	/// Handles setting the name of the configuration from the line edit.
 	void onScanNameEdited();
 	/// Passes on the selection for I0 to the configuration.
-	void onI0Clicked(int id) { configuration_->setIncomingChoice(id); }
+	void onI0Clicked(int index) { configuration_->setIncomingChoice(index); }
 	/// Handles changing what are acceptable choices for I0 based on It clicks.  Takes in the id of the new It choice.  Passes choice on to the configuration.
-	void onItClicked(int id);
+	void onItClicked(int index);
 	/// Handles changes to the fluorescence detector choice.
-	void onFluorescenceDetectorChanged(int id);
+	void onFluorescenceChoiceChanged(int id);
 	/// Handles changes in the motor selection choice.
 	void onMotorChanged(int id);
-	/// Updates the button group if the motor is changed from elsewhere in the program.
-	void onMotorUpdated(int id);
 	/// Helper slot that sets the time offset for the scan.
 	void setTimeOffset(double time) { configuration_->setTimeOffset(time); }
 	/// Helper slot that handles the setting the estimated time label.
 	void onEstimatedTimeChanged();
-
-	/// Emits the configureDetector signal based on the current fluorescence detector choice.
-	void onConfigureXRFDetectorClicked() { emit configureDetector(fluorescenceDetectorIdToString(int(configuration_->fluorescenceDetector()))); }
-	/// Emits the configureDetector signal based with 'Roper CCD'.
-	void onConfigureCCDDetectorClicked() { emit configureDetector(ccdDetectorIdToString(int(configuration_->ccdDetector()))); }
-	/// Updates roiText_ based on the current state of the ROI list.
-	void updateRoiText();
 
 	/// Slot that updates the horizontal step size spin box.
 	void updateStep(double val) { step_->setValue(val*1000); }
@@ -97,8 +89,6 @@ protected slots:
 	void updateExportSpectraInRows(bool exportInColumns) { configuration_->setExportSpectraInRows(!exportInColumns); }
 
 protected:
-	/// Reimplements the show event to update the Regions of Interest text.
-	virtual void showEvent(QShowEvent *e) { updateRoiText(); AMScanConfigurationView::showEvent(e); }
 	/// Helper method that updates the x and y step spin boxes if the map is not possible to change.
 	void axesAcceptable();
 	/// Helper method that checks if the CCD files have the name given by \param name.  Does nothing if everything is okay.  Calls onCCDNameConflict if name conflicts exits.
@@ -117,8 +107,6 @@ protected:
 	QLabel *otherPositionLabel_;
 	/// Pointer to the spin box holding the other position.
 	QDoubleSpinBox *otherPosition_;
-	/// Button holding the pointer to the CCD detector button.  It takes you to either Roper or Mar CCD detector screens.
-	QPushButton *configureCCDButton_;
 
 	/// Pointer to the CCD help group box.
 	QGroupBox *ccdTextBox_;
