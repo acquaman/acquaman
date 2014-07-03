@@ -45,7 +45,7 @@ void AMCurrentAmplifierCompositeView::onAmplifierValueChanged()
         amplifier1_->blockSignals(true);
         amplifier2_->blockSignals(true);
 
-        int newIndex = value_->findText( valueToString(amplifier1_->value(), amplifier1_->units()) );
+        int newIndex = value_->findText( toDisplay(amplifier1_->value(), amplifier1_->units()) );
 
         if (newIndex != -1) {
             value_->setCurrentIndex(newIndex);
@@ -80,11 +80,6 @@ void AMCurrentAmplifierCompositeView::refreshViewImplementation()
     refreshButtons();
 }
 
-QString AMCurrentAmplifierCompositeView::valueToString(double value, const QString &units) const
-{
-    return QString("%1 %2").arg(value, 0, 'g', 3).arg(units);
-}
-
 void AMCurrentAmplifierCompositeView::refreshValues()
 {
     value_->clear();
@@ -95,7 +90,7 @@ void AMCurrentAmplifierCompositeView::refreshValues()
 
     foreach (QString units, unitsList) {
         foreach (double value, valuesList) {
-            QString item = valueToString(value, units);
+            QString item = toDisplay(value, units);
             value_->addItem(item);
         }
     }

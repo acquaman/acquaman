@@ -32,6 +32,8 @@ BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
 
     keithleyView_ = BioXASSideBeamline::bioXAS()->keithley()->createView();
     keithleyView_->setParent(this);
+    keithleyView_->setPrecision(2);
+    keithleyView_->setFormat('e');
 
     QVBoxLayout *layout = new QVBoxLayout();
     layout->addWidget(motorControlEditor_);

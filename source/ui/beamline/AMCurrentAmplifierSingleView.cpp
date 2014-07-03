@@ -35,13 +35,10 @@ void AMCurrentAmplifierSingleView::onAmplifierValueChanged()
     if (isValid()) {
         amplifier_->blockSignals(true);
 
+        int newIndex = value_->findText( toDisplay(amplifier_->value(), amplifier_->units()) );
 
-        int newIndex = value_->findText( valueToString(amplifier_->value(), amplifier_->units()) );
-        qDebug() << "Amplifier value 1: " << amplifier_->value() << "units 1: " << amplifier_->units() << "newIndex: " << newIndex;
         if (newIndex != -1)
             value_->setCurrentIndex(newIndex);
-
-        qDebug() << "Amplifier value 2: " << amplifier_->value() << "units 2: " << amplifier_->units();
 
         amplifier_->blockSignals(false);
     }
@@ -105,11 +102,6 @@ void AMCurrentAmplifierSingleView::onCustomContextMenuRequested(QPoint position)
     }
 }
 
-QString AMCurrentAmplifierSingleView::valueToString(double value, const QString &units) const
-{
-    return QString("%1 %2").arg(value, 0, 'g', 3).arg(units);
-}
-
 void AMCurrentAmplifierSingleView::refreshValues()
 {
     value_->clear();
@@ -120,7 +112,7 @@ void AMCurrentAmplifierSingleView::refreshValues()
 
     foreach (QString units, unitsList) {
         foreach (double value, valuesList) {
-            QString item = valueToString(value, units);
+            QString item = toDisplay(value, units);
             value_->addItem(item);
         }
     }
