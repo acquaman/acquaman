@@ -3,6 +3,9 @@
 STVariableEditor::STVariableEditor(STVariable *toEdit, QWidget *parent) : QWidget(parent)
 {
     variable_ = toEdit;
+
+    descriptionEdited_ = false;
+
     setupComponents();
     getVariableInfo();
 }
@@ -10,6 +13,11 @@ STVariableEditor::STVariableEditor(STVariable *toEdit, QWidget *parent) : QWidge
 STVariableEditor::~STVariableEditor()
 {
 
+}
+
+STVariable* STVariableEditor::variable() const
+{
+    return variable_;
 }
 
 void STVariableEditor::setNameText(const QString &name)
@@ -40,6 +48,13 @@ void STVariableEditor::setLatestValue(double newValue)
     value_->setText(QString::number(newValue));
 }
 
+void STVariableEditor::onDescriptionEntryChanged(const QString &text)
+{
+    Q_UNUSED(text)
+
+    descriptionEdited_ = true;
+}
+
 void STVariableEditor::setupComponents()
 {
     QGridLayout *mainLayout = new QGridLayout();
@@ -52,6 +67,7 @@ void STVariableEditor::setupComponents()
 
     QLabel *descriptionLabel = new QLabel("Description: ", this);
     descriptionEntry_ = new QLineEdit(this);
+    connect( descriptionEntry_, SIGNAL(textChanged(QString)), this, SLOT(onDescriptionEntryChanged(QString)) );
     descriptionLabel->setBuddy(descriptionEntry_);
     mainLayout->addWidget(descriptionLabel, 1, 0);
     mainLayout->addWidget(descriptionEntry_, 1, 1);
@@ -89,4 +105,10 @@ void STVariableEditor::getVariableInfo()
         connect( variable_, SIGNAL(connected(bool)), this, SLOT(setConnectionState(bool)) );
         connect( variable_, SIGNAL(valueChanged(double)), this, SLOT(setLatestValue(double)) );
     }
+}
+
+void STVariableEditor::applyChangesToVariable()
+{
+    if (descriptionEdited_)
+        variable_->setDescription(descriptionEntry_->text());
 }
