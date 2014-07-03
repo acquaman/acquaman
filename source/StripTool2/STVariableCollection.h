@@ -20,22 +20,24 @@ public:
 
     STVariable* variableAt(int index) const;
 
+    int indexOf(STVariable *toMatch) const;
+
     QList<STVariable*> variablesWithName(const QString &name);
 
 signals:
-    void variableAdded(bool succeeded, const QString &name);
-    void variableConnected(bool connected, const QString &name);
-    void variableDeleted(bool succeeded, const QString &name);
+    void variableAdded(bool succeeded);
+    void variableConnected(bool connected, int index);
+    void variableDeleted(bool succeeded);
 
 public slots:
     void addVariable(const QString &name);
-    void deleteVariable(const QString &name);
+    void deleteVariableAt(int index);
 
 protected slots:
     void onVariableConnectedStateChanged(QObject *object);
 
 protected:
-    void connectVariable(STVariable *variable);
+    void connectVariable(int index);
     void disconnectVariable(STVariable *variable);
 
 protected:

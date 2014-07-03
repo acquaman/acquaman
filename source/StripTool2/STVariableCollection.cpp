@@ -27,6 +27,11 @@ STVariable* STVariableCollection::variableAt(int index) const
     return variables_.at(index);
 }
 
+int STVariableCollection::indexOf(STVariable *toMatch) const
+{
+    return variables_.indexOf(toMatch);
+}
+
 QList<STVariable*> STVariableCollection::variablesWithName(const QString &name)
 {
     QList<STVariable*> results;
@@ -41,37 +46,37 @@ QList<STVariable*> STVariableCollection::variablesWithName(const QString &name)
 
 void STVariableCollection::addVariable(const QString &name)
 {
-    qDebug() << "Adding variable" << name;
-
     if (name.isEmpty()) {
-        emit variableAdded(false, name);
+        emit variableAdded(false);
         return;
     }
 
     if (!variablesWithName(name).isEmpty()) {
-        emit variableAdded(false, name);
+        emit variableAdded(false);
         return;
     }
 
     STVariable *newVariable = new STVariable(name, this);
     variables_.append(newVariable);
-    connectVariable(newVariable);
+    emit variableAdded(true);
+
+    connectVariable(variables_.size() - 1);
 }
 
-void STVariableCollection::deleteVariable(const QString &name)
+void STVariableCollection::deleteVariableAt(int index)
 {
-    if (name.isEmpty()) {
-        emit variableDeleted(false, name);
+    if (index < 0 || index >= variables_.size()) {
+        emit variableDeleted(false);
         return;
     }
 
-    QList<STVariable*> toDelete = variablesWithName(name);
+    STVariable *toDelete = variableAt(index);
 
-    foreach (STVariable *variable, toDelete) {
-        disconnectVariable(variable);
-        variables_.removeOne(variable);
-        variable->deleteLater();
-    }
+    // if we can successfully remove the variable, disconnect it and queue it up for deletion.
+    variables_.removeAt(index);
+    disconnectVariable(toDelete);
+    emit variableDeleted(true);
+    toDelete->deleteLater();
 }
 
 void STVariableCollection::onVariableConnectedStateChanged(QObject *object)
@@ -80,20 +85,22 @@ void STVariableCollection::onVariableConnectedStateChanged(QObject *object)
 
     if (variable) {
         if (variable->isConnected()) {
-            emit variableConnected(true, variable->name());
+            emit variableConnected(true, indexOf(variable));
 
         } else {
-            emit variableConnected(false, variable->name());
+            emit variableConnected(false, indexOf(variable));
         }
     }
 }
 
-void STVariableCollection::connectVariable(STVariable *variable)
+void STVariableCollection::connectVariable(int index)
 {
-    connectedMapper_->setMapping(variable, variable);
-    connect( variable, SIGNAL(connected(bool)), connectedMapper_, SLOT(map()) );
-    if (variable->isConnected()) {
-        emit variableConnected(true, variable->name());
+    STVariable *toConnect = variableAt(index);
+
+    connectedMapper_->setMapping(toConnect, toConnect);
+    connect( toConnect, SIGNAL(connected(bool)), connectedMapper_, SLOT(map()) );
+    if (toConnect->isConnected()) {
+        emit variableConnected(true, index);
     }
 }
 
