@@ -99,15 +99,8 @@ REIXSSidebar::REIXSSidebar(QWidget *parent) :
 
 	connect(ui->beamOnButton, SIGNAL(clicked()), this, SLOT(onBeamOnButtonClicked()));
 	connect(ui->beamOffButton, SIGNAL(clicked()), this, SLOT(onBeamOffButtonClicked()));
-
 	connect(scalerContinuousButton, SIGNAL(clicked(bool)), this, SLOT(onScalerContinuousButtonToggled(bool)));
-	connect(REIXSBeamline::bl()->xasDetectors()->scalerContinuousMode(), SIGNAL(valueChanged(double)), this, SLOT(onScalerContinuousModeChanged(double)));
-
 	connect(ui->MonoStopButton, SIGNAL(clicked()), this, SLOT(on_MonoStopButton_clicked()));
-
-//	connect(REIXSBeamline::bl()->xasDetectors()->TEYFeedback(), SIGNAL(valueChanged(double)), this, SLOT(onTEYCountsChanged(double)));
-	connect(REIXSBeamline::bl()->xasDetectors()->TFYFeedback(), SIGNAL(valueChanged(double)), this, SLOT(onTFYCountsChanged(double)));
-//	connect(REIXSBeamline::bl()->xasDetectors()->I0Feedback(), SIGNAL(valueChanged(double)), this, SLOT(onI0CountsChanged(double)));
 
 	connect(REIXSBeamline::bl()->photonSource()->ringCurrent(), SIGNAL(valueChanged(double)), this, SLOT(onRingCurrentChanged(double)));
 
@@ -189,12 +182,7 @@ void REIXSSidebar::onTFYCountsChanged(double counts)
 
 void REIXSSidebar::onScalerContinuousButtonToggled(bool on)
 {
-	if(on) {
-		REIXSBeamline::bl()->xasDetectors()->scalerContinuousMode()->move(1);
-	}
-	else {
-		REIXSBeamline::bl()->xasDetectors()->scalerContinuousMode()->move(0);
-	}
+	REIXSBeamline::bl()->scaler()->setContinuous(on);
 }
 
 void REIXSSidebar::onScalerContinuousModeChanged(double on)

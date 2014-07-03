@@ -43,16 +43,13 @@ VESPERSEnergyScanConfigurationView::VESPERSEnergyScanConfigurationView(VESPERSEn
 	AMTopFrame *frame = new AMTopFrame("VESPERS Energy Scan Configuration");
 
 	// Regions setup
-	AMStepScanAxisView *regionsView = new AMStepScanAxisView("Energy Region Configuration", configuration_);
+	AMStepScanAxisView *regionsView = new AMStepScanAxisView("", configuration_);
 
-	// The CCD detector setup.
-	QGroupBox *ccdDetectorGroupBox = addCCDDetectorSelectionView();
-	ccdButtonGroup_->button(int(VESPERS::NoCCD))->setDisabled(true);
-	ccdButtonGroup_->button((int)VESPERS::Roper)->hide();
-	ccdButtonGroup_->button((int)VESPERS::Mar)->hide();
-	connect(ccdButtonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(onCCDDetectorChanged(int)));
-	connect(configuration_->dbObject(), SIGNAL(ccdDetectorChanged(int)), this, SLOT(updateCCDDetectorButtons(int)));
-	ccdButtonGroup_->button(int(configuration_->ccdDetector()))->setChecked(true);
+	QVBoxLayout *regionsViewLayout = new QVBoxLayout;
+	regionsViewLayout->addWidget(regionsView);
+
+	QGroupBox *regionsViewGroupBox = new QGroupBox("Regions Setup");
+	regionsViewGroupBox->setLayout(regionsViewLayout);
 
 	// CCD label.
 	ccdText_ = new QLabel;
@@ -64,8 +61,13 @@ VESPERSEnergyScanConfigurationView::VESPERSEnergyScanConfigurationView(VESPERSEn
 	ccdTextBox_->setLayout(ccdTextLayout);
 	ccdTextBox_->setVisible(configuration_->ccdDetector() != VESPERS::NoCCD);
 
+	// The CCD detector setup.
+	ccdComboBox_ = createCCDComboBox();
+	connect(ccdComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onCCDDetectorChanged(int)));
+	connect(configuration_->dbObject(), SIGNAL(ccdDetectorChanged(int)), this, SLOT(updateCCDDetectorComboBox(int)));
+
 	// Scan name selection
-	scanName_ = addScanNameView(configuration_->name());
+	scanName_ = createScanNameView(configuration_->name());
 	connect(scanName_, SIGNAL(editingFinished()), this, SLOT(onScanNameEdited()));
 	connect(configuration_, SIGNAL(nameChanged(QString)), scanName_, SLOT(setText(QString)));
 	// Only connecting this signal because it is the only CCD available currently.  It would need some logic for switching which CCD it was actually connected to.
@@ -74,6 +76,9 @@ VESPERSEnergyScanConfigurationView::VESPERSEnergyScanConfigurationView(VESPERSEn
 
 	QFormLayout *scanNameLayout = new QFormLayout;
 	scanNameLayout->addRow("Scan Name:", scanName_);
+
+	QGroupBox *scanNameGroupBox = new QGroupBox("Scan Name");
+	scanNameGroupBox->setLayout(scanNameLayout);
 
 	// Setting the scan position.
 	QGroupBox *goToPositionGroupBox = addGoToPositionView(configuration_->goToPosition(), configuration_->x(), configuration_->y());
@@ -88,12 +93,6 @@ VESPERSEnergyScanConfigurationView::VESPERSEnergyScanConfigurationView(VESPERSEn
 	connect(configuration_->dbObject(), SIGNAL(motorChanged(int)), this, SLOT(onMotorsUpdated(int)));
 
 	onMotorsUpdated(configuration_->motor());
-
-	QPushButton *configureRoperDetectorButton = new QPushButton(QIcon(":/hammer-wrench.png"), "Configure Area Detector");
-	connect(configureRoperDetectorButton, SIGNAL(clicked()), this, SLOT(onConfigureCCDDetectorClicked()));
-
-	QHBoxLayout *ccdBoxFirstRowLayout = new QHBoxLayout;
-	ccdBoxFirstRowLayout->addWidget(configureRoperDetectorButton);
 
 	// The estimated scan time.
 	estimatedTime_ = new QLabel;
@@ -110,39 +109,36 @@ VESPERSEnergyScanConfigurationView::VESPERSEnergyScanConfigurationView(VESPERSEn
 	// Label showing where the data will be saved.
 	QLabel *exportPath = addExportPathLabel();
 
+	ccdComboBox_->setCurrentIndex(ccdComboBox_->findData(int(configuration_->ccdDetector())));
+
+	disableStandardXRDOptions();
+
+	QFormLayout *detectorLayout = new QFormLayout;
+	detectorLayout->addRow("XRD:", ccdComboBox_);
+
+	QGroupBox *detectorGroupBox = new QGroupBox("Detectors");
+	detectorGroupBox->setLayout(detectorLayout);
+
 	// Setting up the layout.
-	QHBoxLayout *topRowLayout = new QHBoxLayout;
-	topRowLayout->addStretch();
-	topRowLayout->addWidget(regionsView);
-	topRowLayout->addWidget(ccdDetectorGroupBox);
-	topRowLayout->addWidget(goToPositionGroupBox);
-	topRowLayout->addStretch();
+	QGridLayout *contentsLayout = new QGridLayout;
+	contentsLayout->addWidget(regionsViewGroupBox, 0, 0, 2, 4);
+	contentsLayout->addWidget(scanNameGroupBox, 2, 0, 1, 2);
+	contentsLayout->addWidget(ccdTextBox_, 2, 2, 1, 2);
+	contentsLayout->addWidget(timeOffsetBox, 3, 1, 1, 1);
+	contentsLayout->addWidget(detectorGroupBox, 0, 4, 1, 1);
+	contentsLayout->addWidget(goToPositionGroupBox, 1, 4, 2, 1);
 
-	QHBoxLayout *secondRowLayout = new QHBoxLayout;
-	secondRowLayout->addStretch();
-	secondRowLayout->addLayout(scanNameLayout);
-	secondRowLayout->addLayout(ccdBoxFirstRowLayout);
-	secondRowLayout->addStretch();
-
-	QHBoxLayout *thirdRowLayout = new QHBoxLayout;
-	thirdRowLayout->addStretch();
-	thirdRowLayout->addWidget(estimatedTime_, 0, Qt::AlignLeft);
-	thirdRowLayout->addWidget(timeOffsetBox);
-	thirdRowLayout->addStretch();
-
-	QVBoxLayout *contentsLayout = new QVBoxLayout;
-	contentsLayout->addLayout(topRowLayout);
-	contentsLayout->addLayout(secondRowLayout);
-	contentsLayout->addLayout(thirdRowLayout);
-	contentsLayout->addWidget(ccdTextBox_);
+	QHBoxLayout *squeezeContents = new QHBoxLayout;
+	squeezeContents->addStretch();
+	squeezeContents->addLayout(contentsLayout);
+	squeezeContents->addStretch();
 
 	QVBoxLayout *configViewLayout = new QVBoxLayout;
 	configViewLayout->addWidget(frame);
 	configViewLayout->addStretch();
-	configViewLayout->addLayout(contentsLayout);
-	configViewLayout->addStretch();
+	configViewLayout->addLayout(squeezeContents);
 	configViewLayout->addWidget(exportPath, 0, Qt::AlignCenter);
-	configViewLayout->addSpacing(30);
+	configViewLayout->addStretch();
 
 	setLayout(configViewLayout);
 }
@@ -225,7 +221,7 @@ void VESPERSEnergyScanConfigurationView::checkCCDFileNames(const QString &name) 
 
 void VESPERSEnergyScanConfigurationView::onCCDDetectorChanged(int id)
 {
-	configuration_->setCCDDetector(id);
+	configuration_->setCCDDetector(ccdComboBox_->itemData(id).toInt());
 
 	QString path;
 	QString name = configuration_->ccdFileName().isEmpty() ? scanName_->text() : configuration_->ccdFileName();

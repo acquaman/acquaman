@@ -50,6 +50,10 @@ public:
     virtual bool isValid() const = 0;
     /// Returns the mode this view is currently in.
     AMCurrentAmplifierView::ViewMode viewMode() const;
+    /// Returns the precision.
+    int precision() const;
+    /// Returns the format.
+    char format() const;
     /// Returns the view's name, an empty string if it doesn't have one.
     QString name() const;
 
@@ -57,13 +61,21 @@ signals:
     /// Emitted when the initialization state of the view changes.
     void initialized(bool);
     /// Emitted when the view mode changes.
-    void viewModeChanged(ViewMode newMode);
+    void viewModeChanged(AMCurrentAmplifierView::ViewMode newMode);
+    /// Emitted when the precision changes.
+    void precisionChanged(int newPrecision);
+    /// Emitted when the format changes.
+    void formatChanged(char newFormat);
     /// Emitted when the view's name changes.
     void nameChanged(const QString &name);
 
 public slots:
     /// Sets the view mode.
-    void setViewMode(ViewMode newMode);
+    void setViewMode(AMCurrentAmplifierView::ViewMode newMode);
+    /// Sets the precision for values displayed.
+    void setPrecision(int newPrecision);
+    /// Sets the format for values displayed. Note that CLSSR570 amplifiers cannot accept input in scientific notation--the format_ for these amplifier views must be 'f'.
+    void setFormat(char newFormat);
     /// Sets the view's name.
     void setName(const QString &newName);
     /// Shows (or hides) the view name, if it has one.
@@ -90,10 +102,18 @@ protected slots:
     virtual void onCustomContextMenuRequested(QPoint position);
 
 protected:
+    /// Helper function that returns a string of the given amplifier value and units. Provides consistent formatting.
+    QString toDisplay(double value, const QString &units) const;
+
+protected:
     /// Bool indicating the view's initialization state. Used to prevent the view from setting values when it shouldn't.
     bool initialized_;
     /// The current view mode.
     ViewMode viewMode_;
+    /// The precision to be displayed for each value.
+    int precision_;
+    /// The format used to display values: 'f' for normal, 'e' for scientific, 'g' for whichever is more concise.
+    char format_;
     /// Holds the view's name.
     QLabel *name_;\
     /// Minus button.
@@ -104,7 +124,6 @@ protected:
     QComboBox *value_;
     /// The general view layout.
     QHBoxLayout *layout_;
-
 };
 
 #endif // AMCURRENTAMPLIFIERVIEW_H

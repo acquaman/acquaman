@@ -46,8 +46,6 @@ protected slots:
     virtual void onCustomContextMenuRequested(QPoint position);
 
 protected:
-    /// Returns a string of the amplifier's value and units. Provides consistent formatting.
-    QString valueToString(double value, const QString &units) const;
     /// Clears and repopulates value_ widget with information from amplifier_.
     void refreshValues();
     /// Sets whether buttons should be en/disabled according to whether amplifier_ is at a max/min gain/sensitivity state.

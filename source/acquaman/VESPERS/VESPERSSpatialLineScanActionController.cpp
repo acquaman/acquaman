@@ -167,13 +167,13 @@ VESPERSSpatialLineScanActionController::VESPERSSpatialLineScanActionController(V
 	VESPERS::CCDDetectors ccdDetector = configuration_->ccdDetector();
 
 	if (ccdDetector == VESPERS::Roper)
-		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("RoperCCD")->toInfo());
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("RoperFileNumber")->toInfo());
 
 	if (ccdDetector == VESPERS::Mar)
-		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("MarCCD")->toInfo());
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("MarFileNumber")->toInfo());
 
 	if (ccdDetector == VESPERS::Pilatus)
-		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("PilatusPixelArrayDetector")->toInfo());
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("PilatusFileNumber")->toInfo());
 
 	configuration_->setDetectorConfigurations(detectors);
 
@@ -216,7 +216,13 @@ void VESPERSSpatialLineScanActionController::buildScanControllerImplementation()
 
 AMAction3* VESPERSSpatialLineScanActionController::createInitializationActions()
 {
-	return buildBaseInitializationAction(configuration_->detectorConfigurations());
+	AMSequentialListAction3 *initializationActions = new AMSequentialListAction3(new AMSequentialListActionInfo3("Initialization actions", "Initialization actions"));
+	initializationActions->addSubAction(buildBaseInitializationAction(configuration_->detectorConfigurations()));
+
+	if (!configuration_->ccdDetector().testFlag(VESPERS::NoCCD))
+		initializationActions->addSubAction(buildCCDInitializationAction(configuration_->ccdDetector(), configuration_->ccdFileName()));
+
+	return initializationActions;
 }
 
 AMAction3* VESPERSSpatialLineScanActionController::createCleanupActions()

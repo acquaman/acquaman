@@ -3,6 +3,7 @@ Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
 Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
 Acquaman is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
@@ -16,16 +17,36 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
+#ifndef AMABOUTDIALOG_H
+#define AMABOUTDIALOG_H
 
-
-#include "AMSADetector.h"
-
-AMSADetector::AMSADetector(const QString &name, const QString &description, QObject *parent)
-	: QObject(parent), measurementInfo_(name, description)
+#include <QDialog>
+#include <QGridLayout>
+#include <QFont>
+class AMBuildInfoWidget;
+/**
+ * @brief Dialog class to display the about information on the current build of Acquaman. Includes:
+ * - Build info:
+ *		- commit SHA
+ *		- branch name
+ *		- tag name
+ *		- description
+ *		- last commit author
+ *		- last commit date
+ * - Legal information
+ */
+class AMAboutDialog : public QDialog
 {
+	Q_OBJECT
+private:
+	AMBuildInfoWidget* buildInfoWidget_;
+public:
+	explicit AMAboutDialog(QWidget *parent = 0);
+	
+signals:
+	
+public slots:
+	
+};
 
-}
-
-AMSADetector::~AMSADetector() {
-
-}
+#endif // AMABOUTDIALOG_H

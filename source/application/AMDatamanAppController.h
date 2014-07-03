@@ -285,6 +285,9 @@ protected slots:
 	/// This is called by a signal (chosen with the resetFinishedSignal function) to run when the startup is actually finished. Can be reimplemented in subclasses, but you show call this function in it at some point.
 	virtual void onStartupFinished();
 
+	/// Slot which shows the application's about page
+	void onShowAboutPage();
+
 protected:
 	/// Helper function to go through all the scan editors and see if we can close all of them.
 	bool canCloseScanEditors() const;

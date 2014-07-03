@@ -29,6 +29,9 @@ AMCurrentAmplifierView::AMCurrentAmplifierView(QWidget *parent) :
 
     viewMode_ = Basic;
 
+    precision_ = 2;
+    format_ = 'f';
+
     name_ = new QLabel();
     name_->hide();
 
@@ -79,6 +82,16 @@ AMCurrentAmplifierView::ViewMode AMCurrentAmplifierView::viewMode() const
     return viewMode_;
 }
 
+int AMCurrentAmplifierView::precision() const
+{
+    return precision_;
+}
+
+char AMCurrentAmplifierView::format() const
+{
+    return format_;
+}
+
 QString AMCurrentAmplifierView::name() const
 {
     return name_->text();
@@ -101,6 +114,24 @@ void AMCurrentAmplifierView::setViewMode(ViewMode newMode)
         }
 
         emit viewModeChanged(viewMode_);
+    }
+}
+
+void AMCurrentAmplifierView::setPrecision(int newPrecision)
+{
+    if (newPrecision > 0 && precision_ != newPrecision) {
+        precision_ = newPrecision;
+        refreshView();
+        emit precisionChanged(precision_);
+    }
+}
+
+void AMCurrentAmplifierView::setFormat(char newFormat)
+{
+    if ((newFormat == 'e' || newFormat == 'f' || newFormat == 'g') && format_ != newFormat) {
+        format_ = newFormat;
+        refreshView();
+        emit formatChanged(format_);
     }
 }
 
@@ -180,4 +211,9 @@ void AMCurrentAmplifierView::onCustomContextMenuRequested(QPoint position)
         else if (selected->text() == "Advanced view")
             setViewMode(Advanced);
     }
+}
+
+QString AMCurrentAmplifierView::toDisplay(double value, const QString &units) const
+{
+    return QString("%1 %2").arg(value, 0, format_, precision_).arg(units);
 }
