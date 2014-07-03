@@ -32,7 +32,7 @@ public slots:
     void deleteVariable(const QString &name);
 
 protected slots:
-    void onVariableConnectedStateChanged(STVariable *variable);
+    void onVariableConnectedStateChanged(QObject *object);
 
 protected:
     void connectVariable(STVariable *variable);

@@ -4,7 +4,7 @@ STVariableCollection::STVariableCollection(QObject *parent) :
     QObject(parent)
 {
     connectedMapper_ = new QSignalMapper(this);
-    connect( connectedMapper_, SIGNAL(mapped(QObject*)), this, SLOT(onVariableConnectedStateChanged(STVariable*)) );
+    connect( connectedMapper_, SIGNAL(mapped(QObject*)), this, SLOT(onVariableConnectedStateChanged(QObject*)) );
 }
 
 STVariableCollection::~STVariableCollection()
@@ -41,6 +41,8 @@ QList<STVariable*> STVariableCollection::variablesWithName(const QString &name)
 
 void STVariableCollection::addVariable(const QString &name)
 {
+    qDebug() << "Adding variable" << name;
+
     if (name.isEmpty()) {
         emit variableAdded(false, name);
         return;
@@ -72,19 +74,23 @@ void STVariableCollection::deleteVariable(const QString &name)
     }
 }
 
-void STVariableCollection::onVariableConnectedStateChanged(STVariable *variable)
+void STVariableCollection::onVariableConnectedStateChanged(QObject *object)
 {
-    if (variable->isConnected()) {
-        emit variableConnected(true, variable->name());
+    STVariable *variable = qobject_cast<STVariable*>(object);
 
-    } else {
-        emit variableConnected(false, variable->name());
+    if (variable) {
+        if (variable->isConnected()) {
+            emit variableConnected(true, variable->name());
+
+        } else {
+            emit variableConnected(false, variable->name());
+        }
     }
 }
 
 void STVariableCollection::connectVariable(STVariable *variable)
 {
-    connectedMapper_->setMapping(variable, variable->name());
+    connectedMapper_->setMapping(variable, variable);
     connect( variable, SIGNAL(connected(bool)), connectedMapper_, SLOT(map()) );
     if (variable->isConnected()) {
         emit variableConnected(true, variable->name());
