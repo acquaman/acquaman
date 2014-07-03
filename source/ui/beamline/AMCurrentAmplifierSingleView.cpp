@@ -75,14 +75,14 @@ void AMCurrentAmplifierSingleView::onCustomContextMenuRequested(QPoint position)
     QAction *advanced = menu.addAction("Advanced view");
     advanced->setDisabled(viewMode_ == AMCurrentAmplifierView::Advanced);
 
-    if (amplifier_ && amplifier_->supportsGainMode() && amplifier_->supportsSensitivityMode()) {
+    if (amplifier_ && amplifier_->supportsGainMode() && amplifier_->supportsSensitivityMode() && viewMode_ == AMCurrentAmplifierView::Advanced) {
         menu.addSeparator();
 
         QAction *gain = menu.addAction("Gain view");
-        gain->setDisabled(viewMode_ == AMCurrentAmplifierView::Basic || amplifier_->inGainMode());
+        gain->setDisabled(amplifier_->inGainMode());
 
         QAction *sensitivity = menu.addAction("Sensitivity view");
-        sensitivity->setDisabled(viewMode_ == AMCurrentAmplifierView::Basic || amplifier_->inSensitivityMode());
+        sensitivity->setDisabled(amplifier_->inSensitivityMode());
     }
 
     QAction *selected = menu.exec(mapToGlobal(position));
