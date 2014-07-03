@@ -108,9 +108,15 @@ VESPERS2DScanActionController::VESPERS2DScanActionController(VESPERS2DScanConfig
 
 	VESPERS::FluorescenceDetectors xrfDetector = configuration_->fluorescenceDetector();
 
+	AMDetector *detector = 0;
+
 	if (xrfDetector.testFlag(VESPERS::SingleElement)){
 
-		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("SingleElementVortex")->toInfo());
+		detector = VESPERSBeamline::vespers()->exposedDetectorByName("SingleElementVortex");
+		detector->setHiddenFromUsers(true);
+		detector->setIsVisible(false);
+		detectors.addDetectorInfo(detector->toInfo());
+
 		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("SingleElementVortexDeadTime")->toInfo());
 		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("SingleElementVortexRealTime")->toInfo());
 		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("SingleElementVortexLiveTime")->toInfo());
@@ -121,7 +127,11 @@ VESPERS2DScanActionController::VESPERS2DScanActionController(VESPERS2DScanConfig
 
 	if (xrfDetector.testFlag(VESPERS::FourElement)){
 
-		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("FourElementVortex")->toInfo());
+		detector = VESPERSBeamline::vespers()->exposedDetectorByName("FourElementVortex");
+		detector->setHiddenFromUsers(true);
+		detector->setIsVisible(false);
+		detectors.addDetectorInfo(detector->toInfo());
+
 		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("FourElementVortexDeadTime1")->toInfo());
 		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("FourElementVortexDeadTime2")->toInfo());
 		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("FourElementVortexDeadTime3")->toInfo());
@@ -216,6 +226,23 @@ AMAction3* VESPERS2DScanActionController::createInitializationActions()
 
 AMAction3* VESPERS2DScanActionController::createCleanupActions()
 {
+	VESPERS::FluorescenceDetectors xrfDetector = configuration_->fluorescenceDetector();
+	AMDetector *detector = 0;
+
+	if (xrfDetector.testFlag(VESPERS::SingleElement)){
+
+		detector = VESPERSBeamline::vespers()->exposedDetectorByName("SingleElementVortex");
+		detector->setHiddenFromUsers(false);
+		detector->setIsVisible(true);
+	}
+
+	if (xrfDetector.testFlag(VESPERS::FourElement)){
+
+		detector = VESPERSBeamline::vespers()->exposedDetectorByName("FourElementVortex");
+		detector->setHiddenFromUsers(false);
+		detector->setIsVisible(true);
+	}
+
 	return buildCleanupAction();
 }
 

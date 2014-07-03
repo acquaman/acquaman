@@ -135,15 +135,6 @@ void AMStepScanActionController::buildScanController()
 		foreach (AMAxisInfo axis, scanAxes)
 			scan_->rawData()->addScanAxis(axis);
 
-//		flushToDiskTimer_.setInterval(300000);
-//		connect(this, SIGNAL(started()), &flushToDiskTimer_, SLOT(start()));
-//		connect(this, SIGNAL(cancelled()), &flushToDiskTimer_, SLOT(stop()));
-//		connect(this, SIGNAL(paused()), &flushToDiskTimer_, SLOT(stop()));
-//		connect(this, SIGNAL(resumed()), &flushToDiskTimer_, SLOT(start()));
-//		connect(this, SIGNAL(failed()), &flushToDiskTimer_, SLOT(stop()));
-//		connect(this, SIGNAL(finished()), &flushToDiskTimer_, SLOT(stop()));
-//		connect(&flushToDiskTimer_, SIGNAL(timeout()), this, SLOT(flushCDFDataStoreToDisk()));
-//		flushToDiskTimer_.start();
 		connect(this, SIGNAL(started()), this, SLOT(flushCDFDataStoreToDisk()));
 		connect(this, SIGNAL(cancelled()), this, SLOT(flushCDFDataStoreToDisk()));
 		connect(this, SIGNAL(failed()), this, SLOT(flushCDFDataStoreToDisk()));
@@ -442,9 +433,9 @@ void AMStepScanActionController::prefillScanPoints()
 		foreach (AMScanAxis *axis, stepConfiguration_->scanAxes()){
 
 			AMScanAxisRegion *region = axis->regionAt(0);
-			starts << region->regionStart();
-			steps << region->regionStep();
-			ends << region->regionEnd();
+			starts << double(region->regionStart());
+			steps << double(region->regionStep());
+			ends << double(region->regionEnd());
 			axisSizes << (int(round((double(region->regionEnd())-double(region->regionStart()))/double(region->regionStep()))) + 1);
 		}
 
@@ -467,7 +458,7 @@ void AMStepScanActionController::prefillScanPoints()
 
 						else if ((scan_->rawDataSources()->at(di)->rank() - scanRank) == 1){
 
-							QVector<int> data = QVector<int>(scan_->rawDataSources()->at(di)->size(0), -1);
+							QVector<double> data = QVector<double>(scan_->rawDataSources()->at(di)->size(scan_->rawDataSources()->at(di)->rank()-1), -1);
 							scan_->rawData()->setValue(insertIndex, di, data.constData());
 						}
 					}
