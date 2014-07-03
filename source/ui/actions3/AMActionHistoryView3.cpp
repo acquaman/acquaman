@@ -139,11 +139,13 @@ AMActionHistoryView3::AMActionHistoryView3(AMActionRunner3 *actionRunner, AMData
 	treeView_->header()->setStretchLastSection(false);
 	treeView_->header()->setResizeMode(0, QHeaderView::Stretch);
 	treeView_->header()->setResizeMode(1, QHeaderView::Fixed);
-	treeView_->header()->setResizeMode(2, QHeaderView::Fixed);
+	treeView_->header()->setResizeMode(2, QHeaderView::Stretch);
 	treeView_->header()->setResizeMode(3, QHeaderView::Fixed);
+	treeView_->header()->setResizeMode(4, QHeaderView::Fixed);
 	treeView_->header()->resizeSection(1, 48);
-	treeView_->header()->resizeSection(2, 180);
-	treeView_->header()->resizeSection(3, 160);
+	treeView_->header()->resizeSection(2, 160);
+	treeView_->header()->resizeSection(3, 180);
+	treeView_->header()->resizeSection(4, 160);
 	treeView_->setAttribute(Qt::WA_MacShowFocusRect, false);
 
 	treeView_->setItemDelegate(new AMActionLogItemDelegate3(treeView_, this));

@@ -52,6 +52,7 @@ AMAction3::AMAction3(const AMAction3& other)
 	statusText_ = "Not yet started";
 	secondsSpentPaused_ = 0;
 	parentAction_ = 0;
+	failureMessage_ = other.failureMessage();
 
 	failureResponseInActionRunner_ = other.failureResponseInActionRunner_;
 	failureResponseAsSubAction_ = other.failureResponseAsSubAction_;
@@ -181,11 +182,12 @@ void AMAction3::setSucceeded()
 		AMErrorMon::debug(this, AMACTION3_NOTIFIED_SUCCEEDED_BUT_NOT_YET_POSSIBLE, QString("An implementation told us it had succeeded before it could possibly be running. Action name: %1. Current state: %2.").arg(info()->name()).arg(stateDescription(state())) );
 }
 
-void AMAction3::setFailed()
+void AMAction3::setFailed(const QString &message)
 {
 	if (canChangeState(Failed)){
 
 		endDateTime_ = QDateTime::currentDateTime();
+		failureMessage_ = message;
 		setState(Failed);
 		emit failed();
 	}

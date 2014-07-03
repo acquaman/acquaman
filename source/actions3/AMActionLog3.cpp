@@ -58,6 +58,7 @@ AMActionLog3::AMActionLog3(const AMAction3 *completedAction, QObject *parent) :
 			endDateTime_ = completedAction->endDateTime();
 		else
 			endDateTime_ = QDateTime::currentDateTime();
+		failureMessage_ = completedAction->failureMessage();
 	}
 	else{
 		info_ = 0;
@@ -81,6 +82,7 @@ AMActionLog3::AMActionLog3(const AMActionLog3 &other) :
 		startDateTime_ = other.startDateTime();
 		endDateTime_ = other.endDateTime();
 		setName(info_->shortDescription());
+		failureMessage_ = other.failureMessage();
 	}
 	else {
 		info_ = 0;
@@ -94,6 +96,10 @@ AMActionLog3::~AMActionLog3() {
 	if(loadedInfoFromDb_)
 		delete info_;
 	info_ = 0;
+}
+
+QString AMActionLog3::failureMessage() const{
+	return failureMessage_;
 }
 
 bool AMActionLog3::setFromAction(const AMAction3 *completedAction)
@@ -162,6 +168,11 @@ void AMActionLog3::dbLoadInfo(AMDbObject *newInfo)
 
 void AMActionLog3::dbLoadActionInheritedLoop(bool actionInheritedLoop){
 	actionInheritedLoop_ = actionInheritedLoop;
+	setModified(true);
+}
+
+void AMActionLog3::dbLoadFailureMessage(const QString &failureMessage){
+	failureMessage_ = failureMessage;
 	setModified(true);
 }
 

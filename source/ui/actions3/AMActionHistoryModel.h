@@ -76,6 +76,8 @@ public:
 	QString shortDescription() const;
 	/// Returns the longDescription, loading it from the database if required.
 	QString longDescription() const;
+	/// Returns the failure message for the Action
+	QString failureMessage() const;
 	/// Returns the final state of the action, loading it from the database if required.
 	int finalState() const;
 	/// Returns the iconFileName of the action, loading it from the database if required.
@@ -122,6 +124,7 @@ protected:
 	mutable int finalState_;
 	mutable QString iconFileName_;
 	mutable QDateTime startDateTime_, endDateTime_;
+	mutable QString failureMessage_;
 	mutable bool canCopy_;
 	mutable int parentId_;
 	mutable bool actionInheritedLoop_;
