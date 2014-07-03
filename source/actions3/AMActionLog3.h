@@ -47,7 +47,7 @@ class AMActionLog3 : public AMDbObject
 	Q_PROPERTY(QString iconFileName READ iconFileName)
 	Q_PROPERTY(int parentId READ parentId WRITE setParentId)
 	Q_PROPERTY(bool actionInheritedLoop READ actionInheritedLoop WRITE dbLoadActionInheritedLoop)
-	Q_PROPERTY(QString failureMessage READ failureMessage)
+	Q_PROPERTY(QString failureMessage READ failureMessage WRITE dbLoadFailureMessage)
 
 	Q_CLASSINFO("AMDbObject_Attributes", "description=Completed Action Log3")
 	// Index by completion time (This is how we will sort/present them in order.)
@@ -124,6 +124,7 @@ public:
 	void dbLoadFinalState(int finalState);
 	void dbLoadInfo(AMDbObject* newInfo);
 	void dbLoadActionInheritedLoop(bool actionInheritedLoop);
+	void dbLoadFailureMessage(const QString &failureMessage);
 
 signals:
 

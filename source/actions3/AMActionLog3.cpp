@@ -171,6 +171,11 @@ void AMActionLog3::dbLoadActionInheritedLoop(bool actionInheritedLoop){
 	setModified(true);
 }
 
+void AMActionLog3::dbLoadFailureMessage(const QString &failureMessage){
+	failureMessage_ = failureMessage;
+	setModified(true);
+}
+
 void AMActionLog3::onInfoDestroyed(){
 	info_ = 0; //NULL
 }

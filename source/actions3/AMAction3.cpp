@@ -52,6 +52,7 @@ AMAction3::AMAction3(const AMAction3& other)
 	statusText_ = "Not yet started";
 	secondsSpentPaused_ = 0;
 	parentAction_ = 0;
+	failureMessage_ = other.failureMessage();
 
 	failureResponseInActionRunner_ = other.failureResponseInActionRunner_;
 	failureResponseAsSubAction_ = other.failureResponseAsSubAction_;
@@ -186,8 +187,8 @@ void AMAction3::setFailed(const QString &message)
 	if (canChangeState(Failed)){
 
 		endDateTime_ = QDateTime::currentDateTime();
-		setState(Failed);
 		failureMessage_ = message;
+		setState(Failed);
 		emit failed();
 	}
 

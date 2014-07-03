@@ -307,7 +307,7 @@ int AMActionHistoryModel3::rowCount(const QModelIndex &parent) const
 int AMActionHistoryModel3::columnCount(const QModelIndex &parent) const
 {
 	if(!parent.isValid())
-		return 4;
+		return 5;
 	else
 		return 0;
 }
@@ -329,8 +329,9 @@ QVariant AMActionHistoryModel3::data(const QModelIndex &index, int role) const
 		switch(index.column()) {
 		case 0: return item->shortDescription();
 		case 1: return QVariant();
-		case 2: return AMDateTimeUtils::prettyDateTime(item->endDateTime());
-		case 3: return AMDateTimeUtils::prettyDuration(item->startDateTime(), item->endDateTime());
+		case 2: return item->failureMessage();
+		case 3: return AMDateTimeUtils::prettyDateTime(item->endDateTime());
+		case 4: return AMDateTimeUtils::prettyDuration(item->startDateTime(), item->endDateTime());
 		}
 	}
 	else if(role == Qt::DecorationRole) {
@@ -391,6 +392,8 @@ QVariant AMActionHistoryModel3::data(const QModelIndex &index, int role) const
 			default: return "[?]";
 			}
 		}
+		else if(index.column() == 2)
+			return QString(item->failureMessage());
 	}
 	else if(role == Qt::BackgroundRole) {
 		switch(item->finalState()) {
@@ -451,8 +454,9 @@ QVariant AMActionHistoryModel3::headerData(int section, Qt::Orientation orientat
 		switch(section) {
 		case 0: return QString("Action");
 		case 1: return QString("Status");
-		case 2: return QString("Finished");
-		case 3: return QString("Duration");
+		case 2: return QString("Message");
+		case 3: return QString("Finished");
+		case 4: return QString("Duration");
 		default: return QVariant();
 		}
 	}
