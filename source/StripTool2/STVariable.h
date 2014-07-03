@@ -34,8 +34,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "MPlot/MPlotSeries.h"
 
-#include "STVariableEditor.h"
-
 class STVariable : public QObject
 {
     Q_OBJECT
@@ -46,7 +44,11 @@ public:
     /// Destructor.
     virtual ~STVariable();
 
+    /// Returns the pv name for this variable.
     QString name() const;
+
+    /// Returns the description set for this variable, empty string if none was given.
+    QString description() const;
 
     /// Returns this variable's creation datetime.
     QDateTime created() const;
@@ -57,18 +59,24 @@ public:
     /// Returns true if this variable is connected, false otherwise.
     bool isConnected() const;
 
+    /// Returns the variable's latest value.
+    double value() const;
+
     /// Returns the series tracking pv data updates.
     MPlotSeriesBasic *series() const;
 
-    /// Returns the variable editor.
-    //STVariableEditor* editor();
-
 
 signals:
+    /// Emitted when the description changes.
+    void descriptionChanged(const QString &newDescription);
+    /// Emitted when the variable's value has changed.
+    void valueChanged(double newValue);
     /// Emitted when the process variable is connected.
     void connected(bool isConnected);
 
 public slots:
+    /// Sets the description for this variable.
+    void setDescription(const QString &newDescription);
     /// Sets the number of data points and time points that are saved in total.
     void setDataBufferSize(int bufferSize);
     /// Sets the time window to be displayed, relative to now.
@@ -77,11 +85,13 @@ public slots:
 protected slots:
 
 protected:
-    STVariableEditor* createVariableEditor();
 
 protected:
     /// The datetime for this variable's initial creation.
     QDateTime created_;
+
+    /// The variable's description.
+    QString description_;
 
     /// The process variable that this class listens to for value updates.
     AMProcessVariable *pv_;

@@ -24,6 +24,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 STVariable::STVariable(const QString &name, QObject *parent) :
     QObject(parent)
 {
+    description_ = "";
+
     created_ = QDateTime::currentDateTime();
 
     pv_ = new AMProcessVariable(name, true, this);
@@ -47,6 +49,7 @@ STVariable::STVariable(const QString &name, QObject *parent) :
     series_->setModel(seriesData_, true);
     series_->setDescription(" ");
 
+    connect( pv_, SIGNAL(valueChanged(double)), this, SIGNAL(valueChanged(double)) );
     connect( pv_, SIGNAL(connected(bool)), this, SIGNAL(connected(bool)) );
     if (pv_->isConnected())
         emit connected(true);
@@ -61,6 +64,11 @@ STVariable::~STVariable()
 QString STVariable::name() const
 {
     return pv_->pvName();
+}
+
+QString STVariable::description() const
+{
+    return description_;
 }
 
 QDateTime STVariable::created() const
@@ -78,9 +86,22 @@ AMProcessVariable* STVariable::pv() const
     return pv_;
 }
 
+double STVariable::value() const
+{
+    return pv_->getDouble();
+}
+
 MPlotSeriesBasic* STVariable::series() const
 {
     return series_;
+}
+
+void STVariable::setDescription(const QString &newDescription)
+{
+    if (newDescription != description_) {
+        description_ = newDescription;
+        emit descriptionChanged(description_);
+    }
 }
 
 void STVariable::setDataBufferSize(int bufferSize)
@@ -93,9 +114,4 @@ void STVariable::setTimeFilter(int interval, AM0DTimestampAB::TimeUnits units)
 {
     times_->setTimeValue(interval);
     times_->setTimeUnits(units);
-}
-
-STVariableEditor* STVariable::createVariableEditor()
-{
-    return new STVariableEditor();
 }
