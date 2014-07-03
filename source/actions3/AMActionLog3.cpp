@@ -97,6 +97,10 @@ AMActionLog3::~AMActionLog3() {
 	info_ = 0;
 }
 
+QString AMActionLog3::failureMessage() const{
+	return failureMessage_;
+}
+
 bool AMActionLog3::setFromAction(const AMAction3 *completedAction)
 {
 	if(completedAction && completedAction->inFinalState()) {

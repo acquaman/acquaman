@@ -27,6 +27,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 class AMControl;
 
+#define AMCONTROLMOVEACTION3_NOT_CONNECTED_FAILURE 13001
+#define AMCONTROLMOVEACTION3_TOLERANCE_FAILURE 13002
+#define AMCONTROLMOVEACTION3_TIMEOUT_FAILURE 13003
+#define AMCONTROLMOVEACTION3_WAS_STOPPED_FAILURE 13004
+#define AMCONTROLMOVEACTION3_ALREADY_MOVING_FAILURE 13005
+#define AMCONTROLMOVEACTION3_REDIRECTED_FAILURE 13006
+#define AMCONTROLMOVEACTION3_OTHER_FAILURE 13007
+
 /// This implementation of AMAction takes care of moving an AMControl into position.  Essentially, it wraps AMControl for use with the Action/Workflow system.
 class AMControlMoveAction3 : public AMAction3
 {
