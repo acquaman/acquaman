@@ -112,7 +112,7 @@ protected:
 	bool atMinimumSensitivity_;
 
 private:
-	/// Helper function that returns the next sensitivity value.  Uses the bool \param increase to determine whether it should look up or down.  Returns -1 not possible to move or 0 if the given number is invalid.
+    /// Helper function that returns the next sensitivity value.  Uses the bool \param increase to determine whether it should look up or down.  Returns -1 if not possible to move or if the given number is invalid.
 	int nextValue(bool increase, int current);
 	/// Helper function that returns the next sensitivity units.  Uses the bool \param increase to determine whether it should look up or down.  Returns a null string if not possible to move or the given unit is invalid.
 	QString nextUnits(bool increase, QString current);

@@ -35,7 +35,8 @@ void AMCurrentAmplifierSingleView::onAmplifierValueChanged()
     if (isValid()) {
         amplifier_->blockSignals(true);
 
-        int newIndex = value_->findText( valueToString(amplifier_->value(), amplifier_->units()) );
+        int newIndex = value_->findText( toDisplay(amplifier_->value(), amplifier_->units()) );
+
         if (newIndex != -1)
             value_->setCurrentIndex(newIndex);
 
@@ -74,14 +75,14 @@ void AMCurrentAmplifierSingleView::onCustomContextMenuRequested(QPoint position)
     QAction *advanced = menu.addAction("Advanced view");
     advanced->setDisabled(viewMode_ == AMCurrentAmplifierView::Advanced);
 
-    if (amplifier_ && amplifier_->supportsGainMode() && amplifier_->supportsSensitivityMode()) {
+    if (amplifier_ && amplifier_->supportsGainMode() && amplifier_->supportsSensitivityMode() && viewMode_ == AMCurrentAmplifierView::Advanced) {
         menu.addSeparator();
 
         QAction *gain = menu.addAction("Gain view");
-        gain->setDisabled(viewMode_ == AMCurrentAmplifierView::Basic || amplifier_->inGainMode());
+        gain->setDisabled(amplifier_->inGainMode());
 
         QAction *sensitivity = menu.addAction("Sensitivity view");
-        sensitivity->setDisabled(viewMode_ == AMCurrentAmplifierView::Basic || amplifier_->inSensitivityMode());
+        sensitivity->setDisabled(amplifier_->inSensitivityMode());
     }
 
     QAction *selected = menu.exec(mapToGlobal(position));
@@ -101,11 +102,6 @@ void AMCurrentAmplifierSingleView::onCustomContextMenuRequested(QPoint position)
     }
 }
 
-QString AMCurrentAmplifierSingleView::valueToString(double value, const QString &units) const
-{
-    return QString("%1 %2").arg(value, 0, 'g', 2).arg(units);
-}
-
 void AMCurrentAmplifierSingleView::refreshValues()
 {
     value_->clear();
@@ -116,7 +112,7 @@ void AMCurrentAmplifierSingleView::refreshValues()
 
     foreach (QString units, unitsList) {
         foreach (double value, valuesList) {
-            QString item = valueToString(value, units);
+            QString item = toDisplay(value, units);
             value_->addItem(item);
         }
     }

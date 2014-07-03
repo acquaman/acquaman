@@ -43,6 +43,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/util/AMSettingsView.h"
 #include "ui/util/AMGithubIssueSubmissionView.h"
 #include "ui/AMDatamanStartupSplashScreen.h"
+#include "ui/util/AMAboutDialog.h"
 
 #include "application/AMPluginsManager.h"
 
@@ -815,6 +816,10 @@ bool AMDatamanAppController::startupInstallActions()
 	amIssueSubmissionAction->setStatusTip("Report an issue to the Acquaman Developers");
 	connect(amIssueSubmissionAction, SIGNAL(triggered()), this, SLOT(onActionIssueSubmission()));
 
+	QAction* amShowAboutPageAction = new QAction("About...", mw_);
+	amShowAboutPageAction->setStatusTip("About Acquaman");
+	connect(amShowAboutPageAction, SIGNAL(triggered()), this, SLOT(onShowAboutPage()));
+
 	exportGraphicsAction_ = new QAction("Export Plot...", mw_);
 	exportGraphicsAction_->setStatusTip("Export the current plot to a PDF file.");
 	connect(exportGraphicsAction_, SIGNAL(triggered()), this, SLOT(onActionExportGraphics()));
@@ -846,6 +851,7 @@ bool AMDatamanAppController::startupInstallActions()
 
 	helpMenu_ = menuBar_->addMenu("Help");
 	helpMenu_->addAction(amIssueSubmissionAction);
+	helpMenu_->addAction(amShowAboutPageAction);
 
 	return true;
 }
@@ -1089,6 +1095,15 @@ void AMDatamanAppController::onIssueSubmissionViewFinished(){
 
 void AMDatamanAppController::onStartupFinished(){
 	AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_FINISHED, "Acquaman Startup: Finished");
+}
+
+void AMDatamanAppController::onShowAboutPage()
+{
+	AMAboutDialog* aboutPage = new AMAboutDialog();
+	aboutPage->setModal(true);
+	aboutPage->exec();
+
+	aboutPage->deleteLater();
 }
 
 #include "dataman/export/AMExportController.h"

@@ -20,6 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "CLSSR570.h"
+#include <QDebug>
 
 CLSSR570::CLSSR570(const QString &name, const QString &valueName, const QString &unitsName, QObject *parent)
 	: AMCurrentAmplifier(name, parent)
@@ -32,19 +33,23 @@ CLSSR570::CLSSR570(const QString &name, const QString &valueName, const QString 
 	value_ = new AMProcessVariable(valueName, true, this);
 	units_ = new AMProcessVariable(unitsName, true, this);
 
+    // emit the sensitivityChanged() and unitsChanged signals.
 	connect(value_, SIGNAL(valueChanged(int)), this, SLOT(onValueChanged(int)));
 	connect(units_, SIGNAL(valueChanged(QString)), this, SLOT(onUnitsChanged(QString)) );
 
+    // check the max/min sensitivity conditions with every update.
 	connect(value_, SIGNAL(valueChanged()), this, SLOT(onSensitivityChanged()));
 	connect(units_, SIGNAL(valueChanged()), this, SLOT(onSensitivityChanged()));
 
+    // report connection changes.
 	connect(value_, SIGNAL(connected()), this, SLOT(onConnectedChanged()));
 	connect(units_, SIGNAL(connected()), this, SLOT(onConnectedChanged()));
 
-	connect( this, SIGNAL(sensitivityChanged(int)), this, SIGNAL(valueChanged()) );
-	connect( this, SIGNAL(unitsChanged(QString)), this, SIGNAL(valueChanged()) );
-	connect( this, SIGNAL(maximumSensitivity(bool)), this, SIGNAL(maximumValue(bool)) );
-	connect( this, SIGNAL(minimumSensitivity(bool)), this, SIGNAL(minimumValue(bool)) );
+    // piggyback interface signals on class-specific signals.
+    connect( this, SIGNAL(sensitivityChanged(int)), this, SIGNAL(valueChanged()) );
+    connect( this, SIGNAL(unitsChanged(QString)), this, SIGNAL(valueChanged()) );
+    connect( this, SIGNAL(maximumSensitivity(bool)), this, SIGNAL(maximumValue(bool)) );
+    connect( this, SIGNAL(minimumSensitivity(bool)), this, SIGNAL(minimumValue(bool)) );
 
 	setAmplifierMode(AMCurrentAmplifier::Sensitivity);
 }
@@ -68,20 +73,19 @@ void CLSSR570::setValueControl(int value)
 
 void CLSSR570::setValueIndex(int index)
 {
-	if (valueOkay(index))
-		value_->setValue(index);
+    if (valueOkay(index) && index != value_->getInt())
+        value_->setValue(index);
 }
 
 void CLSSR570::setUnits(QString units)
 {
-	if (unitsOkay(units))
-		units_->setValue(units);
+    if (unitsOkay(units) && units != units_->getString())
+        units_->setValue(units);
 }
 
 void CLSSR570::onValueChanged(int index)
 {
-	emit sensitivityChanged(index);
-	emit valueChanged();
+    emit sensitivityChanged(index);
 }
 
 void CLSSR570::onSensitivityChanged()

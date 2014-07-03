@@ -17,28 +17,36 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
+#ifndef AMABOUTDIALOG_H
+#define AMABOUTDIALOG_H
 
-
-#include "BioXASSidePersistentView.h"
-
-#include "beamline/BioXAS/BioXASSideBeamline.h"
-#include "ui/beamline/AMExtendedControlEditor.h"
-
-BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
-    QWidget(parent)
+#include <QDialog>
+#include <QGridLayout>
+#include <QFont>
+class AMBuildInfoWidget;
+/**
+ * @brief Dialog class to display the about information on the current build of Acquaman. Includes:
+ * - Build info:
+ *		- commit SHA
+ *		- branch name
+ *		- tag name
+ *		- description
+ *		- last commit author
+ *		- last commit date
+ * - Legal information
+ */
+class AMAboutDialog : public QDialog
 {
-    motorControlEditor_ = new AMExtendedControlEditor(BioXASSideBeamline::bioXAS()->m1UpperSlit());
-    motorControlEditor_->setControlFormat('g', 4);
+	Q_OBJECT
+private:
+	AMBuildInfoWidget* buildInfoWidget_;
+public:
+	explicit AMAboutDialog(QWidget *parent = 0);
+	
+signals:
+	
+public slots:
+	
+};
 
-    keithleyView_ = BioXASSideBeamline::bioXAS()->keithley()->createView();
-    keithleyView_->setParent(this);
-    keithleyView_->setPrecision(2);
-    keithleyView_->setFormat('e');
-
-    QVBoxLayout *layout = new QVBoxLayout();
-    layout->addWidget(motorControlEditor_);
-    layout->addWidget(keithleyView_);
-    layout->addStretch();
-
-    setLayout(layout);
-}
+#endif // AMABOUTDIALOG_H
