@@ -33,8 +33,6 @@ BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
     keithleyView_ = BioXASSideBeamline::bioXAS()->keithley()->createView();
     keithleyView_->setParent(this);
 
-    testView_ = new AMCurrentAmplifierCompositeView(BioXASSideBeamline::bioXAS()->keithley(), 0, this);
-
     QVBoxLayout *layout = new QVBoxLayout();
     layout->addWidget(motorControlEditor_);
     layout->addWidget(keithleyView_);
