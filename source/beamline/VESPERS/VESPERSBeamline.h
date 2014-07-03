@@ -867,6 +867,8 @@ protected:
 	AMControl *singleElementVortexLiveTimeControl_;
 	AMControl *singleElementVortexFastPeaksControl_;
 	AMControl *singleElementVortexSlowPeaksControl_;
+	AMControl *singleElementVortexRawSpectrumControl_;
+
 	AMControl *fourElementVortexDeadTime1Control_;
 	AMControl *fourElementVortexDeadTime2Control_;
 	AMControl *fourElementVortexDeadTime3Control_;
@@ -887,6 +889,10 @@ protected:
 	AMControl *fourElementVortexSlowPeaks2Control_;
 	AMControl *fourElementVortexSlowPeaks3Control_;
 	AMControl *fourElementVortexSlowPeaks4Control_;
+	AMControl *fourElementVortexRawSpectrumControl1_;
+	AMControl *fourElementVortexRawSpectrumControl2_;
+	AMControl *fourElementVortexRawSpectrumControl3_;
+	AMControl *fourElementVortexRawSpectrumControl4_;
 
 	// Extra AMDetectors for the various single controls added to scans.
 	AMDetector *energySetpointDetector_;
@@ -896,11 +902,14 @@ protected:
 	AMDetector *roperCCDFileNumberDetector_;
 	AMDetector *marCCDFileNumberDetector_;
 	AMDetector *pilatusCCDFileNumberDetector_;
+
 	AMDetector *singleElementVortexDeadTime_;
 	AMDetector *singleElementVortexRealTime_;
 	AMDetector *singleElementVortexLiveTime_;
 	AMDetector *singleElementVortexFastPeaks_;
 	AMDetector *singleElementVortexSlowPeaks_;
+	AMDetector *singleElementVortexRawSpectrum_;
+
 	AMDetector *fourElementVortexDeadTime1_;
 	AMDetector *fourElementVortexDeadTime2_;
 	AMDetector *fourElementVortexDeadTime3_;
@@ -921,6 +930,10 @@ protected:
 	AMDetector *fourElementVortexSlowPeaks2_;
 	AMDetector *fourElementVortexSlowPeaks3_;
 	AMDetector *fourElementVortexSlowPeaks4_;
+	AMDetector *fourElementVortexRawSpectrum1_;
+	AMDetector *fourElementVortexRawSpectrum2_;
+	AMDetector *fourElementVortexRawSpectrum3_;
+	AMDetector *fourElementVortexRawSpectrum4_;
 };
 
 #endif // VESPERSBEAMLINE_H

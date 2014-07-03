@@ -762,7 +762,8 @@ HEADERS += source/acquaman/AMRegion.h \
 	source/ui/beamline/AMCurrentAmplifierView.h \
 	source/actions3/actions/AMWaitActionInfo.h \
 	source/actions3/actions/AMWaitAction.h \
-	source/actions3/editors/AMWaitActionEditor.h
+	source/actions3/editors/AMWaitActionEditor.h \
+    source/beamline/AM1DControlDetectorEmulator.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1245,7 +1246,8 @@ SOURCES += source/acquaman/AMRegion.cpp \
 	source/ui/beamline/AMCurrentAmplifierView.cpp \
 	source/actions3/actions/AMWaitActionInfo.cpp \
 	source/actions3/actions/AMWaitAction.cpp \
-	source/actions3/editors/AMWaitActionEditor.cpp
+	source/actions3/editors/AMWaitActionEditor.cpp \
+    source/beamline/AM1DControlDetectorEmulator.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1275,6 +1277,8 @@ contains(DEFINES, AM_BUILD_REPORTER_ENABLED){
 
 	SOURCES += source/util/AMRunTimeBuildInfo.cpp
 }
+
+
 
 
 
