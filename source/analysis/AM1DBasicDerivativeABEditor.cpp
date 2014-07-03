@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 Acquaman is free software: you can redistribute it and/or modify
@@ -22,7 +23,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QLabel>
 #include <QHBoxLayout>
 
- AM1DBasicDerivativeABEditor::~AM1DBasicDerivativeABEditor(){}
 AM1DBasicDerivativeABEditor::AM1DBasicDerivativeABEditor(AM1DDerivativeAB *analysisBlock, QWidget *parent)
 	: QWidget(parent)
 {
@@ -46,6 +46,8 @@ AM1DBasicDerivativeABEditor::AM1DBasicDerivativeABEditor(AM1DDerivativeAB *analy
 
 	setLayout(layout);
 }
+
+AM1DBasicDerivativeABEditor::~AM1DBasicDerivativeABEditor(){}
 
 void AM1DBasicDerivativeABEditor::populateComboBox()
 {

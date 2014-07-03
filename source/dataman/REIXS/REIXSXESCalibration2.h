@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 Acquaman is free software: you can redistribute it and/or modify
@@ -253,7 +254,7 @@ public:
 	// Computing spectrometer positions:
 	//////////////////////////////////////
 
-	AMControlInfoList computeSpectrometerPosition(REIXSXESScanConfiguration* scanConfiguration) const;
+	//AMControlInfoList computeSpectrometerPosition(REIXSXESScanConfiguration* scanConfiguration) const;
 	AMControlInfoList computeSpectrometerPosition(int gratingIndex, double eV, double focusOffsetMm, double tiltOffsetDeg) const;
 
 	double computeEVFromSpectrometerPosition(int gratingIndex, double liftHeight, double rPrime, int order = 1) const;

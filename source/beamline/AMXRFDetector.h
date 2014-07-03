@@ -1,3 +1,24 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #ifndef AMXRFDETECTOR_H
 #define AMXRFDETECTOR_H
 
@@ -37,13 +58,16 @@ class AMXRFDetector : public AMDetector
 
 public:
 	/// Constructor.
- 	virtual ~AMXRFDetector();
 	AMXRFDetector(const QString &name, const QString &description, QObject *parent = 0);
+	/// Destructor.
+	virtual ~AMXRFDetector();
 
 	/// Returns the number of elements in the detector.
 	int elements() const { return rawSpectraSources_.size(); }
 	/// Returns the current acquisition dwell time from the integration time control
 	virtual double acquisitionTime() const;
+	/// Returns the acquisition time tolerance.  Used for automatic setting that should be re-implemented if you have specific requirements.
+	virtual double acquisitionTimeTolerance() const;
 	/// Returns the elapsed time from the elapsed time control.
 	virtual double elapsedTime() const;
 	/// Returns the dependent value at a (complete) set of axis indexes. Returns an invalid AMNumber if the indexes are insuffient or (if AM_ENABLE_BOUNDS_CHECKING is defined, any are out of range), or if the data is not ready.

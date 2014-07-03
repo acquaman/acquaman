@@ -1,6 +1,28 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "VESPERSScanConfigurationDbObject.h"
 
- VESPERSScanConfigurationDbObject::~VESPERSScanConfigurationDbObject(){}
+VESPERSScanConfigurationDbObject::~VESPERSScanConfigurationDbObject(){}
+
 VESPERSScanConfigurationDbObject::VESPERSScanConfigurationDbObject(QObject *parent)
 	: AMDbObject(parent)
 {
@@ -9,7 +31,6 @@ VESPERSScanConfigurationDbObject::VESPERSScanConfigurationDbObject(QObject *pare
 	fluorescenceDetector_ = VESPERS::NoXRF;
 	ccdDetector_ = VESPERS::NoCCD;
 	motor_ = VESPERS::NoMotor;
-	roiInfoList_ = AMROIInfoList();
 	ccdFileName_ = "";
 	normalPosition_ = 888888.88;
 }
@@ -22,7 +43,6 @@ VESPERSScanConfigurationDbObject::VESPERSScanConfigurationDbObject(const VESPERS
 	fluorescenceDetector_ = original.fluorescenceDetector();
 	ccdDetector_ = original.ccdDetector();
 	motor_ = original.motor();
-	roiInfoList_ = original.roiList();
 	ccdFileName_ = original.ccdFileName();
 	normalPosition_ = original.normalPosition();
 }
@@ -89,12 +109,6 @@ void VESPERSScanConfigurationDbObject::setCCDFileName(const QString &name)
 	setModified(true);
 }
 
-void VESPERSScanConfigurationDbObject::setRoiInfoList(const AMROIInfoList &list)
-{
-	roiInfoList_ = list;
-	setModified(true);
-}
-
 void VESPERSScanConfigurationDbObject::setNormalPosition(double newPosition)
 {
 	if (normalPosition_ != newPosition){
@@ -104,3 +118,39 @@ void VESPERSScanConfigurationDbObject::setNormalPosition(double newPosition)
 		setModified(true);
 	}
 }
+
+AMDbObjectList VESPERSScanConfigurationDbObject::dbReadRegionsOfInterest()
+{
+	AMDbObjectList listToBeSaved;
+
+	foreach (AMRegionOfInterest *region, regionsOfInterest_)
+		listToBeSaved << region;
+
+	return listToBeSaved;
+}
+
+void VESPERSScanConfigurationDbObject::dbLoadRegionsOfInterest(const AMDbObjectList &newRegions)
+{
+	regionsOfInterest_.clear();
+
+	foreach (AMDbObject *newObject, newRegions){
+
+		AMRegionOfInterest *region = qobject_cast<AMRegionOfInterest *>(newObject);
+
+		if (region)
+			regionsOfInterest_.append(region);
+	}
+}
+
+void VESPERSScanConfigurationDbObject::addRegionOfInterest(AMRegionOfInterest *region)
+{
+	regionsOfInterest_.append(region);
+	setModified(true);
+}
+
+void VESPERSScanConfigurationDbObject::removeRegionOfInterest(AMRegionOfInterest *region)
+{
+	regionsOfInterest_.removeOne(region);
+	setModified(true);
+}
+

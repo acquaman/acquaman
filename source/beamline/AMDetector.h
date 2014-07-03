@@ -1,3 +1,24 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #ifndef AMDETECTOR_H
 #define AMDETECTOR_H
 
@@ -113,8 +134,9 @@ public:
 			  };
 
 	/// Default constructor. \c name is a unique programmer name to access this detector with. \c description is a human-readable version
- 	virtual ~AMDetector();
 	AMDetector(const QString &name, const QString &description, QObject *parent = 0);
+	/// Destructor.
+	virtual ~AMDetector();
 
 	/// One feature of a detector is that it can create a snapshot of its current state and pass it on as an AMDetectorInfo.
 	AMDetectorInfo toInfo() const;
@@ -158,6 +180,17 @@ public:
 
 	/// Returns the current acquisition dwell time which is only relevant for triggered (RequestRead) detectors
 	virtual double acquisitionTime() const = 0;
+	/// Returns whether \param value is already within acquisition time tolerance of the detector.
+	bool acquisitionTimeWithinTolerance(double value) const;
+	/// Returns the acquisition time tolerance.  This is defined by subclasses because this limitation will likely be detector specific.
+	virtual double acquisitionTimeTolerance() const = 0;
+
+	virtual bool canDoDarkCurrentCorrection() const { return false;}
+
+	virtual double darkCurrentMeasurementValue() const;
+	virtual int darkCurrentMeasurementTime() const;
+
+	virtual bool requiresNewDarkCurrentMeasurement() const;
 
 	/// Returns the current acquisition state
 	AMDetector::AcqusitionState acquisitionState() const { return acquisitionState_; }
@@ -263,6 +296,11 @@ int outputSize = indexStart.totalPointsTo(indexEnd);
 	/// Returns a newly created action (possibly list of actions) to perfrom the detector cleanup
 	virtual AMAction3* createCleanupActions();
 
+	/// Returns a (list of) actions that will do all necessary steps to do dark current correction. Your subclass needs to implement this function. Dwell time argument is in seconds.
+	virtual AMAction3* createDarkCurrentCorrectionActions(double dwellTime);
+	/// Returns an action that sets the current detector value as the dark current correction value. Your subclass will probably call this in createDarkCurrentCorrectionActions.
+	virtual AMAction3* createSetAsDarkCurrentCorrectionAction();
+
 	/// Returns a data source for viewing this detector's output
 	virtual AMDataSource* dataSource() const = 0;
 
@@ -305,6 +343,11 @@ public slots:
 
 	/// For clearable detectors, clears the current data. Returns whether the clear was possible.
 	bool clear();
+
+    virtual void setAsDarkCurrentMeasurementValue();
+    virtual void setAsDarkCurrentMeasurementTime(double lastTime);
+    virtual void setRequiresNewDarkCurrentMeasurement(bool needsNewDCC);
+
 
 signals:
 	/// Indicates that the detector's constituent elements are connected (each detector sub class can define this however makes most sense)
@@ -363,6 +406,11 @@ signals:
 	void isVisibleChanged(bool);
 	/// Notifier that the default accessibility of the detector has changed.
 	void hiddenFromUsersChanged(bool);
+
+    /// New dark current correction value ready, passes new dark current value.
+    void newDarkCurrentMeasurementValueReady(double newValue);
+    /// Indicates that the darkCurrentCorrection_ value stored is out of date. A new dark current measurement should be taken.
+    void requiresNewDarkCurrentMeasurement(bool needsUpdate);
 
 protected slots:
 	///
@@ -444,6 +492,12 @@ protected:
 	bool isVisible_;
 	/// The flag for the default accessibility off the detector when added to a scan.
 	bool hiddenFromUsers_;
+    /// The most up-to-date value of the dark current for this detector.
+    double darkCurrentMeasurementValue_;
+    /// The dwell time used to for the darkCurrentMeasurementValue_ measurement.
+    double darkCurrentMeasurementTime_;
+    /// Flag indicating whether or not darkCurrentMeasurementValue_ needs to be updated.
+    bool requiresNewDarkCurrentMeasurement_;
 
 private:
 	/// Changes states in the acquisition state (if possible)

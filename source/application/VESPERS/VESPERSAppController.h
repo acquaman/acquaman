@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -26,8 +27,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 class VESPERSEndstationView;
 class VESPERSDeviceStatusView;
-class VESPERSXRFFreeRunView;
-class XRFFreeRun;
 class VESPERSCCDDetectorView;
 class VESPERSPilatusCCDDetectorView;
 class VESPERSPersistentView;
@@ -53,7 +52,6 @@ class VESPERSUserConfiguration;
 #define VESPERSAPPCONTROLLER_PILATUS_PATH_NOT_FOUND 999002
 
 // Helper classes that technically shouldn't need to exist.
-#include "util/VESPERS/ROIHelper.h"
 #include "util/VESPERS/VESPERSAttoCubeHack.h"
 
 
@@ -152,14 +150,6 @@ protected:
 	/// Sets up all of the connections.
 	void makeConnections();
 
-	/// XRF free run model for the single element detector.
-	XRFFreeRun *xrf1ElFreeRun_;
-	/// XRF free run view for the single element detector.
-	VESPERSXRFFreeRunView *xrf1EFreeRunView_;
-	/// XRF free run model for the four element detector.
-	XRFFreeRun *xrf4ElFreeRun_;
-	/// XRF free run view for the four element detector.
-	VESPERSXRFFreeRunView *xrf4EFreeRunView_;
 	/// Roper CCD detector view.
 	VESPERSCCDDetectorView *roperCCDView_;
 	/// Mar CCD detector view.
@@ -168,11 +158,11 @@ protected:
 	VESPERSPilatusCCDDetectorView *pilatusView_;
 
 	/// Pointer to the XAS scan configuration.
-	VESPERSEXAFSScanConfiguration *exafsScanConfig_;
+	VESPERSEXAFSScanConfiguration *exafsScanConfiguration_;
 	/// Pointer to the XAS scan configuration view.
-	VESPERSEXAFSScanConfigurationView *exafsConfigView_;
+	VESPERSEXAFSScanConfigurationView *exafsConfigurationView_;
 	/// The (new) holder for the XAS scan configuration.
-	VESPERSScanConfigurationViewHolder3 *exafsConfigViewHolder3_;
+	VESPERSScanConfigurationViewHolder3 *exafsConfigurationViewHolder3_;
 
 	/// Pointer to the 2D scan configuration.
 	VESPERS2DScanConfiguration *mapScanConfiguration_;
@@ -222,7 +212,6 @@ protected:
 	/// Holds the user configuration used for automatically setting up some simple aspects of the user interface.
 	VESPERSUserConfiguration *userConfiguration_;
 
-	ROIHelper *roiHelper_;
 	VESPERSAttoCubeHack *attoHack_;
 };
 

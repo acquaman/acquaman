@@ -1,3 +1,24 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "AMDbUpgrade1Pt1.h"
 
 AMDbUpgrade1Pt1::AMDbUpgrade1Pt1(QString databaseNameToUpgrade, QObject *parent) :
@@ -46,16 +67,21 @@ bool AMDbUpgrade1Pt1::upgradeNecessary() const{
 }
 
 bool AMDbUpgrade1Pt1::upgradeImplementation(){
-	bool success = true;
 
 	QMap<QString, QString> parentTablesToColumnsNames;
 	QMap<QString, int> indexTablesToIndexSide;
 	indexTablesToIndexSide.insert("AMDetectorInfoSet_table_detectorInfos", 2);
 
+	databaseToUpgrade_->startTransaction();
 	// Use dbObjectClassBecomes to upgrade each detectorInfo to its new counterpart
-	success &= AMDbUpgradeSupport::dbObjectClassBecomes(databaseToUpgrade_, "AMDetectorInfo", "AMOldDetectorInfo", parentTablesToColumnsNames, indexTablesToIndexSide);
+	if (!AMDbUpgradeSupport::dbObjectClassBecomes(databaseToUpgrade_, "AMDetectorInfo", "AMOldDetectorInfo", parentTablesToColumnsNames, indexTablesToIndexSide)){
 
-	return success;
+		databaseToUpgrade_->rollbackTransaction();
+		return false;
+	}
+
+	databaseToUpgrade_->commitTransaction();
+	return true;
 }
 
 AMDbUpgrade* AMDbUpgrade1Pt1::createCopy() const{

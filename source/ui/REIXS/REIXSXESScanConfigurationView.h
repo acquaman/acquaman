@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -28,6 +29,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class QComboBox;
 class QDoubleSpinBox;
 class QTimeEdit;
+class QLabel;
 class QRadioButton;
 class QCheckBox;
 class AMSamplePre2013Selector;
@@ -52,19 +54,23 @@ public slots:
 protected slots:
 
 	/// called to update the available calibrations;looks in the database for all available
-	void onLoadCalibrations();
+//	void onLoadCalibrations();
 
 	/// called whenever the selected calbiration item in the combobox changes
-	void onCalibrationIndexChanged(int newIndex);
+//	void onCalibrationIndexChanged(int newIndex);
 
 	/// called when the selected grating changes
-	void onSelectedGratingChanged(int newGrating);
+//	void onSelectedGratingChanged(int newGrating);
 
 	/// Forwards the signal when you adjust the time edit to control the maximum duration of the scan
 	void onMaximumTimeEditChanged(const QTime& time);
 
 	/// Disables the meta-data controls when the 'set automatically" checkbox is activated.
 	void onAutoNamingCheckboxClicked(bool autoOn);
+
+	/// Determines whether to enable the polarization angle (only if the polarization is enabled, and set to Linear Inclined).
+	void reviewPolarizationAngleBoxEnabled();
+
 
 
 protected:
@@ -74,20 +80,32 @@ protected:
 	bool ownsConfiguration_;
 
 	/// UI elements
-	QComboBox* gratingSelector_;
-	QDoubleSpinBox* centerEVBox_;
-	QDoubleSpinBox* defocusDistanceMmBox_;
-	QDoubleSpinBox* detectorTiltBox_;
+//	QComboBox* gratingSelector_;
+//	QDoubleSpinBox* centerEVBox_;
+//	QDoubleSpinBox* defocusDistanceMmBox_;
+//	QDoubleSpinBox* detectorTiltBox_;
+	QDoubleSpinBox* energyBox_;
+	QDoubleSpinBox* slitWidthBox_;
+
+	QDoubleSpinBox* polarizationAngleBox_;
+	QComboBox* polarizationBox_;
+	QLabel* polarizationAngleLabel_;
+
 
 	// removed: QRadioButton *horizontalDetectorButton_, *verticalDetectorButton_;
 
-	QCheckBox* startFromCurrentPositionOption_;
+//	QCheckBox* startFromCurrentPositionOption_;
 	QCheckBox* doNotClearExistingCountsOption_;
+	QCheckBox* applySlitWidthBox_;
+	QCheckBox* applyEnergyBox_;
+	QCheckBox* applyPolarizationBox_;
+
+
 
 	QDoubleSpinBox* maximumTotalCounts_;
 	QTimeEdit* maximumTimeEdit_;
 
-	QComboBox* calibrationSelector_;
+//	QComboBox* calibrationSelector_;
 
 	QLineEdit* nameEdit_;
 	QSpinBox* numberEdit_;

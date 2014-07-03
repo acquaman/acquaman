@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -31,8 +32,9 @@ class VESPERSXRFDataLoader : public AMAbstractFileLoader
 {
 public:
 	/// Constructs a file loader to data into \c scan.
- 	virtual ~VESPERSXRFDataLoader();
 	VESPERSXRFDataLoader(AMXRFScan *scan);
+	/// Destructor.
+	virtual ~VESPERSXRFDataLoader();
 
 	/// Format tag: a unique string identifying this format.
 	virtual QString formatTag() const { return QString("vespersXRF"); }

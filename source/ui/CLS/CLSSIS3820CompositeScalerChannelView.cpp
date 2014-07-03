@@ -1,3 +1,24 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "CLSSIS3820CompositeScalerChannelView.h"
 
 #include <QAction>
@@ -24,13 +45,13 @@ CLSSIS3820CompositeScalerChannelView::CLSSIS3820CompositeScalerChannelView(CLSSI
 
 	channelName_ = new QLabel(channel1_->customChannelName());
 
-	sr570View_ = 0;
-	connect(channel1_, SIGNAL(sr570Attached()), this, SLOT(onNewSR570Attached()));
+    amplifierView_ = 0;
+	connect(channel1_, SIGNAL(currentAmplifierAttached()), this, SLOT(onNewCurrentAmplifierAttached()));
 
-	if (channel1_->sr570() && channel2_->sr570()){
+	if (channel1_->currentAmplifier() && channel2_->currentAmplifier()){
 
-		sr570View_ = new CLSSR570CompositeView(channel1_->sr570(), channel2_->sr570());
-		connect(sr570View_, SIGNAL(viewModeChanged(CLSSR570CompositeView::ViewMode)), this, SIGNAL(sr570ViewModeChanged(CLSSR570CompositeView::ViewMode)));
+        amplifierView_ = new AMCurrentAmplifierCompositeView(channel1_->currentAmplifier(), channel2_->currentAmplifier());
+        connect(amplifierView_, SIGNAL(viewModeChanged(AMCurrentAmplifierView::ViewMode)), this, SIGNAL(amplifierViewModeChanged(AMCurrentAmplifierView::ViewMode)));
 	}
 
 	scalerOutput_ = new QToolButton;
@@ -51,8 +72,8 @@ CLSSIS3820CompositeScalerChannelView::CLSSIS3820CompositeScalerChannelView(CLSSI
 	channelLayout_->addWidget(enableBox_, 0, Qt::AlignLeft);
 	channelLayout_->addWidget(channelName_, 0, Qt::AlignCenter);
 
-	if (sr570View_)
-		channelLayout_->addWidget(sr570View_, 0, Qt::AlignCenter);
+    if (amplifierView_)
+        channelLayout_->addWidget(amplifierView_, 0, Qt::AlignCenter);
 
 	channelLayout_->addWidget(scalerOutput_, 0, Qt::AlignCenter);
 	channelLayout_->addWidget(statusLabel_, 0, Qt::AlignRight);
@@ -119,10 +140,10 @@ void CLSSIS3820CompositeScalerChannelView::onScalerOutputClicked()
 	onReadingChanged();
 }
 
-void CLSSIS3820CompositeScalerChannelView::setSR570ViewMode(CLSSR570CompositeView::ViewMode mode)
+void CLSSIS3820CompositeScalerChannelView::setAmplifierViewMode(AMCurrentAmplifierView::ViewMode mode)
 {
-	if (sr570View_)
-		sr570View_->setViewMode(mode);
+    if (amplifierView_)
+        amplifierView_->setViewMode(mode);
 }
 
 void CLSSIS3820CompositeScalerChannelView::setOutputViewMode(CLSSIS3820CompositeScalerChannelView::OutputViewMode mode)
@@ -145,10 +166,10 @@ void CLSSIS3820CompositeScalerChannelView::setCustomNameVisibility(bool visible)
 	channelName_->setVisible(visible);
 }
 
-void CLSSIS3820CompositeScalerChannelView::setSR570Visibility(bool visible)
+void CLSSIS3820CompositeScalerChannelView::setAmplifierVisibility(bool visible)
 {
-	if (sr570View_)
-		sr570View_->setVisible(visible);
+    if (amplifierView_)
+        amplifierView_->setVisible(visible);
 }
 
 void CLSSIS3820CompositeScalerChannelView::setOutputVisibility(bool visible)
@@ -161,16 +182,16 @@ void CLSSIS3820CompositeScalerChannelView::setStatusLabelVisibility(bool visible
 	statusLabel_->setVisible(visible);
 }
 
-void CLSSIS3820CompositeScalerChannelView::onNewSR570Attached()
+void CLSSIS3820CompositeScalerChannelView::onNewCurrentAmplifierAttached()
 {
 	// If one already exists, lets get rid of it before doing anything else.
-	if (sr570View_)
-		delete channelLayout_->takeAt(channelLayout_->indexOf(sr570View_));
+    if (amplifierView_)
+        delete channelLayout_->takeAt(channelLayout_->indexOf(amplifierView_));
 
-	if (channel1_->sr570() && channel2_->sr570()){
+	if (channel1_->currentAmplifier() && channel2_->currentAmplifier()){
 
-		sr570View_ = new CLSSR570CompositeView(channel1_->sr570(), channel2_->sr570());
-		channelLayout_->insertWidget(2, sr570View_, 0, Qt::AlignCenter);
+        amplifierView_ = new AMCurrentAmplifierCompositeView(channel1_->currentAmplifier(), channel2_->currentAmplifier());
+        channelLayout_->insertWidget(2, amplifierView_, 0, Qt::AlignCenter);
 	}
 }
 
@@ -196,10 +217,10 @@ void CLSSIS3820CompositeScalerChannelView::onCustomContextMenuRequested(QPoint p
 	QAction *temp = popup.addAction(showCompositeView_ ? "Show Individual View" : "Show Combined View");
 
 	temp = popup.addAction("Basic View");
-	temp->setDisabled(sr570View_->viewMode() == CLSSR570CompositeView::Basic);
+    temp->setDisabled(amplifierView_->viewMode() == AMCurrentAmplifierView::Basic);
 
 	temp = popup.addAction("Advanced View");
-	temp->setDisabled(sr570View_->viewMode() == CLSSR570CompositeView::Advanced);
+    temp->setDisabled(amplifierView_->viewMode() == AMCurrentAmplifierView::Advanced);
 
 	temp = popup.exec(mapToGlobal(pos));
 
@@ -213,9 +234,9 @@ void CLSSIS3820CompositeScalerChannelView::onCustomContextMenuRequested(QPoint p
 		}
 
 		else if (temp->text() == "Basic View")
-			setSR570ViewMode(CLSSR570CompositeView::Basic);
+            setAmplifierViewMode(AMCurrentAmplifierView::Basic);
 
 		else if (temp->text() == "Advanced View")
-			setSR570ViewMode(CLSSR570CompositeView::Advanced);
+            setAmplifierViewMode(AMCurrentAmplifierView::Advanced);
 	}
 }

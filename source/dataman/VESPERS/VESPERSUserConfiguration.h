@@ -1,3 +1,24 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #ifndef VESPERSUSERCONFIGURATION_H
 #define VESPERSUSERCONFIGURATION_H
 
@@ -27,8 +48,9 @@ class VESPERSUserConfiguration : public AMDbObject
 
 public:
 	/// Constructor.  Builds a user configuration.
- 	virtual ~VESPERSUserConfiguration();
 	Q_INVOKABLE VESPERSUserConfiguration(QObject *parent = 0);
+	/// Destructor.
+	virtual ~VESPERSUserConfiguration();
 
 	/// Returns the current I0 ion chamber choice.
 	VESPERS::IonChamber incomingChoice() const { return I0_; }
@@ -42,10 +64,6 @@ public:
 	VESPERS::CCDDetectors ccdDetector() const { return ccdDetector_; }
 	/// Returns the list of regions the configuration has a hold of.
 	QList<AMRegionOfInterest *> regionsOfInterest() const { return regionsOfInterest_; }
-	/// Returns the regions of interest list.
-	AMDbObjectList dbReadRegionsOfInterest();
-	/// Called by the dtabase system on loadFromDb() to give us our new list of AMRegionOfInterest.
-	void dbLoadRegionsOfInterest(const AMDbObjectList &newRegions);
 
 public slots:
 	/// Sets the choice for I0 ion chamber.
@@ -74,6 +92,11 @@ public slots:
 	void removeRegionOfInterest(AMRegionOfInterest *region);
 
 protected:
+	/// Returns the regions of interest list.
+	AMDbObjectList dbReadRegionsOfInterest();
+	/// Called by the dtabase system on loadFromDb() to give us our new list of AMRegionOfInterest.
+	void dbLoadRegionsOfInterest(const AMDbObjectList &newRegions);
+
 	/// I0 ion chamber choice.
 	VESPERS::IonChamber I0_;
 	/// It ion chamber choice.

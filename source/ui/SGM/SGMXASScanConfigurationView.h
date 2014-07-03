@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -32,7 +33,6 @@ class QSpacerItem;
 #include "ui/acquaman/AMRegionsLineView.h"
 #include "acquaman/SGM/SGMXASScanConfiguration.h"
 #include "ui/acquaman/AMScanConfigurationView.h"
-#include "ui/beamline/AMControlOptimizationView.h"
 #include "ui/AMTopFrame.h"
 
 class SGMFluxResolutionPickerStaticView;

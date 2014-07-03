@@ -1,3 +1,24 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "SGMXASScanConfiguration2013.h"
 
 #include "beamline/AMBeamline.h"
@@ -105,7 +126,7 @@ void SGMXASScanConfiguration2013::checkIfMatchesBeamline()
 	if(SGMBeamline::sgm()->isConnected() && fluxResolutionGroup().count() > 0 && trackingGroup().count() > 0)
 	{
 		currentMatchStatus =
-			(floatCompare(dbObject()->exitSlitGap() + 1.0e-200, SGMBeamline::sgm()->exitSlitGap()->value() + 1.0e-200, 0.01) &&
+			(floatCompare(dbObject()->exitSlitGap() + 1.0e-200, SGMBeamline::sgm()->exitSlitGap()->value() + 1.0e-200, 0.20) &&
 			 floatCompare(dbObject()->grating() + 1.0e-200, SGMBeamline::sgm()->grating()->value()  + 1.0e-200, 0.0001) &&
 			 floatCompare(dbObject()->harmonic()  + 1.0e-200, SGMBeamline::sgm()->harmonic()->value()  + 1.0e-200, 0.001) &&
 			 floatCompare(dbObject()->undulatorTracking()  + 1.0e-200, SGMBeamline::sgm()->undulatorTracking()->value()  + 1.0e-200, 0.001) &&

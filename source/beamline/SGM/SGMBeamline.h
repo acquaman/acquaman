@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -85,6 +86,7 @@ public:
 	AMControl* undulatorFastTracking() const { return undulatorFastTracking_;}
 	AMControl* undulatorFastTrackingTrigger() const { return undulatorFastTrackingTrigger_;}
 	AMControl* undulatorTracking() const { return undulatorTracking_;}
+	AMControl* undulatorForcedOpen() const { return undulatorForcedOpen_;}
 	AMControl* monoTracking() const { return monoTracking_;}
 	AMControl* exitSlitTracking() const { return exitSlitTracking_;}
 	SGMMAXvMotor* ssaManipulatorX() const { return ssaManipulatorX_;}
@@ -167,6 +169,11 @@ public:
 	/// Returns the rotational encoder for M3
 	AMControl* m3RotationalEncoder() const { return m3RotationalEncoder_; }
 
+	/// Returns the control for the valve in front of the bypass section
+	AMControl* frontBypassValve() const { return frontBypassValve_; }
+	/// Returns the control for the valve behind the bypass section
+	AMControl* backBypassValve() const { return backBypassValve_; }
+
 	virtual AMSynchronizedDwellTime* synchronizedDwellTime() const { return synchronizedDwellTime_;}
 
 	/// Returns the validity of an action (see AMBeamline::ActionValidity). Currently the SGM responds that old XAS and Fast scans are AMBeamline::ActionNeverValid.
@@ -217,6 +224,8 @@ public:
 	AMDetector* energyFeedbackDetector() const;
 	AMDetector* gratingEncoderDetector() const;
 
+	AMDetector* dwellTimeDetector() const;
+
 	AMDetectorGroup* allDetectorGroup() const { return allDetectorGroup_;}
 	AMDetectorGroup* XASDetectorGroup() const { return XASDetectorGroup_;}
 	AMDetectorGroup* FastDetectorGroup() const { return FastDetectorGroup_;}
@@ -228,6 +237,8 @@ public:
 	bool detectorConnectedByName(QString name);
 
 	AMAction3* createBeamOnActions3();
+	/// Turn off beam on SGM.
+	AMAction3* createTurnOffBeamActions();
 	AMAction3* createStopMotorsActions3();
 
 	AMAction3* createGoToTransferPositionActions3();
@@ -323,6 +334,7 @@ protected:
 	AMControl *undulatorFastTracking_;
 	AMControl *undulatorFastTrackingTrigger_;
 	AMControl *undulatorTracking_;
+	AMControl *undulatorForcedOpen_;
 	AMControl *monoTracking_;
 	AMControl *exitSlitTracking_;
 	AMControl *tfyHV_;
@@ -388,6 +400,33 @@ protected:
 	AMControl *m3HorizontalDownstreamEncoder_;
 	AMControl *m3RotationalEncoder_;
 
+	// Controls for the new valves on the bypass line
+	AMControl *frontBypassValve_;
+	AMControl *backBypassValve_;
+
+	// Shutter controls (readonly), sorry for the names but it was either the PV name or
+	// shutter_, anotherShutter_, yetAnotherShutter_ etc.
+	AMControl *vvr1611_3_I10_01Shutter_;
+	AMControl *vvr1611_3_I10_02Shutter_;
+	AMControl *vvr1611_3_I10_03Shutter_;
+	AMControl *vvr1611_3_I10_04Shutter_;
+	AMControl *psh1611_3_I10_01Shutter_;
+	AMControl *vvr1611_4_I10_01Shutter_;
+	AMControl *vvr1611_4_I10_02Shutter_;
+	AMControl *vvr1611_4_I10_03Shutter_;
+	AMControl *vvr1611_4_I10_04Shutter_;
+	AMControl *vvr1611_4_I10_05Shutter_;
+	AMControl *vvr1611_4_I10_06Shutter_;
+	AMControl *vvr1611_4_I10_07Shutter_;
+	AMControl *vvr1611_4_I10_08Shutter_;
+	AMControl *psh1411_I00_01Shutter_;
+	AMControl *vvr1411_I00_01Shutter_;
+	AMControl *vvf1411_I00_01Shutter_;
+	AMControl *psh1411_I00_02Shutter_;
+	AMControl *ssh1411_I00_01Shutter_;
+	AMControl *vvr1611_3_I00_01Shutter_;
+	AMControl *vvr1611_3_I00_02Shutter_;
+
 	CLSAmptekSDD123DetectorNew *newAmptekSDD1_;
 	CLSAmptekSDD123DetectorNew *newAmptekSDD2_;
 	CLSAmptekSDD123DetectorNew *newAmptekSDD3_;
@@ -408,9 +447,12 @@ protected:
 	CLSAdvancedScalerChannelDetector *newEncoderDownDetector_;
 	AMBasicControlDetectorEmulator *energyFeedbackDetector_;
 	AMBasicControlDetectorEmulator *gratingEncoderDetector_;
+	AMBasicControlDetectorEmulator *dwellTimeDetector_;
 	AMDetectorGroup *allDetectorGroup_;
 	AMDetectorGroup *XASDetectorGroup_;
 	AMDetectorGroup *FastDetectorGroup_;
+
+	AMControlSet *shutterControlSet_;
 
 	AMControlSet *criticalControlsSet_;
 	AMDetectorSet *criticalDetectorSet_;

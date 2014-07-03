@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -52,7 +53,7 @@ AMControl::FailureExplanation CLSMDriveMotorControl::move(double Setpoint) {
 		}
 
 		// Otherwise: This control supports mid-move updates, and we're already moving. We just need to update the setpoint and send it.
-		setpoint_ = Setpoint;
+		setpoint_ = writeUnitConverter()->convertToRaw(Setpoint);
 		writePV_->setValue(setpoint_);
 		// since the settling phase is considered part of a move, it's OK to be here while settling... But for Acquaman purposes, this will be considered a single re-targetted move, even though the hardware will see two.  If we're settling, disable the settling timer, because we only want to respond to the end of the second move.
 		if(settlingInProgress_) {
@@ -70,7 +71,7 @@ AMControl::FailureExplanation CLSMDriveMotorControl::move(double Setpoint) {
 		startInProgress_ = true;
 
 		// This is our new target:
-		setpoint_ = Setpoint;
+		setpoint_ = writeUnitConverter()->convertToRaw(Setpoint);
 
 		// Special case: "null move" should complete immediately. Use only if moveStartTolerance() is non-zero, and the move distance is within moveStartTolerance().
 		if(moveStartTolerance() != 0 && fabs(setpoint()-value()) < moveStartTolerance()) {

@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 Acquaman is free software: you can redistribute it and/or modify
@@ -159,6 +160,7 @@ signals:
 	void queuedActionAdded(int index);
 	void queuedActionAboutToBeRemoved(int index);
 	void queuedActionRemoved(int index);
+	void queuedActionInfoChanged();
 
 	// Signals specific to AMScanAction.  Since other parts of the application will likely want to know some of these things.
 	/// Notifier that the scan action has been created.  Note that a scan controller is not created at this point.
@@ -281,6 +283,8 @@ protected slots:
 	void onActionAdded(int index);
 	void onActionAboutToBeRemoved(int index);
 	void onActionRemoved(int index);
+
+	void onActionInfoChanged();
 
 	// called when any list action
 	void onSubActionAboutToBeAdded(int index);

@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 Acquaman is free software: you can redistribute it and/or modify
@@ -22,40 +23,51 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMDetectorTriggerSource.h"
 #include "beamline/CLS/CLSSR570.h"
 #include "actions3/actions/AMControlMoveAction3.h"
+#include "actions3/actions/AMControlWaitAction.h"
 
 #include <QStringBuilder>
+
+#include "actions3/actions/AMDoDarkCurrentCorrectionAction.h"
+
 
 // CLSSIS3820Scalar
 /////////////////////////////////////////////
 
- CLSSIS3820Scaler::~CLSSIS3820Scaler(){}
 CLSSIS3820Scaler::CLSSIS3820Scaler(const QString &baseName, QObject *parent) :
 	QObject(parent)
 {
 	connectedOnce_ = false;
 	switchingReadModes_ = false;
+	doingDarkCurrentCorrection_ = false;
 
 	triggerSource_ = new AMDetectorTriggerSource(QString("%1TriggerSource").arg(baseName), this);
 	connect(triggerSource_, SIGNAL(triggered(AMDetectorDefinitions::ReadMode)), this, SLOT(onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode)));
+
 	dwellTimeSource_ = new AMDetectorDwellTimeSource(QString("%1DwellTimeSource").arg(baseName), this);
 	connect(dwellTimeSource_, SIGNAL(setDwellTime(double)), this, SLOT(onDwellTimeSourceSetDwellTime(double)));
+	connect(dwellTimeSource_, SIGNAL(setDarkCurrentCorrectionTime(double)), this, SLOT(onDwellTimeSourceSetDarkCurrentCorrectionTime(double)) );
 
 	synchronizedDwellKey_ = QString("%1:startScan NPP NMS").arg(baseName);
 
 	CLSSIS3820ScalerChannel *tmpChannel;
-	for(int x = 0; x < 32; x++){
+	for (int x = 0; x < 32; x++) {
 		tmpChannel = new CLSSIS3820ScalerChannel(baseName, x, this);
 		scalerChannels_.append(tmpChannel);
 		connect(tmpChannel, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
+		connect( tmpChannel, SIGNAL(sensitivityChanged()), this, SIGNAL(sensitivityChanged()) );
+//        connect( this, SIGNAL(newDarkCurrentMeasurementValue(double)), tmpChannel, SIGNAL(newDarkCurrentMeasurementValue(double)) );
+//        connect( this, SIGNAL(newDarkCurrentMeasurementState(CLSSIS3820Scaler::DarkCurrentCorrectionState)), tmpChannel, SIGNAL(newDarkCurrentMeasurementState(CLSSIS3820Scaler::DarkCurrentCorrectionState)) );
 	}
 
 	startToggle_ = new AMPVControl("Start/Scanning", baseName+":startScan", baseName+":startScan", QString(), this, 0.1);
 	continuousToggle_ = new AMPVControl("Continuous", baseName+":continuous", baseName+":continuous", QString(), this, 0.1);
-	dwellTime_ = new AMPVControl("DwellTime", baseName+":delay", baseName+":delay", QString(), this, 0.1);
+	dwellTime_ = new AMPVControl("DwellTime", baseName+":delay", baseName+":delay", QString(), this, 0.001);
 	scanPerBuffer_ = new AMPVControl("ScanPerBuffer", baseName+":nscan", baseName+":nscan", QString(), this, 0.5);
 	totalScans_ = new AMPVControl("TotalScans", baseName+":scanCount", baseName+":scanCount", QString(), this, 0.5);
 
 	reading_ = new AMReadOnlyPVControl("Reading", baseName+":scan", this);
+
+	dwellTime_->setAttemptMoveWhenWithinTolerance(false);
 
 	allControls_ = new AMControlSet(this);
 	allControls_->addControl(startToggle_);
@@ -74,6 +86,8 @@ CLSSIS3820Scaler::CLSSIS3820Scaler(const QString &baseName, QObject *parent) :
 	connect(reading_, SIGNAL(valueChanged(double)), this, SLOT(onReadingChanged(double)));
 	connect(allControls_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
 }
+
+CLSSIS3820Scaler::~CLSSIS3820Scaler(){}
 
 bool CLSSIS3820Scaler::isConnected() const{
 
@@ -99,6 +113,14 @@ double CLSSIS3820Scaler::dwellTime() const{
 
 	if(isConnected())
 		return dwellTime_->value()/1000;
+
+	return -1;
+}
+
+double CLSSIS3820Scaler::dwellTimeTolerance() const
+{
+	if (isConnected())
+		return dwellTime_->tolerance();
 
 	return -1;
 }
@@ -232,6 +254,56 @@ AMAction3* CLSSIS3820Scaler::createTotalScansAction3(int totalScans) {
 	return action;
 }
 
+
+AMAction3* CLSSIS3820Scaler::createWaitForDwellFinishedAction() {
+	if(!isConnected())
+		return 0; //NULL
+
+	AMControlInfo setpoint = startToggle_->toInfo();
+	setpoint.setValue(0);
+	//AMControlWaitActionInfo *actionInfo = new AMControlWaitActionInfo(setpoint, dwellTime_->value() * 1.1, AMControlWaitActionInfo::MatchEqual);
+	AMControlWaitActionInfo *actionInfo = new AMControlWaitActionInfo(setpoint, 11.0 , AMControlWaitActionInfo::MatchEqual);
+	AMControlWaitAction *action = new AMControlWaitAction(actionInfo, startToggle_);
+
+	if(!action)
+		return 0; //NULL
+
+	return action;
+}
+
+AMAction3* CLSSIS3820Scaler::createDoingDarkCurrentCorrectionAction(int dwellTime)
+{
+	AMDoingDarkCurrentCorrectionActionInfo *actionInfo = new AMDoingDarkCurrentCorrectionActionInfo(dwellTimeSource(), dwellTime);
+	AMDoingDarkCurrentCorrectionAction *action = new AMDoingDarkCurrentCorrectionAction(actionInfo);
+
+	if (!action)
+		return 0;
+
+	return action;
+}
+
+void CLSSIS3820Scaler::doDarkCurrentCorrection(double dwellSeconds)
+{
+	lastDwellTime_ = dwellTime();
+	doingDarkCurrentCorrection_ = true;
+	emit newDarkCurrentMeasurementState(STARTED);
+
+	AMListActionInfo3 *actionInfo = new AMListActionInfo3("Perform dark current correction.", "Perform dark current correction.");
+	AMListAction3 *action = new AMListAction3(actionInfo, AMListAction3::Sequential);
+
+	action->addSubAction(createDwellTimeAction3(dwellSeconds));
+	action->addSubAction(createStartAction3(true));
+
+	connect( action, SIGNAL(failed()), this, SLOT(onDarkCurrentCorrectionFailed()) );
+	connect( action, SIGNAL(failed()), action, SLOT(deleteLater()) );
+	connect( action, SIGNAL(succeeded()), action, SLOT(deleteLater()) );
+	connect( action, SIGNAL(cancelled()), action, SLOT(deleteLater()) );
+
+	action->start();
+
+//    qDebug() << "CLSSIS3820Scaler::doDarkCurrentCorrection executing.";
+}
+
 void CLSSIS3820Scaler::setScanning(bool isScanning){
 
 	if(!isConnected())
@@ -294,6 +366,24 @@ void CLSSIS3820Scaler::onScanningToggleChanged(){
 	else{
 		emit scanningChanged(false);
 		//triggerSource_->setSucceeded();
+	}
+
+	/////////////
+	if (startToggle_->withinTolerance(0) && doingDarkCurrentCorrection_) {
+		emit newDarkCurrentCorrectionValue();
+		emit newDarkCurrentMeasurementTime(dwellTime_->value());
+
+		qDebug() << "CLSSIS3820Scaler::onScanningToggleChanged : dark current measurement is complete, resetting dwell time.";
+
+		AMAction3 *resetDwellTime = createDwellTimeAction3(lastDwellTime_);
+		connect( resetDwellTime, SIGNAL(succeeded()), this, SLOT(onDarkCurrentCorrectionDwellTimeReset()) );
+		connect( resetDwellTime, SIGNAL(failed()), this, SLOT(onDarkCurrentCorrectionFailed()) );
+
+		connect( resetDwellTime, SIGNAL(failed()), resetDwellTime, SLOT(deleteLater()) );
+		connect( resetDwellTime, SIGNAL(succeeded()), resetDwellTime, SLOT(deleteLater()) );
+		connect( resetDwellTime, SIGNAL(cancelled()), resetDwellTime, SLOT(deleteLater()) );
+
+		resetDwellTime->start();
 	}
 }
 
@@ -418,14 +508,39 @@ void CLSSIS3820Scaler::onReadingChanged(double value){
 
 void CLSSIS3820Scaler::onDwellTimeSourceSetDwellTime(double dwellSeconds){
 	if(!isConnected() || isScanning()){
-	    // NEM March 24th, 2014
+		// NEM March 24th, 2014
 		return;
 	}
 
-	if(dwellSeconds != dwellTime())
+	if(!(fabs(dwellSeconds - dwellTime()) < dwellTimeTolerance()))
 		setDwellTime(dwellSeconds);
 	else
 		dwellTimeSource_->setSucceeded();
+}
+
+void CLSSIS3820Scaler::onDwellTimeSourceSetDarkCurrentCorrectionTime(double dwellSeconds) {
+	if (!isConnected() || isScanning())
+		return;
+
+	emit newDarkCurrentMeasurementTime(dwellSeconds);
+	dwellTimeSource_->setSucceeded();
+}
+
+void CLSSIS3820Scaler::onDarkCurrentCorrectionDwellTimeReset() {
+	doingDarkCurrentCorrection_ = false;
+	emit newDarkCurrentMeasurementState(SUCCEEDED);
+	disconnect(this, SLOT(onDarkCurrentCorrectionDwellTimeReset()));
+}
+
+void CLSSIS3820Scaler::onDarkCurrentCorrectionStateChanged(CLSSIS3820Scaler::DarkCurrentCorrectionState) {
+
+}
+
+void CLSSIS3820Scaler::onDarkCurrentCorrectionFailed() {
+	doingDarkCurrentCorrection_ = false;
+	emit newDarkCurrentMeasurementState(FAILED);
+
+	// reset original params?
 }
 
 AMDetectorDefinitions::ReadMode CLSSIS3820Scaler::readModeFromSettings(){
@@ -440,7 +555,6 @@ AMDetectorDefinitions::ReadMode CLSSIS3820Scaler::readModeFromSettings(){
 // CLSSIS3820ScalarChannel
 /////////////////////////////////////////////
 
- CLSSIS3820ScalerChannel::~CLSSIS3820ScalerChannel(){}
 CLSSIS3820ScalerChannel::CLSSIS3820ScalerChannel(const QString &baseName, int index, QObject *parent) :
 	QObject(parent)
 {
@@ -448,9 +562,10 @@ CLSSIS3820ScalerChannel::CLSSIS3820ScalerChannel(const QString &baseName, int in
 
 	wasConnected_ = false;
 
-	// No SR570 to start with.
-	sr570_ = 0;
+	// No SR570 or detector to start with.
+	currentAmplifier_ = 0;
 	voltageRange_ = AMRange();
+	detector_ = 0;
 
 	customChannelName_ = QString();
 
@@ -471,10 +586,12 @@ CLSSIS3820ScalerChannel::CLSSIS3820ScalerChannel(const QString &baseName, int in
 	connect(allControls_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
 }
 
+CLSSIS3820ScalerChannel::~CLSSIS3820ScalerChannel(){}
+
 bool CLSSIS3820ScalerChannel::isConnected() const
 {
-	if (sr570_)
-		return allControls_->isConnected() && sr570_->isConnected();
+	if (currentAmplifier_)
+	return allControls_->isConnected() && currentAmplifier_->isConnected();
 
 	else
 		return allControls_->isConnected();
@@ -547,14 +664,29 @@ void CLSSIS3820ScalerChannel::onChannelReadingChanged(double reading)
 	emit readingChanged((int)reading);
 }
 
-void CLSSIS3820ScalerChannel::setSR570(CLSSR570 *sr570)
+void CLSSIS3820ScalerChannel::setCurrentAmplifier(AMCurrentAmplifier *amplifier)
 {
-	if (sr570_)
-		disconnect(sr570_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
+	if (currentAmplifier_) {
+        disconnect( currentAmplifier_, SIGNAL(isConnected(bool)), this, SLOT(onConnectedChanged()));
+        disconnect( currentAmplifier_, SIGNAL(sensitivityChanged(int)), this, SIGNAL(sensitivityChanged()) );
+	}
 
-	sr570_ = sr570;
-	connect(sr570_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
-	emit sr570Attached();
+	currentAmplifier_ = amplifier;
+    connect( currentAmplifier_, SIGNAL(isConnected(bool)), this, SLOT(onConnectedChanged()) );
+    connect( currentAmplifier_, SIGNAL(sensitivityChanged(int)), this, SIGNAL(sensitivityChanged()) );
+	emit currentAmplifierAttached();
+}
+
+void CLSSIS3820ScalerChannel::setDetector(AMDetector *detector)
+{
+//    if (detector_) {
+//        disconnect( detector_, SIGNAL(newDarkCurrentMeasurementValueReady(double)), this, SIGNAL(newDarkCurrentMeasurementValue(double)) );
+//        disconnect( detector_, SIGNAL(requiresNewDarkCurrentMeasurement(bool)), this, SIGNAL(newDarkCurrentMeasurementState(bool)) );
+//    }
+
+	detector_ = detector;
+//    connect( detector_, SIGNAL(newDarkCurrentMeasurementValueReady(double)), this, SIGNAL(newDarkCurrentMeasurementValue(double)) );
+//    connect( detector_, SIGNAL(requiresNewDarkCurrentMeasurement(bool)), this, SIGNAL(newDarkCurrentMeasurementState(bool)) );
 }
 
 void CLSSIS3820ScalerChannel::setMinimumVoltage(double min)

@@ -1,3 +1,24 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "VESPERS2DScanActionController.h"
 
 #include "actions3/AMListAction3.h"
@@ -10,7 +31,7 @@
 #include "dataman/export/VESPERS/VESPERSExporterSMAK.h"
 
 VESPERS2DScanActionController::VESPERS2DScanActionController(VESPERS2DScanConfiguration *configuration, QObject *parent)
-	: AM2DScanActionController(configuration, parent), VESPERSScanController(configuration)
+	: AMStepScanActionController(configuration, parent), VESPERSScanController(configuration)
 {
 	configuration_ = configuration;
 
@@ -37,7 +58,7 @@ VESPERS2DScanActionController::VESPERS2DScanActionController(VESPERS2DScanConfig
 			AMAppControllerSupport::registerClass<VESPERS2DScanConfiguration, VESPERSExporterSMAK, AMExporterOptionGeneralAscii>(vespersDefault->id());
 	}
 
-	int yPoints = round((configuration_->yEnd() - configuration_->yStart())/configuration_->yStep()) + 1;
+	int yPoints = int(round((double(configuration_->scanAxisAt(1)->regionAt(0)->regionEnd()) - double(configuration_->scanAxisAt(1)->regionAt(0)->regionStart()))/double(configuration_->scanAxisAt(0)->regionAt(0)->regionStep()))) + 1;
 
 	VESPERS::Motors motor = configuration_->motor();
 	AMControlInfoList list;
@@ -125,13 +146,13 @@ VESPERS2DScanActionController::VESPERS2DScanActionController(VESPERS2DScanConfig
 	VESPERS::CCDDetectors ccdDetector = configuration_->ccdDetector();
 
 	if (ccdDetector == VESPERS::Roper)
-		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("RoperCCD")->toInfo());
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("RoperFileNumber")->toInfo());
 
 	if (ccdDetector == VESPERS::Mar)
-		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("MarCCD")->toInfo());
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("MarFileNumber")->toInfo());
 
 	if (ccdDetector == VESPERS::Pilatus)
-		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("PilatusPixelArrayDetector")->toInfo());
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("PilatusFileNumber")->toInfo());
 
 	configuration_->setDetectorConfigurations(detectors);
 
@@ -171,10 +192,21 @@ void VESPERS2DScanActionController::buildScanControllerImplementation()
 	}
 }
 
+void VESPERS2DScanActionController::createAxisOrderMap()
+{
+	axisOrderMap_.insert(scan_->rawData()->scanAxisAt(0).name, 1);
+	axisOrderMap_.insert(scan_->rawData()->scanAxisAt(1).name, 0);
+}
 
 AMAction3* VESPERS2DScanActionController::createInitializationActions()
 {
-	return buildBaseInitializationAction(configuration_->detectorConfigurations());
+	AMSequentialListAction3 *initializationActions = new AMSequentialListAction3(new AMSequentialListActionInfo3("Initialization actions", "Initialization actions"));
+	initializationActions->addSubAction(buildBaseInitializationAction(configuration_->detectorConfigurations()));
+
+	if (!configuration_->ccdDetector().testFlag(VESPERS::NoCCD))
+		initializationActions->addSubAction(buildCCDInitializationAction(configuration_->ccdDetector(), configuration_->ccdFileName()));
+
+	return initializationActions;
 }
 
 AMAction3* VESPERS2DScanActionController::createCleanupActions()

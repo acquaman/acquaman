@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -19,6 +20,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "AMDatamanAppController.h"
+#include "AMAppController.h"
+
 
 #include "util/AMSettings.h"
 #include "acquaman.h"
@@ -57,6 +60,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMSettings.h"
 #include "dataman/AMScan.h"
 #include "acquaman/AMScanConfiguration.h"
+#include "acquaman/AMStepScanConfiguration.h"
 
 // Necessary for registering database types:
 ////////////////////////////
@@ -72,7 +76,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <dataman/info/AMSpectralOutputDetectorInfo.h>
 #include "dataman/AMUser.h"
 #include "dataman/AMXESScan.h"
-#include "dataman/info/AMROIInfo.h"
 #include "analysis/AM1DExpressionAB.h"
 #include "analysis/AM2DSummingAB.h"
 #include "analysis/AM1DDerivativeAB.h"
@@ -85,6 +88,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "analysis/AM1DIntegralAB.h"
 #include "analysis/AM2DNormalizationAB.h"
 #include "analysis/AM1DNormalizationAB.h"
+#include "analysis/AM1DCalibrationAB.h"
 #include "analysis/AM2DAdditionAB.h"
 #include "analysis/AM3DAdditionAB.h"
 #include "analysis/AM3DBinningAB.h"
@@ -96,6 +100,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "analysis/AM3DDeadTimeCorrectionAB.h"
 #include "dataman/AMRegionOfInterest.h"
 #include "analysis/AMRegionOfInterestAB.h"
+#include "analysis/AM0DAccumulatorAB.h"
+#include "analysis/AM0DTimestampAB.h"
+#include "analysis/AM1DTimedDataAB.h"
+#include "analysis/AM1DKSpaceCalculatorAB.h"
+
+#include "dataman/AMScanAxis.h"
+#include "dataman/AMScanAxisRegion.h"
+#include "dataman/AMScanAxisEXAFSRegion.h"
 
 #include "dataman/AMDbUpgrade1Pt1.h"
 #include "dataman/AMDbUpgrade1Pt2.h"
@@ -570,6 +582,8 @@ bool AMDatamanAppController::startupRegisterDatabases()
 	success &= AMDbObjectSupport::s()->registerClass<AM2DScan>();
 	success &= AMDbObjectSupport::s()->registerClass<AM3DScan>();
 
+	success &= AMDbObjectSupport::s()->registerClass<AMStepScanConfiguration>();
+
 	success &= AMDbObjectSupport::s()->registerClass<AMRun>();
 	success &= AMDbObjectSupport::s()->registerClass<AMExperiment>();
 	success &= AMDbObjectSupport::s()->registerClass<AMSamplePre2013>();
@@ -586,6 +600,7 @@ bool AMDatamanAppController::startupRegisterDatabases()
 	success &= AMDbObjectSupport::s()->registerClass<AMDeadTimeAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AM2DNormalizationAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AM1DNormalizationAB>();
+	success &= AMDbObjectSupport::s()->registerClass<AM1DCalibrationAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AM2DAdditionAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AM3DAdditionAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AM3DBinningAB>();
@@ -595,6 +610,14 @@ bool AMDatamanAppController::startupRegisterDatabases()
 	success &= AMDbObjectSupport::s()->registerClass<AM1DDeadTimeAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AM2DDeadTimeCorrectionAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AM3DDeadTimeCorrectionAB>();
+    success &= AMDbObjectSupport::s()->registerClass<AM0DAccumulatorAB>();
+    success &= AMDbObjectSupport::s()->registerClass<AM0DTimestampAB>();
+    success &= AMDbObjectSupport::s()->registerClass<AM1DTimedDataAB>();
+	success &= AMDbObjectSupport::s()->registerClass<AM1DKSpaceCalculatorAB>();
+
+	success &= AMDbObjectSupport::s()->registerClass<AMScanAxis>();
+	success &= AMDbObjectSupport::s()->registerClass<AMScanAxisRegion>();
+	success &= AMDbObjectSupport::s()->registerClass<AMScanAxisEXAFSRegion>();
 
 	success &= AMDbObjectSupport::s()->registerClass<AMOldDetectorInfo>();
 	success &= AMDbObjectSupport::s()->registerClass<AMSpectralOutputDetectorInfo>();
@@ -606,8 +629,6 @@ bool AMDatamanAppController::startupRegisterDatabases()
 	success &= AMDbObjectSupport::s()->registerClass<AMDetectorInfoSet>();
 	success &= AMDbObjectSupport::s()->registerClass<AMSamplePositionPre2013>();
 	success &= AMDbObjectSupport::s()->registerClass<AMSamplePlatePre2013>();
-	success &= AMDbObjectSupport::s()->registerClass<AMROIInfo>();
-	success &= AMDbObjectSupport::s()->registerClass<AMROIInfoList>();
 	success &= AMDbObjectSupport::s()->registerClass<AMRegionOfInterest>();
 	success &= AMDbObjectSupport::s()->registerClass<AMRegionOfInterestAB>();
 
@@ -652,7 +673,12 @@ bool AMDatamanAppController::startupPopulateNewDatabase()
 	reixs.storeToDb(db);
 	AMFacility ideas("IDEAS", "CLS IDEAS Beamline", ":/clsIcon.png");
 	ideas.storeToDb(db);
-
+	AMFacility bioXASSide("BioXASSide", "CLS BioXAS Beamline - Side endstation", ":/clsIcon.png");
+	bioXASSide.storeToDb(db);
+	AMFacility bioXASMain("BioXASMain", "CLS BioXAS Beamline - Main endstation", ":/clsIcon.png");
+	bioXASMain.storeToDb(db);
+	AMFacility bioXASImaging("BioXASImaging", "CLS BioXAS Beamline - Imaging endstation", ":/clsIcon.png");
+	bioXASImaging.storeToDb(db);
 
 	return true;
 }
@@ -762,6 +788,12 @@ bool AMDatamanAppController::startupInstallActions()
 	qApp->processEvents();
 	// make/install actions:
 	/////////////////////////////////
+	QAction *saveAllAction = new QAction("Save All Scans", mw_);
+	saveAllAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_S)); //+ Qt::SHIFT
+	saveAllAction->setStatusTip("Save all unsaved scans without prompting.");
+	connect(saveAllAction, SIGNAL(triggered()), this, SLOT(saveAll()));
+
+
 	QAction* importLegacyFilesAction = new QAction("Import Legacy Files...", mw_);
 	importLegacyFilesAction->setShortcut(QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_L));
 	importLegacyFilesAction->setStatusTip("Import raw data files (not collected with Acquaman) into the library");
@@ -802,6 +834,8 @@ bool AMDatamanAppController::startupInstallActions()
 #endif
 
 	fileMenu_ = menuBar_->addMenu("File");
+	fileMenu_->addAction(saveAllAction);
+	fileMenu_->addSeparator();
 	fileMenu_->addAction(importLegacyFilesAction);
 	fileMenu_->addAction(importAcquamanDatabaseAction);
 	fileMenu_->addSeparator();
@@ -1062,6 +1096,29 @@ void AMDatamanAppController::onStartupFinished(){
 
 void AMDatamanAppController::onDataViewItemsExported(const QList<QUrl> &itemUrls)
 {
+	QMessageBox shouldSave;
+	shouldSave.setText("Save changes to open scans before exporting?");
+	shouldSave.setInformativeText("Unsaved changes will not export.");
+	shouldSave.setStandardButtons(QMessageBox::Cancel | QMessageBox::No | QMessageBox::SaveAll);
+	shouldSave.setDefaultButton(QMessageBox::SaveAll);
+	shouldSave.setEscapeButton(QMessageBox::Cancel);
+	int ret = shouldSave.exec();
+	switch (ret) {
+	  case QMessageBox::SaveAll: saveAll();
+		  // Save was clicked
+		  break;
+	  case QMessageBox::No:
+		  // Don't Save was clicked
+		  break;
+	  case QMessageBox::Cancel: return;
+		  // Cancel was clicked
+		  break;
+	  default:
+		  // should never be reached
+		  break;
+	}
+
+
 	// will delete itself when finished
 	AMExportController* exportController = new AMExportController(itemUrls);
 	AMExportWizard* wizard = new AMExportWizard(exportController);
@@ -1453,20 +1510,6 @@ void AMDatamanAppController::getUserDataFolderFromDialog(bool presentAsParentFol
 	if(newFolder.isEmpty())
 		return;	// user cancelled; do nothing.
 
-	//If User chose a folder in the old actions to data folder, alter user and prompt for new folder
-
-	while(newFolder.contains("XES DATA (old acquaman)")){
-		QMessageBox wrongFolderWarning;
-		wrongFolderWarning.setWindowTitle("Warning");
-		wrongFolderWarning.setText("This folder contains data for the previous version of Acquaman.");
-		wrongFolderWarning.setInformativeText("Please choose a different folder.");
-		wrongFolderWarning.setStandardButtons(QMessageBox::Ok);
-		wrongFolderWarning.setDefaultButton(QMessageBox::Ok);
-		wrongFolderWarning.exec();
-
-		newFolder = QFileDialog::getExistingDirectory(0, "Choose the folder for your NEW Acquaman data...", initialFolder, QFileDialog::ShowDirsOnly);
-	}
-
 	newFolder = QDir::fromNativeSeparators(newFolder);
 	newFolder.append("/");
 
@@ -1483,5 +1526,23 @@ void AMDatamanAppController::getUserDataFolderFromDialog(bool presentAsParentFol
 	if (newFolder != AMUserSettings::userDataFolder){
 		AMUserSettings::userDataFolder = newFolder;
 		AMUserSettings::save();
+	}
+}
+
+void AMDatamanAppController::saveAll(){
+
+	for(int i=0, count = scanEditorCount(); i<count; i++) {
+		AMGenericScanEditor* editor = scanEditorAt(i);
+
+		if(editor){
+			for(int i=0; i < editor->scanCount(); i++)
+			{
+				AMScan* scan =  editor->scanAt(i);
+				if(scan->database())
+					scan->storeToDb(scan->database());
+				else
+					scan->storeToDb(AMDatabase::database("user"));
+			}
+		}
 	}
 }

@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 Acquaman is free software: you can redistribute it and/or modify
@@ -19,63 +20,55 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "VESPERSSpatialLineScanConfiguration.h"
 
-#include "acquaman/VESPERS/VESPERSSpatialLineDacqScanController.h"
 #include "ui/VESPERS/VESPERSSpatialLineScanConfigurationView.h"
-#include "beamline/VESPERS/VESPERSBeamline.h"
 #include "acquaman/VESPERS/VESPERSSpatialLineScanActionController.h"
 
 #include <QStringBuilder>
+#include <math.h>
 
- VESPERSSpatialLineScanConfiguration::~VESPERSSpatialLineScanConfiguration(){}
+VESPERSSpatialLineScanConfiguration::~VESPERSSpatialLineScanConfiguration(){}
+
 VESPERSSpatialLineScanConfiguration::VESPERSSpatialLineScanConfiguration(QObject *parent)
-	: AMRegionScanConfiguration(parent), VESPERSScanConfiguration()
+	: AMStepScanConfiguration(parent), VESPERSScanConfiguration()
 {
 	setName("Line Scan");
 	setUserScanName("Line Scan");
 	dbObject_->setParent(this);
-	regions_->setDefaultControl(VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->horizontalControl());
-	regions_->setDefaultTimeControl(VESPERSBeamline::vespers()->masterDwellTime());
-	regions_->setSensibleRange(0, 10);
 	setIncomingChoice(VESPERS::Imini);
 	setFluorescenceDetector(VESPERS::SingleElement);
 	setMotor(VESPERS::H);
 	setCCDDetector(VESPERS::NoCCD);
 	setCCDFileName("");
-	setRoiInfoList(AMROIInfoList());
 	setExportSpectraSources(true);
 	setExportSpectraInRows(true);
 	setOtherPosition(-123456789.0);
-	connect(this, SIGNAL(regionsChanged()), this, SLOT(computeTotalTime()));
+
+	AMScanAxisRegion *region = new AMScanAxisRegion;
+	AMScanAxis *axis = new AMScanAxis(AMScanAxis::StepAxis, region);
+	appendScanAxis(axis);
+
 	connect(this, SIGNAL(startChanged(double)), this, SLOT(computeTotalTime()));
 	connect(this, SIGNAL(stepChanged(double)), this, SLOT(computeTotalTime()));
 	connect(this, SIGNAL(endChanged(double)), this, SLOT(computeTotalTime()));
 	connect(this, SIGNAL(timeChanged(double)), this, SLOT(computeTotalTime()));
 	connect(dbObject_, SIGNAL(ccdDetectorChanged(int)), this, SLOT(computeTotalTime()));
-	connect(dbObject_, SIGNAL(motorChanged(VESPERS::Motors)), this, SLOT(onMotorChoiceChanged(VESPERS::Motors)));
 }
 
 VESPERSSpatialLineScanConfiguration::VESPERSSpatialLineScanConfiguration(const VESPERSSpatialLineScanConfiguration &original)
-	: AMRegionScanConfiguration(original), VESPERSScanConfiguration(original)
+	: AMStepScanConfiguration(original), VESPERSScanConfiguration(original)
 {
 	setName(original.name());
 	setUserScanName(original.userScanName());
 	dbObject_->setParent(this);
-	onMotorChoiceChanged(original.motor());
-	regions_->setDefaultTimeControl(VESPERSBeamline::vespers()->masterDwellTime());
-	regions_->addRegion(0, original.start(), original.step(), original.end(), original.time());
-	regions_->setSensibleRange(original.regions()->sensibleStart(), original.regions()->sensibleEnd());
-	regions_->setUnits(0, original.regions()->units(0));
-	regions_->setTimeUnits(0, original.regions()->timeUnits(0));
 	setOtherPosition(original.otherPosition());
 	setExportSpectraSources(original.exportSpectraSources());
 	computeTotalTime();
-	connect(this, SIGNAL(regionsChanged()), this, SLOT(computeTotalTime()));
+
 	connect(this, SIGNAL(startChanged(double)), this, SLOT(computeTotalTime()));
 	connect(this, SIGNAL(stepChanged(double)), this, SLOT(computeTotalTime()));
 	connect(this, SIGNAL(endChanged(double)), this, SLOT(computeTotalTime()));
 	connect(this, SIGNAL(timeChanged(double)), this, SLOT(computeTotalTime()));
 	connect(dbObject_, SIGNAL(ccdDetectorChanged(int)), this, SLOT(computeTotalTime()));
-	connect(dbObject_, SIGNAL(motorChanged(VESPERS::Motors)), this, SLOT(onMotorChoiceChanged(VESPERS::Motors)));
 }
 
 AMScanConfiguration *VESPERSSpatialLineScanConfiguration::createCopy() const
@@ -110,7 +103,7 @@ QString VESPERSSpatialLineScanConfiguration::headerText() const
 
 	header.append(fluorescenceHeaderString(fluorescenceDetector()));
 	header.append(incomingChoiceHeaderString(incomingChoice()));
-	header.append(regionOfInterestHeaderString(roiList()) % "\n");
+	header.append(regionsOfInterestHeaderString(regionsOfInterest()) % "\n");
 	header.append(motorHeaderString(motor()));
 	header.append(ccdDetectorHeaderString(ccdDetector()));
 
@@ -135,7 +128,7 @@ void VESPERSSpatialLineScanConfiguration::setStart(double position)
 {
 	if (start() != position){
 
-		regions_->setStart(0, position);
+		scanAxisAt(0)->regionAt(0)->setRegionStart(position);
 		emit startChanged(position);
 		setModified(true);
 	}
@@ -145,7 +138,7 @@ void VESPERSSpatialLineScanConfiguration::setEnd(double position)
 {
 	if (end() != position){
 
-		regions_->setEnd(0, position);
+		scanAxisAt(0)->regionAt(0)->setRegionEnd(position);
 		emit endChanged(position);
 		setModified(true);
 	}
@@ -155,7 +148,7 @@ void VESPERSSpatialLineScanConfiguration::setStep(double position)
 {
 	if (step() != position){
 
-		regions_->setDelta(0, position);
+		scanAxisAt(0)->regionAt(0)->setRegionStep(position);
 		emit stepChanged(position);
 		setModified(true);
 	}
@@ -165,7 +158,7 @@ void VESPERSSpatialLineScanConfiguration::setTime(double newTime)
 {
 	if (time() != newTime){
 
-		regions_->setTime(0, newTime);
+		scanAxisAt(0)->regionAt(0)->setRegionTime(newTime);
 		emit timeChanged(newTime);
 		setModified(true);
 	}
@@ -333,52 +326,3 @@ void VESPERSSpatialLineScanConfiguration::setExportSpectraInRows(bool exportInRo
 	exportSpectraInRows_ = exportInRows;
 }
 
-void VESPERSSpatialLineScanConfiguration::onMotorChoiceChanged(VESPERS::Motors motor)
-{
-	switch(int(motor)){
-
-	case VESPERS::H:
-		regions_->setDefaultControl(VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->horizontalControl());
-		break;
-
-	case VESPERS::X:
-		regions_->setDefaultControl(VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->horizontalControl());
-		break;
-
-	case VESPERS::V:
-		regions_->setDefaultControl(VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->verticalControl());
-		break;
-
-	case VESPERS::Z:
-		regions_->setDefaultControl(VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->verticalControl());
-		break;
-
-	case VESPERS::AttoH:
-		regions_->setDefaultControl(VESPERSBeamline::vespers()->pseudoAttocubeStageMotorGroupObject()->horizontalControl());
-		break;
-
-	case VESPERS::AttoV:
-		regions_->setDefaultControl(VESPERSBeamline::vespers()->pseudoAttocubeStageMotorGroupObject()->verticalControl());
-		break;
-
-	case VESPERS::AttoX:
-		regions_->setDefaultControl(VESPERSBeamline::vespers()->realAttocubeStageMotorGroupObject()->horizontalControl());
-		break;
-
-	case VESPERS::AttoZ:
-		regions_->setDefaultControl(VESPERSBeamline::vespers()->realAttocubeStageMotorGroupObject()->verticalControl());
-		break;
-
-	case VESPERS::AttoRx:
-		regions_->setDefaultControl(VESPERSBeamline::vespers()->attoStageRx());
-		break;
-
-	case VESPERS::AttoRy:
-		regions_->setDefaultControl(VESPERSBeamline::vespers()->attoStageRy());
-		break;
-
-	case VESPERS::AttoRz:
-		regions_->setDefaultControl(VESPERSBeamline::vespers()->attoStageRz());
-		break;
-	}
-}

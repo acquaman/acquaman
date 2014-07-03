@@ -1,3 +1,24 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #ifndef REIXSXESMCPDETECTOR_H
 #define REIXSXESMCPDETECTOR_H
 
@@ -25,7 +46,7 @@ public:
 	Q_DECLARE_FLAGS(XESMCPFinishedConditions, XESMCPFinishedCondition)
 
 	/// Default constructor. It builds all of the PVs and connec to them accordingly.
- 	virtual ~REIXSXESMCPDetector();
+	virtual ~REIXSXESMCPDetector();
 	REIXSXESMCPDetector(QObject *parent = 0);
 
 	/// Returns the number of dimensions in the output of this detector. This is a image detector, so it has a rank of 2.
@@ -102,6 +123,8 @@ public:
 
 	/// Set the acquisition dwell time for triggered (RequestRead) detectors
 	virtual bool setAcquisitionTime(double seconds);
+	/// Returns the tolerance for the acquisition time.
+	virtual double acquisitionTimeTolerance() const;
 
 	AMControl* averagingPeriodControl();
 	AMControl* persistDurationControl();
@@ -139,13 +162,17 @@ protected slots:
 protected:
 	bool initializeImplementation();
 	bool acquireImplementation(AMDetectorDefinitions::ReadMode readMode);
+	bool cancelAcquisitionImplementation();
 	bool cleanupImplementation();
 
 	bool clearImplementation();
 
+
 	void setFinishedCondition(REIXSXESMCPDetector::XESMCPFinishedConditions finishedConditions);
 
 	void acquisitionSucceededHelper();
+	void acquisitionCancelledHelper();
+
 
 protected:
 	/// The master set of controls

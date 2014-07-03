@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -92,7 +93,7 @@ AMProcessVariable::AMProcessVariable(const QString &pvName, bool monitor, QObjec
 	shouldBeMonitoring_ = monitor;
 
 	d_ = AMProcessVariableSupport::getPrivateForPVName(pvName);
-	d_->attachProcessVariable(this);
+    d_->attachProcessVariable(this);
 
 	// This will notice if the connection times out:
 	QTimer::singleShot(connectionTimeoutMs, this, SLOT(onConnectionTimeout()));

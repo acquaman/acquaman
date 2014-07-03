@@ -30,21 +30,14 @@
    <item row="0" column="1">
     <widget class="QComboBox" name="gratingSelectorBox"/>
    </item>
-   <item row="1" column="1">
-    <widget class="QLabel" name="gratingFeedbackLabel">
-     <property name="text">
-      <string>Currently: LEG</string>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="0">
+   <item row="3" column="0">
     <widget class="QLabel" name="labelEnergy">
      <property name="text">
       <string>Energy</string>
      </property>
     </widget>
    </item>
-   <item row="2" column="1">
+   <item row="3" column="1">
     <widget class="QDoubleSpinBox" name="energyBox">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -69,21 +62,14 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="1">
-    <widget class="QLabel" name="energyFeedbackLabel">
-     <property name="text">
-      <string>Currently: 395 eV</string>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="0">
+   <item row="5" column="0">
     <widget class="QLabel" name="labelDefocus">
      <property name="text">
       <string>Defocus</string>
      </property>
     </widget>
    </item>
-   <item row="4" column="1">
+   <item row="5" column="1">
     <widget class="QDoubleSpinBox" name="defocusOffsetBox">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -102,14 +88,14 @@
      </property>
     </widget>
    </item>
-   <item row="5" column="0">
+   <item row="6" column="0">
     <widget class="QLabel" name="labelTiltOffset">
      <property name="text">
       <string>Tilt Offset</string>
      </property>
     </widget>
    </item>
-   <item row="5" column="1">
+   <item row="6" column="1">
     <widget class="QDoubleSpinBox" name="tiltOffsetBox">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -128,7 +114,14 @@
      </property>
     </widget>
    </item>
-   <item row="6" column="0">
+   <item row="7" column="1">
+    <widget class="QLabel" name="energyRangeLabel">
+     <property name="text">
+      <string>361 eV - 438 eV (78eV)</string>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="0">
     <widget class="QPushButton" name="stopButton">
      <property name="text">
       <string>Stop!</string>
@@ -139,7 +132,7 @@
      </property>
     </widget>
    </item>
-   <item row="6" column="1">
+   <item row="8" column="1">
     <widget class="QPushButton" name="moveNowButton">
      <property name="text">
       <string>Move Now</string>
@@ -150,38 +143,23 @@
      </property>
     </widget>
    </item>
-   <item row="8" column="0">
+   <item row="10" column="0">
     <widget class="QLabel" name="label">
      <property name="text">
       <string>Grating Mask</string>
      </property>
     </widget>
    </item>
-   <item row="8" column="1">
+   <item row="10" column="1">
     <widget class="QComboBox" name="maskComboBox">
      <item>
       <property name="text">
-       <string>Pin Hole</string>
+       <string>Pinhole</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>LEG</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Impurity</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>MEG</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>HRMEG</string>
+       <string>Mask</string>
       </property>
      </item>
      <item>
@@ -191,16 +169,51 @@
      </item>
     </widget>
    </item>
-   <item row="9" column="1">
+   <item row="11" column="1">
     <widget class="QLabel" name="maskFeedbackLabel">
      <property name="text">
       <string>Currently: Unknown</string>
      </property>
     </widget>
    </item>
+   <item row="2" column="0">
+    <widget class="QLabel" name="gratingFeedbackLabel">
+     <property name="text">
+      <string>Currently: LEG</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="QLabel" name="energyFeedbackLabel">
+     <property name="text">
+      <string>at 395 eV</string>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
  <resources>
+  <include location="../../icons/icons.qrc"/>
+  <include location="../../icons/icons.qrc"/>
+  <include location="../../icons/icons.qrc"/>
+  <include location="../../icons/icons.qrc"/>
+  <include location="../../icons/icons.qrc"/>
+  <include location="../../icons/icons.qrc"/>
+  <include location="../../icons/icons.qrc"/>
+  <include location="../../icons/icons.qrc"/>
+  <include location="../../icons/icons.qrc"/>
+  <include location="../../icons/icons.qrc"/>
+  <include location="../../icons/icons.qrc"/>
+  <include location="../../icons/icons.qrc"/>
+  <include location="../../icons/icons.qrc"/>
+  <include location="../../icons/icons.qrc"/>
+  <include location="../../icons/icons.qrc"/>
+  <include location="../../icons/icons.qrc"/>
+  <include location="../../icons/icons.qrc"/>
+  <include location="../../icons/icons.qrc"/>
+  <include location="../../icons/icons.qrc"/>
+  <include location="../../icons/icons.qrc"/>
+  <include location="../../icons/icons.qrc"/>
   <include location="../../icons/icons.qrc"/>
  </resources>
  <connections/>

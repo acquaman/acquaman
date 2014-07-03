@@ -1,10 +1,31 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "VESPERSScanConfiguration.h"
 
  VESPERSScanConfiguration::~VESPERSScanConfiguration(){}
 VESPERSScanConfiguration::VESPERSScanConfiguration()
 {
 	dbObject_ = new VESPERSScanConfigurationDbObject;
-	timeOffset_ = 0.7;
+	timeOffset_ = 0.4;
 	totalTime_ = 0;
 }
 
@@ -88,18 +109,6 @@ QString VESPERSScanConfiguration::transmissionChoiceHeaderString(VESPERS::IonCha
 	return string;
 }
 
-QString VESPERSScanConfiguration::regionOfInterestHeaderString(AMROIInfoList list) const
-{
-	QString string = "";
-
-	string.append("\nRegions of Interest\n");
-
-	for (int i = 0; i < list.count(); i++)
-		string.append(list.at(i).name() + "\t" + QString::number(list.at(i).low()) + " eV\t" + QString::number(list.at(i).high()) + " eV\n");
-
-	return string;
-}
-
 QString VESPERSScanConfiguration::motorHeaderString(VESPERS::Motors motor) const
 {
 	QString string = "";
@@ -141,6 +150,21 @@ QString VESPERSScanConfiguration::ccdDetectorHeaderString(VESPERS::CCDDetectors 
 			string.append("CCD detector used: Pilatus\n");
 
 		string.append(QString("\nFilename for XRD images:\t%1\n").arg(ccdFileName()));
+	}
+
+	return string;
+}
+
+QString VESPERSScanConfiguration::regionsOfInterestHeaderString(const QList<AMRegionOfInterest *> &regions) const
+{
+	QString string = "";
+
+	if (!regions.isEmpty()){
+
+		string.append("\nRegions Of Interest\n");
+
+		foreach (AMRegionOfInterest *region, regions)
+			string.append(QString("%1\t%2 eV\t%3 eV\n").arg(region->name()).arg(region->lowerBound()).arg(region->upperBound()));
 	}
 
 	return string;

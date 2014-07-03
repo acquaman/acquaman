@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -22,7 +23,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/IDEAS/IDEASBeamline.h"
 
-#include "ui/acquaman/AMScanConfigurationViewHolder3.h"
+#include "ui/IDEAS/IDEASScanConfigurationViewHolder3.h"
+
 #include "ui/AMMainWindow.h"
 #include "ui/dataman/AMGenericScanEditor.h"
 #include "ui/IDEAS/IDEASPersistentView.h"
@@ -43,9 +45,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "util/AMPeriodicTable.h"
 
-#include "ui/CLS/CLSSynchronizedDwellTimeView.h"
+//#include "ui/CLS/CLSSynchronizedDwellTimeView.h"
 #include "ui/IDEAS/IDEASXASScanConfigurationView.h"
-#include "ui/acquaman/AMScanConfigurationViewHolder3.h"
+#include "ui/IDEAS/IDEASScanConfigurationViewHolder3.h"
 #include "ui/IDEAS/IDEASXRFDetailedDetectorViewWithSave.h"
 #include "acquaman/IDEAS/IDEASXASScanConfiguration.h"
 #include "acquaman/IDEAS/IDEASXRFScanConfiguration.h"
@@ -58,8 +60,9 @@ IDEASAppController::IDEASAppController(QObject *parent)
 
 bool IDEASAppController::startup()
 {
-		getUserDataFolderFromDialog();
-		// Start up the main program.
+
+	getUserDataFolderFromDialog();
+	// Start up the main program.
 	if(AMAppController::startup()) {
 
 
@@ -120,8 +123,8 @@ void IDEASAppController::setupExporterOptions()
 			ideasDefaultXAS->loadFromDb(AMDatabase::database("user"), matchIDs.at(0));
 
 	ideasDefaultXAS->setName("IDEAS Default XAS");
-	ideasDefaultXAS->setFileName("$name_$fsIndex.dat");
-	ideasDefaultXAS->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[header]\n\n$notes\n\n");
+	ideasDefaultXAS->setFileName("$name_$number.dat");
+	ideasDefaultXAS->setHeaderText("Scan: $name #$number\nDate: $dateTime\n\nRing Current: $control[ringCurrent]\nInitial I_0: $control[I0Current]");
 	ideasDefaultXAS->setHeaderIncluded(true);
 	ideasDefaultXAS->setColumnHeader("$dataSetName $dataSetInfoDescription");
 	ideasDefaultXAS->setColumnHeaderIncluded(true);
@@ -132,7 +135,7 @@ void IDEASAppController::setupExporterOptions()
 	ideasDefaultXAS->setFirstColumnOnly(true);
 	ideasDefaultXAS->setIncludeHigherDimensionSources(true);
 	ideasDefaultXAS->setSeparateHigherDimensionalSources(true);
-	ideasDefaultXAS->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.dat");
+	ideasDefaultXAS->setSeparateSectionFileName("$name_$dataSetName_$number.dat");
 	ideasDefaultXAS->setHigherDimensionsInRows(true);
 	ideasDefaultXAS->storeToDb(AMDatabase::database("user"));
 
@@ -159,17 +162,17 @@ void IDEASAppController::setupUserInterface()
 		IDEASXRFDetailedDetectorViewWithSave_->addCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));
 		mw_->addPane(IDEASXRFDetailedDetectorViewWithSave_, "Detectors", "XRF Detector", ":/system-search.png");
 
-	mw_->insertHeading("Scans", 2);
+    mw_->insertHeading("Scans", 2);
 
 		IDEASPersistentView *persistentPanel = new IDEASPersistentView;
 		mw_->addRightWidget(persistentPanel);
 
-	ideasSynchronizedDwellTimeView_ = 0; //NULL
-	connect(IDEASBeamline::ideas()->synchronizedDwellTime(), SIGNAL(connected(bool)), this, SLOT(onSynchronizedDwellTimeConnected(bool)));
-	onSynchronizedDwellTimeConnected(false);
+//	ideasSynchronizedDwellTimeView_ = 0; //NULL
+//	connect(IDEASBeamline::ideas()->synchronizedDwellTime(), SIGNAL(connected(bool)), this, SLOT(onSynchronizedDwellTimeConnected(bool)));
+//	onSynchronizedDwellTimeConnected(false);
 
 	xasScanConfigurationView_ = 0; //NULL
-	xasScanConfigurationHolder3_ = new AMScanConfigurationViewHolder3();
+	xasScanConfigurationHolder3_ = new IDEASScanConfigurationViewHolder3();
 	mw_->addPane(xasScanConfigurationHolder3_, "Scans", "IDEAS XAS Scan", ":/utilities-system-monitor.png");
 
 	connect(IDEASBeamline::ideas()->monoEnergyControl(), SIGNAL(connected(bool)), this, SLOT(onEnergyConnected(bool)));
@@ -178,32 +181,35 @@ void IDEASAppController::setupUserInterface()
 
 void IDEASAppController::makeConnections()
 {
+    connect(this, SIGNAL(scanEditorCreated(AMGenericScanEditor*)), this, SLOT(onScanEditorCreated(AMGenericScanEditor*)));
+
 }
 
-void IDEASAppController::onSynchronizedDwellTimeConnected(bool connected){
-	Q_UNUSED(connected)
-	if(IDEASBeamline::ideas()->synchronizedDwellTime() && IDEASBeamline::ideas()->synchronizedDwellTime()->isConnected() && !ideasSynchronizedDwellTimeView_){
-		CLSSynchronizedDwellTime *clsDwellTime = qobject_cast<CLSSynchronizedDwellTime*>(IDEASBeamline::ideas()->synchronizedDwellTime());
-		if(clsDwellTime)
-			ideasSynchronizedDwellTimeView_ = new CLSSynchronizedDwellTimeView(clsDwellTime);
+//void IDEASAppController::onSynchronizedDwellTimeConnected(bool connected){
+//	Q_UNUSED(connected)
+//	if(IDEASBeamline::ideas()->synchronizedDwellTime() && IDEASBeamline::ideas()->synchronizedDwellTime()->isConnected() && !ideasSynchronizedDwellTimeView_){
+//		CLSSynchronizedDwellTime *clsDwellTime = qobject_cast<CLSSynchronizedDwellTime*>(IDEASBeamline::ideas()->synchronizedDwellTime());
+//		if(clsDwellTime)
+//			ideasSynchronizedDwellTimeView_ = new CLSSynchronizedDwellTimeView(clsDwellTime);
 
-		mw_->addPane(ideasSynchronizedDwellTimeView_, "Detectors", "IDEAS Sync Dwell", ":/system-software-update.png", true);
-		ideasSynchronizedDwellTimeView_->setAdvancedViewVisible(true);
-	}
-}
+//		mw_->addPane(ideasSynchronizedDwellTimeView_, "Detectors", "IDEAS Sync Dwell", ":/system-software-update.png", true);
+//		ideasSynchronizedDwellTimeView_->setAdvancedViewVisible(true);
+//	}
+//}
 
 void IDEASAppController::onEnergyConnected(bool connected){
 	Q_UNUSED(connected)
 	if(IDEASBeamline::ideas()->monoEnergyControl() && IDEASBeamline::ideas()->monoEnergyControl()->isConnected() && !xasScanConfigurationView_){
-		double goodEnergy = 10 * floor(IDEASBeamline::ideas()->monoEnergyControl()->value() / 10);
+//		double goodEnergy = 10 * floor(IDEASBeamline::ideas()->monoEnergyControl()->value() / 10);
 		// Do New XAS
 		IDEASXASScanConfiguration *xasScanConfiguration = new IDEASXASScanConfiguration(this);
-		xasScanConfiguration->xasRegions()->setEnergyControl(IDEASBeamline::ideas()->monoEnergyControl());
-		xasScanConfiguration->regions()->setDefaultTimeControl(IDEASBeamline::ideas()->masterDwellControl());
-                                xasScanConfiguration->addRegion(0, goodEnergy, 1, goodEnergy + 10, 1);
+//		xasScanConfiguration->xasRegions()->setEnergyControl(IDEASBeamline::ideas()->monoEnergyControl());
+//		xasScanConfiguration->regions()->setDefaultTimeControl(IDEASBeamline::ideas()->masterDwellControl());
+//                                xasScanConfiguration->addRegion(0, goodEnergy, 1, goodEnergy + 10, 1);
 
 
 		xasScanConfigurationView_ = new IDEASXASScanConfigurationView(xasScanConfiguration);
+		xasScanConfigurationView_->setupDefaultXANESScanRegions();
 		xasScanConfigurationHolder3_->setView(xasScanConfigurationView_);
 	}
 }
@@ -217,6 +223,70 @@ void IDEASAppController::onCurrentScanActionFinishedImplementation(AMScanAction 
 {
 	Q_UNUSED(action)
 }
+
+void IDEASAppController::onScanEditorCreated(AMGenericScanEditor *editor)
+{
+	connect(editor, SIGNAL(scanAdded(AMGenericScanEditor*,AMScan*)), this, SLOT(onScanAddedToEditor(AMGenericScanEditor*,AMScan*)));
+	editor->setPlotRange(AMPeriodicTable::table()->elementBySymbol("K")->Kalpha().energy(), 20480);
+
+	if (editor->using2DScanView())
+		connect(editor, SIGNAL(dataPositionChanged(AMGenericScanEditor*,QPoint)), this, SLOT(onDataPositionChanged(AMGenericScanEditor*,QPoint)));
+}
+
+void IDEASAppController::onScanAddedToEditor(AMGenericScanEditor *editor, AMScan *scan)
+{
+	QString exclusiveName = QString();
+
+	for (int i = 0, count = scan->analyzedDataSourceCount(); i < count && exclusiveName.isNull(); i++){
+
+		AMDataSource *source = scan->analyzedDataSources()->at(i);
+
+		if (source->name().contains("norm") && source->name().contains("Ka") && !source->hiddenFromUsers())
+			exclusiveName = source->name();
+	}
+	if (!exclusiveName.isNull())
+	    for (int i = 0, count = scan->analyzedDataSourceCount(); i < count && exclusiveName.isNull(); i++){
+
+		    AMDataSource *source = scan->analyzedDataSources()->at(i);
+
+		    if (source->name().contains("normSample"))
+			    exclusiveName = source->name();
+	    }
+
+
+	if (!exclusiveName.isNull())
+		editor->setExclusiveDataSourceByName(exclusiveName);
+
+	else if (editor->scanAt(0)->analyzedDataSourceCount())
+		editor->setExclusiveDataSourceByName(editor->scanAt(0)->analyzedDataSources()->at(editor->scanAt(0)->analyzedDataSourceCount()-1)->name());
+
+	configureSingleSpectrumView(editor, scan);
+}
+
+void IDEASAppController::configureSingleSpectrumView(AMGenericScanEditor *editor, AMScan *scan)
+{
+	int scanRank = scan->scanRank();
+	QStringList spectraNames;
+
+	for (int i = 0, size = scan->dataSourceCount(); i < size; i++)
+		if (scan->dataSourceAt(i)->rank()-scanRank == 1)
+			spectraNames << scan->dataSourceAt(i)->name();
+
+//	if (spectraNames.contains("sumSpectra-1eland4el"))
+//		editor->setSingleSpectrumViewDataSourceName("correctedRawSpectra-1el");
+
+//	else if (spectraNames.contains("correctedSum-4el"))
+//		editor->setSingleSpectrumViewDataSourceName("correctedSum-4el");
+
+//	else if (spectraNames.contains("correctedRawSpectra-1el"))
+//		editor->setSingleSpectrumViewDataSourceName("correctedRawSpectra-1el");
+
+//	else if (!spectraNames.isEmpty())
+	editor->setSingleSpectrumViewDataSourceName(spectraNames.first());
+
+	editor->setPlotRange(AMPeriodicTable::table()->elementBySymbol("Al")->Kalpha().energy(), 20480);
+}
+
 
 
 //AMScan *scan = action->controller()->scan();

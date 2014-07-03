@@ -1,3 +1,24 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #ifndef CLSBASICCOMPOSITESCALERCHANNELDETECTOR_H
 #define CLSBASICCOMPOSITESCALERCHANNELDETECTOR_H
 
@@ -11,8 +32,9 @@ class CLSBasicCompositeScalerChannelDetector : public AMDetector
 
 public:
 	/// Constructor takes a name and description as well as the scaler object pointer and the twi channel indices to use (index 0 - 31 for SIS3820)
- 	virtual ~CLSBasicCompositeScalerChannelDetector();
 	CLSBasicCompositeScalerChannelDetector(const QString &name, const QString &description, CLSSIS3820Scaler *scaler, int channelIndex1, int channelIndex2, QObject *parent = 0);
+	/// Destructor.
+	virtual ~CLSBasicCompositeScalerChannelDetector();
 
 	/// Returns 0, because there are no axes for the single point detector
 	virtual int size(int axisNumber) const;
@@ -30,6 +52,8 @@ public:
 
 	/// Returns the current acquisition dwell time from the scaler
 	virtual double acquisitionTime() const;
+	/// Returns the acquisition time tolerance.
+	virtual double acquisitionTimeTolerance() const;
 
 	/// The scaler channels can be configured to work with synchronized dwell time systems
 	virtual bool supportsSynchronizedDwell() const { return true; }

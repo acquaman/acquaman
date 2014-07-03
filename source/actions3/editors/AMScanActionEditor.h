@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 Acquaman is free software: you can redistribute it and/or modify
@@ -43,9 +44,8 @@ public slots:
 protected slots:
 	/// Helper slot that brings up the configuration for the scan.
 	void onScanConfigurationViewRequested();
-	/// Helper slot that sets the scan name if it is changed.
-	void onScanNameChanged();
-
+	/// Helper slot that changes the description of the scan if the info changes
+	void onScanInfoChanged();
 protected:
 	/// Label that holds the name of the scan.
 	QLabel *scanName_;

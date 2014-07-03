@@ -1,3 +1,24 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #ifndef CLSADVANCEDSCALERCHANNELDETECTOR_H
 #define CLSADVANCEDSCALERCHANNELDETECTOR_H
 
@@ -23,6 +44,9 @@ public:
 
 	/// Fills the (hopefully) valid pointer to a single double with our current value
 	virtual bool data(double *outputValues) const;
+
+	/// Returns boolean indicating that this particular implementation of AMDetector does not support dark current correction.
+	virtual bool canDoDarkCurrentCorrection() const { return false; }
 
 public slots:
 	/// Note that this will change the read mode for the entire scaler, not just this channel. The read mode can be changed to either SingleRead or ContinuousRead. Requesting to change to the same readMode returns true and the readModeChanged() signal is immediately emitted

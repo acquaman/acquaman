@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 Acquaman is free software: you can redistribute it and/or modify
@@ -29,7 +30,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QFileInfo>
 #include <QTextStream>
 
- VESPERSExporterSMAK::~VESPERSExporterSMAK(){}
+VESPERSExporterSMAK::~VESPERSExporterSMAK(){}
+
 VESPERSExporterSMAK::VESPERSExporterSMAK(QObject *parent)
 	: AMExporterGeneralAscii(parent)
 {
@@ -255,7 +257,7 @@ bool VESPERSExporterSMAK::writeSeparateFiles(const QString &destinationFolderPat
 				out << ++index;
 
 				for (int i = 0; i < spectraSize; i++)
-					out << "\t" << data.at(i);
+					out << "\t" << int(data.at(i));
 
 				out << "\n";
 			}

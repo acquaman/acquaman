@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -27,7 +28,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QFile>
 #include <QTextStream>
 
- VESPERSXRFDataLoader::~VESPERSXRFDataLoader(){}
+VESPERSXRFDataLoader::~VESPERSXRFDataLoader(){}
+
 VESPERSXRFDataLoader::VESPERSXRFDataLoader(AMXRFScan *scan)
 	: AMAbstractFileLoader(scan)
 {
@@ -70,32 +72,32 @@ bool VESPERSXRFDataLoader::loadFromFile(const QString &filepath, bool setMetaDat
 	// Clear any old data so we can start fresh.
 	scan->clearRawDataPointsAndMeasurements();
 
-	int elements = config->detectorInfo().elements();
+//	int elements = config->detectorInfo().elements();
 
-	for (int i = 0; i < scan->rawDataSources()->count(); i++){
+//	for (int i = 0; i < scan->rawDataSources()->count(); i++){
 
-		if (i < elements){
+//		if (i < elements){
 
-			line = in.readLine();
-			lineTokenized = line.split(",");
-			data.resize(lineTokenized.size());
-			for (int j = 0; j < lineTokenized.size(); j++)
-				data[j] = lineTokenized.at(j).toInt();
+//			line = in.readLine();
+//			lineTokenized = line.split(",");
+//			data.resize(lineTokenized.size());
+//			for (int j = 0; j < lineTokenized.size(); j++)
+//				data[j] = lineTokenized.at(j).toInt();
 
-			scan->rawData()->addMeasurement(AMMeasurementInfo(QString("Element %1").arg(i+1), QString("Element %1").arg(i+1), "eV", config->detectorInfo().axes()));
-			scan->rawData()->setAxisValue(i, 0, i*config->detectorInfo().scale());
-			scan->rawData()->setValue(AMnDIndex(), i, data.constData());
-		}
-		else{
+//			scan->rawData()->addMeasurement(AMMeasurementInfo(QString("Element %1").arg(i+1), QString("Element %1").arg(i+1), "eV", config->detectorInfo().axes()));
+//			scan->rawData()->setAxisValue(i, 0, i*config->detectorInfo().scale());
+//			scan->rawData()->setValue(AMnDIndex(), i, data.constData());
+//		}
+//		else{
 
-			line = in.readLine();
-			if (i >= elements && i < 2*elements)
-				scan->rawData()->addMeasurement(AMMeasurementInfo(QString("icr%1").arg(i+1), QString("Input count rate %1").arg(i+1), "%", QList<AMAxisInfo>()));
-			else
-				scan_->rawData()->addMeasurement(AMMeasurementInfo(QString("ocr%1").arg(i+1), QString("Output count rate %1").arg(i+1), "%", QList<AMAxisInfo>()));
-			scan->rawData()->setValue(AMnDIndex(), i, AMnDIndex(), line.toDouble());
-		}
-	}
+//			line = in.readLine();
+//			if (i >= elements && i < 2*elements)
+//				scan->rawData()->addMeasurement(AMMeasurementInfo(QString("icr%1").arg(i+1), QString("Input count rate %1").arg(i+1), "%", QList<AMAxisInfo>()));
+//			else
+//				scan_->rawData()->addMeasurement(AMMeasurementInfo(QString("ocr%1").arg(i+1), QString("Output count rate %1").arg(i+1), "%", QList<AMAxisInfo>()));
+//			scan->rawData()->setValue(AMnDIndex(), i, AMnDIndex(), line.toDouble());
+//		}
+//	}
 
 	file.close();
 

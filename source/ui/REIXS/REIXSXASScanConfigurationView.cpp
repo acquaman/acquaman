@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 Acquaman is free software: you can redistribute it and/or modify
@@ -21,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui_REIXSXASScanConfigurationView.h"
 
 #include "ui/AMTopFrame2.h"
-#include "ui/acquaman/AMRegionsView.h"
+#include "ui/dataman/AMStepScanAxisView.h"
 #include "ui/dataman/AMSamplePre2013Selector.h"
 #include "util/AMDateTimeUtils.h"
 #include <QStringBuilder>
@@ -42,22 +43,27 @@ REIXSXASScanConfigurationView::REIXSXASScanConfigurationView(REIXSXASScanConfigu
 	topFrame_ = new AMTopFrame2("Setup XAS Scan", QIcon(":/utilities-system-monitor.png"));
 	ui->outerVLayout->insertWidget(0, topFrame_);
 
-	ui->innerVLayout->insertWidget(0, new AMRegionsView(config_->regions()));
+	ui->innerVLayout->insertWidget(0, new AMStepScanAxisView("Region Configuration", config_));
 	ui->innerVLayout->addStretch();
 
 	sampleSelector_ = new AMSamplePre2013Selector(AMDatabase::database("user"));
-	ui->scanMetaInfoLayout->setWidget(2, QFormLayout::FieldRole, sampleSelector_);
+	ui->scanMetaInfoLayout->setWidget(1, QFormLayout::FieldRole, sampleSelector_);
 
 
 	// Initialize widgets from config_
 
-	ui->applyGratingBox->setChecked(config_->applyMonoGrating());
+	ui->applyGratingBox->setChecked(false); //(config_->applyMonoGrating());
+	ui->applyGratingBox->setDisabled(true);
 	ui->gratingBox->setCurrentIndex(config_->monoGrating());
 	ui->gratingBox->setEnabled(config_->applyMonoGrating());
+	ui->gratingBox->setDisabled(true);
 
 	ui->applyMirrorBox->setChecked(config_->applyMonoMirror());
-	ui->mirrorBox->setCurrentIndex(config_->monoMirror());
+	ui->applyMirrorBox->setDisabled(true);
+	ui->mirrorBox->setCurrentIndex(false); //(config_->monoMirror());
 	ui->mirrorBox->setEnabled(config_->applyMonoMirror());
+	ui->mirrorBox->setDisabled(true);
+
 
 	ui->applySlitWidthBox->setChecked(config_->applySlitWidth());
 	ui->slitWidthBox->setValue(config_->slitWidth());
@@ -70,12 +76,12 @@ REIXSXASScanConfigurationView::REIXSXASScanConfigurationView(REIXSXASScanConfigu
 	ui->polarizationAngleBox->setEnabled(config_->applyPolarization() && config_->polarization() == 5);
 
 	ui->nameEdit->setText(config_->userScanName());
-	ui->numberEdit->setValue(config_->scanNumber());
+//	ui->numberEdit->setValue(config_->scanNumber());
 	sampleSelector_->setCurrentSample(config_->sampleId());
 
 	ui->namedAutomaticallyBox->setChecked(config_->namedAutomatically());
 	ui->nameEdit->setEnabled(!config_->namedAutomatically());
-	ui->numberEdit->setEnabled(!config_->namedAutomatically());
+//	ui->numberEdit->setEnabled(false);
 	sampleSelector_->setEnabled(!config_->namedAutomatically());
 
 
@@ -92,7 +98,7 @@ REIXSXASScanConfigurationView::REIXSXASScanConfigurationView(REIXSXASScanConfigu
 	connect(ui->polarizationBox, SIGNAL(currentIndexChanged(int)), config_, SLOT(setPolarization(int)));
 	connect(ui->polarizationAngleBox, SIGNAL(valueChanged(double)), config_, SLOT(setPolarizationAngle(double)));
 	connect(ui->nameEdit, SIGNAL(textEdited(QString)), config_, SLOT(setUserScanName(QString)));
-	connect(ui->numberEdit, SIGNAL(valueChanged(int)), config_, SLOT(setScanNumber(int)));
+//	connect(ui->numberEdit, SIGNAL(valueChanged(int)), config_, SLOT(setScanNumber(int)));
 	connect(sampleSelector_, SIGNAL(currentSampleChanged(int)), config_, SLOT(setSampleId(int)));
 	connect(ui->namedAutomaticallyBox, SIGNAL(clicked(bool)), config_, SLOT(setNamedAutomatically(bool)));
 
@@ -103,11 +109,16 @@ REIXSXASScanConfigurationView::REIXSXASScanConfigurationView(REIXSXASScanConfigu
 	connect(ui->applyPolarizationBox, SIGNAL(clicked(bool)), ui->polarizationBox, SLOT(setEnabled(bool)));
 	connect(ui->applyPolarizationBox, SIGNAL(clicked(bool)), this, SLOT(reviewPolarizationAngleBoxEnabled()));
 	connect(ui->polarizationBox, SIGNAL(activated(int)), this, SLOT(reviewPolarizationAngleBoxEnabled()));
-	connect(ui->namedAutomaticallyBox, SIGNAL(clicked(bool)), ui->nameEdit, SLOT(setEnabled(bool)));
-	connect(ui->namedAutomaticallyBox, SIGNAL(clicked(bool)), ui->numberEdit, SLOT(setEnabled(bool)));
-	connect(ui->namedAutomaticallyBox, SIGNAL(clicked(bool)), sampleSelector_, SLOT(setEnabled(bool)));
+	connect(ui->namedAutomaticallyBox, SIGNAL(clicked(bool)), ui->nameEdit, SLOT(setDisabled(bool)));
+//	connect(ui->namedAutomaticallyBox, SIGNAL(clicked(bool)), ui->numberEdit, SLOT(setDisabled(bool)));
+	connect(ui->namedAutomaticallyBox, SIGNAL(clicked(bool)), sampleSelector_, SLOT(setDisabled(bool)));
 
-	connect(config_->regions(), SIGNAL(regionsChanged()), this, SLOT(onRegionsChanged()));
+	connect(config_, SIGNAL(totalTimeChanged(double)), this, SLOT(onEstimatedTimeChanged()));
+	connect(config_, SIGNAL(scanAxisAdded(AMScanAxis*)), this, SLOT(onEstimatedTimeChanged()));
+	connect(config_, SIGNAL(scanAxisRemoved(AMScanAxis*)), this, SLOT(onEstimatedTimeChanged()));
+	connect(config_, SIGNAL(modifiedChanged(bool)), this, SLOT(onEstimatedTimeChanged()));
+	connect(config_, SIGNAL(configurationChanged()), this, SLOT(onEstimatedTimeChanged()));
+
 	onRegionsChanged();
 }
 
@@ -123,7 +134,51 @@ void REIXSXASScanConfigurationView::reviewPolarizationAngleBoxEnabled()
 
 void REIXSXASScanConfigurationView::onRegionsChanged()
 {
-	QDateTime t1 = QDateTime::currentDateTime();
-	topFrame_->setLeftSubText("Expected acquisition time: " % AMDateTimeUtils::prettyDuration(t1, t1.addSecs(config_->regions()->totalAcquisitionTime())));
+	config_->totalTime(true);
+	//	QDateTime t1 = QDateTime::currentDateTime();
+	//	topFrame_->setLeftSubText("Expected acquisition time: " % AMDateTimeUtils::prettyDuration(t1, t1.addSecs(config_->regions()->totalAcquisitionTime())));
+
+}
+
+void REIXSXASScanConfigurationView::onEstimatedTimeChanged()
+{
+	QString timeString = "";
+
+	config_->blockSignals(true);
+	double time = config_->totalTime(true);
+	config_->blockSignals(false);
+
+	//ui->totalPointsLabel->setText(QString("%1").arg(config_->totalPoints()));
+
+	int days = int(time/3600.0/24.0);
+
+	if (days > 0){
+
+		time -= days*3600.0*24;
+		timeString += QString::number(days) + "d:";
+	}
+
+	int hours = int(time/3600.0);
+
+	if (hours > 0){
+
+		time -= hours*3600;
+		timeString += QString::number(hours) + "h:";
+	}
+
+	int minutes = int(time/60.0);
+
+	if (minutes > 0){
+
+		time -= minutes*60;
+		timeString += QString::number(minutes) + "m:";
+	}
+
+	int seconds = ((int)time)%60;
+	timeString += QString::number(seconds) + "s";
+
+	//ui->estimatedTimeLabel->setText(timeString);
+	topFrame_->setLeftSubText("Expected acquisition time: " % timeString);
+
 
 }

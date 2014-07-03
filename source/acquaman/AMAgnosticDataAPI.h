@@ -1,3 +1,24 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #ifndef AMAGNOSTICDATAAPI_H
 #define AMAGNOSTICDATAAPI_H
 
@@ -13,7 +34,7 @@ namespace AMAgnosticDataAPIDefinitions
 	{
 		AxisStarted = 0,		///< Used to denote a new axis has been started.  In higher dimensional scans, this message would occur at the beginning of every scan loop.
 		AxisFinished = 1,		///< Used to denote that the current axis has finished.  In higher dimensional scans, this message would appear at the end of every scan loop.
-		LoopIncremented = 2,	///< Used to denote that the scan has stepped.
+		AxisValueFinished = 2,	///< Used to denote that the scan has done everything associated with a particular axis value.
 		DataAvailable = 3,		///< Provides the data for a single detector of any dimensionality.
 		ControlMoved = 4,		///< Provides the data for a single control that was moved.
 		InvalidMessage = 5		///< Catch all error message.
@@ -23,15 +44,14 @@ namespace AMAgnosticDataAPIDefinitions
 	enum InputType
 	{
 		UniqueID = 0,						///< The unique identifier to ensure that there is no ambiguity on what the message is about.
-		NextLoopValue = 1,					///< The next loop value.
-		DetectorData = 2,					///< The data for the detector.  Can be almost anything since detectors have many configurations and dimensionalities.
-		DetectorDimensionalitySize = 3,		///< The size of the detector.
-		DetectorDimensionalityName = 4,		///< The name of the detector.
-		DetectorDimensionalityUnit = 5,		///< The units of the detector.
-		ControlMovementType = 6,			///< Which type of control was moved.
-		ControlMovementValue = 7,			///< The value of the control, regardless of what type of control it is.
-		ControlMovementFeedback = 8,		///< The feedback value of the control, regardless of what type of control it is.
-		InvalidType = 9						///< Catch all error type.
+		DetectorData = 1,					///< The data for the detector.  Can be almost anything since detectors have many configurations and dimensionalities.
+		DetectorDimensionalitySize = 2,		///< The size of the detector.
+		DetectorDimensionalityName = 3,		///< The name of the detector.
+		DetectorDimensionalityUnit = 4,		///< The units of the detector.
+		ControlMovementType = 5,			///< Which type of control was moved.
+		ControlMovementValue = 6,			///< The value of the control, regardless of what type of control it is.
+		ControlMovementFeedback = 7,		///< The feedback value of the control, regardless of what type of control it is.
+		InvalidType = 8						///< Catch all error type.
 	};
 
 	/// The event type enum.  There is only one event type because there is only one message.
@@ -115,19 +135,13 @@ public:
 	virtual ~AMAgnosticDataAPIFinishAxisMessage();
 };
 
-class AMAgnosticDataAPILoopIncrementMessage : public AMAgnosticDataAPIMessage
+class AMAgnosticDataAPIAxisValueFinishedMessage : public AMAgnosticDataAPIMessage
 {
 public:
-	/// Constructs a "Loop Incremented" message with the given initial values
-	AMAgnosticDataAPILoopIncrementMessage(const QString &uniqueID, int nextLoopIncrement);
+	/// Constructs an "Axis Value Finished" message with the given initial values
+	AMAgnosticDataAPIAxisValueFinishedMessage(const QString &uniqueID);
 	/// Destructor.
-	virtual ~AMAgnosticDataAPILoopIncrementMessage();
-
-	/// Returns the next loop incrememnt value. Returns -1 if the value is somehow invalid.
-	int nextLoopIncrement() const;
-
-	/// Sets the next loop increment value
-	void setNextLoopIncrement(int nextLoopIncrement);
+	virtual ~AMAgnosticDataAPIAxisValueFinishedMessage();
 };
 
 class AMAgnosticDataAPIDataAvailableMessage : public AMAgnosticDataAPIMessage

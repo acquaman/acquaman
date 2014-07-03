@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -242,9 +243,10 @@ bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 
 		else if(columnType == qMetaTypeId<AMConstDbObject*>()){
 			AMConstDbObject *constObject = property(columnName).value<AMConstDbObject*>();
-			if(constObject && !constObject->tableName().isEmpty() && constObject->id() > 0)
+			if(constObject && !constObject->tableName().isEmpty() && constObject->id() > 0 && db != constObject->database())
+				values << QString("%1%2%3%4%5%6").arg("|$^$|").arg(constObject->database()->connectionName()).arg("|$^$|").arg(constObject->tableName()).arg(AMDbObjectSupport::listSeparator()).arg(constObject->id());
+			else if(constObject && !constObject->tableName().isEmpty() && constObject->id() > 0)
 				values << QString("%1%2%3").arg(constObject->tableName()).arg(AMDbObjectSupport::listSeparator()).arg(constObject->id());
-				//values << QString("%1%2%3").arg(constObject->object()->dbTableName()).arg(AMDbObjectSupport::listSeparator()).arg(constObject->object()->id());
 			else
 				values << QString();
 		}
@@ -621,14 +623,30 @@ bool AMDbObject::loadFromDb(AMDatabase* db, int sourceId) {
 
 			}
 			else if(columnType == qMetaTypeId<AMConstDbObject*>()){
+				// Determine the database to load from, in case this is a redirected object
+				AMDatabase *databaseToUse;
+				QString columnValue = values.at(ri).toString();
+				if(columnValue.contains("|$^$|") && values.at(ri).toString().count("|$^$|") == 2 ){ // check to determine if this AMDbObject is actually in a differen database (in case this is in the actions database and some information it needs is in the user database)
+					QString databaseName = columnValue.split("|$^$|").at(1);
+					columnValue = columnValue.split("|$^$|").last();
+					databaseToUse = AMDatabase::database(databaseName);
+					if(!databaseToUse){
+						AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, AMDBOBJECT_CANNOT_LOAD_FROM_DB_BAD_CONSTDB_REDIRECT, QString("Could not load constDbObject from database, id %1 in table %2 (%3 database) attempted to redirect to a bad database named %4. Please report this problem to the Acquaman developers.").arg(sourceId).arg(myInfo->tableName).arg(db->connectionName()).arg(databaseName)));
+						isReloading_ = false;
+						return false;	// bad redirection to another database
+					}
+				}
+				else // not a redirected object
+					databaseToUse = db;
+
 				AMConstDbObject *constObject = 0;
 
-				QString columnValue = values.at(ri).toString();
+//				QString columnValue = values.at(ri).toString();
 				QStringList objectLocation = columnValue.split(AMDbObjectSupport::listSeparator());	// location was saved as string: "tableName;id"
 				if(objectLocation.count() == 2) {
 					QString tableName = objectLocation.at(0);
 					int dbId = objectLocation.at(1).toInt();
-					constObject = new AMConstDbObject(db, tableName, dbId);
+					constObject = new AMConstDbObject(databaseToUse, tableName, dbId);
 				}
 				else
 					constObject = new AMConstDbObject(0);
@@ -828,14 +846,14 @@ void AMDbObject::updateThumbnailsInCurrentThread(bool neverSavedHereBefore)
 		reuseThumbnailIds = (existingThumbnailIds.count() == thumbsCount);	// can reuse if the number of old and new ones matches.
 		// need to check that the existingThumbnailIds are consecutive as well... ie: in a sequential block. Otherwise can't reuse them.
 		// normally this is the case, unless we've forgotten / orphaned some. Doesn't hurt to check.
-		if(reuseThumbnailIds) {
-			for(int i=1; i<existingThumbnailIds.count(); i++) {
-				if(existingThumbnailIds.at(i) != existingThumbnailIds.at(i-1)+1) {
-					reuseThumbnailIds = false;
-					break;
-				}
-			}
-		}
+//		if(reuseThumbnailIds) {
+//			for(int i=1; i<existingThumbnailIds.count(); i++) {
+//				if(existingThumbnailIds.at(i) != existingThumbnailIds.at(i-1)+1) {
+//					reuseThumbnailIds = false;
+//					break;
+//				}
+//			}
+//		}
 
 		// If we shouldn't reuse existing rows in the thumbnail table: delete old before appending new ones.
 		if(!reuseThumbnailIds) {

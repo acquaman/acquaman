@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -276,7 +277,8 @@ void AMScanSetModel::addScan(AMScan* newScan) {
 	QList<AMDataSourcePlotSettings> plotSettings;
 	for(int i=0; i<newScan->dataSourceCount(); i++) {
 		AMDataSourcePlotSettings ps; /// \todo set up nicer default colors (related within scans)
-		ps.visible = newScan->dataSourceAt(i)->visibleInPlots(); // Initial visibility is now controlled in AMDataSource::visibleInPlots().  Scan controllers can initialize this, and it will be saved in the database.
+		//ps.visible = newScan->dataSourceAt(i)->visibleInPlots(); // Initial visibility is now controlled in AMDataSource::visibleInPlots().  Scan controllers can initialize this, and it will be saved in the database.
+		ps.visible = false;
 
 		// Hack for Darren's 2D XRF maps and Mark's XES scans.
 		if (newScan->scanRank() == 0){

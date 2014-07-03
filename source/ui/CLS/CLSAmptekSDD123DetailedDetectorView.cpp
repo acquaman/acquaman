@@ -1,3 +1,24 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "CLSAmptekSDD123DetailedDetectorView.h"
 
 #include <QLineEdit>
@@ -50,49 +71,49 @@ void CLSAmptekDetailedDetectorView::buildDetectorView(){
 
 	QLabel *tempLabel;
 
-	tempLabel = new QLabel("Fast Counts");
-	fastCountsControlEditor_ = new AMControlEditor(amptekDetector_->fastCountsControl(this));
-	averageFastCountsControlEditor_ = new AMControlEditor(amptekDetector_->averageFastCountsControl(this));
+	tempLabel = new QLabel("Fast Counts (avg.)");
+	fastCountsControlEditor_ = new AMControlEditor(amptekDetector_->fastCountsControl(this), amptekDetector_->averageFastCountsControl(this));
+	//averageFastCountsControlEditor_ = new AMControlEditor(amptekDetector_->averageFastCountsControl(this));
 	tempHBox = new QHBoxLayout();
 	tempHBox->addWidget(tempLabel);
 	tempHBox->addWidget(fastCountsControlEditor_);
-	tempHBox->addWidget(averageFastCountsControlEditor_);
+//	tempHBox->addWidget(averageFastCountsControlEditor_);
 	rightLayout_->addLayout(tempHBox);
 
-	tempLabel = new QLabel("Slow Counts");
-	slowCountsControlEditor_ = new AMControlEditor(amptekDetector_->slowCountsControl(this));
-	averageSlowCountsControlEditor_ = new AMControlEditor(amptekDetector_->averageSlowCountsControl(this));
+	tempLabel = new QLabel("Slow Counts (avg.)");
+	slowCountsControlEditor_ = new AMControlEditor(amptekDetector_->slowCountsControl(this), amptekDetector_->averageSlowCountsControl(this));
+	//averageSlowCountsControlEditor_ = new AMControlEditor(amptekDetector_->averageSlowCountsControl(this));
 	tempHBox = new QHBoxLayout();
 	tempHBox->addWidget(tempLabel);
 	tempHBox->addWidget(slowCountsControlEditor_);
-	tempHBox->addWidget(averageSlowCountsControlEditor_);
+	//tempHBox->addWidget(averageSlowCountsControlEditor_);
 	rightLayout_->addLayout(tempHBox);
 
-	tempLabel = new QLabel("Accumulation");
-	accumulationTimeControlEditor_ = new AMControlEditor(amptekDetector_->accumulationTimeControl(this));
-	averageAccumulationTimeControlEditor_ = new AMControlEditor(amptekDetector_->averageAccumulationTimeControl(this));
+	tempLabel = new QLabel("Accumulation (avg.)");
+	accumulationTimeControlEditor_ = new AMControlEditor(amptekDetector_->accumulationTimeControl(this), amptekDetector_->averageAccumulationTimeControl(this));
+	//averageAccumulationTimeControlEditor_ = new AMControlEditor(amptekDetector_->averageAccumulationTimeControl(this));
 	tempHBox = new QHBoxLayout();
 	tempHBox->addWidget(tempLabel);
 	tempHBox->addWidget(accumulationTimeControlEditor_);
-	tempHBox->addWidget(averageAccumulationTimeControlEditor_);
+	//tempHBox->addWidget(averageAccumulationTimeControlEditor_);
 	rightLayout_->addLayout(tempHBox);
 
-	tempLabel = new QLabel("Real Time");
-	realTimeControlEditor_ = new AMControlEditor(amptekDetector_->realTimeControl(this));
-	averageRealTimeControlEditor_ = new AMControlEditor(amptekDetector_->averageRealTimeControl(this));
+	tempLabel = new QLabel("Real Time (avg.)");
+	realTimeControlEditor_ = new AMControlEditor(amptekDetector_->realTimeControl(this), amptekDetector_->averageRealTimeControl(this));
+	//averageRealTimeControlEditor_ = new AMControlEditor(amptekDetector_->averageRealTimeControl(this));
 	tempHBox = new QHBoxLayout();
 	tempHBox->addWidget(tempLabel);
 	tempHBox->addWidget(realTimeControlEditor_);
-	tempHBox->addWidget(averageRealTimeControlEditor_);
+	//tempHBox->addWidget(averageRealTimeControlEditor_);
 	rightLayout_->addLayout(tempHBox);
 
-	tempLabel = new QLabel("Live Time");
-	liveTimeControlEditor_ = new AMControlEditor(amptekDetector_->liveTimeControl(this));
-	averageLiveTimeControlEditor_ = new AMControlEditor(amptekDetector_->averageLiveTimeControl(this));
+	tempLabel = new QLabel("Live Time (avg.)");
+	liveTimeControlEditor_ = new AMControlEditor(amptekDetector_->liveTimeControl(this), amptekDetector_->averageLiveTimeControl(this));
+	//averageLiveTimeControlEditor_ = new AMControlEditor(amptekDetector_->averageLiveTimeControl(this));
 	tempHBox = new QHBoxLayout();
 	tempHBox->addWidget(tempLabel);
 	tempHBox->addWidget(liveTimeControlEditor_);
-	tempHBox->addWidget(averageLiveTimeControlEditor_);
+	//tempHBox->addWidget(averageLiveTimeControlEditor_);
 	rightLayout_->addLayout(tempHBox);
 
 	roiView_ = new CLSAmptekDetectorROIView(amptekDetector_);

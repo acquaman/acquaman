@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -181,6 +182,7 @@ void AMExportWizardChooseExporterPage::onBrowseButtonClicked()
 {	
 	int pos(0);
 	QString inputText(QFileDialog::getExistingDirectory(this, "Export Location", destinationFolder_->text()));
+	destinationFolder_->setText(inputText);
 	destinationFolder_->validator()->validate(inputText, pos);
 }
 

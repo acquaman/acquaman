@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 Acquaman is free software: you can redistribute it and/or modify
@@ -138,6 +139,13 @@ void AMAddAnalysisBlockDialog::populateWith1D()
 
 	item = new QListWidgetItem(QIcon(":/22x22/gamma.png"), "Normalization", listWidget_);
 	item->setData(AM::DescriptionRole, "This tool normalizes its input.");
+
+	item = new QListWidgetItem(QIcon(":/22x22/gamma.png"), "Calibrated Normalization", listWidget_);
+	item->setData(AM::DescriptionRole, "This tool normalizes its input and allows for energy calibration.");
+
+	item = new QListWidgetItem(QIcon(":/spectrum.png"), "Interpolated Curve Correction", listWidget_);
+	item->setData(AM::DescriptionRole, "This tool interpolates between two shift curves for finer correction.");
+
 }
 
 void AMAddAnalysisBlockDialog::populateWith2D()

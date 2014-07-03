@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -37,6 +38,7 @@ class AMControlButton;
 #include "MPlot/MPlotWidget.h"
 #include "MPlot/MPlotSeriesData.h"
 #include "MPlot/MPlotSeries.h"
+#include "source/ui/CLS/CLSDarkCurrentWidget.h"
 
 class SGMSidebar : public QWidget
 {
@@ -59,6 +61,7 @@ protected slots:
 	void onStopMotorsActionFinished();
 
 	void onScanningResetButtonClicked();
+//    void toTakeDarkCurrentMeasurement();
 
 	void onStripToolTimerTimeout();
 	void onI0CheckBoxToggled(bool toggled);
@@ -128,6 +131,8 @@ protected:
 
 	QLabel *controlsConnectedLabel_;
 	QLabel *detectorsConnectedLabel_;
+    
+//    CLSDarkCurrentWidget *darkCurrentWidget_;
 };
 
 #endif // SGMSIDEBAR_H

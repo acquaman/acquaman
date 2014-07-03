@@ -1,3 +1,24 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "CLSPGTDetectorV2.h"
 
 #include <QStringBuilder>
@@ -13,7 +34,7 @@ CLSPGTDetectorV2::CLSPGTDetectorV2(const QString &name, const QString &descripti
 
 	allControls_ = new AMControlSet(this);
 	statusControl_ = new AMReadOnlyPVControl(name%"Status", baseName%":GetAcquire", this);
-	integrationTimeControl_ = new AMPVControl(name%"IntegrationTime", "BL1611-ID-1:AddOns:PGTDwellTime", "BL1611-ID-1:AddOns:PGTDwellTime", "", this, 0.1);
+	integrationTimeControl_ = new AMPVControl(name%"IntegrationTime", "BL1611-ID-1:AddOns:PGTDwellTime", "BL1611-ID-1:AddOns:PGTDwellTime", "", this, 0.001);
 	integrationTimeControl_->setDescription("SDD Integration Time");
 	integrationTimeControl_->setContextKnownDescription("Integration Time");
 	integrationModeControl_ = new AMPVControl(name%"IntegrationMode", "BL1611-ID-1:AddOns:PGTDwellMode", "BL1611-ID-1:AddOns:PGTDwellMode", "", this, 0.1);
@@ -71,6 +92,14 @@ QList<AMAxisInfo> CLSPGTDetectorV2::axes() const{
 double CLSPGTDetectorV2::acquisitionTime() const{
 	if(isConnected())
 		return integrationTimeControl_->value();
+	return -1;
+}
+
+double CLSPGTDetectorV2::acquisitionTimeTolerance() const
+{
+	if (isConnected())
+		return integrationTimeControl_->tolerance();
+
 	return -1;
 }
 

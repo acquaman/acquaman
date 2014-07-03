@@ -1,3 +1,24 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #ifndef VESPERSSCANCONFIGURATION_H
 #define VESPERSSCANCONFIGURATION_H
 
@@ -13,10 +34,11 @@ class VESPERSScanConfiguration
 {
 public:
 	/// Constructor.
-	virtual ~VESPERSScanConfiguration();
 	VESPERSScanConfiguration();
 	/// Copy constructor.
 	VESPERSScanConfiguration(const VESPERSScanConfiguration &original);
+	/// Destructor.
+	virtual ~VESPERSScanConfiguration();
 
 	// DbObject specific methods.
 	////////////////////////////////////////////
@@ -43,10 +65,10 @@ public:
 	VESPERS::CCDDetectors ccdDetector() const { return dbObject_->ccdDetector(); }
 	/// Returns the CCD file name.
 	QString ccdFileName() const { return dbObject_->ccdFileName(); }
-	/// Returns the ROI list.  The list is empty if not using a fluorescence detector.
-	AMROIInfoList roiList() const { return dbObject_->roiList(); }
 	/// Returns the normal position.
 	double normalPosition() const { return dbObject_->normalPosition(); }
+	/// Returns the list of regions of interest.
+	QList<AMRegionOfInterest *> regionsOfInterest() const { return dbObject_->regionsOfInterest(); }
 
 	/// Returns the current total estimated time for a scan to complete.
 	double totalTime() const { return totalTime_; }
@@ -80,10 +102,12 @@ public:
 	void setCCDDetector(int ccd) { setCCDDetector((VESPERS::CCDDetectors)ccd); }
 	/// Sets the file name for the CCD files.
 	void setCCDFileName(const QString &name) { dbObject_->setCCDFileName(name); }
-	/// Sets the ROI list.
-	void setRoiInfoList(const AMROIInfoList &list) { dbObject_->setRoiInfoList(list); }
 	/// Sets the normal position.
 	void setNormalPosition(double newPosition) { dbObject_->setNormalPosition(newPosition); }
+	/// Adds a region of interest to the list.
+	void addRegionOfInterest(AMRegionOfInterest *region) { dbObject_->addRegionOfInterest(region); }
+	/// Removes a region of interest from the list.
+	void removeRegionOfInterest(AMRegionOfInterest *region) { dbObject_->removeRegionOfInterest(region); }
 
 	/// Sets the time offset used for estimating the scan time.
 	void setTimeOffset(double offset) { timeOffset_ = offset; computeTotalTimeImplementation(); }
@@ -105,12 +129,12 @@ protected:
 	QString incomingChoiceHeaderString(VESPERS::IonChamber detector) const;
 	/// Returns a string for the It ion chamber.
 	QString transmissionChoiceHeaderString(VESPERS::IonChamber detector) const;
-	/// Returns a string that is nicely formatted for the regions of interest.
-	QString regionOfInterestHeaderString(AMROIInfoList list) const;
 	/// Returns a string that with what motors were used based on \param motor.
 	QString motorHeaderString(VESPERS::Motors motor) const;
 	/// Returns a string that gives the name of the CCD images.
 	QString ccdDetectorHeaderString(VESPERS::CCDDetectors detector) const;
+	/// Returns a string that displays all the regions of interest.
+	QString regionsOfInterestHeaderString(const QList<AMRegionOfInterest *> &regions) const;
 
 	////////////////////////////////////////
 

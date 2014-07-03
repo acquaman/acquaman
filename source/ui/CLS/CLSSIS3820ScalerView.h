@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 Acquaman is free software: you can redistribute it and/or modify
@@ -32,7 +33,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class CLSSIS3820Scaler;
 class CLSSIS3820ScalerChannel;
 
-#include "ui/CLS/CLSSR570View.h"
+#include "ui/CLS/CLSDarkCurrentWidget.h"
+#include "source/ui/beamline/AMCurrentAmplifierSingleView.h"
 
 /*!
   This class builds a view around a CLSSIS3820ScalerChannel.  It provides a simple view that has a check box
@@ -48,20 +50,20 @@ public:
 	enum OutputViewMode { Counts = 0, Voltage = 1 };
 
 	/// Constructor.  Takes a CLSSIS3820ScalarChannel and builds a view around it.
- 	virtual ~CLSSIS3820ScalerChannelView();
 	CLSSIS3820ScalerChannelView(CLSSIS3820ScalerChannel *channel, QWidget *parent = 0);
+    virtual ~CLSSIS3820ScalerChannelView();
 
 signals:
 	/// Notifier that the channel changed viewing mode.  Passes the new mode.
 	void outputViewModeChanged(CLSSIS3820ScalerChannelView::OutputViewMode);
-	/// Notifier that passes along that the SR570 view changed.
-	void sr570ViewModeChanged(CLSSR570View::ViewMode);
+    /// Notifier that passes along that the amplifier view has changed.
+    void amplifierViewModeChanged(AMCurrentAmplifierView::ViewMode);
 
 public slots:
 	/// Convenience method that sets the output view mode for the channel.
 	void setOutputViewMode(CLSSIS3820ScalerChannelView::OutputViewMode mode);
-	/// Convenience method that sets the view mode of the SR570.
-	void setSR570ViewMode(CLSSR570View::ViewMode mode);
+    /// Convenience method that sets the view mode of the current amplifier.
+    void setAmplifierViewMode(AMCurrentAmplifierView::ViewMode newMode);
 	/// Sets the visibility for the enable check box.
 	void setEnableCheckBoxVisibility(bool visible);
 	/// Sets the custom name visibility.
@@ -81,7 +83,7 @@ protected slots:
 	/// Handles updating the status label.  Includes the color and updating the tool tip.
 	void updateStatusLabel();
 	/// Handles setting up the SR570 view if it is added after the channel has been set inside the view.
-	void onNewSR570Attached();
+    void onNewCurrentAmplifierAttached();
 
 protected:
 	/// Pointer to the channel being viewed.
@@ -96,7 +98,7 @@ protected:
 	/// Label holding the name of the scaler channel.
 	QLabel *channelName_;
 	/// Holds the SR570, should there be a SR570 bound to this channel.
-	CLSSR570View *sr570View_;
+    AMCurrentAmplifierSingleView *sr570View_;
 	/// Holds the label for the status.
 	QLabel *statusLabel_;
 	/// The layout that holds all elements of the view.
@@ -114,8 +116,8 @@ Q_OBJECT
 
 public:
 	/// Constructor.  Takes a scalar object.
- 	virtual ~CLSSIS3820ScalerView();
 	CLSSIS3820ScalerView(CLSSIS3820Scaler *scaler, QWidget *parent = 0);
+    virtual ~CLSSIS3820ScalerView();
 
 protected slots:
 	/// Handles starting the scaler.
@@ -137,8 +139,8 @@ protected slots:
 	/// Handles setting the number of total scans.
 	void setTotalNumberOfScans();
 
-	/// Handles switching all the SR570 views to match the most recent change.
-	void onSR570ViewChanged(CLSSR570View::ViewMode mode);
+    /// Handles switching all the SR570 views to match the most recent change.
+    void onAmplifierViewChanged(AMCurrentAmplifierView::ViewMode mode);
 	/// Handles switching all the output views to match the most recent change.
 	void onOutputViewModeChanged(CLSSIS3820ScalerChannelView::OutputViewMode mode);
 

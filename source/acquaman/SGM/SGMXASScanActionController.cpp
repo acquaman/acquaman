@@ -1,4 +1,27 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "SGMXASScanActionController.h"
+
+#include <QApplication>
 
 #include "dataman/AMXASScan.h"
 #include "beamline/SGM/SGMBeamline.h"
@@ -6,6 +29,7 @@
 #include "actions3/actions/AMControlMoveAction3.h"
 #include "actions3/AMListAction3.h"
 #include "beamline/CLS/CLSAmptekSDD123DetectorNew.h"
+#include "analysis/AM1DDarkCurrentCorrectionAB.h"
 #include "beamline/SGM/SGMMAXvMotor.h"
 #include "beamline/CLS/CLSSR570.h"
 
@@ -48,6 +72,34 @@ SGMXASScanActionController::~SGMXASScanActionController(){}
 
 void SGMXASScanActionController::buildScanControllerImplementation()
 {
+
+	int dwellTimeIndex = scan_->indexOfDataSource(SGMBeamline::sgm()->dwellTimeDetector()->name());
+
+//	if (dwellTimeIndex != -1) {
+//		AMDataSource* dwellTimeSource = scan_->dataSourceAt(dwellTimeIndex);
+
+//		for (int i = 0, size = regionsConfiguration_->detectorConfigurations().count(); i < size; i++){
+//			AMDetector *detector = AMBeamline::bl()->exposedDetectorByInfo(regionsConfiguration_->detectorConfigurations().at(i));
+
+//			if (detector) {
+//				int detectorIndex = scan_->indexOfDataSource(detector->name());
+
+//				if (detectorIndex != -1 && detector->rank() == 0 && detector->canDoDarkCurrentCorrection()) {
+
+//					AMDataSource* detectorSource = scan_->dataSourceAt(detectorIndex);
+
+//					AM1DDarkCurrentCorrectionAB *detectorCorrection = new AM1DDarkCurrentCorrectionAB(QString("%1_DarkCorrect").arg(detector->name()));
+//					detectorCorrection->setDescription(QString("%1 Dark Current Correction").arg(detector->name()));
+//					detectorCorrection->setDataName(detectorSource->name());
+//					detectorCorrection->setDwellTimeName(dwellTimeSource->name());
+//					detectorCorrection->setInputDataSources(QList<AMDataSource*>() << detectorSource << dwellTimeSource);
+//					connect( detector, SIGNAL(newDarkCurrentMeasurementValueReady(double)), detectorCorrection, SLOT(setDarkCurrent(double)) );
+//					detectorCorrection->setTimeUnitMultiplier(.001);
+//					scan_->addAnalyzedDataSource(detectorCorrection, true, false);
+//				}
+//			}
+//		}
+//	}
 }
 
 QString SGMXASScanActionController::buildNotes()
@@ -74,9 +126,11 @@ QString SGMXASScanActionController::buildNotes()
 	for(int iChannel = 0; iChannel < scaler->channels().count(); iChannel++)
 	{
 		CLSSIS3820ScalerChannel* currentChannel = scaler->channelAt(iChannel);
-		if(currentChannel->sr570() != 0)
+		if(currentChannel->currentAmplifier() != 0)
 		{
-			notes.append(QString("%1:\t%2 %3\n").arg(currentChannel->customChannelName()).arg(currentChannel->sr570()->value()).arg(currentChannel->sr570()->units()));
+            AMCurrentAmplifier *channelSR570 = currentChannel->currentAmplifier();
+			if(channelSR570)
+				notes.append(QString("%1:\t%2 %3\n").arg(currentChannel->customChannelName()).arg(channelSR570->value()).arg(channelSR570->units()));
 		}
 	}
 
@@ -241,13 +295,43 @@ AMAction3* SGMXASScanActionController::createInitializationActions(){
 	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
 	initializationStage3->addSubAction(moveAction);
 
-	AMListAction3 *initializationStage4 = new AMListAction3(new AMListActionInfo3("SGM XAS Initialization Stage 4", "SGM XAS Initialization Stage 4"), AMListAction3::Parallel);
-	initializationStage4->addSubAction(SGMBeamline::sgm()->createBeamOnActions3());
+//	AMListAction3* initializationStage4 = new AMListAction3(new AMListActionInfo3("SGM XAS Initialization Stage 4", "SGM XAS Initialization Stage 4"), AMListAction3::Sequential);
+
+//	for (int i = 0, size = regionsConfiguration_->detectorConfigurations().count(); i < size; i++){
+//		AMDetector *detector = AMBeamline::bl()->exposedDetectorByInfo(regionsConfiguration_->detectorConfigurations().at(i));
+
+//		bool sharedSourceFound = false;
+
+//		if (detector) {
+//			int detectorIndex = scan_->indexOfDataSource(detector->name());
+
+//			if (detectorIndex != -1 && detector->rank() == 0 && detector->canDoDarkCurrentCorrection()) {
+//				bool isSourceShared = detector->sharesDetectorTriggerSource();
+
+//				if (isSourceShared && !sharedSourceFound) {
+//					sharedSourceFound = true;
+//					initializationStage4->addSubAction(detector->createDarkCurrentCorrectionActions(10));
+
+//				} else if (!isSourceShared) {
+//					initializationStage4->addSubAction(detector->createDarkCurrentCorrectionActions(10));
+
+//				}
+//			}
+//		}
+//	}
 
 	initializationActions->addSubAction(initializationStage1);
 	initializationActions->addSubAction(initializationStage2);
 	initializationActions->addSubAction(initializationStage3);
-	initializationActions->addSubAction(initializationStage4);
+	//initializationActions->addSubAction(initializationStage4);
+
+	QStringList applicationArguments = QApplication::instance()->arguments();
+	if(!applicationArguments.contains("--enableTesting")){
+		AMListAction3 *initializationStage5 = new AMListAction3(new AMListActionInfo3("SGM XAS Initialization Stage 5", "SGM XAS Initialization Stage 5"), AMListAction3::Parallel);
+		initializationStage5->addSubAction(SGMBeamline::sgm()->createBeamOnActions3());
+
+		initializationActions->addSubAction(initializationStage5);
+	}
 
 	return initializationActions;
 }
@@ -263,6 +347,9 @@ AMAction3* SGMXASScanActionController::createCleanupActions(){
 	CLSSynchronizedDwellTime *syncDwell = qobject_cast<CLSSynchronizedDwellTime*>(SGMBeamline::sgm()->synchronizedDwellTime());
 	for(int x = 0; x < syncDwell->elementCount(); x++)
 		cleanupActions->addSubAction(syncDwell->elementAt(x)->createEnableAction3(syncDwell->enabledAt(x)));
+
+	qDebug() << "Will go back to " << syncDwell->time();
+
 	cleanupActions->addSubAction(syncDwell->createMasterTimeAction3(syncDwell->time()));
 
 	CLSAmptekSDD123DetectorNew *amptek1 = qobject_cast<CLSAmptekSDD123DetectorNew*>(SGMBeamline::sgm()->newAmptekSDD1());

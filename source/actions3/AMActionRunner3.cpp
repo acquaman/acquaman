@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 Acquaman is free software: you can redistribute it and/or modify
@@ -214,6 +215,7 @@ void AMActionRunner3::insertActionInQueue(AMAction3 *action, int index)
 			return;
 	}
 
+	connect(action->info(), SIGNAL(infoChanged()), this, SIGNAL(queuedActionInfoChanged()));
 	emit queuedActionAboutToBeAdded(index);
 	queuedActions_.insert(index, action);
 	emit queuedActionAdded(index);
@@ -231,6 +233,7 @@ bool AMActionRunner3::deleteActionInQueue(int index)
 	emit queuedActionAboutToBeRemoved(index);
 	AMAction3* action= queuedActions_.takeAt(index);
 	emit queuedActionRemoved(index);
+	disconnect(action->info(), SIGNAL(infoChanged()), this, SIGNAL(queuedActionInfoChanged()));
 
 	delete action;
 
@@ -331,6 +334,7 @@ void AMActionRunner3::internalDoNextAction()
 		AMAction3* newAction = queuedActions_.takeAt(0);
 		emit queuedActionRemoved(0);
 
+		disconnect(newAction->info(), SIGNAL(infoChanged()), this, SIGNAL(queuedActionInfoChanged()));
 		emit currentActionChanged(currentAction_ = newAction);
 
 		if(oldAction) {
@@ -536,6 +540,7 @@ AMActionRunnerQueueModel3::AMActionRunnerQueueModel3(AMActionRunner3 *actionRunn
 	connect(actionRunner_, SIGNAL(queuedActionAdded(int)), this, SLOT(onActionAdded(int)));
 	connect(actionRunner_, SIGNAL(queuedActionAboutToBeRemoved(int)), this, SLOT(onActionAboutToBeRemoved(int)));
 	connect(actionRunner_, SIGNAL(queuedActionRemoved(int)), this, SLOT(onActionRemoved(int)));
+	connect(actionRunner_, SIGNAL(queuedActionInfoChanged()), this, SLOT(onActionInfoChanged()));
 }
 
 QModelIndex AMActionRunnerQueueModel3::index(int row, int column, const QModelIndex &parent) const
@@ -685,6 +690,11 @@ void AMActionRunnerQueueModel3::onActionRemoved(int index)
 {
 	Q_UNUSED(index)
 	endRemoveRows();
+}
+
+void AMActionRunnerQueueModel3::onActionInfoChanged()
+{
+	emit layoutChanged();
 }
 
 QModelIndex AMActionRunnerQueueModel3::indexForAction(AMAction3 *action) const

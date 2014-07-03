@@ -1,3 +1,24 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #ifndef AMBASICCONTROLDETECTOREMULATOR_H
 #define AMBASICCONTROLDETECTOREMULATOR_H
 
@@ -10,7 +31,7 @@ Q_OBJECT
 public:
 	/// Constructor takes a name and description as well as a pointer to the control you wish to acquire
 	AMBasicControlDetectorEmulator(const QString &name, const QString &description, AMControl *control, AMControl *statusControl, double statusAcquiringValue, double statusNotAcquiringValue, AMDetectorDefinitions::ReadMethod readMethod,  QObject *parent = 0);
-
+	/// Destructor.
 	virtual ~AMBasicControlDetectorEmulator();
 
 	/// Returns 0, because there are no axes for the single point detector
@@ -29,6 +50,8 @@ public:
 
 	/// Returns the -1, because these controls don't know have access to this information (they use the AMDetectorDefinitions::ReadMethod enum)
 	virtual double acquisitionTime() const { return -1; }
+	/// Returns the acquisition time tolerance.  Returns -1, not sure if that will provide the correct behaviour or not.
+	virtual double acquisitionTimeTolerance() const { return -1; }
 
 	/// The cannot be configured in this manner
 	virtual bool supportsSynchronizedDwell() const { return false; }

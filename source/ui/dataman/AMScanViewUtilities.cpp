@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 Acquaman is free software: you can redistribute it and/or modify
@@ -485,9 +486,9 @@ void AMScanViewSingleSpectrumView::onElementDeselected(AMElement *element)
 
 	foreach(MPlotItem *item, plot->plotItems()){
 
-            if (item->description().contains(QRegExp(QString("^%1 (K|L|M)").arg(symbol))))
-                if (plot->removeItem(item))
-                    delete item;
+			if (item->description().contains(QRegExp(QString("^%1 (K|L|M)").arg(symbol))))
+				if (plot->removeItem(item))
+					delete item;
 	}
 }
 
@@ -808,10 +809,14 @@ void AMScanViewSingleSpectrumView::setDataSources(QList<AMDataSource *> sources)
 		series_.append(series);
 	}
 
-	// Setup the plot's independant axis.
+	// Setup the plot's independant axis and automatically show the spectra if the sources have already been checked off.
 	if (!sources_.isEmpty()){
 
 		onAxisInfoChanged();
+
+		for (int i = 0, size = sources_.size(); i < size; i++)
+			if (sourceButtons_->button(i)->isChecked())
+				updatePlot(i);
 	}
 }
 
@@ -888,4 +893,5 @@ bool AMScanViewSingleSpectrumView::exportToFile(const QString &filename) const
 
 	return true;
 }
- AMScanViewSourceSelector::~AMScanViewSourceSelector(){}
+
+AMScanViewSourceSelector::~AMScanViewSourceSelector(){}

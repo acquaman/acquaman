@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 Acquaman is free software: you can redistribute it and/or modify
@@ -320,9 +321,9 @@ void AMListAction3::internalOnSubActionStateChanged(int newState, int oldState)
 
 	if(newState == AMListAction3::Starting){
 		AMListAction3* listAction = qobject_cast<AMListAction3*>(QObject::sender());
-		if(listAction){
+		if(listAction && loggingDatabase_){
 			int parentLogId = logActionId();
-			AMActionHistoryModel3 *historyModel = AMAppControllerSupport::actionHistoryModelFromDatabaseName(loggingDatabase()->connectionName());
+			AMActionHistoryModel3 *historyModel = AMAppControllerSupport::actionHistoryModelFromDatabaseName(loggingDatabase_->connectionName());
 
 			//if(!AMActionLog3::logUncompletedAction(listAction, loggingDatabase_, parentLogId)) {
 			if(!historyModel || !historyModel->logUncompletedAction(listAction, loggingDatabase_, parentLogId)){
@@ -333,8 +334,8 @@ void AMListAction3::internalOnSubActionStateChanged(int newState, int oldState)
 	else if(newState == AMListAction3::Succeeded || newState == AMListAction3::Cancelled || newState == AMListAction3::Failed){
 		AMAction3 *generalAction = qobject_cast<AMAction3*>(QObject::sender());
 		AMListAction3* listAction = qobject_cast<AMListAction3*>(QObject::sender());
-		if(listAction){
-			AMActionHistoryModel3 *historyModel = AMAppControllerSupport::actionHistoryModelFromDatabaseName(loggingDatabase()->connectionName());
+		if(listAction && loggingDatabase_){
+			AMActionHistoryModel3 *historyModel = AMAppControllerSupport::actionHistoryModelFromDatabaseName(loggingDatabase_->connectionName());
 			//if(!AMActionLog3::updateCompletedAction(listAction, loggingDatabase_)) {
 			if(!historyModel || !historyModel->updateCompletedAction(listAction, loggingDatabase_)){
 				//NEM April 5th, 2012

@@ -1,3 +1,24 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #ifndef STRIPTOOLLISTVIEW_H
 #define STRIPTOOLLISTVIEW_H
 
@@ -6,7 +27,7 @@
 
 #include "StripChart/StripToolModel.h"
 
-/// This class displays the pvs added by the user in list form. Each list entry is displays information about a single pv (either its name or description, if entered) and is checkable. The user can edit the pv's description by double clicking on it.
+/// This class displays the variables added by the user in list form. Each list entry is displays information about a single pv (either its name or description, if entered) and is checkable. The user can edit the pv's description by double clicking on it.
 
 class StripToolListView : public QListView
 {
@@ -17,48 +38,49 @@ public:
     virtual ~StripToolListView();
     
 signals:
-    void setCurrentSelection(const QModelIndex &modelSelection);
-//    void editPV(QList<QModelIndex> indicesToEdit);
-    void editPV(const QModelIndex &index);
-    void deletePV(const QModelIndex &index);
-    void setPVUpdating(const QModelIndex &index, bool isUpdating);
-    void colorPV(const QModelIndex &index, const QColor &color);
-
-protected:
-    StripToolModel *model_;
-
-    QAction *edit_;
-    QAction *delete_;
-    QAction *pause_;
-    QAction *resume_;
-    QAction *setColor_;
+    void itemToEdit(const QModelIndex &index);
+    void itemToRemove(const QModelIndex &index);
+    void itemToDelete(const QModelIndex &index);
+    void itemToColor(const QModelIndex &index, const QColor &color);
+    void itemToFindDerivative(const QModelIndex &index);
+    void listSelectionChanged(const QModelIndex &index);
 
 public:
-    /// This function sets the view's model and makes sure all the connections are correct.
-    void setPVModel(StripToolModel *model);
-    
+    QModelIndex selectedIndex() const;
+
+public slots:
+    void setSelectedIndex(const QModelIndex &newSelection);
+
 protected:
-    /// Creates the actions that a user can use to manipulate a pv: edit, delete, show less, show more, pause, resume.
-    void createActions();
-    /// To view a color picker.
+    /// Get new color from a color picker.
     QColor colorPicker();
 
 protected slots:
     /// Creates the menu that appears when a user right-clicks on a pv, displays the available actions.
     void updateContextMenu(const QPoint &position);
-    /// Emits the editPV(QList<QModelIndex>) signal, letting the model know that items need to be edited.
+    /// Triggered by edit_ action. Emits the itemToEdit(QList<QModelIndex>) signal, letting the model know that items need to be edited.
     void editSelection();
-    /// Emits the deletePV(QModelIndex) signal, letting the model know that this pv needs to be removed.
+    void removeSelection();
+    /// Triggered by delete_ action. Emits the itemToDelete(QModelIndex) signal, letting the model know that this pv needs to be removed.
     void deleteSelection();
-    /// Emits the setPVUpdating(QModelIndex, false) signal, letting the model know that the given pv's series should not be updated.
-    void pauseSelection();
-    /// Emits the setPVUpdating(QModelIndex, true) signal, letting the model know that the given pv's series should be updating.
-    void resumeSelection();
-    /// Sets the series color for all of the selected pvs, using the color selected from color picker.
-    void toSetPVColor();
+    /// Triggered by color_ action. Sets the series color for all of the selected pvs, using the color selected from color picker.
+    void colorSelection();
+    void findSelectionDerivative();
 
-    void onModelSelectionChange();
+    void onSelectionChanged(QItemSelection newSelection, QItemSelection oldSelection);
 
+private:
+    void buildComponents();
+    void makeConnections();
+    void defaultSettings();
+
+private:
+    QAction *edit_;
+    QAction *remove_;
+    QAction *delete_;
+    QAction *importAutomatically_;
+    QAction *color_;
+    QAction *plotDerivative_;
 };
 
 #endif // STRIPTOOLLISTVIEW_H

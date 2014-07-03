@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -135,6 +136,9 @@ public:
 
 	/// Adds an AMXRFDetector to the syncrhonized XRF detector list.
 	void addSynchronizedXRFDetector(AMXRFDetector *detector);
+
+    /// Returns an action that can turn off the beam.
+    virtual AMAction3* createTurnOffBeamActions();
 
 signals:
 	/// Emit this signal whenever isBeamlineScanning() changes.

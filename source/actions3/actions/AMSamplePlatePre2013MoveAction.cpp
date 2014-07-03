@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 Acquaman is free software: you can redistribute it and/or modify
@@ -135,8 +136,10 @@ void AMSamplePlatePre2013MoveAction::startImplementation(){
 	AMControlMoveActionInfo3 *tempMoveActionInfo;
 	AMControlMoveAction3 *tempMoveAction;
 	for(int x = 0; x < sampleManipulator_->count(); x++){
-		tempMoveActionInfo = new AMControlMoveActionInfo3(setpoint.at(x), this);
-		tempMoveAction = new AMControlMoveAction3(tempMoveActionInfo, sampleManipulator_->at(x), this);
+		//tempMoveActionInfo = new AMControlMoveActionInfo3(setpoint.at(x), this);
+		tempMoveActionInfo = new AMControlMoveActionInfo3(setpoint.at(x));
+		//tempMoveAction = new AMControlMoveAction3(tempMoveActionInfo, sampleManipulator_->at(x), this);
+		tempMoveAction = new AMControlMoveAction3(tempMoveActionInfo, sampleManipulator_->at(x));
 		if(tempMoveAction)
 			moveListAction_->addSubAction(tempMoveAction);
 	}

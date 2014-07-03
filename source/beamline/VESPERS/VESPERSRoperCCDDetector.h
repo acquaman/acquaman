@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 Acquaman is free software: you can redistribute it and/or modify
@@ -35,8 +36,9 @@ class VESPERSRoperCCDDetector : public VESPERSCCDDetector
 
 public:
 	/// Constructor.
- 	virtual ~VESPERSRoperCCDDetector();
 	VESPERSRoperCCDDetector(const QString &name, const QString &description, QObject *parent = 0);
+	/// Destructor.
+	virtual ~VESPERSRoperCCDDetector();
 
 	/// Returns the CLS Synchronized Dwell Time trigger PV string, which acts as the key for the synchronized dwell time lookup system
 	virtual QString synchronizedDwellKey() const;

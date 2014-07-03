@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 Acquaman is free software: you can redistribute it and/or modify
@@ -36,8 +37,8 @@ AMScanActionEditor::AMScanActionEditor(AMScanActionInfo *info, QWidget *parent)
 
 	configView_ = 0;
 
-	scanName_ = new QLabel(info_->config()->detailedDescription() % ": " % info_->config()->name());
-	connect(info_->config(), SIGNAL(nameChanged(QString)), this, SLOT(onScanNameChanged()));
+	scanName_ = new QLabel(QString("%1 : %2").arg(info_->config()->detailedDescription()).arg(info_->config()->name()));
+	connect(info_, SIGNAL(infoChanged()), this, SLOT(onScanInfoChanged()));
 
 	QPushButton *configViewButton = new QPushButton(QIcon(":/32x32/hammer-wrench.png"), "Show Configuration");
 	connect(configViewButton, SIGNAL(clicked()), this, SLOT(onScanConfigurationViewRequested()));
@@ -72,7 +73,7 @@ void AMScanActionEditor::onScanConfigurationViewRequested()
 	}
 }
 
-void AMScanActionEditor::onScanNameChanged()
+void AMScanActionEditor::onScanInfoChanged()
 {
-	scanName_->setText(info_->config()->detailedDescription() % ": " % info_->config()->name());
+	scanName_->setText(QString("%1 : %2").arg(info_->config()->detailedDescription()).arg(info_->config()->name()));
 }

@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -27,6 +28,15 @@ AMScanConfiguration::AMScanConfiguration(QObject *parent) :
 	userExportName_ = "$name.txt";
 	autoExportEnabled_ = true;
 	expectedDuration_ = 0;
+}
+
+AMScanConfiguration::AMScanConfiguration(const AMScanConfiguration &original)
+	: AMDbObject(original)
+{
+	userScanName_ = original.userScanName();
+	userExportName_ = original.userExportName();
+	autoExportEnabled_ = original.autoExportEnabled();
+	expectedDuration_ = original.expectedDuration();
 }
 
 const QMetaObject* AMScanConfiguration::getMetaObject(){

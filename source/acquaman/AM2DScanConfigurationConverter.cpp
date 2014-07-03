@@ -1,3 +1,24 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "AM2DScanConfigurationConverter.h"
 
 #include "acquaman/AMScanActionControllerScanAssembler.h"
@@ -26,8 +47,8 @@ bool AM2DScanConfigurationConverter::convertImplementation(AMScanActionControlle
 		return false;
 	}
 
-	AMScanAxisRegion xAxisRegion(configuration->xStart(), configuration->xStep(), configuration->xEnd(), configuration->timeStep());
-	xAxisRegion.setName("x-axis region");
+	AMScanAxisRegion *xAxisRegion = new AMScanAxisRegion(configuration->xStart(), configuration->xStep(), configuration->xEnd(), configuration->timeStep());
+	xAxisRegion->setName("x-axis region");
 	AMScanAxis *xAxis = new AMScanAxis(AMScanAxis::StepAxis, xAxisRegion);
 	xAxis->setName("x-axis");
 
@@ -37,8 +58,8 @@ bool AM2DScanConfigurationConverter::convertImplementation(AMScanActionControlle
 		return false;
 	}
 
-	AMScanAxisRegion yAxisRegion(configuration->yStart(), configuration->yStep(), configuration->yEnd(), configuration->timeStep());
-	yAxisRegion.setName("y-axis region");
+	AMScanAxisRegion *yAxisRegion = new AMScanAxisRegion(configuration->yStart(), configuration->yStep(), configuration->yEnd(), configuration->timeStep());
+	yAxisRegion->setName("y-axis region");
 	AMScanAxis *yAxis = new AMScanAxis(AMScanAxis::StepAxis, yAxisRegion);
 	yAxis->setName("y-axis");
 

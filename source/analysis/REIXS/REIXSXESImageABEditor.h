@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 Acquaman is free software: you can redistribute it and/or modify
@@ -129,7 +130,7 @@ public:
 	virtual ~REIXSXESImageABEditor();
 
 	/// Enum describing the options for smoothing the auto-correlated shift curve.
-	//enum smoothBoxType { None, Poly, Median, Average };
+	enum smoothBoxType { None, Poly, Median, Average };
 
 
 signals:
@@ -153,7 +154,8 @@ public slots:
 	/// Called when the correlation settings are changed
 	void onCorrelationCenterBoxChanged(int);
 	void onCorrelationPointsBoxChanged(int);
-
+	void onCSmoothBoxChanged();
+	void onCSmoothModeChanged();
 
 
 	// The "Apply to other scans" button applies this shift curve to many scans at once.
@@ -179,7 +181,7 @@ protected:
 
 	// GUI elements:
 	QSpinBox* rangeMinYControl_, *rangeMaxYControl_, *rangeMinXControl_, *rangeMaxXControl_;
-	QSpinBox* correlationCenterBox_, *correlationPointsBox_;
+	QSpinBox* correlationCenterBox_, *correlationPointsBox_, *smoothModeBox_;
 	QPushButton* correlateNowButton_;
 	QComboBox* correlationSmoothingBox_;
 	QCheckBox* liveCorrelationCheckBox_;

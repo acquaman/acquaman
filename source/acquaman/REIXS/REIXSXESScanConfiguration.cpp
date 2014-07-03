@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -27,7 +28,17 @@ REIXSXESScanConfiguration::REIXSXESScanConfiguration(QObject *parent) :
 	setAutoExportEnabled(false);
 
 	gratingNumber_ = 0;
-	centerEV_ = 200;
+
+	slitWidth_ = 25;
+	applySlitWidth_ = false;
+	energy_ = 400;
+	applyEnergy_ = false;
+
+	polarization_ = 1;
+	polarizationAngle_ = 0;
+	applyPolarization_ = false;
+
+
 	defocusDistanceMm_ = 0;
 	spectrometerCalibrationId_ = -1;
 	detectorTiltOffset_ = 0;
@@ -39,9 +50,46 @@ REIXSXESScanConfiguration::REIXSXESScanConfiguration(QObject *parent) :
 	maximumTotalCounts_ = 1000000;
 	maximumDurationSeconds_ = 300;
 
+	userScanName_ = "XES";
 	scanNumber_ = 0;
 	sampleId_ = -1;
 	namedAutomatically_ = true;
+}
+
+REIXSXESScanConfiguration::REIXSXESScanConfiguration(const REIXSXESScanConfiguration &original)
+	: AMScanConfiguration()
+{
+	mcpDetectorInfo_ = *(original.mcpDetectorInfo());
+
+	setAutoExportEnabled(false);
+
+	gratingNumber_ = original.gratingNumber();
+
+	slitWidth_ = original.slitWidth();
+	applySlitWidth_ = original.applySlitWidth();
+	energy_ = original.energy();
+	applyEnergy_ = original.applyEnergy();
+
+	polarization_ = original.polarization();
+	polarizationAngle_ = original.polarizationAngle();
+	applyPolarization_ = original.applyPolarization();
+
+
+	defocusDistanceMm_ = original.defocusDistanceMm();
+	spectrometerCalibrationId_ = original.spectrometerCalibrationId();
+	detectorTiltOffset_ = original.detectorTiltOffset();
+	// removed: detectorOrientation_ = 0;
+	shouldStartFromCurrentPosition_ = original.shouldStartFromCurrentPosition();
+	doNotClearExistingCounts_ = original.doNotClearExistingCounts();
+
+
+	maximumTotalCounts_ = original.maximumTotalCounts();
+	maximumDurationSeconds_ = original.maximumDurationSeconds();
+
+	userScanName_ = original.userScanName();
+	scanNumber_ = original.scanNumber();
+	sampleId_ = original.sampleId();
+	namedAutomatically_ = original.namedAutomatically();
 }
 
 // Returns a pointer to a newly-created copy of this scan configuration.  (It takes the role of a copy constructor, but is virtual so that our high-level classes can copy a scan configuration without knowing exactly what kind it is.)
@@ -63,11 +111,12 @@ AMScanController* REIXSXESScanConfiguration::createController() {
 
 QString REIXSXESScanConfiguration::description() const
 {
-	QString rv = QString("XES Scan at %1 eV  (%2 seconds or %3 counts)").arg(centerEV()).arg(maximumDurationSeconds()).arg(maximumTotalCounts(), 0, 'g', 0);
-	if(defocusDistanceMm() != 0)
-		rv.append(QString(", Defocussed %1 mm").arg(defocusDistanceMm()));
-	if(detectorTiltOffset() != 0)
-		rv.append(QString(", Tilt offset %1 deg").arg(detectorTiltOffset()));
+	QString rv = QString("XES Scan");// at %1 eV  (%2 seconds or %3 counts)").arg(centerEV()).arg(maximumDurationSeconds()).arg(maximumTotalCounts(), 0, 'g', 0);
+	if(applyEnergy()) rv.append(QString(" at %1 eV").arg(energy()));
+//	if(defocusDistanceMm() != 0)
+//		rv.append(QString(", Defocussed %1 mm").arg(defocusDistanceMm()));
+//	if(detectorTiltOffset() != 0)
+//		rv.append(QString(", Tilt offset %1 deg").arg(detectorTiltOffset()));
 
 	return rv;
 }
@@ -77,3 +126,4 @@ AMScanConfigurationView * REIXSXESScanConfiguration::createView()
 {
 	return new REIXSXESScanConfigurationView(this);
 }
+

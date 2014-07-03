@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 Acquaman is free software: you can redistribute it and/or modify
@@ -24,7 +25,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/acquaman/AMRegionsView.h"
 #include "ui/VESPERS/VESPERSScanConfigurationView.h"
-#include "acquaman/VESPERS/VESPERSEnergyDacqScanController.h"
 #include "acquaman/VESPERS/VESPERSEnergyScanConfiguration.h"
 
 #include <QLineEdit>
@@ -42,11 +42,12 @@ class VESPERSEnergyScanConfigurationView : public VESPERSScanConfigurationView
 
 public:
 	/// Constructor.  Passes in the configuration that this view will modify.
- 	virtual ~VESPERSEnergyScanConfigurationView();
 	VESPERSEnergyScanConfigurationView(VESPERSEnergyScanConfiguration *config, QWidget *parent = 0);
+	/// Destructor.
+	virtual ~VESPERSEnergyScanConfigurationView();
 
 	/// Getter for the configuration.
-	const AMScanConfiguration *configuration() const { return config_; }
+	const AMScanConfiguration *configuration() const { return configuration_; }
 
 public slots:
 
@@ -58,24 +59,19 @@ protected slots:
 	/// Sets the current horizontal and vertical positions and saves them in the configuration.
 	void setScanPosition();
 	/// Helper slot that sets the time offset for the scan.
-	void setTimeOffset(double time) { config_->setTimeOffset(time); }
+	void setTimeOffset(double time) { configuration_->setTimeOffset(time); }
 	/// Helper slot that handles the setting the estimated time label.
 	void onEstimatedTimeChanged();
 	/// Handles making sure "Go To Position" looks appropriate when the motors change.
 	void onMotorsUpdated(int id);
-
-	/// Emits the configureDetector signal based with 'Roper CCD' or 'Mar CCD.
-	void onConfigureCCDDetectorClicked() { emit configureDetector(ccdDetectorIdToString(int(config_->ccdDetector()))); }
 
 protected:
 	/// Helper method that checks if the CCD files have the name given by \param name.  Does nothing if everything is okay.  Calls onCCDNameConflict if name conflicts exits.
 	void checkCCDFileNames(const QString &name) const;
 
 	/// Pointer to the specific scan config the view is modifying.
-	VESPERSEnergyScanConfiguration *config_;
+	VESPERSEnergyScanConfiguration *configuration_;
 
-	/// This lets you setup regions.
-	AMRegionsView *regionsView_;
 	/// Pointer to the CCD help group box.
 	QGroupBox *ccdTextBox_;
 	/// Label holding the current estimated time for the scan to complete.  Takes into account extra time per point based on experience on the beamline.

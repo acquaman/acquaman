@@ -1,3 +1,24 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #ifndef CLSPGTDETECTORV2_H
 #define CLSPGTDETECTORV2_H
 
@@ -12,8 +33,9 @@ class CLSPGTDetectorV2 : public AMDetector
 Q_OBJECT
 public:
 	/// Default constructor. Requires the name and base PV of the detector. It builds all the PV's and connects them accordingly.
- 	virtual ~CLSPGTDetectorV2();
 	CLSPGTDetectorV2(const QString &name, const QString &description, const QString &baseName, QObject *parent = 0);
+	/// Destructor.
+	virtual ~CLSPGTDetectorV2();
 
 	/// Returns the number of dimensions in the output of this detector. This is a spectrum detector, so it has a rank of 1.
 	virtual int rank() const { return 1; }
@@ -37,7 +59,8 @@ public:
 
 	/// Returns the current acquisition dwell time from the integration time control
 	virtual double acquisitionTime() const;
-
+	/// Returns the acquisition time tolerance.
+	virtual double acquisitionTimeTolerance() const;
 	/// The PGT can be configured to work with synchronized dwell time systems
 	virtual bool supportsSynchronizedDwell() const { return true; }
 	/// Returns the CLS Synchronized Dwell Time trigger PV string, which acts as the key for the synchronized dwell time lookup system

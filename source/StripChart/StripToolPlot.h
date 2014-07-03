@@ -1,3 +1,24 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #ifndef STRIPTOOLPLOT_H
 #define STRIPTOOLPLOT_H
 
@@ -22,48 +43,33 @@ public:
     virtual ~StripToolPlot();
     
 signals:
-    void addSeries(const QModelIndex &parent, int rowStart, int rowFinish);
-    void removeSeries(const QModelIndex &parent, int rowStart, int rowFinish);
-    void seriesSelected(MPlotItem *plotSelection);
-    void seriesDeselected();
-    void setPlotSelection(MPlotItem *modelSelection);
-
-protected:
-    StripToolModel *model_;
-    MPlot *plot_;
-    StripToolSelector *selector_;
-
-    QAction *toggleControls_;
+    void selectionChanged(MPlotItem *plotSelection);
 
 public:
-    void setModel(StripToolModel *model);
-
-protected:
-    /// Returns true if a given series is in the plot, false otherwise.
     bool contains(MPlotItem *series);
-    /// Adds a given series to the plot, if it hasn't been added already. Returns true if the unique series was successfully added.
-    bool addSeriesToPlot(MPlotItem *newSeries);
-    /// Removes a given series from the plot, if it is contained in the plot. Returns true if all instances of the series were removed.
-    bool removeSeriesFromPlot(MPlotItem *toRemove);
+    MPlotItem* selectedItem() const;
 
-    void createActions();
-    
+public slots:
+    bool addPlotItem(MPlotItem *newSeries);
+    bool removePlotItem(MPlotItem *toRemove);
+    void setSelectedItem(MPlotItem *newSelection);
+    void setLeftAxisName(const QString &newName);
+    void setLeftAxisRange(const MPlotAxisRange *newAxisRange);
+    void setBottomAxisName(const QString &newName);
+    void setWaterfall(bool waterfallOn);
+
 protected slots:
-    /// Adds series to the plot when the rowsInserted() signal is emitted from the model.
-    void toAddSeries(const QModelIndex &parent, int rowStart, int rowFinish);
-    /// Removes series from the plot when the rowsAboutToBeRemoved() signal is emitted from the model.
-    void toRemoveSeries(const QModelIndex &parent, int rowStart, int rowFinish);
-    /// Causes the string arguments to become the labels on the plot.
-    void setPlotAxesLabels(const QString &bottomLabel, const QString &leftLabel);
-    void setPlotAxesRanges(const MPlotAxisRange &axisBottom);
-    void setTicksVisible(bool isShown);
-    /// Removes a series from the plot if the series is unchecked, adds a series if it is checked.
-    void onSeriesChanged(Qt::CheckState seriesState, int rowChanged);
-    /// Causes a series to become de/selected to match the model's selected pv.
-    void onModelSelectionChange();
+    void onSelectionChange();
 
-    void contextMenuEvent(QContextMenuEvent *event);
-    void toToggleControls();
+private:
+    void buildComponents();
+    void makeConnections();
+    void defaultSettings();
+
+private:
+    MPlot *plot_;
+    StripToolSelector *selector_;
+    bool waterfallOn_;
 
 };
 

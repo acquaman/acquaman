@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 Acquaman is free software: you can redistribute it and/or modify
@@ -160,11 +161,6 @@ void AMLoopAction3::internalDoNextAction()
 	else {
 		// done this loop.
 		emit currentIterationChanged(++currentIteration_);
-
-		if(generateScanActionMessages_){
-			AMAgnosticDataAPILoopIncrementMessage loopIncrementedMessage(info()->shortDescription(), currentIteration_);
-			AMAgnosticDataAPISupport::handlerFromLookupKey("ScanActions")->postMessage(loopIncrementedMessage);
-		}
 
 		// Are we stopping now that we are at the end of this iteration?
 		if (skipAfterCurrentIteration_)

@@ -1,3 +1,24 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "SGMFastScanConfiguration2013View.h"
 
 #include <QGridLayout>
@@ -39,7 +60,8 @@ SGMFastScanConfiguration2013View::SGMFastScanConfiguration2013View(SGMFastScanCo
 		warningsLabel_->setStyleSheet( "QLabel{ color: red }" );
 
 		scanNameLabel_ = new QLabel("Scan Name");
-		scanNameEdit_ = new QLineEdit(this);
+		scanNameEdit_ = new AMRegExpLineEdit("/|;|@|#|<|>", Qt::CaseInsensitive, "/;#>@< characters are not allowed.");
+		scanNameEdit_->setValidIfMatches(false);
 
 		connect(scanNameEdit_, SIGNAL(textEdited(QString)), this, SLOT(onScanNameEditChanged(QString)));
 
@@ -107,7 +129,11 @@ SGMFastScanConfiguration2013View::SGMFastScanConfiguration2013View(SGMFastScanCo
 }
 
 const AMScanConfiguration* SGMFastScanConfiguration2013View::configuration() const{
+	qDebug() << "Calling configuration, count is " << fastDetectorSelector_->selectedDetectorInfos().count();
+
 	cfg_->setDetectorConfigurations(fastDetectorSelector_->selectedDetectorInfos());
+
+	qDebug() << "And again, " << cfg_->detectorConfigurations().count();
 	return cfg_;
 }
 

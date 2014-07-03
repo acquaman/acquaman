@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -70,7 +71,8 @@ class AMScanConfiguration : public AMDbObject
 public:
 	/// Default Constructor
 	explicit AMScanConfiguration(QObject *parent = 0);
-
+	/// Copy constructor.
+	AMScanConfiguration(const AMScanConfiguration &original);
 	/// Empty Destructor
 	virtual ~AMScanConfiguration() {}
 

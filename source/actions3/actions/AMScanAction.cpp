@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 Acquaman is free software: you can redistribute it and/or modify
@@ -28,7 +29,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/export/AMExporterOption.h"
 
 // These are here for the time being.  When AMScanController is updated to accommodate skipping in a more general way these need to be added here.
-#include "acquaman/AM2DDacqScanController.h"
 #include "acquaman/AMScanActionController.h"
 
 #include "beamline/AMBeamline.h"

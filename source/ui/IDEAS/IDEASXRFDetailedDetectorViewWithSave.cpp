@@ -1,6 +1,30 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "IDEASXRFDetailedDetectorViewWithSave.h"
 
 #include "beamline/IDEAS/IDEASBeamline.h"
+#include "ui/CLS/CLSSIS3820ScalerView.h"
+#include "beamline/CLS/CLSSIS3820Scaler.h"
+#include "beamline/CLS/CLSSR570.h"
 
 IDEASXRFDetailedDetectorViewWithSave::IDEASXRFDetailedDetectorViewWithSave(AMXRFDetector *detector, QWidget *parent)
 	: AMXRFDetailedDetectorView(detector, parent)
@@ -35,8 +59,15 @@ void IDEASXRFDetailedDetectorViewWithSave::buildScanSaveViews()
 	scanInfoGridLayout->setVerticalSpacing(4);
 	scanInfoGridLayout->setContentsMargins(12, -1, -1, -1);
 
+	peakingTimeBox = new QComboBox();
+	peakingTimeBox->setObjectName(QString::fromUtf8("peakingTimeBox"));
+	peakingTimeBox->addItem("Setting Unknown");
+	peakingTimeBox->addItem("High Rate / Low Res");
+	peakingTimeBox->addItem("High Res / Low Rate");
+	peakingTimeBox->addItem("Ultra Res / Slow Rate");
 
-
+	connect(IDEASBeamline::ideas()->ketekPeakingTime(), SIGNAL(connected(bool)), this, SLOT(onKETEKPeakingTimeChanged()));
+	connect(IDEASBeamline::ideas()->ketekPeakingTime(), SIGNAL(valueChanged(double)), this, SLOT(onKETEKPeakingTimeChanged()));
 
 	notesEdit = new QPlainTextEdit(this);
 	notesEdit->setObjectName(QString::fromUtf8("notesEdit"));
@@ -85,28 +116,41 @@ void IDEASXRFDetailedDetectorViewWithSave::buildScanSaveViews()
 
 	scanInfoGridLayout->addWidget(scanNumber, 1, 1, 1, 1);
 
+	rightLayout_->addWidget(peakingTimeBox);
+
 	rightLayout_->addStretch();
 
 	rightLayout_->addLayout(scanInfoGridLayout);
 	rightLayout_->addWidget(notesEdit);
 
 	saveScanButton_ = new QPushButton("Save Scan");
+	saveScanButton_->setEnabled(false);
 
 	rightLayout_->addWidget(saveScanButton_);
+
 
 	connect(saveScanButton_, SIGNAL(clicked()), this, SLOT(onSaveScanButtonClicked()));
 	connect(notesEdit, SIGNAL(textChanged()), this, SLOT(onNotesTextChanged()));
 	connect(scanName, SIGNAL(textChanged(QString)), this, SLOT(onScanNameChanged(QString)));
 	connect(scanNumber, SIGNAL(valueChanged(int)), this, SLOT(onScanNumberChanged(int)));
+	connect(peakingTimeBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(onPeakingTimeBoxChanged(QString)));
+	connect(acquireButton_, SIGNAL(clicked(bool)),saveScanButton_, SLOT(setEnabled(bool)));
+	connect(IDEASBeamline::ideas()->ketek(), SIGNAL(acquisitionSucceeded()),this, SLOT(onAcquisitionSucceeded()));
+	connect(cancelButton_, SIGNAL(clicked()),this, SLOT(onAcquisitionSucceeded()));
+
 
 }
 
 void IDEASXRFDetailedDetectorViewWithSave::onSaveScanButtonClicked()
 {
+
 	config_->setDetectorInfo(detector_->toInfo());
 	config_->setIntegrationTime(detector_->elapsedTime());
+
         scanAction_ = new AMScanAction(new AMScanActionInfo(config_->createCopy()));
         scanAction_->start();
+	saveScanButton_->setEnabled(false);
+	saveScanButton_->setText("Scan Saved");
 }
 
 void IDEASXRFDetailedDetectorViewWithSave::onNotesTextChanged()
@@ -122,4 +166,68 @@ void IDEASXRFDetailedDetectorViewWithSave::onScanNameChanged(QString name)
 void IDEASXRFDetailedDetectorViewWithSave::onScanNumberChanged(int number)
 {
 	config_->setScanNumber(number);
+}
+
+void IDEASXRFDetailedDetectorViewWithSave::onPeakingTimeBoxChanged(const QString &arg1)
+{
+
+	if (arg1 == "High Rate / Low Res")
+	{
+	    IDEASBeamline::ideas()->ketekPeakingTime()->move(0.300);
+	    IDEASBeamline::ideas()->ketekPreampGain()->move(1.2600);
+	}
+	else if (arg1 == "High Res / Low Rate")
+	{
+	    IDEASBeamline::ideas()->ketekPeakingTime()->move(2.00);
+	    IDEASBeamline::ideas()->ketekPreampGain()->move(1.2375);
+	}
+	else if (arg1 == "Ultra Res / Slow Rate")
+	{
+	    IDEASBeamline::ideas()->ketekPeakingTime()->move(4.00);
+	    IDEASBeamline::ideas()->ketekPreampGain()->move(1.2375);
+
+	  }
+
+}
+
+void IDEASXRFDetailedDetectorViewWithSave::onAcquisitionSucceeded()
+{
+    saveScanButton_->setEnabled(true);
+    saveScanButton_->setText("Save Scan");
+    AMControlInfoList positions(IDEASBeamline::ideas()->exposedControls()->toInfoList());
+    positions.remove(positions.indexOf("DwellTime"));
+    positions.remove(positions.indexOf("DirectEnergy"));
+
+    CLSSR570* I0SR570 = qobject_cast<CLSSR570*>(IDEASBeamline::ideas()->scaler()->channelAt(0)->currentAmplifier());
+    AMControlInfo I0Scaler("I0Scaler", IDEASBeamline::ideas()->scaler()->channelAt(0)->voltage(), 0, 0, QString("%1 %2").arg(I0SR570->value()).arg(I0SR570->units()) , 0.1, "I_0 Scaler Value");
+    positions.insert(2, I0Scaler);
+
+    CLSSR570* SampleSR570 = qobject_cast<CLSSR570*>(IDEASBeamline::ideas()->scaler()->channelAt(1)->currentAmplifier());
+    AMControlInfo SampleScaler("SampleScaler", IDEASBeamline::ideas()->scaler()->channelAt(1)->voltage(), 0, 0, QString("%1 %2").arg(SampleSR570->value()).arg(SampleSR570->units()) , 0.1, "Sample Scaler Value");
+    positions.insert(3, SampleScaler);
+
+    CLSSR570* ReferenceSR570 = qobject_cast<CLSSR570*>(IDEASBeamline::ideas()->scaler()->channelAt(2)->currentAmplifier());
+    AMControlInfo ReferenceScaler("ReferenceScaler", IDEASBeamline::ideas()->scaler()->channelAt(2)->voltage(), 0, 0, QString("%1 %2").arg(ReferenceSR570->value()).arg(ReferenceSR570->units()) , 0.1, "Reference Scaler Value");
+    positions.insert(4, ReferenceScaler);
+
+    config_->setPositions(positions);
+}
+
+void IDEASXRFDetailedDetectorViewWithSave::onKETEKPeakingTimeChanged()
+{
+
+    // HACK ugly hard coded magic numbers...   Works for now.
+    peakingTimeBox->blockSignals(true);
+
+    if (IDEASBeamline::ideas()->ketekPeakingTime()->value() == 0.3)
+	peakingTimeBox->setCurrentIndex(1);
+    else if (IDEASBeamline::ideas()->ketekPeakingTime()->value() == 2.0)
+	peakingTimeBox->setCurrentIndex(2);
+    else if (IDEASBeamline::ideas()->ketekPeakingTime()->value() == 4.0)
+	peakingTimeBox->setCurrentIndex(3);
+    else
+	peakingTimeBox->setCurrentIndex(0);
+
+    peakingTimeBox->blockSignals(false);
+
 }

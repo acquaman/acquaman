@@ -1,9 +1,30 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "VESPERSScanConfigurationView.h"
 
 #include "beamline/VESPERS/VESPERSBeamline.h"
-#include "util/VESPERS/GeneralUtilities.h"
 
- VESPERSScanConfigurationView::~VESPERSScanConfigurationView(){}
+VESPERSScanConfigurationView::~VESPERSScanConfigurationView(){}
+
 VESPERSScanConfigurationView::VESPERSScanConfigurationView(QWidget *parent)
 	: AMScanConfigurationView(parent)
 {
@@ -76,257 +97,75 @@ QString VESPERSScanConfigurationView::ccdDetectorIdToString(int id)
 	return string;
 }
 
-void VESPERSScanConfigurationView::updateItButtons(int It)
+void VESPERSScanConfigurationView::updateItComboBox(int It)
 {
-	ItGroup_->button(It)->setChecked(true);
+	itComboBox_->setCurrentIndex(It);
 }
 
-void VESPERSScanConfigurationView::updateI0Buttons(int I0)
+void VESPERSScanConfigurationView::updateI0ComboBox(int I0)
 {
-	I0Group_->button(I0)->setChecked(true);
+	i0ComboBox_->setCurrentIndex(I0);
 }
 
-void VESPERSScanConfigurationView::updateFluorescenceDetector(int detector)
+void VESPERSScanConfigurationView::updateFluorescenceDetectorComboBox(int detector)
 {
-	fluorescenceButtonGroup_->button(detector)->setChecked(true);
+	fluorescenceDetectorComboBox_->setCurrentIndex(detector);
 }
 
-void VESPERSScanConfigurationView::updateCCDDetectorButtons(int detector)
+void VESPERSScanConfigurationView::updateCCDDetectorComboBox(int detector)
 {
-	ccdButtonGroup_->button(detector)->setChecked(true);
+	ccdComboBox_->setCurrentIndex(ccdComboBox_->findData(detector));
 }
 
-void VESPERSScanConfigurationView::updateMotor(int choice)
+void VESPERSScanConfigurationView::updateMotorSelectionComboBox(int choice)
 {
-	motorButtonGroup_->button(choice)->setChecked(true);
+	motorSelectionComboBox_->setCurrentIndex(motorSelectionComboBox_->findData(choice));
 }
 
-void VESPERSScanConfigurationView::updateAndSetRoiTextBox(int xrfId)
-{Q_UNUSED(xrfId);
-//	roiText_->clear();
-
-//	if (xrfId ==  (VESPERS::SingleElement | VESPERS::FourElement)){
-
-//		AMROIInfoList singleElList = *VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList();
-//		AMROIInfoList fourElList = *VESPERSBeamline::vespers()->vortexXRF4E()->roiInfoList();
-//		QList<QPair<int, int> > sameList = VESPERS::findRoiPairs(&singleElList, &fourElList);
-
-//		if (!sameList.isEmpty()){
-
-//			QList<int> singleRoiList;
-//			QList<int> fourRoiList;
-
-//			roiText_->insertPlainText("Same ROI's\n");
-//			roiText_->insertPlainText("Name\tLow (eV)\tHigh (eV)\n");
-
-//			for (int i = 0, count = sameList.size(); i < count; i++){
-
-//				QPair<int, int> temp = sameList.at(i);
-//				singleRoiList << temp.first;
-//				fourRoiList << temp.second;
-//				AMROIInfo info = singleElList.at(temp.first);
-//				roiText_->insertPlainText(GeneralUtilities::addGreek(info.name())+"\t" + QString::number(info.low()) + "\t" + QString::number(info.high()) +"\n");
-//			}
-
-//			if (singleRoiList.size() < singleElList.count() || fourRoiList.size() < fourElList.count()){
-
-//				roiText_->insertPlainText("\nDifferent ROI's\n");
-
-//				if (singleRoiList.size() < singleElList.count()){
-
-//					roiText_->insertPlainText("Single Element Vortex\n");
-//					roiText_->insertPlainText("Name\tLow (eV)\tHigh (eV)\n");
-
-//					for (int i = 0, count = singleElList.count(); i < count; i++){
-
-//						if (!singleRoiList.contains(i)){
-
-//							AMROIInfo info = singleElList.at(i);
-//							roiText_->insertPlainText(GeneralUtilities::addGreek(info.name())+"\t" + QString::number(info.low()) + "\t" + QString::number(info.high()) +"\n");
-//						}
-//					}
-
-//					roiText_->insertPlainText("\n");
-//				}
-
-//				if (fourRoiList.size() < fourElList.count()){
-
-//					roiText_->insertPlainText("Four Element Vortex\n");
-//					roiText_->insertPlainText("Name\tLow (eV)\tHigh (eV)\n");
-
-//					for (int i = 0, count = fourElList.count(); i < count; i++){
-
-//						if (!fourRoiList.contains(i)){
-
-//							AMROIInfo info = fourElList.at(i);
-//							roiText_->insertPlainText(GeneralUtilities::addGreek(info.name())+"\t" + QString::number(info.low()) + "\t" + QString::number(info.high()) +"\n");
-//						}
-//					}
-//				}
-//			}
-//		}
-
-//		else {
-
-//			roiText_->insertPlainText("Different ROI's\n");
-//			roiText_->insertPlainText("Single Element Vortex\n");
-
-//			for (int i = 0, count = singleElList.count(); i < count; i++){
-
-//				AMROIInfo info = singleElList.at(i);
-//				roiText_->insertPlainText(GeneralUtilities::addGreek(info.name())+"\t" + QString::number(info.low()) + "\t" + QString::number(info.high()) +"\n");
-//			}
-
-//			roiText_->insertPlainText("\nFour Element Vortex\n");
-
-//			for (int i = 0, count = fourElList.count(); i < count; i++){
-
-//				AMROIInfo info = fourElList.at(i);
-//				roiText_->insertPlainText(GeneralUtilities::addGreek(info.name())+"\t" + QString::number(info.low()) + "\t" + QString::number(info.high()) +"\n");
-//			}
-//		}
-//	}
-
-//	else {
-
-//		AMROIInfoList list = AMROIInfoList();
-
-//		if (xrfId == VESPERS::SingleElement)
-//			list = *VESPERSBeamline::vespers()->vortexXRF1E()->roiInfoList();
-
-//		else if (xrfId == VESPERS::FourElement)
-//			list = *VESPERSBeamline::vespers()->vortexXRF4E()->roiInfoList();
-
-//		roiText_->insertPlainText("Name\tLow (eV)\tHigh (eV)\n");
-
-//		for (int i = 0; i < list.count(); i++)
-//			roiText_->insertPlainText(GeneralUtilities::addGreek(list.at(i).name())+"\t" + QString::number(list.at(i).low()) + "\t" + QString::number(list.at(i).high()) +"\n");
-//	}
-}
-
-QGroupBox *VESPERSScanConfigurationView::addFluorescenceDetectorSelectionView()
+QComboBox *VESPERSScanConfigurationView::createFluorescenceComboBox()
 {
-	fluorescenceButtonGroup_ = new QButtonGroup;
-	QRadioButton *tempButton;
-	QVBoxLayout *fluorescenceDetectorLayout = new QVBoxLayout;
+	QComboBox *newComboBox = new QComboBox;
+	newComboBox->insertItem(0, "None");
+	newComboBox->insertItem(1, "1E Vortex");
+	newComboBox->insertItem(2, "4E Vortex");
+	newComboBox->insertItem(3, "1E & 4E");
 
-	tempButton = new QRadioButton("None");
-	fluorescenceButtonGroup_->addButton(tempButton, 0);
-	fluorescenceDetectorLayout->addWidget(tempButton);
-	tempButton = new QRadioButton("Single Element Vortex");
-	fluorescenceButtonGroup_->addButton(tempButton, 1);
-	fluorescenceDetectorLayout->addWidget(tempButton);
-	tempButton = new QRadioButton("Four Element Vortex");
-	fluorescenceButtonGroup_->addButton(tempButton, 2);
-	fluorescenceDetectorLayout->addWidget(tempButton);
-	tempButton = new QRadioButton("Single && Four");
-	fluorescenceButtonGroup_->addButton(tempButton, 3);	// 3 is SingleElement | FourElement
-	fluorescenceDetectorLayout->addWidget(tempButton);
-
-	QGroupBox *fluorescenceDetectorGroupBox = new QGroupBox("Fluorescence Detector");
-	fluorescenceDetectorGroupBox->setLayout(fluorescenceDetectorLayout);
-
-	return fluorescenceDetectorGroupBox;
+	return newComboBox;
 }
 
-QGroupBox *VESPERSScanConfigurationView::addCCDDetectorSelectionView()
+QComboBox *VESPERSScanConfigurationView::createCCDComboBox()
 {
-	ccdButtonGroup_ = new QButtonGroup;
-	QRadioButton *tempButton;
-	QVBoxLayout *ccdDetectorLayout = new QVBoxLayout;
+	QComboBox *newComboBox = new QComboBox;
+	newComboBox->addItem("None", 0);
+	newComboBox->addItem("Roper", 1);
+	newComboBox->addItem("Mar", 2);
+	newComboBox->addItem("Pilatus", 4);
 
-	tempButton = new QRadioButton("None");
-	ccdButtonGroup_->addButton(tempButton, 0);
-	ccdDetectorLayout->addWidget(tempButton);
-	tempButton = new QRadioButton("Roper");
-	ccdButtonGroup_->addButton(tempButton, 1);
-	ccdDetectorLayout->addWidget(tempButton);
-	tempButton = new QRadioButton("Mar");
-	ccdButtonGroup_->addButton(tempButton, 2);
-	ccdDetectorLayout->addWidget(tempButton);
-	tempButton = new QRadioButton("Pilatus");
-	ccdButtonGroup_->addButton(tempButton, 4);
-	ccdDetectorLayout->addWidget(tempButton);
-
-	QGroupBox *ccdDetectorGroupBox = new QGroupBox("Area Detector");
-	ccdDetectorGroupBox->setLayout(ccdDetectorLayout);
-
-	return ccdDetectorGroupBox;
+	return newComboBox;
 }
 
-QGroupBox *VESPERSScanConfigurationView::addI0SelectionView()
+QComboBox *VESPERSScanConfigurationView::createIonChamberComboBox()
 {
-	QRadioButton *tempButton;
-	QVBoxLayout *I0GroupLayout = new QVBoxLayout;
+	QComboBox *newComboBox = new QComboBox;
+	newComboBox->insertItem(0, "Isplit");
+	newComboBox->insertItem(1, "Iprekb");
+	newComboBox->insertItem(2, "Imini");
+	newComboBox->insertItem(3, "Ipost");
 
-	I0Group_ = new QButtonGroup;
-	tempButton = new QRadioButton("Isplit");
-	I0Group_->addButton(tempButton, 0);
-	I0GroupLayout->addWidget(tempButton);
-	tempButton = new QRadioButton("Iprekb");
-	I0Group_->addButton(tempButton, 1);
-	I0GroupLayout->addWidget(tempButton);
-	tempButton = new QRadioButton("Imini");
-	tempButton->setChecked(true);
-	I0Group_->addButton(tempButton, 2);
-	I0GroupLayout->addWidget(tempButton);
-	tempButton = new QRadioButton("Ipost");
-	I0Group_->addButton(tempButton, 3);
-	I0GroupLayout->addWidget(tempButton);
-
-	QGroupBox *I0GroupBox = new QGroupBox("I0");
-	I0GroupBox->setLayout(I0GroupLayout);
-
-	return I0GroupBox;
+	return newComboBox;
 }
 
-QGroupBox *VESPERSScanConfigurationView::addItSelectionView()
+QComboBox *VESPERSScanConfigurationView::createMotorSelectionComboBox(QStringList labels, QList<int> ids)
 {
-	QRadioButton *tempButton;
-	QVBoxLayout *ItGroupLayout = new QVBoxLayout;
+	QComboBox *newComboBox = new QComboBox;
 
-	ItGroup_ = new QButtonGroup;
-	tempButton = new QRadioButton("Isplit");
-	tempButton->setEnabled(false);
-	ItGroup_->addButton(tempButton, 0);
-	ItGroupLayout->addWidget(tempButton);
-	tempButton = new QRadioButton("Iprekb");
-	ItGroup_->addButton(tempButton, 1);
-	ItGroupLayout->addWidget(tempButton);
-	tempButton = new QRadioButton("Imini");
-	ItGroup_->addButton(tempButton, 2);
-	ItGroupLayout->addWidget(tempButton);
-	tempButton = new QRadioButton("Ipost");
-	ItGroup_->addButton(tempButton, 3);
-	ItGroupLayout->addWidget(tempButton);
+	for (int i = 0, size = ids.size(); i < size; i++)
+		newComboBox->addItem(labels.at(i), ids.at(i));
 
-	QGroupBox *ItGroupBox = new QGroupBox("It");
-	ItGroupBox->setLayout(ItGroupLayout);
-
-	return ItGroupBox;
+	return newComboBox;
 }
 
-QGroupBox *VESPERSScanConfigurationView::addMotorSelectionView(QStringList labels, QList<int> ids)
-{
-	QRadioButton *tempButton;
-	QVBoxLayout *motorChoiceLayout = new QVBoxLayout;
-
-	motorButtonGroup_ = new QButtonGroup;
-
-	for (int i = 0, iSize = labels.size(); i < iSize; i++){
-
-		tempButton = new QRadioButton(labels.at(i));
-		motorButtonGroup_->addButton(tempButton, ids.at(i));
-		motorChoiceLayout->addWidget(tempButton);
-	}
-
-	QGroupBox *motorSelectionBox = new QGroupBox("Motors");
-	motorSelectionBox->setLayout(motorChoiceLayout);
-
-	return motorSelectionBox;
-}
-
-QLineEdit *VESPERSScanConfigurationView::addScanNameView(const QString &name)
+QLineEdit *VESPERSScanConfigurationView::createScanNameView(const QString &name)
 {
 	QLineEdit *scanName = new QLineEdit;
 	scanName->setText(name);
@@ -447,7 +286,7 @@ QGroupBox *VESPERSScanConfigurationView::addExporterOptionsView(QStringList list
 	return autoExportGroupBox;
 }
 
-QDoubleSpinBox *VESPERSScanConfigurationView::addDwellTimeWidget(double time)
+QDoubleSpinBox *VESPERSScanConfigurationView::createDwellTimeSpinBox(double time)
 {
 	QDoubleSpinBox *dwellTime = new QDoubleSpinBox;
 	dwellTime->setRange(0, 1000000);
@@ -459,7 +298,7 @@ QDoubleSpinBox *VESPERSScanConfigurationView::addDwellTimeWidget(double time)
 	return dwellTime;
 }
 
-QDoubleSpinBox *VESPERSScanConfigurationView::buildPositionDoubleSpinBox(const QString &prefix, const QString &suffix, double value, int decimals)
+QDoubleSpinBox *VESPERSScanConfigurationView::createPositionDoubleSpinBox(const QString &prefix, const QString &suffix, double value, int decimals)
 {
 	QDoubleSpinBox *box = new QDoubleSpinBox;
 	box->setPrefix(prefix);
@@ -470,4 +309,40 @@ QDoubleSpinBox *VESPERSScanConfigurationView::buildPositionDoubleSpinBox(const Q
 	box->setAlignment(Qt::AlignCenter);
 
 	return box;
+}
+
+void VESPERSScanConfigurationView::disableStandardFluorescenceOptions()
+{
+	QStandardItemModel *model = qobject_cast<QStandardItemModel *>(fluorescenceDetectorComboBox_->model());
+
+	for (int i = 0; i < fluorescenceDetectorComboBox_->count(); i++)
+		if (model->item(i)->text() == "None")
+			model->item(i)->setFlags(Qt::NoItemFlags);
+}
+
+void VESPERSScanConfigurationView::disableStandardXRDOptions()
+{
+	QStandardItemModel *model = qobject_cast<QStandardItemModel *>(ccdComboBox_->model());
+
+	for (int i = 0; i < ccdComboBox_->count(); i++)
+		if (model->item(i)->text() == "Roper" || model->item(i)->text() == "Mar")
+			model->item(i)->setFlags(Qt::NoItemFlags);
+}
+
+void VESPERSScanConfigurationView::disableStandardI0Options()
+{
+	QStandardItemModel *model = qobject_cast<QStandardItemModel *>(i0ComboBox_->model());
+
+	for (int i = 0; i < i0ComboBox_->count(); i++)
+		if (model->item(i)->text() == "Ipost")
+			model->item(i)->setFlags(Qt::NoItemFlags);
+}
+
+void VESPERSScanConfigurationView::disableStandardItOptions()
+{
+	QStandardItemModel *model = qobject_cast<QStandardItemModel *>(itComboBox_->model());
+
+	for (int i = 0; i < itComboBox_->count(); i++)
+		if (model->item(i)->text() == "Isplit")
+			model->item(i)->setFlags(Qt::NoItemFlags);
 }

@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -25,11 +26,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/AMListAction3.h"
 #include "actions3/AMActionSupport.h"
 
-#include "acquaman/CLS/CLSSIS3820ScalerSADetector.h"
 #include "beamline/CLS/CLSBasicScalerChannelDetector.h"
 #include "beamline/CLS/CLSSIS3820Scaler.h"
+#include "beamline/CLS/CLSSR570.h"
+#include "beamline/CLS/CLSMAXvMotor.h"
 
 #include <QApplication>
+#include <QDebug>
+#include <QTimer>
 
 REIXSBeamline::REIXSBeamline() :
 	AMBeamline("REIXSBeamline")
@@ -75,10 +79,20 @@ REIXSBeamline::REIXSBeamline() :
 	mcpDetector_ = new REIXSXESMCPDetector(this);
 
 	scaler_ = new CLSSIS3820Scaler("BL1610-ID-2:mcs", this);
+
 	scaler_->channelAt(3)->setCustomChannelName("PFY");
+
 	scaler_->channelAt(4)->setCustomChannelName("TFY");
+
 	scaler_->channelAt(18)->setCustomChannelName("TEY");
+	CLSSR570 *tempSR570 = new CLSSR570("TEY", "AMP1610-4-03:sens_num.VAL", "AMP1610-4-03:sens_unit.VAL", this);
+	scaler_->channelAt(18)->setCurrentAmplifier(tempSR570);
+	scaler_->channelAt(18)->setVoltagRange(AMRange(0.25, 4.75));
+
 	scaler_->channelAt(16)->setCustomChannelName("I0");
+	tempSR570 = new CLSSR570("I0", "AMP1610-4-02:sens_num.VAL", "AMP1610-4-02:sens_unit.VAL", this);
+	scaler_->channelAt(16)->setCurrentAmplifier(tempSR570);
+	scaler_->channelAt(16)->setVoltagRange(AMRange(0.25, 4.75));
 
 	i0Detector_ = new CLSBasicScalerChannelDetector("I0", "I0", scaler_, 16, this);
 	teyDetector_ = new CLSBasicScalerChannelDetector("TEY", "TEY", scaler_, 18, this);
@@ -113,33 +127,41 @@ REIXSBeamline::REIXSBeamline() :
 //	allControlsSet_->addControl(photonSource()->M5Yaw());   //DAVID ADDED 003
 //	allControlsSet_->addControl(spectrometer()->gratingMask());  //DAVID ADDED 005
 
+	tmSet_ = new AMControlSet(this);
+	tmSet_->addControl(spectrometer()->tmSOE());
+	tmSet_->addControl(spectrometer()->tmMCPPreamp());
+	tmSet_->addControl(sampleChamber()->tmSample());
+
+
 	setupExposedControls();
 	setupExposedDetectors();
 
 	samplePlate_ = new AMSamplePlatePre2013(this);
-
-	xasDetectors_ = new REIXSXASDetectors(this);
 }
 
 REIXSBeamline::~REIXSBeamline() {
 }
 
 void REIXSBeamline::setupExposedControls(){
+	//addExposedControl(photonSource()->ringCurrent());
 	addExposedControl(photonSource()->energy());
-	addExposedControl(photonSource()->monoGratingSelector());
-	addExposedControl(photonSource()->monoMirrorSelector());
+	addExposedControl(photonSource()->userEnergyOffset());
 	addExposedControl(photonSource()->monoSlit());
-	addExposedControl(spectrometer());
-	addExposedControl(spectrometer()->detectorTiltDrive());
 	addExposedControl(sampleChamber()->x());
 	addExposedControl(sampleChamber()->y());
 	addExposedControl(sampleChamber()->z());
 	addExposedControl(sampleChamber()->r());
-	addExposedControl(spectrometer()->gratingMask());  //DAVID ADDED 005
+	addExposedControl(spectrometer()->gratingMask());
+	addExposedControl(spectrometer());
 
-	if(QApplication::instance()->arguments().contains("--admin")){
+
+	if(QApplication::instance()->arguments().contains("--admin"))
+	{
+		addExposedControl(photonSource()->monoGratingSelector());
+		addExposedControl(photonSource()->monoMirrorSelector());
 		addExposedControl(spectrometer()->spectrometerRotationDrive());
 		addExposedControl(spectrometer()->detectorTranslation());
+		addExposedControl(spectrometer()->detectorTiltDrive());
 		addExposedControl(spectrometer()->hexapod()->x());
 		addExposedControl(spectrometer()->hexapod()->y());
 		addExposedControl(spectrometer()->hexapod()->z());
@@ -149,9 +171,9 @@ void REIXSBeamline::setupExposedControls(){
 		addExposedControl(spectrometer()->hexapod()->r());
 		addExposedControl(spectrometer()->hexapod()->s());
 		addExposedControl(spectrometer()->hexapod()->t());
-		addExposedControl(spectrometer()->endstationTranslation()); //DAVID 001 ADDED
-		addExposedControl(photonSource()->M5Pitch());   //DAVID ADDED 003
-		addExposedControl(photonSource()->M5Yaw());   //DAVID ADDED 003
+		addExposedControl(spectrometer()->endstationTranslation());
+		addExposedControl(photonSource()->M5Pitch());
+		addExposedControl(photonSource()->M5Yaw());
 	}
 }
 
@@ -179,7 +201,7 @@ AMAction3 *REIXSBeamline::buildBeamStateChangeAction(bool beamOn) const
 	}
 
 	else if (!beamOn && REIXSBeamline::bl()->valvesAndShutters()->psh4()->value() != 0.0)
-		list->addSubAction(AMActionSupport::buildControlMoveAction(REIXSBeamline::bl()->valvesAndShutters()->psh4(), 1.0));
+		list->addSubAction(AMActionSupport::buildControlMoveAction(REIXSBeamline::bl()->valvesAndShutters()->psh4(), 0.0));
 
 	return list;
 }
@@ -188,15 +210,20 @@ AMAction3 *REIXSBeamline::buildBeamStateChangeAction(bool beamOn) const
 REIXSPhotonSource::REIXSPhotonSource(QObject *parent) :
 	AMCompositeControl("photonSource", "", parent, "EPU and Monochromator")
 {
-	AMPVwStatusControl* directEnergy = new AMPVwStatusControl("beamlineEV", "REIXS:MONO1610-I20-01:energy:fbk", "REIXS:energy", "REIXS:status", "REIXS:energy:stop", 0, 1000);
+	AMPVwStatusControl* directEnergy = new AMPVwStatusControl("beamlineEV", "REIXS:MONO1610-I20-01:user:energy:fbk", "REIXS:user:energy", "REIXS:status", "REIXS:energy:stop", 0, 1000);//, 2.0,new AMControlStatusCheckerDefault(1),-1);
 	directEnergy->setSettlingTime(0);
 	directEnergy_ = directEnergy;
 	directEnergy_->setDescription("Beamline Energy");
 
-	energy_ = new REIXSBrokenMonoControl(directEnergy, 1.05, 3, 0.5, 0.5, 150, 1, 0.1, this);
+	bipassEnergy_ = new AMPVControl("bipassBeamlineEV", "REIXS:user:energy", "REIXS:user:energy", "REIXS:energy:stop");
+
+	userEnergyOffset_ = new AMPVControl("userEnergyOffset", "REIXS:user:energy:offset", "REIXS:user:energy:offset", QString(), this);
+	userEnergyOffset_->setDescription("User Energy Offest");
+
+	energy_ = new REIXSBrokenMonoControl(directEnergy, 1.05, 3, 0.5, 0.5, 150, 1, 0.25, this);
 	energy_->setDescription("Beamline Energy");
 
-	monoSlit_ = new AMPVwStatusAndUnitConversionControl("monoSlit", "SMTR1610-I20-10:mm:fbk", "SMTR1610-I20-10:mm", "SMTR1610-I20-10:status", "SMTR1610-I20-10:stop", new AMScaleAndOffsetUnitConverter("um", 1000), 0, this, 0.5);  //DAVID changed tolerance from 0.1->0.5
+	monoSlit_ = new AMPVwStatusAndUnitConversionControl("monoSlit", "SMTR1610-I20-10:mm:fbk", "SMTR1610-I20-10:mm", "SMTR1610-I20-10:status", "SMTR1610-I20-10:stop", new AMScaleAndOffsetUnitConverter("um", 1000), 0, this);  //DAVID changed tolerance from 0.1->0.5
 	monoSlit_->setDescription("Mono Slit Width");
 
 	M5Pitch_ = new AMPVwStatusControl("M5Pitch", "SMTR1610-4-I20-02:mm:fbk", "SMTR1610-4-I20-02:mm","SMTR1610-4-I20-02:status","SMTR1610-4-I20-02:stop",this,0.5); //DAVID ADDED
@@ -215,10 +242,24 @@ REIXSPhotonSource::REIXSPhotonSource(QObject *parent) :
 	monoMirrorSelector_ = new AMPVwStatusControl("monoMirrorSelector", "MONO1610-I20-01:mirror:select:fbk", "MONO1610-I20-01:mirror:select", "MONO1610-I20-01:mirror:trans:status", "SMTR1610-I20-02:stop", this, 1);
 	monoMirrorSelector_->setDescription("Mono Mirror");
 
+//	monoMirrorAngle_ = new CLSMAXvMotor("monoMirrorAngle","MONO1610-I20-01:mirror","Mono Mirror Angle",true,0.00001,2.0,this);
+//	monoMirrorAngle_ = new AMReadOnlyPVwStatusControl("monoMirrorAngle","ENC1610-I20-02:average:deg:fbk","MONO1610-I20-01:mirror:status",this, new AMControlStatusCheckerCLSMAXv(),"Mono Mirror Angle");
+	monoMirrorAngleStatus_ = new AMReadOnlyPVControl("monoMirrorAngleStatus","MONO1610-I20-01:mirror:status",this,"Mono Mirror Angle Status");
+
 	epuPolarization_ = new AMPVwStatusControl("epuPolarization", "REIXS:UND1410-02:polarization", "REIXS:UND1410-02:polarization", "REIXS:UND1410-02:energy:status", QString(), this, 0.1);
 	epuPolarization_->setDescription("EPU Polarization");
+	epuPolarization_->enumNames() << "Circular Left";
+	epuPolarization_->enumNames() << "Circular Right";
+	epuPolarization_->enumNames() << "Linear Horizontal";
+	epuPolarization_->enumNames() << "Linear Vertical +";
+	epuPolarization_->enumNames() << "Linear Vertical -";
+	epuPolarization_->enumNames() << "Linear Inclined";
 	epuPolarizationAngle_ = new AMPVwStatusControl("epuPolarization", "REIXS:UND1410-02:polarAngle", "REIXS:UND1410-02:polarAngle", "REIXS:UND1410-02:energy:status", QString(), this, 0.5);
 	epuPolarizationAngle_->setDescription("EPU Polarization Angle");
+
+	ringCurrent_ = new AMReadOnlyPVControl("ringCurrent","PCT1402-01:mA:fbk", this, "Storage Ring Current");
+
+
 }
 
  REIXSValvesAndShutters::~REIXSValvesAndShutters(){}
@@ -285,22 +326,22 @@ REIXSSampleChamber::REIXSSampleChamber(QObject *parent)
 
 	//								name	  PV base name        units unitsPerRev offset microsteps descript. tolerance startTimeoutSecs, parent
 	x_ = new CLSMDriveMotorControl("sampleX", "SMTR1610-4-I21-08", "mm", 2.116, 0, 256, "Sample Chamber X", 0.5, 2.0, this);
-	x_->setSettlingTime(0.2);
+	x_->setSettlingTime(0.5);
 	x_->setMoveStartTolerance(x_->writeUnitConverter()->convertFromRaw(5));
 	x_->setContextKnownDescription("X");
 
 	y_ = new CLSMDriveMotorControl("sampleY", "SMTR1610-4-I21-10", "mm", 2.116, 0, 256, "Sample Chamber Y", 0.5, 2.0, this);
-	y_->setSettlingTime(0.2);
+	y_->setSettlingTime(0.5);
 	y_->setMoveStartTolerance(y_->writeUnitConverter()->convertFromRaw(5));
 	y_->setContextKnownDescription("Y");
 
 	z_ = new CLSMDriveMotorControl("sampleZ", "SMTR1610-4-I21-07", "mm", 0.25, 0, 256, "Sample Chamber Z", 0.5, 2.0, this);
-	z_->setSettlingTime(0.2);
+	z_->setSettlingTime(0.5);
 	z_->setMoveStartTolerance(z_->writeUnitConverter()->convertFromRaw(5));
 	z_->setContextKnownDescription("Z");
 
 	r_ = new CLSMDriveMotorControl("sampleTheta", "SMTR1610-4-I21-11", "deg", 3.6, 0, 256, "Sample Chamber Theta", 0.5, 2.0, this);
-	r_->setSettlingTime(0.2);
+	r_->setSettlingTime(0.5);
 	r_->setMoveStartTolerance(r_->writeUnitConverter()->convertFromRaw(5));
 	r_->setContextKnownDescription("Theta");
 
@@ -312,6 +353,7 @@ REIXSSampleChamber::REIXSSampleChamber(QObject *parent)
 	loadLockR_->setSettlingTime(0.2);
 	loadLockR_->setMoveStartTolerance(loadLockR_->writeUnitConverter()->convertFromRaw(5));
 
+	tmSample_ = new AMReadOnlyPVControl("SampleTemp", "TM1610-4-I21-04", this, "Sample Temperature");
 
 	addChildControl(x_);
 	addChildControl(y_);
@@ -319,6 +361,7 @@ REIXSSampleChamber::REIXSSampleChamber(QObject *parent)
 	addChildControl(r_);
 	addChildControl(loadLockZ_);
 	addChildControl(loadLockR_);
+	addChildControl(tmSample_);
 }
 
 
@@ -394,20 +437,19 @@ REIXSSpectrometer::REIXSSpectrometer(QObject *parent)
 														"SMTR1610-4-I21-01:mm:fbk",
 														"SMTR1610-4-I21-01:mm",
 														"SMTR1610-4-I21-01:status",
-														"SMTR1610-4-I21-01:stop", this, 0.05);
+														"SMTR1610-4-I21-01:stop", this, 1.0);
 	spectrometerRotationDrive_->setDescription("XES Spectrometer Lift");
-	spectrometerRotationDrive_->setSettlingTime(0.2);
-
+	spectrometerRotationDrive_->setSettlingTime(1.0);
 
 
 	detectorTranslation_ = new AMPVwStatusControl("detectorTranslation",
 												  "SMTR1610-4-I21-04:mm:fbk",
 												  "SMTR1610-4-I21-04:mm",
 												  "SMTR1610-4-I21-04:status",
-												  "SMTR1610-4-I21-04:stop", this, 0.05);
+												  "SMTR1610-4-I21-04:stop", this, 2.0);
 
 	detectorTranslation_->setDescription("XES Detector Translation");
-	detectorTranslation_->setSettlingTime(0.2);
+	detectorTranslation_->setSettlingTime(1.0);
 
 	detectorTiltDrive_ = new AMPVwStatusControl("detectorTiltDrive",
 												"SMTR1610-4-I21-02:mm:sp",
@@ -415,7 +457,7 @@ REIXSSpectrometer::REIXSSpectrometer(QObject *parent)
 												"SMTR1610-4-I21-02:status",
 												"SMTR1610-4-I21-02:stop", this, 0.05);
 	detectorTiltDrive_->setDescription("XES Detector Tilt Stage");
-	detectorTiltDrive_->setSettlingTime(0.2);
+	detectorTiltDrive_->setSettlingTime(0.5);
 
 	endstationTranslation_ = new AMPVwStatusControl("endstationTranslation",
 														"SMTR1610-4-I21-05:mm:fbk",
@@ -436,12 +478,18 @@ REIXSSpectrometer::REIXSSpectrometer(QObject *parent)
 
 	hexapod_ = new REIXSHexapod(this);
 
+	tmMCPPreamp_ = new AMReadOnlyPVControl("MCPPreampTemp", "TM1610-4-I21-03", this, "MCP Preamp Temperature");
+	tmSOE_ = new AMReadOnlyPVControl("SOETemp", "TM1609-01", this, "SOE Temperature");
+
+
 	addChildControl(spectrometerRotationDrive_);
 	addChildControl(detectorTranslation_);
 	addChildControl(detectorTiltDrive_);
 	addChildControl(endstationTranslation_);  //DAVID ADDED
 	addChildControl(hexapod_);
 	addChildControl(gratingMask_);  //DAVID ADDED 005
+	addChildControl(tmMCPPreamp_);
+	addChildControl(tmSOE_);
 
 	currentGrating_ = -1; specifiedGrating_ = 0;
 	currentFocusOffset_ = 0; specifiedFocusOffset_ = 0;
@@ -461,7 +509,7 @@ REIXSSpectrometer::REIXSSpectrometer(QObject *parent)
 
 	connect(&reviewValueChangedFunction_, SIGNAL(executed()), this, SLOT(reviewValueChanged()));
 
-
+	connect(this, SIGNAL(connected(bool)), this, SLOT(onConnected(bool)));
 
 }
 
@@ -601,16 +649,42 @@ bool REIXSSpectrometer::specifyGrating(int gratingIndex)
 	return true;
 }
 
+void REIXSSpectrometer::updateGrating()
+{
+	qDebug() << "Updating Grating";
+	QVector3D xyz = QVector3D(hexapod_->x()->value(), hexapod_->y()->value(), hexapod_->z()->value());
+	QVector3D uvw = QVector3D(hexapod_->u()->value(), hexapod_->v()->value(), hexapod_->w()->value());
+	QVector3D rst = QVector3D(hexapod_->r()->value(), hexapod_->s()->value(), hexapod_->t()->value());
+
+	for (int i = calibration_.gratingCount() - 1; i >= 0; i--)
+	{
+
+		if (qFuzzyCompare(xyz, calibration_.hexapodXYZ(i)) &&
+			qFuzzyCompare(uvw, calibration_.hexapodUVW(i)) &&
+			qFuzzyCompare(rst, calibration_.hexapodRST(i)))
+		{
+			currentGrating_ = i;
+			specifiedGrating_ = i;
+		}
+	}
+}
+
 void REIXSSpectrometer::specifyDetectorTiltOffset(double tiltOffsetDeg)
 {
 	specifiedDetectorTiltOffset_ = tiltOffsetDeg;
+}
+
+void REIXSSpectrometer::onConnected(bool isConnected){
+	//figure out those values
+	//onConnected not required
+	updateGrating();
 }
 
 double REIXSSpectrometer::value() const
 {
 	if(currentGrating_ < 0 || currentGrating_ >= gratingCount())
 		return -1.;
-
+	//qDebug() << "Value called with: " << currentGrating_ << spectrometerRotationDrive_->value() << detectorTranslation_->value();
 	return calibration_.computeEVFromSpectrometerPosition(currentGrating_, spectrometerRotationDrive_->value(), detectorTranslation_->value());
 }
 
@@ -684,6 +758,7 @@ REIXSBrokenMonoControl::REIXSBrokenMonoControl(AMPVwStatusControl *underlyingCon
 	// require some parsing on our part:
 	connect(control_, SIGNAL(movingChanged(bool)), this, SLOT(onControlMovingChanged(bool)));
 
+
 }
 
 void REIXSBrokenMonoControl::onControlMovingChanged(bool)
@@ -716,7 +791,7 @@ AMControl::FailureExplanation REIXSBrokenMonoControl::move(double setpoint)
 				while(movePoint_ < lowEnergyThreshold_) {
 					movePoint_ = movePoint_ + lowEnergyStepSize_;
 					moveAction_->addSubAction(AMActionSupport::buildControlMoveAction(control_, movePoint_));
-					qDebug() << "below lowEnergySetpoint moving up to " << movePoint_;
+					//qDebug() << "below lowEnergySetpoint moving up to " << movePoint_;
 				}
 
 
@@ -729,12 +804,12 @@ AMControl::FailureExplanation REIXSBrokenMonoControl::move(double setpoint)
 				for(int i=0; i<repeatMoveAttempts_; ++i) {
 							moveAction_->addSubAction(AMActionSupport::buildControlMoveAction(control_, movePoint_));
 					}
-					qDebug() << "above lowEnergySetpoint moving to " << movePoint_;
+					//qDebug() << "above lowEnergySetpoint moving to " << movePoint_;
 
 				while(movePoint_ - setpoint_ > lowEnergyStepSize_) {
 					movePoint_ = movePoint_ - lowEnergyStepSize_;
 					moveAction_->addSubAction(AMActionSupport::buildControlMoveAction(control_, movePoint_));
-					qDebug() << "above lowEnergySetpoint moving into " << movePoint_;
+					//qDebug() << "above lowEnergySetpoint moving into " << movePoint_;
 				}
 
 
@@ -746,7 +821,7 @@ AMControl::FailureExplanation REIXSBrokenMonoControl::move(double setpoint)
 				while(setpoint_ - movePoint_ > lowEnergyStepSize_) {
 					movePoint_ = movePoint_ + lowEnergyStepSize_;
 					moveAction_->addSubAction(AMActionSupport::buildControlMoveAction(control_, movePoint_));
-					qDebug() << "below lowEnergySetpoint moving up within " << movePoint_;
+					//qDebug() << "below lowEnergySetpoint moving up within " << movePoint_;
 				}
 
 			}
@@ -757,7 +832,7 @@ AMControl::FailureExplanation REIXSBrokenMonoControl::move(double setpoint)
 				while(movePoint_ - setpoint_ > lowEnergyStepSize_) {
 					movePoint_ = movePoint_ - lowEnergyStepSize_;
 					moveAction_->addSubAction(AMActionSupport::buildControlMoveAction(control_, movePoint_));
-					qDebug() << "below lowEnergySetpoint moving down within " << movePoint_;
+					//qDebug() << "below lowEnergySetpoint moving down within " << movePoint_;
 				}
 
 			}
@@ -766,16 +841,18 @@ AMControl::FailureExplanation REIXSBrokenMonoControl::move(double setpoint)
 
 			for(int i=0; i<repeatMoveAttempts_; ++i) {
 						moveAction_->addSubAction(AMActionSupport::buildControlMoveAction(control_, setpoint_));
-						qDebug() << "Fallthrough " << setpoint_;
+						//qDebug() << "Fallthrough " << setpoint_;
 				}
 
 
 
 	}
 	else {
-		control_->setSettlingTime(singleMoveSettlingTime_);
+		//control_->setSettlingTime(singleMoveSettlingTime_);
+		control_->setSettlingTime(0);
+		setTolerance(AMCONTROL_TOLERANCE_DONT_CARE);
 		moveAction_->addSubAction(AMActionSupport::buildControlMoveAction(control_, setpoint_));
-		qDebug() << "Small move " << setpoint_;
+		//qDebug() << "Small move " << setpoint_;
 	}
 
 	/// \todo Low-energy moves
@@ -785,6 +862,9 @@ AMControl::FailureExplanation REIXSBrokenMonoControl::move(double setpoint)
 	connect(moveAction_, SIGNAL(cancelled()), this, SLOT(onMoveActionFailed()));
 	connect(moveAction_, SIGNAL(succeeded()), this, SLOT(onMoveActionSucceeded()));
 
+	// monitor mono angle for error state, clear and restart move if detected
+	connect(REIXSBeamline::bl()->photonSource()->monoMirrorAngleStatus(), SIGNAL(valueChanged(double)), this, SLOT(onMonoMirrorAngleError(double)));
+
 	moveAction_->start();
 
 	return AMControl::NoFailure;
@@ -792,12 +872,18 @@ AMControl::FailureExplanation REIXSBrokenMonoControl::move(double setpoint)
 
 bool REIXSBrokenMonoControl::stop()
 {
-	bool success = control_->stop();
-
 	if(moveAction_) {
 		moveAction_->cancel();
 		stopInProgress_ = true;
 	}
+		bool success = control_->stop();
+		QTimer *repeat = new QTimer(this);
+		connect(repeat, SIGNAL(timeout()), control_, SLOT(stop()));
+		connect(control_,SIGNAL(movingChanged(bool)),repeat,SLOT(stop()));
+
+		if(control_->movingPVValue()==1)
+			repeat->start(250);
+
 
 	return success;
 }
@@ -805,6 +891,8 @@ bool REIXSBrokenMonoControl::stop()
 void REIXSBrokenMonoControl::onMoveActionFailed()
 {
 	disconnect(moveAction_, 0, this, 0);
+	disconnect(REIXSBeamline::bl()->photonSource()->monoMirrorAngleStatus(),0, this, 0);
+
 	moveAction_->deleteLater();
 	moveAction_ = 0;
 
@@ -826,6 +914,7 @@ void REIXSBrokenMonoControl::onMoveActionFailed()
 void REIXSBrokenMonoControl::onMoveActionSucceeded()
 {
 	disconnect(moveAction_, 0, this, 0);
+	disconnect(REIXSBeamline::bl()->photonSource()->monoMirrorAngleStatus(),0, this, 0);
 	moveAction_->deleteLater();
 	moveAction_ = 0;
 
@@ -842,30 +931,20 @@ void REIXSBrokenMonoControl::onMoveActionSucceeded()
 	}
 }
 
+void REIXSBrokenMonoControl::onMonoMirrorAngleError(double error)
+{
+	//qDebug() << "Mono Mirror Angle move error detected with error code" << error;
+	if(qFuzzyCompare(error,4)){
+	REIXSBeamline::bl()->photonSource()->bipassEnergy()->stop();
+	REIXSBeamline::bl()->photonSource()->bipassEnergy()->move(REIXSBeamline::bl()->photonSource()->directEnergy()->setpoint());
+	}
+}
+
 
 
 REIXSBrokenMonoControl::~REIXSBrokenMonoControl() {
 	delete control_;
 	control_ = 0;
-}
-
- REIXSXASDetectors::~REIXSXASDetectors(){}
-REIXSXASDetectors::REIXSXASDetectors(QObject *parent) : AMCompositeControl("xasDetectors", "", parent, "XAS Detectors")
-{
-	TEY_ = new AMReadOnlyPVControl("TEY", "BL1610-ID-2:mcs18:fbk", this, "TEY");
-	TFY_ = new AMReadOnlyPVControl("TFY", "BL1610-ID-2:mcs04:fbk", this, "TFY");
-	I0_ = new AMReadOnlyPVControl("I0", "BL1610-ID-2:mcs16:fbk", this, "I0");
-	scalerContinuousMode_ = new AMSinglePVControl("scalerContinuous", "BL1610-ID-2:mcs:continuous", this, 0.1);
-
-	addChildControl(TEY_);
-	addChildControl(TFY_);
-	addChildControl(I0_);
-
-	saDetectors_ << new CLSSIS3820ScalerSADetector("TEY", "Electron Yield", "BL1610-ID-2:mcs", 18, true, this);
-	saDetectors_ << new CLSSIS3820ScalerSADetector("TFY", "Fluorescence Yield", "BL1610-ID-2:mcs", 4, false, this);
-	saDetectors_ << new CLSSIS3820ScalerSADetector("I0", "I0", "BL1610-ID-2:mcs", 16, false, this);
-	saDetectors_ << new CLSSIS3820ScalerSADetector("PFY", "PFY", "BL1610-ID-2:mcs", 3, false, this);
-	/// \todo XES detector PFY. Requires building a new AMSADetector subclass.
 }
 
 // To have a current sample in position, there must be a marked sample on the beamline's current plate, which has four positions set, and the sample manipulator is within tolerance of the X,Y,Z position. (We ignore theta, to allow different incident angles to all count as the same sample. Only works if the sample is at the center of rotation of the plate, unfortunately.)

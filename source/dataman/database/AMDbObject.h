@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -52,6 +53,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AMDBOBJECT_CANNOT_LOAD_FROM_DB_AMDBOBJECTLIST_TABLE_LOCATION_INVALID -277007
 #define AMDBOBJECT_CANNOT_LOAD_FROM_DB_BAD_DB_REDIRECT -277008
 #define AMDBOBJECT_CANNOT_LOAD_FROM_DB_AMCONSTDBOBJECTLIST_TABLE_LOCATION_INVALID -277009
+#define AMDBOBJECT_CANNOT_LOAD_FROM_DB_BAD_CONSTDB_REDIRECT -277010
 
 #define AMDBOBJECT_DEBUG_OUTPUT 881001
 
@@ -63,7 +65,7 @@ public:
 	enum ThumbnailType { InvalidType, PNGType };
 
 	/// Default constructor
- 	virtual ~AMDbThumbnail();
+	virtual ~AMDbThumbnail();
 	AMDbThumbnail(const QString& Title = QString(), const QString& Subtitle = QString(), ThumbnailType Type = InvalidType, const QByteArray& ThumbnailData = QByteArray());
 
 	/// This constructor takes an image of any size and saves it as a PNG type. (It will be saved at the current size of the image, so if you want to save at a reduced size, pass in image.scaledToWidth(240) or similar.)
@@ -82,7 +84,7 @@ class AMDbThumbnailsGeneratedEvent : public QEvent {
 
 public:
 	/// Constructor
- 	virtual ~AMDbThumbnailsGeneratedEvent();
+	virtual ~AMDbThumbnailsGeneratedEvent();
 	AMDbThumbnailsGeneratedEvent(const QList<AMDbThumbnail>& thumbnails, AMDatabase* db, const QString& dbTableName, int dbObjectId, bool neverSavedHereBefore);
 
 	/// The list of thumbnails that were rendered
@@ -249,7 +251,6 @@ class AMDbObject : public QObject
 
 public:
 	/// Default Constructor
- 	virtual ~AMDbObject();
 	Q_INVOKABLE explicit AMDbObject(QObject *parent = 0);
 	/// Copy constructor.  QObject parent/child relationships are NOT copied, but the essential characteristics (id, database, and modified state) of the AMDbObject are.  Making a copy will create an independent instance in memory. However, if the original has been previously saved to or loaded from the database, both the original and the copy will store/restore to the same location in the database (ie: they refer to the same persistent object). If you want the copy to be an independent database object, you need to call dissociateFromDb() next.
 	/*! If the original has never been successfully saved or loaded (ie: id() and database() return 0) then the two instances remain fully independent objects (both in memory, and in the database after calling storeToDb() for the first time.)
@@ -257,6 +258,8 @@ public:
 	  The parent QObject is not set when using this copy constructor; the copy's parent() will be 0.  If you want the copy to share the same parent(), you must call QObject::setParent() afterward.
 	  */
 	AMDbObject(const AMDbObject& original);
+	/// Destructor.
+	virtual ~AMDbObject();
 
 	/// Assignment operator. QObject parent/child relationships are NOT copied, but the essential characteristics (id, database, and modified state) of the AMDbObject are.  Making a copy will create an independent instance in memory. However, if the original has been previously saved to or loaded from the database, both the original and the copy will store/restore to the same location in the database (ie: they refer to the same persistent object). If you want the copy to be an independent database object, you need to call dissociateFromDb() next.
 	/*! If the original has never been successfully saved or loaded (ie: id() and database() return 0) then the two instances remain fully independent objects (both in memory, and in the database after calling storeToDb() for the first time.)

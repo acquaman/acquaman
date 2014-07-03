@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 Acquaman is free software: you can redistribute it and/or modify
@@ -79,6 +80,10 @@ protected:
 	AMDbObject* dbGetConfig() const;
 	/// Helper to load from db
 	void dbLoadConfig(AMDbObject *newConfig);
+
+protected slots:
+	/// Responds to changes to the config, updates that scan action info
+	void onConfigChanged();
 
 protected:
 	/// The pointer holding the configuration that everything is based on.

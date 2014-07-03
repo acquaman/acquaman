@@ -1,3 +1,24 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "VESPERSDbUpgrade1Pt3.h"
 
 #include "util/AMErrorMonitor.h"
@@ -44,13 +65,12 @@ bool VESPERSDbUpgrade1Pt3::upgradeImplementation()
 		return false;
 	}
 
-	databaseToUpgrade_->commitTransaction();
-
 	// Change the name of the usingCDD column to ccdDetector.
 	if (databaseToUpgrade_->tableExists("VESPERS2DScanConfiguration_table")
 			&& databaseToUpgrade_->columnExists("VESPERS2DScanConfiguration_table", "usingCCD")
 			&& !AMDbUpgradeSupport::changeColumnName(databaseToUpgrade_, "VESPERS2DScanConfiguration_table", "usingCCD", "ccdDetector", "INTEGER")){
 
+		databaseToUpgrade_->rollbackTransaction();
 		AMErrorMon::alert(this, VESPERSDBUPGRADE1PT3_COULD_NOT_UPDATE_2DCONFIGURATION_COLUMN_NAME, "Could not change the VESPERS2DScanConfiguration table column name.");
 		return false;
 	}
@@ -59,11 +79,10 @@ bool VESPERSDbUpgrade1Pt3::upgradeImplementation()
 			&& databaseToUpgrade_->columnExists("VESPERSSpatialLineScanConfiguration_table", "usingCCD")
 			&& !AMDbUpgradeSupport::changeColumnName(databaseToUpgrade_, "VESPERSSpatialLineScanConfiguration_table", "usingCCD", "ccdDetector", "INTEGER")){
 
+		databaseToUpgrade_->rollbackTransaction();
 		AMErrorMon::alert(this, VESPERSDBUPGRADE1PT3_COULD_NOT_UPDATE_LINECONFIGURATION_COLUMN_NAME, "Could not change the VESPERSSpatialLineScanConfiguration table column name.");
 		return false;
 	}
-
-	databaseToUpgrade_->startTransaction();
 
 	// Update the energy scan ccdDetector column.
 	if (databaseToUpgrade_->tableExists("VESPERSEnergyScanConfiguration_table")){

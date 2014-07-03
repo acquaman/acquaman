@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -139,6 +140,10 @@ protected:
 	bool setupSGMPlugins();
 	/// Either creates, retrieves, or updates the exporter options for the provided and auto- export options
 	bool setupSGMExporterOptions();
+	/// Either creates, retrieves, or updates the exporter options for XASScans
+	bool setupSGMXASExporterOptions(AMDatabase* dbSGM);
+	/// Either creates, retrieves, or updates the exporter options for FastScans
+	bool setupSGMFastScanExporterOptions(AMDatabase* dbSGM);
 	/// Either creates or retrieves the SGM periodic table information
 	bool setupSGMPeriodicTable();
 

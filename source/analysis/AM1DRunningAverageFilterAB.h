@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -59,7 +60,7 @@ public:
 	virtual AMNumber axisValue(int axisNumber, int index) const;
 
 	/// Re-implemented from AMDbObject to set the AMDataSource name once we have an AMDbObject::name()
-	bool loadFromDb(AMDatabase *db, int id);
+    bool loadFromDb(AMDatabase *db, int id);
 
 protected slots:
 	/// Connected to be called when the values of the input data source change

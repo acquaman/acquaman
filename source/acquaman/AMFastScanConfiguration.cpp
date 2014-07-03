@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -20,13 +21,21 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMFastScanConfiguration.h"
 
- AMFastScanConfiguration::~AMFastScanConfiguration(){}
 AMFastScanConfiguration::AMFastScanConfiguration(QObject *parent) :
     AMScanConfiguration(parent)
 {
 	startEnergy_ = -1;
 	endEnergy_ = -1;
 }
+
+AMFastScanConfiguration::AMFastScanConfiguration(const AMFastScanConfiguration &original) :
+	AMScanConfiguration(original)
+{
+	startEnergy_ = original.startEnergy();
+	endEnergy_ = original.endEnergy();
+}
+
+AMFastScanConfiguration::~AMFastScanConfiguration(){}
 
 const QMetaObject* AMFastScanConfiguration::getMetaObject(){
 	return metaObject();

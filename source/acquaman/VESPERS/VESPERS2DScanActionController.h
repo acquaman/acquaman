@@ -1,12 +1,33 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #ifndef VESPERS2DSCANACTIONCONTROLLER_H
 #define VESPERS2DSCANACTIONCONTROLLER_H
 
-#include "acquaman/AM2DScanActionController.h"
+#include "acquaman/AMStepScanActionController.h"
 #include "acquaman/VESPERS/VESPERS2DScanConfiguration.h"
 #include "acquaman/VESPERS/VESPERSScanController.h"
 
 /// VESPERS specific 2D scan action controller.
-class VESPERS2DScanActionController : public AM2DScanActionController, public VESPERSScanController
+class VESPERS2DScanActionController : public AMStepScanActionController, public VESPERSScanController
 {
 	Q_OBJECT
 
@@ -28,6 +49,8 @@ protected:
 
 	/// Adds anything extra (eg: analysis blocks) to the scan before it's started.
 	virtual void buildScanControllerImplementation();
+	/// Creates the axis order for higher dimensional scans.  The default order is the axis order, but if a different order is desired, then you should reimplement this in subclasses.
+	virtual void createAxisOrderMap();
 
 	/// Specific scan configuration with all the VESPERS specific information inside.
 	VESPERS2DScanConfiguration *configuration_;

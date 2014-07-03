@@ -1,3 +1,24 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "REIXSXESMCPDetector.h"
 
 #include <QTimer>
@@ -188,11 +209,16 @@ void REIXSXESMCPDetector::onTriggerSourceTriggered(AMDetectorDefinitions::ReadMo
 	acquire(readMode);
 }
 
+double REIXSXESMCPDetector::acquisitionTimeTolerance() const
+{
+	return 0.001;	// This can probably be fine tuned to something more real.
+}
+
 void REIXSXESMCPDetector::onDwellTimeSourceSetDwellTime(double dwellSeconds){
 	if(!isConnected())
 		return;
 
-	if(dwellSeconds != acquisitionTime())
+	if(!acquisitionTimeWithinTolerance(dwellSeconds))
 		setAcquisitionTime(dwellSeconds);
 	else
 		dwellTimeSource_->setSucceeded();
@@ -254,6 +280,17 @@ bool REIXSXESMCPDetector::acquireImplementation(AMDetectorDefinitions::ReadMode 
 	return true;
 }
 
+bool REIXSXESMCPDetector::cancelAcquisitionImplementation(){
+	if(!isConnected())
+		return false;
+	dwellTimeTimer_->stop();
+	disconnect(totalCountsControl_, SIGNAL(valueChanged(double)), this, SLOT(onTotalCountsControlValueChanged(double)));
+	dwellTimeTimer_->deleteLater();
+	dwellTimeTimer_ = 0;
+	acquisitionCancelledHelper();
+	return true;
+}
+
 bool REIXSXESMCPDetector::cleanupImplementation(){
 	setCleanedUp();
 	return true;
@@ -267,6 +304,8 @@ bool REIXSXESMCPDetector::clearImplementation(){
 	return false;
 }
 
+
+
 void REIXSXESMCPDetector::setFinishedCondition(REIXSXESMCPDetector::XESMCPFinishedConditions finishedConditions){
 	if(finishedConditions_ != finishedConditions)
 		finishedConditions_ = finishedConditions;
@@ -274,6 +313,17 @@ void REIXSXESMCPDetector::setFinishedCondition(REIXSXESMCPDetector::XESMCPFinish
 
 void REIXSXESMCPDetector::acquisitionSucceededHelper(){
 	setAcquisitionSucceeded();
+
+	if(!isConnected() && !isNotReadyForAcquisition())
+		setNotReadyForAcquisition();
+	else if(isConnected() && !isReadyForAcquisition())
+		setReadyForAcquisition();
+
+	emit imageDataChanged();
+}
+
+void REIXSXESMCPDetector::acquisitionCancelledHelper(){
+	setAcquisitionCancelled();
 
 	if(!isConnected() && !isNotReadyForAcquisition())
 		setNotReadyForAcquisition();

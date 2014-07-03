@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 Acquaman is free software: you can redistribute it and/or modify
@@ -117,6 +118,28 @@ protected:
 #define AMDBUPGRADESUPPORT_COULD_NOT_UPDATE_TO_TABLE_BASED_ID 450110
 #define AMDBUPGRADESUPPORT_COULD_NOT_UPDATE_EMPTY_VALUES 450111
 
+/// This namespace contains helper methods for commonly used actions inside of database upgrades.
+/*!	There is an important aspect to these helper methods.  Anyone who uses these functions should consider them the same as any
+  method inside of AMDatabase.  If you have not started a database transaction, it will start one, /emph however, it is not responsible
+  for commiting the transaction too the database.  For performance reasons, this stops unnecessary extra interactions with the database
+  and helps increase the performance of any AMDbUpgrade you create.  Since they all return bool's, you will know if the action
+  was successful or not.  In case it is not clear from AMDatabase, the expected usage for these methods goes as follows:
+
+				db->startTransaction();
+
+				<associated db actions>
+
+				if (!AMDbUpgradeSupport::changeColumnName(stuffz)){
+
+					db->rollbackTransaction();
+					return false;
+				}
+
+				<more associated db actions>
+
+				db->commitTransaction();
+				return true;
+  */
 namespace AMDbUpgradeSupport{
 	/// Upgrades an AMDbObject class originally called \c originalClassName to \c newClassName. Use this function carefully, incorrect or incomplete parameters can lead to corrupted databases.
 	/*! This takes care of the problem where a class used in the database needs to be renamed. There are several caveats on this one.

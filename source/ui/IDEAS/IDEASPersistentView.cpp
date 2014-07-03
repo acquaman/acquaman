@@ -1,3 +1,24 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "IDEASPersistentView.h"
 
 #include "beamline/IDEAS/IDEASBeamline.h"
@@ -15,6 +36,10 @@
 #include <QGridLayout>
 #include <QInputDialog>
 #include <QDebug>
+
+#ifdef AM_MOBILITY_VIDEO_ENABLED
+#include "ui/AMBeamlineCameraWidgetWithSourceTabs.h"
+#endif
 
 IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
     QWidget(parent)
@@ -72,10 +97,10 @@ IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
     IReferenceBar_->setTextVisible(false);
     IReferenceBar_->setRange(100,145);
 
-    connect(IDEASBeamline::bl()->exposedDetectorByName("I_vac_6485"), SIGNAL(newValuesAvailable()), this, SLOT(onOldCountsChanged()));
-    connect(IDEASBeamline::bl()->exposedDetectorByName("I_0"), SIGNAL(newValuesAvailable()), this, SLOT(onI0CountsChanged()));
-    connect(IDEASBeamline::bl()->exposedDetectorByName("I_sample"), SIGNAL(newValuesAvailable()), this, SLOT(onSampleCountsChanged()));
-    connect(IDEASBeamline::bl()->exposedDetectorByName("I_ref"), SIGNAL(newValuesAvailable()), this, SLOT(onReferenceCountsChanged()));
+//    connect(IDEASBeamline::bl()->exposedDetectorByName("I_vac_6485"), SIGNAL(newValuesAvailable()), this, SLOT(onOldCountsChanged()));
+//    connect(IDEASBeamline::bl()->exposedDetectorByName("I_0"), SIGNAL(newValuesAvailable()), this, SLOT(onI0CountsChanged()));
+//    connect(IDEASBeamline::bl()->exposedDetectorByName("I_sample"), SIGNAL(newValuesAvailable()), this, SLOT(onSampleCountsChanged()));
+//    connect(IDEASBeamline::bl()->exposedDetectorByName("I_ref"), SIGNAL(newValuesAvailable()), this, SLOT(onReferenceCountsChanged()));
     connect(IDEASBeamline::bl()->exposedControlByName("ringCurrent"), SIGNAL(valueChanged(double)), this, SLOT(onRingCurrentChanged(double)));
 
     connect(IDEASBeamline::ideas()->monoLowEV(),   SIGNAL(valueChanged(double)), this, SLOT(onCrystalChanged()));
@@ -86,11 +111,6 @@ IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
     connect(IDEASBeamline::ideas()->monoHighEV(),  SIGNAL(connected(bool)), this, SLOT(onCrystalChanged()));
     connect(IDEASBeamline::ideas()->monoCrystal(), SIGNAL(connected(bool)), this, SLOT(onCrystalChanged()));
 
-//	Not needed when above connect statements actually connect.
-//    crystalTimer_ = new QTimer();
-//    crystalTimer_->setInterval(1000);
-//    crystalTimer_->setSingleShot(true);
-//    connect(crystalTimer_, SIGNAL(timeout()),this,SLOT(onCrystalChanged()));
 
 
 
@@ -107,6 +127,17 @@ IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
     mainPanelLayout->addWidget(monoCrystal_);
     mainPanelLayout->addWidget(monoEnergyRange_);
     mainPanelLayout->addStretch();
+
+#ifdef AM_MOBILITY_VIDEO_ENABLED
+	AMBeamlineCameraWidgetWithSourceTabs *cameraWidget;
+
+	QVBoxLayout *cameraPanelLayout = new QVBoxLayout;
+	cameraWidget = new AMBeamlineCameraWidgetWithSourceTabs(QUrl("http://v2e1608-102.clsi.ca/mjpg/2/video.mjpg"),"Sample 1",0,false);
+	cameraWidget->addSource("Sample 2", QUrl("http://v2e1608-102.clsi.ca/mjpg/3/video.mjpg"));
+	cameraWidget->addSource("Vacuum", QUrl("http://v2e1608-102.clsi.ca/mjpg/1/video.mjpg"));
+	cameraWidget->addSource("POE", QUrl("http://v2e1608-102.clsi.ca/mjpg/4/video.mjpg"));
+	cameraPanelLayout->addWidget(cameraWidget);
+#endif
 
     QVBoxLayout *scalerPanelLayout = new QVBoxLayout;
     scalerPanelLayout->addWidget(new IDEASScalerView());
@@ -129,7 +160,9 @@ IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
     QGroupBox *persistentPanel = new QGroupBox("IDEAS Beamline");
     persistentPanel->setLayout(mainPanelLayout);
 
-    QGroupBox *scalerPanel = new QGroupBox("Scaler Settings");
+
+
+    QGroupBox *scalerPanel = new QGroupBox("Preamp Settings");
     scalerPanel->setLayout(scalerPanelLayout);
 
     QGroupBox *detectorPanel = new QGroupBox("Ion Chamber Currents");
@@ -137,12 +170,21 @@ IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
 
     QVBoxLayout *layout = new QVBoxLayout;
     layout->addWidget(persistentPanel);
+
+    #ifdef AM_MOBILITY_VIDEO_ENABLED
+    QGroupBox *cameraPanel = new QGroupBox("Camera Settings");
+    cameraPanel->setLayout(cameraPanelLayout);
+    layout->addWidget(cameraPanel);
+    #endif
+
+
     layout->addWidget(scalerPanel);
-    layout->addWidget(detectorPanel);
+    //layout->addWidget(detectorPanel);
 
     setLayout(layout);
 
-    setMaximumWidth(250);
+    setMaximumWidth(400);
+    setMinimumWidth(400);
 }
 
 void IDEASPersistentView::onBeamOnClicked()
@@ -168,7 +210,7 @@ void IDEASPersistentView::onShutterStatusChanged(bool state)
 void IDEASPersistentView::onOldCountsChanged()
 {
     double value = 0;
-    IDEASBeamline::bl()->exposedDetectorByName("I_vac_6485")->data(&value);
+//    IDEASBeamline::bl()->exposedDetectorByName("I_vac_6485")->data(&value);
     IOldBar_->setValue(int(200 + 10*log10(qAbs(value))));
     //IOldBar_->setValue(value/1000000);
     //qdebug() << "I_Old_bar" << int(200 + 10*log10(qAbs(value)));

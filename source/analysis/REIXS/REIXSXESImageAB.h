@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 Acquaman is free software: you can redistribute it and/or modify
@@ -28,12 +29,16 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <gsl/gsl_matrix.h>
 #include <gsl/gsl_multifit.h>
 
+
+#include <QPair>
+
+#include <QDebug>
 /// Interface to define categories of curve fitting
 class REIXSFunctionFitter {
 public:
 	/// Constructor does nothing
-	REIXSFunctionFitter();
-	virtual ~REIXSFunctionFitter();
+	REIXSFunctionFitter(){}
+	virtual ~REIXSFunctionFitter(){}
 
 	/// Function to fit a curve to a set of points, and return new points on the curve.
 	virtual QVector<int> smooth(const QVector<int>& input, const QVector<double>& weights) = 0;
@@ -124,6 +129,34 @@ protected:
 	void releaseFittingStructures();
 };
 
+class REIXSMovingMedianFitter : public REIXSFunctionFitter {
+public:
+	REIXSMovingMedianFitter(int smoothMode);
+	~REIXSMovingMedianFitter();
+
+	virtual QVector<int> smooth(const QVector<int>& input, const QVector<double>& weights);
+
+	void setSmoothMode(int smoothMode);
+	int smoothMode() const {return smoothMode_;}
+
+protected:
+	int smoothMode_; //number of points for the moving median
+};
+
+class REIXSMovingAverageFitter : public REIXSFunctionFitter {
+public:
+	REIXSMovingAverageFitter(int smoothMode);
+	~REIXSMovingAverageFitter();
+
+	virtual QVector<int> smooth(const QVector<int>& input, const QVector<double>& weights);
+	void setSmoothMode(int smoothMode);
+	int smoothMode() const {return smoothMode_;} //return the smoothmode
+
+protected:
+	int smoothMode_; //number of points for the moving average
+};
+
+
 /// Custom analysis block to shift and sum an XES detector image into a 1D spectrum, taking into account the possible curvature of the image. This version shifts each row by an arbitrary amount when summing columns.  It also has the capability to guess/determine the curvature using a correlation algorithm, where each row is correlated with the center row to determine the optimal shift.
 class REIXSXESImageAB : public AMStandardAnalysisBlock
 {
@@ -137,7 +170,12 @@ class REIXSXESImageAB : public AMStandardAnalysisBlock
 	Q_PROPERTY(AMIntList shiftValues READ shiftValues WRITE setShiftValues)
 	Q_PROPERTY(int correlationCenterPixel READ correlationCenterPixel WRITE setCorrelationCenterPixel)
 	Q_PROPERTY(int correlationHalfWidth READ correlationHalfWidth WRITE setCorrelationHalfWidth)
-	Q_PROPERTY(int correlationSmoothing READ correlationSmoothing WRITE setCorrelationSmoothing)
+//	Q_PROPERTY(int correlationSmoothing READ correlationSmoothing WRITE setCorrelationSmoothing)
+
+//	Q_PROPERTY(QPair correlationSmoothing READ correlationSmoothing WRITE setCorrelationSmoothing)
+
+	Q_PROPERTY(int correlationSmoothingType READ correlationSmoothingType WRITE setCorrelationSmoothingType)
+	Q_PROPERTY(int correlationSmoothingMode READ correlationSmoothingMode WRITE setCorrelationSmoothingMode)
 
 	Q_PROPERTY(bool liveCorrelation READ liveCorrelation WRITE enableLiveCorrelation)
 	Q_PROPERTY(double energyCalibrationOffset READ energyCalibrationOffset WRITE setEnergyCalibrationOffset)
@@ -148,7 +186,8 @@ class REIXSXESImageAB : public AMStandardAnalysisBlock
 
 public:
 	/// Enum describing the options for smoothing the auto-correlated shift curve.
-	enum ShiftCurveSmoothing { NoSmoothing, QuadraticSmoothing, CubicSmoothing, QuarticSmoothing};
+	//enum ShiftCurveSmoothing { NoSmoothing, QuadraticSmoothing, CubicSmoothing, QuarticSmoothing, movingMedianSmoothing, movingAverageSmoothing };
+	enum ShiftCurveSmoothing { None, Poly, Median, Average};
 
 	/// Constructor. \c outputName is the name() for the output data source.
 	REIXSXESImageAB(const QString& outputName, QObject* parent = 0);
@@ -216,7 +255,9 @@ int outputSize = indexStart.totalPointsTo(indexEnd);
 	int correlationHalfWidth() const{ return correlationHalfWidth_; }
 	/// The type of smoothing to apply to the shift curve generated using correlation. One of ShiftCurveSmoothing.
 
-	int correlationSmoothing() const {return correlationSmoothing_;}
+	QPair<int,int> correlationSmoothing() const {return correlationSmoothing_;}
+	int correlationSmoothingType() const { return correlationSmoothing_.first; }
+	int correlationSmoothingMode() const { return correlationSmoothing_.second;}
 
 	/// True if the correlation routine should be run every time the data changes.
 	bool liveCorrelation() const { return liveCorrelation_; }
@@ -252,8 +293,10 @@ public slots:
 	/// Sets the full-width of the region around correlationCenterPixel() to compute when running an auto-correlation routine.
 	void setCorrelationHalfWidth(int width);
 	/// Sets the smoothing used on the shift curve after correlation. \c type must be one of ShiftCurveSmoothing.
-	void setCorrelationSmoothing(int type);
 
+	void setCorrelationSmoothing(QPair<int,int> cSmooth);
+	void setCorrelationSmoothingType(int type);
+	void setCorrelationSmoothingMode(int mode);
 	/// Enable (or disable) automatically running the correlation routine every time the data changes
 	void enableLiveCorrelation(bool enabled);
 
@@ -318,8 +361,9 @@ protected:
 	int correlationHalfWidth_;
 	/// Describes the smoothing that should be applied to the shift curve resulting from the correlation routine.  One of ShiftCurveSmoothing.
 
-	int correlationSmoothing_;
-
+	QPair<int, int> correlationSmoothing_;
+	//int correlationSmoothingType_;
+	//int correlationSmoothingMode_;
 	/// True if the correlation routine should be run every time the data changes.
 	bool liveCorrelation_;
 	/// The shift values used to offset each row of the image when summing

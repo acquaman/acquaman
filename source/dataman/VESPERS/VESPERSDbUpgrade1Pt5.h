@@ -1,3 +1,24 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #ifndef VESPERSDBUPGRADE1PT5_H
 #define VESPERSDBUPGRADE1PT5_H
 
@@ -45,17 +66,18 @@ class VESPERSDbUpgrade1Pt5 : public AMDbUpgrade
 	Q_OBJECT
 
 public:
-	/// Constructor. need to proive the name of the database to upgrade.
- 	virtual ~VESPERSDbUpgrade1Pt5();
+	/// Constructor. Need to provide the name of the database to upgrade.
 	VESPERSDbUpgrade1Pt5(const QString &databaseNameToUpgrade, QObject *parent = 0);
+	/// Destructor.
+	virtual ~VESPERSDbUpgrade1Pt5();
 
-	/// Indicates the dependicies of this upgrade.  This requires all of the previous upgrades to have been performed already (1.1-1.4).
+	/// Indicates the dependencies of this upgrade.  This requires all of the previous upgrades to have been performed already (1.1-1.4).
 	virtual QStringList upgradeFromTags() const;
 
 	/// Returns true.  ALL modifications to the structure of the database need to be performed.
 	virtual bool upgradeNecessary() const;
 
-	/// Makes all the chagnes outlined in the class description.
+	/// Makes all the changes outlined in the class description.
 	virtual bool upgradeImplementation();
 
 	/// Creates a new copy of this upgrade (caller is responsible for memory).

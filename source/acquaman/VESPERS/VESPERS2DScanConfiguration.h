@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 Acquaman is free software: you can redistribute it and/or modify
@@ -20,9 +21,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef VESPERS2DSCANCONFIGURATION_H
 #define VESPERS2DSCANCONFIGURATION_H
 
-#include "acquaman/AM2DScanConfiguration.h"
-#include "application/VESPERS/VESPERS.h"
+#include "acquaman/AMStepScanConfiguration.h"
 #include "acquaman/VESPERS/VESPERSScanConfiguration.h"
+#include "application/VESPERS/VESPERS.h"
 
 /// This class is the VESPERS specific 2D map scan configuration.
 /*!
@@ -35,7 +36,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 	file with XRD or not.
   */
 
-class VESPERS2DScanConfiguration : public AM2DScanConfiguration, public VESPERSScanConfiguration
+class VESPERS2DScanConfiguration : public AMStepScanConfiguration, public VESPERSScanConfiguration
 {
 	Q_OBJECT
 

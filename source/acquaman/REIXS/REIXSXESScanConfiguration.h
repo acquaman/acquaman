@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -30,7 +31,6 @@ class REIXSXESScanConfiguration : public AMScanConfiguration
 	Q_OBJECT
 
 	Q_PROPERTY(int gratingNumber READ gratingNumber WRITE setGratingNumber)
-	Q_PROPERTY(double centerEV READ centerEV WRITE setCenterEV)
 	Q_PROPERTY(double maximumTotalCounts READ maximumTotalCounts WRITE setMaximumTotalCounts)
 	Q_PROPERTY(double maximumDurationSeconds READ maximumDurationSeconds WRITE setMaximumDurationSeconds)
 	Q_PROPERTY(double defocusDistanceMm READ defocusDistanceMm WRITE setDefocusDistanceMm)
@@ -40,6 +40,16 @@ class REIXSXESScanConfiguration : public AMScanConfiguration
 	Q_PROPERTY(bool doNotClearExistingCounts READ doNotClearExistingCounts WRITE setDoNotClearExistingCounts)
 	Q_PROPERTY(AMDbObject* mcpDetectorInfo READ dbGetMcpDetectorInfo WRITE dbLoadMcpDetectorInfo)
 
+	Q_PROPERTY(double slitWidth READ slitWidth WRITE setSlitWidth)
+	Q_PROPERTY(bool applySlitWidth READ applySlitWidth WRITE setApplySlitWidth)
+	Q_PROPERTY(double energy READ energy WRITE setEnergy)
+	Q_PROPERTY(bool applyEnergy READ applyEnergy WRITE setApplyEnergy)
+
+	Q_PROPERTY(int polarization READ polarization WRITE setPolarization)
+	Q_PROPERTY(double polarizationAngle READ polarizationAngle WRITE setPolarizationAngle)
+	Q_PROPERTY(bool applyPolarization READ applyPolarization WRITE setApplyPolarization)
+
+
 	// The following properties should be moved upwards if we can figure out how to work on this together, and determine what should be stored at the AMScanConfiguration level.
 	Q_PROPERTY(QString userScanName READ userScanName WRITE setUserScanName)
 	Q_PROPERTY(int scanNumber READ scanNumber WRITE setScanNumber)
@@ -48,17 +58,37 @@ class REIXSXESScanConfiguration : public AMScanConfiguration
 
 public:
 	/// Default Constructor
- 	virtual ~REIXSXESScanConfiguration();
 	Q_INVOKABLE explicit REIXSXESScanConfiguration(QObject *parent = 0);
+	REIXSXESScanConfiguration(const REIXSXESScanConfiguration &original);
+	virtual ~REIXSXESScanConfiguration();
 
+	/// The auto-generated scan name. Can be re-implemented to customize for each scan type.
+	virtual QString autoScanName() const { return "XES"; }
+
+	/// A human-readable description of this scan configuration. Used by scan action to set the title for the action view.
 	virtual QString description() const;
 
-	virtual QString autoScanName() const { return "XES"; }
+	/// A human-readable synopsis of this scan configuration.  Used by scan action to set the main text in the action view.
+	virtual QString detailedDescription() const { return "XRay Emission Scan"; }
+
 
 	/// The number of the grating to use for this scan
 	int gratingNumber() const { return gratingNumber_; }
-	/// Where we should place the detector (ie: the energy at the center of the detector)
-	double centerEV() const { return centerEV_; }
+
+	/// Energy to set beamline to before scan
+	double energy() const { return energy_; }
+	/// A flag indicating that the energy should be changed before starting the scan
+	bool applyEnergy() const { return applyEnergy_; }
+
+	/// Slit Width to set before scan
+	double slitWidth() const { return slitWidth_; }
+	/// A flag indicating that the slit width should be changed before starting the scan
+	bool applySlitWidth() const { return applySlitWidth_; }
+
+	int polarization() const { return polarization_; }
+	double polarizationAngle() const { return polarizationAngle_; }
+	bool applyPolarization() const { return applyPolarization_; }
+
 	/// How long to count for? We should stop this scan when we get this many counts. (Using double so that we can go higher than maximum int value)
 	double maximumTotalCounts() const { return maximumTotalCounts_; }
 	/// How long to count for? We should stop this scan after this many seconds have elapsed
@@ -114,8 +144,19 @@ public slots:
 
 	/// Set the number of the grating to use for this scan
 	void setGratingNumber(int gratingNumber) { if(gratingNumber_ == gratingNumber) return; gratingNumber_ = gratingNumber;  setModified(true); emit configurationChanged(); }
-	/// Where we should place the detector (ie: the energy at the center of the detector)
-	void setCenterEV(double centerEV) { if(centerEV_ == centerEV) return; centerEV_ = centerEV; setModified(true); emit configurationChanged(); }
+
+	/// Set the desired beamline energy value
+	void setEnergy(double energy) {if(energy_ == energy) return; energy_ = energy; setModified(true); emit configurationChanged(); }
+	void setApplyEnergy(bool ApplyEnergy) { if(applyEnergy_ == ApplyEnergy) return; applyEnergy_ = ApplyEnergy; setModified(true); emit configurationChanged(); }
+
+	/// Set the desired slit width value
+	void setSlitWidth(double slitWidth) {if(slitWidth_ == slitWidth) return; slitWidth_ = slitWidth; setModified(true); emit configurationChanged(); }
+		void setApplySlitWidth(bool applySlitWidth) { if(applySlitWidth_ == applySlitWidth) return; applySlitWidth_ = applySlitWidth; setModified(true); emit configurationChanged(); }
+
+		void setPolarization(int polarization) { if(polarization == polarization_) return; polarization_ = polarization; setModified(true); emit configurationChanged(); }
+		void setPolarizationAngle(double polarizationAngle) { if(polarizationAngle == polarizationAngle_) return; polarizationAngle_ = polarizationAngle; setModified(true); emit configurationChanged(); }
+		void setApplyPolarization(bool applyPolarization) { if(applyPolarization == applyPolarization_) return; applyPolarization_ = applyPolarization; setModified(true); emit configurationChanged(); }
+
 	/// Set how long to count for. We should stop this scan when we get this many counts. (Using double so that we can go higher than maximum int value)
 	void setMaximumTotalCounts(double counts) { if(maximumTotalCounts_ == counts) return; maximumTotalCounts_ = counts; setModified(true); emit configurationChanged(); }
 	/// Set how long to count for. We should stop this scan after this many seconds have elapsed
@@ -124,8 +165,6 @@ public slots:
 	void setDefocusDistanceMm(double defocusDistanceMm) { if(defocusDistanceMm_ == defocusDistanceMm) return; defocusDistanceMm_ = defocusDistanceMm; setModified(true); emit configurationChanged(); }
 	/// Set the database id of the stored spectrometer calibration we should use. (This spectromter calibration is found in the user database, for now)
 	void setSpectrometerCalibrationId(int id) { if(spectrometerCalibrationId_ == id) return; spectrometerCalibrationId_ = id; setModified(true); emit configurationChanged(); }
-	// REMOVED: Set the orientation of the detector: 0 for horizontal (wide window, low resolution), 1 for vertical (narrow window, high resolution)
-	// void setDetectorOrientation(bool orientationIsVertical) { detectorOrientation_ = orientationIsVertical; setModified(true); }
 	/// Set the detector incidence angle offset (tilt), in degrees, up from tangent to the rowland circle. Normally, the detector should be tangent to the rowland circle for best focussing.  This is an offset tilt, in degrees, where positive means more normal; negative means more grazing.
 	void setDetectorTiltOffset(double detectorTilt) { if(detectorTiltOffset_ == detectorTilt) return; detectorTiltOffset_ = detectorTilt; setModified(true); emit configurationChanged(); }
 	/// Set a flag indicating that we should start the scan in whatever position the spectrometer is now. (ie: don't compute the desired position and move things before starting the scan)
@@ -141,18 +180,32 @@ public slots:
 
 protected:
 
+
+
 	/// The number of the grating to use for this scan
 	int gratingNumber_;
-	/// Where we should place the detector (ie: the energy at the center of the detector)
-	double centerEV_;
+
+	/// The beamline energy to use for this scan
+	double energy_;
+	/// A flag indicating that the energy should be changed before starting the scan
+	bool applyEnergy_;
+
+	/// The slit width for this scan
+	double slitWidth_;
+	/// A flag indicating that the slit width should be changed before starting the scan
+	bool applySlitWidth_;
+
+	int polarization_;
+	double polarizationAngle_;
+	bool applyPolarization_;
+
+
 	/// We should stop this scan when we get this many counts
 	double maximumTotalCounts_;
 	/// We should stop this scan after this many seconds have elapsed
 	int maximumDurationSeconds_;
 	/// Any lateral offset we should introduce along the angle at this energy, to slide the detector into or out of the focus position (Useful for calibration and testing)
 	double defocusDistanceMm_;
-	// REMOVED: The orientation of the detector: 0 for horizontal (wide window, low resolution), 1 for vertical (narrow window, high resolution)
-	// bool detectorOrientation_;
 	/// Normally, the detector should be tangent to the rowland circle for best focussing.  This is an offset tilt, in degrees, where positive means more normal; negative means more grazing, and 0 will place the detector tangent to the rowland circle.
 	double detectorTiltOffset_;
 	/// The database id of the stored spectrometer calibration we should use. (This spectromter calibration is found in the user database, for now)

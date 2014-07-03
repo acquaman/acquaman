@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -290,6 +291,13 @@ void AMScan::setSample(const AMSample *sample){
 	setModified(true);
 }
 
+void AMScan::setScanInitialConditions(const AMControlInfoList &scanInitialConditions){
+    	scanInitialConditions_.clear();
+	scanInitialConditions_.setValuesFrom(scanInitialConditions);
+
+	emit scanInitialConditionsChanged();
+}
+
 QString AMScan::unEvaluatedName() const{
 	return unEvaluatedName_;
 }
@@ -525,9 +533,9 @@ bool AMScan::storeToDb(AMDatabase *db, bool generateThumbnails)
 	{
 		number_ = largestNumberInScansWhere(db, QString(" name = '%1'").arg(name()));
 		if(number_ == -1)
-			number_ = 1;
+			setNumber(1);
 		else
-			number_++;
+			setNumber(number_+1);
 	}
 	return AMDbObject::storeToDb(db, generateThumbnails);
 }
