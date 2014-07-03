@@ -44,7 +44,7 @@ AMAboutDialog::AMAboutDialog(QWidget *parent) :
 	mainLayout->addWidget(titleLabel, 0, 0, 1, 2);
 	mainLayout->addWidget(descriptionLabel, 1,0,1,2);
 
-	mainLayout->addWidget(buildInfoWidget_, 2, 1, 1, 1);
+	mainLayout->addWidget(buildInfoWidget_, 2, 0, 1, 2, Qt::AlignCenter);
 	mainLayout->addWidget(legalLabel,3, 0, 1, 2);
 	setLayout(mainLayout);
 }

@@ -1,67 +1,47 @@
-/*
-Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
-Copyright 2013-2014 David Chevrier and Darren Hunter.
-
-This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
-
-Acquaman is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-Acquaman is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
-
-#ifndef AMBASICCONTROLDETECTOREMULATOR_H
-#define AMBASICCONTROLDETECTOREMULATOR_H
+#ifndef AM1DCONTROLDETECTOREMULATOR_H
+#define AM1DCONTROLDETECTOREMULATOR_H
 
 #include "beamline/AMDetector.h"
 #include "beamline/AMControlSet.h"
+#include "beamline/AMPVControl.h"
 
-class AMBasicControlDetectorEmulator : public AMDetector
+/// This class takes an AMControl that is expected to represent a waveform record (ie. multi-valued) and expose it as an AMDetector.
+class AM1DControlDetectorEmulator : public AMDetector
 {
-Q_OBJECT
+	Q_OBJECT
+
 public:
-	/// Constructor takes a name and description as well as a pointer to the control you wish to acquire
-	AMBasicControlDetectorEmulator(const QString &name, const QString &description, AMControl *control, AMControl *statusControl, double statusAcquiringValue, double statusNotAcquiringValue, AMDetectorDefinitions::ReadMethod readMethod,  QObject *parent = 0);
+	/// Constructor.  Takes a name, description, and AMControl as arguments.
+	AM1DControlDetectorEmulator(const QString &name, const QString &description, int size, AMControl *control, AMControl *statusControl, double statusAcquiringValue, double statusNotAcquiringValue, AMDetectorDefinitions::ReadMethod readMethod,  QObject *parent = 0);
 	/// Destructor.
-	virtual ~AMBasicControlDetectorEmulator();
+	virtual ~AM1DControlDetectorEmulator(){}
 
-	/// Returns 0, because there are no axes for the single point detector
-	virtual int size(int axisNumber) const { Q_UNUSED(axisNumber); return 0; }
-
-	/// The basic controls don't require additional power
+	/// Returns the size of the waveform.  This should always be passed an axisNumber of 0.
+	virtual int size(int axisNumber) const;
+	/// The basic controls don't require additional power.
 	virtual bool requiresPower() const { return false; }
-
-	/// Cancelling is not yet implemented for controls
+	/// Cancelling is not implemented for controls.
 	virtual bool canCancel() const { return false; }
-	/// Clearing is not yet implemented for controls
+	/// Clearing is not implemented for controls.
 	virtual bool canClear() const { return false; }
 
-	/// Basic controls cannot continuous acquire.
+	/// Basic controls cannot acquire continously.
 	virtual bool canContinuousAcquire() const { return false; }
 
-	/// Returns the -1, because these controls don't have access to this information (they use the AMDetectorDefinitions::ReadMethod enum)
+	/// Returns -1 because these controls don't have access to this information.
 	virtual double acquisitionTime() const { return -1; }
-	/// Returns the acquisition time tolerance.  Returns -1, not sure if that will provide the correct behaviour or not.
+	/// Returns the acquisition time tolerance.  Retunrs -1 because these are not part of these detectors.
 	virtual double acquisitionTimeTolerance() const { return -1; }
 
-	/// The cannot be configured in this manner
+	/// These are not configured to use the synchronized dwell time.
 	virtual bool supportsSynchronizedDwell() const { return false; }
-	/// Returns empty string
-	virtual QString synchronizedDwellKey() const { return "";}
+	/// There is no key if it can't support synchronization.
+	virtual QString synchronizedDwellKey() const { return ""; }
 
-	/// No triggering source
+	/// No triggering source for these detectors.
 	virtual bool sharesDetectorTriggerSource() const { return false; }
-	/// Returns Null pointer
-	virtual AMDetectorTriggerSource* detectorTriggerSource() { return 0; }
+	/// Returns a null trigger source as it doesn't support this.
+	virtual AMDetectorTriggerSource *detectorTriggerSource() { return 0; }
 
 	/// Returns RequestRead as the type
 	virtual AMDetectorDefinitions::ReadMethod readMethod() const { return readMethod_; }
@@ -120,9 +100,9 @@ protected:
 	AMDetectorDefinitions::ReadMethod readMethod_;
 
 	/// Holds the pointer to the control we're using
-	AMControl *control_;
+	AMReadOnlyPVControl *control_;
 	/// Holds the status control for cases where we're using request read
-	AMControl *statusControl_;
+	AMReadOnlyPVControl *statusControl_;
 	/// The master set of controls
 	AMControlSet *allControls_;
 
@@ -133,4 +113,4 @@ protected:
 	double statusNotAcquiringValue_;
 };
 
-#endif // AMBASICCONTROLDETECTOREMULATOR_H
+#endif // AM1DCONTROLDETECTOREMULATOR_H
