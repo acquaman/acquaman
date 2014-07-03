@@ -74,7 +74,7 @@ public slots:
     void setViewMode(AMCurrentAmplifierView::ViewMode newMode);
     /// Sets the precision for values displayed.
     void setPrecision(int newPrecision);
-    /// Sets the format for values displayed.
+    /// Sets the format for values displayed. Note that CLSSR570 amplifiers cannot accept input in scientific notation--the format_ for these amplifier views must be 'f'.
     void setFormat(char newFormat);
     /// Sets the view's name.
     void setName(const QString &newName);
