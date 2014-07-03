@@ -572,7 +572,8 @@ AMAction3* SGMFastScanActionController::createInitializationActions(){
 	retVal->addSubAction(moveAction);
 
 	// Beam on actions
-	retVal->addSubAction(SGMBeamline::sgm()->createBeamOnActions3());
+	if(!QApplication::instance()->arguments().contains("--enableTesting"))
+		retVal->addSubAction(SGMBeamline::sgm()->createBeamOnActions3());
 
 	///////////////////////////
 	// END INITIALIZATION ///
