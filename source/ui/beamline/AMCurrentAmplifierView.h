@@ -57,13 +57,13 @@ signals:
     /// Emitted when the initialization state of the view changes.
     void initialized(bool);
     /// Emitted when the view mode changes.
-    void viewModeChanged(ViewMode newMode);
+    void viewModeChanged(AMCurrentAmplifierView::ViewMode newMode);
     /// Emitted when the view's name changes.
     void nameChanged(const QString &name);
 
 public slots:
     /// Sets the view mode.
-    void setViewMode(ViewMode newMode);
+    void setViewMode(AMCurrentAmplifierView::ViewMode newMode);
     /// Sets the view's name.
     void setName(const QString &newName);
     /// Shows (or hides) the view name, if it has one.
