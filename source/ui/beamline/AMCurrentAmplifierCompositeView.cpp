@@ -82,7 +82,7 @@ void AMCurrentAmplifierCompositeView::refreshViewImplementation()
 
 QString AMCurrentAmplifierCompositeView::valueToString(double value, const QString &units) const
 {
-    return QString("%1 %2").arg(value, 0, 'g', 2).arg(units);
+    return QString("%1 %2").arg(value, 0, 'g', 3).arg(units);
 }
 
 void AMCurrentAmplifierCompositeView::refreshValues()
