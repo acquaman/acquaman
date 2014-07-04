@@ -28,6 +28,12 @@ AMScanDataChildTableView::AMScanDataChildTableView(QWidget *parent)
 void AMScanDataChildTableView::onModelChangedImplementation()
 {
 	scanDataTable_->setModel(model_);
-	scanDataTable_->resizeColumnsToContents();
-	scanDataTable_->setColumnWidth(7, 80);
+	scanDataTable_->setColumnWidth(0, 80);
+	scanDataTable_->setColumnWidth(1, 200);
+	scanDataTable_->setColumnWidth(2, 40);
+	scanDataTable_->setColumnWidth(3, 110);
+	scanDataTable_->setColumnWidth(4, 110);
+	scanDataTable_->setColumnWidth(5, 60);
+	scanDataTable_->setColumnWidth(6, 110);
+	scanDataTable_->setColumnWidth(7, 200);
 }

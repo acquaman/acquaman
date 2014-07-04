@@ -89,13 +89,15 @@ void AMLightweightScanInfoCollection::populateCollection()
 		int id = selectQuery.value(currentRecord.indexOf("id")).toInt();
 		QString name = selectQuery.value(currentRecord.indexOf("name")).toString();
 		int number = selectQuery.value(currentRecord.indexOf("number")).toInt();
+		int thumbnailFirstId = selectQuery.value(currentRecord.indexOf("thumbnailFirstId")).toInt();
+		int thumbnailCount = selectQuery.value(currentRecord.indexOf("thumbnailCount")).toInt();
 		QDateTime dateTime = selectQuery.value(currentRecord.indexOf("dateTime")).toDateTime();
 		QString runName = getRunName(selectQuery.value(currentRecord.indexOf("runId")).toInt());
 		QString scanType = getScanType(selectQuery.value(currentRecord.indexOf("AMDbObjectType")).toString());
 		QString notes = selectQuery.value(currentRecord.indexOf("notes")).toString();
 		QString sampleName = getSampleName(selectQuery.value(currentRecord.indexOf("Sample")).toString());
 
-		append(AMLightweightScanInfo(id, name, number, dateTime, scanType, runName, notes, sampleName));
+		append(new AMLightweightScanInfo(id, name, number, dateTime, scanType, runName, notes, sampleName, thumbnailFirstId, thumbnailCount));
 
 	}
 

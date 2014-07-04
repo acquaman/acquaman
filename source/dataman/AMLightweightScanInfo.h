@@ -3,6 +3,8 @@
 
 #include <QString>
 #include <QDateTime>
+#include <QHash>
+class AMDbThumbnail;
 /**
  * A class representing the information stored against a scan in the user database. The class is designed
  * to be a more lightweight, quick to load way of displaying bulk information about scans. See class
@@ -19,6 +21,8 @@ private:
 	QString runName_;
 	QString notes_;
 	QString sampleName_;
+	QList<int> thumbnailIds_;
+	QHash<int, AMDbThumbnail*> thumbnailsMap_;
 
 public:
 	AMLightweightScanInfo(int id,
@@ -28,7 +32,9 @@ public:
 						const QString& scanType,
 						const QString& runName,
 						const QString& notes,
-						const QString& sampleName);
+						const QString& sampleName,
+						int thumbnailFirstId,
+						int thumbnailCount);
 
 	int id() const;
 	QString name() const;
@@ -38,6 +44,8 @@ public:
 	QString runName() const;
 	QString notes() const;
 	QString sampleName() const;
+	AMDbThumbnail* thumbnailAt(int index);
+	int thumbnailCount();
 };
 
 #endif // AMLIGHTWEIGHTSCANINFO_H

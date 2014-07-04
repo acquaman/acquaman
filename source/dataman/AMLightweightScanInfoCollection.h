@@ -8,7 +8,7 @@
 
 class AMDatabase;
 /// A class representing a bulk loaded collection of Scan's database info
-class AMLightweightScanInfoCollection : public QList<AMLightweightScanInfo>
+class AMLightweightScanInfoCollection : public QList<AMLightweightScanInfo*>
 {
 private:
 	/// The database from which the scan infos will be retrieved

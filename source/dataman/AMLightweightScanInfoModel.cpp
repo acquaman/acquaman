@@ -1,4 +1,5 @@
 #include "AMLightweightScanInfoModel.h"
+#include "database/AMDbObject.h"
 
 AMLightweightScanInfoModel::AMLightweightScanInfoModel(AMLightweightScanInfoCollection *scanInfo, QObject *parent) :
 	QAbstractItemModel(parent)
@@ -43,37 +44,53 @@ QVariant AMLightweightScanInfoModel::headerData(int section, Qt::Orientation ori
 
 QVariant AMLightweightScanInfoModel::data(const QModelIndex &index, int role) const
 {
-	if(!index.isValid() || index.row() > rowCount() -1 || index.column() > columnCount() -1)
+	if(!index.isValid() || index.row() >= rowCount() || index.column() >= columnCount())
 		return QVariant();
 
-	if(role != Qt::DisplayRole)
-		return QVariant();
+	AMLightweightScanInfo* info = scanInfo_->at(index.row());
 
-
-	AMLightweightScanInfo info = scanInfo_->at(index.row());
-
-	switch (index.column())
+	if(role == Qt::DisplayRole || role == Qt::ToolTipRole)
 	{
-	case 0:
-		return info.id();
-	case 1:
-		return info.name();
-	case 2:
-		return info.number();
-	case 3:
-		return info.dateTime();
-	case 4:
-		return info.scanType();
-	case 5:
-		return info.runName();
-	case 6:
-		return info.sampleName();
-	case 7:
-		return info.notes();
-	default:
-		return QVariant();
+		switch (index.column())
+		{
+		case 0:
+			return info->id();
+		case 1:
+			return info->name();
+		case 2:
+			return info->number();
+		case 3:
+			return info->dateTime();
+		case 4:
+			return info->scanType();
+		case 5:
+			return info->runName();
+		case 6:
+			return info->sampleName();
+		case 7:
+			return info->notes();
+		default:
+			return QVariant();
+		}
+	}
+	else if(role == Qt::DecorationRole)
+	{
+		if(index.column() == 0)
+		{
+			AMDbThumbnail* thumbnailData = info->thumbnailAt(0);
+			if(!thumbnailData)
+				return QVariant();
+
+			QPixmap pixmap;
+			pixmap.loadFromData(thumbnailData->thumbnail);
+
+			QIcon icon(pixmap);
+
+			return icon;
+		}
 	}
 
+	return QVariant();
 }
 
 int AMLightweightScanInfoModel::rowCount(const QModelIndex &) const
