@@ -65,6 +65,7 @@ protected:
 
 protected:
     STVariableCollection *variables_;
+    STVariable *selectedVariable_;
     STPlotWidget *plotWidget_;
 };
 

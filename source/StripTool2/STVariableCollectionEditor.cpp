@@ -19,6 +19,7 @@ STVariableCollectionEditor::STVariableCollectionEditor(STVariableCollection *col
     mainLayout->addWidget(variableList_);
 
     variableEditor_ = new STVariableEditor(0);
+    variableEditor_->setEnabled(false);
     mainLayout->addWidget(variableEditor_);
 
     setLayout(mainLayout);
@@ -58,6 +59,7 @@ void STVariableCollectionEditor::setSelectedVariable(STVariable *newSelection)
     if (selectedVariable_ != newSelection) {
         selectedVariable_ = newSelection;
 
+        variableEditor_->setEnabled(true);
         variableEditor_->setVariable(selectedVariable_);
 
         emit selectedVariableChanged(selectedVariable_);

@@ -6,6 +6,8 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QLayout>
+#include <QColorDialog>
+#include <QPushButton>
 
 #include "STEditor.h"
 #include "STVariable.h"
@@ -36,6 +38,7 @@ protected slots:
 
     void onDescriptionEntryChanged(const QString &text);
     void onUnitsEntryChanged(const QString &text);
+    void onColorButtonClicked();
 
 protected:
     void getVariableInfo();
@@ -48,13 +51,15 @@ protected:
 
     QLabel *name_;
     QLineEdit *descriptionEntry_;
-    QLineEdit *unitsEntry_;
     QLabel *creation_;
     QLabel *connected_;
     QLabel *value_;
+    QLineEdit *unitsEntry_;
+    QPushButton *colorButton_;
 
     bool descriptionEdited_;
     bool unitsEdited_;
+    bool colorEdited_;
 };
 
 #endif // STVARIABLEEDITOR_H

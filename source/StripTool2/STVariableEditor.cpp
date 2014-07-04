@@ -8,6 +8,7 @@ STVariableEditor::STVariableEditor(STVariable *toEdit, QWidget *parent) : STEdit
 
     descriptionEdited_ = false;
     unitsEdited_ = false;
+    colorEdited_ = false;
 
     // Create UI.
 
@@ -50,6 +51,14 @@ STVariableEditor::STVariableEditor(STVariable *toEdit, QWidget *parent) : STEdit
     unitsLabel->setBuddy(unitsEntry_);
     mainLayout->addWidget(unitsLabel, 5, 0);
     mainLayout->addWidget(unitsEntry_, 5, 1);
+
+    QLabel *colorLabel = new QLabel("Color: ", this);
+    colorButton_ = new QPushButton(this);
+    colorButton_->setFixedWidth(100);
+    connect( colorButton_, SIGNAL(clicked()), this, SLOT(onColorButtonClicked()) );
+    colorLabel->setBuddy(colorButton_);
+    mainLayout->addWidget(colorLabel, 6, 0);
+    mainLayout->addWidget(colorButton_, 6, 1);
 
     setLayout(mainLayout);
 
@@ -97,6 +106,9 @@ void STVariableEditor::applyChanges()
 
         if (unitsEdited_)
             variable_->setUnits(unitsEntry_->text());
+
+        if (colorEdited_)
+            variable_->setColor(colorButton_->palette().color(QPalette::Background));
     }
 
 }
@@ -128,15 +140,33 @@ void STVariableEditor::onUnitsEntryChanged(const QString &text)
     unitsEdited_ = true;
 }
 
+void STVariableEditor::onColorButtonClicked()
+{
+    QColor color = QColorDialog::getColor(variable_->color(), this);
+
+    QPalette palette = colorButton_->palette();
+    palette.setColor(colorButton_->backgroundRole(), color);
+    colorButton_->setPalette(palette);
+
+    colorEdited_ = true;
+}
+
 void STVariableEditor::getVariableInfo()
 {
     if (variable_) {
         name_->setText(variable_->name());
         descriptionEntry_->setText(variable_->description());
-        unitsEntry_->setText(variable_->units());
         creation_->setText(variable_->created().toString());
         setConnectionState(variable_->isConnected());
         setLatestValue(variable_->value());
+        unitsEntry_->setText(variable_->units());
+
+//        QPalette palette = colorButton_->palette();
+//        palette.setColor(colorButton_->backgroundRole(), variable_->color());
+//        colorButton_->setPalette(palette);
+
+//        QString colorName = variable_->color().name();
+//        colorButton_->setStyleSheet("QPushButton { background-color: " + colorName + "; }");
     }
 }
 
@@ -144,13 +174,14 @@ void STVariableEditor::clearVariableInfo()
 {
     name_->clear();
     descriptionEntry_->clear();
-    unitsEntry_->clear();
     creation_->clear();
     connected_->clear();
     value_->clear();
+    unitsEntry_->clear();
 
     descriptionEdited_ = false;
     unitsEdited_ = false;
+    colorEdited_ = false;
 }
 
 void STVariableEditor::connectVariable()

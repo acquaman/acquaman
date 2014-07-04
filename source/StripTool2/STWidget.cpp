@@ -28,6 +28,7 @@ STWidget::STWidget(QWidget *parent) : QWidget(parent)
     // Set variables.
 
     variables_ = new STVariableCollection(this);
+    selectedVariable_ = 0;
     plotWidget_ = new STPlotWidget(this);
 
     // Set up UI.
@@ -45,6 +46,7 @@ STWidget::STWidget(QWidget *parent) : QWidget(parent)
     connect( variables_, SIGNAL(variableConnectedStateChanged(int)), this, SLOT(onVariableConnected(int)) );
     connect( variables_, SIGNAL(variableDescriptionChanged(int)), this, SLOT(onVariableAxisInfoChanged(int)) );
     connect( variables_, SIGNAL(variableUnitsChanged(int)), this, SLOT(onVariableAxisInfoChanged(int)) );
+
 }
 
 STWidget::~STWidget()

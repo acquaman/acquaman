@@ -58,6 +58,9 @@ public:
     QString units() const;
     bool hasUnits() const;
 
+    /// Returns the color for this variable, red by default.
+    QColor color() const;
+
     /// Returns this variable's creation datetime.
     QDateTime created() const;
 
@@ -81,6 +84,8 @@ signals:
     void descriptionChanged(const QString &newDescription);
     /// Emitted when the units change.
     void unitsChanged(const QString &newUnits);
+    /// Emitted when the color changes.
+    void colorChanged(QColor newColor);
     /// Emitted when the variable's value has changed.
     void valueChanged(double newValue);
     /// Emitted when the process variable is connected.
@@ -93,6 +98,8 @@ public slots:
     void setDescription(const QString &newDescription);
     /// Sets the units for this variable.
     void setUnits(const QString &units);
+    /// Sets the series color for this variable.
+    void setColor(const QColor &newColor);
     /// Sets the number of data points and time points that are saved in total.
     void setDataBufferSize(int bufferSize);
     /// Sets the time window to be displayed, relative to now.
@@ -116,6 +123,9 @@ protected:
     /// The variable's units.
     QString units_;
     bool hasUnits_;
+
+    /// The series color.
+    QColor color_;
 
     /// The process variable that this class listens to for value updates.
     AMProcessVariable *pv_;

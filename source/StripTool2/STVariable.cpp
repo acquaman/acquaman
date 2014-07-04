@@ -32,6 +32,8 @@ STVariable::STVariable(const QString &name, QObject *parent) :
     units_ = "";
     hasUnits_ = false;
 
+    color_ = QColor(Qt::red);
+
     created_ = QDateTime::currentDateTime();
 
     pv_ = new AMProcessVariable(name, true, this);
@@ -97,6 +99,11 @@ bool STVariable::hasUnits() const
     return hasUnits_;
 }
 
+QColor STVariable::color() const
+{
+    return color_;
+}
+
 QDateTime STVariable::created() const
 {
     return created_;
@@ -153,6 +160,16 @@ void STVariable::setUnits(const QString &units)
             hasUnits_ = true;
         else
             hasUnits_ = false;
+    }
+}
+
+void STVariable::setColor(const QColor &newColor)
+{
+    if (color_ != newColor) {
+        color_ = newColor;
+        emit colorChanged(color_);
+
+        qDebug() << "Variable color changed.";
     }
 }
 
