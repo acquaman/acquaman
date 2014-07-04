@@ -25,7 +25,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "application/AMAppController.h"
 
 class REIXSXESScanConfigurationDetailedView;
-class AMWorkflowView;
 
 class REIXSAppController : public AMAppController {
 	Q_OBJECT
@@ -50,11 +49,6 @@ public:
 
 	/// destroy all of the windows, widgets, and data objects created by applicationStartup(). Only call this if startup() has ran successfully.  If reimplementing, must call the base-class shutdown() as the last thing it does.
 	virtual void shutdown();
-
-
-	///	Opens a single scan configuration from a given database URL.  Reimplemented to put the scan into a config view holder to possibly add it to the workflow.
-	virtual void launchScanConfigurationFromDb(const QUrl &url);
-
 
 public slots:
 
