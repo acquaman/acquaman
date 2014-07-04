@@ -24,6 +24,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 STVariable::STVariable(const QString &name, QObject *parent) :
     QObject(parent)
 {
+    index_ = -1;
+
     description_ = "";
     hasDescription_ = false;
 
@@ -63,6 +65,11 @@ STVariable::STVariable(const QString &name, QObject *parent) :
 STVariable::~STVariable()
 {
 
+}
+
+int STVariable::index() const
+{
+    return index_;
 }
 
 QString STVariable::name() const
@@ -115,6 +122,14 @@ MPlotSeriesBasic* STVariable::series() const
     return series_;
 }
 
+void STVariable::setIndex(int newIndex)
+{
+    if (index_ != newIndex && newIndex >= 0) {
+        index_ = newIndex;
+        emit indexChanged(index_);
+    }
+}
+
 void STVariable::setDescription(const QString &newDescription)
 {
     if (newDescription != description_) {
@@ -152,3 +167,4 @@ void STVariable::setTimeFilter(int interval, AM0DTimestampAB::TimeUnits units)
     times_->setTimeValue(interval);
     times_->setTimeUnits(units);
 }
+

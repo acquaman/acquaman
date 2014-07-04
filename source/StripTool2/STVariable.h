@@ -44,6 +44,9 @@ public:
     /// Destructor.
     virtual ~STVariable();
 
+    /// Returns the variable's index, -1 if none has been provided.
+    int index() const;
+
     /// Returns the pv name for this variable.
     QString name() const;
 
@@ -72,6 +75,8 @@ public:
 
 
 signals:
+    /// Emitted when the variable's index has changed.
+    void indexChanged(int newIndex);
     /// Emitted when the description changes.
     void descriptionChanged(const QString &newDescription);
     /// Emitted when the units change.
@@ -82,6 +87,8 @@ signals:
     void connected(bool isConnected);
 
 public slots:
+    /// Sets the variable's index.
+    void setIndex(int newIndex);
     /// Sets the description for this variable.
     void setDescription(const QString &newDescription);
     /// Sets the units for this variable.
@@ -96,6 +103,9 @@ protected slots:
 protected:
 
 protected:
+    /// The variable's index.
+    int index_;
+
     /// The datetime for this variable's initial creation.
     QDateTime created_;
 
