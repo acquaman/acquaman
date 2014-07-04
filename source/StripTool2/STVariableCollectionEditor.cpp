@@ -9,12 +9,11 @@ STVariableCollectionEditor::STVariableCollectionEditor(STVariableCollection *col
 
     selectedVariable_ = 0;
 
-    // Set up UI.
+    // Create UI.
 
     QVBoxLayout *mainLayout = new QVBoxLayout();
 
     variableList_ = new QListView(this);
-    connect( variableList_->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SLOT(onListViewSelection(QModelIndex, QModelIndex)) );
 
     variableList_->setModel(variableCollection_);
     mainLayout->addWidget(variableList_);
@@ -23,6 +22,10 @@ STVariableCollectionEditor::STVariableCollectionEditor(STVariableCollection *col
     mainLayout->addWidget(variableEditor_);
 
     setLayout(mainLayout);
+
+    // Make connections
+
+    connect( variableList_, SIGNAL(clicked(QModelIndex)), this, SLOT(onListViewSelection(QModelIndex)) );
 }
 
 STVariableCollectionEditor::~STVariableCollectionEditor()
@@ -42,14 +45,13 @@ STVariable* STVariableCollectionEditor::selectedVariable() const
 
 void STVariableCollectionEditor::applyChanges()
 {
+    qDebug() << "Applying changes from collection editor.";
     variableEditor_->applyChanges();
 }
 
-void STVariableCollectionEditor::onListViewSelection(QModelIndex start, QModelIndex end)
+void STVariableCollectionEditor::onListViewSelection(QModelIndex selection)
 {
-    Q_UNUSED(end)
-
-    setSelectedVariable(variableCollection_->variableAt(start.row()) );
+    setSelectedVariable(variableCollection_->variableAt(selection.row()) );
 }
 
 void STVariableCollectionEditor::setSelectedVariable(STVariable *newSelection)

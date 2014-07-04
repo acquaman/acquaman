@@ -31,20 +31,13 @@ public slots:
     virtual void applyChanges();
 
 protected slots:
-    void setNameText(const QString &name);
-    void setDescriptionText(const QString &description);
-    void setUnitsText(const QString &units);
-    void setCreationText(const QString &creation);
     void setConnectionState(bool isConnected);
     void setLatestValue(double newValue);
-
-    void onVariableValueChanged(double newValue);
 
     void onDescriptionEntryChanged(const QString &text);
     void onUnitsEntryChanged(const QString &text);
 
 protected:
-    void setupComponents();
     void getVariableInfo();
     void clearVariableInfo();
     void connectVariable();

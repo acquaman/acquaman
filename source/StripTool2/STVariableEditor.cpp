@@ -11,107 +11,6 @@ STVariableEditor::STVariableEditor(STVariable *toEdit, QWidget *parent) : STEdit
 
     // Create UI.
 
-    setupComponents();
-
-    // Get current settings.
-
-    getVariableInfo();
-
-    // Make connections.
-
-    connect( variable_, SIGNAL(valueChanged(double)), this, SLOT(onVariableValueChanged(double)) );
-}
-
-STVariableEditor::~STVariableEditor()
-{
-
-}
-
-STVariable* STVariableEditor::variable() const
-{
-    return variable_;
-}
-
-void STVariableEditor::setVariable(STVariable *toEdit)
-{
-    if (variable_) {
-        disconnectVariable();
-        clearVariableInfo();
-        variable_ = 0;
-    }
-
-    if (variable_ != toEdit) {
-        variable_ = toEdit;
-        getVariableInfo();
-        connectVariable();
-        emit variableChanged(variable_);
-
-    } else {
-        emit variableChanged(0);
-    }
-
-}
-
-void STVariableEditor::applyChanges()
-{
-    if (variable_ && descriptionEdited_)
-        variable_->setDescription(descriptionEntry_->text());
-}
-
-void STVariableEditor::setNameText(const QString &name)
-{
-    name_->setText(name);
-}
-
-void STVariableEditor::setDescriptionText(const QString &description)
-{
-    descriptionEntry_->setText(description);
-}
-
-void STVariableEditor::setUnitsText(const QString &units)
-{
-    unitsEntry_->setText(units);
-}
-
-void STVariableEditor::setCreationText(const QString &creation)
-{
-    creation_->setText(creation);
-}
-
-void STVariableEditor::setConnectionState(bool isConnected)
-{
-    if (isConnected)
-        connected_->setText("Connected");
-    else
-        connected_->setText("Not connected");
-}
-
-void STVariableEditor::setLatestValue(double newValue)
-{
-    value_->setText(QString::number(newValue));
-}
-
-void STVariableEditor::onVariableValueChanged(double newValue)
-{
-    value_->setText(QString::number(newValue));
-}
-
-void STVariableEditor::onDescriptionEntryChanged(const QString &text)
-{
-    Q_UNUSED(text)
-
-    descriptionEdited_ = true;
-}
-
-void STVariableEditor::onUnitsEntryChanged(const QString &text)
-{
-    Q_UNUSED(text)
-
-    unitsEdited_ = true;
-}
-
-void STVariableEditor::setupComponents()
-{
     QGridLayout *mainLayout = new QGridLayout();
 
     QLabel *nameLabel = new QLabel("Name: ", this);
@@ -153,15 +52,91 @@ void STVariableEditor::setupComponents()
     mainLayout->addWidget(unitsEntry_, 5, 1);
 
     setLayout(mainLayout);
+
+    // Get current settings.
+
+    getVariableInfo();
+    connectVariable();
+}
+
+STVariableEditor::~STVariableEditor()
+{
+
+}
+
+STVariable* STVariableEditor::variable() const
+{
+    return variable_;
+}
+
+void STVariableEditor::setVariable(STVariable *toEdit)
+{
+    if (variable_) {
+        disconnectVariable();
+        clearVariableInfo();
+        variable_ = 0;
+    }
+
+    if (variable_ != toEdit) {
+        variable_ = toEdit;
+        getVariableInfo();
+        connectVariable();
+        emit variableChanged(variable_);
+
+    } else {
+        emit variableChanged(0);
+    }
+
+}
+
+void STVariableEditor::applyChanges()
+{
+    qDebug() << "Applying changes from variable editor.";
+
+    if (variable_) {
+        if (descriptionEdited_)
+            variable_->setDescription(descriptionEntry_->text());
+
+        if (unitsEdited_)
+            variable_->setUnits(unitsEntry_->text());
+    }
+
+}
+
+void STVariableEditor::setConnectionState(bool isConnected)
+{
+    if (isConnected)
+        connected_->setText("Connected");
+    else
+        connected_->setText("Not connected");
+}
+
+void STVariableEditor::setLatestValue(double newValue)
+{
+    value_->setText(QString::number(newValue));
+}
+
+void STVariableEditor::onDescriptionEntryChanged(const QString &text)
+{
+    Q_UNUSED(text)
+
+    descriptionEdited_ = true;
+}
+
+void STVariableEditor::onUnitsEntryChanged(const QString &text)
+{
+    Q_UNUSED(text)
+
+    unitsEdited_ = true;
 }
 
 void STVariableEditor::getVariableInfo()
 {
     if (variable_) {
-        setNameText(variable_->name());
-        setDescriptionText(variable_->description());
-        setUnitsText(variable_->units());
-        setCreationText(variable_->created().toString());
+        name_->setText(variable_->name());
+        descriptionEntry_->setText(variable_->description());
+        unitsEntry_->setText(variable_->units());
+        creation_->setText(variable_->created().toString());
         setConnectionState(variable_->isConnected());
         setLatestValue(variable_->value());
     }
@@ -182,12 +157,16 @@ void STVariableEditor::clearVariableInfo()
 
 void STVariableEditor::connectVariable()
 {
-    connect( variable_, SIGNAL(connected(bool)), this, SLOT(setConnectionState(bool)) );
-    connect( variable_, SIGNAL(valueChanged(double)), this, SLOT(setLatestValue(double)) );
+    if (variable_) {
+        connect( variable_, SIGNAL(connected(bool)), this, SLOT(setConnectionState(bool)) );
+        connect( variable_, SIGNAL(valueChanged(double)), this, SLOT(setLatestValue(double)) );
+    }
 }
 
 void STVariableEditor::disconnectVariable()
 {
-    disconnect( variable_, SIGNAL(connected(bool)), this, SLOT(setConnectionState(bool)) );
-    disconnect( variable_, SIGNAL(valueChanged(double)), this, SLOT(setLatestValue(double)) );
+    if (variable_) {
+        disconnect( variable_, SIGNAL(connected(bool)), this, SLOT(setConnectionState(bool)) );
+        disconnect( variable_, SIGNAL(valueChanged(double)), this, SLOT(setLatestValue(double)) );
+    }
 }

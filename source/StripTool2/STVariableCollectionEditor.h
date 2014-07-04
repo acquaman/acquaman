@@ -27,7 +27,7 @@ public slots:
     virtual void applyChanges();
 
 protected slots:
-    void onListViewSelection(QModelIndex start, QModelIndex end);
+    void onListViewSelection(QModelIndex selection);
     void setSelectedVariable(STVariable *newSelection);
 
 protected:
