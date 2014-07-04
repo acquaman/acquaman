@@ -1,7 +1,6 @@
 #include "STVariableCollection.h"
 
-STVariableCollection::STVariableCollection(QObject *parent) :
-    QObject(parent)
+STVariableCollection::STVariableCollection(QObject *parent) : QAbstractTableModel(parent)
 {
     connectedMapper_ = new QSignalMapper(this);
     connect( connectedMapper_, SIGNAL(mapped(QObject*)), this, SLOT(onVariableConnectedStateChanged(QObject*)) );
@@ -11,6 +10,29 @@ STVariableCollection::~STVariableCollection()
 {
 
 }
+
+int STVariableCollection::rowCount(const QModelIndex &parent) const
+{
+    Q_UNUSED(parent)
+    return variables_.size();
+}
+
+int STVariableCollection::columnCount(const QModelIndex &parent) const
+{
+    Q_UNUSED(parent)
+    return 1;
+}
+
+QVariant STVariableCollection::data(const QModelIndex &index, int role) const
+{
+    switch (role) {
+    case Qt::DisplayRole:
+        return variables_.at(index.row())->name();
+    }
+
+    return QVariant();
+}
+
 
 QList<STVariable*> STVariableCollection::variables() const
 {

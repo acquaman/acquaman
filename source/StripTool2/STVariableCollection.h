@@ -6,13 +6,19 @@
 
 #include "STVariable.h"
 
-class STVariableCollection : public QObject
+class STVariableCollection : public QAbstractTableModel
 {
     Q_OBJECT
 
 public:
     explicit STVariableCollection(QObject *parent = 0);
     virtual ~STVariableCollection();
+
+    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
+
+    virtual int columnCount(const QModelIndex &parent = QModelIndex()) const;
+
+    virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
 
     QList<STVariable*> variables() const;
 
