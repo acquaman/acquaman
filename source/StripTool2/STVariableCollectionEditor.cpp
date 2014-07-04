@@ -13,7 +13,9 @@ STVariableCollectionEditor::STVariableCollectionEditor(STVariableCollection *col
 
     QVBoxLayout *mainLayout = new QVBoxLayout();
 
-    variableList_ = new QListView();
+    variableList_ = new QListView(this);
+    connect( variableList_->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SLOT(onListViewSelection(QModelIndex, QModelIndex)) );
+
     variableList_->setModel(variableCollection_);
     mainLayout->addWidget(variableList_);
 
@@ -43,6 +45,13 @@ STVariable* STVariableCollectionEditor::selectedVariable() const
 void STVariableCollectionEditor::applyChanges()
 {
     variableEditor_->applyChanges();
+}
+
+void STVariableCollectionEditor::onListViewSelection(QModelIndex start, QModelIndex end)
+{
+    Q_UNUSED(end)
+
+    setSelectedVariable(variableCollection_->variableAt(start.row()) );
 }
 
 void STVariableCollectionEditor::setSelectedVariable(STVariable *newSelection)
