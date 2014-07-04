@@ -25,12 +25,15 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 STWidget::STWidget(QWidget *parent) : QWidget(parent)
 {
+    // Set variables.
+
     variables_ = new STVariableCollection(this);
-    connect( variables_, SIGNAL(variableConnected(bool, int)), this, SLOT(onVariableConnected(bool, int)) );
+    plotWidget_ = new STPlotWidget();
+
+    // Set up UI.
 
     QVBoxLayout *mainLayout = new QVBoxLayout();
 
-    plotWidget_ = new STPlotWidget();
     plotWidget_->setPlotName("Storage ring current");
     plotWidget_->showPlotName(true);
     mainLayout->addWidget(plotWidget_);
@@ -41,6 +44,10 @@ STWidget::STWidget(QWidget *parent) : QWidget(parent)
 
     setLayout(mainLayout);
 
+    // Make connections.
+    connect( variables_, SIGNAL(variableConnected(bool, int)), this, SLOT(onVariableConnected(bool, int)) );
+    connect( plotWidget_, SIGNAL(addVariableClicked()), this, SLOT(toAddVariable()) );
+    connect( plotWidget_, SIGNAL(editPlotClicked()), this, SLOT(toEditPlot()) );
 
     variables_->addVariable("PCT1402-01:mA:fbk");
 }
@@ -64,6 +71,23 @@ void STWidget::onEditButtonClicked()
     qDebug() << "Edit button clicked.";
 
     STVariableCollectionEditor *editor = new STVariableCollectionEditor(variables_);
+    STEditorDialog *dialog = new STEditorDialog(editor, this);
+
+    dialog->show();
+}
+
+void STWidget::toAddVariable()
+{
+    bool ok;
+    QString name = QInputDialog::getText(this, "Add Variable", "PV Name :", QLineEdit::Normal, "", &ok);
+
+    if (ok && !name.isEmpty())
+        variables_->addVariable(name);
+}
+
+void STWidget::toEditPlot()
+{
+    STPlotEditor *editor = new STPlotEditor(plotWidget_);
     STEditorDialog *dialog = new STEditorDialog(editor, this);
 
     dialog->show();

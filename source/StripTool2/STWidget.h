@@ -34,6 +34,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "STVariable.h"
 #include "STPlotWidget.h"
+#include "STPlotEditor.h"
 #include "STVariableCollection.h"
 #include "STVariableCollectionEditor.h"
 #include "STEditorDialog.h"
@@ -51,6 +52,8 @@ public slots:
 protected slots:
     void onVariableConnected(bool isConnected, int variableIndex);
     void onEditButtonClicked();
+    void toAddVariable();
+    void toEditPlot();
 
 protected:
     STVariableCollection *variables_;
