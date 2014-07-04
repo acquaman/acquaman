@@ -1,6 +1,6 @@
 #include "STVariableEditor.h"
 
-STVariableEditor::STVariableEditor(STVariable *toEdit, QWidget *parent) : QWidget(parent)
+STVariableEditor::STVariableEditor(STVariable *toEdit, QWidget *parent) : STEditor(parent)
 {
     variable_ = toEdit;
 
@@ -18,6 +18,32 @@ STVariableEditor::~STVariableEditor()
 STVariable* STVariableEditor::variable() const
 {
     return variable_;
+}
+
+void STVariableEditor::setVariable(STVariable *toEdit)
+{
+    if (variable_) {
+        disconnectVariable();
+        clearVariableInfo();
+        variable_ = 0;
+    }
+
+    if (variable_ != toEdit) {
+        variable_ = toEdit;
+        getVariableInfo();
+        connectVariable();
+        emit variableChanged(variable_);
+
+    } else {
+        emit variableChanged(0);
+    }
+
+}
+
+void STVariableEditor::applyChanges()
+{
+    if (variable_ && descriptionEdited_)
+        variable_->setDescription(descriptionEntry_->text());
 }
 
 void STVariableEditor::setNameText(const QString &name)
@@ -101,14 +127,28 @@ void STVariableEditor::getVariableInfo()
         setCreationText(variable_->created().toString());
         setConnectionState(variable_->isConnected());
         setLatestValue(variable_->value());
-
-        connect( variable_, SIGNAL(connected(bool)), this, SLOT(setConnectionState(bool)) );
-        connect( variable_, SIGNAL(valueChanged(double)), this, SLOT(setLatestValue(double)) );
     }
 }
 
-void STVariableEditor::applyChangesToVariable()
+void STVariableEditor::clearVariableInfo()
 {
-    if (descriptionEdited_)
-        variable_->setDescription(descriptionEntry_->text());
+    name_->clear();
+    descriptionEntry_->clear();
+    creation_->clear();
+    connected_->clear();
+    value_->clear();
+
+    descriptionEdited_ = false;
+}
+
+void STVariableEditor::connectVariable()
+{
+    connect( variable_, SIGNAL(connected(bool)), this, SLOT(setConnectionState(bool)) );
+    connect( variable_, SIGNAL(valueChanged(double)), this, SLOT(setLatestValue(double)) );
+}
+
+void STVariableEditor::disconnectVariable()
+{
+    disconnect( variable_, SIGNAL(connected(bool)), this, SLOT(setConnectionState(bool)) );
+    disconnect( variable_, SIGNAL(valueChanged(double)), this, SLOT(setLatestValue(double)) );
 }

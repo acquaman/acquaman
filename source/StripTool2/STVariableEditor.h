@@ -7,9 +7,10 @@
 #include <QLineEdit>
 #include <QLayout>
 
+#include "STEditor.h"
 #include "STVariable.h"
 
-class STVariableEditor : public QWidget
+class STVariableEditor : public STEditor
 {
     Q_OBJECT
 
@@ -23,6 +24,11 @@ public:
     STVariable *variable() const;
 
 signals:
+    void variableChanged(STVariable *newVariable);
+
+public slots:
+    void setVariable(STVariable *toEdit);
+    virtual void applyChanges();
 
 protected slots:
     void setNameText(const QString &name);
@@ -36,7 +42,9 @@ protected slots:
 protected:
     void setupComponents();
     void getVariableInfo();
-    void applyChangesToVariable();
+    void clearVariableInfo();
+    void connectVariable();
+    void disconnectVariable();
 
 protected:
     STVariable *variable_;
