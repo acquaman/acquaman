@@ -40,10 +40,13 @@ STWidget::STWidget(QWidget *parent) : QWidget(parent)
 
     setLayout(mainLayout);
 
+    // Set context menu.
+
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect( this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)) );
 
     // Make connections.
+
     connect( variables_, SIGNAL(variableConnected(bool, int)), this, SLOT(onVariableConnected(bool, int)) );
 }
 
@@ -85,7 +88,11 @@ void STWidget::onCustomContextMenuRequested(QPoint position)
     QMenu menu(this);
 
     QAction *action = menu.addAction("Add variable");
+
     action = menu.addAction("Edit variables");
+    if (variables_->variableCount() == 0)
+        action->setEnabled(false);
+
     action = menu.addAction("Edit plot");
 
     QAction *selected = menu.exec(mapToGlobal(position));
