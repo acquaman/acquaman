@@ -52,7 +52,6 @@ class AMScanController;
 
 #define AMSCAN_CANNOT_FIND_SUITABLE_PLUGIN_FOR_FILE_FORMAT -2147
 #define AMSCAN_DEBUG_DELETING_SCAN -2148
-#define AMSCAN_SCAN_DELETE_DIRECTLY -2149
 #define AMSCAN_ANALYZED_DATASOURCE_COUNT_MISMATCH -2150
 #define AMSCAN_THUMBNAIL_SCANNING_MESSAGE -2151
 
@@ -410,19 +409,6 @@ Returns false and does nothing if the new \c dataStore is incompatible with any 
 	/// Returns true if currently scanning (ie: there is a valid scan controller, or the currentlyScanning column was true when we were loaded out of the database). This is useful because we want to know this at the database level even while scans are in progress.
 	bool currentlyScanning() const { return currentlyScanning_; }
 
-
-	// Role 10: Memory Management:
-	/////////////////////////////////
-
-	/// Call this to assert that \c owner is interested in using this scan instance, and wants it to stay in memory.
-	/*! \note It is harmless to call this multiple times with the same \c owner; only one interest will be registered. */
-	void retain(QObject* owner);
-	/// Call this to release an interest in this scan instance.  If no objects are interested in it anymore (ie: no one else has retain()'d it), it will be deleted instantly.
-	/*! You can call this with \c pastOwner = 0 to check and delete the scan if no other objects have registered an interest. You should always do this instead of calling \c delete. */
-	void release(QObject* pastOwner = 0);
-
-
-
 	// Miscellaneous
 	/////////////////////////
 
@@ -620,16 +606,6 @@ Lines are separated by single '\n', so a full string could look like:
 #endif
 	/// This variable is set to true while a scan is in progress (ie: scan controller running), or if the scan was loaded out of the database with the currentlyScanning column true.
 	bool currentlyScanning_;
-
-
-	/// A set of QObjects that want to make sure that this AMScan instance is kept in memory.
-	QSet<QObject*> owners_;
-
-
-private:
-
-
-
 };
 
 Q_DECLARE_METATYPE(AMScan*)

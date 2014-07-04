@@ -794,7 +794,8 @@ void VESPERSAppController::fixCDF(const QUrl &url)
 	// Does the scan have a configuration?
 	AMScanConfiguration* config = scan->scanConfiguration();
 	if(!config) {
-		scan->release();
+
+		scan->deleteLater();
 		return;
 	}
 
@@ -875,7 +876,7 @@ void VESPERSAppController::fixCDF(const QUrl &url)
 
 	else {
 
-		scan->release();
+		scan->deleteLater();
 		return;
 	}
 
@@ -884,7 +885,7 @@ void VESPERSAppController::fixCDF(const QUrl &url)
 	// Load it from the database to use the appropriate file loader and build a new CDF file.
 	scan->loadFromDb(AMDatabase::database("user"), scan->id());
 	// Release the object.
-	scan->release();
+	scan->deleteLater();
 }
 
 void VESPERSAppController::onRoperCCDConnected(bool connected)

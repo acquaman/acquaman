@@ -277,6 +277,7 @@ AMGenericScanEditor::~AMGenericScanEditor() {
 	while(scanSetModel_->scanCount()) {
 		AMScan* s = scanSetModel_->scanAt(scanSetModel_->scanCount()-1);
 		scanSetModel_->removeScan(s);
+		s->deleteLater();
 	}
 
 }
@@ -524,6 +525,7 @@ bool AMGenericScanEditor::removeScanWithModifiedCheck(AMScan* scan) {
 
 		if(result == QMessageBox::Discard) {
 			removeScan(scan);
+			scan->deleteLater();
 			return true;
 		}
 		else if(result == QMessageBox::Save) {
@@ -535,6 +537,7 @@ bool AMGenericScanEditor::removeScanWithModifiedCheck(AMScan* scan) {
 
 			if(saveSuccess) {
 				removeScan(scan);
+				scan->deleteLater();
 				return true;
 			}
 			else {
@@ -549,6 +552,7 @@ bool AMGenericScanEditor::removeScanWithModifiedCheck(AMScan* scan) {
 	// No issues, just remove and return success.
 
 	removeScan(scan);
+	scan->deleteLater();
 	return true;
 }
 
@@ -675,6 +679,7 @@ void AMGenericScanEditor::closeEvent(QCloseEvent* e)
 		while(scanSetModel_->scanCount()) {
 			AMScan* s = scanSetModel_->scanAt(scanSetModel_->scanCount()-1);
 			scanSetModel_->removeScan(s);
+			s->deleteLater();
 		}
 	}
 

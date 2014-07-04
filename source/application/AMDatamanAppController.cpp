@@ -611,9 +611,9 @@ bool AMDatamanAppController::startupRegisterDatabases()
 	success &= AMDbObjectSupport::s()->registerClass<AM1DDeadTimeAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AM2DDeadTimeCorrectionAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AM3DDeadTimeCorrectionAB>();
-    success &= AMDbObjectSupport::s()->registerClass<AM0DAccumulatorAB>();
-    success &= AMDbObjectSupport::s()->registerClass<AM0DTimestampAB>();
-    success &= AMDbObjectSupport::s()->registerClass<AM1DTimedDataAB>();
+	success &= AMDbObjectSupport::s()->registerClass<AM0DAccumulatorAB>();
+	success &= AMDbObjectSupport::s()->registerClass<AM0DTimestampAB>();
+	success &= AMDbObjectSupport::s()->registerClass<AM1DTimedDataAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AM1DKSpaceCalculatorAB>();
 
 	success &= AMDbObjectSupport::s()->registerClass<AMScanAxis>();
@@ -989,12 +989,12 @@ void AMDatamanAppController::launchScanConfigurationFromDb(const QUrl &url)
 	// Does the scan have a configuration?
 	AMScanConfiguration* config = scan->scanConfiguration();
 	if(!config) {
-		scan->release();
+		scan->deleteLater();
 		return;
 	}
 	// need to create a copy of the config so we can delete the scan (and hence the config instance owned by the scan). The view will take ownership of the copy.
 	config = config->createCopy();
-	scan->release();
+	scan->deleteLater();
 	if(!config)
 		return;
 
