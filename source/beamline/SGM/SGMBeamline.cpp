@@ -576,15 +576,15 @@ AMAction3* SGMBeamline::createBeamOnActions3(){
 	AMControlMoveAction3 *fastShutterAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(fastShutterSetpoint), fastShutterVoltage_);
 	beamOnActionsList->addSubAction(fastShutterAction);
 
-	AMControlInfo frontBypassValveSetpoint = frontBypassValve_->toInfo();
-	frontBypassValveSetpoint.setValue(1);
-	AMControlMoveAction3 *frontBypassValveAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(frontBypassValveSetpoint), frontBypassValve_);
-	beamOnActionsList->addSubAction(frontBypassValveAction);
+//	AMControlInfo frontBypassValveSetpoint = frontBypassValve_->toInfo();
+//	frontBypassValveSetpoint.setValue(1);
+//	AMControlMoveAction3 *frontBypassValveAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(frontBypassValveSetpoint), frontBypassValve_);
+//	beamOnActionsList->addSubAction(frontBypassValveAction);
 
-	AMControlInfo backBypassValveSetpoint = backBypassValve_->toInfo();
-	backBypassValveSetpoint.setValue(1);
-	AMControlMoveAction3 *backBypassValveAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(backBypassValveSetpoint), backBypassValve_);
-	beamOnActionsList->addSubAction(backBypassValveAction);
+//	AMControlInfo backBypassValveSetpoint = backBypassValve_->toInfo();
+//	backBypassValveSetpoint.setValue(1);
+//	AMControlMoveAction3 *backBypassValveAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(backBypassValveSetpoint), backBypassValve_);
+//	beamOnActionsList->addSubAction(backBypassValveAction);
 
 	AMControlInfo vvr1611_3_I10_01Info = vvr1611_3_I10_01Shutter_->toInfo();
 	vvr1611_3_I10_01Info.setValue(1);
