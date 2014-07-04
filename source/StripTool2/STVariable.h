@@ -47,8 +47,13 @@ public:
     /// Returns the pv name for this variable.
     QString name() const;
 
-    /// Returns the description set for this variable, empty string if none was given.
+    /// Returns the description set for this variable, empty string if none are given.
     QString description() const;
+    bool hasDescription() const;
+
+    /// Returns the units set for this variable, empty string if none are given.
+    QString units() const;
+    bool hasUnits() const;
 
     /// Returns this variable's creation datetime.
     QDateTime created() const;
@@ -69,6 +74,8 @@ public:
 signals:
     /// Emitted when the description changes.
     void descriptionChanged(const QString &newDescription);
+    /// Emitted when the units change.
+    void unitsChanged(const QString &newUnits);
     /// Emitted when the variable's value has changed.
     void valueChanged(double newValue);
     /// Emitted when the process variable is connected.
@@ -77,6 +84,8 @@ signals:
 public slots:
     /// Sets the description for this variable.
     void setDescription(const QString &newDescription);
+    /// Sets the units for this variable.
+    void setUnits(const QString &units);
     /// Sets the number of data points and time points that are saved in total.
     void setDataBufferSize(int bufferSize);
     /// Sets the time window to be displayed, relative to now.
@@ -92,6 +101,11 @@ protected:
 
     /// The variable's description.
     QString description_;
+    bool hasDescription_;
+
+    /// The variable's units.
+    QString units_;
+    bool hasUnits_;
 
     /// The process variable that this class listens to for value updates.
     AMProcessVariable *pv_;

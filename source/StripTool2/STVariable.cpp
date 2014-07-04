@@ -25,6 +25,10 @@ STVariable::STVariable(const QString &name, QObject *parent) :
     QObject(parent)
 {
     description_ = "";
+    hasDescription_ = false;
+
+    units_ = "";
+    hasUnits_ = false;
 
     created_ = QDateTime::currentDateTime();
 
@@ -71,6 +75,21 @@ QString STVariable::description() const
     return description_;
 }
 
+bool STVariable::hasDescription() const
+{
+    return hasDescription_;
+}
+
+QString STVariable::units() const
+{
+    return units_;
+}
+
+bool STVariable::hasUnits() const
+{
+    return hasUnits_;
+}
+
 QDateTime STVariable::created() const
 {
     return created_;
@@ -101,6 +120,24 @@ void STVariable::setDescription(const QString &newDescription)
     if (newDescription != description_) {
         description_ = newDescription;
         emit descriptionChanged(description_);
+
+        if (description_ != "")
+            hasDescription_ = true;
+        else
+            hasDescription_ = false;
+    }
+}
+
+void STVariable::setUnits(const QString &units)
+{
+    if (units_ != units) {
+        units_ = units;
+        emit unitsChanged(units_);
+
+        if (units_ != "")
+            hasUnits_ = true;
+        else
+            hasUnits_ = false;
     }
 }
 
