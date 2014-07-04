@@ -28,8 +28,6 @@ STEditorDialog::STEditorDialog(STEditor *editor, QWidget *parent) : QWidget(pare
     mainLayout->addLayout(buttonLayout);
 
     setLayout(mainLayout);
-
-    qDebug() << "Dialog created.";
 }
 
 STEditorDialog::~STEditorDialog()

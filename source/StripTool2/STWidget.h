@@ -55,6 +55,8 @@ protected slots:
     void toEditVariables();
     void toEditPlot();
 
+    virtual void onCustomContextMenuRequested(QPoint position);
+
 protected:
     void showEditorDialog(STEditor *editor);
 

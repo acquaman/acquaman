@@ -23,8 +23,6 @@ STVariableCollectionEditor::STVariableCollectionEditor(STVariableCollection *col
     mainLayout->addWidget(variableEditor_);
 
     setLayout(mainLayout);
-
-    qDebug() << "Variable collection editor created.";
 }
 
 STVariableCollectionEditor::~STVariableCollectionEditor()

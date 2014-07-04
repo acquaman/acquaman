@@ -28,7 +28,7 @@ STWidget::STWidget(QWidget *parent) : QWidget(parent)
     // Set variables.
 
     variables_ = new STVariableCollection(this);
-    plotWidget_ = new STPlotWidget();
+    plotWidget_ = new STPlotWidget(this);
 
     // Set up UI.
 
@@ -40,11 +40,11 @@ STWidget::STWidget(QWidget *parent) : QWidget(parent)
 
     setLayout(mainLayout);
 
+    setContextMenuPolicy(Qt::CustomContextMenu);
+    connect( this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)) );
+
     // Make connections.
     connect( variables_, SIGNAL(variableConnected(bool, int)), this, SLOT(onVariableConnected(bool, int)) );
-    connect( plotWidget_, SIGNAL(addVariableClicked()), this, SLOT(toAddVariable()) );
-    connect( plotWidget_, SIGNAL(editVariablesClicked()), this, SLOT(toEditVariables()) );
-    connect( plotWidget_, SIGNAL(editPlotClicked()), this, SLOT(toEditPlot()) );
 }
 
 STWidget::~STWidget()
@@ -78,6 +78,31 @@ void STWidget::toEditVariables()
 void STWidget::toEditPlot()
 {
     showEditorDialog(new STPlotEditor(plotWidget_));
+}
+
+void STWidget::onCustomContextMenuRequested(QPoint position)
+{
+    QMenu menu(this);
+
+    QAction *action = menu.addAction("Add variable");
+    action = menu.addAction("Edit variables");
+    action = menu.addAction("Edit plot");
+
+    QAction *selected = menu.exec(mapToGlobal(position));
+
+    if (selected) {
+
+        if (selected->text() == "Add variable") {
+            toAddVariable();
+
+        } else if (selected->text() == "Edit variables") {
+            toEditVariables();
+
+        } else if (selected->text() == "Edit plot") {
+            toEditPlot();
+
+        }
+    }
 }
 
 void STWidget::showEditorDialog(STEditor *editor)

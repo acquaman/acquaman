@@ -17,17 +17,11 @@ public:
     virtual ~STPlotWidget();
 
 signals:
-    void addVariableClicked();
-    void editVariablesClicked();
-    void editPlotClicked();
     void plotNameChanged(const QString &name);
 
 public slots:
     void setPlotName(const QString &newName);
     void showPlotName(bool show);
-
-protected slots:
-    void onCustomContextMenuRequested(QPoint position);
 
 protected:
     QString plotName_;

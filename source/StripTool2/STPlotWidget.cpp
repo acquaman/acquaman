@@ -11,9 +11,6 @@ STPlotWidget::STPlotWidget(QWidget *parent) : MPlotWidget(parent)
     plot->axisLeft()->setAxisName("Storage ring current [mA]");
 
     setPlot(plot);
-
-    setContextMenuPolicy(Qt::CustomContextMenu);
-    connect( this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)) );
 }
 
 STPlotWidget::~STPlotWidget()
@@ -35,29 +32,4 @@ void STPlotWidget::setPlotName(const QString &newName)
 void STPlotWidget::showPlotName(bool show)
 {
     plot_->axisTop()->showAxisName(show);
-}
-
-void STPlotWidget::onCustomContextMenuRequested(QPoint position)
-{
-    QMenu menu(this);
-
-    QAction *action = menu.addAction("Add variable");
-    action = menu.addAction("Edit variables");
-    action = menu.addAction("Edit plot");
-
-    QAction *selected = menu.exec(mapToGlobal(position));
-
-    if (selected) {
-
-        if (selected->text() == "Add variable") {
-            emit addVariableClicked();
-
-        } else if (selected->text() == "Edit variables") {
-            emit editVariablesClicked();
-
-        } else if (selected->text() == "Edit plot") {
-            emit editPlotClicked();
-
-        }
-    }
 }
