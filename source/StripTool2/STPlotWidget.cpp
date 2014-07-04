@@ -18,6 +18,16 @@ STPlotWidget::~STPlotWidget()
 
 }
 
+QString STPlotWidget::plotName() const
+{
+    return plotName_;
+}
+
+bool STPlotWidget::plotNameVisible() const
+{
+    return plotNameVisible_;
+}
+
 void STPlotWidget::setPlotName(const QString &newName)
 {
     if (plotName_ != newName) {
@@ -31,5 +41,6 @@ void STPlotWidget::setPlotName(const QString &newName)
 
 void STPlotWidget::showPlotName(bool show)
 {
+    qDebug() << "Showing plot name : " << (show ? "True" : "False");
     plot_->axisTop()->showAxisName(show);
 }

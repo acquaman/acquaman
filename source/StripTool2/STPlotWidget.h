@@ -2,9 +2,8 @@
 #define STPLOTWIDGET_H
 
 #include <QWidget>
-#include <QInputDialog>
-#include <QMenu>
 #include <QLayout>
+#include <QDebug>
 
 #include "MPlot/MPlot.h"
 #include "MPlot/MPlotWidget.h"
@@ -15,6 +14,9 @@ class STPlotWidget : public MPlotWidget
 public:
     explicit STPlotWidget(QWidget *parent = 0);
     virtual ~STPlotWidget();
+
+    QString plotName() const;
+    bool plotNameVisible() const;
 
 signals:
     void plotNameChanged(const QString &name);
