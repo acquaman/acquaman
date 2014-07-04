@@ -165,7 +165,7 @@ void AMScanActionController::stopImplementation(const QString &command)
 
 	if(currentAction){
 
-		connect(currentAction, SIGNAL(cancelled()), this, SLOT(setFinished()));
+		connect(currentAction, SIGNAL(succeeded()), this, SLOT(setFinished()));
 		currentAction->skip(command);
 	}
 }
