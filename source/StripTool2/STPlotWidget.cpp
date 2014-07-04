@@ -37,22 +37,6 @@ void STPlotWidget::showPlotName(bool show)
     plot_->axisTop()->showAxisName(show);
 }
 
-void STPlotWidget::showPlotEditor(bool show)
-{
-    if (show) {
-        STPlotEditor *plotEditor = new STPlotEditor(this);
-    }
-}
-
-void STPlotWidget::showAddVariableDialog()
-{
-    bool ok;
-    QString name = QInputDialog::getText(this, "Add Variable", "PV Name :", QLineEdit::Normal, "", &ok);
-
-    if (ok && !name.isEmpty())
-        emit addVariable(name);
-}
-
 void STPlotWidget::onCustomContextMenuRequested(QPoint position)
 {
     QMenu menu(this);
@@ -65,16 +49,10 @@ void STPlotWidget::onCustomContextMenuRequested(QPoint position)
     if (selected) {
 
         if (selected->text() == "Add variable") {
-            showAddVariableDialog();
+            emit addVariableClicked();
 
         } else if (selected->text() == "Edit plot") {
-            showPlotEditor(true);
-
+            emit editPlotClicked();
         }
     }
-}
-
-STPlotEditor* STPlotWidget::createPlotEditor()
-{
-    return new STPlotEditor();
 }
