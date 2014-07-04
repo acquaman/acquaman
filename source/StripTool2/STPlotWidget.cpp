@@ -41,8 +41,9 @@ void STPlotWidget::onCustomContextMenuRequested(QPoint position)
 {
     QMenu menu(this);
 
-    QAction *add = menu.addAction("Add variable");
-    QAction *edit = menu.addAction("Edit plot");
+    QAction *action = menu.addAction("Add variable");
+    action = menu.addAction("Edit variables");
+    action = menu.addAction("Edit plot");
 
     QAction *selected = menu.exec(mapToGlobal(position));
 
@@ -51,8 +52,12 @@ void STPlotWidget::onCustomContextMenuRequested(QPoint position)
         if (selected->text() == "Add variable") {
             emit addVariableClicked();
 
+        } else if (selected->text() == "Edit variables") {
+            emit editVariablesClicked();
+
         } else if (selected->text() == "Edit plot") {
             emit editPlotClicked();
+
         }
     }
 }

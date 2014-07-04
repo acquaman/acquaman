@@ -18,6 +18,7 @@ public:
 
 signals:
     void addVariableClicked();
+    void editVariablesClicked();
     void editPlotClicked();
     void plotNameChanged(const QString &name);
 
