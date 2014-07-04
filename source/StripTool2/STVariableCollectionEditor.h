@@ -2,16 +2,39 @@
 #define STVARIABLECOLLECTIONEDITOR_H
 
 #include <QWidget>
+#include <QFrame>
+#include <QListView>
+#include <QPushButton>
 
-class STVariableCollectionEditor : public QWidget
+#include "STVariableEditor.h"
+#include "STVariableCollection.h"
+
+class STVariableCollectionEditor : public STEditor
 {
     Q_OBJECT
+
 public:
-    explicit STVariableCollectionEditor(QWidget *parent = 0);
+    explicit STVariableCollectionEditor(STVariableCollection *collection, QWidget *parent = 0);
+    virtual ~STVariableCollectionEditor();
+
+    STVariableCollection* variableCollection() const;
+    STVariable* selectedVariable() const;
 
 signals:
+    void selectedVariableChanged(STVariable *newSelection);
 
 public slots:
+    virtual void applyChanges();
+
+protected slots:
+    void setVariableList(QList<STVariable*> variableList);
+    void setSelectedVariable(STVariable *newSelection);
+
+protected:
+    QListView *variableList_;
+    STVariableCollection *variableCollection_;
+    STVariable *selectedVariable_;
+    STVariableEditor *variableEditor_;
 
 };
 
