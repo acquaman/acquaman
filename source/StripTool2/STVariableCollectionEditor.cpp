@@ -3,26 +3,24 @@
 STVariableCollectionEditor::STVariableCollectionEditor(STVariableCollection *collection, QWidget *parent) :
     STEditor(parent)
 {
+    // Set variables.
+
+    variableCollection_ = collection;
+
+    selectedVariable_ = 0;
+
     // Set up UI.
 
     QVBoxLayout *mainLayout = new QVBoxLayout();
 
     variableList_ = new QListView();
+    variableList_->setModel(variableCollection_);
     mainLayout->addWidget(variableList_);
 
     variableEditor_ = new STVariableEditor(0);
     mainLayout->addWidget(variableEditor_);
 
     setLayout(mainLayout);
-
-    // Set variables.
-
-    variableCollection_ = collection;
-
-    if (variableCollection_)
-        setVariableList(variableCollection_->variables());
-
-    selectedVariable_ = 0;
 
     qDebug() << "Variable collection editor created.";
 }
@@ -45,12 +43,6 @@ STVariable* STVariableCollectionEditor::selectedVariable() const
 void STVariableCollectionEditor::applyChanges()
 {
     variableEditor_->applyChanges();
-}
-
-void STVariableCollectionEditor::setVariableList(QList<STVariable *> variableList)
-{
-    Q_UNUSED(variableList)
-//    variableList_->setModel(variableList);
 }
 
 void STVariableCollectionEditor::setSelectedVariable(STVariable *newSelection)

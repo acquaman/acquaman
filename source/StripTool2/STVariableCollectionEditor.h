@@ -27,7 +27,6 @@ public slots:
     virtual void applyChanges();
 
 protected slots:
-    void setVariableList(QList<STVariable*> variableList);
     void setSelectedVariable(STVariable *newSelection);
 
 protected:
