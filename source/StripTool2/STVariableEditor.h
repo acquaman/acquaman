@@ -33,11 +33,15 @@ public slots:
 protected slots:
     void setNameText(const QString &name);
     void setDescriptionText(const QString &description);
+    void setUnitsText(const QString &units);
     void setCreationText(const QString &creation);
     void setConnectionState(bool isConnected);
     void setLatestValue(double newValue);
 
+    void onVariableValueChanged(double newValue);
+
     void onDescriptionEntryChanged(const QString &text);
+    void onUnitsEntryChanged(const QString &text);
 
 protected:
     void setupComponents();
@@ -51,11 +55,13 @@ protected:
 
     QLabel *name_;
     QLineEdit *descriptionEntry_;
+    QLineEdit *unitsEntry_;
     QLabel *creation_;
     QLabel *connected_;
     QLabel *value_;
 
     bool descriptionEdited_;
+    bool unitsEdited_;
 };
 
 #endif // STVARIABLEEDITOR_H

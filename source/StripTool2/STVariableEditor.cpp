@@ -2,12 +2,24 @@
 
 STVariableEditor::STVariableEditor(STVariable *toEdit, QWidget *parent) : STEditor(parent)
 {
+    // Set variables.
+
     variable_ = toEdit;
 
     descriptionEdited_ = false;
+    unitsEdited_ = false;
+
+    // Create UI.
 
     setupComponents();
+
+    // Get current settings.
+
     getVariableInfo();
+
+    // Make connections.
+
+    connect( variable_, SIGNAL(valueChanged(double)), this, SLOT(onVariableValueChanged(double)) );
 }
 
 STVariableEditor::~STVariableEditor()
@@ -56,6 +68,11 @@ void STVariableEditor::setDescriptionText(const QString &description)
     descriptionEntry_->setText(description);
 }
 
+void STVariableEditor::setUnitsText(const QString &units)
+{
+    unitsEntry_->setText(units);
+}
+
 void STVariableEditor::setCreationText(const QString &creation)
 {
     creation_->setText(creation);
@@ -74,11 +91,23 @@ void STVariableEditor::setLatestValue(double newValue)
     value_->setText(QString::number(newValue));
 }
 
+void STVariableEditor::onVariableValueChanged(double newValue)
+{
+    value_->setText(QString::number(newValue));
+}
+
 void STVariableEditor::onDescriptionEntryChanged(const QString &text)
 {
     Q_UNUSED(text)
 
     descriptionEdited_ = true;
+}
+
+void STVariableEditor::onUnitsEntryChanged(const QString &text)
+{
+    Q_UNUSED(text)
+
+    unitsEdited_ = true;
 }
 
 void STVariableEditor::setupComponents()
@@ -116,6 +145,13 @@ void STVariableEditor::setupComponents()
     mainLayout->addWidget(valueLabel, 4, 0);
     mainLayout->addWidget(value_, 4, 1);
 
+    QLabel *unitsLabel = new QLabel("Units: ", this);
+    unitsEntry_ = new QLineEdit(this);
+    connect( unitsEntry_, SIGNAL(textChanged(QString)), this, SLOT(onUnitsEntryChanged(QString)) );
+    unitsLabel->setBuddy(unitsEntry_);
+    mainLayout->addWidget(unitsLabel, 5, 0);
+    mainLayout->addWidget(unitsEntry_, 5, 1);
+
     setLayout(mainLayout);
 }
 
@@ -124,6 +160,7 @@ void STVariableEditor::getVariableInfo()
     if (variable_) {
         setNameText(variable_->name());
         setDescriptionText(variable_->description());
+        setUnitsText(variable_->units());
         setCreationText(variable_->created().toString());
         setConnectionState(variable_->isConnected());
         setLatestValue(variable_->value());
@@ -134,11 +171,13 @@ void STVariableEditor::clearVariableInfo()
 {
     name_->clear();
     descriptionEntry_->clear();
+    unitsEntry_->clear();
     creation_->clear();
     connected_->clear();
     value_->clear();
 
     descriptionEdited_ = false;
+    unitsEdited_ = false;
 }
 
 void STVariableEditor::connectVariable()
