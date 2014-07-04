@@ -51,15 +51,16 @@ public slots:
 
 protected slots:
     void onVariableConnected(bool isConnected, int variableIndex);
-    void onEditButtonClicked();
     void toAddVariable();
+    void toEditVariables();
     void toEditPlot();
+
+protected:
+    void showEditorDialog(STEditor *editor);
 
 protected:
     STVariableCollection *variables_;
     STPlotWidget *plotWidget_;
-
-    QPushButton *editButton_;
 };
 
 #endif // STWIDGET_H

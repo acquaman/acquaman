@@ -38,18 +38,13 @@ STWidget::STWidget(QWidget *parent) : QWidget(parent)
     plotWidget_->showPlotName(true);
     mainLayout->addWidget(plotWidget_);
 
-    editButton_ = new QPushButton("Edit...", this);
-    connect( editButton_, SIGNAL(clicked()), this, SLOT(onEditButtonClicked()) );
-    mainLayout->addWidget(editButton_);
-
     setLayout(mainLayout);
 
     // Make connections.
     connect( variables_, SIGNAL(variableConnected(bool, int)), this, SLOT(onVariableConnected(bool, int)) );
     connect( plotWidget_, SIGNAL(addVariableClicked()), this, SLOT(toAddVariable()) );
+    connect( plotWidget_, SIGNAL(editVariablesClicked()), this, SLOT(toEditVariables()) );
     connect( plotWidget_, SIGNAL(editPlotClicked()), this, SLOT(toEditPlot()) );
-
-    variables_->addVariable("PCT1402-01:mA:fbk");
 }
 
 STWidget::~STWidget()
@@ -66,16 +61,6 @@ void STWidget::onVariableConnected(bool isConnected, int variableIndex)
     }
 }
 
-void STWidget::onEditButtonClicked()
-{
-    qDebug() << "Edit button clicked.";
-
-    STVariableCollectionEditor *editor = new STVariableCollectionEditor(variables_);
-    STEditorDialog *dialog = new STEditorDialog(editor, this);
-
-    dialog->show();
-}
-
 void STWidget::toAddVariable()
 {
     bool ok;
@@ -85,10 +70,18 @@ void STWidget::toAddVariable()
         variables_->addVariable(name);
 }
 
+void STWidget::toEditVariables()
+{
+    showEditorDialog(new STVariableCollectionEditor(variables_));
+}
+
 void STWidget::toEditPlot()
 {
-    STPlotEditor *editor = new STPlotEditor(plotWidget_);
-    STEditorDialog *dialog = new STEditorDialog(editor, this);
+    showEditorDialog(new STPlotEditor(plotWidget_));
+}
 
+void STWidget::showEditorDialog(STEditor *editor)
+{
+    STEditorDialog *dialog = new STEditorDialog(editor, this);
     dialog->show();
 }
