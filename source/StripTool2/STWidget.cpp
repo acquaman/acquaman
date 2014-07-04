@@ -26,16 +26,20 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 STWidget::STWidget(QWidget *parent) : QWidget(parent)
 {
     variables_ = new STVariableCollection(this);
-    connect( variables_, SIGNAL(variableConnected(bool, QString)), this, SLOT(onVariableConnected(bool, QString)) );
+    connect( variables_, SIGNAL(variableConnected(bool, int)), this, SLOT(onVariableConnected(bool, int)) );
+
+    QVBoxLayout *mainLayout = new QVBoxLayout();
 
     plotWidget_ = new STPlotWidget();
     plotWidget_->setPlotName("Storage ring current");
     plotWidget_->showPlotName(true);
+    mainLayout->addWidget(plotWidget_);
 
-    QVBoxLayout *layout = new QVBoxLayout();
-    layout->addWidget(plotWidget_);
+    editButton_ = new QPushButton("Edit...", this);
+    connect( editButton_, SIGNAL(clicked()), this, SLOT(onEditButtonClicked()) );
+    mainLayout->addWidget(editButton_);
 
-    setLayout(layout);
+    setLayout(mainLayout);
 
 
     variables_->addVariable("PCT1402-01:mA:fbk");
@@ -46,11 +50,21 @@ STWidget::~STWidget()
 
 }
 
-void STWidget::onVariableConnected(bool isConnected, const QString &name)
+void STWidget::onVariableConnected(bool isConnected, int variableIndex)
 {
-    STVariable *variable = variables_->variablesWithName(name).first();
+    STVariable *variable = variables_->variableAt(variableIndex);
 
     if (isConnected) {
         plotWidget_->plot()->addItem(variable->series());
     }
+}
+
+void STWidget::onEditButtonClicked()
+{
+    qDebug() << "Edit button clicked.";
+
+    STVariableCollectionEditor *editor = new STVariableCollectionEditor(variables_);
+    STEditorDialog *dialog = new STEditorDialog(editor, this);
+
+    dialog->show();
 }
