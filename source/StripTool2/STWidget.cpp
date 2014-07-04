@@ -33,21 +33,18 @@ STWidget::STWidget(QWidget *parent) : QWidget(parent)
     // Set up UI.
 
     QVBoxLayout *mainLayout = new QVBoxLayout();
-
-    plotWidget_->setPlotName("Storage ring current");
-    plotWidget_->showPlotName(true);
     mainLayout->addWidget(plotWidget_);
 
     setLayout(mainLayout);
-
-    // Set context menu.
 
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect( this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)) );
 
     // Make connections.
 
-    connect( variables_, SIGNAL(variableConnected(bool, int)), this, SLOT(onVariableConnected(bool, int)) );
+    connect( variables_, SIGNAL(variableConnectedStateChanged(int)), this, SLOT(onVariableConnected(int)) );
+    connect( variables_, SIGNAL(variableDescriptionChanged(int)), this, SLOT(onVariableAxisInfoChanged(int)) );
+    connect( variables_, SIGNAL(variableUnitsChanged(int)), this, SLOT(onVariableAxisInfoChanged(int)) );
 }
 
 STWidget::~STWidget()
@@ -55,13 +52,22 @@ STWidget::~STWidget()
 
 }
 
-void STWidget::onVariableConnected(bool isConnected, int variableIndex)
+void STWidget::onVariableConnected(int variableIndex)
 {
     STVariable *variable = variables_->variableAt(variableIndex);
 
-    if (isConnected) {
+    if (variable->isConnected()) {
         plotWidget_->plot()->addItem(variable->series());
     }
+}
+
+void STWidget::onVariableAxisInfoChanged(int variableIndex)
+{
+    STVariable *variable = variables_->variableAt(variableIndex);
+    QString description = variable->description();
+    QString units = variable->units();
+
+    plotWidget_->setAxisName(description + " [" + units + "]");
 }
 
 void STWidget::toAddVariable()

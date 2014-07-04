@@ -20,10 +20,12 @@ public:
 
 signals:
     void plotNameChanged(const QString &name);
+    void axisNameChanged(const QString &name);
 
 public slots:
     void setPlotName(const QString &newName);
     void showPlotName(bool show);
+    void setAxisName(const QString &newName);
 
 protected:
     QString plotName_;

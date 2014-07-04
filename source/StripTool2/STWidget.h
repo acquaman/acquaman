@@ -25,7 +25,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QWidget>
 #include <QLabel>
 #include <QLayout>
-#include <QDialog>
+#include <QInputDialog>
+#include <QMenu>
+#include <QAction>
 
 #include "beamline/AMPVControl.h"
 
@@ -50,7 +52,8 @@ public:
 public slots:
 
 protected slots:
-    void onVariableConnected(bool isConnected, int variableIndex);
+    void onVariableConnected(int variableIndex);
+    void onVariableAxisInfoChanged(int variableIndex);
     void toAddVariable();
     void toEditVariables();
     void toEditPlot();

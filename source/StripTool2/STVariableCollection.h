@@ -31,19 +31,23 @@ public:
     QList<STVariable*> variablesWithName(const QString &name);
 
 signals:
-    void variableAdded(bool succeeded);
-    void variableConnected(bool connected, int index);
-    void variableDeleted(bool succeeded);
+    void variableAdded(int index);
+    void variableConnectedStateChanged(int index);
+    void variableDescriptionChanged(int index);
+    void variableUnitsChanged(int index);
+    void variableDeleted();
 
 public slots:
     void addVariable(const QString &name);
     void deleteVariableAt(int index);
 
 protected slots:
-    void onVariableConnectedStateChanged(QObject *object);
+    void onVariableConnectedStateChanged(bool isConnected);
+    void onVariableDescriptionChanged(const QString &description);
+    void onVariableUnitsChanged(const QString &units);
 
 protected:
-    void connectVariable(int index);
+    void connectVariable(STVariable *toConnect);
     void disconnectVariable(STVariable *variable);
 
 protected:

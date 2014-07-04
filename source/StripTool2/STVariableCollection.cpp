@@ -2,8 +2,7 @@
 
 STVariableCollection::STVariableCollection(QObject *parent) : QAbstractTableModel(parent)
 {
-    connectedMapper_ = new QSignalMapper(this);
-    connect( connectedMapper_, SIGNAL(mapped(QObject*)), this, SLOT(onVariableConnectedStateChanged(QObject*)) );
+
 }
 
 STVariableCollection::~STVariableCollection()
@@ -32,7 +31,6 @@ QVariant STVariableCollection::data(const QModelIndex &index, int role) const
 
     return QVariant();
 }
-
 
 QList<STVariable*> STVariableCollection::variables() const
 {
@@ -69,26 +67,23 @@ QList<STVariable*> STVariableCollection::variablesWithName(const QString &name)
 void STVariableCollection::addVariable(const QString &name)
 {
     if (name.isEmpty()) {
-        emit variableAdded(false);
-        return;
-    }
-
-    if (!variablesWithName(name).isEmpty()) {
-        emit variableAdded(false);
         return;
     }
 
     STVariable *newVariable = new STVariable(name, this);
     variables_.append(newVariable);
-    emit variableAdded(true);
 
-    connectVariable(variables_.size() - 1);
+    int index = variables_.size() - 1;
+    newVariable->setIndex(index);
+
+    connectVariable(newVariable);
+
+    emit variableAdded(index);
 }
 
 void STVariableCollection::deleteVariableAt(int index)
 {
     if (index < 0 || index >= variables_.size()) {
-        emit variableDeleted(false);
         return;
     }
 
@@ -97,38 +92,46 @@ void STVariableCollection::deleteVariableAt(int index)
     // if we can successfully remove the variable, disconnect it and queue it up for deletion.
     variables_.removeAt(index);
     disconnectVariable(toDelete);
-    emit variableDeleted(true);
+
+    emit variableDeleted();
+
     toDelete->deleteLater();
 }
 
-void STVariableCollection::onVariableConnectedStateChanged(QObject *object)
+void STVariableCollection::onVariableConnectedStateChanged(bool isConnected)
 {
-    STVariable *variable = qobject_cast<STVariable*>(object);
+    Q_UNUSED(isConnected)
 
-    if (variable) {
-        if (variable->isConnected()) {
-            emit variableConnected(true, indexOf(variable));
-
-        } else {
-            emit variableConnected(false, indexOf(variable));
-        }
-    }
+    STVariable *variable = qobject_cast<STVariable*>(sender());
+    emit variableConnectedStateChanged(variable->index());
 }
 
-void STVariableCollection::connectVariable(int index)
+void STVariableCollection::onVariableDescriptionChanged(const QString &description)
 {
-    STVariable *toConnect = variableAt(index);
+    Q_UNUSED(description)
 
-    connectedMapper_->setMapping(toConnect, toConnect);
-    connect( toConnect, SIGNAL(connected(bool)), connectedMapper_, SLOT(map()) );
-    if (toConnect->isConnected()) {
-        emit variableConnected(true, index);
-    }
+    STVariable *variable = qobject_cast<STVariable*>(sender());
+    emit variableDescriptionChanged(variable->index());
+}
+
+void STVariableCollection::onVariableUnitsChanged(const QString &units)
+{
+    Q_UNUSED(units)
+
+    STVariable *variable = qobject_cast<STVariable*>(sender());
+    emit variableUnitsChanged(variable->index());
+}
+
+void STVariableCollection::connectVariable(STVariable *toConnect)
+{
+    connect( toConnect, SIGNAL(connected(bool)), this, SLOT(onVariableConnectedStateChanged(bool)) );
+    connect( toConnect, SIGNAL(descriptionChanged(QString)), this, SLOT(onVariableDescriptionChanged(QString)) );
+    connect( toConnect, SIGNAL(unitsChanged(QString)), this, SLOT(onVariableUnitsChanged(QString)) );
 }
 
 void STVariableCollection::disconnectVariable(STVariable *variable)
 {
-    // do not have to worry about removing mappings--done automatically when variable is destroyed.
-
-    Q_UNUSED(variable)
+    disconnect( variable, SIGNAL(connectedStateChanged(bool)), this, SLOT(onVariableConnectedStateChanged(bool)) );
+    disconnect( variable, SIGNAL(descriptionChanged(QString)), this, SLOT(onVariableDescriptionChanged(QString)) );
+    disconnect( variable, SIGNAL(unitsChanged(QString)), this, SLOT(onVariableUnitsChanged(QString)) );
 }

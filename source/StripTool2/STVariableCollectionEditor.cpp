@@ -45,7 +45,6 @@ STVariable* STVariableCollectionEditor::selectedVariable() const
 
 void STVariableCollectionEditor::applyChanges()
 {
-    qDebug() << "Applying changes from collection editor.";
     variableEditor_->applyChanges();
 }
 

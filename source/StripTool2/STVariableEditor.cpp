@@ -91,8 +91,6 @@ void STVariableEditor::setVariable(STVariable *toEdit)
 
 void STVariableEditor::applyChanges()
 {
-    qDebug() << "Applying changes from variable editor.";
-
     if (variable_) {
         if (descriptionEdited_)
             variable_->setDescription(descriptionEntry_->text());
