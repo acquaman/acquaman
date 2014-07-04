@@ -70,8 +70,8 @@ public:
 
 	/// Scan actions have the ability to pause.
 	virtual bool canPause() const { return true; }
-	/// Scan actions MIGHT be able to skip.  It depends on which type of scan controller is being used.  In general, Dacq controllers can skip.
-	virtual bool canSkip() const;
+	/// Scan actions have the ability to skip.
+	virtual bool canSkip() const { return true; }
 	/// Scan actions CAN NOT be parallelized.  This is for everyones sake, too many things need to be working syncronously.
 	virtual bool canParallelize() const { return false; }
 

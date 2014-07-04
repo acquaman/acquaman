@@ -81,6 +81,11 @@ bool AMScanController::isResuming() const
 	return state_ == AMScanController::Resuming;
 }
 
+bool AMScanController::isStopping() const
+{
+	return state_ == AMScanController::Stopping;
+}
+
 bool AMScanController::isCancelling() const
 {
 	return state_ == AMScanController::Cancelling;
@@ -148,6 +153,12 @@ void AMScanController::cancel()
 {
 	if(changeState(AMScanController::Cancelling))
 		cancelImplementation();
+}
+
+void AMScanController::stop(const QString &command)
+{
+	if (canChangeStateTo(AMScanController::Stopping))
+		stopImplementation(command);
 }
 
 bool AMScanController::setInitialized()
@@ -255,47 +266,63 @@ bool AMScanController::canChangeStateTo(AMScanController::ScanState newState)
 	bool canTransition = false;
 	// Check the permissible transitions
 	switch (newState) {
+
 	case AMScanController::Constructed :
 		break;
+
 	case AMScanController::Initializing :
 		if(state_ == AMScanController::Constructed)
 			canTransition = true;
 		break;
+
 	case AMScanController::Initialized :
 		if(isInitializing())
 			canTransition = true;
 		break;
+
 	case AMScanController::Starting :
 		if(isInitialized())
 			canTransition = true;
 		break;
+
 	case AMScanController::Running :
 		if(isStarting() || isResuming())
 			canTransition = true;
 		break;
-		// Only support pausing from the running state right now
+
+	// Only support pausing from the running state right now
 	case AMScanController::Pausing :
 		if(canPause() && isRunning())
 			canTransition = true;
 		break;
+
 	case AMScanController::Paused :
 		if(isPausing())
 			canTransition = true;
 		break;
+
 	case AMScanController::Resuming :
 		if(isPaused())
 			canTransition = true;
 		break;
+
+	case AMScanController::Stopping :
+		canTransition = true;
+		break;
+
 	case AMScanController::Cancelling :
 		canTransition = true;
 		break;
+
 	case AMScanController::Cancelled :
 		canTransition = true;
 		break;
+
 	case AMScanController::Finished :
 		if(isRunning())
 			canTransition = true;
 		break;
+
 	case AMScanController::Failed :
 		canTransition = true;
 		break;

@@ -425,11 +425,11 @@ AMAction3::ActionValidity SGMBeamline::validateAction(AMAction3 *action){
 	AMScanAction *scanAction = qobject_cast<AMScanAction*>(action);
 	if(scanAction){
 		AMScanActionInfo *scanActionInfo = qobject_cast<AMScanActionInfo*>(scanAction->info());
-		SGMXASScanConfiguration *oldXASScanConfiguration = qobject_cast<SGMXASScanConfiguration*>(scanActionInfo->config());
-		SGMFastScanConfiguration *oldFastScanConfiguration = qobject_cast<SGMFastScanConfiguration*>(scanActionInfo->config());
+		SGMXASScanConfiguration *oldXASScanConfiguration = qobject_cast<SGMXASScanConfiguration*>(scanActionInfo->configuration());
+		SGMFastScanConfiguration *oldFastScanConfiguration = qobject_cast<SGMFastScanConfiguration*>(scanActionInfo->configuration());
 		if(oldXASScanConfiguration || oldFastScanConfiguration)
 			return AMAction3::ActionNeverValid;
-		SGMFastScanConfiguration2013 *currentFastScanConfiguration = qobject_cast<SGMFastScanConfiguration2013*>(scanActionInfo->config());
+		SGMFastScanConfiguration2013 *currentFastScanConfiguration = qobject_cast<SGMFastScanConfiguration2013*>(scanActionInfo->configuration());
 		if(currentFastScanConfiguration && qFuzzyIsNull(undulatorForcedOpen_->value() - 1.0))
 			return AMAction3::ActionNotCurrentlyValid;
 
@@ -442,13 +442,13 @@ QString SGMBeamline::validateActionMessage(AMAction3 *action){
 	AMScanAction *scanAction = qobject_cast<AMScanAction*>(action);
 	if(scanAction){
 		AMScanActionInfo *scanActionInfo = qobject_cast<AMScanActionInfo*>(scanAction->info());
-		SGMXASScanConfiguration *oldXASScanConfiguration = qobject_cast<SGMXASScanConfiguration*>(scanActionInfo->config());
-		SGMFastScanConfiguration *oldFastScanConfiguration = qobject_cast<SGMFastScanConfiguration*>(scanActionInfo->config());
+		SGMXASScanConfiguration *oldXASScanConfiguration = qobject_cast<SGMXASScanConfiguration*>(scanActionInfo->configuration());
+		SGMFastScanConfiguration *oldFastScanConfiguration = qobject_cast<SGMFastScanConfiguration*>(scanActionInfo->configuration());
 		if(oldXASScanConfiguration)
 			return QString("The SGM Beamline no longer supports this type of XAS Scan configuration. While you may inspect the configuration you cannot run it. Please transfer these settings to a new scan configuration.");
 		if(oldFastScanConfiguration)
 			return QString("The SGM Beamline no longer supports this type of Fast Scan configuration. While you may inspect the configuration you cannot run it. Please transfer these settings to a new scan configuration.");
-		SGMFastScanConfiguration2013 *currentFastScanConfiguration = qobject_cast<SGMFastScanConfiguration2013*>(scanActionInfo->config());
+		SGMFastScanConfiguration2013 *currentFastScanConfiguration = qobject_cast<SGMFastScanConfiguration2013*>(scanActionInfo->configuration());
 		if(currentFastScanConfiguration && qFuzzyIsNull(undulatorForcedOpen_->value() - 1.0))
 			return QString("The Undulator has been forced open, and as such running a Fast Scan is not currently possible.");
 	}

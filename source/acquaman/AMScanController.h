@@ -59,6 +59,7 @@ public:
 			 Pausing,
 			 Paused,
 			 Resuming,
+			 Stopping,
 			 Cancelling,
 			 Cancelled,
 			 Finished,
@@ -79,6 +80,7 @@ public:
 	bool isPausing() const;
 	bool isPaused() const;
 	bool isResuming() const;
+	bool isStopping() const;
 	bool isCancelling() const;
 	bool isCancelled() const;
 	bool isFinished() const;
@@ -91,6 +93,7 @@ public:
 	/// Pointer to the scan this instance is controlling.
 	virtual AMScan* scan() { return scan_; }
 
+	/// Returns whether the scan controller is in a state where it can be deleted.
 	virtual bool isReadyForDeletion() const;
 
 signals:
@@ -120,6 +123,7 @@ signals:
 	/// Progress of scan (arbitrary units: some amount \c elapsed of a \c total amount). Implementations should emit this periodically.
 	void progress(double elapsed, double total);
 
+	/// Notifier that the scan controller deletion state has changed.  Passes the new state.
 	void readyForDeletion(bool isReady);
 
 
@@ -137,6 +141,8 @@ public slots:
 	bool resume();
 	/// Cancel the scan. We can always try to cancel.
 	void cancel();
+	/// Stop the scan.  The same action as cancel() but with the implication that the scan should still be considered complete.  Requires a command because there can be a variety of reasons for stopping a scan like this.  This is defaulted to an empty string because you may not need to distinguish between reasons.
+	void stop(const QString &command = QString(""));
 
 protected slots:
 	// Protected notification functions.  Call these to notify the AMScanController API when you want to trigger a transition between scan states.
@@ -172,6 +178,8 @@ protected:
 	virtual void resumeImplementation() {}
 	/// Implement to cancel a scan. This could be called from any state.  After the scan is cancelled, call setCancelled().
 	virtual void cancelImplementation() = 0;
+	/// Implement to stop a scan.  This can only be called from the running or paused state.  This will be responsible for calling setFinished() or ensuring that it is called.  Pure-virtual because if you can cancel, then you can also stop.  This is defaulted to an empty string because you may not need to distinguish between reasons.
+	virtual void stopImplementation(const QString &command = QString("")) = 0;
 
 protected:
 	/// Configuration for this scan, typed as the general base class AMScanConfiguration

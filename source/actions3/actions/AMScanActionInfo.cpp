@@ -73,7 +73,7 @@ AMScanActionInfo::~AMScanActionInfo()
 //		delete config_;
 }
 
-const AMScanConfiguration *AMScanActionInfo::config() const
+const AMScanConfiguration *AMScanActionInfo::configuration() const
 {
 	if (config_)
 		return config_;
@@ -81,7 +81,7 @@ const AMScanConfiguration *AMScanActionInfo::config() const
 	return 0;
 }
 
-AMScanConfiguration *AMScanActionInfo::config()
+AMScanConfiguration *AMScanActionInfo::configuration()
 {
 	if (config_)
 		return config_;
@@ -94,7 +94,7 @@ AMScanConfiguration *AMScanActionInfo::config()
 }
 
 QString AMScanActionInfo::dbLoadWarnings() const{
-	return config()->dbLoadWarnings();
+	return configuration()->dbLoadWarnings();
 }
 
 AMDbObject* AMScanActionInfo::dbGetConfig() const{

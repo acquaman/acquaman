@@ -35,8 +35,9 @@ class AMScanActionController : public AMScanController
 
 public:
 	/// Constructor.  Requires the scan configuration.
- 	virtual ~AMScanActionController();
 	AMScanActionController(AMScanConfiguration *configuration, QObject *parent = 0);
+	/// Destructor.
+	virtual ~AMScanActionController();
 
 	/// Returns the master action that encapsulates all of the, possibly nested, actions that run the scan.
 	AMAction3 *scanningActions();
@@ -45,8 +46,6 @@ public:
 	virtual void buildScanController() = 0;
 
 public slots:
-	/// Provides access AMAction::skip() which isn't part of the AMScanController API.
-	virtual void skip(const QString &command);
 
 protected slots:
 	/// Helper slot that ensures all the necessary database and event handler clean up is done.  Closes any open database transaction and removes this object from the QEvent receiver list.
@@ -83,6 +82,8 @@ protected:
 	virtual void resumeImplementation();
 	/// Handles cancelling the current scan action and setting up the necessary communications to call setCancelled() when appropriate.
 	virtual void cancelImplementation();
+	/// Handles stopping the current scan action and setting up the necessary communications to call setFinished when appropriate.
+	virtual void stopImplementation(const QString &command);
 
 	/// Method that builds all the necessary actions to properly initialize your scan.  Default does nothing, but should be reimplemented in subclases.
 	virtual AMAction3 *createInitializationActions() { return 0; }

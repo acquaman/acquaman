@@ -386,19 +386,20 @@ void REIXSXESScanActionController::cancelImplementation(){
 	setCancelled();
 }
 
-
-void REIXSXESScanActionController::skip(const QString &command){
+void REIXSXESScanActionController::stopImplementation(const QString &command)
+{
+	Q_UNUSED(command);
 
 	ScanState currentState = state();
 
 	if(currentState == Running || currentState == Paused) {
 		disconnect(REIXSBeamline::bl()->mcpDetector(), SIGNAL(imageDataChanged()), this, SLOT(onNewImageValues()));
 	}
+
 	REIXSBeamline::bl()->mcpDetector()->cancelAcquisition();
 	saveRawData();
 	setFinished();
 }
-
 
 #include "dataman/AMSample.h"
 void REIXSXESScanActionController::initializeScanMetaData()

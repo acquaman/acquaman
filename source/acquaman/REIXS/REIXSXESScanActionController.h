@@ -36,13 +36,11 @@ class REIXSXESScanActionController : public AMScanActionController
 {
 Q_OBJECT
 public:
- 	virtual ~REIXSXESScanActionController();
+	virtual ~REIXSXESScanActionController();
 	REIXSXESScanActionController(REIXSXESScanConfiguration* configuration, QObject *parent = 0);
 
 
 public slots:
-	virtual void skip(const QString &command);
-
 	/// Method that builds all the general aspects, such as measurements and raw data sources, and the file writer capabilities for the scan controller.
 	virtual void buildScanController();
 
@@ -75,7 +73,8 @@ protected:
 	virtual bool initializeImplementation();
 	virtual bool startImplementation();
 	virtual void cancelImplementation();
-
+	/// The implementation for skipping XES scans.
+	virtual void stopImplementation(const QString &command);
 
 	AMAction3* createInitializationActions();
 

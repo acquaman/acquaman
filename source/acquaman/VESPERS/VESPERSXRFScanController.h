@@ -54,6 +54,8 @@ protected:
 	virtual bool startImplementation();
 	/// Cancels current scan.  Treated as finishing early.
 	virtual void cancelImplementation() { setCancelled(); }
+	/// Cancels current scan. Treated as finishing early.
+	virtual void stopImplementation(const QString &command) { Q_UNUSED(command); setFinished(); }
 	/// Saves the data after a scan is stopped.
 	void saveData();
 };

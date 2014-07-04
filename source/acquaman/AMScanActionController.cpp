@@ -40,14 +40,6 @@ AMScanActionController::AMScanActionController(AMScanConfiguration *configuratio
 	connect(this, SIGNAL(stateChanged(int,int)), this, SLOT(onStateChanged(int,int)));
 }
 
-void AMScanActionController::skip(const QString &command)
-{
-	AMAction3 *currentAction = AMActionRunner3::scanActionRunner()->currentAction();
-
-	if(currentAction)
-		currentAction->skip(command);
-}
-
 void AMScanActionController::onStateChanged(int oldState, int newState)
 {
 	Q_UNUSED(oldState)
@@ -164,6 +156,17 @@ void AMScanActionController::cancelImplementation()
 
 		connect(currentAction, SIGNAL(cancelled()), this, SLOT(setCancelled()));
 		currentAction->cancel();
+	}
+}
+
+void AMScanActionController::stopImplementation(const QString &command)
+{
+	AMAction3 *currentAction = AMActionRunner3::scanActionRunner()->currentAction();
+
+	if(currentAction){
+
+		connect(currentAction, SIGNAL(cancelled()), this, SLOT(setFinished()));
+		currentAction->skip(command);
 	}
 }
 
