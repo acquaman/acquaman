@@ -158,7 +158,7 @@ CLSSynchronizedDwellTimeView::CLSSynchronizedDwellTimeView(CLSSynchronizedDwellT
 
 	connect(this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)));
 	connect(dwellTime_, SIGNAL(timeChanged(double)), this, SLOT(onDwellTimeChanged(double)));
-	connect(dwellTime_, SIGNAL(scanningChanged(bool)), this, SLOT(onScanningChanged(double)));
+	connect(dwellTime_, SIGNAL(scanningChanged(bool)), this, SLOT(onScanningChanged(bool)));
 	connect(dwellTime_, SIGNAL(modeChanged(CLSSynchronizedDwellTime::Mode)), this, SLOT(onModeChanged(CLSSynchronizedDwellTime::Mode)));
 	connect(dwellTime_, SIGNAL(connected(bool)), this, SLOT(onDwellTimeConnected(bool)));
 
