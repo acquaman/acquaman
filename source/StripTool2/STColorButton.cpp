@@ -43,6 +43,8 @@ void STColorButton::selectColor()
 
 void STColorButton::paintEvent(QPaintEvent *event)
 {
+    QPushButton::paintEvent(event);
+
 //    if (color_.isValid()) {
 
     /////////////////////////////////////////
@@ -65,7 +67,4 @@ void STColorButton::paintEvent(QPaintEvent *event)
 
 //        painter.drawRect(rect);
 //    }
-
-    QPushButton::paintEvent(event);
-
 }

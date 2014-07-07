@@ -84,6 +84,9 @@ void STWidget::onCollectionRowRemoved(const QModelIndex &index, int start, int e
     Q_UNUSED(end)
 
     plotWidget_->plot()->removeItem(variables_->variableAt(start)->series());
+
+    if (selectedVariable_ == variables_->variableAt(start))
+        setSelectedVariable(0);
 }
 
 void STWidget::toAddVariable()
