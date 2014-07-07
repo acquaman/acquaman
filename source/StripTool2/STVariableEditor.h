@@ -11,6 +11,7 @@
 
 #include "STEditor.h"
 #include "STVariable.h"
+#include "STColorButton.h"
 
 class STVariableEditor : public STEditor
 {
@@ -27,6 +28,7 @@ public:
 
 signals:
     void variableChanged(STVariable *newVariable);
+    void removeButtonClicked();
 
 public slots:
     void setVariable(STVariable *toEdit);
@@ -55,7 +57,8 @@ protected:
     QLabel *connected_;
     QLabel *value_;
     QLineEdit *unitsEntry_;
-    QPushButton *colorButton_;
+    STColorButton *colorButton_;
+    QPushButton *removeButton_;
 
     bool descriptionEdited_;
     bool unitsEdited_;

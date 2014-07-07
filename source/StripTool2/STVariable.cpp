@@ -44,9 +44,6 @@ STVariable::STVariable(const QString &name, QObject *parent) :
 
     times_ = new AM0DTimestampAB("Timestamps", this);
     times_->setDataStoredCountMax(50);
-    times_->setTimeUnits(AM0DTimestampAB::Seconds);
-    times_->setTimeValue(10);
-    times_->enableTimeFiltering(true);
     times_->setInputDataSources(QList<AMDataSource*>() << new AM0DProcessVariableDataSource(pv_, pv_->pvName(), this));
 
     timedData_ = new AM1DTimedDataAB("TimedData", this);
@@ -129,6 +126,20 @@ MPlotSeriesBasic* STVariable::series() const
     return series_;
 }
 
+bool STVariable::operator==(const STVariable &other) const
+{
+    bool namesMatch = false;
+    bool creationDateTimesMatch = false;
+
+    if (name() == other.name())
+        namesMatch = true;
+
+    if (created() == other.created())
+        creationDateTimesMatch = true;
+
+    return (namesMatch && creationDateTimesMatch);
+}
+
 void STVariable::setIndex(int newIndex)
 {
     if (index_ != newIndex && newIndex >= 0) {
@@ -139,14 +150,15 @@ void STVariable::setIndex(int newIndex)
 
 void STVariable::setDescription(const QString &newDescription)
 {
-    if (newDescription != description_) {
+    if (description_ != newDescription) {
         description_ = newDescription;
-        emit descriptionChanged(description_);
 
         if (description_ != "")
             hasDescription_ = true;
         else
             hasDescription_ = false;
+
+        emit descriptionChanged(description_);
     }
 }
 
@@ -154,12 +166,13 @@ void STVariable::setUnits(const QString &units)
 {
     if (units_ != units) {
         units_ = units;
-        emit unitsChanged(units_);
 
         if (units_ != "")
             hasUnits_ = true;
         else
             hasUnits_ = false;
+
+        emit unitsChanged(units_);
     }
 }
 
@@ -167,9 +180,8 @@ void STVariable::setColor(const QColor &newColor)
 {
     if (color_ != newColor) {
         color_ = newColor;
+        series()->setLinePen( QPen(color_) );
         emit colorChanged(color_);
-
-        qDebug() << "Variable color changed.";
     }
 }
 
@@ -179,9 +191,18 @@ void STVariable::setDataBufferSize(int bufferSize)
     times_->setDataStoredCountMax(bufferSize);
 }
 
-void STVariable::setTimeFilter(int interval, AM0DTimestampAB::TimeUnits units)
+void STVariable::setTimeValue(int newValue)
 {
-    times_->setTimeValue(interval);
-    times_->setTimeUnits(units);
+    times_->setTimeValue(newValue);
+}
+
+void STVariable::setTimeUnits(STTime::Units newUnits)
+{
+    times_->setTimeUnits(newUnits);
+}
+
+void STVariable::setTimeFilteringEnabled(bool isEnabled)
+{
+    times_->enableTimeFiltering(isEnabled);
 }
 

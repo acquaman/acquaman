@@ -52,15 +52,22 @@ public:
 public slots:
 
 protected slots:
-    void onVariableConnected(int variableIndex);
-    void onVariableAxisInfoChanged(int variableIndex);
+    void setTime();
+    void setTimeFilteringEnabled();
+
+    void onCollectionRowAdded(const QModelIndex &index, int start, int end);
+    void onCollectionRowRemoved(const QModelIndex &index, int start, int end);
+
     void toAddVariable();
     void toEditVariables();
     void toEditPlot();
 
+    void updatePlotLeftAxisName();
+
     virtual void onCustomContextMenuRequested(QPoint position);
 
 protected:
+    void setSelectedVariable(STVariable *selection);
     void showEditorDialog(STEditor *editor);
 
 protected:

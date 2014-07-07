@@ -22,7 +22,6 @@ STVariableEditor::STVariableEditor(STVariable *toEdit, QWidget *parent) : STEdit
 
     QLabel *descriptionLabel = new QLabel("Description: ", this);
     descriptionEntry_ = new QLineEdit(this);
-    connect( descriptionEntry_, SIGNAL(textChanged(QString)), this, SLOT(onDescriptionEntryChanged(QString)) );
     descriptionLabel->setBuddy(descriptionEntry_);
     mainLayout->addWidget(descriptionLabel, 1, 0);
     mainLayout->addWidget(descriptionEntry_, 1, 1);
@@ -47,25 +46,34 @@ STVariableEditor::STVariableEditor(STVariable *toEdit, QWidget *parent) : STEdit
 
     QLabel *unitsLabel = new QLabel("Units: ", this);
     unitsEntry_ = new QLineEdit(this);
-    connect( unitsEntry_, SIGNAL(textChanged(QString)), this, SLOT(onUnitsEntryChanged(QString)) );
     unitsLabel->setBuddy(unitsEntry_);
     mainLayout->addWidget(unitsLabel, 5, 0);
     mainLayout->addWidget(unitsEntry_, 5, 1);
 
     QLabel *colorLabel = new QLabel("Color: ", this);
-    colorButton_ = new QPushButton(this);
-    colorButton_->setFixedWidth(100);
-    connect( colorButton_, SIGNAL(clicked()), this, SLOT(onColorButtonClicked()) );
+    colorButton_ = new STColorButton(this);
     colorLabel->setBuddy(colorButton_);
     mainLayout->addWidget(colorLabel, 6, 0);
     mainLayout->addWidget(colorButton_, 6, 1);
+
+    removeButton_ = new QPushButton("Remove", this);
+    removeButton_->setDefault(false);
+    mainLayout->addWidget(removeButton_, 7, 1);
 
     setLayout(mainLayout);
 
     // Get current settings.
 
     getVariableInfo();
+
+    // Make connections.
+
     connectVariable();
+
+    connect( descriptionEntry_, SIGNAL(textChanged(QString)), this, SLOT(onDescriptionEntryChanged(QString)) );
+    connect( unitsEntry_, SIGNAL(textChanged(QString)), this, SLOT(onUnitsEntryChanged(QString)) );
+    connect( colorButton_, SIGNAL(clicked()), this, SLOT(onColorButtonClicked()) );
+    connect( removeButton_, SIGNAL(clicked()), this, SIGNAL(removeButtonClicked()) );
 }
 
 STVariableEditor::~STVariableEditor()
@@ -108,7 +116,7 @@ void STVariableEditor::applyChanges()
             variable_->setUnits(unitsEntry_->text());
 
         if (colorEdited_)
-            variable_->setColor(colorButton_->palette().color(QPalette::Background));
+            variable_->setColor(colorButton_->color());
     }
 
 }
@@ -142,12 +150,6 @@ void STVariableEditor::onUnitsEntryChanged(const QString &text)
 
 void STVariableEditor::onColorButtonClicked()
 {
-    QColor color = QColorDialog::getColor(variable_->color(), this);
-
-    QPalette palette = colorButton_->palette();
-    palette.setColor(colorButton_->backgroundRole(), color);
-    colorButton_->setPalette(palette);
-
     colorEdited_ = true;
 }
 
@@ -160,13 +162,8 @@ void STVariableEditor::getVariableInfo()
         setConnectionState(variable_->isConnected());
         setLatestValue(variable_->value());
         unitsEntry_->setText(variable_->units());
-
-//        QPalette palette = colorButton_->palette();
-//        palette.setColor(colorButton_->backgroundRole(), variable_->color());
-//        colorButton_->setPalette(palette);
-
-//        QString colorName = variable_->color().name();
-//        colorButton_->setStyleSheet("QPushButton { background-color: " + colorName + "; }");
+        colorButton_->setEnabled(true);
+        colorButton_->setColor(variable_->color());
     }
 }
 
@@ -178,6 +175,8 @@ void STVariableEditor::clearVariableInfo()
     connected_->clear();
     value_->clear();
     unitsEntry_->clear();
+    colorButton_->setColor(QColor());
+    colorButton_->setEnabled(false);
 
     descriptionEdited_ = false;
     unitsEdited_ = false;

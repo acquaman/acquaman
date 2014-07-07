@@ -5,6 +5,7 @@
 #include <QSignalMapper>
 
 #include "STVariable.h"
+#include "STTime.h"
 
 class STVariableCollection : public QAbstractTableModel
 {
@@ -26,33 +27,29 @@ public:
 
     STVariable* variableAt(int index) const;
 
-    int indexOf(STVariable *toMatch) const;
+    QModelIndex indexOf(STVariable *toMatch) const;
 
     QList<STVariable*> variablesWithName(const QString &name);
 
 signals:
-    void variableAdded(int index);
-    void variableConnectedStateChanged(int index);
-    void variableDescriptionChanged(int index);
-    void variableUnitsChanged(int index);
-    void variableDeleted();
 
 public slots:
     void addVariable(const QString &name);
-    void deleteVariableAt(int index);
+    void deleteVariableAt(int indexToDelete);
+
+    void setTime(STTime *time);
+    void setTimeFilteringEnabled(bool isEnabled);
 
 protected slots:
-    void onVariableConnectedStateChanged(bool isConnected);
-    void onVariableDescriptionChanged(const QString &description);
-    void onVariableUnitsChanged(const QString &units);
+    void updateTimeValue(int newValue);
+    void updateTimeUnits(STTime::Units newUnits);
 
 protected:
-    void connectVariable(STVariable *toConnect);
-    void disconnectVariable(STVariable *variable);
 
 protected:
     QList<STVariable*> variables_;
-    QSignalMapper* connectedMapper_;
+    STTime *time_;
+    bool timeFilteringEnabled_;
 
 };
 

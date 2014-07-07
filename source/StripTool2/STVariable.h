@@ -34,6 +34,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "MPlot/MPlotSeries.h"
 
+#include "STTime.h"
+
 class STVariable : public QObject
 {
     Q_OBJECT
@@ -76,6 +78,8 @@ public:
     /// Returns the series tracking pv data updates.
     MPlotSeriesBasic *series() const;
 
+    bool operator==(const STVariable &other) const;
+
 
 signals:
     /// Emitted when the variable's index has changed.
@@ -103,7 +107,10 @@ public slots:
     /// Sets the number of data points and time points that are saved in total.
     void setDataBufferSize(int bufferSize);
     /// Sets the time window to be displayed, relative to now.
-    void setTimeFilter(int interval, AM0DTimestampAB::TimeUnits units);
+    void setTimeValue(int newValue);
+    void setTimeUnits(STTime::Units newUnits);
+
+    void setTimeFilteringEnabled(bool isEnabled);
 
 protected slots:
 

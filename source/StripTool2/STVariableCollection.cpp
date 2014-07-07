@@ -2,7 +2,8 @@
 
 STVariableCollection::STVariableCollection(QObject *parent) : QAbstractTableModel(parent)
 {
-
+    time_ = 0;
+    timeFilteringEnabled_ = false;
 }
 
 STVariableCollection::~STVariableCollection()
@@ -25,8 +26,13 @@ int STVariableCollection::columnCount(const QModelIndex &parent) const
 QVariant STVariableCollection::data(const QModelIndex &index, int role) const
 {
     switch (role) {
+
     case Qt::DisplayRole:
-        return variables_.at(index.row())->name();
+        STVariable *toView = variables_.at(index.row());
+        if (toView->hasDescription())
+            return toView->description();
+        else
+            return toView->name();
     }
 
     return QVariant();
@@ -47,9 +53,9 @@ STVariable* STVariableCollection::variableAt(int index) const
     return variables_.at(index);
 }
 
-int STVariableCollection::indexOf(STVariable *toMatch) const
+QModelIndex STVariableCollection::indexOf(STVariable *toMatch) const
 {
-    return variables_.indexOf(toMatch);
+    return createIndex(variables_.indexOf(toMatch), 0);
 }
 
 QList<STVariable*> STVariableCollection::variablesWithName(const QString &name)
@@ -70,68 +76,72 @@ void STVariableCollection::addVariable(const QString &name)
         return;
     }
 
+    int newIndex = variables_.size();
+
+    beginInsertRows(QModelIndex(), newIndex, newIndex);
+
     STVariable *newVariable = new STVariable(name, this);
     variables_.append(newVariable);
 
-    int index = variables_.size() - 1;
-    newVariable->setIndex(index);
+    newVariable->setIndex(newIndex);
 
-    connectVariable(newVariable);
+    if (time_) {
+        newVariable->setTimeValue(time_->value());
+        newVariable->setTimeUnits(time_->units());
+    }
 
-    emit variableAdded(index);
+    newVariable->setTimeFilteringEnabled(timeFilteringEnabled_);
+
+    endInsertRows();
 }
 
-void STVariableCollection::deleteVariableAt(int index)
+void STVariableCollection::deleteVariableAt(int indexToDelete)
 {
-    if (index < 0 || index >= variables_.size()) {
+    if (indexToDelete < 0 || indexToDelete >= variables_.size()) {
         return;
     }
 
-    STVariable *toDelete = variableAt(index);
-
-    // if we can successfully remove the variable, disconnect it and queue it up for deletion.
-    variables_.removeAt(index);
-    disconnectVariable(toDelete);
-
-    emit variableDeleted();
-
+    beginRemoveRows(QModelIndex(), indexToDelete, indexToDelete);
+    STVariable *toDelete = variableAt(indexToDelete);
+    variables_.removeAt(indexToDelete);
     toDelete->deleteLater();
+    endRemoveRows();
 }
 
-void STVariableCollection::onVariableConnectedStateChanged(bool isConnected)
+void STVariableCollection::setTime(STTime *time)
 {
-    Q_UNUSED(isConnected)
+    if (time_ != time && time != 0) {
+        time_ = time;
 
-    STVariable *variable = qobject_cast<STVariable*>(sender());
-    emit variableConnectedStateChanged(variable->index());
+        updateTimeValue(time_->value());
+        updateTimeUnits(time_->units());
+
+        connect( time_, SIGNAL(valueChanged(int)), this, SLOT(updateTimeValue(int)) );
+        connect( time_, SIGNAL(unitsChanged(STTime::Units)), this, SLOT(updateTimeUnits(STTime::Units)) );
+    }
 }
 
-void STVariableCollection::onVariableDescriptionChanged(const QString &description)
+void STVariableCollection::setTimeFilteringEnabled(bool isEnabled)
 {
-    Q_UNUSED(description)
+    if (timeFilteringEnabled_ != isEnabled) {
+        timeFilteringEnabled_ = isEnabled;
 
-    STVariable *variable = qobject_cast<STVariable*>(sender());
-    emit variableDescriptionChanged(variable->index());
+        foreach (STVariable *variable, variables_) {
+            variable->setTimeFilteringEnabled(timeFilteringEnabled_);
+        }
+    }
 }
 
-void STVariableCollection::onVariableUnitsChanged(const QString &units)
+void STVariableCollection::updateTimeValue(int newValue)
 {
-    Q_UNUSED(units)
-
-    STVariable *variable = qobject_cast<STVariable*>(sender());
-    emit variableUnitsChanged(variable->index());
+    foreach (STVariable *variable, variables_) {
+        variable->setTimeValue(newValue);
+    }
 }
 
-void STVariableCollection::connectVariable(STVariable *toConnect)
+void STVariableCollection::updateTimeUnits(STTime::Units newUnits)
 {
-    connect( toConnect, SIGNAL(connected(bool)), this, SLOT(onVariableConnectedStateChanged(bool)) );
-    connect( toConnect, SIGNAL(descriptionChanged(QString)), this, SLOT(onVariableDescriptionChanged(QString)) );
-    connect( toConnect, SIGNAL(unitsChanged(QString)), this, SLOT(onVariableUnitsChanged(QString)) );
-}
-
-void STVariableCollection::disconnectVariable(STVariable *variable)
-{
-    disconnect( variable, SIGNAL(connectedStateChanged(bool)), this, SLOT(onVariableConnectedStateChanged(bool)) );
-    disconnect( variable, SIGNAL(descriptionChanged(QString)), this, SLOT(onVariableDescriptionChanged(QString)) );
-    disconnect( variable, SIGNAL(unitsChanged(QString)), this, SLOT(onVariableUnitsChanged(QString)) );
+    foreach (STVariable *variable, variables_) {
+        variable->setTimeUnits(newUnits);
+    }
 }

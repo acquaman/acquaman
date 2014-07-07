@@ -28,8 +28,7 @@ AM0DTimestampAB::AM0DTimestampAB(const QString &outputName, QObject *parent) :
     dataMax_ = 50;
 
     timeValue_ = 10;
-    timeUnits_ = Seconds;
-
+    timeUnits_ = STTime::Seconds;
     timeFilteringEnabled_ = false;
 
     axes_ << AMAxisInfo("invalid", 0, "No input data");
@@ -57,14 +56,14 @@ int AM0DTimestampAB::dataStoredCountMax() const
     return dataMax_;
 }
 
-AM0DTimestampAB::TimeUnits AM0DTimestampAB::timeUnits() const
-{
-    return timeUnits_;
-}
-
 int AM0DTimestampAB::timeValue() const
 {
     return timeValue_;
+}
+
+STTime::Units AM0DTimestampAB::timeUnits() const
+{
+    return timeUnits_;
 }
 
 bool AM0DTimestampAB::timeFilteringEnabled() const
@@ -133,7 +132,7 @@ AMNumber AM0DTimestampAB::value(const AMnDIndex &indexes) const
     if (indexes.i() < 0 || indexes.i() >= dataStored_.size())
         return AMNumber(AMNumber::OutOfBoundsError);
 
-    return convertMS(latestUpdate_.msecsTo(dataStored_.at(indexes.i())), timeUnits_);
+    return convertTimeValue(latestUpdate_.msecsTo(dataStored_.at(indexes.i())), timeUnits_);
 }
 
 bool AM0DTimestampAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
@@ -187,22 +186,6 @@ bool AM0DTimestampAB::loadFromDb(AMDatabase *db, int id)
     return success;
 }
 
-void AM0DTimestampAB::setTimeUnits(TimeUnits newUnits)
-{
-    if (timeUnits_ != newUnits) {
-        timeUnits_ = newUnits;
-        emit timeUnitsChanged(timeUnits_);
-    }
-}
-
-void AM0DTimestampAB::setTimeValue(int newValue)
-{
-    if (timeValue_ != newValue && newValue > 0) {
-        timeValue_ = newValue;
-        emit timeValueChanged(timeValue_);
-    }
-}
-
 void AM0DTimestampAB::setDataStoredCountMax(int newMax)
 {
     if (dataMax_ != newMax && newMax > 0) {
@@ -217,10 +200,26 @@ void AM0DTimestampAB::setDataStoredCountMax(int newMax)
 }
 
 void AM0DTimestampAB::enableTimeFiltering(bool isEnabled)
-{
+{    
     if (timeFilteringEnabled_ != isEnabled) {
         timeFilteringEnabled_ = isEnabled;
         emit timeFilteringEnabled(timeFilteringEnabled_);
+    }
+}
+
+void AM0DTimestampAB::setTimeValue(int newValue)
+{
+    if (timeValue_ != newValue && newValue > 0) {
+        timeValue_ = newValue;
+        emit timeValueChanged(timeValue_);
+    }
+}
+
+void AM0DTimestampAB::setTimeUnits(STTime::Units newUnits)
+{
+    if (timeUnits_ != newUnits) {
+        timeUnits_ = newUnits;
+        emit timeUnitsChanged(timeUnits_);
     }
 }
 
@@ -248,24 +247,9 @@ void AM0DTimestampAB::onInputSourcesStateChanged()
     reviewState();
 }
 
-double AM0DTimestampAB::convertMS(double msecVal, TimeUnits newUnit) const
+double AM0DTimestampAB::convertTimeValue(double mseconds, STTime::Units newUnits) const
 {
-    double result = 0;
-
-    if (newUnit == mSeconds) {
-        result = msecVal;
-
-    } else if (newUnit == Seconds) {
-        result = msecVal / 1000;
-
-    } else if (newUnit == Minutes) {
-        result = msecVal / 1000 / 60;
-
-    } else if (newUnit == Hours) {
-        result = msecVal / 1000 / 60 / 60;
-    }
-
-    return result;
+    return STTime::convertValue(mseconds, STTime::mSeconds, newUnits);
 }
 
 void AM0DTimestampAB::reviewValuesChanged(const AMnDIndex &start, const AMnDIndex &end)

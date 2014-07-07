@@ -3,11 +3,11 @@
 
 #include <QWidget>
 #include <QFrame>
-#include <QListView>
 #include <QPushButton>
 
 #include "STVariableEditor.h"
 #include "STVariableCollection.h"
+#include "STListView.h"
 
 class STVariableCollectionEditor : public STEditor
 {
@@ -22,6 +22,7 @@ public:
 
 signals:
     void selectedVariableChanged(STVariable *newSelection);
+    void addVariable();
 
 public slots:
     virtual void applyChanges();
@@ -29,6 +30,7 @@ public slots:
 protected slots:
     void onListViewSelection(QModelIndex selection);
     void setSelectedVariable(STVariable *newSelection);
+    void onRemoveButtonClicked();
 
 protected:
     QListView *variableList_;

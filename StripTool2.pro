@@ -19,7 +19,10 @@ SOURCES +=\
     source/StripTool2/STVariableCollection.cpp \
     source/StripTool2/STVariableCollectionEditor.cpp \
     source/StripTool2/STEditorDialog.cpp \
-	source/StripTool2/STEditor.cpp
+	source/StripTool2/STEditor.cpp \
+    source/StripTool2/STTime.cpp \
+    source/StripTool2/STListView.cpp \
+    source/StripTool2/STColorButton.cpp
 
 HEADERS  += \
 	source/StripTool2/STWidget.h \
@@ -31,4 +34,7 @@ HEADERS  += \
     source/StripTool2/STVariableCollection.h \
     source/StripTool2/STVariableCollectionEditor.h \
     source/StripTool2/STEditorDialog.h \
-	source/StripTool2/STEditor.h
+	source/StripTool2/STEditor.h \
+    source/StripTool2/STTime.h \
+    source/StripTool2/STListView.h \
+    source/StripTool2/STColorButton.h

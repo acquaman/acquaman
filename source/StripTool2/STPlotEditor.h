@@ -13,7 +13,6 @@
 #include "STPlotWidget.h"
 #include "STEditor.h"
 
-
 class STPlotEditor : public STEditor
 {
     Q_OBJECT
@@ -30,17 +29,10 @@ public slots:
     virtual void applyChanges();
 
 protected slots:
-    /// Sets the value to appear in the nameEntry widget.
-    void setNameEntry(const QString &oldName);
-    /// Sets the checked state of nameShown widget.
-    void setNameShown(bool oldState);
-    /// Sets the value to appear in the timeEntry widget.
-    void setTimeEntry(int oldValue);
-//    /// Sets the current time units. Not implemented yet.
-//    void setTimeUnits(STPlot::TimeUnits);
-
     void onNameEntryChanged();
     void onNameShownChanged();
+    void onTimeValueChanged();
+    void onTimeUnitsChanged();
 
 protected:
     void getPlotInfo();
@@ -56,6 +48,8 @@ protected:
 
     bool nameChanged_;
     bool nameShownChanged_;
+    bool timeValueChanged_;
+    bool timeUnitsChanged_;
 
 };
 

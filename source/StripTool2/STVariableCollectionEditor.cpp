@@ -6,27 +6,32 @@ STVariableCollectionEditor::STVariableCollectionEditor(STVariableCollection *col
     // Set variables.
 
     variableCollection_ = collection;
-
     selectedVariable_ = 0;
 
     // Create UI.
 
     QVBoxLayout *mainLayout = new QVBoxLayout();
 
-    variableList_ = new QListView(this);
-
-    variableList_->setModel(variableCollection_);
+    variableList_ = new STListView(this);
     mainLayout->addWidget(variableList_);
 
     variableEditor_ = new STVariableEditor(0);
-    variableEditor_->setEnabled(false);
     mainLayout->addWidget(variableEditor_);
 
     setLayout(mainLayout);
 
+    // Get current settings.
+
+    variableList_->setModel(variableCollection_);
+    variableList_->setMaximumHeight(variableList_->sizeHintForRow(0) * 5);
+
+    variableEditor_->setEnabled(false);
+
     // Make connections
 
     connect( variableList_, SIGNAL(clicked(QModelIndex)), this, SLOT(onListViewSelection(QModelIndex)) );
+    connect( variableList_, SIGNAL(addVariable()), this, SIGNAL(addVariable()) );
+    connect( variableEditor_, SIGNAL(removeButtonClicked()), this, SLOT(onRemoveButtonClicked()) );
 }
 
 STVariableCollectionEditor::~STVariableCollectionEditor()
@@ -63,5 +68,19 @@ void STVariableCollectionEditor::setSelectedVariable(STVariable *newSelection)
         variableEditor_->setVariable(selectedVariable_);
 
         emit selectedVariableChanged(selectedVariable_);
+    }
+}
+
+void STVariableCollectionEditor::onRemoveButtonClicked()
+{
+    if (selectedVariable_) {
+        qDebug() << "Removing selected variable...";
+        int indexToDelete = selectedVariable_->index();
+        setSelectedVariable(0);
+        variableCollection_->deleteVariableAt(indexToDelete);
+
+    } else {
+        // There shouldn't be a remove button visible if there is no selected variable!!
+        qDebug() << "ERROR : attempting to remove a non-selected variable!";
     }
 }

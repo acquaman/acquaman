@@ -41,11 +41,16 @@ STWidget::STWidget(QWidget *parent) : QWidget(parent)
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect( this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)) );
 
-    // Make connections.
+    // Get current settings.
 
-    connect( variables_, SIGNAL(variableConnectedStateChanged(int)), this, SLOT(onVariableConnected(int)) );
-    connect( variables_, SIGNAL(variableDescriptionChanged(int)), this, SLOT(onVariableAxisInfoChanged(int)) );
-    connect( variables_, SIGNAL(variableUnitsChanged(int)), this, SLOT(onVariableAxisInfoChanged(int)) );
+    setTime();
+    setTimeFilteringEnabled();
+
+    // Make connections.
+    connect( variables_, SIGNAL(rowsInserted(QModelIndex, int, int)), this, SLOT(onCollectionRowAdded(QModelIndex, int, int)) );
+    connect( variables_, SIGNAL(rowsAboutToBeRemoved(QModelIndex, int, int)), this, SLOT(onCollectionRowRemoved(QModelIndex, int, int)) );
+    connect( plotWidget_, SIGNAL(timeChanged(STTime *time)), this, SLOT(setTime()) );
+    connect( plotWidget_, SIGNAL(timeFilteringEnabled(bool)), this, SLOT(setTimeFilteringEnabled()) );
 
 }
 
@@ -54,22 +59,31 @@ STWidget::~STWidget()
 
 }
 
-void STWidget::onVariableConnected(int variableIndex)
+void STWidget::setTime()
 {
-    STVariable *variable = variables_->variableAt(variableIndex);
-
-    if (variable->isConnected()) {
-        plotWidget_->plot()->addItem(variable->series());
-    }
+    variables_->setTime(plotWidget_->time());
 }
 
-void STWidget::onVariableAxisInfoChanged(int variableIndex)
+void STWidget::setTimeFilteringEnabled()
 {
-    STVariable *variable = variables_->variableAt(variableIndex);
-    QString description = variable->description();
-    QString units = variable->units();
+    variables_->setTimeFilteringEnabled(plotWidget_->timeFilteringEnabled());
+}
 
-    plotWidget_->setAxisName(description + " [" + units + "]");
+void STWidget::onCollectionRowAdded(const QModelIndex &index, int start, int end)
+{
+    Q_UNUSED(index)
+    Q_UNUSED(end)
+
+    plotWidget_->plot()->addItem(variables_->variableAt(start)->series());
+    setSelectedVariable(variables_->variableAt(start));
+}
+
+void STWidget::onCollectionRowRemoved(const QModelIndex &index, int start, int end)
+{
+    Q_UNUSED(index)
+    Q_UNUSED(end)
+
+    plotWidget_->plot()->removeItem(variables_->variableAt(start)->series());
 }
 
 void STWidget::toAddVariable()
@@ -83,12 +97,33 @@ void STWidget::toAddVariable()
 
 void STWidget::toEditVariables()
 {
-    showEditorDialog(new STVariableCollectionEditor(variables_));
+    STVariableCollectionEditor *editor = new STVariableCollectionEditor(variables_);
+    connect( editor, SIGNAL(addVariable()), this, SLOT(toAddVariable()) );
+
+    showEditorDialog(editor);
 }
 
 void STWidget::toEditPlot()
 {
     showEditorDialog(new STPlotEditor(plotWidget_));
+}
+
+void STWidget::updatePlotLeftAxisName()
+{
+    if (selectedVariable_) {
+        QString description = variables_->data(variables_->indexOf(selectedVariable_), Qt::DisplayRole).toString();
+
+        QString units = selectedVariable_->units();
+
+        if (units == "")
+            plotWidget_->plot()->axisLeft()->setAxisName(description);
+        else
+            plotWidget_->plot()->axisLeft()->setAxisName(description + " [" + units + "]");
+
+    } else {
+        plotWidget_->plot()->axisLeft()->setAxisName("");
+
+    }
 }
 
 void STWidget::onCustomContextMenuRequested(QPoint position)
@@ -116,6 +151,28 @@ void STWidget::onCustomContextMenuRequested(QPoint position)
         } else if (selected->text() == "Edit plot") {
             toEditPlot();
 
+        }
+    }
+}
+
+void STWidget::setSelectedVariable(STVariable *selection)
+{
+    if (selectedVariable_ != selection) {
+
+        if (selectedVariable_) {
+            disconnect( selectedVariable_, SIGNAL(descriptionChanged(QString)), this, SLOT(updatePlotLeftAxisName()) );
+            disconnect( selectedVariable_, SIGNAL(unitsChanged(QString)), this, SLOT(updatePlotLeftAxisName()) );
+
+            selectedVariable_ = 0;
+        }
+
+        selectedVariable_ = selection;
+        updatePlotLeftAxisName();
+
+
+        if (selectedVariable_) {
+            connect( selectedVariable_, SIGNAL(descriptionChanged(QString)), this, SLOT(updatePlotLeftAxisName()) );
+            connect( selectedVariable_, SIGNAL(unitsChanged(QString)), this, SLOT(updatePlotLeftAxisName()) );
         }
     }
 }

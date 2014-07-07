@@ -2,8 +2,9 @@
 #define STEDITOR_H
 
 #include <QWidget>
+#include <QFrame>
 
-class STEditor : public QWidget
+class STEditor : public QFrame
 {
     Q_OBJECT
 public:
