@@ -2,6 +2,7 @@
 #include "dataman/AMLightweightScanInfoModel.h"
 #include "AMAbstractScanDataChildView.h"
 #include "ui/util/AMSortFilterWidget.h"
+#include "dataman/AMUser.h"
 
 AMScanDataView::AMScanDataView(AMDatabase *database, QWidget *parent) :
 	QWidget(parent)
@@ -11,36 +12,57 @@ AMScanDataView::AMScanDataView(AMDatabase *database, QWidget *parent) :
 	proxyModel_ = new QSortFilterProxyModel();
 	proxyModel_->setSourceModel(model_);
 
-	tabWidget_  = new QTabWidget();
+	titleLabel_ = new QLabel(this);
+	titleLabel_->setObjectName(QString::fromUtf8("headingLabel_"));
+	titleLabel_->setStyleSheet(QString::fromUtf8("font: 20pt \"Lucida Grande\";\n"
+	"color: rgb(79, 79, 79);"));
+	titleLabel_->setText(QString("%1 Data: All Runs").arg(AMUser::user()->name()));
+	viewButtons_ = new QButtonGroup();
+	stackedWidget_  = new QStackedWidget();
 	buttonLayout_ = new QHBoxLayout();
-	QHBoxLayout* searchButtonLayout = new QHBoxLayout();
-	searchButton_ = new QToolButton();
-	searchButtonLayout->addWidget(searchButton_);
-	connect(searchButton_, SIGNAL(clicked()), this, SLOT(onSearchButtonClicked()));
-
+	buttonLayout_->addWidget(titleLabel_);
+	buttonLayout_->addStretch();
+	searchButton_ = new QToolButton(this);
+	QIcon searchIcon;
+	searchIcon.addFile(QString::fromUtf8(":/system-search-2.png"), QSize(), QIcon::Normal, QIcon::Off);
+	searchButton_->setIcon(searchIcon);
+	searchButton_->setCheckable(true);
 	sortFilterWidget_ = new AMSortFilterWidget(proxyModel_);
-	sortFilterWidget_->setWindowFlags(Qt::FramelessWindowHint);
-	connect(sortFilterWidget_, SIGNAL(lostFocus()), this, SLOT(onSortFilterWidgetLostFocus()));
+	sortFilterWidget_->setVisible(false);
 
+	connect(searchButton_, SIGNAL(clicked(bool)), this, SLOT(onSearchButtonClicked(bool)));
 	QVBoxLayout* layout = new QVBoxLayout();
 
 	layout->addLayout(buttonLayout_);
-	layout->addLayout(searchButtonLayout);
-	layout->addWidget(tabWidget_);
+	layout->addWidget(searchButton_);
+	layout->addWidget(sortFilterWidget_);
+	layout->addWidget(stackedWidget_);
 
 	initializeChildViews();
+
+	connect(viewButtons_, SIGNAL(buttonClicked(int)), stackedWidget_, SLOT(setCurrentIndex(int)));
 
 	setLayout(layout);
 }
 
-void AMScanDataView::addChildView(QAbstractItemView *childView, const QString& title)
+void AMScanDataView::addChildView(QAbstractItemView *childView, const QIcon& icon)
 {
 	if(!childView)
 		return;
 
 	childViews_.append(childView);
 	childView->setModel(proxyModel_);
-	tabWidget_->addTab(childView, title);
+
+	QToolButton* viewButton = new QToolButton();
+	viewButton->setIcon(icon);
+	viewButton->setCheckable(true);
+	if(viewButtons_->buttons().isEmpty())
+		viewButton->setChecked(true);
+
+	buttonLayout_->addWidget(viewButton);
+	viewButtons_->addButton(viewButton);
+	stackedWidget_->addWidget(childView);
+	viewButtons_->setId(viewButton, viewButtons_->buttons().count()-1);
 }
 
 void AMScanDataView::initializeChildViews()
@@ -48,7 +70,11 @@ void AMScanDataView::initializeChildViews()
 	/// Table Data View
 	QTableView* scanDataTable = new QTableView();
 
-	addChildView(scanDataTable, "Table View");
+	QIcon tableIcon;
+	tableIcon.addFile(QString::fromUtf8(":/22x22/view-list-details-symbolic.png"), QSize(), QIcon::Normal, QIcon::Off);
+	tableIcon.addFile(QString::fromUtf8(":/22x22/view-list-details-symbolic_dark.png"), QSize(), QIcon::Normal, QIcon::On);
+
+	addChildView(scanDataTable, tableIcon);
 
 	scanDataTable->setAlternatingRowColors(true);
 	scanDataTable->setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -69,14 +95,23 @@ void AMScanDataView::initializeChildViews()
 	scanDataTable->setColumnWidth(5, 60);
 	scanDataTable->setColumnWidth(6, 110);
 	scanDataTable->setColumnWidth(7, 200);
+
+	/// JUST FOR TESTS
+	QTableView* scanDataTable2 = new QTableView();
+
+	QIcon tableIcon2;
+	tableIcon2.addFile(QString::fromUtf8(":/22x22/view-list-details-symbolic.png"), QSize(), QIcon::Normal, QIcon::Off);
+	tableIcon2.addFile(QString::fromUtf8(":/22x22/view-list-details-symbolic_dark.png"), QSize(), QIcon::Normal, QIcon::On);
+
+	addChildView(scanDataTable2, tableIcon2);
 }
 
 QAbstractItemView *AMScanDataView::currentView()
 {
-	if(tabWidget_->currentIndex() < 0)
+	if(stackedWidget_->currentIndex() < 0)
 		return 0;
 
-	return childViews_.at(tabWidget_->currentIndex());
+	return childViews_.at(stackedWidget_->currentIndex());
 }
 
 QList<QUrl> AMScanDataView::selectedItems()
@@ -133,21 +168,10 @@ void AMScanDataView::setItemSize(int newItemSize)
 {
 }
 
-void AMScanDataView::onSearchButtonClicked()
+void AMScanDataView::onSearchButtonClicked(bool checked)
 {
-	QPoint globalPosition = mapToGlobal(searchButton_->rect().bottomRight());
-	sortFilterWidget_->move(globalPosition.x() + (width() / 2), globalPosition.y() );
-
-	if(sortFilterWidget_->isHidden())
-	{
-		sortFilterWidget_->show();
-		sortFilterWidget_->raise();
-		sortFilterWidget_->setFocus();
-	}
+	sortFilterWidget_->setVisible(checked);
 
 }
 
-void AMScanDataView::onSortFilterWidgetLostFocus()
-{
-	sortFilterWidget_->hide();
-}
+

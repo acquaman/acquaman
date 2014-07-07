@@ -8,8 +8,10 @@
 #include <QToolButton>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
+#include <QLabel>
 #include <QUrl>
 #include <QHeaderView>
+#include <QStackedWidget>
 
 class AMLightweightScanInfoModel;
 class AMDatabase;
@@ -24,7 +26,7 @@ private:
 	/// A tool button for displaying the sortFilterWidget
 	QToolButton* searchButton_;
 	/// A tab widget containing the child views
-	QTabWidget* tabWidget_;
+	QStackedWidget* stackedWidget_;
 	/// The layout containing the buttons to switch between child views
 	QHBoxLayout* buttonLayout_;
 	/// The model containing the scan info
@@ -33,12 +35,16 @@ private:
 	QSortFilterProxyModel* proxyModel_;
 	/// A list of child views added to the scan data view
 	QList<QAbstractItemView*> childViews_;
+	/// Abstract container for the buttons used to switch views
+	QButtonGroup* viewButtons_;
+	/// Label displaying the title of the scan view (user, runs)
+	QLabel* titleLabel_;
 public:
 	/// Creates an instance of an AMScanDataView, loaded scans from the provided AMDatabase
 	explicit AMScanDataView(AMDatabase* database, QWidget *parent = 0);
 protected:
 	/// Adds an AMAbstractScanDataChildView to the ScanDataView
-	void addChildView(QAbstractItemView* childView, const QString &title);
+	void addChildView(QAbstractItemView* childView, const QIcon &icon);
 	/// Initializes all the child views that will be shown in the ScanDataView
 	void initializeChildViews();
 	/// The child view which currently is showing. If there are no child views, 0 is returned.
@@ -46,7 +52,7 @@ protected:
 	/// A list of all the items selected in the currently displayed child view in the standard
 	/// URL format: amd://databaseConnectionName/tableName/objectId
 	QList<QUrl> selectedItems();
-	/// The number if items selected in the currently displayed child view
+	/// The number of items selected in the currently displayed child view
 	int numberOfSelectedItems();
 signals:
 	/// Emitted whenever the selected scans change.  You can then use selectedItems() to get a list of the scan URLs, or numberOfSelectedItems() to find out how many there are.
@@ -92,10 +98,7 @@ public slots:
 
 protected slots:
 	/// Handles the search button being clicked. Shows the sortFilterWidget
-	void onSearchButtonClicked();
-
-	void onSortFilterWidgetLostFocus();
-	
+	void onSearchButtonClicked(bool);
 };
 
 #endif // AMSCANDATAVIEW_H
