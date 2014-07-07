@@ -36,7 +36,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/AMMainWindow.h"
 #include "ui/AMBottomBar.h"
 #include "ui/AMDatamanAppBottomPanel.h"
-#include "ui/dataman/AMDataViewWithActionButtons.h"
+#include "ui/dataman/AMScanDataView.h"
 #include "ui/dataman/AMRunExperimentInsert.h"
 #include "ui/dataman/AMGenericScanEditor.h"
 #include "ui/util/AMSettingsView.h"
@@ -125,6 +125,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMSample.h"
 #include "dataman/AMSamplePlate.h"
 #include "beamline/camera/AMSampleCameraBrowser.h"
+
+#include "dataman/database/AMDatabase.h"
 
 
 AMDatamanAppController::AMDatamanAppController(QObject *parent) :
@@ -555,10 +557,6 @@ bool AMDatamanAppController::onEveryTimeDatabaseUpgrade(QList<AMDbUpgrade *> upg
 	return true;
 }
 
-AMDataViewWithActionButtons* AMDatamanAppController::createDataViewWithActionButtons(){
-	return new AMDataViewWithActionButtons();
-}
-
 bool AMDatamanAppController::startupRegisterDatabases()
 {
 	AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES, "Acquaman Startup: Registering Databases");
@@ -726,8 +724,7 @@ bool AMDatamanAppController::startupCreateUserInterface()
 
 	// Make a dataview widget and add it under two links/headings: "Runs" and "Experiments". See AMMainWindowModel for more information.
 	////////////////////////////////////
-	dataView_ = createDataViewWithActionButtons();
-	dataView_->buildView();
+	dataView_ = new AMScanDataView(AMDatabase::database("user"));
 	dataView_->setWindowTitle("Data");
 
 	QStandardItem* dataViewItem = new QStandardItem();
@@ -912,9 +909,9 @@ void AMDatamanAppController::onMainWindowAliasItemActivated(QWidget *target, con
 
 	if(target == dataView_) {
 		if(key == "Runs")
-			dataView_->dataView()->showRun(value.toInt());
+			dataView_->showRun(value.toInt());
 		if(key == "Experiments")
-			dataView_->dataView()->showExperiment(value.toInt());
+			dataView_->showExperiment(value.toInt());
 	}
 }
 

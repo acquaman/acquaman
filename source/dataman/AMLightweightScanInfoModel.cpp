@@ -93,11 +93,6 @@ QVariant AMLightweightScanInfoModel::data(const QModelIndex &index, int role) co
 	return QVariant();
 }
 
-QVariantList AMLightweightScanInfoModel::data(const QModelIndexList &index, int role) const
-{
-	QVariantList returnList();
-}
-
 int AMLightweightScanInfoModel::rowCount(const QModelIndex &) const
 {
 	return scanInfo_->count();

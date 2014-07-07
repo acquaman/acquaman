@@ -24,6 +24,9 @@ private:
 public:
 	/// Creates an instance of an AMLightweightScanInfoCollection loaded from the provided database
 	AMLightweightScanInfoCollection(AMDatabase* database);
+	/// Returns the scan with the provided id in the standard
+	/// URL format: amd://databaseConnectionName/tableName/objectId
+	QUrl getScanUrl(int index);
 protected:
 	/// Builds the mapping of SampleTable -> (SampleId -> SampleName)
 	void populateSampleNames();
@@ -40,9 +43,7 @@ protected:
 	/// Looks up the sample name from the relevant table mapping and id using the return results of the
 	/// format TABLE_NAME;ID
 	QString getSampleName(const QString& sampleResult);
-	/// Returns the scan with the provided id in the standard
-	/// URL format: amd://databaseConnectionName/tableName/objectId
-	QUrl getScanUrl(int index);
+
 
 };
 

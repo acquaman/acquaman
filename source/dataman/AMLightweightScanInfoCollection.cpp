@@ -169,7 +169,7 @@ QUrl AMLightweightScanInfoCollection::getScanUrl(int index)
 {
 	AMLightweightScanInfo* scanAt = at(index);
 
-	QString urlString = QString("amd://%1/%2/%3").arg(database_->connectionName()).arg(AMDbObjectSupport::tableNameForClass("AMScan")).arg(scanAt->id());
+	QString urlString = QString("amd://%1/%2/%3").arg(database_->connectionName()).arg(AMDbObjectSupport::s()->tableNameForClass("AMScan")).arg(scanAt->id());
 
 	QUrl returnUrl(urlString);
 

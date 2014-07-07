@@ -81,7 +81,7 @@ QAbstractItemView *AMScanDataView::currentView()
 
 QList<QUrl> AMScanDataView::selectedItems()
 {
-	if(!currentView)
+	if(!currentView())
 		return QList<QUrl>();
 
 	QList<QUrl> returnList;
@@ -106,6 +106,30 @@ int AMScanDataView::numberOfSelectedItems()
 }
 
 void AMScanDataView::showRun(int runId)
+{
+}
+
+void AMScanDataView::showExperiment(int experimentId)
+{
+}
+
+void AMScanDataView::setOrganizeMode(int mode)
+{
+}
+
+void AMScanDataView::setViewMode(int mode)
+{
+}
+
+void AMScanDataView::expandAll()
+{
+}
+
+void AMScanDataView::collapseAll()
+{
+}
+
+void AMScanDataView::setItemSize(int newItemSize)
 {
 }
 
