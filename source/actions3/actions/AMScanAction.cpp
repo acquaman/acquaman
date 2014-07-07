@@ -286,6 +286,10 @@ QString AMScanAction::controllerStateString() const
 		controllerString.append("resuming.");
 		break;
 
+	case AMScanController::Stopping:
+		controllerString.append("stopping");
+		break;
+
 	case AMScanController::Cancelling:
 		controllerString.append("cancelling.");
 		break;

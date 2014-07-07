@@ -299,7 +299,10 @@ void AMExportController::continueScanExport()
 		if(!exporter_->isValidFor(scan, option_)) {
 			QString err("The exporter '" % exporter_->description() % "' and the template '" % option_->name() % "' are not compatible with this scan (" % scan->fullName() % "), so it has not been exported.");
 			emit statusChanged(status_ = err);
-			scan->deleteLater();
+
+			if (usingScanURLs_)
+				scan->deleteLater();
+
 			throw err;
 		}
 
@@ -308,13 +311,18 @@ void AMExportController::continueScanExport()
 		if(writtenFile.isNull()) {
 			QString err("Export failed for scan '" % scan->fullName() % "'.");
 			emit statusChanged(status_ = err);
-			scan->deleteLater();
+
+			if (usingScanURLs_)
+				scan->deleteLater();
+
 			throw err;
 		}
 
 		emit statusChanged(status_ = "Wrote: " % writtenFile);
 		succeededCount_++;
-		scan->deleteLater();
+
+		if (usingScanURLs_)
+			scan->deleteLater();
 	}
 
 	catch(QString errMsg) {
