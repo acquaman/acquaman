@@ -1,8 +1,8 @@
 #include "AMScanDataView.h"
+#include "dataman/AMLightweightScanInfoModel.h"
+#include "AMAbstractScanDataChildView.h"
+#include "ui/util/AMSortFilterWidget.h"
 
-#include "AMScanDataChildTableView.h"
-
-#include <QApplication>
 AMScanDataView::AMScanDataView(AMDatabase *database, QWidget *parent) :
 	QWidget(parent)
 {
@@ -15,7 +15,6 @@ AMScanDataView::AMScanDataView(AMDatabase *database, QWidget *parent) :
 	buttonLayout_ = new QHBoxLayout();
 	QHBoxLayout* searchButtonLayout = new QHBoxLayout();
 	searchButton_ = new QToolButton();
-	searchButton_->setIcon(QApplication::style()->standardIcon(QStyle::SP_DirLinkIcon));
 	searchButtonLayout->addWidget(searchButton_);
 	connect(searchButton_, SIGNAL(clicked()), this, SLOT(onSearchButtonClicked()));
 
@@ -29,21 +28,81 @@ AMScanDataView::AMScanDataView(AMDatabase *database, QWidget *parent) :
 	layout->addLayout(searchButtonLayout);
 	layout->addWidget(tabWidget_);
 
-	addChildView(new AMScanDataChildTableView());
+	initializeChildViews();
 
 	setLayout(layout);
 }
 
-void AMScanDataView::addChildView(AMAbstractScanDataChildView *childView)
+void AMScanDataView::addChildView(QAbstractItemView *childView, const QString& title)
 {
+	if(!childView)
+		return;
+
+	childViews_.append(childView);
 	childView->setModel(proxyModel_);
-	tabWidget_->addTab(childView, childView->title());
-	QToolButton* toolButton = new QToolButton();
-	toolButton->setObjectName(childView->title());
-	toolButton->setIcon(childView->icon());
-	toolButton->setIconSize(QSize(22, 22));
-	toolButton->setCheckable(true);
-	buttonLayout_->addWidget(toolButton);
+	tabWidget_->addTab(childView, title);
+}
+
+void AMScanDataView::initializeChildViews()
+{
+	/// Table Data View
+	QTableView* scanDataTable = new QTableView();
+
+	addChildView(scanDataTable, "Table View");
+
+	scanDataTable->setAlternatingRowColors(true);
+	scanDataTable->setSelectionBehavior(QAbstractItemView::SelectRows);
+	scanDataTable->setSelectionMode(QAbstractItemView::ExtendedSelection);
+	scanDataTable->verticalHeader()->setVisible(false);
+	scanDataTable->setShowGrid(false);
+	QFont font = scanDataTable->font();
+	font.setPointSize(10);
+	scanDataTable->setFont(font);
+	scanDataTable->setContextMenuPolicy(Qt::CustomContextMenu);
+	scanDataTable->setSortingEnabled(true);
+
+	scanDataTable->setColumnWidth(0, 80);
+	scanDataTable->setColumnWidth(1, 200);
+	scanDataTable->setColumnWidth(2, 40);
+	scanDataTable->setColumnWidth(3, 110);
+	scanDataTable->setColumnWidth(4, 110);
+	scanDataTable->setColumnWidth(5, 60);
+	scanDataTable->setColumnWidth(6, 110);
+	scanDataTable->setColumnWidth(7, 200);
+}
+
+QAbstractItemView *AMScanDataView::currentView()
+{
+	if(tabWidget_->currentIndex() < 0)
+		return 0;
+
+	return childViews_.at(tabWidget_->currentIndex());
+}
+
+QList<QUrl> AMScanDataView::selectedItems()
+{
+	if(!currentView)
+		return QList<QUrl>();
+
+	QList<QUrl> returnList;
+
+	QModelIndexList indices = currentView()->selectionModel()->selectedIndexes();
+
+	for (int iSelectedItem = 0; iSelectedItem < indices.count(); iSelectedItem++)
+	{
+		returnList.append(model_->rowToUrl(indices.at(iSelectedItem).row()));
+	}
+
+
+	return returnList;
+}
+
+int AMScanDataView::numberOfSelectedItems()
+{
+	if(!currentView())
+		return 0;
+
+	return currentView()->selectionModel()->selectedIndexes().count();
 }
 
 void AMScanDataView::showRun(int runId)

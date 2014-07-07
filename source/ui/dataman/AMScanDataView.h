@@ -2,16 +2,18 @@
 #define AMSCANDATAVIEW_H
 
 #include <QWidget>
-#include <QTableWidget>
+#include <QTableView>
 #include <QSortFilterProxyModel>
 #include <QButtonGroup>
 #include <QToolButton>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
+#include <QUrl>
+#include <QHeaderView>
 
-#include "dataman/AMLightweightScanInfoModel.h"
-#include "AMAbstractScanDataChildView.h"
-#include "ui/util/AMSortFilterWidget.h"
+class AMLightweightScanInfoModel;
+class AMDatabase;
+class AMSortFilterWidget;
 /// Class which represents the main display view for scans loaded from the database
 class AMScanDataView : public QWidget
 {
@@ -29,12 +31,23 @@ private:
 	AMLightweightScanInfoModel* model_;
 	/// The proxy model which controls sorting and filtering of the scans
 	QSortFilterProxyModel* proxyModel_;
+	/// A list of child views added to the scan data view
+	QList<QAbstractItemView*> childViews_;
 public:
 	/// Creates an instance of an AMScanDataView, loaded scans from the provided AMDatabase
 	explicit AMScanDataView(AMDatabase* database, QWidget *parent = 0);
 protected:
 	/// Adds an AMAbstractScanDataChildView to the ScanDataView
-	void addChildView(AMAbstractScanDataChildView* childView);
+	void addChildView(QAbstractItemView* childView, const QString &title);
+	/// Initializes all the child views that will be shown in the ScanDataView
+	void initializeChildViews();
+	/// The child view which currently is showing. If there are no child views, 0 is returned.
+	QAbstractItemView* currentView();
+	/// A list of all the items selected in the currently displayed child view in the standard
+	/// URL format: amd://databaseConnectionName/tableName/objectId
+	QList<QUrl> selectedItems();
+	/// The number if items selected in the currently displayed child view
+	int numberOfSelectedItems();
 signals:
 	
 public slots:
@@ -43,7 +56,7 @@ public slots:
 	void showRun(int runId = -1);
 
 protected slots:
-	/// Handles the search button being clicked. Shows the sortFilterWidget.
+	/// Handles the search button being clicked. Shows the sortFilterWidget
 	void onSearchButtonClicked();
 
 	void onSortFilterWidgetLostFocus();

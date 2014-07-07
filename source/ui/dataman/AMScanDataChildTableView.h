@@ -19,7 +19,7 @@ public:
 protected:
 	/// Sets the model of the QTableView to be that of this class. Causes a resize of the columns in the QTableView
 	/// to match that of the data found in the model
-	virtual void onModelChangedImplementation();
+	virtual void onModelChangedImplementation();	
 };
 
 #endif // AMSCANDATACHILDLISTVIEW_H

@@ -1,6 +1,6 @@
 #include "AMAbstractScanDataChildView.h"
 AMAbstractScanDataChildView::AMAbstractScanDataChildView(const QString &title, QWidget *parent) :
-	QWidget(parent)
+	QAbstractItemView(parent)
 {
 	model_ = 0;
 	title_ = title;

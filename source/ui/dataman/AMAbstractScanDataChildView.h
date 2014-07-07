@@ -1,11 +1,12 @@
 #ifndef AMABSTRACTSCANDATACHILDVIEW_H
 #define AMABSTRACTSCANDATACHILDVIEW_H
 
-#include <QWidget>
+#include <QAbstractItemView>
 #include <QSortFilterProxyModel>
 #include <QIcon>
+#include <QUrl>
 /// Abstract class which provides a base for all views which can be added to an AMScanDataView
-class AMAbstractScanDataChildView : public QWidget
+class AMAbstractScanDataChildView : public QAbstractItemView
 {
 	Q_OBJECT
 private:

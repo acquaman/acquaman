@@ -1,5 +1,6 @@
 #include "AMLightweightScanInfoCollection.h"
 #include "database/AMDatabase.h"
+#include "database/AMDbObjectSupport.h"
 AMLightweightScanInfoCollection::AMLightweightScanInfoCollection(AMDatabase *database)
 {
 	database_ = database;
@@ -162,4 +163,15 @@ QString AMLightweightScanInfoCollection::getSampleName(const QString &sampleResu
 		return QString();
 
 	return sampleNameMap_.value(tableName).value(id);
+}
+
+QUrl AMLightweightScanInfoCollection::getScanUrl(int index)
+{
+	AMLightweightScanInfo* scanAt = at(index);
+
+	QString urlString = QString("amd://%1/%2/%3").arg(database_->connectionName()).arg(AMDbObjectSupport::tableNameForClass("AMScan")).arg(scanAt->id());
+
+	QUrl returnUrl(urlString);
+
+	return returnUrl;
 }

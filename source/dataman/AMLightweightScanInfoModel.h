@@ -16,6 +16,8 @@ public:
 	virtual int columnCount(const QModelIndex &parent = QModelIndex()) const;
 	virtual QModelIndex index(int row, int column, const QModelIndex &parent) const;
 	virtual QModelIndex parent(const QModelIndex &child) const;
+
+	QUrl rowToUrl(int rowIndex);
 signals:
 	
 public slots:

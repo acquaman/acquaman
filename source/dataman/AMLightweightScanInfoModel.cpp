@@ -93,6 +93,11 @@ QVariant AMLightweightScanInfoModel::data(const QModelIndex &index, int role) co
 	return QVariant();
 }
 
+QVariantList AMLightweightScanInfoModel::data(const QModelIndexList &index, int role) const
+{
+	QVariantList returnList();
+}
+
 int AMLightweightScanInfoModel::rowCount(const QModelIndex &) const
 {
 	return scanInfo_->count();
@@ -111,4 +116,9 @@ QModelIndex AMLightweightScanInfoModel::index(int row, int column, const QModelI
 QModelIndex AMLightweightScanInfoModel::parent(const QModelIndex &) const
 {
 	return QModelIndex();
+}
+
+QUrl AMLightweightScanInfoModel::rowToUrl(int rowIndex)
+{
+	scanInfo_->getScanUrl(rowIndex);
 }
