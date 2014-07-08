@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -427,31 +428,31 @@ void SGMSidebar::onStopMotorsActionFinished(){
 	stopMotorsAction_ = 0;
 }
 
-#include "beamline/CLS/CLSBasicScalerChannelDetector.h"
-#include "actions3/AMActionRunner3.h"
+//#include "beamline/CLS/CLSBasicScalerChannelDetector.h"
+//#include "actions3/AMActionRunner3.h"
 void SGMSidebar::onScanningResetButtonClicked(){
 	SGMBeamline::sgm()->beamlineScanning()->move(0);
 
-    CLSBasicScalerChannelDetector *teyDetector = qobject_cast<CLSBasicScalerChannelDetector*>(SGMBeamline::sgm()->newTEYDetector());
-    if(teyDetector){
-        qDebug() << "Got the TEY detector";
-
-        AMAction3 *darkCurrentCorrectionActions = teyDetector->createDarkCurrentCorrectionActions(10);
-
-        AMActionRunner3::workflow()->addActionToQueue(darkCurrentCorrectionActions);
-    }
+//    CLSBasicScalerChannelDetector *teyDetector = qobject_cast<CLSBasicScalerChannelDetector*>(SGMBeamline::sgm()->newTEYDetector());
+//    if(teyDetector){
+//        qDebug() << "Got the TEY detector";
+//
+//        AMAction3 *darkCurrentCorrectionActions = teyDetector->createDarkCurrentCorrectionActions(10);
+//
+//        AMActionRunner3::workflow()->addActionToQueue(darkCurrentCorrectionActions);
+//    }
 }
 
-void SGMSidebar::toTakeDarkCurrentMeasurement()
-{
-    CLSBasicScalerChannelDetector *teyDetector = qobject_cast<CLSBasicScalerChannelDetector*>(SGMBeamline::sgm()->newTEYDetector());
-    if (teyDetector) {
-        qDebug() << "SGMSidebar :: got the TEY detector.";
-        
-        AMAction3 *darkCurrentCorrectionActions = teyDetector->createDarkCurrentCorrectionActions(10);
-        AMActionRunner3::workflow()->addActionToQueue(darkCurrentCorrectionActions);
-    }
-}
+//void SGMSidebar::toTakeDarkCurrentMeasurement()
+//{
+//    CLSBasicScalerChannelDetector *teyDetector = qobject_cast<CLSBasicScalerChannelDetector*>(SGMBeamline::sgm()->newTEYDetector());
+//    if (teyDetector) {
+//        qDebug() << "SGMSidebar :: got the TEY detector.";
+//        
+//        AMAction3 *darkCurrentCorrectionActions = teyDetector->createDarkCurrentCorrectionActions(10);
+//        AMActionRunner3::workflow()->addActionToQueue(darkCurrentCorrectionActions);
+//    }
+//}
 
 void SGMSidebar::onStripToolTimerTimeout(){
 	if(i0Model_->count() <= 50) {

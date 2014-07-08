@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -20,11 +21,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "CLSSynchronizedDwellTimeView.h"
 
+
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QGroupBox>
 #include <QMenu>
 #include <QAction>
+#include <QResizeEvent>
 
  CLSSynchronizedDwellTimeElementView::~CLSSynchronizedDwellTimeElementView(){}
 CLSSynchronizedDwellTimeElementView::CLSSynchronizedDwellTimeElementView(CLSSynchronizedDwellTimeElement *dwellTimeElement, QWidget *parent)
@@ -39,12 +42,9 @@ CLSSynchronizedDwellTimeElementView::CLSSynchronizedDwellTimeElementView(CLSSync
 	QLabel *name = new QLabel(element_->name());
 	connect(element_, SIGNAL(nameChanged(QString)), name, SLOT(setText(QString)));
 
-	enable_ = new QPushButton;
-	enable_->setCheckable(true);
+	enable_ = new QCheckBox;
 	enable_->setChecked(false);
-	enable_->setPalette(QPalette(Qt::red));
 	connect(element_, SIGNAL(enabledChanged(bool)), enable_, SLOT(setChecked(bool)));
-	connect(element_, SIGNAL(enabledChanged(bool)), this, SLOT(onEnabledChanged(bool)));
 	connect(enable_, SIGNAL(toggled(bool)), this, SLOT(setEnabledState(bool)));
 
 	time_ = new QDoubleSpinBox;
@@ -58,21 +58,23 @@ CLSSynchronizedDwellTimeElementView::CLSSynchronizedDwellTimeElementView(CLSSync
 	connect(element_, SIGNAL(timeChanged(double)), this, SLOT(checkTimeUnits()));
 	connect(time_, SIGNAL(editingFinished()), this, SLOT(setTime()));
 
-	QHBoxLayout *elementLayout = new QHBoxLayout;
-	elementLayout->addWidget(status_);
-	elementLayout->addWidget(name);
-	elementLayout->addWidget(enable_);
-	elementLayout->addWidget(time_);
+	elementLayout_ = new QGridLayout();
+	elementLayout_->addWidget(enable_, 0, 0);
+	elementLayout_->addWidget(name, 0, 1);
+	elementLayout_->addWidget(time_,0 , 2);
+	elementLayout_->addWidget(status_, 0, 3);
+
+
+
 
 	if(element_->isConnected()){
 		onStatusChanged(element_->status());
 		enable_->setChecked(element_->isEnabled());
-		onEnabledChanged(element_->isEnabled());
 		time_->setValue(element_->time());
 		checkTimeUnits();
 	}
 
-	setLayout(elementLayout);
+	setLayout(elementLayout_);
 }
 
 void CLSSynchronizedDwellTimeElementView::checkTimeUnits()
@@ -82,6 +84,16 @@ void CLSSynchronizedDwellTimeElementView::checkTimeUnits()
 		time_->setSuffix(" " + element_->units());
 		disconnect(element_, SIGNAL(timeChanged(double)), this, SLOT(checkTimeUnits()));
 	}
+}
+
+void CLSSynchronizedDwellTimeElementView::resizeEvent(QResizeEvent *re)
+{
+
+	elementLayout_->setColumnMinimumWidth(0, re->size().width() * 0.05);
+	elementLayout_->setColumnMinimumWidth(1, re->size().width() * 0.35);
+	elementLayout_->setColumnMinimumWidth(2, re->size().width() * 0.4);
+	elementLayout_->setColumnMinimumWidth(3, re->size().width() * 0.05);
+
 }
 
 void CLSSynchronizedDwellTimeElementView::setTime()
@@ -100,69 +112,67 @@ CLSSynchronizedDwellTimeView::CLSSynchronizedDwellTimeView(CLSSynchronizedDwellT
 	: QWidget(parent)
 {
 	dwellTime_ = dwellTime;
-
 	advancedView_ = false;
+	QGridLayout* layout = new QGridLayout();
 
-	overallStatus_ = new QLabel;
-	overallStatus_->setPixmap(QIcon(":/OFF.png").pixmap(30, 30));
-	connect(dwellTime_, SIGNAL(statusChanged(bool)), this, SLOT(onStatusChanged(bool)));
+	statusLabel_ = new QLabel();
 
-	mode_ = new QPushButton;
-	mode_->setCheckable(true);
-	mode_->setChecked(false);
-	connect(dwellTime_, SIGNAL(modeChanged(CLSSynchronizedDwellTime::Mode)), this, SLOT(onModeChanged(CLSSynchronizedDwellTime::Mode)));
-	if(dwellTime_->isConnected())
-		onModeChanged(dwellTime_->mode());
-	connect(mode_, SIGNAL(toggled(bool)), this, SLOT(setMode(bool)));
+	startButton_ = new QPushButton(QIcon(":/22x22/media-playback-start.png"), "Start");
+	stopButton_ = new QPushButton(QIcon(":/22x22/media-playback-stop.png"), "Stop");
+	modeComboBox_ = new QComboBox();
+	modeComboBox_->addItems(QStringList() << "Single Shot" << "Continuous");
+	dwellTimeLabel_ = new QLabel("Dwell Time:");
+	dwellTimeSpinBox_ = new QSpinBox();
 
-	masterTime_ = new QDoubleSpinBox;
-	masterTime_->setDecimals(2);
-	masterTime_->setValue(0);
-	masterTime_->setMinimum(0);
-	masterTime_->setMaximum(1000);
-	masterTime_->setSuffix(" s");
-	masterTime_->setAlignment(Qt::AlignCenter);
-	connect(dwellTime_, SIGNAL(timeChanged(double)), masterTime_, SLOT(setValue(double)));
-	if(dwellTime_->isConnected())
-		masterTime_->setValue(dwellTime_->time());
-	connect(masterTime_, SIGNAL(editingFinished()), this, SLOT(setTime()));
+	dwellTimeSpinBox_->setSuffix(" s");
+	dwellTimeSpinBox_->setMinimum(0);
+	dwellTimeSpinBox_->setMaximum(1e6);
 
-	scanning_ = new QPushButton;
-	scanning_->setCheckable(true);
-	scanning_->setChecked(false);
-	connect(dwellTime_, SIGNAL(scanningChanged(bool)), this, SLOT(onScanningChanged(bool)));
-	if(dwellTime_->isConnected())
-		onScanningChanged(dwellTime_->isScanning());
-	connect(scanning_, SIGNAL(clicked()), this, SLOT(toggleScanning()));
+	layout->addWidget(statusLabel_, 0, 0, 1, 2, Qt::AlignCenter);
+	layout->addWidget(startButton_, 1, 0, 1, 1);
+	layout->addWidget(stopButton_, 1, 1, 1, 1);
+	layout->addWidget(modeComboBox_, 2, 0, 1, 2);
+	layout->addWidget(dwellTimeLabel_, 1, 2, 1, 1);
+	layout->addWidget(dwellTimeSpinBox_, 2, 2, 1, 1);
 
-	QHBoxLayout *topRow = new QHBoxLayout;
-	topRow->addWidget(overallStatus_, 0, Qt::AlignCenter);
-	topRow->addWidget(scanning_);
-	topRow->addWidget(mode_);
-	topRow->addWidget(masterTime_);
 
-	QVBoxLayout *groupBoxLayout = new QVBoxLayout;
-	groupBoxLayout->addLayout(topRow);
-
-	for (int i = 0; i < dwellTime_->elementCount(); i++){
-
-		elViews_ << new CLSSynchronizedDwellTimeElementView(dwellTime_->elementAt(i));
+	for(int iElement=0; iElement < dwellTime_->elementCount(); iElement++)
+	{
+		elViews_ << new CLSSynchronizedDwellTimeElementView(dwellTime_->elementAt(iElement));
 		elViews_.last()->hide();
-		groupBoxLayout->addWidget(elViews_.last());
+		layout->addWidget(elViews_.last(), iElement + 4, 0, 1, 3);
 	}
 
-	QGroupBox *dwellTimeBox = new QGroupBox("Synchronized Dwell Time");
-	dwellTimeBox->setLayout(groupBoxLayout);
-
-	QVBoxLayout *dwellTimeLayout = new QVBoxLayout;
-	dwellTimeLayout->addWidget(dwellTimeBox);
+	if(dwellTime_->isConnected())
+	{
+		dwellTimeSpinBox_->setValue(dwellTime_->time());
+		startButton_->setEnabled(!dwellTime_->isScanning());
+		stopButton_->setEnabled(dwellTime_->isScanning());
+		statusLabel_->setPixmap(QIcon(dwellTime_->isScanning() ? ":/ON.png" : ":/OFF.png").pixmap(25));
+		if(dwellTime_->mode() == CLSSynchronizedDwellTime::SingleShot)
+			modeComboBox_->setCurrentIndex(0);
+		else
+			modeComboBox_->setCurrentIndex(1);
+	}
 
 	setMaximumSize(400, 105);
 
 	connect(this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)));
+	connect(dwellTime_, SIGNAL(timeChanged(double)), this, SLOT(onDwellTimeChanged(double)));
+	connect(dwellTime_, SIGNAL(scanningChanged(bool)), this, SLOT(onScanningChanged(bool)));
+	connect(dwellTime_, SIGNAL(modeChanged(CLSSynchronizedDwellTime::Mode)), this, SLOT(onModeChanged(CLSSynchronizedDwellTime::Mode)));
+	connect(dwellTime_, SIGNAL(connected(bool)), this, SLOT(onDwellTimeConnected(bool)));
+
+	connect(dwellTimeSpinBox_, SIGNAL(valueChanged(int)), this, SLOT(onDwellTimeSpinBoxValueChanged()));
+	connect(startButton_, SIGNAL(clicked()), this, SLOT(onStartButtonClicked()));
+	connect(stopButton_, SIGNAL(clicked()), this, SLOT(onStopButtonClicked()));
+	connect(modeComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onModeComboBoxCurrentIndexChanged(int)));
+
+
+
 	setContextMenuPolicy(Qt::CustomContextMenu);
 
-	setLayout(dwellTimeLayout);
+	this->setLayout(layout);
 }
 
 void CLSSynchronizedDwellTimeView::setAdvancedViewVisible(bool advancedViewVisible){
@@ -180,31 +190,6 @@ void CLSSynchronizedDwellTimeView::setAdvancedViewVisible(bool advancedViewVisib
 		elViews_.at(i)->setVisible(advancedView_);
 }
 
-void CLSSynchronizedDwellTimeView::setTime()
-{
-	dwellTime_->blockSignals(true);
-	dwellTime_->setTime(masterTime_->value());
-	dwellTime_->blockSignals(false);
-}
-
-void CLSSynchronizedDwellTimeView::setMode(bool mode)
-{
-	dwellTime_->blockSignals(true);
-
-	if (mode && dwellTime_->mode() != CLSSynchronizedDwellTime::Continuous){
-
-		dwellTime_->setMode(CLSSynchronizedDwellTime::Continuous);
-		onModeChanged(CLSSynchronizedDwellTime::Continuous);
-	}
-	else if (!mode && dwellTime_->mode() != CLSSynchronizedDwellTime::SingleShot){
-
-		dwellTime_->setMode(CLSSynchronizedDwellTime::SingleShot);
-		onModeChanged(CLSSynchronizedDwellTime::SingleShot);
-	}
-
-	dwellTime_->blockSignals(false);
-}
-
 void CLSSynchronizedDwellTimeView::onCustomContextMenuRequested(QPoint pos)
 {
 	QMenu popup(this);
@@ -219,16 +204,81 @@ void CLSSynchronizedDwellTimeView::onCustomContextMenuRequested(QPoint pos)
 	if (temp && temp->text() == "Advanced View"){
 
 		setAdvancedViewVisible(!advancedView_);
-		/*
-		advancedView_ = !advancedView_;
-
-		if (advancedView_)
-			setMaximumHeight(105 + 50*dwellTime_->elementCount());
-		else
-			setMaximumHeight(105);
-
-		for (int i = 0; i < elViews_.size(); i++)
-			elViews_.at(i)->setVisible(advancedView_);
-		*/
 	}
+}
+
+void CLSSynchronizedDwellTimeView::onDwellTimeChanged(double value)
+{
+	dwellTimeSpinBox_->setValue(value);
+}
+
+void CLSSynchronizedDwellTimeView::onScanningChanged(bool value)
+{
+	startButton_->setEnabled(!value);
+	stopButton_->setEnabled(value);
+	statusLabel_->setPixmap(QIcon(value ? ":/ON.png" : ":/OFF.png").pixmap(25));
+}
+
+void CLSSynchronizedDwellTimeView::onDwellTimeConnected(bool value)
+{
+	if(value)
+	{
+		dwellTimeSpinBox_->setValue(dwellTime_->time());
+		startButton_->setEnabled(!dwellTime_->isScanning());
+		stopButton_->setEnabled(dwellTime_->isScanning());
+		statusLabel_->setPixmap(QIcon(dwellTime_->isScanning() ? ":/ON.png" : ":/OFF.png").pixmap(25));
+		if(dwellTime_->mode() == CLSSynchronizedDwellTime::SingleShot)
+			modeComboBox_->setCurrentIndex(0);
+		else
+			modeComboBox_->setCurrentIndex(1);
+	}
+}
+
+void CLSSynchronizedDwellTimeView::onModeChanged(CLSSynchronizedDwellTime::Mode)
+{
+	if(dwellTime_->mode() == CLSSynchronizedDwellTime::SingleShot)
+		modeComboBox_->setCurrentIndex(0);
+	else
+		modeComboBox_->setCurrentIndex(1);
+}
+
+void CLSSynchronizedDwellTimeView::onDwellTimeSpinBoxValueChanged()
+{
+	dwellTime_->blockSignals(true);
+
+	dwellTime_->setTime(dwellTimeSpinBox_->value());
+
+	dwellTime_->blockSignals(false);
+}
+
+void CLSSynchronizedDwellTimeView::onStartButtonClicked()
+{
+	dwellTime_->blockSignals(true);
+
+	if(!dwellTime_->isScanning())
+		dwellTime_->startScanning(true);
+
+	dwellTime_->blockSignals(false);
+}
+
+void CLSSynchronizedDwellTimeView::onStopButtonClicked()
+{
+	dwellTime_->blockSignals(true);
+
+	if(dwellTime_->isScanning())
+		dwellTime_->startScanning(false);
+
+	dwellTime_->blockSignals(false);
+}
+
+void CLSSynchronizedDwellTimeView::onModeComboBoxCurrentIndexChanged(int index)
+{
+	dwellTime_->blockSignals(true);
+
+	if(index == 0)
+		dwellTime_->setMode(CLSSynchronizedDwellTime::SingleShot);
+	else
+		dwellTime_->setMode(CLSSynchronizedDwellTime::Continuous);
+
+	dwellTime_->blockSignals(false);
 }

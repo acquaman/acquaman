@@ -1,3 +1,24 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "IDEASMonochromatorControl.h"
 #include "IDEASBeamline.h"
 #include "actions3/AMListAction3.h"
@@ -6,8 +27,8 @@
 
 
 IDEASMonochromatorControl::IDEASMonochromatorControl(QObject *parent)
-    : AMPVwStatusControl("Energy", "BL08B2-1:Energy:EV:fbk", "BL08B2-1:Energy:EV", "SMTR1608-9-B20-05:brag.DMOV", "BL08B2-1:Energy:stop", parent, AMCONTROL_TOLERANCE_DONT_CARE, 2.0, new AMControlStatusCheckerDefault(0), 1, "Mono Energy")
-    //: AMPVwStatusControl("Energy", "BL08B2-1:Energy:EV:fbk", "BL08B2-1:Energy:EV", "BL08B2-1:Energy:status", "BL08B2-1:Energy:stop", parent, AMCONTROL_TOLERANCE_DONT_CARE, 2.0, new AMControlStatusCheckerDefault(1), 1, "Mono Energy")
+    //: AMPVwStatusControl("Energy", "BL08B2-1:Energy:EV:fbk", "BL08B2-1:Energy:EV", "SMTR1608-9-B20-05:brag.DMOV", "BL08B2-1:Energy:stop", parent, AMCONTROL_TOLERANCE_DONT_CARE, 2.0, new AMControlStatusCheckerDefault(0), 1, "Mono Energy")
+    : AMPVwStatusControl("Energy", "BL08B2-1:Energy:EV:fbk", "BL08B2-1:Energy:EV", "BL08B2-1:Energy:status", "BL08B2-1:Energy:stop", parent, AMCONTROL_TOLERANCE_DONT_CARE, 2.0, new AMControlStatusCheckerDefault(1), 1, "Mono Energy")
 {
     connect(this, SIGNAL(connected(bool)), this, SLOT(onAllControlsConnected()));
 }

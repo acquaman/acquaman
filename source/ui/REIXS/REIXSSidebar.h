@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 Acquaman is free software: you can redistribute it and/or modify
@@ -21,6 +22,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define REIXSSIDEBAR_H
 
 #include <QWidget>
+#include <QGroupBox>
+#include <QVBoxLayout>
+#include <QLabel>
+#include <QCheckBox>
 
 namespace Ui {
     class REIXSSidebar;
@@ -39,6 +44,11 @@ public:
 
 private:
     Ui::REIXSSidebar *ui;
+	QGroupBox *detectorsGroupBox;
+	QVBoxLayout *detectorPanelLayout;
+	QCheckBox *scalerContinuousButton;
+	QLabel *XESValue;
+	QLabel *TFYValue;
 
 	// Additional UI controls
 	REIXSActionBasedControlEditor* beamlineEnergyEditor_, *userEnergyOffestEditor_, *monoSlitEditor_, *gratingSelector_, *mirrorSelector_, *epuPolarizationEditor_, *epuPolarizationAngleEditor_;

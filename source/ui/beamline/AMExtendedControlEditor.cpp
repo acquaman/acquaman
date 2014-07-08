@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -183,7 +184,7 @@ void AMExtendedControlEditor::onValueChanged(double newVal) {
 	if(configureOnly_ && connectedOnce_)
 		return;
 	if(control_->isEnum()){
-		valueLabel_->setText(control_->enumNameAt(newVal));
+        valueLabel_->setText(control_->enumNameAt(newVal));
 		unitsLabel_->setText("");
 	}
 	else

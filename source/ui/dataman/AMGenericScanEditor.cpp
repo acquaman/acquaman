@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -351,17 +352,16 @@ void AMGenericScanEditor::refreshWindowTitle() {
 		return;
 	}
 
-	QStringList scanNames;
-	for(int i=0; i<numScans; i++)
-		scanNames << scanSetModel_->scanAt(i)->fullName();
-
-	QString windowTitle = scanNames.join(", ");
-	if(numScans > 1) {
-		windowTitle.prepend(QString("%1 scans: (").arg(numScans));
-		windowTitle.append(")");
+	if(numScans == 1) {
+		setWindowTitle(scanSetModel_->scanAt(0)->fullName());
+		ui_.topFrameTitle->setText(scanSetModel_->scanAt(0)->fullName());
 	}
-	setWindowTitle(windowTitle);
-	ui_.topFrameTitle->setText(windowTitle);
+	else
+	{
+		setWindowTitle(QString("Viewing %1 Scans").arg(numScans));
+		ui_.topFrameTitle->setText(QString("Viewing %1 Scans").arg(numScans));
+	}
+
 }
 
 void AMGenericScanEditor::refreshScanConditions() {

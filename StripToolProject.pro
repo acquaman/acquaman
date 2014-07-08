@@ -7,7 +7,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = StripToolProject
 TEMPLATE = app
 
-SOURCES += source/StripChart/main.cpp \
+SOURCES += \
     source/StripChart/StripToolPlot.cpp \
     source/StripChart/StripToolPV.cpp \
     source/StripChart/StripToolView.cpp \
@@ -30,7 +30,8 @@ SOURCES += source/StripChart/main.cpp \
     source/StripChart/StripToolVariableInfo.cpp \
     source/StripChart/StripToolVariable.cpp \
     source/StripChart/StripToolSeries2.cpp \
-	source/StripChart/StripToolAccumulatorAB.cpp
+	source/StripChart/StripToolAccumulatorAB.cpp \
+    source/StripChart/StripToolMain.cpp
 
 HEADERS  += \
     source/StripChart/StripToolPlot.h \

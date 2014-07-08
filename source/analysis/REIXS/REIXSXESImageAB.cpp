@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 Acquaman is free software: you can redistribute it and/or modify
@@ -42,7 +43,7 @@ REIXSXESImageAB::REIXSXESImageAB(const QString &outputName, QObject *parent) :
 	tiltCalibrationOffset_ = 0;
 
 	// Live correlation turned on by default. Need to make sure that this is OK for performance; it should be now that we're using block access.
-	liveCorrelation_ = true;
+	liveCorrelation_ = false;
 	// shift values can start out empty.
 
 	inputSource_ = 0;

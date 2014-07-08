@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -143,11 +144,7 @@ void AMSettings::load() {
 	publicDataFolder_ = settings.value("publicDataFolder", "/home/acquaman/data/").toString();
 	publicDatabaseFilename_ = settings.value("publicDatabaseFilename", "publicdata.db").toString();
 
-#ifdef Q_WS_MAC
-	QString defaultBasePath(QDir::homePath() % "/dev");
-#else
 	QString defaultBasePath(QDir::homePath() % "/beamline/programming");
-#endif
 	fileLoaderPluginsFolder_ = settings.value("fileLoaderPluginsFolder", QString(defaultBasePath % "/acquaman/plugins/FileLoaders")).toString();
 	analysisBlockPluginsFolder_ = settings.value("analysisBlockPluginsFolder", QString(defaultBasePath % "/acquaman/plugins/AnalysisBlocks")).toString();
 

@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -285,6 +286,9 @@ protected slots:
 
 	/// This is called by a signal (chosen with the resetFinishedSignal function) to run when the startup is actually finished. Can be reimplemented in subclasses, but you show call this function in it at some point.
 	virtual void onStartupFinished();
+
+	/// Slot which shows the application's about page
+	void onShowAboutPage();
 
 protected:
 	/// Helper function to go through all the scan editors and see if we can close all of them.

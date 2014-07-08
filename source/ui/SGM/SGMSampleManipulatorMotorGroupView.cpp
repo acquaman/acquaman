@@ -1,3 +1,24 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "SGMSampleManipulatorMotorGroupView.h"
 
 #include <QGridLayout>
@@ -24,8 +45,11 @@ SGMSampleManipulatorMotorGroupObjectView::SGMSampleManipulatorMotorGroupObjectVi
 	arrowLayout_->addWidget(rotateCCW_, 2, 2);
 
 	motorGroupLayout_->removeItem(arrowLayout_);
+	arrowLayout_->setParent(0);
 	absoluteValueLayout_->removeItem(jogLayout_);
+	jogLayout_->setParent(0);
 	motorGroupLayout_->removeItem(absoluteValueLayout_);
+	absoluteValueLayout_->setParent(0);
 
 	QVBoxLayout *leftVL = new QVBoxLayout();
 	leftVL->addLayout(arrowLayout_);
@@ -35,8 +59,7 @@ SGMSampleManipulatorMotorGroupObjectView::SGMSampleManipulatorMotorGroupObjectVi
 	leftVL->addLayout(bottomHL);
 
 	motorGroupLayout_->addLayout(leftVL);
-	motorGroupLayout_->addStretch(10);
-	motorGroupLayout_->addLayout(bottomHL);
+	motorGroupLayout_->addStretch(0);
 	motorGroupLayout_->addLayout(absoluteValueLayout_);
 
 	connect(rotateCW_, SIGNAL(clicked()), this, SLOT(onRotateCWClicked()));
@@ -55,6 +78,12 @@ SGMSampleManipulatorMotorGroupObjectView::SGMSampleManipulatorMotorGroupObjectVi
 
 		absoluteValueLayout_->addWidget(oneControlEditor);
 	}
+}
+
+SGMSampleManipulatorMotorGroupObjectView::~SGMSampleManipulatorMotorGroupObjectView()
+{
+	while(controlEditors_.count() != 0)
+		controlEditors_.removeAt(controlEditors_.count()-1);
 }
 
 
@@ -122,5 +151,9 @@ void SGMSampleManipulatorMotorGroupObjectView::onMovingChanged(){
 
 SGMSampleManipulatorMotorGroupView::SGMSampleManipulatorMotorGroupView(AMMotorGroup *motorGroup, QWidget *parent) :
 	AMMotorGroupView(motorGroup, parent)
+{
+}
+
+SGMSampleManipulatorMotorGroupView::~SGMSampleManipulatorMotorGroupView()
 {
 }

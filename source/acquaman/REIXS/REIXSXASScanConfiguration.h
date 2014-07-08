@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 Acquaman is free software: you can redistribute it and/or modify
@@ -20,10 +21,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef REIXSXASSCANCONFIGURATION_H
 #define REIXSXASSCANCONFIGURATION_H
 
-#include "acquaman/AMXASScanConfiguration.h"
+#include "acquaman/AMStepScanConfiguration.h"
 
 /// Scan configuration for XAS scans on REIXS
-class REIXSXASScanConfiguration : public AMXASScanConfiguration
+class REIXSXASScanConfiguration : public AMStepScanConfiguration
 {
     Q_OBJECT
 
@@ -46,11 +47,13 @@ class REIXSXASScanConfiguration : public AMXASScanConfiguration
 	Q_CLASSINFO("AMDbObject_Attributes", "description=REIXS XAS Scan Configuration")
 
 public:
+	/// Constructor.
 	Q_INVOKABLE explicit REIXSXASScanConfiguration(QObject *parent = 0);
-	virtual ~REIXSXASScanConfiguration();
-
 	/// Copy constructor
 	REIXSXASScanConfiguration(const REIXSXASScanConfiguration& other);
+	/// Destructor.
+	virtual ~REIXSXASScanConfiguration();
+
 	/// Creates a fresh copy of this scan configuration.
 	virtual AMScanConfiguration* createCopy() const;
 
@@ -58,6 +61,38 @@ public:
 	virtual AMScanController* createController();
 	/// Creates a view to edit the scan configuration
 	virtual AMScanConfigurationView* createView();
+
+	/// A human-readable synopsis of this scan configuration. Can be re-implemented to proved more details. Used by scan action to set the main text in the action view.
+	virtual QString detailedDescription() const;
+
+	/// Returns the current total estimated time for a scan to complete.
+	double totalTime() const { return totalTime_; }
+	/// Overloaded.  Returns the current total estimated time but also specifies whether the time should be recomputed first.
+	double totalTime(bool recompute) { if (recompute) computeTotalTimeImplementation(); return totalTime_; }
+	/// Returns the current total points in the scan.
+	double totalPoints() const { return totalPoints_; }
+	/// Returns the starting energy for the scan.
+	double minEnergy() const { return minEnergy_; }
+	/// Returns the end energy for the scan.
+	double maxEnergy() const { return maxEnergy_; }
+	/// Returns the time offset.
+	double timeOffset() const { return timeOffset_; }
+
+	/// Sets the time offset used for estimating the scan time.
+	void setTimeOffset(double offset) { timeOffset_ = offset; computeTotalTimeImplementation(); }
+
+	/// Get a nice looking string that contains all the standard information in an XAS scan.   Used when exporting.
+	QString headerText() const;
+
+	/// A human-readable description of this scan configuration. Can be re-implemented to provide more details.
+	virtual QString description() const {
+			return QString("XAS Scan");
+	}
+	/// The auto-generated scan name. Used when no name is provided.
+	virtual QString autoScanName() const {
+			return QString("Unnamed XAS Scan");
+	}
+
 
 
 	// Scan configuration properties
@@ -81,13 +116,10 @@ public:
 	double polarizationAngle() const { return polarizationAngle_; }
 	bool applyPolarization() const { return applyPolarization_; }
 
-
-	/// Unused, but required by AMRegionScanConfiguration
-	virtual AMControlInfo regionControlInfo() const { return AMControlInfo(); }
-	/// Unused, but required by AMRegionScanConfiguration
-	virtual AMControlInfo timeControlInfo() const { return AMControlInfo(); }
-
 signals:
+	/// Notifier that the total time estimate has changed.
+	void totalTimeChanged(double);
+
 
 public slots:
 
@@ -105,7 +137,18 @@ public slots:
 	void setPolarizationAngle(double polarizationAngle) { if(polarizationAngle == polarizationAngle_) return; polarizationAngle_ = polarizationAngle; setModified(true); emit configurationChanged(); }
 	void setApplyPolarization(bool applyPolarization) { if(applyPolarization == applyPolarization_) return; applyPolarization_ = applyPolarization; setModified(true); emit configurationChanged(); }
 
+	/// Computes the total time any time the regions list changes.
+	void computeTotalTime() { computeTotalTimeImplementation(); }
+	/// Helper slot that connects the new region to the computeTotalTime slot.
+	void onRegionAdded(AMScanAxisRegion *region);
+	/// Helper slot that disconnects the region from the computTotalTime slot.
+	void onRegionRemoved(AMScanAxisRegion *region);
+
+
 protected:
+
+	/// Computes the total estimated time for the scan.
+	virtual void computeTotalTimeImplementation();
 
 	int scanNumber_;
 	int sampleId_;
@@ -120,6 +163,19 @@ protected:
 	int polarization_;
 	double polarizationAngle_;
 	bool applyPolarization_;
+
+	/// Holds the number of times this scan should be repeated.
+	int numberOfScans_;
+	/// Holds the offset per point of extra time when doing a scan.
+	double timeOffset_;
+	/// Holds the total time in seconds that the scan is estimated to take.
+	double totalTime_;
+	/// Holds the total number of points in the scan.
+	double totalPoints_;
+	/// Holds the starting energy for the scan.
+	double minEnergy_;
+	/// Holds the finishing energy for the scan.
+	double maxEnergy_;
 
 
 };

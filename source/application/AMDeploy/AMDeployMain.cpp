@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -20,6 +21,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QCoreApplication>
 #include <QStringList>
+#include <QDir>
+
+#include <QDebug>
 
 #include "AMDeploy.h"
 
@@ -29,10 +33,29 @@ int main(int argc, char *argv[])
 	coreApp.setApplicationName("Deploy Acquaman");
 
 	QStringList arguments = coreApp.arguments();
-	if(arguments.count() < 3)
+	QStringList keyArguments;
+	for(int x = 0, size = arguments.count(); x < size; x++)
+		if(!arguments.at(x).contains("--"))
+			keyArguments.append(arguments.at(x));
+	if(keyArguments.count() < 2){
+		qDebug() << "Invalid use. Expected either AMDeploy <project file> or AMDeploy <project file> <working directory>";
 		return -1;
+	}
 
-	AMDeploy *deployment = new AMDeploy(arguments.at(1), arguments.at(2));
+	if(keyArguments.count() >= 2 && !keyArguments.at(1).contains(".pro")){
+		qDebug() << "Invalid use. Expected either AMDeploy <project file> or AMDeploy <project file> <working directory>";
+		return -2;
+	}
+
+	QString projectFile = keyArguments.at(1);
+	QString workingDirectory;
+
+	if(keyArguments.count() >= 3)
+		workingDirectory = keyArguments.at(2);
+	else
+		workingDirectory = QDir::currentPath();
+
+	AMDeploy *deployment = new AMDeploy(projectFile, workingDirectory);
 	Q_UNUSED(deployment)
 
 	return coreApp.exec();

@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -115,17 +116,30 @@ public:
 
 	/// Return the name of the sample
 	QString sampleName(int index) const {
-		return getCachedSample(index).name();
+		qDebug() << "plate_->count() is " << plate_->count() << " index is " << index;
+		if (index < plate_->count() && plate_->at(index).sample())
+			return plate_->at(index).sample()->name();
+
+		return "";
+//		return getCachedSample(index).name();
 	}
 
 	/// Return the creation date/time of a sample
 	QDateTime sampleDateTime(int index) const {
-		return getCachedSample(index).dateTime();
+		if (index < plate_->count() && plate_->at(index).sample())
+			return plate_->at(index).sample()->dateTime();
+
+		return QDateTime();
+//		return getCachedSample(index).dateTime();
 	}
 
 	/// Return the elements in a sample, as a string: ex: "B, N, Cl"
 	QString sampleElements(int index) const {
-		return getCachedSample(index).elementString();
+		if (index < plate_->count() && plate_->at(index).sample())
+			return plate_->at(index).sample()->elementString();
+
+		return "";
+//		return getCachedSample(index).elementString();
 	}
 
 	/// Return the sample position, formatted as a string: ex: X: 33mm Y: 47.9mm Z: -92mm
@@ -160,10 +174,10 @@ protected slots:
 protected:
 
 	/// Access a cached sample object, ensuring it is loaded from the database and up-to-date
-	const AMSamplePre2013& getCachedSample(int index) const;
+//	const AMSamplePre2013& getCachedSample(int index) const;
 
 	AMSamplePlatePre2013* plate_;
-	mutable QList<AMSamplePre2013> cachedSamples_;
+//	mutable QList<AMSamplePre2013> cachedSamples_;
 
 	QString sampleTableName_;
 };

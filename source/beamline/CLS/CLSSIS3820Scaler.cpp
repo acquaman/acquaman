@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 Acquaman is free software: you can redistribute it and/or modify
@@ -666,13 +667,13 @@ void CLSSIS3820ScalerChannel::onChannelReadingChanged(double reading)
 void CLSSIS3820ScalerChannel::setCurrentAmplifier(AMCurrentAmplifier *amplifier)
 {
 	if (currentAmplifier_) {
-		disconnect(currentAmplifier_, SIGNAL(isConnected(bool)), this, SLOT(onConnectedChanged()));
-		disconnect( currentAmplifier_, SIGNAL(sensitivityChanged()), this, SIGNAL(sensitivityChanged()) );
+        disconnect( currentAmplifier_, SIGNAL(isConnected(bool)), this, SLOT(onConnectedChanged()));
+        disconnect( currentAmplifier_, SIGNAL(sensitivityChanged(int)), this, SIGNAL(sensitivityChanged()) );
 	}
 
 	currentAmplifier_ = amplifier;
-	connect(currentAmplifier_, SIGNAL(isConnected(bool)), this, SLOT(onConnectedChanged()));
-	connect( currentAmplifier_, SIGNAL(sensitivityChanged()), this, SIGNAL(sensitivityChanged()) );
+    connect( currentAmplifier_, SIGNAL(isConnected(bool)), this, SLOT(onConnectedChanged()) );
+    connect( currentAmplifier_, SIGNAL(sensitivityChanged(int)), this, SIGNAL(sensitivityChanged()) );
 	emit currentAmplifierAttached();
 }
 

@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -79,6 +80,8 @@ public:
         AMControl *monoLowEV() const { return monoLowEV_; }
         AMControl *ringCurrent() const { return ringCurrent_; }
 	AMControl *I0Current() const { return I0Current_; }
+	AMControl *sampleTemp() const { return sampleTemp_; }
+
 
         AMControl *monoBraggAngle() const { return monoBraggAngle_; }
         AMControl *mono2d() const { return mono2d_; }
@@ -198,7 +201,7 @@ protected:
 
 	IDEASKETEKDetector *ketek_;
 
-	AMControl *monoCrystal_, *monoLowEV_, *monoHighEV_, *ringCurrent_, *I0Current_, *monoBraggAngle_, *mono2d_, *monoAngleOffset_;
+	AMControl *monoCrystal_, *monoLowEV_, *monoHighEV_, *ringCurrent_, *I0Current_, *sampleTemp_, *monoBraggAngle_, *mono2d_, *monoAngleOffset_;
 
 };
 

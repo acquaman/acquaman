@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -21,7 +22,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMCloseItemDelegate.h"
 #include "acquaman.h"
 
- AMCloseItemDelegate::~AMCloseItemDelegate(){}
+AMCloseItemDelegate::~AMCloseItemDelegate(){}
+
 AMCloseItemDelegate::AMCloseItemDelegate(QObject *parent) :
 		QStyledItemDelegate(parent)
 {
@@ -64,7 +66,7 @@ void AMCloseItemDelegate::drawCloseButton(QPainter *painter, const QStyleOptionV
 
 	Q_UNUSED(index)
 
-	/// Display close button?
+	// Display close button?
 	if(closeButtonEnabled_ && index.data(AM::CanCloseRole).toBool()) {
 		// "local" rectangle of the close button.
 		closeButtonRect_ = QRect(

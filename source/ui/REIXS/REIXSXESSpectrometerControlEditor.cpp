@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -115,6 +116,8 @@ void REIXSXESSpectrometerControlEditor::onMoveButtonClicked()
 void REIXSXESSpectrometerControlEditor::onGratingComboBoxActivated(int grating)
 {
 	Q_UNUSED(grating)
+	ui_->energyBox->setMaximum(spectrometer_->spectrometerCalibration()->gratingAt(grating).evRangeMax());
+	ui_->energyBox->setMinimum(spectrometer_->spectrometerCalibration()->gratingAt(grating).evRangeMin());
 	updateCurrentGratingStatus();
 }
 
@@ -127,19 +130,23 @@ void REIXSXESSpectrometerControlEditor::populateGratingComboBox()
 	for(int i=0, cc=spectrometer_->spectrometerCalibration()->gratingCount(); i<cc; i++)
 		ui_->gratingSelectorBox->addItem(spectrometer_->spectrometerCalibration()->gratingAt(i).name());
 
+
 	if(spectrometer_->grating() != -1) {
 		ui_->gratingSelectorBox->setCurrentIndex(spectrometer_->grating());
-	}
+		ui_->energyBox->setMaximum(spectrometer_->spectrometerCalibration()->gratingAt(spectrometer_->grating()).evRangeMax());
+		ui_->energyBox->setMinimum(spectrometer_->spectrometerCalibration()->gratingAt(spectrometer_->grating()).evRangeMin());
 
+	}
 	ui_->gratingSelectorBox->blockSignals(false);
+
 	updateCurrentGratingStatus();
 }
 
 void REIXSXESSpectrometerControlEditor::updateCurrentEnergyStatus(double eV)
 {
 	if(eV < 0) {
-		ui_->energyFeedbackLabel->setText("Currently: out of position");
-		//ui_->energyFeedbackLabel->setText(QString("Currently: %1").arg(eV));
+		ui_->energyFeedbackLabel->setText("out of position");
+		//ui_->energyFeedbackLabel->setText(QString("at %1").arg(eV));
 
 	}
 
@@ -147,7 +154,7 @@ void REIXSXESSpectrometerControlEditor::updateCurrentEnergyStatus(double eV)
 		ui_->energyFeedbackLabel->setText(QString());	// we're exactly what the user asked for; all is well, don't need to show anything.
 	}
 	else {
-		ui_->energyFeedbackLabel->setText(QString("Currently: %1").arg(eV));
+		ui_->energyFeedbackLabel->setText(QString("at %1").arg(eV));
 	}
 }
 

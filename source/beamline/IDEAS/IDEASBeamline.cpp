@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -46,6 +47,7 @@ void IDEASBeamline::setupDiagnostics()
 {
     ringCurrent_ = new AMReadOnlyPVControl("ringCurrent","PCT1402-01:mA:fbk", this, "Storage Ring Current");
     I0Current_ = new AMReadOnlyPVControl("I0Current","A1608-10-01:A:fbk", this, "I0 Current");
+    sampleTemp_ = new AMReadOnlyPVControl("sampleTemp","TC1608-10-02:reading", this, "Sample Temperature");
 }
 
 void IDEASBeamline::setupSampleStage()
@@ -98,7 +100,7 @@ void IDEASBeamline::setupControlSets()
 void IDEASBeamline::setupMono()
 {
     monoEnergy_ = new IDEASMonochromatorControl(this);
-    //monoEnergy_->setSettlingTime(0.5); //HACK
+    monoEnergy_->setSettlingTime(0.25); //HACK
 
     monoDirectEnergy_ = new IDEASDirectMonochromatorControl(this);
 
@@ -172,6 +174,7 @@ void IDEASBeamline::setupExposedControls()
 {
         addExposedControl(ringCurrent_);
 	addExposedControl(I0Current_);
+	addExposedControl(sampleTemp_);
         addExposedControl(monoEnergy_);
 	addExposedControl(monoDirectEnergy_);
 //	addExposedControl(masterDwell_);

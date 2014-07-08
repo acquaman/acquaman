@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 Acquaman is free software: you can redistribute it and/or modify
@@ -44,10 +45,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/actions/AMAxisStartedActionInfo.h"
 #include "actions3/actions/AMAxisFinishedActionInfo.h"
 #include "actions3/actions/AMAxisValueFinishedActionInfo.h"
-#include "actions3/actions/AMTimedWaitActionInfo3.h"
 #include "actions3/actions/AMControlWaitActionInfo.h"
 #include "actions3/actions/AMDoDarkCurrentCorrectionActionInfo.h"
 #include "actions3/actions/AMDoingDarkCurrentCorrectionActionInfo.h"
+#include "actions3/actions/AMWaitActionInfo.h"
+
 #include "util/AMErrorMonitor.h"
 
 #include "dataman/AMDbUpgrade1Pt1.h"
@@ -177,12 +179,12 @@ bool AMDatamanAppControllerForActions3::startupRegisterDatabases()
 	AMDbObjectSupport::s()->registerClass<AMAxisStartedActionInfo>();
 	AMDbObjectSupport::s()->registerClass<AMAxisFinishedActionInfo>();
 	AMDbObjectSupport::s()->registerClass<AMAxisValueFinishedActionInfo>();
-	AMDbObjectSupport::s()->registerClass<AMTimedWaitActionInfo3>();
+	AMDbObjectSupport::s()->registerClass<AMWaitActionInfo>();
 
-    AMDbObjectSupport::s()->registerClass<AMControlWaitActionInfo>();
+	AMDbObjectSupport::s()->registerClass<AMControlWaitActionInfo>();
 
-    AMDbObjectSupport::s()->registerClass<AMDoDarkCurrentCorrectionActionInfo>();
-    AMDbObjectSupport::s()->registerClass<AMDoingDarkCurrentCorrectionActionInfo>();
+	AMDbObjectSupport::s()->registerClass<AMDoDarkCurrentCorrectionActionInfo>();
+	AMDbObjectSupport::s()->registerClass<AMDoingDarkCurrentCorrectionActionInfo>();
 
 	return true;
 }

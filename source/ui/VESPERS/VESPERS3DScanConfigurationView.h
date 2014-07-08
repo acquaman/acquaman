@@ -1,3 +1,24 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #ifndef VESPERS3DSCANCONFIGURATIONVIEW_H
 #define VESPERS3DSCANCONFIGURATIONVIEW_H
 
@@ -95,13 +116,6 @@ protected slots:
 	/// Helper slot that handles the setting the estimated time label.
 	void onEstimatedTimeChanged();
 
-	/// Helper slot that passes the signal on to the base method.
-	void onConfigureXRFDetectorClicked() { emit configureDetector(fluorescenceDetectorIdToString(int(configuration_->fluorescenceDetector()))); }
-	/// Emits the configureDetector signal based with 'Roper CCD'.
-	void onConfigureCCDDetectorClicked() { emit configureDetector(ccdDetectorIdToString(int(configuration_->ccdDetector()))); }
-	/// Updates roiText_ based on the current state of the ROI list.
-	void updateRoiText();
-
 	/// Slot that updates the horizontal step size spin box.
 	void updateXStep(double val) { hStep_->setValue(val*1000); }
 	/// Slot that updates the vertical step size spin box.
@@ -115,8 +129,6 @@ protected slots:
 	void updateExportSpectraInRows(bool exportInColumns) { configuration_->setExportSpectraInRows(!exportInColumns); }
 
 protected:
-	/// Reimplements the show event to update the Regions of Interest text.
-	virtual void showEvent(QShowEvent *e) { updateRoiText(); AMScanConfigurationView::showEvent(e); }
 	/// Helper method that updates the x and y step spin boxes if the map is not possible to change.
 	void axesAcceptable();
 	/// Helper method that checks if the CCD files have the name given by \param name.  Does nothing if everything is okay.  Calls onCCDNameConflict if name conflicts exits.
@@ -148,8 +160,6 @@ protected:
 	QGroupBox *ccdTextBox_;
 	/// Pointer to the label that holds the current map settings.
 	QLabel *mapInfo_;
-	/// Pointer to the button that gets the CCD detector screen to switch.
-	QPushButton *configureCCDButton_;
 	/// Label holding the current estimated time for the scan to complete.  Takes into account extra time per point based on experience on the beamline.
 	QLabel *estimatedTime_;
 };

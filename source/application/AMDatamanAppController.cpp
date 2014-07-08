@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -42,6 +43,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/util/AMSettingsView.h"
 #include "ui/util/AMGithubIssueSubmissionView.h"
 #include "ui/AMDatamanStartupSplashScreen.h"
+#include "ui/util/AMAboutDialog.h"
 
 #include "application/AMPluginsManager.h"
 
@@ -99,6 +101,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "analysis/AM3DDeadTimeCorrectionAB.h"
 #include "dataman/AMRegionOfInterest.h"
 #include "analysis/AMRegionOfInterestAB.h"
+#include "analysis/AM0DAccumulatorAB.h"
+#include "analysis/AM0DTimestampAB.h"
+#include "analysis/AM1DTimedDataAB.h"
+#include "analysis/AM1DKSpaceCalculatorAB.h"
 
 #include "dataman/AMScanAxis.h"
 #include "dataman/AMScanAxisRegion.h"
@@ -619,6 +625,10 @@ bool AMDatamanAppController::startupRegisterDatabases()
 	success &= AMDbObjectSupport::s()->registerClass<AM1DDeadTimeAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AM2DDeadTimeCorrectionAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AM3DDeadTimeCorrectionAB>();
+    success &= AMDbObjectSupport::s()->registerClass<AM0DAccumulatorAB>();
+    success &= AMDbObjectSupport::s()->registerClass<AM0DTimestampAB>();
+    success &= AMDbObjectSupport::s()->registerClass<AM1DTimedDataAB>();
+	success &= AMDbObjectSupport::s()->registerClass<AM1DKSpaceCalculatorAB>();
 
 	success &= AMDbObjectSupport::s()->registerClass<AMScanAxis>();
 	success &= AMDbObjectSupport::s()->registerClass<AMScanAxisRegion>();
@@ -820,6 +830,10 @@ bool AMDatamanAppController::startupInstallActions()
 	amIssueSubmissionAction->setStatusTip("Report an issue to the Acquaman Developers");
 	connect(amIssueSubmissionAction, SIGNAL(triggered()), this, SLOT(onActionIssueSubmission()));
 
+	QAction* amShowAboutPageAction = new QAction("About...", mw_);
+	amShowAboutPageAction->setStatusTip("About Acquaman");
+	connect(amShowAboutPageAction, SIGNAL(triggered()), this, SLOT(onShowAboutPage()));
+
 	exportGraphicsAction_ = new QAction("Export Plot...", mw_);
 	exportGraphicsAction_->setStatusTip("Export the current plot to a PDF file.");
 	connect(exportGraphicsAction_, SIGNAL(triggered()), this, SLOT(onActionExportGraphics()));
@@ -851,6 +865,7 @@ bool AMDatamanAppController::startupInstallActions()
 
 	helpMenu_ = menuBar_->addMenu("Help");
 	helpMenu_->addAction(amIssueSubmissionAction);
+	helpMenu_->addAction(amShowAboutPageAction);
 
 	return true;
 }
@@ -1096,6 +1111,15 @@ void AMDatamanAppController::onIssueSubmissionViewFinished(){
 
 void AMDatamanAppController::onStartupFinished(){
 	AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_FINISHED, "Acquaman Startup: Finished");
+}
+
+void AMDatamanAppController::onShowAboutPage()
+{
+	AMAboutDialog* aboutPage = new AMAboutDialog();
+	aboutPage->setModal(true);
+	aboutPage->exec();
+
+	aboutPage->deleteLater();
 }
 
 #include "dataman/export/AMExportController.h"
@@ -1516,20 +1540,6 @@ void AMDatamanAppController::getUserDataFolderFromDialog(bool presentAsParentFol
 
 	if(newFolder.isEmpty())
 		return;	// user cancelled; do nothing.
-
-	//If User chose a folder in the old actions to data folder, alter user and prompt for new folder
-
-	while(newFolder.contains("XES DATA (old acquaman)")){
-		QMessageBox wrongFolderWarning;
-		wrongFolderWarning.setWindowTitle("Warning");
-		wrongFolderWarning.setText("This folder contains data for the previous version of Acquaman.");
-		wrongFolderWarning.setInformativeText("Please choose a different folder.");
-		wrongFolderWarning.setStandardButtons(QMessageBox::Ok);
-		wrongFolderWarning.setDefaultButton(QMessageBox::Ok);
-		wrongFolderWarning.exec();
-
-		newFolder = QFileDialog::getExistingDirectory(0, "Choose the folder for your NEW Acquaman data...", initialFolder, QFileDialog::ShowDirsOnly);
-	}
 
 	newFolder = QDir::fromNativeSeparators(newFolder);
 	newFolder.append("/");

@@ -1,3 +1,24 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "IDEASXASScanConfiguration.h"
 
 #include "beamline/AMBeamline.h"
@@ -135,21 +156,45 @@ void IDEASXASScanConfiguration::computeTotalTimeImplementation()
 
 	    AMScanAxisEXAFSRegion *exafsRegion = qobject_cast<AMScanAxisEXAFSRegion *>(region);
 	    int numberOfPoints = int((double(exafsRegion->regionEnd()) - double(exafsRegion->regionStart()))/double(exafsRegion->regionStep()) + 1);
-	    totalPoints_ += numberOfPoints;
-	    if (exafsRegion->inKSpace() && exafsRegion->maximumTime().isValid()){
 
-		    maxEnergy_ = AMEnergyToKSpaceCalculator::energy(energy_, exafsRegion->regionEnd());
-		    QVector<double> regionTimes = QVector<double>(numberOfPoints);
-		    AMVariableIntegrationTime calculator(exafsRegion->equation(), exafsRegion->regionTime(), exafsRegion->maximumTime(), exafsRegion->regionStart(), exafsRegion->regionStep(), exafsRegion->regionEnd(), exafsRegion->a2());
-		    calculator.variableTime(regionTimes.data());
+	    if (numberOfPoints > 0) totalPoints_ += numberOfPoints;
 
-		    for (int i = 0; i < numberOfPoints; i++)
-			    time = time + regionTimes.at(i) + 0.54;
+	    if (exafsRegion->inKSpace()){
+		if (exafsRegion->maximumTime().isValid() &&
+			double(exafsRegion->maximumTime()) > double(exafsRegion->regionTime()) &&
+			double(exafsRegion->regionTime()) > 0 &&
+			double(exafsRegion->regionStep()) > 0 &&
+			double(exafsRegion->regionEnd()) > double(exafsRegion->regionStart())){
+		maxEnergy_ = AMEnergyToKSpaceCalculator::energy(energy_, exafsRegion->regionEnd());
+		QVector<double> regionTimes = QVector<double>(numberOfPoints);
+		AMVariableIntegrationTime calculator(exafsRegion->equation(), exafsRegion->regionTime(), exafsRegion->maximumTime(), exafsRegion->regionStart(), exafsRegion->regionStep(), exafsRegion->regionEnd(), exafsRegion->a2());
+		calculator.variableTime(regionTimes.data());
+
+		for (int i = 0; i < numberOfPoints; i++)
+			time = time + regionTimes.at(i) + 0.54 + 0.25;  //0.25
+		}
+		else {
+		    totalTime_ = -1; //negative value used to trigger feedback to user in IDEASXASScanConfigurationView... Hope this doesn't cause an issue elsewhere.
+		    setExpectedDuration(totalTime_);
+		    emit totalTimeChanged(totalTime_);
+		    return;
+		}
 	    }
 
+
 	    else{
+
 		maxEnergy_ = exafsRegion->regionEnd();
-		time += (0.54 + double(exafsRegion->regionTime()))*numberOfPoints;
+		if (double(exafsRegion->regionTime()) > 0 &&
+			double(exafsRegion->regionStep()) > 0 &&
+			double(exafsRegion->regionEnd()) > double(exafsRegion->regionStart()))
+		    time += (0.52 + double(exafsRegion->regionTime()))*numberOfPoints;
+		else {
+		    totalTime_ = -1; //negative value used to trigger feedback to user in IDEASXASScanConfigurationView... Hope this doesn't cause an issue elsewhere.
+		    setExpectedDuration(totalTime_);
+		    emit totalTimeChanged(totalTime_);
+		    return;
+		}
 	    }
     }
 

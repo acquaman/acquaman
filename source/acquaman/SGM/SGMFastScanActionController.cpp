@@ -1,3 +1,24 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "SGMFastScanActionController.h"
 
 #include <QFileInfo>
@@ -9,7 +30,7 @@
 #include "actions3/actions/AMControlMoveAction3.h"
 #include "actions3/actions/AMAxisStartedAction.h"
 #include "actions3/actions/AMAxisFinishedAction.h"
-#include "actions3/actions/AMTimedWaitAction3.h"
+#include "actions3/actions/AMWaitAction.h"
 #include "application/AMAppController.h"
 #include "acquaman/AMAgnosticDataAPI.h"
 #include "dataman/AMTextStream.h"
@@ -122,14 +143,12 @@ void SGMFastScanActionController::onFileWriterIsBusy(bool isBusy){
 }
 
 void SGMFastScanActionController::onEverythingFinished(){
-	qDebug() << "Looks like the SGMFastScan is completely done running";
-	qDebug() << "Undulator tracking: " << SGMBeamline::sgm()->undulatorTracking()->value();
-	qDebug() << "Exit slit tracking: " << SGMBeamline::sgm()->exitSlitTracking()->value();
+//	qDebug() << "Looks like the SGMFastScan is completely done running";
+//	qDebug() << "Undulator tracking: " << SGMBeamline::sgm()->undulatorTracking()->value();
+//	qDebug() << "Exit slit tracking: " << SGMBeamline::sgm()->exitSlitTracking()->value();
 
 	if(goodInitialState_ && (!SGMBeamline::sgm()->undulatorTracking()->withinTolerance(1) || !SGMBeamline::sgm()->exitSlitTracking()->withinTolerance(1)) ){
 		qDebug() << "\n\n\nDETECTED A LOSS OF TRACKING STATE\n\n";
-		QWidget *crash = 0;
-		crash->layout();
 	}
 }
 
@@ -178,7 +197,7 @@ bool SGMFastScanActionController::startImplementation(){
 	masterFastScanActionList->addSubAction(axisStartAction);
 
 	// Wait 1.0 seconds
-	masterFastScanActionList->addSubAction(new AMTimedWaitAction3(new AMTimedWaitActionInfo3(1.0)));
+	masterFastScanActionList->addSubAction(new AMWaitAction(new AMWaitActionInfo(1.0)));
 
 	// Energy and Scaler:
 	// Energy to end energy
@@ -572,7 +591,8 @@ AMAction3* SGMFastScanActionController::createInitializationActions(){
 	retVal->addSubAction(moveAction);
 
 	// Beam on actions
-	retVal->addSubAction(SGMBeamline::sgm()->createBeamOnActions3());
+	if(!QApplication::instance()->arguments().contains("--enableTesting"))
+		retVal->addSubAction(SGMBeamline::sgm()->createBeamOnActions3());
 
 	///////////////////////////
 	// END INITIALIZATION ///
@@ -691,7 +711,7 @@ QString SGMFastScanActionController::buildNotes()
 		CLSSIS3820ScalerChannel* currentChannel = scaler->channelAt(iChannel);
 		if(currentChannel->currentAmplifier() != 0)
 		{
-			CLSSR570 *channelSR570 = qobject_cast<CLSSR570*>(currentChannel->currentAmplifier());
+			AMCurrentAmplifier *channelSR570 = currentChannel->currentAmplifier();
 			if(channelSR570)
 				returnString.append(QString("%1:\t%2 %3\n").arg(currentChannel->customChannelName()).arg(channelSR570->value()).arg(channelSR570->units()));
 		}

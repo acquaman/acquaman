@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 Acquaman is free software: you can redistribute it and/or modify
@@ -55,30 +56,23 @@ void AMControlMoveAction3::startImplementation()
 
 	// Must have a control, and it must be able to move.
 	if(!control_) {
-		AMErrorMon::alert(this,
-						  -13001,
-						  QString("There was an error moving the control '%1' into position, because the control was not found. Please report this problem to the Acquaman developers.").arg(setpoint.name()));
-		setFailed();
+		QString fundamentalFailureMessage = QString("There was an error moving the control '%1' into position, because the control was not found.").arg(setpoint.name());
+		AMErrorMon::alert(this, -13001, QString("%1. Please report this problem to the Acquaman developers.").arg(fundamentalFailureMessage));
+		setFailed(fundamentalFailureMessage);
 		return;
 	}
 	// check we can move...
 	if(!control_->canMove()) {
-		AMErrorMon::alert(this,
-						  -13002,
-						  QString("There was an error moving the control '%1' into position, because the control was not connected and ready to move. Please report this problem to the beamline staff.")
-						  .arg(control_->name()));
-		setFailed();
+		QString fundamentalFailureMessage = QString("There was an error moving the control '%1' into position, because the control reported it cannot move.").arg(control_->name());
+		AMErrorMon::alert(this, -13002, QString("%1. Please report this problem to the beamline staff.").arg(fundamentalFailureMessage));
+		setFailed(fundamentalFailureMessage);
 		return;
 	}
 	// check that the destination is in range...
 	if(control_->valueOutOfRange(controlMoveInfo()->isRelativeMove() ? control_->value()+setpoint.value() : setpoint.value())) {
-		AMErrorMon::alert(this,
-						  -13003,
-						  QString("There was an error moving the control '%1' into position, because the destination %2 %3 was outside its range. Please report this problem to the beamline staff.")
-						  .arg(control_->name())
-						  .arg(setpoint.value())
-						  .arg(setpoint.units()));
-		setFailed();
+		QString fundamentalFailureMessage = QString("There was an error moving the control '%1' into position, because the destination %2 %3 was outside its range of %4 to %5.").arg(control_->name()).arg(setpoint.value()).arg(setpoint.units()).arg(control_->minimumValue()).arg(control_->maximumValue());
+		AMErrorMon::alert(this, -13003, QString("%1. Please report this problem to the beamline staff.").arg(fundamentalFailureMessage));
+		setFailed(fundamentalFailureMessage);
 		return;
 	}
 
@@ -129,18 +123,38 @@ void AMControlMoveAction3::onMoveFailed(int reason)
 	progressTick_.stop();
 	disconnect(&progressTick_, 0, this, 0);
 
+	int definedFailureReason;
+	switch(reason){
+	case AMControl::NotConnectedFailure:
+		definedFailureReason = AMCONTROLMOVEACTION3_NOT_CONNECTED_FAILURE;
+		break;
+	case AMControl::ToleranceFailure:
+		definedFailureReason = AMCONTROLMOVEACTION3_TOLERANCE_FAILURE;
+		break;
+	case AMControl::TimeoutFailure:
+		definedFailureReason = AMCONTROLMOVEACTION3_TIMEOUT_FAILURE;
+		break;
+	case AMControl::WasStoppedFailure:
+		definedFailureReason = AMCONTROLMOVEACTION3_WAS_STOPPED_FAILURE;
+		break;
+	case AMControl::AlreadyMovingFailure:
+		definedFailureReason = AMCONTROLMOVEACTION3_ALREADY_MOVING_FAILURE;
+		break;
+	case AMControl::RedirectedFailure:
+		definedFailureReason = AMCONTROLMOVEACTION3_REDIRECTED_FAILURE;
+		break;
+	case AMControl::OtherFailure:
+		definedFailureReason = AMCONTROLMOVEACTION3_OTHER_FAILURE;
+		break;
+	default:
+		definedFailureReason = AMCONTROLMOVEACTION3_OTHER_FAILURE;
+		break;
+	}
+
+	QString fundamentalFailureMessage = QString("There was an error moving the control '%1' into position. Target: %2 %3. Actual position: %4 %5. Tolerance %6. Reason: %7.").arg(control_->name()).arg(control_->setpoint()).arg(control_->units()).arg(control_->value()).arg(control_->units()).arg(control_->tolerance()).arg(AMControl::failureExplanation(reason));
 	// error message with reason
-	AMErrorMon::alert(this,
-					  13000+reason,
-					  QString("There was an error moving the control '%1' into position. Target: %2 %3. Actual position: %4 %5. Tolerance %6. Reason: %7. Please report this problem to the beamline staff.")
-					  .arg(control_->name())
-					  .arg(control_->setpoint())
-					  .arg(control_->units())
-					  .arg(control_->value())
-					  .arg(control_->units())
-					  .arg(control_->tolerance())
-					  .arg(AMControl::failureExplanation(reason)));
-	setFailed();
+	AMErrorMon::alert(this, definedFailureReason, QString("%1. Please report this problem to the beamline staff.").arg(fundamentalFailureMessage));
+	setFailed(fundamentalFailureMessage);
 }
 
 void AMControlMoveAction3::onMoveSucceeded()

@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -25,11 +26,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/AMListAction3.h"
 #include "actions3/AMActionSupport.h"
 
-#include "acquaman/CLS/CLSSIS3820ScalerSADetector.h"
 #include "beamline/CLS/CLSBasicScalerChannelDetector.h"
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 #include "beamline/CLS/CLSSR570.h"
-
+#include "beamline/CLS/CLSMAXvMotor.h"
 
 #include <QApplication>
 #include <QDebug>
@@ -137,10 +137,6 @@ REIXSBeamline::REIXSBeamline() :
 	setupExposedDetectors();
 
 	samplePlate_ = new AMSamplePlatePre2013(this);
-
-	xasDetectors_ = new REIXSXASDetectors(this);
-
-
 }
 
 REIXSBeamline::~REIXSBeamline() {
@@ -219,6 +215,8 @@ REIXSPhotonSource::REIXSPhotonSource(QObject *parent) :
 	directEnergy_ = directEnergy;
 	directEnergy_->setDescription("Beamline Energy");
 
+	bipassEnergy_ = new AMPVControl("bipassBeamlineEV", "REIXS:user:energy", "REIXS:user:energy", "REIXS:energy:stop");
+
 	userEnergyOffset_ = new AMPVControl("userEnergyOffset", "REIXS:user:energy:offset", "REIXS:user:energy:offset", QString(), this);
 	userEnergyOffset_->setDescription("User Energy Offest");
 
@@ -243,6 +241,10 @@ REIXSPhotonSource::REIXSPhotonSource(QObject *parent) :
 	monoMirrorTranslation_->setDescription("Mono Mirror Translation");
 	monoMirrorSelector_ = new AMPVwStatusControl("monoMirrorSelector", "MONO1610-I20-01:mirror:select:fbk", "MONO1610-I20-01:mirror:select", "MONO1610-I20-01:mirror:trans:status", "SMTR1610-I20-02:stop", this, 1);
 	monoMirrorSelector_->setDescription("Mono Mirror");
+
+//	monoMirrorAngle_ = new CLSMAXvMotor("monoMirrorAngle","MONO1610-I20-01:mirror","Mono Mirror Angle",true,0.00001,2.0,this);
+//	monoMirrorAngle_ = new AMReadOnlyPVwStatusControl("monoMirrorAngle","ENC1610-I20-02:average:deg:fbk","MONO1610-I20-01:mirror:status",this, new AMControlStatusCheckerCLSMAXv(),"Mono Mirror Angle");
+	monoMirrorAngleStatus_ = new AMReadOnlyPVControl("monoMirrorAngleStatus","MONO1610-I20-01:mirror:status",this,"Mono Mirror Angle Status");
 
 	epuPolarization_ = new AMPVwStatusControl("epuPolarization", "REIXS:UND1410-02:polarization", "REIXS:UND1410-02:polarization", "REIXS:UND1410-02:energy:status", QString(), this, 0.1);
 	epuPolarization_->setDescription("EPU Polarization");
@@ -756,6 +758,7 @@ REIXSBrokenMonoControl::REIXSBrokenMonoControl(AMPVwStatusControl *underlyingCon
 	// require some parsing on our part:
 	connect(control_, SIGNAL(movingChanged(bool)), this, SLOT(onControlMovingChanged(bool)));
 
+
 }
 
 void REIXSBrokenMonoControl::onControlMovingChanged(bool)
@@ -788,7 +791,7 @@ AMControl::FailureExplanation REIXSBrokenMonoControl::move(double setpoint)
 				while(movePoint_ < lowEnergyThreshold_) {
 					movePoint_ = movePoint_ + lowEnergyStepSize_;
 					moveAction_->addSubAction(AMActionSupport::buildControlMoveAction(control_, movePoint_));
-					qDebug() << "below lowEnergySetpoint moving up to " << movePoint_;
+					//qDebug() << "below lowEnergySetpoint moving up to " << movePoint_;
 				}
 
 
@@ -801,12 +804,12 @@ AMControl::FailureExplanation REIXSBrokenMonoControl::move(double setpoint)
 				for(int i=0; i<repeatMoveAttempts_; ++i) {
 							moveAction_->addSubAction(AMActionSupport::buildControlMoveAction(control_, movePoint_));
 					}
-					qDebug() << "above lowEnergySetpoint moving to " << movePoint_;
+					//qDebug() << "above lowEnergySetpoint moving to " << movePoint_;
 
 				while(movePoint_ - setpoint_ > lowEnergyStepSize_) {
 					movePoint_ = movePoint_ - lowEnergyStepSize_;
 					moveAction_->addSubAction(AMActionSupport::buildControlMoveAction(control_, movePoint_));
-					qDebug() << "above lowEnergySetpoint moving into " << movePoint_;
+					//qDebug() << "above lowEnergySetpoint moving into " << movePoint_;
 				}
 
 
@@ -818,7 +821,7 @@ AMControl::FailureExplanation REIXSBrokenMonoControl::move(double setpoint)
 				while(setpoint_ - movePoint_ > lowEnergyStepSize_) {
 					movePoint_ = movePoint_ + lowEnergyStepSize_;
 					moveAction_->addSubAction(AMActionSupport::buildControlMoveAction(control_, movePoint_));
-					qDebug() << "below lowEnergySetpoint moving up within " << movePoint_;
+					//qDebug() << "below lowEnergySetpoint moving up within " << movePoint_;
 				}
 
 			}
@@ -829,7 +832,7 @@ AMControl::FailureExplanation REIXSBrokenMonoControl::move(double setpoint)
 				while(movePoint_ - setpoint_ > lowEnergyStepSize_) {
 					movePoint_ = movePoint_ - lowEnergyStepSize_;
 					moveAction_->addSubAction(AMActionSupport::buildControlMoveAction(control_, movePoint_));
-					qDebug() << "below lowEnergySetpoint moving down within " << movePoint_;
+					//qDebug() << "below lowEnergySetpoint moving down within " << movePoint_;
 				}
 
 			}
@@ -838,7 +841,7 @@ AMControl::FailureExplanation REIXSBrokenMonoControl::move(double setpoint)
 
 			for(int i=0; i<repeatMoveAttempts_; ++i) {
 						moveAction_->addSubAction(AMActionSupport::buildControlMoveAction(control_, setpoint_));
-						qDebug() << "Fallthrough " << setpoint_;
+						//qDebug() << "Fallthrough " << setpoint_;
 				}
 
 
@@ -849,7 +852,7 @@ AMControl::FailureExplanation REIXSBrokenMonoControl::move(double setpoint)
 		control_->setSettlingTime(0);
 		setTolerance(AMCONTROL_TOLERANCE_DONT_CARE);
 		moveAction_->addSubAction(AMActionSupport::buildControlMoveAction(control_, setpoint_));
-		qDebug() << "Small move " << setpoint_;
+		//qDebug() << "Small move " << setpoint_;
 	}
 
 	/// \todo Low-energy moves
@@ -858,6 +861,9 @@ AMControl::FailureExplanation REIXSBrokenMonoControl::move(double setpoint)
 	connect(moveAction_, SIGNAL(failed()), this, SLOT(onMoveActionFailed()));
 	connect(moveAction_, SIGNAL(cancelled()), this, SLOT(onMoveActionFailed()));
 	connect(moveAction_, SIGNAL(succeeded()), this, SLOT(onMoveActionSucceeded()));
+
+	// monitor mono angle for error state, clear and restart move if detected
+	connect(REIXSBeamline::bl()->photonSource()->monoMirrorAngleStatus(), SIGNAL(valueChanged(double)), this, SLOT(onMonoMirrorAngleError(double)));
 
 	moveAction_->start();
 
@@ -885,6 +891,8 @@ bool REIXSBrokenMonoControl::stop()
 void REIXSBrokenMonoControl::onMoveActionFailed()
 {
 	disconnect(moveAction_, 0, this, 0);
+	disconnect(REIXSBeamline::bl()->photonSource()->monoMirrorAngleStatus(),0, this, 0);
+
 	moveAction_->deleteLater();
 	moveAction_ = 0;
 
@@ -906,6 +914,7 @@ void REIXSBrokenMonoControl::onMoveActionFailed()
 void REIXSBrokenMonoControl::onMoveActionSucceeded()
 {
 	disconnect(moveAction_, 0, this, 0);
+	disconnect(REIXSBeamline::bl()->photonSource()->monoMirrorAngleStatus(),0, this, 0);
 	moveAction_->deleteLater();
 	moveAction_ = 0;
 
@@ -922,30 +931,20 @@ void REIXSBrokenMonoControl::onMoveActionSucceeded()
 	}
 }
 
+void REIXSBrokenMonoControl::onMonoMirrorAngleError(double error)
+{
+	//qDebug() << "Mono Mirror Angle move error detected with error code" << error;
+	if(qFuzzyCompare(error,4)){
+	REIXSBeamline::bl()->photonSource()->bipassEnergy()->stop();
+	REIXSBeamline::bl()->photonSource()->bipassEnergy()->move(REIXSBeamline::bl()->photonSource()->directEnergy()->setpoint());
+	}
+}
+
 
 
 REIXSBrokenMonoControl::~REIXSBrokenMonoControl() {
 	delete control_;
 	control_ = 0;
-}
-
- REIXSXASDetectors::~REIXSXASDetectors(){}
-REIXSXASDetectors::REIXSXASDetectors(QObject *parent) : AMCompositeControl("xasDetectors", "", parent, "XAS Detectors")
-{
-	TEY_ = new AMReadOnlyPVControl("TEY", "BL1610-ID-2:mcs18:fbk", this, "TEY");
-	TFY_ = new AMReadOnlyPVControl("TFY", "BL1610-ID-2:mcs04:fbk", this, "TFY");
-	I0_ = new AMReadOnlyPVControl("I0", "BL1610-ID-2:mcs16:fbk", this, "I0");
-	scalerContinuousMode_ = new AMSinglePVControl("scalerContinuous", "BL1610-ID-2:mcs:continuous", this, 0.1);
-
-	addChildControl(TEY_);
-	addChildControl(TFY_);
-	addChildControl(I0_);
-
-	saDetectors_ << new CLSSIS3820ScalerSADetector("TEY", "Electron Yield", "BL1610-ID-2:mcs", 18, true, this);
-	saDetectors_ << new CLSSIS3820ScalerSADetector("TFY", "Fluorescence Yield", "BL1610-ID-2:mcs", 4, false, this);
-	saDetectors_ << new CLSSIS3820ScalerSADetector("I0", "I0", "BL1610-ID-2:mcs", 16, false, this);
-	saDetectors_ << new CLSSIS3820ScalerSADetector("PFY", "PFY", "BL1610-ID-2:mcs", 3, false, this);
-	/// \todo XES detector PFY. Requires building a new AMSADetector subclass.
 }
 
 // To have a current sample in position, there must be a marked sample on the beamline's current plate, which has four positions set, and the sample manipulator is within tolerance of the X,Y,Z position. (We ignore theta, to allow different incident angles to all count as the same sample. Only works if the sample is at the center of rotation of the plate, unfortunately.)

@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 Acquaman is free software: you can redistribute it and/or modify
@@ -50,6 +51,8 @@ protected slots:
 	void reviewPolarizationAngleBoxEnabled();
 	/// Computes the expected acquisition time when the regions change.
 	void onRegionsChanged();
+	/// Helper slot that handles the setting the estimated time label.
+	void onEstimatedTimeChanged();
 
 private:
 	Ui::REIXSXASScanConfigurationView *ui;

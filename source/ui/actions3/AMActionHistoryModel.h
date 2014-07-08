@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 Acquaman is free software: you can redistribute it and/or modify
@@ -75,6 +76,8 @@ public:
 	QString shortDescription() const;
 	/// Returns the longDescription, loading it from the database if required.
 	QString longDescription() const;
+	/// Returns the failure message for the Action
+	QString failureMessage() const;
 	/// Returns the final state of the action, loading it from the database if required.
 	int finalState() const;
 	/// Returns the iconFileName of the action, loading it from the database if required.
@@ -121,6 +124,7 @@ protected:
 	mutable int finalState_;
 	mutable QString iconFileName_;
 	mutable QDateTime startDateTime_, endDateTime_;
+	mutable QString failureMessage_;
 	mutable bool canCopy_;
 	mutable int parentId_;
 	mutable bool actionInheritedLoop_;
