@@ -117,46 +117,29 @@ bool AMScanActionController::canPause() const
 
 void AMScanActionController::pauseImplementation()
 {
-	AMAction3 *currentAction = AMActionRunner3::scanActionRunner()->currentAction();
-
-	// That's bad
-	if(!currentAction)
-		return;
-
-	if(currentAction->state() == AMAction3::Running && currentAction->pause())
+	if (AMActionRunner3::scanActionRunner()->pauseCurrentAction())
 		setPaused();
 
-	else{
-		// Also bad
-	}
+	else
+		AMErrorMon::alert(this, AMSCANACTIONCONTROLLER_CANNOT_PAUSE, "Was unable to pause the current action.");
 }
 
 void AMScanActionController::resumeImplementation()
 {
-	AMAction3 *currentAction = AMActionRunner3::scanActionRunner()->currentAction();
-
-	// That's bad
-	if(!currentAction)
-		return;
-
-	if(currentAction->state() == AMAction3::Paused && currentAction->resume()) {
+	if (AMActionRunner3::scanActionRunner()->resumeCurrentAction())
 		setResumed();
-	}
 
-	else{
-		// Also bad
-	}
+	else
+		AMErrorMon::alert(this, AMSCANACTIONCONTROLLER_CANNOT_RESUME, "Was unable to resume the current action.");
 }
 
 void AMScanActionController::cancelImplementation()
 {
-	AMAction3 *currentAction = AMActionRunner3::scanActionRunner()->currentAction();
+	if (AMActionRunner3::scanActionRunner()->cancelCurrentAction())
+		setCancelled();
 
-	if(currentAction){
-
-		connect(currentAction, SIGNAL(cancelled()), this, SLOT(setCancelled()));
-		currentAction->cancel();
-	}
+	else
+		AMErrorMon::alert(this, AMSCANACTIONCONTROLLER_CANNOT_CANCEL, "Was unable to cancel the current action.");
 }
 
 void AMScanActionController::stopImplementation(const QString &command)

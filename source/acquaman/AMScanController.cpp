@@ -157,7 +157,7 @@ void AMScanController::cancel()
 
 void AMScanController::stop(const QString &command)
 {
-	if (canChangeStateTo(AMScanController::Stopping))
+	if (changeState(AMScanController::Stopping))
 		stopImplementation(command);
 }
 

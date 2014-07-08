@@ -46,6 +46,7 @@ AMStepScanActionController::AMStepScanActionController(AMStepScanConfiguration *
 	stepConfiguration_ = configuration;
 	fileWriterIsBusy_ = false;
 	useFeedback_ = false;
+	stoppingAtEndOfLine_ = false;
 }
 
 AMStepScanActionController::~AMStepScanActionController()
@@ -174,7 +175,6 @@ void AMStepScanActionController::buildScanController()
 
 	else
 		setFailed();
-
 }
 
 bool AMStepScanActionController::isReadyForDeletion() const
@@ -267,6 +267,12 @@ bool AMStepScanActionController::event(QEvent *e)
 			// This should be safe and fine regardless of if the CDF data store is being used or not.
 			flushCDFDataStoreToDisk();
 
+			if (isStopping() && stoppingAtEndOfLine_){
+
+				connect(scanningActions_, SIGNAL(cancelled()), this, SLOT(setFinished()));
+				scanningActions_->cancel();
+			}
+
 			break;}
 
 		case AMAgnosticDataAPIDefinitions::AxisValueFinished:
@@ -279,6 +285,12 @@ bool AMStepScanActionController::event(QEvent *e)
 			for (int i = 0, size = scan_->rawData()->scanAxesCount(); i < size; i++)
 				if (message.uniqueID().contains(scan_->rawData()->scanAxisAt(i).name))
 					currentAxisValueIndex_[i] = currentAxisValueIndex_.at(i)+1;
+
+			if (isStopping() && !stoppingAtEndOfLine_){
+
+				connect(scanningActions_, SIGNAL(cancelled()), this, SLOT(setFinished()));
+				scanningActions_->cancel();
+			}
 
 			break;
 
@@ -502,5 +514,11 @@ void AMStepScanActionController::prefillScanPoints()
 
 		scan_->rawData()->endInsertRows();
 	}
+}
+
+void AMStepScanActionController::stopImplementation(const QString &command)
+{
+	if (command == "Stop At End Of Line")
+		stoppingAtEndOfLine_ = true;
 }
 

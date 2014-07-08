@@ -27,6 +27,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/AMAction3.h"
 
 #define AMSCANACTIONCONTROLLER_CANNOT_INTIALIZE 262001
+#define AMSCANACTIONCONTROLLER_CANNOT_PAUSE 262002
+#define AMSCANACTIONCONTROLLER_CANNOT_RESUME 262003
+#define AMSCANACTIONCONTROLLER_CANNOT_CANCEL 262004
 
 /// This class provides a simple extension to AMScanController to expose it to some of the AMAction API and AMAgnosticData API.
 class AMScanActionController : public AMScanController
