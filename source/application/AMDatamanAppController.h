@@ -271,10 +271,6 @@ protected slots:
 	/// This slot is called when an 'alias' item is clicked in the sidebar of the main window.  Alias items are links that contain additional information that needs to be delivered to the widget.
 	virtual void onMainWindowAliasItemActivated(QWidget* target, const QString& key, const QVariant& value);
 
-	/// This is called when we detect that a new experiment has finished being created. We call it to select that experiment and start editing its name.
-	/*! \c index is the model index of the experiment item in the main window's AMWindowPaneModel. */
-	virtual void onNewExperimentAdded(const QModelIndex& index);
-
 	/// This is called when the user clicks any of the available "close" buttons in the main window's sidebar. For now, this could involve closing a scan editor window, or deleting an experiment.
 	virtual void onWindowPaneCloseButtonClicked(const QModelIndex& index);
 

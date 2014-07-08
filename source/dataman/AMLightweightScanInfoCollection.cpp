@@ -10,15 +10,39 @@ AMLightweightScanInfoCollection::AMLightweightScanInfoCollection(AMDatabase *dat
 	populateCollection();
 }
 
+QUrl AMLightweightScanInfoCollection::getScanUrl(int index)
+{
+	AMLightweightScanInfo* scanAt = at(index);
+
+	QString urlString = QString("amd://%1/%2/%3").arg(database_->connectionName()).arg(AMDbObjectSupport::s()->tableNameForClass("AMScan")).arg(scanAt->id());
+
+	QUrl returnUrl(urlString);
+
+	return returnUrl;
+}
+
+AMLightweightScanInfo *AMLightweightScanInfoCollection::at(int index) const
+{
+	return scanInfos_.at(index);
+}
+
+int AMLightweightScanInfoCollection::count() const
+{
+	return scanInfos_.count();
+}
+
 void AMLightweightScanInfoCollection::populateSampleNames()
 {
 	// Building up the first section of the map, such that after this first part is done sampleNameMap_
 	// will contain a key for each table name mentioned in the sample field of AMScan_table mapped to
 	// an empty Hash (which in the second part will be filled with the sample id mapped to the sample name
-	QSqlQuery selectQuery = database_->select("AMScan_table", "sample");
+	QSqlQuery selectQuery = database_->select(AMDbObjectSupport::s()->tableNameForClass("AMScan"), "sample");
 
 	if(!selectQuery.exec())
+	{
+		selectQuery.finish();
 		return;
+	}
 
 	while(selectQuery.next())
 	{
@@ -53,18 +77,41 @@ void AMLightweightScanInfoCollection::populateSampleNames()
 				sampleNameMap_[tableName].insert(sampleId, sampleName);
 			}
 
-			sampleSelectQuery.finish();
 		}
+		sampleSelectQuery.finish();
 	}
 
+}
+
+void AMLightweightScanInfoCollection::populateSingleSample(const QString tableName, int id)
+{
+	QSqlQuery selectQuery = database_->select(tableName, "id, name", QString("id = %1").arg(id));
+
+	if(!selectQuery.exec())
+	{
+		selectQuery.finish();
+		return;
+	}
+
+	while(selectQuery.next())
+	{
+		int sampleId = selectQuery.value(0).toInt();
+		QString sampleName = selectQuery.value(1).toString();
+
+		sampleNameMap_[tableName].insert(sampleId, sampleName);
+	}
+
+	selectQuery.finish();
 }
 
 void AMLightweightScanInfoCollection::populateObjectTypes()
 {
 	QSqlQuery selectQuery = database_->select("AMDbObjectTypes_table", "AMDbObjectType, description");
 
-	if(!selectQuery.exec())
+	if(!selectQuery.exec()){
+		selectQuery.finish();
 		return;
+	}
 
 	while(selectQuery.next())
 	{
@@ -79,10 +126,13 @@ void AMLightweightScanInfoCollection::populateObjectTypes()
 
 void AMLightweightScanInfoCollection::populateCollection()
 {
-	QSqlQuery selectQuery = database_->select("AMScan_table", "*");
+	QSqlQuery selectQuery = database_->select(AMDbObjectSupport::s()->tableNameForClass("AMScan"), "*");
 
 	if(!selectQuery.exec())
+	{
+		selectQuery.finish();
 		return;
+	}
 
 	while(selectQuery.next())
 	{
@@ -93,13 +143,79 @@ void AMLightweightScanInfoCollection::populateCollection()
 		int thumbnailFirstId = selectQuery.value(currentRecord.indexOf("thumbnailFirstId")).toInt();
 		int thumbnailCount = selectQuery.value(currentRecord.indexOf("thumbnailCount")).toInt();
 		QDateTime dateTime = selectQuery.value(currentRecord.indexOf("dateTime")).toDateTime();
-		QString runName = getRunName(selectQuery.value(currentRecord.indexOf("runId")).toInt());
+		int runId = selectQuery.value(currentRecord.indexOf("runId")).toInt();
+		QString runName = getRunName(runId);
 		QString scanType = getScanType(selectQuery.value(currentRecord.indexOf("AMDbObjectType")).toString());
 		QString notes = selectQuery.value(currentRecord.indexOf("notes")).toString();
 		QString sampleName = getSampleName(selectQuery.value(currentRecord.indexOf("Sample")).toString());
 
-		append(new AMLightweightScanInfo(id, name, number, dateTime, scanType, runName, notes, sampleName, thumbnailFirstId, thumbnailCount));
+		scanInfos_.append(new AMLightweightScanInfo(id, name, number, dateTime, scanType, runId, runName, notes, sampleName, thumbnailFirstId, thumbnailCount));
+	}
 
+	selectQuery.finish();
+}
+
+void AMLightweightScanInfoCollection::populateSingleScanInfo(int id)
+{
+	QSqlQuery selectQuery = database_->select(AMDbObjectSupport::s()->tableNameForClass("AMScan"), "*", QString("id = %1").arg(id));
+
+	if(!selectQuery.exec())
+	{
+		selectQuery.finish();
+		return;
+	}
+
+	while(selectQuery.next())
+	{
+		QSqlRecord currentRecord = selectQuery.record();
+		int id = selectQuery.value(currentRecord.indexOf("id")).toInt();
+		QString name = selectQuery.value(currentRecord.indexOf("name")).toString();
+		int number = selectQuery.value(currentRecord.indexOf("number")).toInt();
+		int thumbnailFirstId = selectQuery.value(currentRecord.indexOf("thumbnailFirstId")).toInt();
+		int thumbnailCount = selectQuery.value(currentRecord.indexOf("thumbnailCount")).toInt();
+		QDateTime dateTime = selectQuery.value(currentRecord.indexOf("dateTime")).toDateTime();
+		int runId = selectQuery.value(currentRecord.indexOf("runId")).toInt();
+		QString runName = getRunName(runId);
+		QString scanType = getScanType(selectQuery.value(currentRecord.indexOf("AMDbObjectType")).toString());
+		QString notes = selectQuery.value(currentRecord.indexOf("notes")).toString();
+		QString sampleName = getSampleName(selectQuery.value(currentRecord.indexOf("Sample")).toString());
+
+		scanInfos_.append(new AMLightweightScanInfo(id, name, number, dateTime, scanType, runId, runName, notes, sampleName, thumbnailFirstId, thumbnailCount));
+	}
+
+	selectQuery.finish();
+}
+
+void AMLightweightScanInfoCollection::updateSingleScanInfo(AMLightweightScanInfo *scanInfo)
+{
+	QSqlQuery selectQuery = database_->select(AMDbObjectSupport::s()->tableNameForClass("AMScan"), "*", QString("id = %1").arg(scanInfo->id()));
+
+	if(!selectQuery.exec())
+	{
+		selectQuery.finish();
+		return;
+	}
+
+	while(selectQuery.next())
+	{
+		QSqlRecord currentRecord = selectQuery.record();
+		QString name = selectQuery.value(currentRecord.indexOf("name")).toString();
+		int number = selectQuery.value(currentRecord.indexOf("number")).toInt();
+		QDateTime dateTime = selectQuery.value(currentRecord.indexOf("dateTime")).toDateTime();
+		int runId = selectQuery.value(currentRecord.indexOf("runId")).toInt();
+		QString runName = getRunName(runId);
+		QString scanType = getScanType(selectQuery.value(currentRecord.indexOf("AMDbObjectType")).toString());
+		QString notes = selectQuery.value(currentRecord.indexOf("notes")).toString();
+		QString sampleName = getSampleName(selectQuery.value(currentRecord.indexOf("Sample")).toString());
+
+		scanInfo->setName(name);
+		scanInfo->setDateTime(dateTime);
+		scanInfo->setNotes(notes);
+		scanInfo->setNumber(number);
+		scanInfo->setRunId(runId);
+		scanInfo->setRunName(runName);
+		scanInfo->setSampleName(sampleName);
+		scanInfo->setScanType(scanType);
 	}
 
 	selectQuery.finish();
@@ -107,7 +223,25 @@ void AMLightweightScanInfoCollection::populateCollection()
 
 void AMLightweightScanInfoCollection::populateRuns()
 {
-	QSqlQuery selectQuery = database_->select("AMRun_table", "id, name");
+	QSqlQuery selectQuery = database_->select(AMDbObjectSupport::s()->tableNameForClass("AMRun"), "id, name");
+
+	if(!selectQuery.exec())
+		return;
+
+	while(selectQuery.next())
+	{
+		int currentRunId = selectQuery.value(0).toInt();
+		QString currentRunName = selectQuery.value(1).toString();
+
+		runMap_.insert(currentRunId, currentRunName);
+	}
+
+	selectQuery.finish();
+}
+
+void AMLightweightScanInfoCollection::populateSingleRun(int id)
+{
+	QSqlQuery selectQuery = database_->select(AMDbObjectSupport::s()->tableNameForClass("AMRun"), "id, name", QString("id = %1").arg(id));
 
 	if(!selectQuery.exec())
 		return;
@@ -165,13 +299,116 @@ QString AMLightweightScanInfoCollection::getSampleName(const QString &sampleResu
 	return sampleNameMap_.value(tableName).value(id);
 }
 
-QUrl AMLightweightScanInfoCollection::getScanUrl(int index)
+void AMLightweightScanInfoCollection::onDbItemAdded(const QString &tableName, int id)
 {
-	AMLightweightScanInfo* scanAt = at(index);
 
-	QString urlString = QString("amd://%1/%2/%3").arg(database_->connectionName()).arg(AMDbObjectSupport::s()->tableNameForClass("AMScan")).arg(scanAt->id());
-
-	QUrl returnUrl(urlString);
-
-	return returnUrl;
+	if(tableName == AMDbObjectSupport::s()->tableNameForClass("AMScan"))
+	{
+		// A scan has been added. We need to load its scan info, append it to the collection, emitting
+		// the relevant signals
+		int newIndex = scanInfos_.count();
+		emit scanAboutToBeAdded(newIndex);
+		populateSingleScanInfo(id);
+		emit scanAdded();
+	}
+	else if(tableName == AMDbObjectSupport::s()->tableNameForClass("AMRun"))
+	{
+		populateSingleRun(id);
+	}
+	else if(sampleNameMap_.keys().contains(tableName))
+	{
+		populateSingleSample(tableName, id);
+	}
 }
+
+void AMLightweightScanInfoCollection::onDbItemUpdated(const QString &tableName, int id)
+{
+	if(tableName == AMDbObjectSupport::s()->tableNameForClass("AMScan"))
+	{
+		// A scan has been changed. We need to find the scan that matches the id, update the corresponding
+		// scan info and emit our updated signal
+		AMLightweightScanInfo* matchedScanInfo = 0;
+		int lightweightScanInfoIndex = -1;
+		bool lightweightScanInfoFound = false;
+		for (int iScanInfo = 0; iScanInfo < scanInfos_.count() && !lightweightScanInfoFound; iScanInfo++)
+		{
+			if(scanInfos_.at(iScanInfo)->id() == id)
+			{
+				lightweightScanInfoIndex = iScanInfo;
+				matchedScanInfo = scanInfos_.at(iScanInfo);
+				lightweightScanInfoFound = true;
+			}
+		}
+
+		if(!matchedScanInfo)
+			return;
+
+
+		updateSingleScanInfo(matchedScanInfo);
+		emit scanUpdated(lightweightScanInfoIndex);
+	}
+	else if(tableName == AMDbObjectSupport::s()->tableNameForClass("AMRun"))
+	{
+		// A run name has changed. We need to update our map, then iterate through all the infos, changing
+		// the run names of those that are in this run, emitting updated signals as we go
+		runMap_.remove(id);
+		populateSingleRun(id);
+		for (int iScanInfo = 0; iScanInfo < scanInfos_.count(); iScanInfo++)
+		{
+			if(scanInfos_.at(iScanInfo)->runId() == id)
+			{
+				scanInfos_.at(iScanInfo)->setRunName(getRunName(id));
+				emit scanUpdated(iScanInfo);
+			}
+		}
+	}
+	else if(sampleNameMap_.keys().contains(tableName))
+	{
+		// A sample name has changed. We need to update our map, then iterate through all the infos, changing
+		// the sample names of those that use this sample, emitting updated signals as we go
+		QString oldSampleName = sampleNameMap_.value(tableName).value(id);
+		sampleNameMap_[tableName].remove(id);
+		populateSingleSample(tableName, id);
+
+		for (int iScanInfo = 0; iScanInfo < scanInfos_.count(); iScanInfo++)
+		{
+			if(scanInfos_.at(iScanInfo)->sampleName() == oldSampleName)
+			{
+				scanInfos_.at(iScanInfo)->setSampleName(sampleNameMap_.value(tableName).value(id));
+				emit scanUpdated(iScanInfo);
+			}
+		}
+	}
+}
+
+void AMLightweightScanInfoCollection::onDbItemRemoved(const QString &tableName, int oldId)
+{
+	if(tableName == AMDbObjectSupport::s()->tableNameForClass("AMScan"))
+	{
+		// A scan has been removed from the database. We need to find the relevant scan, remove it
+		// from our collection while emitting the relevant removed signals
+		AMLightweightScanInfo* matchedScanInfo = 0;
+		int lightweightScanInfoIndex = -1;
+		bool lightweightScanInfoFound = false;
+		for (int iScanInfo = 0; iScanInfo < scanInfos_.count() && !lightweightScanInfoFound; iScanInfo++)
+		{
+			if(scanInfos_.at(iScanInfo)->id() == oldId)
+			{
+				lightweightScanInfoIndex = iScanInfo;
+				matchedScanInfo = scanInfos_.at(iScanInfo);
+				lightweightScanInfoFound = true;
+			}
+		}
+
+		if(!matchedScanInfo)
+			return;
+
+		emit scanAboutToBeRemoved(lightweightScanInfoIndex);
+		scanInfos_.removeAt(lightweightScanInfoIndex);
+		emit scanRemoved();
+
+	}
+}
+
+
+

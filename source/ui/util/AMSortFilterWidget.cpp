@@ -8,7 +8,7 @@ AMSortFilterWidget::AMSortFilterWidget(QSortFilterProxyModel *model, QWidget *pa
 	proxyModel_ = model;
 
 
-
+	isCurrentlyFiltered_ = false;
 	fieldComboBox_ = new QComboBox();
 	modeComboBox_ = new QComboBox();
 	caseSensitiveCheckBox_ = new QCheckBox();
@@ -28,6 +28,11 @@ AMSortFilterWidget::AMSortFilterWidget(QSortFilterProxyModel *model, QWidget *pa
 	connect(criteriaLineEdit_, SIGNAL(returnPressed()), this, SLOT(onFilterApplied()));
 	connect(applyFilterPushButton_, SIGNAL(clicked()), this, SLOT(onFilterApplied()));
 	connect(clearFilterPushButton_, SIGNAL(clicked()), this, SLOT(onClearFilterButtonClicked()));
+}
+
+bool AMSortFilterWidget::isCurrentlyFiltered()
+{
+	return isCurrentlyFiltered_;
 }
 
 QSortFilterProxyModel *AMSortFilterWidget::proxyModel()
@@ -88,11 +93,11 @@ void AMSortFilterWidget::initCaseSensitivity()
 void AMSortFilterWidget::setCurrentlyFiltered(bool value)
 {
 	clearFilterPushButton_->setEnabled(value);
-}
-
-void AMSortFilterWidget::focusOutEvent(QFocusEvent *)
-{
-	emit lostFocus();
+	if(value != isCurrentlyFiltered_)
+	{
+		isCurrentlyFiltered_ = value;
+		emit isCurrentlyFilteredStateChanged(isCurrentlyFiltered_);
+	}
 }
 
 void AMSortFilterWidget::onFilterApplied()

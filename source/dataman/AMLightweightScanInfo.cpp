@@ -6,6 +6,7 @@ AMLightweightScanInfo::AMLightweightScanInfo(int id,
 		int number, const
 		QDateTime &dateTime,
 		const QString &scanType,
+		int runId,
 		const QString &runName,
 		const QString &notes,
 		const QString &sampleName,
@@ -17,6 +18,7 @@ AMLightweightScanInfo::AMLightweightScanInfo(int id,
 	number_ = number;
 	dateTime_ = dateTime;
 	scanType_ = scanType;
+	runId_ = runId;
 	runName_ = runName;
 	notes_ = notes;
 	sampleName_ = sampleName;
@@ -39,9 +41,19 @@ QString AMLightweightScanInfo::name() const
 	return name_;
 }
 
+void AMLightweightScanInfo::setName(const QString &name)
+{
+	name_ = name;
+}
+
 int AMLightweightScanInfo::number() const
 {
 	return number_;
+}
+
+void AMLightweightScanInfo::setNumber(int number)
+{
+	number_ = number;
 }
 
 QDateTime AMLightweightScanInfo::dateTime() const
@@ -49,9 +61,29 @@ QDateTime AMLightweightScanInfo::dateTime() const
 	return dateTime_;
 }
 
+void AMLightweightScanInfo::setDateTime(const QDateTime &dateTime)
+{
+	dateTime_ = dateTime;
+}
+
 QString AMLightweightScanInfo::scanType() const
 {
 	return scanType_;
+}
+
+void AMLightweightScanInfo::setScanType(const QString &scanType)
+{
+	scanType_ = scanType;
+}
+
+int AMLightweightScanInfo::runId() const
+{
+	return runId_;
+}
+
+void AMLightweightScanInfo::setRunId(int runId)
+{
+	runId_ = runId;
 }
 
 QString AMLightweightScanInfo::runName() const
@@ -59,14 +91,29 @@ QString AMLightweightScanInfo::runName() const
 	return runName_;
 }
 
+void AMLightweightScanInfo::setRunName(const QString &runName)
+{
+	runName_ = runName;
+}
+
 QString AMLightweightScanInfo::notes() const
 {
 	return notes_;
 }
 
+void AMLightweightScanInfo::setNotes(const QString &notes)
+{
+	notes_ = notes;
+}
+
 QString AMLightweightScanInfo::sampleName() const
 {
 	return sampleName_;
+}
+
+void AMLightweightScanInfo::setSampleName(const QString &sampleName)
+{
+	sampleName_ = sampleName;
 }
 
 AMDbThumbnail *AMLightweightScanInfo::thumbnailAt(int index)

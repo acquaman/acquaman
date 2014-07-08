@@ -1,5 +1,6 @@
 #include "AMScanDataView.h"
 #include "dataman/AMLightweightScanInfoModel.h"
+#include "dataman/AMLightweightScanInfoFilterProxyModel.h"
 #include "AMAbstractScanDataChildView.h"
 #include "ui/util/AMSortFilterWidget.h"
 #include "dataman/AMUser.h"
@@ -7,30 +8,42 @@
 AMScanDataView::AMScanDataView(AMDatabase *database, QWidget *parent) :
 	QWidget(parent)
 {
+	// Set up data
 	AMLightweightScanInfoCollection* scanCollection = new AMLightweightScanInfoCollection(database);
 	model_ = new AMLightweightScanInfoModel(scanCollection);
-	proxyModel_ = new QSortFilterProxyModel();
+	proxyModel_ = new AMLightweightScanInfoFilterProxyModel();
 	proxyModel_->setSourceModel(model_);
 
+	// Widgets
 	titleLabel_ = new QLabel(this);
 	titleLabel_->setObjectName(QString::fromUtf8("headingLabel_"));
 	titleLabel_->setStyleSheet(QString::fromUtf8("font: 20pt \"Lucida Grande\";\n"
 	"color: rgb(79, 79, 79);"));
-	titleLabel_->setText(QString("%1 Data: All Runs").arg(AMUser::user()->name()));
+	titleLabel_->setText(QString("%1: Data").arg(AMUser::user()->name()));
+
 	viewButtons_ = new QButtonGroup();
-	stackedWidget_  = new QStackedWidget();
+
+
 	buttonLayout_ = new QHBoxLayout();
 	buttonLayout_->addWidget(titleLabel_);
 	buttonLayout_->addStretch();
+
 	searchButton_ = new QToolButton(this);
 	QIcon searchIcon;
 	searchIcon.addFile(QString::fromUtf8(":/system-search-2.png"), QSize(), QIcon::Normal, QIcon::Off);
 	searchButton_->setIcon(searchIcon);
 	searchButton_->setCheckable(true);
+
 	sortFilterWidget_ = new AMSortFilterWidget(proxyModel_);
 	sortFilterWidget_->setVisible(false);
 
+	stackedWidget_  = new QStackedWidget();
+
+	// Signals, Slots
 	connect(searchButton_, SIGNAL(clicked(bool)), this, SLOT(onSearchButtonClicked(bool)));
+	connect(viewButtons_, SIGNAL(buttonClicked(int)), stackedWidget_, SLOT(setCurrentIndex(int)));
+	connect(sortFilterWidget_, SIGNAL(isCurrentlyFilteredStateChanged(bool)), this, SLOT(onFilterStateChanged(bool)));
+	// Layout
 	QVBoxLayout* layout = new QVBoxLayout();
 
 	layout->addLayout(buttonLayout_);
@@ -39,8 +52,6 @@ AMScanDataView::AMScanDataView(AMDatabase *database, QWidget *parent) :
 	layout->addWidget(stackedWidget_);
 
 	initializeChildViews();
-
-	connect(viewButtons_, SIGNAL(buttonClicked(int)), stackedWidget_, SLOT(setCurrentIndex(int)));
 
 	setLayout(layout);
 }
@@ -67,7 +78,7 @@ void AMScanDataView::addChildView(QAbstractItemView *childView, const QIcon& ico
 
 void AMScanDataView::initializeChildViews()
 {
-	/// Table Data View
+	// Table Data View
 	QTableView* scanDataTable = new QTableView();
 
 	QIcon tableIcon;
@@ -96,7 +107,7 @@ void AMScanDataView::initializeChildViews()
 	scanDataTable->setColumnWidth(6, 110);
 	scanDataTable->setColumnWidth(7, 200);
 
-	/// JUST FOR TESTS
+	// JUST FOR TESTS
 	QTableView* scanDataTable2 = new QTableView();
 
 	QIcon tableIcon2;
@@ -142,36 +153,20 @@ int AMScanDataView::numberOfSelectedItems()
 
 void AMScanDataView::showRun(int runId)
 {
-}
-
-void AMScanDataView::showExperiment(int experimentId)
-{
-}
-
-void AMScanDataView::setOrganizeMode(int mode)
-{
-}
-
-void AMScanDataView::setViewMode(int mode)
-{
-}
-
-void AMScanDataView::expandAll()
-{
-}
-
-void AMScanDataView::collapseAll()
-{
-}
-
-void AMScanDataView::setItemSize(int newItemSize)
-{
+	proxyModel_->setRunId(runId);
 }
 
 void AMScanDataView::onSearchButtonClicked(bool checked)
 {
 	sortFilterWidget_->setVisible(checked);
+}
 
+void AMScanDataView::onFilterStateChanged(bool isCurrentlyFiltered)
+{
+	if(isCurrentlyFiltered)
+		titleLabel_->setText(QString("%1: Data (Currently filtered)").arg(AMUser::user()->name()));
+	else
+		titleLabel_->setText(QString("%1: Data").arg(AMUser::user()->name()));
 }
 
 

@@ -21,6 +21,12 @@ public:
 signals:
 	
 public slots:
+	void onScanInfoAboutToBeAdded(int newIndex);
+	void onScanInfoAdded();
+	void onScanInfoUpdated(int updatedIndex);
+	void onScanInfoAboutToBeRemoved(int oldIndex);
+	void onScanInfoRemoved();
+
 	
 };
 

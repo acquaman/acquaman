@@ -18,6 +18,7 @@ private:
 	int number_;
 	QDateTime dateTime_;
 	QString scanType_;
+	int runId_;
 	QString runName_;
 	QString notes_;
 	QString sampleName_;
@@ -30,6 +31,7 @@ public:
 						int number,
 						const QDateTime& dateTime,
 						const QString& scanType,
+						int runId,
 						const QString& runName,
 						const QString& notes,
 						const QString& sampleName,
@@ -38,12 +40,21 @@ public:
 
 	int id() const;
 	QString name() const;
+	void setName(const QString& name);
 	int number() const;
+	void setNumber(int number);
 	QDateTime dateTime() const;
+	void setDateTime(const QDateTime &dateTime);
 	QString scanType() const;
+	void setScanType(const QString& scanType);
+	int runId() const;
+	void setRunId(int runId);
 	QString runName() const;
+	void setRunName(const QString& runName);
 	QString notes() const;
+	void setNotes(const QString& notes);
 	QString sampleName() const;
+	void setSampleName(const QString& sampleName);
 	AMDbThumbnail* thumbnailAt(int index);
 	int thumbnailCount();
 };

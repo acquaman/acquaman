@@ -5,6 +5,11 @@ AMLightweightScanInfoModel::AMLightweightScanInfoModel(AMLightweightScanInfoColl
 	QAbstractItemModel(parent)
 {
 	scanInfo_ = scanInfo;
+	connect(scanInfo_, SIGNAL(scanAboutToBeAdded(int)), this, SLOT(onScanInfoAboutToBeAdded(int)));
+	connect(scanInfo_,SIGNAL(scanAboutToBeRemoved(int)), this, SLOT(onScanInfoAboutToBeRemoved(int)));
+	connect(scanInfo_, SIGNAL(scanAdded()), this, SLOT(onScanInfoAdded()));
+	connect(scanInfo_, SIGNAL(scanRemoved()), this, SLOT(onScanInfoRemoved()));
+	connect(scanInfo_, SIGNAL(scanUpdated(int)), this, SLOT(onScanInfoUpdated(int)));
 }
 
 QVariant AMLightweightScanInfoModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -88,6 +93,31 @@ QVariant AMLightweightScanInfoModel::data(const QModelIndex &index, int role) co
 
 			return icon;
 		}
+	} else if(role == Qt::UserRole) /// We use user role for obtaining data we wish not to display
+	{
+		switch(index.column())
+		{
+		case 0:
+			return info->id();
+		case 1:
+			return info->name();
+		case 2:
+			return info->number();
+		case 3:
+			return info->dateTime();
+		case 4:
+			return info->scanType();
+		case 5:
+			return info->runId();
+		case 6:
+			return info->runName();
+		case 7:
+			return info->sampleName();
+		case 8:
+			return info->notes();
+		default:
+			return QVariant();
+		}
 	}
 
 	return QVariant();
@@ -115,5 +145,31 @@ QModelIndex AMLightweightScanInfoModel::parent(const QModelIndex &) const
 
 QUrl AMLightweightScanInfoModel::rowToUrl(int rowIndex)
 {
-	scanInfo_->getScanUrl(rowIndex);
+	return scanInfo_->getScanUrl(rowIndex);
+}
+
+void AMLightweightScanInfoModel::onScanInfoAboutToBeAdded(int newIndex)
+{
+	beginInsertRows(QModelIndex(), newIndex, newIndex);
+}
+
+void AMLightweightScanInfoModel::onScanInfoAdded()
+{
+	endInsertRows();
+}
+
+void AMLightweightScanInfoModel::onScanInfoUpdated(int updatedIndex)
+{
+
+	emit dataChanged(index(updatedIndex, 0, QModelIndex()), index(updatedIndex, columnCount()-1, QModelIndex()));
+}
+
+void AMLightweightScanInfoModel::onScanInfoAboutToBeRemoved(int oldIndex)
+{
+	beginRemoveRows(QModelIndex(), oldIndex, oldIndex);
+}
+
+void AMLightweightScanInfoModel::onScanInfoRemoved()
+{
+	endRemoveRows();
 }

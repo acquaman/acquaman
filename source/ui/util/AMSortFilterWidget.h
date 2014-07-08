@@ -25,9 +25,12 @@ private:
 	QPushButton* clearFilterPushButton_;
 	QPushButton* applyFilterPushButton_;
 	QSortFilterProxyModel* proxyModel_;
+	bool isCurrentlyFiltered_;
 public:
 	/// Creates an instance of an AMSortFilterWidget for controlling the provided QSortFilterProxyModel
 	explicit AMSortFilterWidget(QSortFilterProxyModel* model, QWidget *parent = 0);
+	/// Whether or not the ProxyModel currently has a filter applied
+	bool isCurrentlyFiltered();
 protected:
 	/// The model which the AMSortFilterWidget is controlling
 	QSortFilterProxyModel* proxyModel();
@@ -43,11 +46,10 @@ protected:
 	void initPushButtons();
 	/// Handles changes between a filter being applied to the data and not
 	void setCurrentlyFiltered(bool value);
-	///	Event fired whenever this widget loses focus
-	virtual void focusOutEvent(QFocusEvent *);
+
 signals:
-	/// Signal emitted whenever the Widget loses focus
-	void lostFocus();
+	/// Emitted whenever the widget changes from filtering to not filtering
+	void isCurrentlyFilteredStateChanged(bool);
 protected slots:
 	/// Slot to handle requests to apply the filter, either through clicking the button or pressing return
 	/// when in the criteria line edit

@@ -3,7 +3,6 @@
 
 #include <QWidget>
 #include <QTableView>
-#include <QSortFilterProxyModel>
 #include <QButtonGroup>
 #include <QToolButton>
 #include <QVBoxLayout>
@@ -14,6 +13,7 @@
 #include <QStackedWidget>
 
 class AMLightweightScanInfoModel;
+class AMLightweightScanInfoFilterProxyModel;
 class AMDatabase;
 class AMSortFilterWidget;
 /// Class which represents the main display view for scans loaded from the database
@@ -32,12 +32,12 @@ private:
 	/// The model containing the scan info
 	AMLightweightScanInfoModel* model_;
 	/// The proxy model which controls sorting and filtering of the scans
-	QSortFilterProxyModel* proxyModel_;
+	AMLightweightScanInfoFilterProxyModel* proxyModel_;
 	/// A list of child views added to the scan data view
 	QList<QAbstractItemView*> childViews_;
 	/// Abstract container for the buttons used to switch views
 	QButtonGroup* viewButtons_;
-	/// Label displaying the title of the scan view (user, runs)
+	/// Label displaying the title of the scan view
 	QLabel* titleLabel_;
 public:
 	/// Creates an instance of an AMScanDataView, loaded scans from the provided AMDatabase
@@ -83,22 +83,13 @@ public slots:
 	/// Specifies that the AMScanDataView should filter for all runs that match the passed id. -1 indicates
 	/// that all runs should be shown.
 	void showRun(int runId = -1);
-	/// setup this view to show a specific experiment (or use \c experimentId = -1 to see all experiments)
-	void showExperiment(int experimentId = -1);
-	/// Set the headers used to separate and organize scans within a view. The \c mode is one of AMDataViews::OrganizeMode.
-	void setOrganizeMode(int mode);
-	/// Set the view mode, where \c mode is one of AMDataViews::ViewMode (ThumbnailView, ListView, FlowView, or DetailView)
-	void setViewMode(int mode);
-	/// Called when the user wants to expand all the sections in the view
-	void expandAll();
-	/// Called when the user wants to collapse all the sections in the view
-	void collapseAll();
-	/// Called when the item size slider is moved. It's up to each data view section to decide what item sizes mean, but they should all adjust their item sizes based on the new user value (from 1 to 100).
-	void setItemSize(int newItemSize);
 
 protected slots:
 	/// Handles the search button being clicked. Shows the sortFilterWidget
 	void onSearchButtonClicked(bool);
+
+	/// Handles the SortFilterWidget changing state from filtered, to not filtered
+	void onFilterStateChanged(bool);
 };
 
 #endif // AMSCANDATAVIEW_H

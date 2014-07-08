@@ -910,17 +910,8 @@ void AMDatamanAppController::onMainWindowAliasItemActivated(QWidget *target, con
 	if(target == dataView_) {
 		if(key == "Runs")
 			dataView_->showRun(value.toInt());
-		if(key == "Experiments")
-			dataView_->showExperiment(value.toInt());
 	}
 }
-
-void AMDatamanAppController::onNewExperimentAdded(const QModelIndex &index) {
-	mw_->sidebar()->expand(index.parent()); //Do this to show people where it ended up...
-	//mw_->sidebar()->setCurrentIndex(index);
-}
-
-
 
 #include "dataman/AMExperiment.h"
 void AMDatamanAppController::onAddButtonClicked() {
