@@ -109,15 +109,15 @@ void SGMFastScanActionController::onFileWriterError(AMScanActionControllerBasicF
 	QString userErrorString;
 	switch(error){
 	case AMScanActionControllerBasicFileWriter::AlreadyExistsError:
-		AMErrorMon::alert(this, SGMFASTSCANACTIONCONTROLLER_FILE_ALREADY_EXISTS, "Error, SGM Fast Scan Action Controller attempted to write you data to file that already exists. This is a serious problem, please contact the SGM Acquaman developers.");
+		AMErrorMon::alert(this, SGMFASTSCANACTIONCONTROLLER_FILE_ALREADY_EXISTS, QString("Error, SGM Fast Scan Action Controller attempted to write you data to file that already exists (%1). This is a serious problem, please contact the SGM Acquaman developers.").arg(scan_->filePath()));
 		userErrorString = "Your scan has been aborted because the file Acquaman wanted to write to already exists (for internal storage). This is a serious problem and would have resulted in collecting data but not saving it. Please contact the SGM Acquaman developers immediately.";
 		break;
 	case AMScanActionControllerBasicFileWriter::CouldNotOpenError:
-		AMErrorMon::alert(this, SGMFASTSCANACTIONCONTROLLER_COULD_NOT_OPEN_FILE, "Error, SGM Fast Scan Action Controller failed to open the file to write your data. This is a serious problem, please contact the SGM Acquaman developers.");
+		AMErrorMon::alert(this, SGMFASTSCANACTIONCONTROLLER_COULD_NOT_OPEN_FILE, QString("Error, SGM Fast Scan Action Controller failed to open the file to write your data (%1). This is a serious problem, please contact the SGM Acquaman developers.").arg(scan_->filePath()));
 		userErrorString = "Your scan has been aborted because Acquaman was unable to open the desired file for writing (for internal storage). This is a serious problem and would have resulted in collecting data but not saving it. Please contact the SGM Acquaman developers immediately.";
 		break;
 	default:
-		AMErrorMon::alert(this, SGMFASTSCANACTIONCONTROLLER_UNKNOWN_FILE_ERROR, "Error, SGM Fast Scan Action Controller encountered a serious, but unknown, file problem. This is a serious problem, please contact the SGM Acquaman developers.");
+		AMErrorMon::alert(this, SGMFASTSCANACTIONCONTROLLER_UNKNOWN_FILE_ERROR, QString("Error, SGM Fast Scan Action Controller encountered a serious, but unknown, file problem (%1). This is a serious problem, please contact the SGM Acquaman developers.").arg(scan_->filePath()));
 		userErrorString = "Your scan has been aborted because an unknown file error (for internal storage) has occured. This is a serious problem and would have resulted in collecting data but not saving it. Please contact the SGM Acquaman developers immediately.";
 		break;
 	}

@@ -45,6 +45,8 @@ public:
 	AMScanActionControllerBasicFileWriter(const QString &filePath, bool hasSpectraData = false, QObject *parent = 0);
 	virtual ~AMScanActionControllerBasicFileWriter();
 
+	QString filePath() const;
+
 public slots:
 	/// Writes the given string to a file.  You need to provide either 0 or 1 for the file rank (scaler data or spectral data).
 	void writeToFile(int fileRank, const QString &textToWrite);

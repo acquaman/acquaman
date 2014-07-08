@@ -64,6 +64,10 @@ AMScanActionControllerBasicFileWriter::AMScanActionControllerBasicFileWriter(con
 	}
 }
 
+QString AMScanActionControllerBasicFileWriter::filePath() const{
+	return filePath_;
+}
+
 void AMScanActionControllerBasicFileWriter::writeToFile(int fileRank, const QString &textToWrite)
 {
 	switch(fileRank){
