@@ -148,6 +148,24 @@ QUrl AMLightweightScanInfoModel::rowToUrl(int rowIndex)
 	return scanInfo_->getScanUrl(rowIndex);
 }
 
+AMDbThumbnail *AMLightweightScanInfoModel::thumbnailAt(int row, int thumbnailIndex)
+{
+	if(row >= scanInfo_->count() || thumbnailIndex >= scanInfo_->at(row)->thumbnailCount())
+		return 0;
+
+	QModelIndex thumbnailModelIndex = index(row, thumbnailIndex, QModelIndex());
+
+	return scanInfo_->at(thumbnailModelIndex.row())->thumbnailAt(thumbnailModelIndex.column());
+}
+
+int AMLightweightScanInfoModel::thumbnailCount(int row) const
+{
+	if(row >= scanInfo_->count())
+		return 0;
+
+	return scanInfo_->at(row)->thumbnailCount();
+}
+
 void AMLightweightScanInfoModel::onScanInfoAboutToBeAdded(int newIndex)
 {
 	beginInsertRows(QModelIndex(), newIndex, newIndex);

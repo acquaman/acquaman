@@ -4,6 +4,8 @@
 #include "AMAbstractScanDataChildView.h"
 #include "ui/util/AMSortFilterWidget.h"
 #include "dataman/AMUser.h"
+#include "ui/dataman/AMScanTableView.h"
+#include "ui/dataman/AMScanThumbnailView.h"
 
 AMScanDataView::AMScanDataView(AMDatabase *database, QWidget *parent) :
 	QWidget(parent)
@@ -79,33 +81,13 @@ void AMScanDataView::addChildView(QAbstractItemView *childView, const QIcon& ico
 void AMScanDataView::initializeChildViews()
 {
 	// Table Data View
-	QTableView* scanDataTable = new QTableView();
-
 	QIcon tableIcon;
 	tableIcon.addFile(QString::fromUtf8(":/22x22/view-list-details-symbolic.png"), QSize(), QIcon::Normal, QIcon::Off);
 	tableIcon.addFile(QString::fromUtf8(":/22x22/view-list-details-symbolic_dark.png"), QSize(), QIcon::Normal, QIcon::On);
 
-	addChildView(scanDataTable, tableIcon);
 
-	scanDataTable->setAlternatingRowColors(true);
-	scanDataTable->setSelectionBehavior(QAbstractItemView::SelectRows);
-	scanDataTable->setSelectionMode(QAbstractItemView::ExtendedSelection);
-	scanDataTable->verticalHeader()->setVisible(false);
-	scanDataTable->setShowGrid(false);
-	QFont font = scanDataTable->font();
-	font.setPointSize(10);
-	scanDataTable->setFont(font);
-	scanDataTable->setContextMenuPolicy(Qt::CustomContextMenu);
-	scanDataTable->setSortingEnabled(true);
+	addChildView(new AMScanTableView(), tableIcon);
 
-	scanDataTable->setColumnWidth(0, 80);
-	scanDataTable->setColumnWidth(1, 200);
-	scanDataTable->setColumnWidth(2, 40);
-	scanDataTable->setColumnWidth(3, 110);
-	scanDataTable->setColumnWidth(4, 110);
-	scanDataTable->setColumnWidth(5, 60);
-	scanDataTable->setColumnWidth(6, 110);
-	scanDataTable->setColumnWidth(7, 200);
 
 	// JUST FOR TESTS
 	QTableView* scanDataTable2 = new QTableView();
@@ -115,6 +97,16 @@ void AMScanDataView::initializeChildViews()
 	tableIcon2.addFile(QString::fromUtf8(":/22x22/view-list-details-symbolic_dark.png"), QSize(), QIcon::Normal, QIcon::On);
 
 	addChildView(scanDataTable2, tableIcon2);
+
+	//Test thumbnail view
+	AMScanThumbnailView* thumbnailView = new AMScanThumbnailView();
+
+	QIcon thumbnailIcon;
+	thumbnailIcon.addFile(QString::fromUtf8(":/22x22/view-list-icons-symbolic.png"), QSize(), QIcon::Normal, QIcon::Off);
+	thumbnailIcon.addFile(QString::fromUtf8(":/22x22/view-list-icons-symbolic_dark.png"), QSize(), QIcon::Normal, QIcon::On);
+
+	addChildView(thumbnailView, thumbnailIcon);
+
 }
 
 QAbstractItemView *AMScanDataView::currentView()

@@ -2,14 +2,13 @@
 #define AMSCANDATAVIEW_H
 
 #include <QWidget>
-#include <QTableView>
+#include <QTableView> // Can be removed after testing
 #include <QButtonGroup>
 #include <QToolButton>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QUrl>
-#include <QHeaderView>
 #include <QStackedWidget>
 
 class AMLightweightScanInfoModel;

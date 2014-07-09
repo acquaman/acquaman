@@ -18,6 +18,9 @@ public:
 	virtual QModelIndex parent(const QModelIndex &child) const;
 
 	QUrl rowToUrl(int rowIndex);
+
+	AMDbThumbnail* thumbnailAt(int row, int thumbnailIndex);
+	int thumbnailCount(int row) const;
 signals:
 	
 public slots:
