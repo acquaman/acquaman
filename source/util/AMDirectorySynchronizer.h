@@ -15,24 +15,34 @@ class AMDirectorySynchronizer : public QObject
 
 public:
 	/**
-	 * @brief Creates an instance of an AMDirectorySynchronizer with the provided sourceDirectory
-	 * and destinationDirectory
-	 * @param sourceDirectory::QString ~ The path of the directory to copy data from
-	 * @param destinationDirectory::QString ~ The path of the directory to copy data to
+	 * @brief Creates an instance of an AMDirectorySynchronizer with the provided directories
+	 * @param side1Directory::QString ~ The path of the first directory
+	 * @param side2Directory::QString ~ The path of the second directory
 	 */
-	explicit AMDirectorySynchronizer(const QString& sourceDirectory, const QString& destinationDirectory, QObject *parent = 0);
-	/// @brief Simple validation of path. Ensures it exists, and is a folder, not a file
-	bool validatePath(const QString& path);
-	/// @brief Starts the process of copying the files from the source to the destination
+	explicit AMDirectorySynchronizer(const QString& side1Directory, const QString& side2Directory, QObject *parent = 0);
+
+	/// @brief Starts the process of synchronizing the files in the two directories
 	bool start();
-	/// @brief Returns the state of the directory compare, whether Side1 (source) or Side2 (destination) is newer, or whether it's in some other state.
+	/// @brief Returns the state of the directory compare, whether side1 or side2 is newer, or whether it's in some other state.
 	AMRecursiveDirectoryCompare::DirectoryCompareResult compareDirectories();
 	/// @brief Whether or not the process is currently copying files
 	bool isRunning();
-	/// @brief The source directory from which the copy is performed
-	QString sourceDirectory() const { return sourceDirectory_; }
-	/// @brief The destination directory to which the data is copied
-	QString destinationDirectory() const { return destinationDirectory_; }
+
+	/// @brief The first directory
+	QString side1Directory() const { return side1Directory_; }
+	/// @brief The second directory
+	QString side2Directory() const { return side2Directory_; }
+
+	/// @brief Flag to say whether or not we're allowed to create side1 if it doesn't exist. False by default.
+	bool allowSide1Creation() const { return allowSide1Creation_; }
+	/// @brief Flag to say whether or not we're allowed to create side2 if it doesn't exist. False by default.
+	bool allowSide2Creation() const { return allowSide2Creation_; }
+
+public slots:
+	/// @brief Set the flag to say whether or not we're allowed to create side1 if it doesn't exist. False by default.
+	void setAllowSide1Creation(bool allowSide1Creation);
+	/// @brief Set the flag to say whether or not we're allowed to create side2 if it doesn't exist. False by default.
+	void setAllowSide2Creation(bool allowSide2Creation);
 
 signals:
 	/// @brief Signal emitted when the copy is completed successfully
@@ -59,6 +69,9 @@ protected slots:
 	void onTimerTimeout();
 
 protected:
+	/// @brief Simple validation of path. Ensures it exists, and is a folder, not a file. If it doesn't exist, attempts to create if allowCreation is true.
+	bool validatePath(const QString &path, bool allowCreation);
+
 	/// @brief Appends to the error message list
 	void appendToErrorMessage(const QString& message);
 
@@ -75,10 +88,16 @@ protected:
 	void unlockDirectory(const QString &path);
 
 private:
-	/// @brief The directory to copy to
-	QString destinationDirectory_;
-	/// @brief The directory to copy from
-	QString sourceDirectory_;
+	/// @brief The first directory
+	QString side1Directory_;
+	/// @brief The second directory
+	QString side2Directory_;
+
+	/// @brief Flag to say whether or not we're allowed to create side1 if it doesn't exist. False by default.
+	bool allowSide1Creation_;
+	/// @brief Flag to say whether or not we're allowed to create side2 if it doesn't exist. False by default.
+	bool allowSide2Creation_;
+
 	/// @brief A string list containing all the standard output messages emitted by the QProcess
 	QStringList progressMessages_;
 	/// @brief A string list of error messages emitted by the QProcess

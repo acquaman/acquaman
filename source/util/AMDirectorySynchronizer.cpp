@@ -4,11 +4,15 @@
 #include <QFileInfo>
 #include <QDir>
 #include <QDebug>
-AMDirectorySynchronizer::AMDirectorySynchronizer(const QString &sourceDirectory, const QString &destinationDirectory, QObject *parent)
+AMDirectorySynchronizer::AMDirectorySynchronizer(const QString &side1Directory, const QString &side2Directory, QObject *parent)
 	:QObject(parent)
 {
-	sourceDirectory_ = sourceDirectory;
-	destinationDirectory_ = destinationDirectory;
+	side1Directory_ = side1Directory;
+	side2Directory_ = side2Directory;
+
+	allowSide1Creation_ = false;
+	allowSide2Creation_ = false;
+
 	copyProcess_ = new QProcess(this);
 	isRunning_ = false;
 	percentProgress_ = 0;
@@ -23,13 +27,108 @@ AMDirectorySynchronizer::AMDirectorySynchronizer(const QString &sourceDirectory,
 	appendToProgressMessage("Copy not yet started");
 }
 
-bool AMDirectorySynchronizer::validatePath(const QString &path)
+bool AMDirectorySynchronizer::start()
+{
+	errorMessages_.clear();
+	progressMessages_.clear();
+
+	if(isRunning_)
+	{
+		appendToErrorMessage(QString("Process is already running"));
+		return false;
+	}
+
+	if(!(validatePath(side1Directory_, allowSide1Creation_) && validatePath(side2Directory_, allowSide2Creation_)))
+		return false;
+
+	AMRecursiveDirectoryCompare::DirectoryCompareResult result = compareDirectories();
+
+	if(result == AMRecursiveDirectoryCompare::UnableToDetermineResult)
+	{
+		appendToErrorMessage(QString("Unable to determine which directory contains the newest version."));
+		return false;
+	}
+
+	if(result == AMRecursiveDirectoryCompare::InvalidResult)
+	{
+		appendToErrorMessage(QString("Unknown error has occured in AMDirectorySynchronizer"));
+		return false;
+	}
+
+	if(result == AMRecursiveDirectoryCompare::BothSidesModifiedResult)
+	{
+		appendToErrorMessage(QString("Contents of %1 and %2 have both changed, cannot proceed").arg(side1Directory_).arg(side2Directory_));
+		return false;
+	}
+
+	if(result == AMRecursiveDirectoryCompare::FullyMatchingResult)
+	{
+		appendToProgressMessage(QString("Contents of %1 and %2 are the same, no copying necessary.").arg(side1Directory_).arg(side2Directory_));
+		percentProgress_ = 100;
+		emit percentageProgressChanged(100);
+		timer_->start();
+		return true;
+	}
+
+
+
+	QString process = "rsync";
+	QStringList args;
+	args << "-avt"
+		 << "--progress";
+
+	if(result == AMRecursiveDirectoryCompare::Side1ModifiedResult)
+	{
+		lockDirectory(side1Directory_);
+		args << QString("%1/.").arg(side1Directory_)
+			 << QString("%1/").arg(side2Directory_);
+	}
+	else
+	{
+		lockDirectory(side2Directory_);
+		args << QString("%1/.").arg(side2Directory_)
+			 << QString("%1/").arg(side1Directory_);
+
+	}
+	copyProcess_->start(process, args);
+	if(copyProcess_->waitForStarted(30000))
+	{
+		isRunning_ = true;
+		return true;
+	}
+	else
+		appendToErrorMessage("Could not start the sync process");
+	return false;
+}
+
+bool AMDirectorySynchronizer::isRunning()
+{
+	return isRunning_;
+}
+
+void AMDirectorySynchronizer::setAllowSide1Creation(bool allowSide1Creation){
+	allowSide1Creation_ = allowSide1Creation;
+}
+
+void AMDirectorySynchronizer::setAllowSide2Creation(bool allowSide2Creation){
+	allowSide2Creation_ = allowSide2Creation;
+}
+
+AMRecursiveDirectoryCompare::DirectoryCompareResult AMDirectorySynchronizer::compareDirectories()
+{
+	AMRecursiveDirectoryCompare compare(side1Directory_, side2Directory_, "Local", "Network");
+
+	return compare.compare();
+}
+
+bool AMDirectorySynchronizer::validatePath(const QString &path, bool allowCreation)
 {
 
 	if(!QFile::exists(path))
 	{
-		// Doesn't exit, create:
-		QDir().mkdir(path);
+		// Doesn't exit and allowed to , create:
+		if(allowCreation)
+			QDir().mkdir(path);
 
 		// Check if has been created properly
 		if(!QFile::exists(path))
@@ -51,92 +150,6 @@ bool AMDirectorySynchronizer::validatePath(const QString &path)
 
 	return true;
 
-}
-
-bool AMDirectorySynchronizer::start()
-{
-	errorMessages_.clear();
-	progressMessages_.clear();
-
-	if(isRunning_)
-	{
-		appendToErrorMessage(QString("Process is already running"));
-		return false;
-	}
-
-	if(!(validatePath(sourceDirectory_) && validatePath(destinationDirectory_)))
-		return false;
-
-	AMRecursiveDirectoryCompare::DirectoryCompareResult result = compareDirectories();
-
-	if(result == AMRecursiveDirectoryCompare::UnableToDetermineResult)
-	{
-		appendToErrorMessage(QString("Unable to determine which directory contains the newest version."));
-		return false;
-	}
-
-	if(result == AMRecursiveDirectoryCompare::InvalidResult)
-	{
-		appendToErrorMessage(QString("Unknown error has occured in AMDirectorySynchronizer"));
-		return false;
-	}
-
-	if(result == AMRecursiveDirectoryCompare::BothSidesModifiedResult)
-	{
-		appendToErrorMessage(QString("Contents of %1 and %2 have both changed, cannot proceed").arg(sourceDirectory_).arg(destinationDirectory_));
-		return false;
-	}
-
-	if(result == AMRecursiveDirectoryCompare::FullyMatchingResult)
-	{
-		appendToProgressMessage(QString("Contents of %1 and %2 are the same, no copying necessary.").arg(sourceDirectory_).arg(destinationDirectory_));
-		percentProgress_ = 100;
-		emit percentageProgressChanged(100);
-		timer_->start();
-		return true;
-	}
-
-
-
-	QString process = "rsync";
-	QStringList args;
-	args << "-avt"
-		 << "--progress";
-
-	if(result == AMRecursiveDirectoryCompare::Side1ModifiedResult)
-	{
-		lockDirectory(sourceDirectory_);
-		args << QString("%1/.").arg(sourceDirectory_)
-			 << QString("%1/").arg(destinationDirectory_);		
-	}
-	else
-	{
-		lockDirectory(destinationDirectory_);
-		args << QString("%1/.").arg(destinationDirectory_)
-			 << QString("%1/").arg(sourceDirectory_);
-
-	}
-	copyProcess_->start(process, args);
-	if(copyProcess_->waitForStarted(30000))
-	{
-		isRunning_ = true;
-		return true;
-	}
-	else
-		appendToErrorMessage("Could not start the sync process");
-	return false;
-}
-
-bool AMDirectorySynchronizer::isRunning()
-{
-	return isRunning_;
-}
-
-AMRecursiveDirectoryCompare::DirectoryCompareResult AMDirectorySynchronizer::compareDirectories()
-{
-	AMRecursiveDirectoryCompare compare(sourceDirectory_, destinationDirectory_);
-
-	return compare.compare();
 }
 
 void AMDirectorySynchronizer::appendToErrorMessage(const QString &message)
@@ -240,8 +253,8 @@ void AMDirectorySynchronizer::onCopyReadyReadStdOut()
 void AMDirectorySynchronizer::onCopyFinished(int exitCode, QProcess::ExitStatus status)
 {
 	isRunning_ = false;
-	unlockDirectory(destinationDirectory_);
-	unlockDirectory(sourceDirectory_);
+	unlockDirectory(side2Directory_);
+	unlockDirectory(side1Directory_);
 	if(exitCode == 1 || status == QProcess::CrashExit)
 	{
 		emit copyFailed();

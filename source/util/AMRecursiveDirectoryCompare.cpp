@@ -8,10 +8,13 @@
 
 #include <QDebug>
 
-AMRecursiveDirectoryCompare::AMRecursiveDirectoryCompare(const QString &directoryPath1, const QString &directoryPath2)
+AMRecursiveDirectoryCompare::AMRecursiveDirectoryCompare(const QString &directoryPath1, const QString &directoryPath2, const QString &side1Name, const QString &side2Name)
 {
 	directoryPath1_ = directoryPath1;
 	directoryPath2_ = directoryPath2;
+
+	side1Name_ = side1Name;
+	side2Name_ = side2Name;
 }
 
 AMRecursiveDirectoryCompare::DirectoryCompareResult AMRecursiveDirectoryCompare::compare(){
@@ -32,11 +35,11 @@ AMRecursiveDirectoryCompare::DirectoryCompareResult AMRecursiveDirectoryCompare:
 	else if(uniqueSide2Directories_.isEmpty() && uniqueSide2Files_.isEmpty() &&
 			newerSide2Files_.isEmpty())
 	{
-		qDebug() << "Side 1 has been modified, but not side 2";
+		qDebug() << QString("%1 has been modified, but not %2").arg(side1Name_).arg(side2Name_);
 
-		qDebug() << "Unique side 1 directories: " << uniqueSide1Directories_;
-		qDebug() << "Unique side 1 files: " << uniqueSide1Files_;
-		qDebug() << "Newer side 1 files: " << newerSide1Files_;
+		qDebug() << QString("Unique %1 directories: ").arg(side1Name_) << uniqueSide1Directories_;
+		qDebug() << QString("Unique %1 files: ").arg(side1Name_) << uniqueSide1Files_;
+		qDebug() << QString("Newer %1 files: ").arg(side1Name_) << newerSide1Files_;
 
 		return AMRecursiveDirectoryCompare::Side1ModifiedResult;
 
@@ -44,24 +47,24 @@ AMRecursiveDirectoryCompare::DirectoryCompareResult AMRecursiveDirectoryCompare:
 	else if(uniqueSide1Directories_.isEmpty() && uniqueSide1Files_.isEmpty() &&
 			newerSide1Files_.isEmpty())
 	{
-		qDebug() << "Side 2 has been modified, but not side 1";
+		qDebug() << QString("%2 has been modified, but not %1").arg(side1Name_).arg(side2Name_);
 
-		qDebug() << "Unique side 2 directories: " << uniqueSide2Directories_;
-		qDebug() << "Unique side 2 files: " << uniqueSide2Files_;
-		qDebug() << "Newer side 2 files: " << newerSide2Files_;
+		qDebug() << QString("Unique %1 directories: ").arg(side2Name_) << uniqueSide2Directories_;
+		qDebug() << QString("Unique %1 files: ").arg(side2Name_) << uniqueSide2Files_;
+		qDebug() << QString("Newer %1 files: ").arg(side2Name_) << newerSide2Files_;
 
 		return AMRecursiveDirectoryCompare::Side2ModifiedResult;
 	}
 	else{
 		qDebug() << "Both sides have been modified";
 
-		qDebug() << "Unique side 1 directories: " << uniqueSide1Directories_;
-		qDebug() << "Unique side 1 files: " << uniqueSide1Files_;		
-		qDebug() << "Newer side 1 files: " << newerSide1Files_;
+		qDebug() << QString("Unique %1 directories: ").arg(side1Name_) << uniqueSide1Directories_;
+		qDebug() << QString("Unique %1 files: ").arg(side1Name_) << uniqueSide1Files_;
+		qDebug() << QString("Newer %1 files: ").arg(side1Name_) << newerSide1Files_;
 		qDebug() << "=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+";
-		qDebug() << "Unique side 2 directories: " << uniqueSide2Directories_;
-		qDebug() << "Unique side 2 files: " << uniqueSide2Files_;		
-		qDebug() << "Newer side 2 files: " << newerSide2Files_;
+		qDebug() << QString("Unique %1 directories: ").arg(side2Name_) << uniqueSide2Directories_;
+		qDebug() << QString("Unique %1 files: ").arg(side2Name_) << uniqueSide2Files_;
+		qDebug() << QString("Newer %1 files: ").arg(side2Name_) << newerSide2Files_;
 
 		return AMRecursiveDirectoryCompare::BothSidesModifiedResult;
 	}

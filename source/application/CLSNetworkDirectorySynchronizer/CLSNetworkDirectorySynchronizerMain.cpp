@@ -47,9 +47,9 @@ int main(int argc, char *argv[])
 
 	CLSNetworkDirectorySynchronizer *synchronizer = new CLSNetworkDirectorySynchronizer(localDirectory, networkDirectory);
 
-	AMRecursiveDirectoryCompare::DirectoryCompareResult directoryCompareResult = synchronizer->compareDirectories();
+	if(arguments.contains("--dryRun")){
+		AMRecursiveDirectoryCompare::DirectoryCompareResult directoryCompareResult = synchronizer->compareDirectories();
 
-	if(arguments.contains("--debug") || arguments.contains("--dryRun")){
 		switch(directoryCompareResult){
 		case AMRecursiveDirectoryCompare::FullyMatchingResult:
 			qDebug() << QString("The local directory %1 is identical to the network directory %2.").arg(synchronizer->localPath()).arg(synchronizer->networkPath());
@@ -74,8 +74,7 @@ int main(int argc, char *argv[])
 			break;
 		}
 
-		if(arguments.contains("--dryRun"))
-			return 0;
+		return 0;
 	}
 
 	//return coreApp.exec();

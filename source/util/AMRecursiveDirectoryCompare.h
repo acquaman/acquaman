@@ -2,7 +2,7 @@
 #define AMRECURSIVEDIRECTORYCOMPARE_H
 
 #include <QStringList>
-#include <QCryptographicHash>
+
 class AMRecursiveDirectoryCompare
 {
 public:
@@ -15,7 +15,7 @@ public:
 		InvalidResult
 	};
 
-	AMRecursiveDirectoryCompare(const QString &directoryPath1, const QString &directoryPath2);
+	AMRecursiveDirectoryCompare(const QString &directoryPath1, const QString &directoryPath2, const QString &side1Name = "Side 1", const QString & side2Name = "Side 2");
 
 	AMRecursiveDirectoryCompare::DirectoryCompareResult compare();
 
@@ -26,11 +26,16 @@ public:
 	QStringList newerSide1Files() const;
 	QStringList newerSide2Files() const;
 	QStringList unknownFiles() const;
+
 protected:
 	bool compareOneLevel(const QString &path1, const QString &path2);
+
 protected:
 	QString directoryPath1_;
 	QString directoryPath2_;
+
+	QString side1Name_;
+	QString side2Name_;
 
 	QStringList uniqueSide1Files_;
 	QStringList uniqueSide2Files_;
