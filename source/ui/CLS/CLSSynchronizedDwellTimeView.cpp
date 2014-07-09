@@ -237,10 +237,12 @@ void CLSSynchronizedDwellTimeView::onDwellTimeConnected(bool value)
 
 void CLSSynchronizedDwellTimeView::onModeChanged(CLSSynchronizedDwellTime::Mode)
 {
+	modeComboBox_->blockSignals(true);
 	if(dwellTime_->mode() == CLSSynchronizedDwellTime::SingleShot)
 		modeComboBox_->setCurrentIndex(0);
 	else
 		modeComboBox_->setCurrentIndex(1);
+	modeComboBox_->blockSignals(false);
 }
 
 void CLSSynchronizedDwellTimeView::onDwellTimeSpinBoxValueChanged()
