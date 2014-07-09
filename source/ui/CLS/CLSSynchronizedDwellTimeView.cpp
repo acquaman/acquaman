@@ -128,19 +128,19 @@ CLSSynchronizedDwellTimeView::CLSSynchronizedDwellTimeView(CLSSynchronizedDwellT
 	dwellTimeSpinBox_->setMinimum(0);
 	dwellTimeSpinBox_->setMaximum(1e6);
 
-	layout->addWidget(statusLabel_, 0, 0, 1, 2, Qt::AlignCenter);
-	layout->addWidget(startButton_, 1, 0, 1, 1);
-	layout->addWidget(stopButton_, 1, 1, 1, 1);
-	layout->addWidget(modeComboBox_, 2, 0, 1, 2);
-	layout->addWidget(dwellTimeLabel_, 1, 2, 1, 1);
-	layout->addWidget(dwellTimeSpinBox_, 2, 2, 1, 1);
+	layout->addWidget(startButton_, 0, 0, 1, 2);
+	layout->addWidget(stopButton_, 0, 2, 1, 2);
+	layout->addWidget(statusLabel_, 0, 4, 1, 1, Qt::AlignCenter);
+	layout->addWidget(modeComboBox_, 1, 0, 1, 3);
+	layout->addWidget(dwellTimeLabel_, 1, 3, 1, 1);
+	layout->addWidget(dwellTimeSpinBox_, 1, 4, 1, 1);
 
 
 	for(int iElement=0; iElement < dwellTime_->elementCount(); iElement++)
 	{
 		elViews_ << new CLSSynchronizedDwellTimeElementView(dwellTime_->elementAt(iElement));
 		elViews_.last()->hide();
-		layout->addWidget(elViews_.last(), iElement + 4, 0, 1, 3);
+		layout->addWidget(elViews_.last(), iElement + 4, 0, 1, 5);
 	}
 
 	if(dwellTime_->isConnected())
@@ -149,6 +149,7 @@ CLSSynchronizedDwellTimeView::CLSSynchronizedDwellTimeView(CLSSynchronizedDwellT
 		startButton_->setEnabled(!dwellTime_->isScanning());
 		stopButton_->setEnabled(dwellTime_->isScanning());
 		statusLabel_->setPixmap(QIcon(dwellTime_->isScanning() ? ":/ON.png" : ":/OFF.png").pixmap(25));
+
 		if(dwellTime_->mode() == CLSSynchronizedDwellTime::SingleShot)
 			modeComboBox_->setCurrentIndex(0);
 		else
