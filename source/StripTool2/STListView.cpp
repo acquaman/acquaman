@@ -19,7 +19,6 @@ void STListView::onCustomContextMenuRequested(QPoint position)
     QMenu menu(this);
 
     QAction *action = menu.addAction("Add variable");
-    action->setEnabled(false);
 
     action = menu.exec(mapToGlobal(position));
 

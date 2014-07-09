@@ -116,16 +116,16 @@ void STWidget::updatePlotLeftAxisName()
     if (selectedVariable_) {
         QString description = variables_->data(variables_->indexOf(selectedVariable_), Qt::DisplayRole).toString();
 
-        QString units = selectedVariable_->units();
-
-        if (units == "")
-            plotWidget_->plot()->axisLeft()->setAxisName(description);
-        else
+        if (selectedVariable_->hasUnits()) {
+            QString units = selectedVariable_->units();
             plotWidget_->plot()->axisLeft()->setAxisName(description + " [" + units + "]");
+
+        } else {
+            plotWidget_->plot()->axisLeft()->setAxisName(description);
+        }
 
     } else {
         plotWidget_->plot()->axisLeft()->setAxisName("");
-
     }
 }
 

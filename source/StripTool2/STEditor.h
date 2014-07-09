@@ -12,6 +12,7 @@ public:
     virtual ~STEditor();
 
 signals:
+    void closeDialog();
 
 public slots:
     virtual void applyChanges() = 0;

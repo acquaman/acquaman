@@ -7,6 +7,8 @@
 #include <QRect>
 #include <QPainter>
 #include <QPaintEvent>
+#include <QStyle>
+#include <QStyleOptionButton>
 
 class STColorButton : public QPushButton
 {

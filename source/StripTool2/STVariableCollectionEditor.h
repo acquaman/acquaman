@@ -30,7 +30,7 @@ public slots:
 protected slots:
     void onListViewSelection(QModelIndex selection);
     void setSelectedVariable(STVariable *newSelection);
-    void onRemoveButtonClicked();
+    void removeSelectedVariable();
 
 protected:
     QListView *variableList_;

@@ -10,6 +10,8 @@
 
 #include "STTime.h"
 
+class STTime;
+
 class STPlotWidget : public MPlotWidget
 {
     Q_OBJECT

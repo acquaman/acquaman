@@ -20,10 +20,19 @@ public:
     STEditor *editor() const;
 
 signals:
+    void editorChanged(STEditor *editor);
 
 public slots:
+    void setEditor(STEditor *editor);
+
+protected slots:
+    void onEditorCloseDialog();
     void onOkButtonClicked();
     void onCancelButtonClicked();
+
+protected:
+    void connectEditor();
+    void disconnectEditor();
 
 protected:
     STEditor *editor_;

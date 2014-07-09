@@ -3,9 +3,6 @@
 STColorButton::STColorButton(QWidget *parent) : QPushButton(parent)
 {
     color_ = QColor();
-
-    setMinimumWidth(50);
-
     connect( this, SIGNAL(clicked()), this, SLOT(selectColor()) );
 }
 
@@ -24,13 +21,17 @@ void STColorButton::setColor(const QColor &newColor)
     if (color_ != newColor) {
         color_ = newColor;
 
-        if (color_.isValid())
-            setStyleSheet("color: " + color_.name());
+        if (color_.isValid()) {
+            QPalette pal = this->palette();
+            pal.setColor(QPalette::Button, color_);
+            setAutoFillBackground(true);
+            setPalette(pal);
+        }
 
         emit colorChanged(color_);
     }
 
-    repaint();
+    update();
 }
 
 void STColorButton::selectColor()
@@ -43,7 +44,31 @@ void STColorButton::selectColor()
 
 void STColorButton::paintEvent(QPaintEvent *event)
 {
-    QPushButton::paintEvent(event);
+
+    Q_UNUSED(event)
+
+//    QStyleOptionButton option;
+//    option.initFrom(this);
+//    option.state = isDown() ? QStyle::State_Sunken : QStyle::State_Raised;
+//    if (isDefault())
+//        option.features |= QStyleOptionButton::DefaultButton;
+//    option.text = text();
+//    option.icon = icon();
+
+//    QPalette palette(this->palette());
+//    palette.setBrush(QPalette::Background, QBrush(color_));
+//    setPalette(palette);
+//    option.backgroundColor = this->palette().color(QPalette::Background);
+
+//    QPalette palette(palette());
+//    palette.setBrush(QPalette::Background, QBrush(color_));
+//    setPalette(palette);
+
+//    QPainter painter(this);
+//    style()->drawControl(QStyle::CE_PushButton, &option, &painter, this);
+
+
+//    QPushButton::paintEvent(event);
 
 //    if (color_.isValid()) {
 

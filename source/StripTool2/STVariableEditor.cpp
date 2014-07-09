@@ -57,7 +57,7 @@ STVariableEditor::STVariableEditor(STVariable *toEdit, QWidget *parent) : STEdit
     mainLayout->addWidget(colorButton_, 6, 1);
 
     removeButton_ = new QPushButton("Remove", this);
-    removeButton_->setDefault(false);
+    removeButton_->setEnabled(false);
     mainLayout->addWidget(removeButton_, 7, 1);
 
     setLayout(mainLayout);
@@ -100,8 +100,12 @@ void STVariableEditor::setVariable(STVariable *toEdit)
         connectVariable();
         emit variableChanged(variable_);
 
+        removeButton_->setEnabled(true);
+
     } else {
         emit variableChanged(0);
+
+        removeButton_->setEnabled(false);
     }
 
 }
@@ -109,14 +113,20 @@ void STVariableEditor::setVariable(STVariable *toEdit)
 void STVariableEditor::applyChanges()
 {
     if (variable_) {
-        if (descriptionEdited_)
+        if (descriptionEdited_) {
             variable_->setDescription(descriptionEntry_->text());
+            descriptionEdited_ = false;
+        }
 
-        if (unitsEdited_)
+        if (unitsEdited_) {
             variable_->setUnits(unitsEntry_->text());
+            unitsEdited_ = false;
+        }
 
-        if (colorEdited_)
+        if (colorEdited_) {
             variable_->setColor(colorButton_->color());
+            colorEdited_ = false;
+        }
     }
 
 }
@@ -139,6 +149,7 @@ void STVariableEditor::onDescriptionEntryChanged(const QString &text)
     Q_UNUSED(text)
 
     descriptionEdited_ = true;
+    applyChanges();
 }
 
 void STVariableEditor::onUnitsEntryChanged(const QString &text)
@@ -146,11 +157,13 @@ void STVariableEditor::onUnitsEntryChanged(const QString &text)
     Q_UNUSED(text)
 
     unitsEdited_ = true;
+    applyChanges();
 }
 
 void STVariableEditor::onColorButtonClicked()
 {
     colorEdited_ = true;
+    applyChanges();
 }
 
 void STVariableEditor::getVariableInfo()

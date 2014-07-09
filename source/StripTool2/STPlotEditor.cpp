@@ -62,13 +62,11 @@ void STPlotEditor::applyChanges()
         if (nameShownChanged_)
             plot_->showPlotName(nameShown_->checkState() == Qt::Checked);
 
-        if (timeValueChanged_) {
+        if (timeValueChanged_)
             plot_->time()->setValue(timeEntry_->text().toInt());
-        }
 
-        if (timeUnitsChanged_) {
+        if (timeUnitsChanged_)
             plot_->time()->setUnits(STTime::stringToUnits(timeUnits_->currentText()));
-        }
 
         if (plot_->timeFilteringEnabled() && timeEntry_->text() == "")
             plot_->enableTimeFiltering(false);
