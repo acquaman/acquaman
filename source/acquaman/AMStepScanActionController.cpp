@@ -269,8 +269,8 @@ bool AMStepScanActionController::event(QEvent *e)
 
 			if (isStopping() && stoppingAtEndOfLine_){
 
-				connect(scanningActions_, SIGNAL(cancelled()), this, SLOT(setFinished()));
-				scanningActions_->cancel();
+				connect(AMActionRunner3::scanActionRunner()->currentAction(), SIGNAL(cancelled()), this, SLOT(onScanningActionsSucceeded()));
+				AMActionRunner3::scanActionRunner()->cancelCurrentAction();
 			}
 
 			break;}
@@ -288,8 +288,8 @@ bool AMStepScanActionController::event(QEvent *e)
 
 			if (isStopping() && !stoppingAtEndOfLine_){
 
-				connect(scanningActions_, SIGNAL(cancelled()), this, SLOT(setFinished()));
-				scanningActions_->cancel();
+				connect(AMActionRunner3::scanActionRunner()->currentAction(), SIGNAL(cancelled()), this, SLOT(onScanningActionsSucceeded()));
+				AMActionRunner3::scanActionRunner()->cancelCurrentAction();
 			}
 
 			break;
