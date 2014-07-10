@@ -190,6 +190,8 @@ void AMScanActionController::onScanningActionsSucceeded()
 		connect(cleanupActions_, SIGNAL(succeeded()), this, SLOT(onCleanupActionsListSucceeded()));
 		connect(cleanupActions_, SIGNAL(failed()), this, SLOT(onCleanupActionsListFailed()));
 
+		emit cleaningActionsStarted();
+
 		AMActionRunner3::scanActionRunner()->addActionToQueue(cleanupActions_);
 		AMActionRunner3::scanActionRunner()->setQueuePaused(false);
 	}
@@ -207,6 +209,8 @@ void AMScanActionController::onScanningActionsFailed()
 
 		connect(cleanupActions_, SIGNAL(succeeded()), this, SLOT(onCleanupActionsListSucceeded()));
 		connect(cleanupActions_, SIGNAL(failed()), this, SLOT(onCleanupActionsListFailed()));
+
+		emit cleaningActionsStarted();
 
 		AMActionRunner3::scanActionRunner()->addActionToQueue(cleanupActions_);
 		AMActionRunner3::scanActionRunner()->setQueuePaused(false);

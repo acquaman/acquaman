@@ -137,11 +137,13 @@ void AMScanAction::startImplementation()
 	connect(controller_, SIGNAL(cancelled()), this, SLOT(onControllerCancelled()));
 	connect(controller_, SIGNAL(failed()), this, SLOT(onControllerFailed()));
 	connect(controller_, SIGNAL(finished()), this, SLOT(onControllerSucceeded()));
+	connect(controller_, SIGNAL(cleaningActionsStarted()), this, SLOT(onControllerCleaningUp()));
 	connect(controller_, SIGNAL(progress(double,double)), this, SLOT(onControllerProgressChanged(double,double)));
 	connect(controller_, SIGNAL(stateChanged(int,int)), this, SLOT(onControllerStateChanged()));
 
 	// The action is started the moment it tries to start the controller.
 	setStarted();
+	setStatusText("Initializing");
 
 	// Initialize the controller.
 	if (!controller_->initialize()){
@@ -157,28 +159,40 @@ void AMScanAction::startImplementation()
 
 void AMScanAction::pauseImplementation()
 {
-	if (controller_->pause())
+	if (controller_->pause()){
+
 		setPaused();
+		setStatusText("Paused");
+	}
 }
 
 void AMScanAction::resumeImplementation()
 {
-	if (controller_->resume())
+	if (controller_->resume()){
+
 		setResumed();
+		setStatusText("Running");
+	}
 }
 
 void AMScanAction::cancelImplementation()
 {
-	if(controller_)
+	if(controller_){
+
 		controller_->cancel();
+		setStatusText("Cancelling");
+	}
 	else
 		setCancelled();
 }
 
 void AMScanAction::skipImplementation(const QString &command)
 {
-	if (controller_)
+	if (controller_){
+
 		controller_->stop(command);
+		setStatusText(QString("Skipping - %1").arg(command));
+	}
 
 	else
 		setSucceeded();
@@ -200,6 +214,9 @@ void AMScanAction::onControllerInitialized()
 		AMErrorMon::alert(this, AMSCANACTION_CANT_START_CONTROLLER, "Could not start the scan controller.");
 		setFailed();
 	}
+
+	else
+		setStatusText("Running");
 }
 
 void AMScanAction::onControllerStarted()
@@ -218,6 +235,7 @@ void AMScanAction::onControllerCancelled()
 			AMErrorMon::alert(this, AMSCANACTION_CANT_SAVE_TO_DB, "The scan action was unable to update the scan in the database.");
 
 	setCancelled();
+	setStatusText("Cancelled");
 }
 
 void AMScanAction::onControllerFailed()
@@ -228,16 +246,25 @@ void AMScanAction::onControllerFailed()
 			AMErrorMon::alert(this, AMSCANACTION_CANT_SAVE_TO_DB, "The scan action was unable to update the scan in the database.");
 
 	setFailed();
+	setStatusText("Failed");
 }
 
 void AMScanAction::onControllerSucceeded()
 {
-	if (controller_)
+	if (controller_){
+
+		setStatusText("Exporting");
 		autoExportScan();
+	}
 	else
 		AMErrorMon::alert(this, AMSCANACTION_CONTROLLER_NOT_VALID_FOR_AUTOEXPORT, "Could not export, somehow the scan controller is not available.");
 
 	setSucceeded();
+}
+
+void AMScanAction::onControllerCleaningUp()
+{
+	setStatusText("Cleaning Up");
 }
 
 void AMScanAction::onControllerProgressChanged(double elapsed, double total)
@@ -371,7 +398,7 @@ void AMScanAction::autoExportScan()
 
 void AMScanAction::onControllerStateChanged()
 {
-	setStatusText(stateDescription(state()) % "\n" % controllerStateString());
+//	setStatusText(stateDescription(state()) % "\n" % controllerStateString());
 }
 
 void AMScanAction::onReadyForDeletionChanged(bool isReady)

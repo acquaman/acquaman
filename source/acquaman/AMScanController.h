@@ -118,6 +118,9 @@ signals:
 	/// Scan failed (due to some reason out of the user's control). Synonym for stateChanged(anything, Failed).
 	void failed();
 
+	/// Notifier that the cleaning actions are being used.  This may not be emitted by all scan controllers.
+	void cleaningActionsStarted();
+
 	/// Time left in scan. Implementations should emit this periodically
 	void timeRemaining(double seconds);
 	/// Progress of scan (arbitrary units: some amount \c elapsed of a \c total amount). Implementations should emit this periodically.

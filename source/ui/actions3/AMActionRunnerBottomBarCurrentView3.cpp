@@ -176,20 +176,16 @@ void AMActionRunnerBottomBarCurrentView3::onStateChanged(int state, int previous
 
 void AMActionRunnerBottomBarCurrentView3::onStatusTextChanged(const QString &newStatus)
 {
-	Q_UNUSED(newStatus);
-
-	AMAction3 *action = AMActionRunner3::workflow()->currentAction();
-
-	if (rootLoopAction_)
-		descriptionLabel_->setText(QString("%1\n[%2] %3 of %4").arg(whatIsRunning_).arg(rootLoopAction_->currentSubAction()->stateDescription(action->state())).arg(rootLoopAction_->currentIteration()+1).arg(rootLoopAction_->loopCount()));
+	if (rootLoopAction_ && rootLoopAction_->currentSubAction())
+		descriptionLabel_->setText(QString("%1\n[%2] %3 of %4").arg(whatIsRunning_).arg(rootLoopAction_->currentSubAction()->statusText()).arg(rootLoopAction_->currentIteration()+1).arg(rootLoopAction_->loopCount()));
 
 	else
-		descriptionLabel_->setText(QString("%1\n[%2]").arg(whatIsRunning_).arg(action->stateDescription(action->state())));
+		descriptionLabel_->setText(QString("%1\n[%2]").arg(whatIsRunning_).arg(newStatus));
 }
 
 void AMActionRunnerBottomBarCurrentView3::onLoopIterationUpdate(int iteration)
 {
-	descriptionLabel_->setText(QString("%1\n[%2] %3 of %4").arg(whatIsRunning_).arg(actionRunner_->currentAction()->stateDescription(actionRunner_->currentAction()->state())).arg(iteration+1).arg(rootLoopAction_->loopCount()));
+	descriptionLabel_->setText(QString("%1\n[%2] %3 of %4").arg(whatIsRunning_).arg(actionRunner_->currentAction()->statusText()).arg(iteration+1).arg(rootLoopAction_->loopCount()));
 
 	if (rootLoopAction_->currentIteration()+1 == rootLoopAction_->loopCount())
 		decreaseIterations_->setEnabled(false);
@@ -199,7 +195,7 @@ void AMActionRunnerBottomBarCurrentView3::onIncreaseLoopIterationsClicked()
 {
 	// No checks are done here because you should only be able to get here if there is already a valid root loop action.
 	rootLoopAction_->setLoopCount(rootLoopAction_->loopCount()+1);
-	descriptionLabel_->setText(QString("%1\n[%2] %3 of %4").arg(whatIsRunning_).arg(rootLoopAction_->currentSubAction()->stateDescription(rootLoopAction_->currentSubAction()->state())).arg(rootLoopAction_->currentIteration()+1).arg(rootLoopAction_->loopCount()));
+	descriptionLabel_->setText(QString("%1\n[%2] %3 of %4").arg(whatIsRunning_).arg(rootLoopAction_->currentSubAction()->statusText()).arg(rootLoopAction_->currentIteration()+1).arg(rootLoopAction_->loopCount()));
 	decreaseIterations_->setEnabled(true);
 }
 
@@ -208,7 +204,7 @@ void AMActionRunnerBottomBarCurrentView3::onDecreaseLoopIterationsClicked()
 	// No checks are done here because you should only be able to get here if there is already a valid root loop action.
 	// Also, you should only be able to get here if decreasing the loop iterations is valid.  So extra checks are not necessary.
 	rootLoopAction_->setLoopCount(rootLoopAction_->loopCount()-1);
-	descriptionLabel_->setText(QString("%1\n[%2] %3 of %4").arg(whatIsRunning_).arg(rootLoopAction_->currentSubAction()->stateDescription(rootLoopAction_->currentSubAction()->state())).arg(rootLoopAction_->currentIteration()+1).arg(rootLoopAction_->loopCount()));
+	descriptionLabel_->setText(QString("%1\n[%2] %3 of %4").arg(whatIsRunning_).arg(rootLoopAction_->currentSubAction()->statusText()).arg(rootLoopAction_->currentIteration()+1).arg(rootLoopAction_->loopCount()));
 
 	if (rootLoopAction_->currentIteration()+1 == rootLoopAction_->loopCount())
 		decreaseIterations_->setEnabled(false);
@@ -219,13 +215,13 @@ void AMActionRunnerBottomBarCurrentView3::onRootLoopSubActionChanged(int index)
 	if (index < rootLoopAction_->subActionCount()){
 
 		whatIsRunning_ = rootLoopAction_->subActionAt(index)->info()->name();
-		descriptionLabel_->setText(QString("%1\n[%2] %3 of %4").arg(whatIsRunning_).arg(rootLoopAction_->subActionAt(index)->stateDescription(rootLoopAction_->subActionAt(index)->state())).arg(rootLoopAction_->currentIteration()+1).arg(rootLoopAction_->loopCount()));
+		descriptionLabel_->setText(QString("%1\n[%2] %3 of %4").arg(whatIsRunning_).arg(rootLoopAction_->subActionAt(index)->statusText()).arg(rootLoopAction_->currentIteration()+1).arg(rootLoopAction_->loopCount()));
 	}
 }
 
 void AMActionRunnerBottomBarCurrentView3::onRootLoopActionLoopCountChanged()
 {
-	descriptionLabel_->setText(QString("%1\n[%2] %3 of %4").arg(whatIsRunning_).arg(rootLoopAction_->currentSubAction()->stateDescription(rootLoopAction_->currentSubAction()->state())).arg(rootLoopAction_->currentIteration()+1).arg(rootLoopAction_->loopCount()));
+	descriptionLabel_->setText(QString("%1\n[%2] %3 of %4").arg(whatIsRunning_).arg(rootLoopAction_->currentSubAction()->statusText()).arg(rootLoopAction_->currentIteration()+1).arg(rootLoopAction_->loopCount()));
 
 	if (rootLoopAction_->currentIteration()+1 == rootLoopAction_->loopCount())
 		decreaseIterations_->setEnabled(false);

@@ -67,8 +67,6 @@ protected:
 	/// This string holds a small message that states what is currently running.  This is used when someone might be interested on what is "hanging up" the current action, or if they are just curious where they are.
 	QString whatIsRunning_;
 
-	/// The action runner model.
-	AMActionRunner3 *actionRunner_;
 	/// Pointer to the root loop action (if it exists).
 	AMLoopAction3 *rootLoopAction_;
 

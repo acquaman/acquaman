@@ -56,6 +56,8 @@ public:
 
 	/// Returns a pointer to the scan controller that is encapsulated by this action.
 	AMScanController *controller() const { return controller_; }
+	/// Method that returns a string with the state of the scan controller.
+	QString controllerStateString() const;
 
 	/// Returns the ActionValidity of this scanAction
 	virtual AMAction3::ActionValidity isValid();
@@ -93,6 +95,8 @@ protected slots:
 	void onControllerFailed();
 	/// Handles all the wrap up and clean up if the controller succeeds.
 	void onControllerSucceeded();
+	/// Handles setting the status text when cleaning actions are started.
+	void onControllerCleaningUp();
 	/// Handles the progress changed passed up from the controller.
 	void onControllerProgressChanged(double elapsed, double total);
 	/// Helper slot that updates the status text when the controller changes state.
@@ -115,8 +119,6 @@ protected:
 
 	/// Exports a the scan with the registered exporter and option when a scan successfully completes.
 	void autoExportScan();
-	/// Method that returns a string with the state of the scan controller.
-	QString controllerStateString() const;
 
 	/// A pointer to the scan controller that this action is encapsulating.
 	AMScanController *controller_;
