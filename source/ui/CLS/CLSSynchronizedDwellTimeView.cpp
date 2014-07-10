@@ -163,20 +163,25 @@ CLSSynchronizedDwellTimeView::CLSSynchronizedDwellTimeView(CLSSynchronizedDwellT
 	connect(dwellTime_, SIGNAL(scanningChanged(bool)), this, SLOT(onScanningChanged(bool)));
 	connect(dwellTime_, SIGNAL(modeChanged(CLSSynchronizedDwellTime::Mode)), this, SLOT(onModeChanged(CLSSynchronizedDwellTime::Mode)));
 	connect(dwellTime_, SIGNAL(connected(bool)), this, SLOT(onDwellTimeConnected(bool)));
+	connect(dwellTime_, SIGNAL(statusChanged(bool)), this, SLOT(onStatusChanged(bool)));
 
 	connect(dwellTimeSpinBox_, SIGNAL(valueChanged(int)), this, SLOT(onDwellTimeSpinBoxValueChanged()));
 	connect(startButton_, SIGNAL(clicked()), this, SLOT(onStartButtonClicked()));
 	connect(stopButton_, SIGNAL(clicked()), this, SLOT(onStopButtonClicked()));
 	connect(modeComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onModeComboBoxCurrentIndexChanged(int)));
 
-
-
 	setContextMenuPolicy(Qt::CustomContextMenu);
 
 	this->setLayout(layout);
 }
 
-void CLSSynchronizedDwellTimeView::setAdvancedViewVisible(bool advancedViewVisible){
+void CLSSynchronizedDwellTimeView::onStatusChanged(bool status)
+{
+	statusLabel_->setPixmap(QIcon(status ? ":/ON.png" : ":/OFF.png").pixmap(25));
+}
+
+void CLSSynchronizedDwellTimeView::setAdvancedViewVisible(bool advancedViewVisible)
+{
 	if(advancedView_ == advancedViewVisible)
 		return;
 
@@ -217,7 +222,6 @@ void CLSSynchronizedDwellTimeView::onScanningChanged(bool value)
 {
 	startButton_->setEnabled(!value);
 	stopButton_->setEnabled(value);
-	statusLabel_->setPixmap(QIcon(value ? ":/ON.png" : ":/OFF.png").pixmap(25));
 }
 
 void CLSSynchronizedDwellTimeView::onDwellTimeConnected(bool value)
