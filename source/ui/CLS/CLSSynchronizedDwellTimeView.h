@@ -79,7 +79,7 @@ class CLSSynchronizedDwellTimeView : public QWidget
 	Q_OBJECT
 public:
 	/// Constructor.  Takes a CLSSynchronizedDwellTime object.
- 	virtual ~CLSSynchronizedDwellTimeView();
+	virtual ~CLSSynchronizedDwellTimeView();
 	explicit CLSSynchronizedDwellTimeView(CLSSynchronizedDwellTime *dwellTime, QWidget *parent = 0);
 
 signals:
@@ -106,6 +106,8 @@ protected slots:
 	void onStopButtonClicked();
 	/// Changes the mode of the scan
 	void onModeComboBoxCurrentIndexChanged(int);
+	/// Handles changing the status label to on or off.
+	void onStatusChanged(bool status);
 
 protected:
 
