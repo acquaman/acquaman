@@ -8,6 +8,7 @@
 #include <QLayout>
 #include <QColorDialog>
 #include <QPushButton>
+#include <QCheckBox>
 
 #include "STEditor.h"
 #include "STVariable.h"
@@ -41,12 +42,15 @@ protected slots:
     void onDescriptionEntryChanged(const QString &text);
     void onUnitsEntryChanged(const QString &text);
     void onColorButtonClicked();
+    void onShowMarkersChanged();
 
 protected:
     void getVariableInfo();
     void clearVariableInfo();
     void connectVariable();
     void disconnectVariable();
+    void connectUI();
+    void disconnectUI();
 
 protected:
     STVariable *variable_;
@@ -58,11 +62,13 @@ protected:
     QLabel *value_;
     QLineEdit *unitsEntry_;
     STColorButton *colorButton_;
+    QCheckBox *showMarkers_;
     QPushButton *removeButton_;
 
     bool descriptionEdited_;
     bool unitsEdited_;
     bool colorEdited_;
+    bool showMarkersEdited_;
 };
 
 #endif // STVARIABLEEDITOR_H

@@ -6,7 +6,6 @@ STVariableCollectionEditor::STVariableCollectionEditor(STVariableCollection *col
     // Set variables.
 
     variableCollection_ = collection;
-    selectedVariable_ = 0;
 
     // Create UI.
 
@@ -25,7 +24,8 @@ STVariableCollectionEditor::STVariableCollectionEditor(STVariableCollection *col
     variableList_->setModel(variableCollection_);
     variableList_->setMaximumHeight(variableList_->sizeHintForRow(0) * 5);
 
-    variableEditor_->setEnabled(false);
+    if (variableCollection_->selectedVariable())
+        variableList_->setCurrentIndex(variableCollection_->indexOf(variableCollection_->selectedVariable()));
 
     // Make connections
 
@@ -44,11 +44,6 @@ STVariableCollection* STVariableCollectionEditor::variableCollection() const
     return variableCollection_;
 }
 
-STVariable* STVariableCollectionEditor::selectedVariable() const
-{
-    return selectedVariable_;
-}
-
 void STVariableCollectionEditor::applyChanges()
 {
     variableEditor_->applyChanges();
@@ -56,27 +51,15 @@ void STVariableCollectionEditor::applyChanges()
 
 void STVariableCollectionEditor::onListViewSelection(QModelIndex selection)
 {
-    setSelectedVariable(variableCollection_->variableAt(selection.row()) );
-}
-
-void STVariableCollectionEditor::setSelectedVariable(STVariable *newSelection)
-{
-    if (selectedVariable_ != newSelection) {
-        selectedVariable_ = newSelection;
-
-        variableEditor_->setEnabled(true);
-        variableEditor_->setVariable(selectedVariable_);
-
-        emit selectedVariableChanged(selectedVariable_);
-
-    }
+    STVariable *listSelection = variableCollection_->variableAt(selection.row());
+    variableCollection_->setSelectedVariable(listSelection);
+    variableEditor_->setVariable(listSelection);
 }
 
 void STVariableCollectionEditor::removeSelectedVariable()
 {
-    if (selectedVariable_) {
-        int indexToDelete = selectedVariable_->index();
-        setSelectedVariable(0);
+    if (variableCollection_->selectedVariable()) {
+        int indexToDelete = variableCollection()->selectedVariable()->index();
         variableCollection_->deleteVariableAt(indexToDelete);
 
         if (variableCollection_->variableCount() == 0)

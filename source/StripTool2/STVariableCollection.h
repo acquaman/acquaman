@@ -31,7 +31,12 @@ public:
 
     QList<STVariable*> variablesWithName(const QString &name);
 
+    QList<STVariable*> variablesWithSeries(MPlotItem *toMatch);
+
+    STVariable* selectedVariable() const;
+
 signals:
+    void selectedVariableChanged(STVariable *newSelection);
 
 public slots:
     void addVariable(const QString &name);
@@ -39,6 +44,8 @@ public slots:
 
     void setTime(STTime *time);
     void setTimeFilteringEnabled(bool isEnabled);
+
+    void setSelectedVariable(STVariable *newSelection);
 
 protected slots:
     void updateTimeValue(int newValue);
@@ -50,6 +57,7 @@ protected:
     QList<STVariable*> variables_;
     STTime *time_;
     bool timeFilteringEnabled_;
+    STVariable *selection_;
 
 };
 

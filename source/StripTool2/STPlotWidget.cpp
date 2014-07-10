@@ -4,7 +4,7 @@ STPlotWidget::STPlotWidget(QWidget *parent) : MPlotWidget(parent)
 {    
     // Set up variables.
 
-    plotName_ = "Unnamed plot";
+    plotName_ = "";
     plotNameVisible_ = false;
     timeFilteringEnabled_ = false;
 
@@ -13,14 +13,17 @@ STPlotWidget::STPlotWidget(QWidget *parent) : MPlotWidget(parent)
     MPlot *plot = new MPlot();
     setPlot(plot);
 
+    selector_ = new STPlotSelectorTool();
+    plot_->addTool(selector_);
+
     // Get current settings.
 
     setBottomAxisName("Time [" + time_->unitsToString(time_->units()) + "]");
 
     // Make connections.
 
-//    connect( time_, SIGNAL(valueChanged(int)), this, SIGNAL(timeValueChanged(int)) );
     connect( time_, SIGNAL(unitsChanged(STTime::Units)), this, SLOT(onTimeUnitsChanged(STTime::Units)) );
+    connect( selector_, SIGNAL(itemSelected(MPlotItem*)), this, SIGNAL(plotItemSelected(MPlotItem*)) );
 
 }
 

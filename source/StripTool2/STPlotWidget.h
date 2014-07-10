@@ -9,6 +9,7 @@
 #include "MPlot/MPlotWidget.h"
 
 #include "STTime.h"
+#include "STPlotSelectorTool.h"
 
 class STTime;
 
@@ -31,6 +32,7 @@ signals:
     void bottomAxisNameChanged(const QString &name);
     void timeChanged(STTime *time);
     void timeFilteringEnabled(bool isEnabled);
+    void plotItemSelected(MPlotItem *selection);
 
 public slots:
     void setPlotName(const QString &newName);
@@ -47,6 +49,7 @@ protected:
     bool plotNameVisible_;
     bool timeFilteringEnabled_;
     STTime *time_;
+    STPlotSelectorTool *selector_;
 
 };
 

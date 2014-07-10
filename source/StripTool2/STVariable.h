@@ -78,6 +78,8 @@ public:
     /// Returns the series tracking pv data updates.
     MPlotSeriesBasic *series() const;
 
+    bool markersEnabled() const;
+
     bool operator==(const STVariable &other) const;
 
 
@@ -95,6 +97,8 @@ signals:
     /// Emitted when the process variable is connected.
     void connected(bool isConnected);
 
+    void markersEnabled(bool);
+
 public slots:
     /// Sets the variable's index.
     void setIndex(int newIndex);
@@ -111,6 +115,8 @@ public slots:
     void setTimeUnits(STTime::Units newUnits);
 
     void setTimeFilteringEnabled(bool isEnabled);
+
+    void enableMarkers(bool isEnabled);
 
 protected slots:
 
@@ -146,6 +152,8 @@ protected:
 
     AMDataSourceSeriesData *seriesData_;
     MPlotSeriesBasic *series_;
+
+    bool showMarkers_;
 
 };
 

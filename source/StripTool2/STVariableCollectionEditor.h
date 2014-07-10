@@ -18,10 +18,8 @@ public:
     virtual ~STVariableCollectionEditor();
 
     STVariableCollection* variableCollection() const;
-    STVariable* selectedVariable() const;
 
 signals:
-    void selectedVariableChanged(STVariable *newSelection);
     void addVariable();
 
 public slots:
@@ -29,13 +27,11 @@ public slots:
 
 protected slots:
     void onListViewSelection(QModelIndex selection);
-    void setSelectedVariable(STVariable *newSelection);
     void removeSelectedVariable();
 
 protected:
     QListView *variableList_;
     STVariableCollection *variableCollection_;
-    STVariable *selectedVariable_;
     STVariableEditor *variableEditor_;
 
 };

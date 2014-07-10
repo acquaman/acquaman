@@ -9,6 +9,7 @@ STVariableEditor::STVariableEditor(STVariable *toEdit, QWidget *parent) : STEdit
     descriptionEdited_ = false;
     unitsEdited_ = false;
     colorEdited_ = false;
+    showMarkersEdited_ = false;
 
     // Create UI.
 
@@ -56,24 +57,29 @@ STVariableEditor::STVariableEditor(STVariable *toEdit, QWidget *parent) : STEdit
     mainLayout->addWidget(colorLabel, 6, 0);
     mainLayout->addWidget(colorButton_, 6, 1);
 
+    showMarkers_ = new QCheckBox("Show plot markers", this);
+    mainLayout->addWidget(showMarkers_, 7, 1);
+
     removeButton_ = new QPushButton("Remove", this);
     removeButton_->setEnabled(false);
-    mainLayout->addWidget(removeButton_, 7, 1);
+    mainLayout->addWidget(removeButton_, 8, 1);
 
     setLayout(mainLayout);
 
     // Get current settings.
 
+    descriptionEntry_->setEnabled(false);
+    unitsEntry_->setEnabled(false);
+    colorButton_->setEnabled(false);
+    showMarkers_->setEnabled(false);
+    removeButton_->setEnabled(false);
+
     getVariableInfo();
 
     // Make connections.
 
+    connectUI();
     connectVariable();
-
-    connect( descriptionEntry_, SIGNAL(textChanged(QString)), this, SLOT(onDescriptionEntryChanged(QString)) );
-    connect( unitsEntry_, SIGNAL(textChanged(QString)), this, SLOT(onUnitsEntryChanged(QString)) );
-    connect( colorButton_, SIGNAL(clicked()), this, SLOT(onColorButtonClicked()) );
-    connect( removeButton_, SIGNAL(clicked()), this, SIGNAL(removeButtonClicked()) );
 }
 
 STVariableEditor::~STVariableEditor()
@@ -89,25 +95,18 @@ STVariable* STVariableEditor::variable() const
 void STVariableEditor::setVariable(STVariable *toEdit)
 {
     if (variable_) {
+        disconnectUI();
         disconnectVariable();
         clearVariableInfo();
         variable_ = 0;
     }
 
-    if (variable_ != toEdit) {
-        variable_ = toEdit;
-        getVariableInfo();
-        connectVariable();
-        emit variableChanged(variable_);
+    variable_ = toEdit;
+    getVariableInfo();
+    connectUI();
+    connectVariable();
 
-        removeButton_->setEnabled(true);
-
-    } else {
-        emit variableChanged(0);
-
-        removeButton_->setEnabled(false);
-    }
-
+    emit variableChanged(variable_);
 }
 
 void STVariableEditor::applyChanges()
@@ -127,8 +126,12 @@ void STVariableEditor::applyChanges()
             variable_->setColor(colorButton_->color());
             colorEdited_ = false;
         }
-    }
 
+        if (showMarkersEdited_) {
+            variable_->enableMarkers(showMarkers_->checkState() == Qt::Checked);
+            showMarkersEdited_ = false;
+        }
+    }
 }
 
 void STVariableEditor::setConnectionState(bool isConnected)
@@ -166,30 +169,61 @@ void STVariableEditor::onColorButtonClicked()
     applyChanges();
 }
 
+void STVariableEditor::onShowMarkersChanged()
+{
+    showMarkersEdited_ = true;
+    applyChanges();
+}
+
 void STVariableEditor::getVariableInfo()
 {
     if (variable_) {
         name_->setText(variable_->name());
+
+        descriptionEntry_->setEnabled(true);
         descriptionEntry_->setText(variable_->description());
+
         creation_->setText(variable_->created().toString());
+
         setConnectionState(variable_->isConnected());
+
         setLatestValue(variable_->value());
+
+        unitsEntry_->setEnabled(true);
         unitsEntry_->setText(variable_->units());
+
         colorButton_->setEnabled(true);
         colorButton_->setColor(variable_->color());
+
+        showMarkers_->setEnabled(true);
+        showMarkers_->setChecked(variable_->markersEnabled());
+
+        removeButton_->setEnabled(true);
     }
 }
 
 void STVariableEditor::clearVariableInfo()
 {
     name_->clear();
+
     descriptionEntry_->clear();
+    descriptionEntry_->setEnabled(false);
+
     creation_->clear();
+
     connected_->clear();
+
     value_->clear();
+
     unitsEntry_->clear();
+    unitsEntry_->setEnabled(false);
+
     colorButton_->setColor(QColor());
     colorButton_->setEnabled(false);
+
+    showMarkers_->setEnabled(false);
+
+    removeButton_->setEnabled(false);
 
     descriptionEdited_ = false;
     unitsEdited_ = false;
@@ -210,4 +244,22 @@ void STVariableEditor::disconnectVariable()
         disconnect( variable_, SIGNAL(connected(bool)), this, SLOT(setConnectionState(bool)) );
         disconnect( variable_, SIGNAL(valueChanged(double)), this, SLOT(setLatestValue(double)) );
     }
+}
+
+void STVariableEditor::connectUI()
+{
+    connect( descriptionEntry_, SIGNAL(textChanged(QString)), this, SLOT(onDescriptionEntryChanged(QString)) );
+    connect( unitsEntry_, SIGNAL(textChanged(QString)), this, SLOT(onUnitsEntryChanged(QString)) );
+    connect( colorButton_, SIGNAL(clicked()), this, SLOT(onColorButtonClicked()) );
+    connect( showMarkers_, SIGNAL(clicked()), this, SLOT(onShowMarkersChanged()) );
+    connect( removeButton_, SIGNAL(clicked()), this, SIGNAL(removeButtonClicked()) );
+}
+
+void STVariableEditor::disconnectUI()
+{
+    disconnect( descriptionEntry_, SIGNAL(textChanged(QString)), this, SLOT(onDescriptionEntryChanged(QString)) );
+    disconnect( unitsEntry_, SIGNAL(textChanged(QString)), this, SLOT(onUnitsEntryChanged(QString)) );
+    disconnect( colorButton_, SIGNAL(clicked()), this, SLOT(onColorButtonClicked()) );
+    disconnect( showMarkers_, SIGNAL(clicked()), this, SLOT(onShowMarkersChanged()) );
+    disconnect( removeButton_, SIGNAL(clicked()), this, SIGNAL(removeButtonClicked()) );
 }

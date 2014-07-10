@@ -4,6 +4,7 @@ STVariableCollection::STVariableCollection(QObject *parent) : QAbstractTableMode
 {
     time_ = 0;
     timeFilteringEnabled_ = false;
+    selection_ = 0;
 }
 
 STVariableCollection::~STVariableCollection()
@@ -70,6 +71,23 @@ QList<STVariable*> STVariableCollection::variablesWithName(const QString &name)
     return results;
 }
 
+QList<STVariable*> STVariableCollection::variablesWithSeries(MPlotItem *toMatch)
+{
+    QList<STVariable*> results;
+
+    foreach (STVariable *variable, variables_) {
+        if (variable->series() == toMatch)
+            results.append(variable);
+    }
+
+    return results;
+}
+
+STVariable* STVariableCollection::selectedVariable() const
+{
+    return selection_;
+}
+
 void STVariableCollection::addVariable(const QString &name)
 {
     if (name.isEmpty()) {
@@ -130,6 +148,16 @@ void STVariableCollection::setTimeFilteringEnabled(bool isEnabled)
             variable->setTimeFilteringEnabled(timeFilteringEnabled_);
         }
     }
+}
+
+void STVariableCollection::setSelectedVariable(STVariable *newSelection)
+{
+    if (selection_) {
+        selection_ = 0;
+    }
+
+    selection_ = newSelection;
+    emit selectedVariableChanged(selection_);
 }
 
 void STVariableCollection::updateTimeValue(int newValue)

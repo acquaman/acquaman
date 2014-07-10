@@ -58,6 +58,8 @@ protected slots:
     void onCollectionRowAdded(const QModelIndex &index, int start, int end);
     void onCollectionRowRemoved(const QModelIndex &index, int start, int end);
 
+    void onPlotItemSelected(MPlotItem *plotSelection);
+
     void toAddVariable();
     void toEditVariables();
     void toEditPlot();
@@ -67,6 +69,7 @@ protected slots:
     virtual void onCustomContextMenuRequested(QPoint position);
 
 protected:
+    void addSR1Current();
     void setSelectedVariable(STVariable *selection);
     void showEditorDialog(STEditor *editor);
 

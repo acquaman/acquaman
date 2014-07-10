@@ -22,7 +22,8 @@ SOURCES +=\
 	source/StripTool2/STEditor.cpp \
     source/StripTool2/STTime.cpp \
     source/StripTool2/STListView.cpp \
-    source/StripTool2/STColorButton.cpp
+    source/StripTool2/STColorButton.cpp \
+    source/StripTool2/STPlotSelectorTool.cpp
 
 HEADERS  += \
 	source/StripTool2/STWidget.h \
@@ -37,4 +38,5 @@ HEADERS  += \
 	source/StripTool2/STEditor.h \
     source/StripTool2/STTime.h \
     source/StripTool2/STListView.h \
-    source/StripTool2/STColorButton.h
+    source/StripTool2/STColorButton.h \
+    source/StripTool2/STPlotSelectorTool.h

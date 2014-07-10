@@ -54,6 +54,9 @@ STVariable::STVariable(const QString &name, QObject *parent) :
     series_->setModel(seriesData_, true);
     series_->setDescription(" ");
 
+    showMarkers_ = false;
+    series_->setMarker(MPlotMarkerShape::None);
+
     connect( pv_, SIGNAL(valueChanged(double)), this, SIGNAL(valueChanged(double)) );
     connect( pv_, SIGNAL(connected(bool)), this, SIGNAL(connected(bool)) );
     if (pv_->isConnected())
@@ -124,6 +127,11 @@ double STVariable::value() const
 MPlotSeriesBasic* STVariable::series() const
 {
     return series_;
+}
+
+bool STVariable::markersEnabled() const
+{
+    return showMarkers_;
 }
 
 bool STVariable::operator==(const STVariable &other) const
@@ -204,5 +212,19 @@ void STVariable::setTimeUnits(STTime::Units newUnits)
 void STVariable::setTimeFilteringEnabled(bool isEnabled)
 {
     times_->enableTimeFiltering(isEnabled);
+}
+
+void STVariable::enableMarkers(bool isEnabled)
+{
+    if (showMarkers_ != isEnabled) {
+        showMarkers_ = isEnabled;
+
+        if (showMarkers_)
+            series_->setMarker(MPlotMarkerShape::Circle, 6, QPen(color_));
+        else
+            series_->setMarker(MPlotMarkerShape::None);
+
+        emit markersEnabled(true);
+    }
 }
 

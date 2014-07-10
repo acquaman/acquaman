@@ -51,6 +51,7 @@ STWidget::STWidget(QWidget *parent) : QWidget(parent)
     connect( variables_, SIGNAL(rowsAboutToBeRemoved(QModelIndex, int, int)), this, SLOT(onCollectionRowRemoved(QModelIndex, int, int)) );
     connect( plotWidget_, SIGNAL(timeChanged(STTime *time)), this, SLOT(setTime()) );
     connect( plotWidget_, SIGNAL(timeFilteringEnabled(bool)), this, SLOT(setTimeFilteringEnabled()) );
+    connect( plotWidget_, SIGNAL(plotItemSelected(MPlotItem*)), this, SLOT(onPlotItemSelected(MPlotItem*)) );
 
 }
 
@@ -87,6 +88,18 @@ void STWidget::onCollectionRowRemoved(const QModelIndex &index, int start, int e
 
     if (selectedVariable_ == variables_->variableAt(start))
         setSelectedVariable(0);
+}
+
+void STWidget::onPlotItemSelected(MPlotItem *plotSelection)
+{
+    Q_UNUSED(plotSelection)
+
+    qDebug() << "Plot item" << (plotSelection ? "selected" : "deselected");
+
+    QList<STVariable*> matches = variables_->variablesWithSeries(plotSelection);
+
+    if (matches.size() > 0)
+        variables_->setSelectedVariable(matches.first());
 }
 
 void STWidget::toAddVariable()
@@ -134,11 +147,12 @@ void STWidget::onCustomContextMenuRequested(QPoint position)
     QMenu menu(this);
 
     QAction *action = menu.addAction("Add variable");
+    action = menu.addAction("Add SR1 Current");
+    menu.addSeparator();
 
     action = menu.addAction("Edit variables");
     if (variables_->variableCount() == 0)
         action->setEnabled(false);
-
     action = menu.addAction("Edit plot");
 
     QAction *selected = menu.exec(mapToGlobal(position));
@@ -148,6 +162,9 @@ void STWidget::onCustomContextMenuRequested(QPoint position)
         if (selected->text() == "Add variable") {
             toAddVariable();
 
+        } else if (selected->text() == "Add SR1 Current") {
+            addSR1Current();
+
         } else if (selected->text() == "Edit variables") {
             toEditVariables();
 
@@ -156,6 +173,16 @@ void STWidget::onCustomContextMenuRequested(QPoint position)
 
         }
     }
+}
+
+void STWidget::addSR1Current()
+{
+    variables_->addVariable("PCT1402-01:mA:fbk");
+
+    STVariable *sr1Current = variables_->variablesWithName("PCT1402-01:mA:fbk").last();
+    sr1Current->setDescription("SR1 Current");
+    sr1Current->setUnits("mA");
+    sr1Current->setColor(QColor(Qt::blue));
 }
 
 void STWidget::setSelectedVariable(STVariable *selection)
