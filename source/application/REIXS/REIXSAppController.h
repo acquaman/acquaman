@@ -53,6 +53,9 @@ public:
 public slots:
 
 protected slots:
+	/// Helper slot that handles checking out scans when they are added to a scan editor.  For now, all this does is choose which data source is visualized in AMSingleSpectrumView in AM2DScanView.
+	void onScanAddedToEditor(AMGenericScanEditor *editor, AMScan *scan);
+
 
 
 protected:

@@ -233,3 +233,32 @@ void REIXSAppController::shutdown() {
 	AMAppController::shutdown();
 }
 
+void REIXSAppController::onScanAddedToEditor(AMGenericScanEditor *editor, AMScan *scan)
+{
+	QString exclusiveName = QString();
+
+	for (int i = 0, count = scan->analyzedDataSourceCount(); i < count && exclusiveName.isNull(); i++){
+
+		AMDataSource *source = scan->analyzedDataSources()->at(i);
+
+		if (source->name().contains("TEYNorm") && !source->hiddenFromUsers())
+			exclusiveName = source->name();
+	}
+	if (!exclusiveName.isNull())
+		for (int i = 0, count = scan->analyzedDataSourceCount(); i < count && exclusiveName.isNull(); i++){
+
+			AMDataSource *source = scan->analyzedDataSources()->at(i);
+
+			if (source->name().contains("xesSpectrum"))
+				exclusiveName = source->name();
+		}
+
+
+	if (!exclusiveName.isNull())
+		editor->setExclusiveDataSourceByName(exclusiveName);
+
+	else if (editor->scanAt(0)->analyzedDataSourceCount())
+		editor->setExclusiveDataSourceByName(editor->scanAt(0)->analyzedDataSources()->at(editor->scanAt(0)->analyzedDataSourceCount()-1)->name());
+
+	configureSingleSpectrumView(editor, scan);
+}
