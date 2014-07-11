@@ -1111,28 +1111,33 @@ void AMDatamanAppController::onShowAboutPage()
 
 void AMDatamanAppController::onDataViewItemsExported(const QList<QUrl> &itemUrls)
 {
-	QMessageBox shouldSave;
-	shouldSave.setText("Save changes to open scans before exporting?");
-	shouldSave.setInformativeText("Unsaved changes will not export.");
-	shouldSave.setStandardButtons(QMessageBox::Cancel | QMessageBox::No | QMessageBox::SaveAll);
-	shouldSave.setDefaultButton(QMessageBox::SaveAll);
-	shouldSave.setEscapeButton(QMessageBox::Cancel);
-	int ret = shouldSave.exec();
-	switch (ret) {
-	  case QMessageBox::SaveAll: saveAll();
-		  // Save was clicked
-		  break;
-	  case QMessageBox::No:
-		  // Don't Save was clicked
-		  break;
-	  case QMessageBox::Cancel: return;
-		  // Cancel was clicked
-		  break;
-	  default:
-		  // should never be reached
-		  break;
-	}
+	if (anyOpenScansModified()){
 
+		QMessageBox shouldSave;
+		shouldSave.setText("Save changes to open scans before exporting?");
+		shouldSave.setInformativeText("Unsaved changes will not export.");
+		shouldSave.setStandardButtons(QMessageBox::Cancel | QMessageBox::No | QMessageBox::SaveAll);
+		shouldSave.setDefaultButton(QMessageBox::SaveAll);
+		shouldSave.setEscapeButton(QMessageBox::Cancel);
+		int ret = shouldSave.exec();
+		switch (ret) {
+
+		case QMessageBox::SaveAll:
+
+			saveAll();
+			break;
+
+		case QMessageBox::No:
+
+			// Do nothing.
+			break;
+
+		case QMessageBox::Cancel:
+
+			// Abort action.
+			return;
+		}
+	}
 
 	// will delete itself when finished
 	AMExportController* exportController = new AMExportController(itemUrls);
@@ -1544,20 +1549,39 @@ void AMDatamanAppController::getUserDataFolderFromDialog(bool presentAsParentFol
 	}
 }
 
-void AMDatamanAppController::saveAll(){
+void AMDatamanAppController::saveAll()
+{
+	for (int i = 0, count = scanEditorCount(); i < count; i++) {
 
-	for(int i=0, count = scanEditorCount(); i<count; i++) {
 		AMGenericScanEditor* editor = scanEditorAt(i);
 
 		if(editor){
-			for(int i=0; i < editor->scanCount(); i++)
+
+			for (int i = 0, scanCount = editor->scanCount(); i < scanCount; i++)
 			{
 				AMScan* scan =  editor->scanAt(i);
-				if(scan->database())
+
+				if(scan->modified() && scan->database())
 					scan->storeToDb(scan->database());
-				else
+
+				else if (scan->modified())
 					scan->storeToDb(AMDatabase::database("user"));
 			}
 		}
 	}
+}
+
+bool AMDatamanAppController::anyOpenScansModified() const
+{
+	for (int i = 0, count = scanEditorCount(); i < count; i++) {
+
+		AMGenericScanEditor* editor = scanEditorAt(i);
+
+		if(editor)
+			for (int i = 0, scanCount = editor->scanCount(); i < scanCount; i++)
+				if (editor->scanAt(i)->modified())
+					return true;
+	}
+
+	return false;
 }
