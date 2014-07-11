@@ -244,7 +244,7 @@ void IDEASAppController::onScanAddedToEditor(AMGenericScanEditor *editor, AMScan
 		if (source->name().contains("norm") && source->name().contains("Ka") && !source->hiddenFromUsers())
 			exclusiveName = source->name();
 	}
-	if (!exclusiveName.isNull())
+	if (exclusiveName.isNull())
 	    for (int i = 0, count = scan->analyzedDataSourceCount(); i < count && exclusiveName.isNull(); i++){
 
 		    AMDataSource *source = scan->analyzedDataSources()->at(i);
