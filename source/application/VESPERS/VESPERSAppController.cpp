@@ -154,8 +154,6 @@ bool VESPERSAppController::startup()
 
 			AMRun firstRun("VESPERS", 4);	/// \todo For now, we know that 4 is the ID of the VESPERS facility, but this is a hardcoded hack.
 			firstRun.storeToDb(AMDatabase::database("user"));
-
-			userConfiguration_->storeToDb(AMDatabase::database("user"));
 		}
 
 		if (!ensureProgramStructure())
@@ -165,7 +163,8 @@ bool VESPERSAppController::startup()
 		setupUserInterface();
 		makeConnections();
 
-//		userConfiguration_->loadFromDb(AMDatabase::database("user"), 1);
+		if (!userConfiguration_->loadFromDb(AMDatabase::database("user"), 1))
+			userConfiguration_->storeToDb(AMDatabase::database("user"));
 
 		// Github setup for adding VESPERS specific comment.
 		additionalIssueTypesAndAssignees_.append("I think it's a VESPERS specific issue", "dretrex");
@@ -439,19 +438,19 @@ void VESPERSAppController::onCurrentScanActionFinishedImplementation(AMScanActio
 
 	// Save the current configuration to the database.
 	// Being explicit due to the nature of how many casts were necessary.  I could probably explicitly check to ensure each cast is successful, but I'll risk it for now.
-//	const AMScanActionInfo *actionInfo = qobject_cast<const AMScanActionInfo *>(action->info());
-//	const VESPERSScanConfiguration *lineConfig = dynamic_cast<const VESPERSScanConfiguration *>(actionInfo->config());
-//	VESPERSScanConfigurationDbObject *config = qobject_cast<VESPERSScanConfigurationDbObject *>(lineConfig->dbObject());
+	const AMScanActionInfo *actionInfo = qobject_cast<const AMScanActionInfo *>(action->info());
+	const VESPERSScanConfiguration *vespersConfig = dynamic_cast<const VESPERSScanConfiguration *>(actionInfo->configuration());
+	VESPERSScanConfigurationDbObject *config = qobject_cast<VESPERSScanConfigurationDbObject *>(vespersConfig->dbObject());
 
-//	if (config){
+	if (config){
 
-//		userConfiguration_->setIncomingChoice(config->incomingChoice());
-//		userConfiguration_->setTransmissionChoice(config->transmissionChoice());
-//		userConfiguration_->setFluorescenceDetector(config->fluorescenceDetector());
-//		userConfiguration_->setCCDDetector(config->ccdDetector());
-//		userConfiguration_->setMotor(config->motor());
-//		userConfiguration_->storeToDb(AMDatabase::database("user"));
-//	}
+		userConfiguration_->setIncomingChoice(config->incomingChoice());
+		userConfiguration_->setTransmissionChoice(config->transmissionChoice());
+		userConfiguration_->setFluorescenceDetector(config->fluorescenceDetector());
+		userConfiguration_->setCCDDetector(config->ccdDetector());
+		userConfiguration_->setMotor(config->motor());
+		userConfiguration_->storeToDb(AMDatabase::database("user"));
+	}
 }
 
 void VESPERSAppController::onBeamDump()
