@@ -31,6 +31,11 @@ int AMLightweightScanInfoCollection::count() const
 	return scanInfos_.count();
 }
 
+int AMLightweightScanInfoCollection::indexOf(AMLightweightScanInfo *scan, int from) const
+{
+	return scanInfos_.indexOf(scan, from);
+}
+
 void AMLightweightScanInfoCollection::populateSampleNames()
 {
 	// Building up the first section of the map, such that after this first part is done sampleNameMap_

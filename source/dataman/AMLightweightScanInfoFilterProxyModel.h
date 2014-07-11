@@ -12,8 +12,6 @@ public:
 	explicit AMLightweightScanInfoFilterProxyModel(QObject *parent = 0);
 	void setRunId(int id);
 	int runId() const;
-	AMDbThumbnail* thumbnailAt(int row, int thumbnailIndex);
-	int thumbnailCount(int row);
 protected:
 	virtual bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const;
 signals:

@@ -3,6 +3,7 @@
 
 #include <QTableView>
 #include <QHeaderView>
+
 class AMScanTableView : public QTableView
 {
 	Q_OBJECT

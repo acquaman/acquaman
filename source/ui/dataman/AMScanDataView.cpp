@@ -6,7 +6,7 @@
 #include "dataman/AMUser.h"
 #include "ui/dataman/AMScanTableView.h"
 #include "ui/dataman/AMScanThumbnailView.h"
-
+#include "ui/dataman/AMScanTreeView.h"
 AMScanDataView::AMScanDataView(AMDatabase *database, QWidget *parent) :
 	QWidget(parent)
 {
@@ -107,6 +107,13 @@ void AMScanDataView::initializeChildViews()
 
 	addChildView(thumbnailView, thumbnailIcon);
 
+	AMScanTreeView* treeView = new AMScanTreeView();
+
+	QIcon treeIcon;
+	treeIcon.addFile(QString::fromUtf8("://22x22/view-list-compact-symbolic.png"), QSize(), QIcon::Normal, QIcon::Off);
+	treeIcon.addFile(QString::fromUtf8("://22x22/view-list-compact-symbolic_dark.png"), QSize(), QIcon::Normal, QIcon::On);
+
+	addChildView(treeView, treeIcon);
 }
 
 QAbstractItemView *AMScanDataView::currentView()

@@ -11,7 +11,8 @@ AMLightweightScanInfo::AMLightweightScanInfo(int id,
 		const QString &notes,
 		const QString &sampleName,
 		int thumbnailFirstId,
-		int thumbnailCount)
+		int thumbnailCount, QObject *parent)
+	: QObject(parent)
 {
 	id_ = id;
 	name_ = name;

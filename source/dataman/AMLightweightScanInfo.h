@@ -10,8 +10,9 @@ class AMDbThumbnail;
  * to be a more lightweight, quick to load way of displaying bulk information about scans. See class
  * AMLightweightScanInfoCollection for class which loads this information from the database in bulk.
  */
-class AMLightweightScanInfo
+class AMLightweightScanInfo : public QObject
 {
+	Q_OBJECT
 private:
 	int id_;
 	QString name_;
@@ -26,7 +27,7 @@ private:
 	QHash<int, AMDbThumbnail*> thumbnailsMap_;
 
 public:
-	AMLightweightScanInfo(int id,
+	explicit AMLightweightScanInfo(int id,
 						const QString& name,
 						int number,
 						const QDateTime& dateTime,
@@ -36,7 +37,8 @@ public:
 						const QString& notes,
 						const QString& sampleName,
 						int thumbnailFirstId,
-						int thumbnailCount);
+						int thumbnailCount,
+						QObject* parent = 0);
 
 	int id() const;
 	QString name() const;

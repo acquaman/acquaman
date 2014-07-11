@@ -3,11 +3,13 @@
 
 #include <QAbstractItemModel>
 #include "AMLightweightScanInfoCollection.h"
+
+
+
 class AMLightweightScanInfoModel : public QAbstractItemModel
 {
 	Q_OBJECT
 	AMLightweightScanInfoCollection* scanInfo_;
-private:
 public:
 	explicit AMLightweightScanInfoModel(AMLightweightScanInfoCollection* scanInfo, QObject *parent = 0);
 	virtual QVariant headerData(int section, Qt::Orientation orientation, int role) const;
@@ -18,9 +20,9 @@ public:
 	virtual QModelIndex parent(const QModelIndex &child) const;
 
 	QUrl rowToUrl(int rowIndex);
-
-	AMDbThumbnail* thumbnailAt(int row, int thumbnailIndex);
-	int thumbnailCount(int row) const;
+protected:
+	QVariant getScanData(QModelIndex index, int role) const;
+	QVariant getThumbnailData(QModelIndex index, int role) const;
 signals:
 	
 public slots:

@@ -34,6 +34,9 @@ public:
 	AMLightweightScanInfo* at(int index) const;
 	/// Returns the number of items in the list. This is effectively the same as size().
 	int count() const;
+	/// Returns the index position of the first occurrence of value in the list, searching forward from index
+	/// position from. Returns -1 if no item matched
+	int indexOf(AMLightweightScanInfo* scan, int from = 0) const;
 protected:
 	/// Builds the mapping of SampleTable -> (SampleId -> SampleName)
 	void populateSampleNames();

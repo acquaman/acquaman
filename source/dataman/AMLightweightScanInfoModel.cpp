@@ -1,6 +1,7 @@
 #include "AMLightweightScanInfoModel.h"
 #include "database/AMDbObject.h"
 
+#include <QDebug>
 AMLightweightScanInfoModel::AMLightweightScanInfoModel(AMLightweightScanInfoCollection *scanInfo, QObject *parent) :
 	QAbstractItemModel(parent)
 {
@@ -20,7 +21,7 @@ QVariant AMLightweightScanInfoModel::headerData(int section, Qt::Orientation ori
 	if(role != Qt::DisplayRole)
 		return QVariant();
 
-	if(section > columnCount()-1)
+	if(section >= columnCount())
 		return QVariant();
 
 	switch (section)
@@ -49,9 +50,55 @@ QVariant AMLightweightScanInfoModel::headerData(int section, Qt::Orientation ori
 
 QVariant AMLightweightScanInfoModel::data(const QModelIndex &index, int role) const
 {
-	if(!index.isValid() || index.row() >= rowCount() || index.column() >= columnCount())
+	if(!index.isValid())
 		return QVariant();
 
+	else if(index.internalId() == -1)
+		return getScanData(index, role);
+	else return getThumbnailData(index, role);
+}
+
+int AMLightweightScanInfoModel::rowCount(const QModelIndex &parent) const
+{
+	if(!parent.isValid())
+		return scanInfo_->count();
+	else if(parent.internalId() == -1)
+		return scanInfo_->at(parent.row())->thumbnailCount();
+	else
+		return 0;
+}
+
+int AMLightweightScanInfoModel::columnCount(const QModelIndex &parent) const
+{
+	if(!parent.isValid() || parent.internalId() == -1)
+		return 8;
+	else
+		return 3;
+}
+
+QModelIndex AMLightweightScanInfoModel::index(int row, int column, const QModelIndex &parent) const
+{
+	if(!parent.isValid())
+		return createIndex(row, column, -1);
+	else
+		return createIndex(row, column, parent.row());
+}
+
+QModelIndex AMLightweightScanInfoModel::parent(const QModelIndex &child) const
+{
+	if(!child.isValid() || child.internalId() == -1)
+		return QModelIndex();
+
+	return createIndex(child.internalId(), 0, -1);
+}
+
+QUrl AMLightweightScanInfoModel::rowToUrl(int rowIndex)
+{
+	return scanInfo_->getScanUrl(rowIndex);
+}
+
+QVariant AMLightweightScanInfoModel::getScanData(QModelIndex index, int role) const
+{
 	AMLightweightScanInfo* info = scanInfo_->at(index.row());
 
 	if(role == Qt::DisplayRole || role == Qt::ToolTipRole)
@@ -123,47 +170,37 @@ QVariant AMLightweightScanInfoModel::data(const QModelIndex &index, int role) co
 	return QVariant();
 }
 
-int AMLightweightScanInfoModel::rowCount(const QModelIndex &) const
+QVariant AMLightweightScanInfoModel::getThumbnailData(QModelIndex index, int role) const
 {
-	return scanInfo_->count();
-}
+	if(role != Qt::DisplayRole && role != Qt::DecorationRole)
+		return QVariant();
 
-int AMLightweightScanInfoModel::columnCount(const QModelIndex &) const
-{
-	return 8;
-}
 
-QModelIndex AMLightweightScanInfoModel::index(int row, int column, const QModelIndex &) const
-{
-	return createIndex(row, column);
-}
+	AMLightweightScanInfo* info = scanInfo_->at(index.parent().row());
 
-QModelIndex AMLightweightScanInfoModel::parent(const QModelIndex &) const
-{
-	return QModelIndex();
-}
+	AMDbThumbnail* thumbnail = info->thumbnailAt(index.row());
 
-QUrl AMLightweightScanInfoModel::rowToUrl(int rowIndex)
-{
-	return scanInfo_->getScanUrl(rowIndex);
-}
 
-AMDbThumbnail *AMLightweightScanInfoModel::thumbnailAt(int row, int thumbnailIndex)
-{
-	if(row >= scanInfo_->count() || thumbnailIndex >= scanInfo_->at(row)->thumbnailCount())
-		return 0;
+	if(!thumbnail)
+		return QVariant();
 
-	QModelIndex thumbnailModelIndex = index(row, thumbnailIndex, QModelIndex());
 
-	return scanInfo_->at(thumbnailModelIndex.row())->thumbnailAt(thumbnailModelIndex.column());
-}
+	switch(index.column())
+	{
+	case 0:	
+		return thumbnail->subtitle;
+	case 1:
+		if(role == Qt::DecorationRole){
+			QPixmap pixmap;
+			pixmap.loadFromData(thumbnail->thumbnail);
+			return pixmap;
+		}
+		break;
+	case 2:
+		return thumbnail->title;
+	}
 
-int AMLightweightScanInfoModel::thumbnailCount(int row) const
-{
-	if(row >= scanInfo_->count())
-		return 0;
-
-	return scanInfo_->at(row)->thumbnailCount();
+	return QVariant();
 }
 
 void AMLightweightScanInfoModel::onScanInfoAboutToBeAdded(int newIndex)
@@ -191,3 +228,5 @@ void AMLightweightScanInfoModel::onScanInfoRemoved()
 {
 	endRemoveRows();
 }
+
+
