@@ -163,8 +163,13 @@ bool VESPERSAppController::startup()
 		setupUserInterface();
 		makeConnections();
 
-		if (!userConfiguration_->loadFromDb(AMDatabase::database("user"), 1))
+		if (!userConfiguration_->loadFromDb(AMDatabase::database("user"), 1)){
+
 			userConfiguration_->storeToDb(AMDatabase::database("user"));
+			// This is connected here because our standard way for these signal connections is to load from db first, which clearly won't happen on the first time.
+			connect(VESPERSBeamline::vespers()->vespersSingleElementVortexDetector(), SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), userConfiguration_, SLOT(addRegionOfInterest(AMRegionOfInterest*)));
+			connect(VESPERSBeamline::vespers()->vespersSingleElementVortexDetector(), SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), userConfiguration_, SLOT(removeRegionOfInterest(AMRegionOfInterest*)));
+		}
 
 		// Github setup for adding VESPERS specific comment.
 		additionalIssueTypesAndAssignees_.append("I think it's a VESPERS specific issue", "dretrex");
@@ -394,8 +399,6 @@ void VESPERSAppController::makeConnections()
 
 	// It is sufficient to only connect the user configuration to the single element because the single element and four element are synchronized together.
 	connect(userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()));
-	connect(VESPERSBeamline::vespers()->vespersSingleElementVortexDetector(), SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), userConfiguration_, SLOT(addRegionOfInterest(AMRegionOfInterest*)));
-	connect(VESPERSBeamline::vespers()->vespersSingleElementVortexDetector(), SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), userConfiguration_, SLOT(removeRegionOfInterest(AMRegionOfInterest*)));
 
 	connect(persistentView_, SIGNAL(statusButtonClicked(QString)), statusPage_, SLOT(showDiagnosticsPage(QString)));
 	connect(persistentView_, SIGNAL(statusButtonClicked(QString)), this, SLOT(onStatusViewRequrested()));
@@ -949,4 +952,8 @@ void VESPERSAppController::onUserConfigurationLoadedFromDb()
 
 	foreach (AMRegionOfInterest *region, userConfiguration_->regionsOfInterest())
 		detector->addRegionOfInterest(region->createCopy());
+
+	// This is connected here because we want to listen to the detectors for updates, but don't want to double add regions on startup.
+	connect(VESPERSBeamline::vespers()->vespersSingleElementVortexDetector(), SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), userConfiguration_, SLOT(addRegionOfInterest(AMRegionOfInterest*)));
+	connect(VESPERSBeamline::vespers()->vespersSingleElementVortexDetector(), SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), userConfiguration_, SLOT(removeRegionOfInterest(AMRegionOfInterest*)));
 }
