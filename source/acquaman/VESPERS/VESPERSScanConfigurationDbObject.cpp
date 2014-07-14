@@ -150,7 +150,11 @@ void VESPERSScanConfigurationDbObject::addRegionOfInterest(AMRegionOfInterest *r
 
 void VESPERSScanConfigurationDbObject::removeRegionOfInterest(AMRegionOfInterest *region)
 {
-	regionsOfInterest_.removeOne(region);
-	setModified(true);
+	foreach (AMRegionOfInterest *regionToBeRemoved, regionsOfInterest_)
+		if (regionToBeRemoved->name() == region->name()){
+
+			regionsOfInterest_.removeOne(regionToBeRemoved);
+			setModified(true);
+		}
 }
 

@@ -215,6 +215,7 @@ void VESPERSSpatialLineScanActionController::buildScanControllerImplementation()
 			newRegion->setBinningRange(regionAB->binningRange());
 			newRegion->setInputDataSources(QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource(detector->name())));
 			scan_->addAnalyzedDataSource(newRegion, true, false);
+			configuration_->addRegionOfInterest(region);
 		}
 	}
 }
