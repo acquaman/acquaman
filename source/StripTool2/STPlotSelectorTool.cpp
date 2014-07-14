@@ -12,6 +12,9 @@ STPlotSelectorTool::~STPlotSelectorTool()
 
 void STPlotSelectorTool::setSelection(MPlotItem *newSelection)
 {
+    if (selectedItem_ == newSelection)
+        return;
+
     if (selectedItem_) {
         selectedItem_->setSelected(false);
         selectedItem_ = 0;
@@ -20,6 +23,6 @@ void STPlotSelectorTool::setSelection(MPlotItem *newSelection)
 
     if (newSelection) {
         newSelection->setSelected(true);
-        selectedItem_ = newSelection;
+        emit itemSelected(selectedItem_ = newSelection);
     }
 }

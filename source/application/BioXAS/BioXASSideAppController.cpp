@@ -114,7 +114,8 @@ void BioXASSideAppController::onScalerConnected()
 
 void BioXASSideAppController::onBeamlineConnected()
 {
-    if (BioXASSideBeamline::bioXAS()->isConnected() && !persistentPanel_) {
+//    if (BioXASSideBeamline::bioXAS()->isConnected() && !persistentPanel_) {
+    if (!persistentPanel_) {
         persistentPanel_ = new BioXASSidePersistentView();
         mw_->addRightWidget(persistentPanel_);
     }
@@ -170,16 +171,12 @@ void BioXASSideAppController::setupExporterOptions()
         AMAppControllerSupport::registerClass<BioXASSideXASScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(bioXASDefaultXAS->id());
     }
 
-//	if(bioXASDefaultXAS->id() > 0)
-//			AMAppControllerSupport::registerClass<IDEASXASScanConfiguration, AMExporterAthena, AMExporterOptionGeneralAscii>(bioXASDefaultXAS->id());
-
 }
 
 void BioXASSideAppController::setupUserInterface()
 {
 	// Create panes in the main window:
 	////////////////////////////////////
-
 
 	mw_->insertHeading("General", 0);
 
@@ -193,11 +190,13 @@ void BioXASSideAppController::setupUserInterface()
 
 	mw_->insertHeading("Scans", 2);
 
-    connect( BioXASSideBeamline::bioXAS(), SIGNAL(connected(bool)), this, SLOT(onBeamlineConnected()) );
+//    connect( BioXASSideBeamline::bioXAS(), SIGNAL(connected(bool)), this, SLOT(onBeamlineConnected()) );
 
-    if (BioXASSideBeamline::bioXAS()->isConnected()) {
-        onBeamlineConnected();
-    }
+//    if (BioXASSideBeamline::bioXAS()->isConnected()) {
+//        onBeamlineConnected();
+//    }
+
+    onBeamlineConnected();
 
 }
 

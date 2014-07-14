@@ -49,9 +49,12 @@ STWidget::STWidget(QWidget *parent) : QWidget(parent)
     // Make connections.
     connect( variables_, SIGNAL(rowsInserted(QModelIndex, int, int)), this, SLOT(onCollectionRowAdded(QModelIndex, int, int)) );
     connect( variables_, SIGNAL(rowsAboutToBeRemoved(QModelIndex, int, int)), this, SLOT(onCollectionRowRemoved(QModelIndex, int, int)) );
+    connect( variables_, SIGNAL(selectionChanged(STVariable*)), this, SLOT(onCollectionSelectionChanged(STVariable*)) );
+    connect( variables_, SIGNAL(selectionDescriptionChanged(QString)), this, SLOT(updatePlotLeftAxisName()) );
+    connect( variables_, SIGNAL(selectionUnitsChanged(QString)), this, SLOT(updatePlotLeftAxisName()) );
     connect( plotWidget_, SIGNAL(timeChanged(STTime *time)), this, SLOT(setTime()) );
     connect( plotWidget_, SIGNAL(timeFilteringEnabled(bool)), this, SLOT(setTimeFilteringEnabled()) );
-    connect( plotWidget_, SIGNAL(plotItemSelected(MPlotItem*)), this, SLOT(onPlotItemSelected(MPlotItem*)) );
+    connect( plotWidget_, SIGNAL(plotSelectionChanged(MPlotItem*)), this, SLOT(onPlotSelectionChanged(MPlotItem*)) );
 
 }
 
@@ -75,8 +78,10 @@ void STWidget::onCollectionRowAdded(const QModelIndex &index, int start, int end
     Q_UNUSED(index)
     Q_UNUSED(end)
 
-    plotWidget_->plot()->addItem(variables_->variableAt(start)->series());
-    setSelectedVariable(variables_->variableAt(start));
+    STVariable *toAdd = variables_->variableAt(start);
+
+    if (toAdd)
+        plotWidget_->plot()->addItem(toAdd->series());
 }
 
 void STWidget::onCollectionRowRemoved(const QModelIndex &index, int start, int end)
@@ -84,22 +89,34 @@ void STWidget::onCollectionRowRemoved(const QModelIndex &index, int start, int e
     Q_UNUSED(index)
     Q_UNUSED(end)
 
-    plotWidget_->plot()->removeItem(variables_->variableAt(start)->series());
+    STVariable *toRemove = variables_->variableAt(start);
 
-    if (selectedVariable_ == variables_->variableAt(start))
-        setSelectedVariable(0);
+    if (toRemove)
+        plotWidget_->plot()->removeItem(toRemove->series());
 }
 
-void STWidget::onPlotItemSelected(MPlotItem *plotSelection)
+void STWidget::onCollectionSelectionChanged(STVariable *newSelection)
 {
-    Q_UNUSED(plotSelection)
+    if (newSelection) {
+        plotWidget_->selector()->setSelection(newSelection->series());
 
-    qDebug() << "Plot item" << (plotSelection ? "selected" : "deselected");
+    } else {
+        plotWidget_->selector()->setSelection(0);
+    }
 
+    updatePlotLeftAxisName();
+}
+
+void STWidget::onPlotSelectionChanged(MPlotItem *plotSelection)
+{
     QList<STVariable*> matches = variables_->variablesWithSeries(plotSelection);
 
-    if (matches.size() > 0)
+    if (matches.size() > 0) {
         variables_->setSelectedVariable(matches.first());
+
+    } else {
+        variables_->setSelectedVariable(0);
+    }
 }
 
 void STWidget::toAddVariable()
@@ -126,11 +143,13 @@ void STWidget::toEditPlot()
 
 void STWidget::updatePlotLeftAxisName()
 {
-    if (selectedVariable_) {
-        QString description = variables_->data(variables_->indexOf(selectedVariable_), Qt::DisplayRole).toString();
+    STVariable *selection = variables_->selectedVariable();
 
-        if (selectedVariable_->hasUnits()) {
-            QString units = selectedVariable_->units();
+    if (selection) {
+        QString description = variables_->data(variables_->indexOf(selection), Qt::DisplayRole).toString();
+
+        if (selection->hasUnits()) {
+            QString units = selection->units();
             plotWidget_->plot()->axisLeft()->setAxisName(description + " [" + units + "]");
 
         } else {
@@ -183,28 +202,6 @@ void STWidget::addSR1Current()
     sr1Current->setDescription("SR1 Current");
     sr1Current->setUnits("mA");
     sr1Current->setColor(QColor(Qt::blue));
-}
-
-void STWidget::setSelectedVariable(STVariable *selection)
-{
-    if (selectedVariable_ != selection) {
-
-        if (selectedVariable_) {
-            disconnect( selectedVariable_, SIGNAL(descriptionChanged(QString)), this, SLOT(updatePlotLeftAxisName()) );
-            disconnect( selectedVariable_, SIGNAL(unitsChanged(QString)), this, SLOT(updatePlotLeftAxisName()) );
-
-            selectedVariable_ = 0;
-        }
-
-        selectedVariable_ = selection;
-        updatePlotLeftAxisName();
-
-
-        if (selectedVariable_) {
-            connect( selectedVariable_, SIGNAL(descriptionChanged(QString)), this, SLOT(updatePlotLeftAxisName()) );
-            connect( selectedVariable_, SIGNAL(unitsChanged(QString)), this, SLOT(updatePlotLeftAxisName()) );
-        }
-    }
 }
 
 void STWidget::showEditorDialog(STEditor *editor)

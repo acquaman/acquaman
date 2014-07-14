@@ -27,14 +27,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/AMProcessVariable.h"
 #include "analysis/AM0DAccumulatorAB.h"
-#include "analysis/AM0DTimestampAB.h"
 #include "analysis/AM1DTimedDataAB.h"
 #include "dataman/datasource/AMDataSourceSeriesData.h"
 #include "dataman/datasource/AMProcessVariableDataSource.h"
 
 #include "MPlot/MPlotSeries.h"
 
-#include "STTime.h"
+
+#include "ST0DTimestampAB.h"
 
 class STVariable : public QObject
 {
@@ -146,7 +146,7 @@ protected:
     /// Produces a list of value updates from the pv_.
     AM0DAccumulatorAB *data_;
     /// Produces a list of time updates from the pv_.
-    AM0DTimestampAB *times_;
+    ST0DTimestampAB *times_;
     /// Produces the values (y) and times (x) to be displayed at a given time.
     AM1DTimedDataAB *timedData_;
 

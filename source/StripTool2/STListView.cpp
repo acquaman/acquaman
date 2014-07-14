@@ -1,7 +1,6 @@
 #include "STListView.h"
 
-STListView::STListView(QWidget *parent) :
-    QListView(parent)
+STListView::STListView(QWidget *parent) : QListView(parent)
 {
     setViewMode(QListView::ListMode);
     setSelectionMode(QListView::SingleSelection);

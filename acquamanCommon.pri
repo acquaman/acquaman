@@ -753,7 +753,6 @@ HEADERS += source/acquaman/AMRegion.h \
 	source/analysis/AM0DAccumulatorAB.h \
 	source/util/AMBuildInfo.h \
 	source/util/AMBuildReporter.h \
-	source/analysis/AM0DTimestampAB.h \
 	source/analysis/AM1DTimedDataAB.h \
 	source/analysis/AM1DKSpaceCalculatorAB.h \
 	source/ui/beamline/AMCurrentAmplifierCompositeView.h \
@@ -1238,7 +1237,6 @@ SOURCES += source/acquaman/AMRegion.cpp \
 	source/analysis/AM0DAccumulatorAB.cpp \
 	source/util/AMBuildInfo.cpp \
 	source/util/AMBuildReporter.cpp \
-	source/analysis/AM0DTimestampAB.cpp \
 	source/analysis/AM1DTimedDataAB.cpp \
 	source/analysis/AM1DKSpaceCalculatorAB.cpp \
 	source/ui/beamline/AMCurrentAmplifierCompositeView.cpp \
@@ -1250,7 +1248,6 @@ SOURCES += source/acquaman/AMRegion.cpp \
 	source/ui/util/AMBuildInfoWidget.cpp \
 	source/ui/util/AMAboutDialog.cpp \
 	source/beamline/AM1DControlDetectorEmulator.cpp
-
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
 	SOURCES += source/util/AMGenericLinuxJoystick.cpp

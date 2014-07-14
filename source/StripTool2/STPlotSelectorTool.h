@@ -1,6 +1,8 @@
 #ifndef STPLOTSELECTORTOOL_H
 #define STPLOTSELECTORTOOL_H
 
+#include <QDebug>
+
 #include "MPlot/MPlotTools.h"
 
 class STPlotSelectorTool : public MPlotPlotSelectorTool

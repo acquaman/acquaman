@@ -152,12 +152,24 @@ void STVariableCollection::setTimeFilteringEnabled(bool isEnabled)
 
 void STVariableCollection::setSelectedVariable(STVariable *newSelection)
 {
+    if (selection_ == newSelection)
+        return;
+
     if (selection_) {
+        disconnect( selection_, SIGNAL(descriptionChanged(QString)), this, SIGNAL(selectionDescriptionChanged(QString)) );
+        disconnect( selection_, SIGNAL(unitsChanged(QString)), this, SIGNAL(selectionUnitsChanged(QString)) );
+
         selection_ = 0;
     }
 
     selection_ = newSelection;
-    emit selectedVariableChanged(selection_);
+
+    if (selection_) {
+        connect( selection_, SIGNAL(descriptionChanged(QString)), this, SIGNAL(selectionDescriptionChanged(QString)) );
+        connect( selection_, SIGNAL(unitsChanged(QString)), this, SIGNAL(selectionUnitsChanged(QString)) );
+    }
+
+    emit selectionChanged(selection_);
 }
 
 void STVariableCollection::updateTimeValue(int newValue)

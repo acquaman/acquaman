@@ -36,7 +36,9 @@ public:
     STVariable* selectedVariable() const;
 
 signals:
-    void selectedVariableChanged(STVariable *newSelection);
+    void selectionChanged(STVariable *newSelection);
+    void selectionDescriptionChanged(const QString &newDescription);
+    void selectionUnitsChanged(const QString &newUnits);
 
 public slots:
     void addVariable(const QString &name);

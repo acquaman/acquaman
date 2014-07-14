@@ -25,6 +25,7 @@ public:
     bool plotNameVisible() const;
     bool timeFilteringEnabled() const;
     STTime *time() const;
+    STPlotSelectorTool *selector() const;
 
 signals:
     void plotNameChanged(const QString &name);
@@ -32,7 +33,7 @@ signals:
     void bottomAxisNameChanged(const QString &name);
     void timeChanged(STTime *time);
     void timeFilteringEnabled(bool isEnabled);
-    void plotItemSelected(MPlotItem *selection);
+    void plotSelectionChanged(MPlotItem *selection);
 
 public slots:
     void setPlotName(const QString &newName);
@@ -43,6 +44,7 @@ public slots:
 
 protected slots:
     void onTimeUnitsChanged(STTime::Units newUnits);
+    void onPlotSelectionChanged();
 
 protected:
     QString plotName_;

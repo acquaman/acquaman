@@ -42,7 +42,7 @@ STVariable::STVariable(const QString &name, QObject *parent) :
     data_->setDataStoredCountMax(50);
     data_->setInputDataSources(QList<AMDataSource*>() << new AM0DProcessVariableDataSource(pv_, pv_->pvName(), this));
 
-    times_ = new AM0DTimestampAB("Timestamps", this);
+    times_ = new ST0DTimestampAB("Timestamps", this);
     times_->setDataStoredCountMax(50);
     times_->setInputDataSources(QList<AMDataSource*>() << new AM0DProcessVariableDataSource(pv_, pv_->pvName(), this));
 

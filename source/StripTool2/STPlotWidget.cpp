@@ -23,7 +23,8 @@ STPlotWidget::STPlotWidget(QWidget *parent) : MPlotWidget(parent)
     // Make connections.
 
     connect( time_, SIGNAL(unitsChanged(STTime::Units)), this, SLOT(onTimeUnitsChanged(STTime::Units)) );
-    connect( selector_, SIGNAL(itemSelected(MPlotItem*)), this, SIGNAL(plotItemSelected(MPlotItem*)) );
+    connect( selector_, SIGNAL(itemSelected(MPlotItem*)), this, SLOT(onPlotSelectionChanged()) );
+    connect( selector_, SIGNAL(deselected()), this, SLOT(onPlotSelectionChanged()) );
 
 }
 
@@ -50,6 +51,11 @@ bool STPlotWidget::timeFilteringEnabled() const
 STTime* STPlotWidget::time() const
 {
     return time_;
+}
+
+STPlotSelectorTool* STPlotWidget::selector() const
+{
+    return selector_;
 }
 
 void STPlotWidget::setPlotName(const QString &newName)
@@ -92,4 +98,9 @@ void STPlotWidget::setBottomAxisName(const QString &newName)
 void STPlotWidget::onTimeUnitsChanged(STTime::Units newUnits)
 {
     setBottomAxisName("Time [" + STTime::unitsToString(newUnits) + "]");
+}
+
+void STPlotWidget::onPlotSelectionChanged()
+{
+    emit plotSelectionChanged(selector_->selectedItem());
 }

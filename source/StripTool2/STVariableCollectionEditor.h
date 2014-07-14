@@ -28,10 +28,11 @@ public slots:
 protected slots:
     void onListViewSelection(QModelIndex selection);
     void removeSelectedVariable();
+    void onCollectionSelection(STVariable *selection);
 
 protected:
-    QListView *variableList_;
     STVariableCollection *variableCollection_;
+    STListView *variableList_;
     STVariableEditor *variableEditor_;
 
 };
