@@ -114,8 +114,7 @@ void BioXASSideAppController::onScalerConnected()
 
 void BioXASSideAppController::onBeamlineConnected()
 {
-//    if (BioXASSideBeamline::bioXAS()->isConnected() && !persistentPanel_) {
-    if (!persistentPanel_) {
+    if (BioXASSideBeamline::bioXAS()->isConnected() && !persistentPanel_) {
         persistentPanel_ = new BioXASSidePersistentView();
         mw_->addRightWidget(persistentPanel_);
     }
@@ -190,13 +189,11 @@ void BioXASSideAppController::setupUserInterface()
 
 	mw_->insertHeading("Scans", 2);
 
-//    connect( BioXASSideBeamline::bioXAS(), SIGNAL(connected(bool)), this, SLOT(onBeamlineConnected()) );
+    connect( BioXASSideBeamline::bioXAS(), SIGNAL(connected(bool)), this, SLOT(onBeamlineConnected()) );
 
-//    if (BioXASSideBeamline::bioXAS()->isConnected()) {
-//        onBeamlineConnected();
-//    }
-
-    onBeamlineConnected();
+    if (BioXASSideBeamline::bioXAS()->isConnected()) {
+        onBeamlineConnected();
+    }
 
 }
 

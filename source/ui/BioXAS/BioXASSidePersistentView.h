@@ -29,7 +29,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSKeithley428.h"
 #include "ui/beamline/AMCurrentAmplifierSingleView.h"
 #include "ui/beamline/AMCurrentAmplifierCompositeView.h"
-#include "source/StripTool2/STWidget.h"
 
 class AMExtendedControlEditor;
 
@@ -48,7 +47,6 @@ public slots:
 protected:
     AMExtendedControlEditor *motorControlEditor_;
     AMCurrentAmplifierSingleView *keithleyView_;
-    STWidget *stripTool_;
 };
 
 #endif // BIOXASSIDEPERSISTENTVIEW_H

@@ -35,12 +35,9 @@ BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
     keithleyView_->setPrecision(2);
     keithleyView_->setFormat('e');
 
-    stripTool_ = new STWidget(this);
-
     QVBoxLayout *layout = new QVBoxLayout();
     layout->addWidget(motorControlEditor_);
     layout->addWidget(keithleyView_);
-    layout->addWidget(stripTool_);
     layout->addStretch();
 
     setLayout(layout);
