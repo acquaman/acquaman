@@ -31,6 +31,10 @@ public:
 	explicit AMSortFilterWidget(QSortFilterProxyModel* model, QWidget *parent = 0);
 	/// Whether or not the ProxyModel currently has a filter applied
 	bool isCurrentlyFiltered();
+	/// Add an additional search column. This can be used to search columns in hierarchical models which
+	/// aren't in the top level, and so aren't automatically added to the widget. Caution, this may require
+	/// the proxy model to be customized in a way to accept such criteria.
+	void addManualColumn(const QString& header);
 protected:
 	/// The model which the AMSortFilterWidget is controlling
 	QSortFilterProxyModel* proxyModel();

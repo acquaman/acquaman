@@ -37,6 +37,7 @@ AMScanDataView::AMScanDataView(AMDatabase *database, QWidget *parent) :
 	searchButton_->setCheckable(true);
 
 	sortFilterWidget_ = new AMSortFilterWidget(proxyModel_);
+	sortFilterWidget_->addManualColumn("Data Source");
 	sortFilterWidget_->setVisible(false);
 
 	stackedWidget_  = new QStackedWidget();
@@ -87,25 +88,6 @@ void AMScanDataView::initializeChildViews()
 
 
 	addChildView(new AMScanTableView(), tableIcon);
-
-
-	// JUST FOR TESTS
-	QTableView* scanDataTable2 = new QTableView();
-
-	QIcon tableIcon2;
-	tableIcon2.addFile(QString::fromUtf8(":/22x22/view-list-details-symbolic.png"), QSize(), QIcon::Normal, QIcon::Off);
-	tableIcon2.addFile(QString::fromUtf8(":/22x22/view-list-details-symbolic_dark.png"), QSize(), QIcon::Normal, QIcon::On);
-
-	addChildView(scanDataTable2, tableIcon2);
-
-	//Test thumbnail view
-	AMScanThumbnailView* thumbnailView = new AMScanThumbnailView();
-
-	QIcon thumbnailIcon;
-	thumbnailIcon.addFile(QString::fromUtf8(":/22x22/view-list-icons-symbolic.png"), QSize(), QIcon::Normal, QIcon::Off);
-	thumbnailIcon.addFile(QString::fromUtf8(":/22x22/view-list-icons-symbolic_dark.png"), QSize(), QIcon::Normal, QIcon::On);
-
-	addChildView(thumbnailView, thumbnailIcon);
 
 	AMScanTreeView* treeView = new AMScanTreeView();
 

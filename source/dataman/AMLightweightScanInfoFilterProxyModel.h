@@ -14,6 +14,8 @@ public:
 	int runId() const;
 protected:
 	virtual bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const;
+	bool filterAcceptsThumbnail(int source_row, const QModelIndex &parent) const;
+	bool filterAcceptsScan(int source_row, const QModelIndex &parent) const;
 signals:
 
 public slots:

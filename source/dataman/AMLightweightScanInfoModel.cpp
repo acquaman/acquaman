@@ -52,7 +52,6 @@ QVariant AMLightweightScanInfoModel::data(const QModelIndex &index, int role) co
 {
 	if(!index.isValid())
 		return QVariant();
-
 	else if(index.internalId() == -1)
 		return getScanData(index, role);
 	else return getThumbnailData(index, role);
@@ -99,6 +98,7 @@ QUrl AMLightweightScanInfoModel::rowToUrl(int rowIndex)
 
 QVariant AMLightweightScanInfoModel::getScanData(QModelIndex index, int role) const
 {
+
 	AMLightweightScanInfo* info = scanInfo_->at(index.row());
 
 	if(role == Qt::DisplayRole || role == Qt::ToolTipRole)
@@ -187,7 +187,7 @@ QVariant AMLightweightScanInfoModel::getThumbnailData(QModelIndex index, int rol
 
 	switch(index.column())
 	{
-	case 0:	
+	case 0:
 		return thumbnail->subtitle;
 	case 1:
 		if(role == Qt::DecorationRole){

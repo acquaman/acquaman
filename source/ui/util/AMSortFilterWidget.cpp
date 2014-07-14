@@ -35,6 +35,11 @@ bool AMSortFilterWidget::isCurrentlyFiltered()
 	return isCurrentlyFiltered_;
 }
 
+void AMSortFilterWidget::addManualColumn(const QString &header)
+{
+	fieldComboBox_->addItem(header);
+}
+
 QSortFilterProxyModel *AMSortFilterWidget::proxyModel()
 {
 	return proxyModel_;

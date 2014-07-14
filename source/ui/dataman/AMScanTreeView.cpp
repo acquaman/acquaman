@@ -14,5 +14,4 @@ void AMScanTreeView::setModel(QAbstractItemModel *model)
 	setColumnWidth(2, 140);
 	setColumnWidth(3, 120);
 	setColumnWidth(4, 120);
-	setSortingEnabled(true);
 }
