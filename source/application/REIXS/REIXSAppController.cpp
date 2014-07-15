@@ -24,6 +24,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/REIXS/REIXSBeamline.h"
 #include "beamline/REIXS/REIXSSampleManipulator.h"
 
+#include "ui/dataman/AMGenericScanEditor.h"
+#include "dataman/AMScan.h"
 #include "ui/acquaman/AMScanConfigurationView.h"
 #include "ui/REIXS/REIXSXESScanConfigurationDetailedView.h"
 #include "ui/REIXS/REIXSXASScanConfigurationView.h"
@@ -211,6 +213,8 @@ bool REIXSAppController::startupCreateUserInterface() {
 }
 
 
+
+
 bool REIXSAppController::startupAfterEverything() {
 	if(!AMAppController::startupAfterEverything()) return false;
 
@@ -223,6 +227,8 @@ bool REIXSAppController::startupAfterEverything() {
 		firstRun.storeToDb(AMDatabase::database("user"));
 	}
 
+	connect(this, SIGNAL(scanEditorCreated(AMGenericScanEditor*)), this, SLOT(onScanEditorCreated(AMGenericScanEditor*)));
+
 	return true;
 }
 
@@ -233,3 +239,32 @@ void REIXSAppController::shutdown() {
 	AMAppController::shutdown();
 }
 
+void REIXSAppController::onScanEditorCreated(AMGenericScanEditor *editor)
+{
+	connect(editor, SIGNAL(scanAdded(AMGenericScanEditor*,AMScan*)), this, SLOT(onScanAddedToEditor(AMGenericScanEditor*,AMScan*)));
+}
+
+
+void REIXSAppController::onScanAddedToEditor(AMGenericScanEditor *editor, AMScan *scan)
+{
+	QString exclusiveName = QString();
+
+	for (int i = 0, count = scan->analyzedDataSourceCount(); i < count && exclusiveName.isNull(); i++){
+
+		AMDataSource *source = scan->analyzedDataSources()->at(i);
+
+		if (source->name().contains("TEYNorm") && !source->hiddenFromUsers())
+			exclusiveName = source->name();
+
+		if (source->name().contains("xesSpectrum") && !source->hiddenFromUsers())
+			exclusiveName = source->name();
+
+	}
+
+
+	if (!exclusiveName.isNull())
+		editor->setExclusiveDataSourceByName(exclusiveName);
+
+	else if (editor->scanAt(0)->analyzedDataSourceCount())
+		editor->setExclusiveDataSourceByName(editor->scanAt(0)->analyzedDataSources()->at(editor->scanAt(0)->analyzedDataSourceCount()-1)->name());
+}

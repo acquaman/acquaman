@@ -19,17 +19,16 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#include "AM0DTimestampAB.h"
+#include "ST0DTimestampAB.h"
 
-AM0DTimestampAB::AM0DTimestampAB(const QString &outputName, QObject *parent) :
+ST0DTimestampAB::ST0DTimestampAB(const QString &outputName, QObject *parent) :
     AMStandardAnalysisBlock(outputName, parent)
 {
     dataStored_ = QList<QDateTime>();
     dataMax_ = 50;
 
     timeValue_ = 10;
-    timeUnits_ = Seconds;
-
+    timeUnits_ = STTime::Seconds;
     timeFilteringEnabled_ = false;
 
     axes_ << AMAxisInfo("invalid", 0, "No input data");
@@ -37,42 +36,42 @@ AM0DTimestampAB::AM0DTimestampAB(const QString &outputName, QObject *parent) :
 
 }
 
-AM0DTimestampAB::~AM0DTimestampAB()
+ST0DTimestampAB::~ST0DTimestampAB()
 {
 
 }
 
-QList<QDateTime> AM0DTimestampAB::dataStored() const
+QList<QDateTime> ST0DTimestampAB::dataStored() const
 {
     return dataStored_;
 }
 
-int AM0DTimestampAB::dataStoredCount() const
+int ST0DTimestampAB::dataStoredCount() const
 {
     return dataStored_.size();
 }
 
-int AM0DTimestampAB::dataStoredCountMax() const
+int ST0DTimestampAB::dataStoredCountMax() const
 {
     return dataMax_;
 }
 
-AM0DTimestampAB::TimeUnits AM0DTimestampAB::timeUnits() const
-{
-    return timeUnits_;
-}
-
-int AM0DTimestampAB::timeValue() const
+int ST0DTimestampAB::timeValue() const
 {
     return timeValue_;
 }
 
-bool AM0DTimestampAB::timeFilteringEnabled() const
+STTime::Units ST0DTimestampAB::timeUnits() const
+{
+    return timeUnits_;
+}
+
+bool ST0DTimestampAB::timeFilteringEnabled() const
 {
     return timeFilteringEnabled_;
 }
 
-bool AM0DTimestampAB::areInputDataSourcesAcceptable(const QList<AMDataSource *> &dataSources) const
+bool ST0DTimestampAB::areInputDataSourcesAcceptable(const QList<AMDataSource *> &dataSources) const
 {
     // null input is acceptable.
     if (dataSources.isEmpty())
@@ -89,7 +88,7 @@ bool AM0DTimestampAB::areInputDataSourcesAcceptable(const QList<AMDataSource *> 
     return true;
 }
 
-void AM0DTimestampAB::setInputDataSourcesImplementation(const QList<AMDataSource *> &dataSources)
+void ST0DTimestampAB::setInputDataSourcesImplementation(const QList<AMDataSource *> &dataSources)
 {
     // disconnect connections from old sources, if they exist.
     if (!sources_.isEmpty()) {
@@ -122,7 +121,7 @@ void AM0DTimestampAB::setInputDataSourcesImplementation(const QList<AMDataSource
     emitInfoChanged();
 }
 
-AMNumber AM0DTimestampAB::value(const AMnDIndex &indexes) const
+AMNumber ST0DTimestampAB::value(const AMnDIndex &indexes) const
 {
     if(indexes.rank() != 1)
         return AMNumber(AMNumber::DimensionError);
@@ -133,10 +132,10 @@ AMNumber AM0DTimestampAB::value(const AMnDIndex &indexes) const
     if (indexes.i() < 0 || indexes.i() >= dataStored_.size())
         return AMNumber(AMNumber::OutOfBoundsError);
 
-    return convertMS(latestUpdate_.msecsTo(dataStored_.at(indexes.i())), timeUnits_);
+    return convertTimeValue(latestUpdate_.msecsTo(dataStored_.at(indexes.i())), timeUnits_);
 }
 
-bool AM0DTimestampAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
+bool ST0DTimestampAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
 {
     if(!isValid())
         return false;
@@ -162,7 +161,7 @@ bool AM0DTimestampAB::values(const AMnDIndex &indexStart, const AMnDIndex &index
     return true;
 }
 
-AMNumber AM0DTimestampAB::axisValue(int axisNumber, int index) const
+AMNumber ST0DTimestampAB::axisValue(int axisNumber, int index) const
 {
     if (!isValid())
         return AMNumber(AMNumber::InvalidError);
@@ -176,7 +175,7 @@ AMNumber AM0DTimestampAB::axisValue(int axisNumber, int index) const
     return index;
 }
 
-bool AM0DTimestampAB::loadFromDb(AMDatabase *db, int id)
+bool ST0DTimestampAB::loadFromDb(AMDatabase *db, int id)
 {
     bool success = AMDbObject::loadFromDb(db, id);
 
@@ -187,23 +186,7 @@ bool AM0DTimestampAB::loadFromDb(AMDatabase *db, int id)
     return success;
 }
 
-void AM0DTimestampAB::setTimeUnits(TimeUnits newUnits)
-{
-    if (timeUnits_ != newUnits) {
-        timeUnits_ = newUnits;
-        emit timeUnitsChanged(timeUnits_);
-    }
-}
-
-void AM0DTimestampAB::setTimeValue(int newValue)
-{
-    if (timeValue_ != newValue && newValue > 0) {
-        timeValue_ = newValue;
-        emit timeValueChanged(timeValue_);
-    }
-}
-
-void AM0DTimestampAB::setDataStoredCountMax(int newMax)
+void ST0DTimestampAB::setDataStoredCountMax(int newMax)
 {
     if (dataMax_ != newMax && newMax > 0) {
 
@@ -216,15 +199,31 @@ void AM0DTimestampAB::setDataStoredCountMax(int newMax)
     }
 }
 
-void AM0DTimestampAB::enableTimeFiltering(bool isEnabled)
-{
+void ST0DTimestampAB::enableTimeFiltering(bool isEnabled)
+{    
     if (timeFilteringEnabled_ != isEnabled) {
         timeFilteringEnabled_ = isEnabled;
         emit timeFilteringEnabled(timeFilteringEnabled_);
     }
 }
 
-void AM0DTimestampAB::onInputSourceValuesChanged(const AMnDIndex &start, const AMnDIndex &end)
+void ST0DTimestampAB::setTimeValue(int newValue)
+{
+    if (timeValue_ != newValue && newValue > 0) {
+        timeValue_ = newValue;
+        emit timeValueChanged(timeValue_);
+    }
+}
+
+void ST0DTimestampAB::setTimeUnits(STTime::Units newUnits)
+{
+    if (timeUnits_ != newUnits) {
+        timeUnits_ = newUnits;
+        emit timeUnitsChanged(timeUnits_);
+    }
+}
+
+void ST0DTimestampAB::onInputSourceValuesChanged(const AMnDIndex &start, const AMnDIndex &end)
 {
     Q_UNUSED(start)
     Q_UNUSED(end)
@@ -243,32 +242,17 @@ void AM0DTimestampAB::onInputSourceValuesChanged(const AMnDIndex &start, const A
     reviewValuesChanged(start, end);
 }
 
-void AM0DTimestampAB::onInputSourcesStateChanged()
+void ST0DTimestampAB::onInputSourcesStateChanged()
 {
     reviewState();
 }
 
-double AM0DTimestampAB::convertMS(double msecVal, TimeUnits newUnit) const
+double ST0DTimestampAB::convertTimeValue(double mseconds, STTime::Units newUnits) const
 {
-    double result = 0;
-
-    if (newUnit == mSeconds) {
-        result = msecVal;
-
-    } else if (newUnit == Seconds) {
-        result = msecVal / 1000;
-
-    } else if (newUnit == Minutes) {
-        result = msecVal / 1000 / 60;
-
-    } else if (newUnit == Hours) {
-        result = msecVal / 1000 / 60 / 60;
-    }
-
-    return result;
+    return STTime::convertValue(mseconds, STTime::mSeconds, newUnits);
 }
 
-void AM0DTimestampAB::reviewValuesChanged(const AMnDIndex &start, const AMnDIndex &end)
+void ST0DTimestampAB::reviewValuesChanged(const AMnDIndex &start, const AMnDIndex &end)
 {
     Q_UNUSED(start)
     Q_UNUSED(end)
@@ -304,7 +288,7 @@ void AM0DTimestampAB::reviewValuesChanged(const AMnDIndex &start, const AMnDInde
 
 }
 
-void AM0DTimestampAB::reviewState()
+void ST0DTimestampAB::reviewState()
 {
     // are there data sources?
     if (sources_.isEmpty()) {

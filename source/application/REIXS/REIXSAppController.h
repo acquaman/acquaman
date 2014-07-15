@@ -53,6 +53,11 @@ public:
 public slots:
 
 protected slots:
+	/// Helper slot that connects generic scan editors that use the 2D scan view to the app controller so that it can enable quick configuration of scans.
+	void onScanEditorCreated(AMGenericScanEditor *editor);
+	/// Helper slot that handles checking out scans when they are added to a scan editor.  For now, all this does is choose which data source is visualized in AMSingleSpectrumView in AM2DScanView.
+	void onScanAddedToEditor(AMGenericScanEditor *editor, AMScan *scan);
+
 
 
 protected:

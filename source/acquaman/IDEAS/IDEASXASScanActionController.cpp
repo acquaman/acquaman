@@ -130,7 +130,7 @@ void IDEASXASScanActionController::buildScanControllerImplementation()
 		AM1DExpressionAB* NormSample = new AM1DExpressionAB("NormSample");
 		NormSample->setDescription("NormSample");
 		NormSample->setInputDataSources(raw1DDataSources);
-	NormSample->setExpression("ln(I_0/Sample)");
+		NormSample->setExpression("ln(I_0/Sample)");
 		scan_->addAnalyzedDataSource(NormSample);
 	 }
 
@@ -139,7 +139,7 @@ void IDEASXASScanActionController::buildScanControllerImplementation()
 		AM1DExpressionAB* NormRef = new AM1DExpressionAB("NormRef");
 		NormRef->setDescription("NormRef");
 		NormRef->setInputDataSources(raw1DDataSources);
-	NormRef->setExpression("ln(Sample/Reference)");
+		NormRef->setExpression("ln(Sample/Reference)");
 		scan_->addAnalyzedDataSource(NormRef);
 	}
 
@@ -186,13 +186,13 @@ AMAction3* IDEASXASScanActionController::createInitializationActions(){
 	tmpControl = IDEASBeamline::ideas()->monoDirectEnergyControl();
 	AMControlInfo monoEnergy = tmpControl->toInfo();
 
-	double startE = double(configuration_->scanAxisAt(0)->regionAt(0)->regionStart());
+		double startE = double(configuration_->scanAxisAt(0)->regionAt(0)->regionStart());
 		double mono2d = IDEASBeamline::ideas()->mono2d()->value();
 		double braggAngle = asin(12398.4193 / mono2d / startE);
 		double backlashDegrees = 4;
 
 		double dE = (backlashDegrees / 180 * M_PI) * (mono2d * startE * startE * cos(braggAngle * M_PI / 180)) / (-12398.4193);
-	double backlashE = startE + dE;
+		double backlashE = startE + dE;
 		if(backlashE < IDEASBeamline::ideas()->monoLowEV()->value()) backlashE = IDEASBeamline::ideas()->monoLowEV()->value();
 
 

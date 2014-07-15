@@ -19,27 +19,27 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef AM0DTIMESTAMPAB_H
-#define AM0DTIMESTAMPAB_H
+#ifndef ST0DTIMESTAMPAB_H
+#define ST0DTIMESTAMPAB_H
 
 #include <QObject>
 #include <QDebug>
 
 #include "analysis/AMStandardAnalysisBlock.h"
 
-class AM0DTimestampAB : public AMStandardAnalysisBlock
+#include "StripTool2/STTime.h"
+
+class ST0DTimestampAB : public AMStandardAnalysisBlock
 {
     Q_OBJECT
 
     Q_CLASSINFO("AMDbObject_Attributes", "description=0D Timestamp Block")
 
 public:
-    enum TimeUnits {mSeconds = 0, Seconds = 1, Minutes = 2, Hours = 3};
-
     /// Constructor.
-    Q_INVOKABLE AM0DTimestampAB(const QString &outputName, QObject *parent = 0);
+    Q_INVOKABLE ST0DTimestampAB(const QString &outputName, QObject *parent = 0);
     /// Destructor.
-    virtual ~AM0DTimestampAB();
+    virtual ~ST0DTimestampAB();
 
     /// Returns the times stored in this analysis block, for the input data source.
     QList<QDateTime> dataStored() const;
@@ -47,10 +47,10 @@ public:
     int dataStoredCount() const;
     /// Returns the maximum number of elements stored.
     int dataStoredCountMax() const;
-    /// Returns the current time units.
-    TimeUnits timeUnits() const;
     /// Returns the current time value.
     int timeValue() const;
+    /// Returns the current time units.
+    STTime::Units timeUnits() const;
     /// Returns bool indicating whether time filtering is enabled.
     bool timeFilteringEnabled() const;
 
@@ -68,20 +68,20 @@ public:
     virtual bool loadFromDb(AMDatabase *db, int id);
 
 signals:
-    void timeUnitsChanged(TimeUnits newUnits);
-    void timeValueChanged(int newValue);
     void dataStoredMaxChanged(int newMax);
     void timeFilteringEnabled(bool isEnabled);
+    void timeValueChanged(int newValue);
+    void timeUnitsChanged(STTime::Units newUnits);
 
 public slots:
-    /// Sets the current time units.
-    void setTimeUnits(TimeUnits newUnits);
-    /// Sets the current time value.
-    void setTimeValue(int newValue);
     /// Sets the maximum number of elements stored.
     void setDataStoredCountMax(int newMax);
     /// Enables time filtering.
     void enableTimeFiltering(bool isEnabled);
+    /// Sets the time value.
+    void setTimeValue(int newValue);
+    /// Sets the time units.
+    void setTimeUnits(STTime::Units newUnits);
 
 protected slots:
     /// Handles adding the new value to the dataStored_ for this particular data source.
@@ -91,7 +91,7 @@ protected slots:
 
 protected:
     /// Converts the millisecond argument to another TimeUnit.
-    double convertMS(double msecVal, TimeUnits newUnit) const;
+    double convertTimeValue(double mseconds, STTime::Units newUnits) const;
     /// Helper function that reviews what this AB should emit as changed indices.
     void reviewValuesChanged(const AMnDIndex &start, const AMnDIndex &end);
     /// Helper function that reviews this AB's current state.
@@ -104,13 +104,13 @@ protected:
     int dataMax_;
     /// The datetime of the latest data source value update.
     QDateTime latestUpdate_;
-    /// The current time units.
-    TimeUnits timeUnits_;
     /// The current time value.
     int timeValue_;
+    /// The current time units.
+    STTime::Units timeUnits_;
     /// Bool indicating whether time filtering is enabled.
     bool timeFilteringEnabled_;
 
 };
 
-#endif // AMTIMESTAMPAB_H
+#endif // ST0DTIMESTAMPAB_H
