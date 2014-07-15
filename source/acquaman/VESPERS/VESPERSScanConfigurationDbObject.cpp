@@ -45,6 +45,9 @@ VESPERSScanConfigurationDbObject::VESPERSScanConfigurationDbObject(const VESPERS
 	motor_ = original.motor();
 	ccdFileName_ = original.ccdFileName();
 	normalPosition_ = original.normalPosition();
+
+	foreach (AMRegionOfInterest *region, original.regionsOfInterest())
+		addRegionOfInterest(region->createCopy());
 }
 
 void VESPERSScanConfigurationDbObject::setIncomingChoice(VESPERS::IonChamber I0)

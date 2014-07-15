@@ -167,8 +167,8 @@ bool VESPERSAppController::startup()
 
 			userConfiguration_->storeToDb(AMDatabase::database("user"));
 			// This is connected here because our standard way for these signal connections is to load from db first, which clearly won't happen on the first time.
-			connect(VESPERSBeamline::vespers()->vespersSingleElementVortexDetector(), SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), userConfiguration_, SLOT(addRegionOfInterest(AMRegionOfInterest*)));
-			connect(VESPERSBeamline::vespers()->vespersSingleElementVortexDetector(), SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), userConfiguration_, SLOT(removeRegionOfInterest(AMRegionOfInterest*)));
+			connect(VESPERSBeamline::vespers()->vespersSingleElementVortexDetector(), SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
+			connect(VESPERSBeamline::vespers()->vespersSingleElementVortexDetector(), SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
 		}
 
 		// Github setup for adding VESPERS specific comment.
@@ -954,6 +954,24 @@ void VESPERSAppController::onUserConfigurationLoadedFromDb()
 		detector->addRegionOfInterest(region->createCopy());
 
 	// This is connected here because we want to listen to the detectors for updates, but don't want to double add regions on startup.
-	connect(VESPERSBeamline::vespers()->vespersSingleElementVortexDetector(), SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), userConfiguration_, SLOT(addRegionOfInterest(AMRegionOfInterest*)));
-	connect(VESPERSBeamline::vespers()->vespersSingleElementVortexDetector(), SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), userConfiguration_, SLOT(removeRegionOfInterest(AMRegionOfInterest*)));
+	connect(VESPERSBeamline::vespers()->vespersSingleElementVortexDetector(), SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
+	connect(VESPERSBeamline::vespers()->vespersSingleElementVortexDetector(), SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
+}
+
+void VESPERSAppController::onRegionOfInterestAdded(AMRegionOfInterest *region)
+{
+	userConfiguration_->addRegionOfInterest(region);
+	mapScanConfiguration_->addRegionOfInterest(region);
+	map3DScanConfiguration_->addRegionOfInterest(region);
+	exafsScanConfiguration_->addRegionOfInterest(region);
+	lineScanConfiguration_->addRegionOfInterest(region);
+}
+
+void VESPERSAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
+{
+	userConfiguration_->removeRegionOfInterest(region);
+	mapScanConfiguration_->removeRegionOfInterest(region);
+	map3DScanConfiguration_->removeRegionOfInterest(region);
+	exafsScanConfiguration_->removeRegionOfInterest(region);
+	lineScanConfiguration_->removeRegionOfInterest(region);
 }

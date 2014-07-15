@@ -208,14 +208,16 @@ void VESPERSSpatialLineScanActionController::buildScanControllerImplementation()
 
 	if (detector){
 
-		foreach (AMRegionOfInterest *region, detector->regionsOfInterest()){
+		detector->removeAllRegionsOfInterest();
+
+		foreach (AMRegionOfInterest *region, configuration_->regionsOfInterest()){
 
 			AMRegionOfInterestAB *regionAB = (AMRegionOfInterestAB *)region->valueSource();
 			AMRegionOfInterestAB *newRegion = new AMRegionOfInterestAB(regionAB->name());
 			newRegion->setBinningRange(regionAB->binningRange());
 			newRegion->setInputDataSources(QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource(detector->name())));
 			scan_->addAnalyzedDataSource(newRegion, true, false);
-			configuration_->addRegionOfInterest(region);
+			detector->addRegionOfInterest(region);
 		}
 	}
 }
