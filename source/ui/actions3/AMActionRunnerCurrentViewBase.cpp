@@ -49,10 +49,12 @@ void AMActionRunnerCurrentViewBase::onCurrentActionChanged(AMAction3 *action)
 	if(action && action->state() == AMAction3::Paused) {
 		pauseButton_->setIcon(QIcon(":/22x22/media-playback-start.png"));
 		pauseButton_->setText("Resume");
+		pauseButton_->setToolTip("Resume the current action");
 	}
 	else {
 		pauseButton_->setIcon(QIcon(":/22x22/media-playback-pause.png"));
 		pauseButton_->setText("Pause");
+		pauseButton_->setToolTip("Pause the current action");
 	}
 
 	if (action){
@@ -197,11 +199,13 @@ void AMActionRunnerCurrentViewBase::onStateChanged(int state, int previousState)
 	if(state == AMAction3::Paused) {
 		pauseButton_->setText("Resume");
 		pauseButton_->setIcon(QIcon(":/22x22/media-playback-start.png"));
+		pauseButton_->setToolTip("Resume the current action.");
 	}
 
 	if(previousState == AMAction3::Resuming) {
 		pauseButton_->setText("Pause");
 		pauseButton_->setIcon(QIcon(":/22x22/media-playback-pause.png"));
+		pauseButton_->setToolTip("Pause the current action.");
 	}
 
 	// Can pause or resume from only these states:
