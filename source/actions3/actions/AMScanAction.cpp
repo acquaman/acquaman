@@ -142,8 +142,8 @@ void AMScanAction::startImplementation()
 	connect(controller_, SIGNAL(stateChanged(int,int)), this, SLOT(onControllerStateChanged()));
 
 	// The action is started the moment it tries to start the controller.
-	setStarted();
 	setStatusText("Initializing");
+	setStarted();
 
 	// Initialize the controller.
 	if (!controller_->initialize()){
@@ -161,8 +161,8 @@ void AMScanAction::pauseImplementation()
 {
 	if (controller_->pause()){
 
-		setPaused();
 		setStatusText("Paused");
+		setPaused();
 	}
 }
 
@@ -170,8 +170,8 @@ void AMScanAction::resumeImplementation()
 {
 	if (controller_->resume()){
 
-		setResumed();
 		setStatusText("Running");
+		setResumed();
 	}
 }
 
@@ -179,8 +179,8 @@ void AMScanAction::cancelImplementation()
 {
 	if(controller_){
 
-		controller_->cancel();
 		setStatusText("Cancelling");
+		controller_->cancel();
 	}
 	else
 		setCancelled();
@@ -241,8 +241,8 @@ void AMScanAction::onControllerCancelled()
 		if (!controller_->scan()->storeToDb(AMDatabase::database("user")))
 			AMErrorMon::alert(this, AMSCANACTION_CANT_SAVE_TO_DB, "The scan action was unable to update the scan in the database.");
 
-	setCancelled();
 	setStatusText("Cancelled");
+	setCancelled();
 }
 
 void AMScanAction::onControllerFailed()
@@ -252,8 +252,8 @@ void AMScanAction::onControllerFailed()
 		if (!controller_->scan()->storeToDb(AMDatabase::database("user")))
 			AMErrorMon::alert(this, AMSCANACTION_CANT_SAVE_TO_DB, "The scan action was unable to update the scan in the database.");
 
-	setFailed();
 	setStatusText("Failed");
+	setFailed();
 }
 
 void AMScanAction::onControllerSucceeded()
