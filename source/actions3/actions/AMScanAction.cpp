@@ -209,7 +209,14 @@ void AMScanAction::scheduleForDeletion()
 
 void AMScanAction::onControllerInitialized()
 {
-	if (!controller_->start()){
+	if (state() == AMAction3::Skipping){
+
+		disconnect(controller_, SIGNAL(cancelled()), this, SLOT(onControllerCancelled()));
+		connect(controller_, SIGNAL(cancelled()), this, SLOT(onControllerSucceeded()));
+		controller_->cancel();
+	}
+
+	else if (!controller_->start()){
 
 		AMErrorMon::alert(this, AMSCANACTION_CANT_START_CONTROLLER, "Could not start the scan controller.");
 		setFailed();
