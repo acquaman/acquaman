@@ -29,6 +29,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
 #include "dataman/export/VESPERS/VESPERSExporter2DAscii.h"
 #include "dataman/export/VESPERS/VESPERSExporterSMAK.h"
+#include "analysis/AM2DNormalizationAB.h"
 
 VESPERS2DScanActionController::VESPERS2DScanActionController(VESPERS2DScanConfiguration *configuration, QObject *parent)
 	: AMStepScanActionController(configuration, parent), VESPERSScanController(configuration)
@@ -198,14 +199,25 @@ void VESPERS2DScanActionController::buildScanControllerImplementation()
 
 		detector->removeAllRegionsOfInterest();
 
+		QList<AMDataSource *> i0Sources = QList<AMDataSource *>()
+				<< scan_->dataSourceAt(scan_->indexOfDataSource("SplitIonChamber"))
+				   << scan_->dataSourceAt(scan_->indexOfDataSource("PreKBIonChamber"))
+					  << scan_->dataSourceAt(scan_->indexOfDataSource("MiniIonChamber"));
+
 		foreach (AMRegionOfInterest *region, configuration_->regionsOfInterest()){
 
 			AMRegionOfInterestAB *regionAB = (AMRegionOfInterestAB *)region->valueSource();
 			AMRegionOfInterestAB *newRegion = new AMRegionOfInterestAB(regionAB->name());
 			newRegion->setBinningRange(regionAB->binningRange());
 			newRegion->setInputDataSources(QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource(detector->name())));
-			scan_->addAnalyzedDataSource(newRegion);
+			scan_->addAnalyzedDataSource(newRegion, false, true);
 			detector->addRegionOfInterest(region);
+
+			AM2DNormalizationAB *normalizedRegion = new AM2DNormalizationAB(QString("norm_%1").arg(region->name()));
+			normalizedRegion->setInputDataSources(QList<AMDataSource *>() << newRegion << i0Sources);
+			normalizedRegion->setDataName(newRegion->name());
+			normalizedRegion->setNormalizationName("MiniIonChamber");
+			scan_->addAnalyzedDataSource(normalizedRegion);
 		}
 	}
 }

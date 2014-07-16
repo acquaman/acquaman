@@ -30,6 +30,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
 #include "acquaman/AMEXAFSScanActionControllerAssembler.h"
 #include "analysis/AM1DKSpaceCalculatorAB.h"
+#include "analysis/AM1DNormalizationAB.h"
 
 VESPERSXASScanActionController::~VESPERSXASScanActionController(){}
 
@@ -144,14 +145,27 @@ void VESPERSXASScanActionController::buildScanControllerImplementation()
 
 		detector->removeAllRegionsOfInterest();
 
+		QList<AMDataSource *> i0Sources = QList<AMDataSource *>()
+				<< scan_->dataSourceAt(scan_->indexOfDataSource("SplitIonChamber"))
+				   << scan_->dataSourceAt(scan_->indexOfDataSource("PreKBIonChamber"))
+					  << scan_->dataSourceAt(scan_->indexOfDataSource("MiniIonChamber"));
+
+		QString edgeSymbol = configuration_->edge().split(" ").first();
+
 		foreach (AMRegionOfInterest *region, configuration_->regionsOfInterest()){
 
 			AMRegionOfInterestAB *regionAB = (AMRegionOfInterestAB *)region->valueSource();
 			AMRegionOfInterestAB *newRegion = new AMRegionOfInterestAB(regionAB->name());
 			newRegion->setBinningRange(regionAB->binningRange());
 			newRegion->setInputDataSources(QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource(detector->name())));
-			scan_->addAnalyzedDataSource(newRegion);
+			scan_->addAnalyzedDataSource(newRegion, false, true);
 			detector->addRegionOfInterest(region);
+
+			AM1DNormalizationAB *normalizedRegion = new AM1DNormalizationAB(QString("norm_%1").arg(region->name()));
+			normalizedRegion->setInputDataSources(QList<AMDataSource *>() << newRegion << i0Sources);
+			normalizedRegion->setDataName(newRegion->name());
+			normalizedRegion->setNormalizationName("MiniIonChamber");
+			scan_->addAnalyzedDataSource(normalizedRegion, region->name().contains(edgeSymbol), !region->name().contains(edgeSymbol));
 		}
 	}
 }
