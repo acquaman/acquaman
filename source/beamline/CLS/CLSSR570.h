@@ -81,6 +81,8 @@ protected slots:
 	void onUnitsChanged(const QString &newUnits);
 	/// Helper function that determines if the SR570 is connected.
 	void onConnectedChanged();
+	/// Helper method that sets the value index.  It is called as a delayed call because the control system ignores commands that are sent too quickly.
+	void doDelayedValueIndex();
 
 protected:
 	/// Determines if the new sensitivity value is acceptable.
@@ -110,9 +112,11 @@ protected:
 	bool atMaximumSensitivity_;
 	/// Holds the state of whether the ion chamber is at its minimum sensitivity.
 	bool atMinimumSensitivity_;
+	/// Helper variable that holds the next value index.
+	int valueIndex_;
 
 private:
-    /// Helper function that returns the next sensitivity value.  Uses the bool \param increase to determine whether it should look up or down.  Returns -1 if not possible to move or if the given number is invalid.
+	/// Helper function that returns the next sensitivity value.  Uses the bool \param increase to determine whether it should look up or down.  Returns -1 if not possible to move or if the given number is invalid.
 	int nextValue(bool increase, int current);
 	/// Helper function that returns the next sensitivity units.  Uses the bool \param increase to determine whether it should look up or down.  Returns a null string if not possible to move or the given unit is invalid.
 	QString nextUnits(bool increase, QString current);

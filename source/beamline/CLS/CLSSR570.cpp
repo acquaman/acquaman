@@ -29,27 +29,28 @@ CLSSR570::CLSSR570(const QString &name, const QString &valueName, const QString 
 
 	atMinimumSensitivity_ = false;
 	atMaximumSensitivity_ = false;
+	valueIndex_ = -1;
 
 	value_ = new AMProcessVariable(valueName, true, this);
 	units_ = new AMProcessVariable(unitsName, true, this);
 
-    // emit the sensitivityChanged() and unitsChanged signals.
+	// emit the sensitivityChanged() and unitsChanged signals.
 	connect(value_, SIGNAL(valueChanged(int)), this, SLOT(onValueChanged(int)));
 	connect(units_, SIGNAL(valueChanged(QString)), this, SLOT(onUnitsChanged(QString)) );
 
-    // check the max/min sensitivity conditions with every update.
+	// check the max/min sensitivity conditions with every update.
 	connect(value_, SIGNAL(valueChanged()), this, SLOT(onSensitivityChanged()));
 	connect(units_, SIGNAL(valueChanged()), this, SLOT(onSensitivityChanged()));
 
-    // report connection changes.
+	// report connection changes.
 	connect(value_, SIGNAL(connected()), this, SLOT(onConnectedChanged()));
 	connect(units_, SIGNAL(connected()), this, SLOT(onConnectedChanged()));
 
-    // piggyback interface signals on class-specific signals.
-    connect( this, SIGNAL(sensitivityChanged(int)), this, SIGNAL(valueChanged()) );
-    connect( this, SIGNAL(unitsChanged(QString)), this, SIGNAL(valueChanged()) );
-    connect( this, SIGNAL(maximumSensitivity(bool)), this, SIGNAL(maximumValue(bool)) );
-    connect( this, SIGNAL(minimumSensitivity(bool)), this, SIGNAL(minimumValue(bool)) );
+	// piggyback interface signals on class-specific signals.
+	connect( this, SIGNAL(sensitivityChanged(int)), this, SIGNAL(valueChanged()) );
+	connect( this, SIGNAL(unitsChanged(QString)), this, SIGNAL(valueChanged()) );
+	connect( this, SIGNAL(maximumSensitivity(bool)), this, SIGNAL(maximumValue(bool)) );
+	connect( this, SIGNAL(minimumSensitivity(bool)), this, SIGNAL(minimumValue(bool)) );
 
 	setAmplifierMode(AMCurrentAmplifier::Sensitivity);
 }
@@ -73,19 +74,19 @@ void CLSSR570::setValueControl(int value)
 
 void CLSSR570::setValueIndex(int index)
 {
-    if (valueOkay(index) && index != value_->getInt())
-        value_->setValue(index);
+	if (valueOkay(index) && index != value_->getInt())
+		value_->setValue(index);
 }
 
 void CLSSR570::setUnits(QString units)
 {
-    if (unitsOkay(units) && units != units_->getString())
-        units_->setValue(units);
+	if (unitsOkay(units) && units != units_->getString())
+		units_->setValue(units);
 }
 
 void CLSSR570::onValueChanged(int index)
 {
-    emit sensitivityChanged(index);
+	emit sensitivityChanged(index);
 }
 
 void CLSSR570::onSensitivityChanged()
@@ -148,7 +149,8 @@ bool CLSSR570::increaseSensitivity()
 	else {
 
 		units_->setValue(units);
-		value_->setValue(8);
+		valueIndex_ = 8;
+		QTimer::singleShot(0, this, SLOT(doDelayedValueIndex()));
 	}
 
 	return true;
@@ -175,7 +177,8 @@ bool CLSSR570::decreaseSensitivity()
 	else {
 
 		units_->setValue(units);
-		value_->setValue(0);
+		valueIndex_ = 0;
+		QTimer::singleShot(0, this, SLOT(doDelayedValueIndex()));
 	}
 
 	return true;
@@ -183,13 +186,16 @@ bool CLSSR570::decreaseSensitivity()
 
 void CLSSR570::setValueImplementation(const QString &valueArg)
 {
-	int value = valueArg.split(" ").at(0).toInt();
-	if ( valueOkay(valueToIndex(value)) )
-		setValueIndex(valueToIndex(value));
-
 	QString units = valueArg.split(" ").at(1);
 	if ( unitsOkay(units) )
 		setUnits(units);
+
+	int value = valueArg.split(" ").at(0).toInt();
+	if ( valueOkay(valueToIndex(value)) ){
+
+		valueIndex_ = valueToIndex(value);
+		QTimer::singleShot(0, this, SLOT(doDelayedValueIndex()));
+	}
 }
 
 int CLSSR570::nextValue(bool increase, int current)
@@ -294,4 +300,9 @@ int CLSSR570::indexToValue(int index) const
 	}
 
 	return val;
+}
+
+void CLSSR570::doDelayedValueIndex()
+{
+	setValueIndex(valueIndex_);
 }
