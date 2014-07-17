@@ -396,12 +396,12 @@ void SGMAppController::onSGMBeamlineConnected(){
 		if(SGMBeamline::sgm()->newPDDetector()){
 			preferentialOrdering << SGMBeamline::sgm()->newPDDetector()->name();
 		}
-        if(SGMBeamline::sgm()->energyFeedbackDetector()) {
-            xasDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->energyFeedbackDetector(), true);
-        }
-        if(SGMBeamline::sgm()->dwellTimeDetector()) {
-            xasDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->dwellTimeDetector(), true);
-        }
+		if(SGMBeamline::sgm()->energyFeedbackDetector()) {
+			xasDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->energyFeedbackDetector(), true);
+		}
+		if(SGMBeamline::sgm()->dwellTimeDetector()) {
+			xasDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->dwellTimeDetector(), true);
+		}
 
 		xasDetectorSelector_->setPreferentialOrdering(preferentialOrdering);
 		xasDetectorSelector_->setDefaultsSelected();
@@ -494,6 +494,8 @@ void SGMAppController::onSGMScalerConnected(bool connected){
 	Q_UNUSED(connected)
 	if(SGMBeamline::sgm()->rawScaler() && SGMBeamline::sgm()->rawScaler()->isConnected() && !sgmScalerView_){
 		sgmScalerView_ = new SGMSIS3820ScalerView(SGMBeamline::sgm()->scaler());
+		sgmScalerView_->setAmplifierViewFormat('g');
+		sgmScalerView_->setAmplifierViewPrecision(3);
 		mw_->addPane(sgmScalerView_, "Beamline Detectors", "SGM Scaler", ":/system-software-update.png", true);
 	}
 }
