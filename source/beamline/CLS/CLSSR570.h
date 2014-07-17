@@ -82,6 +82,9 @@ protected slots:
 	/// Helper function that determines if the SR570 is connected.
 	void onConnectedChanged();
 
+	void valueTo8();
+	void valueTo0();
+
 protected:
 	/// Determines if the new sensitivity value is acceptable.
 	bool valueOkay(int value) const;

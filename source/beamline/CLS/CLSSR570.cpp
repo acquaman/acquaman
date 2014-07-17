@@ -117,6 +117,14 @@ void CLSSR570::onConnectedChanged()
 	}
 }
 
+void CLSSR570::valueTo8(){
+	value_->setValue(8);
+}
+
+void CLSSR570::valueTo0(){
+	value_->setValue(0);
+}
+
 bool CLSSR570::valueOkay(int value) const
 {
 	return (value >= 0 && value <= 8);
@@ -148,7 +156,8 @@ bool CLSSR570::increaseSensitivity()
 	else {
 
 		units_->setValue(units);
-		value_->setValue(8);
+		//value_->setValue(8);
+		QTimer::singleShot(500, this, SLOT(valueTo8()));
 	}
 
 	return true;
@@ -175,7 +184,8 @@ bool CLSSR570::decreaseSensitivity()
 	else {
 
 		units_->setValue(units);
-		value_->setValue(0);
+		//value_->setValue(0);
+		QTimer::singleShot(500, this, SLOT(valueTo0()));
 	}
 
 	return true;
