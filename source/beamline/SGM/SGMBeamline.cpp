@@ -631,15 +631,15 @@ AMAction3* SGMBeamline::createBeamOnActions3(){
 	AMControlWaitAction *waitForvvr1611_4_I10_04Shutter = new AMControlWaitAction(new AMControlWaitActionInfo(vvr1611_4_I10_04Info, 10, AMControlWaitActionInfo::MatchEqual),vvr1611_4_I10_04Shutter_);
 	beamOnActionsList->addSubAction(waitForvvr1611_4_I10_04Shutter);
 
-	AMControlInfo vvr1611_4_I10_05Info = vvr1611_4_I10_05Shutter_->toInfo();
-	vvr1611_4_I10_05Info.setValue(1);
-	AMControlWaitAction *waitForvvr1611_4_I10_05Shutter = new AMControlWaitAction(new AMControlWaitActionInfo(vvr1611_4_I10_05Info, 10, AMControlWaitActionInfo::MatchEqual),vvr1611_4_I10_05Shutter_);
-	beamOnActionsList->addSubAction(waitForvvr1611_4_I10_05Shutter);
+//	AMControlInfo vvr1611_4_I10_05Info = vvr1611_4_I10_05Shutter_->toInfo();
+//	vvr1611_4_I10_05Info.setValue(1);
+//	AMControlWaitAction *waitForvvr1611_4_I10_05Shutter = new AMControlWaitAction(new AMControlWaitActionInfo(vvr1611_4_I10_05Info, 10, AMControlWaitActionInfo::MatchEqual),vvr1611_4_I10_05Shutter_);
+//	beamOnActionsList->addSubAction(waitForvvr1611_4_I10_05Shutter);
 
-	AMControlInfo vvr1611_4_I10_06Info = vvr1611_4_I10_06Shutter_->toInfo();
-	vvr1611_4_I10_06Info.setValue(1);
-	AMControlWaitAction *waitForvvr1611_4_I10_06Shutter = new AMControlWaitAction(new AMControlWaitActionInfo(vvr1611_4_I10_06Info, 10, AMControlWaitActionInfo::MatchEqual),vvr1611_4_I10_06Shutter_);
-	beamOnActionsList->addSubAction(waitForvvr1611_4_I10_06Shutter);
+//	AMControlInfo vvr1611_4_I10_06Info = vvr1611_4_I10_06Shutter_->toInfo();
+//	vvr1611_4_I10_06Info.setValue(1);
+//	AMControlWaitAction *waitForvvr1611_4_I10_06Shutter = new AMControlWaitAction(new AMControlWaitActionInfo(vvr1611_4_I10_06Info, 10, AMControlWaitActionInfo::MatchEqual),vvr1611_4_I10_06Shutter_);
+//	beamOnActionsList->addSubAction(waitForvvr1611_4_I10_06Shutter);
 
 	AMControlInfo vvr1611_4_I10_07Info = vvr1611_4_I10_07Shutter_->toInfo();
 	vvr1611_4_I10_07Info.setValue(1);
