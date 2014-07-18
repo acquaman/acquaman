@@ -21,6 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "CLSNetworkDirectorySynchronizer.h"
 
+#include <QCoreApplication>
 #include <QDebug>
 
 CLSNetworkDirectorySynchronizer::CLSNetworkDirectorySynchronizer(const QString &localPath, const QString &networkPath, QObject *parent) :
@@ -29,7 +30,15 @@ CLSNetworkDirectorySynchronizer::CLSNetworkDirectorySynchronizer(const QString &
 	localPath_ = localPath;
 	networkPath_ = networkPath;
 
+	closeOnCompletion_ = true;
+
 	directorySynchronizer_ = new AMDirectorySynchronizer(localPath_, networkPath_, this);
+	directorySynchronizer_->setAllowSide1Creation(true);
+
+	directorySynchronizer_->setSide1DirectorName("Local");
+	directorySynchronizer_->setSide2DirectorName("Network");
+
+	connect(directorySynchronizer_, SIGNAL(progressChanged(int,int,int)), this, SLOT(onProgressChanged(int,int,int)));
 }
 
 CLSNetworkDirectorySynchronizer::~CLSNetworkDirectorySynchronizer()
@@ -37,7 +46,16 @@ CLSNetworkDirectorySynchronizer::~CLSNetworkDirectorySynchronizer()
 }
 
 AMRecursiveDirectoryCompare::DirectoryCompareResult CLSNetworkDirectorySynchronizer::compareDirectories(){
-	return directorySynchronizer_->compareDirectories();
+	return directorySynchronizer_->prepare();
+}
+
+bool CLSNetworkDirectorySynchronizer::startSynchronization(){
+	if(closeOnCompletion_){
+		connect(directorySynchronizer_, SIGNAL(copyCompleted()), QCoreApplication::instance(), SLOT(quit()));
+		connect(directorySynchronizer_, SIGNAL(copyFailed()), QCoreApplication::instance(), SLOT(quit()));
+	}
+
+	return directorySynchronizer_->start();
 }
 
 QString CLSNetworkDirectorySynchronizer::localPath() const{
@@ -46,4 +64,16 @@ QString CLSNetworkDirectorySynchronizer::localPath() const{
 
 QString CLSNetworkDirectorySynchronizer::networkPath() const{
 	return networkPath_;
+}
+
+QStringList CLSNetworkDirectorySynchronizer::errorMessages() const{
+	return directorySynchronizer_->errorMessages();
+}
+
+void CLSNetworkDirectorySynchronizer::setCloseOnCompletion(bool closeOnCompletion){
+	closeOnCompletion_ = closeOnCompletion;
+}
+
+void CLSNetworkDirectorySynchronizer::onProgressChanged(int percentCompleteFile, int remainingFilesToCopy, int totalFilesToCopy){
+	qDebug() << QString("%1\% (%2 of %3)").arg(percentCompleteFile).arg(totalFilesToCopy-remainingFilesToCopy).arg(totalFilesToCopy);
 }

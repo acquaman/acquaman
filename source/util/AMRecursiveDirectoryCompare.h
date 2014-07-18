@@ -12,10 +12,17 @@ public:
 		Side2ModifiedResult = 2,
 		BothSidesModifiedResult = 3,
 		UnableToDetermineResult  = 4,
+		NeitherSideExistsResult = 5,
+		Side1DoesNotExistResult = 6,
+		Side2DoesNotExistResult = 7,
+		BothSidesAreFiles = 8,
+		Side1IsFile = 9,
+		Side2IsFile = 10,
 		InvalidResult
 	};
 
-	AMRecursiveDirectoryCompare(const QString &directoryPath1, const QString &directoryPath2, const QString &side1Name = "Side 1", const QString & side2Name = "Side 2");
+	/// Constructor for the comparison object. Make sure that directoryPath1 and directoryPath2 are absolute file paths.
+	AMRecursiveDirectoryCompare(const QString &directoryPath1, const QString &directoryPath2, const QStringList &excludePatterns = QStringList(), const QString &side1Name = "Side 1", const QString & side2Name = "Side 2");
 
 	AMRecursiveDirectoryCompare::DirectoryCompareResult compare();
 
@@ -46,6 +53,9 @@ protected:
 	QStringList newerSide2Files_;
 
 	QStringList unknownFiles_;
+
+	QStringList excludePatterns_;
+	QList<QRegExp> excludedRegExps_;
 };
 
 #endif // AMRECURSIVEDIRECTORYCOMPARE_H

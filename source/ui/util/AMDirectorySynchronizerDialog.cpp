@@ -1,38 +1,112 @@
 #include "AMDirectorySynchronizerDialog.h"
 
+#include <QTextEdit>
+#include <QPushButton>
+#include <QProgressBar>
+#include <QLabel>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
-#include <QLabel>
+#include <QGridLayout>
 #include <QCloseEvent>
 #include <QMessageBox>
+#include <QCoreApplication>
+
 #include "util/AMSettings.h"
-AMDirectorySynchronizerDialog::AMDirectorySynchronizerDialog(QWidget *parent) :
+#include "ui/AMVerticalStackWidget.h"
+#include "ui/util/AMMessageBoxWTimeout.h"
+
+
+AMDirectorySynchronizerDialog::AMDirectorySynchronizerDialog(const QString &side1Directory, const QString &side2Directory, const QString &side1DirectoryName, const QString &side2DirectoryName, QWidget *parent) :
 	QDialog(parent)
 {
+	side1Directory_ = side1Directory;
+	side2Directory_ = side2Directory;
+
+	side1DirectoryName_ = side1DirectoryName;
+	side2DirectoryName_ = side2DirectoryName;
+
+	closeOnCompletion_ = false;
+	timedWarningOnCompletion_ = false;
+
 	QVBoxLayout* mainLayout = new QVBoxLayout();
 
-	progressBar_ = new QProgressBar();
-	progressBar_->setRange(0, 100);
+	singleFileProgressBar_ = new QProgressBar();
+	singleFileProgressBar_->setRange(0, 100);
+	singleFileLabel_ = new QLabel();
+
+	overallTransferProgressBar_ = new QProgressBar();
+	overallTransferProgressBar_->setRange(0, 100);
+	overallTransferLabel_ = new QLabel();
+
 	errorTextEdit_ = new QTextEdit();
 	errorTextEdit_->setReadOnly(true);
-	errorTextEdit_->setVisible(false);
 	errorCloseButton_ = new QPushButton("Close");
 	errorCloseButton_->setVisible(false);
 	successfulSync_ = false;
-	mainLayout->addWidget(new QLabel("Acquaman is currently backing up your data. Please wait till complete..."));
-	mainLayout->addWidget(progressBar_, Qt::AlignCenter);
-	mainLayout->addWidget(errorTextEdit_);
+
+	progressTextEdit_ = new QTextEdit();
+	progressTextEdit_->setReadOnly(true);
+
+	fileListingEdit_ = new QTextEdit();
+	fileListingEdit_->setReadOnly(true);
+
+	feedbackStackWidget_ = new AMVerticalStackWidget();
+	feedbackStackWidget_->addItem("Files", fileListingEdit_);
+	feedbackStackWidget_->addItem("Progress", progressTextEdit_);
+	feedbackStackWidget_->addItem("Errors", errorTextEdit_);
+	feedbackStackWidget_->collapseItem(0);
+	feedbackStackWidget_->collapseItem(1);
+	feedbackStackWidget_->collapseItem(2);
+
+	prepareButton_ = new QPushButton("Prepare");
+	startButton_ = new QPushButton("Start");
+	QHBoxLayout *buttonsHL = new QHBoxLayout();
+	buttonsHL->addSpacing(0);
+	buttonsHL->addWidget(prepareButton_);
+	buttonsHL->addWidget(startButton_);
+
+	QHBoxLayout *singleFileHL = new QHBoxLayout();
+	singleFileHL->addWidget(singleFileProgressBar_, Qt::AlignCenter);
+	QHBoxLayout *overallTransferHL = new QHBoxLayout();
+	overallTransferHL->addWidget(overallTransferProgressBar_, Qt::AlignCenter);
+
+	QGridLayout *gridLayout = new QGridLayout();
+	gridLayout->addLayout(singleFileHL, 0, 0, 1, 9, Qt::AlignCenter);
+	gridLayout->addWidget(singleFileLabel_, 0, 10, 1, 1, Qt::AlignRight);
+	gridLayout->addLayout(overallTransferHL, 1, 0, 1, 9, Qt::AlignCenter);
+	gridLayout->addWidget(overallTransferLabel_, 1, 10, 1, 1, Qt::AlignRight);
+
+	mainStatusLabel_ = new QLabel("Synchronize Directories, press Prepare or Start to continue.");
+	mainLayout->addWidget(mainStatusLabel_);
+
+	mainLayout->addLayout(gridLayout);
+
+	mainLayout->addLayout(buttonsHL);
+	mainLayout->addWidget(feedbackStackWidget_);
 	mainLayout->addWidget(errorCloseButton_, Qt::AlignCenter);
 
+
 	setLayout(mainLayout);
-	synchronizer_ = new AMDirectorySynchronizer(AMUserSettings::userDataFolder, AMUserSettings::remoteDataFolder);
+	//synchronizer_ = new AMDirectorySynchronizer(AMUserSettings::userDataFolder, AMUserSettings::remoteDataFolder);
+	synchronizer_ = new AMDirectorySynchronizer(side1Directory_, side2Directory_);
+	synchronizer_->setSide1DirectorName("Local");
+	synchronizer_->setSide2DirectorName("Network");
+	synchronizer_->setAllowSide1Creation(true);
 
 	connect(synchronizer_, SIGNAL(copyCompleted()), this, SLOT(onSynchronizerComplete()));
 	connect(synchronizer_, SIGNAL(copyFailed()), this, SLOT(onSynchronizerComplete()));
 	connect(synchronizer_, SIGNAL(errorMessagesChanged(const QString&)), this, SLOT(onSynchronizerErrorTextChanged(const QString&)));
-	connect(synchronizer_, SIGNAL(percentageProgressChanged(int)), this, SLOT(onPercentageProgressChanged(int)));
+	connect(synchronizer_, SIGNAL(progressMessagesChanged(QString)), this, SLOT(onSynchronizerProgressTextChanged(QString)));
+	connect(synchronizer_, SIGNAL(progressChanged(int,int,int)), this, SLOT(onProgressChanged(int,int,int)));
+
 	connect(errorCloseButton_, SIGNAL(clicked()), this, SLOT(onCloseButtonClicked()));
 
+	connect(prepareButton_, SIGNAL(clicked()), this, SLOT(onPrepareButtonClicked()));
+	connect(startButton_, SIGNAL(clicked()), this, SLOT(onStartButtonClicked()));
+
+	startButton_->setDefault(false);
+	errorCloseButton_->setDefault(false);
+	prepareButton_->setDefault(true);
 
 	setModal(true);
 }
@@ -42,33 +116,262 @@ AMDirectorySynchronizerDialog::~AMDirectorySynchronizerDialog()
 	synchronizer_->deleteLater();
 }
 
+QString AMDirectorySynchronizerDialog::side1Directory() const{
+	return side1Directory_;
+}
+
+QString AMDirectorySynchronizerDialog::side2Directory() const{
+	return side2Directory_;
+}
+
+QString AMDirectorySynchronizerDialog::side1DirectoryName() const{
+	return side1DirectoryName_;
+}
+
+QString AMDirectorySynchronizerDialog::side2DirectoryName() const{
+	return side2DirectoryName_;
+}
+
+void AMDirectorySynchronizerDialog::setCloseOnCompletion(bool closeOnCompletion){
+	closeOnCompletion_ = closeOnCompletion;
+}
+
+void AMDirectorySynchronizerDialog::setTimedWarningOnCompletion(bool timedWarningOnCompletion){
+	timedWarningOnCompletion_ = timedWarningOnCompletion;
+}
+
 void AMDirectorySynchronizerDialog::closeEvent(QCloseEvent *ce)
 {
 	if(synchronizer_->isRunning())
 		ce->setAccepted(false);
-	else
+	else{
 		ce->setAccepted(true);
+		if(closeOnCompletion_)
+			QTimer::singleShot(1000, QCoreApplication::instance(), SLOT(quit()));
+	}
+
+}
+
+QString AMDirectorySynchronizerDialog::side1ModifiedResultsString() const{
+	QString textString;
+
+	textString.append("<br>Unique files:<br>");
+	if(synchronizer_->comparator()->uniqueSide1Files().isEmpty())
+		textString.append("<None><br>");
+	for(int x = 0, size = synchronizer_->comparator()->uniqueSide1Files().count(); x < size; x++)
+		textString.append(QString("%1<br>").arg(synchronizer_->comparator()->uniqueSide1Files().at(x)));
+	textString.append("<br>Unique directories:<br>");
+	if(synchronizer_->comparator()->uniqueSide1Directories().isEmpty())
+		textString.append("<None><br>");
+	for(int x = 0, size = synchronizer_->comparator()->uniqueSide1Directories().count(); x < size; x++)
+		textString.append(QString("%1<br>").arg(synchronizer_->comparator()->uniqueSide1Directories().at(x)));
+	textString.append("<br>Newer files:<br>");
+	if(synchronizer_->comparator()->newerSide1Files().isEmpty())
+		textString.append("<None><br>");
+	for(int x = 0, size = synchronizer_->comparator()->newerSide1Files().count(); x < size; x++)
+		textString.append(QString("%1<br>").arg(synchronizer_->comparator()->newerSide1Files().at(x)));
+
+	return textString;
+}
+
+QString AMDirectorySynchronizerDialog::side2ModifiedResultsString() const{
+	QString textString;
+
+	textString.append("<br>Unique files:<br>");
+	if(synchronizer_->comparator()->uniqueSide2Files().isEmpty())
+		textString.append("<None><br>");
+	for(int x = 0, size = synchronizer_->comparator()->uniqueSide2Files().count(); x < size; x++)
+		textString.append(QString("%1<br>").arg(synchronizer_->comparator()->uniqueSide2Files().at(x)));
+	textString.append("<br>Unique directories:<br>");
+	if(synchronizer_->comparator()->uniqueSide2Directories().isEmpty())
+		textString.append("<None><br>");
+	for(int x = 0, size = synchronizer_->comparator()->uniqueSide2Directories().count(); x < size; x++)
+		textString.append(QString("%1<br>").arg(synchronizer_->comparator()->uniqueSide2Directories().at(x)));
+	textString.append("<br>Newer files:<br>");
+	if(synchronizer_->comparator()->newerSide2Files().isEmpty())
+		textString.append("<None><br>");
+	for(int x = 0, size = synchronizer_->comparator()->newerSide2Files().count(); x < size; x++)
+		textString.append(QString("%1<br>").arg(synchronizer_->comparator()->newerSide2Files().at(x)));
+
+	return textString;
+}
+
+void AMDirectorySynchronizerDialog::prepare(){
+	mainStatusLabel_->setText("Preparing ...");
+
+	prepareButton_->setEnabled(false);
+	startButton_->setEnabled(false);
+
+	fileListingEdit_->clear();
+	errorTextEdit_->clear();
+	progressTextEdit_->clear();
+
+	feedbackStackWidget_->collapseItem(0);
+	feedbackStackWidget_->collapseItem(1);
+	feedbackStackWidget_->collapseItem(2);
+
+	QString textString;
+
+	lastCompareResult_ = synchronizer_->prepare();
+
+	switch(lastCompareResult_){
+	case AMRecursiveDirectoryCompare::InvalidResult:
+		textString.append(QString("<font color=\"Red\" size=\"5\">It looks like the synchronizer is already running. Cannot proceed.</font><br><br>").arg(side2DirectoryName_).arg(side1DirectoryName_));
+		errorTextEdit_->append(textString);
+		break;
+	case AMRecursiveDirectoryCompare::FullyMatchingResult:
+		textString.append(QString("<font color=\"Green\" size=\"5\">Everything matches, no need to synchronize (%1 and %2).</font><br><br>").arg(side2DirectoryName_).arg(side1DirectoryName_));
+		progressTextEdit_->setText(textString);
+		break;
+	case AMRecursiveDirectoryCompare::Side1ModifiedResult:
+		textString.append(QString("Side %1 has been modified.<br><br>").arg(side1DirectoryName_));
+		textString.append(QString("<font color=\"Green\" size=\"5\"><i>Start</i> to copy files from %1 to %2</font><br><br>").arg(side1DirectoryName_).arg(side2DirectoryName_));
+
+//		textString.append("<br>Unique files:<br>");
+//		if(synchronizer_->comparator()->uniqueSide1Files().isEmpty())
+//			textString.append("<None><br>");
+//		for(int x = 0, size = synchronizer_->comparator()->uniqueSide1Files().count(); x < size; x++)
+//			textString.append(QString("%1<br>").arg(synchronizer_->comparator()->uniqueSide1Files().at(x)));
+//		textString.append("<br>Unique directories:<br>");
+//		if(synchronizer_->comparator()->uniqueSide1Directories().isEmpty())
+//			textString.append("<None><br>");
+//		for(int x = 0, size = synchronizer_->comparator()->uniqueSide1Directories().count(); x < size; x++)
+//			textString.append(QString("%1<br>").arg(synchronizer_->comparator()->uniqueSide1Directories().at(x)));
+//		textString.append("<br>Newer files:<br>");
+//		if(synchronizer_->comparator()->newerSide1Files().isEmpty())
+//			textString.append("<None><br>");
+//		for(int x = 0, size = synchronizer_->comparator()->newerSide1Files().count(); x < size; x++)
+//			textString.append(QString("%1<br>").arg(synchronizer_->comparator()->newerSide1Files().at(x)));
+
+		textString.append(side1ModifiedResultsString());
+		fileListingEdit_->setText(textString);
+		break;
+	case AMRecursiveDirectoryCompare::Side2ModifiedResult:
+		textString.append(QString("Side %1 has been modified.<br><br>").arg(side2DirectoryName_));
+		textString.append(QString("<font color=\"Green\" size=\"5\"><i>Start</i> to copy files from %1 to %2</font><br><br>").arg(side2DirectoryName_).arg(side1DirectoryName_));
+
+//		textString.append("<br>Unique files:<br>");
+//		if(synchronizer_->comparator()->uniqueSide2Files().isEmpty())
+//			textString.append("<None><br>");
+//		for(int x = 0, size = synchronizer_->comparator()->uniqueSide2Files().count(); x < size; x++)
+//			textString.append(QString("%1<br>").arg(synchronizer_->comparator()->uniqueSide2Files().at(x)));
+//		textString.append("<br>Unique directories:<br>");
+//		if(synchronizer_->comparator()->uniqueSide2Directories().isEmpty())
+//			textString.append("<None><br>");
+//		for(int x = 0, size = synchronizer_->comparator()->uniqueSide2Directories().count(); x < size; x++)
+//			textString.append(QString("%1<br>").arg(synchronizer_->comparator()->uniqueSide2Directories().at(x)));
+//		textString.append("<br>Newer files:<br>");
+//		if(synchronizer_->comparator()->newerSide2Files().isEmpty())
+//			textString.append("<None><br>");
+//		for(int x = 0, size = synchronizer_->comparator()->newerSide2Files().count(); x < size; x++)
+//			textString.append(QString("%1<br>").arg(synchronizer_->comparator()->newerSide2Files().at(x)));
+
+		textString.append(side2ModifiedResultsString());
+		fileListingEdit_->setText(textString);
+		break;
+	case AMRecursiveDirectoryCompare::BothSidesModifiedResult:
+		textString.append(QString("<font color=\"Red\" size=\"5\">Both sides (%1 and %2) have been modified. Cannot proceed.</font><br><br>").arg(side2DirectoryName_).arg(side1DirectoryName_));
+		errorTextEdit_->append(textString);
+
+		fileListingEdit_->append(QString("Side %1 has been modified.<br><br>").arg(side1DirectoryName_));
+		fileListingEdit_->append(side1ModifiedResultsString());
+		fileListingEdit_->append(QString("Side %1 has been modified.<br><br>").arg(side2DirectoryName_));
+		fileListingEdit_->append(side2ModifiedResultsString());
+
+		break;
+	case AMRecursiveDirectoryCompare::Side1DoesNotExistResult:
+	case AMRecursiveDirectoryCompare::Side2DoesNotExistResult:
+	case AMRecursiveDirectoryCompare::NeitherSideExistsResult:
+	case AMRecursiveDirectoryCompare::BothSidesAreFiles:
+	case AMRecursiveDirectoryCompare::Side1IsFile:
+	case AMRecursiveDirectoryCompare::Side2IsFile:
+	case AMRecursiveDirectoryCompare::UnableToDetermineResult:
+	default:
+		if(progressTextEdit_->toPlainText().length() != 0){
+			QString progressString = progressTextEdit_->toPlainText();
+			progressString.prepend("<font color=\"Green\" size=\"3\">");
+			progressString.append("</font>");
+			progressTextEdit_->setText(progressString);
+		}
+		else if(errorTextEdit_->toPlainText().length() != 0){
+			QString errorString = errorTextEdit_->toPlainText();
+			errorString.prepend("<font color=\"Red\" size=\"3\">");
+			errorString.append("</font>");
+			progressTextEdit_->setText(errorString);
+		}
+		break;
+	}
+
+	prepareButton_->setEnabled(true);
+	startButton_->setEnabled(true);
+
+	if(fileListingEdit_->toPlainText().length() != 0)
+		feedbackStackWidget_->expandItem(0);
+
+	if(progressTextEdit_->toPlainText().length() != 0)
+		feedbackStackWidget_->expandItem(1);
+
+	if(errorTextEdit_->toPlainText().length() != 0)
+	{
+		feedbackStackWidget_->expandItem(2);
+		errorCloseButton_->setVisible(true);
+		startButton_->setEnabled(false);
+		prepareButton_->setIcon(QIcon(":/22x22/list-remove-2.png"));
+
+		prepareButton_->setDefault(false);
+		startButton_->setDefault(false);
+		errorCloseButton_->setDefault(true);
+
+		mainStatusLabel_->setText("Prepare failed. Press Close to end program.");
+	}
+	else{
+		prepareButton_->setIcon(QIcon(":greencheckmark.png"));
+
+		prepareButton_->setDefault(false);
+		errorCloseButton_->setDefault(false);
+		startButton_->setDefault(true);
+
+		mainStatusLabel_->setText("Prepare succeeded. Press Start to continue.");
+	}
 
 }
 
 bool AMDirectorySynchronizerDialog::start()
 {
+	prepare();
+
+	mainStatusLabel_->setText("Synchronzing directories. This may take some time, please wait ...");
+
+	prepareButton_->setEnabled(false);
+	startButton_->setEnabled(false);
+
+	feedbackStackWidget_->collapseItem(1);
+
 	if(synchronizer_->start())
-	{
-		exec();
-		return successfulSync_;
-	}
+		return true;
 
-
-	QMessageBox syncNotStartedMessageBox;
-	syncNotStartedMessageBox.setText(errorTextEdit_->toPlainText());
-	syncNotStartedMessageBox.exec();
+	onSynchronizerFailed();
 	return false;
+}
+
+void AMDirectorySynchronizerDialog::autoPrepare(){
+	prepare();
+	exec();
+}
+
+bool AMDirectorySynchronizerDialog::autoStart(){
+	start();
+	exec();
+	return successfulSync_;
 }
 
 void AMDirectorySynchronizerDialog::onSynchronizerErrorTextChanged(const QString &message)
 {
 	errorTextEdit_->append(message);
+}
+
+void AMDirectorySynchronizerDialog::onSynchronizerProgressTextChanged(const QString &message){
+	progressTextEdit_->append(message);
 }
 
 void AMDirectorySynchronizerDialog::onSynchronizerComplete()
@@ -77,11 +380,42 @@ void AMDirectorySynchronizerDialog::onSynchronizerComplete()
 	successfulSync_ = true;
 	if(errorTextEdit_->toPlainText().length() != 0)
 	{
-		errorTextEdit_->setVisible(true);
+		feedbackStackWidget_->expandItem(2);
 		errorCloseButton_->setVisible(true);
+
+		startButton_->setIcon(QIcon(":/22x22/list-remove-2.png"));
+
+		prepareButton_->setDefault(false);
+		startButton_->setDefault(false);
+		errorCloseButton_->setDefault(true);
+
+		mainStatusLabel_->setText("Synchronization failed. Press Close to end program.");
 	}
-	else
-		close();
+	else{
+		startButton_->setIcon(QIcon(":greencheckmark.png"));
+
+		mainStatusLabel_->setText("Synchronization succeeded.");
+
+		if(timedWarningOnCompletion_){
+			AMMessageBoxWTimeout box(30000);
+			box.setWindowTitle("Synchronization Complete.");
+			box.setText("Synchronization Complete.");
+			if(lastCompareResult_ == AMRecursiveDirectoryCompare::Side1ModifiedResult)
+				box.setInformativeText(QString("Acquaman has successfully copied files from %1 to %2.").arg(side1DirectoryName_).arg(side2DirectoryName_));
+			else if(lastCompareResult_ == AMRecursiveDirectoryCompare::Side2ModifiedResult || lastCompareResult_ == AMRecursiveDirectoryCompare::Side1DoesNotExistResult)
+				box.setInformativeText(QString("Acquaman has successfully copied files from %1 to %2.").arg(side2DirectoryName_).arg(side1DirectoryName_));
+
+			QPushButton *acknowledgeButton_ = new QPushButton("Ok");
+
+			box.addButton(acknowledgeButton_, QMessageBox::AcceptRole);
+			box.setDefaultButton(acknowledgeButton_);
+
+			box.execWTimeout();
+			close();
+		}
+		else
+			QTimer::singleShot(1000, this, SLOT(close()));
+	}
 }
 
 void AMDirectorySynchronizerDialog::onSynchronizerFailed()
@@ -90,20 +424,62 @@ void AMDirectorySynchronizerDialog::onSynchronizerFailed()
 	successfulSync_ = false;
 	if(errorTextEdit_->toPlainText().length() != 0)
 	{
-		errorTextEdit_->setVisible(true);
+		feedbackStackWidget_->expandItem(2);
 		errorCloseButton_->setVisible(true);
+
+		startButton_->setIcon(QIcon(":/22x22/list-remove-2.png"));
+
+		prepareButton_->setDefault(false);
+		startButton_->setDefault(false);
+		errorCloseButton_->setDefault(true);
+
+		mainStatusLabel_->setText("Synchronization failed. Press Close to end program.");
 	}	
-	else
-		close();
+	else{
+		startButton_->setIcon(QIcon(":/22x22/list-remove-2.png"));
+
+		mainStatusLabel_->setText("Synchronization failed. Press Close to end program.");
+
+		if(timedWarningOnCompletion_){
+			AMMessageBoxWTimeout box(30000);
+			box.setWindowTitle("Synchronization Failed.");
+			box.setText("Synchronization Failed.");
+			if(lastCompareResult_ == AMRecursiveDirectoryCompare::Side1ModifiedResult)
+				box.setInformativeText(QString("Acquaman failed to copy files from %1 to %2.").arg(side1DirectoryName_).arg(side2DirectoryName_));
+			else if(lastCompareResult_ == AMRecursiveDirectoryCompare::Side2ModifiedResult || lastCompareResult_ == AMRecursiveDirectoryCompare::Side1DoesNotExistResult)
+				box.setInformativeText(QString("Acquaman failed to copy files from %1 to %2.").arg(side2DirectoryName_).arg(side1DirectoryName_));
+
+			QPushButton *acknowledgeButton_ = new QPushButton("Ok");
+
+			box.addButton(acknowledgeButton_, QMessageBox::AcceptRole);
+			box.setDefaultButton(acknowledgeButton_);
+
+			box.execWTimeout();
+			close();
+		}
+		else
+			QTimer::singleShot(1000, this, SLOT(close()));
+	}
 }
 
+void AMDirectorySynchronizerDialog::onProgressChanged(int percentCompleteFile, int remainingFilesToCopy, int totalFilesToCopy){
+	overallTransferProgressBar_->setRange(0, totalFilesToCopy);
 
-void AMDirectorySynchronizerDialog::onPercentageProgressChanged(int value)
-{
-	progressBar_->setValue(value);
+	singleFileProgressBar_->setValue(percentCompleteFile);
+	singleFileLabel_->setText(QString("%1%").arg(percentCompleteFile));
+	overallTransferProgressBar_->setValue(totalFilesToCopy-remainingFilesToCopy);
+	overallTransferLabel_->setText(QString("%1 of %2").arg(totalFilesToCopy-remainingFilesToCopy).arg(totalFilesToCopy));
 }
 
 void AMDirectorySynchronizerDialog::onCloseButtonClicked()
 {
 	close();
+}
+
+void AMDirectorySynchronizerDialog::onPrepareButtonClicked(){
+	prepare();
+}
+
+void AMDirectorySynchronizerDialog::onStartButtonClicked(){
+	start();
 }

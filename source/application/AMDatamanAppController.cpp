@@ -413,8 +413,10 @@ bool AMDatamanAppController::startupBackupDataDirectory()
 {
 	if(AMUserSettings::remoteDataFolder.length() > 0)
 	{
-		AMDirectorySynchronizerDialog synchronizer;
-		return synchronizer.start();
+		qDebug() << "Calling synchronization with " << AMUserSettings::userDataFolder << AMUserSettings::remoteDataFolder;
+		AMDirectorySynchronizerDialog synchronizer(AMUserSettings::userDataFolder, AMUserSettings::remoteDataFolder, "Local", "Network");
+		//return synchronizer.start();
+		return synchronizer.autoStart();
 	}
 	return true;
 }

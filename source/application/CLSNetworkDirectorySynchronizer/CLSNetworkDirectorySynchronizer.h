@@ -33,13 +33,23 @@ public:
 	virtual ~CLSNetworkDirectorySynchronizer();
 
 	AMRecursiveDirectoryCompare::DirectoryCompareResult compareDirectories();
+	bool startSynchronization();
 
 	QString localPath() const;
 	QString networkPath() const;
+
+	QStringList errorMessages() const;
+
+public slots:
+	void setCloseOnCompletion(bool closeOnCompletion);
+
+	void onProgressChanged(int percentCompleteFile, int remainingFilesToCopy, int totalFilesToCopy);
 
 protected:
 	QString localPath_;
 	QString networkPath_;
 
 	AMDirectorySynchronizer *directorySynchronizer_;
+
+	bool closeOnCompletion_;
 };

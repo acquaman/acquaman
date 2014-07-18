@@ -8,16 +8,40 @@
 
 #include <QDebug>
 
-AMRecursiveDirectoryCompare::AMRecursiveDirectoryCompare(const QString &directoryPath1, const QString &directoryPath2, const QString &side1Name, const QString &side2Name)
+AMRecursiveDirectoryCompare::AMRecursiveDirectoryCompare(const QString &directoryPath1, const QString &directoryPath2, const QStringList &excludePatterns, const QString &side1Name, const QString &side2Name)
 {
 	directoryPath1_ = directoryPath1;
 	directoryPath2_ = directoryPath2;
+
+	excludePatterns_ = excludePatterns;
+	for(int x = 0, size = excludePatterns_.count(); x < size; x++)
+		excludedRegExps_.append(QRegExp(excludePatterns_.at(x), Qt::CaseSensitive, QRegExp::Wildcard));
 
 	side1Name_ = side1Name;
 	side2Name_ = side2Name;
 }
 
 AMRecursiveDirectoryCompare::DirectoryCompareResult AMRecursiveDirectoryCompare::compare(){
+	bool directoryPath1Exists = QFile::exists(directoryPath1_);
+	bool directoryPath2Exists = QFile::exists(directoryPath2_);
+
+	if(!directoryPath1Exists && !directoryPath2Exists)
+		return AMRecursiveDirectoryCompare::NeitherSideExistsResult;
+
+	QFileInfo directoryPath1Info(directoryPath1_);
+	QFileInfo directoryPath2Info(directoryPath2_);
+	if(directoryPath1Info.isFile() && directoryPath2Info.isFile())
+		return AMRecursiveDirectoryCompare::BothSidesAreFiles;
+	else if(directoryPath1Info.isFile())
+		return AMRecursiveDirectoryCompare::Side1IsFile;
+	else if(directoryPath2Info.isFile())
+		return AMRecursiveDirectoryCompare::Side2IsFile;
+
+	if(!directoryPath1Exists)
+		return AMRecursiveDirectoryCompare::Side1DoesNotExistResult;
+	else if(!directoryPath2Exists)
+		return AMRecursiveDirectoryCompare::Side2DoesNotExistResult;
+
 	compareOneLevel(directoryPath1_, directoryPath2_);
 	qDebug() << "Done the compare";
 
@@ -125,11 +149,16 @@ bool AMRecursiveDirectoryCompare::compareOneLevel(const QString &path1, const QS
 	// Builds side 1 lists: adds files to file hash, appends directories to directory list
 	for(int x = 0, size = directory1Entries.count(); x < size; x++)
 	{
-		if(directory1Entries.at(x).isFile())
+		bool excluded = false;
+		for(int y = 0, sizeY = excludedRegExps_.count(); y < sizeY && !excluded; y++)
+			if(excludedRegExps_.at(y).indexIn(directory1Entries.at(x).absoluteFilePath()) != -1)
+				excluded = true;
+
+		if(!excluded && directory1Entries.at(x).isFile())
 		{
 			side1Files.insert(directory1Entries.at(x).absoluteFilePath().remove(path1), directory1Entries.at(x));
 		}
-		else if(directory1Entries.at(x).isDir())
+		else if(!excluded && directory1Entries.at(x).isDir())
 		{
 			side1SubDirectories.append(directory1Entries.at(x).absoluteFilePath().remove(path1));
 		}
@@ -139,7 +168,13 @@ bool AMRecursiveDirectoryCompare::compareOneLevel(const QString &path1, const QS
 	// hash
 	for(int x = 0, size = directory2Entries.count(); x < size; x++){
 		QFileInfo currentSide2Entry = directory2Entries.at(x);
-		if(currentSide2Entry.isFile())
+
+		bool excluded = false;
+		for(int y = 0, sizeY = excludedRegExps_.count(); y < sizeY && !excluded; y++)
+			if(excludedRegExps_.at(y).indexIn(currentSide2Entry.absoluteFilePath()) != -1)
+				excluded = true;
+
+		if(!excluded && currentSide2Entry.isFile())
 		{
 			if(side1Files.contains(currentSide2Entry.absoluteFilePath().remove(path2)))
 			{
@@ -165,7 +200,7 @@ bool AMRecursiveDirectoryCompare::compareOneLevel(const QString &path1, const QS
 
 
 		}
-		else if(directory2Entries.at(x).isDir()){
+		else if(!excluded && directory2Entries.at(x).isDir()){
 			side2SubDirectories.append(directory2Entries.at(x).absoluteFilePath().remove(path2));
 		}
 	}

@@ -4,7 +4,9 @@
 #include <QObject>
 #include <QProcess>
 #include <QTimer>
+
 #include "AMRecursiveDirectoryCompare.h"
+
 /**
  * @brief Class designed to recursively synchronize the data in two folders, while
  * checking the validity of the states of both directories before proceeding
@@ -21,10 +23,11 @@ public:
 	 */
 	explicit AMDirectorySynchronizer(const QString& side1Directory, const QString& side2Directory, QObject *parent = 0);
 
+	AMRecursiveDirectoryCompare::DirectoryCompareResult prepare();
+
 	/// @brief Starts the process of synchronizing the files in the two directories
 	bool start();
-	/// @brief Returns the state of the directory compare, whether side1 or side2 is newer, or whether it's in some other state.
-	AMRecursiveDirectoryCompare::DirectoryCompareResult compareDirectories();
+
 	/// @brief Whether or not the process is currently copying files
 	bool isRunning();
 
@@ -33,16 +36,34 @@ public:
 	/// @brief The second directory
 	QString side2Directory() const { return side2Directory_; }
 
+	/// @brief The first directory's name
+	QString side1DirectoryName() const { return side1DirectoryName_; }
+	/// @brief The second directory's name
+	QString side2DirectoryName() const { return side2DirectoryName_; }
+
 	/// @brief Flag to say whether or not we're allowed to create side1 if it doesn't exist. False by default.
 	bool allowSide1Creation() const { return allowSide1Creation_; }
 	/// @brief Flag to say whether or not we're allowed to create side2 if it doesn't exist. False by default.
 	bool allowSide2Creation() const { return allowSide2Creation_; }
+
+	/// @brief Returns all of the error messages.
+	QStringList errorMessages() const { return errorMessages_; }
+	/// @brief Returns all of the progress messages.
+	QStringList progressMessages() const { return progressMessages_; }
+
+	/// @brief The object used to do the comparison between directories (will be null before compare() or start() is called)
+	const AMRecursiveDirectoryCompare *comparator() { return comparator_; }
 
 public slots:
 	/// @brief Set the flag to say whether or not we're allowed to create side1 if it doesn't exist. False by default.
 	void setAllowSide1Creation(bool allowSide1Creation);
 	/// @brief Set the flag to say whether or not we're allowed to create side2 if it doesn't exist. False by default.
 	void setAllowSide2Creation(bool allowSide2Creation);
+
+	/// @brief Set the user meaningful name for the side 1 directory
+	void setSide1DirectorName(const QString &side1DirectoryName);
+	/// @brief Set the user meaningful name for the side 2 directory
+	void setSide2DirectorName(const QString &side1DirectoryName);
 
 signals:
 	/// @brief Signal emitted when the copy is completed successfully
@@ -55,6 +76,9 @@ signals:
 	void errorMessagesChanged(const QString& value);
 	/// @brief Signal emitted whenever the percentageProgress value changes
 	void percentageProgressChanged(int);
+
+	/// @brief Signal emitted whenever the progress values change. Relays all applicable information
+	void progressChanged(int percentCompleteFile, int remainingFilesToCopy, int totalFilesToCopy);
 
 protected slots:
 	/// @brief Handles the process having Standard Error output to read (appends it to errorMessages_)
@@ -69,8 +93,11 @@ protected slots:
 	void onTimerTimeout();
 
 protected:
+	/// @brief Returns the state of the directory compare, whether side1 or side2 is newer, or whether it's in some other state.
+	AMRecursiveDirectoryCompare::DirectoryCompareResult compareDirectories();
+
 	/// @brief Simple validation of path. Ensures it exists, and is a folder, not a file. If it doesn't exist, attempts to create if allowCreation is true.
-	bool validatePath(const QString &path, bool allowCreation);
+//	bool validatePath(const QString &path, bool allowCreation);
 
 	/// @brief Appends to the error message list
 	void appendToErrorMessage(const QString& message);
@@ -87,11 +114,16 @@ protected:
 	/// @brief Recusively makes the contents of the given path read/write
 	void unlockDirectory(const QString &path);
 
-private:
+protected:
 	/// @brief The first directory
 	QString side1Directory_;
 	/// @brief The second directory
 	QString side2Directory_;
+
+	/// @brief The first directory's name
+	QString side1DirectoryName_;
+	/// @brief The second directory's name
+	QString side2DirectoryName_;
 
 	/// @brief Flag to say whether or not we're allowed to create side1 if it doesn't exist. False by default.
 	bool allowSide1Creation_;
@@ -104,13 +136,18 @@ private:
 	QStringList errorMessages_;
 	/// @brief A process which actually performs the copy
 	QProcess* copyProcess_;
-	/// @brief Value that tells the progress of the copy
+	/// @brief Value that tells the progress of the copy for a single file
 	int percentProgress_;
+	/// @brief The number of files left for rsync to copy
+	int remainingFilesToCopy_;
+	/// @brief The total number of files for rsync to copy
+	int totalFilesToCopy_;
 	/// @brief Whether the process is currently running
 	bool isRunning_;
-	/// @brief Timer used when no copying is necessary to wait a few seconds before emitting the copyComplete signal
-	QTimer* timer_;
-	
+
+	/// @brief The object used to do the comparison between directories
+	AMRecursiveDirectoryCompare *comparator_;
+	AMRecursiveDirectoryCompare::DirectoryCompareResult comparisonResult_;
 };
 
 #endif // AMDIRECTORYSYNCHRONIZER_H
