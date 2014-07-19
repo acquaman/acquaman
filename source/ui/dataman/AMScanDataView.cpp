@@ -89,6 +89,7 @@ void AMScanDataView::initializeChildViews()
 
 	addChildView(new AMScanTableView(), tableIcon);
 
+	// Tree Data View
 	AMScanTreeView* treeView = new AMScanTreeView();
 
 	QIcon treeIcon;
@@ -96,6 +97,15 @@ void AMScanDataView::initializeChildViews()
 	treeIcon.addFile(QString::fromUtf8("://22x22/view-list-compact-symbolic_dark.png"), QSize(), QIcon::Normal, QIcon::On);
 
 	addChildView(treeView, treeIcon);
+
+	// Scan Data View
+	AMScanThumbnailView* thumbnailView = new AMScanThumbnailView();
+
+	QIcon thumbnailIcon;
+	thumbnailIcon.addFile(QString::fromUtf8("://22x22/view-list-compact-symbolic.png"), QSize(), QIcon::Normal, QIcon::Off);
+	thumbnailIcon.addFile(QString::fromUtf8("://22x22/view-list-compact-symbolic_dark.png"), QSize(), QIcon::Normal, QIcon::On);
+
+	addChildView(thumbnailView, thumbnailIcon);
 }
 
 QAbstractItemView *AMScanDataView::currentView()
