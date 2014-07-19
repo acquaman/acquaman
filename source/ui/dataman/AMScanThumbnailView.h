@@ -45,6 +45,8 @@ private:
 	QSize imageDimensions_;
 	/// Selection drag widget
 	QRubberBand* selectionRubberBand_;
+	/// Point which stores where the current rubberBand selection was started (needed for rectangle normalization)
+	QPoint rubberBandStart_;
 public:
 	explicit AMScanThumbnailView(QWidget* parent = 0);
 	/// Returns the model index of the ScanThumbnailView item at the given point in the currently

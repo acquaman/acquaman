@@ -90,7 +90,7 @@ QModelIndex AMScanThumbnailView::indexAt(const QPoint &point) const
 	// to a data row
 	int rowIndex = xGridIndexOfPoint + (itemsPerGridRow * yGridIndexOfPoint);
 
-	return model()->index(rowIndex, 0, QModelIndex());
+	return model()->index(rowIndex, 1, QModelIndex());
 }
 
 void AMScanThumbnailView::scrollTo(const QModelIndex &index, QAbstractItemView::ScrollHint hint)
@@ -220,9 +220,10 @@ bool AMScanThumbnailView::isIndexHidden(const QModelIndex &index) const
 
 QModelIndex AMScanThumbnailView::moveCursor(QAbstractItemView::CursorAction cursorAction, Qt::KeyboardModifiers modifiers)
 {
-
+	return QModelIndex();
 }
-#include <QDebug>
+
+
 void AMScanThumbnailView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags command)
 {
 	QModelIndex startIndex = indexAt(rect.topLeft());
@@ -232,26 +233,23 @@ void AMScanThumbnailView::setSelection(const QRect &rect, QItemSelectionModel::S
 		selectionModel()->select(QModelIndex(), command);
 	else
 	{
-		for(int iModelRow = startIndex.row(); iModelRow <= endIndex.row(); iModelRow++)
-		{
+		QItemSelection totalSelectedItems;
 
-			QModelIndex currentRowIndex = model()->index(iModelRow, 0);
-			QRect currentRowRectangle = visualRect(currentRowIndex);
-			if(currentRowRectangle.intersects(rect))
+		for(int iCurrentSelection = startIndex.row(); iCurrentSelection <= endIndex.row(); iCurrentSelection++)
+		{
+			QModelIndex currentSelectionModelIndex = model()->index(iCurrentSelection, 0, QModelIndex());
+			QRect currentItemRect = visualRect(currentSelectionModelIndex);
+
+			if(currentItemRect.intersects(rect))
 			{
 
-				selectionModel()->select(currentRowIndex, QItemSelectionModel::Current);
-				//TEST
-				for (int  i = 0; i < selectionModel()->selectedIndexes().count(); i++)
-				{
-					qDebug() << selectionModel()->selectedIndexes().at(i).row();
-				}
+				totalSelectedItems.select(currentSelectionModelIndex, currentSelectionModelIndex);
 			}
+
 		}
 
+		selectionModel()->select(totalSelectedItems, command);
 	}
-
-
 
 }
 
@@ -279,13 +277,13 @@ void AMScanThumbnailView::paintEvent(QPaintEvent *pe)
 	for(int iDataRow = 0; iDataRow < model()->rowCount(); iDataRow++)
 	{
 		QModelIndex scanNameIndex = model()->index(iDataRow, 1);
-
+		QModelIndex selectionRowIndex = model()->index(iDataRow, 0);
 		QRect dataRowRectangle = rectangleGridRow(scanNameIndex.row());
 		QRect containerRectangle(dataRowRectangle.x() + 10, dataRowRectangle.y() + 10, dataRowRectangle.width()-20, dataRowRectangle.height()-20);
 		if(!containerRectangle.isEmpty())
 		{
 			painter.save();
-			if(selectionModel()->isSelected(scanNameIndex))
+			if(selectionModel()->isSelected(selectionRowIndex))
 				painter.setBrush(QColor(62,124,199));
 			else
 				painter.setBrush(QBrush(Qt::white));
@@ -342,28 +340,39 @@ void AMScanThumbnailView::updateScrollBars()
 
 void AMScanThumbnailView::mousePressEvent(QMouseEvent *event)
 {
-	if(!selectionRubberBand_)
-		selectionRubberBand_ = new QRubberBand(QRubberBand::Rectangle, this);
+	if(event->button() == Qt::LeftButton)
+	{
+		if(!selectionRubberBand_)
+			selectionRubberBand_ = new QRubberBand(QRubberBand::Rectangle, viewport());
 
-	selectionRubberBand_->setGeometry(QRect(event->pos(), QSize()));
-	selectionRubberBand_->show();
+		rubberBandStart_  = event->pos();
+		selectionRubberBand_->setGeometry(QRect(rubberBandStart_, QSize()));
+		selectionRubberBand_->show();
+	}
 }
 
 void AMScanThumbnailView::mouseMoveEvent(QMouseEvent *event)
 {
-	if(!selectionRubberBand_)
-		return;
-
-	selectionRubberBand_->setGeometry(QRect(selectionRubberBand_->pos(), event->pos()).normalized());
+	if(event->buttons() & Qt::LeftButton)
+	{
+		if(selectionRubberBand_)
+			selectionRubberBand_->setGeometry(QRect(rubberBandStart_, event->pos()).normalized());
+	}
 
 }
 
 void AMScanThumbnailView::mouseReleaseEvent(QMouseEvent *event)
 {
-	Q_UNUSED(event);
-	setSelection(QRect(selectionRubberBand_->pos().x(), selectionRubberBand_->pos().y(), selectionRubberBand_->width(), selectionRubberBand_->height()), QItemSelectionModel::ClearAndSelect);
-	selectionRubberBand_->hide();
-
+	if(event->button() == Qt::LeftButton)
+	{
+		if(!selectionRubberBand_->isHidden())
+		{
+			setSelection(QRect(selectionRubberBand_->pos().x(), selectionRubberBand_->pos().y(), selectionRubberBand_->width() +1, selectionRubberBand_->height()+1), QItemSelectionModel::ClearAndSelect);
+			selectionRubberBand_->hide();
+			rubberBandStart_.setX(0);
+			rubberBandStart_.setY(0);
+		}
+	}
 }
 
 QRect AMScanThumbnailView::getScanNameRectangle(const QRect &thumbnailRectangle) const
