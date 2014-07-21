@@ -96,8 +96,8 @@ void AMCurrentAmplifierCompositeView::refreshValues()
 
     foreach (QString units, unitsList) {
         foreach (double value, valuesList) {
-            minValue = amplifier_->minimumValueForUnits(units);
-            maxValue = amplifier_->maximumValueForUnits(units);
+            minValue = amplifier1_->minimumValueForUnits(units);
+            maxValue = amplifier1_->maximumValueForUnits(units);
 
             if (!minFound && value == minValue)
                 minFound = true;
