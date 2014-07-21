@@ -1,17 +1,7 @@
 #include "AMScanThumbnailView.h"
-//////////////////////////////////////////
-// Definitions for AMScanThumbnailViewItem
-//////////////////////////////////////////
-AMScanThumbnailViewItem::AMScanThumbnailViewItem(QSize size, QWidget *parent) :
-	QWidget(parent)
-{
-	resize(size);
-	setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-	currentThumbnailIndex_ = 0;
-}
 
 
-
+#include <QDebug> ///!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!<<<<< !!!!
 
 
 //////////////////////////////////////////////////
@@ -72,6 +62,10 @@ AMScanThumbnailView::AMScanThumbnailView(QWidget *parent)
 
 	setPalette(newPalette);
 	selectionRubberBand_ = 0;
+
+	setMouseTracking(true);
+	currentGridRowMouseOver_ = -1;
+	connect(&hoverTimer_, SIGNAL(timeout()), this, SLOT(onTimerTimout()));
 }
 
 QModelIndex AMScanThumbnailView::indexAt(const QPoint &point) const
@@ -295,14 +289,18 @@ void AMScanThumbnailView::paintEvent(QPaintEvent *pe)
 
 		if(model()->rowCount(scanNameIndex) > 0)
 		{
-			QModelIndex thumbnailIndex = model()->index(0, 1, scanNameIndex);
+
+			int currentThumbnailIndex = rowCurrentDisplayedThumbnailMap_.value(scanNameIndex.row(), 0);
+			QModelIndex thumbnailIndex = model()->index(currentThumbnailIndex, 1, scanNameIndex);
 			option.rect = visualRect(thumbnailIndex);
 			itemDelegate()->paint(&painter, option, thumbnailIndex);
+
+			QModelIndex titleIndex = model()->index(currentThumbnailIndex, 2, scanNameIndex);
+			option.rect = visualRect(titleIndex);
+			itemDelegate()->paint(&painter, option, titleIndex);
 		}
 
-		QModelIndex titleIndex = model()->index(0, 2, scanNameIndex);
-		option.rect = visualRect(titleIndex);
-		itemDelegate()->paint(&painter, option, titleIndex);
+
 
 		option.rect = visualRect(scanNameIndex);
 		itemDelegate()->paint(&painter, option, scanNameIndex);
@@ -359,6 +357,35 @@ void AMScanThumbnailView::mouseMoveEvent(QMouseEvent *event)
 			selectionRubberBand_->setGeometry(QRect(rubberBandStart_, event->pos()).normalized());
 	}
 
+	if(indexAt(QPoint(event->x(), event->y())).row() != currentGridRowMouseOver_)
+	{
+		isMouseHovering_ = false;
+		currentGridRowMouseOver_ = indexAt(QPoint(event->x(), event->y())).row();
+		hoverTimer_.start(1000);
+	}
+	else if(isMouseHovering_)
+	{
+		QModelIndex currentHoveringIndex = indexAt(QPoint(event->x(), event->y()));
+		QRect currentIndexRect = visualRect(currentHoveringIndex);
+		QPoint posInsideRect(event->x() - currentIndexRect.x(), event->y() - currentIndexRect.y());
+
+		int thumbnailCount = model()->rowCount(currentHoveringIndex);
+		int widthOfEachThumbnail = gridDimensions().width() / thumbnailCount;
+		int currentThumbnailIndexToShow = 0;
+		if (posInsideRect.x() > 0)
+			currentThumbnailIndexToShow = posInsideRect.x() / widthOfEachThumbnail;
+
+		if(currentThumbnailIndexToShow != rowCurrentDisplayedThumbnailMap_.value(currentHoveringIndex.row()))
+		{
+			rowCurrentDisplayedThumbnailMap_.remove(currentHoveringIndex.row());
+			rowCurrentDisplayedThumbnailMap_.insert(currentHoveringIndex.row(), currentThumbnailIndexToShow);
+
+			QRegion regionForIndex(viewport()->rect());
+
+			setDirtyRegion(regionForIndex);
+		}
+	}
+
 }
 
 void AMScanThumbnailView::mouseReleaseEvent(QMouseEvent *event)
@@ -390,6 +417,26 @@ QRect AMScanThumbnailView::getImageRectangle(const QRect &thumbnailRectangle) co
 QRect AMScanThumbnailView::getTitleRectangle(const QRect &thumbnailRectangle) const
 {
 	return QRect(thumbnailRectangle.x() + 15, thumbnailRectangle.y() + thumbnailRectangle.height() - fontMetrics().height() - 15, thumbnailRectangle.width() - 30, fontMetrics().height());
+}
+
+
+void AMScanThumbnailView::onTimerTimout()
+{
+	isMouseHovering_ = true;
+	// Get index for scan represented by the current grid data row
+//	QModelIndex scanIndex = model()->index(currentGridRowMouseOver_, 0, QModelIndex());
+
+//	int thumbnailCount = model()->rowCount(scanIndex);
+//	int currentViewedThumbnail = rowCurrentDisplayedThumbnailMap_.value(scanIndex.row(), 0);
+//	rowCurrentDisplayedThumbnailMap_.remove(scanIndex.row());
+//	rowCurrentDisplayedThumbnailMap_.insert(scanIndex.row(), (currentViewedThumbnail + 1) % thumbnailCount);
+
+//	QRect rectangleForIndex = visualRect(scanIndex);
+//	QRegion regionForIndex(rectangleForIndex);
+
+//	setDirtyRegion(regionForIndex);
+
+	// Move the current thumbnail being viewed as +1 % thumbnail count
 }
 
 

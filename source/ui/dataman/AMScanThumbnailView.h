@@ -10,15 +10,7 @@
 #include <QPainter>
 #include <QMouseEvent>
 #include <QRegion>
-class AMScanThumbnailViewItem : public QWidget {
-	Q_OBJECT
-private:
-	QLabel* scanName_;
-	QLabel* thumbnailDisplay_;
-	int currentThumbnailIndex_;
-public:
-	explicit AMScanThumbnailViewItem(QSize size, QWidget* parent = 0);
-};
+#include <QTimer>
 
 class AMScanThumbnailViewItemDelegate : public QItemDelegate {
 	Q_OBJECT
@@ -47,6 +39,15 @@ private:
 	QRubberBand* selectionRubberBand_;
 	/// Point which stores where the current rubberBand selection was started (needed for rectangle normalization)
 	QPoint rubberBandStart_;
+	/// A hash which maps the grid row's current displayed thumbnail index. If non is stored, then 0 is assumed
+	QHash<int, int> rowCurrentDisplayedThumbnailMap_;
+	/// Timer used to determine if the mouse has been over a grid data row long enought to consider it hovering
+	QTimer hoverTimer_;
+	/// The grid data row index which the mouse is currently over
+	int currentGridRowMouseOver_;
+	/// Whether the mouse, in its current position, could be considered to be hovering
+	bool isMouseHovering_;
+
 public:
 	explicit AMScanThumbnailView(QWidget* parent = 0);
 	/// Returns the model index of the ScanThumbnailView item at the given point in the currently
@@ -110,6 +111,9 @@ protected:
 	QRect getImageRectangle(const QRect& thumbnailRectangle) const;
 	/// Obtains the position within thumbnailRectangle of the Scan Title
 	QRect getTitleRectangle(const QRect& thumbnailRectangle) const;
+
+protected slots:
+	void onTimerTimout();
 };
 
 
