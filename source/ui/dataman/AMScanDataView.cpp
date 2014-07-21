@@ -81,6 +81,16 @@ void AMScanDataView::addChildView(QAbstractItemView *childView, const QIcon& ico
 
 void AMScanDataView::initializeChildViews()
 {
+
+	// Scan Thumbnail View
+	AMScanThumbnailView* thumbnailView = new AMScanThumbnailView();
+
+	QIcon thumbnailIcon;
+	thumbnailIcon.addFile(QString::fromUtf8(":/22x22/view-list-icons-symbolic.png"), QSize(), QIcon::Normal, QIcon::Off);
+	thumbnailIcon.addFile(QString::fromUtf8(":/22x22/view-list-icons-symbolic_dark.png"), QSize(), QIcon::Normal, QIcon::On);
+
+	addChildView(thumbnailView, thumbnailIcon);
+
 	// Table Data View
 	QIcon tableIcon;
 	tableIcon.addFile(QString::fromUtf8(":/22x22/view-list-details-symbolic.png"), QSize(), QIcon::Normal, QIcon::Off);
@@ -93,19 +103,12 @@ void AMScanDataView::initializeChildViews()
 	AMScanTreeView* treeView = new AMScanTreeView();
 
 	QIcon treeIcon;
-	treeIcon.addFile(QString::fromUtf8("://22x22/view-list-compact-symbolic.png"), QSize(), QIcon::Normal, QIcon::Off);
-	treeIcon.addFile(QString::fromUtf8("://22x22/view-list-compact-symbolic_dark.png"), QSize(), QIcon::Normal, QIcon::On);
+	treeIcon.addFile(QString::fromUtf8(":/22x22/view-list-compact-symbolic.png"), QSize(), QIcon::Normal, QIcon::Off);
+	treeIcon.addFile(QString::fromUtf8(":/22x22/view-list-compact-symbolic_dark.png"), QSize(), QIcon::Normal, QIcon::On);
 
 	addChildView(treeView, treeIcon);
 
-	// Scan Data View
-	AMScanThumbnailView* thumbnailView = new AMScanThumbnailView();
 
-	QIcon thumbnailIcon;
-	thumbnailIcon.addFile(QString::fromUtf8("://22x22/view-list-compact-symbolic.png"), QSize(), QIcon::Normal, QIcon::Off);
-	thumbnailIcon.addFile(QString::fromUtf8("://22x22/view-list-compact-symbolic_dark.png"), QSize(), QIcon::Normal, QIcon::On);
-
-	addChildView(thumbnailView, thumbnailIcon);
 }
 
 QAbstractItemView *AMScanDataView::currentView()

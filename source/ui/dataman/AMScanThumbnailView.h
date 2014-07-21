@@ -62,7 +62,7 @@ public:
 	virtual QRect visualRect(const QModelIndex &index) const;
 	/// Sets the model for the view to use to obtain data. Also calculates the vertical scroll maximum
 	/// by polling the models rowCount
-	virtual void setModel(QAbstractItemModel *model);
+	virtual void setModel(QAbstractItemModel *newModel);
 protected:
 	/// Returns the rectangle which represents the model row provided
 	QRect rectangleGridRow(int row) const;
@@ -101,7 +101,6 @@ protected:
 	/// Ends drawing the selection rubber band
 	virtual void mouseReleaseEvent(QMouseEvent *event);
 
-
 	/// Each of these three helper functions calculates the dimensions of the position of the particular
 	/// data element relative to the passed thumbnailRectangle
 
@@ -113,6 +112,9 @@ protected:
 	QRect getTitleRectangle(const QRect& thumbnailRectangle) const;
 
 protected slots:
+	virtual void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
+	virtual void rowsInserted(const QModelIndex &parent, int start, int end);
+	void rowsRemoved(const QModelIndex& parent, int start, int end);
 	void onTimerTimout();
 };
 

@@ -1,7 +1,7 @@
 #include "AMScanThumbnailView.h"
 
 
-#include <QDebug> ///!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!<<<<< !!!!
+
 
 
 //////////////////////////////////////////////////
@@ -163,9 +163,15 @@ QRect AMScanThumbnailView::visualRect(const QModelIndex &index) const
 	}
 }
 
-void AMScanThumbnailView::setModel(QAbstractItemModel *model)
+void AMScanThumbnailView::setModel(QAbstractItemModel *newModel)
 {
-	QAbstractItemView::setModel(model);
+	if(model())
+	{
+		disconnect(model(), SIGNAL(rowsRemoved(const QModelIndex& parent, int start, int end)), this, SLOT(rowsRemoved(QModelIndex,int,int)));
+	}
+
+	QAbstractItemView::setModel(newModel);
+	connect(model(), SIGNAL(rowsRemoved(const QModelIndex&, int, int )), this, SLOT(rowsRemoved(QModelIndex,int,int)));
 	updateScrollBars();
 }
 
@@ -331,8 +337,11 @@ void AMScanThumbnailView::updateScrollBars()
 	int totalItems = model()->rowCount();
 	int numberOfRows = totalItems / itemsPerRow;
 
-	verticalScrollBar()->setMaximum(numberOfRows);
-	verticalScrollBar()->setSingleStep(gridDimensions().height());
+	if(numberOfRows*gridDimensions().height() < verticalOffset())
+		verticalScrollBar()->setValue(0);
+	verticalScrollBar()->setMaximum(numberOfRows * gridDimensions().height());
+	verticalScrollBar()->setSingleStep(5);
+	verticalScrollBar()->setPageStep(gridDimensions().height());
 
 }
 
@@ -354,7 +363,10 @@ void AMScanThumbnailView::mouseMoveEvent(QMouseEvent *event)
 	if(event->buttons() & Qt::LeftButton)
 	{
 		if(selectionRubberBand_)
+		{
 			selectionRubberBand_->setGeometry(QRect(rubberBandStart_, event->pos()).normalized());
+			setSelection(QRect(selectionRubberBand_->pos().x(), selectionRubberBand_->pos().y(), selectionRubberBand_->width() +1, selectionRubberBand_->height()+1), QItemSelectionModel::ClearAndSelect);
+		}
 	}
 
 	if(indexAt(QPoint(event->x(), event->y())).row() != currentGridRowMouseOver_)
@@ -366,10 +378,14 @@ void AMScanThumbnailView::mouseMoveEvent(QMouseEvent *event)
 	else if(isMouseHovering_)
 	{
 		QModelIndex currentHoveringIndex = indexAt(QPoint(event->x(), event->y()));
+		if(!currentHoveringIndex.isValid())
+			return;
 		QRect currentIndexRect = visualRect(currentHoveringIndex);
 		QPoint posInsideRect(event->x() - currentIndexRect.x(), event->y() - currentIndexRect.y());
 
 		int thumbnailCount = model()->rowCount(currentHoveringIndex);
+		if(thumbnailCount == 0)
+			return;
 		int widthOfEachThumbnail = gridDimensions().width() / thumbnailCount;
 		int currentThumbnailIndexToShow = 0;
 		if (posInsideRect.x() > 0)
@@ -394,13 +410,40 @@ void AMScanThumbnailView::mouseReleaseEvent(QMouseEvent *event)
 	{
 		if(!selectionRubberBand_->isHidden())
 		{
-			setSelection(QRect(selectionRubberBand_->pos().x(), selectionRubberBand_->pos().y(), selectionRubberBand_->width() +1, selectionRubberBand_->height()+1), QItemSelectionModel::ClearAndSelect);
+			if(selectionRubberBand_->width() == 0 && selectionRubberBand_->height() == 0)
+				setSelection(QRect(rubberBandStart_.x(), rubberBandStart_.y(), 1, 1), QItemSelectionModel::ClearAndSelect);
 			selectionRubberBand_->hide();
 			rubberBandStart_.setX(0);
 			rubberBandStart_.setY(0);
 		}
 	}
 }
+
+void AMScanThumbnailView::dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
+{
+	rowCurrentDisplayedThumbnailMap_.clear();
+	updateScrollBars();
+	viewport()->update();
+	QAbstractItemView::dataChanged(topLeft, bottomRight);
+}
+
+void AMScanThumbnailView::rowsInserted(const QModelIndex &parent, int start, int end)
+{
+	rowCurrentDisplayedThumbnailMap_.clear();
+	updateScrollBars();
+	viewport()->update();
+	QAbstractItemView::rowsInserted(parent, start, end);
+}
+
+void AMScanThumbnailView::rowsRemoved(const QModelIndex &parent, int start, int end)
+{
+	rowCurrentDisplayedThumbnailMap_.clear();
+	updateScrollBars();
+	viewport()->update();
+	QAbstractItemView::rowsAboutToBeRemoved(parent, start, end);
+}
+
+
 
 QRect AMScanThumbnailView::getScanNameRectangle(const QRect &thumbnailRectangle) const
 {
@@ -423,20 +466,7 @@ QRect AMScanThumbnailView::getTitleRectangle(const QRect &thumbnailRectangle) co
 void AMScanThumbnailView::onTimerTimout()
 {
 	isMouseHovering_ = true;
-	// Get index for scan represented by the current grid data row
-//	QModelIndex scanIndex = model()->index(currentGridRowMouseOver_, 0, QModelIndex());
 
-//	int thumbnailCount = model()->rowCount(scanIndex);
-//	int currentViewedThumbnail = rowCurrentDisplayedThumbnailMap_.value(scanIndex.row(), 0);
-//	rowCurrentDisplayedThumbnailMap_.remove(scanIndex.row());
-//	rowCurrentDisplayedThumbnailMap_.insert(scanIndex.row(), (currentViewedThumbnail + 1) % thumbnailCount);
-
-//	QRect rectangleForIndex = visualRect(scanIndex);
-//	QRegion regionForIndex(rectangleForIndex);
-
-//	setDirtyRegion(regionForIndex);
-
-	// Move the current thumbnail being viewed as +1 % thumbnail count
 }
 
 
