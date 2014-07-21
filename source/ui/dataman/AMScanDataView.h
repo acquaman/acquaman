@@ -10,6 +10,7 @@
 #include <QLabel>
 #include <QUrl>
 #include <QStackedWidget>
+#include <QMenu>
 
 class AMLightweightScanInfoModel;
 class AMLightweightScanInfoFilterProxyModel;
@@ -38,6 +39,8 @@ private:
 	QButtonGroup* viewButtons_;
 	/// Label displaying the title of the scan view
 	QLabel* titleLabel_;
+	/// Context menu to allow user to open scans, configs etc.
+	QMenu* contextMenu_;
 public:
 	/// Creates an instance of an AMScanDataView, loaded scans from the provided AMDatabase
 	explicit AMScanDataView(AMDatabase* database, QWidget *parent = 0);
@@ -89,6 +92,22 @@ protected slots:
 
 	/// Handles the SortFilterWidget changing state from filtered, to not filtered
 	void onFilterStateChanged(bool);
+
+	/// Handles the user double-clicking on the current view
+	void onChildViewDoubleClicked();
+
+	/// Handles the current child view signaling that a custom context menu has been requested
+	void onCustomContextMenuRequested(const QPoint &position);
+
+	void onEditScan();
+
+	void onCompareScans();
+
+	void onExportScans();
+
+	void onShowScanConfiguration();
+
+	void onFixCDF();
 };
 
 #endif // AMSCANDATAVIEW_H

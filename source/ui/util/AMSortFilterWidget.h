@@ -8,6 +8,7 @@
 #include <QLineEdit>
 #include <QCheckBox>
 #include <QPushButton>
+#include <QApplication>
 
 /**
  * A class representing a standardized widget for controlling any QSortFilterProxyModel. When passed

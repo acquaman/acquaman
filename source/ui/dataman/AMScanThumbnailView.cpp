@@ -55,6 +55,7 @@ AMScanThumbnailView::AMScanThumbnailView(QWidget *parent)
 	gridDimensions_.setWidth(itemDimensions_.width());;
 	gridDimensions_.setHeight(itemDimensions_.height());
 
+	setAutoScroll(false);
 	setItemDelegate(new AMScanThumbnailViewItemDelegate(this));
 
 	QPalette newPalette = palette();
@@ -347,7 +348,7 @@ void AMScanThumbnailView::updateScrollBars()
 
 void AMScanThumbnailView::mousePressEvent(QMouseEvent *event)
 {
-	if(event->button() == Qt::LeftButton)
+	if(event->button() == Qt::LeftButton || selectionModel()->selectedIndexes().count() < 2)
 	{
 		if(!selectionRubberBand_)
 			selectionRubberBand_ = new QRubberBand(QRubberBand::Rectangle, viewport());
@@ -355,6 +356,7 @@ void AMScanThumbnailView::mousePressEvent(QMouseEvent *event)
 		rubberBandStart_  = event->pos();
 		selectionRubberBand_->setGeometry(QRect(rubberBandStart_, QSize()));
 		selectionRubberBand_->show();
+		QAbstractItemView::mousePressEvent(event);
 	}
 }
 

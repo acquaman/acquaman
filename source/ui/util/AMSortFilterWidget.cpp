@@ -107,6 +107,7 @@ void AMSortFilterWidget::setCurrentlyFiltered(bool value)
 
 void AMSortFilterWidget::onFilterApplied()
 {
+	QApplication::setOverrideCursor(Qt::WaitCursor);
 
 	QSortFilterProxyModel* viewProxyModel = proxyModel();
 
@@ -135,7 +136,7 @@ void AMSortFilterWidget::onFilterApplied()
 
 	}
 
-
+	QApplication::restoreOverrideCursor();
 }
 
 void AMSortFilterWidget::onClearFilterButtonClicked()

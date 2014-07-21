@@ -42,6 +42,20 @@ AMScanDataView::AMScanDataView(AMDatabase *database, QWidget *parent) :
 
 	stackedWidget_  = new QStackedWidget();
 
+	// Context menu
+	contextMenu_  = new QMenu(this);
+	QAction* editScan = contextMenu_->addAction("Edit");
+	QAction* compareScans = contextMenu_->addAction("Compare");
+	QAction* exportScans = contextMenu_->addAction("Export");
+	QAction* viewScanConfig = contextMenu_->addAction("Show Scan Configuration");
+	QAction* fixCDFile = contextMenu_->addAction("Fix CDF");
+
+	connect(editScan, SIGNAL(triggered()), this, SLOT(onEditScan()));
+	connect(compareScans, SIGNAL(triggered()), this, SLOT(onCompareScans()));
+	connect(exportScans, SIGNAL(triggered()), this, SLOT(onExportScans()));
+	connect(viewScanConfig, SIGNAL(triggered()), this, SLOT(onShowScanConfiguration()));
+	connect(fixCDFile, SIGNAL(triggered()), this, SLOT(onFixCDF()));
+
 	// Signals, Slots
 	connect(searchButton_, SIGNAL(clicked(bool)), this, SLOT(onSearchButtonClicked(bool)));
 	connect(viewButtons_, SIGNAL(buttonClicked(int)), stackedWidget_, SLOT(setCurrentIndex(int)));
@@ -77,6 +91,10 @@ void AMScanDataView::addChildView(QAbstractItemView *childView, const QIcon& ico
 	viewButtons_->addButton(viewButton);
 	stackedWidget_->addWidget(childView);
 	viewButtons_->setId(viewButton, viewButtons_->buttons().count()-1);
+
+	childView->setContextMenuPolicy(Qt::CustomContextMenu);
+	connect(childView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(onChildViewDoubleClicked()));
+	connect(childView, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)));
 }
 
 void AMScanDataView::initializeChildViews()
@@ -161,6 +179,55 @@ void AMScanDataView::onFilterStateChanged(bool isCurrentlyFiltered)
 		titleLabel_->setText(QString("%1: Data (Currently filtered)").arg(AMUser::user()->name()));
 	else
 		titleLabel_->setText(QString("%1: Data").arg(AMUser::user()->name()));
+}
+
+void AMScanDataView::onChildViewDoubleClicked()
+{
+	if(numberOfSelectedItems() > 0)
+	{
+		emit selectionActivated(selectedItems());
+	}
+}
+
+void AMScanDataView::onCustomContextMenuRequested(const QPoint& position)
+{
+	QPoint globalPos  = currentView()->viewport()->mapToGlobal(position);
+
+	if(numberOfSelectedItems() < 2)
+		contextMenu_->actions().at(1)->setEnabled(false);
+	else
+		contextMenu_->actions().at(1)->setEnabled(true);
+
+	if(numberOfSelectedItems() > 1)
+		contextMenu_->actions().at(4)->setEnabled(false);
+	else
+		contextMenu_->actions().at(4)->setEnabled(true);
+	contextMenu_->popup(globalPos);
+}
+
+void AMScanDataView::onEditScan()
+{
+	emit selectionActivated(selectedItems());
+}
+
+void AMScanDataView::onCompareScans()
+{
+	emit selectionActivatedSeparateWindows(selectedItems());
+}
+
+void AMScanDataView::onExportScans()
+{
+	emit selectionExported(selectedItems());
+}
+
+void AMScanDataView::onShowScanConfiguration()
+{
+	emit launchScanConfigurationsFromDb(selectedItems());
+}
+
+void AMScanDataView::onFixCDF()
+{
+	emit fixCDF(selectedItems().front());
 }
 
 
