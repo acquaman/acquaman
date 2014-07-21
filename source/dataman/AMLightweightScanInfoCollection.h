@@ -23,6 +23,8 @@ private:
 	QHash< QString, QHash < int, QString> > sampleNameMap_;
 	/// A list of the contained AMLightweightScanInfos
 	QList<AMLightweightScanInfo*> scanInfos_;
+	/// A mapping of scan id to experiment id. If entry is found for a scan, it's experimentId is set to -1
+	QHash<int, int> experimentIdMap_;
 public:
 	/// Creates an instance of an AMLightweightScanInfoCollection loaded from the provided database
 	AMLightweightScanInfoCollection(AMDatabase* database);
@@ -38,6 +40,8 @@ public:
 	/// position from. Returns -1 if no item matched
 	int indexOf(AMLightweightScanInfo* scan, int from = 0) const;
 protected:
+	/// Builds the mapping of ScanId to ExperimentId
+	void populateExperimentIds();
 	/// Builds the mapping of SampleTable -> (SampleId -> SampleName)
 	void populateSampleNames();
 	/// Loads a sample from the database and adds it to the Sample map
@@ -61,6 +65,8 @@ protected:
 	/// Looks up the sample name from the relevant table mapping and id using the return results of the
 	/// format TABLE_NAME;ID
 	QString getSampleName(const QString& sampleResult);
+	/// Looks up the ExperimentId for a given scanId, returns -1 if no mapping is found in the hash table
+	int getExperimentId(int scanId);
 protected slots:
 	/// Slot to handle the database signal indicating that a new item has been added to the database
 	void onDbItemAdded(const QString& tableName, int id);

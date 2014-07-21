@@ -168,6 +168,11 @@ void AMScanDataView::showRun(int runId)
 	proxyModel_->setRunId(runId);
 }
 
+void AMScanDataView::showExperiment(int experimentId)
+{
+	proxyModel_->setExperimentId(experimentId);
+}
+
 void AMScanDataView::onSearchButtonClicked(bool checked)
 {
 	sortFilterWidget_->setVisible(checked);

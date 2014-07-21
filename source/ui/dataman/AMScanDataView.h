@@ -83,8 +83,12 @@ signals:
 	void fixCDF(const QUrl &);
 public slots:
 	/// Specifies that the AMScanDataView should filter for all runs that match the passed id. -1 indicates
-	/// that all runs should be shown.
+	/// that all scans should be shown.
 	void showRun(int runId = -1);
+
+	/// Specifies that the AMScanDataView should filter for all experiments that match the passed if. -1 indicates
+	/// that all scans should be shown
+	void showExperiment(int experimentId = -1);
 
 protected slots:
 	/// Handles the search button being clicked. Shows the sortFilterWidget

@@ -4,6 +4,7 @@
 #include <QString>
 #include <QDateTime>
 #include <QHash>
+
 class AMDbThumbnail;
 /**
  * A class representing the information stored against a scan in the user database. The class is designed
@@ -21,6 +22,7 @@ private:
 	QString scanType_;
 	int runId_;
 	QString runName_;
+	int experimentId_;
 	QString notes_;
 	QString sampleName_;
 	QList<int> thumbnailIds_;
@@ -33,11 +35,12 @@ public:
 						const QDateTime& dateTime,
 						const QString& scanType,
 						int runId,
-						const QString& runName,
+						const QString& runName,						
 						const QString& notes,
 						const QString& sampleName,
 						int thumbnailFirstId,
 						int thumbnailCount,
+						int experimentId = -1,
 						QObject* parent = 0);
 
 	int id() const;
@@ -59,6 +62,8 @@ public:
 	void setSampleName(const QString& sampleName);
 	AMDbThumbnail* thumbnailAt(int index);
 	int thumbnailCount();
+	int experimentId() const;
+	void setExperimentId(int id);
 };
 
 #endif // AMLIGHTWEIGHTSCANINFO_H

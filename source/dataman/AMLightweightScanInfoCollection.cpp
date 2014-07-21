@@ -7,6 +7,7 @@ AMLightweightScanInfoCollection::AMLightweightScanInfoCollection(AMDatabase *dat
 	populateSampleNames();
 	populateRuns();
 	populateObjectTypes();
+	populateExperimentIds();
 	populateCollection();
 }
 
@@ -34,6 +35,25 @@ int AMLightweightScanInfoCollection::count() const
 int AMLightweightScanInfoCollection::indexOf(AMLightweightScanInfo *scan, int from) const
 {
 	return scanInfos_.indexOf(scan, from);
+}
+
+void AMLightweightScanInfoCollection::populateExperimentIds()
+{
+	QSqlQuery selectQuery = database_->select("ObjectExperimentEntries", "objectId, ExperimentId");
+
+	if(!selectQuery.exec())
+	{
+		selectQuery.finish();
+		return;
+	}
+
+	while(selectQuery.next())
+	{
+		int objectId = selectQuery.value(0).toInt();
+		int experimentId = selectQuery.value(1).toInt();
+
+		experimentIdMap_.insert(objectId, experimentId);
+	}
 }
 
 void AMLightweightScanInfoCollection::populateSampleNames()
@@ -149,12 +169,13 @@ void AMLightweightScanInfoCollection::populateCollection()
 		int thumbnailCount = selectQuery.value(currentRecord.indexOf("thumbnailCount")).toInt();
 		QDateTime dateTime = selectQuery.value(currentRecord.indexOf("dateTime")).toDateTime();
 		int runId = selectQuery.value(currentRecord.indexOf("runId")).toInt();
+		int experimentId = getExperimentId(id);
 		QString runName = getRunName(runId);
 		QString scanType = getScanType(selectQuery.value(currentRecord.indexOf("AMDbObjectType")).toString());
 		QString notes = selectQuery.value(currentRecord.indexOf("notes")).toString();
 		QString sampleName = getSampleName(selectQuery.value(currentRecord.indexOf("Sample")).toString());
 
-		scanInfos_.append(new AMLightweightScanInfo(id, name, number, dateTime, scanType, runId, runName, notes, sampleName, thumbnailFirstId, thumbnailCount));
+		scanInfos_.append(new AMLightweightScanInfo(id, name, number, dateTime, scanType, runId, runName, notes, sampleName, thumbnailFirstId, thumbnailCount, experimentId));
 	}
 
 	selectQuery.finish();
@@ -180,12 +201,13 @@ void AMLightweightScanInfoCollection::populateSingleScanInfo(int id)
 		int thumbnailCount = selectQuery.value(currentRecord.indexOf("thumbnailCount")).toInt();
 		QDateTime dateTime = selectQuery.value(currentRecord.indexOf("dateTime")).toDateTime();
 		int runId = selectQuery.value(currentRecord.indexOf("runId")).toInt();
+		int experimentId = getExperimentId(id);
 		QString runName = getRunName(runId);
 		QString scanType = getScanType(selectQuery.value(currentRecord.indexOf("AMDbObjectType")).toString());
 		QString notes = selectQuery.value(currentRecord.indexOf("notes")).toString();
 		QString sampleName = getSampleName(selectQuery.value(currentRecord.indexOf("Sample")).toString());
 
-		scanInfos_.append(new AMLightweightScanInfo(id, name, number, dateTime, scanType, runId, runName, notes, sampleName, thumbnailFirstId, thumbnailCount));
+		scanInfos_.append(new AMLightweightScanInfo(id, name, number, dateTime, scanType, runId, runName, notes, sampleName, thumbnailFirstId, thumbnailCount, experimentId));
 	}
 
 	selectQuery.finish();
@@ -302,6 +324,11 @@ QString AMLightweightScanInfoCollection::getSampleName(const QString &sampleResu
 		return QString();
 
 	return sampleNameMap_.value(tableName).value(id);
+}
+
+int AMLightweightScanInfoCollection::getExperimentId(int scanId)
+{
+	return experimentIdMap_.value(scanId, -1);
 }
 
 void AMLightweightScanInfoCollection::onDbItemAdded(const QString &tableName, int id)

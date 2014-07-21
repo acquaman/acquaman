@@ -910,6 +910,8 @@ void AMDatamanAppController::onMainWindowAliasItemActivated(QWidget *target, con
 	if(target == dataView_) {
 		if(key == "Runs")
 			dataView_->showRun(value.toInt());
+		if(key == "Experiments")
+			dataView_->showExperiment(value.toInt());
 	}
 }
 
@@ -1076,6 +1078,11 @@ void AMDatamanAppController::onIssueSubmissionViewFinished(){
 
 void AMDatamanAppController::onStartupFinished(){
 	AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_FINISHED, "Acquaman Startup: Finished");
+}
+
+void AMDatamanAppController::onNewExperimentAdded(const QModelIndex &index)
+{
+	mw_->sidebar()->expand(index.parent()); //Do this to show people where it ended up...
 }
 
 #include "dataman/export/AMExportController.h"

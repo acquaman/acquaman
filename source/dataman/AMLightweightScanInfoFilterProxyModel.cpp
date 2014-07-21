@@ -5,10 +5,14 @@ AMLightweightScanInfoFilterProxyModel::AMLightweightScanInfoFilterProxyModel(QOb
 	QSortFilterProxyModel(parent)
 {
 	runId_ = -1;
+	experimentId_ = -1;
 }
 
 void AMLightweightScanInfoFilterProxyModel::setRunId(int id)
 {
+	if(experimentId_ != -1)
+		experimentId_ = -1;
+
 	runId_ = id;
 	invalidateFilter();
 }
@@ -16,6 +20,20 @@ void AMLightweightScanInfoFilterProxyModel::setRunId(int id)
 int AMLightweightScanInfoFilterProxyModel::runId() const
 {
 	return runId_;
+}
+
+void AMLightweightScanInfoFilterProxyModel::setExperimentId(int id)
+{
+	if(runId_ != -1)
+		runId_ = -1;
+
+	experimentId_ = id;
+	invalidateFilter();
+}
+
+int AMLightweightScanInfoFilterProxyModel::experimentId() const
+{
+	return experimentId_;
 }
 
 bool AMLightweightScanInfoFilterProxyModel::filterAcceptsRow(int source_row, const QModelIndex& parent) const
@@ -53,12 +71,20 @@ bool AMLightweightScanInfoFilterProxyModel::filterAcceptsScan(int source_row, co
 {
 	if(filterKeyColumn() == 8)
 	{
-		if(runId_ > -1)
+		if(runId() > -1)
 		{
 			QModelIndex sourceIndex = sourceModel()->index(source_row, 5, parent);
 			int sourceRunId = sourceModel()->data(sourceIndex, Qt::UserRole).toInt();
 
 			if(sourceRunId != runId())
+				return false;
+		}
+		else if(experimentId() > -1)
+		{
+			QModelIndex sourceIndex = sourceModel()->index(source_row, 9, parent);
+			int sourceExperimentId = sourceModel()->data(sourceIndex, Qt::UserRole).toInt();
+
+			if(sourceExperimentId != experimentId())
 				return false;
 		}
 
@@ -88,6 +114,14 @@ bool AMLightweightScanInfoFilterProxyModel::filterAcceptsScan(int source_row, co
 			int sourceRunId = sourceModel()->data(sourceIndex, Qt::UserRole).toInt();
 
 			if(sourceRunId != runId())
+				return false;
+		}
+		else if(experimentId() > -1)
+		{
+			QModelIndex sourceIndex = sourceModel()->index(source_row, 9, parent);
+			int sourceExperimentId = sourceModel()->data(sourceIndex, Qt::UserRole).toInt();
+
+			if(sourceExperimentId != experimentId())
 				return false;
 		}
 	}

@@ -1,6 +1,7 @@
 #include "AMLightweightScanInfo.h"
 #include "database/AMDbObject.h"
 #include "database/AMDbObjectSupport.h"
+
 AMLightweightScanInfo::AMLightweightScanInfo(int id,
 		const QString &name,
 		int number, const
@@ -11,7 +12,7 @@ AMLightweightScanInfo::AMLightweightScanInfo(int id,
 		const QString &notes,
 		const QString &sampleName,
 		int thumbnailFirstId,
-		int thumbnailCount, QObject *parent)
+		int thumbnailCount, int experimentId, QObject *parent)
 	: QObject(parent)
 {
 	id_ = id;
@@ -21,6 +22,7 @@ AMLightweightScanInfo::AMLightweightScanInfo(int id,
 	scanType_ = scanType;
 	runId_ = runId;
 	runName_ = runName;
+	experimentId_ = experimentId;
 	notes_ = notes;
 	sampleName_ = sampleName;
 	if(thumbnailCount == 0)
@@ -159,4 +161,14 @@ AMDbThumbnail *AMLightweightScanInfo::thumbnailAt(int index)
 int AMLightweightScanInfo::thumbnailCount()
 {
 	return thumbnailIds_.count();
+}
+
+int AMLightweightScanInfo::experimentId() const
+{
+	return experimentId_;
+}
+
+void AMLightweightScanInfo::setExperimentId(int id)
+{
+	experimentId_ = id;
 }

@@ -280,6 +280,9 @@ protected slots:
 	/// This is called by a signal (chosen with the resetFinishedSignal function) to run when the startup is actually finished. Can be reimplemented in subclasses, but you show call this function in it at some point.
 	virtual void onStartupFinished();
 
+	/// This is called when we detect that a new experiment has finished being created. We call it to select that experiment and start editing its name.
+	/*! \c index is the model index of the experiment item in the main window's AMWindowPaneModel. */
+	virtual void onNewExperimentAdded(const QModelIndex& index);
 protected:
 	/// Helper function to go through all the scan editors and see if we can close all of them.
 	bool canCloseScanEditors() const;

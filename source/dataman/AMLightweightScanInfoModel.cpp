@@ -162,6 +162,8 @@ QVariant AMLightweightScanInfoModel::getScanData(QModelIndex index, int role) co
 			return info->sampleName();
 		case 8:
 			return info->notes();
+		case 9:
+			return info->experimentId();
 		default:
 			return QVariant();
 		}
