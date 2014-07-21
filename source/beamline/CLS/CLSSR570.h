@@ -57,6 +57,10 @@ public:
 	/// Returns a string list of the available units options, suitable for a view to display.
 	virtual QStringList unitsList() const;
 
+    /// Returns the minimum/maximum value + units pair for this amplifier.
+    virtual double minimumValueForUnits(const QString &units) const;
+    virtual double maximumValueForUnits(const QString &units) const;
+
 signals:
 	/// General notifier. Emitted when the sensitivity of the current amplifier is changed.
 	void sensitivityChanged(int valueIndex);

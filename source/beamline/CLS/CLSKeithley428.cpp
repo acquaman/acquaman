@@ -106,6 +106,34 @@ QStringList CLSKeithley428::unitsList() const
     return QStringList() << units();
 }
 
+double CLSKeithley428::minimumValueForUnits(const QString &units) const
+{
+    Q_UNUSED(units)
+
+    double value;
+
+    if (amplifierMode_ == Sensitivity)
+        value = toSensitivity(gains_.last());
+    else
+        value = gains_.first();
+
+    return value;
+}
+
+double CLSKeithley428::maximumValueForUnits(const QString &units) const
+{
+    Q_UNUSED(units)
+
+    double value;
+
+    if (amplifierMode_ == Sensitivity)
+        value = toSensitivity(gains_.first());
+    else
+        value = gains_.last();
+
+    return value;
+}
+
 bool CLSKeithley428::atMaximumGain() const
 {
     return (valueControl_->getInt() == gains_.size() - 1);

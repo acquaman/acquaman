@@ -106,15 +106,36 @@ void AMCurrentAmplifierSingleView::refreshValues()
 {
     value_->clear();
 
+    bool minFound = false;
+    bool maxFound = false;
+
+    double minValue = 0;
+    double maxValue = 0;
+
     // (re)populate value_ with appropriate options provided by the amplifier.
     QStringList unitsList = amplifier_->unitsList();
     QList<double> valuesList = amplifier_->values();
 
     foreach (QString units, unitsList) {
         foreach (double value, valuesList) {
-            QString item = toDisplay(value, units);
-            value_->addItem(item);
+            minValue = amplifier_->minimumValueForUnits(units);
+            maxValue = amplifier_->maximumValueForUnits(units);
+
+            if (!minFound && value == minValue)
+                minFound = true;
+
+            if (!maxFound && value == maxValue)
+                maxFound = true;
+
+
+            if (minFound && !maxFound) {
+                QString item = toDisplay(value, units);
+                value_->addItem(item);
+            }
         }
+
+        minFound = false;
+        maxFound = false;
     }
 
     // values displayed should represent the amplifier's current state.

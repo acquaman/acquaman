@@ -54,6 +54,10 @@ public:
     /// Returns a string list of the available unit options.
     virtual QStringList unitsList() const;
 
+    /// Returns the minimum/maximum value + units pair for this amplifier.
+    virtual double minimumValueForUnits(const QString &units) const;
+    virtual double maximumValueForUnits(const QString &units) const;
+
     /// Returns true if the current index corresponds to the maximum gain allowed, false otherwise.
     virtual bool atMaximumGain() const;
     /// Returns true if the current index corresponds to the minimum gain allowed, false otherwise.
