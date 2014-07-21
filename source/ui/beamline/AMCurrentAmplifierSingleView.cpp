@@ -114,6 +114,7 @@ void AMCurrentAmplifierSingleView::refreshValues()
 
     // (re)populate value_ with appropriate options provided by the amplifier.
     QStringList unitsList = amplifier_->unitsList();
+
     QList<double> valuesList = amplifier_->values();
 
     foreach (QString units, unitsList) {
@@ -128,8 +129,9 @@ void AMCurrentAmplifierSingleView::refreshValues()
                 maxFound = true;
 
 
-            if (minFound && !maxFound) {
+            if (minFound && (!maxFound || value == maxValue)) {
                 QString item = toDisplay(value, units);
+                qDebug() << "Adding item : " << item;
                 value_->addItem(item);
             }
         }
