@@ -67,6 +67,25 @@ QStringList CLSSR570::unitsList() const
 	return QStringList() << "pA/V" << "nA/V" << "uA/V" << "mA/V";
 }
 
+double CLSSR570::minimumValueForUnits(const QString &units) const
+{
+    Q_UNUSED(units)
+
+    return 1;
+}
+
+double CLSSR570::maximumValueForUnits(const QString &units) const
+{
+    int value;
+
+    if (units == "mA/V")
+        value = 1;
+    else
+        value = 500;
+
+    return value;
+}
+
 void CLSSR570::setValueControl(int value)
 {
 	setValueIndex(valueToIndex(value));

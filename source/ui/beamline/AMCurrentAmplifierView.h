@@ -98,8 +98,6 @@ protected slots:
     /// Children can call this method when its time to refresh the view. Checks that the view is valid, then calls refreshViewImplementation.
     void refreshView();
     virtual void refreshViewImplementation() = 0;
-    /// Provides a menu for changing the view mode.
-    virtual void onCustomContextMenuRequested(QPoint position);
 
 protected:
     /// Helper function that returns a string of the given amplifier value and units. Provides consistent formatting.

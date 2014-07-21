@@ -52,9 +52,6 @@ AMCurrentAmplifierView::AMCurrentAmplifierView(QWidget *parent) :
 	value_->hide();
 	connect( value_, SIGNAL(currentIndexChanged(QString)), this, SLOT(onValueComboBoxChanged(QString)) );
 
-	setContextMenuPolicy(Qt::CustomContextMenu);
-	connect( this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)) );
-
 	layout_ = new QHBoxLayout();
 
 	layout_->addWidget(name_);
@@ -189,27 +186,6 @@ void AMCurrentAmplifierView::refreshView()
 		initialized_ = false;
 		refreshViewImplementation();
 		initialized_ = true;
-	}
-}
-
-void AMCurrentAmplifierView::onCustomContextMenuRequested(QPoint position)
-{
-	QMenu menu(this);
-
-	QAction *basic = menu.addAction("Basic view");
-	basic->setDisabled(viewMode_ == Basic);
-
-	QAction *advanced = menu.addAction("Advanced view");
-	advanced->setDisabled(viewMode_ == Advanced);
-
-	QAction *selected = menu.exec(mapToGlobal(position));
-
-	if (selected) {
-		if (selected->text() == "Basic view")
-			setViewMode(Basic);
-
-		else if (selected->text() == "Advanced view")
-			setViewMode(Advanced);
 	}
 }
 

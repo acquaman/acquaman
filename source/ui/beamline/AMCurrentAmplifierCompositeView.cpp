@@ -11,6 +11,9 @@ AMCurrentAmplifierCompositeView::AMCurrentAmplifierCompositeView(AMCurrentAmplif
         connect( amplifier1_, SIGNAL(valueChanged()), this, SLOT(onAmplifierValueChanged()) );
     }
 
+    setContextMenuPolicy(Qt::CustomContextMenu);
+    connect( this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)) );
+
     amplifier2_ = amp2;
 
     refreshView();
@@ -80,9 +83,35 @@ void AMCurrentAmplifierCompositeView::refreshViewImplementation()
     refreshButtons();
 }
 
+void AMCurrentAmplifierCompositeView::onCustomContextMenuRequested(QPoint position)
+{
+    if (isValid()) {
+        QMenu menu(this);
+
+        QAction *basic = menu.addAction("Basic view");
+        basic->setDisabled(viewMode_ == Basic);
+
+        QAction *advanced = menu.addAction("Advanced view");
+        advanced->setDisabled(viewMode_ == Advanced);
+
+        QAction *selected = menu.exec(mapToGlobal(position));
+
+        if (selected) {
+            if (selected->text() == "Basic view")
+                setViewMode(Basic);
+
+            else if (selected->text() == "Advanced view")
+                setViewMode(Advanced);
+        }
+    }
+}
+
 void AMCurrentAmplifierCompositeView::refreshValues()
 {
     value_->clear();
+
+    double minValue = 0;
+    double maxValue = 0;
 
     // (re)populate value_ with appropriate options provided by the amplifier.
     QStringList unitsList = amplifier1_->unitsList();
@@ -90,8 +119,14 @@ void AMCurrentAmplifierCompositeView::refreshValues()
 
     foreach (QString units, unitsList) {
         foreach (double value, valuesList) {
-            QString item = toDisplay(value, units);
-            value_->addItem(item);
+
+            minValue = amplifier1_->minimumValueForUnits(units);
+            maxValue = amplifier1_->maximumValueForUnits(units);
+
+            if (value >= minValue && value <= maxValue) {
+                QString item = toDisplay(value, units);
+                value_->addItem(item);
+            }
         }
     }
 
