@@ -194,6 +194,12 @@ void AMCurrentAmplifierView::refreshView()
 
 void AMCurrentAmplifierView::onCustomContextMenuRequested(QPoint position)
 {
+    if (isValid())
+        customContextMenuImplementation(position);
+}
+
+void AMCurrentAmplifierView::customContextMenuImplementation(QPoint position)
+{
     QMenu menu(this);
 
     QAction *basic = menu.addAction("Basic view");

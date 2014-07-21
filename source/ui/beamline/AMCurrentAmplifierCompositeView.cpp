@@ -96,24 +96,15 @@ void AMCurrentAmplifierCompositeView::refreshValues()
 
     foreach (QString units, unitsList) {
         foreach (double value, valuesList) {
+
             minValue = amplifier1_->minimumValueForUnits(units);
             maxValue = amplifier1_->maximumValueForUnits(units);
 
-            if (!minFound && value == minValue)
-                minFound = true;
-
-            if (!maxFound && value == maxValue)
-                maxFound = true;
-
-
-            if (minFound && !maxFound) {
+            if (value >= minValue && value <= maxValue) {
                 QString item = toDisplay(value, units);
                 value_->addItem(item);
             }
         }
-
-        minFound = false;
-        maxFound = false;
     }
 
     // values displayed should represent the amplifier's current state.
