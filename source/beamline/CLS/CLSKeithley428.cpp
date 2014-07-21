@@ -114,8 +114,10 @@ double CLSKeithley428::minimumValueForUnits(const QString &units) const
 
     if (amplifierMode_ == Sensitivity)
         value = toSensitivity(gains_.last());
-    else
+    else if (amplifierMode_ == Gain)
         value = gains_.first();
+    else
+        value = 0;
 
     return value;
 }
@@ -128,8 +130,10 @@ double CLSKeithley428::maximumValueForUnits(const QString &units) const
 
     if (amplifierMode_ == Sensitivity)
         value = toSensitivity(gains_.first());
-    else
+    else if (amplifierMode_ == Gain)
         value = gains_.last();
+    else
+        value = 0;
 
     return value;
 }
