@@ -96,7 +96,7 @@ QUrl AMLightweightScanInfoModel::rowToUrl(const QModelIndex &index)
 	if(index.parent().isValid())
 		return rowToUrl(index.parent());
 
-	return scanInfo_->getScanUrl(index.row());
+	return scanInfo_->getScanUrl(index.data(Qt::DisplayRole).toInt());
 }
 
 QVariant AMLightweightScanInfoModel::getScanData(const QModelIndex &index, int role) const

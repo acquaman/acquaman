@@ -235,9 +235,12 @@ QList<QUrl> AMScanDataView::selectedItems()
 
 	for (int iSelectedItem = 0; iSelectedItem < indices.count(); iSelectedItem++)
 	{
-		QUrl scanUrl = model_->rowToUrl(indices.at(iSelectedItem));
-		if(!returnList.contains(scanUrl))
-			returnList.append(scanUrl);
+		if(indices.at(iSelectedItem).column() == 0)
+		{
+			QUrl scanUrl = model_->rowToUrl(indices.at(iSelectedItem));
+			if(!returnList.contains(scanUrl))
+				returnList.append(scanUrl);
+		}
 	}
 
 

@@ -9,13 +9,15 @@ AMLightweightScanInfoCollection::AMLightweightScanInfoCollection(AMDatabase *dat
 	populateObjectTypes();
 	populateExperimentIds();
 	populateCollection();
+	connect(database_, SIGNAL(created(QString,int)), this, SLOT(onDbItemAdded(QString,int)));
+	connect(database_, SIGNAL(removed(QString,int)), this, SLOT(onDbItemRemoved(QString,int)));
+	connect(database_, SIGNAL(updated(QString,int)), this, SLOT(onDbItemUpdated(QString,int)));
 }
 
-QUrl AMLightweightScanInfoCollection::getScanUrl(int index)
+QUrl AMLightweightScanInfoCollection::getScanUrl(int id)
 {
-	AMLightweightScanInfo* scanAt = at(index);
 
-	QString urlString = QString("amd://%1/%2/%3").arg(database_->connectionName()).arg(AMDbObjectSupport::s()->tableNameForClass("AMScan")).arg(scanAt->id());
+	QString urlString = QString("amd://%1/%2/%3").arg(database_->connectionName()).arg(AMDbObjectSupport::s()->tableNameForClass("AMScan")).arg(id);
 
 	QUrl returnUrl(urlString);
 
