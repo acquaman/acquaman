@@ -101,7 +101,6 @@ void AMSortFilterWidget::setCurrentlyFiltered(bool value)
 	if(value != isCurrentlyFiltered_)
 	{
 		isCurrentlyFiltered_ = value;
-		emit isCurrentlyFilteredStateChanged(isCurrentlyFiltered_);
 	}
 }
 
@@ -113,8 +112,6 @@ void AMSortFilterWidget::onFilterApplied()
 
 	if(!viewProxyModel)
 		return;
-
-	setCurrentlyFiltered(true);
 
 	if(caseSensitiveCheckBox_->isChecked())
 		viewProxyModel->setFilterCaseSensitivity(Qt::CaseSensitive);
@@ -135,19 +132,20 @@ void AMSortFilterWidget::onFilterApplied()
 		break;
 
 	}
-
+	setCurrentlyFiltered(true);
+	emit filterChanged(isCurrentlyFiltered_);
 	QApplication::restoreOverrideCursor();
 }
 
 void AMSortFilterWidget::onClearFilterButtonClicked()
 {
 	if(!proxyModel())
-		return;
-
-	setCurrentlyFiltered(false);
+		return;	
 
 	criteriaLineEdit_->setText(QString());
 	proxyModel()->setFilterFixedString(QString());
+	setCurrentlyFiltered(false);
+	emit filterChanged(isCurrentlyFiltered_);
 }
 
 

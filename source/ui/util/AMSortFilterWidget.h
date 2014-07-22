@@ -53,8 +53,8 @@ protected:
 	void setCurrentlyFiltered(bool value);
 
 signals:
-	/// Emitted whenever the widget changes from filtering to not filtering
-	void isCurrentlyFilteredStateChanged(bool);
+	/// Emitted whenever the filter the Widget is applying is altered
+	void filterChanged(bool);
 protected slots:
 	/// Slot to handle requests to apply the filter, either through clicking the button or pressing return
 	/// when in the criteria line edit

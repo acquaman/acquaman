@@ -2,7 +2,7 @@
 #define AMSCANDATAVIEW_H
 
 #include <QWidget>
-#include <QTableView> // Can be removed after testing
+#include <QAbstractItemView>
 #include <QButtonGroup>
 #include <QToolButton>
 #include <QVBoxLayout>
@@ -11,6 +11,7 @@
 #include <QUrl>
 #include <QStackedWidget>
 #include <QMenu>
+#include <QMessageBox>
 
 class AMLightweightScanInfoModel;
 class AMLightweightScanInfoFilterProxyModel;
@@ -41,6 +42,16 @@ private:
 	QLabel* titleLabel_;
 	/// Context menu to allow user to open scans, configs etc.
 	QMenu* contextMenu_;
+	/// Action button to allow user to edit selected scans in individual windows
+	QToolButton* editButton_;
+	/// Action button to allow user to open selected scans in the same window
+	QToolButton* compareButton_;
+	/// Action button to allow user to export all the selected scans
+	QToolButton* exportButton_;
+	/// Action button to allow user to open the scan configuration of the selected scans
+	QToolButton* configButton_;
+	/// Label which displays to the user the number of scans they have selected
+	QLabel* selectedItemsCount_;
 public:
 	/// Creates an instance of an AMScanDataView, loaded scans from the provided AMDatabase
 	explicit AMScanDataView(AMDatabase* database, QWidget *parent = 0);
@@ -94,8 +105,8 @@ protected slots:
 	/// Handles the search button being clicked. Shows the sortFilterWidget
 	void onSearchButtonClicked(bool);
 
-	/// Handles the SortFilterWidget changing state from filtered, to not filtered
-	void onFilterStateChanged(bool);
+	/// Handles the SortFilterWidget changing its filter
+	void onFilterChanged(bool);
 
 	/// Handles the user double-clicking on the current view
 	void onChildViewDoubleClicked();
@@ -103,15 +114,30 @@ protected slots:
 	/// Handles the current child view signaling that a custom context menu has been requested
 	void onCustomContextMenuRequested(const QPoint &position);
 
+	/// Handles the user choosing to edit scans in separate windows
 	void onEditScan();
 
+	/// Handles the user choosing to edit scans in the same window
 	void onCompareScans();
 
+	/// Handles the user choosing to export selected scans
 	void onExportScans();
 
+	/// Handles the user choosing to show selected scan configurations
 	void onShowScanConfiguration();
 
+	/// Handles the user choosing to fix the selected scan CDFs
 	void onFixCDF();
+
+	/// Handles the selected items in the current child view changing
+	void onChildViewSelectionChanged();
+
+	/// Handles the user choosing to "Select All"
+	void onSelectAll();
+
+	void onClearSelection();
+
+	void onChildViewChanged(int);
 };
 
 #endif // AMSCANDATAVIEW_H
