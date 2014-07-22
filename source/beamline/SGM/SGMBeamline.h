@@ -240,7 +240,7 @@ public:
 	/// Turn off beam on SGM.
 	AMAction3* createTurnOffBeamActions();
 	AMAction3* createStopMotorsActions3();
-
+	AMAction3* createVisibleLightOnActions3();
 	AMAction3* createGoToTransferPositionActions3();
 	AMAction3* createGoToMeasurementPositionActions3();
 
