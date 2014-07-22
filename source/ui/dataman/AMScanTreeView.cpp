@@ -3,7 +3,7 @@
 AMScanTreeView::AMScanTreeView(QWidget *parent) :
 	QTreeView(parent)
 {
-
+	setItemDelegate(new AMScanTreeViewDelegate(this));
 }
 
 void AMScanTreeView::setModel(QAbstractItemModel *model)
@@ -14,4 +14,25 @@ void AMScanTreeView::setModel(QAbstractItemModel *model)
 	setColumnWidth(2, 140);
 	setColumnWidth(3, 120);
 	setColumnWidth(4, 120);
+	setSelectionBehavior(QAbstractItemView::SelectRows);
+	setSelectionMode(QAbstractItemView::MultiSelection);
+}
+
+
+AMScanTreeViewDelegate::AMScanTreeViewDelegate(QObject *parent)
+	:QItemDelegate(parent)
+{
+
+}
+
+QSize AMScanTreeViewDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
+{
+	if(!index.parent().isValid())
+	{
+		return QSize(option.rect.width(), option.fontMetrics.height());
+	}
+	else
+	{
+		return QSize(option.rect.width(), 200);
+	}
 }
