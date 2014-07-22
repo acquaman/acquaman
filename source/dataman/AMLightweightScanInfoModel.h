@@ -19,10 +19,10 @@ public:
 	virtual QModelIndex index(int row, int column, const QModelIndex &parent) const;
 	virtual QModelIndex parent(const QModelIndex &child) const;
 
-	QUrl rowToUrl(int rowIndex);
+	QUrl rowToUrl(const QModelIndex& index);
 protected:
-	QVariant getScanData(QModelIndex index, int role) const;
-	QVariant getThumbnailData(QModelIndex index, int role) const;
+	QVariant getScanData(const QModelIndex& index, int role) const;
+	QVariant getThumbnailData(const QModelIndex& index, int role) const;
 signals:
 	
 public slots:

@@ -91,12 +91,15 @@ QModelIndex AMLightweightScanInfoModel::parent(const QModelIndex &child) const
 	return createIndex(child.internalId(), 0, -1);
 }
 
-QUrl AMLightweightScanInfoModel::rowToUrl(int rowIndex)
+QUrl AMLightweightScanInfoModel::rowToUrl(const QModelIndex &index)
 {
-	return scanInfo_->getScanUrl(rowIndex);
+	if(index.parent().isValid())
+		return rowToUrl(index.parent());
+
+	return scanInfo_->getScanUrl(index.row());
 }
 
-QVariant AMLightweightScanInfoModel::getScanData(QModelIndex index, int role) const
+QVariant AMLightweightScanInfoModel::getScanData(const QModelIndex &index, int role) const
 {
 
 	AMLightweightScanInfo* info = scanInfo_->at(index.row());
@@ -172,7 +175,7 @@ QVariant AMLightweightScanInfoModel::getScanData(QModelIndex index, int role) co
 	return QVariant();
 }
 
-QVariant AMLightweightScanInfoModel::getThumbnailData(QModelIndex index, int role) const
+QVariant AMLightweightScanInfoModel::getThumbnailData(const QModelIndex &index, int role) const
 {
 	if(role != Qt::DisplayRole && role != Qt::DecorationRole)
 		return QVariant();
