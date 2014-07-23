@@ -27,4 +27,5 @@ SUBDIRS +=	pluginProjects/FileLoaders/AMFileLoaderPlugins.pro \
 	BioXASImagingAcquaman.pro \
 	BioXASShutterTool.pro \
 	VESPERSDatabaseDuplicateEntryPatch.pro \
-	StripTool2.pro
+	StripTool2.pro \
+	FCApp.pro
