@@ -764,7 +764,25 @@ HEADERS += source/acquaman/AMRegion.h \
 	source/ui/util/AMBuildInfoWidget.h \
 	source/ui/util/AMAboutDialog.h \
 	source/beamline/AM1DControlDetectorEmulator.h \
-    source/ui/actions3/AMActionRunnerCurrentViewBase.h
+	source/ui/actions3/AMActionRunnerCurrentViewBase.h \
+	source/StripTool2/ST0DTimestampAB.h \
+	source/StripTool2/STColorButton.h \
+	source/StripTool2/STEditor.h \
+	source/StripTool2/STEditorDialog.h \
+	source/StripTool2/STListView.h \
+	source/StripTool2/STPlotEditor.h \
+	source/StripTool2/STPlotSelectorTool.h \
+	source/StripTool2/STPlotWidget.h \
+	source/StripTool2/STTime.h \
+	source/StripTool2/STVariable.h \
+	source/StripTool2/STVariableCollection.h \
+	source/StripTool2/STVariableCollectionEditor.h \
+	source/StripTool2/STVariableEditor.h \
+	source/StripTool2/STWidget.h \
+    source/StripTool2/STVariableEditorPlot.h \
+    source/StripTool2/STVariableEditorBasic.h \
+    source/StripTool2/STVariableEditors.h \
+    source/StripTool2/STVariableEditorAdvanced.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1249,7 +1267,25 @@ SOURCES += source/acquaman/AMRegion.cpp \
 	source/ui/util/AMBuildInfoWidget.cpp \
 	source/ui/util/AMAboutDialog.cpp \
 	source/beamline/AM1DControlDetectorEmulator.cpp \
-    source/ui/actions3/AMActionRunnerCurrentViewBase.cpp
+	source/ui/actions3/AMActionRunnerCurrentViewBase.cpp \
+	source/StripTool2/ST0DTimestampAB.cpp \
+	source/StripTool2/STColorButton.cpp \
+	source/StripTool2/STEditor.cpp \
+	source/StripTool2/STEditorDialog.cpp \
+	source/StripTool2/STListView.cpp \
+	source/StripTool2/STPlotEditor.cpp \
+	source/StripTool2/STPlotSelectorTool.cpp \
+	source/StripTool2/STPlotWidget.cpp \
+	source/StripTool2/STTime.cpp \
+	source/StripTool2/STVariable.cpp \
+	source/StripTool2/STVariableCollection.cpp \
+	source/StripTool2/STVariableCollectionEditor.cpp \
+	source/StripTool2/STVariableEditor.cpp \
+	source/StripTool2/STWidget.cpp \
+    source/StripTool2/STVariableEditorPlot.cpp \
+    source/StripTool2/STVariableEditorBasic.cpp \
+    source/StripTool2/STVariableEditors.cpp \
+    source/StripTool2/STVariableEditorAdvanced.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {

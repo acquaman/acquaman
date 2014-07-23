@@ -5,9 +5,9 @@
 #include <QFrame>
 #include <QPushButton>
 
-#include "STVariableEditor.h"
 #include "STVariableCollection.h"
 #include "STListView.h"
+#include "STVariableEditors.h"
 
 class STVariableCollectionEditor : public STEditor
 {
@@ -33,8 +33,7 @@ protected slots:
 protected:
     STVariableCollection *variableCollection_;
     STListView *variableList_;
-    STVariableEditor *variableEditor_;
-
+    STVariableEditors *variableEditors_;
 };
 
 #endif // STVARIABLECOLLECTIONEDITOR_H

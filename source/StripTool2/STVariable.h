@@ -49,6 +49,9 @@ public:
     /// Returns the variable's index, -1 if none has been provided.
     int index() const;
 
+    /// Returns the number of points saved for this variable.
+    int pointsSaved() const;
+
     /// Returns the pv name for this variable.
     QString name() const;
 
@@ -86,6 +89,8 @@ public:
 signals:
     /// Emitted when the variable's index has changed.
     void indexChanged(int newIndex);
+    /// Emitted when the number of points saved has changed.
+    void pointsSavedChanged(int newPoints);
     /// Emitted when the description changes.
     void descriptionChanged(const QString &newDescription);
     /// Emitted when the units change.
@@ -102,6 +107,8 @@ signals:
 public slots:
     /// Sets the variable's index.
     void setIndex(int newIndex);
+    /// Sets the number of points saved for this variable.
+    void setPointsSaved(int newPoints);
     /// Sets the description for this variable.
     void setDescription(const QString &newDescription);
     /// Sets the units for this variable.
@@ -125,6 +132,9 @@ protected:
 protected:
     /// The variable's index.
     int index_;
+
+    /// The number of points saved for this variable.
+    int pointsSaved_;
 
     /// The datetime for this variable's initial creation.
     QDateTime created_;

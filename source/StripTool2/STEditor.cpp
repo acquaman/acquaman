@@ -1,9 +1,9 @@
 #include "STEditor.h"
 
-STEditor::STEditor(QWidget *parent) : QFrame(parent)
+STEditor::STEditor(QWidget *parent) : QWidget(parent)
 {
-    setFrameStyle(QFrame::StyledPanel | QFrame::Plain);
-    setLineWidth(0);
+//    setFrameStyle(QFrame::StyledPanel | QFrame::Plain);
+//    setLineWidth(0);
 }
 
 STEditor::~STEditor()

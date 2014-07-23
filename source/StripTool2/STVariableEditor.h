@@ -9,12 +9,13 @@
 #include <QColorDialog>
 #include <QPushButton>
 #include <QCheckBox>
+#include <QSpinBox>
 
 #include "STEditor.h"
 #include "STVariable.h"
 #include "STColorButton.h"
 
-class STVariableEditor : public STEditor
+class STVariableEditor : public QWidget
 {
     Q_OBJECT
 
@@ -28,47 +29,24 @@ public:
     STVariable *variable() const;
 
 signals:
+    /// Emitted when the variable for this editor has changed.
     void variableChanged(STVariable *newVariable);
-    void removeButtonClicked();
 
 public slots:
+    virtual void applyChanges() {return;}
+    /// Sets a new variable to be edited.
     void setVariable(STVariable *toEdit);
-    virtual void applyChanges();
-
-protected slots:
-    void setConnectionState(bool isConnected);
-    void setLatestValue(double newValue);
-
-    void onDescriptionEntryChanged(const QString &text);
-    void onUnitsEntryChanged(const QString &text);
-    void onColorButtonClicked();
-    void onShowMarkersChanged();
 
 protected:
-    void getVariableInfo();
-    void clearVariableInfo();
-    void connectVariable();
-    void disconnectVariable();
-    void connectUI();
-    void disconnectUI();
+    virtual void getVariableInfo() {return;}
+    virtual void clearVariableInfo() {return;}
+    virtual void connectVariable() {return;}
+    virtual void disconnectVariable() {return;}
+    virtual void connectUI() {return;}
+    virtual void disconnectUI() {return;}
 
 protected:
     STVariable *variable_;
-
-    QLabel *name_;
-    QLineEdit *descriptionEntry_;
-    QLabel *creation_;
-    QLabel *connected_;
-    QLabel *value_;
-    QLineEdit *unitsEntry_;
-    STColorButton *colorButton_;
-    QCheckBox *showMarkers_;
-    QPushButton *removeButton_;
-
-    bool descriptionEdited_;
-    bool unitsEdited_;
-    bool colorEdited_;
-    bool showMarkersEdited_;
 };
 
 #endif // STVARIABLEEDITOR_H

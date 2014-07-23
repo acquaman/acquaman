@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/BioXAS/BioXASSideBeamline.h"
 #include "ui/beamline/AMExtendedControlEditor.h"
+#include "source/StripTool2/STWidget.h"
 
 BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
     QWidget(parent)
@@ -34,6 +35,8 @@ BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
     keithleyView_->setParent(this);
     keithleyView_->setPrecision(2);
     keithleyView_->setFormat('e');
+
+    stripTool_ = new STWidget(this);
 
     QVBoxLayout *layout = new QVBoxLayout();
     layout->addWidget(motorControlEditor_);

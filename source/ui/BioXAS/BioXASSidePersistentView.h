@@ -30,6 +30,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/beamline/AMCurrentAmplifierSingleView.h"
 
 class AMExtendedControlEditor;
+class STWidget;
 
 class BioXASSidePersistentView : public QWidget
 {
@@ -47,6 +48,8 @@ public slots:
 protected:
     AMExtendedControlEditor *motorControlEditor_;
     AMCurrentAmplifierSingleView *keithleyView_;
+
+    STWidget *stripTool_;
 };
 
 #endif // BIOXASSIDEPERSISTENTVIEW_H

@@ -2,12 +2,6 @@ include ( acquamanCommon.pri )
 
 TARGET = BioXASSideAcquaman
 
-#DEPENDPATH += source/StripTool2/
-#INCLUDEPATH +=  ../testLib
-#LIBS+=  -L../testLib/debug -ltestLib
-
-FORMS +=
-
 HEADERS += \
     source/application/BioXAS/BioXASSideAppController.h \
     source/beamline/BioXAS/BioXASSideBeamline.h \

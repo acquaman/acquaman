@@ -25,6 +25,7 @@ STVariable::STVariable(const QString &name, QObject *parent) :
     QObject(parent)
 {
     index_ = -1;
+    pointsSaved_ = 50;
 
     description_ = "";
     hasDescription_ = false;
@@ -39,14 +40,15 @@ STVariable::STVariable(const QString &name, QObject *parent) :
     pv_ = new AMProcessVariable(name, true, this);
 
     data_ = new AM0DAccumulatorAB("PVData", this);
-    data_->setDataStoredCountMax(50);
-    data_->setInputDataSources(QList<AMDataSource*>() << new AM0DProcessVariableDataSource(pv_, pv_->pvName(), this));
+    data_->setDataStoredCountMax(pointsSaved_);
 
     times_ = new ST0DTimestampAB("Timestamps", this);
-    times_->setDataStoredCountMax(50);
-    times_->setInputDataSources(QList<AMDataSource*>() << new AM0DProcessVariableDataSource(pv_, pv_->pvName(), this));
+    times_->setDataStoredCountMax(pointsSaved_);
 
     timedData_ = new AM1DTimedDataAB("TimedData", this);
+
+    data_->setInputDataSources(QList<AMDataSource*>() << new AM0DProcessVariableDataSource(pv_, pv_->pvName(), this));
+    times_->setInputDataSources(QList<AMDataSource*>() << new AM0DProcessVariableDataSource(pv_, pv_->pvName(), this));
     timedData_->setInputDataSources(QList<AMDataSource*>() << data_ << times_);
 
     seriesData_ = new AMDataSourceSeriesData(timedData_);
@@ -72,6 +74,11 @@ STVariable::~STVariable()
 int STVariable::index() const
 {
     return index_;
+}
+
+int STVariable::pointsSaved() const
+{
+    return pointsSaved_;
 }
 
 QString STVariable::name() const
@@ -153,6 +160,18 @@ void STVariable::setIndex(int newIndex)
     if (index_ != newIndex && newIndex >= 0) {
         index_ = newIndex;
         emit indexChanged(index_);
+    }
+}
+
+void STVariable::setPointsSaved(int newPoints)
+{
+    if (newPoints > 0) {
+        pointsSaved_ = newPoints;
+
+        data_->setDataStoredCountMax(pointsSaved_);
+        times_->setDataStoredCountMax(pointsSaved_);
+
+        emit pointsSavedChanged(pointsSaved_);
     }
 }
 
