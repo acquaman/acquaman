@@ -8,11 +8,14 @@ TARGET = FCApp
 TEMPLATE = app
 
 
-SOURCES +=\ source/FCApp/FCAppMain.cpp \
-    source/FCApp/FCApp.cpp
+SOURCES +=\
+    source/FCApp/FCAppMain.cpp \
+    source/FCApp/FCApp.cpp \
+    source/FCApp/BeamlineShutters.cpp
 
 
 HEADERS  += \
-    source/FCApp/FCApp.h
+    source/FCApp/FCApp.h \
+    source/FCApp/BeamlineShutters.h
 
 

@@ -30,6 +30,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDir>
 
 #include <QDebug>
+#include <unistd.h>
 
 qint64 globalCrashMonitorPID;
 QFile *globalErrorFile;

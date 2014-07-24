@@ -31,6 +31,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <errno.h>
 
 #include "util/AMErrorMonitor.h"
+#include "unistd.h"
 
 AMGenericLinuxJoystick::AMGenericLinuxJoystick(const QString &deviceIdentifier, QObject *parent) :
     AMJoystick(deviceIdentifier, parent)
