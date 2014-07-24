@@ -815,8 +815,8 @@ bool AMDatabase::commitTransaction(int timeoutMs)
 	do {
 		success = qdb().commit();
 		attempt++;
-		if(!success)
-			usleep(5000);
+        //if(!success)
+            //usleep(5000);
 	} while (!success && startTime.elapsed() < timeoutMs);
 
 	qdbMutex_.lock();
@@ -871,8 +871,8 @@ bool AMDatabase::execQuery(QSqlQuery &query, int timeoutMs)
 		success = query.exec();
 		lastErrorNumber = query.lastError().number();
 		attempt++;
-		if(lastErrorNumber == 5)
-			usleep(5000);
+    //		if(lastErrorNumber == 5)
+    //        usleep(5000);
 	} while(success != true && startTime.elapsed() < timeoutMs && (lastErrorNumber == 5));
 
 	if(attempt > 1) {

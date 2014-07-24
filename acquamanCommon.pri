@@ -68,6 +68,9 @@ contains(USERNAME, helfrij){
 		QMAKE_LFLAGS_DEBUG += "-mmacosx-version-min=10.7"
 		QMAKE_LFLAGS_RELEASE += "-mmacosx-version-min=10.7"
 }
+
+
+
 linux-g++ {
 
 		# Where you want to do your acquaman development (as a path from $HOME). You don't need to include leading or trailing slashes.
@@ -80,6 +83,9 @@ linux-g++ {
 		EPICS_INCLUDE_DIRS = $$HOME_FOLDER/$$DEV_PATH/epics/base/include \
 				$$HOME_FOLDER/$$DEV_PATH/epics/base/include/os/Linux
 		EPICS_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/epics/base/lib/linux-x86
+
+
+
 
 		# MPlot Source
 		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/include
@@ -114,6 +120,8 @@ linux-g++ {
 
 		QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$CDF_LIB_DIR"
 		QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$CDF_LIB_DIR"
+
+
 }
 linux-g++-32 {
 
@@ -153,6 +161,9 @@ linux-g++-32 {
 
 				#Eigen
 		EIGEN_INCLUDE_DIR = $$PATH_TO_AM/source/Eigen
+
+
+
 }
 # The following works well for CLS beamline OPI machines, built using VMSL54.cs.clsi.ca
 
@@ -192,6 +203,22 @@ linux-g++-64 {
 
 				#Eigen
 		EIGEN_INCLUDE_DIR = $$PATH_TO_AM/source/Eigen
+
+contains(USERNAME, david){
+
+	       CONFIG -= mobility
+
+		EPICS_INCLUDE_DIRS = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/base/include \
+				$$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/base/include/os/Linux
+		EPICS_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/base/lib/linux-x86_64
+
+		# CDFlib dependencies
+		CDF_LIB_DIR = /home/david/beamline/programming/acquaman/contrib/cdf34_1-dist/lib
+		CDF_LIB = -L$$CDF_LIB_DIR -lcdf
+		CDF_INCLUDE_DIR = /home/david/beamline/programming/acquaman/contrib/cdf34_1-dist/include
+
+
+}
 
 }
 
@@ -247,6 +274,7 @@ LIBS += $$GSL_LIB \
 #		-L$$QWTPLOT3D_LIB_DIR -lqwtplot3d \
 		-L$$EPICS_LIB_DIR -lca -lCom \
 		$$CDF_LIB
+
 
 CONFIG(mobility) {
 		INCLUDEPATH += $$MOBILITY_QT_INCLUDE_DIR
