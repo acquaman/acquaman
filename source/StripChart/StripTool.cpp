@@ -302,7 +302,8 @@ void StripTool::toDeleteListItem(const QModelIndex &listItem)
 
 void StripTool::toAddDerivativeListItem(const QModelIndex &listItem)
 {
-    StripToolVariable *derivVar = createDerivativeFromVariable(model()->findVariable(listItem));
+   /* StripToolVariable *derivVar = Commented out to prevent compiler warnings, see Issue734*/
+	createDerivativeFromVariable(model()->findVariable(listItem));
 //    model()->addVariable(derivVar);
 
 //    qDebug() << "StripTool :: derivative entry added to model.";
