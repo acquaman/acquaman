@@ -23,13 +23,17 @@ public:
 	 */
 	explicit AMDirectorySynchronizer(const QString& side1Directory, const QString& side2Directory, QObject *parent = 0);
 
+	/// @brief Uses the recursive compare to look at the directories, but not do anything. No files are copied and no directories are created, but it gives a good state of affairs for checking before calling start(). Will be called automatically by start().
 	AMRecursiveDirectoryCompare::DirectoryCompareResult prepare();
 
 	/// @brief Starts the process of synchronizing the files in the two directories
 	bool start();
 
 	/// @brief Whether or not the process is currently copying files
-	bool isRunning();
+	bool isRunning() const;
+
+	/// @brief The file that's currently being copied. Empty if there is none.
+	QString currentCopyFile() const;
 
 	/// @brief The first directory
 	QString side1Directory() const { return side1Directory_; }
@@ -76,6 +80,8 @@ signals:
 	void errorMessagesChanged(const QString& value);
 	/// @brief Signal emitted whenever the percentageProgress value changes
 	void percentageProgressChanged(int);
+	/// @brief Signal emitted whenever we're copying a new file
+	void currentCopyFileChanged(const QString &currentCopyFile);
 
 	/// @brief Signal emitted whenever the progress values change. Relays all applicable information
 	void progressChanged(int percentCompleteFile, int remainingFilesToCopy, int totalFilesToCopy);
@@ -95,9 +101,6 @@ protected slots:
 protected:
 	/// @brief Returns the state of the directory compare, whether side1 or side2 is newer, or whether it's in some other state.
 	AMRecursiveDirectoryCompare::DirectoryCompareResult compareDirectories();
-
-	/// @brief Simple validation of path. Ensures it exists, and is a folder, not a file. If it doesn't exist, attempts to create if allowCreation is true.
-//	bool validatePath(const QString &path, bool allowCreation);
 
 	/// @brief Appends to the error message list
 	void appendToErrorMessage(const QString& message);
@@ -144,9 +147,12 @@ protected:
 	int totalFilesToCopy_;
 	/// @brief Whether the process is currently running
 	bool isRunning_;
+	/// @brief The file that's currently being copied. Empty if there is none.
+	QString currentCopyFile_;
 
 	/// @brief The object used to do the comparison between directories
 	AMRecursiveDirectoryCompare *comparator_;
+	/// @brief The result of the last comparison that was done
 	AMRecursiveDirectoryCompare::DirectoryCompareResult comparisonResult_;
 };
 

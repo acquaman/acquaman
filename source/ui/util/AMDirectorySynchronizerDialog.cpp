@@ -38,6 +38,8 @@ AMDirectorySynchronizerDialog::AMDirectorySynchronizerDialog(const QString &side
 	overallTransferProgressBar_->setRange(0, 100);
 	overallTransferLabel_ = new QLabel();
 
+	currentCopyFileLabel_ = new QLabel();
+
 	errorTextEdit_ = new QTextEdit();
 	errorTextEdit_->setReadOnly(true);
 	errorCloseButton_ = new QPushButton("Close");
@@ -80,6 +82,7 @@ AMDirectorySynchronizerDialog::AMDirectorySynchronizerDialog(const QString &side
 	mainLayout->addWidget(mainStatusLabel_);
 
 	mainLayout->addLayout(gridLayout);
+	mainLayout->addWidget(currentCopyFileLabel_);
 
 	mainLayout->addLayout(buttonsHL);
 	mainLayout->addWidget(feedbackStackWidget_);
@@ -98,6 +101,7 @@ AMDirectorySynchronizerDialog::AMDirectorySynchronizerDialog(const QString &side
 	connect(synchronizer_, SIGNAL(errorMessagesChanged(const QString&)), this, SLOT(onSynchronizerErrorTextChanged(const QString&)));
 	connect(synchronizer_, SIGNAL(progressMessagesChanged(QString)), this, SLOT(onSynchronizerProgressTextChanged(QString)));
 	connect(synchronizer_, SIGNAL(progressChanged(int,int,int)), this, SLOT(onProgressChanged(int,int,int)));
+	connect(synchronizer_, SIGNAL(currentCopyFileChanged(QString)), this, SLOT(onCurrentCopyFileChanged(QString)));
 
 	connect(errorCloseButton_, SIGNAL(clicked()), this, SLOT(onCloseButtonClicked()));
 
@@ -227,44 +231,12 @@ void AMDirectorySynchronizerDialog::prepare(){
 		textString.append(QString("Side %1 has been modified.<br><br>").arg(side1DirectoryName_));
 		textString.append(QString("<font color=\"Green\" size=\"5\"><i>Start</i> to copy files from %1 to %2</font><br><br>").arg(side1DirectoryName_).arg(side2DirectoryName_));
 
-//		textString.append("<br>Unique files:<br>");
-//		if(synchronizer_->comparator()->uniqueSide1Files().isEmpty())
-//			textString.append("<None><br>");
-//		for(int x = 0, size = synchronizer_->comparator()->uniqueSide1Files().count(); x < size; x++)
-//			textString.append(QString("%1<br>").arg(synchronizer_->comparator()->uniqueSide1Files().at(x)));
-//		textString.append("<br>Unique directories:<br>");
-//		if(synchronizer_->comparator()->uniqueSide1Directories().isEmpty())
-//			textString.append("<None><br>");
-//		for(int x = 0, size = synchronizer_->comparator()->uniqueSide1Directories().count(); x < size; x++)
-//			textString.append(QString("%1<br>").arg(synchronizer_->comparator()->uniqueSide1Directories().at(x)));
-//		textString.append("<br>Newer files:<br>");
-//		if(synchronizer_->comparator()->newerSide1Files().isEmpty())
-//			textString.append("<None><br>");
-//		for(int x = 0, size = synchronizer_->comparator()->newerSide1Files().count(); x < size; x++)
-//			textString.append(QString("%1<br>").arg(synchronizer_->comparator()->newerSide1Files().at(x)));
-
 		textString.append(side1ModifiedResultsString());
 		fileListingEdit_->setText(textString);
 		break;
 	case AMRecursiveDirectoryCompare::Side2ModifiedResult:
 		textString.append(QString("Side %1 has been modified.<br><br>").arg(side2DirectoryName_));
 		textString.append(QString("<font color=\"Green\" size=\"5\"><i>Start</i> to copy files from %1 to %2</font><br><br>").arg(side2DirectoryName_).arg(side1DirectoryName_));
-
-//		textString.append("<br>Unique files:<br>");
-//		if(synchronizer_->comparator()->uniqueSide2Files().isEmpty())
-//			textString.append("<None><br>");
-//		for(int x = 0, size = synchronizer_->comparator()->uniqueSide2Files().count(); x < size; x++)
-//			textString.append(QString("%1<br>").arg(synchronizer_->comparator()->uniqueSide2Files().at(x)));
-//		textString.append("<br>Unique directories:<br>");
-//		if(synchronizer_->comparator()->uniqueSide2Directories().isEmpty())
-//			textString.append("<None><br>");
-//		for(int x = 0, size = synchronizer_->comparator()->uniqueSide2Directories().count(); x < size; x++)
-//			textString.append(QString("%1<br>").arg(synchronizer_->comparator()->uniqueSide2Directories().at(x)));
-//		textString.append("<br>Newer files:<br>");
-//		if(synchronizer_->comparator()->newerSide2Files().isEmpty())
-//			textString.append("<None><br>");
-//		for(int x = 0, size = synchronizer_->comparator()->newerSide2Files().count(); x < size; x++)
-//			textString.append(QString("%1<br>").arg(synchronizer_->comparator()->newerSide2Files().at(x)));
 
 		textString.append(side2ModifiedResultsString());
 		fileListingEdit_->setText(textString);
@@ -469,6 +441,13 @@ void AMDirectorySynchronizerDialog::onProgressChanged(int percentCompleteFile, i
 	singleFileLabel_->setText(QString("%1%").arg(percentCompleteFile));
 	overallTransferProgressBar_->setValue(totalFilesToCopy-remainingFilesToCopy);
 	overallTransferLabel_->setText(QString("%1 of %2").arg(totalFilesToCopy-remainingFilesToCopy).arg(totalFilesToCopy));
+}
+
+void AMDirectorySynchronizerDialog::onCurrentCopyFileChanged(const QString &currentCopyFile){
+	if(currentCopyFile.isEmpty())
+		currentCopyFileLabel_->setText("");
+	else
+		currentCopyFileLabel_->setText(QString("Copying: %1").arg(currentCopyFile));
 }
 
 void AMDirectorySynchronizerDialog::onCloseButtonClicked()

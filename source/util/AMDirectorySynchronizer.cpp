@@ -76,78 +76,6 @@ AMRecursiveDirectoryCompare::DirectoryCompareResult AMDirectorySynchronizer::pre
 
 bool AMDirectorySynchronizer::start()
 {
-	/*
-	errorMessages_.clear();
-	progressMessages_.clear();
-
-	if(isRunning_){
-		appendToErrorMessage(QString("Process is already running"));
-		return false;
-	}
-
-	AMRecursiveDirectoryCompare::DirectoryCompareResult result = compareDirectories();
-
-	qDebug() << "Compare result is " << result;
-
-	if(result == AMRecursiveDirectoryCompare::NeitherSideExistsResult){
-		appendToErrorMessage(QString("Neither the %1 (%2) nor the %3 (%4) exist, cannot proceed.").arg(side1DirectoryName_).arg(side1Directory_).arg(side2DirectoryName_).arg(side2Directory_));
-		return false;
-	}
-	else if(result == AMRecursiveDirectoryCompare::Side1DoesNotExistResult){
-		if(!allowSide1Creation()){
-			appendToErrorMessage(QString("Side %1 (%2) does not exist and creation is not allowed, cannot proceed.").arg(side1DirectoryName_).arg(side1Directory_));
-			return false;
-		}
-		QDir().mkdir(side1Directory_);
-		if(!QFile::exists(side1Directory_)){
-			appendToErrorMessage(QString("Side %1 (%2) does not exist and an attempt at creation failed, cannot proceed.").arg(side1DirectoryName_).arg(side1Directory_));
-			return false;
-		}
-	}
-	else if(result == AMRecursiveDirectoryCompare::Side2DoesNotExistResult){
-		if(!allowSide2Creation()){
-			appendToErrorMessage(QString("Side %1 (%2) does not exist and creation is not allowed, cannot proceed.").arg(side2DirectoryName_).arg(side2Directory_));
-			return false;
-		}
-		QDir().mkdir(side2Directory_);
-		if(!QFile::exists(side2Directory_)){
-			appendToErrorMessage(QString("Side %1 (%2) does not exist and an attempt at creation failed, cannot proceed.").arg(side2DirectoryName_).arg(side2Directory_));
-			return false;
-		}
-	}
-	else if(result == AMRecursiveDirectoryCompare::BothSidesAreFiles){
-		appendToErrorMessage(QString("Both the %1 (%2) and the %3 (%4) exist but are files, cannot proceed.").arg(side1DirectoryName_).arg(side1Directory_).arg(side2DirectoryName_).arg(side2Directory_));
-		return false;
-	}
-	else if(result == AMRecursiveDirectoryCompare::Side1IsFile){
-		appendToErrorMessage(QString("Side %1 (%2) exists but is a file, cannot proceed.").arg(side1DirectoryName_).arg(side1Directory_));
-		return false;
-	}
-	else if(result == AMRecursiveDirectoryCompare::Side2IsFile){
-		appendToErrorMessage(QString("Side %1 (%2) exists but is a file, cannot proceed.").arg(side2DirectoryName_).arg(side2Directory_));
-		return false;
-	}
-	else if(result == AMRecursiveDirectoryCompare::UnableToDetermineResult){
-		appendToErrorMessage(QString("Unable to determine which directory contains the newest version."));
-		return false;
-	}
-	else if(result == AMRecursiveDirectoryCompare::InvalidResult){
-		appendToErrorMessage(QString("Unknown error has occured in AMDirectorySynchronizer"));
-		return false;
-	}
-	else if(result == AMRecursiveDirectoryCompare::BothSidesModifiedResult){
-		appendToErrorMessage(QString("Contents of %1 and %2 have both changed, cannot proceed").arg(side1Directory_).arg(side2Directory_));
-		return false;
-	}
-	else if(result == AMRecursiveDirectoryCompare::FullyMatchingResult){
-		appendToProgressMessage(QString("Contents of %1 and %2 are the same, no copying necessary.").arg(side1Directory_).arg(side2Directory_));
-		percentProgress_ = 100;
-		emit percentageProgressChanged(100);
-		QTimer::singleShot(1000, this, SIGNAL(copyCompleted()));
-		return true;
-	}
-	*/
-
 	AMRecursiveDirectoryCompare::DirectoryCompareResult result = prepare();
 
 	switch(result){
@@ -220,9 +148,12 @@ bool AMDirectorySynchronizer::start()
 	return false;
 }
 
-bool AMDirectorySynchronizer::isRunning()
-{
+bool AMDirectorySynchronizer::isRunning() const{
 	return isRunning_;
+}
+
+QString AMDirectorySynchronizer::currentCopyFile() const{
+	return currentCopyFile_;
 }
 
 void AMDirectorySynchronizer::setAllowSide1Creation(bool allowSide1Creation){
@@ -245,7 +176,6 @@ AMRecursiveDirectoryCompare::DirectoryCompareResult AMDirectorySynchronizer::com
 {
 	QStringList excludedPatterns;
 	excludedPatterns << "*.db.bk.*";
-	//AMRecursiveDirectoryCompare compare(side1Directory_, side2Directory_, excludedPatterns, side1DirectoryName_, side2DirectoryName_);
 	if(comparator_){
 		delete comparator_;
 		comparator_ = 0; //NULL
@@ -254,34 +184,6 @@ AMRecursiveDirectoryCompare::DirectoryCompareResult AMDirectorySynchronizer::com
 
 	return comparator_->compare();
 }
-
-//bool AMDirectorySynchronizer::validatePath(const QString &path, bool allowCreation)
-//{
-
-//	if(!QFile::exists(path)){
-//		// Doesn't exit and allowed to , create:
-//		if(allowCreation)
-//			QDir().mkdir(path);
-
-//		// Check if has been created properly
-//		if(!QFile::exists(path)){
-//			appendToErrorMessage(QString("Error: Path %1 does not exist, and could not be created").arg(path));
-//			return false;
-//		}
-
-//		return true;
-//	}
-
-//	// 'File' exists, but is it a directory, or a file
-//	QFileInfo pathInfo(path);
-//	if(pathInfo.isFile()){
-//		appendToErrorMessage(QString("Error: Path %1 exists, but refers to a file, not a directory").arg(path));
-//		return false;
-//	}
-
-//	return true;
-
-//}
 
 void AMDirectorySynchronizer::appendToErrorMessage(const QString &message)
 {
@@ -297,6 +199,8 @@ void AMDirectorySynchronizer::appendToProgressMessage(const QString &message)
 
 void AMDirectorySynchronizer::parseProgressInput(const QString &input)
 {
+	QRegExp matchesDatabaseFile("*.db", Qt::CaseSensitive, QRegExp::Wildcard);
+	QRegExp matchesFilePath("*/*.*", Qt::CaseSensitive, QRegExp::Wildcard);
 
 	QString simplifiedInput = input.simplified();
 
@@ -323,11 +227,25 @@ void AMDirectorySynchronizer::parseProgressInput(const QString &input)
 						totalFilesToCopy_ = total;
 					}
 				}
+				else if(matchesDatabaseFile.indexIn(separatedInput.at(x)) != -1 || matchesFilePath.indexIn(separatedInput.at(x)) != -1){
+					if(currentCopyFile_ != separatedInput.at(x)){
+						currentCopyFile_ = separatedInput.at(x);
+						emit currentCopyFileChanged(currentCopyFile_);
+					}
+				}
 			}
 
 			percentProgress_ = valueConvert;
 			emit percentageProgressChanged(percentProgress_);
 			emit progressChanged(percentProgress_, remainingFilesToCopy_, totalFilesToCopy_);
+		}
+	}
+	else if(separatedInput.count() == 1){
+		if(matchesDatabaseFile.indexIn(separatedInput.at(0)) != -1 || matchesFilePath.indexIn(separatedInput.at(0)) != -1){
+			if(currentCopyFile_ != separatedInput.at(0)){
+				currentCopyFile_ = separatedInput.at(0);
+				emit currentCopyFileChanged(currentCopyFile_);
+			}
 		}
 	}
 }

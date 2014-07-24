@@ -45,6 +45,7 @@ protected slots:
 	void onSynchronizerFailed();
 
 	void onProgressChanged(int percentCompleteFile, int remainingFilesToCopy, int totalFilesToCopy);
+	void onCurrentCopyFileChanged(const QString &currentCopyFile);
 
 	void onCloseButtonClicked();
 
@@ -70,6 +71,7 @@ protected:
 	QLabel *singleFileLabel_;
 	QProgressBar *overallTransferProgressBar_;
 	QLabel *overallTransferLabel_;
+	QLabel *currentCopyFileLabel_;
 
 	QTextEdit *errorTextEdit_;
 	QPushButton *errorCloseButton_;
