@@ -484,72 +484,72 @@ void VESPERSSpatialLineScanConfigurationView::onSetEndPosition()
 {
 	double position = 0;
 	double otherPosition = 0;
-	double n = 0;
+	/* double n = 0; Commented out to prevent compiler warnings, see Issue734 */
 
 	switch(int(configuration_->motor())){
 
 	case VESPERS::H:
 		position = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->horizontalControl()->value();
 		otherPosition = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->verticalControl()->value();
-		n = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->normalControl()->value();
+		 /* n = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->normalControl()->value(); Commented out to prevent compiler warnings, see Issue734 */
 		break;
 
 	case VESPERS::X:
 		position = VESPERSBeamline::vespers()->sampleStageX()->value();
 		otherPosition = VESPERSBeamline::vespers()->sampleStageZ()->value();
-		n = VESPERSBeamline::vespers()->sampleStageY()->value();
+		/* n = VESPERSBeamline::vespers()->sampleStageY()->value(); Commented out to prevent compiler warnings, see Issue734 */
 		break;
 
 	case VESPERS::V:
 		position = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->verticalControl()->value();
 		otherPosition = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->horizontalControl()->value();
-		n = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->normalControl()->value();
+		/* n = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->normalControl()->value();Commented out to prevent compiler warnings, see Issue734 */
 		break;
 
 	case VESPERS::Z:
 		position = VESPERSBeamline::vespers()->sampleStageZ()->value();
 		otherPosition = VESPERSBeamline::vespers()->sampleStageX()->value();
-		n = VESPERSBeamline::vespers()->sampleStageY()->value();
+		/* n = VESPERSBeamline::vespers()->sampleStageY()->value(); Commented out to prevent compiler warnings, see Issue734 */
 		break;
 
 	case VESPERS::AttoH:
 		position = VESPERSBeamline::vespers()->pseudoAttocubeStageMotorGroupObject()->horizontalControl()->value();
 		otherPosition = VESPERSBeamline::vespers()->pseudoAttocubeStageMotorGroupObject()->verticalControl()->value();
-		n = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->normalControl()->value();  // focusing isn't done with attocube motors.
+		/* n = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->normalControl()->value();  // focusing isn't done with attocube motors. Commented out to prevent compiler warnings, see Issue734 */
 		break;
 
 	case VESPERS::AttoV:
 		position = VESPERSBeamline::vespers()->pseudoAttocubeStageMotorGroupObject()->verticalControl()->value();
 		otherPosition = VESPERSBeamline::vespers()->pseudoAttocubeStageMotorGroupObject()->horizontalControl()->value();
-		n = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->normalControl()->value();  // focusing isn't done with attocube motors.
+		/* n = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->normalControl()->value();  // focusing isn't done with attocube motors. Commented out to prevent compiler warnings, see Issue734 */
 		break;
 
 	case VESPERS::AttoX:
 		position = VESPERSBeamline::vespers()->realAttocubeStageMotorGroupObject()->horizontalControl()->value();
-		n = VESPERSBeamline::vespers()->sampleStageY()->value();
+		/* n = VESPERSBeamline::vespers()->sampleStageY()->value(); Commented out to prevent compiler warnings, see Issue734 */
 		break;
 
 	case VESPERS::AttoZ:
 		position = VESPERSBeamline::vespers()->realAttocubeStageMotorGroupObject()->verticalControl()->value();
-		n = VESPERSBeamline::vespers()->sampleStageY()->value();
+		/* n = VESPERSBeamline::vespers()->sampleStageY()->value();Commented out to prevent compiler warnings, see Issue734 */
 		break;
 
 	case VESPERS::AttoRz:
 		position = VESPERSBeamline::vespers()->attoStageRz()->value();
 		otherPosition = -123456789.0;
-		n = 888888.88;
+		/* n = 888888.88; Commented out to prevent compiler warnings, see Issue734 */
 		break;
 
 	case VESPERS::AttoRy:
 		position = VESPERSBeamline::vespers()->attoStageRy()->value();
 		otherPosition = -123456789.0;
-		n = 888888.88;
+		/* n = 888888.88; Commented out to prevent compiler warnings, see Issue734 */
 		break;
 
 	case VESPERS::AttoRx:
 		position = VESPERSBeamline::vespers()->attoStageRx()->value();
 		otherPosition = -123456789.0;
-		n = 888888.88;
+		/* n = 888888.88; Commented out to prevent compiler warnings, see Issue734 */
 		break;
 	}
 
