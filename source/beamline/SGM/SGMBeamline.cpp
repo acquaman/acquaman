@@ -942,10 +942,12 @@ void SGMBeamline::onAllDetectorGroupDetectorBecameUnconnected(AMDetector *detect
 }
 
 void SGMBeamline::onActiveEndstationChanged(double value){
+	(void)value;
 	emit currentEndstationChanged((SGMBeamlineInfo::sgmEndstation)value);
 }
 
 void SGMBeamline::onMirrorStripeChanged(double value){
+	(void)value;
 	emit currentMirrorStripeChanged((SGMBeamlineInfo::sgmMirrorStripe)value);
 }
 
