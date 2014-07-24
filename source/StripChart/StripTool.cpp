@@ -128,6 +128,7 @@ void StripTool::setAppDirectory(const QDir &newDir)
 
 StripToolVariable* StripTool::createDerivativeFromVariable(StripToolVariable *variable)
 {
+	Q_UNUSED(variable)
 //    qDebug() << "StripTool :: creating derivative entry from variable : " << variable->info()->name();
 
 //    AMDataSource *baseSource = variable->info()->dataSource();
