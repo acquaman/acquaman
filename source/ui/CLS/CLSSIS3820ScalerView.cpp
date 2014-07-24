@@ -259,13 +259,19 @@ void CLSSIS3820ScalerView::onOutputViewModeChanged(CLSSIS3820ScalerChannelView::
 void CLSSIS3820ScalerView::setAmplifierViewPrecision(int newPrecision)
 {
 	foreach (CLSSIS3820ScalerChannelView *view, channelViews_)
-		view->setAmplifierViewPrecision(newPrecision);
+	{
+		if(view->hasAmplifierView())
+			view->setAmplifierViewPrecision(newPrecision);
+	}
 }
 
 void CLSSIS3820ScalerView::setAmplifierViewFormat(char newFormat)
 {
 	foreach (CLSSIS3820ScalerChannelView *view, channelViews_)
-		view->setAmplifierViewFormat(newFormat);
+	{
+		if(view->hasAmplifierView())
+			view->setAmplifierViewFormat(newFormat);
+	}
 }
 
 // CLSSIS3820ScalerChannelView
@@ -329,6 +335,11 @@ CLSSIS3820ScalerChannelView::CLSSIS3820ScalerChannelView(CLSSIS3820ScalerChannel
 }
 
 CLSSIS3820ScalerChannelView::~CLSSIS3820ScalerChannelView(){}
+
+bool CLSSIS3820ScalerChannelView::hasAmplifierView() const
+{
+	return amplifierView_ != 0;
+}
 
 void CLSSIS3820ScalerChannelView::onReadingChanged()
 {
@@ -436,10 +447,12 @@ void CLSSIS3820ScalerChannelView::onNewCurrentAmplifierAttached()
 
 void CLSSIS3820ScalerChannelView::setAmplifierViewPrecision(int newPrecision)
 {
-	amplifierView_->setPrecision(newPrecision);
+	if(amplifierView_)
+		amplifierView_->setPrecision(newPrecision);
 }
 
 void CLSSIS3820ScalerChannelView::setAmplifierViewFormat(char newFormat)
 {
-	amplifierView_->setFormat(newFormat);
+	if(amplifierView_)
+		amplifierView_->setFormat(newFormat);
 }
