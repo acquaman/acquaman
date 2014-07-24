@@ -842,6 +842,7 @@ void REIXSMovingMedianFitter::setSmoothMode(int smoothMode)
 }
 QVector<int> REIXSMovingMedianFitter::smooth(const QVector<int> &input, const QVector<double> &weights)
 {
+	Q_UNUSED(weights)
 	if(input.isEmpty())
 		return QVector<int>();
 
