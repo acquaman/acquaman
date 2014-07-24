@@ -29,8 +29,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSKeithley428.h"
 #include "ui/beamline/AMCurrentAmplifierSingleView.h"
 
+#include "StripTool2/source/StripTool2/STWidget.h"
+
 class AMExtendedControlEditor;
-class STWidget;
 
 class BioXASSidePersistentView : public QWidget
 {

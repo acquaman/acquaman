@@ -58,6 +58,7 @@ public:
     /// Returns the description set for this variable, empty string if none are given.
     QString description() const;
     bool hasDescription() const;
+    bool showDescription() const;
 
     /// Returns the units set for this variable, empty string if none are given.
     QString units() const;
@@ -65,6 +66,9 @@ public:
 
     /// Returns the color for this variable, red by default.
     QColor color() const;
+
+    /// Returns the line thickness for this variable, 2 by default.
+    int lineThickness() const;
 
     /// Returns this variable's creation datetime.
     QDateTime created() const;
@@ -93,10 +97,14 @@ signals:
     void pointsSavedChanged(int newPoints);
     /// Emitted when the description changes.
     void descriptionChanged(const QString &newDescription);
+    /// Emitted when whether the description appears on the plot is changed.
+    void showDescriptionChanged(bool showDescription);
     /// Emitted when the units change.
     void unitsChanged(const QString &newUnits);
     /// Emitted when the color changes.
     void colorChanged(QColor newColor);
+    /// Emitted when the line thickness changes.
+    void lineThicknessChanged(int newThickness);
     /// Emitted when the variable's value has changed.
     void valueChanged(double newValue);
     /// Emitted when the process variable is connected.
@@ -111,10 +119,14 @@ public slots:
     void setPointsSaved(int newPoints);
     /// Sets the description for this variable.
     void setDescription(const QString &newDescription);
+    /// Sets whether the description will appear on the plot.
+    void setShowDescription(bool showDescription);
     /// Sets the units for this variable.
     void setUnits(const QString &units);
     /// Sets the series color for this variable.
     void setColor(const QColor &newColor);
+    /// Sets the series line thickness for this variable.
+    void setLineThickness(int newThickness);
     /// Sets the number of data points and time points that are saved in total.
     void setDataBufferSize(int bufferSize);
     /// Sets the time window to be displayed, relative to now.
@@ -123,7 +135,7 @@ public slots:
 
     void setTimeFilteringEnabled(bool isEnabled);
 
-    void enableMarkers(bool isEnabled);
+    void enableMarkers(bool newState);
 
 protected slots:
 
@@ -141,14 +153,9 @@ protected:
 
     /// The variable's description.
     QString description_;
-    bool hasDescription_;
 
     /// The variable's units.
     QString units_;
-    bool hasUnits_;
-
-    /// The series color.
-    QColor color_;
 
     /// The process variable that this class listens to for value updates.
     AMProcessVariable *pv_;
@@ -162,8 +169,6 @@ protected:
 
     AMDataSourceSeriesData *seriesData_;
     MPlotSeriesBasic *series_;
-
-    bool showMarkers_;
 
 };
 

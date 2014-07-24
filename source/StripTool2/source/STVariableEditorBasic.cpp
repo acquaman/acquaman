@@ -24,39 +24,43 @@ STVariableEditorBasic::STVariableEditorBasic(STVariable *toEdit, QWidget *parent
     mainLayout->addWidget(descriptionLabel, 1, 0);
     mainLayout->addWidget(descriptionEntry_, 1, 1);
 
+    showDescription_ = new QCheckBox("Show description", this);
+    mainLayout->addWidget(showDescription_, 2, 1);
+
     QLabel *creationLabel = new QLabel("Created: ", this);
     creation_ = new QLabel(this);
     creationLabel->setBuddy(creation_);
-    mainLayout->addWidget(creationLabel, 2, 0);
-    mainLayout->addWidget(creation_, 2, 1);
+    mainLayout->addWidget(creationLabel, 3, 0);
+    mainLayout->addWidget(creation_, 3, 1);
 
     QLabel *connectedLabel = new QLabel("Connected: ", this);
     connected_ = new QLabel(this);
     connectedLabel->setBuddy(connected_);
-    mainLayout->addWidget(connectedLabel, 3, 0);
-    mainLayout->addWidget(connected_, 3, 1);
+    mainLayout->addWidget(connectedLabel, 4, 0);
+    mainLayout->addWidget(connected_, 4, 1);
 
     QLabel *valueLabel = new QLabel("Latest value: ", this);
     value_ = new QLabel(this);
     valueLabel->setBuddy(value_);
-    mainLayout->addWidget(valueLabel, 4, 0);
-    mainLayout->addWidget(value_, 4, 1);
+    mainLayout->addWidget(valueLabel, 5, 0);
+    mainLayout->addWidget(value_, 5, 1);
 
     QLabel *unitsLabel = new QLabel("Units: ", this);
     unitsEntry_ = new QLineEdit(this);
     unitsLabel->setBuddy(unitsEntry_);
-    mainLayout->addWidget(unitsLabel, 5, 0);
-    mainLayout->addWidget(unitsEntry_, 5, 1);
+    mainLayout->addWidget(unitsLabel, 6, 0);
+    mainLayout->addWidget(unitsEntry_, 6, 1);
 
     removeButton_ = new QPushButton("Remove", this);
     removeButton_->setEnabled(false);
-    mainLayout->addWidget(removeButton_, 6, 1);
+    mainLayout->addWidget(removeButton_, 7, 1);
 
     setLayout(mainLayout);
 
     // Get current settings.
 
     descriptionEntry_->setEnabled(false);
+    showDescription_->setEnabled(false);
     unitsEntry_->setEnabled(false);
     removeButton_->setEnabled(false);
 
@@ -79,6 +83,11 @@ void STVariableEditorBasic::applyChanges()
         if (descriptionEdited_) {
             variable_->setDescription(descriptionEntry_->text());
             descriptionEdited_ = false;
+        }
+
+        if (showDescriptionEdited_) {
+            variable_->setShowDescription(showDescription_->checkState() == Qt::Checked);
+            showDescriptionEdited_ = false;
         }
 
         if (unitsEdited_) {
@@ -109,6 +118,12 @@ void STVariableEditorBasic::onDescriptionEntryChanged(const QString &text)
     applyChanges();
 }
 
+void STVariableEditorBasic::onShowDescriptionChanged()
+{
+    showDescriptionEdited_ = true;
+    applyChanges();
+}
+
 void STVariableEditorBasic::onUnitsEntryChanged(const QString &text)
 {
     Q_UNUSED(text)
@@ -124,6 +139,9 @@ void STVariableEditorBasic::getVariableInfo()
 
         descriptionEntry_->setEnabled(true);
         descriptionEntry_->setText(variable_->description());
+
+        showDescription_->setEnabled(true);
+        showDescription_->setChecked(variable_->showDescription());
 
         creation_->setText(variable_->created().toString());
 
@@ -145,6 +163,9 @@ void STVariableEditorBasic::clearVariableInfo()
     descriptionEntry_->clear();
     descriptionEntry_->setEnabled(false);
 
+    showDescription_->setChecked(false);
+    showDescription_->setEnabled(false);
+
     creation_->clear();
 
     connected_->clear();
@@ -157,6 +178,7 @@ void STVariableEditorBasic::clearVariableInfo()
     removeButton_->setEnabled(false);
 
     descriptionEdited_ = false;
+    showDescriptionEdited_ = false;
     unitsEdited_ = false;
 }
 
@@ -179,6 +201,7 @@ void STVariableEditorBasic::disconnectVariable()
 void STVariableEditorBasic::connectUI()
 {
     connect( descriptionEntry_, SIGNAL(textChanged(QString)), this, SLOT(onDescriptionEntryChanged(QString)) );
+    connect( showDescription_, SIGNAL(clicked()), this, SLOT(onShowDescriptionChanged()) );
     connect( unitsEntry_, SIGNAL(textChanged(QString)), this, SLOT(onUnitsEntryChanged(QString)) );
     connect( removeButton_, SIGNAL(clicked()), this, SIGNAL(removeButtonClicked()) );
 }
@@ -186,6 +209,7 @@ void STVariableEditorBasic::connectUI()
 void STVariableEditorBasic::disconnectUI()
 {
     disconnect( descriptionEntry_, SIGNAL(textChanged(QString)), this, SLOT(onDescriptionEntryChanged(QString)) );
+    disconnect( showDescription_, SIGNAL(clicked()), this, SLOT(onShowDescriptionChanged()) );
     disconnect( unitsEntry_, SIGNAL(textChanged(QString)), this, SLOT(onUnitsEntryChanged(QString)) );
     disconnect( removeButton_, SIGNAL(clicked()), this, SIGNAL(removeButtonClicked()) );
 }

@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QCheckBox>
+#include <QSpinBox>
 #include <QLayout>
 #include <QLabel>
 
@@ -26,6 +27,7 @@ public slots:
 
 protected slots:
     void onColorButtonClicked();
+    void onLineThicknessChanged();
     void onShowMarkersChanged();
 
 protected:
@@ -38,9 +40,11 @@ protected:
 
 protected:
     STColorButton *colorButton_;
+    QSpinBox *lineThickness_;
     QCheckBox *showMarkers_;
 
     bool colorEdited_;
+    bool lineThicknessEdited_;
     bool showMarkersEdited_;
 };
 

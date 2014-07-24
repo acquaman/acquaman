@@ -2,7 +2,6 @@
 #define STVARIABLECOLLECTIONEDITOR_H
 
 #include <QWidget>
-#include <QFrame>
 #include <QPushButton>
 
 #include "STVariableCollection.h"

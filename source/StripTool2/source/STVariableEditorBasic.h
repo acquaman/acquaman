@@ -7,6 +7,7 @@
 #include <QPushButton>
 #include <QLineEdit>
 #include <QSpinBox>
+#include <QCheckBox>
 
 #include "STEditor.h"
 #include "STVariableEditor.h"
@@ -31,6 +32,7 @@ protected slots:
     void setLatestValue(double newValue);
 
     void onDescriptionEntryChanged(const QString &text);
+    void onShowDescriptionChanged();
     void onUnitsEntryChanged(const QString &text);
 
 protected:
@@ -44,6 +46,7 @@ protected:
 protected:
     QLabel *name_;
     QLineEdit *descriptionEntry_;
+    QCheckBox *showDescription_;
     QLabel *creation_;
     QLabel *connected_;
     QLabel *value_;
@@ -51,6 +54,7 @@ protected:
     QPushButton *removeButton_;
 
     bool descriptionEdited_;
+    bool showDescriptionEdited_;
     bool unitsEdited_;
 };
 

@@ -269,9 +269,6 @@ contains(USERNAME, helfrij){
 
 	QMAKE_LFLAGS_DEBUG += "-mmacosx-version-min=10.7"
 	QMAKE_LFLAGS_RELEASE += "-mmacosx-version-min=10.7"
-
-	#QMAKE_LFLAGS_DEBUG += "-mmacosx-version-min=10.7"
-	#QMAKE_LFLAGS_RELEASE += "-mmacosx-version-min=10.7"
 }
 
 contains(USERNAME, chevrid){
@@ -765,24 +762,24 @@ HEADERS += source/acquaman/AMRegion.h \
 	source/ui/util/AMAboutDialog.h \
 	source/beamline/AM1DControlDetectorEmulator.h \
 	source/ui/actions3/AMActionRunnerCurrentViewBase.h \
-	source/StripTool2/ST0DTimestampAB.h \
-	source/StripTool2/STColorButton.h \
-	source/StripTool2/STEditor.h \
-	source/StripTool2/STEditorDialog.h \
-	source/StripTool2/STListView.h \
-	source/StripTool2/STPlotEditor.h \
-	source/StripTool2/STPlotSelectorTool.h \
-	source/StripTool2/STPlotWidget.h \
-	source/StripTool2/STTime.h \
-	source/StripTool2/STVariable.h \
-	source/StripTool2/STVariableCollection.h \
-	source/StripTool2/STVariableCollectionEditor.h \
-	source/StripTool2/STVariableEditor.h \
-	source/StripTool2/STWidget.h \
-    source/StripTool2/STVariableEditorPlot.h \
-    source/StripTool2/STVariableEditorBasic.h \
-    source/StripTool2/STVariableEditors.h \
-    source/StripTool2/STVariableEditorAdvanced.h
+	source/StripTool2/source/STWidget.h \
+	source/StripTool2/source/STPlotEditor.h \
+	source/StripTool2/source/STPlotWidget.h \
+	source/StripTool2/source/STVariable.h \
+	source/StripTool2/source/STVariableEditor.h \
+	source/StripTool2/source/STVariableCollection.h \
+	source/StripTool2/source/STVariableCollectionEditor.h \
+	source/StripTool2/source/STEditorDialog.h \
+	source/StripTool2/source/STEditor.h \
+	source/StripTool2/source/STTime.h \
+	source/StripTool2/source/STListView.h \
+	source/StripTool2/source/STColorButton.h \
+	source/StripTool2/source/STPlotSelectorTool.h \
+	source/StripTool2/source/ST0DTimestampAB.h \
+	source/StripTool2/source/STVariableEditorAdvanced.h \
+	source/StripTool2/source/STVariableEditorBasic.h \
+	source/StripTool2/source/STVariableEditorPlot.h \
+	source/StripTool2/source/STVariableEditors.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1268,24 +1265,24 @@ SOURCES += source/acquaman/AMRegion.cpp \
 	source/ui/util/AMAboutDialog.cpp \
 	source/beamline/AM1DControlDetectorEmulator.cpp \
 	source/ui/actions3/AMActionRunnerCurrentViewBase.cpp \
-	source/StripTool2/ST0DTimestampAB.cpp \
-	source/StripTool2/STColorButton.cpp \
-	source/StripTool2/STEditor.cpp \
-	source/StripTool2/STEditorDialog.cpp \
-	source/StripTool2/STListView.cpp \
-	source/StripTool2/STPlotEditor.cpp \
-	source/StripTool2/STPlotSelectorTool.cpp \
-	source/StripTool2/STPlotWidget.cpp \
-	source/StripTool2/STTime.cpp \
-	source/StripTool2/STVariable.cpp \
-	source/StripTool2/STVariableCollection.cpp \
-	source/StripTool2/STVariableCollectionEditor.cpp \
-	source/StripTool2/STVariableEditor.cpp \
-	source/StripTool2/STWidget.cpp \
-    source/StripTool2/STVariableEditorPlot.cpp \
-    source/StripTool2/STVariableEditorBasic.cpp \
-    source/StripTool2/STVariableEditors.cpp \
-    source/StripTool2/STVariableEditorAdvanced.cpp
+	source/StripTool2/source/STWidget.cpp \
+	source/StripTool2/source/STPlotEditor.cpp \
+	source/StripTool2/source/STPlotWidget.cpp \
+	source/StripTool2/source/STVariable.cpp \
+	source/StripTool2/source/STVariableEditor.cpp \
+	source/StripTool2/source/STVariableCollection.cpp \
+	source/StripTool2/source/STVariableCollectionEditor.cpp \
+	source/StripTool2/source/STEditorDialog.cpp \
+	source/StripTool2/source/STEditor.cpp \
+	source/StripTool2/source/STTime.cpp \
+	source/StripTool2/source/STListView.cpp \
+	source/StripTool2/source/STColorButton.cpp \
+	source/StripTool2/source/STPlotSelectorTool.cpp \
+	source/StripTool2/source/ST0DTimestampAB.cpp \
+	source/StripTool2/source/STVariableEditorAdvanced.cpp \
+	source/StripTool2/source/STVariableEditorBasic.cpp \
+	source/StripTool2/source/STVariableEditorPlot.cpp \
+	source/StripTool2/source/STVariableEditors.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {

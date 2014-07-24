@@ -1,4 +1,5 @@
 include ( acquamanCommon.pri )
+include ( source/StripTool2/StripTool2_lib.pro )
 
 TARGET = BioXASSideAcquaman
 

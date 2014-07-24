@@ -19,8 +19,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#include "STWidget.h"
 #include <QApplication>
+
+#include "source/STWidget.h"
 
 int main(int argc, char *argv[])
 {
