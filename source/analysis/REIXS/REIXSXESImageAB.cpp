@@ -895,7 +895,7 @@ void REIXSMovingAverageFitter::setSmoothMode(int smoothMode)
 }
 QVector<int> REIXSMovingAverageFitter::smooth(const QVector<int> &input, const QVector<double> &weights)
 {
-
+	Q_UNUSED(weights)
 	if(input.isEmpty())
 		return QVector<int>();
 
