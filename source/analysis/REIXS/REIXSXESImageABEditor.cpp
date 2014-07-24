@@ -706,7 +706,7 @@ qreal REIXSXESImageABEditorEllipticalMask::y(unsigned index) const
 		qreal i = (qreal)index;
 
 		//done to here
-		if(index == 0 || index == (int)dx || index == 2*(int)dx) {
+		if(index == 0 || index == (unsigned)dx || index == 2*(unsigned)dx) {
 			return (qreal)analysisBlock_->sumRangeMinY() + dy/2.0;
 		}
 		else if(i < D * dx/2.0) {
