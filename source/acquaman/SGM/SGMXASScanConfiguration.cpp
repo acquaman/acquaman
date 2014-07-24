@@ -129,6 +129,8 @@ QString SGMXASScanConfiguration::detailedDescription() const{
 		if(fluxResolutionGroup_.at(x).name() == SGMBeamline::sgm()->harmonic()->name())
 			harmonic = fluxResolutionGroup_.at(x).value();
 	}
+	(void)grating; /* Added to supress erroneous compiler warnings, see Issue734 */
+	(void)harmonic; /* Added to supress erroneous compiler warnings, see Issue734 */
 	return QString("XAS Scan from %1 to %2\nExit Slit: %3\nGrating: %4\nHarmonic: %5").arg(regionStart(0)).arg(regionEnd(regionCount()-1)).arg(exitSlit, 0, 'f', 1).arg(SGMBeamlineInfo::sgmInfo()->sgmGratingDescription(SGMBeamlineInfo::sgmGrating(grating))).arg(SGMBeamlineInfo::sgmInfo()->sgmHarmonicDescription(SGMBeamlineInfo::sgmHarmonic(harmonic)));
 }
 
