@@ -115,12 +115,34 @@ bool AMDbUpgrade1Pt5::upgradeImplementation()
 
 			bool areEXAFSRegions = regions.first().toString().contains("exafsVersion1.0");
 
-			int scanAxisId = databaseToUpgrade_->insertOrUpdate(0,
-																"AMScanAxis_table",
-																QStringList() << "AMDbObjectTypes" << "thumbnailCount" << "thumbnailFirstId" << "name" << "axisType",
-																QVariantList() << "AMScanAxis" << 0 << QVariant() << "" << 0);
+			if (!databaseToUpgrade_->tableExists(table % "_table_scanAxes")
+					&& databaseToUpgrade_->ensureTable(table % "_table_scanAxes",
+													   QStringList() << "id1" << "table1" << "id2" << "table2",
+													   QStringList() << "INTEGER" << "TEXT" << "INTEGER" << "TEXT")){
+
+				databaseToUpgrade_->rollbackTransaction();
+				return false;
+			}
 
 			for (int i = 0, regionsSize = regions.size(); i < regionsSize; i++){
+
+				int scanAxisId = databaseToUpgrade_->insertOrUpdate(0,
+																	"AMScanAxis_table",
+																	QStringList() << "AMDbObjectTypes" << "thumbnailCount" << "thumbnailFirstId" << "name" << "axisType",
+																	QVariantList() << "AMScanAxis" << 0 << QVariant() << axisName(QString("%1_table").arg(table), ids.at(i).toInt()) << 0);
+
+				if (scanAxisId == 0){
+
+					databaseToUpgrade_->rollbackTransaction();
+					return false;
+				}
+
+
+
+				if (!databaseToUpgrade_->insertOrUpdate(0,
+														table % "_table_scanAxes",
+														QStringList() << "id1" << "table1" << "id2" << "table2",
+														QVariantList() << ids.at(i).toInt() << QString("%1_table").arg(table) << scanAxisId << "AMScanAxis_table"))
 
 				QStringList regionComponents = regions.at(i).toString().split(",");
 
@@ -171,4 +193,35 @@ QString AMDbUpgrade1Pt5::upgradeToTag() const
 QString AMDbUpgrade1Pt5::description() const
 {
 	return QString("Upgrades all scan configurations that depend on AMRegionScanConfiguration and AM2DScanConfiguration.");
+}
+
+QString AMDbUpgrade1Pt5::axisName(const QString &tableName, int id) const
+{
+	if (tableName.contains(QRegExp("VESPERSSpatialLine"))){
+
+		QString vespersDbObject = databaseToUpgrade_->retrieve(id, "VESPERSSpatialLineConfiguration_table", "configurationDbObject").toString();
+		int motorValue = databaseToUpgrade_->retrieve(vespersDbObject.split(";").last().toInt(), "VESPERSScanConfigurationDbObject_table", "motor").toInt();
+
+		if (motorValue == 1 || motorValue == 8)
+			return "H";
+
+		else if (motorValue == 2 || motorValue == 16)
+			return "V";
+
+		else
+			return "H";
+	}
+
+	return "Energy";
+}
+
+QString AMDbUpgrade1Pt5::axisRegionUnits(const QString &tableName) const
+{
+	if (tableName.contains(QRegExp("SGM|VESPERSEXAFS|VESPERSEnergy")))
+		return "eV";
+
+	else if (tableName.contains(QRegExp("VESPERSSpatialLine|VESPERS2D")))
+		return "mm";
+
+	return "eV";
 }
