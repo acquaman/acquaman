@@ -164,7 +164,7 @@ QMap<double, double> SGMResolutionOptimization::curve(QList<QVariant> stateParam
 	double _x1 = 0;
 	double _x2 = 0;
 	double _x3 = 0;
-	double _maxRes = 0;
+	/* double _maxRes = 0; Removed to prevent compiler warnings, see Issue734 */
 	SGMBeamlineInfo::sgmGrating _grating = (SGMBeamlineInfo::sgmGrating)stateParameters.at(1).toInt();
 	SGMBeamlineInfo::sgmHarmonic _harmonic = (SGMBeamlineInfo::sgmHarmonic)stateParameters.at(2).toInt();
 	if(!SGMBeamlineInfo::sgmInfo()->energyRangeValidForSettings(_grating, _harmonic, _minenergy, _maxenergy))
@@ -177,7 +177,7 @@ QMap<double, double> SGMResolutionOptimization::curve(QList<QVariant> stateParam
 		_x1 = 2000;
 		_x2 = 1200;
 		_x3 = 800;
-		_maxRes = 12500;
+		/* _maxRes = 12500;  Removed to prevent compiler warnings, see Issue734 */
 	}
 	else{
 		if( (_grating == 0) && SGMBeamlineInfo::sgmInfo()->energyRangeValidForSettings(_grating, _harmonic, _minenergy, _maxenergy) ){
@@ -187,7 +187,7 @@ QMap<double, double> SGMResolutionOptimization::curve(QList<QVariant> stateParam
 			_x1 = 600;
 			_x2 = 400;
 			_x3 = 250;
-			_maxRes = 17500;
+			/* _maxRes = 17500;  Removed to prevent compiler warnings, see Issue734 */
 		}
 		else if( (_grating == 1) && SGMBeamlineInfo::sgmInfo()->energyRangeValidForSettings(_grating, _harmonic, _minenergy, _maxenergy) ){
 			_y1 = 0.425*log(_slit)+1.4936;
@@ -196,7 +196,7 @@ QMap<double, double> SGMResolutionOptimization::curve(QList<QVariant> stateParam
 			_x1 = 1200;
 			_x2 = 800;
 			_x3 = 500;
-			_maxRes = 15000;
+			/* _maxRes = 15000; Removed to prevent compiler warnings, see Issue734 */
 		}
 		else if( (_grating == 2) && SGMBeamlineInfo::sgmInfo()->energyRangeValidForSettings(_grating, _harmonic, _minenergy, _maxenergy) ){
 			_y1 = 0.5229*log(_slit)+1.4221;
@@ -205,7 +205,7 @@ QMap<double, double> SGMResolutionOptimization::curve(QList<QVariant> stateParam
 			_x1 = 2000;
 			_x2 = 1200;
 			_x3 = 800;
-			_maxRes = 13750;
+			/* _maxRes = 13750; Removed to prevent compiler warnings, see Issue734 */
 		}
 	}
 	int i, n;

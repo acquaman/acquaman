@@ -675,6 +675,7 @@ void REIXSSpectrometer::specifyDetectorTiltOffset(double tiltOffsetDeg)
 }
 
 void REIXSSpectrometer::onConnected(bool isConnected){
+	Q_UNUSED(isConnected)
 	//figure out those values
 	//onConnected not required
 	updateGrating();
