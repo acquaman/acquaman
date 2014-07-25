@@ -20,7 +20,17 @@ void AMScanThumbnailViewItemDelegate::paint(QPainter *painter, const QStyleOptio
 
 	if(!index.parent().isValid())
 	{
-		painter->drawText(option.rect, index.data(Qt::DisplayRole).toString());
+		if(option.state & QStyle::State_Selected)
+		{
+			painter->save();
+			painter->setPen(option.palette.color(QPalette::Normal, QPalette::HighlightedText));
+			painter->drawText(option.rect, index.data(Qt::DisplayRole).toString());
+			painter->restore();
+		}
+		else
+		{
+			painter->drawText(option.rect, index.data(Qt::DisplayRole).toString());
+		}
 
 	}
 	else
@@ -33,7 +43,18 @@ void AMScanThumbnailViewItemDelegate::paint(QPainter *painter, const QStyleOptio
 		}
 		else
 		{
-			painter->drawText(option.rect, index.data(Qt::DisplayRole).toString());
+
+				if(option.state & QStyle::State_Selected)
+				{
+					painter->save();
+					painter->setPen(option.palette.color(QPalette::Normal, QPalette::HighlightedText));
+					painter->drawText(option.rect, index.data(Qt::DisplayRole).toString());
+					painter->restore();
+				}
+				else
+				{
+					painter->drawText(option.rect, index.data(Qt::DisplayRole).toString());
+				}
 		}
 	}
 
@@ -221,6 +242,8 @@ bool AMScanThumbnailView::isIndexHidden(const QModelIndex &index) const
 
 QModelIndex AMScanThumbnailView::moveCursor(QAbstractItemView::CursorAction cursorAction, Qt::KeyboardModifiers modifiers)
 {
+	Q_UNUSED(cursorAction);
+	Q_UNUSED(modifiers);
 	return QModelIndex();
 }
 
@@ -261,6 +284,7 @@ int AMScanThumbnailView::verticalOffset() const
 
 QRegion AMScanThumbnailView::visualRegionForSelection(const QItemSelection &selection) const
 {
+	Q_UNUSED(selection)
 	return QRegion(viewport()->rect());
 }
 
@@ -281,14 +305,21 @@ void AMScanThumbnailView::paintEvent(QPaintEvent *pe)
 		QModelIndex selectionRowIndex = model()->index(iDataRow, 0);
 		QRect dataRowRectangle = rectangleGridRow(scanNameIndex.row());
 		QRect containerRectangle(dataRowRectangle.x() + 10, dataRowRectangle.y() + 10, dataRowRectangle.width()-20, dataRowRectangle.height()-20);
+		bool isSelected = selectionModel()->isSelected(selectionRowIndex);
+		option.state = isSelected ? QStyle::State_Selected : QStyle::State_Enabled ;
 		if(!containerRectangle.isEmpty())
 		{
 			painter.save();
-			if(selectionModel()->isSelected(selectionRowIndex))
-				painter.setBrush(QColor(62,124,199));
+			if(isSelected)
+			{
+				painter.setBrush(palette().brush(QPalette::Normal, QPalette::Highlight));
+				painter.setPen(palette().color(QPalette::Normal, QPalette::HighlightedText));
+			}
 			else
+			{
 				painter.setBrush(QBrush(Qt::white));
-			painter.setPen(QPen(QBrush(QColor(150,160,168)), 2));
+				painter.setPen(QPen(QBrush(QColor(150,160,168)), 2));
+			}
 			painter.drawRoundedRect(containerRectangle, 5, 5);
 			painter.restore();
 		}
