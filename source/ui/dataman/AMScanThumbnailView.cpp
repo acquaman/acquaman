@@ -397,8 +397,11 @@ void AMScanThumbnailView::mouseMoveEvent(QMouseEvent *event)
 	{
 		if(selectionRubberBand_)
 		{
+			QItemSelectionModel::SelectionFlags commandFlags = QItemSelectionModel::ClearAndSelect;
+			if(event->modifiers()&Qt::ControlModifier || event->modifiers()&Qt::ShiftModifier)
+				commandFlags = QItemSelectionModel::ToggleCurrent;
 			selectionRubberBand_->setGeometry(QRect(rubberBandStart_, event->pos()).normalized());
-			setSelection(QRect(selectionRubberBand_->pos().x(), selectionRubberBand_->pos().y(), selectionRubberBand_->width() +1, selectionRubberBand_->height()+1), QItemSelectionModel::ClearAndSelect);
+			setSelection(QRect(selectionRubberBand_->pos().x(), selectionRubberBand_->pos().y(), selectionRubberBand_->width() +1, selectionRubberBand_->height()+1), commandFlags);
 		}
 	}
 
@@ -443,8 +446,14 @@ void AMScanThumbnailView::mouseReleaseEvent(QMouseEvent *event)
 	{
 		if(!selectionRubberBand_->isHidden())
 		{
+			QItemSelectionModel::SelectionFlags commandFlags;
+			if(event->modifiers() & Qt::ControlModifier)
+				commandFlags = QItemSelectionModel::ToggleCurrent;
+			else
+				commandFlags = QItemSelectionModel::ClearAndSelect;
+
 			if(selectionRubberBand_->width() == 0 && selectionRubberBand_->height() == 0)
-				setSelection(QRect(rubberBandStart_.x(), rubberBandStart_.y(), 1, 1), QItemSelectionModel::ClearAndSelect);
+				setSelection(QRect(rubberBandStart_.x(), rubberBandStart_.y(), 1, 1), commandFlags);
 			selectionRubberBand_->hide();
 			rubberBandStart_.setX(0);
 			rubberBandStart_.setY(0);

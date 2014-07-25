@@ -15,7 +15,7 @@ void AMScanTreeView::setModel(QAbstractItemModel *model)
 	setColumnWidth(3, 120);
 	setColumnWidth(4, 120);
 	setSelectionBehavior(QAbstractItemView::SelectRows);
-	setSelectionMode(QAbstractItemView::MultiSelection);
+	setSelectionMode(QAbstractItemView::ExtendedSelection);
 }
 
 
