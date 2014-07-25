@@ -53,6 +53,8 @@ public:
 	CLSSIS3820ScalerChannelView(CLSSIS3820ScalerChannel *channel, QWidget *parent = 0);
 	virtual ~CLSSIS3820ScalerChannelView();
 
+	/// Whether or not the view has a connected AmplifierView
+	bool hasAmplifierView() const;
 signals:
 	/// Notifier that the channel changed viewing mode.  Passes the new mode.
 	void outputViewModeChanged(CLSSIS3820ScalerChannelView::OutputViewMode);
