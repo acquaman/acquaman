@@ -140,6 +140,6 @@ void REIXSXESScanConfiguration::computeTotalTimeImplementation()
 	totalTime_ = qMin(double(maximumDurationSeconds_), estimatedTime);
 
 	setExpectedDuration(totalTime_);
-	//emit totalTimeChanged(totalTime_);
+	emit totalTimeChanged(totalTime_);
 
 }
