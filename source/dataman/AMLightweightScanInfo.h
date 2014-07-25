@@ -8,12 +8,15 @@
 class AMDbThumbnail;
 /**
  * A class representing the information stored against a scan in the user database. The class is designed
- * to be a more lightweight, quick to load way of displaying bulk information about scans. See class
- * AMLightweightScanInfoCollection for class which loads this information from the database in bulk.
+ * to be a more lightweight, quick to load way of displaying bulk information about scans. The class
+ * AMLightweightScanInfoCollection is the only class that should ever be constructing or writing to this class,
+ * as such its constructor and setter are marked as protected, and AMLightweightScanInfoCollection a friend of
+ * this class.
  */
 class AMLightweightScanInfo : public QObject
 {
 	Q_OBJECT
+	friend class AMLightweightScanInfoCollection;
 private:
 	int id_;
 	QString name_;
@@ -29,40 +32,67 @@ private:
 	QHash<int, AMDbThumbnail*> thumbnailsMap_;
 
 public:
+
+
+	/// The id of the scan in the database. Since these are only ever loaded from db, this will always be
+	/// present
+	int id() const;
+	/// A descriptive name of the scan
+	QString name() const;
+	/// A user set number associated with the scan
+	int number() const;
+	/// The Date and Time that the scan was conducted
+	QDateTime dateTime() const;
+	/// The technique used to perform the scan (XAS, Fast etc.)
+	QString scanType() const;
+	/// The id of the run this scan is associated with, used when filtering by run
+	int runId() const;
+	/// A descriptive name of the run
+	QString runName() const;
+	/// A set of misc. notes which are associated with the scan
+	QString notes() const;
+	/// A descriptive name of the sample upon which the scan was performed
+	QString sampleName() const;
+	/// Returns the thumbnail at the given index which is associated with this scan. Prompts lazy loading
+	/// if the thumbnail at this index has not yet been loaded from the database. If there is no thumbnail
+	/// with the provided index associated with this scan, 0 is returned.
+	AMDbThumbnail* thumbnailAt(int index);
+	/// The number of thumbnails which are currently stored in the database against this scan
+	int thumbnailCount();
+	/// The id (if any) of the experiment this scan is associated with
+	int experimentId() const;
+
+protected:
 	explicit AMLightweightScanInfo(int id,
 						const QString& name,
 						int number,
 						const QDateTime& dateTime,
 						const QString& scanType,
 						int runId,
-						const QString& runName,						
+						const QString& runName,
 						const QString& notes,
 						const QString& sampleName,
 						int thumbnailFirstId,
 						int thumbnailCount,
 						int experimentId = -1,
 						QObject* parent = 0);
-
-	int id() const;
-	QString name() const;
+	/// Sets the descriptive name of the scan
 	void setName(const QString& name);
-	int number() const;
+	/// Sets the number associated with the scan
 	void setNumber(int number);
-	QDateTime dateTime() const;
+	/// Sets the Date and Time that the scan was conducted
 	void setDateTime(const QDateTime &dateTime);
-	QString scanType() const;
+	/// Sets the technique sed to perform the scan
 	void setScanType(const QString& scanType);
-	int runId() const;
+	/// Associates this scan with the run which shares the provided runId
 	void setRunId(int runId);
-	QString runName() const;
+	/// Sets the descriptive name of the run
 	void setRunName(const QString& runName);
-	QString notes() const;
+	/// Sets the misc. notes associated with the scan
 	void setNotes(const QString& notes);
-	QString sampleName() const;
+	/// Sets the descriptive name of the sample upon which the scan was performed
 	void setSampleName(const QString& sampleName);
-	AMDbThumbnail* thumbnailAt(int index);
-	int thumbnailCount();
-	int experimentId() const;
+	/// Sets the id of the experiment this scan is associated with
 	void setExperimentId(int id);
 };
 
