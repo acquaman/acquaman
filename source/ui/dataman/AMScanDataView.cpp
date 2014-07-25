@@ -252,7 +252,7 @@ int AMScanDataView::numberOfSelectedItems()
 	if(!currentView())
 		return 0;
 
-	return selectedItems().count();
+	return currentView()->selectionModel()->selectedRows().count();
 }
 
 void AMScanDataView::showRun(int runId)
@@ -304,12 +304,12 @@ void AMScanDataView::onCustomContextMenuRequested(const QPoint& position)
 
 void AMScanDataView::onEditScan()
 {
-	emit selectionActivated(selectedItems());
+	emit selectionActivatedSeparateWindows(selectedItems());
 }
 
 void AMScanDataView::onCompareScans()
 {
-	emit selectionActivatedSeparateWindows(selectedItems());
+	emit selectionActivated(selectedItems());
 }
 
 void AMScanDataView::onExportScans()
