@@ -55,7 +55,7 @@ REIXSXESScanActionController::REIXSXESScanActionController(REIXSXESScanConfigura
 	REIXSBeamline::bl()->mcpDetector()->setClearOnStart(!configuration_->doNotClearExistingCounts());
 
 	secondsElapsed_ = 0;
-	secondsTotal_ = configuration_->maximumDurationSeconds();
+	secondsTotal_ = configuration_->totalTime(true);
 	elapsedTime_.setInterval(1000);
 	connect(this, SIGNAL(started()), &elapsedTime_, SLOT(start()));
 	connect(this, SIGNAL(cancelled()), &elapsedTime_, SLOT(stop()));
@@ -434,10 +434,7 @@ void REIXSXESScanActionController::initializeScanMetaData()
 
 void REIXSXESScanActionController::onScanTimerUpdate()
 {
-	double averageCountRate =  REIXSBeamline::bl()->mcpDetector()->totalCounts() / secondsElapsed_;
-	double estimatedTime = configuration_->maximumTotalCounts() / averageCountRate;
-
-	secondsTotal_ = qMin(configuration_->maximumDurationSeconds(), estimatedTime);
+	secondsTotal_ = configuration_->totalTime(true);
 
 	if (elapsedTime_.isActive()){
 
@@ -445,7 +442,8 @@ void REIXSXESScanActionController::onScanTimerUpdate()
 			secondsElapsed_ = secondsTotal_;
 		else
 			secondsElapsed_ += 1.0;
-
+		//emit timeRemaining(secondsTotal_-secondsElapsed_); Not in IDEAS controller?
+		//qDebug() << "scan timer updated to" << secondsElapsed_ << "of" << secondsTotal_;
 		emit progress(secondsElapsed_, secondsTotal_);
 	}
 }
