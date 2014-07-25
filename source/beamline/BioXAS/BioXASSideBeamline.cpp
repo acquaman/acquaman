@@ -155,7 +155,7 @@ void BioXASSideBeamline::setupControlSets()
 
 void BioXASSideBeamline::setupMono()
 {
-
+    mono_ = new BioXASSideMonochromator(this);
 }
 
 void BioXASSideBeamline::setupSynchronizedDwellTime()

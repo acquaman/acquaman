@@ -29,14 +29,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMMotorGroup.h"
 #include "beamline/CLS/CLSBiStateControl.h"
 #include "beamline/CLS/CLSSIS3820Scaler.h"
-
-
-#include "util/AMErrorMonitor.h"
-#include "util/AMBiHash.h"
-
 #include "beamline/CLS/CLSBasicScalerChannelDetector.h"
 #include "beamline/CLS/CLSKeithley428.h"
 #include "beamline/CLS/CLSBasicCompositeScalerChannelDetector.h"
+#include "util/AMErrorMonitor.h"
+#include "util/AMBiHash.h"
+
+#include "BioXASSideMonochromator.h"
 
 class CLSMAXvMotor;
 
@@ -102,12 +101,21 @@ protected:
     BioXASSideBeamline();
 
 protected:
-    CLSSIS3820Scaler *scaler_;
+
+    // Detectors
+    CLSBasicScalerChannelDetector *testDetector_;
+
+    // Development misc.
     CLSMAXvMotor *m1UpperSlit_;
     bool wasConnected_;
 
-    CLSBasicScalerChannelDetector *testDetector_;
     CLSKeithley428 *keithley_;
+
+    // BioXAS Side monochromator.
+    BioXASSideMonochromator *mono_;
+
+    // Scaler.
+    CLSSIS3820Scaler *scaler_;
 
     // Shutters
     CLSBiStateControl *psh1_;
