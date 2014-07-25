@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 REIXSXASScanConfiguration::REIXSXASScanConfiguration(QObject *parent) :
 	AMStepScanConfiguration(parent)
 {
+	setAutoExportEnabled(false);
 
 	scanNumber_ = 0;
 	sampleId_ = -1;
