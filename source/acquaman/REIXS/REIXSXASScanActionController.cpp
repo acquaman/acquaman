@@ -328,7 +328,6 @@ void REIXSXASScanActionController::onScanTimerUpdate()
 			secondsElapsed_ += 1.0;
 
 		//emit timeRemaining(secondsTotal_-secondsElapsed_); Not in IDEAS controller?
-		//qDebug() << "scan timer updated to" << secondsElapsed_ << "of" << secondsTotal_;
 		emit progress(secondsElapsed_, secondsTotal_);
 	}
 }
