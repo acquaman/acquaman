@@ -132,11 +132,17 @@ protected slots:
 	/// Handles the selected items in the current child view changing
 	void onChildViewSelectionChanged();
 
-	/// Handles the user choosing to "Select All"
+	/// Handles the user choosing to "Select All", selects all items from the
+	/// current active child view
 	void onSelectAll();
 
+	/// Handles the user choosing "Clear Selection", clears the selected items from the
+	/// current active child view
 	void onClearSelection();
 
+	/// Responds to one of the buttons in the viewButtons_ group being clicked. Sets the
+	/// current view to the provided index, and calls onChildViewSelectionChanged() to update the
+	/// widgets which respond to selection changes
 	void onChildViewChanged(int);
 };
 

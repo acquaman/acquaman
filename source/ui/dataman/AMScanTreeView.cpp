@@ -4,6 +4,8 @@ AMScanTreeView::AMScanTreeView(QWidget *parent) :
 	QTreeView(parent)
 {
 	setItemDelegate(new AMScanTreeViewDelegate(this));
+	setSelectionBehavior(QAbstractItemView::SelectRows);
+	setSelectionMode(QAbstractItemView::ExtendedSelection);
 }
 
 void AMScanTreeView::setModel(QAbstractItemModel *model)
@@ -14,8 +16,7 @@ void AMScanTreeView::setModel(QAbstractItemModel *model)
 	setColumnWidth(2, 140);
 	setColumnWidth(3, 120);
 	setColumnWidth(4, 120);
-	setSelectionBehavior(QAbstractItemView::SelectRows);
-	setSelectionMode(QAbstractItemView::ExtendedSelection);
+
 }
 
 

@@ -12,11 +12,17 @@
 #include <QRegion>
 #include <QTimer>
 
+/**
+ * Class which overrides the standard QItemDelegate. Handles drawing of the thumbnail data in the
+ * way required by the AMScanThumbnailView
+ */
 class AMScanThumbnailViewItemDelegate : public QItemDelegate {
 	Q_OBJECT
 private:
 public:
 	explicit AMScanThumbnailViewItemDelegate(QObject* parent = 0);
+	/// Paints the data associated with the provided index according to options stored in the given
+	/// StyleOptionViewItem
 	virtual void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
 protected:
 
@@ -83,7 +89,8 @@ protected:
 	virtual void setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags command);
 	/// Returns the current offset of the vertical scroll bar
 	virtual int verticalOffset() const;
-	/// <><><><><<><><<><><
+	/// Returns the visual region which makes up the selection. In this case we simple return the
+	/// viewport()
 	virtual QRegion visualRegionForSelection(const QItemSelection &selection) const;
 	/// Implementation of the paint event for the view. Calls the delegate's paint function for
 	/// all model indices in the visible viewport
@@ -112,9 +119,17 @@ protected:
 	QRect getTitleRectangle(const QRect& thumbnailRectangle) const;
 
 protected slots:
+	/// Handles changes to the data in place. Resets the displayed thumbnail index for all
+	/// the scans back to zero and updates the scroll bars.
 	virtual void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
+	/// Handles rows being inserted into the source model. Resets the displayed thumbnail index for all
+	/// the scans back to zero and updates the scroll bars.
 	virtual void rowsInserted(const QModelIndex &parent, int start, int end);
+	/// Handles rows being removed from the source model. Resets the displayed thumbnail index for all
+	/// the scans back to zero and updates the scroll bars.
 	void rowsRemoved(const QModelIndex& parent, int start, int end);
+	/// Handles the timer used to decide whether the mouse in its current position can be considered
+	/// 'hovering'
 	void onTimerTimout();
 };
 
