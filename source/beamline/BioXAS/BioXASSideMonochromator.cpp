@@ -19,7 +19,7 @@ BioXASSideMonochromator::BioXASSideMonochromator(QObject *parent) :
     regionB_ = new AMProcessVariable("07ID_MainMono:Region:B", true, this);
     translateALimit_ = new AMProcessVariable("07ID_MainMono:Translate:A:Limit", true, this);
     translateBLimit_ = new AMProcessVariable("07ID_MainMono:Translate:B:Limit", true, this);
-    translatePermitted_ = new AMProcessVariable("07ID_MainMono:Translate:Permitted", true, this);
+    translatePermitted_ = new AMProcessVariable("07ID_MainMono:Translate:Permited", true, this);
     slitsCloseCmd_ = new AMProcessVariable("07ID_MainMono:SlitsCloseCmd", true, this);
     slitsEnabled_ = new AMProcessVariable("07ID_MainMono:SlitsEnabled", true, this);
 }
