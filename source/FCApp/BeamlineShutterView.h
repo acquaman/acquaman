@@ -2,6 +2,8 @@
 #define BEAMLINESHUTTERVIEW_H
 
 #include <QObject>
+#include <QLabel>
+#include <QIcon>
 #include "BeamlineShutters.h"
 
 // View Class for BeamlineShutter Model

@@ -3,7 +3,6 @@
 
 #include <QObject>
 #include <QString>
-#include <QLabel>
 #include "beamline/AMProcessVariable.h"
 
 // BeamlineShutters Class is a Model that'll contain information on the shutter status of a particular beamline
@@ -27,16 +26,18 @@ signals:
 public slots:
 
 protected slots:
-    void psh1Changed(int value);
-    void psh2Changed(int value);
-    void ssh1Changed(int value);
+    void pvPSH1Changed(int value);
+    void pvPSH2Changed(int value);
+    void pvSSH1Changed(int value);
+
+
 
 protected:
     QString nameOfBeamline_;
 
-    QString pvPSH1_;
-    QString pvPSH2_;
-    QString pvSSH1_;
+    QString sPSH1_;
+    QString sPSH2_;
+    QString sSSH1_;
 
 
 };
