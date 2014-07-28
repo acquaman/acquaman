@@ -27,19 +27,12 @@ SGMXASScanConfiguration::SGMXASScanConfiguration(QObject *parent) : AMXASScanCon
 	if(SGMBeamline::sgm()->isConnected()){
 		xasRegions()->setEnergyControl(SGMBeamline::sgm()->energy());
 		regions_->setDefaultTimeControl(SGMBeamline::sgm()->masterDwell());
-		connect(SGMBeamline::sgm()->exitSlitGap(), SIGNAL(valueChanged(double)), this, SLOT(checkIfMatchesBeamline()));
-		connect(SGMBeamline::sgm()->grating(), SIGNAL(valueChanged(double)), this, SLOT(checkIfMatchesBeamline()));
-		connect(SGMBeamline::sgm()->harmonic(), SIGNAL(valueChanged(double)), this, SLOT(checkIfMatchesBeamline()));
-		connect(SGMBeamline::sgm()->undulatorTracking(), SIGNAL(valueChanged(double)), this, SLOT(checkIfMatchesBeamline()));
-		connect(SGMBeamline::sgm()->monoTracking(), SIGNAL(valueChanged(double)), this, SLOT(checkIfMatchesBeamline()));
-		connect(SGMBeamline::sgm()->exitSlitTracking(), SIGNAL(valueChanged(double)), this,SLOT(checkIfMatchesBeamline()));
-
 	}
 
 	regions_->setSensibleRange(200, 2000);
 	regions_->setDefaultUnits(" eV");
 	regions_->setDefaultTimeUnits(" s");
-	connect(this, SIGNAL(configurationChanged()), this, SLOT(checkIfMatchesBeamline()));
+
 
 }
 
@@ -63,7 +56,6 @@ SGMXASScanConfiguration::SGMXASScanConfiguration(const SGMXASScanConfiguration &
 	setTrackingGroup(original.trackingGroup());
 	setFluxResolutionGroup(original.fluxResolutionGroup());
 	setDetectorConfigurations(original.detectorChoiceConfigurations());
-	connect(this, SIGNAL(configurationChanged()), this, SLOT(checkIfMatchesBeamline()));
 }
 
 const QMetaObject* SGMXASScanConfiguration::getMetaObject(){
