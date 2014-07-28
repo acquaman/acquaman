@@ -49,6 +49,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/IDEAS/IDEASXASScanConfigurationView.h"
 #include "ui/IDEAS/IDEASScanConfigurationViewHolder3.h"
 #include "ui/IDEAS/IDEASXRFDetailedDetectorViewWithSave.h"
+#include "ui/IDEAS/IDEASSampleCameraPanel.h"
 #include "acquaman/IDEAS/IDEASXASScanConfiguration.h"
 #include "acquaman/IDEAS/IDEASXRFScanConfiguration.h"
 
@@ -174,6 +175,9 @@ void IDEASAppController::setupUserInterface()
 	xasScanConfigurationView_ = 0; //NULL
 	xasScanConfigurationHolder3_ = new IDEASScanConfigurationViewHolder3();
 	mw_->addPane(xasScanConfigurationHolder3_, "Scans", "IDEAS XAS Scan", ":/utilities-system-monitor.png");
+
+	sampleCameraPanel_ = new IDEASSampleCameraPanel();
+	mw_->addPane(sampleCameraPanel_);
 
 	connect(IDEASBeamline::ideas()->monoEnergyControl(), SIGNAL(connected(bool)), this, SLOT(onEnergyConnected(bool)));
 	onEnergyConnected(false);
