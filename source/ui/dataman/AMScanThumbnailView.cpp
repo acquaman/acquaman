@@ -254,7 +254,7 @@ void AMScanThumbnailView::setSelection(const QRect &rect, QItemSelectionModel::S
 	QModelIndex endIndex = indexAt(rect.bottomRight());
 
 	if(!startIndex.isValid() || !endIndex.isValid())
-		selectionModel()->select(QModelIndex(), command);
+		selectionModel()->select(QModelIndex(), command | QItemSelectionModel::Rows);
 	else
 	{
 		QItemSelection totalSelectedItems;
@@ -272,7 +272,7 @@ void AMScanThumbnailView::setSelection(const QRect &rect, QItemSelectionModel::S
 
 		}
 
-		selectionModel()->select(totalSelectedItems, command);
+		selectionModel()->select(totalSelectedItems, command | QItemSelectionModel::Rows);
 	}
 
 }
