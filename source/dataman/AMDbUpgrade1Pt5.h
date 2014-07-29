@@ -37,8 +37,6 @@ public:
 private:
 	/// Returns the name of the axis based on the table name and id of the configuration of interest.
 	QString axisName(const QString &tableName, int id) const;
-	/// Returns the units of the axis regions based on the table name.  Don't need the id because units are more generic than names.
-	QString axisRegionUnits(const QString &tableName) const;
 };
 
 #endif // AMDBUPGRADE1PT5_H
