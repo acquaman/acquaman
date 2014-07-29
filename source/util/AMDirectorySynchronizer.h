@@ -69,6 +69,9 @@ public slots:
 	/// @brief Set the user meaningful name for the side 2 directory
 	void setSide2DirectorName(const QString &side1DirectoryName);
 
+	/// @brief Appends this exclusion pattern to the list
+	void appendExcludePattern(const QString &excludePattern);
+
 signals:
 	/// @brief Signal emitted when the copy is completed successfully
 	void copyCompleted();
@@ -154,6 +157,9 @@ protected:
 	AMRecursiveDirectoryCompare *comparator_;
 	/// @brief The result of the last comparison that was done
 	AMRecursiveDirectoryCompare::DirectoryCompareResult comparisonResult_;
+
+	/// @brief This list contains patterns that we don't want to copy or compare between the two directories
+	QStringList excludePatterns_;
 };
 
 #endif // AMDIRECTORYSYNCHRONIZER_H

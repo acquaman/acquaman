@@ -126,7 +126,10 @@ bool AMDirectorySynchronizer::start()
 
 	QString process = "rsync";
 	QStringList args;
-	args << "-avt" << "--progress" << "--exclude" << "*.db.bk.*";
+	//args << "-avt" << "--progress" << "--exclude" << "*.db.bk.*" << "--exclude" << ".BACKUPS";
+	args << "-avt" << "--progress";
+	for(int x = 0, size = excludePatterns_.size(); x < size; x++)
+		args << "--exclude" << excludePatterns_.at(x);
 
 	if(result == AMRecursiveDirectoryCompare::Side1ModifiedResult){
 		lockDirectory(side1Directory_);
@@ -172,15 +175,20 @@ void AMDirectorySynchronizer::setSide2DirectorName(const QString &side2Directory
 	side2DirectoryName_ = side2DirectoryName;
 }
 
+void AMDirectorySynchronizer::appendExcludePattern(const QString &excludePattern){
+	excludePatterns_.append(excludePattern);
+}
+
 AMRecursiveDirectoryCompare::DirectoryCompareResult AMDirectorySynchronizer::compareDirectories()
 {
-	QStringList excludedPatterns;
-	excludedPatterns << "*.db.bk.*";
+	//QStringList excludedPatterns;
+	//excludedPatterns << "*.db.bk.*" << ".BACKUPS";
 	if(comparator_){
 		delete comparator_;
 		comparator_ = 0; //NULL
 	}
-	comparator_ = new AMRecursiveDirectoryCompare(side1Directory_, side2Directory_, excludedPatterns, side1DirectoryName_, side2DirectoryName_);
+	//comparator_ = new AMRecursiveDirectoryCompare(side1Directory_, side2Directory_, excludedPatterns, side1DirectoryName_, side2DirectoryName_);
+	comparator_ = new AMRecursiveDirectoryCompare(side1Directory_, side2Directory_, excludePatterns_, side1DirectoryName_, side2DirectoryName_);
 
 	return comparator_->compare();
 }

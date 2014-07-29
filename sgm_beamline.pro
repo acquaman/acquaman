@@ -11,4 +11,5 @@ SUBDIRS += \
 	SGMLookupTableCoordinator.pro \
 	SGMSSAAcquaman.pro \
 	AMCrashReporter.pro \
+	CLSNetworkDirectorySynchronizer.pro \
         SGMAcquaman.pro
