@@ -117,6 +117,12 @@ protected:
 #define AMDBUPGRADESUPPORT_COULD_NOT_CHANGE_COLUMN_NAME 450109
 #define AMDBUPGRADESUPPORT_COULD_NOT_UPDATE_TO_TABLE_BASED_ID 450110
 #define AMDBUPGRADESUPPORT_COULD_NOT_UPDATE_EMPTY_VALUES 450111
+#define AMDBUPGRADESUPPORT_COULD_NOT_ADD_TABLE 450112
+#define AMDBUPGRADESUPPORT_COULD_NOT_ADD_TO_AMDBOBJECTTYPES_TABLE 450113
+#define AMDBUPGRADESUPPORT_COULD_NOT_ADD_TO_AMDBOBJECTTYPES_ALLCOLUMNS_TABLE 450114
+#define AMDBUPGRADESUPPORT_COULD_NOT_ADD_TO_AMDBOBJECTTYPES_VISIBLECOLUMNS_TABLE 450115
+#define AMDBUPGRADESUPPORT_COULD_NOT_ADD_TO_AMDBOBJECTTYPES_LOADCOLUMNS_TABLE 450116
+#define AMDBUPGRADESUPPORT_TABLE_ALREADY_EXISTS 450117
 
 /// This namespace contains helper methods for commonly used actions inside of database upgrades.
 /*!	There is an important aspect to these helper methods.  Anyone who uses these functions should consider them the same as any
@@ -189,6 +195,19 @@ namespace AMDbUpgradeSupport{
 	  */
 	bool idColumnToConstDbObjectColumn(AMDatabase *databaseToEdit, const QString &typeTableName, const QString &idColumnName, const QString &constDbObjectColumnName, const QString &relatedTypeTableName);
 
+	/// Adds a brand new table to the database.
+	/*!
+	  Because there are some very important aspects to adding a table to the database that are typically hidden from user-programmers,
+	  this method is here to handle all the necessary synchronizations.  Specifically, this handles all the additions to the various
+	  AMDbObjectTypes_XXXXXX tables.
+
+	  This method takes all the same parameters as AMDatabase::ensureTable() as well as two extras:
+		- description is for the description field of the AMDbObjectTypes_table
+		- inheritance is the inheritance structure in a semi-colon-delimeted format (e.g.: AMStepScanConfiguration;AMScanConfiguration;AMDbObject;QObject).
+
+	  These do no need to be added if the table to be added is an auxillary table.
+	  */
+	bool addTable(AMDatabase *databaseToEdit, const QString &tableName, const QStringList& columnNames, const QStringList& columnTypes, bool reuseDeletedIds = true, const QString &description = "", const QString &inheritance = "");
 }
 
 #endif // AMDBUPGRADE_H
