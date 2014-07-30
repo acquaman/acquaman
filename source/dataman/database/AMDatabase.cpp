@@ -871,7 +871,7 @@ bool AMDatabase::execQuery(QSqlQuery &query, int timeoutMs)
 	do {
 		success = query.exec();
 		lastErrorNumber = query.lastError().number();
-		lastErrormessage = query.lastError().text();
+		lastErrorMessage = query.lastError().text();
 		attempt++;
 		if(lastErrorNumber == 5)
 			usleep(5000);
