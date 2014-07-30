@@ -23,24 +23,27 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QStringList>
 #include <QDir>
 #include <QDebug>
+#include <QSettings>
+#include <QMessageBox>
+#include <QMap>
 
 #include "CLSNetworkDirectorySynchronizer.h"
 #include "ui/util/AMDirectorySynchronizerDialog.h"
 
 int main(int argc, char *argv[])
 {
-	if(argc == 1)
-		return -1;
-
 	QStringList arguments;
-	QStringList keyArguments;
+	QMap<QString, QString> argumentValuePairs;
 
 	QString localDirectory;
 	QString networkDirectory;
 
 	QCoreApplication *application = 0;
 
-	QString firstArgument = argv[1];
+	QString firstArgument;
+	if(argc > 1)
+		firstArgument = argv[1];
+
 	if(firstArgument == "-i"){
 		QApplication *app = new QApplication(argc, argv);
 		app->setApplicationName("Synchronize Directories");
@@ -55,42 +58,90 @@ int main(int argc, char *argv[])
 	}
 
 	arguments = application->arguments();
-	for(int x = 0, size = arguments.count(); x < size; x++)
-		if(!arguments.at(x).contains("--"))
-			keyArguments.append(arguments.at(x));
 
-	if(keyArguments.count() < 3){
-		qDebug() << "Invalid use. Expected CLSNetworkDirectorySynchronizer <local directory> <network directory>";
-		return -1;
+	for(int x = 0, size = arguments.count(); x < size; x++){
+		if(arguments.at(x).contains('='))
+			argumentValuePairs.insert(arguments.at(x).section('=', 0, 1), arguments.at(x).section('=', 1, 2));
+		else
+			argumentValuePairs.insert(arguments.at(x), QString());
 	}
 
-	if(firstArgument == "-i"){
-		localDirectory = keyArguments.at(2);
-		networkDirectory = keyArguments.at(3);
+	QString errorTitle;
+	QString errorMessage;
+
+	if(argumentValuePairs.contains("--local") && !argumentValuePairs.value("--local").isEmpty() && argumentValuePairs.contains("--remote") && !argumentValuePairs.value("--remote").isEmpty()){
+		localDirectory = argumentValuePairs.value("--local");
+		networkDirectory = argumentValuePairs.value("--remote");
+
+		qDebug() << "Overriding local and remote as " << localDirectory << networkDirectory;
+
 	}
 	else{
-		localDirectory = keyArguments.at(1);
-		networkDirectory = keyArguments.at(2);
+		QSettings settings(QSettings::IniFormat, QSettings::UserScope, "Acquaman", "Acquaman");
+
+		if(settings.contains("userDataFolder") && settings.contains("remoteDataFolder")){
+			localDirectory = settings.value("userDataFolder").toString();
+			networkDirectory = settings.value("remoteDataFolder").toString();
+		}
+		else if(settings.contains("remoteDataFolder")){
+			errorTitle = "A Serious Error Occured";
+			errorMessage = "The syncrhonizer can only find information for the remoteDataFolder but not the userDataFolder.\nThis is bad enough that we need to stop right now.\nFind an Acquaman programmer to help.";
+		}
+		else if(settings.contains("userDataFolder")){
+			QString currentUserDataFolder = settings.value("userDataFolder").toString();
+			QString localBaseDirectory = "/AcquamanLocalData";
+
+			QString dataFolderExtension = currentUserDataFolder;
+			if(currentUserDataFolder.contains("/home"))
+				dataFolderExtension.remove("/home");
+			else if(currentUserDataFolder.contains("/experiments"))
+				dataFolderExtension.remove("/experiments");
+			else
+				dataFolderExtension.remove(currentUserDataFolder.section('/', 0, 1));
+
+			QString newUserDataFolder = localBaseDirectory+dataFolderExtension;
+			QString newRemoteDataFolder = currentUserDataFolder;
+
+			settings.setValue("remoteDataFolder", newRemoteDataFolder);
+			settings.setValue("userDataFolder", newUserDataFolder);
+
+			localDirectory = settings.value("userDataFolder").toString();
+			networkDirectory = settings.value("remoteDataFolder").toString();
+		}
+		else{
+			errorTitle = "First Time User Detected";
+			errorMessage = "Looks like this is a first time user.\nIt will be much simpler to run Acquaman to get things set up.";
+		}
 	}
 
 	if(firstArgument == "-i"){
+		if(!errorTitle.isEmpty() || !errorMessage.isEmpty()){
+			QMessageBox::critical(0, errorTitle, errorMessage, QMessageBox::Ok);
+			return -1;
+		}
+
 		AMDirectorySynchronizerDialog *synchronizerDialog = new AMDirectorySynchronizerDialog(localDirectory, networkDirectory, "Local", "Network");
 		synchronizerDialog->setCloseOnCompletion(true);
 		synchronizerDialog->setTimedWarningOnCompletion(true);
 		synchronizerDialog->raise();
 
-		if(arguments.contains("--autoPrepare"))
+		if(argumentValuePairs.contains("--autoPrepare"))
 			synchronizerDialog->autoPrepare();
-		else if(arguments.contains("--autoStart"))
+		else if(argumentValuePairs.contains("--autoStart"))
 			synchronizerDialog->autoStart();
 		else
 			synchronizerDialog->exec();
 	}
 	else{
+		if(!errorTitle.isEmpty() || !errorMessage.isEmpty()){
+			qDebug() << errorTitle;
+			qDebug() << errorMessage;
+			return -1;
+		}
 
 		CLSNetworkDirectorySynchronizer *synchronizer = new CLSNetworkDirectorySynchronizer(localDirectory, networkDirectory);
 
-		if(arguments.contains("--dryRun")){
+		if(argumentValuePairs.contains("--dryRun")){
 			AMRecursiveDirectoryCompare::DirectoryCompareResult directoryCompareResult = synchronizer->compareDirectories();
 
 			switch(directoryCompareResult){

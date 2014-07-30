@@ -220,7 +220,7 @@ CONFIG(jenkins_build) {
 DEPENDPATH += $$PATH_TO_AM $$PATH_TO_AM/source
 INCLUDEPATH += $$PATH_TO_AM $$PATH_TO_AM/source
 
-TARGET = CLSNetworkDirectorySynchronizer
+TARGET = build/CLSNetworkDirectorySynchronizer
 
 HEADERS +=\
 	source/application/CLSNetworkDirectorySynchronizer/CLSNetworkDirectorySynchronizer.h \
