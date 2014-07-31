@@ -353,9 +353,10 @@ void SGMAppController::onSGMBeamlineConnected(){
 		double goodEnergy = 10 * floor(SGMBeamline::sgm()->energy()->value() / 10);
 		// Do New XAS
 		SGMXASScanConfiguration2013 *xasScanConfiguration2013 = new SGMXASScanConfiguration2013(this);
-		xasScanConfiguration2013->xasRegions()->setEnergyControl(SGMBeamline::sgm()->energy());
-		xasScanConfiguration2013->regions()->setDefaultTimeControl(SGMBeamline::sgm()->masterDwell());
-		xasScanConfiguration2013->addRegion(0, goodEnergy, 1, goodEnergy+9, 1);
+		xasScanConfiguration2013->scanAxisAt(0)->regionAt(0)->setRegionStart(goodEnergy);
+		xasScanConfiguration2013->scanAxisAt(0)->regionAt(0)->setRegionStep(1);
+		xasScanConfiguration2013->scanAxisAt(0)->regionAt(0)->setRegionEnd(goodEnergy+9);
+		xasScanConfiguration2013->scanAxisAt(0)->regionAt(0)->setRegionTime(1);
 		xasScanConfiguration2013->setDetectorConfigurations(SGMBeamline::sgm()->XASDetectorGroup()->connectedDetectors()->toInfoSet());
 		xasScanConfiguration2013->setTrackingGroup(SGMBeamline::sgm()->trackingSet()->toInfoList());
 		xasScanConfiguration2013->setFluxResolutionGroup(SGMBeamline::sgm()->fluxResolutionSet()->toInfoList());
@@ -396,12 +397,12 @@ void SGMAppController::onSGMBeamlineConnected(){
 		if(SGMBeamline::sgm()->newPDDetector()){
 			preferentialOrdering << SGMBeamline::sgm()->newPDDetector()->name();
 		}
-        if(SGMBeamline::sgm()->energyFeedbackDetector()) {
-            xasDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->energyFeedbackDetector(), true);
-        }
-        if(SGMBeamline::sgm()->dwellTimeDetector()) {
-            xasDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->dwellTimeDetector(), true);
-        }
+		if(SGMBeamline::sgm()->energyFeedbackDetector()) {
+			xasDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->energyFeedbackDetector(), true);
+		}
+		if(SGMBeamline::sgm()->dwellTimeDetector()) {
+			xasDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->dwellTimeDetector(), true);
+		}
 
 		xasDetectorSelector_->setPreferentialOrdering(preferentialOrdering);
 		xasDetectorSelector_->setDefaultsSelected();

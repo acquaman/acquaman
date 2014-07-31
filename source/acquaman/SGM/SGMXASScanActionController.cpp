@@ -34,7 +34,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSSR570.h"
 
 SGMXASScanActionController::SGMXASScanActionController(SGMXASScanConfiguration2013 *cfg, QObject *parent) :
-	AMRegionScanActionController(cfg, parent)
+	AMStepScanActionController(cfg, parent)
 {
 	configuration_ = cfg;
 
@@ -128,7 +128,7 @@ QString SGMXASScanActionController::buildNotes()
 		CLSSIS3820ScalerChannel* currentChannel = scaler->channelAt(iChannel);
 		if(currentChannel->currentAmplifier() != 0)
 		{
-            AMCurrentAmplifier *channelSR570 = currentChannel->currentAmplifier();
+			AMCurrentAmplifier *channelSR570 = currentChannel->currentAmplifier();
 			if(channelSR570)
 				notes.append(QString("%1:\t%2 %3\n").arg(currentChannel->customChannelName()).arg(channelSR570->value()).arg(channelSR570->units()));
 		}

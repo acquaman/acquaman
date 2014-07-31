@@ -26,8 +26,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/SGM/SGMXASScanConfiguration2013.h"
 
 #include "ui/AMTopFrame.h"
-#include "ui/acquaman/AMRegionsView.h"
-#include "ui/acquaman/AMRegionsLineView.h"
 #include "beamline/AMDetectorSelector.h"
 #include "ui/beamline/AMDetectorSelectorView.h"
 
@@ -39,7 +37,7 @@ class SGMXASScanConfiguration2013View : public AMScanConfigurationView
 Q_OBJECT
 
 public:
- 	virtual ~SGMXASScanConfiguration2013View();
+	virtual ~SGMXASScanConfiguration2013View();
 	SGMXASScanConfiguration2013View(SGMXASScanConfiguration2013 *configuration, QWidget *parent = 0);
 
 	virtual const AMScanConfiguration* configuration() const;
@@ -75,8 +73,6 @@ protected:
 	SGMFluxResolutionPickerView *fluxResolutionView_;
 
 	AMTopFrame *topFrame_;
-	AMRegionsView *regionsView_;
-	AMRegionsLineView *regionsLineView_;
 	AMDetectorSelectorView *xasDetectorSelectorView_;
 
 	QVBoxLayout *mainVL_;

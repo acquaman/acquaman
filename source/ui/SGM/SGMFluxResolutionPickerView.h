@@ -31,19 +31,19 @@ class QPushButton;
 class QVBoxLayout;
 class QHBoxLayout;
 class AMExtendedControlEditor;
-class AMXASRegionsList;
+class AMScanAxis;
 
 class SGMFluxResolutionPickerStaticView : public QGroupBox{
 Q_OBJECT
 public:
- 	virtual ~SGMFluxResolutionPickerStaticView();
-	SGMFluxResolutionPickerStaticView(AMXASRegionsList *regions, QWidget *parent = 0);
+	virtual ~SGMFluxResolutionPickerStaticView();
+	SGMFluxResolutionPickerStaticView(AMScanAxis *scanAxis, QWidget *parent = 0);
 
 public slots:
 	virtual void setFromInfoList(const AMControlInfoList &infoList);
 
 protected:
-	AMXASRegionsList *regions_;
+	AMScanAxis *scanAxis_;
 	double minEnergy_;
 	double maxEnergy_;
 
@@ -65,8 +65,8 @@ class SGMFluxResolutionPickerView : public SGMFluxResolutionPickerStaticView
 {
 Q_OBJECT
 public:
- 	virtual ~SGMFluxResolutionPickerView();
-	SGMFluxResolutionPickerView(AMXASRegionsList *regions, QWidget *parent = 0);
+	virtual ~SGMFluxResolutionPickerView();
+	SGMFluxResolutionPickerView(AMScanAxis *scanAxis, QWidget *parent = 0);
 
 public slots:
 	virtual void setFromInfoList(const AMControlInfoList &infoList);

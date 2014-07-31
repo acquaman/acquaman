@@ -22,10 +22,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef SGMXASSCANCONFIGURATION2013_H
 #define SGMXASSCANCONFIGURATION2013_H
 
-#include "acquaman/AMXASScanConfiguration.h"
+#include "acquaman/AMStepScanConfiguration.h"
 #include "SGMScanConfiguration2013.h"
 
-class SGMXASScanConfiguration2013 : public AMXASScanConfiguration, public SGMScanConfiguration2013
+class SGMXASScanConfiguration2013 : public AMStepScanConfiguration, public SGMScanConfiguration2013
 {
 Q_OBJECT
 
@@ -52,22 +52,21 @@ public:
 	/// A human-readable synopsis of this scan configuration. Can be re-implemented to proved more details. Used by scan action to set the main text in the action view.
 	virtual QString detailedDescription() const;
 
-	/// Returns the AMControlInfo for the scanned region control.
-	AMControlInfo regionControlInfo() const { return regions_->defaultControl()->toInfo(); }
-	/// Returns the AMControlInfo for the time control.
-	AMControlInfo timeControlInfo() const { return regions_->defaultTimeControl()->toInfo(); }
 	/// Synchronizes this configuration with the beamline by copying settins from the beamline, namely:
 	/// Exit Slit Gap, Grating, Harmonic, Undulator Tracking, Grating Tracking, Exit Slit Tracking
 	void getSettingsFromBeamline();
+
 protected slots:
 	/// Checks whether the current beamline settings match that of the configuration, namely:
 	/// Exit Slit Gap, Grating, Harmonic, Undulator Tracking, Grating Tracking, Exit Slit Tracking
 	/// if the matching status has changed emits matchingBeamlineStatusCahanged()
 	void checkIfMatchesBeamline();
+
 signals:
 	/// Fired when a change to the configuration or beamline means that their status has changed from matched to not matched or vice versa, namely:
 	/// Exit Slit Gap, Grating, Harmonic, Undulator Tracking, Grating Tracking, Exit Slit Tracking
 	void matchingBeamlineStatusChanged(bool matchesBeamline);
+
 protected:
 	/// Whether or not the current XASScanConfiguration matches that of the beamline, namely:
 	/// Exit Slit Gap, Grating, Harmonic, Undulator Tracking, Grating Tracking, Exit Slit Tracking

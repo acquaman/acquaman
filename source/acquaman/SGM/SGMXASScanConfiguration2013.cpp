@@ -24,18 +24,15 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMBeamline.h"
 #include "beamline/SGM/SGMBeamline.h"
 
- SGMXASScanConfiguration2013::~SGMXASScanConfiguration2013(){}
-SGMXASScanConfiguration2013::SGMXASScanConfiguration2013(QObject *parent) :
-	AMXASScanConfiguration(parent), SGMScanConfiguration2013()
-{
-	AMXASRegionsList *castToXASRegionsList = qobject_cast<AMXASRegionsList*>(regions_);
-	if(castToXASRegionsList)
-		castToXASRegionsList->setEnergyControl(AMBeamline::bl()->exposedControlByName("energy"));
-	regions_->setDefaultTimeControl(AMBeamline::bl()->exposedControlByName("masterDwell"));
+SGMXASScanConfiguration2013::~SGMXASScanConfiguration2013(){}
 
-	regions_->setSensibleRange(200, 2000);
-	regions_->setDefaultUnits(" eV");
-	regions_->setDefaultTimeUnits(" s");
+SGMXASScanConfiguration2013::SGMXASScanConfiguration2013(QObject *parent) :
+	AMStepScanConfiguration(parent), SGMScanConfiguration2013()
+{
+	AMScanAxisRegion *region = new AMScanAxisRegion;
+	AMScanAxis *axis = new AMScanAxis(AMScanAxis::StepAxis, region);
+	appendScanAxis(axis);
+
 	connect(SGMBeamline::sgm()->exitSlitGap(), SIGNAL(valueChanged(double)), this, SLOT(checkIfMatchesBeamline()));
 	connect(SGMBeamline::sgm()->grating(), SIGNAL(valueChanged(double)), this, SLOT(checkIfMatchesBeamline()));
 	connect(SGMBeamline::sgm()->harmonic(), SIGNAL(valueChanged(double)), this, SLOT(checkIfMatchesBeamline()));
@@ -52,21 +49,8 @@ SGMXASScanConfiguration2013::SGMXASScanConfiguration2013(QObject *parent) :
 }
 
 SGMXASScanConfiguration2013::SGMXASScanConfiguration2013(const SGMXASScanConfiguration2013 &original) :
-	AMXASScanConfiguration(original), SGMScanConfiguration2013(original)
+	AMStepScanConfiguration(original), SGMScanConfiguration2013(original)
 {
-	AMXASRegionsList *castToXASRegionsList = qobject_cast<AMXASRegionsList*>(regions_);
-	if(castToXASRegionsList)
-		castToXASRegionsList->setEnergyControl(AMBeamline::bl()->exposedControlByName("energy"));
-	regions_->setDefaultTimeControl(AMBeamline::bl()->exposedControlByName("masterDwell"));
-
-	regions_->setSensibleStart(original.regions()->sensibleStart());
-	regions_->setSensibleEnd(original.regions()->sensibleEnd());
-	regions_->setDefaultUnits(original.regions()->defaultUnits());
-	regions_->setDefaultTimeUnits(original.regions()->defaultTimeUnits());
-
-	for(int x = 0; x < original.regionCount(); x++)
-		regions_->addRegion(x, original.regionStart(x), original.regionDelta(x), original.regionEnd(x), original.regionTime(x));
-
 	detectorConfigurations_ = original.detectorConfigurations();
 	setTrackingGroup(original.trackingGroup());
 	setFluxResolutionGroup(original.fluxResolutionGroup());
@@ -105,7 +89,7 @@ AMScanConfigurationView* SGMXASScanConfiguration2013::createView(){
 }
 
 QString SGMXASScanConfiguration2013::detailedDescription() const{
-	return QString("XAS Scan from %1 to %2\nExit Slit: %3\nGrating: %4\nHarmonic: %5").arg(regionStart(0)).arg(regionEnd(regionCount()-1)).arg(exitSlitGap(), 0, 'f', 1).arg(SGMBeamlineInfo::sgmInfo()->sgmGratingDescription(SGMBeamlineInfo::sgmGrating(grating()))).arg(SGMBeamlineInfo::sgmInfo()->sgmHarmonicDescription(SGMBeamlineInfo::sgmHarmonic(harmonic())));
+	return QString("XAS Scan from %1 to %2\nExit Slit: %3\nGrating: %4\nHarmonic: %5").arg(double(scanAxisAt(0)->regionAt(0)->regionStart())).arg(double(scanAxisAt(0)->regionAt(scanAxisAt(0)->regionCount()-1)->regionEnd())).arg(exitSlitGap(), 0, 'f', 1).arg(SGMBeamlineInfo::sgmInfo()->sgmGratingDescription(SGMBeamlineInfo::sgmGrating(grating()))).arg(SGMBeamlineInfo::sgmInfo()->sgmHarmonicDescription(SGMBeamlineInfo::sgmHarmonic(harmonic())));
 }
 
 void SGMXASScanConfiguration2013::getSettingsFromBeamline()

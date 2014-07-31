@@ -18,7 +18,7 @@ You should have received a copy of the GNU General Public License
 along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
+#include "ui/dataman/AMStepScanAxisView.h"
 #include "SGMXASScanConfiguration2013View.h"
 
  SGMXASScanConfiguration2013View::~SGMXASScanConfiguration2013View(){}
@@ -30,8 +30,14 @@ SGMXASScanConfiguration2013View::SGMXASScanConfiguration2013View(SGMXASScanConfi
 	topFrame_ = new AMTopFrame("Configure an XAS Scan to Run Later");
 	topFrame_->setIcon(QIcon(":/utilities-system-monitor.png"));
 
-	regionsLineView_ = new AMRegionsLineView(configuration_->regions(), this);
-	regionsView_ = new AMRegionsView(configuration_->regions(), this);
+	// Regions setup
+	AMStepScanAxisView *regionsView = new AMStepScanAxisView("", configuration_);
+
+	QVBoxLayout *regionsViewLayout = new QVBoxLayout;
+	regionsViewLayout->addWidget(regionsView);
+
+	QGroupBox *regionsViewGroupBox = new QGroupBox("Regions Setup");
+	regionsViewGroupBox->setLayout(regionsViewLayout);
 
 	xasDetectorSelector_ = 0; //NULL
 	xasDetectorSelectorView_ = 0; //NULL
@@ -55,7 +61,7 @@ SGMXASScanConfiguration2013View::SGMXASScanConfiguration2013View(SGMXASScanConfi
 
 	// TODO: Need to find a way to get gratingSlitTracking()
 
-	fluxResolutionView_ = new SGMFluxResolutionPickerView(configuration_->xasRegions(), this);
+	fluxResolutionView_ = new SGMFluxResolutionPickerView(configuration_->scanAxisAt(0), this);
 	fluxResolutionView_->setFromInfoList(configuration_->fluxResolutionGroup());
 	fluxResolutionView_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
 	connect(fluxResolutionView_, SIGNAL(configValuesChanged(AMControlInfoList)), configuration_->dbObject(), SLOT(setFluxResolutionGroup(AMControlInfoList)));
@@ -85,11 +91,10 @@ SGMXASScanConfiguration2013View::SGMXASScanConfiguration2013View(SGMXASScanConfi
 
 	mainVL_ = new QVBoxLayout();
 	mainVL_->addWidget(topFrame_);
-	mainVL_->addWidget(regionsLineView_);
 	bottomGL_ = new QGridLayout();
 	mainVL_->addLayout(bottomGL_, 10);
-	bottomGL_->addWidget(regionsView_,		0, 0);
-	bottomGL_->addWidget(fluxResolutionView_,	1, 0);
+	bottomGL_->addWidget(regionsViewGroupBox, 0, 0);
+	bottomGL_->addWidget(fluxResolutionView_, 1, 0);
 	bottomGL_->setColumnStretch(0, 10);
 	bottomGL_->setColumnMinimumWidth(1, 40);
 	bottomGL_->setContentsMargins(10, 0, 0, 10);
