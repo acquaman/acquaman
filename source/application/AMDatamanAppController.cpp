@@ -118,8 +118,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/database/AMDbObjectSupport.h"
 #include "ui/dataman/AMDbObjectGeneralView.h"
 #include "ui/dataman/AMDbObjectGeneralViewSupport.h"
-#include "acquaman/AM2DScanConfiguration.h"
-#include "ui/dataman/AM2DScanConfigurationGeneralView.h"
 
 #include "beamline/camera/AMCameraConfiguration.h"
 #include "beamline/camera/AMRotationalOffset.h"
@@ -652,7 +650,6 @@ bool AMDatamanAppController::startupRegisterDatabases()
 	success &= AMDbObjectSupport::s()->registerClass<AMSampleCameraURL>();
 
 	success &= AMDbObjectGeneralViewSupport::registerClass<AMDbObject, AMDbObjectGeneralView>();
-	success &= AMDbObjectGeneralViewSupport::registerClass<AM2DScanConfiguration, AM2DScanConfigurationGeneralView>();
 
 	return success;
 }

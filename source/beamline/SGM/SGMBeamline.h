@@ -31,7 +31,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMBiHash.h"
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 #include "beamline/AMControlSetSampleManipulator.h"
-#include "beamline/AMControlOptimization.h"
 #include "beamline/CLS/CLSSynchronizedDwellTime.h"
 
 #define SGMBEAMLINE_PV_NAME_LOOKUPS_FAILED 312001
@@ -459,8 +458,6 @@ protected:
 
 	AMControlSet *beamOnControlSet_;
 
-	AMControlOptimization *fluxOptimization_;
-	AMControlOptimization *resolutionOptimization_;
 	AMControlSet *fluxResolutionSet_;
 
 	AMControlSet *trackingSet_;
