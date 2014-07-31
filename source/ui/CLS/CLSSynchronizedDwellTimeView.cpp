@@ -244,11 +244,13 @@ void CLSSynchronizedDwellTimeView::onModeChanged(CLSSynchronizedDwellTime::Mode)
 
 void CLSSynchronizedDwellTimeView::onDwellTimeSpinBoxValueChanged()
 {
-	dwellTime_->blockSignals(true);
+	if(fabs(dwellTimeSpinBox_->value()-dwellTime_->time()) > 0.05){
+		dwellTime_->blockSignals(true);
 
-	dwellTime_->setTime(dwellTimeSpinBox_->value());
+		dwellTime_->setTime(dwellTimeSpinBox_->value());
 
-	dwellTime_->blockSignals(false);
+		dwellTime_->blockSignals(false);
+	}
 }
 
 void CLSSynchronizedDwellTimeView::onStartButtonClicked()
