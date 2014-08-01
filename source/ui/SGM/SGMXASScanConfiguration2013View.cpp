@@ -116,6 +116,9 @@ SGMXASScanConfiguration2013View::SGMXASScanConfiguration2013View(SGMXASScanConfi
 	mainVL_->setContentsMargins(0,0,0,0);
 	mainVL_->setSpacing(1);
 	setLayout(mainVL_);
+
+	// on startup, check the current status of beamline so that we can it
+	this->onMatchingBeamlineSettingsChanged(configuration->getMatchesBeamlineStatus());
 }
 
 const AMScanConfiguration* SGMXASScanConfiguration2013View::configuration() const{

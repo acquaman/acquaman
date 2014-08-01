@@ -59,15 +59,21 @@ public:
 	/// Synchronizes this configuration with the beamline by copying settins from the beamline, namely:
 	/// Exit Slit Gap, Grating, Harmonic, Undulator Tracking, Grating Tracking, Exit Slit Tracking
 	void getSettingsFromBeamline();
+
+	/// Returns the lastest known beamline status
+	bool getMatchesBeamlineStatus();
+
 protected slots:
 	/// Checks whether the current beamline settings match that of the configuration, namely:
 	/// Exit Slit Gap, Grating, Harmonic, Undulator Tracking, Grating Tracking, Exit Slit Tracking
 	/// if the matching status has changed emits matchingBeamlineStatusCahanged()
 	void checkIfMatchesBeamline();
+
 signals:
 	/// Fired when a change to the configuration or beamline means that their status has changed from matched to not matched or vice versa, namely:
 	/// Exit Slit Gap, Grating, Harmonic, Undulator Tracking, Grating Tracking, Exit Slit Tracking
 	void matchingBeamlineStatusChanged(bool matchesBeamline);
+
 protected:
 	/// Whether or not the current XASScanConfiguration matches that of the beamline, namely:
 	/// Exit Slit Gap, Grating, Harmonic, Undulator Tracking, Grating Tracking, Exit Slit Tracking
