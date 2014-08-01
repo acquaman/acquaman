@@ -228,7 +228,7 @@ void VESPERSSpatialLineScanActionController::buildScanControllerImplementation()
 			AM1DNormalizationAB *normalizedRegion = new AM1DNormalizationAB(QString("norm_%1").arg(region->name()));
 			normalizedRegion->setInputDataSources(QList<AMDataSource *>() << newRegion << i0Sources);
 			normalizedRegion->setDataName(newRegion->name());
-			normalizedRegion->setNormalizationName("MiniIonChamber");
+			normalizedRegion->setNormalizationName(i0Sources.at(int(configuration_->incomingChoice()))->name());
 			scan_->addAnalyzedDataSource(normalizedRegion);
 		}
 	}
