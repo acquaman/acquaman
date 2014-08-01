@@ -333,7 +333,7 @@ void AMAppController::launchScanConfigurationFromDb(const QUrl &url)
 
 bool AMAppController::eventFilter(QObject* o, QEvent* e)
 {
-	if(o == mw_ && e->type() == QEvent::Close) {
+	if(o == mw_ && e->type() == QEvent::Close && !overrideCloseCheck_) {
 		if(!canCloseScanEditors() || !canCloseActionRunner()) {
 			e->ignore();
 			return true;
