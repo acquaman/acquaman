@@ -6,6 +6,8 @@ AMScanTreeView::AMScanTreeView(QWidget *parent) :
 	setItemDelegate(new AMScanTreeViewDelegate(this));
 	setSelectionBehavior(QAbstractItemView::SelectRows);
 	setSelectionMode(QAbstractItemView::ExtendedSelection);
+	setVerticalScrollMode(ScrollPerPixel);
+	verticalScrollBar()->setSingleStep(20);
 }
 
 void AMScanTreeView::setModel(QAbstractItemModel *model)

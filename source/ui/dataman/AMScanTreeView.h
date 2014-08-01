@@ -3,6 +3,7 @@
 
 #include <QTreeView>
 #include <QItemDelegate>
+#include <QScrollBar>
 /**
  * Class which overrides the standard QItemDelegate, which behaved oddly when given fields with very
  * long strings for their contents. This version sets a standard sizeHint height for scans, and a separate

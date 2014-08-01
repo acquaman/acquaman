@@ -372,7 +372,7 @@ void AMScanThumbnailView::updateScrollBars()
 	if(numberOfRows*gridDimensions().height() < verticalOffset())
 		verticalScrollBar()->setValue(0);
 	verticalScrollBar()->setMaximum(numberOfRows * gridDimensions().height());
-	verticalScrollBar()->setSingleStep(5);
+	verticalScrollBar()->setSingleStep(15);
 	verticalScrollBar()->setPageStep(gridDimensions().height());
 
 }
@@ -409,7 +409,7 @@ void AMScanThumbnailView::mouseMoveEvent(QMouseEvent *event)
 	{
 		isMouseHovering_ = false;
 		currentGridRowMouseOver_ = indexAt(QPoint(event->x(), event->y())).row();
-		hoverTimer_.start(1000);
+		hoverTimer_.start(200);
 	}
 	else if(isMouseHovering_)
 	{
