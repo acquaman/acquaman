@@ -119,7 +119,7 @@ void SGMXASScanConfiguration2013::getSettingsFromBeamline()
 
 }
 
-bool SGMXASScanConfiguration2013::getMatchesBeamlineStatus()
+bool SGMXASScanConfiguration2013::matchesCurrentBeamline()
 {
 	return matchesCurrentBeamline_;
 }

@@ -61,7 +61,7 @@ public:
 	void getSettingsFromBeamline();
 
 	/// Returns the lastest known beamline status
-	bool getMatchesBeamlineStatus();
+	bool matchesCurrentBeamline();
 
 protected slots:
 	/// Checks whether the current beamline settings match that of the configuration, namely:

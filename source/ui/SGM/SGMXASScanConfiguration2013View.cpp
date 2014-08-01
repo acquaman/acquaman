@@ -118,7 +118,7 @@ SGMXASScanConfiguration2013View::SGMXASScanConfiguration2013View(SGMXASScanConfi
 	setLayout(mainVL_);
 
 	// on startup, check the current status of beamline so that we can it
-	onMatchingBeamlineSettingsChanged(configuration->getMatchesBeamlineStatus());
+	onMatchingBeamlineSettingsChanged(configuration->matchesCurrentBeamline());
 }
 
 const AMScanConfiguration* SGMXASScanConfiguration2013View::configuration() const{
