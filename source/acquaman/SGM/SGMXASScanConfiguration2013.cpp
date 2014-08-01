@@ -121,7 +121,7 @@ void SGMXASScanConfiguration2013::getSettingsFromBeamline()
 
 bool SGMXASScanConfiguration2013::getMatchesBeamlineStatus()
 {
-	return this->matchesCurrentBeamline_;
+	return matchesCurrentBeamline_;
 }
 
 void SGMXASScanConfiguration2013::checkIfMatchesBeamline()
