@@ -26,6 +26,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QWidget>
 #include <QTimer>
 
+#include "ui/beamline/AMControlMoveButton.h"
+
+
 
 class QPushButton;
 class QLabel;
@@ -106,8 +109,8 @@ protected:
     QProgressBar *ISampleBar_;
     QProgressBar *IReferenceBar_;
 
+    AMControlMoveButton *jjSlitsVertOpen_, *jjSlitsVertClose_, *jjSlitsHorizClose_, *jjSlitsHorizOpen_, *jjSlitsRight_, *jjSlitsLeft_, *jjSlitsDown_, *jjSlitsUp_;
 
-//    QTimer *crystalTimer_;
 
 
 

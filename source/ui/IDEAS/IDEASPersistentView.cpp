@@ -37,9 +37,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QInputDialog>
 #include <QDebug>
 
-#ifdef AM_MOBILITY_VIDEO_ENABLED
-#include "ui/AMBeamlineCameraWidgetWithSourceTabs.h"
-#endif
+//#ifdef AM_MOBILITY_VIDEO_ENABLED
+//#include "ui/AMBeamlineCameraWidgetWithSourceTabs.h"
+//#endif
 
 IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
     QWidget(parent)
@@ -97,10 +97,111 @@ IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
     IReferenceBar_->setTextVisible(false);
     IReferenceBar_->setRange(100,145);
 
-//    connect(IDEASBeamline::bl()->exposedDetectorByName("I_vac_6485"), SIGNAL(newValuesAvailable()), this, SLOT(onOldCountsChanged()));
-//    connect(IDEASBeamline::bl()->exposedDetectorByName("I_0"), SIGNAL(newValuesAvailable()), this, SLOT(onI0CountsChanged()));
-//    connect(IDEASBeamline::bl()->exposedDetectorByName("I_sample"), SIGNAL(newValuesAvailable()), this, SLOT(onSampleCountsChanged()));
-//    connect(IDEASBeamline::bl()->exposedDetectorByName("I_ref"), SIGNAL(newValuesAvailable()), this, SLOT(onReferenceCountsChanged()));
+    QIcon iconUp, iconDown, iconLeft, iconRight, iconVerticalClose, iconVerticalOpen, iconHorizontalClose, iconHorizontalOpen;
+    iconUp.addFile(QString::fromUtf8(":/22x22/go-up-dark.png"), QSize(), QIcon::Normal, QIcon::Off);
+    iconDown.addFile(QString::fromUtf8(":/22x22/go-down-dark.png"), QSize(), QIcon::Normal, QIcon::Off);
+    iconLeft.addFile(QString::fromUtf8(":/22x22/go-previous-dark.png"), QSize(), QIcon::Normal, QIcon::Off);
+    iconRight.addFile(QString::fromUtf8(":/22x22/go-next-dark.png"), QSize(), QIcon::Normal, QIcon::Off);
+    iconVerticalClose.addFile(QString::fromUtf8(":/22x22/go-close-vert-dark.png"), QSize(), QIcon::Normal, QIcon::Off);
+    iconVerticalOpen.addFile(QString::fromUtf8(":/22x22/go-open-vert-dark.png"), QSize(), QIcon::Normal, QIcon::Off);
+    iconHorizontalClose.addFile(QString::fromUtf8(":/22x22/go-close-horiz-dark.png"), QSize(), QIcon::Normal, QIcon::Off);
+    iconHorizontalOpen.addFile(QString::fromUtf8(":/22x22/go-open-horiz-dark.png"), QSize(), QIcon::Normal, QIcon::Off);
+
+
+    jjSlitsVertClose_ = new AMControlMoveButton();
+    //jjSlitsVertClose_->setControl();
+    jjSlitsVertClose_->setStepSizes(QList<double>() << 0.1 << 0.5 << 1 << 5);
+    jjSlitsVertClose_->setStepSizeIndex(1);
+    //jjSlitsVertClose_->setDirectionReversed(true);
+    jjSlitsVertClose_->setIcon(iconVerticalClose);
+    jjSlitsVertClose_->setIconSize(QSize(22, 22));
+    jjSlitsVertClose_->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+    jjSlitsVertClose_->setMinimumWidth(60);
+    jjSlitsVertClose_->setMinimumHeight(60);
+
+    jjSlitsVertOpen_ = new AMControlMoveButton();
+    //jjSlitsVertOpen_->setControl();
+    jjSlitsVertOpen_->setStepSizes(QList<double>() << 0.1 << 0.5 << 1 << 5);
+    jjSlitsVertOpen_->setStepSizeIndex(1);
+    //jjSlitsVertOpen_->setDirectionReversed(true);
+    jjSlitsVertOpen_->setIcon(iconVerticalOpen);
+    jjSlitsVertOpen_->setIconSize(QSize(22, 22));
+    jjSlitsVertOpen_->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+    jjSlitsVertOpen_->setMinimumWidth(60);
+    jjSlitsVertOpen_->setMinimumHeight(60);
+
+    jjSlitsHorizClose_ = new AMControlMoveButton();
+    //jjSlitsHorClose_->setControl();
+    jjSlitsHorizClose_->setStepSizes(QList<double>() << 0.1 << 0.5 << 1 << 5);
+    jjSlitsHorizClose_->setStepSizeIndex(1);
+    //jjSlitsHorClose_->setDirectionReversed(true);
+    jjSlitsHorizClose_->setIcon(iconHorizontalClose);
+    jjSlitsHorizClose_->setIconSize(QSize(22, 22));
+    jjSlitsHorizClose_->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+    jjSlitsHorizClose_->setMinimumWidth(60);
+    jjSlitsHorizClose_->setMinimumHeight(60);
+
+    jjSlitsHorizOpen_ = new AMControlMoveButton();
+    //jjSlitsHorOpen_->setControl();
+    jjSlitsHorizOpen_->setStepSizes(QList<double>() << 0.1 << 0.5 << 1 << 5);
+    jjSlitsHorizOpen_->setStepSizeIndex(1);
+    //jjSlitsHorOpen_->setDirectionReversed(true);
+    jjSlitsHorizOpen_->setIcon(iconHorizontalOpen);
+    jjSlitsHorizOpen_->setIconSize(QSize(22, 22));
+    jjSlitsHorizOpen_->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+    jjSlitsHorizOpen_->setMinimumWidth(60);
+    jjSlitsHorizOpen_->setMinimumHeight(60);
+
+    jjSlitsUp_ = new AMControlMoveButton();
+    //jjSlitsUp_->setControl();
+    jjSlitsUp_->setStepSizes(QList<double>() << 0.1 << 0.5 << 1 << 5);
+    jjSlitsUp_->setStepSizeIndex(1);
+    //jjSlitsUp_->setDirectionReversed(true);
+    jjSlitsUp_->setIcon(iconUp);
+    jjSlitsUp_->setIconSize(QSize(22, 22));
+    jjSlitsUp_->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+    //jjSlitsUp_->setText("Up");
+    jjSlitsUp_->setMinimumWidth(60);
+    jjSlitsUp_->setMinimumHeight(60);
+
+
+    jjSlitsDown_ = new AMControlMoveButton();
+    //jjSlitsDown_->setControl();
+    jjSlitsDown_->setStepSizes(QList<double>() << 0.1 << 0.5 << 1 << 5);
+    jjSlitsDown_->setStepSizeIndex(1);
+    //jjSlitsDown_->setDirectionReversed(true);
+    jjSlitsDown_->setIcon(iconDown);
+    jjSlitsDown_->setIconSize(QSize(22, 22));
+    jjSlitsDown_->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+    //jjSlitsDown_->setText("Down");
+    jjSlitsDown_->setMinimumWidth(60);
+    jjSlitsDown_->setMinimumHeight(60);
+
+    jjSlitsRight_ = new AMControlMoveButton();
+    //jjSlitsRight_->setControl();
+    jjSlitsRight_->setStepSizes(QList<double>() << 0.1 << 0.5 << 1 << 5);
+    jjSlitsRight_->setStepSizeIndex(1);
+    //jjSlitsRight_->setDirectionReversed(true);
+    jjSlitsRight_->setIcon(iconRight);
+    jjSlitsRight_->setIconSize(QSize(22, 22));
+    jjSlitsRight_->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+    //jjSlitsRight_->setText("Right");
+    jjSlitsRight_->setMinimumWidth(60);
+    jjSlitsRight_->setMinimumHeight(60);
+
+    jjSlitsLeft_ = new AMControlMoveButton();
+    //jjSlitsLeft_->setControl();
+    jjSlitsLeft_->setStepSizes(QList<double>() << 0.1 << 0.1 << 0.5 << 1 << 5);
+    jjSlitsLeft_->setStepSizeIndex(1);
+    //jjSlitsLeft_->setDirectionReversed(true);
+    jjSlitsLeft_->setIcon(iconLeft);
+    jjSlitsLeft_->setIconSize(QSize(22, 22));
+    jjSlitsLeft_->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+    //jjSlitsLeft_->setText("Left");
+    jjSlitsLeft_->setMinimumWidth(60);
+    jjSlitsLeft_->setMinimumHeight(60);
+
+
     connect(IDEASBeamline::bl()->exposedControlByName("ringCurrent"), SIGNAL(valueChanged(double)), this, SLOT(onRingCurrentChanged(double)));
 
     connect(IDEASBeamline::ideas()->monoLowEV(),   SIGNAL(valueChanged(double)), this, SLOT(onCrystalChanged()));
@@ -128,16 +229,30 @@ IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
     mainPanelLayout->addWidget(monoEnergyRange_);
     mainPanelLayout->addStretch();
 
-#ifdef AM_MOBILITY_VIDEO_ENABLED
-	AMBeamlineCameraWidgetWithSourceTabs *cameraWidget;
+//#ifdef AM_MOBILITY_VIDEO_ENABLED
+//	AMBeamlineCameraWidgetWithSourceTabs *cameraWidget;
 
-	QVBoxLayout *cameraPanelLayout = new QVBoxLayout;
-	cameraWidget = new AMBeamlineCameraWidgetWithSourceTabs(QUrl("http://v2e1608-102.clsi.ca/mjpg/2/video.mjpg"),"Sample 1",0,false);
-	cameraWidget->addSource("Sample 2", QUrl("http://v2e1608-102.clsi.ca/mjpg/3/video.mjpg"));
-	cameraWidget->addSource("Vacuum", QUrl("http://v2e1608-102.clsi.ca/mjpg/1/video.mjpg"));
-	cameraWidget->addSource("POE", QUrl("http://v2e1608-102.clsi.ca/mjpg/4/video.mjpg"));
-	cameraPanelLayout->addWidget(cameraWidget);
-#endif
+//	QVBoxLayout *cameraPanelLayout = new QVBoxLayout;
+//	cameraWidget = new AMBeamlineCameraWidgetWithSourceTabs(QUrl("http://v2e1608-102.clsi.ca/mjpg/2/video.mjpg"),"Sample 1",0,false);
+//	cameraWidget->addSource("Sample 2", QUrl("http://v2e1608-102.clsi.ca/mjpg/3/video.mjpg"));
+//	cameraWidget->addSource("Vacuum", QUrl("http://v2e1608-102.clsi.ca/mjpg/1/video.mjpg"));
+//	cameraWidget->addSource("POE", QUrl("http://v2e1608-102.clsi.ca/mjpg/4/video.mjpg"));
+//	cameraPanelLayout->addWidget(cameraWidget);
+//#endif
+
+    QGroupBox *jjSlitsPanel = new QGroupBox("Sample Slits");
+    QGridLayout *jjSlitsButtons = new QGridLayout;
+    jjSlitsButtons->addWidget(jjSlitsVertOpen_,0,0);
+    jjSlitsButtons->addWidget(jjSlitsVertClose_,1,0);
+    jjSlitsButtons->addWidget(jjSlitsHorizOpen_,0,1);
+    jjSlitsButtons->addWidget(jjSlitsHorizClose_,1,1);
+    jjSlitsButtons->columnMinimumWidth(30);
+    jjSlitsButtons->addWidget(jjSlitsUp_,0,3);
+    jjSlitsButtons->addWidget(jjSlitsDown_,1,3);
+    jjSlitsButtons->addWidget(jjSlitsLeft_,0,4);
+    jjSlitsButtons->addWidget(jjSlitsRight_,1,4);
+    jjSlitsPanel->setLayout(jjSlitsButtons);
+
 
     QVBoxLayout *scalerPanelLayout = new QVBoxLayout;
     scalerPanelLayout->addWidget(new IDEASScalerView());
@@ -171,13 +286,13 @@ IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
     QVBoxLayout *layout = new QVBoxLayout;
     layout->addWidget(persistentPanel);
 
-    #ifdef AM_MOBILITY_VIDEO_ENABLED
-    QGroupBox *cameraPanel = new QGroupBox("Camera Settings");
-    cameraPanel->setLayout(cameraPanelLayout);
-    layout->addWidget(cameraPanel);
-    #endif
+//    #ifdef AM_MOBILITY_VIDEO_ENABLED
+//    QGroupBox *cameraPanel = new QGroupBox("Camera Settings");
+//    cameraPanel->setLayout(cameraPanelLayout);
+//    layout->addWidget(cameraPanel);
+//    #endif
 
-
+    layout->addWidget(jjSlitsPanel);
     layout->addWidget(scalerPanel);
     //layout->addWidget(detectorPanel);
 
