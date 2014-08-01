@@ -33,8 +33,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/AMWindowPaneModel.h"
 
 #include <QQueue>
-
-
+#include <QCloseEvent>
+#include <QApplication>
 /// This UI class manages a set of "window panes", which can either be docked and selected using an iTunes-style sidebar, or un-docked to float as independent windows. When an un-docked pane is clicked in the sidebar or closed, it is re-docked in the main window. Finally, a layout is available to add custom widgets above and below the main area.
 /*! Internally, this class is implemented using an an AMWindowPaneModel. Both the sidebar, and the main window area, simply act as "views" on this model.  For full access to the underlying model, call windowPaneModel().*/
 class AMMainWindow : public QWidget

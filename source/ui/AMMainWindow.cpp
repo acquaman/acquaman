@@ -327,13 +327,16 @@ QModelIndex AMMainWindow::getPreviousSelection(const QModelIndex &current)
 
 void AMMainWindow::closeEvent(QCloseEvent *ce)
 {
+	QApplication::setOverrideCursor(Qt::WaitCursor);
+	QWidget::closeEvent(ce);
 	if(AMUserSettings::remoteDataFolder.length() > 0)
 	{
 		AMDirectorySynchronizerDialog synchronizer(AMUserSettings::userDataFolder, AMUserSettings::remoteDataFolder, "Local", "Network");
 		//return synchronizer.start();
 		synchronizer.autoStart();
 	}
-	QWidget::closeEvent(ce);
+	QApplication::restoreOverrideCursor();
+	qApp->quit();
 }
 
 QWidget * AMMainWindow::currentPane() const
