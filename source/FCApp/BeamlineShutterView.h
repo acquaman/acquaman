@@ -1,7 +1,7 @@
 #ifndef BEAMLINESHUTTERVIEW_H
 #define BEAMLINESHUTTERVIEW_H
 
-#include <QObject>
+#include <QWidget>
 #include <QLabel>
 #include <QIcon>
 #include "BeamlineShutters.h"
@@ -9,11 +9,12 @@
 // View Class for BeamlineShutter Model
 // The constructor takes in a model as a parameter and then something happens.
 
-class BeamlineShutterView : public QObject
+class BeamlineShutterView : public QWidget
 {
     Q_OBJECT
+
 public:
-    explicit BeamlineShutterView(BeamlineShutters *beamline, QObject *parent = 0);
+    explicit BeamlineShutterView(BeamlineShutters *beamline, QWidget *parent = 0);
 
 
 signals:

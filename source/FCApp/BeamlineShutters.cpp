@@ -2,8 +2,9 @@
 #include <QIcon>
 
 
-BeamlineShutters::BeamlineShutters(const QString &name, const QString &psh1, const QString &psh2, const QString &ssh1, QObject *parent) :
-    QObject(parent)
+BeamlineShutters::BeamlineShutters(const QString &name, const QString &psh1, const QString &psh2, const QString &ssh1, QObject *parent)
+    :      QObject(parent)
+
 {
     nameOfBeamline_ = name;
 
@@ -16,9 +17,9 @@ BeamlineShutters::BeamlineShutters(const QString &name, const QString &psh1, con
     AMProcessVariable *pvSSH1_ = new AMProcessVariable(sSSH1_, true, this);
 
 
-    connect( pvPSH1_, SIGNAL(valueChanged(int)), this, SIGNAL(pvPSH1Changed(int)));
-    connect( pvPSH2_, SIGNAL(valueChanged(int)), this, SIGNAL(pvPSH2Changed(int)));
-    connect( pvSSH1_, SIGNAL(valueChanged(int)), this, SIGNAL(pvSSH1Changed(int)));
+    connect( pvPSH1_, SIGNAL(valueChanged(int)), this, SLOT(pvPSH1Changed(int)));
+    connect( pvPSH2_, SIGNAL(valueChanged(int)), this, SLOT(pvPSH2Changed(int)));
+    connect( pvSSH1_, SIGNAL(valueChanged(int)), this, SLOT(pvSSH1Changed(int)));
 
 
 }

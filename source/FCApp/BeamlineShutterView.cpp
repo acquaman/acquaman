@@ -1,8 +1,10 @@
 #include "BeamlineShutterView.h"
+#include <QLayout>
+#include <QWidget>
 
-BeamlineShutterView::BeamlineShutterView(BeamlineShutters *beamline, QObject *parent)
+BeamlineShutterView::BeamlineShutterView(BeamlineShutters *beamline, QWidget *parent)
     :
-    QObject(parent)
+    QWidget(parent)
 {
     model_ = beamline;
 
@@ -19,16 +21,21 @@ BeamlineShutterView::BeamlineShutterView(BeamlineShutters *beamline, QObject *pa
     connect(beamline, SIGNAL(psh2Changed(int)), this, SLOT(updatePSH2Pixmap(int)));
     connect(beamline, SIGNAL(psh2Changed(int)), this, SLOT(updateSSH1Pixmap(int)));
 
+    QString name = model_->nameOfBeamline_;
+    name_ = new QLabel(name);
 
-
-
+    QHBoxLayout *HLayout = new QHBoxLayout;
+    HLayout->addWidget(name_, 1, Qt::AlignLeft);
+    HLayout->addWidget(psh1Light_);
+    HLayout->addWidget(psh2Light_);
+    HLayout->addWidget(ssh1Light_);
+    setLayout(HLayout);
 }
 
 //These set the Pixmap icon based on input value
 // 1 = Open
 // 2 = Transition
 // 4 = Closed
-// I wonder if this should be a QIcon instead of void
 void BeamlineShutterView::updatePSH1Pixmap(int value){
 
      if( value == 1)

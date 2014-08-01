@@ -2,6 +2,8 @@
 #define FCAPP_H
 
 #include <QWidget>
+#include <QLCDNumber>
+#include <QLabel>
 
 class FCApp : public QWidget
 {
@@ -12,6 +14,11 @@ public:
 signals:
 
 public slots:
+
+protected:
+    QLabel *label_;
+    QLCDNumber *currentValue_;
+
 
 };
 

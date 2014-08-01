@@ -10,12 +10,15 @@
 class BeamlineShutters : public QObject
 {
     Q_OBJECT
+
 public:
     explicit BeamlineShutters(const QString &name,
                               const QString &psh1,
                               const QString &psh2,
                               const QString &ssh1,
                               QObject *parent = 0);
+
+     QString nameOfBeamline_;
 
 signals:
     void psh1Changed(int emtValue);
@@ -30,11 +33,7 @@ protected slots:
     void pvPSH2Changed(int value);
     void pvSSH1Changed(int value);
 
-
-
 protected:
-    QString nameOfBeamline_;
-
     QString sPSH1_;
     QString sPSH2_;
     QString sSSH1_;
