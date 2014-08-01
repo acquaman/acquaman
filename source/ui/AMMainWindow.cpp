@@ -23,7 +23,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/AMCloseItemDelegate.h"
 #include "util/AMFontSizes.h"
-
+#include "ui/util/AMDirectorySynchronizerDialog.h"
+#include "util/AMSettings.h"
 // Default constructor
 AMMainWindow::AMMainWindow(QWidget *parent) : QWidget(parent) {
 
@@ -322,6 +323,17 @@ QModelIndex AMMainWindow::getPreviousSelection(const QModelIndex &current)
 
 	// qdebug() << "Recommending go to" << rv;
 	return rv;
+}
+
+void AMMainWindow::closeEvent(QCloseEvent *ce)
+{
+	if(AMUserSettings::remoteDataFolder.length() > 0)
+	{
+		AMDirectorySynchronizerDialog synchronizer(AMUserSettings::userDataFolder, AMUserSettings::remoteDataFolder, "Local", "Network");
+		//return synchronizer.start();
+		synchronizer.autoStart();
+	}
+	QWidget::closeEvent(ce);
 }
 
 QWidget * AMMainWindow::currentPane() const
