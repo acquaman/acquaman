@@ -86,6 +86,7 @@ SGMXASScanConfiguration2013View::SGMXASScanConfiguration2013View(SGMXASScanConfi
 	mainVL_ = new QVBoxLayout();
 	mainVL_->addWidget(topFrame_);
 	mainVL_->addWidget(regionsLineView_);
+
 	bottomGL_ = new QGridLayout();
 	mainVL_->addLayout(bottomGL_, 10);
 	bottomGL_->addWidget(regionsView_,		0, 0);
@@ -93,16 +94,17 @@ SGMXASScanConfiguration2013View::SGMXASScanConfiguration2013View(SGMXASScanConfi
 	bottomGL_->setColumnStretch(0, 10);
 	bottomGL_->setColumnMinimumWidth(1, 40);
 	bottomGL_->setContentsMargins(10, 0, 0, 10);
+
 	QVBoxLayout* trackingButtons = new QVBoxLayout();
 	trackingButtons->addWidget(undulatorTrackingButton_);
 	trackingButtons->addWidget(gratingTrackingButton_);
 	trackingButtons->addWidget(exitSlitTrackingButton_);
 	bottomGL_->addLayout(trackingButtons,0 , 2);
 	bottomGL_->addWidget(matchesBeamlineWarning_, 2, 0);
-	QGridLayout* bottomButtonL = new QGridLayout();
 
+	QGridLayout* bottomButtonL = new QGridLayout();
 	bottomButtonL->addWidget(getBeamlineSettings_, 0, 0);
-	bottomButtonL->addItem(new QSpacerItem(450, 10),0,1);
+	bottomButtonL->addItem(new QSpacerItem(400, 10),0,1);
 	bottomGL_->addLayout(bottomButtonL,3,0);
 			//addWidget(getBeamlineSettings_, 3, 0);
 	mainVL_->addStretch(8);
