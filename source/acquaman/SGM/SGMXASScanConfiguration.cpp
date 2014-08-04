@@ -29,6 +29,7 @@ SGMXASScanConfiguration::SGMXASScanConfiguration(QObject *parent)
 	AMScanAxis *axis = new AMScanAxis(AMScanAxis::StepAxis, region);
 	appendScanAxis(axis);
 
+	/*
 	if(SGMBeamline::sgm()->isConnected()){
 
 		connect(SGMBeamline::sgm()->exitSlitGap(), SIGNAL(valueChanged(double)), this, SLOT(checkIfMatchesBeamline()));
@@ -41,6 +42,7 @@ SGMXASScanConfiguration::SGMXASScanConfiguration(QObject *parent)
 	}
 
 	connect(this, SIGNAL(configurationChanged()), this, SLOT(checkIfMatchesBeamline()));
+	*/
 }
 
 
