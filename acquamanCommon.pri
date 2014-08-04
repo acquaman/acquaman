@@ -290,11 +290,9 @@ QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$MPLOT_LIB_DIR"
 # Source Files (Acquaman Framework Common)
 #######################
 
-HEADERS += source/acquaman/AMRegion.h \
-	source/acquaman/AMRegionsList.h \
+HEADERS += \
 	source/acquaman/AMScanConfiguration.h \
 	source/acquaman/AMScanController.h \
-	source/acquaman/AMXASScanConfiguration.h \
 	source/application/AMAppController.h \
 	source/util/AMBiHash.h \
 	source/util/AMErrorMonitor.h \
@@ -336,7 +334,6 @@ HEADERS += source/acquaman/AMRegion.h \
 	source/ui/dataman/AMFlowGraphicsLayout.h \
 	source/ui/dataman/AMImportControllerWidget.h \
 	source/ui/AMMainWindow.h \
-	source/ui/acquaman/AMRegionsLineView.h \
 	source/ui/dataman/AMRunExperimentInsert.h \
 	source/ui/acquaman/AMScanConfigurationView.h \
 	source/ui/dataman/AMScanView.h \
@@ -344,7 +341,6 @@ HEADERS += source/acquaman/AMRegion.h \
 	source/ui/AMStatusView.h \
 	source/ui/AMThumbnailScrollViewer.h \
 	source/ui/AMBottomBar.h \
-	source/ui/acquaman/AMRegionsView.h \
 	source/ui/beamline/AMControlEditor.h \
 	source/acquaman.h \
 	source/ui/dataman/AMNewRunDialog.h \
@@ -392,7 +388,6 @@ HEADERS += source/acquaman/AMRegion.h \
 	source/analysis/AMStandardAnalysisBlock.h \
 	source/analysis/AM2DSummingABEditor.h \
 	source/util/AMOrderedList.h \
-	source/beamline/AMControlOptimization.h \
 	source/dataman/REIXS/REIXSXESRawFileLoader.h \
 	source/util/AMDeferredFunctionCall.h \
 	source/ui/util/AMPeriodicTableView.h \
@@ -454,8 +449,6 @@ HEADERS += source/acquaman/AMRegion.h \
 	source/beamline/AMSampleManipulator.h \
 	source/beamline/AMControlSetSampleManipulator.h \
 	source/ui/CLS/CLSStopLightButton.h \
-	source/acquaman/AMRegionScanConfiguration.h \
-	source/acquaman/AMEXAFSScanConfiguration.h \
 	source/beamline/CLS/CLSVariableIntegrationTime.h \
 	source/beamline/CLS/CLSOMS58Motor.h \
 	source/beamline/CLS/CLSSIS3820Scaler.h \
@@ -482,7 +475,6 @@ HEADERS += source/acquaman/AMRegion.h \
 	source/util/AMJoystick.h \
 	source/ui/util/AMJoystickTestView.h \
 	source/ui/dataman/AMControlInfoListTableView.h \
-	source/acquaman/AM2DScanConfiguration.h \
 	source/dataman/AM2DScan.h \
 	source/dataman/info/CLSAmptekSDD123DetectorInfo.h \
 	source/analysis/AM2DNormalizationAB.h \
@@ -543,7 +535,6 @@ HEADERS += source/acquaman/AMRegion.h \
 	source/ui/beamline/AMControlButton.h \
 	source/dataman/info/AMControlInfo.h \
 	source/dataman/AMLineScan.h \
-	source/ui/dataman/AMRegionScanConfigurationView.h \
 	source/ui/AMTopFrame2.h \
 	source/application/AMDatamanAppControllerForActions3.h \
 	source/analysis/AM2DAdditionAB.h \
@@ -602,8 +593,6 @@ HEADERS += source/acquaman/AMRegion.h \
 	source/acquaman/AMScanActionControllerScanValidator.h \
 	source/acquaman/AMScanActionTreeSupport.h \
 	source/acquaman/AMNestedAxisTypeValidator.h \
-	source/acquaman/AMScanActionControllerScanConfigurationConverter.h \
-	source/acquaman/AM3DScanConfiguration.h \
 	source/dataman/AM3DScan.h \
 	source/dataman/AMTextStream.h \
 	source/ui/util/AMMessageBoxWTimeout.h \
@@ -693,8 +682,6 @@ HEADERS += source/acquaman/AMRegion.h \
 	source/ui/beamline/AMDeadTimeButton.h \
 	source/analysis/AMRegionOfInterestAB.h \
 	source/ui/beamline/AMRegionOfInterestView.h \
-	source/acquaman/AMRegionScanConfigurationConverter.h \
-	source/acquaman/AMRegionScanActionController.h \
 	source/ui/actions3/AMCancelActionPrompt.h \
 	source/dataman/export/SGM/SGMAxis2000Exporter.h \
 	source/ui/CLS/CLSAmptekSDD123DetailedDetectorView.h \
@@ -727,11 +714,9 @@ HEADERS += source/acquaman/AMRegion.h \
 	source/beamline/AMCurrentAmplifier.h \
 	source/beamline/AMAdvancedControlDetectorEmulator.h \
 	source/dataman/AMDbUpgrade1Pt3.h \
-	source/acquaman/AM2DScanConfigurationConverter.h \
 	source/acquaman/AMScanActionControllerBasicFileWriter.h \
 	source/acquaman/AMTimedScanActionController.h \
 	source/acquaman/AMTimedRegionScanConfiguration.h \
-	source/acquaman/AMTimedScanConfigurationConverter.h \
 	source/actions3/actions/AMSampleMoveActionInfo.h \
 	source/actions3/actions/AMSampleMoveAction.h \
 	source/actions3/editors/AMSampleMoveActionEditor.h \
@@ -802,11 +787,9 @@ FORMS += source/ui/dataman/AMDataView.ui \
 	source/ui/actions3/AMAddActionDialog3.ui \
 	source/ui/AMTopFrame2.ui
 
-SOURCES += source/acquaman/AMRegion.cpp \
-	source/acquaman/AMRegionsList.cpp \
+SOURCES += \
 	source/acquaman/AMScanConfiguration.cpp \
 	source/acquaman/AMScanController.cpp \
-	source/acquaman/AMXASScanConfiguration.cpp \
 	source/application/AMAppController.cpp \
 	source/util/AMErrorMonitor.cpp \
 	source/util/AMSettings.cpp \
@@ -841,14 +824,12 @@ SOURCES += source/acquaman/AMRegion.cpp \
 	source/ui/dataman/AMDataViewWithActionButtons.cpp \
 	source/ui/dataman/AMFlowGraphicsLayout.cpp \
 	source/ui/AMMainWindow.cpp \
-	source/ui/acquaman/AMRegionsLineView.cpp \
 	source/ui/dataman/AMRunExperimentInsert.cpp \
 	source/ui/dataman/AMScanView.cpp \
 	source/ui/AMSidebar.cpp \
 	source/ui/AMStatusView.cpp \
 	source/ui/AMThumbnailScrollViewer.cpp \
 	source/ui/AMBottomBar.cpp \
-	source/ui/acquaman/AMRegionsView.cpp \
 	source/ui/beamline/AMControlEditor.cpp \
 	source/ui/dataman/AMNewRunDialog.cpp \
 	source/ui/AMPrefixSuffixLineEdit.cpp \
@@ -892,7 +873,6 @@ SOURCES += source/acquaman/AMRegion.cpp \
 	source/analysis/AM2DSummingAB.cpp \
 	source/analysis/AMStandardAnalysisBlock.cpp \
 	source/analysis/AM2DSummingABEditor.cpp \
-	source/beamline/AMControlOptimization.cpp \
 	source/dataman/REIXS/REIXSXESRawFileLoader.cpp \
 	source/util/AMDeferredFunctionCall.cpp \
 	source/ui/util/AMPeriodicTableView.cpp \
@@ -952,8 +932,6 @@ SOURCES += source/acquaman/AMRegion.cpp \
 	source/ui/beamline/AMControlMoveButton.cpp \
 	source/beamline/AMControlSetSampleManipulator.cpp \
 	source/ui/CLS/CLSStopLightButton.cpp \
-	source/acquaman/AMRegionScanConfiguration.cpp \
-	source/acquaman/AMEXAFSScanConfiguration.cpp \
 	source/beamline/CLS/CLSVariableIntegrationTime.cpp \
 	source/beamline/CLS/CLSSIS3820Scaler.cpp \
 	source/ui/CLS/CLSSIS3820ScalerView.cpp \
@@ -973,7 +951,6 @@ SOURCES += source/acquaman/AMRegion.cpp \
 	source/util/AMJoystick.cpp \
 	source/ui/util/AMJoystickTestView.cpp \
 	source/ui/dataman/AMControlInfoListTableView.cpp \
-	source/acquaman/AM2DScanConfiguration.cpp \
 	source/dataman/AM2DScan.cpp \
 	source/dataman/info/CLSAmptekSDD123DetectorInfo.cpp \
 	source/analysis/AM2DNormalizationAB.cpp \
@@ -1031,7 +1008,6 @@ SOURCES += source/acquaman/AMRegion.cpp \
 	source/ui/beamline/AMControlButton.cpp \
 	source/dataman/info/AMControlInfo.cpp \
 	source/dataman/AMLineScan.cpp \
-	source/ui/dataman/AMRegionScanConfigurationView.cpp \
 	source/ui/AMTopFrame2.cpp \
 	source/application/AMDatamanAppControllerForActions3.cpp \
 	source/analysis/AM2DAdditionAB.cpp \
@@ -1090,8 +1066,6 @@ SOURCES += source/acquaman/AMRegion.cpp \
 	source/acquaman/AMScanActionControllerScanValidator.cpp \
 	source/acquaman/AMScanActionTreeSupport.cpp \
 	source/acquaman/AMNestedAxisTypeValidator.cpp \
-	source/acquaman/AMScanActionControllerScanConfigurationConverter.cpp \
-	source/acquaman/AM3DScanConfiguration.cpp \
 	source/dataman/AM3DScan.cpp \
 	source/dataman/AMTextStream.cpp \
 	source/ui/util/AMMessageBoxWTimeout.cpp \
@@ -1181,8 +1155,6 @@ SOURCES += source/acquaman/AMRegion.cpp \
 	source/ui/beamline/AMDeadTimeButton.cpp \
 	source/analysis/AMRegionOfInterestAB.cpp \
 	source/ui/beamline/AMRegionOfInterestView.cpp \
-	source/acquaman/AMRegionScanConfigurationConverter.cpp \
-	source/acquaman/AMRegionScanActionController.cpp \
 	source/ui/actions3/AMCancelActionPrompt.cpp \
 	source/dataman/export/SGM/SGMAxis2000Exporter.cpp \
 	source/ui/CLS/CLSAmptekSDD123DetailedDetectorView.cpp \
@@ -1213,11 +1185,9 @@ SOURCES += source/acquaman/AMRegion.cpp \
 	source/beamline/AMCurrentAmplifier.cpp \
 	source/beamline/AMAdvancedControlDetectorEmulator.cpp \
 	source/dataman/AMDbUpgrade1Pt3.cpp \
-	source/acquaman/AM2DScanConfigurationConverter.cpp \
 	source/acquaman/AMScanActionControllerBasicFileWriter.cpp \
 	source/acquaman/AMTimedScanActionController.cpp \
 	source/acquaman/AMTimedRegionScanConfiguration.cpp \
-	source/acquaman/AMTimedScanConfigurationConverter.cpp \
 	source/actions3/actions/AMSampleMoveActionInfo.cpp \
 	source/actions3/actions/AMSampleMoveAction.cpp \
 	source/actions3/editors/AMSampleMoveActionEditor.cpp \
@@ -1281,6 +1251,38 @@ contains(DEFINES, AM_BUILD_REPORTER_ENABLED){
 
 	SOURCES += source/util/AMRunTimeBuildInfo.cpp
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -28,7 +28,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/SGM/SGMMAXvMotor.h"
 #include "beamline/CLS/CLSSynchronizedDwellTime.h"
 #include "ui/CLS/CLSSIS3820ScalerView.h"
-#include "SGMOptimizationSupport.h"
 #include "beamline/CLS/CLSAdvancedScalerChannelDetector.h"
 
 #include "acquaman/SGM/SGMXASScanConfiguration.h"
@@ -265,7 +264,7 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	allDetectorGroup_->addDetector(newFilteredPD4Detector_);
 	allDetectorGroup_->addDetector(newFilteredPD5Detector_);
 	allDetectorGroup_->addDetector(energyFeedbackDetector_);
-    allDetectorGroup_->addDetector(dwellTimeDetector_);
+	allDetectorGroup_->addDetector(dwellTimeDetector_);
 
 	connect(allDetectorGroup_, SIGNAL(allDetectorsResponded()), this, SLOT(onAllDetectorsGroupAllDetectorResponded()));
 
@@ -287,7 +286,7 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	XASDetectorGroup_->addDetector(newFilteredPD4Detector_);
 	XASDetectorGroup_->addDetector(newFilteredPD5Detector_);
 	XASDetectorGroup_->addDetector(energyFeedbackDetector_);
-    XASDetectorGroup_->addDetector(dwellTimeDetector_);
+	XASDetectorGroup_->addDetector(dwellTimeDetector_);
 
 	FastDetectorGroup_ = new AMDetectorGroup("Fast Detectors", this);
 	FastDetectorGroup_->addDetector(newTEYDetector_);
@@ -316,7 +315,7 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	criticalDetectorSet_->addDetector(newFilteredPD4Detector_);
 	criticalDetectorSet_->addDetector(newFilteredPD5Detector_);
 	criticalDetectorSet_->addDetector(energyFeedbackDetector_);
-    criticalDetectorSet_->addDetector(dwellTimeDetector_);
+	criticalDetectorSet_->addDetector(dwellTimeDetector_);
 
 	connect(criticalDetectorSet_, SIGNAL(connected(bool)), this, SLOT(onCriticalDetectorSetConnectedChanged(bool)));
 	connect(allDetectorGroup_, SIGNAL(detectorBecameConnected(AMDetector*)), this, SLOT(onAllDetectorGroupDetectorBecameConnected(AMDetector*)));
@@ -328,20 +327,6 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	synchronizedDwellTime_->addElement(2);
 	synchronizedDwellTime_->addElement(3);
 	synchronizedDwellTime_->addElement(4);
-
-	fluxOptimization_ = new SGMFluxOptimization(this);
-	fluxOptimization_->setDescription("Flux");
-	resolutionOptimization_ = new SGMResolutionOptimization(this);
-	resolutionOptimization_->setDescription("Resolution");
-	fluxResolutionSet_ = new AMControlOptimizationSet(this);
-	fluxResolutionSet_->setName("Flux/Resolution");
-	fluxResolutionSet_->addControl(grating_);
-	fluxResolutionSet_->addControl(harmonic_);
-	fluxResolutionSet_->addControl(exitSlitGap_);
-	unconnectedSets_.append(fluxResolutionSet_);
-	connect(fluxResolutionSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
-	((AMControlOptimizationSet*)fluxResolutionSet_)->addOptimization(fluxOptimization_);
-	((AMControlOptimizationSet*)fluxResolutionSet_)->addOptimization(resolutionOptimization_);
 
 	trackingSet_ = new AMControlSet(this);
 	trackingSet_->setName("Tracking");
@@ -557,7 +542,7 @@ AMDetector* SGMBeamline::gratingEncoderDetector() const {
 }
 
 AMDetector* SGMBeamline::dwellTimeDetector() const {
-    return dwellTimeDetector_;
+	return dwellTimeDetector_;
 }
 
 AMAction3* SGMBeamline::createBeamOnActions3(){
@@ -690,16 +675,16 @@ AMAction3* SGMBeamline::createBeamOnActions3(){
 }
 
 AMAction3* SGMBeamline::createTurnOffBeamActions(){
-    if(!SGMBeamline::sgm()->isConnected()) {
-        return 0;
-    }
+	if(!SGMBeamline::sgm()->isConnected()) {
+		return 0;
+	}
 
-    AMControlInfo fastShutterSetpoint = fastShutterVoltage()->toInfo();
-    fastShutterSetpoint.setValue(5);
-    AMControlMoveActionInfo3* fastShutterActionInfo = new AMControlMoveActionInfo3(fastShutterSetpoint);
-    AMControlMoveAction3* fastShutterAction = new AMControlMoveAction3(fastShutterActionInfo, fastShutterVoltage());
+	AMControlInfo fastShutterSetpoint = fastShutterVoltage()->toInfo();
+	fastShutterSetpoint.setValue(5);
+	AMControlMoveActionInfo3* fastShutterActionInfo = new AMControlMoveActionInfo3(fastShutterSetpoint);
+	AMControlMoveAction3* fastShutterAction = new AMControlMoveAction3(fastShutterActionInfo, fastShutterVoltage());
 
-    return fastShutterAction;
+	return fastShutterAction;
 }
 
 AMAction3* SGMBeamline::createStopMotorsActions3(){
@@ -1292,12 +1277,12 @@ void SGMBeamline::setupControls(){
 	motorGroup_ = new AMMotorGroup(this);
 	//motorObject = new AMMotorGroupObject("Manipulator",
 	motorObject = new SGMSampleManipulatorMotorGroupObject("Manipulator",
-							       QStringList() << "X" << "Y" << "Z" << "R",
-							       QStringList() << "mm" << "mm" << "mm" << "deg",
-					     QList<AMControl*>() << ssaManipulatorX_ << ssaManipulatorY_ << ssaManipulatorZ_ << ssaManipulatorRot_,
-					     QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Horizontal << AMMotorGroupObject::Normal << AMMotorGroupObject::Vertical << AMMotorGroupObject::Other,
-					     QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational << AMMotorGroupObject::Rotational,
-					     this);
+								   QStringList() << "X" << "Y" << "Z" << "R",
+								   QStringList() << "mm" << "mm" << "mm" << "deg",
+						 QList<AMControl*>() << ssaManipulatorX_ << ssaManipulatorY_ << ssaManipulatorZ_ << ssaManipulatorRot_,
+						 QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Horizontal << AMMotorGroupObject::Normal << AMMotorGroupObject::Vertical << AMMotorGroupObject::Other,
+						 QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational << AMMotorGroupObject::Rotational,
+						 this);
 	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
 }
 
@@ -1332,7 +1317,7 @@ void SGMBeamline::setupExposedDetectors(){
 	addExposedDetector(newEncoderDownDetector_);
 	addExposedDetector(energyFeedbackDetector_);
 	addExposedDetector(gratingEncoderDetector_);
-    addExposedDetector(dwellTimeDetector_);
+	addExposedDetector(dwellTimeDetector_);
 
 	addExposedDetectorGroup(XASDetectorGroup_);
 	addExposedDetectorGroup(FastDetectorGroup_);

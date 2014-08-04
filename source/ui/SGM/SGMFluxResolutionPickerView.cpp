@@ -26,7 +26,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QPushButton>
 #include <QBoxLayout>
 #include "ui/beamline/AMExtendedControlEditor.h"
-#include "acquaman/AMRegionsList.h"
 #include "beamline/SGM/SGMBeamline.h"
 #include "dataman/AMScanAxis.h"
 
