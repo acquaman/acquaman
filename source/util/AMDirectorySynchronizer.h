@@ -155,6 +155,7 @@ protected:
 
 	/// @brief The object used to do the comparison between directories
 	AMRecursiveDirectoryCompare *comparator_;
+
 	/// @brief The result of the last comparison that was done
 	AMRecursiveDirectoryCompare::DirectoryCompareResult comparisonResult_;
 

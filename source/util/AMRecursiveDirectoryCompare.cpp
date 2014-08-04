@@ -218,7 +218,7 @@ bool AMRecursiveDirectoryCompare::compareOneLevel(const QString &path1, const QS
 
 	for (int x = 0, size = unknownFiles.count(); x < size; x++) {
 		qDebug() << "Found files for which the more up-to-date version cannot be determined";
-		unknownFiles_.append(QDir::cleanPath(QString(".../%1").arg(unknownFiles_.at(x))));
+		unknownFiles_.append(QDir::cleanPath(QString(".../%1").arg(unknownFiles.at(x))));
 	}
 
 	for(int x = 0, size = newerSide1Files.count(); x < size; x++){

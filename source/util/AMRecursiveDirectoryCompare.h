@@ -18,6 +18,7 @@ public:
 		BothSidesAreFiles = 8,
 		Side1IsFile = 9,
 		Side2IsFile = 10,
+		NotYetRun = 11,
 		InvalidResult
 	};
 

@@ -333,20 +333,11 @@ void AMAppController::launchScanConfigurationFromDb(const QUrl &url)
 
 bool AMAppController::eventFilter(QObject* o, QEvent* e)
 {
-	if(o == mw_ && e->type() == QEvent::Close) {
-		if(overrideCloseCheck_)
-			qApp->quit();
-		if(!canCloseScanEditors()) {
+	if(o == mw_ && e->type() == QEvent::Close && !overrideCloseCheck_) {
+		if(!canCloseScanEditors() || !canCloseActionRunner()) {
 			e->ignore();
 			return true;
-		}
-		if(!canCloseActionRunner()) {
-			e->ignore();
-			return true;
-		}
-		// They got away with closing the main window. We should quit the application
-		qApp->quit();	//note that this might already be in progress, if an application quit was what triggered this close event.  No harm in asking twice...
-
+		}		
 	}
 	// anything else, allow unfiltered
 	return QObject::eventFilter(o,e);
