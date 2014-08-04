@@ -89,20 +89,47 @@ SGMXASScanConfiguration2013View::SGMXASScanConfiguration2013View(SGMXASScanConfi
 	scanNameEdit_->setValidIfMatches(false);
 	connect(scanNameEdit_, SIGNAL(textEdited(QString)), this, SLOT(onScanNameEditChanged(QString)));
 
+	QGroupBox *trackingGroupBox = new QGroupBox("Tracking");
+	QVBoxLayout* trackingButtonsLayout = new QVBoxLayout();
+	trackingButtonsLayout->addWidget(undulatorTrackingButton_);
+	trackingButtonsLayout->addWidget(gratingTrackingButton_);
+	trackingButtonsLayout->addWidget(exitSlitTrackingButton_);
+	trackingGroupBox->setLayout(trackingButtonsLayout);
+
 	mainVL_ = new QVBoxLayout();
 	mainVL_->addWidget(topFrame_);
+
+	topRow_ = new QHBoxLayout();
+	bottomRow_ = new QHBoxLayout();
+	warningRow_ = new QHBoxLayout();
+	explanationRow_ = new QHBoxLayout();
+
+	topRow_->addWidget(regionsViewGroupBox);
+	topRow_->addWidget(trackingGroupBox);
+
+	bottomRow_->addWidget(fluxResolutionView_);
+
+	warningRow_->addWidget(matchesBeamlineWarning_);
+
+	explanationRow_->addSpacerItem(new QSpacerItem(450, 10));
+	explanationRow_->addWidget(getBeamlineSettings_);
+
+	/*
 	bottomGL_ = new QGridLayout();
 	mainVL_->addLayout(bottomGL_, 10);
-	bottomGL_->addWidget(regionsViewGroupBox, 0, 0);
-	bottomGL_->addWidget(fluxResolutionView_, 1, 0);
+	bottomGL_->addWidget(regionsViewGroupBox, 0, 0, 1, 3);
+	bottomGL_->addWidget(fluxResolutionView_, 1, 0, 1, 2);
 	bottomGL_->setColumnStretch(0, 10);
-	bottomGL_->setColumnMinimumWidth(1, 40);
+	bottomGL_->setColumnMinimumWidth(4, 40);
 	bottomGL_->setContentsMargins(10, 0, 0, 10);
-	QVBoxLayout* trackingButtons = new QVBoxLayout();
-	trackingButtons->addWidget(undulatorTrackingButton_);
-	trackingButtons->addWidget(gratingTrackingButton_);
-	trackingButtons->addWidget(exitSlitTrackingButton_);
-	bottomGL_->addLayout(trackingButtons,0 , 2);
+	QGroupBox *trackingGroupBox = new QGroupBox("Tracking");
+	QVBoxLayout* trackingButtonsLayout = new QVBoxLayout();
+	trackingButtonsLayout->addWidget(undulatorTrackingButton_);
+	trackingButtonsLayout->addWidget(gratingTrackingButton_);
+	trackingButtonsLayout->addWidget(exitSlitTrackingButton_);
+	trackingGroupBox->setLayout(trackingButtonsLayout);
+	//bottomGL_->addLayout(trackingButtonsLayout,0 , 2);
+	bottomGL_->addWidget(trackingGroupBox, 0, 4, 1, 1);
 	bottomGL_->addWidget(matchesBeamlineWarning_, 2, 0);
 	QGridLayout* bottomButtonL = new QGridLayout();
 
@@ -110,6 +137,13 @@ SGMXASScanConfiguration2013View::SGMXASScanConfiguration2013View(SGMXASScanConfi
 	bottomButtonL->addItem(new QSpacerItem(450, 10),0,1);
 	bottomGL_->addLayout(bottomButtonL,3,0);
 			//addWidget(getBeamlineSettings_, 3, 0);
+	*/
+
+	mainVL_->addLayout(topRow_);
+	mainVL_->addLayout(bottomRow_);
+	mainVL_->addLayout(warningRow_);
+	mainVL_->addLayout(explanationRow_);
+
 	mainVL_->addStretch(8);
 
 	QHBoxLayout *nameHL = new QHBoxLayout();
@@ -132,7 +166,8 @@ void SGMXASScanConfiguration2013View::setDetectorSelector(AMDetectorSelector *xa
 	xasDetectorSelector_ = xasDetectorSelector;
 	if(!xasDetectorSelectorView_){
 		xasDetectorSelectorView_ = new AMDetectorSelectorView(xasDetectorSelector_);
-		bottomGL_->addWidget(xasDetectorSelectorView_,	1, 2);
+//		bottomGL_->addWidget(xasDetectorSelectorView_, 1, 3, 1, 2);
+		bottomRow_->addWidget(xasDetectorSelectorView_);
 	}
 }
 

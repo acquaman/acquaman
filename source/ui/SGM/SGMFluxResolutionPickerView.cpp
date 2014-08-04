@@ -30,8 +30,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/SGM/SGMBeamline.h"
 #include "dataman/AMScanAxis.h"
 
-SGMFluxResolutionPickerStaticView::~SGMFluxResolutionPickerStaticView(){}
-
 SGMFluxResolutionPickerStaticView::SGMFluxResolutionPickerStaticView(AMScanAxis *scanAxis, QWidget *parent)
 	: QGroupBox("Flux/Resolution", parent)
 {
@@ -62,24 +60,27 @@ SGMFluxResolutionPickerStaticView::SGMFluxResolutionPickerStaticView(AMScanAxis 
 	harmonicGroupBox_->setLayout(tmpVL);
 
 	buttonsVL_ = new QVBoxLayout();
-	buttonsVL_->addStretch(8);
-	buttonsVL_->insertSpacing(0, 4);
+	//buttonsVL_->addStretch();
+	//buttonsVL_->insertSpacing(0, 4);
 
 	ceVL_ = new QVBoxLayout();
 	ceVL_->addWidget(exitSlitGapGroupBox_);
 	ceVL_->addWidget(gratingGroupBox_);
 	ceVL_->addWidget(harmonicGroupBox_);
-	ceVL_->addStretch(10);
+	//ceVL_->addStretch(10);
 
 	settingsHL_ = new QHBoxLayout();
 	settingsHL_->addLayout(buttonsVL_);
 	settingsHL_->addSpacing(5);
-	settingsHL_->addLayout(ceVL_, 10);
+	//settingsHL_->addLayout(ceVL_, 10);
+	settingsHL_->addLayout(ceVL_);
 
 	mainVL_ = new QVBoxLayout();
 	mainVL_->addLayout(settingsHL_);
 	setLayout(mainVL_);
 }
+
+SGMFluxResolutionPickerStaticView::~SGMFluxResolutionPickerStaticView(){}
 
 void SGMFluxResolutionPickerStaticView::setFromInfoList(const AMControlInfoList &infoList){
 	for(int x = 0; x < infoList.count(); x++){
@@ -92,8 +93,8 @@ void SGMFluxResolutionPickerStaticView::setFromInfoList(const AMControlInfoList 
 	}
 }
 
- SGMFluxResolutionPickerView::~SGMFluxResolutionPickerView(){}
- SGMFluxResolutionPickerView::SGMFluxResolutionPickerView(AMScanAxis *scanAxis, QWidget *parent)
+
+SGMFluxResolutionPickerView::SGMFluxResolutionPickerView(AMScanAxis *scanAxis, QWidget *parent)
 	: SGMFluxResolutionPickerStaticView(scanAxis, parent)
 {
 	bestFluxButton_ = new QPushButton("Best Flux");
@@ -111,6 +112,7 @@ void SGMFluxResolutionPickerStaticView::setFromInfoList(const AMControlInfoList 
 
 	buttonsVL_->addWidget(bestFluxButton_);
 	buttonsVL_->addWidget(bestResolutionButton_);
+	buttonsVL_->addStretch();
 
 	ceVL_->removeWidget(exitSlitGapGroupBox_);
 	ceVL_->removeWidget(gratingGroupBox_);
@@ -122,7 +124,7 @@ void SGMFluxResolutionPickerStaticView::setFromInfoList(const AMControlInfoList 
 	ceVL_->addWidget(exitSlitGapCE_);
 	ceVL_->addWidget(gratingCE_);
 	ceVL_->addWidget(harmonicCE_);
-	ceVL_->addStretch(10);
+	ceVL_->addStretch();
 
 	mainVL_->addWidget(warningsLabel_);
 
@@ -134,6 +136,8 @@ void SGMFluxResolutionPickerStaticView::setFromInfoList(const AMControlInfoList 
 	connect(bestResolutionButton_, SIGNAL(clicked()), this, SLOT(onBestResolutionButtonClicked()));
 	onRegionsChanged();
 }
+
+SGMFluxResolutionPickerView::~SGMFluxResolutionPickerView(){}
 
 void SGMFluxResolutionPickerView::setFromInfoList(const AMControlInfoList &infoList){
 	for(int x = 0; x < infoList.count(); x++){

@@ -47,7 +47,11 @@ SGMXASScanActionController::SGMXASScanActionController(SGMXASScanConfiguration20
 		SGMBeamline::sgm()->currentSample()->addScan(scan_);
 	connect(scan_, SIGNAL(storedToDb()), SGMBeamline::sgm()->currentSample(), SLOT(forceStoreToDb()));
 	scan_->setIndexType("fileSystem");
+
 	scan_->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));
+	AMControlInfoList list;
+	list.append(SGMBeamline::sgm()->energy()->toInfo());
+	configuration_->setAxisControlInfos(list);
 
 	QString scanName;
 	QString sampleName;

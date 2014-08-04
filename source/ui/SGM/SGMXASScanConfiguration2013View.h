@@ -88,7 +88,10 @@ protected:
 
 	void updateTrackingButtonStatus(QPushButton* button, bool isTracking);
 
-
+	QHBoxLayout *topRow_;
+	QHBoxLayout *bottomRow_;
+	QHBoxLayout *warningRow_;
+	QHBoxLayout *explanationRow_;
 };
 
 #endif // SGMXASSCANCONFIGURATION2013VIEW_H
