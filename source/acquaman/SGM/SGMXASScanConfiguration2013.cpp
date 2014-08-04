@@ -140,8 +140,24 @@ AMScanConfigurationView* SGMXASScanConfiguration2013::createView(){
 	return view;
 }
 
+QString SGMXASScanConfiguration2013::description() const{
+	AMScanAxis *xasAxis = scanAxisAt(0);
+	if(xasAxis->regionCount() != 0)
+		return QString("XAS Scan from %1eV to %2eV").arg((double)(xasAxis->regionAt(0)->regionStart())).arg((double)(xasAxis->regionAt(xasAxis->regionCount()-1)->regionEnd()));
+	else
+		return QString("XAS Scan");
+}
+
 QString SGMXASScanConfiguration2013::detailedDescription() const{
 	return QString("XAS Scan from %1 to %2\nExit Slit: %3\nGrating: %4\nHarmonic: %5").arg(double(scanAxisAt(0)->regionAt(0)->regionStart())).arg(double(scanAxisAt(0)->regionAt(scanAxisAt(0)->regionCount()-1)->regionEnd())).arg(exitSlitGap(), 0, 'f', 1).arg(SGMBeamlineInfo::sgmInfo()->sgmGratingDescription(SGMBeamlineInfo::sgmGrating(grating()))).arg(SGMBeamlineInfo::sgmInfo()->sgmHarmonicDescription(SGMBeamlineInfo::sgmHarmonic(harmonic())));
+}
+
+QString SGMXASScanConfiguration2013::autoScanName() const{
+	return QString("XAS");
+}
+
+QString SGMXASScanConfiguration2013::technique() const{
+	return QString("XAS");
 }
 
 void SGMXASScanConfiguration2013::getSettingsFromBeamline()

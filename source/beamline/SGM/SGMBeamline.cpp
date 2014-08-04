@@ -333,7 +333,15 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	trackingSet_->addControl(undulatorTracking_);
 	trackingSet_->addControl(monoTracking_);
 	trackingSet_->addControl(exitSlitTracking_);
+
+	fluxResolutionSet_ = new AMControlSet(this);
+	fluxResolutionSet_->setName("Flux/Resolution");
+	fluxResolutionSet_->addControl(grating_);
+	fluxResolutionSet_->addControl(harmonic_);
+	fluxResolutionSet_->addControl(exitSlitGap_);
+
 	unconnectedSets_.append(trackingSet_);
+	unconnectedSets_.append(fluxResolutionSet_);
 	connect(trackingSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
 
 	ssaManipulatorSet_ = new AMControlSet(this);
