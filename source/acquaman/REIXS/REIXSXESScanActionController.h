@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef REIXSXESSCANACTIONCONTROLLER_H
 #define REIXSXESSCANACTIONCONTROLLER_H
 
-#include "acquaman/AMRegionScanActionController.h"
+#include "acquaman/AMScanActionController.h"
 #include "acquaman/SGM/SGMFastScanConfiguration2013.h"
 #include "dataman/AMUser.h"
 #include "actions3/AMAction3.h"

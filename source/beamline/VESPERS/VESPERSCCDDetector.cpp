@@ -120,7 +120,7 @@ AMAction3 *VESPERSCCDDetector::createFileNumberAction(int number)
 	return action;
 }
 
-bool VESPERSCCDDetector::sharesDetectorTriggerSource()
+bool VESPERSCCDDetector::sharesDetectorTriggerSource() const
 {
 	return currentlySynchronizedDwell();
 }

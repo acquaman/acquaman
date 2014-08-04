@@ -28,7 +28,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "application/AMAppController.h"
 #include "application/AMAppControllerSupport.h"
 #include "acquaman/AMGenericScanActionControllerAssembler.h"
-#include "acquaman/AMRegionScanConfigurationConverter.h"
 #include "acquaman/AMAgnosticDataAPI.h"
 #include "actions3/AMActionRunner3.h"
 #include "actions3/AMListAction3.h"

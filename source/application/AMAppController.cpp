@@ -284,7 +284,6 @@ void AMAppController::openScanInEditor(AMScan *scan, bool bringEditorToFront, bo
 }
 
 #include "acquaman/AMScanConfiguration.h"
-#include "acquaman/AM2DScanConfiguration.h"
 #include "ui/acquaman/AMScanConfigurationView.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
 #include "dataman/database/AMDatabase.h"

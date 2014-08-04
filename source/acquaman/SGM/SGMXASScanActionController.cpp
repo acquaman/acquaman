@@ -34,7 +34,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSSR570.h"
 
 SGMXASScanActionController::SGMXASScanActionController(SGMXASScanConfiguration2013 *cfg, QObject *parent) :
-	AMRegionScanActionController(cfg, parent)
+	AMStepScanActionController(cfg, parent)
 {
 	configuration_ = cfg;
 
@@ -47,7 +47,11 @@ SGMXASScanActionController::SGMXASScanActionController(SGMXASScanConfiguration20
 		SGMBeamline::sgm()->currentSample()->addScan(scan_);
 	connect(scan_, SIGNAL(storedToDb()), SGMBeamline::sgm()->currentSample(), SLOT(forceStoreToDb()));
 	scan_->setIndexType("fileSystem");
+
 	scan_->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));
+	AMControlInfoList list;
+	list.append(SGMBeamline::sgm()->energy()->toInfo());
+	configuration_->setAxisControlInfos(list);
 
 	QString scanName;
 	QString sampleName;
@@ -73,7 +77,7 @@ SGMXASScanActionController::~SGMXASScanActionController(){}
 void SGMXASScanActionController::buildScanControllerImplementation()
 {
 
-	/* int dwellTimeIndex = scan_->indexOfDataSource(SGMBeamline::sgm()->dwellTimeDetector()->name()); commented out to prevent compiler warnings, see Issue734 */
+//	int dwellTimeIndex = scan_->indexOfDataSource(SGMBeamline::sgm()->dwellTimeDetector()->name());
 
 //	if (dwellTimeIndex != -1) {
 //		AMDataSource* dwellTimeSource = scan_->dataSourceAt(dwellTimeIndex);
@@ -128,7 +132,7 @@ QString SGMXASScanActionController::buildNotes()
 		CLSSIS3820ScalerChannel* currentChannel = scaler->channelAt(iChannel);
 		if(currentChannel->currentAmplifier() != 0)
 		{
-            AMCurrentAmplifier *channelSR570 = currentChannel->currentAmplifier();
+			AMCurrentAmplifier *channelSR570 = currentChannel->currentAmplifier();
 			if(channelSR570)
 				notes.append(QString("%1:\t%2 %3\n").arg(currentChannel->customChannelName()).arg(channelSR570->value()).arg(channelSR570->units()));
 		}
