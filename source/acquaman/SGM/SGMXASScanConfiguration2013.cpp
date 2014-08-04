@@ -85,7 +85,59 @@ AMScanController* SGMXASScanConfiguration2013::createController()
 #include "ui/SGM/SGMXASScanConfiguration2013View.h"
 
 AMScanConfigurationView* SGMXASScanConfiguration2013::createView(){
-	return new SGMXASScanConfiguration2013View(this);
+	SGMXASScanConfiguration2013View *view = new SGMXASScanConfiguration2013View(this);
+
+	AMDetectorSelector *xasDetectorSelector = new AMDetectorSelector(SGMBeamline::sgm()->XASDetectorGroup());
+	QStringList preferentialOrdering;
+	if(SGMBeamline::sgm()->newAmptekSDD1()){
+		preferentialOrdering << SGMBeamline::sgm()->newAmptekSDD1()->name();
+		xasDetectorSelector->setDetectorDefault(SGMBeamline::sgm()->newAmptekSDD1(), true);
+	}
+	if(SGMBeamline::sgm()->newAmptekSDD2()){
+		preferentialOrdering << SGMBeamline::sgm()->newAmptekSDD2()->name();
+		xasDetectorSelector->setDetectorDefault(SGMBeamline::sgm()->newAmptekSDD2(), true);
+	}
+	if(SGMBeamline::sgm()->newAmptekSDD3()){
+		preferentialOrdering << SGMBeamline::sgm()->newAmptekSDD3()->name();
+		xasDetectorSelector->setDetectorDefault(SGMBeamline::sgm()->newAmptekSDD3(), true);
+	}
+	if(SGMBeamline::sgm()->newAmptekSDD4()){
+		preferentialOrdering << SGMBeamline::sgm()->newAmptekSDD4()->name();
+		xasDetectorSelector->setDetectorDefault(SGMBeamline::sgm()->newAmptekSDD4(), true);
+	}
+	if(SGMBeamline::sgm()->newAmptekSDD5()){
+		preferentialOrdering << SGMBeamline::sgm()->newAmptekSDD5()->name();
+		xasDetectorSelector->setDetectorDefault(SGMBeamline::sgm()->newAmptekSDD5(), true);
+	}
+	if(SGMBeamline::sgm()->newI0Detector()){
+		preferentialOrdering << SGMBeamline::sgm()->newI0Detector()->name();
+		xasDetectorSelector->setDetectorDefault(SGMBeamline::sgm()->newI0Detector(), true);
+	}
+	if(SGMBeamline::sgm()->newTEYDetector()){
+		preferentialOrdering << SGMBeamline::sgm()->newTEYDetector()->name();
+		xasDetectorSelector->setDetectorDefault(SGMBeamline::sgm()->newTEYDetector(), true);
+	}
+	if(SGMBeamline::sgm()->newTFYDetector()){
+		preferentialOrdering << SGMBeamline::sgm()->newTFYDetector()->name();
+	}
+	if(SGMBeamline::sgm()->newPDDetector()){
+		preferentialOrdering << SGMBeamline::sgm()->newPDDetector()->name();
+	}
+	if(SGMBeamline::sgm()->energyFeedbackDetector()) {
+		xasDetectorSelector->setDetectorDefault(SGMBeamline::sgm()->energyFeedbackDetector(), true);
+	}
+	if(SGMBeamline::sgm()->dwellTimeDetector()) {
+		xasDetectorSelector->setDetectorDefault(SGMBeamline::sgm()->dwellTimeDetector(), true);
+	}
+
+	xasDetectorSelector->setPreferentialOrdering(preferentialOrdering);
+
+	for(int x = 0, size = detectorConfigurations().count(); x < size; x++)
+		xasDetectorSelector->setDetectorSelectedByName(detectorConfigurations().at(x).name(), true);
+
+	view->setDetectorSelector(xasDetectorSelector);
+
+	return view;
 }
 
 QString SGMXASScanConfiguration2013::detailedDescription() const{
