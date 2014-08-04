@@ -100,7 +100,7 @@ QString CLSQE65000Detector::synchronizedDwellKey() const{
 	return QString("%1:Acquire NPP NMS").arg(baseName_);
 }
 
-bool CLSQE65000Detector::sharesDetectorTriggerSource(){
+bool CLSQE65000Detector::sharesDetectorTriggerSource() const{
 	return currentlySynchronizedDwell();
 }
 

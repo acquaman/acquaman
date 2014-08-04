@@ -57,7 +57,7 @@ QString IDEASKETEKDetector::synchronizedDwellKey() const
         return "dxp1608-1002:mca1EraseStart NPP NMS";
 }
 
-bool IDEASKETEKDetector::sharesDetectorTriggerSource()
+bool IDEASKETEKDetector::sharesDetectorTriggerSource() const
 {
         return currentlySynchronizedDwell();
 }

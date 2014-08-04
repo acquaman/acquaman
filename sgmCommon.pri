@@ -52,7 +52,6 @@ HEADERS += \
 	source/beamline/SGM/SGMMAXvMotor.h \
 	source/ui/util/SGM/SGMFastScanSettingsView.h \
 	source/dataman/SGM/SGMDbUpgrade1Pt1.h \
-	source/beamline/SGM/SGMOptimizationSupport.h \
 	source/ui/SGM/SGMAdvancedControlsView.h \
 	source/ui/SGM/SGMPeriodicTableView.h \
 	source/ui/SGM/SGMSampleManipulatorMotorGroupView.h \
@@ -95,7 +94,6 @@ SOURCES += \
 	source/beamline/SGM/SGMMAXvMotor.cpp \
 	source/ui/util/SGM/SGMFastScanSettingsView.cpp \
 	source/dataman/SGM/SGMDbUpgrade1Pt1.cpp \
-	source/beamline/SGM/SGMOptimizationSupport.cpp \
 	source/ui/SGM/SGMAdvancedControlsView.cpp \
 	source/ui/SGM/SGMPeriodicTableView.cpp \
 	source/ui/SGM/SGMSampleManipulatorMotorGroupView.cpp \
@@ -115,3 +113,5 @@ SOURCES += \
 	source/ui/SGM/SGMSIS3820ScalerView.cpp \
 	source/ui/dataman/AMScanSearchView.cpp \
 	source/ui/SGM/SGMDataViewWithActionButtons.cpp
+
+

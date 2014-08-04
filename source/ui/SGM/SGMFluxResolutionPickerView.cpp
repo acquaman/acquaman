@@ -26,14 +26,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QPushButton>
 #include <QBoxLayout>
 #include "ui/beamline/AMExtendedControlEditor.h"
-#include "acquaman/AMRegionsList.h"
 #include "beamline/SGM/SGMBeamline.h"
+#include "dataman/AMScanAxis.h"
 
- SGMFluxResolutionPickerStaticView::~SGMFluxResolutionPickerStaticView(){}
-SGMFluxResolutionPickerStaticView::SGMFluxResolutionPickerStaticView(AMXASRegionsList *regions, QWidget *parent) :
-	QGroupBox("Flux/Resolution", parent)
+SGMFluxResolutionPickerStaticView::SGMFluxResolutionPickerStaticView(AMScanAxis *scanAxis, QWidget *parent)
+	: QGroupBox("Flux/Resolution", parent)
 {
-	regions_ = regions;
+	scanAxis_ = scanAxis;
 	minEnergy_ = -1;
 	maxEnergy_ = -1;
 
@@ -60,24 +59,27 @@ SGMFluxResolutionPickerStaticView::SGMFluxResolutionPickerStaticView(AMXASRegion
 	harmonicGroupBox_->setLayout(tmpVL);
 
 	buttonsVL_ = new QVBoxLayout();
-	buttonsVL_->addStretch(8);
-	buttonsVL_->insertSpacing(0, 4);
+	//buttonsVL_->addStretch();
+	//buttonsVL_->insertSpacing(0, 4);
 
 	ceVL_ = new QVBoxLayout();
 	ceVL_->addWidget(exitSlitGapGroupBox_);
 	ceVL_->addWidget(gratingGroupBox_);
 	ceVL_->addWidget(harmonicGroupBox_);
-	ceVL_->addStretch(10);
+	//ceVL_->addStretch(10);
 
 	settingsHL_ = new QHBoxLayout();
 	settingsHL_->addLayout(buttonsVL_);
 	settingsHL_->addSpacing(5);
-	settingsHL_->addLayout(ceVL_, 10);
+	//settingsHL_->addLayout(ceVL_, 10);
+	settingsHL_->addLayout(ceVL_);
 
 	mainVL_ = new QVBoxLayout();
 	mainVL_->addLayout(settingsHL_);
 	setLayout(mainVL_);
 }
+
+SGMFluxResolutionPickerStaticView::~SGMFluxResolutionPickerStaticView(){}
 
 void SGMFluxResolutionPickerStaticView::setFromInfoList(const AMControlInfoList &infoList){
 	for(int x = 0; x < infoList.count(); x++){
@@ -90,9 +92,9 @@ void SGMFluxResolutionPickerStaticView::setFromInfoList(const AMControlInfoList 
 	}
 }
 
- SGMFluxResolutionPickerView::~SGMFluxResolutionPickerView(){}
-SGMFluxResolutionPickerView::SGMFluxResolutionPickerView(AMXASRegionsList *regions, QWidget *parent) :
-	SGMFluxResolutionPickerStaticView(regions, parent)
+
+SGMFluxResolutionPickerView::SGMFluxResolutionPickerView(AMScanAxis *scanAxis, QWidget *parent)
+	: SGMFluxResolutionPickerStaticView(scanAxis, parent)
 {
 	bestFluxButton_ = new QPushButton("Best Flux");
 	bestResolutionButton_ = new QPushButton("Best Resolution");
@@ -109,6 +111,7 @@ SGMFluxResolutionPickerView::SGMFluxResolutionPickerView(AMXASRegionsList *regio
 
 	buttonsVL_->addWidget(bestFluxButton_);
 	buttonsVL_->addWidget(bestResolutionButton_);
+	buttonsVL_->addStretch();
 
 	ceVL_->removeWidget(exitSlitGapGroupBox_);
 	ceVL_->removeWidget(gratingGroupBox_);
@@ -120,11 +123,11 @@ SGMFluxResolutionPickerView::SGMFluxResolutionPickerView(AMXASRegionsList *regio
 	ceVL_->addWidget(exitSlitGapCE_);
 	ceVL_->addWidget(gratingCE_);
 	ceVL_->addWidget(harmonicCE_);
-	ceVL_->addStretch(10);
+	ceVL_->addStretch();
 
 	mainVL_->addWidget(warningsLabel_);
 
-	connect(regions_, SIGNAL(regionsChanged()), this, SLOT(onRegionsChanged()));
+	connect(scanAxis_, SIGNAL(regionsChanged()), this, SLOT(onRegionsChanged()));
 	connect(exitSlitGapCE_, SIGNAL(setpointRequested(double)), this, SLOT(onSetpointsChanged()));
 	connect(gratingCE_, SIGNAL(setpointRequested(double)), this, SLOT(onSetpointsChanged()));
 	connect(harmonicCE_, SIGNAL(setpointRequested(double)), this, SLOT(onSetpointsChanged()));
@@ -132,6 +135,8 @@ SGMFluxResolutionPickerView::SGMFluxResolutionPickerView(AMXASRegionsList *regio
 	connect(bestResolutionButton_, SIGNAL(clicked()), this, SLOT(onBestResolutionButtonClicked()));
 	onRegionsChanged();
 }
+
+SGMFluxResolutionPickerView::~SGMFluxResolutionPickerView(){}
 
 void SGMFluxResolutionPickerView::setFromInfoList(const AMControlInfoList &infoList){
 	for(int x = 0; x < infoList.count(); x++){
@@ -153,9 +158,9 @@ void SGMFluxResolutionPickerView::setDisabled(bool disabled){
 }
 
 void SGMFluxResolutionPickerView::onRegionsChanged(){
-	if( (minEnergy_ != regions_->start(0)) || (maxEnergy_ != regions_->end(regions_->count()-1)) ){
-		minEnergy_ = regions_->start(0);
-		maxEnergy_ = regions_->end(regions_->count()-1);
+	if( (minEnergy_ != double(scanAxis_->regionAt(0)->regionStart())) || (maxEnergy_ != double(scanAxis_->regionAt(scanAxis_->regionCount()-1)->regionEnd())) ){
+		minEnergy_ = double(scanAxis_->regionAt(0)->regionStart());
+		maxEnergy_ = double(scanAxis_->regionAt(scanAxis_->regionCount()-1)->regionEnd());
 		if(!SGMBeamlineInfo::sgmInfo()->energyRangeValidForSettings((SGMBeamlineInfo::sgmGrating)gratingCE_->setpoint(), (SGMBeamlineInfo::sgmHarmonic)harmonicCE_->setpoint(), minEnergy_, maxEnergy_))
 			warningsLabel_->setText("Grating and/or harmonic are \ninvalid for current energy range");
 		else
