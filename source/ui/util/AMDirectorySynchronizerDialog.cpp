@@ -92,10 +92,10 @@ AMDirectorySynchronizerDialog::AMDirectorySynchronizerDialog(const QString &side
 	setLayout(mainLayout);
 	//synchronizer_ = new AMDirectorySynchronizer(AMUserSettings::userDataFolder, AMUserSettings::remoteDataFolder);
 	synchronizer_ = new AMDirectorySynchronizer(side1Directory_, side2Directory_);
-	synchronizer_->setSide1DirectorName("Local");
-	synchronizer_->setSide2DirectorName("Network");
-	synchronizer_->appendExcludePattern("*.db.bk.*");
-	synchronizer_->appendExcludePattern(".BACKUPS");
+	synchronizer_->setSide1DirectorName(side1DirectoryName_);
+	synchronizer_->setSide2DirectorName(side2DirectoryName_);
+//	synchronizer_->appendExcludePattern("*.db.bk.*");
+//	synchronizer_->appendExcludePattern(".BACKUPS");
 	synchronizer_->setAllowSide1Creation(true);
 
 	connect(synchronizer_, SIGNAL(copyCompleted()), this, SLOT(onSynchronizerComplete()));
@@ -144,6 +144,10 @@ void AMDirectorySynchronizerDialog::setCloseOnCompletion(bool closeOnCompletion)
 
 void AMDirectorySynchronizerDialog::setTimedWarningOnCompletion(bool timedWarningOnCompletion){
 	timedWarningOnCompletion_ = timedWarningOnCompletion;
+}
+
+void AMDirectorySynchronizerDialog::appendExcludePattern(const QString &excludePattern){
+	synchronizer_->appendExcludePattern(excludePattern);
 }
 
 void AMDirectorySynchronizerDialog::closeEvent(QCloseEvent *ce)

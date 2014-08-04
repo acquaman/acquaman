@@ -81,7 +81,8 @@ bool AMDirectorySynchronizer::start()
 	switch(result){
 	case AMRecursiveDirectoryCompare::Side1DoesNotExistResult:
 		if(allowSide1Creation()){
-			QDir().mkdir(side1Directory_);
+			//QDir().mkdir(side1Directory_);
+			QDir().mkpath(side1Directory_);
 			if(!QFile::exists(side1Directory_)){
 				appendToErrorMessage(QString("Side %1 (%2) does not exist and an attempt at creation failed, cannot proceed.").arg(side1DirectoryName_).arg(side1Directory_));
 				return false;
@@ -92,7 +93,8 @@ bool AMDirectorySynchronizer::start()
 		break;
 	case AMRecursiveDirectoryCompare::Side2DoesNotExistResult:
 		if(allowSide2Creation()){
-			QDir().mkdir(side2Directory_);
+			//QDir().mkdir(side2Directory_);
+			QDir().mkpath(side2Directory_);
 			if(!QFile::exists(side2Directory_)){
 				appendToErrorMessage(QString("Side %1 (%2) does not exist and an attempt at creation failed, cannot proceed.").arg(side2DirectoryName_).arg(side2Directory_));
 				return false;

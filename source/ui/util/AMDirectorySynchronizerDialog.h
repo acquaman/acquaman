@@ -36,6 +36,8 @@ public slots:
 	void setCloseOnCompletion(bool closeOnCompletion);
 	void setTimedWarningOnCompletion(bool timedWarningOnCompletion);
 
+	void appendExcludePattern(const QString &excludePattern);
+
 signals:
 
 protected slots:

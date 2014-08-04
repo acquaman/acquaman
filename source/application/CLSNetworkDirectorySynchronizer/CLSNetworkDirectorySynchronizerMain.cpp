@@ -114,6 +114,10 @@ int main(int argc, char *argv[])
 		}
 	}
 
+	QStringList excludePatterns;
+	excludePatterns.append("*.db.bk.*");
+	excludePatterns.append("*.BACKUPS");
+
 	if(firstArgument == "-i"){
 		if(!errorTitle.isEmpty() || !errorMessage.isEmpty()){
 			QMessageBox::critical(0, errorTitle, errorMessage, QMessageBox::Ok);
@@ -123,6 +127,8 @@ int main(int argc, char *argv[])
 		AMDirectorySynchronizerDialog *synchronizerDialog = new AMDirectorySynchronizerDialog(localDirectory, networkDirectory, "Local", "Network");
 		synchronizerDialog->setCloseOnCompletion(true);
 		synchronizerDialog->setTimedWarningOnCompletion(true);
+		for(int x = 0, size = excludePatterns.size(); x < size; x++)
+			synchronizerDialog->appendExcludePattern(excludePatterns.at(x));
 		synchronizerDialog->raise();
 
 		if(argumentValuePairs.contains("--autoPrepare"))
@@ -134,44 +140,48 @@ int main(int argc, char *argv[])
 	}
 	else{
 		if(!errorTitle.isEmpty() || !errorMessage.isEmpty()){
-			qDebug() << errorTitle;
-			qDebug() << errorMessage;
+			qDebug() << "\n" << errorTitle;
+			qDebug() << errorMessage << "\n";
 			return -1;
 		}
 
-		CLSNetworkDirectorySynchronizer *synchronizer = new CLSNetworkDirectorySynchronizer(localDirectory, networkDirectory);
+		AMDirectorySynchronizer *synchronizer = new AMDirectorySynchronizer(localDirectory, networkDirectory);
+		synchronizer->setSide1DirectorName("Local");
+		synchronizer->setSide2DirectorName("Network");
+		for(int x = 0, size = excludePatterns.size(); x < size; x++)
+			synchronizer->appendExcludePattern(excludePatterns.at(x));
 
 		if(argumentValuePairs.contains("--dryRun")){
-			AMRecursiveDirectoryCompare::DirectoryCompareResult directoryCompareResult = synchronizer->compareDirectories();
+			AMRecursiveDirectoryCompare::DirectoryCompareResult directoryCompareResult = synchronizer->prepare();
 
 			switch(directoryCompareResult){
 			case AMRecursiveDirectoryCompare::FullyMatchingResult:
-				qDebug() << QString("The local directory %1 is identical to the network directory %2.").arg(synchronizer->localPath()).arg(synchronizer->networkPath());
+				qDebug() << QString("The local directory %1 is identical to the network directory %2.").arg(synchronizer->side1Directory()).arg(synchronizer->side2Directory());
 				break;
 			case AMRecursiveDirectoryCompare::Side1ModifiedResult:
-				qDebug() << QString("The local directory %1 is has been modified and is newer than the network directory %2.").arg(synchronizer->localPath()).arg(synchronizer->networkPath());
+				qDebug() << QString("The local directory %1 is has been modified and is newer than the network directory %2.").arg(synchronizer->side1Directory()).arg(synchronizer->side2Directory());
 				break;
 			case AMRecursiveDirectoryCompare::Side2ModifiedResult:
-				qDebug() << QString("The network directory %2 is has been modified and is newer than the local directory %1.").arg(synchronizer->localPath()).arg(synchronizer->networkPath());
+				qDebug() << QString("The network directory %2 is has been modified and is newer than the local directory %1.").arg(synchronizer->side1Directory()).arg(synchronizer->side2Directory());
 				break;
 			case AMRecursiveDirectoryCompare::BothSidesModifiedResult:
-				qDebug() << QString("Both the local directory %1 and the network directory %2 have been modified, this is a serious problem.").arg(synchronizer->localPath()).arg(synchronizer->networkPath());
+				qDebug() << QString("Both the local directory %1 and the network directory %2 have been modified, this is a serious problem.").arg(synchronizer->side1Directory()).arg(synchronizer->side2Directory());
 				break;
 			case AMRecursiveDirectoryCompare::UnableToDetermineResult:
-				qDebug() << QString("Unable to determine if the local directory %1 and the network directory %2 have been modified, this is a serious problem.").arg(synchronizer->localPath()).arg(synchronizer->networkPath());
+				qDebug() << QString("Unable to determine if the local directory %1 and the network directory %2 have been modified, this is a serious problem.").arg(synchronizer->side1Directory()).arg(synchronizer->side2Directory());
 				break;
 			case AMRecursiveDirectoryCompare::InvalidResult:
-				qDebug() << QString("A serious unknown error happened comparing the local directory %1 and the network directory %2 have been modified.").arg(synchronizer->localPath()).arg(synchronizer->networkPath());
+				qDebug() << QString("A serious unknown error happened comparing the local directory %1 and the network directory %2 have been modified.").arg(synchronizer->side1Directory()).arg(synchronizer->side2Directory());
 				break;
 			default:
-				qDebug() << QString("There must be a compiling error in the program, cannot compare the local directory %1 and the network directory %2.").arg(synchronizer->localPath()).arg(synchronizer->networkPath());
+				qDebug() << QString("There must be a compiling error in the program, cannot compare the local directory %1 and the network directory %2.").arg(synchronizer->side1Directory()).arg(synchronizer->side2Directory());
 				break;
 			}
 
 			return 0;
 		}
 
-		if(!synchronizer->startSynchronization()){
+		if(!synchronizer->start()){
 			qDebug() << synchronizer->errorMessages();
 			return -1;
 		}
