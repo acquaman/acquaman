@@ -27,6 +27,7 @@ AMDirectorySynchronizerDialog::AMDirectorySynchronizerDialog(const QString &side
 
 	closeOnCompletion_ = false;
 	timedWarningOnCompletion_ = false;
+	lastCompareResult_ = AMRecursiveDirectoryCompare::NotYetRun;
 
 	QVBoxLayout* mainLayout = new QVBoxLayout();
 

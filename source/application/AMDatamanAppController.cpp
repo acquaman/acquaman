@@ -877,8 +877,6 @@ void AMDatamanAppController::shutdown() {
 
 	isShuttingDown_ = true;
 
-	startupBackupDataDirectory();
-
 	// destroy the main window. This will delete everything else within it.
 	delete mw_;
 

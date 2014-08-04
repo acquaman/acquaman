@@ -9,7 +9,7 @@ AMDirectorySynchronizer::AMDirectorySynchronizer(const QString &side1Directory, 
 	:QObject(parent)
 {
 	comparator_ = 0; //NULL
-	comparisonResult_ = AMRecursiveDirectoryCompare::InvalidResult;
+	comparisonResult_ = AMRecursiveDirectoryCompare::NotYetRun;
 
 	side1Directory_ = side1Directory;
 	side2Directory_ = side2Directory;
@@ -40,45 +40,46 @@ AMRecursiveDirectoryCompare::DirectoryCompareResult AMDirectorySynchronizer::pre
 		return AMRecursiveDirectoryCompare::InvalidResult;
 	}
 
-	AMRecursiveDirectoryCompare::DirectoryCompareResult result = compareDirectories();
+	comparisonResult_ = compareDirectories();
 
-	if(result == AMRecursiveDirectoryCompare::NeitherSideExistsResult)
+	if(comparisonResult_ == AMRecursiveDirectoryCompare::NeitherSideExistsResult)
 		appendToErrorMessage(QString("Neither the %1 (%2) nor the %3 (%4) exist, cannot proceed.").arg(side1DirectoryName_).arg(side1Directory_).arg(side2DirectoryName_).arg(side2Directory_));
-	else if(result == AMRecursiveDirectoryCompare::Side1DoesNotExistResult){
+	else if(comparisonResult_ == AMRecursiveDirectoryCompare::Side1DoesNotExistResult){
 		if(!allowSide1Creation())
 			appendToErrorMessage(QString("Side %1 (%2) does not exist and creation is not allowed, cannot proceed.").arg(side1DirectoryName_).arg(side1Directory_));
 		else
 			appendToProgressMessage(QString("Side %1 (%2) does not exist yet. Depending on creation we may be able to proceed.").arg(side1DirectoryName_).arg(side1Directory_));
 	}
-	else if(result == AMRecursiveDirectoryCompare::Side2DoesNotExistResult){
+	else if(comparisonResult_ == AMRecursiveDirectoryCompare::Side2DoesNotExistResult){
 		if(!allowSide2Creation())
 			appendToErrorMessage(QString("Side %1 (%2) does not exist and creation is not allowed, cannot proceed.").arg(side2DirectoryName_).arg(side2Directory_));
 		else
 			appendToProgressMessage(QString("Side %1 (%2) does not exist yet. Depending on creation we may be able to proceed.").arg(side2DirectoryName_).arg(side2Directory_));
 	}
-	else if(result == AMRecursiveDirectoryCompare::BothSidesAreFiles)
+	else if(comparisonResult_ == AMRecursiveDirectoryCompare::BothSidesAreFiles)
 		appendToErrorMessage(QString("Both the %1 (%2) and the %3 (%4) exist but are files, cannot proceed.").arg(side1DirectoryName_).arg(side1Directory_).arg(side2DirectoryName_).arg(side2Directory_));
-	else if(result == AMRecursiveDirectoryCompare::Side1IsFile)
+	else if(comparisonResult_ == AMRecursiveDirectoryCompare::Side1IsFile)
 		appendToErrorMessage(QString("Side %1 (%2) exists but is a file, cannot proceed.").arg(side1DirectoryName_).arg(side1Directory_));
-	else if(result == AMRecursiveDirectoryCompare::Side2IsFile)
+	else if(comparisonResult_ == AMRecursiveDirectoryCompare::Side2IsFile)
 		appendToErrorMessage(QString("Side %1 (%2) exists but is a file, cannot proceed.").arg(side2DirectoryName_).arg(side2Directory_));
-	else if(result == AMRecursiveDirectoryCompare::UnableToDetermineResult)
+	else if(comparisonResult_ == AMRecursiveDirectoryCompare::UnableToDetermineResult)
 		appendToErrorMessage(QString("Unable to determine which directory contains the newest version."));
-	else if(result == AMRecursiveDirectoryCompare::InvalidResult)
+	else if(comparisonResult_ == AMRecursiveDirectoryCompare::InvalidResult)
 		appendToErrorMessage(QString("Unknown error has occured in AMDirectorySynchronizer"));
-	else if(result == AMRecursiveDirectoryCompare::BothSidesModifiedResult)
+	else if(comparisonResult_ == AMRecursiveDirectoryCompare::BothSidesModifiedResult)
 		appendToErrorMessage(QString("Contents of %1 and %2 have both changed, cannot proceed").arg(side1Directory_).arg(side2Directory_));
-	else if(result == AMRecursiveDirectoryCompare::FullyMatchingResult)
+	else if(comparisonResult_ == AMRecursiveDirectoryCompare::FullyMatchingResult)
 		appendToProgressMessage(QString("Contents of %1 and %2 are the same, no copying necessary.").arg(side1Directory_).arg(side2Directory_));
 
-	return result;
+	return comparisonResult_;
 }
 
 bool AMDirectorySynchronizer::start()
 {
-	AMRecursiveDirectoryCompare::DirectoryCompareResult result = prepare();
+	if(comparisonResult_ == AMRecursiveDirectoryCompare::NotYetRun)
+		comparisonResult_ = prepare();
 
-	switch(result){
+	switch(comparisonResult_){
 	case AMRecursiveDirectoryCompare::Side1DoesNotExistResult:
 		if(allowSide1Creation()){
 			QDir().mkdir(side1Directory_);
@@ -131,7 +132,7 @@ bool AMDirectorySynchronizer::start()
 	for(int x = 0, size = excludePatterns_.size(); x < size; x++)
 		args << "--exclude" << excludePatterns_.at(x);
 
-	if(result == AMRecursiveDirectoryCompare::Side1ModifiedResult){
+	if(comparisonResult_ == AMRecursiveDirectoryCompare::Side1ModifiedResult){
 		lockDirectory(side1Directory_);
 		args << QString("%1/.").arg(side1Directory_) << QString("%1/").arg(side2Directory_);
 	}
