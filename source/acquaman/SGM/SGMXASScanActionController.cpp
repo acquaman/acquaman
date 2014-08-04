@@ -77,7 +77,7 @@ SGMXASScanActionController::~SGMXASScanActionController(){}
 void SGMXASScanActionController::buildScanControllerImplementation()
 {
 
-	int dwellTimeIndex = scan_->indexOfDataSource(SGMBeamline::sgm()->dwellTimeDetector()->name());
+//	int dwellTimeIndex = scan_->indexOfDataSource(SGMBeamline::sgm()->dwellTimeDetector()->name());
 
 //	if (dwellTimeIndex != -1) {
 //		AMDataSource* dwellTimeSource = scan_->dataSourceAt(dwellTimeIndex);

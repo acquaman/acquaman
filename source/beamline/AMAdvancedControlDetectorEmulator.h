@@ -39,7 +39,7 @@ public:
 	virtual QString synchronizedDwellKey() const { return synchronizedDwellKey_;}
 
 	/// No triggering source
-	virtual bool sharesDetectorTriggerSource() { return true; }
+	virtual bool sharesDetectorTriggerSource() const { return true; }
 	/// Returns Null pointer
 	virtual AMDetectorTriggerSource* detectorTriggerSource() { return AMBeamline::bl()->synchronizedDwellTime()->triggerSource(); }
 
