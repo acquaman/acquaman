@@ -166,9 +166,6 @@ protected:
 	void addToPreviousSelectionsQueue(const QModelIndex& current);
 	/// returns previous index that should be switched to when removing or undocking \c current.
 	QModelIndex getPreviousSelection(const QModelIndex& current);
-
-	void closeEvent(QCloseEvent *ce);
-
 };
 
 #endif // AMMAINWINDOW_H

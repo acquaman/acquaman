@@ -180,13 +180,13 @@ bool AMRecursiveDirectoryCompare::compareOneLevel(const QString &path1, const QS
 			{
 				QFileInfo side1Match = side1Files.value(currentSide2Entry.absoluteFilePath().remove(path2));
 				if(side1Match.lastModified() < currentSide2Entry.lastModified()) {
-					if(side1Match.size() > currentSide2Entry.size())
+					if(side1Match.size() > currentSide2Entry.size() && !side1Match.fileName().endsWith(".db"))
 						unknownFiles.append(currentSide2Entry.absoluteFilePath().remove(path2));
 					else
 						newerSide2Files.append(currentSide2Entry.absoluteFilePath().remove(path2));
 				}
 				else if(currentSide2Entry.lastModified() < side1Match.lastModified()) {
-					if(currentSide2Entry.size() > side1Match.size())
+					if(currentSide2Entry.size() > side1Match.size() && !side1Match.fileName().endsWith(".db"))
 						unknownFiles.append(side1Match.absoluteFilePath().remove(path1));
 					else
 						newerSide1Files.append(side1Match.absoluteFilePath().remove(path1));

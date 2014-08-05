@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
 
 	for(int x = 0, size = arguments.count(); x < size; x++){
 		if(arguments.at(x).contains('='))
-			argumentValuePairs.insert(arguments.at(x).section('=', 0, 1), arguments.at(x).section('=', 1, 2));
+			argumentValuePairs.insert(arguments.at(x).section('=', 0, 0), arguments.at(x).section('=', 1, 1));
 		else
 			argumentValuePairs.insert(arguments.at(x), QString());
 	}
@@ -126,12 +126,19 @@ int main(int argc, char *argv[])
 
 		AMDirectorySynchronizerDialog *synchronizerDialog = new AMDirectorySynchronizerDialog(localDirectory, networkDirectory, "Local", "Network");
 		synchronizerDialog->setCloseOnCompletion(true);
-		synchronizerDialog->setTimedWarningOnCompletion(true);
+		if(!argumentValuePairs.contains("--noWarningTimeout"))
+			synchronizerDialog->setTimedWarningOnCompletion(true);
 		for(int x = 0, size = excludePatterns.size(); x < size; x++)
 			synchronizerDialog->appendExcludePattern(excludePatterns.at(x));
 		synchronizerDialog->raise();
 
-		if(argumentValuePairs.contains("--autoPrepare"))
+		qDebug() << argumentValuePairs;
+
+		if(argumentValuePairs.contains("--delayedStart")){
+			synchronizerDialog->delayedStart(argumentValuePairs.value("--delayedStart").toDouble());
+			synchronizerDialog->exec();
+		}
+		else if(argumentValuePairs.contains("--autoPrepare"))
 			synchronizerDialog->autoPrepare();
 		else if(argumentValuePairs.contains("--autoStart"))
 			synchronizerDialog->autoStart();

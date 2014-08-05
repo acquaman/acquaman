@@ -249,7 +249,8 @@ The Drag is accepted when:
 	/// This slot is called when a menu action requests to export the current Scan Editor's graphics to a file.
 	void onActionPrintGraphics();
 
-
+	/// Helps force quit Acquaman by setting a flag to override the check in the event filter for QEvent::Close
+	void forceQuitAcquaman();
 
 protected slots:
 
@@ -377,6 +378,9 @@ protected:
 
 	/// List that organizes active scans with editors for updating the ScanEditorModelItem's.  Although the list currently will only be populated AMAppController, the clean up is very general and is done in the onWindowPaneCloseClicked() method.
 	QList<QPair<AMScan *, AMGenericScanEditor *> > scanEditorScanMapping_;
+
+	/// Flag for overriding check on eventfilter for QEvent::Close
+	bool overrideCloseCheck_;
 
 private:
 	/// Holds the QObject whose signal is currently being used to connect to the onStartupFinished slot

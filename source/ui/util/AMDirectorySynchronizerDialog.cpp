@@ -157,6 +157,7 @@ void AMDirectorySynchronizerDialog::closeEvent(QCloseEvent *ce)
 		ce->setAccepted(false);
 	else{
 		ce->setAccepted(true);
+		emit dialogCompleted();
 		if(closeOnCompletion_)
 			QTimer::singleShot(1000, QCoreApplication::instance(), SLOT(quit()));
 	}
@@ -342,6 +343,14 @@ bool AMDirectorySynchronizerDialog::autoStart(){
 	start();
 	exec();
 	return successfulSync_;
+}
+
+void AMDirectorySynchronizerDialog::delayedStart(double delaySeconds){
+	prepareButton_->setEnabled(false);
+	startButton_->setEnabled(false);
+
+	int delayTimeMS = 1000*delaySeconds;
+	QTimer::singleShot(delayTimeMS, this, SLOT(onStartButtonClicked()));
 }
 
 void AMDirectorySynchronizerDialog::onSynchronizerErrorTextChanged(const QString &message)

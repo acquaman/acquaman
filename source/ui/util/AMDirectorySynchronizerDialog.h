@@ -23,9 +23,6 @@ public:
 	void prepare();
 	bool start();
 
-	void autoPrepare();
-	bool autoStart();
-
 	QString side1Directory() const;
 	QString side2Directory() const;
 
@@ -38,7 +35,13 @@ public slots:
 
 	void appendExcludePattern(const QString &excludePattern);
 
+	void autoPrepare();
+	bool autoStart();
+
+	void delayedStart(double delaySeconds);
+
 signals:
+	void dialogCompleted();
 
 protected slots:
 	void onSynchronizerErrorTextChanged(const QString& message);

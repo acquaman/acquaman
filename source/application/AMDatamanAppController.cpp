@@ -127,13 +127,17 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMSample.h"
 #include "dataman/AMSamplePlate.h"
 #include "beamline/camera/AMSampleCameraBrowser.h"
+
 #include "ui/util/AMDirectorySynchronizerDialog.h"
+#include "ui/util/AMMessageBoxWTimeout.h"
 
 AMDatamanAppController::AMDatamanAppController(QObject *parent) :
 	QObject(parent)
 {
 	isStarting_ = true;
 	isShuttingDown_ = false;
+
+	overrideCloseCheck_ = false;
 
 	isBadDatabaseDirectory_ = false;
 	finishedSender_ = 0;
@@ -414,9 +418,16 @@ bool AMDatamanAppController::startupBackupDataDirectory()
 	if(AMUserSettings::remoteDataFolder.length() > 0)
 	{
 		qDebug() << "Calling synchronization with " << AMUserSettings::userDataFolder << AMUserSettings::remoteDataFolder;
-		AMDirectorySynchronizerDialog synchronizer(AMUserSettings::userDataFolder, AMUserSettings::remoteDataFolder, "Local", "Network");
+		AMDirectorySynchronizerDialog *synchronizer = new AMDirectorySynchronizerDialog(AMUserSettings::userDataFolder, AMUserSettings::remoteDataFolder, "Local", "Network");
+
+		QStringList excludePatterns;
+		excludePatterns.append("*.db.bk.*");
+		excludePatterns.append("*.BACKUPS");
+		for(int x = 0, size = excludePatterns.size(); x < size; x++)
+			synchronizer->appendExcludePattern(excludePatterns.at(x));
+
 		//return synchronizer.start();
-		return synchronizer.autoStart();
+		return synchronizer->autoStart();
 	}
 	return true;
 }
@@ -627,9 +638,9 @@ bool AMDatamanAppController::startupRegisterDatabases()
 	success &= AMDbObjectSupport::s()->registerClass<AM1DDeadTimeAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AM2DDeadTimeCorrectionAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AM3DDeadTimeCorrectionAB>();
-    success &= AMDbObjectSupport::s()->registerClass<AM0DAccumulatorAB>();
-    success &= AMDbObjectSupport::s()->registerClass<AM0DTimestampAB>();
-    success &= AMDbObjectSupport::s()->registerClass<AM1DTimedDataAB>();
+	success &= AMDbObjectSupport::s()->registerClass<AM0DAccumulatorAB>();
+	success &= AMDbObjectSupport::s()->registerClass<AM0DTimestampAB>();
+	success &= AMDbObjectSupport::s()->registerClass<AM1DTimedDataAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AM1DKSpaceCalculatorAB>();
 
 	success &= AMDbObjectSupport::s()->registerClass<AMScanAxis>();
@@ -810,6 +821,10 @@ bool AMDatamanAppController::startupInstallActions()
 	saveAllAction->setStatusTip("Save all unsaved scans without prompting.");
 	connect(saveAllAction, SIGNAL(triggered()), this, SLOT(saveAll()));
 
+	QAction *forceQuitAction = new QAction("Force Quit Acquaman", mw_);
+	forceQuitAction->setStatusTip("Acquaman is behaving poorly, force a quit and loose any unsaved changes or currently running scans");
+	connect(forceQuitAction, SIGNAL(triggered()), this, SLOT(forceQuitAcquaman()));
+
 
 	QAction* importLegacyFilesAction = new QAction("Import Legacy Files...", mw_);
 	importLegacyFilesAction->setShortcut(QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_L));
@@ -865,6 +880,8 @@ bool AMDatamanAppController::startupInstallActions()
 	fileMenu_->addSeparator();
 	fileMenu_->addAction(amSettingsAction);
 
+	fileMenu_->addAction(forceQuitAction);
+
 	helpMenu_ = menuBar_->addMenu("Help");
 	helpMenu_->addAction(amIssueSubmissionAction);
 	helpMenu_->addAction(amShowAboutPageAction);
@@ -882,7 +899,6 @@ void AMDatamanAppController::shutdown() {
 
 	// Close down connection to the user Database
 	AMDatabase::deleteDatabase("user");
-
 }
 
 
@@ -1232,11 +1248,20 @@ bool AMDatamanAppController::canCloseScanEditors() const
 
 bool AMDatamanAppController::eventFilter(QObject* o, QEvent* e)
 {
-	if(o == mw_ && e->type() == QEvent::Close) {
+	if(o == mw_ && e->type() == QEvent::Close && !overrideCloseCheck_) {
 		if(!canCloseScanEditors()) {
 			e->ignore();
 			return true;
 		}
+
+		if(AMUserSettings::remoteDataFolder.length() > 0)		{
+			QStringList arguments;
+			arguments << "-i" << "--delayedStart=3" << "--noWarningTimeout";
+
+			QString pathToAM = QApplication::instance()->applicationFilePath().section('/', 0, -2);
+			QProcess::startDetached(QString("%1/CLSNetworkDirectorySynchronizer").arg(pathToAM), arguments);
+		}
+
 		// They got away with closing the main window. We should quit the application
 		qApp->quit();	//note that this might already be in progress, if an application quit was what triggered this close event.  No harm in asking twice...
 
@@ -1518,6 +1543,12 @@ void AMDatamanAppController::onActionPrintGraphics()
 		AMErrorMon::alert(this, -1111, "To export graphics, you must have a plot open in a scan editor.");
 	}
 }
+
+void AMDatamanAppController::forceQuitAcquaman(){
+	overrideCloseCheck_ = true;
+	mw_->close();
+}
+
 
 
 void AMDatamanAppController::getUserDataFolderFromDialog(bool presentAsParentFolder)
