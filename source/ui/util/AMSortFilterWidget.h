@@ -9,6 +9,40 @@
 #include <QCheckBox>
 #include <QPushButton>
 #include <QApplication>
+#include <QGridLayout>
+#include <QFormLayout>
+
+/**
+ * A class representing the widget area used to build a filter. Has widgets for setting the field and
+ * the filter type (contains, exact match, regex). Note: This doesn't apply filters to anything, it is simply
+ * a way to format the possible criteria in a handy widget. If you want an actual widget to do some filtering
+ * of a QSortFilterProxyModel, see AMSortFilterWidget below.
+ */
+class AMSortFilterBuilder : public QWidget {
+	Q_OBJECT
+private:
+	QComboBox* fieldComboBox_;
+	QComboBox* modeComboBox_;
+	QLineEdit* criteriaLineEdit_;
+	QCheckBox* caseSensitiveCheckBox_;
+public:
+
+	explicit AMSortFilterBuilder(QWidget* parent = 0);
+	/// Returns the currently selected filter column
+	int filterKeyColumn() const;
+	/// Returns a criteria text formatted depending on the current mode selection
+	QString criteriaText() const;
+	/// Returns whether the filter is case sensitiver or not
+	bool isCaseSensitive() const;
+
+	/// Adds a field to the field combo box
+	void addField(const QString& fieldName);
+	/// Clears all fields from the field combo box
+	void clearFields();
+public slots:
+	/// Clears the search criteria
+	void clear();
+};
 
 /**
  * A class representing a standardized widget for controlling any QSortFilterProxyModel. When passed
@@ -19,13 +53,13 @@ class AMSortFilterWidget : public QWidget
 {
 	Q_OBJECT
 private:
-	QComboBox* fieldComboBox_;
-	QComboBox* modeComboBox_;
-	QLineEdit* criteriaLineEdit_;
-	QCheckBox* caseSensitiveCheckBox_;
+
+	QPushButton* toggleHideButton_;
+	QLabel* filteredWarningLabel_;
 	QPushButton* clearFilterPushButton_;
 	QPushButton* applyFilterPushButton_;
 	QSortFilterProxyModel* proxyModel_;
+	AMSortFilterBuilder* filterBuilder_;
 	bool isCurrentlyFiltered_;
 public:
 	/// Creates an instance of an AMSortFilterWidget for controlling the provided QSortFilterProxyModel
@@ -43,10 +77,6 @@ protected:
 	void refreshColumns();
 	/// Places the child widgets in layouts and adds those layouts to the AMSortFilterWidget
 	void initLayout();	
-	/// Populates the modeComboBox_ with the modes of filtering (Contains, Exact Match, Regular Expression)
-	void initModes();
-	/// Sets the checked status of the caseSensitiveCheckBox_ to match the status of the QSortFilterProxyModel
-	void initCaseSensitivity();
 	/// Initializes the apply and clean push buttons
 	void initPushButtons();
 	/// Handles changes between a filter being applied to the data and not
@@ -61,8 +91,12 @@ protected slots:
 	void onFilterApplied();
 	/// Slot to handle the clear button being clicked
 	void onClearFilterButtonClicked();
+	/// Sets the visibility state of the main filter layout area
+	void setFilterAreaVisible(bool visible);
 public slots:
 	
 };
+
+
 
 #endif // AMSORTFILTERWIDGET_H

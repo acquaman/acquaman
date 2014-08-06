@@ -25,20 +25,16 @@ AMScanDataView::AMScanDataView(AMDatabase *database, QWidget *parent) :
 
 	viewButtons_ = new QButtonGroup();
 
-
 	buttonLayout_ = new QHBoxLayout();
 	buttonLayout_->addWidget(titleLabel_);
 	buttonLayout_->addStretch();
 
-	searchButton_ = new QToolButton(this);
+
 	QIcon searchIcon;
 	searchIcon.addFile(QString::fromUtf8(":/system-search-2.png"), QSize(), QIcon::Normal, QIcon::Off);
-	searchButton_->setIcon(searchIcon);
-	searchButton_->setCheckable(true);
 
 	sortFilterWidget_ = new AMSortFilterWidget(proxyModel_);
 	sortFilterWidget_->addManualColumn("Data Source");
-	sortFilterWidget_->setVisible(false);
 
 	stackedWidget_  = new QStackedWidget();
 
@@ -142,7 +138,6 @@ AMScanDataView::AMScanDataView(AMDatabase *database, QWidget *parent) :
 	connect(clearSelection, SIGNAL(triggered()),this, SLOT(onClearSelection()));
 
 	// Signals, Slots
-	connect(searchButton_, SIGNAL(clicked(bool)), this, SLOT(onSearchButtonClicked(bool)));
 	connect(viewButtons_, SIGNAL(buttonClicked(int)), this, SLOT(onChildViewChanged(int)));
 	connect(sortFilterWidget_, SIGNAL(filterChanged(bool)), this, SLOT(onFilterChanged(bool)));
 
@@ -150,7 +145,7 @@ AMScanDataView::AMScanDataView(AMDatabase *database, QWidget *parent) :
 	QVBoxLayout* layout = new QVBoxLayout();
 
 	layout->addLayout(buttonLayout_);
-	layout->addWidget(searchButton_);
+
 	layout->addWidget(sortFilterWidget_);
 	layout->addWidget(stackedWidget_);
 	layout->addLayout(actionButtonLayout);
@@ -265,15 +260,10 @@ void AMScanDataView::showExperiment(int experimentId)
 	proxyModel_->setExperimentId(experimentId);
 }
 
-void AMScanDataView::onSearchButtonClicked(bool checked)
-{
-	sortFilterWidget_->setVisible(checked);
-}
-
 void AMScanDataView::onFilterChanged(bool isCurrentlyFiltered)
 {
 	if(isCurrentlyFiltered)
-		titleLabel_->setText(QString("%1: Data (Currently showing %2 scans)").arg(AMUser::user()->name()).arg(proxyModel_->rowCount()));
+		titleLabel_->setText(QString("%1: Data (Filtered to show %2 scans)").arg(AMUser::user()->name()).arg(proxyModel_->rowCount()));
 	else
 		titleLabel_->setText(QString("%1: Data").arg(AMUser::user()->name()));
 }
