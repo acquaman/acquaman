@@ -8,6 +8,7 @@ AMScanTreeView::AMScanTreeView(QWidget *parent) :
 	setSelectionMode(QAbstractItemView::ExtendedSelection);
 	setVerticalScrollMode(ScrollPerPixel);
 	verticalScrollBar()->setSingleStep(20);
+	setExpandsOnDoubleClick(false);
 }
 
 void AMScanTreeView::setModel(QAbstractItemModel *model)
@@ -38,4 +39,22 @@ QSize AMScanTreeViewDelegate::sizeHint(const QStyleOptionViewItem &option, const
 	{
 		return QSize(option.rect.width(), 200);
 	}
+}
+
+void AMScanTreeViewDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
+{
+
+	QVariant indexDisplayData = index.data(Qt::DisplayRole);
+
+	if(indexDisplayData.type() == QVariant::String)
+	{
+		QString indexDisplayStringData = indexDisplayData.toString();
+
+		if(option.fontMetrics.width(indexDisplayStringData) > option.rect.width())
+			painter->drawText(option.rect, option.fontMetrics.elidedText(indexDisplayStringData.trimmed(), Qt::ElideRight, option.rect.width()));
+		else
+			QItemDelegate::paint(painter, option, index);
+	}
+	else
+		QItemDelegate::paint(painter, option, index);
 }

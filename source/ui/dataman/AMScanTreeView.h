@@ -4,6 +4,7 @@
 #include <QTreeView>
 #include <QItemDelegate>
 #include <QScrollBar>
+#include <QPainter>
 /**
  * Class which overrides the standard QItemDelegate, which behaved oddly when given fields with very
  * long strings for their contents. This version sets a standard sizeHint height for scans, and a separate
@@ -18,6 +19,9 @@ public:
 	///  - for scans the height is the font height
 	///  - for thumbnails the height is a standard 200
 	virtual QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
+
+	/// Reimplementation of QItemDelegate::paint(). Paints the passed QModelIndex->data()
+	virtual void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
 };
 
 /**
