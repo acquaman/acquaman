@@ -113,12 +113,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMDbUpgrade1Pt2.h"
 #include "dataman/AMDbUpgrade1Pt3.h"
 #include "dataman/AMDbUpgrade1Pt4.h"
+#include "dataman/AMDbUpgrade1Pt5.h"
 
 #include "dataman/database/AMDbObjectSupport.h"
 #include "ui/dataman/AMDbObjectGeneralView.h"
 #include "ui/dataman/AMDbObjectGeneralViewSupport.h"
-#include "acquaman/AM2DScanConfiguration.h"
-#include "ui/dataman/AM2DScanConfigurationGeneralView.h"
 
 #include "beamline/camera/AMCameraConfiguration.h"
 #include "beamline/camera/AMRotationalOffset.h"
@@ -173,6 +172,14 @@ AMDatamanAppController::AMDatamanAppController(QObject *parent) :
 	appendDatabaseUpgrade(am1Pt4ActionsDb);
 	AMDbUpgrade *am1Pt4ScanActionsDb = new AMDbUpgrade1Pt4("scanActions", this);
 	appendDatabaseUpgrade(am1Pt4ScanActionsDb);
+
+	// Append the AM upgrade 1.5 to the list for the user database
+	AMDbUpgrade *am1Pt5UserDb = new AMDbUpgrade1Pt5("user", this);
+	appendDatabaseUpgrade(am1Pt5UserDb);
+	AMDbUpgrade *am1Pt5ActionsDb = new AMDbUpgrade1Pt5("actions", this);
+	appendDatabaseUpgrade(am1Pt5ActionsDb);
+	AMDbUpgrade *am1Pt5ScanActionsDb = new AMDbUpgrade1Pt5("scanActions", this);
+	appendDatabaseUpgrade(am1Pt5ScanActionsDb);
 }
 
 bool AMDatamanAppController::startup() {
@@ -610,8 +617,8 @@ bool AMDatamanAppController::startupRegisterDatabases()
 	success &= AMDbObjectSupport::s()->registerClass<AM1DDeadTimeAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AM2DDeadTimeCorrectionAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AM3DDeadTimeCorrectionAB>();
-    success &= AMDbObjectSupport::s()->registerClass<AM0DAccumulatorAB>();
-    success &= AMDbObjectSupport::s()->registerClass<AM1DTimedDataAB>();
+	success &= AMDbObjectSupport::s()->registerClass<AM0DAccumulatorAB>();
+	success &= AMDbObjectSupport::s()->registerClass<AM1DTimedDataAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AM1DKSpaceCalculatorAB>();
 
 	success &= AMDbObjectSupport::s()->registerClass<AMScanAxis>();
@@ -643,7 +650,6 @@ bool AMDatamanAppController::startupRegisterDatabases()
 	success &= AMDbObjectSupport::s()->registerClass<AMSampleCameraURL>();
 
 	success &= AMDbObjectGeneralViewSupport::registerClass<AMDbObject, AMDbObjectGeneralView>();
-	success &= AMDbObjectGeneralViewSupport::registerClass<AM2DScanConfiguration, AM2DScanConfigurationGeneralView>();
 
 	return success;
 }

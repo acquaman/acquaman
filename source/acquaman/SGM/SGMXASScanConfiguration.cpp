@@ -22,37 +22,18 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "SGMXASScanConfiguration.h"
 
  SGMXASScanConfiguration::~SGMXASScanConfiguration(){}
-SGMXASScanConfiguration::SGMXASScanConfiguration(QObject *parent) : AMXASScanConfiguration(parent) , SGMScanConfiguration()
+SGMXASScanConfiguration::SGMXASScanConfiguration(QObject *parent)
+	: AMStepScanConfiguration(parent) , SGMScanConfiguration()
 {
-	if(SGMBeamline::sgm()->isConnected()){
-		xasRegions()->setEnergyControl(SGMBeamline::sgm()->energy());
-		regions_->setDefaultTimeControl(SGMBeamline::sgm()->masterDwell());
-	}
-
-	regions_->setSensibleRange(200, 2000);
-	regions_->setDefaultUnits(" eV");
-	regions_->setDefaultTimeUnits(" s");
-
-
+	AMScanAxisRegion *region = new AMScanAxisRegion;
+	AMScanAxis *axis = new AMScanAxis(AMScanAxis::StepAxis, region);
+	appendScanAxis(axis);
 }
 
 
-SGMXASScanConfiguration::SGMXASScanConfiguration(const SGMXASScanConfiguration &original) : AMXASScanConfiguration(original) , SGMScanConfiguration()
+SGMXASScanConfiguration::SGMXASScanConfiguration(const SGMXASScanConfiguration &original)
+	: AMStepScanConfiguration(original) , SGMScanConfiguration()
 {
-	if(SGMBeamline::sgm()->isConnected()){
-		xasRegions()->setEnergyControl(SGMBeamline::sgm()->energy());
-		regions_->setDefaultTimeControl(SGMBeamline::sgm()->scalerIntegrationTime());
-
-	}
-
-	regions_->setSensibleStart(original.regions()->sensibleStart());
-	regions_->setSensibleEnd(original.regions()->sensibleEnd());
-	regions_->setDefaultUnits(original.regions()->defaultUnits());
-	regions_->setDefaultTimeUnits(original.regions()->defaultTimeUnits());
-
-	for(int x = 0; x < original.regionCount(); x++)
-		regions_->addRegion(x, original.regionStart(x), original.regionDelta(x), original.regionEnd(x), original.regionTime(x));
-
 	setTrackingGroup(original.trackingGroup());
 	setFluxResolutionGroup(original.fluxResolutionGroup());
 	setDetectorConfigurations(original.detectorChoiceConfigurations());
@@ -121,7 +102,7 @@ QString SGMXASScanConfiguration::detailedDescription() const{
 		if(fluxResolutionGroup_.at(x).name() == SGMBeamline::sgm()->harmonic()->name())
 			harmonic = fluxResolutionGroup_.at(x).value();
 	}
-	return QString("XAS Scan from %1 to %2\nExit Slit: %3\nGrating: %4\nHarmonic: %5").arg(regionStart(0)).arg(regionEnd(regionCount()-1)).arg(exitSlit, 0, 'f', 1).arg(SGMBeamlineInfo::sgmInfo()->sgmGratingDescription(SGMBeamlineInfo::sgmGrating(int(grating)))).arg(SGMBeamlineInfo::sgmInfo()->sgmHarmonicDescription(SGMBeamlineInfo::sgmHarmonic(int(harmonic))));
+	return QString("XAS Scan from %1 to %2\nExit Slit: %3\nGrating: %4\nHarmonic: %5").arg(double(scanAxisAt(0)->regionAt(0)->regionStart())).arg(double(scanAxisAt(0)->regionAt(scanAxisAt(0)->regionCount()-1)->regionEnd())).arg(exitSlit, 0, 'f', 1).arg(SGMBeamlineInfo::sgmInfo()->sgmGratingDescription(SGMBeamlineInfo::sgmGrating(grating))).arg(SGMBeamlineInfo::sgmInfo()->sgmHarmonicDescription(SGMBeamlineInfo::sgmHarmonic(harmonic)));
 }
 
 QString SGMXASScanConfiguration::dbLoadWarnings() const{

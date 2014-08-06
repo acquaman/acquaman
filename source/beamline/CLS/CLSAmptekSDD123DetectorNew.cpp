@@ -112,7 +112,7 @@ QString CLSAmptekSDD123DetectorNew::synchronizedDwellKey() const{
 	return "amptek:sdd:all:spectrum:start NPP NMS";
 }
 
-bool CLSAmptekSDD123DetectorNew::sharesDetectorTriggerSource(){
+bool CLSAmptekSDD123DetectorNew::sharesDetectorTriggerSource() const{
 	return currentlySynchronizedDwell();
 }
 

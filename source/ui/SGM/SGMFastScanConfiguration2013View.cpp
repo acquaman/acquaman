@@ -133,7 +133,11 @@ const AMScanConfiguration* SGMFastScanConfiguration2013View::configuration() con
 
 	cfg_->setDetectorConfigurations(fastDetectorSelector_->selectedDetectorInfos());
 
+	AMControlInfoList list;
+	list.append(SGMBeamline::sgm()->energy()->toInfo());
+	cfg_->setAxisControlInfos(list);
 	qDebug() << "And again, " << cfg_->detectorConfigurations().count();
+
 	return cfg_;
 }
 

@@ -21,9 +21,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "IDEASXASScanActionController.h"
 #include "acquaman/AMScanActionControllerScanAssembler.h"
-#include "acquaman/AMScanActionControllerScanConfigurationConverter.h"
-
-
 
 #include "dataman/AMXASScan.h"
 #include "beamline/CLS/CLSSynchronizedDwellTime.h"

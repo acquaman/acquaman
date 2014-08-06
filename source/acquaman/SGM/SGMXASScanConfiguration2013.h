@@ -22,10 +22,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef SGMXASSCANCONFIGURATION2013_H
 #define SGMXASSCANCONFIGURATION2013_H
 
-#include "acquaman/AMXASScanConfiguration.h"
+#include "acquaman/AMStepScanConfiguration.h"
 #include "SGMScanConfiguration2013.h"
 
-class SGMXASScanConfiguration2013 : public AMXASScanConfiguration, public SGMScanConfiguration2013
+class SGMXASScanConfiguration2013 : public AMStepScanConfiguration, public SGMScanConfiguration2013
 {
 Q_OBJECT
 
@@ -49,13 +49,18 @@ public:
 	/// Returns a pointer to a newly-created AMScanConfigurationView that is appropriate for viewing and editing this kind of scan configuration. Ownership of the new controller becomes the responsibility of the caller.
 	virtual AMScanConfigurationView* createView();
 
-	/// A human-readable synopsis of this scan configuration. Can be re-implemented to proved more details. Used by scan action to set the main text in the action view.
+	/// A human-readable description of this scan configuration. Can be re-implemented to provide more details. Used by scan action to set the title for the action view.
+	virtual QString description() const;
+
+	/// A human-readable synopsis of this scan configuration. Can be re-implemented to provide more details. Used by scan action to set the main text in the action view.
 	virtual QString detailedDescription() const;
 
-	/// Returns the AMControlInfo for the scanned region control.
-	AMControlInfo regionControlInfo() const { return regions_->defaultControl()->toInfo(); }
-	/// Returns the AMControlInfo for the time control.
-	AMControlInfo timeControlInfo() const { return regions_->defaultTimeControl()->toInfo(); }
+	/// The auto-generated scan name. Can be re-implemented to customize for each scan type.
+	virtual QString autoScanName() const;
+
+	/// The scientific technique this configuration is for
+	virtual QString technique() const;
+
 	/// Synchronizes this configuration with the beamline by copying settins from the beamline, namely:
 	/// Exit Slit Gap, Grating, Harmonic, Undulator Tracking, Grating Tracking, Exit Slit Tracking
 	void getSettingsFromBeamline();

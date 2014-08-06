@@ -29,7 +29,7 @@ class AMDbUpgrade1Pt4 : public AMDbUpgrade
 Q_OBJECT
 public:
 	/// Constructor calls the base constructor for AMDbUpgrade
-	AMDbUpgrade1Pt4(QString databaseNameToUpgrade, QObject *parent = 0);
+	AMDbUpgrade1Pt4(const QString &databaseNameToUpgrade, QObject *parent = 0);
 
 	/// This upgrade depends on AMDbUpgrade1.2
 	virtual QStringList upgradeFromTags() const;
