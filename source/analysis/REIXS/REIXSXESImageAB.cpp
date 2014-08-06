@@ -905,7 +905,7 @@ QVector<int> REIXSMovingAverageFitter::smooth(const QVector<int> &input, const Q
 	for(int i = 0; i < nPoints; i++)
 	{
 		//do the beginning and end
-		int tempSum1 = 0.0, tempSum2 = 0.0;
+		int tempSum1 = 0, tempSum2 = 0;
 		for(int j = 0; j <= (i+nPoints); j++)
 		{
 			tempSum1 += input[j];
@@ -922,7 +922,7 @@ QVector<int> REIXSMovingAverageFitter::smooth(const QVector<int> &input, const Q
 		{
 			tempSum += input[j];
 		}
-		outVec[i] = tempSum/smoothMode_;
+		outVec[i] = int(tempSum/smoothMode_);
 	}
 
 	return outVec;

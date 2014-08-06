@@ -270,7 +270,7 @@ bool REIXSXESMCPDetector::acquireImplementation(AMDetectorDefinitions::ReadMode 
 	if(finishedConditions_.testFlag(REIXSXESMCPDetector::FinishedTotalTime)){
 		dwellTimeTimer_ = new QTimer();
 		dwellTimeTimer_->setSingleShot(true);
-		dwellTimeTimer_->setInterval(dwellTime_*1000);
+		dwellTimeTimer_->setInterval(int(dwellTime_*1000));
 		connect(dwellTimeTimer_, SIGNAL(timeout()), this, SLOT(onDwellTimeTimerTimeout()));
 		dwellTimeTimer_->start();
 		qDebug() << "Trying to set timer to " << dwellTime_;

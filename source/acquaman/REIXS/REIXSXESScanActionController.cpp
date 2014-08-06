@@ -179,7 +179,7 @@ bool REIXSXESScanActionController::initializeImplementation(){
 	positions.append(REIXSBeamline::bl()->spectrometer()->detectorTiltDrive()->toInfo());
 	// add the spectrometer grating selection, since it's not a "control" anywhere.
 	AMControlInfo grating("spectrometerGrating", REIXSBeamline::bl()->spectrometer()->specifiedGrating(), 0, 0, "[choice]", 0.1, "Spectrometer Grating");
-	grating.setEnumString(REIXSBeamline::bl()->spectrometer()->spectrometerCalibration()->gratingAt(grating.value()).name());
+	grating.setEnumString(REIXSBeamline::bl()->spectrometer()->spectrometerCalibration()->gratingAt(int(grating.value())).name());
 	positions.append(grating);
 	positions.append(REIXSBeamline::bl()->spectrometer()->hexapod()->x()->toInfo());
 	positions.append(REIXSBeamline::bl()->spectrometer()->hexapod()->y()->toInfo());
@@ -252,7 +252,7 @@ void REIXSXESScanActionController::onInitializationActionsListSucceeded(){
 	positions.append(REIXSBeamline::bl()->spectrometer()->detectorTiltDrive()->toInfo());
 	// add the spectrometer grating selection, since it's not a "control" anywhere.
 	AMControlInfo grating("spectrometerGrating", REIXSBeamline::bl()->spectrometer()->specifiedGrating(), 0, 0, "[choice]", 0.1, "Spectrometer Grating");
-	grating.setEnumString(REIXSBeamline::bl()->spectrometer()->spectrometerCalibration()->gratingAt(grating.value()).name());
+	grating.setEnumString(REIXSBeamline::bl()->spectrometer()->spectrometerCalibration()->gratingAt(int(grating.value())).name());
 	positions.append(grating);
 	positions.append(REIXSBeamline::bl()->spectrometer()->hexapod()->x()->toInfo());
 	positions.append(REIXSBeamline::bl()->spectrometer()->hexapod()->y()->toInfo());
@@ -359,7 +359,7 @@ AMAction3* REIXSXESScanActionController::createInitializationActions(){
 
 bool REIXSXESScanActionController::startImplementation(){
 	REIXSBeamline::bl()->mcpDetector()->setAcquisitionTime(configuration_->maximumDurationSeconds());
-	REIXSBeamline::bl()->mcpDetector()->setTotalCountTarget(configuration_->maximumTotalCounts());
+	REIXSBeamline::bl()->mcpDetector()->setTotalCountTarget(int(configuration_->maximumTotalCounts()));
 	REIXSBeamline::bl()->mcpDetector()->setFinishedConditionTotalTimeOrTotalCounts();
 	REIXSBeamline::bl()->mcpDetector()->acquire();
 	setStarted();

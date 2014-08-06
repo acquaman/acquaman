@@ -677,7 +677,7 @@ qreal REIXSXESImageInterpolationABEditorEllipticalMask::x(unsigned index) const
 	}
 	else {
 		//rounded mask
-		if(index <= (analysisBlock_->sumRangeMaxX() - analysisBlock_->sumRangeMinX())) {
+		if(index <= (unsigned(analysisBlock_->sumRangeMaxX() - analysisBlock_->sumRangeMinX()))) {
 			//upper half of ellipse
 			return (qreal)(analysisBlock_->sumRangeMinX() + index);
 		}
@@ -771,7 +771,7 @@ void REIXSXESImageInterpolationABEditorEllipticalMask::xValues(unsigned indexSta
 		}
 		else {
 			//rounded mask
-			if(index <= (analysisBlock_->sumRangeMaxX() - analysisBlock_->sumRangeMinX())) {
+			if(index <= (unsigned(analysisBlock_->sumRangeMaxX() - analysisBlock_->sumRangeMinX()))) {
 				//upper half of ellipse
 				*(outputValues++) = (qreal)(analysisBlock_->sumRangeMinX() + index);
 			}
