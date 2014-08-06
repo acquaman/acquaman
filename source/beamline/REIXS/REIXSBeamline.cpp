@@ -936,7 +936,7 @@ void REIXSBrokenMonoControl::onMonoMirrorAngleError(double error)
 {
 	//qDebug() << "Mono Mirror Angle move error detected with error code" << error;
 	if(qFuzzyCompare(error,4)){
-		AMErrorMon::information(this,0,"The mono mirrir angle move stalled, Acquaman has caught and corrected the problem.");
+		AMErrorMon::information(this,0,"The mono mirror angle move stalled, Acquaman has caught and corrected the problem. No user action required.");
 		REIXSBeamline::bl()->photonSource()->bypassEnergy()->stop();
 		REIXSBeamline::bl()->photonSource()->bypassEnergy()->move(REIXSBeamline::bl()->photonSource()->directEnergy()->setpoint());
 	}
