@@ -32,6 +32,13 @@ class QTimer;
 class AMListAction3;
 class REIXSXESScanConfiguration;
 
+#include "acquaman/REIXS/REIXSScanActionControllerMCPFileWriter.h"
+Q_DECLARE_METATYPE(AMScanActionControllerBasicFileWriter::FileWriterError)
+
+#define REIXSXESSCANACTIONCONTROLLER_FILE_ALREADY_EXISTS 265003
+#define REIXSXESSCANACTIONCONTROLLER_COULD_NOT_OPEN_FILE 265004
+#define REIXSXESSCANACTIONCONTROLLER_UNKNOWN_FILE_ERROR 265005
+
 class REIXSXESScanActionController : public AMScanActionController
 {
 Q_OBJECT
@@ -39,6 +46,11 @@ public:
 	virtual ~REIXSXESScanActionController();
 	REIXSXESScanActionController(REIXSXESScanConfiguration* configuration, QObject *parent = 0);
 
+signals:
+	/// Notifier that new information/data should be written to file.
+	void requestWriteToFile(int fileRank, const QString &textToWrite);
+	/// Notifier that tells the file writer that all file writing activities are done after a scan has finished and to close all file access.
+	void finishWritingToFile();
 
 public slots:
 	/// Method that builds all the general aspects, such as measurements and raw data sources, and the file writer capabilities for the scan controller.
@@ -62,7 +74,10 @@ protected slots:
 	/// Helper slot that handles the progress update.
 	void onScanTimerUpdate();
 
-
+	/// Handles dealing with file writer errors.
+	void onFileWriterError(AMScanActionControllerBasicFileWriter::FileWriterError error);
+	/// Handles dealing with the file writer when it changes busy state.
+	void onFileWriterIsBusy(bool isBusy);
 
 protected:
 	/// Reimplemented to provide actions that will setup the beamline for optimized operation of the XAS scan.
@@ -78,6 +93,12 @@ protected:
 
 	AMAction3* createInitializationActions();
 
+	/// Method that writes out the header information into the scanning file.
+	void writeHeaderToFile();
+	/// Method that writes out the current data to the scanning file.
+	void writeDataToFiles();
+	/// Method that handles cleanup for file writing.
+	void onScanControllerFinished();
 
 protected:
 	REIXSXESScanConfiguration *configuration_;
@@ -90,8 +111,10 @@ protected:
 	/// Number of seconds total for the scan to complete (estimate).
 	double secondsTotal_;
 
-
-
+	/// Pointer to the thread that handles all the file writing.
+	QThread *fileWriterThread_;
+	/// Flag for keeping track of whether the file writer thread is busy or not.
+	bool fileWriterIsBusy_;
 };
 
 #endif // REIXSXESSCANACTIONCONTROLLER_H
