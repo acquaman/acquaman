@@ -9,7 +9,7 @@
 #include <QGridLayout>
 #include <QCloseEvent>
 #include <QMessageBox>
-#include <QCoreApplication>
+#include <QApplication>
 
 #include "util/AMSettings.h"
 #include "ui/AMVerticalStackWidget.h"
@@ -212,6 +212,7 @@ QString AMDirectorySynchronizerDialog::side2ModifiedResultsString() const{
 }
 
 void AMDirectorySynchronizerDialog::prepare(){
+	QApplication::setOverrideCursor(Qt::WaitCursor);
 	mainStatusLabel_->setText("Preparing ...");
 
 	prepareButton_->setEnabled(false);
@@ -316,7 +317,7 @@ void AMDirectorySynchronizerDialog::prepare(){
 
 		mainStatusLabel_->setText("Prepare succeeded. Press Start to continue.");
 	}
-
+	QApplication::restoreOverrideCursor();
 }
 
 bool AMDirectorySynchronizerDialog::start()
