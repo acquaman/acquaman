@@ -139,6 +139,8 @@ AMDatamanAppController::AMDatamanAppController(QObject *parent) :
 
 	overrideCloseCheck_ = false;
 
+	defaultUseLocalStorage_ = false;
+
 	isBadDatabaseDirectory_ = false;
 	finishedSender_ = 0;
 	resetFinishedSignal(this, SIGNAL(datamanStartupFinished()));
@@ -203,8 +205,8 @@ bool AMDatamanAppController::startup() {
 	if(!startupLoadPlugins())
 		return AMErrorMon::errorAndReturn(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_LOADING_PLUGINS, "Problem with Acquaman startup: loading plugins.");
 
-	if(!startupBackupDataDirectory())
-		return AMErrorMon::errorAndReturn(this, AMDATAMANAPPCONTROLLER_DATA_DIR_BACKUP_ERROR, "Problem with Acquaman startup: backing up data directory.");
+//	if(!startupBackupDataDirectory())
+//		return AMErrorMon::errorAndReturn(this, AMDATAMANAPPCONTROLLER_DATA_DIR_BACKUP_ERROR, "Problem with Acquaman startup: backing up data directory.");
 
 	if((isFirstTimeRun_ = startupIsFirstTime())) {
 		if(!startupOnFirstTime())
@@ -290,7 +292,16 @@ bool AMDatamanAppController::startupIsFirstTime()
 	if(!s.contains("userDataFolder")) {
 		isFirstTime = true;
 	}
+	else if(s.contains("userDataFolder") && s.contains("remoteDataFolder")){
+		QDir remoteDataDir(AMUserSettings::remoteDataFolder);
+		if(!remoteDataDir.exists())
+			isFirstTime = true;
 
+		QString filename = AMUserSettings::remoteDataFolder + "/" + AMUserSettings::userDatabaseFilename;
+		QFile dbFile(filename);
+		if(!dbFile.exists())
+			isFirstTime = true;
+	}
 	else {
 
 		// check for existence of user data folder:
@@ -324,13 +335,25 @@ bool AMDatamanAppController::startupOnFirstTime()
 	else{
 		AMFirstTimeWizard ftw;
 
+		ftw.setField("useLocalStorage", QVariant(defaultUseLocalStorage_));
+
 		// We're pretty forceful here... The user needs to accept this dialog.
 		if(ftw.exec() != QDialog::Accepted)
 			return false;
 
-		AMUserSettings::userDataFolder = ftw.field("userDataFolder").toString();
-		if(!AMUserSettings::userDataFolder.endsWith('/'))
-			AMUserSettings::userDataFolder.append("/");
+		if(ftw.field("useLocalStorage").toBool()){
+			AMUserSettings::remoteDataFolder = ftw.field("userDataFolder").toString();
+			if(!AMUserSettings::remoteDataFolder.endsWith('/'))
+				AMUserSettings::remoteDataFolder.append("/");
+
+			QString localUserDataFolder = AMUserSettings::remoteDataFolder;
+			AMUserSettings::userDataFolder = localUserDataFolder.section('/', 2, -1).prepend("/AcquamanLocalData/");
+		}
+		else{
+			AMUserSettings::userDataFolder = ftw.field("userDataFolder").toString();
+			if(!AMUserSettings::userDataFolder.endsWith('/'))
+				AMUserSettings::userDataFolder.append("/");
+		}
 
 		AMUserSettings::save();
 
@@ -344,6 +367,18 @@ bool AMDatamanAppController::startupOnFirstTime()
 			}
 		}
 
+		if(ftw.field("useLocalStorage").toBool()){
+			// Attempt to create user's data folder, only if it doesn't exist:
+			QDir remoteDataDir(AMUserSettings::remoteDataFolder);
+			if(!remoteDataDir.exists()) {
+				AMErrorMon::report(AMErrorReport(0, AMErrorReport::Information, 0, "Creating new remote data folder: "  + AMUserSettings::remoteDataFolder));
+				if(!remoteDataDir.mkpath(AMUserSettings::remoteDataFolder)) {
+					AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, 0, "Could not create remote data folder " + AMUserSettings::remoteDataFolder));
+					return false;
+				}
+			}
+		}
+
 		// Find out the user's name:
 		AMUser::user()->setName( ftw.field("userName").toString() );
 
@@ -354,6 +389,17 @@ bool AMDatamanAppController::startupOnFirstTime()
 		if(!startupDatabaseUpgrades())
 			return false;
 
+		if(ftw.field("useLocalStorage").toBool()){
+			QDir userDataFolder(AMUserSettings::userDataFolder);
+			QStringList dataFolderFilters;
+			dataFolderFilters << "*.db";
+			QFileInfoList allDatabaseFiles = userDataFolder.entryInfoList(dataFolderFilters);
+			for(int x = 0, size = allDatabaseFiles.count(); x < size; x++){
+				qDebug() << "The file name to copy " << allDatabaseFiles.at(x).absoluteFilePath();
+				QFile::copy(allDatabaseFiles.at(x).absoluteFilePath(), QString("%1/%2").arg(AMUserSettings::remoteDataFolder).arg(allDatabaseFiles.at(x).fileName()));
+			}
+		}
+
 		AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES, "Acquaman Startup: First-Time Successful");
 		qApp->processEvents();
 	}
@@ -362,6 +408,9 @@ bool AMDatamanAppController::startupOnFirstTime()
 
 bool AMDatamanAppController::startupOnEveryTime()
 {
+	if(!startupBackupDataDirectory())
+		return AMErrorMon::errorAndReturn(this, AMDATAMANAPPCONTROLLER_DATA_DIR_BACKUP_ERROR, "Problem with Acquaman startup: backing up data directory.");
+
 	if(!startupCreateDatabases())
 		return false;
 

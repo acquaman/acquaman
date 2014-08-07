@@ -19,6 +19,9 @@
 AMDirectorySynchronizerDialog::AMDirectorySynchronizerDialog(const QString &side1Directory, const QString &side2Directory, const QString &side1DirectoryName, const QString &side2DirectoryName, QWidget *parent) :
 	QDialog(parent)
 {
+	delaySeconds_ = 0;
+	delayCountdown_ = 0;
+
 	side1Directory_ = side1Directory;
 	side2Directory_ = side2Directory;
 
@@ -348,6 +351,11 @@ bool AMDirectorySynchronizerDialog::autoStart(){
 void AMDirectorySynchronizerDialog::delayedStart(double delaySeconds){
 	prepareButton_->setEnabled(false);
 	startButton_->setEnabled(false);
+	delaySeconds_ = delaySeconds;
+	mainStatusLabel_->setText(QString("Synchronization will start in %1 seconds.").arg(delaySeconds_));
+	delayCountdownTimer_ = new QTimer();
+	connect(delayCountdownTimer_, SIGNAL(timeout()), this, SLOT(onDelayCountdown()));
+	delayCountdownTimer_->start(1000);
 
 	int delayTimeMS = 1000*delaySeconds;
 	QTimer::singleShot(delayTimeMS, this, SLOT(onStartButtonClicked()));
@@ -477,4 +485,11 @@ void AMDirectorySynchronizerDialog::onPrepareButtonClicked(){
 
 void AMDirectorySynchronizerDialog::onStartButtonClicked(){
 	start();
+}
+
+void AMDirectorySynchronizerDialog::onDelayCountdown(){
+	delayCountdown_++;
+	if(delaySeconds_-delayCountdown_ < 1.0)
+		delayCountdownTimer_->stop();
+	mainStatusLabel_->setText(QString("Synchronization will start in %1 seconds.").arg(delaySeconds_-delayCountdown_));
 }

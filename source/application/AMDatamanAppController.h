@@ -382,6 +382,9 @@ protected:
 	/// Flag for overriding check on eventfilter for QEvent::Close
 	bool overrideCloseCheck_;
 
+	/// Flag for letting individual appControllers default the local storage flag for first time users
+	bool defaultUseLocalStorage_;
+
 private:
 	/// Holds the QObject whose signal is currently being used to connect to the onStartupFinished slot
 	QObject *finishedSender_;

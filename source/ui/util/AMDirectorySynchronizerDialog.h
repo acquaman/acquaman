@@ -57,6 +57,8 @@ protected slots:
 	void onPrepareButtonClicked();
 	void onStartButtonClicked();
 
+	void onDelayCountdown();
+
 protected:
 	void closeEvent(QCloseEvent *);
 
@@ -93,6 +95,10 @@ protected:
 	bool successfulSync_;
 	bool closeOnCompletion_;
 	bool timedWarningOnCompletion_;
+
+	double delaySeconds_;
+	int delayCountdown_;
+	QTimer *delayCountdownTimer_;
 };
 
 #endif // AMDIRECTORYSYNCHRONIZERDIALOG_H

@@ -112,7 +112,7 @@ void AMUserSettings::save() {
 	// All settings variables are saved here to the user-specific file.
 	// Don't forget to add here if you add new user options.
 	if(!remoteDataFolder.isEmpty())
-		settings.setValue("remoteDataFolder", QVariant());
+		settings.setValue("remoteDataFolder", remoteDataFolder);
 
 	settings.setValue("userDataFolder", userDataFolder);
 	settings.setValue("userDatabaseFilename", userDatabaseFilename);
