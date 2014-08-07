@@ -408,6 +408,29 @@ bool AMDatamanAppController::startupOnFirstTime()
 
 bool AMDatamanAppController::startupOnEveryTime()
 {
+	if(AMUserSettings::remoteDataFolder.isEmpty() && defaultUseLocalStorage_){
+		int retVal = QMessageBox::question(0, "Use Local Storage?", "Acquaman has detected that you are not using local storage.\nLocal storage can significantly improve speed and reliability.\n If you wish to use local storage select \"Yes\" and your data will automatically be synchronized to the network for long term storage.\n\n Use local storage?", QMessageBox::Yes, QMessageBox::No);
+		if(retVal == QMessageBox::Yes){
+			QString currentUserDataFolder = AMUserSettings::userDataFolder;
+			QString localBaseDirectory = "/AcquamanLocalData";
+
+			QString dataFolderExtension = currentUserDataFolder;
+			if(currentUserDataFolder.contains("/home"))
+				dataFolderExtension.remove("/home");
+			else if(currentUserDataFolder.contains("/experiments"))
+				dataFolderExtension.remove("/experiments");
+			else
+				dataFolderExtension.remove(currentUserDataFolder.section('/', 0, 1));
+
+			QString newUserDataFolder = localBaseDirectory+dataFolderExtension;
+			QString newRemoteDataFolder = currentUserDataFolder;
+
+			AMUserSettings::userDataFolder = newUserDataFolder;
+			AMUserSettings::remoteDataFolder = newRemoteDataFolder;
+			AMUserSettings::save();
+		}
+	}
+
 	if(!startupBackupDataDirectory())
 		return AMErrorMon::errorAndReturn(this, AMDATAMANAPPCONTROLLER_DATA_DIR_BACKUP_ERROR, "Problem with Acquaman startup: backing up data directory.");
 

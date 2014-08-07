@@ -20,6 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include <QApplication>
+#include <QDesktopWidget>
 #include <QStringList>
 #include <QDir>
 #include <QDebug>
@@ -131,6 +132,10 @@ int main(int argc, char *argv[])
 		for(int x = 0, size = excludePatterns.size(); x < size; x++)
 			synchronizerDialog->appendExcludePattern(excludePatterns.at(x));
 		synchronizerDialog->raise();
+
+		QDesktopWidget *desktop = QApplication::desktop();
+		QRect ourScreen = desktop->screenGeometry(desktop->primaryScreen());
+		synchronizerDialog->move(ourScreen.width()/4 + ourScreen.left(), ourScreen.height()/2 + ourScreen.top());
 
 		qDebug() << argumentValuePairs;
 
