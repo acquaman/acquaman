@@ -9,7 +9,6 @@
 REIXSScanActionControllerMCPFileWriter::REIXSScanActionControllerMCPFileWriter(const QString &filePath, QObject *parent)
 	: AMScanActionControllerBasicFileWriter(filePath, false, parent)
 {
-	dataPosition_ = -1;
 }
 
 REIXSScanActionControllerMCPFileWriter::~REIXSScanActionControllerMCPFileWriter()
@@ -24,19 +23,8 @@ void REIXSScanActionControllerMCPFileWriter::writeToFile(int fileRank, const QSt
 	case 2:{
 
 		AMTextStream dataStream(dataFile_);
-
-		// Assumed that you'll add "End Info\n" to the header.
-		if (textToWrite.contains("End Info")){
-
-			dataStream << textToWrite;
-			dataPosition_ = dataStream.pos();
-		}
-
-		else{
-
-			dataStream.seek(dataPosition_);
-			dataStream << textToWrite;
-		}
+		dataStream.seek(0);
+		dataStream << textToWrite;
 
 		break;
 	}

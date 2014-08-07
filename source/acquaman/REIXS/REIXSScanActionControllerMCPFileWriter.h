@@ -19,8 +19,6 @@ public slots:
 	virtual void writeToFile(int fileRank, const QString &textToWrite);
 
 protected:
-	/// Position of where the data starts.
-	qint64 dataPosition_;
 };
 
 #endif // REIXSSCANACTIONCONTROLLERMCPFILEWRITER_H

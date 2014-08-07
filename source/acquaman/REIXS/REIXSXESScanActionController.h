@@ -79,6 +79,13 @@ protected slots:
 	/// Handles dealing with the file writer when it changes busy state.
 	void onFileWriterIsBusy(bool isBusy);
 
+	/// Method that writes out the header information into the scanning file.
+	void writeHeaderToFile();
+	/// Method that writes out the current data to the scanning file.
+	void writeDataToFiles();
+	/// Method that handles cleanup for file writing.
+	void onScanControllerFinished();
+
 protected:
 	/// Reimplemented to provide actions that will setup the beamline for optimized operation of the XAS scan.
 	/// Reimplemented to put the beamline in a good state after a scan has been completed.
@@ -93,14 +100,6 @@ protected:
 
 	AMAction3* createInitializationActions();
 
-	/// Method that writes out the header information into the scanning file.
-	void writeHeaderToFile();
-	/// Method that writes out the current data to the scanning file.
-	void writeDataToFiles();
-	/// Method that handles cleanup for file writing.
-	void onScanControllerFinished();
-
-protected:
 	REIXSXESScanConfiguration *configuration_;
 	QTimer *updateTimer_;
 	AMListAction3 *xesActionsInitializationList_;
@@ -115,6 +114,9 @@ protected:
 	QThread *fileWriterThread_;
 	/// Flag for keeping track of whether the file writer thread is busy or not.
 	bool fileWriterIsBusy_;
+
+	/// Holds the header string so that we don't have to recreate it everytime data is updated.
+	QString headerText_;
 };
 
 #endif // REIXSXESSCANACTIONCONTROLLER_H

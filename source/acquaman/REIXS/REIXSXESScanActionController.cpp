@@ -99,7 +99,8 @@ void REIXSXESScanActionController::buildScanController()
 	AMRawDataSource* totalCountsDataSource = new AMRawDataSource(scan_->rawData(), 1);
 	scan_->addRawDataSource(totalCountsDataSource, false, false);
 
-	QFileInfo fullPath(AMUserSettings::defaultRelativePathForScan(QDateTime::currentDateTime()));	// ex: 2010/09/Mon_03_12_24_48_0000   (Relative, and with no extension)
+	QString path = scan_->filePath().remove(".cdf");
+	QFileInfo fullPath(path);	// ex: 2010/09/Mon_03_12_24_48_0000   (Relative, and with no extension)
 
 	qRegisterMetaType<AMScanActionControllerBasicFileWriter::FileWriterError>("FileWriterError");
 	REIXSScanActionControllerMCPFileWriter *fileWriter = new REIXSScanActionControllerMCPFileWriter(AMUserSettings::userDataFolder % fullPath.filePath());
@@ -109,9 +110,9 @@ void REIXSXESScanActionController::buildScanController()
 	connect(this, SIGNAL(finishWritingToFile()), fileWriter, SLOT(finishWriting()));
 
 	fileWriterThread_ = new QThread();
-	connect(this, SIGNAL(finished()), fileWriterThread_, SLOT(quit()));
-	connect(this, SIGNAL(cancelled()), fileWriterThread_, SLOT(quit()));
-	connect(this, SIGNAL(failed()), fileWriterThread_, SLOT(quit()));
+	connect(this, SIGNAL(finished()), this, SLOT(onScanControllerFinished()));
+	connect(this, SIGNAL(cancelled()), this, SLOT(onScanControllerFinished()));
+	connect(this, SIGNAL(failed()), this, SLOT(onScanControllerFinished()));
 	fileWriter->moveToThread(fileWriterThread_);
 	fileWriterThread_->start();
 
@@ -498,12 +499,12 @@ void REIXSXESScanActionController::writeHeaderToFile()
 	}
 
 	rank1String.append("End Info\n");
-	emit requestWriteToFile(2, rank1String);
+	headerText_ = rank1String;
 }
 
 void REIXSXESScanActionController::writeDataToFiles()
 {
-	QString rank1String;
+	QString rank1String = headerText_;
 
 	/* Stress testing
 	QTime startTime  = QTime::currentTime();
@@ -512,11 +513,14 @@ void REIXSXESScanActionController::writeDataToFiles()
 	// First do the MCP detector.
 	AMnDIndex mcpDataSize = REIXSBeamline::bl()->mcpDetector()->size();
 	QVector<double> mcpData = QVector<double>(mcpDataSize.product());
-	scan_->rawDataSources()->at(0)->values(AMnDIndex(0, 0), mcpDataSize, mcpData.data());
+	scan_->rawDataSources()->at(0)->values(AMnDIndex(0, 0), AMnDIndex(mcpDataSize.i()-1, mcpDataSize.j()-1), mcpData.data());
 
-	for (int j = 0, jSize = mcpDataSize.j(); j <= jSize; j++)
-		for (int i = 0, iSize = mcpDataSize.i(); i <= iSize; i++)
-			rank1String.append(QString("%1%2").arg(int(mcpData.at(i+j*iSize))).arg(i == iSize ? "\n" : "\t"));
+	// Important!  Darren's thoughts on this PV/getting data off the detector.
+	// This loop might seem like it has weird logic, but that is because of how the data is read directly from the PV (seemingly).
+	// This required a vertical mirroring and indexing vertically rather than horizontally.  I don't really like it, but you can't argue with working.
+	for (int j = mcpDataSize.j() - 1, jSize = j+1; j >= 0; j--)
+		for (int i = 0, iSize = mcpDataSize.i(); i < iSize; i++)
+			rank1String.append(QString("%1%2").arg(int(mcpData.at(j+i*jSize))).arg(i == (iSize-1) ? "\n" : "\t"));
 
 	// Next is the total counts.
 	rank1String.append(QString("%1").arg(int(scan_->rawDataSources()->at(1)->value(AMnDIndex()))));
