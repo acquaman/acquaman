@@ -1,7 +1,6 @@
 #include "AMScanDataView.h"
 #include "dataman/AMLightweightScanInfoModel.h"
 #include "dataman/AMLightweightScanInfoFilterProxyModel.h"
-#include "AMAbstractScanDataChildView.h"
 #include "ui/util/AMSortFilterWidget.h"
 #include "dataman/AMUser.h"
 #include "ui/dataman/AMScanTableView.h"

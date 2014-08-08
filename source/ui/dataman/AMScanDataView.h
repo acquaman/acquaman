@@ -54,7 +54,7 @@ public:
 	/// Creates an instance of an AMScanDataView, loaded scans from the provided AMDatabase
 	explicit AMScanDataView(AMDatabase* database, QWidget *parent = 0);
 protected:
-	/// Adds an AMAbstractScanDataChildView to the ScanDataView
+	/// Adds an QAbstractItemView to the ScanDataView
 	void addChildView(QAbstractItemView* childView, const QIcon &icon);
 	/// Initializes all the child views that will be shown in the ScanDataView
 	void initializeChildViews();

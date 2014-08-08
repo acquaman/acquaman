@@ -769,7 +769,6 @@ HEADERS += source/acquaman/AMRegion.h \
     source/dataman/AMLightweightScanInfoCollection.h \
     source/dataman/AMLightweightScanInfoModel.h \
     source/ui/util/AMSortFilterWidget.h \
-    source/ui/dataman/AMAbstractScanDataChildView.h \
     source/ui/dataman/AMScanDataView.h \
     source/dataman/AMLightweightScanInfoFilterProxyModel.h \
     source/ui/dataman/AMScanTableView.h \
@@ -1264,7 +1263,6 @@ SOURCES += source/acquaman/AMRegion.cpp \
     source/dataman/AMLightweightScanInfoCollection.cpp \
     source/dataman/AMLightweightScanInfoModel.cpp \
     source/ui/util/AMSortFilterWidget.cpp \
-    source/ui/dataman/AMAbstractScanDataChildView.cpp \
     source/ui/dataman/AMScanDataView.cpp \
     source/dataman/AMLightweightScanInfoFilterProxyModel.cpp \
     source/ui/dataman/AMScanTableView.cpp \
