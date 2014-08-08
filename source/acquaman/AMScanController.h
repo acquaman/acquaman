@@ -59,6 +59,7 @@ public:
 			 Pausing,
 			 Paused,
 			 Resuming,
+			 Stopping,
 			 Cancelling,
 			 Cancelled,
 			 Finished,
@@ -79,6 +80,7 @@ public:
 	bool isPausing() const;
 	bool isPaused() const;
 	bool isResuming() const;
+	bool isStopping() const;
 	bool isCancelling() const;
 	bool isCancelled() const;
 	bool isFinished() const;
@@ -91,6 +93,7 @@ public:
 	/// Pointer to the scan this instance is controlling.
 	virtual AMScan* scan() { return scan_; }
 
+	/// Returns whether the scan controller is in a state where it can be deleted.
 	virtual bool isReadyForDeletion() const;
 
 signals:
@@ -115,11 +118,15 @@ signals:
 	/// Scan failed (due to some reason out of the user's control). Synonym for stateChanged(anything, Failed).
 	void failed();
 
+	/// Notifier that the cleaning actions are being used.  This may not be emitted by all scan controllers.
+	void cleaningActionsStarted();
+
 	/// Time left in scan. Implementations should emit this periodically
 	void timeRemaining(double seconds);
 	/// Progress of scan (arbitrary units: some amount \c elapsed of a \c total amount). Implementations should emit this periodically.
 	void progress(double elapsed, double total);
 
+	/// Notifier that the scan controller deletion state has changed.  Passes the new state.
 	void readyForDeletion(bool isReady);
 
 
@@ -137,6 +144,8 @@ public slots:
 	bool resume();
 	/// Cancel the scan. We can always try to cancel.
 	void cancel();
+	/// Stop the scan.  The same action as cancel() but with the implication that the scan should still be considered complete.  Requires a command because there can be a variety of reasons for stopping a scan like this.  This is defaulted to an empty string because you may not need to distinguish between reasons.
+	void stop(const QString &command = QString(""));
 
 protected slots:
 	// Protected notification functions.  Call these to notify the AMScanController API when you want to trigger a transition between scan states.
@@ -172,6 +181,8 @@ protected:
 	virtual void resumeImplementation() {}
 	/// Implement to cancel a scan. This could be called from any state.  After the scan is cancelled, call setCancelled().
 	virtual void cancelImplementation() = 0;
+	/// Implement to stop a scan.  This can only be called from the running or paused state.  This will be responsible for calling setFinished() or ensuring that it is called.  Pure-virtual because if you can cancel, then you can also stop.  This is defaulted to an empty string because you may not need to distinguish between reasons.
+	virtual void stopImplementation(const QString &command = QString("")) = 0;
 
 protected:
 	/// Configuration for this scan, typed as the general base class AMScanConfiguration
@@ -191,52 +202,6 @@ private:
 	AMScanController::ScanState state_;
 	/// The last state of the scan before the current state. Helpful for making decisions.
 	AMScanController::ScanState lastState_;
-};
-
-/*!
-  The AMScanControllerSupervisor is a singleton class that acts as the manager for the scan controllers.  It maintains the single scan controller that is active and doesn't
-  allow others to be created while the current one is active.
-  */
-class AMScanControllerSupervisor : public QObject
-{
-	Q_OBJECT
-public:
-	/// Accessor method for the supervisor.  If it is the first time this is called it calls the protected constructor and returns the newly created supervisor.  Otherwise, it returns the existing pointer.
-	static AMScanControllerSupervisor* scanControllerSupervisor();
-	/// Method that deletes the supervisor and resets it if it has been created.
-	static void releaseScanControllerSupervisor();
-
-	virtual ~AMScanControllerSupervisor();
-
-	/// Returns a pointer to the current scan controller. If there is no valid scan controller then this method returns 0.
-	AMScanController* currentScanController();
-
-public slots:
-	/// This sets the current scan controller to newController if the supervisor currently isn't running any other controllers.  If it is, then this function will return false.
-	bool setCurrentScanController(AMScanController *newController);
-	/// This deletes the current scan controller if one exists.  If there isn't a controller to delete the method returns 0.
-	bool deleteCurrentScanController();
-
-signals:
-	/// Notifier that the current scan controller has been created.
-	void currentScanControllerCreated();
-	/// Notifier that the current scan controller has be deleted.
-	void currentScanControllerDestroyed();
-	/// Notifier that the current scan controller has been successfully started.
-	void currentScanControllerStarted();
-
-protected slots:
-	/// Slot that handles the clean up procedure once a scan controller has finished.  Handles deleting the scan controller, removing the signals, and resetting the state for a new scan controller to be added.
-	void onCurrentScanControllerFinished();
-
-protected:
-	/// Protected constructor.  Only called once by the method scanControllerSupervisor().
-	AMScanControllerSupervisor(QObject *parent = 0);
-	/// The pointer to the instance.
-	static AMScanControllerSupervisor *instance_;
-
-	/// Pointer to the current scan controller.
-	AMScanController *currentScanController_;
 };
 
 #endif // AM_SCANCONTROLLER_H

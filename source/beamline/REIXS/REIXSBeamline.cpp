@@ -215,7 +215,7 @@ REIXSPhotonSource::REIXSPhotonSource(QObject *parent) :
 	directEnergy_ = directEnergy;
 	directEnergy_->setDescription("Beamline Energy");
 
-	bipassEnergy_ = new AMPVControl("bipassBeamlineEV", "REIXS:user:energy", "REIXS:user:energy", "REIXS:energy:stop");
+	bypassEnergy_ = new AMPVControl("bypassBeamlineEV", "REIXS:user:energy", "REIXS:user:energy", "REIXS:energy:stop");
 
 	userEnergyOffset_ = new AMPVControl("userEnergyOffset", "REIXS:user:energy:offset", "REIXS:user:energy:offset", QString(), this);
 	userEnergyOffset_->setDescription("User Energy Offest");
@@ -675,6 +675,7 @@ void REIXSSpectrometer::specifyDetectorTiltOffset(double tiltOffsetDeg)
 }
 
 void REIXSSpectrometer::onConnected(bool isConnected){
+	Q_UNUSED(isConnected)
 	//figure out those values
 	//onConnected not required
 	updateGrating();
@@ -935,8 +936,9 @@ void REIXSBrokenMonoControl::onMonoMirrorAngleError(double error)
 {
 	//qDebug() << "Mono Mirror Angle move error detected with error code" << error;
 	if(qFuzzyCompare(error,4)){
-	REIXSBeamline::bl()->photonSource()->bipassEnergy()->stop();
-	REIXSBeamline::bl()->photonSource()->bipassEnergy()->move(REIXSBeamline::bl()->photonSource()->directEnergy()->setpoint());
+		AMErrorMon::information(this,0,"The mono mirror angle move stalled, Acquaman has caught and corrected the problem. No user action required.");
+		REIXSBeamline::bl()->photonSource()->bypassEnergy()->stop();
+		REIXSBeamline::bl()->photonSource()->bypassEnergy()->move(REIXSBeamline::bl()->photonSource()->directEnergy()->setpoint());
 	}
 }
 

@@ -283,7 +283,6 @@ void AMAppController::openScanInEditor(AMScan *scan, bool bringEditorToFront, bo
 }
 
 #include "acquaman/AMScanConfiguration.h"
-#include "acquaman/AM2DScanConfiguration.h"
 #include "ui/acquaman/AMScanConfigurationView.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
 #include "dataman/database/AMDatabase.h"
@@ -307,12 +306,12 @@ void AMAppController::launchScanConfigurationFromDb(const QUrl &url)
 	// need to check that this scan actually has a valid config. This hasn't always been guaranteed, especially when scans move between beamlines.
 	AMScanConfiguration* config = scan->scanConfiguration();
 	if(!config) {
-		scan->release();
+		scan->deleteLater();
 		return;
 	}
 	// need to create a copy of the config so we can delete the scan (and hence the config instance owned by the scan). The view will take ownership of the copy.
 	config = config->createCopy();
-	scan->release();
+	scan->deleteLater();
 	if(!config)
 		return;
 

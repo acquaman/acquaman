@@ -75,7 +75,7 @@ bool StripToolVariableInfoExporter::exportInfo(StripToolVariableInfo *toExport)
     file.close();
     return true;
 
-    qDebug() << "StripToolVariableInfoExporter :: info export successful.";
+
 }
 
 

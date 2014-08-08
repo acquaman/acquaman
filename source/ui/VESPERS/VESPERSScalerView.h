@@ -34,16 +34,15 @@ class VESPERSScalerView : public QWidget
 
 public:
 	/// Constructor.  Builds the view for the 5 scaler channels that users care about.
- 	virtual ~VESPERSScalerView();
 	explicit VESPERSScalerView(QWidget *parent = 0);
+	/// Destructor.
+	virtual ~VESPERSScalerView();
 
 signals:
 
 protected slots:
 	/// Handles switching all the SR570 views to match the most recent change.
-    void onSR570ViewChanged(AMCurrentAmplifierView::ViewMode mode);
-//	/// Handles switching all the SR570 views to match the most recent change.
-//    void onSR570ViewChanged(AMCurrentAmplifierView::ViewMode mode);
+	void onSR570ViewChanged(AMCurrentAmplifierView::ViewMode mode);
 	/// Handles switching all the output views to match the new composite view mode.
 	void onOutputViewModeChanged(CLSSIS3820CompositeScalerChannelView::OutputViewMode mode);
 	/// Handles switching all the output views to match the most recent change.

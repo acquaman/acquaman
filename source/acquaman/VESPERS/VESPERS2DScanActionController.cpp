@@ -29,6 +29,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
 #include "dataman/export/VESPERS/VESPERSExporter2DAscii.h"
 #include "dataman/export/VESPERS/VESPERSExporterSMAK.h"
+#include "analysis/AM2DNormalizationAB.h"
+#include "analysis/AM3DAdditionAB.h"
 
 VESPERS2DScanActionController::VESPERS2DScanActionController(VESPERS2DScanConfiguration *configuration, QObject *parent)
 	: AMStepScanActionController(configuration, parent), VESPERSScanController(configuration)
@@ -196,13 +198,40 @@ void VESPERS2DScanActionController::buildScanControllerImplementation()
 
 	if (detector){
 
-		foreach (AMRegionOfInterest *region, detector->regionsOfInterest()){
+		detector->removeAllRegionsOfInterest();
+
+		QList<AMDataSource *> i0Sources = QList<AMDataSource *>()
+				<< scan_->dataSourceAt(scan_->indexOfDataSource("SplitIonChamber"))
+				   << scan_->dataSourceAt(scan_->indexOfDataSource("PreKBIonChamber"))
+					  << scan_->dataSourceAt(scan_->indexOfDataSource("MiniIonChamber"));
+
+		AMDataSource *spectraSource = 0;
+
+		if (xrfDetector.testFlag(VESPERS::SingleElement) && xrfDetector.testFlag(VESPERS::FourElement)){
+
+			AM3DAdditionAB *sumSpectra = new AM3DAdditionAB("SingleAndFourSpectra");
+			sumSpectra->setInputDataSources(QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource("SingleElementVortex")) << scan_->dataSourceAt(scan_->indexOfDataSource("FourElementVortex")));
+			scan_->addAnalyzedDataSource(sumSpectra, false, true);
+			spectraSource = sumSpectra;
+		}
+
+		else
+			spectraSource = scan_->dataSourceAt(scan_->indexOfDataSource(detector->name()));
+
+		foreach (AMRegionOfInterest *region, configuration_->regionsOfInterest()){
 
 			AMRegionOfInterestAB *regionAB = (AMRegionOfInterestAB *)region->valueSource();
 			AMRegionOfInterestAB *newRegion = new AMRegionOfInterestAB(regionAB->name());
 			newRegion->setBinningRange(regionAB->binningRange());
-			newRegion->setInputDataSources(QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource(detector->name())));
-			scan_->addAnalyzedDataSource(newRegion);
+			newRegion->setInputDataSources(QList<AMDataSource *>() << spectraSource);
+			scan_->addAnalyzedDataSource(newRegion, false, true);
+			detector->addRegionOfInterest(region);
+
+			AM2DNormalizationAB *normalizedRegion = new AM2DNormalizationAB(QString("norm_%1").arg(region->name()));
+			normalizedRegion->setInputDataSources(QList<AMDataSource *>() << newRegion << i0Sources);
+			normalizedRegion->setDataName(newRegion->name());
+			normalizedRegion->setNormalizationName(i0Sources.at(int(configuration_->incomingChoice()))->name());
+			scan_->addAnalyzedDataSource(normalizedRegion, true, false);
 		}
 	}
 }

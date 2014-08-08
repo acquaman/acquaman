@@ -64,7 +64,7 @@ public:
 	virtual QString synchronizedDwellKey() const;
 
 	/// The scaler channels always share a triggering source (with eachother through the main scaler trigger) and sometimes uses the synchronized dwell time object
-	virtual bool sharesDetectorTriggerSource() { return true; }
+	virtual bool sharesDetectorTriggerSource() const { return true; }
 	/// Returns the current shared detector trigger source (either the main scaler trigger source or the synchronized dwell time trigger source)
 	virtual AMDetectorTriggerSource* detectorTriggerSource();
 	/// Returns the current shared detector dwell time source (either the main scaler dwell time source or the synchronized dwell time dwell time source)

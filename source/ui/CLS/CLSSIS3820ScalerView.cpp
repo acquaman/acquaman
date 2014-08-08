@@ -151,7 +151,7 @@ CLSSIS3820ScalerView::CLSSIS3820ScalerView(CLSSIS3820Scaler *scaler, QWidget *pa
 			channelView = new CLSSIS3820ScalerChannelView(scaler_->channelAt(i));
 
 		channelViews_ << channelView;
-        connect(channelView, SIGNAL(amplifierViewModeChanged(AMCurrentAmplifierView::ViewMode)), this, SLOT(onAmplifierViewChanged(AMCurrentAmplifierView::ViewMode)));
+		connect(channelView, SIGNAL(amplifierViewModeChanged(AMCurrentAmplifierView::ViewMode)), this, SLOT(onAmplifierViewChanged(AMCurrentAmplifierView::ViewMode)));
 		connect(channelView, SIGNAL(outputViewModeChanged(CLSSIS3820ScalerChannelView::OutputViewMode)), this, SLOT(onOutputViewModeChanged(CLSSIS3820ScalerChannelView::OutputViewMode)));
 
 		channelLayout_->addWidget(channelView);
@@ -238,12 +238,12 @@ void CLSSIS3820ScalerView::setTotalNumberOfScans()
 
 void CLSSIS3820ScalerView::onAmplifierViewChanged(AMCurrentAmplifierView::ViewMode mode)
 {
-    foreach (CLSSIS3820ScalerChannelView *channel, channelViews_){
+	foreach (CLSSIS3820ScalerChannelView *channel, channelViews_){
 
-        channel->blockSignals(true);
-        channel->setAmplifierViewMode(mode);
-        channel->blockSignals(false);
-    }
+		channel->blockSignals(true);
+		channel->setAmplifierViewMode(mode);
+		channel->blockSignals(false);
+	}
 }
 
 void CLSSIS3820ScalerView::onOutputViewModeChanged(CLSSIS3820ScalerChannelView::OutputViewMode mode)
@@ -256,6 +256,23 @@ void CLSSIS3820ScalerView::onOutputViewModeChanged(CLSSIS3820ScalerChannelView::
 	}
 }
 
+void CLSSIS3820ScalerView::setAmplifierViewPrecision(int newPrecision)
+{
+	foreach (CLSSIS3820ScalerChannelView *view, channelViews_)
+	{
+		if(view->hasAmplifierView())
+			view->setAmplifierViewPrecision(newPrecision);
+	}
+}
+
+void CLSSIS3820ScalerView::setAmplifierViewFormat(char newFormat)
+{
+	foreach (CLSSIS3820ScalerChannelView *view, channelViews_)
+	{
+		if(view->hasAmplifierView())
+			view->setAmplifierViewFormat(newFormat);
+	}
+}
 
 // CLSSIS3820ScalerChannelView
 //////////////////////////////////////////////////////////////
@@ -276,14 +293,14 @@ CLSSIS3820ScalerChannelView::CLSSIS3820ScalerChannelView(CLSSIS3820ScalerChannel
 
 	channelName_ = new QLabel(channel_->customChannelName());
 
-	sr570View_ = 0;
+	amplifierView_ = 0;
 
-    connect(channel_, SIGNAL(currentAmplifierAttached()), this, SLOT(onNewCurrentAmplifierAttached()));
+	connect(channel_, SIGNAL(currentAmplifierAttached()), this, SLOT(onNewCurrentAmplifierAttached()));
 
 	if (channel_->currentAmplifier()){
 
-        sr570View_ = channel_->currentAmplifier()->createView();
-        connect( sr570View_, SIGNAL(viewModeChanged(AMCurrentAmplifierView::ViewMode)), this, SIGNAL(amplifierViewModeChanged(AMCurrentAmplifierView::ViewMode)) );
+		amplifierView_ = channel_->currentAmplifier()->createView();
+		connect( amplifierView_, SIGNAL(viewModeChanged(AMCurrentAmplifierView::ViewMode)), this, SIGNAL(amplifierViewModeChanged(AMCurrentAmplifierView::ViewMode)) );
 
 	}
 
@@ -305,8 +322,8 @@ CLSSIS3820ScalerChannelView::CLSSIS3820ScalerChannelView(CLSSIS3820ScalerChannel
 	channelLayout_->addWidget(enableBox_, 0, Qt::AlignLeft);
 	channelLayout_->addWidget(channelName_, 0, Qt::AlignCenter);
 
-	if (sr570View_)
-		channelLayout_->addWidget(sr570View_, 0, Qt::AlignCenter);
+	if (amplifierView_)
+		channelLayout_->addWidget(amplifierView_, 0, Qt::AlignCenter);
 
 	channelLayout_->addWidget(scalerOutput_, 0, Qt::AlignCenter);
 	channelLayout_->addWidget(statusLabel_, 0, Qt::AlignRight);
@@ -318,6 +335,11 @@ CLSSIS3820ScalerChannelView::CLSSIS3820ScalerChannelView(CLSSIS3820ScalerChannel
 }
 
 CLSSIS3820ScalerChannelView::~CLSSIS3820ScalerChannelView(){}
+
+bool CLSSIS3820ScalerChannelView::hasAmplifierView() const
+{
+	return amplifierView_ != 0;
+}
 
 void CLSSIS3820ScalerChannelView::onReadingChanged()
 {
@@ -373,8 +395,8 @@ void CLSSIS3820ScalerChannelView::onScalerOutputClicked()
 
 void CLSSIS3820ScalerChannelView::setAmplifierViewMode(AMCurrentAmplifierView::ViewMode newMode)
 {
-    if (channel_->currentAmplifier())
-        sr570View_->setViewMode(newMode);
+	if (channel_->currentAmplifier())
+		amplifierView_->setViewMode(newMode);
 }
 
 void CLSSIS3820ScalerChannelView::setOutputViewMode(CLSSIS3820ScalerChannelView::OutputViewMode mode)
@@ -399,8 +421,8 @@ void CLSSIS3820ScalerChannelView::setCustomNameVisibility(bool visible)
 
 void CLSSIS3820ScalerChannelView::setSR570Visibility(bool visible)
 {
-	if (sr570View_)
-		sr570View_->setVisible(visible);
+	if (amplifierView_)
+		amplifierView_->setVisible(visible);
 }
 
 void CLSSIS3820ScalerChannelView::setOutputVisibility(bool visible)
@@ -416,9 +438,21 @@ void CLSSIS3820ScalerChannelView::setStatusLabelVisibility(bool visible)
 void CLSSIS3820ScalerChannelView::onNewCurrentAmplifierAttached()
 {
 	// If one already exists, lets get rid of it before doing anything else.
-	if (sr570View_)
-		delete channelLayout_->takeAt(channelLayout_->indexOf(sr570View_));
+	if (amplifierView_)
+		delete channelLayout_->takeAt(channelLayout_->indexOf(amplifierView_));
 
-    sr570View_ = channel_->currentAmplifier()->createView();
-	channelLayout_->insertWidget(2, sr570View_, 0, Qt::AlignCenter);
+	amplifierView_ = channel_->currentAmplifier()->createView();
+	channelLayout_->insertWidget(2, amplifierView_, 0, Qt::AlignCenter);
+}
+
+void CLSSIS3820ScalerChannelView::setAmplifierViewPrecision(int newPrecision)
+{
+	if(amplifierView_)
+		amplifierView_->setPrecision(newPrecision);
+}
+
+void CLSSIS3820ScalerChannelView::setAmplifierViewFormat(char newFormat)
+{
+	if(amplifierView_)
+		amplifierView_->setFormat(newFormat);
 }

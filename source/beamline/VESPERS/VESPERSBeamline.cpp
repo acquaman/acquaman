@@ -291,25 +291,25 @@ void VESPERSBeamline::setupMotorGroup()
 
 QString VESPERSBeamline::motorGroupName(VESPERS::Motors motor) const
 {
-	if ((motor & VESPERS::H) || (motor & VESPERS::V))
+	if (motor.testFlag(VESPERS::H) || motor.testFlag(VESPERS::V))
 		return "Sample Stage - H, V, N";
 
-	else if ((motor & VESPERS::X) || (motor & VESPERS::Z))
+	else if (motor.testFlag(VESPERS::X) || motor.testFlag(VESPERS::Z))
 		return "Sample Stage - X, Z, Y";
 
-	else if ((motor & VESPERS::AttoH) || (motor & VESPERS::AttoV))
+	else if (motor.testFlag(VESPERS::AttoH) || motor.testFlag(VESPERS::AttoV))
 		return "Attocube Stage - H, V, N";
 
-	else if ((motor & VESPERS::AttoX) || (motor & VESPERS::AttoZ))
+	else if (motor.testFlag(VESPERS::AttoX) || motor.testFlag(VESPERS::AttoZ))
 		return "Attocube Stage - X, Z, Y";
 
-	else if (motor == VESPERS::AttoRx)
+	else if (motor.testFlag(VESPERS::AttoRx))
 		return "Attocube Stage - Rx";
 
-	else if (motor == VESPERS::AttoRy)
+	else if (motor.testFlag(VESPERS::AttoRy))
 		return "Attocube Stage - Ry";
 
-	else if (motor == VESPERS::AttoRz)
+	else if (motor.testFlag(VESPERS::AttoRz))
 		return "Attocube Stage - Rz";
 
 	return "Sample Stage - H, V, N";

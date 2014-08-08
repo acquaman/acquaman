@@ -40,14 +40,6 @@ AMScanActionController::AMScanActionController(AMScanConfiguration *configuratio
 	connect(this, SIGNAL(stateChanged(int,int)), this, SLOT(onStateChanged(int,int)));
 }
 
-void AMScanActionController::skip(const QString &command)
-{
-	AMAction3 *currentAction = AMActionRunner3::scanActionRunner()->currentAction();
-
-	if(currentAction)
-		currentAction->skip(command);
-}
-
 void AMScanActionController::onStateChanged(int oldState, int newState)
 {
 	Q_UNUSED(oldState)
@@ -125,45 +117,39 @@ bool AMScanActionController::canPause() const
 
 void AMScanActionController::pauseImplementation()
 {
-	AMAction3 *currentAction = AMActionRunner3::scanActionRunner()->currentAction();
-
-	// That's bad
-	if(!currentAction)
-		return;
-
-	if(currentAction->state() == AMAction3::Running && currentAction->pause())
+	if (AMActionRunner3::scanActionRunner()->pauseCurrentAction())
 		setPaused();
 
-	else{
-		// Also bad
-	}
+	else
+		AMErrorMon::alert(this, AMSCANACTIONCONTROLLER_CANNOT_PAUSE, "Was unable to pause the current action.");
 }
 
 void AMScanActionController::resumeImplementation()
 {
-	AMAction3 *currentAction = AMActionRunner3::scanActionRunner()->currentAction();
-
-	// That's bad
-	if(!currentAction)
-		return;
-
-	if(currentAction->state() == AMAction3::Paused && currentAction->resume()) {
+	if (AMActionRunner3::scanActionRunner()->resumeCurrentAction())
 		setResumed();
-	}
 
-	else{
-		// Also bad
-	}
+	else
+		AMErrorMon::alert(this, AMSCANACTIONCONTROLLER_CANNOT_RESUME, "Was unable to resume the current action.");
 }
 
 void AMScanActionController::cancelImplementation()
+{
+	if (AMActionRunner3::scanActionRunner()->cancelCurrentAction())
+		setCancelled();
+
+	else
+		AMErrorMon::alert(this, AMSCANACTIONCONTROLLER_CANNOT_CANCEL, "Was unable to cancel the current action.");
+}
+
+void AMScanActionController::stopImplementation(const QString &command)
 {
 	AMAction3 *currentAction = AMActionRunner3::scanActionRunner()->currentAction();
 
 	if(currentAction){
 
-		connect(currentAction, SIGNAL(cancelled()), this, SLOT(setCancelled()));
-		currentAction->cancel();
+		connect(currentAction, SIGNAL(succeeded()), this, SLOT(setFinished()));
+		currentAction->skip(command);
 	}
 }
 
@@ -204,6 +190,8 @@ void AMScanActionController::onScanningActionsSucceeded()
 		connect(cleanupActions_, SIGNAL(succeeded()), this, SLOT(onCleanupActionsListSucceeded()));
 		connect(cleanupActions_, SIGNAL(failed()), this, SLOT(onCleanupActionsListFailed()));
 
+		emit cleaningActionsStarted();
+
 		AMActionRunner3::scanActionRunner()->addActionToQueue(cleanupActions_);
 		AMActionRunner3::scanActionRunner()->setQueuePaused(false);
 	}
@@ -221,6 +209,8 @@ void AMScanActionController::onScanningActionsFailed()
 
 		connect(cleanupActions_, SIGNAL(succeeded()), this, SLOT(onCleanupActionsListSucceeded()));
 		connect(cleanupActions_, SIGNAL(failed()), this, SLOT(onCleanupActionsListFailed()));
+
+		emit cleaningActionsStarted();
 
 		AMActionRunner3::scanActionRunner()->addActionToQueue(cleanupActions_);
 		AMActionRunner3::scanActionRunner()->setQueuePaused(false);

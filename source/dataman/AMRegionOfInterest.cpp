@@ -21,7 +21,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMRegionOfInterest.h"
 
- AMRegionOfInterest::~AMRegionOfInterest(){}
+AMRegionOfInterest::~AMRegionOfInterest(){}
+
 AMRegionOfInterest::AMRegionOfInterest(const QString &name, double energy, const AMRange &range, QObject *parent)
 	: AMDbObject(parent)
 {
@@ -31,6 +32,7 @@ AMRegionOfInterest::AMRegionOfInterest(const QString &name, double energy, const
 	value_->setBinningRange(range);
 	connect(value_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onValueChanged()));
 	setName(name);
+	connect(this, SIGNAL(nameChanged(QString)), value_, SLOT(setName(QString)));
 }
 
 AMRegionOfInterest::AMRegionOfInterest(const QString &name, double energy, double minimum, double maximum, QObject *parent)
@@ -42,6 +44,7 @@ AMRegionOfInterest::AMRegionOfInterest(const QString &name, double energy, doubl
 	value_->setBinningRange(boundingRange_);
 	connect(value_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onValueChanged()));
 	setName(name);
+	connect(this, SIGNAL(nameChanged(QString)), value_, SLOT(setName(QString)));
 }
 
 AMRegionOfInterest::AMRegionOfInterest(const AMRegionOfInterest &original)

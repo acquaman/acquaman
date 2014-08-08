@@ -66,7 +66,6 @@ AMExternalScanDataSourceAB::AMExternalScanDataSourceAB(AMDatabase* sourceDatabas
 		scan_ = 0;
 	}
 
-	scan_->retain(this);
 	insideConstructor_ = false;
 
 	switch(whenToLoadData) {
@@ -118,7 +117,6 @@ bool AMExternalScanDataSourceAB::refreshData()
 			if(!scan_)
 				throw -1;
 		}
-		scan_->retain(this);
 
 		int dataSourceIndex = scan_->indexOfDataSource(sourceDataSourceName_);
 		if(dataSourceIndex < 0)
@@ -134,7 +132,7 @@ bool AMExternalScanDataSourceAB::refreshData()
 		setState(scan_->dataSourceAt(dataSourceIndex)->state());
 
 		// delete the scan
-		scan_->release(this);
+		delete scan_;
 		scan_ = 0;
 
 		// signalling:
@@ -150,7 +148,7 @@ bool AMExternalScanDataSourceAB::refreshData()
 		if(dbObject)
 			delete dbObject;
 		if(scan_) {
-			scan_->release(this);
+			delete scan_;
 			scan_ = 0;
 		}
 		setState(AMDataSource::InvalidFlag);
@@ -366,7 +364,7 @@ bool AMExternalScanDataSourceAB::loadFromDb(AMDatabase *db, int id)
 	}
 
 	if(scan_) {	// don't want refreshData() to use an old scan object. This will ensure it loads a new one.
-		scan_->release(this);
+		delete scan_;
 		scan_ = 0;
 	}
 	// from this point on, we've actually made permanent modifications to our parameters. Which means that we need to change the state to invalid if anything goes wrong from here. This will be taken care of by refreshData().

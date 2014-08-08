@@ -77,6 +77,10 @@ public:
     /// Returns true if, for the current amplifier mode, the amplifier is at a maximum value limit. False otherwise.
     bool atMaximumValue() const;
 
+    /// Returns the minimum/maximum value + units pair for the given amplifier.
+    virtual double minimumValueForUnits(const QString &units) const = 0;
+    virtual double maximumValueForUnits(const QString &units) const = 0;
+
     /// Returns the view for this amplifier.
     virtual AMCurrentAmplifierSingleView *createView();
 

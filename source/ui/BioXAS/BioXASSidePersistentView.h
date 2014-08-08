@@ -28,7 +28,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSMAXvMotor.h"
 #include "beamline/CLS/CLSKeithley428.h"
 #include "ui/beamline/AMCurrentAmplifierSingleView.h"
-#include "ui/beamline/AMCurrentAmplifierCompositeView.h"
 
 class AMExtendedControlEditor;
 
@@ -39,6 +38,7 @@ class BioXASSidePersistentView : public QWidget
 public:
     /// Constructor.
     explicit BioXASSidePersistentView(QWidget *parent = 0);
+    virtual ~BioXASSidePersistentView();
 
 signals:
 

@@ -864,10 +864,12 @@ bool AMDatabase::execQuery(QSqlQuery &query, int timeoutMs)
 
 	bool success;
 	int lastErrorNumber;
+	QString lastErrorMessage;
 	int attempt = 0;
 	do {
 		success = query.exec();
 		lastErrorNumber = query.lastError().number();
+		lastErrorMessage = query.lastError().text();
 		attempt++;
 		if(lastErrorNumber == 5)
 			usleep(5000);
@@ -878,7 +880,7 @@ bool AMDatabase::execQuery(QSqlQuery &query, int timeoutMs)
 			AMErrorMon::debug(0, AMDATABASE_LOCK_FOR_EXECQUERY_CONTENTION_SUCCEEDED, QString("AMDatabase detected contention for database locking in execQuery(). It took %1 tries for the query to succeed.").arg(attempt) );
 		}
 		else {
-			AMErrorMon::debug(0, AMDATABASE_LOCK_FOR_EXECQUERY_CONTENTION_FAILED, QString("AMDatabase detected contention for database locking in execQuery(). After %1 attempts, the query still did not succeed.").arg(attempt) );
+			AMErrorMon::debug(0, AMDATABASE_LOCK_FOR_EXECQUERY_CONTENTION_FAILED, QString("AMDatabase detected contention for database locking in execQuery(). After %1 attempts, the query still did not succeed. The last error is %2").arg(attempt).arg(lastErrorMessage) );
 		}
 	}
 

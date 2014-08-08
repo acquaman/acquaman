@@ -50,7 +50,7 @@ public:
 	REIXSBrokenMonoControl* energy() { return energy_; }
 	AMControl* userEnergyOffset() {return userEnergyOffset_; }
 	AMControl* directEnergy() { return directEnergy_; }
-	AMControl* bipassEnergy() { return bipassEnergy_; }
+	AMControl* bypassEnergy() { return bypassEnergy_; }
 	AMControl* monoSlit() { return monoSlit_; }
 	AMControl* monoGratingTranslation() { return monoGratingTranslation_; }
 	AMControl* monoGratingSelector() { return monoGratingSelector_; }
@@ -66,7 +66,7 @@ public:
 
 
 protected:
-	AMControl* directEnergy_, *bipassEnergy_,*userEnergyOffset_, *monoSlit_, *monoGratingTranslation_, *monoGratingSelector_, *monoMirrorAngleStatus_, *monoMirrorTranslation_, *monoMirrorSelector_, *epuPolarization_, *epuPolarizationAngle_, *M5Pitch_, *M5Yaw_, *ringCurrent_;
+	AMControl* directEnergy_, *bypassEnergy_,*userEnergyOffset_, *monoSlit_, *monoGratingTranslation_, *monoGratingSelector_, *monoMirrorAngleStatus_, *monoMirrorTranslation_, *monoMirrorSelector_, *epuPolarization_, *epuPolarizationAngle_, *M5Pitch_, *M5Yaw_, *ringCurrent_;
 	REIXSBrokenMonoControl* energy_;
 
 };

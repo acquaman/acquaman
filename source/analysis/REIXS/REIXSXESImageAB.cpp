@@ -842,6 +842,7 @@ void REIXSMovingMedianFitter::setSmoothMode(int smoothMode)
 }
 QVector<int> REIXSMovingMedianFitter::smooth(const QVector<int> &input, const QVector<double> &weights)
 {
+	Q_UNUSED(weights)
 	if(input.isEmpty())
 		return QVector<int>();
 
@@ -852,7 +853,7 @@ QVector<int> REIXSMovingMedianFitter::smooth(const QVector<int> &input, const QV
 	{
 		//do the beginning and end
 		QVector<int> tempVec1, tempVec2;
-		int tempSum1 = 0.0, tempSum2 = 0.0;
+		/* int tempSum1 = 0.0, tempSum2 = 0.0; Removed to prevent compile warnings, see Issue734 */
 		for(int j = 0; j <= (i+nPoints); j++)
 		{
 			tempVec1.append(input[j]);
@@ -894,7 +895,7 @@ void REIXSMovingAverageFitter::setSmoothMode(int smoothMode)
 }
 QVector<int> REIXSMovingAverageFitter::smooth(const QVector<int> &input, const QVector<double> &weights)
 {
-
+	Q_UNUSED(weights)
 	if(input.isEmpty())
 		return QVector<int>();
 

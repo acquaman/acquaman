@@ -67,8 +67,6 @@ AMExportController::AMExportController(const QList<AMScan*>& scansToExport) :
 	exporter_ = 0;
 	option_ = 0;
 	scanObjectsToExport_ = scansToExport;
-	foreach(AMScan* s, scanObjectsToExport_)
-		s->retain(this);	// make sure we keep these scans in memory as long as we need them.
 	state_ = Preparing;
 	availableDataSourcesModel_ = new QStandardItemModel(this);
 
@@ -286,8 +284,8 @@ void AMExportController::continueScanExport()
 				delete databaseObject;
 				throw QString("The export system couldn't load a scan out of the database (" % url.toString() % "), so this scan has not been exported.");
 			}
-			scan->retain(this);
 		}
+
 		else if(usingScanObjects_) {
 			scan = scanObjectsToExport_.at(exportScanIndex_);
 			if(!scan)
@@ -301,7 +299,10 @@ void AMExportController::continueScanExport()
 		if(!exporter_->isValidFor(scan, option_)) {
 			QString err("The exporter '" % exporter_->description() % "' and the template '" % option_->name() % "' are not compatible with this scan (" % scan->fullName() % "), so it has not been exported.");
 			emit statusChanged(status_ = err);
-			scan->release(this);
+
+			if (usingScanURLs_)
+				scan->deleteLater();
+
 			throw err;
 		}
 
@@ -310,13 +311,18 @@ void AMExportController::continueScanExport()
 		if(writtenFile.isNull()) {
 			QString err("Export failed for scan '" % scan->fullName() % "'.");
 			emit statusChanged(status_ = err);
-			scan->release(this);
+
+			if (usingScanURLs_)
+				scan->deleteLater();
+
 			throw err;
 		}
 
 		emit statusChanged(status_ = "Wrote: " % writtenFile);
 		succeededCount_++;
-		scan->release(this); // done!
+
+		if (usingScanURLs_)
+			scan->deleteLater();
 	}
 
 	catch(QString errMsg) {

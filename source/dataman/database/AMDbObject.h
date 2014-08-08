@@ -272,7 +272,7 @@ public:
 	int id() const { return id_; }
 
 	/// Returns a user given name for this instance.
-	QString name() const { return name_; }
+	virtual QString name() const { return name_; }
 
 	// These functions provide support for storing and retrieving from the database.
 	// ===================================
@@ -380,7 +380,7 @@ signals:
 
 public slots:
 	/// Sets user given name
-	void setName(const QString &name) {
+	virtual void setName(const QString &name) {
 		if(name_ != name){
 			name_ = name;
 			setModified(true);
