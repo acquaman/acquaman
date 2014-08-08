@@ -45,13 +45,13 @@ CLSSIS3820CompositeScalerChannelView::CLSSIS3820CompositeScalerChannelView(CLSSI
 
 	channelName_ = new QLabel(channel1_->customChannelName());
 
-    amplifierView_ = 0;
+	amplifierView_ = 0;
 	connect(channel1_, SIGNAL(currentAmplifierAttached()), this, SLOT(onNewCurrentAmplifierAttached()));
 
 	if (channel1_->currentAmplifier() && channel2_->currentAmplifier()){
 
-        amplifierView_ = new AMCurrentAmplifierCompositeView(channel1_->currentAmplifier(), channel2_->currentAmplifier());
-        connect(amplifierView_, SIGNAL(viewModeChanged(AMCurrentAmplifierView::ViewMode)), this, SIGNAL(amplifierViewModeChanged(AMCurrentAmplifierView::ViewMode)));
+		amplifierView_ = new AMCurrentAmplifierCompositeView(channel1_->currentAmplifier(), channel2_->currentAmplifier());
+		connect(amplifierView_, SIGNAL(viewModeChanged(AMCurrentAmplifierView::ViewMode)), this, SIGNAL(amplifierViewModeChanged(AMCurrentAmplifierView::ViewMode)));
 	}
 
 	scalerOutput_ = new QToolButton;
@@ -72,8 +72,8 @@ CLSSIS3820CompositeScalerChannelView::CLSSIS3820CompositeScalerChannelView(CLSSI
 	channelLayout_->addWidget(enableBox_, 0, Qt::AlignLeft);
 	channelLayout_->addWidget(channelName_, 0, Qt::AlignCenter);
 
-    if (amplifierView_)
-        channelLayout_->addWidget(amplifierView_, 0, Qt::AlignCenter);
+	if (amplifierView_)
+		channelLayout_->addWidget(amplifierView_, 0, Qt::AlignCenter);
 
 	channelLayout_->addWidget(scalerOutput_, 0, Qt::AlignCenter);
 	channelLayout_->addWidget(statusLabel_, 0, Qt::AlignRight);
@@ -142,8 +142,8 @@ void CLSSIS3820CompositeScalerChannelView::onScalerOutputClicked()
 
 void CLSSIS3820CompositeScalerChannelView::setAmplifierViewMode(AMCurrentAmplifierView::ViewMode mode)
 {
-    if (amplifierView_)
-        amplifierView_->setViewMode(mode);
+	if (amplifierView_)
+		amplifierView_->setViewMode(mode);
 }
 
 void CLSSIS3820CompositeScalerChannelView::setOutputViewMode(CLSSIS3820CompositeScalerChannelView::OutputViewMode mode)
@@ -168,8 +168,8 @@ void CLSSIS3820CompositeScalerChannelView::setCustomNameVisibility(bool visible)
 
 void CLSSIS3820CompositeScalerChannelView::setAmplifierVisibility(bool visible)
 {
-    if (amplifierView_)
-        amplifierView_->setVisible(visible);
+	if (amplifierView_)
+		amplifierView_->setVisible(visible);
 }
 
 void CLSSIS3820CompositeScalerChannelView::setOutputVisibility(bool visible)
@@ -185,13 +185,13 @@ void CLSSIS3820CompositeScalerChannelView::setStatusLabelVisibility(bool visible
 void CLSSIS3820CompositeScalerChannelView::onNewCurrentAmplifierAttached()
 {
 	// If one already exists, lets get rid of it before doing anything else.
-    if (amplifierView_)
-        delete channelLayout_->takeAt(channelLayout_->indexOf(amplifierView_));
+	if (amplifierView_)
+		delete channelLayout_->takeAt(channelLayout_->indexOf(amplifierView_));
 
 	if (channel1_->currentAmplifier() && channel2_->currentAmplifier()){
 
-        amplifierView_ = new AMCurrentAmplifierCompositeView(channel1_->currentAmplifier(), channel2_->currentAmplifier());
-        channelLayout_->insertWidget(2, amplifierView_, 0, Qt::AlignCenter);
+		amplifierView_ = new AMCurrentAmplifierCompositeView(channel1_->currentAmplifier(), channel2_->currentAmplifier());
+		channelLayout_->insertWidget(2, amplifierView_, 0, Qt::AlignCenter);
 	}
 }
 
@@ -217,10 +217,10 @@ void CLSSIS3820CompositeScalerChannelView::onCustomContextMenuRequested(QPoint p
 	QAction *temp = popup.addAction(showCompositeView_ ? "Show Individual View" : "Show Combined View");
 
 	temp = popup.addAction("Basic View");
-    temp->setDisabled(amplifierView_->viewMode() == AMCurrentAmplifierView::Basic);
+	temp->setDisabled(amplifierView_->viewMode() == AMCurrentAmplifierView::Basic);
 
 	temp = popup.addAction("Advanced View");
-    temp->setDisabled(amplifierView_->viewMode() == AMCurrentAmplifierView::Advanced);
+	temp->setDisabled(amplifierView_->viewMode() == AMCurrentAmplifierView::Advanced);
 
 	temp = popup.exec(mapToGlobal(pos));
 
@@ -234,9 +234,19 @@ void CLSSIS3820CompositeScalerChannelView::onCustomContextMenuRequested(QPoint p
 		}
 
 		else if (temp->text() == "Basic View")
-            setAmplifierViewMode(AMCurrentAmplifierView::Basic);
+			setAmplifierViewMode(AMCurrentAmplifierView::Basic);
 
 		else if (temp->text() == "Advanced View")
-            setAmplifierViewMode(AMCurrentAmplifierView::Advanced);
+			setAmplifierViewMode(AMCurrentAmplifierView::Advanced);
 	}
+}
+
+void CLSSIS3820CompositeScalerChannelView::setAmplifierViewPrecision(int newPrecision)
+{
+	amplifierView_->setPrecision(newPrecision);
+}
+
+void CLSSIS3820CompositeScalerChannelView::setAmplifierViewFormat(char newFormat)
+{
+	amplifierView_->setFormat(newFormat);
 }

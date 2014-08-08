@@ -84,6 +84,9 @@ signals:
 	/// Notifier that a region has been overwritten.  Passes a pointer to the new region.
 	void regionOverwritten(AMScanAxisRegion *);
 
+	/// Notifier that one of the regions has changed in some way (start, step, end, or time has changed)
+	void regionsChanged();
+
 public slots:
 	/// Inserts a the region at the index and returns true if successful. If this axis type cannot support more than one region, false is returned. If the axis would become invalid by inserting this region, the region is not inserted and false is returned.
 	bool insertRegion(int index, AMScanAxisRegion *region);

@@ -22,18 +22,18 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef SGMXASSCANACTIONCONTROLLER_H
 #define SGMXASSCANACTIONCONTROLLER_H
 
-#include "acquaman/AMRegionScanActionController.h"
+#include "acquaman/AMStepScanActionController.h"
 #include "acquaman/SGM/SGMXASScanConfiguration2013.h"
 
 /// SGM specific subclass for X-ray Absorption Spectroscopy.
-class SGMXASScanActionController : public AMRegionScanActionController
+class SGMXASScanActionController : public AMStepScanActionController
 {
 	Q_OBJECT
 
 public:
 	/// Constructor.  Builds a runnable scan action controller for the SGM beamline.
- 	virtual ~SGMXASScanActionController();
 	SGMXASScanActionController(SGMXASScanConfiguration2013 *cfg, QObject *parent = 0);
+	virtual ~SGMXASScanActionController();
 
 protected:
 	/// Reimplemented to provide actions that will setupd the beamine for optimzed operation of the XAS scan.

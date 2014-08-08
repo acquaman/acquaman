@@ -54,7 +54,7 @@ signals:
 	/// Notifier that the channel changed viewing mode.  Passes the new mode.
 	void outputViewModeChanged(CLSSIS3820CompositeScalerChannelView::OutputViewMode);
 	/// Notifier that passes along that the SR570 view changed.
-    void amplifierViewModeChanged(AMCurrentAmplifierView::ViewMode);
+	void amplifierViewModeChanged(AMCurrentAmplifierView::ViewMode);
 
 public slots:
 	/// Sets the custom name for the composite scaler channel view.
@@ -62,17 +62,21 @@ public slots:
 	/// Convenience method that sets the output view mode for the channel.
 	void setOutputViewMode(CLSSIS3820CompositeScalerChannelView::OutputViewMode mode);
 	/// Convenience method that sets the view mode of the SR570.
-    void setAmplifierViewMode(AMCurrentAmplifierView::ViewMode mode);
+	void setAmplifierViewMode(AMCurrentAmplifierView::ViewMode mode);
 	/// Sets the visibility for the enable check box.
 	void setEnableCheckBoxVisibility(bool visible);
 	/// Sets the custom name visibility.
 	void setCustomNameVisibility(bool visible);
 	/// Sets the SR570 visibility (does nothing if no SR570 is set).
-    void setAmplifierVisibility(bool visible);
+	void setAmplifierVisibility(bool visible);
 	/// Sets the output visibility.
 	void setOutputVisibility(bool visible);
 	/// Sets the status label visibility.
 	void setStatusLabelVisibility(bool visible);
+	/// Sets the precision for the composite view.
+	void setAmplifierViewPrecision(int newPrecision);
+	/// Sets the format for the composite view.
+	void setAmplifierViewFormat(char newFormat);
 
 protected slots:
 	/// Handles building the appropriate string when the reading changed.
@@ -108,7 +112,7 @@ protected:
 	/// Label holding the name of the scaler channel.
 	QLabel *channelName_;
 	/// Holds the SR570, should there be a SR570 bound to this channel.
-    AMCurrentAmplifierCompositeView *amplifierView_;
+	AMCurrentAmplifierCompositeView *amplifierView_;
 	/// Holds the label for the status.
 	QLabel *statusLabel_;
 	/// The layout that holds all elements of the view.

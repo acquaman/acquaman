@@ -45,14 +45,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMessageBox>
 #include <QCheckBox>
 
- AMActionRunnerCurrentView3::~AMActionRunnerCurrentView3(){}
-AMActionRunnerCurrentView3::AMActionRunnerCurrentView3(AMActionRunner3* actionRunner, QWidget *parent) :
-	QWidget(parent)
-{
-	actionRunner_ = actionRunner;
-	whatIsRunning_ = "";
-	showCancelPrompt_ = true;
+AMActionRunnerCurrentView3::~AMActionRunnerCurrentView3(){}
 
+AMActionRunnerCurrentView3::AMActionRunnerCurrentView3(AMActionRunner3* actionRunner, QWidget *parent)
+	: AMActionRunnerCurrentViewBase(actionRunner, parent)
+{
 	// setup UI
 	QFrame* topFrame = new QFrame();
 	topFrame->setObjectName("topFrame");
@@ -75,10 +72,10 @@ AMActionRunnerCurrentView3::AMActionRunnerCurrentView3(AMActionRunner3* actionRu
 	hl->addSpacing(40);
 	hl->addStretch(0);
 
-	timeElapsedLabel_ = new QLabel("-:--");
 	timeElapsedLabel_->setStyleSheet("color: white;\nfont: " AM_FONT_LARGE_ "pt \"Lucida Grande\"");
 	hl->addWidget(timeElapsedLabel_);
 	hl->addSpacing(10);
+
 	progressBar_ = new QProgressBar();
 	progressBar_->setObjectName("progressBar");
 	progressBar_->setStyleSheet("#progressBar { border: 1px solid black; color: white; border-radius: 7px; background: gray; } #progressBar::chunk { background: rgb(60,119,197); border-radius: 7px; border: 0px; }");
@@ -88,18 +85,26 @@ AMActionRunnerCurrentView3::AMActionRunnerCurrentView3(AMActionRunner3* actionRu
 	progressBar_->setValue(0);
 	hl->addWidget(progressBar_, 1);
 	hl->addSpacing(10);
-	timeRemainingLabel_ = new QLabel("-:--");
+
 	timeRemainingLabel_->setStyleSheet("color: white;\nfont: " AM_FONT_LARGE_ "pt \"Lucida Grande\"");
 	hl->addWidget(timeRemainingLabel_);
 	hl->addSpacing(20);
 
-	pauseButton_ = new QPushButton(QIcon(":/22x22/media-playback-pause.png"), "Pause");
+	pauseButton_->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+	pauseButton_->setText("Pause");
+	pauseButton_->setIcon(QIcon(":/22x22/media-playback-pause.png"));
 	pauseButton_->setEnabled(false);
 	hl->addWidget(pauseButton_);
-	skipButton_ = new QPushButton(QIcon(":/media-seek-forward.png"), "Skip");
+
+	skipButton_->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+	skipButton_->setText("Skip");
+	skipButton_->setIcon(QIcon(":/media-seek-forward.png"));
 	skipButton_->setEnabled(false);
 	hl->addWidget(skipButton_);
-	cancelButton_ = new QPushButton(QIcon(":/22x22/list-remove-2.png"), "Cancel");
+
+	cancelButton_->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+	cancelButton_->setText("Cancel");
+	cancelButton_->setIcon(QIcon(":/22x22/list-remove-2.png"));
 	cancelButton_->setEnabled(false);
 	hl->addWidget(cancelButton_);
 
@@ -119,58 +124,23 @@ AMActionRunnerCurrentView3::AMActionRunnerCurrentView3(AMActionRunner3* actionRu
 	currentActionView_->setHeaderHidden(true);
 	currentActionView_->setAttribute(Qt::WA_MacShowFocusRect, false);
 	currentActionView_->setItemDelegate(new AMActionRunnerCurrentItemDelegate3(this));
-
-	connect(actionRunner_, SIGNAL(currentActionChanged(AMAction3*)), this, SLOT(onCurrentActionChanged(AMAction3*)));
-	connect(cancelButton_, SIGNAL(clicked()), this, SLOT(onCancelButtonClicked()));
-	connect(pauseButton_, SIGNAL(clicked()), this, SLOT(onPauseButtonClicked()));
-	connect(skipButton_, SIGNAL(clicked()), this, SLOT(onSkipButtonClicked()));
-
-	connect(actionRunner_, SIGNAL(currentActionStatusTextChanged(QString)), this, SLOT(onStatusTextChanged(QString)));
-	connect(actionRunner_, SIGNAL(currentActionExpectedDurationChanged(double)), this, SLOT(onExpectedDurationChanged(double)));
-	connect(actionRunner_, SIGNAL(currentActionProgressChanged(double,double)), this, SLOT(onProgressChanged(double,double)));
-	connect(actionRunner_, SIGNAL(currentActionStateChanged(int,int)), this, SLOT(onStateChanged(int,int)));
-
-	QTimer* timeUpdateTimer = new QTimer(this);
-	connect(timeUpdateTimer, SIGNAL(timeout()), this, SLOT(onTimeUpdateTimer()));
-	timeUpdateTimer->start(1000);
 }
 
-void AMActionRunnerCurrentView3::onCurrentActionChanged(AMAction3* nextAction)
+void AMActionRunnerCurrentView3::onCurrentActionChanged(AMAction3* action)
 {
-	cancelButton_->setDisabled((nextAction == 0));
-	skipButton_->setDisabled(true);
-
-	if (nextAction)
-		pauseButton_->setEnabled(nextAction->canPause());
-
-	if(nextAction && nextAction->state() == AMAction3::Paused) {
-		pauseButton_->setIcon(QIcon(":/22x22/media-playback-start.png"));
-		pauseButton_->setText("Resume");
-	}
-	else {
-		pauseButton_->setIcon(QIcon(":/22x22/media-playback-pause.png"));
-		pauseButton_->setText("Pause");
-	}
-
-	if (nextAction){
-
-		skipButton_->setEnabled(nextAction->canSkip());
-
-		if (nextAction->canSkip() && nextAction->skipOptions().size() == 1)
-			skipButton_->setToolTip(nextAction->skipOptions().first());
-		else
-			skipButton_->setToolTip("Click for options");
-	}
+	AMActionRunnerCurrentViewBase::onCurrentActionChanged(action);
 
 	// model will handle the tree view on its own. But... we want to make some more visible room if it's a list action, to show the sub-actions.
-	AMListAction3* listAction = qobject_cast<AMListAction3*>(nextAction);
+	AMListAction3* listAction = qobject_cast<AMListAction3*>(action);
+
 	if(listAction) {
+
 		currentActionView_->setMaximumHeight(qMin(168, int((listAction->subActionCount()+1)*48)));
 		QTimer::singleShot(0, currentActionView_, SLOT(expandAll()));
 	}
-	else {
+
+	else
 		currentActionView_->setMaximumHeight(48);
-	}
 
 	// Figure out the tool tip.
 	if (listAction){
@@ -192,9 +162,9 @@ void AMActionRunnerCurrentView3::onCurrentActionChanged(AMAction3* nextAction)
 
 	}
 
-	else if (nextAction){
+	else if (action){
 
-		whatIsRunning_ = "Action currently running:\n\n" % nextAction->info()->name();
+		whatIsRunning_ = "Action currently running:\n\n" % action->info()->name();
 	}
 
 	else
@@ -202,21 +172,20 @@ void AMActionRunnerCurrentView3::onCurrentActionChanged(AMAction3* nextAction)
 
 	setToolTip(whatIsRunning_);
 
-	if(nextAction) {
-		headerTitle_->setText("Current Action: " % nextAction->info()->typeDescription());
-		headerSubTitle_->setText(nextAction->statusText());
-		timeElapsedLabel_->setText("0:00");
-		double expectedDuration = nextAction->expectedDuration();
-		timeRemainingLabel_->setText(expectedDuration > 0 ? formatSeconds(expectedDuration) : "N/A");
-	}
-	else {
+	if(!action) {
+
 		headerTitle_->setText("Current Action");
 		headerSubTitle_->setText("No action running.");
-		timeElapsedLabel_->setText("-:--");
-		timeRemainingLabel_->setText("-:--");
-		progressBar_->setRange(0,1);
-		progressBar_->setValue(0);
 	}
+}
+
+void AMActionRunnerCurrentView3::updateDescriptionViews(AMAction3 *action)
+{
+	headerTitle_->setText("Current Action: " % action->info()->typeDescription());
+	headerSubTitle_->setText(action->statusText());
+	timeElapsedLabel_->setText("0:00");
+	double expectedDuration = action->expectedDuration();
+	timeRemainingLabel_->setText(expectedDuration > 0 ? formatSeconds(expectedDuration) : "N/A");
 }
 
 void AMActionRunnerCurrentView3::onStatusTextChanged(const QString &newStatus)
@@ -224,184 +193,11 @@ void AMActionRunnerCurrentView3::onStatusTextChanged(const QString &newStatus)
 	headerSubTitle_->setText(newStatus);
 }
 
-void AMActionRunnerCurrentView3::onExpectedDurationChanged(double totalSeconds)
-{
-	AMAction3 *currentAction = actionRunner_->currentAction();
-	double elapsed = 0;
+// The QAbstractItemModel for handling the delegates and tree view aspects of the view.
+/////////////////////////////////////////////////////////////////
 
-	if (qobject_cast<AMListAction3 *>(currentAction) && ((AMListAction3 *)currentAction)->currentSubAction())
-		elapsed = ((AMListAction3 *)currentAction)->currentSubAction()->runningTime();
-	else
-		elapsed = currentAction->runningTime();
+AMActionRunnerCurrentModel3::~AMActionRunnerCurrentModel3(){}
 
-	if(totalSeconds > 0)
-		timeRemainingLabel_->setText(formatSeconds(totalSeconds-elapsed));
-	else
-		timeRemainingLabel_->setText("N/A");
-}
-
-void AMActionRunnerCurrentView3::onProgressChanged(double numerator, double denominator)
-{
-	progressBar_->setRange(0, int(denominator*100));
-	progressBar_->setValue(int(numerator*100));
-}
-
-void AMActionRunnerCurrentView3::onTimeUpdateTimer()
-{
-	AMAction3* currentAction = actionRunner_->currentAction();
-	if(currentAction) {
-
-		double elapsed = 0;
-
-		if (qobject_cast<AMListAction3 *>(currentAction) && ((AMListAction3 *)currentAction)->currentSubAction() )
-			elapsed = ((AMListAction3 *)currentAction)->currentSubAction()->runningTime();
-		else
-			elapsed = currentAction->runningTime();
-		double expectedDuration = currentAction->expectedDuration();
-		timeRemainingLabel_->setText(expectedDuration > 0 ? formatSeconds(expectedDuration-elapsed) : "N/A");
-		timeElapsedLabel_->setText(formatSeconds(elapsed));
-	}
-}
-
-QString AMActionRunnerCurrentView3::formatSeconds(double seconds)
-{
-	if(seconds < 0)
-		return QString("?:??");
-
-	QString rv;
-
-	if(seconds > 60*60*24) {
-		QDateTime now = QDateTime::currentDateTime();
-		QDateTime later = now.addSecs(qRound(seconds));
-
-		rv.append(QString("%1 days, ").arg(now.daysTo(later)));
-	}
-
-	QTime t(0,0,0);
-	t = t.addSecs(qRound(seconds));
-	if(seconds > 60*60)
-		rv.append(t.toString("h:m:ss"));
-	else
-		rv.append(t.toString("m:ss"));
-
-	return rv;
-}
-
-void AMActionRunnerCurrentView3::onPauseButtonClicked()
-{
-	AMAction3* currentAction = actionRunner_->currentAction();
-	if(!currentAction)
-		return;
-
-	if(currentAction->state() == AMAction3::Paused) {
-		currentAction->resume();
-		return;
-	}
-
-	if(currentAction->state() == AMAction3::Running && currentAction->pause())
-		;	// successfully paused; do nothing.
-	else
-		QMessageBox::warning(this, "This action can't be paused", QString("This '%1' action cannot be paused right now.\n\n(Some actions just can't be paused, and others can't be paused at certain points in time.)").arg(currentAction->info()->typeDescription()), QMessageBox::Ok);
-}
-
-void AMActionRunnerCurrentView3::onSkipButtonClicked()
-{
-	AMAction3 *currentAction = actionRunner_->currentAction();
-
-	if (!currentAction)
-		return;
-
-	if (currentAction->canSkip()){
-
-		if (currentAction->skipOptions().size() == 1 && !currentAction->hasChildren())
-			currentAction->skip(currentAction->skipOptions().first());
-
-		else if (!currentAction->hasChildren()){
-
-			QMenu menu(this);
-
-			for (int i = 0, size = currentAction->skipOptions().size(); i < size; i++)
-				menu.addAction(currentAction->skipOptions().at(i));
-
-			QAction *action = menu.exec(QCursor::pos());
-
-			if (action)
-				currentAction->skip(action->text());
-		}
-
-		else{
-
-			QMenu menu(this);
-
-			for (int i = 0, size = currentAction->skipOptions().size(); i < size; i++)
-				menu.addAction(currentAction->skipOptions().at(i));
-
-			AMListAction3 *listAction = qobject_cast<AMListAction3 *>(currentAction);
-
-			if (listAction && listAction->currentSubAction()->canSkip())
-				for (int i = 0, size = listAction->currentSubAction()->skipOptions().size(); i < size; i++)
-					menu.addAction(listAction->currentSubAction()->skipOptions().at(i));
-
-			QAction *action = menu.exec(QCursor::pos());
-
-			if (action){
-
-				if (currentAction->skipOptions().contains(action->text()))
-					currentAction->skip(action->text());
-
-				else
-					listAction->currentSubAction()->skip(action->text());
-			}
-		}
-	}
-}
-
-void AMActionRunnerCurrentView3::onCancelButtonClicked()
-{
-	if (qobject_cast<AMScanAction *>(actionRunner_->currentAction()) && showCancelPrompt_){
-
-		AMCancelActionPrompt cancelPrompt;
-		cancelPrompt.setWindowTitle("Cancel Scan");
-		cancelPrompt.setText("Are you sure you wish to cancel this scan?  If you wish to have your data auto-exported: do not cancel and use <img src=:/media-seek-forward.png width=25 height=25> skip instead.  Be warned that cancelling the scan stops the workflow as well.");
-
-		cancelPrompt.exec();
-
-		showCancelPrompt_ = cancelPrompt.shouldWarn();
-
-		if (cancelPrompt.result() == QDialog::Accepted)
-			actionRunner_->cancelCurrentAction();
-	}
-
-	else {
-
-		// if no prompt, then just cancel.
-		actionRunner_->cancelCurrentAction();
-	}
-}
-
-void AMActionRunnerCurrentView3::onStateChanged(int state, int previousState)
-{
-	if(state == AMAction3::Paused) {
-		pauseButton_->setText("Resume");
-		pauseButton_->setIcon(QIcon(":/22x22/media-playback-start.png"));
-	}
-
-	if(previousState == AMAction3::Resuming) {
-		pauseButton_->setText("Pause");
-		pauseButton_->setIcon(QIcon(":/22x22/media-playback-pause.png"));
-	}
-
-	// Can pause or resume from only these states:
-	if (actionRunner_->currentAction())
-		pauseButton_->setEnabled(actionRunner_->currentAction()->canPause() && (state == AMAction3::Running || state == AMAction3::Paused));
-
-	else
-		pauseButton_->setEnabled(state == AMAction3::Running || state == AMAction3::Paused);
-}
-
-
-
- AMActionRunnerCurrentModel3::~AMActionRunnerCurrentModel3(){}
 AMActionRunnerCurrentModel3::AMActionRunnerCurrentModel3(AMActionRunner3 *actionRunner, QObject *parent) : QAbstractItemModel(parent)
 {
 	actionRunner_ = actionRunner;
@@ -596,6 +392,7 @@ QWidget *AMActionRunnerCurrentItemDelegate3::createEditor(QWidget *parent, const
 }
 
 #include <QKeyEvent>
+
 bool AMActionRunnerCurrentItemDelegate3::eventFilter(QObject *object, QEvent *event)
 {
 	QWidget* widget = qobject_cast<QWidget*>(object);
@@ -608,4 +405,5 @@ bool AMActionRunnerCurrentItemDelegate3::eventFilter(QObject *object, QEvent *ev
 	}
 	return QObject::eventFilter(object, event);
 }
- AMActionRunnerCurrentItemDelegate3::~AMActionRunnerCurrentItemDelegate3(){}
+
+AMActionRunnerCurrentItemDelegate3::~AMActionRunnerCurrentItemDelegate3(){}

@@ -43,13 +43,14 @@ public:
 
 	/// Constructor.  Requires the file path for where the files should be stored.  \param filePath should have everything for the data file except the extension.  Also needs to be told whether it needs to open a separate file for spectral data.
 	AMScanActionControllerBasicFileWriter(const QString &filePath, bool hasSpectraData = false, QObject *parent = 0);
+	/// Destructor.
 	virtual ~AMScanActionControllerBasicFileWriter();
 
 	QString filePath() const;
 
 public slots:
 	/// Writes the given string to a file.  You need to provide either 0 or 1 for the file rank (scaler data or spectral data).
-	void writeToFile(int fileRank, const QString &textToWrite);
+	virtual void writeToFile(int fileRank, const QString &textToWrite);
 	/// Must be called after the scan has completed.  Does the necessary clean up of the files.
 	void finishWriting();
 

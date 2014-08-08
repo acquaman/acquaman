@@ -102,7 +102,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMRegionOfInterest.h"
 #include "analysis/AMRegionOfInterestAB.h"
 #include "analysis/AM0DAccumulatorAB.h"
-#include "analysis/AM0DTimestampAB.h"
 #include "analysis/AM1DTimedDataAB.h"
 #include "analysis/AM1DKSpaceCalculatorAB.h"
 
@@ -114,12 +113,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMDbUpgrade1Pt2.h"
 #include "dataman/AMDbUpgrade1Pt3.h"
 #include "dataman/AMDbUpgrade1Pt4.h"
+#include "dataman/AMDbUpgrade1Pt5.h"
 
 #include "dataman/database/AMDbObjectSupport.h"
 #include "ui/dataman/AMDbObjectGeneralView.h"
 #include "ui/dataman/AMDbObjectGeneralViewSupport.h"
-#include "acquaman/AM2DScanConfiguration.h"
-#include "ui/dataman/AM2DScanConfigurationGeneralView.h"
 
 #include "beamline/camera/AMCameraConfiguration.h"
 #include "beamline/camera/AMRotationalOffset.h"
@@ -128,12 +126,18 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMSamplePlate.h"
 #include "beamline/camera/AMSampleCameraBrowser.h"
 
+#include "ui/util/AMDirectorySynchronizerDialog.h"
+#include "ui/util/AMMessageBoxWTimeout.h"
 
 AMDatamanAppController::AMDatamanAppController(QObject *parent) :
 	QObject(parent)
 {
 	isStarting_ = true;
 	isShuttingDown_ = false;
+
+	overrideCloseCheck_ = false;
+
+	defaultUseLocalStorage_ = false;
 
 	isBadDatabaseDirectory_ = false;
 	finishedSender_ = 0;
@@ -174,6 +178,14 @@ AMDatamanAppController::AMDatamanAppController(QObject *parent) :
 	appendDatabaseUpgrade(am1Pt4ActionsDb);
 	AMDbUpgrade *am1Pt4ScanActionsDb = new AMDbUpgrade1Pt4("scanActions", this);
 	appendDatabaseUpgrade(am1Pt4ScanActionsDb);
+
+	// Append the AM upgrade 1.5 to the list for the user database
+	AMDbUpgrade *am1Pt5UserDb = new AMDbUpgrade1Pt5("user", this);
+	appendDatabaseUpgrade(am1Pt5UserDb);
+	AMDbUpgrade *am1Pt5ActionsDb = new AMDbUpgrade1Pt5("actions", this);
+	appendDatabaseUpgrade(am1Pt5ActionsDb);
+	AMDbUpgrade *am1Pt5ScanActionsDb = new AMDbUpgrade1Pt5("scanActions", this);
+	appendDatabaseUpgrade(am1Pt5ScanActionsDb);
 }
 
 bool AMDatamanAppController::startup() {
@@ -207,6 +219,7 @@ bool AMDatamanAppController::startup() {
 		if(!startupOnEveryTime())
 			return AMErrorMon::errorAndReturn(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_HANDING_NON_FIRST_TIME_USER, "Problem with Acquaman startup: handling non-first-time user.");
 	}
+
 
 	if(!startupRegisterDatabases())
 		return AMErrorMon::errorAndReturn(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_REGISTERING_DATABASES, "Problem with Acquaman startup: registering databases.");
@@ -282,7 +295,16 @@ bool AMDatamanAppController::startupIsFirstTime()
 	if(!s.contains("userDataFolder")) {
 		isFirstTime = true;
 	}
+	else if(s.contains("userDataFolder") && s.contains("remoteDataFolder")){
+		QDir remoteDataDir(AMUserSettings::remoteDataFolder);
+		if(!remoteDataDir.exists())
+			isFirstTime = true;
 
+		QString filename = AMUserSettings::remoteDataFolder + "/" + AMUserSettings::userDatabaseFilename;
+		QFile dbFile(filename);
+		if(!dbFile.exists())
+			isFirstTime = true;
+	}
 	else {
 
 		// check for existence of user data folder:
@@ -316,23 +338,47 @@ bool AMDatamanAppController::startupOnFirstTime()
 	else{
 		AMFirstTimeWizard ftw;
 
+		ftw.setField("useLocalStorage", QVariant(defaultUseLocalStorage_));
+
 		// We're pretty forceful here... The user needs to accept this dialog.
 		if(ftw.exec() != QDialog::Accepted)
 			return false;
 
-		AMUserSettings::userDataFolder = ftw.field("userDataFolder").toString();
-		if(!AMUserSettings::userDataFolder.endsWith('/'))
-			AMUserSettings::userDataFolder.append("/");
+		if(ftw.field("useLocalStorage").toBool()){
+			AMUserSettings::remoteDataFolder = ftw.field("userDataFolder").toString();
+			if(!AMUserSettings::remoteDataFolder.endsWith('/'))
+				AMUserSettings::remoteDataFolder.append("/");
+
+			QString localUserDataFolder = AMUserSettings::remoteDataFolder;
+			AMUserSettings::userDataFolder = localUserDataFolder.section('/', 2, -1).prepend("/AcquamanLocalData/");
+		}
+		else{
+			AMUserSettings::userDataFolder = ftw.field("userDataFolder").toString();
+			if(!AMUserSettings::userDataFolder.endsWith('/'))
+				AMUserSettings::userDataFolder.append("/");
+		}
 
 		AMUserSettings::save();
 
 		// Attempt to create user's data folder, only if it doesn't exist:
 		QDir userDataDir(AMUserSettings::userDataFolder);
 		if(!userDataDir.exists()) {
-			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Information, 0, "Creating new user data folder: "  + AMUserSettings::userDataFolder));
+			AMErrorMon::information(0, 0, "Creating new user data folder: "  + AMUserSettings::userDataFolder);
 			if(!userDataDir.mkpath(AMUserSettings::userDataFolder)) {
-				AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, 0, "Could not create user data folder " + AMUserSettings::userDataFolder));
+				AMErrorMon::error(0, 0, "Could not create user data folder " + AMUserSettings::userDataFolder);
 				return false;
+			}
+		}
+
+		if(ftw.field("useLocalStorage").toBool()){
+			// Attempt to create user's data folder, only if it doesn't exist:
+			QDir remoteDataDir(AMUserSettings::remoteDataFolder);
+			if(!remoteDataDir.exists()) {
+				AMErrorMon::information(0, 0, "Creating new remote data folder: "  + AMUserSettings::remoteDataFolder);
+				if(!remoteDataDir.mkpath(AMUserSettings::remoteDataFolder)) {
+					AMErrorMon::error(0, 0, "Could not create remote data folder " + AMUserSettings::remoteDataFolder);
+					return false;
+				}
 			}
 		}
 
@@ -346,6 +392,15 @@ bool AMDatamanAppController::startupOnFirstTime()
 		if(!startupDatabaseUpgrades())
 			return false;
 
+		if(ftw.field("useLocalStorage").toBool()){
+			QDir userDataFolder(AMUserSettings::userDataFolder);
+			QStringList dataFolderFilters;
+			dataFolderFilters << "*.db";
+			QFileInfoList allDatabaseFiles = userDataFolder.entryInfoList(dataFolderFilters);
+			for(int x = 0, size = allDatabaseFiles.count(); x < size; x++)
+				QFile::copy(allDatabaseFiles.at(x).absoluteFilePath(), QString("%1/%2").arg(AMUserSettings::remoteDataFolder).arg(allDatabaseFiles.at(x).fileName()));
+		}
+
 		AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES, "Acquaman Startup: First-Time Successful");
 		qApp->processEvents();
 	}
@@ -354,6 +409,32 @@ bool AMDatamanAppController::startupOnFirstTime()
 
 bool AMDatamanAppController::startupOnEveryTime()
 {
+	if(AMUserSettings::remoteDataFolder.isEmpty() && defaultUseLocalStorage_){
+		int retVal = QMessageBox::question(0, "Use Local Storage?", "Acquaman has detected that you are not using local storage.\nLocal storage can significantly improve speed and reliability.\n If you wish to use local storage select \"Yes\" and your data will automatically be synchronized to the network for long term storage.\n\n Use local storage?", QMessageBox::Yes, QMessageBox::No);
+		if(retVal == QMessageBox::Yes){
+			QString currentUserDataFolder = AMUserSettings::userDataFolder;
+			QString localBaseDirectory = "/AcquamanLocalData";
+
+			QString dataFolderExtension = currentUserDataFolder;
+			if(currentUserDataFolder.contains("/home"))
+				dataFolderExtension.remove("/home");
+			else if(currentUserDataFolder.contains("/experiments"))
+				dataFolderExtension.remove("/experiments");
+			else
+				dataFolderExtension.remove(currentUserDataFolder.section('/', 0, 1));
+
+			QString newUserDataFolder = localBaseDirectory+dataFolderExtension;
+			QString newRemoteDataFolder = currentUserDataFolder;
+
+			AMUserSettings::userDataFolder = newUserDataFolder;
+			AMUserSettings::remoteDataFolder = newRemoteDataFolder;
+			AMUserSettings::save();
+		}
+	}
+
+	if(!startupBackupDataDirectory())
+		return AMErrorMon::errorAndReturn(this, AMDATAMANAPPCONTROLLER_DATA_DIR_BACKUP_ERROR, "Problem with Acquaman startup: backing up data directory.");
+
 	if(!startupCreateDatabases())
 		return false;
 
@@ -402,6 +483,23 @@ bool AMDatamanAppController::startupDatabaseUpgrades()
 		return false;
 	}
 
+	return true;
+}
+
+bool AMDatamanAppController::startupBackupDataDirectory()
+{
+	if(AMUserSettings::remoteDataFolder.length() > 0)
+	{
+		AMDirectorySynchronizerDialog *synchronizer = new AMDirectorySynchronizerDialog(AMUserSettings::userDataFolder, AMUserSettings::remoteDataFolder, "Local", "Network");
+
+		QStringList excludePatterns;
+		excludePatterns.append("*.db.bk.*");
+		excludePatterns.append("*.BACKUPS");
+		for(int x = 0, size = excludePatterns.size(); x < size; x++)
+			synchronizer->appendExcludePattern(excludePatterns.at(x));
+
+		return synchronizer->autoStart();
+	}
 	return true;
 }
 
@@ -611,9 +709,8 @@ bool AMDatamanAppController::startupRegisterDatabases()
 	success &= AMDbObjectSupport::s()->registerClass<AM1DDeadTimeAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AM2DDeadTimeCorrectionAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AM3DDeadTimeCorrectionAB>();
-    success &= AMDbObjectSupport::s()->registerClass<AM0DAccumulatorAB>();
-    success &= AMDbObjectSupport::s()->registerClass<AM0DTimestampAB>();
-    success &= AMDbObjectSupport::s()->registerClass<AM1DTimedDataAB>();
+	success &= AMDbObjectSupport::s()->registerClass<AM0DAccumulatorAB>();
+	success &= AMDbObjectSupport::s()->registerClass<AM1DTimedDataAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AM1DKSpaceCalculatorAB>();
 
 	success &= AMDbObjectSupport::s()->registerClass<AMScanAxis>();
@@ -645,7 +742,6 @@ bool AMDatamanAppController::startupRegisterDatabases()
 	success &= AMDbObjectSupport::s()->registerClass<AMSampleCameraURL>();
 
 	success &= AMDbObjectGeneralViewSupport::registerClass<AMDbObject, AMDbObjectGeneralView>();
-	success &= AMDbObjectGeneralViewSupport::registerClass<AM2DScanConfiguration, AM2DScanConfigurationGeneralView>();
 
 	return success;
 }
@@ -794,6 +890,10 @@ bool AMDatamanAppController::startupInstallActions()
 	saveAllAction->setStatusTip("Save all unsaved scans without prompting.");
 	connect(saveAllAction, SIGNAL(triggered()), this, SLOT(saveAll()));
 
+	QAction *forceQuitAction = new QAction("Force Quit Acquaman", mw_);
+	forceQuitAction->setStatusTip("Acquaman is behaving poorly, force a quit and loose any unsaved changes or currently running scans");
+	connect(forceQuitAction, SIGNAL(triggered()), this, SLOT(forceQuitAcquaman()));
+
 
 	QAction* importLegacyFilesAction = new QAction("Import Legacy Files...", mw_);
 	importLegacyFilesAction->setShortcut(QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_L));
@@ -849,6 +949,8 @@ bool AMDatamanAppController::startupInstallActions()
 	fileMenu_->addSeparator();
 	fileMenu_->addAction(amSettingsAction);
 
+	fileMenu_->addAction(forceQuitAction);
+
 	helpMenu_ = menuBar_->addMenu("Help");
 	helpMenu_->addAction(amIssueSubmissionAction);
 	helpMenu_->addAction(amShowAboutPageAction);
@@ -866,7 +968,6 @@ void AMDatamanAppController::shutdown() {
 
 	// Close down connection to the user Database
 	AMDatabase::deleteDatabase("user");
-
 }
 
 
@@ -989,12 +1090,12 @@ void AMDatamanAppController::launchScanConfigurationFromDb(const QUrl &url)
 	// Does the scan have a configuration?
 	AMScanConfiguration* config = scan->scanConfiguration();
 	if(!config) {
-		scan->release();
+		scan->deleteLater();
 		return;
 	}
 	// need to create a copy of the config so we can delete the scan (and hence the config instance owned by the scan). The view will take ownership of the copy.
 	config = config->createCopy();
-	scan->release();
+	scan->deleteLater();
 	if(!config)
 		return;
 
@@ -1111,28 +1212,33 @@ void AMDatamanAppController::onShowAboutPage()
 
 void AMDatamanAppController::onDataViewItemsExported(const QList<QUrl> &itemUrls)
 {
-	QMessageBox shouldSave;
-	shouldSave.setText("Save changes to open scans before exporting?");
-	shouldSave.setInformativeText("Unsaved changes will not export.");
-	shouldSave.setStandardButtons(QMessageBox::Cancel | QMessageBox::No | QMessageBox::SaveAll);
-	shouldSave.setDefaultButton(QMessageBox::SaveAll);
-	shouldSave.setEscapeButton(QMessageBox::Cancel);
-	int ret = shouldSave.exec();
-	switch (ret) {
-	  case QMessageBox::SaveAll: saveAll();
-		  // Save was clicked
-		  break;
-	  case QMessageBox::No:
-		  // Don't Save was clicked
-		  break;
-	  case QMessageBox::Cancel: return;
-		  // Cancel was clicked
-		  break;
-	  default:
-		  // should never be reached
-		  break;
-	}
+	if (anyOpenScansModified()){
 
+		QMessageBox shouldSave;
+		shouldSave.setText("Save changes to open scans before exporting?");
+		shouldSave.setInformativeText("Unsaved changes will not export.");
+		shouldSave.setStandardButtons(QMessageBox::Cancel | QMessageBox::No | QMessageBox::SaveAll);
+		shouldSave.setDefaultButton(QMessageBox::SaveAll);
+		shouldSave.setEscapeButton(QMessageBox::Cancel);
+		int ret = shouldSave.exec();
+		switch (ret) {
+
+		case QMessageBox::SaveAll:
+
+			saveAll();
+			break;
+
+		case QMessageBox::No:
+
+			// Do nothing.
+			break;
+
+		case QMessageBox::Cancel:
+
+			// Abort action.
+			return;
+		}
+	}
 
 	// will delete itself when finished
 	AMExportController* exportController = new AMExportController(itemUrls);
@@ -1204,6 +1310,14 @@ bool AMDatamanAppController::canCloseScanEditors() const
 	return true;
 }
 
+bool AMDatamanAppController::defaultUseLocalStorage() const{
+	return defaultUseLocalStorage_;
+}
+
+void AMDatamanAppController::setDefaultUseLocalStorage(bool defaultUseLocalStorage){
+	defaultUseLocalStorage_ = defaultUseLocalStorage;
+}
+
 //void AMDatamanAppController::processEventsFor(int ms)
 //{
 //	QTime t;
@@ -1216,11 +1330,20 @@ bool AMDatamanAppController::canCloseScanEditors() const
 
 bool AMDatamanAppController::eventFilter(QObject* o, QEvent* e)
 {
-	if(o == mw_ && e->type() == QEvent::Close) {
+	if(o == mw_ && e->type() == QEvent::Close && !overrideCloseCheck_) {
 		if(!canCloseScanEditors()) {
 			e->ignore();
 			return true;
 		}
+
+		if(AMUserSettings::remoteDataFolder.length() > 0)		{
+			QStringList arguments;
+			arguments << "-i" << "--delayedStart=3" << "--noWarningTimeout";
+
+			QString pathToAM = QApplication::instance()->applicationFilePath().section('/', 0, -2);
+			QProcess::startDetached(QString("%1/CLSNetworkDirectorySynchronizer").arg(pathToAM), arguments);
+		}
+
 		// They got away with closing the main window. We should quit the application
 		qApp->quit();	//note that this might already be in progress, if an application quit was what triggered this close event.  No harm in asking twice...
 
@@ -1503,6 +1626,12 @@ void AMDatamanAppController::onActionPrintGraphics()
 	}
 }
 
+void AMDatamanAppController::forceQuitAcquaman(){
+	overrideCloseCheck_ = true;
+	mw_->close();
+}
+
+
 
 void AMDatamanAppController::getUserDataFolderFromDialog(bool presentAsParentFolder)
 {
@@ -1544,20 +1673,39 @@ void AMDatamanAppController::getUserDataFolderFromDialog(bool presentAsParentFol
 	}
 }
 
-void AMDatamanAppController::saveAll(){
+void AMDatamanAppController::saveAll()
+{
+	for (int i = 0, count = scanEditorCount(); i < count; i++) {
 
-	for(int i=0, count = scanEditorCount(); i<count; i++) {
 		AMGenericScanEditor* editor = scanEditorAt(i);
 
 		if(editor){
-			for(int i=0; i < editor->scanCount(); i++)
+
+			for (int i = 0, scanCount = editor->scanCount(); i < scanCount; i++)
 			{
 				AMScan* scan =  editor->scanAt(i);
-				if(scan->database())
+
+				if(scan->modified() && scan->database())
 					scan->storeToDb(scan->database());
-				else
+
+				else if (scan->modified())
 					scan->storeToDb(AMDatabase::database("user"));
 			}
 		}
 	}
+}
+
+bool AMDatamanAppController::anyOpenScansModified() const
+{
+	for (int i = 0, count = scanEditorCount(); i < count; i++) {
+
+		AMGenericScanEditor* editor = scanEditorAt(i);
+
+		if(editor)
+			for (int i = 0, scanCount = editor->scanCount(); i < scanCount; i++)
+				if (editor->scanAt(i)->modified())
+					return true;
+	}
+
+	return false;
 }

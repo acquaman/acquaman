@@ -59,7 +59,9 @@ public:
 	/// Release and delete the singleton instance
 	static void releaseWorkflow();
 
+	/// The singleton access to the scan action runner.
 	static AMActionRunner3* scanActionRunner();
+	/// Release and delete the singleton instance.
 	static void releaseScanActionRunner();
 
 	/// Unique name for one of the preset action runner instances
@@ -235,7 +237,7 @@ class AMActionRunnerQueueModel3 : public QAbstractItemModel {
 	Q_OBJECT
 public:
 	/// Constructor.
- 	virtual ~AMActionRunnerQueueModel3();
+	virtual ~AMActionRunnerQueueModel3();
 	AMActionRunnerQueueModel3(AMActionRunner3* actionRunner, QObject* parent = 0);
 
 	QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
@@ -310,7 +312,7 @@ class AMModelIndexListMimeData3 : public QMimeData {
 	Q_OBJECT
 public:
 	/// Constructor
- 	virtual ~AMModelIndexListMimeData3();
+	virtual ~AMModelIndexListMimeData3();
 	AMModelIndexListMimeData3(const QModelIndexList& mil) : QMimeData() {
 		foreach(const QModelIndex& mi, mil)
 			mil_ << mi;

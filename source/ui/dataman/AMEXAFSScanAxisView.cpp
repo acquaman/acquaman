@@ -108,31 +108,41 @@ void AMEXAFSScanAxisElementView::setStartSpinBox(const AMNumber &value)
 
 		if (region_->inKSpace())
 			region_->setRegionStart(AMEnergyToKSpaceCalculator::k(region_->edgeEnergy(), start_->value()+double(region_->edgeEnergy())));
+
+		onStartPositionUpdated();
 	}
 }
 
 void AMEXAFSScanAxisElementView::setDeltaSpinBox(const AMNumber &value)
 {
-	if ((double(value) - delta_->value()) < pow(1, -1*delta_->decimals()))
+	if ((double(value) - delta_->value()) < pow(1, -1*delta_->decimals())){
 		delta_->setValue(double(value));
+		onDeltaPositionUpdated();
+	}
 }
 
 void AMEXAFSScanAxisElementView::setEndSpinBox(const AMNumber &value)
 {
-	if ((double(value) != end_->value()))
+	if ((double(value) != end_->value())){
 		end_->setValue(double(value));
+		onEndPositionUpdated();
+	}
 }
 
 void AMEXAFSScanAxisElementView::setTimeSpinBox(const AMNumber &value)
 {
-	if (double(value) != time_->value())
+	if (double(value) != time_->value()){
 		time_->setValue(double(value));
+		onTimeUpdated();
+	}
 }
 
 void AMEXAFSScanAxisElementView::setMaximumTimeSpinBox(const AMNumber &value)
 {
-	if (double(value) != maximumTime_->value())
+	if (double(value) != maximumTime_->value()){
 		maximumTime_->setValue(double(value));
+		onMaximumTimeUpdated();
+	}
 }
 
 void AMEXAFSScanAxisElementView::onStartPositionUpdated()

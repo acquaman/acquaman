@@ -44,17 +44,21 @@ REIXSScalerView::REIXSScalerView(QWidget *parent)
 
 		CLSSIS3820ScalerChannelView *view = new CLSSIS3820ScalerChannelView(scaler->channelAt(16));
 		view->setEnableCheckBoxVisibility(false);
+		view->setAmplifierViewFormat('g');
+		view->setAmplifierViewPrecision(3);
 		singleViews_ << view;
 		view->setFixedHeight(55);
-        connect(view, SIGNAL(amplifierViewModeChanged(AMCurrentAmplifierView::ViewMode)), this, SLOT(onSR570ViewChanged(AMCurrentAmplifierView::ViewMode)));
+		connect(view, SIGNAL(amplifierViewModeChanged(AMCurrentAmplifierView::ViewMode)), this, SLOT(onSR570ViewChanged(AMCurrentAmplifierView::ViewMode)));
 		connect(view, SIGNAL(outputViewModeChanged(CLSSIS3820ScalerChannelView::OutputViewMode)), this, SLOT(onOutputViewModeChanged(CLSSIS3820ScalerChannelView::OutputViewMode)));
 		layout->addWidget(view);
 
 		view = new CLSSIS3820ScalerChannelView(scaler->channelAt(18));
 		view->setEnableCheckBoxVisibility(false);
+		view->setAmplifierViewFormat('g');
+		view->setAmplifierViewPrecision(3);
 		singleViews_ << view;
 		view->setFixedHeight(40);
-        connect(view, SIGNAL(amplifierViewModeChanged(AMCurrentAmplifierView::ViewMode)), this, SLOT(onSR570ViewChanged(AMCurrentAmplifierView::ViewMode)));
+		connect(view, SIGNAL(amplifierViewModeChanged(AMCurrentAmplifierView::ViewMode)), this, SLOT(onSR570ViewChanged(AMCurrentAmplifierView::ViewMode)));
 		connect(view, SIGNAL(outputViewModeChanged(CLSSIS3820ScalerChannelView::OutputViewMode)), this, SLOT(onOutputViewModeChanged(CLSSIS3820ScalerChannelView::OutputViewMode)));
 		layout->addWidget(view);
 
@@ -71,7 +75,7 @@ void REIXSScalerView::onSR570ViewChanged(AMCurrentAmplifierView::ViewMode mode)
 	foreach (CLSSIS3820ScalerChannelView *channel, singleViews_){
 
 		channel->blockSignals(true);
-        channel->setAmplifierViewMode(mode);
+		channel->setAmplifierViewMode(mode);
 		channel->blockSignals(false);
 	}
 }

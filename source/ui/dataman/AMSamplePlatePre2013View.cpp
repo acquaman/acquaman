@@ -96,7 +96,7 @@ void AMSamplePlatePre2013ItemModel::onSamplePositionAboutToBeRemoved(int index) 
 
 // Received from AMSamplePlate. Used to implement endRemoveRows.
 void AMSamplePlatePre2013ItemModel::onSamplePositionRemoved(int index) {
-
+	Q_UNUSED(index)
 //	cachedSamples_.removeAt(index);
 	endRemoveRows();
 }

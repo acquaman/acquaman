@@ -223,7 +223,7 @@ void AM1DCalibrationABEditor::onApplyToOtherScansChosen()
 			scan->storeToDb(scan->database());
 		}
 
-		scan->release();	// delete scan.
+		scan->deleteLater();	// delete scan.
 	}
 
 	progressDialog->setValue(scans.count());

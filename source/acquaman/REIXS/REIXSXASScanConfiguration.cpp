@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 REIXSXASScanConfiguration::REIXSXASScanConfiguration(QObject *parent) :
 	AMStepScanConfiguration(parent)
 {
+	setAutoExportEnabled(false);
 
 	scanNumber_ = 0;
 	sampleId_ = -1;
@@ -86,6 +87,7 @@ REIXSXASScanConfiguration::REIXSXASScanConfiguration(const REIXSXASScanConfigura
 	polarizationAngle_ = other.polarizationAngle_;
 	applyPolarization_ = other.applyPolarization_;
 
+	totalTime_ = 0;
 	minEnergy_ = other.minEnergy();
 	maxEnergy_ = other.maxEnergy();
 	totalPoints_ = other.totalPoints();

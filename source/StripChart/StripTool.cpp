@@ -128,6 +128,7 @@ void StripTool::setAppDirectory(const QDir &newDir)
 
 StripToolVariable* StripTool::createDerivativeFromVariable(StripToolVariable *variable)
 {
+	Q_UNUSED(variable)
 //    qDebug() << "StripTool :: creating derivative entry from variable : " << variable->info()->name();
 
 //    AMDataSource *baseSource = variable->info()->dataSource();
@@ -301,7 +302,8 @@ void StripTool::toDeleteListItem(const QModelIndex &listItem)
 
 void StripTool::toAddDerivativeListItem(const QModelIndex &listItem)
 {
-    StripToolVariable *derivVar = createDerivativeFromVariable(model()->findVariable(listItem));
+   /* StripToolVariable *derivVar = Commented out to prevent compiler warnings, see Issue734*/
+	createDerivativeFromVariable(model()->findVariable(listItem));
 //    model()->addVariable(derivVar);
 
 //    qDebug() << "StripTool :: derivative entry added to model.";
