@@ -182,13 +182,10 @@ void AMDirectorySynchronizer::appendExcludePattern(const QString &excludePattern
 
 AMRecursiveDirectoryCompare::DirectoryCompareResult AMDirectorySynchronizer::compareDirectories()
 {
-	//QStringList excludedPatterns;
-	//excludedPatterns << "*.db.bk.*" << ".BACKUPS";
 	if(comparator_){
 		delete comparator_;
 		comparator_ = 0; //NULL
 	}
-	//comparator_ = new AMRecursiveDirectoryCompare(side1Directory_, side2Directory_, excludedPatterns, side1DirectoryName_, side2DirectoryName_);
 	comparator_ = new AMRecursiveDirectoryCompare(side1Directory_, side2Directory_, excludePatterns_, side1DirectoryName_, side2DirectoryName_);
 
 	return comparator_->compare();
