@@ -295,6 +295,12 @@ protected slots:
 	void onShowAboutPage();
 
 protected:
+	/// Returns whether or not this application intends to use local storage as the default
+	bool defaultUseLocalStorage() const;
+
+	/// Sets whether or not this application intends to use local storage as the default
+	void setDefaultUseLocalStorage(bool defaultUseLocalStorage);
+
 	/// Helper function to go through all the scan editors and see if we can close all of them.
 	bool canCloseScanEditors() const;
 

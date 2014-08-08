@@ -363,9 +363,9 @@ bool AMDatamanAppController::startupOnFirstTime()
 		// Attempt to create user's data folder, only if it doesn't exist:
 		QDir userDataDir(AMUserSettings::userDataFolder);
 		if(!userDataDir.exists()) {
-			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Information, 0, "Creating new user data folder: "  + AMUserSettings::userDataFolder));
+			AMErrorMon::information(0, 0, "Creating new user data folder: "  + AMUserSettings::userDataFolder);
 			if(!userDataDir.mkpath(AMUserSettings::userDataFolder)) {
-				AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, 0, "Could not create user data folder " + AMUserSettings::userDataFolder));
+				AMErrorMon::error(0, 0, "Could not create user data folder " + AMUserSettings::userDataFolder);
 				return false;
 			}
 		}
@@ -374,9 +374,9 @@ bool AMDatamanAppController::startupOnFirstTime()
 			// Attempt to create user's data folder, only if it doesn't exist:
 			QDir remoteDataDir(AMUserSettings::remoteDataFolder);
 			if(!remoteDataDir.exists()) {
-				AMErrorMon::report(AMErrorReport(0, AMErrorReport::Information, 0, "Creating new remote data folder: "  + AMUserSettings::remoteDataFolder));
+				AMErrorMon::information(0, 0, "Creating new remote data folder: "  + AMUserSettings::remoteDataFolder);
 				if(!remoteDataDir.mkpath(AMUserSettings::remoteDataFolder)) {
-					AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, 0, "Could not create remote data folder " + AMUserSettings::remoteDataFolder));
+					AMErrorMon::error(0, 0, "Could not create remote data folder " + AMUserSettings::remoteDataFolder);
 					return false;
 				}
 			}
@@ -1308,6 +1308,14 @@ bool AMDatamanAppController::canCloseScanEditors() const
 		}
 	}
 	return true;
+}
+
+bool AMDatamanAppController::defaultUseLocalStorage() const{
+	return defaultUseLocalStorage_;
+}
+
+void AMDatamanAppController::setDefaultUseLocalStorage(bool defaultUseLocalStorage){
+	defaultUseLocalStorage_ = defaultUseLocalStorage;
 }
 
 //void AMDatamanAppController::processEventsFor(int ms)
