@@ -205,9 +205,6 @@ bool AMDatamanAppController::startup() {
 	if(!startupLoadPlugins())
 		return AMErrorMon::errorAndReturn(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_LOADING_PLUGINS, "Problem with Acquaman startup: loading plugins.");
 
-//	if(!startupBackupDataDirectory())
-//		return AMErrorMon::errorAndReturn(this, AMDATAMANAPPCONTROLLER_DATA_DIR_BACKUP_ERROR, "Problem with Acquaman startup: backing up data directory.");
-
 	if((isFirstTimeRun_ = startupIsFirstTime())) {
 		if(!startupOnFirstTime())
 			return AMErrorMon::errorAndReturn(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_LOADING_SETTING, "Problem with Acquaman startup: handling first-time user.");
@@ -495,7 +492,6 @@ bool AMDatamanAppController::startupBackupDataDirectory()
 		for(int x = 0, size = excludePatterns.size(); x < size; x++)
 			synchronizer->appendExcludePattern(excludePatterns.at(x));
 
-		//return synchronizer.start();
 		return synchronizer->autoStart();
 	}
 	return true;
