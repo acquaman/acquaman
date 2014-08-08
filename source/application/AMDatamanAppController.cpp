@@ -394,10 +394,8 @@ bool AMDatamanAppController::startupOnFirstTime()
 			QStringList dataFolderFilters;
 			dataFolderFilters << "*.db";
 			QFileInfoList allDatabaseFiles = userDataFolder.entryInfoList(dataFolderFilters);
-			for(int x = 0, size = allDatabaseFiles.count(); x < size; x++){
-				qDebug() << "The file name to copy " << allDatabaseFiles.at(x).absoluteFilePath();
+			for(int x = 0, size = allDatabaseFiles.count(); x < size; x++)
 				QFile::copy(allDatabaseFiles.at(x).absoluteFilePath(), QString("%1/%2").arg(AMUserSettings::remoteDataFolder).arg(allDatabaseFiles.at(x).fileName()));
-			}
 		}
 
 		AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES, "Acquaman Startup: First-Time Successful");
@@ -489,7 +487,6 @@ bool AMDatamanAppController::startupBackupDataDirectory()
 {
 	if(AMUserSettings::remoteDataFolder.length() > 0)
 	{
-		qDebug() << "Calling synchronization with " << AMUserSettings::userDataFolder << AMUserSettings::remoteDataFolder;
 		AMDirectorySynchronizerDialog *synchronizer = new AMDirectorySynchronizerDialog(AMUserSettings::userDataFolder, AMUserSettings::remoteDataFolder, "Local", "Network");
 
 		QStringList excludePatterns;

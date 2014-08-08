@@ -73,9 +73,6 @@ int main(int argc, char *argv[])
 	if(argumentValuePairs.contains("--local") && !argumentValuePairs.value("--local").isEmpty() && argumentValuePairs.contains("--remote") && !argumentValuePairs.value("--remote").isEmpty()){
 		localDirectory = argumentValuePairs.value("--local");
 		networkDirectory = argumentValuePairs.value("--remote");
-
-		qDebug() << "Overriding local and remote as " << localDirectory << networkDirectory;
-
 	}
 	else{
 		QSettings settings(QSettings::IniFormat, QSettings::UserScope, "Acquaman", "Acquaman");
@@ -136,8 +133,6 @@ int main(int argc, char *argv[])
 		QDesktopWidget *desktop = QApplication::desktop();
 		QRect ourScreen = desktop->screenGeometry(desktop->primaryScreen());
 		synchronizerDialog->move(ourScreen.width()/4 + ourScreen.left(), ourScreen.height()/2 + ourScreen.top());
-
-		qDebug() << argumentValuePairs;
 
 		if(argumentValuePairs.contains("--delayedStart")){
 			synchronizerDialog->delayedStart(argumentValuePairs.value("--delayedStart").toDouble());

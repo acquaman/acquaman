@@ -43,7 +43,6 @@ AMRecursiveDirectoryCompare::DirectoryCompareResult AMRecursiveDirectoryCompare:
 		return AMRecursiveDirectoryCompare::Side2DoesNotExistResult;
 
 	compareOneLevel(directoryPath1_, directoryPath2_);
-	qDebug() << "Done the compare";
 
 	if (!unknownFiles_.isEmpty()) {
 		qDebug() << "Unable to determine most recent version of some files";
