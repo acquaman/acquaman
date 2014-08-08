@@ -170,16 +170,12 @@ void BioXASSideAppController::setupExporterOptions()
         AMAppControllerSupport::registerClass<BioXASSideXASScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(bioXASDefaultXAS->id());
     }
 
-//	if(bioXASDefaultXAS->id() > 0)
-//			AMAppControllerSupport::registerClass<IDEASXASScanConfiguration, AMExporterAthena, AMExporterOptionGeneralAscii>(bioXASDefaultXAS->id());
-
 }
 
 void BioXASSideAppController::setupUserInterface()
 {
 	// Create panes in the main window:
 	////////////////////////////////////
-
 
 	mw_->insertHeading("General", 0);
 

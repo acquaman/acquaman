@@ -38,6 +38,8 @@ protected slots:
     virtual void onPlusClickedImplementation();
     /// Clears and repopulations value_ widget.
     virtual void refreshViewImplementation();
+    /// Provides a custom context menu, used to switch between Basic and Advanced views.
+    virtual void onCustomContextMenuRequested(QPoint position);
 
 
 protected:

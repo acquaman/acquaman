@@ -37,7 +37,7 @@ AMScanActionEditor::AMScanActionEditor(AMScanActionInfo *info, QWidget *parent)
 
 	configView_ = 0;
 
-	scanName_ = new QLabel(QString("%1 : %2").arg(info_->config()->detailedDescription()).arg(info_->config()->name()));
+	scanName_ = new QLabel(QString("%1 : %2").arg(info_->configuration()->detailedDescription()).arg(info_->configuration()->name()));
 	connect(info_, SIGNAL(infoChanged()), this, SLOT(onScanInfoChanged()));
 
 	QPushButton *configViewButton = new QPushButton(QIcon(":/32x32/hammer-wrench.png"), "Show Configuration");
@@ -68,12 +68,12 @@ void AMScanActionEditor::onScanConfigurationViewRequested()
 
 	else {
 
-		configView_ = info_->config()->createView();
+		configView_ = info_->configuration()->createView();
 		configView_->show();
 	}
 }
 
 void AMScanActionEditor::onScanInfoChanged()
 {
-	scanName_->setText(QString("%1 : %2").arg(info_->config()->detailedDescription()).arg(info_->config()->name()));
+	scanName_->setText(QString("%1 : %2").arg(info_->configuration()->detailedDescription()).arg(info_->configuration()->name()));
 }

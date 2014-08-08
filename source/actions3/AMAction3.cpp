@@ -334,7 +334,7 @@ bool AMAction3::canChangeState(State newState) const
 
 	case Failed:
 		if (state_ == Starting || state_ == Running || state_ == Pausing
-				|| state_ == Paused || state_ == Resuming || state_ == Cancelling || Skipping)
+				|| state_ == Paused || state_ == Resuming || state_ == Cancelling || state_ == Skipping)
 			canTransition = true;
 		break;
 

@@ -29,8 +29,6 @@ class QVBoxLayout;
 class QGridLayout;
 class QSpacerItem;
 
-#include "ui/acquaman/AMRegionsView.h"
-#include "ui/acquaman/AMRegionsLineView.h"
 #include "acquaman/SGM/SGMXASScanConfiguration.h"
 #include "ui/acquaman/AMScanConfigurationView.h"
 #include "ui/AMTopFrame.h"
@@ -38,6 +36,7 @@ class QSpacerItem;
 class SGMFluxResolutionPickerStaticView;
 class AMControlInfoListView;
 class AMOldDetectorInfoSetView;
+class AMStepScanAxisView;
 
 class SGMXASScanConfigurationView : public AMScanConfigurationView{
 Q_OBJECT
@@ -54,8 +53,7 @@ protected:
 	SGMXASScanConfiguration *cfg_;
 
 	AMTopFrame *topFrame_;
-	AMRegionsStaticView *regionsView_;
-	AMRegionsLineView *regionsLineView_;
+	AMStepScanAxisView *regionsView_;
 	SGMFluxResolutionPickerStaticView *fluxResolutionView_;
 	AMControlInfoListView *trackingStaticView_;
 	AMOldDetectorInfoSetView *xasDetectorsStaticView_;

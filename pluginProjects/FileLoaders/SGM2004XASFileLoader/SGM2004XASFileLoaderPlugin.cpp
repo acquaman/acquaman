@@ -64,7 +64,7 @@ bool SGM2004XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 	// information about the scan we hope to locate:
 	QString comments;
 	QDateTime datetime;
-	double integrationTime;
+	/* Removed to prevent compile warning (Issue734) double integrationTime; */
 	QString grating;
 
 	// used in parsing the data file
@@ -203,8 +203,9 @@ bool SGM2004XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 					datetime = QDateTime::fromTime_t(uint(lp.at(i).toDouble()));
 				if(colNames2.at(i) == "grating")
 					grating = lp.at(i);
+				/* Removed to prevent compile warning, see Issue734
 				if(colNames2.at(i) == "integrationTime")
-					integrationTime = lp.at(i).toDouble();
+					integrationTime = lp.at(i).toDouble(); */
 			}
 		}
 	}

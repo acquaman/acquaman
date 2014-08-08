@@ -42,3 +42,8 @@ BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
 
     setLayout(layout);
 }
+
+BioXASSidePersistentView::~BioXASSidePersistentView()
+{
+
+}

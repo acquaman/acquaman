@@ -26,10 +26,16 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/REIXS/REIXSBeamline.h"
 #include "analysis/REIXS/REIXSXESImageAB.h"
 #include "dataman/datastore/AMCDFDataStore.h"
+#include "dataman/AMTextStream.h"
 
 #include "actions3/AMListAction3.h"
 #include "actions3/actions/AMControlMoveAction3.h"
 #include "actions3/AMActionRunner3.h"
+#include "ui/util/AMMessageBoxWTimeout.h"
+
+#include <QThread>
+#include <QFileInfo>
+#include <QStringBuilder>
 
 REIXSXESScanActionController::REIXSXESScanActionController(REIXSXESScanConfiguration *configuration, QObject *parent) :
 	AMScanActionController(configuration, parent)
@@ -55,7 +61,7 @@ REIXSXESScanActionController::REIXSXESScanActionController(REIXSXESScanConfigura
 	REIXSBeamline::bl()->mcpDetector()->setClearOnStart(!configuration_->doNotClearExistingCounts());
 
 	secondsElapsed_ = 0;
-	secondsTotal_ = configuration_->maximumDurationSeconds();
+	secondsTotal_ = configuration_->totalTime(true);
 	elapsedTime_.setInterval(1000);
 	connect(this, SIGNAL(started()), &elapsedTime_, SLOT(start()));
 	connect(this, SIGNAL(cancelled()), &elapsedTime_, SLOT(stop()));
@@ -67,7 +73,10 @@ REIXSXESScanActionController::REIXSXESScanActionController(REIXSXESScanConfigura
 
 }
 
-REIXSXESScanActionController::~REIXSXESScanActionController(){}
+REIXSXESScanActionController::~REIXSXESScanActionController()
+{
+	delete fileWriterThread_;
+}
 
 void REIXSXESScanActionController::buildScanController()
 {
@@ -89,6 +98,23 @@ void REIXSXESScanActionController::buildScanController()
 	scan_->rawData()->addMeasurement(AMMeasurementInfo("totalCounts", "Total Counts", "counts"));
 	AMRawDataSource* totalCountsDataSource = new AMRawDataSource(scan_->rawData(), 1);
 	scan_->addRawDataSource(totalCountsDataSource, false, false);
+
+	QString path = scan_->filePath().remove(".cdf");
+	QFileInfo fullPath(path);	// ex: 2010/09/Mon_03_12_24_48_0000   (Relative, and with no extension)
+
+	qRegisterMetaType<AMScanActionControllerBasicFileWriter::FileWriterError>("FileWriterError");
+	REIXSScanActionControllerMCPFileWriter *fileWriter = new REIXSScanActionControllerMCPFileWriter(AMUserSettings::userDataFolder % fullPath.filePath());
+	connect(fileWriter, SIGNAL(fileWriterIsBusy(bool)), this, SLOT(onFileWriterIsBusy(bool)));
+	connect(fileWriter, SIGNAL(fileWriterError(AMScanActionControllerBasicFileWriter::FileWriterError)), this, SLOT(onFileWriterError(AMScanActionControllerBasicFileWriter::FileWriterError)));
+	connect(this, SIGNAL(requestWriteToFile(int,QString)), fileWriter, SLOT(writeToFile(int,QString)));
+	connect(this, SIGNAL(finishWritingToFile()), fileWriter, SLOT(finishWriting()));
+
+	fileWriterThread_ = new QThread();
+	connect(this, SIGNAL(finished()), this, SLOT(onScanControllerFinished()));
+	connect(this, SIGNAL(cancelled()), this, SLOT(onScanControllerFinished()));
+	connect(this, SIGNAL(failed()), this, SLOT(onScanControllerFinished()));
+	fileWriter->moveToThread(fileWriterThread_);
+	fileWriterThread_->start();
 
 	buildScanControllerImplementation();
 }
@@ -357,7 +383,10 @@ AMAction3* REIXSXESScanActionController::createInitializationActions(){
 
 
 
-bool REIXSXESScanActionController::startImplementation(){
+bool REIXSXESScanActionController::startImplementation()
+{
+	writeHeaderToFile();
+
 	REIXSBeamline::bl()->mcpDetector()->setAcquisitionTime(configuration_->maximumDurationSeconds());
 	REIXSBeamline::bl()->mcpDetector()->setTotalCountTarget(configuration_->maximumTotalCounts());
 	REIXSBeamline::bl()->mcpDetector()->setFinishedConditionTotalTimeOrTotalCounts();
@@ -369,6 +398,7 @@ bool REIXSXESScanActionController::startImplementation(){
 	updateTimer_->setInterval(5000);
 	connect(updateTimer_, SIGNAL(timeout()), this, SLOT(saveRawData()));
 	connect(REIXSBeamline::bl()->mcpDetector(), SIGNAL(imageDataChanged()), this, SLOT(onNewImageValues()));
+	connect(REIXSBeamline::bl()->mcpDetector(), SIGNAL(imageDataChanged()), this, SLOT(writeDataToFiles()));
 	connect(REIXSBeamline::bl()->mcpDetector(), SIGNAL(acquisitionSucceeded()), this, SLOT(onDetectorAcquisitionSucceeded()));
 	connect(REIXSBeamline::bl()->mcpDetector(), SIGNAL(acquisitionFailed()), this, SLOT(onDetectorAcquisitionFailed()));
 	return true;
@@ -386,19 +416,20 @@ void REIXSXESScanActionController::cancelImplementation(){
 	setCancelled();
 }
 
-
-void REIXSXESScanActionController::skip(const QString &command){
+void REIXSXESScanActionController::stopImplementation(const QString &command)
+{
+	Q_UNUSED(command);
 
 	ScanState currentState = state();
 
 	if(currentState == Running || currentState == Paused) {
 		disconnect(REIXSBeamline::bl()->mcpDetector(), SIGNAL(imageDataChanged()), this, SLOT(onNewImageValues()));
 	}
+
 	REIXSBeamline::bl()->mcpDetector()->cancelAcquisition();
 	saveRawData();
 	setFinished();
 }
-
 
 #include "dataman/AMSample.h"
 void REIXSXESScanActionController::initializeScanMetaData()
@@ -433,10 +464,7 @@ void REIXSXESScanActionController::initializeScanMetaData()
 
 void REIXSXESScanActionController::onScanTimerUpdate()
 {
-	double averageCountRate =  REIXSBeamline::bl()->mcpDetector()->totalCounts() / secondsElapsed_;
-	double estimatedTime = configuration_->maximumTotalCounts() / averageCountRate;
-
-	secondsTotal_ = qMin(configuration_->maximumDurationSeconds(), estimatedTime);
+	secondsTotal_ = configuration_->totalTime(true);
 
 	if (elapsedTime_.isActive()){
 
@@ -444,9 +472,115 @@ void REIXSXESScanActionController::onScanTimerUpdate()
 			secondsElapsed_ = secondsTotal_;
 		else
 			secondsElapsed_ += 1.0;
-
+		//emit timeRemaining(secondsTotal_-secondsElapsed_); Not in IDEAS controller?
+		//qDebug() << "scan timer updated to" << secondsElapsed_ << "of" << secondsTotal_;
 		emit progress(secondsElapsed_, secondsTotal_);
 	}
 }
 
+void REIXSXESScanActionController::writeHeaderToFile()
+{
+	AMMeasurementInfo oneMeasurementInfo = AMMeasurementInfo("Invalid", "Invalid");
+	QString separator = "|!|!|";
+	QString rank1String;
+	rank1String.append("Start Info\n");
+	rank1String.append("Version: Acquaman Generic Linear Step 0.1\n");
 
+	for (int i = 0; i < scan_->rawData()->measurementCount(); i++){
+
+		oneMeasurementInfo = scan_->rawData()->measurementAt(i);
+
+		rank1String.append(QString("%1%2").arg(i).arg(separator));
+		QString measurementInfoString;
+		AMTextStream measurementInfoStream(&measurementInfoString);
+		measurementInfoStream.write(oneMeasurementInfo);
+		rank1String.append(measurementInfoString);
+		rank1String.append("\n");
+	}
+
+	rank1String.append("End Info\n");
+	headerText_ = rank1String;
+}
+
+void REIXSXESScanActionController::writeDataToFiles()
+{
+	QString rank1String = headerText_;
+
+	/* Stress testing
+	QTime startTime  = QTime::currentTime();
+	*/
+
+	// First do the MCP detector.
+	AMnDIndex mcpDataSize = REIXSBeamline::bl()->mcpDetector()->size();
+	QVector<double> mcpData = QVector<double>(mcpDataSize.product());
+	scan_->rawDataSources()->at(0)->values(AMnDIndex(0, 0), AMnDIndex(mcpDataSize.i()-1, mcpDataSize.j()-1), mcpData.data());
+
+	// Important!  Darren's thoughts on this PV/getting data off the detector.
+	// This loop might seem like it has weird logic, but that is because of how the data is read directly from the PV (seemingly).
+	// This required a vertical mirroring and indexing vertically rather than horizontally.  I don't really like it, but you can't argue with working.
+	for (int j = mcpDataSize.j() - 1, jSize = j+1; j >= 0; j--)
+		for (int i = 0, iSize = mcpDataSize.i(); i < iSize; i++)
+			rank1String.append(QString("%1%2").arg(int(mcpData.at(j+i*jSize))).arg(i == (iSize-1) ? "\n" : "\t"));
+
+	// Next is the total counts.
+	rank1String.append(QString("%1").arg(int(scan_->rawDataSources()->at(1)->value(AMnDIndex()))));
+	rank1String.append("\n");
+
+	/* Stress testing
+	QTime endTime = QTime::currentTime();
+	qDebug() << "Time to ready data for writing " << startTime.msecsTo(endTime);
+	*/
+
+	emit requestWriteToFile(2, rank1String);
+}
+
+void REIXSXESScanActionController::onFileWriterError(AMScanActionControllerBasicFileWriter::FileWriterError error)
+{
+	qDebug() << "Got a file writer error " << error;
+
+	QString userErrorString;
+
+	switch(error){
+
+	case AMScanActionControllerBasicFileWriter::AlreadyExistsError:
+		AMErrorMon::alert(this, REIXSXESSCANACTIONCONTROLLER_FILE_ALREADY_EXISTS, QString("Error, the %1 Scan Action Controller attempted to write you data to file that already exists. This is a serious problem, please contact the Acquaman developers.").arg(configuration_->technique()));
+		userErrorString = "Your scan has been aborted because the file Acquaman wanted to write to already exists (for internal storage). This is a serious problem and would have resulted in collecting data but not saving it. Please contact the Acquaman developers immediately.";
+		break;
+
+	case AMScanActionControllerBasicFileWriter::CouldNotOpenError:
+		AMErrorMon::alert(this, REIXSXESSCANACTIONCONTROLLER_COULD_NOT_OPEN_FILE, QString("Error, the %1 Scan Action Controller failed to open the file to write your data. This is a serious problem, please contact the Acquaman developers.").arg(configuration_->technique()));
+		userErrorString = "Your scan has been aborted because Acquaman was unable to open the desired file for writing (for internal storage). This is a serious problem and would have resulted in collecting data but not saving it. Please contact the Acquaman developers immediately.";
+		break;
+
+	default:
+		AMErrorMon::alert(this, REIXSXESSCANACTIONCONTROLLER_UNKNOWN_FILE_ERROR, QString("Error, the %1 Scan Action Controller encountered a serious, but unknown, file problem. This is a serious problem, please contact the Acquaman developers.").arg(configuration_->technique()));
+		userErrorString = "Your scan has been aborted because an unknown file error (for internal storage) has occured. This is a serious problem and would have resulted in collecting data but not saving it. Please contact the Acquaman developers immediately.";
+		break;
+	}
+
+	setFailed();
+
+	AMMessageBoxWTimeout box(30000);
+	box.setWindowTitle("Sorry! Your scan has been cancelled because a file writing error occured.");
+	box.setText("Acquaman saves files for long term storage, but some sort of error occured for your scan.");
+	box.setInformativeText(userErrorString);
+
+	QPushButton *acknowledgeButton_ = new QPushButton("Ok");
+
+	box.addButton(acknowledgeButton_, QMessageBox::AcceptRole);
+	box.setDefaultButton(acknowledgeButton_);
+
+	box.execWTimeout();
+}
+
+void REIXSXESScanActionController::onFileWriterIsBusy(bool isBusy)
+{
+	fileWriterIsBusy_ = isBusy;
+	emit readyForDeletion(!fileWriterIsBusy_);
+}
+
+void REIXSXESScanActionController::onScanControllerFinished()
+{
+	writeDataToFiles();
+	fileWriterThread_->quit();
+}

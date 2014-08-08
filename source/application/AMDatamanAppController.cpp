@@ -102,7 +102,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMRegionOfInterest.h"
 #include "analysis/AMRegionOfInterestAB.h"
 #include "analysis/AM0DAccumulatorAB.h"
-#include "analysis/AM0DTimestampAB.h"
 #include "analysis/AM1DTimedDataAB.h"
 #include "analysis/AM1DKSpaceCalculatorAB.h"
 
@@ -114,12 +113,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMDbUpgrade1Pt2.h"
 #include "dataman/AMDbUpgrade1Pt3.h"
 #include "dataman/AMDbUpgrade1Pt4.h"
+#include "dataman/AMDbUpgrade1Pt5.h"
 
 #include "dataman/database/AMDbObjectSupport.h"
 #include "ui/dataman/AMDbObjectGeneralView.h"
 #include "ui/dataman/AMDbObjectGeneralViewSupport.h"
-#include "acquaman/AM2DScanConfiguration.h"
-#include "ui/dataman/AM2DScanConfigurationGeneralView.h"
 
 #include "beamline/camera/AMCameraConfiguration.h"
 #include "beamline/camera/AMRotationalOffset.h"
@@ -180,6 +178,14 @@ AMDatamanAppController::AMDatamanAppController(QObject *parent) :
 	appendDatabaseUpgrade(am1Pt4ActionsDb);
 	AMDbUpgrade *am1Pt4ScanActionsDb = new AMDbUpgrade1Pt4("scanActions", this);
 	appendDatabaseUpgrade(am1Pt4ScanActionsDb);
+
+	// Append the AM upgrade 1.5 to the list for the user database
+	AMDbUpgrade *am1Pt5UserDb = new AMDbUpgrade1Pt5("user", this);
+	appendDatabaseUpgrade(am1Pt5UserDb);
+	AMDbUpgrade *am1Pt5ActionsDb = new AMDbUpgrade1Pt5("actions", this);
+	appendDatabaseUpgrade(am1Pt5ActionsDb);
+	AMDbUpgrade *am1Pt5ScanActionsDb = new AMDbUpgrade1Pt5("scanActions", this);
+	appendDatabaseUpgrade(am1Pt5ScanActionsDb);
 }
 
 bool AMDatamanAppController::startup() {
@@ -704,7 +710,6 @@ bool AMDatamanAppController::startupRegisterDatabases()
 	success &= AMDbObjectSupport::s()->registerClass<AM2DDeadTimeCorrectionAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AM3DDeadTimeCorrectionAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AM0DAccumulatorAB>();
-	success &= AMDbObjectSupport::s()->registerClass<AM0DTimestampAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AM1DTimedDataAB>();
 	success &= AMDbObjectSupport::s()->registerClass<AM1DKSpaceCalculatorAB>();
 
@@ -737,7 +742,6 @@ bool AMDatamanAppController::startupRegisterDatabases()
 	success &= AMDbObjectSupport::s()->registerClass<AMSampleCameraURL>();
 
 	success &= AMDbObjectGeneralViewSupport::registerClass<AMDbObject, AMDbObjectGeneralView>();
-	success &= AMDbObjectGeneralViewSupport::registerClass<AM2DScanConfiguration, AM2DScanConfigurationGeneralView>();
 
 	return success;
 }
@@ -1086,12 +1090,12 @@ void AMDatamanAppController::launchScanConfigurationFromDb(const QUrl &url)
 	// Does the scan have a configuration?
 	AMScanConfiguration* config = scan->scanConfiguration();
 	if(!config) {
-		scan->release();
+		scan->deleteLater();
 		return;
 	}
 	// need to create a copy of the config so we can delete the scan (and hence the config instance owned by the scan). The view will take ownership of the copy.
 	config = config->createCopy();
-	scan->release();
+	scan->deleteLater();
 	if(!config)
 		return;
 
@@ -1208,28 +1212,33 @@ void AMDatamanAppController::onShowAboutPage()
 
 void AMDatamanAppController::onDataViewItemsExported(const QList<QUrl> &itemUrls)
 {
-	QMessageBox shouldSave;
-	shouldSave.setText("Save changes to open scans before exporting?");
-	shouldSave.setInformativeText("Unsaved changes will not export.");
-	shouldSave.setStandardButtons(QMessageBox::Cancel | QMessageBox::No | QMessageBox::SaveAll);
-	shouldSave.setDefaultButton(QMessageBox::SaveAll);
-	shouldSave.setEscapeButton(QMessageBox::Cancel);
-	int ret = shouldSave.exec();
-	switch (ret) {
-	  case QMessageBox::SaveAll: saveAll();
-		  // Save was clicked
-		  break;
-	  case QMessageBox::No:
-		  // Don't Save was clicked
-		  break;
-	  case QMessageBox::Cancel: return;
-		  // Cancel was clicked
-		  break;
-	  default:
-		  // should never be reached
-		  break;
-	}
+	if (anyOpenScansModified()){
 
+		QMessageBox shouldSave;
+		shouldSave.setText("Save changes to open scans before exporting?");
+		shouldSave.setInformativeText("Unsaved changes will not export.");
+		shouldSave.setStandardButtons(QMessageBox::Cancel | QMessageBox::No | QMessageBox::SaveAll);
+		shouldSave.setDefaultButton(QMessageBox::SaveAll);
+		shouldSave.setEscapeButton(QMessageBox::Cancel);
+		int ret = shouldSave.exec();
+		switch (ret) {
+
+		case QMessageBox::SaveAll:
+
+			saveAll();
+			break;
+
+		case QMessageBox::No:
+
+			// Do nothing.
+			break;
+
+		case QMessageBox::Cancel:
+
+			// Abort action.
+			return;
+		}
+	}
 
 	// will delete itself when finished
 	AMExportController* exportController = new AMExportController(itemUrls);
@@ -1656,20 +1665,39 @@ void AMDatamanAppController::getUserDataFolderFromDialog(bool presentAsParentFol
 	}
 }
 
-void AMDatamanAppController::saveAll(){
+void AMDatamanAppController::saveAll()
+{
+	for (int i = 0, count = scanEditorCount(); i < count; i++) {
 
-	for(int i=0, count = scanEditorCount(); i<count; i++) {
 		AMGenericScanEditor* editor = scanEditorAt(i);
 
 		if(editor){
-			for(int i=0; i < editor->scanCount(); i++)
+
+			for (int i = 0, scanCount = editor->scanCount(); i < scanCount; i++)
 			{
 				AMScan* scan =  editor->scanAt(i);
-				if(scan->database())
+
+				if(scan->modified() && scan->database())
 					scan->storeToDb(scan->database());
-				else
+
+				else if (scan->modified())
 					scan->storeToDb(AMDatabase::database("user"));
 			}
 		}
 	}
+}
+
+bool AMDatamanAppController::anyOpenScansModified() const
+{
+	for (int i = 0, count = scanEditorCount(); i < count; i++) {
+
+		AMGenericScanEditor* editor = scanEditorAt(i);
+
+		if(editor)
+			for (int i = 0, scanCount = editor->scanCount(); i < scanCount; i++)
+				if (editor->scanAt(i)->modified())
+					return true;
+	}
+
+	return false;
 }

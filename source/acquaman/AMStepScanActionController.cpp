@@ -28,7 +28,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "application/AMAppController.h"
 #include "application/AMAppControllerSupport.h"
 #include "acquaman/AMGenericScanActionControllerAssembler.h"
-#include "acquaman/AMRegionScanConfigurationConverter.h"
 #include "acquaman/AMAgnosticDataAPI.h"
 #include "actions3/AMActionRunner3.h"
 #include "actions3/AMListAction3.h"
@@ -46,6 +45,7 @@ AMStepScanActionController::AMStepScanActionController(AMStepScanConfiguration *
 	stepConfiguration_ = configuration;
 	fileWriterIsBusy_ = false;
 	useFeedback_ = false;
+	stoppingAtEndOfLine_ = false;
 }
 
 AMStepScanActionController::~AMStepScanActionController()
@@ -174,7 +174,6 @@ void AMStepScanActionController::buildScanController()
 
 	else
 		setFailed();
-
 }
 
 bool AMStepScanActionController::isReadyForDeletion() const
@@ -267,6 +266,12 @@ bool AMStepScanActionController::event(QEvent *e)
 			// This should be safe and fine regardless of if the CDF data store is being used or not.
 			flushCDFDataStoreToDisk();
 
+			if (isStopping() && stoppingAtEndOfLine_){
+
+				connect(AMActionRunner3::scanActionRunner()->currentAction(), SIGNAL(cancelled()), this, SLOT(onScanningActionsSucceeded()));
+				AMActionRunner3::scanActionRunner()->cancelCurrentAction();
+			}
+
 			break;}
 
 		case AMAgnosticDataAPIDefinitions::AxisValueFinished:
@@ -279,6 +284,12 @@ bool AMStepScanActionController::event(QEvent *e)
 			for (int i = 0, size = scan_->rawData()->scanAxesCount(); i < size; i++)
 				if (message.uniqueID().contains(scan_->rawData()->scanAxisAt(i).name))
 					currentAxisValueIndex_[i] = currentAxisValueIndex_.at(i)+1;
+
+			if (isStopping() && !stoppingAtEndOfLine_){
+
+				connect(AMActionRunner3::scanActionRunner()->currentAction(), SIGNAL(cancelled()), this, SLOT(onScanningActionsSucceeded()));
+				AMActionRunner3::scanActionRunner()->cancelCurrentAction();
+			}
 
 			break;
 
@@ -502,5 +513,11 @@ void AMStepScanActionController::prefillScanPoints()
 
 		scan_->rawData()->endInsertRows();
 	}
+}
+
+void AMStepScanActionController::stopImplementation(const QString &command)
+{
+	if (command == "Stop At End Of Line")
+		stoppingAtEndOfLine_ = true;
 }
 

@@ -38,18 +38,22 @@ VESPERSScalerView::VESPERSScalerView(QWidget *parent)
 	compositeView_->setCustomCompositeName("Split");
 	compositeView_->setFixedHeight(55);
 	compositeView_->setFixedWidth(300);
-    connect(compositeView_, SIGNAL(amplifierViewModeChanged(AMCurrentAmplifierView::ViewMode)), this, SLOT(onSR570ViewChanged(AMCurrentAmplifierView::ViewMode)));
+	compositeView_->setAmplifierViewPrecision(3);
+	compositeView_->setAmplifierViewFormat('g');
+	connect(compositeView_, SIGNAL(amplifierViewModeChanged(AMCurrentAmplifierView::ViewMode)), this, SLOT(onSR570ViewChanged(AMCurrentAmplifierView::ViewMode)));
 	connect(compositeView_, SIGNAL(outputViewModeChanged(CLSSIS3820CompositeScalerChannelView::OutputViewMode)), this, SLOT(onOutputViewModeChanged(CLSSIS3820CompositeScalerChannelView::OutputViewMode)));
 	layout->addWidget(compositeView_);
 
 	for (int i = 7; i <= 9; i++){
 
 		CLSSIS3820ScalerChannelView *view = new CLSSIS3820ScalerChannelView(scaler->channelAt(i));
+		view->setAmplifierViewPrecision(3);
+		view->setAmplifierViewFormat('g');
 		view->setEnableCheckBoxVisibility(false);
 		singleViews_ << view;
 		view->setFixedHeight(55);
-        connect(view, SIGNAL(amplifierViewModeChanged(AMCurrentAmplifierView::ViewMode)), this, SLOT(onSR570ViewChanged(AMCurrentAmplifierView::ViewMode)) );
-        connect(view, SIGNAL(outputViewModeChanged(CLSSIS3820ScalerChannelView::OutputViewMode)), this, SLOT(onOutputViewModeChanged(CLSSIS3820ScalerChannelView::OutputViewMode)));
+		connect(view, SIGNAL(amplifierViewModeChanged(AMCurrentAmplifierView::ViewMode)), this, SLOT(onSR570ViewChanged(AMCurrentAmplifierView::ViewMode)) );
+		connect(view, SIGNAL(outputViewModeChanged(CLSSIS3820ScalerChannelView::OutputViewMode)), this, SLOT(onOutputViewModeChanged(CLSSIS3820ScalerChannelView::OutputViewMode)));
 		layout->addWidget(view);
 	}
 
@@ -59,15 +63,15 @@ VESPERSScalerView::VESPERSScalerView(QWidget *parent)
 void VESPERSScalerView::onSR570ViewChanged(AMCurrentAmplifierView::ViewMode mode)
 {
 	compositeView_->blockSignals(true);
-    compositeView_->setAmplifierViewMode(mode);
+	compositeView_->setAmplifierViewMode(mode);
 	compositeView_->blockSignals(false);
 
-    foreach (CLSSIS3820ScalerChannelView *channel, singleViews_){
+	foreach (CLSSIS3820ScalerChannelView *channel, singleViews_){
 
-        channel->blockSignals(true);
-        channel->setAmplifierViewMode(mode);
-        channel->blockSignals(false);
-    }
+		channel->blockSignals(true);
+		channel->setAmplifierViewMode(mode);
+		channel->blockSignals(false);
+	}
 }
 
 //void VESPERSScalerView::onSR570ViewChanged(AMCurrentAmplifierView::ViewMode mode)

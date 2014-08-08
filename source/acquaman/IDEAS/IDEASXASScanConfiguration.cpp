@@ -30,6 +30,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 IDEASXASScanConfiguration::IDEASXASScanConfiguration(QObject *parent) :
 	AMStepScanConfiguration(parent)
 {
+	setAutoExportEnabled(false);
+
 	setName("Unnamed Scan");
 	setUserScanName("Unnamed Scan");
 //	I0Channel_ = "I_0";
@@ -70,6 +72,8 @@ IDEASXASScanConfiguration::IDEASXASScanConfiguration(QObject *parent) :
 IDEASXASScanConfiguration::IDEASXASScanConfiguration(const IDEASXASScanConfiguration &original) :
 	AMStepScanConfiguration(original)
 {
+	setAutoExportEnabled(false);
+
 	setName(original.name());
 	setUserScanName(original.userScanName());
 //	I0Channel_ = original.I0Channel();

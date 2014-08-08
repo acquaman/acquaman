@@ -25,14 +25,21 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QWidget>
 #include <QLabel>
 #include <QLayout>
+#include <QInputDialog>
+#include <QMenu>
+#include <QAction>
 
 #include "beamline/AMPVControl.h"
-#include "STVariable.h"
 
 #include "MPlot/MPlotSeriesData.h"
-#include "MPlot/MPlotWidget.h"
 #include "MPlot/MPlotSeries.h"
-#include "MPlot/MPlot.h"
+
+#include "STVariable.h"
+#include "STPlotWidget.h"
+#include "STPlotEditor.h"
+#include "STVariableCollection.h"
+#include "STVariableCollectionEditor.h"
+#include "STEditorDialog.h"
 
 class STWidget : public QWidget
 {
@@ -42,18 +49,34 @@ public:
     STWidget(QWidget *parent = 0);
     ~STWidget();
 
+public slots:
+
 protected slots:
-    void onRingCurrentConnected(bool isConnected);
-    void onRingCurrentValueChanged(double newValue);
+    void setTime();
+    void setTimeFilteringEnabled();
+
+    void onCollectionRowAdded(const QModelIndex &index, int start, int end);
+    void onCollectionRowRemoved(const QModelIndex &index, int start, int end);
+    void onCollectionSelectionChanged(STVariable *newSelection);
+
+    void onPlotSelectionChanged(MPlotItem *plotSelection);
+
+    void toAddVariable();
+    void toEditVariables();
+    void toEditPlot();
+
+    void updatePlotLeftAxisName();
+
+    virtual void onCustomContextMenuRequested(QPoint position);
 
 protected:
-    AMProcessVariable *ringCurrentControl_;
-    QLabel *ringCurrentLabel_;
+    void addSR1Current();
+    void showEditorDialog(STEditor *editor);
 
-    STVariable *ringCurrent_;
-
-    MPlotWidget *plotWidget_;
-    MPlot *plot_;
+protected:
+    STVariableCollection *variables_;
+    STVariable *selectedVariable_;
+    STPlotWidget *plotWidget_;
 };
 
 #endif // STWIDGET_H

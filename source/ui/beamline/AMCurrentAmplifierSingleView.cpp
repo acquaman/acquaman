@@ -9,6 +9,9 @@ AMCurrentAmplifierSingleView::AMCurrentAmplifierSingleView(AMCurrentAmplifier *a
     connect( amplifier_, SIGNAL(minimumValue(bool)), minus_, SLOT(setDisabled(bool)) );
     connect( amplifier_, SIGNAL(maximumValue(bool)), plus_, SLOT(setDisabled(bool)) );
 
+    setContextMenuPolicy(Qt::CustomContextMenu);
+    connect( this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)) );
+
     refreshView();
 }
 
@@ -67,38 +70,40 @@ void AMCurrentAmplifierSingleView::refreshViewImplementation()
 
 void AMCurrentAmplifierSingleView::onCustomContextMenuRequested(QPoint position)
 {
-    QMenu menu(this);
+    if (isValid()) {
+        QMenu menu(this);
 
-    QAction *basic = menu.addAction("Basic view");
-    basic->setDisabled(viewMode_ == AMCurrentAmplifierView::Basic);
+        QAction *basic = menu.addAction("Basic view");
+        basic->setDisabled(viewMode_ == AMCurrentAmplifierView::Basic);
 
-    QAction *advanced = menu.addAction("Advanced view");
-    advanced->setDisabled(viewMode_ == AMCurrentAmplifierView::Advanced);
+        QAction *advanced = menu.addAction("Advanced view");
+        advanced->setDisabled(viewMode_ == AMCurrentAmplifierView::Advanced);
 
-    if (amplifier_ && amplifier_->supportsGainMode() && amplifier_->supportsSensitivityMode() && viewMode_ == AMCurrentAmplifierView::Advanced) {
-        menu.addSeparator();
+        if (amplifier_ && amplifier_->supportsGainMode() && amplifier_->supportsSensitivityMode() && viewMode_ == AMCurrentAmplifierView::Advanced) {
+            menu.addSeparator();
 
-        QAction *gain = menu.addAction("Gain view");
-        gain->setDisabled(amplifier_->inGainMode());
+            QAction *gain = menu.addAction("Gain view");
+            gain->setDisabled(amplifier_->inGainMode());
 
-        QAction *sensitivity = menu.addAction("Sensitivity view");
-        sensitivity->setDisabled(amplifier_->inSensitivityMode());
-    }
+            QAction *sensitivity = menu.addAction("Sensitivity view");
+            sensitivity->setDisabled(amplifier_->inSensitivityMode());
+        }
 
-    QAction *selected = menu.exec(mapToGlobal(position));
+        QAction *selected = menu.exec(mapToGlobal(position));
 
-    if (selected) {
-        if (selected->text() == "Basic view")
-            setViewMode(Basic);
+        if (selected) {
+            if (selected->text() == "Basic view")
+                setViewMode(Basic);
 
-        else if (selected->text() == "Advanced view")
-            setViewMode(Advanced);
+            else if (selected->text() == "Advanced view")
+                setViewMode(Advanced);
 
-        else if (selected->text() == "Gain view")
-            amplifier_->setAmplifierMode(AMCurrentAmplifier::Gain);
+            else if (selected->text() == "Gain view")
+                amplifier_->setAmplifierMode(AMCurrentAmplifier::Gain);
 
-        else if (selected->text() == "Sensitivity view")
-            amplifier_->setAmplifierMode(AMCurrentAmplifier::Sensitivity);
+            else if (selected->text() == "Sensitivity view")
+                amplifier_->setAmplifierMode(AMCurrentAmplifier::Sensitivity);
+        }
     }
 }
 
@@ -106,14 +111,24 @@ void AMCurrentAmplifierSingleView::refreshValues()
 {
     value_->clear();
 
+    double minValue = 0;
+    double maxValue = 0;
+
     // (re)populate value_ with appropriate options provided by the amplifier.
     QStringList unitsList = amplifier_->unitsList();
+
     QList<double> valuesList = amplifier_->values();
 
     foreach (QString units, unitsList) {
         foreach (double value, valuesList) {
-            QString item = toDisplay(value, units);
-            value_->addItem(item);
+
+            minValue = amplifier_->minimumValueForUnits(units);
+            maxValue = amplifier_->maximumValueForUnits(units);
+
+            if (value >= minValue && value <= maxValue) {
+                QString item = toDisplay(value, units);
+                value_->addItem(item);
+            }
         }
     }
 

@@ -111,11 +111,17 @@ void AMLoopAction3::startImplementation()
 
 void AMLoopAction3::skipImplementation(const QString &command)
 {
-	if (command == "After current action")
-		skipAfterCurrentAction_ = true;
+	if (command == "After current action"){
 
-	else if (command == "After current iteration")
+		skipAfterCurrentAction_ = true;
+		setStatusText("Skipping - After current action");
+	}
+
+	else if (command == "After current iteration"){
+
 		skipAfterCurrentIteration_ = true;
+		setStatusText("Skipping - After current iteration");
+	}
 }
 
 void AMLoopAction3::internalCleanupAction(AMAction3 *action)

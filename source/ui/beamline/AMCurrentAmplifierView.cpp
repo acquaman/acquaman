@@ -23,48 +23,45 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 AMCurrentAmplifierView::AMCurrentAmplifierView(QWidget *parent) :
-    QWidget(parent)
+	QWidget(parent)
 {
-    initialized_ = false;
+	initialized_ = false;
 
-    viewMode_ = Basic;
+	viewMode_ = Basic;
 
-    precision_ = 2;
-    format_ = 'f';
+	precision_ = 2;
+	format_ = 'f';
 
-    name_ = new QLabel();
-    name_->hide();
+	name_ = new QLabel();
+	name_->hide();
 
-    minus_ = new QToolButton();
-    minus_->show();
-    minus_->setMaximumSize(25, 25);
-    minus_->setIcon(QIcon(":/22x22/list-remove.png"));
-    connect( minus_, SIGNAL(clicked()), this, SLOT(onMinusClicked()) );
+	minus_ = new QToolButton();
+	minus_->show();
+	minus_->setMaximumSize(25, 25);
+	minus_->setIcon(QIcon(":/22x22/list-remove.png"));
+	connect( minus_, SIGNAL(clicked()), this, SLOT(onMinusClicked()) );
 
-    plus_ = new QToolButton();
-    plus_->show();
-    plus_->setMaximumSize(25, 25);
-    plus_->setIcon(QIcon(":/22x22/list-add.png"));
-    connect( plus_, SIGNAL(clicked()), this, SLOT(onPlusClicked()) );
+	plus_ = new QToolButton();
+	plus_->show();
+	plus_->setMaximumSize(25, 25);
+	plus_->setIcon(QIcon(":/22x22/list-add.png"));
+	connect( plus_, SIGNAL(clicked()), this, SLOT(onPlusClicked()) );
 
-    value_ = new QComboBox();
-    value_->setMaxVisibleItems(5);
-    value_->hide();
-    connect( value_, SIGNAL(currentIndexChanged(QString)), this, SLOT(onValueComboBoxChanged(QString)) );
+	value_ = new QComboBox();
+	value_->setMaxVisibleItems(5);
+	value_->hide();
+	connect( value_, SIGNAL(currentIndexChanged(QString)), this, SLOT(onValueComboBoxChanged(QString)) );
 
-    setContextMenuPolicy(Qt::CustomContextMenu);
-    connect( this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)) );
+	layout_ = new QHBoxLayout();
 
-    layout_ = new QHBoxLayout();
+	layout_->addWidget(name_);
+	layout_->addWidget(minus_);
+	layout_->addWidget(plus_);
+	layout_->addWidget(value_);
 
-    layout_->addWidget(name_);
-    layout_->addWidget(minus_);
-    layout_->addWidget(plus_);
-    layout_->addWidget(value_);
+	setLayout(layout_);
 
-    setLayout(layout_);
-
-    setInitialized(true);
+	setInitialized(true);
 }
 
 AMCurrentAmplifierView::~AMCurrentAmplifierView()
@@ -74,146 +71,125 @@ AMCurrentAmplifierView::~AMCurrentAmplifierView()
 
 bool AMCurrentAmplifierView::initialized() const
 {
-    return initialized_;
+	return initialized_;
 }
 
 AMCurrentAmplifierView::ViewMode AMCurrentAmplifierView::viewMode() const
 {
-    return viewMode_;
+	return viewMode_;
 }
 
 int AMCurrentAmplifierView::precision() const
 {
-    return precision_;
+	return precision_;
 }
 
 char AMCurrentAmplifierView::format() const
 {
-    return format_;
+	return format_;
 }
 
 QString AMCurrentAmplifierView::name() const
 {
-    return name_->text();
+	return name_->text();
 }
 
 void AMCurrentAmplifierView::setViewMode(ViewMode newMode)
 {
-    if (viewMode_ != newMode) {
-        viewMode_ = newMode;
+	if (viewMode_ != newMode) {
+		viewMode_ = newMode;
 
-        if (viewMode_ == Basic) {
-            value_->hide();
-            plus_->show();
-            minus_->show();
+		if (viewMode_ == Basic) {
+			value_->hide();
+			plus_->show();
+			minus_->show();
 
-        } else {
-            value_->show();
-            plus_->hide();
-            minus_->hide();
-        }
+		} else {
+			value_->show();
+			plus_->hide();
+			minus_->hide();
+		}
 
-        emit viewModeChanged(viewMode_);
-    }
+		emit viewModeChanged(viewMode_);
+	}
 }
 
 void AMCurrentAmplifierView::setPrecision(int newPrecision)
 {
-    if (newPrecision > 0 && precision_ != newPrecision) {
-        precision_ = newPrecision;
-        refreshView();
-        emit precisionChanged(precision_);
-    }
+	if (newPrecision > 0 && precision_ != newPrecision) {
+		precision_ = newPrecision;
+		refreshView();
+		emit precisionChanged(precision_);
+	}
 }
 
 void AMCurrentAmplifierView::setFormat(char newFormat)
 {
-    if ((newFormat == 'e' || newFormat == 'f' || newFormat == 'g') && format_ != newFormat) {
-        format_ = newFormat;
-        refreshView();
-        emit formatChanged(format_);
-    }
+	if ((newFormat == 'e' || newFormat == 'f' || newFormat == 'g') && format_ != newFormat) {
+		format_ = newFormat;
+		refreshView();
+		emit formatChanged(format_);
+	}
 }
 
 void AMCurrentAmplifierView::setName(const QString &newName)
 {
-    if (name_->text() != newName) {
-        name_->setText(newName);
-        emit nameChanged(name_->text());
-    }
+	if (name_->text() != newName) {
+		name_->setText(newName);
+		emit nameChanged(name_->text());
+	}
 }
 
 void AMCurrentAmplifierView::showName(bool show)
 {
-    if (show)
-        name_->show();
-    else
-        name_->hide();
+	if (show)
+		name_->show();
+	else
+		name_->hide();
 }
 
 void AMCurrentAmplifierView::setViewableValuesMax(int newMax)
 {
-    value_->setMaxVisibleItems(newMax);
+	value_->setMaxVisibleItems(newMax);
 }
 
 void AMCurrentAmplifierView::setInitialized(bool isInitialized)
 {
-    if (initialized_ != isInitialized) {
-        initialized_ = isInitialized;
-        emit initialized(initialized_);
-    }
+	if (initialized_ != isInitialized) {
+		initialized_ = isInitialized;
+		emit initialized(initialized_);
+	}
 }
 
 void AMCurrentAmplifierView::onValueComboBoxChanged(const QString &newText)
 {
-    if (initialized_ && isValid())
-        onValueComboBoxChangedImplementation(newText);
+	if (initialized_ && isValid())
+		onValueComboBoxChangedImplementation(newText);
 }
 
 void AMCurrentAmplifierView::onMinusClicked()
 {
-    if (isValid())
-        onMinusClickedImplementation();
+	if (isValid())
+		onMinusClickedImplementation();
 }
 
 void AMCurrentAmplifierView::onPlusClicked()
 {
-    if (isValid())
-        onPlusClickedImplementation();
+	if (isValid())
+		onPlusClickedImplementation();
 }
 
 void AMCurrentAmplifierView::refreshView()
 {
-    // initialized_ = false here prevents the view from changing the amplifier value while populating <-- undesireable behavior.
-    if (isValid()) {
-        initialized_ = false;
-        refreshViewImplementation();
-        initialized_ = true;
-    }
-}
-
-void AMCurrentAmplifierView::onCustomContextMenuRequested(QPoint position)
-{
-    QMenu menu(this);
-
-    QAction *basic = menu.addAction("Basic view");
-    basic->setDisabled(viewMode_ == Basic);
-
-    QAction *advanced = menu.addAction("Advanced view");
-    advanced->setDisabled(viewMode_ == Advanced);
-
-    QAction *selected = menu.exec(mapToGlobal(position));
-
-    if (selected) {
-        if (selected->text() == "Basic view")
-            setViewMode(Basic);
-
-        else if (selected->text() == "Advanced view")
-            setViewMode(Advanced);
-    }
+	// initialized_ = false here prevents the view from changing the amplifier value while populating <-- undesireable behavior.
+	if (isValid()) {
+		initialized_ = false;
+		refreshViewImplementation();
+		initialized_ = true;
+	}
 }
 
 QString AMCurrentAmplifierView::toDisplay(double value, const QString &units) const
 {
-    return QString("%1 %2").arg(value, 0, format_, precision_).arg(units);
+	return QString("%1 %2").arg(value, 0, format_, precision_).arg(units);
 }

@@ -74,7 +74,14 @@ protected slots:
 protected:
 	/// Implementation to ensure that the data acquisition event is caught and handled.
 	virtual bool event(QEvent *e);
+	/// Handles stopping the current scan action and setting up the necessary communications to call setFinished when appropriate.
+	/*!
+		Accepts the following stop commands.
 
+		- Stop Immediately
+		- Stop At End Of Line
+	  */
+	virtual void stopImplementation(const QString &command);
 	/// Creates the scan assembler that builds all the actions used to run the scan.
 	virtual void createScanAssembler();
 	/// Creates the axis order for higher dimensional scans.  The default order is the axis order, but if a different order is desired, then you should reimplement this in subclasses.
@@ -107,6 +114,8 @@ protected:
 	QStringList axisNames_;
 	/// The axis order mapping.  The mapping is <scan axis name, desired index>.  As with any list, the index should be between 0 and scanRank()-1.
 	QMap<QString, int> axisOrderMap_;
+	/// Flag for when we are stopping at the end of the the line.
+	bool stoppingAtEndOfLine_;
 
 	/// Pointer to the thread that handles all the file writing.
 	QThread *fileWriterThread_;

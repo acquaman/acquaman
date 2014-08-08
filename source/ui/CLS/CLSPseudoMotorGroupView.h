@@ -32,8 +32,9 @@ class CLSPseudoMotorGroupObjectView : public AMMotorGroupObjectView
 
 public:
 	/// Constructor.  Builds a view based around the provided \param motorGroupObject.
- 	virtual ~CLSPseudoMotorGroupObjectView();
 	explicit CLSPseudoMotorGroupObjectView(CLSPseudoMotorGroupObject *motorGroupObject, QWidget *parent = 0);
+	/// Destructor.
+	virtual ~CLSPseudoMotorGroupObjectView();
 };
 
 /// This class acts as a simple extension that enables the use of reseting the pseudo-motors.
@@ -51,10 +52,11 @@ class CLSPseudoMotorGroupView : public AMMotorGroupView
 public:
 	/// Constructor.  Takes an AMMotorGroup since there was no need to subclass it.
 	/// \note Maybe I should subclass AMMotorGroup for consistency in naming?
- 	virtual ~CLSPseudoMotorGroupView();
 	CLSPseudoMotorGroupView(CLSPseudoMotorGroup *motorGroup, QWidget *parent = 0);
 	/// Constructor.  Takes an AMMotorGroup since there was no need to subclass it.
 	CLSPseudoMotorGroupView(CLSPseudoMotorGroup *motorGroup, ViewMode viewMode, QWidget *parent = 0);
+	/// Destructor.
+	virtual ~CLSPseudoMotorGroupView();
 
 protected slots:
 	/// Handles the popup menu that allows you to change the motors you want to change.

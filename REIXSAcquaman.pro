@@ -37,7 +37,8 @@ HEADERS +=	source/application/REIXS/REIXSAppController.h \
 	source/ui/REIXS/REIXSRIXSScanConfigurationView.h \
     source/actions3/REIXS/REIXSBeamOnOffAction.h \
     source/ui/REIXS/REIXSScalerView.h \
-    source/ui/REIXS/REIXSXESSpectrometerControlPanel.h
+    source/ui/REIXS/REIXSXESSpectrometerControlPanel.h \
+    source/acquaman/REIXS/REIXSScanActionControllerMCPFileWriter.h
 
 SOURCES +=	source/application/REIXS/REIXSAppController.cpp \
 	source/application/REIXS/REIXSMain.cpp \
@@ -69,7 +70,10 @@ SOURCES +=	source/application/REIXS/REIXSAppController.cpp \
 	source/ui/REIXS/REIXSRIXSScanConfigurationView.cpp \
     source/actions3/REIXS/REIXSBeamOnOffAction.cpp \
     source/ui/REIXS/REIXSScalerView.cpp \
-    source/ui/REIXS/REIXSXESSpectrometerControlPanel.cpp
+    source/ui/REIXS/REIXSXESSpectrometerControlPanel.cpp \
+    source/acquaman/REIXS/REIXSScanActionControllerMCPFileWriter.cpp
+
+
 
 
 
