@@ -133,7 +133,7 @@ void REIXSXASScanActionController::onInitializationActionSucceeded(){
 	positions.append(REIXSBeamline::bl()->spectrometer()->detectorTiltDrive()->toInfo());
 	// add the spectrometer grating selection, since it's not a "control" anywhere.
 	AMControlInfo grating("spectrometerGrating", REIXSBeamline::bl()->spectrometer()->specifiedGrating(), 0, 0, "[choice]", 0.1, "Spectrometer Grating");
-	grating.setEnumString(REIXSBeamline::bl()->spectrometer()->spectrometerCalibration()->gratingAt(grating.value()).name());
+	grating.setEnumString(REIXSBeamline::bl()->spectrometer()->spectrometerCalibration()->gratingAt(int(grating.value())).name());
 	positions.append(grating);
 	positions.append(REIXSBeamline::bl()->spectrometer()->hexapod()->x()->toInfo());
 	positions.append(REIXSBeamline::bl()->spectrometer()->hexapod()->y()->toInfo());

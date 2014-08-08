@@ -57,7 +57,7 @@ public:
 protected:
 	// Structures used for shift curve fitting:
 	//////////////////////////////
-	double numRows_;
+	int numRows_;
 
 	gsl_multifit_linear_workspace* fitWorkSpace_; ///< Fit: GSL curve fitting context.
 	gsl_matrix* fitXX_;		///< Fit: The matrix of predictor variables XX_ij = x_i^j;  In our case, x is the image row index (y!)
@@ -85,7 +85,7 @@ public:
 protected:
 	// Structures used for shift curve fitting:
 	//////////////////////////////
-	double numRows_;
+	int numRows_;
 
 	gsl_multifit_linear_workspace* fitWorkSpace_; ///< Fit: GSL curve fitting context.
 	gsl_matrix* fitXX_;		///< Fit: The matrix of predictor variables XX_ij = x_i^j;
@@ -113,7 +113,7 @@ public:
 protected:
 	// Structures used for shift curve fitting:
 	//////////////////////////////
-	double numRows_;
+	int numRows_;
 
 	gsl_multifit_linear_workspace* fitWorkSpace_; ///< Fit: GSL curve fitting context.
 	gsl_matrix* fitXX_;		///< Fit: The matrix of predictor variables XX_ij = x_i^j;
