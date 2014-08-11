@@ -1,3 +1,4 @@
+#include "beamline/IDEAS/IDEASBeamline.h"
 #include "IDEASSampleCameraPanel.h"
 #include <QGroupBox>
 #include <QBoxLayout>
@@ -20,7 +21,7 @@ IDEASSampleCameraPanel::IDEASSampleCameraPanel(QWidget *parent) :
 
 
     sampleUp_ = new AMControlMoveButton();
-    //sampleUp_->setControl();
+    sampleUp_->setControl(IDEASBeamline::ideas()->samplePlatformVertical());
     sampleUp_->setStepSizes(QList<double>() << 0.5 << 1 << 5);
     sampleUp_->setStepSizeIndex(1);
     //sampleUp_->setDirectionReversed(true);
@@ -33,10 +34,10 @@ IDEASSampleCameraPanel::IDEASSampleCameraPanel(QWidget *parent) :
 
 
     sampleDown_ = new AMControlMoveButton();
-    //sampleDown_->setControl();
+    sampleDown_->setControl(IDEASBeamline::ideas()->samplePlatformVertical());
     sampleDown_->setStepSizes(QList<double>() << 0.5 << 1 << 5);
     sampleDown_->setStepSizeIndex(1);
-    //sampleDown_->setDirectionReversed(true);
+    sampleDown_->setDirectionReversed(true);
     sampleDown_->setIcon(iconDown);
     sampleDown_->setIconSize(QSize(22, 22));
     sampleDown_->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
@@ -45,7 +46,7 @@ IDEASSampleCameraPanel::IDEASSampleCameraPanel(QWidget *parent) :
     sampleDown_->setMinimumHeight(60);
 
     sampleInboard_ = new AMControlMoveButton();
-    //sampleInboard_->setControl();
+    sampleInboard_->setControl(IDEASBeamline::ideas()->samplePlatformHorizontal());
     sampleInboard_->setStepSizes(QList<double>() << 0.5 << 1 << 5);
     sampleInboard_->setStepSizeIndex(1);
     //sampleInboard_->setDirectionReversed(true);
@@ -57,10 +58,10 @@ IDEASSampleCameraPanel::IDEASSampleCameraPanel(QWidget *parent) :
     sampleInboard_->setMinimumHeight(60);
 
     sampleOutboard_ = new AMControlMoveButton();
-    //sampleOutboard_->setControl();
+    sampleOutboard_->setControl(IDEASBeamline::ideas()->samplePlatformHorizontal());
     sampleOutboard_->setStepSizes(QList<double>() << 0.5 << 1 << 5);
     sampleOutboard_->setStepSizeIndex(1);
-    //sampleOutboard_->setDirectionReversed(true);
+    sampleOutboard_->setDirectionReversed(true);
     sampleOutboard_->setIcon(iconLeft);
     sampleOutboard_->setIconSize(QSize(22, 22));
     sampleOutboard_->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
@@ -69,10 +70,10 @@ IDEASSampleCameraPanel::IDEASSampleCameraPanel(QWidget *parent) :
     sampleOutboard_->setMinimumHeight(60);
 
     vacuumStageUp_ = new AMControlMoveButton();
-    //vacuumStageUp_->setControl();
+    vacuumStageUp_->setControl(IDEASBeamline::ideas()->vacuumSampleStage());
     vacuumStageUp_->setStepSizes(QList<double>() << 0.5 << 1 << 5);
     vacuumStageUp_->setStepSizeIndex(1);
-    //vacuumStageUp_->setDirectionReversed(true);
+    vacuumStageUp_->setDirectionReversed(true);
     vacuumStageUp_->setIcon(iconUp);
     vacuumStageUp_->setIconSize(QSize(22, 22));
     vacuumStageUp_->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
@@ -81,7 +82,7 @@ IDEASSampleCameraPanel::IDEASSampleCameraPanel(QWidget *parent) :
     vacuumStageUp_->setMinimumHeight(60);
 
     vacuumStageDown_ = new AMControlMoveButton();
-    //vacuumStageDown_->setControl();
+    vacuumStageDown_->setControl(IDEASBeamline::ideas()->vacuumSampleStage());
     vacuumStageDown_->setStepSizes(QList<double>() << 0.5 << 1 << 5);
     vacuumStageDown_->setStepSizeIndex(1);
     //vacuumStageDown_->setDirectionReversed(true);

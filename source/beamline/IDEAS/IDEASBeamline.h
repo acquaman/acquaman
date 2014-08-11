@@ -92,7 +92,16 @@ public:
 	AMControl *ketekBaselineThreshold() const { return ketekBaselineThreshold_; }
 	AMControl *ketekPreampGain() const { return ketekPreampGain_; }
 
+	/// Returns JJ Slits
+	AMControl *jjSlitHGap() const { return jjSlitHGap_ ; }
+	AMControl *jjSlitHCenter() const { return jjSlitHCenter_; }
+	AMControl *jjSlitVGap() const { return jjSlitVGap_; }
+	AMControl *jjSlitVCenter() const { return jjSlitVCenter_; }
 
+	/// Returns Sample Positions
+	AMControl *samplePlatformVertical() const { return samplePlatformVertical_ ; }
+	AMControl *samplePlatformHorizontal() const { return samplePlatformHorizontal_ ; }
+	AMControl *vacuumSampleStage() const { return vacuumSampleStage_ ; }
 
 //        AMPVControl *masterDwellControl() const { return masterDwell_; }
 //        AMPVControl *ammeterGroupModeControl() const {return ammeterGroupMode_; }
@@ -202,6 +211,15 @@ protected:
 	IDEASKETEKDetector *ketek_;
 
 	AMControl *monoCrystal_, *monoLowEV_, *monoHighEV_, *ringCurrent_, *I0Current_, *sampleTemp_, *monoBraggAngle_, *mono2d_, *monoAngleOffset_;
+
+	//Sample Stage motors
+	/////////////////////
+	//J-J Slits
+	AMControl *jjSlitHGap_, *jjSlitVGap_, *jjSlitHCenter_, *jjSlitVCenter_;
+	//Sample Platform
+	AMControl *samplePlatformVertical_, *samplePlatformHorizontal_;
+	//Vacuum Sample Stage
+	AMControl *vacuumSampleStage_;
 
 };
 
