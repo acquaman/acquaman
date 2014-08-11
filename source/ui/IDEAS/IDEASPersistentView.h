@@ -29,7 +29,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/beamline/AMControlMoveButton.h"
 
 
-
 class QPushButton;
 class QLabel;
 class QProgressBar;
@@ -59,16 +58,6 @@ protected slots:
     /// Calls dialogue to calibrate beamline energy
     void onCalibrateClicked();
 
-
-    /// Handles updating Old ion chamber current bar
-    void onOldCountsChanged();
-    /// Handles updating I0 ion chamber current bar
-    void onI0CountsChanged();
-    /// Handles updating Sample ion chamber current bar
-    void onSampleCountsChanged();
-    /// Handles updating Reference ion chamber current bar
-    void onReferenceCountsChanged();
-
     /// Handles updating displayed crystal and energy range
     void onCrystalChanged();
 
@@ -78,6 +67,7 @@ protected slots:
 
 
 protected:
+
     /// The beam on button.
     QPushButton *beamOnButton_;
     /// The beam off button.

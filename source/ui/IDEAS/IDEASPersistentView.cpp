@@ -25,6 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/IDEAS/IDEASScalerView.h"
 
 
+
 #include "ui/beamline/AMExtendedControlEditor.h"
 
 #include <QPushButton>
@@ -36,10 +37,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QGridLayout>
 #include <QInputDialog>
 #include <QDebug>
-
-//#ifdef AM_MOBILITY_VIDEO_ENABLED
-//#include "ui/AMBeamlineCameraWidgetWithSourceTabs.h"
-//#endif
 
 IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
     QWidget(parent)
@@ -79,23 +76,6 @@ IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
     I0ValueLabel_ = new QLabel("0");
     ISampleValueLabel_ = new QLabel("0");
     IReferenceValueLabel_ = new QLabel("0");
-
-    IOldBar_ = new QProgressBar;
-    IOldBar_->setTextVisible(false);
-    IOldBar_->setRange(100,145);
-
-
-    I0Bar_ = new QProgressBar;
-    I0Bar_->setTextVisible(false);
-    I0Bar_->setRange(100,145);
-
-    ISampleBar_ = new QProgressBar;
-    ISampleBar_->setTextVisible(false);
-    ISampleBar_->setRange(100,145);
-
-    IReferenceBar_ = new QProgressBar;
-    IReferenceBar_->setTextVisible(false);
-    IReferenceBar_->setRange(100,145);
 
     QIcon iconUp, iconDown, iconLeft, iconRight, iconVerticalClose, iconVerticalOpen, iconHorizontalClose, iconHorizontalOpen;
     iconUp.addFile(QString::fromUtf8(":/22x22/go-up-dark.png"), QSize(), QIcon::Normal, QIcon::Off);
@@ -229,16 +209,8 @@ IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
     mainPanelLayout->addWidget(monoEnergyRange_);
     mainPanelLayout->addStretch();
 
-//#ifdef AM_MOBILITY_VIDEO_ENABLED
-//	AMBeamlineCameraWidgetWithSourceTabs *cameraWidget;
 
-//	QVBoxLayout *cameraPanelLayout = new QVBoxLayout;
-//	cameraWidget = new AMBeamlineCameraWidgetWithSourceTabs(QUrl("http://v2e1608-102.clsi.ca/mjpg/2/video.mjpg"),"Sample 1",0,false);
-//	cameraWidget->addSource("Sample 2", QUrl("http://v2e1608-102.clsi.ca/mjpg/3/video.mjpg"));
-//	cameraWidget->addSource("Vacuum", QUrl("http://v2e1608-102.clsi.ca/mjpg/1/video.mjpg"));
-//	cameraWidget->addSource("POE", QUrl("http://v2e1608-102.clsi.ca/mjpg/4/video.mjpg"));
-//	cameraPanelLayout->addWidget(cameraWidget);
-//#endif
+
 
     QGroupBox *jjSlitsPanel = new QGroupBox("Sample Slits");
     QGridLayout *jjSlitsButtons = new QGridLayout;
@@ -256,44 +228,17 @@ IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
     QVBoxLayout *scalerPanelLayout = new QVBoxLayout;
     scalerPanelLayout->addWidget(new IDEASScalerView());
 
-    QGridLayout *detectorPanelLayout = new QGridLayout;
-    detectorPanelLayout->addWidget(IOldLabel_,0,0);
-    detectorPanelLayout->addWidget(IOldBar_,0,1,1,2);
-    detectorPanelLayout->addWidget(IOldValueLabel_,0,3,1,2);
-    detectorPanelLayout->addWidget(I0Label_,1,0);
-    detectorPanelLayout->addWidget(I0Bar_,1,1,1,2);
-    detectorPanelLayout->addWidget(I0ValueLabel_,1,3,1,2);
-    detectorPanelLayout->addWidget(ISampleLabel_,2,0);
-    detectorPanelLayout->addWidget(ISampleBar_,2,1,1,2);
-    detectorPanelLayout->addWidget(ISampleValueLabel_,2,3,1,2);
-    detectorPanelLayout->addWidget(IReferenceLabel_,3,0);
-    detectorPanelLayout->addWidget(IReferenceBar_,3,1,1,2);
-    detectorPanelLayout->addWidget(IReferenceValueLabel_,3,3,1,2);
-
-
     QGroupBox *persistentPanel = new QGroupBox("IDEAS Beamline");
     persistentPanel->setLayout(mainPanelLayout);
-
-
 
     QGroupBox *scalerPanel = new QGroupBox("Preamp Settings");
     scalerPanel->setLayout(scalerPanelLayout);
 
-    QGroupBox *detectorPanel = new QGroupBox("Ion Chamber Currents");
-    detectorPanel->setLayout(detectorPanelLayout);
-
     QVBoxLayout *layout = new QVBoxLayout;
     layout->addWidget(persistentPanel);
 
-//    #ifdef AM_MOBILITY_VIDEO_ENABLED
-//    QGroupBox *cameraPanel = new QGroupBox("Camera Settings");
-//    cameraPanel->setLayout(cameraPanelLayout);
-//    layout->addWidget(cameraPanel);
-//    #endif
-
     layout->addWidget(jjSlitsPanel);
     layout->addWidget(scalerPanel);
-    //layout->addWidget(detectorPanel);
 
     setLayout(layout);
 
@@ -321,62 +266,12 @@ void IDEASPersistentView::onShutterStatusChanged(bool state)
 }
 
 
-void IDEASPersistentView::onOldCountsChanged()
-{
-    double value = 0;
-//    IDEASBeamline::bl()->exposedDetectorByName("I_vac_6485")->data(&value);
-    IOldBar_->setValue(int(200 + 10*log10(qAbs(value))));
-    //IOldBar_->setValue(value/1000000);
-    //qdebug() << "I_Old_bar" << int(200 + 10*log10(qAbs(value)));
-    //qdebug() << "I_Old" << value << "log10(I_Old)" << log10(value) << log10(qAbs(value));
-    IOldValueLabel_->setText(QString::number(value, 'e', 2));
-    //IOldValueLabel_->setText(value);
-}
-
-void IDEASPersistentView::onI0CountsChanged()
-{
-    double value = 0;
-    IDEASBeamline::bl()->exposedDetectorByName("I_0")->data(&value);
-    //I0Bar_->setValue(int(200 + 10*log10(qAbs(value))));
-    I0Bar_->setValue(int(value/1000000));
-    //qdebug() << "I_0" << int(-3.25/log10(qAbs(value)));
-    //I0ValueLabel_->setText(QString::number(value, 'e', 2));
-    I0ValueLabel_->setText(QString("%1k").arg(QString::number(value/1000,'f',0)));
-
-   // ui->signalI0Bar->setValue(int(counts*600./1.e6));
-    //ui->signalI0Value->setText(QString::number(counts, 'e', 2));
-}
-
-void IDEASPersistentView::onSampleCountsChanged()
-{
-    double value = 0;
-    IDEASBeamline::bl()->exposedDetectorByName("I_sample")->data(&value);
-    //ISampleBar_->setValue(int(200 + 10*log10(qAbs(value))));
-    ISampleBar_->setValue(int(value/1000000));
-    //ISampleValueLabel_->setText(QString::number(value, 'e', 2));
-    ISampleValueLabel_->setText(QString("%1k").arg(QString::number(value/1000,'f',0)));
-}
-
-void IDEASPersistentView::onReferenceCountsChanged()
-{
-    double value = 0;
-    IDEASBeamline::bl()->exposedDetectorByName("I_ref")->data(&value);
-    //IReferenceBar_->setValue(int(200 + 10*log10(qAbs(value))));
-    IReferenceBar_->setValue(int(value/1000000));
-    //IReferenceValueLabel_->setText(QString::number(value, 'e', 2));
-    IReferenceValueLabel_->setText(QString("%1k").arg(QString::number(value/1000,'f',0)));
-}
-
 void IDEASPersistentView::onCrystalChanged()
 {
 
     monoCrystal_->setText(IDEASBeamline::bl()->exposedControlByName("monoCrystal")->enumNameAt(IDEASBeamline::bl()->exposedControlByName("monoCrystal")->value()));
     monoEnergyRange_->setText(QString("%1 eV - %2 eV").arg(IDEASBeamline::ideas()->monoLowEV()->value()).arg(IDEASBeamline::ideas()->monoHighEV()->value()));
 
-//    if(IDEASBeamline::ideas()->monoLowEV()->value() == -1 || IDEASBeamline::ideas()->monoHighEV()->value() == -1){
-//	qdebug() << "Rechecking Energy Range";
-//	crystalTimer_->start();
-//    }
 }
 
 void IDEASPersistentView::onRingCurrentChanged(double current)
@@ -392,8 +287,6 @@ void IDEASPersistentView::onRingCurrentChanged(double current)
 
 void IDEASPersistentView::onCalibrateClicked()
 {
-    //QInputDialog  *calibrateDialog_ = new QInputDialog();
-
     bool ok;
     double newE = QInputDialog::getDouble(this,"Monochromator Energy Calibration","Enter Current Calibrated Energy:",IDEASBeamline::ideas()->monoEnergyControl()->value(),IDEASBeamline::ideas()->monoLowEV()->value(),IDEASBeamline::ideas()->monoHighEV()->value(),1,&ok);
 
@@ -410,8 +303,6 @@ void IDEASPersistentView::onCalibrateClicked()
         double angleDetla = -12398.4193 / (mono2d * currentE * currentE * cos(braggAngle * M_PI / 180)) * dE * 180 / M_PI;
 
         IDEASBeamline::ideas()->monoAngleOffset()->move(oldAngleOffset + angleDetla);
-	//qdebug() << newE << oldAngleOffset << currentE << mono2d << braggAngle << dE << angleDetla << oldAngleOffset + angleDetla;
-
 
     }
 
