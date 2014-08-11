@@ -29,6 +29,24 @@ public:
 	/// Returns the index position of the first occurrence of value in the list, searching forward from index
 	/// position from. Returns -1 if no item matched
 	int indexOf(AMLightweightScanInfo* scan, int from = 0) const;
+signals:
+	/// Emitted just before a scan info is added to the collection
+	void scanAboutToBeAdded(int rowIndex);
+	/// Emitted whenever a scan info is finished being added to the collection after the initial loading
+	void scanAdded();
+	/// Emitted whenever a scan info is altered
+	void scanUpdated(int rowIndex);
+	/// Emitted just before a scan info is removed from the collection
+	void scanAboutToBeRemoved(int rowIndex);
+	/// Emitted whenever a scan info is finished being removed from the collection
+	void scanRemoved();
+protected slots:
+	/// Slot to handle the database signal indicating that a new item has been added to the database
+	void onDbItemAdded(const QString& tableName, int id);
+	/// Slot to handle the database signal indicating that an existing item in the database has been updated
+	void onDbItemUpdated(const QString& tableName, int id);
+	/// Slot to handle the database signal indicating that an item has been removed from the database
+	void onDbItemRemoved(const QString& tableName, int oldId);
 protected:
 	/// Builds the mapping of ScanId to ExperimentId
 	void populateExperimentIds();
@@ -57,13 +75,6 @@ protected:
 	QString getSampleName(const QString& sampleResult) const;
 	/// Looks up the ExperimentId for a given scanId, returns -1 if no mapping is found in the hash table
 	int getExperimentId(int scanId) const;
-protected slots:
-	/// Slot to handle the database signal indicating that a new item has been added to the database
-	void onDbItemAdded(const QString& tableName, int id);
-	/// Slot to handle the database signal indicating that an existing item in the database has been updated
-	void onDbItemUpdated(const QString& tableName, int id);
-	/// Slot to handle the database signal indicating that an item has been removed from the database
-	void onDbItemRemoved(const QString& tableName, int oldId);
 private:
 	/// The database from which the scan infos will be retrieved
 	AMDatabase* database_;
@@ -78,17 +89,7 @@ private:
 	QList<AMLightweightScanInfo*> scanInfos_;
 	/// A mapping of scan id to experiment id. If entry is found for a scan, it's experimentId is set to -1
 	QHash<int, int> experimentIdMap_;
-signals:
-	/// Emitted just before a scan info is added to the collection
-	void scanAboutToBeAdded(int rowIndex);
-	/// Emitted whenever a scan info is finished being added to the collection after the initial loading
-	void scanAdded();
-	/// Emitted whenever a scan info is altered
-	void scanUpdated(int rowIndex);
-	/// Emitted just before a scan info is removed from the collection
-	void scanAboutToBeRemoved(int rowIndex);
-	/// Emitted whenever a scan info is finished being removed from the collection
-	void scanRemoved();
+
 
 };
 

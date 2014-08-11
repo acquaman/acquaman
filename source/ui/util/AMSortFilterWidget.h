@@ -62,6 +62,17 @@ public:
 	/// aren't in the top level, and so aren't automatically added to the widget. Caution, this may require
 	/// the proxy model to be customized in a way to accept such criteria.
 	void addManualColumn(const QString& header);
+signals:
+	/// Emitted whenever the filter the Widget is applying is altered
+	void filterChanged(bool);
+protected slots:
+	/// Slot to handle requests to apply the filter, either through clicking the button or pressing return
+	/// when in the criteria line edit
+	void onFilterApplied();
+	/// Slot to handle the clear button being clicked
+	void onClearFilterButtonClicked();
+	/// Sets the visibility state of the main filter layout area
+	void setFilterAreaVisible(bool visible);
 protected:
 	/// The model which the AMSortFilterWidget is controlling
 	QSortFilterProxyModel* proxyModel();
@@ -73,14 +84,6 @@ protected:
 	void initPushButtons();
 	/// Handles changes between a filter being applied to the data and not
 	void setCurrentlyFiltered(bool value);
-protected slots:
-	/// Slot to handle requests to apply the filter, either through clicking the button or pressing return
-	/// when in the criteria line edit
-	void onFilterApplied();
-	/// Slot to handle the clear button being clicked
-	void onClearFilterButtonClicked();
-	/// Sets the visibility state of the main filter layout area
-	void setFilterAreaVisible(bool visible);
 private:
 	QPushButton* toggleHideButton_;
 	QLabel* filteredWarningLabel_;
@@ -89,9 +92,7 @@ private:
 	QSortFilterProxyModel* proxyModel_;
 	AMSortFilterBuilder* filterBuilder_;
 	bool isCurrentlyFiltered_;
-signals:
-	/// Emitted whenever the filter the Widget is applying is altered
-	void filterChanged(bool);	
+
 };
 
 

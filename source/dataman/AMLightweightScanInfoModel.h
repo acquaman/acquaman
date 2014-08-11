@@ -61,7 +61,7 @@ protected:
 	QVariant getScanData(const QModelIndex& index, int role) const;
 	/// Helper function which returns the data for an index which is known to be a thumbnail
 	QVariant getThumbnailData(const QModelIndex& index, int role) const;
-signals:
+
 };
 
 #endif // AMLIGHTWEIGHTSCANINFOMODEL_H

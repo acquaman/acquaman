@@ -45,6 +45,19 @@ public:
 	/// Sets the model for the view to use to obtain data. Also calculates the vertical scroll maximum
 	/// by polling the models rowCount
 	void setModel(QAbstractItemModel *newModel);
+protected slots:
+	/// Handles changes to the data in place. Resets the displayed thumbnail index for all
+	/// the scans back to zero and updates the scroll bars.
+	void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
+	/// Handles rows being inserted into the source model. Resets the displayed thumbnail index for all
+	/// the scans back to zero and updates the scroll bars.
+	void rowsInserted(const QModelIndex &parent, int start, int end);
+	/// Handles rows being removed from the source model. Resets the displayed thumbnail index for all
+	/// the scans back to zero and updates the scroll bars.
+	void rowsRemoved(const QModelIndex& parent, int start, int end);
+	/// Handles the timer used to decide whether the mouse in its current position can be considered
+	/// 'hovering'
+	void onTimerTimout();
 protected:
 	/// Returns the rectangle which represents the model row provided
 	QRect rectangleGridRow(int row) const;
@@ -93,21 +106,6 @@ protected:
 	QRect getImageRectangle(const QRect& thumbnailRectangle) const;
 	/// Obtains the position within thumbnailRectangle of the Scan Title
 	QRect getTitleRectangle(const QRect& thumbnailRectangle) const;
-
-protected slots:
-	/// Handles changes to the data in place. Resets the displayed thumbnail index for all
-	/// the scans back to zero and updates the scroll bars.
-	void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
-	/// Handles rows being inserted into the source model. Resets the displayed thumbnail index for all
-	/// the scans back to zero and updates the scroll bars.
-	void rowsInserted(const QModelIndex &parent, int start, int end);
-	/// Handles rows being removed from the source model. Resets the displayed thumbnail index for all
-	/// the scans back to zero and updates the scroll bars.
-	void rowsRemoved(const QModelIndex& parent, int start, int end);
-	/// Handles the timer used to decide whether the mouse in its current position can be considered
-	/// 'hovering'
-	void onTimerTimout();
-
 private:
 	/// The size of a single thumbnailView item
 	QSize itemDimensions_;
