@@ -22,8 +22,8 @@ IDEASSampleCameraPanel::IDEASSampleCameraPanel(QWidget *parent) :
 
     sampleUp_ = new AMControlMoveButton();
     sampleUp_->setControl(IDEASBeamline::ideas()->samplePlatformVertical());
-    sampleUp_->setStepSizes(QList<double>() << 0.5 << 1 << 5);
-    sampleUp_->setStepSizeIndex(1);
+    sampleUp_->setStepSizes(QList<double>() << 0.1 << 0.5 << 1 << 5);
+    sampleUp_->setStepSizeIndex(2);
     //sampleUp_->setDirectionReversed(true);
     sampleUp_->setIcon(iconUp);
     sampleUp_->setIconSize(QSize(22, 22));
@@ -35,8 +35,8 @@ IDEASSampleCameraPanel::IDEASSampleCameraPanel(QWidget *parent) :
 
     sampleDown_ = new AMControlMoveButton();
     sampleDown_->setControl(IDEASBeamline::ideas()->samplePlatformVertical());
-    sampleDown_->setStepSizes(QList<double>() << 0.5 << 1 << 5);
-    sampleDown_->setStepSizeIndex(1);
+    sampleDown_->setStepSizes(QList<double>() << 0.1 << 0.5 << 1 << 5);
+    sampleDown_->setStepSizeIndex(2);
     sampleDown_->setDirectionReversed(true);
     sampleDown_->setIcon(iconDown);
     sampleDown_->setIconSize(QSize(22, 22));
@@ -47,8 +47,8 @@ IDEASSampleCameraPanel::IDEASSampleCameraPanel(QWidget *parent) :
 
     sampleInboard_ = new AMControlMoveButton();
     sampleInboard_->setControl(IDEASBeamline::ideas()->samplePlatformHorizontal());
-    sampleInboard_->setStepSizes(QList<double>() << 0.5 << 1 << 5);
-    sampleInboard_->setStepSizeIndex(1);
+    sampleInboard_->setStepSizes(QList<double>() << 0.1 << 0.5 << 1 << 5);
+    sampleInboard_->setStepSizeIndex(2);
     //sampleInboard_->setDirectionReversed(true);
     sampleInboard_->setIcon(iconRight);
     sampleInboard_->setIconSize(QSize(22, 22));
@@ -59,8 +59,8 @@ IDEASSampleCameraPanel::IDEASSampleCameraPanel(QWidget *parent) :
 
     sampleOutboard_ = new AMControlMoveButton();
     sampleOutboard_->setControl(IDEASBeamline::ideas()->samplePlatformHorizontal());
-    sampleOutboard_->setStepSizes(QList<double>() << 0.5 << 1 << 5);
-    sampleOutboard_->setStepSizeIndex(1);
+    sampleOutboard_->setStepSizes(QList<double>() << 0.1 << 0.5 << 1 << 5);
+    sampleOutboard_->setStepSizeIndex(2);
     sampleOutboard_->setDirectionReversed(true);
     sampleOutboard_->setIcon(iconLeft);
     sampleOutboard_->setIconSize(QSize(22, 22));
@@ -71,8 +71,8 @@ IDEASSampleCameraPanel::IDEASSampleCameraPanel(QWidget *parent) :
 
     vacuumStageUp_ = new AMControlMoveButton();
     vacuumStageUp_->setControl(IDEASBeamline::ideas()->vacuumSampleStage());
-    vacuumStageUp_->setStepSizes(QList<double>() << 0.5 << 1 << 5);
-    vacuumStageUp_->setStepSizeIndex(1);
+    vacuumStageUp_->setStepSizes(QList<double>() << 0.1 << 0.5 << 1 << 5);
+    vacuumStageUp_->setStepSizeIndex(2);
     vacuumStageUp_->setDirectionReversed(true);
     vacuumStageUp_->setIcon(iconUp);
     vacuumStageUp_->setIconSize(QSize(22, 22));
@@ -83,8 +83,8 @@ IDEASSampleCameraPanel::IDEASSampleCameraPanel(QWidget *parent) :
 
     vacuumStageDown_ = new AMControlMoveButton();
     vacuumStageDown_->setControl(IDEASBeamline::ideas()->vacuumSampleStage());
-    vacuumStageDown_->setStepSizes(QList<double>() << 0.5 << 1 << 5);
-    vacuumStageDown_->setStepSizeIndex(1);
+    vacuumStageDown_->setStepSizes(QList<double>() << 0.1 << 0.5 << 1 << 5);
+    vacuumStageDown_->setStepSizeIndex(2);
     //vacuumStageDown_->setDirectionReversed(true);
     vacuumStageDown_->setIcon(iconDown);
     vacuumStageDown_->setIconSize(QSize(22, 22));
