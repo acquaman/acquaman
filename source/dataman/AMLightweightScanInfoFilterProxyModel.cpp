@@ -36,22 +36,22 @@ int AMLightweightScanInfoFilterProxyModel::experimentId() const
 	return experimentId_;
 }
 
-bool AMLightweightScanInfoFilterProxyModel::filterAcceptsRow(int source_row, const QModelIndex& parent) const
+bool AMLightweightScanInfoFilterProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex& sourceParent) const
 {
-	if(parent.isValid())
-		return filterAcceptsThumbnail(source_row, parent);
+	if(sourceParent.isValid())
+		return filterAcceptsThumbnail(sourceRow, sourceParent);
 	else
-		return filterAcceptsScan(source_row, parent);
+		return filterAcceptsScan(sourceRow, sourceParent);
 }
 
 
-bool AMLightweightScanInfoFilterProxyModel::filterAcceptsThumbnail(int source_row, const QModelIndex& parent) const
+bool AMLightweightScanInfoFilterProxyModel::filterAcceptsThumbnail(int sourceRow, const QModelIndex& parent) const
 {
 	if(filterKeyColumn() != 8 || filterRegExp().isEmpty())
 		return true;
 
-	QModelIndex subTitleIndex = sourceModel()->index(source_row, 2, parent);
-	QModelIndex titleIndex = sourceModel()->index(source_row, 0, parent);
+	QModelIndex subTitleIndex = sourceModel()->index(sourceRow, 2, parent);
+	QModelIndex titleIndex = sourceModel()->index(sourceRow, 0, parent);
 	QString subTitle = sourceModel()->data(subTitleIndex, Qt::DisplayRole).toString();
 	QString title = sourceModel()->data(titleIndex, Qt::DisplayRole).toString();
 
@@ -67,13 +67,13 @@ bool AMLightweightScanInfoFilterProxyModel::filterAcceptsThumbnail(int source_ro
 
 }
 
-bool AMLightweightScanInfoFilterProxyModel::filterAcceptsScan(int source_row, const QModelIndex &parent) const
+bool AMLightweightScanInfoFilterProxyModel::filterAcceptsScan(int sourceRow, const QModelIndex &parent) const
 {
 	if(filterKeyColumn() == 8)
 	{
 		if(runId() > -1)
 		{
-			QModelIndex sourceIndex = sourceModel()->index(source_row, 5, parent);
+			QModelIndex sourceIndex = sourceModel()->index(sourceRow, 5, parent);
 			int sourceRunId = sourceModel()->data(sourceIndex, Qt::UserRole).toInt();
 
 			if(sourceRunId != runId())
@@ -81,14 +81,14 @@ bool AMLightweightScanInfoFilterProxyModel::filterAcceptsScan(int source_row, co
 		}
 		else if(experimentId() > -1)
 		{
-			QModelIndex sourceIndex = sourceModel()->index(source_row, 9, parent);
+			QModelIndex sourceIndex = sourceModel()->index(sourceRow, 9, parent);
 			int sourceExperimentId = sourceModel()->data(sourceIndex, Qt::UserRole).toInt();
 
 			if(sourceExperimentId != experimentId())
 				return false;
 		}
 
-		QModelIndex sourceIndex = sourceModel()->index(source_row, 0, parent);
+		QModelIndex sourceIndex = sourceModel()->index(sourceRow, 0, parent);
 		for (int iThumbnail = 0; iThumbnail < sourceModel()->rowCount(sourceIndex); iThumbnail++)
 		{
 			QModelIndex titleIndex = sourceModel()->index(iThumbnail, 0, sourceIndex);
@@ -110,7 +110,7 @@ bool AMLightweightScanInfoFilterProxyModel::filterAcceptsScan(int source_row, co
 	{
 		if(runId() > -1)
 		{
-			QModelIndex sourceIndex = sourceModel()->index(source_row, 5, parent);
+			QModelIndex sourceIndex = sourceModel()->index(sourceRow, 5, parent);
 			int sourceRunId = sourceModel()->data(sourceIndex, Qt::UserRole).toInt();
 
 			if(sourceRunId != runId())
@@ -118,12 +118,12 @@ bool AMLightweightScanInfoFilterProxyModel::filterAcceptsScan(int source_row, co
 		}
 		else if(experimentId() > -1)
 		{
-			QModelIndex sourceIndex = sourceModel()->index(source_row, 9, parent);
+			QModelIndex sourceIndex = sourceModel()->index(sourceRow, 9, parent);
 			int sourceExperimentId = sourceModel()->data(sourceIndex, Qt::UserRole).toInt();
 
 			if(sourceExperimentId != experimentId())
 				return false;
 		}
 	}
-	return QSortFilterProxyModel::filterAcceptsRow(source_row, parent);
+	return QSortFilterProxyModel::filterAcceptsRow(sourceRow, parent);
 }

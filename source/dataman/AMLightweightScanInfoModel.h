@@ -21,33 +21,26 @@ public:
 	explicit AMLightweightScanInfoModel(AMLightweightScanInfoCollection* scanInfo, QObject *parent = 0);
 	/// Returns the text to display in the given header. Only returns valid values for Qt::Horizontal
 	/// orientation and Qt::DisplayRole role.
-	virtual QVariant headerData(int section, Qt::Orientation orientation, int role) const;
+	QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 	/// Returns the QVariantData associated with the given index of the model. In brief:
 	/// returns data for the scan if the index has an invalid parent, or
 	/// returns data for the thumbnail if the index has a valid parent
-	virtual QVariant data(const QModelIndex &index, int role) const;
+	QVariant data(const QModelIndex &index, int role) const;
 	/// Returns the row count for the given index. If this index is invalid, the number of scans is returned.
 	/// If the index is valid, then the thumbnailCount of the scan to which parent refers is returned
-	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
+	int rowCount(const QModelIndex &parent = QModelIndex()) const;
 	/// Returns the column count for the given index. If the index is invalid, the column count for
 	/// scans is returned (8) if not then the column count for thumbnails is returned (3)
-	virtual int columnCount(const QModelIndex &parent = QModelIndex()) const;
+	int columnCount(const QModelIndex &parent = QModelIndex()) const;
 	/// Returns a QModelIndex for the provided row, column and parent index
-	virtual QModelIndex index(int row, int column, const QModelIndex &parent) const;
+	QModelIndex index(int row, int column, const QModelIndex &parent) const;
 	/// Returns the parent of the provided index. If the index has no parent, then an invalid
 	/// QModelIndex is returned
-	virtual QModelIndex parent(const QModelIndex &child) const;
+	QModelIndex parent(const QModelIndex &child) const;
 	/// returns a standard url for the given index.
 	/// URL format: amd://databaseConnectionName/tableName/objectId
 	/// If the index refers to a thumbnail, then the URL of the parent scan is returned
 	QUrl rowToUrl(const QModelIndex& index);
-protected:
-	/// Helper function which returns the data for an index which is known to be a scan
-	QVariant getScanData(const QModelIndex& index, int role) const;
-	/// Helper function which returns the data for an index which is known to be a thumbnail
-	QVariant getThumbnailData(const QModelIndex& index, int role) const;
-signals:
-	
 public slots:
 
 	// Functions which respond to signals indicating changes in the underlying collection
@@ -63,8 +56,12 @@ public slots:
 	void onScanInfoAboutToBeRemoved(int oldIndex);
 	/// Handles the collection signalling that it has finished removing a scan
 	void onScanInfoRemoved();
-
-	
+protected:
+	/// Helper function which returns the data for an index which is known to be a scan
+	QVariant getScanData(const QModelIndex& index, int role) const;
+	/// Helper function which returns the data for an index which is known to be a thumbnail
+	QVariant getThumbnailData(const QModelIndex& index, int role) const;
+signals:
 };
 
 #endif // AMLIGHTWEIGHTSCANINFOMODEL_H

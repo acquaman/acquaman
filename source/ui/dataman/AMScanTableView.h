@@ -16,10 +16,7 @@ public:
 	/// Sets the model by calling base class implementation, then sets standard column widths now
 	/// we know the data is in place
 	virtual void setModel(QAbstractItemModel *model);
-signals:
-	
-public slots:
-	
+
 };
 
 #endif // AMSCANTABLEVIEW_H

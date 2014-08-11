@@ -15,9 +15,6 @@ class AMDbThumbnail;
 class AMLightweightScanInfoFilterProxyModel : public QSortFilterProxyModel
 {
 	Q_OBJECT
-private:
-	int runId_;
-	int experimentId_;
 public:
 	explicit AMLightweightScanInfoFilterProxyModel(QObject *parent = 0);
 	/// Sets the provided runId to be the top level filter associated with the model. Setting this
@@ -37,16 +34,16 @@ protected:
 	/// Virtual function overriding QSortFilterProxyModel::filterAcceptsRow
 	/// returns true if the index at the given source row, with the provided source_parent
 	/// meets the criteria that is currently applied to the filter
-	virtual bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const;
+	bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
 	/// Helper function which determines whether a source_row meets the filter criteria when
 	/// we already know it refers to a thumbnail
-	bool filterAcceptsThumbnail(int source_row, const QModelIndex &parent) const;
+	bool filterAcceptsThumbnail(int sourceRow, const QModelIndex &parent) const;
 	/// Helper function which determines whether a source_row meets the filter criteria when
 	/// we already know it refers to a scan
-	bool filterAcceptsScan(int source_row, const QModelIndex &parent) const;
-signals:
-
-public slots:
+	bool filterAcceptsScan(int sourceRow, const QModelIndex &parent) const;
+private:
+	int runId_;
+	int experimentId_;
 	
 };
 

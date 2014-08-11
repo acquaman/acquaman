@@ -1,18 +1,22 @@
 #include "AMLightweightScanInfo.h"
 #include "database/AMDbObject.h"
 #include "database/AMDbObjectSupport.h"
+#include "util/AMErrorMonitor.h"
 
 AMLightweightScanInfo::AMLightweightScanInfo(int id,
 		const QString &name,
-		int number, const
-		QDateTime &dateTime,
+		int number,
+		const QDateTime &dateTime,
 		const QString &scanType,
 		int runId,
 		const QString &runName,
 		const QString &notes,
 		const QString &sampleName,
 		int thumbnailFirstId,
-		int thumbnailCount, int experimentId, QObject *parent)
+		int thumbnailCount,
+		AMDatabase *database,
+		int experimentId,
+		QObject *parent)
 	: QObject(parent)
 {
 	id_ = id;
@@ -25,6 +29,7 @@ AMLightweightScanInfo::AMLightweightScanInfo(int id,
 	experimentId_ = experimentId;
 	notes_ = notes;
 	sampleName_ = sampleName;
+	database_ = database;
 	if(thumbnailCount == 0)
 		return;
 	for(int iThumbnailId = 0; iThumbnailId < thumbnailCount; iThumbnailId++)
@@ -119,7 +124,7 @@ void AMLightweightScanInfo::setSampleName(const QString &sampleName)
 	sampleName_ = sampleName;
 }
 
-AMDbThumbnail *AMLightweightScanInfo::thumbnailAt(int index)
+AMDbThumbnail *AMLightweightScanInfo::thumbnailAt(int index) const
 {
 	/// Scan doesn't have this many thumbnails, return 0
 	if(index >= thumbnailCount())
@@ -149,16 +154,16 @@ AMDbThumbnail *AMLightweightScanInfo::thumbnailAt(int index)
 			}
 		} else
 		{
-			query.finish();
+			AMErrorMon::alert(this, AMLIGHTWEIGHTSCANINFO_SQL_ERROR, QString("Could not complete query with error: %1").arg(query.lastError().text()));
 		}
-
+		query.finish();
 	}
 
 	return thumbnailsMap_.value(thumbnailIds_.at(index));
 
 }
 
-int AMLightweightScanInfo::thumbnailCount()
+int AMLightweightScanInfo::thumbnailCount() const
 {
 	return thumbnailIds_.count();
 }

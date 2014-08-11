@@ -20,13 +20,8 @@
  */
 class AMSortFilterBuilder : public QWidget {
 	Q_OBJECT
-private:
-	QComboBox* fieldComboBox_;
-	QComboBox* modeComboBox_;
-	QLineEdit* criteriaLineEdit_;
-	QCheckBox* caseSensitiveCheckBox_;
-public:
 
+public:
 	explicit AMSortFilterBuilder(QWidget* parent = 0);
 	/// Returns the currently selected filter column
 	int filterKeyColumn() const;
@@ -42,6 +37,11 @@ public:
 public slots:
 	/// Clears the search criteria
 	void clear();
+private:
+	QComboBox* fieldComboBox_;
+	QComboBox* modeComboBox_;
+	QLineEdit* criteriaLineEdit_;
+	QCheckBox* caseSensitiveCheckBox_;
 };
 
 /**
@@ -52,15 +52,7 @@ public slots:
 class AMSortFilterWidget : public QWidget
 {
 	Q_OBJECT
-private:
 
-	QPushButton* toggleHideButton_;
-	QLabel* filteredWarningLabel_;
-	QPushButton* clearFilterPushButton_;
-	QPushButton* applyFilterPushButton_;
-	QSortFilterProxyModel* proxyModel_;
-	AMSortFilterBuilder* filterBuilder_;
-	bool isCurrentlyFiltered_;
 public:
 	/// Creates an instance of an AMSortFilterWidget for controlling the provided QSortFilterProxyModel
 	explicit AMSortFilterWidget(QSortFilterProxyModel* model, QWidget *parent = 0);
@@ -81,10 +73,6 @@ protected:
 	void initPushButtons();
 	/// Handles changes between a filter being applied to the data and not
 	void setCurrentlyFiltered(bool value);
-
-signals:
-	/// Emitted whenever the filter the Widget is applying is altered
-	void filterChanged(bool);
 protected slots:
 	/// Slot to handle requests to apply the filter, either through clicking the button or pressing return
 	/// when in the criteria line edit
@@ -93,8 +81,17 @@ protected slots:
 	void onClearFilterButtonClicked();
 	/// Sets the visibility state of the main filter layout area
 	void setFilterAreaVisible(bool visible);
-public slots:
-	
+private:
+	QPushButton* toggleHideButton_;
+	QLabel* filteredWarningLabel_;
+	QPushButton* clearFilterPushButton_;
+	QPushButton* applyFilterPushButton_;
+	QSortFilterProxyModel* proxyModel_;
+	AMSortFilterBuilder* filterBuilder_;
+	bool isCurrentlyFiltered_;
+signals:
+	/// Emitted whenever the filter the Widget is applying is altered
+	void filterChanged(bool);	
 };
 
 

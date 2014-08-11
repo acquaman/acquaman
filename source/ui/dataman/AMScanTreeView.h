@@ -18,10 +18,10 @@ public:
 	/// Returns the sizeHint for rows depending on the validity of the index's parent:
 	///  - for scans the height is the font height
 	///  - for thumbnails the height is a standard 200
-	virtual QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
+	QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
 
 	/// Reimplementation of QItemDelegate::paint(). Paints the passed QModelIndex->data()
-	virtual void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+	void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
 };
 
 /**
@@ -35,10 +35,7 @@ public:
 	explicit AMScanTreeView(QWidget *parent = 0);
 	/// Sets the model by calling base class implementation, then sets standard column widths now
 	/// we know the data is in place
-	virtual void setModel(QAbstractItemModel *model);
-signals:
-	
-public slots:
+	void setModel(QAbstractItemModel *model);
 	
 };
 
