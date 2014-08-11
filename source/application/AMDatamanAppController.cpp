@@ -495,6 +495,7 @@ bool AMDatamanAppController::startupBackupDataDirectory()
 		QStringList excludePatterns;
 		excludePatterns.append("*.db.bk.*");
 		excludePatterns.append("*.BACKUPS");
+		excludePatterns.append("*.db-journal");
 		for(int x = 0, size = excludePatterns.size(); x < size; x++)
 			synchronizer->appendExcludePattern(excludePatterns.at(x));
 

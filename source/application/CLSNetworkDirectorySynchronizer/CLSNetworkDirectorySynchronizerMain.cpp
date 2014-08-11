@@ -115,6 +115,7 @@ int main(int argc, char *argv[])
 	QStringList excludePatterns;
 	excludePatterns.append("*.db.bk.*");
 	excludePatterns.append("*.BACKUPS");
+	excludePatterns.append("*.db-journal");
 
 	if(firstArgument == "-i"){
 		if(!errorTitle.isEmpty() || !errorMessage.isEmpty()){
