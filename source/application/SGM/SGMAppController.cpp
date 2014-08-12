@@ -272,7 +272,7 @@ bool SGMAppController::startupRegisterDatabases(){
 
 	// Register the SGM Beamline database
 	if(!AMDbObjectSupport::s()->registerDatabase(dbSGM)) {
-		AMErrorMon::alert(this, SGMAPPCONTROLLER_COULD_NOT_REGISTER_SGM_DATABASE, QString("Error registering the SGM Database (%1). Please report this problem to the Acquaman developers.").arg(dbSGM->dbAccessString()));
+		AMErrorMon::alert(this, SGMAPPCONTROLLER_COULD_NOT_REGISTER_SGM_DATABASE, "Error registering the SGM Database. Please report this problem to the Acquaman developers.");
 		return false;
 	}
 
