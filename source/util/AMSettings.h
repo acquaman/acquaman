@@ -54,6 +54,8 @@ public:
 	/// 1. Database and storage:
 	// ========================================
 
+	/// Backup location to copy the data to
+	static QString remoteDataFolder;
 	/// Data storage root folder:
 	static QString userDataFolder;
 	/// name of user database

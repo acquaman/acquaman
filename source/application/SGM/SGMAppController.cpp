@@ -117,6 +117,8 @@ SGMAppController::SGMAppController(QObject *parent) :
 	const QString userNameSGM = "sgm";
 	const QString argumentEnableSGMDatabaseUpgrade = "--enableSGMDatabaseUpgrade";
 
+	setDefaultUseLocalStorage(true);
+
 	if(!resetFinishedSignal(SGMBeamline::sgm(), SIGNAL(beamlineInitialized())))
 		AMErrorMon::alert(this, SGMAPPCONTROLLER_COULD_NOT_RESET_FINISHED_SIGNAL, "Could not reset the finish signal to the SGM Beamline");
 

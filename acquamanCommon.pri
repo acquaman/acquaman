@@ -737,6 +737,10 @@ HEADERS += \
 	source/application/AMCrashMonitorSupport.h \
 	source/analysis/AM0DAccumulatorAB.h \
 	source/util/AMBuildInfo.h \
+	source/util/AMRecursiveDirectoryCompare.h \
+	source/util/AMDirectorySynchronizer.h \
+	source/ui/util/AMDirectorySynchronizerDialog.h \
+	source/actions3/actions/AMDirectorySynchronizationAction.h \
 	source/util/AMBuildReporter.h \
 	source/analysis/AM1DTimedDataAB.h \
 	source/analysis/AM1DKSpaceCalculatorAB.h \
@@ -1208,6 +1212,10 @@ SOURCES += \
 	source/application/AMCrashMonitorSupport.cpp \
 	source/analysis/AM0DAccumulatorAB.cpp \
 	source/util/AMBuildInfo.cpp \
+	source/util/AMRecursiveDirectoryCompare.cpp \
+	source/util/AMDirectorySynchronizer.cpp \
+	source/ui/util/AMDirectorySynchronizerDialog.cpp \
+	source/actions3/actions/AMDirectorySynchronizationAction.cpp \
 	source/util/AMBuildReporter.cpp \
 	source/analysis/AM1DTimedDataAB.cpp \
 	source/analysis/AM1DKSpaceCalculatorAB.cpp \

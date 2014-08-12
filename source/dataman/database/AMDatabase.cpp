@@ -536,8 +536,6 @@ QVariant AMDatabase::retrieveMax(const QString &table, const QString &colName, c
 
 }
 
-
-
 /// returns a list of all the objecst/rows (by id) that match a given condition. \c whereClause is a string suitable for appending after an SQL "WHERE" statement.
 QList<int> AMDatabase::objectsWhere(const QString& tableName, const QString& whereClause) const {
 

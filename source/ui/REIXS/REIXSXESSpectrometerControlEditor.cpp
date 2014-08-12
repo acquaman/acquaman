@@ -163,13 +163,13 @@ void REIXSXESSpectrometerControlEditor::updateMaskPosition()
 	double arg1 = spectrometer_->gratingMask()->value();
 
 
-	if (abs(arg1 - 8.5) < 0.01) {
+	if (fabs(arg1 - 8.5) < 0.01) {
 		ui_->maskFeedbackLabel->setText(QString("Currently: Pinhole"));
 		ui_->maskComboBox->blockSignals(true);
 		ui_->maskComboBox->setCurrentIndex(0);
 		ui_->maskComboBox->blockSignals(false);
 	}
-	else if (abs(arg1 - 12.9) < 0.01) {
+	else if (fabs(arg1 - 12.9) < 0.01) {
 		ui_->maskFeedbackLabel->setText(QString("Currently: Mask"));
 		ui_->maskComboBox->blockSignals(true);
 		ui_->maskComboBox->setCurrentIndex(1);

@@ -215,7 +215,7 @@ protected:
 	/// We should stop this scan when we get this many counts
 	double maximumTotalCounts_;
 	/// We should stop this scan after this many seconds have elapsed
-	int maximumDurationSeconds_;
+	double maximumDurationSeconds_;
 	/// Holds the total time in seconds that the scan is estimated to take.
 	double totalTime_;
 

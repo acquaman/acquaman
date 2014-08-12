@@ -678,7 +678,7 @@ qreal REIXSXESImageABEditorEllipticalMask::x(unsigned index) const
 	}
 	else {
 		//rounded mask
-		if(index <= (analysisBlock_->sumRangeMaxX() - analysisBlock_->sumRangeMinX())) {
+		if(index <= (unsigned(analysisBlock_->sumRangeMaxX() - analysisBlock_->sumRangeMinX()))) {
 			//upper half of ellipse
 			return (qreal)(analysisBlock_->sumRangeMinX() + index);
 		}
@@ -706,7 +706,7 @@ qreal REIXSXESImageABEditorEllipticalMask::y(unsigned index) const
 		qreal i = (qreal)index;
 
 		//done to here
-		if(index == 0 || index == (unsigned)dx || index == 2*(unsigned)dx) {
+		if(index == 0 || index == unsigned(dx) || index == unsigned(2*dx)) {
 			return (qreal)analysisBlock_->sumRangeMinY() + dy/2.0;
 		}
 		else if(i < D * dx/2.0) {
@@ -772,7 +772,7 @@ void REIXSXESImageABEditorEllipticalMask::xValues(unsigned indexStart, unsigned 
 		}
 		else {
 			//rounded mask
-			if(index <= (analysisBlock_->sumRangeMaxX() - analysisBlock_->sumRangeMinX())) {
+			if(index <= unsigned(analysisBlock_->sumRangeMaxX() - analysisBlock_->sumRangeMinX())) {
 				//upper half of ellipse
 				*(outputValues++) = (qreal)(analysisBlock_->sumRangeMinX() + index);
 			}
