@@ -118,16 +118,25 @@ SGMAppController::SGMAppController(QObject *parent) :
 
 	// Prepend the SGM upgrade 1.1 to the list for both the user database and the SGM Beamline database
 	AMDbUpgrade *sgm1Pt1SGMDb = new SGMDbUpgrade1Pt1("SGMBeamline", this);
+	AMDbUpgrade *sgm1Pt1SGMPublicDb = new SGMDbUpgrade1Pt1("SGMPublic", this);
 
 	// Don't need to do SGMBeamline ... that's not the user's responsibility unless we're SGM or fawkes
+	bool hasUpgradePermission = false;
 	QString userName = QDir::fromNativeSeparators(QDir::homePath()).section("/", -1);
-	if( !(userName == "sgm" || userName == "fawkes" ||  userName == "chevrid" || userName == "helfrij") )
-		sgm1Pt1SGMDb->setIsResponsibleForUpgrade(false);
-	prependDatabaseUpgrade(sgm1Pt1SGMDb);
+	if (userName == "sgm") {
+		hasUpgradePermission = true;
+	} else if (userName == "fawkes" ||  userName == "chevrid" || userName == "helfrij" || userName == "liux0") {
+		if (QApplication::instance()->arguments().contains("--enableDatabaseUpgrade")) {
+			hasUpgradePermission = true;
+		}
+	}
 
-	AMDbUpgrade *sgm1Pt1SGMPublicDb = new SGMDbUpgrade1Pt1("SGMPublic", this);
-	if( !(userName == "sgm" || userName == "fawkes" || userName == "chevrid" || userName == "helfrij") )
+	if (! hasUpgradePermission ) {
+		sgm1Pt1SGMDb->setIsResponsibleForUpgrade(false);
 		sgm1Pt1SGMPublicDb->setIsResponsibleForUpgrade(false);
+	}
+
+	prependDatabaseUpgrade(sgm1Pt1SGMDb);
 	prependDatabaseUpgrade(sgm1Pt1SGMPublicDb);
 
 	AMDbUpgrade *sgm1Pt1UserDb = new SGMDbUpgrade1Pt1("user", this);
@@ -263,7 +272,7 @@ bool SGMAppController::startupRegisterDatabases(){
 
 	// Register the SGM Beamline database
 	if(!AMDbObjectSupport::s()->registerDatabase(dbSGM)) {
-		AMErrorMon::alert(this, SGMAPPCONTROLLER_COULD_NOT_REGISTER_SGM_DATABASE, "Error registering the SGM Database. Please report this problem to the Acquaman developers.");
+            AMErrorMon::alert(this, SGMAPPCONTROLLER_COULD_NOT_REGISTER_SGM_DATABASE, QString("Error registering the SGM Database (%1). Please report this problem to the Acquaman developers.").arg(dbSGM->dbAccessString()));
 		return false;
 	}
 
