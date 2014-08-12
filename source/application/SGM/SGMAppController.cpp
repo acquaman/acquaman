@@ -132,10 +132,8 @@ SGMAppController::SGMAppController(QObject *parent) :
 		hasUpgradePermission = true;
 	}
 
-	if (! hasUpgradePermission ) {
-		sgm1Pt1SGMDb->setIsResponsibleForUpgrade(false);
-		sgm1Pt1SGMPublicDb->setIsResponsibleForUpgrade(false);
-	}
+	sgm1Pt1SGMDb->setIsResponsibleForUpgrade(hasUpgradePermission);
+	sgm1Pt1SGMPublicDb->setIsResponsibleForUpgrade(hasUpgradePermission);
 
 	prependDatabaseUpgrade(sgm1Pt1SGMDb);
 	prependDatabaseUpgrade(sgm1Pt1SGMPublicDb);
