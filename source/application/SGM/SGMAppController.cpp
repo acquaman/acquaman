@@ -110,6 +110,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/actions/AMControlMoveAction3.h"
 #include "actions3/AMActionRegistry3.h"
 
+
+const QString USERNAME_SGM = "sgm";
+const QString ARGUMENT_ENABLE_SGM_DATABASE_UPGRADE = "--enableSGMDatabaseUpgrade";
+
+
 SGMAppController::SGMAppController(QObject *parent) :
 	AMAppController(parent)
 {
@@ -123,12 +128,8 @@ SGMAppController::SGMAppController(QObject *parent) :
 	// Don't need to do SGMBeamline ... that's not the user's responsibility unless we're SGM or fawkes
 	bool hasUpgradePermission = false;
 	QString userName = QDir::fromNativeSeparators(QDir::homePath()).section("/", -1);
-	if (userName == "sgm") {
+	if (userName == USERNAME_SGM || QApplication::instance()->arguments().contains(ARGUMENT_ENABLE_SGM_DATABASE_UPGRADE)) {
 		hasUpgradePermission = true;
-	} else if (userName == "fawkes" ||  userName == "chevrid" || userName == "helfrij" || userName == "liux0") {
-		if (QApplication::instance()->arguments().contains("--enableDatabaseUpgrade")) {
-			hasUpgradePermission = true;
-		}
 	}
 
 	if (! hasUpgradePermission ) {
