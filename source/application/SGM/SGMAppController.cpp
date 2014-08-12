@@ -114,8 +114,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 SGMAppController::SGMAppController(QObject *parent) :
 	AMAppController(parent)
 {
-	const QString UserNameSGM = "sgm";
-	const QString ArgumentEnableSGMDatabaseUpgrade = "--enableSGMDatabaseUpgrade";
+	const QString userNameSGM = "sgm";
+	const QString argumentEnableSGMDatabaseUpgrade = "--enableSGMDatabaseUpgrade";
 
 	if(!resetFinishedSignal(SGMBeamline::sgm(), SIGNAL(beamlineInitialized())))
 		AMErrorMon::alert(this, SGMAPPCONTROLLER_COULD_NOT_RESET_FINISHED_SIGNAL, "Could not reset the finish signal to the SGM Beamline");
@@ -127,7 +127,7 @@ SGMAppController::SGMAppController(QObject *parent) :
 	// Don't need to do SGMBeamline ... that's not the user's responsibility unless we're SGM or fawkes
 	bool hasUpgradePermission = false;
 	QString userName = QDir::fromNativeSeparators(QDir::homePath()).section("/", -1);
-	if (userName == UserNameSGM || QApplication::instance()->arguments().contains(ArgumentEnableSGMDatabaseUpgrade)) {
+	if (userName == userNameSGM || QApplication::instance()->arguments().contains(argumentEnableSGMDatabaseUpgrade)) {
 		hasUpgradePermission = true;
 	}
 
