@@ -23,7 +23,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include <QApplication>
-#include "application/SGM/SGMSSAAppController.h"
+//#include "application/SGM/SGMSSAAppController.h"
+#include "application/SGMSSAApplication/SGMSSAWidget.h"
 
 int main(int argc, char *argv[])
 {
@@ -34,22 +35,24 @@ int main(int argc, char *argv[])
 	app.setApplicationName("Acquaman");
 
 
-	SGMSSAAppController* appController = new SGMSSAAppController();
+//	SGMSSAAppController* appController = new SGMSSAAppController();
+	SGMSSAWidget *sgmSSA = new SGMSSAWidget();
+	sgmSSA->show();
 
 
 	/// Program Run-loop:
 	// =================================
-	int retVal = -1;
-	if(appController->startup())
-		retVal = app.exec();
+//	int retVal = -1;
+//	if(appController->startup())
+	app.exec();
 
-	/// Program Shutdown:
-	// =================================
-	if (appController->isRunning())
-		appController->shutdown();
+//	/// Program Shutdown:
+//	// =================================
+//	if (appController->isRunning())
+//		appController->shutdown();
 
-	delete appController;
+//	delete appController;
 
-	return retVal;
+	return 0;
 }
 
