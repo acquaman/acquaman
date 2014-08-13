@@ -57,6 +57,8 @@ signals:
 	/// Signals when the dialog has completed
 	void dialogCompleted();
 
+	void prepared();
+
 protected slots:
 	/// Handles changes to the error text from the underlying synchronizer
 	void onSynchronizerErrorTextChanged(const QString& message);
@@ -82,6 +84,9 @@ protected slots:
 
 	/// Handles decrementing the delay countdown when delayedStart() is called with a non-zero time
 	void onDelayCountdown();
+
+	void onPrepared(AMRecursiveDirectoryCompare::DirectoryCompareResult comparisonResult);
+	void onStartPrepared();
 
 protected:
 	/// Overrides the close event, so that the user doesn't close the dialog during copying

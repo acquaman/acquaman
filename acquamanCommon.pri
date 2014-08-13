@@ -754,7 +754,8 @@ HEADERS += \
 	source/ui/util/AMAboutDialog.h \
 	source/beamline/AM1DControlDetectorEmulator.h \
     source/ui/actions3/AMActionRunnerCurrentViewBase.h \
-    source/dataman/AMDbUpgrade1Pt5.h
+    source/dataman/AMDbUpgrade1Pt5.h \
+    source/util/AMThread.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1229,7 +1230,8 @@ SOURCES += \
 	source/ui/util/AMAboutDialog.cpp \
 	source/beamline/AM1DControlDetectorEmulator.cpp \
     source/ui/actions3/AMActionRunnerCurrentViewBase.cpp \
-    source/dataman/AMDbUpgrade1Pt5.cpp
+    source/dataman/AMDbUpgrade1Pt5.cpp \
+    source/util/AMThread.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
