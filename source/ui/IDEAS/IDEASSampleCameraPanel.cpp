@@ -95,11 +95,11 @@ IDEASSampleCameraPanel::IDEASSampleCameraPanel(QWidget *parent) :
 
 
 
+	QGridLayout *cameraPanelLayout = new QGridLayout;
 
 #ifdef AM_MOBILITY_VIDEO_ENABLED
 	AMBeamlineCameraWidgetWithSourceTabs *cameraWidget;
 
-	QGridLayout *cameraPanelLayout = new QGridLayout;
 	cameraWidget = new AMBeamlineCameraWidgetWithSourceTabs(QUrl("http://v2e1608-102.clsi.ca/mjpg/2/video.mjpg"),"Sample 1",0,false);
 	cameraWidget->addSource("Sample 2", QUrl("http://v2e1608-102.clsi.ca/mjpg/3/video.mjpg"));
 	cameraWidget->addSource("Vacuum", QUrl("http://v2e1608-102.clsi.ca/mjpg/1/video.mjpg"));
