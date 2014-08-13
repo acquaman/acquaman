@@ -47,8 +47,8 @@ void AMThreadHelper::setInitialThread(QThread *initialThread){
 }
 
 void AMThreadHelper::pushObject(){
-	if(initialThread_)
+	if(workerObject_ && initialThread_)
 		workerObject_->moveToThread(initialThread_);
-	else
+	else if(workerObject_)
 		workerObject_->moveToThread(QApplication::instance()->thread());
 }

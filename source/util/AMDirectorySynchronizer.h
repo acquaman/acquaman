@@ -92,6 +92,7 @@ signals:
 	/// @brief Signal emitted whenever the progress values change. Relays all applicable information
 	void progressChanged(int percentCompleteFile, int remainingFilesToCopy, int totalFilesToCopy);
 
+	/// @brief Signal emitted whenever the prepare call completes with the comparisonResult
 	void prepared(AMRecursiveDirectoryCompare::DirectoryCompareResult comparisonResult);
 
 protected slots:

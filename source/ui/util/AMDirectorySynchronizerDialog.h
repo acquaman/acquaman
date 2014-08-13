@@ -57,6 +57,7 @@ signals:
 	/// Signals when the dialog has completed
 	void dialogCompleted();
 
+	/// Signal emitted when the we have finished processing the output of the synchronizer prepared() signal
 	void prepared();
 
 protected slots:
@@ -85,7 +86,9 @@ protected slots:
 	/// Handles decrementing the delay countdown when delayedStart() is called with a non-zero time
 	void onDelayCountdown();
 
+	/// Handles the prepared() signal from the synchronizer and emits our prepared() signal at the end
 	void onPrepared(AMRecursiveDirectoryCompare::DirectoryCompareResult comparisonResult);
+	/// Handles calling the rest of the start routine after start first calls prepare()
 	void onStartPrepared();
 
 protected:
