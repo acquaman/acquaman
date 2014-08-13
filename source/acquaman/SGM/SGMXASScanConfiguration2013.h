@@ -65,6 +65,9 @@ public:
 	/// Exit Slit Gap, Grating, Harmonic, Undulator Tracking, Grating Tracking, Exit Slit Tracking
 	void getSettingsFromBeamline();
 
+	/// Returns the lastest known beamline status
+	bool matchesCurrentBeamline();
+
 protected slots:
 	/// Checks whether the current beamline settings match that of the configuration, namely:
 	/// Exit Slit Gap, Grating, Harmonic, Undulator Tracking, Grating Tracking, Exit Slit Tracking
