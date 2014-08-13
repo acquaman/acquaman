@@ -52,6 +52,9 @@ void IDEASBeamline::setupDiagnostics()
 
 void IDEASBeamline::setupSampleStage()
 {
+    samplePlatformVertical_ = new AMPVwStatusControl("Sample Platform Vertical","SMTR1608-10-B20-05:mm:sp","SMTR1608-10-B20-05:mm","SMTR1608-10-B20-05:status","SMTR1608-10-B20-05:stop",this,0.1);
+    samplePlatformHorizontal_ = new AMPVwStatusControl("Sample Platform Horizontal","SMTR1608-10-B20-06:mm:sp","SMTR1608-10-B20-06:mm","SMTR1608-10-B20-06:status","SMTR1608-10-B20-06:stop",this,0.1);
+    vacuumSampleStage_ = new AMPVwStatusControl("Vacuum Stage Position","SMTR1608-10-B20-08:mm:sp","SMTR1608-10-B20-08:mm","SMTR1608-10-B20-08:status","SMTR1608-10-B20-08:stop",this,0.1);
 
 }
 
@@ -141,6 +144,10 @@ void IDEASBeamline::setupComponents()
     safetyShutter2_ = new CLSBiStateControl("SOE Safety Shutter", "The safety shutter for the SOE.", "SSH1608-9-B20-01:state", "SSH1608-9-B20-01:opr:open", "SSH1608-9-B20-01:opr:close", new AMControlStatusCheckerDefault(2), this);
     photonShutter2_ = new CLSBiStateControl("Photon Shutter 2", "The second photon shutter for the beamline.The primary safety shutter for the beamline.", "PSH1409-B20-02:state", "PSH1409-B20-02:opr:open", "PSH1409-B20-02:opr:close", new AMControlStatusCheckerDefault(2), this);
 
+    jjSlitHGap_ = new AMPVwStatusControl("JJ Slit Horizontal Gap","SMTR1608-10-B20-01:mm:sp","SMTR1608-10-B20-01:mm","SMTR1608-10-B20-01:status","SMTR1608-10-B20-01:stop",this,0.1);
+    jjSlitHCenter_ = new AMPVwStatusControl("JJ Slit Horizontal Center","SMTR1608-10-B20-02:mm:sp","SMTR1608-10-B20-02:mm","SMTR1608-10-B20-02:status","SMTR1608-10-B20-02:stop",this,0.1);
+    jjSlitVGap_ = new AMPVwStatusControl("JJ Slit Vertical Gap","SMTR1608-10-B20-03:mm:sp","SMTR1608-10-B20-03:mm","SMTR1608-10-B20-03:status","SMTR1608-10-B20-03:stop",this,0.1);
+    jjSlitVCenter_ = new AMPVwStatusControl("JJ Slit Vertical Center","SMTR1608-10-B20-04:mm:sp","SMTR1608-10-B20-04:mm","SMTR1608-10-B20-04:status","SMTR1608-10-B20-04:stop",this,0.1);
 
     connect(safetyShutter_, SIGNAL(stateChanged(int)), this, SLOT(onShutterStatusChanged()));
     connect(safetyShutter2_, SIGNAL(stateChanged(int)), this, SLOT(onShutterStatusChanged()));
