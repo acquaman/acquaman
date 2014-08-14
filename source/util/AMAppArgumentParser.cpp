@@ -84,7 +84,7 @@ void AMAppArgumentParser::parseArguments(QStringList arguments)
 
 			} else if (value.length() == 0) {
 				for (int i = 1; i < argumentName.length(); i++) {
-					argumentValuePairs_.insert(QString(SINGLE_CHARACTER_ARGUMENT).append(argumentName.at(i)), NULL);
+					argumentValuePairs_.insert(Qstring(idSingleCharacterArgument).append(argumentName.at(i)), NULL);
 				}
 			} else {
 				// ERROR: This should never happen: combined arguments with value
