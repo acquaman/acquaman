@@ -73,10 +73,11 @@ void AMAppArgumentParser::parseArguments(QStringList arguments)
 	while (cursor < arguments.size()) {
 		QString argument = arguments.at(cursor++);
 
-		if (argument.startsWith(ID_SINGLE_CHARACTER_ARGUMENT)) {
-			QStringList listArgumentValue = argument.split(QRegExp(REGULAR_EXP_ARGUMENT_VALUE));
-			QString argumentName = listArgumentValue.at(0);
-			QString value = listArgumentValue.length() > 1 ? listArgumentValue.at(1) : NULL;
+		QStringList listArgumentValue = argument.split(QRegExp(REGULAR_EXP_ARGUMENT_VALUE));
+		QString argumentName = listArgumentValue.at(0);
+		QString value = listArgumentValue.length() > 1 ? listArgumentValue.at(1) : NULL;
+
+		if (argumentName.startsWith(ID_SINGLE_CHARACTER_ARGUMENT)) {
 
 			// if it is a long option or a short option
 			if (argumentName.startsWith(ID_LONG_ARGUMENT) || argumentName.length() == 2) {
@@ -92,7 +93,7 @@ void AMAppArgumentParser::parseArguments(QStringList arguments)
 			}
 
 		} else {
-			argumentValuePairs_.insert(argument, NULL);
+			argumentValuePairs_.insert(argumentName, value);
 		}
 	}
 }
