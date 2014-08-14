@@ -44,13 +44,7 @@ QStringList AMAppArgumentParser::getArgumentsByType(AMAppArgumentType argumentTy
 
 QString AMAppArgumentParser::getArgumentValue(QString argument)
 {
-	QString value = NULL;
-
-	if (argumentValuePairs_.contains(argument)) {
-		value = argumentValuePairs_.value(argument);
-	}
-
-	return value;
+	return hasArgument(argument) ? argumentValuePairs_.value(argument) : NULL;
 }
 
 // debugging usage
@@ -65,6 +59,7 @@ void AMAppArgumentParser::printArgumentPairs()
 		qDebug()<< key << "	" << argumentValuePairs_.value(key);
 	}
 }
+
 
 //===================== private member functions =======================
 
@@ -89,10 +84,11 @@ void AMAppArgumentParser::parseArguments(QStringList arguments)
 
 			} else if (value.length() == 0) {
 				for (int i = 1; i < argumentName.length(); i++) {
-					argumentValuePairs_.insert(QString("-").append(argumentName.at(i)), NULL);
+					argumentValuePairs_.insert(QString(SINGLE_CHARACTER_ARGUMENT).append(argumentName.at(i)), NULL);
 				}
 			} else {
-				// ERROR: This should never happen: combined options with value
+				// ERROR: This should never happen: combined arguments with value
+				qDebug() << "Invalid format: combined arguments with values. Argument: " << argument;
 			}
 
 		} else {
