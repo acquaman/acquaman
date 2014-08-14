@@ -18,8 +18,6 @@
 			programname -f:argumentValue programArgument1 --load=argumentValue
 
 	USAGES:
-		AMAppArgumentParser *argumentParser = new AMAppArgumentParser(QApplication::instance().argv());
-		or:
 		AMAppArgumentParser *argumentParser = new AMAppArgumentParser(QApplication::instance()->arguments());
 
 
@@ -54,16 +52,6 @@ public:
 	};
 
 	/// Constructor
-	AMAppArgumentParser(char* argv[]) {
-		// convert the char* argv to QStringList
-		QStringList arguments;
-		for (unsigned int i = 0; i <= sizeof(argv)+1; i++) {
-			arguments.append(argv[i]);
-		}
-
-		parseArguments(arguments);
-	}
-
 	AMAppArgumentParser(QStringList arguments) {
 		parseArguments(arguments);
 	}
