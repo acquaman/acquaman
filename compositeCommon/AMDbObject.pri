@@ -1,0 +1,20 @@
+include( AMCommon.pri )
+
+HEADERS +=\
+	source/dataman/database/AMDbObject.h \
+	source/dataman/database/AMDatabase.h \
+	source/dataman/database/AMDbObjectSupport.h \
+	source/dataman/database/AMConstDbObject.h \
+	source/dataman/AMnDIndex.h \
+	source/util/AMErrorMonitor.h \
+	source/dataman/database/AMDbObjectDefinitions.h \
+	source/acquaman.h
+	
+
+SOURCES += \
+	source/dataman/database/AMDbObject.cpp \
+	source/dataman/database/AMDatabase.cpp \
+	source/dataman/database/AMDbObjectSupport.cpp \
+	source/dataman/database/AMConstDbObject.cpp \
+	source/dataman/AMnDIndex.cpp \
+	source/util/AMErrorMonitor.cpp

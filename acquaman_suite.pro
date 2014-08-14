@@ -28,4 +28,5 @@ SUBDIRS +=	pluginProjects/FileLoaders/AMFileLoaderPlugins.pro \
 	BioXASShutterTool.pro \
 	VESPERSDatabaseDuplicateEntryPatch.pro \
 	StripTool2.pro \
-	CLSNetworkDirectorySynchronizer.pro
+	CLSNetworkDirectorySynchronizer.pro \
+	buildTests/AMPVControlTest/AMPVControlTest.pro
