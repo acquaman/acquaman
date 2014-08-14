@@ -40,8 +40,8 @@
 class AMAppArgumentParser
 {
 public:
-	static const QString SINGLE_CHARACTER_ARGUMENT;
-	static const QString LONG_ARGUMENT;
+	static const QString ID_SINGLE_CHARACTER_ARGUMENT;
+	static const QString ID_LONG_ARGUMENT;
 	static const QString REGULAR_EXP_ARGUMENT_VALUE;
 
 	enum AMAppArgumentType

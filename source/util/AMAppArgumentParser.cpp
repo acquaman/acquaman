@@ -4,8 +4,8 @@
 #include <QDebug>
 
 //===================== public member functions =======================
-const QString AMAppArgumentParser::SINGLE_CHARACTER_ARGUMENT = "-";
-const QString AMAppArgumentParser::LONG_ARGUMENT = "--";
+const QString AMAppArgumentParser::ID_SINGLE_CHARACTER_ARGUMENT = "-";
+const QString AMAppArgumentParser::ID_LONG_ARGUMENT = "--";
 const QString AMAppArgumentParser::REGULAR_EXP_ARGUMENT_VALUE = "\\=|:";
 
 bool AMAppArgumentParser::hasArgument(QString argument)
@@ -18,9 +18,9 @@ int AMAppArgumentParser::getArgumentType(QString argument)
 	int type = NOT_EXIST;
 
 	if (hasArgument(argument)) {
-		if (argument.startsWith(SINGLE_CHARACTER_ARGUMENT))
+		if (argument.startsWith(ID_SINGLE_CHARACTER_ARGUMENT))
 			type = LONG_ARGUMENT;
-		else if (argument.startsWith(LONG_ARGUMENT))
+		else if (argument.startsWith(ID_LONG_ARGUMENT))
 			type = SINGLE_CHARACTER_ARGUMENT;
 		else
 			type = PROGRAM_ARGUMENT;
@@ -73,18 +73,18 @@ void AMAppArgumentParser::parseArguments(QStringList arguments)
 	while (cursor < arguments.size()) {
 		QString argument = arguments.at(cursor++);
 
-		if (argument.startsWith(SINGLE_CHARACTER_ARGUMENT)) {
+		if (argument.startsWith(ID_SINGLE_CHARACTER_ARGUMENT)) {
 			QStringList listArgumentValue = argument.split(QRegExp(REGULAR_EXP_ARGUMENT_VALUE));
 			QString argumentName = listArgumentValue.at(0);
 			QString value = listArgumentValue.length() > 1 ? listArgumentValue.at(1) : NULL;
 
 			// if it is a long option or a short option
-			if (argumentName.startsWith(LONG_ARGUMENT) || argumentName.length() == 2) {
+			if (argumentName.startsWith(ID_LONG_ARGUMENT) || argumentName.length() == 2) {
 				argumentValuePairs_.insert(argumentName, value);
 
 			} else if (value.length() == 0) {
 				for (int i = 1; i < argumentName.length(); i++) {
-					argumentValuePairs_.insert(Qstring(idSingleCharacterArgument).append(argumentName.at(i)), NULL);
+					argumentValuePairs_.insert(QString(ID_SINGLE_CHARACTER_ARGUMENT).append(argumentName.at(i)), NULL);
 				}
 			} else {
 				// ERROR: This should never happen: combined arguments with value
