@@ -205,7 +205,7 @@ bool CLSSR570::decreaseSensitivity()
 
 		units_->setValue(units);
 		valueIndex_ = 0;
-		QTimer::singleShot(0, this, SLOT(doDelayedValueIndex()));
+		QTimer::singleShot(50, this, SLOT(doDelayedValueIndex()));
 	}
 
 	return true;
