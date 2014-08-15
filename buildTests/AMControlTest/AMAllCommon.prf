@@ -6,6 +6,11 @@ HOME_FOLDER = $$system(echo $HOME)
 USERNAME = $$system(whoami)
 
 macx {
+
+contains(USERNAME, helfrij){
+	CONFIG -= mobility
+}
+
 		# Disable Qt Mobility Video until everyone's Mac laptops support that
 		#CONFIG -= mobility
 
@@ -71,29 +76,11 @@ CONFIG(jenkins_build) {
 		PATH_TO_AM = $$HOME_FOLDER/$$DEV_PATH
 }
 
+DEPENDPATH *= $$PATH_TO_AM $$PATH_TO_AM/source
+INCLUDEPATH *= $$PATH_TO_AM $$PATH_TO_AM/source
+VPATH *= $$PATH_TO_AM
+
 # Set standard level of compiler warnings for everyone. (Otherwise the warnings shown will be system-dependent.)
 QMAKE_CXXFLAGS *= -Wextra -g
 
-DEPENDPATH *= $$PATH_TO_AM $$PATH_TO_AM/source
-INCLUDEPATH *= $$PATH_TO_AM $$PATH_TO_AM/source
-
-VPATH *= $$PATH_TO_AM
-
-HEADERS *= \
-	source/dataman/database/AMDbObject.h \
-	source/dataman/database/AMDatabase.h \
-	source/dataman/database/AMDbObjectSupport.h \
-	source/dataman/database/AMConstDbObject.h \
-	source/dataman/AMnDIndex.h \
-	source/util/AMErrorMonitor.h \
-	source/dataman/database/AMDbObjectDefinitions.h \
-	source/acquaman.h
-	
-
-SOURCES *= \
-	source/dataman/database/AMDbObject.cpp \
-	source/dataman/database/AMDatabase.cpp \
-	source/dataman/database/AMDbObjectSupport.cpp \
-	source/dataman/database/AMConstDbObject.cpp \
-	source/dataman/AMnDIndex.cpp \
-	source/util/AMErrorMonitor.cpp
+DEFINES *= AM_ENABLE_BOUNDS_CHECKING

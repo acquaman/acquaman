@@ -29,4 +29,4 @@ SUBDIRS +=	pluginProjects/FileLoaders/AMFileLoaderPlugins.pro \
 	VESPERSDatabaseDuplicateEntryPatch.pro \
 	StripTool2.pro \
 	CLSNetworkDirectorySynchronizer.pro \
-	buildTests/AMPVControlTest/AMPVControlTest.pro
+	buildTests/AMBuildTest.pro
