@@ -14,6 +14,7 @@
 #include "util/AMSettings.h"
 #include "ui/AMVerticalStackWidget.h"
 #include "ui/util/AMMessageBoxWTimeout.h"
+#include "util/AMThread.h"
 
 
 AMDirectorySynchronizerDialog::AMDirectorySynchronizerDialog(const QString &side1Directory, const QString &side2Directory, const QString &side1DirectoryName, const QString &side2DirectoryName, QWidget *parent) :
@@ -218,6 +219,11 @@ void AMDirectorySynchronizerDialog::prepare(){
 	prepareButton_->setEnabled(false);
 	startButton_->setEnabled(false);
 
+	singleFileProgressBar_->setMinimum(0);
+	singleFileProgressBar_->setMaximum(0);
+	overallTransferProgressBar_->setMinimum(0);
+	overallTransferProgressBar_->setMaximum(0);
+
 	fileListingEdit_->clear();
 	errorTextEdit_->clear();
 	progressTextEdit_->clear();
@@ -226,10 +232,28 @@ void AMDirectorySynchronizerDialog::prepare(){
 	feedbackStackWidget_->collapseItem(1);
 	feedbackStackWidget_->collapseItem(2);
 
+
+//	lastCompareResult_ = synchronizer_->prepare();
+
+	qRegisterMetaType<AMRecursiveDirectoryCompare::DirectoryCompareResult>("DirectorCompareResult");
+	connect(synchronizer_, SIGNAL(prepared(AMRecursiveDirectoryCompare::DirectoryCompareResult)), this, SLOT(onPrepared(AMRecursiveDirectoryCompare::DirectoryCompareResult)));
+
+	AMThread *prepareThread = new AMThread();
+	connect(synchronizer_, SIGNAL(prepared(AMRecursiveDirectoryCompare::DirectoryCompareResult)), prepareThread, SLOT(onWorkerFinished()));
+	prepareThread->setWorkerObject(synchronizer_);
+	prepareThread->setInitialThread(thread());
+	synchronizer_->moveToThread(prepareThread);
+	prepareThread->start();
+	QTimer::singleShot(0, synchronizer_, SLOT(prepare()));
+}
+
+void AMDirectorySynchronizerDialog::onPrepared(AMRecursiveDirectoryCompare::DirectoryCompareResult comparisonResult){
+	lastCompareResult_ = comparisonResult;
+
+	overallTransferProgressBar_->setMinimum(100);
+	overallTransferProgressBar_->setMaximum(100);
+
 	QString textString;
-
-	lastCompareResult_ = synchronizer_->prepare();
-
 	switch(lastCompareResult_){
 	case AMRecursiveDirectoryCompare::InvalidResult:
 		textString.append(QString("<font color=\"Red\" size=\"5\">It looks like the synchronizer is already running. Cannot proceed.</font><br><br>").arg(side2DirectoryName_).arg(side1DirectoryName_));
@@ -318,12 +342,31 @@ void AMDirectorySynchronizerDialog::prepare(){
 		mainStatusLabel_->setText("Prepare succeeded. Press Start to continue.");
 	}
 	QApplication::restoreOverrideCursor();
+
+	emit prepared();
 }
 
 bool AMDirectorySynchronizerDialog::start()
 {
+	connect(this, SIGNAL(prepared()), this, SLOT(onStartPrepared()));
 	prepare();
+	return true;
 
+//	mainStatusLabel_->setText("Synchronzing directories. This may take some time, please wait ...");
+
+//	prepareButton_->setEnabled(false);
+//	startButton_->setEnabled(false);
+
+//	feedbackStackWidget_->collapseItem(1);
+
+//	if(synchronizer_->start())
+//		return true;
+
+//	onSynchronizerFailed();
+//	return false;
+}
+
+void AMDirectorySynchronizerDialog::onStartPrepared(){
 	mainStatusLabel_->setText("Synchronzing directories. This may take some time, please wait ...");
 
 	prepareButton_->setEnabled(false);
@@ -331,11 +374,7 @@ bool AMDirectorySynchronizerDialog::start()
 
 	feedbackStackWidget_->collapseItem(1);
 
-	if(synchronizer_->start())
-		return true;
-
-	onSynchronizerFailed();
-	return false;
+	synchronizer_->start();
 }
 
 void AMDirectorySynchronizerDialog::autoPrepare(){
