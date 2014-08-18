@@ -46,7 +46,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSBasicScalerChannelDetector.h"
 #include "beamline/CLS/CLSAdvancedScalerChannelDetector.h"
 #include "beamline/AMBasicControlDetectorEmulator.h"
-#include "beamline/CLS/CLSSR570.h"
+#include "beamline/CLS/CLSSensitivitySR570.h"
 
 #include "beamline/CLS/CLSBiStateControl.h"
 
@@ -183,26 +183,26 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	unconnectedSets_.append(beamOnControlSet_);
 	connect(beamOnControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
 
-	CLSSR570 *tempSR570;
+	CLSSensitivitySR570 *tempSR570;
 
 	scaler_ = new CLSSIS3820Scaler("BL1611-ID-1:mcs", this);
 
-	tempSR570 = new CLSSR570("TEY", "Amp1611-4-21:sens_num.VAL", "Amp1611-4-21:sens_unit.VAL", this);
+	tempSR570 = new CLSSensitivitySR570("TEY", "Amp1611-4-21", this);
 	scaler_->channelAt(0)->setCurrentAmplifier(tempSR570);
 	scaler_->channelAt(0)->setVoltagRange(AMRange(1.0, 6.5));
 	scaler_->channelAt(0)->setCustomChannelName("TEY");
 
-	tempSR570 = new CLSSR570("I0", "Amp1611-4-22:sens_num.VAL", "Amp1611-4-22:sens_unit.VAL", this);
+	tempSR570 = new CLSSensitivitySR570("I0", "Amp1611-4-22", this);
 	scaler_->channelAt(1)->setCurrentAmplifier(tempSR570);
 	scaler_->channelAt(1)->setVoltagRange(AMRange(1.0, 6.5));
 	scaler_->channelAt(1)->setCustomChannelName("I0");
 
-	tempSR570 = new CLSSR570("TFY PD", "Amp1611-4-23:sens_num.VAL", "Amp1611-4-23:sens_unit.VAL", this);
+	tempSR570 = new CLSSensitivitySR570("TFY PD", "Amp1611-4-23", this);
 	scaler_->channelAt(2)->setCurrentAmplifier(tempSR570);
 	scaler_->channelAt(2)->setVoltagRange(AMRange(1.0, 6.5));
 	scaler_->channelAt(2)->setCustomChannelName("TFY PD ");
 
-	tempSR570 = new CLSSR570("PD", "Amp1611-4-24:sens_num.VAL", "Amp1611-4-24:sens_unit.VAL", this);
+	tempSR570 = new CLSSensitivitySR570("PD", "Amp1611-4-24", this);
 	scaler_->channelAt(3)->setCurrentAmplifier(tempSR570);
 	scaler_->channelAt(3)->setVoltagRange(AMRange(1.0, 6.5));
 	scaler_->channelAt(3)->setCustomChannelName("PD");

@@ -28,6 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class IDEASXASScanConfigurationView;
 class IDEASScanConfigurationViewHolder3;
 class IDEASXRFDetailedDetectorViewWithSave;
+class IDEASSampleCameraPanel;
 
 class IDEASAppController : public AMAppController
 {
@@ -87,6 +88,9 @@ protected:
 	IDEASScanConfigurationViewHolder3 *xasScanConfigurationHolder3_;
         /// View for the IDEAS's XRF scan configurations
         IDEASXRFDetailedDetectorViewWithSave *IDEASXRFDetailedDetectorViewWithSave_;
+	/// View for viewing the sample cameras and aligning samples
+	IDEASSampleCameraPanel *sampleCameraPanel_;
+
 
 
 
