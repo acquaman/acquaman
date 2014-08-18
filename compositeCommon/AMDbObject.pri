@@ -1,6 +1,8 @@
 include( AMCommon.pri )
 
-HEADERS +=\
+QT *= sql
+
+HEADERS *=\
 	source/dataman/database/AMDbObject.h \
 	source/dataman/database/AMDatabase.h \
 	source/dataman/database/AMDbObjectSupport.h \
@@ -11,7 +13,7 @@ HEADERS +=\
 	source/acquaman.h
 	
 
-SOURCES += \
+SOURCES *= \
 	source/dataman/database/AMDbObject.cpp \
 	source/dataman/database/AMDatabase.cpp \
 	source/dataman/database/AMDbObjectSupport.cpp \

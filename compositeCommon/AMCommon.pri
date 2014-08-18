@@ -18,7 +18,7 @@ contains(USERNAME, helfrij){
 		DEV_PATH = beamline/programming
 
 		# The full path to the acquaman folder.  This MUST point to the location where acquamanCommon.pri lives.
-		PATH_TO_AM = $$HOME_FOLDER/$$DEV_PATH/acquaman_4_8
+#		PATH_TO_AM = $$HOME_FOLDER/$$DEV_PATH/acquaman_4_8
 
 		QMAKE_CXXFLAGS_X86_64 *= "-mmacosx-version-min=10.7"
 
@@ -31,7 +31,7 @@ linux-g++ {
 		DEV_PATH = beamline/programming
 
 		# The full path to the acquaman folder.  This MUST point to the location where acquamanCommon.pri lives.
-		PATH_TO_AM = $$HOME_FOLDER/$$DEV_PATH/acquaman
+#		PATH_TO_AM = $$HOME_FOLDER/$$DEV_PATH/acquaman
 
 		QMAKE_LFLAGS_DEBUG *= "-Wl,-rpath,$$CDF_LIB_DIR"
 		QMAKE_LFLAGS_RELEASE *= "-Wl,-rpath,$$CDF_LIB_DIR"
@@ -45,7 +45,7 @@ linux-g++-32 {
 		DEV_PATH = beamline/programming
 
 		# The full path to the acquaman folder.  This MUST point to the location where acquamanCommon.pri lives.
-		PATH_TO_AM = $$HOME_FOLDER/$$DEV_PATH/acquaman
+#		PATH_TO_AM = $$HOME_FOLDER/$$DEV_PATH/acquaman
 
 		QMAKE_LFLAGS_DEBUG *= "-Wl,-rpath,$$CDF_LIB_DIR"
 		QMAKE_LFLAGS_RELEASE *= "-Wl,-rpath,$$CDF_LIB_DIR"
@@ -58,7 +58,7 @@ linux-g++-64 {
 		DEV_PATH = beamline/programming
 
 		# The full path to the acquaman folder.  This MUST point to the location where acquamanCommon.pri lives.
-		PATH_TO_AM = $$HOME_FOLDER/$$DEV_PATH/acquaman
+#		PATH_TO_AM = $$HOME_FOLDER/$$DEV_PATH/acquaman
 
 		QMAKE_LFLAGS_DEBUG *= "-Wl,-rpath,$$CDF_LIB_DIR"
 		QMAKE_LFLAGS_RELEASE *= "-Wl,-rpath,$$CDF_LIB_DIR"
@@ -84,3 +84,5 @@ VPATH *= $$PATH_TO_AM
 QMAKE_CXXFLAGS *= -Wextra -g
 
 DEFINES *= AM_ENABLE_BOUNDS_CHECKING
+
+QT *= core gui opengl network

@@ -1,13 +1,13 @@
 include( AMDbObject.pri )
 
-QT *= core gui sql opengl network
+#QT *= core gui sql opengl network
 
 DESTDIR = build
 
-HEADERS +=\
+HEADERS *=\
 	source/dataman/info/AMControlInfo.h \
 	source/beamline/AMControl.h
 
-SOURCES += \
+SOURCES *= \
 	source/dataman/info/AMControlInfo.cpp \
 	source/beamline/AMControl.cpp

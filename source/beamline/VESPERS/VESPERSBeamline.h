@@ -65,8 +65,10 @@ public:
 
 	/// Returns the instance of the beamline that has been created.
 	static VESPERSBeamline* vespers() {
-		if(!instance_)
+		if(!instance_){
 			instance_ = new VESPERSBeamline();
+			instance_->initializeBeamlineSupport();
+		}
 		return static_cast<VESPERSBeamline*>(instance_);
 	}
 

@@ -1,4 +1,4 @@
-include ( ../../compositeCommon/AMPVControl.pri )
+include ( $$PATH_TO_AM/compositeCommon/AMPVControl.pri )
 
 TARGET = AMPVControlTest
 

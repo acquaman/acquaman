@@ -1,4 +1,4 @@
-include ( ../../compositeCommon/AMControlSet.pri )
+include ( $$PATH_TO_AM/compositeCommon/AMControlSet.pri )
 
 TARGET = AMSetControlTest
 

@@ -754,7 +754,13 @@ HEADERS += \
 	source/ui/util/AMAboutDialog.h \
 	source/beamline/AM1DControlDetectorEmulator.h \
     source/ui/actions3/AMActionRunnerCurrentViewBase.h \
-    source/dataman/AMDbUpgrade1Pt5.h
+    source/dataman/AMDbUpgrade1Pt5.h \
+    source/beamline/AMBeamlineControlAPI.h \
+    source/beamline/AMBeamlineControlSetAPI.h \
+    source/beamline/AMBeamlineDetectorAPI.h \
+    source/beamline/AMBeamlineDetectorSetAPI.h \
+    source/beamline/AMBeamlineSynchronizedDwellTimeAPI.h \
+    source/beamline/AMBeamlineSupport.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1229,7 +1235,13 @@ SOURCES += \
 	source/ui/util/AMAboutDialog.cpp \
 	source/beamline/AM1DControlDetectorEmulator.cpp \
     source/ui/actions3/AMActionRunnerCurrentViewBase.cpp \
-    source/dataman/AMDbUpgrade1Pt5.cpp
+    source/dataman/AMDbUpgrade1Pt5.cpp \
+    source/beamline/AMBeamlineControlAPI.cpp \
+    source/beamline/AMBeamlineControlSetAPI.cpp \
+    source/beamline/AMBeamlineDetectorAPI.cpp \
+    source/beamline/AMBeamlineDetectorSetAPI.cpp \
+    source/beamline/AMBeamlineSynchronizedDwellTimeAPI.cpp \
+    source/beamline/AMBeamlineSupport.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {

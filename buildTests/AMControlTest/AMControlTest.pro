@@ -1,11 +1,4 @@
-#QMAKEFEATURES *= /Users/chevrid/beamline/programming/acquaman_4_8/compositeCommon
-QMAKEFEATURES *= ./
-
-message($$QMAKEFEATURES)
-message($$PWD)
-
-include ( ../../compositeCommon/AMControl.pri )
-load( AMAllCommon )
+include ( $$PATH_TO_AM/compositeCommon/AMControl.pri )
 
 TARGET = AMControlTest
 

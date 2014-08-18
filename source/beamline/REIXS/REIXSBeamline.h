@@ -412,8 +412,10 @@ class REIXSBeamline : public AMBeamline
 public:
 	/// Acccess the REIXSBeamline singleton instance through REIXSBeamline::bl()
 	static REIXSBeamline* bl() {
-		if(!instance_)
+		if(!instance_){
 			instance_ = new REIXSBeamline();
+			instance_->initializeBeamlineSupport();
+		}
 		return static_cast<REIXSBeamline*>(instance_);
 	}
 
