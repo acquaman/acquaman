@@ -28,7 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/CLS/CLSBasicScalerChannelDetector.h"
 #include "beamline/CLS/CLSSIS3820Scaler.h"
-#include "beamline/CLS/CLSSR570.h"
+#include "beamline/CLS/CLSSensitivitySR570.h"
 #include "beamline/CLS/CLSMAXvMotor.h"
 
 #include <QApplication>
@@ -85,12 +85,12 @@ REIXSBeamline::REIXSBeamline() :
 	scaler_->channelAt(4)->setCustomChannelName("TFY");
 
 	scaler_->channelAt(18)->setCustomChannelName("TEY");
-	CLSSR570 *tempSR570 = new CLSSR570("TEY", "AMP1610-4-03:sens_num.VAL", "AMP1610-4-03:sens_unit.VAL", this);
+	CLSSensitivitySR570 *tempSR570 = new CLSSensitivitySR570("TEY", "AMP1610-4-03", this);
 	scaler_->channelAt(18)->setCurrentAmplifier(tempSR570);
 	scaler_->channelAt(18)->setVoltagRange(AMRange(0.25, 4.75));
 
 	scaler_->channelAt(16)->setCustomChannelName("I0");
-	tempSR570 = new CLSSR570("I0", "AMP1610-4-02:sens_num.VAL", "AMP1610-4-02:sens_unit.VAL", this);
+	tempSR570 = new CLSSensitivitySR570("I0", "AMP1610-4-02", this);
 	scaler_->channelAt(16)->setCurrentAmplifier(tempSR570);
 	scaler_->channelAt(16)->setVoltagRange(AMRange(0.25, 4.75));
 
