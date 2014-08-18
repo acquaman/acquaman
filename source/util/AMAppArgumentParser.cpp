@@ -4,37 +4,33 @@
 #include <QDebug>
 
 //===================== public member functions =======================
-const QString AMAppArgumentParser::ID_SINGLE_CHARACTER_ARGUMENT = "-";
-const QString AMAppArgumentParser::ID_LONG_ARGUMENT = "--";
-const QString AMAppArgumentParser::REGULAR_EXP_ARGUMENT_VALUE = "\\=|:";
-
 bool AMAppArgumentParser::hasArgument(QString argument)
 {
 	return argumentValuePairs_.contains(argument);
 }
 
-int AMAppArgumentParser::getArgumentType(QString argument)
+int AMAppArgumentParser::argumentType(QString argument)
 {
-	int type = NOT_EXIST;
+	int type = AMAppArgumentParser::NotExist;
 
 	if (hasArgument(argument)) {
-		if (argument.startsWith(ID_SINGLE_CHARACTER_ARGUMENT))
-			type = LONG_ARGUMENT;
-		else if (argument.startsWith(ID_LONG_ARGUMENT))
-			type = SINGLE_CHARACTER_ARGUMENT;
+		if (argument.startsWith(idSingleCharacterArgument_))
+			type = AMAppArgumentParser::LongArgument;
+		else if (argument.startsWith(idLongArgument_))
+			type = AMAppArgumentParser::SingleCharacterArgument;
 		else
-			type = PROGRAM_ARGUMENT;
+			type = AMAppArgumentParser::ProgramArgument;
 	}
 
 	return type;
 }
 
-QStringList AMAppArgumentParser::getArgumentsByType(AMAppArgumentType argumentType) {
+QStringList AMAppArgumentParser::argumentsByType(AMAppArgumentType type) {
 	QStringList arguments;
 
 	QStringList keys = argumentValuePairs_.keys();
 	for (int i = 0; i < keys.length(); i++) {
-		if (getArgumentType(keys.at(i)) == argumentType) {
+		if (argumentType(keys.at(i)) == type) {
 			arguments.append(keys.at(i));
 		}
 	}
@@ -42,7 +38,7 @@ QStringList AMAppArgumentParser::getArgumentsByType(AMAppArgumentType argumentTy
 	return arguments;
 }
 
-QString AMAppArgumentParser::getArgumentValue(QString argument)
+QString AMAppArgumentParser::argumentValue(QString argument)
 {
 	return hasArgument(argument) ? argumentValuePairs_.value(argument) : NULL;
 }
@@ -73,19 +69,19 @@ void AMAppArgumentParser::parseArguments(QStringList arguments)
 	while (cursor < arguments.size()) {
 		QString argument = arguments.at(cursor++);
 
-		QStringList listArgumentValue = argument.split(QRegExp(REGULAR_EXP_ARGUMENT_VALUE));
+		QStringList listArgumentValue = argument.split(QRegExp(regularExpressionOfArgumentValue_));
 		QString argumentName = listArgumentValue.at(0);
 		QString value = listArgumentValue.length() > 1 ? listArgumentValue.at(1) : NULL;
 
-		if (argumentName.startsWith(ID_SINGLE_CHARACTER_ARGUMENT)) {
+		if (argumentName.startsWith(idSingleCharacterArgument_)) {
 
 			// if it is a long option or a short option
-			if (argumentName.startsWith(ID_LONG_ARGUMENT) || argumentName.length() == 2) {
+			if (argumentName.startsWith(idLongArgument_) || argumentName.length() == 2) {
 				argumentValuePairs_.insert(argumentName, value);
 
 			} else if (value.length() == 0) {
 				for (int i = 1; i < argumentName.length(); i++) {
-					argumentValuePairs_.insert(QString(ID_SINGLE_CHARACTER_ARGUMENT).append(argumentName.at(i)), NULL);
+					argumentValuePairs_.insert(QString(idSingleCharacterArgument_).append(argumentName.at(i)), NULL);
 				}
 			} else {
 				// ERROR: This should never happen: combined arguments with value

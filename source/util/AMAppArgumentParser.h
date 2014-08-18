@@ -22,10 +22,10 @@
 
 
 		bool hasArgument = argumentParser->hasArgument("--load");
-		QString argumentValue = argumentParser->getArgumentValue("-l");
-		int argumentType = argumentParser->getArgumentType("--load"); // will return 2 -- SINGLE_CHARACTER_ARGUMENT
-		QStringList arguments = argumentParser->getArgumentsByType(AMAppArgumentParser::PROGRAM_ARGUMENT);
-								 // will return a list of arguments with type 1 -- PROGRAM_ARGUMENT
+		QString argumentValue = argumentParser->argumentValue("-l");
+		int argumentType = argumentParser->argumentType("--load"); // will return 2 -- SingleCharacterArgument
+		QStringList arguments = argumentParser->argumentsByType(AMAppArgumentParser::ProgramArgument);
+								 // will return a list of arguments with type 1 -- ProgramArgument
 */
 
 #ifndef AMAPPARGUMENTPARSER_H
@@ -38,21 +38,21 @@
 class AMAppArgumentParser
 {
 public:
-	static const QString ID_SINGLE_CHARACTER_ARGUMENT;
-	static const QString ID_LONG_ARGUMENT;
-	static const QString REGULAR_EXP_ARGUMENT_VALUE;
-
 	enum AMAppArgumentType
 	{
-		PROGRAM_ARGUMENT = 1,
-		SINGLE_CHARACTER_ARGUMENT = 2,
-		LONG_ARGUMENT = 3,
+		ProgramArgument = 1,
+		SingleCharacterArgument = 2,
+		LongArgument = 3,
 
-		NOT_EXIST = 255
+		NotExist = 255
 	};
 
 	/// Constructor
 	AMAppArgumentParser(QStringList arguments) {
+		idSingleCharacterArgument_ = "-";
+		idLongArgument_ = "--";
+		regularExpressionOfArgumentValue_ = "\\=|:";
+
 		parseArguments(arguments);
 	}
 
@@ -63,19 +63,23 @@ public:
 	bool hasArgument(QString argument);
 
 	/// get the type of a given argument
-	int getArgumentType(QString argument);
+	int argumentType(QString argument);
 
 	/// get the value of an argument
 	/// return "" if there is no value or the argument doesn't exist
-	QString getArgumentValue(QString argument);
+	QString argumentValue(QString argument);
 
 	/// get a list of arguments in a given style/type
-	QStringList getArgumentsByType(AMAppArgumentType argumentType);
+	QStringList argumentsByType(AMAppArgumentType type);
 
 	/// debugging <<< print the arguments
 	void printArgumentPairs();
 
 private:
+	QString idSingleCharacterArgument_;
+	QString idLongArgument_;
+	QString regularExpressionOfArgumentValue_;
+
 	QString applicationName_;
 	QMap<QString, QString> argumentValuePairs_;
 
