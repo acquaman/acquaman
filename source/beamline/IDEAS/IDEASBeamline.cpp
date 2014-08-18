@@ -23,7 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/AMListAction3.h"
 #include "actions3/actions/AMControlMoveAction3.h"
 #include "beamline/CLS/CLSBiStateControl.h"
-#include "beamline/CLS/CLSSR570.h"
+#include "beamline/CLS/CLSSensitivitySR570.h"
 
 #include "beamline/AMAdvancedControlDetectorEmulator.h"
 
@@ -156,18 +156,18 @@ void IDEASBeamline::setupComponents()
     scaler_ = new CLSSIS3820Scaler("BL08B2-1:mcs", this);
 
     scaler_->channelAt(0)->setCustomChannelName("I_0");
-    CLSSR570 *tempSR570 = new CLSSR570("I_0", "AMP1608-1001:sens_num.VAL", "AMP1608-1001:sens_unit.VAL", this);
-    scaler_->channelAt(0)->setCurrentAmplifier(tempSR570);
+    CLSSensitivitySR570 *tempSensitivitySR570 = new CLSSensitivitySR570("I_0", "AMP1608-1001", this);
+    scaler_->channelAt(0)->setCurrentAmplifier(tempSensitivitySR570);
     scaler_->channelAt(0)->setVoltagRange(AMRange(0.25, 4.75));
 
     scaler_->channelAt(1)->setCustomChannelName("Sample");
-    tempSR570 = new CLSSR570("Sample", "AMP1608-1002:sens_num.VAL", "AMP1608-1002:sens_unit.VAL", this);
-    scaler_->channelAt(1)->setCurrentAmplifier(tempSR570);
+    tempSensitivitySR570 = new CLSSensitivitySR570("Sample", "AMP1608-1002", this);
+    scaler_->channelAt(1)->setCurrentAmplifier(tempSensitivitySR570);
     scaler_->channelAt(1)->setVoltagRange(AMRange(0.25, 4.75));
 
     scaler_->channelAt(2)->setCustomChannelName("Reference");
-    tempSR570 = new CLSSR570("Reference", "AMP1608-1003:sens_num.VAL", "AMP1608-1003:sens_unit.VAL", this);
-    scaler_->channelAt(2)->setCurrentAmplifier(tempSR570);
+    tempSensitivitySR570 = new CLSSensitivitySR570("Reference", "AMP1608-1003", this);
+    scaler_->channelAt(2)->setCurrentAmplifier(tempSensitivitySR570);
     scaler_->channelAt(2)->setVoltagRange(AMRange(0.25, 4.75));
 
 }
