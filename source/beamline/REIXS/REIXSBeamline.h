@@ -57,6 +57,7 @@ public:
 	AMControl* monoMirrorTranslation() { return monoMirrorTranslation_; }
 	AMControl* monoMirrorSelector() { return monoMirrorSelector_; }
 	AMControl* monoMirrorAngleStatus() { return monoMirrorAngleStatus_; }
+	AMControl* monoGratingAngleStatus() { return monoGratingAngleStatus_; }
 	AMControl* epuPolarization() { return epuPolarization_; }
 	AMControl* epuPolarizationAngle() { return epuPolarizationAngle_; }
 	AMControl* ringCurrent()  { return ringCurrent_; }
@@ -66,7 +67,7 @@ public:
 
 
 protected:
-	AMControl* directEnergy_, *bypassEnergy_,*userEnergyOffset_, *monoSlit_, *monoGratingTranslation_, *monoGratingSelector_, *monoMirrorAngleStatus_, *monoMirrorTranslation_, *monoMirrorSelector_, *epuPolarization_, *epuPolarizationAngle_, *M5Pitch_, *M5Yaw_, *ringCurrent_;
+	AMControl* directEnergy_, *bypassEnergy_,*userEnergyOffset_, *monoSlit_, *monoGratingTranslation_, *monoGratingSelector_, *monoGratingAngleStatus_, *monoMirrorAngleStatus_, *monoMirrorTranslation_, *monoMirrorSelector_, *epuPolarization_, *epuPolarizationAngle_, *M5Pitch_, *M5Yaw_, *ringCurrent_;
 	REIXSBrokenMonoControl* energy_;
 
 };
@@ -385,8 +386,8 @@ protected slots:
 	void onMoveActionFailed();
 	/// Called while one of our moves is in progress, and the complete move action succeeded.
 	void onMoveActionSucceeded();
-	/// Called when monoMirrorAngle reports an error, which stalls the energy application unless the move is stopped and restarted
-	void onMonoMirrorAngleError(double error);
+	/// Called when monoMirrorAngle or monoGratingAngle reports an error, which stalls the energy application unless the move is stopped and restarted
+	void onMonoAngleError(double error);
 
 protected:
 	double repeatMoveThreshold_, repeatMoveSettlingTime_, singleMoveSettlingTime_, lowEnergyThreshold_, lowEnergyStepSize_;

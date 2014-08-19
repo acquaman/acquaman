@@ -245,6 +245,7 @@ REIXSPhotonSource::REIXSPhotonSource(QObject *parent) :
 //	monoMirrorAngle_ = new CLSMAXvMotor("monoMirrorAngle","MONO1610-I20-01:mirror","Mono Mirror Angle",true,0.00001,2.0,this);
 //	monoMirrorAngle_ = new AMReadOnlyPVwStatusControl("monoMirrorAngle","ENC1610-I20-02:average:deg:fbk","MONO1610-I20-01:mirror:status",this, new AMControlStatusCheckerCLSMAXv(),"Mono Mirror Angle");
 	monoMirrorAngleStatus_ = new AMReadOnlyPVControl("monoMirrorAngleStatus","MONO1610-I20-01:mirror:status",this,"Mono Mirror Angle Status");
+	monoGratingAngleStatus_ = new AMReadOnlyPVControl("monoGratingAngleStatus","MONO1610-I20-01:grating:status",this,"Mono Grating Angle Status");
 
 	epuPolarization_ = new AMPVwStatusControl("epuPolarization", "REIXS:UND1410-02:polarization", "REIXS:UND1410-02:polarization", "REIXS:UND1410-02:energy:status", QString(), this, 0.1);
 	epuPolarization_->setDescription("EPU Polarization");
@@ -863,8 +864,10 @@ AMControl::FailureExplanation REIXSBrokenMonoControl::move(double setpoint)
 	connect(moveAction_, SIGNAL(cancelled()), this, SLOT(onMoveActionFailed()));
 	connect(moveAction_, SIGNAL(succeeded()), this, SLOT(onMoveActionSucceeded()));
 
-	// monitor mono angle for error state, clear and restart move if detected
-	connect(REIXSBeamline::bl()->photonSource()->monoMirrorAngleStatus(), SIGNAL(valueChanged(double)), this, SLOT(onMonoMirrorAngleError(double)));
+	/// monitor mono angles for error state, clear and restart move if detected
+	connect(REIXSBeamline::bl()->photonSource()->monoMirrorAngleStatus(), SIGNAL(valueChanged(double)), this, SLOT(onMonoAngleError(double)));
+	connect(REIXSBeamline::bl()->photonSource()->monoGratingAngleStatus(), SIGNAL(valueChanged(double)), this, SLOT(onMonoAngleError(double)));
+
 
 	moveAction_->start();
 
@@ -893,6 +896,7 @@ void REIXSBrokenMonoControl::onMoveActionFailed()
 {
 	disconnect(moveAction_, 0, this, 0);
 	disconnect(REIXSBeamline::bl()->photonSource()->monoMirrorAngleStatus(),0, this, 0);
+	disconnect(REIXSBeamline::bl()->photonSource()->monoGratingAngleStatus(),0, this, 0);
 
 	moveAction_->deleteLater();
 	moveAction_ = 0;
@@ -916,6 +920,8 @@ void REIXSBrokenMonoControl::onMoveActionSucceeded()
 {
 	disconnect(moveAction_, 0, this, 0);
 	disconnect(REIXSBeamline::bl()->photonSource()->monoMirrorAngleStatus(),0, this, 0);
+	disconnect(REIXSBeamline::bl()->photonSource()->monoGratingAngleStatus(),0, this, 0);
+
 	moveAction_->deleteLater();
 	moveAction_ = 0;
 
@@ -932,11 +938,11 @@ void REIXSBrokenMonoControl::onMoveActionSucceeded()
 	}
 }
 
-void REIXSBrokenMonoControl::onMonoMirrorAngleError(double error)
+void REIXSBrokenMonoControl::onMonoAngleError(double error)
 {
 	//qDebug() << "Mono Mirror Angle move error detected with error code" << error;
 	if(qFuzzyCompare(error,4)){
-		AMErrorMon::information(this,0,"The mono mirror angle move stalled, Acquaman has caught and corrected the problem. No user action required.");
+		AMErrorMon::information(this,0,"The mono mirror or grating angle move stalled, Acquaman has caught and corrected the problem. No user action required.");
 		REIXSBeamline::bl()->photonSource()->bypassEnergy()->stop();
 		REIXSBeamline::bl()->photonSource()->bypassEnergy()->move(REIXSBeamline::bl()->photonSource()->directEnergy()->setpoint());
 	}
