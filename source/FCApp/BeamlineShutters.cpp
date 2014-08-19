@@ -16,11 +16,9 @@ BeamlineShutters::BeamlineShutters(const QString &name, const QString &psh1, con
     AMProcessVariable *pvPSH2_ = new AMProcessVariable(sPSH2_, true, this);
     AMProcessVariable *pvSSH1_ = new AMProcessVariable(sSSH1_, true, this);
 
-
     connect( pvPSH1_, SIGNAL(valueChanged(int)), this, SLOT(pvPSH1Changed(int)));
     connect( pvPSH2_, SIGNAL(valueChanged(int)), this, SLOT(pvPSH2Changed(int)));
     connect( pvSSH1_, SIGNAL(valueChanged(int)), this, SLOT(pvSSH1Changed(int)));
-
 
 }
 
@@ -28,17 +26,15 @@ BeamlineShutters::BeamlineShutters(const QString &name, const QString &psh1, con
 void BeamlineShutters::pvPSH1Changed(int value){
 
     emit psh1Changed(value);
-
 }
 
 void BeamlineShutters::pvPSH2Changed(int value){
 
     emit psh2Changed(value);
-
 }
+
 void BeamlineShutters::pvSSH1Changed(int value){
 
     emit ssh1Changed(value);
-
 }
 

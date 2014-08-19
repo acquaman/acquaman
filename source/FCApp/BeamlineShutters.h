@@ -18,7 +18,7 @@ public:
                               const QString &ssh1,
                               QObject *parent = 0);
 
-     QString nameOfBeamline_;
+    QString nameOfBeamline() const { return nameOfBeamline_; }
 
 signals:
     void psh1Changed(int emtValue);
@@ -37,6 +37,7 @@ protected:
     QString sPSH1_;
     QString sPSH2_;
     QString sSSH1_;
+    QString nameOfBeamline_;
 
 
 };

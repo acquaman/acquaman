@@ -1,6 +1,8 @@
 #include "FCApp.h"
 #include "BeamlineShutters.h"
 #include "BeamlineShutterView.h"
+//#include "BeamPositionMonitor.h"
+#include "BeamPositionMonitorView.h"
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QLayout>
@@ -10,13 +12,18 @@
 FCApp::FCApp(QWidget *parent) :
     QWidget(parent)
 {
+    ///Storage Ring Current
+    AMProcessVariable *storageRingPV = new AMProcessVariable( "PCT1402-01:mA:fbk",true,  this);
 
-    AMProcessVariable *StorageRingPV = new AMProcessVariable( "PCT1402-01:mA:fbk",true,  this);
+    QFont font;
+    font.setPointSize(12);
+
     label_ = new QLabel("Ring Current: ");
+    label_->setFont(font);
     currentValue_ = new QLCDNumber;
     currentValue_->setSegmentStyle(QLCDNumber::Filled);
-    currentValue_->setFixedSize(150, 100);
-    connect(StorageRingPV, SIGNAL(valueChanged(double)), currentValue_, SLOT(display(double)));
+    currentValue_->setFixedSize(70, 50);
+    connect(storageRingPV, SIGNAL(valueChanged(double)), currentValue_, SLOT(display(double)));
 
 
     ///Beamline Shutter PVs
@@ -81,6 +88,17 @@ FCApp::FCApp(QWidget *parent) :
                                                              "SSH1406-B20-01:state",
                                                              this);
 
+    BeamPositionMonitor *xBPM = new BeamPositionMonitor("x", "BPM:XRMS", this);
+    BeamPositionMonitor *yBPM = new BeamPositionMonitor("y", "BPM:YRMS", this);
+
+    BeamPositionMonitorView *bpmView = new BeamPositionMonitorView(xBPM, yBPM, this);
+
+    /// BPM Pushbutton
+   bpmView->setIsActive(false);
+    QPushButton *bpmButton_= new QPushButton("BPM");
+    connect(bpmButton_, SIGNAL(clicked()), bpmView, SLOT(showBPM()));
+
+
 
 //////End Beamline shutter PVs
 
@@ -101,9 +119,10 @@ FCApp::FCApp(QWidget *parent) :
     storageRingLayout->addWidget(currentValue_);
 
 
+
     QVBoxLayout *mainLayout = new QVBoxLayout;
     mainLayout->addLayout(storageRingLayout);
-   // mainLayout->addLayout(shutterTypeLayout);
+    mainLayout->addWidget(bpmView);
     mainLayout->addWidget(bmitView);
     mainLayout->addWidget(sylmandView);
     mainLayout->addWidget(hxmaView);
@@ -114,6 +133,7 @@ FCApp::FCApp(QWidget *parent) :
     mainLayout->addWidget(ideasView);
     mainLayout->addWidget(smView);
     mainLayout->addWidget(sgmpgmView);
+    mainLayout->addWidget(bpmButton_);
     setLayout(mainLayout);
 
 

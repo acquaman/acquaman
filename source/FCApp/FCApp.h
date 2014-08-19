@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QLCDNumber>
 #include <QLabel>
+#include <QPushButton>
 
 class FCApp : public QWidget
 {
@@ -18,6 +19,14 @@ public slots:
 protected:
     QLabel *label_;
     QLCDNumber *currentValue_;
+
+    //BPM
+    QLabel *xAxisLabel_;
+    QLabel *yAxisLabel_;
+    QLCDNumber *xBMP_;
+    QLCDNumber *yBMP_;
+
+    QPushButton *bpmButton_;
 
 
 };
