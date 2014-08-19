@@ -131,10 +131,10 @@ SGMXASScanConfiguration2013View::SGMXASScanConfiguration2013View(SGMXASScanConfi
 	//bottomGL_->addLayout(trackingButtonsLayout,0 , 2);
 	bottomGL_->addWidget(trackingGroupBox, 0, 4, 1, 1);
 	bottomGL_->addWidget(matchesBeamlineWarning_, 2, 0);
-	QGridLayout* bottomButtonL = new QGridLayout();
 
+	QGridLayout* bottomButtonL = new QGridLayout();
 	bottomButtonL->addWidget(getBeamlineSettings_, 0, 0);
-	bottomButtonL->addItem(new QSpacerItem(450, 10),0,1);
+	bottomButtonL->addItem(new QSpacerItem(400, 10),0,1);
 	bottomGL_->addLayout(bottomButtonL,3,0);
 			//addWidget(getBeamlineSettings_, 3, 0);
 	*/
@@ -155,6 +155,9 @@ SGMXASScanConfiguration2013View::SGMXASScanConfiguration2013View(SGMXASScanConfi
 	mainVL_->setContentsMargins(0,0,0,0);
 	mainVL_->setSpacing(1);
 	setLayout(mainVL_);
+
+	// on startup, check the current status of beamline so that we can it
+	onMatchingBeamlineSettingsChanged(configuration->matchesCurrentBeamline());
 }
 
 const AMScanConfiguration* SGMXASScanConfiguration2013View::configuration() const{

@@ -71,6 +71,7 @@ AMRecursiveDirectoryCompare::DirectoryCompareResult AMDirectorySynchronizer::pre
 	else if(comparisonResult_ == AMRecursiveDirectoryCompare::FullyMatchingResult)
 		appendToProgressMessage(QString("Contents of %1 and %2 are the same, no copying necessary.").arg(side1Directory_).arg(side2Directory_));
 
+	emit prepared(comparisonResult_);
 	return comparisonResult_;
 }
 

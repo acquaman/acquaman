@@ -110,9 +110,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/actions/AMControlMoveAction3.h"
 #include "actions3/AMActionRegistry3.h"
 
+
 SGMAppController::SGMAppController(QObject *parent) :
 	AMAppController(parent)
 {
+	const QString userNameSGM = "sgm";
+	const QString argumentEnableSGMDatabaseUpgrade = "--enableSGMDatabaseUpgrade";
+
 	setDefaultUseLocalStorage(true);
 
 	if(!resetFinishedSignal(SGMBeamline::sgm(), SIGNAL(beamlineInitialized())))
@@ -120,16 +124,19 @@ SGMAppController::SGMAppController(QObject *parent) :
 
 	// Prepend the SGM upgrade 1.1 to the list for both the user database and the SGM Beamline database
 	AMDbUpgrade *sgm1Pt1SGMDb = new SGMDbUpgrade1Pt1("SGMBeamline", this);
+	AMDbUpgrade *sgm1Pt1SGMPublicDb = new SGMDbUpgrade1Pt1("SGMPublic", this);
 
 	// Don't need to do SGMBeamline ... that's not the user's responsibility unless we're SGM or fawkes
+	bool hasUpgradePermission = false;
 	QString userName = QDir::fromNativeSeparators(QDir::homePath()).section("/", -1);
-	if( !(userName == "sgm" || userName == "fawkes" ||  userName == "chevrid" || userName == "helfrij") )
-		sgm1Pt1SGMDb->setIsResponsibleForUpgrade(false);
-	prependDatabaseUpgrade(sgm1Pt1SGMDb);
+	if (userName == userNameSGM || QApplication::instance()->arguments().contains(argumentEnableSGMDatabaseUpgrade)) {
+		hasUpgradePermission = true;
+	}
 
-	AMDbUpgrade *sgm1Pt1SGMPublicDb = new SGMDbUpgrade1Pt1("SGMPublic", this);
-	if( !(userName == "sgm" || userName == "fawkes" || userName == "chevrid" || userName == "helfrij") )
-		sgm1Pt1SGMPublicDb->setIsResponsibleForUpgrade(false);
+	sgm1Pt1SGMDb->setIsResponsibleForUpgrade(hasUpgradePermission);
+	sgm1Pt1SGMPublicDb->setIsResponsibleForUpgrade(hasUpgradePermission);
+
+	prependDatabaseUpgrade(sgm1Pt1SGMDb);
 	prependDatabaseUpgrade(sgm1Pt1SGMPublicDb);
 
 	AMDbUpgrade *sgm1Pt1UserDb = new SGMDbUpgrade1Pt1("user", this);

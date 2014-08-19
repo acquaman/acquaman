@@ -4,8 +4,11 @@
 #include <QObject>
 #include <QProcess>
 #include <QTimer>
+#include <QMetaType>
 
 #include "AMRecursiveDirectoryCompare.h"
+
+Q_DECLARE_METATYPE(AMRecursiveDirectoryCompare::DirectoryCompareResult)
 
 /**
  * @brief Class designed to recursively synchronize the data in two folders, while
@@ -22,9 +25,6 @@ public:
 	 * @param side2Directory::QString ~ The path of the second directory
 	 */
 	explicit AMDirectorySynchronizer(const QString& side1Directory, const QString& side2Directory, QObject *parent = 0);
-
-	/// @brief Uses the recursive compare to look at the directories, but not do anything. No files are copied and no directories are created, but it gives a good state of affairs for checking before calling start(). Will be called automatically by start().
-	AMRecursiveDirectoryCompare::DirectoryCompareResult prepare();
 
 	/// @brief Starts the process of synchronizing the files in the two directories
 	bool start();
@@ -59,6 +59,9 @@ public:
 	const AMRecursiveDirectoryCompare *comparator() { return comparator_; }
 
 public slots:
+	/// @brief Uses the recursive compare to look at the directories, but not do anything. No files are copied and no directories are created, but it gives a good state of affairs for checking before calling start(). Will be called automatically by start().
+	AMRecursiveDirectoryCompare::DirectoryCompareResult prepare();
+
 	/// @brief Set the flag to say whether or not we're allowed to create side1 if it doesn't exist. False by default.
 	void setAllowSide1Creation(bool allowSide1Creation);
 	/// @brief Set the flag to say whether or not we're allowed to create side2 if it doesn't exist. False by default.
@@ -88,6 +91,9 @@ signals:
 
 	/// @brief Signal emitted whenever the progress values change. Relays all applicable information
 	void progressChanged(int percentCompleteFile, int remainingFilesToCopy, int totalFilesToCopy);
+
+	/// @brief Signal emitted whenever the prepare call completes with the comparisonResult
+	void prepared(AMRecursiveDirectoryCompare::DirectoryCompareResult comparisonResult);
 
 protected slots:
 	/// @brief Handles the process having Standard Error output to read (appends it to errorMessages_)

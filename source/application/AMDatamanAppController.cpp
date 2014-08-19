@@ -138,6 +138,7 @@ AMDatamanAppController::AMDatamanAppController(QObject *parent) :
 	overrideCloseCheck_ = false;
 
 	defaultUseLocalStorage_ = false;
+	firstTimeError_ = false;
 
 	isBadDatabaseDirectory_ = false;
 	finishedSender_ = 0;
@@ -211,7 +212,11 @@ bool AMDatamanAppController::startup() {
 	if(!startupLoadPlugins())
 		return AMErrorMon::errorAndReturn(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_LOADING_PLUGINS, "Problem with Acquaman startup: loading plugins.");
 
-	if((isFirstTimeRun_ = startupIsFirstTime())) {
+	isFirstTimeRun_ = startupIsFirstTime();
+	if(firstTimeError_)
+		return AMErrorMon::errorAndReturn(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_ISFIRSTTIME, "Problem with Acquaman startup: error detected while determining if first-time user.");
+
+	if(isFirstTimeRun_) {
 		if(!startupOnFirstTime())
 			return AMErrorMon::errorAndReturn(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_LOADING_SETTING, "Problem with Acquaman startup: handling first-time user.");
 	}
@@ -292,7 +297,15 @@ bool AMDatamanAppController::startupIsFirstTime()
 
 	// check for missing user settings:
 	QSettings s(QSettings::IniFormat, QSettings::UserScope, "Acquaman", "Acquaman");
-	if(!s.contains("userDataFolder")) {
+	if(!s.contains("userDataFolder") && s.contains("remoteDataFolder")) {
+		QMessageBox::warning(0, "Local Storage Problem?", "Acquaman has detected a problem with your local storage.\n\nIt appears that synchronization was done at some point, but has since had information removed from the configuration.\nPlease stop and contact your beamline's Acquaman Developer for assistance.", QMessageBox::Ok);
+		firstTimeError_ = true;
+	}
+	else if(!s.contains("remoteDataFolder") && s.contains("userDataFolder") && s.value("userDataFolder").toString().startsWith("/AcquamanLocalData")){
+		QMessageBox::warning(0, "Local Storage Problem?", "Acquaman has detected a problem with your local storage.\n\nIt appears that synchronization was done at some point, but the configuration file has since been manually edited incorrectly.\nPlease stop and contact your beamline's Acquaman Developer for assistance.", QMessageBox::Ok);
+		firstTimeError_ = true;
+	}
+	else if(!s.contains("userDataFolder")) {
 		isFirstTime = true;
 	}
 	else if(s.contains("userDataFolder") && s.contains("remoteDataFolder")){

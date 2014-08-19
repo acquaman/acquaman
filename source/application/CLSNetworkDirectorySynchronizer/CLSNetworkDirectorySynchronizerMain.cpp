@@ -123,6 +123,18 @@ int main(int argc, char *argv[])
 			return -1;
 		}
 
+		if(argumentValuePairs.contains("--checkForJournals")){
+			QDir localDir(localDirectory);
+			QFileInfoList localDirEntries = localDir.entryInfoList();
+			for(int x = 0, size = localDirEntries.count(); x < size; x++){
+				if(localDirEntries.at(x).absoluteFilePath().contains(".db-journal")){
+					QMessageBox::critical(0, "A database journal file was detected", "A database journal file was detected.\n\n Please run Acquaman to handle this problem.", QMessageBox::Ok);
+					return -1;
+				}
+
+			}
+		}
+
 		AMDirectorySynchronizerDialog *synchronizerDialog = new AMDirectorySynchronizerDialog(localDirectory, networkDirectory, "Local", "Network");
 		synchronizerDialog->setCloseOnCompletion(true);
 		if(!argumentValuePairs.contains("--noWarningTimeout"))
@@ -151,6 +163,19 @@ int main(int argc, char *argv[])
 			qDebug() << "\n" << errorTitle;
 			qDebug() << errorMessage << "\n";
 			return -1;
+		}
+
+		if(argumentValuePairs.contains("--checkForJournals")){
+			QDir localDir(localDirectory);
+			QFileInfoList localDirEntries = localDir.entryInfoList();
+			for(int x = 0, size = localDirEntries.count(); x < size; x++){
+				if(localDirEntries.at(x).absoluteFilePath().contains(".db-journal")){
+					qDebug() << "A database journal file was detected.";
+					qDebug() << "Please run Acquaman to handle this problem.";
+					return -1;
+				}
+
+			}
 		}
 
 		AMDirectorySynchronizer *synchronizer = new AMDirectorySynchronizer(localDirectory, networkDirectory);
