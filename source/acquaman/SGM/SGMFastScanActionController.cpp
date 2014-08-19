@@ -34,7 +34,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "application/AMAppController.h"
 #include "acquaman/AMAgnosticDataAPI.h"
 #include "dataman/AMTextStream.h"
-#include "beamline/CLS/CLSSR570.h"
 #include "dataman/AMSample.h"
 #include "beamline/SGM/SGMMAXvMotor.h"
 
