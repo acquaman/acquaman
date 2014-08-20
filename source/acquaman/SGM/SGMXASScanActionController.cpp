@@ -31,6 +31,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSAmptekSDD123DetectorNew.h"
 #include "analysis/AM1DDarkCurrentCorrectionAB.h"
 #include "beamline/SGM/SGMMAXvMotor.h"
+#include "beamline/AMCurrentAmplifier.h"
 
 SGMXASScanActionController::SGMXASScanActionController(SGMXASScanConfiguration2013 *cfg, QObject *parent) :
 	AMStepScanActionController(cfg, parent)

@@ -36,6 +36,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMTextStream.h"
 #include "dataman/AMSample.h"
 #include "beamline/SGM/SGMMAXvMotor.h"
+#include "beamline/AMCurrentAmplifier.h"
 
 SGMFastScanActionController::SGMFastScanActionController(SGMFastScanConfiguration2013 *configuration, QObject *parent) :
 	AMScanActionController(configuration, parent)

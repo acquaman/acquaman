@@ -24,7 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/VESPERS/VESPERSBeamline.h"
 //#include "acquaman/dacq3_3/qepicsadvacq.h"
 #include "actions3/AMListAction3.h"
-#include "beamline/CLS/CLSSR570.h"
+#include "beamline/AMCurrentAmplifier.h"
 
 #include <QStringBuilder>
 
