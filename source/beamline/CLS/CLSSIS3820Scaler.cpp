@@ -21,7 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "CLSSIS3820Scaler.h"
 #include "beamline/AMPVControl.h"
 #include "beamline/AMDetectorTriggerSource.h"
-#include "beamline/CLS/CLSSR570.h"
+#include "beamline/AMCurrentAmplifier.h"
 #include "actions3/actions/AMControlMoveAction3.h"
 #include "actions3/actions/AMControlWaitAction.h"
 

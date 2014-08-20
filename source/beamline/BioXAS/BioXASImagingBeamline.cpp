@@ -25,7 +25,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/AMListAction3.h"
 #include "actions3/actions/AMControlMoveAction3.h"
 #include "beamline/CLS/CLSBiStateControl.h"
-#include "beamline/CLS/CLSSR570.h"
 
 BioXASImagingBeamline::BioXASImagingBeamline()
 	: AMBeamline("BioXAS Beamline - Imaging Endstation")
