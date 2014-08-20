@@ -1,8 +1,6 @@
 include( AMControl.pri )
 include( AMCommonEPICS.pri )
 
-QT *= core gui sql opengl network
-
 DESTDIR = build
 
 HEADERS *=\

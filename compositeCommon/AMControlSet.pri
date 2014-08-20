@@ -1,16 +1,11 @@
-include( AMPVControl.pri )
-
-QT *= core gui sql opengl network
+include( AMControl.pri )
+include( AMControlInfoList.pri )
 
 DESTDIR = build
 
 HEADERS *=\
 	source/beamline/AMControlSet.h \
-	source/dataman/info/AMControlInfoList.h \
-	source/util/AMOrderedSet.h \
-	source/util/AMOrderedSetSignalSource.h
+	source/util/AMOrderedSet.h
 
 SOURCES *= \
-	source/beamline/AMControlSet.cpp \
-	source/dataman/info/AMControlInfoList.cpp \
-	source/util/AMOrderedSetSignalSource.cpp
+	source/beamline/AMControlSet.cpp

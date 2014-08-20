@@ -85,4 +85,5 @@ QMAKE_CXXFLAGS *= -Wextra -g
 
 DEFINES *= AM_ENABLE_BOUNDS_CHECKING
 
-QT *= core gui opengl network
+#QT *= core gui opengl network
+QT *= core gui

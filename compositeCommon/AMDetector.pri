@@ -1,27 +1,16 @@
 include( AMAction.pri )
 include( AMControlSet.pri )
+include( QJSON.pri )
+include( AMDetectorInfo.pri )
 
 DESTDIR = build
 
 HEADERS *=\
+	source/acquaman/AMAgnosticDataAPI.h \
 	source/beamline/AMBeamlineSupport.h \
-	source/dataman/info/AMDetectorInfo.h \
 	source/beamline/AMDetector.h \
 	source/beamline/AMDetectorTriggerSource.h \
-	source/acquaman/AMAgnosticDataAPI.h \
-	source/qjson/json_parser.hh \
-	source/qjson/json_scanner.h \
-	source/qjson/location.hh \
-	source/qjson/parser_p.h \
-	source/qjson/parser.h \
-	source/qjson/parserrunnable.h \
-	source/qjson/position.hh \
-	source/qjson/qjson_debug.h \
-	source/qjson/qjson_export.h \
-	source/qjson/qobjecthelper.h \
-	source/qjson/serializer.h \
-	source/qjson/serializerrunnable.h \
-	source/qjson/stack.hh \
+	source/beamline/AMSynchronizedDwellTime.h \
 	source/dataman/AMMeasurementInfo.h \
 	source/dataman/AMAxisInfo.h \
 	source/dataman/AMNumber.h \
@@ -39,22 +28,14 @@ HEADERS *=\
 	source/actions3/actions/AMDetectorAcquisitionActionInfo.h \
 	source/actions3/actions/AMDetectorTriggerActionInfo.h \
 	source/actions3/actions/AMDetectorReadActionInfo.h \
-	source/actions3/actions/AMDetectorCleanupActionInfo.h \
-	source/beamline/AMSynchronizedDwellTime.h
+	source/actions3/actions/AMDetectorCleanupActionInfo.h
 
 SOURCES *= \
+	source/acquaman/AMAgnosticDataAPI.cpp \
 	source/beamline/AMBeamlineSupport.cpp \
-	source/dataman/info/AMDetectorInfo.cpp \
 	source/beamline/AMDetector.cpp \
 	source/beamline/AMDetectorTriggerSource.cpp \
-	source/acquaman/AMAgnosticDataAPI.cpp \
-	source/qjson/json_parser.cc \
-	source/qjson/json_scanner.cpp \
-	source/qjson/parser.cpp \
-	source/qjson/parserrunnable.cpp \
-	source/qjson/qobjecthelper.cpp \
-	source/qjson/serializer.cpp \
-	source/qjson/serializerrunnable.cpp \
+	source/beamline/AMSynchronizedDwellTime.cpp \
 	source/dataman/AMAxisInfo.cpp \
 	source/dataman/AMNumber.cpp \
 	source/dataman/datasource/AMDataSource.cpp \
@@ -71,5 +52,4 @@ SOURCES *= \
 	source/actions3/actions/AMDetectorAcquisitionActionInfo.cpp \
 	source/actions3/actions/AMDetectorTriggerActionInfo.cpp \
 	source/actions3/actions/AMDetectorReadActionInfo.cpp \
-	source/actions3/actions/AMDetectorCleanupActionInfo.cpp \
-	source/beamline/AMSynchronizedDwellTime.cpp
+	source/actions3/actions/AMDetectorCleanupActionInfo.cpp

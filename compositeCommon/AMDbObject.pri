@@ -19,4 +19,5 @@ SOURCES *= \
 	source/dataman/database/AMDbObjectSupport.cpp \
 	source/dataman/database/AMConstDbObject.cpp \
 	source/dataman/AMnDIndex.cpp \
-	source/util/AMErrorMonitor.cpp
+	source/util/AMErrorMonitor.cpp \
+	source/acquaman.cpp
