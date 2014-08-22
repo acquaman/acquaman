@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 Acquaman is free software: you can redistribute it and/or modify
@@ -53,9 +54,7 @@ AMScanAction::AMScanAction(const AMScanAction &other)
 
 AMScanAction::~AMScanAction()
 {
-	//qdebug() << "Going to delete AMScanAction " << (intptr_t)this;
 	if (controller_ && hasValidScanController_){
-		//qdebug() << "I am " << (intptr_t)this << ". Thinks the controller is at " << (intptr_t)controller_ << " versus boolean check " << hasValidScanController_;
 
 		controller_->disconnect();
 		delete controller_;
@@ -76,7 +75,7 @@ AMAction3::ActionValidity AMScanAction::isValid(){
 		return AMBeamline::bl()->validateAction(this);
 	}
 
-	AMDetectorInfoSet requestedDetectors = scanInfo->config()->detectorConfigurations();
+	AMDetectorInfoSet requestedDetectors = scanInfo->configuration()->detectorConfigurations();
 	for(int x = 0; x < requestedDetectors.count(); x++)
 		if(!AMBeamline::bl()->detectorAvailable(requestedDetectors.at(x)))
 			return AMAction3::ActionNotCurrentlyValid;
@@ -96,7 +95,7 @@ QString AMScanAction::notValidWarning(){
 		return AMBeamline::bl()->validateActionMessage(this);
 
 	retVal = "Scan Action is not valid because the following detectors are not available at the moment:\n";
-	AMDetectorInfoSet requestedDetectors = scanInfo->config()->detectorConfigurations();
+	AMDetectorInfoSet requestedDetectors = scanInfo->configuration()->detectorConfigurations();
 	for(int x = 0; x < requestedDetectors.count(); x++)
 		if(!AMBeamline::bl()->detectorAvailable(requestedDetectors.at(x)))
 			retVal.append(QString("%1").arg(requestedDetectors.at(x).name()));
@@ -116,7 +115,7 @@ void AMScanAction::startImplementation()
 		return;
 	}
 
-	controller_ = scanInfo->config()->createController();
+	controller_ = scanInfo->configuration()->createController();
 
 	if (!controller_){
 
@@ -127,29 +126,23 @@ void AMScanAction::startImplementation()
 
 	hasValidScanController_ = true;
 
-	// Set the skip options if it is one of the dacq controllers.
-	/*
-	if (qobject_cast<AMDacqScanController *>(controller_)){
-
+	if (controller_)
 		skipOptions_.append("Stop Now");
 
-		if (qobject_cast<AM2DDacqScanController *>(controller_))
-			skipOptions_.append("Stop At The End Of Line");
-	}
-	*/
-
-	if(qobject_cast<AMScanActionController *>(controller_))
-		skipOptions_.append("Stop Now");
+	if (controller_ && controller_->scan()->scanRank() >= 2)
+		skipOptions_.append("Stop At End Of Line");
 
 	connect(controller_, SIGNAL(initialized()), this, SLOT(onControllerInitialized()));
 	connect(controller_, SIGNAL(started()), this, SLOT(onControllerStarted()));
 	connect(controller_, SIGNAL(cancelled()), this, SLOT(onControllerCancelled()));
 	connect(controller_, SIGNAL(failed()), this, SLOT(onControllerFailed()));
 	connect(controller_, SIGNAL(finished()), this, SLOT(onControllerSucceeded()));
+	connect(controller_, SIGNAL(cleaningActionsStarted()), this, SLOT(onControllerCleaningUp()));
 	connect(controller_, SIGNAL(progress(double,double)), this, SLOT(onControllerProgressChanged(double,double)));
 	connect(controller_, SIGNAL(stateChanged(int,int)), this, SLOT(onControllerStateChanged()));
 
 	// The action is started the moment it tries to start the controller.
+	setStatusText("Initializing");
 	setStarted();
 
 	// Initialize the controller.
@@ -166,79 +159,71 @@ void AMScanAction::startImplementation()
 
 void AMScanAction::pauseImplementation()
 {
-	if (controller_->pause())
+	if (controller_->pause()){
+
+		setStatusText("Paused");
 		setPaused();
+	}
 }
 
 void AMScanAction::resumeImplementation()
 {
-	if (controller_->resume())
+	if (controller_->resume()){
+
+		setStatusText("Running");
 		setResumed();
+	}
 }
 
 void AMScanAction::cancelImplementation()
 {
-	if(controller_)
+	if(controller_){
+
+		setStatusText("Cancelling");
 		controller_->cancel();
+	}
 	else
 		setCancelled();
 }
 
 void AMScanAction::skipImplementation(const QString &command)
 {
-	AMScanActionController *scanActionController = qobject_cast<AMScanActionController*>(controller_);
-	if(scanActionController){
-		scanActionController->skip(command);
-		return;
+	if (controller_){
+
+		controller_->stop(command);
+		setStatusText(QString("Skipping - %1").arg(command));
 	}
 
-	if (command == "Stop Now"){
-		/*
-		AMDacqScanController *dacqController = qobject_cast<AMDacqScanController *>(controller_);
-		if(dacqController)
-			dacqController->stopImmediately();
-		*/
-	}
-
-	else if (command == "Stop At The End Of Line"){
-		/*
-		AM2DDacqScanController *dacq2DController = qobject_cast<AM2DDacqScanController *>(controller_);
-		if(dacq2DController)
-			dacq2DController->stopAtTheEndOfLine();
-		*/
-	}
-
+	else
+		setSucceeded();
 }
 
-#include "acquaman/AMXASScanConfiguration.h"
-bool AMScanAction::canSkip() const
+void AMScanAction::scheduleForDeletion()
 {
-//	// We can check against AMDacqScanController only because AM2DDacqScanController inherits from AMDacqScanController.
-//	if (qobject_cast<AMDacqScanController *>(controller_))
-//		return true;
-
-	const AMScanActionInfo *scanActionInfo = qobject_cast<const AMScanActionInfo*>(info());
-	if(qobject_cast<const AMXASScanConfiguration*>(scanActionInfo->config()))
-		return true;
-
-//	return false;
-	return true;
-}
-
-void AMScanAction::scheduleForDeletion(){
 	if(!controller_ || controller_->isReadyForDeletion())
 		deleteLater();
+
 	else
 		connect(controller_, SIGNAL(readyForDeletion(bool)), this, SLOT(onReadyForDeletionChanged(bool)));
 }
 
 void AMScanAction::onControllerInitialized()
 {
-	if (!controller_->start()){
+	if (state() == AMAction3::Skipping){
+
+		disconnect(controller_, SIGNAL(cancelled()), this, SLOT(onControllerCancelled()));
+		connect(controller_, SIGNAL(cancelled()), this, SLOT(onControllerSucceeded()));
+		controller_->cancel();
+	}
+
+	else if (!controller_->start()){
 
 		AMErrorMon::alert(this, AMSCANACTION_CANT_START_CONTROLLER, "Could not start the scan controller.");
 		setFailed();
 	}
+
+	else
+		setStatusText("Running");
 }
 
 void AMScanAction::onControllerStarted()
@@ -256,6 +241,7 @@ void AMScanAction::onControllerCancelled()
 		if (!controller_->scan()->storeToDb(AMDatabase::database("user")))
 			AMErrorMon::alert(this, AMSCANACTION_CANT_SAVE_TO_DB, "The scan action was unable to update the scan in the database.");
 
+	setStatusText("Cancelled");
 	setCancelled();
 }
 
@@ -266,17 +252,26 @@ void AMScanAction::onControllerFailed()
 		if (!controller_->scan()->storeToDb(AMDatabase::database("user")))
 			AMErrorMon::alert(this, AMSCANACTION_CANT_SAVE_TO_DB, "The scan action was unable to update the scan in the database.");
 
+	setStatusText("Failed");
 	setFailed();
 }
 
 void AMScanAction::onControllerSucceeded()
 {
-	if (controller_)
+	if (controller_){
+
+		setStatusText("Exporting");
 		autoExportScan();
+	}
 	else
 		AMErrorMon::alert(this, AMSCANACTION_CONTROLLER_NOT_VALID_FOR_AUTOEXPORT, "Could not export, somehow the scan controller is not available.");
 
 	setSucceeded();
+}
+
+void AMScanAction::onControllerCleaningUp()
+{
+	setStatusText("Cleaning Up");
 }
 
 void AMScanAction::onControllerProgressChanged(double elapsed, double total)
@@ -286,12 +281,8 @@ void AMScanAction::onControllerProgressChanged(double elapsed, double total)
 
 QString AMScanAction::controllerStateString() const
 {
-	if (!controller_){
-		//qdebug() << "No controller to pull";
+	if (!controller_)
 		return "";
-	}
-	//qdebug() << "I think I have a controller " << (intptr_t)controller_;
-	//qdebug() << controller_->objectName();
 
 	QString controllerString = "Scan is ";
 
@@ -327,6 +318,10 @@ QString AMScanAction::controllerStateString() const
 
 	case AMScanController::Resuming:
 		controllerString.append("resuming.");
+		break;
+
+	case AMScanController::Stopping:
+		controllerString.append("stopping");
 		break;
 
 	case AMScanController::Cancelling:
@@ -410,11 +405,11 @@ void AMScanAction::autoExportScan()
 
 void AMScanAction::onControllerStateChanged()
 {
-	//qdebug() << "Calling for controllerStateString, need a valid controller";
-	setStatusText(stateDescription(state()) % "\n" % controllerStateString());
+//	setStatusText(stateDescription(state()) % "\n" % controllerStateString());
 }
 
-void AMScanAction::onReadyForDeletionChanged(bool isReady){
+void AMScanAction::onReadyForDeletionChanged(bool isReady)
+{
 	if(isReady)
 		deleteLater();
 }

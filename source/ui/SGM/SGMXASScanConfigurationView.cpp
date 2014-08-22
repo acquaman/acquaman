@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -28,6 +29,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/SGM/SGMFluxResolutionPickerView.h"
 #include "ui/dataman/AMControlInfoListView.h"
 #include "ui/dataman/AMOldDetectorInfoSetView.h"
+#include "ui/dataman/AMStepScanAxisView.h"
 
 SGMXASScanConfigurationView::SGMXASScanConfigurationView(SGMXASScanConfiguration *sxsc, QWidget *parent)  :
 	AMScanConfigurationView(parent)
@@ -37,10 +39,16 @@ SGMXASScanConfigurationView::SGMXASScanConfigurationView(SGMXASScanConfiguration
 	topFrame_ = new AMTopFrame("Configure an XAS Scan to Run Later");
 	topFrame_->setIcon(QIcon(":/utilities-system-monitor.png"));
 
-	regionsLineView_ = new AMRegionsLineView(sxsc->regions(), this);
-	regionsView_ = new AMRegionsStaticView(sxsc->regions());
+	// Regions setup
+	regionsView_ = new AMStepScanAxisView("", cfg_);
 
-	fluxResolutionView_ = new SGMFluxResolutionPickerStaticView(sxsc->xasRegions());
+	QVBoxLayout *regionsViewLayout = new QVBoxLayout;
+	regionsViewLayout->addWidget(regionsView_);
+
+	QGroupBox *regionsViewGroupBox = new QGroupBox("Regions Setup");
+	regionsViewGroupBox->setLayout(regionsViewLayout);
+
+	fluxResolutionView_ = new SGMFluxResolutionPickerStaticView(cfg_->scanAxisAt(0));
 
 	fluxResolutionView_->setFromInfoList(sxsc->fluxResolutionGroup());
 	fluxResolutionView_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
@@ -54,13 +62,12 @@ SGMXASScanConfigurationView::SGMXASScanConfigurationView(SGMXASScanConfiguration
 
 	mainVL_ = new QVBoxLayout();
 	mainVL_->addWidget(topFrame_);
-	mainVL_->addWidget(regionsLineView_);
 	bottomGL_ = new QGridLayout();
 	mainVL_->addLayout(bottomGL_, 10);
-	bottomGL_->addWidget(regionsView_,		0, 0);
-	bottomGL_->addWidget(fluxResolutionView_,	1, 0);
-	bottomGL_->addWidget(trackingStaticView_,	0, 2);
-	bottomGL_->addWidget(xasDetectorsStaticView_,	1, 2);
+	bottomGL_->addWidget(regionsViewGroupBox, 0, 0);
+	bottomGL_->addWidget(fluxResolutionView_, 1, 0);
+	bottomGL_->addWidget(trackingStaticView_, 0, 2);
+	bottomGL_->addWidget(xasDetectorsStaticView_, 1, 2);
 	bottomGL_->setColumnStretch(0, 10);
 	bottomGL_->setColumnMinimumWidth(1, 40);
 	bottomGL_->setContentsMargins(10, 0, 0, 0);

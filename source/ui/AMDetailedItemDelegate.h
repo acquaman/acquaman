@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -34,8 +35,8 @@ class AMDetailedItemDelegate : public AMCloseItemDelegate
 Q_OBJECT
 public:
 
- 	virtual ~AMDetailedItemDelegate();
 	explicit AMDetailedItemDelegate(QObject *parent = 0);
+	virtual ~AMDetailedItemDelegate();
 
 	/// Re-implemented from QStyledItemDelegate to request the height requested in setItemHeight().
 	virtual QSize sizeHint ( const QStyleOptionViewItem & option, const QModelIndex & index ) const {

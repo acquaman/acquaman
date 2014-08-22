@@ -1,3 +1,24 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #ifndef VESPERSSCANCONTROLLER_H
 #define VESPERSSCANCONTROLLER_H
 
@@ -28,36 +49,6 @@ protected:
 	AMAction3 *buildCCDInitializationAction(VESPERS::CCDDetectors ccdChoice, const QString &ccdName);
 	/// Helper method that builds all of the cleanup actions.
 	AMAction3 *buildCleanupAction();
-
-//	/// Helper method that adds the standard extra PVs to the advAcq_.
-//	void addStandardExtraPVs(QEpicsAdvAcq *advAcq, bool addEaAndDwellTime, bool addK);
-//	/// Helper method that adds the dead time PV's to the advAcq_ that is provided for the single element vortex detector.
-//	void addSingleElementDeadTimePVs(QEpicsAdvAcq *advAcq);
-//	/// Helper method that adds the ROI PVs to the advAcq_ that is provided.
-//	void addSingleElementRegionsOfInterestPVs(QEpicsAdvAcq *advAcq, int roiCount);
-//	/// Helper method that adds the spectra PV's to the advAcq_ that is provided for the single element vortex detector.
-//	void addSingleElementSpectraPVs(QEpicsAdvAcq *advAcq);
-//	/// Helper method that adds the dead time PV's to the advAcq_ that is provided for the four element vortex detector.
-//	void addFourElementDeadTimePVs(QEpicsAdvAcq *advAcq);
-//	/// Helper method that adds the ROI PVs to the advAcq_ that is provided.
-//	void addFourElementRegionsOfInterestPVs(QEpicsAdvAcq *advAcq, int roiCount);
-//	/// Helper method that adds the spectra PV's to the advAcq_ that is provided for the four element vortex detector.
-//	void addFourElementSpectraPVs(QEpicsAdvAcq *advAcq);
-
-//	/// Helper method that adds the standard extra measurements and raw data sources.
-//	void addStandardMeasurements(AMScan *scan, bool addEaAndDwellTime, bool addK);
-//	/// Helper method that adds the measurements and raw data sources to the scan provided for the single element dead time information.
-//	void addSingleElementDeadTimeMeasurements(AMScan *scan);
-//	/// Helper method that adds the measurements and raw data sources to the scan using the provided ROI info list.  The add suffix is for when the name should be personalized with "-1el".
-//	void addSingleElementRegionsOfInterestMeasurements(AMScan *scan, AMROIInfoList list, bool addSuffix);
-//	/// Helper method that adds the measurements and raw data sources for the spectra.
-//	void addSingleElementSpectraMeasurments(AMScan *scan, const AMMeasurementInfo &info);
-//	/// Helper method that adds the measurements and raw data sources to the scan provided for the four element dead time information.
-//	void addFourElementDeadTimeMeasurements(AMScan *scan);
-//	/// Helper method that adds the measurements and raw data sources to the scan using the provided ROI info list.  The add suffix is for when the name should be personalized with "-1el".
-//	void addFourElementRegionsOfInterestMeasurements(AMScan *scan, AMROIInfoList list, bool addSuffix);
-//	/// Helper method that adds the measurements and raw data sources for the spectra.
-//	void addFourElementSpectraMeasurments(AMScan *scan, const AMMeasurementInfo &info);
 
 	/// Helper method that checks the \param name provided for the CCD in \param path for uniqueness.  If it is unique it returns the provided string, otherwise it creates a unique "-xxx" to the end until a valid name is found.
 	QString getUniqueCCDName(const QString &path, const QString &name) const;

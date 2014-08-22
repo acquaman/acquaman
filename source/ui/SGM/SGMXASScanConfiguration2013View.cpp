@@ -1,3 +1,24 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#include "ui/dataman/AMStepScanAxisView.h"
 #include "SGMXASScanConfiguration2013View.h"
 
  SGMXASScanConfiguration2013View::~SGMXASScanConfiguration2013View(){}
@@ -9,8 +30,14 @@ SGMXASScanConfiguration2013View::SGMXASScanConfiguration2013View(SGMXASScanConfi
 	topFrame_ = new AMTopFrame("Configure an XAS Scan to Run Later");
 	topFrame_->setIcon(QIcon(":/utilities-system-monitor.png"));
 
-	regionsLineView_ = new AMRegionsLineView(configuration_->regions(), this);
-	regionsView_ = new AMRegionsView(configuration_->regions(), this);
+	// Regions setup
+	AMStepScanAxisView *regionsView = new AMStepScanAxisView("", configuration_);
+
+	QVBoxLayout *regionsViewLayout = new QVBoxLayout;
+	regionsViewLayout->addWidget(regionsView);
+
+	QGroupBox *regionsViewGroupBox = new QGroupBox("Regions Setup");
+	regionsViewGroupBox->setLayout(regionsViewLayout);
 
 	xasDetectorSelector_ = 0; //NULL
 	xasDetectorSelectorView_ = 0; //NULL
@@ -34,7 +61,7 @@ SGMXASScanConfiguration2013View::SGMXASScanConfiguration2013View(SGMXASScanConfi
 
 	// TODO: Need to find a way to get gratingSlitTracking()
 
-	fluxResolutionView_ = new SGMFluxResolutionPickerView(configuration_->xasRegions(), this);
+	fluxResolutionView_ = new SGMFluxResolutionPickerView(configuration_->scanAxisAt(0), this);
 	fluxResolutionView_->setFromInfoList(configuration_->fluxResolutionGroup());
 	fluxResolutionView_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
 	connect(fluxResolutionView_, SIGNAL(configValuesChanged(AMControlInfoList)), configuration_->dbObject(), SLOT(setFluxResolutionGroup(AMControlInfoList)));
@@ -62,28 +89,61 @@ SGMXASScanConfiguration2013View::SGMXASScanConfiguration2013View(SGMXASScanConfi
 	scanNameEdit_->setValidIfMatches(false);
 	connect(scanNameEdit_, SIGNAL(textEdited(QString)), this, SLOT(onScanNameEditChanged(QString)));
 
+	QGroupBox *trackingGroupBox = new QGroupBox("Tracking");
+	QVBoxLayout* trackingButtonsLayout = new QVBoxLayout();
+	trackingButtonsLayout->addWidget(undulatorTrackingButton_);
+	trackingButtonsLayout->addWidget(gratingTrackingButton_);
+	trackingButtonsLayout->addWidget(exitSlitTrackingButton_);
+	trackingGroupBox->setLayout(trackingButtonsLayout);
+
 	mainVL_ = new QVBoxLayout();
 	mainVL_->addWidget(topFrame_);
-	mainVL_->addWidget(regionsLineView_);
+
+	topRow_ = new QHBoxLayout();
+	bottomRow_ = new QHBoxLayout();
+	warningRow_ = new QHBoxLayout();
+	explanationRow_ = new QHBoxLayout();
+
+	topRow_->addWidget(regionsViewGroupBox);
+	topRow_->addWidget(trackingGroupBox);
+
+	bottomRow_->addWidget(fluxResolutionView_);
+
+	warningRow_->addWidget(matchesBeamlineWarning_);
+
+	explanationRow_->addSpacerItem(new QSpacerItem(450, 10));
+	explanationRow_->addWidget(getBeamlineSettings_);
+
+	/*
 	bottomGL_ = new QGridLayout();
 	mainVL_->addLayout(bottomGL_, 10);
-	bottomGL_->addWidget(regionsView_,		0, 0);
-	bottomGL_->addWidget(fluxResolutionView_,	1, 0);
+	bottomGL_->addWidget(regionsViewGroupBox, 0, 0, 1, 3);
+	bottomGL_->addWidget(fluxResolutionView_, 1, 0, 1, 2);
 	bottomGL_->setColumnStretch(0, 10);
-	bottomGL_->setColumnMinimumWidth(1, 40);
+	bottomGL_->setColumnMinimumWidth(4, 40);
 	bottomGL_->setContentsMargins(10, 0, 0, 10);
-	QVBoxLayout* trackingButtons = new QVBoxLayout();
-	trackingButtons->addWidget(undulatorTrackingButton_);
-	trackingButtons->addWidget(gratingTrackingButton_);
-	trackingButtons->addWidget(exitSlitTrackingButton_);
-	bottomGL_->addLayout(trackingButtons,0 , 2);
+	QGroupBox *trackingGroupBox = new QGroupBox("Tracking");
+	QVBoxLayout* trackingButtonsLayout = new QVBoxLayout();
+	trackingButtonsLayout->addWidget(undulatorTrackingButton_);
+	trackingButtonsLayout->addWidget(gratingTrackingButton_);
+	trackingButtonsLayout->addWidget(exitSlitTrackingButton_);
+	trackingGroupBox->setLayout(trackingButtonsLayout);
+	//bottomGL_->addLayout(trackingButtonsLayout,0 , 2);
+	bottomGL_->addWidget(trackingGroupBox, 0, 4, 1, 1);
 	bottomGL_->addWidget(matchesBeamlineWarning_, 2, 0);
-	QGridLayout* bottomButtonL = new QGridLayout();
 
+	QGridLayout* bottomButtonL = new QGridLayout();
 	bottomButtonL->addWidget(getBeamlineSettings_, 0, 0);
-	bottomButtonL->addItem(new QSpacerItem(450, 10),0,1);
+	bottomButtonL->addItem(new QSpacerItem(400, 10),0,1);
 	bottomGL_->addLayout(bottomButtonL,3,0);
 			//addWidget(getBeamlineSettings_, 3, 0);
+	*/
+
+	mainVL_->addLayout(topRow_);
+	mainVL_->addLayout(bottomRow_);
+	mainVL_->addLayout(warningRow_);
+	mainVL_->addLayout(explanationRow_);
+
 	mainVL_->addStretch(8);
 
 	QHBoxLayout *nameHL = new QHBoxLayout();
@@ -95,6 +155,9 @@ SGMXASScanConfiguration2013View::SGMXASScanConfiguration2013View(SGMXASScanConfi
 	mainVL_->setContentsMargins(0,0,0,0);
 	mainVL_->setSpacing(1);
 	setLayout(mainVL_);
+
+	// on startup, check the current status of beamline so that we can it
+	onMatchingBeamlineSettingsChanged(configuration->matchesCurrentBeamline());
 }
 
 const AMScanConfiguration* SGMXASScanConfiguration2013View::configuration() const{
@@ -106,7 +169,8 @@ void SGMXASScanConfiguration2013View::setDetectorSelector(AMDetectorSelector *xa
 	xasDetectorSelector_ = xasDetectorSelector;
 	if(!xasDetectorSelectorView_){
 		xasDetectorSelectorView_ = new AMDetectorSelectorView(xasDetectorSelector_);
-		bottomGL_->addWidget(xasDetectorSelectorView_,	1, 2);
+//		bottomGL_->addWidget(xasDetectorSelectorView_, 1, 3, 1, 2);
+		bottomRow_->addWidget(xasDetectorSelectorView_);
 	}
 }
 

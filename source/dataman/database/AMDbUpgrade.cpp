@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 Acquaman is free software: you can redistribute it and/or modify
@@ -655,7 +656,9 @@ bool AMDbUpgradeSupport::removeColumn(AMDatabase *databaseToEdit, const QString 
 		bool success = true;
 
 		QList<int> dbObjectIds = db->objectsWhere("AMDbObjectTypes_allColumns", QString("typeId=%1 AND columnName='%2'").arg(ids.first()).arg(columnName));
-		success &= db->deleteRow(dbObjectIds.first(), "AMDbObjectTypes_allColumns");
+
+		if (dbObjectIds.size() == 1)
+			success &= db->deleteRow(dbObjectIds.first(), "AMDbObjectTypes_allColumns");
 
 		// It is possible that the column is not visible.  Check before updating.
 		dbObjectIds = db->objectsWhere("AMDbObjectTypes_visibleColumns", QString("typeId=%1 AND columnName='%2'").arg(ids.first()).arg(columnName));
@@ -730,4 +733,75 @@ bool AMDbUpgradeSupport::idColumnToConstDbObjectColumn(AMDatabase *databaseToEdi
 		AMErrorMon::alert(0, AMDBUPGRADESUPPORT_COULD_NOT_UPDATE_EMPTY_VALUES, QString("Could not update the empty values from -1 to an empty string in %1.").arg(typeTableName));
 
 	return success;
+}
+
+bool AMDbUpgradeSupport::addTable(AMDatabase *databaseToEdit, const QString &tableName, const QStringList &columnNames, const QStringList &columnTypes, bool reuseDeletedIds, const QString &description, const QString &inheritance)
+{
+	AMDatabase *db = databaseToEdit;
+
+	if (!db->transactionInProgress())
+		db->startTransaction();
+
+	if (db->tableExists(tableName)){
+
+		db->rollbackTransaction();
+		AMErrorMon::alert(0, AMDBUPGRADESUPPORT_TABLE_ALREADY_EXISTS, QString("Could not add %1 because it already exists.").arg(tableName));
+		return false;
+	}
+
+	if (!db->ensureTable(tableName,
+								columnNames,
+								columnTypes,
+								reuseDeletedIds)){
+
+		db->rollbackTransaction();
+		AMErrorMon::alert(0, AMDBUPGRADESUPPORT_COULD_NOT_ADD_TABLE, "Failed to create the AMStepScanConfiguration_table table.");
+		return false;
+	}
+
+	// If this is not an auxillary table, then we need to do some extra things to make sure the database system recognizes the table.
+	if (!tableName.contains(QRegExp("^[a-zA-Z0-9]*_table_[a-zA-Z0-9]+$"))){
+
+		QString className = tableName.split("_").first();
+		QStringList dboColumnNames = QStringList() << "AMDbObjectType" << "tableName" << "description" << "version" << "inheritance";
+		QVariantList dboValues = QVariantList() << className << tableName << description << 1 << inheritance;
+		int newId = db->insertOrUpdate(0, "AMDbObjectTypes_table", dboColumnNames, dboValues);
+
+		if (newId == 0){
+
+			db->rollbackTransaction();
+			AMErrorMon::alert(0, AMDBUPGRADESUPPORT_COULD_NOT_ADD_TO_AMDBOBJECTTYPES_TABLE, QString("Could not add the new %1 entry to the AMDbObjectTypes table.").arg(className));
+			return false;
+		}
+
+		QStringList specificColumnNames = QStringList() << "typeId" << "columnName";
+
+		foreach (QString columnName, columnNames){
+
+			QVariantList specificColumnValues = QVariantList() << newId << columnName;
+
+			if (!db->insertOrUpdate(0, "AMDbObjectTypes_allColumns", specificColumnNames, specificColumnValues)){
+
+				db->rollbackTransaction();
+				AMErrorMon::alert(0, AMDBUPGRADESUPPORT_COULD_NOT_ADD_TO_AMDBOBJECTTYPES_ALLCOLUMNS_TABLE, QString("Could not add the entries for %1 to the allColumns associated table of AMDbObjectTypes table.").arg(className));
+				return false;
+			}
+
+			if (!db->insertOrUpdate(0, "AMDbObjectTypes_visibleColumns", specificColumnNames, specificColumnValues)){
+
+				db->rollbackTransaction();
+				AMErrorMon::alert(0, AMDBUPGRADESUPPORT_COULD_NOT_ADD_TO_AMDBOBJECTTYPES_VISIBLECOLUMNS_TABLE, QString("Could not add the entries for %1 to the visibleColumns associated table of AMDbObjectTypes table.").arg(className));
+				return false;
+			}
+
+			if (!db->insertOrUpdate(0, "AMDbObjectTypes_loadColumns", specificColumnNames, specificColumnValues)){
+
+				db->rollbackTransaction();
+				AMErrorMon::alert(0, AMDBUPGRADESUPPORT_COULD_NOT_ADD_TO_AMDBOBJECTTYPES_LOADCOLUMNS_TABLE, QString("Could not add the entries for %1 to the loadColumns associated table of AMDbObjectTypes table.").arg(className));
+				return false;
+			}
+		}
+	}
+
+	return true;
 }

@@ -1,3 +1,24 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #ifndef AMSCANACTIONCONTROLLER_H
 #define AMSCANACTIONCONTROLLER_H
 
@@ -6,6 +27,9 @@
 #include "actions3/AMAction3.h"
 
 #define AMSCANACTIONCONTROLLER_CANNOT_INTIALIZE 262001
+#define AMSCANACTIONCONTROLLER_CANNOT_PAUSE 262002
+#define AMSCANACTIONCONTROLLER_CANNOT_RESUME 262003
+#define AMSCANACTIONCONTROLLER_CANNOT_CANCEL 262004
 
 /// This class provides a simple extension to AMScanController to expose it to some of the AMAction API and AMAgnosticData API.
 class AMScanActionController : public AMScanController
@@ -14,8 +38,9 @@ class AMScanActionController : public AMScanController
 
 public:
 	/// Constructor.  Requires the scan configuration.
- 	virtual ~AMScanActionController();
 	AMScanActionController(AMScanConfiguration *configuration, QObject *parent = 0);
+	/// Destructor.
+	virtual ~AMScanActionController();
 
 	/// Returns the master action that encapsulates all of the, possibly nested, actions that run the scan.
 	AMAction3 *scanningActions();
@@ -23,9 +48,9 @@ public:
 	/// Method that builds all the general aspects, such as measurements and raw data sources, and the file writer capabilities for the scan controller.
 	virtual void buildScanController() = 0;
 
+signals:
+
 public slots:
-	/// Provides access AMAction::skip() which isn't part of the AMScanController API.
-	virtual void skip(const QString &command);
 
 protected slots:
 	/// Helper slot that ensures all the necessary database and event handler clean up is done.  Closes any open database transaction and removes this object from the QEvent receiver list.
@@ -62,6 +87,8 @@ protected:
 	virtual void resumeImplementation();
 	/// Handles cancelling the current scan action and setting up the necessary communications to call setCancelled() when appropriate.
 	virtual void cancelImplementation();
+	/// Handles stopping the current scan action and setting up the necessary communications to call setFinished when appropriate.
+	virtual void stopImplementation(const QString &command);
 
 	/// Method that builds all the necessary actions to properly initialize your scan.  Default does nothing, but should be reimplemented in subclases.
 	virtual AMAction3 *createInitializationActions() { return 0; }

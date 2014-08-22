@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -22,7 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/AMListAction3.h"
 #include "actions3/actions/AMControlMoveAction3.h"
 #include "beamline/CLS/CLSBiStateControl.h"
-#include "beamline/CLS/CLSSR570.h"
+#include "beamline/CLS/CLSSensitivitySR570.h"
 
 #include "beamline/AMAdvancedControlDetectorEmulator.h"
 
@@ -51,6 +52,9 @@ void IDEASBeamline::setupDiagnostics()
 
 void IDEASBeamline::setupSampleStage()
 {
+    samplePlatformVertical_ = new AMPVwStatusControl("Sample Platform Vertical","SMTR1608-10-B20-05:mm:sp","SMTR1608-10-B20-05:mm","SMTR1608-10-B20-05:status","SMTR1608-10-B20-05:stop",this,0.1);
+    samplePlatformHorizontal_ = new AMPVwStatusControl("Sample Platform Horizontal","SMTR1608-10-B20-06:mm:sp","SMTR1608-10-B20-06:mm","SMTR1608-10-B20-06:status","SMTR1608-10-B20-06:stop",this,0.1);
+    vacuumSampleStage_ = new AMPVwStatusControl("Vacuum Stage Position","SMTR1608-10-B20-08:mm:sp","SMTR1608-10-B20-08:mm","SMTR1608-10-B20-08:status","SMTR1608-10-B20-08:stop",this,0.1);
 
 }
 
@@ -140,6 +144,10 @@ void IDEASBeamline::setupComponents()
     safetyShutter2_ = new CLSBiStateControl("SOE Safety Shutter", "The safety shutter for the SOE.", "SSH1608-9-B20-01:state", "SSH1608-9-B20-01:opr:open", "SSH1608-9-B20-01:opr:close", new AMControlStatusCheckerDefault(2), this);
     photonShutter2_ = new CLSBiStateControl("Photon Shutter 2", "The second photon shutter for the beamline.The primary safety shutter for the beamline.", "PSH1409-B20-02:state", "PSH1409-B20-02:opr:open", "PSH1409-B20-02:opr:close", new AMControlStatusCheckerDefault(2), this);
 
+    jjSlitHGap_ = new AMPVwStatusControl("JJ Slit Horizontal Gap","SMTR1608-10-B20-01:mm:sp","SMTR1608-10-B20-01:mm","SMTR1608-10-B20-01:status","SMTR1608-10-B20-01:stop",this,0.1);
+    jjSlitHCenter_ = new AMPVwStatusControl("JJ Slit Horizontal Center","SMTR1608-10-B20-02:mm:sp","SMTR1608-10-B20-02:mm","SMTR1608-10-B20-02:status","SMTR1608-10-B20-02:stop",this,0.1);
+    jjSlitVGap_ = new AMPVwStatusControl("JJ Slit Vertical Gap","SMTR1608-10-B20-03:mm:sp","SMTR1608-10-B20-03:mm","SMTR1608-10-B20-03:status","SMTR1608-10-B20-03:stop",this,0.1);
+    jjSlitVCenter_ = new AMPVwStatusControl("JJ Slit Vertical Center","SMTR1608-10-B20-04:mm:sp","SMTR1608-10-B20-04:mm","SMTR1608-10-B20-04:status","SMTR1608-10-B20-04:stop",this,0.1);
 
     connect(safetyShutter_, SIGNAL(stateChanged(int)), this, SLOT(onShutterStatusChanged()));
     connect(safetyShutter2_, SIGNAL(stateChanged(int)), this, SLOT(onShutterStatusChanged()));
@@ -148,18 +156,18 @@ void IDEASBeamline::setupComponents()
     scaler_ = new CLSSIS3820Scaler("BL08B2-1:mcs", this);
 
     scaler_->channelAt(0)->setCustomChannelName("I_0");
-    CLSSR570 *tempSR570 = new CLSSR570("I_0", "AMP1608-1001:sens_num.VAL", "AMP1608-1001:sens_unit.VAL", this);
-    scaler_->channelAt(0)->setCurrentAmplifier(tempSR570);
+    CLSSensitivitySR570 *tempSensitivitySR570 = new CLSSensitivitySR570("I_0", "AMP1608-1001", this);
+    scaler_->channelAt(0)->setCurrentAmplifier(tempSensitivitySR570);
     scaler_->channelAt(0)->setVoltagRange(AMRange(0.25, 4.75));
 
     scaler_->channelAt(1)->setCustomChannelName("Sample");
-    tempSR570 = new CLSSR570("Sample", "AMP1608-1002:sens_num.VAL", "AMP1608-1002:sens_unit.VAL", this);
-    scaler_->channelAt(1)->setCurrentAmplifier(tempSR570);
+    tempSensitivitySR570 = new CLSSensitivitySR570("Sample", "AMP1608-1002", this);
+    scaler_->channelAt(1)->setCurrentAmplifier(tempSensitivitySR570);
     scaler_->channelAt(1)->setVoltagRange(AMRange(0.25, 4.75));
 
     scaler_->channelAt(2)->setCustomChannelName("Reference");
-    tempSR570 = new CLSSR570("Reference", "AMP1608-1003:sens_num.VAL", "AMP1608-1003:sens_unit.VAL", this);
-    scaler_->channelAt(2)->setCurrentAmplifier(tempSR570);
+    tempSensitivitySR570 = new CLSSensitivitySR570("Reference", "AMP1608-1003", this);
+    scaler_->channelAt(2)->setCurrentAmplifier(tempSensitivitySR570);
     scaler_->channelAt(2)->setVoltagRange(AMRange(0.25, 4.75));
 
 }

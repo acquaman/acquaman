@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -17,6 +18,7 @@ You should have received a copy of the GNU General Public License
 along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <QMessageBox>
 
 #include "AMSamplePlatePre2013View.h"
 #include "dataman/database/AMDbObjectSupport.h"
@@ -95,7 +97,7 @@ void AMSamplePlatePre2013ItemModel::onSamplePositionAboutToBeRemoved(int index) 
 
 // Received from AMSamplePlate. Used to implement endRemoveRows.
 void AMSamplePlatePre2013ItemModel::onSamplePositionRemoved(int index) {
-
+	Q_UNUSED(index)
 //	cachedSamples_.removeAt(index);
 	endRemoveRows();
 }
@@ -554,26 +556,35 @@ AMSamplePlatePre2013View::AMSamplePlatePre2013View(AMSamplePlatePre2013 *existin
 
 void AMSamplePlatePre2013View::onAddSampleButtonClicked() {
 
+	if(samplePlate_ &&  sampleSelector_->currentSampleId() != -1){
 
-	if(manipulator_){
-		qDebug() << "Apparently we have a manipulator";
-		samplePlate_->append(
-					AMSamplePositionPre2013(
-						sampleSelector_->currentSampleId(),
-						manipulator_->position(),
-						manipulator_->facilityId()));
+		if(manipulator_){
+			qDebug() << "Apparently we have a manipulator";
+			samplePlate_->append(
+						AMSamplePositionPre2013(
+							sampleSelector_->currentSampleId(),
+							manipulator_->position(),
+							manipulator_->facilityId()));
+		}
+		else{
+			qDebug() << "Apparently we DO NOT have a manipulator";
+			samplePlate_->append(
+						AMSamplePositionPre2013(
+							sampleSelector_->currentSampleId(),
+							AMControlInfoList(),
+							0));
+		}
+
+		// save the sample plate, because it's been modified.
+		samplePlate_->storeToDb(AMDatabase::database("user"));
 	}
 	else{
-		qDebug() << "Apparently we DO NOT have a manipulator";
-		samplePlate_->append(
-					AMSamplePositionPre2013(
-						sampleSelector_->currentSampleId(),
-						AMControlInfoList(),
-						0));
+		QMessageBox msgBox;
+		msgBox.setText("Please select a plate and sample before adding a sample to the plate.");
+		msgBox.exec();
+
 	}
 
-	// save the sample plate, because it's been modified.
-	samplePlate_->storeToDb(AMDatabase::database("user"));
 
 }
 

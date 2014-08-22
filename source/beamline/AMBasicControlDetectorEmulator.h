@@ -1,3 +1,24 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #ifndef AMBASICCONTROLDETECTOREMULATOR_H
 #define AMBASICCONTROLDETECTOREMULATOR_H
 
@@ -27,7 +48,7 @@ public:
 	/// Basic controls cannot continuous acquire.
 	virtual bool canContinuousAcquire() const { return false; }
 
-	/// Returns the -1, because these controls don't know have access to this information (they use the AMDetectorDefinitions::ReadMethod enum)
+	/// Returns the -1, because these controls don't have access to this information (they use the AMDetectorDefinitions::ReadMethod enum)
 	virtual double acquisitionTime() const { return -1; }
 	/// Returns the acquisition time tolerance.  Returns -1, not sure if that will provide the correct behaviour or not.
 	virtual double acquisitionTimeTolerance() const { return -1; }
@@ -38,7 +59,7 @@ public:
 	virtual QString synchronizedDwellKey() const { return "";}
 
 	/// No triggering source
-	virtual bool sharesDetectorTriggerSource() { return false; }
+	virtual bool sharesDetectorTriggerSource() const { return false; }
 	/// Returns Null pointer
 	virtual AMDetectorTriggerSource* detectorTriggerSource() { return 0; }
 

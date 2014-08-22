@@ -1,3 +1,24 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #ifndef AMSCANACTIONCONTROLLERBASICFILEWRITER_H
 #define AMSCANACTIONCONTROLLERBASICFILEWRITER_H
 
@@ -22,11 +43,12 @@ public:
 
 	/// Constructor.  Requires the file path for where the files should be stored.  \param filePath should have everything for the data file except the extension.  Also needs to be told whether it needs to open a separate file for spectral data.
 	AMScanActionControllerBasicFileWriter(const QString &filePath, bool hasSpectraData = false, QObject *parent = 0);
+	/// Destructor.
 	virtual ~AMScanActionControllerBasicFileWriter();
 
 public slots:
 	/// Writes the given string to a file.  You need to provide either 0 or 1 for the file rank (scaler data or spectral data).
-	void writeToFile(int fileRank, const QString &textToWrite);
+	virtual void writeToFile(int fileRank, const QString &textToWrite);
 	/// Must be called after the scan has completed.  Does the necessary clean up of the files.
 	void finishWriting();
 

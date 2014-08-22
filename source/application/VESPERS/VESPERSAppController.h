@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -45,6 +46,7 @@ class VESPERS3DScanConfigurationView;
 class AMGenericScanEditor;
 class AMListAction3;
 class VESPERSUserConfiguration;
+class AMRegionOfInterest;
 
 #define VESPERSAPPCONTROLLER_COULD_NOT_CREATE_VESPERS_FOLDER 999000
 #define VESPERSAPPCONTROLLER_AURORA_PATH_NOT_FOUND 999001
@@ -105,6 +107,10 @@ protected slots:
 
 	/// Handles setting up all the necessary settings based on the loaded user configuration.
 	void onUserConfigurationLoadedFromDb();
+	/// Handles adding regions of interest to all the configurations that would care.
+	void onRegionOfInterestAdded(AMRegionOfInterest *region);
+	/// Handles removing regions of interest from all the configurations that would care.
+	void onRegionOfInterestRemoved(AMRegionOfInterest *region);
 
 protected:
 	/// Implementation method that individual applications can flesh out if extra setup is required when a scan action is started.  This is not pure virtual because there is no requirement to do anything to scan actions.

@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -27,6 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class IDEASXASScanConfigurationView;
 class IDEASScanConfigurationViewHolder3;
 class IDEASXRFDetailedDetectorViewWithSave;
+class IDEASSampleCameraPanel;
 
 class IDEASAppController : public AMAppController
 {
@@ -86,6 +88,9 @@ protected:
 	IDEASScanConfigurationViewHolder3 *xasScanConfigurationHolder3_;
         /// View for the IDEAS's XRF scan configurations
         IDEASXRFDetailedDetectorViewWithSave *IDEASXRFDetailedDetectorViewWithSave_;
+	/// View for viewing the sample cameras and aligning samples
+	IDEASSampleCameraPanel *sampleCameraPanel_;
+
 
 
 

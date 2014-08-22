@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -68,11 +69,12 @@ class AMAnalysisBlock : public AMDbObject, public AMDataSource
 
 public:
 	/// Create a new AMAnalysisBlock. The block is an AMDataSource of output data; \c outputName is the name for this AMDataSource.
- 	virtual ~AMAnalysisBlock();
 	AMAnalysisBlock(const QString& outputName, QObject* parent = 0);
+	/// Destructor.
+	virtual ~AMAnalysisBlock();
 
 	/// Both AMDbObject:: and AMDataSource:: have a name() function. Here we resolve that ambiguity.
-	QString name() const { return AMDataSource::name(); }
+	virtual QString name() const { return AMDataSource::name(); }
 
 	/// Re-implemented from AMDataSource to call setModified().
 	void setDescription(const QString &description) { AMDataSource::setDescription(description); setModified(true); }
@@ -93,12 +95,6 @@ public:
 	/// Provides a very simple editor widget for inside AMDataSourcesEditor, which only lists the rank and size of the analysis block (and the value, for 0D analysis blocks only). Re-implement to provide custom editors.
 	virtual QWidget* createEditorWidget();
 
-protected:
-	/// Implementing subclasses must provide a setInputDataSourcesImplementation(), which is called from setInputDataSources(). This will only be called if \c dataSources are acceptable and sufficient  (according to areInputDataSourcesAcceptable()), or if \c dataSources is empty, indicating the block is in the inactive/invalid state.
-	virtual void setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources) = 0;
-
-
-public:
 	// Access to input data sources
 	//////////////////////////
 
@@ -113,14 +109,6 @@ public:
 	virtual int indexOfInputSource(const QString& dataSourceName) const = 0;
 	/// Retrieve index of an input data source by pointer. If it doesn't exist, returns -1.
 	virtual int indexOfInputSource(const AMDataSource* source) const = 0;
-
-
-	// Remaining (output data) functionality derives from the AMDataSource interface, including the state() of the output data source, as well as signals via emitStateChanged(), emitValuesChanged(), emitSizeChanged(), etc.
-
-
-
-
-
 
 	// Reimplemented from AMDataSource
 	//////////////////////////////
@@ -143,6 +131,9 @@ public:
 	/// Used internally when this analysis block as added to a scan.
 	void setScan(AMScan* scan) { scan_ = scan; }
 
+public slots:
+	/// Sets the name to both AMDbObject AND AMDataSource.
+	virtual void setName(const QString &name);
 
 protected slots:
 	/// called automatically when a current input source is deleted. The default response is to discard ALL input sources and go into the invalid/inactive state. The base class implementation of this function is effectively the same as calling setInputDataSources() with an empty list. setInputDataSourcesImplementation() will be called with an empty list to tell the subclass to put itself in the invalid/inactive state.
@@ -156,6 +147,9 @@ signals:
 
 
 protected:
+	/// Implementing subclasses must provide a setInputDataSourcesImplementation(), which is called from setInputDataSources(). This will only be called if \c dataSources are acceptable and sufficient  (according to areInputDataSourcesAcceptable()), or if \c dataSources is empty, indicating the block is in the inactive/invalid state.
+	virtual void setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources) = 0;
+
 	/// Implementing classes can call this function whenever their state changes. It takes care of calling emitStateChanged() whenever the new state is different from the old, and sets the value that will be returned by the default implementation of state().
 	void setState(int newState) {
 		if(state_ != newState)

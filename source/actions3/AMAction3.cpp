@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 Acquaman is free software: you can redistribute it and/or modify
@@ -51,6 +52,7 @@ AMAction3::AMAction3(const AMAction3& other)
 	statusText_ = "Not yet started";
 	secondsSpentPaused_ = 0;
 	parentAction_ = 0;
+	failureMessage_ = other.failureMessage();
 
 	failureResponseInActionRunner_ = other.failureResponseInActionRunner_;
 	failureResponseAsSubAction_ = other.failureResponseAsSubAction_;
@@ -180,11 +182,12 @@ void AMAction3::setSucceeded()
 		AMErrorMon::debug(this, AMACTION3_NOTIFIED_SUCCEEDED_BUT_NOT_YET_POSSIBLE, QString("An implementation told us it had succeeded before it could possibly be running. Action name: %1. Current state: %2.").arg(info()->name()).arg(stateDescription(state())) );
 }
 
-void AMAction3::setFailed()
+void AMAction3::setFailed(const QString &message)
 {
 	if (canChangeState(Failed)){
 
 		endDateTime_ = QDateTime::currentDateTime();
+		failureMessage_ = message;
 		setState(Failed);
 		emit failed();
 	}
@@ -331,7 +334,7 @@ bool AMAction3::canChangeState(State newState) const
 
 	case Failed:
 		if (state_ == Starting || state_ == Running || state_ == Pausing
-				|| state_ == Paused || state_ == Resuming || state_ == Cancelling || Skipping)
+				|| state_ == Paused || state_ == Resuming || state_ == Cancelling || state_ == Skipping)
 			canTransition = true;
 		break;
 

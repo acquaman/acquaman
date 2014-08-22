@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -25,6 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSSR570.h"
 #include "beamline/VESPERS/VESPERSMonochomatorControl.h"
 #include "beamline/VESPERS/VESPERSCCDBasicDetectorEmulator.h"
+#include "beamline/AM1DControlDetectorEmulator.h"
 
 VESPERSBeamline::VESPERSBeamline()
 	: AMBeamline("VESPERS Beamline")
@@ -289,25 +291,25 @@ void VESPERSBeamline::setupMotorGroup()
 
 QString VESPERSBeamline::motorGroupName(VESPERS::Motors motor) const
 {
-	if ((motor & VESPERS::H) || (motor & VESPERS::V))
+	if (motor.testFlag(VESPERS::H) || motor.testFlag(VESPERS::V))
 		return "Sample Stage - H, V, N";
 
-	else if ((motor & VESPERS::X) || (motor & VESPERS::Z))
+	else if (motor.testFlag(VESPERS::X) || motor.testFlag(VESPERS::Z))
 		return "Sample Stage - X, Z, Y";
 
-	else if ((motor & VESPERS::AttoH) || (motor & VESPERS::AttoV))
+	else if (motor.testFlag(VESPERS::AttoH) || motor.testFlag(VESPERS::AttoV))
 		return "Attocube Stage - H, V, N";
 
-	else if ((motor & VESPERS::AttoX) || (motor & VESPERS::AttoZ))
+	else if (motor.testFlag(VESPERS::AttoX) || motor.testFlag(VESPERS::AttoZ))
 		return "Attocube Stage - X, Z, Y";
 
-	else if (motor == VESPERS::AttoRx)
+	else if (motor.testFlag(VESPERS::AttoRx))
 		return "Attocube Stage - Rx";
 
-	else if (motor == VESPERS::AttoRy)
+	else if (motor.testFlag(VESPERS::AttoRy))
 		return "Attocube Stage - Ry";
 
-	else if (motor == VESPERS::AttoRz)
+	else if (motor.testFlag(VESPERS::AttoRz))
 		return "Attocube Stage - Rz";
 
 	return "Sample Stage - H, V, N";
@@ -646,19 +648,19 @@ void VESPERSBeamline::synchronizedDwellTimeConnected(bool connected)
 		if (synchronizedDwellTime_->elementAt(0)->name() != "Scaler")
 			synchronizedDwellTime_->elementAt(0)->configure(*synchronizedDwellTimeConfigurationByName("Scaler"));
 
-		if (synchronizedDwellTime_->elementAt(0)->name() != "1-El Vortex")
+		if (synchronizedDwellTime_->elementAt(1)->name() != "1-El Vortex")
 			synchronizedDwellTime_->elementAt(1)->configure(*synchronizedDwellTimeConfigurationByName("1-El Vortex"));
 
-		if (synchronizedDwellTime_->elementAt(0)->name() != "Roper CCD")
+		if (synchronizedDwellTime_->elementAt(2)->name() != "Roper CCD")
 			synchronizedDwellTime_->elementAt(2)->configure(*synchronizedDwellTimeConfigurationByName("Roper CCD"));
 
-		if (synchronizedDwellTime_->elementAt(0)->name() != "Pilatus CCD")
+		if (synchronizedDwellTime_->elementAt(3)->name() != "Pilatus CCD")
 			synchronizedDwellTime_->elementAt(3)->configure(*synchronizedDwellTimeConfigurationByName("Pilatus CCD"));
 
-		if (synchronizedDwellTime_->elementAt(0)->name() != "4-El Vortex")
+		if (synchronizedDwellTime_->elementAt(4)->name() != "4-El Vortex")
 			synchronizedDwellTime_->elementAt(4)->configure(*synchronizedDwellTimeConfigurationByName("4-El Vortex"));
 
-		if (synchronizedDwellTime_->elementAt(0)->name() != "Mar CCD")
+		if (synchronizedDwellTime_->elementAt(5)->name() != "Mar CCD")
 			synchronizedDwellTime_->elementAt(5)->configure(*synchronizedDwellTimeConfigurationByName("Mar CCD"));
 	}
 }
@@ -757,6 +759,8 @@ void VESPERSBeamline::setupControlsAsDetectors()
 	singleElementVortexLiveTimeControl_ = new AMReadOnlyPVControl("Single Element Vortex Live Time", "IOC1607-004:mca1.ELTM", this);
 	singleElementVortexFastPeaksControl_ = new AMReadOnlyPVControl("Single Element Vortex Fast Peaks", "IOC1607-004:dxp1.FAST_PEAKS", this);
 	singleElementVortexSlowPeaksControl_ = new AMReadOnlyPVControl("Single Element Vortex Slow Peaks", "IOC1607-004:dxp1.SLOW_PEAKS", this);
+	singleElementVortexRawSpectrumControl_ = new AMReadOnlyPVControl("Single Element Vortex Raw Spectrum", "IOC1607-004:mca1", this);
+
 	fourElementVortexDeadTime1Control_ = new AMReadOnlyPVControl("Four Element Vortex Dead Time 1", "dxp1607-B21-04:dxp1:NetDTP", this);
 	fourElementVortexDeadTime2Control_ = new AMReadOnlyPVControl("Four Element Vortex Dead Time 2", "dxp1607-B21-04:dxp2:NetDTP", this);
 	fourElementVortexDeadTime3Control_ = new AMReadOnlyPVControl("Four Element Vortex Dead Time 3", "dxp1607-B21-04:dxp3:NetDTP", this);
@@ -777,6 +781,10 @@ void VESPERSBeamline::setupControlsAsDetectors()
 	fourElementVortexSlowPeaks2Control_ = new AMReadOnlyPVControl("Four Element Vortex Slow Peaks 2", "dxp1607-B21-04:dxp2:Events", this);
 	fourElementVortexSlowPeaks3Control_ = new AMReadOnlyPVControl("Four Element Vortex Slow Peaks 3", "dxp1607-B21-04:dxp3:Events", this);
 	fourElementVortexSlowPeaks4Control_ = new AMReadOnlyPVControl("Four Element Vortex Slow Peaks 4", "dxp1607-B21-04:dxp4:Events", this);
+	fourElementVortexRawSpectrumControl1_ = new AMReadOnlyPVControl("Four Element Vortex Raw Spectrum 1", "dxp1607-B21-04:mca1", this);
+	fourElementVortexRawSpectrumControl2_ = new AMReadOnlyPVControl("Four Element Vortex Raw Spectrum 2", "dxp1607-B21-04:mca2", this);
+	fourElementVortexRawSpectrumControl3_ = new AMReadOnlyPVControl("Four Element Vortex Raw Spectrum 3", "dxp1607-B21-04:mca3", this);
+	fourElementVortexRawSpectrumControl4_ = new AMReadOnlyPVControl("Four Element Vortex Raw Spectrum 4", "dxp1607-B21-04:mca4", this);
 
 	singleElementVortexDeadTime_ = new AMBasicControlDetectorEmulator("SingleElementVortexDeadTime", "Single Element Vortex Dead Time", singleElementVortexDeadTimeControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 	singleElementVortexDeadTime_->setHiddenFromUsers(true);
@@ -793,6 +801,10 @@ void VESPERSBeamline::setupControlsAsDetectors()
 	singleElementVortexSlowPeaks_ = new AMBasicControlDetectorEmulator("SingleElementVortexSlowPeaks", "Single Element Vortex Slow Peaks", singleElementVortexSlowPeaksControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 	singleElementVortexSlowPeaks_->setHiddenFromUsers(true);
 	singleElementVortexSlowPeaks_->setIsVisible(false);
+	singleElementVortexRawSpectrum_ = new AM1DControlDetectorEmulator("SingleElementVortexRawSpectrum", "Single Element Vortex Raw Spectrum", 2048, singleElementVortexRawSpectrumControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	singleElementVortexRawSpectrum_->setHiddenFromUsers(true);
+	singleElementVortexRawSpectrum_->setIsVisible(false);
+
 	fourElementVortexDeadTime1_ = new AMBasicControlDetectorEmulator("FourElementVortexDeadTime1", "Four Element Vortex Dead Time 1", fourElementVortexDeadTime1Control_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 	fourElementVortexDeadTime1_->setHiddenFromUsers(true);
 	fourElementVortexDeadTime1_->setIsVisible(false);
@@ -853,6 +865,18 @@ void VESPERSBeamline::setupControlsAsDetectors()
 	fourElementVortexSlowPeaks4_ = new AMBasicControlDetectorEmulator("FourElementVortexSlowPeaks4", "Four Element Vortex Slow Peaks 4", fourElementVortexSlowPeaks1Control_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 	fourElementVortexSlowPeaks4_->setHiddenFromUsers(true);
 	fourElementVortexSlowPeaks4_->setIsVisible(false);
+	fourElementVortexRawSpectrum1_ = new AM1DControlDetectorEmulator("FourElementVortexRawSpectrum1", "Four Element Vortex Raw Spectrum 1", 2048, fourElementVortexRawSpectrumControl1_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	fourElementVortexRawSpectrum1_->setHiddenFromUsers(true);
+	fourElementVortexRawSpectrum1_->setIsVisible(false);
+	fourElementVortexRawSpectrum2_ = new AM1DControlDetectorEmulator("FourElementVortexRawSpectrum2", "Four Element Vortex Raw Spectrum 2", 2048, fourElementVortexRawSpectrumControl2_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	fourElementVortexRawSpectrum2_->setHiddenFromUsers(true);
+	fourElementVortexRawSpectrum2_->setIsVisible(false);
+	fourElementVortexRawSpectrum3_ = new AM1DControlDetectorEmulator("FourElementVortexRawSpectrum3", "Four Element Vortex Raw Spectrum 3", 2048, fourElementVortexRawSpectrumControl3_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	fourElementVortexRawSpectrum3_->setHiddenFromUsers(true);
+	fourElementVortexRawSpectrum3_->setIsVisible(false);
+	fourElementVortexRawSpectrum4_ = new AM1DControlDetectorEmulator("FourElementVortexRawSpectrum4", "Four Element Vortex Raw Spectrum 4", 2048, fourElementVortexRawSpectrumControl4_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	fourElementVortexRawSpectrum4_->setHiddenFromUsers(true);
+	fourElementVortexRawSpectrum4_->setIsVisible(false);
 }
 
 void VESPERSBeamline::setupExposedControls()
@@ -879,9 +903,12 @@ void VESPERSBeamline::setupExposedDetectors()
 	addExposedDetector(energyFeedbackDetector_);
 	addExposedDetector(masterDwellTimeDetector_);
 	addExposedDetector(ringCurrentDetector_);
+	addExposedDetector(roperCCD_);
 	addExposedDetector(roperCCDFileNumberDetector_);
+	addExposedDetector(marCCD_);
 	addExposedDetector(marCCDFileNumberDetector_);
 	addExposedDetector(pilatusCCDFileNumberDetector_);
+	addExposedDetector(pilatusAreaDetector_);
 
 	// All the extras for vortex detectors.
 	addExposedDetector(singleElementVortexDeadTime_);
@@ -889,6 +916,7 @@ void VESPERSBeamline::setupExposedDetectors()
 	addExposedDetector(singleElementVortexLiveTime_);
 	addExposedDetector(singleElementVortexFastPeaks_);
 	addExposedDetector(singleElementVortexSlowPeaks_);
+	addExposedDetector(singleElementVortexRawSpectrum_);
 	addExposedDetector(fourElementVortexDeadTime1_);
 	addExposedDetector(fourElementVortexDeadTime2_);
 	addExposedDetector(fourElementVortexDeadTime3_);
@@ -909,6 +937,10 @@ void VESPERSBeamline::setupExposedDetectors()
 	addExposedDetector(fourElementVortexSlowPeaks2_);
 	addExposedDetector(fourElementVortexSlowPeaks3_);
 	addExposedDetector(fourElementVortexSlowPeaks4_);
+	addExposedDetector(fourElementVortexRawSpectrum1_);
+	addExposedDetector(fourElementVortexRawSpectrum2_);
+	addExposedDetector(fourElementVortexRawSpectrum3_);
+	addExposedDetector(fourElementVortexRawSpectrum4_);
 }
 
 AMAction3 *VESPERSBeamline::createBeamChangeAction(VESPERS::Beam beam)

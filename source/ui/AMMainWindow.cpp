@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -22,7 +23,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/AMCloseItemDelegate.h"
 #include "util/AMFontSizes.h"
-
+#include "ui/util/AMDirectorySynchronizerDialog.h"
+#include "util/AMSettings.h"
 // Default constructor
 AMMainWindow::AMMainWindow(QWidget *parent) : QWidget(parent) {
 

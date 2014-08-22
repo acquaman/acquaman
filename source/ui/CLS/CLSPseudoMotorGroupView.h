@@ -1,3 +1,24 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #ifndef CLSPSEUDOMOTORGROUPVIEW_H
 #define CLSPSEUDOMOTORGROUPVIEW_H
 
@@ -11,8 +32,9 @@ class CLSPseudoMotorGroupObjectView : public AMMotorGroupObjectView
 
 public:
 	/// Constructor.  Builds a view based around the provided \param motorGroupObject.
- 	virtual ~CLSPseudoMotorGroupObjectView();
 	explicit CLSPseudoMotorGroupObjectView(CLSPseudoMotorGroupObject *motorGroupObject, QWidget *parent = 0);
+	/// Destructor.
+	virtual ~CLSPseudoMotorGroupObjectView();
 };
 
 /// This class acts as a simple extension that enables the use of reseting the pseudo-motors.
@@ -30,10 +52,11 @@ class CLSPseudoMotorGroupView : public AMMotorGroupView
 public:
 	/// Constructor.  Takes an AMMotorGroup since there was no need to subclass it.
 	/// \note Maybe I should subclass AMMotorGroup for consistency in naming?
- 	virtual ~CLSPseudoMotorGroupView();
 	CLSPseudoMotorGroupView(CLSPseudoMotorGroup *motorGroup, QWidget *parent = 0);
 	/// Constructor.  Takes an AMMotorGroup since there was no need to subclass it.
 	CLSPseudoMotorGroupView(CLSPseudoMotorGroup *motorGroup, ViewMode viewMode, QWidget *parent = 0);
+	/// Destructor.
+	virtual ~CLSPseudoMotorGroupView();
 
 protected slots:
 	/// Handles the popup menu that allows you to change the motors you want to change.

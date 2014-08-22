@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -109,24 +110,33 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/actions/AMControlMoveAction3.h"
 #include "actions3/AMActionRegistry3.h"
 
+
 SGMAppController::SGMAppController(QObject *parent) :
 	AMAppController(parent)
 {
+	const QString userNameSGM = "sgm";
+	const QString argumentEnableSGMDatabaseUpgrade = "--enableSGMDatabaseUpgrade";
+
+	setDefaultUseLocalStorage(true);
+
 	if(!resetFinishedSignal(SGMBeamline::sgm(), SIGNAL(beamlineInitialized())))
 		AMErrorMon::alert(this, SGMAPPCONTROLLER_COULD_NOT_RESET_FINISHED_SIGNAL, "Could not reset the finish signal to the SGM Beamline");
 
 	// Prepend the SGM upgrade 1.1 to the list for both the user database and the SGM Beamline database
 	AMDbUpgrade *sgm1Pt1SGMDb = new SGMDbUpgrade1Pt1("SGMBeamline", this);
+	AMDbUpgrade *sgm1Pt1SGMPublicDb = new SGMDbUpgrade1Pt1("SGMPublic", this);
 
 	// Don't need to do SGMBeamline ... that's not the user's responsibility unless we're SGM or fawkes
+	bool hasUpgradePermission = false;
 	QString userName = QDir::fromNativeSeparators(QDir::homePath()).section("/", -1);
-	if( !(userName == "sgm" || userName == "fawkes" ||  userName == "chevrid" || userName == "helfrij") )
-		sgm1Pt1SGMDb->setIsResponsibleForUpgrade(false);
-	prependDatabaseUpgrade(sgm1Pt1SGMDb);
+	if (userName == userNameSGM || QApplication::instance()->arguments().contains(argumentEnableSGMDatabaseUpgrade)) {
+		hasUpgradePermission = true;
+	}
 
-	AMDbUpgrade *sgm1Pt1SGMPublicDb = new SGMDbUpgrade1Pt1("SGMPublic", this);
-	if( !(userName == "sgm" || userName == "fawkes" || userName == "chevrid" || userName == "helfrij") )
-		sgm1Pt1SGMPublicDb->setIsResponsibleForUpgrade(false);
+	sgm1Pt1SGMDb->setIsResponsibleForUpgrade(hasUpgradePermission);
+	sgm1Pt1SGMPublicDb->setIsResponsibleForUpgrade(hasUpgradePermission);
+
+	prependDatabaseUpgrade(sgm1Pt1SGMDb);
 	prependDatabaseUpgrade(sgm1Pt1SGMPublicDb);
 
 	AMDbUpgrade *sgm1Pt1UserDb = new SGMDbUpgrade1Pt1("user", this);
@@ -352,9 +362,10 @@ void SGMAppController::onSGMBeamlineConnected(){
 		double goodEnergy = 10 * floor(SGMBeamline::sgm()->energy()->value() / 10);
 		// Do New XAS
 		SGMXASScanConfiguration2013 *xasScanConfiguration2013 = new SGMXASScanConfiguration2013(this);
-		xasScanConfiguration2013->xasRegions()->setEnergyControl(SGMBeamline::sgm()->energy());
-		xasScanConfiguration2013->regions()->setDefaultTimeControl(SGMBeamline::sgm()->masterDwell());
-		xasScanConfiguration2013->addRegion(0, goodEnergy, 1, goodEnergy+9, 1);
+		xasScanConfiguration2013->scanAxisAt(0)->regionAt(0)->setRegionStart(goodEnergy);
+		xasScanConfiguration2013->scanAxisAt(0)->regionAt(0)->setRegionStep(1);
+		xasScanConfiguration2013->scanAxisAt(0)->regionAt(0)->setRegionEnd(goodEnergy+9);
+		xasScanConfiguration2013->scanAxisAt(0)->regionAt(0)->setRegionTime(1);
 		xasScanConfiguration2013->setDetectorConfigurations(SGMBeamline::sgm()->XASDetectorGroup()->connectedDetectors()->toInfoSet());
 		xasScanConfiguration2013->setTrackingGroup(SGMBeamline::sgm()->trackingSet()->toInfoList());
 		xasScanConfiguration2013->setFluxResolutionGroup(SGMBeamline::sgm()->fluxResolutionSet()->toInfoList());
@@ -395,12 +406,12 @@ void SGMAppController::onSGMBeamlineConnected(){
 		if(SGMBeamline::sgm()->newPDDetector()){
 			preferentialOrdering << SGMBeamline::sgm()->newPDDetector()->name();
 		}
-        if(SGMBeamline::sgm()->energyFeedbackDetector()) {
-            xasDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->energyFeedbackDetector(), true);
-        }
-        if(SGMBeamline::sgm()->dwellTimeDetector()) {
-            xasDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->dwellTimeDetector(), true);
-        }
+		if(SGMBeamline::sgm()->energyFeedbackDetector()) {
+			xasDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->energyFeedbackDetector(), true);
+		}
+		if(SGMBeamline::sgm()->dwellTimeDetector()) {
+			xasDetectorSelector_->setDetectorDefault(SGMBeamline::sgm()->dwellTimeDetector(), true);
+		}
 
 		xasDetectorSelector_->setPreferentialOrdering(preferentialOrdering);
 		xasDetectorSelector_->setDefaultsSelected();
@@ -493,6 +504,8 @@ void SGMAppController::onSGMScalerConnected(bool connected){
 	Q_UNUSED(connected)
 	if(SGMBeamline::sgm()->rawScaler() && SGMBeamline::sgm()->rawScaler()->isConnected() && !sgmScalerView_){
 		sgmScalerView_ = new SGMSIS3820ScalerView(SGMBeamline::sgm()->scaler());
+		sgmScalerView_->setAmplifierViewFormat('g');
+		sgmScalerView_->setAmplifierViewPrecision(3);
 		mw_->addPane(sgmScalerView_, "Beamline Detectors", "SGM Scaler", ":/system-software-update.png", true);
 	}
 }

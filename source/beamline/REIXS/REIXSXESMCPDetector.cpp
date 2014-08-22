@@ -1,3 +1,24 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "REIXSXESMCPDetector.h"
 
 #include <QTimer>
@@ -204,7 +225,6 @@ void REIXSXESMCPDetector::onDwellTimeSourceSetDwellTime(double dwellSeconds){
 }
 
 void REIXSXESMCPDetector::onDwellTimeTimerTimeout(){
-	qDebug() << "Heard that dwell time is done";
 	if(finishedConditions_.testFlag(REIXSXESMCPDetector::FinishedTotalCounts))
 		disconnect(totalCountsControl_, SIGNAL(valueChanged(double)), this, SLOT(onTotalCountsControlValueChanged(double)));
 	if(finishedConditions_.testFlag(REIXSXESMCPDetector::FinishedTotalTime)){
@@ -215,9 +235,7 @@ void REIXSXESMCPDetector::onDwellTimeTimerTimeout(){
 }
 
 void REIXSXESMCPDetector::onTotalCountsControlValueChanged(double totalCounts){
-	qDebug() << "More counts";
 	if(totalCounts >= totalCountTarget_){
-		qDebug() << "Reached the end of counts";
 		if(finishedConditions_.testFlag(REIXSXESMCPDetector::FinishedTotalCounts))
 			disconnect(totalCountsControl_, SIGNAL(valueChanged(double)), this, SLOT(onTotalCountsControlValueChanged(double)));
 		if(finishedConditions_.testFlag(REIXSXESMCPDetector::FinishedTotalTime)){
@@ -244,15 +262,13 @@ bool REIXSXESMCPDetector::acquireImplementation(AMDetectorDefinitions::ReadMode 
 
 	if(finishedConditions_.testFlag(REIXSXESMCPDetector::FinishedTotalCounts)){
 		connect(totalCountsControl_, SIGNAL(valueChanged(double)), this, SLOT(onTotalCountsControlValueChanged(double)));
-		qDebug() << "Looking for " << totalCountTarget_ << " counts";
 	}
 	if(finishedConditions_.testFlag(REIXSXESMCPDetector::FinishedTotalTime)){
 		dwellTimeTimer_ = new QTimer();
 		dwellTimeTimer_->setSingleShot(true);
-		dwellTimeTimer_->setInterval(dwellTime_*1000);
+		dwellTimeTimer_->setInterval(int(dwellTime_*1000));
 		connect(dwellTimeTimer_, SIGNAL(timeout()), this, SLOT(onDwellTimeTimerTimeout()));
 		dwellTimeTimer_->start();
-		qDebug() << "Trying to set timer to " << dwellTime_;
 	}
 
 	setAcquiring();

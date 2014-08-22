@@ -1,3 +1,24 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "AMStepScanAxisView.h"
 
 #include <QLabel>
@@ -62,26 +83,35 @@ AMStepScanAxisElementView::AMStepScanAxisElementView(AMScanAxisRegion *region, Q
 
 void AMStepScanAxisElementView::setStartSpinBox(const AMNumber &value)
 {
-	if (double(value) != start_->value())
+	if (double(value) != start_->value()){
 		start_->setValue(double(value));
+		onStartPositionUpdated();
+	}
 }
 
 void AMStepScanAxisElementView::setDeltaSpinBox(const AMNumber &value)
 {
-	if (double(value) != delta_->value())
+	if (double(value) != delta_->value()){
 		delta_->setValue(double(value));
+		onDeltaPositionUpdated();
+		}
 }
 
 void AMStepScanAxisElementView::setEndSpinBox(const AMNumber &value)
 {
-	if (double(value) != end_->value())
+	if (double(value) != end_->value()){
 		end_->setValue(double(value));
+		onEndPositionUpdated();
+	}
 }
 
 void AMStepScanAxisElementView::setTimeSpinBox(const AMNumber &value)
 {
-	if (double(value) != time_->value())
+	if (double(value) != time_->value()){
 		time_->setValue(double(value));
+		onTimeUpdated();
+	}
+
 }
 
 void AMStepScanAxisElementView::onStartPositionUpdated()

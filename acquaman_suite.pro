@@ -11,19 +11,15 @@ SUBDIRS +=	pluginProjects/FileLoaders/AMFileLoaderPlugins.pro \
 	BareBonesAcquaman.pro \
 	acquamanTest.pro \
 	VESPERSAcquaman.pro \
-	# VESPERSDataman.pro \
-	# AcquaCam.pro \
 	MidIRBPM.pro \
 	CLSPGTDwellTimeCoordinator.pro \
 	SGMAddOnsCoordinator.pro \
 	SGMSSAAcquaman.pro \
-	EnsureLegalHeader \
+	EnsureHeaderNotice.pro \
 	VESPERSBendingMirrors.pro \
 	SGMAmptekCoordinator.pro \
 	SGMLookupTableCoordinator.pro \
-#	EthanAcquacam.pro \
 	AMCrashReporter.pro \
-#	SGMNetworkMonitor.pro
 	StripToolProject.pro \
 	IDEASAcquaman.pro \
 	BioXASSideAcquaman.pro \
@@ -31,4 +27,5 @@ SUBDIRS +=	pluginProjects/FileLoaders/AMFileLoaderPlugins.pro \
 	BioXASImagingAcquaman.pro \
 	BioXASShutterTool.pro \
 	VESPERSDatabaseDuplicateEntryPatch.pro \
-	StripTool2.pro
+	StripTool2.pro \
+	CLSNetworkDirectorySynchronizer.pro

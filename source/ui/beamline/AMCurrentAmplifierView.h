@@ -1,12 +1,32 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #ifndef AMCURRENTAMPLIFIERVIEW_H
 #define AMCURRENTAMPLIFIERVIEW_H
 
 #include <QWidget>
+#include <QToolButton>
 #include <QComboBox>
 #include <QLabel>
-#include <QToolButton>
 #include <QLayout>
-#include <QDebug>
 #include <QMenu>
 
 #include "beamline/AMCurrentAmplifier.h"
@@ -19,65 +39,89 @@ public:
     /// Simple enum holding whether the view should be either basic or advanced looking.
     enum ViewMode { Basic = 0, Advanced = 1 };
 
-    /// Constructor. Takes in instance of AMCurrentAmplifier.
-    explicit AMCurrentAmplifierView(AMCurrentAmplifier *amplifier, QWidget *parent = 0);
+    /// Constructor.
+    explicit AMCurrentAmplifierView(QWidget *parent = 0);
+    /// Destructor.
     virtual ~AMCurrentAmplifierView();
 
-    /// Returns the pointer to the AMCurrentAmplifier this view is visualizing.
-    AMCurrentAmplifier *currentAmplifier() const;
-    /// Returns boolean indicating whether this view has been initialized.
+    /// Returns true if the view is initialized, false otherwise.
     bool initialized() const;
-    /// Returns the current view mode.
+    /// Returns true if the view is valid, false otherwise.
+    virtual bool isValid() const = 0;
+    /// Returns the mode this view is currently in.
     AMCurrentAmplifierView::ViewMode viewMode() const;
+    /// Returns the precision.
+    int precision() const;
+    /// Returns the format.
+    char format() const;
+    /// Returns the view's name, an empty string if it doesn't have one.
+    QString name() const;
 
 signals:
+    /// Emitted when the initialization state of the view changes.
+    void initialized(bool);
+    /// Emitted when the view mode changes.
     void viewModeChanged(AMCurrentAmplifierView::ViewMode newMode);
+    /// Emitted when the precision changes.
+    void precisionChanged(int newPrecision);
+    /// Emitted when the format changes.
+    void formatChanged(char newFormat);
+    /// Emitted when the view's name changes.
+    void nameChanged(const QString &name);
 
 public slots:
     /// Sets the view mode.
-    void setViewMode(ViewMode newMode);
-    /// Sets whether the amplifier name should be shown.
-    void showName(bool showName);
-    /// Sets the maximum viewable elements in the combo box. Note that QComboBox::setMaxVisibleItems() is ignored in some combobox styles, such as the Mac style (see Qt documentatation).
+    void setViewMode(AMCurrentAmplifierView::ViewMode newMode);
+    /// Sets the precision for values displayed.
+    void setPrecision(int newPrecision);
+    /// Sets the format for values displayed. Note that CLSSR570 amplifiers cannot accept input in scientific notation--the format_ for these amplifier views must be 'f'.
+    void setFormat(char newFormat);
+    /// Sets the view's name.
+    void setName(const QString &newName);
+    /// Shows (or hides) the view name, if it has one.
+    void showName(bool show);
+    /// Sets the number of values to be displayed at once in the value_ combobox.
     void setViewableValuesMax(int newMax);
-    /// Clears and resets view widgets.
-    void refreshView();
 
 protected slots:
-    /// Handles passing changes in the value combo box to the amplifier.
+    /// Sets the initialized_ state of the view.
+    void setInitialized(bool isInitialized);
+    /// Called when the selected value in value_ changes. Checks that the view is valid, then calls onValueComboBoxChangedImplementation.
     void onValueComboBoxChanged(const QString &newText);
-    /// Updates the value_ widget selection to reflect amplifier's new selection.
-    void onAmplifierValueChanged();
-    /// Calls either AMCurrentAmplifier::decreaseGain/decreaseSensitivity depending on the amplifier mode.
+    virtual void onValueComboBoxChangedImplementation(const QString &newText) = 0;
+    /// Called when minus_ button is clicked. Checks that the view is valid, then calls onMinusClickedImplementation.
     void onMinusClicked();
-    /// Calls either AMCurrentAmplifier::increaseGain/increaseSensitivity depending on the amplifier mode.
+    virtual void onMinusClickedImplementation() = 0;
+    /// Called when plus_ button is clicked. Checks that the view is valid, then calls onPlusClickedImplementation.
     void onPlusClicked();
-    /// If multiple modes are supported by the amplifier, context menu allows user to select gain/sensitivity preference.
-    virtual void onCustomContextMenuRequested(QPoint position);
+    virtual void onPlusClickedImplementation() = 0;
+    /// Children can call this method when its time to refresh the view. Checks that the view is valid, then calls refreshViewImplementation.
+    void refreshView();
+    virtual void refreshViewImplementation() = 0;
 
 protected:
-    /// Returns a string of the amplifier's value and units. Provides consistent formatting.
-    QString valueToString(double value, const QString &units) const;
-    /// Clears and repopulates value_ and units_ widget with information from amplifier_.
-    void refreshDisplayValues();
-    /// Sets whether buttons should be en/disabled according to whether amplifier_ is at a max/min gain/sensitivity state.
-    void refreshButtons();
+    /// Helper function that returns a string of the given amplifier value and units. Provides consistent formatting.
+    QString toDisplay(double value, const QString &units) const;
 
 protected:
-    /// Boolean indicating whether this view has been initialized.
+    /// Bool indicating the view's initialization state. Used to prevent the view from setting values when it shouldn't.
     bool initialized_;
-    /// The pointer to the current amplifier this view manages.
-    AMCurrentAmplifier *amplifier_;
-    /// Flag holding whether or not the view is basic or advanced.
-    ViewMode mode_;
-    /// Label to display amplifier name.
-    QLabel *name_;
-    /// The tool button for the minus button.
+    /// The current view mode.
+    ViewMode viewMode_;
+    /// The precision to be displayed for each value.
+    int precision_;
+    /// The format used to display values: 'f' for normal, 'e' for scientific, 'g' for whichever is more concise.
+    char format_;
+    /// Holds the view's name.
+    QLabel *name_;\
+    /// Minus button.
     QToolButton *minus_;
-    /// The tool button for the plus button.
+    /// Plus button.
     QToolButton *plus_;
-    /// Combo box holding the available options for amplifier value.
+    /// Displays the value options.
     QComboBox *value_;
+    /// The general view layout.
+    QHBoxLayout *layout_;
 };
 
 #endif // AMCURRENTAMPLIFIERVIEW_H

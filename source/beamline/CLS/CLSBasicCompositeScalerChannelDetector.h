@@ -1,3 +1,24 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #ifndef CLSBASICCOMPOSITESCALERCHANNELDETECTOR_H
 #define CLSBASICCOMPOSITESCALERCHANNELDETECTOR_H
 
@@ -40,7 +61,7 @@ public:
 	virtual QString synchronizedDwellKey() const;
 
 	/// The scaler channels always share a triggering source (with eachother through the main scaler trigger) and sometimes uses the synchronized dwell time object
-	virtual bool sharesDetectorTriggerSource() { return true; }
+	virtual bool sharesDetectorTriggerSource() const { return true; }
 	/// Returns the current shared detector trigger source (either the main scaler trigger source or the synchronized dwell time trigger source)
 	virtual AMDetectorTriggerSource* detectorTriggerSource();
 	/// Returns the current shared detector dwell time source (either the main scaler dwell time source or the synchronized dwell time dwell time source)

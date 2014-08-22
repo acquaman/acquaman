@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 Acquaman is free software: you can redistribute it and/or modify
@@ -34,14 +35,14 @@ class AMScanActionInfo : public AMActionInfo3
 {
 	Q_OBJECT
 
-	Q_PROPERTY(AMDbObject* config READ dbGetConfig WRITE dbLoadConfig)
+	Q_PROPERTY(AMDbObject* configuration READ dbGetConfig WRITE dbLoadConfig)
 	Q_PROPERTY(int scanID READ scanID WRITE setScanID)
 	Q_CLASSINFO("AMDbObject_Attributes", "description=Scan Action")
 
 public:
 	Q_INVOKABLE AMScanActionInfo(QObject *parent = 0);
 	/// Constructor.  Takes an AMScanConfiguration \param config and builds a scan action around it.  This will create a scan controller which can be controlled from within the workflow.
-	Q_INVOKABLE AMScanActionInfo(AMScanConfiguration *config, const QString& iconFileName = ":/spectrum.png", QObject *parent = 0);
+	Q_INVOKABLE AMScanActionInfo(AMScanConfiguration *configuration, const QString& iconFileName = ":/spectrum.png", QObject *parent = 0);
 	/// Copy constructor.  Makes a copy of \param other's scan configuration but does not copy the scan ID
 	AMScanActionInfo(const AMScanActionInfo &other);
 	/// Destructor.
@@ -62,9 +63,9 @@ public:
 	/// Returns true if it has a valid config()
 	bool isValid() const { return config_ != 0; }
 	/// Access the scan configuration.  Returns a constant reference.
-	const AMScanConfiguration* config() const;
+	const AMScanConfiguration* configuration() const;
 	/// Access the scan configuration.  Returns a modifiable reference.  If the info does not have a valid pointer then it will attempt to retrieve one from the database.
-	AMScanConfiguration* config();
+	AMScanConfiguration* configuration();
 
 	/// Returns the id of the scan that this action is associated with.
 	int scanID() const { return scanID_; }

@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -53,6 +54,8 @@ public:
 	/// 1. Database and storage:
 	// ========================================
 
+	/// Backup location to copy the data to
+	static QString remoteDataFolder;
 	/// Data storage root folder:
 	static QString userDataFolder;
 	/// name of user database

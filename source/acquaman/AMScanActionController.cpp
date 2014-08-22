@@ -1,3 +1,24 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "AMScanActionController.h"
 
 #include "actions3/AMActionRunner3.h"
@@ -17,14 +38,6 @@ AMScanActionController::AMScanActionController(AMScanConfiguration *configuratio
 	scanningActionsSucceeded_ = false;
 
 	connect(this, SIGNAL(stateChanged(int,int)), this, SLOT(onStateChanged(int,int)));
-}
-
-void AMScanActionController::skip(const QString &command)
-{
-	AMAction3 *currentAction = AMActionRunner3::scanActionRunner()->currentAction();
-
-	if(currentAction)
-		currentAction->skip(command);
 }
 
 void AMScanActionController::onStateChanged(int oldState, int newState)
@@ -104,45 +117,39 @@ bool AMScanActionController::canPause() const
 
 void AMScanActionController::pauseImplementation()
 {
-	AMAction3 *currentAction = AMActionRunner3::scanActionRunner()->currentAction();
-
-	// That's bad
-	if(!currentAction)
-		return;
-
-	if(currentAction->state() == AMAction3::Running && currentAction->pause())
+	if (AMActionRunner3::scanActionRunner()->pauseCurrentAction())
 		setPaused();
 
-	else{
-		// Also bad
-	}
+	else
+		AMErrorMon::alert(this, AMSCANACTIONCONTROLLER_CANNOT_PAUSE, "Was unable to pause the current action.");
 }
 
 void AMScanActionController::resumeImplementation()
 {
-	AMAction3 *currentAction = AMActionRunner3::scanActionRunner()->currentAction();
-
-	// That's bad
-	if(!currentAction)
-		return;
-
-	if(currentAction->state() == AMAction3::Paused && currentAction->resume()) {
+	if (AMActionRunner3::scanActionRunner()->resumeCurrentAction())
 		setResumed();
-	}
 
-	else{
-		// Also bad
-	}
+	else
+		AMErrorMon::alert(this, AMSCANACTIONCONTROLLER_CANNOT_RESUME, "Was unable to resume the current action.");
 }
 
 void AMScanActionController::cancelImplementation()
+{
+	if (AMActionRunner3::scanActionRunner()->cancelCurrentAction())
+		setCancelled();
+
+	else
+		AMErrorMon::alert(this, AMSCANACTIONCONTROLLER_CANNOT_CANCEL, "Was unable to cancel the current action.");
+}
+
+void AMScanActionController::stopImplementation(const QString &command)
 {
 	AMAction3 *currentAction = AMActionRunner3::scanActionRunner()->currentAction();
 
 	if(currentAction){
 
-		connect(currentAction, SIGNAL(cancelled()), this, SLOT(setCancelled()));
-		currentAction->cancel();
+		connect(currentAction, SIGNAL(succeeded()), this, SLOT(setFinished()));
+		currentAction->skip(command);
 	}
 }
 
@@ -183,6 +190,8 @@ void AMScanActionController::onScanningActionsSucceeded()
 		connect(cleanupActions_, SIGNAL(succeeded()), this, SLOT(onCleanupActionsListSucceeded()));
 		connect(cleanupActions_, SIGNAL(failed()), this, SLOT(onCleanupActionsListFailed()));
 
+		emit cleaningActionsStarted();
+
 		AMActionRunner3::scanActionRunner()->addActionToQueue(cleanupActions_);
 		AMActionRunner3::scanActionRunner()->setQueuePaused(false);
 	}
@@ -200,6 +209,8 @@ void AMScanActionController::onScanningActionsFailed()
 
 		connect(cleanupActions_, SIGNAL(succeeded()), this, SLOT(onCleanupActionsListSucceeded()));
 		connect(cleanupActions_, SIGNAL(failed()), this, SLOT(onCleanupActionsListFailed()));
+
+		emit cleaningActionsStarted();
 
 		AMActionRunner3::scanActionRunner()->addActionToQueue(cleanupActions_);
 		AMActionRunner3::scanActionRunner()->setQueuePaused(false);

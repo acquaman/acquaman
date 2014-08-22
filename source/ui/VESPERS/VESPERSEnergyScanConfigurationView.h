@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 Acquaman is free software: you can redistribute it and/or modify
@@ -22,7 +23,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/acquaman/AMScanConfigurationView.h"
 
-#include "ui/acquaman/AMRegionsView.h"
 #include "ui/VESPERS/VESPERSScanConfigurationView.h"
 #include "acquaman/VESPERS/VESPERSEnergyScanConfiguration.h"
 
@@ -63,9 +63,6 @@ protected slots:
 	void onEstimatedTimeChanged();
 	/// Handles making sure "Go To Position" looks appropriate when the motors change.
 	void onMotorsUpdated(int id);
-
-	/// Emits the configureDetector signal based with 'Roper CCD' or 'Mar CCD.
-	void onConfigureCCDDetectorClicked() { emit configureDetector(ccdDetectorIdToString(int(configuration_->ccdDetector()))); }
 
 protected:
 	/// Helper method that checks if the CCD files have the name given by \param name.  Does nothing if everything is okay.  Calls onCCDNameConflict if name conflicts exits.

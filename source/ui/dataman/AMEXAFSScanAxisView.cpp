@@ -1,3 +1,24 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "AMEXAFSScanAxisView.h"
 
 #include <QLabel>
@@ -87,31 +108,41 @@ void AMEXAFSScanAxisElementView::setStartSpinBox(const AMNumber &value)
 
 		if (region_->inKSpace())
 			region_->setRegionStart(AMEnergyToKSpaceCalculator::k(region_->edgeEnergy(), start_->value()+double(region_->edgeEnergy())));
+
+		onStartPositionUpdated();
 	}
 }
 
 void AMEXAFSScanAxisElementView::setDeltaSpinBox(const AMNumber &value)
 {
-	if ((double(value) - delta_->value()) < pow(1, -1*delta_->decimals()))
+	if ((double(value) - delta_->value()) < pow(1, -1*delta_->decimals())){
 		delta_->setValue(double(value));
+		onDeltaPositionUpdated();
+	}
 }
 
 void AMEXAFSScanAxisElementView::setEndSpinBox(const AMNumber &value)
 {
-	if ((double(value) != end_->value()))
+	if ((double(value) != end_->value())){
 		end_->setValue(double(value));
+		onEndPositionUpdated();
+	}
 }
 
 void AMEXAFSScanAxisElementView::setTimeSpinBox(const AMNumber &value)
 {
-	if (double(value) != time_->value())
+	if (double(value) != time_->value()){
 		time_->setValue(double(value));
+		onTimeUpdated();
+	}
 }
 
 void AMEXAFSScanAxisElementView::setMaximumTimeSpinBox(const AMNumber &value)
 {
-	if (double(value) != maximumTime_->value())
+	if (double(value) != maximumTime_->value()){
 		maximumTime_->setValue(double(value));
+		onMaximumTimeUpdated();
+	}
 }
 
 void AMEXAFSScanAxisElementView::onStartPositionUpdated()

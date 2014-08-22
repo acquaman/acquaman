@@ -1,4 +1,27 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "SGMXASScanActionController.h"
+
+#include <QApplication>
 
 #include "dataman/AMXASScan.h"
 #include "beamline/SGM/SGMBeamline.h"
@@ -8,10 +31,10 @@
 #include "beamline/CLS/CLSAmptekSDD123DetectorNew.h"
 #include "analysis/AM1DDarkCurrentCorrectionAB.h"
 #include "beamline/SGM/SGMMAXvMotor.h"
-#include "beamline/CLS/CLSSR570.h"
+#include "beamline/AMCurrentAmplifier.h"
 
 SGMXASScanActionController::SGMXASScanActionController(SGMXASScanConfiguration2013 *cfg, QObject *parent) :
-	AMRegionScanActionController(cfg, parent)
+	AMStepScanActionController(cfg, parent)
 {
 	configuration_ = cfg;
 
@@ -24,7 +47,11 @@ SGMXASScanActionController::SGMXASScanActionController(SGMXASScanConfiguration20
 		SGMBeamline::sgm()->currentSample()->addScan(scan_);
 	connect(scan_, SIGNAL(storedToDb()), SGMBeamline::sgm()->currentSample(), SLOT(forceStoreToDb()));
 	scan_->setIndexType("fileSystem");
+
 	scan_->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));
+	AMControlInfoList list;
+	list.append(SGMBeamline::sgm()->energy()->toInfo());
+	configuration_->setAxisControlInfos(list);
 
 	QString scanName;
 	QString sampleName;
@@ -50,7 +77,7 @@ SGMXASScanActionController::~SGMXASScanActionController(){}
 void SGMXASScanActionController::buildScanControllerImplementation()
 {
 
-	int dwellTimeIndex = scan_->indexOfDataSource(SGMBeamline::sgm()->dwellTimeDetector()->name());
+//	int dwellTimeIndex = scan_->indexOfDataSource(SGMBeamline::sgm()->dwellTimeDetector()->name());
 
 //	if (dwellTimeIndex != -1) {
 //		AMDataSource* dwellTimeSource = scan_->dataSourceAt(dwellTimeIndex);
@@ -105,7 +132,7 @@ QString SGMXASScanActionController::buildNotes()
 		CLSSIS3820ScalerChannel* currentChannel = scaler->channelAt(iChannel);
 		if(currentChannel->currentAmplifier() != 0)
 		{
-            AMCurrentAmplifier *channelSR570 = currentChannel->currentAmplifier();
+			AMCurrentAmplifier *channelSR570 = currentChannel->currentAmplifier();
 			if(channelSR570)
 				notes.append(QString("%1:\t%2 %3\n").arg(currentChannel->customChannelName()).arg(channelSR570->value()).arg(channelSR570->units()));
 		}
@@ -272,7 +299,7 @@ AMAction3* SGMXASScanActionController::createInitializationActions(){
 	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
 	initializationStage3->addSubAction(moveAction);
 
-	AMListAction3* initializationStage4 = new AMListAction3(new AMListActionInfo3("SGM XAS Initialization Stage 4", "SGM XAS Initialization Stage 4"), AMListAction3::Sequential);
+//	AMListAction3* initializationStage4 = new AMListAction3(new AMListActionInfo3("SGM XAS Initialization Stage 4", "SGM XAS Initialization Stage 4"), AMListAction3::Sequential);
 
 //	for (int i = 0, size = regionsConfiguration_->detectorConfigurations().count(); i < size; i++){
 //		AMDetector *detector = AMBeamline::bl()->exposedDetectorByInfo(regionsConfiguration_->detectorConfigurations().at(i));
@@ -297,15 +324,18 @@ AMAction3* SGMXASScanActionController::createInitializationActions(){
 //		}
 //	}
 
-
-	AMListAction3 *initializationStage5 = new AMListAction3(new AMListActionInfo3("SGM XAS Initialization Stage 5", "SGM XAS Initialization Stage 5"), AMListAction3::Parallel);
-	initializationStage5->addSubAction(SGMBeamline::sgm()->createBeamOnActions3());
-
 	initializationActions->addSubAction(initializationStage1);
 	initializationActions->addSubAction(initializationStage2);
 	initializationActions->addSubAction(initializationStage3);
-	initializationActions->addSubAction(initializationStage4);
-	initializationActions->addSubAction(initializationStage5);
+	//initializationActions->addSubAction(initializationStage4);
+
+	QStringList applicationArguments = QApplication::instance()->arguments();
+	if(!applicationArguments.contains("--enableTesting")){
+		AMListAction3 *initializationStage5 = new AMListAction3(new AMListActionInfo3("SGM XAS Initialization Stage 5", "SGM XAS Initialization Stage 5"), AMListAction3::Parallel);
+		initializationStage5->addSubAction(SGMBeamline::sgm()->createBeamOnActions3());
+
+		initializationActions->addSubAction(initializationStage5);
+	}
 
 	return initializationActions;
 }

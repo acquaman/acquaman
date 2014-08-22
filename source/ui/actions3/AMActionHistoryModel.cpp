@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 Acquaman is free software: you can redistribute it and/or modify
@@ -57,6 +58,7 @@ AMActionLogItem3::AMActionLogItem3(const AMActionLog3 &actionLog)
 	finalState_ = actionLog.finalState();
 	canCopy_ = actionLog.info()->canCopy();
 	parentId_ = actionLog.parentId();
+	failureMessage_ = actionLog.failureMessage();
 	actionInheritedLoop_ = actionLog.actionInheritedLoop();
 	// Only set number of loops from the database if this logAction inherited the loop action
 	if(actionInheritedLoop_){
@@ -94,6 +96,13 @@ QString AMActionLogItem3::longDescription() const
 	if(!loadedFromDb_)
 		loadLogDetailsFromDb();
 	return longDescription_;
+}
+
+QString AMActionLogItem3::failureMessage() const
+{
+	if(!loadedFromDb_)
+		loadLogDetailsFromDb();
+	return failureMessage_;
 }
 
 int AMActionLogItem3::finalState() const
@@ -165,7 +174,7 @@ bool AMActionLogItem3::loadLogDetailsFromDb() const
 		return false;
 
 	QStringList columns;
-	columns << "name" << "longDescription" << "iconFileName" << "startDateTime" << "endDateTime" << "finalState" << "info" << "parentId" << "actionInheritedLoop";
+	columns << "name" << "longDescription" << "iconFileName" << "startDateTime" << "endDateTime" << "finalState" << "info" << "parentId" << "failureMessage" << "actionInheritedLoop";
 	QVariantList values = db_->retrieve(id_, AMDbObjectSupport::s()->tableNameForClass<AMActionLog3>(), columns);
 	if(values.isEmpty())
 		return false;
@@ -181,7 +190,8 @@ bool AMActionLogItem3::loadLogDetailsFromDb() const
 	else
 		canCopy_ = db_->retrieve(values.at(6).toString().section(';', -1).toInt(), values.at(6).toString().split(';').first(), "canCopy").toBool();
 	parentId_ = values.at(7).toInt();
-	actionInheritedLoop_ = values.at(8).toBool();
+	failureMessage_ = values.at(8).toString();
+	actionInheritedLoop_ = values.at(9).toBool();
 	// Only set number of loops from the database if this logAction inherited the loop action
 	if(actionInheritedLoop_)
 		numberOfLoops_ = db_->retrieve(values.at(6).toString().section(';', -1).toInt(), values.at(6).toString().split(';').first(), "loopCount").toInt();
@@ -297,7 +307,7 @@ int AMActionHistoryModel3::rowCount(const QModelIndex &parent) const
 int AMActionHistoryModel3::columnCount(const QModelIndex &parent) const
 {
 	if(!parent.isValid())
-		return 4;
+		return 5;
 	else
 		return 0;
 }
@@ -319,8 +329,9 @@ QVariant AMActionHistoryModel3::data(const QModelIndex &index, int role) const
 		switch(index.column()) {
 		case 0: return item->shortDescription();
 		case 1: return QVariant();
-		case 2: return AMDateTimeUtils::prettyDateTime(item->endDateTime());
-		case 3: return AMDateTimeUtils::prettyDuration(item->startDateTime(), item->endDateTime());
+		case 2: return item->failureMessage();
+		case 3: return AMDateTimeUtils::prettyDateTime(item->endDateTime());
+		case 4: return AMDateTimeUtils::prettyDuration(item->startDateTime(), item->endDateTime());
 		}
 	}
 	else if(role == Qt::DecorationRole) {
@@ -373,10 +384,16 @@ QVariant AMActionHistoryModel3::data(const QModelIndex &index, int role) const
 			switch(item->finalState()) {
 			case AMAction3::Succeeded: return "Succeeded";
 			case AMAction3::Cancelled: return "Cancelled";
-			case AMAction3::Failed: return "Failed";
+			case AMAction3::Failed:
+				if(item->failureMessage().isEmpty())
+					return "Failed";
+				else
+					return QString("Failed with message: %1").arg(item->failureMessage());
 			default: return "[?]";
 			}
 		}
+		else if(index.column() == 2)
+			return QString(item->failureMessage());
 	}
 	else if(role == Qt::BackgroundRole) {
 		switch(item->finalState()) {
@@ -437,8 +454,9 @@ QVariant AMActionHistoryModel3::headerData(int section, Qt::Orientation orientat
 		switch(section) {
 		case 0: return QString("Action");
 		case 1: return QString("Status");
-		case 2: return QString("Finished");
-		case 3: return QString("Duration");
+		case 2: return QString("Message");
+		case 3: return QString("Finished");
+		case 4: return QString("Duration");
 		default: return QVariant();
 		}
 	}

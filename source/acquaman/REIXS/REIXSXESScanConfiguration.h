@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -92,6 +93,11 @@ public:
 	double maximumTotalCounts() const { return maximumTotalCounts_; }
 	/// How long to count for? We should stop this scan after this many seconds have elapsed
 	double maximumDurationSeconds() const { return double(maximumDurationSeconds_); }
+	/// Returns the current total estimated time for a scan to complete.
+	double totalTime() const { return totalTime_; }
+	/// Overloaded.  Returns the current total estimated time but also specifies whether the time should be recomputed first.
+	double totalTime(bool recompute) { if (recompute) computeTotalTimeImplementation(); return totalTime_; }
+
 	/// Any lateral offset we should introduce along the angle at this energy, to slide the detector into or out of the focus position (Useful for calibration and testing)
 	double defocusDistanceMm() const { return defocusDistanceMm_; }
 	/// The database id of the stored spectrometer calibration we should use. (This spectromter calibration is found in the user database, for now)
@@ -109,6 +115,8 @@ public:
 	const REIXSXESMCPDetectorInfo* mcpDetectorInfo() const { return &mcpDetectorInfo_; }
 	REIXSXESMCPDetectorInfo* mcpDetectorInfo() { return &mcpDetectorInfo_; }
 
+	/// Computes the total time as count rate changes.
+	void computeTotalTime() { computeTotalTimeImplementation(); }
 	/// Meta-data information to pre-set in the scan.
 	int scanNumber() const { return scanNumber_; }
 	/// Meta-data information to pre-set in the scan.
@@ -138,6 +146,9 @@ public:
 
 
 signals:
+	/// Notifier that the total time estimate has changed.
+	void totalTimeChanged(double);
+
 
 public slots:
 
@@ -179,6 +190,8 @@ public slots:
 
 protected:
 
+	/// Computes the total estimated time for the scan.
+	virtual void computeTotalTimeImplementation();
 
 
 	/// The number of the grating to use for this scan
@@ -202,7 +215,10 @@ protected:
 	/// We should stop this scan when we get this many counts
 	double maximumTotalCounts_;
 	/// We should stop this scan after this many seconds have elapsed
-	int maximumDurationSeconds_;
+	double maximumDurationSeconds_;
+	/// Holds the total time in seconds that the scan is estimated to take.
+	double totalTime_;
+
 	/// Any lateral offset we should introduce along the angle at this energy, to slide the detector into or out of the focus position (Useful for calibration and testing)
 	double defocusDistanceMm_;
 	/// Normally, the detector should be tangent to the rowland circle for best focussing.  This is an offset tilt, in degrees, where positive means more normal; negative means more grazing, and 0 will place the detector tangent to the rowland circle.

@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -434,7 +435,6 @@ void AMScanDatabaseImportController::copyScans()
 			delete object;
 			continue;
 		}
-		scan->retain(this);
 
 		// update scan fields:
 		scan->setRunId(s2dRunIds_.value(scan->runId(), -1));
@@ -449,7 +449,7 @@ void AMScanDatabaseImportController::copyScans()
 		if(destinationDir.exists(filePath)) {
 			// I know we're not supposed to be a GUI module... but is it okay to prompt here for what to do?
 			if(userSaysShouldSkipDuplicateScan(scan)) {
-				scan->release(this);
+				scan->deleteLater();
 				continue;
 			}
 			filePath = makeUniqueFileName(destinationPath_, filePath);
@@ -478,7 +478,7 @@ void AMScanDatabaseImportController::copyScans()
 											 AMErrorReport::Alert,
 											 -4,
 											 QString("Error copying the scan with ID '%1' into the new database. Your database might be corrupted. Please report this problem to the Acquaman developers.").arg(scanIds.at(i))));
-			scan->release(this);
+			scan->deleteLater();
 			continue;
 		}
 
@@ -543,7 +543,7 @@ void AMScanDatabaseImportController::copyScans()
 		}
 
 		// All done!
-		scan->release();
+		scan->deleteLater();
 		qApp->sendPostedEvents();
 		qApp->processEvents();
 	}

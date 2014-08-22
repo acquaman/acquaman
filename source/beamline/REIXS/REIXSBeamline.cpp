@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -25,11 +26,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/AMListAction3.h"
 #include "actions3/AMActionSupport.h"
 
-#include "acquaman/CLS/CLSSIS3820ScalerSADetector.h"
 #include "beamline/CLS/CLSBasicScalerChannelDetector.h"
 #include "beamline/CLS/CLSSIS3820Scaler.h"
-#include "beamline/CLS/CLSSR570.h"
-
+#include "beamline/CLS/CLSSensitivitySR570.h"
+#include "beamline/CLS/CLSMAXvMotor.h"
 
 #include <QApplication>
 #include <QDebug>
@@ -85,12 +85,12 @@ REIXSBeamline::REIXSBeamline() :
 	scaler_->channelAt(4)->setCustomChannelName("TFY");
 
 	scaler_->channelAt(18)->setCustomChannelName("TEY");
-	CLSSR570 *tempSR570 = new CLSSR570("TEY", "AMP1610-4-03:sens_num.VAL", "AMP1610-4-03:sens_unit.VAL", this);
+	CLSSensitivitySR570 *tempSR570 = new CLSSensitivitySR570("TEY", "AMP1610-4-03", this);
 	scaler_->channelAt(18)->setCurrentAmplifier(tempSR570);
 	scaler_->channelAt(18)->setVoltagRange(AMRange(0.25, 4.75));
 
 	scaler_->channelAt(16)->setCustomChannelName("I0");
-	tempSR570 = new CLSSR570("I0", "AMP1610-4-02:sens_num.VAL", "AMP1610-4-02:sens_unit.VAL", this);
+	tempSR570 = new CLSSensitivitySR570("I0", "AMP1610-4-02", this);
 	scaler_->channelAt(16)->setCurrentAmplifier(tempSR570);
 	scaler_->channelAt(16)->setVoltagRange(AMRange(0.25, 4.75));
 
@@ -137,10 +137,6 @@ REIXSBeamline::REIXSBeamline() :
 	setupExposedDetectors();
 
 	samplePlate_ = new AMSamplePlatePre2013(this);
-
-	xasDetectors_ = new REIXSXASDetectors(this);
-
-
 }
 
 REIXSBeamline::~REIXSBeamline() {
@@ -219,6 +215,8 @@ REIXSPhotonSource::REIXSPhotonSource(QObject *parent) :
 	directEnergy_ = directEnergy;
 	directEnergy_->setDescription("Beamline Energy");
 
+	bypassEnergy_ = new AMPVControl("bypassBeamlineEV", "REIXS:user:energy", "REIXS:user:energy", "REIXS:energy:stop");
+
 	userEnergyOffset_ = new AMPVControl("userEnergyOffset", "REIXS:user:energy:offset", "REIXS:user:energy:offset", QString(), this);
 	userEnergyOffset_->setDescription("User Energy Offest");
 
@@ -243,6 +241,11 @@ REIXSPhotonSource::REIXSPhotonSource(QObject *parent) :
 	monoMirrorTranslation_->setDescription("Mono Mirror Translation");
 	monoMirrorSelector_ = new AMPVwStatusControl("monoMirrorSelector", "MONO1610-I20-01:mirror:select:fbk", "MONO1610-I20-01:mirror:select", "MONO1610-I20-01:mirror:trans:status", "SMTR1610-I20-02:stop", this, 1);
 	monoMirrorSelector_->setDescription("Mono Mirror");
+
+//	monoMirrorAngle_ = new CLSMAXvMotor("monoMirrorAngle","MONO1610-I20-01:mirror","Mono Mirror Angle",true,0.00001,2.0,this);
+//	monoMirrorAngle_ = new AMReadOnlyPVwStatusControl("monoMirrorAngle","ENC1610-I20-02:average:deg:fbk","MONO1610-I20-01:mirror:status",this, new AMControlStatusCheckerCLSMAXv(),"Mono Mirror Angle");
+	monoMirrorAngleStatus_ = new AMReadOnlyPVControl("monoMirrorAngleStatus","MONO1610-I20-01:mirror:status",this,"Mono Mirror Angle Status");
+	monoGratingAngleStatus_ = new AMReadOnlyPVControl("monoGratingAngleStatus","MONO1610-I20-01:grating:status",this,"Mono Grating Angle Status");
 
 	epuPolarization_ = new AMPVwStatusControl("epuPolarization", "REIXS:UND1410-02:polarization", "REIXS:UND1410-02:polarization", "REIXS:UND1410-02:energy:status", QString(), this, 0.1);
 	epuPolarization_->setDescription("EPU Polarization");
@@ -673,6 +676,7 @@ void REIXSSpectrometer::specifyDetectorTiltOffset(double tiltOffsetDeg)
 }
 
 void REIXSSpectrometer::onConnected(bool isConnected){
+	Q_UNUSED(isConnected)
 	//figure out those values
 	//onConnected not required
 	updateGrating();
@@ -755,6 +759,7 @@ REIXSBrokenMonoControl::REIXSBrokenMonoControl(AMPVwStatusControl *underlyingCon
 
 	// require some parsing on our part:
 	connect(control_, SIGNAL(movingChanged(bool)), this, SLOT(onControlMovingChanged(bool)));
+
 
 }
 
@@ -859,6 +864,11 @@ AMControl::FailureExplanation REIXSBrokenMonoControl::move(double setpoint)
 	connect(moveAction_, SIGNAL(cancelled()), this, SLOT(onMoveActionFailed()));
 	connect(moveAction_, SIGNAL(succeeded()), this, SLOT(onMoveActionSucceeded()));
 
+	/// monitor mono angles for error state, clear and restart move if detected
+	connect(REIXSBeamline::bl()->photonSource()->monoMirrorAngleStatus(), SIGNAL(valueChanged(double)), this, SLOT(onMonoAngleError(double)));
+	connect(REIXSBeamline::bl()->photonSource()->monoGratingAngleStatus(), SIGNAL(valueChanged(double)), this, SLOT(onMonoAngleError(double)));
+
+
 	moveAction_->start();
 
 	return AMControl::NoFailure;
@@ -885,6 +895,9 @@ bool REIXSBrokenMonoControl::stop()
 void REIXSBrokenMonoControl::onMoveActionFailed()
 {
 	disconnect(moveAction_, 0, this, 0);
+	disconnect(REIXSBeamline::bl()->photonSource()->monoMirrorAngleStatus(),0, this, 0);
+	disconnect(REIXSBeamline::bl()->photonSource()->monoGratingAngleStatus(),0, this, 0);
+
 	moveAction_->deleteLater();
 	moveAction_ = 0;
 
@@ -906,6 +919,9 @@ void REIXSBrokenMonoControl::onMoveActionFailed()
 void REIXSBrokenMonoControl::onMoveActionSucceeded()
 {
 	disconnect(moveAction_, 0, this, 0);
+	disconnect(REIXSBeamline::bl()->photonSource()->monoMirrorAngleStatus(),0, this, 0);
+	disconnect(REIXSBeamline::bl()->photonSource()->monoGratingAngleStatus(),0, this, 0);
+
 	moveAction_->deleteLater();
 	moveAction_ = 0;
 
@@ -922,30 +938,21 @@ void REIXSBrokenMonoControl::onMoveActionSucceeded()
 	}
 }
 
+void REIXSBrokenMonoControl::onMonoAngleError(double error)
+{
+	//qDebug() << "Mono Mirror Angle move error detected with error code" << error;
+	if(qFuzzyCompare(error,4)){
+		AMErrorMon::information(this,0,"The mono mirror or grating angle move stalled, Acquaman has caught and corrected the problem. No user action required.");
+		REIXSBeamline::bl()->photonSource()->bypassEnergy()->stop();
+		REIXSBeamline::bl()->photonSource()->bypassEnergy()->move(REIXSBeamline::bl()->photonSource()->directEnergy()->setpoint());
+	}
+}
+
 
 
 REIXSBrokenMonoControl::~REIXSBrokenMonoControl() {
 	delete control_;
 	control_ = 0;
-}
-
- REIXSXASDetectors::~REIXSXASDetectors(){}
-REIXSXASDetectors::REIXSXASDetectors(QObject *parent) : AMCompositeControl("xasDetectors", "", parent, "XAS Detectors")
-{
-	TEY_ = new AMReadOnlyPVControl("TEY", "BL1610-ID-2:mcs18:fbk", this, "TEY");
-	TFY_ = new AMReadOnlyPVControl("TFY", "BL1610-ID-2:mcs04:fbk", this, "TFY");
-	I0_ = new AMReadOnlyPVControl("I0", "BL1610-ID-2:mcs16:fbk", this, "I0");
-	scalerContinuousMode_ = new AMSinglePVControl("scalerContinuous", "BL1610-ID-2:mcs:continuous", this, 0.1);
-
-	addChildControl(TEY_);
-	addChildControl(TFY_);
-	addChildControl(I0_);
-
-	saDetectors_ << new CLSSIS3820ScalerSADetector("TEY", "Electron Yield", "BL1610-ID-2:mcs", 18, true, this);
-	saDetectors_ << new CLSSIS3820ScalerSADetector("TFY", "Fluorescence Yield", "BL1610-ID-2:mcs", 4, false, this);
-	saDetectors_ << new CLSSIS3820ScalerSADetector("I0", "I0", "BL1610-ID-2:mcs", 16, false, this);
-	saDetectors_ << new CLSSIS3820ScalerSADetector("PFY", "PFY", "BL1610-ID-2:mcs", 3, false, this);
-	/// \todo XES detector PFY. Requires building a new AMSADetector subclass.
 }
 
 // To have a current sample in position, there must be a marked sample on the beamline's current plate, which has four positions set, and the sample manipulator is within tolerance of the X,Y,Z position. (We ignore theta, to allow different incident angles to all count as the same sample. Only works if the sample is at the center of rotation of the plate, unfortunately.)

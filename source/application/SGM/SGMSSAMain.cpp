@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -22,7 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include <QApplication>
-#include "application/SGM/SGMSSAAppController.h"
+#include "application/SGMSSAApplication/SGMSSAWidget.h"
 
 int main(int argc, char *argv[])
 {
@@ -33,22 +34,14 @@ int main(int argc, char *argv[])
 	app.setApplicationName("Acquaman");
 
 
-	SGMSSAAppController* appController = new SGMSSAAppController();
+	SGMSSAWidget *sgmSSA = new SGMSSAWidget();
+	sgmSSA->show();
 
 
 	/// Program Run-loop:
 	// =================================
-	int retVal = -1;
-	if(appController->startup())
-		retVal = app.exec();
+	app.exec();
 
-	/// Program Shutdown:
-	// =================================
-	if (appController->isRunning())
-		appController->shutdown();
-
-	delete appController;
-
-	return retVal;
+	return 0;
 }
 

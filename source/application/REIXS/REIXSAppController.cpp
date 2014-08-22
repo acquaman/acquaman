@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -23,11 +24,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/REIXS/REIXSBeamline.h"
 #include "beamline/REIXS/REIXSSampleManipulator.h"
 
+#include "ui/dataman/AMGenericScanEditor.h"
+#include "dataman/AMScan.h"
 #include "ui/acquaman/AMScanConfigurationView.h"
 #include "ui/REIXS/REIXSXESScanConfigurationDetailedView.h"
 #include "ui/REIXS/REIXSXASScanConfigurationView.h"
 #include "ui/REIXS/REIXSRIXSScanConfigurationView.h"
 #include "acquaman/REIXS/REIXSXASScanConfiguration.h"
+#include "ui/REIXS/REIXSXESSpectrometerControlPanel.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
 #include "ui/AMMainWindow.h"
 
@@ -102,8 +106,10 @@ bool REIXSAppController::startupBeforeAnything() {
 }
 
 // Re-implemented to register REIXS-specific database classes
-bool REIXSAppController::startupRegisterDatabases() {
-	if(!AMAppController::startupRegisterDatabases()) return false;
+bool REIXSAppController::startupRegisterDatabases()
+{
+	if(!AMAppController::startupRegisterDatabases())
+		return false;
 
 	AMDbObjectSupport::s()->registerClass<REIXSXESScanConfiguration>();
 	AMDbObjectSupport::s()->registerClass<REIXSXASScanConfiguration>();
@@ -111,31 +117,6 @@ bool REIXSAppController::startupRegisterDatabases() {
 	AMDbObjectSupport::s()->registerClass<REIXSXESCalibration>();
 	AMDbObjectSupport::s()->registerClass<REIXSXESImageAB>();
 	AMDbObjectSupport::s()->registerClass<REIXSXESImageInterpolationAB>();
-
-
-	//AMDbObjectSupport::s()->registerClass<REIXSControlMoveActionInfo>();
-	//AMDbObjectSupport::s()->registerClass<REIXSXESScanActionInfo>();
-	//AMDbObjectSupport::s()->registerClass<REIXSXASScanActionInfo>();
-	//AMDbObjectSupport::s()->registerClass<REIXSSampleMoveActionInfo>();
-	//AMDbObjectSupport::s()->registerClass<REIXSBeamOnOffActionInfo>();
-
-	// Register Actions:
-	////////////////////////////////
-
-	/// \todo Move common ones to main app controller.
-	//AMActionRegistry::s()->registerInfoAndAction<REIXSControlMoveActionInfo, REIXSControlMoveAction>("Move Control", "This action moves any REIXS beamline control to a target position.\n\nYou can specify an absolute or a relative move.", ":/system-run.png");
-	//AMActionRegistry::s()->registerInfoAndAction<REIXSXESScanActionInfo, REIXSXESScanAction>("XES Scan", "This action conducts a single XES scan at a given detector energy.", ":/utilities-system-monitor.png");
-	//AMActionRegistry::s()->registerInfoAndAction<REIXSXASScanActionInfo, REIXSXASScanAction>("XAS Scan", "This action conducts an XAS scan over an incident energy range.", ":/utilities-system-monitor.png");
-	//AMActionRegistry::s()->registerInfoAndAction<REIXSSampleMoveActionInfo, REIXSSampleMoveAction>("Move Sample", "This action moves the REIXS sample manipulator to a defined position, or switches between samples on the current sample plate.", ":/32x32/gnome-display-properties.png");
-	//AMActionRegistry::s()->registerInfoAndAction<REIXSMoveToSampleTransferPositionActionInfo, REIXSMoveToSampleTransferPositionAction>("Move to Transfer", "This action moves the REIXS sample manipulator to the sample transfer position.", ":/32x32/media-eject.png");
-	//AMActionRegistry::s()->registerInfoAndAction<REIXSBeamOnOffActionInfo, REIXSBeamOnOffAction>("Beam On/Off", "This action turns the beam on or off.");
-
-
-	//AMActionRegistry::s()->registerInfoAndEditor<REIXSXESScanActionInfo, REIXSXESScanActionEditor>();
-	/// \todo Editor for XAS Scan actions...
-	//AMActionRegistry::s()->registerInfoAndEditor<REIXSControlMoveActionInfo, REIXSControlMoveActionEditor>();
-	//AMActionRegistry::s()->registerInfoAndEditor<REIXSBeamOnOffActionInfo, REIXSBeamOnOffActionEditor>();
-	//AMActionRegistry::s()->registerInfoAndEditor<REIXSSampleMoveActionInfo, REIXSSampleMoveActionEditor>();
 
 	return true;
 }
@@ -172,6 +153,9 @@ bool REIXSAppController::startupCreateUserInterface() {
 	scanConfigurationHolder = new AMScanConfigurationViewHolder3(xasConfigView);
 	mw_->addPane(scanConfigurationHolder, "Experiment Setup", "Absorption Scan", ":/utilities-system-monitor.png");
 	connect(scanConfigurationHolder, SIGNAL(showWorkflowRequested()), this, SLOT(goToWorkflow()));
+
+	REIXSXESSpectrometerControlPanel* spectrometerPanel = new REIXSXESSpectrometerControlPanel(REIXSBeamline::bl()->mcpDetector(), 0);
+	mw_->addPane(spectrometerPanel, "Experiment Setup", "Spectromter Setup", ":/22x22/gnome-display-properties.png");
 
 
 	REIXSSampleChamberButtonPanel* buttonPanel = new REIXSSampleChamberButtonPanel();
@@ -229,6 +213,8 @@ bool REIXSAppController::startupCreateUserInterface() {
 }
 
 
+
+
 bool REIXSAppController::startupAfterEverything() {
 	if(!AMAppController::startupAfterEverything()) return false;
 
@@ -241,6 +227,8 @@ bool REIXSAppController::startupAfterEverything() {
 		firstRun.storeToDb(AMDatabase::database("user"));
 	}
 
+	connect(this, SIGNAL(scanEditorCreated(AMGenericScanEditor*)), this, SLOT(onScanEditorCreated(AMGenericScanEditor*)));
+
 	return true;
 }
 
@@ -251,47 +239,32 @@ void REIXSAppController::shutdown() {
 	AMAppController::shutdown();
 }
 
-#include "dataman/AMScan.h"
-void REIXSAppController::launchScanConfigurationFromDb(const QUrl &url)
+void REIXSAppController::onScanEditorCreated(AMGenericScanEditor *editor)
 {
-	// turn off automatic raw-day loading for scans... This will make loading the scan to access it's config much faster.
-	bool scanAutoLoadingOn = AMScan::autoLoadData();
-	AMScan::setAutoLoadData(false);
-
-	AMScan* scan = AMScan::createFromDatabaseUrl(url, true);
-
-	// restore AMScan's auto-loading of data to whatever it was before.
-	AMScan::setAutoLoadData(scanAutoLoadingOn);
-
-	if(!scan) {
-		return;
-	}
-
-	// Does the scan have a configuration?
-	AMScanConfiguration* config = scan->scanConfiguration();
-	if(!config) {
-		scan->release();
-		return;
-	}
-	// need to create a copy of the config so we can delete the scan (and hence the config instance owned by the scan). The view will take ownership of the copy.
-	config = config->createCopy();
-	scan->release();
-	if(!config)
-		return;
-
-	AMScanConfigurationView *view = config->createView();
-	if(!view) {
-		delete config;
-		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -401, "Unable to create view from the scan configuration loaded from the database.  Please report this problem to the beamline's software developers."));
-		return;
-	}
-
-	AMScanConfigurationViewHolder3* holder = new AMScanConfigurationViewHolder3(view);
-	holder->setAttribute(Qt::WA_DeleteOnClose, true);
-	holder->show();
+	connect(editor, SIGNAL(scanAdded(AMGenericScanEditor*,AMScan*)), this, SLOT(onScanAddedToEditor(AMGenericScanEditor*,AMScan*)));
 }
 
 
+void REIXSAppController::onScanAddedToEditor(AMGenericScanEditor *editor, AMScan *scan)
+{
+	QString exclusiveName = QString();
+
+	for (int i = 0, count = scan->analyzedDataSourceCount(); i < count && exclusiveName.isNull(); i++){
+
+		AMDataSource *source = scan->analyzedDataSources()->at(i);
+
+		if (source->name().contains("TEYNorm") && !source->hiddenFromUsers())
+			exclusiveName = source->name();
+
+		if (source->name().contains("xesSpectrum") && !source->hiddenFromUsers())
+			exclusiveName = source->name();
+
+	}
 
 
+	if (!exclusiveName.isNull())
+		editor->setExclusiveDataSourceByName(exclusiveName);
 
+	else if (editor->scanAt(0)->analyzedDataSourceCount())
+		editor->setExclusiveDataSourceByName(editor->scanAt(0)->analyzedDataSources()->at(editor->scanAt(0)->analyzedDataSourceCount()-1)->name());
+}

@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 Acquaman is free software: you can redistribute it and/or modify
@@ -72,7 +73,7 @@ AMScanActionInfo::~AMScanActionInfo()
 //		delete config_;
 }
 
-const AMScanConfiguration *AMScanActionInfo::config() const
+const AMScanConfiguration *AMScanActionInfo::configuration() const
 {
 	if (config_)
 		return config_;
@@ -80,7 +81,7 @@ const AMScanConfiguration *AMScanActionInfo::config() const
 	return 0;
 }
 
-AMScanConfiguration *AMScanActionInfo::config()
+AMScanConfiguration *AMScanActionInfo::configuration()
 {
 	if (config_)
 		return config_;
@@ -93,7 +94,7 @@ AMScanConfiguration *AMScanActionInfo::config()
 }
 
 QString AMScanActionInfo::dbLoadWarnings() const{
-	return config()->dbLoadWarnings();
+	return configuration()->dbLoadWarnings();
 }
 
 AMDbObject* AMScanActionInfo::dbGetConfig() const{
@@ -144,12 +145,12 @@ AMScanConfiguration *AMScanActionInfo::getConfigurationFromDb() const
 	if(!config) {
 
 		AMErrorMon::alert(this, AMSCANACTIONINFO_SCAN_HAS_NO_CONFIGURATION, "Scan does not have a valid scan configuration.");
-		scan->release();
+		scan->deleteLater();
 		return 0; //NULL
 	}
 	// need to create a copy of the config so we can delete the scan (and hence the config instance owned by the scan). The view will take ownership of the copy.
 	config = config->createCopy();
-	scan->release();
+	scan->deleteLater();
 
 	if(!config){
 

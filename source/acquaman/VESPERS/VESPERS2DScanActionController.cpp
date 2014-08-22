@@ -1,3 +1,24 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "VESPERS2DScanActionController.h"
 
 #include "actions3/AMListAction3.h"
@@ -8,6 +29,8 @@
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
 #include "dataman/export/VESPERS/VESPERSExporter2DAscii.h"
 #include "dataman/export/VESPERS/VESPERSExporterSMAK.h"
+#include "analysis/AM2DNormalizationAB.h"
+#include "analysis/AM3DAdditionAB.h"
 
 VESPERS2DScanActionController::VESPERS2DScanActionController(VESPERS2DScanConfiguration *configuration, QObject *parent)
 	: AMStepScanActionController(configuration, parent), VESPERSScanController(configuration)
@@ -58,21 +81,21 @@ VESPERS2DScanActionController::VESPERS2DScanActionController(VESPERS2DScanConfig
 		scan_->rawData()->addScanAxis(AMAxisInfo("Z", yPoints, "Vertical Position", "mm"));
 	}
 
-//	else if (motor.testFlag(VESPERS::AttoH) && motor.testFlag(VESPERS::AttoV)){
+	else if (motor.testFlag(VESPERS::AttoH) && motor.testFlag(VESPERS::AttoV)){
 
-//		list.append(VESPERSBeamline::vespers()->pseudoAttocubeStageMotorGroupObject()->horizontalControl()->toInfo());
-//		list.append(VESPERSBeamline::vespers()->pseudoAttocubeStageMotorGroupObject()->verticalControl()->toInfo());
-//		scan_->rawData()->addScanAxis(AMAxisInfo("H", 0, "Horizontal Position", "mm"));
-//		scan_->rawData()->addScanAxis(AMAxisInfo("V", yPoints, "Vertical Position", "mm"));
-//	}
+		list.append(VESPERSBeamline::vespers()->pseudoAttocubeStageMotorGroupObject()->horizontalControl()->toInfo());
+		list.append(VESPERSBeamline::vespers()->pseudoAttocubeStageMotorGroupObject()->verticalControl()->toInfo());
+		scan_->rawData()->addScanAxis(AMAxisInfo("H", 0, "Horizontal Position", "mm"));
+		scan_->rawData()->addScanAxis(AMAxisInfo("V", yPoints, "Vertical Position", "mm"));
+	}
 
-//	else if (motor.testFlag(VESPERS::AttoX) && motor.testFlag(VESPERS::AttoZ)){
+	else if (motor.testFlag(VESPERS::AttoX) && motor.testFlag(VESPERS::AttoZ)){
 
-//		list.append(VESPERSBeamline::vespers()->pseudoAttocubeStageMotorGroupObject()->horizontalControl()->toInfo());
-//		list.append(VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->verticalControl()->toInfo());
-//		scan_->rawData()->addScanAxis(AMAxisInfo("X", 0, "Horizontal Position", "mm"));
-//		scan_->rawData()->addScanAxis(AMAxisInfo("Z", yPoints, "Vertical Position", "mm"));
-//	}
+		list.append(VESPERSBeamline::vespers()->pseudoAttocubeStageMotorGroupObject()->horizontalControl()->toInfo());
+		list.append(VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->verticalControl()->toInfo());
+		scan_->rawData()->addScanAxis(AMAxisInfo("X", 0, "Horizontal Position", "mm"));
+		scan_->rawData()->addScanAxis(AMAxisInfo("Z", yPoints, "Vertical Position", "mm"));
+	}
 
 	configuration_->setAxisControlInfos(list);
 
@@ -85,53 +108,68 @@ VESPERS2DScanActionController::VESPERS2DScanActionController(VESPERS2DScanConfig
 	detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("MasterDwellTime")->toInfo());
 	detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("RingCurrent")->toInfo());
 
-//	VESPERS::FluorescenceDetectors xrfDetector = configuration_->fluorescenceDetector();
+	VESPERS::FluorescenceDetectors xrfDetector = configuration_->fluorescenceDetector();
 
-//	if (xrfDetector.testFlag(VESPERS::SingleElement)){
+	AMDetector *detector = 0;
 
-//		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("SingleElementVortex")->toInfo());
-//		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("SingleElementVortexDeadTime")->toInfo());
-//		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("SingleElementVortexRealTime")->toInfo());
-//		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("SingleElementVortexLiveTime")->toInfo());
-//		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("SingleElementVortexFastPeaks")->toInfo());
-//		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("SingleElementVortexSlowPeaks")->toInfo());
-//	}
+	if (xrfDetector.testFlag(VESPERS::SingleElement)){
 
-//	if (xrfDetector.testFlag(VESPERS::FourElement)){
+		detector = VESPERSBeamline::vespers()->exposedDetectorByName("SingleElementVortex");
+		detector->setHiddenFromUsers(true);
+		detector->setIsVisible(false);
+		detectors.addDetectorInfo(detector->toInfo());
 
-//		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("FourElementVortex")->toInfo());
-//		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("FourElementVortexDeadTime1")->toInfo());
-//		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("FourElementVortexDeadTime2")->toInfo());
-//		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("FourElementVortexDeadTime3")->toInfo());
-//		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("FourElementVortexDeadTime4")->toInfo());
-//		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("FourElementVortexRealTime1")->toInfo());
-//		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("FourElementVortexRealTime2")->toInfo());
-//		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("FourElementVortexRealTime3")->toInfo());
-//		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("FourElementVortexRealTime4")->toInfo());
-//		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("FourElementVortexLiveTime1")->toInfo());
-//		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("FourElementVortexLiveTime2")->toInfo());
-//		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("FourElementVortexLiveTime3")->toInfo());
-//		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("FourElementVortexLiveTime4")->toInfo());
-//		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("FourElementVortexFastPeaks1")->toInfo());
-//		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("FourElementVortexFastPeaks2")->toInfo());
-//		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("FourElementVortexFastPeaks3")->toInfo());
-//		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("FourElementVortexFastPeaks4")->toInfo());
-//		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("FourElementVortexSlowPeaks1")->toInfo());
-//		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("FourElementVortexSlowPeaks2")->toInfo());
-//		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("FourElementVortexSlowPeaks3")->toInfo());
-//		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("FourElementVortexSlowPeaks4")->toInfo());
-//	}
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("SingleElementVortexDeadTime")->toInfo());
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("SingleElementVortexRealTime")->toInfo());
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("SingleElementVortexLiveTime")->toInfo());
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("SingleElementVortexFastPeaks")->toInfo());
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("SingleElementVortexSlowPeaks")->toInfo());
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("SingleElementVortexRawSpectrum")->toInfo());
+	}
+
+	if (xrfDetector.testFlag(VESPERS::FourElement)){
+
+		detector = VESPERSBeamline::vespers()->exposedDetectorByName("FourElementVortex");
+		detector->setHiddenFromUsers(true);
+		detector->setIsVisible(false);
+		detectors.addDetectorInfo(detector->toInfo());
+
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("FourElementVortexDeadTime1")->toInfo());
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("FourElementVortexDeadTime2")->toInfo());
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("FourElementVortexDeadTime3")->toInfo());
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("FourElementVortexDeadTime4")->toInfo());
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("FourElementVortexRealTime1")->toInfo());
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("FourElementVortexRealTime2")->toInfo());
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("FourElementVortexRealTime3")->toInfo());
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("FourElementVortexRealTime4")->toInfo());
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("FourElementVortexLiveTime1")->toInfo());
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("FourElementVortexLiveTime2")->toInfo());
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("FourElementVortexLiveTime3")->toInfo());
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("FourElementVortexLiveTime4")->toInfo());
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("FourElementVortexFastPeaks1")->toInfo());
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("FourElementVortexFastPeaks2")->toInfo());
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("FourElementVortexFastPeaks3")->toInfo());
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("FourElementVortexFastPeaks4")->toInfo());
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("FourElementVortexSlowPeaks1")->toInfo());
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("FourElementVortexSlowPeaks2")->toInfo());
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("FourElementVortexSlowPeaks3")->toInfo());
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("FourElementVortexSlowPeaks4")->toInfo());
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("FourElementVortexRawSpectrum1")->toInfo());
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("FourElementVortexRawSpectrum2")->toInfo());
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("FourElementVortexRawSpectrum3")->toInfo());
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("FourElementVortexRawSpectrum4")->toInfo());
+	}
 
 	VESPERS::CCDDetectors ccdDetector = configuration_->ccdDetector();
 
 	if (ccdDetector == VESPERS::Roper)
-		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("RoperCCD")->toInfo());
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("RoperFileNumber")->toInfo());
 
 	if (ccdDetector == VESPERS::Mar)
-		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("MarCCD")->toInfo());
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("MarFileNumber")->toInfo());
 
 	if (ccdDetector == VESPERS::Pilatus)
-		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("PilatusPixelArrayDetector")->toInfo());
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("PilatusFileNumber")->toInfo());
 
 	configuration_->setDetectorConfigurations(detectors);
 
@@ -160,13 +198,40 @@ void VESPERS2DScanActionController::buildScanControllerImplementation()
 
 	if (detector){
 
-		foreach (AMRegionOfInterest *region, detector->regionsOfInterest()){
+		detector->removeAllRegionsOfInterest();
+
+		QList<AMDataSource *> i0Sources = QList<AMDataSource *>()
+				<< scan_->dataSourceAt(scan_->indexOfDataSource("SplitIonChamber"))
+				   << scan_->dataSourceAt(scan_->indexOfDataSource("PreKBIonChamber"))
+					  << scan_->dataSourceAt(scan_->indexOfDataSource("MiniIonChamber"));
+
+		AMDataSource *spectraSource = 0;
+
+		if (xrfDetector.testFlag(VESPERS::SingleElement) && xrfDetector.testFlag(VESPERS::FourElement)){
+
+			AM3DAdditionAB *sumSpectra = new AM3DAdditionAB("SingleAndFourSpectra");
+			sumSpectra->setInputDataSources(QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource("SingleElementVortex")) << scan_->dataSourceAt(scan_->indexOfDataSource("FourElementVortex")));
+			scan_->addAnalyzedDataSource(sumSpectra, false, true);
+			spectraSource = sumSpectra;
+		}
+
+		else
+			spectraSource = scan_->dataSourceAt(scan_->indexOfDataSource(detector->name()));
+
+		foreach (AMRegionOfInterest *region, configuration_->regionsOfInterest()){
 
 			AMRegionOfInterestAB *regionAB = (AMRegionOfInterestAB *)region->valueSource();
 			AMRegionOfInterestAB *newRegion = new AMRegionOfInterestAB(regionAB->name());
 			newRegion->setBinningRange(regionAB->binningRange());
-			newRegion->setInputDataSources(QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource(detector->name())));
-			scan_->addAnalyzedDataSource(newRegion);
+			newRegion->setInputDataSources(QList<AMDataSource *>() << spectraSource);
+			scan_->addAnalyzedDataSource(newRegion, false, true);
+			detector->addRegionOfInterest(region);
+
+			AM2DNormalizationAB *normalizedRegion = new AM2DNormalizationAB(QString("norm_%1").arg(region->name()));
+			normalizedRegion->setInputDataSources(QList<AMDataSource *>() << newRegion << i0Sources);
+			normalizedRegion->setDataName(newRegion->name());
+			normalizedRegion->setNormalizationName(i0Sources.at(int(configuration_->incomingChoice()))->name());
+			scan_->addAnalyzedDataSource(normalizedRegion, true, false);
 		}
 	}
 }
@@ -179,11 +244,34 @@ void VESPERS2DScanActionController::createAxisOrderMap()
 
 AMAction3* VESPERS2DScanActionController::createInitializationActions()
 {
-	return buildBaseInitializationAction(configuration_->detectorConfigurations());
+	AMSequentialListAction3 *initializationActions = new AMSequentialListAction3(new AMSequentialListActionInfo3("Initialization actions", "Initialization actions"));
+	initializationActions->addSubAction(buildBaseInitializationAction(configuration_->detectorConfigurations()));
+
+	if (!configuration_->ccdDetector().testFlag(VESPERS::NoCCD))
+		initializationActions->addSubAction(buildCCDInitializationAction(configuration_->ccdDetector(), configuration_->ccdFileName()));
+
+	return initializationActions;
 }
 
 AMAction3* VESPERS2DScanActionController::createCleanupActions()
 {
+	VESPERS::FluorescenceDetectors xrfDetector = configuration_->fluorescenceDetector();
+	AMDetector *detector = 0;
+
+	if (xrfDetector.testFlag(VESPERS::SingleElement)){
+
+		detector = VESPERSBeamline::vespers()->exposedDetectorByName("SingleElementVortex");
+		detector->setHiddenFromUsers(false);
+		detector->setIsVisible(true);
+	}
+
+	if (xrfDetector.testFlag(VESPERS::FourElement)){
+
+		detector = VESPERSBeamline::vespers()->exposedDetectorByName("FourElementVortex");
+		detector->setHiddenFromUsers(false);
+		detector->setIsVisible(true);
+	}
+
 	return buildCleanupAction();
 }
 

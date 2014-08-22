@@ -5,6 +5,7 @@
 
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -175,7 +176,7 @@ void REIXSXESScanController::onInitialSetupMoveSucceeded() {
 	AMControlInfoList positions(REIXSBeamline::bl()->exposedControls()->toInfoList());
 	// add the spectrometer grating selection, since it's not a "control" anywhere.
 	AMControlInfo grating("spectrometerGrating", REIXSBeamline::bl()->spectrometer()->specifiedGrating(), 0, 0, "[choice]", 0.1, "Spectrometer Grating");
-	grating.setEnumString(REIXSBeamline::bl()->spectrometer()->spectrometerCalibration()->gratingAt(grating.value()).name());
+	grating.setEnumString(REIXSBeamline::bl()->spectrometer()->spectrometerCalibration()->gratingAt(int(grating.value())).name());
 	positions.insert(0, grating);
 
 	//scan_->scanInitialConditions()->setValuesFrom(positions);

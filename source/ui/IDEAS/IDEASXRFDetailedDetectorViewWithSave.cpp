@@ -1,9 +1,30 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "IDEASXRFDetailedDetectorViewWithSave.h"
 
 #include "beamline/IDEAS/IDEASBeamline.h"
 #include "ui/CLS/CLSSIS3820ScalerView.h"
 #include "beamline/CLS/CLSSIS3820Scaler.h"
-#include "beamline/CLS/CLSSR570.h"
+#include "beamline/CLS/CLSSensitivitySR570.h"
 
 IDEASXRFDetailedDetectorViewWithSave::IDEASXRFDetailedDetectorViewWithSave(AMXRFDetector *detector, QWidget *parent)
 	: AMXRFDetailedDetectorView(detector, parent)
@@ -177,15 +198,15 @@ void IDEASXRFDetailedDetectorViewWithSave::onAcquisitionSucceeded()
     positions.remove(positions.indexOf("DwellTime"));
     positions.remove(positions.indexOf("DirectEnergy"));
 
-    CLSSR570* I0SR570 = qobject_cast<CLSSR570*>(IDEASBeamline::ideas()->scaler()->channelAt(0)->currentAmplifier());
+    CLSSensitivitySR570* I0SR570 = qobject_cast<CLSSensitivitySR570*>(IDEASBeamline::ideas()->scaler()->channelAt(0)->currentAmplifier());
     AMControlInfo I0Scaler("I0Scaler", IDEASBeamline::ideas()->scaler()->channelAt(0)->voltage(), 0, 0, QString("%1 %2").arg(I0SR570->value()).arg(I0SR570->units()) , 0.1, "I_0 Scaler Value");
     positions.insert(2, I0Scaler);
 
-    CLSSR570* SampleSR570 = qobject_cast<CLSSR570*>(IDEASBeamline::ideas()->scaler()->channelAt(1)->currentAmplifier());
+    CLSSensitivitySR570* SampleSR570 = qobject_cast<CLSSensitivitySR570*>(IDEASBeamline::ideas()->scaler()->channelAt(1)->currentAmplifier());
     AMControlInfo SampleScaler("SampleScaler", IDEASBeamline::ideas()->scaler()->channelAt(1)->voltage(), 0, 0, QString("%1 %2").arg(SampleSR570->value()).arg(SampleSR570->units()) , 0.1, "Sample Scaler Value");
     positions.insert(3, SampleScaler);
 
-    CLSSR570* ReferenceSR570 = qobject_cast<CLSSR570*>(IDEASBeamline::ideas()->scaler()->channelAt(2)->currentAmplifier());
+    CLSSensitivitySR570* ReferenceSR570 = qobject_cast<CLSSensitivitySR570*>(IDEASBeamline::ideas()->scaler()->channelAt(2)->currentAmplifier());
     AMControlInfo ReferenceScaler("ReferenceScaler", IDEASBeamline::ideas()->scaler()->channelAt(2)->voltage(), 0, 0, QString("%1 %2").arg(ReferenceSR570->value()).arg(ReferenceSR570->units()) , 0.1, "Reference Scaler Value");
     positions.insert(4, ReferenceScaler);
 

@@ -1,3 +1,24 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "VESPERSXASScanActionController.h"
 
 #include "beamline/VESPERS/VESPERSBeamline.h"
@@ -9,6 +30,8 @@
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
 #include "acquaman/AMEXAFSScanActionControllerAssembler.h"
 #include "analysis/AM1DKSpaceCalculatorAB.h"
+#include "analysis/AM1DNormalizationAB.h"
+#include "analysis/AM2DAdditionAB.h"
 
 VESPERSXASScanActionController::~VESPERSXASScanActionController(){}
 
@@ -57,6 +80,7 @@ VESPERSXASScanActionController::VESPERSXASScanActionController(VESPERSEXAFSScanC
 		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("SingleElementVortexLiveTime")->toInfo());
 		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("SingleElementVortexFastPeaks")->toInfo());
 		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("SingleElementVortexSlowPeaks")->toInfo());
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("SingleElementVortexRawSpectrum")->toInfo());
 	}
 
 	if (xrfDetector.testFlag(VESPERS::FourElement)){
@@ -82,6 +106,10 @@ VESPERSXASScanActionController::VESPERSXASScanActionController(VESPERSEXAFSScanC
 		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("FourElementVortexSlowPeaks2")->toInfo());
 		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("FourElementVortexSlowPeaks3")->toInfo());
 		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("FourElementVortexSlowPeaks4")->toInfo());
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("FourElementVortexRawSpectrum1")->toInfo());
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("FourElementVortexRawSpectrum2")->toInfo());
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("FourElementVortexRawSpectrum3")->toInfo());
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("FourElementVortexRawSpectrum4")->toInfo());
 	}
 
 	configuration_->setDetectorConfigurations(detectors);
@@ -116,13 +144,42 @@ void VESPERSXASScanActionController::buildScanControllerImplementation()
 
 	if (detector){
 
-		foreach (AMRegionOfInterest *region, detector->regionsOfInterest()){
+		detector->removeAllRegionsOfInterest();
+
+		QList<AMDataSource *> i0Sources = QList<AMDataSource *>()
+				<< scan_->dataSourceAt(scan_->indexOfDataSource("SplitIonChamber"))
+				   << scan_->dataSourceAt(scan_->indexOfDataSource("PreKBIonChamber"))
+					  << scan_->dataSourceAt(scan_->indexOfDataSource("MiniIonChamber"));
+
+		AMDataSource *spectraSource = 0;
+
+		if (xrfDetector.testFlag(VESPERS::SingleElement) && xrfDetector.testFlag(VESPERS::FourElement)){
+
+			AM2DAdditionAB *sumSpectra = new AM2DAdditionAB("SingleAndFourSpectra");
+			sumSpectra->setInputDataSources(QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource("SingleElementVortex")) << scan_->dataSourceAt(scan_->indexOfDataSource("FourElementVortex")));
+			scan_->addAnalyzedDataSource(sumSpectra, false, true);
+			spectraSource = sumSpectra;
+		}
+
+		else
+			spectraSource = scan_->dataSourceAt(scan_->indexOfDataSource(detector->name()));
+
+		QString edgeSymbol = configuration_->edge().split(" ").first();
+
+		foreach (AMRegionOfInterest *region, configuration_->regionsOfInterest()){
 
 			AMRegionOfInterestAB *regionAB = (AMRegionOfInterestAB *)region->valueSource();
 			AMRegionOfInterestAB *newRegion = new AMRegionOfInterestAB(regionAB->name());
 			newRegion->setBinningRange(regionAB->binningRange());
-			newRegion->setInputDataSources(QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource(detector->name())));
-			scan_->addAnalyzedDataSource(newRegion);
+			newRegion->setInputDataSources(QList<AMDataSource *>() << spectraSource);
+			scan_->addAnalyzedDataSource(newRegion, false, true);
+			detector->addRegionOfInterest(region);
+
+			AM1DNormalizationAB *normalizedRegion = new AM1DNormalizationAB(QString("norm_%1").arg(region->name()));
+			normalizedRegion->setInputDataSources(QList<AMDataSource *>() << newRegion << i0Sources);
+			normalizedRegion->setDataName(newRegion->name());
+			normalizedRegion->setNormalizationName(i0Sources.at(int(configuration_->incomingChoice()))->name());
+			scan_->addAnalyzedDataSource(normalizedRegion, region->name().contains(edgeSymbol), !region->name().contains(edgeSymbol));
 		}
 	}
 }

@@ -1,3 +1,24 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "AMRegionOfInterestAB.h"
 
 AMRegionOfInterestAB::AMRegionOfInterestAB(const QString &outputName, QObject *parent)
@@ -100,10 +121,13 @@ AMNumber AMRegionOfInterestAB::value(const AMnDIndex &indexes) const
 	start[indexes.rank()] = minimum;
 	end[indexes.rank()] = maximum;
 
-
 	QVector<double> data = QVector<double>(maximum - minimum + 1);
 
 	if (spectrum_->values(start, end, data.data())){
+
+		// If negative, then there isn't real data yet.
+		if (data.at(0) < 0)
+			return -1.0;
 
 		double value = 0;
 
@@ -115,7 +139,6 @@ AMNumber AMRegionOfInterestAB::value(const AMnDIndex &indexes) const
 
 	return AMNumber(AMNumber::InvalidError);
 }
-
 
 bool AMRegionOfInterestAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
 {
@@ -164,7 +187,7 @@ bool AMRegionOfInterestAB::values(const AMnDIndex &indexStart, const AMnDIndex &
 			for (int i = 0, size = data.size(); i < size; i++)
 				value += data.at(i);
 
-			*outputValues = value;
+			*outputValues = (value < 0 ? -1 : value);
 
 			break;
 		}
@@ -178,7 +201,7 @@ bool AMRegionOfInterestAB::values(const AMnDIndex &indexStart, const AMnDIndex &
 				for (int j = 0, jSize = maximum - minimum + 1; j < jSize; j++)
 					value += data.at(i*axisLength+j);
 
-				outputValues[i] = value;
+				outputValues[i] = (value < 0 ? -1 : value);
 			}
 
 			break;
@@ -192,16 +215,10 @@ bool AMRegionOfInterestAB::values(const AMnDIndex &indexStart, const AMnDIndex &
 
 					double value = 0;
 
-					if (data.at(i*jSize*axisLength+j*axisLength) == -1)
-						outputValues[i*jSize+j] = -1;
+					for (int k = 0, kSize = maximum - minimum + 1; k < kSize; k++)
+						value += data.at(i*jSize*axisLength+j*axisLength+k);
 
-					else {
-
-						for (int k = 0, kSize = maximum - minimum + 1; k < kSize; k++)
-							value += data.at(i*jSize*axisLength+j*axisLength+k);
-
-						outputValues[i*jSize+j] = value;
-					}
+					outputValues[i*jSize+j] = (value < 0 ? -1 : value);
 				}
 			}
 

@@ -1,3 +1,24 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "AMStepScanActionController.h"
 
 #include <QFile>
@@ -7,7 +28,6 @@
 #include "application/AMAppController.h"
 #include "application/AMAppControllerSupport.h"
 #include "acquaman/AMGenericScanActionControllerAssembler.h"
-#include "acquaman/AMRegionScanConfigurationConverter.h"
 #include "acquaman/AMAgnosticDataAPI.h"
 #include "actions3/AMActionRunner3.h"
 #include "actions3/AMListAction3.h"
@@ -25,6 +45,7 @@ AMStepScanActionController::AMStepScanActionController(AMStepScanConfiguration *
 	stepConfiguration_ = configuration;
 	fileWriterIsBusy_ = false;
 	useFeedback_ = false;
+	stoppingAtEndOfLine_ = false;
 }
 
 AMStepScanActionController::~AMStepScanActionController()
@@ -114,15 +135,10 @@ void AMStepScanActionController::buildScanController()
 		foreach (AMAxisInfo axis, scanAxes)
 			scan_->rawData()->addScanAxis(axis);
 
-		flushToDiskTimer_.setInterval(300000);
-		connect(this, SIGNAL(started()), &flushToDiskTimer_, SLOT(start()));
-		connect(this, SIGNAL(cancelled()), &flushToDiskTimer_, SLOT(stop()));
-		connect(this, SIGNAL(paused()), &flushToDiskTimer_, SLOT(stop()));
-		connect(this, SIGNAL(resumed()), &flushToDiskTimer_, SLOT(start()));
-		connect(this, SIGNAL(failed()), &flushToDiskTimer_, SLOT(stop()));
-		connect(this, SIGNAL(finished()), &flushToDiskTimer_, SLOT(stop()));
-		connect(&flushToDiskTimer_, SIGNAL(timeout()), this, SLOT(flushCDFDataStoreToDisk()));
-		flushToDiskTimer_.start();
+		connect(this, SIGNAL(started()), this, SLOT(flushCDFDataStoreToDisk()));
+		connect(this, SIGNAL(cancelled()), this, SLOT(flushCDFDataStoreToDisk()));
+		connect(this, SIGNAL(failed()), this, SLOT(flushCDFDataStoreToDisk()));
+		connect(this, SIGNAL(finished()), this, SLOT(flushCDFDataStoreToDisk()));
 	}
 
 	qRegisterMetaType<AMScanActionControllerBasicFileWriter::FileWriterError>("FileWriterError");
@@ -158,7 +174,6 @@ void AMStepScanActionController::buildScanController()
 
 	else
 		setFailed();
-
 }
 
 bool AMStepScanActionController::isReadyForDeletion() const
@@ -248,6 +263,15 @@ bool AMStepScanActionController::event(QEvent *e)
 				emit finishWritingToFile();
 			}
 
+			// This should be safe and fine regardless of if the CDF data store is being used or not.
+			flushCDFDataStoreToDisk();
+
+			if (isStopping() && stoppingAtEndOfLine_){
+
+				connect(AMActionRunner3::scanActionRunner()->currentAction(), SIGNAL(cancelled()), this, SLOT(onScanningActionsSucceeded()));
+				AMActionRunner3::scanActionRunner()->cancelCurrentAction();
+			}
+
 			break;}
 
 		case AMAgnosticDataAPIDefinitions::AxisValueFinished:
@@ -260,6 +284,12 @@ bool AMStepScanActionController::event(QEvent *e)
 			for (int i = 0, size = scan_->rawData()->scanAxesCount(); i < size; i++)
 				if (message.uniqueID().contains(scan_->rawData()->scanAxisAt(i).name))
 					currentAxisValueIndex_[i] = currentAxisValueIndex_.at(i)+1;
+
+			if (isStopping() && !stoppingAtEndOfLine_){
+
+				connect(AMActionRunner3::scanActionRunner()->currentAction(), SIGNAL(cancelled()), this, SLOT(onScanningActionsSucceeded()));
+				AMActionRunner3::scanActionRunner()->cancelCurrentAction();
+			}
 
 			break;
 
@@ -278,6 +308,9 @@ bool AMStepScanActionController::event(QEvent *e)
 				localDetectorData[x] = detectorDataValues.at(x).toDouble();
 
 			scan_->rawData()->setValue(currentAxisValueIndex_, scan_->rawData()->idOfMeasurement(message.uniqueID()), localDetectorData.constData());
+
+			// This should be safe and fine regardless of if the CDF data store is being used or not.
+			flushCDFDataStoreToDisk();
 
 			break;}
 
@@ -411,9 +444,9 @@ void AMStepScanActionController::prefillScanPoints()
 		foreach (AMScanAxis *axis, stepConfiguration_->scanAxes()){
 
 			AMScanAxisRegion *region = axis->regionAt(0);
-			starts << region->regionStart();
-			steps << region->regionStep();
-			ends << region->regionEnd();
+			starts << double(region->regionStart());
+			steps << double(region->regionStep());
+			ends << double(region->regionEnd());
 			axisSizes << (int(round((double(region->regionEnd())-double(region->regionStart()))/double(region->regionStep()))) + 1);
 		}
 
@@ -436,7 +469,7 @@ void AMStepScanActionController::prefillScanPoints()
 
 						else if ((scan_->rawDataSources()->at(di)->rank() - scanRank) == 1){
 
-							QVector<int> data = QVector<int>(scan_->rawDataSources()->at(di)->size(0), -1);
+							QVector<double> data = QVector<double>(scan_->rawDataSources()->at(di)->size(scan_->rawDataSources()->at(di)->rank()-1), -1);
 							scan_->rawData()->setValue(insertIndex, di, data.constData());
 						}
 					}
@@ -480,5 +513,11 @@ void AMStepScanActionController::prefillScanPoints()
 
 		scan_->rawData()->endInsertRows();
 	}
+}
+
+void AMStepScanActionController::stopImplementation(const QString &command)
+{
+	if (command == "Stop At End Of Line")
+		stoppingAtEndOfLine_ = true;
 }
 

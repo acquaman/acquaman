@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -66,7 +67,7 @@ bool ALSBL8XASFileLoader::loadFromFile(const QString& filepath, bool setMetaData
 
 	// information about the scan we hope to locate:
 	QString comments;
-	double integrationTime;
+	/* double integrationTime; Removed to prevent compile warning, see Issue734 */
 
 	// used in parsing the data file
 	QString line;
@@ -84,6 +85,7 @@ bool ALSBL8XASFileLoader::loadFromFile(const QString& filepath, bool setMetaData
 	QTextStream fs(&f);
 
 	if(setMetaData) {
+		/* Removed to prevent compile warning, see Issue734
 		// Start reading the file. look for the count-time line.
 		while( !fs.atEnd() && !(line = fs.readLine()).startsWith("Count Time (s):") )
 			;
@@ -96,7 +98,7 @@ bool ALSBL8XASFileLoader::loadFromFile(const QString& filepath, bool setMetaData
 			// read it
 			integrationTime = line.split(':').at(1).trimmed().toDouble();
 		}
-
+		*/
 
 		// Keep reading the file. look for the comment line.
 		while( !fs.atEnd() && !(line = fs.readLine()).startsWith("Description Length:") )

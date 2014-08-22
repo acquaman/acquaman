@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -21,11 +22,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef AM_SGMXASSCANCONFIGURATION_H
 #define AM_SGMXASSCANCONFIGURATION_H
 
-#include "acquaman/AMXASScanConfiguration.h"
+#include "acquaman/AMStepScanConfiguration.h"
 #include "SGMScanConfiguration.h"
 #include "dataman/info/AMOldDetectorInfoSet.h"
 
-class SGMXASScanConfiguration : public AMXASScanConfiguration, public SGMScanConfiguration
+class SGMXASScanConfiguration : public AMStepScanConfiguration, public SGMScanConfiguration
 {
 	Q_OBJECT
 
@@ -42,10 +43,10 @@ class SGMXASScanConfiguration : public AMXASScanConfiguration, public SGMScanCon
 
 public:
 	/// Standard constructor, queries the SGMBeamline and retrieves some detector information
- 	virtual ~SGMXASScanConfiguration();
 	Q_INVOKABLE explicit SGMXASScanConfiguration(QObject *parent=0);
 	/// Copy constructor
 	SGMXASScanConfiguration(const SGMXASScanConfiguration &original);
+	virtual ~SGMXASScanConfiguration();
 
 	/// Returns the metaObject
 	const QMetaObject* getMetaObject();
@@ -70,11 +71,6 @@ public:
 
 	/// A human-readable synopsis of this scan configuration. Can be re-implemented to proved more details. Used by scan action to set the main text in the action view.
 	virtual QString detailedDescription() const;
-
-	/// Returns the AMControlInfo for the scanned region control.
-	AMControlInfo regionControlInfo() const { return regions_->defaultControl()->toInfo(); }
-	/// Returns the AMControlInfo for the time control.
-	AMControlInfo timeControlInfo() const { return regions_->defaultTimeControl()->toInfo(); }
 
 	/// Overrides the warnings string to check warnings from the detector info set
 	virtual QString dbLoadWarnings() const;

@@ -1,9 +1,30 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "VESPERSScanController.h"
 
 #include "beamline/VESPERS/VESPERSBeamline.h"
 //#include "acquaman/dacq3_3/qepicsadvacq.h"
 #include "actions3/AMListAction3.h"
-#include "beamline/CLS/CLSSR570.h"
+#include "beamline/AMCurrentAmplifier.h"
 
 #include <QStringBuilder>
 
@@ -180,241 +201,24 @@ QString VESPERSScanController::buildNotes()
 	notes.append(QString("\nIon Chamber Gain Settings\n"));
 
 	CLSSIS3820ScalerChannel *channel = VESPERSBeamline::vespers()->scaler()->channelAt(5);
-    AMCurrentAmplifier *sr570 = channel->currentAmplifier();
-    if (sr570)
-        notes.append(QString("%1:\t%2 %3\n").arg("Split").arg(sr570->value()).arg(sr570->units()));
+	AMCurrentAmplifier *sr570 = channel->currentAmplifier();
+	if (sr570)
+		notes.append(QString("%1:\t%2 %3\n").arg("Split").arg(sr570->value()).arg(sr570->units()));
 	channel = VESPERSBeamline::vespers()->scaler()->channelAt(7);
-    sr570 = channel->currentAmplifier();
-        if (sr570)
-    notes.append(QString("%1:\t%2 %3\n").arg("Pre-KB").arg(sr570->value()).arg(sr570->units()));
+	sr570 = channel->currentAmplifier();
+		if (sr570)
+	notes.append(QString("%1:\t%2 %3\n").arg("Pre-KB").arg(sr570->value()).arg(sr570->units()));
 	channel = VESPERSBeamline::vespers()->scaler()->channelAt(8);
-    sr570 = channel->currentAmplifier();
-        if (sr570)
-    notes.append(QString("%1:\t%2 %3\n").arg("Mini").arg(sr570->value()).arg(sr570->units()));
+	sr570 = channel->currentAmplifier();
+		if (sr570)
+	notes.append(QString("%1:\t%2 %3\n").arg("Mini").arg(sr570->value()).arg(sr570->units()));
 	channel = VESPERSBeamline::vespers()->scaler()->channelAt(9);
-    sr570 = channel->currentAmplifier();
-        if (sr570)
-    notes.append(QString("%1:\t%2 %3\n").arg("Post").arg(sr570->value()).arg(sr570->units()));
+	sr570 = channel->currentAmplifier();
+		if (sr570)
+	notes.append(QString("%1:\t%2 %3\n").arg("Post").arg(sr570->value()).arg(sr570->units()));
 
 	return notes;
 }
-
-//void VESPERSScanController::addStandardMeasurements(AMScan *scan, bool addEaAndDwellTime, bool addK)
-//{
-//	if (addEaAndDwellTime && addK){
-
-//		scan->rawData()->addMeasurement(AMMeasurementInfo("Ea", "Energy Setpoint", "eV"));
-//		scan->addRawDataSource(new AMRawDataSource(scan->rawData(), scan->rawData()->measurementCount()-1), false, true);
-//		scan->rawData()->addMeasurement(AMMeasurementInfo("K", "K Setpoint"));
-//		scan->addRawDataSource(new AMRawDataSource(scan->rawData(), scan->rawData()->measurementCount()-1), false, true);
-//		scan->rawData()->addMeasurement(AMMeasurementInfo("DwellTime", "Dwell Time", "s"));
-//		scan->addRawDataSource(new AMRawDataSource(scan->rawData(), scan->rawData()->measurementCount()-1), false, true);
-//	}
-
-//	else if (addEaAndDwellTime){
-
-//		scan->rawData()->addMeasurement(AMMeasurementInfo("Ea", "Energy Setpoint", "eV"));
-//		scan->addRawDataSource(new AMRawDataSource(scan->rawData(), scan->rawData()->measurementCount()-1), false, true);
-//		scan->rawData()->addMeasurement(AMMeasurementInfo("DwellTime", "Dwell Time", "s"));
-//		scan->addRawDataSource(new AMRawDataSource(scan->rawData(), scan->rawData()->measurementCount()-1), false, true);
-//	}
-
-//	scan->rawData()->addMeasurement(AMMeasurementInfo("RingCurrent", "Ring Current", "mA"));
-//	scan->addRawDataSource(new AMRawDataSource(scan->rawData(), scan->rawData()->measurementCount()-1), false, true);
-//}
-
-//void VESPERSScanController::addSingleElementDeadTimeMeasurements(AMScan *scan)
-//{
-//	// Dead time, real time, live time, fast peaks, slow peaks, spectrum index.
-//	scan->rawData()->addMeasurement(AMMeasurementInfo("DeadTime", "Dead Time", "%"));
-//	scan->addRawDataSource(new AMRawDataSource(scan->rawData(), scan->rawData()->measurementCount()-1), false, true);
-//	scan->rawData()->addMeasurement(AMMeasurementInfo("RealTime", "Real Time", "s"));
-//	scan->addRawDataSource(new AMRawDataSource(scan->rawData(), scan->rawData()->measurementCount()-1), false, true);
-//	scan->rawData()->addMeasurement(AMMeasurementInfo("LiveTime", "Live Time", "s"));
-//	scan->addRawDataSource(new AMRawDataSource(scan->rawData(), scan->rawData()->measurementCount()-1), false, true);
-//	scan->rawData()->addMeasurement(AMMeasurementInfo("FastPeaks", "Fast Peaks"));
-//	scan->addRawDataSource(new AMRawDataSource(scan->rawData(), scan->rawData()->measurementCount()-1), false, true);
-//	scan->rawData()->addMeasurement(AMMeasurementInfo("SlowPeaks", "Slow Peaks"));
-//	scan->addRawDataSource(new AMRawDataSource(scan->rawData(), scan->rawData()->measurementCount()-1), false, true);
-//}
-
-//void VESPERSScanController::addSingleElementRegionsOfInterestMeasurements(AMScan *scan, AMROIInfoList list, bool addSuffix)
-//{
-//	for (int i = 0, roiCount = list.count(); i < roiCount; i++){
-
-//		if (addSuffix)
-//			scan->rawData()->addMeasurement(AMMeasurementInfo(list.at(i).name().remove(" ") % QString("-1el"), list.at(i).name()));
-//		else
-//			scan->rawData()->addMeasurement(AMMeasurementInfo(list.at(i).name().remove(" "), list.at(i).name()));
-
-//		scan->addRawDataSource(new AMRawDataSource(scan->rawData(), scan->rawData()->measurementCount() - 1), false, true);
-//	}
-//}
-
-//void VESPERSScanController::addSingleElementSpectraMeasurments(AMScan *scan, const AMMeasurementInfo &info)
-//{
-//	AMMeasurementInfo temp = info;
-//	temp.name = "rawSpectra-1el";
-//	temp.description = "Raw Spectrum 1-el";
-//	scan->rawData()->addMeasurement(temp);
-//	scan->addRawDataSource(new AMRawDataSource(scan->rawData(), scan->rawData()->measurementCount()-1), false, true);
-//}
-
-//void VESPERSScanController::addFourElementDeadTimeMeasurements(AMScan *scan)
-//{
-//	// Real time (x4), Live time (x4), fast peaks (x4), slow peaks (x4), dead time (x4)
-//	scan->rawData()->addMeasurement(AMMeasurementInfo("RealTime1", "Real Time 1", "s"));
-//	scan->addRawDataSource(new AMRawDataSource(scan->rawData(), scan->rawData()->measurementCount()-1), false, true);
-//	scan->rawData()->addMeasurement(AMMeasurementInfo("RealTime2", "Real Time 2", "s"));
-//	scan->addRawDataSource(new AMRawDataSource(scan->rawData(), scan->rawData()->measurementCount()-1), false, true);
-//	scan->rawData()->addMeasurement(AMMeasurementInfo("RealTime3", "Real Time 3", "s"));
-//	scan->addRawDataSource(new AMRawDataSource(scan->rawData(), scan->rawData()->measurementCount()-1), false, true);
-//	scan->rawData()->addMeasurement(AMMeasurementInfo("RealTime4", "Real Time 4", "s"));
-//	scan->addRawDataSource(new AMRawDataSource(scan->rawData(), scan->rawData()->measurementCount()-1), false, true);
-//	scan->rawData()->addMeasurement(AMMeasurementInfo("LiveTime1", "Live Time 1", "s"));
-//	scan->addRawDataSource(new AMRawDataSource(scan->rawData(), scan->rawData()->measurementCount()-1), false, true);
-//	scan->rawData()->addMeasurement(AMMeasurementInfo("LiveTime2", "Live Time 2", "s"));
-//	scan->addRawDataSource(new AMRawDataSource(scan->rawData(), scan->rawData()->measurementCount()-1), false, true);
-//	scan->rawData()->addMeasurement(AMMeasurementInfo("LiveTime3", "Live Time 3", "s"));
-//	scan->addRawDataSource(new AMRawDataSource(scan->rawData(), scan->rawData()->measurementCount()-1), false, true);
-//	scan->rawData()->addMeasurement(AMMeasurementInfo("LiveTime4", "Live Time 4", "s"));
-//	scan->addRawDataSource(new AMRawDataSource(scan->rawData(), scan->rawData()->measurementCount()-1), false, true);
-//	scan->rawData()->addMeasurement(AMMeasurementInfo("FastPeaks1", "Fast Peaks 1"));
-//	scan->addRawDataSource(new AMRawDataSource(scan->rawData(), scan->rawData()->measurementCount()-1), false, true);
-//	scan->rawData()->addMeasurement(AMMeasurementInfo("FastPeaks2", "Fast Peaks 2"));
-//	scan->addRawDataSource(new AMRawDataSource(scan->rawData(), scan->rawData()->measurementCount()-1), false, true);
-//	scan->rawData()->addMeasurement(AMMeasurementInfo("FastPeaks3", "Fast Peaks 3"));
-//	scan->addRawDataSource(new AMRawDataSource(scan->rawData(), scan->rawData()->measurementCount()-1), false, true);
-//	scan->rawData()->addMeasurement(AMMeasurementInfo("FastPeaks4", "Fast Peaks 4"));
-//	scan->addRawDataSource(new AMRawDataSource(scan->rawData(), scan->rawData()->measurementCount()-1), false, true);
-//	scan->rawData()->addMeasurement(AMMeasurementInfo("SlowPeaks1", "Slow Peaks 1"));
-//	scan->addRawDataSource(new AMRawDataSource(scan->rawData(), scan->rawData()->measurementCount()-1), false, true);
-//	scan->rawData()->addMeasurement(AMMeasurementInfo("SlowPeaks2", "Slow Peaks 2"));
-//	scan->addRawDataSource(new AMRawDataSource(scan->rawData(), scan->rawData()->measurementCount()-1), false, true);
-//	scan->rawData()->addMeasurement(AMMeasurementInfo("SlowPeaks3", "Slow Peaks 3"));
-//	scan->addRawDataSource(new AMRawDataSource(scan->rawData(), scan->rawData()->measurementCount()-1), false, true);
-//	scan->rawData()->addMeasurement(AMMeasurementInfo("SlowPeaks4", "Slow Peaks 4"));
-//	scan->addRawDataSource(new AMRawDataSource(scan->rawData(), scan->rawData()->measurementCount()-1), false, true);
-//	scan->rawData()->addMeasurement(AMMeasurementInfo("DeadTime1", "Dead Time 1", "%"));
-//	scan->addRawDataSource(new AMRawDataSource(scan->rawData(), scan->rawData()->measurementCount()-1), false, true);
-//	scan->rawData()->addMeasurement(AMMeasurementInfo("DeadTime2", "Dead Time 2", "%"));
-//	scan->addRawDataSource(new AMRawDataSource(scan->rawData(), scan->rawData()->measurementCount()-1), false, true);
-//	scan->rawData()->addMeasurement(AMMeasurementInfo("DeadTime3", "Dead Time 3", "%"));
-//	scan->addRawDataSource(new AMRawDataSource(scan->rawData(), scan->rawData()->measurementCount()-1), false, true);
-//	scan->rawData()->addMeasurement(AMMeasurementInfo("DeadTime4", "Dead Time 4", "%"));
-//	scan->addRawDataSource(new AMRawDataSource(scan->rawData(), scan->rawData()->measurementCount()-1), false, true);
-//}
-
-//void VESPERSScanController::addFourElementRegionsOfInterestMeasurements(AMScan *scan, AMROIInfoList list, bool addSuffix)
-//{
-//	for (int i = 0, roiCount = list.count(); i < roiCount; i++){
-
-//		if (addSuffix)
-//			scan->rawData()->addMeasurement(AMMeasurementInfo(list.at(i).name().remove(" ") % "-4el", list.at(i).name()));
-//		else
-//			scan->rawData()->addMeasurement(AMMeasurementInfo(list.at(i).name().remove(" "), list.at(i).name()));
-
-//		scan->addRawDataSource(new AMRawDataSource(scan->rawData(), scan->rawData()->measurementCount() - 1), false, true);
-//	}
-//}
-
-//void VESPERSScanController::addFourElementSpectraMeasurments(AMScan *scan, const AMMeasurementInfo &info)
-//{
-//	AMMeasurementInfo temp = info;
-//	temp.name = "correctedSum-4el";
-//	temp.description = "Corrected Sum 4-el";
-//	scan->rawData()->addMeasurement(temp);
-//	if (scan->scanRank() == 2 || scan->scanRank() == 3)
-//		scan->addRawDataSource(new AMRawDataSource(scan->rawData(), scan->rawData()->measurementCount()-1), false, true);
-//	else
-//		scan->addRawDataSource(new AMRawDataSource(scan->rawData(), scan->rawData()->measurementCount()-1), true, false);
-
-//	for (int i = 0; i < 4; i++){
-
-//		temp = info;
-//		temp.name = QString("raw%1-4el").arg(i+1);
-//		temp.description = QString("Raw Spectrum %1 4-el").arg(i+1);
-//		scan->rawData()->addMeasurement(temp);
-//		scan->addRawDataSource(new AMRawDataSource(scan->rawData(), scan->rawData()->measurementCount() - 1), false, true);
-//	}
-//}
-
-//void VESPERSScanController::addStandardExtraPVs(QEpicsAdvAcq *advAcq, bool addEaAndDwellTime, bool addK)
-//{
-//	if (addEaAndDwellTime && addK){
-
-//		advAcq->appendRecord("07B2_Mono_SineB_Ea", true, false, 0);
-//		advAcq->appendRecord("07B2_Mono_SineB_K", true, false, 0);
-//		advAcq->appendRecord("BL1607-B2-1:dwell:setTime", true, false, 0);
-//	}
-
-//	else if (addEaAndDwellTime){
-
-//		advAcq->appendRecord("07B2_Mono_SineB_Ea", true, false, 0);
-//		advAcq->appendRecord("BL1607-B2-1:dwell:setTime", true, false, 0);
-//	}
-
-//	advAcq->appendRecord("PCT1402-01:mA:fbk", true, false, 0);
-//}
-
-//void VESPERSScanController::addSingleElementDeadTimePVs(QEpicsAdvAcq *advAcq)
-//{
-//	advAcq->appendRecord("IOC1607-004:mca1.DTIM", true, false, 0);
-//	advAcq->appendRecord("IOC1607-004:mca1.ERTM", true, false, 0);
-//	advAcq->appendRecord("IOC1607-004:mca1.ELTM", true, false, 0);
-//	advAcq->appendRecord("IOC1607-004:dxp1.FAST_PEAKS", true, false, 0);
-//	advAcq->appendRecord("IOC1607-004:dxp1.SLOW_PEAKS", true, false, 0);
-//}
-
-//void VESPERSScanController::addSingleElementRegionsOfInterestPVs(QEpicsAdvAcq *advAcq, int roiCount)
-//{
-//	for (int i = 0; i < roiCount; i++)
-//		advAcq->appendRecord("IOC1607-004:mca1.R"+QString::number(i), true, false, 1);
-//}
-
-//void VESPERSScanController::addSingleElementSpectraPVs(QEpicsAdvAcq *advAcq)
-//{
-//	advAcq->appendRecord("IOC1607-004:mca1", true, true, 1);
-//}
-
-//void VESPERSScanController::addFourElementDeadTimePVs(QEpicsAdvAcq *advAcq)
-//{
-//	advAcq->appendRecord("dxp1607-B21-04:dxp1:ElapsedRealTime", true, false, 0);
-//	advAcq->appendRecord("dxp1607-B21-04:dxp2:ElapsedRealTime", true, false, 0);
-//	advAcq->appendRecord("dxp1607-B21-04:dxp3:ElapsedRealTime", true, false, 0);
-//	advAcq->appendRecord("dxp1607-B21-04:dxp4:ElapsedRealTime", true, false, 0);
-//	advAcq->appendRecord("dxp1607-B21-04:dxp1:ElapsedTriggerLiveTime", true, false, 0);
-//	advAcq->appendRecord("dxp1607-B21-04:dxp2:ElapsedTriggerLiveTime", true, false, 0);
-//	advAcq->appendRecord("dxp1607-B21-04:dxp3:ElapsedTriggerLiveTime", true, false, 0);
-//	advAcq->appendRecord("dxp1607-B21-04:dxp4:ElapsedTriggerLiveTime", true, false, 0);
-//	advAcq->appendRecord("dxp1607-B21-04:dxp1:Triggers", true, false, 1);
-//	advAcq->appendRecord("dxp1607-B21-04:dxp2:Triggers", true, false, 1);
-//	advAcq->appendRecord("dxp1607-B21-04:dxp3:Triggers", true, false, 1);
-//	advAcq->appendRecord("dxp1607-B21-04:dxp4:Triggers", true, false, 1);
-//	advAcq->appendRecord("dxp1607-B21-04:dxp1:Events", true, false, 1);
-//	advAcq->appendRecord("dxp1607-B21-04:dxp2:Events", true, false, 1);
-//	advAcq->appendRecord("dxp1607-B21-04:dxp3:Events", true, false, 1);
-//	advAcq->appendRecord("dxp1607-B21-04:dxp4:Events", true, false, 1);
-//	advAcq->appendRecord("dxp1607-B21-04:dxp1:NetDTP", true, false, 1);
-//	advAcq->appendRecord("dxp1607-B21-04:dxp2:NetDTP", true, false, 1);
-//	advAcq->appendRecord("dxp1607-B21-04:dxp3:NetDTP", true, false, 1);
-//	advAcq->appendRecord("dxp1607-B21-04:dxp4:NetDTP", true, false, 1);
-//}
-
-//void VESPERSScanController::addFourElementRegionsOfInterestPVs(QEpicsAdvAcq *advAcq, int roiCount)
-//{
-//	for (int i = 0; i < roiCount; i++)
-//		advAcq->appendRecord("dxp1607-B21-04:mcaCorrected.R"+QString::number(i), true, false, 1);
-//}
-
-//void VESPERSScanController::addFourElementSpectraPVs(QEpicsAdvAcq *advAcq)
-//{
-//	advAcq->appendRecord("dxp1607-B21-04:mcaCorrected", true, true, 0);
-//	advAcq->appendRecord("dxp1607-B21-04:mca1", true, true, 0);
-//	advAcq->appendRecord("dxp1607-B21-04:mca2", true, true, 0);
-//	advAcq->appendRecord("dxp1607-B21-04:mca3", true, true, 0);
-//	advAcq->appendRecord("dxp1607-B21-04:mca4", true, true, 0);
-//}
 
 QString VESPERSScanController::getUniqueCCDName(const QString &path, const QString &name) const
 {

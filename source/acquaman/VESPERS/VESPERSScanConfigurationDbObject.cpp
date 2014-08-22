@@ -1,3 +1,24 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "VESPERSScanConfigurationDbObject.h"
 
 VESPERSScanConfigurationDbObject::~VESPERSScanConfigurationDbObject(){}
@@ -24,6 +45,9 @@ VESPERSScanConfigurationDbObject::VESPERSScanConfigurationDbObject(const VESPERS
 	motor_ = original.motor();
 	ccdFileName_ = original.ccdFileName();
 	normalPosition_ = original.normalPosition();
+
+	foreach (AMRegionOfInterest *region, original.regionsOfInterest())
+		addRegionOfInterest(region->createCopy());
 }
 
 void VESPERSScanConfigurationDbObject::setIncomingChoice(VESPERS::IonChamber I0)
@@ -129,7 +153,11 @@ void VESPERSScanConfigurationDbObject::addRegionOfInterest(AMRegionOfInterest *r
 
 void VESPERSScanConfigurationDbObject::removeRegionOfInterest(AMRegionOfInterest *region)
 {
-	regionsOfInterest_.removeOne(region);
-	setModified(true);
+	foreach (AMRegionOfInterest *regionToBeRemoved, regionsOfInterest_)
+		if (regionToBeRemoved->name() == region->name()){
+
+			regionsOfInterest_.removeOne(regionToBeRemoved);
+			setModified(true);
+		}
 }
 

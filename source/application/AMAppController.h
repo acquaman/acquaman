@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -77,9 +78,6 @@ If \c openInExistingEditor is set to true, and if there is an existing editor, t
 	/// Displays the view for the scanActions or brings it to the front
 	void showScanActionsView();
 
-	/// Helps force quit Acquaman by setting a flag to override the check in the event filter for QEvent::Close
-	void forceQuitAcquaman();
-
 	///////////////////////////////////
 
 protected slots:
@@ -120,9 +118,6 @@ protected:
 
 	/// Menus
 	QMenu *viewMenu_;
-
-	/// Flag for overriding check on eventfilter for QEvent::Close
-	bool overrideCloseCheck_;
 };
 
 #endif // AMAPPCONTROLLER_H

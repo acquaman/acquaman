@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 Acquaman is free software: you can redistribute it and/or modify
@@ -55,6 +56,8 @@ public:
 
 	/// Returns a pointer to the scan controller that is encapsulated by this action.
 	AMScanController *controller() const { return controller_; }
+	/// Method that returns a string with the state of the scan controller.
+	QString controllerStateString() const;
 
 	/// Returns the ActionValidity of this scanAction
 	virtual AMAction3::ActionValidity isValid();
@@ -69,8 +72,8 @@ public:
 
 	/// Scan actions have the ability to pause.
 	virtual bool canPause() const { return true; }
-	/// Scan actions MIGHT be able to skip.  It depends on which type of scan controller is being used.  In general, Dacq controllers can skip.
-	virtual bool canSkip() const;
+	/// Scan actions have the ability to skip.
+	virtual bool canSkip() const { return true; }
 	/// Scan actions CAN NOT be parallelized.  This is for everyones sake, too many things need to be working syncronously.
 	virtual bool canParallelize() const { return false; }
 
@@ -92,6 +95,8 @@ protected slots:
 	void onControllerFailed();
 	/// Handles all the wrap up and clean up if the controller succeeds.
 	void onControllerSucceeded();
+	/// Handles setting the status text when cleaning actions are started.
+	void onControllerCleaningUp();
 	/// Handles the progress changed passed up from the controller.
 	void onControllerProgressChanged(double elapsed, double total);
 	/// Helper slot that updates the status text when the controller changes state.
@@ -114,8 +119,6 @@ protected:
 
 	/// Exports a the scan with the registered exporter and option when a scan successfully completes.
 	void autoExportScan();
-	/// Method that returns a string with the state of the scan controller.
-	QString controllerStateString() const;
 
 	/// A pointer to the scan controller that this action is encapsulating.
 	AMScanController *controller_;

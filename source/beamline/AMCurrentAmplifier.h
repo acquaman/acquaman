@@ -1,10 +1,31 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #ifndef AMCURRENTAMPLIFIER_H
 #define AMCURRENTAMPLIFIER_H
 
 #include <QObject>
 #include <QStringList>
 
-class AMCurrentAmplifierView;
+class AMCurrentAmplifierSingleView;
 
 class AMCurrentAmplifier : public QObject
 {
@@ -56,8 +77,12 @@ public:
     /// Returns true if, for the current amplifier mode, the amplifier is at a maximum value limit. False otherwise.
     bool atMaximumValue() const;
 
+    /// Returns the minimum/maximum value + units pair for the given amplifier.
+    virtual double minimumValueForUnits(const QString &units) const = 0;
+    virtual double maximumValueForUnits(const QString &units) const = 0;
+
     /// Returns the view for this amplifier.
-    virtual AMCurrentAmplifierView* createView();
+    virtual AMCurrentAmplifierSingleView *createView();
 
 signals:
     /// Emitted when the amplifier mode has been changed.

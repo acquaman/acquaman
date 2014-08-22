@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -51,6 +52,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/editors/AMSampleMoveActionEditor.h"
 #include "actions3/actions/AMControlWaitAction.h"
 #include "actions3/actions/AMControlWaitActionInfo.h"
+#include "actions3/actions/AMWaitAction.h"
+#include "actions3/editors/AMWaitActionEditor.h"
 
 #include "application/AMAppControllerSupport.h"
 #include "acquaman/AMDetectorTriggerSourceScanOptimizer.h"
@@ -61,11 +64,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/AMAgnosticDataAPI.h"
 
 #include "beamline/AMProcessVariablePrivate.h"
-
+#include "actions3/actions/AMDirectorySynchronizationAction.h"
 AMAppController::AMAppController(QObject *parent)
 	: AMDatamanAppControllerForActions3(parent)
 {
-	overrideCloseCheck_ = false;
 }
 
 AMAppController::~AMAppController()
@@ -88,6 +90,9 @@ bool AMAppController::startup(){
 		success &= AMActionRegistry3::s()->registerInfoAndAction<AMScanActionInfo, AMScanAction>("Scan Action", "Runs a scan.", ":/spectrum.png", false);
 		success &= AMActionRegistry3::s()->registerInfoAndEditor<AMScanActionInfo, AMScanActionEditor>();
 
+		success &= AMActionRegistry3::s()->registerInfoAndAction<AMWaitActionInfo, AMWaitAction>("Wait Action", "Waits for a predetermined amount of time", ":/user-away.png", true);
+		success &= AMActionRegistry3::s()->registerInfoAndEditor<AMWaitActionInfo, AMWaitActionEditor>();
+
 		/* Removed as per Issue597. AMSamplePlatePre2013MoveActionInfo moved to REIXSAppController, AMSampleMoveActionInfo moved to SGMAppController
 		success &= AMActionRegistry3::s()->registerInfoAndAction<AMSamplePlatePre2013MoveActionInfo, AMSamplePlatePre2013MoveAction>("Move Sample Position", "Move to a different marked sample position", ":system-run.png");
 		success &= AMActionRegistry3::s()->registerInfoAndEditor<AMSamplePlatePre2013MoveActionInfo, AMSamplePlatePre2013MoveActionEditor>();
@@ -96,7 +101,7 @@ bool AMAppController::startup(){
 		success &= AMActionRegistry3::s()->registerInfoAndEditor<AMSampleMoveActionInfo, AMSampleMoveActionEditor>();
 		*/
 
-        success &= AMActionRegistry3::s()->registerInfoAndAction<AMControlWaitActionInfo, AMControlWaitAction>("Wait for Control", "Wait for Control", ":system-run.png", false);
+		success &= AMActionRegistry3::s()->registerInfoAndAction<AMControlWaitActionInfo, AMControlWaitAction>("Wait for Control", "Wait for Control", ":system-run.png", false);
 
 		AMAgnosticDataMessageQEventHandler *scanActionMessager = new AMAgnosticDataMessageQEventHandler();
 		AMAgnosticDataAPISupport::registerHandler("ScanActions", scanActionMessager);
@@ -278,7 +283,6 @@ void AMAppController::openScanInEditor(AMScan *scan, bool bringEditorToFront, bo
 }
 
 #include "acquaman/AMScanConfiguration.h"
-#include "acquaman/AM2DScanConfiguration.h"
 #include "ui/acquaman/AMScanConfigurationView.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
 #include "dataman/database/AMDatabase.h"
@@ -302,12 +306,12 @@ void AMAppController::launchScanConfigurationFromDb(const QUrl &url)
 	// need to check that this scan actually has a valid config. This hasn't always been guaranteed, especially when scans move between beamlines.
 	AMScanConfiguration* config = scan->scanConfiguration();
 	if(!config) {
-		scan->release();
+		scan->deleteLater();
 		return;
 	}
 	// need to create a copy of the config so we can delete the scan (and hence the config instance owned by the scan). The view will take ownership of the copy.
 	config = config->createCopy();
-	scan->release();
+	scan->deleteLater();
 	if(!config)
 		return;
 
@@ -327,23 +331,7 @@ void AMAppController::launchScanConfigurationFromDb(const QUrl &url)
 
 bool AMAppController::eventFilter(QObject* o, QEvent* e)
 {
-	if(o == mw_ && e->type() == QEvent::Close) {
-		if(overrideCloseCheck_)
-			qApp->quit();
-		if(!canCloseScanEditors()) {
-			e->ignore();
-			return true;
-		}
-		if(!canCloseActionRunner()) {
-			e->ignore();
-			return true;
-		}
-		// They got away with closing the main window. We should quit the application
-		qApp->quit();	//note that this might already be in progress, if an application quit was what triggered this close event.  No harm in asking twice...
-
-	}
-	// anything else, allow unfiltered
-	return QObject::eventFilter(o,e);
+	return AMDatamanAppController::eventFilter(o,e);
 }
 
 #include <QMessageBox>
@@ -405,11 +393,6 @@ void AMAppController::showScanActionsView(){
 	scanActionRunnerView_->raise();
 }
 
-void AMAppController::forceQuitAcquaman(){
-	overrideCloseCheck_ = true;
-	mw_->close();
-}
-
 #include <QMenu>
 #include <QMenuBar>
 bool AMAppController::startupInstallActions()
@@ -425,13 +408,8 @@ bool AMAppController::startupInstallActions()
 		openScanActionsViewAction->setStatusTip("Open the view to see all actions done by scans");
 		connect(openScanActionsViewAction, SIGNAL(triggered()), this, SLOT(showScanActionsView()));
 
-		QAction *forceQuitAction = new QAction("Force Quit Acquaman", mw_);
-		forceQuitAction->setStatusTip("Acquaman is behaving poorly, force a quit and loose any unsaved changes or currently running scans");
-		connect(forceQuitAction, SIGNAL(triggered()), this, SLOT(forceQuitAcquaman()));
-
 		fileMenu_->addSeparator();
 		fileMenu_->addAction(changeRunAction);
-		fileMenu_->addAction(forceQuitAction);
 
 		viewMenu_ = menuBar_->addMenu("View");
 		viewMenu_->addAction(openScanActionsViewAction);

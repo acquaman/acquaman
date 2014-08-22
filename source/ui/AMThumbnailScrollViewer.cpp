@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -548,6 +549,7 @@ void AMThumbnailScrollGraphicsWidget::setSource(AMDatabase* db, QList<int> ids) 
 
 // Display \c count thumbnails directly out of a database (from the thumbnail table, with sequential id's starting at \c startId)
 void AMThumbnailScrollGraphicsWidget::setSource(AMDatabase* db, int startId, int count) {
+	Q_UNUSED(count)
 	sourceIsDb_ = true;
 	sourceDb_ = db;
 

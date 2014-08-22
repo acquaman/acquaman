@@ -1,3 +1,24 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "SGMAxis2000Exporter.h"
 
 #include <QTextStream>
@@ -5,7 +26,7 @@
 
 #include "dataman/AMScan.h"
 #include "dataman/export/AMExporterOption.h"
-#include "acquaman/AMXASScanConfiguration.h"
+#include "acquaman/AMStepScanConfiguration.h"
 
  SGMAxis2000Exporter::~SGMAxis2000Exporter(){}
 SGMAxis2000Exporter::SGMAxis2000Exporter(QObject *parent) :
@@ -36,8 +57,8 @@ QString SGMAxis2000Exporter::exportScan(const AMScan *scan, const QString &desti
 	ts << "\"NEXAFS Point Scan\"; ";
 	ts << "Flags = \"Spectra\"; ";
 	ts << "ScanType = \"Spectra\"; ";
-	const AMXASScanConfiguration *xasScanConfiguration = qobject_cast<const AMXASScanConfiguration*>(currentScan_->scanConfiguration());
-	ts << QString("Dwell = %1;").arg(xasScanConfiguration->regionTime(0));
+	const AMStepScanConfiguration *xasScanConfiguration = qobject_cast<const AMStepScanConfiguration*>(currentScan_->scanConfiguration());
+	ts << QString("Dwell = %1;").arg(double(xasScanConfiguration->scanAxisAt(0)->regionAt(0)->regionTime()));
 	ts << "\n\tRegions = (1,";
 	ts << "\n{";
 	ts << "\n\t\t\tPAxis = { ";

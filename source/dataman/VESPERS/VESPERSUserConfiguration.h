@@ -1,3 +1,24 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #ifndef VESPERSUSERCONFIGURATION_H
 #define VESPERSUSERCONFIGURATION_H
 
@@ -47,28 +68,30 @@ public:
 public slots:
 	/// Sets the choice for I0 ion chamber.
 	void setIncomingChoice(VESPERS::IonChamber I0);
-	/// Overloaded.  Used for database loading.
-	void setIncomingChoice(int I0) { setIncomingChoice((VESPERS::IonChamber)I0); }
 	/// Sets the choice for It ion chamber.
 	void setTransmissionChoice(VESPERS::IonChamber It);
-	/// Overloaded.  Used for database loading.
-	void setTransmissionChoice(int It) { setTransmissionChoice((VESPERS::IonChamber)It); }
 	/// Sets the choice for the fluorescence detector.
 	void setFluorescenceDetector(VESPERS::FluorescenceDetectors detector);
-	/// Overloaded.  Used for database loading.
-	void setFluorescenceDetector(int detector) { setFluorescenceDetector((VESPERS::FluorescenceDetectors)detector); }
 	/// Sets the choice for the set of motors used for scanning.
 	void setMotor(VESPERS::Motors choice);
-	/// Overloaded.  Used for database loading.
-	void setMotor(int choice) { setMotor((VESPERS::Motors)choice); }
 	/// Sets whether the scan should be using the CCD or not.
 	void setCCDDetector(VESPERS::CCDDetectors ccd);
-	/// Overloaded.  Used for database loading.
-	void setCCDDetector(int ccd) { setCCDDetector((VESPERS::CCDDetectors)ccd); }
 	/// Adds a region of interest to the list.
 	void addRegionOfInterest(AMRegionOfInterest *region);
 	/// Removes a region of interest from the list.
 	void removeRegionOfInterest(AMRegionOfInterest *region);
+
+protected slots:
+	/// Overloaded.  Used for database loading.
+	void setIncomingChoice(int I0) { setIncomingChoice((VESPERS::IonChamber)I0); }
+	/// Overloaded.  Used for database loading.
+	void setTransmissionChoice(int It) { setTransmissionChoice((VESPERS::IonChamber)It); }
+	/// Overloaded.  Used for database loading.
+	void setFluorescenceDetector(int detector) { setFluorescenceDetector((VESPERS::FluorescenceDetectors)detector); }
+	/// Overloaded.  Used for database loading.
+	void setMotor(int choice) { setMotor((VESPERS::Motors)choice); }
+	/// Overloaded.  Used for database loading.
+	void setCCDDetector(int ccd) { setCCDDetector((VESPERS::CCDDetectors)ccd); }
 
 protected:
 	/// Returns the regions of interest list.

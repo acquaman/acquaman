@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -28,7 +29,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QLineEdit>
 #include <QFormLayout>
 #include <QDir>
+#include <QFileInfo>
 #include <QPushButton>
+#include <QCheckBox>
 
 #include <QFileDialog>
 #include <QMessageBox>
@@ -36,6 +39,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <util/AMSettings.h>
 #include <ui/AMFolderPathLineEdit.h>
 
+#include <QDebug>
 
 
 // Needed for getenv():
@@ -43,45 +47,61 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 class AMFirstTimeWizardPage : public QWizardPage
- {
-	 Q_OBJECT
+{
+	Q_OBJECT
 
- public:
- 	virtual ~AMFirstTimeWizardPage(){}
+public:
 	AMFirstTimeWizardPage(QWidget *parent = 0) : QWizardPage(parent) {
 		setTitle("Welcome to Acquman");
 		setSubTitle("This looks like the first time you're using Acquaman. We need some information to get you started.");
 
 
 		QFormLayout *layout = new QFormLayout();
-		userName = new QLineEdit();
-		userDataFolder = new AMFolderPathLineEdit();
+		userName_ = new QLineEdit();
+		userDataFolder_ = new AMFolderPathLineEdit();
 
-		browseButton = new QPushButton("Choose...");
+		browseButton_ = new QPushButton("Choose...");
+
+		useLocalStorage_ = new QCheckBox("Store Data Locally for Faster Performance");
 
 		QHBoxLayout* hl = new QHBoxLayout();
-		hl->addWidget(userDataFolder);
-		hl->addWidget(browseButton);
+		hl->addWidget(userDataFolder_);
+		hl->addWidget(browseButton_);
 
-		layout->addRow("Your Name:", userName);
+		layout->addRow("Your Name:", userName_);
 		layout->addRow("Where to store your data:", hl);
 		setLayout(layout);
 
-		registerField("userName*", userName);
-		registerField("userDataFolder*", userDataFolder);
+		registerField("userName*", userName_);
+		registerField("userDataFolder*", userDataFolder_);
 
-		connect(browseButton, SIGNAL(clicked()), this, SLOT(onBrowseButtonClicked()));
+		connect(browseButton_, SIGNAL(clicked()), this, SLOT(onBrowseButtonClicked()));
 
+		QDir rootDir("/");
+		QFileInfoList allRootEntries = rootDir.entryInfoList();
+		for(int x = 0, size = allRootEntries.count(); x < size; x++){
+			if(allRootEntries.at(x).fileName() == "AcquamanLocalData" && allRootEntries.at(x).isDir()){
+				QFile::Permissions filePermissions = allRootEntries.at(x).permissions();
+				if(filePermissions.testFlag(QFile::ReadOwner) && filePermissions.testFlag(QFile::WriteOwner)
+						&& filePermissions.testFlag(QFile::ReadGroup) && filePermissions.testFlag(QFile::WriteGroup)
+						&& filePermissions.testFlag(QFile::ReadOther) && filePermissions.testFlag(QFile::WriteOther)){
+					layout->addRow("", useLocalStorage_);
+					registerField("useLocalStorage", useLocalStorage_);
+				}
+			}
+		}
 	}
+
+	virtual ~AMFirstTimeWizardPage(){}
 
 protected slots:
 	void onBrowseButtonClicked() {
-		userDataFolder->setText(QFileDialog::getExistingDirectory(this, "Acquaman Data Folder", userDataFolder->text()));
+		userDataFolder_->setText(QFileDialog::getExistingDirectory(this, "Acquaman Data Folder", userDataFolder_->text()));
 	}
 
 protected:
 	virtual bool validatePage(){
-		QString userDatabaseFolder = userDataFolder->text();
+		QString userDatabaseFolder = userDataFolder_->text();
 		if(userDatabaseFolder.endsWith('/'))
 			userDatabaseFolder.remove(userDatabaseFolder.count()-1, 1);
 		if(userDatabaseFolder == QDir::homePath()){
@@ -101,25 +121,27 @@ protected:
 		return true;
 	}
 
- private:
-	 QLineEdit *userName, *userDataFolder;
-	 QPushButton* browseButton;
- };
+private:
+	QLineEdit *userName_;
+	QLineEdit *userDataFolder_;
+	QPushButton* browseButton_;
+	QCheckBox *useLocalStorage_;
+};
 
 
 /// This class provides a wizard used to gather initial user information
 class AMFirstTimeWizard : public QWizard
- {
-	 Q_OBJECT
+{
+	Q_OBJECT
 
- public:
+public:
 	AMFirstTimeWizard(QWidget *parent = 0) : QWizard(parent) {
 		addPage(new AMFirstTimeWizardPage);
 		setWindowTitle("Welcome to Acquaman");
 
 	}
 
-	 // void accept();
+	// void accept();
 
 
 protected:
@@ -132,6 +154,6 @@ protected:
 		}
 	}
 
- };
+};
 
 #endif // AMFIRSTTIMEWIDGET_H

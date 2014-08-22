@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -265,7 +266,6 @@ void AMImportController::setupNextFile() {
 	else {
 		w_->loadingStatusLabel->setText("Loaded successfully.");
 		w_->loadingStatusLabel->setStyleSheet("color: black;");
-		currentScan_->retain(this);
 	}
 
 
@@ -368,7 +368,7 @@ void AMImportController::finalizeImport() {
 		}
 
 		w_->thumbnailViewer->setSource(0);
-		currentScan_->release(this);
+		delete currentScan_;
 		currentScan_ = 0;
 	}
 }

@@ -1,3 +1,24 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #ifndef AMDETECTOR_H
 #define AMDETECTOR_H
 
@@ -164,11 +185,13 @@ public:
 	/// Returns the acquisition time tolerance.  This is defined by subclasses because this limitation will likely be detector specific.
 	virtual double acquisitionTimeTolerance() const = 0;
 
+	/// Returns whether the detector can do current correction.
 	virtual bool canDoDarkCurrentCorrection() const { return false;}
-
+	/// Returns the current dark current value.
 	virtual double darkCurrentMeasurementValue() const;
+	/// Returns the measurement time used for dark current correction.
 	virtual int darkCurrentMeasurementTime() const;
-
+	/// Returns whether the detector needs to take another dark current correction or not.
 	virtual bool requiresNewDarkCurrentMeasurement() const;
 
 	/// Returns the current acquisition state
@@ -220,7 +243,7 @@ public:
 	virtual QString synchronizedDwellKey() const = 0;
 
 	/// Returns whether to not this detector shares a triggering source, such as synchronized dwell time or the main scaler trigger. Default implementation returns false.
-	virtual bool sharesDetectorTriggerSource() { return false; }
+	virtual bool sharesDetectorTriggerSource() const { return false; }
 	/// Returns the trigger source for this detector. Default implementation returns a NULL pointer.
 	virtual AMDetectorTriggerSource* detectorTriggerSource() { return 0; }
 	/// Returns the dwell time source for this detector. Default implementation returns a NULL pointer
@@ -323,9 +346,9 @@ public slots:
 	/// For clearable detectors, clears the current data. Returns whether the clear was possible.
 	bool clear();
 
-    virtual void setAsDarkCurrentMeasurementValue();
-    virtual void setAsDarkCurrentMeasurementTime(double lastTime);
-    virtual void setRequiresNewDarkCurrentMeasurement(bool needsNewDCC);
+	virtual void setAsDarkCurrentMeasurementValue();
+	virtual void setAsDarkCurrentMeasurementTime(double lastTime);
+	virtual void setRequiresNewDarkCurrentMeasurement(bool needsNewDCC);
 
 
 signals:
@@ -386,10 +409,10 @@ signals:
 	/// Notifier that the default accessibility of the detector has changed.
 	void hiddenFromUsersChanged(bool);
 
-    /// New dark current correction value ready, passes new dark current value.
-    void newDarkCurrentMeasurementValueReady(double newValue);
-    /// Indicates that the darkCurrentCorrection_ value stored is out of date. A new dark current measurement should be taken.
-    void requiresNewDarkCurrentMeasurement(bool needsUpdate);
+	/// New dark current correction value ready, passes new dark current value.
+	void newDarkCurrentMeasurementValueReady(double newValue);
+	/// Indicates that the darkCurrentCorrection_ value stored is out of date. A new dark current measurement should be taken.
+	void requiresNewDarkCurrentMeasurement(bool needsUpdate);
 
 protected slots:
 	///
@@ -471,12 +494,12 @@ protected:
 	bool isVisible_;
 	/// The flag for the default accessibility off the detector when added to a scan.
 	bool hiddenFromUsers_;
-    /// The most up-to-date value of the dark current for this detector.
-    double darkCurrentMeasurementValue_;
-    /// The dwell time used to for the darkCurrentMeasurementValue_ measurement.
-    double darkCurrentMeasurementTime_;
-    /// Flag indicating whether or not darkCurrentMeasurementValue_ needs to be updated.
-    bool requiresNewDarkCurrentMeasurement_;
+	/// The most up-to-date value of the dark current for this detector.
+	double darkCurrentMeasurementValue_;
+	/// The dwell time used to for the darkCurrentMeasurementValue_ measurement.
+	double darkCurrentMeasurementTime_;
+	/// Flag indicating whether or not darkCurrentMeasurementValue_ needs to be updated.
+	bool requiresNewDarkCurrentMeasurement_;
 
 private:
 	/// Changes states in the acquisition state (if possible)

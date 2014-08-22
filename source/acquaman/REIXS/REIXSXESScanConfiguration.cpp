@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -19,6 +20,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "REIXSXESScanConfiguration.h"
+#include "beamline/REIXS/REIXSBeamline.h"
+
 
  REIXSXESScanConfiguration::~REIXSXESScanConfiguration(){}
 REIXSXESScanConfiguration::REIXSXESScanConfiguration(QObject *parent) :
@@ -48,6 +51,7 @@ REIXSXESScanConfiguration::REIXSXESScanConfiguration(QObject *parent) :
 
 	maximumTotalCounts_ = 1000000;
 	maximumDurationSeconds_ = 300;
+	totalTime_ = 0;
 
 	userScanName_ = "XES";
 	scanNumber_ = 0;
@@ -84,6 +88,8 @@ REIXSXESScanConfiguration::REIXSXESScanConfiguration(const REIXSXESScanConfigura
 
 	maximumTotalCounts_ = original.maximumTotalCounts();
 	maximumDurationSeconds_ = original.maximumDurationSeconds();
+	totalTime_ = 0;
+
 
 	userScanName_ = original.userScanName();
 	scanNumber_ = original.scanNumber();
@@ -126,3 +132,14 @@ AMScanConfigurationView * REIXSXESScanConfiguration::createView()
 	return new REIXSXESScanConfigurationView(this);
 }
 
+void REIXSXESScanConfiguration::computeTotalTimeImplementation()
+{
+	double averageCountRate =  REIXSBeamline::bl()->mcpDetector()->countsPerSecond();
+	double estimatedTime = maximumTotalCounts_ / averageCountRate;
+
+	totalTime_ = qMin(double(maximumDurationSeconds_), estimatedTime);
+
+	setExpectedDuration(totalTime_);
+	emit totalTimeChanged(totalTime_);
+
+}

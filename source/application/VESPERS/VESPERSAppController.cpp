@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -153,8 +154,6 @@ bool VESPERSAppController::startup()
 
 			AMRun firstRun("VESPERS", 4);	/// \todo For now, we know that 4 is the ID of the VESPERS facility, but this is a hardcoded hack.
 			firstRun.storeToDb(AMDatabase::database("user"));
-
-			userConfiguration_->storeToDb(AMDatabase::database("user"));
 		}
 
 		if (!ensureProgramStructure())
@@ -164,7 +163,13 @@ bool VESPERSAppController::startup()
 		setupUserInterface();
 		makeConnections();
 
-//		userConfiguration_->loadFromDb(AMDatabase::database("user"), 1);
+		if (!userConfiguration_->loadFromDb(AMDatabase::database("user"), 1)){
+
+			userConfiguration_->storeToDb(AMDatabase::database("user"));
+			// This is connected here because our standard way for these signal connections is to load from db first, which clearly won't happen on the first time.
+			connect(VESPERSBeamline::vespers()->vespersSingleElementVortexDetector(), SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
+			connect(VESPERSBeamline::vespers()->vespersSingleElementVortexDetector(), SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
+		}
 
 		// Github setup for adding VESPERS specific comment.
 		additionalIssueTypesAndAssignees_.append("I think it's a VESPERS specific issue", "dretrex");
@@ -298,8 +303,8 @@ void VESPERSAppController::setupUserInterface()
 	mw_->insertHeading("Detectors", 1);
 //	mw_->addPane(roperCCDView_, "Detectors", "Area - Roper", ":/system-search.png");
 //	mw_->addPane(marCCDView_, "Detectors", "Area - Mar", ":/system-search.png");
-	mw_->addPane(fourElementVortexView, "Detectors", "New 4-el Vortex", ":/system-search.png");
 	mw_->addPane(singleElementVortexView, "Detectors", "New 1-el Vortex", ":/system-search.png");
+	mw_->addPane(fourElementVortexView, "Detectors", "New 4-el Vortex", ":/system-search.png");
 	mw_->addPane(pilatusView_, "Detectors", "Area - Pilatus", ":/system-search.png");
 
 	// Setup XAS for the beamline.  Builds the config, view, and view holder.
@@ -394,8 +399,6 @@ void VESPERSAppController::makeConnections()
 
 	// It is sufficient to only connect the user configuration to the single element because the single element and four element are synchronized together.
 	connect(userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()));
-	connect(VESPERSBeamline::vespers()->vespersSingleElementVortexDetector(), SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), userConfiguration_, SLOT(addRegionOfInterest(AMRegionOfInterest*)));
-	connect(VESPERSBeamline::vespers()->vespersSingleElementVortexDetector(), SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), userConfiguration_, SLOT(removeRegionOfInterest(AMRegionOfInterest*)));
 
 	connect(persistentView_, SIGNAL(statusButtonClicked(QString)), statusPage_, SLOT(showDiagnosticsPage(QString)));
 	connect(persistentView_, SIGNAL(statusButtonClicked(QString)), this, SLOT(onStatusViewRequrested()));
@@ -438,19 +441,19 @@ void VESPERSAppController::onCurrentScanActionFinishedImplementation(AMScanActio
 
 	// Save the current configuration to the database.
 	// Being explicit due to the nature of how many casts were necessary.  I could probably explicitly check to ensure each cast is successful, but I'll risk it for now.
-//	const AMScanActionInfo *actionInfo = qobject_cast<const AMScanActionInfo *>(action->info());
-//	const VESPERSScanConfiguration *lineConfig = dynamic_cast<const VESPERSScanConfiguration *>(actionInfo->config());
-//	VESPERSScanConfigurationDbObject *config = qobject_cast<VESPERSScanConfigurationDbObject *>(lineConfig->dbObject());
+	const AMScanActionInfo *actionInfo = qobject_cast<const AMScanActionInfo *>(action->info());
+	const VESPERSScanConfiguration *vespersConfig = dynamic_cast<const VESPERSScanConfiguration *>(actionInfo->configuration());
+	VESPERSScanConfigurationDbObject *config = qobject_cast<VESPERSScanConfigurationDbObject *>(vespersConfig->dbObject());
 
-//	if (config){
+	if (config){
 
-//		userConfiguration_->setIncomingChoice(config->incomingChoice());
-//		userConfiguration_->setTransmissionChoice(config->transmissionChoice());
-//		userConfiguration_->setFluorescenceDetector(config->fluorescenceDetector());
-//		userConfiguration_->setCCDDetector(config->ccdDetector());
-//		userConfiguration_->setMotor(config->motor());
-//		userConfiguration_->storeToDb(AMDatabase::database("user"));
-//	}
+		userConfiguration_->setIncomingChoice(config->incomingChoice());
+		userConfiguration_->setTransmissionChoice(config->transmissionChoice());
+		userConfiguration_->setFluorescenceDetector(config->fluorescenceDetector());
+		userConfiguration_->setCCDDetector(config->ccdDetector());
+		userConfiguration_->setMotor(config->motor());
+		userConfiguration_->storeToDb(AMDatabase::database("user"));
+	}
 }
 
 void VESPERSAppController::onBeamDump()
@@ -688,11 +691,14 @@ void VESPERSAppController::setup2DXRFScan(const AMGenericScanEditor *editor)
 		mapScanConfiguration_->setName(config->name());
 		mapScanConfiguration_->setFluorescenceDetector(config->fluorescenceDetector());
 		mapScanConfiguration_->setIncomingChoice(config->incomingChoice());
-//		mapScanConfiguration_->setFastAxis(config->fastAxis());
-//		mapScanConfiguration_->setXRange(mapRect.left(), mapRect.right());
-//		mapScanConfiguration_->setYRange(mapRect.bottom(), mapRect.top());
-//		mapScanConfiguration_->setStepSize(config->steps());
-//		mapScanConfiguration_->setTimeStep(config->timeStep());
+		mapScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStart(mapRect.left());
+		mapScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStep(0.005);
+		mapScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionEnd(mapRect.right());
+		mapScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionTime(config->scanAxisAt(0)->regionAt(0)->regionTime());
+		mapScanConfiguration_->scanAxisAt(1)->regionAt(0)->setRegionStart(mapRect.bottom());
+		mapScanConfiguration_->scanAxisAt(1)->regionAt(0)->setRegionStep(0.005);
+		mapScanConfiguration_->scanAxisAt(1)->regionAt(0)->setRegionEnd(mapRect.top());
+		mapScanConfiguration_->scanAxisAt(1)->regionAt(0)->setRegionTime(config->scanAxisAt(1)->regionAt(0)->regionTime());
 		mapScanConfiguration_->setMotor(config->motor());
 		mapScanConfiguration_->setCCDDetector(config->ccdDetector());
 		mapScanConfiguration_->setNormalPosition(config->normalPosition());
@@ -793,7 +799,8 @@ void VESPERSAppController::fixCDF(const QUrl &url)
 	// Does the scan have a configuration?
 	AMScanConfiguration* config = scan->scanConfiguration();
 	if(!config) {
-		scan->release();
+
+		scan->deleteLater();
 		return;
 	}
 
@@ -874,7 +881,7 @@ void VESPERSAppController::fixCDF(const QUrl &url)
 
 	else {
 
-		scan->release();
+		scan->deleteLater();
 		return;
 	}
 
@@ -883,7 +890,7 @@ void VESPERSAppController::fixCDF(const QUrl &url)
 	// Load it from the database to use the appropriate file loader and build a new CDF file.
 	scan->loadFromDb(AMDatabase::database("user"), scan->id());
 	// Release the object.
-	scan->release();
+	scan->deleteLater();
 }
 
 void VESPERSAppController::onRoperCCDConnected(bool connected)
@@ -945,4 +952,26 @@ void VESPERSAppController::onUserConfigurationLoadedFromDb()
 
 	foreach (AMRegionOfInterest *region, userConfiguration_->regionsOfInterest())
 		detector->addRegionOfInterest(region->createCopy());
+
+	// This is connected here because we want to listen to the detectors for updates, but don't want to double add regions on startup.
+	connect(VESPERSBeamline::vespers()->vespersSingleElementVortexDetector(), SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
+	connect(VESPERSBeamline::vespers()->vespersSingleElementVortexDetector(), SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
+}
+
+void VESPERSAppController::onRegionOfInterestAdded(AMRegionOfInterest *region)
+{
+	userConfiguration_->addRegionOfInterest(region);
+	mapScanConfiguration_->addRegionOfInterest(region);
+	map3DScanConfiguration_->addRegionOfInterest(region);
+	exafsScanConfiguration_->addRegionOfInterest(region);
+	lineScanConfiguration_->addRegionOfInterest(region);
+}
+
+void VESPERSAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
+{
+	userConfiguration_->removeRegionOfInterest(region);
+	mapScanConfiguration_->removeRegionOfInterest(region);
+	map3DScanConfiguration_->removeRegionOfInterest(region);
+	exafsScanConfiguration_->removeRegionOfInterest(region);
+	lineScanConfiguration_->removeRegionOfInterest(region);
 }

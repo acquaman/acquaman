@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 Acquaman is free software: you can redistribute it and/or modify
@@ -56,7 +57,7 @@ public:
 protected:
 	// Structures used for shift curve fitting:
 	//////////////////////////////
-	double numRows_;
+	int numRows_;
 
 	gsl_multifit_linear_workspace* fitWorkSpace_; ///< Fit: GSL curve fitting context.
 	gsl_matrix* fitXX_;		///< Fit: The matrix of predictor variables XX_ij = x_i^j;  In our case, x is the image row index (y!)
@@ -84,7 +85,7 @@ public:
 protected:
 	// Structures used for shift curve fitting:
 	//////////////////////////////
-	double numRows_;
+	int numRows_;
 
 	gsl_multifit_linear_workspace* fitWorkSpace_; ///< Fit: GSL curve fitting context.
 	gsl_matrix* fitXX_;		///< Fit: The matrix of predictor variables XX_ij = x_i^j;
@@ -112,7 +113,7 @@ public:
 protected:
 	// Structures used for shift curve fitting:
 	//////////////////////////////
-	double numRows_;
+	int numRows_;
 
 	gsl_multifit_linear_workspace* fitWorkSpace_; ///< Fit: GSL curve fitting context.
 	gsl_matrix* fitXX_;		///< Fit: The matrix of predictor variables XX_ij = x_i^j;

@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -48,6 +49,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/IDEAS/IDEASXASScanConfigurationView.h"
 #include "ui/IDEAS/IDEASScanConfigurationViewHolder3.h"
 #include "ui/IDEAS/IDEASXRFDetailedDetectorViewWithSave.h"
+#include "ui/IDEAS/IDEASSampleCameraPanel.h"
 #include "acquaman/IDEAS/IDEASXASScanConfiguration.h"
 #include "acquaman/IDEAS/IDEASXRFScanConfiguration.h"
 
@@ -174,6 +176,9 @@ void IDEASAppController::setupUserInterface()
 	xasScanConfigurationHolder3_ = new IDEASScanConfigurationViewHolder3();
 	mw_->addPane(xasScanConfigurationHolder3_, "Scans", "IDEAS XAS Scan", ":/utilities-system-monitor.png");
 
+	sampleCameraPanel_ = new IDEASSampleCameraPanel();
+	mw_->addPane(sampleCameraPanel_, "Experiment Tools", "Sample Alignment",":/22x22/gnome-display-properties.png");
+
 	connect(IDEASBeamline::ideas()->monoEnergyControl(), SIGNAL(connected(bool)), this, SLOT(onEnergyConnected(bool)));
 	onEnergyConnected(false);
 }
@@ -243,7 +248,7 @@ void IDEASAppController::onScanAddedToEditor(AMGenericScanEditor *editor, AMScan
 		if (source->name().contains("norm") && source->name().contains("Ka") && !source->hiddenFromUsers())
 			exclusiveName = source->name();
 	}
-	if (!exclusiveName.isNull())
+	if (exclusiveName.isNull())
 	    for (int i = 0, count = scan->analyzedDataSourceCount(); i < count && exclusiveName.isNull(); i++){
 
 		    AMDataSource *source = scan->analyzedDataSources()->at(i);

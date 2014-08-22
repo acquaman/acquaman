@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 Acquaman is free software: you can redistribute it and/or modify
@@ -310,8 +311,11 @@ void AMListAction3::cancelImplementation()
 void AMListAction3::skipImplementation(const QString &command)
 {
 	// Stop after current action.  We should only get here if we are a sequential list, but check to be safe.
-	if (subActionMode_ == Sequential && command == skipOptions_.first())
+	if (subActionMode_ == Sequential && command == skipOptions_.first()){
+
 		skipAfterCurrentAction_ = true;
+		setStatusText("Skipping - After current action");
+	}
 }
 
 void AMListAction3::internalOnSubActionStateChanged(int newState, int oldState)

@@ -1,5 +1,6 @@
 /*
 Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
 
 This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
 
@@ -53,6 +54,8 @@ protected:
 	virtual bool startImplementation();
 	/// Cancels current scan.  Treated as finishing early.
 	virtual void cancelImplementation() { setCancelled(); }
+	/// Cancels current scan. Treated as finishing early.
+	virtual void stopImplementation(const QString &command) { Q_UNUSED(command); setFinished(); }
 	/// Saves the data after a scan is stopped.
 	void saveData();
 };

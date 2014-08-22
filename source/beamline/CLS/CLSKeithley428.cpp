@@ -1,3 +1,24 @@
+/*
+Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
+Copyright 2013-2014 David Chevrier and Darren Hunter.
+
+This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+
+Acquaman is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Acquaman is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include "CLSKeithley428.h"
 
 #include "math.h"
@@ -83,6 +104,38 @@ QString CLSKeithley428::units() const
 QStringList CLSKeithley428::unitsList() const
 {
     return QStringList() << units();
+}
+
+double CLSKeithley428::minimumValueForUnits(const QString &units) const
+{
+    Q_UNUSED(units)
+
+    double value;
+
+    if (amplifierMode_ == Sensitivity)
+        value = toSensitivity(gains_.last());
+    else if (amplifierMode_ == Gain)
+        value = gains_.first();
+    else
+        value = 0;
+
+    return value;
+}
+
+double CLSKeithley428::maximumValueForUnits(const QString &units) const
+{
+    Q_UNUSED(units)
+
+    double value;
+
+    if (amplifierMode_ == Sensitivity)
+        value = toSensitivity(gains_.first());
+    else if (amplifierMode_ == Gain)
+        value = gains_.last();
+    else
+        value = 0;
+
+    return value;
 }
 
 bool CLSKeithley428::atMaximumGain() const
