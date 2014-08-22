@@ -70,10 +70,6 @@ protected:
 	QCheckBox *isTransScanCheckBox_;
 	QCheckBox *useRefCheckBox_;
 
-//	QComboBox *I0ChannelComboBox_;
-//	QComboBox *ItChannelComboBox_;
-//	QComboBox *IrChannelComboBox_;
-
 	QLineEdit *scanName_;
 
 	/// Double spin box for changing the energy.

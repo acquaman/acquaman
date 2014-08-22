@@ -42,7 +42,7 @@ REIXSXESImageInterpolationAB::REIXSXESImageInterpolationAB(const QString &output
 	energyCalibrationOffset_ = 0;
 	tiltCalibrationOffset_ = 0;
 
-	// Live correlation turned on by default. Need to make sure that this is OK for performance; it should be now that we're using block access.
+	// Live correlation turned on by default. Need to make sure that this is OK for performance, it should be now that we're using block access.
 	liveCorrelation_ = false;
 	// shift values can start out empty.
 
@@ -55,7 +55,9 @@ REIXSXESImageInterpolationAB::REIXSXESImageInterpolationAB(const QString &output
 
 	axes_ << AMAxisInfo("invalid", 0, "No input data");
 
-	//connect(&callCorrelation_, SIGNAL(executed()), this, SLOT(correlateNow()));
+	/*
+	connect(&callCorrelation_, SIGNAL(executed()), this, SLOT(correlateNow()));
+	*/
 	setDescription("XES Interpolated Spectrum");
 
 	// FOR TESTING
@@ -64,7 +66,9 @@ REIXSXESImageInterpolationAB::REIXSXESImageInterpolationAB(const QString &output
 	shiftPosition2_ = 700;
 	shiftValues1_ << 0 << 0 << 0 << 0 << 3 << 6 << 9 << 11 << 12 << 13 << 15 << 16 << 17 << 14 << 12 << 10 << 9 << 8 << 8 << 7 << 7 << 6 << 6 << 5 << 4 << 4 << 3 << 2 << 2 << 1 << 0 << 0 << -1 << -2 << -2 << -3 << -4 << -5 << -6 << -7 << -8 << -9 << -10 << -12 << -13 << -13 << -14 << -14 << -11 << -7 << -2 << 2 << 7 << 9 << 11 << 12 << 13 << 12 << 9 << 6 << 4 << 0 << 0 << 0;
 	shiftValues2_ << 0 << 0 << 0 << -4 << -6 << -8 << -10 << -11 << -12 << -13 << -13 << -14 << -11 << -9 << -7 << -6 << -5 << -5 << -4 << -3 << -3 << -2 << -2 << -1 << -1 << -1 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << -1 << -1 << -2 << -3 << -4 << -6 << -9 << -12 << -12 << -12 << -11 << -11 << -10 << -8 << -6 << -4 << 0 << 0 << 0;
-	//shiftValues2_.clear();
+	/*
+	shiftValues2_.clear();
+	*/
 }
 
 REIXSXESImageInterpolationAB::REIXSXESImageInterpolationAB(AMDatabase *db, int id) :
@@ -273,7 +277,7 @@ void REIXSXESImageInterpolationAB::reviewState()
 bool REIXSXESImageInterpolationAB::areInputDataSourcesAcceptable(const QList<AMDataSource *> &dataSources) const
 {
 	if(dataSources.isEmpty())
-		return true;// always acceptable; the null input.
+		return true;// always acceptable, the null input.
 
 	// otherwise we need a single input source, with a rank of 2.
 	if(dataSources.count() == 1 && dataSources.at(0)->rank() == 2)
@@ -517,7 +521,9 @@ void REIXSXESImageInterpolationAB::computeCachedValues() const
 		double normValue = (double)interpolationLevel_;
 		if(normValue < 2)
 			normValue = 2.0;
-//		normValue *= 0.1;  // Um...  Robert, why are you multiplying the spectra by 10?
+		/*
+		normValue *= 0.1;  // Um...  Robert, why are you multiplying the spectra by 10?
+		*/
 		for(int i = 0; i < tempFinalArray.count(); i++)
 			for(int j = 0; j < tempFinalArray[i].count(); j++)
 				tempFinalArray[i][j] /= (normValue);
@@ -525,29 +531,31 @@ void REIXSXESImageInterpolationAB::computeCachedValues() const
 
 
 
+		/*
 		//output matrix has to be global so it can be saved to file.
-//        for(int i = 0; i < tempFinalArray.count(); i++)
-//        {
-//            QList<int> tempIntList;
-//            for(int j = 0; j < tempFinalArray[i].count(); j++)
-//            {
-//                tempIntList.append((int)(tempFinalArray[i][j] + 0.5)); //0.5 to ensure proper rounding, rather than truncating
-//            }
-//            globalFinalImage.append(tempIntList);
-//        }
+	for(int i = 0; i < tempFinalArray.count(); i++)
+	{
+	    QList<int> tempIntList;
+	    for(int j = 0; j < tempFinalArray[i].count(); j++)
+	    {
+		tempIntList.append((int)(tempFinalArray[i][j] + 0.5)); //0.5 to ensure proper rounding, rather than truncating
+	    }
+	    globalFinalImage.append(tempIntList);
+	}
 
-//		***************************************************************************
-//		***************************************************************************
+		***************************************************************************
+		***************************************************************************
 
-//		This neglects the mask:
-//				for(int j = 0; j < tempFinalArray[1].count(); j++)
-//		{
-//			QList<int> tempIntList;
-//			for(int i = 0; i < tempFinalArray.count(); i++)
-//			{
-//				cachedValues_[j] += ((int)(tempFinalArray[i][j] + 0.5)); //0.5 to ensure proper rounding, rather than truncating
-//			}
-//		}
+		This neglects the mask:
+				for(int j = 0; j < tempFinalArray[1].count(); j++)
+		{
+			QList<int> tempIntList;
+			for(int i = 0; i < tempFinalArray.count(); i++)
+			{
+				cachedValues_[j] += ((int)(tempFinalArray[i][j] + 0.5)); //0.5 to ensure proper rounding, rather than truncating
+			}
+		}
+		*/
 		//The center point of the sum region
 		double originX = (double)sumRangeMinX_ + ((double)sumRangeMaxX_ - (double)sumRangeMinX_)/2.0;
 		double originY = (double)sumRangeMinY_ + ((double)sumRangeMaxY_ - (double)sumRangeMinY_)/2.0;
@@ -563,7 +571,7 @@ void REIXSXESImageInterpolationAB::computeCachedValues() const
 				double xVal = (double)i - originX;
 				for(int j=sumRangeMinY_; j<=sumRangeMaxY_; j++) { // loop through rows
 					if(rangeRound_ == 0.0) { //not ellipse
-							newVal += ((int)(tempFinalArray[j][i] + 0.5)); //0.5 to ensure proper rounding, rather than truncating;
+							newVal += ((int)(tempFinalArray[j][i] + 0.5)); //0.5 to ensure proper rounding, rather than truncating
 							contributingRows++;
 					}
 					else {
@@ -881,7 +889,7 @@ void REIXSXESImageInterpolationAB::computeCachedAxisValues() const
 	// Gamma is the tilt offset:
 	double gamma = tiltOffset;
 
-	// Gamma' (gp) is the angle between the central ray and the detector surface; it is acute for higher-than-center energies, and obtuse for lower-than-center energies.
+	// Gamma' (gp) is the angle between the central ray and the detector surface, it is acute for higher-than-center energies, and obtuse for lower-than-center energies.
 	// higher-than-center energies: gp = pi/2 - beta + tiltOffset
 	// lower-than-center energies: gp = pi/2 + beta - tiltOffset.
 
@@ -908,11 +916,11 @@ void REIXSXESImageInterpolationAB::computeCachedAxisValues() const
 	int centerPixel = size(0)/2;
 
 	for(int i=0; i<centerPixel; ++i) {
-		// distance away from center; always positive.
+		// distance away from center, always positive.
 		double dx = (centerPixel-i)*mmPerPixel;
 		// sindb: sin("delta Beta"): the angle difference from the nominal beta.
 		double sindb = sign*( dx*singp/sqrt(rPrime*rPrime + dx*dx - 2*rPrime*dx*cosgp*sign) );	//you can derive this from sinA/a=sinB/b and c^2=a^2+b^2-2ab*cosC
-		//bp ("beta-prime") is the diffraction angle at detector point 'i'; sinbp = sin( beta + db )
+		//bp ("beta-prime") is the diffraction angle at detector point 'i', sinbp = sin( beta + db )
 		//																		 = sinb*cos(db) + cosb*sindb
 		//																		 = sinb*sqrt(1-sin^2(db)) + cosb*sindb
 		double sinbp = sinBeta*sqrt( 1.0-sindb*sindb ) + cosBeta*sindb;
@@ -926,13 +934,15 @@ void REIXSXESImageInterpolationAB::computeCachedAxisValues() const
 	// Calculate top half of axis. (high energies). Sign is 1:
 	sign = 1;
 	for(int i=centerPixel+1, cc=size(0); i<cc; ++i) {
-		// distance away from center; always positive.
+		// distance away from center, always positive.
 		double dx = (i-centerPixel)*mmPerPixel;
 		double sindb = sign*( dx*singp/sqrt(rPrime*rPrime + dx*dx - 2*rPrime*dx*cosgp*sign) );
 		double sinbp = sinBeta*sqrt( 1.0-sindb*sindb ) + cosBeta*sindb;
 		cachedAxisValues_[i] = 0.0012398417*grooveDensity / (sinAlpha - sinbp) + energyCalibrationOffset_;	// NOTE: we're adding in the user-specified energy offset here.
-//		qDebug()<< "sindb = " << sindb;
-//		qDebug()<< "sinbp = " << sinbp;
+		/*
+		qDebug()<< "sindb = " << sindb;
+		qDebug()<< "sinbp = " << sinbp;
+		*/
 
 	}
 	//////////////////////////////////////////////////////
@@ -940,40 +950,42 @@ void REIXSXESImageInterpolationAB::computeCachedAxisValues() const
 
 	// David's implementation: (SUSPICIOUS?!?)
 	//////////////////////////////////////////////////////
-//	double singp = cos(beta);
-//	double cosgp = sin(beta);
+	/*
+	double singp = cos(beta);
+	double cosgp = sin(beta);
 
-//	int centerPixel = size(0)/2;
-//	for(int i=0, cc=size(0); i<cc; ++i) {
+	int centerPixel = size(0)/2;
+	for(int i=0, cc=size(0); i<cc; ++i) {
 
-//		// distance away from center; always positive.
-//		double dx = (centerPixel-i)*mmPerPixel*singp;
+		// distance away from center; always positive.
+		double dx = (centerPixel-i)*mmPerPixel*singp;
 
-//		// db: "delta Beta": the angle difference from the nominal beta.
+		// db: "delta Beta": the angle difference from the nominal beta.
 
-//		double db = atan(dx/(rPrime-(centerPixel-i)*mmPerPixel*cosgp));
-
-
-//		//bp ("beta-prime") is the diffraction angle at detector point 'i'; sinbp = sin( beta + db )
-//		//																		 = sinb*cos(db) + cosb*sindb
-//		//																		 = sinb*sqrt(1-sin^2(db)) + cosb*sindb
-//		//double sinbp = sinBeta*sqrt( 1.0-sindb*sindb ) + cosBeta*sindb;
-//		double sinbp = sin(beta - db);
+		double db = atan(dx/(rPrime-(centerPixel-i)*mmPerPixel*cosgp));
 
 
-//		//solving the grating equation for eV:
-//		cachedAxisValues_[i] = 0.0012398417*grooveDensity / (sinAlpha - sinbp);
-//	}
-	////////////////////////////////////////////////////////
+		//bp ("beta-prime") is the diffraction angle at detector point 'i'; sinbp = sin( beta + db )
+		//																		 = sinb*cos(db) + cosb*sindb
+		//																		 = sinb*sqrt(1-sin^2(db)) + cosb*sindb
+		//double sinbp = sinBeta*sqrt( 1.0-sindb*sindb ) + cosBeta*sindb;
+		double sinbp = sin(beta - db);
 
-//	qDebug()<< "rPrime = " << rPrime;
-//	qDebug() <<"cosgp = " << cosgp;
-//	qDebug()<< "cosBeta = " << cosBeta;
-//	qDebug()<< "sinBeta = " << sinBeta;
-//	qDebug()<< "gamma = " << gamma;
-//	qDebug()<< "beta = " << beta;
-//	qDebug()<< "grooveDensity = " << grooveDensity;
-//	qDebug()<< "sinAlpha = " << sinAlpha;
+
+		//solving the grating equation for eV:
+		cachedAxisValues_[i] = 0.0012398417*grooveDensity / (sinAlpha - sinbp);
+	}
+	//////////////////////////////////////////////////////
+
+	qDebug()<< "rPrime = " << rPrime;
+	qDebug() <<"cosgp = " << cosgp;
+	qDebug()<< "cosBeta = " << cosBeta;
+	qDebug()<< "sinBeta = " << sinBeta;
+	qDebug()<< "gamma = " << gamma;
+	qDebug()<< "beta = " << beta;
+	qDebug()<< "grooveDensity = " << grooveDensity;
+	qDebug()<< "sinAlpha = " << sinAlpha;
+	*/
 
 
 	axisValuesInvalid_ = false;

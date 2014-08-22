@@ -536,9 +536,6 @@ void VESPERS2DScanConfigurationView::axesAcceptable()
 	QPalette good(this->palette());
 	QPalette bad(good);
 	bad.setColor(QPalette::Base, Qt::red);
-
-//	hStep_->setPalette(config_->validXAxis() ? good : bad);
-//	vStep_->setPalette(config_->validYAxis() ? good : bad);
 }
 
 void VESPERS2DScanConfigurationView::setXAxisStart(const AMNumber &value)

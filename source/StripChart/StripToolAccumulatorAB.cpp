@@ -60,7 +60,7 @@
 //bool StripToolAccumulatorAB::areInputDataSourcesAcceptable(const QList<AMDataSource*>& dataSources) const {
 
 //    if(dataSources.isEmpty())
-//        return true;	// always acceptable; the null input.
+//        return true;	// always acceptable, the null input.
 
 //    // otherwise we need two input sources.
 //    if(dataSources.count() == 2 && dataSources.at(0)->rank() == 0 && dataSources.at(1)->rank() == 2)

@@ -36,8 +36,6 @@ HeaderNoticeChecker::HeaderNoticeChecker(const QString &oldNotice, const QString
 	QDir sourceDirectory(directoryPath);
 	recurseDirectories(sourceDirectory.path(), sourceDirectory.entryList(QStringList(), QDir::Dirs | QDir::NoDotAndDotDot));
 
-	//qDebug() << "Updated: " << oldToNew_;
-	//qDebug() << "Newly added to: " << nothingToNew_;
 	qDebug() << "Updated: ";
 	for(int x = 0, size = oldToNew_.count(); x < size; x++)
 		qDebug() << oldToNew_.at(x);
@@ -63,8 +61,6 @@ void HeaderNoticeChecker::recurseDirectories(const QString &currentPath, const Q
 			return;
 
 		QTextStream fileIn(&readFile);
-		//while (!fileIn.atEnd())
-		//	fileText.append(fileIn.readLine());
 		fileText = fileIn.readAll();
 
 		if(fileText.contains(oldNotice_) && !fileText.contains(newNotice_))
@@ -75,7 +71,6 @@ void HeaderNoticeChecker::recurseDirectories(const QString &currentPath, const Q
 	for(int x = 0; x < allHeadersWithOldNotice.count(); x++){
 			QProcess fixText;
 			QStringList arguments;
-			//arguments << "-c" << "sed -i '' 's/"+oldNotice_+"/"+newNotice_+"/g' "+allHeadersWithOldNotice.at(x);
 			arguments << "-c" << "perl -pi -e 's/"+oldNotice_+"/"+newNotice_+"/g' "+allHeadersWithOldNotice.at(x);
 
 			fixText.start("/bin/sh", arguments );
@@ -98,8 +93,6 @@ void HeaderNoticeChecker::recurseDirectories(const QString &currentPath, const Q
 			return;
 
 		QTextStream fileIn(&readFile);
-//		while (!fileIn.atEnd())
-//			fileText.append(fileIn.readLine());
 		fileText = fileIn.readAll();
 
 		if(fileText.contains(oldNotice_) && fileText.contains(newNotice_))
@@ -112,7 +105,6 @@ void HeaderNoticeChecker::recurseDirectories(const QString &currentPath, const Q
 	for(int x = 0; x < allCppsWithOldNotice.count(); x++){
 			QProcess fixText;
 			QStringList arguments;
-			//arguments << "-c" << "sed -i '' 's/"+oldNotice_+"/"+newNotice_+"/g' "+allCppsWithOldNotice.at(x);
 			arguments << "-c" << "perl -pi -e 's/"+oldNotice_+"/"+newNotice_+"/g' "+allCppsWithOldNotice.at(x);
 			fixText.start("/bin/sh", arguments );
 			if (!fixText.waitForStarted())

@@ -77,8 +77,10 @@ REIXSRIXSScanConfigurationView::REIXSRIXSScanConfigurationView(REIXSXESScanConfi
 	}
 
 	chooseScanDialog_ = 0;
-//	image_ = new MPlotSeriesBasic();
-//	image_->setColorMap(*colorMap_);
+	/*
+	image_ = new MPlotSeriesBasic();
+	image_->setColorMap(*colorMap_);
+	*/
 
 	currentScan_ = 0;
 
@@ -149,17 +151,19 @@ REIXSRIXSScanConfigurationView::REIXSRIXSScanConfigurationView(REIXSXESScanConfi
 
 	XASScanName_ = new QLabel("Select XAS Scan...");
 
-//	addEnergy_ =  new QPushButton();
-//	addEnergy_->setText("Add Energy");
-//	QIcon down;
-//	down.addFile(QString::fromUtf8(":/22x22/go-down-dark.png"), QSize(), QIcon::Normal, QIcon::Off);
-//	addEnergy_->setIcon(down);
+	/*
+	addEnergy_ =  new QPushButton();
+	addEnergy_->setText("Add Energy");
+	QIcon down;
+	down.addFile(QString::fromUtf8(":/22x22/go-down-dark.png"), QSize(), QIcon::Normal, QIcon::Off);
+	addEnergy_->setIcon(down);
+	queueScan_ = new QPushButton();
+	queueScan_->setText("Add This Energy");
+	*/
 
 	loadXASData_ = new QPushButton();
 	loadXASData_->setText("Load XAS Scan");
 
-//	queueScan_ = new QPushButton();
-//	queueScan_->setText("Add This Energy");
 
 	// Add scan view (plots)
 	scanView_ = new AMScanView();
@@ -169,23 +173,21 @@ REIXSRIXSScanConfigurationView::REIXSRIXSScanConfigurationView(REIXSXESScanConfi
 	// share the scan set model with the AMScanView
 	scanSetModel_ = scanView_->model();
 
+	/*
+	plot_ = new MPlot();
+	plotWidget_ = new MPlotWidget();
+	plotWidget_->setPlot(plot_);
 
-
-//	plot_ = new MPlot();
-//	plotWidget_ = new MPlotWidget();
-//	plotWidget_->setPlot(plot_);
-
-//	plot_->plotArea()->setBrush(QBrush(QColor(Qt::white)));
-//	plot_->axisRight()->setTicks(0);
-//	plot_->axisBottom()->setTicks(4);
-//	plot_->axisLeft()->showGrid(false);
-//	plot_->axisBottom()->showAxisName(false);
-//	plot_->axisLeft()->showAxisName(false);
-//	plot_->axisScaleBottom()->setPadding(0);
-//	plot_->axisScaleLeft()->setPadding(0);
-//	image_ = 0;
-
-
+	plot_->plotArea()->setBrush(QBrush(QColor(Qt::white)));
+	plot_->axisRight()->setTicks(0);
+	plot_->axisBottom()->setTicks(4);
+	plot_->axisLeft()->showGrid(false);
+	plot_->axisBottom()->showAxisName(false);
+	plot_->axisLeft()->showAxisName(false);
+	plot_->axisScaleBottom()->setPadding(0);
+	plot_->axisScaleLeft()->setPadding(0);
+	image_ = 0;
+	*/
 
 	QGridLayout* RIXSView = new QGridLayout();
 
@@ -207,7 +209,9 @@ REIXSRIXSScanConfigurationView::REIXSRIXSScanConfigurationView(REIXSXESScanConfi
 
 	QFormLayout* scanMetaDataLayout = new QFormLayout();
 	scanMetaDataLayout->addRow("Scan base name", nameEdit_);
-	//scanMetaDataLayout->addRow("Number", numberEdit_);
+	/*
+	scanMetaDataLayout->addRow("Number", numberEdit_);
+	*/
 	scanMetaDataLayout->addRow("Sample", sampleSelector_);
 	scanMetaDataLayout->addRow("Set automatically", autoNamingCheckBox_);
 	nameOptions->setLayout(scanMetaDataLayout);
@@ -216,7 +220,9 @@ REIXSRIXSScanConfigurationView::REIXSRIXSScanConfigurationView(REIXSXESScanConfi
 	XASScanViewLayout->addWidget(scanView_,0,0,1,5);
 	XASScanViewLayout->addWidget(energyBoxLabel_,1,0);
 	XASScanViewLayout->addWidget(energyBox_,1,1);
-//	XASScanViewLayout->addWidget(queueScan_,1,2);
+	/*
+	XASScanViewLayout->addWidget(queueScan_,1,2);
+	*/
 	XASScanViewLayout->addWidget(loadXASData_,1,4);
 	XASEnergySelect->setLayout(XASScanViewLayout);
 
@@ -242,11 +248,10 @@ REIXSRIXSScanConfigurationView::REIXSRIXSScanConfigurationView(REIXSXESScanConfi
 
 	configuration_->setApplyEnergy(true);
 
-
-
-
 	connect(loadXASData_, SIGNAL(clicked()), this, SLOT(onloadXASDataClicked()));
-//	connect(queueScan_, SIGNAL(clicked()), this, SLOT(onQueueScanClicked()));
+	/*
+	connect(queueScan_, SIGNAL(clicked()), this, SLOT(onQueueScanClicked()));
+	*/
 	connect(applySlitWidthBox_, SIGNAL(toggled(bool)),slitWidthBox_,SLOT(setEnabled(bool)));
 	connect(applySlitWidthBox_, SIGNAL(clicked(bool)), configuration_, SLOT(setApplySlitWidth(bool)));
 	connect(slitWidthBox_, SIGNAL(valueChanged(double)), configuration_, SLOT(setSlitWidth(double)));
@@ -280,7 +285,6 @@ REIXSRIXSScanConfigurationView::REIXSRIXSScanConfigurationView(REIXSXESScanConfi
 
 REIXSRIXSScanConfigurationView::~REIXSRIXSScanConfigurationView()
 {
-	//delete ui;
 }
 
 
@@ -293,15 +297,16 @@ void REIXSRIXSScanConfigurationView::onloadXASDataClicked()
 	chooseScanDialog_->show();
 }
 
-//void REIXSRIXSScanConfigurationView::onQueueScanClicked()
-//{
-//	AMScanConfiguration *config = configuration()->createCopy();
+/*
+void REIXSRIXSScanConfigurationView::onQueueScanClicked()
+{
+	AMScanConfiguration *config = configuration()->createCopy();
 
-//	AMBeamlineScanAction* action = new AMBeamlineScanAction(config);
-//	AMActionRunner3::workflow()->addActionToQueue();
+	AMBeamlineScanAction* action = new AMBeamlineScanAction(config);
+	AMActionRunner3::workflow()->addActionToQueue();
 
-//}
-
+}
+*/
 
 
 void REIXSRIXSScanConfigurationView::onloadXASDataChosen()
@@ -324,7 +329,7 @@ bool REIXSRIXSScanConfigurationView::dropScanURLs(const QList<QUrl>& urls) {
 		AMScan* scan = AMScan::createFromDatabaseUrl(url, false, &isScanning, &scanName);
 
 		// See if this scan is acquiring, and refuse to create a new instance if so.
-		/// \todo With the new AMScan memory management model, we could actually open the existing AMScan* instance in multiple editors if desired... But propagation of changes under editing might be a problem; all editors currently assuming they are the only ones modifying the scan.
+		/// \todo With the new AMScan memory management model, we could actually open the existing AMScan* instance in multiple editors if desired... But propagation of changes under editing might be a problem, all editors currently assuming they are the only ones modifying the scan.
 		if(isScanning) {
 			QMessageBox stillScanningEnquiry;
 			stillScanningEnquiry.setWindowTitle("This scan is still acquiring.");
@@ -355,7 +360,9 @@ void REIXSRIXSScanConfigurationView::addScan(AMScan* newScan) {
 	scanSetModel_->removeScan(currentScan_);
 	scanSetModel_->addScan(newScan);
 	currentScan_ = scanSetModel_->scanAt(0);
-	//ui_.scanListView->setCurrentIndex(scanSetModel_->indexForScan(scanSetModel_->indexOf(newScan)));
+	/*
+	ui_.scanListView->setCurrentIndex(scanSetModel_->indexForScan(scanSetModel_->indexOf(newScan)));
+	*/
 
 	if(scanSetModel_->exclusiveDataSourceName().isEmpty()) {
 		QVector<int> nonHiddenDataSourceIndexes = newScan->nonHiddenDataSourceIndexes();
@@ -367,10 +374,11 @@ void REIXSRIXSScanConfigurationView::addScan(AMScan* newScan) {
 	scanView_->setPlotCursorCoordinates(currentScan_->dataSourceAt(0)->axisValue(0,currentScan_->dataSourceAt(0)->size(0)/2));
 	scanView_->setPlotCursorVisibility(true);
 
-
-//	QList<AMDataSource*> raw1DDataSources;
-//	if(scan->rawDataSources()->at(i)->rank() == 1)
-//		raw1DDataSources << currentScan_->rawDataSources()->at(0);
+	/*
+	QList<AMDataSource*> raw1DDataSources;
+	if(scan->rawDataSources()->at(i)->rank() == 1)
+		raw1DDataSources << currentScan_->rawDataSources()->at(0);
+	*/
 
 	QList<AMDataSource*> raw1DDataSources;
 	for(int i=0; i<currentScan_->rawDataSources()->count(); i++)
@@ -380,14 +388,15 @@ void REIXSRIXSScanConfigurationView::addScan(AMScan* newScan) {
 	emit scanAdded(this, newScan);
 	refreshWindowTitle();
 
-//	if(currentScan_->sampleId())
-//	{
-//		if(autoNamingCheckBox_->isChecked()) autoNamingCheckBox_->click();
-//		sampleSelector_->setCurrentSample(currentScan_->sampleId());
-//		numberEdit_ = 0;
-//		nameEdit_->setText(QString("RIXS %1").arg(currentScan_->name()).replace("XAS", ""));
-//	}
-
+	/*
+	if(currentScan_->sampleId())
+	{
+		if(autoNamingCheckBox_->isChecked()) autoNamingCheckBox_->click();
+		sampleSelector_->setCurrentSample(currentScan_->sampleId());
+		numberEdit_ = 0;
+		nameEdit_->setText(QString("RIXS %1").arg(currentScan_->name()).replace("XAS", ""));
+	}
+	*/
 }
 
 void REIXSRIXSScanConfigurationView::refreshWindowTitle() {
@@ -396,31 +405,36 @@ void REIXSRIXSScanConfigurationView::refreshWindowTitle() {
 
 	if(numScans == 0) {
 		XASEnergySelect->setTitle("Select XAS Scan:");
-		//setWindowTitle("Scan Editor");
+		/*
+		setWindowTitle("Scan Editor");
+		*/
 		return;
 	}
 
 	QString windowTitle = scanSetModel_->scanAt(0)->fullName();
 	windowTitle.prepend("Select RIXS Scan Energy from ");
 	windowTitle.append(":");
-	//setWindowTitle(windowTitle);
+	/*
+	setWindowTitle(windowTitle);
+	*/
 	XASEnergySelect->setTitle(windowTitle);
 }
 
 
 
-
-//// Overloaded to enable drag-dropping scans (when Drag Action = Qt::CopyAction and mime-type = "text/uri-list" with the proper format.)
-//void REIXSRIXSScanConfigurationView::dragEnterEvent(QDragEnterEvent *event) {
-//	if(	event->possibleActions() & Qt::CopyAction
-//			&& event->mimeData()->hasUrls()
-//			&& event->mimeData()->urls().count() > 0
-//			&& event->mimeData()->urls().at(0).scheme() == "amd"
-//			) {
-//		event->accept();
-//		event->acceptProposedAction();
-//	}
-//}
+/*
+// Overloaded to enable drag-dropping scans (when Drag Action = Qt::CopyAction and mime-type = "text/uri-list" with the proper format.)
+void REIXSRIXSScanConfigurationView::dragEnterEvent(QDragEnterEvent *event) {
+	if(	event->possibleActions() & Qt::CopyAction
+			&& event->mimeData()->hasUrls()
+			&& event->mimeData()->urls().count() > 0
+			&& event->mimeData()->urls().at(0).scheme() == "amd"
+			) {
+		event->accept();
+		event->acceptProposedAction();
+	}
+}
+*/
 
 void REIXSRIXSScanConfigurationView::onMaximumTimeEditChanged(const QTime &time) {
 
@@ -432,7 +446,9 @@ void REIXSRIXSScanConfigurationView::onMaximumTimeEditChanged(const QTime &time)
 void REIXSRIXSScanConfigurationView::onAutoNamingCheckboxClicked(bool autoOn)
 {
 	nameEdit_->setEnabled(!autoOn);
-	//numberEdit_->setEnabled(!autoOn);
+	/*
+	numberEdit_->setEnabled(!autoOn);
+	*/
 	sampleSelector_->setEnabled(!autoOn);
 }
 

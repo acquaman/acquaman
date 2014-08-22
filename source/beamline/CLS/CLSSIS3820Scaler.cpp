@@ -55,8 +55,10 @@ CLSSIS3820Scaler::CLSSIS3820Scaler(const QString &baseName, QObject *parent) :
 		scalerChannels_.append(tmpChannel);
 		connect(tmpChannel, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
 		connect( tmpChannel, SIGNAL(sensitivityChanged()), this, SIGNAL(sensitivityChanged()) );
-//        connect( this, SIGNAL(newDarkCurrentMeasurementValue(double)), tmpChannel, SIGNAL(newDarkCurrentMeasurementValue(double)) );
-//        connect( this, SIGNAL(newDarkCurrentMeasurementState(CLSSIS3820Scaler::DarkCurrentCorrectionState)), tmpChannel, SIGNAL(newDarkCurrentMeasurementState(CLSSIS3820Scaler::DarkCurrentCorrectionState)) );
+		/*
+		connect( this, SIGNAL(newDarkCurrentMeasurementValue(double)), tmpChannel, SIGNAL(newDarkCurrentMeasurementValue(double)) );
+		connect( this, SIGNAL(newDarkCurrentMeasurementState(CLSSIS3820Scaler::DarkCurrentCorrectionState)), tmpChannel, SIGNAL(newDarkCurrentMeasurementState(CLSSIS3820Scaler::DarkCurrentCorrectionState)) );
+		*/
 	}
 
 	startToggle_ = new AMPVControl("Start/Scanning", baseName+":startScan", baseName+":startScan", QString(), this, 0.1);
@@ -82,7 +84,9 @@ CLSSIS3820Scaler::CLSSIS3820Scaler(const QString &baseName, QObject *parent) :
 	connect(dwellTime_, SIGNAL(valueChanged(double)), this, SLOT(onDwellTimeChanged(double)));
 	connect(scanPerBuffer_, SIGNAL(valueChanged(double)), this, SLOT(onScanPerBufferChanged(double)));
 	connect(totalScans_, SIGNAL(valueChanged(double)), this, SLOT(onTotalScansChanged(double)));
-	//connect(reading_, SIGNAL(valueChanged(double)), this, SIGNAL(readingChanged()));
+	/*
+	connect(reading_, SIGNAL(valueChanged(double)), this, SIGNAL(readingChanged()));
+	*/
 	connect(reading_, SIGNAL(valueChanged(double)), this, SLOT(onReadingChanged(double)));
 	connect(allControls_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
 }
@@ -261,7 +265,6 @@ AMAction3* CLSSIS3820Scaler::createWaitForDwellFinishedAction() {
 
 	AMControlInfo setpoint = startToggle_->toInfo();
 	setpoint.setValue(0);
-	//AMControlWaitActionInfo *actionInfo = new AMControlWaitActionInfo(setpoint, dwellTime_->value() * 1.1, AMControlWaitActionInfo::MatchEqual);
 	AMControlWaitActionInfo *actionInfo = new AMControlWaitActionInfo(setpoint, 11.0 , AMControlWaitActionInfo::MatchEqual);
 	AMControlWaitAction *action = new AMControlWaitAction(actionInfo, startToggle_);
 
@@ -300,8 +303,6 @@ void CLSSIS3820Scaler::doDarkCurrentCorrection(double dwellSeconds)
 	connect( action, SIGNAL(cancelled()), action, SLOT(deleteLater()) );
 
 	action->start();
-
-//    qDebug() << "CLSSIS3820Scaler::doDarkCurrentCorrection executing.";
 }
 
 void CLSSIS3820Scaler::setScanning(bool isScanning){
@@ -365,7 +366,6 @@ void CLSSIS3820Scaler::onScanningToggleChanged(){
 
 	else{
 		emit scanningChanged(false);
-		//triggerSource_->setSucceeded();
 	}
 
 	/////////////
@@ -417,10 +417,6 @@ void CLSSIS3820Scaler::onScanPerBufferChanged(double scansPerBuffer){
 }
 
 void CLSSIS3820Scaler::onTotalScansChanged(double totalScans){
-
-//	if(!isConnected())
-//		return;
-
 	emit totalScansChanged((int)totalScans);
 }
 
@@ -437,7 +433,6 @@ void CLSSIS3820Scaler::onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode 
 		return;
 
 	readModeForTriggerSource_ = readMode;
-	//setScanning(true);
 	if(isContinuous()){
 		if(readModeForTriggerSource_ == readModeFromSettings())
 			connect(this, SIGNAL(continuousChanged(bool)), this, SLOT(triggerScalerAcquisition(bool)));
@@ -679,14 +674,18 @@ void CLSSIS3820ScalerChannel::setCurrentAmplifier(AMCurrentAmplifier *amplifier)
 
 void CLSSIS3820ScalerChannel::setDetector(AMDetector *detector)
 {
-//    if (detector_) {
-//        disconnect( detector_, SIGNAL(newDarkCurrentMeasurementValueReady(double)), this, SIGNAL(newDarkCurrentMeasurementValue(double)) );
-//        disconnect( detector_, SIGNAL(requiresNewDarkCurrentMeasurement(bool)), this, SIGNAL(newDarkCurrentMeasurementState(bool)) );
-//    }
+	/*
+    if (detector_) {
+	disconnect( detector_, SIGNAL(newDarkCurrentMeasurementValueReady(double)), this, SIGNAL(newDarkCurrentMeasurementValue(double)) );
+	disconnect( detector_, SIGNAL(requiresNewDarkCurrentMeasurement(bool)), this, SIGNAL(newDarkCurrentMeasurementState(bool)) );
+    }
+	*/
 
 	detector_ = detector;
-//    connect( detector_, SIGNAL(newDarkCurrentMeasurementValueReady(double)), this, SIGNAL(newDarkCurrentMeasurementValue(double)) );
-//    connect( detector_, SIGNAL(requiresNewDarkCurrentMeasurement(bool)), this, SIGNAL(newDarkCurrentMeasurementState(bool)) );
+	/*
+    connect( detector_, SIGNAL(newDarkCurrentMeasurementValueReady(double)), this, SIGNAL(newDarkCurrentMeasurementValue(double)) );
+    connect( detector_, SIGNAL(requiresNewDarkCurrentMeasurement(bool)), this, SIGNAL(newDarkCurrentMeasurementState(bool)) );
+	*/
 }
 
 void CLSSIS3820ScalerChannel::setMinimumVoltage(double min)

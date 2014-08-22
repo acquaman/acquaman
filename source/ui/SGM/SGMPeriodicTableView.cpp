@@ -104,10 +104,6 @@ void SGMPeriodicTableView::onHoveredAvailableScansMenu(){
 
 void SGMPeriodicTableView::onTriggerAvailableScansMenu(){
 	emit fastScanChosen(activeMenuData_);
-//	SGMFastScanParameters *fastScanToView = SGMPeriodicTable::sgmTable()->fastScanPresets().at(activeMenuData_);
-
-//	SGMFastScanParametersView *fastScanParametersView = new SGMFastScanParametersView(fastScanToView);
-//	fastScanParametersView->show();
 }
 
 
@@ -1126,7 +1122,6 @@ void SGMFastScanParametersModificationWizard::createNewScanInfo(){
 		appendDatabaseName = newDatabase_->connectionName();
 		appendDatabaseName[0] = appendDatabaseName[0].toUpper();
 		appendDatabaseName.append(" Database");
-		//elementEdge.append(QString(" %1").arg(appendDatabaseName));
 	}
 
 	SGMEnergyPosition startPosition = newFastScanParameters_->scanInfo().start();

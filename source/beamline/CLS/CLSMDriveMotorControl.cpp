@@ -32,7 +32,7 @@ CLSMDriveMotorControl::CLSMDriveMotorControl(const QString &name, const QString 
 	// Unlike MaxV controllers, these motors can support move updates while moving:
 	setAllowsMovesWhileMoving(true);
 	// Because of the polled communication, it can take a while for these motors to send MOVE ACTIVE then MOVE DONE for null moves. Recommend setting the moveStartTolerance() [in converted units, not microsteps] when setting up these motors. It should be set very small... equivalent to a few microsteps.
-	// ex: setMoveStartTolerance(writeUnitConverter()->convertFromRaw(5));
+	// ex: setMoveStartTolerance(writeUnitConverter()->convertFromRaw(5))
 	moveStartTolerance_ = 0;
 	moveTimeoutTolerance_ = 0;
 }

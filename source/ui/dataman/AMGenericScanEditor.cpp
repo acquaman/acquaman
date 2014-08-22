@@ -106,7 +106,6 @@ AMGenericScanEditor::AMGenericScanEditor(QWidget *parent) :
 	sampleEditor_ = new AMSamplePre2013Editor(AMDatabase::database("user"));
 	sampleEditorHolder->layout()->addWidget(sampleEditor_);
 	sampleEditor_->hide();
-	//sampleEditorHolder->layout()->addWidget(new AMSampleEditor(AMDatabase::database("user")));
 	sampleBriefView_ = new AMSampleBriefView();
 	sampleEditorHolder->layout()->addWidget(sampleBriefView_);
 	sampleBriefView_->hide();
@@ -146,7 +145,7 @@ AMGenericScanEditor::AMGenericScanEditor(QWidget *parent) :
 	connect(ui_.saveScanButton, SIGNAL(clicked()), this, SLOT(onSaveScanButtonClicked()));
 
 
-	// close button and save buttons are initially disabled; there's no scan to act on
+	// close button and save buttons are initially disabled, there's no scan to act on
 	ui_.closeScanButton->setEnabled(false);
 	ui_.saveScanButton->setEnabled(false);
 
@@ -226,7 +225,6 @@ AMGenericScanEditor::AMGenericScanEditor(bool use2DScanView, QWidget *parent)
 	sampleEditor_ = new AMSamplePre2013Editor(AMDatabase::database("user"));
 	sampleEditorHolder->layout()->addWidget(sampleEditor_);
 	sampleEditor_->hide();
-	//sampleEditorHolder->layout()->addWidget(new AMSampleEditor(AMDatabase::database("user")));
 	sampleBriefView_ = new AMSampleBriefView();
 	sampleEditorHolder->layout()->addWidget(sampleBriefView_);
 	sampleBriefView_->hide();
@@ -261,7 +259,7 @@ AMGenericScanEditor::AMGenericScanEditor(bool use2DScanView, QWidget *parent)
 	connect(ui_.closeScanButton, SIGNAL(clicked()), this, SLOT(onCloseScanButtonClicked()));
 	connect(ui_.saveScanButton, SIGNAL(clicked()), this, SLOT(onSaveScanButtonClicked()));
 
-	// close button and save buttons are initially disabled; there's no scan to act on
+	// close button and save buttons are initially disabled, there's no scan to act on
 	ui_.closeScanButton->setEnabled(false);
 	ui_.saveScanButton->setEnabled(false);
 
@@ -397,7 +395,6 @@ void AMGenericScanEditor::onCurrentChanged ( const QModelIndex & selected, const
 	updateEditor(currentScan_);
 
 	if(currentScan_) {
-		// removed: connect(currentScan_, SIGNAL(metaDataChanged()), this, SLOT(onScanMetaDataChanged()));
 
 		// make connections to widgets, so that widgets edit this scan:
 		connect(scanNameEdit_, SIGNAL(textChanged(QString)), currentScan_, SLOT(setName(QString)));
@@ -460,7 +457,6 @@ void AMGenericScanEditor::updateEditor(AMScan *scan) {
 		if (scanView2D_)
 			scanView2D_->setCurrentScan(scan);
 
-		//ui_.topFrameTitle->setText(QString("Editing %1 #%2").arg(scan->name()).arg(scan->number()));
 		ui_.topFrameTitle->setText(QString("Editing %1").arg(scan->fullName()));
 	}
 
@@ -491,7 +487,7 @@ void AMGenericScanEditor::updateEditor(AMScan *scan) {
 
 // called when the close buttons in the list of scans are clicked
 void AMGenericScanEditor::onScanModelCloseClicked(const QModelIndex& index) {
-	// Just a quick check to make sure that this is a valid scan index (ie: parent is a top-level index; index.row() is the scan index)
+	// Just a quick check to make sure that this is a valid scan index (ie: parent is a top-level index, index.row() is the scan index)
 	if(index.parent() == QModelIndex() && index.isValid())
 		removeScanWithModifiedCheck(scanSetModel_->scanAt(index.row()));
 
@@ -507,14 +503,6 @@ bool AMGenericScanEditor::removeScanWithModifiedCheck(AMScan* scan) {
 	if(scan->scanController()) {	// look for a valid scanController().
 		shouldStopAcquiringScan(scan);
 		return false;
-//		if(shouldStopAcquiringScan(scan)) {
-//			// stop the scan. Warning: this won't happen instantly... there's event driven handling in the scan controller. However, since we won't delete the scan (only release our interest), we can remove it.
-//			scan->scanController()->cancel();
-//			removeScan(scan);
-//			return true;
-//		}
-//		else	// Note: it is possible to close the editor and let the scan keep acquiring. Is that something we want to let users do? For now, no.
-//			return false;
 	}
 #endif
 
@@ -607,7 +595,7 @@ bool AMGenericScanEditor::dropScanURLs(const QList<QUrl>& urls) {
 		AMScan* scan = AMScan::createFromDatabaseUrl(url, false, &isScanning, &scanName);
 
 		// See if this scan is acquiring, and refuse to create a new instance if so.
-		/// \todo With the new AMScan memory management model, we could actually open the existing AMScan* instance in multiple editors if desired... But propagation of changes under editing might be a problem; all editors currently assuming they are the only ones modifying the scan.
+		/// \todo With the new AMScan memory management model, we could actually open the existing AMScan* instance in multiple editors if desired... But propagation of changes under editing might be a problem, all editors currently assuming they are the only ones modifying the scan.
 		if(isScanning) {
 			QMessageBox stillScanningEnquiry;
 			stillScanningEnquiry.setWindowTitle("This scan is still acquiring.");
@@ -726,12 +714,6 @@ bool AMGenericScanEditor::canCloseEditor()
 			// is still scanning.
 			shouldStopAcquiringScan(scan);
 			canClose = false;
-//			if(shouldStopAcquiringScan(scan)) {
-//				scan->scanController()->cancel(); // Since we won't delete the scan ourselves, but we know it's going to stop at some point, we can safely close. Don't set canClose to false.
-//			}
-//			else {
-//				return false;	// they chose to cancel, so don't bother asking about anything else.
-//			}
 		}
 	}
 #endif

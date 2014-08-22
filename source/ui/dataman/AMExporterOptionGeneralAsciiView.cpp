@@ -183,7 +183,7 @@ void AMExporterOptionGeneralAsciiView::makeOptionConnections() {
 }
 
 
-// disable add button when none selected; enable when one is.
+// disable add button when none selected, enable when one is.
 void AMExporterOptionGeneralAsciiView::onSourcesAvailableSelectedChanged() {
 
 	if(sourcesAvailableListView->selectionModel()->selectedIndexes().count() > 0)
@@ -236,7 +236,7 @@ void AMExporterOptionGeneralAsciiView::onSourcesAddExtraButtonClicked() {
 	}
 }
 
-// if index valid: enable edit boxes; block signals and set info boxes to match source; re-enable signals; enable remove button.  If not valid: disable remove button, disable edit boxes
+// if index valid: enable edit boxes, block signals and set info boxes to match source, re-enable signals, enable remove button.  If not valid: disable remove button, disable edit boxes
 void AMExporterOptionGeneralAsciiView::onSourcesSelectedChanged(int index) {
 
 	if(index == -1) {
@@ -291,7 +291,7 @@ void AMExporterOptionGeneralAsciiView::onSourcesLocationChanged(int locationMode
 	option_->setDataSourceOrganizeMode(index, locationMode);
 }
 
-// if separatorButton is not other: set option's separator; disable otherBox. If separatorButton is other, enable otherBox, set option's separator to text of otherBox, selectAll in otherBox.
+// if separatorButton is not other: set option's separator, disable otherBox. If separatorButton is other, enable otherBox, set option's separator to text of otherBox, selectAll in otherBox.
 void AMExporterOptionGeneralAsciiView::onColumnSeparatorChanged(int separatorButton) {
 
 	QString separator;
@@ -338,7 +338,7 @@ void AMExporterOptionGeneralAsciiView::onColumnSeparatorOtherTextChanged(const Q
 	}
 }
 
-// if newlineButton is not "other": set option's newline; disable otherBox.  If newlineButton is "other", enable otherBox, set option's newline to text of otherBox; selectAll in otherBox.
+// if newlineButton is not "other": set option's newline, disable otherBox.  If newlineButton is "other", enable otherBox, set option's newline to text of otherBox, selectAll in otherBox.
 void AMExporterOptionGeneralAsciiView::onNewlineButtonChanged(int newlineButton) {
 	QString newline;
 

@@ -423,8 +423,10 @@ void AMSampleWaitPage::initializePage()
 void AMSampleSetPage::initializePage()
 {
 	AMViewPage::initializePage();
+	/*
 	/// disconnect and reconnect addPoint.
-	//	disconnect(view(), SIGNAL(mousePressed(QPointF)), this, SLOT(addPoint(QPointF)));
+		disconnect(view(), SIGNAL(mousePressed(QPointF)), this, SLOT(addPoint(QPointF)));
+	*/
 	disconnectMouseSignal();
 	connect(view(), SIGNAL(mousePressed(QPointF)), this, SLOT(addPoint(QPointF)));
 

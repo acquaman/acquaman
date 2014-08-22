@@ -66,7 +66,7 @@ public:
 		return plate_->count();
 	}
 
-	/// Reimplemented from QAbstractListModel. Exposes data from the samples (DisplayRole and EditRole: sample name; DecorationRole: picture, DateTimeRole and DescriptionRole: creation date/time; AM::UserRole: sample elements, as a string of element symbols; AM::UserRole + 1: string of positions and labels; AM::UserRole+2: facility name)
+	/// Reimplemented from QAbstractListModel. Exposes data from the samples (DisplayRole and EditRole: sample name, DecorationRole: picture, DateTimeRole and DescriptionRole: creation date/time, AM::UserRole: sample elements, as a string of element symbols, AM::UserRole + 1: string of positions and labels, AM::UserRole+2: facility name)
 	QVariant data(const QModelIndex &index, int role) const {
 		if(index.parent().isValid() || index.column() > 0)
 			return QVariant();
@@ -121,7 +121,6 @@ public:
 			return plate_->at(index).sample()->name();
 
 		return "";
-//		return getCachedSample(index).name();
 	}
 
 	/// Return the creation date/time of a sample
@@ -130,7 +129,6 @@ public:
 			return plate_->at(index).sample()->dateTime();
 
 		return QDateTime();
-//		return getCachedSample(index).dateTime();
 	}
 
 	/// Return the elements in a sample, as a string: ex: "B, N, Cl"
@@ -139,7 +137,6 @@ public:
 			return plate_->at(index).sample()->elementString();
 
 		return "";
-//		return getCachedSample(index).elementString();
 	}
 
 	/// Return the sample position, formatted as a string: ex: X: 33mm Y: 47.9mm Z: -92mm
@@ -172,12 +169,7 @@ protected slots:
 	void onDatabaseItemRemoved(const QString& tableName, int id);
 
 protected:
-
-	/// Access a cached sample object, ensuring it is loaded from the database and up-to-date
-//	const AMSamplePre2013& getCachedSample(int index) const;
-
 	AMSamplePlatePre2013* plate_;
-//	mutable QList<AMSamplePre2013> cachedSamples_;
 
 	QString sampleTableName_;
 };
@@ -217,7 +209,6 @@ signals:
 protected:
 	/// disable the editor closing / committing?
 	bool eventFilter(QObject *object, QEvent *event) {
-		// qdebug() << "Event:" << event << "Type:" << event->type();
 
 		if(event->type() == QEvent::FocusOut)
 			return false;

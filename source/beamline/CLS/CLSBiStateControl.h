@@ -186,7 +186,7 @@ protected:
 	/// Holds whether a move (your move) is in progress.
 	bool moveInProgress_;
 
-	/// Holds the last value of isMoving_;
+	/// Holds the last value of isMoving_
 	bool isMoving_;
 };
 

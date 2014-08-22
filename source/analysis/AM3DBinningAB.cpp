@@ -65,7 +65,7 @@ AM3DBinningAB::AM3DBinningAB(AMDatabase *db, int id)
 bool AM3DBinningAB::areInputDataSourcesAcceptable(const QList<AMDataSource*>& dataSources) const {
 
 	if(dataSources.isEmpty())
-		return true;	// always acceptable; the null input.
+		return true;	// always acceptable, the null input.
 
 	// otherwise we need a single input source, with a rank of 2.
 	if(dataSources.count() == 1 && dataSources.at(0)->rank() == 3)

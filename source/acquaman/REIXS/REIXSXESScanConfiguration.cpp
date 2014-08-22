@@ -44,7 +44,7 @@ REIXSXESScanConfiguration::REIXSXESScanConfiguration(QObject *parent) :
 	defocusDistanceMm_ = 0;
 	spectrometerCalibrationId_ = -1;
 	detectorTiltOffset_ = 0;
-	// removed: detectorOrientation_ = 0;
+
 	shouldStartFromCurrentPosition_ = true;
 	doNotClearExistingCounts_ = false;
 
@@ -81,7 +81,7 @@ REIXSXESScanConfiguration::REIXSXESScanConfiguration(const REIXSXESScanConfigura
 	defocusDistanceMm_ = original.defocusDistanceMm();
 	spectrometerCalibrationId_ = original.spectrometerCalibrationId();
 	detectorTiltOffset_ = original.detectorTiltOffset();
-	// removed: detectorOrientation_ = 0;
+
 	shouldStartFromCurrentPosition_ = original.shouldStartFromCurrentPosition();
 	doNotClearExistingCounts_ = original.doNotClearExistingCounts();
 
@@ -106,8 +106,6 @@ AMScanConfiguration* REIXSXESScanConfiguration::createCopy() const {
 #include "acquaman/REIXS/REIXSXESScanActionController.h"
 // Returns a pointer to a newly-created AMScanController that is appropriate for executing this scan configuration.
 AMScanController* REIXSXESScanConfiguration::createController() {
-	//return new REIXSXESScanController(this);
-//	return new REIXSXESScanActionController(this);
 	AMScanActionController *controller = new REIXSXESScanActionController(this);
 	controller->buildScanController();
 
@@ -117,11 +115,8 @@ AMScanController* REIXSXESScanConfiguration::createController() {
 QString REIXSXESScanConfiguration::description() const
 {
 	QString rv = QString("XES Scan");// at %1 eV  (%2 seconds or %3 counts)").arg(centerEV()).arg(maximumDurationSeconds()).arg(maximumTotalCounts(), 0, 'g', 0);
-	if(applyEnergy()) rv.append(QString(" at %1 eV").arg(energy()));
-//	if(defocusDistanceMm() != 0)
-//		rv.append(QString(", Defocussed %1 mm").arg(defocusDistanceMm()));
-//	if(detectorTiltOffset() != 0)
-//		rv.append(QString(", Tilt offset %1 deg").arg(detectorTiltOffset()));
+	if(applyEnergy())
+		rv.append(QString(" at %1 eV").arg(energy()));
 
 	return rv;
 }

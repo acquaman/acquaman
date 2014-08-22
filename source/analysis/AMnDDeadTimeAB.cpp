@@ -35,7 +35,7 @@ AMnDDeadTimeAB::AMnDDeadTimeAB(const QString &outputName, QObject *parent)
 bool AMnDDeadTimeAB::areInputDataSourcesAcceptable(const QList<AMDataSource*>& dataSources) const
 {
 	if(dataSources.isEmpty())
-		return true; // always acceptable; the null input.
+		return true; // always acceptable, the null input.
 
 	// otherwise there are three data sources
 	if (dataSources.size() == 3){

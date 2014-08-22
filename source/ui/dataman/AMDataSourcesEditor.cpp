@@ -388,8 +388,10 @@ void AMDataSourcesEditor::onNewDataSourceNamed() {
 
 	else if (nameOfAnalysisBlockToBeAdded_ == "Interpolated Curve Correction"){
 
-//		newAnalysisBlock = new REIXSXESImageInterpolationAB(chName);
-//		newAnalysisBlock->setInputDataSources(twoDimDataSources);
+		/*
+		newAnalysisBlock = new REIXSXESImageInterpolationAB(chName);
+		newAnalysisBlock->setInputDataSources(twoDimDataSources);
+		*/
 	}
 
 

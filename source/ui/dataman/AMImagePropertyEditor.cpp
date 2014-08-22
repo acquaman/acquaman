@@ -237,7 +237,7 @@ void AMImagePropertyEditor::onBrightnessSliderChanged(int sliderValue)
 
 void AMImagePropertyEditor::onContrastSliderChanged(int sliderValue)
 {
-	// slider value from -100 to 100.  Map negatives from 0.1 to 1; positives from 1 to 10
+	// slider value from -100 to 100.  Map negatives from 0.1 to 1, positives from 1 to 10
 	if(sliderValue >= 0)
 		contrast_ = 1.0 + double(sliderValue)*4./100.;	// positive scale factor.
 
@@ -254,7 +254,7 @@ void AMImagePropertyEditor::onContrastSliderChanged(int sliderValue)
 
 void AMImagePropertyEditor::onGammaSliderChanged(int sliderValue)
 {
-	// slider value from -100 to 100. Map negatives from 0.25 to 1; positives from 1 to 4
+	// slider value from -100 to 100. Map negatives from 0.25 to 1, positives from 1 to 4
 	if(sliderValue >= 0)
 		gamma_ = 1.0 + double(sliderValue)*2.0/100.0;
 

@@ -468,7 +468,7 @@ The Control abstraction provides two different properties (and associated signal
 	//@}
 
 
-	/// Returns the alarm severity for this control.  This indicates how "serious" the alarm is; it is one of the values in AMControl::AlarmLevel.
+	/// Returns the alarm severity for this control.  This indicates how "serious" the alarm is, it is one of the values in AMControl::AlarmLevel.
 	virtual int alarmSeverity() const { return NoAlarm; }
 	/// Returns the alarm status for this control.  The alarm status is an integer that can be defined by the control implementation to explain the reason for the alarm.
 	virtual int alarmStatus() const { return 0; }
@@ -479,7 +479,7 @@ public slots:
 		Q_UNUSED(setpoint);
 		return NotConnectedFailure;
 	}
-	/// This is used to move a control a relative distance from its current position. Capable of moving relative from the feedback value or the setpoint (see enum documentation for details). For historic reasons, the default is relative from feedback value. The base class implementation simply issues a move() to the current value() plus \c distance. This may not be sufficient if moveRelative() will be called faster than value() updates in your implementation; in that case, it's recommended to re-implement this as appropriate.
+	/// This is used to move a control a relative distance from its current position. Capable of moving relative from the feedback value or the setpoint (see enum documentation for details). For historic reasons, the default is relative from feedback value. The base class implementation simply issues a move() to the current value() plus \c distance. This may not be sufficient if moveRelative() will be called faster than value() updates in your implementation, in that case, it's recommended to re-implement this as appropriate.
 	virtual FailureExplanation moveRelative(double distance, AMControl::RelativeMoveType relativeMoveType = AMControl::RelativeMoveFromValue) {
 		switch(relativeMoveType){
 		case AMControl::RelativeMoveFromValue:
@@ -508,14 +508,6 @@ public slots:
 
 	/// Set this control to accept move() requests while it isMoving(). The default is to reject move() requests if the control is already moving. This should be changed for controls that are capable of being re-targetted while in motion.
 	void setAllowsMovesWhileMoving(bool allowMovesWhileMoving) { allowsMovesWhileMoving_ = allowMovesWhileMoving; }
-
-	// Deprecated:
-//	/// Moves all of the AMControl's subcontrols (children and grandchildren, etc) based on a \c controlList QMap of Control Names and setpoint values.
-//	/*! \param controlList specifies a set of AMControls by their name(), and specifies a target value for each.
-//  \param errorLevel specifies what counts as success. \todo David: write out what these are.
-//  \todo Change name to setChildrenState().
-//   */
-//	bool setState(const QMap<QString, double> controlList, unsigned int errorLevel = 0);
 
 
 signals:
@@ -591,10 +583,6 @@ protected slots:
 	/// This is used internally to specify the allowed enum names for the move() aspect of the control, if they happen to be different than the enums that apply to value().  This can sometimes happen when there are status enums included in the value() [ex: "Open", "Closed", and "Moving"], so the valid choices for move() are different [ex: "Open" and "Close"].
 	/*! If isEnum() returns true and this is not specified by a subclass implementation, the regular enumNames() will be assumed to apply for both move() and value(). moveEnumNames() will return enumNames(). */
 	void setMoveEnumStates(const QStringList& enumStateNames) { if(moveEnumNames_ == enumStateNames) return; moveEnumNames_ = enumStateNames; emit enumChanged(); }
-
-	// Deprecated:
-//	/// Used internally by setStateList, called recursively. \todo MIGHT NEED TO BE VIRTUAL for reimplementation in child classes
-//	bool searchSetChildren(QMap<QString, double> *controlList, QMap<QString, AMControl*> *executeList, unsigned int errorLevel);
 
 private:
 	// subclasses should use the protected methods to access these, to ensure signal generation.

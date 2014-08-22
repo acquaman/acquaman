@@ -33,7 +33,6 @@ Q_OBJECT
 public:
 	REIXSXASScanActionController(REIXSXASScanConfiguration *cfg, QObject *parent = 0);
 	virtual ~REIXSXASScanActionController();
-	//bool canSkip() const { return false; }
 
 
 protected slots:

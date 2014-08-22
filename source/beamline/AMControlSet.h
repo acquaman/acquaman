@@ -89,9 +89,6 @@ signals:
 	/// This signal is emitted if any of the controls in the set have timed out.
 	void controlSetTimedOut();
 
-	// This signal is emitted whenever one of the controls has a new value.
-	// DEPRECATED: Reason: It's not efficient to build an AMControlInfoList every time this happens.  If you need all the values, just use controlSetValuesChanged() instead, and call toInfoList() in whatever slot receives that signal.
-	// void controlSetValuesChanged(AMControlInfoList);
 	/// This signal is emitted whenever one of the controls has a new value.
 	void controlSetValuesChanged();
 

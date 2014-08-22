@@ -48,7 +48,6 @@ SGMPeriodicTable::SGMPeriodicTable(QObject *parent) :
 				elementInfo = new SGMElementInfo();
 				if(elementInfo->loadFromDb(tempDatabase, matchIDs.at(y)))
 					thisDatabaseMapping->append(elementInfo, elementInfo->element());
-//					sgmPeriodicTableInfo_.append(elementInfo, elementInfo->element());
 			}
 			sgmPeriodicTableInfo_.append(thisDatabaseMapping, tempDatabase);
 		}
@@ -63,11 +62,6 @@ SGMElementInfo* SGMPeriodicTable::elementInfoByName(const QString &elementName, 
 		return sgmPeriodicTableInfo_.at(sgmPeriodicTableInfo_.indexOfKey(requestedDatabase))->at(sgmPeriodicTableInfo_.at(sgmPeriodicTableInfo_.indexOfKey(requestedDatabase))->indexOfKey(AMPeriodicTable::table()->elementByName(elementName)));
 	else
 		return 0; //NULL
-
-//	if(sgmPeriodicTableInfo_.contains(AMPeriodicTable::table()->elementByName(elementName)))
-//		return sgmPeriodicTableInfo_.at(sgmPeriodicTableInfo_.indexOfKey(AMPeriodicTable::table()->elementByName(elementName)));
-//	else
-//		return 0; //NULL
 }
 
 QStringList SGMPeriodicTable::fastScanPresetsStrings(const QString &databaseConnectionName) const{
@@ -99,17 +93,6 @@ QStringList SGMPeriodicTable::fastScanPresetsStrings(const QString &databaseConn
 		}
 	}
 	return retVal;
-
-
-//	QStringList retVal;
-//	QString tmpStr;
-//	SGMElementInfo *tmpElementInfo;
-//	for(int x = 0; x < sgmPeriodicTableInfo_.count(); x++){
-//		tmpElementInfo = sgmPeriodicTableInfo_.at(x);
-//		for(int y = 0; y < tmpElementInfo->availableFastScanParameters().count(); y++)
-//			retVal << tmpElementInfo->availableFastScanParameters().at(y)->element() + " " + tmpElementInfo->availableFastScanParameters().at(y)->edge() + " " + tmpStr.setNum(tmpElementInfo->availableFastScanParameters().at(y)->runSeconds());
-//	}
-//	return retVal;
 }
 
 QList<SGMFastScanParameters*> SGMPeriodicTable::fastScanPresets(const QString &databaseConnectionName) const{
@@ -141,14 +124,4 @@ QList<SGMFastScanParameters*> SGMPeriodicTable::fastScanPresets(const QString &d
 		}
 	}
 	return retVal;
-
-
-//	QList<SGMFastScanParameters*> retVal;
-//	SGMElementInfo *tmpElementInfo;
-//	for(int x = 0; x < sgmPeriodicTableInfo_.count(); x++){
-//		tmpElementInfo = sgmPeriodicTableInfo_.at(x);
-//		for(int y = 0; y < tmpElementInfo->availableFastScanParameters().count(); y++)
-//			retVal << tmpElementInfo->availableFastScanParameters().at(y);
-//	}
-//	return retVal;
 }

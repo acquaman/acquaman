@@ -39,7 +39,7 @@ AM1DRunningAverageFilterAB::AM1DRunningAverageFilterAB(int filterSize, const QSt
 
 bool AM1DRunningAverageFilterAB::areInputDataSourcesAcceptable(const QList<AMDataSource*>& dataSources) const {
 	if(dataSources.isEmpty())
-		return true;	// always acceptable; the null input.
+		return true;	// always acceptable, the null input.
 
 	// otherwise we need a single input source, with a rank of 1.
 	if(dataSources.count() == 1 && dataSources.at(0)->rank() == 1)

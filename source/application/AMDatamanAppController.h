@@ -310,9 +310,6 @@ protected:
 	/// Filters the close-event from the main window, to catch anything we need to check before closing the window.
 	virtual bool eventFilter(QObject *, QEvent *);
 
-//	/// Helper function to process all events for \c ms milliseconds, but stay in the calling function.
-//	void processEventsFor(int ms);
-
 	/// This can be called to reset the signal that will cause the startupFinished slot to run. Pass the object and in something with the signal macro, such as SIGNAL(mySignal(bool itsArgument))
 	bool resetFinishedSignal(QObject *sender, const char *signal);
 

@@ -62,8 +62,6 @@ REIXSXASScanConfiguration::REIXSXASScanConfiguration(QObject *parent) :
 	connect(region, SIGNAL(regionStepChanged(AMNumber)), this, SLOT(computeTotalTime()));
 	connect(region, SIGNAL(regionEndChanged(AMNumber)), this, SLOT(computeTotalTime()));
 	connect(region, SIGNAL(regionTimeChanged(AMNumber)), this, SLOT(computeTotalTime()));
-
-	//computeTotalTime();
 }
 
 REIXSXASScanConfiguration::~REIXSXASScanConfiguration() {
@@ -117,8 +115,6 @@ AMScanConfiguration * REIXSXASScanConfiguration::createCopy() const
 #include "acquaman/REIXS/REIXSXASScanActionController.h"
 AMScanController * REIXSXASScanConfiguration::createController()
 {
-	//return new REIXSXASScanController(this);
-//	return new REIXSXASScanActionController(this);
 	AMScanActionController *controller = new REIXSXASScanActionController(this);
 	controller->buildScanController();
 
@@ -153,7 +149,6 @@ void REIXSXASScanConfiguration::computeTotalTimeImplementation()
 	minEnergy_ = scanAxisAt(0)->regionAt(0)->regionStart();
 	foreach (AMScanAxisRegion *region, scanAxisAt(0)->regions().toList()){
 
-		//AMScanAxisRegion *exafsRegion = qobject_cast<AMScanAxisRegion *>(region);
 		int numberOfPoints = int((double(region->regionEnd()) - double(region->regionStart()))/double(region->regionStep()) + 1);
 		totalPoints_ += numberOfPoints;
 		maxEnergy_ = region->regionEnd();
@@ -170,8 +165,6 @@ void REIXSXASScanConfiguration::computeTotalTimeImplementation()
 
 void REIXSXASScanConfiguration::onRegionAdded(AMScanAxisRegion *region)
 {
-	//AMScanAxisRegion *exafsRegion = qobject_cast<AMScanAxisRegion *>(region);
-
 	if (region){
 
 		connect(region, SIGNAL(regionStartChanged(AMNumber)), this, SLOT(computeTotalTime()));

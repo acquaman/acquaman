@@ -128,7 +128,6 @@ bool AMDirectorySynchronizer::start()
 
 	QString process = "rsync";
 	QStringList args;
-	//args << "-avt" << "--progress" << "--exclude" << "*.db.bk.*" << "--exclude" << ".BACKUPS";
 	args << "-avt" << "--progress";
 	for(int x = 0, size = excludePatterns_.size(); x < size; x++)
 		args << "--exclude" << excludePatterns_.at(x);

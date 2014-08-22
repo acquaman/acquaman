@@ -27,8 +27,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/AMAction3.h"
 #include "dataman/info/AMDetectorInfoSet.h"
 
-//class QEpicsAdvAcq;
-
 /*!
 	This class contains many small helper methods that are used commonly amongst all of VESPERS Dacq scan controllers.
 	These are primarily adding in PV names to the dacq controller, adding non-configurable datasources and measurements,

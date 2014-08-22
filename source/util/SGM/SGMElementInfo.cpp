@@ -370,7 +370,7 @@ void SGMElementInfo::dbLoadSGMEdgeInfos(const AMDbObjectList &sgmEdgeInfos){
 		if(newEdgeInfo)
 			sgmEdgeInfos_.append(*newEdgeInfo, newEdgeInfo->edge());// note: makes a copy of object pointed to by newStandardScanInfo, and stores in our internal list.
 
-		delete sgmEdgeInfos.at(x); // we're copying these; don't need to keep these ones around. They're our responsibility to delete.
+		delete sgmEdgeInfos.at(x); // we're copying these, don't need to keep these ones around. They're our responsibility to delete.
 	}
 }
 
@@ -738,18 +738,9 @@ void SGMFastScanParameters::setEndPosition(const SGMEnergyPosition &end){
 }
 
 void SGMFastScanParameters::setFastScanSettings(const SGMFastScanSettings &fastScanSettings){
-//<<<<<<< HEAD
-//	qdebug() << "Calling setFastScanSettings, modified is " << modified();
-//	if(fastScanSettings_ != fastScanSettings){
-//		disconnect(&fastScanSettings_, 0);
-//		qdebug() << "The same settings? " << (fastScanSettings_ == fastScanSettings);
-//		fastScanSettings_ = fastScanSettings;
-//		qdebug() << "Setting modified true in SGMFastScanParameters";
-//=======
 	if(fastScanSettings_ != fastScanSettings){
 		disconnect(&fastScanSettings_, 0);
 		fastScanSettings_ = fastScanSettings;
-//>>>>>>> SGM_Release
 		setModified(true);
 		connect(&fastScanSettings_, SIGNAL(runSecondsChanged(double)), this, SIGNAL(runSecondsChanged(double)));
 		connect(&fastScanSettings_, SIGNAL(motorSettingsChanged(int)), this, SIGNAL(velocityChanged(int)));
@@ -760,11 +751,6 @@ void SGMFastScanParameters::setFastScanSettings(const SGMFastScanSettings &fastS
 		connect(&fastScanSettings_, SIGNAL(undulatorVelocityChanged(int)), this, SIGNAL(undulatorVelocityChanged(int)));
 		connect(&fastScanSettings_, SIGNAL(fastScanSettingsChanged()), this, SIGNAL(fastScanSettingsChanged()));
 	}
-//<<<<<<< HEAD
-//	else
-//		qdebug() << "No need to setModified(true), they were the same";
-//=======
-//>>>>>>> SGM_Release
 }
 
 void SGMFastScanParameters::onStartChanged(){

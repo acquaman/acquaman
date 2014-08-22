@@ -59,7 +59,7 @@ public:
 	virtual ~AMActionInfo3() {}
 
 
-	/// This should describe the type of the action, for example, "REIXS Sample Move Action"; it should be re-implemented by subclasses.
+	/// This should describe the type of the action, for example, "REIXS Sample Move Action", it should be re-implemented by subclasses.
 	virtual QString typeDescription() const { return "Generic Action"; }
 
 
@@ -95,21 +95,11 @@ public slots:
 	/// Sets whether or not this action can be copied inside the workflow.
 	void setCanCopy(bool copy) { canCopy_ = copy; setModified(true); emit infoChanged(); }
 
-public:
-	// Database thumbnails: None for now... Use in AMActionLogItem later?
-	/////////////////////
-	//	/// If we have a non-empty iconFileName_ has been set, we return 1 thumbnail.
-	//	virtual int thumbnailCount() const { return iconFileName_.isEmpty() ? 0 : 1; }
-	//	/// If we have a non-empty iconFileName_ has been set, we return 1 thumbnail with that icon.
-	//	virtual AMDbThumbnail thumbnail(int index) const;
-
 signals:
 	/// Emitted when any basic information changes: shortDescription(), longDescription(), iconFileName(), canCopy().
 	void infoChanged();
 	/// Emitted when the expected duration changes.
 	void expectedDurationChanged(double seconds);
-
-
 
 protected:
 	QString shortDescription_;

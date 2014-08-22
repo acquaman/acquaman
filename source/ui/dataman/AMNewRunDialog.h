@@ -31,7 +31,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDialog>
 
 #include "dataman/database/AMDatabase.h"
-// #include "ui/AMPrefixSuffixLineEdit.h"
 #include "dataman/AMRun.h"
 
 /// author: Rachel Si (2010)
@@ -56,7 +55,6 @@ protected:
 	void addFacility();
 	QComboBox *facilitySelectCb;
 
-	// AMPrefixSuffixLineEdit* runNameLineEdit;
 	QLineEdit *runNameLineEdit;
 
 	QGridLayout *addRunsAndFacilitiesLayout;

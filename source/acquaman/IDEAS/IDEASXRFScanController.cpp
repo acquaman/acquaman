@@ -78,8 +78,6 @@ IDEASXRFScanController::~IDEASXRFScanController(){}
 
 bool IDEASXRFScanController::startImplementation()
 {
-		//detector_->start();
-
 		setStarted();
 		QVector<double> data = QVector<double>(2048);
 		detector_->data(data.data());

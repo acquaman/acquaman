@@ -35,7 +35,7 @@ AMRegionOfInterestAB::~AMRegionOfInterestAB(){}
 bool AMRegionOfInterestAB::areInputDataSourcesAcceptable(const QList<AMDataSource*>& dataSources) const
 {
 	if(dataSources.isEmpty())
-		return true; // always acceptable; the null input.
+		return true; // always acceptable, the null input.
 
 	// otherwise there is one data source
 	if (dataSources.size() == 1)

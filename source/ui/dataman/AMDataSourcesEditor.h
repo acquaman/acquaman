@@ -28,7 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui_AMDataSourcesEditor.h"
 
 
-/// This widget is used inside AMGenericScanEditor to let users create, delete, and modify the analysis chains / analysis blocks for a set of scans.  It's a quick first prototype; the eventual interface should let users create custom analysis chains and edit the parameters at each level within the chain.  This version only displays the current analysis blocks.
+/// This widget is used inside AMGenericScanEditor to let users create, delete, and modify the analysis chains / analysis blocks for a set of scans.  It's a quick first prototype, the eventual interface should let users create custom analysis chains and edit the parameters at each level within the chain.  This version only displays the current analysis blocks.
 class AMDataSourcesEditor : public QWidget
 {
 Q_OBJECT
@@ -76,9 +76,9 @@ protected:
 	/// This is a model of scans and their data sources. Inside an AMGenericScanEditor, we share this between ourselves, the main editor, and the AMScanView.
 	AMScanSetModel* model_;
 
-	/// Helper function: returns the currently selected scan index.  If a data source is selected, this is the index of its parent scan. If a scan is selected, this is the index of that scan.  If nothing is selected, returns -1;
+	/// Helper function: returns the currently selected scan index.  If a data source is selected, this is the index of its parent scan. If a scan is selected, this is the index of that scan.  If nothing is selected, returns -1
 	int currentScanIndex() const;
-	/// Helper function: returns the currently selected data source index.  If a scan (or nothing) is currently selected, returns -1;
+	/// Helper function: returns the currently selected data source index.  If a scan (or nothing) is currently selected, returns -1
 	int currentDataSourceIndex() const;
 
 	/// Helper function: removes and deletes any current 'detail editors' (data source-specific parameter editors)

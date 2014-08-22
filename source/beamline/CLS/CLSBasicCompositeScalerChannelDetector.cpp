@@ -143,7 +143,6 @@ bool CLSBasicCompositeScalerChannelDetector::triggerScalerAcquisition(bool isCon
 }
 
 bool CLSBasicCompositeScalerChannelDetector::initializeImplementation(){
-	//setInitializing();
 	setInitialized();
 	return true;
 }

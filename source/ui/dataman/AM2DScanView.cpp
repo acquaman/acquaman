@@ -612,7 +612,7 @@ MPlotGW * AM2DScanViewInternal::createDefaultPlot()
 	return rv;
 }
 
-// Helper function to create an appropriate MPlotItem and connect it to the data, depending on the dimensionality of \c dataSource.  Returns 0 if we can't handle this dataSource and no item was created (ex: unsupported dimensionality; we only handle 1D or 2D data for now.)
+// Helper function to create an appropriate MPlotItem and connect it to the data, depending on the dimensionality of \c dataSource.  Returns 0 if we can't handle this dataSource and no item was created (ex: unsupported dimensionality, we only handle 1D or 2D data for now.)
 MPlotItem* AM2DScanViewInternal::createPlotItemForDataSource(const AMDataSource* dataSource, const AMDataSourcePlotSettings& plotSettings)
 {
 	MPlotItem* rv = 0;
@@ -705,7 +705,6 @@ void AM2DScanViewExclusiveView::onRowAboutToBeRemoved(const QModelIndex& parent,
 
 			if(plotItems_.at(i)) {
 
-				// unnecessary: deleting an item removes it from its plot: plot_->plot()->removeItem(plotItems_.at(i));
 				delete plotItems_.at(i);
 				plotItems_.removeAt(i);
 				plotItemDataSources_.removeAt(i);
@@ -725,7 +724,6 @@ void AM2DScanViewExclusiveView::onRowAboutToBeRemoved(const QModelIndex& parent,
 
 				if(plotItems_.at(si)) {
 
-					// unnecessary: deleting an item removes it from its plot: plot_->plot()->removeItem(plotItems_.at(si));
 					delete plotItems_.at(si);
 					plotItems_[si] = 0;
 				}
@@ -802,7 +800,7 @@ void AM2DScanViewExclusiveView::refreshTitle() {
 			numScansShown++;
 
 	QString scanCount = (numScansShown == 1) ? " (1 scan)" : QString(" (%1 scans)").arg(numScansShown);
-	/// \todo This should show a data source description; not a name. However, we don't know that all the descriptions (for all the data sources matching the exclusive data source) are the same....
+	/// \todo This should show a data source description, not a name. However, we don't know that all the descriptions (for all the data sources matching the exclusive data source) are the same....
 	plot_->plot()->legend()->setTitleText(model()->exclusiveDataSourceName() + scanCount);	// result ex: "tey (3 scans)"
 }
 
@@ -843,7 +841,7 @@ void AM2DScanViewExclusiveView::reviewScan(int scanIndex)
 
 		// the current plot item exists, but it's the wrong type to handle the current scan data. (ie: dataSource->rank() is 2, but we've currently got a plot series instead of a plot image.
 		if(plotItems_.at(scanIndex) && plotItems_.at(scanIndex)->rank() != dataSource->rank() ) {
-			// delete the plot item; we'll recreate the new one of the proper size in the next check.
+			// delete the plot item, we'll recreate the new one of the proper size in the next check.
 			delete plotItems_.at(scanIndex);
 			plotItems_[scanIndex] = 0;
 			plotItemDataSources_[scanIndex] = 0;
@@ -871,13 +869,6 @@ void AM2DScanViewExclusiveView::reviewScan(int scanIndex)
 					plot_->plot()->axisBottom()->setAxisName(scan->rawData()->scanAxisAt(0).units.isEmpty() ? scan->rawData()->scanAxisAt(0).description : scan->rawData()->scanAxisAt(0).description % ", " % scan->rawData()->scanAxisAt(0).units);
 					plot_->plot()->axisLeft()->setAxisName(scan->rawData()->scanAxisAt(1).units.isEmpty() ? scan->rawData()->scanAxisAt(1).description : scan->rawData()->scanAxisAt(1).description % ", " % scan->rawData()->scanAxisAt(1).units);
 
-					// testing 3D
-//					if(dataSource->rank() == 2) {
-//						tempView = new AM3dDataSourceView(model()->scanAt(scanIndex), model()->scanAt(scanIndex)->indexOfDataSource(dataSource));
-//						tempView->setLogScaleEnabled();
-//						tempView->resize(640,480);
-//						tempView->show();
-//					}
 					break;
 
 				case 3:
@@ -908,7 +899,6 @@ void AM2DScanViewExclusiveView::reviewScan(int scanIndex)
 				}
 				image->setColorMap(model()->plotColorMap(scanIndex, dataSourceIndex));
 
-//				tempView->setScanAndDataSource(model()->scanAt(scanIndex), model()->scanAt(scanIndex)->indexOfDataSource(dataSource));
 				break;
 			}
 
@@ -980,13 +970,12 @@ void AM2DScanViewMultiSourcesView::onRowAboutToBeRemoved(const QModelIndex& pare
 
 			AMScan* scan = model()->scanAt(si);
 
-			// go through all data sources that this scan has; check if they exist; remove and delete plot series if they do.
+			// go through all data sources that this scan has, check if they exist, remove and delete plot series if they do.
 			for(int ci=0; ci<scan->dataSourceCount(); ci++) {
 
 				QString dataSourceName = scan->dataSourceAt(ci)->name();
 
 				if(dataSource2Plot_.contains(dataSourceName) && sourceAndScan2PlotItem_[dataSourceName].contains(scan)) {
-					// unnecessary: dataSource2Plot_[dataSourceName]->plot()->removeItem(sourceAndScan2PlotItem_[dataSourceName][scan]);
 					delete sourceAndScan2PlotItem_[dataSourceName][scan];
 					sourceAndScan2PlotItem_[dataSourceName].remove(scan);
 					// note: checking whether a plot for this dataSource should still exist (in dataSource2Plot_) will be done after the deletion is finished, inside reviewSources() called by onRowRemoved().
@@ -1007,7 +996,6 @@ void AM2DScanViewMultiSourcesView::onRowAboutToBeRemoved(const QModelIndex& pare
 			QString sourceName = model()->dataSourceAt(si, di)->name();
 
 			if(dataSource2Plot_.contains(sourceName) && sourceAndScan2PlotItem_[sourceName].contains(scan)) {
-				// unnecessary: dataSource2Plot_[sourceName]->plot()->removeItem(sourceAndScan2PlotItem_[sourceName][scan]);
 				delete sourceAndScan2PlotItem_[sourceName][scan];
 				sourceAndScan2PlotItem_[sourceName].remove(scan);
 				// note: checking whether a plot for this data source should still exist (in dataSource2Plot_) will be done after the deletion is finished, inside reviewSources() called by onRowRemoved().
@@ -1124,7 +1112,6 @@ bool AM2DScanViewMultiSourcesView::reviewDataSources() {
 		// WAIT: can't delete if it's the last/only plot. Instead, need to remove/delete all series from it and mark it as empty.
 		if(dataSource2Plot_.count() == 1) {
 			foreach(MPlotItem* plotItem, sourceAndScan2PlotItem_[sourceName]) {
-				//unnecessary: dataSource2Plot_[sourceName]->plot()->removeItem(series);
 				delete plotItem;
 			}
 
@@ -1173,7 +1160,6 @@ bool AM2DScanViewMultiSourcesView::reviewDataSources() {
 			// if not visible, remove and delete series
 			if(!model()->isVisible(si, di)) {
 
-				//unnecessary: dataSource2Plot_[sourceName]->plot()->removeItem(sourceAndScan2PlotItem_[sourceName][scan]);
 				delete sourceAndScan2PlotItem_[sourceName].take(scan);
 				sourcesNeedingAxesReview << sourceName;
 			}

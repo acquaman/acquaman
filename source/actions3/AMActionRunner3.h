@@ -92,7 +92,7 @@ public:
 	/// Move an action up or down the queue. \c currentIndex is the action to move, and \c finalIndex is the index you want it to end up in when everything is done.  (\c finalIndex can be 0 for the beginning, or -1 to go to the end.) Returns false if \c currentIndex is out of range, or if \c currentIndex == \c finalIndex.
 	bool moveActionInQueue(int currentIndex, int finalIndex);
 
-	/// Assuming no actions are running (ie: actionRunning() returns false), sometimes it's desireable to run an action immediately without affecting other actions that might already be in the queue. This function will run a single action immediately by adding it to the front of the queue, starting it, and then restoring the queuePaused() state. Obviously, this is not possible if there is already an action running; in that case, it will simply return false.
+	/// Assuming no actions are running (ie: actionRunning() returns false), sometimes it's desireable to run an action immediately without affecting other actions that might already be in the queue. This function will run a single action immediately by adding it to the front of the queue, starting it, and then restoring the queuePaused() state. Obviously, this is not possible if there is already an action running, in that case, it will simply return false.
 	/*! If instead you want to run an action immediately "in the background" regardless of whether actions are running in the queue, use the immediate mode interface with runActionImmediately() */
 	bool runActionImmediatelyInQueue(AMAction3* action);
 
@@ -177,7 +177,7 @@ public slots:
 	/// Set whether the queue is paused or running.  If the queue is running, it will advance automatically to the next action whenever there are actions in the queue, or when an action is added to an empty queue. Note that setting the queue to paused does not pause the current action... It only pauses the workflow from moving on to the <i>next</i> action after the current one is completed.
 	void setQueuePaused(bool isPaused);
 
-	// These slots are useful to controller views of the current action. This saves them from having to deal with the individual currentAction();
+	// These slots are useful to controller views of the current action. This saves them from having to deal with the individual currentAction()
 	/// Cancel the currently-running action, if there is one. (Returns true if so.)
 	bool cancelCurrentAction();
 	/// Pause the current action, if there is one, and it can be paused. (Returns true if so.)
@@ -321,7 +321,7 @@ public:
 	/// Access the model index list
 	QList<QPersistentModelIndex> modelIndexList() const { return mil_; }
 
-	/// Returns the formats we have: only an application-specific binary format. (Internal use only; other apps should not look at this.)
+	/// Returns the formats we have: only an application-specific binary format. (Internal use only, other apps should not look at this.)
 	virtual QStringList formats() const { return QStringList() << "application/octet-stream"; }
 
 protected:

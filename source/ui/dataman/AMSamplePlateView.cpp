@@ -93,7 +93,6 @@ Qt::ItemFlags AMSamplePlateItemModel::flags(const QModelIndex &index) const
 {
 	Q_UNUSED(index)
 
-	//return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable;
 	return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable;
 }
 
