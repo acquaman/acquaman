@@ -258,10 +258,6 @@ int outputSize = indexStart.totalPointsTo(indexEnd);
 		axes_.clear();
 		for(int i=0; i<newRank; i++)
 			axes_ << AMAxisInfo("invalid", 0);	// create the proper number of axes, even though they're just placeholders. This keeps the dimension information correct until setDataStore() fills this properly.
-
-		// minimum of one axis, always.
-		//if(axes_.count() == 0)
-		//axes_ << AMAxisInfo("invalid", 0);
 	}
 
 

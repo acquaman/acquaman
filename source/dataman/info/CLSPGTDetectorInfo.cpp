@@ -32,7 +32,6 @@ CLSPGTDetectorInfo::CLSPGTDetectorInfo(const QString& name, const QString& descr
 CLSPGTDetectorInfo::CLSPGTDetectorInfo(const CLSPGTDetectorInfo &original) :
 		AMSpectralOutputDetectorInfo(original)
 {
-//	retreiveAndSetProperties(original);
 	this->operator =(original);
 }
 
@@ -42,7 +41,6 @@ AMOldDetectorInfo* CLSPGTDetectorInfo::toNewInfo() const{
 
 CLSPGTDetectorInfo& CLSPGTDetectorInfo::operator =(const CLSPGTDetectorInfo &other){
 	if(this != &other){
-//		retreiveAndSetProperties(other);
 		AMSpectralOutputDetectorInfo::operator =(other);
 		setHVSetpoint(other.hvSetpoint());
 		setHVSetpointRangeMin(other.hvSetpointRangeMin());

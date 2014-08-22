@@ -52,7 +52,7 @@ public:
 	/// Copy Constructor
 	AMActionInfo3(const AMActionInfo3& other);
 
-	/// This function is used as a virtual copy constructor, so we can make detailed copies of info instances without knowing their detailed type. It must be re-implemented by each subclass, and we strongly suggest implementing and using the copy constructor, ie: createCopy() { return new MyAMActionInfo(*this); }
+	/// This function is used as a virtual copy constructor, so we can make detailed copies of info instances without knowing their detailed type. It must be re-implemented by each subclass, and we strongly suggest implementing and using the copy constructor, ie: createCopy() return new MyAMActionInfo(*this)
 	virtual AMActionInfo3* createCopy() const { return new AMActionInfo3(*this); }
 
 	/// Destructor: nothing required in the base class

@@ -187,7 +187,7 @@ enum Type { Unconnected = TYPENOTCONN, ///< Type of PV's before they are connect
 				};
 }
 
-/// Used by AMProcessVariable, this class encapsulates a connection to an EPICS channel-access Process Variable.  You should never need to use it directly; it exists to share a single channel-access connection between AMProcessVariable instances that all refer to the same underlying PV.
+/// Used by AMProcessVariable, this class encapsulates a connection to an EPICS channel-access Process Variable.  You should never need to use it directly. It exists to share a single channel-access connection between AMProcessVariable instances that all refer to the same underlying PV.
 class AMProcessVariablePrivate : public QObject {
 
 	Q_OBJECT
@@ -211,7 +211,7 @@ public:
 	unsigned count() const { return count_; }
 
 	/// The name of this process variable:
-	QString pvName() const { return QString(ca_name(chid_)); } // ca_ functions are thread-safe by design; does not require locker
+	QString pvName() const { return QString(ca_name(chid_)); } // ca_ functions are thread-safe by design. Does not require locker
 
 	/// Provides detailed information on the status of this connection.  Usually isConnected() is all you need, but this returns one of the channel_state enum values defined in <epics base>/include/cadef.h: {cs_never_conn = 0, cs_prev_conn, cs_conn, cs_closed}
 	int connectionState() const {  return int(ca_state(chid_)); }

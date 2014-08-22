@@ -957,7 +957,7 @@ void REIXSXESImageInterpolationAB::computeCachedAxisValues() const
 	int centerPixel = size(0)/2;
 	for(int i=0, cc=size(0); i<cc; ++i) {
 
-		// distance away from center; always positive.
+		// distance away from center, always positive.
 		double dx = (centerPixel-i)*mmPerPixel*singp;
 
 		// db: "delta Beta": the angle difference from the nominal beta.
@@ -965,10 +965,10 @@ void REIXSXESImageInterpolationAB::computeCachedAxisValues() const
 		double db = atan(dx/(rPrime-(centerPixel-i)*mmPerPixel*cosgp));
 
 
-		//bp ("beta-prime") is the diffraction angle at detector point 'i'; sinbp = sin( beta + db )
+		//bp ("beta-prime") is the diffraction angle at detector point 'i' sinbp = sin( beta + db )
 		//																		 = sinb*cos(db) + cosb*sindb
 		//																		 = sinb*sqrt(1-sin^2(db)) + cosb*sindb
-		//double sinbp = sinBeta*sqrt( 1.0-sindb*sindb ) + cosBeta*sindb;
+		//double sinbp = sinBeta*sqrt( 1.0-sindb*sindb ) + cosBeta*sindb
 		double sinbp = sin(beta - db);
 
 

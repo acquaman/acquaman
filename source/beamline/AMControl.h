@@ -563,7 +563,7 @@ signals:
 protected:
 	/// List of pointers to our subcontrols
 	QList<AMControl*> children_;
-	/// True if the control should allow additional move() commands while it's already moving. Some hardware can handle this. If this is false, move() requests issued while the control is moving are ignored.  It is false by default; subclassses should change this if required.
+	/// True if the control should allow additional move() commands while it's already moving. Some hardware can handle this. If this is false, move() requests issued while the control is moving are ignored.  It is false by default. Subclassses should change this if required.
 	bool allowsMovesWhileMoving_;
 
 	/// A flag to tell controls whether or not to attempt a move when they are already within tolerance

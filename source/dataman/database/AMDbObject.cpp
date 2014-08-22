@@ -249,7 +249,7 @@ bool AMDbObject::storeToDb(AMDatabase* db, bool generateThumbnails) {
 				values << QString();
 		}
 
-		// special case: pointers to AMDbObjects: we actually store the object in the database, and then store a string "tableName;id"... which will let us re-load it later.
+		// special case: pointers to AMDbObjects: we actually store the object in the database, and then store a string "tableName semicolon id"... which will let us re-load it later.
 		else if(columnType == qMetaTypeId<AMDbObject*>()) {
 			AMDbObject* obj = property(columnName).value<AMDbObject*>();
 			if(obj && obj!=this) {	// if its a valid object, and not ourself (avoid recursion)
@@ -585,7 +585,7 @@ bool AMDbObject::loadFromDb(AMDatabase* db, int sourceId) {
 				else // not a redirected object
 					databaseToUse = db;
 
-				QStringList objectLocation = columnValue.split(AMDbObjectSupport::listSeparator());	// location was saved as string: "tableName;id"
+				QStringList objectLocation = columnValue.split(AMDbObjectSupport::listSeparator());	// location was saved as string: "tableName semicolon id"
 				if(objectLocation.count() == 2) {
 					QString tableName = objectLocation.at(0);
 					int dbId = objectLocation.at(1).toInt();
@@ -627,7 +627,7 @@ bool AMDbObject::loadFromDb(AMDatabase* db, int sourceId) {
 
 				AMConstDbObject *constObject = 0;
 
-				QStringList objectLocation = columnValue.split(AMDbObjectSupport::listSeparator());	// location was saved as string: "tableName;id"
+				QStringList objectLocation = columnValue.split(AMDbObjectSupport::listSeparator());	// location was saved as string: "tableName semicolon id"
 				if(objectLocation.count() == 2) {
 					QString tableName = objectLocation.at(0);
 					int dbId = objectLocation.at(1).toInt();

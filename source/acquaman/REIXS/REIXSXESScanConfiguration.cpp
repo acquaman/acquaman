@@ -114,7 +114,7 @@ AMScanController* REIXSXESScanConfiguration::createController() {
 
 QString REIXSXESScanConfiguration::description() const
 {
-	QString rv = QString("XES Scan");// at %1 eV  (%2 seconds or %3 counts)").arg(centerEV()).arg(maximumDurationSeconds()).arg(maximumTotalCounts(), 0, 'g', 0);
+	QString rv = QString("XES Scan");
 	if(applyEnergy())
 		rv.append(QString(" at %1 eV").arg(energy()));
 

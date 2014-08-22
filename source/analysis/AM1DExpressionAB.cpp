@@ -63,10 +63,6 @@ AM1DExpressionAB::AM1DExpressionAB(AMDatabase* db, int id)
 	xParser_.DefineNameChars("0123456789_:.[]"
 							 "abcdefghijklmnopqrstuvwxyz"
 							 "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-	//parser_.DefineOprtChars("abcdefghijklmnopqrstuvwxyz"
-	//					   "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-	//				   "+-*^/?<>=#!$%&|~'_");
-	//parser_.DefineInfixOprtChars("/+-*^?<>=#!$%&|~'_");
 
 	// initial state is invalid: no inputs.
 	setState(AMDataSource::InvalidFlag);
@@ -106,7 +102,7 @@ void AM1DExpressionAB::setInputDataSourcesImplementation(const QList<AMDataSourc
 		disconnect(inputDataSourceAt(i)->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
 	}
 
-	// done with the old sources; these are our new sources now
+	// done with the old sources. These are our new sources now
 	sources_ = dataSources;
 
 	// clear old parser variables

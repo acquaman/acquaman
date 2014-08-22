@@ -111,7 +111,6 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 		if(fs.atEnd()) {
 			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -2, "SGM2004FileLoader parse error while loading scan data from file. Could not find the comment."));
 			fs.seek(0);
-			// return false;	// bad format; missing the comment string
 		}
 		else {
 
@@ -130,7 +129,7 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 		line = fs.readLine();
 	if(fs.atEnd()) {
 		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -2, "SGM2004FileLoader parse error while loading scan data from file. Missing #(1) event line."));
-		return false;	// bad format; missing the #1 event header
+		return false;	// bad format. Missing the #1 event header
 	}
 	colNames1 = line.split(QChar(' '));
 	// the first column is not a column name, it's just the event description header ("#(1)")
@@ -146,7 +145,7 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 		line = fs.readLine();
 	if(fs.atEnd()) {
 		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -2, "SGM2004FileLoader parse error while loading scan data from file. Missing #(2) event line."));
-		return false;	// bad format; missing the #2 event header
+		return false;	// bad format. Missing the #2 event header
 	}
 	colNames2 = line.split(QChar(' '));
 	// the first column is not a column name, it's just the event description header ("#(1)")
@@ -159,7 +158,7 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 	int eVIndex = colNames1.indexOf("eV");
 	if(eVIndex < 0) {
 		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -3, "SGM2004FileLoader parse error while loading scan data from file. I couldn't find the energy (eV) column."));
-		return false;	// bad format; no primary column
+		return false;	// bad format. No primary column
 
 	}
 
@@ -192,20 +191,16 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 					AMMeasurementInfo sddInfo("SDD", "Silicon Drift Detector", "counts", sddAxes);
 					if(scan->rawData()->addMeasurement(sddInfo)){
 						/// \todo Throw an errorMon out?
-						//qdebug() << "Added measurement " << scan->rawData()->measurementAt(scan->rawData()->measurementCount()-1).name;
 					}
 				}
 			}
 			else if(scan->rawData()->addMeasurement(AMMeasurementInfo(colName, colName))){
 				/// \todo Throw an errorMon out?
-				//qdebug() << "Added measurement " << scan->rawData()->measurementAt(scan->rawData()->measurementCount()-1).name;
 			}
 		}
 	}
 	if(postSddFileOffset){
 		scan->rawData()->addMeasurement(AMMeasurementInfo("sdd_fileOffset", "sdd_fileOffset"));
-		//if(scan->rawData()->addMeasurement(AMMeasurementInfo("sdd_fileOffset", "sdd_fileOffset")))
-		//	qdebug() << "Added measurement " << scan->rawData()->measurementAt(scan->rawData()->measurementCount()-1).name;
 	}
 	int sddOffsetIndex = colNames1.indexOf("sdd_fileOffset");
 
@@ -261,7 +256,6 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 		if(spectraFileInfo.isRelative())
 			spectraFileInfo.setFile(AMUserSettings::userDataFolder + "/" + spectraFile);
 
-		//QFile sf(spectraFile);
 		QFile sf(spectraFileInfo.filePath());
 		if(!sf.open(QIODevice::ReadOnly)) {
 			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -1, "SGM2004FileLoader parse error while loading scan data from file. Missing SDD spectra file."));
@@ -299,7 +293,6 @@ bool SGM2004FileLoader::loadFromFile(const QString& filepath, bool setMetaData, 
 				if(c == ' ' || c == ',') {
 					// the end of a word
 					if(insideWord) {
-						//scan->rawData()->setValue(AMnDIndex(x), sddMeasurementId, specCounter++, word.toInt());
 						if(specCounter < sddSize)
 							specValues[specCounter++] = word.toInt();
 						word.clear();

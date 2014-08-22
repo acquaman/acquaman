@@ -36,13 +36,13 @@ class AMBeamlineCameraWidget : public QWidget
 {
 	Q_OBJECT
 public:
-	/// Constructor. OpenGL is enabled by default; you can set \c useOpenGlViewport to false if you cannot use OpenGl, but processor usage will be much higher.
+	/// Constructor. OpenGL is enabled by default. Tou can set \c useOpenGlViewport to false if you cannot use OpenGl, but processor usage will be much higher.
  	virtual ~AMBeamlineCameraWidget();
 	explicit AMBeamlineCameraWidget(QWidget *parent = 0, bool useOpenGlViewport = true);
 
 	/// Set the video source.
 	void playSource(const QUrl& sourceUrl);
-	/// Set the video source. Anything that can be converted into a URL of some kind works here. Returns false if given an invalid URL. (Note, however, that this doesn't mean the source was sucessfully opened; we still need to access the network, so success or failure will come asynchronously.)
+	/// Set the video source. Anything that can be converted into a URL of some kind works here. Returns false if given an invalid URL. (Note, however, that this doesn't mean the source was sucessfully opened. We still need to access the network, so success or failure will come asynchronously.)
 	bool playSource(const QString& sourceUrl);
 
 	/// Returns the video source

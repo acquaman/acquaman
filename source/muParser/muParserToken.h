@@ -70,9 +70,9 @@ namespace mu
 
   private:
 
-      ECmdCode  m_iCode;  ///< Type of the token; The token type is a constant of type #ECmdCode.
+      ECmdCode  m_iCode;  ///< Type of the token. The token type is a constant of type #ECmdCode.
       ETypeCode m_iType;
-      void  *m_pTok;      ///< Stores Token pointer; not applicable for all tokens
+      void  *m_pTok;      ///< Stores Token pointer. not applicable for all tokens
   	  int  m_iFlags;      ///< Additional flags for the token.
       int  m_iIdx;        ///< An otional index to an external buffer storing the token data
       TString m_strTok;   ///< Token string

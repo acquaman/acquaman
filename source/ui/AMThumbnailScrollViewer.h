@@ -220,7 +220,7 @@ protected:
 	bool sourceIsDb_;
 	/// When sourceIsDb_ = true, this is a pointer to the database that should be queried for thumbnails.
 	AMDatabase* sourceDb_;
-	/// When sourceIsDb_ = false, this is pointer to the AMDbObject, that can be asked for its thumbnailCount() and thumbnail(int index);
+	/// When sourceIsDb_ = false, this is pointer to the AMDbObject, that can be asked for its thumbnailCount() and thumbnail(int index)
 	AMDbObject* sourceObject_;
 	/// When sourceIsDb_ = true, this is the set of rows in the thumbnail table to use.
 	QList<int> ids_;

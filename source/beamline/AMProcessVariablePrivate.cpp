@@ -521,14 +521,16 @@ void AMProcessVariablePrivate::controlInfoCB(struct event_handler_args eventArgs
 	}
 }
 
-// eventArgs:
-//void            *usr;   user argument supplied with request
-//chanId          chid;   channel id
-//long            type;   the type of the item returned
-//long            count;  the element count of the item returned
-//const void      *dbr;   a pointer to the item returned
-//int             status; ECA_XXX status of the requested op from the server
-//
+/*
+eventArgs:
+void            *usr;   user argument supplied with request
+chanId          chid;   channel id
+long            type;   the type of the item returned
+long            count;  the element count of the item returned
+const void      *dbr;   a pointer to the item returned
+int             status; ECA_XXX status of the requested op from the server
+
+*/
 
 void AMProcessVariablePrivate::valueChangedCB(struct event_handler_args eventArgs) {
 

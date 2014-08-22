@@ -122,7 +122,7 @@ bool AMRegion2013FileLoaderPlugin::load(AMScan *scan, const QString &userDataFol
 				spectraFile = afp;
 		if(spectraFile == ""){
 			errorMonitor->exteriorReport(AMErrorReport(0, AMErrorReport::Serious, AMREGION2013FILELOADERPLUGIN_NO_SPECTRA_FILE, "SGM2013XASFileLoader parse error while loading scan data from file. I couldn't find the the spectra.dat file when I need one."));
-			return false;	// bad format; no spectra.dat file in the additional files paths
+			return false;	// bad format. No spectra.dat file in the additional files paths
 		}
 		spectraFileInfo.setFile(spectraFile);
 		if(spectraFileInfo.isRelative())

@@ -39,7 +39,7 @@ signals:
 public slots:	
 	/// When the dialog is accepted, we store the current run in AMUser::setCurrentRun().
 	void accept();
-	/// When the dialog is rejected, if \c mustAccept_ is true, we simply show it again; a choice must be accepted. (Unless the application is shutting down.)
+	/// When the dialog is rejected, if \c mustAccept_ is true, we simply show it again. A choice must be accepted. (Unless the application is shutting down.)
 	void reject();
 
 protected:

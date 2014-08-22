@@ -247,7 +247,6 @@ void AMSample::addScan(AMScan *scan)
 	/// add scan to the list
 	if(!hasScan(scan))
 	{
-		//		scanList_.append(scan);
 		scanList_.append(new AMConstDbObject(scan));
 		setModified(true);
 	}
@@ -255,12 +254,6 @@ void AMSample::addScan(AMScan *scan)
 
 void AMSample::removeScan(AMScan *scan)
 {
-	//	/// remove all instances of scan
-	//	while(hasScan(scan))
-	//	{
-	//		scanList_.removeAt(scanList_.indexOf(scan));
-	//		setModified(true);
-	//	}
 	if(!hasScan(scan))
 		return;
 
@@ -391,7 +384,6 @@ void AMSample::toggleElement(const AMElement *element)
 
 void AMSample::setSampleShapePositionData(AMShapeData *sampleShapePositionData)
 {
-//	qdebug()<<"AMSample:setSampleShapePositionData";
 	if(sampleShapePositionData_ != sampleShapePositionData)
 	{
 		if(sampleShapePositionData_)
@@ -419,13 +411,11 @@ void AMSample::setSampleShapePositionData(AMShapeData *sampleShapePositionData)
 		emit currentTagChanged(currentTag_);
 		emit elementsChanged(elementString());
 	}
-//	qdebug()<<"AMSample:setSampleShapePositionData - done";
 }
 
 /// deletes the sample shape position data.
 void AMSample::removeSampleShapePositionData()
 {
-//	qdebug()<<"AMSample::removeSampleShapePositionData";
 	if(sampleShapePositionData_)
 	{
 
@@ -457,7 +447,6 @@ void AMSample::onShapeDataChanged()
 
 void AMSample::forceStoreToDb()
 {
-//	storeToDb(database());
 	emit requestStoreToDb();
 }
 
@@ -480,7 +469,6 @@ void AMSample::init(QString name)
 
 void AMSample::makeConnections()
 {
-	//connect(this, SIGNAL(tagsChanged(QStringList)), this, SLOT(getCurrentTag()));
 	connect(this, SIGNAL(tagsChanged(QStringList)), this, SIGNAL(requestCurrentTag()));
 	connect(this, SIGNAL(nameChanged(QString)), this, SIGNAL(sampleDetailsChanged()));
 }

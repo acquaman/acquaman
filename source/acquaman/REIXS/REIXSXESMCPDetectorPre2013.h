@@ -202,9 +202,10 @@ public:
 		setName(info.name());
 		setDescription(info.description());
 
+		/*
 		/// \todo: set HV. (No current way to set it: no PV control)
-
-		// removed for now: success |= setOrientation(info.orientation());
+		removed for now: success |= setOrientation(info.orientation());
+		*/
 
 		return success;
 	}

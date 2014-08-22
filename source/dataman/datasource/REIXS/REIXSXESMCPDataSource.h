@@ -70,7 +70,7 @@ public:
 
 
 protected slots:
-	/// Called whenever the connection state of any PV changes; emits valuesChanged(), sizeChanged(), and stateChanged() as required.
+	/// Called whenever the connection state of any PV changes. Emits valuesChanged(), sizeChanged(), and stateChanged() as required.
 	void onConnectionStateChanged();
 	/// Called when the image PV changes. emits valuesChanged().
 	void onImageValuesChanged();

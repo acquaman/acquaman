@@ -120,7 +120,7 @@ signals:
 	/// advertises when an "alias" item was selected as the current widget.  "Aliases" are items in the model that don't have their own unique window pane widgets, but instead link to another existing widget. When activated, they can deliver a message (in the form of a \c key and \c value pair) for that widget.
 	void aliasItemActivated(QWidget* target, const QString& key, const QVariant& value);
 
-	/// Emitted when an item in the window pane model has its "Close" button clicked. The model index \c index corresponds to the item in the model. What to do in this situation is up to you; AMMainWindow doesn't take any action here.
+	/// Emitted when an item in the window pane model has its "Close" button clicked. The model index \c index corresponds to the item in the model. What to do in this situation is up to you. AMMainWindow doesn't take any action here.
 	void itemCloseButtonClicked(const QModelIndex& index);
 
 protected slots:

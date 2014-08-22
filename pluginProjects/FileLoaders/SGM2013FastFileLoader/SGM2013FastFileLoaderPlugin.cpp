@@ -113,7 +113,7 @@ bool SGM2013FastFileLoaderPlugin::load(AMScan *scan, const QString &userDataFold
 				spectraFile = afp;
 		if(spectraFile == ""){
 			errorMonitor->exteriorReport(AMErrorReport(0, AMErrorReport::Serious, SGM2013FASTFILELOADERPLUGIN_NO_SPECTRA_FILE, "SGM2013FastFileLoader parse error while loading scan data from file. I couldn't find the the spectra.dat file when I need one."));
-			return false;	// bad format; no spectra.dat file in the additional files paths
+			return false;	// bad format. No spectra.dat file in the additional files paths
 		}
 		spectraFileInfo.setFile(spectraFile);
 		if(spectraFileInfo.isRelative())
@@ -152,8 +152,6 @@ bool SGM2013FastFileLoaderPlugin::load(AMScan *scan, const QString &userDataFold
 		}
 	}
 
-
-	/// scan->onDataChanged(); \todo Is this still used? What does it mean?
 	return true;
 }
 
