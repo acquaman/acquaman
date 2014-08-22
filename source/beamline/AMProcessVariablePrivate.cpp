@@ -94,17 +94,6 @@ void AMProcessVariableSupport::removePVImplementation(chid c) {
 	// grab pv name
 	QString pvName = pvName2Private_.key(onePrivate);
 	pvName2Private_.remove(pvName);
-
-	// if that was the last one out, tear down Channel Access:
-//	if(chid2Private_.count() == 0) {
-
-//		AMErrorMon::alert(this, AMPROCESSVARIABLESUPPORT_SHUTTING_DOWN_CHANNEL_ACCESS_MESSAGE, "AMProcessVariableSupport: Shutting down channel access...");
-//		// removed: killTimer(timerId_);			// stop the ca_poll() timer.
-//		ca_add_exception_event(0, 0);	// return the default exception handler
-//		ca_context_destroy();			// shut down Channel Access
-//		instance_ = 0;					// We are no more...
-//		deleteLater();					// We're gone.
-//	}
 }
 
 AMProcessVariablePrivate* AMProcessVariableSupport::getPrivateForPVNameImplementation(const QString &pvName)
