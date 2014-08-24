@@ -163,7 +163,81 @@ void BioXASSideBeamline::setupControlSets()
     pressureSet_->addControl(ccgSide5_);
     pressureSet_->addControl(ccgSide6_);
 
-    connect( pressureSet_, SIGNAL(connected(bool)), this, SLOT(onPressureSetConnected(bool)) );
+//    connect( pressureSet_, SIGNAL(connected(bool)), this, SLOT(onPressureSetConnected(bool)) );
+
+    // Vacuum valve control set.
+
+    valveSet_ = new AMControlSet(this);
+    valveSet_->addControl(vvr1_);
+    valveSet_->addControl(vvr2_);
+    valveSet_->addControl(vvr3_);
+    valveSet_->addControl(vvr4_);
+    valveSet_->addControl(vvr5_);
+    valveSet_->addControl(vvrSide1_);
+    valveSet_->addControl(vvrSide2_);
+    valveSet_->addControl(vvrSide3_);
+    valveSet_->addControl(vvrSide4_);
+    valveSet_->addControl(vvrSide5_);
+    valveSet_->addControl(vvrSide6_);
+
+    // Ion pump control set.
+
+    ionPumpSet_ = new AMControlSet(this);
+    ionPumpSet_->addControl(iop1_);
+    ionPumpSet_->addControl(iop2_);
+    ionPumpSet_->addControl(iop3_);
+    ionPumpSet_->addControl(iop4_);
+    ionPumpSet_->addControl(iop5_);
+    ionPumpSet_->addControl(iopSide1_);
+    ionPumpSet_->addControl(iopSide2_);
+    ionPumpSet_->addControl(iopSide3_);
+    ionPumpSet_->addControl(iopSide4_);
+    ionPumpSet_->addControl(iopSide5_);
+    ionPumpSet_->addControl(iopSide6_);
+    ionPumpSet_->addControl(iopSide7_);
+
+    // Flow transducer control set.
+
+    flowTransducerSet_ = new AMControlSet(this);
+    flowTransducerSet_->addControl(flt1_);
+    flowTransducerSet_->addControl(flt2_);
+    flowTransducerSet_->addControl(flt3_);
+    flowTransducerSet_->addControl(flt4_);
+    flowTransducerSet_->addControl(flt5_);
+    flowTransducerSet_->addControl(flt6_);
+    flowTransducerSet_->addControl(flt7_);
+    flowTransducerSet_->addControl(flt8_);
+    flowTransducerSet_->addControl(flt9_);
+    flowTransducerSet_->addControl(flt10_);
+    flowTransducerSet_->addControl(flt11_);
+    flowTransducerSet_->addControl(flt12_);
+    flowTransducerSet_->addControl(flt13_);
+    flowTransducerSet_->addControl(flt14_);
+    flowTransducerSet_->addControl(flt15_);
+    flowTransducerSet_->addControl(flt16_);
+    flowTransducerSet_->addControl(flt17_);
+    flowTransducerSet_->addControl(flt18_);
+    flowTransducerSet_->addControl(flt19_);
+    flowTransducerSet_->addControl(flt20_);
+
+    // Flow switch control set.
+
+    flowSwitchSet_ = new AMControlSet(this);
+    flowSwitchSet_->addControl(swf1_);
+    flowSwitchSet_->addControl(swf2_);
+    flowSwitchSet_->addControl(swf3_);
+    flowSwitchSet_->addControl(swf4_);
+
+    // Temperature monitor control set.
+
+    temperatureSet_ = new AMControlSet(this);
+    temperatureSet_->addControl(tm1_);
+    temperatureSet_->addControl(tm2_);
+    temperatureSet_->addControl(tm3_);
+    temperatureSet_->addControl(tm4_);
+    temperatureSet_->addControl(tm5_);
+
+
 }
 
 void BioXASSideBeamline::setupMono()
@@ -276,7 +350,7 @@ bool BioXASSideBeamline::openSafetyShutter1()
 
 bool BioXASSideBeamline::closeSafetyShutter1()
 {
-    if (psh1_->value() == 1 && psh2_->value() == 0 || (psh1_->value() == 0 && psh2_->value() == 1)) {
+    if ((psh1_->value() == 1 && psh2_->value() == 0) || (psh1_->value() == 0 && psh2_->value() == 1)) {
         ssh1_->move(0);
         return true;
     }
