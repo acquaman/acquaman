@@ -9,7 +9,8 @@ HEADERS += \
     source/acquaman/BioXASSide/BioXASSideXASScanActionController.h \
     source/acquaman/BioXASSide/BioXASSideXASScanConfiguration.h \
 	source/ui/BioXAS/BioXASSideXASScanConfigurationView.h \
-    source/beamline/BioXAS/BioXASSideMonochromator.h
+    source/beamline/BioXAS/BioXASSideMonochromator.h \
+    source/ui/BioXAS/BioXASSideMonochromatorViewBasic.h
 
 SOURCES += \
     source/application/BioXAS/BioXASSideMain.cpp \
@@ -19,4 +20,5 @@ SOURCES += \
     source/acquaman/BioXASSide/BioXASSideXASScanActionController.cpp \
     source/acquaman/BioXASSide/BioXASSideXASScanConfiguration.cpp \
 	source/ui/BioXAS/BioXASSideXASScanConfigurationView.cpp \
-    source/beamline/BioXAS/BioXASSideMonochromator.cpp
+    source/beamline/BioXAS/BioXASSideMonochromator.cpp \
+    source/ui/BioXAS/BioXASSideMonochromatorViewBasic.cpp
