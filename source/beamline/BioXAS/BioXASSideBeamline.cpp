@@ -150,7 +150,20 @@ void BioXASSideBeamline::setupDetectors()
 
 void BioXASSideBeamline::setupControlSets()
 {
+    // Pressure control set.
 
+    pressureSet_ = new AMControlSet(this);
+    pressureSet_->addControl(ccg1_);
+    pressureSet_->addControl(ccg2_);
+    pressureSet_->addControl(ccg3_);
+    pressureSet_->addControl(ccgSide1_);
+    pressureSet_->addControl(ccgSide2_);
+    pressureSet_->addControl(ccgSide3_);
+    pressureSet_->addControl(ccgSide4_);
+    pressureSet_->addControl(ccgSide5_);
+    pressureSet_->addControl(ccgSide6_);
+
+    connect( pressureSet_, SIGNAL(connected(bool)), this, SLOT(onPressureSetConnected(bool)) );
 }
 
 void BioXASSideBeamline::setupMono()
@@ -201,11 +214,6 @@ BioXASSideBeamline::~BioXASSideBeamline()
 
 }
 
-CLSSIS3820Scaler* BioXASSideBeamline::scaler()
-{
-    return scaler_;
-}
-
 CLSMAXvMotor* BioXASSideBeamline::m1UpperSlit()
 {
     return m1UpperSlit_;
@@ -216,14 +224,114 @@ CLSKeithley428* BioXASSideBeamline::keithley()
     return keithley_;
 }
 
+bool BioXASSideBeamline::openPhotonShutter1()
+{
+    if (ssh1_->value() == 1 || (ssh1_->value() == 0 && psh2_->value() == 0)) {
+//        psh1_->move(1);
+//        return true;
+    }
+
+    return false;
+}
+
+bool BioXASSideBeamline::closePhotonShutter1()
+{
+    if (psh1_->value() == 1) {
+//        psh1_->move(0);
+//        return true;
+    }
+
+    return false;
+}
+
+bool BioXASSideBeamline::openPhotonShutter2()
+{
+    if (ssh1_->value() == 1 || (ssh1_->value() == 0 && psh1_->value() == 0)) {
+//        psh2_->move(1);
+//        return true;
+    }
+
+    return false;
+}
+
+bool BioXASSideBeamline::closePhotonShutter2()
+{
+    if (psh2_->value() == 1) {
+//        psh2_->move(0);
+//        return true;
+    }
+
+    return false;
+}
+
+bool BioXASSideBeamline::openSafetyShutter1()
+{
+    if (ssh1_->value() == 0) {
+//        ssh1_->move(1);
+//        return true;
+    }
+
+    return false;
+}
+
+bool BioXASSideBeamline::closeSafetyShutter1()
+{
+    if (psh1_->value() == 1 && psh2_->value() == 0 || (psh1_->value() == 0 && psh2_->value() == 1)) {
+        ssh1_->move(0);
+        return true;
+    }
+
+    return false;
+}
+
+bool BioXASSideBeamline::openSafetyShutter2()
+{
+    if (sshSide1_->value() == 0) {
+        sshSide1_->move(1);
+        return true;
+    }
+
+    return false;
+}
+
+bool BioXASSideBeamline::closeSafetyShutter2()
+{
+    if (sshSide1_->value() == 1) {
+        sshSide1_->move(0);
+        return true;
+    }
+
+    return false;
+}
+
+bool BioXASSideBeamline::allValvesOpen() const
+{
+    if (!vvr1_->value() && !vvr2_->value() && !vvr3_->value() && !vvr4_->value() && !vvr5_->value()
+            && !vvrSide1_->value() && !vvrSide1_->value() && !vvrSide2_->value() && !vvrSide3_->value() && !vvrSide4_->value() && !vvrSide5_->value() && !vvrSide6_->value())
+        return true;
+
+    return false;
+}
+
+bool BioXASSideBeamline::allValvesClosed() const
+{
+    if (vvr1_->value() && vvr2_->value() && vvr3_->value() && vvr4_->value() && vvr5_->value()
+            && vvrSide1_->value() && vvrSide1_->value() && vvrSide2_->value() && vvrSide3_->value() && vvrSide4_->value() && vvrSide5_->value() && vvrSide6_->value())
+        return true;
+
+    return false;
+}
+
 bool BioXASSideBeamline::isConnected() const
 {
     return scaler_->isConnected() && m1UpperSlit_->isConnected() && keithley_->isConnected();
 }
 
-CLSBasicScalerChannelDetector* BioXASSideBeamline::testDetector()
+void BioXASSideBeamline::onPressureSetConnected(bool connected)
 {
-    return testDetector_;
+    if (connected) {
+        // connect 'movingChanged' signal to pressure error-type slot.
+    }
 }
 
 void BioXASSideBeamline::onScalerConnectedChanged(bool connectionState)
