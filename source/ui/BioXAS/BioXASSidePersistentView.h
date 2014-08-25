@@ -25,11 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QWidget>
 #include <QLayout>
 
-#include "beamline/CLS/CLSMAXvMotor.h"
-#include "beamline/CLS/CLSKeithley428.h"
-#include "ui/beamline/AMCurrentAmplifierSingleView.h"
-
-class AMExtendedControlEditor;
+#include "ui/BioXAS/BioXASSideMonochromatorViewBasic.h"
 
 class BioXASSidePersistentView : public QWidget
 {
@@ -45,8 +41,10 @@ signals:
 public slots:
 
 protected:
-    AMExtendedControlEditor *motorControlEditor_;
-    AMCurrentAmplifierSingleView *keithleyView_;
+//    AMExtendedControlEditor *motorControlEditor_;
+//    AMCurrentAmplifierSingleView *keithleyView_;
+
+    BioXASSideMonochromatorViewBasic *energyView_;
 };
 
 #endif // BIOXASSIDEPERSISTENTVIEW_H

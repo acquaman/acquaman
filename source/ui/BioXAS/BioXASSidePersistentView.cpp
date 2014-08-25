@@ -21,26 +21,34 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "BioXASSidePersistentView.h"
 
-#include "beamline/BioXAS/BioXASSideBeamline.h"
-#include "ui/beamline/AMExtendedControlEditor.h"
-
 BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
     QWidget(parent)
 {
-    motorControlEditor_ = new AMExtendedControlEditor(BioXASSideBeamline::bioXAS()->m1UpperSlit());
-    motorControlEditor_->setControlFormat('g', 4);
+    QGridLayout *mainLayout = new QGridLayout();
 
-    keithleyView_ = BioXASSideBeamline::bioXAS()->keithley()->createView();
-    keithleyView_->setParent(this);
-    keithleyView_->setPrecision(2);
-    keithleyView_->setFormat('e');
+    QLabel *energyLabel = new QLabel("Energy: ", this);
+    energyView_ = new BioXASSideMonochromatorViewBasic(this);
+    energyLabel->setBuddy(energyView_);
+    mainLayout->addWidget(energyLabel, 0, 0);
+    mainLayout->addWidget(energyView_, 0, 1);
 
-    QVBoxLayout *layout = new QVBoxLayout();
-    layout->addWidget(motorControlEditor_);
-    layout->addWidget(keithleyView_);
-    layout->addStretch();
+    setLayout(mainLayout);
 
-    setLayout(layout);
+
+//    motorControlEditor_ = new AMExtendedControlEditor(BioXASSideBeamline::bioXAS()->m1UpperSlit());
+//    motorControlEditor_->setControlFormat('g', 4);
+
+//    keithleyView_ = BioXASSideBeamline::bioXAS()->keithley()->createView();
+//    keithleyView_->setParent(this);
+//    keithleyView_->setPrecision(2);
+//    keithleyView_->setFormat('e');
+
+//    QVBoxLayout *layout = new QVBoxLayout();
+//    layout->addWidget(motorControlEditor_);
+//    layout->addWidget(keithleyView_);
+//    layout->addStretch();
+
+//    setLayout(layout);
 }
 
 BioXASSidePersistentView::~BioXASSidePersistentView()
