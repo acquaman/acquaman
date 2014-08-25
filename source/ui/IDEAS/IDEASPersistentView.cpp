@@ -33,6 +33,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QGroupBox>
+#include <QCheckBox>
 #include <QProgressBar>
 #include <QGridLayout>
 #include <QInputDialog>
@@ -76,6 +77,9 @@ IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
     I0ValueLabel_ = new QLabel("0");
     ISampleValueLabel_ = new QLabel("0");
     IReferenceValueLabel_ = new QLabel("0");
+
+    scalerContinuousButton_ = new QPushButton("Enable Continuous Updates");
+
 
     QIcon iconUp, iconDown, iconLeft, iconRight, iconVerticalClose, iconVerticalOpen, iconHorizontalClose, iconHorizontalOpen;
     iconUp.addFile(QString::fromUtf8(":/22x22/go-up-dark.png"), QSize(), QIcon::Normal, QIcon::Off);
@@ -192,6 +196,8 @@ IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
     connect(IDEASBeamline::ideas()->monoHighEV(),  SIGNAL(connected(bool)), this, SLOT(onCrystalChanged()));
     connect(IDEASBeamline::ideas()->monoCrystal(), SIGNAL(connected(bool)), this, SLOT(onCrystalChanged()));
 
+    connect(scalerContinuousButton_, SIGNAL(clicked()), this, SLOT(onScalerContinuousButtonClicked()));
+
 
 
 
@@ -227,6 +233,7 @@ IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
 
     QVBoxLayout *scalerPanelLayout = new QVBoxLayout;
     scalerPanelLayout->addWidget(new IDEASScalerView());
+    scalerPanelLayout->addWidget(scalerContinuousButton_);
 
     QGroupBox *persistentPanel = new QGroupBox("IDEAS Beamline");
     persistentPanel->setLayout(mainPanelLayout);
@@ -306,4 +313,14 @@ void IDEASPersistentView::onCalibrateClicked()
 
     }
 
+}
+
+void IDEASPersistentView::onScalerContinuousButtonClicked()
+{
+	AMListAction3 *scalerContinuousEnableActions = new AMListAction3(new AMListActionInfo3("Enable Scaler Continuous Mode", "Enable Scaler Continuous Mode"));
+
+	scalerContinuousEnableActions->addSubAction(IDEASBeamline::ideas()->scaler()->createTotalScansAction3(0));
+	scalerContinuousEnableActions->addSubAction(IDEASBeamline::ideas()->scaler()->createStartAction3(true));
+
+	scalerContinuousEnableActions->start();
 }

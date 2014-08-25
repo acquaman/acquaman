@@ -32,6 +32,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class QPushButton;
 class QLabel;
 class QProgressBar;
+class QCheckBox;
 
 class AMExtendedControlEditor;
 
@@ -57,6 +58,9 @@ protected slots:
     void onShutterStatusChanged(bool state);
     /// Calls dialogue to calibrate beamline energy
     void onCalibrateClicked();
+    /// Re-enables scaler continuous mode
+    void onScalerContinuousButtonClicked();
+
 
     /// Handles updating displayed crystal and energy range
     void onCrystalChanged();
@@ -76,6 +80,9 @@ protected:
     QLabel *beamStatusLabel_;
     /// The beam on button.
     QPushButton *calibrateButton_;
+    /// Checkbox to enable or diable scaler continuous mode
+    QPushButton *scalerContinuousButton_;
+
 
 
     AMExtendedControlEditor *energyControlEditor_;
