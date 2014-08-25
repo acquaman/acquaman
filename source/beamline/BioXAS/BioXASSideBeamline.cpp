@@ -300,8 +300,8 @@ CLSKeithley428* BioXASSideBeamline::keithley()
 
 bool BioXASSideBeamline::openPhotonShutter1()
 {
-    if (ssh1_->value() == 1 || (ssh1_->value() == 0 && psh2_->value() == 0)) {
-//        psh1_->move(1);
+    if (ssh1_->isOpen() || (ssh1_->isClosed() && psh2_->isClosed())) {
+//        psh1_->open();
 //        return true;
     }
 
@@ -310,8 +310,8 @@ bool BioXASSideBeamline::openPhotonShutter1()
 
 bool BioXASSideBeamline::closePhotonShutter1()
 {
-    if (psh1_->value() == 1) {
-//        psh1_->move(0);
+    if (psh1_->isOpen()) {
+//        psh1_->close();
 //        return true;
     }
 
@@ -320,8 +320,8 @@ bool BioXASSideBeamline::closePhotonShutter1()
 
 bool BioXASSideBeamline::openPhotonShutter2()
 {
-    if (ssh1_->value() == 1 || (ssh1_->value() == 0 && psh1_->value() == 0)) {
-//        psh2_->move(1);
+    if (ssh1_->isOpen() || (ssh1_->isClosed() && psh1_->isClosed())) {
+//        psh2_->open();
 //        return true;
     }
 
@@ -330,8 +330,8 @@ bool BioXASSideBeamline::openPhotonShutter2()
 
 bool BioXASSideBeamline::closePhotonShutter2()
 {
-    if (psh2_->value() == 1) {
-//        psh2_->move(0);
+    if (psh2_->isOpen()) {
+//        psh2_->close();
 //        return true;
     }
 
@@ -340,8 +340,8 @@ bool BioXASSideBeamline::closePhotonShutter2()
 
 bool BioXASSideBeamline::openSafetyShutter1()
 {
-    if (ssh1_->value() == 0) {
-//        ssh1_->move(1);
+    if (ssh1_->isClosed()) {
+//        ssh1_->open();
 //        return true;
     }
 
@@ -350,8 +350,8 @@ bool BioXASSideBeamline::openSafetyShutter1()
 
 bool BioXASSideBeamline::closeSafetyShutter1()
 {
-    if ((psh1_->value() == 1 && psh2_->value() == 0) || (psh1_->value() == 0 && psh2_->value() == 1)) {
-        ssh1_->move(0);
+    if ((psh1_->isOpen() && psh2_->isClosed()) || (psh1_->isClosed() && psh2_->isOpen())) {
+        ssh1_->close();
         return true;
     }
 
@@ -360,8 +360,8 @@ bool BioXASSideBeamline::closeSafetyShutter1()
 
 bool BioXASSideBeamline::openSafetyShutter2()
 {
-    if (sshSide1_->value() == 0) {
-        sshSide1_->move(1);
+    if (sshSide1_->isClosed()) {
+        sshSide1_->open();
         return true;
     }
 
@@ -370,8 +370,8 @@ bool BioXASSideBeamline::openSafetyShutter2()
 
 bool BioXASSideBeamline::closeSafetyShutter2()
 {
-    if (sshSide1_->value() == 1) {
-        sshSide1_->move(0);
+    if (sshSide1_->isOpen()) {
+        sshSide1_->close();
         return true;
     }
 
@@ -380,8 +380,8 @@ bool BioXASSideBeamline::closeSafetyShutter2()
 
 bool BioXASSideBeamline::allValvesOpen() const
 {
-    if (!vvr1_->value() && !vvr2_->value() && !vvr3_->value() && !vvr4_->value() && !vvr5_->value()
-            && !vvrSide1_->value() && !vvrSide1_->value() && !vvrSide2_->value() && !vvrSide3_->value() && !vvrSide4_->value() && !vvrSide5_->value() && !vvrSide6_->value())
+    if (vvr1_->isOpen() && vvr2_->isOpen() && vvr3_->isOpen() && vvr4_->isOpen() && vvr5_->isOpen()
+            && vvrSide1_->isOpen() && vvrSide1_->isOpen() && vvrSide2_->isOpen() && vvrSide3_->isOpen() && vvrSide4_->isOpen() && vvrSide5_->isOpen() && vvrSide6_->isOpen())
         return true;
 
     return false;
@@ -389,8 +389,8 @@ bool BioXASSideBeamline::allValvesOpen() const
 
 bool BioXASSideBeamline::allValvesClosed() const
 {
-    if (vvr1_->value() && vvr2_->value() && vvr3_->value() && vvr4_->value() && vvr5_->value()
-            && vvrSide1_->value() && vvrSide1_->value() && vvrSide2_->value() && vvrSide3_->value() && vvrSide4_->value() && vvrSide5_->value() && vvrSide6_->value())
+    if (vvr1_->isClosed() && vvr2_->isClosed() && vvr3_->isClosed() && vvr4_->isClosed() && vvr5_->isClosed()
+            && vvrSide1_->isClosed() && vvrSide1_->isClosed() && vvrSide2_->isClosed() && vvrSide3_->isClosed() && vvrSide4_->isClosed() && vvrSide5_->isClosed() && vvrSide6_->isClosed())
         return true;
 
     return false;
