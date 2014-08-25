@@ -25,6 +25,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QWidget>
 #include <QLayout>
 
+#include "ui/CLS/CLSStopLightButton.h"
+
 #include "ui/BioXAS/BioXASSideMonochromatorViewBasic.h"
 
 class BioXASSidePersistentView : public QWidget
@@ -43,6 +45,11 @@ public slots:
 protected:
 //    AMExtendedControlEditor *motorControlEditor_;
 //    AMCurrentAmplifierSingleView *keithleyView_;
+
+//    CLSStopLightButton *psh1_;
+//    CLSStopLightButton *psh2_;
+//    CLSStopLightButton *ssh1_;
+//    CLSStopLightButton *ssh2_;
 
     BioXASSideMonochromatorViewBasic *energyView_;
 };

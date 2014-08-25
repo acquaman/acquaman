@@ -26,6 +26,7 @@ BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
 {
     QGridLayout *mainLayout = new QGridLayout();
 
+
     QLabel *energyLabel = new QLabel("Energy: ", this);
     energyView_ = new BioXASSideMonochromatorViewBasic(this);
     energyLabel->setBuddy(energyView_);

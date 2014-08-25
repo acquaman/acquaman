@@ -104,13 +104,64 @@ public:
 
 signals:
     /// Notifier that the tankClosed status has changed.
-    void tankClosedChanged(double);
+    void tankClosedStatusChanged(bool isClosed);
     /// Notifier that the brakeOff status has changed.
-    void brakeOffChanged(double);
+    void brakeOffStatusChanged(bool isOff);
     /// Notifier that the key status has changed.
-    void keyStatusChanged(double);
+    void keyStatusChanged(bool isEngaged);
     /// Notifier that the paddle extracted status has changed.
-    void paddleExtractedChanged(double);
+    void paddleExtractedStatusChanged(bool isExtracted);
+    /// Notifier that the mono has reached/left the crystal change position.
+    void crystalChangePositionStatusChanged(bool atPosition);
+    /// Notifier that the upper slit closed status has changed.
+    void upperSlitClosedStatusChanged(bool isClosed);
+    /// Notifier that the lower slit closed status has changed.
+    void lowerSlitClosedStatusChanged(bool isClosed);
+    /// Notifier that the slits closed general status has changed.
+    void slitsClosedStatusChanged(bool areClosed);
+    /// Notifier that the region A theta clockwise limit has been reached/left.
+    void thetaACWLimitStatusChanged(bool atLimit);
+    /// Notifier that the region A theta counter-clockwise limit has been reached/left.
+    void thetaACCWLimitStatusChanged(bool atLimit);
+    /// Notifier that the region B theta clockwise limit has been reached/left.
+    void thetaBCWLimitStatusChanged(bool atLimit);
+    /// Notifier that the region B theta counter-clockwise limit has been reached/left.
+    void thetaBCCWLimitStatusChanged(bool atLimit);
+    /// Notifier that the mono is now in, or just left, region A.
+    void regionAStatusChanged(bool withinRegion);
+    /// Notifier that the mono is now in, or just left, region B.
+    void regionBStatusChanged(bool withinRegion);
+    /// Notifier that the region A translation limit has been reached/left.
+    void translateALimitStatusChanged(bool atLimit);
+    /// Notifier that the region B translation limit has been reached/left.
+    void translateBLimitStatusChanged(bool atLimit);
+    /// Notifier that the translation is/is not permitted.
+    void translatePermittedStatusChanged(bool isPermitted);
+    /// Notifier that using the theta paddle is / is not permitted.
+    void thetaPaddlePermittedStatusChanged(bool isPermitted);
+    /// Notifier that the slit controls are en/disabled.
+    void slitsEnabledStatusChanged(bool isEnabled);
+
+protected slots:
+    void onTankClosedChanged(double newValue);
+    void onBrakeOffChanged(double newValue);
+    void onKeyStatusChanged(double newValue);
+    void onPaddleExtractedChanged(double newValue);
+    void onCrystalChangePositionChanged(double newValue);
+    void onUpperSlitClosedChanged(double newValue);
+    void onLowerSlitClosedChanged(double newValue);
+    void onSlitsClosedChanged(double newValue);
+    void onThetaACWLimitChanged(double newValue);
+    void onThetaACCWLimitChanged(double newValue);
+    void onThetaBCWLimitChanged(double newValue);
+    void onThetaBCCWLimitChanged(double newValue);
+    void onRegionAChanged(double newValue);
+    void onRegionBChanged(double newValue);
+    void onTranslateALimitChanged(double newValue);
+    void onTranslateBLimitChanged(double newValue);
+    void onTranslatePermittedChanged(double newValue);
+    void onThetaPaddlePermittedChanged(double newValue);
+    void onSlitsEnabledChanged(double newValue);
 
 protected:
     AMReadOnlyPVControl *tankClosed_;
