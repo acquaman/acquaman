@@ -93,7 +93,7 @@ void AMProcessVariableSupport::removePVImplementation(chid c) {
 
 	// grab pv name
 	QString pvName = pvName2Private_.key(onePrivate);
-	pvName2Private_.remove(pvName);
+	pvName2Private_.remove(pvName);me
 }
 
 AMProcessVariablePrivate* AMProcessVariableSupport::getPrivateForPVNameImplementation(const QString &pvName)
