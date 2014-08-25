@@ -438,7 +438,6 @@ HEADERS += \
 	source/dataman/AMScanExemplarDictionary.h \
 	source/dataman/AMScanExemplar.h \
 	source/ui/dataman/AMDictionaryLineEdit.h \
-	source/beamline/CLS/CLSSR570.h \
 	source/beamline/CLS/CLSBiStateControl.h \
 	source/application/AMAppControllerSupport.h \
 	source/application/AMPluginsManager.h \
@@ -757,7 +756,7 @@ HEADERS += \
 	source/util/AMThread.h \
 	source/dataman/AMDbUpgrade1Pt5.h \
 	source/util/AMAppArgumentParser.h \
-	source/beamline/CLS/CLSSensitivitySR570.h
+	source/beamline/CLS/CLSSR570.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -929,7 +928,6 @@ SOURCES += \
 	source/dataman/AMScanExemplarDictionary.cpp \
 	source/dataman/AMScanExemplar.cpp \
 	source/ui/dataman/AMDictionaryLineEdit.cpp \
-	source/beamline/CLS/CLSSR570.cpp \
 	source/beamline/CLS/CLSBiStateControl.cpp \
 	source/application/AMPluginsManager.cpp \
 	source/application/AMAppControllerSupport.cpp \
@@ -1235,7 +1233,7 @@ SOURCES += \
 	source/util/AMThread.cpp \
 	source/dataman/AMDbUpgrade1Pt5.cpp \
 	source/util/AMAppArgumentParser.cpp \
-	source/beamline/CLS/CLSSensitivitySR570.cpp
+	source/beamline/CLS/CLSSR570.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
