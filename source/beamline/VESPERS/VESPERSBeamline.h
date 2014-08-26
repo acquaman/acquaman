@@ -858,8 +858,6 @@ protected:
 	// Scanning settings.
 	AMControl *masterDwellTime_;
 
-	// The ring current.
-	AMControl *ringCurrent_;
 	// The energy setpoint control.
 	AMControl *energySetpointControl_;
 

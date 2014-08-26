@@ -2,6 +2,8 @@
 
 #include "beamline/AMPVControl.h"
 
+#include <QTimer>
+
 CLSStorageRing::CLSStorageRing(QObject *parent)
 	: AMStorageRing(parent)
 {

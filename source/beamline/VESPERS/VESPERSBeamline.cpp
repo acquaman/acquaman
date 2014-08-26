@@ -27,6 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/VESPERS/VESPERSMonochomatorControl.h"
 #include "beamline/VESPERS/VESPERSCCDBasicDetectorEmulator.h"
 #include "beamline/AM1DControlDetectorEmulator.h"
+#include "beamline/CLS/CLSStorageRing.h"
 
 VESPERSBeamline::VESPERSBeamline()
 	: AMBeamline("VESPERS Beamline")
@@ -466,7 +467,6 @@ void VESPERSBeamline::setupMono()
 	mono_ = new VESPERSMonochromator(this);
 	masterDwellTime_ = new AMSinglePVControl("Master Dwell Time", "BL1607-B2-1:dwell:setTime", this);
 	intermediateSlits_ = new VESPERSIntermediateSlits(this);
-	ringCurrent_ = new AMReadOnlyPVControl("Ring Current", "PCT1402-01:mA:fbk", this);
 	energySetpointControl_ = new AMReadOnlyPVControl("EnergySetpoint", "07B2_Mono_SineB_Ea", this);
 }
 
@@ -740,7 +740,7 @@ void VESPERSBeamline::setupControlsAsDetectors()
 	masterDwellTimeDetector_ = new AMBasicControlDetectorEmulator("MasterDwellTime", "Master Dwell Time", synchronizedDwellTime_->dwellTimeControl(), synchronizedDwellTime_->startScanControl(), 1, 0, AMDetectorDefinitions::ImmediateRead, this);
 	masterDwellTimeDetector_->setHiddenFromUsers(true);
 	masterDwellTimeDetector_->setIsVisible(false);
-	ringCurrentDetector_ = new AMBasicControlDetectorEmulator("RingCurrent", "Ring Current", ringCurrent_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	ringCurrentDetector_ = new AMBasicControlDetectorEmulator("RingCurrent", "Ring Current", CLSStorageRing::sr1()->ringCurrentControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 	ringCurrentDetector_->setHiddenFromUsers(true);
 	ringCurrentDetector_->setIsVisible(false);
 	roperCCDFileNumberDetector_ = new VESPERSCCDBasicDetectorEmulator(roperCCD_, "RoperFileNumber", "Roper File Number", roperCCD_->ccdFileNumberControl(), roperCCD_->statusControl(), 1, 0, AMDetectorDefinitions::RequestRead, this);
