@@ -109,6 +109,7 @@ IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfigu
 	estimatedSetTime_ = new QLabel;
 	pointPerScan_ = new QLabel;
 	scanEnergyRange_ = new QLabel;
+	ketekROIs_ = new QLabel;
 	connect(configuration_, SIGNAL(totalTimeChanged(double)), this, SLOT(onEstimatedTimeChanged()));
 	connect(configuration_, SIGNAL(scanAxisAdded(AMScanAxis*)), this, SLOT(onEstimatedTimeChanged()));
 	connect(configuration_, SIGNAL(scanAxisRemoved(AMScanAxis*)), this, SLOT(onEstimatedTimeChanged()));
@@ -116,6 +117,11 @@ IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfigu
 	connect(configuration_, SIGNAL(configurationChanged()), this, SLOT(onEstimatedTimeChanged()));
 
 	connect(configuration_, SIGNAL(edgeChanged(QString)), this, SLOT(onEdgeChanged()));
+
+	connect(IDEASBeamline::ideas()->ketek(),SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)),this,SLOT(onKetekROIChange()));
+	connect(IDEASBeamline::ideas()->ketek(),SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)),this,SLOT(onKetekROIChange()));
+	connect(isXRFScanCheckBox_, SIGNAL(clicked()),this,SLOT(onKetekROIChange()));
+	onKetekROIChange();
 
 	QSpinBox *numberOfScans = new QSpinBox;
 	numberOfScans->setMinimum(1);
@@ -126,10 +132,14 @@ IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfigu
 
 	QFormLayout *numberOfScansLayout = new QFormLayout;
 	numberOfScansLayout->addRow("Number of Scans:", numberOfScans);
-	numberOfScansLayout->addRow("", estimatedTime_);
-	numberOfScansLayout->addRow("", estimatedSetTime_);
-	numberOfScansLayout->addRow("", pointPerScan_);
-	numberOfScansLayout->addRow("", scanEnergyRange_);
+	numberOfScansLayout->addRow("Estimated time per scan:", estimatedTime_);
+	numberOfScansLayout->addRow("Estimated time for set:", estimatedSetTime_);
+	numberOfScansLayout->addRow("Energy point pers scan:", pointPerScan_);
+	numberOfScansLayout->addRow("Scan energy range:", scanEnergyRange_);
+	numberOfScansLayout->addRow("Selected XRF Detector Regions:", new QLabel(""));
+	numberOfScansLayout->addRow("", ketekROIs_);
+
+
 
 
 	QFormLayout *energySetpointLayout = new QFormLayout;
@@ -378,8 +388,8 @@ void IDEASXASScanConfigurationView::onEstimatedTimeChanged()
     }
 
 
-    pointPerScan_->setText(QString("%1 points per scan").arg(configuration_->totalPoints()));
-    scanEnergyRange_->setText(QString("from %1 to %2 eV").arg(configuration_->minEnergy()).arg(configuration_->maxEnergy()));
+    pointPerScan_->setText(QString("%1").arg(configuration_->totalPoints()));
+    scanEnergyRange_->setText(QString("%1 eV - %2 eV").arg(configuration_->minEnergy()).arg(configuration_->maxEnergy()));
 
     int days = int(time/3600.0/24.0);
 
@@ -408,7 +418,7 @@ void IDEASXASScanConfigurationView::onEstimatedTimeChanged()
     int seconds = ((int)time)%60;
     timeString += QString::number(seconds) + "s";
 
-    estimatedTime_->setText("Estimated time per scan:\t" + timeString);
+    estimatedTime_->setText(timeString);
 
 
 
@@ -443,6 +453,30 @@ void IDEASXASScanConfigurationView::onEstimatedTimeChanged()
     seconds = ((int)time)%60;
     timeString += QString::number(seconds) + "s";
 
-    estimatedSetTime_->setText("Estimated time for set:\t" + timeString);
+    estimatedSetTime_->setText(timeString);
 
+}
+
+void IDEASXASScanConfigurationView::onKetekROIChange()
+{
+
+	if (IDEASBeamline::ideas()->ketek()->regionsOfInterest().isEmpty())
+	{
+		ketekROIs_->setText("No XRF detector regions of interest selected.");
+		if (isXRFScanCheckBox_->isChecked())
+			 ketekROIs_->setStyleSheet("QLabel { background-color : red; color : white}");
+		    else
+			 ketekROIs_->setStyleSheet("QLabel { color : black; }");
+		return;
+	}
+
+	QString regionsText;
+
+	foreach (AMRegionOfInterest *region, IDEASBeamline::ideas()->ketek()->regionsOfInterest())
+	{
+		regionsText.append(QString("%1 (%2 eV - %3 eV)\n").arg(region->name()).arg(int(region->lowerBound())).arg(int(region->upperBound())));
+
+	}
+	ketekROIs_->setStyleSheet("QLabel { color : black; }");
+	ketekROIs_->setText(regionsText);
 }
