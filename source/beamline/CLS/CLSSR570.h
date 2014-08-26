@@ -25,8 +25,9 @@ public:
 	/// Returns a string list of the available units options, suitable for a view to display.
 	virtual QStringList unitsList() const;
 
-	/// Returns the minimum/maximum value + units pair for the given amplifier.
+	/// Returns the minimum value from the units pair for the given amplifier.
 	virtual double minimumValueForUnits(const QString &units) const;
+	/// Returns the maximum value from the given units for the given amplifier.
 	virtual double maximumValueForUnits(const QString &units) const;
 
 protected slots:
