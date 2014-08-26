@@ -35,7 +35,7 @@ void AMStorageRing::releaseStorageRing()
 
 double AMStorageRing::ringCurrent() const
 {
-	if (ringCurrent_)
+	if (ringCurrent_ && ringCurrent_->isConnected())
 		return ringCurrent_->value();
 
 	return -1.0;
