@@ -50,6 +50,8 @@ public:
 protected slots:
 //	/// Once the synchronized dwell is connected we can make the view for it
 //	void onSynchronizedDwellTimeConnected(bool connected);
+	/// Helper slot that handles the workflow pausing/resuming when the beam dumps or is restored.
+	void onBeamAvailabilityChanged(bool beamAvailable);
 	/// Wait until the energy is connected before making the scan views
 	void onEnergyConnected(bool connected);
 	/// Helper slot that connects generic scan editors that use the 2D scan view to the app controller so that it can enable quick configuration of scans.
@@ -86,8 +88,8 @@ protected:
 	IDEASXASScanConfigurationView *xasScanConfigurationView_;
 	/// View holder for XAS
 	IDEASScanConfigurationViewHolder3 *xasScanConfigurationHolder3_;
-        /// View for the IDEAS's XRF scan configurations
-        IDEASXRFDetailedDetectorViewWithSave *IDEASXRFDetailedDetectorViewWithSave_;
+		/// View for the IDEAS's XRF scan configurations
+		IDEASXRFDetailedDetectorViewWithSave *IDEASXRFDetailedDetectorViewWithSave_;
 	/// View for viewing the sample cameras and aligning samples
 	IDEASSampleCameraPanel *sampleCameraPanel_;
 
