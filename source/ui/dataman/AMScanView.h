@@ -86,10 +86,6 @@ public:
 
 	explicit AMScanViewInternal(AMScanView* masterView);
 
-signals:
-	/// Notifier that the data position marker has changed.
-	void dataPositionChanged(const QPointF &);
-
 public slots:
 	/// Must re-implement in subclasses: turn on log scale on the y-axis.
 	virtual void enableLogScale(bool logScaleOn = true) { logScaleEnabled_ = logScaleOn; }
@@ -100,25 +96,15 @@ public slots:
 	/// Must re-implement in subclasses: enable or disable the waterfall effect
 	virtual void enableWaterfallOffset(bool waterfallOn = true) { waterfallEnabled_ = waterfallOn; }
 
-protected slots:
-	/// after a scan or data source is added in the model
-	virtual void onRowInserted(const QModelIndex& parent, int start, int end) = 0;
-	/// before a scan or data source is deleted in the model:
-	virtual void onRowAboutToBeRemoved(const QModelIndex& parent, int start, int end) = 0;
-	/// after a scan or data source is deleted in the model:
-	virtual void onRowRemoved(const QModelIndex& parent, int start, int end) = 0;
-	/// when data changes:
-	virtual void onModelDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight) = 0;
-
 protected:
 	/// Helper function to create an appropriate MPlotItem and connect it to the \c dataSource, depending on the dimensionality of \c dataSource.  Returns 0 if we can't handle this dataSource and no item was created (ex: unsupported dimensionality; we only handle 1D or 2D data for now.)
 	MPlotItem* createPlotItemForDataSource(const AMDataSource* dataSource, const AMDataSourcePlotSettings& plotSettings);
 	/// Helper function to look at a plot and configure the left and right axes depending on whether there are 1D and/or 2D data sources in the plot.
 	/*! We plot 2D data sources on the right axis scale, and 1D data sources on the left axis scale.  We could therefore end up in one of 4 states for the axes configuration:
-0: No data sources of any kind: hide both axis labels; assign both axes to the left axis scale.
-1: Only 1D data sources: show the left axis labels, hide the right axis labels; assign both axes to the left axis scale.
-2: Only 2D data sources: hide the left axis labels, show the right axis labels; assign both axes to the right axis scale.
-3: Both 1D and 2D data sources: show the left and right axis labels; assign the left axis to the left axis scale and the right axis to the right axis scale.
+		0: No data sources of any kind: hide both axis labels; assign both axes to the left axis scale.
+		1: Only 1D data sources: show the left axis labels, hide the right axis labels; assign both axes to the left axis scale.
+		2: Only 2D data sources: hide the left axis labels, show the right axis labels; assign both axes to the right axis scale.
+		3: Both 1D and 2D data sources: show the left and right axis labels; assign the left axis to the left axis scale and the right axis to the right axis scale.
 	  */
 	void reviewPlotAxesConfiguration(MPlotGW* plot);
 
@@ -136,6 +122,20 @@ protected:
 	bool normalizationEnabled_, waterfallEnabled_;
 
 	MPlotGW* createDefaultPlot();
+
+protected slots:
+	/// after a scan or data source is added in the model
+	virtual void onRowInserted(const QModelIndex& parent, int start, int end) = 0;
+	/// before a scan or data source is deleted in the model:
+	virtual void onRowAboutToBeRemoved(const QModelIndex& parent, int start, int end) = 0;
+	/// after a scan or data source is deleted in the model:
+	virtual void onRowRemoved(const QModelIndex& parent, int start, int end) = 0;
+	/// when data changes:
+	virtual void onModelDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight) = 0;
+
+signals:
+	/// Notifier that the data position marker has changed.
+	void dataPositionChanged(const QPointF &);
 };
 
 #include <QPropertyAnimation>

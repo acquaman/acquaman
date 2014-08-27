@@ -736,13 +736,22 @@ HEADERS += \
 	source/application/AMCrashMonitorSupport.h \
 	source/analysis/AM0DAccumulatorAB.h \
 	source/util/AMBuildInfo.h \
+	source/util/AMBuildReporter.h \
+	source/analysis/AM1DTimedDataAB.h \
+	source/analysis/AM1DKSpaceCalculatorAB.h \
+	source/dataman/AMLightweightScanInfo.h \
+	source/dataman/AMLightweightScanInfoCollection.h \
+	source/dataman/AMLightweightScanInfoModel.h \
+	source/ui/util/AMSortFilterWidget.h \
+	source/ui/dataman/AMScanDataView.h \
+	source/dataman/AMLightweightScanInfoFilterProxyModel.h \
+	source/ui/dataman/AMScanTableView.h \
+	source/ui/dataman/AMScanThumbnailView.h \
+	source/ui/dataman/AMScanTreeView.h \
 	source/util/AMRecursiveDirectoryCompare.h \
 	source/util/AMDirectorySynchronizer.h \
 	source/ui/util/AMDirectorySynchronizerDialog.h \
 	source/actions3/actions/AMDirectorySynchronizationAction.h \
-	source/util/AMBuildReporter.h \
-	source/analysis/AM1DTimedDataAB.h \
-	source/analysis/AM1DKSpaceCalculatorAB.h \
 	source/ui/beamline/AMCurrentAmplifierCompositeView.h \
 	source/ui/beamline/AMCurrentAmplifierSingleView.h \
 	source/ui/beamline/AMCurrentAmplifierView.h \
@@ -1213,13 +1222,22 @@ SOURCES += \
 	source/application/AMCrashMonitorSupport.cpp \
 	source/analysis/AM0DAccumulatorAB.cpp \
 	source/util/AMBuildInfo.cpp \
+	source/util/AMBuildReporter.cpp \
+	source/analysis/AM1DTimedDataAB.cpp \
+	source/analysis/AM1DKSpaceCalculatorAB.cpp \
+	source/dataman/AMLightweightScanInfo.cpp \
+	source/dataman/AMLightweightScanInfoCollection.cpp \
+	source/dataman/AMLightweightScanInfoModel.cpp \
+	source/ui/util/AMSortFilterWidget.cpp \
+	source/ui/dataman/AMScanDataView.cpp \
+	source/dataman/AMLightweightScanInfoFilterProxyModel.cpp \
+	source/ui/dataman/AMScanTableView.cpp \
+	source/ui/dataman/AMScanThumbnailView.cpp \
+	source/ui/dataman/AMScanTreeView.cpp \
 	source/util/AMRecursiveDirectoryCompare.cpp \
 	source/util/AMDirectorySynchronizer.cpp \
 	source/ui/util/AMDirectorySynchronizerDialog.cpp \
 	source/actions3/actions/AMDirectorySynchronizationAction.cpp \
-	source/util/AMBuildReporter.cpp \
-	source/analysis/AM1DTimedDataAB.cpp \
-	source/analysis/AM1DKSpaceCalculatorAB.cpp \
 	source/ui/beamline/AMCurrentAmplifierCompositeView.cpp \
 	source/ui/beamline/AMCurrentAmplifierSingleView.cpp \
 	source/ui/beamline/AMCurrentAmplifierView.cpp \
