@@ -95,7 +95,7 @@ AMControl::FailureExplanation CLSBiStateControl::open() {
 		emit movingChanged(moveInProgress_ = false);
 		emit moveSucceeded();
 	}
-	// in this case, it's harmless to re-send the value even if it's already there, since no status changes will occur; if you send open to an already-open CLS valve or shutter, nothing happens.
+	// in this case, it's harmless to re-send the value even if it's already there, since no status changes will occur, if you send open to an already-open CLS valve or shutter, nothing happens.
 	// This makes sure we never omit sending it when we should.
 	openPV_->setValue(1);
 	return NoFailure;
@@ -116,7 +116,7 @@ AMControl::FailureExplanation CLSBiStateControl::close() {
 		emit movingChanged(moveInProgress_ = false);
 		emit moveSucceeded();
 	}
-	// in this case, it's harmless to re-send the value even if it's already there, since no status changes will occur; if you send open to an already-open CLS valve or shutter, nothing happens.
+	// in this case, it's harmless to re-send the value even if it's already there, since no status changes will occur, if you send open to an already-open CLS valve or shutter, nothing happens.
 	// This makes sure we never omit sending it when we should.
 	closePV_->setValue(1);
 	return NoFailure;

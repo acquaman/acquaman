@@ -78,7 +78,7 @@ protected:
 	/// Sets up all of the detectors that need to be added to scans that aren't a part of typical detectors.  This may just be temporary, not sure.
 	void setupControlsAsDetectors();
 
-	/// Constructor. This is a singleton class; access it through BioXASImagingBeamline::bioXAS().
+	/// Constructor. This is a singleton class, access it through BioXASImagingBeamline::bioXAS().
 	BioXASImagingBeamline();
 };
 

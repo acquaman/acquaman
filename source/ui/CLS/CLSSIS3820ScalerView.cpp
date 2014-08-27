@@ -135,7 +135,6 @@ CLSSIS3820ScalerView::CLSSIS3820ScalerView(CLSSIS3820Scaler *scaler, QWidget *pa
 
 	setLayout(mainVL_);
 
-	//CLSSIS3820ScalerChannelView *channelView = 0;
 	CLSSIS3820ScalerChannelView *channelView = 0;
 	int channelCount = scaler_->channels().count();
 

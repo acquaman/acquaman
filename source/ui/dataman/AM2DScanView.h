@@ -38,7 +38,6 @@ class AM2DScanViewInternal;
 class AM2DScanViewExclusiveView;
 class AM2DScanViewMultiSourcesView;
 class AMScanViewSingleSpectrumView;
-//class AM3dDataSourceView;
 
 #define AM2DSCANVIEW_CANNOT_CREATE_PLOT_ITEM_FOR_NULL_DATA_SOURCE 280201
 #define AM2DSCANVIEW_CANNOT_CREATE_PLOT_ITEM_FOR_UNHANDLED_RANK 280202
@@ -133,7 +132,7 @@ class AM2DScanView : public QWidget
 	Q_OBJECT
 
 public:
-	/// Constructs a new AM2DScanView based on a set of scans given by \c model. If \c model is 0,  it creates its own model to use internally; otherwise it uses the supplied model.
+	/// Constructs a new AM2DScanView based on a set of scans given by \c model. If \c model is 0,  it creates its own model to use internally, otherwise it uses the supplied model.
 	explicit AM2DScanView(AMScanSetModel* model = 0, QWidget *parent = 0);
 	virtual ~AM2DScanView();
 
@@ -260,7 +259,7 @@ protected slots:
 	virtual void onModelDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight) = 0;
 
 protected:
-	/// Helper function to create an appropriate MPlotItem and connect it to the \c dataSource, depending on the dimensionality of \c dataSource.  Returns 0 if we can't handle this dataSource and no item was created (ex: unsupported dimensionality; we only handle 1D or 2D data for now.)
+	/// Helper function to create an appropriate MPlotItem and connect it to the \c dataSource, depending on the dimensionality of \c dataSource.  Returns 0 if we can't handle this dataSource and no item was created (ex: unsupported dimensionality, we only handle 1D or 2D data for now.)
 	MPlotItem* createPlotItemForDataSource(const AMDataSource* dataSource, const AMDataSourcePlotSettings& plotSettings);
 
 	/// Returns the scan set model this scan view visualizes.
@@ -317,8 +316,6 @@ protected:
 
 	/// Our plot.
 	MPlotGW* plot_;
-
-//	AM3dDataSourceView* tempView;
 };
 
 class AM2DScanViewMultiSourcesView : public AM2DScanViewInternal

@@ -41,7 +41,7 @@ IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfigu
 {
 	configuration_ = configuration;
 
-        topFrame_ = new AMTopFrame("Configure an XAS Scan");
+	topFrame_ = new AMTopFrame("Configure an XAS Scan");
 	topFrame_->setIcon(QIcon(":/utilities-system-monitor.png"));
 
 	regionsView_ = new AMEXAFSScanAxisView("IDEAS Region Configuration", configuration_);
@@ -51,9 +51,6 @@ IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfigu
 
 	pseudoXAFSButton_ = new QPushButton("Auto Set EXAFS Regions");
 	connect(pseudoXAFSButton_, SIGNAL(clicked()), this, SLOT(setupDefaultEXAFSScanRegions()));
-
-	//((AMScanAxisEXAFSRegion *)configuration_->scanAxisAt(0)->regionAt(0))->setEdgeEnergy(7112);
-	//connect(edgeEnergy_, SIGNAL(valueChanged(double)), regionsView_, SLOT())
 
 	scanName_ = new QLineEdit();
 	scanName_->setText(configuration_->userScanName());
@@ -96,7 +93,6 @@ IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfigu
 	}
 	// Resets the view for the view to what it should be.  Using the saved for the energy in case it is different from the original line energy.
 	else {
-		//onEdgeChanged(); //Breaks custom energy set points
 		elementChoice_->setText(configuration_->edge().split(" ").first());
 		lineChoice_->blockSignals(true);
 		fillLinesComboBox(AMPeriodicTable::table()->elementBySymbol(elementChoice_->text()));
@@ -139,9 +135,6 @@ IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfigu
 	numberOfScansLayout->addRow("Selected XRF Detector Regions:", new QLabel(""));
 	numberOfScansLayout->addRow("", ketekROIs_);
 
-
-
-
 	QFormLayout *energySetpointLayout = new QFormLayout;
 	energySetpointLayout->addRow("Energy:", energy_);
 
@@ -149,42 +142,6 @@ IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfigu
 	energyLayout->addLayout(energySetpointLayout);
 	energyLayout->addWidget(elementChoice_);
 	energyLayout->addWidget(lineChoice_);
-
-
-
-//	I0ChannelComboBox_ = new QComboBox();
-//	I0ChannelComboBox_->addItem("I_0");
-//	I0ChannelComboBox_->addItem("I_vac_6485");
-//	I0ChannelComboBox_->addItem("I_sample");
-//	I0ChannelComboBox_->addItem("I_ref");
-//	I0ChannelComboBox_->setCurrentIndex(0);
-//	if(I0ChannelComboBox_->findText(configuration->I0Channel())) I0ChannelComboBox_->setCurrentIndex(I0ChannelComboBox_->findText(configuration->I0Channel()));
-//	connect(I0ChannelComboBox_, SIGNAL(currentIndexChanged(QString)), configuration_, SLOT(setI0Channel(QString)));
-
-//	ItChannelComboBox_ = new QComboBox();
-//	ItChannelComboBox_->addItem("I_0");
-//	ItChannelComboBox_->addItem("I_vac_6485");
-//	ItChannelComboBox_->addItem("I_sample");
-//	ItChannelComboBox_->addItem("I_ref");
-//	ItChannelComboBox_->setCurrentIndex(2);
-//	if(ItChannelComboBox_->findText(configuration->ItChannel())) ItChannelComboBox_->setCurrentIndex(ItChannelComboBox_->findText(configuration->ItChannel()));
-//	connect(ItChannelComboBox_, SIGNAL(currentIndexChanged(QString)), configuration_, SLOT(setItChannel(QString)));
-//	connect(isTransScanCheckBox_, SIGNAL(clicked(bool)), ItChannelComboBox_, SLOT(setEnabled(bool)));
-
-
-//	IrChannelComboBox_ = new QComboBox();
-//	IrChannelComboBox_->addItem("I_0");
-//	IrChannelComboBox_->addItem("I_vac_6485");
-//	IrChannelComboBox_->addItem("I_sample");
-//	IrChannelComboBox_->addItem("I_ref");
-//	IrChannelComboBox_->addItem("None");
-//	IrChannelComboBox_->setCurrentIndex(3);
-//	if(IrChannelComboBox_->findText(configuration->IrChannel())) IrChannelComboBox_->setCurrentIndex(IrChannelComboBox_->findText(configuration->IrChannel()));
-//	connect(IrChannelComboBox_, SIGNAL(currentIndexChanged(QString)), configuration_, SLOT(setIrChannel(QString)));
-//	connect(isTransScanCheckBox_, SIGNAL(clicked(bool)), IrChannelComboBox_, SLOT(setEnabled(bool)));
-
-
-
 
 	QVBoxLayout *mainVL = new QVBoxLayout();
 	mainVL->addWidget(topFrame_);
@@ -200,12 +157,9 @@ IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfigu
 	configFL->setAlignment(Qt::AlignLeft);
 	configFL->setFieldGrowthPolicy(QFormLayout::FieldsStayAtSizeHint);
 	configFL->addRow("Scan Name: ", scanName_);
-//	configFL->addRow("I_0 Chamber: ", I0ChannelComboBox_);
 	configFL->addRow("Include: ",isXRFScanCheckBox_);
 	configFL->addRow("", isTransScanCheckBox_);
 	configFL->addRow("", useRefCheckBox_);
-	//	configFL->addRow("Sample Chamber: ", ItChannelComboBox_);
-//	configFL->addRow("Reference Chamber: ", IrChannelComboBox_);
 
 	QHBoxLayout *regionsHL = new QHBoxLayout();
 	regionsHL->addStretch();
@@ -239,66 +193,53 @@ const AMScanConfiguration* IDEASXASScanConfigurationView::configuration() const
 
 void IDEASXASScanConfigurationView::setupDefaultXANESScanRegions()
 {
-//    bool ok;
-//    double edgeEnergy = QInputDialog::getDouble(this,"Auto Region Setup","Enter desired edge enegry:",IDEASBeamline::ideas()->monoEnergyControl()->value(),IDEASBeamline::ideas()->monoLowEV()->value(),IDEASBeamline::ideas()->monoHighEV()->value(),1,&ok);
+	while (configuration_->scanAxisAt(0)->regionCount())
+	{
+		regionsView_->removeEXAFSRegion(0);
+	}
 
-//    if(ok)
-//    {
-//        while (configuration_->regionCount() != 0)
-//                configuration_->deleteRegion(0);
-
-//        configuration_->addRegion(0, edgeEnergy - 200, 10, edgeEnergy -30, 1);
-//	configuration_->addRegion(1, edgeEnergy - 30, 0.75, edgeEnergy + 45, 1);
-//	configuration_->addRegion(2, edgeEnergy + 45 , 5, edgeEnergy + 300, 1);
-
-//    }
-    while (configuration_->scanAxisAt(0)->regionCount())
-    {
-	    regionsView_->removeEXAFSRegion(0);
-    }
-
-    AMScanAxisEXAFSRegion *region = new AMScanAxisEXAFSRegion;
-    region->setEdgeEnergy(configuration_->energy());
-    region->setRegionStart(configuration_->energy() - 30);
-    region->setRegionStep(0.5);
-    region->setRegionEnd(configuration_->energy() + 40);
-    region->setRegionTime(1.0);
-    regionsView_->insertEXAFSRegion(0, region);
+	AMScanAxisEXAFSRegion *region = new AMScanAxisEXAFSRegion;
+	region->setEdgeEnergy(configuration_->energy());
+	region->setRegionStart(configuration_->energy() - 30);
+	region->setRegionStep(0.5);
+	region->setRegionEnd(configuration_->energy() + 40);
+	region->setRegionTime(1.0);
+	regionsView_->insertEXAFSRegion(0, region);
 }
 
 void IDEASXASScanConfigurationView::setupDefaultEXAFSScanRegions()
 {
 
-    while (configuration_->scanAxisAt(0)->regionCount())
-    {
-	    regionsView_->removeEXAFSRegion(0);
-    }
+	while (configuration_->scanAxisAt(0)->regionCount())
+	{
+		regionsView_->removeEXAFSRegion(0);
+	}
 
-    AMScanAxisEXAFSRegion *region = new AMScanAxisEXAFSRegion;
-    region->setEdgeEnergy(configuration_->energy());
-    region->setRegionStart(configuration_->energy() - 200);
-    region->setRegionStep(10);
-    region->setRegionEnd(configuration_->energy() - 30);
-    region->setRegionTime(1.0);
-    regionsView_->insertEXAFSRegion(0, region);
+	AMScanAxisEXAFSRegion *region = new AMScanAxisEXAFSRegion;
+	region->setEdgeEnergy(configuration_->energy());
+	region->setRegionStart(configuration_->energy() - 200);
+	region->setRegionStep(10);
+	region->setRegionEnd(configuration_->energy() - 30);
+	region->setRegionTime(1.0);
+	regionsView_->insertEXAFSRegion(0, region);
 
-    region = new AMScanAxisEXAFSRegion;
-    region->setEdgeEnergy(configuration_->energy());
-    region->setRegionStart(configuration_->energy() - 30);
-    region->setRegionStep(0.5);
-    region->setRegionEnd(configuration_->energy() + 40);
-    region->setRegionTime(1.0);
-    regionsView_->insertEXAFSRegion(1, region);
+	region = new AMScanAxisEXAFSRegion;
+	region->setEdgeEnergy(configuration_->energy());
+	region->setRegionStart(configuration_->energy() - 30);
+	region->setRegionStep(0.5);
+	region->setRegionEnd(configuration_->energy() + 40);
+	region->setRegionTime(1.0);
+	regionsView_->insertEXAFSRegion(1, region);
 
-    region = new AMScanAxisEXAFSRegion;
-    region->setEdgeEnergy(configuration_->energy());
-    region->setInKSpace(true);
-    region->setRegionStart(AMEnergyToKSpaceCalculator::k(region->edgeEnergy(), configuration_->energy() + 40));
-    region->setRegionStep(0.05);
-    region->setRegionEnd(10);
-    region->setRegionTime(1.0);
-    region->setMaximumTime(10.0);
-    regionsView_->insertEXAFSRegion(2, region);
+	region = new AMScanAxisEXAFSRegion;
+	region->setEdgeEnergy(configuration_->energy());
+	region->setInKSpace(true);
+	region->setRegionStart(AMEnergyToKSpaceCalculator::k(region->edgeEnergy(), configuration_->energy() + 40));
+	region->setRegionStep(0.05);
+	region->setRegionEnd(10);
+	region->setRegionTime(1.0);
+	region->setMaximumTime(10.0);
+	regionsView_->insertEXAFSRegion(2, region);
 }
 
 void IDEASXASScanConfigurationView::onScanNameEdited()
@@ -372,88 +313,87 @@ void IDEASXASScanConfigurationView::onEdgeChanged()
 
 void IDEASXASScanConfigurationView::onEstimatedTimeChanged()
 {
-    QString timeString = "";
+	QString timeString = "";
 
-    configuration_->blockSignals(true);
-    double time = configuration_->totalTime(true);
-    configuration_->blockSignals(false);
+	configuration_->blockSignals(true);
+	double time = configuration_->totalTime(true);
+	configuration_->blockSignals(false);
 
-    if (time < 0)
-    {
-	estimatedTime_->setText("WARNING!     SCAN CONFIGURATION IS INVALID     START OR QUEUE SCAN AT YOUR OWN RISK!     WARNING!");
-	estimatedSetTime_->setText("WARNING!     SCAN CONFIGURATION IS INVALID     START OR QUEUE SCAN AT YOUR OWN RISK!     WARNING!");
-	pointPerScan_->setText("WARNING!     SCAN CONFIGURATION IS INVALID     START OR QUEUE SCAN AT YOUR OWN RISK!     WARNING!");
-	scanEnergyRange_->setText("WARNING!     SCAN CONFIGURATION IS INVALID     START OR QUEUE SCAN AT YOUR OWN RISK!     WARNING!");
-	return;
-    }
+	if (time < 0)
+	{
+		estimatedTime_->setText("WARNING!     SCAN CONFIGURATION IS INVALID     START OR QUEUE SCAN AT YOUR OWN RISK!     WARNING!");
+		estimatedSetTime_->setText("WARNING!     SCAN CONFIGURATION IS INVALID     START OR QUEUE SCAN AT YOUR OWN RISK!     WARNING!");
+		pointPerScan_->setText("WARNING!     SCAN CONFIGURATION IS INVALID     START OR QUEUE SCAN AT YOUR OWN RISK!     WARNING!");
+		scanEnergyRange_->setText("WARNING!     SCAN CONFIGURATION IS INVALID     START OR QUEUE SCAN AT YOUR OWN RISK!     WARNING!");
+		return;
+	}
 
+	pointPerScan_->setText(QString("%1").arg(configuration_->totalPoints()));
+	scanEnergyRange_->setText(QString("%1 eV - %2 eV").arg(configuration_->minEnergy()).arg(configuration_->maxEnergy()));
 
-    pointPerScan_->setText(QString("%1").arg(configuration_->totalPoints()));
-    scanEnergyRange_->setText(QString("%1 eV - %2 eV").arg(configuration_->minEnergy()).arg(configuration_->maxEnergy()));
+	int days = int(time/3600.0/24.0);
 
-    int days = int(time/3600.0/24.0);
+	if (days > 0){
 
-    if (days > 0){
+		time -= days*3600.0*24;
+		timeString += QString::number(days) + "d:";
+	}
 
-	    time -= days*3600.0*24;
-	    timeString += QString::number(days) + "d:";
-    }
+	int hours = int(time/3600.0);
 
-    int hours = int(time/3600.0);
+	if (hours > 0){
 
-    if (hours > 0){
+		time -= hours*3600;
+		timeString += QString::number(hours) + "h:";
+	}
 
-	    time -= hours*3600;
-	    timeString += QString::number(hours) + "h:";
-    }
+	int minutes = int(time/60.0);
 
-    int minutes = int(time/60.0);
+	if (minutes > 0){
 
-    if (minutes > 0){
+		time -= minutes*60;
+		timeString += QString::number(minutes) + "m:";
+	}
 
-	    time -= minutes*60;
-	    timeString += QString::number(minutes) + "m:";
-    }
+	int seconds = ((int)time)%60;
+	timeString += QString::number(seconds) + "s";
 
-    int seconds = ((int)time)%60;
-    timeString += QString::number(seconds) + "s";
-
-    estimatedTime_->setText(timeString);
-
+	estimatedTime_->setText(timeString);
 
 
 
-    time = configuration_->totalTime()*configuration_->numberOfScans();
-    timeString = "";
 
-    days = int(time/3600.0/24.0);
+	time = configuration_->totalTime()*configuration_->numberOfScans();
+	timeString = "";
 
-    if (days > 0){
+	days = int(time/3600.0/24.0);
 
-	    time -= days*3600.0*24;
-	    timeString += QString::number(days) + "d:";
-    }
+	if (days > 0){
 
-    hours = int(time/3600.0);
+		time -= days*3600.0*24;
+		timeString += QString::number(days) + "d:";
+	}
 
-    if (hours > 0){
+	hours = int(time/3600.0);
 
-	    time -= hours*3600;
-	    timeString += QString::number(hours) + "h:";
-    }
+	if (hours > 0){
 
-    minutes = int(time/60.0);
+		time -= hours*3600;
+		timeString += QString::number(hours) + "h:";
+	}
 
-    if (minutes > 0){
+	minutes = int(time/60.0);
 
-	    time -= minutes*60;
-	    timeString += QString::number(minutes) + "m:";
-    }
+	if (minutes > 0){
 
-    seconds = ((int)time)%60;
-    timeString += QString::number(seconds) + "s";
+		time -= minutes*60;
+		timeString += QString::number(minutes) + "m:";
+	}
 
-    estimatedSetTime_->setText(timeString);
+	seconds = ((int)time)%60;
+	timeString += QString::number(seconds) + "s";
+
+	estimatedSetTime_->setText(timeString);
 
 }
 

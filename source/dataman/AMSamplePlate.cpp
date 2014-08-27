@@ -315,17 +315,12 @@ void AMSamplePlateBrowser::reloadFromDatabase(){
 		for(int x = 0; x < allSamplePlateIds.count(); x++){
 			tempPlate = new AMSamplePlate();
 			tempPlate->loadFromDb(database_, allSamplePlateIds.at(x));
-			//allSamplePlates_.append(tempPlate);
 			allSamplePlates_.prepend(tempPlate);
 		}
 	}
 }
 
 void AMSamplePlateBrowser::addSamplePlate(AMSamplePlate *samplePlate){
-	//	beginInsertRows(QModelIndex(), allSamplePlates_.count(), allSamplePlates_.count());
-	//	allSamplePlates_.append(samplePlate);
-	//	endInsertRows();
-
 	beginInsertRows(QModelIndex(), 0, 0);
 	allSamplePlates_.prepend(samplePlate);
 	endInsertRows();

@@ -55,7 +55,7 @@ AMRawDataSource::AMRawDataSource(const AMDataStore* dataStore, int measurementId
 	connect(dataStore_, SIGNAL(dataChanged(AMnDIndex,AMnDIndex,int)), this, SLOT(onDataChanged(AMnDIndex, AMnDIndex,int)) );
 	connect(dataStore_, SIGNAL(sizeChanged()), this, SLOT(onScanAxisSizeChanged()));
 
-	// raw data sources shouldn't be visible in plots, usually.  This is just a default; programmers can always call setVisibleInPlots(), or use the AMScan::addRawDataSource() version which calls this internally.
+	// raw data sources shouldn't be visible in plots, usually.  This is just a default. Programmers can always call setVisibleInPlots(), or use the AMScan::addRawDataSource() version which calls this internally.
 	visibleInPlots_ = false;
 }
 
@@ -68,7 +68,7 @@ AMRawDataSource::AMRawDataSource(AMDatabase* db, int id)
 	measurementId_ = 0;
 	stateFlags_ = AMDataSource::InvalidFlag;
 
-	// raw data sources shouldn't be visible in plots, usually.  This is just a default; programmers can always call setVisibleInPlots(), or use the AMScan::addRawDataSource() version which calls this internally.
+	// raw data sources shouldn't be visible in plots, usually. This is just a default. Programmers can always call setVisibleInPlots(), or use the AMScan::addRawDataSource() version which calls this internally.
 	visibleInPlots_ = false;
 
 	// restore the description(), rank(), measurementId(), scanRank(), and measurementRank() as stored in the database.  Our state() will remain Invalid until you call setDataStore() with a valid datastore that matches these dimensions.
@@ -135,18 +135,6 @@ void AMRawDataSource::onDataChanged(const AMnDIndex& scanIndexStart, const AMnDI
 // Called when the size of a scan axis changes.  \c axisId is the id of the changing axis, or -1 if they all did.
 void AMRawDataSource::onScanAxisSizeChanged() {
 	// the nice thing is that within our axes, the scan axes appear first, followed by the measurement axes. So an AMDataStore scan axis id is the same as one of our axis numbers.
-
-	// Changed in May 2012: the first axis is the only axis of a data store that can change size:
-	// removed:
-//	if(axisId < 0) {	// all axes changed size?
-//		for(int a=0; a<scanAxesCount_; a++)
-//			axes_[a].size = dataStore_->scanSize(a);
-//		emitSizeChanged(-1);
-//	}
-//	else if(axisId < scanAxesCount_) {	// just this axis changed size
-//		axes_[axisId].size = dataStore_->scanSize(axisId);
-//		emitSizeChanged(axisId);
-//	}
 
 	if(scanAxesCount_)
 		axes_[0].size = dataStore_->scanSize(0);

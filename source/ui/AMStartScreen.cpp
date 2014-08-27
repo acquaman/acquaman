@@ -48,11 +48,6 @@ AMStartScreen::AMStartScreen(bool mustAccept, QWidget *parent) :
 	setAttribute(Qt::WA_DeleteOnClose, true);
 
 	connect(ok,SIGNAL(clicked()),this,SLOT(accept()));
-
-	// Useability tweak: If there are no valid runs (ie: the current run selected is invalid), we can start creating one
-//	if(runSelector_->currentRunId() < 1)
-//		runSelector_->showAddRunDialog();
-
 }
 
 #include <QMessageBox>

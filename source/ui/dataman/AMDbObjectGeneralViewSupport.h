@@ -24,7 +24,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QString>
 #include <QHash>
 
-//class QMetaObject;
 class AMDbObject;
 class AMDbObjectGeneralView;
 
@@ -98,7 +97,6 @@ namespace AMDbObjectGeneralViewSupport{
 		// is it already registered? return true.
 		QString className(objectMo->className());
 		if(registeredClasses_.contains(className)) {
-			//AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, 0, QString("Detector View Support: The class '%1' has already been registered with detector view. Skipping duplicate registration.").arg(className)));
 			return true;
 		}
 

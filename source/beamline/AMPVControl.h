@@ -80,7 +80,6 @@ public:
 	virtual double value() const { return readPV_->lastValue(); }
 	/// Indicates that the Control is ready for use.  In this case, means that the readPV is connected and readable.
 	virtual bool isConnected() const { return readPV_->readReady(); }
-	//virtual bool isConnected() const { return canMeasure(); }
 	/// Indicates whether the readPV is readable.
 	virtual bool canMeasure() const { return readPV_->canRead(); }
 	/// Indicates that we \em should be able to measure from this Control.  Always true.
@@ -203,7 +202,6 @@ public:
 	virtual bool moveInProgress() const { return moveInProgress_; }
 
 	/// Implies that we can read from the feedback PV and write to the setpoint PV.
-	//virtual bool isConnected() const { return canMeasure() && canMove(); }
 	virtual bool isConnected() const { return readPV_->readReady() && writePV_->writeReady(); }
 	/// Indicates that we can currently write to the setpoint PV.
 	virtual bool canMove() const { return writePV_->canWrite(); }
@@ -306,7 +304,7 @@ protected slots:
 	/// This is used to check every new value, to see if we entered tolerance
 	void onNewFeedbackValue(double val);
 
-	/// Called when the writePV is initialized(); calls setMoveEnumStates() if applicable.
+	/// Called when the writePV is initialized(), calls setMoveEnumStates() if applicable.
 	void onWritePVInitialized();
 	/// Handles updating the setpoint member when the writePV updates.
 	void onSetpointChanged(double newVal);
@@ -358,7 +356,7 @@ public:
 	virtual ~AMControlStatusCheckerDefault();
 	AMControlStatusCheckerDefault(quint32 isMovingValue) : isMovingValue_(isMovingValue) {}
 
-	/// Returns true (moving) if the \c statusValue matches isMovingValue_;
+	/// Returns true (moving) if the \c statusValue matches isMovingValue_
 	virtual bool operator()(quint32 statusValue) { return statusValue == isMovingValue_; }
 
 protected:
@@ -434,7 +432,6 @@ public:
 	/// \name Reimplemented Public Functions:
 	//@{
 	/// Implies that we can read from both the feedback PV and move-status PV.
-	//virtual bool isConnected() const { return canMeasure() && movingPV_->canRead(); }
 	virtual bool isConnected() const { return readPV_->readReady() && movingPV_->readReady(); }
 
 	/// The movingPV now provides our moving status.
@@ -554,7 +551,6 @@ public:
 	/// \name Reimplemented Public Functions:
 	//@{
 	/// Indicates that all three process variables are ready for action:
-	//virtual bool isConnected() const { return canMeasure() && canMove() && movingPV_->canRead(); }
 	virtual bool isConnected() const { return readPV_->readReady() && writePV_->writeReady() && movingPV_->readReady(); }
 	/// Indicates that a move (that you requested) is currently completing... hasn't reached destination, and hasn't time'd out.
 	virtual bool moveInProgress() const { return moveInProgress_ || startInProgress_; }	// moveInProgress_ will be true as soon as move() is requested.  moveInProgress() isn't happening until the device starts moving as well.)
@@ -756,7 +752,7 @@ public:
 	/// Destructor: deletes the unit converter
 	virtual ~AMPVwStatusAndUnitConversionControl() { delete readConverter_; delete writeConverter_; }
 
-	/// Set the unit converters. This class takes ownership of the new converters and deletes the old ones. \c readUnitConverter must be a pointer to a valid object; writeUnitConverter can be 0 if the same conversion is appropriate for both the readPV and writePV.
+	/// Set the unit converters. This class takes ownership of the new converters and deletes the old ones. \c readUnitConverter must be a pointer to a valid object, writeUnitConverter can be 0 if the same conversion is appropriate for both the readPV and writePV.
 	void setUnitConverters(AMAbstractUnitConverter* readUnitConverter, AMAbstractUnitConverter* writeUnitConverter = 0);
 	/// Returns the unit converter currently in-use for the read (feedback) values
 	AMAbstractUnitConverter* readUnitConverter() const { return readConverter_; }

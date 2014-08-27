@@ -58,8 +58,6 @@ AMBeamlineSampleManagementView::AMBeamlineSampleManagementView(AMBeamline *beaml
 	leftVL_ = new QVBoxLayout();
 	rightVL_ = new QVBoxLayout();
 
-	//leftVL_->addWidget(cameraBrowserView_);
-	//leftVL_->addWidget(motorGroupView_);
 	leftSplitter->addWidget(cameraBrowserView_);
 	QWidget *bottomLeftWidget = new QWidget();
 	bottomLeftWidget->setLayout(leftVL_);
@@ -75,11 +73,8 @@ AMBeamlineSampleManagementView::AMBeamlineSampleManagementView(AMBeamline *beaml
 	samplePlateBrowserView_->hide();
 
 	QSplitter *mainSplitter = new QSplitter();
-	//QWidget *leftWidget = new QWidget();
 	QWidget *rightWidget = new QWidget();
-	//leftWidget->setLayout(leftVL_);
 	rightWidget->setLayout(rightVL_);
-	//mainSplitter->addWidget(leftWidget);
 	mainSplitter->addWidget(leftSplitter);
 	mainSplitter->addWidget(rightWidget);
 
@@ -220,7 +215,6 @@ void AMBeamlineSampleManagementView::onSampleAboutToBeRemoved(int index){
 	AMSample *sample = AMBeamline::bl()->samplePlate()->sampleAt(index);
 	AMShapeData *sampleShapeData = sample->sampleShapePositionData();
 	if(sampleShapeData){
-//                cameraBrowserView_->sampleCameraBrowser()->shapeDataSet()->removeSample(sample);
 		sample->removeSample();
                 cameraBrowserView_->sampleCameraView()->requestUpdate();
 

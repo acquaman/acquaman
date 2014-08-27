@@ -34,9 +34,6 @@ IDEASXASScanConfiguration::IDEASXASScanConfiguration(QObject *parent) :
 
 	setName("Unnamed Scan");
 	setUserScanName("Unnamed Scan");
-//	I0Channel_ = "I_0";
-//	ItChannel_ = "I_sample";
-//	IrChannel_ = "I_ref";
 	isXRFScan_ = true;
 	isTransScan_ = true;
 	useRef_ = true;
@@ -76,9 +73,6 @@ IDEASXASScanConfiguration::IDEASXASScanConfiguration(const IDEASXASScanConfigura
 
 	setName(original.name());
 	setUserScanName(original.userScanName());
-//	I0Channel_ = original.I0Channel();
-//	ItChannel_ = original.ItChannel();
-//	IrChannel_ = original.IrChannel();
 	isXRFScan_ = original.isXRFScan();
 	isTransScan_ = original.isTransScan();
 	useRef_ = original.useRef();
@@ -222,7 +216,6 @@ void IDEASXASScanConfiguration::setEnergy(double edgeEnergy)
 {
 	if (energy_ != edgeEnergy){
 
-//		exafsRegions()->setDefaultEdgeEnergy(edgeEnergy);
 		foreach (AMScanAxisRegion *region, scanAxisAt(0)->regions().toList())
 			((AMScanAxisEXAFSRegion *)region)->setEdgeEnergy(edgeEnergy);
 

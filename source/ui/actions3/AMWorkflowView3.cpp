@@ -44,7 +44,6 @@ AMWorkflowView3::AMWorkflowView3(AMActionRunner3 *actionRunner, QWidget *parent)
 	titleIcon->setPixmap(QPixmap(":/user-away.png"));
 	titleIcon->setScaledContents(true);
 	hl->addWidget(titleIcon);
-	//QLabel* titleLabel = new QLabel("Workflow");
 	QLabel* titleLabel = new QLabel(actionRunner->actionRunnerTitle());
 	titleLabel->setStyleSheet("font: " AM_FONT_XLARGE_ "pt \"Lucida Grande\";\ncolor: rgb(79, 79, 79);");
 	hl->addWidget(titleLabel);

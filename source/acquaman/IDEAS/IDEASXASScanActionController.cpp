@@ -48,8 +48,6 @@ IDEASXASScanActionController::IDEASXASScanActionController(IDEASXASScanConfigura
 	scan_->setIndexType("fileSystem");
 	scan_->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));
 
-	//useFeedback_ = true;
-
 	QString scanName;
 
 	if(configuration_->userScanName() == ""){
@@ -204,13 +202,6 @@ AMAction3* IDEASXASScanActionController::createInitializationActions(){
 
 
 	AMListAction3 *initializationStage2 = new AMListAction3(new AMListActionInfo3("IDEAS XAS Initialization Stage 2", "IDEAS XAS Initialization Stage 2"), AMListAction3::Sequential);
-
-
-	//initializationStage2->addSubAction(IDEASBeamline::ideas()->scaler()->createDwellTimeAction3(configuration_->scanAxisAt(0)->regionAt(0)->regionTime()));
-	//initializationStage2->addSubAction(IDEASBeamline::ideas()->scaler()->createStartAction3(true));
-
-
-
 
 	initializationActions->addSubAction(initializationStage1);
 	initializationActions->addSubAction(initializationStage2);

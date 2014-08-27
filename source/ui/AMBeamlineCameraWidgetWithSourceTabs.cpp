@@ -36,8 +36,6 @@ AMBeamlineCameraWidgetWithSourceTabs::AMBeamlineCameraWidgetWithSourceTabs(const
 
 	// Make connections
 	connect(tabBar_, SIGNAL(currentChanged(int)), this, SLOT(playSourceAt(int)));
-	// Not used for now: Should users be able to close tabs intentionally?
-		// connect(tabBar_, SIGNAL(tabCloseRequested(int)), this, SLOT(removeSource(int));
 
 	// if we have an initial source, add it.
 	if(initialSource.isValid()) {

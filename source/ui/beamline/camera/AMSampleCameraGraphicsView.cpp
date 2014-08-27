@@ -152,7 +152,7 @@ QPointF AMSampleCameraGraphicsView::mapVideoToScene(const QPointF &videoCoordina
 void AMSampleCameraGraphicsView::contextMenuEvent(QContextMenuEvent *event)
 {
 	Q_UNUSED(event)
-	/// do nothing;
+	/// do nothing
 }
 
 

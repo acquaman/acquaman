@@ -32,7 +32,7 @@ REIXSXESGratingInfo::REIXSXESGratingInfo(QObject *parent) :
 	radius_ = 10000; //mm
 	alpha_ = 89; // deg
 	r_ = 350; //mm
-	centerPosition_ = QVector3D(20.529, -25.865, 12.892);	// relative to "working coordinates": origin at center of spectromater rotation axle; oriented with hexapod axes.
+	centerPosition_ = QVector3D(20.529, -25.865, 12.892);	// relative to "working coordinates": origin at center of spectromater rotation axle. Oriented with hexapod axes.
 	opticalOrigin_ = QVector3D(0,0,0);
 	hexapodUVW_ = QVector3D(1,0,0);
 	angleCorrection_ = 1.0;
@@ -69,12 +69,13 @@ REIXSXESCalibration2::REIXSXESCalibration2(QObject *parent) :
 	// LEG 2nd Order:
 	gratings_ << REIXSXESGratingInfo("LEG 2nd Order", 1186.04, 5025.6, 86, 350, QVector3D(20.529, -25.865, 12.892), QVector3D(0,0,0), QVector3D(-0.160, -0.22, -0.41), 4.0130868, 0.664364, -0.15, 80, 292);//3.973429915, 0.731106463 for u=-0.175, v=-0.175
 
-//	// LEG Low E:
-//	gratings_ << REIXSXESGratingInfo("LEG Low E", 593.02, 5025.6, 86, 350, QVector3D(20.529, -25.865, 12.892), QVector3D(0,0,-0.318), QVector3D(-0.212, -0.22, -0.41), 3.961, 0.345, -0.15, 40, 292);
+	/*
+	// LEG Low E:
+	gratings_ << REIXSXESGratingInfo("LEG Low E", 593.02, 5025.6, 86, 350, QVector3D(20.529, -25.865, 12.892), QVector3D(0,0,-0.318), QVector3D(-0.212, -0.22, -0.41), 3.961, 0.345, -0.15, 40, 292);
 
-
-//	 IMP Low E:
-//	gratings_ << REIXSXESGratingInfo("Impurity Low E", 892.86, 6699.8, 87, 350, QVector3D(-14.970, -25.723, 13.507), QVector3D(0,0,-4.593), QVector3D(-0.684, -0.22, -0.41), 2.2, -3.5, -0.15, 68, 500); //(3.02695496, 0.64573899 for U=0.1, v=0.261)
+	// IMP Low E:
+	gratings_ << REIXSXESGratingInfo("Impurity Low E", 892.86, 6699.8, 87, 350, QVector3D(-14.970, -25.723, 13.507), QVector3D(0,0,-4.593), QVector3D(-0.684, -0.22, -0.41), 2.2, -3.5, -0.15, 68, 500); //(3.02695496, 0.64573899 for U=0.1, v=0.261)
+	*/
 
 	hexapodOrigin_ = QVector3D(2.418, 4.145, -430.478);
 	detectorWidth_ = 40.;
@@ -103,14 +104,6 @@ void REIXSXESCalibration2::dbLoadGratings(const AMDbObjectList& newGratings)
 	}
 }
 
-//AMControlInfoList REIXSXESCalibration2::computeSpectrometerPosition(REIXSXESScanConfiguration *scanConfiguration) const
-//{
-//	return computeSpectrometerPosition(scanConfiguration->gratingNumber(),
-//									   scanConfiguration->centerEV(),
-//									   scanConfiguration->defocusDistanceMm(),
-//									   scanConfiguration->detectorTiltOffset());
-//}
-
 AMControlInfoList REIXSXESCalibration2::computeSpectrometerPosition(int gratingIndex, double eV, double focusOffsetMm, double tiltOffsetDeg) const {
 
 	AMControlInfoList rv;
@@ -121,7 +114,9 @@ AMControlInfoList REIXSXESCalibration2::computeSpectrometerPosition(int gratingI
 
 	double _beta = beta(gratingIndex, eV);
 	double _rPrime = rPrime(gratingIndex, _beta) + focusOffsetMm;
-//	double _spectrometerAngle = spectrometerAngle(gratingIndex, _beta, _rPrime);
+	/*
+	double _spectrometerAngle = spectrometerAngle(gratingIndex, _beta, _rPrime);
+	*/
 	double _liftHeight = liftHeight(spectrometerAngle(gratingIndex, _beta, _rPrime));
 
 	double _tiltStage = tiltStage(_beta, tiltOffsetDeg);
@@ -142,7 +137,9 @@ AMControlInfoList REIXSXESCalibration2::computeSpectrometerPosition(int gratingI
 
 	qDebug() << "Spectrometer Geometry calculations for: " << gratings_.at(gratingIndex).name() << eV << "eV," << focusOffsetMm << "mm defocus," << tiltOffsetDeg << "deg tilt offset:";
 	qDebug() << "   beta:" << _beta;
-//	qDebug() << "   spectrometerAngle:" << _spectrometerAngle;
+	/*
+	qDebug() << "   spectrometerAngle:" << _spectrometerAngle;
+	*/
 	qDebug() << "   lift (spectrometer rotation):" << _liftHeight;
 	qDebug() << "   rPrime (including defocus):" << _rPrime;
 	qDebug() << "   tilt drive (including offset):" << _tiltStage;

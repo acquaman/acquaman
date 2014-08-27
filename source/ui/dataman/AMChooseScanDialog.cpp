@@ -141,7 +141,7 @@ QString AMChooseScanDialog::getScanDetails(QUrl url)
 		return QString();
 
 	if(url.host() != db_->connectionName())
-		return QString();	// this should never happen; the dataView_ and us share the same database.
+		return QString();	// this should never happen, the dataView_ and us share the same database.
 
 	QStringList path = url.path().split('/', QString::SkipEmptyParts);
 	if(path.count() != 2)

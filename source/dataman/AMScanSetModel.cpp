@@ -80,7 +80,7 @@ Qt::ItemFlags AMScanSetModel::flags ( const QModelIndex & index ) const  {
 	if(index.internalId() >= 0) {
 
 		bool hiddenFromUsers = false;
-		if(index.internalId() < scans_.count() && index.row() < scans_.at(index.internalId())->dataSourceCount())	 // makes sure index is in range; Qt might call flags() on out-of-range model indices.
+		if(index.internalId() < scans_.count() && index.row() < scans_.at(index.internalId())->dataSourceCount())	 // makes sure index is in range. Qt might call flags() on out-of-range model indices.
 			hiddenFromUsers = isHiddenFromUsers(index.internalId(), index.row());
 
 		return Qt::ItemIsSelectable | Qt::ItemIsUserCheckable | (hiddenFromUsers ? Qt::NoItemFlags : Qt::ItemIsEnabled);
@@ -100,7 +100,6 @@ QVariant AMScanSetModel::data(const QModelIndex & index, int role) const {
 
 		switch(role) {
 		case Qt::DisplayRole: {
-				//QString rv = scan->name().append(QString(" #%1").arg(scan->number()));
 				QString rv = scan->fullName();
 				if(scan->modified())
 					rv.append( " (modified)");
@@ -108,7 +107,7 @@ QVariant AMScanSetModel::data(const QModelIndex & index, int role) const {
 			}
 			break;
 		case Qt::DecorationRole:
-			/// \bug this is temporary and meaningless; it's just the color of the first data source in the scan.
+			/// \bug this is temporary and meaningless. It's just the color of the first data source in the scan.
 			if(scan->dataSourceCount() > 0)
 				return sourcePlotSettings_.at(index.row()).at(0).linePen.color();
 			else
@@ -116,7 +115,6 @@ QVariant AMScanSetModel::data(const QModelIndex & index, int role) const {
 			break;
 		case Qt::ToolTipRole:
 			return QString("%1, #%2 (sample: %3): %4").arg(scan->name()).arg(scan->number()).arg(scan->sampleName()).arg(AMDateTimeUtils::prettyDateTime(scan->dateTime(), "h:mm:ssap"));
-			//return QString("%1, #%2 (sample: %3): %4").arg(scan->evaluatedName()).arg(scan->number()).arg(scan->sampleName()).arg(AMDateTimeUtils::prettyDateTime(scan->dateTime(), "h:mm:ssap"));
 			break;
 		case AM::DescriptionRole:
 			return QString("%1, on %2").arg(AMDateTimeUtils::prettyDateTime(scan->dateTime())).arg(scan->sampleName());
@@ -133,7 +131,6 @@ QVariant AMScanSetModel::data(const QModelIndex & index, int role) const {
 		case AM::CanCloseRole:	// allows views to show the 'close' button beside each scan, to delete it. Do we want this on?
 			return true;
 		case AM::NameRole: {
-				//return scan->name().append(QString(" #%1").arg(scan->number()));
 				return scan->fullName();
 			}
 			break;
@@ -275,7 +272,7 @@ void AMScanSetModel::addScan(AMScan* newScan)
 	QList<AMDataSourcePlotSettings> plotSettings;
 	for(int i=0; i<newScan->dataSourceCount(); i++) {
 		AMDataSourcePlotSettings ps; /// \todo set up nicer default colors (related within scans)
-		//ps.visible = newScan->dataSourceAt(i)->visibleInPlots(); // Initial visibility is now controlled in AMDataSource::visibleInPlots().  Scan controllers can initialize this, and it will be saved in the database.
+		//ps.visible = newScan->dataSourceAt(i)->visibleInPlots() // Initial visibility is now controlled in AMDataSource::visibleInPlots().  Scan controllers can initialize this, and it will be saved in the database.
 		ps.visible = false;
 
 		// Hack for Darren's 2D XRF maps and Mark's XES scans.
@@ -306,7 +303,7 @@ void AMScanSetModel::addScan(AMScan* newScan)
 	endInsertRows();
 
 	emit scanAdded(newScan);
-	/// \todo this is a hack; should not be needed... But we do need it to keep QTreeViews from getting messed up. Why?
+	/// \todo this is a hack should not be needed... But we do need it to keep QTreeViews from getting messed up. Why?
 	emit layoutChanged();
 }
 
@@ -352,7 +349,6 @@ bool AMScanSetModel::setData ( const QModelIndex & index, const QVariant & value
 
 	// editing a (valid) data source?
 	else if(index.internalId() < scans_.count() && index.row() < scans_.at(index.internalId())->dataSourceCount()) {
-		// AMDataSource* dataSource = scans_.at(index.internalId())->dataSourceAt(index.row());
 		switch(role) {
 		/// \todo Update here: all properties we can adjust...
 		case Qt::DecorationRole:

@@ -37,7 +37,7 @@ public:
 	/// Returns true if AMScan or AMSamplePosition still has the sampleId column and is missing the sample column
 	virtual bool upgradeNecessary() const;
 
-	/// Changes the column name from sampleId to sample for AMScan and AMSamplePosition. Changes all instances of "-1" to "" (empty string). Changes all values from "#" to "AMSample_table;#"
+	/// Changes the column name from sampleId to sample for AMScan and AMSamplePosition. Changes all instances of "-1" to "" (empty string). Changes all values from "#" to "AMSample_table semicolon #"
 	/*!
 	  This upgrade also changes the name for AMSample, AMSamplePosition, and AMSamplePlate to AMSamplePre2013, AMSamplePositionPre2013, and AMSamplePlatePre2013
 	  */

@@ -95,7 +95,6 @@ AMControlEditor::AMControlEditor(AMControl* control, AMControl* secondaryControl
 	lockedLabel_->setToolTip("Cannot Move");
 
 	statusFrame_ = new QFrame();
-//	statusFrame_->setMinimumWidth(22);
 	statusFrame_->setMinimumHeight(22);
 	statusFrame_->setObjectName("StatusFrame");
 
@@ -220,7 +219,6 @@ void AMControlEditor::reviewControlState() {
 		break;
 	default: // all good. Normal look.
 		setStyleSheet("#AMControlEditor { background: white; } ");
-		//	Traditional green: setStyleSheet("#AMControlEditor {border: 1px outset #00df00; background: #d4ffdf;}");
 		break;
 	}
 }
@@ -266,7 +264,7 @@ void AMControlEditor::onEditStart() {
 	}
 
 	if(control_->isEnum())
-		return;	// don't show the editor in this situation; users use the tool button menu directly;
+		return;	// don't show the editor in this situation, users use the tool button menu directly
 
 	dialog_->setDoubleMaximum(control_->maximumValue());
 	dialog_->setDoubleMinimum(control_->minimumValue());

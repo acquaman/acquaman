@@ -58,8 +58,8 @@ public:
 	}
 
 public slots:
-	bool setStartEnergy(double startEnergy);// { startEnergy_ = startEnergy; setModified(true); return true;}
-	bool setEndEnergy(double endEnergy);// { endEnergy_ = endEnergy; setModified(true); return true;}
+	bool setStartEnergy(double startEnergy);
+	bool setEndEnergy(double endEnergy);
 
 signals:
 	void energyRangeChanged();

@@ -97,7 +97,7 @@ public slots:
 	virtual void enableWaterfallOffset(bool waterfallOn = true) { waterfallEnabled_ = waterfallOn; }
 
 protected:
-	/// Helper function to create an appropriate MPlotItem and connect it to the \c dataSource, depending on the dimensionality of \c dataSource.  Returns 0 if we can't handle this dataSource and no item was created (ex: unsupported dimensionality; we only handle 1D or 2D data for now.)
+	/// Helper function to create an appropriate MPlotItem and connect it to the \c dataSource, depending on the dimensionality of \c dataSource.  Returns 0 if we can't handle this dataSource and no item was created (ex: unsupported dimensionality, we only handle 1D or 2D data for now.)
 	MPlotItem* createPlotItemForDataSource(const AMDataSource* dataSource, const AMDataSourcePlotSettings& plotSettings);
 	/// Helper function to look at a plot and configure the left and right axes depending on whether there are 1D and/or 2D data sources in the plot.
 	/*! We plot 2D data sources on the right axis scale, and 1D data sources on the left axis scale.  We could therefore end up in one of 4 states for the axes configuration:
@@ -151,7 +151,7 @@ class AMScanView : public QWidget
 public:
 	enum ViewMode { Invalid = -1, Tabs = 0, OverPlot, MultiScans, MultiSources };
 
-	/// Constructs a new AMScanView based on a set of scans given by \c model. If \c model is 0,  it creates its own model to use internally; otherwise it uses the supplied model.
+	/// Constructs a new AMScanView based on a set of scans given by \c model. If \c model is 0,  it creates its own model to use internally, otherwise it uses the supplied model.
 	explicit AMScanView(AMScanSetModel* model = 0, QWidget *parent = 0);
 	virtual ~AMScanView();
 
@@ -181,7 +181,7 @@ public slots:
 	/// Sets the color of the plot cursor.
 	void setPlotCursorColor(const QColor &color);
 
-	/// change the view mode (newMode is a ViewMode enum: 0 for one data source at a time; 1 for all data sources overplotted; 2 for one plot per scan; 3 for one plot per data source.
+	/// change the view mode (newMode is a ViewMode enum: 0 for one data source at a time, 1 for all data sources overplotted, 2 for one plot per scan, 3 for one plot per data source.
 	void changeViewMode(int newMode);
 
 	/// add a scan to the view:

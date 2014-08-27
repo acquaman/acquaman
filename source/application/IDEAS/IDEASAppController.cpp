@@ -155,22 +155,18 @@ void IDEASAppController::setupUserInterface()
 
 	mw_->insertHeading("Detectors", 1);
 
-            IDEASXRFDetailedDetectorViewWithSave_ = new IDEASXRFDetailedDetectorViewWithSave(IDEASBeamline::ideas()->ketek());
-                IDEASXRFDetailedDetectorViewWithSave_->buildDetectorView();
-		IDEASXRFDetailedDetectorViewWithSave_->setEnergyRange(1000, 20480);
-		IDEASXRFDetailedDetectorViewWithSave_->addEmissionLineNameFilter(QRegExp("1"));
-		IDEASXRFDetailedDetectorViewWithSave_->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
-		IDEASXRFDetailedDetectorViewWithSave_->addCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));
-		mw_->addPane(IDEASXRFDetailedDetectorViewWithSave_, "Detectors", "XRF Detector", ":/system-search.png");
+	IDEASXRFDetailedDetectorViewWithSave_ = new IDEASXRFDetailedDetectorViewWithSave(IDEASBeamline::ideas()->ketek());
+	IDEASXRFDetailedDetectorViewWithSave_->buildDetectorView();
+	IDEASXRFDetailedDetectorViewWithSave_->setEnergyRange(1000, 20480);
+	IDEASXRFDetailedDetectorViewWithSave_->addEmissionLineNameFilter(QRegExp("1"));
+	IDEASXRFDetailedDetectorViewWithSave_->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
+	IDEASXRFDetailedDetectorViewWithSave_->addCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));
+	mw_->addPane(IDEASXRFDetailedDetectorViewWithSave_, "Detectors", "XRF Detector", ":/system-search.png");
 
-    mw_->insertHeading("Scans", 2);
+	mw_->insertHeading("Scans", 2);
 
-		IDEASPersistentView *persistentPanel = new IDEASPersistentView;
-		mw_->addRightWidget(persistentPanel);
-
-//	ideasSynchronizedDwellTimeView_ = 0; //NULL
-//	connect(IDEASBeamline::ideas()->synchronizedDwellTime(), SIGNAL(connected(bool)), this, SLOT(onSynchronizedDwellTimeConnected(bool)));
-//	onSynchronizedDwellTimeConnected(false);
+	IDEASPersistentView *persistentPanel = new IDEASPersistentView;
+	mw_->addRightWidget(persistentPanel);
 
 	xasScanConfigurationView_ = 0; //NULL
 	xasScanConfigurationHolder3_ = new IDEASScanConfigurationViewHolder3();
@@ -189,28 +185,11 @@ void IDEASAppController::makeConnections()
 
 }
 
-//void IDEASAppController::onSynchronizedDwellTimeConnected(bool connected){
-//	Q_UNUSED(connected)
-//	if(IDEASBeamline::ideas()->synchronizedDwellTime() && IDEASBeamline::ideas()->synchronizedDwellTime()->isConnected() && !ideasSynchronizedDwellTimeView_){
-//		CLSSynchronizedDwellTime *clsDwellTime = qobject_cast<CLSSynchronizedDwellTime*>(IDEASBeamline::ideas()->synchronizedDwellTime());
-//		if(clsDwellTime)
-//			ideasSynchronizedDwellTimeView_ = new CLSSynchronizedDwellTimeView(clsDwellTime);
-
-//		mw_->addPane(ideasSynchronizedDwellTimeView_, "Detectors", "IDEAS Sync Dwell", ":/system-software-update.png", true);
-//		ideasSynchronizedDwellTimeView_->setAdvancedViewVisible(true);
-//	}
-//}
-
 void IDEASAppController::onEnergyConnected(bool connected){
 	Q_UNUSED(connected)
 	if(IDEASBeamline::ideas()->monoEnergyControl() && IDEASBeamline::ideas()->monoEnergyControl()->isConnected() && !xasScanConfigurationView_){
-//		double goodEnergy = 10 * floor(IDEASBeamline::ideas()->monoEnergyControl()->value() / 10);
 		// Do New XAS
 		IDEASXASScanConfiguration *xasScanConfiguration = new IDEASXASScanConfiguration(this);
-//		xasScanConfiguration->xasRegions()->setEnergyControl(IDEASBeamline::ideas()->monoEnergyControl());
-//		xasScanConfiguration->regions()->setDefaultTimeControl(IDEASBeamline::ideas()->masterDwellControl());
-//                                xasScanConfiguration->addRegion(0, goodEnergy, 1, goodEnergy + 10, 1);
-
 
 		xasScanConfigurationView_ = new IDEASXASScanConfigurationView(xasScanConfiguration);
 		xasScanConfigurationView_->setupDefaultXANESScanRegions();
@@ -276,26 +255,7 @@ void IDEASAppController::configureSingleSpectrumView(AMGenericScanEditor *editor
 		if (scan->dataSourceAt(i)->rank()-scanRank == 1)
 			spectraNames << scan->dataSourceAt(i)->name();
 
-//	if (spectraNames.contains("sumSpectra-1eland4el"))
-//		editor->setSingleSpectrumViewDataSourceName("correctedRawSpectra-1el");
-
-//	else if (spectraNames.contains("correctedSum-4el"))
-//		editor->setSingleSpectrumViewDataSourceName("correctedSum-4el");
-
-//	else if (spectraNames.contains("correctedRawSpectra-1el"))
-//		editor->setSingleSpectrumViewDataSourceName("correctedRawSpectra-1el");
-
-//	else if (!spectraNames.isEmpty())
 	editor->setSingleSpectrumViewDataSourceName(spectraNames.first());
 
 	editor->setPlotRange(AMPeriodicTable::table()->elementBySymbol("Al")->Kalpha().energy(), 20480);
 }
-
-
-
-//AMScan *scan = action->controller()->scan();
-//openScanInEditor(scan, automaticBringScanEditorToFrontWithRunningScans());
-
-//scanEditorScanMapping_.append(qMakePair(scan, scanEditorAt(scanEditorCount()-1)));
-//connect(action, SIGNAL(stateChanged(int,int)), this, SLOT(updateScanEditorModelItem()));
-//updateScanEditorModelItem();

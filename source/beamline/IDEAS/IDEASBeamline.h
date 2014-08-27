@@ -23,7 +23,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/AMBeamline.h"
 #include "beamline/AMControlSet.h"
-//#include "beamline/CLS/CLSSynchronizedDwellTime.h"
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 #include "beamline/AMMotorGroup.h"
 #include "beamline/CLS/CLSPseudoMotorGroup.h"
@@ -59,33 +58,31 @@ public:
 	/// Destructor.
 	virtual ~IDEASBeamline();
 
-		/// Returns the overall shutter status.  Returns true if both are open, false otherwise.
-		bool shuttersOpen() const;
+	/// Returns the overall shutter status.  Returns true if both are open, false otherwise.
+	bool shuttersOpen() const;
 
-		/// Creates an action that opens the shutters to act like a Beam On.
-		AMAction3 *createBeamOnAction() const;
-		/// Creates an action that closes the shutters to act like a Beam Off.
-		AMAction3 *createBeamOffAction() const;
+	/// Creates an action that opens the shutters to act like a Beam On.
+	AMAction3 *createBeamOnAction() const;
+	/// Creates an action that closes the shutters to act like a Beam Off.
+	AMAction3 *createBeamOffAction() const;
 
-//	/// Returns the beamline's synchronized dwell time object if one is available. Returns 0 (NULL) otherwise.
-//	virtual AMSynchronizedDwellTime* synchronizedDwellTime() const { return synchronizedDwellTime_; }
 
-        /// Returns the monochromator control for the beamline.
-        AMControl *monoEnergyControl() const { return monoEnergy_; }
+	/// Returns the monochromator control for the beamline.
+	AMControl *monoEnergyControl() const { return monoEnergy_; }
 	AMControl *monoDirectEnergyControl() const { return monoDirectEnergy_; }
 
-        /// \todo THESE NEED TO BE COMMENTED!
-        AMControl *monoCrystal() const { return monoCrystal_; }
-        AMControl *monoHighEV() const { return monoHighEV_; }
-        AMControl *monoLowEV() const { return monoLowEV_; }
-        AMControl *ringCurrent() const { return ringCurrent_; }
+	/// \todo THESE NEED TO BE COMMENTED!
+	AMControl *monoCrystal() const { return monoCrystal_; }
+	AMControl *monoHighEV() const { return monoHighEV_; }
+	AMControl *monoLowEV() const { return monoLowEV_; }
+	AMControl *ringCurrent() const { return ringCurrent_; }
 	AMControl *I0Current() const { return I0Current_; }
 	AMControl *sampleTemp() const { return sampleTemp_; }
 
 
-        AMControl *monoBraggAngle() const { return monoBraggAngle_; }
-        AMControl *mono2d() const { return mono2d_; }
-        AMControl *monoAngleOffset() const { return monoAngleOffset_; }
+	AMControl *monoBraggAngle() const { return monoBraggAngle_; }
+	AMControl *mono2d() const { return mono2d_; }
+	AMControl *monoAngleOffset() const { return monoAngleOffset_; }
 
 	AMControl *ketekPeakingTime() const { return ketekPeakingTime_; }
 	AMControl *ketekTriggerLevel() const { return ketekTriggerLevel_; }
@@ -102,10 +99,6 @@ public:
 	AMControl *samplePlatformVertical() const { return samplePlatformVertical_ ; }
 	AMControl *samplePlatformHorizontal() const { return samplePlatformHorizontal_ ; }
 	AMControl *vacuumSampleStage() const { return vacuumSampleStage_ ; }
-
-//        AMPVControl *masterDwellControl() const { return masterDwell_; }
-//        AMPVControl *ammeterGroupModeControl() const {return ammeterGroupMode_; }
-
 
 	/// Returns the KETEK detector pointer.
 	IDEASKETEKDetector *ketek() const { return ketek_; }
@@ -127,18 +120,16 @@ public:
 
 signals:
 
-		/// Notifier that the status of the shutters has changed.
-		void overallShutterStatus(bool);
+	/// Notifier that the status of the shutters has changed.
+	void overallShutterStatus(bool);
 
 public slots:
 
 protected slots:
-		/// Helper slot that handles emitting the overall shutter status.
-		void onShutterStatusChanged();
+	/// Helper slot that handles emitting the overall shutter status.
+	void onShutterStatusChanged();
 
 protected:
-//	/// Sets up the synchronized dwell time.
-//	void setupSynchronizedDwellTime();
 	/// Sets up the readings such as pressure, flow switches, temperature, etc.
 	void setupDiagnostics();
 	/// Sets up logical groupings of controls into sets.
@@ -160,44 +151,31 @@ protected:
 	/// Sets up all of the detectors that need to be added to scans that aren't a part of typical detectors.  This may just be temporary, not sure.
 	void setupControlsAsDetectors();
 
-	/// Constructor. This is a singleton class; access it through IDEASBeamline::ideas().
+	/// Constructor. This is a singleton class, access it through IDEASBeamline::ideas().
 	IDEASBeamline();
 
-		/// The safety shutter for the beamline.
-		CLSBiStateControl *safetyShutter_;
-		/// The second photon shutter.
-		CLSBiStateControl *photonShutter2_;
-		/// The safety shutter for the SOE.
-		CLSBiStateControl *safetyShutter2_;
+	/// The safety shutter for the beamline.
+	CLSBiStateControl *safetyShutter_;
+	/// The second photon shutter.
+	CLSBiStateControl *photonShutter2_;
+	/// The safety shutter for the SOE.
+	CLSBiStateControl *safetyShutter2_;
 
 
 	/// Control for the mono
-		IDEASMonochromatorControl *monoEnergy_;
-		IDEASDirectMonochromatorControl *monoDirectEnergy_;
-	/// Control for the master dwell time on the synchronized dwell time application
-//	AMPVControl *masterDwell_;
-        /// Control for the mode of the IDEAS Ammeter Group
-        AMPVControl *ammeterGroupMode_;
+	IDEASMonochromatorControl *monoEnergy_;
+	IDEASDirectMonochromatorControl *monoDirectEnergy_;
 
-//	/// The synchronized dwell time app for IDEAS
-//	CLSSynchronizedDwellTime *synchronizedDwellTime_;
+	/// Control for the mode of the IDEAS Ammeter Group
+	AMPVControl *ammeterGroupMode_;
 
-//	AMReadOnlyPVControl *oldIonChamberAmmeter_;
-//	AMReadOnlyPVControl *oxfordI0IonChamberAmmeter_;
-//	AMReadOnlyPVControl *oxfordSampleIonChamberAmmeter_;
-//	AMReadOnlyPVControl *oxfordReferenceIonChamberAmmeter_;
 	AMReadOnlyPVControl *ketekRealTimeControl_;
 	AMControl *ketekPeakingTime_;
 	AMControl *ketekTriggerLevel_;
 	AMControl *ketekBaselineThreshold_;
 	AMControl *ketekPreampGain_;
 
-//	AMDetector *oldIonChamberDetector_;
-//	AMDetector *oxfordI0IonChamberDetector_;
-//	AMDetector *oxfordSampleIonChamberDetector_;
-//	AMDetector *oxfordReferenceIonChamberDetector_;
 	AMDetector *ketekRealTime_;
-//	AMDetector *masterDwellTime_;
 
 	CLSBasicScalerChannelDetector *I0IonChamberScaler_;
 	CLSBasicScalerChannelDetector *SampleIonChamberScaler_;

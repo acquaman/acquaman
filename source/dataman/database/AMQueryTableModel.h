@@ -109,7 +109,7 @@ class AMQueryTableModel : public QAbstractTableModel
 {
 	Q_OBJECT
 public:
-	/// Construct a model exposing the given database \c db.  \c whereClause allows you to specify a filter on the results, that is suitable for appending after an SQL "WHERE" statement; you can leave this empty if you don't want to filter the results. \c orderClause allows you to specify the content of an SQL "ORDER BY" statement, for ex: "dateTime ASC" to specify the initial sort order.
+	/// Construct a model exposing the given database \c db.  \c whereClause allows you to specify a filter on the results, that is suitable for appending after an SQL "WHERE" statement. You can leave this empty if you don't want to filter the results. \c orderClause allows you to specify the content of an SQL "ORDER BY" statement, for ex: "dateTime ASC" to specify the initial sort order.
 	AMQueryTableModel(AMDatabase* db,
 							  QObject *parent,
 							  const QString& tableName,
@@ -152,7 +152,7 @@ public:
 	virtual void sort(int column, Qt::SortOrder order);
 
 public slots:
-	/// Refreshes the query based on the current columns and database. Resets the model and sets the data provider to be the new query.  Note that we do not hit the database in the constructor; you must call refreshQuery() after creation to actually load data from the db.  Returns true if the query was executed successfully.
+	/// Refreshes the query based on the current columns and database. Resets the model and sets the data provider to be the new query.  Note that we do not hit the database in the constructor. You must call refreshQuery() after creation to actually load data from the db.  Returns true if the query was executed successfully.
 	bool refreshQuery();
 
 signals:

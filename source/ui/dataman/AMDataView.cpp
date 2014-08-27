@@ -959,8 +959,7 @@ void AMDataView::refreshView() {
 	}
 
 	// finally, set the visualized area of the scene to be exactly as big as we need it...
-	// removed: different path of resize signalling now. adjustViewScrollHeight();
-
+	// removed: different path of resize signalling now. adjustViewScrollHeight()
 }
 
 void AMDataView::adjustViewScrollableArea() {
@@ -1128,9 +1127,6 @@ QSizeF AMDataViewSection::sizeHint(Qt::SizeHint which, const QSizeF &constraint)
 }
 
 void AMDataViewSection::setGeometry(const QRectF &rect) {
-
-	// qdebug() << "calling section setGeometry with rect" << rect;
-
 	QGraphicsWidget::setGeometry(rect);
 
 	layoutHeaderItem();
@@ -1142,7 +1138,6 @@ void AMDataViewSection::layoutHeaderItem() {
 
 	/// \todo Optimization: if this is being called from above on all, get rid of calling proxyWidget_->effectiveSizeHint() on each scroll.
 	QRectF entireRect = rect();
-	// qdebug() << "Calling Layout Header. entireRect = " << entireRect;
 
 	qreal headerHeight = qMin(entireRect.height(),
 							  proxyWidget_->effectiveSizeHint(Qt::MinimumSize, QSizeF(entireRect.width(), -1)).height());
@@ -1176,7 +1171,6 @@ void AMDataViewSection::layoutHeaderItem() {
 
 	QRectF headerRect = QRectF(QPointF(entireRect.topLeft())+QPointF(0, yOffset),
 							   QSizeF(entireRect.width(), headerHeight));
-	// qdebug() << "Calling proxyWidget setGeometry with rect" << headerRect;
 	proxyWidget_->setGeometry(headerRect);
 }
 
@@ -1186,7 +1180,6 @@ void AMDataViewSection::layoutContents() {
 
 	qreal verticalOffset = proxyWidget_->rect().height();
 	QSizeF size = rect().size() - QSizeF(0, verticalOffset);
-	// qdebug() << "calling contents setGeometry with rect" << QRectF(QPointF(0,verticalOffset), size);
 	subview_->setGeometry(QRectF(QPointF(0,verticalOffset), size));
 }
 
@@ -1241,7 +1234,9 @@ void AMDataViewSectionThumbnailView::populate() {
 
 	setVisible(false);
 
-	// qdebug() << "AMDataViewSectionThumbnailView::populate(): \n   starting at " << QTime::currentTime().toString("mm:ss.zzz");
+	/*
+	qdebug() << "AMDataViewSectionThumbnailView::populate(): \n   starting at " << QTime::currentTime().toString("mm:ss.zzz");
+	*/
 
 	/// \todo This won't work for samples, because they don't have a number column. Generalize or specificized.
 	QSqlQuery q = db_->query();
@@ -1251,16 +1246,20 @@ void AMDataViewSectionThumbnailView::populate() {
 	query.append(" ORDER BY dateTime");
 	q.prepare( query );
 
-	//qdebug() << "   prior to executing database query: " << QTime::currentTime().toString("mm:ss.zzz");
+	/*
+	qdebug() << "   prior to executing database query: " << QTime::currentTime().toString("mm:ss.zzz");
+	*/
 
 	if(!q.exec()) {
 		q.finish();
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, -1, QString("Error executing database query '%1'. The error was %2").arg(q.executedQuery()).arg(q.lastError().text())));
 	}
 
-	// qdebug() << "   after executing database query: " << QTime::currentTime().toString("mm:ss.zzz");
+	/*
+	qdebug() << "   after executing database query: " << QTime::currentTime().toString("mm:ss.zzz");
 
-	// int processEventsBreakCounter = 0;
+	int processEventsBreakCounter = 0;
+	*/
 
 	else {
 		while(q.next()) {
@@ -1275,25 +1274,13 @@ void AMDataViewSectionThumbnailView::populate() {
 
 			layout_->addItem(w);
 
-			/*if(processEventsBreakCounter++ == AMDATAVIEWSECTIONTHUMBNAILVIEW_PROCESS_EVENTS_EVERY_N_ITEMS) {
-   processEventsBreakCounter = 0;
-   QApplication::processEvents();
-  }*/
-
-			/*
-  AMThumbnailScrollViewer* w = new AMThumbnailScrollViewer();
-  w->setSource(db_, q.value(0).toInt(), q.value(1).toInt());
-  QGraphicsProxyWidget* p = new QGraphicsProxyWidget(gWidget_);
-  w->setMinimumSize(240, 180);
-  p->setWidget(w);
-  layout_->addItem(p);
-  */
-
 		}
 	}
 
-	// qdebug() << "   ending at " << QTime::currentTime().toString("mm:ss.zzz") << "\n";
-	// layout_->activate();
+	/*
+	qdebug() << "   ending at " << QTime::currentTime().toString("mm:ss.zzz") << "\n";
+	layout_->activate();
+	*/
 
 	setVisible(true);
 }
@@ -1309,7 +1296,6 @@ bool AMLayoutControlledGraphicsWidget::event(QEvent *event)
 		if(layout()) {
 			QSizeF layoutSizeHint = layout()->effectiveSizeHint(Qt::PreferredSize);
 			if(size() != layoutSizeHint) {
-				//				qdebug() << "AMLayoutControlledGraphicsWidget: Catching a LayoutRequest and resizing ourself to match instead.";
 				resize(layoutSizeHint);
 				return true;	// don't pass this on like usual. Our resize() will trigger another LayoutRequest, but by then the size will match, so it'll be passed on through to the layout (below).
 			}
@@ -1321,7 +1307,6 @@ bool AMLayoutControlledGraphicsWidget::event(QEvent *event)
 
 void AMLayoutControlledGraphicsWidget::resizeEvent(QGraphicsSceneResizeEvent *event)
 {
-	//	qdebug() << "AMLayoutControlledGraphicsWidget: Getting resized, and emitting resized signal.";
 	QGraphicsWidget::resizeEvent(event);
 	emit resized();
 }
@@ -1354,7 +1339,7 @@ AMDataViewSectionListView::AMDataViewSectionListView(AMDatabase *db, const QStri
 	QFontMetrics fm(font);
 	tableView_->verticalHeader()->setDefaultSectionSize(fm.height()+6);
 	tableView_->horizontalHeader()->setStretchLastSection(true);
-	// ugly but practical: (doesn't line up between sections): tableView_->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
+	// ugly but practical: (doesn't line up between sections): tableView_->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents)
 
 	tableView_->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	tableView_->setSortingEnabled(true);
@@ -1384,7 +1369,6 @@ AMDataViewSectionListView::AMDataViewSectionListView(AMDatabase *db, const QStri
 	widthConstraint_ = initialWidthConstraint;
 
 	// For now, we know what's in the columns, so we'll resize the headers appropriately. In the future, it's possible that the columns are configurable, using AMScanQueryModel with non-default constructor.
-	//tableView_->setColumnHidden(0, true);
 	tableView_->setColumnWidth(0, 60);
 	tableView_->setColumnWidth(1, 120);
 	tableView_->setColumnWidth(2, 40);
@@ -1405,7 +1389,6 @@ AMDataViewSectionListView::AMDataViewSectionListView(AMDatabase *db, const QStri
 
 	connect(tableModel_, SIGNAL(rowsInserted (QModelIndex, int, int)), this, SLOT(onRowsAddedOrRemoved()));
 	connect(tableModel_, SIGNAL(rowsRemoved (QModelIndex, int, int)), this, SLOT(onRowsAddedOrRemoved()));
-	// tableView_->installEventFilter(this);
 
 	setVisible(true);
 
@@ -1502,8 +1485,6 @@ void AMDataView::onDatabaseItemCreatedOrRemoved(const QString &tableName, int id
 
 void AMDataView::onDragStarted(const QPoint &startPos, const QPoint &currentPos)
 {
-	// qdebug() << "Drag started...";
-
 	// we use this to indicate if we're tracking a rubber-band selection drag.
 	if(rubberBand_) {
 		delete rubberBand_;

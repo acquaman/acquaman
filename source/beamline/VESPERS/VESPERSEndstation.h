@@ -114,7 +114,7 @@ public slots:
 	void toggleLaserPower() { toggleControl(laserPower_); emit laserPoweredChanged(); }
 	/// Loads the config file and then sets up the soft limits.
 	bool loadConfiguration();
-	/// Changes the filters placed in the beamline based on \code index.  The valid numbers are 0 - 16; 0 um to 800 um in 50 um intervals.
+	/// Changes the filters placed in the beamline based on \code index.  The valid numbers are 0 - 16, 0 um to 800 um in 50 um intervals.
 	void setFilterThickness(int index);
 	/// Opens/Closes the shutter.
 	void setShutterState(bool state);

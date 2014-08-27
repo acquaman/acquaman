@@ -99,7 +99,6 @@ void AMGithubManager::authenticate(){
 	authenticateReply_->ignoreSslErrors();
 	connect(authenticateReply_, SIGNAL(readyRead()), this, SLOT(onAuthenicatedRequestReturned()));
 	connect(authenticateReply_, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(onSomeErrorOccured(QNetworkReply::NetworkError)));
-	//connect(authenticateReply_, SIGNAL(sslErrors(QList<QSslError>)), this, SLOT(onSomeSSLErrorOccurred(QList<QSslError>)));
 }
 
 void AMGithubManager::getIssues(AMGithubManager::IssuesFilter filter, AMGithubManager::IssuesState state, AMGithubManager::IssuesSort sort, AMGithubManager::IssuesDirection direction){
@@ -185,7 +184,6 @@ void AMGithubManager::createNewIssue(const QString &title, const QString &body, 
 		jdata["assignee"] = assignee;
 	QJson::Serializer jserializer;
 	QByteArray jsonData = jserializer.serialize(jdata);
-	//qdebug() << jsonData;
 
 	createNewIssueReply_ = manager_->post(request, jsonData);
 	createNewIssueReply_->ignoreSslErrors();
@@ -213,7 +211,6 @@ void AMGithubManager::onAuthenicatedRequestReturned(){
 void AMGithubManager::onIssuesReturned(){
 	QJson::Parser parser;
 	QVariant githubFullReply = parser.parse(getIssuesReply_->readAll());
-	//qdebug() << githubFullReply;
 	bool doEmit = false;
 	QVariantMap retVal;
 	if(githubFullReply.canConvert(QVariant::List)){

@@ -200,11 +200,6 @@ QString AMScanDictionary::krRunEndDate(const QString& arg) {
 	// Returning [error] so we know we broke this.
 	Q_UNUSED(arg)
 	return "[error]";
-
-//	if(arg.isEmpty())
-//		return r.endDateTime().toString("yyyy MM dd");
-//	else
-//		return r.endDateTime().toString(arg);
 }
 
 QString AMScanDictionary::krRunNotes(const QString& arg) {

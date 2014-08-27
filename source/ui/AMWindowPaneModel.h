@@ -112,7 +112,7 @@ public:
 
 	// Convenience access functions:
 	/////////////////////////////////
-	/// Convenience function to lookup the index for a given window pane widget. Returns an invalid index if the pane could not be found. \note This will always return the index of the "real" item for this window pane; never the index for an alias item.
+	/// Convenience function to lookup the index for a given window pane widget. Returns an invalid index if the pane could not be found. \note This will always return the index of the "real" item for this window pane, never the index for an alias item.
 	QModelIndex indexForPane(QWidget* pane) const;
 
 	/// Convenience function to check if this item is a header item. This is defined as being true when (a) the item is NOT an alias, AND (b) that the AM::Widget role is 0/unset.

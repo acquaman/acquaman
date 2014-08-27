@@ -39,7 +39,7 @@ AM3DDeadTimeAB::AM3DDeadTimeAB(const QString &outputName, QObject *parent)
 bool AM3DDeadTimeAB::areInputDataSourcesAcceptable(const QList<AMDataSource*>& dataSources) const
 {
 	if(dataSources.isEmpty())
-		return true; // always acceptable; the null input.
+		return true; // always acceptable, the null input.
 
 	// otherwise there are three data sources, one with rank 3 and two with rank 2.
 	if (dataSources.count() == 3

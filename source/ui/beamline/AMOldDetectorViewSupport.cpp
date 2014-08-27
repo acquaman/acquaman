@@ -136,7 +136,6 @@ namespace AMOldDetectorViewSupport{
 	AMOldDetectorView* createDetectorView(AMOldDetector *detector, bool configureOnly){
 		if(!detector)
 			return 0;
-		//qdebug() << "Trying to create view for detector named " << detector->detectorName();
 		QList<AMOldDetectorViewObjectInfo> supported = supportedClasses(detector);
 		if(supported.count() > 0){
 			AMOldDetectorView *dv = qobject_cast<AMOldDetectorView*>(supported.first().viewMetaObject->newInstance());
@@ -149,7 +148,6 @@ namespace AMOldDetectorViewSupport{
 	AMOldDetectorView* createBriefDetectorView(AMOldDetector *detector, bool configureOnly){
 		if(!detector)
 			return 0;
-		//qdebug() << "Trying to create view for detector named " << detector->detectorName();
 		QList<AMOldDetectorViewObjectInfo> supported = supportedBriefViews(detector);
 		if(supported.count() > 0){
 			AMOldDetectorView *dv = qobject_cast<AMOldDetectorView*>(supported.first().viewMetaObject->newInstance());
@@ -162,7 +160,6 @@ namespace AMOldDetectorViewSupport{
 	AMOldDetectorView* createDetailedDetectorView(AMOldDetector *detector, bool configureOnly){
 		if(!detector)
 			return 0;
-		//qdebug() << "Trying to create view for detector named " << detector->detectorName();
 		QList<AMOldDetectorViewObjectInfo> supported = supportedDetailedViews(detector);
 		if(supported.count() > 0){
 			AMOldDetectorView *dv = qobject_cast<AMOldDetectorView*>(supported.first().viewMetaObject->newInstance());

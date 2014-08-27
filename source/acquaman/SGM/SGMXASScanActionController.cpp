@@ -41,7 +41,6 @@ SGMXASScanActionController::SGMXASScanActionController(SGMXASScanConfiguration20
 	scan_ = new AMXASScan();
 	scan_->setFileFormat("amRegionAscii2013");
 	scan_->setScanConfiguration(cfg);
-	//scan_->setSampleId(SGMBeamline::sgm()->currentSampleId());
 	scan_->setSample(SGMBeamline::sgm()->currentSample());
 	if(SGMBeamline::sgm()->currentSample())
 		SGMBeamline::sgm()->currentSample()->addScan(scan_);
@@ -77,33 +76,35 @@ SGMXASScanActionController::~SGMXASScanActionController(){}
 void SGMXASScanActionController::buildScanControllerImplementation()
 {
 
-//	int dwellTimeIndex = scan_->indexOfDataSource(SGMBeamline::sgm()->dwellTimeDetector()->name());
+	/* Dark current correction tests
+	int dwellTimeIndex = scan_->indexOfDataSource(SGMBeamline::sgm()->dwellTimeDetector()->name());
 
-//	if (dwellTimeIndex != -1) {
-//		AMDataSource* dwellTimeSource = scan_->dataSourceAt(dwellTimeIndex);
+	if (dwellTimeIndex != -1) {
+		AMDataSource* dwellTimeSource = scan_->dataSourceAt(dwellTimeIndex);
 
-//		for (int i = 0, size = regionsConfiguration_->detectorConfigurations().count(); i < size; i++){
-//			AMDetector *detector = AMBeamline::bl()->exposedDetectorByInfo(regionsConfiguration_->detectorConfigurations().at(i));
+		for (int i = 0, size = regionsConfiguration_->detectorConfigurations().count(); i < size; i++){
+			AMDetector *detector = AMBeamline::bl()->exposedDetectorByInfo(regionsConfiguration_->detectorConfigurations().at(i));
 
-//			if (detector) {
-//				int detectorIndex = scan_->indexOfDataSource(detector->name());
+			if (detector) {
+				int detectorIndex = scan_->indexOfDataSource(detector->name());
 
-//				if (detectorIndex != -1 && detector->rank() == 0 && detector->canDoDarkCurrentCorrection()) {
+				if (detectorIndex != -1 && detector->rank() == 0 && detector->canDoDarkCurrentCorrection()) {
 
-//					AMDataSource* detectorSource = scan_->dataSourceAt(detectorIndex);
+					AMDataSource* detectorSource = scan_->dataSourceAt(detectorIndex);
 
-//					AM1DDarkCurrentCorrectionAB *detectorCorrection = new AM1DDarkCurrentCorrectionAB(QString("%1_DarkCorrect").arg(detector->name()));
-//					detectorCorrection->setDescription(QString("%1 Dark Current Correction").arg(detector->name()));
-//					detectorCorrection->setDataName(detectorSource->name());
-//					detectorCorrection->setDwellTimeName(dwellTimeSource->name());
-//					detectorCorrection->setInputDataSources(QList<AMDataSource*>() << detectorSource << dwellTimeSource);
-//					connect( detector, SIGNAL(newDarkCurrentMeasurementValueReady(double)), detectorCorrection, SLOT(setDarkCurrent(double)) );
-//					detectorCorrection->setTimeUnitMultiplier(.001);
-//					scan_->addAnalyzedDataSource(detectorCorrection, true, false);
-//				}
-//			}
-//		}
-//	}
+					AM1DDarkCurrentCorrectionAB *detectorCorrection = new AM1DDarkCurrentCorrectionAB(QString("%1_DarkCorrect").arg(detector->name()));
+					detectorCorrection->setDescription(QString("%1 Dark Current Correction").arg(detector->name()));
+					detectorCorrection->setDataName(detectorSource->name());
+					detectorCorrection->setDwellTimeName(dwellTimeSource->name());
+					detectorCorrection->setInputDataSources(QList<AMDataSource*>() << detectorSource << dwellTimeSource);
+					connect( detector, SIGNAL(newDarkCurrentMeasurementValueReady(double)), detectorCorrection, SLOT(setDarkCurrent(double)) );
+					detectorCorrection->setTimeUnitMultiplier(.001);
+					scan_->addAnalyzedDataSource(detectorCorrection, true, false);
+				}
+			}
+		}
+	}
+	*/
 }
 
 QString SGMXASScanActionController::buildNotes()
@@ -299,35 +300,39 @@ AMAction3* SGMXASScanActionController::createInitializationActions(){
 	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
 	initializationStage3->addSubAction(moveAction);
 
-//	AMListAction3* initializationStage4 = new AMListAction3(new AMListActionInfo3("SGM XAS Initialization Stage 4", "SGM XAS Initialization Stage 4"), AMListAction3::Sequential);
+	/* Dark current correction testing
+	AMListAction3* initializationStage4 = new AMListAction3(new AMListActionInfo3("SGM XAS Initialization Stage 4", "SGM XAS Initialization Stage 4"), AMListAction3::Sequential);
 
-//	for (int i = 0, size = regionsConfiguration_->detectorConfigurations().count(); i < size; i++){
-//		AMDetector *detector = AMBeamline::bl()->exposedDetectorByInfo(regionsConfiguration_->detectorConfigurations().at(i));
+	for (int i = 0, size = regionsConfiguration_->detectorConfigurations().count(); i < size; i++){
+		AMDetector *detector = AMBeamline::bl()->exposedDetectorByInfo(regionsConfiguration_->detectorConfigurations().at(i));
 
-//		bool sharedSourceFound = false;
+		bool sharedSourceFound = false;
 
-//		if (detector) {
-//			int detectorIndex = scan_->indexOfDataSource(detector->name());
+		if (detector) {
+			int detectorIndex = scan_->indexOfDataSource(detector->name());
 
-//			if (detectorIndex != -1 && detector->rank() == 0 && detector->canDoDarkCurrentCorrection()) {
-//				bool isSourceShared = detector->sharesDetectorTriggerSource();
+			if (detectorIndex != -1 && detector->rank() == 0 && detector->canDoDarkCurrentCorrection()) {
+				bool isSourceShared = detector->sharesDetectorTriggerSource();
 
-//				if (isSourceShared && !sharedSourceFound) {
-//					sharedSourceFound = true;
-//					initializationStage4->addSubAction(detector->createDarkCurrentCorrectionActions(10));
+				if (isSourceShared && !sharedSourceFound) {
+					sharedSourceFound = true;
+					initializationStage4->addSubAction(detector->createDarkCurrentCorrectionActions(10));
 
-//				} else if (!isSourceShared) {
-//					initializationStage4->addSubAction(detector->createDarkCurrentCorrectionActions(10));
+				} else if (!isSourceShared) {
+					initializationStage4->addSubAction(detector->createDarkCurrentCorrectionActions(10));
 
-//				}
-//			}
-//		}
-//	}
+				}
+			}
+		}
+	}
+	*/
 
 	initializationActions->addSubAction(initializationStage1);
 	initializationActions->addSubAction(initializationStage2);
 	initializationActions->addSubAction(initializationStage3);
-	//initializationActions->addSubAction(initializationStage4);
+	/* Dark current correction testing
+	initializationActions->addSubAction(initializationStage4);
+	*/
 
 	QStringList applicationArguments = QApplication::instance()->arguments();
 	if(!applicationArguments.contains("--enableTesting")){

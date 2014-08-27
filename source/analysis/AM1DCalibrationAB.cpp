@@ -43,7 +43,7 @@ AM1DCalibrationAB::AM1DCalibrationAB(const QString &outputName, QObject *parent)
 bool AM1DCalibrationAB::areInputDataSourcesAcceptable(const QList<AMDataSource*>& dataSources) const
 {
 	if(dataSources.isEmpty())
-		return true;	// always acceptable; the null input.
+		return true;	// always acceptable, the null input.
 
 	// otherwise we need two input sources, with a rank of 1.
 	if(dataSources.count() == 2 && dataSources.at(0)->rank() == 1 && dataSources.at(1)->rank() == 1)

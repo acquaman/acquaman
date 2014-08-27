@@ -71,7 +71,7 @@ public:
  	virtual ~AMAbstractDataViewSection();
 	AMAbstractDataViewSection(QGraphicsItem* parent = 0) : QGraphicsWidget(parent) {}
 
-	/// Support for "heightForWidth" mode is broken in QGraphicsLayout, at least up to Qt 4.7.2.  This is a workaround: we create and call a setWidthConstraint() on all the items in the top-level layout; they use this width in their sizeHint() function if a constraint is not provided.
+	/// Support for "heightForWidth" mode is broken in QGraphicsLayout, at least up to Qt 4.7.2.  This is a workaround: we create and call a setWidthConstraint() on all the items in the top-level layout, they use this width in their sizeHint() function if a constraint is not provided.
 	/*! HeightForWidth mode means that the item's preferred height (returned via QGraphicsLayoutItem::sizeHint()) depends on the width available. (For example, a paragraph of wrapping text, or an image with a constant aspect ratio.)  It _should_ be activated by doing a setSizePolicy() on the item, where the size policy object has had setHeightForWidth(true) called on it.  When heightForWidth is set, layouts should always provide a width constraint when calling sizeHint(), but they don't.
 
 	(In Qt 4.7.1, they do, but it breaks spanning in row layouts. In Qt 4.7.2, it's "fixed", but layout performance is terrible, taking a minute or more with nested layouts.  See http://bugreports.qt.nokia.com/browse/QTBUG-12835 and http://bugreports.qt.nokia.com/browse/QTBUG-15333).
@@ -95,7 +95,7 @@ public:
 	/// Child sections that aren't part of a layout but directly managed by their parent... must call this on their parent whenever their sizeHint() has changed. The default version simply calls updateGeometry() at the parent level, which assumes that the parent's sizeHint() has automatically changed to reflect its child's new size.
 	virtual void notifyThatChildSizeHintChanged() { updateGeometry(); }
 
-	/// Access the currently-selected items (as a list of amd:// URLs).  Only meaningful for sections that know how to identify their selected items; the base implementation returns an empty list.
+	/// Access the currently-selected items (as a list of amd:// URLs).  Only meaningful for sections that know how to identify their selected items, the base implementation returns an empty list.
 	virtual QList<QUrl> selectedItems() const { return QList<QUrl>(); }
 
 	/// Retrieving selectedItems() could take time (especially if there are many many selected items), as it needs to build the URLs. This is a faster way to find out if any items are selected.  The base implementation returns 0.
@@ -239,7 +239,7 @@ protected:
 	mutable QList<QUrl> selectedUrls_;
 	/// True if the selection has changed and selectedUrls_ is dirty.
 	mutable bool selectedUrlsUpdateRequired_;
-	/// This helper function analyzes the current selection and updates selectedUrls_;
+	/// This helper function analyzes the current selection and updates selectedUrls_
 	void updateSelectedUrls() const;
 
 
@@ -281,7 +281,7 @@ protected:
 	void refreshView();
 	/// This helper function re-populates the comboBox of OrganizeMode choices, as appropriate for the current settings.
 	void refreshOrganizeModeBox();
-	/// This helper function retrieves the user's name from the database and forms the possesive form of it, storing in userName_;
+	/// This helper function retrieves the user's name from the database and forms the possesive form of it, storing in userName_
 	void retrieveUserName();
 
 	/// The amount of room that views should assume to have available
@@ -290,12 +290,6 @@ protected:
 
 	/// Overidden so that we can notify the contents _inside_ the scroll area to change width with us.
 	virtual void resizeEvent(QResizeEvent *event);
-
-
-
-
-
-
 };
 
 

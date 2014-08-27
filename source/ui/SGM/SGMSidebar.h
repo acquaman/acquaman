@@ -61,7 +61,6 @@ protected slots:
 	void onStopMotorsActionFinished();
 
 	void onScanningResetButtonClicked();
-//    void toTakeDarkCurrentMeasurement();
 
 	void onStripToolTimerTimeout();
 	void onI0CheckBoxToggled(bool toggled);
@@ -131,8 +130,6 @@ protected:
 
 	QLabel *controlsConnectedLabel_;
 	QLabel *detectorsConnectedLabel_;
-    
-//    CLSDarkCurrentWidget *darkCurrentWidget_;
 };
 
 #endif // SGMSIDEBAR_H

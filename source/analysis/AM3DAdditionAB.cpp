@@ -35,7 +35,7 @@ AM3DAdditionAB::AM3DAdditionAB(const QString &outputName, QObject *parent)
 bool AM3DAdditionAB::areInputDataSourcesAcceptable(const QList<AMDataSource*>& dataSources) const
 {
 	if(dataSources.isEmpty())
-		return true; // always acceptable; the null input.
+		return true; // always acceptable, the null input.
 
 	// otherwise input sources have rank of 2.
 	for (int i = 0; i < dataSources.count(); i++)

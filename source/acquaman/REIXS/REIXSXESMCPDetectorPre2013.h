@@ -111,7 +111,7 @@ public:
 
 
 protected slots:
-	/// Called whenever the connection state of any PV changes; emits valuesChanged(), sizeChanged(), and stateChanged() as required.
+	/// Called whenever the connection state of any PV changes: emits valuesChanged(), sizeChanged(), and stateChanged() as required.
 	void onConnectionStateChanged();
 	/// Called when the image PV changes. emits valuesChanged().
 	void onImageValuesChanged();
@@ -202,9 +202,10 @@ public:
 		setName(info.name());
 		setDescription(info.description());
 
-		/// \todo: set HV. (No current way to set it; no PV control)
-
-		// removed for now: success |= setOrientation(info.orientation());
+		/*
+		/// \todo: set HV. (No current way to set it: no PV control)
+		removed for now: success |= setOrientation(info.orientation());
+		*/
 
 		return success;
 	}

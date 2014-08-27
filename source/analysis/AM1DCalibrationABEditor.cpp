@@ -78,7 +78,6 @@ AM1DCalibrationABEditor::AM1DCalibrationABEditor(AM1DCalibrationAB *analysisBloc
 	layout->addRow("Offset:", energyCalibrationOffsetBox_);
 	layout->addRow("Scaling:",energyCalibrationScalingBox_);
 	layout->addRow("Reference:",energyCalibrationReferenceBox_);
-	//layout->addRow("", applyToAllSourcesButton_);
 	layout->addRow("", applyToScansButton_);
 
 	setLayout(layout);
@@ -163,7 +162,6 @@ void AM1DCalibrationABEditor::onApplyToScansButtonClicked()
 {
 	if(!chooseScanDialog_) {
 		chooseScanDialog_ = new AMChooseScanDialog(AMDatabase::database("user"), "Choose scans...", "Choose the scans you want to apply these analysis parameters to.", true, this);
-		// chooseScanDialog_->dataView_->setOrganizeMode(AMDataViews::OrganizeScanTypes);
 		chooseScanDialog_->setAttribute(Qt::WA_DeleteOnClose, false);
 	}
 	connect(chooseScanDialog_, SIGNAL(accepted()), this, SLOT(onApplyToOtherScansChosen()));

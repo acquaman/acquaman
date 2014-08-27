@@ -87,9 +87,6 @@ public:
 	// Scan configuration properties
 	/////////////////////////
 
-//	QString I0Channel() const { return I0Channel_; }
-//	QString ItChannel() const { return ItChannel_; }
-//	QString IrChannel() const { return IrChannel_; }
 	/// Returns whether scan is collecting XRF data
 	bool isXRFScan() const { return isXRFScan_; }
 	/// Returns whether scan is collecting transmission data
@@ -131,10 +128,6 @@ public slots:
 	void setIsTransScan(bool isTransScan) { if(isTransScan == isTransScan_) return; isTransScan_ = isTransScan; setModified(true); emit configurationChanged(); }
 	void setUseRef(bool useRef) { if(useRef == useRef_) return; useRef_ = useRef; setModified(true); emit configurationChanged(); }
 
-//	void setI0Channel(QString I0Channel) { if(I0Channel == I0Channel_) return; I0Channel_ = I0Channel; setModified(true); emit configurationChanged(); }
-//	void setItChannel(QString ItChannel) { if(ItChannel == ItChannel_) return; ItChannel_ = ItChannel; setModified(true); emit configurationChanged(); }
-//	void setIrChannel(QString IrChannel) { if(IrChannel == IrChannel_) return; IrChannel_ = IrChannel; setModified(true); emit configurationChanged(); }
-
 	/// Sets the current edge for the scan.
 	void setEdge(QString edgeName);
 	/// Sets the edge energy.
@@ -156,10 +149,6 @@ protected slots:
 
 
 protected:
-
-//	QString I0Channel_;
-//	QString ItChannel_;
-//	QString IrChannel_;
 	bool isXRFScan_;
 	bool isTransScan_;
 	bool useRef_;

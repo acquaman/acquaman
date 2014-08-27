@@ -41,22 +41,22 @@ public:
 
 	/// Returns the current pen used to draw the crosshair lines
 	QPen crosshairPen() const;
-	/// Returns the current position of the crosshair, in normalized coordinates. (ex: 0,0 = top left; 1,1 = bottom right)
+	/// Returns the current position of the crosshair, in normalized coordinates. (ex: 0,0 = top left 1,1 = bottom right)
 	QPointF crosshairPosition() const { return QPointF(crosshairX_, crosshairY_); }
 	/// Returns whether the crosshair is currently visible
 	bool crosshairVisible() const;
 
 signals:
-	/// Emitted when the left mouse button is pressed down. (The position is reported as percentage of the video screen width and height; ie: from 0 to 1)
+	/// Emitted when the left mouse button is pressed down. (The position is reported as percentage of the video screen width and height ie: from 0 to 1)
 	void mousePressed(const QPointF& position);
-	/// Emitted when the left mouse is released. (The position is reported as percentage of the video screen width and height; ie: from 0 to 1).  Not emitted for the second click of a double-click; see mouseDoubleClicked() instead.
+	/// Emitted when the left mouse is released. (The position is reported as percentage of the video screen width and height ie: from 0 to 1).  Not emitted for the second click of a double-click. See mouseDoubleClicked() instead.
 	void mouseReleased(const QPointF& position);
-	/// Emitted when the left mouse button is released from a double-click. (The position is reported as percentage of the video screen width and height; ie: from 0 to 1).
+	/// Emitted when the left mouse button is released from a double-click. (The position is reported as percentage of the video screen width and height ie: from 0 to 1).
 	void mouseDoubleClicked(const QPointF& position);
 
 public slots:
 
-	/// Set the crosshair position on the video display, using normalized coordinates. (ex: 0,0 = top left; 1,1 = bottom right)
+	/// Set the crosshair position on the video display, using normalized coordinates. (ex: 0,0 = top left 1,1 = bottom right)
 	void setCrosshairPosition(const QPointF& pos) {
 		crosshairX_ = pos.x();
 		crosshairY_ = pos.y();

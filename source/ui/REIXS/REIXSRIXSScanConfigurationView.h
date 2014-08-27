@@ -96,10 +96,11 @@ protected:
 
 	AMActionRunnerQueueView3* queueView_;
 
-
-//	MPlotSeriesBasic Plot_;
-//	MPlotWidget* plotWidget_;
-//	MPlot* plot_;
+	/*
+	MPlotSeriesBasic Plot_;
+	MPlotWidget* plotWidget_;
+	MPlot* plot_;
+	*/
 
 	/// Plot view capable of holding multiple scans.
 	AMScanView* scanView_;
@@ -137,23 +138,25 @@ protected:
 	QCheckBox* autoNamingCheckBox_;
 
 	QLabel* XASScanName_;
-//	QPushButton* queueScan_;
 	QPushButton* loadXASData_;
 
-//	/// Overloaded to enable drag-dropping scans (when Drag Action = Qt::CopyAction and mime-type = "text/uri-list" with the proper format.)
-//	void dragEnterEvent(QDragEnterEvent *event);
+	/*
+	QPushButton* queueScan_;
+	/// Overloaded to enable drag-dropping scans (when Drag Action = Qt::CopyAction and mime-type = "text/uri-list" with the proper format.)
+	void dragEnterEvent(QDragEnterEvent *event);
 
-//	/// Overloaded to enable drag-dropping scans.
-//	/*! The Drag is accepted when:
-//	  - Drag Action = Qt::CopyAction
-//	  - One of the MIME types is "text/uri-list"... format is "amd://databaseConnectionName/tableName/id"
-//	  - There is at least one URL in the uri-list
-//	  - The URL scheme is "amd://"
-//	  - The database connection name returns a valid database, according to AMDatabase::dbByName(connectionName)
-//	  - The table is the main Objects table
-//	  - The id of the item can be found in the table
-//	  */
-//	void dropEvent(QDropEvent * event);
+	/// Overloaded to enable drag-dropping scans.
+	 The Drag is accepted when:
+	  - Drag Action = Qt::CopyAction
+	  - One of the MIME types is "text/uri-list"... format is "amd://databaseConnectionName/tableName/id"
+	  - There is at least one URL in the uri-list
+	  - The URL scheme is "amd://"
+	  - The database connection name returns a valid database, according to AMDatabase::dbByName(connectionName)
+	  - The table is the main Objects table
+	  - The id of the item can be found in the table
+
+	void dropEvent(QDropEvent * event);
+	*/
 
 
 
@@ -194,9 +197,9 @@ public slots:
 
 	void onloadXASDataClicked();
 	void onloadXASDataChosen();
-//	void onQueueScanClicked();
-
-
+	/*
+	void onQueueScanClicked();
+	*/
 };
 
 #endif // REIXSRIXSSCANCONFIGURATIONVIEW_H

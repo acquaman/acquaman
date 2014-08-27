@@ -24,7 +24,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "application/AMAppController.h"
 
-//class CLSSynchronizedDwellTimeView;
 class IDEASXASScanConfigurationView;
 class IDEASScanConfigurationViewHolder3;
 class IDEASXRFDetailedDetectorViewWithSave;
@@ -48,8 +47,6 @@ public:
 	virtual void shutdown();
 
 protected slots:
-//	/// Once the synchronized dwell is connected we can make the view for it
-//	void onSynchronizedDwellTimeConnected(bool connected);
 	/// Wait until the energy is connected before making the scan views
 	void onEnergyConnected(bool connected);
 	/// Helper slot that connects generic scan editors that use the 2D scan view to the app controller so that it can enable quick configuration of scans.
@@ -79,9 +76,6 @@ protected:
 
 
 protected:
-//	/// View for controlling the synchronized dwell time application
-//	CLSSynchronizedDwellTimeView *ideasSynchronizedDwellTimeView_;
-
 	/// View for the IDEAS's XAS scan configurations
 	IDEASXASScanConfigurationView *xasScanConfigurationView_;
 	/// View holder for XAS

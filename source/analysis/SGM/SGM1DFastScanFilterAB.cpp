@@ -28,7 +28,6 @@ SGM1DFastScanFilterAB::SGM1DFastScanFilterAB(const QString &outputName, QObject 
 	AMStandardAnalysisBlock(outputName, parent), inputAxis_("invalid", 0, "No input data")
 {
 	inputSource_ = 0;
-//	inputAxis_ = AMAxisInfo("invalid", 0, "No input data");
 
 	axes_ << AMAxisInfo("invalid", 0, "No input data");
 	cacheCompletelyInvalid_ = true;
@@ -42,7 +41,7 @@ SGM1DFastScanFilterAB::SGM1DFastScanFilterAB(const QString &outputName, QObject 
 
 bool SGM1DFastScanFilterAB::areInputDataSourcesAcceptable(const QList<AMDataSource*>& dataSources) const {
 	if(dataSources.isEmpty())
-		return true;	// always acceptable; the null input.
+		return true;	// always acceptable, the null input.
 
 	// otherwise we need a single input source, with a rank of 1.
 	if(dataSources.count() == 1 && dataSources.at(0)->rank() == 1)
@@ -142,25 +141,8 @@ AMNumber SGM1DFastScanFilterAB::value(const AMnDIndex& indexes) const{
 
 	int index = indexes.i();
 
-	//return inputSource_->value(index);
 	if(!cacheCompletelyInvalid_)
 		return cachedValues_.at(index);
-	/*
-	double runningAverage = 0;
-	int numAvgPoints = 1;
-	runningAverage += (double)inputSource_->value(index);
-	for(int x = 1; x <= (filterSize_-1)/2; x++){
-		if( (index-x) >= 0 ){
-			runningAverage += (double)inputSource_->value(index-x);
-			numAvgPoints++;
-		}
-		if( (index+x) < axes_.at(0).size ){
-			runningAverage += (double)inputSource_->value(index+x);
-			numAvgPoints++;
-		}
-	}
-	return runningAverage/((double)numAvgPoints);
-	*/
 
 	return AMNumber(27.27);
 }
@@ -177,7 +159,6 @@ AMNumber SGM1DFastScanFilterAB::axisValue(int axisNumber, int index) const{
 	if(axisNumber != 0)
 		return AMNumber(AMNumber::DimensionError);
 
-	//return inputSource_->axisValue(0, index);
 	return cachedAxisValues_.at(index);
 }
 
@@ -189,7 +170,6 @@ void SGM1DFastScanFilterAB::onInputSourceValuesChanged(const AMnDIndex& start, c
 /// Connected to be called when the size of the input source changes
 void SGM1DFastScanFilterAB::onInputSourceSizeChanged() {
 	if(inputAxis_.size != inputSource_->size(0)){
-		//axes_[0].size = inputSource_->size(0);
 		inputAxis_.size = inputSource_->size(0);
 
 		QList<int> ignoreIndices;
@@ -199,8 +179,6 @@ void SGM1DFastScanFilterAB::onInputSourceSizeChanged() {
 		int numMoving = 0;
 		for(int x = 1; x < inputAxis_.size; x++){
 			if( fabs((double)inputSource_->axisValue(0,x)-(double)inputSource_->axisValue(0, x-1)) < 0.001 ){
-//				if(numMoving > 3)
-//					qdebug() << "Stopped moving on " << x;
 				numMoving = 0;
 				ignoreIndices << x;
 				numLost++;
@@ -210,7 +188,6 @@ void SGM1DFastScanFilterAB::onInputSourceSizeChanged() {
 					ignoreIndices.pop_back();
 					ignoreIndices.pop_back();
 					numLost -= 2;
-//					qdebug() << "Started moving on " << x;
 				}
 				numMoving++;
 			}
@@ -221,19 +198,6 @@ void SGM1DFastScanFilterAB::onInputSourceSizeChanged() {
 			}
 		}
 
-		/*
-		for(int x = 1; x < inputAxis_.size; x++){
-			if( fabs((double)inputSource_->axisValue(0,x)-(double)inputSource_->axisValue(0, x-1)) < 0.001 ){
-				ignoreIndices << x;
-				numLost++;
-				//qdebug() << "XX" << (double)inputSource_->axisValue(0,x) << (double)inputSource_->value(x);
-			}
-			else{
-				//qdebug() << (double)inputSource_->axisValue(0,x) << (double)inputSource_->value(x);
-			}
-		}
-		*/
-//		qdebug() << "Total lost: " << numLost << ignoreIndices;
 		axes_[0].size = inputAxis_.size-numLost;
 		invalidateCache();
 		int goodIndex = 0;
@@ -245,10 +209,6 @@ void SGM1DFastScanFilterAB::onInputSourceSizeChanged() {
 			}
 		}
 		cacheCompletelyInvalid_ = false;
-
-		//qdebug() << "\n\n";
-		//qdebug() << cachedValues_.size() << cachedAxisValues_.size() << axes_.at(0).size << inputAxis_.size << numLost;
-		//qdebug() << "\n\n";
 
 		emitSizeChanged(0);
 	}

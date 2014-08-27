@@ -28,7 +28,7 @@ namespace Ui {
 	class AMSamplePositionViewActionsWidget;
 }
 
-/// This widget adds a "Mark", "Move To", and "Remove" button when editing sample position items; it's used by AMSamplePlateView.
+/// This widget adds a "Mark", "Move To", and "Remove" button when editing sample position items, it's used by AMSamplePlateView.
 class AMSamplePositionPre2013ViewActionsWidget : public QFrame
 {
 	Q_OBJECT

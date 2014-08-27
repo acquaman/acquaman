@@ -35,7 +35,6 @@ SGMSampleManipulatorMotorGroupObject::SGMSampleManipulatorMotorGroupObject(const
 
 #include "ui/SGM/SGMSampleManipulatorMotorGroupView.h"
 AMMotorGroupObjectView* SGMSampleManipulatorMotorGroupObject::createMotorGroupObjectView(){
-	//return new SGMSampleManipulatorMotorGroupObjectView(this);
 	SGMSampleManipulatorMotorGroupObjectView *retVal = new SGMSampleManipulatorMotorGroupObjectView(this);
 	retVal->setControlSetpointPrecision(2);
 	return retVal;

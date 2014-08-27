@@ -67,5 +67,4 @@ void AMSampleEditor::setSamplePre2013(const AMSamplePre2013 *samplePre2013){
 }
 
 void AMSampleEditor::onChangeSampleButtonClicked(){
-//	QList<AMSample*> allSamples = AMBeamline::bl()->samplePlateBrowser()->allSamples();
 }

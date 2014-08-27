@@ -31,12 +31,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AMGENERICLINUXJOYSTICK_READ_ERROR_POSSIBLE_DISCONNECT 290701
 
 /// Structure used to represent joystick events by the Linux joystick API.
-//typedef struct js_event {
-//    quint32 time;     /* event timestamp in milliseconds */
-//    qint16 value;    /* value */
-//    quint8 type;      /* event type */
-//    quint8 number;    /* axis/button number */
-//} AMGenericLinuxJoystickEvent;
+/*
+typedef struct js_event {
+    quint32 time;     event timestamp in milliseconds
+    qint16 value;    value
+    quint8 type;      event type
+    quint8 number;    axis/button number
+} AMGenericLinuxJoystickEvent;
+*/
 
 typedef struct js_event AMGenericLinuxJoystickEvent;
 
@@ -105,14 +107,16 @@ signals:
 
     // Sending joystick events. Implementations should take care of emitting these signals.
 
+    /*
     // Emitted with true when the joystick connects, and false when it disconnects.
-    // void connected(bool);
+     void connected(bool);
 
     // Emitted when a button is pressed or released. \c isDown will be true when pressed, false when released.
-    // defined in base class: void buttonChanged(int buttonId, bool isDown);
+    defined in base class: void buttonChanged(int buttonId, bool isDown);
 
     // Emitted when an axis is moved. \c position will contain the most up-to-date axis position.
-    // defined in base class: void axisChanged(int axisId, int position);
+    defined in base class: void axisChanged(int axisId, int position);
+    */
 
 
 

@@ -187,7 +187,7 @@ enum Type { Unconnected = TYPENOTCONN, ///< Type of PV's before they are connect
 				};
 }
 
-/// Used by AMProcessVariable, this class encapsulates a connection to an EPICS channel-access Process Variable.  You should never need to use it directly; it exists to share a single channel-access connection between AMProcessVariable instances that all refer to the same underlying PV.
+/// Used by AMProcessVariable, this class encapsulates a connection to an EPICS channel-access Process Variable.  You should never need to use it directly. It exists to share a single channel-access connection between AMProcessVariable instances that all refer to the same underlying PV.
 class AMProcessVariablePrivate : public QObject {
 
 	Q_OBJECT
@@ -211,7 +211,7 @@ public:
 	unsigned count() const { return count_; }
 
 	/// The name of this process variable:
-	QString pvName() const { return QString(ca_name(chid_)); } // ca_ functions are thread-safe by design; does not require locker
+	QString pvName() const { return QString(ca_name(chid_)); } // ca_ functions are thread-safe by design. Does not require locker
 
 	/// Provides detailed information on the status of this connection.  Usually isConnected() is all you need, but this returns one of the channel_state enum values defined in <epics base>/include/cadef.h: {cs_never_conn = 0, cs_prev_conn, cs_conn, cs_closed}
 	int connectionState() const {  return int(ca_state(chid_)); }
@@ -330,9 +330,11 @@ public:
 	unsigned enumCount() const {  return enumStrings_.count(); }
 	//@}
 
-	// ignoring alarms for now:
-	// double upperAlarmValue() const { return ctrlValue_.upper_alarm_limit; }
-	// double lowerAlarmValue() const { return ctrlValue_.lower_alarm_limit; }
+	/*
+	 ignoring alarms for now:
+	 double upperAlarmValue() const { return ctrlValue_.upper_alarm_limit; }
+	 double lowerAlarmValue() const { return ctrlValue_.lower_alarm_limit; }
+	 */
 
 	/// This indicates the simplified data type that best represents this ProcessVariable.
 	/*! (Either Integer, Enum, FloatingPoint, or String.)
@@ -376,11 +378,11 @@ public slots:
 	////////////////////////////////////
 
 signals:
-	/// Emits connected(true) when connection is established; connected(false) when lost.
+	/// Emits connected(true) when connection is established, connected(false) when lost.
 	void connected(bool);
 	/// Convenience: same signal without the argument. Implies connected(true)
 	void connected();
-	/// Implies connected(false);
+	/// Implies connected(false)
 	void disconnected();
 
 
@@ -495,7 +497,7 @@ protected:
 	/// Event ID for alarm subscription
 	evid alarmEvid_;
 
-	/// Request that we start monitoring as soon as we connect. (Set by main thread; read from epics connection callback thread, hence volatile.)
+	/// Request that we start monitoring as soon as we connect. (Set by main thread, read from epics connection callback thread, hence volatile.)
 	volatile bool shouldBeMonitoring_;
 	/// true after the channel connects and we receive the control information:
 	bool initialized_;

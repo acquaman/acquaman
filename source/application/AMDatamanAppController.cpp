@@ -145,10 +145,6 @@ AMDatamanAppController::AMDatamanAppController(QObject *parent) :
 	finishedSender_ = 0;
 	resetFinishedSignal(this, SIGNAL(datamanStartupFinished()));
 
-	// shutdown is called automatically from the destructor if necessary, but Qt recommends that clean-up be handled in the aboutToQuit() signal. MS Windows doesn't always let the main function finish during logouts.
-	// HOWEVER, we're not doing this for now, since this change could cause some existing applications to crash on shutdown, because they're not ready for events to be delivered during their shutdown process.
-	// connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(shutdown()));
-
 	// Prepend the AM upgrade 1.1 to the list for the user database
 	AMDbUpgrade *am1Pt1UserDb = new AMDbUpgrade1Pt1("user", this);
 	prependDatabaseUpgrade(am1Pt1UserDb);
@@ -192,7 +188,9 @@ AMDatamanAppController::AMDatamanAppController(QObject *parent) :
 
 bool AMDatamanAppController::startup() {
 
-	//AMErrorMon::enableDebugNotifications(true);
+	/*
+	AMErrorMon::enableDebugNotifications(true);
+	*/
 
 	AM::registerTypes();
 
@@ -1036,6 +1034,10 @@ void AMDatamanAppController::onMainWindowAliasItemActivated(QWidget *target, con
 	}
 }
 
+void AMDatamanAppController::onNewExperimentAdded(const QModelIndex &index) {
+	mw_->sidebar()->expand(index.parent()); //Do this to show people where it ended up...
+}
+
 #include "dataman/AMExperiment.h"
 void AMDatamanAppController::onAddButtonClicked() {
 
@@ -1165,7 +1167,7 @@ void AMDatamanAppController::onWindowPaneCloseButtonClicked(const QModelIndex& i
 	}
 
 	// is this an experiment asking to be deleted?
-	/// \todo bad code; improve this with better architecture and functionality in expItem.  Don't like trusting dynamic_cast; there's no guarantee that someone didn't put a non-AMExperimentModelItem into the model under experimentsParentItem_.
+	/// \todo bad code, improve this with better architecture and functionality in expItem.  Don't like trusting dynamic_cast, there's no guarantee that someone didn't put a non-AMExperimentModelItem into the model under experimentsParentItem_.
 	else if(mw_->windowPaneModel()->itemFromIndex(index.parent()) == experimentsParentItem_) {
 
 		AMExperimentModelItem* expItem = dynamic_cast<AMExperimentModelItem*>(mw_->windowPaneModel()->itemFromIndex(index));
@@ -1199,11 +1201,6 @@ void AMDatamanAppController::onIssueSubmissionViewFinished(){
 
 void AMDatamanAppController::onStartupFinished(){
 	AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_FINISHED, "Acquaman Startup: Finished");
-}
-
-void AMDatamanAppController::onNewExperimentAdded(const QModelIndex &index)
-{
-	mw_->sidebar()->expand(index.parent()); //Do this to show people where it ended up...
 }
 
 void AMDatamanAppController::onShowAboutPage()
@@ -1299,13 +1296,6 @@ AMGenericScanEditor *AMDatamanAppController::createNewScanEditor(bool use2DScanV
 
 bool AMDatamanAppController::canCloseScanEditors() const
 {
-	//	bool canCloseEditors = true;
-	//	for(int i=0, count = scanEditorCount(); i<count; i++) {
-	//		AMGenericScanEditor* editor = scanEditorAt(i);
-	//		if(editor) canCloseEditors &= editor->canCloseEditor();
-	//	}
-	//	return canCloseEditors;
-
 	// Do we need to check all, or is it okay to stop as soon as we find one that doesn't allow closing?
 	for(int i=0, count = scanEditorCount(); i<count; i++) {
 		AMGenericScanEditor* editor = scanEditorAt(i);
@@ -1325,16 +1315,6 @@ bool AMDatamanAppController::defaultUseLocalStorage() const{
 void AMDatamanAppController::setDefaultUseLocalStorage(bool defaultUseLocalStorage){
 	defaultUseLocalStorage_ = defaultUseLocalStorage;
 }
-
-//void AMDatamanAppController::processEventsFor(int ms)
-//{
-//	QTime t;
-//	t.start();
-//	while(t.elapsed() <ms) {
-//		qApp->sendPostedEvents();
-//		qApp->processEvents();
-//	}
-//}
 
 bool AMDatamanAppController::eventFilter(QObject* o, QEvent* e)
 {
@@ -1387,7 +1367,7 @@ AMGenericScanEditor * AMDatamanAppController::isScanOpenForEditing(int id, AMDat
 
 bool AMDatamanAppController::dropScanURLs(const QList<QUrl> &urls, AMGenericScanEditor *editor, bool openInIndividualEditors)
 {
-	if(	!urls.count() )
+	if( !urls.count() )
 		return false;
 
 	bool accepted = false;
@@ -1660,7 +1640,7 @@ void AMDatamanAppController::getUserDataFolderFromDialog(bool presentAsParentFol
 	QString newFolder = QFileDialog::getExistingDirectory(0, "Choose the folder for your Acquaman data...", initialFolder, QFileDialog::ShowDirsOnly);
 
 	if(newFolder.isEmpty())
-		return;	// user cancelled; do nothing.
+		return;	// user cancelled, do nothing.
 
 	newFolder = QDir::fromNativeSeparators(newFolder);
 	newFolder.append("/");

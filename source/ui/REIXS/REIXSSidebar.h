@@ -69,17 +69,15 @@ protected slots:
 
 	/// This could be a little sub-widget:
 	void onMCPCountsPerSecondChanged(double countsPerSecond);
-//	void onTEYCountsChanged(double counts);
 	void onTFYCountsChanged(double counts);
-//	void onI0CountsChanged(double counts);
 
 	/// Monitors REIXSBeamline::bl()->valvesAndShutters()::beamOnChanged() to light up the "beam on" summary LED.
 	void onBeamOnChanged(bool isOn);
 
 	/// When the scaler's continuous mode is changed
 	void onScalerContinuousModeChanged(double on);
+
 private slots:
-	// void on_beamOnButton_clicked();  DAVID OOPS?
 	void on_MonoStopButton_clicked();
 };
 

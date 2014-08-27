@@ -213,9 +213,11 @@ public:
 	unsigned enumCount() const { return d_->enumCount(); }
 	//@}
 
-	// ignoring alarms for now:
-	// double upperAlarmValue() const { return ctrlValue_.upper_alarm_limit; }
-	// double lowerAlarmValue() const { return ctrlValue_.lower_alarm_limit; }
+	/*
+	 ignoring alarms for now:
+	 double upperAlarmValue() const { return ctrlValue_.upper_alarm_limit; }
+	 double lowerAlarmValue() const { return ctrlValue_.lower_alarm_limit; }
+	 */
 
 
 	/// This indicates the simplified data type that best represents this ProcessVariable.
@@ -281,11 +283,11 @@ Applications that want to make use of the extra delivery checking provided by ca
 
 
 signals:
-	/// Emits connected(true) when connection is established; connected(false) when lost.
+	/// Emits connected(true) when connection is established, connected(false) when lost.
 	void connected(bool);
 	/// Convenience: same signal without the argument. Implies connected(true)
 	void connected();
-	/// Implies connected(false);
+	/// Implies connected(false)
 	void disconnected();
 	/// Connection status changed. The new state is \c channelState, which corresponds to the values defined in the channel_state enum in <epics base>/include/cadef.h:{cs_never_conn = 0, cs_prev_conn, cs_conn, cs_closed}. Provides more detail than connected(bool).
 	void connectionStateChanged(int channelState);
@@ -332,7 +334,7 @@ protected slots:
 
 
 protected:
-	/// Private instance of a channel access connection; possibly shared with other AMProcessVariables that refer to the same underlying PV.
+	/// Private instance of a channel access connection, possibly shared with other AMProcessVariables that refer to the same underlying PV.
 	AMProcessVariablePrivate* d_;
 	/// Flag to indicate that this PV wants to receive monitor notifications when the value changes.
 	bool shouldBeMonitoring_;

@@ -249,7 +249,7 @@ protected slots:
 	void pointListAppend(QPointF *point);
 	/// append rotations to the list
 	void rotationsAppend(double rotation);
-	/// sets the free page; for using pageWait and pageSet
+	/// sets the free page, for using pageWait and pageSet
 	void setFreePage(int freePage);
 
 protected:
@@ -388,19 +388,16 @@ public:
 	bool isComplete() const;
 	void stopTimer();
 	/// This starts the motor moving by calling
-	/// viewWizard()->waitPage();
+	/// viewWizard()->waitPage()
 	void startTimer(int msec);
 
 protected slots:
 	void nextPage();
 	bool checkState();
 
-
 private:
 	QTimer* waitTimer_;
 	bool waitingToMove_;
-
-
 };
 
 

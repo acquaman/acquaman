@@ -54,7 +54,7 @@ bool ALSBL8XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolder
 		line = fs.readLine();
 	if(fs.atEnd()) {
 		errorMonitor->exteriorReport(AMErrorReport(0, AMErrorReport::Serious, ALSBL8XASFileLoaderPLUGIN_BAD_FORMAT_NO_EVENT1_HEADER, "ALSBL8XASFileLoader parse error while loading scan data from file. Missing the Column Header line."));
-		return false;	// bad format; missing the column header
+		return false;	// bad format. Missing the column header
 	}
 	colNames1 = line.split(QChar('\t'));
 
@@ -66,7 +66,7 @@ bool ALSBL8XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolder
 	int eVIndex = colNames1.indexOf("eV");
 	if(eVIndex < 0) {
 		errorMonitor->exteriorReport(AMErrorReport(0, AMErrorReport::Serious, ALSBL8XASFileLoaderPLUGIN_BAD_FORMAT_NO_ENERGY_COLUMN, "ALSBL8XASFileLoader parse error while loading scan data from file. I couldn't find the energy (eV) column."));
-		return false;	// bad format; no primary column
+		return false;	// bad format. No primary column
 
 	}
 
@@ -78,7 +78,7 @@ bool ALSBL8XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolder
 	// add scalar (0D) measurements to the raw data store, for each data column.  Also add raw data sources to the scan, which expose this data.
 	foreach(QString colName, colNames1) {
 		if(colName != "eV" && colName != "Event-ID") {
-			scan->rawData()->addMeasurement(AMMeasurementInfo(colName, colName));	/// \todo nice descriptions for the common column names; not just 'tey' or 'tfy'.
+			scan->rawData()->addMeasurement(AMMeasurementInfo(colName, colName));	/// \todo nice descriptions for the common column names. Not just 'tey' or 'tfy'.
 		}
 	}
 

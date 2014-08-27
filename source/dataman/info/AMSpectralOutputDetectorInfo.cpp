@@ -39,7 +39,6 @@ AMSpectralOutputDetectorInfo::AMSpectralOutputDetectorInfo(const QString& name, 
 AMSpectralOutputDetectorInfo::AMSpectralOutputDetectorInfo(const AMSpectralOutputDetectorInfo &original) :
 		AMOldDetectorInfo(original)
 {
-//	retreiveAndSetProperties(original);
 	integrationModeList_ << "Real" << "Live" << "Peak";
 	this->operator =(original);
 }

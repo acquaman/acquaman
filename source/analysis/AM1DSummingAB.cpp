@@ -36,7 +36,7 @@ AM1DSummingAB::AM1DSummingAB(const QString &outputName, QObject *parent)
 bool AM1DSummingAB::areInputDataSourcesAcceptable(const QList<AMDataSource*>& dataSources) const
 {
 	if(dataSources.isEmpty())
-		return true; // always acceptable; the null input.
+		return true; // always acceptable, the null input.
 
 	// otherwise input sources have rank of 1.
 	for (int i = 0; i < dataSources.count(); i++)

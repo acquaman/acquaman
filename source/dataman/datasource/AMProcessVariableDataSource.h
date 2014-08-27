@@ -58,7 +58,7 @@ public:
 		return QList<AMAxisInfo>();
 	}
 
-	// Following can all be determined from above. Included anyway for convenience of classes that use the interface, and for performance. Calling size(axisNumber) should be fast; using axes() to return a full list of AMAxisInfo and extracting the desired axis would be much slower.
+	// Following can all be determined from above. Included anyway for convenience of classes that use the interface, and for performance. Calling size(axisNumber) should be fast. Using axes() to return a full list of AMAxisInfo and extracting the desired axis would be much slower.
 	//////////////////////////////////////////////
 	/// Returns the rank (number of dimensions) of this data set
 	virtual int rank() const { return 0; }
@@ -140,7 +140,7 @@ public:
 		return axes_;
 	}
 
-	// Following can all be determined from above. Included anyway for convenience of classes that use the interface, and for performance. Calling size(axisNumber) should be fast; using axes() to return a full list of AMAxisInfo and extracting the desired axis would be much slower.
+	// Following can all be determined from above. Included anyway for convenience of classes that use the interface, and for performance. Calling size(axisNumber) should be fast. Using axes() to return a full list of AMAxisInfo and extracting the desired axis would be much slower.
 	//////////////////////////////////////////////
 	/// Returns the rank (number of dimensions) of this data set
 	virtual int rank() const { return 1; }
@@ -283,7 +283,7 @@ public:
 		return axes_;
 	}
 
-	// Following can all be determined from above. Included anyway for convenience of classes that use the interface, and for performance. Calling size(axisNumber) should be fast; using axes() to return a full list of AMAxisInfo and extracting the desired axis would be much slower.
+	// Following can all be determined from above. Included anyway for convenience of classes that use the interface, and for performance. Calling size(axisNumber) should be fast. Using axes() to return a full list of AMAxisInfo and extracting the desired axis would be much slower.
 	//////////////////////////////////////////////
 	/// Returns the rank (number of dimensions) of this data set
 	virtual int rank() const { return 2; }

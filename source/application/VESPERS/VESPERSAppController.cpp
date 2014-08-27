@@ -282,8 +282,10 @@ void VESPERSAppController::setupUserInterface()
 	mw_->addPane(endstationView_, "General", "Endstation", ":/system-software-update.png");
 	mw_->addPane(statusPage_, "General", "Device Status", ":/system-software-update.png");
 
-//	roperCCDView_ = new VESPERSCCDDetectorView(VESPERSBeamline::vespers()->roperCCD());
-//	marCCDView_ = new VESPERSCCDDetectorView(VESPERSBeamline::vespers()->marCCD());
+	/*
+	roperCCDView_ = new VESPERSCCDDetectorView(VESPERSBeamline::vespers()->roperCCD());
+	marCCDView_ = new VESPERSCCDDetectorView(VESPERSBeamline::vespers()->marCCD());
+	*/
 	pilatusView_ = new VESPERSPilatusCCDDetectorView(VESPERSBeamline::vespers()->vespersPilatusAreaDetector());
 
 	AMXRFDetailedDetectorView *singleElementVortexView = new AMXRFDetailedDetectorView(VESPERSBeamline::vespers()->vespersSingleElementVortexDetector());
@@ -301,8 +303,10 @@ void VESPERSAppController::setupUserInterface()
 	fourElementVortexView->addCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));
 
 	mw_->insertHeading("Detectors", 1);
-//	mw_->addPane(roperCCDView_, "Detectors", "Area - Roper", ":/system-search.png");
-//	mw_->addPane(marCCDView_, "Detectors", "Area - Mar", ":/system-search.png");
+	/*
+	mw_->addPane(roperCCDView_, "Detectors", "Area - Roper", ":/system-search.png");
+	mw_->addPane(marCCDView_, "Detectors", "Area - Mar", ":/system-search.png");
+	*/
 	mw_->addPane(singleElementVortexView, "Detectors", "New 1-el Vortex", ":/system-search.png");
 	mw_->addPane(fourElementVortexView, "Detectors", "New 4-el Vortex", ":/system-search.png");
 	mw_->addPane(pilatusView_, "Detectors", "Area - Pilatus", ":/system-search.png");

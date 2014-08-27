@@ -224,7 +224,9 @@ void AMSimpleBeamConfigurationWizard::back()
 	}
 	else if (isSetPage(pageId))
 	{
-		//		((AMSimpleSampleSetPage*)page(pageId))->disconnectMouseSignal();
+		/*
+		((AMSimpleSampleSetPage*)page(pageId))->disconnectMouseSignal();
+		*/
 		if(relativeId() == 0)
 		{
 			while(currentId() != Page_Intro)

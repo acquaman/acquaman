@@ -898,8 +898,6 @@ void SGMBeamline::onCriticalControlsConnectedChanged(bool isConnected, AMControl
 }
 
 void SGMBeamline::onCriticalsConnectedChanged(){
-	//qdebug() << "Critical controls are connected: " << criticalControlsSet_->isConnected();
-	//qdebug() << "Critical detectors are connected: " << criticalDetectorsSet_->isConnected();
 	emit criticalConnectionsChanged();
 	reviewConnected();
 }
@@ -1044,7 +1042,6 @@ void SGMBeamline::setupControls(){
 	amNames2pvNames_.resetLookup();
 
 	QString sgmPVName = amNames2pvNames_.valueF("energy");
-	//energy_ = new AMPVwStatusControl("energy", sgmPVName+":fbk", sgmPVName, "BL1611-ID-1:ready", sgmPVName, this, 0.25);
 	energy_ = new AMPVwStatusControl("energy", sgmPVName+":fbk", sgmPVName, "BL1611-ID-1:ready", "SMTR16114I1002:stop", this, 0.25);
 	energy_->setDescription("Energy");
 	sgmPVName = amNames2pvNames_.valueF("energySpacingParam");
@@ -1072,9 +1069,7 @@ void SGMBeamline::setupControls(){
 	energy_->addChildControl(exitSlit);
 
 	sgmPVName = amNames2pvNames_.valueF("exitSlitGap");
-	//exitSlitGap_ = new AMPVwStatusControl("exitSlitGap", sgmPVName+":Y:mm:fbk", sgmPVName+":Y:mm:encsp", "SMTR16114I1017:status", "SMTR16114I1017:stop", this, 0.5);
 	exitSlitGap_ = new AMPVwStatusControl("exitSlitGap", sgmPVName+":Y:mm:fbk", "BL1611-ID-1:AddOns:ExitSlitGap:Y:mm", "BL1611-ID-1:AddOns:ExitSlitGap:Y:status", "SMTR16114I1017:stop", this, 0.5);
-	//((AMPVwStatusControl*)exitSlitGap_)->setMoveStartTolerance(0.02);
 	exitSlitGap_->setDescription("Exit Slit Gap");
 	sgmPVName = amNames2pvNames_.valueF("entranceSlitGap");
 	entranceSlitGap_ = new AMPVwStatusControl("entranceSlitGap", sgmPVName+":Y:mm:fbk", sgmPVName+":Y:mm:encsp", "SMTR16114I1001:status", "SMTR16114I1001:stop", this, 0.1);
@@ -1285,12 +1280,12 @@ void SGMBeamline::setupControls(){
 	motorGroup_ = new AMMotorGroup(this);
 	//motorObject = new AMMotorGroupObject("Manipulator",
 	motorObject = new SGMSampleManipulatorMotorGroupObject("Manipulator",
-								   QStringList() << "X" << "Y" << "Z" << "R",
-								   QStringList() << "mm" << "mm" << "mm" << "deg",
-						 QList<AMControl*>() << ssaManipulatorX_ << ssaManipulatorY_ << ssaManipulatorZ_ << ssaManipulatorRot_,
-						 QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Horizontal << AMMotorGroupObject::Normal << AMMotorGroupObject::Vertical << AMMotorGroupObject::Other,
-						 QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational << AMMotorGroupObject::Rotational,
-						 this);
+							       QStringList() << "X" << "Y" << "Z" << "R",
+							       QStringList() << "mm" << "mm" << "mm" << "deg",
+							       QList<AMControl*>() << ssaManipulatorX_ << ssaManipulatorY_ << ssaManipulatorZ_ << ssaManipulatorRot_,
+							       QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Horizontal << AMMotorGroupObject::Normal << AMMotorGroupObject::Vertical << AMMotorGroupObject::Other,
+							       QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational << AMMotorGroupObject::Rotational,
+							       this);
 	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
 }
 
@@ -1310,7 +1305,6 @@ void SGMBeamline::setupExposedDetectors(){
 	addExposedDetector(newAmptekSDD3_);
 	addExposedDetector(newAmptekSDD4_);
 	addExposedDetector(newAmptekSDD5_);
-	//addExposedDetector(newPGTDetector_);
 	addExposedDetector(newQE65000Detector_);
 	addExposedDetector(newTEYDetector_);
 	addExposedDetector(newI0Detector_);

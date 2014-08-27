@@ -97,7 +97,7 @@ STTime::Units STTime::stringToUnits(const QString &string)
     if (string == "Hours")
         return Hours;
 
-    qDebug() << "STTime::stringToUnits // String not recognized. Returning default Seconds.";
+    qDebug() << "STTime::stringToUnits / String not recognized. Returning default Seconds.";
     return Seconds;
 }
 

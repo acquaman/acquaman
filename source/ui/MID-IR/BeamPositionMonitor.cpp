@@ -31,10 +31,6 @@ BeamPositionMonitor::BeamPositionMonitor(QWidget *parent) :
 	// Data source that takes in the new PVs for the x and y position.
 	xy_ = new AMXYScatterPVDataSource(new AMProcessVariable("AO2023-02:Stage1:Voltage:X", true, this), new AMProcessVariable("AO2023-02:Stage1:Voltage:Y", true, this), "Look at me go!", this);
 
-	/// These can be added back in when an intensity PV is available.
-	//intensity_ = new AMProcessVariable("darrenIsAwesome:Intensity", true, this);
-	//connect(intensity_, SIGNAL(valueChanged(double)), this, SLOT(onIntensityChanged(double)));
-
 	// This has to come after xy_ is set because we make a series in here using the member variable xy_.  If it's not valid, the class would never work because we haven't
 	// programmed a way to change xy_ or intensity_ after the class is instantiated.
 	setupPlot();
@@ -52,10 +48,6 @@ BeamPositionMonitor::BeamPositionMonitor(QString name, AMProcessVariable *x, AMP
 	: QWidget(parent)
 {
 	xy_ = new AMXYScatterPVDataSource(x, y, name, this);
-
-	/// These can be added back in when an intensity PV is available.
-	//intensity_ = intensity;
-	//connect(intensity_, SIGNAL(valueChanged(double)), this, SLOT(onIntensityChanged(double)));
 
 	// This has to come after xy_ is set because we make a series in here using the member variable xy_.  If it's not valid, the class would never work because we haven't
 	// programmed a way to change xy_ or intensity_ after the class is instantiated.
