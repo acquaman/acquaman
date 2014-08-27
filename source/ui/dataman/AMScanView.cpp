@@ -1017,7 +1017,6 @@ AMScanViewMultiView::AMScanViewMultiView(AMScanView* masterView) : AMScanViewInt
 
 	// create our main plot:
 	plot_ = createDefaultPlot();
-	plot_->plot()->legend()->enableDefaultLegend(false);	// turn on or turn off labels for individual scans in this plot
 
 	connect(plot_->plot()->signalSource(), SIGNAL(dataPositionChanged(QPointF)), this, SIGNAL(dataPositionChanged(QPointF)));
 
@@ -1264,10 +1263,6 @@ void AMScanViewMultiView::refreshTitles() {
 		plot_->plot()->legend()->setTitleText("1 scan");
 	else
 		plot_->plot()->legend()->setTitleText(QString("%1 scans").arg(model()->scanCount()));
-
-	/// \todo set legend description on all plot series, and then case use default legend text, instead of custom body text
-
-	plot_->plot()->legend()->setBodyText(model()->scanNames().join("<br>"));
 }
 
 void AMScanViewMultiView::enableLogScale(bool logScaleOn)
@@ -2156,8 +2151,8 @@ void AMScanView::printGraphics()
 		printer.setOrientation(QPrinter::Landscape);
 
 		QPrintDialog *dialog = new QPrintDialog(&printer, this);
-		    dialog->setWindowTitle(tr("Print Spectra"));
-		    if (dialog->exec() != QDialog::Accepted)
+			dialog->setWindowTitle(tr("Print Spectra"));
+			if (dialog->exec() != QDialog::Accepted)
 			return;
 
 		QPainter painter(&printer);
