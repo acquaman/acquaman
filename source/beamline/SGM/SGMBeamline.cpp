@@ -720,6 +720,28 @@ AMAction3* SGMBeamline::createStopMotorsActions3(){
 	return stopMotorsActionsList;
 }
 
+AMAction3 *SGMBeamline::createVisibleLightOnActions3()
+{
+	AMListAction3 *visibleLightOnListAction = new AMListAction3(new AMListActionInfo3("Move to visible light", "Move to visible light"));
+	visibleLightOnListAction->addSubAction(createBeamOnActions3());
+
+	if(gratingVelocity()->value() != 10000){
+		AMControlInfo gratingControlInfo = gratingVelocity()->toInfo();
+		gratingControlInfo.setValue(10000);
+		AMControlMoveActionInfo3 *gratingVelocityMoveActionInfo = new AMControlMoveActionInfo3(gratingControlInfo);
+		AMControlMoveAction3 *gratingVelocityMoveAction = new AMControlMoveAction3(gratingVelocityMoveActionInfo, gratingVelocity());
+		visibleLightOnListAction->addSubAction(gratingVelocityMoveAction);
+	}
+
+	AMControlInfo visibleLightToggleInfo = visibleLightToggle()->toInfo();
+	visibleLightToggleInfo.setValue(1);
+	AMControlMoveActionInfo3 *visibleLightToggleActionInfo = new AMControlMoveActionInfo3(visibleLightToggleInfo);
+	AMControlMoveAction3 *visibleLightToggleAction = new AMControlMoveAction3(visibleLightToggleActionInfo, visibleLightToggle());
+	visibleLightOnListAction->addSubAction(visibleLightToggleAction);
+
+	return visibleLightOnListAction;
+}
+
 AMAction3* SGMBeamline::createGoToTransferPositionActions3(){
 	if(!beamOnControlSet_->isConnected())
 		return 0;

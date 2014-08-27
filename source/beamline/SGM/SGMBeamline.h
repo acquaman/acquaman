@@ -45,12 +45,15 @@ class CLSQE65000Detector;
 class CLSAdvancedScalerChannelDetector;
 class AMBasicControlDetectorEmulator;
 
+/// A class representing the SGM beamline. This class is written to the singleton design pattern. Accessing
+/// it can be done through the accessor function SGMBeamline::sgm()
 class SGMBeamline : public AMBeamline
 {
 Q_OBJECT
 public:
 
-	static SGMBeamline* sgm();		// singleton-class accessor
+	/// Singleton accessor function. Call this to obtain access to the only instance of the SGMBeamline class
+	static SGMBeamline* sgm();
 	virtual ~SGMBeamline();
 
 	bool isConnected() const;
@@ -235,12 +238,40 @@ public:
 
 	bool detectorConnectedByName(QString name);
 
-	AMAction3* createBeamOnActions3();
-	/// Turn off beam on SGM.
-	AMAction3* createTurnOffBeamActions();
-	AMAction3* createStopMotorsActions3();
+	// These functions create and return standard sets of actions which can be performed on the beamline,
+	// in a standard fashion
 
+	/// A list of actions which can be run to set the beam to the on state, these actions:
+	/// Set beamOn PV to 1
+	/// Set fastShutter PV to 0
+	/// Set frontBypassValve PV to 1
+	/// Set backBypassValve PV to 1
+	/// Wait till all shutter PVs in the shutter group are open
+	AMAction3* createBeamOnActions3();
+	/// A list of actions which can be run to set the beam to the off state, these actions:
+	/// Set the fastShutter PV to 5
+	AMAction3* createTurnOffBeamActions();
+	/// A list of actions which can be run to stop the core beamline motors, these actions:
+	/// Stop to mono
+	/// Stop the exit slit
+	/// Stop the undulator
+	AMAction3* createStopMotorsActions3();
+	/// A list of actions which can be run to set the beamline into Visible Light mode, these actions:
+	/// Prepends the beamOnActions (see createBeamOnActions3())
+	/// If the grating velocity is not 10000, set the grating velocity to 10000
+	/// Set the visible light PV to 1
+	AMAction3* createVisibleLightOnActions3();
+	/// A list of actions which can be run to put the sample plate in the transfer position, these actions:
+	/// Set ssaManipulator X position to 0.0
+	/// Set ssaManipulator Y position to -9.1
+	/// Set ssaManipulator X position to 151.0
+	/// Set ssaManipulator rotation to 0.0
 	AMAction3* createGoToTransferPositionActions3();
+	/// A list of actions which can be run to put the sample place in the measure position, these actions:
+	/// Set ssaManipulator X position to 0.0
+	/// Set ssaManipulator Y position to 0.0
+	/// Set ssaManipulator Z position to 0.0
+	/// Set ssaManipulator rotation to 0.0
 	AMAction3* createGoToMeasurementPositionActions3();
 
 public slots:
