@@ -689,23 +689,24 @@ void VESPERSBeamline::setupComponents()
 
 	scaler_ = new CLSSIS3820Scaler("BL1607-B2-1:mcs", this);
 	scaler_->channelAt(5)->setCustomChannelName("Split A");
-	CLSSR570 *tempSR570 = new CLSSR570("Split bottom", "AMP1607-202:sens_num.VAL", "AMP1607-202:sens_unit.VAL", this);
+
+	CLSSR570 *tempSR570 = new CLSSR570("Split bottom", "AMP1607-202", this);
 	scaler_->channelAt(5)->setCurrentAmplifier(tempSR570);
 	scaler_->channelAt(5)->setVoltagRange(AMRange(1.0, 4.5));
 	scaler_->channelAt(6)->setCustomChannelName("Split B");
-	tempSR570 = new CLSSR570("Split top", "AMP1607-203:sens_num.VAL", "AMP1607-203:sens_unit.VAL", this);
+	tempSR570 = new CLSSR570("Split top", "AMP1607-203", this);
 	scaler_->channelAt(6)->setCurrentAmplifier(tempSR570);
 	scaler_->channelAt(6)->setVoltagRange(AMRange(1.0, 4.5));
 	scaler_->channelAt(7)->setCustomChannelName("Pre-KB");
-	tempSR570 = new CLSSR570("Pre-KB", "AMP1607-204:sens_num.VAL", "AMP1607-204:sens_unit.VAL", this);
+	tempSR570 = new CLSSR570("Pre-KB", "AMP1607-204", this);
 	scaler_->channelAt(7)->setCurrentAmplifier(tempSR570);
 	scaler_->channelAt(7)->setVoltagRange(AMRange(1.0, 4.5));
 	scaler_->channelAt(8)->setCustomChannelName("Mini");
-	tempSR570 = new CLSSR570("Mini", "AMP1607-205:sens_num.VAL", "AMP1607-205:sens_unit.VAL", this);
+	tempSR570 = new CLSSR570("Mini", "AMP1607-205", this);
 	scaler_->channelAt(8)->setCurrentAmplifier(tempSR570);
 	scaler_->channelAt(8)->setVoltagRange(AMRange(1.0, 4.5));
 	scaler_->channelAt(9)->setCustomChannelName("Post");
-	tempSR570 = new CLSSR570("Post", "AMP1607-206:sens_num.VAL", "AMP1607-206:sens_unit.VAL", this);
+	tempSR570 = new CLSSR570("Post", "AMP1607-206", this);
 	scaler_->channelAt(9)->setCurrentAmplifier(tempSR570);
 	scaler_->channelAt(9)->setVoltagRange(AMRange(1.0, 4.5));
 

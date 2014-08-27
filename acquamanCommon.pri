@@ -438,7 +438,6 @@ HEADERS += \
 	source/dataman/AMScanExemplarDictionary.h \
 	source/dataman/AMScanExemplar.h \
 	source/ui/dataman/AMDictionaryLineEdit.h \
-	source/beamline/CLS/CLSSR570.h \
 	source/beamline/CLS/CLSBiStateControl.h \
 	source/application/AMAppControllerSupport.h \
 	source/application/AMPluginsManager.h \
@@ -737,13 +736,22 @@ HEADERS += \
 	source/application/AMCrashMonitorSupport.h \
 	source/analysis/AM0DAccumulatorAB.h \
 	source/util/AMBuildInfo.h \
+	source/util/AMBuildReporter.h \
+	source/analysis/AM1DTimedDataAB.h \
+	source/analysis/AM1DKSpaceCalculatorAB.h \
+	source/dataman/AMLightweightScanInfo.h \
+	source/dataman/AMLightweightScanInfoCollection.h \
+	source/dataman/AMLightweightScanInfoModel.h \
+	source/ui/util/AMSortFilterWidget.h \
+	source/ui/dataman/AMScanDataView.h \
+	source/dataman/AMLightweightScanInfoFilterProxyModel.h \
+	source/ui/dataman/AMScanTableView.h \
+	source/ui/dataman/AMScanThumbnailView.h \
+	source/ui/dataman/AMScanTreeView.h \
 	source/util/AMRecursiveDirectoryCompare.h \
 	source/util/AMDirectorySynchronizer.h \
 	source/ui/util/AMDirectorySynchronizerDialog.h \
 	source/actions3/actions/AMDirectorySynchronizationAction.h \
-	source/util/AMBuildReporter.h \
-	source/analysis/AM1DTimedDataAB.h \
-	source/analysis/AM1DKSpaceCalculatorAB.h \
 	source/ui/beamline/AMCurrentAmplifierCompositeView.h \
 	source/ui/beamline/AMCurrentAmplifierSingleView.h \
 	source/ui/beamline/AMCurrentAmplifierView.h \
@@ -757,7 +765,7 @@ HEADERS += \
 	source/util/AMThread.h \
 	source/dataman/AMDbUpgrade1Pt5.h \
 	source/util/AMAppArgumentParser.h \
-	source/beamline/CLS/CLSSensitivitySR570.h
+	source/beamline/CLS/CLSSR570.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -929,7 +937,6 @@ SOURCES += \
 	source/dataman/AMScanExemplarDictionary.cpp \
 	source/dataman/AMScanExemplar.cpp \
 	source/ui/dataman/AMDictionaryLineEdit.cpp \
-	source/beamline/CLS/CLSSR570.cpp \
 	source/beamline/CLS/CLSBiStateControl.cpp \
 	source/application/AMPluginsManager.cpp \
 	source/application/AMAppControllerSupport.cpp \
@@ -1215,13 +1222,22 @@ SOURCES += \
 	source/application/AMCrashMonitorSupport.cpp \
 	source/analysis/AM0DAccumulatorAB.cpp \
 	source/util/AMBuildInfo.cpp \
+	source/util/AMBuildReporter.cpp \
+	source/analysis/AM1DTimedDataAB.cpp \
+	source/analysis/AM1DKSpaceCalculatorAB.cpp \
+	source/dataman/AMLightweightScanInfo.cpp \
+	source/dataman/AMLightweightScanInfoCollection.cpp \
+	source/dataman/AMLightweightScanInfoModel.cpp \
+	source/ui/util/AMSortFilterWidget.cpp \
+	source/ui/dataman/AMScanDataView.cpp \
+	source/dataman/AMLightweightScanInfoFilterProxyModel.cpp \
+	source/ui/dataman/AMScanTableView.cpp \
+	source/ui/dataman/AMScanThumbnailView.cpp \
+	source/ui/dataman/AMScanTreeView.cpp \
 	source/util/AMRecursiveDirectoryCompare.cpp \
 	source/util/AMDirectorySynchronizer.cpp \
 	source/ui/util/AMDirectorySynchronizerDialog.cpp \
 	source/actions3/actions/AMDirectorySynchronizationAction.cpp \
-	source/util/AMBuildReporter.cpp \
-	source/analysis/AM1DTimedDataAB.cpp \
-	source/analysis/AM1DKSpaceCalculatorAB.cpp \
 	source/ui/beamline/AMCurrentAmplifierCompositeView.cpp \
 	source/ui/beamline/AMCurrentAmplifierSingleView.cpp \
 	source/ui/beamline/AMCurrentAmplifierView.cpp \
@@ -1235,7 +1251,7 @@ SOURCES += \
 	source/util/AMThread.cpp \
 	source/dataman/AMDbUpgrade1Pt5.cpp \
 	source/util/AMAppArgumentParser.cpp \
-	source/beamline/CLS/CLSSensitivitySR570.cpp
+	source/beamline/CLS/CLSSR570.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {

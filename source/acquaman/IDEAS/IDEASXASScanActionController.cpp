@@ -195,7 +195,10 @@ AMAction3* IDEASXASScanActionController::createInitializationActions(){
 	moveActionInfo = new AMControlMoveActionInfo3(monoEnergy);
 	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
 	initializationStage1->addSubAction(moveAction);
-	initializationStage1->addSubAction(IDEASBeamline::ideas()->scaler()->createContinuousEnableAction3(false));
+	//initializationStage1->addSubAction(IDEASBeamline::ideas()->scaler()->createContinuousEnableAction3(false));
+	initializationStage1->addSubAction(IDEASBeamline::ideas()->scaler()->createStartAction3(false));
+	initializationStage1->addSubAction(IDEASBeamline::ideas()->scaler()->createTotalScansAction3(1));
+
 
 
 	AMListAction3 *initializationStage2 = new AMListAction3(new AMListActionInfo3("IDEAS XAS Initialization Stage 2", "IDEAS XAS Initialization Stage 2"), AMListAction3::Sequential);
@@ -233,9 +236,12 @@ AMAction3* IDEASXASScanActionController::createCleanupActions(){
 
 	cleanupActions->addSubAction(new AMWaitAction(new AMWaitActionInfo(IDEASBeamline::ideas()->scaler()->dwellTime())));
 	cleanupActions->addSubAction(IDEASBeamline::ideas()->scaler()->createStartAction3(false));
-	cleanupActions->addSubAction(IDEASBeamline::ideas()->scaler()->createContinuousEnableAction3(false));
+	//cleanupActions->addSubAction(IDEASBeamline::ideas()->scaler()->createContinuousEnableAction3(false));
 	cleanupActions->addSubAction(IDEASBeamline::ideas()->scaler()->createDwellTimeAction3(0.1));
-	cleanupActions->addSubAction(IDEASBeamline::ideas()->scaler()->createContinuousEnableAction3(true));
+	//cleanupActions->addSubAction(IDEASBeamline::ideas()->scaler()->createContinuousEnableAction3(true));
+	cleanupActions->addSubAction(IDEASBeamline::ideas()->scaler()->createTotalScansAction3(0));
+	cleanupActions->addSubAction(IDEASBeamline::ideas()->scaler()->createStartAction3(true));
+
 
 	return cleanupActions;
 }

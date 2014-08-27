@@ -163,13 +163,19 @@ const AMSample* AMScan::sample() const{
 }
 
 // associate this object with a particular run. Set to (-1) to dissociate with any run.  (Note: for now, it's the caller's responsibility to make sure the runId is valid.)
-void AMScan::setRunId(int newRunId) {
+void AMScan::setRunId(int newRunId)
+{
+	if(newRunId <= 0){
 
-	if(newRunId <= 0)
 		runId_ = -1;
-	else
+		setModified(true);
+	}
+
+	else if (runId_ != newRunId){
+
 		runId_ = newRunId;
-	setModified(true);
+		setModified(true);
+	}
 }
 
 

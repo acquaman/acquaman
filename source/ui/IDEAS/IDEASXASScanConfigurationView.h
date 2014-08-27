@@ -86,6 +86,9 @@ protected:
 	QLabel *pointPerScan_;
 	/// Label holding the energy space scan range.
 	QLabel *scanEnergyRange_;
+	/// Label holding the currently selected ROIs.
+	QLabel *ketekROIs_;
+
 
 
 
@@ -106,6 +109,8 @@ protected slots:
 	void onEdgeChanged();
 	/// Helper slot that handles the setting the estimated time label.
 	void onEstimatedTimeChanged();
+	/// Handles updates of displayed detector ROIs
+	void onKetekROIChange();
 
 
 

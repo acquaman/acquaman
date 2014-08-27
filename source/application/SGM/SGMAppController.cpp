@@ -1534,7 +1534,3 @@ bool SGMAppController::setupSGMViews(){
 
 	return true;
 }
-
-AMDataViewWithActionButtons* SGMAppController::createDataViewWithActionButtons(){
-	return new SGMDataViewWithActionButtons();
-}
