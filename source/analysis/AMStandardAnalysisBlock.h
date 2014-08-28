@@ -37,7 +37,7 @@ class AMStandardAnalysisBlock : public AMAnalysisBlock
 	Q_OBJECT
 public:
 	/// Create a new AMAnalysisBlock. The block is also an AMDataSource of output data, \c outputName is the name for this AMDataSource.
- 	virtual ~AMStandardAnalysisBlock();
+	virtual ~AMStandardAnalysisBlock();
 	AMStandardAnalysisBlock(const QString& outputName, QObject *parent = 0);
 
 	// Access to input data sources
@@ -96,7 +96,7 @@ public:
 	}
 
 	/// Returns the id of an axis, by name. (By id, we mean the index of the axis. We called it id to avoid ambiguity with indexes <i>into</i> axes.) This could be slow, so users shouldn't call it repeatedly.
-	virtual int idOfAxis(const QString& axisName) {
+	virtual int idOfAxis(const QString& axisName) const {
 		for(int i=0; i<axes_.count(); i++)
 			if(axes_.at(i).name == axisName)
 				return i;

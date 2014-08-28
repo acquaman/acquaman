@@ -85,7 +85,8 @@ void REIXSXESMCPDataSource::onConnectionStateChanged() {
 	}
 }
 
-int REIXSXESMCPDataSource::idOfAxis(const QString& axisName) {
+int REIXSXESMCPDataSource::idOfAxis(const QString& axisName) const
+{
 	if(axisName == axes_.at(0).name)
 		return 0;
 	if(axisName == axes_.at(1).name)
