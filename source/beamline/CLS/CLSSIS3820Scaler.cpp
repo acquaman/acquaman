@@ -662,29 +662,29 @@ void CLSSIS3820ScalerChannel::onChannelReadingChanged(double reading)
 void CLSSIS3820ScalerChannel::setCurrentAmplifier(AMCurrentAmplifier *amplifier)
 {
 	if (currentAmplifier_) {
-        disconnect( currentAmplifier_, SIGNAL(isConnected(bool)), this, SLOT(onConnectedChanged()));
-        disconnect( currentAmplifier_, SIGNAL(sensitivityChanged(int)), this, SIGNAL(sensitivityChanged()) );
+		disconnect( currentAmplifier_, SIGNAL(isConnected(bool)), this, SLOT(onConnectedChanged()));
+		disconnect( currentAmplifier_, SIGNAL(valueChanged()), this, SIGNAL(sensitivityChanged()) );
 	}
 
 	currentAmplifier_ = amplifier;
-    connect( currentAmplifier_, SIGNAL(isConnected(bool)), this, SLOT(onConnectedChanged()) );
-    connect( currentAmplifier_, SIGNAL(sensitivityChanged(int)), this, SIGNAL(sensitivityChanged()) );
+	connect( currentAmplifier_, SIGNAL(isConnected(bool)), this, SLOT(onConnectedChanged()) );
+	connect( currentAmplifier_, SIGNAL(valueChanged()), this, SIGNAL(sensitivityChanged()) );
 	emit currentAmplifierAttached();
 }
 
 void CLSSIS3820ScalerChannel::setDetector(AMDetector *detector)
 {
 	/*
-    if (detector_) {
+	if (detector_) {
 	disconnect( detector_, SIGNAL(newDarkCurrentMeasurementValueReady(double)), this, SIGNAL(newDarkCurrentMeasurementValue(double)) );
 	disconnect( detector_, SIGNAL(requiresNewDarkCurrentMeasurement(bool)), this, SIGNAL(newDarkCurrentMeasurementState(bool)) );
-    }
+	}
 	*/
 
 	detector_ = detector;
 	/*
-    connect( detector_, SIGNAL(newDarkCurrentMeasurementValueReady(double)), this, SIGNAL(newDarkCurrentMeasurementValue(double)) );
-    connect( detector_, SIGNAL(requiresNewDarkCurrentMeasurement(bool)), this, SIGNAL(newDarkCurrentMeasurementState(bool)) );
+	connect( detector_, SIGNAL(newDarkCurrentMeasurementValueReady(double)), this, SIGNAL(newDarkCurrentMeasurementValue(double)) );
+	connect( detector_, SIGNAL(requiresNewDarkCurrentMeasurement(bool)), this, SIGNAL(newDarkCurrentMeasurementState(bool)) );
 	*/
 }
 
