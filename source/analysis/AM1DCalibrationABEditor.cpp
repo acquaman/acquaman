@@ -32,7 +32,7 @@ AM1DCalibrationABEditor::AM1DCalibrationABEditor(AM1DCalibrationAB *analysisBloc
 	: QWidget(parent)
 {
 	analysisBlock_ = analysisBlock;
-
+	chooseScanDialog_ = 0;
 	dataNames_ = new QComboBox;
 	NormalizationNames_ = new QComboBox;
 	populateComboBox();
