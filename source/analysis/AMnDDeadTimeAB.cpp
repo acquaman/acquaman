@@ -58,14 +58,17 @@ void AMnDDeadTimeAB::setInputDataSourcesImplementation(const QList<AMDataSource*
 	if(spectrum_ != 0 && inputCounts_ != 0 && outputCounts_ != 0) {
 
 		disconnect(spectrum_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
+		disconnect(spectrum_->signalSource(), SIGNAL(axisInfoChanged(int)), this, SLOT(onInputSourceSizeChanged()));
 		disconnect(spectrum_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
 		disconnect(spectrum_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
 
 		disconnect(inputCounts_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
+		disconnect(inputCounts_->signalSource(), SIGNAL(axisInfoChanged(int)), this, SLOT(onInputSourceSizeChanged()));
 		disconnect(inputCounts_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
 		disconnect(inputCounts_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
 
 		disconnect(outputCounts_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
+		disconnect(outputCounts_->signalSource(), SIGNAL(axisInfoChanged(int)), this, SLOT(onInputSourceSizeChanged()));
 		disconnect(outputCounts_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
 		disconnect(outputCounts_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
 
@@ -101,10 +104,12 @@ void AMnDDeadTimeAB::setInputDataSourcesImplementation(const QList<AMDataSource*
 		connect(spectrum_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
 
 		connect(inputCounts_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
+		connect(inputCounts_->signalSource(), SIGNAL(axisInfoChanged(int)), this, SLOT(onInputSourceSizeChanged()));
 		connect(inputCounts_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
 		connect(inputCounts_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
 
 		connect(outputCounts_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
+		connect(outputCounts_->signalSource(), SIGNAL(axisInfoChanged(int)), this, SLOT(onInputSourceSizeChanged()));
 		connect(outputCounts_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
 		connect(outputCounts_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
 	}
@@ -317,7 +322,7 @@ AMNumber AMnDDeadTimeAB::axisValue(int axisNumber, int index) const
 		return AMNumber(AMNumber::DimensionError);
 
 #ifdef AM_ENABLE_BOUNDS_CHECKING
-	if (index < 0 || index >= spectrum_->size(rank()))
+	if (index < 0 || index >= spectrum_->size(rank()-1))
 		return AMNumber(AMNumber::OutOfBoundsError);
 #endif
 

@@ -161,6 +161,8 @@ protected slots:
 	void onDataChanged();
 	/// Emits the state changed signal when the process variable has values or not.
 	void onStateChanged();
+	/// Handles ensuring the axis information is properly set after connecting to the PV.
+	void onInitialized();
 
 protected:
 	/// The epics PV being used as a data source.
@@ -168,7 +170,7 @@ protected:
 	/// Holds the current scale.
 	double scale_;
 	/// A QList of AMAxisInfo: caches a single AMAxisInfo for our one axis, so that axes() can be fast.
-	mutable QList<AMAxisInfo> axes_;
+	QList<AMAxisInfo> axes_;
 };
 
 /*!
@@ -251,6 +253,8 @@ protected slots:
 	void onDataChanged();
 	/// Emits the state changed signal when the process variable has values or not.
 	void onStateChanged();
+	/// Handles ensuring the axis information is properly set after connecting to the PV.
+	void onInitialized();
 
 protected:
 	/// The control being used as a data source.
@@ -263,7 +267,7 @@ protected:
 	int length_;
 
 	/// A QList of AMAxisInfo: caches a couple AMAxisInfo for our two axes, so that axes() can be fast.
-	mutable QList<AMAxisInfo> axes_;
+	QList<AMAxisInfo> axes_;
 };
 
 #endif // AMPROCESSVARIABLEDATASOURCE_H

@@ -118,6 +118,7 @@ AM1DProcessVariableDataSource::AM1DProcessVariableDataSource(const AMProcessVari
 {
 	data_ = data;
 	scale_ = 1;
+	connect(data_, SIGNAL(initialized()), this, SLOT(onInitialized()));
 	connect(data_, SIGNAL(valueChanged()), this, SLOT(onDataChanged()));
 	connect(data_, SIGNAL(hasValuesChanged(bool)), this, SLOT(onStateChanged()));
 
@@ -125,6 +126,13 @@ AM1DProcessVariableDataSource::AM1DProcessVariableDataSource(const AMProcessVari
 	ai.isUniform = true;
 	ai.increment = scale_;
 	axes_ << ai;
+}
+
+void AM1DProcessVariableDataSource::onInitialized()
+{
+	axes_[0].size = data_->count();
+	emitAxisInfoChanged(0);
+	emitSizeChanged(0);
 }
 
 QString AM1DProcessVariableDataSource::typeDescription() const
@@ -246,12 +254,6 @@ void AM1DProcessVariableDataSource::setScale(double scale)
 
 void AM1DProcessVariableDataSource::onDataChanged()
 {
-	if (unsigned(axes_[0].size) != data_->count()){
-
-		axes_[0].size = data_->count();
-		emitAxisInfoChanged(0);
-	}
-
 	emitValuesChanged();
 }
 
@@ -272,6 +274,7 @@ AM2DProcessVariableDataSource::AM2DProcessVariableDataSource(const AMProcessVari
 	sx_ = 1;
 	sy_ = 1;
 	length_ = rowLength;
+	connect(data_, SIGNAL(initialized()), this, SLOT(onInitialized()));
 	connect(data_, SIGNAL(valueChanged()), this, SLOT(onDataChanged()));
 	connect(data_, SIGNAL(hasValuesChanged(bool)), this, SLOT(onStateChanged()));
 
@@ -282,6 +285,17 @@ AM2DProcessVariableDataSource::AM2DProcessVariableDataSource(const AMProcessVari
 	yaxis.isUniform = true;
 	yaxis.increment = sy_;
 	axes_ << xaxis << yaxis;
+}
+
+void AM2DProcessVariableDataSource::onInitialized()
+{
+	axes_[0].size = length_;
+	emitAxisInfoChanged(0);
+	emitSizeChanged(0);
+
+	axes_[1].size = data_->count()/length_;
+	emitAxisInfoChanged(1);
+	emitSizeChanged(1);
 }
 
 QString AM2DProcessVariableDataSource::typeDescription() const
@@ -430,18 +444,6 @@ void AM2DProcessVariableDataSource::setScaleY(double sy)
 
 void AM2DProcessVariableDataSource::onDataChanged()
 {
-	if (axes_[0].size != length_){
-
-		axes_[0].size = length_;
-		emitAxisInfoChanged(0);
-	}
-
-	if (unsigned(axes_[1].size) != data_->count()/length_){
-
-		axes_[1].size = data_->count()/length_;
-		emitAxisInfoChanged(1);
-	}
-
 	emitValuesChanged();
 }
 
