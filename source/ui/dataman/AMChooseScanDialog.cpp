@@ -20,155 +20,115 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "AMChooseScanDialog.h"
-#include "ui/dataman/AMDataView.h"
+#include "dataman/AMLightweightScanInfoModel.h"
+#include "dataman/AMLightweightScanInfoFilterProxyModel.h"
+#include "ui/util/AMSortFilterWidget.h"
+#include "ui/dataman/AMScanTableView.h"
 #include "dataman/database/AMDatabase.h"
-#include <QPushButton>
-#include <QButtonGroup>
-#include "util/AMDateTimeUtils.h"
-#include <QStringBuilder>
+#include "dataman/AMLightweightScanInfoCollection.h"
 
  AMChooseScanDialog::~AMChooseScanDialog(){}
 AMChooseScanDialog::AMChooseScanDialog(AMDatabase* db, const QString& title, const QString& prompt, bool multipleSelectionAllowed, QWidget *parent) :
 	QDialog(parent)
 {
-	multipleSelectionAllowed_ = multipleSelectionAllowed;
-
-	ui_ = new Ui::AMChooseScanDialog;
-	ui_->setupUi(this);
-
-	db_ = db;
-	dataView_ = new AMDataView(db_);
-	dataView_->setItemSize(0);
-	dataView_->setMinimumHeight(400);
-
-	ui_->verticalLayoutMain->insertWidget(1, dataView_);
-	ui_->horizontalLayoutTop->setAlignment(ui_->showRunsButton, Qt::AlignBottom | Qt::AlignRight);
-	ui_->horizontalLayoutTop->setAlignment(ui_->showExperimentsButton, Qt::AlignBottom | Qt::AlignRight);
-
-	ui_->titleLabel->setText(title);
-	ui_->promptLabel->setText(prompt);
 	setWindowTitle(title);
+	resize(800,600);
+	AMLightweightScanInfoCollection* collection = new AMLightweightScanInfoCollection(db);
+	model_ = new AMLightweightScanInfoModel(collection, this);
+	AMLightweightScanInfoFilterProxyModel* proxy = new AMLightweightScanInfoFilterProxyModel(this);
+	proxy->setSourceModel(model_);
 
-	ui_->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
+	QVBoxLayout* layout = new QVBoxLayout();
 
-	QButtonGroup* runExpButtonGroup = new QButtonGroup(this);
-	runExpButtonGroup->addButton(ui_->showRunsButton, 1);
-	runExpButtonGroup->addButton(ui_->showExperimentsButton, 2);
-	connect(runExpButtonGroup, SIGNAL(buttonClicked(int)), this, SLOT(onRunOrExperimentButtonClicked(int)));
+	dialogButtons_ = new QButtonGroup(this);
+
+	QPushButton* okayButton = new QPushButton("Okay", this);
+	QPushButton* cancelButton = new QPushButton("Cancel", this);
+
+	dialogButtons_->addButton(okayButton, 0);
+	dialogButtons_->button(0)->setEnabled(false);
+	dialogButtons_->addButton(cancelButton, 1);
+
+	QHBoxLayout* buttonLayout = new QHBoxLayout();
+	buttonLayout->addWidget(cancelButton);
+	buttonLayout->addWidget(okayButton);
+	buttonLayout->addStretch();
+
+	promptLabel_ = new QLabel(prompt);
+
+	tableView_ = new AMScanTableView(this);
+	if(multipleSelectionAllowed)
+		tableView_->setSelectionMode(QAbstractItemView::MultiSelection);
+	else
+		tableView_->setSelectionMode(QAbstractItemView::SingleSelection);
+	tableView_->setModel(proxy);
+
+	contextMenu_ = new QMenu(this);
+	contextMenu_->addAction("Clear Selection", tableView_->selectionModel(), SLOT(clearSelection()));
 
 
-	// does not delete the dialog when it is closed, so that you can check for the selected items
-	setAttribute(Qt::WA_DeleteOnClose, false);
+	tableView_->setContextMenuPolicy(Qt::CustomContextMenu);
 
-	// connect data view selectionChanged to handler
-	connect(dataView_, SIGNAL(selectionChanged()), this, SLOT(onSelectionChanged()));
-	connect(dataView_, SIGNAL(viewDoubleClicked()), this, SLOT(onDoubleClick()));
+	filter_ = new AMSortFilterWidget(proxy, this);
+	layout->addWidget(promptLabel_);
+	layout->addWidget(filter_);
+	layout->addWidget(tableView_);
+	layout->addLayout(buttonLayout);
 
-	// connect controls for the data view
-	connect(ui_->sizeSlider, SIGNAL(valueChanged(int)), dataView_, SLOT(setItemSize(int)));
-	connect(ui_->expandAllButton, SIGNAL(clicked()), dataView_, SLOT(expandAll()));
-	connect(ui_->collapseAllButton, SIGNAL(clicked()), dataView_, SLOT(collapseAll()));
+
+
+	setLayout(layout);
+
+	connect(tableView_->selectionModel(), SIGNAL(selectionChanged(const QItemSelection&,const QItemSelection&)), this, SLOT(onSelectionChanged()));
+	connect(tableView_, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(onContextMenuRequested(const QPoint&)));
+	connect(dialogButtons_->button(0), SIGNAL(clicked()), this, SLOT(accept()));
+	connect(dialogButtons_->button(1), SIGNAL(clicked()), this, SLOT(reject()));
 }
 
 QList<QUrl> AMChooseScanDialog::getSelectedScans() const
 {
-	return dataView_->selectedItems();
+	QList<QUrl> returnList;
+
+	QModelIndexList indices = tableView_->selectionModel()->selectedIndexes();
+
+	for (int iSelectedItem = 0; iSelectedItem < indices.count(); iSelectedItem++)
+	{
+		if(indices.at(iSelectedItem).column() == 0)
+		{
+			QUrl scanUrl = model_->rowToUrl(indices.at(iSelectedItem));
+			if(!returnList.contains(scanUrl))
+				returnList.append(scanUrl);
+		}
+	}
+
+	return returnList;
+}
+
+void AMChooseScanDialog::clearSelection()
+{
+	tableView_->selectionModel()->clearSelection();
 }
 
 void AMChooseScanDialog::onSelectionChanged()
 {
-	int numSelectedScans = dataView_->numberOfSelectedItems();
-
-	if(multipleSelectionAllowed_ == false) {	// single-selection mode
-		switch(numSelectedScans) {
-		case 0:
-			ui_->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
-			ui_->statusLabel->setText("No scan selected.");
-			break;
-		case 1: {
-			ui_->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
-			ui_->statusLabel->setText(getScanDetails(dataView_->selectedItems().first()));
-			break;
-		}
-		default:
-			ui_->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
-			ui_->statusLabel->setText(QString("%1 scans selected.  (Please select only one scan.)").arg(numSelectedScans));
-			break;
-		}
-	}
-
-	else {	// multiple selection mode
-		switch(numSelectedScans) {
-		case 0:
-			ui_->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
-			ui_->statusLabel->setText("No scans selected.");
-			break;
-		case 1:
-			ui_->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
-			ui_->statusLabel->setText(getScanDetails(dataView_->selectedItems().first()));
-			break;
-		default:
-			ui_->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
-			ui_->statusLabel->setText(QString("%1 scans selected.").arg(numSelectedScans));
-			break;
-		}
-	}
+	dialogButtons_->button(0)->setEnabled(tableView_->selectionModel()->selectedRows().count() != 0);
 }
 
 void AMChooseScanDialog::onDoubleClick()
 {
-	int numSelectedScans = dataView_->numberOfSelectedItems();
-	if(numSelectedScans == 0)
-		return;
-
-	if(multipleSelectionAllowed_ == false && numSelectedScans > 1)
-		return;
-
-	accept();
+	if(tableView_->selectionModel()->selectedRows().count() != 0)
+		accept();
 }
 
-void AMChooseScanDialog::onRunOrExperimentButtonClicked(int code)
+void AMChooseScanDialog::onContextMenuRequested(const QPoint &menuPosition)
 {
-	if(code == 1)
-		dataView_->showRun();
-	else if(code == 2)
-		dataView_->showExperiment();
-}
-
-QString AMChooseScanDialog::getScanDetails(QUrl url)
-{
-	if(url.scheme() != "amd")
-		return QString();
-
-	if(url.host() != db_->connectionName())
-		return QString();	// this should never happen, the dataView_ and us share the same database.
-
-	QStringList path = url.path().split('/', QString::SkipEmptyParts);
-	if(path.count() != 2)
-		return QString();
-
-	QString tableName = path.at(0);
-	bool idOkay;
-	int id = path.at(1).toInt(&idOkay);
-	if(!idOkay || id < 1)
-		return QString();
-
-	QVariantList results = db_->retrieve(id, tableName, QStringList() << "name" << "number" << "dateTime");
-
-	if(results.count() != 3)
-		return QString();
-
-	return results.at(0).toString() % " #" % results.at(1).toString() % ", taken " % AMDateTimeUtils::prettyDateTime(results.at(2).toDateTime());
+	QPoint globalPosition = tableView_->mapToGlobal(menuPosition);
+	contextMenu_->exec(globalPosition);
 }
 
 void AMChooseScanDialog::setPrompt(const QString &prompt)
 {
-	ui_->promptLabel->setText(prompt);
-}
-
-void AMChooseScanDialog::setTitle(const QString &title)
-{
-	ui_->titleLabel->setText(title);
+	promptLabel_->setText(prompt);
 }
 
 

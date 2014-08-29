@@ -23,10 +23,20 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AMCHOOSESCANDIALOG_H
 
 #include <QDialog>
-#include "ui_AMChooseScanDialog.h"
+#include <QUrl>
+#include <QButtonGroup>
+#include <QPushButton>
+#include <QStringBuilder>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QMenu>
+#include <QLabel>
 
 class AMDataView;
 class AMDatabase;
+class AMScanTableView;
+class AMSortFilterWidget;
+class AMLightweightScanInfoModel;
 
 /// Provides a dialog that lets users choose one more scans from a database.
 /*! The standard QDialog signals are provided: finished(int result), and either accepted() or rejected().  After receiving these signals [or, after exec() finishes, if using this as a modal dialog], you can use getSelectedScans() to see what the user selected.
@@ -48,34 +58,29 @@ public:
 
 	/// Access a list of the selected scans.  They are provided as amd (AcquaMan Database) URLs, in the format amd://databaseConnectionName/tableName/id.  (This is the same format we use throughout the Acquaman framework for drag-and-drop, specifying scans to open in scan editors, etc.)
 	QList<QUrl> getSelectedScans() const;
-
-
-
+	/// Clears the items selected in the dialog
+	void clearSelection();
 signals:
 
 public slots:
 	/// Set the prompt shown at the top for user instructions:
 	void setPrompt(const QString& prompt);
-	/// Set the title at the top:
-	void setTitle(const QString& title);
 
 protected slots:
 	/// called when the selection in the data-view changes. We update the status text and enable/disable the OK button according to the number of scans selected.
 	void onSelectionChanged();
 	/// Called when someone double-clicks in the AMDataView.  If anything is selected, this should register as an OK.
 	void onDoubleClick();
-	/// Called when the showRuns or the showExperiments button is clicked.  \c code = 1 for runs and 2 for experiments
-	void onRunOrExperimentButtonClicked(int code);
+	/// Called when context menu is requested by the tableView_
+	void onContextMenuRequested(const QPoint&menuPosition);
 
 protected:
-	AMDataView* dataView_;
-	Ui::AMChooseScanDialog* ui_;
-	bool multipleSelectionAllowed_;
-	AMDatabase* db_;
-
-	/// Helper function: lookup the name, number, and dateTime of a scan from the database, based on a amd:// URL.  Returns an empty string in the event of a problem.
-	QString getScanDetails(QUrl amdUrl);
-
+	AMLightweightScanInfoModel* model_;
+	QButtonGroup* dialogButtons_;
+	AMScanTableView* tableView_;
+	AMSortFilterWidget* filter_;
+	QMenu* contextMenu_;
+	QLabel* promptLabel_;
 };
 
 #endif // AMCHOOSESCANDIALOG_H
