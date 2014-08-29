@@ -81,8 +81,9 @@ AMChooseScanDialog::AMChooseScanDialog(AMDatabase* db, const QString& title, con
 
 	connect(tableView_->selectionModel(), SIGNAL(selectionChanged(const QItemSelection&,const QItemSelection&)), this, SLOT(onSelectionChanged()));
 	connect(tableView_, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(onContextMenuRequested(const QPoint&)));
+	connect(tableView_, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(onDoubleClick()));
 	connect(dialogButtons_->button(0), SIGNAL(clicked()), this, SLOT(accept()));
-	connect(dialogButtons_->button(1), SIGNAL(clicked()), this, SLOT(reject()));
+	connect(dialogButtons_->button(1), SIGNAL(clicked()), this, SLOT(reject()));	
 }
 
 QList<QUrl> AMChooseScanDialog::getSelectedScans() const

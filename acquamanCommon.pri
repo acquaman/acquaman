@@ -795,7 +795,6 @@ FORMS += source/ui/dataman/AMDataView.ui \
 	source/ui/dataman/AMSamplePositionViewActionsWidget.ui \
 	source/ui/dataman/AMExporterOptionGeneralAsciiView.ui \
 	source/ui/dataman/AMDataViewActionsBar.ui \
-	source/ui/dataman/AMChooseScanDialog.ui \
 	source/ui/AMLinePropertyEditor.ui \
 	source/ui/dataman/AMImagePropertyEditor.ui \
 	source/ui/util/AMJoystickTestView.ui \
