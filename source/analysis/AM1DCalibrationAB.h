@@ -44,7 +44,10 @@ class AM1DCalibrationAB : public AMStandardAnalysisBlock
 	Q_PROPERTY(double energyCalibrationOffset READ energyCalibrationOffset WRITE setEnergyCalibrationOffset)
 	Q_PROPERTY(double energyCalibrationScaling READ energyCalibrationScaling WRITE setEnergyCalibrationScaling)
 	Q_PROPERTY(double energyCalibrationReference READ energyCalibrationReference WRITE setEnergyCalibrationReference)
-
+	Q_PROPERTY(bool isTransmission READ isTransmission WRITE setIsTransmission)
+	Q_PROPERTY(bool toEdgeJump READ toEdgeJump WRITE setToEdgeJump)
+	Q_PROPERTY(int preEdgePoint READ preEdgePoint WRITE setPreEdgePoint)
+	Q_PROPERTY(int postEdgePoint READ postEdgePoint WRITE setPostEdgePoint)
 
 
 	Q_CLASSINFO("AMDbObject_Attributes", "description=1D Calibration Block")
@@ -77,6 +80,8 @@ public:
 	/// Returns whether the data source can be evaluated by passing in both names, \param dataName and \param NormalizationName.  Even though, the analysis block can be evaluated regardless of the name if there is only one data source, this will return true even if the name doesn't match.
 	bool canAnalyze(const QString &dataName, const QString &NormalizationName) const;
 
+
+
 	// Data Retrieval
 
 	/// Returns the dependent value at a (complete) set of axis indexes. Returns an invalid AMNumber if the indexes are insuffient or any are out of range, or if the data is not ready.
@@ -92,11 +97,21 @@ public:
 	/// When the independent values along an axis is not simply the axis index, this returns the independent value along an axis (specified by axis number and index)
 	virtual AMNumber axisValue(int axisNumber, int index) const;
 
-	///Energy Calibration and offset values
+	/// Gets the energy axis offset for calibration
 	double energyCalibrationOffset() const {return energyCalibrationOffset_;}
+	/// Gets the energy axis scaling for calibration
 	double energyCalibrationScaling() const {return energyCalibrationScaling_;}
+	/// Gets the energy axis scaling reference point
 	double energyCalibrationReference() const {return energyCalibrationReference_;}
 
+	/// Returns the normalization type
+	bool isTransmission() const {return isTransmission_;}
+	/// Returns edge jump renormalization setting
+	bool toEdgeJump() const {return toEdgeJump_;}
+	/// Returns the pre edge offset reference point
+	int preEdgePoint() const {return preEdgePoint_;}
+	/// Returns the post edge scaling reference point
+	int postEdgePoint() const {return postEdgePoint_;}
 
 
 	//////////////////////////////////////////////
@@ -117,10 +132,21 @@ protected slots:
 
 
 public slots:
-	///Energy Calibration and offset settings
+	/// Sets the energy axis offset for calibration
 	void setEnergyCalibrationOffset(double offset);
+	/// Sets the energy axis scaling for calibration
 	void setEnergyCalibrationScaling(double scaling);
+	/// Sets the energy axis scaling reference point
 	void setEnergyCalibrationReference(double reference);
+
+	/// Sets the normalization type
+	void setIsTransmission(bool isTransmission);
+	/// Enables edge jump renormalization
+	void setToEdgeJump(bool toEdgeJump);
+	/// Sets the pre edge offset reference point
+	void setPreEdgePoint(int preEdgePoint);
+	/// Sets the post edge scaling reference point
+	void setPostEdgePoint(int postEdgePoint);
 
 
 protected:
@@ -134,9 +160,21 @@ protected:
 	/// Pointer to the data source that is the normalizer.
 	AMDataSource *normalizer_;
 
+	/// Holds the energy axis offset for calibration
 	double energyCalibrationOffset_;
+	/// Holds the energy axis scaling for calibration
 	double energyCalibrationScaling_;
+	/// Holds the energy axis scaling reference point
 	double energyCalibrationReference_;
+
+	/// Determines of the data should be normalized as a transmission signal (Beer's law ln(Norm/Data)
+	bool isTransmission_;
+	/// Determines if the data should be renormalized to an absorption edge jump
+	bool toEdgeJump_;
+	/// Chooses which data value to use for pre-edge shift
+	int preEdgePoint_;
+	/// Chooses which data value to use for post-edge scaling
+	int postEdgePoint_;
 
 
 	/// The name of the data source that should be analyzed.
