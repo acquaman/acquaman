@@ -36,7 +36,7 @@ class AM0DProcessVariableDataSource : public QObject, public AMDataSource
 
 public:
 	/// Constructor.  Takes in an AMProcessVariable.
- 	virtual ~AM0DProcessVariableDataSource();
+	virtual ~AM0DProcessVariableDataSource();
 	AM0DProcessVariableDataSource(const AMProcessVariable *data, const QString& name, QObject *parent = 0);
 
 	// Data source type
@@ -69,7 +69,7 @@ public:
 	/// Returns a bunch of information about a particular axis. \c axisNumber is assumed to be between 0 and rank()-1.
 	virtual AMAxisInfo axisInfoAt(int axisNumber) const { Q_UNUSED(axisNumber) return AMAxisInfo("scalar", 1); }
 	/// Returns the id of an axis, by name. (By id, we mean the index of the axis. We called it id to avoid ambiguity with indexes <i>into</i> axes.) This could be slow, so users shouldn't call it repeatedly. Returns -1 if not found.  Scalars have no axes and therefore will always return -1.
-	virtual int idOfAxis(const QString& axisName)
+	virtual int idOfAxis(const QString& axisName) const
 	{
 		Q_UNUSED(axisName)
 		return -1;
@@ -117,7 +117,7 @@ class AM1DProcessVariableDataSource : public QObject, public AMDataSource
 
 public:
 	/// Constructor.  Takes in an AMProcessVariable.
- 	virtual ~AM1DProcessVariableDataSource();
+	virtual ~AM1DProcessVariableDataSource();
 	AM1DProcessVariableDataSource(const AMProcessVariable *data, const QString& name, QObject *parent = 0);
 
 	// Data source type
@@ -151,7 +151,7 @@ public:
 	/// Returns a bunch of information about a particular axis. \c axisNumber is assumed to be be 0.
 	virtual AMAxisInfo axisInfoAt(int axisNumber) const { Q_UNUSED(axisNumber) axes_[0].size = data_->count(); return axes_.at(0); }
 	/// Returns the id of an axis, by name. (By id, we mean the index of the axis. We called it id to avoid ambiguity with indexes <i>into</i> axes.)
-	virtual int idOfAxis(const QString& axisName)
+	virtual int idOfAxis(const QString& axisName) const
 	{
 		if(axisName == axes_.at(0).name)
 			return 0;
@@ -259,7 +259,7 @@ class AM2DProcessVariableDataSource : public QObject, public AMDataSource
 
 public:
 	/// Constructor.  Takes in an AMProcessVariable.
- 	virtual ~AM2DProcessVariableDataSource();
+	virtual ~AM2DProcessVariableDataSource();
 	AM2DProcessVariableDataSource(const AMProcessVariable *data, const QString& name, int rowLength, QObject *parent = 0);
 
 	// Data source type
@@ -294,7 +294,7 @@ public:
 	/// Returns a bunch of information about a particular axis. \c axisNumber is assumed to be between 0 and 1.
 	virtual AMAxisInfo axisInfoAt(int axisNumber) const { axes_[0].size = length_; axes_[1].size = data_->count()/length_; return axes_.at(axisNumber); }
 	/// Returns the id of an axis, by name. (By id, we mean the index of the axis. We called it id to avoid ambiguity with indexes <i>into</i> axes.) This could be slow, so users shouldn't call it repeatedly. Returns -1 if not found.
-	virtual int idOfAxis(const QString& axisName)
+	virtual int idOfAxis(const QString& axisName) const
 	{
 		if(axisName == axes_.at(0).name)
 			return 0;
