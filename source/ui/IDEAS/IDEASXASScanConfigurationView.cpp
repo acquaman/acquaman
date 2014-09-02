@@ -124,6 +124,8 @@ IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfigu
 	connect(isXRFScanCheckBox_, SIGNAL(clicked()),this,SLOT(onKetekROIChange()));
 	onKetekROIChange();
 
+	fluorescenceDetectorComboBox_->setCurrentIndex((int)configuration_->fluorescenceDetector());
+
 	QFormLayout *detectorLayout = new QFormLayout;
 	detectorLayout->addRow("XRF:", fluorescenceDetectorComboBox_);
 

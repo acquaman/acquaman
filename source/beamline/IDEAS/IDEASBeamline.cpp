@@ -78,7 +78,7 @@ void IDEASBeamline::setupDetectors()
 	ketekRealTime_->setHiddenFromUsers(true);
 	ketekRealTime_->setIsVisible(false);
 
-	ge13ElementRealTimeControl_ = new AMReadOnlyPVControl("13-el Ge Real Time", ":mca1.ERTM", this);
+	ge13ElementRealTimeControl_ = new AMReadOnlyPVControl("13-el Ge Real Time", "dxp1608-B21-13:ElapsedReal", this);
 	ge13ElementRealTime_ = new AMBasicControlDetectorEmulator("13E_dwellTime", "13-element Ge dwell time", ge13ElementRealTimeControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 	ge13ElementRealTime_->setHiddenFromUsers(true);
 	ge13ElementRealTime_->setIsVisible(false);
