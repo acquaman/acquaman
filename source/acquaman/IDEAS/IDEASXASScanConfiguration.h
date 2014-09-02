@@ -37,9 +37,22 @@ class IDEASXASScanConfiguration : public AMStepScanConfiguration
 	Q_PROPERTY(bool isTransScan READ isTransScan WRITE setIsTransScan)
 	Q_PROPERTY(bool useRef READ useRef WRITE setUseRef)
 
+	Q_PROPERTY(int fluorescenceDetector READ fluorescenceDetector WRITE setFluorescenceDetector)
+
+	Q_CLASSINFO("fluorescenceDetector", "upgradeDefault=1")
+
 	Q_CLASSINFO("AMDbObject_Attributes", "description=IDEAS XAS Scan Configuration")
 
 public:
+	/// Handles the XRF detector choice.  Available choices are None, KETEK, and 13-element Ge.
+	enum FluorescenceDetector {
+
+		None = 0,
+		Ketek = 1,
+		Ge13Element = 2
+	};
+	Q_DECLARE_FLAGS(FluorescenceDetectors, FluorescenceDetector)
+
 	/// Constructor
 	Q_INVOKABLE IDEASXASScanConfiguration(QObject *parent = 0);
 	/// Copy Constructor
@@ -96,6 +109,9 @@ public:
 	/// Returns the number of times this scan will be run.
 	int numberOfScans() const { return numberOfScans_; }
 
+	/// Returns the current fluorescence detector choice.
+	IDEASXASScanConfiguration::FluorescenceDetectors fluorescenceDetector() const { return fluorescenceDetector_; }
+
 	/// Get a nice looking string that contains all the standard information in an XAS scan.   Used when exporting.
 	QString headerText() const;
 
@@ -110,6 +126,10 @@ signals:
 	void totalTimeChanged(double);
 	/// Notifier that the number of scans has changed.
 	void numberOfScansChanged(int);
+	/// Notifier that the fluorescence choice has changed.
+	void fluorescenceDetectorChanged(IDEASXASScanConfiguration::FluorescenceDetectors);
+	/// Same signal.  Just passing as an int.
+	void fluorescenceDetectorChanged(int);
 
 public slots:
 	/// Sets whether the analysis blocks for XRF scans are automatically generated.
@@ -128,6 +148,10 @@ public slots:
 	void setUseFixedTime(bool fixed);
 	/// Sets the number of times this scan should be repeated.
 	void setNumberOfScans(int num);
+	/// Sets the choice for the fluorescence detector.
+	void setFluorescenceDetector(IDEASXASScanConfiguration::FluorescenceDetectors detector);
+	/// Overloaded.  Used for database loading.
+	void setFluorescenceDetector(int detector) { setFluorescenceDetector((IDEASXASScanConfiguration::FluorescenceDetectors)detector); }
 
 
 protected slots:
@@ -166,6 +190,8 @@ protected:
 	bool isTransScan_;
 	/// Flag used for determining if reference sample related analysis blocks need to be created.
 	bool useRef_;
+	/// Fluorescence detector choice.
+	IDEASXASScanConfiguration::FluorescenceDetectors fluorescenceDetector_;
 };
 
 #endif // IDEASXASSCANCONFIGURATION_H

@@ -72,6 +72,11 @@ IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfigu
 	connect(useRefCheckBox_, SIGNAL(clicked(bool)), configuration_, SLOT(setUseRef(bool)));
 	connect(isTransScanCheckBox_, SIGNAL(clicked(bool)),useRefCheckBox_,SLOT(setEnabled(bool)));
 
+	// The fluorescence detector setup
+	fluorescenceDetectorComboBox_  = createFluorescenceComboBox();
+	connect(fluorescenceDetectorComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onFluorescenceChoiceChanged(int)));
+	connect(configuration_, SIGNAL(fluorescenceDetectorChanged(int)), this, SLOT(updateFluorescenceDetectorComboBox(int)));
+
 	// Energy (Eo) selection
 	energy_ = new QDoubleSpinBox;
 	energy_->setSuffix(" eV");
@@ -118,6 +123,9 @@ IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfigu
 	connect(IDEASBeamline::ideas()->ketek(),SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)),this,SLOT(onKetekROIChange()));
 	connect(isXRFScanCheckBox_, SIGNAL(clicked()),this,SLOT(onKetekROIChange()));
 	onKetekROIChange();
+
+	QFormLayout *detectorLayout = new QFormLayout;
+	detectorLayout->addRow("XRF:", fluorescenceDetectorComboBox_);
 
 	QSpinBox *numberOfScans = new QSpinBox;
 	numberOfScans->setMinimum(1);
@@ -170,6 +178,7 @@ IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfigu
 	settingsVL->addLayout(regionsHL);
 	settingsVL->addWidget(settingsLabel);
 	settingsVL->addLayout(configFL);
+	settingsVL->addLayout(detectorLayout);
 
 	mainVL->addStretch();
 	mainVL->addLayout(settingsVL);
@@ -419,4 +428,24 @@ void IDEASXASScanConfigurationView::onKetekROIChange()
 	}
 	ketekROIs_->setStyleSheet("QLabel { color : black; }");
 	ketekROIs_->setText(regionsText);
+}
+
+QComboBox *IDEASXASScanConfigurationView::createFluorescenceComboBox()
+{
+	QComboBox *newComboBox = new QComboBox;
+	newComboBox->insertItem(0, "None");
+	newComboBox->insertItem(1, "KETEK");
+	newComboBox->insertItem(2, "13-el Ge");
+
+	return newComboBox;
+}
+
+void IDEASXASScanConfigurationView::updateFluorescenceDetectorComboBox(int detector)
+{
+	fluorescenceDetectorComboBox_->setCurrentIndex(detector);
+}
+
+void IDEASXASScanConfigurationView::onFluorescenceChoiceChanged(int id)
+{
+	configuration_->setFluorescenceDetector(id);
 }

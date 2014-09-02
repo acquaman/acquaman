@@ -47,6 +47,7 @@ IDEASXASScanConfiguration::IDEASXASScanConfiguration(QObject *parent) :
 	minEnergy_ = 0;
 	maxEnergy_ = 0;
 	totalPoints_ = 0;
+	fluorescenceDetector_ = IDEASXASScanConfiguration::Ketek;
 
 	AMScanAxisRegion *region = new AMScanAxisEXAFSRegion;
 	AMScanAxis *axis = new AMScanAxis(AMScanAxis::StepAxis, region);
@@ -84,6 +85,7 @@ IDEASXASScanConfiguration::IDEASXASScanConfiguration(const IDEASXASScanConfigura
 	minEnergy_ = original.minEnergy();
 	maxEnergy_ = original.maxEnergy();
 	totalPoints_ = original.totalPoints();
+	fluorescenceDetector_ = original.fluorescenceDetector();
 
 	computeTotalTime();
 
@@ -274,7 +276,7 @@ void IDEASXASScanConfiguration::setIsXRFScan(bool isXRFScan)
 
 void IDEASXASScanConfiguration::setIsTransScan(bool isTransScan)
 {
-	if(isTransScan == isTransScan_){
+	if(isTransScan != isTransScan_){
 
 		isTransScan_ = isTransScan;
 		setModified(true);
@@ -284,10 +286,21 @@ void IDEASXASScanConfiguration::setIsTransScan(bool isTransScan)
 
 void IDEASXASScanConfiguration::setUseRef(bool useRef)
 {
-	if(useRef == useRef_){
+	if(useRef != useRef_){
 
 		useRef_ = useRef;
 		setModified(true);
 		emit configurationChanged();
+	}
+}
+
+void IDEASXASScanConfiguration::setFluorescenceDetector(IDEASXASScanConfiguration::FluorescenceDetectors detector)
+{
+	if (fluorescenceDetector_ != detector){
+
+		fluorescenceDetector_ = detector;
+		emit fluorescenceDetectorChanged(fluorescenceDetector_);
+		emit fluorescenceDetectorChanged(int(fluorescenceDetector_));
+		setModified(true);
 	}
 }
