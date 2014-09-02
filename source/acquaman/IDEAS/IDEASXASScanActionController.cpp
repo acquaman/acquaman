@@ -67,8 +67,8 @@ IDEASXASScanActionController::IDEASXASScanActionController(IDEASXASScanConfigura
 	ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->I_0()->toInfo());
 	ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->Sample()->toInfo());
 	ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->Reference()->toInfo());
-	ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->exposedDetectorByName("XRF1E")->toInfo());
-	ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->dwellTime()->toInfo());
+	ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->exposedDetectorByName("KETEK")->toInfo());
+	ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->ketekDwellTime()->toInfo());
 	configuration_->setDetectorConfigurations(ideasDetectors);
 
 	secondsElapsed_ = 0;
@@ -96,7 +96,7 @@ void IDEASXASScanActionController::buildScanControllerImplementation()
 
 	AMXRFDetector *detector = 0;
 
-	detector = qobject_cast<AMXRFDetector *>(IDEASBeamline::bl()->exposedDetectorByName("XRF1E"));
+	detector = qobject_cast<AMXRFDetector *>(IDEASBeamline::bl()->exposedDetectorByName("KETEK"));
 
 
 	QList<AMDataSource*> raw1DDataSources;

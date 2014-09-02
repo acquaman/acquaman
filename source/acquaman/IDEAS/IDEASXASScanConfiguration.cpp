@@ -38,7 +38,6 @@ IDEASXASScanConfiguration::IDEASXASScanConfiguration(QObject *parent) :
 	isTransScan_ = true;
 	useRef_ = true;
 
-
 	edge_ = "";
 	energy_ = 0.0;
 	useFixedTime_ = false;
@@ -48,7 +47,6 @@ IDEASXASScanConfiguration::IDEASXASScanConfiguration(QObject *parent) :
 	minEnergy_ = 0;
 	maxEnergy_ = 0;
 	totalPoints_ = 0;
-
 
 	AMScanAxisRegion *region = new AMScanAxisEXAFSRegion;
 	AMScanAxis *axis = new AMScanAxis(AMScanAxis::StepAxis, region);
@@ -79,9 +77,6 @@ IDEASXASScanConfiguration::IDEASXASScanConfiguration(const IDEASXASScanConfigura
 	timeOffset_ = original.timeOffset();
 	totalTime_ = original.totalTime();
 
-
-
-
 	edge_ = original.edge();
 	energy_ = original.energy();
 	useFixedTime_ = original.useFixedTime();
@@ -89,7 +84,6 @@ IDEASXASScanConfiguration::IDEASXASScanConfiguration(const IDEASXASScanConfigura
 	minEnergy_ = original.minEnergy();
 	maxEnergy_ = original.maxEnergy();
 	totalPoints_ = original.totalPoints();
-
 
 	computeTotalTime();
 
@@ -266,4 +260,34 @@ void IDEASXASScanConfiguration::onRegionRemoved(AMScanAxisRegion *region)
 {
 	region->disconnect(this);
 	computeTotalTime();
+}
+
+void IDEASXASScanConfiguration::setIsXRFScan(bool isXRFScan)
+{
+	if(isXRFScan != isXRFScan_) {
+
+		isXRFScan_ = isXRFScan;
+		setModified(true);
+		emit configurationChanged();
+	}
+}
+
+void IDEASXASScanConfiguration::setIsTransScan(bool isTransScan)
+{
+	if(isTransScan == isTransScan_){
+
+		isTransScan_ = isTransScan;
+		setModified(true);
+		emit configurationChanged();
+	}
+}
+
+void IDEASXASScanConfiguration::setUseRef(bool useRef)
+{
+	if(useRef == useRef_){
+
+		useRef_ = useRef;
+		setModified(true);
+		emit configurationChanged();
+	}
 }
