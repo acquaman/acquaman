@@ -28,6 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QFormLayout>
 #include <QLabel>
 #include <QSlider>
+#include <QToolButton>
 #include <QComboBox>
 
 #include "MPlot/MPlotWidget.h"

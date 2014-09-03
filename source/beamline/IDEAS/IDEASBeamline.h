@@ -38,6 +38,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/IDEAS/IDEASMonochromatorControl.h"
 #include "beamline/IDEAS/IDEASKETEKDetector.h"
+#include "beamline/IDEAS/IDEAS13ElementGeDetector.h"
 
 /// This class is the master class that holds EVERY control inside the VESPERS beamline.
 class IDEASBeamline : public AMBeamline
@@ -102,7 +103,13 @@ public:
 
 	/// Returns the KETEK detector pointer.
 	IDEASKETEKDetector *ketek() const { return ketek_; }
-	AMDetector *dwellTime() const {return ketekRealTime_; }
+	/// Returns the real time for the KETEK.
+	AMDetector *ketekDwellTime() const {return ketekRealTime_; }
+
+	/// Returns the 13-element Ge detector pointer.
+	IDEAS13ElementGeDetector *ge13Element() const { return ge13Element_; }
+	/// Returns the real time for the Ge detector.
+	AMDetector *ge13ElementDwellTime() const { return ge13ElementRealTime_; }
 
 	CLSBasicScalerChannelDetector *I_0() const {return I0IonChamberScaler_;}
 	CLSBasicScalerChannelDetector *Sample() const {return SampleIonChamberScaler_;}
@@ -170,12 +177,14 @@ protected:
 	AMPVControl *ammeterGroupMode_;
 
 	AMReadOnlyPVControl *ketekRealTimeControl_;
+	AMReadOnlyPVControl *ge13ElementRealTimeControl_;
 	AMControl *ketekPeakingTime_;
 	AMControl *ketekTriggerLevel_;
 	AMControl *ketekBaselineThreshold_;
 	AMControl *ketekPreampGain_;
 
 	AMDetector *ketekRealTime_;
+	AMDetector *ge13ElementRealTime_;
 
 	CLSBasicScalerChannelDetector *I0IonChamberScaler_;
 	CLSBasicScalerChannelDetector *SampleIonChamberScaler_;
@@ -184,9 +193,8 @@ protected:
 	// Scaler.
 	CLSSIS3820Scaler *scaler_;
 
-
-
 	IDEASKETEKDetector *ketek_;
+	IDEAS13ElementGeDetector *ge13Element_;
 
 	AMControl *monoCrystal_, *monoLowEV_, *monoHighEV_, *ringCurrent_, *I0Current_, *sampleTemp_, *monoBraggAngle_, *mono2d_, *monoAngleOffset_;
 

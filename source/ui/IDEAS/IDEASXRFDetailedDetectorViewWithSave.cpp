@@ -239,14 +239,15 @@ void IDEASXRFDetailedDetectorViewWithSave::onKETEKPeakingTimeChanged()
 
 void IDEASXRFDetailedDetectorViewWithSave::onDeadTimeCheckButtonClicked()
 {
- if(IDEASBeamline::ideas()->ketek()->isAcquiring()) return;
+	if(detector_->isAcquiring())
+		return;
 
- float requestedTime = IDEASBeamline::ideas()->ketek()->acquisitionTime();
+	double requestedTime = detector_->acquisitionTime();
 
- AMListAction3 *deadTimeCheckActions = new AMListAction3(new AMListActionInfo3("Quick Deadtime Check", "Quick Deadtime Check"));
- deadTimeCheckActions->addSubAction(IDEASBeamline::ideas()->ketek()->createSetAcquisitionTimeAction(0.1));
- deadTimeCheckActions->addSubAction(IDEASBeamline::ideas()->ketek()->createAcquisitionAction(AMDetectorDefinitions::SingleRead));
- deadTimeCheckActions->addSubAction(IDEASBeamline::ideas()->ketek()->createSetAcquisitionTimeAction(requestedTime));
+	AMListAction3 *deadTimeCheckActions = new AMListAction3(new AMListActionInfo3("Quick Deadtime Check", "Quick Deadtime Check"));
+	deadTimeCheckActions->addSubAction(detector_->createSetAcquisitionTimeAction(0.1));
+	deadTimeCheckActions->addSubAction(detector_->createAcquisitionAction(AMDetectorDefinitions::SingleRead));
+	deadTimeCheckActions->addSubAction(detector_->createSetAcquisitionTimeAction(requestedTime));
 
- deadTimeCheckActions->start();
+	deadTimeCheckActions->start();
 }

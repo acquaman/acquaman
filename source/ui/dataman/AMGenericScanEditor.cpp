@@ -655,6 +655,7 @@ void AMGenericScanEditor::removeScan(AMScan *scan) {
 void AMGenericScanEditor::onChooseScanDialogAccepted()
 {
 	dropScanURLs(chooseScanDialog_->getSelectedScans());
+	chooseScanDialog_->clearSelection();
 }
 
 void AMGenericScanEditor::closeEvent(QCloseEvent* e)

@@ -621,7 +621,7 @@ void AMXRFDetailedDetectorView::onShowMultipleSpectraButtonClicked()
 
 		foreach (AMDataSource *source, detector_->allSpectrumSources()){
 
-			if (source->name() == spectraNames.at(spectraNamesIterator)){
+			if (spectraNames.contains(source->name())){
 
 				MPlotSeriesBasic *newSpectrum = new MPlotSeriesBasic;
 				newSpectrum->setModel(new AMDataSourceSeriesData(source), true);
