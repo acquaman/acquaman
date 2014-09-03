@@ -26,6 +26,9 @@ IDEAS13ElementGeDetector::IDEAS13ElementGeDetector(const QString &name, const QS
 	}
 
 	allControlsCreated();
+
+	foreach (AMDataSource *source, rawSpectraSources_)
+		((AM1DProcessVariableDataSource *)source)->setScale(10);
 }
 
 QString IDEAS13ElementGeDetector::synchronizedDwellKey() const
