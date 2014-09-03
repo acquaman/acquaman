@@ -32,7 +32,7 @@ AM1DCalibrationABEditor::AM1DCalibrationABEditor(AM1DCalibrationAB *analysisBloc
 	: QWidget(parent)
 {
 	analysisBlock_ = analysisBlock;
-
+	chooseScanDialog_ = 0;
 	dataNames_ = new QComboBox;
 	NormalizationNames_ = new QComboBox;
 	populateComboBox();
@@ -44,7 +44,7 @@ AM1DCalibrationABEditor::AM1DCalibrationABEditor(AM1DCalibrationAB *analysisBloc
 	energyCalibrationOffsetBox_->setValue(analysisBlock_->energyCalibrationOffset());
 	energyCalibrationReferenceBox_ = new QDoubleSpinBox;
 	energyCalibrationReferenceBox_->setSingleStep(0.1);
-	energyCalibrationReferenceBox_->setRange(-1000,1000);
+	energyCalibrationReferenceBox_->setRange(-1000,20000);
 	energyCalibrationReferenceBox_->setValue(analysisBlock_->energyCalibrationReference());
 	energyCalibrationScalingBox_ = new QDoubleSpinBox;
 	energyCalibrationScalingBox_->setSingleStep(0.01);
