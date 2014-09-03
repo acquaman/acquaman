@@ -351,7 +351,8 @@ void AMScanThumbnailView::resizeEvent(QResizeEvent *event)
 {
 	Q_UNUSED(event);
 	int itemsPerGridRow = viewport()->width() / (itemDimensions_.width());
-	gridDimensions_.setWidth(viewport()->width() / itemsPerGridRow);
+	if(itemsPerGridRow != 0)
+		gridDimensions_.setWidth(viewport()->width() / itemsPerGridRow);
 	gridDimensions_.setHeight(itemDimensions_.height());
 
 	updateScrollBars();
@@ -367,7 +368,9 @@ void AMScanThumbnailView::updateScrollBars()
 
 	int itemsPerRow = viewport()->width() / (itemDimensions_.width());
 	int totalItems = model()->rowCount();
-	int numberOfRows = totalItems / itemsPerRow;
+	int numberOfRows = 0;
+	if(itemsPerRow != 0)
+		numberOfRows = totalItems / itemsPerRow;
 
 	if(numberOfRows*gridDimensions().height() < verticalOffset())
 		verticalScrollBar()->setValue(0);

@@ -765,7 +765,8 @@ HEADERS += \
 	source/util/AMThread.h \
 	source/dataman/AMDbUpgrade1Pt5.h \
 	source/util/AMAppArgumentParser.h \
-	source/beamline/CLS/CLSSR570.h
+	source/beamline/CLS/CLSSR570.h \
+    source/ui/dataman/AMBrowseScansView.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1250,7 +1251,8 @@ SOURCES += \
 	source/util/AMThread.cpp \
 	source/dataman/AMDbUpgrade1Pt5.cpp \
 	source/util/AMAppArgumentParser.cpp \
-	source/beamline/CLS/CLSSR570.cpp
+	source/beamline/CLS/CLSSR570.cpp \
+    source/ui/dataman/AMBrowseScansView.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {

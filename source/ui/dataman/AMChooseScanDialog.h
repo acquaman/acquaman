@@ -26,17 +26,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QUrl>
 #include <QButtonGroup>
 #include <QPushButton>
-#include <QStringBuilder>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QMenu>
 #include <QLabel>
 
-class AMDataView;
 class AMDatabase;
-class AMScanTableView;
-class AMSortFilterWidget;
 class AMLightweightScanInfoModel;
+class AMBrowseScansView;
 
 /// Provides a dialog that lets users choose one more scans from a database.
 /*! The standard QDialog signals are provided: finished(int result), and either accepted() or rejected().  After receiving these signals [or, after exec() finishes, if using this as a modal dialog], you can use getSelectedScans() to see what the user selected.
@@ -75,10 +72,8 @@ protected slots:
 	void onContextMenuRequested(const QPoint&menuPosition);
 
 protected:
-	AMLightweightScanInfoModel* model_;
 	QButtonGroup* dialogButtons_;
-	AMScanTableView* tableView_;
-	AMSortFilterWidget* filter_;
+	AMBrowseScansView* browseScansView_;
 	QMenu* contextMenu_;
 	QLabel* promptLabel_;
 };
