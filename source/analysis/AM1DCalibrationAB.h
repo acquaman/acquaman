@@ -55,6 +55,8 @@ class AM1DCalibrationAB : public AMStandardAnalysisBlock
 public:
 	/// Constructor.
 	Q_INVOKABLE AM1DCalibrationAB(const QString &outputName = "InvalidInput", QObject *parent = 0);
+	/// Destructor.
+	virtual ~AM1DCalibrationAB(){}
 
 	QString infoDescription() const { return QString(); }
 
@@ -74,7 +76,7 @@ public:
 	/// Set the analyzed data source name.
 	void setNormalizationName(const QString &name);
 	/// Returns the current analyzed data source name.  If none have been set then this returns an empty string.
-	QString NormalizationName() const { return NormalizationName_; }
+	QString NormalizationName() const { return normalizationName_; }
 	/// Returns whether the data source can be evaluated.  Checks against the current analyzed name.
 	bool canAnalyze() const { return canAnalyze_; }
 	/// Returns whether the data source can be evaluated by passing in both names, \param dataName and \param NormalizationName.  Even though, the analysis block can be evaluated regardless of the name if there is only one data source, this will return true even if the name doesn't match.
@@ -180,7 +182,7 @@ protected:
 	/// The name of the data source that should be analyzed.
 	QString dataName_;
 	/// The name of the data source that be used for Normalization.
-	QString NormalizationName_;
+	QString normalizationName_;
 	/// Flag holding whether or not the data source can be analyzed.
 	bool canAnalyze_;
 };

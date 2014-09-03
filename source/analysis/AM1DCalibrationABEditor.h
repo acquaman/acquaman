@@ -45,6 +45,8 @@ class AM1DCalibrationABEditor : public QWidget
 public:
 	/// Constructor.  Takes in an AM1DCalibrationAB pointer.
 	explicit AM1DCalibrationABEditor(AM1DCalibrationAB *analysisBlock, QWidget *parent = 0);
+	/// Destructor.
+	virtual ~AM1DCalibrationABEditor(){}
 
 signals:
 

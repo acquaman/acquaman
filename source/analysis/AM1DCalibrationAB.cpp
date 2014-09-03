@@ -31,7 +31,7 @@ AM1DCalibrationAB::AM1DCalibrationAB(const QString &outputName, QObject *parent)
 	normalizer_ = 0;
 	canAnalyze_ = false;
 	dataName_ = "";
-	NormalizationName_ = "";
+	normalizationName_ = "";
 	axes_ << AMAxisInfo("invalid", 0, "No input data");
 	setState(AMDataSource::InvalidFlag);
 
@@ -135,16 +135,16 @@ void AM1DCalibrationAB::setDataName(const QString &name)
 {
 	dataName_ = name;
 	setModified(true);
-	canAnalyze_ = canAnalyze(dataName_, NormalizationName_);
+	canAnalyze_ = canAnalyze(dataName_, normalizationName_);
 	setInputSources();
 	emitValuesChanged();
 }
 
 void AM1DCalibrationAB::setNormalizationName(const QString &name)
 {
-	NormalizationName_ = name;
+	normalizationName_ = name;
 	setModified(true);
-	canAnalyze_ = canAnalyze(dataName_, NormalizationName_);
+	canAnalyze_ = canAnalyze(dataName_, normalizationName_);
 	setInputSources();
 	emitValuesChanged();
 }
@@ -239,7 +239,7 @@ void AM1DCalibrationAB::setInputSources()
 	}
 
 	int dataIndex = indexOfInputSource(dataName_);
-	int NormalizationIndex = indexOfInputSource(NormalizationName_);
+	int NormalizationIndex = indexOfInputSource(normalizationName_);
 
 	if (dataIndex >= 0 && NormalizationIndex >= 0){
 

@@ -542,6 +542,8 @@ bool AMScan::addAnalyzedDataSource(AMAnalysisBlock *newAnalyzedDataSource)
 
 		newAnalyzedDataSource->setScan(this);
 		connect(newAnalyzedDataSource, SIGNAL(modifiedChanged(bool)), this, SLOT(onDataSourceModified(bool)));
+		onDataSourceModified(newAnalyzedDataSource->modified());
+
 		return true;
 	}
 
