@@ -51,6 +51,21 @@ AM1DCalibrationABEditor::AM1DCalibrationABEditor(AM1DCalibrationAB *analysisBloc
 	energyCalibrationScalingBox_->setRange(0.01,5);
 	energyCalibrationScalingBox_->setValue(analysisBlock_->energyCalibrationScaling());
 
+	isTransmissionCheckbox_ = new QCheckBox;
+	isTransmissionCheckbox_->setChecked(analysisBlock_->isTransmission());
+	toEdgeJumpCheckbox_ = new QCheckBox;
+	toEdgeJumpCheckbox_->setChecked(analysisBlock_->toEdgeJump());
+	preEdgePointSlider_ = new QSlider(Qt::Horizontal);
+	preEdgePointSlider_->setValue(analysisBlock_->preEdgePoint());
+	preEdgePointSlider_->setRange(-1,analysisBlock_->size(0)-1);
+	preEdgePointSlider_->setEnabled(analysisBlock_->toEdgeJump());
+	postEdgePointSlider_ = new QSlider(Qt::Horizontal);
+	postEdgePointSlider_->setValue(analysisBlock_->postEdgePoint());
+	postEdgePointSlider_->setRange(-1,analysisBlock_->size(0)-1);
+	postEdgePointSlider_->setEnabled(analysisBlock_->toEdgeJump());
+
+
+
 
 		/// Apply to sources/scans button
 	applyToAllSourcesButton_ = new QPushButton("Apply to All Sources");
@@ -65,6 +80,13 @@ AM1DCalibrationABEditor::AM1DCalibrationABEditor(AM1DCalibrationAB *analysisBloc
 	connect(energyCalibrationReferenceBox_, SIGNAL(valueChanged(double)), this, SLOT(onEnergyCalibrationReferenceChanged(double)));
 	connect(applyToScansButton_, SIGNAL(clicked()), this, SLOT(onApplyToScansButtonClicked()));
 
+	connect(isTransmissionCheckbox_, SIGNAL(clicked(bool)), this, SLOT(onIsTransmissionChanged(bool)));
+	connect(toEdgeJumpCheckbox_, SIGNAL(clicked(bool)), this, SLOT(onToEdgeJumpChanged(bool)));
+	connect(preEdgePointSlider_, SIGNAL(valueChanged(int)), this, SLOT(onPreEdgePointChanged(int)));
+	connect(postEdgePointSlider_, SIGNAL(valueChanged(int)), this, SLOT(onPostEdgePointChanged(int)));
+
+	preEdgePointLabel_ = new QLabel("Set to zero at:");
+	postEdgePointLabel_ = new QLabel("Set to one at");
 
 	if (analysisBlock_->inputDataSourceCount() > 0){
 
@@ -72,15 +94,23 @@ AM1DCalibrationABEditor::AM1DCalibrationABEditor(AM1DCalibrationAB *analysisBloc
 		NormalizationNames_->setCurrentIndex(NormalizationNames_->findData(analysisBlock_->NormalizationName()));
 	}
 
+	onPreEdgePointChanged(analysisBlock->preEdgePoint());  //to set widget labels
+	onPostEdgePointChanged(analysisBlock->postEdgePoint());
+
 	QFormLayout *layout = new QFormLayout;
 	layout->addRow("Data:", dataNames_);
 	layout->addRow("Normalization:", NormalizationNames_);
+	layout->addRow("Transmisssion Spectra:", isTransmissionCheckbox_);
+	layout->addRow("Normalize to Edge:", toEdgeJumpCheckbox_);
+	layout->addRow(preEdgePointLabel_, preEdgePointSlider_);
+	layout->addRow(postEdgePointLabel_, postEdgePointSlider_);
 	layout->addRow("Offset:", energyCalibrationOffsetBox_);
 	layout->addRow("Scaling:",energyCalibrationScalingBox_);
 	layout->addRow("Reference:",energyCalibrationReferenceBox_);
 	layout->addRow("", applyToScansButton_);
 
 	setLayout(layout);
+
 }
 
 void AM1DCalibrationABEditor::populateComboBox()
@@ -104,6 +134,8 @@ void AM1DCalibrationABEditor::onDataNameChoiceChanged(int index)
 {
 	QString name = dataNames_->itemData(index).toString();
 	analysisBlock_->setDataName(name);
+	preEdgePointSlider_->setRange(-1,analysisBlock_->size(0)-1);
+	postEdgePointSlider_->setRange(-1,analysisBlock_->size(0)-1);
 }
 
 void AM1DCalibrationABEditor::onEnergyCalibrationOffsetChanged(double offset)
@@ -137,8 +169,55 @@ void AM1DCalibrationABEditor::onNormalizationNameChoiceChanged(int index)
 {
 	QString name = NormalizationNames_->itemData(index).toString();
 	analysisBlock_->setNormalizationName(name);
+	preEdgePointSlider_->setRange(-1,analysisBlock_->size(0)-1);
+	postEdgePointSlider_->setRange(-1,analysisBlock_->size(0)-1);
 	applyToAllSources();
 }
+
+void AM1DCalibrationABEditor::onIsTransmissionChanged(bool isTransmission)
+{
+	if(isTransmission == analysisBlock_->isTransmission())
+		return;
+	analysisBlock_->setIsTransmission(isTransmission);
+
+}
+void AM1DCalibrationABEditor::onToEdgeJumpChanged(bool toEdgeJump)
+{
+	if(toEdgeJump == analysisBlock_->toEdgeJump())
+		return;
+	analysisBlock_->setToEdgeJump(toEdgeJump);
+	preEdgePointSlider_->setEnabled(toEdgeJump);
+	postEdgePointSlider_->setEnabled(toEdgeJump);
+	applyToAllSources();
+}
+void AM1DCalibrationABEditor::onPreEdgePointChanged(int preEdgePoint)
+{
+	if(preEdgePoint == -1)
+		preEdgePointLabel_->setText(QString("Set to zero at first point:"));
+	else
+		preEdgePointLabel_->setText(QString("Set to zero at %1 eV:").arg(int(analysisBlock_->axisValue(0,preEdgePoint))));
+	if(preEdgePoint == analysisBlock_->preEdgePoint())
+		return;
+	analysisBlock_->setPreEdgePoint(preEdgePoint);
+	applyToAllSources();
+}
+void AM1DCalibrationABEditor::onPostEdgePointChanged(int postEdgePoint)
+{
+	if(postEdgePoint == -1)
+		postEdgePointLabel_->setText(QString("Set to one at last point:"));
+	else
+		postEdgePointLabel_->setText(QString("Set one at %1 eV:").arg(int(analysisBlock_->axisValue(0,postEdgePoint))));
+	if(postEdgePoint == analysisBlock_->postEdgePoint())
+		return;
+	analysisBlock_->setPostEdgePoint(postEdgePoint);
+
+	applyToAllSources();
+}
+
+
+
+
+
 
 void AM1DCalibrationABEditor::applyToAllSources()
 {
@@ -151,6 +230,11 @@ void AM1DCalibrationABEditor::applyToAllSources()
 				CalibrationAB->setEnergyCalibrationOffset(analysisBlock_->energyCalibrationOffset());
 				CalibrationAB->setEnergyCalibrationReference(analysisBlock_->energyCalibrationReference());
 				CalibrationAB->setEnergyCalibrationScaling(analysisBlock_->energyCalibrationScaling());
+				CalibrationAB->setToEdgeJump(analysisBlock_->toEdgeJump());
+				CalibrationAB->setPreEdgePoint(analysisBlock_->preEdgePoint());
+				CalibrationAB->setPostEdgePoint(analysisBlock_->postEdgePoint());
+
+
 		}
 	}
 }
@@ -211,6 +295,9 @@ void AM1DCalibrationABEditor::onApplyToOtherScansChosen()
 					CalibrationAB->setEnergyCalibrationOffset(analysisBlock_->energyCalibrationOffset());
 					CalibrationAB->setEnergyCalibrationReference(analysisBlock_->energyCalibrationReference());
 					CalibrationAB->setEnergyCalibrationScaling(analysisBlock_->energyCalibrationScaling());
+					CalibrationAB->setToEdgeJump(analysisBlock_->toEdgeJump());
+					CalibrationAB->setPreEdgePoint(analysisBlock_->preEdgePoint());
+					CalibrationAB->setPostEdgePoint(analysisBlock_->postEdgePoint());
 			}
 		}
 
