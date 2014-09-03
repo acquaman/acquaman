@@ -44,6 +44,7 @@ void AMDataSourceSeriesData::setDataSource(const AMDataSource* dataSource) {
 	else {
 		isValid_ = true;
 		connect(dataSource->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onDataSourceDataChanged()));
+		connect(dataSource->signalSource(), SIGNAL(axisInfoChanged(int)), this, SLOT(onDataSourceDataChanged()));
 		connect(dataSource->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onDataSourceDataChanged()));
 		connect(dataSource->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onDataSourceDataChanged()));
 		connect(dataSource->signalSource(), SIGNAL(deleted(void*)), this, SLOT(onDataSourceDeleted()));
