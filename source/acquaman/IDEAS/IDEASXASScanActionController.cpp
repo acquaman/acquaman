@@ -67,8 +67,19 @@ IDEASXASScanActionController::IDEASXASScanActionController(IDEASXASScanConfigura
 	ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->I_0()->toInfo());
 	ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->Sample()->toInfo());
 	ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->Reference()->toInfo());
-	ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->exposedDetectorByName("XRF1E")->toInfo());
-	ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->dwellTime()->toInfo());
+
+	if (configuration_->fluorescenceDetector().testFlag(IDEASXASScanConfiguration::Ketek)){
+
+		ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->exposedDetectorByName("KETEK")->toInfo());
+		ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->ketekDwellTime()->toInfo());
+	}
+
+	else if (configuration_->fluorescenceDetector().testFlag(IDEASXASScanConfiguration::Ge13Element)){
+
+		ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->exposedDetectorByName("13-el Ge")->toInfo());
+		ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->ketekDwellTime()->toInfo());
+	}
+
 	configuration_->setDetectorConfigurations(ideasDetectors);
 
 	secondsElapsed_ = 0;
@@ -93,14 +104,17 @@ void IDEASXASScanActionController::createScanAssembler()
 
 void IDEASXASScanActionController::buildScanControllerImplementation()
 {
-
 	AMXRFDetector *detector = 0;
 
-	detector = qobject_cast<AMXRFDetector *>(IDEASBeamline::bl()->exposedDetectorByName("XRF1E"));
+	if (configuration_->fluorescenceDetector().testFlag(IDEASXASScanConfiguration::Ketek))
+		detector = qobject_cast<AMXRFDetector *>(IDEASBeamline::bl()->exposedDetectorByName("KETEK"));
 
+	else if (configuration_->fluorescenceDetector().testFlag(IDEASXASScanConfiguration::Ge13Element))
+		detector = qobject_cast<AMXRFDetector *>(IDEASBeamline::bl()->exposedDetectorByName("13-el Ge"));
 
 	QList<AMDataSource*> raw1DDataSources;
-	for(int i=0; i<scan_->rawDataSources()->count(); i++)
+
+	for(int i = 0, size = scan_->rawDataSourceCount(); i < size; i++)
 		if(scan_->rawDataSources()->at(i)->rank() == 1)
 			raw1DDataSources << scan_->rawDataSources()->at(i);
 
@@ -153,18 +167,16 @@ void IDEASXASScanActionController::buildScanControllerImplementation()
 
 	if (detector && configuration_->isXRFScan()){
 
-	foreach (AMRegionOfInterest *region, detector->regionsOfInterest()){
-		AMRegionOfInterestAB *regionAB = (AMRegionOfInterestAB *)region->valueSource();
-		QString regionName = regionAB->name().replace(" ","_");
-		AM1DExpressionAB* NormXRF = new AM1DExpressionAB(QString("Norm%1").arg(regionName));
-		NormXRF->setDescription(QString("Norm%1").arg(regionName));
-		NormXRF->setInputDataSources(all1DDataSources);
-		NormXRF->setExpression(QString("%1/I_0").arg(regionName));
-		scan_->addAnalyzedDataSource(NormXRF);
+		foreach (AMRegionOfInterest *region, detector->regionsOfInterest()){
+			AMRegionOfInterestAB *regionAB = (AMRegionOfInterestAB *)region->valueSource();
+			QString regionName = regionAB->name().replace(" ","_");
+			AM1DExpressionAB* NormXRF = new AM1DExpressionAB(QString("Norm%1").arg(regionName));
+			NormXRF->setDescription(QString("Norm%1").arg(regionName));
+			NormXRF->setInputDataSources(all1DDataSources);
+			NormXRF->setExpression(QString("%1/I_0").arg(regionName));
+			scan_->addAnalyzedDataSource(NormXRF);
+		}
 	}
-
-
-}
 }
 
 AMAction3* IDEASXASScanActionController::createInitializationActions(){

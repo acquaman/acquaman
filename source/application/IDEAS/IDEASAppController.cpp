@@ -83,7 +83,7 @@ bool IDEASAppController::startup()
 		// We'll use loading a run from the db as a sign of whether this is the first time an application has been run because startupIsFirstTime will return false after the user data folder is created.
 		if (!existingRun.loadFromDb(AMDatabase::database("user"), 1)){
 
-						AMRun firstRun("IDEAS", 5);	/// \todo For now, we know that 5 is the ID of the IDEAS facility, but this is a hardcoded hack.
+			AMRun firstRun("IDEAS", 5);	/// \todo For now, we know that 5 is the ID of the IDEAS facility, but this is a hardcoded hack.
 			firstRun.storeToDb(AMDatabase::database("user"));
 		}
 
@@ -92,7 +92,7 @@ bool IDEASAppController::startup()
 		makeConnections();
 
 		// Github setup for adding VESPERS specific comment.
-				additionalIssueTypesAndAssignees_.append("I think it's a IDEAS specific issue", "epengr");
+		additionalIssueTypesAndAssignees_.append("I think it's a IDEAS specific issue", "epengr");
 
 		return true;
 	}
@@ -111,7 +111,6 @@ void IDEASAppController::registerClasses()
 {
 	AMDbObjectSupport::s()->registerClass<IDEASXASScanConfiguration>();
 	AMDbObjectSupport::s()->registerClass<IDEASXRFScanConfiguration>();
-
 }
 
 void IDEASAppController::setupExporterOptions()
@@ -150,18 +149,25 @@ void IDEASAppController::setupUserInterface()
 	// Create panes in the main window:
 	////////////////////////////////////
 
-
 	mw_->insertHeading("General", 0);
 
-	mw_->insertHeading("Detectors", 1);
+	mw_->insertHeading("XRF Detectors", 1);
 
-	IDEASXRFDetailedDetectorViewWithSave_ = new IDEASXRFDetailedDetectorViewWithSave(IDEASBeamline::ideas()->ketek());
-	IDEASXRFDetailedDetectorViewWithSave_->buildDetectorView();
-	IDEASXRFDetailedDetectorViewWithSave_->setEnergyRange(1000, 20480);
-	IDEASXRFDetailedDetectorViewWithSave_->addEmissionLineNameFilter(QRegExp("1"));
-	IDEASXRFDetailedDetectorViewWithSave_->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
-	IDEASXRFDetailedDetectorViewWithSave_->addCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));
-	mw_->addPane(IDEASXRFDetailedDetectorViewWithSave_, "Detectors", "XRF Detector", ":/system-search.png");
+	ideasKETEKDetailedDetectorViewWithSave_ = new IDEASXRFDetailedDetectorViewWithSave(IDEASBeamline::ideas()->ketek());
+	ideasKETEKDetailedDetectorViewWithSave_->buildDetectorView();
+	ideasKETEKDetailedDetectorViewWithSave_->setEnergyRange(1000, 20480);
+	ideasKETEKDetailedDetectorViewWithSave_->addEmissionLineNameFilter(QRegExp("1"));
+	ideasKETEKDetailedDetectorViewWithSave_->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
+	ideasKETEKDetailedDetectorViewWithSave_->addCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));
+	mw_->addPane(ideasKETEKDetailedDetectorViewWithSave_, "XRF Detectors", "KETEK", ":/system-search.png");
+
+	ideas13ElementGeDetailedDetectorViewWithSave_ = new IDEASXRFDetailedDetectorViewWithSave(IDEASBeamline::ideas()->ge13Element());
+	ideas13ElementGeDetailedDetectorViewWithSave_->buildDetectorView();
+	ideas13ElementGeDetailedDetectorViewWithSave_->setEnergyRange(1000, 20480);
+	ideas13ElementGeDetailedDetectorViewWithSave_->addEmissionLineNameFilter(QRegExp("1"));
+	ideas13ElementGeDetailedDetectorViewWithSave_->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
+	ideas13ElementGeDetailedDetectorViewWithSave_->addCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));
+	mw_->addPane(ideas13ElementGeDetailedDetectorViewWithSave_, "XRF Detectors", "13-el Ge", ":/system-search.png");
 
 	mw_->insertHeading("Scans", 2);
 

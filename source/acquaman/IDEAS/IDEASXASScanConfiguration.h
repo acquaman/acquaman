@@ -26,32 +26,38 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 class IDEASXASScanConfiguration : public AMStepScanConfiguration
 {
-Q_OBJECT
+	Q_OBJECT
 
-//    	Q_PROPERTY(QString I0Channel READ I0Channel WRITE setI0Channel)
-//	Q_PROPERTY(QString ItChannel READ ItChannel WRITE setItChannel)
-//	Q_PROPERTY(QString IrChannel READ IrChannel WRITE setIrChannel)
 	Q_PROPERTY(QString edge READ edge WRITE setEdge)
 	Q_PROPERTY(double edgeEnergy READ energy WRITE setEnergy)
 	Q_PROPERTY(bool useFixedTime READ useFixedTime WRITE setUseFixedTime)
 	Q_PROPERTY(int numberOfScans READ numberOfScans WRITE setNumberOfScans)
 
-
-
-
 	Q_PROPERTY(bool isXRFScan READ isXRFScan WRITE setIsXRFScan)
 	Q_PROPERTY(bool isTransScan READ isTransScan WRITE setIsTransScan)
 	Q_PROPERTY(bool useRef READ useRef WRITE setUseRef)
 
+	Q_PROPERTY(int fluorescenceDetector READ fluorescenceDetector WRITE setFluorescenceDetector)
 
+	Q_CLASSINFO("fluorescenceDetector", "upgradeDefault=1")
 
-Q_CLASSINFO("AMDbObject_Attributes", "description=IDEAS XAS Scan Configuration")
+	Q_CLASSINFO("AMDbObject_Attributes", "description=IDEAS XAS Scan Configuration")
 
 public:
+	/// Handles the XRF detector choice.  Available choices are None, KETEK, and 13-element Ge.
+	enum FluorescenceDetector {
+
+		None = 0,
+		Ketek = 1,
+		Ge13Element = 2
+	};
+	Q_DECLARE_FLAGS(FluorescenceDetectors, FluorescenceDetector)
+
 	/// Constructor
 	Q_INVOKABLE IDEASXASScanConfiguration(QObject *parent = 0);
 	/// Copy Constructor
 	IDEASXASScanConfiguration(const IDEASXASScanConfiguration &original);
+	/// Destructor.
 	virtual ~IDEASXASScanConfiguration();
 
 	/// Returns a pointer to a newly-created copy of this scan configuration.  (It takes the role of a copy constructor, but is virtual so that our high-level classes can copy a scan configuration without knowing exactly what kind it is.)
@@ -82,8 +88,6 @@ public:
 	/// Sets the time offset used for estimating the scan time.
 	void setTimeOffset(double offset) { timeOffset_ = offset; computeTotalTimeImplementation(); }
 
-
-
 	// Scan configuration properties
 	/////////////////////////
 
@@ -105,6 +109,9 @@ public:
 	/// Returns the number of times this scan will be run.
 	int numberOfScans() const { return numberOfScans_; }
 
+	/// Returns the current fluorescence detector choice.
+	IDEASXASScanConfiguration::FluorescenceDetectors fluorescenceDetector() const { return fluorescenceDetector_; }
+
 	/// Get a nice looking string that contains all the standard information in an XAS scan.   Used when exporting.
 	QString headerText() const;
 
@@ -119,14 +126,18 @@ signals:
 	void totalTimeChanged(double);
 	/// Notifier that the number of scans has changed.
 	void numberOfScansChanged(int);
-
-
+	/// Notifier that the fluorescence choice has changed.
+	void fluorescenceDetectorChanged(IDEASXASScanConfiguration::FluorescenceDetectors);
+	/// Same signal.  Just passing as an int.
+	void fluorescenceDetectorChanged(int);
 
 public slots:
-
-	void setIsXRFScan(bool isXRFScan) { if(isXRFScan == isXRFScan_) return; isXRFScan_ = isXRFScan; setModified(true); emit configurationChanged(); }
-	void setIsTransScan(bool isTransScan) { if(isTransScan == isTransScan_) return; isTransScan_ = isTransScan; setModified(true); emit configurationChanged(); }
-	void setUseRef(bool useRef) { if(useRef == useRef_) return; useRef_ = useRef; setModified(true); emit configurationChanged(); }
+	/// Sets whether the analysis blocks for XRF scans are automatically generated.
+	void setIsXRFScan(bool isXRFScan);
+	/// Sets whether this is a transmission scan or not.  Builds appropriate analysis blocks.
+	void setIsTransScan(bool isTransScan);
+	/// Sets whether this scan is using a reference or not.  Builds appropriate analysis blocks.
+	void setUseRef(bool useRef);
 
 	/// Sets the current edge for the scan.
 	void setEdge(QString edgeName);
@@ -137,6 +148,10 @@ public slots:
 	void setUseFixedTime(bool fixed);
 	/// Sets the number of times this scan should be repeated.
 	void setNumberOfScans(int num);
+	/// Sets the choice for the fluorescence detector.
+	void setFluorescenceDetector(IDEASXASScanConfiguration::FluorescenceDetectors detector);
+	/// Overloaded.  Used for database loading.
+	void setFluorescenceDetector(int detector) { setFluorescenceDetector((IDEASXASScanConfiguration::FluorescenceDetectors)detector); }
 
 
 protected slots:
@@ -147,12 +162,7 @@ protected slots:
 	/// Helper slot that disconnects the region from the computTotalTime slot.
 	void onRegionRemoved(AMScanAxisRegion *region);
 
-
 protected:
-	bool isXRFScan_;
-	bool isTransScan_;
-	bool useRef_;
-
 	/// Computes the total estimated time for the scan.
 	virtual void computeTotalTimeImplementation();
 
@@ -174,14 +184,14 @@ protected:
 	double minEnergy_;
 	/// Holds the finishing energy for the scan.
 	double maxEnergy_;
-
-
-
-
-
-
-
-
+	/// Flag used for determining if XRF related analysis blocks need to be created.
+	bool isXRFScan_;
+	/// Flag used for determining if transmission scan related analysis blocks need to be created.
+	bool isTransScan_;
+	/// Flag used for determining if reference sample related analysis blocks need to be created.
+	bool useRef_;
+	/// Fluorescence detector choice.
+	IDEASXASScanConfiguration::FluorescenceDetectors fluorescenceDetector_;
 };
 
 #endif // IDEASXASSCANCONFIGURATION_H

@@ -791,8 +791,8 @@ AMDbObject* AMDbObjectSupport::createAndLoadObjectAt(AMDatabase* db, const QStri
 	// first try a constructor that takes a database and an id. We assume this one calls loadFromDb() automatically.
 	AMDbObject* newObject;
 
-	newObject = qobject_cast<AMDbObject*>( mo->newInstance(	Q_ARG(AMDatabase*, db),
-															Q_ARG(int, id)) );
+	newObject = qobject_cast<AMDbObject*>( mo->newInstance(	Q_ARG(AMDatabase*, db),	Q_ARG(int, id)) );
+
 	if(newObject)
 		return newObject;
 
