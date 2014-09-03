@@ -29,7 +29,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QLabel>
 #include <QSlider>
 #include <QComboBox>
-
+#include <QToolButton>
 #include "MPlot/MPlotWidget.h"
 #include "MPlot/MPlot.h"
 #include "MPlot/MPlotImage.h"

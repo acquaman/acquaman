@@ -2,21 +2,17 @@
 #define AMSCANDATAVIEW_H
 
 #include <QWidget>
-#include <QAbstractItemView>
 #include <QButtonGroup>
 #include <QToolButton>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QUrl>
-#include <QStackedWidget>
 #include <QMenu>
 #include <QMessageBox>
 
-class AMLightweightScanInfoModel;
-class AMLightweightScanInfoFilterProxyModel;
 class AMDatabase;
-class AMSortFilterWidget;
+class AMBrowseScansView;
 /// Class which represents the main display view for scans loaded from the database
 class AMScanDataView : public QWidget
 {
@@ -87,25 +83,7 @@ protected slots:
 	/// Handles the selected items in the current child view changing
 	void onChildViewSelectionChanged();
 
-	/// Handles the user choosing to "Select All", selects all items from the
-	/// current active child view
-	void onSelectAll();
-
-	/// Handles the user choosing "Clear Selection", clears the selected items from the
-	/// current active child view
-	void onClearSelection();
-
-	/// Responds to one of the buttons in the viewButtons_ group being clicked. Sets the
-	/// current view to the provided index, and calls onChildViewSelectionChanged() to update the
-	/// widgets which respond to selection changes
-	void onChildViewChanged(int);
 protected:
-	/// Adds an QAbstractItemView to the ScanDataView
-	void addChildView(QAbstractItemView* childView, const QIcon &icon);
-	/// Initializes all the child views that will be shown in the ScanDataView
-	void initializeChildViews();
-	/// The child view which currently is showing. If there are no child views, 0 is returned.
-	QAbstractItemView* currentView();
 	/// A list of all the items selected in the currently displayed child view in the standard
 	/// URL format: amd://databaseConnectionName/tableName/objectId
 	QList<QUrl> selectedItems();
@@ -113,20 +91,8 @@ protected:
 	int numberOfSelectedItems();
 
 private:
-	/// A widget which controls the filtering of data within all the contained views
-	AMSortFilterWidget* sortFilterWidget_;
-	/// A tab widget containing the child views
-	QStackedWidget* stackedWidget_;
-	/// The layout containing the buttons to switch between child views
-	QHBoxLayout* buttonLayout_;
-	/// The model containing the scan info
-	AMLightweightScanInfoModel* model_;
-	/// The proxy model which controls sorting and filtering of the scans
-	AMLightweightScanInfoFilterProxyModel* proxyModel_;
-	/// A list of child views added to the scan data view
-	QList<QAbstractItemView*> childViews_;
-	/// Abstract container for the buttons used to switch views
-	QButtonGroup* viewButtons_;
+	/// Widget which displays and filters all the current scan info in the passed database
+	AMBrowseScansView* browseScansView_;
 	/// Label displaying the title of the scan view
 	QLabel* titleLabel_;
 	/// Context menu to allow user to open scans, configs etc.
@@ -139,8 +105,6 @@ private:
 	QToolButton* exportButton_;
 	/// Action button to allow user to open the scan configuration of the selected scans
 	QToolButton* configButton_;
-	/// Label which displays to the user the number of scans they have selected
-	QLabel* selectedItemsCount_;
 };
 
 #endif // AMSCANDATAVIEW_H

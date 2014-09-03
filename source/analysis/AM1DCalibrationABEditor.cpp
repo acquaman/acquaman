@@ -176,6 +176,7 @@ void AM1DCalibrationABEditor::onApplyToOtherScansChosen()
 	disconnect(chooseScanDialog_, SIGNAL(accepted()), this, SLOT(onApplyToOtherScansChosen()));
 
 	QList<QUrl> scans = chooseScanDialog_->getSelectedScans();
+	chooseScanDialog_->clearSelection();
 	if(scans.isEmpty()) {
 		chooseScanDialog_->close();
 		return;
