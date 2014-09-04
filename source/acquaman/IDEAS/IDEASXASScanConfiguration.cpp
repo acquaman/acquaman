@@ -294,7 +294,7 @@ void IDEASXASScanConfiguration::setUseRef(bool useRef)
 	}
 }
 
-void IDEASXASScanConfiguration::setFluorescenceDetector(IDEASXASScanConfiguration::FluorescenceDetectors detector)
+void IDEASXASScanConfiguration::setFluorescenceDetector(IDEASXASScanConfiguration::FluorescenceDetector detector)
 {
 	if (fluorescenceDetector_ != detector){
 

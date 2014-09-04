@@ -360,7 +360,6 @@ bool AMDbObjectSupport::registerDatabase(AMDatabase* db) {
 	}
 }
 
-#include <QDebug>
 bool AMDbObjectSupport::getDatabaseReadyForClass(AMDatabase* db, const AMDbObjectInfo& info) {
 
 	// have the tables already been created in this database for this class? check the types table:
@@ -798,6 +797,7 @@ AMDbObject* AMDbObjectSupport::createAndLoadObjectAt(AMDatabase* db, const QStri
 
 	// now try a default constructor taking no arguments:
 	newObject = qobject_cast<AMDbObject*>( mo->newInstance() );
+
 	if(newObject) {
 		if(newObject->loadFromDb(db, id))
 			return newObject;

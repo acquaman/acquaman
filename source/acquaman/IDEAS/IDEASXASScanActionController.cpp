@@ -68,13 +68,25 @@ IDEASXASScanActionController::IDEASXASScanActionController(IDEASXASScanConfigura
 	ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->Sample()->toInfo());
 	ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->Reference()->toInfo());
 
-	if (configuration_->fluorescenceDetector().testFlag(IDEASXASScanConfiguration::Ketek)){
+//	if (configuration_->fluorescenceDetector().testFlag(IDEASXASScanConfiguration::Ketek)){
+
+//		ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->exposedDetectorByName("KETEK")->toInfo());
+//		ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->ketekDwellTime()->toInfo());
+//	}
+
+//	else if (configuration_->fluorescenceDetector().testFlag(IDEASXASScanConfiguration::Ge13Element)){
+
+//		ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->exposedDetectorByName("13-el Ge")->toInfo());
+//		ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->ketekDwellTime()->toInfo());
+//	}
+
+	if (configuration_->fluorescenceDetector() == IDEASXASScanConfiguration::Ketek){
 
 		ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->exposedDetectorByName("KETEK")->toInfo());
 		ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->ketekDwellTime()->toInfo());
 	}
 
-	else if (configuration_->fluorescenceDetector().testFlag(IDEASXASScanConfiguration::Ge13Element)){
+	else if (configuration_->fluorescenceDetector() == IDEASXASScanConfiguration::Ge13Element){
 
 		ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->exposedDetectorByName("13-el Ge")->toInfo());
 		ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->ketekDwellTime()->toInfo());
@@ -106,10 +118,16 @@ void IDEASXASScanActionController::buildScanControllerImplementation()
 {
 	AMXRFDetector *detector = 0;
 
-	if (configuration_->fluorescenceDetector().testFlag(IDEASXASScanConfiguration::Ketek))
+//	if (configuration_->fluorescenceDetector().testFlag(IDEASXASScanConfiguration::Ketek))
+//		detector = qobject_cast<AMXRFDetector *>(IDEASBeamline::bl()->exposedDetectorByName("KETEK"));
+
+//	else if (configuration_->fluorescenceDetector().testFlag(IDEASXASScanConfiguration::Ge13Element))
+//		detector = qobject_cast<AMXRFDetector *>(IDEASBeamline::bl()->exposedDetectorByName("13-el Ge"));
+
+	if (configuration_->fluorescenceDetector() == IDEASXASScanConfiguration::Ketek)
 		detector = qobject_cast<AMXRFDetector *>(IDEASBeamline::bl()->exposedDetectorByName("KETEK"));
 
-	else if (configuration_->fluorescenceDetector().testFlag(IDEASXASScanConfiguration::Ge13Element))
+	else if (configuration_->fluorescenceDetector() == IDEASXASScanConfiguration::Ge13Element)
 		detector = qobject_cast<AMXRFDetector *>(IDEASBeamline::bl()->exposedDetectorByName("13-el Ge"));
 
 	QList<AMDataSource*> raw1DDataSources;

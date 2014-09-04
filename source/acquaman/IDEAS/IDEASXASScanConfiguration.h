@@ -51,7 +51,7 @@ public:
 		Ketek = 1,
 		Ge13Element = 2
 	};
-	Q_DECLARE_FLAGS(FluorescenceDetectors, FluorescenceDetector)
+//	Q_DECLARE_FLAGS(FluorescenceDetectors, FluorescenceDetector)
 
 	/// Constructor
 	Q_INVOKABLE IDEASXASScanConfiguration(QObject *parent = 0);
@@ -110,7 +110,7 @@ public:
 	int numberOfScans() const { return numberOfScans_; }
 
 	/// Returns the current fluorescence detector choice.
-	IDEASXASScanConfiguration::FluorescenceDetectors fluorescenceDetector() const { return fluorescenceDetector_; }
+	IDEASXASScanConfiguration::FluorescenceDetector fluorescenceDetector() const { return fluorescenceDetector_; }
 
 	/// Get a nice looking string that contains all the standard information in an XAS scan.   Used when exporting.
 	QString headerText() const;
@@ -127,7 +127,7 @@ signals:
 	/// Notifier that the number of scans has changed.
 	void numberOfScansChanged(int);
 	/// Notifier that the fluorescence choice has changed.
-	void fluorescenceDetectorChanged(IDEASXASScanConfiguration::FluorescenceDetectors);
+	void fluorescenceDetectorChanged(IDEASXASScanConfiguration::FluorescenceDetector);
 	/// Same signal.  Just passing as an int.
 	void fluorescenceDetectorChanged(int);
 
@@ -149,9 +149,9 @@ public slots:
 	/// Sets the number of times this scan should be repeated.
 	void setNumberOfScans(int num);
 	/// Sets the choice for the fluorescence detector.
-	void setFluorescenceDetector(IDEASXASScanConfiguration::FluorescenceDetectors detector);
+	void setFluorescenceDetector(IDEASXASScanConfiguration::FluorescenceDetector detector);
 	/// Overloaded.  Used for database loading.
-	void setFluorescenceDetector(int detector) { setFluorescenceDetector((IDEASXASScanConfiguration::FluorescenceDetectors)detector); }
+	void setFluorescenceDetector(int detector) { setFluorescenceDetector((IDEASXASScanConfiguration::FluorescenceDetector)detector); }
 
 
 protected slots:
@@ -191,7 +191,9 @@ protected:
 	/// Flag used for determining if reference sample related analysis blocks need to be created.
 	bool useRef_;
 	/// Fluorescence detector choice.
-	IDEASXASScanConfiguration::FluorescenceDetectors fluorescenceDetector_;
+	IDEASXASScanConfiguration::FluorescenceDetector fluorescenceDetector_;
 };
+
+//Q_DECLARE_OPERATORS_FOR_FLAGS(IDEASXASScanConfiguration::FluorescenceDetectors)
 
 #endif // IDEASXASSCANCONFIGURATION_H
