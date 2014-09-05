@@ -25,7 +25,7 @@ AMBrowseScansView::AMBrowseScansView(AMDatabase *database, QWidget *parent) :
 
 	// Set up layout
 	QVBoxLayout* mainLayout = new QVBoxLayout(this);
-	viewButtonLayout_ = new QHBoxLayout(this);
+	viewButtonLayout_ = new QHBoxLayout();
 	viewButtonLayout_->addStretch();
 	mainLayout->addLayout(viewButtonLayout_);
 	mainLayout->addWidget(sortFilterWidget_);
