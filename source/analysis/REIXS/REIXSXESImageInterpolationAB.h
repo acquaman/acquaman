@@ -290,7 +290,7 @@ protected:
 	/// The position of the second set of shift values used to offset each row of the image when summing
 	int shiftPosition2_;
 	/// a 64x1024 shiftmap used for interpolation bethe two sets of shiftValues
-	mutable QList<QList <double> > shiftMap_;
+//	mutable QList<QList <double> > shiftMap_;
 	/// The level of onterpolation, hard-coded for now
 	int interpolationLevel_;
 
@@ -313,7 +313,7 @@ protected:
 	/// helper function to compute and fill cachedValues_.
 	void computeCachedValues() const;
 	/// Helper fucntion to compute interpolated shift map
-	void computeShiftMap() const;
+	void computeShiftMap(int iSize, int jSize, double *shiftValues) const;
 	/// Helper to compute energy axis scale, and fill cachedAxisValues_.
 	void computeCachedAxisValues() const;
 
