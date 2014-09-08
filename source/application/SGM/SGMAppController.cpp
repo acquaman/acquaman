@@ -83,7 +83,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/SGM/SGMSampleManagementView.h"
 #include "ui/SGM/SGMSampleManipulatorView.h"
 #include "ui/SGM/SGMSIS3820ScalerView.h"
-#include "ui/SGM/SGMDataViewWithActionButtons.h"
 
 #include "ui/CLS/CLSAmptekSDD123DetailedDetectorView.h"
 #include "ui/CLS/CLSPGTDetectorV2View.h"
