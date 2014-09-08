@@ -386,7 +386,7 @@ bool REIXSXESImageInterpolationAB::values(const AMnDIndex &indexStart, const AMn
 #endif
 
 
-	if(cacheInvalid_)
+//	if(cacheInvalid_)
 		computeCachedValues();
 
 	memcpy(outputValues, (cachedValues_.constData()+indexStart.i()), (indexEnd.i()-indexStart.i()+1)*sizeof(double));
@@ -476,7 +476,6 @@ void REIXSXESImageInterpolationAB::computeCachedValues() const
 				double nextImageValue = image.at((i+1)*jSize + j);
 
 				for(int k = 0; k < interpolationLevel_; k++)
-
 					interpolatedImage[interpolatedIndex + k*jSize] = imageValue + ((double)k / (double)interpolationLevel_) * (nextImageValue - imageValue);
 			}
 		}
@@ -504,18 +503,15 @@ void REIXSXESImageInterpolationAB::computeCachedValues() const
 
 		for(int j = 0; j < jSize; j++)
 		{
-			double integral = 0;
-			for(int i = 0; i < interpolatedISize; i++)
+			for(int i = 0, modifiedISize = iSize-1; i < modifiedISize; i++) // 1024
 			{
-				int offset = i/interpolationLevel_*jSize + j;
-				integral += finalLargeImage.at(i*jSize+j);
+				int offset = i*jSize + j;
+				int largeOffset = j + i*jSize*interpolationLevel_;
 
-				if(((i % interpolationLevel_) == 0) || (i == 0) || (i == interpolatedISize - 1))
-				{
-					tempFinalVector[offset] = integral/double(interpolationLevel_);
-					integral = 0;
-				}
+				for (int k = 0; k < interpolationLevel_; k++)
+					tempFinalVector[offset] += finalLargeImage.at(largeOffset + k*jSize);
 
+				tempFinalVector[offset] /= double(interpolationLevel_);
 			}
 		}
 
@@ -572,9 +568,18 @@ void REIXSXESImageInterpolationAB::computeCachedValues() const
 
 void REIXSXESImageInterpolationAB::computeShiftMap(int iSize, int jSize, double *shiftValues) const
 {
-	for (int j = 0; j < jSize; j++)
+	double weightingValue = double(interpolationLevel_*(shiftPosition1_-shiftPosition2_));
+	int interpolatedPosition1 = interpolationLevel_*shiftPosition1_;
+
+	for (int j = 0; j < jSize; j++){
+
+		int shiftValue1 = shiftValues1_.at(j);
+		int shiftValue2 = shiftValues2_.at(j);
+		int shiftDifference = shiftValue1 - shiftValue2;
+
 		for (int i = 0; i < iSize; i++)
-			shiftValues[i*jSize + j] = ((shiftValues1_.at(j) - shiftValues2_.at(j)) / double(interpolationLevel_*(shiftPosition1_-shiftPosition2_))) * (double((i-interpolationLevel_*shiftPosition1_)) + shiftValues1_.at(j));
+			shiftValues[i*jSize + j] = (shiftDifference * double((i-interpolatedPosition1))) / weightingValue + shiftValue1;
+	}
 }
 
 AMNumber REIXSXESImageInterpolationAB::axisValue(int axisNumber, int index) const
