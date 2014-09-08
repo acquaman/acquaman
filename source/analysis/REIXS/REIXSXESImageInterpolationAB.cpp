@@ -94,7 +94,7 @@ REIXSXESImageInterpolationAB::REIXSXESImageInterpolationAB(AMDatabase *db, int i
 	inputSource_ = 0;
 	cacheInvalid_ = true;
 	axisValueCacheInvalid_ = true;
-	interpolationLevel_ = 10;
+	interpolationLevel_ = 100;
 
 	// leave sources_ empty for now.
 
@@ -459,10 +459,13 @@ void REIXSXESImageInterpolationAB::computeCachedValues() const
 	}
 	else
 	{
+		QTime partialTime;
+		partialTime.start();
 		int interpolatedISize = (iSize-1)*interpolationLevel_;
 		QVector<double> shiftValueMap = QVector<double>(interpolatedISize*jSize, 0);
 		computeShiftMap(interpolatedISize, jSize, shiftValueMap.data());
 
+		qDebug() << "Time to compute shift map" << partialTime.restart() << "ms";
 		//interpolate image in x, probably rotating image by 90 degree in memory because of a switch in conventions...
 		QVector<double> interpolatedImage = QVector<double>(interpolatedISize*jSize, 0);
 
@@ -480,6 +483,8 @@ void REIXSXESImageInterpolationAB::computeCachedValues() const
 			}
 		}
 
+		qDebug() << "Time to fill interpolated image" << partialTime.restart() << "ms";
+
 		//OKAY!  Now I think we have a shiftMap_ and a interpolatedImage that mirror those used in Robert's code.
 		//***************************************************************************
 		//***************************************************************************
@@ -495,27 +500,40 @@ void REIXSXESImageInterpolationAB::computeCachedValues() const
 
 				if (((i - shiftOffset) < interpolatedISize) && ((i - shiftOffset) > 0))
 					finalLargeImage[j + (i - shiftOffset)*jSize] += interpolatedImage.at((i*jSize+j));
-
 			}
 		}
+
+		qDebug() << "Time to fill the final large array" << partialTime.restart() << "ms";
 
 		QVector<double> tempFinalVector = QVector<double>(iSize*jSize, 0);
 
+//		for(int j = 0; j < jSize; j++)
+//		{
+//			for(int i = 0, modifiedISize = iSize-1; i < modifiedISize; i++) // 1024
+//			{
+//				int offset = i*jSize + j;
+//				int largeOffset = j + i*jSize*interpolationLevel_;
+
+//				for (int k = 0; k < interpolationLevel_; k++)
+//					tempFinalVector[offset] += finalLargeImage.at(largeOffset + k*jSize);
+
+//				tempFinalVector[offset] /= double(interpolationLevel_);
+//			}
+//		}
 		for(int j = 0; j < jSize; j++)
 		{
-			for(int i = 0, modifiedISize = iSize-1; i < modifiedISize; i++) // 1024
+			for(int i = 0; i < interpolatedISize; i++)
 			{
-				int offset = i*jSize + j;
-				int largeOffset = j + i*jSize*interpolationLevel_;
+//				int offset = i/interpolationLevel_*jSize + j;
+//				int largeOffset = j + i*jSize;
 
-				for (int k = 0; k < interpolationLevel_; k++)
-					tempFinalVector[offset] += finalLargeImage.at(largeOffset + k*jSize);
+				tempFinalVector[i/interpolationLevel_*jSize + j] += finalLargeImage.at(j + i*jSize)/double(interpolationLevel_);
 
-				tempFinalVector[offset] /= double(interpolationLevel_);
+//				tempFinalVector[offset] /= double(interpolationLevel_);
 			}
 		}
 
-
+		qDebug() << "Time to bin down into the final array" << partialTime.restart() << "ms";
 
 //		***************************************************************************
 //		***************************************************************************
@@ -559,11 +577,11 @@ void REIXSXESImageInterpolationAB::computeCachedValues() const
 
 			cachedValues_[i] = newVal;
 		}
-
+		qDebug() << "Time to compute cached values" << partialTime.restart() << "ms";
 	}
 
 	cacheInvalid_ = false;
-	qDebug() << "Time to compute all data is" << fullTime.elapsed() << "ms";
+	qDebug() << "Time to compute all data is" << fullTime.elapsed() << "ms\n\n\n\n";
 }
 
 void REIXSXESImageInterpolationAB::computeShiftMap(int iSize, int jSize, double *shiftValues) const
