@@ -283,7 +283,7 @@ void AMDataSourcesEditor::onAddDataSourceButtonClicked() {
 #include "analysis/AM1DNormalizationAB.h"
 #include "analysis/AM1DCalibrationAB.h"
 #include "analysis/AM3DBinningAB.h"
-//#include "analysis/REIXS/REIXSXESImageInterpolationAB.h"
+#include "analysis/REIXS/REIXSXESImageInterpolationAB.h"
 
 void AMDataSourcesEditor::onNewDataSourceNamed() {
 
@@ -388,10 +388,8 @@ void AMDataSourcesEditor::onNewDataSourceNamed() {
 
 	else if (nameOfAnalysisBlockToBeAdded_ == "Interpolated Curve Correction"){
 
-		/*
 		newAnalysisBlock = new REIXSXESImageInterpolationAB(chName);
 		newAnalysisBlock->setInputDataSources(twoDimDataSources);
-		*/
 	}
 
 
