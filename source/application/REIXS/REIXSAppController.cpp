@@ -64,10 +64,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMessageBox>
 
 #include "actions3/AMActionRegistry3.h"
-#ifdef Q_OS_LINUX
-#include "util/AMGenericLinuxJoystick.h"
-#include "ui/util/AMJoystickTestView.h"
-#endif
 
 REIXSAppController::REIXSAppController(QObject *parent) :
 	AMAppController(parent)
@@ -158,15 +154,6 @@ bool REIXSAppController::startupCreateUserInterface() {
 																				  0);
 
 	mw_->addPane(sampleManagementPane, "Experiment Setup", "Sample Positions", ":/22x22/gnome-display-properties.png");
-	// Testing Joystick:
-#ifdef Q_OS_LINUX
-	 AMJoystick* joystick = new AMGenericLinuxJoystick("/dev/input/js0", this);
-	 connect(joystick, SIGNAL(buttonChanged(int,bool,quint32)), buttonPanel, SLOT(onJoystickButtonChanged(int,bool)));
-	 /*
-	 AMJoystickTestView* testView = new AMJoystickTestView(joystick);
-	 testView->show();
-	 */
-#endif
 
 	////////////////// Temporary testing/commissioning widgets ////////////////////
 	 /*

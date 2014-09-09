@@ -28,7 +28,7 @@ linux-g++-64 {
 # Source Files (SGM Common)
 #######################
 
-FORMS += 	source/ui/SGMXASScanConfigurationViewer.ui
+FORMS += 
 
 HEADERS += \
 	source/application/SGM/SGMAppController.h \
