@@ -472,7 +472,6 @@ HEADERS += \
 	source/analysis/AM1DIntegralAB.h \
 	source/analysis/AM1DBasicIntegralABEditor.h \
 	source/util/AMJoystick.h \
-	source/ui/util/AMJoystickTestView.h \
 	source/ui/dataman/AMControlInfoListTableView.h \
 	source/dataman/AM2DScan.h \
 	source/dataman/info/CLSAmptekSDD123DetectorInfo.h \
@@ -770,7 +769,7 @@ HEADERS += \
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
-	 HEADERS += source/util/AMGenericLinuxJoystick.h
+	 HEADERS +=
 }
 
 # Only when the Mobility Video framework is available:
@@ -788,17 +787,14 @@ FORMS += source/ui/dataman/AMDataView.ui \
 	source/ui/dataman/AMDataViewEmptyHeader.ui \
 	source/ui/dataman/AMDataViewSectionHeader.ui \
 	source/ui/dataman/AMImportControllerWidget.ui \
-	source/ui/acquaman/AMScanConfigurationView.ui \
 	source/ui/AMBottomBar.ui \
 	source/ui/dataman/AMGenericScanEditor.ui \
 	source/ui/dataman/AMDataSourcesEditor.ui \
 	source/ui/dataman/AMSamplePlateSelector.ui \
-	source/ui/dataman/AMSamplePositionViewActionsWidget.ui \
 	source/ui/dataman/AMExporterOptionGeneralAsciiView.ui \
 	source/ui/dataman/AMDataViewActionsBar.ui \
 	source/ui/AMLinePropertyEditor.ui \
 	source/ui/dataman/AMImagePropertyEditor.ui \
-	source/ui/util/AMJoystickTestView.ui \
 	source/ui/actions3/AMAddActionDialog3.ui \
 	source/ui/AMTopFrame2.ui
 
@@ -963,7 +959,6 @@ SOURCES += \
 	source/analysis/AM1DIntegralAB.cpp \
 	source/analysis/AM1DBasicIntegralABEditor.cpp \
 	source/util/AMJoystick.cpp \
-	source/ui/util/AMJoystickTestView.cpp \
 	source/ui/dataman/AMControlInfoListTableView.cpp \
 	source/dataman/AM2DScan.cpp \
 	source/dataman/info/CLSAmptekSDD123DetectorInfo.cpp \
@@ -1256,7 +1251,7 @@ SOURCES += \
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
-	SOURCES += source/util/AMGenericLinuxJoystick.cpp
+	SOURCES +=
 }
 
 CONFIG(mobility) {
