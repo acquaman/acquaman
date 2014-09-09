@@ -1,5 +1,6 @@
 #include "CLSSR570.h"
 
+#include <QDebug>
 #include "beamline/AMPVControl.h"
 
 CLSSR570::CLSSR570(const QString &name, const QString &baseName, QObject *parent) :
@@ -11,14 +12,30 @@ CLSSR570::CLSSR570(const QString &name, const QString &baseName, QObject *parent
 	atMaximumSensitivity_ = false;
 
 	sensitivityControl_ = new AMSinglePVControl(QString("%1Sensitivity").arg(name), QString("%1:sens_put").arg(baseName), this, 0.5);
+	sensitivityNumControl_ = new AMSinglePVControl(QString("%1Sensitivity").arg(name), QString("%1:sens_num").arg(baseName), this, 0.5);
+	sensitivityUnitControl_ = new AMSinglePVControl(QString("%1Sensitivity").arg(name), QString("%1:sens_unit").arg(baseName), this, 0.5);
 
 	connect(sensitivityControl_, SIGNAL(connected(bool)), this, SLOT(onSensitivityControlConnectedChanged(bool)));
 	connect(sensitivityControl_, SIGNAL(valueChanged(double)), this, SLOT(onSensitivityControlValueChanged(double)));
+	connect(sensitivityNumControl_, SIGNAL(connected(bool)), this, SLOT(onSensitivityNumControlConnectedChanged(bool)));
+	connect(sensitivityNumControl_, SIGNAL(valueChanged(double)), this, SLOT(onSensitivityControlNumValueChanged(double)));
+	connect(sensitivityUnitControl_, SIGNAL(connected(bool)), this, SLOT(onSensitivityControlUnitConnectedChanged(QString)));
+	connect(sensitivityUnitControl_, SIGNAL(valueChanged(QString)), this, SLOT(onSensitivityControlUnitValueChanged(QString)));
 
 	setAmplifierMode(AMCurrentAmplifier::Sensitivity);
 }
 
 CLSSR570::~CLSSR570(){}
+
+int CLSSR570::sensitivityLevel() const
+{
+	return (int)sensitivityControl_->value();
+}
+
+double CLSSR570::pvValue() const
+{
+	return (double)sensitivityNumControl_->value();
+}
 
 double CLSSR570::value() const
 {
@@ -28,6 +45,11 @@ double CLSSR570::value() const
 QList<double> CLSSR570::values() const
 {
 	return QList<double>() << 1 << 2 << 5 << 10 << 20 << 50 << 100 << 200 << 500;
+}
+
+int CLSSR570::pvUnits() const
+{
+	return (int)sensitivityUnitControl_->value();
 }
 
 QString CLSSR570::units() const
@@ -68,33 +90,61 @@ void CLSSR570::onSensitivityControlConnectedChanged(bool connected)
 	}
 }
 
-void CLSSR570::onSensitivityControlValueChanged(double value)
+void CLSSR570::onSensitivityControlValueChanged(double controlValue)
+{
+	atMinimumSensitivity_ = false;
+	atMaximumSensitivity_ = false;
+	if (controlValue == 0)
+		atMaximumSensitivity_ = true;
+	else if (controlValue == 27)
+		atMinimumSensitivity_ = true;
+
+	sensitivityNumControl_->disableProcessRecord();
+	sensitivityNumControl_->move(value());
+	sensitivityNumControl_->enableProcessRecord();
+
+	//	sensitivityUnitControl_->disableProcessRecord();
+	//	int value = 0;
+	//	QString unit = units();
+	//	if (unit == "nA/V")
+	//		value = 1;
+	//	else if (unit == "uA/V")
+	//		value = 2;
+	//	else if (unit == "mA/V")
+	//		value = 3;
+	//	sensitivityUnitControl_->move(value);
+	//	sensitivityUnitControl_->enableProcessRecord();
+
+
+	emit valueChanged();
+}
+
+void CLSSR570::onSensitivityNumControlConnectedChanged(bool connected)
+{
+	if(connected != connected_){
+
+		connected_ = connected;
+		emit isConnected(connected_);
+	}
+}
+
+void CLSSR570::onSensitivityNumControlValueChanged(double value)
 {
 	emit valueChanged();
 
-	if(fabs(value - 0) < 0.5 && !atMaximumSensitivity_){
+}
+void CLSSR570::onSensitivityUnitControlConnectedChanged(bool connected)
+{
+	if(connected != connected_){
 
-		atMaximumSensitivity_ = true;
-		emit maximumValue(true);
+		connected_ = connected;
+		emit isConnected(connected_);
 	}
+}
 
-	else if(fabs(value - 27) < 0.5 && !atMinimumSensitivity_){
-
-		atMinimumSensitivity_ = true;
-		emit minimumValue(true);
-	}
-
-	else if(atMaximumSensitivity_ && !(fabs(value - 0) < 0.5)){
-
-		atMaximumSensitivity_ = false;
-		emit maximumValue(false);
-	}
-
-	else if(atMinimumSensitivity_ && !(fabs(value - 27) < 0.5)){
-
-		atMinimumSensitivity_ = false;
-		emit minimumValue(false);
-	}
+void CLSSR570::onSensitivityUnitControlValueChanged(QString value)
+{
+	emit valueChanged();
 }
 
 bool CLSSR570::atMinimumSensitivity() const
@@ -115,6 +165,9 @@ bool CLSSR570::increaseSensitivity()
 	double currentSensitivityControlValue = sensitivityControl_->value();
 	AMControl::FailureExplanation failureExplanation = sensitivityControl_->move(currentSensitivityControlValue-1);
 
+	qDebug() << "======= INCREASE =======";
+	qDebug() << sensitivityControl_->value() << "  vs. " << value();
+
 	return (failureExplanation == AMControl::NoFailure);
 }
 
@@ -125,6 +178,9 @@ bool CLSSR570::decreaseSensitivity()
 
 	double currentSensitivityControlValue = sensitivityControl_->value();
 	AMControl::FailureExplanation failureExplanation = sensitivityControl_->move(currentSensitivityControlValue+1);
+
+	qDebug() << "======== DECREASE ======";
+	qDebug() << sensitivityControl_->value() << "  vs. " << value();
 
 	return (failureExplanation == AMControl::NoFailure);
 }

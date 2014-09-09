@@ -46,7 +46,8 @@ void SGMSettings::load(){
 #else
 	SGMDataFolder_ = settings.value("SGMDataFolder", "/home/sgm/beamline/programming").toString();
 #endif
-	SGMDatabaseFilename_ = settings.value("SGMDatabaseFilename", "sgmdata.db").toString();
+//	SGMDatabaseFilename_ = settings.value("SGMDatabaseFilename", "sgmdata.db").toString();
+	SGMDatabaseFilename_ = settings.value("SGMDatabaseFilename", "sgmdata.sheldon.db").toString();
 	SGMPublicDatabaseFilename_ = settings.value("SGMPublicDatabaseFilename", "sgmpublic.db").toString();
 }
 

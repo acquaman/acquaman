@@ -356,6 +356,10 @@ public slots:
 	/// Check out whether our attached AMProcessVariables want monitoring, and set shouldBeMonitoring_ accordingly.  If connected and shouldBeMonitoring_ but is not, calls startMonitoring(). If monitoring and should not be, calls stopMonitoring().
 	void reviewMonitoring();
 
+	/// enable / disable the process the record (If DISV=DISA, then the record will be disabled).
+	void enableProcessRecord();
+	void disableProcessRecord();
+
 	void setValue(int);
 	void setValues(dbr_long_t[], int num);
 	void setValue(double);
@@ -445,6 +449,9 @@ protected slots:
 	void internal_onStringValueChanged(QStringList stringData);
 	void internal_onAlarmChanged(int status, int severity);
 
+	void internal_onDISAValueChanged(AMProcessVariableIntVector intData);
+	void internal_onDISVValueChanged(AMProcessVariableIntVector intData);
+
 signals:
 	// The following signals are used internally for thread-safe passing of values out of the callback functions (which my be called from other channel-access threads)
 	void internal_error(int lastError);
@@ -455,6 +462,9 @@ signals:
 	void internal_enumValueChanged(AMProcessVariableIntVector enumData);
 	void internal_stringValueChanged(QStringList stringData);
 	void internal_alarmChanged(int status, int severity);
+
+	void internal_DISAValueChanged(AMProcessVariableIntVector intData);
+	void internal_DISVValueChanged(AMProcessVariableIntVector intData);
 
 protected:
 
@@ -484,6 +494,9 @@ protected:
 	static void PVControlInfoCBWrapper(struct event_handler_args eventArgs);
 	/// on receiving confirmation of put requests
 	static void PVPutRequestCBWrapper(struct event_handler_args eventArgs);
+	/// on changes to connection status
+	static void DISAPVConnectionChangedCBWrapper(struct connection_handler_args connArgs);
+	static void DISVPVConnectionChangedCBWrapper(struct connection_handler_args connArgs);
 	//@}
 
 
@@ -492,6 +505,8 @@ protected:
 
 	/// channel ID for channel access
 	chid chid_;
+	chid chidDISV_;   // channel ID for .DISV
+	chid chidDISA_;   // channel ID for .DISA
 	/// Event ID for subscriptions (monitoring values)
 	evid evid_;
 	/// Event ID for alarm subscription
@@ -538,6 +553,10 @@ protected:
 	QStringList data_str_;
 	//@}
 
+	/// the actual data storage for DISA / DISV
+	QVector<int> data_DISA_;
+	QVector<int> data_DISV_;
+
 	/// True almost always. False if the initial attempt to create the channel-access channel failed.
 	bool channelCreated_;
 
@@ -546,6 +565,10 @@ protected:
 
 	/// Records the PV's alarm status and alarm severity.
 	int alarmStatus_, alarmSeverity_;
+
+	/// common function for set int value
+	void setChannelValue(chid channelId, int value);
+
 };
 
 #endif // AMPROCESSVARIABLEPRIVATE_H

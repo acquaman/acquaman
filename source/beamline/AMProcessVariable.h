@@ -229,6 +229,9 @@ public:
 
 
 public slots:
+	/// enable / disable the process the record (If DISV=DISA, then the record will be disabled).
+	void enableProcessRecord() { d_->enableProcessRecord(); }
+	void disableProcessRecord() { d_->disableProcessRecord(); }
 
 	/// asynchronous request to read \c numberOfValues values from the server:
 	bool requestValue(int numberOfValues = 1) { return d_->requestValue(numberOfValues); }

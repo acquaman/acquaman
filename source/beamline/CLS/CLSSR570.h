@@ -2,6 +2,7 @@
 #define CLSSR570_H
 
 #include "beamline/AMCurrentAmplifier.h"
+#include "beamline/AMPVControl.h"
 
 class AMControl;
 
@@ -15,11 +16,17 @@ public:
 	/// Destructor
 	virtual ~CLSSR570();
 
+	/// Returns the current sensitivity level
+	int sensitivityLevel() const;
+	/// Returns the value.
+	virtual double pvValue() const;
 	/// Returns the value.
 	virtual double value() const;
 	/// Returns a list of the available value options.
 	virtual QList<double> values() const;
 
+	/// Returns the current units.
+	virtual int pvUnits() const;
 	/// Returns the current units.
 	virtual QString units() const;
 	/// Returns a string list of the available units options, suitable for a view to display.
@@ -30,11 +37,26 @@ public:
 	/// Returns the maximum value from the given units for the given amplifier.
 	virtual double maximumValueForUnits(const QString &units) const;
 
+	/// Increases the sensitivity of the current amplifier.
+	virtual bool increaseSensitivity();
+	/// Decreases the sensitivity of the current amplifier.
+	virtual bool decreaseSensitivity();
+
 protected slots:
 	/// Handles changes from the sensitivity control to emit valueChanged() and watch min/max sensitivity for the AMCurrentAmplifier API
 	void onSensitivityControlValueChanged(double value);
 	/// Handles changes in the connected state of the control, relays to AMCurrentAmplifier API
 	void onSensitivityControlConnectedChanged(bool connected);
+
+	/// Handles changes from the sensitivity control to emit valueChanged() and watch min/max sensitivity for the AMCurrentAmplifier API
+	void onSensitivityNumControlValueChanged(double value);
+	/// Handles changes in the connected state of the control, relays to AMCurrentAmplifier API
+	void onSensitivityNumControlConnectedChanged(bool connected);
+
+	/// Handles changes from the sensitivity control to emit valueChanged() and watch min/max sensitivity for the AMCurrentAmplifier API
+	void onSensitivityUnitControlValueChanged(QString value);
+	/// Handles changes in the connected state of the control, relays to AMCurrentAmplifier API
+	void onSensitivityUnitControlConnectedChanged(bool connected);
 
 protected:
 	/// Returns whether the current amplifier is at minimum sensitivity.
@@ -42,10 +64,6 @@ protected:
 	/// Returns whether the current amplifier is at maximum sensitivity.
 	virtual bool atMaximumSensitivity() const;
 
-	/// Increases the sensitivity of the current amplifier.
-	virtual bool increaseSensitivity();
-	/// Decreases the sensitivity of the current amplifier.
-	virtual bool decreaseSensitivity();
 
 	/// Sets the current amplifier's sensitivity/gain value.
 	virtual void setValueImplementation(const QString &valueArg);
@@ -58,6 +76,8 @@ protected:
 protected:
 	/// Direct access to the sensitivity control (PV) of the SR570
 	AMControl *sensitivityControl_;
+	AMSinglePVControl *sensitivityNumControl_;
+	AMSinglePVControl *sensitivityUnitControl_;
 
 	/// Holds a latch for when we're at maximum sensitivity
 	bool atMaximumSensitivity_;

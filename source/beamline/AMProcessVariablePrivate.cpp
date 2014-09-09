@@ -28,6 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <cstdlib>
 #include <stdio.h>
 
+#include <QDebug>
 
 ///////////////////////////////
 // AMProcessVariableSupport
@@ -169,6 +170,8 @@ AMProcessVariablePrivate::AMProcessVariablePrivate(const QString& pvName) : QObj
 	connect(this, SIGNAL(internal_stringValueChanged(QStringList)), this,  SLOT(internal_onStringValueChanged(QStringList)));
 	connect(this, SIGNAL(internal_alarmChanged(int,int)), this, SLOT(internal_onAlarmChanged(int,int)));
 
+	connect(this, SIGNAL(valueChanged()), this, SLOT(internal_onDISAValueChanged(AMProcessVariableIntVector)));
+	connect(this, SIGNAL(valueChanged()), this, SLOT(internal_onDISVValueChanged(AMProcessVariableIntVector)));
 
 	// Install convenience signal generators: (these create the error(QString message) and connected() and disconnected() signals.
 	connect(this, SIGNAL(error(int)), this, SLOT(signalForwardOnError(int)));
@@ -202,6 +205,8 @@ AMProcessVariablePrivate::AMProcessVariablePrivate(const QString& pvName) : QObj
 	putCallbackEnabled_ = false;
 
 	chid_ = 0;
+	chidDISV_ = 0;
+	chidDISA_ = 0;
 	evid_ = 0;
 	alarmEvid_ = 0;
 
@@ -213,8 +218,22 @@ AMProcessVariablePrivate::AMProcessVariablePrivate(const QString& pvName) : QObj
 
 		AMProcessVariableSupport::ensureChannelAccess();
 
+
 		// attempt to search/connect to channel:
 		lastError_ = ca_create_channel (pvName.toAscii().constData(), PVConnectionChangedCBWrapper, this, CA_PRIORITY_DEFAULT, &chid_ );
+		if(lastError_ != ECA_NORMAL)
+			throw lastError_;
+
+		QString subPVName;
+		// attempt to search/connect to channel:
+		subPVName = pvName + ".DISV";
+		lastError_ = ca_create_channel (subPVName.toAscii().constData(), PVConnectionChangedCBWrapper, this, CA_PRIORITY_DEFAULT, &chidDISV_ );
+		if(lastError_ != ECA_NORMAL)
+			throw lastError_;
+
+		// attempt to search/connect to channel:
+		subPVName = pvName + ".DISA";
+		lastError_ = ca_create_channel (subPVName.toAscii().constData(), PVConnectionChangedCBWrapper, this, CA_PRIORITY_DEFAULT, &chidDISA_ );
 		if(lastError_ != ECA_NORMAL)
 			throw lastError_;
 
@@ -222,6 +241,8 @@ AMProcessVariablePrivate::AMProcessVariablePrivate(const QString& pvName) : QObj
 
 		// register ourself to the support class:
 		AMProcessVariableSupport::registerPV(chid_, this);
+		AMProcessVariableSupport::registerPV(chidDISV_, this);
+		AMProcessVariableSupport::registerPV(chidDISA_, this);
 	}
 
 	catch(int s) {
@@ -239,9 +260,13 @@ AMProcessVariablePrivate::~AMProcessVariablePrivate() {
 
 	if(channelCreated_) {
 		ca_clear_channel(chid_);
+		ca_clear_channel(chidDISV_);
+		ca_clear_channel(chidDISA_);
 
 		// deregister ourself from the support class:
 		AMProcessVariableSupport::removePV(chid_);
+		AMProcessVariableSupport::removePV(chidDISV_);
+		AMProcessVariableSupport::removePV(chidDISA_);
 	}
 }
 
@@ -302,6 +327,28 @@ void AMProcessVariablePrivate::detachProcessVariable(AMProcessVariable *pv)
 // Wrapper functions to deliver the callbacks to the class instances:
 ////////////////////
 void AMProcessVariablePrivate::PVConnectionChangedCBWrapper(struct connection_handler_args connArgs) {
+
+	// dig the instance pointer out of the puser field of the chid (inside connArgs)
+	AMProcessVariablePrivate* myPV = reinterpret_cast<AMProcessVariablePrivate*>( ca_puser(connArgs.chid) );
+	if(myPV)
+		myPV->connectionChangedCB(connArgs);
+
+}
+
+// Wrapper functions to deliver the callbacks to the class instances:
+////////////////////
+void AMProcessVariablePrivate::DISAPVConnectionChangedCBWrapper(struct connection_handler_args connArgs) {
+
+	// dig the instance pointer out of the puser field of the chid (inside connArgs)
+	AMProcessVariablePrivate* myPV = reinterpret_cast<AMProcessVariablePrivate*>( ca_puser(connArgs.chid) );
+	if(myPV)
+		myPV->connectionChangedCB(connArgs);
+
+}
+
+// Wrapper functions to deliver the callbacks to the class instances:
+////////////////////
+void AMProcessVariablePrivate::DISVPVConnectionChangedCBWrapper(struct connection_handler_args connArgs) {
 
 	// dig the instance pointer out of the puser field of the chid (inside connArgs)
 	AMProcessVariablePrivate* myPV = reinterpret_cast<AMProcessVariablePrivate*>( ca_puser(connArgs.chid) );
@@ -751,6 +798,32 @@ void AMProcessVariablePrivate::internal_onStringValueChanged(QStringList stringD
 	emit valueChanged();
 }
 
+void AMProcessVariablePrivate::internal_onDISAValueChanged(int value) {
+//	bool hasChanged = false;
+//	if(!hasValues_)
+//		hasChanged = true;
+//	hasValues_ = true;
+	data_DISA_.insert(value);
+//	if(hasChanged)
+//		emit hasValuesChanged(true);
+//	emit valueChanged(data_int_.at(0));
+//	emit valueChanged(double(data_int_.at(0)));
+//	emit valueChanged();
+}
+
+void AMProcessVariablePrivate::internal_onDISVValueChanged(int value) {
+//	bool hasChanged = false;
+//	if(!hasValues_)
+//		hasChanged = true;
+//	hasValues_ = true;
+	data_DISV_.insert(value);
+//	if(hasChanged)
+//		emit hasValuesChanged(true);
+//	emit valueChanged(data_int_.at(0));
+//	emit valueChanged(double(data_int_.at(0)));
+//	emit valueChanged();
+}
+
 void AMProcessVariablePrivate::internal_onAlarmChanged(int status, int severity) {
 	bool hasChanged = (status != alarmStatus_ || severity != alarmSeverity_);
 	alarmStatus_ = status;
@@ -778,7 +851,6 @@ void AMProcessVariablePrivate::checkReadWriteReady(){
 		emit writeReadyChanged(lastWriteReady_);
 	}
 }
-
 
 void AMProcessVariablePrivate::startMonitoring() {
 
@@ -847,25 +919,66 @@ bool AMProcessVariablePrivate::requestValue(int numberOfValues) {
 	return true;
 }
 
-void AMProcessVariablePrivate::setValue(int value) {
+void AMProcessVariablePrivate::enableProcessRecord() {
+	int latestDataDISA = data_DISA_.indexOf(0);
+	int latestDataDISV = data_DISV_.indexOf(0);
 
-	dbr_long_t setpoint = value;
+	qDebug() << "enable";
+	qDebug() << "latestDataDISA: " << latestDataDISA << " latestDataDISV: " << latestDataDISV;
+
+	if (latestDataDISA == latestDataDISV) {
+		int lastData = data_DISA_.size() == 1 ? latestDataDISV + 1 : data_DISA_.indexOf(1);
+		setChannelValue(chidDISA_, lastData); // set the value of DISA back to the original value
+	}
+}
+
+void AMProcessVariablePrivate::disableProcessRecord() {
+	int latestDataDISA = data_DISA_.indexOf(0);
+	int latestDataDISV = data_DISV_.indexOf(0);
+
+	qDebug() << "disable";
+	qDebug() << "latestDataDISA: " << latestDataDISA << " latestDataDISV: " << latestDataDISV;
+
+	if (latestDataDISA != latestDataDISV) {
+		setChannelValue(chidDISA_, latestDataDISV); // set the value of DISA to that of DISV to disable
+	}
+}
+
+void AMProcessVariablePrivate::setChannelValue(chid channelId, int value) {
+	dbr_long_t dbrValue = value;
 
 	if (!putCallbackEnabled_)
-		lastError_ = ca_put( DBR_LONG, chid_, &setpoint );
+		lastError_ = ca_put( DBR_LONG, channelId, &dbrValue );
 	else
-		lastError_ = ca_put_callback( DBR_LONG, chid_, &setpoint, PVPutRequestCBWrapper, this );
+		lastError_ = ca_put_callback( DBR_LONG, channelId, &dbrValue, PVPutRequestCBWrapper, this );
 
 	if(lastError_ != ECA_NORMAL) {
-		AMErrorMon::debug(this, AMPROCESSVARIABLESUPPORT_ERROR_WHILE_PUTTING_VALUE_INTEGER, QString("AMProcessVariable: Error while trying to put value: %1: %2").arg(pvName()).arg(ca_message(lastError_)));
+		AMErrorMon::debug(this, AMPROCESSVARIABLESUPPORT_ERROR_WHILE_PUTTING_VALUE_STRING, QString("AMProcessVariable: Error while trying to put DISV: %1: %2").arg(pvName()).arg(ca_message(lastError_)));
 		emit error(lastError_);
 	}
 
 	AMProcessVariableSupport::flushIO();
 }
 
-void AMProcessVariablePrivate::setValues(dbr_long_t setpoints[], int num) {
+void AMProcessVariablePrivate::setValue(int value) {
+	setChannelValue(chid_, value);
 
+//	dbr_long_t setpoint = value;
+
+//	if (!putCallbackEnabled_)
+//		lastError_ = ca_put( DBR_LONG, chid_, &setpoint );
+//	else
+//		lastError_ = ca_put_callback( DBR_LONG, chid_, &setpoint, PVPutRequestCBWrapper, this );
+
+//	if(lastError_ != ECA_NORMAL) {
+//		AMErrorMon::debug(this, AMPROCESSVARIABLESUPPORT_ERROR_WHILE_PUTTING_VALUE_INTEGER, QString("AMProcessVariable: Error while trying to put value: %1: %2").arg(pvName()).arg(ca_message(lastError_)));
+//		emit error(lastError_);
+//	}
+
+//	AMProcessVariableSupport::flushIO();
+}
+
+void AMProcessVariablePrivate::setValues(dbr_long_t setpoints[], int num) {
 	if (!putCallbackEnabled_)
 		lastError_ = ca_array_put( DBR_LONG, num, chid_, setpoints );
 	else

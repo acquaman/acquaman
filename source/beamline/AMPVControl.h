@@ -338,6 +338,11 @@ public:
 					  double tolerance = AMCONTROL_TOLERANCE_DONT_CARE,
 					  double completionTimeoutSeconds = 10.0,
 					  const QString &description = "");
+
+	/// to enable processing PV record
+	void enableProcessRecord();
+	/// to disable processing PV record
+	void disableProcessRecord();
 };
 
 /// Subclass this to create an object that specifies how to interpret a control's status value.  With this mechanism, we can accept arbitrarily complex algorithms to determine if an AMPVwStatusControl's status value means that it's moving.  For example, if your motor driver returns 4, 5, or 6 to mean that it's moving, create a subclass whose operator()() function returns true in these three cases.
