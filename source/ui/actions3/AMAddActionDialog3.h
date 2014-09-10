@@ -20,12 +20,20 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #ifndef AMADDACTIONDIALOG3_H
 #define AMADDACTIONDIALOG3_H
-
+#include <QtCore/QVariant>
+#include <QtGui/QAction>
+#include <QtGui/QApplication>
+#include <QtGui/QButtonGroup>
+#include <QtGui/QDialog>
+#include <QtGui/QGroupBox>
+#include <QtGui/QHBoxLayout>
+#include <QtGui/QHeaderView>
+#include <QtGui/QLabel>
+#include <QtGui/QListWidget>
+#include <QtGui/QPushButton>
+#include <QtGui/QSpacerItem>
+#include <QtGui/QVBoxLayout>
 #include <QDialog>
-
-namespace Ui {
-class AMAddActionDialog3;
-}
 
 class QListWidgetItem;
 
@@ -54,9 +62,18 @@ protected slots:
 protected:
 	/// Helper function to clear the existing actions displayed in the list view, and populate it with all the actions registered in AMActionRegistry.
 	void populateWithRegisteredActions();
-
-	/// UI elements
-	Ui::AMAddActionDialog3 *ui;
+private:
+	QVBoxLayout *verticalLayout_3;
+	QLabel *titleLabel;
+	QHBoxLayout *horizontalLayout;
+	QListWidget *actionsListWidget;
+	QVBoxLayout *verticalLayout;
+	QLabel *actionNameLabel;
+	QGroupBox *actionDescriptionGroupBox;
+	QVBoxLayout *verticalLayout_2;
+	QLabel *actionDescription;
+	QSpacerItem *verticalSpacer;
+	QPushButton *addToWorkflowButton;
 };
 
 #endif // AMADDACTIONDIALOG_H
