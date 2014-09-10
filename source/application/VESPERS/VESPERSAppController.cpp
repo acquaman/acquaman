@@ -156,8 +156,8 @@ bool VESPERSAppController::startup()
 			firstRun.storeToDb(AMDatabase::database("user"));
 		}
 
-//		if (!ensureProgramStructure())
-//			return false;
+		if (!ensureProgramStructure())
+			return false;
 
 		setupExporterOptions();
 		setupUserInterface();
