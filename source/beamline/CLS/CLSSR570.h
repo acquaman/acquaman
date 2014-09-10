@@ -44,16 +44,6 @@ protected slots:
 	/// Handles changes in the connected state of the control, relays to AMCurrentAmplifier API
 	void onSensitivityControlConnectedChanged(bool connected);
 
-	/// Handles changes from the sensitivity control to emit valueChanged() and watch min/max sensitivity for the AMCurrentAmplifier API
-	void onSensitivityNumControlValueChanged(double value);
-	/// Handles changes in the connected state of the control, relays to AMCurrentAmplifier API
-	void onSensitivityNumControlConnectedChanged(bool connected);
-
-	/// Handles changes from the sensitivity control to emit valueChanged() and watch min/max sensitivity for the AMCurrentAmplifier API
-	void onSensitivityUnitControlValueChanged(QString value);
-	/// Handles changes in the connected state of the control, relays to AMCurrentAmplifier API
-	void onSensitivityUnitControlConnectedChanged(bool connected);
-
 protected:
 	/// Returns whether the current amplifier is at minimum sensitivity.
 	virtual bool atMinimumSensitivity() const;
@@ -72,6 +62,7 @@ protected:
 protected:
 	QList<double> sensitivityNums_;
 	QStringList sensitivityUnits_;
+	QStringList sensitivityValueArgs_;
 
 	/// Direct access to the sensitivity control (PV) of the SR570
 	AMControl *sensitivityControl_;
