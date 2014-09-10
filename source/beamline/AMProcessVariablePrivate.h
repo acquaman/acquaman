@@ -501,6 +501,13 @@ protected:
 	int count_;
 
 	/// channel ID for channel access
+	chid channelIds_[3];
+	/// Event ID for subscriptions (monitoring values)
+	evid eventIds_[3];
+	/// Event ID for alarm subscription
+	evid alarmEventIds_[3];
+
+	/// channel ID for channel access
 	chid chid_;
 	chid chidDISV_;   // channel ID for .DISV
 	chid chidDISA_;   // channel ID for .DISA
@@ -508,6 +515,8 @@ protected:
 	evid evid_;
 	/// Event ID for alarm subscription
 	evid alarmEvid_;
+	evid evidDISA_;
+	evid alarmEvidDISA_;
 
 	/// Request that we start monitoring as soon as we connect. (Set by main thread, read from epics connection callback thread, hence volatile.)
 	volatile bool shouldBeMonitoring_;

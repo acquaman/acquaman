@@ -274,15 +274,6 @@ AMSinglePVControl::AMSinglePVControl(const QString &name, const QString &PVname,
 {
 }
 
-void AMSinglePVControl::enableProcessRecord() {
-	writePV_->enableProcessRecord();
-}
-
-void AMSinglePVControl::disableProcessRecord() {
-	writePV_->disableProcessRecord();
-}
-
-
 // Class AMReadOnlyPVwStatusControl
 ///////////////////////////////////////
 

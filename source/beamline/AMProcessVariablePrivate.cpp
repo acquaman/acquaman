@@ -27,6 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <cstdlib>
 #include <stdio.h>
+#include <QDebug>
 
 ///////////////////////////////
 // AMProcessVariableSupport
@@ -207,6 +208,9 @@ AMProcessVariablePrivate::AMProcessVariablePrivate(const QString& pvName) : QObj
 	chidDISA_ = 0;
 	evid_ = 0;
 	alarmEvid_ = 0;
+
+	evidDISA_ = 0;
+	alarmEvidDISA_ = 0;
 
 	alarmStatus_ = 0;
 	alarmSeverity_ = 0;
@@ -399,56 +403,48 @@ void AMProcessVariablePrivate::connectionChangedCB(struct connection_handler_arg
 
 	// Possibility 1: Connection gained:
 	if( ca_state(connArgs.chid) == cs_conn && connArgs.op == CA_OP_CONN_UP) {
-		if (connArgs.chid == chidDISA_ || connArgs.chid == chidDISV_) {
-			// It's useful to automatically-request the value, after we are first connected:
-			lastError = ca_array_get_callback(PVDataType::Integer, ca_element_count(connArgs.chid), connArgs.chid, PVValueChangedCBWrapper, this);
+		// Discover the type of this channel:
+		serverType = ca_field_type(connArgs.chid);
+
+		// We simplify all floating-point types to double, all integer types to long, and leave strings as strings and enums as enums:
+		ourType = AMProcessVariable::serverType2ourType(serverType);
+
+		// Request some information about the PV (units, control limits, etc.).
+		// For enum types, we want the list of string names:
+		if(ourType == PVDataType::Enum) {
+			lastError = ca_get_callback(DBR_CTRL_ENUM, connArgs.chid, PVControlInfoCBWrapper, this);
+
 			if(lastError != ECA_NORMAL) {
-				AMErrorMon::debug(this, AMPROCESSVARIABLESUPPORT_ERROR_WHILE_REQUESTING_VALUE_GENERAL, QString("AMProcessVariable: Error while trying to request value: %1: %2").arg(pvName()).arg(ca_message(lastError)));
+				AMErrorMon::debug(this, AMPROCESSVARIABLESUPPORT_ERROR_WHILE_REQUESTING_ENUM_INFO, QString("AMProcessVariable: Error while trying to request enum control information: %1: %2").arg(pvName()).arg(ca_message(lastError)));
 				emit internal_error(lastError);
 			}
-
-		} else if (connArgs.chid == chid_) {
-			// Discover the type of this channel:
-			serverType = ca_field_type(chid_);
-
-			// We simplify all floating-point types to double, all integer types to long, and leave strings as strings and enums as enums:
-			ourType = AMProcessVariable::serverType2ourType(serverType);
-
-			// Request some information about the PV (units, control limits, etc.).
-			// For enum types, we want the list of string names:
-			if(ourType == PVDataType::Enum) {
-				lastError = ca_get_callback(DBR_CTRL_ENUM, chid_, PVControlInfoCBWrapper, this);
-
-				if(lastError != ECA_NORMAL) {
-					AMErrorMon::debug(this, AMPROCESSVARIABLESUPPORT_ERROR_WHILE_REQUESTING_ENUM_INFO, QString("AMProcessVariable: Error while trying to request enum control information: %1: %2").arg(pvName()).arg(ca_message(lastError)));
-					emit internal_error(lastError);
-				}
-			}
-			// otherwise, requesting control information as DBR_CTRL_DOUBLE because this gives the most information that could possibly be available (precision, limits, units)
-			else if (ourType == PVDataType::Integer || ourType == PVDataType::FloatingPoint){
-				lastError = ca_get_callback(DBR_CTRL_DOUBLE, chid_, PVControlInfoCBWrapper, this);
-				if(lastError != ECA_NORMAL) {
-					AMErrorMon::debug(this, AMPROCESSVARIABLESUPPORT_ERROR_WHILE_REQUESTING_INT_VALUE, QString("AMProcessVariable: Error while trying to request value: %1: %2").arg(pvName()).arg(ca_message(lastError)));
-					emit internal_error(lastError);
-				}
-			}
-			else if(ourType == PVDataType::String){
-				lastError = ca_get_callback(DBR_CTRL_STRING, chid_, PVControlInfoCBWrapper, this);
-				if(lastError != ECA_NORMAL) {
-					AMErrorMon::debug(this, AMPROCESSVARIABLESUPPORT_ERROR_WHILE_REQUESTING_STRING_VALUE, QString("AMProcessVariable: Error while trying to request value: %1: %2").arg(pvName()).arg(ca_message(lastError)));
-					emit internal_error(lastError);
-				}
-			}
-			/// \todo What control type to request if type is not any of these?
-			/// \bug Currently, if the type is not an enum, integer, floating-point, or string, PV's will not emit initialized().
-
-			// It's useful to automatically-request the value, after we are first connected:
-			lastError = ca_array_get_callback(ourType, ca_element_count(chid_), chid_, PVValueChangedCBWrapper, this);
+		}
+		// otherwise, requesting control information as DBR_CTRL_DOUBLE because this gives the most information that could possibly be available (precision, limits, units)
+		else if (ourType == PVDataType::Integer || ourType == PVDataType::FloatingPoint){
+			lastError = ca_get_callback(DBR_CTRL_DOUBLE, connArgs.chid, PVControlInfoCBWrapper, this);
 			if(lastError != ECA_NORMAL) {
-				AMErrorMon::debug(this, AMPROCESSVARIABLESUPPORT_ERROR_WHILE_REQUESTING_VALUE_GENERAL, QString("AMProcessVariable: Error while trying to request value: %1: %2").arg(pvName()).arg(ca_message(lastError)));
+				AMErrorMon::debug(this, AMPROCESSVARIABLESUPPORT_ERROR_WHILE_REQUESTING_INT_VALUE, QString("AMProcessVariable: Error while trying to request value: %1: %2").arg(pvName()).arg(ca_message(lastError)));
 				emit internal_error(lastError);
 			}
+		}
+		else if(ourType == PVDataType::String){
+			lastError = ca_get_callback(DBR_CTRL_STRING, connArgs.chid, PVControlInfoCBWrapper, this);
+			if(lastError != ECA_NORMAL) {
+				AMErrorMon::debug(this, AMPROCESSVARIABLESUPPORT_ERROR_WHILE_REQUESTING_STRING_VALUE, QString("AMProcessVariable: Error while trying to request value: %1: %2").arg(pvName()).arg(ca_message(lastError)));
+				emit internal_error(lastError);
+			}
+		}
+		/// \todo What control type to request if type is not any of these?
+		/// \bug Currently, if the type is not an enum, integer, floating-point, or string, PV's will not emit initialized().
 
+		// It's useful to automatically-request the value, after we are first connected:
+		lastError = ca_array_get_callback(ourType, ca_element_count(connArgs.chid), connArgs.chid, PVValueChangedCBWrapper, this);
+		if(lastError != ECA_NORMAL) {
+			AMErrorMon::debug(this, AMPROCESSVARIABLESUPPORT_ERROR_WHILE_REQUESTING_VALUE_GENERAL, QString("AMProcessVariable: Error while trying to request value: %1: %2").arg(pvName()).arg(ca_message(lastError)));
+			emit internal_error(lastError);
+		}
+
+		if (connArgs.chid == chid_) {
 			// all connections will monitor the alarm status, even if they don't want to monitor the values
 			lastError = ca_create_subscription(AMProcessVariable::serverType2StatusType(serverType), 1, chid_, DBE_ALARM, PVAlarmChangedCBWrapper, this, &alarmEvid_);
 			if(lastError != ECA_NORMAL) {
@@ -464,12 +460,29 @@ void AMProcessVariablePrivate::connectionChangedCB(struct connection_handler_arg
 					emit internal_error(lastError);
 				}
 			}
+		} else 		if (connArgs.chid == chidDISA_) {
+			// all connections will monitor the alarm status, even if they don't want to monitor the values
+			lastError = ca_create_subscription(AMProcessVariable::serverType2StatusType(serverType), 1, chidDISA_, DBE_ALARM, PVAlarmChangedCBWrapper, this, &alarmEvidDISA_);
+			if(lastError != ECA_NORMAL) {
+				AMErrorMon::debug(this, AMPROCESSVARIABLESUPPORT_ERROR_WHILE_SUBSCRIBING_TO_ALARMS, QString("AMProcessVariable: Error while trying to subscribe to alarms: %1: %2").arg(pvName()).arg(ca_message(lastError)));
+				emit internal_error(lastError);
+			}
 
-			// AMProcessVariableSupport::flushIO() may not be thread-safe... Use ca_flush_io directly instead.
-			ca_flush_io();
-
-			emit internal_connectionStateChanged(true, ca_element_count(chid_), serverType, ourType);
+			// start monitoring values, if we're supposed to be.
+			if(shouldBeMonitoring_) {
+				lastError = ca_create_subscription(ourType, ca_element_count(chid_), chidDISA_, DBE_VALUE | DBE_LOG | DBE_ALARM, PVValueChangedCBWrapper, this, &evidDISA_ );
+				if(lastError != ECA_NORMAL) {
+					AMErrorMon::debug(this, AMPROCESSVARIABLESUPPORT_ERROR_WHILE_STARTING_MONITORING, QString("AMProcessVariable: Error starting monitoring: %1: %2").arg(pvName()).arg(ca_message(lastError)));
+					emit internal_error(lastError);
+				}
+			}
 		}
+
+
+		// AMProcessVariableSupport::flushIO() may not be thread-safe... Use ca_flush_io directly instead.
+		ca_flush_io();
+
+		emit internal_connectionStateChanged(true, ca_element_count(connArgs.chid), serverType, ourType);
 	}
 	// Possibility 2: anything but a connection gained:
 	else {
@@ -743,6 +756,8 @@ void AMProcessVariablePrivate::internal_onFloatingPointValueChanged(AMProcessVar
 }
 
 void AMProcessVariablePrivate::internal_onIntegerValueChanged(AMProcessVariableIntVector intData) {
+	qDebug() << "internal_onIntegerValueChanged value changed: " << intData.toList();
+
 	bool hasChanged = false;
 	if(!hasValues_)
 		hasChanged = true;
@@ -791,6 +806,7 @@ void AMProcessVariablePrivate::internal_onStringValueChanged(QStringList stringD
 }
 
 void AMProcessVariablePrivate::internal_onDISAValueChanged(AMProcessVariableIntVector value) {
+	qDebug() << "DISA value changed: " << value.toList();
 	data_DISA_ = value;
 }
 
@@ -838,6 +854,12 @@ void AMProcessVariablePrivate::startMonitoring() {
 		emit error(lastError_);
 		return;
 	}
+	lastError_ = ca_create_subscription(ourType_, ca_element_count(chidDISA_), chidDISA_, DBE_VALUE | DBE_LOG | DBE_ALARM, PVValueChangedCBWrapper, this, &evidDISA_ );
+	if(lastError_ != ECA_NORMAL) {
+		AMErrorMon::debug(this, AMPROCESSVARIABLESUPPORT_ERROR_WHILE_STARTING_MONITOR_GENERAL, QString("AMProcessVariable: Error starting monitoring: %1: %2").arg(pvName()).arg(ca_message(lastError_)));
+		emit error(lastError_);
+		return;
+	}
 
 	AMProcessVariableSupport::flushIO();
 }
@@ -856,6 +878,7 @@ void AMProcessVariablePrivate::stopMonitoring() {
 	ca_clear_subscription(evid_);
 	AMProcessVariableSupport::flushIO();
 	evid_ = 0;
+
 }
 
 void AMProcessVariablePrivate::reviewMonitoring()
@@ -894,23 +917,23 @@ bool AMProcessVariablePrivate::requestValue(int numberOfValues) {
 }
 
 void AMProcessVariablePrivate::enableProcessRecord() {
-	int latestDataDISA = data_DISA_[0];
-	int latestDataDISV = data_DISV_[0];
-
-	if (latestDataDISA == latestDataDISV) {
-		int lastData = data_DISA_.size() == 1 ? latestDataDISV - 1 : data_DISA_[1];
-		setChannelValue(chidDISA_, lastData); // set the value of DISA back to the original value
-		data_DISA_[0] = lastData;
+	if (data_DISA_[0] == data_DISV_[0]) {
+		// set the value of DISA back to the original value
+		int originalValue = (data_DISA_.size()> 1) ?  data_DISA_[1] : data_DISV_[0] - 1;
+		setChannelValue(chidDISA_, originalValue);
+		data_DISA_[0] = originalValue;
 	}
 }
 
 void AMProcessVariablePrivate::disableProcessRecord() {
-	int latestDataDISA = data_DISA_[0];
-	int latestDataDISV = data_DISV_[0];
+	if (data_DISA_[0] != data_DISV_[0]) {
+		setChannelValue(chidDISA_, data_DISV_[0]); // set the value of DISA to that of DISV to disable
+		if (data_DISA_.size() < 2)
+			data_DISA_.append(data_DISA_[0]);
+		else
+			data_DISA_[1] = data_DISA_[0];
 
-	if (latestDataDISA != latestDataDISV) {
-		setChannelValue(chidDISA_, latestDataDISV); // set the value of DISA to that of DISV to disable
-		data_DISA_[0] = latestDataDISV;
+		data_DISA_[0] = data_DISV_[0];
 	}
 }
 
