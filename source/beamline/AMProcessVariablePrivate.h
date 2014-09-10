@@ -494,9 +494,6 @@ protected:
 	static void PVControlInfoCBWrapper(struct event_handler_args eventArgs);
 	/// on receiving confirmation of put requests
 	static void PVPutRequestCBWrapper(struct event_handler_args eventArgs);
-	/// on changes to connection status
-	static void DISAPVConnectionChangedCBWrapper(struct connection_handler_args connArgs);
-	static void DISVPVConnectionChangedCBWrapper(struct connection_handler_args connArgs);
 	//@}
 
 

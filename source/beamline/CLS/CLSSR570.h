@@ -19,14 +19,10 @@ public:
 	/// Returns the current sensitivity level
 	int sensitivityLevel() const;
 	/// Returns the value.
-	virtual double pvValue() const;
-	/// Returns the value.
 	virtual double value() const;
 	/// Returns a list of the available value options.
 	virtual QList<double> values() const;
 
-	/// Returns the current units.
-	virtual int pvUnits() const;
 	/// Returns the current units.
 	virtual QString units() const;
 	/// Returns a string list of the available units options, suitable for a view to display.
@@ -74,6 +70,9 @@ protected:
 	QString currentUnitHelper() const;
 
 protected:
+	QList<double> sensitivityNums_;
+	QStringList sensitivityUnits_;
+
 	/// Direct access to the sensitivity control (PV) of the SR570
 	AMControl *sensitivityControl_;
 	AMSinglePVControl *sensitivityNumControl_;
