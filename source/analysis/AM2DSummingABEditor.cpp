@@ -34,11 +34,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "MPlot/MPlotTools.h"
 #include "dataman/datasource/AMDataSourceImageData.h"
 
- AM2DSummingABEditor::~AM2DSummingABEditor(){}
-AM2DSummingABEditor::AM2DSummingABEditor(AM2DSummingAB* analysisBlock, QWidget *parent) :
-	QWidget(parent)
-{
+AM2DSummingABEditor::~AM2DSummingABEditor(){}
 
+AM2DSummingABEditor::AM2DSummingABEditor(AM2DSummingAB* analysisBlock, QWidget *parent)
+	: QWidget(parent)
+{
 	analysisBlock_ = analysisBlock;
 
 	names_ = new QComboBox;
@@ -51,12 +51,22 @@ AM2DSummingABEditor::AM2DSummingABEditor(AM2DSummingAB* analysisBlock, QWidget *
 	axisSelector_->addItem("Horizontal");
 	axisSelector_->addItem("Vertical");
 
-	rangeMinControl_ = new QSpinBox();
-	rangeMinControl_->setSingleStep(1);
-	rangeMinControl_->setMinimum(0);
-	rangeMaxControl_ = new QSpinBox();
-	rangeMaxControl_->setSingleStep(1);
-	rangeMaxControl_->setMinimum(0);
+	int sumAxis = analysisBlock_->sumAxis();
+	AMDataSource *inputSource = analysisBlock_->inputDataSourceAt(analysisBlock_->indexOfInputSource(analysisBlock_->analyzedName()));
+
+	rangeMinControl_ = new QDoubleSpinBox;
+	rangeMaxControl_ = new QDoubleSpinBox;
+
+	if (inputSource){
+
+		AMAxisInfo axisInfo = inputSource->axisInfoAt(sumAxis);
+		double sumAxisStep = double(axisInfo.increment);
+		double sumAxisStart = double(axisInfo.start);
+		rangeMinControl_->setSingleStep(sumAxisStep);
+		rangeMinControl_->setMinimum(sumAxisStart);
+		rangeMaxControl_->setSingleStep(sumAxisStep);
+		rangeMaxControl_->setMinimum(sumAxisStart);
+	}
 
 	plot_ = new MPlot();
 	plotWidget_ = new MPlotWidget();
@@ -73,7 +83,6 @@ AM2DSummingABEditor::AM2DSummingABEditor(AM2DSummingAB* analysisBlock, QWidget *
 	image_ = 0;
 
 	QColor white(Qt::white);
-	QPen pen(white, 1, Qt::SolidLine, Qt::SquareCap, Qt::MiterJoin);
 	white.setAlphaF(0.6);
 	rangeRectangle1_ = new MPlotRectangle(QRectF(0,0,10,10), Qt::NoPen, QBrush(white));
 	rangeRectangle1_->setSelectable(false);
@@ -92,17 +101,17 @@ AM2DSummingABEditor::AM2DSummingABEditor(AM2DSummingAB* analysisBlock, QWidget *
 	plot_->addTool(new MPlotDragZoomerTool());
 	plot_->addTool(new MPlotWheelZoomerTool());
 
-
-
-	QVBoxLayout* vl = new QVBoxLayout();
-	QFormLayout* fl = new QFormLayout();
+	QFormLayout* fl = new QFormLayout;
 	fl->addRow("Input:", names_);
 	fl->addRow("Sum", axisSelector_);
-	QHBoxLayout* hl = new QHBoxLayout();
+
+	QHBoxLayout* hl = new QHBoxLayout;
 	hl->addWidget(rangeMinControl_);
 	hl->addWidget(new QLabel("To"));
 	hl->addWidget(rangeMaxControl_);
 	fl->addRow("From (index)", hl);
+
+	QVBoxLayout* vl = new QVBoxLayout;
 	vl->addLayout(fl);
 	vl->addWidget(plotWidget_);
 	setLayout(vl);
@@ -122,10 +131,9 @@ AM2DSummingABEditor::AM2DSummingABEditor(AM2DSummingAB* analysisBlock, QWidget *
 
 	// make connections
 	connect(analysisBlock_, SIGNAL(inputSourcesChanged()), this, SLOT(onAnalysisBlockInputDataSourcesChanged()));
-
 	connect(axisSelector_, SIGNAL(currentIndexChanged(int)), this, SLOT(onSumAxisControlChanged(int)));
-	connect(rangeMinControl_, SIGNAL(valueChanged(int)), this, SLOT(onRangeMinControlChanged(int)));
-	connect(rangeMaxControl_, SIGNAL(valueChanged(int)), this, SLOT(onRangeMaxControlChanged(int)));
+	connect(rangeMinControl_, SIGNAL(valueChanged(double)), this, SLOT(onRangeMinControlChanged(double)));
+	connect(rangeMaxControl_, SIGNAL(valueChanged(double)), this, SLOT(onRangeMaxControlChanged(double)));
 }
 
 void AM2DSummingABEditor::populateComboBox()
@@ -148,19 +156,19 @@ void AM2DSummingABEditor::onNameChoiceChanged(int index)
 	image_->setModel(new AMDataSourceImageData(analysisBlock_->inputDataSourceAt(analysisBlock_->indexOfInputSource(name))), true);
 }
 
-
-void AM2DSummingABEditor::onAnalysisBlockInputDataSourcesChanged() {
-
+void AM2DSummingABEditor::onAnalysisBlockInputDataSourcesChanged()
+{
 	if(image_) {
+
 		delete image_;
 		image_ = 0;
 	}
 
 	AMDataSource* inputSource;
-	if(analysisBlock_->inputDataSourceCount() > 0 && (inputSource=analysisBlock_->inputDataSourceAt(0))) {
+
+	if(analysisBlock_->inputDataSourceCount() > 0 && (inputSource = analysisBlock_->inputDataSourceAt(0))) {
 
 		// inputSource is a valid data source
-
 		axisSelector_->setEnabled(true);
 		rangeMinControl_->setEnabled(true);
 		rangeMaxControl_->setEnabled(true);
@@ -177,14 +185,17 @@ void AM2DSummingABEditor::onAnalysisBlockInputDataSourcesChanged() {
 		axisSelector_->setCurrentIndex(sumAxis);
 		axisSelector_->blockSignals(false);
 
+		AMAxisInfo axisInfo = inputSourceAxes.at(sumAxis);
+		double sumAxisStep = double(axisInfo.increment);
+		double sumAxisStart = double(axisInfo.start);
 		rangeMinControl_->blockSignals(true);
-		rangeMinControl_->setMaximum(inputSourceAxes.at(sumAxis).size-1);
-		rangeMinControl_->setValue(analysisBlock_->sumRangeMin());
+		rangeMinControl_->setMaximum(sumAxisStart + sumAxisStep*(axisInfo.size-1));
+		rangeMinControl_->setValue(sumAxisStart + sumAxisStep*analysisBlock_->sumRangeMin());
 		rangeMinControl_->blockSignals(false);
 
 		rangeMaxControl_->blockSignals(true);
-		rangeMaxControl_->setMaximum(inputSourceAxes.at(sumAxis).size-1);
-		rangeMaxControl_->setValue(analysisBlock_->sumRangeMax());
+		rangeMaxControl_->setMaximum(sumAxisStart + sumAxisStep*(axisInfo.size-1));
+		rangeMaxControl_->setValue(sumAxisStart + sumAxisStep*analysisBlock_->sumRangeMax());
 		rangeMaxControl_->blockSignals(false);
 
 		image_ = new MPlotImageBasic();
@@ -203,50 +214,68 @@ void AM2DSummingABEditor::onAnalysisBlockInputDataSourcesChanged() {
 }
 
 // responds to GUI events
-void AM2DSummingABEditor::onSumAxisControlChanged(int newSumAxis) {
+void AM2DSummingABEditor::onSumAxisControlChanged(int newSumAxis)
+{
+	if(newSumAxis != analysisBlock_->sumAxis()){
 
-	if(newSumAxis == analysisBlock_->sumAxis())
-		return;
+		// adjust the maximums for the ranges
+		AMDataSource* inputSource;
 
-	// adjust the maximums for the ranges
+		if(analysisBlock_->inputDataSourceCount() > 0 && (inputSource = analysisBlock_->inputDataSourceAt(0))) {
 
-	AMDataSource* inputSource;
-	if(analysisBlock_->inputDataSourceCount() > 0 && (inputSource=analysisBlock_->inputDataSourceAt(0))) {
+			AMAxisInfo axisInfo = inputSource->axisInfoAt(newSumAxis);
+			double sumAxisStep = double(axisInfo.increment);
+			double sumAxisStart = double(axisInfo.start);
+			int newRangeMax = inputSource->size(newSumAxis)-1;
+			rangeMinControl_->setMaximum(sumAxisStart + sumAxisStep*newRangeMax);
+			rangeMaxControl_->setMaximum(sumAxisStart + sumAxisStep*newRangeMax);
+		}
 
-		int newRangeMax = inputSource->size(newSumAxis)-1;
-		rangeMinControl_->setMaximum(newRangeMax);
-		rangeMaxControl_->setMaximum(newRangeMax);
+		analysisBlock_->setSumAxis(newSumAxis);
+
+		placeRangeRectangle();
 	}
-
-	analysisBlock_->setSumAxis(newSumAxis);
-
-	placeRangeRectangle();
 }
 
-void AM2DSummingABEditor::onRangeMinControlChanged(int newRangeMin) {
-	if(newRangeMin == analysisBlock_->sumRangeMin())
-		return;
+void AM2DSummingABEditor::onRangeMinControlChanged(double newRangeMin)
+{
+	AMDataSource *inputSource = analysisBlock_->inputDataSourceAt(analysisBlock_->indexOfInputSource(analysisBlock_->analyzedName()));
+	int sumAxis = analysisBlock_->sumAxis();
+	AMAxisInfo axisInfo = inputSource->axisInfoAt(sumAxis);
+	double sumAxisStep = double(axisInfo.increment);
+	double sumAxisStart = double(axisInfo.start);
+	int modifiedNewRangeMin = int(newRangeMin/sumAxisStep - sumAxisStart);
 
-	analysisBlock_->setSumRangeMin(newRangeMin);
+	if(modifiedNewRangeMin != analysisBlock_->sumRangeMin()){
 
-	// don't let the max go below the min.
-	if(rangeMaxControl_->value() < newRangeMin)
-		rangeMaxControl_->setValue(newRangeMin);
+		analysisBlock_->setSumRangeMin(modifiedNewRangeMin);
 
-	placeRangeRectangle();
+		// don't let the max go below the min.
+		if(rangeMaxControl_->value() < newRangeMin)
+			rangeMaxControl_->setValue(newRangeMin);
+
+		placeRangeRectangle();
+	}
 }
 
-void AM2DSummingABEditor::onRangeMaxControlChanged(int newRangeMax) {
+void AM2DSummingABEditor::onRangeMaxControlChanged(double newRangeMax)
+{
+	AMDataSource *inputSource = analysisBlock_->inputDataSourceAt(analysisBlock_->indexOfInputSource(analysisBlock_->analyzedName()));
+	int sumAxis = analysisBlock_->sumAxis();
+	AMAxisInfo axisInfo = inputSource->axisInfoAt(sumAxis);
+	double sumAxisStep = double(axisInfo.increment);
+	double sumAxisStart = double(axisInfo.start);
+	int modifiedNewRangeMax = int(newRangeMax/sumAxisStep - sumAxisStart);
 
-	if(newRangeMax == analysisBlock_->sumRangeMax())
-		return;
+	if(modifiedNewRangeMax != analysisBlock_->sumRangeMax()){
 
-	analysisBlock_->setSumRangeMax(newRangeMax);
+		analysisBlock_->setSumRangeMax(modifiedNewRangeMax);
 
-	if(rangeMinControl_->value() > newRangeMax)
-		rangeMinControl_->setValue(newRangeMax);
+		if(rangeMinControl_->value() > newRangeMax)
+			rangeMinControl_->setValue(newRangeMax);
 
-	placeRangeRectangle();
+		placeRangeRectangle();
+	}
 }
 
 void AM2DSummingABEditor::placeRangeRectangle()
@@ -255,10 +284,13 @@ void AM2DSummingABEditor::placeRangeRectangle()
 	if(analysisBlock_->inputDataSourceCount() > 0 && (inputSource=analysisBlock_->inputDataSourceAt(0))) {
 
 		int sumAxis = analysisBlock_->sumAxis();
+		AMAxisInfo axisInfo = inputSource->axisInfoAt(sumAxis);
+		double sumAxisStep = double(axisInfo.increment);
+		double sumAxisStart = double(axisInfo.start);
 
 		double dataMin = inputSource->axisValue(sumAxis,0);
-		double sumMin = inputSource->axisValue(sumAxis, analysisBlock_->sumRangeMin());
-		double sumMax = inputSource->axisValue(sumAxis, analysisBlock_->sumRangeMax());
+		double sumMin = inputSource->axisValue(sumAxis, sumAxisStart + sumAxisStep*analysisBlock_->sumRangeMin());
+		double sumMax = inputSource->axisValue(sumAxis, sumAxisStart + sumAxisStep*analysisBlock_->sumRangeMax());
 		double dataMax = inputSource->axisValue(sumAxis, inputSource->size(sumAxis)-1);
 
 		if(sumAxis == 0) {

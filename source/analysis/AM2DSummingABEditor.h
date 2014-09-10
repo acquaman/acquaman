@@ -24,7 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QWidget>
 #include <QComboBox>
-#include <QSpinBox>
+#include <QDoubleSpinBox>
 
 class MPlotWidget;
 class MPlot;
@@ -36,10 +36,12 @@ class AM2DSummingAB;
 class AM2DSummingABEditor : public QWidget
 {
 	Q_OBJECT
+
 public:
 	/// Construct an editor for the analysis block \c analysisBlock. (Must be valid)
- 	virtual ~AM2DSummingABEditor();
 	AM2DSummingABEditor(AM2DSummingAB* analysisBlock, QWidget *parent = 0);
+	/// Destructor.
+	virtual ~AM2DSummingABEditor();
 
 signals:
 
@@ -47,9 +49,9 @@ public slots:
 	/// signals from GUI objects: axis selector
 	void onSumAxisControlChanged(int);
 	/// signals from GUI objects: range minimum control
-	void onRangeMinControlChanged(int);
+	void onRangeMinControlChanged(double);
 	/// signals from GUI objects: range maximum control
-	void onRangeMaxControlChanged(int);
+	void onRangeMaxControlChanged(double);
 
 	/// signals from analysis block: if the block's input data source changes (to either null, or one with a different size.)
 	void onAnalysisBlockInputDataSourcesChanged();
@@ -61,25 +63,31 @@ protected slots:
 	void populateComboBox();
 
 protected:
-	/// The analysis block instance we provide editing capabilities for
-	AM2DSummingAB* analysisBlock_;
-
-	/// Gui elements
-	QComboBox* axisSelector_;
-	QSpinBox* rangeMinControl_, *rangeMaxControl_;
-
-	/// plot widget to show what region is summed
-	MPlotWidget* plotWidget_;
-	MPlot* plot_;
-	MPlotImageBasic* image_;
-	MPlotRectangle* rangeRectangle1_, *rangeRectangle2_;
-
 	/// called to position and show/hide the range rectangle, as appropriate.
 	void placeRangeRectangle();
 
+	/// The analysis block instance we provide editing capabilities for
+	AM2DSummingAB *analysisBlock_;
 
+	/// The axis selection combo box.
+	QComboBox *axisSelector_;
+	/// The minimum range spin box.
+	QDoubleSpinBox *rangeMinControl_;
+	/// The maximum range spin box.
+	QDoubleSpinBox *rangeMaxControl_;
 	/// The combo box that contains all of the names.
 	QComboBox *names_;
+
+	/// plot widget to show what region is summed
+	MPlotWidget *plotWidget_;
+	/// The plot that displays the image and range rectangles..
+	MPlot *plot_;
+	/// The SDD image.
+	MPlotImageBasic *image_;
+	/// Range rectangle 1.
+	MPlotRectangle *rangeRectangle1_,;
+	/// Range rectangle 2.
+	MPlotRectangle *rangeRectangle2_;
 };
 
 #endif // AM2DSUMMINGABEDITOR_H
