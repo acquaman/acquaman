@@ -795,7 +795,6 @@ FORMS += source/ui/dataman/AMDataView.ui \
 	source/ui/dataman/AMDataViewActionsBar.ui \
 	source/ui/AMLinePropertyEditor.ui \
 	source/ui/dataman/AMImagePropertyEditor.ui \
-	source/ui/actions3/AMAddActionDialog3.ui \
 	source/ui/AMTopFrame2.ui
 
 SOURCES += \
