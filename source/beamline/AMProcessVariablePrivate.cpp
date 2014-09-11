@@ -430,7 +430,7 @@ void AMProcessVariablePrivate::connectionChangedCB(struct connection_handler_arg
 		}
 
 		int channelIndex = channelIds_.indexOf(connArgs.chid);
-		lastError = ca_create_subscription(AMProcessVariable::serverType2StatusType(serverType), 1, channelIds_[channelIndex], DBE_ALARM, PVAlarmChangedCBWrapper, this, &alarmEventIds_[channelIndex]);
+		lastError = ca_create_subscription(AMProcessVariable::serverType2StatusType(serverType), 1, connArgs.chid, DBE_ALARM, PVAlarmChangedCBWrapper, this, &alarmEventIds_[channelIndex]);
 		if(lastError != ECA_NORMAL) {
 			AMErrorMon::debug(this, AMPROCESSVARIABLESUPPORT_ERROR_WHILE_SUBSCRIBING_TO_ALARMS, QString("AMProcessVariable: Error while trying to subscribe to alarms: %1: %2").arg(pvName()).arg(ca_message(lastError)));
 			emit internal_error(lastError);
@@ -439,7 +439,7 @@ void AMProcessVariablePrivate::connectionChangedCB(struct connection_handler_arg
 		// start monitoring values, if we're supposed to be.
 		if(shouldBeMonitoring_) {
 
-			lastError = ca_create_subscription(ourType, ca_element_count(channelIds_[channelIndex]), channelIds_[channelIndex], DBE_VALUE | DBE_LOG | DBE_ALARM, PVValueChangedCBWrapper, this, &eventIds_[channelIndex] );
+			lastError = ca_create_subscription(ourType, ca_element_count(channelIds_[channelIndex]), connArgs.chid, DBE_VALUE | DBE_LOG | DBE_ALARM, PVValueChangedCBWrapper, this, &eventIds_[channelIndex] );
 			if(lastError != ECA_NORMAL) {
 				AMErrorMon::debug(this, AMPROCESSVARIABLESUPPORT_ERROR_WHILE_STARTING_MONITORING, QString("AMProcessVariable: Error starting monitoring: %1: %2").arg(pvName()).arg(ca_message(lastError)));
 				emit internal_error(lastError);

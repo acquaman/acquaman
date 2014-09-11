@@ -1,6 +1,5 @@
 #include "CLSSR570.h"
 
-#include <QDebug>
 #include "beamline/AMPVControl.h"
 
 CLSSR570::CLSSR570(const QString &name, const QString &baseName, QObject *parent) :
