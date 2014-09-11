@@ -63,17 +63,17 @@ protected:
 	/// Helper function to clear the existing actions displayed in the list view, and populate it with all the actions registered in AMActionRegistry.
 	void populateWithRegisteredActions();
 private:
-	QVBoxLayout *verticalLayout_3;
-	QLabel *titleLabel;
-	QHBoxLayout *horizontalLayout;
-	QListWidget *actionsListWidget;
-	QVBoxLayout *verticalLayout;
-	QLabel *actionNameLabel;
-	QGroupBox *actionDescriptionGroupBox;
-	QVBoxLayout *verticalLayout_2;
-	QLabel *actionDescription;
-	QSpacerItem *verticalSpacer;
-	QPushButton *addToWorkflowButton;
+	QVBoxLayout *verticalLayout3_;
+	QLabel *titleLabel_;
+	QHBoxLayout *horizontalLayout_;
+	QListWidget *actionsListWidget_;
+	QVBoxLayout *verticalLayout_;
+	QLabel *actionNameLabel_;
+	QGroupBox *actionDescriptionGroupBox_;
+	QVBoxLayout *verticalLayout2_;
+	QLabel *actionDescription_;
+	QSpacerItem *verticalSpacer_;
+	QPushButton *addToWorkflowButton_;
 };
 
 #endif // AMADDACTIONDIALOG_H
