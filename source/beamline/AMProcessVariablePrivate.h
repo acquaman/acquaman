@@ -35,6 +35,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QSet>
 #include <QTimer>
 #include <QMetaType>
+#include <QMutex>
 
 #include "util/AMDeferredFunctionCall.h"
 
@@ -187,6 +188,15 @@ enum Type { Unconnected = TYPENOTCONN, ///< Type of PV's before they are connect
 				};
 }
 
+namespace PVChannel {
+	enum PVChannelType {
+		PV = 0,
+		PV_DISA = 1,
+		PV_DISV = 2,
+		PV_TotalChannels = 3
+	};
+}
+
 /// Used by AMProcessVariable, this class encapsulates a connection to an EPICS channel-access Process Variable.  You should never need to use it directly. It exists to share a single channel-access connection between AMProcessVariable instances that all refer to the same underlying PV.
 class AMProcessVariablePrivate : public QObject {
 
@@ -211,24 +221,24 @@ public:
 	unsigned count() const { return count_; }
 
 	/// The name of this process variable:
-	QString pvName() const { return QString(ca_name(chid_)); } // ca_ functions are thread-safe by design. Does not require locker
+	QString pvName() const { return QString(ca_name(channelIds_[PVChannel::PV])); } // ca_ functions are thread-safe by design. Does not require locker
 
 	/// Provides detailed information on the status of this connection.  Usually isConnected() is all you need, but this returns one of the channel_state enum values defined in <epics base>/include/cadef.h: {cs_never_conn = 0, cs_prev_conn, cs_conn, cs_closed}
-	int connectionState() const {  return int(ca_state(chid_)); }
+	int connectionState() const {  return int(ca_state(channelIds_[PVChannel::PV])); }
 
 	/// Indicates that a connection is established to the Epics CA server for this Process Variable.
-	bool isConnected() const {  return ca_state(chid_) == cs_conn; }
+	bool isConnected() const {  return ca_state(channelIds_[PVChannel::PV]) == cs_conn; }
 	/// Indicates that a connection was established to the Epics CA server, and we managed to download control information (meta information) for this Process Variable.
 	bool isInitialized() const {  return initialized_; }
 	/// Returns true if the connection has a monitoring subscription to receive value changes.
-	bool isMonitoring() const { return (evid_ != 0); }
+	bool isMonitoring() const { return (eventIds_[PVChannel::PV] != 0); }
 	/// Indicates that we've received the actual values for this PV at some point in history. (Note that isConnected() will be true as soon as a connection to the CA server is established, but we won't have the value yet when connected() gets emitted.)  valueChanged() will be emitted when the first value is received, but in case you're not watching that, you can call hasValues() to check if this has already happened.
 	bool hasValues() const {  return hasValues_; }
 
 	/// Checks read access permission. (Verifies also that we are connected, since reading is impossible if not.)
-	bool canRead() const {  return isConnected() && ca_read_access(chid_); }
+	bool canRead() const {  return isConnected() && ca_read_access(channelIds_[PVChannel::PV]); }
 	/// Checks write access permission. (Verifies also that we are connected, since writing is impossible if not.)
-	bool canWrite() const {  return isConnected() && ca_write_access(chid_); }
+	bool canWrite() const {  return isConnected() && ca_write_access(channelIds_[PVChannel::PV]); }
 
 	/// Checks that we are completely ready to read (we are connected(), initialized(), have received at least one set of values, and we have read access permission)
 	bool readReady() const { return canRead() && isInitialized() && hasValues(); }
@@ -500,23 +510,19 @@ protected:
 	/// Number of array elements (for array PVs)
 	int count_;
 
+	QMutex channelAccessMutex_;
 	/// channel ID for channel access
-	chid channelIds_[3];
+	QVector<chid> channelIds_;
 	/// Event ID for subscriptions (monitoring values)
-	evid eventIds_[3];
+	QVector<evid> eventIds_;
 	/// Event ID for alarm subscription
-	evid alarmEventIds_[3];
-
-	/// channel ID for channel access
-	chid chid_;
-	chid chidDISV_;   // channel ID for .DISV
-	chid chidDISA_;   // channel ID for .DISA
-	/// Event ID for subscriptions (monitoring values)
-	evid evid_;
-	/// Event ID for alarm subscription
-	evid alarmEvid_;
-	evid evidDISA_;
-	evid alarmEvidDISA_;
+	QVector<evid> alarmEventIds_;
+//	/// channel ID for channel access
+//	chid channelIds_[PVChannel::PV_TotalChannels];
+//	/// Event ID for subscriptions (monitoring values)
+//	evid eventIds_[PVChannel::PV_TotalChannels];
+//	/// Event ID for alarm subscription
+//	evid alarmEventIds_[PVChannel::PV_TotalChannels];
 
 	/// Request that we start monitoring as soon as we connect. (Set by main thread, read from epics connection callback thread, hence volatile.)
 	volatile bool shouldBeMonitoring_;
@@ -572,8 +578,11 @@ protected:
 	/// Records the PV's alarm status and alarm severity.
 	int alarmStatus_, alarmSeverity_;
 
+private:
 	/// common function for set int value
 	void setChannelValue(chid channelId, int value);
+
+	QString PVChannelName(int channelId, QString pvName);
 
 };
 

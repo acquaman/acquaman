@@ -203,14 +203,16 @@ AMProcessVariablePrivate::AMProcessVariablePrivate(const QString& pvName) : QObj
 	// Use ca_put() instead of ca_put_callback() by default.
 	putCallbackEnabled_ = false;
 
-	chid_ = 0;
-	chidDISV_ = 0;
-	chidDISA_ = 0;
-	evid_ = 0;
-	alarmEvid_ = 0;
+	for (unsigned int channelId = 0; channelId < PVChannel::PV_TotalChannels; channelId++) {
+		channelIds_.append(0);
+		eventIds_.append(0);
+		alarmEventIds_.append(0);
+	}
 
-	evidDISA_ = 0;
-	alarmEvidDISA_ = 0;
+	for (unsigned int i = 0; i < 2; i++) {
+		data_DISA_.append(-1);
+		data_DISV_.append(-1);
+	}
 
 	alarmStatus_ = 0;
 	alarmSeverity_ = 0;
@@ -219,31 +221,21 @@ AMProcessVariablePrivate::AMProcessVariablePrivate(const QString& pvName) : QObj
 	try {
 
 		AMProcessVariableSupport::ensureChannelAccess();
+		for (unsigned int channelId = 0; channelId < PVChannel::PV_TotalChannels; channelId++) {
+			QString pvChannelName = PVChannelName(channelId, pvName);
 
-		QString subPVName;
-		// attempt to search/connect to channel:
-		subPVName = pvName + ".DISV";
-		lastError_ = ca_create_channel (subPVName.toAscii().constData(), PVConnectionChangedCBWrapper, this, CA_PRIORITY_DEFAULT, &chidDISV_ );
-		if(lastError_ != ECA_NORMAL)
-			throw lastError_;
-
-		// attempt to search/connect to channel:
-		subPVName = pvName + ".DISA";
-		lastError_ = ca_create_channel (subPVName.toAscii().constData(), PVConnectionChangedCBWrapper, this, CA_PRIORITY_DEFAULT, &chidDISA_ );
-		if(lastError_ != ECA_NORMAL)
-			throw lastError_;
-
-		// attempt to search/connect to channel:
-		lastError_ = ca_create_channel (pvName.toAscii().constData(), PVConnectionChangedCBWrapper, this, CA_PRIORITY_DEFAULT, &chid_ );
-		if(lastError_ != ECA_NORMAL)
-			throw lastError_;
+			// attempt to search/connect to channel:
+			lastError_ = ca_create_channel (pvChannelName.toAscii().constData(), PVConnectionChangedCBWrapper, this, CA_PRIORITY_DEFAULT, &channelIds_[channelId]);
+			if(lastError_ != ECA_NORMAL)
+				throw lastError_;
+		}
 
 		AMProcessVariableSupport::flushIO();
 
 		// register ourself to the support class:
-		AMProcessVariableSupport::registerPV(chidDISV_, this);
-		AMProcessVariableSupport::registerPV(chidDISA_, this);
-		AMProcessVariableSupport::registerPV(chid_, this);
+		for (unsigned int channelId = 0; channelId < PVChannel::PV_TotalChannels; channelId++) {
+			AMProcessVariableSupport::registerPV(channelIds_[channelId], this);
+		}
 	}
 
 	catch(int s) {
@@ -257,17 +249,15 @@ AMProcessVariablePrivate::AMProcessVariablePrivate(const QString& pvName) : QObj
 
 AMProcessVariablePrivate::~AMProcessVariablePrivate() {
 	// This is unnecessary... called auto. by ca_clear_channel():
-	// ca_clear_subscription(evid_);
+	// ca_clear_subscription(eventIds_[PVChannel::PV]);
 
 	if(channelCreated_) {
-		ca_clear_channel(chid_);
-		ca_clear_channel(chidDISV_);
-		ca_clear_channel(chidDISA_);
+		for (unsigned int channelId = 0; channelId < PVChannel::PV_TotalChannels; channelId++) {
+			ca_clear_channel(channelIds_[channelId]);
 
-		// deregister ourself from the support class:
-		AMProcessVariableSupport::removePV(chid_);
-		AMProcessVariableSupport::removePV(chidDISV_);
-		AMProcessVariableSupport::removePV(chidDISA_);
+			// deregister ourself from the support class:
+			AMProcessVariableSupport::removePV(channelIds_[channelId]);
+		}
 	}
 }
 
@@ -341,7 +331,6 @@ void AMProcessVariablePrivate::PVValueChangedCBWrapper(struct event_handler_args
 	AMProcessVariablePrivate* myPV = reinterpret_cast<AMProcessVariablePrivate*>( ca_puser(eventArgs.chid) );
 	if(myPV)
 		myPV->valueChangedCB(eventArgs);
-
 }
 
 void AMProcessVariablePrivate::PVAlarmChangedCBWrapper(event_handler_args eventArgs) {
@@ -375,8 +364,6 @@ void AMProcessVariablePrivate::PVPutRequestCBWrapper(struct event_handler_args e
 /////////////////////
 void AMProcessVariablePrivate::exceptionCB(struct exception_handler_args args) {
 
-
-
 	emit internal_error(args.stat);	// will notify eventually with error() signals
 
 	AMErrorMon::debug(this, AMPROCESSVARIABLESUPPORT_EPICS_EXCEPTION_EXCEPTIONCB, QString("AMProcessVariable: EPICS exception: %1\n  Operation: %2\n  Channel: %3\n  Data type: %4\n  Count: %5\n\n  Epics says: %6\n").arg(ca_message(args.stat)).arg(args.op).arg(pvName()).arg(dbr_type_to_text ( args.type )).arg(args.count).arg(args.ctx));
@@ -385,7 +372,6 @@ void AMProcessVariablePrivate::exceptionCB(struct exception_handler_args args) {
 }
 
 void AMProcessVariablePrivate::connectionChangedCB(struct connection_handler_args connArgs) {
-
 
 	int lastError;
 	chtype serverType;
@@ -444,40 +430,22 @@ void AMProcessVariablePrivate::connectionChangedCB(struct connection_handler_arg
 			emit internal_error(lastError);
 		}
 
-		if (connArgs.chid == chid_) {
-			// all connections will monitor the alarm status, even if they don't want to monitor the values
-			lastError = ca_create_subscription(AMProcessVariable::serverType2StatusType(serverType), 1, chid_, DBE_ALARM, PVAlarmChangedCBWrapper, this, &alarmEvid_);
-			if(lastError != ECA_NORMAL) {
-				AMErrorMon::debug(this, AMPROCESSVARIABLESUPPORT_ERROR_WHILE_SUBSCRIBING_TO_ALARMS, QString("AMProcessVariable: Error while trying to subscribe to alarms: %1: %2").arg(pvName()).arg(ca_message(lastError)));
-				emit internal_error(lastError);
-			}
-
-			// start monitoring values, if we're supposed to be.
-			if(shouldBeMonitoring_) {
-				lastError = ca_create_subscription(ourType, ca_element_count(chid_), chid_, DBE_VALUE | DBE_LOG | DBE_ALARM, PVValueChangedCBWrapper, this, &evid_ );
-				if(lastError != ECA_NORMAL) {
-					AMErrorMon::debug(this, AMPROCESSVARIABLESUPPORT_ERROR_WHILE_STARTING_MONITORING, QString("AMProcessVariable: Error starting monitoring: %1: %2").arg(pvName()).arg(ca_message(lastError)));
-					emit internal_error(lastError);
-				}
-			}
-		} else 		if (connArgs.chid == chidDISA_) {
-			// all connections will monitor the alarm status, even if they don't want to monitor the values
-			lastError = ca_create_subscription(AMProcessVariable::serverType2StatusType(serverType), 1, chidDISA_, DBE_ALARM, PVAlarmChangedCBWrapper, this, &alarmEvidDISA_);
-			if(lastError != ECA_NORMAL) {
-				AMErrorMon::debug(this, AMPROCESSVARIABLESUPPORT_ERROR_WHILE_SUBSCRIBING_TO_ALARMS, QString("AMProcessVariable: Error while trying to subscribe to alarms: %1: %2").arg(pvName()).arg(ca_message(lastError)));
-				emit internal_error(lastError);
-			}
-
-			// start monitoring values, if we're supposed to be.
-			if(shouldBeMonitoring_) {
-				lastError = ca_create_subscription(ourType, ca_element_count(chid_), chidDISA_, DBE_VALUE | DBE_LOG | DBE_ALARM, PVValueChangedCBWrapper, this, &evidDISA_ );
-				if(lastError != ECA_NORMAL) {
-					AMErrorMon::debug(this, AMPROCESSVARIABLESUPPORT_ERROR_WHILE_STARTING_MONITORING, QString("AMProcessVariable: Error starting monitoring: %1: %2").arg(pvName()).arg(ca_message(lastError)));
-					emit internal_error(lastError);
-				}
-			}
+		int channelIndex = channelIds_.indexOf(connArgs.chid);
+		lastError = ca_create_subscription(AMProcessVariable::serverType2StatusType(serverType), 1, channelIds_[channelIndex], DBE_ALARM, PVAlarmChangedCBWrapper, this, &alarmEventIds_[channelIndex]);
+		if(lastError != ECA_NORMAL) {
+			AMErrorMon::debug(this, AMPROCESSVARIABLESUPPORT_ERROR_WHILE_SUBSCRIBING_TO_ALARMS, QString("AMProcessVariable: Error while trying to subscribe to alarms: %1: %2").arg(pvName()).arg(ca_message(lastError)));
+			emit internal_error(lastError);
 		}
 
+		// start monitoring values, if we're supposed to be.
+		if(shouldBeMonitoring_) {
+
+			lastError = ca_create_subscription(ourType, ca_element_count(channelIds_[channelIndex]), channelIds_[channelIndex], DBE_VALUE | DBE_LOG | DBE_ALARM, PVValueChangedCBWrapper, this, &eventIds_[channelIndex] );
+			if(lastError != ECA_NORMAL) {
+				AMErrorMon::debug(this, AMPROCESSVARIABLESUPPORT_ERROR_WHILE_STARTING_MONITORING, QString("AMProcessVariable: Error starting monitoring: %1: %2").arg(pvName()).arg(ca_message(lastError)));
+				emit internal_error(lastError);
+			}
+		}
 
 		// AMProcessVariableSupport::flushIO() may not be thread-safe... Use ca_flush_io directly instead.
 		ca_flush_io();
@@ -577,12 +545,12 @@ void AMProcessVariablePrivate::valueChangedCB(struct event_handler_args eventArg
 	if(eventArgs.dbr == 0)
 		return;
 
-	if (eventArgs.chid == chidDISA_ || eventArgs.chid == chidDISV_) {
+	if (eventArgs.chid == channelIds_[PVChannel::PV_DISA] || eventArgs.chid == channelIds_[PVChannel::PV_DISV]) {
 		AMProcessVariableIntVector rv(eventArgs.count);
 		for(int i=0; i<eventArgs.count; i++)
 			rv[i] = ((dbr_long_t*)eventArgs.dbr)[i];
 
-		emit (eventArgs.chid == chidDISA_) ? internal_DISAValueChanged(rv) : internal_DISVValueChanged(rv);
+		emit (eventArgs.chid == channelIds_[PVChannel::PV_DISA]) ? internal_DISAValueChanged(rv) : internal_DISVValueChanged(rv);
 		return;
 	}
 
@@ -756,8 +724,6 @@ void AMProcessVariablePrivate::internal_onFloatingPointValueChanged(AMProcessVar
 }
 
 void AMProcessVariablePrivate::internal_onIntegerValueChanged(AMProcessVariableIntVector intData) {
-	qDebug() << "internal_onIntegerValueChanged value changed: " << intData.toList();
-
 	bool hasChanged = false;
 	if(!hasValues_)
 		hasChanged = true;
@@ -806,12 +772,13 @@ void AMProcessVariablePrivate::internal_onStringValueChanged(QStringList stringD
 }
 
 void AMProcessVariablePrivate::internal_onDISAValueChanged(AMProcessVariableIntVector value) {
-	qDebug() << "DISA value changed: " << value.toList();
-	data_DISA_ = value;
+	data_DISA_[1] = data_DISA_[0];
+	data_DISA_[0] = value[0];
 }
 
 void AMProcessVariablePrivate::internal_onDISVValueChanged(AMProcessVariableIntVector value) {
-	data_DISV_ = value;
+	data_DISV_[1] = data_DISV_[0];
+	data_DISV_[0] = value[0];
 }
 
 void AMProcessVariablePrivate::internal_onAlarmChanged(int status, int severity) {
@@ -845,20 +812,18 @@ void AMProcessVariablePrivate::checkReadWriteReady(){
 void AMProcessVariablePrivate::startMonitoring() {
 
 	if(!channelCreated_ || !isConnected()) {
-		AMErrorMon::debug(this, AMPROCESSVARIABLESUPPORT_ERROR_WHILE_STARTING_MONITOR_NOT_CONNECTED, QString("AMProcessVariable: Error starting monitoring PV '%1' because it is not connected yet.").arg(pvName()));
+		AMErrorMon::debug(this, AMPROCESSVARIABLESUPPORT_ERROR_WHILE_STARTING_MONITOR_NOT_CONNECTED,
+						  QString("AMProcessVariable: Error starting monitoring PV '%1' because it is not connected yet.").arg(pvName()));
 	}
 
-	lastError_ = ca_create_subscription(ourType_, ca_element_count(chid_), chid_, DBE_VALUE | DBE_LOG | DBE_ALARM, PVValueChangedCBWrapper, this, &evid_ );
-	if(lastError_ != ECA_NORMAL) {
-		AMErrorMon::debug(this, AMPROCESSVARIABLESUPPORT_ERROR_WHILE_STARTING_MONITOR_GENERAL, QString("AMProcessVariable: Error starting monitoring: %1: %2").arg(pvName()).arg(ca_message(lastError_)));
-		emit error(lastError_);
-		return;
-	}
-	lastError_ = ca_create_subscription(ourType_, ca_element_count(chidDISA_), chidDISA_, DBE_VALUE | DBE_LOG | DBE_ALARM, PVValueChangedCBWrapper, this, &evidDISA_ );
-	if(lastError_ != ECA_NORMAL) {
-		AMErrorMon::debug(this, AMPROCESSVARIABLESUPPORT_ERROR_WHILE_STARTING_MONITOR_GENERAL, QString("AMProcessVariable: Error starting monitoring: %1: %2").arg(pvName()).arg(ca_message(lastError_)));
-		emit error(lastError_);
-		return;
+	for (unsigned int channelId = 0; channelId < PVChannel::PV_TotalChannels; channelId++) {
+		lastError_ = ca_create_subscription(ourType_, ca_element_count(channelIds_[channelId]), channelIds_[channelId], DBE_VALUE | DBE_LOG | DBE_ALARM, PVValueChangedCBWrapper, this, &eventIds_[channelId] );
+		if(lastError_ != ECA_NORMAL) {
+			AMErrorMon::debug(this, AMPROCESSVARIABLESUPPORT_ERROR_WHILE_STARTING_MONITOR_GENERAL,
+							  QString("AMProcessVariable: Error starting monitoring: %1: %2").arg(PVChannelName(channelId, pvName())).arg(ca_message(lastError_)));
+			emit error(lastError_);
+			continue;
+		}
 	}
 
 	AMProcessVariableSupport::flushIO();
@@ -870,15 +835,18 @@ void AMProcessVariablePrivate::stopMonitoring() {
 		return;
 	}
 
-	if(evid_ == 0) {
-		AMErrorMon::debug(this, AMPROCESSVARIABLESUPPORT_CANNOT_STOP_MONITORING_NEVER_STARTED, QString("AMProcessVariable: Cannot stop monitoring %1, because it hasn't started monitoring yet.").arg(pvName()));
-		return;
+	for (unsigned int channelId = 0; channelId < PVChannel::PV_TotalChannels; channelId++) {
+		if(eventIds_[channelId] == 0) {
+			AMErrorMon::debug(this, AMPROCESSVARIABLESUPPORT_CANNOT_STOP_MONITORING_NEVER_STARTED,
+							  QString("AMProcessVariable: Cannot stop monitoring %1, because it hasn't started monitoring yet.").arg(PVChannelName(channelId, pvName())));
+			continue;
+		}
+
+		ca_clear_subscription(eventIds_[channelId]);
+		eventIds_[channelId] = 0;
 	}
 
-	ca_clear_subscription(evid_);
 	AMProcessVariableSupport::flushIO();
-	evid_ = 0;
-
 }
 
 void AMProcessVariablePrivate::reviewMonitoring()
@@ -903,68 +871,50 @@ void AMProcessVariablePrivate::reviewMonitoring()
 
 
 bool AMProcessVariablePrivate::requestValue(int numberOfValues) {
-
-	lastError_ = ca_array_get_callback(ourType_, numberOfValues, chid_, PVValueChangedCBWrapper, this);
+	lastError_ = ca_array_get_callback(ourType_, numberOfValues, channelIds_[PVChannel::PV], PVValueChangedCBWrapper, this);
 	if(lastError_ != ECA_NORMAL) {
-		AMErrorMon::debug(this, AMPROCESSVARIABLESUPPORT_ERROR_WHILE_REQUESTING_VALUE, QString("AMProcessVariable: Error while trying to request value: %1: %2").arg(pvName()).arg(ca_message(lastError_)));
+		AMErrorMon::debug(this, AMPROCESSVARIABLESUPPORT_ERROR_WHILE_REQUESTING_VALUE,
+						  QString("AMProcessVariable: Error while trying to request value: %1: %2").arg(pvName()).arg(ca_message(lastError_)));
 		emit error(lastError_);
 		return false;
 	}
 
 	AMProcessVariableSupport::flushIO();
-
 	return true;
 }
 
 void AMProcessVariablePrivate::enableProcessRecord() {
 	if (data_DISA_[0] == data_DISV_[0]) {
 		// set the value of DISA back to the original value
-		int originalValue = (data_DISA_.size()> 1) ?  data_DISA_[1] : data_DISV_[0] - 1;
-		setChannelValue(chidDISA_, originalValue);
-		data_DISA_[0] = originalValue;
+		setChannelValue(channelIds_[PVChannel::PV_DISA], data_DISA_[1]);
+		int temp = data_DISA_[0];
+		data_DISA_[0] = data_DISA_[1];
+		data_DISA_[1] = temp;
 	}
 }
 
 void AMProcessVariablePrivate::disableProcessRecord() {
 	if (data_DISA_[0] != data_DISV_[0]) {
-		setChannelValue(chidDISA_, data_DISV_[0]); // set the value of DISA to that of DISV to disable
-		if (data_DISA_.size() < 2)
-			data_DISA_.append(data_DISA_[0]);
-		else
-			data_DISA_[1] = data_DISA_[0];
-
-		data_DISA_[0] = data_DISV_[0];
+		// set the value of DISA to that of DISV to disable
+		setChannelValue(channelIds_[PVChannel::PV_DISA], data_DISV_[0]);
+		data_DISA_[1] = data_DISA_[0];
+		data_DISA_[0] = data_DISV_[1];
 	}
-}
-
-void AMProcessVariablePrivate::setChannelValue(chid channelId, int value) {
-	dbr_long_t dbrValue = value;
-
-	if (!putCallbackEnabled_)
-		lastError_ = ca_put( DBR_LONG, channelId, &dbrValue );
-	else
-		lastError_ = ca_put_callback( DBR_LONG, channelId, &dbrValue, PVPutRequestCBWrapper, this );
-
-	if(lastError_ != ECA_NORMAL) {
-		AMErrorMon::debug(this, AMPROCESSVARIABLESUPPORT_ERROR_WHILE_PUTTING_VALUE_STRING, QString("AMProcessVariable: Error while trying to put DISV: %1: %2").arg(pvName()).arg(ca_message(lastError_)));
-		emit error(lastError_);
-	}
-
-	AMProcessVariableSupport::flushIO();
 }
 
 void AMProcessVariablePrivate::setValue(int value) {
-	setChannelValue(chid_, value);
+	setChannelValue(channelIds_[PVChannel::PV], value);
 
 //	dbr_long_t setpoint = value;
 
 //	if (!putCallbackEnabled_)
-//		lastError_ = ca_put( DBR_LONG, chid_, &setpoint );
+//		lastError_ = ca_put( DBR_LONG, channelIds_[PVChannelType::PV], &setpoint );
 //	else
-//		lastError_ = ca_put_callback( DBR_LONG, chid_, &setpoint, PVPutRequestCBWrapper, this );
+//		lastError_ = ca_put_callback( DBR_LONG, channelIds_[PVChannelType::PV], &setpoint, PVPutRequestCBWrapper, this );
 
 //	if(lastError_ != ECA_NORMAL) {
-//		AMErrorMon::debug(this, AMPROCESSVARIABLESUPPORT_ERROR_WHILE_PUTTING_VALUE_INTEGER, QString("AMProcessVariable: Error while trying to put value: %1: %2").arg(pvName()).arg(ca_message(lastError_)));
+//		AMErrorMon::debug(this, AMPROCESSVARIABLESUPPORT_ERROR_WHILE_PUTTING_VALUE_INTEGER,
+//							QString("AMProcessVariable: Error while trying to put value: %1: %2").arg(pvName()).arg(ca_message(lastError_)));
 //		emit error(lastError_);
 //	}
 
@@ -973,12 +923,13 @@ void AMProcessVariablePrivate::setValue(int value) {
 
 void AMProcessVariablePrivate::setValues(dbr_long_t setpoints[], int num) {
 	if (!putCallbackEnabled_)
-		lastError_ = ca_array_put( DBR_LONG, num, chid_, setpoints );
+		lastError_ = ca_array_put( DBR_LONG, num, channelIds_[PVChannel::PV], setpoints );
 	else
-		lastError_ = ca_array_put_callback( DBR_LONG, num, chid_, setpoints, PVPutRequestCBWrapper, this );
+		lastError_ = ca_array_put_callback( DBR_LONG, num, channelIds_[PVChannel::PV], setpoints, PVPutRequestCBWrapper, this );
 
 	if(lastError_ != ECA_NORMAL) {
-		AMErrorMon::debug(this, AMPROCESSVARIABLESUPPORT_ERROR_WHILE_PUTTING_VALUES_INTERGER, QString("AMProcessVariable: Error while trying to put values: %1: %2").arg(pvName()).arg(ca_message(lastError_)));
+		AMErrorMon::debug(this, AMPROCESSVARIABLESUPPORT_ERROR_WHILE_PUTTING_VALUES_INTERGER,
+						  QString("AMProcessVariable: Error while trying to put values: %1: %2").arg(pvName()).arg(ca_message(lastError_)));
 		emit error(lastError_);
 	}
 
@@ -990,12 +941,13 @@ void AMProcessVariablePrivate::setValue(double value) {
 	dbr_double_t setpoint = value;
 
 	if (!putCallbackEnabled_)
-		lastError_ = ca_put( DBR_DOUBLE, chid_, &setpoint );
+		lastError_ = ca_put( DBR_DOUBLE, channelIds_[PVChannel::PV], &setpoint );
 	else
-		lastError_ = ca_put_callback( DBR_DOUBLE, chid_, &setpoint, PVPutRequestCBWrapper, this );
+		lastError_ = ca_put_callback( DBR_DOUBLE, channelIds_[PVChannel::PV], &setpoint, PVPutRequestCBWrapper, this );
 
 	if(lastError_ != ECA_NORMAL) {
-		AMErrorMon::debug(this, AMPROCESSVARIABLESUPPORT_ERROR_WHILE_PUTTING_VALUE_DOUBLE, QString("AMProcessVariable: Error while trying to put value: %1: %2").arg(pvName()).arg(ca_message(lastError_)));
+		AMErrorMon::debug(this, AMPROCESSVARIABLESUPPORT_ERROR_WHILE_PUTTING_VALUE_DOUBLE,
+						  QString("AMProcessVariable: Error while trying to put value: %1: %2").arg(pvName()).arg(ca_message(lastError_)));
 		emit error(lastError_);
 	}
 
@@ -1005,12 +957,13 @@ void AMProcessVariablePrivate::setValue(double value) {
 void AMProcessVariablePrivate::setValues(dbr_double_t setpoints[], int num) {
 
 	if (!putCallbackEnabled_)
-		lastError_ = ca_array_put( DBR_DOUBLE, num, chid_, setpoints );
+		lastError_ = ca_array_put( DBR_DOUBLE, num, channelIds_[PVChannel::PV], setpoints );
 	else
-		lastError_ = ca_array_put_callback( DBR_DOUBLE, num, chid_, setpoints, PVPutRequestCBWrapper, this );
+		lastError_ = ca_array_put_callback( DBR_DOUBLE, num, channelIds_[PVChannel::PV], setpoints, PVPutRequestCBWrapper, this );
 
 	if(lastError_ != ECA_NORMAL) {
-		AMErrorMon::debug(this, AMPROCESSVARIABLESUPPORT_ERROR_WHILE_PUTTING_VALUES_DOUBLE, QString("AMProcessVariable: Error while trying to put values: %1: %2").arg(pvName()).arg(ca_message(lastError_)));
+		AMErrorMon::debug(this, AMPROCESSVARIABLESUPPORT_ERROR_WHILE_PUTTING_VALUES_DOUBLE,
+						  QString("AMProcessVariable: Error while trying to put values: %1: %2").arg(pvName()).arg(ca_message(lastError_)));
 		emit error(lastError_);
 	}
 
@@ -1018,18 +971,18 @@ void AMProcessVariablePrivate::setValues(dbr_double_t setpoints[], int num) {
 }
 
 void AMProcessVariablePrivate::setValue(const QString& value) {
-
 	dbr_string_t setpoint;
 	QByteArray d1 = value.toAscii();
 	strcpy(setpoint, d1.constData());
 
 	if (!putCallbackEnabled_)
-		lastError_ = ca_put( DBR_STRING, chid_, setpoint );
+		lastError_ = ca_put( DBR_STRING, channelIds_[PVChannel::PV], setpoint );
 	else
-		lastError_ = ca_put_callback( DBR_STRING, chid_, setpoint, PVPutRequestCBWrapper, this );
+		lastError_ = ca_put_callback( DBR_STRING, channelIds_[PVChannel::PV], setpoint, PVPutRequestCBWrapper, this );
 
 	if(lastError_ != ECA_NORMAL) {
-		AMErrorMon::debug(this, AMPROCESSVARIABLESUPPORT_ERROR_WHILE_PUTTING_VALUE_STRING, QString("AMProcessVariable: Error while trying to put value: %1: %2").arg(pvName()).arg(ca_message(lastError_)));
+		AMErrorMon::debug(this, AMPROCESSVARIABLESUPPORT_ERROR_WHILE_PUTTING_VALUE_STRING,
+						  QString("AMProcessVariable: Error while trying to put value: %1: %2").arg(pvName()).arg(ca_message(lastError_)));
 		emit error(lastError_);
 	}
 
@@ -1037,7 +990,6 @@ void AMProcessVariablePrivate::setValue(const QString& value) {
 }
 
 void AMProcessVariablePrivate::setValues(const QStringList& setpoints) {
-
 
 	QList<QByteArray> asciiData;	// will hold the ascii form of our strings
 	const char** stringArray = new const char*[setpoints.size()];		// an array of strings (array of char*... ie: char**) which ca_array_put_callback requires.
@@ -1048,12 +1000,13 @@ void AMProcessVariablePrivate::setValues(const QStringList& setpoints) {
 	}
 
 	if (!putCallbackEnabled_)
-		lastError_ = ca_array_put( DBR_STRING, setpoints.size(), chid_, stringArray );
+		lastError_ = ca_array_put( DBR_STRING, setpoints.size(), channelIds_[PVChannel::PV], stringArray );
 	else
-		lastError_ = ca_array_put_callback( DBR_STRING, setpoints.size(), chid_, stringArray, PVPutRequestCBWrapper, this );
+		lastError_ = ca_array_put_callback( DBR_STRING, setpoints.size(), channelIds_[PVChannel::PV], stringArray, PVPutRequestCBWrapper, this );
 
 	if(lastError_ != ECA_NORMAL) {
-		AMErrorMon::debug(this, AMPROCESSVARIABLESUPPORT_ERROR_WHILE_PUTTING_VALUES_STRING, QString("AMProcessVariable: Error while trying to put values: %1: %2").arg(pvName()).arg(ca_message(lastError_)));
+		AMErrorMon::debug(this, AMPROCESSVARIABLESUPPORT_ERROR_WHILE_PUTTING_VALUES_STRING,
+						  QString("AMProcessVariable: Error while trying to put values: %1: %2").arg(pvName()).arg(ca_message(lastError_)));
 		emit error(lastError_);
 	}
 	delete[] stringArray;
@@ -1125,7 +1078,6 @@ int AMProcessVariablePrivate::getInt(unsigned index) const {
 QString AMProcessVariablePrivate::getString(unsigned index) const {
 
 
-
 	// Depending on our type, we need to know where to look and how to convert:
 	switch(ourType_) {
 
@@ -1176,5 +1128,39 @@ QString AMProcessVariablePrivate::errorString(int errorCode)
 	default:
 		 return QString(ca_message(errorCode));
 	}
+}
+
+void AMProcessVariablePrivate::setChannelValue(chid channelId, int value) {
+	dbr_long_t dbrValue = value;
+
+	if (!putCallbackEnabled_)
+		lastError_ = ca_put( DBR_LONG, channelId, &dbrValue );
+	else
+		lastError_ = ca_put_callback( DBR_LONG, channelId, &dbrValue, PVPutRequestCBWrapper, this );
+
+	if(lastError_ != ECA_NORMAL) {
+		int channelIndex = channelIds_.indexOf(channelId);
+		AMErrorMon::debug(this, AMPROCESSVARIABLESUPPORT_ERROR_WHILE_PUTTING_VALUE_STRING,
+						  QString("AMProcessVariable: Error while trying to put DISV: %1: %2").arg(PVChannelName(channelIndex, pvName())).arg(ca_message(lastError_)));
+		emit error(lastError_);
+	}
+
+	AMProcessVariableSupport::flushIO();
+}
+
+QString AMProcessVariablePrivate::PVChannelName(int channelId, QString pvName) {
+	QString pvChannelName;
+	switch (channelId) {
+	case PVChannel::PV_DISA:
+		pvChannelName = pvName + ".DISA";
+		break;
+	case PVChannel::PV_DISV:
+		pvChannelName = pvName + ".DISV";
+		break;
+	default:
+		pvChannelName = pvName;
+	}
+
+	return pvChannelName;
 }
 
