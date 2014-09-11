@@ -907,9 +907,9 @@ void AMProcessVariablePrivate::setValue(int value) {
 	dbr_long_t setpoint = value;
 
 	if (!putCallbackEnabled_)
-		lastError_ = ca_put( DBR_LONG, channelIds_[PVChannelType::PV], &setpoint );
+		lastError_ = ca_put( DBR_LONG, channelIds_[PVChannel::PV], &setpoint );
 	else
-		lastError_ = ca_put_callback( DBR_LONG, channelIds_[PVChannelType::PV], &setpoint, PVPutRequestCBWrapper, this );
+		lastError_ = ca_put_callback( DBR_LONG, channelIds_[PVChannel::PV], &setpoint, PVPutRequestCBWrapper, this );
 
 	if(lastError_ != ECA_NORMAL) {
 		AMErrorMon::debug(this, AMPROCESSVARIABLESUPPORT_ERROR_WHILE_PUTTING_VALUE_INTEGER,
