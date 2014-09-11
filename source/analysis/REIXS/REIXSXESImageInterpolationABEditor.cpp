@@ -240,10 +240,9 @@ REIXSXESImageInterpolationABEditor::REIXSXESImageInterpolationABEditor(REIXSXESI
 	QVBoxLayout* mainLayout = new QVBoxLayout();
 		QTabWidget* tabWidget_= new QTabWidget();
 
-	//START OF MASK PAGE
-			QWidget* maskPageWidget_ = new QWidget();
-				QVBoxLayout* maskLayout = new QVBoxLayout();
-				QGroupBox* maskGroupBox = new QGroupBox("Mask");
+
+		//START OF MASK PAGE
+				QWidget* maskGroupBox = new QWidget();
 								QFormLayout* maskRangeLayout = new QFormLayout();
 									QHBoxLayout* yMaskRangeLayout = new QHBoxLayout();
 										yMaskRangeLayout->addWidget(rangeMinYControl_);
@@ -257,18 +256,23 @@ REIXSXESImageInterpolationABEditor::REIXSXESImageInterpolationABEditor(REIXSXESI
 								maskRangeLayout->addRow("From (x):", xMaskRangeLayout);
 								maskRangeLayout->addRow("Round:", rangeRoundControl_);
 						maskGroupBox->setLayout(maskRangeLayout);
-				maskLayout->addWidget(maskGroupBox);
-				QGroupBox* calibrationGroupBox = new QGroupBox("Calibration");
-						QFormLayout* calibrationLayout = new QFormLayout();
-							QHBoxLayout* calibrationSpinnerLayout = new QHBoxLayout();
-								calibrationSpinnerLayout->addWidget(energyCalibrationOffsetBox_);
-								calibrationSpinnerLayout->addWidget(tiltCalibrationOffsetBox_);
-							calibrationLayout->addRow("Offset:",calibrationSpinnerLayout);
-						calibrationGroupBox->setLayout(calibrationLayout);
-				maskLayout->addWidget(calibrationGroupBox);
-			maskPageWidget_->setLayout(maskLayout);
 	//END OF MASK PAGE LAYOUT
-	tabWidget_->addTab(maskPageWidget_,"Mask/Cal");
+	tabWidget_->addTab(maskGroupBox,"Mask");
+
+
+
+	//START OF CALIBRATION PAGE
+	QWidget* calibrationGroupBox = new QWidget();
+			QFormLayout* calibrationLayout = new QFormLayout();
+				QHBoxLayout* calibrationSpinnerLayout = new QHBoxLayout();
+					calibrationSpinnerLayout->addWidget(energyCalibrationOffsetBox_);
+					calibrationSpinnerLayout->addWidget(tiltCalibrationOffsetBox_);
+				calibrationLayout->addRow("Offset:",calibrationSpinnerLayout);
+			calibrationGroupBox->setLayout(calibrationLayout);
+		//END OF CALIBRATION PAGE LAYOUT
+	tabWidget_->addTab(calibrationGroupBox,"Cal");
+
+
 
 	//START OF SHIFT 1 PAGE LAYOUT
 		QWidget* shift1PageWidget_ = new QWidget();
@@ -318,26 +322,32 @@ REIXSXESImageInterpolationABEditor::REIXSXESImageInterpolationABEditor(REIXSXESI
 	tabWidget_->addTab(shift2PageWidget_,"Curve 2");
 
 	//START OF SHIFT 2 PAGE LAYOUT
-		QGroupBox* applyGroupBox = new QGroupBox("Apply to other Scans...");
-			QVBoxLayout* applyPageLayout = new QVBoxLayout();
-					batchApplyCorrelationSettings_ = new QCheckBox("Correlation Settings", this);
-					batchApplyShiftCurve_ = new QCheckBox("Shift Curve", this);
-					batchApplySumRange_ = new QCheckBox("Sum Range min, max", this);
-					batchApplyCalibrationOffsets_ = new QCheckBox("Calib. offsets: energy, tilt", this);
-					batchApplyCorrelationSettings_->setCheckable(true);
-					batchApplyCorrelationSettings_->setChecked(true);
-					batchApplyShiftCurve_->setCheckable(true);
-					batchApplyCalibrationOffsets_->setCheckable(true);
-					batchApplyShiftCurve_->setChecked(true);
-					batchApplySumRange_->setCheckable(true);
-					batchApplySumRange_->setChecked(true);
-					batchApplyCalibrationOffsets_->setChecked(false);
-					applyToOtherScansButton_ = new QPushButton();
-					applyToOtherScansButton_->setText("Apply to Scans...");
-				applyPageLayout->addWidget(batchApplySumRange_);
-				applyPageLayout->addWidget(batchApplyCalibrationOffsets_);
-				applyPageLayout->addWidget(batchApplyCorrelationSettings_);
-				applyPageLayout->addWidget(batchApplyShiftCurve_);
+			QGroupBox* applyGroupBox = new QGroupBox("Apply to other Scans:");
+				QVBoxLayout* applyPageLayout = new QVBoxLayout();
+					QHBoxLayout* applyPageColumnLayout = new QHBoxLayout();
+						batchApplyCorrelationSettings_ = new QCheckBox("Curve Settings", this);
+						batchApplyShiftCurve_ = new QCheckBox("Curves", this);
+						batchApplySumRange_ = new QCheckBox("Mask", this);
+						batchApplyCalibrationOffsets_ = new QCheckBox("Calibration", this);
+						batchApplyCorrelationSettings_->setCheckable(true);
+						batchApplyCorrelationSettings_->setChecked(true);
+						batchApplyShiftCurve_->setCheckable(true);
+						batchApplyCalibrationOffsets_->setCheckable(true);
+						batchApplyShiftCurve_->setChecked(true);
+						batchApplySumRange_->setCheckable(true);
+						batchApplySumRange_->setChecked(true);
+						batchApplyCalibrationOffsets_->setChecked(true);
+						applyToOtherScansButton_ = new QPushButton();
+						applyToOtherScansButton_->setText("Choose Scans...");
+						QVBoxLayout* applyPageLeftLayout = new QVBoxLayout();
+							applyPageLeftLayout->addWidget(batchApplySumRange_);
+							applyPageLeftLayout->addWidget(batchApplyShiftCurve_);
+					applyPageColumnLayout->addLayout(applyPageLeftLayout);
+						QVBoxLayout* applyPageRightLayout = new QVBoxLayout();
+							applyPageRightLayout->addWidget(batchApplyCalibrationOffsets_);
+							applyPageRightLayout->addWidget(batchApplyCorrelationSettings_);
+					applyPageColumnLayout->addLayout(applyPageRightLayout);
+				applyPageLayout->addLayout(applyPageColumnLayout);
 				applyPageLayout->addWidget(applyToOtherScansButton_);
 			applyGroupBox->setLayout(applyPageLayout);
 		//END OF SHIFT 2 PAGE LAYOUT
