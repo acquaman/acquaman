@@ -31,6 +31,8 @@ class QAction;
 class QToolButton;
 class QDoubleSpinBox;
 class QComboBox;
+class QTabWidget;
+class QWidget;
 
 
 class MPlotWidget;
@@ -185,6 +187,9 @@ protected:
 	QComboBox* correlationSmoothingBox_;
 	QCheckBox* liveCorrelationCheckBox_;
 	QDoubleSpinBox* energyCalibrationOffsetBox_, *tiltCalibrationOffsetBox_, *rangeRoundControl_;
+	QTabWidget* tabWidget_;
+	QWidget* maskPageWidget_, shift1Widget_, shift2Widget_;
+
 
 	QSlider* shiftDisplayOffsetSlider_;
 

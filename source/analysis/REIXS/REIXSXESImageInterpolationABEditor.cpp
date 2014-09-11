@@ -30,6 +30,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QSlider>
 #include <QComboBox>
 #include <QToolButton>
+#include <QTabWidget>
+#include <QGroupBox>
 #include "MPlot/MPlotWidget.h"
 #include "MPlot/MPlot.h"
 #include "MPlot/MPlotImage.h"
@@ -232,55 +234,100 @@ REIXSXESImageInterpolationABEditor::REIXSXESImageInterpolationABEditor(REIXSXESI
 
 	// Build Layout:
 
-	QVBoxLayout* vl = new QVBoxLayout();
-	QFormLayout* fl = new QFormLayout();
-	QHBoxLayout* hl = new QHBoxLayout();
+	QVBoxLayout* mainLayout = new QVBoxLayout();
+		QTabWidget* tabWidget_= new QTabWidget();
 
-	QHBoxLayout* h2 = new QHBoxLayout();
+	//START OF MASK PAGE
+			QWidget* maskPageWidget_ = new QWidget();
+				QVBoxLayout* maskLayout = new QVBoxLayout();
+				QGroupBox* maskGroupBox = new QGroupBox("Mask");
+								QFormLayout* maskRangeLayout = new QFormLayout();
+									QHBoxLayout* yMaskRangeLayout = new QHBoxLayout();
+										yMaskRangeLayout->addWidget(rangeMinYControl_);
+										yMaskRangeLayout->addWidget(new QLabel("To"));
+										yMaskRangeLayout->addWidget(rangeMaxYControl_);
+								maskRangeLayout->addRow("From (y):", yMaskRangeLayout);
+									QHBoxLayout* xMaskRangeLayout = new QHBoxLayout();
+										xMaskRangeLayout->addWidget(rangeMinXControl_);
+										xMaskRangeLayout->addWidget(new QLabel("To"));
+										xMaskRangeLayout->addWidget(rangeMaxXControl_);
+								maskRangeLayout->addRow("From (x):", xMaskRangeLayout);
+								maskRangeLayout->addRow("Round:", rangeRoundControl_);
+						maskGroupBox->setLayout(maskRangeLayout);
+				maskLayout->addWidget(maskGroupBox);
+				QGroupBox* calibrationGroupBox = new QGroupBox("Calibration");
+						QFormLayout* calibrationLayout = new QFormLayout();
+							QHBoxLayout* calibrationSpinnerLayout = new QHBoxLayout();
+								calibrationSpinnerLayout->addWidget(energyCalibrationOffsetBox_);
+								calibrationSpinnerLayout->addWidget(tiltCalibrationOffsetBox_);
+							calibrationLayout->addRow("Offset:",calibrationSpinnerLayout);
+						calibrationGroupBox->setLayout(calibrationLayout);
+				maskLayout->addWidget(calibrationGroupBox);
+			maskPageWidget_->setLayout(maskLayout);
+	//END OF MASK PAGE LAYOUT
+	tabWidget_->addTab(maskPageWidget_,"Mask/Calibration");
 
-	hl->addWidget(rangeMinYControl_);
-	hl->addWidget(new QLabel("To"));
-	hl->addWidget(rangeMaxYControl_);
+	//START OF SHIFT 1 PAGE LAYOUT
+		QWidget* shift1PageWidget_ = new QWidget();
+			QVBoxLayout* shift1PageLayout = new QVBoxLayout();
+				QFormLayout* shift1PageFormLayout = new QFormLayout();
+					QHBoxLayout* correlation1SettingsLayout = new QHBoxLayout();
+						correlation1SettingsLayout->addWidget(correlationCenterBox_);
+						correlation1SettingsLayout->addWidget(new QLabel("width:"));
+						correlation1SettingsLayout->addWidget(correlationPointsBox_);
+				shift1PageFormLayout->addRow("C. center:", correlation1SettingsLayout);
+					QHBoxLayout* correlation1SmothingLayout = new QHBoxLayout();
+						correlation1SmothingLayout->addWidget(correlationSmoothingBox_);
+						correlation1SmothingLayout->addWidget(smoothModeBox_);
+				shift1PageFormLayout->addRow("C. smooth:", correlation1SmothingLayout);
+					QHBoxLayout* correlation1ButtonsLayout = new QHBoxLayout();
+						correlation1ButtonsLayout->addWidget(liveCorrelationCheckBox_);
+						correlation1ButtonsLayout->addWidget(correlateNowButton_);
+				shift1PageFormLayout->addRow("Correlate:", correlation1ButtonsLayout);
+			shift1PageLayout->addLayout(shift1PageFormLayout);
 
-	h2->addWidget(rangeMinXControl_);
-	h2->addWidget(new QLabel("To"));
-	h2->addWidget(rangeMaxXControl_);
-	h2->addWidget(new QLabel("Round:"));
-	h2->addWidget(rangeRoundControl_);
+			QHBoxLayout* shiftButtonsLayout = new QHBoxLayout();
+				shiftButtonsLayout->addWidget(manualShiftEntryButton_);
+				shiftButtonsLayout->addWidget(applyToOtherScansButton_);
+			shift1PageLayout->addLayout(shiftButtonsLayout);
+			shift1PageLayout->addWidget(shiftDisplayOffsetSlider_);
+		shift1PageWidget_->setLayout(shift1PageLayout);
+	//END OF SHIFT 1 PAGE LAYOUT
+	tabWidget_->addTab(shift1PageWidget_,"Curve 1");
 
-	fl->addRow("From (y):", hl);
+	//START OF SHIFT 2 PAGE LAYOUT
+		QWidget* shift2PageWidget_ = new QWidget();
+			QVBoxLayout* shift2PageLayout = new QVBoxLayout();
+				QFormLayout* shift2PageFormLayout = new QFormLayout();
+					QHBoxLayout* correlation2SettingsLayout = new QHBoxLayout();
+//						correlation2SettingsLayout->addWidget(correlationCenterBox_);
+						correlation2SettingsLayout->addWidget(new QLabel("width:"));
+//						correlation2SettingsLayout->addWidget(correlationPointsBox_);
+				shift2PageFormLayout->addRow("C. center:", correlation2SettingsLayout);
+					QHBoxLayout* correlation2SmothingLayout = new QHBoxLayout();
+//						correlation2SmothingLayout->addWidget(correlationSmoothingBox_);
+//						correlation2SmothingLayout->addWidget(smoothModeBox_);
+				shift2PageFormLayout->addRow("C. smooth:", correlation2SmothingLayout);
+					QHBoxLayout* correlation2ButtonsLayout = new QHBoxLayout();
+//						correlation2ButtonsLayout->addWidget(liveCorrelationCheckBox_);
+//						correlation2ButtonsLayout->addWidget(correlateNowButton_);
+				shift2PageFormLayout->addRow("Correlate:", correlation2ButtonsLayout);
+			shift2PageLayout->addLayout(shift2PageFormLayout);
 
-	fl->addRow("From (x):", h2);
+			QHBoxLayout* shiftButtons2Layout = new QHBoxLayout();
+//				shiftButtons2Layout->addWidget(manualShiftEntryButton_);
+//				shiftButtons2Layout->addWidget(applyToOtherScansButton_);
+			shift2PageLayout->addLayout(shiftButtons2Layout);
+//			shift2PageLayout->addWidget(shiftDisplayOffsetSlider_);
+		shift2PageWidget_->setLayout(shift2PageLayout);
+	//END OF SHIFT 2 PAGE LAYOUT
+	tabWidget_->addTab(shift2PageWidget_,"Curve 2");
 
-	QHBoxLayout* hl4 = new QHBoxLayout();
-	hl4->addWidget(energyCalibrationOffsetBox_);
-	hl4->addWidget(tiltCalibrationOffsetBox_);
-	fl->addRow("Offset:", hl4);
-	QHBoxLayout* hl2 = new QHBoxLayout();
-	hl2->addWidget(correlationCenterBox_);
-	hl2->addWidget(new QLabel("#"));
-	hl2->addWidget(correlationPointsBox_);
-	fl->addRow("C. center:", hl2);
-	QHBoxLayout* hl25 = new QHBoxLayout();
-	hl25->addWidget(correlationSmoothingBox_);
-	hl25->addWidget(smoothModeBox_);
-	/*
-	fl->addRow("C. smooth:", correlationSmoothingBox_);
-	*/
-	fl->addRow("C. smooth:", hl25);
-	QHBoxLayout* hl5 = new QHBoxLayout();
-	hl5->addWidget(liveCorrelationCheckBox_);
-	hl5->addWidget(correlateNowButton_);
-	fl->addRow("Correlate:", hl5);
 
-	vl->addLayout(fl);
-	QHBoxLayout* hl3 = new QHBoxLayout();
-	hl3->addWidget(manualShiftEntryButton_);
-	hl3->addWidget(applyToOtherScansButton_);
-	vl->addLayout(hl3);
-	vl->addWidget(plotWidget_);
-	vl->addWidget(shiftDisplayOffsetSlider_);
-	setLayout(vl);
+
+	mainLayout->addWidget(tabWidget_);
+	mainLayout->addWidget(plotWidget_);
+	setLayout(mainLayout);
 
 	onAnalysisBlockInputDataSourcesChanged();
 	/*
