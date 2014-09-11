@@ -904,20 +904,20 @@ void AMProcessVariablePrivate::disableProcessRecord() {
 void AMProcessVariablePrivate::setValue(int value) {
 	setChannelValue(channelIds_[PVChannel::PV], value);
 
-//	dbr_long_t setpoint = value;
+	dbr_long_t setpoint = value;
 
-//	if (!putCallbackEnabled_)
-//		lastError_ = ca_put( DBR_LONG, channelIds_[PVChannelType::PV], &setpoint );
-//	else
-//		lastError_ = ca_put_callback( DBR_LONG, channelIds_[PVChannelType::PV], &setpoint, PVPutRequestCBWrapper, this );
+	if (!putCallbackEnabled_)
+		lastError_ = ca_put( DBR_LONG, channelIds_[PVChannelType::PV], &setpoint );
+	else
+		lastError_ = ca_put_callback( DBR_LONG, channelIds_[PVChannelType::PV], &setpoint, PVPutRequestCBWrapper, this );
 
-//	if(lastError_ != ECA_NORMAL) {
-//		AMErrorMon::debug(this, AMPROCESSVARIABLESUPPORT_ERROR_WHILE_PUTTING_VALUE_INTEGER,
-//							QString("AMProcessVariable: Error while trying to put value: %1: %2").arg(pvName()).arg(ca_message(lastError_)));
-//		emit error(lastError_);
-//	}
+	if(lastError_ != ECA_NORMAL) {
+		AMErrorMon::debug(this, AMPROCESSVARIABLESUPPORT_ERROR_WHILE_PUTTING_VALUE_INTEGER,
+							QString("AMProcessVariable: Error while trying to put value: %1: %2").arg(pvName()).arg(ca_message(lastError_)));
+		emit error(lastError_);
+	}
 
-//	AMProcessVariableSupport::flushIO();
+	AMProcessVariableSupport::flushIO();
 }
 
 void AMProcessVariablePrivate::setValues(dbr_long_t setpoints[], int num) {

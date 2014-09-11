@@ -35,7 +35,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QSet>
 #include <QTimer>
 #include <QMetaType>
-#include <QMutex>
 
 #include "util/AMDeferredFunctionCall.h"
 
@@ -510,19 +509,12 @@ protected:
 	/// Number of array elements (for array PVs)
 	int count_;
 
-	QMutex channelAccessMutex_;
 	/// channel ID for channel access
 	QVector<chid> channelIds_;
 	/// Event ID for subscriptions (monitoring values)
 	QVector<evid> eventIds_;
 	/// Event ID for alarm subscription
 	QVector<evid> alarmEventIds_;
-//	/// channel ID for channel access
-//	chid channelIds_[PVChannel::PV_TotalChannels];
-//	/// Event ID for subscriptions (monitoring values)
-//	evid eventIds_[PVChannel::PV_TotalChannels];
-//	/// Event ID for alarm subscription
-//	evid alarmEventIds_[PVChannel::PV_TotalChannels];
 
 	/// Request that we start monitoring as soon as we connect. (Set by main thread, read from epics connection callback thread, hence volatile.)
 	volatile bool shouldBeMonitoring_;

@@ -268,11 +268,12 @@ void AMPVControl::onCompletionTimeout() {
 // Class AMSinglePVControl
 ///////////////////////////////////////
 
-AMSinglePVControl::~AMSinglePVControl(){}
+ AMSinglePVControl::~AMSinglePVControl(){}
 AMSinglePVControl::AMSinglePVControl(const QString &name, const QString &PVname, QObject *parent, double tolerance, double completionTimeoutSeconds, const QString &description)
 	: AMPVControl(name, PVname, PVname, QString(), parent, tolerance, completionTimeoutSeconds, 1, description)
 {
 }
+
 
 // Class AMReadOnlyPVwStatusControl
 ///////////////////////////////////////
