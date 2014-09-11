@@ -193,7 +193,7 @@ protected:
 
 	QSlider* shiftDisplayOffsetSlider_;
 
-	QToolButton* applyToOtherScansButton_;
+	QPushButton* applyToOtherScansButton_;
 	QToolButton* manualShiftEntryButton_;
 
 
@@ -215,13 +215,13 @@ protected:
 	/// Dialog to ask the user for a set of scans (to apply the same shift curve to many at once)
 	AMChooseScanDialog* chooseScanDialog_;
 	/// A checkable menu action that indicates "batch apply" should apply correlation settings to all scans.
-	QAction* batchApplyCorrelationSettings_;
+	QCheckBox* batchApplyCorrelationSettings_;
 	/// A checkable menu action that indicates "batch apply" should apply the shift curve to all scans.
-	QAction* batchApplyShiftCurve_;
+	QCheckBox* batchApplyShiftCurve_;
 	/// A checkable menu action that indicates "batch apply" should apply the sum range (min, max) to all scans.
-	QAction* batchApplySumRange_;
+	QCheckBox* batchApplySumRange_;
 	/// A checkable menu action that indicates "batch apply" shouuld apply the calibration offsets (energy, tilt) to all scans.
-	QAction* batchApplyCalibrationOffsets_;
+	QCheckBox* batchApplyCalibrationOffsets_;
 
 
 	/// called to position and show/hide the range rectangle, as appropriate.

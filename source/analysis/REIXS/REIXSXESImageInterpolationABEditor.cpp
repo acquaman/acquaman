@@ -119,6 +119,7 @@ REIXSXESImageInterpolationABEditor::REIXSXESImageInterpolationABEditor(REIXSXESI
 	manualShiftEntryButton_ = new QToolButton();
 	manualShiftEntryButton_->setText("Manual shift...");
 
+	/* Turned nasty QMenuTool into it's own tab page below
 	applyToOtherScansButton_ = new QToolButton();
 	applyToOtherScansButton_->setText("Apply to Scans...");
 	applyToOtherScansButton_->setPopupMode(QToolButton::MenuButtonPopup);
@@ -141,6 +142,8 @@ REIXSXESImageInterpolationABEditor::REIXSXESImageInterpolationABEditor(REIXSXESI
 	batchApplyMenu->addAction(batchApplyCorrelationSettings_);
 	batchApplyMenu->addAction(batchApplyShiftCurve_);
 	applyToOtherScansButton_->setMenu(batchApplyMenu);
+	*/
+
 
 	shiftDisplayOffsetSlider_ = new QSlider(Qt::Horizontal);
 
@@ -265,7 +268,7 @@ REIXSXESImageInterpolationABEditor::REIXSXESImageInterpolationABEditor(REIXSXESI
 				maskLayout->addWidget(calibrationGroupBox);
 			maskPageWidget_->setLayout(maskLayout);
 	//END OF MASK PAGE LAYOUT
-	tabWidget_->addTab(maskPageWidget_,"Mask/Calibration");
+	tabWidget_->addTab(maskPageWidget_,"Mask/Cal");
 
 	//START OF SHIFT 1 PAGE LAYOUT
 		QWidget* shift1PageWidget_ = new QWidget();
@@ -280,15 +283,10 @@ REIXSXESImageInterpolationABEditor::REIXSXESImageInterpolationABEditor(REIXSXESI
 						correlation1SmothingLayout->addWidget(correlationSmoothingBox_);
 						correlation1SmothingLayout->addWidget(smoothModeBox_);
 				shift1PageFormLayout->addRow("C. smooth:", correlation1SmothingLayout);
-					QHBoxLayout* correlation1ButtonsLayout = new QHBoxLayout();
-						correlation1ButtonsLayout->addWidget(liveCorrelationCheckBox_);
-						correlation1ButtonsLayout->addWidget(correlateNowButton_);
-				shift1PageFormLayout->addRow("Correlate:", correlation1ButtonsLayout);
 			shift1PageLayout->addLayout(shift1PageFormLayout);
 
 			QHBoxLayout* shiftButtonsLayout = new QHBoxLayout();
 				shiftButtonsLayout->addWidget(manualShiftEntryButton_);
-				shiftButtonsLayout->addWidget(applyToOtherScansButton_);
 			shift1PageLayout->addLayout(shiftButtonsLayout);
 			shift1PageLayout->addWidget(shiftDisplayOffsetSlider_);
 		shift1PageWidget_->setLayout(shift1PageLayout);
@@ -308,10 +306,6 @@ REIXSXESImageInterpolationABEditor::REIXSXESImageInterpolationABEditor(REIXSXESI
 //						correlation2SmothingLayout->addWidget(correlationSmoothingBox_);
 //						correlation2SmothingLayout->addWidget(smoothModeBox_);
 				shift2PageFormLayout->addRow("C. smooth:", correlation2SmothingLayout);
-					QHBoxLayout* correlation2ButtonsLayout = new QHBoxLayout();
-//						correlation2ButtonsLayout->addWidget(liveCorrelationCheckBox_);
-//						correlation2ButtonsLayout->addWidget(correlateNowButton_);
-				shift2PageFormLayout->addRow("Correlate:", correlation2ButtonsLayout);
 			shift2PageLayout->addLayout(shift2PageFormLayout);
 
 			QHBoxLayout* shiftButtons2Layout = new QHBoxLayout();
@@ -323,9 +317,44 @@ REIXSXESImageInterpolationABEditor::REIXSXESImageInterpolationABEditor(REIXSXESI
 	//END OF SHIFT 2 PAGE LAYOUT
 	tabWidget_->addTab(shift2PageWidget_,"Curve 2");
 
+	//START OF SHIFT 2 PAGE LAYOUT
+		QGroupBox* applyGroupBox = new QGroupBox("Apply to other Scans...");
+			QVBoxLayout* applyPageLayout = new QVBoxLayout();
+					batchApplyCorrelationSettings_ = new QCheckBox("Correlation Settings", this);
+					batchApplyShiftCurve_ = new QCheckBox("Shift Curve", this);
+					batchApplySumRange_ = new QCheckBox("Sum Range min, max", this);
+					batchApplyCalibrationOffsets_ = new QCheckBox("Calib. offsets: energy, tilt", this);
+					batchApplyCorrelationSettings_->setCheckable(true);
+					batchApplyCorrelationSettings_->setChecked(true);
+					batchApplyShiftCurve_->setCheckable(true);
+					batchApplyCalibrationOffsets_->setCheckable(true);
+					batchApplyShiftCurve_->setChecked(true);
+					batchApplySumRange_->setCheckable(true);
+					batchApplySumRange_->setChecked(true);
+					batchApplyCalibrationOffsets_->setChecked(false);
+					applyToOtherScansButton_ = new QPushButton();
+					applyToOtherScansButton_->setText("Apply to Scans...");
+				applyPageLayout->addWidget(batchApplySumRange_);
+				applyPageLayout->addWidget(batchApplyCalibrationOffsets_);
+				applyPageLayout->addWidget(batchApplyCorrelationSettings_);
+				applyPageLayout->addWidget(batchApplyShiftCurve_);
+				applyPageLayout->addWidget(applyToOtherScansButton_);
+			applyGroupBox->setLayout(applyPageLayout);
+		//END OF SHIFT 2 PAGE LAYOUT
+		tabWidget_->addTab(applyGroupBox,"Apply");
 
 
+
+	//Shared curve fit buttons
 	mainLayout->addWidget(tabWidget_);
+	QWidget* correlation1ButtonsWidget = new QWidget();
+		QHBoxLayout* correlation1ButtonsLayout = new QHBoxLayout();
+			correlation1ButtonsLayout->addWidget(new QLabel("Fit Curves:"));
+			correlation1ButtonsLayout->addWidget(liveCorrelationCheckBox_);
+			correlation1ButtonsLayout->addWidget(correlateNowButton_);
+		correlation1ButtonsWidget->setLayout(correlation1ButtonsLayout);
+	mainLayout->addWidget(correlation1ButtonsWidget);
+
 	mainLayout->addWidget(plotWidget_);
 	setLayout(mainLayout);
 
