@@ -37,10 +37,9 @@ class AM2DSummingAB : public AMStandardAnalysisBlock {
 
 public:
 	/// Constructor. \c outputName is the name() for the output data source.
- 	virtual ~AM2DSummingAB();
-	AM2DSummingAB(const QString& outputName, QObject* parent = 0);
-	/// This constructor is used to reload analysis blocks directly out of the database
-	Q_INVOKABLE AM2DSummingAB(AMDatabase* db, int id);
+	Q_INVOKABLE AM2DSummingAB(const QString& outputName = "InvalidInput", QObject* parent = 0);
+	/// Destructor.
+	virtual ~AM2DSummingAB();
 
 	QString infoDescription() const { return QString("(Axis %1 from %2 to %3)").arg(sumAxis_).arg(sumRangeMin_).arg(sumRangeMax_); }
 

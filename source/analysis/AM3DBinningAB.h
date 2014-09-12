@@ -39,10 +39,9 @@ class AM3DBinningAB : public AMStandardAnalysisBlock
 
 public:
 	/// Constructor. \c outputName is the name() for the output data source.
- 	virtual ~AM3DBinningAB();
-	AM3DBinningAB(const QString &outputName, QObject *parent = 0);
-	/// This constructor is used to reload analysis blocks directly out of the database
-	Q_INVOKABLE AM3DBinningAB(AMDatabase* db, int id);
+	Q_INVOKABLE AM3DBinningAB(const QString &outputName = "InvalidInput", QObject *parent = 0);
+	/// Destructor.
+	virtual ~AM3DBinningAB();
 
 	QString infoDescription() const { return QString("(Axis %1 from %2 to %3)").arg(sumAxis_).arg(sumRangeMin_).arg(sumRangeMax_); }
 

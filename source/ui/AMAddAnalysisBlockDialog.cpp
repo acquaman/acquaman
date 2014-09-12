@@ -139,7 +139,7 @@ void AMAddAnalysisBlockDialog::populateWith1D()
 
 	item = new QListWidgetItem(QIcon(":/spectrum.png"), "2D Summing", listWidget_);
 	item->setData(AM::DescriptionRole, "This tool bins a 2D image along an axis to generate a 1D function.");
-	item->setData(AM::DetailedDescriptionRole, "AM1DDerivativeAB");
+	item->setData(AM::DetailedDescriptionRole, "AM2DSummingAB");
 
 	item = new QListWidgetItem(QIcon(":/22x22/gamma.png"), "Normalization", listWidget_);
 	item->setData(AM::DescriptionRole, "This tool normalizes its input.");

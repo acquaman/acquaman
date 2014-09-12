@@ -339,73 +339,26 @@ void AMDataSourcesEditor::onNewDataSourceNamed() {
 			threeDimDataSources << tempSource;
 	}
 
-//	if (nameOfAnalysisBlockToBeAdded_ == "Derivative"){
-
-//		newAnalysisBlock = new AM1DDerivativeAB(chName);
-//		newAnalysisBlock->setInputDataSources(singleDimDataSources);
-//	}
-
-//	else if (nameOfAnalysisBlockToBeAdded_ == "Integral"){
-
-//		newAnalysisBlock = new AM1DIntegralAB(chName);
-//		newAnalysisBlock->setInputDataSources(singleDimDataSources);
-//	}
-
-//	else if (nameOfAnalysisBlockToBeAdded_ == "Expression"){
-
-//		newAnalysisBlock = new AM1DExpressionAB(chName);
-//		newAnalysisBlock->setInputDataSources(singleDimDataSources);
-//	}
-
-//	else if (nameOfAnalysisBlockToBeAdded_ == "2D Summing"){
-
-//		newAnalysisBlock = new AM2DSummingAB(chName);
-//		newAnalysisBlock->setInputDataSources(twoDimDataSources);
-//	}
-
-//	else if (nameOfAnalysisBlockToBeAdded_ == "Normalization"){
-
-//		newAnalysisBlock = new AM1DNormalizationAB(chName);
-//		newAnalysisBlock->setInputDataSources(singleDimDataSources);
-//	}
-
-//	else if (nameOfAnalysisBlockToBeAdded_ == "Calibrated Normalization"){
-
-//		newAnalysisBlock = new AM1DCalibrationAB(chName);
-//		newAnalysisBlock->setInputDataSources(singleDimDataSources);
-//	}
-
-//	else if (nameOfAnalysisBlockToBeAdded_ == "2D Map Normalization"){
-
-//		newAnalysisBlock = new AM2DNormalizationAB(chName);
-//		newAnalysisBlock->setInputDataSources(twoDimDataSources);
-//	}
-
-//	else if (nameOfAnalysisBlockToBeAdded_ == "3D Binning"){
-
-//		newAnalysisBlock = new AM3DBinningAB(chName);
-//		newAnalysisBlock->setInputDataSources(threeDimDataSources);
-//	}
-
-//	else if (nameOfAnalysisBlockToBeAdded_ == "Interpolated Curve Correction"){
-
-//		newAnalysisBlock = new REIXSXESImageInterpolationAB(chName);
-//		newAnalysisBlock->setInputDataSources(twoDimDataSources);
-//	}
-
 	newAnalysisBlock = qobject_cast<AMAnalysisBlock *>(AMDbObjectSupport::s()->objectInfoForClass(nameOfAnalysisBlockToBeAdded_)->metaObject->newInstance(Q_ARG(QString, chName)));
 
 	// This should always happen.  But just to be safe.
 	if (newAnalysisBlock){
 
-		// Checking for empty sources because empty lists are okay, but real scans won't have empty source lists.
-		if (!singleDimDataSources.isEmpty() && newAnalysisBlock->areInputDataSourcesAcceptable(singleDimDataSources))
+		if (nameOfAnalysisBlockToBeAdded_ == "AM1DDerivativeAB"
+				|| nameOfAnalysisBlockToBeAdded_ == "AM1DIntegralAB"
+				|| nameOfAnalysisBlockToBeAdded_ == "AM1DExpressionAB"
+				|| nameOfAnalysisBlockToBeAdded_ == "AM1DNormalizationAB"
+				|| nameOfAnalysisBlockToBeAdded_ == "AM1DCalibrationAB")
+
 			newAnalysisBlock->setInputDataSources(singleDimDataSources);
 
-		if (!twoDimDataSources.isEmpty() && newAnalysisBlock->areInputDataSourcesAcceptable(twoDimDataSources))
+		else if (nameOfAnalysisBlockToBeAdded_ == "AM2DSummingAB"
+				 || nameOfAnalysisBlockToBeAdded_ == "AM2DNormalizationAB"
+				 || nameOfAnalysisBlockToBeAdded_ == "REIXSXESImageInterpolationAB")
+
 			newAnalysisBlock->setInputDataSources(twoDimDataSources);
 
-		if (!threeDimDataSources.isEmpty() && newAnalysisBlock->areInputDataSourcesAcceptable(threeDimDataSources))
+		else if (nameOfAnalysisBlockToBeAdded_ == "AM3DBinningAB")
 			newAnalysisBlock->setInputDataSources(threeDimDataSources);
 
 		scan->addAnalyzedDataSource(newAnalysisBlock);
