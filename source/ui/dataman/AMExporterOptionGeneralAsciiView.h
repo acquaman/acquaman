@@ -22,14 +22,34 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef AMEXPORTEROPTIONGENERALASCIIVIEW_H
 #define AMEXPORTEROPTIONGENERALASCIIVIEW_H
 
+#include <QVariant>
+#include <QAction>
+#include <QApplication>
+#include <QButtonGroup>
+#include <QCheckBox>
+#include <QFormLayout>
+#include <QFrame>
+#include <QGridLayout>
+#include <QGroupBox>
+#include <QHBoxLayout>
+#include <QHeaderView>
+#include <QLabel>
+#include <QLineEdit>
+#include <QListView>
+#include <QListWidget>
+#include <QPlainTextEdit>
+#include <QPushButton>
+#include <QRadioButton>
+#include <QSpacerItem>
 #include <QTabWidget>
-#include "ui_AMExporterOptionGeneralAsciiView.h"
+#include <QToolButton>
+#include <QVBoxLayout>
+#include <QWidget>
+#include <QStandardItemModel>
 
-class QButtonGroup;
-class QStandardItemModel;
 class AMExporterOptionGeneralAscii;
 
-class AMExporterOptionGeneralAsciiView : public QTabWidget, private Ui::AMExporterOptionGeneralAsciiView
+class AMExporterOptionGeneralAsciiView : public QTabWidget
 {
 	Q_OBJECT
 
@@ -89,6 +109,93 @@ protected slots:
 	void onHigherDimensionsInRowsToggled(bool checked);
 
 private slots:
+private:
+	QWidget *tabHeader_;
+	QVBoxLayout *verticalLayout;
+	QGroupBox *groupBox_;
+	QHBoxLayout *horizontalLayout_2;
+	QLabel *headerHelpText_;
+	QPushButton *headerHelpButton_;
+	QCheckBox *headerIncludeCheck_;
+	QPlainTextEdit *headerText_;
+	QHBoxLayout *horizontalLayout_;
+	QSpacerItem *horizontalSpacer_;
+	QToolButton *headerKeywordButton_;
+	QWidget *tabDataSources_;
+	QVBoxLayout *verticalLayout_8;
+	QGroupBox *groupBox2_;
+	QHBoxLayout *horizontalLayout_3;
+	QLabel *sourcesHelpText_;
+	QPushButton *sourcesHelpButton_;
+	QCheckBox *includeAllSourcesCheck_;
+	QCheckBox *firstColumnOnlyCheck_;
+	QCheckBox *separateHigherDimensionSourcesCheck_;
+	QCheckBox *higherDimensionsInRows_;
+	QFrame *sourcesSelectorFrame_;
+	QVBoxLayout *verticalLayout_9;
+	QGridLayout *gridLayout_;
+	QLabel *detectedSourcesLabel_;
+	QLabel *includedSourcesLabel_;
+	QVBoxLayout *verticalLayout5_;
+	QToolButton *sourcesAddButton_;
+	QToolButton *sourcesRemoveButton_;
+	QToolButton *sourcesAddExtraButton_;
+	QListWidget *sourcesIncludedListWidget_;
+	QVBoxLayout *verticalLayout4_;
+	QGroupBox *sourcesDetailsBox_;
+	QVBoxLayout *verticalLayout_3;
+	QCheckBox *sourcesRequiredCheck_;
+	QCheckBox *sourcesOmitAxisValuesCheck_;
+	QGroupBox *sourcesLocationBox_;
+	QVBoxLayout *verticalLayout_2;
+	QRadioButton *sourcesMainTableButton_;
+	QRadioButton *sourcesSeparateSectionButton_;
+	QRadioButton *sourcesSeparateFileButton_;
+	QSpacerItem *verticalSpacer3_;
+	QListView *sourcesAvailableListView_;
+	QWidget *tabLayout_;
+	QVBoxLayout *verticalLayout_6;
+	QGroupBox *groupBox3_;
+	QHBoxLayout *horizontalLayout_6;
+	QLabel *layoutHelpText_;
+	QPushButton *layoutHelpButton_;
+	QFormLayout *formLayout_;
+	QCheckBox *columnHeaderCheck_;
+	QLineEdit *columnHeaderText_;
+	QLabel *columnHeaderHelpLabel_;
+	QCheckBox *sectionHeaderCheck_;
+	QPlainTextEdit *sectionHeaderText_;
+	QLabel *sectionHeaderHelpText_;
+	QFrame *line_;
+	QLabel *columnSeparatorLabel_;
+	QHBoxLayout *horizontalLayout4_;
+	QRadioButton *columnSeparatorTabButton_;
+	QRadioButton *columnSeparatorSpaceButton_;
+	QRadioButton *columnSeparatorCommaButton_;
+	QRadioButton *columnSeparatorSemicolonButton_;
+	QRadioButton *columnSeparatorOtherButton_;
+	QLineEdit *columnSeparatorOtherText_;
+	QSpacerItem *horizontalSpacer3_;
+	QLabel *endOfLineSeparatorLabel_;
+	QHBoxLayout *horizontalLayout5_;
+	QRadioButton *newlineCRLFCheck_;
+	QRadioButton *newlineLFCheck_;
+	QRadioButton *newlineOtherCheck_;
+	QLineEdit *newlineOtherText_;
+	QSpacerItem *horizontalSpacer2_;
+	QWidget *tabFileName_;
+	QVBoxLayout *verticalLayout_7;
+	QGroupBox *groupBox4_;
+	QHBoxLayout *horizontalLayout_7;
+	QLabel *fileNamesHelpText_;
+	QPushButton *fileNamesHelpButton_;
+	QSpacerItem *verticalSpacer_;
+	QFormLayout *formLayout2_;
+	QLabel *fileNameLabel_;
+	QLineEdit *fileNameText_;
+	QLabel *fileNameSeparateSectionLabel_;
+	QLineEdit *fileNameSeparateSectionText_;
+	QSpacerItem *verticalSpacer2_;
 };
 
 #endif // AMEXPORTEROPTIONGENERALASCIIVIEW_H
