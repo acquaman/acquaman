@@ -111,9 +111,9 @@ protected slots:
 private slots:
 private:
 	QWidget *tabHeader_;
-	QVBoxLayout *verticalLayout;
+	QVBoxLayout *verticalLayout_;
 	QGroupBox *groupBox_;
-	QHBoxLayout *horizontalLayout_2;
+	QHBoxLayout *horizontalLayout2_;
 	QLabel *headerHelpText_;
 	QPushButton *headerHelpButton_;
 	QCheckBox *headerIncludeCheck_;
@@ -122,9 +122,9 @@ private:
 	QSpacerItem *horizontalSpacer_;
 	QToolButton *headerKeywordButton_;
 	QWidget *tabDataSources_;
-	QVBoxLayout *verticalLayout_8;
+	QVBoxLayout *verticalLayout8_;
 	QGroupBox *groupBox2_;
-	QHBoxLayout *horizontalLayout_3;
+	QHBoxLayout *horizontalLayout3_;
 	QLabel *sourcesHelpText_;
 	QPushButton *sourcesHelpButton_;
 	QCheckBox *includeAllSourcesCheck_;
@@ -132,7 +132,7 @@ private:
 	QCheckBox *separateHigherDimensionSourcesCheck_;
 	QCheckBox *higherDimensionsInRows_;
 	QFrame *sourcesSelectorFrame_;
-	QVBoxLayout *verticalLayout_9;
+	QVBoxLayout *verticalLayout9_;
 	QGridLayout *gridLayout_;
 	QLabel *detectedSourcesLabel_;
 	QLabel *includedSourcesLabel_;
@@ -143,20 +143,20 @@ private:
 	QListWidget *sourcesIncludedListWidget_;
 	QVBoxLayout *verticalLayout4_;
 	QGroupBox *sourcesDetailsBox_;
-	QVBoxLayout *verticalLayout_3;
+	QVBoxLayout *verticalLayout3_;
 	QCheckBox *sourcesRequiredCheck_;
 	QCheckBox *sourcesOmitAxisValuesCheck_;
 	QGroupBox *sourcesLocationBox_;
-	QVBoxLayout *verticalLayout_2;
+	QVBoxLayout *verticalLayout2_;
 	QRadioButton *sourcesMainTableButton_;
 	QRadioButton *sourcesSeparateSectionButton_;
 	QRadioButton *sourcesSeparateFileButton_;
 	QSpacerItem *verticalSpacer3_;
 	QListView *sourcesAvailableListView_;
 	QWidget *tabLayout_;
-	QVBoxLayout *verticalLayout_6;
+	QVBoxLayout *verticalLayout6_;
 	QGroupBox *groupBox3_;
-	QHBoxLayout *horizontalLayout_6;
+	QHBoxLayout *horizontalLayout6_;
 	QLabel *layoutHelpText_;
 	QPushButton *layoutHelpButton_;
 	QFormLayout *formLayout_;
@@ -184,9 +184,9 @@ private:
 	QLineEdit *newlineOtherText_;
 	QSpacerItem *horizontalSpacer2_;
 	QWidget *tabFileName_;
-	QVBoxLayout *verticalLayout_7;
+	QVBoxLayout *verticalLayout7_;
 	QGroupBox *groupBox4_;
-	QHBoxLayout *horizontalLayout_7;
+	QHBoxLayout *horizontalLayout7_;
 	QLabel *fileNamesHelpText_;
 	QPushButton *fileNamesHelpButton_;
 	QSpacerItem *verticalSpacer_;

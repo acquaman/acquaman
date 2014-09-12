@@ -20,7 +20,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "AMExporterOptionGeneralAsciiView.h"
-#include "ui_AMExporterOptionGeneralAsciiView.h"
 
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
 
@@ -36,17 +35,17 @@ AMExporterOptionGeneralAsciiView::AMExporterOptionGeneralAsciiView(AMExporterOpt
 	setMinimumSize(QSize(0, 420));
 	tabHeader_ = new QWidget();
 	tabHeader_->setObjectName(QString::fromUtf8("tabHeader_"));
-	verticalLayout = new QVBoxLayout(tabHeader_);
-	verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
+	verticalLayout_ = new QVBoxLayout(tabHeader_);
+	verticalLayout_->setObjectName(QString::fromUtf8("verticalLayout"));
 	groupBox_ = new QGroupBox(tabHeader_);
 	groupBox_->setObjectName(QString::fromUtf8("groupBox_"));
-	horizontalLayout_2 = new QHBoxLayout(groupBox_);
-	horizontalLayout_2->setObjectName(QString::fromUtf8("horizontalLayout_2"));
+	horizontalLayout2_ = new QHBoxLayout(groupBox_);
+	horizontalLayout2_->setObjectName(QString::fromUtf8("horizontalLayout_2"));
 	headerHelpText_ = new QLabel(groupBox_);
 	headerHelpText_->setObjectName(QString::fromUtf8("headerHelpText_"));
 	headerHelpText_->setWordWrap(true);
 
-	horizontalLayout_2->addWidget(headerHelpText_);
+	horizontalLayout2_->addWidget(headerHelpText_);
 
 	headerHelpButton_ = new QPushButton(groupBox_);
 	headerHelpButton_->setObjectName(QString::fromUtf8("headerHelpButton_"));
@@ -56,21 +55,21 @@ AMExporterOptionGeneralAsciiView::AMExporterOptionGeneralAsciiView(AMExporterOpt
 	sizePolicy.setHeightForWidth(headerHelpButton_->sizePolicy().hasHeightForWidth());
 	headerHelpButton_->setSizePolicy(sizePolicy);
 
-	horizontalLayout_2->addWidget(headerHelpButton_);
+	horizontalLayout2_->addWidget(headerHelpButton_);
 
 
-	verticalLayout->addWidget(groupBox_);
+	verticalLayout_->addWidget(groupBox_);
 
 	headerIncludeCheck_ = new QCheckBox(tabHeader_);
 	headerIncludeCheck_->setObjectName(QString::fromUtf8("headerIncludeCheck_"));
 	headerIncludeCheck_->setChecked(true);
 
-	verticalLayout->addWidget(headerIncludeCheck_);
+	verticalLayout_->addWidget(headerIncludeCheck_);
 
 	headerText_ = new QPlainTextEdit(tabHeader_);
 	headerText_->setObjectName(QString::fromUtf8("headerText_"));
 
-	verticalLayout->addWidget(headerText_);
+	verticalLayout_->addWidget(headerText_);
 
 	horizontalLayout_ = new QHBoxLayout();
 	horizontalLayout_->setObjectName(QString::fromUtf8("horizontalLayout_"));
@@ -84,61 +83,61 @@ AMExporterOptionGeneralAsciiView::AMExporterOptionGeneralAsciiView(AMExporterOpt
 	horizontalLayout_->addWidget(headerKeywordButton_);
 
 
-	verticalLayout->addLayout(horizontalLayout_);
+	verticalLayout_->addLayout(horizontalLayout_);
 
 	addTab(tabHeader_, QString());
 	tabDataSources_ = new QWidget();
 	tabDataSources_->setObjectName(QString::fromUtf8("tabDataSources_"));
-	verticalLayout_8 = new QVBoxLayout(tabDataSources_);
-	verticalLayout_8->setObjectName(QString::fromUtf8("verticalLayout_8"));
+	verticalLayout8_ = new QVBoxLayout(tabDataSources_);
+	verticalLayout8_->setObjectName(QString::fromUtf8("verticalLayout_8"));
 	groupBox2_ = new QGroupBox(tabDataSources_);
 	groupBox2_->setObjectName(QString::fromUtf8("groupBox2_"));
-	horizontalLayout_3 = new QHBoxLayout(groupBox2_);
-	horizontalLayout_3->setObjectName(QString::fromUtf8("horizontalLayout_3"));
+	horizontalLayout3_ = new QHBoxLayout(groupBox2_);
+	horizontalLayout3_->setObjectName(QString::fromUtf8("horizontalLayout_3"));
 	sourcesHelpText_ = new QLabel(groupBox2_);
 	sourcesHelpText_->setObjectName(QString::fromUtf8("sourcesHelpText_"));
 
-	horizontalLayout_3->addWidget(sourcesHelpText_);
+	horizontalLayout3_->addWidget(sourcesHelpText_);
 
 	sourcesHelpButton_ = new QPushButton(groupBox2_);
 	sourcesHelpButton_->setObjectName(QString::fromUtf8("sourcesHelpButton_"));
 	sizePolicy.setHeightForWidth(sourcesHelpButton_->sizePolicy().hasHeightForWidth());
 	sourcesHelpButton_->setSizePolicy(sizePolicy);
 
-	horizontalLayout_3->addWidget(sourcesHelpButton_);
+	horizontalLayout3_->addWidget(sourcesHelpButton_);
 
 
-	verticalLayout_8->addWidget(groupBox2_);
+	verticalLayout8_->addWidget(groupBox2_);
 
 	includeAllSourcesCheck_ = new QCheckBox(tabDataSources_);
 	includeAllSourcesCheck_->setObjectName(QString::fromUtf8("includeAllSourcesCheck_"));
 
-	verticalLayout_8->addWidget(includeAllSourcesCheck_);
+	verticalLayout8_->addWidget(includeAllSourcesCheck_);
 
 	firstColumnOnlyCheck_ = new QCheckBox(tabDataSources_);
 	firstColumnOnlyCheck_->setObjectName(QString::fromUtf8("firstColumnOnlyCheck_"));
 	firstColumnOnlyCheck_->setEnabled(true);
 
-	verticalLayout_8->addWidget(firstColumnOnlyCheck_);
+	verticalLayout8_->addWidget(firstColumnOnlyCheck_);
 
 	separateHigherDimensionSourcesCheck_ = new QCheckBox(tabDataSources_);
 	separateHigherDimensionSourcesCheck_->setObjectName(QString::fromUtf8("separateHigherDimensionSourcesCheck_"));
 
-	verticalLayout_8->addWidget(separateHigherDimensionSourcesCheck_);
+	verticalLayout8_->addWidget(separateHigherDimensionSourcesCheck_);
 
 	higherDimensionsInRows_ = new QCheckBox(tabDataSources_);
 	higherDimensionsInRows_->setObjectName(QString::fromUtf8("higherDimensionsInRows_"));
 	higherDimensionsInRows_->setChecked(false);
 
-	verticalLayout_8->addWidget(higherDimensionsInRows_);
+	verticalLayout8_->addWidget(higherDimensionsInRows_);
 
 	sourcesSelectorFrame_ = new QFrame(tabDataSources_);
 	sourcesSelectorFrame_->setObjectName(QString::fromUtf8("sourcesSelectorFrame_"));
 	sourcesSelectorFrame_->setEnabled(false);
 	sourcesSelectorFrame_->setFrameShape(QFrame::StyledPanel);
 	sourcesSelectorFrame_->setFrameShadow(QFrame::Raised);
-	verticalLayout_9 = new QVBoxLayout(sourcesSelectorFrame_);
-	verticalLayout_9->setObjectName(QString::fromUtf8("verticalLayout_9"));
+	verticalLayout9_ = new QVBoxLayout(sourcesSelectorFrame_);
+	verticalLayout9_->setObjectName(QString::fromUtf8("verticalLayout_9"));
 	gridLayout_ = new QGridLayout();
 	gridLayout_->setObjectName(QString::fromUtf8("gridLayout_"));
 	detectedSourcesLabel_ = new QLabel(sourcesSelectorFrame_);
@@ -189,19 +188,19 @@ AMExporterOptionGeneralAsciiView::AMExporterOptionGeneralAsciiView(AMExporterOpt
 	sourcesDetailsBox_ = new QGroupBox(sourcesSelectorFrame_);
 	sourcesDetailsBox_->setObjectName(QString::fromUtf8("sourcesDetailsBox_"));
 	sourcesDetailsBox_->setEnabled(false);
-	verticalLayout_3 = new QVBoxLayout(sourcesDetailsBox_);
-	verticalLayout_3->setObjectName(QString::fromUtf8("verticalLayout_3"));
-	verticalLayout_3->setContentsMargins(-1, 6, -1, 6);
+	verticalLayout3_ = new QVBoxLayout(sourcesDetailsBox_);
+	verticalLayout3_->setObjectName(QString::fromUtf8("verticalLayout_3"));
+	verticalLayout3_->setContentsMargins(-1, 6, -1, 6);
 	sourcesRequiredCheck_ = new QCheckBox(sourcesDetailsBox_);
 	sourcesRequiredCheck_->setObjectName(QString::fromUtf8("sourcesRequiredCheck_"));
 
-	verticalLayout_3->addWidget(sourcesRequiredCheck_);
+	verticalLayout3_->addWidget(sourcesRequiredCheck_);
 
 	sourcesOmitAxisValuesCheck_ = new QCheckBox(sourcesDetailsBox_);
 	sourcesOmitAxisValuesCheck_->setObjectName(QString::fromUtf8("sourcesOmitAxisValuesCheck_"));
 	sourcesOmitAxisValuesCheck_->setChecked(false);
 
-	verticalLayout_3->addWidget(sourcesOmitAxisValuesCheck_);
+	verticalLayout3_->addWidget(sourcesOmitAxisValuesCheck_);
 
 
 	verticalLayout4_->addWidget(sourcesDetailsBox_);
@@ -209,27 +208,27 @@ AMExporterOptionGeneralAsciiView::AMExporterOptionGeneralAsciiView(AMExporterOpt
 	sourcesLocationBox_ = new QGroupBox(sourcesSelectorFrame_);
 	sourcesLocationBox_->setObjectName(QString::fromUtf8("sourcesLocationBox_"));
 	sourcesLocationBox_->setEnabled(false);
-	verticalLayout_2 = new QVBoxLayout(sourcesLocationBox_);
-	verticalLayout_2->setSpacing(8);
-	verticalLayout_2->setObjectName(QString::fromUtf8("verticalLayout_2"));
-	verticalLayout_2->setContentsMargins(-1, 6, -1, 6);
+	verticalLayout2_ = new QVBoxLayout(sourcesLocationBox_);
+	verticalLayout2_->setSpacing(8);
+	verticalLayout2_->setObjectName(QString::fromUtf8("verticalLayout_2"));
+	verticalLayout2_->setContentsMargins(-1, 6, -1, 6);
 	sourcesMainTableButton_ = new QRadioButton(sourcesLocationBox_);
 	sourcesMainTableButton_->setObjectName(QString::fromUtf8("sourcesMainTableButton_"));
 	sourcesMainTableButton_->setMinimumSize(QSize(0, 20));
 
-	verticalLayout_2->addWidget(sourcesMainTableButton_);
+	verticalLayout2_->addWidget(sourcesMainTableButton_);
 
 	sourcesSeparateSectionButton_ = new QRadioButton(sourcesLocationBox_);
 	sourcesSeparateSectionButton_->setObjectName(QString::fromUtf8("sourcesSeparateSectionButton_"));
 	sourcesSeparateSectionButton_->setMinimumSize(QSize(0, 20));
 
-	verticalLayout_2->addWidget(sourcesSeparateSectionButton_);
+	verticalLayout2_->addWidget(sourcesSeparateSectionButton_);
 
 	sourcesSeparateFileButton_ = new QRadioButton(sourcesLocationBox_);
 	sourcesSeparateFileButton_->setObjectName(QString::fromUtf8("sourcesSeparateFileButton_"));
 	sourcesSeparateFileButton_->setMinimumSize(QSize(0, 20));
 
-	verticalLayout_2->addWidget(sourcesSeparateFileButton_);
+	verticalLayout2_->addWidget(sourcesSeparateFileButton_);
 
 
 	verticalLayout4_->addWidget(sourcesLocationBox_);
@@ -248,35 +247,35 @@ AMExporterOptionGeneralAsciiView::AMExporterOptionGeneralAsciiView(AMExporterOpt
 	gridLayout_->addWidget(sourcesAvailableListView_, 1, 0, 1, 1);
 
 
-	verticalLayout_9->addLayout(gridLayout_);
+	verticalLayout9_->addLayout(gridLayout_);
 
 
-	verticalLayout_8->addWidget(sourcesSelectorFrame_);
+	verticalLayout8_->addWidget(sourcesSelectorFrame_);
 
 	addTab(tabDataSources_, QString());
 	tabLayout_ = new QWidget();
 	tabLayout_->setObjectName(QString::fromUtf8("tabLayout_"));
-	verticalLayout_6 = new QVBoxLayout(tabLayout_);
-	verticalLayout_6->setObjectName(QString::fromUtf8("verticalLayout_6"));
+	verticalLayout6_ = new QVBoxLayout(tabLayout_);
+	verticalLayout6_->setObjectName(QString::fromUtf8("verticalLayout_6"));
 	groupBox3_ = new QGroupBox(tabLayout_);
 	groupBox3_->setObjectName(QString::fromUtf8("groupBox3_"));
-	horizontalLayout_6 = new QHBoxLayout(groupBox3_);
-	horizontalLayout_6->setObjectName(QString::fromUtf8("horizontalLayout_6"));
+	horizontalLayout6_ = new QHBoxLayout(groupBox3_);
+	horizontalLayout6_->setObjectName(QString::fromUtf8("horizontalLayout_6"));
 	layoutHelpText_ = new QLabel(groupBox3_);
 	layoutHelpText_->setObjectName(QString::fromUtf8("layoutHelpText_"));
 	layoutHelpText_->setWordWrap(true);
 
-	horizontalLayout_6->addWidget(layoutHelpText_);
+	horizontalLayout6_->addWidget(layoutHelpText_);
 
 	layoutHelpButton_ = new QPushButton(groupBox3_);
 	layoutHelpButton_->setObjectName(QString::fromUtf8("layoutHelpButton_"));
 	sizePolicy.setHeightForWidth(layoutHelpButton_->sizePolicy().hasHeightForWidth());
 	layoutHelpButton_->setSizePolicy(sizePolicy);
 
-	horizontalLayout_6->addWidget(layoutHelpButton_);
+	horizontalLayout6_->addWidget(layoutHelpButton_);
 
 
-	verticalLayout_6->addWidget(groupBox3_);
+	verticalLayout6_->addWidget(groupBox3_);
 
 	formLayout_ = new QFormLayout();
 	formLayout_->setObjectName(QString::fromUtf8("formLayout_"));
@@ -426,36 +425,36 @@ AMExporterOptionGeneralAsciiView::AMExporterOptionGeneralAsciiView(AMExporterOpt
 	formLayout_->setLayout(6, QFormLayout::FieldRole, horizontalLayout5_);
 
 
-	verticalLayout_6->addLayout(formLayout_);
+	verticalLayout6_->addLayout(formLayout_);
 
 	addTab(tabLayout_, QString());
 	tabFileName_ = new QWidget();
 	tabFileName_->setObjectName(QString::fromUtf8("tabFileName_"));
-	verticalLayout_7 = new QVBoxLayout(tabFileName_);
-	verticalLayout_7->setObjectName(QString::fromUtf8("verticalLayout_7"));
+	verticalLayout7_ = new QVBoxLayout(tabFileName_);
+	verticalLayout7_->setObjectName(QString::fromUtf8("verticalLayout_7"));
 	groupBox4_ = new QGroupBox(tabFileName_);
 	groupBox4_->setObjectName(QString::fromUtf8("groupBox4_"));
-	horizontalLayout_7 = new QHBoxLayout(groupBox4_);
-	horizontalLayout_7->setObjectName(QString::fromUtf8("horizontalLayout_7"));
+	horizontalLayout7_ = new QHBoxLayout(groupBox4_);
+	horizontalLayout7_->setObjectName(QString::fromUtf8("horizontalLayout_7"));
 	fileNamesHelpText_ = new QLabel(groupBox4_);
 	fileNamesHelpText_->setObjectName(QString::fromUtf8("fileNamesHelpText_"));
 	fileNamesHelpText_->setWordWrap(true);
 
-	horizontalLayout_7->addWidget(fileNamesHelpText_);
+	horizontalLayout7_->addWidget(fileNamesHelpText_);
 
 	fileNamesHelpButton_ = new QPushButton(groupBox4_);
 	fileNamesHelpButton_->setObjectName(QString::fromUtf8("fileNamesHelpButton_"));
 	sizePolicy.setHeightForWidth(fileNamesHelpButton_->sizePolicy().hasHeightForWidth());
 	fileNamesHelpButton_->setSizePolicy(sizePolicy);
 
-	horizontalLayout_7->addWidget(fileNamesHelpButton_);
+	horizontalLayout7_->addWidget(fileNamesHelpButton_);
 
 
-	verticalLayout_7->addWidget(groupBox4_);
+	verticalLayout7_->addWidget(groupBox4_);
 
 	verticalSpacer_ = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
 
-	verticalLayout_7->addItem(verticalSpacer_);
+	verticalLayout7_->addItem(verticalSpacer_);
 
 	formLayout2_ = new QFormLayout();
 	formLayout2_->setObjectName(QString::fromUtf8("formLayout2_"));
@@ -481,11 +480,11 @@ AMExporterOptionGeneralAsciiView::AMExporterOptionGeneralAsciiView(AMExporterOpt
 	formLayout2_->setWidget(1, QFormLayout::FieldRole, fileNameSeparateSectionText_);
 
 
-	verticalLayout_7->addLayout(formLayout2_);
+	verticalLayout7_->addLayout(formLayout2_);
 
 	verticalSpacer2_ = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
 
-	verticalLayout_7->addItem(verticalSpacer2_);
+	verticalLayout7_->addItem(verticalSpacer2_);
 
 	addTab(tabFileName_, QString());
 

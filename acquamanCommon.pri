@@ -784,7 +784,6 @@ FORMS += \
 	source/ui/dataman/AMGenericScanEditor.ui \
 	source/ui/dataman/AMDataSourcesEditor.ui \
 	source/ui/dataman/AMSamplePlateSelector.ui \
-	source/ui/dataman/AMExporterOptionGeneralAsciiView.ui \
 	source/ui/AMLinePropertyEditor.ui \
 	source/ui/dataman/AMImagePropertyEditor.ui \
 	source/ui/actions3/AMAddActionDialog3.ui \
