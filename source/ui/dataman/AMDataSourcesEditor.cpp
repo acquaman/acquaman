@@ -275,15 +275,6 @@ void AMDataSourcesEditor::onAddDataSourceButtonClicked() {
 }
 
 #include "util/AMErrorMonitor.h"
-//#include "analysis/AM1DExpressionAB.h"
-//#include "analysis/AM1DDerivativeAB.h"
-//#include "analysis/AM2DSummingAB.h"
-//#include "analysis/AM1DIntegralAB.h"
-//#include "analysis/AM2DNormalizationAB.h"
-//#include "analysis/AM1DNormalizationAB.h"
-//#include "analysis/AM1DCalibrationAB.h"
-//#include "analysis/AM3DBinningAB.h"
-//#include "analysis/REIXS/REIXSXESImageInterpolationAB.h"
 #include "dataman/database/AMDbObjectSupport.h"
 
 void AMDataSourcesEditor::onNewDataSourceNamed() {
