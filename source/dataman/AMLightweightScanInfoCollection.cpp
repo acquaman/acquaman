@@ -348,6 +348,30 @@ int AMLightweightScanInfoCollection::getExperimentId(int scanId) const
 	return experimentIdMap_.value(scanId, -1);
 }
 
+int AMLightweightScanInfoCollection::getScanIdFromThumbnailId(int thumbnailId)
+{
+	QSqlQuery selectQuery = database_->select("AMDbObjectThumbnails_table", "objectId, objectTableName", QString("id = %1").arg(thumbnailId));
+	int scanId = -1;
+	if(selectQuery.exec())
+	{
+
+		while(selectQuery.next())
+		{
+			int objectId = selectQuery.value(0).toInt();
+			QString objectTableName = selectQuery.value(1).toString();
+
+			if(objectTableName == AMDbObjectSupport::s()->tableNameForClass("AMScan"))
+			scanId = objectId;
+		}
+	}
+	else
+	{
+		AMErrorMon::alert(this, AMLIGHTWEIGHTSCANINFOCOLLECTION_RUNS_SQL_ERROR, QString("Could not complete query to load single run, with error: %1").arg(selectQuery.lastError().text()));
+	}
+	selectQuery.finish();
+	return scanId;
+}
+
 void AMLightweightScanInfoCollection::onDbItemAdded(const QString &tableName, int id)
 {
 
@@ -363,6 +387,12 @@ void AMLightweightScanInfoCollection::onDbItemAdded(const QString &tableName, in
 	else if(tableName == AMDbObjectSupport::s()->tableNameForClass("AMRun"))
 	{
 		populateSingleRun(id);
+	}
+	else if(tableName == "AMDbObjectThumbnails_table")
+	{
+		int scanId = getScanIdFromThumbnailId(id);
+		if(scanId >=0)
+			emit scanThumbnailAdded(scanId);
 	}
 	else if(sampleNameMap_.keys().contains(tableName))
 	{

@@ -40,6 +40,8 @@ signals:
 	void scanAboutToBeRemoved(int rowIndex);
 	/// Emitted whenever a scan info is finished being removed from the collection
 	void scanRemoved();
+	/// Emitted whenever a scan has a new thumbnail added to it
+	void scanThumbnailAdded(int scanId);
 protected slots:
 	/// Slot to handle the database signal indicating that a new item has been added to the database
 	void onDbItemAdded(const QString& tableName, int id);
@@ -75,6 +77,9 @@ protected:
 	QString getSampleName(const QString& sampleResult) const;
 	/// Looks up the ExperimentId for a given scanId, returns -1 if no mapping is found in the hash table
 	int getExperimentId(int scanId) const;
+	/// Returns the Id of the scan to which a given thumbnail id refers. If the given thumbnailId
+	/// does not refer to a scan, then -1 is returned.
+	int getScanIdFromThumbnailId(int thumbnailId);
 private:
 	/// The database from which the scan infos will be retrieved
 	AMDatabase* database_;
