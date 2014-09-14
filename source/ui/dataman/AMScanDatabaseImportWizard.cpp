@@ -82,7 +82,6 @@ AMScanDatabaseImportWizardChooseSourcePage::AMScanDatabaseImportWizardChooseSour
 	progressLabel_ = new QLabel();
 
 	setTitle("Import Acquaman Bundle");
-//	setSubTitle("This tool lets you import a complete Acquaman Bundle (for example, from another computer or a beamline run) into your database. All of the raw data and scan information will be copied, and you will have a chance to review possible duplicates.\n\nOn this page, you should choose the bundle folder. It should contain a file called '" % AMUserSettings::userDatabaseFilename % "'.");
 
 	sourcePathLineEdit_ = new QLineEdit();
 	browseButton_ = new QPushButton("Browse");
@@ -120,7 +119,6 @@ AMScanDatabaseImportWizardChooseSourcePage::AMScanDatabaseImportWizardChooseSour
 
 void AMScanDatabaseImportWizardChooseSourcePage::initializePage()
 {
-	// QTimer::singleShot(100, this, SLOT(displaySourcePathDialog()));
 }
 
 bool AMScanDatabaseImportWizardChooseSourcePage::validatePage()
@@ -205,7 +203,6 @@ AMScanDatabaseImportWizardReviewRunsPage::AMScanDatabaseImportWizardReviewRunsPa
 	progressLabel_ = new QLabel();
 
 	setTitle("Review Runs");
-//	setSubTitle("These are the runs we found in the bundle.\n\nAny runs that are already in your library are shown on the right and will be merged automatically. If you want to keep these separate instead, check the 'Keep Separate' box and a new run will be added.");
 
 	runsFoundList_ = new QListWidget();
 	runsToMergeList_ = new QListWidget();
@@ -290,7 +287,6 @@ AMScanDatabaseImportWizardReviewExperimentsPage::AMScanDatabaseImportWizardRevie
 	progressLabel_ = new QLabel();
 
 	setTitle("Review Experiments");
-//	setSubTitle("These are the experiments we found in the bundle.\n\nAny experiments that are already in your library are shown on the right and will be merged automatically. If you want to keep these separate instead, check the 'Keep Separate' box \nand a new experiment will be added.");
 
 	itemsFoundList_ = new QListWidget();
 	itemsToMergeList_ = new QListWidget();
@@ -322,15 +318,6 @@ AMScanDatabaseImportWizardReviewExperimentsPage::AMScanDatabaseImportWizardRevie
 	connect(controller_, SIGNAL(stepProgress(int)), progressBar_, SLOT(setValue(int)));
 	connect(controller_, SIGNAL(progressDescription(QString)), progressLabel_, SLOT(setText(QString)));
 }
-
-
-
-
-
-
-
-
-
 
 void AMScanDatabaseImportWizardReviewSamplesPage::initializePage()
 {
@@ -379,7 +366,6 @@ AMScanDatabaseImportWizardReviewSamplesPage::AMScanDatabaseImportWizardReviewSam
 	progressLabel_ = new QLabel();
 
 	setTitle("Review Samples");
-//	setSubTitle("These are the samples we found in the bundle.\n\nAny samples that are already in your library are shown on the right and will be merged automatically. If you want to keep these separate instead, check the 'Keep Separate' box and a new sample will be added.");
 
 	itemsFoundList_ = new QListWidget();
 	itemsToMergeList_ = new QListWidget();
@@ -414,13 +400,6 @@ AMScanDatabaseImportWizardReviewSamplesPage::AMScanDatabaseImportWizardReviewSam
 	setCommitPage(true);
 }
 
-
-
-
-
-
-
-
 void AMScanDatabaseImportWizardDoImportPage::initializePage()
 {
 	QTimer::singleShot(0, this, SLOT(startImport()));
@@ -444,8 +423,6 @@ AMScanDatabaseImportWizardDoImportPage::AMScanDatabaseImportWizardDoImportPage(A
 	progressLabel_ = new QLabel();
 
 	setTitle("Importing...");
-//	setSubTitle("Pleases wait while this Acquaman Bundle is imported into your library.");
-
 
 	QHBoxLayout* hl2 = new QHBoxLayout();
 	hl2->addWidget(progressLabel_);

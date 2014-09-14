@@ -36,8 +36,8 @@ class AMStandardAnalysisBlock : public AMAnalysisBlock
 {
 	Q_OBJECT
 public:
-	/// Create a new AMAnalysisBlock. The block is also an AMDataSource of output data; \c outputName is the name for this AMDataSource.
- 	virtual ~AMStandardAnalysisBlock();
+	/// Create a new AMAnalysisBlock. The block is also an AMDataSource of output data, \c outputName is the name for this AMDataSource.
+	virtual ~AMStandardAnalysisBlock();
 	AMStandardAnalysisBlock(const QString& outputName, QObject *parent = 0);
 
 	// Access to input data sources
@@ -52,7 +52,7 @@ public:
 	/// Access input data source by index.  If \c index >= inputDataCount(), returns null pointer.
 	virtual AMDataSource* inputDataSourceAt(int index) const { if(index<0 || index>=sources_.count()) return 0; return sources_.at(index); }
 
-	/// Retrieve index of an input data source by name. (Hopefully no two data sources have the same name; if they do, this returns the first one.) Returns -1 if no input source found with this name.
+	/// Retrieve index of an input data source by name. (Hopefully no two data sources have the same name, if they do, this returns the first one.) Returns -1 if no input source found with this name.
 	/*! This might be involve a slow lookup; users should not call repeatedly.*/
 	virtual int indexOfInputSource(const QString& dataSourceName) const {
 		for(int i=0; i<inputDataSourceCount(); i++)
@@ -87,20 +87,16 @@ public:
 
 	/// Returns the size along a single axis \c axisNumber. This should be fast.
 	virtual int size(int axisId) const {
-		// if((unsigned)axisId >= (unsigned)axes_.count())
-		//	return 0;
 		return axes_.at(axisId).size;
 	}
 
 	/// Returns a bunch of information about a particular axis.
 	virtual AMAxisInfo axisInfoAt(int axisId) const {
-		// if((unsigned)axisId >= (unsigned)axes_.count())
-		// 	return AMAxisInfo("invalid", 0, "invalid axis");
 		return axes_.at(axisId);
 	}
 
 	/// Returns the id of an axis, by name. (By id, we mean the index of the axis. We called it id to avoid ambiguity with indexes <i>into</i> axes.) This could be slow, so users shouldn't call it repeatedly.
-	virtual int idOfAxis(const QString& axisName) {
+	virtual int idOfAxis(const QString& axisName) const {
 		for(int i=0; i<axes_.count(); i++)
 			if(axes_.at(i).name == axisName)
 				return i;

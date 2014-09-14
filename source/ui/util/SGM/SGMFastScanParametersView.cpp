@@ -46,9 +46,6 @@ SGMFastScanParametersView::SGMFastScanParametersView(SGMFastScanParameters *fast
 	endPositionCopy_ = fastScanParameters_->scanInfo().end();
 	fastScanSettingsCopy_ = fastScanParameters_->fastScanSettings();
 
-	//startPositionView_ = new SGMEnergyPositionView(&startPositionCopy_, SGMEnergyPositionView::ViewModeStartOrEnd);
-	//middlePositionView_ = new SGMEnergyPositionView(&middlePositionCopy_, SGMEnergyPositionView::ViewModeMiddle);
-	//endPositionView_ = new SGMEnergyPositionView(&endPositionCopy_, SGMEnergyPositionView::ViewModeStartOrEnd);
 	startPositionView_ = new SGMEnergyPositionWBeamlineAndDatabaseView(&startPositionCopy_, SGMEnergyPositionView::ViewModeStartOrEnd);
 	middlePositionView_ = new SGMEnergyPositionWBeamlineAndDatabaseView(&middlePositionCopy_, SGMEnergyPositionView::ViewModeMiddle);
 	endPositionView_ = new SGMEnergyPositionWBeamlineAndDatabaseView(&endPositionCopy_, SGMEnergyPositionView::ViewModeStartOrEnd);
@@ -150,7 +147,6 @@ void SGMFastScanParametersView::onSaveButtonClicked(){
 	QStringList startAlsoList, middleAlsoList, endAlsoList;
 	SGMEnergyPositionWBeamlineAndDatabaseView *dbSaveView;
 	if(fastScanParameters_->scanInfo().start() != startPositionCopy_){
-//		fastScanParameters_->setStartPosition(startPositionCopy_);
 		dbSaveView = qobject_cast<SGMEnergyPositionWBeamlineAndDatabaseView*>(startPositionView_);
 		if(dbSaveView && dbSaveView->alsoUsedByList().count() > 1){
 			startAlsoList = dbSaveView->alsoUsedByList();
@@ -159,7 +155,6 @@ void SGMFastScanParametersView::onSaveButtonClicked(){
 		isModified = true;
 	}
 	if(fastScanParameters_->scanInfo().middle() != middlePositionCopy_){
-//		fastScanParameters_->setMiddlePosition(middlePositionCopy_);
 		dbSaveView = qobject_cast<SGMEnergyPositionWBeamlineAndDatabaseView*>(middlePositionView_);
 		if(dbSaveView && dbSaveView->alsoUsedByList().count() > 1){
 			middleAlsoList = dbSaveView->alsoUsedByList();
@@ -168,7 +163,6 @@ void SGMFastScanParametersView::onSaveButtonClicked(){
 		isModified = true;
 	}
 	if(fastScanParameters_->scanInfo().end() != endPositionCopy_){
-//		fastScanParameters_->setEndPosition(endPositionCopy_);
 		dbSaveView = qobject_cast<SGMEnergyPositionWBeamlineAndDatabaseView*>(endPositionView_);
 		if(dbSaveView && dbSaveView->alsoUsedByList().count() > 1){
 			endAlsoList = dbSaveView->alsoUsedByList();
@@ -177,7 +171,6 @@ void SGMFastScanParametersView::onSaveButtonClicked(){
 		isModified = true;
 	}
 	if(fastScanParameters_->fastScanSettings() != fastScanSettingsCopy_){
-//		fastScanParameters_->setFastScanSettings(fastScanSettingsCopy_);
 		isModified = true;
 	}
 

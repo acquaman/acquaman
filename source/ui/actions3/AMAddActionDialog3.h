@@ -45,7 +45,7 @@ signals:
 	void actionAddedFromDialog(AMAction3 *action);
 
 protected slots:
-	/// Called when the selected item is changed in the list view; this updates the item-specific title and description shown on the right of the dialog, and enables the 'Add to Workflow' button.
+	/// Called when the selected item is changed in the list view, this updates the item-specific title and description shown on the right of the dialog, and enables the 'Add to Workflow' button.
 	void onListWidgetCurrentIndexChanged(QListWidgetItem* current, QListWidgetItem* previous);
 
 	/// Called when the workflow button is clicked. Attempts to instantiate the action based on a default-constructed AMActionInfo, and add it to the workflow.

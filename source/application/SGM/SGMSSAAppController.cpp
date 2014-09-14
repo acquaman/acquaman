@@ -45,7 +45,7 @@ bool SGMSSAAppController::startup() {
 
 	if(AMAppController::startup()) {
 
-		// Testing and making the first run in the database, if there isn't one already.  Make this it's own function if you think startup() is getting too big ; )
+		// Testing and making the first run in the database, if there isn't one already.  Make this it's own function if you think startup() is getting too big )
 		////////////////////////////////////////
 
 		AMRun existingRun;

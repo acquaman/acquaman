@@ -27,7 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/IDEAS/IDEASXRFScanConfiguration.h"
 #include "actions3/actions/AMScanAction.h"
 
-
+#include <QPushButton>
 #include <QSignalMapper>
 #include <QPlainTextEdit>
 #include <QLineEdit>
@@ -56,6 +56,7 @@ protected slots:
 	void onPeakingTimeBoxChanged(const QString &arg1);
 	void onAcquisitionSucceeded();
 	void onKETEKPeakingTimeChanged();
+	void onDeadTimeCheckButtonClicked();
 
 protected:
 	/// Method that builds the Scan Save Button and associated things.
@@ -63,6 +64,10 @@ protected:
 
 	/// The button for saving the scan.
 	QPushButton *saveScanButton_;
+
+	/// button to trigger a 0.1s XRF acquitisition to check to too-high count rates.
+	QPushButton *deadTimeCheckButton;
+
 
 	/// A  scan configuration notes editor
 	QPlainTextEdit *notesEdit;

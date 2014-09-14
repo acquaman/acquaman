@@ -40,7 +40,6 @@ REIXSSidebar::REIXSSidebar(QWidget *parent) :
 	// Setup additional UI elements
 	////////////////////////
 	ui->setupUi(this);
-	//ui->verticalLayout->insertWidget(1, new REIXSXESSpectrometerControlEditor(REIXSBeamline::bl()->spectrometer()));
 
 	beamlineEnergyEditor_ = new REIXSActionBasedControlEditor(REIXSBeamline::bl()->photonSource()->energy());
 	ui->beamlineFormLayout->setWidget(1, QFormLayout::FieldRole, beamlineEnergyEditor_);
@@ -82,15 +81,6 @@ REIXSSidebar::REIXSSidebar(QWidget *parent) :
 	detectorsGroupBox->setLayout(detectorPanelLayout);
 	ui->verticalLayout->addWidget(detectorsGroupBox);
 
-	//	DetectorPanelLayout->addLayout(ui->gridLayout);
-//	ui->gridLayout->addWidget(new REIXSScalerView(),1,1,2,2);
-//	ui->detectorSignalsGroupBox->setLayout(DetectorPanelLayout);
-//	ui->verticalLayout->addWidget(new REIXSScalerView());
-
-
-
-
-
 	// Make connections
 	//////////////////////
 
@@ -117,16 +107,7 @@ REIXSSidebar::~REIXSSidebar()
 
 void REIXSSidebar::onMCPCountsPerSecondChanged(double countsPerSecond)
 {
-	//ui->signalXESValue->setText(QString("%1").arg(countsPerSecond, 0, 'f', 0));
-	//ui->signalXESValue->setText(QLocale(QLocale::English).toString(countsPerSecond, 'f', 0));
 	XESValue->setText("XES\t\t" + QLocale(QLocale::English).toString(countsPerSecond, 'f', 0) + " counts");
-
-//	if(countsPerSecond == 0)
-//		countsPerSecond = 1;	// log(0) is undefined.
-
-	//ui->signalXESBar->setValue(int(log10(countsPerSecond)*100));	// integer scale goes up to 600.  Highest count rate we'll see is 1e6.
-
-
 }
 
 void REIXSSidebar::onBeamOnButtonClicked()
@@ -159,26 +140,11 @@ void REIXSSidebar::onBeamOnChanged(bool isOn)
 	}
 }
 
-//void REIXSSidebar::onTEYCountsChanged(double counts)
-//{
-//	ui->signalTEYBar->setValue(int(counts*600./1.e6));
-//	ui->signalTEYValue->setText(QString::number(counts, 'e', 2));
-//}
-
 void REIXSSidebar::onTFYCountsChanged(double counts)
 {
-	//ui->signalTFYBar->setValue(int(counts*600./1.e6));
-	//ui->signalTFYValue->setText(QString::number(counts, 'e', 2));
-	//ui->signalTFYValue->setText(QLocale(QLocale::English).toString(counts, 'f', 0));
 	TFYValue->setText("TFY\t\t" + QLocale(QLocale::English).toString(counts, 'f', 0) + " counts");
 
 }
-
-//void REIXSSidebar::onI0CountsChanged(double counts)
-//{
-//	ui->signalI0Bar->setValue(int(counts*600./1.e6));
-//	ui->signalI0Value->setText(QString::number(counts, 'e', 2));
-//}
 
 void REIXSSidebar::onScalerContinuousButtonToggled(bool on)
 {
@@ -199,6 +165,6 @@ void REIXSSidebar::on_MonoStopButton_clicked()
 
 void REIXSSidebar::onRingCurrentChanged(double current)
 {
-	ui->ringCurrentValue->setText((QString("%1 mA").arg(int(current)))); //REIXSBeamline::bl()->photonSource()->ringCurrent()));
+	ui->ringCurrentValue->setText((QString("%1 mA").arg(int(current))));
 }
 

@@ -38,7 +38,7 @@ public:
 
 	/// Returns the current position of the sample manipulator, as an AMControlInfoList.
 	virtual AMControlInfoList position() const = 0;
-	/// Sends a request to move the sample manipulator into position \c newPosition. Returns true if the request is accepted; false if it cannot be started for any reason.
+	/// Sends a request to move the sample manipulator into position \c newPosition. Returns true if the request is accepted, false if it cannot be started for any reason.
 	virtual bool moveToPosition(const AMControlInfoList& newPosition) = 0;
 
 	/// \todo Something to indicate valid/connected? Should we have signals for this too?

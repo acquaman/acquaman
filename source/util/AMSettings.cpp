@@ -97,8 +97,8 @@ void AMUserSettings::load() {
 
 	// All settings variables are loaded here from disk. Default values must be provided -- they will be used if the particular setting doesn't exist yet.
 	// Don't forget to add here if you add new user options.
+	// variable = settings.value(key, defaultValue).toType()
 
-	// variable = settings.value(key, defaultValue).toType();
 	remoteDataFolder = settings.value("remoteDataFolder", "").toString();
 	userDataFolder = settings.value("userDataFolder", QDir::homePath() + "/beamline/programming/acquaman/devUserData/").toString();
 	userDatabaseFilename = settings.value("userDatabaseFilename", "userdata.db").toString();
@@ -116,8 +116,6 @@ void AMUserSettings::save() {
 
 	settings.setValue("userDataFolder", userDataFolder);
 	settings.setValue("userDatabaseFilename", userDatabaseFilename);
-
-	// settings.setValue("userName", userName);
 }
 
 
@@ -129,7 +127,7 @@ void AMSettings::load() {
 
 	QWriteLocker wl(&mutex_);
 
-	// changing to NativeFormat; IniFormat is broken on Mac OS X Lion for SystemScope.  Filed Qt Bug: https://bugreports.qt.nokia.com/browse/QTBUG-21744
+	// changing to NativeFormat, IniFormat is broken on Mac OS X Lion for SystemScope.  Filed Qt Bug: https://bugreports.qt.nokia.com/browse/QTBUG-21744
 #ifdef Q_WS_MAC
 	QSettings settings(QSettings::NativeFormat, QSettings::SystemScope, "Acquaman", "Acquaman");
 #else
@@ -139,7 +137,7 @@ void AMSettings::load() {
 	// All settings variables are loaded here from disk. Default values must be provided -- they will be used if the particular setting doesn't exist yet.
 	// Don't forget to add here if you add new user options.
 
-	// variable = settings.value(key, defaultValue).toType();
+	// variable = settings.value(key, defaultValue).toType()
 
 	publicDataFolder_ = settings.value("publicDataFolder", "/home/acquaman/data/").toString();
 	publicDatabaseFilename_ = settings.value("publicDatabaseFilename", "publicdata.db").toString();
@@ -155,7 +153,7 @@ void AMSettings::save() {
 
 	QReadLocker rl(&mutex_);
 
-	// changing to NativeFormat; IniFormat is broken on Mac OS X Lion for SystemScope.  Filed Qt Bug: https://bugreports.qt.nokia.com/browse/QTBUG-21744
+	// changing to NativeFormat, IniFormat is broken on Mac OS X Lion for SystemScope.  Filed Qt Bug: https://bugreports.qt.nokia.com/browse/QTBUG-21744
 #ifdef Q_WS_MAC
 	QSettings settings(QSettings::NativeFormat, QSettings::SystemScope, "Acquaman", "Acquaman");
 #else

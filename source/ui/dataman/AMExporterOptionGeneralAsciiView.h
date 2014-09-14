@@ -49,7 +49,7 @@ protected:
 
 
 protected slots:
-	/// disable add button when none selected; enable when are.
+	/// disable add button when none selected, enable when are.
 	void onSourcesAvailableSelectedChanged();
 
 	/// add source
@@ -59,7 +59,7 @@ protected slots:
 	/// dialog prompt and add source
 	void onSourcesAddExtraButtonClicked();
 
-	/// if index valid: enable edit boxes; block signals and set info boxes to match source; re-enable signals; enable remove button.  If not valid: disable remove button, disable edit boxes
+	/// if index valid: enable edit boxes, block signals and set info boxes to match source, re-enable signals, enable remove button.  If not valid: disable remove button, disable edit boxes
 	void onSourcesSelectedChanged(int index);
 
 	/// if source selected, set its required state
@@ -69,12 +69,12 @@ protected slots:
 	/// if source selected, set source's organize mode to match locationMode
 	void onSourcesLocationChanged(int locationMode);
 
-	/// if separatorButton is not other: set option's separator; disable otherBox. If separatorButton is other, enable otherBox, set option's separator to text of otherBox, selectAll in otherBox.
+	/// if separatorButton is not other: set option's separator, disable otherBox. If separatorButton is other, enable otherBox, set option's separator to text of otherBox, selectAll in otherBox.
 	void onColumnSeparatorChanged(int separatorButton);
 	/// if "other" mode selected: set option's separator to otherText
 	void onColumnSeparatorOtherTextChanged(const QString& otherText);
 
-	/// if newlineButton is not "other": set option's newline; disable otherBox.  If newlineButton is "other", enable otherBox, set option's newline to text of otherBox; selectAll in otherBox.
+	/// if newlineButton is not "other": set option's newline, disable otherBox.  If newlineButton is "other", enable otherBox, set option's newline to text of otherBox, selectAll in otherBox.
 	void onNewlineButtonChanged(int newlineButton);
 	/// if "other" mode selected: set option's newline to otherText.
 	void onNewlineOtherTextChanged(const QString& otherText);

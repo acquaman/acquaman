@@ -51,8 +51,6 @@ protected slots:
 protected:
 	/// Holds the list of scaler channel views.
 	QList<CLSSIS3820ScalerChannelView *> singleViews_;
-//	/// Holds the pointer to the composite channel scaler view.
-//	CLSSIS3820CompositeScalerChannelView *compositeView_;
 };
 
 #endif // REIXSSCALERVIEW_H

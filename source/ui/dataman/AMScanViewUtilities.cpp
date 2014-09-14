@@ -92,9 +92,6 @@ AMScanViewScanBar::AMScanViewScanBar(AMScanSetModel* model, int scanIndex, QWidg
 	connect(model, SIGNAL(exclusiveDataSourceChanged(QString)), this, SLOT(onExclusiveDataSourceChanged(QString)));
 
 	connect(&sourceButtons_, SIGNAL(buttonClicked(int)), this, SLOT(onSourceButtonClicked(int)));
-
-	// connect(closeButton_, SIGNAL(clicked()), this, SLOT(onCloseButtonClicked()));
-
 }
 
 
@@ -138,7 +135,6 @@ void AMScanViewScanBar::onRowInserted(const QModelIndex& parent, int start, int 
 
 		newButton->setContextMenuPolicy(Qt::CustomContextMenu);
 		connect(newButton, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onDataSourceButtonRightClicked(QPoint)));
-		// qdebug() << "added a data source. exclusiveModeOn is: " << exclusiveModeOn_ << ", source name is:" << source->dataSourceAt(i)->name() << ", exclusiveDataSourceName is:" << model_->exclusiveDataSourceName();
 	}
 
 }
@@ -239,7 +235,6 @@ void AMScanViewScanBar::setExclusiveModeOn(bool exclusiveModeOn) {
 	// turning exclusiveMode off:
 	if(!exclusiveModeOn && exclusiveModeOn_) {
 		exclusiveModeOn_ = false;
-		//chButtons_.setExclusive(false);
 		int numSourceButtons = sourceButtons_.buttons().count();
 		for(int di=0; di<numSourceButtons; di++) {
 			sourceButtons_.button(di)->setChecked( model_->isVisible(scanIndex_, di) );

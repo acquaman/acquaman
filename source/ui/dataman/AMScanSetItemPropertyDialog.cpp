@@ -67,7 +67,6 @@ AMScanSetItemPropertyDialog::AMScanSetItemPropertyDialog(AMScanSetModel* model, 
 	connect(model_, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(onModelDataChanged(QModelIndex,QModelIndex)));
 
 	 setAttribute(Qt::WA_TranslucentBackground);
-	 // setWindowFlags(Qt::FramelessWindowHint);
 
 	 resize(minimumSizeHint());
 

@@ -97,7 +97,6 @@ bool SGM2010FastFileLoader::loadFromFile(const QString& filepath, bool setMetaDa
 		if(fs.atEnd()) {
 			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -2, "SGM2010FastFileLoader parse error while loading scan data from file. Could not find the comment."));
 			fs.seek(0);
-			// return false;	// bad format; missing the comment string
 		}
 		else {
 
@@ -115,7 +114,7 @@ bool SGM2010FastFileLoader::loadFromFile(const QString& filepath, bool setMetaDa
 		line = fs.readLine();
 	if(fs.atEnd()) {
 		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -2, "SGM2010FastFileLoader parse error while loading scan data from file. Missing #(1) event line."));
-		return false;	// bad format; missing the #1 event header
+		return false;	// bad format. Missing the #1 event header
 	}
 	colNames1 = line.split(QChar(' '));
 	// the first column is not a column name, it's just the event description header ("#(1)")
@@ -130,7 +129,7 @@ bool SGM2010FastFileLoader::loadFromFile(const QString& filepath, bool setMetaDa
 		line = fs.readLine();
 	if(fs.atEnd()) {
 		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -2, "SGM2010FastFileLoader parse error while loading scan data from file. Missing #(2) event line."));
-		return false;	// bad format; missing the #2 event header
+		return false;	// bad format. Missing the #2 event header
 	}
 	colNames2 = line.split(QChar(' '));
 	// the first column is not a column name, it's just the event description header ("#(1)")
@@ -142,7 +141,7 @@ bool SGM2010FastFileLoader::loadFromFile(const QString& filepath, bool setMetaDa
 	int eVIndex = colNames1.indexOf("eV");
 	if(eVIndex < 0) {
 		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -3, "SGM2010FastFileLoader parse error while loading scan data from file. I couldn't find the energy (eV) column."));
-		return false;	// bad format; no primary column
+		return false;	// bad format. No primary column
 
 	}
 
@@ -163,7 +162,6 @@ bool SGM2010FastFileLoader::loadFromFile(const QString& filepath, bool setMetaDa
 			for(int i=1; i<colNames1.count(); i++) {
 				if(colNames1.at(i) == "encoder"){
 					encoderEndpoint = int(lp.at(i).toDouble());
-//					qdebug() << "Encoder endpoint set to " << encoderEndpoint;
 				}
 			}
 		}
@@ -195,7 +193,6 @@ bool SGM2010FastFileLoader::loadFromFile(const QString& filepath, bool setMetaDa
 					scalerFileInfo.setFile(AMUserSettings::userDataFolder + "/" + scalerFile);
 			}
 		if(scalerFile != ""){
-			//QFile sf(scalerFile);
 			QFile sf(scalerFileInfo.filePath());
 			if(!sf.open(QIODevice::ReadOnly)) {
 				AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -1, "SGM2010FastFileLoader parse error while loading scan data from file. Could not open spectra.dat file."));
@@ -209,7 +206,6 @@ bool SGM2010FastFileLoader::loadFromFile(const QString& filepath, bool setMetaDa
 			sfls.setString(&sfl, QIODevice::ReadOnly);
 			sfls >> numScalerReadings;
 			if(numScalerReadings == 4000){
-//				qdebug() << "Going for fast scan without energy calib";
 				for(int x = 0; x < numScalerReadings; x++){
 					if(x%4 == 0){
 						scan->rawData()->beginInsertRows(1, -1);
@@ -223,8 +219,6 @@ bool SGM2010FastFileLoader::loadFromFile(const QString& filepath, bool setMetaDa
 			}
 			else if(numScalerReadings == 6000){
 
-//				qdebug() << "Going for fast scan with energy calib";
-				//int encoderStartPoint = 0;
 				int encoderReading = 0;
 				double energyFbk = 0.0;
 
@@ -251,7 +245,6 @@ bool SGM2010FastFileLoader::loadFromFile(const QString& filepath, bool setMetaDa
 				QList<double> readings;
 
 				if(!hasEncoderInfo){
-//					qdebug() << "Need to back calculate encoder startpoint";
 					encoderStartPoint = encoderEndpoint;
 					for(int x = 0; x < numScalerReadings; x++){
 						sfls >> scalerVal;
@@ -263,7 +256,6 @@ bool SGM2010FastFileLoader::loadFromFile(const QString& filepath, bool setMetaDa
 							encoderStartPoint -= scalerVal;
 					}
 				}
-//				qdebug() << "Encoder startpoint was " << encoderStartPoint;
 				encoderReading = encoderStartPoint;
 				sfls.setString(&sfl, QIODevice::ReadOnly);
 				sfls >> scalerVal;
@@ -272,48 +264,33 @@ bool SGM2010FastFileLoader::loadFromFile(const QString& filepath, bool setMetaDa
 						readings.clear();
 					sfls >> scalerVal;
 					if( x%6 == 0 || x%6 == 1 || x%6 == 2 || x%6 == 3 ){
-					//if( x%6 == 0 || x%6 == 1 || x%6 == 4 || x%6 == 5 ){
 						readings.append(scalerVal);
 					}
-					//if( (x%6 == 4) && (scalerVal < 40) )
 					if( x%6 == 4 )
 						encoderReading -= scalerVal;
-					//if( (x%6 == 5) && (scalerVal < 40) )
 					if ( x%6 == 5 )
 						encoderReading += scalerVal;
 					if( x%6 == 5 ){
-						//energyFbk = (1.0e-9*1239.842*511.292)/(2*9.16358e-7*2.46204e-5*-1.59047*(double)encoderReading*cos(3.05478/2));
 						energyFbk = (1.0e-9*1239.842*sParam)/(2*spacingParam*c1Param*c2Param*(double)encoderReading*cos(thetaParam/2));
-						//if( ( (readings.at(0) > 200) && (scan->rawData()->scanSize(0) == 0) ) || ( (scan->rawData()->scanSize(0) > 0) && (fabs(energyFbk - (double)scan->rawData()->axisValue(0, scan->rawData()->scanSize(0)-1)) > 0.001) ) ){
-							scan->rawData()->beginInsertRows(1, -1);
-							scan->rawData()->setAxisValue(0, scan->rawData()->scanSize(0)-1, energyFbk);
-							//scan->rawData()->setValue(AMnDIndex(scan->rawData()->scanSize(0)-1), 0, AMnDIndex(), readings.at(0));
-							scan->rawData()->setValue(AMnDIndex(scan->rawData()->scanSize(0)-1), 0, AMnDIndex(), std::max(readings.at(0), 1.0));
-							scan->rawData()->setValue(AMnDIndex(scan->rawData()->scanSize(0)-1), 1, AMnDIndex(), readings.at(1));
-							scan->rawData()->setValue(AMnDIndex(scan->rawData()->scanSize(0)-1), 2, AMnDIndex(), readings.at(2));
-							scan->rawData()->setValue(AMnDIndex(scan->rawData()->scanSize(0)-1), 3, AMnDIndex(), readings.at(3));
-							scan->rawData()->endInsertRows();
-						//}
+						scan->rawData()->beginInsertRows(1, -1);
+						scan->rawData()->setAxisValue(0, scan->rawData()->scanSize(0)-1, energyFbk);
+						scan->rawData()->setValue(AMnDIndex(scan->rawData()->scanSize(0)-1), 0, AMnDIndex(), std::max(readings.at(0), 1.0));
+						scan->rawData()->setValue(AMnDIndex(scan->rawData()->scanSize(0)-1), 1, AMnDIndex(), readings.at(1));
+						scan->rawData()->setValue(AMnDIndex(scan->rawData()->scanSize(0)-1), 2, AMnDIndex(), readings.at(2));
+						scan->rawData()->setValue(AMnDIndex(scan->rawData()->scanSize(0)-1), 3, AMnDIndex(), readings.at(3));
+						scan->rawData()->endInsertRows();
 					}
 				}
-
 			}
-			/*
-			AMAxisInfo sddEVAxisInfo("energy", 1024, "SDD Energy", "eV");
-			QList<AMAxisInfo> sddAxes;
-			sddAxes << sddEVAxisInfo;
-			AMMeasurementInfo sddInfo("sdd", "Silicon Drift Detector", "counts", sddAxes);
-			scan->rawData()->addMeasurement(sddInfo);
-			*/
 		}
 		else{
 			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -3, "SGM2010FastFileLoader parse error while loading scan data from file. I couldn't find the spectra.dat file."));
-			return false;	// bad format; no spectra.dat file
+			return false;	// bad format. No spectra.dat file
 		}
 	}
 	else{
 		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -3, "SGM2010FastFileLoader parse error while loading scan data from file. I couldn't find the spectrum offset column."));
-		return false;	// bad format; no spectrum offset column
+		return false;	// bad format. No spectrum offset column
 	}
 
 	if(setMetaData) {
@@ -371,50 +348,6 @@ bool SGM2010FastFileLoader::loadFromFile(const QString& filepath, bool setMetaDa
 			scan->addAnalyzedDataSource(tfyChannel);
 		}
 	}
-
-	/*
-	if(scan->rawDataSources()->indexOfKey("TEY") != -1){
-		QList<AMDataSource*> filterInput;
-		filterInput << scan->rawDataSources()->at(scan->rawDataSources()->indexOfKey("TEY"));
-		SGM1DFastScanFilterAB *teyFastFilter = new SGM1DFastScanFilterAB("TEYFastFilter");
-		teyFastFilter->setDescription("Fast TEY");
-		teyFastFilter->setInputDataSources(filterInput);
-		scan->addAnalyzedDataSource(teyFastFilter);
-
-		filterInput.clear();
-		filterInput << teyFastFilter;
-		AM1DRunningAverageFilterAB *teyFilter = new AM1DRunningAverageFilterAB(3, "TEYAvgFilter");
-		teyFilter->setDescription("Smoothed TEY");
-		teyFilter->setInputDataSources(filterInput);
-		scan->addAnalyzedDataSource(teyFilter);
-
-		filterInput.clear();
-		filterInput << scan->rawDataSources()->at(scan->rawDataSources()->indexOfKey("I0"));
-		SGM1DFastScanFilterAB *i0FastFilter = new SGM1DFastScanFilterAB("I0FastFilter");
-		i0FastFilter->setDescription("Fast I0");
-		i0FastFilter->setInputDataSources(filterInput);
-		scan->addAnalyzedDataSource(i0FastFilter);
-
-		filterInput.clear();
-		filterInput << i0FastFilter;
-		AM1DRunningAverageFilterAB *i0Filter = new AM1DRunningAverageFilterAB(3, "I0AvgFilter");
-		i0Filter->setDescription("Smoothed I0");
-		i0Filter->setInputDataSources(filterInput);
-		scan->addAnalyzedDataSource(i0Filter);
-
-		filterInput.clear();
-		filterInput << teyFilter << i0Filter;
-		AM1DExpressionAB* teyChannel = new AM1DExpressionAB("TEYGoodNorm");
-		teyChannel->setDescription("Good Normalized TEY");
-		teyChannel->setInputDataSources(filterInput);
-		teyChannel->setExpression("TEYAvgFilter/I0AvgFilter");
-		scan->addAnalyzedDataSource(teyChannel);
-	}
-	*/
-
-	/*
-	scan->onDataChanged();	/// \todo Is this still used? What does it mean?
-	*/
 
 	return true;
 }

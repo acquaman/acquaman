@@ -33,7 +33,6 @@ AMCrosshairOverlayVideoWidget::AMCrosshairOverlayVideoWidget(QWidget *parent, bo
 	crosshairX_ = 0.5;
 	crosshairY_ = 0.5;
 
-	//QPen pen(QColor(Qt::red));
 	QPen pen(Qt::red);
 
 	crosshairXLine_ = scene()->addLine(0.5,0,0.5,1,pen);
@@ -47,9 +46,6 @@ AMCrosshairOverlayVideoWidget::AMCrosshairOverlayVideoWidget(QWidget *parent, bo
 	doubleClickInProgress_ = false;
 
 	connect(videoItem_, SIGNAL(nativeSizeChanged(QSizeF)), this, SLOT(reviewCrosshairLinePositions()));
-
-	// Leave this up to user-programmers to decide if they want to move the crosshair with a double-click:
-	// connect(this, SIGNAL(mouseDoubleClicked(QPointF)), this, SLOT(setCrosshairPosition(QPointF)));
 }
 
 

@@ -107,7 +107,6 @@ QList<AMSampleCameraURL*> AMSampleCameraBrowser::urls(){
 void AMSampleCameraBrowser::onSamplePlateChanged(AMSamplePlate *samplePlate){
 	// disconnect all shapes from the old sample.
 	if(currentSamplePlate_){
-		//		disconnect(shapeDataSet_, SIGNAL(shapesChanged()), currentSamplePlate_, SLOT(onSampleCameraShapesChanged()));
 		disconnect(shapeDataSet_, SIGNAL(shapeDataChanged()), this, SLOT(onCameraShapesChanged()));
 	}
 	// set the new sample plate
@@ -120,7 +119,6 @@ void AMSampleCameraBrowser::onSamplePlateChanged(AMSamplePlate *samplePlate){
 			shapeDataSet()->addSample(sample);
 		}
 		// connect new shapes to the sample plate
-		//connect(shapeDataSet_, SIGNAL(shapesChanged()), currentSamplePlate_, SLOT(onSampleCameraShapesChanged()));
 		connect(shapeDataSet_, SIGNAL(shapeDataChanged()), this, SLOT(onCameraShapesChanged()));
 	}
 }

@@ -24,7 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/IDEAS/IDEASBeamline.h"
 #include "ui/CLS/CLSSIS3820ScalerView.h"
 #include "beamline/CLS/CLSSIS3820Scaler.h"
-#include "beamline/CLS/CLSSensitivitySR570.h"
+#include "beamline/CLS/CLSSR570.h"
 
 IDEASXRFDetailedDetectorViewWithSave::IDEASXRFDetailedDetectorViewWithSave(AMXRFDetector *detector, QWidget *parent)
 	: AMXRFDetailedDetectorView(detector, parent)
@@ -58,6 +58,8 @@ void IDEASXRFDetailedDetectorViewWithSave::buildScanSaveViews()
 	scanInfoGridLayout->setObjectName(QString::fromUtf8("scanInfoGridLayout"));
 	scanInfoGridLayout->setVerticalSpacing(4);
 	scanInfoGridLayout->setContentsMargins(12, -1, -1, -1);
+
+	deadTimeCheckButton = new QPushButton("Check Dead Time");
 
 	peakingTimeBox = new QComboBox();
 	peakingTimeBox->setObjectName(QString::fromUtf8("peakingTimeBox"));
@@ -116,6 +118,8 @@ void IDEASXRFDetailedDetectorViewWithSave::buildScanSaveViews()
 
 	scanInfoGridLayout->addWidget(scanNumber, 1, 1, 1, 1);
 
+	rightLayout_->addWidget(deadTimeCheckButton);
+
 	rightLayout_->addWidget(peakingTimeBox);
 
 	rightLayout_->addStretch();
@@ -134,6 +138,7 @@ void IDEASXRFDetailedDetectorViewWithSave::buildScanSaveViews()
 	connect(scanName, SIGNAL(textChanged(QString)), this, SLOT(onScanNameChanged(QString)));
 	connect(scanNumber, SIGNAL(valueChanged(int)), this, SLOT(onScanNumberChanged(int)));
 	connect(peakingTimeBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(onPeakingTimeBoxChanged(QString)));
+	connect(deadTimeCheckButton, SIGNAL(clicked()), this, SLOT(onDeadTimeCheckButtonClicked()));
 	connect(acquireButton_, SIGNAL(clicked(bool)),saveScanButton_, SLOT(setEnabled(bool)));
 	connect(IDEASBeamline::ideas()->ketek(), SIGNAL(acquisitionSucceeded()),this, SLOT(onAcquisitionSucceeded()));
 	connect(cancelButton_, SIGNAL(clicked()),this, SLOT(onAcquisitionSucceeded()));
@@ -198,15 +203,15 @@ void IDEASXRFDetailedDetectorViewWithSave::onAcquisitionSucceeded()
     positions.remove(positions.indexOf("DwellTime"));
     positions.remove(positions.indexOf("DirectEnergy"));
 
-    CLSSensitivitySR570* I0SR570 = qobject_cast<CLSSensitivitySR570*>(IDEASBeamline::ideas()->scaler()->channelAt(0)->currentAmplifier());
+    CLSSR570* I0SR570 = qobject_cast<CLSSR570*>(IDEASBeamline::ideas()->scaler()->channelAt(0)->currentAmplifier());
     AMControlInfo I0Scaler("I0Scaler", IDEASBeamline::ideas()->scaler()->channelAt(0)->voltage(), 0, 0, QString("%1 %2").arg(I0SR570->value()).arg(I0SR570->units()) , 0.1, "I_0 Scaler Value");
     positions.insert(2, I0Scaler);
 
-    CLSSensitivitySR570* SampleSR570 = qobject_cast<CLSSensitivitySR570*>(IDEASBeamline::ideas()->scaler()->channelAt(1)->currentAmplifier());
+    CLSSR570* SampleSR570 = qobject_cast<CLSSR570*>(IDEASBeamline::ideas()->scaler()->channelAt(1)->currentAmplifier());
     AMControlInfo SampleScaler("SampleScaler", IDEASBeamline::ideas()->scaler()->channelAt(1)->voltage(), 0, 0, QString("%1 %2").arg(SampleSR570->value()).arg(SampleSR570->units()) , 0.1, "Sample Scaler Value");
     positions.insert(3, SampleScaler);
 
-    CLSSensitivitySR570* ReferenceSR570 = qobject_cast<CLSSensitivitySR570*>(IDEASBeamline::ideas()->scaler()->channelAt(2)->currentAmplifier());
+    CLSSR570* ReferenceSR570 = qobject_cast<CLSSR570*>(IDEASBeamline::ideas()->scaler()->channelAt(2)->currentAmplifier());
     AMControlInfo ReferenceScaler("ReferenceScaler", IDEASBeamline::ideas()->scaler()->channelAt(2)->voltage(), 0, 0, QString("%1 %2").arg(ReferenceSR570->value()).arg(ReferenceSR570->units()) , 0.1, "Reference Scaler Value");
     positions.insert(4, ReferenceScaler);
 
@@ -230,4 +235,19 @@ void IDEASXRFDetailedDetectorViewWithSave::onKETEKPeakingTimeChanged()
 
     peakingTimeBox->blockSignals(false);
 
+}
+
+void IDEASXRFDetailedDetectorViewWithSave::onDeadTimeCheckButtonClicked()
+{
+	if(detector_->isAcquiring())
+		return;
+
+	double requestedTime = detector_->acquisitionTime();
+
+	AMListAction3 *deadTimeCheckActions = new AMListAction3(new AMListActionInfo3("Quick Deadtime Check", "Quick Deadtime Check"));
+	deadTimeCheckActions->addSubAction(detector_->createSetAcquisitionTimeAction(0.1));
+	deadTimeCheckActions->addSubAction(detector_->createAcquisitionAction(AMDetectorDefinitions::SingleRead));
+	deadTimeCheckActions->addSubAction(detector_->createSetAcquisitionTimeAction(requestedTime));
+
+	deadTimeCheckActions->start();
 }

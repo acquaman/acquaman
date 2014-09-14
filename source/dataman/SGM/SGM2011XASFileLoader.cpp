@@ -123,7 +123,7 @@ bool SGM2011XASFileLoader::loadFromFile(const QString& filepath, bool setMetaDat
 		line = fs.readLine();
 	if(fs.atEnd()) {
 		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -2, "SGM2011XASFileLoader parse error while loading scan data from file. Missing #(1) event line."));
-		return false;	// bad format; missing the #1 event header
+		return false;	// bad format. Missing the #1 event header
 	}
 	colNames1 = line.split(QChar(' '));
 	// the first column is not a column name, it's just the event description header ("#(1)")
@@ -131,7 +131,7 @@ bool SGM2011XASFileLoader::loadFromFile(const QString& filepath, bool setMetaDat
 	for(int i=0; i<colNames1.count(); i++){
 		if(!pv2columnName(colNames1[i])){
 			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -2, QString("SGM2011XASFileLoader parse error while loading scan data from file. Unknown PV in header at %1 .").arg(i)));
-			return false;	// bad format; no conversion column for this PV name
+			return false;	// bad format. No conversion column for this PV name
 		}
 	}
 
@@ -140,7 +140,7 @@ bool SGM2011XASFileLoader::loadFromFile(const QString& filepath, bool setMetaDat
 	int eVIndex = colNames1.indexOf("eV");
 	if(eVIndex < 0) {
 		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -3, "SGM2011XASFileLoader parse error while loading scan data from file. I couldn't find the energy (eV) column."));
-		return false;	// bad format; no primary column
+		return false;	// bad format. No primary column
 
 	}
 
@@ -182,7 +182,7 @@ bool SGM2011XASFileLoader::loadFromFile(const QString& filepath, bool setMetaDat
 				spectraFile = afp;
 		if(spectraFile == ""){
 			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -3, "SGM2011XASFileLoader parse error while loading scan data from file. I couldn't find the the spectra.dat file when I need one."));
-			return false;	// bad format; no spectra.dat file in the additional files paths
+			return false;	// bad format. No spectra.dat file in the additional files paths
 		}
 		spectraFileInfo.setFile(spectraFile);
 		if(spectraFileInfo.isRelative())
@@ -193,14 +193,7 @@ bool SGM2011XASFileLoader::loadFromFile(const QString& filepath, bool setMetaDat
 		QString colName = colNames1.at(x);
 		if(colName != "eV" && colName != "Event-ID"){
 			if(offsetColumns.contains(x)){
-				/*
-				AMMeasurementInfo spectraInfo(offsets2MeasurementInfos_.valueF(colName));
-				scan->rawData()->addMeasurement(spectraInfo);
-				*/
-				/**/
-//				qdebug() << "Column is a spectrum offset with name " << colName;
 				if(colName == "SDD"){
-//					qdebug() << "Adding SDD column at " << x;
 					AMAxisInfo sddEVAxisInfo("energy", 1024, "SDD Energy", "eV");
 					QList<AMAxisInfo> sddAxes;
 					sddAxes << sddEVAxisInfo;
@@ -208,14 +201,12 @@ bool SGM2011XASFileLoader::loadFromFile(const QString& filepath, bool setMetaDat
 					scan->rawData()->addMeasurement(sddInfo);
 				}
 				else if(colName == "OceanOptics65000"){
-//					qdebug() << "Adding OOS column at " << x;
 					AMAxisInfo oosWavelengthAxisInfo("wavelength", 1024, "Wavelength", "nm");
 					QList<AMAxisInfo> oosAxes;
 					oosAxes << oosWavelengthAxisInfo;
 					AMMeasurementInfo oosInfo("OceanOptics65000", "OceanOptics 65000", "counts", oosAxes);
 					scan->rawData()->addMeasurement(oosInfo);
 				}
-				/**/
 			}
 			else
 				scan->rawData()->addMeasurement(AMMeasurementInfo(colName, colName));
@@ -257,14 +248,12 @@ bool SGM2011XASFileLoader::loadFromFile(const QString& filepath, bool setMetaDat
 
 	//Check for a spectraFile, load it if we can
 	if(spectraFile != ""){
-		//QFile sf(spectraFile);
 		QFile sf(spectraFileInfo.filePath());
 		if(!sf.open(QIODevice::ReadOnly)) {
 			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -1, "SGM2011XASFileLoader parse error while loading scan data from file. Missing spectra.dat file."));
 			return false;
 		}
 
-//		qdebug() << "Playing the spectra game, raw data measurement count is " << scan->rawData()->measurementCount();
 		//Prep the list of start and end bytes
 		// The initialFileOffsets is a list of lists of ints. The first list is the start offsets for the first spectra
 		//  This is not enough, as we as need the end (need to read from start to end). End is the start of the next spectra.
@@ -300,8 +289,6 @@ bool SGM2011XASFileLoader::loadFromFile(const QString& filepath, bool setMetaDat
 		//  Alloc a double array of that size and append it to the list of spectrum values
 		//  Start each spectrum counter at 0
 		for(int x = 0; x < offsetColumns.count(); x++){
-//			qdebug() << "x is " << x << " means column is " << offsetColumns.at(x)-2;
-//			qdebug() << "means size is " << scan->rawData()->measurementAt(offsetColumns.at(x)-2).size(0);
 
 			//Offset two columns for event-ID and eV
 			allSpecSizes.append(scan->rawData()->measurementAt(offsetColumns.at(x)-2).size(0));
@@ -319,7 +306,6 @@ bool SGM2011XASFileLoader::loadFromFile(const QString& filepath, bool setMetaDat
 				endByte = fileOffsets.at(y).at(x).second;
 				if(endByte == -1){
 					endByte = spectraFileInfo.size();
-//					qdebug() << "Old way says " << endByte << " info way says " << spectraFileInfo.size();
 				}
 
 				// Grab the text from the specified start to end and put it into a QByteArray
@@ -467,8 +453,5 @@ bool SGM2011XASFileLoader::loadFromFile(const QString& filepath, bool setMetaDat
 			}
 		}
 	}
-
-	/// scan->onDataChanged(); \todo Is this still used? What does it mean?
-
 	return true;
 }

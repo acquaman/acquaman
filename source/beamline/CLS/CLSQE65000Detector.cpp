@@ -35,7 +35,6 @@ CLSQE65000Detector::CLSQE65000Detector(const QString &name, const QString &descr
 	spectrumControl_ = new AMReadOnlyPVControl(name%"Spectrum", baseName%":DarkCorrectedSpectra", this);
 	spectrumControl_->setDescription("QE 65000 Spectrum");
 	spectrumControl_->setContextKnownDescription("Spectrum");
-	//binnedSpectrumControl_ = new AMReadOnlyWaveformBinningPVControl(name%"BinnedSpectrum", baseName%":DarkCorrectedSpectra", 0, 1024, this);
 	binnedSpectrumControl_ = new AMReadOnlyWaveformBinningPVControl(name%"BinnedSpectrum", baseName%":DarkCorrectedSpectra", 0, 3648, this);
 	((AMReadOnlyWaveformBinningPVControl*)binnedSpectrumControl_)->setAttemptDouble(true);
 	integrationTimeControl_ = new AMPVControl(name%"IntegrationTime", baseName%":IntegrationTime:Value", baseName%":IntegrationTime:Value", "", this, 0.001);
@@ -67,14 +66,12 @@ CLSQE65000Detector::CLSQE65000Detector(const QString &name, const QString &descr
 
 int CLSQE65000Detector::size(int axisNumber) const{
 	if(axisNumber == 0)
-		//return 1024;
 		return 3648;
 	return -1;
 }
 
 QList<AMAxisInfo> CLSQE65000Detector::axes() const{
 	QList<AMAxisInfo> axisInfo;
-	//AMAxisInfo ai("Wavelength", 1024, "Wavelength", "nm");
 	AMAxisInfo ai("Wavelength", 3648, "Wavelength", "nm");
 	ai.start = AMNumber(0);
 	ai.isUniform = true;
@@ -162,7 +159,6 @@ bool CLSQE65000Detector::setReadMode(AMDetectorDefinitions::ReadMode readMode){
 }
 
 bool CLSQE65000Detector::initializeImplementation(){
-	//setInitializing();
 	setInitialized();
 	return true;
 }

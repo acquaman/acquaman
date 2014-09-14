@@ -47,17 +47,18 @@ StripToolVariable *StripToolModel::selectedVariable() const
 }
 
 
+/*
+MPlotItem* StripToolModel::plotItem(int row) const
+{
+    MPlotItem *series = 0;
 
-//MPlotItem* StripToolModel::plotItem(int row) const
-//{
-//    MPlotItem *series = 0;
+    if (row >= 0 && row < variables_.size())
+	series = variables_.at(row)->series();
+//        series = variables_.at(row)->plotItem()
 
-//    if (row >= 0 && row < variables_.size())
-//        series = variables_.at(row)->series();
-////        series = variables_.at(row)->plotItem();
-
-//    return series;
-//}
+    return series;
+}
+*/
 
 
 
@@ -388,16 +389,14 @@ void StripToolModel::setSelectedVariable(StripToolVariable *newSelection)
     }
 }
 
-
-
-//void StripToolModel::enableWaterfall(bool isEnabled)
-//{
-//    foreach (StripToolVariable *variable, variables_) {
-//        variable->series()->enableWaterfall(isEnabled, variable->index().row(), variables_.size());
-//    }
-//}
-
-
+/*
+void StripToolModel::enableWaterfall(bool isEnabled)
+{
+    foreach (StripToolVariable *variable, variables_) {
+	variable->series()->enableWaterfall(isEnabled, variable->index().row(), variables_.size());
+    }
+}
+*/
 
 void StripToolModel::changeDisplayedTimeAmount(int amount)
 {
@@ -465,14 +464,15 @@ void StripToolModel::connectSelectedVariable()
 }
 
 
-
-//void StripToolModel::colorPV(const QModelIndex &index, const QColor &color)
-//{
-//    if (index.isValid() && index.row() < variables_.size()) {
-//        StripToolVariable *toEdit = variables_.at(index.row());
-//        toEdit->info()->setColor(color);
-//    }
-//}
+/*
+void StripToolModel::colorPV(const QModelIndex &index, const QColor &color)
+{
+    if (index.isValid() && index.row() < variables_.size()) {
+	StripToolVariable *toEdit = variables_.at(index.row());
+	toEdit->info()->setColor(color);
+    }
+}
+*/
 
 
 

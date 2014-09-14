@@ -26,7 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 class AMScan;
 
-/// This analysis block provides a way to access a data soure from another scan.  You can create one by specifying the database, id, and data source name of the source data in the constructor. The external scan will be loaded and the appropriate data source will be copied and exposed through this analysis block. Note that the data is not "live"; to pick up changes from the external scan, you must call refreshData().
+/// This analysis block provides a way to access a data soure from another scan.  You can create one by specifying the database, id, and data source name of the source data in the constructor. The external scan will be loaded and the appropriate data source will be copied and exposed through this analysis block. Note that the data is not "live", to pick up changes from the external scan, you must call refreshData().
 /*! \note Limitation: This version only supports data sources up to 5 dimensions */
 class AMExternalScanDataSourceAB : public AMStandardAnalysisBlock
 {
@@ -63,7 +63,7 @@ public:
 	/// Constructor which re-loads a previously-saved block from the database \c db at row \c id.  This is the version used when scans are opened and re-create their analysis blocks, so it loads the external scan data immediately.
 	Q_INVOKABLE AMExternalScanDataSourceAB(AMDatabase* db, int id);
 
-	/// Check if a set of inputs is valid. For this analysis block, we don't accept any input data sources; the only list we accept is the empty list.
+	/// Check if a set of inputs is valid. For this analysis block, we don't accept any input data sources, the only list we accept is the empty list.
 	virtual bool areInputDataSourcesAcceptable(const QList<AMDataSource*>& dataSources) const;
 
 	/// Set the data source inputs.  We don't do anything here, since our input is coming from the external scan instead.
@@ -118,7 +118,7 @@ public:
 signals:
 
 public slots:
-	/// Refresh the data. This will create, load, and copy the data from the external scan's data source, and then delete the external scan.  Returns true if data was successfully loaded; returns false if there was a problem.
+	/// Refresh the data. This will create, load, and copy the data from the external scan's data source, and then delete the external scan.  Returns true if data was successfully loaded, returns false if there was a problem.
 	/*! \note Our output is not automatically updated if the data within the external scan changes.  You must call refreshData() again to pick up the changes. */
 	bool refreshData();
 
@@ -134,7 +134,7 @@ protected:
 	QString sourceDataSourceName_;
 	AMScan* scan_;
 
-	/// Only used when re-loading out of the database [We can't store a database pointer; instead we store the connection name]
+	/// Only used when re-loading out of the database [We can't store a database pointer, instead we store the connection name]
 	QString dbLoadConnectionName_;
 	int dbLoadScanId_;
 	QString dbLoadSourceDataSourceName_;

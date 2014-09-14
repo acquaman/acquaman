@@ -26,7 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "MPlot/MPlotColorMap.h"
 
-/// This class holds visualization information about AMDataSources; all the plot settings that are associated with a particular plot/layout, rather than with the AMDataSource itself.
+/// This class holds visualization information about AMDataSources, all the plot settings that are associated with a particular plot/layout, rather than with the AMDataSource itself.
 class AMDataSourcePlotSettings {
 public:
 	/// Default Constructor
@@ -49,7 +49,7 @@ public:
 
 	/// Priority level for this data source (used for ordering... lower numbers appear first.)
 	double priority;
-	/// Whether this data source is shown/enabled in non-exclusive views. This option is available to users; they can toggle it on or off. It is initialized from AMDataSource::visibleInPlots()
+	/// Whether this data source is shown/enabled in non-exclusive views. This option is available to users, they can toggle it on or off. It is initialized from AMDataSource::visibleInPlots()
 	bool visible;
 
 	// 1D plot settings:
@@ -78,7 +78,6 @@ public:
 		case 4: return QColor(128, 0, 255);
 		case 5: return QColor(0, 0, 255);
 		case 6: return QColor(0, 128, 0);
-			// Yellow is hard to see: case 7: return QColor(255, 255, 0);
 		case 7: return QColor(255, 0, 0);
 		case 8: return QColor(0, 64, 128);
 		case 9: return QColor(128, 64, 0);

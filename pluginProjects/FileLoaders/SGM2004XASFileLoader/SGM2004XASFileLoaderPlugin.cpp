@@ -89,7 +89,7 @@ bool SGM2004XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 		line = fs.readLine();
 	if(fs.atEnd()) {
 		errorMonitor->exteriorReport(AMErrorReport(0, AMErrorReport::Serious, SGM2004XASFILELOADERPLUGIN_BAD_FORMAT_NO_EVENT1_HEADER, "SGM2004FileLoader parse error while loading scan data from file. Missing #(1) event line."));
-		return false;	// bad format; missing the #1 event header
+		return false;	// bad format. Missing the #1 event header
 	}
 	colNames1 = line.split(QChar(' '));
 	// the first column is not a column name, it's just the event description header ("#(1)")
@@ -104,7 +104,7 @@ bool SGM2004XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 		line = fs.readLine();
 	if(fs.atEnd()) {
 		errorMonitor->exteriorReport(AMErrorReport(0, AMErrorReport::Serious, SGM2004XASFILELOADERPLUGIN_BAD_FORMAT_NO_EVENT2_HEADER, "SGM2004FileLoader parse error while loading scan data from file. Missing #(2) event line."));
-		return false;	// bad format; missing the #2 event header
+		return false;	// bad format. Missing the #2 event header
 	}
 	colNames2 = line.split(QChar(' '));
 	// the first column is not a column name, it's just the event description header ("#(1)")
@@ -117,7 +117,7 @@ bool SGM2004XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 	int eVIndex = colNames1.indexOf("eV");
 	if(eVIndex < 0) {
 		errorMonitor->exteriorReport(AMErrorReport(0, AMErrorReport::Serious, SGM2004XASFILELOADERPLUGIN_BAD_FORMAT_NO_ENERGY_COLUMN, "SGM2004FileLoader parse error while loading scan data from file. I couldn't find the energy (eV) column."));
-		return false;	// bad format; no primary column
+		return false;	// bad format. No primary column
 
 	}
 
@@ -147,20 +147,16 @@ bool SGM2004XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 					AMMeasurementInfo sddInfo("SDD", "Silicon Drift Detector", "counts", sddAxes);
 					if(scan->rawData()->addMeasurement(sddInfo)){
 						/// \todo Throw an errorMon out?
-						//qdebug() << "Added measurement " << scan->rawData()->measurementAt(scan->rawData()->measurementCount()-1).name;
 					}
 				}
 			}
 			else if(scan->rawData()->addMeasurement(AMMeasurementInfo(colName, colName))){
 				/// \todo Throw an errorMon out?
-				//qdebug() << "Added measurement " << scan->rawData()->measurementAt(scan->rawData()->measurementCount()-1).name;
 			}
 		}
 	}
 	if(postSddFileOffset){
 		scan->rawData()->addMeasurement(AMMeasurementInfo("SDDFileOffset", "SDDFileOffset"));
-//		if(scan->rawData()->addMeasurement(AMMeasurementInfo("SDDFileOffset", "SDDFileOffset")))
-//			qdebug() << "Added measurement " << scan->rawData()->measurementAt(scan->rawData()->measurementCount()-1).name;
 	}
 	int sddOffsetIndex = colNames1.indexOf("SDDFileOffset");
 
@@ -259,7 +255,6 @@ bool SGM2004XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 				if(c == ' ' || c == ',') {
 					// the end of a word
 					if(insideWord) {
-						//scan->rawData()->setValue(AMnDIndex(x), sddMeasurementId, specCounter++, word.toInt());
 						if(specCounter < sddSize)
 							specValues[specCounter++] = word.toInt();
 						word.clear();

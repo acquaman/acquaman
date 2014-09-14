@@ -190,7 +190,6 @@ void SGMLookupTableCoordinator::internalLoadLookupTable(){
 		inputValue = lineValues.at(0).toDouble();
 		outputValue = lineValues.at(1).toDouble();
 		lookupTable_.insert(inputValue, outputValue);
-		//qDebug() << line;
 		line = in.readLine();
 	}
 

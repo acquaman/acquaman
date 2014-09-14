@@ -37,6 +37,5 @@ int main(int argc, char *argv[])
 
     Q_UNUSED(checker)
 
-//    return a.exec();
     return 0;
 }

@@ -34,31 +34,11 @@ public:
 	/// Destructor
 	virtual ~BareBonesAppController() {}
 
-	// Startup functions can be re-implemented from AMDatamanAppController / AMAppController. Some examples:
-	///////////////////
-
-//	/// Re-implement to create the Beamline object
-//	virtual bool startupBeforeAnything();
-//	/// Re-implement to register app-specific database classes
-//	virtual bool startupRegisterDatabases();
-//	/// Re-implement to add app-specific user interfaces
-//	virtual bool startupCreateUserInterface();
-//	/// Re-implement to do any last setup right before running
-//	virtual bool startupAfterEverything();
-
-
-
-//	/// Destroy all of the windows, widgets, and data objects created by applicationStartup(). Only call this if startup() has ran successfully.  If reimplementing, must call the base-class shutdown() as the last thing it does.
-//	virtual void shutdown();
-
 public slots:
 
 protected slots:
 
-
 protected:
-
-	// Pointers to custom app objects that are created by the AppController:
 
 };
 

@@ -142,7 +142,7 @@ class AMActionHistoryModel3 : public QAbstractItemModel
 public:
 	enum DataRoles { ParentSelectRole = AM::UserRole +27000 };
 
-	/// Constructor: \c db is the actions database to show completed actions from.  Does not refresh the model automatically on creation; you will need to call refreshFromDb().
+	/// Constructor: \c db is the actions database to show completed actions from.  Does not refresh the model automatically on creation, you will need to call refreshFromDb().
 	AMActionHistoryModel3(AMDatabase* db, QObject* parent = 0);
 	/// Destructor: deletes all the AMActionItemLog instances in items_
 	virtual ~AMActionHistoryModel3();

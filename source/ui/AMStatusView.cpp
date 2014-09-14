@@ -75,7 +75,6 @@ AMStatusView::AMStatusView(QWidget *parent) : QAbstractButton(parent)
 	shortText_->setPalette(palette);
 	hl_->addWidget(shortText_, 1, Qt::AlignLeft | Qt::AlignVCenter);
 
-	// hl_->addStretch(1);
 	hl_->addStrut(32);
 	hl_->setMargin(0);
 
@@ -89,7 +88,6 @@ AMStatusView::AMStatusView(QWidget *parent) : QAbstractButton(parent)
 
 	setToolTip("Click for details... [Show log]");
 	connect(this, SIGNAL(clicked()), logView_, SLOT(show()));
-	// logView_->show();
 
 	onAnyError(AMErrorReport(0, AMErrorReport::Information, 0, QString("Acquaman: Welcome %1").arg(AMUser::user()->name())));
 
@@ -132,11 +130,6 @@ void AMStatusView::onAnyError(AMErrorReport e) {
 	}
 
 	currentIcon_->show();
-
-	// Append class name of source, if available:
-//	if(e.source) {
-//		msg.append(e.source->metaObject()->className()).append(": ");
-//	}
 
 	msg.append(QString("%1 (%2).").arg(e.description).arg(e.errorCode));
 

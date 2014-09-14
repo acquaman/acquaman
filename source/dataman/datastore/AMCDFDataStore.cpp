@@ -193,7 +193,7 @@ bool AMCDFDataStore::addScanAxis(const AMAxisInfo &axisDetails)
 	}
 
 	else {	// there are axes already.
-		// check 1: the size of this axis must not be 0; they must provide a final size
+		// check 1: the size of this axis must not be 0, they must provide a final size
 		if(axisInfo.size < 1) {
 			AMErrorMon::debug(0, -722, QString("AMCDFDataStore: Could not add a scan axis '%1' with a size of 0 to the data store; all axes except for the first must specify their final size.").arg(axisInfo.name));
 			return false;
@@ -212,7 +212,7 @@ bool AMCDFDataStore::addScanAxis(const AMAxisInfo &axisDetails)
 	// Make space for axis values if needed:
 	/////////////////////////////////
 	if(axisInfo.isUniform) {
-		axisValueVarNums_ << -1;	// don't need to store it; it's uniform.
+		axisValueVarNums_ << -1;	// don't need to store it, it's uniform.
 	}
 	else {
 		// make space in CDF to store axis values:
@@ -272,7 +272,7 @@ AMNumber AMCDFDataStore::value(const AMnDIndex &scanIndex, int measurementId, co
 		return AMNumber(AMNumber::DimensionError);
 
 	if((unsigned)measurementId >= (unsigned)measurements_.count())
-		return AMNumber(AMNumber::InvalidError);	// invalid measurement specified;
+		return AMNumber(AMNumber::InvalidError);	// invalid measurement specified
 
 	if(measurementIndex.rank() != measurements_.at(measurementId).rank())
 		return AMNumber(AMNumber::DimensionError);
@@ -437,7 +437,7 @@ bool AMCDFDataStore::setValue(const AMnDIndex &scanIndex, int measurementId, con
 		return false; // scan axis index doesn't provide enough / too many dimensions
 
 	if((unsigned)measurementId >= (unsigned)measurements_.count())
-		return false;	// invalid measurement specified;
+		return false;	// invalid measurement specified
 
 	if(measurementIndex.rank() != measurements_.at(measurementId).rank())
 		return false;
@@ -475,7 +475,7 @@ bool AMCDFDataStore::setValue(const AMnDIndex &scanIndex, int measurementId, con
 		return false; // scan axis index doesn't provide enough / too many dimensions
 
 	if((unsigned)measurementId >= (unsigned)measurements_.count())
-		return false;	// invalid measurement specified;
+		return false;	// invalid measurement specified
 
 #ifdef AM_ENABLE_BOUNDS_CHECKING
 	if(!scanIndex.validInArrayOfSize(scanSize_))
@@ -504,7 +504,7 @@ bool AMCDFDataStore::setValue(const AMnDIndex &scanIndex, int measurementId, con
 	}
 
 	if((unsigned)measurementId >= (unsigned)measurements_.count())
-		return false;	// invalid measurement specified;
+		return false;	// invalid measurement specified
 
 	// need to convert into double format of the data store
 	long flatSize = measurements_.at(measurementId).size().product();
@@ -624,7 +624,7 @@ bool AMCDFDataStore::beginInsertRowsImplementation(long numRows, long atRowIndex
 		long varNum = axisValueVarNums_.at(0);
 
 		if(varNum >= 0) {	// valid, non-uniform scan axis.
-			// don't worry about allocation; we let the CDF library auto-alloc this variable in blocks of 500. Just need to write to the new values at the end, as we shift the existing values down.
+			// don't worry about allocation. We let the CDF library auto-alloc this variable in blocks of 500. Just need to write to the new values at the end, as we shift the existing values down.
 			if(!cdfCopyZRecords(cdfId_, varNum, atRowIndex, scanSize_.i()-atRowIndex, atRowIndex+numRows))
 				return false;
 		}
@@ -651,7 +651,7 @@ void AMCDFDataStore::clearScanDataPointsImplementation()
 	CDFstatus s;
 	if(axes_.count() >= 1) {
 		if(scanSize_.i() == 0)
-			return;	// nothing to do; already cleared.
+			return;	// nothing to do. Already cleared.
 
 		// clear all records of all measurements (except leave one record, which we use to store a the null scan space)
 		long totalRecords = scanSize_.product();

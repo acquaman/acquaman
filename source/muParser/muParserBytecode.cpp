@@ -91,22 +91,23 @@ namespace mu
 #if defined(_MSC_VER)
     #pragma warning( disable : 4311 )
 #endif
-
+  /*
     // demo code for packing / unpacking pointers into bytecode
-//    void *ptr(NULL);
-//    double **pVal;
-//    double fVal;
-//    map_type dbg[2]; 
-//    dbg[0] = *( reinterpret_cast<map_type*>(&a_pAddr) ), 
-//    dbg[1] = *( reinterpret_cast<map_type*>(&a_pAddr) + 1 );     
-// Version 1:
-//    *( (map_type*)&ptr+0) = dbg[0];
-//    *( (map_type*)&ptr+1) = dbg[1];
-// Version 2:
-//    memcpy(&ptr, dbg, sizeof(dbg));
-// Version 3:    
-//    pVal = (double**)dbg;
-//    fVal = **(double**)dbg;
+    void *ptr(NULL);
+    double **pVal;
+    double fVal;
+    map_type dbg[2];
+    dbg[0] = *( reinterpret_cast<map_type*>(&a_pAddr) ),
+    dbg[1] = *( reinterpret_cast<map_type*>(&a_pAddr) + 1 );
+ Version 1:
+    *( (map_type*)&ptr+0) = dbg[0];
+    *( (map_type*)&ptr+1) = dbg[1];
+ Version 2:
+    memcpy(&ptr, dbg, sizeof(dbg));
+ Version 3:
+    pVal = (double**)dbg;
+    fVal = **(double**)dbg;
+  */
 
     for (int i=0; i<mc_iSizePtr; ++i)
       m_vBase.push_back( *( reinterpret_cast<map_type*>(&a_pAddr) + i ) );
@@ -149,7 +150,7 @@ namespace mu
     assert(iSize>=0);
 
     // Make sure variable entries have the same size as value entries.
-    // (necessary for optimization; fill with zeros)
+    // (necessary for optimization, fill with zeros)
     for (int i=0; i<iSize; ++i)
       m_vBase.push_back(0);
   }
@@ -267,7 +268,9 @@ namespace mu
   {
     m_vBase.push_back(cmEND);	
     m_vBase.push_back(cmEND);	
-//    m_vBase.push_back(cmEND);	
+    /*
+    m_vBase.push_back(cmEND);
+    */
 
     // shrink bytecode vector to fit
     storage_type(m_vBase).swap(m_vBase);

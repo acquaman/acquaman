@@ -36,7 +36,7 @@ AM1DNormalizationAB::AM1DNormalizationAB(const QString &outputName, QObject *par
 bool AM1DNormalizationAB::areInputDataSourcesAcceptable(const QList<AMDataSource*>& dataSources) const
 {
 	if(dataSources.isEmpty())
-		return true;	// always acceptable; the null input.
+		return true;	// always acceptable, the null input.
 
 	// otherwise we need two input sources, with a rank of 1.
 	if(dataSources.count() == 2 && dataSources.at(0)->rank() == 1 && dataSources.at(1)->rank() == 1)

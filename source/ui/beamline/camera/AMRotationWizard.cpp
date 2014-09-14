@@ -44,12 +44,8 @@ AMRotationWizard::AMRotationWizard(QWidget *parent)
 
 	/// add some rotations
 	rotationsAppend(-30);
-//	rotationsAppend(-10);
 	rotationsAppend( 10);
 	rotationsAppend( 50);
-//	rotationsAppend( 50);
-
-
 
 	setPage(Page_Intro, new AMWizardPage);
 	setPage(Page_Check, new AMRotationCheckPage);
@@ -115,7 +111,9 @@ int AMRotationWizard::nextId() const
 		}
 		else if(isWaitPage(pageId))
 		{
-			//		((AMRotationSetPage*)page(Page_Set_Two))->disconnectMouseSignal();
+			/*
+			((AMRotationSetPage*)page(Page_Set_Two))->disconnectMouseSignal();
+			*/
 			return pageSet(id);
 		}
 		else

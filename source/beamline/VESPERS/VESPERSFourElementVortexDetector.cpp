@@ -21,7 +21,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "VESPERSFourElementVortexDetector.h"
 
- VESPERSFourElementVortexDetector::~VESPERSFourElementVortexDetector(){}
+VESPERSFourElementVortexDetector::~VESPERSFourElementVortexDetector(){}
+
 VESPERSFourElementVortexDetector::VESPERSFourElementVortexDetector(const QString &name, const QString &description, QObject *parent)
 	: AMXRFDetector(name, description, parent)
 {
@@ -96,11 +97,6 @@ bool VESPERSFourElementVortexDetector::setReadMode(AMDetectorDefinitions::ReadMo
 
 	return false;
 }
-
-//const double *VESPERSFourElementVortexDetector::data() const
-//{
-//	return 0;
-//}
 
 void VESPERSFourElementVortexDetector::setMaximumEnergy(double energy)
 {

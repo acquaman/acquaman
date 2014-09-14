@@ -31,7 +31,6 @@ AMDetectorSet::AMDetectorSet(QObject *parent) :
 {
 	wasConnected_ = false;
 	allHaveResponded_ = false;
-//	QTimer::singleShot(AMDETECTORSET_DEFAULT_DETECTOR_TIMEOUT_MS, this, SLOT(onUnrespondedTimedOut()));
 }
 
 QString AMDetectorSet::name() const{

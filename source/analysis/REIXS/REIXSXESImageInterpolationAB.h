@@ -54,9 +54,10 @@ class REIXSXESImageInterpolationAB : public AMStandardAnalysisBlock
 
 	Q_PROPERTY(int correlationCenterPixel READ correlationCenterPixel WRITE setCorrelationCenterPixel)
 	Q_PROPERTY(int correlationHalfWidth READ correlationHalfWidth WRITE setCorrelationHalfWidth)
-//	Q_PROPERTY(int correlationSmoothing READ correlationSmoothing WRITE setCorrelationSmoothing)
-
-//	Q_PROPERTY(QPair correlationSmoothing READ correlationSmoothing WRITE setCorrelationSmoothing)
+	/*
+	Q_PROPERTY(int correlationSmoothing READ correlationSmoothing WRITE setCorrelationSmoothing)
+	Q_PROPERTY(QPair correlationSmoothing READ correlationSmoothing WRITE setCorrelationSmoothing)
+	*/
 
 	Q_PROPERTY(int correlationSmoothingType READ correlationSmoothingType WRITE setCorrelationSmoothingType)
 	Q_PROPERTY(int correlationSmoothingMode READ correlationSmoothingMode WRITE setCorrelationSmoothingMode)
@@ -70,7 +71,9 @@ class REIXSXESImageInterpolationAB : public AMStandardAnalysisBlock
 
 public:
 	/// Enum describing the options for smoothing the auto-correlated shift curve.
-	//enum ShiftCurveSmoothing { NoSmoothing, QuadraticSmoothing, CubicSmoothing, QuarticSmoothing, movingMedianSmoothing, movingAverageSmoothing };
+	/*
+	enum ShiftCurveSmoothing { NoSmoothing, QuadraticSmoothing, CubicSmoothing, QuarticSmoothing, movingMedianSmoothing, movingAverageSmoothing };
+	*/
 	enum ShiftCurveSmoothing { None, Poly, Median, Average};
 
 	/// Constructor. \c outputName is the name() for the output data source.
@@ -238,7 +241,20 @@ protected slots:
 
 
 protected:
+	// Helper Functions
+	///////////////////////
 
+	/// helper function to compute and fill cachedValues_.
+	void computeCachedValues() const;
+	/// Helper fucntion to compute interpolated shift map
+	void computeShiftMap(int iSize, int jSize, double *shiftValues) const;
+	/// Helper to compute energy axis scale, and fill cachedAxisValues_.
+	void computeCachedAxisValues() const;
+
+	/// Helper function to look at our overall situation and determine what the output state should be.
+	void reviewState();
+
+	// Member variables
 	/// Caches the shifted and summed values.  Access only if cacheInvalid_ is false.
 	mutable QVector<double> cachedValues_;
 	/// True if the cachedValues_ needs to be re-calculated.
@@ -269,8 +285,11 @@ protected:
 	/// Describes the smoothing that should be applied to the shift curve resulting from the correlation routine.  One of ShiftCurveSmoothing.
 
 	QPair<int, int> correlationSmoothing_;
-	//int correlationSmoothingType_;
-	//int correlationSmoothingMode_;
+	/*
+	int correlationSmoothingType_;
+	int correlationSmoothingMode_;
+	*/
+
 	/// True if the correlation routine should be run every time the data changes.
 	bool liveCorrelation_;
 	/// The internal computed shift values that can be assigned to shiftValues1_ or shiftValues2_
@@ -283,8 +302,6 @@ protected:
 	int shiftPosition1_;
 	/// The position of the second set of shift values used to offset each row of the image when summing
 	int shiftPosition2_;
-	/// a 64x1024 shiftmap used for interpolation bethe two sets of shiftValues
-	mutable QList<QList <double> > shiftMap_;
 	/// The level of onterpolation, hard-coded for now
 	int interpolationLevel_;
 
@@ -300,19 +317,6 @@ protected:
 
 	/// Smoothing object used for the shift curve after correlation
 	REIXSFunctionFitter* curveSmoother_;
-
-	// Helper Functions
-	///////////////////////
-
-	/// helper function to compute and fill cachedValues_.
-	void computeCachedValues() const;
-	/// Helper fucntion to compute interpolated shift map
-	void computeShiftMap() const;
-	/// Helper to compute energy axis scale, and fill cachedAxisValues_.
-	void computeCachedAxisValues() const;
-
-	/// Helper function to look at our overall situation and determine what the output state should be.
-	void reviewState();
 
 };
 

@@ -26,7 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "MPlot/MPlotSeriesData.h"
 #include "dataman/datasource/AMDataSource.h"
 
-/// This class wraps any AMDataSource for use as 2-dimensional (XY scatter) series data.  The rank() of the underlying data source must be 1; if the dimensionality is not correct, the wrapper will report a count() of 0.
+/// This class wraps any AMDataSource for use as 2-dimensional (XY scatter) series data.  The rank() of the underlying data source must be 1. If the dimensionality is not correct, the wrapper will report a count() of 0.
 class AMDataSourceSeriesData : public QObject, public MPlotAbstractSeriesData
 {
 	Q_OBJECT

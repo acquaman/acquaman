@@ -26,7 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class AMControlInfoList;
 class QTableWidget;
 
-/// This widget provides a simple table to display the name/description, value, and units of all controls in an AMControlInfoList. Because AMControlInfoList is a static, unchanging list, there is no event-driven updating of the view when the values change; simply call setFromInfoList() to update the view with the contents of any AMControlInfoList.
+/// This widget provides a simple table to display the name/description, value, and units of all controls in an AMControlInfoList. Because AMControlInfoList is a static, unchanging list, there is no event-driven updating of the view when the values change, simply call setFromInfoList() to update the view with the contents of any AMControlInfoList.
 class AMControlInfoListTableView : public QWidget
 {
     Q_OBJECT

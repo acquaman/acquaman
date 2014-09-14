@@ -121,9 +121,6 @@ VESPERSCCDDetectorView::VESPERSCCDDetectorView(VESPERSCCDDetector *detector, QWi
 	masterLayout_ = new QVBoxLayout;
 	masterLayout_->addWidget(topFrame);
 	masterLayout_->addStretch();
-//	masterLayout->addWidget(image_, 0, Qt::AlignCenter);
-//	masterLayout->addWidget(loadCCDButton);
-//	masterLayout->addLayout(horizontalSquishLayout);
 	masterLayout_->addLayout(horizontalSquishLayout);
 	masterLayout_->addStretch();
 

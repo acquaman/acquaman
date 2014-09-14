@@ -64,7 +64,7 @@ class AM1DExpressionAB : public AMAnalysisBlock
 
 public:
 	/// Constructor. \c outputName is the name() for the output data source.
- 	virtual ~AM1DExpressionAB();
+	virtual ~AM1DExpressionAB();
 	AM1DExpressionAB(const QString& outputName, QObject* parent = 0);
 	/// This constructor is used to reload analysis blocks directly out of the database
 	Q_INVOKABLE AM1DExpressionAB(AMDatabase* db, int id);
@@ -90,7 +90,7 @@ public:
 	virtual int inputDataSourceCount() const { return sources_.count(); }
 	/// Access input data source by index.  If \c index >= inputDataCount(), returns null pointer.
 	virtual AMDataSource* inputDataSourceAt(int index) const { if(index<0 || index>=sources_.count()) return 0; return sources_.at(index); }
-	/// Retrieve index of an input data source by name. (Hopefully no two data sources have the same name; if they do, this returns the first one.) Returns -1 if no input source found with this name.
+	/// Retrieve index of an input data source by name. (Hopefully no two data sources have the same name, if they do, this returns the first one.) Returns -1 if no input source found with this name.
 	/*! This might be involve a slow lookup; users should not call repeatedly.*/
 	virtual int indexOfInputSource(const QString& dataSourceName) const;
 	/// Retrieve index of an input data source by pointer. If it doesn't exist, returns -1.
@@ -116,7 +116,7 @@ public:
 	/// Returns a bunch of information about a particular axis.
 	virtual AMAxisInfo axisInfoAt(int axisNumber) const;
 	/// Returns the number of an axis, by name. (By number, we mean the index of the axis. We called it number to avoid ambiguity with indexes <i>into</i> axes.) This could be slow, so users shouldn't call it repeatedly.
-	virtual int idOfAxis(const QString& axisName) { if(axisName == axisInfo_.name) return 0; else return -1; }
+	virtual int idOfAxis(const QString& axisName) const { if(axisName == axisInfo_.name) return 0; else return -1; }
 
 	/// Set the meta-information describing the output axis.
 	void setAxisInfo(const AMAxisInfo& newInfo) { axisInfo_ = newInfo; }
@@ -147,7 +147,7 @@ int outputSize = indexStart.totalPointsTo(indexEnd);
 	/// Check if a given expression string is valid (for the current set of inputs)
 	bool checkExpressionValidity(const QString& testExpression);
 
-	/// Set the current expression used to evaluate the value(). Any algebraic expression is valid; the allowed variables are the name()s of the input data sources, or '[name()].x' to refer to the independent variable of an input source.  If the expression is not valid, the state of the output goes to InvalidState, and this returns false. However, the expression will be set (whether currently valid or not) and may become valid if the inputs are changed.
+	/// Set the current expression used to evaluate the value(). Any algebraic expression is valid, the allowed variables are the name()s of the input data sources, or '[name()].x' to refer to the independent variable of an input source.  If the expression is not valid, the state of the output goes to InvalidState, and this returns false. However, the expression will be set (whether currently valid or not) and may become valid if the inputs are changed.
 	bool setExpression(const QString& newExpression);
 
 	/// Retrieve the current expression (It may or may not be valid -- whatever was last set with setExpression)
