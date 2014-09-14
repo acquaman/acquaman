@@ -92,6 +92,8 @@ protected slots:
 	  */
 	virtual void onCurrentPaneChanged(QWidget* pane);
 
+	/// Helper slot that handles the workflow pausing/resuming when the beam dumps or is restored.
+	void onBeamAvailabilityChanged(bool beamAvailable);
 	/// When the SGM Beamline object first connects the XAS and Fast scan panes are created. They are enabled or disabled as the connection status changes.
 	void onSGMBeamlineConnected();
 
