@@ -615,6 +615,12 @@ void VESPERSSpatialLineScanConfigurationView::axesAcceptable()
 	QPalette bad(good);
 	bad.setColor(QPalette::Base, Qt::red);
 
-	step_->setPalette(configuration_->validAxis() ? good : bad);
+	AMScanAxisRegion *region = configuration_->scanAxisAt(0)->regionAt(0);
+
+	if (double(region->regionStart()) < double(region->regionEnd()) && double(region->regionStep()) > 0)
+		step_->setPalette(good);
+
+	else
+		step_->setPalette(bad);
 }
 
