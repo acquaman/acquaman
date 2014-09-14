@@ -335,21 +335,13 @@ void AMDataSourcesEditor::onNewDataSourceNamed() {
 	// This should always happen.  But just to be safe.
 	if (newAnalysisBlock){
 
-		if (nameOfAnalysisBlockToBeAdded_ == "AM1DDerivativeAB"
-				|| nameOfAnalysisBlockToBeAdded_ == "AM1DIntegralAB"
-				|| nameOfAnalysisBlockToBeAdded_ == "AM1DExpressionAB"
-				|| nameOfAnalysisBlockToBeAdded_ == "AM1DNormalizationAB"
-				|| nameOfAnalysisBlockToBeAdded_ == "AM1DCalibrationAB")
-
+		if (newAnalysisBlock->desiredInputRank() == 1)
 			newAnalysisBlock->setInputDataSources(singleDimDataSources);
 
-		else if (nameOfAnalysisBlockToBeAdded_ == "AM2DSummingAB"
-				 || nameOfAnalysisBlockToBeAdded_ == "AM2DNormalizationAB"
-				 || nameOfAnalysisBlockToBeAdded_ == "REIXSXESImageInterpolationAB")
-
+		else if (newAnalysisBlock->desiredInputRank() == 2)
 			newAnalysisBlock->setInputDataSources(twoDimDataSources);
 
-		else if (nameOfAnalysisBlockToBeAdded_ == "AM3DBinningAB")
+		else if (newAnalysisBlock->desiredInputRank() == 3)
 			newAnalysisBlock->setInputDataSources(threeDimDataSources);
 
 		scan->addAnalyzedDataSource(newAnalysisBlock);

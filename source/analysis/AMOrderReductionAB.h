@@ -40,7 +40,7 @@ class AMOrderReductionAB : public AMStandardAnalysisBlock
 
 public:
 	/// Constructor.
- 	virtual ~AMOrderReductionAB();
+	virtual ~AMOrderReductionAB();
 	Q_INVOKABLE AMOrderReductionAB(const QString &outputName = "InvalidInput", QObject *parent = 0);
 
 	QString infoDescription() const { return QString(); }
@@ -50,6 +50,9 @@ public:
 		- only requirement is that the datasource can't be of rank 0
 	  */
 	virtual bool areInputDataSourcesAcceptable(const QList<AMDataSource*>& dataSources) const;
+
+	/// Returns the desired rank for input sources.  Anything but rank 0 is okay so -1.
+	virtual int desiredInputRank() const { return -1; }
 
 	/// Set the data source inputs.
 	virtual void setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources);

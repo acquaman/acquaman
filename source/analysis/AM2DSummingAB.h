@@ -49,6 +49,9 @@ public:
   */
 	virtual bool areInputDataSourcesAcceptable(const QList<AMDataSource*>& dataSources) const;
 
+	/// Returns the desired rank for input sources.
+	virtual int desiredInputRank() const { return 2; }
+
 protected:
 	/// Set the data source inputs.
 	virtual void setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources);
