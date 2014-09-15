@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MotorToolMainScreen</class>
+ <widget class="QTabWidget" name="MotorToolMainScreen">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>300</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>TabWidget</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true"/>
+  </property>
+  <property name="currentIndex">
+   <number>3</number>
+  </property>
+  <widget class="QWidget" name="tabFrontEndBL">
+   <property name="styleSheet">
+    <string notr="true">backgroundImage: url(:/resources/image/07ID_FE.gif)</string>
+   </property>
+   <attribute name="title">
+    <string>Front End</string>
+   </attribute>
+  </widget>
+  <widget class="QWidget" name="tabMainBL">
+   <property name="styleSheet">
+    <string notr="true">backgroundImage: url(:/resources/image/07ID_MainStation.gif)</string>
+   </property>
+   <attribute name="title">
+    <string>Main XAS BL</string>
+   </attribute>
+  </widget>
+  <widget class="QWidget" name="tabSideBL">
+   <property name="styleSheet">
+    <string notr="true">backgroundImage: url(:/resources/image/07ID_SideStation.gif)</string>
+   </property>
+   <attribute name="title">
+    <string>Side XAS BL</string>
+   </attribute>
+  </widget>
+  <widget class="QWidget" name="tabImagingBL">
+   <property name="styleSheet">
+    <string notr="true">backgroundImage: url(:/resources/image/07ID_Imaging.gif)</string>
+   </property>
+   <attribute name="title">
+    <string>Imaging BL</string>
+   </attribute>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

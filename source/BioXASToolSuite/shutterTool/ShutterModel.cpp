@@ -19,10 +19,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#include "Model.h"
+#include "ShutterModel.h"
 #include <QDebug>
 
-Model::Model(QObject *parent) : QObject(parent)
+ShutterModel::ShutterModel(QObject *parent) : QObject(parent)
 {
     // the pvs we will be connecting to.
     aodShutterControl_ = 0;
@@ -42,14 +42,14 @@ Model::Model(QObject *parent) : QObject(parent)
 
 
 
-bool Model::aodShutterControlConnected()
+bool ShutterModel::aodShutterControlConnected()
 {
     return aodShutterControl_->isConnected();
 }
 
 
 
-bool Model::shuttersConnected()
+bool ShutterModel::shuttersConnected()
 {
     if (safetyShutter_->isConnected() && photonShutter_->isConnected())
         return true;
@@ -59,21 +59,21 @@ bool Model::shuttersConnected()
 
 
 
-bool Model::isOpen()
+bool ShutterModel::isOpen()
 {
     return (safetyShutter_->isOpen() && photonShutter_->isOpen());
 }
 
 
 
-bool Model::isClosed()
+bool ShutterModel::isClosed()
 {
     return (safetyShutter_->isClosed() && photonShutter_->isClosed());
 }
 
 
 
-bool Model::isBetween()
+bool ShutterModel::isBetween()
 {
     if (!isOpen() && !isClosed())
         return true;
@@ -83,7 +83,7 @@ bool Model::isBetween()
 
 
 
-void Model::openShutters()
+void ShutterModel::openShutters()
 {
     openAction_ = createOpenShuttersAction();
     connect( openAction_, SIGNAL(succeeded()), this, SLOT(onOpenActionFinished()) );
@@ -95,7 +95,7 @@ void Model::openShutters()
 
 
 
-void Model::closeShutters()
+void ShutterModel::closeShutters()
 {
     closeAction_ = createCloseShuttersAction();
 
@@ -108,7 +108,7 @@ void Model::closeShutters()
 
 
 
-void Model::setAutomaticShuttersOpen(bool enabled)
+void ShutterModel::setAutomaticShuttersOpen(bool enabled)
 {
     automaticShuttersOpen_ = enabled;
 
@@ -120,7 +120,7 @@ void Model::setAutomaticShuttersOpen(bool enabled)
 
 
 
-void Model::onAODShutterControlConnected(bool isConnected)
+void ShutterModel::onAODShutterControlConnected(bool isConnected)
 {
     if (isConnected) {
         qDebug() << "Model :: Connected to AOD shutters enabled/disabled pv.";
@@ -133,17 +133,17 @@ void Model::onAODShutterControlConnected(bool isConnected)
 
 
 
-void Model::onAODShutterControlValueChanged(double enabledState)
+void ShutterModel::onAODShutterControlValueChanged(double enabledState)
 {
     // if beamline control of shutters is enabled and the automatic open feature is enabled, open the beamline shutters.
-    if (enabledState == Model::Enabled) {
+	if (enabledState == ShutterModel::Enabled) {
         qDebug() << "Model :: Beamline control of shutters is enabled (likely after injection).";
         emit postInjectionControlsEnabled();
 
         if (automaticShuttersOpen_)
             openShutters();
 
-    } else if (enabledState == Model::Disabled) {
+	} else if (enabledState == ShutterModel::Disabled) {
         qDebug() << "Model :: Beamline control of shutters is disabled (likely for injection?).";
         emit preInjectionControlsDisabled();
 
@@ -154,7 +154,7 @@ void Model::onAODShutterControlValueChanged(double enabledState)
 
 
 
-void Model::onSafetyShutterConnected(bool isConnected)
+void ShutterModel::onSafetyShutterConnected(bool isConnected)
 {
     if (isConnected) {
         qDebug() << "Model :: Connected to safety shutter.";
@@ -168,11 +168,11 @@ void Model::onSafetyShutterConnected(bool isConnected)
 
 
 
-void Model::onSafetyShutterStateChanged(int newState)
+void ShutterModel::onSafetyShutterStateChanged(int newState)
 {
-    if (newState == Model::Open)
+	if (newState == ShutterModel::Open)
         qDebug() << "Model :: Safety shutter is open.";
-    else if (newState == Model::Closed)
+	else if (newState == ShutterModel::Closed)
         qDebug() << "Model :: Safety shutter is closed.";
     else
         qDebug() << "Model :: Safety shutter is in an unknown state. (!!)";
@@ -182,7 +182,7 @@ void Model::onSafetyShutterStateChanged(int newState)
 
 
 
-void Model::onPhotonShutterConnected(bool isConnected)
+void ShutterModel::onPhotonShutterConnected(bool isConnected)
 {
     if (isConnected) {
         qDebug() << "Model :: Connected to photon shutter.";
@@ -196,11 +196,11 @@ void Model::onPhotonShutterConnected(bool isConnected)
 
 
 
-void Model::onPhotonShutterStateChanged(int newState)
+void ShutterModel::onPhotonShutterStateChanged(int newState)
 {
-    if (newState == Model::Open)
+	if (newState == ShutterModel::Open)
         qDebug() << "Model :: Photon shutter is open.";
-    else if (newState == Model::Closed)
+	else if (newState == ShutterModel::Closed)
         qDebug() << "Model :: Photon shutter is closed.";
     else
         qDebug() << "Model :: Photon shutter is in an unknown state. (!!)";
@@ -210,7 +210,7 @@ void Model::onPhotonShutterStateChanged(int newState)
 
 
 
-void Model::onOpenActionFinished()
+void ShutterModel::onOpenActionFinished()
 {
     qDebug() << "Open action finished with state : " << openAction_->statusText();
 
@@ -223,7 +223,7 @@ void Model::onOpenActionFinished()
 
 
 
-void Model::onCloseActionFinished()
+void ShutterModel::onCloseActionFinished()
 {
     qDebug() << "Close action finished with state : " << closeAction_->statusText();
 
@@ -236,7 +236,7 @@ void Model::onCloseActionFinished()
 
 
 
-void Model::onErrorReported(const QString &errorInfo)
+void ShutterModel::onErrorReported(const QString &errorInfo)
 {
     qDebug() << "Model :: Error from pvs reported:";
     qDebug() << errorInfo;
@@ -244,7 +244,7 @@ void Model::onErrorReported(const QString &errorInfo)
 
 
 
-void Model::createComponents()
+void ShutterModel::createComponents()
 {
     aodShutterControl_ = new AMReadOnlyPVControl("SRStatus:shutters", "SRStatus:shutters", this);
     safetyShutter_ = new CLSBiStateControl("safety shutter", "safety shutter", "SSH1407-I00-01:state", "SSH1407-I00-01:opr:open", "SSH1407-I00-01:opr:close", new AMControlStatusCheckerDefault(2), this);
@@ -253,7 +253,7 @@ void Model::createComponents()
 
 
 
-void Model::makeConnections()
+void ShutterModel::makeConnections()
 {
     connect( aodShutterControl_, SIGNAL(connected(bool)), this, SLOT(onAODShutterControlConnected(bool)) );
     connect( aodShutterControl_, SIGNAL(valueChanged(double)), this, SLOT(onAODShutterControlValueChanged(double)) );
@@ -270,7 +270,7 @@ void Model::makeConnections()
 
 
 
-void Model::connectedCheck()
+void ShutterModel::connectedCheck()
 {
     // check that we are connected to the aod pv for telling us beamline shutter controls are en/disabled.
     if (aodShutterControl_->isConnected())
@@ -287,7 +287,7 @@ void Model::connectedCheck()
 
 
 
-void Model::shutterStateCheck()
+void ShutterModel::shutterStateCheck()
 {
     if (isOpen())
         emit shuttersOpen();
@@ -301,18 +301,18 @@ void Model::shutterStateCheck()
 
 
 
-AMAction3* Model::createOpenShuttersAction()
+AMAction3* ShutterModel::createOpenShuttersAction()
 {
     AMSequentialListAction3 *openShuttersAction = new AMSequentialListAction3(new AMSequentialListActionInfo3("Opens safety and photon shutters.", "Opens safety and photon shutters."));
 
     AMControlInfo setpoint = safetyShutter_->toInfo();
-    setpoint.setValue(Model::Open);
+	setpoint.setValue(ShutterModel::Open);
     AMControlMoveActionInfo3 *openShutterInfo = new AMControlMoveActionInfo3(setpoint);
     AMControlMoveAction3 *openShutterAction = new AMControlMoveAction3(openShutterInfo, safetyShutter_);
     openShuttersAction->addSubAction(openShutterAction);
 
     setpoint = photonShutter_->toInfo();
-    setpoint.setValue(Model::Open);
+	setpoint.setValue(ShutterModel::Open);
     openShutterInfo = new AMControlMoveActionInfo3(setpoint);
     openShutterAction = new AMControlMoveAction3(openShutterInfo, photonShutter_);
     openShuttersAction->addSubAction(openShutterAction);
@@ -322,18 +322,18 @@ AMAction3* Model::createOpenShuttersAction()
 
 
 
-AMAction3* Model::createCloseShuttersAction()
+AMAction3* ShutterModel::createCloseShuttersAction()
 {
     AMSequentialListAction3 *closeShuttersAction = new AMSequentialListAction3(new AMSequentialListActionInfo3("Closes photon and safety shutters.", "Closes photon and safety shutters."));
 
     AMControlInfo setpoint = photonShutter_->toInfo();
-    setpoint.setValue(Model::Closed);
+	setpoint.setValue(ShutterModel::Closed);
     AMControlMoveActionInfo3 *closeShutterInfo = new AMControlMoveActionInfo3(setpoint);
     AMControlMoveAction3 *closeShutterAction = new AMControlMoveAction3(closeShutterInfo, photonShutter_);
     closeShuttersAction->addSubAction(closeShutterAction);
 
     setpoint = safetyShutter_->toInfo();
-    setpoint.setValue(Model::Closed);
+	setpoint.setValue(ShutterModel::Closed);
     closeShutterInfo = new AMControlMoveActionInfo3(setpoint);
     closeShutterAction = new AMControlMoveAction3(closeShutterInfo, safetyShutter_);
     closeShuttersAction->addSubAction(closeShutterAction);

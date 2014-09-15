@@ -19,8 +19,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef MODEL_H
-#define MODEL_H
+#ifndef SHUTTERMODEL_H
+#define SHUTTERMODEL_H
 
 #include <QObject>
 
@@ -30,7 +30,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "source/actions3/actions/AMControlMoveAction3.h"
 #include "source/actions3/AMListAction3.h"
 
-class Model : public QObject
+class ShutterModel : public QObject
 {
     Q_OBJECT
 
@@ -43,7 +43,7 @@ public:
                         Enabled
                       };
 
-    explicit Model(QObject *parent = 0);
+	explicit ShutterModel(QObject *parent = 0);
 
 signals:
     void aodShutterControlConnected(bool isConnected);
@@ -99,4 +99,4 @@ private:
 
 };
 
-#endif // MODEL_H
+#endif // SHUTTERMODEL_H
