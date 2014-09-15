@@ -89,7 +89,7 @@ IDEASXASScanActionController::IDEASXASScanActionController(IDEASXASScanConfigura
 	else if (configuration_->fluorescenceDetector() == IDEASXASScanConfiguration::Ge13Element){
 
 		ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->exposedDetectorByName("13-el Ge")->toInfo());
-		ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->ketekDwellTime()->toInfo());
+		ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->ge13ElementDwellTime()->toInfo();
 	}
 
 	configuration_->setDetectorConfigurations(ideasDetectors);
