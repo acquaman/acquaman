@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QLayout>
 #include <QLabel>
+#include <QPushButton>
 #include <QDoubleSpinBox>
 
 #include "beamline/BioXAS/BioXASSideBeamline.h"
@@ -25,6 +26,7 @@ public:
 signals:
 
 public slots:
+    void setMonochromator(BioXASSideMonochromator *mono);
 
 protected slots:
     void onEnergyChanged();
