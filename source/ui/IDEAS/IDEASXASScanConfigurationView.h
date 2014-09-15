@@ -74,7 +74,7 @@ protected slots:
 	/// Helper slot that handles the setting the estimated time label.
 	void onEstimatedTimeChanged();
 	/// Handles updates of displayed detector ROIs
-	void onKetekROIChange();
+	void onROIChange();
 	/// Slot that updates the fluorescence detector buttons.
 	void updateFluorescenceDetectorComboBox(int detector);
 	/// Handles changes to the fluorescence detector choice.
@@ -112,7 +112,7 @@ protected:
 	/// Label holding the energy space scan range.
 	QLabel *scanEnergyRange_;
 	/// Label holding the currently selected ROIs.
-	QLabel *ketekROIs_;
+	QLabel *ROIsLabel_;
 	/// Combo box for choosing the fluorescence detector.
 	QComboBox *fluorescenceDetectorComboBox_;
 };
