@@ -73,38 +73,38 @@ REIXSXESImageInterpolationAB::REIXSXESImageInterpolationAB(const QString &output
 }
 
 
-REIXSXESImageInterpolationAB::REIXSXESImageInterpolationAB(AMDatabase *db, int id) :
-	AMStandardAnalysisBlock("tempName", 0)
-{
-	curveSmoother_ = 0;
+//REIXSXESImageInterpolationAB::REIXSXESImageInterpolationAB(AMDatabase *db, int id) :
+//	AMStandardAnalysisBlock("tempName", 0)
+//{
+//	curveSmoother_ = 0;
 
-	sumRangeMinY_ = 3;
-	sumRangeMaxY_ = 60;
-	sumRangeMinX_ = 50;
-	sumRangeMaxX_ = 950;
-	rangeRound_ = 1.0;
-	correlationCenterPx_ = 512;
-	correlationHalfWidth_ = 40;
-	correlationSmoothing_ = QPair<int,int>(-1,1);
-	energyCalibrationOffset_ = 0;
-	tiltCalibrationOffset_ = 0;
-	liveCorrelation_ = false;
-	// shift values can start out empty.
+//	sumRangeMinY_ = 3;
+//	sumRangeMaxY_ = 60;
+//	sumRangeMinX_ = 50;
+//	sumRangeMaxX_ = 950;
+//	rangeRound_ = 1.0;
+//	correlationCenterPx_ = 512;
+//	correlationHalfWidth_ = 40;
+//	correlationSmoothing_ = QPair<int,int>(-1,1);
+//	energyCalibrationOffset_ = 0;
+//	tiltCalibrationOffset_ = 0;
+//	liveCorrelation_ = false;
+//	// shift values can start out empty.
 
-	inputSource_ = 0;
-	cacheInvalid_ = true;
-	axisValueCacheInvalid_ = true;
-	interpolationLevel_ = 10;
+//	inputSource_ = 0;
+//	cacheInvalid_ = true;
+//	axisValueCacheInvalid_ = true;
+//	interpolationLevel_ = 10;
 
-	// leave sources_ empty for now.
+//	// leave sources_ empty for now.
 
-	axes_ << AMAxisInfo("invalid", 0, "No input data");
+//	axes_ << AMAxisInfo("invalid", 0, "No input data");
 
-	loadFromDb(db, id); // will restore the parameters sumRangeMin_, sumRangeMax_, correlation settings, and shift values. We'll remain invalid until we get connected to a data source.
-	AMDataSource::name_ = AMDbObject::name();	// normally it's not okay to change a dataSource's name. Here we get away with it because we're within the constructor, and nothing's watching us yet.
+//	loadFromDb(db, id); // will restore the parameters sumRangeMin_, sumRangeMax_, correlation settings, and shift values. We'll remain invalid until we get connected to a data source.
+//	AMDataSource::name_ = AMDbObject::name();	// normally it's not okay to change a dataSource's name. Here we get away with it because we're within the constructor, and nothing's watching us yet.
 
-	connect(&callCorrelation_, SIGNAL(executed()), this, SLOT(correlateNow()));
-}
+//	connect(&callCorrelation_, SIGNAL(executed()), this, SLOT(correlateNow()));
+//}
 
 REIXSXESImageInterpolationAB::~REIXSXESImageInterpolationAB() {
 }

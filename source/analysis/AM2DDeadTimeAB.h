@@ -32,7 +32,7 @@ class AM2DDeadTimeAB : public AMStandardAnalysisBlock
 
 public:
 	/// Constructor.
- 	virtual ~AM2DDeadTimeAB();
+	virtual ~AM2DDeadTimeAB();
 	Q_INVOKABLE AM2DDeadTimeAB(const QString &outputName = "InvalidInput", QObject *parent = 0);
 
 	/// Description.
@@ -43,6 +43,9 @@ public:
 	- the rank() of that input source must be 2 (two-dimensiona)
 	*/
 	virtual bool areInputDataSourcesAcceptable(const QList<AMDataSource*>& dataSources) const;
+
+	/// Returns the desired rank for input sources.  Requires datasources of different ranks and is special so -1.
+	virtual int desiredInputRank() const { return -1; }
 
 	/// Set the data source inputs.  Order needs to be spectra then ICR then OCR.
 	virtual void setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources);

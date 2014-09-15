@@ -33,7 +33,7 @@ class AM3DDeadTimeCorrectionAB : public AMStandardAnalysisBlock
 
 public:
 	/// Constructor.
- 	virtual ~AM3DDeadTimeCorrectionAB();
+	virtual ~AM3DDeadTimeCorrectionAB();
 	Q_INVOKABLE AM3DDeadTimeCorrectionAB(const QString &outputName = "InvalidInput", QObject *parent = 0);
 
 	/// Description.
@@ -41,6 +41,9 @@ public:
 
 	/// Check if a set of inputs is valid. The empty list (no inputs) must always be valid. For non-empty lists, our specific requirements are...
 	virtual bool areInputDataSourcesAcceptable(const QList<AMDataSource*>& dataSources) const;
+
+	/// Returns the desired rank for input sources.
+	virtual int desiredInputRank() const { return 3; }
 
 	/// Set the data source inputs.  Order needs to be spectra then ICR then OCR.
 	virtual void setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources);
