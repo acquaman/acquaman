@@ -100,14 +100,17 @@ void AMDetectorDwellTimeAction::startImplementation(){
 	}
 }
 
-void AMDetectorDwellTimeAction::onDwellSetStarted(double dwellSeconds){
+void AMDetectorDwellTimeAction::onDwellSetStarted(double dwellTime){
 	if(dwellTimeSource_)
 		disconnect(dwellTimeSource_, SIGNAL(setDwellTime(double)), this, SLOT(onDwellSetStarted(double)));
 
-	if(dwellSeconds != detectorDwellTimeInfo()->dwellSeconds())
+	if(fabs(dwellTime - detectorDwellTimeInfo()->dwellSeconds()) < detector_->acquisitionTimeTolerance())
+		setSucceeded();
+	else{
+
+		AMErrorMon::alert(this, AMDETECTORDWELLTIMEACTION_TIME_INVALID_ON_START, "Failed to set the dwell time within tolerance.");
 		setFailed();
-	else
-		setStarted();
+	}
 }
 
 void AMDetectorDwellTimeAction::onDwellSetSucceeded(){
@@ -118,13 +121,17 @@ void AMDetectorDwellTimeAction::onDwellSetSucceeded(){
 	setSucceeded();
 }
 
-void AMDetectorDwellTimeAction::onDwellTimeChanged(double dwellSeconds){
+void AMDetectorDwellTimeAction::onDwellTimeChanged(double dwellTime){
 	disconnect(detector_, 0, this, 0);
 
-	if(dwellSeconds != detectorDwellTimeInfo()->dwellSeconds())
-		setFailed();
-	else
+	if(fabs(dwellTime - detectorDwellTimeInfo()->dwellSeconds()) < detector_->acquisitionTimeTolerance())
 		setSucceeded();
+
+	else{
+
+		AMErrorMon::alert(this, AMDETECTORDWELLTIMEACTION_TIME_INVALID_ON_CHANGED, "Failed to set the dwell time within tolerance.");
+		setFailed();
+	}
 }
 
 void AMDetectorDwellTimeAction::onDwellSetFailed(){
