@@ -125,7 +125,6 @@ protected:
 	/// Flag holding whether all of the data sources should be visible or not, despite their state of hidden from users.
 	bool showAllDataSources_;
 
-private:
 	QVBoxLayout *verticalLayout;
 	QTreeView *scanSetView_;
 	QHBoxLayout *addAnalysisToolButtonLayout_;
