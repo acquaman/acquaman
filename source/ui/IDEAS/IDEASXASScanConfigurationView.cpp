@@ -418,37 +418,39 @@ void IDEASXASScanConfigurationView::onROIChange()
 	AMXRFDetector *detector = 0;
 
 	if (configuration_->fluorescenceDetector() == IDEASXASScanConfiguration::None)
-	{
 		ROIsLabel_->setText("");
-		return;
-	}
 
-
-	if (configuration_->fluorescenceDetector() == IDEASXASScanConfiguration::Ketek)
+	else if (configuration_->fluorescenceDetector() == IDEASXASScanConfiguration::Ketek)
 		detector = IDEASBeamline::ideas()->ketek();
 
 	else if (configuration_->fluorescenceDetector() == IDEASXASScanConfiguration::Ge13Element)
 		detector = IDEASBeamline::ideas()->ge13Element();
 
-	if (detector->regionsOfInterest().isEmpty())
-	{
-		ROIsLabel_->setText("No XRF detector regions of interest selected.");
-		if (isXRFScanCheckBox_->isChecked())
-			 ROIsLabel_->setStyleSheet("QLabel { background-color : red; color : white}");
-		    else
-			 ROIsLabel_->setStyleSheet("QLabel { color : black; }");
-		return;
+	if (detector){
+		
+		if (detector->regionsOfInterest().isEmpty())
+		{
+			ROIsLabel_->setText("No XRF detector regions of interest selected.");
+			
+			if (isXRFScanCheckBox_->isChecked())
+				 ROIsLabel_->setStyleSheet("QLabel { background-color : red; color : white}");
+			
+			else
+				 ROIsLabel_->setStyleSheet("QLabel { color : black; }");
+		}
+		
+		else {
+			
+			QString regionsText;
+		
+			foreach (AMRegionOfInterest *region, detector->regionsOfInterest())
+				regionsText.append(QString("%1 (%2 eV - %3 eV)\n").arg(region->name()).arg(int(region->lowerBound())).arg(int(region->upperBound())));
+			
+			ROIsLabel_->setStyleSheet("QLabel { color : black; }");
+			ROIsLabel_->setText(regionsText);
+			
+		}
 	}
-
-	QString regionsText;
-
-	foreach (AMRegionOfInterest *region, detector->regionsOfInterest())
-	{
-		regionsText.append(QString("%1 (%2 eV - %3 eV)\n").arg(region->name()).arg(int(region->lowerBound())).arg(int(region->upperBound())));
-
-	}
-	ROIsLabel_->setStyleSheet("QLabel { color : black; }");
-	ROIsLabel_->setText(regionsText);
 }
 
 QComboBox *IDEASXASScanConfigurationView::createFluorescenceComboBox()
