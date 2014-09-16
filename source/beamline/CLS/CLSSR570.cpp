@@ -85,12 +85,22 @@ void CLSSR570::onSensitivityControlConnectedChanged(bool connected)
 
 void CLSSR570::onSensitivityControlValueChanged(double controlValue)
 {
-	atMinimumSensitivity_ = false;
-	atMaximumSensitivity_ = false;
-	if (controlValue == 0)
+	if(fabs(controlValue - 0) < 0.5 && !atMaximumSensitivity_){
 		atMaximumSensitivity_ = true;
-	else if (controlValue == 27)
+		emit maximumValue(true);
+	}
+	else if(fabs(controlValue - 27) < 0.5 && !atMinimumSensitivity_) {
 		atMinimumSensitivity_ = true;
+		emit minimumValue(true);
+	}
+	else if(atMaximumSensitivity_ && !(fabs(controlValue - 0) < 0.5)){
+		atMaximumSensitivity_ = false;
+		emit maximumValue(false);
+	}
+	else if(atMinimumSensitivity_ && !(fabs(controlValue - 27) < 0.5)){
+		atMinimumSensitivity_ = false;
+		emit minimumValue(false);
+	}
 
 	// update the value of sensitivity num pv and sensitivity unit pv
 	sensitivityNumControl_->disableProcessRecord();
