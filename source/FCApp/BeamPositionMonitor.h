@@ -3,33 +3,47 @@
 
 #include <QObject>
 #include "beamline/AMProcessVariable.h"
+#include "MPlot/MPlotSeriesData.h"
+
+
+
+/// This is the model class that retreives and stores the data coming from a PV, this case the BPM data.  The constructor BeamPositionMonitor() sets
+/// the connections to the pv and stores it in QVector xValues_ and yValues_
 
 
 class BeamPositionMonitor : public QObject
 {
     Q_OBJECT
 public:
-    //Constructor for 1-dim bpm value
-    explicit BeamPositionMonitor(const QString &name,
-                                 const QString &pv,
-                                 QObject *parent = 0);
 
-    QString axisName() const { return axisName_; }
+    //Constructor for 2-dim bpm value, at first this just stored data from one pv but I will
+    //attempt to have the constructor deal with x, y PV
+    explicit BeamPositionMonitor(const QString &pvXbpm, const QString &pvYbpm, QObject *parent = 0);
+
+    int xValueCount() const { return xValues_.count(); }
+    int yValueCount() const { return yValues_.count(); }
+    void SendValues(int xIndex, int yIndex)  { sendValues(xIndex, yIndex); }
+
 
 signals:
-    void rmsChanged(double emitValue);
-
+   void requestedValues(int xIndexValue, int yIndexValue);
 
 public slots:
 
 
 protected slots:
-    void bpmPVChanged(double value);
+    void updateValueX(double value);
+    void updateValueY(double value);
+
+    void sendValues(int xIndex, int yIndex);
+
 
 protected:
-    QString axisName_;
-    QString pvAxisRMS_;
+    QVector<qreal> xValues_;
+    QVector<qreal> yValues_;
 
+    QString xPV_;
+    QString yPV_;
 
 };
 

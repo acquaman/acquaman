@@ -1,100 +1,99 @@
 #include "BeamPositionMonitorView.h"
 
-BeamPositionMonitorView::BeamPositionMonitorView(BeamPositionMonitor *xBPM, BeamPositionMonitor *yBPM, QWidget *parent) :
-    QWidget(parent)
-{
-    connect(xBPM, SIGNAL(rmsChanged(double)), this, SLOT( setXValue(double)));
-    connect(yBPM, SIGNAL(rmsChanged(double)), this, SLOT( setYValue(double)));
+#include <QVBoxLayout>
 
-    MPlotSeriesBasic *seriesX = new MPlotSeriesBasic();
-    MPlotSeriesBasic *seriesY = new MPlotSeriesBasic();
+#include <QDebug>
 
-    elapsedTime_ = 0;
+BeamPositionMonitorView::BeamPositionMonitorView(QWidget *parent)
+    : QWidget(parent){
 
-    plotWindowX_.enableAntiAliasing(true);
-    plotWindowX_.setPlot(&plotX_);
-    plotX_.axisRight()->setTickPen(QPen(QBrush(QColor(Qt::black)), 0));
-    plotX_.axisRight()->showTickLabels(true);
-    plotX_.axisRight()->setAxisName("Y RMS");
-    plotX_.axisRight()->showAxisName(true);
-    plotX_.axisBottom()->setTickPen(QPen(QBrush(QColor(Qt::red)), 0));
-    plotX_.axisBottom()->showTickLabels(true);
-    plotX_.axisBottom()->setAxisName("time (ms)");
-    plotX_.axisBottom()->showAxisName(true);
-    plotX_.axisScaleRight()->setAutoScaleEnabled();
-    plotX_.axisScaleBottom()->setAutoScaleEnabled();
 
-    plotWindowY_.enableAntiAliasing(true);
-    plotWindowY_.setPlot(&plotY_);
-    plotY_.axisRight()->setTickPen(QPen(QBrush(QColor(Qt::black)), 0));
-    plotY_.axisRight()->showTickLabels(true);
-    plotY_.axisRight()->setAxisName("X RMS");
-    plotY_.axisRight()->showAxisName(true);
-    plotY_.axisBottom()->setTickPen(QPen(QBrush(QColor(Qt::red)), 0));
-    plotY_.axisBottom()->showTickLabels(true);
-    plotY_.axisBottom()->setAxisName("time (ms)");
-    plotY_.axisBottom()->showAxisName(true);
-    plotY_.axisScaleRight()->setAutoScaleEnabled();
-    plotY_.axisScaleBottom()->setAutoScaleEnabled();
+    bpmXY_ = new BeamPositionMonitor("BPM:XRMS", "BPM:YRMS", this);
+    bpmDataSource_ = new MPlotVectorSeriesData;
 
-    seriesX->setModel(&dataX);
-    seriesY->setModel(&dataY);
+    connect(bpmXY_, SLOT(sendValues(int,int)), this, SLOT(addItemToDataSource(qreal, qreal)));
 
-   QPen redSkinny(QBrush(QColor(Qt::red)), 1);
-    seriesX->setLinePen(redSkinny);
+    setupPlot();
 
-    QPen thickBlue(QBrush(QColor(Qt::blue)), 4);
-    seriesY->setLinePen(thickBlue);
+    QVBoxLayout *plotLayout = new QVBoxLayout;
+    plotLayout->addWidget(viewWidget_);
+    setLayout(plotLayout);
 
-    plotX_.addItem(seriesX);
-    plotY_.addItem(seriesY);
 
-    plotWindowX_.resize(400, 300);
-    plotWindowY_.resize(200, 110);
 
-    QTimer *addTimer = new QTimer(this);
-    connect(addTimer, SIGNAL(timeout()), this, SLOT(updatePlot()));
-    addTimer->start(100);
-
-    QTimer *delTimer = new QTimer(this);
-    connect(delTimer, SIGNAL(timeout()), this, SLOT(removePlotPoint()));
-    delTimer->start(5000);
-}
-
-void BeamPositionMonitorView::removePlotPoint(){
-
-    dataX.removePointFront();
-    dataY.removePointFront();
+    QTimer *timer = new QTimer(this);
+    connect(timer, SIGNAL(timeout()), this, SLOT(updateValues()));
+    timer->start();
 
 }
 
-void BeamPositionMonitorView::updatePlot(){
+void BeamPositionMonitorView::updateValues(){
 
-     dataX.insertPointBack(elapsedTime_, xValue_);
-     dataY.insertPointBack(elapsedTime_, yValue_);
+    int xIndex = bpmXY_->xValueCount();
+    int yIndex = bpmXY_->yValueCount();
 
-     elapsedTime_ = elapsedTime_ + 1;
+    qDebug() << xIndex;
+
+    bpmXY_->SendValues(xIndex - 1, yIndex - 1 );
+
+}
+
+void BeamPositionMonitorView::addItemToDataSource(qreal x, qreal y){
+
+    int xIndex = bpmXY_->xValueCount();
+    int yIndex = bpmXY_->yValueCount();
+
+    bpmDataSource_->setXValue(xIndex, x);
+    bpmDataSource_->setYValue(yIndex, y);
+
+
 }
 
 
 
-void BeamPositionMonitorView::setXValue(double value){
+void BeamPositionMonitorView::setupPlot(){
 
-    xValue_ = value;
+    //Create plot window
+    viewWidget_ = new MPlotWidget;
+
+    //Create the plot and setup axis
+    plot_ = new MPlot;
+    plot_->axisBottom()->setAxisNameFont(QFont("Helvetica", 6));
+    plot_->axisBottom()->setTickLabelFont(QFont("Helvetica", 6));
+    plot_->axisBottom()->setAxisName("X");
+
+    plot_->axisLeft()->setAxisNameFont(QFont("Helvetica", 6));
+    plot_->axisLeft()->setTickLabelFont(QFont("Helvetica", 6));
+    plot_->axisLeft()->setAxisName("Y");
+
+    plot_->setMarginLeft(10);
+    plot_->setMarginBottom(15);
+    plot_->setMarginRight(2);
+    plot_->setMarginTop(2);
+
+    //Creates a series to be viewed using the XY scatter data source object
+    //from MPlotVectorSeriesData.
+    scatter_ = new MPlotSeriesBasic;
+    scatter_->setModel(bpmDataSource_, true);
+    scatter_->setMarker(MPlotMarkerShape::CrossCircle, 14);
+    scatter_->setDescription("Beam Position");
+
+
+    //Add series to plot
+    plot_->addItem(scatter_);
+
+    //Put the plot into a plot window, the figures used here will be subject to change as I sort out how I want it to look
+    viewWidget_->setPlot(plot_);
+    viewWidget_->setMinimumSize(640, 480);
+    plot_->axisScaleBottom()->setDataRangeAndDisableAutoScaling(MPlotAxisRange(-0.2, 0.1));
+    plot_->axisScaleLeft()->setDataRangeAndDisableAutoScaling(MPlotAxisRange(-0.1, 0.2));
+    plot_->axisBottom()->setTicks(4, MPlotAxis::Middle);
+    plot_->axisTop()->setTicks(4, MPlotAxis::Middle);
+    plot_->axisLeft()->setTicks(4, MPlotAxis::Middle);
+    plot_->axisRight()->setTicks(4, MPlotAxis::Middle);
+
+
+    viewWidget_->show();
+
 
 }
-
-
-void BeamPositionMonitorView::setYValue(double value){
-
-    yValue_ = value;
-
-}
-
-void BeamPositionMonitorView::showBPM(){
-        plotWindowX_.show();
-        plotWindowY_.show();
-
-}
-
-

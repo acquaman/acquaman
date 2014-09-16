@@ -88,6 +88,7 @@ FCApp::FCApp(QWidget *parent) :
                                                              "SSH1406-B20-01:state",
                                                              this);
 
+    /*
     BeamPositionMonitor *xBPM = new BeamPositionMonitor("x", "BPM:XRMS", this);
     BeamPositionMonitor *yBPM = new BeamPositionMonitor("y", "BPM:YRMS", this);
 
@@ -98,6 +99,9 @@ FCApp::FCApp(QWidget *parent) :
     QPushButton *bpmButton_= new QPushButton("BPM");
     connect(bpmButton_, SIGNAL(clicked()), bpmView, SLOT(showBPM()));
 
+  */
+
+    BeamPositionMonitorView *bpmView = new BeamPositionMonitorView(this);
 
 
 //////End Beamline shutter PVs
@@ -133,7 +137,7 @@ FCApp::FCApp(QWidget *parent) :
     mainLayout->addWidget(ideasView);
     mainLayout->addWidget(smView);
     mainLayout->addWidget(sgmpgmView);
-    mainLayout->addWidget(bpmButton_);
+    //mainLayout->addWidget(bpmButton_);
     setLayout(mainLayout);
 
 

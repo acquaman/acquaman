@@ -11,9 +11,10 @@ QWidget(parent)
     psh2Light_ = new QLabel;
     ssh1Light_ = new QLabel;
 
-    psh1Light_->setPixmap(QIcon("/home/david/beamline/programming/acquaman/source/icons/RED.png").pixmap(12));
-    psh2Light_->setPixmap(QIcon("/home/david/beamline/programming/acquaman/source/icons/RED.png").pixmap(12));
-    ssh1Light_->setPixmap(QIcon("/home/david/beamline/programming/acquaman/source/icons/RED.png").pixmap(12));
+    ///home/david/beamline/programming/acquaman/source/icons/
+    psh1Light_->setPixmap(QIcon(":/RED.png").pixmap(12));
+    psh2Light_->setPixmap(QIcon(":/RED.png").pixmap(12));
+    ssh1Light_->setPixmap(QIcon(":/RED.png").pixmap(12));
 
     //Changed from beamline to model_
     connect(model_, SIGNAL(psh1Changed(int)), this, SLOT(updatePSH1Pixmap(int)));
@@ -42,29 +43,29 @@ QWidget(parent)
 void BeamlineShutterView::updatePSH1Pixmap(int value){
 
     if( value == 1)
-        psh1Light_->setPixmap(QIcon("/home/david/beamline/programming/acquaman/source/icons/ON.png").pixmap(12));
+        psh1Light_->setPixmap(QIcon(":/ON.png").pixmap(12));
     else if (value == 2)
-        psh1Light_->setPixmap(QIcon("/home/david/beamline/programming/acquaman/source/icons/Yellow.png").pixmap(12));
+        psh1Light_->setPixmap(QIcon(":/Yellow.png").pixmap(12));
     else if (value == 4)
-        psh1Light_->setPixmap(QIcon("/home/david/beamline/programming/acquaman/source/icons/RED.png").pixmap(12));
+        psh1Light_->setPixmap(QIcon(":/RED.png").pixmap(12));
 }
 
 void BeamlineShutterView::updatePSH2Pixmap(int value){
 
     if( value == 1)
-        psh2Light_->setPixmap(QIcon("/home/david/beamline/programming/acquaman/source/icons/ON.png").pixmap(12));
+        psh2Light_->setPixmap(QIcon(":/ON.png").pixmap(12));
     else if (value == 2)
-        psh2Light_->setPixmap(QIcon("/home/david/beamline/programming/acquaman/source/icons/Yellow.png").pixmap(12));
+        psh2Light_->setPixmap(QIcon(":/Yellow.png").pixmap(12));
     else if (value == 4)
-        psh2Light_->setPixmap(QIcon("/home/david/beamline/programming/acquaman/source/icons/RED.png").pixmap(12));
+        psh2Light_->setPixmap(QIcon(":/RED.png").pixmap(12));
 }
 
 void BeamlineShutterView::updateSSH1Pixmap(int value){
 
     if( value == 1)
-        ssh1Light_->setPixmap(QIcon("/home/david/beamline/programming/acquaman/source/icons/ON.png").pixmap(12));
+        ssh1Light_->setPixmap(QIcon(":/ON.png").pixmap(12));
     else if (value == 2)
-        ssh1Light_->setPixmap(QIcon("/home/david/beamline/programming/acquaman/source/icons/Yellow.png").pixmap(12));
+        ssh1Light_->setPixmap(QIcon(":/Yellow.png").pixmap(12));
     else if (value == 4)
-        ssh1Light_->setPixmap(QIcon("/home/david/beamline/programming/acquaman/source/icons/RED.png").pixmap(12));
+        ssh1Light_->setPixmap(QIcon(":/RED.png").pixmap(12));
 }
