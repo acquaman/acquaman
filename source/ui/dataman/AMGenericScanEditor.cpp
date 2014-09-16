@@ -337,6 +337,9 @@ void AMGenericScanEditor::addScan(AMScan* newScan) {
 
 	connect(newScan, SIGNAL(nameChanged(QString)), this, SLOT(onScanDetailsChanged()));
 	connect(newScan, SIGNAL(numberChanged(int)), this, SLOT(onScanDetailsChanged()));
+	connect(currentScan_->scanConfiguration(), SIGNAL(configurationChanged()), this, SLOT(refreshScanInfo()));
+	qDebug() << "should have been connected by addScan()"  << currentScan_;
+
 
 	emit scanAdded(this, newScan);
 	refreshWindowTitle();
@@ -386,6 +389,8 @@ void AMGenericScanEditor::onCurrentChanged ( const QModelIndex & selected, const
 		disconnect(currentScan_, SIGNAL(numberChanged(int)), this, SLOT(refreshWindowTitle()));
 		disconnect(currentScan_, SIGNAL(nameChanged(QString)), this, SLOT(refreshWindowTitle()));
 		disconnect(currentScan_, SIGNAL(scanInitialConditionsChanged()), this, SLOT(refreshScanConditions()));
+		disconnect(currentScan_->scanConfiguration(), SIGNAL(configurationChanged()), this, SLOT(refreshScanInfo()));
+
 	}
 
 	// it becomes now the new scan:
@@ -406,6 +411,8 @@ void AMGenericScanEditor::onCurrentChanged ( const QModelIndex & selected, const
 		connect(currentScan_, SIGNAL(numberChanged(int)), this, SLOT(refreshWindowTitle()));
 		connect(currentScan_, SIGNAL(nameChanged(QString)), this, SLOT(refreshWindowTitle()));
 		connect(currentScan_, SIGNAL(scanInitialConditionsChanged()), this, SLOT(refreshScanConditions()));
+		connect(currentScan_->scanConfiguration(), SIGNAL(configurationChanged()), this, SLOT(refreshScanInfo()));
+		qDebug() << "should have been connected by onCurrentChanged()"  << currentScan_;
 
 		// \todo When migrating to multiple scan selection, this will need to be changed:
 		ui_.saveScanButton->setEnabled(true);
@@ -434,8 +441,21 @@ void AMGenericScanEditor::updateEditor(AMScan *scan) {
 		ui_.scanDuration->setText(scan->currentlyScanning() ? ("Acquiring " % AMDateTimeUtils::prettyDuration(currentScan_->dateTime(), QDateTime::currentDateTime(), true))
 															: AMDateTimeUtils::prettyDuration(scan->dateTime(), scan->endDateTime()));
 		ui_.scanTime->setText( scan->dateTime().time().toString("h:mmap") );
-		ui_.scanEnd->setText(scan->currentlyScanning() ? ("Approx " % (scan->dateTime().addSecs(scan->scanConfiguration()->expectedDuration())).time().toString("h:mmap"))
-								  : scan->endDateTime().time().toString("h:mmap"));
+//		qDebug() << "about to check if scan is currently running or not:" << scan->currentlyScanning() <<
+//			 "\n the scan->endDateTime().time()" << scan->endDateTime().;
+		if(scan->endDateTime().isValid())
+			ui_.scanEnd->setText(scan->endDateTime().time().toString("h:mmap"));
+		else
+			ui_.scanEnd->setText("Approx " % scan->dateTime().addSecs(int(scan->scanConfiguration()->expectedDuration())).time().toString("h:mmap"));
+
+//		ui_.scanEnd->setText(scan->currentlyScanning() ? "running"
+//								  : scan->endDateTime().time().toString("h:mmap"));
+
+		//("Approx " % (scan->dateTime().addSecs(scan->scanConfiguration()->expectedDuration())).time().toString("h:mmap"))
+
+		qDebug() << "Updated scanEnd feild with time" << scan->dateTime().time() << "and expected duration: " << scan->scanConfiguration()->expectedDuration();
+		qDebug() << "adding of the seconds we get" << scan->dateTime().addSecs(scan->scanConfiguration()->expectedDuration()).time() << "which converts to a string as" <<  ("Approx " % (scan->dateTime().addSecs(scan->scanConfiguration()->expectedDuration())).time().toString("h:mmap"));
+			    qDebug() << "and all together we get" << ("Approx " % (scan->dateTime().addSecs(scan->scanConfiguration()->expectedDuration())).time().toString("h:mmap"));
 		ui_.notesEdit->setPlainText( scan->notes() );
 		runSelector_->setCurrentRunId(scan->runId());
 		if(scan->samplePre2013()){
