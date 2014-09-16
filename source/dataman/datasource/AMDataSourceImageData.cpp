@@ -21,7 +21,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMDataSourceImageData.h"
 
- AMDataSourceImageData::~AMDataSourceImageData(){}
 AMDataSourceImageData::AMDataSourceImageData(const AMDataSource* dataSource, QObject* parent)
 	: QObject(parent), MPlotAbstractImageData()
 {
@@ -29,7 +28,11 @@ AMDataSourceImageData::AMDataSourceImageData(const AMDataSource* dataSource, QOb
 	setDataSource(dataSource);
 }
 
-/// Call this to switch to representing a different data source
+AMDataSourceImageData::~AMDataSourceImageData()
+{
+
+}
+
 void AMDataSourceImageData::setDataSource(const AMDataSource* dataSource) {
 
 	// disconnect the old source, if there is a valid old source.
@@ -38,22 +41,188 @@ void AMDataSourceImageData::setDataSource(const AMDataSource* dataSource) {
 	}
 
 	source_ = dataSource;
-	if(dataSource == 0 || dataSource->rank() != 2) {
+
+	if(dataSource == 0 || dataSource->rank() != 2){
+
 		isValid_ = false;
+		xSize_ = 0;
+		ySize_ = 0;
+		boundingRect_ = QRect();
+		xAxis_ = QVector<double>();
+		yAxis_ = QVector<double>();
+		data_ = QVector<double>();
 	}
+
 	else {
+
 		isValid_ = true;
-		connect(dataSource->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onDataSourceDataChanged()));
-		connect(dataSource->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onDataSourceBoundsChanged()));
 
-		connect(dataSource->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onDataSourceDataChanged()));
+		connect(dataSource->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onSizeChanged(int)));
+		connect(dataSource->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onSizeChanged(int)));
+		connect(dataSource->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onDataChanged(AMnDIndex,AMnDIndex)));
+	}
+}
 
-		connect(dataSource->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onDataSourceBoundsChanged()));
-		connect(dataSource->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onDataSourceDataChanged()));
+double AMDataSourceImageData::x(int index) const
+{
+	return xAxis_.at(index);
+}
 
-		connect(dataSource->signalSource(), SIGNAL(deleted(void*)), this, SLOT(onDataSourceDeleted()));
+double AMDataSourceImageData::y(int index) const
+{
+	return yAxis_.at(index);
+}
+
+double AMDataSourceImageData::z(int xIndex, int yIndex) const
+{
+	return data_.at(xIndex + yIndex*xSize_);
+}
+
+void AMDataSourceImageData::zValues(int xStart, int yStart, int xEnd, int yEnd, double* outputValues) const
+{
+	// If we want the whole array, just use memcpy.
+	if (xStart == 0 && yStart == 0 && xEnd == (xSize_-1) && yEnd == (ySize_-1))
+		memcpy(outputValues, data_.constData(), xSize_*ySize_);
+
+	else{
+
+		for (int j = 0, jSize = yEnd-yStart+1; j < jSize; j++)
+			for (int i = 0, iSize = xEnd-xStart+1; i < iSize; i++)
+				outputValues[i+j*iSize] = data_.at(i+xStart + (j+yStart)*xSize_);
+	}
+}
+
+QPoint AMDataSourceImageData::count() const
+{
+	return QPoint(xSize_, ySize_); // Returns 0,0 when invalid so we are still okay.
+}
+
+QRectF AMDataSourceImageData::boundingRect() const
+{
+	return boundingRect_;
+}
+
+void AMDataSourceImageData::onAxisValuesChanged(int axisId)
+{
+	if (axisId == -1){
+
+		for (int i = 0; i < xSize_; i++)
+			xAxis_[i] = source_->axisValue(0, i);
+
+		for (int j = 0; j < ySize_; j++)
+			yAxis_[j] = source_->axisValue(1, j);
 	}
 
-	onDataSourceBoundsChanged();
-	onDataSourceDataChanged();
+	else if (axisId == 0){
+
+		for (int i = 0; i < xSize_; i++)
+			xAxis_[i] = source_->axisValue(0, i);
+
+	}
+
+	else if (axisId == 1) {
+
+		for (int j = 0; j < ySize_; j++)
+			yAxis_[j] = source_->axisValue(1, j);
+	}
+
+	recomputeBoundingRect(axisId);
+	MPlotAbstractImageData::emitBoundsChanged();
+}
+
+void AMDataSourceImageData::onDataChanged(const AMnDIndex &start, const AMnDIndex &end)
+{
+	QVector<double> newData = QVector<double>(start.totalPointsTo(end));
+	source_->values(start, end, newData.data());
+
+	int xOffset = start.i();
+	int yOffset = start.j();
+
+	for (int j = 0, jSize = end.j()-start.j()+1; j < jSize; j++)
+		for (int i = 0, iSize = end.i()-start.i()+1; i < iSize; i++)
+			data_[i+xOffset + (j+yOffset)*xSize_] = newData.at(i+j*iSize);
+
+	MPlotAbstractImageData::emitDataChanged();
+}
+
+void AMDataSourceImageData::onSizeChanged(int axisId)
+{
+	if (axisId == -1){
+
+		xSize_ = source_->size(0);
+		ySize_ = source_->size(1);
+		xAxis_ = QVector<double>(xSize_, 0);
+		yAxis_ = QVector<double>(ySize_, 0);
+	}
+
+	else if (axisId == 0){
+
+		xSize_ = source_->size(0);
+		xAxis_ = QVector<double>(xSize_, 0);
+	}
+
+	else if (axisId == 1){
+
+		ySize_ = source_->size(1);
+		yAxis_ = QVector<double>(ySize_);
+	}
+
+	data_ = QVector<double>(xSize_*ySize_, 0);
+	onAxisValuesChanged(axisId);
+	MPlotAbstractImageData::emitBoundsChanged();
+}
+
+void AMDataSourceImageData::recomputeBoundingRect(int axisId)
+{
+	if(!isValid_)
+		boundingRect_ = QRectF();
+
+	if(xSize_ == 0 || ySize_ == 0)
+		boundingRect_ = QRectF();
+
+	else if (axisId == -1){
+
+		double minimumX = xAxis_.at(0);
+		double maximumX = xAxis_.at(xSize_-1);
+		double minimumY = yAxis_.at(0);
+		double maximumY = yAxis_.at(ySize_-1);
+
+		if(maximumX < minimumX)
+			qSwap(minimumX, maximumX);
+
+		if(maximumY < minimumY)
+			qSwap(minimumY, maximumY);
+
+		boundingRect_ = QRectF(minimumX, minimumY, maximumX-minimumX, maximumY-minimumY);
+	}
+
+	else if (axisId == 0){
+
+		double minimumX = xAxis_.at(0);
+		double maximumX = xAxis_.at(xSize_-1);
+
+		if(maximumX < minimumX)
+			qSwap(minimumX, maximumX);
+
+		boundingRect_.setX(minimumX);
+		boundingRect_.setWidth(maximumX-minimumX);
+	}
+
+	else if (axisId == 1){
+
+		double minimumY = yAxis_.at(0);
+		double maximumY = yAxis_.at(ySize_-1);
+
+		if(maximumY < minimumY)
+			qSwap(minimumY, maximumY);
+
+		boundingRect_.setY(minimumY);
+		boundingRect_.setHeight(maximumY-minimumY);
+	}
+}
+
+void AMDataSourceImageData::onDataSourceDeleted()
+{
+	source_ = 0;
+	setDataSource(0);
 }

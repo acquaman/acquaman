@@ -21,7 +21,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef AMDATASOURCEIMAGEDATAWDEFAULT_H
 #define AMDATASOURCEIMAGEDATAWDEFAULT_H
 
-#include <QObject>
 #include "dataman/datasource/AMDataSourceImageData.h"
 
 /// This class extends the standard AMDataSourceImageData to include a default value that is not used when computing the range.
@@ -37,13 +36,14 @@ class AMDataSourceImageDatawDefault : public AMDataSourceImageData
 
 public:
 	/// Constructor. \param dataSource is the data source we wish to encapsulate and \param defaultValue is the value that is ignored when computing the range.
- 	virtual ~AMDataSourceImageDatawDefault();
 	AMDataSourceImageDatawDefault(const AMDataSource *dataSource, double defaultValue, QObject *parent = 0);
+	/// Destructor.
+	virtual ~AMDataSourceImageDatawDefault();
 
 	/// Returns the default value.
 	double defaultValue() const { return defaultValue_; }
 	/// Sets the default value to \param value.
-	void setDefaultValue(double value) { defaultValue_ = value; MPlotAbstractImageData::emitDataChanged(); }
+	void setDefaultValue(double value);
 
 protected:
 	/// Searches for minimum and maximum z value. Stores in minMaxCache_.  Re-implemented from MPlotAbstractImageData to ignore default values when computing the minimum.

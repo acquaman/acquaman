@@ -33,8 +33,9 @@ class AMDataSourceImageData : public QObject, public MPlotAbstractImageData
 	Q_OBJECT
 public:
 	/// Constructor. \c dataSource is the source to represent as Z=f(X,Y) image data.
- 	virtual ~AMDataSourceImageData();
 	AMDataSourceImageData(const AMDataSource* dataSource, QObject* parent = 0);
+	/// Destructor.
+	virtual ~AMDataSourceImageData();
 
 	/// Call this to switch to representing a different data source
 	void setDataSource(const AMDataSource* dataSource);
@@ -44,55 +45,51 @@ public:
 
 
 	/// Return the x (data value) corresponding an (x,y) \c index.
-	virtual inline double x(int indexX) const { return source_->axisValue(0, indexX); }
+	virtual double x(int index) const;
 	/// Return the y (data value) corresponding an (x,y) \c index.
-	virtual inline double y(int indexY) const { return source_->axisValue(1, indexY); }
+	virtual double y(int index) const;
 	/// Return the z = f(x,y) value corresponding an index (\c xIndex, \c yIndex)
-	virtual inline double z(int xIndex, int yIndex) const { return source_->value(AMnDIndex(xIndex, yIndex)); }
+	virtual double z(int xIndex, int yIndex) const;
 	/// Copy an entire block of z = f(x,y) values from (xStart,yStart) to (xEnd,yEnd) inclusive, into \c outputValues. The data is copied in row-major order, ie: with the x-axis varying the slowest. (Can assume \c outputValues has enough room to hold all the values, that (xStart,yStart) <= (xEnd,yEnd), and that the indexes are not out of range.)
-	virtual inline void zValues(int xStart, int yStart, int xEnd, int yEnd, double* outputValues) const { source_->values(AMnDIndex(xStart,yStart), AMnDIndex(xEnd,yEnd), outputValues); }
-
+	virtual void zValues(int xStart, int yStart, int xEnd, int yEnd, double* outputValues) const;
 
 	/// Return the number of elements in x and y
-	virtual inline QPoint count() const { if(isValid_) return QPoint(source_->size(0), source_->size(1)); else return QPoint(0,0); }
+	virtual QPoint count() const;
 
 	/// Return the extent of the data. We assume the axis values are ordered... is this a valid assumption?
-	virtual inline QRectF boundingRect() const {
-		if(!isValid_)
-			return QRectF();
-
-		int sizeX = source_->size(0);
-		int sizeY = source_->size(1);
-
-		if(sizeX == 0 || sizeY == 0)
-			return QRectF();
-
-		double minX = source_->axisValue(0, 0);
-		double maxX = source_->axisValue(0, sizeX-1);
-		double minY = source_->axisValue(1, 0);
-		double maxY = source_->axisValue(1, sizeY-1);
-
-		if(maxX < minX)
-			qSwap(minX, maxX);
-		if(maxY < minY)
-			qSwap(minY, maxY);
-
-		return QRectF(minX, minY, maxX-minX, maxY-minY);
-	}
-
+	virtual QRectF boundingRect() const;
 
 protected slots:
-	/// Forward the valuesChanged() and stateChanged() signals from the data source.
-	inline void onDataSourceDataChanged() { MPlotAbstractImageData::emitDataChanged(); }
-	/// Forward the sizeChanged() and stateChanged() signals from the data source.
-	inline void onDataSourceBoundsChanged() { MPlotAbstractImageData::emitBoundsChanged(); }
+	/// Handles updating the axis values associated with the given index (will be 0 or 1).
+	void onAxisValuesChanged(int axisId);
+	/// Handles updating the data values from the given index to the end index.
+	void onDataChanged(const AMnDIndex &start, const AMnDIndex &end);
+	/// Handles updating the size of the given axis.  Will invalidate the axis values of that axis.
+	void onSizeChanged(int axisId);
+	/// Recomputes the bounding rect. Called if the size or axis values change.  Only updates the corresponding size if specified.
+	void recomputeBoundingRect(int axisId);
 
 	/// ensure that we don't keep trying to read data from a source that has been deleted.
-	void onDataSourceDeleted() { source_ = 0; setDataSource(0); }
+	void onDataSourceDeleted();
 
 protected:
+	/// Pointer to the data source this is encapsulating.
 	const AMDataSource* source_;
+	/// Flag on whether or not this is valid.
 	bool isValid_;
+
+	/// The cached bounding rect.
+	QRectF boundingRect_;
+	/// The size of the x axis.
+	int xSize_;
+	/// The size of the y axis.
+	int ySize_;
+	/// The cached x-axis values.
+	QVector<double> xAxis_;
+	/// The cached y-axis values.
+	QVector<double> yAxis_;
+	/// The cached z-values.
+	QVector<double> data_;
 };
 
 
