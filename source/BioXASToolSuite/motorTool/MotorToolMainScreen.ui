@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
+    <width>1190</width>
     <height>300</height>
    </rect>
   </property>
@@ -17,19 +17,11 @@
    <string notr="true"/>
   </property>
   <property name="currentIndex">
-   <number>3</number>
+   <number>0</number>
   </property>
-  <widget class="QWidget" name="tabFrontEndBL">
-   <property name="styleSheet">
-    <string notr="true">backgroundImage: url(:/resources/image/07ID_FE.gif)</string>
-   </property>
-   <attribute name="title">
-    <string>Front End</string>
-   </attribute>
-  </widget>
   <widget class="QWidget" name="tabMainBL">
    <property name="styleSheet">
-    <string notr="true">backgroundImage: url(:/resources/image/07ID_MainStation.gif)</string>
+    <string notr="true">background-image: url(:/image/07ID_MainStation.gif)</string>
    </property>
    <attribute name="title">
     <string>Main XAS BL</string>
@@ -37,7 +29,7 @@
   </widget>
   <widget class="QWidget" name="tabSideBL">
    <property name="styleSheet">
-    <string notr="true">backgroundImage: url(:/resources/image/07ID_SideStation.gif)</string>
+    <string notr="true">background-image: url(:/image/07ID_SideStation.gif)</string>
    </property>
    <attribute name="title">
     <string>Side XAS BL</string>
@@ -45,7 +37,7 @@
   </widget>
   <widget class="QWidget" name="tabImagingBL">
    <property name="styleSheet">
-    <string notr="true">backgroundImage: url(:/resources/image/07ID_Imaging.gif)</string>
+    <string notr="true">background-image: url(:/image/07ID_Imaging.gif)</string>
    </property>
    <attribute name="title">
     <string>Imaging BL</string>
