@@ -59,8 +59,12 @@ void AMDataSourceImageData::setDataSource(const AMDataSource* dataSource) {
 
 		connect(dataSource->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onSizeChanged(int)));
 		connect(dataSource->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onSizeChanged(int)));
+		connect(dataSource->signalSource(), SIGNAL(axisInfoChanged(int)), this, SLOT(onAxisValuesChanged(int)));
 		connect(dataSource->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onDataChanged(AMnDIndex,AMnDIndex)));
 	}
+
+	onSizeChanged(-1);
+	onDataChanged(AMnDIndex(0,0), AMnDIndex(xSize_-1, ySize_-1));
 }
 
 double AMDataSourceImageData::x(int index) const
@@ -169,7 +173,7 @@ void AMDataSourceImageData::onSizeChanged(int axisId)
 
 	data_ = QVector<double>(xSize_*ySize_, 0);
 	onAxisValuesChanged(axisId);
-	MPlotAbstractImageData::emitBoundsChanged();
+	onDataChanged(AMnDIndex(0,0), AMnDIndex(xSize_-1, ySize_-1));
 }
 
 void AMDataSourceImageData::recomputeBoundingRect(int axisId)
