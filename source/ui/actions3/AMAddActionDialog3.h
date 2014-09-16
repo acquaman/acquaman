@@ -62,7 +62,7 @@ protected slots:
 protected:
 	/// Helper function to clear the existing actions displayed in the list view, and populate it with all the actions registered in AMActionRegistry.
 	void populateWithRegisteredActions();
-private:
+
 	QVBoxLayout *verticalLayout3_;
 	QLabel *titleLabel_;
 	QHBoxLayout *horizontalLayout_;
