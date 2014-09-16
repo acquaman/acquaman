@@ -338,7 +338,6 @@ void AMGenericScanEditor::addScan(AMScan* newScan) {
 	connect(newScan, SIGNAL(nameChanged(QString)), this, SLOT(onScanDetailsChanged()));
 	connect(newScan, SIGNAL(numberChanged(int)), this, SLOT(onScanDetailsChanged()));
 	connect(currentScan_->scanConfiguration(), SIGNAL(configurationChanged()), this, SLOT(refreshScanInfo()));
-	qDebug() << "should have been connected by addScan()"  << currentScan_;
 
 
 	emit scanAdded(this, newScan);
@@ -412,7 +411,7 @@ void AMGenericScanEditor::onCurrentChanged ( const QModelIndex & selected, const
 		connect(currentScan_, SIGNAL(nameChanged(QString)), this, SLOT(refreshWindowTitle()));
 		connect(currentScan_, SIGNAL(scanInitialConditionsChanged()), this, SLOT(refreshScanConditions()));
 		connect(currentScan_->scanConfiguration(), SIGNAL(configurationChanged()), this, SLOT(refreshScanInfo()));
-		qDebug() << "should have been connected by onCurrentChanged()"  << currentScan_;
+
 
 		// \todo When migrating to multiple scan selection, this will need to be changed:
 		ui_.saveScanButton->setEnabled(true);
