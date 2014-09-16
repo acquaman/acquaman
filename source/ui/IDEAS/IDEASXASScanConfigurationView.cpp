@@ -123,6 +123,7 @@ IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfigu
 	connect(IDEASBeamline::ideas()->ketek(),SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)),this,SLOT(onROIChange()));
 	connect(IDEASBeamline::ideas()->ge13Element(),SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)),this,SLOT(onROIChange()));
 	connect(IDEASBeamline::ideas()->ge13Element(),SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)),this,SLOT(onROIChange()));
+	connect(fluorescenceDetectorComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onROIChange()));
 
 
 	connect(isXRFScanCheckBox_, SIGNAL(clicked()),this,SLOT(onROIChange()));
@@ -415,6 +416,13 @@ void IDEASXASScanConfigurationView::onEstimatedTimeChanged()
 void IDEASXASScanConfigurationView::onROIChange()
 {
 	AMXRFDetector *detector = 0;
+
+	if (configuration_->fluorescenceDetector() == IDEASXASScanConfiguration::None)
+	{
+		ROIsLabel_->setText("");
+		return;
+	}
+
 
 	if (configuration_->fluorescenceDetector() == IDEASXASScanConfiguration::Ketek)
 		detector = IDEASBeamline::ideas()->ketek();
