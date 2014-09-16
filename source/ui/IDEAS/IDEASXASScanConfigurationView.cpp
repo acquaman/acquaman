@@ -123,6 +123,7 @@ IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfigu
 	connect(IDEASBeamline::ideas()->ketek(),SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)),this,SLOT(onROIChange()));
 	connect(IDEASBeamline::ideas()->ge13Element(),SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)),this,SLOT(onROIChange()));
 	connect(IDEASBeamline::ideas()->ge13Element(),SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)),this,SLOT(onROIChange()));
+	connect(fluorescenceDetectorComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onROIChange()));
 
 
 	connect(isXRFScanCheckBox_, SIGNAL(clicked()),this,SLOT(onROIChange()));
@@ -416,31 +417,40 @@ void IDEASXASScanConfigurationView::onROIChange()
 {
 	AMXRFDetector *detector = 0;
 
-	if (configuration_->fluorescenceDetector() == IDEASXASScanConfiguration::Ketek)
+	if (configuration_->fluorescenceDetector() == IDEASXASScanConfiguration::None)
+		ROIsLabel_->setText("");
+
+	else if (configuration_->fluorescenceDetector() == IDEASXASScanConfiguration::Ketek)
 		detector = IDEASBeamline::ideas()->ketek();
 
 	else if (configuration_->fluorescenceDetector() == IDEASXASScanConfiguration::Ge13Element)
 		detector = IDEASBeamline::ideas()->ge13Element();
 
-	if (detector->regionsOfInterest().isEmpty())
-	{
-		ROIsLabel_->setText("No XRF detector regions of interest selected.");
-		if (isXRFScanCheckBox_->isChecked())
-			 ROIsLabel_->setStyleSheet("QLabel { background-color : red; color : white}");
-		    else
-			 ROIsLabel_->setStyleSheet("QLabel { color : black; }");
-		return;
+	if (detector){
+		
+		if (detector->regionsOfInterest().isEmpty())
+		{
+			ROIsLabel_->setText("No XRF detector regions of interest selected.");
+			
+			if (isXRFScanCheckBox_->isChecked())
+				 ROIsLabel_->setStyleSheet("QLabel { background-color : red; color : white}");
+			
+			else
+				 ROIsLabel_->setStyleSheet("QLabel { color : black; }");
+		}
+		
+		else {
+			
+			QString regionsText;
+		
+			foreach (AMRegionOfInterest *region, detector->regionsOfInterest())
+				regionsText.append(QString("%1 (%2 eV - %3 eV)\n").arg(region->name()).arg(int(region->lowerBound())).arg(int(region->upperBound())));
+			
+			ROIsLabel_->setStyleSheet("QLabel { color : black; }");
+			ROIsLabel_->setText(regionsText);
+			
+		}
 	}
-
-	QString regionsText;
-
-	foreach (AMRegionOfInterest *region, detector->regionsOfInterest())
-	{
-		regionsText.append(QString("%1 (%2 eV - %3 eV)\n").arg(region->name()).arg(int(region->lowerBound())).arg(int(region->upperBound())));
-
-	}
-	ROIsLabel_->setStyleSheet("QLabel { color : black; }");
-	ROIsLabel_->setText(regionsText);
 }
 
 QComboBox *IDEASXASScanConfigurationView::createFluorescenceComboBox()
