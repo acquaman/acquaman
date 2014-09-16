@@ -789,7 +789,6 @@ FORMS += \
 	source/ui/dataman/AMExporterOptionGeneralAsciiView.ui \
 	source/ui/AMLinePropertyEditor.ui \
 	source/ui/dataman/AMImagePropertyEditor.ui \
-	source/ui/actions3/AMAddActionDialog3.ui \
 	source/ui/AMTopFrame2.ui
 
 SOURCES += \
