@@ -110,7 +110,7 @@ IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfigu
 	estimatedSetTime_ = new QLabel;
 	pointPerScan_ = new QLabel;
 	scanEnergyRange_ = new QLabel;
-	ketekROIs_ = new QLabel;
+	ROIsLabel_ = new QLabel;
 	connect(configuration_, SIGNAL(totalTimeChanged(double)), this, SLOT(onEstimatedTimeChanged()));
 	connect(configuration_, SIGNAL(scanAxisAdded(AMScanAxis*)), this, SLOT(onEstimatedTimeChanged()));
 	connect(configuration_, SIGNAL(scanAxisRemoved(AMScanAxis*)), this, SLOT(onEstimatedTimeChanged()));
@@ -119,10 +119,14 @@ IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfigu
 
 	connect(configuration_, SIGNAL(edgeChanged(QString)), this, SLOT(onEdgeChanged()));
 
-	connect(IDEASBeamline::ideas()->ketek(),SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)),this,SLOT(onKetekROIChange()));
-	connect(IDEASBeamline::ideas()->ketek(),SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)),this,SLOT(onKetekROIChange()));
-	connect(isXRFScanCheckBox_, SIGNAL(clicked()),this,SLOT(onKetekROIChange()));
-	onKetekROIChange();
+	connect(IDEASBeamline::ideas()->ketek(),SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)),this,SLOT(onROIChange()));
+	connect(IDEASBeamline::ideas()->ketek(),SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)),this,SLOT(onROIChange()));
+	connect(IDEASBeamline::ideas()->ge13Element(),SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)),this,SLOT(onROIChange()));
+	connect(IDEASBeamline::ideas()->ge13Element(),SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)),this,SLOT(onROIChange()));
+
+
+	connect(isXRFScanCheckBox_, SIGNAL(clicked()),this,SLOT(onROIChange()));
+	onROIChange();
 
 	fluorescenceDetectorComboBox_->setCurrentIndex((int)configuration_->fluorescenceDetector());
 
@@ -143,7 +147,7 @@ IDEASXASScanConfigurationView::IDEASXASScanConfigurationView(IDEASXASScanConfigu
 	numberOfScansLayout->addRow("Energy point pers scan:", pointPerScan_);
 	numberOfScansLayout->addRow("Scan energy range:", scanEnergyRange_);
 	numberOfScansLayout->addRow("Selected XRF Detector Regions:", new QLabel(""));
-	numberOfScansLayout->addRow("", ketekROIs_);
+	numberOfScansLayout->addRow("", ROIsLabel_);
 
 	QFormLayout *energySetpointLayout = new QFormLayout;
 	energySetpointLayout->addRow("Energy:", energy_);
@@ -408,28 +412,35 @@ void IDEASXASScanConfigurationView::onEstimatedTimeChanged()
 
 }
 
-void IDEASXASScanConfigurationView::onKetekROIChange()
+void IDEASXASScanConfigurationView::onROIChange()
 {
+	AMXRFDetector *detector = 0;
 
-	if (IDEASBeamline::ideas()->ketek()->regionsOfInterest().isEmpty())
+	if (configuration_->fluorescenceDetector() == IDEASXASScanConfiguration::Ketek)
+		detector = IDEASBeamline::ideas()->ketek();
+
+	else if (configuration_->fluorescenceDetector() == IDEASXASScanConfiguration::Ge13Element)
+		detector = IDEASBeamline::ideas()->ge13Element();
+
+	if (detector->regionsOfInterest().isEmpty())
 	{
-		ketekROIs_->setText("No XRF detector regions of interest selected.");
+		ROIsLabel_->setText("No XRF detector regions of interest selected.");
 		if (isXRFScanCheckBox_->isChecked())
-			 ketekROIs_->setStyleSheet("QLabel { background-color : red; color : white}");
+			 ROIsLabel_->setStyleSheet("QLabel { background-color : red; color : white}");
 		    else
-			 ketekROIs_->setStyleSheet("QLabel { color : black; }");
+			 ROIsLabel_->setStyleSheet("QLabel { color : black; }");
 		return;
 	}
 
 	QString regionsText;
 
-	foreach (AMRegionOfInterest *region, IDEASBeamline::ideas()->ketek()->regionsOfInterest())
+	foreach (AMRegionOfInterest *region, detector->regionsOfInterest())
 	{
 		regionsText.append(QString("%1 (%2 eV - %3 eV)\n").arg(region->name()).arg(int(region->lowerBound())).arg(int(region->upperBound())));
 
 	}
-	ketekROIs_->setStyleSheet("QLabel { color : black; }");
-	ketekROIs_->setText(regionsText);
+	ROIsLabel_->setStyleSheet("QLabel { color : black; }");
+	ROIsLabel_->setText(regionsText);
 }
 
 QComboBox *IDEASXASScanConfigurationView::createFluorescenceComboBox()
