@@ -783,7 +783,6 @@ HEADERS += source/ui/AMCrosshairOverlayVideoWidget.h \
 FORMS += \
 	source/ui/dataman/AMImportControllerWidget.ui \
 	source/ui/AMBottomBar.ui \
-	source/ui/dataman/AMGenericScanEditor.ui \
 	source/ui/dataman/AMDataSourcesEditor.ui \
 	source/ui/dataman/AMSamplePlateSelector.ui \
 	source/ui/dataman/AMExporterOptionGeneralAsciiView.ui \
