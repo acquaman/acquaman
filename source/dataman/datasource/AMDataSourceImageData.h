@@ -63,7 +63,7 @@ protected slots:
 	/// Handles updating the axis values associated with the given index (will be 0 or 1).
 	void onAxisValuesChanged(int axisId);
 	/// Handles updating the data values from the given index to the end index.
-	void onDataChanged(const AMnDIndex &start, const AMnDIndex &end);
+	virtual void onDataChanged(const AMnDIndex &start, const AMnDIndex &end);
 	/// Handles updating the size of the given axis.  Will invalidate the axis values of that axis.
 	void onSizeChanged(int axisId);
 	/// Recomputes the bounding rect. Called if the size or axis values change.  Only updates the corresponding size if specified.

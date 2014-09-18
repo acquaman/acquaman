@@ -45,11 +45,11 @@ public:
 	/// Sets the default value to \param value.
 	void setDefaultValue(double value);
 
+protected slots:
+	/// Handles updating the data values from the given index to the end index.
+	virtual void onDataChanged(const AMnDIndex &start, const AMnDIndex &end);
+
 protected:
-	/// Searches for minimum and maximum z value. Stores in minMaxCache_.  Re-implemented from MPlotAbstractImageData to ignore default values when computing the minimum.
-	virtual void minMaxSearch() const;
-
-
 	/// The default value.
 	qreal defaultValue_;
 };

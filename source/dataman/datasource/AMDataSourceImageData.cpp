@@ -140,11 +140,27 @@ void AMDataSourceImageData::onDataChanged(const AMnDIndex &start, const AMnDInde
 	source_->values(start, end, newData.data());
 
 	int xOffset = start.i();
-	int yOffset = start.j();
+	int yOffset = start.j()*xSize_;
+	double rangeMinimum = newData.first();
+	double rangeMaximum = newData.first();
 
-	for (int j = 0, jSize = end.j()-start.j()+1; j < jSize; j++)
-		for (int i = 0, iSize = end.i()-start.i()+1; i < iSize; i++)
-			data_[i+xOffset + (j+yOffset)*xSize_] = newData.at(i+j*iSize);
+	for (int j = 0, jSize = end.j()-start.j()+1; j < jSize; j++){
+
+		for (int i = 0, iSize = end.i()-start.i()+1; i < iSize; i++){
+
+			double newValue = newData.at(i+j*iSize);
+
+			if (newValue > rangeMaximum)
+				rangeMaximum = newValue;
+
+			if (newValue < rangeMinimum)
+				rangeMinimum = newValue;
+
+			data_[i+xOffset + j*xSize_ + yOffset] = newValue;
+		}
+	}
+
+	range_ = MPlotInterval(rangeMinimum, rangeMaximum);
 
 	MPlotAbstractImageData::emitDataChanged();
 }
