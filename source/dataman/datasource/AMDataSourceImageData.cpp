@@ -86,7 +86,7 @@ void AMDataSourceImageData::zValues(int xStart, int yStart, int xEnd, int yEnd, 
 {
 	// If we want the whole array, just use memcpy.
 	if (xStart == 0 && yStart == 0 && xEnd == (xSize_-1) && yEnd == (ySize_-1))
-		memcpy(outputValues, data_.constData(), xSize_*ySize_);
+		memcpy(outputValues, data_.constData(), (xSize_*ySize_)*sizeof(double));
 
 	else{
 
