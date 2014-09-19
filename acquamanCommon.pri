@@ -337,7 +337,6 @@ HEADERS += \
 	source/ui/AMSidebar.h \
 	source/ui/AMStatusView.h \
 	source/ui/AMThumbnailScrollViewer.h \
-	source/ui/AMBottomBar.h \
 	source/ui/beamline/AMControlEditor.h \
 	source/acquaman.h \
 	source/ui/dataman/AMNewRunDialog.h \
@@ -782,7 +781,6 @@ HEADERS += source/ui/AMCrosshairOverlayVideoWidget.h \
 
 FORMS += \
 	source/ui/dataman/AMImportControllerWidget.ui \
-	source/ui/AMBottomBar.ui \
 	source/ui/dataman/AMGenericScanEditor.ui \
 	source/ui/dataman/AMSamplePlateSelector.ui \
 	source/ui/dataman/AMExporterOptionGeneralAsciiView.ui \
@@ -829,7 +827,6 @@ SOURCES += \
 	source/ui/AMSidebar.cpp \
 	source/ui/AMStatusView.cpp \
 	source/ui/AMThumbnailScrollViewer.cpp \
-	source/ui/AMBottomBar.cpp \
 	source/ui/beamline/AMControlEditor.cpp \
 	source/ui/dataman/AMNewRunDialog.cpp \
 	source/ui/AMPrefixSuffixLineEdit.cpp \

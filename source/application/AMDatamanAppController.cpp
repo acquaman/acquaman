@@ -35,7 +35,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/export/AMExporterAthena.h"
 
 #include "ui/AMMainWindow.h"
-#include "ui/AMBottomBar.h"
 #include "ui/AMDatamanAppBottomPanel.h"
 #include "ui/dataman/AMScanDataView.h"
 #include "ui/dataman/AMRunExperimentInsert.h"
