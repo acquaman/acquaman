@@ -359,7 +359,7 @@ REIXSXESImageInterpolationABEditor::REIXSXESImageInterpolationABEditor(REIXSXESI
 	mainLayout->addWidget(tabWidget_);
 	QWidget* correlation1ButtonsWidget = new QWidget();
 		QHBoxLayout* correlation1ButtonsLayout = new QHBoxLayout();
-			correlation1ButtonsLayout->addWidget(new QLabel("Fit Curves:"));
+			correlation1ButtonsLayout->addWidget(new QLabel("Re-Fit Curves:"));
 			correlation1ButtonsLayout->addWidget(liveCorrelationCheckBox_);
 			correlation1ButtonsLayout->addWidget(correlateNowButton_);
 		correlation1ButtonsWidget->setLayout(correlation1ButtonsLayout);
