@@ -626,7 +626,7 @@ MPlotItem* AM2DScanViewInternal::createPlotItemForDataSource(const AMDataSource*
 
 	case 2: {
 		MPlotImageBasicwDefault* image = new MPlotImageBasicwDefault();
-		image->setDefaultValue(-1);
+		image->setDefaultValue(-1.0);
 		image->setModel(new AMDataSourceImageDatawDefault(dataSource, -1), true);
 		image->setColorMap(plotSettings.colorMap);
 		image->setZValue(-1000);
