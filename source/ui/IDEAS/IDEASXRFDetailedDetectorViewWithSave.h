@@ -47,7 +47,6 @@ public:
 	/// Re-implementing but still going to use the base class buildDetectorView since this view is merely adding to it.
 	virtual void buildDetectorView();
 
-
 protected slots:
 	void onSaveScanButtonClicked();
 	void onNotesTextChanged();
