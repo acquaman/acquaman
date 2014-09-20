@@ -5,11 +5,11 @@ TARGET = XRDAnalaysis
 FORMS +=
 
 HEADERS += \
-    XRDAnalysisAppController.h \
-    XRDAnalysisMainWindow.h
+	source/application/XRDAnalysis/XRDAnalysisAppController.h \
+	source/ui/XRDAnalysis/XRDAnalysisMainWindow.h
 
-SOURCES += application/XRDAnalysis/XRDAnalysisMain.cpp \
-    XRDAnalysisAppController.cpp \
-    XRDAnalysisMainWindow.cpp
+SOURCES += source/application/XRDAnalysis/XRDAnalysisMain.cpp \
+	source/application/XRDAnalysis/XRDAnalysisAppController.cpp \
+	source/ui/XRDAnalysis/XRDAnalysisMainWindow.cpp
 
 RESOURCES += \
