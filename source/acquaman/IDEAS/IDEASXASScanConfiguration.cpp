@@ -78,6 +78,8 @@ IDEASXASScanConfiguration::IDEASXASScanConfiguration(const IDEASXASScanConfigura
 	timeOffset_ = original.timeOffset();
 	totalTime_ = original.totalTime();
 
+	name_ = original.setName();
+
 	edge_ = original.edge();
 	energy_ = original.energy();
 	useFixedTime_ = original.useFixedTime();
