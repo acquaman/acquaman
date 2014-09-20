@@ -23,6 +23,9 @@ contains(USERNAME, helfrij){
 	CONFIG -= mobility
 }
 
+contains(USERNAME, darrenhunter){
+	CONFIG -= mobility
+}
 		# Disable Qt Mobility Video until everyone's Mac laptops support that
 		#CONFIG -= mobility
 
@@ -275,6 +278,13 @@ contains(USERNAME, helfrij){
 }
 
 contains(USERNAME, chevrid){
+	QMAKE_CXXFLAGS_X86_64 += "-mmacosx-version-min=10.7"
+
+	QMAKE_LFLAGS_DEBUG += "-mmacosx-version-min=10.7"
+	QMAKE_LFLAGS_RELEASE += "-mmacosx-version-min=10.7"
+}
+
+contains(USERNAME, darrenhunter){
 	QMAKE_CXXFLAGS_X86_64 += "-mmacosx-version-min=10.7"
 
 	QMAKE_LFLAGS_DEBUG += "-mmacosx-version-min=10.7"
