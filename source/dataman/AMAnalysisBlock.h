@@ -88,6 +88,9 @@ public:
 	  */
 	bool setInputDataSources(const QList<AMDataSource*>& dataSources);
 
+	/// Returns the desired rank for input sources.
+	virtual int desiredInputRank() const = 0;
+
 	/// Check whether a set of data sources would be acceptable, compatible, and sufficient to provide input for this analysis block.
 	virtual bool areInputDataSourcesAcceptable(const QList<AMDataSource*>& dataSources) const = 0;
 

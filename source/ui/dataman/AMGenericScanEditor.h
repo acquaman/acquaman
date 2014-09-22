@@ -150,6 +150,10 @@ public slots:
 	/// Call this to update the window title when a scan is added or removed
 	void refreshWindowTitle();
 
+	/// This helper function refreshes the editor widgets with the values from the current scan
+	void refreshScanInfo(){updateEditor(currentScan_); qDebug()<<"refreshScanInfo() called with" << currentScan_;}
+
+
 protected slots:
 	///  This catches changes in the scan that is currently selected, and hooks it up to the editor widgets. \todo Ultimately, we might handle more than one scan being "selected" at once.
 	void onCurrentChanged ( const QModelIndex & selected, const QModelIndex & deselected );

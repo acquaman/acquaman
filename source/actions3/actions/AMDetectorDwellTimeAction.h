@@ -28,6 +28,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #define AMDETECTORDWELLTIMEACTION_NO_VALID_DETECTOR 520003
 #define AMDETECTORDWELLTIMEACTION_NOT_VALID_DWELL 520004
+#define AMDETECTORDWELLTIMEACTION_TIME_INVALID_ON_START 520005
+#define AMDETECTORDWELLTIMEACTION_TIME_INVALID_ON_CHANGED 520006
 
 class AMDetectorDwellTimeAction : public AMAction3
 {
@@ -73,11 +75,14 @@ protected:
 	virtual void skipImplementation(const QString &command) { Q_UNUSED(command); }
 
 protected slots:
-	/// Handle signals from our dwell time source
-	void onDwellSetStarted(double dwellSeconds);
+	/// Checks to see if the dwell time is the correct value.  Called when using dwell time source.
+	void onDwellSetStarted(double dwellTime);
+	/// Handles cleanup of the action on success.
 	void onDwellSetSucceeded();
+	/// Handles cleanup of the action on failure.
 	void onDwellSetFailed();
-	void onDwellTimeChanged(double dwellSeconds);
+	/// Checks to see if the detector time was properly set when setting the time directly to the detector.
+	void onDwellTimeChanged(double dwellTime);
 
 protected:
 	/// We can always access our info object via info_ or info(), but it will come back as a AMActionInfo* pointer that we would need to cast to AMDetectorInitializeActionInfo. This makes it easier to access.
