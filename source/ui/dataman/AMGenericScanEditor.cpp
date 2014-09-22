@@ -20,7 +20,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "AMGenericScanEditor.h"
-
+#include <QMessageBox>
+#include <QApplication>
 #include <QDragEnterEvent>
 #include <QDropEvent>
 #include <QList>
@@ -56,25 +57,25 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 AMGenericScanEditor::AMGenericScanEditor(QWidget *parent) :
 	QWidget(parent)
 {
-	ui_.setupUi(this);
+	setupUi();
 	scanNameEdit_ = new AMRegExpLineEdit("/|;|@|#|<|>", Qt::CaseInsensitive, "/;#>@< characters are not allowed.");
 	scanNameEdit_->setFrame(false);
 	scanNameEdit_->setValidIfMatches(false);
-	ui_.scanInfoGridLayout->addWidget(scanNameEdit_, 1, 1);
-	ui_.topFrameTitle->setStyleSheet("font: " AM_FONT_LARGE_ "pt \"Lucida Grande\";\ncolor: rgb(79, 79, 79);");
-	ui_.statusTextLabel->setStyleSheet("color: white;\nfont: bold " AM_FONT_SMALL_ "pt \"Lucida Grande\"");
+	scanInformationGridLayout_->addWidget(scanNameEdit_, 1, 1);
+	scanTitle_->setStyleSheet("font: " AM_FONT_LARGE_ "pt \"Lucida Grande\";\ncolor: rgb(79, 79, 79);");
+	statusTextLabel_->setStyleSheet("color: white;\nfont: bold " AM_FONT_SMALL_ "pt \"Lucida Grande\"");
 	setWindowTitle("Scan Editor");
 
 	// Add extra UI components:
 	stackWidget_ = new AMVerticalStackWidget();
 	stackWidget_->setMinimumWidth(200);
 	stackWidget_->setMaximumWidth(360);
-	ui_.rightVerticalLayout->addWidget(stackWidget_);
+	rightVerticalLayout_->addWidget(stackWidget_);
 
 	// Add scan view (plots)
 	scanView_ = new AMScanView();
 	scanView_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-	ui_.leftVerticalLayout->insertWidget(0, scanView_, 2);
+	leftVerticalLayout_->insertWidget(0, scanView_, 2);
 
 
 	// Ensure that the 2D scan view is pointing to nowhere.
@@ -84,19 +85,19 @@ AMGenericScanEditor::AMGenericScanEditor(QWidget *parent) :
 	scanSetModel_ = scanView_->model();
 
 	// And set this model on the list view of scans:
-	ui_.scanListView->setModel(scanSetModel_);
-	ui_.scanListView->setSelectionMode(QAbstractItemView::SingleSelection);
+	scanListView_->setModel(scanSetModel_);
+	scanListView_->setSelectionMode(QAbstractItemView::SingleSelection);
 
 	AMDetailedItemDelegate* del = new AMDetailedItemDelegate(this);
 	del->setCloseButtonsEnabled(true);
 	connect(del, SIGNAL(closeButtonClicked(QModelIndex)), this, SLOT(onScanModelCloseClicked(QModelIndex)));
-	ui_.scanListView->setItemDelegate(del);
-	ui_.scanListView->setAlternatingRowColors(true);
-	ui_.scanListView->setAttribute( Qt::WA_MacShowFocusRect, false);
+	scanListView_->setItemDelegate(del);
+	scanListView_->setAlternatingRowColors(true);
+	scanListView_->setAttribute( Qt::WA_MacShowFocusRect, false);
 
 	// Add run selector:
 	runSelector_ = new AMRunSelector(AMDatabase::database("user"));
-	ui_.scanInfoLayout->insertWidget(1, runSelector_);
+	scanInfoLayout->insertWidget(1, runSelector_);
 
 
 
@@ -121,10 +122,10 @@ AMGenericScanEditor::AMGenericScanEditor(QWidget *parent) :
 	stackWidget_->addItem("Beamline Information", conditionsTableView_);
 	stackWidget_->collapseItem(2);
 
-	connect(ui_.notesEdit, SIGNAL(textChanged()), this, SLOT(onNotesTextChanged()));
+	connect(notesEdit_, SIGNAL(textChanged()), this, SLOT(onNotesTextChanged()));
 
 	// watch for changes in the selected/deselected scans:
-	connect(ui_.scanListView->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SLOT(onCurrentChanged(QModelIndex,QModelIndex)));
+	connect(scanListView_->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SLOT(onCurrentChanged(QModelIndex,QModelIndex)));
 
 	// \todo make this whole window accept drops of scans, with the 'amd://database/table/id' uri-list mime type
 	setAcceptDrops(true);
@@ -136,18 +137,18 @@ AMGenericScanEditor::AMGenericScanEditor(QWidget *parent) :
 
 	// disable drops on text fields that we don't want to accept drops
 	scanNameEdit_->setAcceptDrops(false);
-	ui_.notesEdit->setAcceptDrops(false);
+	notesEdit_->setAcceptDrops(false);
 
 
 	// Connect open,save,close buttons
-	connect(ui_.openScanButton, SIGNAL(clicked()), this, SLOT(onOpenScanButtonClicked()));
-	connect(ui_.closeScanButton, SIGNAL(clicked()), this, SLOT(onCloseScanButtonClicked()));
-	connect(ui_.saveScanButton, SIGNAL(clicked()), this, SLOT(onSaveScanButtonClicked()));
+	connect(openScanButton_, SIGNAL(clicked()), this, SLOT(onOpenScanButtonClicked()));
+	connect(closeScanButton_, SIGNAL(clicked()), this, SLOT(onCloseScanButtonClicked()));
+	connect(saveScanButton_, SIGNAL(clicked()), this, SLOT(onSaveScanButtonClicked()));
 
 
 	// close button and save buttons are initially disabled, there's no scan to act on
-	ui_.closeScanButton->setEnabled(false);
-	ui_.saveScanButton->setEnabled(false);
+	closeScanButton_->setEnabled(false);
+	saveScanButton_->setEnabled(false);
 
 
 
@@ -162,20 +163,20 @@ AMGenericScanEditor::AMGenericScanEditor(QWidget *parent) :
 AMGenericScanEditor::AMGenericScanEditor(bool use2DScanView, QWidget *parent)
 	: QWidget(parent)
 {
-	ui_.setupUi(this);
+	setupUi();
 	scanNameEdit_ = new AMRegExpLineEdit("/|;|@|#|<|>", Qt::CaseInsensitive, "/;#>@< characters are not allowed.");
 	scanNameEdit_->setFrame(false);
 	scanNameEdit_->setValidIfMatches(false);
-	ui_.scanInfoGridLayout->addWidget(scanNameEdit_, 1, 1);
-	ui_.topFrameTitle->setStyleSheet("font: " AM_FONT_LARGE_ "pt \"Lucida Grande\";\ncolor: rgb(79, 79, 79);");
-	ui_.statusTextLabel->setStyleSheet("color: white;\nfont: bold " AM_FONT_SMALL_ "pt \"Lucida Grande\"");
+	scanInformationGridLayout_->addWidget(scanNameEdit_, 1, 1);
+	scanTitle_->setStyleSheet("font: " AM_FONT_LARGE_ "pt \"Lucida Grande\";\ncolor: rgb(79, 79, 79);");
+	statusTextLabel_->setStyleSheet("color: white;\nfont: bold " AM_FONT_SMALL_ "pt \"Lucida Grande\"");
 	setWindowTitle("Scan Editor");
 
 	// Add extra UI components:
 	stackWidget_ = new AMVerticalStackWidget();
 	stackWidget_->setMinimumWidth(200);
 	stackWidget_->setMaximumWidth(360);
-	ui_.rightVerticalLayout->addWidget(stackWidget_);
+	rightVerticalLayout_->addWidget(stackWidget_);
 
 	// Add scan view (plots)
 	if (use2DScanView){
@@ -183,13 +184,13 @@ AMGenericScanEditor::AMGenericScanEditor(bool use2DScanView, QWidget *parent)
 		scanView_ = 0;
 		scanView2D_ = new AM2DScanView();
 		scanView2D_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-		ui_.leftVerticalLayout->insertWidget(0, scanView2D_, 2);
+		leftVerticalLayout_->insertWidget(0, scanView2D_, 2);
 
 		// share the scan set model with the AMScanView
 		scanSetModel_ = scanView2D_->model();
 
 		connect(scanView2D_, SIGNAL(dataPositionChanged(QPoint)), this, SLOT(onDataPositionChanged(QPoint)));
-		ui_.openScanButton->setEnabled(false);
+		openScanButton_->setEnabled(false);
 	}
 
 	else {
@@ -197,26 +198,26 @@ AMGenericScanEditor::AMGenericScanEditor(bool use2DScanView, QWidget *parent)
 		scanView2D_ = 0;
 		scanView_ = new AMScanView();
 		scanView_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-		ui_.leftVerticalLayout->insertWidget(0, scanView_, 2);
+		leftVerticalLayout_->insertWidget(0, scanView_, 2);
 
 		// share the scan set model with the AMScanView
 		scanSetModel_ = scanView_->model();
 	}
 
 	// And set this model on the list view of scans:
-	ui_.scanListView->setModel(scanSetModel_);
-	ui_.scanListView->setSelectionMode(QAbstractItemView::SingleSelection);
+	scanListView_->setModel(scanSetModel_);
+	scanListView_->setSelectionMode(QAbstractItemView::SingleSelection);
 
 	AMDetailedItemDelegate* del = new AMDetailedItemDelegate(this);
 	del->setCloseButtonsEnabled(true);
 	connect(del, SIGNAL(closeButtonClicked(QModelIndex)), this, SLOT(onScanModelCloseClicked(QModelIndex)));
-	ui_.scanListView->setItemDelegate(del);
-	ui_.scanListView->setAlternatingRowColors(true);
-	ui_.scanListView->setAttribute( Qt::WA_MacShowFocusRect, false);
+	scanListView_->setItemDelegate(del);
+	scanListView_->setAlternatingRowColors(true);
+	scanListView_->setAttribute( Qt::WA_MacShowFocusRect, false);
 
 	// Add run selector:
 	runSelector_ = new AMRunSelector(AMDatabase::database("user"));
-	ui_.scanInfoLayout->insertWidget(1, runSelector_);
+	scanInfoLayout->insertWidget(1, runSelector_);
 
 
 	// Add detailed editor widgets:
@@ -238,10 +239,10 @@ AMGenericScanEditor::AMGenericScanEditor(bool use2DScanView, QWidget *parent)
 	stackWidget_->addItem("Beamline Information", conditionsTableView_);
 	stackWidget_->collapseItem(2);
 
-	connect(ui_.notesEdit, SIGNAL(textChanged()), this, SLOT(onNotesTextChanged()));
+	connect(notesEdit_, SIGNAL(textChanged()), this, SLOT(onNotesTextChanged()));
 
 	// watch for changes in the selected/deselected scans:
-	connect(ui_.scanListView->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SLOT(onCurrentChanged(QModelIndex,QModelIndex)));
+	connect(scanListView_->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SLOT(onCurrentChanged(QModelIndex,QModelIndex)));
 
 	// \todo make this whole window accept drops of scans, with the 'amd://database/table/id' uri-list mime type
 	setAcceptDrops(true);
@@ -251,17 +252,17 @@ AMGenericScanEditor::AMGenericScanEditor(bool use2DScanView, QWidget *parent)
 
 	// disable drops on text fields that we don't want to accept drops
 	scanNameEdit_->setAcceptDrops(false);
-	ui_.notesEdit->setAcceptDrops(false);
+	notesEdit_->setAcceptDrops(false);
 
 
 	// Connect open,save,close buttons
-	connect(ui_.openScanButton, SIGNAL(clicked()), this, SLOT(onOpenScanButtonClicked()));
-	connect(ui_.closeScanButton, SIGNAL(clicked()), this, SLOT(onCloseScanButtonClicked()));
-	connect(ui_.saveScanButton, SIGNAL(clicked()), this, SLOT(onSaveScanButtonClicked()));
+	connect(openScanButton_, SIGNAL(clicked()), this, SLOT(onOpenScanButtonClicked()));
+	connect(closeScanButton_, SIGNAL(clicked()), this, SLOT(onCloseScanButtonClicked()));
+	connect(saveScanButton_, SIGNAL(clicked()), this, SLOT(onSaveScanButtonClicked()));
 
 	// close button and save buttons are initially disabled, there's no scan to act on
-	ui_.closeScanButton->setEnabled(false);
-	ui_.saveScanButton->setEnabled(false);
+	closeScanButton_->setEnabled(false);
+	saveScanButton_->setEnabled(false);
 
 	chooseScanDialog_ = 0;
 
@@ -327,7 +328,7 @@ void AMGenericScanEditor::setSingleSpectrumViewDataSourceName(const QString &nam
 void AMGenericScanEditor::addScan(AMScan* newScan) {
 	scanSetModel_->addScan(newScan);
 
-	ui_.scanListView->setCurrentIndex(scanSetModel_->indexForScan(scanSetModel_->indexOf(newScan)));
+	scanListView_->setCurrentIndex(scanSetModel_->indexForScan(scanSetModel_->indexOf(newScan)));
 
 	if(scanSetModel_->exclusiveDataSourceName().isEmpty()) {
 		QVector<int> nonHiddenDataSourceIndexes = newScan->nonHiddenDataSourceIndexes();
@@ -355,12 +356,12 @@ void AMGenericScanEditor::refreshWindowTitle() {
 
 	if(numScans == 1) {
 		setWindowTitle(scanSetModel_->scanAt(0)->fullName());
-		ui_.topFrameTitle->setText(scanSetModel_->scanAt(0)->fullName());
+		scanTitle_->setText(scanSetModel_->scanAt(0)->fullName());
 	}
 	else
 	{
 		setWindowTitle(QString("Viewing %1 Scans").arg(numScans));
-		ui_.topFrameTitle->setText(QString("Viewing %1 Scans").arg(numScans));
+		scanTitle_->setText(QString("Viewing %1 Scans").arg(numScans));
 	}
 
 }
@@ -380,7 +381,7 @@ void AMGenericScanEditor::onCurrentChanged ( const QModelIndex & selected, const
 	// disconnect the old scan:
 	if(currentScan_) {
 		disconnect(scanNameEdit_, 0, currentScan_, 0);
-		disconnect(ui_.scanNumber, 0, currentScan_, 0);
+		disconnect(scanNumber_, 0, currentScan_, 0);
 		disconnect(this, SIGNAL(notesChanged(QString)), currentScan_, SLOT(setNotes(QString)));
 		disconnect(runSelector_, SIGNAL(currentRunIdChanged(int)), currentScan_, SLOT(setRunId(int)));
 		disconnect(sampleEditor_, SIGNAL(currentSampleChanged(int)), currentScan_, SLOT(setSampleId(int)));
@@ -402,7 +403,7 @@ void AMGenericScanEditor::onCurrentChanged ( const QModelIndex & selected, const
 
 		// make connections to widgets, so that widgets edit this scan:
 		connect(scanNameEdit_, SIGNAL(textChanged(QString)), currentScan_, SLOT(setName(QString)));
-		connect(ui_.scanNumber, SIGNAL(valueChanged(int)), currentScan_, SLOT(setNumber(int)));
+		connect(scanNumber_, SIGNAL(valueChanged(int)), currentScan_, SLOT(setNumber(int)));
 		connect(this, SIGNAL(notesChanged(QString)), currentScan_, SLOT(setNotes(QString)));
 		connect(runSelector_, SIGNAL(currentRunIdChanged(int)), currentScan_, SLOT(setRunId(int)));
 		connect(sampleEditor_, SIGNAL(currentSampleChanged(int)), currentScan_, SLOT(setSampleId(int)));
@@ -414,13 +415,13 @@ void AMGenericScanEditor::onCurrentChanged ( const QModelIndex & selected, const
 
 
 		// \todo When migrating to multiple scan selection, this will need to be changed:
-		ui_.saveScanButton->setEnabled(true);
-		ui_.closeScanButton->setEnabled(true);
+		saveScanButton_->setEnabled(true);
+		closeScanButton_->setEnabled(true);
 	}
 	else {
 		// \todo When migrating to multiple scan selection, this will need to be changed:
-		ui_.saveScanButton->setEnabled(false);
-		ui_.closeScanButton->setEnabled(false);
+		saveScanButton_->setEnabled(false);
+		closeScanButton_->setEnabled(false);
 	}
 
 
@@ -432,19 +433,18 @@ void AMGenericScanEditor::onCurrentChanged ( const QModelIndex & selected, const
 void AMGenericScanEditor::updateEditor(AMScan *scan) {
 	if(scan) {
 
-		ui_.scanId->setText(QString("%1").arg(scan->id()));
+		scanId_->setText(QString("%1").arg(scan->id()));
 		connect(scan, SIGNAL(storedToDb()), this, SLOT(onScanSavedToDatabase()));
 		scanNameEdit_->setText(scan->name());
-		ui_.scanNumber->setValue(scan->number());
-		ui_.scanDate->setText( AMDateTimeUtils::prettyDate(scan->dateTime()));
-		ui_.scanDuration->setText(scan->currentlyScanning() ? ("Acquiring " % AMDateTimeUtils::prettyDuration(currentScan_->dateTime(), QDateTime::currentDateTime(), true))
+		scanNumber_->setValue(scan->number());
+		scanDate_->setText( AMDateTimeUtils::prettyDate(scan->dateTime()));
+		scanDuration_->setText(scan->currentlyScanning() ? ("Acquiring " % AMDateTimeUtils::prettyDuration(currentScan_->dateTime(), QDateTime::currentDateTime(), true))
 															: AMDateTimeUtils::prettyDuration(scan->dateTime(), scan->endDateTime()));
-		ui_.scanTime->setText( scan->dateTime().time().toString("h:mmap") );
-		if(scan->endDateTime().isValid())
-			ui_.scanEnd->setText(scan->endDateTime().time().toString("h:mmap"));
-		else
-			ui_.scanEnd->setText("Approx " % scan->dateTime().addSecs(int(scan->scanConfiguration()->expectedDuration())).time().toString("h:mmap"));
-		ui_.notesEdit->setPlainText( scan->notes() );
+		scanTime_->setText( scan->dateTime().time().toString("h:mmap") );
+		scanEnd_->setText(scan->currentlyScanning() ? ("Approx " % (scan->dateTime().addSecs(scan->scanConfiguration()->expectedDuration())).time().toString("h:mmap"))
+								  : scan->endDateTime().time().toString("h:mmap"));
+		notesEdit_->setPlainText( scan->notes() );
+
 		runSelector_->setCurrentRunId(scan->runId());
 		if(scan->samplePre2013()){
 			sampleEditor_->setCurrentSampleFromId(scan->sampleId());
@@ -467,18 +467,18 @@ void AMGenericScanEditor::updateEditor(AMScan *scan) {
 		if (scanView2D_)
 			scanView2D_->setCurrentScan(scan);
 
-		ui_.topFrameTitle->setText(QString("Editing %1").arg(scan->fullName()));
+		scanTitle_->setText(QString("Editing %1").arg(scan->fullName()));
 	}
 
 	else {
-		ui_.scanId->setText(QString("Pending..."));
+		scanId_->setText(QString("Pending..."));
 		scanNameEdit_->setText( QString() );
-		ui_.scanNumber->setValue(0);
-		ui_.scanDate->setText( QString() );
-		ui_.scanDuration->setText( QString() );
-		ui_.scanTime->setText( QString() );
-		ui_.scanEnd->setText( QString() );
-		ui_.notesEdit->clear();
+		scanNumber_->setValue(0);
+		scanDate_->setText( QString() );
+		scanDuration_->setText( QString() );
+		scanTime_->setText( QString() );
+		scanEnd_->setText( QString() );
+		notesEdit_->clear();
 
 		// what to set run selector to?
 
@@ -491,7 +491,7 @@ void AMGenericScanEditor::updateEditor(AMScan *scan) {
 		if (scanView2D_)
 			scanView2D_->setCurrentScan(0);
 
-		ui_.topFrameTitle->setText("Scan Editor");
+		scanTitle_->setText("Scan Editor");
 	}
 }
 
@@ -504,8 +504,7 @@ void AMGenericScanEditor::onScanModelCloseClicked(const QModelIndex& index) {
 
 }
 
-#include <QMessageBox>
-#include <QApplication>
+
 // Remove a scan, but ask the user for confirmation if it's been modified.
 bool AMGenericScanEditor::removeScanWithModifiedCheck(AMScan* scan) {
 
@@ -631,7 +630,7 @@ bool AMGenericScanEditor::dropScanURLs(const QList<QUrl>& urls) {
 
 void AMGenericScanEditor::onCloseScanButtonClicked() {
 	// this function is ready for when multiple scan selection is enabled
-	QModelIndexList scanIndexes = ui_.scanListView->selectionModel()->selectedIndexes();
+	QModelIndexList scanIndexes = scanListView_->selectionModel()->selectedIndexes();
 	foreach(QModelIndex i, scanIndexes) {
 		removeScanWithModifiedCheck(scanSetModel_->scanAt(i.row()));
 	}
@@ -639,7 +638,7 @@ void AMGenericScanEditor::onCloseScanButtonClicked() {
 
 void AMGenericScanEditor::onSaveScanButtonClicked() {
 	// this function is ready for when multiple scan selection is enabled
-	QModelIndexList scanIndexes = ui_.scanListView->selectionModel()->selectedIndexes();
+	QModelIndexList scanIndexes = scanListView_->selectionModel()->selectedIndexes();
 	foreach(QModelIndex i, scanIndexes) {
 		AMScan* scan = scanSetModel_->scanAt(i.row());
 		if(scan->database())
@@ -714,6 +713,8 @@ int AMGenericScanEditor::shouldSaveModifiedScan(AMScan *scan)
 	return savingEnquiry.exec();
 }
 
+
+
 bool AMGenericScanEditor::canCloseEditor()
 {
 	bool canClose = true;
@@ -765,11 +766,11 @@ void AMGenericScanEditor::onOneSecondTimer()
 {
 	if(currentScan_) {
 		if(currentScan_->currentlyScanning())
-			ui_.scanDuration->setText("Acquiring " % AMDateTimeUtils::prettyDuration(currentScan_->dateTime(), QDateTime::currentDateTime(), true));
+			scanDuration_->setText("Acquiring " % AMDateTimeUtils::prettyDuration(currentScan_->dateTime(), QDateTime::currentDateTime(), true));
 		else {
 			// this is a cheap easy way to find out if we've switched from acquiring to not acquiring, and therefore should put in the final duration
-			if(ui_.scanDuration->text().startsWith("Acqu")) {
-				ui_.scanDuration->setText(AMDateTimeUtils::prettyDuration(currentScan_->dateTime(), currentScan_->endDateTime()));
+			if(scanDuration_->text().startsWith("Acqu")) {
+				scanDuration_->setText(AMDateTimeUtils::prettyDuration(currentScan_->dateTime(), currentScan_->endDateTime()));
 			}
 		}
 	}
@@ -778,8 +779,8 @@ void AMGenericScanEditor::onOneSecondTimer()
 
 void AMGenericScanEditor::onScanSavedToDatabase()
 {
-	ui_.scanId->setText(QString("%1").arg(currentScan_->id()));
-	ui_.scanNumber->setValue(currentScan_->number());
+	scanId_->setText(QString("%1").arg(currentScan_->id()));
+	scanNumber_->setValue(currentScan_->number());
 }
 
 void AMGenericScanEditor::onScanDetailsChanged()
@@ -856,4 +857,362 @@ void AMGenericScanEditor::printGraphics()
 			AMErrorMon::information(this, 0, QString("Current plot sent to printer."));
 		}
 
+}
+
+void AMGenericScanEditor::setupUi()
+{
+	if (objectName().isEmpty())
+		setObjectName(QString::fromUtf8("AMGenericScanEditor"));
+	resize(801, 574);
+	verticalLayout3_ = new QVBoxLayout(this);
+	verticalLayout3_->setSpacing(0);
+	verticalLayout3_->setContentsMargins(0, 0, 0, 0);
+	verticalLayout3_->setObjectName(QString::fromUtf8("verticalLayout_3"));
+	scanTitleFrame_ = new QFrame(this);
+	scanTitleFrame_->setObjectName(QString::fromUtf8("scanTitleFrame_"));
+	scanTitleFrame_->setMinimumSize(QSize(0, 60));
+	scanTitleFrame_->setStyleSheet(QString::fromUtf8("background-color: rgb(236, 236, 236);"));
+	horizontalLayout3_ = new QHBoxLayout(scanTitleFrame_);
+	horizontalLayout3_->setObjectName(QString::fromUtf8("horizontalLayout_3"));
+	scanTitleIcon_ = new QLabel(scanTitleFrame_);
+	scanTitleIcon_->setObjectName(QString::fromUtf8("scanTitleIcon_"));
+	scanTitleIcon_->setMaximumSize(QSize(36, 36));
+	scanTitleIcon_->setPixmap(QPixmap(QString::fromUtf8(":/system-software-update.png")));
+	scanTitleIcon_->setScaledContents(true);
+
+	horizontalLayout3_->addWidget(scanTitleIcon_);
+
+	scanTitle_ = new QLabel(scanTitleFrame_);
+	scanTitle_->setObjectName(QString::fromUtf8("scanTitle_"));
+	scanTitle_->setStyleSheet(QString::fromUtf8("font: 16pt \"Lucida Grande\";\n"
+"color: rgb(79, 79, 79);"));
+
+	horizontalLayout3_->addWidget(scanTitle_);
+
+	scanTitleHorizontalSpacer_ = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+	horizontalLayout3_->addItem(scanTitleHorizontalSpacer_);
+
+
+	verticalLayout3_->addWidget(scanTitleFrame_);
+
+	statusFrame_ = new QFrame(this);
+	statusFrame_->setObjectName(QString::fromUtf8("statusFrame_"));
+	statusFrame_->setMinimumSize(QSize(0, 30));
+	statusFrame_->setMaximumSize(QSize(16777215, 30));
+	statusFrame_->setStyleSheet(QString::fromUtf8("QFrame#statusFrame {\n"
+"background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(81, 81, 81, 255), stop:0.494444 rgba(81, 81, 81, 255), stop:0.5 rgba(64, 64, 64, 255), stop:1 rgba(64, 64, 64, 255));\n"
+"border-bottom: 1px solid black;\n"
+"}"));
+	horizontalLayout4_ = new QHBoxLayout(statusFrame_);
+	horizontalLayout4_->setObjectName(QString::fromUtf8("horizontalLayout_4"));
+	horizontalLayout4_->setContentsMargins(-1, 6, -1, 6);
+	statusFrameHorizontalSpacer_ = new QSpacerItem(478, 9, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+	horizontalLayout4_->addItem(statusFrameHorizontalSpacer_);
+
+	statusTextLabel_ = new QLabel(statusFrame_);
+	statusTextLabel_->setObjectName(QString::fromUtf8("statusTextLabel_"));
+	statusTextLabel_->setStyleSheet(QString::fromUtf8("color: white;\n"
+"font: bold 10pt \"Lucida Grande\""));
+
+	horizontalLayout4_->addWidget(statusTextLabel_);
+
+
+	verticalLayout3_->addWidget(statusFrame_);
+
+	horizontalLayout_ = new QHBoxLayout();
+	horizontalLayout_->setSpacing(0);
+	horizontalLayout_->setObjectName(QString::fromUtf8("horizontalLayout_"));
+	leftVerticalLayout_ = new QVBoxLayout();
+	leftVerticalLayout_->setContentsMargins(12, 12, 12, 12);
+	leftVerticalLayout_->setObjectName(QString::fromUtf8("leftVerticalLayout_"));
+	leftHorizontalLayout_ = new QHBoxLayout();
+	leftHorizontalLayout_->setSpacing(12);
+	leftHorizontalLayout_->setObjectName(QString::fromUtf8("leftHorizontalLayout_"));
+	openScansLayout_ = new QVBoxLayout();
+	openScansLayout_->setSpacing(0);
+	openScansLayout_->setObjectName(QString::fromUtf8("openScansLayout_"));
+	openScansLayout_->setContentsMargins(-1, -1, 0, -1);
+	openScansTitleButton_ = new QToolButton(this);
+	openScansTitleButton_->setObjectName(QString::fromUtf8("openScansTitleButton_"));
+	QSizePolicy sizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
+	sizePolicy.setHorizontalStretch(0);
+	sizePolicy.setVerticalStretch(0);
+	sizePolicy.setHeightForWidth(openScansTitleButton_->sizePolicy().hasHeightForWidth());
+	openScansTitleButton_->setSizePolicy(sizePolicy);
+	openScansTitleButton_->setMaximumSize(QSize(16777215, 16));
+	openScansTitleButton_->setStyleSheet(QString::fromUtf8("background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(233, 233, 233, 255), stop:0.502513 rgba(199, 198, 198, 255), stop:1 rgba(163, 162, 162, 255)); border: 1px solid black; border-top-color: rgb(180, 180, 180); border-bottom-color: rgb(121, 121, 121); border-left-color: rgb(180, 180, 180); border-right-color: rgb(180, 180, 180);"));
+
+	openScansLayout_->addWidget(openScansTitleButton_);
+
+	scanListView_ = new QListView(this);
+	scanListView_->setObjectName(QString::fromUtf8("scanListView_"));
+	scanListView_->setMinimumSize(QSize(200, 0));
+
+	openScansLayout_->addWidget(scanListView_);
+
+	scanButtonLayout_ = new QHBoxLayout();
+	scanButtonLayout_->setObjectName(QString::fromUtf8("scanButtonLayout_"));
+	scanButtonLayout_->setContentsMargins(-1, 6, -1, -1);
+	openScanButton_ = new QPushButton(this);
+	openScanButton_->setObjectName(QString::fromUtf8("openScanButton_"));
+
+	scanButtonLayout_->addWidget(openScanButton_);
+
+	saveScanButton_ = new QPushButton(this);
+	saveScanButton_->setObjectName(QString::fromUtf8("saveScanButton_"));
+
+	scanButtonLayout_->addWidget(saveScanButton_);
+
+	closeScanButton_ = new QPushButton(this);
+	closeScanButton_->setObjectName(QString::fromUtf8("closeScanButton_"));
+
+	scanButtonLayout_->addWidget(closeScanButton_);
+
+
+	openScansLayout_->addLayout(scanButtonLayout_);
+
+
+	leftHorizontalLayout_->addLayout(openScansLayout_);
+
+	scanInformationLayout_ = new QVBoxLayout();
+	scanInformationLayout_->setSpacing(0);
+	scanInformationLayout_->setObjectName(QString::fromUtf8("scanInformationLayout_"));
+	scanInformationLayout_->setContentsMargins(-1, -1, 0, -1);
+	scanInformationTitleButton_ = new QToolButton(this);
+	scanInformationTitleButton_->setObjectName(QString::fromUtf8("scanInformationTitleButton_"));
+	QSizePolicy sizePolicy1(QSizePolicy::Preferred, QSizePolicy::Fixed);
+	sizePolicy1.setHorizontalStretch(0);
+	sizePolicy1.setVerticalStretch(0);
+	sizePolicy1.setHeightForWidth(scanInformationTitleButton_->sizePolicy().hasHeightForWidth());
+	scanInformationTitleButton_->setSizePolicy(sizePolicy1);
+	scanInformationTitleButton_->setMaximumSize(QSize(16777215, 16));
+	scanInformationTitleButton_->setStyleSheet(QString::fromUtf8("background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(233, 233, 233, 255), stop:0.502513 rgba(199, 198, 198, 255), stop:1 rgba(163, 162, 162, 255)); border: 1px solid black; border-top-color: rgb(180, 180, 180); border-bottom-color: rgb(121, 121, 121); border-left-color: rgb(180, 180, 180); border-right-color: rgb(180, 180, 180);"));
+
+	scanInformationLayout_->addWidget(scanInformationTitleButton_);
+
+	scanInformationFrame_ = new QFrame(this);
+	scanInformationFrame_->setObjectName(QString::fromUtf8("scanInformationFrame_"));
+	scanInformationFrame_->setStyleSheet(QString::fromUtf8("background-color: white;\n"));
+	scanInformationFrame_->setFrameShape(QFrame::StyledPanel);
+	scanInformationFrame_->setFrameShadow(QFrame::Raised);
+	scanInfoLayout = new QVBoxLayout(scanInformationFrame_);
+	scanInfoLayout->setSpacing(6);
+	scanInfoLayout->setObjectName(QString::fromUtf8("scanInfoLayout"));
+	scanInfoLayout->setContentsMargins(-1, 6, -1, -1);
+	scanInformationGridLayout_ = new QGridLayout();
+	scanInformationGridLayout_->setObjectName(QString::fromUtf8("scanInformationGridLayout_"));
+	scanInformationGridLayout_->setVerticalSpacing(4);
+	scanInformationGridLayout_->setContentsMargins(12, -1, -1, -1);
+	scanDate_ = new QLabel(scanInformationFrame_);
+	scanDate_->setObjectName(QString::fromUtf8("scanDate_"));
+
+	scanInformationGridLayout_->addWidget(scanDate_, 3, 1, 1, 1);
+
+	scanTimeLabel_ = new QLabel(scanInformationFrame_);
+	scanTimeLabel_->setObjectName(QString::fromUtf8("scanTimeLabel_"));
+	scanTimeLabel_->setStyleSheet(QString::fromUtf8("color: rgb(121, 121, 121);\n"
+"font-weight: bold;\n"
+"font-family: \"Lucida Grande\";"));
+
+	scanInformationGridLayout_->addWidget(scanTimeLabel_, 4, 0, 1, 1);
+
+	scanDurationLabel_ = new QLabel(scanInformationFrame_);
+	scanDurationLabel_->setObjectName(QString::fromUtf8("scanDurationLabel_"));
+	scanDurationLabel_->setStyleSheet(QString::fromUtf8("color: rgb(121, 121, 121);\n"
+"font-weight: bold;\n"
+"font-family: \"Lucida Grande\";"));
+
+	scanInformationGridLayout_->addWidget(scanDurationLabel_, 6, 0, 1, 1);
+
+	scanRunLabel_ = new QLabel(scanInformationFrame_);
+	scanRunLabel_->setObjectName(QString::fromUtf8("scanRunLabel_"));
+	scanRunLabel_->setStyleSheet(QString::fromUtf8("color: rgb(121, 121, 121);\n"
+"font-weight: bold;\n"
+"font-family: \"Lucida Grande\";"));
+
+	scanInformationGridLayout_->addWidget(scanRunLabel_, 7, 0, 1, 1);
+
+	scanDateLabel_ = new QLabel(scanInformationFrame_);
+	scanDateLabel_->setObjectName(QString::fromUtf8("scanDateLabel_"));
+	scanDateLabel_->setStyleSheet(QString::fromUtf8("color: rgb(121, 121, 121);\n"
+"font-weight: bold;\n"
+"font-family: \"Lucida Grande\";"));
+
+	scanInformationGridLayout_->addWidget(scanDateLabel_, 3, 0, 1, 1);
+
+	scanDuration_ = new QLabel(scanInformationFrame_);
+	scanDuration_->setObjectName(QString::fromUtf8("scanDuration_"));
+
+	scanInformationGridLayout_->addWidget(scanDuration_, 6, 1, 1, 1);
+
+	scanNameLabel_ = new QLabel(scanInformationFrame_);
+	scanNameLabel_->setObjectName(QString::fromUtf8("scanNameLabel_"));
+	scanNameLabel_->setStyleSheet(QString::fromUtf8("color: rgb(121, 121, 121);\n"
+"font-weight: bold;\n"
+"font-family: \"Lucida Grande\";"));
+
+	scanInformationGridLayout_->addWidget(scanNameLabel_, 1, 0, 1, 1);
+
+	scanNumberLabel_ = new QLabel(scanInformationFrame_);
+	scanNumberLabel_->setObjectName(QString::fromUtf8("scanNumberLabel_"));
+	scanNumberLabel_->setStyleSheet(QString::fromUtf8("color: rgb(121, 121, 121);\n"
+"font-weight: bold;\n"
+"font-family: \"Lucida Grande\";"));
+
+	scanInformationGridLayout_->addWidget(scanNumberLabel_, 2, 0, 1, 1);
+
+	scanNumber_ = new QSpinBox(scanInformationFrame_);
+	scanNumber_->setObjectName(QString::fromUtf8("scanNumber_"));
+	scanNumber_->setMaximumSize(QSize(16777215, 18));
+	scanNumber_->setFrame(false);
+	scanNumber_->setButtonSymbols(QAbstractSpinBox::NoButtons);
+	scanNumber_->setMaximum(9999);
+
+	scanInformationGridLayout_->addWidget(scanNumber_, 2, 1, 1, 1);
+
+	scanIdLabel_ = new QLabel(scanInformationFrame_);
+	scanIdLabel_->setObjectName(QString::fromUtf8("scanIdLabel_"));
+	QPalette palette;
+	QBrush brush(QColor(121, 121, 121, 255));
+	brush.setStyle(Qt::SolidPattern);
+	palette.setBrush(QPalette::Active, QPalette::WindowText, brush);
+	palette.setBrush(QPalette::Active, QPalette::Text, brush);
+	palette.setBrush(QPalette::Active, QPalette::ButtonText, brush);
+	palette.setBrush(QPalette::Inactive, QPalette::WindowText, brush);
+	palette.setBrush(QPalette::Inactive, QPalette::Text, brush);
+	palette.setBrush(QPalette::Inactive, QPalette::ButtonText, brush);
+	QBrush brush1(QColor(159, 158, 158, 255));
+	brush1.setStyle(Qt::SolidPattern);
+	palette.setBrush(QPalette::Disabled, QPalette::WindowText, brush1);
+	palette.setBrush(QPalette::Disabled, QPalette::Text, brush1);
+	palette.setBrush(QPalette::Disabled, QPalette::ButtonText, brush1);
+	scanIdLabel_->setPalette(palette);
+	QFont font;
+	font.setBold(true);
+	font.setWeight(75);
+	scanIdLabel_->setFont(font);
+
+	scanInformationGridLayout_->addWidget(scanIdLabel_, 0, 0, 1, 1);
+
+	scanId_ = new QLineEdit(scanInformationFrame_);
+	scanId_->setObjectName(QString::fromUtf8("scanId_"));
+	scanId_->setEnabled(false);
+	scanId_->setFrame(false);
+
+	scanInformationGridLayout_->addWidget(scanId_, 0, 1, 1, 1);
+
+	scanTime_ = new QLabel(scanInformationFrame_);
+	scanTime_->setObjectName(QString::fromUtf8("scanTime_"));
+
+	scanInformationGridLayout_->addWidget(scanTime_, 4, 1, 1, 1);
+
+	scanEnd_ = new QLabel(scanInformationFrame_);
+	scanEnd_->setObjectName(QString::fromUtf8("scanEnd_"));
+
+	scanInformationGridLayout_->addWidget(scanEnd_, 5, 1, 1, 1);
+
+	scanEndLabel_ = new QLabel(scanInformationFrame_);
+	scanEndLabel_->setObjectName(QString::fromUtf8("scanEndLabel_"));
+	QPalette palette1;
+	palette1.setBrush(QPalette::Active, QPalette::WindowText, brush);
+	palette1.setBrush(QPalette::Inactive, QPalette::WindowText, brush);
+	QBrush brush2(QColor(119, 119, 119, 255));
+	brush2.setStyle(Qt::SolidPattern);
+	palette1.setBrush(QPalette::Disabled, QPalette::WindowText, brush2);
+	scanEndLabel_->setPalette(palette1);
+	QFont font1;
+	font1.setFamily(QString::fromUtf8("Lucida"));
+	font1.setPointSize(9);
+	font1.setBold(true);
+	font1.setWeight(75);
+	scanEndLabel_->setFont(font1);
+
+	scanInformationGridLayout_->addWidget(scanEndLabel_, 5, 0, 1, 1);
+
+
+	scanInfoLayout->addLayout(scanInformationGridLayout_);
+
+	scanInformationSpacer_ = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
+
+	scanInfoLayout->addItem(scanInformationSpacer_);
+
+
+	scanInformationLayout_->addWidget(scanInformationFrame_);
+
+
+	leftHorizontalLayout_->addLayout(scanInformationLayout_);
+
+	notesLayout_ = new QVBoxLayout();
+	notesLayout_->setSpacing(0);
+	notesLayout_->setObjectName(QString::fromUtf8("notesLayout_"));
+	notesLayout_->setContentsMargins(-1, -1, 0, -1);
+	notesTitleButton_ = new QToolButton(this);
+	notesTitleButton_->setObjectName(QString::fromUtf8("notesTitleButton_"));
+	sizePolicy.setHeightForWidth(notesTitleButton_->sizePolicy().hasHeightForWidth());
+	notesTitleButton_->setSizePolicy(sizePolicy);
+	notesTitleButton_->setMaximumSize(QSize(16777215, 16));
+	notesTitleButton_->setStyleSheet(QString::fromUtf8("background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(233, 233, 233, 255), stop:0.502513 rgba(199, 198, 198, 255), stop:1 rgba(163, 162, 162, 255)); border: 1px solid black; border-top-color: rgb(180, 180, 180); border-bottom-color: rgb(121, 121, 121); border-left-color: rgb(180, 180, 180); border-right-color: rgb(180, 180, 180);\n"
+""));
+
+	notesLayout_->addWidget(notesTitleButton_);
+
+	notesEdit_ = new QPlainTextEdit(this);
+	notesEdit_->setObjectName(QString::fromUtf8("notesEdit_"));
+	QSizePolicy sizePolicy2(QSizePolicy::MinimumExpanding, QSizePolicy::Expanding);
+	sizePolicy2.setHorizontalStretch(4);
+	sizePolicy2.setVerticalStretch(0);
+	sizePolicy2.setHeightForWidth(notesEdit_->sizePolicy().hasHeightForWidth());
+	notesEdit_->setSizePolicy(sizePolicy2);
+	notesEdit_->setStyleSheet(QString::fromUtf8("background-image: url(:/notepadBackground.png);\nfont: bold 15px \" Marker Felt\""));
+	notesEdit_->setLineWidth(1);
+	notesEdit_->setBackgroundVisible(false);
+
+	notesLayout_->addWidget(notesEdit_);
+
+
+	leftHorizontalLayout_->addLayout(notesLayout_);
+
+
+	leftVerticalLayout_->addLayout(leftHorizontalLayout_);
+
+	leftVerticaFrameSpacer_ = new QSpacerItem(20, 1, QSizePolicy::Minimum, QSizePolicy::Expanding);
+
+	leftVerticalLayout_->addItem(leftVerticaFrameSpacer_);
+
+
+	horizontalLayout_->addLayout(leftVerticalLayout_);
+
+	rightVerticalLayout_ = new QVBoxLayout();
+	rightVerticalLayout_->setContentsMargins(12, 12, 12, 12);
+	rightVerticalLayout_->setObjectName(QString::fromUtf8("rightVerticalLayout_"));
+
+	horizontalLayout_->addLayout(rightVerticalLayout_);
+
+	verticalLayout3_->addLayout(horizontalLayout_);
+
+	setWindowTitle(QApplication::translate("AMGenericScanEditor", "Form", 0, QApplication::UnicodeUTF8));
+	scanTitleIcon_->setText(QString());
+	scanTitle_->setText(QApplication::translate("AMGenericScanEditor", "Scan Editor", 0, QApplication::UnicodeUTF8));
+	statusTextLabel_->setText(QString());
+	openScansTitleButton_->setText(QApplication::translate("AMGenericScanEditor", "Open Scans", 0, QApplication::UnicodeUTF8));
+	openScanButton_->setText(QApplication::translate("AMGenericScanEditor", "Open...", 0, QApplication::UnicodeUTF8));
+	saveScanButton_->setText(QApplication::translate("AMGenericScanEditor", "Save", 0, QApplication::UnicodeUTF8));
+	closeScanButton_->setText(QApplication::translate("AMGenericScanEditor", "Close", 0, QApplication::UnicodeUTF8));
+	scanInformationTitleButton_->setText(QApplication::translate("AMGenericScanEditor", "Scan Information", 0, QApplication::UnicodeUTF8));
+	scanDate_->setText(QString());
+	scanTimeLabel_->setText(QApplication::translate("AMGenericScanEditor", "start", 0, QApplication::UnicodeUTF8));
+	scanDurationLabel_->setText(QApplication::translate("AMGenericScanEditor", "duration", 0, QApplication::UnicodeUTF8));
+	scanRunLabel_->setText(QApplication::translate("AMGenericScanEditor", "run", 0, QApplication::UnicodeUTF8));
+	scanDateLabel_->setText(QApplication::translate("AMGenericScanEditor", "date", 0, QApplication::UnicodeUTF8));
+	scanDuration_->setText(QString());
+	scanNameLabel_->setText(QApplication::translate("AMGenericScanEditor", "name", 0, QApplication::UnicodeUTF8));
+	scanNumberLabel_->setText(QApplication::translate("AMGenericScanEditor", "number", 0, QApplication::UnicodeUTF8));
+	scanIdLabel_->setText(QApplication::translate("AMGenericScanEditor", "serial #", 0, QApplication::UnicodeUTF8));
+	scanTime_->setText(QString());
+	scanEnd_->setText(QString());
+	scanEndLabel_->setText(QApplication::translate("AMGenericScanEditor", "end", 0, QApplication::UnicodeUTF8));
+	notesTitleButton_->setText(QApplication::translate("AMGenericScanEditor", "Notes", 0, QApplication::UnicodeUTF8));
+	notesEdit_->setPlainText(QString());
 }
