@@ -8,7 +8,6 @@
 #include <QPushButton>
 
 #include "ui/beamline/AMExtendedControlEditor.h"
-#include "BioXASMotorControlEditor.h"
 #include "MAXvMotorControlEditor.h"
 
 #include "../BioXASMAXvMotor.h"
@@ -96,8 +95,7 @@ void BioXASBeamlineTabWidget::setupMotors(BioXASBeamlineDef::BioXASMotorType mot
 {
 	QList<BioXASMAXvMotor *> matchedMotors = bioXASMotorModel_->getMotorsByCategory(beamlineId_, motorType);
 	for (int i = 0; i < matchedMotors.size(); i++) {
-//		BioXASMotorControlEditor *motorEditor = new BioXASMotorControlEditor(matchedMotors[i], matchedMotors[i]);
-		MAXvMotorControlEditor *motorEditor = new MAXvMotorControlEditor(matchedMotors[i], matchedMotors[i]);
+		MAXvMotorControlEditor *motorEditor = new MAXvMotorControlEditor(matchedMotors[i], matchedMotors[i]->statusPVControl());
 		pvLayoutBox->addWidget(motorEditor);
 	}
 }

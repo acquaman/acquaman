@@ -3,7 +3,7 @@
 #include <QDebug>
 #include <QLabel>
 
-MAXvMotorControlEditor::MAXvMotorControlEditor(BioXASMAXvMotor* control, BioXASMAXvMotor* statusTagControl, bool readOnly, bool configureOnly, QWidget *parent)
+MAXvMotorControlEditor::MAXvMotorControlEditor(BioXASMAXvMotor* control, AMControl* statusTagControl, bool readOnly, bool configureOnly, QWidget *parent)
 	:AMExtendedControlEditor(control, statusTagControl, readOnly, configureOnly, parent)
 {
 	valueLabel_->setToolTip(control->feedbackPVName());

@@ -2,6 +2,7 @@
 #define BIOXASMAXVMOTOR_H
 
 #include "beamline/CLS/CLSMAXvMotor.h"
+#include "beamline/AMPVControl.h"
 
 class BioXASMAXvMotor : public CLSMAXvMotor
 {
@@ -11,6 +12,8 @@ public:
 	{
 		category_ = categoryId;
 		pvBaseName_ = baseName;
+
+		statusPVControl_ = new AMReadOnlyPVControl("Motor moving status", statusPVName(), this);
 	}
 
 	int category() { return category_; }
@@ -20,9 +23,13 @@ public:
 	QString CWPVName() { return pvBaseName_ + ":cw"; }
 	QString CCWPVName() { return pvBaseName_ + ":ccw"; }
 
+	AMReadOnlyPVControl *statusPVControl() { return statusPVControl_; }
+
 private:
 	int category_;
 	QString pvBaseName_;
+
+		AMReadOnlyPVControl* statusPVControl_;
 };
 
 #endif // BIOXASMAXVMOTOR_H
