@@ -23,7 +23,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QBoxLayout>
 #include <QPushButton>
 
 class MainWindow : public QMainWindow
@@ -41,15 +40,8 @@ protected slots:
 	void onToolWindowClosed();
 
 private:
-    void createComponents();
-    void makeConnections();
-    void defaultSettings();
+	void setupUi();
 
-private:
-    QVBoxLayout *mainLayout_;
-
-	QPushButton *shutterToolButton_;
-	QPushButton *motorToolButton_;
 };
 
 #endif // MAINWINDOW_H

@@ -30,73 +30,48 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "source/actions3/actions/AMControlMoveAction3.h"
 #include "source/actions3/AMListAction3.h"
 
+#include "BioXASBeamline.h"
+#include "BioXASMAXvMotor.h"
+
 class MotorModel : public QObject
 {
 	Q_OBJECT
 
 public:
-	enum ShutterState { Closed = 0,
-						Open
-					  };
+	static MotorModel* instance() {
+		if (!instance_) {
+			instance_ = new MotorModel();
+		}
 
-	enum ControlState { Disabled = 0,
-						Enabled
-					  };
+		return instance_;
+	}
 
-	explicit MotorModel(QObject *parent = 0);
+	~MotorModel();
+
+private:
+	static MotorModel* instance_;
 
 signals:
-	void aodShutterControlConnected(bool isConnected);
-	void preInjectionControlsDisabled();
-	void postInjectionControlsEnabled();
-	void shuttersConnected(bool areConnected);
-	void shuttersOpen();
-	void shuttersClosed();
-	void shuttersBetween();
-	void errorReported();
 
 public:
-	bool aodShutterControlConnected();
-	bool shuttersConnected();
-	bool isOpen();
-	bool isClosed();
-	bool isBetween();
+	QList<BioXASMAXvMotor *> getMotorsByCategory(BioXASBeamlineDef::BioXASBeamLineID beamline, BioXASBeamlineDef::BioXASMotorType category);
 
 public slots:
-	void openShutters();
-	void closeShutters();
-	void setAutomaticShuttersOpen(bool enabled);
 
 protected slots:
-	void onAODShutterControlConnected(bool isConnected);
-	void onAODShutterControlValueChanged(double controlPVState);
-
-	void onSafetyShutterConnected(bool isConnected);
-	void onSafetyShutterStateChanged(int newState);
-
-	void onPhotonShutterConnected(bool isConnected);
-	void onPhotonShutterStateChanged(int newState);
-
-	void onOpenActionFinished();
-	void onCloseActionFinished();
-	void onErrorReported(const QString &errorInfo);
 
 private:
+	explicit MotorModel(QObject *parent = 0);
+
+	BioXASBeamline *bioXASMainBeamlineMotors_;
+	BioXASBeamline *bioXASSideBeamlineMotors_;
+	BioXASBeamline *bioXASImagingBeamlineMotors_;
+
 	void createComponents();
-	void makeConnections();
-	void connectedCheck();
-	void shutterStateCheck();
-	AMAction3* createOpenShuttersAction();
-	AMAction3* createCloseShuttersAction();
 
-private:
-	AMReadOnlyPVControl* aodShutterControl_;
-	CLSBiStateControl* safetyShutter_;
-	CLSBiStateControl* photonShutter_;
-	bool automaticShuttersOpen_;
-	AMAction3* openAction_;
-	AMAction3* closeAction_;
-
+	QList<BioXASBeamlineDef::BioXASMotor> bioXASMainBeamlineMotorDefTable();
+	QList<BioXASBeamlineDef::BioXASMotor> bioXASSideBeamlineMotorDefTable();
+	QList<BioXASBeamlineDef::BioXASMotor> bioXASImagingBeamlineMotorDefTable();
 };
 
 #endif // MOTORMODEL_H

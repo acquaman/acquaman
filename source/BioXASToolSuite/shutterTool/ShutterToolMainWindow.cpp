@@ -27,6 +27,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 ShutterToolMainWindow::ShutterToolMainWindow(QWidget *parent)
 	: QWidget(parent)
 {
+	setAttribute(Qt::WA_ShowWithoutActivating);
+
 	model_ = 0;
 	mainLayout_ = 0;
 

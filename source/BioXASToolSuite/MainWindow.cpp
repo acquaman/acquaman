@@ -23,21 +23,19 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QApplication>
 #include <QDesktopWidget>
 #include <QGroupBox>
+#include <QBoxLayout>
 
 #include "shutterTool/ShutterToolMainWindow.h"
-#include "motorTool/MotorToolMainScreen.h"
+#include "motorTool/ui/MotorToolMainScreen.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
-    mainLayout_ = 0;
+	setAttribute(Qt::WA_ShowWithoutActivating);
 
-	shutterToolButton_ = 0;
-	motorToolButton_ = 0;
+	setWindowTitle("BioXAS Beamline Toolsuite");
 
-    createComponents();
-	defaultSettings();
-    makeConnections();
+	setupUi();
 }
 
 MainWindow::~MainWindow()
@@ -51,19 +49,21 @@ void MainWindow::onShutterToolButtonClicked()
 	connect(shutterToolWindow, SIGNAL(closed()), this, SLOT(onToolWindowClosed()));
 
 	shutterToolWindow->move(QApplication::desktop()->screen()->rect().center() - shutterToolWindow->rect().center());
-
 	shutterToolWindow->show();
+	shutterToolWindow->setFixedSize(shutterToolWindow->rect().width(),shutterToolWindow->rect().height());
+
 	hide();
 }
 
 void MainWindow::onMotorToolButtonClicked()
 {
-	MotorToolMainScreen *motorToolMainScreen = new MotorToolMainScreen();
-	connect(motorToolMainScreen, SIGNAL(closed()), this, SLOT(onToolWindowClosed()));
+	MotorToolMainScreen *motorToolScreen = new MotorToolMainScreen();
+	connect(motorToolScreen, SIGNAL(closed()), this, SLOT(onToolWindowClosed()));
 
-	motorToolMainScreen->move(QApplication::desktop()->screen()->rect().center() - motorToolMainScreen->rect().center());
+	motorToolScreen->move(QApplication::desktop()->screen()->rect().center() - motorToolScreen->rect().center());
+//	motorToolScreen->setFixedSize(motorToolScreen->rect().width(),motorToolScreen->rect().height());
 
-	motorToolMainScreen->show();
+	motorToolScreen->show();
 	hide();
 }
 
@@ -71,28 +71,20 @@ void MainWindow::onToolWindowClosed() {
 	show();
 }
 
-void MainWindow::createComponents()
+void MainWindow::setupUi()
 {
-    mainLayout_ = new QVBoxLayout();
+	QGroupBox *mainWidget = new QGroupBox();
+	setCentralWidget(mainWidget);
 
-	shutterToolButton_ = new QPushButton("Shutter Tool");
-	motorToolButton_ = new QPushButton("Motor Tool");
+	QVBoxLayout *mainLayout = new QVBoxLayout();
+	mainWidget->setLayout(mainLayout);
 
-	mainLayout_->addWidget(shutterToolButton_);
-	mainLayout_->addWidget(motorToolButton_);
-}
+	QPushButton *shutterToolButton = new QPushButton("Shutter Tool");
+	QPushButton *motorToolButton = new QPushButton("Motor Tool");
 
-void MainWindow::makeConnections()
-{
-	connect( shutterToolButton_, SIGNAL(clicked()), this, SLOT(onShutterToolButtonClicked()) );
-	connect( motorToolButton_, SIGNAL(clicked()), this, SLOT(onMotorToolButtonClicked()) );
-}
+	mainLayout->addWidget(shutterToolButton);
+	mainLayout->addWidget(motorToolButton);
 
-void MainWindow::defaultSettings()
-{
-    QGroupBox *mainWidget = new QGroupBox();
-    mainWidget->setLayout(mainLayout_);
-
-	setWindowTitle("BioXAS Beamline Toolsuite");
-    setCentralWidget(mainWidget);
+	connect( shutterToolButton, SIGNAL(clicked()), this, SLOT(onShutterToolButtonClicked()) );
+	connect( motorToolButton, SIGNAL(clicked()), this, SLOT(onMotorToolButtonClicked()) );
 }
