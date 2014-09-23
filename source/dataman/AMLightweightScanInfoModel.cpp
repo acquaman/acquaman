@@ -1,7 +1,7 @@
 #include "AMLightweightScanInfoModel.h"
 #include "database/AMDbObject.h"
 
-#include <QDebug>
+
 AMLightweightScanInfoModel::AMLightweightScanInfoModel(AMLightweightScanInfoCollection *scanInfo, QObject *parent) :
 	QAbstractItemModel(parent)
 {

@@ -1,5 +1,5 @@
 #include "AMScanThumbnailView.h"
-
+#include "util/AMDateTimeUtils.h"
 
 
 
@@ -20,21 +20,31 @@ void AMScanThumbnailViewItemDelegate::paint(QPainter *painter, const QStyleOptio
 
 	if(!index.parent().isValid())
 	{
+		// Painting a scan
 		if(option.state & QStyle::State_Selected)
 		{
 			painter->save();
 			painter->setPen(option.palette.color(QPalette::Normal, QPalette::HighlightedText));
-			painter->drawText(option.rect, index.data(Qt::DisplayRole).toString());
+			QVariant data = index.data(Qt::DisplayRole);
+			if(data.type() == QVariant::DateTime)
+				painter->drawText(option.rect, AMDateTimeUtils::prettyDateTime(data.toDateTime()));
+			else
+				painter->drawText(option.rect, index.data(Qt::DisplayRole).toString());
 			painter->restore();
 		}
 		else
 		{
-			painter->drawText(option.rect, index.data(Qt::DisplayRole).toString());
+			QVariant data = index.data(Qt::DisplayRole);
+			if(data.type() == QVariant::DateTime)
+				painter->drawText(option.rect, AMDateTimeUtils::prettyDateTime(data.toDateTime()));
+			else
+				painter->drawText(option.rect, index.data(Qt::DisplayRole).toString());
 		}
 
 	}
 	else
 	{
+		// Painting a thumbnail
 		if(index.column() == 1)
 		{
 			QPixmap pixmap = index.data(Qt::DecorationRole).value<QPixmap>();
@@ -68,7 +78,7 @@ AMScanThumbnailView::AMScanThumbnailView(QWidget *parent)
 	:QAbstractItemView(parent)
 {
 	itemDimensions_.setWidth(260);
-	itemDimensions_.setHeight(260);
+	itemDimensions_.setHeight(290);
 
 	imageDimensions_.setWidth(240);
 	imageDimensions_.setHeight(180);
@@ -168,7 +178,6 @@ QRect AMScanThumbnailView::visualRect(const QModelIndex &index) const
 		{
 		case 1:
 			return getImageRectangle(thumbnailRectangle);
-
 		case 2:
 			return getTitleRectangle(thumbnailRectangle);
 		default:
@@ -178,10 +187,17 @@ QRect AMScanThumbnailView::visualRect(const QModelIndex &index) const
 	// * If the parent is not valid, we're looking at a scan
 	else
 	{
-		if(index.column() == 1)
-			return getScanNameRectangle(thumbnailRectangle);
-		else
+		switch (index.column())
+		{
+		case 0:
 			return thumbnailRectangle;
+		case 1:
+			return getScanNameRectangle(thumbnailRectangle);
+		case 3:
+			return getScanStartDateRectangle(thumbnailRectangle);
+		default:
+			return QRect();
+		}
 	}
 }
 
@@ -302,6 +318,7 @@ void AMScanThumbnailView::paintEvent(QPaintEvent *pe)
 	for(int iDataRow = 0; iDataRow < model()->rowCount(); iDataRow++)
 	{
 		QModelIndex scanNameIndex = model()->index(iDataRow, 1);
+		QModelIndex scanDateIndex = model()->index(iDataRow, 3);
 		QModelIndex selectionRowIndex = model()->index(iDataRow, 0);
 		QRect dataRowRectangle = rectangleGridRow(scanNameIndex.row());
 		QRect containerRectangle(dataRowRectangle.x() + 10, dataRowRectangle.y() + 10, dataRowRectangle.width()-20, dataRowRectangle.height()-20);
@@ -329,6 +346,7 @@ void AMScanThumbnailView::paintEvent(QPaintEvent *pe)
 		{
 
 			int currentThumbnailIndex = rowCurrentDisplayedThumbnailMap_.value(scanNameIndex.row(), 0);
+
 			QModelIndex thumbnailIndex = model()->index(currentThumbnailIndex, 1, scanNameIndex);
 			option.rect = visualRect(thumbnailIndex);
 			itemDelegate()->paint(&painter, option, thumbnailIndex);
@@ -342,6 +360,9 @@ void AMScanThumbnailView::paintEvent(QPaintEvent *pe)
 
 		option.rect = visualRect(scanNameIndex);
 		itemDelegate()->paint(&painter, option, scanNameIndex);
+
+		option.rect = visualRect(scanDateIndex);
+		itemDelegate()->paint(&painter, option, scanDateIndex);
 
 	}
 }
@@ -505,6 +526,11 @@ QRect AMScanThumbnailView::getImageRectangle(const QRect &thumbnailRectangle) co
 QRect AMScanThumbnailView::getTitleRectangle(const QRect &thumbnailRectangle) const
 {
 	return QRect(thumbnailRectangle.x() + 15, thumbnailRectangle.y() + thumbnailRectangle.height() - fontMetrics().height() - 15, thumbnailRectangle.width() - 30, fontMetrics().height());
+}
+
+QRect AMScanThumbnailView::getScanStartDateRectangle(const QRect &thumbnailRectangle) const
+{
+	return QRect(thumbnailRectangle.x() + 15, thumbnailRectangle.y() + fontMetrics().height() + 20, thumbnailRectangle.width(), fontMetrics().height());
 }
 
 
