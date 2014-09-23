@@ -7,8 +7,8 @@
 class BioXASMAXvMotor : public CLSMAXvMotor
 {
 public:
-	BioXASMAXvMotor(const int categoryId, const QString &name, const QString &baseName, const QString &description, bool hasEncoder, double tolerance, double moveStartTimeoutSeconds = 2.0, QObject *parent = 0)
-		: CLSMAXvMotor(name, baseName, description, hasEncoder, tolerance, moveStartTimeoutSeconds, parent)
+	BioXASMAXvMotor(const int categoryId, const QString &name, const QString &baseName, const QString &description, QString pvSubName, bool hasEncoder, double tolerance, double moveStartTimeoutSeconds = 2.0, QObject *parent = 0)
+		: CLSMAXvMotor(name, baseName, description, hasEncoder, tolerance, moveStartTimeoutSeconds, pvSubName, parent)
 	{
 		category_ = categoryId;
 		pvBaseName_ = baseName;

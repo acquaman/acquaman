@@ -8,7 +8,7 @@ BioXASBeamline::BioXASBeamline(QList<BioXASBeamlineDef::BioXASMotor> motorDefini
 	for (int i = 0; i < motorDefinitions.size(); i++) {
 		BioXASMAXvMotor * motor = new BioXASMAXvMotor(motorDefinitions[i].motorCategory_, motorDefinitions[i].motorCategoryName_,
 													  motorDefinitions[i].pvBaseName_, motorDefinitions[i].description_,
-													  true, 0.05, 2.0, this);
+													  motorDefinitions[i].pvSubName_, true, 0.05, 2.0, this);
 
 		motors_.append(motor);
 	}
