@@ -25,8 +25,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/actions/AMControlStopAction.h"
 
  CLSMAXvMotor::~CLSMAXvMotor(){}
-CLSMAXvMotor::CLSMAXvMotor(const QString &name, const QString &baseName, const QString &description, bool hasEncoder, double tolerance, double moveStartTimeoutSeconds, QObject *parent) :
-	AMPVwStatusControl(name, hasEncoder ? baseName+":mm:fbk" : baseName+":mm:sp", baseName+":mm", baseName+":status", baseName+":stop", parent, tolerance, moveStartTimeoutSeconds, new AMControlStatusCheckerCLSMAXv(), 1, description)
+CLSMAXvMotor::CLSMAXvMotor(const QString &name, const QString &baseName, const QString &description, bool hasEncoder, double tolerance, double moveStartTimeoutSeconds, QString pvSubName, QObject *parent) :
+	AMPVwStatusControl(name, hasEncoder ? baseName+pvSubName+":fbk" : baseName+pvSubName+":sp", baseName+pvSubName, baseName+":status", baseName+":stop", parent, tolerance, moveStartTimeoutSeconds, new AMControlStatusCheckerCLSMAXv(), 1, description)
 		//AMPVwStatusControl(name, baseName+":mm:fbk", baseName+":mm", baseName+":status", baseName+":stop", parent, tolerance, moveStartTimeoutSeconds, new AMControlStatusCheckerStopped(0), 1, description)
 {
 	hasEncoder_ = hasEncoder;

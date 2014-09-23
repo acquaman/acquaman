@@ -24,12 +24,14 @@ namespace BioXASBeamlineDef {
 		BioXASMotorType motorCategory_;
 		QString motorCategoryName_;
 		QString pvBaseName_;
+		QString pvSubName_;
 		QString description_;
 
-		BioXASMotor(BioXASMotorType category, QString categoryName, QString baseName, QString desc) {
+		BioXASMotor(BioXASMotorType category, QString categoryName, QString baseName, QString pvSubName, QString desc) {
 			motorCategory_ = category;
 			motorCategoryName_ = categoryName;
 			pvBaseName_ = baseName;
+			pvSubName_ = pvSubName;
 			description_ = desc;
 		}
 	};

@@ -130,7 +130,7 @@ protected:
 
 	QLabel* valueLabel_;
 	QLabel* unitsLabel_;
-        QHBoxLayout* statusLayout_;
+	QHBoxLayout* statusLayout_;
 	QLabel* statusLabel_;
 	AMExtendedControlEditorStyledInputDialog* dialog_;
 
