@@ -139,8 +139,8 @@ void AMDataSourceImageData::onDataChanged(const AMnDIndex &start, const AMnDInde
 	QVector<double> newData = QVector<double>(start.totalPointsTo(end));
 	source_->values(start, end, newData.data());
 
-	int xOffset = start.i();
-	int yOffset = start.j()*xSize_;
+	int xOffset = start.i()*ySize_;
+	int yOffset = start.j();
 	double rangeMinimum = newData.first();
 	double rangeMaximum = newData.first();
 
@@ -156,7 +156,7 @@ void AMDataSourceImageData::onDataChanged(const AMnDIndex &start, const AMnDInde
 			if (newValue < rangeMinimum)
 				rangeMinimum = newValue;
 
-			data_[i+xOffset + j*xSize_ + yOffset] = newValue;
+			data_[i*ySize_+xOffset + j+yOffset] = newValue;
 		}
 	}
 
