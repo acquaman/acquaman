@@ -31,16 +31,3 @@ SOURCES += \
 
 RESOURCES += \
 	source/BioXASToolSuite/resources/BioXASImages.qrc
-
-
-
-
-
-
-
-
-
-
-
-
-

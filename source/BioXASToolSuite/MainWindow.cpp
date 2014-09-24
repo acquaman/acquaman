@@ -61,7 +61,6 @@ void MainWindow::onMotorToolButtonClicked()
 	connect(motorToolScreen, SIGNAL(closed()), this, SLOT(onToolWindowClosed()));
 
 	motorToolScreen->move(QApplication::desktop()->screen()->rect().center() - motorToolScreen->rect().center());
-//	motorToolScreen->setFixedSize(motorToolScreen->rect().width(),motorToolScreen->rect().height());
 
 	motorToolScreen->show();
 	hide();

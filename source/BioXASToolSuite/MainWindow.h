@@ -27,11 +27,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 class MainWindow : public QMainWindow
 {
-    Q_OBJECT
+	Q_OBJECT
 
 public:
-    MainWindow(QWidget *parent = 0);
-    ~MainWindow();
+	MainWindow(QWidget *parent = 0);
+	~MainWindow();
 
 protected slots:
 	void onShutterToolButtonClicked();
