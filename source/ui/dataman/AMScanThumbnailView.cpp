@@ -21,24 +21,28 @@ void AMScanThumbnailViewItemDelegate::paint(QPainter *painter, const QStyleOptio
 	if(!index.parent().isValid())
 	{
 		// Painting a scan
+
+		// Get formatted data string
+		QVariant data = index.data(Qt::DisplayRole);
+		QString textToPaint;
+		if (data.type() == QVariant::DateTime)
+			textToPaint = AMDateTimeUtils::prettyDateTime(data.toDateTime());
+		else
+			textToPaint = data.toString();
+
+		// Elide text if required
+		textToPaint = option.fontMetrics.elidedText(textToPaint, Qt::ElideRight, option.rect.width());
+
 		if(option.state & QStyle::State_Selected)
 		{
 			painter->save();
 			painter->setPen(option.palette.color(QPalette::Normal, QPalette::HighlightedText));
-			QVariant data = index.data(Qt::DisplayRole);
-			if(data.type() == QVariant::DateTime)
-				painter->drawText(option.rect, AMDateTimeUtils::prettyDateTime(data.toDateTime()));
-			else
-				painter->drawText(option.rect, index.data(Qt::DisplayRole).toString());
+			painter->drawText(option.rect, textToPaint);
 			painter->restore();
 		}
 		else
 		{
-			QVariant data = index.data(Qt::DisplayRole);
-			if(data.type() == QVariant::DateTime)
-				painter->drawText(option.rect, AMDateTimeUtils::prettyDateTime(data.toDateTime()));
-			else
-				painter->drawText(option.rect, index.data(Qt::DisplayRole).toString());
+			painter->drawText(option.rect, textToPaint);
 		}
 
 	}
@@ -63,7 +67,11 @@ void AMScanThumbnailViewItemDelegate::paint(QPainter *painter, const QStyleOptio
 				}
 				else
 				{
-					painter->drawText(option.rect, index.data(Qt::DisplayRole).toString());
+					QString textToPaint = index.data(Qt::DisplayRole).toString();
+
+					// Elide text if required
+					textToPaint = option.fontMetrics.elidedText(textToPaint, Qt::ElideRight, option.rect.width());
+					painter->drawText(option.rect, textToPaint);
 				}
 		}
 	}
@@ -195,6 +203,8 @@ QRect AMScanThumbnailView::visualRect(const QModelIndex &index) const
 			return getScanNameRectangle(thumbnailRectangle);
 		case 3:
 			return getScanStartDateRectangle(thumbnailRectangle);
+		case 4:
+			return getScanTechniqueRectangle(thumbnailRectangle);
 		default:
 			return QRect();
 		}
@@ -319,6 +329,7 @@ void AMScanThumbnailView::paintEvent(QPaintEvent *pe)
 	{
 		QModelIndex scanNameIndex = model()->index(iDataRow, 1);
 		QModelIndex scanDateIndex = model()->index(iDataRow, 3);
+		QModelIndex scanTechniqueIndex = model()->index(iDataRow, 4);
 		QModelIndex selectionRowIndex = model()->index(iDataRow, 0);
 		QRect dataRowRectangle = rectangleGridRow(scanNameIndex.row());
 		QRect containerRectangle(dataRowRectangle.x() + 10, dataRowRectangle.y() + 10, dataRowRectangle.width()-20, dataRowRectangle.height()-20);
@@ -363,6 +374,9 @@ void AMScanThumbnailView::paintEvent(QPaintEvent *pe)
 
 		option.rect = visualRect(scanDateIndex);
 		itemDelegate()->paint(&painter, option, scanDateIndex);
+
+		option.rect = visualRect(scanTechniqueIndex);
+		itemDelegate()->paint(&painter, option, scanTechniqueIndex);
 
 	}
 }
@@ -531,6 +545,11 @@ QRect AMScanThumbnailView::getTitleRectangle(const QRect &thumbnailRectangle) co
 QRect AMScanThumbnailView::getScanStartDateRectangle(const QRect &thumbnailRectangle) const
 {
 	return QRect(thumbnailRectangle.x() + 15, thumbnailRectangle.y() + fontMetrics().height() + 20, thumbnailRectangle.width(), fontMetrics().height());
+}
+
+QRect AMScanThumbnailView::getScanTechniqueRectangle(const QRect &thumbnailRectangle) const
+{
+	return QRect(thumbnailRectangle.x() + 15, thumbnailRectangle.y() + thumbnailRectangle.height() - fontMetrics().height() - 35, thumbnailRectangle.width() - 30, fontMetrics().height());
 }
 
 

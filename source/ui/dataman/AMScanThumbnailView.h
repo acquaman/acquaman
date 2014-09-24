@@ -108,6 +108,8 @@ protected:
 	QRect getTitleRectangle(const QRect& thumbnailRectangle) const;
 	/// Obtains the position within the thumbnailRectangle of the Scan Start Date
 	QRect getScanStartDateRectangle(const QRect& thumbnailRectangle) const;
+	/// Obtains the position within the thumbnailRectangle of the Scan Technique
+	QRect getScanTechniqueRectangle(const QRect& thumbnailRectangle) const;
 private:
 	/// The size of a single thumbnailView item
 	QSize itemDimensions_;
