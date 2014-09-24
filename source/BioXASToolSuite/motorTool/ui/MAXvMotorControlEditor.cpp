@@ -16,12 +16,14 @@ MAXvMotorControlEditor::MAXvMotorControlEditor(BioXASMAXvMotor* control, AMContr
 	cwLabel_->setFont(statusFont);
 	cwLabel_->setMargin(1);
 	cwLabel_->setVisible(false);
+	cwLabel_->setToolTip(control->CWPVName());
 	statusLayout_->addWidget(cwLabel_);
 
 	ccwLabel_ = new QLabel("CCW");
 	ccwLabel_->setFont(statusFont);
 	ccwLabel_->setMargin(1);
 	ccwLabel_->setVisible(false);
+	ccwLabel_->setToolTip(control->CCWPVName());
 	statusLayout_->addWidget(ccwLabel_);
 
 	connect(control, SIGNAL(atLimitChanged(CLSMAXvMotor::Limit)), this, SLOT(onLimitChanged(CLSMAXvMotor::Limit)));
