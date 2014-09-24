@@ -33,11 +33,11 @@ CLSMAXvMotor::CLSMAXvMotor(const QString &name, const QString &baseName, const Q
 	usingKill_ = false;
 	killPV_ = new AMProcessVariable(baseName+":kill", true, this);
 
-	EGUVelocity_ = new AMPVControl(name+"EGUVelocity", baseName+":vel:mmps:sp", baseName+":velo:mmps", QString(), this, 0.05);
-	EGUBaseVelocity_ = new AMPVControl(name+"EGUBaseVelocity", baseName+":vBase:mmps:sp", baseName+":vBase:mmps", QString(), this, 0.05);
-	EGUAcceleration_ = new AMPVControl(name+"EGUAcceleration", baseName+":acc:mmpss:sp", baseName+":accel:mmpss", QString(), this, 2);
-	EGUCurrentVelocity_ = new AMReadOnlyPVControl(name+"EGUCurrentVelocity", baseName+":vel:mmps:fbk", this);
-	EGUOffset_ = new AMPVControl(name+"EGUOffset", baseName+":mm:offset", baseName+":mm:offset", QString(), this, 0.005);
+	EGUVelocity_ = new AMPVControl(name+"EGUVelocity", baseName+":vel"+pvUnitFieldName+"ps:sp", baseName+":velo"+pvUnitFieldName+"ps", QString(), this, 0.05);
+	EGUBaseVelocity_ = new AMPVControl(name+"EGUBaseVelocity", baseName+":vBase"+pvUnitFieldName+"ps:sp", baseName+":vBase"+pvUnitFieldName+"ps", QString(), this, 0.05);
+	EGUAcceleration_ = new AMPVControl(name+"EGUAcceleration", baseName+":acc"+pvUnitFieldName+"pss:sp", baseName+":accel"+pvUnitFieldName+"pss", QString(), this, 2);
+	EGUCurrentVelocity_ = new AMReadOnlyPVControl(name+"EGUCurrentVelocity", baseName+":vel"+pvUnitFieldName+"ps:fbk", this);
+	EGUOffset_ = new AMPVControl(name+"EGUOffset", baseName+pvUnitFieldName+":offset", baseName+pvUnitFieldName+":offset", QString(), this, 0.005);
 
 	step_ = new AMPVControl(name+"Step", baseName+":step:sp", baseName+":step", QString(), this, 20);
 	stepVelocity_ = new AMPVControl(name+"StepVelocity", baseName+":velo:sp", baseName+":velo", QString(), this, 2);
