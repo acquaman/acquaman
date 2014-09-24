@@ -6,11 +6,9 @@ MotorToolMainScreen::MotorToolMainScreen(QWidget *parent) :
 	QTabWidget(parent)
 {
 	setAttribute(Qt::WA_ShowWithoutActivating);
-
-	setWindowTitle("BioXAS Motor Tool");
 	resize(1190, 1600);
 
-	motorModel_ = MotorModel::instance();
+	setWindowTitle("BioXAS Motor Tool");
 
 	setupUi();
 }

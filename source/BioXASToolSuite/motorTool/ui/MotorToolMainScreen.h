@@ -4,7 +4,7 @@
 #include <QTabWidget>
 #include <QCloseEvent>
 
-#include "../MotorModel.h"
+#include "../BioXASBeamlineDataModel.h"
 
 class MotorToolMainScreen : public QTabWidget
 {
@@ -24,8 +24,6 @@ protected:
 	}
 
 private:
-	MotorModel * motorModel_;
-
 	void setupUi();
 };
 

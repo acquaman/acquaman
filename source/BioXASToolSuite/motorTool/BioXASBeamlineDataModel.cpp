@@ -1,41 +1,18 @@
-/*
-Copyright 2010-2012 Mark Boots, David Chevrier, and Darren Hunter.
-Copyright 2013-2014 David Chevrier and Darren Hunter.
 
-This file is part of the Acquaman Data Acquisition and Management framework ("Acquaman").
+#include "BioXASBeamlineDataModel.h"
 
-Acquaman is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-Acquaman is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
-
-#include "MotorModel.h"
 #include <QDebug>
 
-MotorModel* MotorModel::instance_ = 0;
+BioXASBeamlineDataModel* BioXASBeamlineDataModel::instance_ = 0;
 
-MotorModel::MotorModel(QObject *parent) : QObject(parent)
+BioXASBeamlineDataModel::~BioXASBeamlineDataModel()
 {
-	createComponents();
+	delete bioXASMainBeamline_;
+	delete bioXASSideBeamline_;
+	delete bioXASImagingBeamline_;
 }
 
-MotorModel::~MotorModel() {
-	delete bioXASMainBeamlineMotors_;
-	delete bioXASSideBeamlineMotors_;
-	delete bioXASImagingBeamlineMotors_;
-}
-
-QList<BioXASMAXvMotor *> MotorModel::getMotorsByCategory(BioXASBeamlineDef::BioXASBeamLineID beamline, BioXASBeamlineDef::BioXASMotorType category)
+QList<BioXASMAXvMotor *> BioXASBeamlineDataModel::getBeamlineMotorsByMotorType(BioXASBeamlineDef::BioXASBeamLineID beamline, BioXASBeamlineDef::BioXASMotorType category)
 {
 	QList<BioXASMAXvMotor *> matchMotors;
 
@@ -49,39 +26,38 @@ QList<BioXASMAXvMotor *> MotorModel::getMotorsByCategory(BioXASBeamlineDef::BioX
 		return matchMotors;
 	}
 
-	BioXASBeamline * beamlineMotors;
+	BioXASBeamline * bioXASBeamline;
 
 	switch (beamline) {
 	case BioXASBeamlineDef::BioXASMainBeamLine:
-		beamlineMotors = bioXASMainBeamlineMotors_;
+		bioXASBeamline = bioXASMainBeamline_;
 		break;
 	case BioXASBeamlineDef::BioXASSideBeamLine:
-		beamlineMotors = bioXASSideBeamlineMotors_;
+		bioXASBeamline = bioXASSideBeamline_;
 		break;
 	case BioXASBeamlineDef::BioXASImagingBeamLine:
-		beamlineMotors = bioXASImagingBeamlineMotors_;
+		bioXASBeamline = bioXASImagingBeamline_;
 		break;
 	default:
-		beamlineMotors = 0;
+		bioXASBeamline = 0;
 		break;
 	}
 
-	if (beamlineMotors) {
-		matchMotors = beamlineMotors->getMotorsByCategory(category);
+	if (bioXASBeamline) {
+		matchMotors = bioXASBeamline->getMotorsByType(category);
 	}
 
 	return matchMotors;
 }
 
-
-void MotorModel::createComponents()
+BioXASBeamlineDataModel::BioXASBeamlineDataModel(QObject *parent) : QObject(parent)
 {
-	bioXASMainBeamlineMotors_ = new BioXASBeamline(bioXASMainBeamlineMotorDefTable());
-	bioXASSideBeamlineMotors_ = new BioXASBeamline(bioXASSideBeamlineMotorDefTable());
-	bioXASImagingBeamlineMotors_ = new BioXASBeamline(bioXASImagingBeamlineMotorDefTable());
+	bioXASMainBeamline_ = new BioXASBeamline(bioXASMainBeamlineMotorDefTable());
+	bioXASSideBeamline_ = new BioXASBeamline(bioXASSideBeamlineMotorDefTable());
+	bioXASImagingBeamline_ = new BioXASBeamline(bioXASImagingBeamlineMotorDefTable());
 }
 
-QList<BioXASBeamlineDef::BioXASMotor> MotorModel::bioXASMainBeamlineMotorDefTable() {
+QList<BioXASBeamlineDef::BioXASMotor> BioXASBeamlineDataModel::bioXASMainBeamlineMotorDefTable() {
 	QList<BioXASBeamlineDef::BioXASMotor> beamlineMotors;
 	beamlineMotors  << BioXASBeamlineDef::BioXASMotor(BioXASBeamlineDef::FilterMotor, QString("Carbon Filter Farm"), QString("SMTR1607-5-I00-03"), QString(":mm"),  QString("SMTR1607-5-I00-03 Filter 1"))
 					<< BioXASBeamlineDef::BioXASMotor(BioXASBeamlineDef::FilterMotor, QString("Carbon Filter Farm"), QString("SMTR1607-5-I00-04"), QString(":mm"),  QString("SMTR1607-5-I00-04 Filter 2"))
@@ -115,7 +91,7 @@ QList<BioXASBeamlineDef::BioXASMotor> MotorModel::bioXASMainBeamlineMotorDefTabl
 	return beamlineMotors;
 }
 
-QList<BioXASBeamlineDef::BioXASMotor> MotorModel::bioXASSideBeamlineMotorDefTable() {
+QList<BioXASBeamlineDef::BioXASMotor> BioXASBeamlineDataModel::bioXASSideBeamlineMotorDefTable() {
 	QList<BioXASBeamlineDef::BioXASMotor> beamlineMotors;
 	beamlineMotors  << BioXASBeamlineDef::BioXASMotor(BioXASBeamlineDef::FilterMotor, QString("Carbon Filter Farm"), QString("SMTR1607-5-I00-01"), QString(":mm"),  QString("SMTR1607-5-I00-01 Filter 1"))
 					<< BioXASBeamlineDef::BioXASMotor(BioXASBeamlineDef::FilterMotor, QString("Carbon Filter Farm"), QString("SMTR1607-5-I00-02"), QString(":mm"),  QString("SMTR1607-5-I00-02 Filter 2"))
@@ -149,8 +125,8 @@ QList<BioXASBeamlineDef::BioXASMotor> MotorModel::bioXASSideBeamlineMotorDefTabl
 	return beamlineMotors;
 }
 
-QList<BioXASBeamlineDef::BioXASMotor> MotorModel::bioXASImagingBeamlineMotorDefTable() {
-	QList<BioXASBeamlineDef::BioXASMotor> beamlineMotors;QString(":mm"),
+QList<BioXASBeamlineDef::BioXASMotor> BioXASBeamlineDataModel::bioXASImagingBeamlineMotorDefTable() {
+	QList<BioXASBeamlineDef::BioXASMotor> beamlineMotors;
 	beamlineMotors  << BioXASBeamlineDef::BioXASMotor(BioXASBeamlineDef::FilterMotor, QString("Carbon Filter Farm"),  QString("SMTR1607-5-I00-05"), QString(":mm"),  QString("SMTR1607-5-I00-05 Filter 1"))
 					<< BioXASBeamlineDef::BioXASMotor(BioXASBeamlineDef::FilterMotor, QString("Carbon Filter Farm"),  QString("SMTR1607-5-I00-06"), QString(":mm"),  QString("SMTR1607-5-I00-06 Filter 2"))
 					<< BioXASBeamlineDef::BioXASMotor(BioXASBeamlineDef::M1Motor,     QString("Image M1"),            QString("SMTR1607-5-I10-01"), QString(":mm"),  QString("SMTR1607-5-I10-01 VERT INB (UPSTREAM)"))

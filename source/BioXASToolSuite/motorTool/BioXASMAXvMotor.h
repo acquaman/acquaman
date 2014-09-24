@@ -1,35 +1,38 @@
 #ifndef BIOXASMAXVMOTOR_H
 #define BIOXASMAXVMOTOR_H
 
-#include "beamline/CLS/CLSMAXvMotor.h"
 #include "beamline/AMPVControl.h"
+#include "beamline/CLS/CLSMAXvMotor.h"
 
 class BioXASMAXvMotor : public CLSMAXvMotor
 {
 public:
-	BioXASMAXvMotor(const int categoryId, const QString &name, const QString &baseName, const QString &description, QString pvSubName, bool hasEncoder, double tolerance, double moveStartTimeoutSeconds = 2.0, QObject *parent = 0)
-		: CLSMAXvMotor(name, baseName, description, hasEncoder, tolerance, moveStartTimeoutSeconds, pvSubName, parent)
+	BioXASMAXvMotor(const int motorType, const QString &name, const QString &baseName, const QString &description, QString pvUnitFieldName, bool hasEncoder, double tolerance, double moveStartTimeoutSeconds = 2.0, QObject *parent = 0)
+		: CLSMAXvMotor(name, baseName, description, hasEncoder, tolerance, moveStartTimeoutSeconds, pvUnitFieldName, parent)
 	{
-		category_ = categoryId;
+		type_ = motorType;
 		pvBaseName_ = baseName;
+		pvUnitFieldName_ = pvUnitFieldName;
 
 		statusPVControl_ = new AMReadOnlyPVControl("Motor moving status", statusPVName(), this);
 	}
 
-	int category() { return category_; }
-	QString valuePVName() { return pvBaseName_ + ":mm"; }
-	QString feedbackPVName() { return pvBaseName_ + ":mm:fbk"; }
+	int type() { return type_; }
+	QString valuePVName() { return pvBaseName_ + pvUnitFieldName_; }
+	QString feedbackPVName() { return pvBaseName_ + pvUnitFieldName_ + ":fbk"; }
 	QString statusPVName() { return pvBaseName_ + ":status"; }
 	QString CWPVName() { return pvBaseName_ + ":cw"; }
 	QString CCWPVName() { return pvBaseName_ + ":ccw"; }
 
+	/* The status PV control, which can be used as the statusTagControl for control editor*/
 	AMReadOnlyPVControl *statusPVControl() { return statusPVControl_; }
 
 private:
-	int category_;
+	int type_;
 	QString pvBaseName_;
+	QString pvUnitFieldName_;
 
-		AMReadOnlyPVControl* statusPVControl_;
+	AMReadOnlyPVControl* statusPVControl_;
 };
 
 #endif // BIOXASMAXVMOTOR_H

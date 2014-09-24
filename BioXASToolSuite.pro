@@ -1,6 +1,6 @@
 include ( acquamanCommon.pri )
 
-QT       += core gui
+QT	   += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -11,125 +11,26 @@ HEADERS  += \
 	source/BioXASToolSuite/MainWindow.h \
 	source/BioXASToolSuite/shutterTool/ShutterToolMainWindow.h \
 	source/BioXASToolSuite/shutterTool/ShutterModel.h \
-	source/BioXASToolSuite/motorTool/MotorModel.h \
+	source/BioXASToolSuite/motorTool/BioXASMAXvMotor.h \
+	source/BioXASToolSuite/motorTool/BioXASBeamline.h \
+	source/BioXASToolSuite/motorTool/BioXASBeamlineDataModel.h \
 	source/BioXASToolSuite/motorTool/ui/MotorToolMainScreen.h \
-    source/BioXASToolSuite/motorTool/BioXASMAXvMotor.h \
-    source/BioXASToolSuite/motorTool/ui/MAXvMotorControlEditor.h \
-    source/BioXASToolSuite/motorTool/BioXASBeamline.h \
-    source/BioXASToolSuite/motorTool/ui/BioXASBeamlineTabWidget.h
+	source/BioXASToolSuite/motorTool/ui/MAXvMotorControlEditor.h \
+	source/BioXASToolSuite/motorTool/ui/BioXASBeamlineTabWidget.h
 
 SOURCES += \
 	source/BioXASToolSuite/BioXASToolMain.cpp \
 	source/BioXASToolSuite/MainWindow.cpp \
 	source/BioXASToolSuite/shutterTool/ShutterToolMainWindow.cpp \
 	source/BioXASToolSuite/shutterTool/ShutterModel.cpp \
-	source/BioXASToolSuite/motorTool/MotorModel.cpp \
+	source/BioXASToolSuite/motorTool/BioXASBeamline.cpp \
+	source/BioXASToolSuite/motorTool/BioXASBeamlineDataModel.cpp \
 	source/BioXASToolSuite/motorTool/ui/MotorToolMainScreen.cpp \
-    source/BioXASToolSuite/motorTool/ui/MAXvMotorControlEditor.cpp \
-    source/BioXASToolSuite/motorTool/BioXASBeamline.cpp \
-    source/BioXASToolSuite/motorTool/ui/BioXASBeamlineTabWidget.cpp
-
-FORMS +=
+	source/BioXASToolSuite/motorTool/ui/MAXvMotorControlEditor.cpp \
+	source/BioXASToolSuite/motorTool/ui/BioXASBeamlineTabWidget.cpp
 
 RESOURCES += \
 	source/BioXASToolSuite/resources/BioXASImages.qrc
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

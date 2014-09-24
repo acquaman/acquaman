@@ -2,49 +2,50 @@
 #define BIOXASBEAMLINETABWIDGET_H
 
 #include <QWidget>
-#include <QHBoxLayout>
+#include <QGroupBox>
 #include <QVBoxLayout>
 
-//#include <QPainter>
-//#include <QPaintEvent>
-//#include <QStyle>
-//#include <QStyleOption>
-
 #include "../BioXASBeamline.h"
-#include "../MotorModel.h"
+#include "../BioXASBeamlineDataModel.h"
 
 class BioXASBeamlineTabWidget : public QWidget
 {
     Q_OBJECT
 public:
 	explicit BioXASBeamlineTabWidget(BioXASBeamlineDef::BioXASBeamLineID beamlineId, QWidget *parent = 0);
+	~BioXASBeamlineTabWidget();
 
 protected:
 	BioXASBeamlineDef::BioXASBeamLineID beamlineId_;
 
-	MotorModel *bioXASMotorModel_;
+	BioXASBeamlineDataModel *bioXASMotorModel_;
 
-	QVBoxLayout *filterMotorVBox_;
-	QVBoxLayout *m1MotorVBox_;
-	QVBoxLayout *maskMotorVBox_;
-	QVBoxLayout *monoMotorVBox_;
-	QVBoxLayout *m2MotorVBox_;
-
+	/*
+	 the beamline Tab widget:
+	 |--VBoxLayout---------------------------------------------|
+	 |  HBoxLayout        |                |                   |
+	 |   QGroupBox        |                |  QGroupBox        |
+	 |    VBoxLayout      |                |   VBoxLayout      |
+	 |     (Filter Motors)|                |     (Mask Motors) |
+	 |                    |                |                   |
+	 |---------------------------------------------------------|
+	 |  HBoxLayout                                             |
+	 |                                                         |
+	 |     beamline image                                      |
+	 |---------------------------------------------------------|
+	 |  HBoxLayout        |                 |                  |
+	 |   QGroupBox        |                 |  QGroupBox       |
+	 |    VBoxLayout      |                 |   VBoxLayout     |
+	 |     (M1 Motors)    |   (Mono Motors) |     (M2 Motors)  |
+	 |                    |                 |                  |
+	 |---------------------------------------------------------|
+	*/
 	void setupUiLayout();
-	void setupMotors(BioXASBeamlineDef::BioXASMotorType motorType, QVBoxLayout *pvLayoutBox);
-
-//	void paintEvent(QPaintEvent *)
-//	{
-//		QStyleOption opt;
-//		opt.init(this);
-//		QPainter p(this);
-//		style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
-//	}
 
 private:
-	QString getBeamlineImage(BioXASBeamlineDef::BioXASBeamLineID beamlineId);
-	QVBoxLayout * createMotorGroupBox(QString title, QHBoxLayout * parentContainer, int expectedHeight=600, int expectedWidth=320);
-
+	QString getBeamlineImageName(BioXASBeamlineDef::BioXASBeamLineID beamlineId);
+	QGroupBox * setupMotorGroupLayout(QString groupBoxTitle, BioXASBeamlineDef::BioXASMotorType motorType, int expectedHeight=600, int expectedWidth=320);
+	void setupMotorsLayout(BioXASBeamlineDef::BioXASMotorType motorType, QVBoxLayout *pvLayoutBox);
 };
 
 #endif // BIOXASBEAMLINETABWIDGET_H

@@ -1,16 +1,14 @@
 #include "BioXASBeamlineTabWidget.h"
 
-#include <QScrollArea>
 #include <QHBoxLayout>
-#include <QGroupBox>
 #include <QLabel>
 #include <QImage>
 #include <QPushButton>
 
 #include "ui/beamline/AMExtendedControlEditor.h"
-#include "MAXvMotorControlEditor.h"
 
 #include "../BioXASMAXvMotor.h"
+#include "MAXvMotorControlEditor.h"
 
 BioXASBeamlineTabWidget::BioXASBeamlineTabWidget(BioXASBeamlineDef::BioXASBeamLineID beamlineId, QWidget *parent) :
 	QWidget(parent)
@@ -18,29 +16,35 @@ BioXASBeamlineTabWidget::BioXASBeamlineTabWidget(BioXASBeamlineDef::BioXASBeamLi
 	resize(1190, 1600);
 
 	beamlineId_ = beamlineId;
-	bioXASMotorModel_ = MotorModel::instance();
+	bioXASMotorModel_ = BioXASBeamlineDataModel::instance();
 
 	setupUiLayout();
+}
+
+BioXASBeamlineTabWidget::~BioXASBeamlineTabWidget()
+{
+
 }
 
 /*
  the beamline Tab widget:
  |--VBoxLayout---------------------------------------------|
  |  HBoxLayout        |                |                   |
- |   VBoxLayout       |                |  VBoxLayout       |
+ |   QGroupBox        |                |  QGroupBox        |
+ |    VBoxLayout      |                |   VBoxLayout      |
  |     (Filter Motors)|                |     (Mask Motors) |
  |                    |                |                   |
  |---------------------------------------------------------|
  |  HBoxLayout                                             |
  |                                                         |
- |     dispaly beamline image                              |
+ |     beamline image                                      |
  |---------------------------------------------------------|
  |  HBoxLayout        |                 |                  |
- |   VBoxLayout       | VBoxLayout      |  VBoxLayout      |
+ |   QGroupBox        |                 |  QGroupBox       |
+ |    VBoxLayout      |                 |   VBoxLayout     |
  |     (M1 Motors)    |   (Mono Motors) |     (M2 Motors)  |
  |                    |                 |                  |
  |---------------------------------------------------------|
-
 */
 void BioXASBeamlineTabWidget::setupUiLayout()
 {
@@ -62,7 +66,7 @@ void BioXASBeamlineTabWidget::setupUiLayout()
 	imageLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 	imageLabel->setFixedSize(1190, 150);
 
-	QString beamlineImageResource = getBeamlineImage(beamlineId_);
+	QString beamlineImageResource = getBeamlineImageName(beamlineId_);
 	QImage image(beamlineImageResource);
 	imageLabel->setPixmap(QPixmap::fromImage(image));
 
@@ -77,30 +81,23 @@ void BioXASBeamlineTabWidget::setupUiLayout()
 	else if (beamlineId_ == BioXASBeamlineDef::BioXASImagingBeamLine)
 		beamlineName = "Imaging";
 
-	filterMotorVBox_ = createMotorGroupBox("Carbon Filter Farm Motors", firstRowPVLayout, 170);
-	maskMotorVBox_ = createMotorGroupBox(beamlineName + " Mask Motors", firstRowPVLayout, 170);
-	m1MotorVBox_ = createMotorGroupBox(beamlineName + " M1 Motors", secondRowPVLayout);
-	monoMotorVBox_ = createMotorGroupBox(beamlineName + " Mono Motors", secondRowPVLayout);
-	m2MotorVBox_ = createMotorGroupBox(beamlineName + " M2 Motors", secondRowPVLayout);
+	QGroupBox *motorGroupBox = setupMotorGroupLayout("Carbon Filter Farm Motors", BioXASBeamlineDef::FilterMotor, 170);
+	firstRowPVLayout->addWidget(motorGroupBox);
 
-	setupMotors(BioXASBeamlineDef::FilterMotor, filterMotorVBox_);
-	setupMotors(BioXASBeamlineDef::M1Motor, m1MotorVBox_);
-	setupMotors(BioXASBeamlineDef::MaskMotor, maskMotorVBox_);
-	setupMotors(BioXASBeamlineDef::MonoMotor, monoMotorVBox_);
-	setupMotors(BioXASBeamlineDef::M2Motor, m2MotorVBox_);
+	motorGroupBox = setupMotorGroupLayout(beamlineName + " Mask Motors", BioXASBeamlineDef::MaskMotor, 170);
+	firstRowPVLayout->addWidget(motorGroupBox);
 
+	motorGroupBox = setupMotorGroupLayout(beamlineName + " M1 Motors", BioXASBeamlineDef::M1Motor);
+	secondRowPVLayout->addWidget(motorGroupBox);
+
+	motorGroupBox = setupMotorGroupLayout(beamlineName + " Mono Motors", BioXASBeamlineDef::MonoMotor);
+	secondRowPVLayout->addWidget(motorGroupBox);
+
+	motorGroupBox = setupMotorGroupLayout(beamlineName + " M2 Motors", BioXASBeamlineDef::M2Motor);
+	secondRowPVLayout->addWidget(motorGroupBox);
 }
 
-void BioXASBeamlineTabWidget::setupMotors(BioXASBeamlineDef::BioXASMotorType motorType, QVBoxLayout *pvLayoutBox)
-{
-	QList<BioXASMAXvMotor *> matchedMotors = bioXASMotorModel_->getMotorsByCategory(beamlineId_, motorType);
-	for (int i = 0; i < matchedMotors.size(); i++) {
-		MAXvMotorControlEditor *motorEditor = new MAXvMotorControlEditor(matchedMotors[i], matchedMotors[i]->statusPVControl());
-		pvLayoutBox->addWidget(motorEditor);
-	}
-}
-
-QString BioXASBeamlineTabWidget::getBeamlineImage(BioXASBeamlineDef::BioXASBeamLineID beamlineId) {
+QString BioXASBeamlineTabWidget::getBeamlineImageName(BioXASBeamlineDef::BioXASBeamLineID beamlineId) {
 	QString beamlineImageResource;
 	switch (beamlineId) {
 	case BioXASBeamlineDef::BioXASMainBeamLine:
@@ -118,19 +115,24 @@ QString BioXASBeamlineTabWidget::getBeamlineImage(BioXASBeamlineDef::BioXASBeamL
 	return beamlineImageResource;
 }
 
-QVBoxLayout * BioXASBeamlineTabWidget::createMotorGroupBox(QString title, QHBoxLayout * parentContainer, int expectedHeight, int expectedWidth)
+QGroupBox * BioXASBeamlineTabWidget::setupMotorGroupLayout(QString groupBoxTitle, BioXASBeamlineDef::BioXASMotorType motorType, int expectedHeight, int expectedWidth)
 {
-	QGroupBox *pvGroupBox = new QGroupBox(title);
+	QVBoxLayout *motorsVBox = new QVBoxLayout();
+	setupMotorsLayout(motorType, motorsVBox);
+
+	QGroupBox *pvGroupBox = new QGroupBox(groupBoxTitle);
 	pvGroupBox->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum);
 	pvGroupBox->setFixedSize(expectedWidth, expectedHeight);
-
-
-	QVBoxLayout *motorsVBox = new QVBoxLayout();
 	pvGroupBox->setLayout(motorsVBox);
 
-	parentContainer->addWidget(pvGroupBox);
-
-	return motorsVBox;
-
+	return pvGroupBox;
 }
 
+void BioXASBeamlineTabWidget::setupMotorsLayout(BioXASBeamlineDef::BioXASMotorType motorType, QVBoxLayout *pvLayoutBox)
+{
+	QList<BioXASMAXvMotor *> matchedMotors = bioXASMotorModel_->getBeamlineMotorsByMotorType(beamlineId_, motorType);
+	for (int i = 0; i < matchedMotors.size(); i++) {
+		MAXvMotorControlEditor *motorEditor = new MAXvMotorControlEditor(matchedMotors[i], matchedMotors[i]->statusPVControl());
+		pvLayoutBox->addWidget(motorEditor);
+	}
+}

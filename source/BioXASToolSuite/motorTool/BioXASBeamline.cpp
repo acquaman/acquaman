@@ -1,25 +1,28 @@
 #include "BioXASBeamline.h"
 
-#include <QDebug>
-
 BioXASBeamline::BioXASBeamline(QList<BioXASBeamlineDef::BioXASMotor> motorDefinitions, QObject *parent)
 	: QObject(parent)
 {
 	for (int i = 0; i < motorDefinitions.size(); i++) {
-		BioXASMAXvMotor * motor = new BioXASMAXvMotor(motorDefinitions[i].motorCategory_, motorDefinitions[i].motorCategoryName_,
+		BioXASMAXvMotor * motor = new BioXASMAXvMotor(motorDefinitions[i].motorType_, motorDefinitions[i].motorTypeName_,
 													  motorDefinitions[i].pvBaseName_, motorDefinitions[i].description_,
-													  motorDefinitions[i].pvSubName_, true, 0.05, 2.0, this);
+													  motorDefinitions[i].pvUnitField_, true, 0.05, 2.0, this);
 
 		motors_.append(motor);
 	}
 }
 
-QList<BioXASMAXvMotor *> BioXASBeamline::getMotorsByCategory(BioXASBeamlineDef::BioXASMotorType category)
+BioXASBeamline::~BioXASBeamline()
+{
+	motors_.clear();
+}
+
+QList<BioXASMAXvMotor *> BioXASBeamline::getMotorsByType(BioXASBeamlineDef::BioXASMotorType motorType)
 {
 	QList<BioXASMAXvMotor *> matchMotors;
 
 	for (int i = 0; i < motors_.size(); i++) {
-		if (motors_[i]->category() == category) {
+		if (motors_[i]->type() == motorType) {
 			matchMotors.append(motors_[i]);
 		}
 	}

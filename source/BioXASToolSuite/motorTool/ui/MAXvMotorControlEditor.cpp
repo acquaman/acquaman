@@ -24,8 +24,14 @@ MAXvMotorControlEditor::MAXvMotorControlEditor(BioXASMAXvMotor* control, AMContr
 	ccwLabel_->setVisible(false);
 	statusLayout_->addWidget(ccwLabel_);
 
-	connect(control, SIGNAL(atLimitChanged), this, SLOT(onLimitChanged));
+	connect(control, SIGNAL(atLimitChanged(CLSMAXvMotor::Limit)), this, SLOT(onLimitChanged(CLSMAXvMotor::Limit)));
 }
+
+MAXvMotorControlEditor::~MAXvMotorControlEditor()
+{
+
+}
+
 
 void MAXvMotorControlEditor::onLimitChanged(CLSMAXvMotor::Limit limit)
 {
