@@ -32,7 +32,6 @@ MAXvMotorControlEditor::~MAXvMotorControlEditor()
 
 }
 
-
 void MAXvMotorControlEditor::onLimitChanged(CLSMAXvMotor::Limit limit)
 {
 	switch (limit) {

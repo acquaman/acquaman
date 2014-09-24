@@ -10,6 +10,8 @@
 
 class MAXvMotorControlEditor : public AMExtendedControlEditor
 {
+	Q_OBJECT
+
 public:
 	MAXvMotorControlEditor(BioXASMAXvMotor* control, AMControl* statusTagControl = NULL, bool readOnly = false, bool configureOnly = false, QWidget *parent = 0);
 	~MAXvMotorControlEditor();
