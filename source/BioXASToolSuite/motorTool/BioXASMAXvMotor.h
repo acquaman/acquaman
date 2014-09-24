@@ -6,6 +6,8 @@
 
 class BioXASMAXvMotor : public CLSMAXvMotor
 {
+	Q_OBJECT
+
 public:
 	BioXASMAXvMotor(const int motorType, const QString &name, const QString &baseName, const QString &description, QString pvUnitFieldName, bool hasEncoder, double tolerance, double moveStartTimeoutSeconds = 2.0, QObject *parent = 0)
 		: CLSMAXvMotor(name, baseName, description, hasEncoder, tolerance, moveStartTimeoutSeconds, pvUnitFieldName, parent)
