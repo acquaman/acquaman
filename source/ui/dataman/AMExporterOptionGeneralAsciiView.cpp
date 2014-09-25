@@ -553,7 +553,7 @@ AMExporterOptionGeneralAsciiView::AMExporterOptionGeneralAsciiView(AMExporterOpt
 	fileNameSeparateSectionLabel_->setText(QApplication::translate("AMExporterOptionGeneralAsciiView", "Separate Section File Name", 0, QApplication::UnicodeUTF8));
 	setTabText(indexOf(tabFileName_), QApplication::translate("AMExporterOptionGeneralAsciiView", "File Names", 0, QApplication::UnicodeUTF8));
 
-	setCurrentIndex(3);
+	setCurrentIndex(1);
 	option_ = option;
 
 	dataSourceLocationGroup_ = new QButtonGroup(this);
