@@ -248,7 +248,7 @@ void AMExtendedControlEditor::onEditStart() {
 	}
 	else
 		dialog_->setDoubleValue(control_->value());
-	dialog_->setDoubleDecimals(3);	// todo: display precision?
+	dialog_->setDoubleDecimals(precision_);
 	dialog_->setLabelText(control_->objectName());
 	dialog_->setSuffix(control_->units());
 	dialog_->show();
