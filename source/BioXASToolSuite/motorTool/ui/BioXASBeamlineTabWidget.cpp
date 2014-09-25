@@ -133,6 +133,7 @@ void BioXASBeamlineTabWidget::setupMotorsLayout(BioXASBeamlineDef::BioXASMotorTy
 	QList<BioXASMAXvMotor *> matchedMotors = bioXASMotorModel_->getBeamlineMotorsByMotorType(beamlineId_, motorType);
 	for (int i = 0; i < matchedMotors.size(); i++) {
 		MAXvMotorControlEditor *motorEditor = new MAXvMotorControlEditor(matchedMotors[i], matchedMotors[i]->statusPVControl());
+		motorEditor->setControlFormat('f', 4);
 		pvLayoutBox->addWidget(motorEditor);
 	}
 }
