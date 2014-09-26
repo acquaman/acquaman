@@ -412,6 +412,9 @@ bool AMDatamanAppController::startupOnFirstTime()
 				QFile::copy(allDatabaseFiles.at(x).absoluteFilePath(), QString("%1/%2").arg(AMUserSettings::remoteDataFolder).arg(allDatabaseFiles.at(x).fileName()));
 		}
 
+		if(!startupCheckExportDirectory())
+			return false;
+
 		AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES, "Acquaman Startup: First-Time Successful");
 		qApp->processEvents();
 	}
@@ -445,6 +448,9 @@ bool AMDatamanAppController::startupOnEveryTime()
 
 	if(!startupBackupDataDirectory())
 		return AMErrorMon::errorAndReturn(this, AMDATAMANAPPCONTROLLER_DATA_DIR_BACKUP_ERROR, "Problem with Acquaman startup: backing up data directory.");
+
+	if(!startupCheckExportDirectory())
+		return false;
 
 	if(!startupCreateDatabases())
 		return false;
@@ -511,6 +517,25 @@ bool AMDatamanAppController::startupBackupDataDirectory()
 			synchronizer->appendExcludePattern(excludePatterns.at(x));
 
 		return synchronizer->autoStart();
+	}
+	return true;
+}
+
+bool AMDatamanAppController::startupCheckExportDirectory()
+{
+	QDir exportDir;
+	if(!AMUserSettings::remoteDataFolder.isEmpty())
+		exportDir.setCurrent(AMUserSettings::remoteDataFolder);
+	else
+		exportDir.setCurrent(AMUserSettings::userDataFolder);
+	exportDir.cdUp();
+
+	if(!exportDir.entryList(QDir::AllDirs).contains("exportData")){
+		if(!exportDir.mkdir("exportData")){
+			AMErrorMon::alert(this, AMDATAMANAPPCONTROLLER_CANT_CREATE_EXPORT_FOLDER, "Could not create the export folder.");
+			return false;
+		}
+		AMUser::user()->setLastExportDestination(exportDir.absolutePath());
 	}
 	return true;
 }
