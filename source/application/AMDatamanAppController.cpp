@@ -237,6 +237,9 @@ bool AMDatamanAppController::startup() {
 			return AMErrorMon::errorAndReturn(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_REVIEWING_EXISTING_USER_DATABASE, "Problem with Acquaman startup: reviewing existing database.");
 	}
 
+	if(!startupCheckExportDirectory())
+		return AMErrorMon::errorAndReturn(this, AMDATAMANAPPCONTROLLER_CANT_CREATE_EXPORT_FOLDER, "Problem with Acquaman startup: checking export data directory.");
+
 	if(!startupRegisterExporters())
 		return AMErrorMon::errorAndReturn(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_REGISTERING_EXPORTERS, "Problem with Acquaman startup: registering exporters.");
 
@@ -412,9 +415,6 @@ bool AMDatamanAppController::startupOnFirstTime()
 				QFile::copy(allDatabaseFiles.at(x).absoluteFilePath(), QString("%1/%2").arg(AMUserSettings::remoteDataFolder).arg(allDatabaseFiles.at(x).fileName()));
 		}
 
-		if(!startupCheckExportDirectory())
-			return false;
-
 		AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES, "Acquaman Startup: First-Time Successful");
 		qApp->processEvents();
 	}
@@ -448,9 +448,6 @@ bool AMDatamanAppController::startupOnEveryTime()
 
 	if(!startupBackupDataDirectory())
 		return AMErrorMon::errorAndReturn(this, AMDATAMANAPPCONTROLLER_DATA_DIR_BACKUP_ERROR, "Problem with Acquaman startup: backing up data directory.");
-
-	if(!startupCheckExportDirectory())
-		return false;
 
 	if(!startupCreateDatabases())
 		return false;
@@ -530,12 +527,14 @@ bool AMDatamanAppController::startupCheckExportDirectory()
 		exportDir.setCurrent(AMUserSettings::userDataFolder);
 	exportDir.cdUp();
 
+	qDebug() << "\n\ncurrently " << exportDir.currentPath();
+
 	if(!exportDir.entryList(QDir::AllDirs).contains("exportData")){
-		if(!exportDir.mkdir("exportData")){
-			AMErrorMon::alert(this, AMDATAMANAPPCONTROLLER_CANT_CREATE_EXPORT_FOLDER, "Could not create the export folder.");
+		if(!exportDir.mkdir("exportData"))
 			return false;
-		}
-		AMUser::user()->setLastExportDestination(exportDir.absolutePath());
+		qDebug() << "\n\n" << AMUser::user()->lastExportDestination();
+		AMUser::user()->setLastExportDestination(QString("%1/exportData").arg(exportDir.absolutePath()));
+		qDebug() << "\n\n" << AMUser::user()->lastExportDestination();
 	}
 	return true;
 }
