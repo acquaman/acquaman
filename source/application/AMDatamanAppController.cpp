@@ -527,14 +527,10 @@ bool AMDatamanAppController::startupCheckExportDirectory()
 		exportDir.setCurrent(AMUserSettings::userDataFolder);
 	exportDir.cdUp();
 
-	qDebug() << "\n\ncurrently " << exportDir.currentPath();
-
 	if(!exportDir.entryList(QDir::AllDirs).contains("exportData")){
 		if(!exportDir.mkdir("exportData"))
 			return false;
-		qDebug() << "\n\n" << AMUser::user()->lastExportDestination();
 		AMUser::user()->setLastExportDestination(QString("%1/exportData").arg(exportDir.absolutePath()));
-		qDebug() << "\n\n" << AMUser::user()->lastExportDestination();
 	}
 	return true;
 }
