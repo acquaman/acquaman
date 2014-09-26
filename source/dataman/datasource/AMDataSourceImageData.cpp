@@ -148,7 +148,7 @@ void AMDataSourceImageData::onDataChanged(const AMnDIndex &start, const AMnDInde
 
 		for (int i = 0, iSize = end.i()-start.i()+1; i < iSize; i++){
 
-			double newValue = newData.at(i+j*iSize);
+			double newValue = newData.at(i*jSize+j);
 
 			if (newValue > rangeMaximum)
 				rangeMaximum = newValue;
@@ -160,7 +160,11 @@ void AMDataSourceImageData::onDataChanged(const AMnDIndex &start, const AMnDInde
 		}
 	}
 
-	range_ = MPlotInterval(rangeMinimum, rangeMaximum);
+	if (range_.first > rangeMinimum)
+		range_.first = rangeMinimum;
+
+	if (range_.second < rangeMaximum)
+		range_.second = rangeMaximum;
 
 	MPlotAbstractImageData::emitDataChanged();
 }
