@@ -46,6 +46,11 @@ IDEASXRFScanConfiguration::IDEASXRFScanConfiguration(const IDEASXRFScanConfigura
 {
 	fluorescenceDetector_ = original.fluorescenceDetector();
 	xrfDetectorInfo_ = original.detectorInfo();
+	setAutoExportEnabled(false);
+	scanName_ = original.scanName();
+	scanNumber_ = original.scanNumber();
+	scanNotes_ = original.scanNotes();
+	positions_ = original.positions();
 }
 
 IDEASXRFScanConfiguration::~IDEASXRFScanConfiguration()
