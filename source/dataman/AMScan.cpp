@@ -651,7 +651,10 @@ AMDbThumbnail AMScan::thumbnail(int index) const {
 
 			MPlotImageBasicwDefault* image = new MPlotImageBasicwDefault();
 			image->setDefaultValue(-1);
-			image->setModel(new AMDataSourceImageDatawDefault(dataSource, -1), true);
+			AMDataSourceImageDatawDefault *model = new AMDataSourceImageDatawDefault(-1);
+			model->setDataSource(dataSource);
+			image->setModel(model, true);
+
 			plot->addItem(image);
 			plot->doDelayedAutoScale();
 		}
@@ -659,7 +662,9 @@ AMDbThumbnail AMScan::thumbnail(int index) const {
 		else{
 
 			MPlotImageBasic* image = new MPlotImageBasic();
-			image->setModel(new AMDataSourceImageData(dataSource), true);
+			AMDataSourceImageData *model = new AMDataSourceImageData;
+			model->setDataSource(dataSource);
+			image->setModel(model, true);
 			plot->addItem(image);
 			plot->doDelayedAutoScale();
 		}
@@ -672,7 +677,9 @@ AMDbThumbnail AMScan::thumbnail(int index) const {
 
 			MPlotImageBasicwDefault* image = new MPlotImageBasicwDefault();
 			image->setDefaultValue(-1);
-			image->setModel(new AMDataSourceImageDatawDefault(dataSource, -1), true);
+			AMDataSourceImageDatawDefault *model = new AMDataSourceImageDatawDefault(-1);
+			model->setDataSource(dataSource);
+			image->setModel(model, true);
 			plot->addItem(image);
 			plot->doDelayedAutoScale();
 		}
@@ -680,7 +687,9 @@ AMDbThumbnail AMScan::thumbnail(int index) const {
 		else{
 
 			MPlotImageBasic* image = new MPlotImageBasic();
-			image->setModel(new AMDataSourceImageData(dataSource), true);
+			AMDataSourceImageData *model = new AMDataSourceImageData;
+			model->setDataSource(dataSource);
+			image->setModel(model, true);
 			plot->addItem(image);
 			plot->doDelayedAutoScale();
 		}

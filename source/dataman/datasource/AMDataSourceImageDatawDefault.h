@@ -35,8 +35,8 @@ class AMDataSourceImageDatawDefault : public AMDataSourceImageData
 	Q_OBJECT
 
 public:
-	/// Constructor. \param dataSource is the data source we wish to encapsulate and \param defaultValue is the value that is ignored when computing the range.
-	AMDataSourceImageDatawDefault(const AMDataSource *dataSource, double defaultValue, QObject *parent = 0);
+	/// Constructor.\param defaultValue is the value that is ignored when computing the range.
+	AMDataSourceImageDatawDefault(double defaultValue, QObject *parent = 0);
 	/// Destructor.
 	virtual ~AMDataSourceImageDatawDefault();
 

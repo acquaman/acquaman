@@ -20,10 +20,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMDataSourceImageDatawDefault.h"
 
-AMDataSourceImageDatawDefault::AMDataSourceImageDatawDefault(const AMDataSource *dataSource, double defaultValue, QObject *parent)
-	: AMDataSourceImageData(dataSource, parent)
+#include <QDebug>
+
+AMDataSourceImageDatawDefault::AMDataSourceImageDatawDefault(double defaultValue, QObject *parent)
+	: AMDataSourceImageData(parent)
 {
-	defaultValue_ = defaultValue;
+	defaultValue_ = defaultValue;qDebug() << range_;
 }
 
 AMDataSourceImageDatawDefault::~AMDataSourceImageDatawDefault()
@@ -40,34 +42,44 @@ void AMDataSourceImageDatawDefault::setDefaultValue(double value)
 void AMDataSourceImageDatawDefault::onDataChanged(const AMnDIndex &start, const AMnDIndex &end)
 {
 	QVector<double> newData = QVector<double>(start.totalPointsTo(end));
-	source_->values(start, end, newData.data());
 
-	int xOffset = start.i()*ySize_;
-	int yOffset = start.j();
-	double rangeMinimum = newData.first();
-	double rangeMaximum = newData.first();
+	if (source_->values(start, end, newData.data())){
 
-	for (int j = 0, jSize = end.j()-start.j()+1; j < jSize; j++){
+		int iOffset = start.i()*ySize_;
+		int jOffset = start.j();
+		double rangeMinimum = newData.first();
+		double rangeMaximum = newData.first();
 
-		for (int i = 0, iSize = end.i()-start.i()+1; i < iSize; i++){
+		for (int j = 0, jSize = end.j()-start.j()+1; j < jSize; j++){
 
-			double newValue = newData.at(i*jSize+j);
+			for (int i = 0, iSize = end.i()-start.i()+1; i < iSize; i++){
 
-			if (newValue > rangeMaximum)
-				rangeMaximum = newValue;
+				double newValue = newData.at(i*jSize+j);
 
-			if (newValue < rangeMinimum && newValue != defaultValue_)
-				rangeMinimum = newValue;
+				if (newValue > rangeMaximum && newValue != defaultValue_)
+					rangeMaximum = newValue;
 
-			data_[i*ySize_+xOffset + j+yOffset] = newValue;
+				if (newValue < rangeMinimum && newValue != defaultValue_)
+					rangeMinimum = newValue;
+
+				data_[i*ySize_ + iOffset + j + jOffset] = newValue;
+			}
 		}
+
+		qDebug() << start.toString() << end.toString() << range_ << rangeMinimum << rangeMaximum;
+		// The default range is invalid.
+		if (range_.isNull() && rangeMinimum != defaultValue_ && rangeMaximum != defaultValue_)
+			range_ = MPlotRange(rangeMinimum, rangeMaximum);
+
+		else {
+
+			if (range_.x() > rangeMinimum && rangeMinimum != defaultValue_)
+				range_.setX(rangeMinimum);
+
+			if (range_.y() < rangeMaximum && rangeMaximum != defaultValue_)
+				range_.setY(rangeMaximum);
+		}
+
+		MPlotAbstractImageData::emitDataChanged();
 	}
-
-	if (range_.first > rangeMinimum || range_.second == defaultValue_)
-		range_.first = rangeMinimum;
-
-	if (range_.second < rangeMaximum)
-		range_.second = rangeMaximum;
-
-	MPlotAbstractImageData::emitDataChanged();
 }
