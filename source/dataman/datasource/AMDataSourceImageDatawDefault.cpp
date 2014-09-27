@@ -20,12 +20,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMDataSourceImageDatawDefault.h"
 
-#include <QDebug>
-
 AMDataSourceImageDatawDefault::AMDataSourceImageDatawDefault(double defaultValue, QObject *parent)
 	: AMDataSourceImageData(parent)
 {
-	defaultValue_ = defaultValue;qDebug() << range_;
+	defaultValue_ = defaultValue;
 }
 
 AMDataSourceImageDatawDefault::~AMDataSourceImageDatawDefault()
@@ -66,7 +64,6 @@ void AMDataSourceImageDatawDefault::onDataChanged(const AMnDIndex &start, const 
 			}
 		}
 
-		qDebug() << start.toString() << end.toString() << range_ << rangeMinimum << rangeMaximum;
 		// The default range is invalid.
 		if (range_.isNull() && rangeMinimum != defaultValue_ && rangeMaximum != defaultValue_)
 			range_ = MPlotRange(rangeMinimum, rangeMaximum);
