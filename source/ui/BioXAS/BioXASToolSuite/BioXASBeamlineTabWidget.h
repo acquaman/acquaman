@@ -5,8 +5,8 @@
 #include <QGroupBox>
 #include <QVBoxLayout>
 
-#include "../BioXASBeamline.h"
-#include "../BioXASBeamlineDataModel.h"
+#include "beamline/BioXAS/BioXASToolSuite/BioXASBeamline.h"
+#include "beamline/BioXAS/BioXASToolSuite/BioXASBeamlineDataModel.h"
 
 class BioXASBeamlineTabWidget : public QWidget
 {

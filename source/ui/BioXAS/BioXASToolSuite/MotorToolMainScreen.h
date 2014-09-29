@@ -4,7 +4,7 @@
 #include <QTabWidget>
 #include <QCloseEvent>
 
-#include "../BioXASBeamlineDataModel.h"
+#include "beamline/BioXAS/BioXASToolSuite/BioXASBeamlineDataModel.h"
 
 class MotorToolMainScreen : public QTabWidget
 {

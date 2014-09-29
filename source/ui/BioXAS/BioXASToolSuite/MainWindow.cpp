@@ -25,8 +25,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QGroupBox>
 #include <QBoxLayout>
 
-#include "shutterTool/ShutterToolMainWindow.h"
-#include "motorTool/ui/MotorToolMainScreen.h"
+#include "ui/BioXAS/BioXASToolSuite/ShutterToolMainWindow.h"
+#include "ui/BioXAS/BioXASToolSuite/MotorToolMainScreen.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)

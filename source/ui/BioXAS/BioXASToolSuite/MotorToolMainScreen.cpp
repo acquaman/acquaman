@@ -1,6 +1,6 @@
 #include "MotorToolMainScreen.h"
 
-#include "BioXASBeamlineTabWidget.h"
+#include "ui/BioXAS/BioXASToolSuite/BioXASBeamlineTabWidget.h"
 
 MotorToolMainScreen::MotorToolMainScreen(QWidget *parent) :
 	QTabWidget(parent)

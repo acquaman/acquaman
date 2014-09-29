@@ -4,9 +4,8 @@
 #include <QLabel>
 
 #include "beamline/AMControl.h"
+#include "beamline/BioXAS/BioXASToolSuite/BioXASMAXvMotor.h"
 #include "ui/beamline/AMExtendedControlEditor.h"
-
-#include "../BioXASMAXvMotor.h"
 
 class MAXvMotorControlEditor : public AMExtendedControlEditor
 {

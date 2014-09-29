@@ -8,26 +8,26 @@ TARGET = BioXASToolSuite
 TEMPLATE = app
 
 HEADERS  += \
-	source/BioXASToolSuite/MainWindow.h \
-	source/BioXASToolSuite/shutterTool/ShutterToolMainWindow.h \
-	source/BioXASToolSuite/shutterTool/ShutterModel.h \
-	source/BioXASToolSuite/motorTool/BioXASMAXvMotor.h \
-	source/BioXASToolSuite/motorTool/BioXASBeamline.h \
-	source/BioXASToolSuite/motorTool/BioXASBeamlineDataModel.h \
-	source/BioXASToolSuite/motorTool/ui/MotorToolMainScreen.h \
-	source/BioXASToolSuite/motorTool/ui/MAXvMotorControlEditor.h \
-	source/BioXASToolSuite/motorTool/ui/BioXASBeamlineTabWidget.h
+	source/beamline/BioXAS/BioXASToolSuite/ShutterModel.h \
+	source/beamline/BioXAS/BioXASToolSuite/BioXASMAXvMotor.h \
+	source/beamline/BioXAS/BioXASToolSuite/BioXASBeamline.h \
+	source/beamline/BioXAS/BioXASToolSuite/BioXASBeamlineDataModel.h \
+	source/ui/BioXAS/BioXASToolSuite/MainWindow.h \
+	source/ui/BioXAS/BioXASToolSuite/ShutterToolMainWindow.h \
+	source/ui/BioXAS/BioXASToolSuite/MotorToolMainScreen.h \
+	source/ui/BioXAS/BioXASToolSuite/MAXvMotorControlEditor.h \
+	source/ui/BioXAS/BioXASToolSuite/BioXASBeamlineTabWidget.h
 
 SOURCES += \
-	source/BioXASToolSuite/BioXASToolMain.cpp \
-	source/BioXASToolSuite/MainWindow.cpp \
-	source/BioXASToolSuite/shutterTool/ShutterToolMainWindow.cpp \
-	source/BioXASToolSuite/shutterTool/ShutterModel.cpp \
-	source/BioXASToolSuite/motorTool/BioXASBeamline.cpp \
-	source/BioXASToolSuite/motorTool/BioXASBeamlineDataModel.cpp \
-	source/BioXASToolSuite/motorTool/ui/MotorToolMainScreen.cpp \
-	source/BioXASToolSuite/motorTool/ui/MAXvMotorControlEditor.cpp \
-	source/BioXASToolSuite/motorTool/ui/BioXASBeamlineTabWidget.cpp
+	source/application/BioXAS/BioXASToolSuiteMain.cpp \
+	source/beamline/BioXAS/BioXASToolSuite/ShutterModel.cpp \
+	source/beamline/BioXAS/BioXASToolSuite/BioXASBeamline.cpp \
+	source/beamline/BioXAS/BioXASToolSuite/BioXASBeamlineDataModel.cpp \
+	source/ui/BioXAS/BioXASToolSuite/MainWindow.cpp \
+	source/ui/BioXAS/BioXASToolSuite/ShutterToolMainWindow.cpp \
+	source/ui/BioXAS/BioXASToolSuite/MotorToolMainScreen.cpp \
+	source/ui/BioXAS/BioXASToolSuite/MAXvMotorControlEditor.cpp \
+	source/ui/BioXAS/BioXASToolSuite/BioXASBeamlineTabWidget.cpp
 
 RESOURCES += \
-	source/BioXASToolSuite/resources/BioXASImages.qrc
+	source/ui/BioXAS/BioXASToolSuite/resources/BioXASImages.qrc

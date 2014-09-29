@@ -5,10 +5,9 @@
 #include <QImage>
 #include <QPushButton>
 
+#include "beamline/BioXAS/BioXASToolSuite/BioXASMAXvMotor.h"
 #include "ui/beamline/AMExtendedControlEditor.h"
-
-#include "../BioXASMAXvMotor.h"
-#include "MAXvMotorControlEditor.h"
+#include "ui/BioXAS/BioXASToolSuite/MAXvMotorControlEditor.h"
 
 BioXASBeamlineTabWidget::BioXASBeamlineTabWidget(BioXASBeamlineDef::BioXASBeamLineID beamlineId, QWidget *parent) :
 	QWidget(parent)

@@ -19,9 +19,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#include "MainWindow.h"
 #include <QApplication>
 #include <QDesktopWidget>
+
+#include "ui/BioXAS/BioXASToolSuite/MainWindow.h"
 
 int main(int argc, char *argv[])
 {

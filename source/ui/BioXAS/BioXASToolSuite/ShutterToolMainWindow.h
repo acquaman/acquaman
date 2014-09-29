@@ -29,7 +29,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QPushButton>
 
 #include "actions3/AMAction3.h"
-#include "ShutterModel.h"
+#include "beamline/BioXAS/BioXASToolSuite/ShutterModel.h"
 
 class ShutterToolMainWindow : public QWidget
 {
