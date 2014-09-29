@@ -45,11 +45,10 @@ public:
 	/// Sets the default value to \param value.
 	void setDefaultValue(double value);
 
-protected slots:
-	/// Handles updating the data values from the given index to the end index.
-	virtual void onDataChanged(const AMnDIndex &start, const AMnDIndex &end);
-
 protected:
+	/// Required method that must be reimplemented that fills in the data when requested.  This method must reset the updateCacheRequired flag and set the dirty rect to null.
+	virtual void updateCachedValues() const;
+
 	/// The default value.
 	qreal defaultValue_;
 };

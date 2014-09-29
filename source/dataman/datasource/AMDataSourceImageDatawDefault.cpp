@@ -34,23 +34,23 @@ AMDataSourceImageDatawDefault::~AMDataSourceImageDatawDefault()
 void AMDataSourceImageDatawDefault::setDefaultValue(double value)
 {
 	defaultValue_ = value;
-	MPlotAbstractImageData::emitDataChanged();
+	emitDataChanged();
 }
 
-void AMDataSourceImageDatawDefault::onDataChanged(const AMnDIndex &start, const AMnDIndex &end)
+void AMDataSourceImageDatawDefault::updateCachedValues() const
 {
-	QVector<double> newData = QVector<double>(start.totalPointsTo(end));
+	QVector<double> newData = QVector<double>(dirtyRectBottomLeft_.totalPointsTo(dirtyRectTopRight_));
 
-	if (source_->values(start, end, newData.data())){
+	if (source_->values(dirtyRectBottomLeft_, dirtyRectTopRight_, newData.data())){
 
-		int iOffset = start.i()*ySize_;
-		int jOffset = start.j();
+		int iOffset = dirtyRectBottomLeft_.i()*ySize_;
+		int jOffset = dirtyRectBottomLeft_.j();
 		double rangeMinimum = newData.first();
 		double rangeMaximum = newData.first();
 
-		for (int j = 0, jSize = end.j()-start.j()+1; j < jSize; j++){
+		for (int j = 0, jSize = dirtyRectTopRight_.j()-dirtyRectBottomLeft_.j()+1; j < jSize; j++){
 
-			for (int i = 0, iSize = end.i()-start.i()+1; i < iSize; i++){
+			for (int i = 0, iSize = dirtyRectTopRight_.i()-dirtyRectBottomLeft_.i()+1; i < iSize; i++){
 
 				double newValue = newData.at(i*jSize+j);
 
@@ -77,6 +77,8 @@ void AMDataSourceImageDatawDefault::onDataChanged(const AMnDIndex &start, const 
 				range_.setY(rangeMaximum);
 		}
 
-		MPlotAbstractImageData::emitDataChanged();
+		dirtyRectBottomLeft_ = AMnDIndex();
+		dirtyRectTopRight_ = AMnDIndex();
+		updateCacheRequired_ = false;
 	}
 }
