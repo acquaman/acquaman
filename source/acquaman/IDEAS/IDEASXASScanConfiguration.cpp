@@ -69,14 +69,14 @@ IDEASXASScanConfiguration::IDEASXASScanConfiguration(const IDEASXASScanConfigura
 	AMStepScanConfiguration(original)
 {
 	setAutoExportEnabled(false);
-//	qDebug() << original.name() << original.userScanName();
-//	setName(original.name());
-//	setUserScanName(original.userScanName());
+	setName(original.name());
+	setUserScanName(original.userScanName());
 	isXRFScan_ = original.isXRFScan();
 	isTransScan_ = original.isTransScan();
 	useRef_ = original.useRef();
 	timeOffset_ = original.timeOffset();
 	totalTime_ = original.totalTime();
+
 
 	edge_ = original.edge();
 	energy_ = original.energy();
