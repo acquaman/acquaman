@@ -3,10 +3,14 @@
 
 #include <QObject>
 
+#include "beamline/BioXAS/BioXASSideMonochromatorControl.h"
+
 #include "beamline/AMControl.h"
 #include "beamline/AMPVControl.h"
 #include "actions3/AMAction3.h"
 #include "actions3/actions/AMControlMoveAction3.h"
+#include "actions3/actions/AMControlWaitAction.h"
+#include "actions3/AMListAction3.h"
 
 class BioXASSideMonochromator : public QObject
 {
@@ -18,44 +22,50 @@ public:
     /// Destructor.
     virtual ~BioXASSideMonochromator();
 
+    /// Returns true if the mono is connected to all of its pvs, false otherwise.
+    bool isConnected() const { return connected_; }
     /// Returns true if the tank is closed, false otherwise.
-    bool tankClosed() const;
+    double tankClosed() const { return tankClosed_->value(); }
     /// Returns true if the brake is off, false otherwise.
-    bool brakeOff() const;
+    double brakeOff() const { return brakeOff_->value(); }
     /// Returns true if the key status is enabled, false if disabled.
-    bool keyStatus() const;
+    double keyStatus() const { return keyStatus_->value(); }
     /// Returns true if the paddle is extracted, false otherwise.
-    bool paddleExtracted() const;
+    double paddleExtracted() const { return paddleExtracted_->value(); }
     /// Returns true if the mono is in the crystal change position, false otherwise.
-    bool crystalChangePosition() const;
+    double atCrystalChangePosition() const { return crystalChangePosition_->value(); }
     /// Returns true if the upper slit is closed, false otherwise.
-    bool upperSlitClosed() const;
+    double upperSlitClosed() const { return upperSlitClosed_->value(); }
     /// Returns true if the lower slit is closed, false otherwise.
-    bool lowerSlitClosed() const;
+    double lowerSlitClosed() const { return lowerSlitClosed_->value(); }
     /// Returns true if both upper and lower slits are closed, false otherwise.
-    bool slitsClosed() const;
+    double slitsClosed() const { return slitsClosed_->value(); }
     /// Returns true if the mono is at the theta clockwise limit in region A, false otherwise.
-    bool thetaACWLimit() const;
+    double atRegionAThetaCWLimit() const { return regionAThetaCWLimit_->value(); }
     /// Returns true if the mono is at the theta counter-clockwise limit in region A, false otherwise.
-    bool thetaACCWLimit() const;
+    double atRegionAThetaCCWLimit() const { return regionAThetaCCWLimit_->value(); }
     /// Returns true if the mono is at the theta clockwise limit in region B, false otherwise.
-    bool thetaBCWLimit() const;
+    double atRegionBThetaCWLimit() const { return regionBThetaCWLimit_->value(); }
     /// Returns true if the mono is at the theta counter-clockwise limit in region B, false otherwise.
-    bool thetaBCCWLimit() const;
+    double atRegionBThetaCCWLimit() const { return regionBThetaCCWLimit_->value(); }
     /// Returns true if the mono is in region A, false otherwise.
-    bool regionA() const;
+    double inRegionA() const { return regionA_->value(); }
     /// Returns true if the mono is in region B, false otherwise.
-    bool regionB() const;
+    double inRegionB() const { return regionB_->value(); }
     /// Returns true if the mono is at the translation limit in region A, false otherwise.
-    bool translateALimit() const;
+    double atRegionATranslateLimit() const { return regionATranslateLimit_->value(); }
     /// Returns true if the mono is at the translation limit in region B, false otherwise.
-    bool translateBLimit() const;
+    double atTranslateBLimit() const { return regionBTranslateLimit_->value(); }
     /// Returns true if translation is permitted, false otherwise.
-    bool translatePermitted() const;
+    double translatePermitted() const { return translatePermitted_->value(); }
     /// Returns true if the theta paddle is permitted, false otherwise.
-    bool thetaPaddlePermitted() const;
+    double thetaPaddlePermitted() const { return thetaPaddlePermitted_->value(); }
     /// Returns true if the slits are enabled, false otherwise.
-    bool slitsEnabled() const;
+    double slitsEnabled() const { return slitsEnabled_->value(); }
+    /// Returns the energy setpoint.
+    double energySetpoint() const { return energy_->setpoint(); }
+    /// Returns the energy feedback.
+    double energy() const { return energy_->value(); }
 
     /// Returns the tankClosed control.
     AMControl* tankClosedControl() const { return tankClosed_; }
@@ -74,117 +84,126 @@ public:
     /// Returns the slitsClosed control.
     AMControl* slitsClosedControl() const { return slitsClosed_; }
     /// Returns the thetaACWLimit control.
-    AMControl* thetaACWLimitControl() const { return thetaACWLimit_; }
+    AMControl* thetaACWLimitControl() const { return regionAThetaCWLimit_; }
     /// Returns the thetaACCWLimit control.
-    AMControl* thetaACCWLimitControl() const { return thetaACCWLimit_; }
+    AMControl* thetaACCWLimitControl() const { return regionAThetaCCWLimit_; }
     /// Returns the thetaBCWLimit control.
-    AMControl* thetaBCWLimitControl() const { return thetaBCWLimit_; }
+    AMControl* thetaBCWLimitControl() const { return regionBThetaCWLimit_; }
     /// Returns the thetaBCCWLimit control.
-    AMControl* thetaBCCWLimitControl() const { return thetaBCCWLimit_; }
+    AMControl* thetaBCCWLimitControl() const { return regionBThetaCCWLimit_; }
     /// Returns the regionA control.
     AMControl* regionAControl() const { return regionA_; }
     /// Returns the regionB control.
     AMControl* regionBControl() const { return regionB_; }
     /// Returns the translateALimit control.
-    AMControl* translateALimitControl() const { return translateALimit_; }
+    AMControl* translateALimitControl() const { return regionATranslateLimit_; }
     /// Returns the translateBLimit control.
-    AMControl* translateBLimitControl() const { return translateBLimit_; }
+    AMControl* translateBLimitControl() const { return regionBTranslateLimit_; }
     /// Returns the translatePermitted control.
     AMControl* translatePermittedControl() const { return translatePermitted_; }
     /// Returns the thetaPaddlePermitted control.
     AMControl* thetaPaddlePermittedControl() const { return thetaPaddlePermitted_; }
     /// Returns the slitsEnabled control.
     AMControl* slitsEnabledControl() const { return slitsEnabled_; }
+    /// Returns the energy setpoint control.
+    AMControl* energyControl() const { return energy_; }
 
     /// Returns a new close slits action, 0 if not connected.
     AMAction3* createCloseSlitsAction();
-
-    /// Returns a new crystal change action, 0 if not connected.
-    /// Possibly? Would depend on whether an action that waits for a signal exists/is buildable.
+    /// Returns a new action that waits for the brake to be turned off, 0 if not connected.
+    AMAction3* createWaitForBrakeOffAction();
+    /// Returns a new action that waits for the brake to be turned on, 0 if not connected.
+    AMAction3* createWaitForBrakeOnAction();
+    /// Returns a new action that waits for the mono to move to crystal change position, 0 if not connected.
+    AMAction3* createWaitForMoveToCrystalChangePositionAction();
+    /// Returns a new action that waits for the mono to leave the crystal change position, 0 if not connected.
+    AMAction3* createWaitForMoveOffCrystalChangePositionAction();
+    /// Returns a new action that waits for the region key to be turned CW, 0 if not connected.
+    AMAction3* createWaitForKeyStatusCWAction();
+    /// Returns a new action that waits for the region key to be turned CCW, 0 if not connected.
+    AMAction3* createWaitForKeyStatusCCWAction();
+    /// Returns a new crystal change action, a list of wait actions. 0 if not connected.
+    AMAction3* createWaitForCrystalChangeAction();
+    /// Returns a new set energy action, 0 if not connected.
+    AMAction3* createSetEnergyAction(double newEnergy);
 
 signals:
+    /// Notifier that the mono's connections with its pvs have changed.
+    void connected(bool isConnected);
     /// Notifier that the tankClosed status has changed.
-    void tankClosedStatusChanged(bool isClosed);
+    void tankClosedChanged(double newValue);
     /// Notifier that the brakeOff status has changed.
-    void brakeOffStatusChanged(bool isOff);
+    void brakeStatusChanged(double newValue);
     /// Notifier that the key status has changed.
-    void keyStatusChanged(bool isEngaged);
+    void keyStatusChanged(double newValue);
     /// Notifier that the paddle extracted status has changed.
-    void paddleExtractedStatusChanged(bool isExtracted);
+    void paddleExtractedChanged(double newValue);
     /// Notifier that the mono has reached/left the crystal change position.
-    void crystalChangePositionStatusChanged(bool atPosition);
+    void crystalChangePosition(double newValue);
     /// Notifier that the upper slit closed status has changed.
-    void upperSlitClosedStatusChanged(bool isClosed);
+    void upperSlitClosedChanged(double newValue);
     /// Notifier that the lower slit closed status has changed.
-    void lowerSlitClosedStatusChanged(bool isClosed);
+    void lowerSlitClosedChanged(double newValue);
     /// Notifier that the slits closed general status has changed.
-    void slitsClosedStatusChanged(bool areClosed);
+    void slitsClosedChanged(double newValue);
     /// Notifier that the region A theta clockwise limit has been reached/left.
-    void thetaACWLimitStatusChanged(bool atLimit);
+    void regionAThetaCWLimit(double newValue);
     /// Notifier that the region A theta counter-clockwise limit has been reached/left.
-    void thetaACCWLimitStatusChanged(bool atLimit);
+    void regionAThetaCCWLimit(double newValue);
     /// Notifier that the region B theta clockwise limit has been reached/left.
-    void thetaBCWLimitStatusChanged(bool atLimit);
+    void regionBThetaCWLimit(double newValue);
     /// Notifier that the region B theta counter-clockwise limit has been reached/left.
-    void thetaBCCWLimitStatusChanged(bool atLimit);
+    void regionBThetaCCWLimit(double newValue);
     /// Notifier that the mono is now in, or just left, region A.
-    void regionAStatusChanged(bool withinRegion);
+    void regionA(double newValue);
     /// Notifier that the mono is now in, or just left, region B.
-    void regionBStatusChanged(bool withinRegion);
+    void regionB(double newValue);
     /// Notifier that the region A translation limit has been reached/left.
-    void translateALimitStatusChanged(bool atLimit);
+    void regionATranslateLimit(double newValue);
     /// Notifier that the region B translation limit has been reached/left.
-    void translateBLimitStatusChanged(bool atLimit);
+    void regionBTranslateLimit(double newValue);
     /// Notifier that the translation is/is not permitted.
-    void translatePermittedStatusChanged(bool isPermitted);
+    void translatePermitted(double newValue);
     /// Notifier that using the theta paddle is / is not permitted.
-    void thetaPaddlePermittedStatusChanged(bool isPermitted);
+    void thetaPaddlePermitted(double newValue);
     /// Notifier that the slit controls are en/disabled.
-    void slitsEnabledStatusChanged(bool isEnabled);
+    void slitsEnabled(double newValue);
+    /// Notifier that the energy setpoint has changed.
+    void energySetpointChanged(double newSetpoint);
+    /// Notifier that the energy feedback has changed.
+    void energyFeedbackChanged(double newFeedback);
+
+public slots:
+    /// Sets the energy setpoint.
+    void setEnergy(double newEnergy) { energy_->move(newEnergy); }
 
 protected slots:
-    void onTankClosedChanged(double newValue);
-    void onBrakeOffChanged(double newValue);
-    void onKeyStatusChanged(double newValue);
-    void onPaddleExtractedChanged(double newValue);
-    void onCrystalChangePositionChanged(double newValue);
-    void onUpperSlitClosedChanged(double newValue);
-    void onLowerSlitClosedChanged(double newValue);
-    void onSlitsClosedChanged(double newValue);
-    void onThetaACWLimitChanged(double newValue);
-    void onThetaACCWLimitChanged(double newValue);
-    void onThetaBCWLimitChanged(double newValue);
-    void onThetaBCCWLimitChanged(double newValue);
-    void onRegionAChanged(double newValue);
-    void onRegionBChanged(double newValue);
-    void onTranslateALimitChanged(double newValue);
-    void onTranslateBLimitChanged(double newValue);
-    void onTranslatePermittedChanged(double newValue);
-    void onThetaPaddlePermittedChanged(double newValue);
-    void onSlitsEnabledChanged(double newValue);
+    void onConnectedChanged();
 
 protected:
-    AMReadOnlyPVControl *tankClosed_;
-    AMReadOnlyPVControl *brakeOff_;
-    AMReadOnlyPVControl *keyStatus_;
-    AMReadOnlyPVControl *paddleExtracted_;
-    AMReadOnlyPVControl *crystalChangePosition_;
-    AMReadOnlyPVControl *upperSlitClosed_;
-    AMReadOnlyPVControl *lowerSlitClosed_;
-    AMReadOnlyPVControl *slitsClosed_;
-    AMReadOnlyPVControl *thetaACWLimit_;
-    AMReadOnlyPVControl *thetaACCWLimit_;
-    AMReadOnlyPVControl *thetaBCWLimit_;
-    AMReadOnlyPVControl *thetaBCCWLimit_;
-    AMReadOnlyPVControl *regionA_;
-    AMReadOnlyPVControl *regionB_;
-    AMReadOnlyPVControl *translateALimit_;
-    AMReadOnlyPVControl *translateBLimit_;
-    AMReadOnlyPVControl *translatePermitted_;
-    AMReadOnlyPVControl *thetaPaddlePermitted_;
-    AMSinglePVControl *slitsCloseCmd_;
-    AMReadOnlyPVControl *slitsEnabled_;
+    bool connected_;
 
+    AMControl* tankClosed_;
+    AMControl* brakeOff_;
+    AMControl* keyStatus_;
+    AMControl* paddleExtracted_;
+    AMControl* crystalChangePosition_;
+    AMControl* upperSlitClosed_;
+    AMControl* lowerSlitClosed_;
+    AMControl* slitsClosed_;
+    AMControl* regionAThetaCWLimit_;
+    AMControl* regionAThetaCCWLimit_;
+    AMControl* regionBThetaCWLimit_;
+    AMControl* regionBThetaCCWLimit_;
+    AMControl* regionA_;
+    AMControl* regionB_;
+    AMControl* regionATranslateLimit_;
+    AMControl* regionBTranslateLimit_;
+    AMControl* translatePermitted_;
+    AMControl* thetaPaddlePermitted_;
+    AMControl* slitsCloseCmd_;
+    AMControl* slitsEnabled_;
+    AMControl* energy_;
 
 };
 

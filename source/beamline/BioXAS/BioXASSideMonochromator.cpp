@@ -4,146 +4,80 @@
 BioXASSideMonochromator::BioXASSideMonochromator(QObject *parent) :
     QObject(parent)
 {
-    tankClosed_ = new AMReadOnlyPVControl("TankClosed", "07ID_SideMono:TankClosed", this);
-    brakeOff_ = new AMReadOnlyPVControl("BrakeOff", "07ID_SideMono:BrakeOff", this);
-    keyStatus_ = new AMReadOnlyPVControl("KeyStatus", "07ID_SideMono:KeyStatus", this);
-    paddleExtracted_ = new AMReadOnlyPVControl("PaddleExtracted", "07ID_SideMono:PaddleExtracted", this);
-    crystalChangePosition_ = new AMReadOnlyPVControl("CrystalChangePosition", "07ID_SideMono:XtalChangePos", this);
-    upperSlitClosed_ = new AMReadOnlyPVControl("UpperSlitClosed", "07ID_SideMono:UpperSlitClosed", this);
-    lowerSlitClosed_ = new AMReadOnlyPVControl("LowerSlitClosed", "07ID_SideMono:LowerSlitClosed", this);
-    slitsClosed_ = new AMReadOnlyPVControl("SlitsClosed", "07ID_SideMono:SlitsClosed", this);
-    thetaACWLimit_ = new AMReadOnlyPVControl("ThetaACWLimit", "07ID_SideMono:Theta:A:CWLIM", this);
-    thetaACCWLimit_ = new AMReadOnlyPVControl("ThetaACCWLimit", "07ID_SideMono:Theta:A:CCWLIM", this);
-    thetaBCWLimit_ = new AMReadOnlyPVControl("ThetaBCWLimit", "07ID_SideMono:Theta:B:CWLIM", this);
-    thetaBCCWLimit_ = new AMReadOnlyPVControl("ThetaBCCWLimit", "07ID_SideMono:Theta:B:CCWLIM", this);
-    regionA_ = new AMReadOnlyPVControl("RegionA", "07ID_SideMono:Region:A", this);
-    regionB_ = new AMReadOnlyPVControl("RegionB", "07ID_SideMono:Region:B", this);
-    translateALimit_ = new AMReadOnlyPVControl("TranslateALimit", "07ID_SideMono:Translate:A:Limit", this);
-    translateBLimit_ = new AMReadOnlyPVControl("TranslateBLimit", "07ID_SideMono:Translate:B:Limit", this);
-    translatePermitted_ = new AMReadOnlyPVControl("TranslatePermitted", "07ID_SideMono:Translate:Permited", this);
-    thetaPaddlePermitted_ = new AMReadOnlyPVControl("ThetaPaddlePermitted", "07ID_SideMono:ThetaPaddle:Permited", this);
-    slitsCloseCmd_ = new AMSinglePVControl("SlitsCloseCmd", "07ID_SideMono:SlitsCloseCmd", this);
-    slitsEnabled_ = new AMReadOnlyPVControl("SlitsEnabled", "07ID_SideMono:SlitsEnabled", this);
+    connected_ = false;
 
-    connect( tankClosed_, SIGNAL(valueChanged(double)), this, SLOT(onTankClosedChanged(double)) );
-    connect( brakeOff_, SIGNAL(valueChanged(double)), this, SLOT(onBrakeOffChanged(double)) );
-    connect( keyStatus_, SIGNAL(valueChanged(double)), this, SLOT(onKeyStatusChanged(double)) );
-    connect( paddleExtracted_, SIGNAL(valueChanged(double)), this, SIGNAL(onPaddleExtractedChanged(double)) );
-    connect( crystalChangePosition_, SIGNAL(valueChanged(double)), this, SLOT(onCrystalChangePositionChanged(double)) );
-    connect( upperSlitClosed_, SIGNAL(valueChanged(double)), this, SLOT(onUpperSlitClosedChanged(double)) );
-    connect( lowerSlitClosed_, SIGNAL(valueChanged(double)), this, SLOT(onLowerSlitClosedChanged(double)) );
-    connect( slitsClosed_, SIGNAL(valueChanged(double)), this, SLOT(onSlitsClosedChanged(double)) );
-    connect( thetaACWLimit_, SIGNAL(valueChanged(double)), this, SLOT(onThetaACWLimitChanged(double)) );
-    connect( thetaACCWLimit_, SIGNAL(valueChanged(double)), this, SLOT(onThetaACCWLimitChanged(double)) );
-    connect( thetaBCWLimit_, SIGNAL(valueChanged(double)), this, SLOT(onThetaBCWLimitChanged(double)) );
-    connect( thetaBCCWLimit_, SIGNAL(valueChanged(double)), this, SLOT(onThetaBCCWLimitChanged(double)) );
-    connect( regionA_, SIGNAL(valueChanged(double)), this, SLOT(onRegionAChanged(double)) );
-    connect( regionB_, SIGNAL(valueChanged(double)), this, SLOT(onRegionBChanged(double)) );
-    connect( translateALimit_, SIGNAL(valueChanged(double)), this, SLOT(onTranslateALimitChanged(double)) );
-    connect( translateBLimit_, SIGNAL(valueChanged(double)), this, SLOT(onTranslateBLimitChanged(double)) );
-    connect( translatePermitted_, SIGNAL(valueChanged(double)), this, SLOT(onTranslatePermittedChanged(double)) );
-    connect( thetaPaddlePermitted_, SIGNAL(valueChanged(double)), this, SLOT(onThetaPaddlePermittedChanged(double)) );
-    connect( slitsEnabled_, SIGNAL(valueChanged(double)), this, SLOT(onSlitsEnabledChanged(double)) );
+    tankClosed_ = new AMSinglePVControl("BL1607-I22:TankClosed", "BL1607-I22:TankClosed", this);
+    brakeOff_ = new AMSinglePVControl("BL1607-I22:BrakeOff", "BL1607-I22:BrakeOff", this);
+    keyStatus_ = new AMSinglePVControl("BL1607-I22:KeyStatus", "BL1607-I22:KeyStatus", this);
+    paddleExtracted_ = new AMSinglePVControl("BL1607-I22:PaddleExtracted", "BL1607-I22:PaddleExtracted", this);
+    crystalChangePosition_ = new AMSinglePVControl("BL1607-I22:XtalChangePos", "BL1607-I22:XtalChangePos", this);
+    upperSlitClosed_ = new AMSinglePVControl("BL1607-I22:UpperSlitClosed", "BL1607-I22:UpperSlitClosed", this);
+    lowerSlitClosed_ = new AMSinglePVControl("BL1607-I22:LowerSlitClosed", "BL1607-I22:LowerSlitClosed", this);
+    slitsClosed_ = new AMSinglePVControl("BL1607-I22:SlitsClosed", "BL1607-I22:SlitsClosed", this);
+    regionAThetaCWLimit_ = new AMSinglePVControl("BL1607-I22:Theta:A:CWLIM", "BL1607-I22:Theta:A:CWLIM", this);
+    regionAThetaCCWLimit_ = new AMSinglePVControl("BL1607-I22:Theta:A:CCWLIM", "BL1607-I22:Theta:A:CCWLIM", this);
+    regionBThetaCWLimit_ = new AMSinglePVControl("BL1607-I22:Theta:B:CWLIM", "BL1607-I22:Theta:B:CWLIM", this);
+    regionBThetaCCWLimit_ = new AMSinglePVControl("BL1607-I22:Theta:B:CCWLIM", "BL1607-I22:Theta:B:CCWLIM", this);
+    regionA_ = new AMSinglePVControl("BL1607-I22:Region:A", "BL1607-I22:Region:A", this);
+    regionB_ = new AMSinglePVControl("BL1607-I22:Region:B", "BL1607-I22:Region:B", this);
+    regionATranslateLimit_ = new AMSinglePVControl("BL1607-I22:Translate:A:Limit", "BL1607-I22:Translate:A:Limit", this);
+    regionBTranslateLimit_ = new AMSinglePVControl("BL1607-I22:Translate:B:Limit", "BL1607-I22:Translate:B:Limit", this);
+    translatePermitted_ = new AMSinglePVControl("BL1607-I22:Translate:Permited", "BL1607-I22:Translate:Permited", this);
+    thetaPaddlePermitted_ = new AMSinglePVControl("BL1607-I22:ThetaPaddle:Permited", "BL1607-I22:ThetaPaddle:Permited", this);
+    slitsCloseCmd_ = new AMSinglePVControl("BL1607-I22:SlitsCloseCmd", "BL1607-I22:SlitsCloseCmd", this);
+    slitsEnabled_ = new AMSinglePVControl("BL1607-I22:SlitsEnabled", "BL1607-I22:SlitsEnabled", this);
+
+    energy_ = new BioXASSideMonochromatorControl("Energy Setpoint", "BL1607-5-I22:Energy:EV:fbk", "BL1607-5-I22:Energy:EV", "BL1607-5-I22:Energy:status", QString(), this);
+
+    connect( tankClosed_, SIGNAL(valueChanged(double)), this, SIGNAL(tankClosedChanged(double)) );
+    connect( brakeOff_, SIGNAL(valueChanged(double)), this, SIGNAL(brakeStatusChanged(double)) );
+    connect( keyStatus_, SIGNAL(valueChanged(double)), this, SIGNAL(keyStatusChanged(double)) );
+    connect( paddleExtracted_, SIGNAL(valueChanged(double)), this, SIGNAL(paddleExtractedChanged(double)) );
+    connect( crystalChangePosition_, SIGNAL(valueChanged(double)), this, SIGNAL(crystalChangePosition(double)) );
+    connect( upperSlitClosed_, SIGNAL(valueChanged(double)), this, SIGNAL(upperSlitClosedChanged(double)) );
+    connect( lowerSlitClosed_, SIGNAL(valueChanged(double)), this, SIGNAL(lowerSlitClosedChanged(double)) );
+    connect( slitsClosed_, SIGNAL(valueChanged(double)), this, SIGNAL(slitsClosedChanged(double)) );
+    connect( regionAThetaCWLimit_, SIGNAL(valueChanged(double)), this, SIGNAL(regionAThetaCWLimit(double)) );
+    connect( regionAThetaCCWLimit_, SIGNAL(valueChanged(double)), this, SIGNAL(regionAThetaCCWLimit(double)) );
+    connect( regionBThetaCWLimit_, SIGNAL(valueChanged(double)), this, SIGNAL(regionBThetaCWLimit(double)) );
+    connect( regionBThetaCCWLimit_, SIGNAL(valueChanged(double)), this, SIGNAL(regionBThetaCCWLimit(double)) );
+    connect( regionA_, SIGNAL(valueChanged(double)), this, SIGNAL(regionA(double)) );
+    connect( regionB_, SIGNAL(valueChanged(double)), this, SIGNAL(regionB(double)) );
+    connect( regionATranslateLimit_, SIGNAL(valueChanged(double)), this, SIGNAL(regionATranslateLimit(double)) );
+    connect( regionBTranslateLimit_, SIGNAL(valueChanged(double)), this, SIGNAL(regionBTranslateLimit(double)) );
+    connect( translatePermitted_, SIGNAL(valueChanged(double)), this, SIGNAL(translatePermittedChanged(double)) );
+    connect( thetaPaddlePermitted_, SIGNAL(valueChanged(double)), this, SIGNAL(thetaPaddlePermittedChanged(double)) );
+    connect( slitsEnabled_, SIGNAL(valueChanged(double)), this, SIGNAL(slitsEnabled(double)) );
+    connect( energy_, SIGNAL(setpointChanged(double)), this, SIGNAL(energySetpointChanged(double)) );
+    connect( energy_, SIGNAL(valueChanged(double)), this, SIGNAL(energyFeedbackChanged(double)) );
+
+    connect( tankClosed_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
+    connect( brakeOff_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
+    connect( keyStatus_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
+    connect( paddleExtracted_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
+    connect( crystalChangePosition_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
+    connect( upperSlitClosed_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
+    connect( lowerSlitClosed_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
+    connect( slitsClosed_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
+    connect( regionAThetaCWLimit_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
+    connect( regionAThetaCCWLimit_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
+    connect( regionBThetaCWLimit_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
+    connect( regionBThetaCCWLimit_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
+    connect( regionA_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
+    connect( regionB_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
+    connect( regionATranslateLimit_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
+    connect( regionBTranslateLimit_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
+    connect( translatePermitted_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
+    connect( thetaPaddlePermitted_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
+    connect( slitsEnabled_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
+    connect( energy_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
+
+    onConnectedChanged();
 }
 
 BioXASSideMonochromator::~BioXASSideMonochromator()
 {
 
-}
-
-bool BioXASSideMonochromator::tankClosed() const
-{
-    return (int(tankClosed_->value()) == 0);
-}
-
-bool BioXASSideMonochromator::brakeOff() const
-{
-    return (int(brakeOff_->value()) == 0);
-}
-
-bool BioXASSideMonochromator::keyStatus() const
-{
-    return (int(keyStatus_->value()) == 0);
-}
-
-bool BioXASSideMonochromator::paddleExtracted() const
-{
-    return (int(paddleExtracted_->value()) == 0);
-}
-
-bool BioXASSideMonochromator::crystalChangePosition() const
-{
-    return (int(crystalChangePosition_->value()) == 0);
-}
-
-bool BioXASSideMonochromator::upperSlitClosed() const
-{
-    return (int(upperSlitClosed_->value()) == 0);
-}
-
-bool BioXASSideMonochromator::lowerSlitClosed() const
-{
-    return (int(lowerSlitClosed_->value()) == 0);
-}
-
-bool BioXASSideMonochromator::slitsClosed() const
-{
-    return (int(slitsClosed_->value()) == 0);
-}
-
-bool BioXASSideMonochromator::thetaACWLimit() const
-{
-    return (int(thetaACWLimit_->value()) == 0);
-}
-
-bool BioXASSideMonochromator::thetaACCWLimit() const
-{
-    return (int(thetaACCWLimit_->value()) == 0);
-}
-
-bool BioXASSideMonochromator::thetaBCWLimit() const
-{
-    return (int(thetaBCWLimit_->value()) == 0);
-}
-
-bool BioXASSideMonochromator::thetaBCCWLimit() const
-{
-    return (int(thetaBCCWLimit_->value()) == 0);
-}
-
-bool BioXASSideMonochromator::regionA() const
-{
-    return (int(regionA_->value()) == 0);
-}
-
-bool BioXASSideMonochromator::regionB() const
-{
-    return (int(regionB_->value()) == 0);
-}
-
-bool BioXASSideMonochromator::translateALimit() const
-{
-    return (int(translateALimit_->value()) == 0);
-}
-
-bool BioXASSideMonochromator::translateBLimit() const
-{
-    return (int(translateBLimit_->value()) == 0);
-}
-
-bool BioXASSideMonochromator::translatePermitted() const
-{
-    return (int(translatePermitted_->value()) == 0);
-}
-
-bool BioXASSideMonochromator::thetaPaddlePermitted() const
-{
-    return (int(thetaPaddlePermitted_->value()) == 0);
-}
-
-bool BioXASSideMonochromator::slitsEnabled() const
-{
-    return (int(slitsEnabled_->value()) == 0);
 }
 
 AMAction3* BioXASSideMonochromator::createCloseSlitsAction()
@@ -154,104 +88,145 @@ AMAction3* BioXASSideMonochromator::createCloseSlitsAction()
     AMControlInfo setpoint = slitsCloseCmd_->toInfo();
     setpoint.setValue(0);
     AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
-    AMAction3 *action = new AMControlMoveAction3(actionInfo, slitsCloseCmd_);
+    AMControlMoveAction3 *action = new AMControlMoveAction3(actionInfo, slitsCloseCmd_);
 
     return action;
 }
 
-void BioXASSideMonochromator::onTankClosedChanged(double newValue)
+AMAction3* BioXASSideMonochromator::createWaitForBrakeOffAction()
 {
-    emit tankClosedStatusChanged( (int(newValue) == 0) );
+    if (!brakeOff_->isConnected())
+        return 0;
+
+    AMControlInfo setpoint = brakeOff_->toInfo();
+    setpoint.setValue(1);
+    AMControlWaitActionInfo* actionInfo = new AMControlWaitActionInfo(setpoint);
+    AMAction3* action = new AMControlWaitAction(actionInfo, brakeOff_);
+
+    return action;
 }
 
-void BioXASSideMonochromator::onBrakeOffChanged(double newValue)
+AMAction3* BioXASSideMonochromator::createWaitForBrakeOnAction()
 {
-    emit brakeOffStatusChanged( (int(newValue) == 0) );
+    if (!brakeOff_->isConnected())
+        return 0;
+
+    AMControlInfo setpoint = brakeOff_->toInfo();
+    setpoint.setValue(0);
+    AMControlWaitActionInfo* actionInfo = new AMControlWaitActionInfo(setpoint);
+    AMAction3* action = new AMControlWaitAction(actionInfo, brakeOff_);
+
+    return action;
 }
 
-void BioXASSideMonochromator::onKeyStatusChanged(double newValue)
+AMAction3* BioXASSideMonochromator::createWaitForMoveToCrystalChangePositionAction()
 {
-    emit keyStatusChanged( (int(newValue) == 0) );
+    if (!crystalChangePosition_->isConnected())
+        return 0;
+
+    AMControlInfo setpoint = crystalChangePosition_->toInfo();
+    setpoint.setValue(0);
+    AMControlWaitActionInfo* actionInfo = new AMControlWaitActionInfo(setpoint);
+    AMAction3* action = new AMControlWaitAction(actionInfo, crystalChangePosition_);
+
+    return action;
 }
 
-void BioXASSideMonochromator::onPaddleExtractedChanged(double newValue)
+AMAction3* BioXASSideMonochromator::createWaitForMoveOffCrystalChangePositionAction()
 {
-    emit paddleExtractedStatusChanged( (int(newValue) == 0) );
+    if (!crystalChangePosition_->isConnected())
+        return 0;
+
+    AMControlInfo setpoint = crystalChangePosition_->toInfo();
+    setpoint.setValue(1);
+    AMControlWaitActionInfo* actionInfo = new AMControlWaitActionInfo(setpoint);
+    AMAction3* action = new AMControlWaitAction(actionInfo, crystalChangePosition_);
+
+    return action;
 }
 
-void BioXASSideMonochromator::onCrystalChangePositionChanged(double newValue)
+AMAction3* BioXASSideMonochromator::createWaitForKeyStatusCWAction()
 {
-    emit crystalChangePositionStatusChanged( (int(newValue) == 0) );
+    if (!keyStatus_->isConnected())
+        return 0;
+
+    AMControlInfo setpoint = keyStatus_->toInfo();
+    setpoint.setValue(1);
+    AMControlWaitActionInfo* actionInfo = new AMControlWaitActionInfo(setpoint);
+    AMAction3* action = new AMControlWaitAction(actionInfo, keyStatus_);
+
+    return action;
 }
 
-void BioXASSideMonochromator::onUpperSlitClosedChanged(double newValue)
+AMAction3* BioXASSideMonochromator::createWaitForKeyStatusCCWAction()
 {
-    emit upperSlitClosedStatusChanged( (int(newValue) == 0) );
+    if (!keyStatus_->isConnected())
+        return 0;
+
+    AMControlInfo setpoint = keyStatus_->toInfo();
+    setpoint.setValue(0);
+    AMControlWaitActionInfo* actionInfo = new AMControlWaitActionInfo(setpoint);
+    AMAction3* action = new AMControlWaitAction(actionInfo, keyStatus_);
+
+    return action;
 }
 
-void BioXASSideMonochromator::onLowerSlitClosedChanged(double newValue)
+AMAction3* BioXASSideMonochromator::createWaitForCrystalChangeAction()
 {
-    emit lowerSlitClosedStatusChanged( (int(newValue) == 0) );
+    AMAction3* brakeOn = createWaitForBrakeOnAction();
+    if (!brakeOn)
+        return 0;
+
+    AMAction3* toCrystalChangePosition = createWaitForMoveToCrystalChangePositionAction();
+    if (!toCrystalChangePosition)
+        return 0;
+
+    AMAction3* keyTurn = createWaitForKeyStatusCWAction();
+    if (!keyTurn)
+        return 0;
+
+    AMAction3* brakeOff = createWaitForBrakeOffAction();
+    if (!brakeOff)
+        return 0;
+
+    AMListAction3* crystalChangeAction = new AMListAction3(new AMListActionInfo3("Crystal Change Action", "Crystal Change Action"));
+    crystalChangeAction->addSubAction(brakeOn);
+    crystalChangeAction->addSubAction(toCrystalChangePosition);
+    crystalChangeAction->addSubAction(keyTurn);
+    crystalChangeAction->addSubAction(brakeOff);
+
+    return crystalChangeAction;
 }
 
-void BioXASSideMonochromator::onSlitsClosedChanged(double newValue)
+AMAction3* BioXASSideMonochromator::createSetEnergyAction(double newEnergy)
 {
-    emit slitsClosedStatusChanged( (int(newValue) == 0) );
+    if (!energy_->isConnected())
+        return 0;
+
+    AMControlInfo setpoint = energy_->toInfo();
+    setpoint.setValue(newEnergy);
+    AMControlMoveActionInfo3* actionInfo = new AMControlMoveActionInfo3(setpoint);
+    AMControlMoveAction3* action = new AMControlMoveAction3(actionInfo, energy_);
+
+    return action;
 }
 
-void BioXASSideMonochromator::onThetaACWLimitChanged(double newValue)
+void BioXASSideMonochromator::onConnectedChanged()
 {
-    emit thetaACWLimitStatusChanged( (int(newValue) == 0) );
+    bool currentState = (tankClosed_->isConnected() && brakeOff_->isConnected() &&
+                         keyStatus_->isConnected() && paddleExtracted_->isConnected() &&
+                         crystalChangePosition_->isConnected() && upperSlitClosed_->isConnected() &&
+                         lowerSlitClosed_->isConnected() && slitsClosed_->isConnected() &&
+                         regionAThetaCWLimit_->isConnected() && regionAThetaCCWLimit_->isConnected() &&
+                         regionBThetaCWLimit_->isConnected() && regionBThetaCCWLimit_->isConnected() &&
+                         regionA_->isConnected() && regionB_->isConnected() &&
+                         regionATranslateLimit_->isConnected() && regionBTranslateLimit_->isConnected() &&
+                         translatePermitted_->isConnected() && thetaPaddlePermitted_->isConnected() &&
+                         slitsCloseCmd_->isConnected() && slitsEnabled_->isConnected() &&
+                         energy_->isConnected());
+
+    if (connected_ != currentState) {
+        connected_ = currentState;
+        emit connected(connected_);
+    }
 }
-
-void BioXASSideMonochromator::onThetaACCWLimitChanged(double newValue)
-{
-    emit thetaACCWLimitStatusChanged( (int(newValue) == 0) );
-}
-
-void BioXASSideMonochromator::onThetaBCWLimitChanged(double newValue)
-{
-    emit thetaBCWLimitStatusChanged( (int(newValue) == 0) );
-}
-
-void BioXASSideMonochromator::onThetaBCCWLimitChanged(double newValue)
-{
-    emit thetaBCCWLimitStatusChanged( (int(newValue) == 0) );
-}
-
-void BioXASSideMonochromator::onRegionAChanged(double newValue)
-{
-    emit regionAStatusChanged( (int(newValue) == 0) );
-}
-
-void BioXASSideMonochromator::onRegionBChanged(double newValue)
-{
-    emit regionBStatusChanged( (int(newValue) == 0) );
-}
-
-void BioXASSideMonochromator::onTranslateALimitChanged(double newValue)
-{
-    emit translateALimitStatusChanged( (int(newValue) == 0) );
-}
-
-void BioXASSideMonochromator::onTranslateBLimitChanged(double newValue)
-{
-    emit translateBLimitStatusChanged( (int(newValue) == 0) );
-}
-
-void BioXASSideMonochromator::onTranslatePermittedChanged(double newValue)
-{
-    emit translatePermittedStatusChanged( (int(newValue) == 0) );
-}
-
-void BioXASSideMonochromator::onThetaPaddlePermittedChanged(double newValue)
-{
-    emit thetaPaddlePermittedStatusChanged( (int(newValue) == 0) );
-}
-
-void BioXASSideMonochromator::onSlitsEnabledChanged(double newValue)
-{
-    emit slitsEnabledStatusChanged( (int(newValue) == 0) );
-}
-
-
