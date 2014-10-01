@@ -23,12 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QDebug>
 
-#include "beamline/CLS/CLSMAXvMotor.h"
-#include "actions3/AMListAction3.h"
-#include "actions3/actions/AMControlMoveAction3.h"
-#include "beamline/CLS/CLSBiStateControl.h"
-
-BioXASMainBeamline* BioXASMainBeamline::mainInstance_ = 0;
+BioXASMainBeamline* BioXASMainBeamline::bioXASMainBLInstance_ = 0;
 
 BioXASMainBeamline::BioXASMainBeamline()
 	: AMBeamline("BioXAS Beamline - Main Endstation")
@@ -58,8 +53,11 @@ void BioXASMainBeamline::setupSampleStage()
 
 void BioXASMainBeamline::setupMotorGroup()
 {
+	// BioXAS filter motors
 	carbonFilterFarm1_ = new BioXASCLSMAXvMotor(BioXASBeamlineDef::FilterMotor, QString("SMTR1607-5-I00-03 Filter 1"), QString("SMTR1607-5-I00-03"), QString("SMTR1607-5-I00-03 Filter 1"), QString(":mm"),  true, 0.05, 2.0, this);
 	carbonFilterFarm2_ = new BioXASCLSMAXvMotor(BioXASBeamlineDef::FilterMotor, QString("SMTR1607-5-I00-04 Filter 2"), QString("SMTR1607-5-I00-04"), QString("SMTR1607-5-I00-04 Filter 2"), QString(":mm"),  true, 0.05, 2.0, this);
+
+	// BioXAS M1 motors
 	m1VertUpStreamINB_ = new BioXASCLSMAXvMotor(BioXASBeamlineDef::M1Motor,     QString("SMTR1607-5-I21-01 VERT INB (UPSTREAM)"), QString("SMTR1607-5-I21-01"), QString("SMTR1607-5-I21-01 VERT INB (UPSTREAM)"), QString(":mm"),  true, 0.05, 2.0, this);
 	m1VertUpStreamOUTB_ = new BioXASCLSMAXvMotor(BioXASBeamlineDef::M1Motor,     QString("SMTR1607-5-I21-02 VERT OUTB (UPSTREAM)"), QString("SMTR1607-5-I21-02"), QString("SMTR1607-5-I21-02 VERT OUTB (UPSTREAM)"), QString(":mm"),  true, 0.05, 2.0, this);
 	m1VertDownStream_ = new BioXASCLSMAXvMotor(BioXASBeamlineDef::M1Motor,     QString("SMTR1607-5-I21-03 VERT (DOWNSTREAM)"), QString("SMTR1607-5-I21-03"), QString("SMTR1607-5-I21-03 VERT (DOWNSTREAM)"), QString(":mm"),  true, 0.05, 2.0, this);
@@ -68,8 +66,12 @@ void BioXASMainBeamline::setupMotorGroup()
 	m1BenderUpstream_ = new BioXASCLSMAXvMotor(BioXASBeamlineDef::M1Motor,     QString("SMTR1607-5-I21-06 BENDER (UPSTREAM)"), QString("SMTR1607-5-I21-06"), QString("SMTR1607-5-I21-06 BENDER (UPSTREAM)"), QString(":lbs"), true, 0.05, 2.0, this);
 	m1BenderDownStream_ = new BioXASCLSMAXvMotor(BioXASBeamlineDef::M1Motor,     QString("SMTR1607-5-I21-07 BENDER (DOWNSTREAM)"), QString("SMTR1607-5-I21-07"), QString("SMTR1607-5-I21-07 BENDER (DOWNSTREAM)"), QString(":lbs"), true, 0.05, 2.0, this);
 	m1UpperSlitBlade_ = new BioXASCLSMAXvMotor(BioXASBeamlineDef::M1Motor,     QString("SMTR1607-5-I21-08 UPPER SLIT BLADE"), QString("SMTR1607-5-I21-08"), QString("SMTR1607-5-I21-08 UPPER SLIT BLADE"), QString(":mm"),  true, 0.05, 2.0, this);
+
+	// BioXAS Variable Mask motors
 	variableMaskVertUpperBlade_ = new BioXASCLSMAXvMotor(BioXASBeamlineDef::MaskMotor,   QString("SMTR1607-5-I21-09 VERT UPPER BLADE"), QString("SMTR1607-5-I21-09"), QString("SMTR1607-5-I21-09 VERT UPPER BLADE"), QString(":mm"),  true, 0.05, 2.0, this);
 	variableMaskVertLowerBlade_ = new BioXASCLSMAXvMotor(BioXASBeamlineDef::MaskMotor,   QString("SMTR1607-5-I21-10 VERT LOWER BLADE"), QString("SMTR1607-5-I21-10"), QString("SMTR1607-5-I21-10 VERT LOWER BLADE"), QString(":mm"),  true, 0.05, 2.0, this);
+
+	// BioXAS Mono motors
 	monoPhosphorPaddle_ = new BioXASCLSMAXvMotor(BioXASBeamlineDef::MonoMotor,   QString("SMTR1607-5-I21-11 PHOSPHOR PADDLE"), QString("SMTR1607-5-I21-11"), QString("SMTR1607-5-I21-11 PHOSPHOR PADDLE"), QString(":mm"),  true, 0.05, 2.0, this);
 	monoBragg_ = new BioXASCLSMAXvMotor(BioXASBeamlineDef::MonoMotor,   QString("SMTR1607-5-I21-12 BRAGG"), QString("SMTR1607-5-I21-12"), QString("SMTR1607-5-I21-12 BRAGG"), QString(":deg"), true, 0.05, 2.0, this);
 	monoVertical_ = new BioXASCLSMAXvMotor(BioXASBeamlineDef::MonoMotor,   QString("SMTR1607-5-I21-13 VERTICAL"), QString("SMTR1607-5-I21-13"), QString("SMTR1607-5-I21-13 VERTICAL"), QString(":mm"),  true, 0.05, 2.0, this);
@@ -79,6 +81,8 @@ void BioXASMainBeamline::setupMotorGroup()
 	monoXtal1Roll_ = new BioXASCLSMAXvMotor(BioXASBeamlineDef::MonoMotor,   QString("SMTR1607-5-I21-24 XTAL 1 ROLL"), QString("SMTR1607-5-I21-24"), QString("SMTR1607-5-I21-24 XTAL 1 ROLL"), QString(":V"),   true, 0.05, 2.0, this);
 	monoXtal2Pitch_ = new BioXASCLSMAXvMotor(BioXASBeamlineDef::MonoMotor,   QString("SMTR1607-5-I21-25 XTAL 2 PITCH"), QString("SMTR1607-5-I21-25"), QString("SMTR1607-5-I21-25 XTAL 2 PITCH"), QString(":V"),   true, 0.05, 2.0, this);
 	monoXtal2Roll_ = new BioXASCLSMAXvMotor(BioXASBeamlineDef::MonoMotor,   QString("SMTR1607-5-I21-26 XTAL 2 ROLL"), QString("SMTR1607-5-I21-26"), QString("SMTR1607-5-I21-26 XTAL 2 ROLL"), QString(":V"),   true, 0.05, 2.0, this);
+
+	// BioXAS M2 motors
 	m2VertUpstreamINB_ = new BioXASCLSMAXvMotor(BioXASBeamlineDef::M2Motor,     QString("SMTR1607-5-I21-15 VERT INB (UPSTREAM)"), QString("SMTR1607-5-I21-15"), QString("SMTR1607-5-I21-15 VERT INB (UPSTREAM)"), QString(":mm"),  true, 0.05, 2.0, this);
 	m2VertUpstreamOUTB_ = new BioXASCLSMAXvMotor(BioXASBeamlineDef::M2Motor,     QString("SMTR1607-5-I21-16 VERT OUTB (UPSTREAM)"), QString("SMTR1607-5-I21-16"), QString("SMTR1607-5-I21-16 VERT OUTB (UPSTREAM)"), QString(":mm"),  true, 0.05, 2.0, this);
 	m2VertDownstream_ = new BioXASCLSMAXvMotor(BioXASBeamlineDef::M2Motor,     QString("SMTR1607-5-I21-17 VERT (DOWNSTREAM)"), QString("SMTR1607-5-I21-17"), QString("SMTR1607-5-I21-17 VERT (DOWNSTREAM)"), QString(":mm"),  true, 0.05, 2.0, this);

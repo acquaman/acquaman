@@ -29,7 +29,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QPushButton>
 
 #include "actions3/AMAction3.h"
-#include "beamline/BioXAS/BioXASToolSuite/ShutterModel.h"
+#include "beamline/BioXAS/BioXASShutterToolController.h"
 
 class ShutterToolMainWindow : public QWidget
 {
@@ -59,7 +59,7 @@ protected slots:
     void onPostInjection();
 
 protected:
-	ShutterModel* model();
+	BioXASShutterToolController* model();
 
 	void closeEvent(QCloseEvent *event) {
 		emit closed();
@@ -77,7 +77,7 @@ private:
     void turnAutomaticShutterControlOff();
 
 private:
-	ShutterModel *model_;
+	BioXASShutterToolController *model_;
     QVBoxLayout *mainLayout_;
 
     QLabel *appStatusLabel_;

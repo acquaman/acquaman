@@ -19,8 +19,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef SHUTTERMODEL_H
-#define SHUTTERMODEL_H
+#ifndef BIOXASSHUTTERTOOLCONTROLLER_H
+#define BIOXASSHUTTERTOOLCONTROLLER_H
 
 #include <QObject>
 
@@ -30,7 +30,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "source/actions3/actions/AMControlMoveAction3.h"
 #include "source/actions3/AMListAction3.h"
 
-class ShutterModel : public QObject
+class BioXASShutterToolController : public QObject
 {
     Q_OBJECT
 
@@ -43,7 +43,7 @@ public:
                         Enabled
                       };
 
-	explicit ShutterModel(QObject *parent = 0);
+	explicit BioXASShutterToolController(QObject *parent = 0);
 
 signals:
     void aodShutterControlConnected(bool isConnected);
@@ -99,4 +99,4 @@ private:
 
 };
 
-#endif // SHUTTERMODEL_H
+#endif // BIOXASSHUTTERTOOLCONTROLLER_H

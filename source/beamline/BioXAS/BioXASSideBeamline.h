@@ -24,20 +24,20 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/AMBeamline.h"
 #include "beamline/AMControlSet.h"
+#include "beamline/AMMotorGroup.h"
 #include "beamline/CLS/CLSSynchronizedDwellTime.h"
 #include "beamline/CLS/CLSSIS3820Scaler.h"
-#include "beamline/AMMotorGroup.h"
 #include "beamline/CLS/CLSBiStateControl.h"
 #include "beamline/CLS/CLSSIS3820Scaler.h"
+#include "beamline/CLS/CLSBasicScalerChannelDetector.h"
+#include "beamline/CLS/CLSKeithley428.h"
+#include "beamline/CLS/CLSBasicCompositeScalerChannelDetector.h"
+#include "beamline/BioXAS/BioXASCLSMAXvMotor.h"
 
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
 
-#include "beamline/CLS/CLSBasicScalerChannelDetector.h"
-#include "beamline/CLS/CLSKeithley428.h"
-#include "beamline/CLS/CLSBasicCompositeScalerChannelDetector.h"
-#include "beamline/BioXAS/BioXASCLSMAXvMotor.h"
 class CLSMAXvMotor;
 
 class BioXASSideBeamline : public AMBeamline
@@ -48,10 +48,10 @@ public:
 	/// Returns the instance of the beamline that has been created.
 	static BioXASSideBeamline* bioXAS()
 	{
-		if(!sideInstance_)
-			sideInstance_ = new BioXASSideBeamline();
+		if(!bioXASSideBLInstance_)
+			bioXASSideBLInstance_ = new BioXASSideBeamline();
 
-		return static_cast<BioXASSideBeamline*>(sideInstance_);
+		return static_cast<BioXASSideBeamline*>(bioXASSideBLInstance_);
 	}
 
 	/// Destructor.
@@ -61,7 +61,7 @@ public:
     CLSSIS3820Scaler* scaler();
 
     /// Returns the m1 upper slit blade motor control.
-    CLSMAXvMotor* m1UpperSlit();
+	CLSMAXvMotor* m1UpperSlit();
 
     /// Returns an instance of the keithley428 amplifier.
     CLSKeithley428* keithley();
@@ -104,8 +104,7 @@ protected:
     BioXASSideBeamline();
 
 protected:
-    CLSSIS3820Scaler *scaler_;
-    CLSMAXvMotor *m1UpperSlit_;
+	CLSSIS3820Scaler *scaler_;
     bool wasConnected_;
 
     CLSBasicScalerChannelDetector *testDetector_;
@@ -235,7 +234,7 @@ protected:
 
 private:
 	/// Instance variable
-	static BioXASSideBeamline* sideInstance_;
+	static BioXASSideBeamline* bioXASSideBLInstance_;
 };
 
 #endif // BIOXASSIDEBEAMLINE_H

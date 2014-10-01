@@ -13,7 +13,7 @@ HEADERS  += \
 	source/beamline/BioXAS/BioXASMainBeamline.h \
 	source/beamline/BioXAS/BioXASSideBeamline.h \
 	source/beamline/BioXAS/BioXASImagingBeamline.h \
-	source/beamline/BioXAS/BioXASToolSuite/ShutterModel.h \
+	source/beamline/BioXAS/BioXASShutterToolController.h \
 	source/ui/BioXAS/BioXASCLSMAXvMotorControlEditor.h \
 	source/ui/BioXAS/BioXASToolSuite/MainWindow.h \
 	source/ui/BioXAS/BioXASToolSuite/ShutterToolMainWindow.h \
@@ -25,7 +25,7 @@ SOURCES += \
 	source/beamline/BioXAS/BioXASMainBeamline.cpp \
 	source/beamline/BioXAS/BioXASSideBeamline.cpp \
 	source/beamline/BioXAS/BioXASImagingBeamline.cpp \
-	source/beamline/BioXAS/BioXASToolSuite/ShutterModel.cpp \
+	source/beamline/BioXAS/BioXASShutterToolController.cpp \
 	source/ui/BioXAS/BioXASCLSMAXvMotorControlEditor.cpp \
 	source/ui/BioXAS/BioXASToolSuite/MainWindow.cpp \
 	source/ui/BioXAS/BioXASToolSuite/ShutterToolMainWindow.cpp \
@@ -34,10 +34,3 @@ SOURCES += \
 
 RESOURCES += \
 	source/ui/BioXAS/BioXASToolSuite/resources/BioXASImages.qrc
-
-
-
-
-
-
-

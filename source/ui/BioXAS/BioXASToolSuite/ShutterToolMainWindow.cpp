@@ -54,7 +54,7 @@ ShutterToolMainWindow::~ShutterToolMainWindow()
 
 
 
-ShutterModel* ShutterToolMainWindow::model()
+BioXASShutterToolController* ShutterToolMainWindow::model()
 {
 	return model_;
 }
@@ -157,7 +157,7 @@ void ShutterToolMainWindow::onPostInjection()
 
 void ShutterToolMainWindow::createComponents()
 {
-	model_ = new ShutterModel(this);
+	model_ = new BioXASShutterToolController(this);
 	mainLayout_ = new QVBoxLayout();
 
 	// create gui -- allow user to turn on and off automatic shutter control

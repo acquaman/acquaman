@@ -24,19 +24,17 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/AMBeamline.h"
 #include "beamline/AMControlSet.h"
+#include "beamline/AMMotorGroup.h"
 #include "beamline/CLS/CLSSynchronizedDwellTime.h"
 #include "beamline/CLS/CLSSIS3820Scaler.h"
-#include "beamline/AMMotorGroup.h"
 #include "beamline/CLS/CLSBiStateControl.h"
 #include "beamline/CLS/CLSSIS3820Scaler.h"
-
-
-#include "util/AMErrorMonitor.h"
-#include "util/AMBiHash.h"
-
 #include "beamline/CLS/CLSBasicScalerChannelDetector.h"
 #include "beamline/CLS/CLSBasicCompositeScalerChannelDetector.h"
 #include "beamline/BioXAS/BioXASCLSMAXvMotor.h"
+
+#include "util/AMErrorMonitor.h"
+#include "util/AMBiHash.h"
 
 class BioXASMainBeamline : public AMBeamline
 {
@@ -46,10 +44,10 @@ public:
 	/// Returns the instance of the beamline that has been created.
 	static BioXASMainBeamline* bioXAS()
 	{
-		if(!mainInstance_)
-			mainInstance_ = new BioXASMainBeamline();
+		if(!bioXASMainBLInstance_)
+			bioXASMainBLInstance_ = new BioXASMainBeamline();
 
-		return static_cast<BioXASMainBeamline*>(mainInstance_);
+		return static_cast<BioXASMainBeamline*>(bioXASMainBLInstance_);
 	}
 
 	/// Destructor.
@@ -125,7 +123,7 @@ protected:
 
 private:
 	/// Instance variable
-	static BioXASMainBeamline* mainInstance_;
+	static BioXASMainBeamline* bioXASMainBLInstance_;
 };
 
 #endif // BIOXASMAINBEAMLINE_H
