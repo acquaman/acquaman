@@ -36,8 +36,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/CLS/CLSBasicScalerChannelDetector.h"
 #include "beamline/CLS/CLSBasicCompositeScalerChannelDetector.h"
-#include "beamline/BioXAS/BioXASToolSuite/BioXASMAXvMotor.h"
-#include "beamline/BioXAS/BioXASToolSuite/BioXASBeamline.h"
+#include "beamline/BioXAS/BioXASCLSMAXvMotor.h"
 
 class BioXASMainBeamline : public AMBeamline
 {
@@ -47,16 +46,16 @@ public:
 	/// Returns the instance of the beamline that has been created.
 	static BioXASMainBeamline* bioXAS()
 	{
-		if(!instance_)
-			instance_ = new BioXASMainBeamline();
+		if(!mainInstance_)
+			mainInstance_ = new BioXASMainBeamline();
 
-		return static_cast<BioXASMainBeamline*>(instance_);
+		return static_cast<BioXASMainBeamline*>(mainInstance_);
 	}
 
 	/// Destructor.
 	virtual ~BioXASMainBeamline();
 
-	QList<BioXASMAXvMotor *> getMotorsByType(BioXASBeamlineDef::BioXASMotorType category);
+	QList<BioXASCLSMAXvMotor *> getMotorsByType(BioXASBeamlineDef::BioXASMotorType category);
 
 protected:
 	/// Sets up the synchronized dwell time.
@@ -87,42 +86,46 @@ protected:
 
 	/// BioXAS main beamline motors
 	/// BioXAS filter motors
-	BioXASMAXvMotor *carbonFilterFarm1_;
-	BioXASMAXvMotor *carbonFilterFarm2_;
+	BioXASCLSMAXvMotor *carbonFilterFarm1_;
+	BioXASCLSMAXvMotor *carbonFilterFarm2_;
 
 	/// BioXAS M1 motors
-	BioXASMAXvMotor *m1VertUpStreamINB_;
-	BioXASMAXvMotor *m1VertUpStreamOUTB_;
-	BioXASMAXvMotor *m1VertDownStream_;
-	BioXASMAXvMotor *m1StripeSelect_;
-	BioXASMAXvMotor *m1Yaw_;
-	BioXASMAXvMotor *m1BenderUpstream_;
-	BioXASMAXvMotor *m1BenderDownStream_;
-	BioXASMAXvMotor *m1UpperSlitBlade_;
+	BioXASCLSMAXvMotor *m1VertUpStreamINB_;
+	BioXASCLSMAXvMotor *m1VertUpStreamOUTB_;
+	BioXASCLSMAXvMotor *m1VertDownStream_;
+	BioXASCLSMAXvMotor *m1StripeSelect_;
+	BioXASCLSMAXvMotor *m1Yaw_;
+	BioXASCLSMAXvMotor *m1BenderUpstream_;
+	BioXASCLSMAXvMotor *m1BenderDownStream_;
+	BioXASCLSMAXvMotor *m1UpperSlitBlade_;
 
 	/// BioXAS Variable Mask motors
-	BioXASMAXvMotor *variableMaskVertUpperBlade_;
-	BioXASMAXvMotor *variableMaskVertLowerBlade_;
+	BioXASCLSMAXvMotor *variableMaskVertUpperBlade_;
+	BioXASCLSMAXvMotor *variableMaskVertLowerBlade_;
 
 	/// BioXAS Mono motors
-	BioXASMAXvMotor *monoPhosphorPaddle_;
-	BioXASMAXvMotor *monoBragg_;
-	BioXASMAXvMotor *monoVertical_;
-	BioXASMAXvMotor *monoLateral_;
-	BioXASMAXvMotor *monoXtalXchage_;
-	BioXASMAXvMotor *monoXtal1Pitch_;
-	BioXASMAXvMotor *monoXtal1Roll_;
-	BioXASMAXvMotor *monoXtal2Pitch_;
-	BioXASMAXvMotor *monoXtal2Roll_;
+	BioXASCLSMAXvMotor *monoPhosphorPaddle_;
+	BioXASCLSMAXvMotor *monoBragg_;
+	BioXASCLSMAXvMotor *monoVertical_;
+	BioXASCLSMAXvMotor *monoLateral_;
+	BioXASCLSMAXvMotor *monoXtalXchage_;
+	BioXASCLSMAXvMotor *monoXtal1Pitch_;
+	BioXASCLSMAXvMotor *monoXtal1Roll_;
+	BioXASCLSMAXvMotor *monoXtal2Pitch_;
+	BioXASCLSMAXvMotor *monoXtal2Roll_;
 
 	/// BioXAS M2 motors
-	BioXASMAXvMotor *m2VertUpstreamINB_;
-	BioXASMAXvMotor *m2VertUpstreamOUTB_;
-	BioXASMAXvMotor *m2VertDownstream_;
-	BioXASMAXvMotor *m2StripeSelect_;
-	BioXASMAXvMotor *m2Yaw_;
-	BioXASMAXvMotor *m2BenderUpstream_;
-	BioXASMAXvMotor *m2BenderDownStream_;
+	BioXASCLSMAXvMotor *m2VertUpstreamINB_;
+	BioXASCLSMAXvMotor *m2VertUpstreamOUTB_;
+	BioXASCLSMAXvMotor *m2VertDownstream_;
+	BioXASCLSMAXvMotor *m2StripeSelect_;
+	BioXASCLSMAXvMotor *m2Yaw_;
+	BioXASCLSMAXvMotor *m2BenderUpstream_;
+	BioXASCLSMAXvMotor *m2BenderDownStream_;
+
+private:
+	/// Instance variable
+	static BioXASMainBeamline* mainInstance_;
 };
 
 #endif // BIOXASMAINBEAMLINE_H

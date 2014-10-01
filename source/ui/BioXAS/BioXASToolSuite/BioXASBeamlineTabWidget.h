@@ -5,8 +5,9 @@
 #include <QGroupBox>
 #include <QVBoxLayout>
 
-#include "beamline/BioXAS/BioXASToolSuite/BioXASBeamline.h"
-#include "beamline/BioXAS/BioXASToolSuite/BioXASBeamlineDataModel.h"
+#include "beamline/BioXAS/BioXASBeamlineDef.h"
+//#include "beamline/BioXAS/BioXASToolSuite/BioXASBeamline.h"
+//#include "beamline/BioXAS/BioXASToolSuite/BioXASBeamlineDataModel.h"
 
 class BioXASBeamlineTabWidget : public QWidget
 {
@@ -18,7 +19,7 @@ public:
 protected:
 	BioXASBeamlineDef::BioXASBeamLineID beamlineId_;
 
-	BioXASBeamlineDataModel *bioXASMotorModel_;
+//	BioXASBeamlineDataModel *bioXASMotorModel_;
 
 	/*
 	 the beamline Tab widget:

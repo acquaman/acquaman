@@ -5,9 +5,13 @@
 #include <QImage>
 #include <QPushButton>
 
-#include "beamline/BioXAS/BioXASToolSuite/BioXASMAXvMotor.h"
-#include "ui/beamline/AMExtendedControlEditor.h"
-#include "ui/BioXAS/BioXASToolSuite/MAXvMotorControlEditor.h"
+#include "beamline/BioXAS/BioXASCLSMAXvMotor.h"
+#include "beamline/BioXAS/BioXASBeamlineDef.h"
+#include "beamline/BioXAS/BioXASMainBeamline.h"
+#include "beamline/BioXAS/BioXASSideBeamline.h"
+#include "beamline/BioXAS/BioXASImagingBeamline.h"
+
+#include "ui/BioXAS/BioXASCLSMAXvMotorControlEditor.h"
 
 BioXASBeamlineTabWidget::BioXASBeamlineTabWidget(BioXASBeamlineDef::BioXASBeamLineID beamlineId, QWidget *parent) :
 	QWidget(parent)
@@ -15,8 +19,6 @@ BioXASBeamlineTabWidget::BioXASBeamlineTabWidget(BioXASBeamlineDef::BioXASBeamLi
 	resize(1190, 1600);
 
 	beamlineId_ = beamlineId;
-	bioXASMotorModel_ = BioXASBeamlineDataModel::instance();
-
 	setupUiLayout();
 }
 
@@ -129,9 +131,25 @@ QGroupBox * BioXASBeamlineTabWidget::setupMotorGroupLayout(QString groupBoxTitle
 
 void BioXASBeamlineTabWidget::setupMotorsLayout(BioXASBeamlineDef::BioXASMotorType motorType, QVBoxLayout *pvLayoutBox)
 {
-	QList<BioXASMAXvMotor *> matchedMotors = bioXASMotorModel_->getBeamlineMotorsByMotorType(beamlineId_, motorType);
+	QList<BioXASCLSMAXvMotor *> matchedMotors;
+	switch (beamlineId_) {
+	case BioXASBeamlineDef::BioXASMainBeamLine:
+		matchedMotors = BioXASMainBeamline::bioXAS()->getMotorsByType(motorType);
+		break;
+
+	case BioXASBeamlineDef::BioXASSideBeamLine:
+		matchedMotors = BioXASSideBeamline::bioXAS()->getMotorsByType(motorType);
+		break;
+
+	case BioXASBeamlineDef::BioXASImagingBeamLine:
+		matchedMotors = BioXASImagingBeamline::bioXAS()->getMotorsByType(motorType);
+		break;
+	default:
+		break;
+	}
+
 	for (int i = 0; i < matchedMotors.size(); i++) {
-		MAXvMotorControlEditor *motorEditor = new MAXvMotorControlEditor(matchedMotors[i], matchedMotors[i]->statusPVControl());
+		BioXASCLSMAXvMotorControlEditor *motorEditor = new BioXASCLSMAXvMotorControlEditor(matchedMotors[i], matchedMotors[i]->statusPVControl());
 		motorEditor->setControlFormat('f', 4);
 		pvLayoutBox->addWidget(motorEditor);
 	}

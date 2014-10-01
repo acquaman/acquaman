@@ -1,8 +1,8 @@
-#include "MAXvMotorControlEditor.h"
+#include "BioXASCLSMAXvMotorControlEditor.h"
 
 #include <QHBoxLayout>
 
-MAXvMotorControlEditor::MAXvMotorControlEditor(BioXASMAXvMotor* control, AMControl* statusTagControl, bool readOnly, bool configureOnly, QWidget *parent)
+BioXASCLSMAXvMotorControlEditor::BioXASCLSMAXvMotorControlEditor(BioXASCLSMAXvMotor* control, AMControl* statusTagControl, bool readOnly, bool configureOnly, QWidget *parent)
 	:AMExtendedControlEditor(control, statusTagControl, readOnly, configureOnly, parent)
 {
 	valueLabel_->setToolTip(control->feedbackPVName());
@@ -32,12 +32,12 @@ MAXvMotorControlEditor::MAXvMotorControlEditor(BioXASMAXvMotor* control, AMContr
 	}
 }
 
-MAXvMotorControlEditor::~MAXvMotorControlEditor()
+BioXASCLSMAXvMotorControlEditor::~BioXASCLSMAXvMotorControlEditor()
 {
 
 }
 
-void MAXvMotorControlEditor::onLimitChanged(CLSMAXvMotor::Limit limit)
+void BioXASCLSMAXvMotorControlEditor::onLimitChanged(CLSMAXvMotor::Limit limit)
 {
 	switch (limit) {
 	case CLSMAXvMotor::LimitNone: ///< Not at a limit
