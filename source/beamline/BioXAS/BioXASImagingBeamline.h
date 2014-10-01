@@ -36,6 +36,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/CLS/CLSBasicScalerChannelDetector.h"
 #include "beamline/CLS/CLSBasicCompositeScalerChannelDetector.h"
+#include "beamline/BioXAS/BioXASToolSuite/BioXASMAXvMotor.h"
+#include "beamline/BioXAS/BioXASToolSuite/BioXASBeamline.h"
 
 class BioXASImagingBeamline : public AMBeamline
 {
@@ -53,6 +55,8 @@ public:
 
 	/// Destructor.
 	virtual ~BioXASImagingBeamline();
+
+	QList<BioXASMAXvMotor *> getMotorsByType(BioXASBeamlineDef::BioXASMotorType category);
 
 protected:
 	/// Sets up the synchronized dwell time.
@@ -80,6 +84,42 @@ protected:
 
 	/// Constructor. This is a singleton class, access it through BioXASImagingBeamline::bioXAS().
 	BioXASImagingBeamline();
+
+	/// BioXAS imaging beamline motors
+	/// BioXAS filter motors
+	BioXASMAXvMotor *carbonFilterFarm1_;
+	BioXASMAXvMotor *carbonFilterFarm2_;
+
+	/// BioXAS M1 motors
+	BioXASMAXvMotor *m1VertUpStreamINB_;
+	BioXASMAXvMotor *m1VertUpStreamOUTB_;
+	BioXASMAXvMotor *m1VertDownStream_;
+	BioXASMAXvMotor *m1StripeSelect_;
+	BioXASMAXvMotor *m1Yaw_;
+	BioXASMAXvMotor *m1BenderUpstream_;
+	BioXASMAXvMotor *m1BenderDownStream_;
+
+	/// BioXAS Variable Mask motors
+	BioXASMAXvMotor *variableMaskVertUpperBlade_;
+	BioXASMAXvMotor *variableMaskVertLowerBlade_;
+
+	/// BioXAS Mono motors
+	BioXASMAXvMotor *monoCrystal2Z_;
+	BioXASMAXvMotor *monoCrystal2Y_;
+	BioXASMAXvMotor *monoCrystal2Pitch_;
+	BioXASMAXvMotor *monoCrystal2Roll_;
+	BioXASMAXvMotor *monoBragg_;
+	BioXASMAXvMotor *monoVertical_;
+	BioXASMAXvMotor *monoLateral_;
+
+	/// BioXAS M2 motors
+	BioXASMAXvMotor *m2VertUpstreamINB_;
+	BioXASMAXvMotor *m2VertUpstreamOUTB_;
+	BioXASMAXvMotor *m2VertDownstream_;
+	BioXASMAXvMotor *m2StripeSelect_;
+	BioXASMAXvMotor *m2Yaw_;
+	BioXASMAXvMotor *m2BenderUpstream_;
+	BioXASMAXvMotor *m2BenderDownStream_;
 };
 
 #endif // BIOXASIMAGINGBEAMLINE_H
