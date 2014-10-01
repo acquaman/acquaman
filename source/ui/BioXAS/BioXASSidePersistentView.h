@@ -24,10 +24,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QWidget>
 #include <QLayout>
+#include <QGroupBox>
 
 #include "ui/CLS/CLSStopLightButton.h"
 
-#include "ui/BioXAS/BioXASSideMonochromatorViewBasic.h"
+#include "ui/BioXAS/BioXASSideMonoBasicEnergyView.h"
+#include "ui/BioXAS/BioXASSideMonoCrystalChangeView.h"
 
 class BioXASSidePersistentView : public QWidget
 {
@@ -36,6 +38,7 @@ class BioXASSidePersistentView : public QWidget
 public:
     /// Constructor.
     explicit BioXASSidePersistentView(QWidget *parent = 0);
+    /// Destructor.
     virtual ~BioXASSidePersistentView();
 
 signals:
@@ -51,7 +54,9 @@ protected:
 //    CLSStopLightButton *ssh1_;
 //    CLSStopLightButton *ssh2_;
 
-    BioXASSideMonochromatorViewBasic *energyView_;
+    BioXASSideMonoBasicEnergyView *energyView_;
+    QPushButton *toViewCrystalChangeInstructs_;
+
 };
 
 #endif // BIOXASSIDEPERSISTENTVIEW_H

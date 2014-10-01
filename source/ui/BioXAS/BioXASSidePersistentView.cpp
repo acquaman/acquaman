@@ -24,14 +24,27 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
     QWidget(parent)
 {
-    QGridLayout *mainLayout = new QGridLayout();
 
+    QVBoxLayout *monoLayout = new QVBoxLayout();
 
+    QHBoxLayout *energyLayout = new QHBoxLayout();
     QLabel *energyLabel = new QLabel("Energy: ", this);
-    energyView_ = new BioXASSideMonochromatorViewBasic(this);
+    energyView_ = new BioXASSideMonoBasicEnergyView(BioXASSideBeamline::bioXAS()->mono(), this);
     energyLabel->setBuddy(energyView_);
-    mainLayout->addWidget(energyLabel, 0, 0);
-    mainLayout->addWidget(energyView_, 0, 1);
+    energyLayout->addWidget(energyLabel);
+    energyLayout->addWidget(energyView_);
+    monoLayout->addLayout(energyLayout);
+
+    toViewCrystalChangeInstructs_ = new QPushButton("Crystal Change Instructs", this);
+    monoLayout->addWidget(toViewCrystalChangeInstructs_);
+
+    QGroupBox* monoInfo = new QGroupBox(this);
+    monoInfo->setTitle("Mono Info");
+    monoInfo->setLayout(monoLayout);
+
+    QVBoxLayout *mainLayout = new QVBoxLayout();
+    mainLayout->addWidget(monoInfo);
+    mainLayout->addStretch();
 
     setLayout(mainLayout);
 

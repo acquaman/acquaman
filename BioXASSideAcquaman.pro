@@ -10,9 +10,9 @@ HEADERS += \
     source/acquaman/BioXASSide/BioXASSideXASScanConfiguration.h \
 	source/ui/BioXAS/BioXASSideXASScanConfigurationView.h \
     source/beamline/BioXAS/BioXASSideMonochromator.h \
-    source/ui/BioXAS/BioXASSideMonochromatorViewBasic.h \
-    source/ui/BioXAS/BioXASSideMonochromatorCrystalChangeView.h \
-    source/ui/BioXAS/BioXASSideMonochromatorCrystalChangeStepItem.h
+    source/ui/BioXAS/BioXASSideMonoBasicEnergyView.h \
+    source/ui/BioXAS/BioXASSideMonoCrystalChangeView.h \
+    source/beamline/BioXAS/BioXASSideMonochromatorControl.h
 
 SOURCES += \
     source/application/BioXAS/BioXASSideMain.cpp \
@@ -23,6 +23,6 @@ SOURCES += \
     source/acquaman/BioXASSide/BioXASSideXASScanConfiguration.cpp \
 	source/ui/BioXAS/BioXASSideXASScanConfigurationView.cpp \
     source/beamline/BioXAS/BioXASSideMonochromator.cpp \
-    source/ui/BioXAS/BioXASSideMonochromatorViewBasic.cpp \
-    source/ui/BioXAS/BioXASSideMonochromatorCrystalChangeView.cpp \
-    source/ui/BioXAS/BioXASSideMonochromatorCrystalChangeStepItem.cpp
+    source/ui/BioXAS/BioXASSideMonoBasicEnergyView.cpp \
+    source/ui/BioXAS/BioXASSideMonoCrystalChangeView.cpp \
+    source/beamline/BioXAS/BioXASSideMonochromatorControl.cpp
