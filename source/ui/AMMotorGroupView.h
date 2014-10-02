@@ -97,7 +97,7 @@ protected:
 	QList<QHBoxLayout*> controlSetpointLayouts_;
 	/// Holds the jog spin box.
 	QDoubleSpinBox *jog_;
-	/// Holds the status label;
+	/// Holds the status label
 	QLabel *status_;
 
 	/// Holds the precision (number of decimals) that will be displayed for the control setpoint boxes. Default is 3.

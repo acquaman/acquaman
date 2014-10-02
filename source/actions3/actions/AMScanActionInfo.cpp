@@ -54,7 +54,6 @@ AMScanActionInfo::AMScanActionInfo(const AMScanActionInfo &other)
 	: AMActionInfo3(other)
 {
 	config_ = other.config_ ? other.config_->createCopy() : 0;
-	//scanID_ = other.scanID_;
 	scanID_ = -1;
 
 	connect(config_, SIGNAL(expectedDurationChanged(double)), this, SLOT(setExpectedDuration(double)));
@@ -69,8 +68,6 @@ AMScanActionInfo::AMScanActionInfo(const AMScanActionInfo &other)
 
 AMScanActionInfo::~AMScanActionInfo()
 {
-//	if (config_)
-//		delete config_;
 }
 
 const AMScanConfiguration *AMScanActionInfo::configuration() const

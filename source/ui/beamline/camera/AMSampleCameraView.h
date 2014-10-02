@@ -92,7 +92,7 @@ public:
 
 	/// Returns the current pen used to draw the crosshair lines
 	QPen crosshairPen() const;
-	/// Returns the current position of the crosshair, in normalized coordinates. (ex: 0,0 = top left; 1,1 = bottom right)
+	/// Returns the current position of the crosshair, in normalized coordinates. (ex: 0,0 = top left 1,1 = bottom right)
 	QPointF crosshairPosition() const;
 	/// Returns whether the crosshair is currently visible
 	bool crosshairVisible() const;
@@ -227,11 +227,11 @@ public slots:
 
 
 signals:
-	/// Emitted when the left mouse button is pressed down. (The position is reported as percentage of the video screen width and height; ie: from 0 to 1)
+	/// Emitted when the left mouse button is pressed down. (The position is reported as percentage of the video screen width and height, ie: from 0 to 1)
 	void mousePressed(const QPointF& position);
-	/// Emitted when the left mouse is released. (The position is reported as percentage of the video screen width and height; ie: from 0 to 1).  Not emitted for the second click of a double-click; see mouseDoubleClicked() instead.
+	/// Emitted when the left mouse is released. (The position is reported as percentage of the video screen width and height, ie: from 0 to 1).  Not emitted for the second click of a double-click, see mouseDoubleClicked() instead.
 	void mouseReleased(const QPointF& position);
-	/// Emitted when the left mouse button is released from a double-click. (The position is reported as percentage of the video screen width and height; ie: from 0 to 1).
+	/// Emitted when the left mouse button is released from a double-click. (The position is reported as percentage of the video screen width and height, ie: from 0 to 1).
 	void mouseDoubleClicked(const QPointF& position);
 
 	/// Emitted when the mouse moves - in shapeoverlay
@@ -299,7 +299,7 @@ signals:
 
 public slots:
 
-	/// Set the crosshair position on the video display, using normalized coordinates. (ex: 0,0 = top left; 1,1 = bottom right)
+	/// Set the crosshair position on the video display, using normalized coordinates. (ex: 0,0 = top left 1,1 = bottom right)
 	void setCrosshairPosition(const QPointF& pos);
 
 	/// Set the pen used to draw the crosshair lines
@@ -510,10 +510,12 @@ protected:
 
 	bool samplePointListEmpty(QList<QPointF>*list, int numberOfPoints) const;
 
-//	void setBeamWizardType(WizardType type);
-//	WizardType beamWizardType();
-//	void setSamplePlateWizardType(WizardType type);
-//	WizardType samplePlateWizardType();
+	/*
+	void setBeamWizardType(WizardType type);
+	WizardType beamWizardType();
+	void setSamplePlateWizardType(WizardType type);
+	WizardType samplePlateWizardType();
+	*/
 
 
 protected:
@@ -666,11 +668,15 @@ protected:
 	AMWizardManager *wizardManager_;
 
 	QPushButton* cameraWizardButton_;
-//	AMCameraConfigurationWizard* cameraWizard_;
+	/*
+	AMCameraConfigurationWizard* cameraWizard_;
+	*/
 
 	QPushButton* beamWizardButton_;
-//	AMGraphicsViewWizard *beamWizard_;
-//	WizardType beamWizardType_;
+	/*
+	AMGraphicsViewWizard *beamWizard_;
+	WizardType beamWizardType_;
+	*/
 
 
 	QList<QGraphicsPolygonItem*> beamList_;
@@ -680,11 +686,15 @@ protected:
 	QPushButton* saveSamplePlate_;
 
 	QPushButton* samplePlateWizardButton_;
-//	AMGraphicsViewWizard* samplePlateWizard_;
-//	WizardType samplePlateWizardType_;
+	/*
+	AMGraphicsViewWizard* samplePlateWizard_;
+	WizardType samplePlateWizardType_;
+	*/
 	int samplePlateMovement_;
 
-//	AMRotationWizard* rotationWizard_;
+	/*
+	AMRotationWizard* rotationWizard_;
+	*/
 
 	QPushButton* cameraConfigurationShapeButton_;
 

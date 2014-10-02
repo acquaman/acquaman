@@ -78,7 +78,6 @@ protected:
 	/// ui components:
 	QLabel* nameLabel_;
 	QButtonGroup sourceButtons_;
-	// REMOVED: QToolButton* closeButton_;
 	AMCramBarHorizontal* cramBar_;
 
 	/// Index of "our" scan in the model:

@@ -26,10 +26,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QWidget>
 #include <QTimer>
 
+#include "ui/beamline/AMControlMoveButton.h"
+
 
 class QPushButton;
 class QLabel;
 class QProgressBar;
+class QCheckBox;
 
 class AMExtendedControlEditor;
 
@@ -55,16 +58,9 @@ protected slots:
     void onShutterStatusChanged(bool state);
     /// Calls dialogue to calibrate beamline energy
     void onCalibrateClicked();
+    /// Re-enables scaler continuous mode
+    void onScalerContinuousButtonClicked();
 
-
-    /// Handles updating Old ion chamber current bar
-    void onOldCountsChanged();
-    /// Handles updating I0 ion chamber current bar
-    void onI0CountsChanged();
-    /// Handles updating Sample ion chamber current bar
-    void onSampleCountsChanged();
-    /// Handles updating Reference ion chamber current bar
-    void onReferenceCountsChanged();
 
     /// Handles updating displayed crystal and energy range
     void onCrystalChanged();
@@ -75,6 +71,7 @@ protected slots:
 
 
 protected:
+
     /// The beam on button.
     QPushButton *beamOnButton_;
     /// The beam off button.
@@ -83,6 +80,9 @@ protected:
     QLabel *beamStatusLabel_;
     /// The beam on button.
     QPushButton *calibrateButton_;
+    /// Checkbox to enable or diable scaler continuous mode
+    QPushButton *scalerContinuousButton_;
+
 
 
     AMExtendedControlEditor *energyControlEditor_;
@@ -106,8 +106,8 @@ protected:
     QProgressBar *ISampleBar_;
     QProgressBar *IReferenceBar_;
 
+    AMControlMoveButton *jjSlitsVertOpen_, *jjSlitsVertClose_, *jjSlitsHorizClose_, *jjSlitsHorizOpen_, *jjSlitsRight_, *jjSlitsLeft_, *jjSlitsDown_, *jjSlitsUp_;
 
-//    QTimer *crystalTimer_;
 
 
 

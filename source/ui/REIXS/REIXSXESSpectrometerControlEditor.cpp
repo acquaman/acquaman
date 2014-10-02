@@ -76,17 +76,18 @@ REIXSXESSpectrometerControlEditor::~REIXSXESSpectrometerControlEditor()
 	delete ui_;
 }
 
+/*
+void REIXSXESSpectrometerControlEditor::onMoveButtonClicked()
+{
+	spectrometer_->specifyGrating(ui_->gratingSelectorBox->currentIndex());
+	spectrometer_->specifyDetectorTiltOffset(ui_->tiltOffsetBox->value());
+	spectrometer_->specifyFocusOffset(ui_->defocusOffsetBox->value());
 
-//void REIXSXESSpectrometerControlEditor::onMoveButtonClicked()
-//{
-//	spectrometer_->specifyGrating(ui_->gratingSelectorBox->currentIndex());
-//	spectrometer_->specifyDetectorTiltOffset(ui_->tiltOffsetBox->value());
-//	spectrometer_->specifyFocusOffset(ui_->defocusOffsetBox->value());
-
-//	int failureExplanation = spectrometer_->move(ui_->energyBox->value());
-//	if(failureExplanation != AMControl::NoFailure)
-//		onSpectrometerMoveFailed(failureExplanation);
-//}  DM UPDATE CODE TO VERIFY GRATING CHANGE FOLLOWS:
+	int failureExplanation = spectrometer_->move(ui_->energyBox->value());
+	if(failureExplanation != AMControl::NoFailure)
+		onSpectrometerMoveFailed(failureExplanation);
+}  DM UPDATE CODE TO VERIFY GRATING CHANGE FOLLOWS:
+*/
 
 void REIXSXESSpectrometerControlEditor::onMoveButtonClicked()
 {
@@ -146,12 +147,10 @@ void REIXSXESSpectrometerControlEditor::updateCurrentEnergyStatus(double eV)
 {
 	if(eV < 0) {
 		ui_->energyFeedbackLabel->setText("out of position");
-		//ui_->energyFeedbackLabel->setText(QString("at %1").arg(eV));
-
 	}
 
 	else if(fabs(eV - ui_->energyBox->value()) < 0.001) {
-		ui_->energyFeedbackLabel->setText(QString());	// we're exactly what the user asked for; all is well, don't need to show anything.
+		ui_->energyFeedbackLabel->setText(QString());	// we're exactly what the user asked for, all is well, don't need to show anything.
 	}
 	else {
 		ui_->energyFeedbackLabel->setText(QString("at %1").arg(eV));
@@ -163,13 +162,13 @@ void REIXSXESSpectrometerControlEditor::updateMaskPosition()
 	double arg1 = spectrometer_->gratingMask()->value();
 
 
-	if (abs(arg1 - 8.5) < 0.01) {
+	if (fabs(arg1 - 8.5) < 0.01) {
 		ui_->maskFeedbackLabel->setText(QString("Currently: Pinhole"));
 		ui_->maskComboBox->blockSignals(true);
 		ui_->maskComboBox->setCurrentIndex(0);
 		ui_->maskComboBox->blockSignals(false);
 	}
-	else if (abs(arg1 - 12.9) < 0.01) {
+	else if (fabs(arg1 - 12.9) < 0.01) {
 		ui_->maskFeedbackLabel->setText(QString("Currently: Mask"));
 		ui_->maskComboBox->blockSignals(true);
 		ui_->maskComboBox->setCurrentIndex(1);
@@ -214,13 +213,17 @@ void REIXSXESSpectrometerControlEditor::updateCurrentGratingStatus()
 
 void REIXSXESSpectrometerControlEditor::onSpectrometerMoveSucceeded()
 {
-//	AMErrorMon::report(AMErrorReport(this, AMErrorReport::Information, 0, QString("Spectrometer move to %1 finished.").arg(spectrometer_->value())));
+	/*
+	AMErrorMon::report(AMErrorReport(this, AMErrorReport::Information, 0, QString("Spectrometer move to %1 finished.").arg(spectrometer_->value())));
+	*/
 }
 
 void REIXSXESSpectrometerControlEditor::onSpectrometerMoveFailed(int reason)
 {
 	Q_UNUSED(reason)
-//	AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, reason, "Spectrometer Move Failed"));
+	/*
+	AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, reason, "Spectrometer Move Failed"));
+	*/
 }
 
 void REIXSXESSpectrometerControlEditor::onStopButtonClicked()
@@ -269,7 +272,7 @@ void REIXSXESSpectrometerControlEditor::updateEnergyRange()
 			double dx = 20;
 			// sindb: sin("delta Beta"): the angle difference from the nominal beta.
 			double sindb = -1 *( dx*singp/sqrt(rPrime*rPrime + dx*dx - 2*rPrime*dx*cosgp*-1) );	//you can derive this from sinA/a=sinB/b and c^2=a^2+b^2-2ab*cosC
-			//bp ("beta-prime") is the diffraction angle at detector point 'i'; sinbp = sin( beta + db )
+			//bp ("beta-prime") is the diffraction angle at detector point 'i', sinbp = sin( beta + db )
 			//																		 = sinb*cos(db) + cosb*sindb
 			//																		 = sinb*sqrt(1-sin^2(db)) + cosb*sindb
 			double sinbp = sinBeta*sqrt( 1.0-sindb*sindb ) + cosBeta*sindb;
@@ -296,27 +299,22 @@ void REIXSXESSpectrometerControlEditor::updateEnergyRange()
 			sinAlpha =  0.999391
 			*/
 
-//			qDebug()<< "sindb 0.00203589 = " << sindb;
-//			qDebug()<< "sinbp 0.995825 = " << sinbp;
-//			qDebug()<< "rPrime 934.696 = " << rPrime;
-//			qDebug() <<"cosgp 0.995637 = " << cosgp;
-//			qDebug()<< "cosBeta 0.0933081 = " << cosBeta;
-//			qDebug()<< "sinBeta 0.995637= " << sinBeta;
-//			qDebug()<< "gratingRadius = " << gratingRadius;
-//			qDebug()<< "gamma -1.70245e-06 = " << gamma;
-//			qDebug()<< "beta 1.47735 = " << beta;
-//			qDebug()<< "ui_->tiltOffsetBox->value() = " << ui_->tiltOffsetBox->value();
-//			qDebug()<< "grooveDensity 1187.82 = " << grooveDensity;
-//			qDebug()<< "ui_->energyBox->value() = " << ui_->energyBox->value();
-//			qDebug()<< "sinAlpha 0.999391 = " << sinAlpha;
-//			qDebug()<< "sinAlpha - (grooveDensity * 0.0012398417/ui_->energyBox->value()) = " << sinAlpha - (grooveDensity * 0.0012398417/ui_->energyBox->value());
-
-
-
-
-//			qDebug() << "The new energy range is: " << lowerE << "eV to " << upperE << "eV";
-
-
-
+			/*
+			qDebug()<< "sindb 0.00203589 = " << sindb;
+			qDebug()<< "sinbp 0.995825 = " << sinbp;
+			qDebug()<< "rPrime 934.696 = " << rPrime;
+			qDebug() <<"cosgp 0.995637 = " << cosgp;
+			qDebug()<< "cosBeta 0.0933081 = " << cosBeta;
+			qDebug()<< "sinBeta 0.995637= " << sinBeta;
+			qDebug()<< "gratingRadius = " << gratingRadius;
+			qDebug()<< "gamma -1.70245e-06 = " << gamma;
+			qDebug()<< "beta 1.47735 = " << beta;
+			qDebug()<< "ui_->tiltOffsetBox->value() = " << ui_->tiltOffsetBox->value();
+			qDebug()<< "grooveDensity 1187.82 = " << grooveDensity;
+			qDebug()<< "ui_->energyBox->value() = " << ui_->energyBox->value();
+			qDebug()<< "sinAlpha 0.999391 = " << sinAlpha;
+			qDebug()<< "sinAlpha - (grooveDensity * 0.0012398417/ui_->energyBox->value()) = " << sinAlpha - (grooveDensity * 0.0012398417/ui_->energyBox->value());
+			qDebug() << "The new energy range is: " << lowerE << "eV to " << upperE << "eV";
+			*/
 }
 

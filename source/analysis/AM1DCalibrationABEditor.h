@@ -25,6 +25,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QComboBox>
 #include <QSpinBox>
 #include <QPushButton>
+#include <QCheckBox>
+#include <QSlider>
+#include <QLabel>
 
 #include "analysis/AM1DCalibrationAB.h"
 
@@ -42,6 +45,8 @@ class AM1DCalibrationABEditor : public QWidget
 public:
 	/// Constructor.  Takes in an AM1DCalibrationAB pointer.
 	explicit AM1DCalibrationABEditor(AM1DCalibrationAB *analysisBlock, QWidget *parent = 0);
+	/// Destructor.
+	virtual ~AM1DCalibrationABEditor(){}
 
 signals:
 
@@ -58,6 +63,10 @@ protected slots:
 	void onEnergyCalibrationOffsetChanged(double offset);
 	void onEnergyCalibrationScalingChanged(double scaling);
 	void onEnergyCalibrationReferenceChanged(double reference);
+	void onIsTransmissionChanged(bool isTransmassion);
+	void onToEdgeJumpChanged(bool toEdgeJump);
+	void onPreEdgePointChanged(int preEdgePoint);
+	void onPostEdgePointChanged(int postEdgePoint);
 
 	void onApplyToScansButtonClicked();
 	void onApplyToOtherScansChosen();
@@ -82,7 +91,12 @@ protected:
 	QPushButton *applyToScansButton_;
 	/// Dialog to ask the user for a set of scans (to apply the same shift curve to many at once)
 	AMChooseScanDialog* chooseScanDialog_;
-
+	QCheckBox* isTransmissionCheckbox_;
+	QCheckBox* toEdgeJumpCheckbox_;
+	QSlider* preEdgePointSlider_;
+	QSlider* postEdgePointSlider_;
+	QLabel* preEdgePointLabel_;
+	QLabel* postEdgePointLabel_;
 };
 
 #endif // AM1DCalibrationABEDITOR_H

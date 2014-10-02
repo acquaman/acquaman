@@ -50,28 +50,23 @@ void AMTagReplacementParser::setInitialText(const QString &initialText)
 
 		case InsideTag:
 			if(c == argumentStart_) {
-				// qdebug() << "starting argument" << c;
 				startArgument();
 			}
 			else if(c == tagStart_) {
 				// exception: if this is the second of two start tags in a row: is an "escaped start tag"... Put one start tag into the output stream and go back to normal parsing.
 				if(currentTag_.tag.size() == 0) {
-					// qdebug() << "escaped start char" << c;
 					strippedText_.append(c);
 					parseState_ = NormalText;
 				}
 				else {	// otherwise this is just the end of one tag and the start of the next.
-					// qdebug() << "Ending AND starting tag!" << c;
 					endTag();
 					startTag();
 				}
 			}
 			else if(c.isLetterOrNumber()) {
-				// qdebug() << "Adding to tag text:" << c;
 				currentTag_.tag.append(c);
 			}
 			else {
-				// qdebug() << "ending tag at non-letterOrNumber" << c;
 				endTag();
 				strippedText_.append(c);
 			}
@@ -81,11 +76,9 @@ void AMTagReplacementParser::setInitialText(const QString &initialText)
 
 		case InsideArg:
 			if(c == argumentEnd_) {
-				// qdebug() << "ending argument" << c;
 				endArgument();
 			}
 			else {
-				// qdebug() << "Adding to arg text:" << c;
 				currentTag_.arguments.append(c);
 			}
 			break;
@@ -94,11 +87,9 @@ void AMTagReplacementParser::setInitialText(const QString &initialText)
 
 		case NormalText:
 			if(c == tagStart_) {
-				// qdebug() << "Entering tag" << c;
 				startTag();
 			}
 			else {
-				// qdebug() << "Adding to normal text:" << c;
 				strippedText_.append(c);
 			}
 			break;
@@ -165,7 +156,7 @@ void AMTagReplacementParser::endTag()
 
 void AMTagReplacementParser::replaceAllUsingDictionary(const QHash<QString, AMAbstractTagReplacementFunctor *> &lookupDictionary) {
 	// loop through all replacement items
-	//for(int i=replacementList_.count()-1; i>=0; i--) {
+	//for(int i=replacementList_.count()-1 i>=0 i--) {
 
 	// Dirty hack!!!  I switched the order of this loop because my particular tag replacement requires the rest of the tags to
 	// replaced already and the auto increment index will always be at the end of the name.  This should have no effect on the

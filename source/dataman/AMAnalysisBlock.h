@@ -68,7 +68,7 @@ class AMAnalysisBlock : public AMDbObject, public AMDataSource
 	Q_CLASSINFO("hiddenFromUsers", "upgradeDefault=false")
 
 public:
-	/// Create a new AMAnalysisBlock. The block is an AMDataSource of output data; \c outputName is the name for this AMDataSource.
+	/// Create a new AMAnalysisBlock. The block is an AMDataSource of output data. \c outputName is the name for this AMDataSource.
 	AMAnalysisBlock(const QString& outputName, QObject* parent = 0);
 	/// Destructor.
 	virtual ~AMAnalysisBlock();
@@ -88,6 +88,9 @@ public:
 	  */
 	bool setInputDataSources(const QList<AMDataSource*>& dataSources);
 
+	/// Returns the desired rank for input sources.
+	virtual int desiredInputRank() const = 0;
+
 	/// Check whether a set of data sources would be acceptable, compatible, and sufficient to provide input for this analysis block.
 	virtual bool areInputDataSourcesAcceptable(const QList<AMDataSource*>& dataSources) const = 0;
 
@@ -104,7 +107,7 @@ public:
 	virtual int inputDataSourceCount() const = 0;
 	/// Access input data source by index.  If \c index >= inputDataCount(), returns null pointer.
 	virtual AMDataSource* inputDataSourceAt(int index) const = 0;
-	/// Retrieve index of an input data source by name. (Hopefully no two data sources have the same name; if they do, this returns the first one.) Returns -1 if no input source found with this name.
+	/// Retrieve index of an input data source by name. (Hopefully no two data sources have the same name. If they do, this returns the first one.) Returns -1 if no input source found with this name.
 	/*! This might be involve a slow lookup; users should not call repeatedly.*/
 	virtual int indexOfInputSource(const QString& dataSourceName) const = 0;
 	/// Retrieve index of an input data source by pointer. If it doesn't exist, returns -1.

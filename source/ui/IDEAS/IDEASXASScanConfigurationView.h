@@ -58,7 +58,32 @@ public slots:
 	/// Slot that sets up the regions for standard EXAFS scans.
 	void setupDefaultEXAFSScanRegions();
 
+protected slots:
+	/// Handles setting the name of the configuration from the line edit.
+	void onScanNameEdited();
+	/// Sets the new energy.
+	void setEnergy();
+	/// Handles choosing a new element when the element button is clicked.
+	void onElementChoiceClicked();
+	/// Fills in the combo box with lines that can be scanned.
+	void fillLinesComboBox(AMElement *el);
+	/// Handles changes in the combo box index.
+	void onLinesComboBoxIndexChanged(int index);
+	/// Handles setting the proper information if the edge is changed.
+	void onEdgeChanged();
+	/// Helper slot that handles the setting the estimated time label.
+	void onEstimatedTimeChanged();
+	/// Handles updates of displayed detector ROIs
+	void onROIChange();
+	/// Slot that updates the fluorescence detector buttons.
+	void updateFluorescenceDetectorComboBox(int detector);
+	/// Handles changes to the fluorescence detector choice.
+	void onFluorescenceChoiceChanged(int id);
+
 protected:
+	/// Creates a combo box for the fluorescenceDetector enum.  Returns a pointer to the widget.
+	QComboBox *createFluorescenceComboBox();
+
 	IDEASXASScanConfiguration *configuration_;
 
 	AMTopFrame *topFrame_;
@@ -69,10 +94,6 @@ protected:
 	QCheckBox *isXRFScanCheckBox_;
 	QCheckBox *isTransScanCheckBox_;
 	QCheckBox *useRefCheckBox_;
-
-//	QComboBox *I0ChannelComboBox_;
-//	QComboBox *ItChannelComboBox_;
-//	QComboBox *IrChannelComboBox_;
 
 	QLineEdit *scanName_;
 
@@ -90,30 +111,10 @@ protected:
 	QLabel *pointPerScan_;
 	/// Label holding the energy space scan range.
 	QLabel *scanEnergyRange_;
-
-
-
-
-protected slots:
-
-	/// Handles setting the name of the configuration from the line edit.
-	void onScanNameEdited();
-	/// Sets the new energy.
-	void setEnergy();
-	/// Handles choosing a new element when the element button is clicked.
-	void onElementChoiceClicked();
-	/// Fills in the combo box with lines that can be scanned.
-	void fillLinesComboBox(AMElement *el);
-	/// Handles changes in the combo box index.
-	void onLinesComboBoxIndexChanged(int index);
-	/// Handles setting the proper information if the edge is changed.
-	void onEdgeChanged();
-	/// Helper slot that handles the setting the estimated time label.
-	void onEstimatedTimeChanged();
-
-
-
-
+	/// Label holding the currently selected ROIs.
+	QLabel *ROIsLabel_;
+	/// Combo box for choosing the fluorescence detector.
+	QComboBox *fluorescenceDetectorComboBox_;
 };
 
 #endif // IDEASXASSCANCONFIGURATIONVIEW_H

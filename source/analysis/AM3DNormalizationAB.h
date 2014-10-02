@@ -44,7 +44,7 @@ class AM3DNormalizationAB : public AMStandardAnalysisBlock
 
 public:
 	/// Constructor.
- 	virtual ~AM3DNormalizationAB();
+	virtual ~AM3DNormalizationAB();
 	Q_INVOKABLE AM3DNormalizationAB(const QString &outputName = "InvalidInput", QObject *parent = 0);
 
 	QString infoDescription() const { return QString(); }
@@ -54,6 +54,9 @@ public:
 		- For proper results, order must be the data source with real data and the second must be the normalizer.
 		*/
 	virtual bool areInputDataSourcesAcceptable(const QList<AMDataSource*>& dataSources) const;
+
+	/// Returns the desired rank for input sources.
+	virtual int desiredInputRank() const { return 3; }
 
 	/// Set the data source inputs.
 	virtual void setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources);

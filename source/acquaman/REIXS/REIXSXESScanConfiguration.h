@@ -93,13 +93,16 @@ public:
 	double maximumTotalCounts() const { return maximumTotalCounts_; }
 	/// How long to count for? We should stop this scan after this many seconds have elapsed
 	double maximumDurationSeconds() const { return double(maximumDurationSeconds_); }
+	/// Returns the current total estimated time for a scan to complete.
+	double totalTime() const { return totalTime_; }
+	/// Overloaded.  Returns the current total estimated time but also specifies whether the time should be recomputed first.
+	double totalTime(bool recompute) { if (recompute) computeTotalTimeImplementation(); return totalTime_; }
+
 	/// Any lateral offset we should introduce along the angle at this energy, to slide the detector into or out of the focus position (Useful for calibration and testing)
 	double defocusDistanceMm() const { return defocusDistanceMm_; }
 	/// The database id of the stored spectrometer calibration we should use. (This spectromter calibration is found in the user database, for now)
 	int spectrometerCalibrationId() const { return spectrometerCalibrationId_; }
-	// REMOVED: The orientation of the detector: 0 for horizontal (wide window, low resolution), 1 for vertical (narrow window, high resolution)
-	// bool detectorOrientation() const { return detectorOrientation_; }
-	/// Normally, the detector should be tangent to the rowland circle for best focussing.  This is an offset tilt, in degrees, where positive means more normal; negative means more grazing.
+	/// Normally, the detector should be tangent to the rowland circle for best focussing.  This is an offset tilt, in degrees, where positive means more normal, negative means more grazing.
 	double detectorTiltOffset() const { return detectorTiltOffset_; }
 	/// A flag indicating that we should start the scan in whatever position the spectrometer is now. (ie: don't compute the desired position and move it)
 	bool shouldStartFromCurrentPosition() const { return shouldStartFromCurrentPosition_; }
@@ -110,11 +113,13 @@ public:
 	const REIXSXESMCPDetectorInfo* mcpDetectorInfo() const { return &mcpDetectorInfo_; }
 	REIXSXESMCPDetectorInfo* mcpDetectorInfo() { return &mcpDetectorInfo_; }
 
+	/// Computes the total time as count rate changes.
+	void computeTotalTime() { computeTotalTimeImplementation(); }
 	/// Meta-data information to pre-set in the scan.
 	int scanNumber() const { return scanNumber_; }
 	/// Meta-data information to pre-set in the scan.
 	int sampleId() const { return sampleId_; }
-	/// True if we should generate the scan name, number, and sampleId automatically (as best we can; we'll do this based on the last sample move)
+	/// True if we should generate the scan name, number, and sampleId automatically (as best we can, we'll do this based on the last sample move)
 	bool namedAutomatically() const { return namedAutomatically_; }
 
 
@@ -139,6 +144,9 @@ public:
 
 
 signals:
+	/// Notifier that the total time estimate has changed.
+	void totalTimeChanged(double);
+
 
 public slots:
 
@@ -165,7 +173,7 @@ public slots:
 	void setDefocusDistanceMm(double defocusDistanceMm) { if(defocusDistanceMm_ == defocusDistanceMm) return; defocusDistanceMm_ = defocusDistanceMm; setModified(true); emit configurationChanged(); }
 	/// Set the database id of the stored spectrometer calibration we should use. (This spectromter calibration is found in the user database, for now)
 	void setSpectrometerCalibrationId(int id) { if(spectrometerCalibrationId_ == id) return; spectrometerCalibrationId_ = id; setModified(true); emit configurationChanged(); }
-	/// Set the detector incidence angle offset (tilt), in degrees, up from tangent to the rowland circle. Normally, the detector should be tangent to the rowland circle for best focussing.  This is an offset tilt, in degrees, where positive means more normal; negative means more grazing.
+	/// Set the detector incidence angle offset (tilt), in degrees, up from tangent to the rowland circle. Normally, the detector should be tangent to the rowland circle for best focussing.  This is an offset tilt, in degrees, where positive means more normal, negative means more grazing.
 	void setDetectorTiltOffset(double detectorTilt) { if(detectorTiltOffset_ == detectorTilt) return; detectorTiltOffset_ = detectorTilt; setModified(true); emit configurationChanged(); }
 	/// Set a flag indicating that we should start the scan in whatever position the spectrometer is now. (ie: don't compute the desired position and move things before starting the scan)
 	void setShouldStartFromCurrentPosition(bool startInCurrentPosition) { if(shouldStartFromCurrentPosition_ == startInCurrentPosition) return; shouldStartFromCurrentPosition_ = startInCurrentPosition; setModified(true); emit configurationChanged(); }
@@ -180,6 +188,8 @@ public slots:
 
 protected:
 
+	/// Computes the total estimated time for the scan.
+	virtual void computeTotalTimeImplementation();
 
 
 	/// The number of the grating to use for this scan
@@ -203,10 +213,13 @@ protected:
 	/// We should stop this scan when we get this many counts
 	double maximumTotalCounts_;
 	/// We should stop this scan after this many seconds have elapsed
-	int maximumDurationSeconds_;
+	double maximumDurationSeconds_;
+	/// Holds the total time in seconds that the scan is estimated to take.
+	double totalTime_;
+
 	/// Any lateral offset we should introduce along the angle at this energy, to slide the detector into or out of the focus position (Useful for calibration and testing)
 	double defocusDistanceMm_;
-	/// Normally, the detector should be tangent to the rowland circle for best focussing.  This is an offset tilt, in degrees, where positive means more normal; negative means more grazing, and 0 will place the detector tangent to the rowland circle.
+	/// Normally, the detector should be tangent to the rowland circle for best focussing.  This is an offset tilt, in degrees, where positive means more normal, negative means more grazing, and 0 will place the detector tangent to the rowland circle.
 	double detectorTiltOffset_;
 	/// The database id of the stored spectrometer calibration we should use. (This spectromter calibration is found in the user database, for now)
 	int spectrometerCalibrationId_;

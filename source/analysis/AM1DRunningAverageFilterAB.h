@@ -32,7 +32,7 @@ Q_OBJECT
 Q_CLASSINFO("AMDbObject_Attributes", "description=1D Running Average Filter Block")
 
 public:
- 	virtual ~AM1DRunningAverageFilterAB();
+	virtual ~AM1DRunningAverageFilterAB();
 	Q_INVOKABLE AM1DRunningAverageFilterAB(int filterSize, const QString &outputName = "InvalidInput", QObject *parent = 0);
 
 	QString infoDescription() const { return QString(); }
@@ -42,6 +42,9 @@ public:
 		- the rank() of that input source must be 1 (one-dimensional)
 		*/
 	virtual bool areInputDataSourcesAcceptable(const QList<AMDataSource*>& dataSources) const;
+
+	/// Returns the desired rank for input sources.
+	virtual int desiredInputRank() const { return 1; }
 
 	/// Set the data source inputs.
 	virtual void setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources);
@@ -60,7 +63,7 @@ public:
 	virtual AMNumber axisValue(int axisNumber, int index) const;
 
 	/// Re-implemented from AMDbObject to set the AMDataSource name once we have an AMDbObject::name()
-    bool loadFromDb(AMDatabase *db, int id);
+	bool loadFromDb(AMDatabase *db, int id);
 
 protected slots:
 	/// Connected to be called when the values of the input data source change

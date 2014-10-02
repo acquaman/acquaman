@@ -23,7 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "util/AMErrorMonitor.h"
 
-AMDbUpgrade1Pt4::AMDbUpgrade1Pt4(QString databaseNameToUpgrade, QObject *parent) :
+AMDbUpgrade1Pt4::AMDbUpgrade1Pt4(const QString &databaseNameToUpgrade, QObject *parent) :
 	AMDbUpgrade(databaseNameToUpgrade, parent)
 {
 }

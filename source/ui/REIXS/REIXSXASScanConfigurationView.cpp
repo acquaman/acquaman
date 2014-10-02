@@ -52,7 +52,7 @@ REIXSXASScanConfigurationView::REIXSXASScanConfigurationView(REIXSXASScanConfigu
 
 	// Initialize widgets from config_
 
-	ui->applyGratingBox->setChecked(false); //(config_->applyMonoGrating());
+	ui->applyGratingBox->setChecked(false);
 	ui->applyGratingBox->setDisabled(true);
 	ui->gratingBox->setCurrentIndex(config_->monoGrating());
 	ui->gratingBox->setEnabled(config_->applyMonoGrating());
@@ -60,7 +60,7 @@ REIXSXASScanConfigurationView::REIXSXASScanConfigurationView(REIXSXASScanConfigu
 
 	ui->applyMirrorBox->setChecked(config_->applyMonoMirror());
 	ui->applyMirrorBox->setDisabled(true);
-	ui->mirrorBox->setCurrentIndex(false); //(config_->monoMirror());
+	ui->mirrorBox->setCurrentIndex(false);
 	ui->mirrorBox->setEnabled(config_->applyMonoMirror());
 	ui->mirrorBox->setDisabled(true);
 
@@ -76,12 +76,10 @@ REIXSXASScanConfigurationView::REIXSXASScanConfigurationView(REIXSXASScanConfigu
 	ui->polarizationAngleBox->setEnabled(config_->applyPolarization() && config_->polarization() == 5);
 
 	ui->nameEdit->setText(config_->userScanName());
-//	ui->numberEdit->setValue(config_->scanNumber());
 	sampleSelector_->setCurrentSample(config_->sampleId());
 
 	ui->namedAutomaticallyBox->setChecked(config_->namedAutomatically());
 	ui->nameEdit->setEnabled(!config_->namedAutomatically());
-//	ui->numberEdit->setEnabled(false);
 	sampleSelector_->setEnabled(!config_->namedAutomatically());
 
 
@@ -98,7 +96,6 @@ REIXSXASScanConfigurationView::REIXSXASScanConfigurationView(REIXSXASScanConfigu
 	connect(ui->polarizationBox, SIGNAL(currentIndexChanged(int)), config_, SLOT(setPolarization(int)));
 	connect(ui->polarizationAngleBox, SIGNAL(valueChanged(double)), config_, SLOT(setPolarizationAngle(double)));
 	connect(ui->nameEdit, SIGNAL(textEdited(QString)), config_, SLOT(setUserScanName(QString)));
-//	connect(ui->numberEdit, SIGNAL(valueChanged(int)), config_, SLOT(setScanNumber(int)));
 	connect(sampleSelector_, SIGNAL(currentSampleChanged(int)), config_, SLOT(setSampleId(int)));
 	connect(ui->namedAutomaticallyBox, SIGNAL(clicked(bool)), config_, SLOT(setNamedAutomatically(bool)));
 
@@ -110,7 +107,6 @@ REIXSXASScanConfigurationView::REIXSXASScanConfigurationView(REIXSXASScanConfigu
 	connect(ui->applyPolarizationBox, SIGNAL(clicked(bool)), this, SLOT(reviewPolarizationAngleBoxEnabled()));
 	connect(ui->polarizationBox, SIGNAL(activated(int)), this, SLOT(reviewPolarizationAngleBoxEnabled()));
 	connect(ui->namedAutomaticallyBox, SIGNAL(clicked(bool)), ui->nameEdit, SLOT(setDisabled(bool)));
-//	connect(ui->namedAutomaticallyBox, SIGNAL(clicked(bool)), ui->numberEdit, SLOT(setDisabled(bool)));
 	connect(ui->namedAutomaticallyBox, SIGNAL(clicked(bool)), sampleSelector_, SLOT(setDisabled(bool)));
 
 	connect(config_, SIGNAL(totalTimeChanged(double)), this, SLOT(onEstimatedTimeChanged()));
@@ -135,9 +131,6 @@ void REIXSXASScanConfigurationView::reviewPolarizationAngleBoxEnabled()
 void REIXSXASScanConfigurationView::onRegionsChanged()
 {
 	config_->totalTime(true);
-	//	QDateTime t1 = QDateTime::currentDateTime();
-	//	topFrame_->setLeftSubText("Expected acquisition time: " % AMDateTimeUtils::prettyDuration(t1, t1.addSecs(config_->regions()->totalAcquisitionTime())));
-
 }
 
 void REIXSXASScanConfigurationView::onEstimatedTimeChanged()
@@ -147,8 +140,6 @@ void REIXSXASScanConfigurationView::onEstimatedTimeChanged()
 	config_->blockSignals(true);
 	double time = config_->totalTime(true);
 	config_->blockSignals(false);
-
-	//ui->totalPointsLabel->setText(QString("%1").arg(config_->totalPoints()));
 
 	int days = int(time/3600.0/24.0);
 
@@ -177,8 +168,5 @@ void REIXSXASScanConfigurationView::onEstimatedTimeChanged()
 	int seconds = ((int)time)%60;
 	timeString += QString::number(seconds) + "s";
 
-	//ui->estimatedTimeLabel->setText(timeString);
 	topFrame_->setLeftSubText("Expected acquisition time: " % timeString);
-
-
 }

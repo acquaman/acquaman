@@ -42,7 +42,7 @@ REIXSXESImageAB::REIXSXESImageAB(const QString &outputName, QObject *parent) :
 	energyCalibrationOffset_ = 0;
 	tiltCalibrationOffset_ = 0;
 
-	// Live correlation turned on by default. Need to make sure that this is OK for performance; it should be now that we're using block access.
+	// Live correlation turned on by default. Need to make sure that this is OK for performance, it should be now that we're using block access.
 	liveCorrelation_ = false;
 	// shift values can start out empty.
 
@@ -221,7 +221,7 @@ void REIXSXESImageAB::reviewState()
 bool REIXSXESImageAB::areInputDataSourcesAcceptable(const QList<AMDataSource *> &dataSources) const
 {
 	if(dataSources.isEmpty())
-		return true;// always acceptable; the null input.
+		return true;// always acceptable, the null input.
 
 	// otherwise we need a single input source, with a rank of 2.
 	if(dataSources.count() == 1 && dataSources.at(0)->rank() == 2)
@@ -639,7 +639,7 @@ void REIXSXESImageAB::computeCachedAxisValues() const
 	// Gamma is the tilt offset:
 	double gamma = tiltOffset;
 
-	// Gamma' (gp) is the angle between the central ray and the detector surface; it is acute for higher-than-center energies, and obtuse for lower-than-center energies.
+	// Gamma' (gp) is the angle between the central ray and the detector surface, it is acute for higher-than-center energies, and obtuse for lower-than-center energies.
 	// higher-than-center energies: gp = pi/2 - beta + tiltOffset
 	// lower-than-center energies: gp = pi/2 + beta - tiltOffset.
 
@@ -666,11 +666,11 @@ void REIXSXESImageAB::computeCachedAxisValues() const
 	int centerPixel = size(0)/2;
 
 	for(int i=0; i<centerPixel; ++i) {
-		// distance away from center; always positive.
+		// distance away from center, always positive.
 		double dx = (centerPixel-i)*mmPerPixel;
 		// sindb: sin("delta Beta"): the angle difference from the nominal beta.
 		double sindb = sign*( dx*singp/sqrt(rPrime*rPrime + dx*dx - 2*rPrime*dx*cosgp*sign) );	//you can derive this from sinA/a=sinB/b and c^2=a^2+b^2-2ab*cosC
-		//bp ("beta-prime") is the diffraction angle at detector point 'i'; sinbp = sin( beta + db )
+		//bp ("beta-prime") is the diffraction angle at detector point 'i', sinbp = sin( beta + db )
 		//																		 = sinb*cos(db) + cosb*sindb
 		//																		 = sinb*sqrt(1-sin^2(db)) + cosb*sindb
 		double sinbp = sinBeta*sqrt( 1.0-sindb*sindb ) + cosBeta*sindb;
@@ -684,13 +684,16 @@ void REIXSXESImageAB::computeCachedAxisValues() const
 	// Calculate top half of axis. (high energies). Sign is 1:
 	sign = 1;
 	for(int i=centerPixel+1, cc=size(0); i<cc; ++i) {
-		// distance away from center; always positive.
+		// distance away from center, always positive.
 		double dx = (i-centerPixel)*mmPerPixel;
 		double sindb = sign*( dx*singp/sqrt(rPrime*rPrime + dx*dx - 2*rPrime*dx*cosgp*sign) );
 		double sinbp = sinBeta*sqrt( 1.0-sindb*sindb ) + cosBeta*sindb;
 		cachedAxisValues_[i] = 0.0012398417*grooveDensity / (sinAlpha - sinbp) + energyCalibrationOffset_;	// NOTE: we're adding in the user-specified energy offset here.
-//		qDebug()<< "sindb = " << sindb;
-//		qDebug()<< "sinbp = " << sinbp;
+
+		/*
+		qDebug()<< "sindb = " << sindb;
+		qDebug()<< "sinbp = " << sinbp;
+		*/
 
 	}
 	//////////////////////////////////////////////////////
@@ -698,40 +701,42 @@ void REIXSXESImageAB::computeCachedAxisValues() const
 
 	// David's implementation: (SUSPICIOUS?!?)
 	//////////////////////////////////////////////////////
-//	double singp = cos(beta);
-//	double cosgp = sin(beta);
+	/*
+	double singp = cos(beta);
+	double cosgp = sin(beta);
 
-//	int centerPixel = size(0)/2;
-//	for(int i=0, cc=size(0); i<cc; ++i) {
+	int centerPixel = size(0)/2;
+	for(int i=0, cc=size(0); i<cc; ++i) {
 
-//		// distance away from center; always positive.
-//		double dx = (centerPixel-i)*mmPerPixel*singp;
+		// distance away from center, always positive.
+		double dx = (centerPixel-i)*mmPerPixel*singp;
 
-//		// db: "delta Beta": the angle difference from the nominal beta.
+		// db: "delta Beta": the angle difference from the nominal beta.
 
-//		double db = atan(dx/(rPrime-(centerPixel-i)*mmPerPixel*cosgp));
-
-
-//		//bp ("beta-prime") is the diffraction angle at detector point 'i'; sinbp = sin( beta + db )
-//		//																		 = sinb*cos(db) + cosb*sindb
-//		//																		 = sinb*sqrt(1-sin^2(db)) + cosb*sindb
-//		//double sinbp = sinBeta*sqrt( 1.0-sindb*sindb ) + cosBeta*sindb;
-//		double sinbp = sin(beta - db);
+		double db = atan(dx/(rPrime-(centerPixel-i)*mmPerPixel*cosgp));
 
 
-//		//solving the grating equation for eV:
-//		cachedAxisValues_[i] = 0.0012398417*grooveDensity / (sinAlpha - sinbp);
-//	}
+		//bp ("beta-prime") is the diffraction angle at detector point 'i' sinbp = sin( beta + db )
+		//																		 = sinb*cos(db) + cosb*sindb
+		//																		 = sinb*sqrt(1-sin^2(db)) + cosb*sindb
+		//double sinbp = sinBeta*sqrt( 1.0-sindb*sindb ) + cosBeta*sindb
+		double sinbp = sin(beta - db);
+
+
+		//solving the grating equation for eV:
+		cachedAxisValues_[i] = 0.0012398417*grooveDensity / (sinAlpha - sinbp);
+	}
 	////////////////////////////////////////////////////////
 
-//	qDebug()<< "rPrime = " << rPrime;
-//	qDebug() <<"cosgp = " << cosgp;
-//	qDebug()<< "cosBeta = " << cosBeta;
-//	qDebug()<< "sinBeta = " << sinBeta;
-//	qDebug()<< "gamma = " << gamma;
-//	qDebug()<< "beta = " << beta;
-//	qDebug()<< "grooveDensity = " << grooveDensity;
-//	qDebug()<< "sinAlpha = " << sinAlpha;
+	qDebug()<< "rPrime = " << rPrime;
+	qDebug() <<"cosgp = " << cosgp;
+	qDebug()<< "cosBeta = " << cosBeta;
+	qDebug()<< "sinBeta = " << sinBeta;
+	qDebug()<< "gamma = " << gamma;
+	qDebug()<< "beta = " << beta;
+	qDebug()<< "grooveDensity = " << grooveDensity;
+	qDebug()<< "sinAlpha = " << sinAlpha;
+	*/
 
 
 	axisValuesInvalid_ = false;
@@ -842,6 +847,7 @@ void REIXSMovingMedianFitter::setSmoothMode(int smoothMode)
 }
 QVector<int> REIXSMovingMedianFitter::smooth(const QVector<int> &input, const QVector<double> &weights)
 {
+	Q_UNUSED(weights)
 	if(input.isEmpty())
 		return QVector<int>();
 
@@ -852,7 +858,7 @@ QVector<int> REIXSMovingMedianFitter::smooth(const QVector<int> &input, const QV
 	{
 		//do the beginning and end
 		QVector<int> tempVec1, tempVec2;
-		int tempSum1 = 0.0, tempSum2 = 0.0;
+		/* int tempSum1 = 0.0, tempSum2 = 0.0; Removed to prevent compile warnings, see Issue734 */
 		for(int j = 0; j <= (i+nPoints); j++)
 		{
 			tempVec1.append(input[j]);
@@ -894,7 +900,7 @@ void REIXSMovingAverageFitter::setSmoothMode(int smoothMode)
 }
 QVector<int> REIXSMovingAverageFitter::smooth(const QVector<int> &input, const QVector<double> &weights)
 {
-
+	Q_UNUSED(weights)
 	if(input.isEmpty())
 		return QVector<int>();
 
@@ -904,7 +910,7 @@ QVector<int> REIXSMovingAverageFitter::smooth(const QVector<int> &input, const Q
 	for(int i = 0; i < nPoints; i++)
 	{
 		//do the beginning and end
-		int tempSum1 = 0.0, tempSum2 = 0.0;
+		int tempSum1 = 0, tempSum2 = 0;
 		for(int j = 0; j <= (i+nPoints); j++)
 		{
 			tempSum1 += input[j];
@@ -921,7 +927,7 @@ QVector<int> REIXSMovingAverageFitter::smooth(const QVector<int> &input, const Q
 		{
 			tempSum += input[j];
 		}
-		outVec[i] = tempSum/smoothMode_;
+		outVec[i] = int(tempSum/smoothMode_);
 	}
 
 	return outVec;
@@ -953,10 +959,10 @@ void REIXSQuadraticFitter::allocateFittingStructures(int numRows)
 	numRows_ = numRows;
 
 	fitWorkSpace_ = gsl_multifit_linear_alloc(numRows_, 3);
-	fitXX_ = gsl_matrix_calloc(numRows_, 3);		// The matrix of predictor variables XX_ij = x_i^j;  In our case, x is the image row index (y!)
-	fitY_ = gsl_vector_calloc(numRows_);		// The vector of observations;  In our case, fitY_i is the shiftnumber shiftnum_[i]
-	fitWeight_ = gsl_vector_calloc(numRows_);	// The weight of the observation; In our case 1 for sourceRangeMin_ <= y <= sourceRangeMax_; 0 otherwise.
-	fitC_ = gsl_vector_calloc(3);		// The vector of coefficients; In our case the 3 quadratic fit constants.
+	fitXX_ = gsl_matrix_calloc(numRows_, 3);		// The matrix of predictor variables XX_ij = x_i^j  In our case, x is the image row index (y!)
+	fitY_ = gsl_vector_calloc(numRows_);		// The vector of observations.  In our case, fitY_i is the shiftnumber shiftnum_[i]
+	fitWeight_ = gsl_vector_calloc(numRows_);	// The weight of the observation. In our case 1 for sourceRangeMin_ <= y <= sourceRangeMax_ 0 otherwise.
+	fitC_ = gsl_vector_calloc(3);		// The vector of coefficients. In our case the 3 quadratic fit constants.
 	fitCov_ = gsl_matrix_calloc(3, 3);
 	// Fill the predictor matrix...
 	for(int j=0; j<numRows_; j++) {
@@ -1041,10 +1047,10 @@ void REIXSCubicFitter::allocateFittingStructures(int numRows)
 	numRows_ = numRows;
 
 	fitWorkSpace_ = gsl_multifit_linear_alloc(numRows_, 4);
-	fitXX_ = gsl_matrix_calloc(numRows_, 4);		// The matrix of predictor variables XX_ij = x_i^j;
-	fitY_ = gsl_vector_calloc(numRows_);		// The vector of observations;
-	fitWeight_ = gsl_vector_calloc(numRows_);	// The weight of the observation;
-	fitC_ = gsl_vector_calloc(4);		// The vector of coefficients; In our case the 4 Cubic fit constants.
+	fitXX_ = gsl_matrix_calloc(numRows_, 4);		// The matrix of predictor variables XX_ij = x_i^j
+	fitY_ = gsl_vector_calloc(numRows_);		// The vector of observations
+	fitWeight_ = gsl_vector_calloc(numRows_);	// The weight of the observation
+	fitC_ = gsl_vector_calloc(4);		// The vector of coefficients. In our case the 4 Cubic fit constants.
 	fitCov_ = gsl_matrix_calloc(4, 4);
 	// Fill the predictor matrix...
 	for(int j=0; j<numRows_; j++) {
@@ -1132,10 +1138,10 @@ void REIXSQuarticFitter::allocateFittingStructures(int numRows)
 	numRows_ = numRows;
 
 	fitWorkSpace_ = gsl_multifit_linear_alloc(numRows_, 5);
-	fitXX_ = gsl_matrix_calloc(numRows_, 5);		// The matrix of predictor variables XX_ij = x_i^j;
-	fitY_ = gsl_vector_calloc(numRows_);		// The vector of observations;
-	fitWeight_ = gsl_vector_calloc(numRows_);	// The weight of the observation;
-	fitC_ = gsl_vector_calloc(5);		// The vector of coefficients; In our case the 5 Quartic fit constants.
+	fitXX_ = gsl_matrix_calloc(numRows_, 5);		// The matrix of predictor variables XX_ij = x_i^j
+	fitY_ = gsl_vector_calloc(numRows_);		// The vector of observations
+	fitWeight_ = gsl_vector_calloc(numRows_);	// The weight of the observation
+	fitC_ = gsl_vector_calloc(5);		// The vector of coefficients. In our case the 5 Quartic fit constants.
 	fitCov_ = gsl_matrix_calloc(5, 5);
 	// Fill the predictor matrix...
 	for(int j=0; j<numRows_; j++) {

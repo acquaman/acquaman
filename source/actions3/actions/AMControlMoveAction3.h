@@ -84,7 +84,7 @@ public slots:
 
 protected:
 
-	// The following functions are used to define the unique behaviour of the action.  We set them up in this way so that subclasses don't need to worry about (and cannot) break the state machine logic; they only need to fill in their pieces.
+	// The following functions are used to define the unique behaviour of the action.  We set them up in this way so that subclasses don't need to worry about (and cannot) break the state machine logic, they only need to fill in their pieces.
 
 	// These virtual functions allow us to implement our unique action behaviour.  They are called at the appropriate time by the base class, when base-class-initiated state changes happen: ->Starting, ->Cancelling, ->Pausing, ->Resuming
 	/////////////////////////
@@ -110,7 +110,7 @@ protected slots:
 
 	/// Handle signals from our control:
 	void onMoveStarted();
-	void onMoveReTargetted();	///< Only connected after a control starts moving.  If it is re-directed in mid-move to a different setpoint, we can be sure our intended move failed.  Calls onMoveFailed(6);
+	void onMoveReTargetted();	///< Only connected after a control starts moving.  If it is re-directed in mid-move to a different setpoint, we can be sure our intended move failed.  Calls onMoveFailed(6)
 	void onMoveFailed(int reason);
 	void onMoveSucceeded();
 

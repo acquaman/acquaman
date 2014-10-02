@@ -387,7 +387,9 @@ void StripToolVariableInfo::setDataSource(AMDataSource *newSource)
     if (dataSource_ != 0) {
         disconnect( dataSource_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onDataSourceValueUpdate(AMnDIndex,AMnDIndex)) );
 
-//        dataSource_->deleteLater();
+	/*
+	dataSource_->deleteLater();
+	*/
         dataSource_ = 0;
     }
 

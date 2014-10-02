@@ -83,7 +83,7 @@ private:
         they represent the actual number of arguments found.
     */
     int   m_iArgc;      
-    int   m_iPri;       ///< Valid only for binary and infix operators; Operator precedence.
+    int   m_iPri;       ///< Valid only for binary and infix operators. Operator precedence.
     ECmdCode  m_iCode;
     ETypeCode m_iType;
     bool  m_bAllowOpti; ///< Flag indication optimizeability 

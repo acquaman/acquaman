@@ -405,7 +405,7 @@ void AMScanAction::autoExportScan()
 
 void AMScanAction::onControllerStateChanged()
 {
-//	setStatusText(stateDescription(state()) % "\n" % controllerStateString());
+
 }
 
 void AMScanAction::onReadyForDeletionChanged(bool isReady)

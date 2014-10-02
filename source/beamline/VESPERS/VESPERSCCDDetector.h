@@ -56,7 +56,7 @@ public:
 	/// The Vortex can be configured to work with synchronized dwell time systems
 	virtual bool supportsSynchronizedDwell() const { return true; }
 	/// The Vortex detectors share a triggering source  sometimes uses the synchronized dwell time object
-	virtual bool sharesDetectorTriggerSource();
+	virtual bool sharesDetectorTriggerSource() const;
 	/// Returns the synchronized dwell time trigger source if we're currently enabled, otherwise a null pointer
 	virtual AMDetectorTriggerSource* detectorTriggerSource();
 	/// Returns the synchronized dwell time dwell time source if we're currently enabled, otherwise a null pointer

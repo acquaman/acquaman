@@ -48,8 +48,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/BioXAS/BioXASSideXASScanConfigurationView.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
 
-#include "source/StripTool2/STWidget.h"
-
 BioXASSideAppController::BioXASSideAppController(QObject *parent)
 	: AMAppController(parent)
 {

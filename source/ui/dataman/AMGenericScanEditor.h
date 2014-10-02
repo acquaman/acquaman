@@ -23,14 +23,30 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AMGENERICSCANEDITOR_H
 
 #include <QWidget>
+#include <QVariant>
+#include <QAction>
+#include <QApplication>
+#include <QButtonGroup>
+#include <QFrame>
+#include <QGridLayout>
+#include <QHBoxLayout>
+#include <QHeaderView>
+#include <QLabel>
+#include <QLineEdit>
+#include <QListView>
+#include <QPlainTextEdit>
+#include <QPushButton>
+#include <QSpacerItem>
+#include <QSpinBox>
+#include <QToolButton>
+#include <QVBoxLayout>
 #include <QMetaType>
-#include "ui_AMGenericScanEditor.h"
 
 #include "dataman/AMScanSetModel.h"
 #include "dataman/AMAxisInfo.h"
 #include "ui/AMRegExpLineEdit.h"
-class AMScan;
 
+class AMScan;
 class AMScanView;
 class AM2DScanView;
 class AMVerticalStackWidget;
@@ -84,7 +100,7 @@ public:
 	/// Returns the current scan that the generic scan editor is looking at.
 	AMScan *currentScan() const { return currentScan_; }
 
-	/// Call this function to find out if this editor can be closed. Checks for scans in progress and prompts the user for what to do with modified scans.  Returns true if the editor can be closed; returns false if any scans are acquiring or if the user responded "cancel" to a save-request.
+	/// Call this function to find out if this editor can be closed. Checks for scans in progress and prompts the user for what to do with modified scans.  Returns true if the editor can be closed, returns false if any scans are acquiring or if the user responded "cancel" to a save-request.
 	bool canCloseEditor();
 
 	/// Returns the current exclusive data source name for the model.
@@ -134,13 +150,17 @@ public slots:
 	/// Call this to update the window title when a scan is added or removed
 	void refreshWindowTitle();
 
+	/// This helper function refreshes the editor widgets with the values from the current scan
+	void refreshScanInfo(){updateEditor(currentScan_); qDebug()<<"refreshScanInfo() called with" << currentScan_;}
+
+
 protected slots:
 	///  This catches changes in the scan that is currently selected, and hooks it up to the editor widgets. \todo Ultimately, we might handle more than one scan being "selected" at once.
 	void onCurrentChanged ( const QModelIndex & selected, const QModelIndex & deselected );
 
 	/// internal signal to forward the textChanged() signal from ui_.notesEdit
 	void onNotesTextChanged() {
-		emit notesChanged(ui_.notesEdit->toPlainText());
+		emit notesChanged(notesEdit_->toPlainText());
 	}
 
 	/// called when the close buttons in the list of scans are clicked
@@ -192,11 +212,75 @@ protected:
 	/// This helper function refreshes the editor widgets with the values from a given scan
 	void updateEditor(AMScan* scan);
 
-	// UI Components
+	/// Overloaded to enable drag-dropping scans (when Drag Action = Qt::CopyAction and mime-type = "text/uri-list" with the proper format.)
+	void dragEnterEvent(QDragEnterEvent *event);
 
-	/// UI object container
-	Ui::AMGenericScanEditor ui_;
+	/// Overloaded to enable drag-dropping scans.
+	/*! The Drag is accepted when:
+	  - Drag Action = Qt::CopyAction
+	  - One of the MIME types is "text/uri-list"... format is "amd://databaseConnectionName/tableName/id"
+	  - There is at least one URL in the uri-list
+	  - The URL scheme is "amd://"
+	  - The database connection name returns a valid database, according to AMDatabase::dbByName(connectionName)
+	  - The table is the main Objects table
+	  - The id of the item can be found in the table
+	  */
+	void dropEvent(QDropEvent * event);
 
+
+	/// Helper function to ask if a scan should be aborted when trying to close it. Returns true if the scan should be aborted.
+	bool shouldStopAcquiringScan(AMScan* scan);
+	/// Helper function to ask if a scan should be saved when trying to close it. Returns an integer corresponding to QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel.
+	int shouldSaveModifiedScan(AMScan* scan);
+
+	// Widgets
+	///////////
+
+	QVBoxLayout *verticalLayout3_;
+	QFrame *scanTitleFrame_;
+	QHBoxLayout *horizontalLayout3_;
+	QLabel *scanTitleIcon_;
+	QLabel *scanTitle_;
+	QSpacerItem *scanTitleHorizontalSpacer_;
+	QFrame *statusFrame_;
+	QHBoxLayout *horizontalLayout4_;
+	QSpacerItem *statusFrameHorizontalSpacer_;
+	QLabel *statusTextLabel_;
+	QHBoxLayout *horizontalLayout_;
+	QVBoxLayout *leftVerticalLayout_;
+	QHBoxLayout *leftHorizontalLayout_;
+	QVBoxLayout *openScansLayout_;
+	QToolButton *openScansTitleButton_;
+	QListView *scanListView_;
+	QHBoxLayout *scanButtonLayout_;
+	QPushButton *openScanButton_;
+	QPushButton *saveScanButton_;
+	QPushButton *closeScanButton_;
+	QVBoxLayout *scanInformationLayout_;
+	QToolButton *scanInformationTitleButton_;
+	QFrame *scanInformationFrame_;
+	QVBoxLayout *scanInfoLayout;
+	QGridLayout *scanInformationGridLayout_;
+	QLabel *scanDate_;
+	QLabel *scanTimeLabel_;
+	QLabel *scanDurationLabel_;
+	QLabel *scanRunLabel_;
+	QLabel *scanDateLabel_;
+	QLabel *scanDuration_;
+	QLabel *scanNameLabel_;
+	QLabel *scanNumberLabel_;
+	QSpinBox *scanNumber_;
+	QLabel *scanIdLabel_;
+	QLineEdit *scanId_;
+	QLabel *scanTime_;
+	QLabel *scanEnd_;
+	QLabel *scanEndLabel_;
+	QSpacerItem *scanInformationSpacer_;
+	QVBoxLayout *notesLayout_;
+	QToolButton *notesTitleButton_;
+	QPlainTextEdit *notesEdit_;
+	QSpacerItem *leftVerticaFrameSpacer_;
+	QVBoxLayout *rightVerticalLayout_;
 	/// stack-widget holder for right-column editors
 	AMVerticalStackWidget* stackWidget_;
 
@@ -221,31 +305,10 @@ protected:
 
 	/// Dialog to choose an existing scan to open/add.  Will be 0 until it is required/created.
 	AMChooseScanDialog* chooseScanDialog_;
-
+	/// Customized LineEdit which allows for validation of scan names
 	AMRegExpLineEdit* scanNameEdit_;
-
-	/// Overloaded to enable drag-dropping scans (when Drag Action = Qt::CopyAction and mime-type = "text/uri-list" with the proper format.)
-	void dragEnterEvent(QDragEnterEvent *event);
-
-	/// Overloaded to enable drag-dropping scans.
-	/*! The Drag is accepted when:
-	  - Drag Action = Qt::CopyAction
-	  - One of the MIME types is "text/uri-list"... format is "amd://databaseConnectionName/tableName/id"
-	  - There is at least one URL in the uri-list
-	  - The URL scheme is "amd://"
-	  - The database connection name returns a valid database, according to AMDatabase::dbByName(connectionName)
-	  - The table is the main Objects table
-	  - The id of the item can be found in the table
-	  */
-	void dropEvent(QDropEvent * event);
-
-
-	/// Helper function to ask if a scan should be aborted when trying to close it. Returns true if the scan should be aborted.
-	bool shouldStopAcquiringScan(AMScan* scan);
-	/// Helper function to ask if a scan should be saved when trying to close it. Returns an integer corresponding to QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel.
-	int shouldSaveModifiedScan(AMScan* scan);
-
-
+private:
+	void setupUi();
 
 };
 

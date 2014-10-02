@@ -30,15 +30,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 IDEASXASScanConfiguration::IDEASXASScanConfiguration(QObject *parent) :
 	AMStepScanConfiguration(parent)
 {
+	setAutoExportEnabled(false);
+
 	setName("Unnamed Scan");
 	setUserScanName("Unnamed Scan");
-//	I0Channel_ = "I_0";
-//	ItChannel_ = "I_sample";
-//	IrChannel_ = "I_ref";
 	isXRFScan_ = true;
 	isTransScan_ = true;
 	useRef_ = true;
-
 
 	edge_ = "";
 	energy_ = 0.0;
@@ -49,7 +47,7 @@ IDEASXASScanConfiguration::IDEASXASScanConfiguration(QObject *parent) :
 	minEnergy_ = 0;
 	maxEnergy_ = 0;
 	totalPoints_ = 0;
-
+	fluorescenceDetector_ = IDEASXASScanConfiguration::Ketek;
 
 	AMScanAxisRegion *region = new AMScanAxisEXAFSRegion;
 	AMScanAxis *axis = new AMScanAxis(AMScanAxis::StepAxis, region);
@@ -70,18 +68,14 @@ IDEASXASScanConfiguration::IDEASXASScanConfiguration(QObject *parent) :
 IDEASXASScanConfiguration::IDEASXASScanConfiguration(const IDEASXASScanConfiguration &original) :
 	AMStepScanConfiguration(original)
 {
+	setAutoExportEnabled(false);
 	setName(original.name());
 	setUserScanName(original.userScanName());
-//	I0Channel_ = original.I0Channel();
-//	ItChannel_ = original.ItChannel();
-//	IrChannel_ = original.IrChannel();
 	isXRFScan_ = original.isXRFScan();
 	isTransScan_ = original.isTransScan();
 	useRef_ = original.useRef();
 	timeOffset_ = original.timeOffset();
 	totalTime_ = original.totalTime();
-
-
 
 
 	edge_ = original.edge();
@@ -91,7 +85,7 @@ IDEASXASScanConfiguration::IDEASXASScanConfiguration(const IDEASXASScanConfigura
 	minEnergy_ = original.minEnergy();
 	maxEnergy_ = original.maxEnergy();
 	totalPoints_ = original.totalPoints();
-
+	fluorescenceDetector_ = original.fluorescenceDetector();
 
 	computeTotalTime();
 
@@ -177,6 +171,7 @@ void IDEASXASScanConfiguration::computeTotalTimeImplementation()
 		    totalTime_ = -1; //negative value used to trigger feedback to user in IDEASXASScanConfigurationView... Hope this doesn't cause an issue elsewhere.
 		    setExpectedDuration(totalTime_);
 		    emit totalTimeChanged(totalTime_);
+		    emit configurationChanged();
 		    return;
 		}
 	    }
@@ -193,6 +188,7 @@ void IDEASXASScanConfiguration::computeTotalTimeImplementation()
 		    totalTime_ = -1; //negative value used to trigger feedback to user in IDEASXASScanConfigurationView... Hope this doesn't cause an issue elsewhere.
 		    setExpectedDuration(totalTime_);
 		    emit totalTimeChanged(totalTime_);
+		    emit configurationChanged();
 		    return;
 		}
 	    }
@@ -201,6 +197,7 @@ void IDEASXASScanConfiguration::computeTotalTimeImplementation()
     totalTime_ = time + 27; // There is a 27 second miscellaneous startup delay.
     setExpectedDuration(totalTime_);
     emit totalTimeChanged(totalTime_);
+    emit configurationChanged();
 
 }
 
@@ -218,7 +215,6 @@ void IDEASXASScanConfiguration::setEnergy(double edgeEnergy)
 {
 	if (energy_ != edgeEnergy){
 
-//		exafsRegions()->setDefaultEdgeEnergy(edgeEnergy);
 		foreach (AMScanAxisRegion *region, scanAxisAt(0)->regions().toList())
 			((AMScanAxisEXAFSRegion *)region)->setEdgeEnergy(edgeEnergy);
 
@@ -269,4 +265,45 @@ void IDEASXASScanConfiguration::onRegionRemoved(AMScanAxisRegion *region)
 {
 	region->disconnect(this);
 	computeTotalTime();
+}
+
+void IDEASXASScanConfiguration::setIsXRFScan(bool isXRFScan)
+{
+	if(isXRFScan != isXRFScan_) {
+
+		isXRFScan_ = isXRFScan;
+		setModified(true);
+		emit configurationChanged();
+	}
+}
+
+void IDEASXASScanConfiguration::setIsTransScan(bool isTransScan)
+{
+	if(isTransScan != isTransScan_){
+
+		isTransScan_ = isTransScan;
+		setModified(true);
+		emit configurationChanged();
+	}
+}
+
+void IDEASXASScanConfiguration::setUseRef(bool useRef)
+{
+	if(useRef != useRef_){
+
+		useRef_ = useRef;
+		setModified(true);
+		emit configurationChanged();
+	}
+}
+
+void IDEASXASScanConfiguration::setFluorescenceDetector(IDEASXASScanConfiguration::FluorescenceDetector detector)
+{
+	if (fluorescenceDetector_ != detector){
+
+		fluorescenceDetector_ = detector;
+		emit fluorescenceDetectorChanged(fluorescenceDetector_);
+		emit fluorescenceDetectorChanged(int(fluorescenceDetector_));
+		setModified(true);
+	}
 }

@@ -27,7 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/datastore/AMDataStore.h"
 
 
-/// (Internal class for AMInMemoryDataStore) One instance stores a single measurement. (Flat array; nD measurement data is stored in row-major order; last index varies the fastest.)
+/// (Internal class for AMInMemoryDataStore) One instance stores a single measurement. (Flat array, nD measurement data is stored in row-major order. Last index varies the fastest.)
 typedef QVector<AMNumber> AMIMDSMeasurement;
 
 /// (Internal class for AMInMemoryDataStore) One instance stores a scan point: (ie: a set of measurements at that scan point)
@@ -80,7 +80,7 @@ public:
 
 
 
-	/// Create space to support an (additional) scan axis.  \c axisDetails describes the characteristics of the axis, but if this is the first axis to be added, the \c axisDetails.size will be set to 0.  All subsequent axes must specify their final size (>0), and this size cannot be changed later. (ie: Only the first axis can be extended via beginInsertRows()).  Note that it is also impossible to add scan axes after rows have already been added with beginInsertRows(); in that case, this function should return false.
+	/// Create space to support an (additional) scan axis.  \c axisDetails describes the characteristics of the axis, but if this is the first axis to be added, the \c axisDetails.size will be set to 0.  All subsequent axes must specify their final size (>0), and this size cannot be changed later. (ie: Only the first axis can be extended via beginInsertRows()).  Note that it is also impossible to add scan axes after rows have already been added with beginInsertRows(). In that case, this function should return false.
 	/*! These restrictions are in place to simplify behaviour and increase performance for implementations.
 
 If you want to retrieve axes by name, \c axisDetails must contain a unique \c name.  This function should return false if an axis with that name already exists.
@@ -116,7 +116,7 @@ If you want to retrieve axes by name, \c axisDetails must contain a unique \c na
 	/// Set the value of a measurement, at a specific scan point
 	virtual bool setValue(const AMnDIndex& scanIndex, int measurementId, const AMnDIndex& measurementIndex, const AMNumber& newValue);
 
-	/// Performance optimization of value(): this allows a block of multi-dimensional data to be retrieved in a single setValue call. The data is returned in a flat array, ordered in row-major form with the first scan index varying the slowest, and the measurement index's last axis varying the fastest.   /c scanIndexStart and \c scanIndexEnd specify the (inclusive) range in scan space; you can use the same start and end values to access the measurement values for a single scan point.  Which measurement to access is specified with \c measurementId, and \c measurementIndexStart and \c measurementIndexEnd specify the (inclusive) range in measurement space.  Returns false if any of the indexes are the wrong dimension or out of range.  It is the responsibility of the caller to make sure that \c outputValues is pre-allocated with enough room for all the data; use valuesSize() to calculate this conveniently.
+	/// Performance optimization of value(): this allows a block of multi-dimensional data to be retrieved in a single setValue call. The data is returned in a flat array, ordered in row-major form with the first scan index varying the slowest, and the measurement index's last axis varying the fastest.   /c scanIndexStart and \c scanIndexEnd specify the (inclusive) range in scan space. You can use the same start and end values to access the measurement values for a single scan point.  Which measurement to access is specified with \c measurementId, and \c measurementIndexStart and \c measurementIndexEnd specify the (inclusive) range in measurement space.  Returns false if any of the indexes are the wrong dimension or out of range.  It is the responsibility of the caller to make sure that \c outputValues is pre-allocated with enough room for all the data. Use valuesSize() to calculate this conveniently.
 	virtual bool values(const AMnDIndex& scanIndexStart, const AMnDIndex& scanIndexEnd, int measurementId, const AMnDIndex& measurementIndexStart, const AMnDIndex& measurementIndexEnd, double* outputValues) const;
 
 
@@ -179,7 +179,7 @@ protected:
 	/// Helper function: read a complete measurement (\c fullSize points) directly into \c outputValues. This is faster than the other version of measurementValues when you want the whole thing.
 	void measurementValues(const AMIMDSMeasurement& measurement, int fullSize, double* outputValues) const;
 
-	/// Helper function: implements a nested for-loop up to the required number of scan dimensions; used by values() when there is more than 4 scan dimensions.
+	/// Helper function: implements a nested for-loop up to the required number of scan dimensions. Used by values() when there is more than 4 scan dimensions.
 	void valuesImplementationRecursive(const AMnDIndex& siStart, const AMnDIndex& siEnd, int measurementId, const AMnDIndex& miStart, const AMnDIndex& miEnd, double** outputValues, int scanDimension, int scanSpaceOffset, const AMnDIndex& fullSize, int measurementSpaceSize) const;
 
 };

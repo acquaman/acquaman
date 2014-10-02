@@ -34,9 +34,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "application/AMAppController.h"
 #include "acquaman/AMAgnosticDataAPI.h"
 #include "dataman/AMTextStream.h"
-#include "beamline/CLS/CLSSR570.h"
 #include "dataman/AMSample.h"
 #include "beamline/SGM/SGMMAXvMotor.h"
+#include "beamline/AMCurrentAmplifier.h"
 
 SGMFastScanActionController::SGMFastScanActionController(SGMFastScanConfiguration2013 *configuration, QObject *parent) :
 	AMScanActionController(configuration, parent)
@@ -143,10 +143,6 @@ void SGMFastScanActionController::onFileWriterIsBusy(bool isBusy){
 }
 
 void SGMFastScanActionController::onEverythingFinished(){
-//	qDebug() << "Looks like the SGMFastScan is completely done running";
-//	qDebug() << "Undulator tracking: " << SGMBeamline::sgm()->undulatorTracking()->value();
-//	qDebug() << "Exit slit tracking: " << SGMBeamline::sgm()->exitSlitTracking()->value();
-
 	if(goodInitialState_ && (!SGMBeamline::sgm()->undulatorTracking()->withinTolerance(1) || !SGMBeamline::sgm()->exitSlitTracking()->withinTolerance(1)) ){
 		qDebug() << "\n\n\nDETECTED A LOSS OF TRACKING STATE\n\n";
 	}

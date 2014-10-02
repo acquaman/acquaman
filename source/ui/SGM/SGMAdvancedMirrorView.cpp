@@ -73,7 +73,6 @@ SGMAdvancedMirrorView::SGMAdvancedMirrorView(QWidget *parent) :
 	m3RotationalEncoderControlEditor_ = new AMControlEditor(qobject_cast<AMReadOnlyPVControl*>(SGMBeamline::sgm()->m3RotationalEncoder()));
 
 	QVBoxLayout *verticalLayoutLeft = new QVBoxLayout();
-	//verticalLayoutLeft->addWidget(Mirror2_);
 	Mirror2_->setLayout(verticalLayoutLeft);
 
 	QHBoxLayout *horizontalLayout2 = new QHBoxLayout();
@@ -145,7 +144,6 @@ SGMAdvancedMirrorView::SGMAdvancedMirrorView(QWidget *parent) :
 
 
 	QVBoxLayout *verticalLayoutRight = new QVBoxLayout();
-	//verticalLayoutRight->addWidget(Mirror3_);
 	Mirror3_->setLayout(verticalLayoutRight);
 
 	QHBoxLayout *horizontalLayout7 = new QHBoxLayout();
@@ -216,18 +214,7 @@ SGMAdvancedMirrorView::SGMAdvancedMirrorView(QWidget *parent) :
 	verticalLayoutHL113->addWidget(m3RotationalEncoderControlEditor_);
 	horizontalLayout11->addLayout(verticalLayoutHL113);
 
-
-
-
-
-
-
-
-
-
 	QHBoxLayout *horizontalLayout = new QHBoxLayout();
-	//horizontalLayout->addLayout(verticalLayoutLeft);
-	//horizontalLayout->addLayout(verticalLayoutRight);
 	horizontalLayout->addWidget(Mirror2_);
 	horizontalLayout->addWidget(Mirror3_);
 	setLayout(horizontalLayout);

@@ -94,7 +94,7 @@ public:
 	/*! \note If a file already exists at \c newFilePath, this constructor will fail and the data store will be in an invalid state. You can check isValid() to make sure the CDF was created successfully. */
 	AMCDFDataStore(const QString& newFilePath, bool isTemporary, QObject* parent = 0);
 
-	/// Construct a new data store using the existing CDF file at \c existingFilePath. If \c createTemporaryCopy is true, the original file will be copied into the system-appropriate temp directory (ex: /tmp) first, and the copy will be opened instead of the original. If \c setReadOnly is true, the CDF will be put into read-only mode after opening; \see setReadOnlyMode().
+	/// Construct a new data store using the existing CDF file at \c existingFilePath. If \c createTemporaryCopy is true, the original file will be copied into the system-appropriate temp directory (ex: /tmp) first, and the copy will be opened instead of the original. If \c setReadOnly is true, the CDF will be put into read-only mode after opening \see setReadOnlyMode().
 	/*! \note If the CDF file could not be found or opened correctly, this constructor will fail and the data store will be in an invalid state. You can check isValid() to make sure the CDF was opened successfully. */
 	AMCDFDataStore(const QString& existingFilePath, bool createTemporaryCopy, bool setReadOnly, QObject* parent = 0);
 
@@ -125,7 +125,7 @@ public:
 
 	// Scan axes:
 	/////////////////////////////////
-	/// Create space to support an (additional) scan axis.  \c axisDetails describes the characteristics of the axis, but if this is the first axis to be added, the \c axisDetails.size will be set to 0.  All subsequent axes must specify their final size (>0), and this size cannot be changed later. (ie: Only the first axis can be extended via beginInsertRows()).  Note that it is also impossible to add scan axes after rows have already been added with beginInsertRows(); in that case, this function should return false.
+	/// Create space to support an (additional) scan axis.  \c axisDetails describes the characteristics of the axis, but if this is the first axis to be added, the \c axisDetails.size will be set to 0.  All subsequent axes must specify their final size (>0), and this size cannot be changed later. (ie: Only the first axis can be extended via beginInsertRows()).  Note that it is also impossible to add scan axes after rows have already been added with beginInsertRows(). In that case, this function should return false.
 	/*! These restrictions are in place to simplify behaviour and increase performance for implementations.
 
 If you want to retrieve axes by name, \c axisDetails must contain a unique \c name.  This function should return false if an axis with that name already exists.
@@ -162,7 +162,7 @@ If you want to retrieve axes by name, \c axisDetails must contain a unique \c na
 	/// Retrieve a value from a measurement, at a specific scan point.
 	virtual AMNumber value(const AMnDIndex& scanIndex, int measurementId, const AMnDIndex& measurementIndex) const;
 
-	/// Performance optimization of value(): this allows a block of multi-dimensional data to be retrieved in a single setValue call. The data is returned in a flat array, ordered in row-major form with the first scan index varying the slowest, and the measurement index's last axis varying the fastest.   /c scanIndexStart and \c scanIndexEnd specify the (inclusive) range in scan space; you can use the same start and end values to access the measurement values for a single scan point.  Which measurement to access is specified with \c measurementId, and \c measurementIndexStart and \c measurementIndexEnd specify the (inclusive) range in measurement space.  Returns false if any of the indexes are the wrong dimension or out of range.  It is the responsibility of the caller to make sure that \c outputValues is pre-allocated with enough room for all the data; use valuesSize() to calculate this conveniently.
+	/// Performance optimization of value(): this allows a block of multi-dimensional data to be retrieved in a single setValue call. The data is returned in a flat array, ordered in row-major form with the first scan index varying the slowest, and the measurement index's last axis varying the fastest.   /c scanIndexStart and \c scanIndexEnd specify the (inclusive) range in scan space. You can use the same start and end values to access the measurement values for a single scan point.  Which measurement to access is specified with \c measurementId, and \c measurementIndexStart and \c measurementIndexEnd specify the (inclusive) range in measurement space.  Returns false if any of the indexes are the wrong dimension or out of range.  It is the responsibility of the caller to make sure that \c outputValues is pre-allocated with enough room for all the data. Use valuesSize() to calculate this conveniently.
 	virtual bool values(const AMnDIndex& scanIndexStart, const AMnDIndex& scanIndexEnd, int measurementId, const AMnDIndex& measurementIndexStart, const AMnDIndex& measurementIndexEnd, double* outputValues) const;
 
 	// Setting values:
@@ -277,10 +277,10 @@ protected:
 	// CDF helper functions (Could be moved to a C++ CDF API wrapper)
 	///////////////
 
-	/// Moves records in a CDF for a single variable. The source records will overwrite the records in the destination block.  It is OK for the source and destination blocks to overlap; in this case, the records will be copied one-by-one in the correct order to preserve integrity.
+	/// Moves records in a CDF for a single variable. The source records will overwrite the records in the destination block.  It is OK for the source and destination blocks to overlap. In this case, the records will be copied one-by-one in the correct order to preserve integrity.
 	static bool cdfCopyZRecords(void* cdfId, long varNum, long sourceRecordStart, long recordCount, long destinationRecordStart);
 
-	/// Returns the dimensions of a zVariable in a CDF, by introspecting the CDF. If there is a failure, returns AMnDIndex(-1);  If the variable is 0-dimensional (scalar), returns AMnDIndex().
+	/// Returns the dimensions of a zVariable in a CDF, by introspecting the CDF. If there is a failure, returns AMnDIndex(-1).  If the variable is 0-dimensional (scalar), returns AMnDIndex().
 	static AMnDIndex cdfGetVarDimensions(void* cdfId, long varNum);
 
 	/// Returns the value of a string (CDF_CHAR) attribute in a CDF. Returns a Null string (QString()) on error [no attribute with that name, attribute date definition is not a string, etc.]  If the attribute is empty, may return a valid empty string (QString("")).
@@ -304,7 +304,7 @@ protected:
 	static bool cdfPutDoubleAttribute(void* cdfId, const QString& attributeName, long entryNumber, const double* value, long numElements = 1L);
 
 
-	/// Delete an attribute entry in the CDF. Does not delete the attribute definition; just the entry at \c entryNumber.
+	/// Delete an attribute entry in the CDF. Does not delete the attribute definition. Just the entry at \c entryNumber.
 	static bool cdfDeleteAttributeEntry(void* cdfId, const QString& attributeName, long entryNumber);
 
 

@@ -294,7 +294,7 @@ public:
 	/// returns the name of the database table where objects like this are stored.
 	QString dbTableName() const;
 
-	/// If this class has already been registered in the AMDbObject system, returns a pointer to the AMDbObjectInfo describing this class's persistent properties.  If the class hasn't been registered, returns 0;
+	/// If this class has already been registered in the AMDbObject system, returns a pointer to the AMDbObjectInfo describing this class's persistent properties.  If the class hasn't been registered, returns 0
 	const AMDbObjectInfo* dbObjectInfo() const;
 
 	/// If an object has been loaded from a database (or created and stored to a database), this will tell you which database it's in. Returns 0 if this scan instance wasn't loaded out of a database.

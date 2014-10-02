@@ -76,16 +76,12 @@ public slots:
 	void setDescription(const QString& description);
 
 signals:
-	/// Forwarded from signalSource()->itemChanged(). Emitted when a detector is replaced, OR after a detector is accessed for modification and program execution returns back to the event loop.
-	//void detectorValuesChanged(int index);
 	/// Forwarded from signalSource()->itemAdded(). Emitted after a new detector is added at \c index.
 	void detectorInfoAdded(int index);
 	/// Forwarded from signalSource()->itemRemoved(). Emitted after a detector was removed (previously at \c index).
 	void detectorInfoRemoved(int index);
 
 protected slots:
-	/// Called when a detector is accessed and potentially modified.
-	//void onDetectorValuesChanged(int index);
 	/// Called after a detector is added at \c index
 	void onDetectorInfoAdded(int index);
 	/// Called after a detector is removed from \c index

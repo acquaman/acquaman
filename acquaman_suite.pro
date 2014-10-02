@@ -27,4 +27,6 @@ SUBDIRS +=	pluginProjects/FileLoaders/AMFileLoaderPlugins.pro \
 	BioXASImagingAcquaman.pro \
 	BioXASShutterTool.pro \
 	VESPERSDatabaseDuplicateEntryPatch.pro \
-	StripTool2.pro
+	StripTool2.pro \
+	CLSNetworkDirectorySynchronizer.pro \
+XRDAnalysis.pro

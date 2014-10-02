@@ -31,8 +31,9 @@ class VESPERSFourElementVortexDetector : public AMXRFDetector
 
 public:
 	/// Default constructor. Requires the name and description of the detector. It builds all the PV's and connects them accordingly.
- 	virtual ~VESPERSFourElementVortexDetector();
 	VESPERSFourElementVortexDetector(const QString &name, const QString &description, QObject *parent = 0);
+	/// Destructor.
+	virtual ~VESPERSFourElementVortexDetector();
 
 	/// The Vortex doesn't explicitly require powering on
 	virtual bool requiresPower() const { return false; }
@@ -51,7 +52,7 @@ public:
 	virtual QString synchronizedDwellKey() const;
 
 	/// The Vortex detectors share a triggering source  sometimes uses the synchronized dwell time object
-	virtual bool sharesDetectorTriggerSource();
+	virtual bool sharesDetectorTriggerSource() const;
 	/// Returns the synchronized dwell time trigger source if we're currently enabled, otherwise a null pointer
 	virtual AMDetectorTriggerSource* detectorTriggerSource();
 	/// Returns the synchronized dwell time dwell time source if we're currently enabled, otherwise a null pointer

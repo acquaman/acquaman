@@ -96,19 +96,20 @@ public:
 public slots:
 
 protected slots:
+	/*
 	/// Called when the size of the analysis block changes: reset displayXOffset_.
-//	void onOutputSizeChanged();
+	void onOutputSizeChanged();
 	/// Called when the shift values change: calls emitDataChanged().
-//	void onShiftValuesChanged();
-	
-
+	void onShiftValuesChanged();
+	*/
 
 
 protected:
 	REIXSXESImageInterpolationAB* analysisBlock_;
+	/*
 	/// Adds this offset to the x-values of the shift data, so that it can be shown at any point on the plot. Initialized to analysisBlock_->size(0)/2.
-//	int displayXOffset_;
-
+	int displayXOffset_;
+	*/
 };
 
 
@@ -167,11 +168,11 @@ public slots:
 	/// signals from analysis block: if the block's input data source changes (to either null, or one with a different size.)
 	void onAnalysisBlockInputDataSourcesChanged();
 
-	// Unused; REIXSXESImageInterpolationABEditorShiftModel handles this.
-	//	/// Called when the shift values change, so we can update our line plot
-	//	void onShiftValuesChanged();
-
-
+	/*
+	 Unused; REIXSXESImageInterpolationABEditorShiftModel handles this.
+		/// Called when the shift values change, so we can update our line plot
+		void onShiftValuesChanged();
+	*/
 
 protected:
 

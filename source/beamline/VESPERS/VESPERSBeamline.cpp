@@ -27,6 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/VESPERS/VESPERSMonochomatorControl.h"
 #include "beamline/VESPERS/VESPERSCCDBasicDetectorEmulator.h"
 #include "beamline/AM1DControlDetectorEmulator.h"
+#include "beamline/CLS/CLSStorageRing.h"
 
 VESPERSBeamline::VESPERSBeamline()
 	: AMBeamline("VESPERS Beamline")
@@ -466,7 +467,6 @@ void VESPERSBeamline::setupMono()
 	mono_ = new VESPERSMonochromator(this);
 	masterDwellTime_ = new AMSinglePVControl("Master Dwell Time", "BL1607-B2-1:dwell:setTime", this);
 	intermediateSlits_ = new VESPERSIntermediateSlits(this);
-	ringCurrent_ = new AMReadOnlyPVControl("Ring Current", "PCT1402-01:mA:fbk", this);
 	energySetpointControl_ = new AMReadOnlyPVControl("EnergySetpoint", "07B2_Mono_SineB_Ea", this);
 }
 
@@ -689,23 +689,24 @@ void VESPERSBeamline::setupComponents()
 
 	scaler_ = new CLSSIS3820Scaler("BL1607-B2-1:mcs", this);
 	scaler_->channelAt(5)->setCustomChannelName("Split A");
-	CLSSR570 *tempSR570 = new CLSSR570("Split bottom", "AMP1607-202:sens_num.VAL", "AMP1607-202:sens_unit.VAL", this);
+
+	CLSSR570 *tempSR570 = new CLSSR570("Split bottom", "AMP1607-202", this);
 	scaler_->channelAt(5)->setCurrentAmplifier(tempSR570);
 	scaler_->channelAt(5)->setVoltagRange(AMRange(1.0, 4.5));
 	scaler_->channelAt(6)->setCustomChannelName("Split B");
-	tempSR570 = new CLSSR570("Split top", "AMP1607-203:sens_num.VAL", "AMP1607-203:sens_unit.VAL", this);
+	tempSR570 = new CLSSR570("Split top", "AMP1607-203", this);
 	scaler_->channelAt(6)->setCurrentAmplifier(tempSR570);
 	scaler_->channelAt(6)->setVoltagRange(AMRange(1.0, 4.5));
 	scaler_->channelAt(7)->setCustomChannelName("Pre-KB");
-	tempSR570 = new CLSSR570("Pre-KB", "AMP1607-204:sens_num.VAL", "AMP1607-204:sens_unit.VAL", this);
+	tempSR570 = new CLSSR570("Pre-KB", "AMP1607-204", this);
 	scaler_->channelAt(7)->setCurrentAmplifier(tempSR570);
 	scaler_->channelAt(7)->setVoltagRange(AMRange(1.0, 4.5));
 	scaler_->channelAt(8)->setCustomChannelName("Mini");
-	tempSR570 = new CLSSR570("Mini", "AMP1607-205:sens_num.VAL", "AMP1607-205:sens_unit.VAL", this);
+	tempSR570 = new CLSSR570("Mini", "AMP1607-205", this);
 	scaler_->channelAt(8)->setCurrentAmplifier(tempSR570);
 	scaler_->channelAt(8)->setVoltagRange(AMRange(1.0, 4.5));
 	scaler_->channelAt(9)->setCustomChannelName("Post");
-	tempSR570 = new CLSSR570("Post", "AMP1607-206:sens_num.VAL", "AMP1607-206:sens_unit.VAL", this);
+	tempSR570 = new CLSSR570("Post", "AMP1607-206", this);
 	scaler_->channelAt(9)->setCurrentAmplifier(tempSR570);
 	scaler_->channelAt(9)->setVoltagRange(AMRange(1.0, 4.5));
 
@@ -740,7 +741,7 @@ void VESPERSBeamline::setupControlsAsDetectors()
 	masterDwellTimeDetector_ = new AMBasicControlDetectorEmulator("MasterDwellTime", "Master Dwell Time", synchronizedDwellTime_->dwellTimeControl(), synchronizedDwellTime_->startScanControl(), 1, 0, AMDetectorDefinitions::ImmediateRead, this);
 	masterDwellTimeDetector_->setHiddenFromUsers(true);
 	masterDwellTimeDetector_->setIsVisible(false);
-	ringCurrentDetector_ = new AMBasicControlDetectorEmulator("RingCurrent", "Ring Current", ringCurrent_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	ringCurrentDetector_ = new AMBasicControlDetectorEmulator("RingCurrent", "Ring Current", CLSStorageRing::sr1()->ringCurrentControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 	ringCurrentDetector_->setHiddenFromUsers(true);
 	ringCurrentDetector_->setIsVisible(false);
 	roperCCDFileNumberDetector_ = new VESPERSCCDBasicDetectorEmulator(roperCCD_, "RoperFileNumber", "Roper File Number", roperCCD_->ccdFileNumberControl(), roperCCD_->statusControl(), 1, 0, AMDetectorDefinitions::RequestRead, this);

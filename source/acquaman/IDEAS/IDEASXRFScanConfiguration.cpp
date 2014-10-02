@@ -32,13 +32,25 @@ IDEASXRFScanConfiguration::IDEASXRFScanConfiguration(AMDetectorInfo detectorInfo
 	scanNumber_ = 0;
 	scanNotes_ = "";
 	positions_.clear();
-
+	fluorescenceDetector_ = IDEASXRFScanConfiguration::None;
 }
 
 IDEASXRFScanConfiguration::IDEASXRFScanConfiguration(QObject *parent)
 		: AMScanConfiguration(parent)
 {
 		setAutoExportEnabled(false);
+}
+
+IDEASXRFScanConfiguration::IDEASXRFScanConfiguration(const IDEASXRFScanConfiguration &original)
+	: AMScanConfiguration(original)
+{
+	fluorescenceDetector_ = original.fluorescenceDetector();
+	xrfDetectorInfo_ = original.detectorInfo();
+	setAutoExportEnabled(false);
+	scanName_ = original.scanName();
+	scanNumber_ = original.scanNumber();
+	scanNotes_ = original.scanNotes();
+	positions_ = original.positions();
 }
 
 IDEASXRFScanConfiguration::~IDEASXRFScanConfiguration()
@@ -62,4 +74,15 @@ QString IDEASXRFScanConfiguration::detailedDescription() const
 				return QString("XRF Scan\nDetector: %1").arg(xrfDetectorInfo_.name());
 
 		return QString();
+}
+
+void IDEASXRFScanConfiguration::setFluorescenceDetector(IDEASXRFScanConfiguration::FluorescenceDetector detector)
+{
+	if (fluorescenceDetector_ != detector){
+
+		fluorescenceDetector_ = detector;
+		emit fluorescenceDetectorChanged(fluorescenceDetector_);
+		emit fluorescenceDetectorChanged(int(fluorescenceDetector_));
+		setModified(true);
+	}
 }

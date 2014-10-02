@@ -40,10 +40,7 @@ public:
 
 	virtual QWidget* createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const;
 
-	//    virtual void updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const;
-
 	virtual bool eventFilter(QObject *object, QEvent *event);
-
 };
 
 /// This UI class provides a view of the upcoming (queued) actions in an AMActionRunner. It is part of the overall AMWorkflowView.

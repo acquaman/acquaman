@@ -298,7 +298,7 @@ void AMScanDatabaseImportController::copyFacilities()
 		if(state_ != Importing) return;
 		i.next();
 		emit stepProgress(int(100.0*(++currentStep)/totalSteps));
-		// key is id; value is id in destination database, or -1 if not there yet. (if not there, need to insert)
+		// key is id. Value is id in destination database, or -1 if not there yet. (if not there, need to insert)
 		int sourceId = i.key(), destinationId = i.value();
 		if(destinationId<1) {
 			AMFacility f;
@@ -327,7 +327,7 @@ void AMScanDatabaseImportController::copyRuns()
 		if(state_ != Importing) return;
 		i.next();
 		emit stepProgress(int(100.0*(++currentStep)/totalSteps));
-		// key is id; value is id in destination database, or -1 if not there yet. (if not there, need to insert)
+		// key is id. Value is id in destination database, or -1 if not there yet. (if not there, need to insert)
 		int sourceId = i.key(), destinationId = i.value();
 		if(destinationId<1) {
 			AMRun r;
@@ -356,7 +356,7 @@ void AMScanDatabaseImportController::copyExperiments()
 		if(state_ != Importing) return;
 		i.next();
 		emit stepProgress(int(100.0*(++currentStep)/totalSteps));
-		// key is id; value is id in destination database, or -1 if not there yet. (if not there, need to insert)
+		// key is id. Value is id in destination database, or -1 if not there yet. (if not there, need to insert)
 		int sourceId = i.key(), destinationId = i.value();
 		if(destinationId<1) {
 			AMExperiment e;
@@ -385,7 +385,7 @@ void AMScanDatabaseImportController::copySamples()
 		if(state_ != Importing) return;
 		i.next();
 		emit stepProgress(int(100.0*(++currentStep)/totalSteps));
-		// key is id; value is id in destination database, or -1 if not there yet. (if not there, need to insert)
+		// key is id. Value is id in destination database, or -1 if not there yet. (if not there, need to insert)
 		int sourceId = i.key(), destinationId = i.value();
 		if(destinationId<1) {
 			AMSamplePre2013 s;

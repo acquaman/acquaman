@@ -52,7 +52,7 @@ public:
 	double tolerance() const { return tolerance_; }
 	QString description() const { return description_; }
 	QString contextKnownDescription() const { return contextKnownDescription_; }
-	/// Returns true if this was derived from an "enum" control with discrete states; it means that enumString() contains the state corresponding to value().
+	/// Returns true if this was derived from an "enum" control with discrete states. It means that enumString() contains the state corresponding to value().
 	bool isEnum() const { return !enumString_.isEmpty(); }
 	/// If this info was derived from an "enum" control with discrete states, this will contain the state that corresponds to value().
 	QString enumString() const { return enumString_; }

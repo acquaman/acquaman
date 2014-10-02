@@ -37,7 +37,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 QHash<QString, AMDatabase*> AMDatabase::connectionName2Instance_;
 QMutex AMDatabase::databaseLookupMutex_(QMutex::Recursive);
 
-// This constructor is protected; only access is through AMDatabase::createDatabase().
+// This constructor is protected. Only access is through AMDatabase::createDatabase().
  AMDatabase::~AMDatabase(){}
 AMDatabase::AMDatabase(const QString& connectionName, const QString& dbAccessString) :
 	QObject(),
@@ -262,7 +262,7 @@ bool AMDatabase::update(int id, const QString& table, const QStringList& columns
 }
 
 
-/// Changing single values in the database (where the id isn't known).  Will update all rows based on the condition specified; \c whereClause is a string suitable for appending after an SQL "WHERE" term.  Will set the value in \c dataColumn to \c dataValue.
+/// Changing single values in the database (where the id isn't known).  Will update all rows based on the condition specified. \c whereClause is a string suitable for appending after an SQL "WHERE" term.  Will set the value in \c dataColumn to \c dataValue.
 bool AMDatabase::update(const QString& tableName, const QString& whereClause, const QString& dataColumn, const QVariant& dataValue) {
 
 	/// \todo sanitize more than this...
@@ -410,7 +410,7 @@ QVariantList AMDatabase::retrieve(int id, const QString& table, const QStringLis
 			values << q.value(i);
 	}
 	q.finish();	// make sure that sqlite lock is released before emitting signals
-	// otherwise: didn't find this id.  That's normal if it's not there; just return empty list
+	// otherwise: didn't find this id.  That's normal if it's not there, just return empty list
 	return values;
 }
 
@@ -448,7 +448,7 @@ QVariantList AMDatabase::retrieve(const QString& table, const QString& colName) 
 		values << q.value(0);
 
 	q.finish();	// make sure that sqlite lock is released before emitting signals
-	// otherwise: didn't find this column.  That's normal if it's not there; just return empty list
+	// otherwise: didn't find this column.  That's normal if it's not there, just return empty list
 	return values;
 }
 
@@ -479,7 +479,7 @@ QVariant AMDatabase::retrieve(int id, const QString& table, const QString& colNa
 	if(q.first()) {
 		return q.value(0);
 	}
-	// else: didn't find this id.  That's normal if it's not there; just return null QVariant.
+	// else: didn't find this id.  That's normal if it's not there, just return null QVariant.
 	else {
 		return QVariant();
 	}
@@ -529,14 +529,12 @@ QVariant AMDatabase::retrieveMax(const QString &table, const QString &colName, c
 	if(q.first()) {
 		return q.value(0);
 	}
-	// else: didn't find this id.  That's normal if it's not there; just return null QVariant.
+	// else: didn't find this id.  That's normal if it's not there, just return null QVariant.
 	else {
 		return QVariant();
 	}
 
 }
-
-
 
 /// returns a list of all the objecst/rows (by id) that match a given condition. \c whereClause is a string suitable for appending after an SQL "WHERE" statement.
 QList<int> AMDatabase::objectsWhere(const QString& tableName, const QString& whereClause) const {
@@ -726,7 +724,6 @@ bool AMDatabase::ensureColumn(const QString& tableName, const QString& columnNam
 	}
 	else {
 		q.finish();	// make sure that sqlite lock is released before emitting signals
-		// Error suppressed: this happens all the time if the column exists already. AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, QString("Error adding database column %1 to table %2. Maybe it's already there? Sql reply says: %3").arg(columnName).arg(tableName).arg(q.lastError().text())));
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, QString("Error adding database column %1 to table %2. Maybe it's already there? Sql reply says: %3").arg(columnName).arg(tableName).arg(q.lastError().text())));
 		return false;
 	}
@@ -743,7 +740,6 @@ bool AMDatabase::createIndex(const QString& tableName, const QString& columnName
 	}
 	else {
 		q.finish();	// make sure that sqlite lock is released before emitting signals
-		// Error suppressed: this happens all the time if the index already exists: AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, QString("Error adding index on columns (%1) to table '%2'. Maybe it's already there? Sql reply says: %3").arg(columnNames).arg(tableName).arg(q.lastError().text())));
 		return false;
 	}
 }
@@ -782,11 +778,6 @@ QSqlDatabase AMDatabase::qdb() const
 		if(!ok) {
 			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Serious, -1, QString("error connecting to database (access %1). The SQL reply was: %2").arg(dbAccessString_).arg(db.lastError().text())));
 		}
-//		else {
-//			QSqlQuery q(db);
-//			q.prepare("PRAGMA synchronous=NORMAL;");
-//			execQuery(q, 10);
-//		}
 
 		threadIDsOfOpenConnections_ << threadId;
 		return db;
@@ -866,10 +857,12 @@ bool AMDatabase::execQuery(QSqlQuery &query, int timeoutMs)
 
 	bool success;
 	int lastErrorNumber;
+	QString lastErrorMessage;
 	int attempt = 0;
 	do {
 		success = query.exec();
 		lastErrorNumber = query.lastError().number();
+		lastErrorMessage = query.lastError().text();
 		attempt++;
 		if(lastErrorNumber == 5)
 			usleep(5000);
@@ -880,7 +873,7 @@ bool AMDatabase::execQuery(QSqlQuery &query, int timeoutMs)
 			AMErrorMon::debug(0, AMDATABASE_LOCK_FOR_EXECQUERY_CONTENTION_SUCCEEDED, QString("AMDatabase detected contention for database locking in execQuery(). It took %1 tries for the query to succeed.").arg(attempt) );
 		}
 		else {
-			AMErrorMon::debug(0, AMDATABASE_LOCK_FOR_EXECQUERY_CONTENTION_FAILED, QString("AMDatabase detected contention for database locking in execQuery(). After %1 attempts, the query still did not succeed.").arg(attempt) );
+			AMErrorMon::debug(0, AMDATABASE_LOCK_FOR_EXECQUERY_CONTENTION_FAILED, QString("AMDatabase detected contention for database locking in execQuery(). After %1 attempts, the query still did not succeed. The last error is %2").arg(attempt).arg(lastErrorMessage) );
 		}
 	}
 

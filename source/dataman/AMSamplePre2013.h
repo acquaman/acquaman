@@ -39,7 +39,7 @@ Q_OBJECT
 	/// \todo This should be an indexed related table, so we can quickly find all the samples that contain a certain element.
 	Q_PROPERTY(AMIntList elementList READ elementList WRITE setElementList)
 
-	/// Do not reuse ids in the sample database... when deleting samples, we want any scans that reference their ids to become invalid; not to refer to new samples that would reuse the deleted ids.
+	/// Do not reuse ids in the sample database... when deleting samples, we want any scans that reference their ids to become invalid. Not to refer to new samples that would reuse the deleted ids.
 	Q_CLASSINFO("AMDbObject_Attributes", "doNotReuseIds=true;description=Sample")
 	Q_CLASSINFO("elementIds", "hidden=true")
 

@@ -27,8 +27,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dataman/database/AMDatabase.h"
 
-//class QMetaObject;
-
 class AMScanConfiguration;
 class AMExporter;
 class AMExporterOption;
@@ -161,10 +159,6 @@ namespace AMAppControllerSupport{
 
 		// is it already registered? return true.
 		QString className(scanConfigurationMo->className());
-//		if(registeredClasses_.contains(className)) {
-//			//AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, 0, QString("Detector View Support: The class '%1' has already been registered with detector view. Skipping duplicate registration.").arg(className)));
-//			return true;
-//		}
 
 		// Overwriting the old one.
 		AMScanConfigurationObjectInfo newInfo(scanConfigurationMo, exporterMo, exporterOptionMo, exporterOptionId, databaseName);

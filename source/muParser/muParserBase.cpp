@@ -477,8 +477,10 @@ namespace mu
     if (m_ConstDef.find(a_sName)!=m_ConstDef.end())
       Error(ecNAME_CONFLICT);
 
-//    if (m_FunDef.find(a_sName)!=m_FunDef.end())
-//      Error(ecNAME_CONFLICT);
+    /*
+    if (m_FunDef.find(a_sName)!=m_FunDef.end())
+      Error(ecNAME_CONFLICT);
+    */
 
     CheckName(a_sName, ValidNameChars());
     m_VarDef[a_sName] = a_pVar;
@@ -894,7 +896,7 @@ namespace mu
       }
       else
       {
-        // operator call can be optimized; If optimization is possible 
+        // operator call can be optimized. If optimization is possible 
         // the two previous tokens must be value tokens / they will be removed
         // and replaced with the result of the pending operation.
         m_vByteCode.RemoveValEntries(2);
@@ -920,7 +922,9 @@ namespace mu
   #endif
 
     value_type *Stack = &m_vStackBuffer[0];
-//    value_type Stack[99];
+    /*
+    value_type Stack[99];
+    */
     ECmdCode iCode;
     bytecode_type idx(0);
     int i(0);
@@ -1224,8 +1228,10 @@ namespace mu
         break;
       }
 
-      //if (stArgCount.size())
-      //  cout << "Arguments: " << stArgCount.top() << "\n";
+      /*
+      if (stArgCount.size())
+        cout << "Arguments: " << stArgCount.top() << "\n";
+      */
 
   #if defined(MUP_DUMP_STACK)
 
