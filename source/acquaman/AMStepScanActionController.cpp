@@ -50,7 +50,7 @@ AMStepScanActionController::AMStepScanActionController(AMStepScanConfiguration *
 
 AMStepScanActionController::~AMStepScanActionController()
 {
-	delete fileWriterThread_;
+	fileWriterThread_->deleteLater();
 }
 
 void AMStepScanActionController::createScanAssembler()

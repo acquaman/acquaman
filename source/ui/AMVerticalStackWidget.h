@@ -98,7 +98,7 @@ public:
 
 	/// Remove a widget, and delete it
 	void deleteItem(int index) {
-		delete takeItem(index);
+		takeItem(index)->deleteLater();
 	}
 
 	/// Remove a widget and return it. Ownership becomes the responsibility of the caller.

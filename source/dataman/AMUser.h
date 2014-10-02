@@ -42,7 +42,7 @@ public:
 	/// Release and delete the singleton instance
 	static void releaseUser() {
 		if(instance_) {
-			delete instance_;
+			instance_->deleteLater();
 			instance_ = 0;
 		}
 	}

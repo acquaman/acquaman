@@ -201,7 +201,7 @@ public:
 	/// This overloaded function calls addRawDataSource() after setting the visibleInPlots() and hiddenFromUsers() hints of the data source.
 	bool addRawDataSource(AMRawDataSource* newRawDataSource, bool visibleInPlots, bool hiddenFromUsers);
 	/// Delete and remove an existing raw data source.  \c id is the idnex of the source in rawDataSources().
-	bool deleteRawDataSource(int id) { if((unsigned)id >= (unsigned)rawDataSources_.count()) return false; delete rawDataSources_.takeAt(id); return true; }
+	bool deleteRawDataSource(int id) { if((unsigned)id >= (unsigned)rawDataSources_.count()) return false; rawDataSources_.takeAt(id)->deleteLater(); return true; }
 
 	/// Returns read-only access to the set of analyzed data sources. (Analyzed data sources are built on either raw data sources, or other analyzed sources, by applying an AMAnalysisBlock.)
 	const AMAnalyzedDataSourceSet* analyzedDataSources() const { return &analyzedDataSources_; }
@@ -211,7 +211,7 @@ public:
 	/// This overloaded function calls addAnalyzedDataSource() after setting the visibleInPlots() and hiddenFromUsers() hints of the data source.
 	bool addAnalyzedDataSource(AMAnalysisBlock *newAnalyzedDataSource, bool visibleInPlots, bool hiddenFromUsers);
 	/// Delete and remove an existing analysis block. \c id is the index of the source in analyzedDataSources().
-	bool deleteAnalyzedDataSource(int id) { if((unsigned)id >= (unsigned)analyzedDataSources_.count()) return false; delete analyzedDataSources_.takeAt(id); return true; }
+	bool deleteAnalyzedDataSource(int id) { if((unsigned)id >= (unsigned)analyzedDataSources_.count()) return false; analyzedDataSources_.takeAt(id)->deleteLater(); return true; }
 
 	// Provides a simple access model to all the data sources (combination of rawDataSources() and analyzedDataSources()
 
@@ -260,12 +260,12 @@ public:
 			return false;
 		int rawCount = rawDataSources_.count();
 		if(index < rawCount)	{ // is a raw data source.
-			delete rawDataSources_.takeAt(index);
+			rawDataSources_.takeAt(index)->deleteLater();
 			return true;
 		}
 		index -= rawCount;
 		if(index < analyzedDataSources_.count()) {
-			delete analyzedDataSources_.takeAt(index);
+			analyzedDataSources_.takeAt(index)->deleteLater();
 			return true;
 		}
 		return false;
@@ -324,7 +324,7 @@ Returns false and does nothing if the new \c dataStore is incompatible with any 
 	/// Clears the scan's rawData() completely, including all measurements configured within the data store. Also deletes all rawDataSources() that expose this data.
 	void clearRawDataPointsAndMeasurementsAndDataSources() {
 		while(rawDataSources_.count())
-			delete rawDataSources_.takeAt(rawDataSources_.count()-1);
+			rawDataSources_.takeAt(rawDataSources_.count()-1)->deleteLater();
 
 		data_->clearAllMeasurements();
 	}

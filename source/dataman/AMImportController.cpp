@@ -78,7 +78,7 @@ AMScan* SGMLegacyImporter::createScanAndImport(const QString& fullPath) {
 		return rv;
 	}
 	else {
-		delete rv;
+		rv->deleteLater();
 		return 0;
 	}
 }
@@ -119,7 +119,7 @@ AMScan* ALSBL8XASImporter::createScanAndImport(const QString& fullPath) {
 		return rv;
 	}
 	else {
-		delete rv;
+		rv->deleteLater();
 		return 0;
 	}
 }
@@ -130,8 +130,8 @@ AMImportController::~AMImportController() {
 	for(int i=0; i<importers_.count(); i++)
 		delete importers_[i];
 
-	delete fileDialog_;
-	delete w_;
+	fileDialog_->deleteLater();
+	w_->deleteLater();
 }
 
 AMImportController::AMImportController(QObject *parent) :
@@ -368,7 +368,7 @@ void AMImportController::finalizeImport() {
 		}
 
 		w_->thumbnailViewer->setSource(0);
-		delete currentScan_;
+		currentScan_->deleteLater();
 		currentScan_ = 0;
 	}
 }

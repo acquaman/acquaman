@@ -94,7 +94,7 @@ AMActionLog3::AMActionLog3(const AMActionLog3 &other) :
 AMActionLog3::~AMActionLog3() {
 	disconnect(info_, SIGNAL(destroyed()), this, SLOT(onInfoDestroyed()));
 	if(loadedInfoFromDb_)
-		delete info_;
+		info_->deleteLater();
 	info_ = 0;
 }
 
@@ -162,7 +162,7 @@ void AMActionLog3::dbLoadInfo(AMDbObject *newInfo)
 	}
 	else {
 		// not doing anything with this object because it's the wrong type. However, it's our responsibility now, so delete it.
-		delete newInfo;
+		newInfo->deleteLater();
 	}
 }
 

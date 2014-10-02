@@ -316,7 +316,7 @@ void AMSamplePlatePre2013::dbLoadPositions(const AMDbObjectList& newPositions) {
 		}
 
 		if(newPositions.at(i))
-			delete newPositions.at(i);	// we're copying these. Don't need to keep these ones around. Our responsibility to delete.
+			newPositions.at(i)->deleteLater();	// we're copying these. Don't need to keep these ones around. Our responsibility to delete.
 	}
 }
 

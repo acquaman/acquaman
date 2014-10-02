@@ -90,7 +90,7 @@ void AMSampleCameraGraphicsView::setVideoItem(QGraphicsVideoItem *item)
 {
 	if(videoItem_)
 		scene()->removeItem(videoItem_);
-	delete videoItem_;
+	videoItem_->deleteLater();
 	videoItem_ = item;
 	scene()->addItem(videoItem_);
 	mediaPlayer()->setVideoOutput(videoItem_);

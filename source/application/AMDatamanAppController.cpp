@@ -971,7 +971,7 @@ void AMDatamanAppController::shutdown() {
 	isShuttingDown_ = true;
 
 	// destroy the main window. This will delete everything else within it.
-	delete mw_;
+	mw_->deleteLater();
 
 	// Close down connection to the user Database
 	AMDatabase::deleteDatabase("user");
@@ -1105,7 +1105,7 @@ void AMDatamanAppController::launchScanConfigurationFromDb(const QUrl &url)
 
 	AMScanConfigurationView *view = config->createView();
 	if(!view) {
-		delete config;
+		config->deleteLater();
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -401, "Unable to create view from the scan configuration loaded from the database.  Contact Acquaman developers."));
 		return;
 	}
@@ -1194,7 +1194,7 @@ void AMDatamanAppController::onIssueSubmissionViewFinished(){
 		return;
 
 	disconnect(issueSubmissionView_, SIGNAL(finished()), this, SLOT(onIssueSubmissionViewFinished()));
-	delete issueSubmissionView_;
+	issueSubmissionView_->deleteLater();
 	issueSubmissionView_ = 0;
 }
 
@@ -1534,7 +1534,7 @@ AMScan *AMDatamanAppController::dropScanURL(const QUrl &url)
 	// Is it a scan?
 	AMScan* scan = qobject_cast<AMScan*>( dbo );
 	if(!scan) {
-		delete dbo;
+		dbo->deleteLater();
 		return 0;
 	}
 
@@ -1545,7 +1545,7 @@ AMScan *AMDatamanAppController::dropScanURL(const QUrl &url)
 		scan->storeToDb(AMDatabase::database("user"));
 
 		/// \todo DH: I'm sure I should just make a function to do things like this, but for now I'm just duplicating code because it's easy.
-		delete dbo;
+		dbo->deleteLater();
 
 		dbo = AMDbObjectSupport::s()->createAndLoadObjectAt(db, tableName, id);
 		if(!dbo)
@@ -1554,7 +1554,7 @@ AMScan *AMDatamanAppController::dropScanURL(const QUrl &url)
 		// Is it a scan?
 		scan = qobject_cast<AMScan*>( dbo );
 		if(!scan) {
-			delete dbo;
+			dbo->deleteLater();
 			return 0;
 		}
 	}

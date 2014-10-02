@@ -283,7 +283,7 @@ void AMSamplePre2013Editor::onCBCurrentIndexChanged(int index) {
 void AMSamplePre2013Editor::createNewSample() {
 	static int sampleNum = 1;
 
-	delete sample_;
+	sample_->deleteLater();
 	sample_ = new AMSamplePre2013(QString("New Sample %1").arg(sampleNum++), this);
 	sample_->setDateTime(QDateTime::currentDateTime());
 	sample_->storeToDb(db_);

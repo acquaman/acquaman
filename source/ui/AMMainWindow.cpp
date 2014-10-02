@@ -92,13 +92,13 @@ AMMainWindow::~AMMainWindow() {
 	QList<QWidget*> panes = model_->allPanes();
 
 	// get rid of the sidebar, so that it's not emitting signals and causing changes while we delete the widgets themselves.
-	delete sidebar_;
+	sidebar_->deleteLater();
 
 	// delete the model.
-	delete model_;
+	model_->deleteLater();
 
 	foreach(QWidget* pane, panes) {
-		delete pane;
+		pane->deleteLater();
 	}
 }
 
@@ -118,7 +118,7 @@ void AMMainWindow::deletePane(QWidget* pane) {
 	removePane(pane);
 
 	// delete actual widget:
-	delete pane;
+	pane->deleteLater();
 }
 
 

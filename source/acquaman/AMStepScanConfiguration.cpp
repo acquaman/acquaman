@@ -36,7 +36,7 @@ AMStepScanConfiguration::AMStepScanConfiguration(const AMStepScanConfiguration &
 AMStepScanConfiguration::~AMStepScanConfiguration()
 {
 	for (int i = 0, size = scanAxes_.count(); i < size; i++)
-		delete scanAxes_.at(i);
+		scanAxes_.at(i)->deleteLater();
 
 	scanAxes_.clear();
 }
