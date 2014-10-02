@@ -23,8 +23,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QDebug>
 
-BioXASMainBeamline* BioXASMainBeamline::bioXASMainBLInstance_ = 0;
-
 BioXASMainBeamline::BioXASMainBeamline()
 	: AMBeamline("BioXAS Beamline - Main Endstation")
 {

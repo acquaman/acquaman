@@ -45,10 +45,10 @@ public:
 	/// Returns the instance of the beamline that has been created.
 	static BioXASImagingBeamline* bioXAS()
 	{
-		if(!bioXASImagingBLInstance_)
-			bioXASImagingBLInstance_ = new BioXASImagingBeamline();
+		if(!instance_)
+			instance_ = new BioXASImagingBeamline();
 
-		return bioXASImagingBLInstance_;
+		return static_cast<BioXASImagingBeamline*>(instance_);
 	}
 
 	/// Destructor.
@@ -118,10 +118,6 @@ protected:
 	BioXASCLSMAXvMotor *m2Yaw_;
 	BioXASCLSMAXvMotor *m2BenderUpstream_;
 	BioXASCLSMAXvMotor *m2BenderDownStream_;
-
-private:
-	/// Instance variable
-	static BioXASImagingBeamline* bioXASImagingBLInstance_;
 };
 
 #endif // BIOXASIMAGINGBEAMLINE_H

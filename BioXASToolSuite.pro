@@ -18,8 +18,7 @@ HEADERS  += \
 	source/ui/BioXAS/BioXASToolSuite/MainWindow.h \
 	source/ui/BioXAS/BioXASToolSuite/ShutterToolMainWindow.h \
 	source/ui/BioXAS/BioXASToolSuite/MotorToolMainScreen.h \
-	source/ui/BioXAS/BioXASToolSuite/MAXvMotorControlEditor.h \
-	source/ui/BioXAS/BioXASToolSuite/BioXASBeamlineTabWidget.h
+	source/ui/BioXAS/BioXASToolSuite/MAXvMotorControlEditor.h
 SOURCES += \
 	source/application/BioXAS/BioXASToolSuiteMain.cpp \
 	source/beamline/BioXAS/BioXASMainBeamline.cpp \
@@ -29,8 +28,9 @@ SOURCES += \
 	source/ui/BioXAS/BioXASCLSMAXvMotorControlEditor.cpp \
 	source/ui/BioXAS/BioXASToolSuite/MainWindow.cpp \
 	source/ui/BioXAS/BioXASToolSuite/ShutterToolMainWindow.cpp \
-	source/ui/BioXAS/BioXASToolSuite/MotorToolMainScreen.cpp \
-	source/ui/BioXAS/BioXASToolSuite/BioXASBeamlineTabWidget.cpp
+	source/ui/BioXAS/BioXASToolSuite/MotorToolMainScreen.cpp
 
 RESOURCES += \
 	source/ui/BioXAS/BioXASToolSuite/resources/BioXASImages.qrc
+
+

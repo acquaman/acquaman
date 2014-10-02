@@ -25,8 +25,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/CLS/CLSMAXvMotor.h"
 
-BioXASSideBeamline* BioXASSideBeamline::bioXASSideBLInstance_ = 0;
-
 BioXASSideBeamline::BioXASSideBeamline()
 	: AMBeamline("BioXAS Beamline - Side Endstation")
 {

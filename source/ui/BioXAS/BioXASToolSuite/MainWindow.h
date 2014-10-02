@@ -35,7 +35,9 @@ public:
 
 protected slots:
 	void onShutterToolButtonClicked();
-	void onMotorToolButtonClicked();
+	void onMainBLMotorToolButtonClicked();
+	void onSideBLMotorToolButtonClicked();
+	void onImagingBLMotorToolButtonClicked();
 
 	void onToolWindowClosed();
 

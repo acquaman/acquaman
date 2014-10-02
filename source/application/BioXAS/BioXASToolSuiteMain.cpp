@@ -27,7 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 int main(int argc, char *argv[])
 {
 	int windowWidth = 280;
-	int windowHeight = 100;
+	int windowHeight = 200;
 
 	QApplication app(argc, argv);
 	MainWindow mainWindow;

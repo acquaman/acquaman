@@ -25,8 +25,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QGroupBox>
 #include <QBoxLayout>
 
+#include "beamline/BioXAS/BioXASBeamlineDef.h"
 #include "ui/BioXAS/BioXASToolSuite/ShutterToolMainWindow.h"
-#include "ui/BioXAS/BioXASToolSuite/MotorToolMainScreen.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -55,9 +55,31 @@ void MainWindow::onShutterToolButtonClicked()
 	hide();
 }
 
-void MainWindow::onMotorToolButtonClicked()
+void MainWindow::onMainBLMotorToolButtonClicked()
 {
-	MotorToolMainScreen *motorToolScreen = new MotorToolMainScreen();
+	MotorToolMainScreen *motorToolScreen = new MotorToolMainScreen(BioXASBeamlineDef::BioXASMainBeamLine);
+	connect(motorToolScreen, SIGNAL(closed()), this, SLOT(onToolWindowClosed()));
+
+	motorToolScreen->move(QApplication::desktop()->screen()->rect().center() - motorToolScreen->rect().center());
+
+	motorToolScreen->show();
+	hide();
+}
+
+void MainWindow::onSideBLMotorToolButtonClicked()
+{
+	MotorToolMainScreen *motorToolScreen = new MotorToolMainScreen(BioXASBeamlineDef::BioXASSideBeamLine);
+	connect(motorToolScreen, SIGNAL(closed()), this, SLOT(onToolWindowClosed()));
+
+	motorToolScreen->move(QApplication::desktop()->screen()->rect().center() - motorToolScreen->rect().center());
+
+	motorToolScreen->show();
+	hide();
+}
+
+void MainWindow::onImagingBLMotorToolButtonClicked()
+{
+	MotorToolMainScreen *motorToolScreen = new MotorToolMainScreen(BioXASBeamlineDef::BioXASImagingBeamLine);
 	connect(motorToolScreen, SIGNAL(closed()), this, SLOT(onToolWindowClosed()));
 
 	motorToolScreen->move(QApplication::desktop()->screen()->rect().center() - motorToolScreen->rect().center());
@@ -79,11 +101,17 @@ void MainWindow::setupUi()
 	mainWidget->setLayout(mainLayout);
 
 	QPushButton *shutterToolButton = new QPushButton("Shutter Tool");
-	QPushButton *motorToolButton = new QPushButton("Motor Tool");
+	QPushButton *mainBLMotorToolButton = new QPushButton("Main Beamline Motor Tool");
+	QPushButton *sideBLMotorToolButton = new QPushButton("Side Beamline Motor Tool");
+	QPushButton *imagingBLMotorToolButton = new QPushButton("Imaging Beamline Motor Tool");
 
 	mainLayout->addWidget(shutterToolButton);
-	mainLayout->addWidget(motorToolButton);
+	mainLayout->addWidget(mainBLMotorToolButton);
+	mainLayout->addWidget(sideBLMotorToolButton);
+	mainLayout->addWidget(imagingBLMotorToolButton);
 
 	connect( shutterToolButton, SIGNAL(clicked()), this, SLOT(onShutterToolButtonClicked()) );
-	connect( motorToolButton, SIGNAL(clicked()), this, SLOT(onMotorToolButtonClicked()) );
+	connect( mainBLMotorToolButton, SIGNAL(clicked()), this, SLOT(onMainBLMotorToolButtonClicked()) );
+	connect( sideBLMotorToolButton, SIGNAL(clicked()), this, SLOT(onSideBLMotorToolButtonClicked()) );
+	connect( imagingBLMotorToolButton, SIGNAL(clicked()), this, SLOT(onImagingBLMotorToolButtonClicked()) );
 }
