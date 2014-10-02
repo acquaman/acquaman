@@ -48,7 +48,7 @@ public:
 		if(!bioXASImagingBLInstance_)
 			bioXASImagingBLInstance_ = new BioXASImagingBeamline();
 
-		return static_cast<BioXASImagingBeamline*>(bioXASImagingBLInstance_);
+		return bioXASImagingBLInstance_;
 	}
 
 	/// Destructor.

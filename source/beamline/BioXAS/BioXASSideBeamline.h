@@ -51,7 +51,7 @@ public:
 		if(!bioXASSideBLInstance_)
 			bioXASSideBLInstance_ = new BioXASSideBeamline();
 
-		return static_cast<BioXASSideBeamline*>(bioXASSideBLInstance_);
+		return bioXASSideBLInstance_;
 	}
 
 	/// Destructor.

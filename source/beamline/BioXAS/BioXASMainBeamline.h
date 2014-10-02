@@ -47,7 +47,7 @@ public:
 		if(!bioXASMainBLInstance_)
 			bioXASMainBLInstance_ = new BioXASMainBeamline();
 
-		return static_cast<BioXASMainBeamline*>(bioXASMainBLInstance_);
+		return bioXASMainBLInstance_;
 	}
 
 	/// Destructor.
