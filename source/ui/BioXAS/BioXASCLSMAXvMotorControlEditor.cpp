@@ -1,6 +1,8 @@
 #include "BioXASCLSMAXvMotorControlEditor.h"
 
 #include <QHBoxLayout>
+#include <QMenu>
+#include <QDebug>
 
 BioXASCLSMAXvMotorControlEditor::BioXASCLSMAXvMotorControlEditor(BioXASCLSMAXvMotor* control, AMControl* statusTagControl, bool readOnly, bool configureOnly, QWidget *parent)
 	:AMExtendedControlEditor(control, statusTagControl, readOnly, configureOnly, parent)
@@ -26,6 +28,10 @@ BioXASCLSMAXvMotorControlEditor::BioXASCLSMAXvMotorControlEditor(BioXASCLSMAXvMo
 	ccwLabel_->setToolTip(control->CCWPVName());
 	statusLayout_->addWidget(ccwLabel_);
 
+	// setup context menu for stopping a motor
+	setContextMenuPolicy(Qt::CustomContextMenu);
+	connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(onShowContextMenu(const QPoint&)));
+
 	connect(control, SIGNAL(atLimitChanged(CLSMAXvMotor::Limit)), this, SLOT(onLimitChanged(CLSMAXvMotor::Limit)));
 	if (control->isConnected()) {
 		onLimitChanged(control->atLimit());
@@ -35,6 +41,21 @@ BioXASCLSMAXvMotorControlEditor::BioXASCLSMAXvMotorControlEditor(BioXASCLSMAXvMo
 BioXASCLSMAXvMotorControlEditor::~BioXASCLSMAXvMotorControlEditor()
 {
 
+}
+
+void BioXASCLSMAXvMotorControlEditor::onShowContextMenu(const QPoint& pos)
+{
+	BioXASCLSMAXvMotor * bioxasMAXvMotor = (BioXASCLSMAXvMotor *)control_;
+
+	QMenu contextMenu;
+	contextMenu.addAction("Stop " + bioxasMAXvMotor->pvBaseName());
+	QAction* selectedItem = contextMenu.exec(mapToGlobal(pos));
+	if (selectedItem) {
+		if (bioxasMAXvMotor->stop())
+			qDebug() << "BioXAX motor "+ bioxasMAXvMotor->pvBaseName() + ":stop is stopped.";
+		else
+			qDebug() << "Failed to stop BioXAX motor "+ bioxasMAXvMotor->pvBaseName() + ":stop.";
+	}
 }
 
 void BioXASCLSMAXvMotorControlEditor::onLimitChanged(CLSMAXvMotor::Limit limit)

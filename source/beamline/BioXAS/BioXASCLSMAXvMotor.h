@@ -21,6 +21,7 @@ public:
 	}
 
 	BioXASBeamlineDef::BioXASMotorType type() { return type_; }
+	QString pvBaseName() {return pvBaseName_; }
 	QString valuePVName() { return pvBaseName_ + pvUnitFieldName_; }
 	QString feedbackPVName() { return pvBaseName_ + pvUnitFieldName_ + ":fbk"; }
 	QString statusPVName() { return pvBaseName_ + ":status"; }

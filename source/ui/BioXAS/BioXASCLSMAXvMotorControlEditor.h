@@ -16,11 +16,13 @@ public:
 	~BioXASCLSMAXvMotorControlEditor();
 
 protected slots:
+	void onShowContextMenu(const QPoint&);
 	void onLimitChanged(CLSMAXvMotor::Limit limit);
 
 protected:
 	QLabel *cwLabel_;
 	QLabel *ccwLabel_;
+
 };
 
 #endif // BIOXASCLSMAXVMOTORCONTROLEDITOR_H
