@@ -10,27 +10,31 @@ BioXASCLSMAXvMotor::BioXASCLSMAXvMotor(BioXASBeamlineDef::BioXASMotorType motorT
 	statusPVControl_ = new AMReadOnlyPVControl("Motor moving status", statusPVName(), this);
 }
 
-BioXASBeamlineDef::BioXASMotorType BioXASCLSMAXvMotor::type(){
+BioXASBeamlineDef::BioXASMotorType BioXASCLSMAXvMotor::type() const{
 	return type_;
 }
 
-QString BioXASCLSMAXvMotor::valuePVName(){
+QString BioXASCLSMAXvMotor::pvBaseName() const{
+	return pvBaseName_;
+}
+
+QString BioXASCLSMAXvMotor::valuePVName() const{
 	return pvBaseName_ + pvUnitFieldName_;
 }
 
-QString BioXASCLSMAXvMotor::feedbackPVName(){
+QString BioXASCLSMAXvMotor::feedbackPVName() const{
 	return pvBaseName_ + pvUnitFieldName_ + ":fbk";
 }
 
-QString BioXASCLSMAXvMotor::statusPVName(){
+QString BioXASCLSMAXvMotor::statusPVName() const{
 	return pvBaseName_ + ":status";
 }
 
-QString BioXASCLSMAXvMotor::CWPVName(){
+QString BioXASCLSMAXvMotor::CWPVName() const{
 	return pvBaseName_ + ":cw";
 }
 
-QString BioXASCLSMAXvMotor::CCWPVName(){
+QString BioXASCLSMAXvMotor::CCWPVName() const{
 	return pvBaseName_ + ":ccw";
 }
 

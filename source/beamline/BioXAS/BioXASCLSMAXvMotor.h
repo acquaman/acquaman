@@ -12,12 +12,13 @@ class BioXASCLSMAXvMotor : public CLSMAXvMotor
 public:
 	BioXASCLSMAXvMotor(BioXASBeamlineDef::BioXASMotorType motorType, const QString& name, const QString& baseName, const QString& description, QString pvUnitFieldName, bool hasEncoder, double tolerance, double moveStartTimeoutSeconds = 2.0, QObject *parent = 0);
 
-	BioXASBeamlineDef::BioXASMotorType type();
-	QString valuePVName();
-	QString feedbackPVName();
-	QString statusPVName();
-	QString CWPVName();
-	QString CCWPVName();
+	BioXASBeamlineDef::BioXASMotorType type() const;
+	QString pvBaseName() const;
+	QString valuePVName() const;
+	QString feedbackPVName() const;
+	QString statusPVName() const;
+	QString CWPVName() const;
+	QString CCWPVName() const;
 
 	/* The status PV control, which can be used as the statusTagControl for control editor*/
 	AMReadOnlyPVControl *statusPVControl();

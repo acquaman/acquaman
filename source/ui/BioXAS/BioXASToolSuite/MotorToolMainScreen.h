@@ -1,16 +1,14 @@
 #ifndef MOTORTOOLMAINSCREEN_H
 #define MOTORTOOLMAINSCREEN_H
 
-//#include <QTabWidget>
 #include <QWidget>
-#include <QCloseEvent>
 #include <QGroupBox>
 #include <QVBoxLayout>
+#include <QCloseEvent>
 
 #include "beamline/BioXAS/BioXASBeamlineDef.h"
 #include "beamline/AMBeamline.h"
 
-//class MotorToolMainScreen : public QTabWidget
 class MotorToolMainScreen : public QWidget
 {
     Q_OBJECT
