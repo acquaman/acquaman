@@ -107,7 +107,7 @@ AMnDIndex::AMnDIndex(const AMnDIndex &other) {
 
 AMnDIndex& AMnDIndex::operator=(const AMnDIndex& other) {
 	if(AM_UNLIKELY(other.rank_ > 8)) {
-		if(rank_ > 8)	// already have an extras_; assign from other's.
+		if(rank_ > 8)	// already have an extras_ assign from other's.
 			*extras_ = *(other.extras_);
 		else	// need to make an extras_
 			extras_ = new QVector<long>(*(other.extras_));

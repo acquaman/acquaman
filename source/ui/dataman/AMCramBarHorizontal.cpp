@@ -53,10 +53,8 @@ AMCramBarHorizontal::AMCramBarHorizontal(QWidget *parent) :
 	innerLayout_->setSpacing(0);
 	innerLayout_->setContentsMargins(0,0,0,0);
 	innerLayout_->setSizeConstraint(QLayout::SetMinAndMaxSize);
-	//unnecessary: innerLayout_->setSizeConstraint(QLayout::SetFixedSize);
 	scrollWidget_->setLayout(innerLayout_);
 	scrollWidget_->installEventFilter(this);	// catches layout request events to detect changes to desired size.
-	//unnecessary: scrollWidget_->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
 	scrollArea_->setFrameStyle(QFrame::NoFrame);
 	scrollArea_->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);

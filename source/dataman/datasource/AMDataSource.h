@@ -49,7 +49,7 @@ protected slots:
 	void emitDeleted() { emit deleted(data_); }
 
 protected:
- 	virtual ~AMDataSourceSignalSource();
+	virtual ~AMDataSourceSignalSource();
 	AMDataSourceSignalSource(AMDataSource* parent);
 	AMDataSource* data_;
 	friend class AMDataSource;
@@ -122,18 +122,18 @@ public:
 	/// Returns axis information for all axes
 	virtual QList<AMAxisInfo> axes() const = 0;
 
-	// Following can all be determined from above. Included anyway for convenience of classes that use the interface, and for performance. Calling size(axisNumber) should be fast; using axes() to return a full list of AMAxisInfo and extracting the desired axis would be much slower.
+	// Following can all be determined from above. Included anyway for convenience of classes that use the interface, and for performance. Calling size(axisNumber) should be fast. Using axes() to return a full list of AMAxisInfo and extracting the desired axis would be much slower.
 	//////////////////////////////////////////////
 	/// Returns the rank (number of dimensions) of this data set
-	virtual int rank() const = 0; // { return axes_.count(); }
+	virtual int rank() const = 0;
 	/// Returns the size of (ie: count along) each dimension
-	virtual AMnDIndex size() const = 0; // { AMnDIndex s(); foreach(AMAxis a, axes_) s << a.count(); return s; }
+	virtual AMnDIndex size() const = 0;
 	/// Returns the size along a single axis \c axisNumber. This should be fast. \c axisNumber is assumed to be between 0 and rank()-1.
 	virtual int size(int axisNumber) const = 0;
 	/// Returns a bunch of information about a particular axis. \c axisNumber is assumed to be between 0 and rank()-1.
 	virtual AMAxisInfo axisInfoAt(int axisNumber) const = 0;
 	/// Returns the id of an axis, by name. (By id, we mean the index of the axis. We called it id to avoid ambiguity with indexes <i>into</i> axes.) This could be slow, so users shouldn't call it repeatedly. Returns -1 if not found.
-	virtual int idOfAxis(const QString& axisName) = 0;
+	virtual int idOfAxis(const QString& axisName) const = 0;
 
 
 	// Data value access

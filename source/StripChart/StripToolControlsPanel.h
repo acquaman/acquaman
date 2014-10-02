@@ -33,31 +33,33 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 class StripToolControlsPanel : public QWidget
 {
-    Q_OBJECT
+	Q_OBJECT
 
 public:
-    explicit StripToolControlsPanel(QWidget *parent = 0);
-    ~StripToolControlsPanel();
+	explicit StripToolControlsPanel(QWidget *parent = 0);
+	~StripToolControlsPanel();
 
 public:
-    EntryWidget* nameEntry() const;
-    WaterfallEntryWidget* waterfallEntry() const;
-    TimeEntryWidget* timeEntry() const;
-    QPushButton* sidebarButton() const;
+	EntryWidget* nameEntry() const;
+	WaterfallEntryWidget* waterfallEntry() const;
+	TimeEntryWidget* timeEntry() const;
+	QPushButton* sidebarButton() const;
 
 public slots:
 
 private:
-    void buildComponents();
-    void makeConnections();
-    void defaultSettings();
+	void buildComponents();
+	void makeConnections();
+	void defaultSettings();
 
 private:
-    EntryWidget *nameEntry_;
-//    DoubleButtonWidget *pauseResume_;
-    TimeEntryWidget *timeEntry_;
-    QPushButton *sidebarButton_;
-    WaterfallEntryWidget *waterfallEntry_;
+	EntryWidget *nameEntry_;
+	/*
+	DoubleButtonWidget *pauseResume_;
+	*/
+	TimeEntryWidget *timeEntry_;
+	QPushButton *sidebarButton_;
+	WaterfallEntryWidget *waterfallEntry_;
 
 };
 

@@ -26,8 +26,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/SGM/SGMXASScanConfiguration2013.h"
 
 #include "ui/AMTopFrame.h"
-#include "ui/acquaman/AMRegionsView.h"
-#include "ui/acquaman/AMRegionsLineView.h"
 #include "beamline/AMDetectorSelector.h"
 #include "ui/beamline/AMDetectorSelectorView.h"
 
@@ -39,19 +37,17 @@ class SGMXASScanConfiguration2013View : public AMScanConfigurationView
 Q_OBJECT
 
 public:
- 	virtual ~SGMXASScanConfiguration2013View();
+	virtual ~SGMXASScanConfiguration2013View();
 	SGMXASScanConfiguration2013View(SGMXASScanConfiguration2013 *configuration, QWidget *parent = 0);
 
 	virtual const AMScanConfiguration* configuration() const;
 
 	void setDetectorSelector(AMDetectorSelector *xasDetectorSelector);
-	//void setTrackingSet(AMControlSet *trackingSet);
 
 signals:
 	void scanControllerCreated(AMScanController *scanController);
 
 protected slots:
-	//void onTrackingGroupChanged();
 	void onFluxResolutionGroupChanged();
 	void onScanNameEditChanged(const QString &scanName);
 	void onUndulatorTrackingChanged(bool isTracking);
@@ -69,14 +65,14 @@ protected:
 	// THINGS I SHOULDN'T HAVE ACCESS TO //
 	//////////////////////////////////////
 	AMDetectorSelector *xasDetectorSelector_;
+	/*
 	// Two lines removed as temporary fix (see Issue579)
-	//AMControlSet *trackingSet_;
-	//AMControlSetView *trackingSetView_;
+	AMControlSet *trackingSet_;
+	AMControlSetView *trackingSetView_;
+	*/
 	SGMFluxResolutionPickerView *fluxResolutionView_;
 
 	AMTopFrame *topFrame_;
-	AMRegionsView *regionsView_;
-	AMRegionsLineView *regionsLineView_;
 	AMDetectorSelectorView *xasDetectorSelectorView_;
 
 	QVBoxLayout *mainVL_;
@@ -92,7 +88,10 @@ protected:
 
 	void updateTrackingButtonStatus(QPushButton* button, bool isTracking);
 
-
+	QHBoxLayout *topRow_;
+	QHBoxLayout *bottomRow_;
+	QHBoxLayout *warningRow_;
+	QHBoxLayout *explanationRow_;
 };
 
 #endif // SGMXASSCANCONFIGURATION2013VIEW_H

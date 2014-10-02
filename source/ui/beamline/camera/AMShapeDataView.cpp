@@ -43,7 +43,6 @@ AMShapeDataView::AMShapeDataView(AMShapeData *shapeModel, QWidget *parent) :
 
 
 	coordinateEdit_ = 0;
-	//    sampleView_ = new AMSampleView();
 
 
 	/// Set up GUI
@@ -51,8 +50,6 @@ AMShapeDataView::AMShapeDataView(AMShapeData *shapeModel, QWidget *parent) :
 	QFrame* coordinateFrame= new QFrame();
 	QHBoxLayout* ihl = new QHBoxLayout();
 	ihl->setContentsMargins(12,4,12,4);
-	//    ihl->addWidget(nameEdit_ = new QLineEdit());
-	//    nameEdit_ = new QLineEdit();
 	ihl->addSpacing(10);
 	ihl->addWidget(xEdit_ = new QLineEdit());
 	ihl->addSpacing(10);
@@ -83,8 +80,6 @@ AMShapeDataView::AMShapeDataView(AMShapeData *shapeModel, QWidget *parent) :
 	sliderLayout->addWidget(zAxisSlider_ = new QSlider(Qt::Horizontal));
 	sliderLayout->addSpacing(20);
 	sliderLayout->addWidget(showHideButton_ = new QPushButton("Show/Hide"));
-	//    sliderLayout->addSpacing(20);
-	//    sliderLayout->addWidget(showSampleView_ = new QPushButton("Show Sample"));
 	sliderLayout->addStretch();
 	sliderFrame->setLayout(sliderLayout);
 	xAxisSlider_->setRange(-250,250);
@@ -113,7 +108,6 @@ AMShapeDataView::AMShapeDataView(AMShapeData *shapeModel, QWidget *parent) :
 	setWindowTitle("Shape View");
 	/// Make Connections
 
-	//    connect(nameEdit_, SIGNAL(textEdited(QString)), this, SLOT(nameChanged(QString)));
 	connect(tiltEdit_, SIGNAL(textEdited(QString)), this, SLOT(tiltChanged(QString)));
 	connect(rotationEdit_, SIGNAL(textEdited(QString)), this, SLOT(rotationChanged(QString)));
 	connect(yRotationEdit_, SIGNAL(textEdited(QString)), this, SLOT(yAxisRotationChanged(QString)));
@@ -128,7 +122,6 @@ AMShapeDataView::AMShapeDataView(AMShapeData *shapeModel, QWidget *parent) :
 
 
 	connect(showHideButton_, SIGNAL(clicked()), this, SLOT(toggleShapeVisible()));
-	//    connect(showSampleView_, SIGNAL(clicked()), this, SLOT(showSampleView()));
 	connect(shapeModel_, SIGNAL(shapeDataChanged(AMShapeData*)), this, SLOT(updateAll()));
 	updateAll();
 
@@ -282,7 +275,6 @@ void AMShapeDataView::setShapeVisible(bool visible)
 
 void AMShapeDataView::showSampleView()
 {
-	//    sampleView_->show();
 }
 
 void AMShapeDataView::setCoordinate()
@@ -377,15 +369,10 @@ void AMShapeDataView::updateCoordinateLabels()
 	int points = count();// ignore the closing point of the shape
 	if(points != oldCount_)
 	{
-		//        layout()->removeWidget(coordinateFrame_);
 		delete coordinateFrame_;
 		coordinateFrame_ = new QFrame();
 		if(coordinateEdit_)
 		{
-			//            for(int i = 0; i < 3*oldCount_; i ++)
-			//            {
-			//                delete coordinateEdit_[i];
-			//            }
 			delete [] coordinateEdit_;
 		}
 
@@ -427,7 +414,6 @@ void AMShapeDataView::updateCoordinateLabels()
 			pointLayout[i]->addWidget(coordinateEdit_[3*i+1] = new QLineEdit(QString("%1").arg(shapeModel_->coordinate(i).y())));
 			pointLayout[i]->addWidget(coordinateEdit_[3*i+2] = new QLineEdit(QString("%1").arg(shapeModel_->coordinate(i).z())));
 			pointLayout[i]->addWidget(new QLabel(labelText));
-			//            pointLayout[i]->addStretch();
 			pointFrame[i]->setLayout(pointLayout[i]);
 			verticalLayout->addWidget(pointFrame[i]);
 			for(int n = 0; n < 3; n++)
@@ -435,7 +421,6 @@ void AMShapeDataView::updateCoordinateLabels()
 		}
 		verticalLayout->addStretch();
 		coordinateFrame_->setLayout(verticalLayout);
-		//        layout()->addWidget(coordinateFrame_);
 		scrollArea_->setWidget(coordinateFrame_);
 		scrollArea_->setMaximumSize(coordinateFrame_->size());
 	}

@@ -80,7 +80,6 @@ void AMScanSearchView::initDialog()
 
 	this->setLayout(mainLayout);
 
-	//searchResults->setColumnHidden(0, true);
 	searchResults_->setColumnWidth(1, 210);
 	searchResults_->setColumnWidth(2, 40);
 	searchResults_->setColumnWidth(3, 180);
@@ -189,13 +188,11 @@ AMScanSearchInfo::AMScanSearchInfo(int scanID, QObject *parent)
 		QStringList configResult = results.at(4).toString().split(";");
 		if(configResult.count() > 1 && configResult.at(0).compare(QString("SGMXASScanConfiguration_table"))==0)
 		{
-			//initializeConfig(configResult.at(1).toInt());
 			configID_ = configResult.at(1).toInt();
 		}
 		QStringList sampleResult = results.at(5).toString().split(";");
 		if(sampleResult.count() > 1)
 		{
-			//initializeSample(sampleResult.at(1).toInt());
 			sampleID_ = sampleResult.at(1).toInt();
 		}
 	}
@@ -412,11 +409,3 @@ AMScanSearchInfo *AMScanSearchInfoListModel::scanInfoAt(int index, int id) const
 	return scanCache_[index];
 
 }
-
-
-
-
-
-
-
-

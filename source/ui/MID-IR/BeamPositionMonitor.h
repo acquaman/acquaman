@@ -41,7 +41,6 @@ public:
 	explicit BeamPositionMonitor(QWidget *parent = 0);
 	/// Example of constructor making this class more accessible to other programs.
 	explicit BeamPositionMonitor(QString name, AMProcessVariable *x, AMProcessVariable *y, QWidget *parent = 0);
-	//explicit BeamPositionMonitor(QString name, AMProcessVariable *x, AMProcessVariable *y, AMProcessVariable *intensity, QWidget *parent = 0);
 
 signals:
 

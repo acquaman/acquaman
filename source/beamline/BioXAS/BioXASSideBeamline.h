@@ -53,22 +53,24 @@ public:
 		return static_cast<BioXASSideBeamline*>(instance_);
 	}
 
-	/// Destructor.
-	virtual ~BioXASSideBeamline();
+    /// Destructor.
+    virtual ~BioXASSideBeamline();
+
+    virtual bool isConnected() const;
 
     /// Returns the m1 upper slit blade motor control.
-    CLSMAXvMotor* m1UpperSlit();
-
+    CLSMAXvMotor* m1UpperSlit() { return m1UpperSlit_; }
     /// Returns an instance of the keithley428 amplifier.
-    CLSKeithley428* keithley();
-
+    CLSKeithley428* keithley() { return keithley_; }
     /// Returns the beamline monochromator.
     BioXASSideMonochromator *mono() const { return mono_; }
-
     /// Returns the scaler.
     CLSSIS3820Scaler* scaler() { return scaler_; }
+    /// Returns the temporary test detector.
+    CLSBasicScalerChannelDetector* testDetector() { return testDetector_; }
 
     // Photon and safety shutters.
+
     /// Returns the first photon shutter.
     AMControl *photonShutter1() const { return psh1_; }
     /// Returns the second photon shutter.
@@ -181,10 +183,6 @@ public:
 
     AMControlSet *temperatureSet() const { return temperatureSet_; }
 
-    virtual bool isConnected() const;
-
-    CLSBasicScalerChannelDetector* testDetector() { return testDetector_; }
-
 protected slots:
     /// Sets up pressure control connections once the whole pressure set is connected.
     void onPressureSetConnected(bool connected);
@@ -217,7 +215,7 @@ protected:
 	/// Sets up all of the detectors that need to be added to scans that aren't a part of typical detectors.  This may just be temporary, not sure.
 	void setupControlsAsDetectors();
 
-	/// Constructor. This is a singleton class; access it through BioXASSideBeamline::bioXAS().
+	/// Constructor. This is a singleton class, access it through BioXASSideBeamline::bioXAS().
     BioXASSideBeamline();
 
 protected:

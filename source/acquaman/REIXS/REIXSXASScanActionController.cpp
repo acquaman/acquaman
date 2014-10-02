@@ -60,8 +60,6 @@ REIXSXASScanActionController::REIXSXASScanActionController(REIXSXASScanConfigura
 		int sampleId = REIXSBeamline::bl()->currentSampleId();
 		if(sampleId >= 1) {
 			scan_->setSampleId(sampleId);
-			//QString sampleName = AMSample::sampleNameForId(AMDatabase::database("user"), sampleId); // scan_->sampleName() won't work until the scan is saved to the database.
-			//AMSamplePre2013 *currentSample = new AMSamplePre2013(sampleId, AMDatabase::database("user"));
 			QString sampleName = scan_->sampleName();
 			scan_->setName(QString("%1 %2 %3").arg(sampleName).arg(configuration_->autoScanName()).arg(rangeString));
 		}
@@ -133,7 +131,7 @@ void REIXSXASScanActionController::onInitializationActionSucceeded(){
 	positions.append(REIXSBeamline::bl()->spectrometer()->detectorTiltDrive()->toInfo());
 	// add the spectrometer grating selection, since it's not a "control" anywhere.
 	AMControlInfo grating("spectrometerGrating", REIXSBeamline::bl()->spectrometer()->specifiedGrating(), 0, 0, "[choice]", 0.1, "Spectrometer Grating");
-	grating.setEnumString(REIXSBeamline::bl()->spectrometer()->spectrometerCalibration()->gratingAt(grating.value()).name());
+	grating.setEnumString(REIXSBeamline::bl()->spectrometer()->spectrometerCalibration()->gratingAt(int(grating.value())).name());
 	positions.append(grating);
 	positions.append(REIXSBeamline::bl()->spectrometer()->hexapod()->x()->toInfo());
 	positions.append(REIXSBeamline::bl()->spectrometer()->hexapod()->y()->toInfo());
@@ -152,37 +150,6 @@ void REIXSXASScanActionController::onInitializationActionSucceeded(){
 	positions.append(REIXSBeamline::bl()->spectrometer()->tmMCPPreamp()->toInfo());
 	positions.append(REIXSBeamline::bl()->sampleChamber()->tmSample()->toInfo());
 
-
-//	AMControlInfoList positions(REIXSBeamline::bl()->exposedControls()->toInfoList());
-
-//	// add the spectrometer grating selection, since it's not a "control" anywhere.
-//	AMControlInfo grating("spectrometerGrating", REIXSBeamline::bl()->spectrometer()->specifiedGrating(), 0, 0, "[choice]", 0.1, "Spectrometer Grating");
-//	grating.setEnumString(REIXSBeamline::bl()->spectrometer()->spectrometerCalibration()->gratingAt(grating.value()).name());
-//	positions.insert(9, grating);
-
-//	// add the polarization selection, since it's not a "control" anywhere.
-//	AMControlInfo polarization("beamlinePolarization", REIXSBeamline::bl()->photonSource()->epuPolarization()->value(), 0, 0, "[choice]", 0.1, "EPU Polarization");
-//	polarization.setEnumString(REIXSBeamline::bl()->photonSource()->epuPolarization()->enumNameAt(REIXSBeamline::bl()->photonSource()->epuPolarization()->value()));
-//	positions.append(polarization);
-
-//	if(REIXSBeamline::bl()->photonSource()->epuPolarization()->value() == 5)
-//	{
-//	AMControlInfo polarizationAngle("beamlinePolarizationAngle", REIXSBeamline::bl()->photonSource()->epuPolarizationAngle()->value(), 0, 0, "degrees", 0.1, "EPU Polarization Angle");
-//	positions.append(polarizationAngle);
-//	}
-
-
-////	AMControlInfo SOEtemp("SOETemp", REIXSBeamline::bl()->spectrometer()->tmSOE(), 0, 0, "C", 0.1, "SOE Temperature");
-////	positions.append(SOEtemp);
-////	AMControlInfo MCPtemp("MCPtemp", REIXSBeamline::bl()->spectrometer()->tmMCPPreamp(), 0, 0, "C", 0.1, "MCP Preamp Temperature");
-////	positions.append(MCPtemp);
-////	AMControlInfo Sampletemp("Sampletemp", REIXSBeamline::bl()->sampleChamber()->tmSample(), 0, 0, "C", 0.1, "Sample Temperature");
-////	positions.append(Sampletemp);
-//	positions.append(REIXSBeamline::bl()->spectrometer()->tmSOE()->toInfo());
-//	positions.append(REIXSBeamline::bl()->spectrometer()->tmMCPPreamp()->toInfo());
-//	positions.append(REIXSBeamline::bl()->sampleChamber()->tmSample()->toInfo());
-
-//	//scan_->scanInitialConditions()->setValuesFrom(positions);
 	scan_->setScanInitialConditions(positions);
 }
 
@@ -288,15 +255,9 @@ AMAction3* REIXSXASScanActionController::createInitializationActions(){
 }
 
 AMAction3* REIXSXASScanActionController::createCleanupActions(){
-	AMListAction3 *cleanupActions = new AMListAction3(new AMListActionInfo3("REIXS XAS Cleanup Actions", "REIXS XAS Cleanup Actions"));//, AMListAction3::Parallel); sequentially set up scaler
+	AMListAction3 *cleanupActions = new AMListAction3(new AMListActionInfo3("REIXS XAS Cleanup Actions", "REIXS XAS Cleanup Actions"));// sequentially set up scaler
 
 	CLSSIS3820Scaler *scaler = REIXSBeamline::bl()->scaler();
-//	cleanupActions->addSubAction(scaler->createContinuousEnableAction3(scaler->isConti/*nuous()));
-//	cleanupActions->addSubAction(scaler->createScansPerBufferAction3(scaler->scansPerBuffer()));
-//	cleanupActions->addSubAction(scaler->createTotalScansAction3(scaler->totalScans()));
-//	cleanupActions->addSubAction(scaler->createContinuousEnableAction3(true));
-//	cleanupActions->addSubAction(scaler->createScansPerBufferAction3(1));
-//	cleanupActions->addSubAction(scaler->createTotalScansAction3(0));
 	cleanupActions->addSubAction(scaler->createStartAction3(false));
 	cleanupActions->addSubAction(new AMWaitAction(new AMWaitActionInfo(1.0)));
 	cleanupActions->addSubAction(scaler->createDwellTimeAction3(1.0));
@@ -312,8 +273,6 @@ void REIXSXASScanActionController::cancelImplementation(){
 
 	AMAction3 *cleanupActions = createCleanupActions();
 	cleanupActions->start();
-	//setCancelled();  //should be handled by AMStepScanActionController::cancelImplementation();
-
 }
 
 
@@ -327,8 +286,6 @@ void REIXSXASScanActionController::onScanTimerUpdate()
 		else
 			secondsElapsed_ += 1.0;
 
-		//emit timeRemaining(secondsTotal_-secondsElapsed_); Not in IDEAS controller?
-		//qDebug() << "scan timer updated to" << secondsElapsed_ << "of" << secondsTotal_;
 		emit progress(secondsElapsed_, secondsTotal_);
 	}
 }

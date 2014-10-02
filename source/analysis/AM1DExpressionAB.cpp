@@ -42,10 +42,6 @@ AM1DExpressionAB::AM1DExpressionAB(const QString& outputName, QObject* parent)
 	xParser_.DefineNameChars("0123456789_:.[]"
 							 "abcdefghijklmnopqrstuvwxyz"
 							 "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-	//parser_.DefineOprtChars("abcdefghijklmnopqrstuvwxyz"
-	//					   "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-	//				   "+-*^/?<>=#!$%&|~'_");
-	//parser_.DefineInfixOprtChars("/+-*^?<>=#!$%&|~'_");
 
 	// initial state is invalid: no inputs.
 	setState(AMDataSource::InvalidFlag);
@@ -67,10 +63,6 @@ AM1DExpressionAB::AM1DExpressionAB(AMDatabase* db, int id)
 	xParser_.DefineNameChars("0123456789_:.[]"
 							 "abcdefghijklmnopqrstuvwxyz"
 							 "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-	//parser_.DefineOprtChars("abcdefghijklmnopqrstuvwxyz"
-	//					   "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-	//				   "+-*^/?<>=#!$%&|~'_");
-	//parser_.DefineInfixOprtChars("/+-*^?<>=#!$%&|~'_");
 
 	// initial state is invalid: no inputs.
 	setState(AMDataSource::InvalidFlag);
@@ -110,7 +102,7 @@ void AM1DExpressionAB::setInputDataSourcesImplementation(const QList<AMDataSourc
 		disconnect(inputDataSourceAt(i)->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
 	}
 
-	// done with the old sources; these are our new sources now
+	// done with the old sources. These are our new sources now
 	sources_ = dataSources;
 
 	// clear old parser variables
@@ -176,7 +168,7 @@ void AM1DExpressionAB::reviewState() {
 // Access to input data sources
 //////////////////////////
 
-// Retrieve index of an input data source by name. (Hopefully no two data sources have the same name; if they do, this returns the first one.) Returns -1 if no input source found with this name.
+// Retrieve index of an input data source by name. (Hopefully no two data sources have the same name, if they do, this returns the first one.) Returns -1 if no input source found with this name.
 /* This might be involve a slow lookup; users should not call repeatedly.*/
 int AM1DExpressionAB::indexOfInputSource(const QString& dataSourceName) const {
 	for(int i=0; i<inputDataSourceCount(); i++)
@@ -506,8 +498,6 @@ bool AM1DExpressionAB::setExpression(const QString& newExpression) {
 
 	}
 	catch(mu::Parser::exception_type& e) {
-		// QString explanation = QString("AM1DExpressionAB Analysis Block: error setting expression: %1: '%2'.  We found '%3' at position %4.").arg(QString::fromStdString(e.GetMsg())).arg(QString::fromStdString(e.GetExpr())).arg(QString::fromStdString(e.GetToken())).arg(e.GetPos());
-		// AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, e.GetCode(), explanation));
 		expressionValid_ = false;
 	}
 
@@ -569,8 +559,6 @@ bool AM1DExpressionAB::setXExpression(const QString& xExpressionIn) {
 
 	}
 	catch(mu::Parser::exception_type& e) {
-		// QString explanation = QString("AM1DExpressionAB Analysis Block: error setting X expression: %1: '%2'.  We found '%3' at position %4.").arg(QString::fromStdString(e.GetMsg())).arg(QString::fromStdString(e.GetExpr())).arg(QString::fromStdString(e.GetToken())).arg(e.GetPos());
-		// AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, e.GetCode(), explanation));
 		xExpressionValid_ = false;
 	}
 

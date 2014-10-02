@@ -48,7 +48,7 @@ public:
 		return retval;
 	}
 
-	/// reverse-lookup; a meaningful name from a PV. Returns a null and empty QString if not found.
+	/// reverse-lookup, a meaningful name from a PV. Returns a null and empty QString if not found.
 	static QString fromPV(const QString& pvName) {
 		QString retval = d_.valueR(pvName);
 		if(retval.isEmpty())

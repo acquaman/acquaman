@@ -82,9 +82,6 @@ public slots:
 
 
 protected:
-	/// We have a picture of this  In the future,
-	// QImage sampleImage_;
-
 	/// User-logged notes about this experiment.
 	QString notes_;
 

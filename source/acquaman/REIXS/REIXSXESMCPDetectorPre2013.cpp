@@ -94,7 +94,7 @@ REIXSXESMCPDataSourcePre2013::REIXSXESMCPDataSourcePre2013(const QString &name, 
 
 }
 
-// Called whenever the connection state of any PV changes; emits valuesChanged(), sizeChanged(), and stateChanged() as required.
+// Called whenever the connection state of any PV changes: emits valuesChanged(), sizeChanged(), and stateChanged() as required.
 void REIXSXESMCPDataSourcePre2013::onConnectionStateChanged() {
 	bool wasConnected = isConnected_;
 
@@ -120,8 +120,6 @@ void REIXSXESMCPDataSourcePre2013::onConnectionStateChanged() {
 		emitValuesChanged();
 		emitSizeChanged();
 		emitStateChanged(AMDataSource::ProcessingFlag);
-
-		// AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, "Connection established to MCP Detector " + imagePV_->pvName() + QString(" Size: %1 x %2").arg(pixelsX_).arg(pixelsY_)));
 	}
 }
 

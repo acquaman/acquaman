@@ -120,7 +120,7 @@ bool VESPERSDbUpgrade1Pt6::upgradeImplementation()
 												   << roiInfosId1Column.at(i)
 												   << "VESPERSScanConfigurationDbObject_table"
 												   << roiInfosId2Column.at(i)
-												   << "AMRegionsOfInterest_table"
+												   << "AMRegionOfInterest_table"
 												   );
 		}
 

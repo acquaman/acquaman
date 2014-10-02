@@ -30,7 +30,7 @@ class AMControlSet;
 class AMControlSetSampleManipulator : public AMSampleManipulator
 {
 public:
-	/// Construct a sample manipulator based on this \c controlSet.  The \c controlSet should exist as long as we are around and being used; we do not take ownership of it.
+	/// Construct a sample manipulator based on this \c controlSet.  The \c controlSet should exist as long as we are around and being used, we do not take ownership of it.
  	virtual ~AMControlSetSampleManipulator();
 	explicit AMControlSetSampleManipulator(AMControlSet* controlSet);
 

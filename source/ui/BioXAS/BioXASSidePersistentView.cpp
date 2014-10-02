@@ -21,6 +21,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "BioXASSidePersistentView.h"
 
+#include "beamline/BioXAS/BioXASSideBeamline.h"
+#include "ui/beamline/AMExtendedControlEditor.h"
+
 BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
     QWidget(parent)
 {
@@ -42,27 +45,20 @@ BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
     monoInfo->setTitle("Mono Info");
     monoInfo->setLayout(monoLayout);
 
-    QVBoxLayout *mainLayout = new QVBoxLayout();
-    mainLayout->addWidget(monoInfo);
-    mainLayout->addStretch();
-
-    setLayout(mainLayout);
-
-
 //    motorControlEditor_ = new AMExtendedControlEditor(BioXASSideBeamline::bioXAS()->m1UpperSlit());
 //    motorControlEditor_->setControlFormat('g', 4);
 
-//    keithleyView_ = BioXASSideBeamline::bioXAS()->keithley()->createView();
-//    keithleyView_->setParent(this);
-//    keithleyView_->setPrecision(2);
-//    keithleyView_->setFormat('e');
+    keithleyView_ = BioXASSideBeamline::bioXAS()->keithley()->createView();
+    keithleyView_->setParent(this);
+    keithleyView_->setPrecision(2);
+    keithleyView_->setFormat('e');
 
-//    QVBoxLayout *layout = new QVBoxLayout();
-//    layout->addWidget(motorControlEditor_);
-//    layout->addWidget(keithleyView_);
-//    layout->addStretch();
+    QVBoxLayout *mainLayout = new QVBoxLayout();
+    mainLayout->addWidget(monoInfo);
+    mainLayout->addWidget(keithleyView_);
+    mainLayout->addStretch();
 
-//    setLayout(layout);
+    setLayout(mainLayout);
 }
 
 BioXASSidePersistentView::~BioXASSidePersistentView()

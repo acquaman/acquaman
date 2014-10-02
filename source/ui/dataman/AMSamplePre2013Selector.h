@@ -45,7 +45,7 @@ public slots:
 
 
 signals:
-	/// Emitted when the currentSampleId() changes; can be -1 if there are no samples / no sample selected.
+	/// Emitted when the currentSampleId() changes, can be -1 if there are no samples / no sample selected.
 	void currentSampleChanged(int sampleId);
 
 protected slots:

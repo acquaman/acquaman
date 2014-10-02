@@ -26,7 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dataman/AMScan.h"
 #include "dataman/export/AMExporterOption.h"
-#include "acquaman/AMXASScanConfiguration.h"
+#include "acquaman/AMStepScanConfiguration.h"
 
  SGMAxis2000Exporter::~SGMAxis2000Exporter(){}
 SGMAxis2000Exporter::SGMAxis2000Exporter(QObject *parent) :
@@ -57,8 +57,8 @@ QString SGMAxis2000Exporter::exportScan(const AMScan *scan, const QString &desti
 	ts << "\"NEXAFS Point Scan\"; ";
 	ts << "Flags = \"Spectra\"; ";
 	ts << "ScanType = \"Spectra\"; ";
-	const AMXASScanConfiguration *xasScanConfiguration = qobject_cast<const AMXASScanConfiguration*>(currentScan_->scanConfiguration());
-	ts << QString("Dwell = %1;").arg(xasScanConfiguration->regionTime(0));
+	const AMStepScanConfiguration *xasScanConfiguration = qobject_cast<const AMStepScanConfiguration*>(currentScan_->scanConfiguration());
+	ts << QString("Dwell = %1;").arg(double(xasScanConfiguration->scanAxisAt(0)->regionAt(0)->regionTime()));
 	ts << "\n\tRegions = (1,";
 	ts << "\n{";
 	ts << "\n\t\t\tPAxis = { ";

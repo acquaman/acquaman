@@ -67,7 +67,7 @@ bool ALSBL8XASFileLoader::loadFromFile(const QString& filepath, bool setMetaData
 
 	// information about the scan we hope to locate:
 	QString comments;
-	double integrationTime;
+	/* double integrationTime; Removed to prevent compile warning, see Issue734 */
 
 	// used in parsing the data file
 	QString line;
@@ -85,19 +85,19 @@ bool ALSBL8XASFileLoader::loadFromFile(const QString& filepath, bool setMetaData
 	QTextStream fs(&f);
 
 	if(setMetaData) {
+		/* Removed to prevent compile warning, see Issue734
 		// Start reading the file. look for the count-time line.
 		while( !fs.atEnd() && !(line = fs.readLine()).startsWith("Count Time (s):") )
 			;
 		if(fs.atEnd()) {
 			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -2, "ALSBL8XASFileLoader parse error while loading scan data from file. Could not find the count time (integration time)."));
 			fs.seek(0);
-			// return false;	// bad format; missing the count time string
 		}
 		else {
 			// read it
 			integrationTime = line.split(':').at(1).trimmed().toDouble();
 		}
-
+		*/
 
 		// Keep reading the file. look for the comment line.
 		while( !fs.atEnd() && !(line = fs.readLine()).startsWith("Description Length:") )
@@ -105,7 +105,6 @@ bool ALSBL8XASFileLoader::loadFromFile(const QString& filepath, bool setMetaData
 		if(fs.atEnd()) {
 			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, -2, "ALSBL8XASFileLoader parse error while loading scan data from file. Could not find the description."));
 			fs.seek(0);
-			// return false;	// bad format; missing the comment string
 		}
 		else {
 
@@ -125,7 +124,7 @@ bool ALSBL8XASFileLoader::loadFromFile(const QString& filepath, bool setMetaData
 		line = fs.readLine();
 	if(fs.atEnd()) {
 		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -2, "ALSBL8XASFileLoader parse error while loading scan data from file. Missing the Column Header line."));
-		return false;	// bad format; missing the column header
+		return false;	// bad format. Missing the column header
 	}
 	colNames1 = line.split(QChar('\t'));
 
@@ -137,7 +136,7 @@ bool ALSBL8XASFileLoader::loadFromFile(const QString& filepath, bool setMetaData
 	int eVIndex = colNames1.indexOf("eV");
 	if(eVIndex < 0) {
 		AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -3, "ALSBL8XASFileLoader parse error while loading scan data from file. I couldn't find the energy (eV) column."));
-		return false;	// bad format; no primary column
+		return false;	// bad format. No primary column
 
 	}
 
@@ -153,7 +152,7 @@ bool ALSBL8XASFileLoader::loadFromFile(const QString& filepath, bool setMetaData
 	// add scalar (0D) measurements to the raw data store, for each data column.  Also add raw data sources to the scan, which expose this data.
 	foreach(QString colName, colNames1) {
 		if(colName != "eV" && colName != "Event-ID") {
-			scan->rawData()->addMeasurement(AMMeasurementInfo(colName, colName));	/// \todo nice descriptions for the common column names; not just 'tey' or 'tfy'.
+			scan->rawData()->addMeasurement(AMMeasurementInfo(colName, colName));	/// \todo nice descriptions for the common column names. Not just 'tey' or 'tfy'.
 		}
 	}
 

@@ -32,6 +32,12 @@ AMScanAxis::AMScanAxis(AMScanAxis::AxisType axisType, AMScanAxisRegion *firstReg
 		firstRegion->setName(name());
 
 	regions_.append(firstRegion);
+
+	connect(firstRegion, SIGNAL(regionStartChanged(AMNumber)), this, SIGNAL(regionsChanged()));
+	connect(firstRegion, SIGNAL(regionStepChanged(AMNumber)), this, SIGNAL(regionsChanged()));
+	connect(firstRegion, SIGNAL(regionEndChanged(AMNumber)), this, SIGNAL(regionsChanged()));
+	connect(firstRegion, SIGNAL(regionTimeChanged(AMNumber)), this, SIGNAL(regionsChanged()));
+
 	axisValid_ = AMScanAxis::InvalidAxis;
 	checkAxisValidity();
 }
@@ -41,8 +47,14 @@ AMScanAxis::AMScanAxis(const AMScanAxis &original)
 {
 	setAxisType(original.axisType());
 
-	foreach (AMScanAxisRegion *region, original.regions().toList())
+	foreach (AMScanAxisRegion *region, original.regions().toList()){
 		regions_.append(region->createCopy());
+
+		connect(region, SIGNAL(regionStartChanged(AMNumber)), this, SIGNAL(regionsChanged()));
+		connect(region, SIGNAL(regionStepChanged(AMNumber)), this, SIGNAL(regionsChanged()));
+		connect(region, SIGNAL(regionEndChanged(AMNumber)), this, SIGNAL(regionsChanged()));
+		connect(region, SIGNAL(regionTimeChanged(AMNumber)), this, SIGNAL(regionsChanged()));
+	}
 
 	checkAxisValidity();
 }
@@ -108,6 +120,11 @@ bool AMScanAxis::insertRegion(int index, AMScanAxisRegion *region)
 
 	emit regionAdded(region);
 
+	connect(region, SIGNAL(regionStartChanged(AMNumber)), this, SIGNAL(regionsChanged()));
+	connect(region, SIGNAL(regionStepChanged(AMNumber)), this, SIGNAL(regionsChanged()));
+	connect(region, SIGNAL(regionEndChanged(AMNumber)), this, SIGNAL(regionsChanged()));
+	connect(region, SIGNAL(regionTimeChanged(AMNumber)), this, SIGNAL(regionsChanged()));
+
 	return true;
 }
 
@@ -126,6 +143,11 @@ bool AMScanAxis::appendRegion(AMScanAxisRegion *region)
 
 	emit regionAdded(region);
 
+	connect(region, SIGNAL(regionStartChanged(AMNumber)), this, SIGNAL(regionsChanged()));
+	connect(region, SIGNAL(regionStepChanged(AMNumber)), this, SIGNAL(regionsChanged()));
+	connect(region, SIGNAL(regionEndChanged(AMNumber)), this, SIGNAL(regionsChanged()));
+	connect(region, SIGNAL(regionTimeChanged(AMNumber)), this, SIGNAL(regionsChanged()));
+
 	return true;
 }
 
@@ -143,7 +165,17 @@ bool AMScanAxis::overwriteRegion(int index, AMScanAxisRegion *region)
 		return false;
 	}
 
+	disconnect(oldRegion, SIGNAL(regionStartChanged(AMNumber)), this, SIGNAL(regionsChanged()));
+	disconnect(oldRegion, SIGNAL(regionStepChanged(AMNumber)), this, SIGNAL(regionsChanged()));
+	disconnect(oldRegion, SIGNAL(regionEndChanged(AMNumber)), this, SIGNAL(regionsChanged()));
+	disconnect(oldRegion, SIGNAL(regionTimeChanged(AMNumber)), this, SIGNAL(regionsChanged()));
+
 	emit regionOverwritten(region);
+
+	connect(region, SIGNAL(regionStartChanged(AMNumber)), this, SIGNAL(regionsChanged()));
+	connect(region, SIGNAL(regionStepChanged(AMNumber)), this, SIGNAL(regionsChanged()));
+	connect(region, SIGNAL(regionEndChanged(AMNumber)), this, SIGNAL(regionsChanged()));
+	connect(region, SIGNAL(regionTimeChanged(AMNumber)), this, SIGNAL(regionsChanged()));
 
 	return true;
 }
@@ -159,6 +191,11 @@ bool AMScanAxis::removeRegion(AMScanAxisRegion *region)
 	}
 
 	emit regionRemoved(region);
+
+	disconnect(region, SIGNAL(regionStartChanged(AMNumber)), this, SIGNAL(regionsChanged()));
+	disconnect(region, SIGNAL(regionStepChanged(AMNumber)), this, SIGNAL(regionsChanged()));
+	disconnect(region, SIGNAL(regionEndChanged(AMNumber)), this, SIGNAL(regionsChanged()));
+	disconnect(region, SIGNAL(regionTimeChanged(AMNumber)), this, SIGNAL(regionsChanged()));
 
 	return false;
 }

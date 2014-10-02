@@ -66,9 +66,6 @@ AMControlInfoList AMControlSetView::configValues(){
 		rv.append(info);
 	}
 
-//	if(!configureOnly_){
-//		//return currentValues();
-//	}
 	return rv;
 }
 

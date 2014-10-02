@@ -107,7 +107,7 @@ QString CLSPGTDetectorV2::synchronizedDwellKey() const{
 	return QString("%1:StartAcquisition.PROC NPP NM").arg(baseName_);
 }
 
-bool CLSPGTDetectorV2::sharesDetectorTriggerSource(){
+bool CLSPGTDetectorV2::sharesDetectorTriggerSource() const{
 	return currentlySynchronizedDwell();
 }
 
@@ -182,7 +182,6 @@ bool CLSPGTDetectorV2::clear(){
 }
 
 bool CLSPGTDetectorV2::initializeImplementation(){
-	//setInitializing();
 	setInitialized();
 	return true;
 }

@@ -30,6 +30,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/BioXAS/BioXASSideMonoBasicEnergyView.h"
 #include "ui/BioXAS/BioXASSideMonoCrystalChangeView.h"
+#include "ui/beamline/AMCurrentAmplifierSingleView.h"
+
+class AMExtendedControlEditor;
 
 class BioXASSidePersistentView : public QWidget
 {
@@ -47,12 +50,7 @@ public slots:
 
 protected:
 //    AMExtendedControlEditor *motorControlEditor_;
-//    AMCurrentAmplifierSingleView *keithleyView_;
-
-//    CLSStopLightButton *psh1_;
-//    CLSStopLightButton *psh2_;
-//    CLSStopLightButton *ssh1_;
-//    CLSStopLightButton *ssh2_;
+    AMCurrentAmplifierSingleView *keithleyView_;
 
     BioXASSideMonoBasicEnergyView *energyView_;
     QPushButton *toViewCrystalChangeInstructs_;

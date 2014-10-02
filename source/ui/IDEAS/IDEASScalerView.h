@@ -41,9 +41,7 @@ signals:
 
 protected slots:
 	/// Handles switching all the SR570 views to match the most recent change.
-    void onSR570ViewChanged(AMCurrentAmplifierView::ViewMode mode);
-//	/// Handles switching all the SR570 views to match the most recent change.
-//    void onSR570ViewChanged(AMCurrentAmplifierView::ViewMode mode);
+	void onSR570ViewChanged(AMCurrentAmplifierView::ViewMode mode);
 	/// Handles switching all the output views to match the new composite view mode.
 	void onOutputViewModeChanged(CLSSIS3820CompositeScalerChannelView::OutputViewMode mode);
 	/// Handles switching all the output views to match the most recent change.
@@ -52,8 +50,6 @@ protected slots:
 protected:
 	/// Holds the list of scaler channel views.
 	QList<CLSSIS3820ScalerChannelView *> singleViews_;
-//	/// Holds the pointer to the composite channel scaler view.
-//	CLSSIS3820CompositeScalerChannelView *compositeView_;
 };
 
 #endif // IDEASSCALERVIEW_H

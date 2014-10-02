@@ -64,11 +64,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/AMAgnosticDataAPI.h"
 
 #include "beamline/AMProcessVariablePrivate.h"
-
+#include "actions3/actions/AMDirectorySynchronizationAction.h"
 AMAppController::AMAppController(QObject *parent)
 	: AMDatamanAppControllerForActions3(parent)
 {
-	overrideCloseCheck_ = false;
 }
 
 AMAppController::~AMAppController()
@@ -139,14 +138,12 @@ bool AMAppController::startupCreateUserInterface() {
 		setAutomaticBringScanEditorToFront(true);
 
 		// add the workflow control UI
-		//workflowView_ = new AMWorkflowView3();
 		workflowView_ = new AMWorkflowView3(AMActionRunner3::workflow());
 		mw_->insertHeading("Experiment Tools", 1);
 		mw_->addPane(workflowView_, "Experiment Tools", "Workflow", ":/user-away.png");
 
 		scanActionRunnerView_ = new AMWorkflowView3(AMActionRunner3::scanActionRunner());
 		scanActionRunnerView_->hide();
-		//mw_->addPane(scanActionRunnerView_, "Experiment Tools", "ScanActions", ":/user-away.png");
 
 		// get the "open scans" section to be under the workflow
 		mw_->windowPaneModel()->removeRow(scanEditorsParentItem_->row());
@@ -284,7 +281,6 @@ void AMAppController::openScanInEditor(AMScan *scan, bool bringEditorToFront, bo
 }
 
 #include "acquaman/AMScanConfiguration.h"
-#include "acquaman/AM2DScanConfiguration.h"
 #include "ui/acquaman/AMScanConfigurationView.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
 #include "dataman/database/AMDatabase.h"
@@ -333,23 +329,7 @@ void AMAppController::launchScanConfigurationFromDb(const QUrl &url)
 
 bool AMAppController::eventFilter(QObject* o, QEvent* e)
 {
-	if(o == mw_ && e->type() == QEvent::Close) {
-		if(overrideCloseCheck_)
-			qApp->quit();
-		if(!canCloseScanEditors()) {
-			e->ignore();
-			return true;
-		}
-		if(!canCloseActionRunner()) {
-			e->ignore();
-			return true;
-		}
-		// They got away with closing the main window. We should quit the application
-		qApp->quit();	//note that this might already be in progress, if an application quit was what triggered this close event.  No harm in asking twice...
-
-	}
-	// anything else, allow unfiltered
-	return QObject::eventFilter(o,e);
+	return AMDatamanAppController::eventFilter(o,e);
 }
 
 #include <QMessageBox>
@@ -411,11 +391,6 @@ void AMAppController::showScanActionsView(){
 	scanActionRunnerView_->raise();
 }
 
-void AMAppController::forceQuitAcquaman(){
-	overrideCloseCheck_ = true;
-	mw_->close();
-}
-
 #include <QMenu>
 #include <QMenuBar>
 bool AMAppController::startupInstallActions()
@@ -423,7 +398,6 @@ bool AMAppController::startupInstallActions()
 	if(AMDatamanAppControllerForActions3::startupInstallActions()) {
 
 		QAction *changeRunAction = new QAction("Change Run...", mw_);
-		// changeRunAction->setShortcut(QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_B));
 		changeRunAction->setStatusTip("Change the current run, or create a new one");
 		connect(changeRunAction, SIGNAL(triggered()), this, SLOT(showChooseRunDialog()));
 
@@ -431,13 +405,8 @@ bool AMAppController::startupInstallActions()
 		openScanActionsViewAction->setStatusTip("Open the view to see all actions done by scans");
 		connect(openScanActionsViewAction, SIGNAL(triggered()), this, SLOT(showScanActionsView()));
 
-		QAction *forceQuitAction = new QAction("Force Quit Acquaman", mw_);
-		forceQuitAction->setStatusTip("Acquaman is behaving poorly, force a quit and loose any unsaved changes or currently running scans");
-		connect(forceQuitAction, SIGNAL(triggered()), this, SLOT(forceQuitAcquaman()));
-
 		fileMenu_->addSeparator();
 		fileMenu_->addAction(changeRunAction);
-		fileMenu_->addAction(forceQuitAction);
 
 		viewMenu_ = menuBar_->addMenu("View");
 		viewMenu_->addAction(openScanActionsViewAction);

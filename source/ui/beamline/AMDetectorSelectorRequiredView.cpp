@@ -222,7 +222,6 @@ AMDetectorSelectorRequiredViewInternalLineView::AMDetectorSelectorRequiredViewIn
 		detectorSelectedCheckBox_->setText("Required");
 	else
 		detectorSelectedCheckBox_->setText("Not Required");
-	//briefView_ = new AMDetectorGeneralBriefView(detector);
 	detectorNameLabel_ = new QLabel(detector_->name());
 
 	QHBoxLayout *hl = new QHBoxLayout();

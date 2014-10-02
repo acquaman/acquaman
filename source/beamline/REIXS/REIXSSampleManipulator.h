@@ -32,7 +32,7 @@ public:
 
 	/// Returns the current position of the sample manipulator, as an AMControlInfoList.
 	virtual AMControlInfoList position() const;
-	/// Sends a request to move the sample manipulator into position \c newPosition. Returns true if the request is accepted; false if it cannot be started for any reason.
+	/// Sends a request to move the sample manipulator into position \c newPosition. Returns true if the request is accepted, false if it cannot be started for any reason.
 	virtual bool moveToPosition(const AMControlInfoList& newPosition);
 
 	/// Returns the facility ID where this manipulator is found. It would be bad to try to move to sample positions from one facility when at another facility. The REIXS facility id is 5. \todo Make a more robust facility id registration system.

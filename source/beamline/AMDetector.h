@@ -446,7 +446,7 @@ protected slots:
 	void setCleanupRequired();
 
 protected:
-	// The following functions are used to define the unique behaviour of the detector.  We set them up in this way so that subclasses don't need to worry about (and cannot) break the state machine logic; they only need to fill in their pieces.
+	// The following functions are used to define the unique behaviour of the detector.  We set them up in this way so that subclasses don't need to worry about (and cannot) break the state machine logic, they only need to fill in their pieces.
 
 	// These pure-virtual functions allow subclasses to implement their unique action behaviour.  They are called at the appropriate time by the base class, when base-class-initiated state changes happen: ->Acquiring, ->Cancelling, ->Initializing, ->CleaningUp
 	/////////////////////////

@@ -118,7 +118,7 @@ protected:
 	void setCurrentColumnIndex(int colIndex) { currentColumnIndex_ = colIndex; }
 	int currentColumnIndex_;
 
-	/// Parse an input string for recognizable "$keyword" tags, and return a converted string. The results depend on the currentScan_ and currentDataSourceIndex_;
+	/// Parse an input string for recognizable "$keyword" tags, and return a converted string. The results depend on the currentScan_ and currentDataSourceIndex_
 	QString parseKeywordString(const QString& inputString);
 
 	/// A dictionary of function pointers we've built to support the "$keyword" replacement system. The functors return the replacement text for a given keyword tag, possibly depending on the argument.  If you want to add more keywords to the parsing system, add them to this.

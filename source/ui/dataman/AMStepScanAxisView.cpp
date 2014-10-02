@@ -83,26 +83,35 @@ AMStepScanAxisElementView::AMStepScanAxisElementView(AMScanAxisRegion *region, Q
 
 void AMStepScanAxisElementView::setStartSpinBox(const AMNumber &value)
 {
-	if (double(value) != start_->value())
+	if (double(value) != start_->value()){
 		start_->setValue(double(value));
+		onStartPositionUpdated();
+	}
 }
 
 void AMStepScanAxisElementView::setDeltaSpinBox(const AMNumber &value)
 {
-	if (double(value) != delta_->value())
+	if (double(value) != delta_->value()){
 		delta_->setValue(double(value));
+		onDeltaPositionUpdated();
+		}
 }
 
 void AMStepScanAxisElementView::setEndSpinBox(const AMNumber &value)
 {
-	if (double(value) != end_->value())
+	if (double(value) != end_->value()){
 		end_->setValue(double(value));
+		onEndPositionUpdated();
+	}
 }
 
 void AMStepScanAxisElementView::setTimeSpinBox(const AMNumber &value)
 {
-	if (double(value) != time_->value())
+	if (double(value) != time_->value()){
 		time_->setValue(double(value));
+		onTimeUpdated();
+	}
+
 }
 
 void AMStepScanAxisElementView::onStartPositionUpdated()

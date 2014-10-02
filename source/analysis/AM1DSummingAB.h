@@ -33,7 +33,7 @@ class AM1DSummingAB : public AMStandardAnalysisBlock
 
 public:
 	/// Constructor.
- 	virtual ~AM1DSummingAB();
+	virtual ~AM1DSummingAB();
 	Q_INVOKABLE AM1DSummingAB(const QString &outputName = "InvalidInput", QObject *parent = 0);
 
 	/// Description.
@@ -44,6 +44,9 @@ public:
 	- the rank() of that input source must be 2 (two-dimensiona)
 	*/
 	virtual bool areInputDataSourcesAcceptable(const QList<AMDataSource*>& dataSources) const;
+
+	/// Returns the desired rank for input sources.
+	virtual int desiredInputRank() const { return 1; }
 
 	/// Set the data source inputs.
 	virtual void setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources);

@@ -577,7 +577,6 @@ void AMActionHistoryModel3::markIndexAsSelected(const QModelIndex &index, QAbstr
 	for(int x = 0; x < rowCount(index); x++)
 		recurseMarkParentSelected(index.child(x, 0), viewer, true);
 	// Emit dataChanged for these top-level indices
-	//emit dataChanged(index.child(0, 0), index.child(rowCount(index), 0));
 	emit dataChanged(index, index);
 }
 
@@ -586,7 +585,6 @@ void AMActionHistoryModel3::markIndexAsDeselected(const QModelIndex &index, QAbs
 	for(int x = 0; x < rowCount(index); x++)
 		recurseMarkParentSelected(index.child(x, 0), viewer, false);
 	// Emit dataChanged for these top-level indices
-	//emit dataChanged(index.child(0, 0), index.child(rowCount(index), 0));
 	emit dataChanged(index, index);
 }
 

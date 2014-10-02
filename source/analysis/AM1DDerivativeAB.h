@@ -42,8 +42,9 @@ class AM1DDerivativeAB : public AMStandardAnalysisBlock
 
 public:
 	/// Constructor.
- 	virtual ~AM1DDerivativeAB();
 	Q_INVOKABLE AM1DDerivativeAB(const QString &outputName = "InvalidInput", QObject *parent = 0);
+	/// Destructor.
+	virtual ~AM1DDerivativeAB();
 
 	QString infoDescription() const { return QString(); }
 
@@ -52,6 +53,9 @@ public:
 		- the rank() of that input source must be 1 (one-dimensional)
 		*/
 	virtual bool areInputDataSourcesAcceptable(const QList<AMDataSource*>& dataSources) const;
+
+	/// Returns the desired rank for input sources.
+	virtual int desiredInputRank() const { return 1; }
 
 	/// Set the data source inputs.
 	virtual void setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources);

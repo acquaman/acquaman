@@ -85,7 +85,8 @@ void AMActionHistoryTreeView3::onEnteredIndex(const QModelIndex &index){
 QItemSelectionModel::SelectionFlags AMActionHistoryTreeView3::selectionCommand(const QModelIndex &index, const QEvent *selectionEvent) const{
 	// Initialize by calling the parent version
 	QItemSelectionModel::SelectionFlags retFlags = QTreeView::selectionCommand(index, selectionEvent);
-	bool hasShiftModifier, hasControlModifier;
+	/* bool hasShiftModifier, hasControlModifier; Removed to prevent compiler warnings, see Issue734 */
+	bool hasControlModifier;
 
 	// If we have a valid index we have a lot of work to do (also make sure this thing is actually an AMActionHistoryModel viewing tree)
 	if(index.isValid()){
@@ -105,7 +106,7 @@ QItemSelectionModel::SelectionFlags AMActionHistoryTreeView3::selectionCommand(c
 		// Grab keyboard shift and control modifiers
 		Qt::KeyboardModifiers currentModifiers = mouseEvent->modifiers();
 		hasControlModifier = currentModifiers&Qt::ControlModifier;
-		hasShiftModifier = currentModifiers&Qt::ShiftModifier;
+		/* hasShiftModifier = currentModifiers&Qt::ShiftModifier; Removed to prevent compile warning, see Issue734 */
 
 		ParentSelectMap selectMap = model()->data(index, AMActionHistoryModel3::ParentSelectRole).value<ParentSelectMap>();
 		// This is pretty bad, you can tell too much is in here that doesn't belong when I need to do a const cast

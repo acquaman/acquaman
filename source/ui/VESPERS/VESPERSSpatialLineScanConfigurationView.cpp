@@ -491,7 +491,7 @@ void VESPERSSpatialLineScanConfigurationView::onSetEndPosition()
 	case VESPERS::H:
 		position = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->horizontalControl()->value();
 		otherPosition = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->verticalControl()->value();
-		n = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->normalControl()->value();
+		  n = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->normalControl()->value();
 		break;
 
 	case VESPERS::X:
@@ -515,13 +515,13 @@ void VESPERSSpatialLineScanConfigurationView::onSetEndPosition()
 	case VESPERS::AttoH:
 		position = VESPERSBeamline::vespers()->pseudoAttocubeStageMotorGroupObject()->horizontalControl()->value();
 		otherPosition = VESPERSBeamline::vespers()->pseudoAttocubeStageMotorGroupObject()->verticalControl()->value();
-		n = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->normalControl()->value();  // focusing isn't done with attocube motors.
+		n = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->normalControl()->value();
 		break;
 
 	case VESPERS::AttoV:
 		position = VESPERSBeamline::vespers()->pseudoAttocubeStageMotorGroupObject()->verticalControl()->value();
 		otherPosition = VESPERSBeamline::vespers()->pseudoAttocubeStageMotorGroupObject()->horizontalControl()->value();
-		n = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->normalControl()->value();  // focusing isn't done with attocube motors.
+		n = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->normalControl()->value();
 		break;
 
 	case VESPERS::AttoX:
@@ -555,12 +555,8 @@ void VESPERSSpatialLineScanConfigurationView::onSetEndPosition()
 
 	configuration_->setEnd(position);
 	end_->setValue(position);
-//<<<<<<< HEAD
 	configuration_->setOtherPosition(otherPosition);
-//=======
-//	config_->setOtherPosition(otherPosition);
-//	config_->setNormalPosition(n);
-//>>>>>>> master
+	configuration_->setNormalPosition(n);
 	otherPosition_->setValue(otherPosition);
 	updateMapInfo();
 	axesAcceptable();

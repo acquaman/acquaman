@@ -104,8 +104,8 @@ public:
 
 	double detectorTranslation0() const { return detectorTranslation0_; } ///< The position of the detector translation motor at home (mm)
 
-	AMDoubleList gratingEVRangesMin() const { return gratingEVRangesMin_; } ///< min EV reachable by grating; (imposed safety limits)
-	AMDoubleList gratingEVRangesMax() const { return gratingEVRangesMax_; } ///< the max EV reachable by grating; (imposed safety limits)
+	AMDoubleList gratingEVRangesMin() const { return gratingEVRangesMin_; } ///< min EV reachable by grating (imposed safety limits)
+	AMDoubleList gratingEVRangesMax() const { return gratingEVRangesMax_; } ///< the max EV reachable by grating (imposed safety limits)
 
 	double detectorHeightError() const { return detectorHeightError_; } ///< The center of the detector should be on a line parallel to the translation rails, intersecting the rotation axle. This error is positive if it's above that ideal mounting height, and negative if below. The height is measured perpendicular to the frame rails -- not the y-axis.
 
@@ -144,13 +144,12 @@ public slots:
 
 
 
-	void setGratingEVRangesMin(const AMDoubleList& gratingEVRangesMin) { gratingEVRangesMin_ = gratingEVRangesMin; setModified(true); } ///< set min EV reachable by grating; (imposed safety limits)
-	void setGratingEVRangesMax(const AMDoubleList& gratingEVRangesMax) { gratingEVRangesMax_ = gratingEVRangesMax; setModified(true); } ///< set the max EV reachable by grating; (imposed safety limits)
+	void setGratingEVRangesMin(const AMDoubleList& gratingEVRangesMin) { gratingEVRangesMin_ = gratingEVRangesMin; setModified(true); } ///< set min EV reachable by grating (imposed safety limits)
+	void setGratingEVRangesMax(const AMDoubleList& gratingEVRangesMax) { gratingEVRangesMax_ = gratingEVRangesMax; setModified(true); } ///< set the max EV reachable by grating (imposed safety limits)
 
 
 	//////////////////////
 
-//	AMControlInfoList computeSpectrometerPosition(REIXSXESScanConfiguration* scanConfiguration) const;
 	AMControlInfoList computeSpectrometerPosition(int gratingIndex, double eV, double focusOffsetMm, double tiltOffsetDeg) const;
 	double computeEVFromSpectrometerPosition(int gratingIndex, double spectrometerRotationDriveMm, double detectorTranslationMM) const;
 
@@ -311,10 +310,12 @@ public slots:
 
 		detectorPhiPrime += d2r(tiltOffset);
 
+		/*
 		// Previously: using analytical formula using linkage lengths
-//		double h = tiltA_ * sin(detectorPhiPrime) - tiltB_ + sqrt(tiltB_*tiltB_ - tiltA_*tiltA_*pow(1-cos(detectorPhiPrime), 2));
+		double h = tiltA_ * sin(detectorPhiPrime) - tiltB_ + sqrt(tiltB_*tiltB_ - tiltA_*tiltA_*pow(1-cos(detectorPhiPrime), 2));
 
-//		return h + tiltHomePos_ - 89.411;
+		return h + tiltHomePos_ - 89.411;
+		*/
 
 		// using empirical formula from survey data.
 		return 1.1928*r2d(detectorPhiPrime) - 19.15;
@@ -340,7 +341,7 @@ public slots:
 
 protected:
 
-	/// all coordinates in our "working" coordinate system. This is defined by z: the vertical axis of the hexapod, x: the rotation axle of the spectrometer; y perp to x/y (downstream).  The origin is along the rotation axle, where the hexapod's y-z plane intersects it.  Note that this origin is not the "optical origin" where we want to place the gratings; if the hexapod mounting is off in the x-direction, there will be an x-offset to the optical origin.
+	/// all coordinates in our "working" coordinate system. This is defined by z: the vertical axis of the hexapod, x: the rotation axle of the spectrometer, y perp to x/y (downstream).  The origin is along the rotation axle, where the hexapod's y-z plane intersects it.  Note that this origin is not the "optical origin" where we want to place the gratings. If the hexapod mounting is off in the x-direction, there will be an x-offset to the optical origin.
 
 	QStringList gratingNames_;	///< LEG, MEG, etc..
 	AMDoubleList gratingGrooveDensities_; ///< lines/mm
@@ -380,8 +381,8 @@ protected:
 	double tiltHomePos_; ///< Measurement (mm) of the home position of the tilt stage, homed toward the motor (Length from outside wall at motor end to far opposite edge of platform)
 
 
-	AMDoubleList gratingEVRangesMin_;	///< min EV reachable by grating; (imposed safety limits)
-	AMDoubleList gratingEVRangesMax_; ///< the max EV reachable by grating; (imposed safety limits)
+	AMDoubleList gratingEVRangesMin_;	///< min EV reachable by grating (imposed safety limits)
+	AMDoubleList gratingEVRangesMax_; ///< the max EV reachable by grating (imposed safety limits)
 
 	double detectorHeightError_; ///< The center of the detector should be on a line parallel to the translation rails, intersecting the rotation axle. This error is positive if it's above that ideal mounting height, and negative if below. The height is measured perpendicular to the frame rails -- not the y-axis.
 

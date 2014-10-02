@@ -49,11 +49,7 @@ class AMSamplePositionPre2013 : public AMDbObject {
 public:
 	/// Constructor: can specify initial values for sampleId, position, and facilityId
 	Q_INVOKABLE AMSamplePositionPre2013(int sampleId = 0, const AMControlInfoList& position = AMControlInfoList(), int facilityId = 0 );
-	//Q_INVOKABLE AMSamplePosition(int sampleId = 0, const AMControlInfoList& position = AMControlInfoList(), int facilityId = 0 ) :
-	//	sampleId_(sampleId), position_(position), facilityId_(facilityId), topLeftPosition_(AMControlInfoList()), bottomRightPosition_(AMControlInfoList()) {}
 
-	/// Returns the database id of the sample associated with this marked position. This corresponds to the samples in the database's AMSamplePre2013 table.
-	//int sampleId() const { return sampleId_; }
 	int sampleId() const;
 	const AMSamplePre2013* sample() const;
 	/// Returns the facilityId that this sample position is relevant for.  (The motor positions from the SGM sample manipulator won't make sense to the REIXS positioner, etc.)  This corresponds to the facilities in the database's AMFacility table.
@@ -71,7 +67,6 @@ public:
 
 
 	/// Set the database id of the stored sample at this position. This corresponds to the id of a sample in the database's AMSamplePre2013 table.
-	//void setSampleId(int id) { sampleId_ = id; setModified(true); }
 	void setSampleId(int newSampleId);
 	void setSample(const AMSamplePre2013 *sample);
 	/// Set the database id of the facility (ie: beamline) to which this position is relevant. This corresponds to the id of a facilty in the database's AMFacility table.
@@ -85,7 +80,6 @@ public:
 
 	/// Copy all the values from \c other (including sampleId(), facilityId(), and position()), but retain our old database identity.  (Unlike the default assignment operator and copy constructor, our database() and id() will remain the same after calling this function.)
 	void setValuesFrom(const AMSamplePositionPre2013& other) {
-		//sampleId_ = other.sampleId_;
 		setSample(other.sample());
 		facilityId_ = other.facilityId_;
 		position_.setValuesFrom(other.position_);
@@ -98,7 +92,6 @@ public:
 
 protected:
 	/// The database id of the stored sample at this position
-	//int sampleId_;
 	AMConstDbObject *sample_;
 	/// The position (ie: of the sample manipulator, whatever you want) that this sample is found at, expressed as an AMControlInfoList.
 	AMControlInfoList position_;
@@ -172,7 +165,7 @@ protected:
 	/// Time when this sample plate was first created
 	QDateTime dateTime_;
 
-	/// Set the createTime(); used when restoring a sample plate from the database.
+	/// Set the createTime(). Used when restoring a sample plate from the database.
 	void dbLoadDateTime(const QDateTime& createTime) { dateTime_ = createTime; }
 
 	/// Export the current positions to the database

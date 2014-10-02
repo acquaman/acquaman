@@ -59,7 +59,6 @@ QList<AMAxisInfo> AMBasicXRFDetectorInfo::axes() const
 {
 	QList<AMAxisInfo> axisInfo;
 	AMAxisInfo ai("Energy", channels(), "Energy", "eV");
-	//ai.increment = AMNumber(scale());
 	ai.start = AMNumber(0);
 	ai.isUniform = true;
 	axisInfo << ai;

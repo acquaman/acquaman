@@ -35,7 +35,7 @@ class AMnDDeadTimeAB : public AMStandardAnalysisBlock
 
 public:
 	/// Constructor.
- 	virtual ~AMnDDeadTimeAB();
+	virtual ~AMnDDeadTimeAB();
 	Q_INVOKABLE AMnDDeadTimeAB(const QString &outputName = "InvalidInput", QObject *parent = 0);
 
 	/// Returns the description of the analysis block.
@@ -47,6 +47,9 @@ public:
 		- since the data in the sources may not be valid at the time of creation, the order must be spectrum, input counts, output counts.
 	*/
 	virtual bool areInputDataSourcesAcceptable(const QList<AMDataSource*>& dataSources) const;
+
+	/// Returns the desired rank for input sources.  Returns -1 because anything >= 1 is good.  This also shouldn't be auto used (and currently isn't).
+	virtual int desiredInputRank() const { return -1; }
 
 	/// Set the data source inputs.  Requires three data sources and the data in the sources may not be valid at the time of creation, the order must be spectrum, input counts, output counts.
 	virtual void setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources);

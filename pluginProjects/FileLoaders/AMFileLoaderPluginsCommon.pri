@@ -156,6 +156,13 @@ contains(USERNAME, chevrid){
 	QMAKE_LFLAGS_RELEASE += "-mmacosx-version-min=10.7"
 }
 
+contains(USERNAME, darrenhunter){
+	QMAKE_CXXFLAGS_X86_64 += "-mmacosx-version-min=10.7"
+
+	QMAKE_LFLAGS_DEBUG += "-mmacosx-version-min=10.7"
+	QMAKE_LFLAGS_RELEASE += "-mmacosx-version-min=10.7"
+}
+
 QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR"
 QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR"
 

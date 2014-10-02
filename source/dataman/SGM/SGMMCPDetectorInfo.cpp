@@ -33,7 +33,6 @@ SGMMCPDetectorInfo::SGMMCPDetectorInfo(const QString& name, const QString& descr
 SGMMCPDetectorInfo::SGMMCPDetectorInfo(const SGMMCPDetectorInfo &original) :
 		AMOldDetectorInfo(original)
 {
-//	retreiveAndSetProperties(original);
 	this->operator =(original);
 }
 
@@ -43,7 +42,6 @@ AMOldDetectorInfo* SGMMCPDetectorInfo::toNewInfo() const{
 
 SGMMCPDetectorInfo& SGMMCPDetectorInfo::operator =(const SGMMCPDetectorInfo& other){
 	if(this != &other){
-//		retreiveAndSetProperties(other);
 		AMOldDetectorInfo::operator =(other);
 		setHVSetpoint(other.hvSetpoint());
 		setHVSetpointRangeMin(other.hvSetpointRangeMin());

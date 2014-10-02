@@ -103,7 +103,7 @@ void AMScanAxisEXAFSRegion::setEquation(int newEquation)
 
 void AMScanAxisEXAFSRegion::switchSpace()
 {
-	// E = E0 + a*k^2 ; a = 3.810 945 497 eV * Angstrom
+	// E = E0 + a*k^2  a = 3.810 945 497 eV * Angstrom
 	if (inKSpace_ && edgeEnergy_.isValid()){
 
 		setRegionStart(AMEnergyToKSpaceCalculator::k(edgeEnergy_, regionStart_));

@@ -35,7 +35,7 @@ AMOrderReductionAB::AMOrderReductionAB(const QString &outputName, QObject *paren
 bool AMOrderReductionAB::areInputDataSourcesAcceptable(const QList<AMDataSource *> &dataSources) const
 {
 	if (dataSources.isEmpty())
-		return true;	// always acceptable; the null input.
+		return true;	// always acceptable, the null input.
 
 	// otherwise we need one input source that is NOT rank 0.
 	if (dataSources.count() == 1 && dataSources.at(0)->rank() != 0)

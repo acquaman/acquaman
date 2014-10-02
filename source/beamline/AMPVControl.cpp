@@ -36,7 +36,6 @@ AMReadOnlyPVControl::AMReadOnlyPVControl(const QString& name, const QString& rea
 
 	connect(readPV_, SIGNAL(valueChanged(double)), this, SIGNAL(valueChanged(double)));
 	connect(readPV_, SIGNAL(alarmChanged(int,int)), this, SIGNAL(alarmChanged(int,int)));
-	//connect(readPV_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)));
 	connect(readPV_, SIGNAL(readReadyChanged(bool)), this, SLOT(onPVConnected(bool)));
 	connect(readPV_, SIGNAL(connectionTimeout()), this, SIGNAL(readConnectionTimeoutOccurred()));
 	connect(readPV_, SIGNAL(error(int)), this, SLOT(onReadPVError(int)));
@@ -44,8 +43,8 @@ AMReadOnlyPVControl::AMReadOnlyPVControl(const QString& name, const QString& rea
 
 	connect(readPV_, SIGNAL(initialized()), this, SLOT(onReadPVInitialized()));
 
-	// If the readPV_ is already initialized as soon as we create it [possible if it's sharing an existing connection], we'll never get the inialized() signal; do it here now:
-	wasConnected_ = readPV_->readReady();	// same as isConnected(), but we cannot call virtual functions from a constructor; potentially breaks subclasses.
+	// If the readPV_ is already initialized as soon as we create it [possible if it's sharing an existing connection], we'll never get the inialized() signal, do it here now:
+	wasConnected_ = readPV_->readReady();	// same as isConnected(), but we cannot call virtual functions from a constructor, potentially breaks subclasses.
 	if(readPV_->isInitialized())
 		onReadPVInitialized();
 
@@ -104,7 +103,7 @@ AMPVControl::AMPVControl(const QString& name, const QString& readPVname, const Q
 
 	// process variable:
 	writePV_ = new AMProcessVariable(writePVname, true, this);
-	// instead of connected(), use writeRead: connect(writePV_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)));
+	// instead of connected(), use writeRead: connect(writePV_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)))
 	connect(writePV_, SIGNAL(writeReadyChanged(bool)), this, SLOT(onPVConnected(bool)));
 	connect(writePV_, SIGNAL(error(int)), this, SLOT(onWritePVError(int)));
 	connect(writePV_, SIGNAL(connectionTimeout()), this, SIGNAL(writeConnectionTimeoutOccurred()));
@@ -128,7 +127,7 @@ AMPVControl::AMPVControl(const QString& name, const QString& readPVname, const Q
 
 
 	// If any PVs are already connected [possible if they're sharing an existing connection]:
-	wasConnected_ = (readPV_->readReady() && writePV_->writeReady());	// equivalent to isConnected(), but we cannot call virtual functions inside a constructor; that will break subclasses.
+	wasConnected_ = (readPV_->readReady() && writePV_->writeReady());	// equivalent to isConnected(), but we cannot call virtual functions inside a constructor, that will break subclasses.
 	if(writePV_->isInitialized())
 		onWritePVInitialized();
 }
@@ -196,7 +195,7 @@ AMControl::FailureExplanation AMPVControl::move(double setpoint) {
 			// emit the signal that we started:
 			emit moveStarted();
 
-			// Are we in-position? [With the default tolerance of AMCONTROL_TOLERANCE_DONT_CARE, we will always be in-position, and moves will complete right away; that's the intended behaviour, because we have no other way of knowing when they'll finish.]
+			// Are we in-position? [With the default tolerance of AMCONTROL_TOLERANCE_DONT_CARE, we will always be in-position, and moves will complete right away, that's the intended behaviour, because we have no other way of knowing when they'll finish.]
 			if(inPosition()) {
 				emit movingChanged(moveInProgress_ = false);
 				emit moveSucceeded();
@@ -289,14 +288,13 @@ AMReadOnlyPVwStatusControl::AMReadOnlyPVwStatusControl(const QString& name, cons
 	// Create the movingPV and hook it up:
 	movingPV_ = new AMProcessVariable(movingPVname, true, this);
 	connect(movingPV_, SIGNAL(valueChanged(int)), this, SLOT(onMovingChanged(int)));
-	//connect(movingPV_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)));
 	connect(movingPV_, SIGNAL(readReadyChanged(bool)), this, SLOT(onPVConnected(bool)));
 	connect(movingPV_, SIGNAL(error(int)), this, SLOT(onStatusPVError(int)));
 	connect(movingPV_, SIGNAL(connectionTimeout()), this, SIGNAL(movingConnectionTimeoutOccurred()));
 	connect(movingPV_, SIGNAL(connectionTimeout()), this, SLOT(onConnectionTimeout()));
 
 	// If any PVs were already connected on creation [possible if sharing an existing connection]:
-	wasConnected_ = (readPV_->readReady() && movingPV_->readReady());	// equivalent to isConnected(), but we cannot call virtual functions inside a constructor; potentially breaks subclasses.
+	wasConnected_ = (readPV_->readReady() && movingPV_->readReady());	// equivalent to isConnected(), but we cannot call virtual functions inside a constructor, potentially breaks subclasses.
 	if(movingPV_->readReady())
 		wasMoving_ = (*statusChecker_)(movingPV_->lastValue());
 
@@ -345,7 +343,7 @@ AMPVwStatusControl::AMPVwStatusControl(const QString& name, const QString& readP
 	writePV_ = new AMProcessVariable(writePVname, true, this);
 
 	// connect:
-	// use writeReadyChanged() instead of connected() here: connect(writePV_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)));
+	// use writeReadyChanged() instead of connected() here: connect(writePV_, SIGNAL(connected(bool)), this, SLOT(onPVConnected(bool)))
 	connect(writePV_, SIGNAL(writeReadyChanged(bool)), this, SLOT(onPVConnected(bool)));
 	connect(writePV_, SIGNAL(error(int)), this, SLOT(onWritePVError(int)));
 	connect(writePV_, SIGNAL(connectionTimeout()), this, SIGNAL(writeConnectionTimeoutOccurred()));
@@ -370,7 +368,7 @@ AMPVwStatusControl::AMPVwStatusControl(const QString& name, const QString& readP
 
 
 	// If any PVs were already connected on creation [possible if sharing an existing connection]:
-	wasConnected_ = (readPV_->readReady() && writePV_->writeReady() && movingPV_->readReady());	// equivalent to isConnected(), but we cannot call virtual functions from the constructor; potentially breaks subclasses.
+	wasConnected_ = (readPV_->readReady() && writePV_->writeReady() && movingPV_->readReady());	// equivalent to isConnected(), but we cannot call virtual functions from the constructor, potentially breaks subclasses.
 	if(writePV_->isInitialized())
 		setMoveEnumStates(writePV_->enumStrings());
 	if(movingPV_->readReady())
@@ -498,7 +496,7 @@ void AMPVwStatusControl::onMovingChanged(int isMovingValue) {
 		startInProgress_ = false;
 		// This is great... the device started moving within the timeout:
 
-		// disable the moveStartTimer; we don't need it anymore
+		// disable the moveStartTimer, we don't need it anymore
 		moveStartTimer_.stop();
 
 		emit moveStarted();
@@ -611,12 +609,6 @@ void AMReadOnlyWaveformBinningPVControl::onReadPVValueChanged(){
 	emit valueChanged(value());
 }
 
-
-
-
-
-
-
 AMPVwStatusAndUnitConversionControl::AMPVwStatusAndUnitConversionControl(const QString &name, const QString &readPVname, const QString &writePVname, const QString &movingPVname, const QString &stopPVname, AMAbstractUnitConverter *readUnitConverter, AMAbstractUnitConverter *writeUnitConverter, QObject *parent, double tolerance, double moveStartTimeoutSeconds, AMAbstractControlStatusChecker *statusChecker, int stopValue, const QString &description) :
 	AMPVwStatusControl(name, readPVname, writePVname, movingPVname, stopPVname, parent, tolerance, moveStartTimeoutSeconds, statusChecker, stopValue, description)
 {
@@ -667,10 +659,6 @@ void AMPVwStatusAndUnitConversionControl::setUnitConverters(AMAbstractUnitConver
 		emit setpointChanged(newSetpoint);
 }
 
-
-
-
-
- AMControlStatusCheckerDefault::~AMControlStatusCheckerDefault(){}
- AMControlStatusCheckerStopped::~AMControlStatusCheckerStopped(){}
- AMScaleAndOffsetUnitConverter::~AMScaleAndOffsetUnitConverter(){}
+AMControlStatusCheckerDefault::~AMControlStatusCheckerDefault(){}
+AMControlStatusCheckerStopped::~AMControlStatusCheckerStopped(){}
+AMScaleAndOffsetUnitConverter::~AMScaleAndOffsetUnitConverter(){}
