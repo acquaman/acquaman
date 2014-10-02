@@ -27,6 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/BioXAS/BioXASBeamlineDef.h"
 #include "ui/BioXAS/BioXASToolSuite/ShutterToolMainWindow.h"
+#include "ui/BioXAS/BioXASToolSuite/MotorToolMainScreen.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
