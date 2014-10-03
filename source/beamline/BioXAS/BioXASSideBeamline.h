@@ -57,22 +57,27 @@ public:
 	/// Destructor.
 	virtual ~BioXASSideBeamline();
 
-    /// Returns the scaler.
-    CLSSIS3820Scaler* scaler();
+	/// Returns the scaler.
+	CLSSIS3820Scaler* scaler();
 
-    /// Returns the m1 upper slit blade motor control.
-    CLSMAXvMotor* m1UpperSlit();
+	/// Returns the m1 upper slit blade motor control.
+	CLSMAXvMotor* m1UpperSlit();
 
-    /// Returns an instance of the keithley428 amplifier.
-    CLSKeithley428* keithley();
+	AMPVwStatusControl* energy();
 
-    virtual bool isConnected() const;
+	/// Returns an instance of the keithley428 amplifier.
+	CLSKeithley428* i0Keithley();
+	CLSKeithley428* iTKeithley();
 
-    CLSBasicScalerChannelDetector* testDetector();
+	virtual bool isConnected() const;
+
+	CLSBasicScalerChannelDetector* i0Detector();
+	CLSBasicScalerChannelDetector* iTDetector();
 
 protected slots:
-    void onScalerConnectedChanged(bool connectionState);
-    void onM1UpperSlitConnectedChanged(bool connectionState);
+	void onScalerConnectedChanged(bool connectionState);
+	void onM1UpperSlitConnectedChanged(bool connectionState);
+	void onEnergyConnectedChanged(bool connectionState);
 
 protected:
 	/// Sets up the synchronized dwell time.
@@ -99,98 +104,102 @@ protected:
 	void setupControlsAsDetectors();
 
 	/// Constructor. This is a singleton class, access it through BioXASSideBeamline::bioXAS().
-    BioXASSideBeamline();
+	BioXASSideBeamline();
 
 protected:
-    CLSSIS3820Scaler *scaler_;
-    CLSMAXvMotor *m1UpperSlit_;
-    bool wasConnected_;
+	CLSSIS3820Scaler *scaler_;
+	CLSMAXvMotor *m1UpperSlit_;
+	AMPVwStatusControl *energy_;
+	bool wasConnected_;
 
-    CLSBasicScalerChannelDetector *testDetector_;
-    CLSKeithley428 *keithley_;
+	CLSBasicScalerChannelDetector *i0Detector_;
+	CLSKeithley428 *i0Keithley_;
 
-    // Shutters
-    CLSBiStateControl *psh1_;
-    CLSBiStateControl *psh2_;
-    CLSBiStateControl *ssh1_;
+	CLSBasicScalerChannelDetector *iTDetector_;
+	CLSKeithley428 *iTKeithley_;
 
-    CLSBiStateControl *sshSide1_;
+	// Shutters
+	CLSBiStateControl *psh1_;
+	CLSBiStateControl *psh2_;
+	CLSBiStateControl *ssh1_;
 
-    // Pressure controls
-    AMControl *ccg1_;
-    AMControl *ccg2_;
-    AMControl *ccg3_;
+	CLSBiStateControl *sshSide1_;
 
-    AMControl *ccgSide1_;
-    AMControl *ccgSide2_;
-    AMControl *ccgSide3_;
-    AMControl *ccgSide4_;
-    AMControl *ccgSide5_;
-    AMControl *ccgSide6_;
+	// Pressure controls
+	AMControl *ccg1_;
+	AMControl *ccg2_;
+	AMControl *ccg3_;
 
-    // vacuum valve controls
-    CLSBiStateControl *vvr1_;
-    CLSBiStateControl *vvr2_;
-    CLSBiStateControl *vvr3_;
-    CLSBiStateControl *vvr4_;
-    CLSBiStateControl *vvr5_;
+	AMControl *ccgSide1_;
+	AMControl *ccgSide2_;
+	AMControl *ccgSide3_;
+	AMControl *ccgSide4_;
+	AMControl *ccgSide5_;
+	AMControl *ccgSide6_;
 
-    CLSBiStateControl *vvrSide1_;
-    CLSBiStateControl *vvrSide2_;
-    CLSBiStateControl *vvrSide3_;
-    CLSBiStateControl *vvrSide4_;
-    CLSBiStateControl *vvrSide5_;
-    CLSBiStateControl *vvrSide6_;
+	// vacuum valve controls
+	CLSBiStateControl *vvr1_;
+	CLSBiStateControl *vvr2_;
+	CLSBiStateControl *vvr3_;
+	CLSBiStateControl *vvr4_;
+	CLSBiStateControl *vvr5_;
 
-    // Ion pump controls
-    AMControl *iop1_;
-    AMControl *iop2_;
-    AMControl *iop3_;
-    AMControl *iop4_;
-    AMControl *iop5_;
+	CLSBiStateControl *vvrSide1_;
+	CLSBiStateControl *vvrSide2_;
+	CLSBiStateControl *vvrSide3_;
+	CLSBiStateControl *vvrSide4_;
+	CLSBiStateControl *vvrSide5_;
+	CLSBiStateControl *vvrSide6_;
 
-    AMControl *iopSide1_;
-    AMControl *iopSide2_;
-    AMControl *iopSide3_;
-    AMControl *iopSide4_;
-    AMControl *iopSide5_;
-    AMControl *iopSide6_;
-    AMControl *iopSide7_;
+	// Ion pump controls
+	AMControl *iop1_;
+	AMControl *iop2_;
+	AMControl *iop3_;
+	AMControl *iop4_;
+	AMControl *iop5_;
 
-    // Flow transducer controls
-    AMControl *flt1_;
-    AMControl *flt2_;
-    AMControl *flt3_;
-    AMControl *flt4_;
-    AMControl *flt5_;
-    AMControl *flt6_;
-    AMControl *flt7_;
-    AMControl *flt8_;
-    AMControl *flt9_;
-    AMControl *flt10_;
-    AMControl *flt11_;
-    AMControl *flt12_;
-    AMControl *flt13_;
-    AMControl *flt14_;
-    AMControl *flt15_;
-    AMControl *flt16_;
-    AMControl *flt17_;
-    AMControl *flt18_;
-    AMControl *flt19_;
-    AMControl *flt20_;
+	AMControl *iopSide1_;
+	AMControl *iopSide2_;
+	AMControl *iopSide3_;
+	AMControl *iopSide4_;
+	AMControl *iopSide5_;
+	AMControl *iopSide6_;
+	AMControl *iopSide7_;
 
-    // Flow switch controls
-    AMControl *swf1_;
-    AMControl *swf2_;
-    AMControl *swf3_;
-    AMControl *swf4_;
+	// Flow transducer controls
+	AMControl *flt1_;
+	AMControl *flt2_;
+	AMControl *flt3_;
+	AMControl *flt4_;
+	AMControl *flt5_;
+	AMControl *flt6_;
+	AMControl *flt7_;
+	AMControl *flt8_;
+	AMControl *flt9_;
+	AMControl *flt10_;
+	AMControl *flt11_;
+	AMControl *flt12_;
+	AMControl *flt13_;
+	AMControl *flt14_;
+	AMControl *flt15_;
+	AMControl *flt16_;
+	AMControl *flt17_;
+	AMControl *flt18_;
+	AMControl *flt19_;
+	AMControl *flt20_;
 
-    // Temperature monitor controls
-    AMControl *tm1_;
-    AMControl *tm2_;
-    AMControl *tm3_;
-    AMControl *tm4_;
-    AMControl *tm5_;
+	// Flow switch controls
+	AMControl *swf1_;
+	AMControl *swf2_;
+	AMControl *swf3_;
+	AMControl *swf4_;
+
+	// Temperature monitor controls
+	AMControl *tm1_;
+	AMControl *tm2_;
+	AMControl *tm3_;
+	AMControl *tm4_;
+	AMControl *tm5_;
 
 
 };

@@ -26,6 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/actions/AMControlMoveAction3.h"
 #include "beamline/CLS/CLSBiStateControl.h"
 #include "beamline/CLS/CLSMAXvMotor.h"
+#include "beamline/AMPVControl.h"
 
 BioXASSideBeamline::BioXASSideBeamline()
 	: AMBeamline("BioXAS Beamline - Side Endstation")
@@ -166,20 +167,27 @@ void BioXASSideBeamline::setupComponents()
 {
 	scaler_ = new CLSSIS3820Scaler("BL07ID-Side:mcs", this);
 
-	testDetector_ = new CLSBasicScalerChannelDetector("TestDetector", "Test Detector", scaler_, 0, this);
+	i0Detector_ = new CLSBasicScalerChannelDetector("I0Detector", "I0 Detector", scaler_, 0, this);
+	iTDetector_ = new CLSBasicScalerChannelDetector("ITDetector", "IT Detector", scaler_, 1, this);
+
 	connect( scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(onScalerConnectedChanged(bool)) );
 
-	keithley_ = new CLSKeithley428("Test channel", "AMP1607-601:Gain");
+	i0Keithley_ = new CLSKeithley428("I0 Channel", "AMP1607-601:Gain");
+	iTKeithley_ = new CLSKeithley428("IT Channel", "AMP1607-602:Gain");
 	/*
 	scaler_->channelAt(0)->setCurrentAmplifier(testChannel);
 	scaler_->channelAt(0)->setVoltagRange(AMRange(1.0, 6.5));
 	*/
-	scaler_->channelAt(0)->setCustomChannelName("Test channel");
+	scaler_->channelAt(0)->setCustomChannelName("I0 Channel");
+	scaler_->channelAt(1)->setCustomChannelName("IT Channel");
 
 	m1UpperSlit_ = new CLSMAXvMotor("M1 Upper Slit", "SMTR1607-5-I22-08", "M1 Upper Slit Motor", true, 0.05, 2.0, this);
 	m1UpperSlit_->setContextKnownDescription("Upper slit");
 
+	energy_ = new AMPVwStatusControl("Energy", "BL1607-5-I22:Energy:EV:fbk", "BL1607-5-I22:Energy:EV", "BL1607-5-I22:Energy:status", QString(), this, 0.75, 2.0, new AMControlStatusCheckerCLSMAXv());
+
 	connect( m1UpperSlit_, SIGNAL(connected(bool)), this, SLOT(onM1UpperSlitConnectedChanged(bool)) );
+	connect( energy_, SIGNAL(connected(bool)), this, SLOT(onEnergyConnectedChanged(bool)) );
 }
 
 void BioXASSideBeamline::setupControlsAsDetectors()
@@ -189,12 +197,14 @@ void BioXASSideBeamline::setupControlsAsDetectors()
 
 void BioXASSideBeamline::setupExposedControls()
 {
+	addExposedControl(energy_);
 	addExposedControl(m1UpperSlit_);
 }
 
 void BioXASSideBeamline::setupExposedDetectors()
 {
-	addExposedDetector(testDetector_);
+	addExposedDetector(i0Detector_);
+	addExposedDetector(iTDetector_);
 }
 
 BioXASSideBeamline::~BioXASSideBeamline()
@@ -212,19 +222,34 @@ CLSMAXvMotor* BioXASSideBeamline::m1UpperSlit()
 	return m1UpperSlit_;
 }
 
-CLSKeithley428* BioXASSideBeamline::keithley()
+AMPVwStatusControl* BioXASSideBeamline::energy()
 {
-	return keithley_;
+	return energy_;
+}
+
+CLSKeithley428* BioXASSideBeamline::i0Keithley()
+{
+	return i0Keithley_;
+}
+
+CLSKeithley428* BioXASSideBeamline::iTKeithley()
+{
+	return iTKeithley_;
 }
 
 bool BioXASSideBeamline::isConnected() const
 {
-	return scaler_->isConnected() && m1UpperSlit_->isConnected() && keithley_->isConnected();
+	return scaler_->isConnected() && m1UpperSlit_->isConnected() && i0Keithley_->isConnected() && iTKeithley_->isConnected() && energy_->isConnected();
 }
 
-CLSBasicScalerChannelDetector* BioXASSideBeamline::testDetector()
+CLSBasicScalerChannelDetector* BioXASSideBeamline::i0Detector()
 {
-	return testDetector_;
+	return i0Detector_;
+}
+
+CLSBasicScalerChannelDetector* BioXASSideBeamline::iTDetector()
+{
+	return iTDetector_;
 }
 
 void BioXASSideBeamline::onScalerConnectedChanged(bool connectionState)
@@ -243,6 +268,20 @@ void BioXASSideBeamline::onScalerConnectedChanged(bool connectionState)
 }
 
 void BioXASSideBeamline::onM1UpperSlitConnectedChanged(bool connectionState)
+{
+	Q_UNUSED(connectionState)
+
+	if (wasConnected_ && !isConnected()) {
+		emit connected(false);
+		wasConnected_ = false;
+
+	} else if (!wasConnected_ && isConnected()) {
+		emit connected(true);
+		wasConnected_ = true;
+	}
+}
+
+void BioXASSideBeamline::onEnergyConnectedChanged(bool connectionState)
 {
 	Q_UNUSED(connectionState)
 
