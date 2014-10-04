@@ -49,11 +49,11 @@ class REIXSXESImageInterpolationAB;
 #include "MPlot/MPlotSeriesData.h"
 
 /// Helper class for REIXSXESImageInterpolationABEditor: Exposes REIXSXESImageInterpolationAB's shift data as MPlotAbstractSeriesData
-class REIXSXESImageInterpolationABEditorShiftModel : public QObject, public MPlotAbstractSeriesData {
+class REIXSXESImageInterpolationABEditorShift1Model : public QObject, public MPlotAbstractSeriesData {
 	Q_OBJECT
 public:
 	/// Constructor: exposes the shiftValues() in \c analysisBlock (must be valid).
-	REIXSXESImageInterpolationABEditorShiftModel(REIXSXESImageInterpolationAB* analysisBlock, QObject* parent = 0);
+	REIXSXESImageInterpolationABEditorShift1Model(REIXSXESImageInterpolationAB* analysisBlock, QObject* parent = 0);
 
 	virtual qreal x(unsigned index) const;
 	virtual void xValues(unsigned indexStart, unsigned indexEnd, qreal *outputValues) const;
@@ -80,7 +80,7 @@ protected:
 
 
 
-/// Helper class for REIXSXESImageInterpolationABEditor: Exposes REIXSXESImageInterpolationAB's shift data as MPlotAbstractSeriesData
+/// Helper class for REIXSXESImageInterpolationABEditor: Exposes REIXSXESImageInterpolationAB's mask data as MPlotAbstractSeriesData
 class REIXSXESImageInterpolationABEditorEllipticalMask : public QObject, public MPlotAbstractSeriesData {
 	Q_OBJECT
 public:
@@ -155,8 +155,10 @@ public slots:
 	/// Called when the correlation settings are changed
 	void onCorrelationCenterBoxChanged(int);
 	void onCorrelationPointsBoxChanged(int);
-	void onCSmoothBoxChanged();
-	void onCSmoothModeChanged();
+	void onCSmoothBox1Changed();
+	void onCSmoothBox2Changed();
+	void onCSmooth1ModeChanged();
+	void onCSmooth2ModeChanged();
 
 
 	// The "Apply to other scans" button applies this shift curve to many scans at once.
@@ -182,9 +184,11 @@ protected:
 
 	// GUI elements:
 	QSpinBox* rangeMinYControl_, *rangeMaxYControl_, *rangeMinXControl_, *rangeMaxXControl_;
-	QSpinBox* correlationCenterBox_, *correlationPointsBox_, *smoothModeBox_;
+	QSpinBox* correlation1CenterBox_, *correlation1PointsBox_, *smooth1ModelBox_;
+	QSpinBox* correlation2CenterBox_, *correlation2PointsBox_, *smooth2Mode1Box_;
 	QPushButton* correlateNowButton_;
-	QComboBox* correlationSmoothingBox_;
+	QComboBox* correlation1SmoothingBox_;
+	QComboBox* correlation2SmoothingBox_;
 	QCheckBox* liveCorrelationCheckBox_;
 	QDoubleSpinBox* energyCalibrationOffsetBox_, *tiltCalibrationOffsetBox_, *rangeRoundControl_;
 	QTabWidget* tabWidget_;
@@ -206,7 +210,7 @@ protected:
 	
 	MPlotSeriesBasic* shiftSeries_;
 	MPlotPoint* corrRegionLeft_, * corrRegionRight_;
-	REIXSXESImageInterpolationABEditorShiftModel* shiftData_;
+	REIXSXESImageInterpolationABEditorShift1Model* shiftData_;
 	
 	MPlotSeriesBasic* ellipseSeries_;
 	REIXSXESImageInterpolationABEditorEllipticalMask* ellipseData_;
