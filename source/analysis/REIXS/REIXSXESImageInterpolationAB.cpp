@@ -33,11 +33,15 @@ REIXSXESImageInterpolationAB::REIXSXESImageInterpolationAB(const QString &output
 	sumRangeMinX_ = 75;
 	sumRangeMaxX_ = 925;
 	rangeRound_ = 0.6;
-	correlationCenterPx_ = 512;
-	correlationHalfWidth_ = 40;
-	correlationSmoothing_ = QPair<int,int>(-1,1);  //-1,1???
+	correlation1CenterPx_ = 250;
+	correlation2CenterPx_ = 700;
+	correlation1HalfWidth_ = 40;
+	correlation2HalfWidth_ = 40;
+	correlation1Smoothing_ = QPair<int,int>(-1,1);  //-1,1???
+	correlation2Smoothing_ = QPair<int,int>(-1,1);  //-1,1???
 	liveCorrelation_ = false;
-	setCorrelationSmoothing(QPair<int,int>(1,2)); //poly,quadratic
+	setCorrelation1Smoothing(QPair<int,int>(1,2)); //poly,quadratic
+	setCorrelation2Smoothing(QPair<int,int>(1,2)); //poly,quadratic
 
 	energyCalibrationOffset_ = 0;
 	tiltCalibrationOffset_ = 0;
@@ -62,8 +66,8 @@ REIXSXESImageInterpolationAB::REIXSXESImageInterpolationAB(const QString &output
 
 	// FOR TESTING
 	interpolationLevel_ = 10;
-	shiftPosition1_ = 250;
-	shiftPosition2_ = 700;
+	shiftPosition1_ = 0;  //not used using correlation2CenterPx_ instead
+	shiftPosition2_ = 0;  //not used: using correlation2CenterPx_ instead
 	shiftValues1_ << 0 << 0 << 0 << 0 << 3 << 6 << 9 << 11 << 12 << 13 << 15 << 16 << 17 << 14 << 12 << 10 << 9 << 8 << 8 << 7 << 7 << 6 << 6 << 5 << 4 << 4 << 3 << 2 << 2 << 1 << 0 << 0 << -1 << -2 << -2 << -3 << -4 << -5 << -6 << -7 << -8 << -9 << -10 << -12 << -13 << -13 << -14 << -14 << -11 << -7 << -2 << 2 << 7 << 9 << 11 << 12 << 13 << 12 << 9 << 6 << 4 << 0 << 0 << 0;
 	shiftValues2_ << 0 << 0 << 0 << -4 << -6 << -8 << -10 << -11 << -12 << -13 << -13 << -14 << -11 << -9 << -7 << -6 << -5 << -5 << -4 << -3 << -3 << -2 << -2 << -1 << -1 << -1 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << -1 << -1 << -2 << -3 << -4 << -6 << -9 << -12 << -12 << -12 << -11 << -11 << -10 << -8 << -6 << -4 << 0 << 0 << 0;
 
@@ -83,9 +87,12 @@ REIXSXESImageInterpolationAB::REIXSXESImageInterpolationAB(AMDatabase *db, int i
 	sumRangeMinX_ = 50;
 	sumRangeMaxX_ = 950;
 	rangeRound_ = 1.0;
-	correlationCenterPx_ = 512;
-	correlationHalfWidth_ = 40;
-	correlationSmoothing_ = QPair<int,int>(-1,1);
+	correlation1CenterPx_ = 250;
+	correlation1HalfWidth_ = 40;
+	correlation1Smoothing_ = QPair<int,int>(-1,1);
+	correlation2CenterPx_ = 700;
+	correlation2HalfWidth_ = 40;
+	correlation2Smoothing_ = QPair<int,int>(-1,1);
 	energyCalibrationOffset_ = 0;
 	tiltCalibrationOffset_ = 0;
 	liveCorrelation_ = false;
@@ -315,11 +322,7 @@ void REIXSXESImageInterpolationAB::setInputDataSourcesImplementation(const QList
 		axes_[0].description = "Emission Energy";
 		axes_[0].units = "eV";
 
-		if(shiftValues_.isEmpty()) {
-			for(int i=0,cc=inputSource_->size(1); i<cc; i++)
-				shiftValues_ << 0;	// make a null shift list, matching the size of the input data. Don't do this if we already have a shift list.
-		}
-				if(shiftValues1_.isEmpty()) {
+		if(shiftValues1_.isEmpty()) {
 			for(int i=0,cc=inputSource_->size(1); i<cc; i++)
 				shiftValues1_ << 0;	// make a null shift list, matching the size of the input data. Don't do this if we already have a shift list.
 		}
@@ -574,8 +577,11 @@ void REIXSXESImageInterpolationAB::computeCachedValues() const
 
 void REIXSXESImageInterpolationAB::computeShiftMap(int iSize, int jSize, double *shiftValues) const
 {
-	double weightingValue = double(interpolationLevel_*(shiftPosition1_-shiftPosition2_));
-	int interpolatedPosition1 = interpolationLevel_*shiftPosition1_;
+//	double weightingValue = double(interpolationLevel_*(shiftPosition1_-shiftPosition2_));
+//	int interpolatedPosition1 = interpolationLevel_*shiftPosition1_;
+//      It SHOULD work to use these existing variables:
+	double weightingValue = double(interpolationLevel_*(correlation1CenterPx_-correlation2CenterPx_));
+	int interpolatedPosition1 = interpolationLevel_*correlation2CenterPx_;
 
 	for (int i = 0; i < iSize; i++){
 
@@ -651,24 +657,48 @@ void REIXSXESImageInterpolationAB::onInputSourceStateChanged()
 
 
 
-void REIXSXESImageInterpolationAB::setCorrelationCenterPixel(int centerPx)
+void REIXSXESImageInterpolationAB::setCorrelation1CenterPixel(int centerPx)
 {
-	if(centerPx == correlationCenterPx_)
+	if(centerPx == correlation1CenterPx_)
 		return;
 
-	correlationCenterPx_ = centerPx;
+	correlation1CenterPx_ = centerPx;
 	if(liveCorrelation())
 		callCorrelation_.schedule();
 
 	setModified(true);
 }
 
-void REIXSXESImageInterpolationAB::setCorrelationHalfWidth(int width)
+void REIXSXESImageInterpolationAB::setCorrelation1HalfWidth(int width)
 {
-	if(correlationHalfWidth_ == width)
+	if(correlation1HalfWidth_ == width)
 		return;
 
-	correlationHalfWidth_ = width;
+	correlation1HalfWidth_ = width;
+	if(liveCorrelation())
+		callCorrelation_.schedule();
+
+	setModified(true);
+}
+
+void REIXSXESImageInterpolationAB::setCorrelation2CenterPixel(int centerPx)
+{
+	if(centerPx == correlation2CenterPx_)
+		return;
+
+	correlation2CenterPx_ = centerPx;
+	if(liveCorrelation())
+		callCorrelation_.schedule();
+
+	setModified(true);
+}
+
+void REIXSXESImageInterpolationAB::setCorrelation2HalfWidth(int width)
+{
+	if(correlation2HalfWidth_ == width)
+		return;
+
+	correlation2HalfWidth_ = width;
 	if(liveCorrelation())
 		callCorrelation_.schedule();
 
@@ -704,8 +734,6 @@ void REIXSXESImageInterpolationAB::correlateNow()
 		return;
 	}
 
-	int minShift = -correlationHalfWidth_;
-	int maxShift = correlationHalfWidth_;
 
 	// grab the whole input image for fast access. This is much faster than calling inputSource_->value() repeatedly.
 	QVector<double> image(sizeX*sizeY);
@@ -715,14 +743,18 @@ void REIXSXESImageInterpolationAB::correlateNow()
 	}
 
 
+	////////Correlate shift1
+
+	int minShift = -correlation1HalfWidth_;
+	int maxShift = correlation1HalfWidth_;
 
 	// initialize all shifts to 0.
-	QVector<int> shifts = QVector<int>(sizeY);
+	QVector<int> shifts1 = QVector<int>(sizeY);
 
 	// Loop through all the rows (j), but skip the middle one. Find the best shift at each row.
 	for(int j=0; j<sizeY; j++) {
 		if(j == midY) {
-			shifts[j] = 0;
+			shifts1[j] = 0;
 			continue;
 		}
 
@@ -731,7 +763,7 @@ void REIXSXESImageInterpolationAB::correlateNow()
 		for(int shift = minShift; shift<=maxShift; shift++) {	// try out all possible shift values
 			// compute the correlation with the center row at this shift
 			double correlationSum = 0;
-			for(int i = correlationCenterPx_ - correlationHalfWidth_, ic = correlationCenterPx_+correlationHalfWidth_; i<=ic; i++)
+			for(int i = correlation1CenterPx_ - correlation1HalfWidth_, ic = correlation1CenterPx_+correlation1HalfWidth_; i<=ic; i++)
 				if(i+shift<sizeX && i+shift>=0 && i<sizeX && i>=0)
 					correlationSum += image.at(i*sizeY + midY) * image.at((i+shift)*sizeY + j);
 			if(correlationSum > bestSum) {
@@ -740,11 +772,11 @@ void REIXSXESImageInterpolationAB::correlateNow()
 			}
 		}
 		// now we know the shift for this row
-		shifts[j] = bestShift;
+		shifts1[j] = bestShift;
 	}
 
 
-	if(correlationSmoothing_.first != 0) { //0 is no smoothing
+	if(correlation1Smoothing_.first != 0) { //0 is no smoothing
 
 
 		// Apply smoothing to reduce the noise:
@@ -755,17 +787,76 @@ void REIXSXESImageInterpolationAB::correlateNow()
 			weights[j] = 1.0;
 
 
-		if(curveSmoother_) shifts = curveSmoother_->smooth(shifts, weights);
+		if(curveSmoother_) shifts1 = curveSmoother_->smooth(shifts1, weights);
 
 
 		// Ensure the center-row shift is 0. [Not sure why it ends up being non-zero]. Slide everything so it is.
-		int centerShift = shifts[midY];
+		int centerShift = shifts1[midY];
 		for(int j=0; j<sizeY; ++j)
-			shifts[j] -= centerShift;
+			shifts1[j] -= centerShift;
 	}
 
 	// use the new shift values.
-	setShiftValues1(shifts.toList());
+	setShiftValues1(shifts1.toList());
+
+
+
+	////////Correlate shift2
+
+	minShift = -correlation2HalfWidth_;
+	maxShift = correlation2HalfWidth_;
+
+	// initialize all shifts to 0.
+	QVector<int> shifts2 = QVector<int>(sizeY);
+
+	// Loop through all the rows (j), but skip the middle one. Find the best shift at each row.
+	for(int j=0; j<sizeY; j++) {
+		if(j == midY) {
+			shifts2[j] = 0;
+			continue;
+		}
+
+		double bestSum = 0;
+		int bestShift = 0;
+		for(int shift = minShift; shift<=maxShift; shift++) {	// try out all possible shift values
+			// compute the correlation with the center row at this shift
+			double correlationSum = 0;
+			for(int i = correlation2CenterPx_ - correlation2HalfWidth_, ic = correlation2CenterPx_+correlation2HalfWidth_; i<=ic; i++)
+				if(i+shift<sizeX && i+shift>=0 && i<sizeX && i>=0)
+					correlationSum += image.at(i*sizeY + midY) * image.at((i+shift)*sizeY + j);
+			if(correlationSum > bestSum) {
+				bestSum = correlationSum;
+				bestShift = shift;
+			}
+		}
+		// now we know the shift for this row
+		shifts2[j] = bestShift;
+	}
+
+
+	if(correlation2Smoothing_.first != 0) { //0 is no smoothing
+
+
+		// Apply smoothing to reduce the noise:
+		QVector<double> weights(sizeY, 0.0);
+		weights[sumRangeMinY_] = 0.5;
+		weights[sumRangeMaxY_] = 0.5;
+		for(int j=sumRangeMinY_+1; j<sumRangeMaxY_; ++j)
+			weights[j] = 1.0;
+
+
+		if(curveSmoother_) shifts2 = curveSmoother_->smooth(shifts2, weights);
+
+
+		// Ensure the center-row shift is 0. [Not sure why it ends up being non-zero]. Slide everything so it is.
+		int centerShift = shifts2[midY];
+		for(int j=0; j<sizeY; ++j)
+			shifts2[j] -= centerShift;
+	}
+
+	// use the new shift values.
+	setShiftValues2(shifts2.toList());
+
 }
 
 
@@ -966,9 +1057,11 @@ void REIXSXESImageInterpolationAB::setTiltCalibrationOffset(double tiltCalibrati
 
 	setModified(true);
 }
-void REIXSXESImageInterpolationAB::setCorrelationSmoothingType(int type)
+
+
+void REIXSXESImageInterpolationAB::setCorrelation1SmoothingType(int type)
 {
-	correlationSmoothing_.first = type;
+	correlation1Smoothing_.first = type;
 
 	emitValuesChanged();
 
@@ -979,9 +1072,9 @@ void REIXSXESImageInterpolationAB::setCorrelationSmoothingType(int type)
 
 }
 
-void REIXSXESImageInterpolationAB::setCorrelationSmoothingMode(int mode)
+void REIXSXESImageInterpolationAB::setCorrelation1SmoothingMode(int mode)
 {
-	correlationSmoothing_.second = mode;
+	correlation1Smoothing_.second = mode;
 
 	emitValuesChanged();
 
@@ -992,15 +1085,15 @@ void REIXSXESImageInterpolationAB::setCorrelationSmoothingMode(int mode)
 
 }
 
-void REIXSXESImageInterpolationAB::setCorrelationSmoothing(QPair<int,int> cSmooth)
+void REIXSXESImageInterpolationAB::setCorrelation1Smoothing(QPair<int,int> cSmooth)
 {
 	int type = cSmooth.first;
 	int mode = cSmooth.second;
 
-	if(cSmooth == correlationSmoothing_)
+	if(cSmooth == correlation1Smoothing_)
 		return;
 
-	correlationSmoothing_ = cSmooth;
+	correlation1Smoothing_ = cSmooth;
 
 	delete curveSmoother_;
 	switch((ShiftCurveSmoothing)type) {
@@ -1033,4 +1126,74 @@ void REIXSXESImageInterpolationAB::setCorrelationSmoothing(QPair<int,int> cSmoot
 	setModified(true);
 }
 
+
+
+
+
+void REIXSXESImageInterpolationAB::setCorrelation2SmoothingType(int type)
+{
+	correlation2Smoothing_.first = type;
+
+	emitValuesChanged();
+
+	if(liveCorrelation())
+		callCorrelation_.schedule();
+
+	setModified(true);
+
+}
+
+void REIXSXESImageInterpolationAB::setCorrelation2SmoothingMode(int mode)
+{
+	correlation2Smoothing_.second = mode;
+
+	emitValuesChanged();
+
+	if(liveCorrelation())
+		callCorrelation_.schedule();
+
+	setModified(true);
+
+}
+
+void REIXSXESImageInterpolationAB::setCorrelation2Smoothing(QPair<int,int> cSmooth)
+{
+	int type = cSmooth.first;
+	int mode = cSmooth.second;
+
+	if(cSmooth == correlation2Smoothing_)
+		return;
+
+	correlation2Smoothing_ = cSmooth;
+
+	delete curveSmoother_;
+	switch((ShiftCurveSmoothing)type) {
+	case Poly:
+	{
+		if(mode == 2)
+			curveSmoother_ = new REIXSQuadraticFitter();
+		else if(mode == 3)
+			curveSmoother_ = new REIXSCubicFitter();
+		else
+			curveSmoother_ = new REIXSQuarticFitter();
+		break;
+	}
+	case Median:
+		curveSmoother_ = new REIXSMovingMedianFitter(mode);
+		break;
+	case Average:
+		curveSmoother_ = new REIXSMovingAverageFitter(mode);
+		break;
+	case None:
+	default:
+		curveSmoother_ = 0;
+		break;
+	}
+
+
+	if(liveCorrelation())
+		callCorrelation_.schedule();
+
+	setModified(true);
+}
 

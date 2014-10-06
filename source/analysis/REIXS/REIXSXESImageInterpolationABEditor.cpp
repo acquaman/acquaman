@@ -87,31 +87,45 @@ REIXSXESImageInterpolationABEditor::REIXSXESImageInterpolationABEditor(REIXSXESI
 	rangeRoundControl_->setMinimum(0.0);
 	rangeRoundControl_->setMaximum(1.0);
 
-	correlationCenterBox_ = new QSpinBox();
-	correlationCenterBox_->setSingleStep(1);
-	correlationCenterBox_->setMinimum(1);
-	correlationPointsBox_ = new QSpinBox();
-	correlationPointsBox_->setMinimum(10);
-	correlationPointsBox_->setMaximum(500);
-	correlationPointsBox_->setValue(200);
+	correlation1CenterBox_ = new QSpinBox();
+	correlation1CenterBox_->setSingleStep(1);
+	correlation1CenterBox_->setMinimum(1);
+	correlation1PointsBox_ = new QSpinBox();
+	correlation1PointsBox_->setMinimum(10);
+	correlation1PointsBox_->setMaximum(500);
+	correlation1PointsBox_->setValue(200);
 
-	correlationSmoothingBox_ = new QComboBox();
-	correlationSmoothingBox_->addItem("None");
-	/*
-	correlationSmoothingBox_->addItem("Quadratic");
-	correlationSmoothingBox_->addItem("Cubic");
-	correlationSmoothingBox_->addItem("Quartic");
-	*/
+	correlation2CenterBox_ = new QSpinBox();
+	correlation2CenterBox_->setSingleStep(1);
+	correlation2CenterBox_->setMinimum(1);
+	correlation2PointsBox_ = new QSpinBox();
+	correlation2PointsBox_->setMinimum(10);
+	correlation2PointsBox_->setMaximum(500);
+	correlation2PointsBox_->setValue(200);
 
-	correlationSmoothingBox_->addItem("Poly Fit");
-	correlationSmoothingBox_->addItem("Moving Median");
-	correlationSmoothingBox_->addItem("Moving Average");
+	correlation1SmoothingBox_ = new QComboBox();
+	correlation1SmoothingBox_->addItem("None");
+	correlation1SmoothingBox_->addItem("Poly Fit");
+	correlation1SmoothingBox_->addItem("Moving Median");
+	correlation1SmoothingBox_->addItem("Moving Average");
 
-	smoothModeBox_ = new QSpinBox();
-	smoothModeBox_->setSingleStep(1);
-	smoothModeBox_->setMinimum(1);
-	smoothModeBox_->setValue(1);
-	smoothModeBox_->setMaximum(99);
+	correlation2SmoothingBox_ = new QComboBox();
+	correlation2SmoothingBox_->addItem("None");
+	correlation2SmoothingBox_->addItem("Poly Fit");
+	correlation2SmoothingBox_->addItem("Moving Median");
+	correlation2SmoothingBox_->addItem("Moving Average");
+
+	smooth1ModelBox_ = new QSpinBox();
+	smooth1ModelBox_->setSingleStep(1);
+	smooth1ModelBox_->setMinimum(1);
+	smooth1ModelBox_->setValue(1);
+	smooth1ModelBox_->setMaximum(99);
+
+	smooth2Mode1Box_ = new QSpinBox();
+	smooth2Mode1Box_->setSingleStep(1);
+	smooth2Mode1Box_->setMinimum(1);
+	smooth2Mode1Box_->setValue(1);
+	smooth2Mode1Box_->setMaximum(99);
 
 	liveCorrelationCheckBox_ = new QCheckBox("Real-time");
 	correlateNowButton_ = new QPushButton("Now");
@@ -165,7 +179,7 @@ REIXSXESImageInterpolationABEditor::REIXSXESImageInterpolationABEditor(REIXSXESI
 	colorMap_->setContrast(2.1);
 	colorMap_->setGamma(1.0);
 
-	shiftData_ = new REIXSXESImageInterpolationABEditorShiftModel(analysisBlock_);
+	shiftData_ = new REIXSXESImageInterpolationABEditorShift1Model(analysisBlock_);
 	shiftSeries_ = new MPlotSeriesBasic();
 	shiftSeries_->setModel(shiftData_, true);
 	shiftSeries_->setIgnoreWhenAutoScaling(true);
@@ -186,8 +200,8 @@ REIXSXESImageInterpolationABEditor::REIXSXESImageInterpolationABEditor(REIXSXESI
 
 
 
-	corrRegionLeft_ = new MPlotPoint(QPointF(analysisBlock_->correlationCenterPixel()-analysisBlock_->correlationHalfWidth(), 0));
-	corrRegionRight_ = new MPlotPoint(QPointF(analysisBlock_->correlationCenterPixel()+analysisBlock_->correlationHalfWidth(), 0));
+	corrRegionLeft_ = new MPlotPoint(QPointF(analysisBlock_->correlation1CenterPixel()-analysisBlock_->correlation1HalfWidth(), 0));
+	corrRegionRight_ = new MPlotPoint(QPointF(analysisBlock_->correlation1CenterPixel()+analysisBlock_->correlation1HalfWidth(), 0));
 	corrRegionLeft_->setMarker(MPlotMarkerShape::VerticalBeam, 2000, QPen(QColor(Qt::black)));
 	corrRegionRight_->setMarker(MPlotMarkerShape::VerticalBeam, 2000, QPen(QColor(Qt::black)));
 	corrRegionLeft_->setIgnoreWhenAutoScaling(true);
@@ -279,13 +293,13 @@ REIXSXESImageInterpolationABEditor::REIXSXESImageInterpolationABEditor(REIXSXESI
 			QVBoxLayout* shift1PageLayout = new QVBoxLayout();
 				QFormLayout* shift1PageFormLayout = new QFormLayout();
 					QHBoxLayout* correlation1SettingsLayout = new QHBoxLayout();
-						correlation1SettingsLayout->addWidget(correlationCenterBox_);
+						correlation1SettingsLayout->addWidget(correlation1CenterBox_);
 						correlation1SettingsLayout->addWidget(new QLabel("width:"));
-						correlation1SettingsLayout->addWidget(correlationPointsBox_);
+						correlation1SettingsLayout->addWidget(correlation1PointsBox_);
 				shift1PageFormLayout->addRow("C. center:", correlation1SettingsLayout);
 					QHBoxLayout* correlation1SmothingLayout = new QHBoxLayout();
-						correlation1SmothingLayout->addWidget(correlationSmoothingBox_);
-						correlation1SmothingLayout->addWidget(smoothModeBox_);
+						correlation1SmothingLayout->addWidget(correlation1SmoothingBox_);
+						correlation1SmothingLayout->addWidget(smooth1ModelBox_);
 				shift1PageFormLayout->addRow("C. smooth:", correlation1SmothingLayout);
 			shift1PageLayout->addLayout(shift1PageFormLayout);
 
@@ -302,13 +316,13 @@ REIXSXESImageInterpolationABEditor::REIXSXESImageInterpolationABEditor(REIXSXESI
 			QVBoxLayout* shift2PageLayout = new QVBoxLayout();
 				QFormLayout* shift2PageFormLayout = new QFormLayout();
 					QHBoxLayout* correlation2SettingsLayout = new QHBoxLayout();
-//						correlation2SettingsLayout->addWidget(correlationCenterBox_);
+						correlation2SettingsLayout->addWidget(correlation2CenterBox_);
 						correlation2SettingsLayout->addWidget(new QLabel("width:"));
-//						correlation2SettingsLayout->addWidget(correlationPointsBox_);
+						correlation2SettingsLayout->addWidget(correlation2PointsBox_);
 				shift2PageFormLayout->addRow("C. center:", correlation2SettingsLayout);
 					QHBoxLayout* correlation2SmothingLayout = new QHBoxLayout();
-//						correlation2SmothingLayout->addWidget(correlationSmoothingBox_);
-//						correlation2SmothingLayout->addWidget(smoothModeBox_);
+						correlation2SmothingLayout->addWidget(correlation2SmoothingBox_);
+						correlation2SmothingLayout->addWidget(smooth2Mode1Box_);
 				shift2PageFormLayout->addRow("C. smooth:", correlation2SmothingLayout);
 			shift2PageLayout->addLayout(shift2PageFormLayout);
 
@@ -387,8 +401,8 @@ REIXSXESImageInterpolationABEditor::REIXSXESImageInterpolationABEditor(REIXSXESI
 	connect(rangeRoundControl_,SIGNAL(valueChanged(double)),this, SLOT(onRangeRoundControlChanged(double)));
 
 
-	connect(correlationCenterBox_, SIGNAL(valueChanged(int)), this, SLOT(onCorrelationCenterBoxChanged(int)));
-	connect(correlationPointsBox_, SIGNAL(valueChanged(int)), this, SLOT(onCorrelationPointsBoxChanged(int)));
+	connect(correlation1CenterBox_, SIGNAL(valueChanged(int)), this, SLOT(onCorrelationCenterBoxChanged(int)));
+	connect(correlation1PointsBox_, SIGNAL(valueChanged(int)), this, SLOT(onCorrelationPointsBoxChanged(int)));
 
 	connect(shiftDisplayOffsetSlider_, SIGNAL(valueChanged(int)), shiftData_, SLOT(setDisplayXOffset(int)));
 
@@ -404,8 +418,10 @@ REIXSXESImageInterpolationABEditor::REIXSXESImageInterpolationABEditor(REIXSXESI
 	connect(correlationSmoothingBox_, SIGNAL(currentIndexChanged(int)), analysisBlock_, SLOT(setCorrelationSmoothing(int)));
 	*/
 
-	connect(correlationSmoothingBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onCSmoothBoxChanged()));
-	connect(smoothModeBox_, SIGNAL(valueChanged(int)), this, SLOT(onCSmoothModeChanged()));
+	connect(correlation1SmoothingBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onCSmoothBox1Changed()));
+	connect(correlation2SmoothingBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onCSmoothBox2Changed()));
+	connect(smooth1ModelBox_, SIGNAL(valueChanged(int)), this, SLOT(onCSmooth1ModeChanged()));
+	connect(smooth2Mode1Box_, SIGNAL(valueChanged(int)), this, SLOT(onCSmooth2ModeChanged()));
 
 
 	connect(applyToOtherScansButton_, SIGNAL(clicked()), this, SLOT(onApplyToOtherScansMenuClicked()));
@@ -495,18 +511,18 @@ void REIXSXESImageInterpolationABEditor::onRangeRoundControlChanged(double newRa
 
 void REIXSXESImageInterpolationABEditor::onCorrelationCenterBoxChanged(int center)
 {
-	if(center == analysisBlock_->correlationCenterPixel())
+	if(center == analysisBlock_->correlation1CenterPixel())
 		return;
 
-	analysisBlock_->setCorrelationCenterPixel(center);
+	analysisBlock_->setCorrelation1CenterPixel(center);
 
 	// update lines showing correlation range.
-	corrRegionLeft_->setValue(QPointF(analysisBlock_->correlationCenterPixel()-analysisBlock_->correlationHalfWidth(), 0));
-	corrRegionRight_->setValue(QPointF(analysisBlock_->correlationCenterPixel()+analysisBlock_->correlationHalfWidth(), 0));
+	corrRegionLeft_->setValue(QPointF(analysisBlock_->correlation1CenterPixel()-analysisBlock_->correlation1HalfWidth(), 0));
+	corrRegionRight_->setValue(QPointF(analysisBlock_->correlation1CenterPixel()+analysisBlock_->correlation1HalfWidth(), 0));
 }
 
 
-void REIXSXESImageInterpolationABEditor::onCSmoothBoxChanged()
+void REIXSXESImageInterpolationABEditor::onCSmoothBox1Changed()
 {
 	//index 0 for none, 1 for poly, 2 for median, 3 for average
 
@@ -514,55 +530,100 @@ void REIXSXESImageInterpolationABEditor::onCSmoothBoxChanged()
 	smoothBoxType type;
 	*/
 
-	switch((smoothBoxType)correlationSmoothingBox_->currentIndex()) {
+	switch((smoothBoxType)correlation1SmoothingBox_->currentIndex()) {
 	case None:
-		smoothModeBox_->setDisabled(true);
+		smooth1ModelBox_->setDisabled(true);
 		break;
 	case Poly:
-		smoothModeBox_->setEnabled(true);
-		smoothModeBox_->setMinimum(2);
-		smoothModeBox_->setMaximum(4);
-		smoothModeBox_->setSingleStep(1);
-		smoothModeBox_->setValue(2);
+		smooth1ModelBox_->setEnabled(true);
+		smooth1ModelBox_->setMinimum(2);
+		smooth1ModelBox_->setMaximum(4);
+		smooth1ModelBox_->setSingleStep(1);
+		smooth1ModelBox_->setValue(2);
 		break;
 	case Median:
-		smoothModeBox_->setEnabled(true);
-		smoothModeBox_->setMinimum(1);
-		smoothModeBox_->setMaximum(63);
-		smoothModeBox_->setSingleStep(2);
-		smoothModeBox_->setValue(3);
+		smooth1ModelBox_->setEnabled(true);
+		smooth1ModelBox_->setMinimum(1);
+		smooth1ModelBox_->setMaximum(63);
+		smooth1ModelBox_->setSingleStep(2);
+		smooth1ModelBox_->setValue(3);
 		break;
 	case Average:
-		smoothModeBox_->setEnabled(true);
-		smoothModeBox_->setMinimum(1);
-		smoothModeBox_->setMaximum(63);
-		smoothModeBox_->setSingleStep(2);
-		smoothModeBox_->setValue(3);
+		smooth1ModelBox_->setEnabled(true);
+		smooth1ModelBox_->setMinimum(1);
+		smooth1ModelBox_->setMaximum(63);
+		smooth1ModelBox_->setSingleStep(2);
+		smooth1ModelBox_->setValue(3);
 		break;
 	default:
 		break;
 	}
 
-	analysisBlock_->setCorrelationSmoothing(QPair<int,int>(correlationSmoothingBox_->currentIndex(), smoothModeBox_->value()));
+	analysisBlock_->setCorrelation1Smoothing(QPair<int,int>(correlation1SmoothingBox_->currentIndex(), smooth1ModelBox_->value()));
 }
 
-void REIXSXESImageInterpolationABEditor::onCSmoothModeChanged() {
-	analysisBlock_->setCorrelationSmoothing(QPair<int,int>(correlationSmoothingBox_->currentIndex(), smoothModeBox_->value()));
+
+void REIXSXESImageInterpolationABEditor::onCSmoothBox2Changed()
+{
+	//index 0 for none, 1 for poly, 2 for median, 3 for average
+
+	/*
+ smoothBoxType type;
+ */
+
+	switch((smoothBoxType)correlation2SmoothingBox_->currentIndex()) {
+	case None:
+		smooth2Mode1Box_->setDisabled(true);
+		break;
+	case Poly:
+		smooth2Mode1Box_->setEnabled(true);
+		smooth2Mode1Box_->setMinimum(2);
+		smooth2Mode1Box_->setMaximum(4);
+		smooth2Mode1Box_->setSingleStep(1);
+		smooth2Mode1Box_->setValue(2);
+		break;
+	case Median:
+		smooth2Mode1Box_->setEnabled(true);
+		smooth2Mode1Box_->setMinimum(1);
+		smooth2Mode1Box_->setMaximum(63);
+		smooth2Mode1Box_->setSingleStep(2);
+		smooth2Mode1Box_->setValue(3);
+		break;
+	case Average:
+		smooth2Mode1Box_->setEnabled(true);
+		smooth2Mode1Box_->setMinimum(1);
+		smooth2Mode1Box_->setMaximum(63);
+		smooth2Mode1Box_->setSingleStep(2);
+		smooth2Mode1Box_->setValue(3);
+		break;
+	default:
+		break;
+	}
+
+	analysisBlock_->setCorrelation2Smoothing(QPair<int,int>(correlation2SmoothingBox_->currentIndex(), smooth2Mode1Box_->value()));
 }
 
+
+void REIXSXESImageInterpolationABEditor::onCSmooth1ModeChanged() {
+	analysisBlock_->setCorrelation1Smoothing(QPair<int,int>(correlation1SmoothingBox_->currentIndex(), smooth1ModelBox_->value()));
+}
+
+void REIXSXESImageInterpolationABEditor::onCSmooth2ModeChanged() {
+	analysisBlock_->setCorrelation2Smoothing(QPair<int,int>(correlation2SmoothingBox_->currentIndex(), smooth2Mode1Box_->value()));
+}
 
 void REIXSXESImageInterpolationABEditor::onCorrelationPointsBoxChanged(int points)
 {
 	int halfWidth = points/2;
 
-	if(halfWidth == analysisBlock_->correlationHalfWidth())
+	if(halfWidth == analysisBlock_->correlation1HalfWidth())
 		return;
 
-	analysisBlock_->setCorrelationHalfWidth(halfWidth);
+	analysisBlock_->setCorrelation1HalfWidth(halfWidth);
 
 	// update lines showing correlation range.
-	corrRegionLeft_->setValue(QPointF(analysisBlock_->correlationCenterPixel()-analysisBlock_->correlationHalfWidth(), 0));
-	corrRegionRight_->setValue(QPointF(analysisBlock_->correlationCenterPixel()+analysisBlock_->correlationHalfWidth(), 0));
+	corrRegionLeft_->setValue(QPointF(analysisBlock_->correlation1CenterPixel()-analysisBlock_->correlation1HalfWidth(), 0));
+	corrRegionRight_->setValue(QPointF(analysisBlock_->correlation1CenterPixel()+analysisBlock_->correlation1HalfWidth(), 0));
 }
 
 void REIXSXESImageInterpolationABEditor::onAnalysisBlockInputDataSourcesChanged()
@@ -583,9 +644,12 @@ void REIXSXESImageInterpolationABEditor::onAnalysisBlockInputDataSourcesChanged(
 		rangeMaxXControl_->setEnabled(true);
 		rangeRoundControl_->setEnabled(true);
 
-		correlationCenterBox_->setEnabled(true);
-		correlationPointsBox_->setEnabled(true);
-		correlationSmoothingBox_->setEnabled(true);
+		correlation1CenterBox_->setEnabled(true);
+		correlation1PointsBox_->setEnabled(true);
+		correlation1SmoothingBox_->setEnabled(true);
+		correlation2CenterBox_->setEnabled(true);
+		correlation2PointsBox_->setEnabled(true);
+		correlation2SmoothingBox_->setEnabled(true);
 		liveCorrelationCheckBox_->setEnabled(true);
 		correlateNowButton_->setEnabled(true);
 		shiftDisplayOffsetSlider_->setEnabled(true);
@@ -627,24 +691,43 @@ void REIXSXESImageInterpolationABEditor::onAnalysisBlockInputDataSourcesChanged(
 		rangeRoundControl_->setValue(analysisBlock_->rangeRound());
 		rangeRoundControl_->blockSignals(false);
 
-		correlationCenterBox_->blockSignals(true);
-		correlationCenterBox_->setMaximum(inputSource->size(0) - 1);
-		correlationCenterBox_->setValue(analysisBlock_->correlationCenterPixel());
-		correlationCenterBox_->blockSignals(false);
+		correlation1CenterBox_->blockSignals(true);
+		correlation1CenterBox_->setMaximum(inputSource->size(0) - 1);
+		correlation1CenterBox_->setValue(analysisBlock_->correlation1CenterPixel());
+		correlation1CenterBox_->blockSignals(false);
 
-		correlationPointsBox_->blockSignals(true);
-		correlationPointsBox_->setValue(analysisBlock_->correlationHalfWidth()*2);
-		correlationPointsBox_->blockSignals(false);
+		correlation2CenterBox_->blockSignals(true);
+		correlation2CenterBox_->setMaximum(inputSource->size(0) - 1);
+		correlation2CenterBox_->setValue(analysisBlock_->correlation2CenterPixel());
+		correlation2CenterBox_->blockSignals(false);
 
-		correlationSmoothingBox_->blockSignals(true);
-		correlationSmoothingBox_->setCurrentIndex(analysisBlock_->correlationSmoothing().first);
-		correlationSmoothingBox_->blockSignals(false);
+		correlation1PointsBox_->blockSignals(true);
+		correlation1PointsBox_->setValue(analysisBlock_->correlation1HalfWidth()*2);
+		correlation1PointsBox_->blockSignals(false);
 
-		smoothModeBox_->blockSignals(true);
-		smoothModeBox_->setValue(analysisBlock_->correlationSmoothing().second);
-		if(analysisBlock_->correlationSmoothing().first == 1)
-			smoothModeBox_->setMinimum(2);
-		smoothModeBox_->blockSignals(false);
+		correlation2PointsBox_->blockSignals(true);
+		correlation2PointsBox_->setValue(analysisBlock_->correlation2HalfWidth()*2);
+		correlation2PointsBox_->blockSignals(false);
+
+		correlation1SmoothingBox_->blockSignals(true);
+		correlation1SmoothingBox_->setCurrentIndex(analysisBlock_->correlation1Smoothing().first);
+		correlation1SmoothingBox_->blockSignals(false);
+
+		correlation2SmoothingBox_->blockSignals(true);
+		correlation2SmoothingBox_->setCurrentIndex(analysisBlock_->correlation2Smoothing().first);
+		correlation2SmoothingBox_->blockSignals(false);
+
+		smooth1ModelBox_->blockSignals(true);
+		smooth1ModelBox_->setValue(analysisBlock_->correlation1Smoothing().second);
+		if(analysisBlock_->correlation1Smoothing().first == 1)
+			smooth1ModelBox_->setMinimum(2);
+		smooth1ModelBox_->blockSignals(false);
+
+		smooth2Mode1Box_->blockSignals(true);
+		smooth2Mode1Box_->setValue(analysisBlock_->correlation2Smoothing().second);
+		if(analysisBlock_->correlation2Smoothing().first == 1)
+			smooth2Mode1Box_->setMinimum(2);
+		smooth2Mode1Box_->blockSignals(false);
 
 		liveCorrelationCheckBox_->blockSignals(true);
 		liveCorrelationCheckBox_->setChecked(analysisBlock_->liveCorrelation());
@@ -660,8 +743,8 @@ void REIXSXESImageInterpolationABEditor::onAnalysisBlockInputDataSourcesChanged(
 		image_->setModel(new AMDataSourceImageData(inputSource), true);
 		plot_->addItem(image_);
 
-		corrRegionLeft_->setValue(QPointF(analysisBlock_->correlationCenterPixel()-analysisBlock_->correlationHalfWidth(), 0));
-		corrRegionRight_->setValue(QPointF(analysisBlock_->correlationCenterPixel()+analysisBlock_->correlationHalfWidth(), 0));
+		corrRegionLeft_->setValue(QPointF(analysisBlock_->correlation1CenterPixel()-analysisBlock_->correlation1HalfWidth(), 0));
+		corrRegionRight_->setValue(QPointF(analysisBlock_->correlation1CenterPixel()+analysisBlock_->correlation1HalfWidth(), 0));
 	}
 
 	else {
@@ -672,9 +755,9 @@ void REIXSXESImageInterpolationABEditor::onAnalysisBlockInputDataSourcesChanged(
 		rangeMaxXControl_->setEnabled(false);
 		rangeRoundControl_->setEnabled(false);
 
-		correlationCenterBox_->setEnabled(false);
-		correlationPointsBox_->setEnabled(false);
-		correlationSmoothingBox_->setEnabled(false);
+		correlation1CenterBox_->setEnabled(false);
+		correlation1PointsBox_->setEnabled(false);
+		correlation1SmoothingBox_->setEnabled(false);
 		liveCorrelationCheckBox_->setEnabled(false);
 		correlateNowButton_->setEnabled(false);
 		shiftDisplayOffsetSlider_->setEnabled(false);
@@ -970,7 +1053,7 @@ qDebug() << "Lower right index - value:" << i << -(sqrt(-1.0 + ((i-(dx-D*dx/2.0)
 
 
 
-REIXSXESImageInterpolationABEditorShiftModel::REIXSXESImageInterpolationABEditorShiftModel(REIXSXESImageInterpolationAB *analysisBlock, QObject *parent)
+REIXSXESImageInterpolationABEditorShift1Model::REIXSXESImageInterpolationABEditorShift1Model(REIXSXESImageInterpolationAB *analysisBlock, QObject *parent)
 	: QObject(parent)
 {
 	analysisBlock_ = analysisBlock;
@@ -982,45 +1065,45 @@ REIXSXESImageInterpolationABEditorShiftModel::REIXSXESImageInterpolationABEditor
 }
 
 
-qreal REIXSXESImageInterpolationABEditorShiftModel::x(unsigned index) const
+qreal REIXSXESImageInterpolationABEditorShift1Model::x(unsigned index) const
 {
 	return analysisBlock_->shiftValues1().at(index) + displayXOffset_;
 }
 
-qreal REIXSXESImageInterpolationABEditorShiftModel::y(unsigned index) const
+qreal REIXSXESImageInterpolationABEditorShift1Model::y(unsigned index) const
 {
 	return index;
 }
 
-int REIXSXESImageInterpolationABEditorShiftModel::count() const
+int REIXSXESImageInterpolationABEditorShift1Model::count() const
 {
 	return analysisBlock_->shiftValues1().count();
 }
 
-void REIXSXESImageInterpolationABEditorShiftModel::setDisplayXOffset(int offset)
+void REIXSXESImageInterpolationABEditorShift1Model::setDisplayXOffset(int offset)
 {
 	displayXOffset_ = offset;
 	emitDataChanged();
 }
 
-void REIXSXESImageInterpolationABEditorShiftModel::onOutputSizeChanged()
+void REIXSXESImageInterpolationABEditorShift1Model::onOutputSizeChanged()
 {
 	setDisplayXOffset(analysisBlock_->size(0)/2);
 	emitDataChanged();
 }
 
-void REIXSXESImageInterpolationABEditorShiftModel::onShiftValuesChanged()
+void REIXSXESImageInterpolationABEditorShift1Model::onShiftValuesChanged()
 {
 	emitDataChanged();
 }
 
-void REIXSXESImageInterpolationABEditorShiftModel::xValues(unsigned indexStart, unsigned indexEnd, qreal *outputValues) const
+void REIXSXESImageInterpolationABEditorShift1Model::xValues(unsigned indexStart, unsigned indexEnd, qreal *outputValues) const
 {
 	for(unsigned i=indexStart; i<=indexEnd; ++i)
 		*(outputValues++) = analysisBlock_->shiftValues1().at(i) + displayXOffset_;
 }
 
-void REIXSXESImageInterpolationABEditorShiftModel::yValues(unsigned indexStart, unsigned indexEnd, qreal *outputValues) const
+void REIXSXESImageInterpolationABEditorShift1Model::yValues(unsigned indexStart, unsigned indexEnd, qreal *outputValues) const
 {
 	for(unsigned i=indexStart; i<=indexEnd; ++i)
 		*(outputValues++) = i;
@@ -1106,9 +1189,9 @@ void REIXSXESImageInterpolationABEditor::onApplyToOtherScansChosen()
 					xesAB->setTiltCalibrationOffset(analysisBlock_->tiltCalibrationOffset());
 				}
 				if(batchApplyCorrelationSettings_->isChecked()) {
-					xesAB->setCorrelationCenterPixel(analysisBlock_->correlationCenterPixel());
-					xesAB->setCorrelationHalfWidth(analysisBlock_->correlationHalfWidth());
-					xesAB->setCorrelationSmoothing(analysisBlock_->correlationSmoothing());
+					xesAB->setCorrelation1CenterPixel(analysisBlock_->correlation1CenterPixel());
+					xesAB->setCorrelation1HalfWidth(analysisBlock_->correlation1HalfWidth());
+					xesAB->setCorrelation1Smoothing(analysisBlock_->correlation1Smoothing());
 					xesAB->enableLiveCorrelation(analysisBlock_->liveCorrelation());
 				}
 				if(batchApplyShiftCurve_->isChecked()) {
