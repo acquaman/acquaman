@@ -20,23 +20,109 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "AMDataSourcesEditor.h"
-#include "ui/AMCloseItemDelegate.h"
-#include <QRegExpValidator>
 
+
+#include <QRegExpValidator>
+#include <QMessageBox>
+
+#include "ui/AMCloseItemDelegate.h"
 #include "dataman/datasource/AMDataSource.h"
 #include "dataman/AMScan.h"
+#include "ui/AMAddAnalysisBlockDialog.h"
+#include "util/AMErrorMonitor.h"
+#include "dataman/database/AMDbObjectSupport.h"
 
  AMDataSourcesEditor::~AMDataSourcesEditor(){}
 AMDataSourcesEditor::AMDataSourcesEditor(AMScanSetModel* model, QWidget *parent) :
 		QWidget(parent)
 {
 	detailEditor_ = 0;
-	ui_.setupUi(this);
+	if (objectName().isEmpty())
+		setObjectName(QString::fromUtf8("AMDataSourcesEditor"));
+	resize(317, 230);
+	QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
+	sizePolicy.setHorizontalStretch(0);
+	sizePolicy.setVerticalStretch(0);
+	sizePolicy.setHeightForWidth(this->sizePolicy().hasHeightForWidth());
+	setSizePolicy(sizePolicy);
+	verticalLayout = new QVBoxLayout(this);
+	verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
+	scanSetView_ = new QTreeView(this);
+	scanSetView_->setObjectName(QString::fromUtf8("scanSetView_"));
+	scanSetView_->setAlternatingRowColors(true);
+
+	verticalLayout->addWidget(scanSetView_);
+
+	addAnalysisToolButtonLayout_ = new QHBoxLayout();
+	addAnalysisToolButtonLayout_->setObjectName(QString::fromUtf8("addAnalysisToolButtonLayout_"));
+	addAnalysisToolButtonLayout_->setContentsMargins(12, 0, 12, -1);
+	addDataSourceButton_ = new QToolButton(this);
+	addDataSourceButton_->setObjectName(QString::fromUtf8("addDataSourceButton_"));
+
+	addAnalysisToolButtonLayout_->addWidget(addDataSourceButton_);
+
+	horizontalSpacer_2 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+	addAnalysisToolButtonLayout_->addItem(horizontalSpacer_2);
+
+
+	verticalLayout->addLayout(addAnalysisToolButtonLayout_);
+
+	analysisDetailsLayout_ = new QGridLayout();
+	analysisDetailsLayout_->setObjectName(QString::fromUtf8("analysisDetailsLayout_"));
+	analysisDetailsLayout_->setContentsMargins(-1, 0, -1, -1);
+	nameEdit_ = new QLineEdit(this);
+	nameEdit_->setObjectName(QString::fromUtf8("nameEdit_"));
+	nameEdit_->setFrame(false);
+
+	analysisDetailsLayout_->addWidget(nameEdit_, 0, 1, 1, 1);
+
+	descriptionLabel_ = new QLabel(this);
+	descriptionLabel_->setObjectName(QString::fromUtf8("descriptionLabel_"));
+	descriptionLabel_->setStyleSheet(QString::fromUtf8("font: bold \"Lucida Grande\";\n"
+"color: rgb(121,121,121);"));
+	descriptionLabel_->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+	analysisDetailsLayout_->addWidget(descriptionLabel_, 1, 0, 1, 1);
+
+	descriptionEdit_ = new QLineEdit(this);
+	descriptionEdit_->setObjectName(QString::fromUtf8("descriptionEdit_"));
+	descriptionEdit_->setFrame(false);
+
+	analysisDetailsLayout_->addWidget(descriptionEdit_, 1, 1, 1, 1);
+
+	nameLabel_ = new QLabel(this);
+	nameLabel_->setObjectName(QString::fromUtf8("nameLabel_"));
+	nameLabel_->setStyleSheet(QString::fromUtf8("font: bold \"Lucida Grande\";\n"
+"color: rgb(121,121,121);"));
+	nameLabel_->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+	analysisDetailsLayout_->addWidget(nameLabel_, 0, 0, 1, 1);
+
+
+	verticalLayout->addLayout(analysisDetailsLayout_);
+
+	lineBreak_ = new QFrame(this);
+	lineBreak_->setObjectName(QString::fromUtf8("lineBreak_"));
+	lineBreak_->setFrameShape(QFrame::HLine);
+	lineBreak_->setFrameShadow(QFrame::Sunken);
+
+	verticalLayout->addWidget(lineBreak_);
+
+	detailEditorLayout_ = new QVBoxLayout();
+	detailEditorLayout_->setObjectName(QString::fromUtf8("detailEditorLayout_"));
+
+	verticalLayout->addLayout(detailEditorLayout_);
+
+	setWindowTitle(QApplication::translate("AMDataSourcesEditor", "Form", 0, QApplication::UnicodeUTF8));
+	addDataSourceButton_->setText(QApplication::translate("AMDataSourcesEditor", "Add Analysis Tool", 0, QApplication::UnicodeUTF8));
+	descriptionLabel_->setText(QApplication::translate("AMDataSourcesEditor", "description", 0, QApplication::UnicodeUTF8));
+	nameLabel_->setText(QApplication::translate("AMDataSourcesEditor", "name", 0, QApplication::UnicodeUTF8));
 
 	// Modify and adjust UI components
-	ui_.nameEdit->setReadOnly(true);	// you can't edit existing data source names.
+	nameEdit_->setReadOnly(true);	// you can't edit existing data source names.
 	// When making new names for data sources, they better be mathematically sound variable names (No spaces, alphabetic character at beginning, no funky symbols, etc...)
-	ui_.nameEdit->setValidator(new QRegExpValidator(QRegExp("[A-Za-z_]\\w*"), this));
+	nameEdit_->setValidator(new QRegExpValidator(QRegExp("[A-Za-z_]\\w*"), this));
 
 
 
@@ -44,27 +130,27 @@ AMDataSourcesEditor::AMDataSourcesEditor(AMScanSetModel* model, QWidget *parent)
 	AMCloseItemDelegate* itemDelegate = new AMCloseItemDelegate(this);
 	itemDelegate->setCloseButtonsEnabled(true);
 	connect(itemDelegate, SIGNAL(closeButtonClicked(QModelIndex)), this, SLOT(onCloseButtonClicked(QModelIndex)));
-	ui_.scanSetView->setItemDelegate(itemDelegate);
+	scanSetView_->setItemDelegate(itemDelegate);
 
 	// apply the existing scan set model to the data source list view:
 	model_ = model;
-	ui_.scanSetView->setModel(model_);
-	connect(ui_.scanSetView->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SLOT(onSetViewIndexChanged(QModelIndex,QModelIndex)));
+	scanSetView_->setModel(model_);
+	connect(scanSetView_->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SLOT(onSetViewIndexChanged(QModelIndex,QModelIndex)));
 
 	// don't show the drop-down arrows for scans. (Saves a bit of room inside the list of channels.)
-	ui_.scanSetView->setRootIsDecorated(false);
+	scanSetView_->setRootIsDecorated(false);
 
-	ui_.addDataSourceButton->setDisabled(true);
-	connect(ui_.addDataSourceButton, SIGNAL(clicked()), this, SLOT(onAddDataSourceButtonClicked()));
+	addDataSourceButton_->setDisabled(true);
+	connect(addDataSourceButton_, SIGNAL(clicked()), this, SLOT(onAddDataSourceButtonClicked()));
 
 	editingNewDataSourceName_ =  false;
 	nameOfAnalysisBlockToBeAdded_ = "";
 
-	connect(ui_.descriptionEdit, SIGNAL(editingFinished()), this, SLOT(descriptionEditingFinished()));
+	connect(descriptionEdit_, SIGNAL(editingFinished()), this, SLOT(descriptionEditingFinished()));
 
 	showAllDataSources_ = false;
-	ui_.scanSetView->setContextMenuPolicy(Qt::CustomContextMenu);
-	connect(ui_.scanSetView, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)));
+	scanSetView_->setContextMenuPolicy(Qt::CustomContextMenu);
+	connect(scanSetView_, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)));
 }
 
 void AMDataSourcesEditor::onCustomContextMenuRequested(QPoint point)
@@ -74,7 +160,7 @@ void AMDataSourcesEditor::onCustomContextMenuRequested(QPoint point)
 	temp->setCheckable(true);
 	temp->setChecked(showAllDataSources_);
 
-	temp = popup.exec(mapToGlobal(ui_.scanSetView->mapToParent(point)));
+	temp = popup.exec(mapToGlobal(scanSetView_->mapToParent(point)));
 
 	// If a valid action was selected.
 	if (temp && temp->text() == "Show all data sources"){
@@ -101,13 +187,13 @@ void AMDataSourcesEditor::showAllDataSources(bool showAll)
 	if (showAllDataSources_){
 
 		for (int i = 0; i < model_->scanAt(scanIndex)->dataSourceCount(); i++)
-			ui_.scanSetView->setRowHidden(i, modelIndex, false);
+			scanSetView_->setRowHidden(i, modelIndex, false);
 	}
 
 	else{
 
 		for (int di = 0; di < model_->scanAt(scanIndex)->dataSourceCount(); di++)
-			ui_.scanSetView->setRowHidden(di, modelIndex, model_->dataSourceAt(scanIndex, di)->hiddenFromUsers());
+			scanSetView_->setRowHidden(di, modelIndex, model_->dataSourceAt(scanIndex, di)->hiddenFromUsers());
 	}
 }
 
@@ -124,15 +210,15 @@ void AMDataSourcesEditor::setCurrentScan(int scanIndex) {
 	removeDetailEditor();
 
 	if(scanIndex < 0 || scanIndex >= model_->scanCount()) {
-		ui_.scanSetView->setCurrentIndex(QModelIndex());
-		ui_.scanSetView->collapseAll();
+		scanSetView_->setCurrentIndex(QModelIndex());
+		scanSetView_->collapseAll();
 		return;
 	}
 
-	ui_.scanSetView->collapseAll();
+	scanSetView_->collapseAll();
 	QModelIndex i = model_->indexForScan(scanIndex);
-	ui_.scanSetView->expand(i);
-	ui_.scanSetView->setCurrentIndex(i);
+	scanSetView_->expand(i);
+	scanSetView_->setCurrentIndex(i);
 	showAllDataSources(false);
 }
 
@@ -143,21 +229,21 @@ void AMDataSourcesEditor::onSetViewIndexChanged(const QModelIndex &selected, con
 	// Nothing selected?
 	////////////////////////
 	if(!selected.isValid()) {
-		ui_.nameEdit->clear();
-		ui_.descriptionEdit->clear();
-		ui_.descriptionEdit->setReadOnly(true);
-		ui_.addDataSourceButton->setDisabled(true);
+		nameEdit_->clear();
+		descriptionEdit_->clear();
+		descriptionEdit_->setReadOnly(true);
+		addDataSourceButton_->setDisabled(true);
 		return;
 	}
 
-	ui_.addDataSourceButton->setEnabled(true);
+	addDataSourceButton_->setEnabled(true);
 
 	// Scan selected? (No selected data source)
 	/////////////////////////
 	if(!selected.parent().isValid()) {
-		ui_.nameEdit->clear();
-		ui_.descriptionEdit->clear();
-		ui_.descriptionEdit->setReadOnly(true);
+		nameEdit_->clear();
+		descriptionEdit_->clear();
+		descriptionEdit_->setReadOnly(true);
 		return;
 	}
 
@@ -181,25 +267,25 @@ void AMDataSourcesEditor::onSetViewIndexChanged(const QModelIndex &selected, con
 
 	connect(dataSource->signalSource(), SIGNAL(infoChanged()), this, SLOT(onDataSourceDescriptionChanged()));
 
-	ui_.nameEdit->setText(dataSource->name());
-	ui_.descriptionEdit->setText(dataSource->description());
-	ui_.descriptionEdit->setReadOnly(false);
+	nameEdit_->setText(dataSource->name());
+	descriptionEdit_->setText(dataSource->description());
+	descriptionEdit_->setReadOnly(false);
 
 	installDetailEditor(dataSource->createEditorWidget());
 }
 
 void AMDataSourcesEditor::onDataSourceDescriptionChanged()
 {
-	QModelIndex index = ui_.scanSetView->currentIndex();
+	QModelIndex index = scanSetView_->currentIndex();
 	AMDataSource *dataSource = model_->dataSourceAt(index.parent().row(), index.row());
 	if (dataSource){
 
-		ui_.descriptionEdit->setText(dataSource->description());
-		ui_.scanSetView->update(index);
+		descriptionEdit_->setText(dataSource->description());
+		scanSetView_->update(index);
 	}
 }
 
-#include <QMessageBox>
+
 void AMDataSourcesEditor::onCloseButtonClicked(const QModelIndex &index) {
 
 	// handle data source-level indexes only:
@@ -227,7 +313,7 @@ void AMDataSourcesEditor::onCloseButtonClicked(const QModelIndex &index) {
 }
 
 int AMDataSourcesEditor::currentScanIndex() const {
-	QModelIndex i = ui_.scanSetView->currentIndex();
+	QModelIndex i = scanSetView_->currentIndex();
 	if(!i.isValid())
 		return -1;
 
@@ -241,14 +327,12 @@ int AMDataSourcesEditor::currentScanIndex() const {
 
 
 int AMDataSourcesEditor::currentDataSourceIndex() const {
-	QModelIndex i = ui_.scanSetView->currentIndex();
+	QModelIndex i = scanSetView_->currentIndex();
 	if(!i.parent().isValid())
 		return -1;
 
 	return i.row();
 }
-
-#include "ui/AMAddAnalysisBlockDialog.h"
 
 void AMDataSourcesEditor::onAddDataSourceButtonClicked() {
 
@@ -262,28 +346,17 @@ void AMDataSourcesEditor::onAddDataSourceButtonClicked() {
 
 		// Data source names aren't editable after they've been created. Here we re-enable the nameEdit for editing shortly, and connect its editingFinished ... We'll complete the operation in onNewChannelNamed().
 		editingNewDataSourceName_ = true;
-		ui_.nameEdit->setReadOnly(false);
-		ui_.nameEdit->setText("newDataSourceName");
-		ui_.nameEdit->setFocus();
-		ui_.nameEdit->selectAll();
+		nameEdit_->setReadOnly(false);
+		nameEdit_->setText("newDataSourceName");
+		nameEdit_->setFocus();
+		nameEdit_->selectAll();
 
-		ui_.descriptionEdit->clear();
+		descriptionEdit_->clear();
 
-		connect(ui_.nameEdit, SIGNAL(editingFinished()), this, SLOT(onNewDataSourceNamed()));
+		connect(nameEdit_, SIGNAL(editingFinished()), this, SLOT(onNewDataSourceNamed()));
 	}
 
 }
-
-#include "util/AMErrorMonitor.h"
-#include "analysis/AM1DExpressionAB.h"
-#include "analysis/AM1DDerivativeAB.h"
-#include "analysis/AM2DSummingAB.h"
-#include "analysis/AM1DIntegralAB.h"
-#include "analysis/AM2DNormalizationAB.h"
-#include "analysis/AM1DNormalizationAB.h"
-#include "analysis/AM1DCalibrationAB.h"
-#include "analysis/AM3DBinningAB.h"
-//#include "analysis/REIXS/REIXSXESImageInterpolationAB.h"
 
 void AMDataSourcesEditor::onNewDataSourceNamed() {
 
@@ -291,10 +364,10 @@ void AMDataSourcesEditor::onNewDataSourceNamed() {
 		return;
 
 	editingNewDataSourceName_ = false;
-	QString chName = ui_.nameEdit->text();
-	disconnect(ui_.nameEdit, SIGNAL(editingFinished()), this, SLOT(onNewDataSourceNamed()));
-	ui_.nameEdit->clearFocus();
-	ui_.nameEdit->setReadOnly(true);
+	QString chName = nameEdit_->text();
+	disconnect(nameEdit_, SIGNAL(editingFinished()), this, SLOT(onNewDataSourceNamed()));
+	nameEdit_->clearFocus();
+	nameEdit_->setReadOnly(true);
 
 
 	int si = currentScanIndex();
@@ -309,7 +382,7 @@ void AMDataSourcesEditor::onNewDataSourceNamed() {
 
 	if(model_->scanAt(si)->indexOfDataSource(chName) != -1) {
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -1, QString("Couldn't create a new data source with the name \"%1\". Make sure to choose a name that doesn't exist already in this scan.").arg(chName)));
-		ui_.scanSetView->setCurrentIndex(ui_.scanSetView->currentIndex());
+		scanSetView_->setCurrentIndex(scanSetView_->currentIndex());
 		return;
 	}
 
@@ -338,69 +411,25 @@ void AMDataSourcesEditor::onNewDataSourceNamed() {
 			threeDimDataSources << tempSource;
 	}
 
-	if (nameOfAnalysisBlockToBeAdded_ == "Derivative"){
-
-		newAnalysisBlock = new AM1DDerivativeAB(chName);
-		newAnalysisBlock->setInputDataSources(singleDimDataSources);
-	}
-
-	else if (nameOfAnalysisBlockToBeAdded_ == "Integral"){
-
-		newAnalysisBlock = new AM1DIntegralAB(chName);
-		newAnalysisBlock->setInputDataSources(singleDimDataSources);
-	}
-
-	else if (nameOfAnalysisBlockToBeAdded_ == "Expression"){
-
-		newAnalysisBlock = new AM1DExpressionAB(chName);
-		newAnalysisBlock->setInputDataSources(singleDimDataSources);
-	}
-
-	else if (nameOfAnalysisBlockToBeAdded_ == "2D Summing"){
-
-		newAnalysisBlock = new AM2DSummingAB(chName);
-		newAnalysisBlock->setInputDataSources(twoDimDataSources);
-	}
-
-	else if (nameOfAnalysisBlockToBeAdded_ == "Normalization"){
-
-		newAnalysisBlock = new AM1DNormalizationAB(chName);
-		newAnalysisBlock->setInputDataSources(singleDimDataSources);
-	}
-
-	else if (nameOfAnalysisBlockToBeAdded_ == "Calibrated Normalization"){
-
-		newAnalysisBlock = new AM1DCalibrationAB(chName);
-		newAnalysisBlock->setInputDataSources(singleDimDataSources);
-	}
-
-	else if (nameOfAnalysisBlockToBeAdded_ == "2D Map Normalization"){
-
-		newAnalysisBlock = new AM2DNormalizationAB(chName);
-		newAnalysisBlock->setInputDataSources(twoDimDataSources);
-	}
-
-	else if (nameOfAnalysisBlockToBeAdded_ == "3D Binning"){
-
-		newAnalysisBlock = new AM3DBinningAB(chName);
-		newAnalysisBlock->setInputDataSources(threeDimDataSources);
-	}
-
-	else if (nameOfAnalysisBlockToBeAdded_ == "Interpolated Curve Correction"){
-
-		/*
-		newAnalysisBlock = new REIXSXESImageInterpolationAB(chName);
-		newAnalysisBlock->setInputDataSources(twoDimDataSources);
-		*/
-	}
-
+	newAnalysisBlock = qobject_cast<AMAnalysisBlock *>(AMDbObjectSupport::s()->objectInfoForClass(nameOfAnalysisBlockToBeAdded_)->metaObject->newInstance(Q_ARG(QString, chName)));
 
 	// This should always happen.  But just to be safe.
-	if (newAnalysisBlock)
+	if (newAnalysisBlock){
+
+		if (newAnalysisBlock->desiredInputRank() == 1)
+			newAnalysisBlock->setInputDataSources(singleDimDataSources);
+
+		else if (newAnalysisBlock->desiredInputRank() == 2)
+			newAnalysisBlock->setInputDataSources(twoDimDataSources);
+
+		else if (newAnalysisBlock->desiredInputRank() == 3)
+			newAnalysisBlock->setInputDataSources(threeDimDataSources);
+
 		scan->addAnalyzedDataSource(newAnalysisBlock);
+	}
 
 	int di = scan->dataSourceCount()-1;
-	ui_.scanSetView->setCurrentIndex(model_->indexForDataSource(si, di));
+	scanSetView_->setCurrentIndex(model_->indexForDataSource(si, di));
 		// this should automatically create a new detail editor for this new scan.
 }
 
@@ -415,9 +444,9 @@ void AMDataSourcesEditor::descriptionEditingFinished() {
 		return;
 
 	if (di < rawCount)
-		model_->scanAt(si)->rawDataSources()->at(di)->setDescription(ui_.descriptionEdit->text());
+		model_->scanAt(si)->rawDataSources()->at(di)->setDescription(descriptionEdit_->text());
 	else
-		model_->scanAt(si)->analyzedDataSources()->at(di-rawCount)->setDescription(ui_.descriptionEdit->text());
+		model_->scanAt(si)->analyzedDataSources()->at(di-rawCount)->setDescription(descriptionEdit_->text());
 }
 
 

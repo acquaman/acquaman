@@ -556,8 +556,8 @@ void AM2DScanView::printGraphics()
 		printer.setOrientation(QPrinter::Landscape);
 
 		QPrintDialog *dialog = new QPrintDialog(&printer, this);
-		    dialog->setWindowTitle(tr("Print Spectra"));
-		    if (dialog->exec() != QDialog::Accepted)
+			dialog->setWindowTitle(tr("Print Spectra"));
+			if (dialog->exec() != QDialog::Accepted)
 			return;
 
 		QPainter painter(&printer);
@@ -1215,4 +1215,15 @@ bool AM2DScanViewMultiSourcesView::reviewDataSources() {
 	}
 
 	return layoutChanges;
+}
+
+void AM2DScanViewMultiSourcesView::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+	foreach (MPlotGW *plot, dataSource2Plot_.values()){
+
+		if (plot->mapRectToParent(plot->rect()).contains(event->pos()))
+			model()->setExclusiveDataSourceByName(dataSource2Plot_.key(plot));
+	}
+
+	AM2DScanViewInternal::mousePressEvent(event);
 }

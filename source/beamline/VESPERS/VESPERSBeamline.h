@@ -64,9 +64,11 @@ class VESPERSBeamline : public AMBeamline
 public:
 
 	/// Returns the instance of the beamline that has been created.
-	static VESPERSBeamline* vespers() {
+	static VESPERSBeamline* vespers()
+	{
 		if(!instance_)
 			instance_ = new VESPERSBeamline();
+
 		return static_cast<VESPERSBeamline*>(instance_);
 	}
 
@@ -856,8 +858,6 @@ protected:
 	// Scanning settings.
 	AMControl *masterDwellTime_;
 
-	// The ring current.
-	AMControl *ringCurrent_;
 	// The energy setpoint control.
 	AMControl *energySetpointControl_;
 

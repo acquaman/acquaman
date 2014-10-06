@@ -61,6 +61,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/actions/AMSampleMoveAction.h"
 #include "actions3/editors/AMSampleMoveActionEditor.h"
 
+#include "beamline/CLS/CLSStorageRing.h"
+
 #include "actions3/AMActionRunner3.h"
 #include "ui/actions3/AMWorkflowView3.h"
 
@@ -83,7 +85,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/SGM/SGMSampleManagementView.h"
 #include "ui/SGM/SGMSampleManipulatorView.h"
 #include "ui/SGM/SGMSIS3820ScalerView.h"
-#include "ui/SGM/SGMDataViewWithActionButtons.h"
 
 #include "ui/CLS/CLSAmptekSDD123DetailedDetectorView.h"
 #include "ui/CLS/CLSPGTDetectorV2View.h"
@@ -199,6 +200,9 @@ bool SGMAppController::startup() {
 	connect(SGMBeamline::sgm(), SIGNAL(detectorAvailabilityChanged(AMDetector*,bool)), this, SLOT(onSGMBeamlineDetectorAvailabilityChanged(AMDetector*,bool)));
 	AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES, QString("SGM Startup: Waiting for detectors"));
 	onSGMBeamlineDetectorAvailabilityChanged(0, false);
+
+	// Initialize the storage ring.
+	CLSStorageRing::sr1();
 
 	// From Darren:  Adding this for SGM because they don't want to have scan editors to always be popping up automatically.
 	setAutomaticBringScanEditorToFront(false);
@@ -609,10 +613,23 @@ void SGMAppController::onSGMNewTEYDetectorConnected(bool connected){
 
 void SGMAppController::onCurrentScanActionStartedImplementation(AMScanAction *action){
 	Q_UNUSED(action)
+
+	connect(CLSStorageRing::sr1(), SIGNAL(beamAvaliability(bool)), this, SLOT(onBeamAvailabilityChanged(bool)));
 }
 
 void SGMAppController::onCurrentScanActionFinishedImplementation(AMScanAction *action){
 	Q_UNUSED(action)
+	disconnect(CLSStorageRing::sr1(), SIGNAL(beamAvaliability(bool)), this, SLOT(onBeamAvailabilityChanged(bool)));
+}
+
+void SGMAppController::onBeamAvailabilityChanged(bool beamAvailable)
+{
+	if (!beamAvailable && !AMActionRunner3::workflow()->pauseCurrentAction())
+		AMActionRunner3::workflow()->setQueuePaused(true);
+
+	// On VESPERS, we don't like having the scan restart on it's own.
+	else if (beamAvailable && AMActionRunner3::workflow()->queuedActionCount() > 0)
+		AMActionRunner3::workflow()->setQueuePaused(false);
 }
 
 void SGMAppController::onActionSGMSettings(){

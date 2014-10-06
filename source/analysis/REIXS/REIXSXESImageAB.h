@@ -205,6 +205,9 @@ public:
   */
 	virtual bool areInputDataSourcesAcceptable(const QList<AMDataSource*>& dataSources) const;
 
+	/// Returns the desired rank for input sources.
+	virtual int desiredInputRank() const { return 2; }
+
 protected:
 	/// Set the data source inputs.
 	virtual void setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources);
@@ -244,10 +247,10 @@ int outputSize = indexStart.totalPointsTo(indexEnd);
 	int sumRangeMinX() const { return sumRangeMinX_; }
 	/// The maximum column to include (inclusive) in the sum
 	int sumRangeMaxX() const { return sumRangeMaxX_; }
-	
+
 	//The "roundness" of the mask (0 for rectangular, 1 for ellipse)
 	double rangeRound() const { return rangeRound_; }
-	
+
 	/// Returns the shift values used to offset each row before summing. This will have the same size as the height of the image.
 	AMIntList shiftValues() const { return shiftValues_; }
 
@@ -289,7 +292,7 @@ public slots:
 	void setShiftValues(const AMIntList& shiftValues);
 
 	void setRangeRound(double rangeRound);
-	
+
 	/// Sets the central pixel value to use when running an auto-correlation routine
 	void setCorrelationCenterPixel(int centerPx);
 	/// Sets the full-width of the region around correlationCenterPixel() to compute when running an auto-correlation routine.
@@ -355,8 +358,8 @@ protected:
 	int sumRangeMinY_, sumRangeMaxY_;
 	int sumRangeMinX_, sumRangeMaxX_; //left and right boundaries, so we can have full control over ellipse
 	double rangeRound_; //0 to 1, 0 for rectangular mask, 1 for elliptical
-	
-	
+
+
 	/// The central pixel value to use when running an auto-correlation routine
 	int correlationCenterPx_;
 	/// The full-width of the region around correlationCenterPixel() to compute when running an auto-correlation routine.

@@ -97,7 +97,7 @@ QString AMAddAnalysisBlockDialog::getAnalysisBlock(int rank, QWidget *parent)
 QString AMAddAnalysisBlockDialog::name() const
 {
 	if (listWidget_->currentItem())
-		return listWidget_->currentItem()->text();
+		return listWidget_->currentItem()->data(AM::DetailedDescriptionRole).toString();
 
 	return "";
 }
@@ -127,33 +127,41 @@ void AMAddAnalysisBlockDialog::populateWith1D()
 {
 	QListWidgetItem *item = new QListWidgetItem(QIcon(":/derivative.png"), "Derivative", listWidget_);
 	item->setData(AM::DescriptionRole, "This tool takes the derivative of its input.");
+	item->setData(AM::DetailedDescriptionRole, "AM1DDerivativeAB");
 
 	item = new QListWidgetItem(QIcon(":/integral.png"), "Integral", listWidget_);
 	item->setData(AM::DescriptionRole, "This tool takes the integral of its input.");
+	item->setData(AM::DetailedDescriptionRole, "AM1DIntegralAB");
 
 	item = new QListWidgetItem(QIcon(":/expression.png"), "Expression", listWidget_);
 	item->setData(AM::DescriptionRole, "This tool analyzes any arbitrary expression.");
+	item->setData(AM::DetailedDescriptionRole, "AM1DExpressionAB");
 
 	item = new QListWidgetItem(QIcon(":/spectrum.png"), "2D Summing", listWidget_);
 	item->setData(AM::DescriptionRole, "This tool bins a 2D image along an axis to generate a 1D function.");
+	item->setData(AM::DetailedDescriptionRole, "AM2DSummingAB");
 
 	item = new QListWidgetItem(QIcon(":/22x22/gamma.png"), "Normalization", listWidget_);
 	item->setData(AM::DescriptionRole, "This tool normalizes its input.");
+	item->setData(AM::DetailedDescriptionRole, "AM1DNormalizationAB");
 
 	item = new QListWidgetItem(QIcon(":/22x22/gamma.png"), "Calibrated Normalization", listWidget_);
 	item->setData(AM::DescriptionRole, "This tool normalizes its input and allows for energy calibration.");
+	item->setData(AM::DetailedDescriptionRole, "AM1DCalibrationAB");
 
 	item = new QListWidgetItem(QIcon(":/spectrum.png"), "Interpolated Curve Correction", listWidget_);
 	item->setData(AM::DescriptionRole, "This tool interpolates between two shift curves for finer correction.");
-
+	item->setData(AM::DetailedDescriptionRole, "REIXSXESImageInterpolationAB");
 }
 
 void AMAddAnalysisBlockDialog::populateWith2D()
 {
 	QListWidgetItem *item = new QListWidgetItem(QIcon(":/22x22/gamma.png"), "2D Map Normalization", listWidget_);
 	item->setData(AM::DescriptionRole, "This tool normalizes its input.");
+	item->setData(AM::DetailedDescriptionRole, "AM2DNormalizationAB");
 
 	item = new QListWidgetItem(QIcon(":/spectrum.png"), "3D Binning", listWidget_);
 	item->setData(AM::DescriptionRole, "This tool bins a spectra to generate a 2D map.");
+	item->setData(AM::DetailedDescriptionRole, "AM3DBinningAB");
 }
 

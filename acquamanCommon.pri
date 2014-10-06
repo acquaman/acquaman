@@ -27,6 +27,9 @@ macx {
 			CONFIG -= mobility
 		}
 
+contains(USERNAME, darrenhunter){
+	CONFIG -= mobility
+}
 		# Disable Qt Mobility Video until everyone's Mac laptops support that
 		#CONFIG -= mobility
 
@@ -285,6 +288,13 @@ contains(USERNAME, chevrid){
 	QMAKE_LFLAGS_RELEASE += "-mmacosx-version-min=10.7"
 }
 
+contains(USERNAME, darrenhunter){
+	QMAKE_CXXFLAGS_X86_64 += "-mmacosx-version-min=10.7"
+
+	QMAKE_LFLAGS_DEBUG += "-mmacosx-version-min=10.7"
+	QMAKE_LFLAGS_RELEASE += "-mmacosx-version-min=10.7"
+}
+
 QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR"
 QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR"
 
@@ -332,10 +342,7 @@ HEADERS += \
 	source/ui/dataman/AMRunSelector.h \
 	source/ui/beamline/AMControlSetView.h \
 	source/ui/dataman/AMCramBarHorizontal.h \
-	source/ui/dataman/AMDataView.h \
-	source/ui/dataman/AMDataViewWithActionButtons.h \
 	source/ui/dataman/AMFirstTimeWidget.h \
-	source/ui/dataman/AMFlowGraphicsLayout.h \
 	source/ui/dataman/AMImportControllerWidget.h \
 	source/ui/AMMainWindow.h \
 	source/ui/dataman/AMRunExperimentInsert.h \
@@ -344,7 +351,6 @@ HEADERS += \
 	source/ui/AMSidebar.h \
 	source/ui/AMStatusView.h \
 	source/ui/AMThumbnailScrollViewer.h \
-	source/ui/AMBottomBar.h \
 	source/ui/beamline/AMControlEditor.h \
 	source/acquaman.h \
 	source/ui/dataman/AMNewRunDialog.h \
@@ -363,7 +369,6 @@ HEADERS += \
 	source/ui/dataman/AMDataSourcesEditor.h \
 	source/ui/AMWrappingLineEdit.h \
 	source/ui/AMStartScreen.h \
-	source/ui/AMSignallingGraphicsView.h \
 	source/dataman/AMUser.h \
 	source/dataman/AMXESScan.h \
 	source/dataman/info/ALSBL8XESDetectorInfo.h \
@@ -400,7 +405,6 @@ HEADERS += \
 	source/dataman/info/AMSpectralOutputDetectorInfo.h \
 	source/dataman/SGM/SGMMCPDetectorInfo.h \
 	source/dataman/info/CLSPGTDetectorInfo.h \
-	source/dataman/database/AMQueryTableModel.h \
 	source/dataman/export/AMExportController.h \
 	source/dataman/export/AMExporter.h \
 	source/dataman/export/AMExporterOption.h \
@@ -476,7 +480,6 @@ HEADERS += \
 	source/analysis/AM1DIntegralAB.h \
 	source/analysis/AM1DBasicIntegralABEditor.h \
 	source/util/AMJoystick.h \
-	source/ui/util/AMJoystickTestView.h \
 	source/ui/dataman/AMControlInfoListTableView.h \
 	source/dataman/AM2DScan.h \
 	source/dataman/info/CLSAmptekSDD123DetectorInfo.h \
@@ -769,12 +772,14 @@ HEADERS += \
 	source/util/AMThread.h \
 	source/dataman/AMDbUpgrade1Pt5.h \
 	source/util/AMAppArgumentParser.h \
+	source/beamline/AMStorageRing.h \
+	source/beamline/CLS/CLSStorageRing.h \
 	source/beamline/CLS/CLSSR570.h \
-    source/ui/dataman/AMBrowseScansView.h
+	source/ui/dataman/AMBrowseScansView.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
-	 HEADERS += source/util/AMGenericLinuxJoystick.h
+	 HEADERS +=
 }
 
 # Only when the Mobility Video framework is available:
@@ -788,22 +793,12 @@ HEADERS += source/ui/AMCrosshairOverlayVideoWidget.h \
 	source/ui/AMBeamlineCameraBrowser.h
 }
 
-FORMS += source/ui/dataman/AMDataView.ui \
-	source/ui/dataman/AMDataViewEmptyHeader.ui \
-	source/ui/dataman/AMDataViewSectionHeader.ui \
+FORMS += \
 	source/ui/dataman/AMImportControllerWidget.ui \
-	source/ui/acquaman/AMScanConfigurationView.ui \
-	source/ui/AMBottomBar.ui \
-	source/ui/dataman/AMGenericScanEditor.ui \
-	source/ui/dataman/AMDataSourcesEditor.ui \
 	source/ui/dataman/AMSamplePlateSelector.ui \
-	source/ui/dataman/AMSamplePositionViewActionsWidget.ui \
 	source/ui/dataman/AMExporterOptionGeneralAsciiView.ui \
-	source/ui/dataman/AMDataViewActionsBar.ui \
 	source/ui/AMLinePropertyEditor.ui \
 	source/ui/dataman/AMImagePropertyEditor.ui \
-	source/ui/util/AMJoystickTestView.ui \
-	source/ui/actions3/AMAddActionDialog3.ui \
 	source/ui/AMTopFrame2.ui
 
 SOURCES += \
@@ -839,16 +834,12 @@ SOURCES += \
 	source/ui/dataman/AMRunSelector.cpp \
 	source/ui/beamline/AMControlSetView.cpp \
 	source/ui/dataman/AMCramBarHorizontal.cpp \
-	source/ui/dataman/AMDataView.cpp \
-	source/ui/dataman/AMDataViewWithActionButtons.cpp \
-	source/ui/dataman/AMFlowGraphicsLayout.cpp \
 	source/ui/AMMainWindow.cpp \
 	source/ui/dataman/AMRunExperimentInsert.cpp \
 	source/ui/dataman/AMScanView.cpp \
 	source/ui/AMSidebar.cpp \
 	source/ui/AMStatusView.cpp \
 	source/ui/AMThumbnailScrollViewer.cpp \
-	source/ui/AMBottomBar.cpp \
 	source/ui/beamline/AMControlEditor.cpp \
 	source/ui/dataman/AMNewRunDialog.cpp \
 	source/ui/AMPrefixSuffixLineEdit.cpp \
@@ -865,7 +856,6 @@ SOURCES += \
 	source/ui/dataman/AMDataSourcesEditor.cpp \
 	source/ui/AMWrappingLineEdit.cpp \
 	source/ui/AMStartScreen.cpp \
-	source/ui/AMSignallingGraphicsView.cpp \
 	source/dataman/AMUser.cpp \
 	source/dataman/AMXESScan.cpp \
 	source/dataman/info/ALSBL8XESDetectorInfo.cpp \
@@ -900,7 +890,6 @@ SOURCES += \
 	source/dataman/info/AMSpectralOutputDetectorInfo.cpp \
 	source/dataman/SGM/SGMMCPDetectorInfo.cpp \
 	source/dataman/info/CLSPGTDetectorInfo.cpp \
-	source/dataman/database/AMQueryTableModel.cpp \
 	source/dataman/export/AMExportController.cpp \
 	source/dataman/export/AMExporterOption.cpp \
 	source/dataman/export/AMExporterOptionGeneral.cpp \
@@ -967,7 +956,6 @@ SOURCES += \
 	source/analysis/AM1DIntegralAB.cpp \
 	source/analysis/AM1DBasicIntegralABEditor.cpp \
 	source/util/AMJoystick.cpp \
-	source/ui/util/AMJoystickTestView.cpp \
 	source/ui/dataman/AMControlInfoListTableView.cpp \
 	source/dataman/AM2DScan.cpp \
 	source/dataman/info/CLSAmptekSDD123DetectorInfo.cpp \
@@ -1255,12 +1243,14 @@ SOURCES += \
 	source/util/AMThread.cpp \
 	source/dataman/AMDbUpgrade1Pt5.cpp \
 	source/util/AMAppArgumentParser.cpp \
+	source/beamline/AMStorageRing.cpp \
+	source/beamline/CLS/CLSStorageRing.cpp \
 	source/beamline/CLS/CLSSR570.cpp \
-    source/ui/dataman/AMBrowseScansView.cpp
+	source/ui/dataman/AMBrowseScansView.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
-	SOURCES += source/util/AMGenericLinuxJoystick.cpp
+	SOURCES +=
 }
 
 CONFIG(mobility) {
@@ -1286,3 +1276,7 @@ contains(DEFINES, AM_BUILD_REPORTER_ENABLED){
 
 	SOURCES += source/util/AMRunTimeBuildInfo.cpp
 }
+
+
+
+

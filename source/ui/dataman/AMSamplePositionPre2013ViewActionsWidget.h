@@ -23,10 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AMSAMPLEPOSITIONPRE2013VIEWACTIONSWIDGET_H
 
 #include <QFrame>
-
-namespace Ui {
-	class AMSamplePositionViewActionsWidget;
-}
+#include <QToolButton>
 
 /// This widget adds a "Mark", "Move To", and "Remove" button when editing sample position items, it's used by AMSamplePlateView.
 class AMSamplePositionPre2013ViewActionsWidget : public QFrame
@@ -53,15 +50,16 @@ protected:
 	/// The row that this editor is being used on. (Since we only handle list models, this is sufficient)
 	int row_;
 
+	QToolButton *markButton_;
+	QToolButton *moveToButton_;
+	QToolButton *removeButton_;
+
 protected slots:
 	void onMarkButtonPressed() { emit rowMarkPressed(row_); }
 	void onMoveToButtonPressed() { emit rowMoveToPressed(row_); }
 	void onRemoveButtonPressed() { emit rowRemovePressed(row_); }
 
 	void onCustomContextMenuRequested(QPoint point);
-
-private:
-	Ui::AMSamplePositionViewActionsWidget *ui;
 };
 
 #endif // AMSAMPLEPOSITIONPRE2013VIEWACTIONSWIDGET_H

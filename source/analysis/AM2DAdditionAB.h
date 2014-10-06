@@ -32,7 +32,7 @@ class AM2DAdditionAB : public AMStandardAnalysisBlock
 
 public:
 	/// Constructor.
- 	virtual ~AM2DAdditionAB();
+	virtual ~AM2DAdditionAB();
 	Q_INVOKABLE AM2DAdditionAB(const QString &outputName = "InvalidInput", QObject *parent = 0);
 
 	/// Description.
@@ -43,6 +43,9 @@ public:
 	- the rank() of that input source must be 2 (two-dimensiona)
 	*/
 	virtual bool areInputDataSourcesAcceptable(const QList<AMDataSource*>& dataSources) const;
+
+	/// Returns the desired rank for input sources.
+	virtual int desiredInputRank() const { return 2; }
 
 	/// Set the data source inputs.
 	virtual void setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources);

@@ -24,7 +24,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/VESPERS/VESPERSBeamline.h"
 #include "ui/VESPERS/VESPERSEndstationView.h"
 #include "ui/AMMainWindow.h"
-#include "ui/AMBottomBar.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
 #include "ui/acquaman/VESPERS/VESPERSScanConfigurationViewHolder3.h"
 
@@ -34,6 +33,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/actions/AMScanAction.h"
 #include "actions3/AMListAction3.h"
 #include "acquaman/AMScanActionController.h"
+
+#include "beamline/CLS/CLSStorageRing.h"
 
 #include "ui/VESPERS/VESPERSXRFScanConfigurationView.h"
 #include "ui/VESPERS/VESPERSPersistentView.h"
@@ -140,6 +141,8 @@ bool VESPERSAppController::startup()
 		VESPERSBeamline::vespers();
 		// Initialize the periodic table object.
 		AMPeriodicTable::table();
+		// Initialize the storage ring.
+		CLSStorageRing::sr1();
 
 		registerClasses();
 
@@ -430,7 +433,7 @@ void VESPERSAppController::onCurrentScanActionStartedImplementation(AMScanAction
 	if (fileFormat == "vespersXRF" || fileFormat == "vespers2011XRF")
 		return;
 
-	connect(VESPERSBeamline::vespers(), SIGNAL(beamDumped()), this, SLOT(onBeamDump()));
+	connect(CLSStorageRing::sr1(), SIGNAL(beamAvaliability(bool)), this, SLOT(onBeamAvailabilityChanged(bool)));
 	userConfiguration_->storeToDb(AMDatabase::database("user"));
 }
 
@@ -441,7 +444,7 @@ void VESPERSAppController::onCurrentScanActionFinishedImplementation(AMScanActio
 	if (fileFormat == "vespersXRF" || fileFormat == "vespers2011XRF")
 		return;
 
-	disconnect(VESPERSBeamline::vespers(), SIGNAL(beamDumped()), this, SLOT(onBeamDump()));
+	disconnect(CLSStorageRing::sr1(), SIGNAL(beamAvaliability(bool)), this, SLOT(onBeamAvailabilityChanged(bool)));
 
 	// Save the current configuration to the database.
 	// Being explicit due to the nature of how many casts were necessary.  I could probably explicitly check to ensure each cast is successful, but I'll risk it for now.
@@ -460,12 +463,14 @@ void VESPERSAppController::onCurrentScanActionFinishedImplementation(AMScanActio
 	}
 }
 
-void VESPERSAppController::onBeamDump()
+void VESPERSAppController::onBeamAvailabilityChanged(bool beamAvailable)
 {
-	AMAction3 *action = AMActionRunner3::workflow()->currentAction();
+	if (!beamAvailable && !AMActionRunner3::workflow()->pauseCurrentAction())
+		AMActionRunner3::workflow()->setQueuePaused(true);
 
-	if (action && action->canPause() && action->state() == AMAction3::Running)
-		action->pause();
+	// On VESPERS, we don't like having the scan restart on it's own.
+	else if (beamAvailable && AMActionRunner3::workflow()->queuedActionCount() > 0)
+		AMActionRunner3::workflow()->setQueuePaused(false);
 }
 
 void VESPERSAppController::onScanEditorCreated(AMGenericScanEditor *editor)
