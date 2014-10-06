@@ -55,7 +55,7 @@ public:
     /// Returns true if the mono is at the translation limit in region A, false otherwise.
     double atRegionATranslateLimit() const { return regionATranslateLimit_->value(); }
     /// Returns true if the mono is at the translation limit in region B, false otherwise.
-    double atTranslateBLimit() const { return regionBTranslateLimit_->value(); }
+    double atRegionBTranslateLimit() const { return regionBTranslateLimit_->value(); }
     /// Returns true if translation is permitted, false otherwise.
     double translatePermitted() const { return translatePermitted_->value(); }
     /// Returns true if the theta paddle is permitted, false otherwise.

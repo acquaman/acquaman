@@ -29,7 +29,7 @@ public slots:
     void setMono(BioXASSideMonochromator *mono);
 
 protected slots:
-    void onEnergyChanged();
+    void onEnergySetpointChanged(double newEnergy);
     void onMonoConnectedChanged();
     void onMonoEnergyChanged(double newEnergy);
 

@@ -33,7 +33,7 @@ BioXASSideMonoBasicEnergyView::BioXASSideMonoBasicEnergyView(BioXASSideMonochrom
 
     setMono(mono);
 
-    connect( energy_, SIGNAL(editingFinished()), this, SLOT(onEnergyChanged()) );
+    connect( energySetpoint_, SIGNAL(valueChanged(double)), this, SLOT(onEnergySetpointChanged(double)) );
 }
 
 BioXASSideMonoBasicEnergyView::~BioXASSideMonoBasicEnergyView()
@@ -57,7 +57,7 @@ void BioXASSideMonoBasicEnergyView::setMono(BioXASSideMonochromator *mono)
 
         if (mono_) {
             connect( mono_, SIGNAL(connected(bool)), this, SLOT(onMonoConnectedChanged()) );
-            connect( mono_, SIGNAL(energyChanged(double)), this, SLOT(onMonoEnergyChanged(double)) );
+            connect( mono_, SIGNAL(energyFeedbackChanged(double)), this, SLOT(onMonoEnergyChanged(double)) );
 
             energySetpoint_->setValue(mono_->energy());
             onMonoConnectedChanged();
@@ -66,10 +66,10 @@ void BioXASSideMonoBasicEnergyView::setMono(BioXASSideMonochromator *mono)
     }
 }
 
-void BioXASSideMonoBasicEnergyView::onEnergyChanged()
+void BioXASSideMonoBasicEnergyView::onEnergySetpointChanged(double newEnergy)
 {
     if (mono_ && mono_->isConnected()) {
-        mono_->setEnergy(energySetpoint_->value());
+        mono_->setEnergy(newEnergy);
     }
 }
 

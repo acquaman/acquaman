@@ -45,8 +45,8 @@ BioXASSideMonochromator::BioXASSideMonochromator(QObject *parent) :
     connect( regionB_, SIGNAL(valueChanged(double)), this, SIGNAL(regionB(double)) );
     connect( regionATranslateLimit_, SIGNAL(valueChanged(double)), this, SIGNAL(regionATranslateLimit(double)) );
     connect( regionBTranslateLimit_, SIGNAL(valueChanged(double)), this, SIGNAL(regionBTranslateLimit(double)) );
-    connect( translatePermitted_, SIGNAL(valueChanged(double)), this, SIGNAL(translatePermittedChanged(double)) );
-    connect( thetaPaddlePermitted_, SIGNAL(valueChanged(double)), this, SIGNAL(thetaPaddlePermittedChanged(double)) );
+    connect( translatePermitted_, SIGNAL(valueChanged(double)), this, SIGNAL(translatePermitted(double)) );
+    connect( thetaPaddlePermitted_, SIGNAL(valueChanged(double)), this, SIGNAL(thetaPaddlePermitted(double)) );
     connect( slitsEnabled_, SIGNAL(valueChanged(double)), this, SIGNAL(slitsEnabled(double)) );
     connect( energy_, SIGNAL(setpointChanged(double)), this, SIGNAL(energySetpointChanged(double)) );
     connect( energy_, SIGNAL(valueChanged(double)), this, SIGNAL(energyFeedbackChanged(double)) );

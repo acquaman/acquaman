@@ -25,12 +25,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QWidget>
 #include <QLayout>
 #include <QGroupBox>
+#include <QDialog>
 
 #include "ui/CLS/CLSStopLightButton.h"
 
 #include "ui/BioXAS/BioXASSideMonoBasicEnergyView.h"
 #include "ui/BioXAS/BioXASSideMonoCrystalChangeView.h"
-#include "ui/beamline/AMCurrentAmplifierSingleView.h"
 
 class AMExtendedControlEditor;
 
@@ -48,13 +48,12 @@ signals:
 
 public slots:
 
+protected slots:
+    void toViewMonoCrystalChangeInstructions();
+
 protected:
-//    AMExtendedControlEditor *motorControlEditor_;
-    AMCurrentAmplifierSingleView *keithleyView_;
-
     BioXASSideMonoBasicEnergyView *energyView_;
-    QPushButton *toViewCrystalChangeInstructs_;
-
+    QPushButton *viewCrystalChangeButton_;
 };
 
 #endif // BIOXASSIDEPERSISTENTVIEW_H

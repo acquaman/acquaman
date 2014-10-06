@@ -27,8 +27,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
     QWidget(parent)
 {
-
-    QVBoxLayout *monoLayout = new QVBoxLayout();
+    QGroupBox* monoInfo = new QGroupBox(this);
+    monoInfo->setTitle("Mono Info");
 
     QHBoxLayout *energyLayout = new QHBoxLayout();
     QLabel *energyLabel = new QLabel("Energy: ", this);
@@ -36,26 +36,18 @@ BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
     energyLabel->setBuddy(energyView_);
     energyLayout->addWidget(energyLabel);
     energyLayout->addWidget(energyView_);
+
+    viewCrystalChangeButton_ = new QPushButton("Crystal Change...", this);
+    viewCrystalChangeButton_->setToolTip("View Mono Crystal Change Instructions");
+    connect( viewCrystalChangeButton_, SIGNAL(clicked()), this, SLOT(toViewMonoCrystalChangeInstructions()) );
+
+    QVBoxLayout *monoLayout = new QVBoxLayout();
     monoLayout->addLayout(energyLayout);
-
-    toViewCrystalChangeInstructs_ = new QPushButton("Crystal Change Instructs", this);
-    monoLayout->addWidget(toViewCrystalChangeInstructs_);
-
-    QGroupBox* monoInfo = new QGroupBox(this);
-    monoInfo->setTitle("Mono Info");
+    monoLayout->addWidget(viewCrystalChangeButton_);
     monoInfo->setLayout(monoLayout);
-
-//    motorControlEditor_ = new AMExtendedControlEditor(BioXASSideBeamline::bioXAS()->m1UpperSlit());
-//    motorControlEditor_->setControlFormat('g', 4);
-
-    keithleyView_ = BioXASSideBeamline::bioXAS()->keithley()->createView();
-    keithleyView_->setParent(this);
-    keithleyView_->setPrecision(2);
-    keithleyView_->setFormat('e');
 
     QVBoxLayout *mainLayout = new QVBoxLayout();
     mainLayout->addWidget(monoInfo);
-    mainLayout->addWidget(keithleyView_);
     mainLayout->addStretch();
 
     setLayout(mainLayout);
@@ -64,4 +56,11 @@ BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
 BioXASSidePersistentView::~BioXASSidePersistentView()
 {
 
+}
+
+void BioXASSidePersistentView::toViewMonoCrystalChangeInstructions()
+{
+//    BioXASSideMonoCrystalChangeView crystalChangeView_(this);
+//    crystalChangeView_.setMono(BioXASSideBeamline::bioXAS()->mono());
+//    crystalChangeView_.exec();
 }
