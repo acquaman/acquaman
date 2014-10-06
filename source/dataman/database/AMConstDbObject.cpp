@@ -41,8 +41,10 @@ AMConstDbObject::AMConstDbObject(AMDatabase *db, const QString &tableName, int i
 const AMDbObject* AMConstDbObject::object() const{
 	if(!object_ && db_ && !tableName_.isEmpty() && id_ > 0)
 		object_ = AMDbObjectSupport::s()->createAndLoadObjectAt(db_, tableName_, id_);
-	if(object_)
+	if(object_){
 		connect(object_, SIGNAL(storedToDb()), this, SLOT(onObjectStoredToDb()));
+		connect(object_, SIGNAL(destroyed()), this, SLOT(onObjectDestroyed()));
+	}
 	return object_;
 }
 
@@ -65,13 +67,16 @@ bool AMConstDbObject::isFullyLoaded() const{
 }
 
 void AMConstDbObject::setObject(const AMDbObject *object){
-	if(object_)
+	if(object_){
 		disconnect(object_, SIGNAL(storedToDb()), this, SLOT(onObjectStoredToDb()));
+		disconnect(object_, SIGNAL(destroyed()), this, SLOT(onObjectDestroyed()));
+	}
 
 	object_ = object;
 
 	if(object_){
 		connect(object_, SIGNAL(storedToDb()), this, SLOT(onObjectStoredToDb()));
+		connect(object_, SIGNAL(destroyed()), this, SLOT(onObjectDestroyed()));
 		db_ = object_->database();
 		tableName_ = object_->dbTableName();
 		id_ = object_->id();
@@ -97,6 +102,10 @@ void AMConstDbObject::onObjectStoredToDb(){
 		if(id_ != object_->id())
 			id_ = object_->id();
 	}
+}
+
+void AMConstDbObject::onObjectDestroyed(){
+	initialize();
 }
 
 void AMConstDbObject::initialize(){

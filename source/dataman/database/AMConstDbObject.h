@@ -60,6 +60,9 @@ protected slots:
 	/// Handles updating the database, tableName, and id (if necessary) when the object is stored to the database
 	void onObjectStoredToDb();
 
+	/// Handles resetting the object to 0 (NULL) if the object was destroyed elsewhere
+	void onObjectDestroyed();
+
 protected:
 	/// Initializes the internal variables for both constructors
 	void initialize();
