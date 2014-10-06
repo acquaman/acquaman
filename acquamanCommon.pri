@@ -17,11 +17,15 @@ HOME_FOLDER = $$system(echo $HOME)
 
 USERNAME = $$system(whoami)
 
+contains(USERNAME, liux0){
+        HOME_FOLDER = /home/liux0/
+}
+
 macx {
 
-contains(USERNAME, helfrij){
-	CONFIG -= mobility
-}
+		contains(USERNAME, helfrij){
+			CONFIG -= mobility
+		}
 
 		# Disable Qt Mobility Video until everyone's Mac laptops support that
 		#CONFIG -= mobility
