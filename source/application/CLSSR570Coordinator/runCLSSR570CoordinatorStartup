@@ -2,5 +2,4 @@
 # myRunScript
 source /home/epics/Startup/startup.R3.14.12.sh
 
-/home/sgm/beamline/programming/acquaman/build/CLSSR570Coordinator
-
+/home/IOC2026-001/beamline/acquaman/CLSSR570Coordinator/CLSSR570Coordinator

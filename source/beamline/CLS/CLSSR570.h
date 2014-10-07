@@ -2,7 +2,6 @@
 #define CLSSR570_H
 
 #include "beamline/AMCurrentAmplifier.h"
-#include "beamline/AMPVControl.h"
 
 class AMControl;
 
@@ -18,11 +17,15 @@ public:
 
 	/// Returns the current sensitivity level
 	int sensitivityLevel() const;
+	/// Returns the setPoint value of sens_num.
+	virtual double sensNumSetpoint() const;
 	/// Returns the value.
 	virtual double value() const;
 	/// Returns a list of the available value options.
 	virtual QList<double> values() const;
 
+	/// Returns the setPoint value of sens_unit.
+	virtual double sensUnitSetpoint() const;
 	/// Returns the current units.
 	virtual QString units() const;
 	/// Returns a string list of the available units options, suitable for a view to display.
@@ -60,14 +63,8 @@ protected:
 	QString currentUnitHelper() const;
 
 protected:
-	QList<double> sensitivityNums_;
-	QStringList sensitivityUnits_;
-	QStringList sensitivityValueArgs_;
-
 	/// Direct access to the sensitivity control (PV) of the SR570
 	AMControl *sensitivityControl_;
-	AMSinglePVControl *sensitivityNumControl_;
-	AMSinglePVControl *sensitivityUnitControl_;
 
 	/// Holds a latch for when we're at maximum sensitivity
 	bool atMaximumSensitivity_;

@@ -5,21 +5,10 @@
 CLSSR570::CLSSR570(const QString &name, const QString &baseName, QObject *parent) :
 	AMCurrentAmplifier(name, parent)
 {
-	sensitivityNums_ << 1 << 2 << 5 << 10 << 20 << 50 << 100 << 200 << 500;
-	sensitivityUnits_ << "pA/V" << "nA/V" << "uA/V" << "mA/V";
-	sensitivityValueArgs_ << "1 pA/V" << "2 pA/V" << "5 pA/V" << "10 pA/V" << "20 pA/V" << "50 pA/V" << "100 pA/V" << "200 pA/V" << "500 pA/V" \
-						  << "1 nA/V" << "2 nA/V" << "5 nA/V" << "10 nA/V" << "20 nA/V" << "50 nA/V" << "100 nA/V" << "200 nA/V" << "500 nA/V" \
-						  << "1 uA/V" << "2 uA/V" << "5 uA/V" << "10 uA/V" << "20 uA/V" << "50 uA/V" << "100 uA/V" << "200 uA/V" << "500 uA/V" \
-						  << "1 mA/V";
-
 	supportsSensitivityMode_ = true;
 
 	atMinimumSensitivity_ = false;
 	atMaximumSensitivity_ = false;
-
-	// sensitivityNumControl_ and senstivityUnitControl_ must be initialized before sensitivityControl_
-	sensitivityNumControl_ = new AMSinglePVControl(QString("%1Sensitivity").arg(name), QString("%1:sens_num").arg(baseName), this, 0.5);
-	sensitivityUnitControl_ = new AMSinglePVControl(QString("%1Sensitivity").arg(name), QString("%1:sens_unit").arg(baseName), this, 0.5);
 
 	sensitivityControl_ = new AMSinglePVControl(QString("%1Sensitivity").arg(name), QString("%1:sens_put").arg(baseName), this, 0.5);
 	connect(sensitivityControl_, SIGNAL(connected(bool)), this, SLOT(onSensitivityControlConnectedChanged(bool)));
@@ -35,6 +24,11 @@ int CLSSR570::sensitivityLevel() const
 	return (int)sensitivityControl_->value();
 }
 
+double CLSSR570::sensNumSetpoint() const
+{
+	return values().indexOf(value());
+}
+
 double CLSSR570::value() const
 {
 	return currentValueHelper();
@@ -42,7 +36,12 @@ double CLSSR570::value() const
 
 QList<double> CLSSR570::values() const
 {
-	return sensitivityNums_;
+	return QList<double>()<< 1 << 2 << 5 << 10 << 20 << 50 << 100 << 200 << 500;
+}
+
+double CLSSR570::sensUnitSetpoint() const
+{
+	return unitsList().indexOf(units());
 }
 
 QString CLSSR570::units() const
@@ -52,7 +51,7 @@ QString CLSSR570::units() const
 
 QStringList CLSSR570::unitsList() const
 {
-	return sensitivityUnits_;
+	return QStringList()<< "pA/V" << "nA/V" << "uA/V" << "mA/V";
 }
 
 double CLSSR570::minimumValueForUnits(const QString &units) const
@@ -91,7 +90,7 @@ void CLSSR570::onSensitivityControlValueChanged(double value)
 		emit maximumValue(true);
 	}
 
-	else if(fabs(value - 27) < 0.5 && !atMinimumSensitivity_) {
+	else if(fabs(value - 27) < 0.5 && !atMinimumSensitivity_){
 
 		atMinimumSensitivity_ = true;
 		emit minimumValue(true);
@@ -146,7 +145,13 @@ bool CLSSR570::decreaseSensitivity()
 
 void CLSSR570::setValueImplementation(const QString &valueArg)
 {
-	int index = sensitivityValueArgs_.indexOf(valueArg);
+	QStringList sensitivityValueArgs;
+	sensitivityValueArgs << "1 pA/V" << "2 pA/V" << "5 pA/V" << "10 pA/V" << "20 pA/V" << "50 pA/V" << "100 pA/V" << "200 pA/V" << "500 pA/V" \
+						 << "1 nA/V" << "2 nA/V" << "5 nA/V" << "10 nA/V" << "20 nA/V" << "50 nA/V" << "100 nA/V" << "200 nA/V" << "500 nA/V" \
+						 << "1 uA/V" << "2 uA/V" << "5 uA/V" << "10 uA/V" << "20 uA/V" << "50 uA/V" << "100 uA/V" << "200 uA/V" << "500 uA/V" \
+						 << "1 mA/V";
+
+	int index = sensitivityValueArgs.indexOf(valueArg);
 	sensitivityControl_->move(index);
 
 	return;
@@ -157,7 +162,7 @@ double CLSSR570::currentValueHelper() const
 	int currentSensitivityControlValue = (int)sensitivityControl_->value();
 
 	if ((currentSensitivityControlValue >= 0) && (currentSensitivityControlValue <= 27)) {
-		return sensitivityNums_.at(currentSensitivityControlValue % 9);
+		return values().at(currentSensitivityControlValue % 9);
 	} else
 		return -1;
 }
@@ -167,7 +172,7 @@ QString CLSSR570::currentUnitHelper() const
 	int currentSensitivityControlValue = (int)sensitivityControl_->value();
 
 	if ((currentSensitivityControlValue >= 0) && (currentSensitivityControlValue <= 27)) {
-		return sensitivityUnits_.at(currentSensitivityControlValue / 9);
+		return unitsList().at(currentSensitivityControlValue / 9);
 	} else
 		return "mA/V";
 }
