@@ -1,0 +1,21 @@
+# Linux rc script for CLS SR status building display system
+#
+# chkconfig: 345 90 10
+# description: CLS SR status building display system. Must be started after networking and NFS
+#
+
+. /etc/rc.d/init.d/functions
+
+IOCNAME=IOC2026-001
+INSTALL_DIR=/home/sgm/beamline/programming/acquaman/source/application/CLSSR570Coordinator
+TOP=/home/epics/src/R3.14.12/
+T_A=linux-x86_64
+# RUNCMD=
+# RUNAS=control
+RUNSCRIPT=runCLSSR570CoordinatorStartup
+DAEMON=CLSAddOnsCoordinator
+PORTNO=10030
+NETWORK="10.52.48.0/22"
+
+source /iocApps/Common/startup.include
+

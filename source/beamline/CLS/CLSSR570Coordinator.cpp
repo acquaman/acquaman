@@ -56,13 +56,13 @@ void CLSSR570Coordinator::onSensPutControlValueChanged(double value)
 	}
 
 	// update the value of sensitivity num pv and sensitivity unit pv
-	sensitivityNumControl_->disableProcessRecord();
-	sensitivityNumControl_->move(sensitivityNums_.indexOf(value()));
-	sensitivityNumControl_->enableProcessRecord();
+	sensNumPVControl_->disableProcessRecord();
+	sensNumPVControl_->move(sensitivityNums_.indexOf(value()));
+	sensNumPVControl_->enableProcessRecord();
 
-	sensitivityUnitControl_->disableProcessRecord();
-	sensitivityUnitControl_->move(sensitivityUnits_.indexOf(units()));
-	sensitivityUnitControl_->enableProcessRecord();
+	sensUnitPVControl_->disableProcessRecord();
+	sensUnitPVControl_->move(sensitivityUnits_.indexOf(units()));
+	sensUnitPVControl_->enableProcessRecord();
 }
 
 void CLSSR570Coordinator::onSensNumControlConnectedChanged(bool connected)

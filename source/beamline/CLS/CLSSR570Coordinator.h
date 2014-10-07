@@ -3,7 +3,7 @@
 
 #include <QObject>
 
-#include <beamline/AMControl.h>
+#include <beamline/AMPVControl.h>
 
 class CLSSR570Coordinator : public QObject
 {
@@ -27,9 +27,9 @@ protected:
 	bool sensUnitConnected_;
 
 	AMControl sensitivityPVControl_;
-	AMControl sensPutPVControl_;
-	AMControl sensNumPVControl_;
-	AMControl sensUnitPVControl_;
+	AMControl *sensPutPVControl_;
+	AMSinglePVControl *sensNumPVControl_;
+	AMSinglePVControl *sensUnitPVControl_;
 
 };
 

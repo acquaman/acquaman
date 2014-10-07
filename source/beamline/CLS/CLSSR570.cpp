@@ -83,33 +83,31 @@ void CLSSR570::onSensitivityControlConnectedChanged(bool connected)
 	}
 }
 
-void CLSSR570::onSensitivityControlValueChanged(double controlValue)
-{
-	if(fabs(controlValue - 0) < 0.5 && !atMaximumSensitivity_){
+void CLSSR570::onSensitivityControlValueChanged(double value)
+{	
+	if(fabs(value - 0) < 0.5 && !atMaximumSensitivity_){
+
 		atMaximumSensitivity_ = true;
 		emit maximumValue(true);
 	}
-	else if(fabs(controlValue - 27) < 0.5 && !atMinimumSensitivity_) {
+
+	else if(fabs(value - 27) < 0.5 && !atMinimumSensitivity_) {
+
 		atMinimumSensitivity_ = true;
 		emit minimumValue(true);
 	}
-	else if(atMaximumSensitivity_ && !(fabs(controlValue - 0) < 0.5)){
+
+	else if(atMaximumSensitivity_ && !(fabs(value - 0) < 0.5)){
+
 		atMaximumSensitivity_ = false;
 		emit maximumValue(false);
 	}
-	else if(atMinimumSensitivity_ && !(fabs(controlValue - 27) < 0.5)){
+
+	else if(atMinimumSensitivity_ && !(fabs(value - 27) < 0.5)){
+
 		atMinimumSensitivity_ = false;
 		emit minimumValue(false);
 	}
-
-	// update the value of sensitivity num pv and sensitivity unit pv
-	sensitivityNumControl_->disableProcessRecord();
-	sensitivityNumControl_->move(sensitivityNums_.indexOf(value()));
-	sensitivityNumControl_->enableProcessRecord();
-
-	sensitivityUnitControl_->disableProcessRecord();
-	sensitivityUnitControl_->move(sensitivityUnits_.indexOf(units()));
-	sensitivityUnitControl_->enableProcessRecord();
 
 	emit valueChanged();
 }
