@@ -105,7 +105,7 @@ void AMConstDbObject::onObjectStoredToDb(){
 }
 
 void AMConstDbObject::onObjectDestroyed(){
-	initialize();
+	object_ = 0; //NULL
 }
 
 void AMConstDbObject::initialize(){
