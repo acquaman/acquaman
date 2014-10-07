@@ -479,6 +479,24 @@ AMNumber AMInMemoryDataStore::axisValue(int axisId, long axisIndex) const {
 
 }
 
+bool AMInMemoryDataStore::axisValues(int axisId, long axisStartIndex, long axisEndIndex, AMNumber *outputValues)
+{
+	if((unsigned)axisId >= (unsigned)axes_.count())
+		return false;	// invalid axis specified.
+
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+	if((unsigned)axisStartIndex >= (unsigned)axes_.at(axisId).size)
+		return false;
+
+	if((unsigned)axisEndIndex >= (unsigned)axes_.at(axisId).size)
+		return false;
+#endif
+
+//	memcpy(outputValues, axis)
+
+	return true;
+}
+
 bool AMInMemoryDataStore::setAxisValue(int axisId, long axisIndex, AMNumber newValue) {
 
 	if((unsigned)axisId >= (unsigned)axes_.count())
