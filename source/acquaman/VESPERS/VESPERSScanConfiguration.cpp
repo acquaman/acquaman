@@ -132,6 +132,18 @@ QString VESPERSScanConfiguration::motorHeaderString(VESPERS::Motor motor) const
 	case VESPERS::X | VESPERS::Z:
 		string.append("Using real motors: X and Z.\n");
 		break;
+
+	case VESPERS::BigBeamX:
+		string.append("Using big beam X motor.\n");
+		break;
+
+	case VESPERS::BigBeamZ:
+		string.append("Using big beam Z motor.\n");
+		break;
+
+	case VESPERS::BigBeamX | VESPERS::BigBeamZ:
+		string.append("Using big beam motors: X and Z.\n");
+		break;
 	}
 
 	return string;

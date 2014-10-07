@@ -130,6 +130,18 @@ VESPERSSpatialLineDacqScanController::VESPERSSpatialLineDacqScanController(VESPE
 		scan_->rawData()->addScanAxis(AMAxisInfo("Rx", 0, "Rotational Position", "deg"));
 		break;
 
+	case VESPERS::BigBeamX:
+		control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->bigBeamX());
+		pvName_ = control != 0 ? control->writePVName() : "";
+		scan_->rawData()->addScanAxis(AMAxisInfo("Big Beam X", 0, "Horizontal Position", "mm"));
+		break;
+
+	case VESPERS::BigBeamZ:
+		control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->bigBeamZ());
+		pvName_ = control != 0 ? control->writePVName() : "";
+		scan_->rawData()->addScanAxis(AMAxisInfo("Big Beam Z", 0, "Vertical Position", "mm"));
+		break;
+
 	default:
 		pvName_ = "";
 		break;
@@ -197,6 +209,14 @@ VESPERSSpatialLineDacqScanController::VESPERSSpatialLineDacqScanController(VESPE
 
 	case VESPERS::AttoRx:
 		scan_->rawData()->addMeasurement(AMMeasurementInfo("Rx:fbk", "Rotation Feedback", "mm"));
+		break;
+
+	case VESPERS::BigBeamX:
+		scan_->rawData()->addMeasurement(AMMeasurementInfo("X:fbk", "Horizontal Feedback", "mm"));
+		break;
+
+	case VESPERS::BigBeamZ:
+		scan_->rawData()->addMeasurement(AMMeasurementInfo("Z:fbk", "Vertical Feedback", "mm"));
 		break;
 	}
 
@@ -510,6 +530,14 @@ bool VESPERSSpatialLineDacqScanController::initializeImplementation()
 			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->realAttocubeStageMotorGroupObject()->createVerticalMoveAction(config_->otherPosition()));
 			break;
 
+		case VESPERS::BigBeamX:
+			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->createHorizontalMoveAction(config_->otherPosition()));
+			break;
+
+		case VESPERS::BigBeamZ:
+			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->createVerticalMoveAction(config_->otherPosition()));
+			break;
+
 		default:
 			break;
 		}
@@ -553,7 +581,7 @@ bool VESPERSSpatialLineDacqScanController::initializeImplementation()
 			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->createNormalMoveAction(config_->normalPosition()));
 			break;
 
-		default:
+		default:	// No normal position for big beam.
 			break;
 		}
 	}

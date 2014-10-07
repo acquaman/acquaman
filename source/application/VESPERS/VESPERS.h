@@ -39,7 +39,7 @@ namespace VESPERS {
 	enum IonChamber { Isplit = 0, Iprekb, Imini, Ipost };
 
 	/// Enum for what motor(s) are going to be used.  Currently, there are only the motors and pseudo motors of the primary sample stage.  More will be added as they are added to the beamline.
-	enum Motor { NoMotor = 0, H = 1, V = 2, N = 4, X = 8, Z = 16, Y = 32, AttoH = 64, AttoV = 128, AttoN = 256, AttoX = 512, AttoZ = 1024, AttoY = 2048, AttoRz = 4096, AttoRy = 8192, AttoRx = 16384 };
+	enum Motor { NoMotor = 0, H = 1, V = 2, N = 4, X = 8, Z = 16, Y = 32, AttoH = 64, AttoV = 128, AttoN = 256, AttoX = 512, AttoZ = 1024, AttoY = 2048, AttoRz = 4096, AttoRy = 8192, AttoRx = 16384, BigBeamX = 32768, BigBeamZ = 65536 };
 
 	/// Enum for choosing the geometry.
 	/*!
@@ -287,6 +287,9 @@ namespace VESPERS {
 
 		else if (name == "Attocube Stage - Rz")
 			return AttoRz;
+
+		else if (name == "Big Beam - X, Z")
+			return BigBeamX | BigBeamZ;
 
 		return NoMotor;
 	}

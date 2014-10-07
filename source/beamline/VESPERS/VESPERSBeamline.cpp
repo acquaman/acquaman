@@ -238,6 +238,12 @@ void VESPERSBeamline::setupSampleStage()
 	((AMPVwStatusControl *)attoStageRy_)->setMoveStartTolerance(0.00001);
 	((AMPVwStatusControl *)attoStageRx_)->setMoveStartTolerance(0.00001);
 
+	bigBeamX_ = new AMPVwStatusControl("Big Beam X", "SMTR1607-2-B21-36:mm:sp", "SMTR1607-2-B21-36:mm", "SMTR1607-2-B21-36:status", "SMTR1607-2-B21-36:stop.PROC", this, 0.01, 10.0);
+	bigBeamZ_ = new AMPVwStatusControl("Big Beam Z", "SMTR1607-2-B21-37:mm:sp", "SMTR1607-2-B21-37:mm", "SMTR1607-2-B21-37:status", "SMTR1607-2-B21-37:stop.PROC", this, 0.01, 10.0);
+
+	((AMPVwStatusControl *)bigBeamX_)->setMoveStartTolerance(0.001);
+	((AMPVwStatusControl *)bigBeamZ_)->setMoveStartTolerance(0.001);
+
 	// Reset signals.
 	pseudoSampleStageResetControl_ = new AMSinglePVControl("Pseudo Sample Stage Reset Control", "TS1607-2-B21-02:HNV:loadOffsets.PROC", this, 0.1);
 	realSampleStageResetControl_ = new AMSinglePVControl("Real Sample Stage Reset Control", "TS1607-2-B21-02:XYZ:loadOffsets.PROC", this, 0.1);
@@ -301,6 +307,15 @@ void VESPERSBeamline::setupMotorGroup()
 	motorObject = new AMMotorGroupObject("Attocube Stage - Ry", "Ry", "deg", attoStageRy_, AMMotorGroupObject::Horizontal, AMMotorGroupObject::Rotational, this);
 	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
 	motorObject = new AMMotorGroupObject("Attocube Stage - Rz", "Rz", "deg", attoStageRz_, AMMotorGroupObject::Horizontal, AMMotorGroupObject::Rotational, this);
+	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
+
+	motorObject = new AMMotorGroupObject("Big Beam - X, Z",
+										 QStringList() << "X" << "Z",
+										 QStringList() << "mm" << "mm",
+										 QList<AMControl *>() << bigBeamX_ << bigBeamZ_,
+										 QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Horizontal << AMMotorGroupObject::Vertical,
+										 QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational,
+										 this);
 	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
 }
 

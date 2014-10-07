@@ -79,6 +79,9 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 
 		else if (motor & VESPERS::AttoRz)
 			motorGroupView_->setMotorGroupView("Attocube Stage - Rz");
+
+		else if ((motor & VESPERS::BigBeamX) || (motor & VESPERS::BigBeamZ))
+			motorGroupView_->setMotorGroupView("Big Beam - X, Z");
 	}
 
 

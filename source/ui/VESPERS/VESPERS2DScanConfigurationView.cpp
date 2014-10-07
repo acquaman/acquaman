@@ -161,8 +161,8 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 
 	// Motor selection.
 	QGroupBox *motorSetChoiceBox = addMotorSelectionView(
-				QStringList() << "H && V" << "X && Z" << "Atto H && V" << "Atto X && Z",
-				QList<int>() << (VESPERS::H | VESPERS::V) << (VESPERS::X | VESPERS::Z) << (VESPERS::AttoH | VESPERS::AttoV) << (VESPERS::AttoX | VESPERS::AttoZ));
+				QStringList() << "H && V" << "X && Z" << "Atto H && V" << "Atto X && Z" << "Big Beam X && Z",
+				QList<int>() << (VESPERS::H | VESPERS::V) << (VESPERS::X | VESPERS::Z) << (VESPERS::AttoH | VESPERS::AttoV) << (VESPERS::AttoX | VESPERS::AttoZ) << (VESPERS::BigBeamX | VESPERS::BigBeamZ));
 	connect(motorButtonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(onMotorChanged(int)));
 	connect(config_->dbObject(), SIGNAL(motorChanged(int)), this, SLOT(onMotorUpdated(int)));
 	motorButtonGroup_->button(int(config_->motor()))->click();
@@ -449,6 +449,13 @@ void VESPERS2DScanConfigurationView::onSetStartPosition()
 		v = VESPERSBeamline::vespers()->attoStageZ()->value();
 		n = VESPERSBeamline::vespers()->sampleStageY()->value();
 		break;
+
+	case VESPERS::BigBeamX | VESPERS::BigBeamZ:
+
+		h = VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->horizontalControl()->value();
+		v = VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->verticalControl()->value();
+		n = 888888.88;
+		break;
 	}
 
 	config_->setXStart(h);
@@ -490,6 +497,12 @@ void VESPERS2DScanConfigurationView::onSetEndPosition()
 		h = VESPERSBeamline::vespers()->attoStageX()->value();
 		v = VESPERSBeamline::vespers()->attoStageZ()->value();
 		break;
+
+	case VESPERS::BigBeamX | VESPERS::BigBeamZ:
+
+		h = VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->horizontalControl()->value();
+		v = VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->verticalControl()->value();
+		break;
 	}
 
 	config_->setXEnd(h);
@@ -524,6 +537,11 @@ void VESPERS2DScanConfigurationView::onSetNormalPosition()
 	case VESPERS::AttoX | VESPERS::AttoZ:
 
 		n = VESPERSBeamline::vespers()->sampleStageY()->value();
+		break;
+
+	case VESPERS::BigBeamX | VESPERS::BigBeamZ:
+
+		n = 888888.88;
 		break;
 	}
 

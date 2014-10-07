@@ -558,6 +558,20 @@ void VESPERSAppController::moveImmediately(const AMGenericScanEditor *editor)
 		connect(moveImmediatelyAction_, SIGNAL(failed(int)), this, SLOT(onMoveImmediatelyFailure()));
 		moveImmediatelyAction_->start();
 	}
+
+	else if (config->motor() == (VESPERS::BigBeamX | VESPERS::BigBeamZ)){
+
+		AMBeamlineParallelActionsList *moveImmediatelyList = new AMBeamlineParallelActionsList;
+		moveImmediatelyAction_ = new AMBeamlineListAction(moveImmediatelyList);
+		moveImmediatelyList->appendStage(new QList<AMBeamlineActionItem *>());
+		moveImmediatelyList->appendAction(0, VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->createHorizontalMoveAction(editor->dataPosition().x()));
+		moveImmediatelyList->appendStage(new QList<AMBeamlineActionItem *>());
+		moveImmediatelyList->appendAction(1, VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->createVerticalMoveAction(editor->dataPosition().y()));
+
+		connect(moveImmediatelyAction_, SIGNAL(succeeded()), this, SLOT(onMoveImmediatelySuccess()));
+		connect(moveImmediatelyAction_, SIGNAL(failed(int)), this, SLOT(onMoveImmediatelyFailure()));
+		moveImmediatelyAction_->start();
+	}
 }
 
 void VESPERSAppController::onMoveImmediatelySuccess()
@@ -730,7 +744,8 @@ bool VESPERSAppController::mapMotorAcceptable(int motor) const
 	if (motor == (VESPERS::H | VESPERS::V)
 			|| motor == (VESPERS::X | VESPERS::Z)
 			|| motor == (VESPERS::AttoH | VESPERS::AttoV)
-			|| motor == (VESPERS::AttoX | VESPERS::AttoZ))
+			|| motor == (VESPERS::AttoX | VESPERS::AttoZ)
+			|| motor == (VESPERS::BigBeamX | VESPERS::BigBeamZ))
 
 		return true;
 
@@ -745,7 +760,8 @@ bool VESPERSAppController::lineScanMotorAcceptable(int motor) const
 			|| motor == (VESPERS::AttoX | VESPERS::AttoZ)
 			|| motor == VESPERS::AttoRx
 			|| motor == VESPERS::AttoRy
-			|| motor == VESPERS::AttoRz)
+			|| motor == VESPERS::AttoRz
+			|| motor == (VESPERS::BigBeamX | VESPERS::BigBeamZ))
 
 		return true;
 
@@ -768,6 +784,9 @@ int VESPERSAppController::convertSampleStageMotorToIndividualMotor(int motor) co
 
 	if (motor == VESPERS::AttoRx || motor == VESPERS::AttoRy || motor == VESPERS::AttoRz)
 		return motor;
+
+	if ((motor & VESPERS::BigBeamX) == VESPERS::BigBeamX)
+		return VESPERS::BigBeamX;
 
 	// A default that won't cause crashes.
 	return VESPERS::H;

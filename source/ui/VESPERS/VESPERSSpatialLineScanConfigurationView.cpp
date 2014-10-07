@@ -154,8 +154,8 @@ VESPERSSpatialLineScanConfigurationView::VESPERSSpatialLineScanConfigurationView
 
 	// Motor selection.
 	QGroupBox *motorSetChoiceBox = addMotorSelectionView(
-				QStringList() << "H" << "X" << "V" << "Z" << "Atto H" << "Atto V" << "Atto X" << "Atto Z" << "Atto Rz" << "Atto Ry" << "Atto Rx",
-				QList<int>() << VESPERS::H << VESPERS::X << VESPERS::V << VESPERS::Z << VESPERS::AttoH << VESPERS::AttoV << VESPERS::AttoX << VESPERS::AttoZ << VESPERS::AttoRz << VESPERS::AttoRy << VESPERS::AttoRx);
+				QStringList() << "H" << "X" << "V" << "Z" << "Atto H" << "Atto V" << "Atto X" << "Atto Z" << "Atto Rz" << "Atto Ry" << "Atto Rx" << "Big Beam X" << "Big Beam Z",
+				QList<int>() << VESPERS::H << VESPERS::X << VESPERS::V << VESPERS::Z << VESPERS::AttoH << VESPERS::AttoV << VESPERS::AttoX << VESPERS::AttoZ << VESPERS::AttoRz << VESPERS::AttoRy << VESPERS::AttoRx << VESPERS::BigBeamX << VESPERS::BigBeamZ);
 	motorButtonGroup_->button(int(config_->motor()))->click();
 	connect(config_->dbObject(), SIGNAL(motorChanged(int)), this, SLOT(onMotorUpdated(int)));
 	connect(motorButtonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(onMotorChanged(int)));
@@ -362,6 +362,14 @@ void VESPERSSpatialLineScanConfigurationView::onMotorChanged(int id)
 		otherPosition_->setValue(-123456789.0);
 		break;
 
+	case VESPERS::BigBeamX:
+		otherPosition_->setValue(VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->verticalControl()->value());
+		break;
+
+	case VESPERS::BigBeamZ:
+		otherPosition_->setValue(VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->horizontalControl()->value());
+		break;
+
 	default:
 		break;
 	}
@@ -520,6 +528,16 @@ void VESPERSSpatialLineScanConfigurationView::onSetStartPosition()
 		position = VESPERSBeamline::vespers()->attoStageRx()->value();
 		otherPosition = -123456789.0;
 		break;
+
+	case VESPERS::BigBeamX:
+		position = VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->horizontalControl()->value();
+		otherPosition = VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->verticalControl()->value();
+		break;
+
+	case VESPERS::BigBeamZ:
+		position = VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->verticalControl()->value();
+		otherPosition = VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->horizontalControl()->value();
+		break;
 	}
 
 	config_->setStart(position);
@@ -599,6 +617,18 @@ void VESPERSSpatialLineScanConfigurationView::onSetEndPosition()
 	case VESPERS::AttoRx:
 		position = VESPERSBeamline::vespers()->attoStageRx()->value();
 		otherPosition = -123456789.0;
+		n = 888888.88;
+		break;
+
+	case VESPERS::BigBeamX:
+		position = VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->horizontalControl()->value();
+		otherPosition = VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->verticalControl()->value();
+		n = 888888.88;
+		break;
+
+	case VESPERS::BigBeamZ:
+		position = VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->verticalControl()->value();
+		otherPosition = VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->horizontalControl()->value();
 		n = 888888.88;
 		break;
 	}

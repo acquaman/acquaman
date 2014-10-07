@@ -103,6 +103,14 @@ VESPERSSpatialLineScanConfiguration::VESPERSSpatialLineScanConfiguration(const V
 	case VESPERS::AttoRz:
 		regions_->setDefaultControl(VESPERSBeamline::vespers()->attoStageRz());
 		break;
+
+	case VESPERS::BigBeamX:
+		regions_->setDefaultControl(VESPERSBeamline::vespers()->bigBeamX());
+		break;
+
+	case VESPERS::BigBeamZ:
+		regions_->setDefaultControl(VESPERSBeamline::vespers()->bigBeamZ());
+		break;
 	}
 
 	regions_->setDefaultTimeControl(VESPERSBeamline::vespers()->masterDwellTime());
@@ -299,6 +307,14 @@ VESPERS::Motor VESPERSSpatialLineScanConfiguration::otherMotor(VESPERS::Motor mo
 		other = VESPERS::NoMotor;
 		break;
 
+	case VESPERS::BigBeamX:
+		other = VESPERS::BigBeamZ;
+		break;
+
+	case VESPERS::BigBeamZ:
+		other = VESPERS::BigBeamX;
+		break;
+
 	default:
 		other = VESPERS::NoMotor;
 		break;
@@ -355,6 +371,14 @@ QString VESPERSSpatialLineScanConfiguration::otherMotorString(VESPERS::Motor mot
 
 	case VESPERS::AttoRz:
 		string = "";
+		break;
+
+	case VESPERS::BigBeamX:
+		string = "Vertical motor, Z";
+		break;
+
+	case VESPERS::BigBeamZ:
+		string = "Horizontal motor, X";
 		break;
 
 	default:

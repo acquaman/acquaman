@@ -127,6 +127,15 @@ VESPERS2DDacqScanController::VESPERS2DDacqScanController(VESPERS2DScanConfigurat
 		scan_->rawData()->addScanAxis(AMAxisInfo("Z", yPoints, "Vertical Position", "mm"));
 		break;
 
+	case VESPERS::BigBeamX | VESPERS::BigBeamZ:
+		control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->horizontalControl());
+		xAxisPVName_ = control != 0 ? control->writePVName() : "";
+		control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->verticalControl());
+		yAxisPVName_ = control != 0 ? control->writePVName() : "";
+		scan_->rawData()->addScanAxis(AMAxisInfo("X", 0, "Horizontal Position", "mm"));
+		scan_->rawData()->addScanAxis(AMAxisInfo("Z", yPoints, "Vertical Position", "mm"));
+		break;
+
 	default:
 		xAxisPVName_ = "";
 		yAxisPVName_ = "";
@@ -164,6 +173,13 @@ VESPERS2DDacqScanController::VESPERS2DDacqScanController(VESPERS2DScanConfigurat
 		break;
 
 	case VESPERS::AttoX | VESPERS::AttoZ:
+		scan_->rawData()->addMeasurement(AMMeasurementInfo("X:fbk", "Horizontal Feedback", "mm"));
+		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), false, true);
+		scan_->rawData()->addMeasurement(AMMeasurementInfo("Z:fbk", "Vertical Feedback", "mm"));
+		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), false, true);
+		break;
+
+	case VESPERS::BigBeamX | VESPERS::BigBeamZ:
 		scan_->rawData()->addMeasurement(AMMeasurementInfo("X:fbk", "Horizontal Feedback", "mm"));
 		scan_->addRawDataSource(new AMRawDataSource(scan_->rawData(), scan_->rawData()->measurementCount()-1), false, true);
 		scan_->rawData()->addMeasurement(AMMeasurementInfo("Z:fbk", "Vertical Feedback", "mm"));
@@ -425,29 +441,45 @@ bool VESPERS2DDacqScanController::initializeImplementation()
 	if (config_->ccdFileName() != ccdName)
 		config_->setCCDFileName(ccdName);
 
-	AMBeamlineParallelActionsList *setupActionsList = initializationAction_->list();
-	setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
+//	AMBeamlineParallelActionsList *setupActionsList = initializationAction_->list();
+//	setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
 
 	switch(int(config_->motor())){
 
-	case VESPERS::H | VESPERS::V:
+	case VESPERS::H | VESPERS::V:{
 
+		AMBeamlineParallelActionsList *setupActionsList = initializationAction_->list();
+		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
 		setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->createNormalMoveAction(config_->normalPosition()));
 		break;
+	}
 
-	case VESPERS::X | VESPERS::Z:
+	case VESPERS::X | VESPERS::Z:{
 
+		AMBeamlineParallelActionsList *setupActionsList = initializationAction_->list();
+		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
 		setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->createNormalMoveAction(config_->normalPosition()));
 		break;
+	}
 
-	case VESPERS::AttoH | VESPERS::AttoV:
+	case VESPERS::AttoH | VESPERS::AttoV:{
 
+		AMBeamlineParallelActionsList *setupActionsList = initializationAction_->list();
+		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
 		setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->createNormalMoveAction(config_->normalPosition()));  // focusing isn't done with attocube motors.
 		break;
+	}
 
-	case VESPERS::AttoX | VESPERS::AttoZ:
+	case VESPERS::AttoX | VESPERS::AttoZ:{
 
+		AMBeamlineParallelActionsList *setupActionsList = initializationAction_->list();
+		setupActionsList->appendStage(new QList<AMBeamlineActionItem *>());
 		setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->createNormalMoveAction(config_->normalPosition()));
+		break;
+	}
+
+	case VESPERS::BigBeamX | VESPERS::BigBeamZ:
+		// There is no normal motor for the big beam.
 		break;
 	}
 
