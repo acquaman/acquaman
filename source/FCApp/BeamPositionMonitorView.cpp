@@ -7,11 +7,8 @@
 BeamPositionMonitorView::BeamPositionMonitorView(QWidget *parent)
     : QWidget(parent){
 
-
     bpmXY_ = new BeamPositionMonitor("BPM:XRMS", "BPM:YRMS", this);
     bpmDataSource_ = new MPlotVectorSeriesData;
-
-    connect(bpmXY_, SLOT(sendValues(int,int)), this, SLOT(addItemToDataSource(qreal, qreal)));
 
     setupPlot();
 
@@ -19,36 +16,20 @@ BeamPositionMonitorView::BeamPositionMonitorView(QWidget *parent)
     plotLayout->addWidget(viewWidget_);
     setLayout(plotLayout);
 
-
-
-    QTimer *timer = new QTimer(this);
-    connect(timer, SIGNAL(timeout()), this, SLOT(updateValues()));
-    timer->start();
+ connect(bpmXY_, SIGNAL(newValuesFromPV()), this, SLOT(updateVectorsFromModel()));
 
 }
+void BeamPositionMonitorView::updateVectorsFromModel(){
 
-void BeamPositionMonitorView::updateValues(){
+    tempX = bpmXY_->xList();
+    tempY = bpmXY_->yList();
 
-    int xIndex = bpmXY_->xValueCount();
-    int yIndex = bpmXY_->yValueCount();
+    xVector_ = tempX.toVector();
+    yVector_ = tempY.toVector();
 
-    qDebug() << xIndex;
-
-    bpmXY_->SendValues(xIndex - 1, yIndex - 1 );
-
-}
-
-void BeamPositionMonitorView::addItemToDataSource(qreal x, qreal y){
-
-    int xIndex = bpmXY_->xValueCount();
-    int yIndex = bpmXY_->yValueCount();
-
-    bpmDataSource_->setXValue(xIndex, x);
-    bpmDataSource_->setYValue(yIndex, y);
-
+    bpmDataSource_->setValues(xVector_, yVector_);
 
 }
-
 
 
 void BeamPositionMonitorView::setupPlot(){
@@ -78,15 +59,19 @@ void BeamPositionMonitorView::setupPlot(){
     scatter_->setMarker(MPlotMarkerShape::CrossCircle, 14);
     scatter_->setDescription("Beam Position");
 
-
     //Add series to plot
     plot_->addItem(scatter_);
 
     //Put the plot into a plot window, the figures used here will be subject to change as I sort out how I want it to look
     viewWidget_->setPlot(plot_);
-    viewWidget_->setMinimumSize(640, 480);
-    plot_->axisScaleBottom()->setDataRangeAndDisableAutoScaling(MPlotAxisRange(-0.2, 0.1));
-    plot_->axisScaleLeft()->setDataRangeAndDisableAutoScaling(MPlotAxisRange(-0.1, 0.2));
+    viewWidget_->setMinimumSize(320, 320);
+
+
+    plot_->axisScaleBottom()->setAutoScaleEnabled();
+    plot_->axisScaleLeft()->setAutoScaleEnabled();
+
+   // plot_->axisScaleBottom()->setDataRangeAndDisableAutoScaling(MPlotAxisRange(-0.2, 0.1));
+   // plot_->axisScaleLeft()->setDataRangeAndDisableAutoScaling(MPlotAxisRange(-0.1, 0.2));
     plot_->axisBottom()->setTicks(4, MPlotAxis::Middle);
     plot_->axisTop()->setTicks(4, MPlotAxis::Middle);
     plot_->axisLeft()->setTicks(4, MPlotAxis::Middle);

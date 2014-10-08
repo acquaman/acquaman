@@ -50,18 +50,12 @@ public slots:
 
 
 protected slots:
-    void addItemToDataSource(qreal x, qreal y);
-    void updateValues();
+    void updateVectorsFromModel();
 
 
 protected:
-    //Set up the plot
-    void setupPlot();
-
-
     //Model
     BeamPositionMonitor *bpmXY_;
-
 
     //Plot widget that holds the plot used for viewing x,y data
     MPlotWidget *viewWidget_;
@@ -72,8 +66,19 @@ protected:
     //Scatter point series
     MPlotSeriesBasic *scatter_;
 
-    //Data Source
+    // 2D (x,y) Data Source containing vectors that get fed from the Model
     MPlotVectorSeriesData *bpmDataSource_;
+
+
+    //Set up the plot
+    void setupPlot();
+
+    //Temporary storage vectors for (x, y) that will come from QList in View. These
+    //values will be fed to the MPlotVectorSeriesData
+    QVector<qreal> xVector_;
+    QVector<qreal> yVector_;
+    QList<double> tempX;
+    QList<double> tempY;
 
 
 };

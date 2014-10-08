@@ -6,38 +6,51 @@ BeamPositionMonitor::BeamPositionMonitor(const QString &pvXbpm, const QString &p
     : QObject(parent)
 {
 
-    xPV_ = pvXbpm;
-    yPV_ = pvYbpm;
+    AMProcessVariable *processVariableY = new AMProcessVariable(pvYbpm, true, this);
+    AMProcessVariable *processVariableX = new AMProcessVariable(pvXbpm, true, this);
 
-    AMProcessVariable *processVariableY = new AMProcessVariable(yPV_, true, this);
-    AMProcessVariable *processVariableX = new AMProcessVariable(xPV_, true, this);
+    connect(processVariableX, SIGNAL(valueChanged(double)), this, SLOT(updateXListfromPV(double)));
+    connect(processVariableY, SIGNAL(valueChanged(double)), this, SLOT(updateYListfromPV(double)));
 
-    connect(processVariableX, SIGNAL(valueChanged(double)) ,this, SLOT(updateValueX(double) ) );
-    connect(processVariableY, SIGNAL(valueChanged(double)), this, SLOT(updateValueY(double))  );
-
+    numberOfPoints = 10;
 
 
 }
 
-//Emit individual dimension value to be caught by BPM::updateValue
-void BeamPositionMonitor::updateValueX(double value){
 
-    xValues_.append(value);
+//Check to see size of QList, if it's less than 10 values then append the new one
+// otherwise clear the list and start again.
+void BeamPositionMonitor::updateXListfromPV(double value){
 
-    qDebug() << "xValues_.append(value) : " << value;
+    if(xValuesModel_.count() < NumberOfPoints())
+    {
+        xValuesModel_.append(value);
+
+    }
+    else
+    {
+        xValuesModel_.clear();
+        xValuesModel_.append(value);
+    }
+
+    emit newValuesFromPV();
 
 }
 
-void BeamPositionMonitor::updateValueY(double value){
 
-    yValues_.append(value);
-     qDebug() << "yValues_.append(value) : " << value;
+void BeamPositionMonitor::updateYListfromPV(double value){
+
+    if(yValuesModel_.count() < NumberOfPoints())
+    {
+        yValuesModel_.append(value);
+    }
+    else
+    {
+        yValuesModel_.clear();
+        yValuesModel_.append(value);
+    }
+
+    emit newValuesFromPV();
 
 }
 
-//Emited (x,y) values caught by View
-void BeamPositionMonitor::sendValues(int xIndex, int yIndex){
-
-    emit requestedValues(xValues_[xIndex], yValues_[yIndex]);
-    qDebug() << "emit requestededValues";
-}
