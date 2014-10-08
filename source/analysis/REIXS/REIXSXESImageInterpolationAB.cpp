@@ -69,8 +69,11 @@ REIXSXESImageInterpolationAB::REIXSXESImageInterpolationAB(const QString &output
 	interpolationLevel_ = 10;
 	shiftPosition1_ = 0;  //not used using correlation2CenterPx_ instead
 	shiftPosition2_ = 0;  //not used: using correlation2CenterPx_ instead
-	shiftValues1_ << 0 << 0 << 0 << 0 << 3 << 6 << 9 << 11 << 12 << 13 << 15 << 16 << 17 << 14 << 12 << 10 << 9 << 8 << 8 << 7 << 7 << 6 << 6 << 5 << 4 << 4 << 3 << 2 << 2 << 1 << 0 << 0 << -1 << -2 << -2 << -3 << -4 << -5 << -6 << -7 << -8 << -9 << -10 << -12 << -13 << -13 << -14 << -14 << -11 << -7 << -2 << 2 << 7 << 9 << 11 << 12 << 13 << 12 << 9 << 6 << 4 << 0 << 0 << 0;
-	shiftValues2_ << 0 << 0 << 0 << -4 << -6 << -8 << -10 << -11 << -12 << -13 << -13 << -14 << -11 << -9 << -7 << -6 << -5 << -5 << -4 << -3 << -3 << -2 << -2 << -1 << -1 << -1 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << -1 << -1 << -2 << -3 << -4 << -6 << -9 << -12 << -12 << -12 << -11 << -11 << -10 << -8 << -6 << -4 << 0 << 0 << 0;
+//	shiftValues1_ << 0 << 0 << 0 << 0 << 3 << 6 << 9 << 11 << 12 << 13 << 15 << 16 << 17 << 14 << 12 << 10 << 9 << 8 << 8 << 7 << 7 << 6 << 6 << 5 << 4 << 4 << 3 << 2 << 2 << 1 << 0 << 0 << -1 << -2 << -2 << -3 << -4 << -5 << -6 << -7 << -8 << -9 << -10 << -12 << -13 << -13 << -14 << -14 << -11 << -7 << -2 << 2 << 7 << 9 << 11 << 12 << 13 << 12 << 9 << 6 << 4 << 0 << 0 << 0;
+//	shiftValues2_ << 0 << 0 << 0 << -4 << -6 << -8 << -10 << -11 << -12 << -13 << -13 << -14 << -11 << -9 << -7 << -6 << -5 << -5 << -4 << -3 << -3 << -2 << -2 << -1 << -1 << -1 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << -1 << -1 << -2 << -3 << -4 << -6 << -9 << -12 << -12 << -12 << -11 << -11 << -10 << -8 << -6 << -4 << 0 << 0 << 0;
+	shiftValues1_ << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0;
+	shiftValues2_ << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10;
+
 
 
 	/*
@@ -124,7 +127,7 @@ REIXSXESImageInterpolationAB::~REIXSXESImageInterpolationAB() {
 AMIntList REIXSXESImageInterpolationAB::shiftValuesAt(int i)
 {
 	AMIntList shiftValuesAt;
-	shiftValuesAt.clear();
+//	shiftValuesAt.clear();
 
 //	int jSize = inputSource_->size(1);
 //	double weightingValue = double(correlation1CenterPx_-correlation2CenterPx_);
@@ -134,15 +137,13 @@ AMIntList REIXSXESImageInterpolationAB::shiftValuesAt(int i)
 //		shiftValuesAt << ((shiftValue1 - shiftValues2_.at(j)) * double((i-interpolatedPosition1))) / weightingValue + shiftValue1;
 //	}
 
-	int iSize = inputSource_->size(0); //1024
+//	int iSize = inputSource_->size(0); //1024
 	int jSize = inputSource_->size(1); //64
 	int interpolatedI = i*interpolationLevel_;
 	double *shiftValueMapPointer = lastShiftValueMap_.data();
 
 	for(int j = 0; j < jSize; j++)
-		shiftValuesAt << int(shiftValueMapPointer[interpolatedI*jSize+j]) ;  //UNSURE!?!?!?
-	//	shiftValuesAt << int(shiftValueMapPointer[*jSize+j]) * interpolationLevel_;  //UNSURE!?!?!?
-
+		shiftValuesAt << int(shiftValueMapPointer[interpolatedI*jSize+j]) ;
 
 	return shiftValuesAt;
 }
@@ -613,11 +614,16 @@ void REIXSXESImageInterpolationAB::computeShiftMap(int iSize, int jSize, double 
 //	double weightingValue = double(interpolationLevel_*(shiftPosition1_-shiftPosition2_));
 //	int interpolatedPosition1 = interpolationLevel_*shiftPosition1_;
 //      It SHOULD work to use these existing variables:
-	lastShiftValueMap_ = QVector<double>(iSize*interpolationLevel_*jSize, 0);
+	int newShiftMapSize = (iSize-1)*interpolationLevel_*jSize;
+
+	if (newShiftMapSize != lastShiftValueMap_.size())
+		lastShiftValueMap_ = QVector<double>(newShiftMapSize, 0);
+
 	double *lastShiftValueMapPointer = lastShiftValueMap_.data();
 
 	double weightingValue = double(interpolationLevel_*(correlation1CenterPx_-correlation2CenterPx_));
-	int interpolatedPosition1 = interpolationLevel_*correlation2CenterPx_;
+
+	int interpolatedPosition1 = interpolationLevel_*correlation1CenterPx_;
 	for (int i = 0; i < iSize; i++){
 
 		for (int j = 0; j < jSize; j++){
@@ -628,6 +634,8 @@ void REIXSXESImageInterpolationAB::computeShiftMap(int iSize, int jSize, double 
 
 		}
 	}
+
+//	memcpy(lastShiftValueMap_.data(), shiftValues, newShiftMapSize*sizeof(double));
 
 }
 
