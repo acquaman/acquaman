@@ -184,7 +184,8 @@ void BioXASSideBeamline::setupComponents()
 	m1UpperSlit_ = new CLSMAXvMotor("M1 Upper Slit", "SMTR1607-5-I22-08", "M1 Upper Slit Motor", true, 0.05, 2.0, this);
 	m1UpperSlit_->setContextKnownDescription("Upper slit");
 
-	energy_ = new AMPVwStatusControl("Energy", "BL1607-5-I22:Energy:EV:fbk", "BL1607-5-I22:Energy:EV", "BL1607-5-I22:Energy:status", QString(), this, 0.75, 2.0, new AMControlStatusCheckerCLSMAXv());
+	//energy_ = new AMPVwStatusControl("Energy", "BL1607-5-I22:Energy:EV:fbk", "BL1607-5-I22:Energy:EV", "BL1607-5-I22:Energy:status", QString(), this, 0.75, 2.0, new AMControlStatusCheckerCLSMAXv());
+	energy_ = new AMPVwStatusControl("Energy", "BL1607-5-I22:Energy:EV:fbk", "BL1607-5-I22:Energy:EV", "SMTR1607-5-I22-12:status", QString(), this, 0.75, 2.0, new AMControlStatusCheckerCLSMAXv());
 
 	connect( m1UpperSlit_, SIGNAL(connected(bool)), this, SLOT(onM1UpperSlitConnectedChanged(bool)) );
 	connect( energy_, SIGNAL(connected(bool)), this, SLOT(onEnergyConnectedChanged(bool)) );

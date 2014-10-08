@@ -26,6 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/BioXAS/BioXASSideBeamline.h"
 #include "beamline/CLS/CLSMAXvMotor.h"
 #include "acquaman/AMGenericScanActionControllerAssembler.h"
+#include "acquaman/AMEXAFSScanActionControllerAssembler.h"
 
 BioXASSideXASScanActionController::BioXASSideXASScanActionController(BioXASSideXASScanConfiguration *configuration, QObject *parent) :
     AMStepScanActionController(configuration, parent)
@@ -76,6 +77,6 @@ void BioXASSideXASScanActionController::buildScanControllerImplementation()
 
 void BioXASSideXASScanActionController::createScanAssembler()
 {
-    scanAssembler_ = new AMGenericScanActionControllerAssembler(this);
+    scanAssembler_ = new AMEXAFSScanActionControllerAssembler(this);
 }
 
