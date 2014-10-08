@@ -1,0 +1,110 @@
+#!/bin/bash -x
+# Adjust the target directory to reflect the date
+# After rolling on the symbolic link in the ioc_app_dir will need to be adjusted to point at the correct installation
+
+
+#Check to see if at least one argument was specified
+if [ $# -lt 1 ] ; then
+   echo "You must provide at least one argument: the name of the beamline. Usage: "
+   echo "cpCLSSR570Coordinator [beamline]"
+   exit 1
+fi
+
+beamline=$1
+if [ "$beamline" == "IOC2026" ]
+then
+   echo "Install CLSSR570Coordinator to beamline IOC2026"
+   echo
+
+   ioc_app_dir="/home/liux0"
+   network="10.51.3.0/22"
+   port_no=10030
+   ioc_name=IOC2026-001
+   pv_base_name=AMP2026-001
+fi
+
+if [[ $beamline == "SGM" ]]
+then
+   echo "Install CLSSR570Coordinator to beamline SGM"
+
+   ioc_app_dir="/home/liux0"
+fi
+
+
+target_dir=beamline/acquaman/CLSSR570Coordinator
+
+#
+# check whether all the required parameters are defined
+#
+if [[ "$ioc_app_dir" == "" ]]
+then
+	echo
+	echo "ioc_app_dir is not defined for " $beamline
+	exit 1
+fi
+
+if [[ "$network" == "" ]]
+then
+	echo
+	echo "network is not defined for " $beamline
+	exit 1
+fi
+
+if [[ "$ioc_app_dir" == "" ]]
+then
+	echo
+	echo "ioc_app_dir is not defined for " $beamline
+	exit 1
+fi
+
+if [[ "$port_no" == "" ]]
+then
+	echo
+	echo "port_no is not defined for " $beamline
+	exit 1
+fi
+
+if [[ "$ioc_name" == "" ]]
+then
+	echo
+	echo "ioc_name is not defined for " $beamline
+	exit 1
+fi
+
+if [[ "$pv_base_name" == "" ]]
+then
+	echo
+	echo "pv_base_name is not defined for " $beamline
+	exit 1
+fi
+
+
+
+#
+# Test and make directories
+#
+if [[ ! -d $ioc_app_dir ]]
+then
+	echo "/ioc_app is NOT Mounted!"
+	exit
+fi
+
+if [[ ! -d $ioc_app_dir/$target_dir ]]
+then
+	mkdir -p $ioc_app_dir/$target_dir
+fi
+
+
+#
+# Install files
+#
+sed "s|{IOCAPPDIR}|$ioc_app_dir|; s|{PORTNO}|$port_no|; s|{NETWORK}|$network|" ./clsSR570Coordinator > ./clsSR570Coordinator_install
+chmod 755 ./clsSR570Coordinator_install
+mv ./clsSR570Coordinator_install $ioc_app_dir/$target_dir/clsSR570Coordinator
+
+sed "s/{IOCNAME}/$ioc_name/; s/{PVBASENAME}/$pv_base_name/" ./runCLSSR570CoordinatorStartup > ./runCLSSR570CoordinatorStartup_install
+chmod 755 ./runCLSSR570CoordinatorStartup_install
+mv ./runCLSSR570CoordinatorStartup_install $ioc_app_dir/$target_dir/runCLSSR570CoordinatorStartup
+
+cp ../../../build/CLSSR570CoordinatorAPP $ioc_app_dir/$target_dir
+

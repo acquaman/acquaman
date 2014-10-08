@@ -187,15 +187,6 @@ enum Type { Unconnected = TYPENOTCONN, ///< Type of PV's before they are connect
 				};
 }
 
-namespace PVChannel {
-	enum PVChannelType {
-		PV = 0,
-		PV_DISA = 1,
-		PV_DISV = 2,
-		PV_TotalChannels = 3
-	};
-}
-
 /// Used by AMProcessVariable, this class encapsulates a connection to an EPICS channel-access Process Variable.  You should never need to use it directly. It exists to share a single channel-access connection between AMProcessVariable instances that all refer to the same underlying PV.
 class AMProcessVariablePrivate : public QObject {
 
@@ -220,24 +211,24 @@ public:
 	unsigned count() const { return count_; }
 
 	/// The name of this process variable:
-	QString pvName() const { return QString(ca_name(channelIds_[PVChannel::PV])); } // ca_ functions are thread-safe by design. Does not require locker
+	QString pvName() const { return QString(ca_name(chid_)); } // ca_ functions are thread-safe by design. Does not require locker
 
 	/// Provides detailed information on the status of this connection.  Usually isConnected() is all you need, but this returns one of the channel_state enum values defined in <epics base>/include/cadef.h: {cs_never_conn = 0, cs_prev_conn, cs_conn, cs_closed}
-	int connectionState() const {  return int(ca_state(channelIds_[PVChannel::PV])); }
+	int connectionState() const {  return int(ca_state(chid_)); }
 
 	/// Indicates that a connection is established to the Epics CA server for this Process Variable.
-	bool isConnected() const {  return ca_state(channelIds_[PVChannel::PV]) == cs_conn; }
+	bool isConnected() const {  return ca_state(chid_) == cs_conn; }
 	/// Indicates that a connection was established to the Epics CA server, and we managed to download control information (meta information) for this Process Variable.
 	bool isInitialized() const {  return initialized_; }
 	/// Returns true if the connection has a monitoring subscription to receive value changes.
-	bool isMonitoring() const { return (eventIds_[PVChannel::PV] != 0); }
+	bool isMonitoring() const { return (evid_ != 0); }
 	/// Indicates that we've received the actual values for this PV at some point in history. (Note that isConnected() will be true as soon as a connection to the CA server is established, but we won't have the value yet when connected() gets emitted.)  valueChanged() will be emitted when the first value is received, but in case you're not watching that, you can call hasValues() to check if this has already happened.
 	bool hasValues() const {  return hasValues_; }
 
 	/// Checks read access permission. (Verifies also that we are connected, since reading is impossible if not.)
-	bool canRead() const {  return isConnected() && ca_read_access(channelIds_[PVChannel::PV]); }
+	bool canRead() const {  return isConnected() && ca_read_access(chid_); }
 	/// Checks write access permission. (Verifies also that we are connected, since writing is impossible if not.)
-	bool canWrite() const {  return isConnected() && ca_write_access(channelIds_[PVChannel::PV]); }
+	bool canWrite() const {  return isConnected() && ca_write_access(chid_); }
 
 	/// Checks that we are completely ready to read (we are connected(), initialized(), have received at least one set of values, and we have read access permission)
 	bool readReady() const { return canRead() && isInitialized() && hasValues(); }
@@ -365,10 +356,6 @@ public slots:
 	/// Check out whether our attached AMProcessVariables want monitoring, and set shouldBeMonitoring_ accordingly.  If connected and shouldBeMonitoring_ but is not, calls startMonitoring(). If monitoring and should not be, calls stopMonitoring().
 	void reviewMonitoring();
 
-	/// enable / disable the process the record (If DISV=DISA, then the record will be disabled).
-	void enableProcessRecord();
-	void disableProcessRecord();
-
 	void setValue(int);
 	void setValues(dbr_long_t[], int num);
 	void setValue(double);
@@ -458,9 +445,6 @@ protected slots:
 	void internal_onStringValueChanged(QStringList stringData);
 	void internal_onAlarmChanged(int status, int severity);
 
-	void internal_onDISAValueChanged(AMProcessVariableIntVector intData);
-	void internal_onDISVValueChanged(AMProcessVariableIntVector intData);
-
 signals:
 	// The following signals are used internally for thread-safe passing of values out of the callback functions (which my be called from other channel-access threads)
 	void internal_error(int lastError);
@@ -471,9 +455,6 @@ signals:
 	void internal_enumValueChanged(AMProcessVariableIntVector enumData);
 	void internal_stringValueChanged(QStringList stringData);
 	void internal_alarmChanged(int status, int severity);
-
-	void internal_DISAValueChanged(AMProcessVariableIntVector intData);
-	void internal_DISVValueChanged(AMProcessVariableIntVector intData);
 
 protected:
 
@@ -510,11 +491,11 @@ protected:
 	int count_;
 
 	/// channel ID for channel access
-	QVector<chid> channelIds_;
+	chid chid_;
 	/// Event ID for subscriptions (monitoring values)
-	QVector<evid> eventIds_;
+	evid evid_;
 	/// Event ID for alarm subscription
-	QVector<evid> alarmEventIds_;
+	evid alarmEvid_;
 
 	/// Request that we start monitoring as soon as we connect. (Set by main thread, read from epics connection callback thread, hence volatile.)
 	volatile bool shouldBeMonitoring_;
@@ -557,10 +538,6 @@ protected:
 	QStringList data_str_;
 	//@}
 
-	/// the actual data storage for DISA / DISV
-	QVector<int> data_DISA_;
-	QVector<int> data_DISV_;
-
 	/// True almost always. False if the initial attempt to create the channel-access channel failed.
 	bool channelCreated_;
 
@@ -569,13 +546,6 @@ protected:
 
 	/// Records the PV's alarm status and alarm severity.
 	int alarmStatus_, alarmSeverity_;
-
-private:
-	/// common function for set int value
-	void setChannelValue(chid channelId, int value);
-
-	QString PVChannelName(int channelId, QString pvName);
-
 };
 
 #endif // AMPROCESSVARIABLEPRIVATE_H

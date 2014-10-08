@@ -17,7 +17,11 @@ protected slots:
 	void onCLSSR570ConnectedChanged(bool);
 	void onCLSSR570ValueChanged();
 	void onSensNumControlConnectedChanged(bool);
+	void onSensNumDISAControlConnectedChanged(bool);
+	void onSensNumDISVControlConnectedChanged(bool);
 	void onSensUnitControlConnectedChanged(bool);
+	void onSensUnitDISAControlConnectedChanged(bool);
+	void onSensUnitDISVControlConnectedChanged(bool);
 
 protected:
 	QString pvBaseName_;
@@ -25,10 +29,23 @@ protected:
 
 	bool sensPutConnected_;
 	bool sensNumConnected_;
+	bool sensNumDISAConnected_;
+	bool sensNumDISVConnected_;
 	bool sensUnitConnected_;
+	bool sensUnitDISAConnected_;
+	bool sensUnitDISVConnected_;
+
+	double sensNumDISAValue_;
+	double sensNumDISVValue_;
+	double sensUnitDISAValue_;
+	double sensUnitDISVValue_;
 
 	AMSinglePVControl *sensNumPVControl_;
+	AMSinglePVControl *sensNumDISAPVControl_;
+	AMSinglePVControl *sensNumDISVPVControl_;
 	AMSinglePVControl *sensUnitPVControl_;
+	AMSinglePVControl *sensUnitDISAPVControl_;
+	AMSinglePVControl *sensUnitDISVPVControl_;
 };
 
 #endif // CLSSR570COORDINATOR_H

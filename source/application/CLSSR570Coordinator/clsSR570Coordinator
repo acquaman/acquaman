@@ -4,19 +4,13 @@
 # description: CLS SR status building display system. Must be started after networking and NFS
 #
 
-#. /etc/rc.d/init.d/functions
-
-IOCNAME=IOC2026-001
-INSTALL_DIR=/home/IOC2026-001/beamline/acquaman/CLSSR570Coordinator
+INSTALL_DIR={IOCAPPDIR}/beamline/acquaman/CLSSR570Coordinator
 TOP=/home/epics/src/R3.14.12/
-T_A=linux-armv5teb
-# T_A=linux-x86_64
-# RUNCMD=
-# RUNAS=control
+T_A=linux-x86_64
 RUNSCRIPT=runCLSSR570CoordinatorStartup
 DAEMON=CLSAddOnsCoordinator
-PORTNO=10030
-NETWORK="10.51.0.0/22"
+PORTNO={PORTNO}
+NETWORK="{NETWORK}"
 
 source /iocApps/Common/startup.include
 
