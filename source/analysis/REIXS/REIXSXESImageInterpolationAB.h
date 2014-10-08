@@ -141,6 +141,8 @@ int outputSize = indexStart.totalPointsTo(indexEnd);
 	AMIntList shiftValues1() const { return shiftValues1_; }
 	/// Returns the second shift values used interpolated offset of each row before summing. This will have the same size as the height of the image.
 	AMIntList shiftValues2() const { return shiftValues2_; }
+	/// Returns the last calculate shift values for a given column
+	AMIntList shiftValuesAt(int i);
 	/// Returns the correlation position of shiftValue1
 	int shiftPosition1() const { return shiftPosition1_; }
 	/// Returns the correlation position of shiftValue2
@@ -318,6 +320,8 @@ protected:
 	int shiftPosition2_;
 	/// The level of onterpolation, hard-coded for now
 	int interpolationLevel_;
+	/// The last computed shift value map
+	mutable QVector<double> lastShiftValueMap_;
 
 	/// Calibration tweaks: an artificial (user-supplied) offset for the detector energy, in eV
 	double energyCalibrationOffset_;
@@ -330,7 +334,7 @@ protected:
 
 
 	/// Smoothing object used for the shift curve after correlation
-	REIXSFunctionFitter* curveSmoother_;
+	REIXSFunctionFitter* curve1Smoother_, * curve2Smoother_;
 
 };
 

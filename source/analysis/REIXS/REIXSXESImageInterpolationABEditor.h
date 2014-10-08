@@ -49,11 +49,11 @@ class REIXSXESImageInterpolationAB;
 #include "MPlot/MPlotSeriesData.h"
 
 /// Helper class for REIXSXESImageInterpolationABEditor: Exposes REIXSXESImageInterpolationAB's shift data as MPlotAbstractSeriesData
-class REIXSXESImageInterpolationABEditorShift1Model : public QObject, public MPlotAbstractSeriesData {
+class REIXSXESImageInterpolationABEditorShiftModel : public QObject, public MPlotAbstractSeriesData {
 	Q_OBJECT
 public:
 	/// Constructor: exposes the shiftValues() in \c analysisBlock (must be valid).
-	REIXSXESImageInterpolationABEditorShift1Model(REIXSXESImageInterpolationAB* analysisBlock, QObject* parent = 0);
+	REIXSXESImageInterpolationABEditorShiftModel(REIXSXESImageInterpolationAB* analysisBlock, QObject* parent = 0);
 
 	virtual qreal x(unsigned index) const;
 	virtual void xValues(unsigned indexStart, unsigned indexEnd, qreal *outputValues) const;
@@ -75,6 +75,54 @@ protected:
 	REIXSXESImageInterpolationAB* analysisBlock_;
 	/// Adds this offset to the x-values of the shift data, so that it can be shown at any point on the plot. Initialized to analysisBlock_->size(0)/2.
 	int displayXOffset_;
+
+};
+
+/// Helper class for REIXSXESImageInterpolationABEditor: Exposes REIXSXESImageInterpolationAB's shift data as MPlotAbstractSeriesData
+class REIXSXESImageInterpolationABEditorShift1Model : public QObject, public MPlotAbstractSeriesData {
+	Q_OBJECT
+public:
+	/// Constructor: exposes the shiftValues() in \c analysisBlock (must be valid).
+	REIXSXESImageInterpolationABEditorShift1Model(REIXSXESImageInterpolationAB* analysisBlock, QObject* parent = 0);
+
+	virtual qreal x(unsigned index) const;
+	virtual void xValues(unsigned indexStart, unsigned indexEnd, qreal *outputValues) const;
+	virtual qreal y(unsigned index) const;
+	virtual void yValues(unsigned indexStart, unsigned indexEnd, qreal *outputValues) const;
+	virtual int count() const;
+
+protected slots:
+	/// Called when the size of the analysis block changes: reset displayXOffset_.
+	void onOutputSizeChanged();
+	/// Called when the shift values change: calls emitDataChanged().
+	void onShiftValuesChanged();
+
+protected:
+	REIXSXESImageInterpolationAB* analysisBlock_;
+
+};
+
+/// Helper class for REIXSXESImageInterpolationABEditor: Exposes REIXSXESImageInterpolationAB's shift data as MPlotAbstractSeriesData
+class REIXSXESImageInterpolationABEditorShift2Model : public QObject, public MPlotAbstractSeriesData {
+	Q_OBJECT
+public:
+	/// Constructor: exposes the shiftValues() in \c analysisBlock (must be valid).
+	REIXSXESImageInterpolationABEditorShift2Model(REIXSXESImageInterpolationAB* analysisBlock, QObject* parent = 0);
+
+	virtual qreal x(unsigned index) const;
+	virtual void xValues(unsigned indexStart, unsigned indexEnd, qreal *outputValues) const;
+	virtual qreal y(unsigned index) const;
+	virtual void yValues(unsigned indexStart, unsigned indexEnd, qreal *outputValues) const;
+	virtual int count() const;
+
+protected slots:
+	/// Called when the size of the analysis block changes: reset displayXOffset_.
+	void onOutputSizeChanged();
+	/// Called when the shift values change: calls emitDataChanged().
+	void onShiftValuesChanged();
+
+protected:
+	REIXSXESImageInterpolationAB* analysisBlock_;
 
 };
 
@@ -153,8 +201,10 @@ public slots:
 	
 	
 	/// Called when the correlation settings are changed
-	void onCorrelationCenterBoxChanged(int);
-	void onCorrelationPointsBoxChanged(int);
+	void onCorrelation1CenterBoxChanged(int);
+	void onCorrelation2CenterBoxChanged(int);
+	void onCorrelation1PointsBoxChanged(int);
+	void onCorrelation2PointsBoxChanged(int);
 	void onCSmoothBox1Changed();
 	void onCSmoothBox2Changed();
 	void onCSmooth1ModeChanged();
@@ -208,9 +258,12 @@ protected:
 	MPlotImageBasic* image_;
 	MPlotRectangle* rangeRectangleY1_, *rangeRectangleY2_, *rangeRectangleX1_, *rangeRectangleX2_;
 	
-	MPlotSeriesBasic* shiftSeries_;
-	MPlotPoint* corrRegionLeft_, * corrRegionRight_;
-	REIXSXESImageInterpolationABEditorShift1Model* shiftData_;
+	MPlotSeriesBasic* shiftSeries_, * shift1Series_, * shift2Series_;
+	MPlotPoint* corrRegion1Left_, * corrRegion1Right_, * corrRegion2Left_, * corrRegion2Right_;
+	REIXSXESImageInterpolationABEditorShiftModel* shiftData_;
+	REIXSXESImageInterpolationABEditorShift1Model* shift1Data_;
+	REIXSXESImageInterpolationABEditorShift2Model* shift2Data_;
+
 	
 	MPlotSeriesBasic* ellipseSeries_;
 	REIXSXESImageInterpolationABEditorEllipticalMask* ellipseData_;
