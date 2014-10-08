@@ -27,9 +27,9 @@ macx {
 			CONFIG -= mobility
 		}
 
-contains(USERNAME, darrenhunter){
-	CONFIG -= mobility
-}
+		contains(USERNAME, darrenhunter){
+			CONFIG -= mobility
+		}
 		# Disable Qt Mobility Video until everyone's Mac laptops support that
 		#CONFIG -= mobility
 

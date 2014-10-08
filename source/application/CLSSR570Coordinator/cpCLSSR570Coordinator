@@ -102,7 +102,7 @@ sed "s|{IOCAPPDIR}|$ioc_app_dir|; s|{PORTNO}|$port_no|; s|{NETWORK}|$network|" .
 chmod 755 ./clsSR570Coordinator_install
 mv ./clsSR570Coordinator_install $ioc_app_dir/$target_dir/clsSR570Coordinator
 
-sed "s/{IOCNAME}/$ioc_name/; s/{PVBASENAME}/$pv_base_name/" ./runCLSSR570CoordinatorStartup > ./runCLSSR570CoordinatorStartup_install
+sed "s|{IOCAPPDIR}|$ioc_app_dir|; s|{IOCNAME}|$ioc_name|; s|{PVBASENAME}|$pv_base_name|" ./runCLSSR570CoordinatorStartup > ./runCLSSR570CoordinatorStartup_install
 chmod 755 ./runCLSSR570CoordinatorStartup_install
 mv ./runCLSSR570CoordinatorStartup_install $ioc_app_dir/$target_dir/runCLSSR570CoordinatorStartup
 
