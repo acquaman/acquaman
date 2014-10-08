@@ -12,4 +12,4 @@ SOURCES += \
 OTHER_FILES += \
 	source/application/CLSSR570Coordinator/runCLSSR570CoordinatorStartup \
 	source/application/CLSSR570Coordinator/clsSR570Coordinator \
-    source/application/CLSSR570Coordinator/cpCLSSR570Coordinator
+	source/application/CLSSR570Coordinator/cpCLSSR570Coordinator

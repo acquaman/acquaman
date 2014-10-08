@@ -51,7 +51,7 @@ QString CLSSR570::units() const
 
 QStringList CLSSR570::unitsList() const
 {
-	return QStringList()<< "pA/V" << "nA/V" << "uA/V" << "mA/V";
+	return QStringList() << "pA/V" << "nA/V" << "uA/V" << "mA/V";
 }
 
 double CLSSR570::minimumValueForUnits(const QString &units) const
