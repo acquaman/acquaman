@@ -29,4 +29,5 @@ SUBDIRS +=	pluginProjects/FileLoaders/AMFileLoaderPlugins.pro \
 	VESPERSDatabaseDuplicateEntryPatch.pro \
 	StripTool2.pro \
 	CLSNetworkDirectorySynchronizer.pro \
-XRDAnalysis.pro
+	XRDAnalysis.pro \
+	CLSSR570Coordinator.pro

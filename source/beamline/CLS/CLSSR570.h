@@ -15,11 +15,17 @@ public:
 	/// Destructor
 	virtual ~CLSSR570();
 
+	/// Returns the current sensitivity level
+	int sensitivityLevel() const;
+	/// Returns the setPoint value of sens_num.
+	virtual double sensNumSetpoint() const;
 	/// Returns the value.
 	virtual double value() const;
 	/// Returns a list of the available value options.
 	virtual QList<double> values() const;
 
+	/// Returns the setPoint value of sens_unit.
+	virtual double sensUnitSetpoint() const;
 	/// Returns the current units.
 	virtual QString units() const;
 	/// Returns a string list of the available units options, suitable for a view to display.
@@ -29,6 +35,11 @@ public:
 	virtual double minimumValueForUnits(const QString &units) const;
 	/// Returns the maximum value from the given units for the given amplifier.
 	virtual double maximumValueForUnits(const QString &units) const;
+
+	/// Increases the sensitivity of the current amplifier.
+	virtual bool increaseSensitivity();
+	/// Decreases the sensitivity of the current amplifier.
+	virtual bool decreaseSensitivity();
 
 protected slots:
 	/// Handles changes from the sensitivity control to emit valueChanged() and watch min/max sensitivity for the AMCurrentAmplifier API
@@ -42,10 +53,6 @@ protected:
 	/// Returns whether the current amplifier is at maximum sensitivity.
 	virtual bool atMaximumSensitivity() const;
 
-	/// Increases the sensitivity of the current amplifier.
-	virtual bool increaseSensitivity();
-	/// Decreases the sensitivity of the current amplifier.
-	virtual bool decreaseSensitivity();
 
 	/// Sets the current amplifier's sensitivity/gain value.
 	virtual void setValueImplementation(const QString &valueArg);

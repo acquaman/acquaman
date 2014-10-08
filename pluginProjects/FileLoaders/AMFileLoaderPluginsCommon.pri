@@ -4,6 +4,10 @@ HOME_FOLDER = $$system(echo $HOME)
 
 USERNAME = $$system(whoami)
 
+contains(USERNAME, liux0){
+        HOME_FOLDER = /home/liux0/
+}
+
 macx {
 
 		# Where you want to do your acquaman development (as a path from $HOME). You don't need to include leading or trailing slashes.
