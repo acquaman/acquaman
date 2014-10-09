@@ -611,9 +611,7 @@ void REIXSXESImageInterpolationAB::computeCachedValues() const
 
 void REIXSXESImageInterpolationAB::computeShiftMap(int iSize, int jSize, double *shiftValues) const
 {
-//	double weightingValue = double(interpolationLevel_*(shiftPosition1_-shiftPosition2_));
-//	int interpolatedPosition1 = interpolationLevel_*shiftPosition1_;
-//      It SHOULD work to use these existing variables:
+
 	int newShiftMapSize = (iSize-1)*interpolationLevel_*jSize;
 
 	if (newShiftMapSize != lastShiftValueMap_.size())
@@ -795,7 +793,6 @@ void REIXSXESImageInterpolationAB::correlateNow()
 	int minShift = -correlation1HalfWidth_;
 	int maxShift = correlation1HalfWidth_;
 
-	qDebug() << "First - Half Width"<<correlation1HalfWidth_ << "center pixel:" << correlation1CenterPx_ ;
 
 	// initialize all shifts to 0.
 	QVector<int> shifts1 = QVector<int>(sizeY);
@@ -855,7 +852,6 @@ void REIXSXESImageInterpolationAB::correlateNow()
 	minShift = -correlation2HalfWidth_;
 	maxShift = correlation2HalfWidth_;
 
-	qDebug() << "Second - Half Width"<<correlation2HalfWidth_ << "center pixel:" << correlation2CenterPx_ ;
 
 	// initialize all shifts to 0.
 	QVector<int> shifts2 = QVector<int>(sizeY);
@@ -1033,10 +1029,6 @@ void REIXSXESImageInterpolationAB::computeCachedAxisValues() const
 		double sindb = sign*( dx*singp/sqrt(rPrime*rPrime + dx*dx - 2*rPrime*dx*cosgp*sign) );
 		double sinbp = sinBeta*sqrt( 1.0-sindb*sindb ) + cosBeta*sindb;
 		cachedAxisValues_[i] = 0.0012398417*grooveDensity / (sinAlpha - sinbp) + energyCalibrationOffset_;	// NOTE: we're adding in the user-specified energy offset here.
-		/*
-		qDebug()<< "sindb = " << sindb;
-		qDebug()<< "sinbp = " << sinbp;
-		*/
 
 	}
 	//////////////////////////////////////////////////////

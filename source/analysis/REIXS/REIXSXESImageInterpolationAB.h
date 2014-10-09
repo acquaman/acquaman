@@ -56,10 +56,6 @@ class REIXSXESImageInterpolationAB : public AMStandardAnalysisBlock
 	Q_PROPERTY(int correlation1HalfWidth READ correlation1HalfWidth WRITE setCorrelation1HalfWidth)
 	Q_PROPERTY(int correlation2CenterPixel READ correlation2CenterPixel WRITE setCorrelation2CenterPixel)
 	Q_PROPERTY(int correlation2HalfWidth READ correlation2HalfWidth WRITE setCorrelation2HalfWidth)
-	/*
-	Q_PROPERTY(int correlationSmoothing READ correlationSmoothing WRITE setCorrelationSmoothing)
-	Q_PROPERTY(QPair correlationSmoothing READ correlationSmoothing WRITE setCorrelationSmoothing)
-	*/
 
 	Q_PROPERTY(int correlation1SmoothingType READ correlation1SmoothingType WRITE setCorrelation1SmoothingType)
 	Q_PROPERTY(int correlation1SmoothingMode READ correlation1SmoothingMode WRITE setCorrelation1SmoothingMode)
@@ -75,9 +71,6 @@ class REIXSXESImageInterpolationAB : public AMStandardAnalysisBlock
 
 public:
 	/// Enum describing the options for smoothing the auto-correlated shift curve.
-	/*
-	enum ShiftCurveSmoothing { NoSmoothing, QuadraticSmoothing, CubicSmoothing, QuarticSmoothing, movingMedianSmoothing, movingAverageSmoothing };
-	*/
 	enum ShiftCurveSmoothing { None, Poly, Median, Average};
 
 	/// Constructor. \c outputName is the name() for the output data source.

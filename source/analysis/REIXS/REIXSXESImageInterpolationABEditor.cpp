@@ -1041,56 +1041,6 @@ void REIXSXESImageInterpolationABEditorEllipticalMask::yValues(unsigned indexSta
 	for(unsigned index=indexStart; index<=indexEnd; ++index) {
 		*(outputValues++) = REIXSXESImageInterpolationABEditorEllipticalMask::y(index);
 
-		/*
-		if(analysisBlock_->rangeRound() == 0.0) {
-			//rectangular masking
-			if(index == 0 || index == 1 || index == 4)
-				*(outputValues++) = (qreal)analysisBlock_->sumRangeMaxY();
-			else
-				*(outputValues++) = (qreal)analysisBlock_->sumRangeMinY();
-		}
-		else {
-			//rounded mask
-			qreal dx = analysisBlock_->sumRangeMaxX() - analysisBlock_->sumRangeMinX();
-			qreal dy = analysisBlock_->sumRangeMaxY() - analysisBlock_->sumRangeMinY();
-			double D = analysisBlock_->rangeRound(); //just for shorter formulas
-			qreal i = (qreal)index;
-
-			//done to here
-			if(index == 0 || index == (int)dx || index == 2*(int)dx) {
-				*(outputValues++) = (qreal)analysisBlock_->sumRangeMinY() + dy/2.0;
-			}
-			else if(i < D * dx/2.0) {
-				//upper left elliptical part
-				*(outputValues++) = sqrt(1.0 - ((i-D*dx/2.0)/(D*dx/2.0))*((i-D*dx/2.0)/(D*dx/2.0)))*(D*dy/2.0) + ((1.0-D)*dy/2.0) + (analysisBlock_->sumRangeMinY()) + dy/2.0;
-			}
-			else if(i < dx - D * dx/2.0) {
-				//upper flat part
-				*(outputValues++) = analysisBlock_->sumRangeMaxY();
-			}
-			else if(i < dx) {
-				//upper right elliptical part
-				*(outputValues++) = sqrt(1.0 - ((i-(dx-D*dx/2.0))/(D*dx/2.0))*((i-(dx-D*dx/2.0))/(D*dx/2.0)))*(D*dy/2.0) + ((1.0-D)*dy/2.0) + (analysisBlock_->sumRangeMinY()) + dy/2.0;
-			}
-			else if(i < dx + D * dx/2.0) {
-				//lower right elliptical part
-qDebug() << "Lower right index - value:" << i << -(sqrt(-1.0 + ((i-(dx-D*dx/2.0))/(D*dx/2.0))*((i-(dx-D*dx/2.0))/(D*dx/2.0)))*(D*dy/2.0) + ((1.0-D)*dy/2.0) + (analysisBlock_->sumRangeMinY()) + dy/2.0);
-				*(outputValues++) = -(sqrt(1.0 - ((i-(dx-D*dx/2.0))/(D*dx/2.0))*((i-(dx-D*dx/2.0))/(D*dx/2.0)))*(D*dy/2.0) + ((1.0-D)*dy/2.0) + (analysisBlock_->sumRangeMinY()) + dy/2.0);
-			}
-			else if(i < 2*dx - D * dx/2.0) {
-				//lower flat part
-				*(outputValues++) = analysisBlock_->sumRangeMinY();
-			}
-			else if(i < 2*dx) {
-				//lower left elliptical part
-				*(outputValues++) = -(sqrt(1.0 - ((i-D*dx/2.0)/(D*dx/2.0))*((i-D*dx/2.0)/(D*dx/2.0)))*(D*dy/2.0) + ((1.0-D)*dy/2.0) + (analysisBlock_->sumRangeMinY()) + dy/2.0);
-			}
-			else {
-				//index out of range...shouldn't happen
-				*(outputValues++) = -1.0;
-			}
-		}
-		*/
 	}
 }
 
@@ -1341,7 +1291,6 @@ void REIXSXESImageInterpolationABEditor::onApplyToOtherScansChosen()
 {
 	disconnect(chooseScanDialog_, SIGNAL(accepted()), this, SLOT(onApplyToOtherScansChosen()));
 
-	qDebug() << "Calling applyToOtherScansChosen.";
 	QList<QUrl> scans = chooseScanDialog_->getSelectedScans();
 	if(scans.isEmpty()) {
 		chooseScanDialog_->close();

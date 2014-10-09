@@ -156,10 +156,6 @@ protected slots:
 
 protected:
 	REIXSXESImageInterpolationAB* analysisBlock_;
-	/*
-	/// Adds this offset to the x-values of the shift data, so that it can be shown at any point on the plot. Initialized to analysisBlock_->size(0)/2.
-	int displayXOffset_;
-	*/
 };
 
 
