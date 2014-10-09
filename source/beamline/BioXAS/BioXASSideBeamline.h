@@ -39,6 +39,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSBasicCompositeScalerChannelDetector.h"
 
 class CLSMAXvMotor;
+class AMBasicControlDetectorEmulator;
 
 class BioXASSideBeamline : public AMBeamline
 {
@@ -73,6 +74,7 @@ public:
 
 	CLSBasicScalerChannelDetector* i0Detector();
 	CLSBasicScalerChannelDetector* iTDetector();
+	AMBasicControlDetectorEmulator* energyFeedbackDetector();
 
 protected slots:
 	void onScalerConnectedChanged(bool connectionState);
@@ -117,6 +119,9 @@ protected:
 
 	CLSBasicScalerChannelDetector *iTDetector_;
 	CLSKeithley428 *iTKeithley_;
+
+	AMControl *energyFeedbackControl_;
+	AMBasicControlDetectorEmulator *energyFeedbackDetector_;
 
 	// Shutters
 	CLSBiStateControl *psh1_;

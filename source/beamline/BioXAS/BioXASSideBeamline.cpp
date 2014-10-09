@@ -27,6 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSBiStateControl.h"
 #include "beamline/CLS/CLSMAXvMotor.h"
 #include "beamline/AMPVControl.h"
+#include "beamline/AMBasicControlDetectorEmulator.h"
 
 BioXASSideBeamline::BioXASSideBeamline()
 	: AMBeamline("BioXAS Beamline - Side Endstation")
@@ -130,7 +131,6 @@ void BioXASSideBeamline::setupDiagnostics()
 	tm3_ = new AMReadOnlyPVwStatusControl("Temperature 3", "TM1407-I00-03", "TM1407-I00-03:trip", this, new AMControlStatusCheckerDefault(0));
 	tm4_ = new AMReadOnlyPVwStatusControl("Temperature 4", "TM1407-I00-04", "TM1407-I00-04:trip", this, new AMControlStatusCheckerDefault(0));
 	tm5_ = new AMReadOnlyPVwStatusControl("Temperature 5", "TM1407-I00-05", "TM1407-I00-05:trip", this, new AMControlStatusCheckerDefault(0));
-
 }
 
 void BioXASSideBeamline::setupSampleStage()
@@ -170,6 +170,9 @@ void BioXASSideBeamline::setupComponents()
 	i0Detector_ = new CLSBasicScalerChannelDetector("I0Detector", "I0 Detector", scaler_, 0, this);
 	iTDetector_ = new CLSBasicScalerChannelDetector("ITDetector", "IT Detector", scaler_, 1, this);
 
+	energyFeedbackControl_ = new AMReadOnlyPVControl("EnergyFeedback", "BL1607-5-I22:Energy:EV:fbk", this);
+	energyFeedbackDetector_ = new AMBasicControlDetectorEmulator("EnergyFeedback", "Energy Feedback", energyFeedbackControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+
 	connect( scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(onScalerConnectedChanged(bool)) );
 
 	i0Keithley_ = new CLSKeithley428("I0 Channel", "AMP1607-601:Gain");
@@ -185,7 +188,7 @@ void BioXASSideBeamline::setupComponents()
 	m1UpperSlit_->setContextKnownDescription("Upper slit");
 
 	//energy_ = new AMPVwStatusControl("Energy", "BL1607-5-I22:Energy:EV:fbk", "BL1607-5-I22:Energy:EV", "BL1607-5-I22:Energy:status", QString(), this, 0.75, 2.0, new AMControlStatusCheckerCLSMAXv());
-	energy_ = new AMPVwStatusControl("Energy", "BL1607-5-I22:Energy:EV:fbk", "BL1607-5-I22:Energy:EV", "SMTR1607-5-I22-12:status", QString(), this, 0.75, 2.0, new AMControlStatusCheckerCLSMAXv());
+	energy_ = new AMPVwStatusControl("Energy", "BL1607-5-I22:Energy:EV:fbk", "BL1607-5-I22:Energy:EV", "SMTR1607-5-I22-12:status", QString(), this, 1000, 2.0, new AMControlStatusCheckerCLSMAXv());
 
 	connect( m1UpperSlit_, SIGNAL(connected(bool)), this, SLOT(onM1UpperSlitConnectedChanged(bool)) );
 	connect( energy_, SIGNAL(connected(bool)), this, SLOT(onEnergyConnectedChanged(bool)) );
@@ -206,6 +209,7 @@ void BioXASSideBeamline::setupExposedDetectors()
 {
 	addExposedDetector(i0Detector_);
 	addExposedDetector(iTDetector_);
+	addExposedDetector(energyFeedbackDetector_);
 }
 
 BioXASSideBeamline::~BioXASSideBeamline()
@@ -246,6 +250,11 @@ bool BioXASSideBeamline::isConnected() const
 CLSBasicScalerChannelDetector* BioXASSideBeamline::i0Detector()
 {
 	return i0Detector_;
+}
+
+AMBasicControlDetectorEmulator* BioXASSideBeamline::energyFeedbackDetector()
+{
+	return energyFeedbackDetector_;
 }
 
 CLSBasicScalerChannelDetector* BioXASSideBeamline::iTDetector()

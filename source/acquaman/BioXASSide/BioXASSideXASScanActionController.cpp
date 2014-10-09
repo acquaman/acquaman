@@ -27,6 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSMAXvMotor.h"
 #include "acquaman/AMGenericScanActionControllerAssembler.h"
 #include "acquaman/AMEXAFSScanActionControllerAssembler.h"
+#include "beamline/AMBasicControlDetectorEmulator.h"
 
 BioXASSideXASScanActionController::BioXASSideXASScanActionController(BioXASSideXASScanConfiguration *configuration, QObject *parent) :
     AMStepScanActionController(configuration, parent)
@@ -47,6 +48,7 @@ BioXASSideXASScanActionController::BioXASSideXASScanActionController(BioXASSideX
     AMDetectorInfoSet bioXASDetectors;
     bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->i0Detector()->toInfo());
     bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->iTDetector()->toInfo());
+    bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->energyFeedbackDetector()->toInfo());
     configuration_->setDetectorConfigurations(bioXASDetectors);
 }
 
