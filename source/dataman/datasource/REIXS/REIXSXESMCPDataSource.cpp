@@ -133,6 +133,16 @@ AMNumber REIXSXESMCPDataSource::axisValue(int axisNumber, int index) const {
 	return index;
 }
 
+bool REIXSXESMCPDataSource::axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const
+{
+	Q_UNUSED(axisNumber);
+
+	for (int i = 0, size = endIndex-startIndex+1; i < size; i++)
+		outputValues[i] = startIndex + i;
+
+	return true;
+}
+
 // Called when the image PV changes. emits valuesChanged().
 void REIXSXESMCPDataSource::onImageValuesChanged() {
 	emitValuesChanged();
