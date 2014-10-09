@@ -69,7 +69,6 @@ IDEASXASScanConfiguration::IDEASXASScanConfiguration(const IDEASXASScanConfigura
 	AMStepScanConfiguration(original)
 {
 	setAutoExportEnabled(false);
-
 	setName(original.name());
 	setUserScanName(original.userScanName());
 	isXRFScan_ = original.isXRFScan();
@@ -77,6 +76,7 @@ IDEASXASScanConfiguration::IDEASXASScanConfiguration(const IDEASXASScanConfigura
 	useRef_ = original.useRef();
 	timeOffset_ = original.timeOffset();
 	totalTime_ = original.totalTime();
+
 
 	edge_ = original.edge();
 	energy_ = original.energy();
@@ -171,6 +171,7 @@ void IDEASXASScanConfiguration::computeTotalTimeImplementation()
 		    totalTime_ = -1; //negative value used to trigger feedback to user in IDEASXASScanConfigurationView... Hope this doesn't cause an issue elsewhere.
 		    setExpectedDuration(totalTime_);
 		    emit totalTimeChanged(totalTime_);
+		    emit configurationChanged();
 		    return;
 		}
 	    }
@@ -187,6 +188,7 @@ void IDEASXASScanConfiguration::computeTotalTimeImplementation()
 		    totalTime_ = -1; //negative value used to trigger feedback to user in IDEASXASScanConfigurationView... Hope this doesn't cause an issue elsewhere.
 		    setExpectedDuration(totalTime_);
 		    emit totalTimeChanged(totalTime_);
+		    emit configurationChanged();
 		    return;
 		}
 	    }
@@ -195,6 +197,7 @@ void IDEASXASScanConfiguration::computeTotalTimeImplementation()
     totalTime_ = time + 27; // There is a 27 second miscellaneous startup delay.
     setExpectedDuration(totalTime_);
     emit totalTimeChanged(totalTime_);
+    emit configurationChanged();
 
 }
 

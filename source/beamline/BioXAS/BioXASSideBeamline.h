@@ -39,6 +39,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMBiHash.h"
 
 class CLSMAXvMotor;
+class AMBasicControlDetectorEmulator;
 
 class BioXASSideBeamline : public AMBeamline
 {
@@ -71,10 +72,20 @@ public:
 	CLSBasicScalerChannelDetector* testDetector();
 
 	QList<BioXASCLSMAXvMotor *> getMotorsByType(BioXASBeamlineDef::BioXASMotorType category);
+	AMPVwStatusControl* energy();
+
+	/// Returns an instance of the keithley428 amplifier.
+	CLSKeithley428* i0Keithley();
+	CLSKeithley428* iTKeithley();
+
+	CLSBasicScalerChannelDetector* i0Detector();
+	CLSBasicScalerChannelDetector* iTDetector();
+	AMBasicControlDetectorEmulator* energyFeedbackDetector();
 
 protected slots:
 	void onScalerConnectedChanged(bool connectionState);
 	void onM1UpperSlitConnectedChanged(bool connectionState);
+	void onEnergyConnectedChanged(bool connectionState);
 
 protected:
 	/// Sets up the synchronized dwell time.
@@ -105,10 +116,23 @@ protected:
 
 protected:
 	CLSSIS3820Scaler *scaler_;
+
 	bool wasConnected_;
 
 	CLSBasicScalerChannelDetector *testDetector_;
 	CLSKeithley428 *keithley_;
+
+	CLSMAXvMotor *m1UpperSlit_;
+	AMPVwStatusControl *energy_;
+
+	CLSBasicScalerChannelDetector *i0Detector_;
+	CLSKeithley428 *i0Keithley_;
+
+	CLSBasicScalerChannelDetector *iTDetector_;
+	CLSKeithley428 *iTKeithley_;
+
+	AMControl *energyFeedbackControl_;
+	AMBasicControlDetectorEmulator *energyFeedbackDetector_;
 
 	// Shutters
 	CLSBiStateControl *psh1_;

@@ -31,7 +31,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMOrderedSet.h"
 
 class AMMainWindow;
-class AMBottomBar;
 class AMBottomPanel;
 class AMRunExperimentInsert;
 class AMGenericScanEditor;

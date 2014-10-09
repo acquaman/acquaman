@@ -19,35 +19,33 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef BIOXASSIDEPERSISTENTVIEW_H
-#define BIOXASSIDEPERSISTENTVIEW_H
 
-#include <QWidget>
-#include <QLayout>
 
-#include "beamline/CLS/CLSMAXvMotor.h"
-#include "beamline/CLS/CLSKeithley428.h"
-#include "ui/beamline/AMCurrentAmplifierSingleView.h"
 
-class AMExtendedControlEditor;
+#include <QApplication>
+#include <QFile>
 
-class BioXASSidePersistentView : public QWidget
+#include "application/XRDAnalysis/XRDAnalysisAppController.h"
+
+int main(int argc, char *argv[])
 {
-    Q_OBJECT
 
-public:
-    /// Constructor.
-    explicit BioXASSidePersistentView(QWidget *parent = 0);
-    virtual ~BioXASSidePersistentView();
+	// Program Startup:
+	// =================================
+	QApplication app(argc, argv);
+	app.setApplicationName("XRD Analysis");
 
-signals:
 
-public slots:
+	XRDAnalysisAppController *appController = new XRDAnalysisAppController();
 
-protected:
-    AMExtendedControlEditor *motorControlEditor_;
-    AMExtendedControlEditor *energyControlEditor_;
-    AMCurrentAmplifierSingleView *keithleyView_;
-};
+	// Program Run-loop:
+	// =================================
+	int retVal = app.exec();
 
-#endif // BIOXASSIDEPERSISTENTVIEW_H
+	// Program Shutdown:
+	// =================================
+	delete appController;
+
+	return retVal;
+}
+

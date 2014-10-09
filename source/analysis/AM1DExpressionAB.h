@@ -65,7 +65,7 @@ class AM1DExpressionAB : public AMAnalysisBlock
 public:
 	/// Constructor. \c outputName is the name() for the output data source.
 	virtual ~AM1DExpressionAB();
-	AM1DExpressionAB(const QString& outputName, QObject* parent = 0);
+	Q_INVOKABLE AM1DExpressionAB(const QString& outputName, QObject* parent = 0);
 	/// This constructor is used to reload analysis blocks directly out of the database
 	Q_INVOKABLE AM1DExpressionAB(AMDatabase* db, int id);
 
@@ -77,6 +77,9 @@ public:
 		- anything else?
 		*/
 	virtual bool areInputDataSourcesAcceptable(const QList<AMDataSource*>& dataSources) const;
+
+	/// Returns the desired rank for input sources.
+	virtual int desiredInputRank() const { return 1; }
 
 	/// Set the data source inputs.  The existing expression() and xExpression() are preserved
 	virtual void setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources);

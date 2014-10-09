@@ -40,7 +40,7 @@ class AM4DBinningAB : public AMStandardAnalysisBlock
 
 public:
 	/// Constructor.  \c outputName is the name() for the output data source.
- 	virtual ~AM4DBinningAB();
+	virtual ~AM4DBinningAB();
 	AM4DBinningAB(const QString &outputName, QObject *parent = 0);
 	/// This constructor is used to reload analysis blocks directly out of the database.
 	Q_INVOKABLE AM4DBinningAB(AMDatabase *db, int id);
@@ -52,6 +52,9 @@ public:
   - the rank() of that input source must be 2 (two-dimensional)
   */
 	virtual bool areInputDataSourcesAcceptable(const QList<AMDataSource*>& dataSources) const;
+
+	/// Returns the desired rank for input sources.
+	virtual int desiredInputRank() const { return 4; }
 
 protected:
 	/// Set the data source inputs.
