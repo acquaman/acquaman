@@ -574,7 +574,7 @@ bool AMCDFDataStore::axisValues(int axisId, long axisStartIndex, long axisEndInd
 	else {
 
 		// Which CDF variable corresponds to this measurement:
-		long varNum = measurementVarNums_.at(measurementId);
+		long varNum = axisValueVarNums_.at(axisId);
 		long increment = 1L;
 
 		for (int i = scanSize_.rank()-1; i > axisId; i--)
