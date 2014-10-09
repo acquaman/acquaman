@@ -550,6 +550,41 @@ AMNumber AMCDFDataStore::axisValue(int axisId, long axisIndex) const
 	}
 }
 
+bool AMCDFDataStore::axisValues(int axisId, long axisStartIndex, long axisEndIndex, AMNumber *outputValues) const
+{
+	if((unsigned)axisId >= (unsigned)axes_.count())
+		return false;	// invalid axis specified.
+
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+	if((unsigned)axisStartIndex >= (unsigned)axes_.at(axisId).size)
+		return false;
+
+	if((unsigned)axisEndIndex >= (unsigned)axes_.at(axisId).size)
+		return false;
+#endif
+
+	const AMAxisInfo &axisInfo = axes_.at(axisId);
+
+	if (axisInfo.isUniform){
+
+		for (int i = 0, size = axisEndIndex-axisStartIndex+1; i < size; i++)
+			outputValues[i] = AMNumber(double(axisInfo.start) +(axisStartIndex+i)*double(axisInfo.increment));
+	}
+
+	else {
+
+		// Which CDF variable corresponds to this measurement:
+		long varNum = measurementVarNums_.at(measurementId);
+		long increment = 1L;
+
+		for (int i = scanSize_.rank()-1; i > axisId; i--)
+			increment *= scanSize_.at(i);
+
+		CDFstatus s = CDFhyperGetzVarData(cdfId_, varNum, increment*axisStartIndex, axisEndIndex-axisStartIndex+1L, increment, 0, 0, 0, outputValues);
+		return (s >= CDF_OK);
+	}
+}
+
 bool AMCDFDataStore::setAxisValue(int axisId, long axisIndex, AMNumber newValue)
 {
 	if(readOnly_) {
