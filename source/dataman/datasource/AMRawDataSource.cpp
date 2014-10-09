@@ -156,6 +156,25 @@ bool AMRawDataSource::isDataStoreCompatible(const AMDataStore *dataStore) const
 	return true;
 }
 
+bool AMRawDataSource::axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const
+{
+	if (!isValid())
+		return false;
+
+	if (axisNumber >= rank())
+		return false;
+
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+	if (startIndex < 0 || startIndex >= size(axisNumber))
+		return false;
+
+	if (endIndex < 0 || endIndex >= size(axisNumber))
+		return false;
+#endif
+
+	return dataStore_->axisValues(axisNumber, startIndex, endIndex, outputValues);
+}
+
 #include "ui/dataman/AMSimpleDataSourceEditor.h"
 
 QWidget* AMRawDataSource::createEditorWidget()
