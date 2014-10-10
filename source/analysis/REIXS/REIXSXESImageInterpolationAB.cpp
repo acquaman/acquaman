@@ -67,8 +67,8 @@ REIXSXESImageInterpolationAB::REIXSXESImageInterpolationAB(const QString &output
 
 	// FOR TESTING
 	interpolationLevel_ = 10;
-	shiftPosition1_ = 0;  //not used using correlation2CenterPx_ instead
-	shiftPosition2_ = 0;  //not used: using correlation2CenterPx_ instead
+//	shiftPosition1_ = 0;  //not used using correlation2CenterPx_ instead
+//	shiftPosition2_ = 0;  //not used: using correlation2CenterPx_ instead
 //	shiftValues1_ << 0 << 0 << 0 << 0 << 3 << 6 << 9 << 11 << 12 << 13 << 15 << 16 << 17 << 14 << 12 << 10 << 9 << 8 << 8 << 7 << 7 << 6 << 6 << 5 << 4 << 4 << 3 << 2 << 2 << 1 << 0 << 0 << -1 << -2 << -2 << -3 << -4 << -5 << -6 << -7 << -8 << -9 << -10 << -12 << -13 << -13 << -14 << -14 << -11 << -7 << -2 << 2 << 7 << 9 << 11 << 12 << 13 << 12 << 9 << 6 << 4 << 0 << 0 << 0;
 //	shiftValues2_ << 0 << 0 << 0 << -4 << -6 << -8 << -10 << -11 << -12 << -13 << -13 << -14 << -11 << -9 << -7 << -6 << -5 << -5 << -4 << -3 << -3 << -2 << -2 << -1 << -1 << -1 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << -1 << -1 << -2 << -3 << -4 << -6 << -9 << -12 << -12 << -12 << -11 << -11 << -10 << -8 << -6 << -4 << 0 << 0 << 0;
 	shiftValues1_ << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0;
@@ -126,6 +126,9 @@ REIXSXESImageInterpolationAB::~REIXSXESImageInterpolationAB() {
 
 AMIntList REIXSXESImageInterpolationAB::shiftValuesAt(int i)
 {
+	if(cacheInvalid_)
+		computeCachedValues();
+
 	AMIntList shiftValuesAt;
 //	shiftValuesAt.clear();
 
@@ -143,7 +146,11 @@ AMIntList REIXSXESImageInterpolationAB::shiftValuesAt(int i)
 	double *shiftValueMapPointer = lastShiftValueMap_.data();
 
 	for(int j = 0; j < jSize; j++)
+	{
 		shiftValuesAt << int(shiftValueMapPointer[interpolatedI*jSize+j]) ;
+	}
+
+
 
 	return shiftValuesAt;
 }
@@ -246,33 +253,6 @@ void REIXSXESImageInterpolationAB::setShiftValues2(const AMIntList &shiftValues2
 	setModified(true);
 }
 
-void REIXSXESImageInterpolationAB::setShiftPosition1(const int& shiftPosition1)
-{
-	if(shiftPosition1 == shiftPosition1_)
-		return;
-
-	shiftPosition1_ = shiftPosition1;
-	cacheInvalid_ = true;	// could change all our cached values
-	reviewState();	// might change the state to valid, if we didn't have proper number of shift values before.
-
-	emitValuesChanged();
-	emit shiftValuesChanged();
-	setModified(true);
-}
-
-void REIXSXESImageInterpolationAB::setShiftPosition2(const int& shiftPosition2)
-{
-	if(shiftPosition2 == shiftPosition2_)
-		return;
-
-	shiftPosition2_ = shiftPosition2;
-	cacheInvalid_ = true;	// could change all our cached values
-	reviewState();	// might change the state to valid, if we didn't have proper number of shift values before.
-
-	emitValuesChanged();
-	emit shiftValuesChanged();
-	setModified(true);
-}
 
 void REIXSXESImageInterpolationAB::setRangeRound(double rangeRound)
 {
@@ -630,6 +610,7 @@ void REIXSXESImageInterpolationAB::computeShiftMap(int iSize, int jSize, double 
 			shiftValues[i*jSize + j] = ((shiftValue1 - shiftValues2_.at(j)) * double((i-interpolatedPosition1))) / weightingValue + shiftValue1;
 			lastShiftValueMapPointer[i*jSize + j] = shiftValues[i*jSize + j];
 
+
 		}
 	}
 
@@ -903,6 +884,9 @@ void REIXSXESImageInterpolationAB::correlateNow()
 
 	// use the new shift values.
 	setShiftValues2(shifts2.toList());
+
+
+
 
 }
 

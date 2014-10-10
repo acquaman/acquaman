@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define REIXSXESImageInterpolationABEDITOR_H
 
 #include <QWidget>
+#include <QLineEdit>
 
 class QSpinBox;
 class QCheckBox;
@@ -214,6 +215,13 @@ public slots:
 	void onApplyToOtherScansChosen();
 	/// When a user pushes the "manual shift entry" button.
 	void onManualShiftEntryButtonClicked();
+	/// When a user enters new manual shift.
+	void onShift2LineEdited();
+	/// updates Shift2Line edit when shift values cahnge
+	void onShiftValuesChanged();
+	/// sets shift 2 line edit string
+	void setShift2LineEdit(QString shifts) {shift2LineEdit_->setText(shifts);}
+
 
 	/// signals from analysis block: if the block's input data source changes (to either null, or one with a different size.)
 	void onAnalysisBlockInputDataSourcesChanged();
@@ -238,7 +246,7 @@ protected:
 	QCheckBox* liveCorrelationCheckBox_;
 	QDoubleSpinBox* energyCalibrationOffsetBox_, *tiltCalibrationOffsetBox_, *rangeRoundControl_;
 	QTabWidget* tabWidget_;
-	QWidget* maskPageWidget_, shift1Widget_, shift2Widget_;
+	QLineEdit* shift1LineEdit_, *shift2LineEdit_;
 
 
 	QSlider* shiftDisplayOffsetSlider_;

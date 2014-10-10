@@ -32,6 +32,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QToolButton>
 #include <QTabWidget>
 #include <QGroupBox>
+#include <QLineEdit>
 #include "MPlot/MPlotWidget.h"
 #include "MPlot/MPlot.h"
 #include "MPlot/MPlotImage.h"
@@ -130,34 +131,8 @@ REIXSXESImageInterpolationABEditor::REIXSXESImageInterpolationABEditor(REIXSXESI
 	liveCorrelationCheckBox_ = new QCheckBox("Real-time");
 	correlateNowButton_ = new QPushButton("Now");
 
-	manualShiftEntryButton_ = new QToolButton();
-	manualShiftEntryButton_->setText("Manual shift...");
-
-	/* Turned nasty QMenuTool into it's own tab page below
-	applyToOtherScansButton_ = new QToolButton();
-	applyToOtherScansButton_->setText("Apply to Scans...");
-	applyToOtherScansButton_->setPopupMode(QToolButton::MenuButtonPopup);
-
-	batchApplyCorrelationSettings_ = new QAction("Correlation Settings", this);
-	batchApplyShiftCurve_ = new QAction("Shift Curve", this);
-	batchApplySumRange_ = new QAction("Sum Range min, max", this);
-	batchApplyCalibrationOffsets_ = new QAction("Calib. offsets: energy, tilt", this);
-	batchApplyCorrelationSettings_->setCheckable(true);
-	batchApplyCorrelationSettings_->setChecked(true);
-	batchApplyShiftCurve_->setCheckable(true);
-	batchApplyCalibrationOffsets_->setCheckable(true);
-	batchApplyShiftCurve_->setChecked(false);
-	batchApplySumRange_->setCheckable(true);
-	batchApplySumRange_->setChecked(false);
-	batchApplyCalibrationOffsets_->setChecked(false);
-	QMenu* batchApplyMenu = new QMenu(this);
-	batchApplyMenu->addAction(batchApplySumRange_);
-	batchApplyMenu->addAction(batchApplyCalibrationOffsets_);
-	batchApplyMenu->addAction(batchApplyCorrelationSettings_);
-	batchApplyMenu->addAction(batchApplyShiftCurve_);
-	applyToOtherScansButton_->setMenu(batchApplyMenu);
-	*/
-
+	shift1LineEdit_ = new QLineEdit();
+	shift2LineEdit_ = new QLineEdit();
 
 	shiftDisplayOffsetSlider_ = new QSlider(Qt::Horizontal);
 
@@ -222,8 +197,8 @@ REIXSXESImageInterpolationABEditor::REIXSXESImageInterpolationABEditor(REIXSXESI
 
 	corrRegion1Left_ = new MPlotPoint(QPointF(analysisBlock_->correlation1CenterPixel()-analysisBlock_->correlation1HalfWidth(), 0));
 	corrRegion1Right_ = new MPlotPoint(QPointF(analysisBlock_->correlation1CenterPixel()+analysisBlock_->correlation1HalfWidth(), 0));
-	corrRegion1Left_->setMarker(MPlotMarkerShape::VerticalBeam, 2000, QPen(QColor(Qt::red)));
-	corrRegion1Right_->setMarker(MPlotMarkerShape::VerticalBeam, 2000, QPen(QColor(Qt::red)));
+	corrRegion1Left_->setMarker(MPlotMarkerShape::VerticalBeam, 2000, QPen(QColor(128,32,32)));
+	corrRegion1Right_->setMarker(MPlotMarkerShape::VerticalBeam, 2000, QPen(QColor(128,32,32)));
 	corrRegion1Left_->setIgnoreWhenAutoScaling(true);
 	corrRegion1Right_->setIgnoreWhenAutoScaling(true);
 	plot_->addItem(corrRegion1Left_);
@@ -233,8 +208,8 @@ REIXSXESImageInterpolationABEditor::REIXSXESImageInterpolationABEditor(REIXSXESI
 
 	corrRegion2Left_ = new MPlotPoint(QPointF(analysisBlock_->correlation2CenterPixel()-analysisBlock_->correlation2HalfWidth(), 0));
 	corrRegion2Right_ = new MPlotPoint(QPointF(analysisBlock_->correlation2CenterPixel()+analysisBlock_->correlation2HalfWidth(), 0));
-	corrRegion2Left_->setMarker(MPlotMarkerShape::VerticalBeam, 2000, QPen(QColor(Qt::cyan)));
-	corrRegion2Right_->setMarker(MPlotMarkerShape::VerticalBeam, 2000, QPen(QColor(Qt::cyan)));
+	corrRegion2Left_->setMarker(MPlotMarkerShape::VerticalBeam, 2000, QPen(QColor(32,128,128)));
+	corrRegion2Right_->setMarker(MPlotMarkerShape::VerticalBeam, 2000, QPen(QColor(32,128,128)));
 	corrRegion2Left_->setIgnoreWhenAutoScaling(true);
 	corrRegion2Right_->setIgnoreWhenAutoScaling(true);
 	plot_->addItem(corrRegion2Left_);
@@ -326,9 +301,10 @@ REIXSXESImageInterpolationABEditor::REIXSXESImageInterpolationABEditor(REIXSXESI
 				QFormLayout* shift1PageFormLayout = new QFormLayout();
 					QHBoxLayout* correlation1SettingsLayout = new QHBoxLayout();
 						correlation1SettingsLayout->addWidget(correlation1CenterBox_);
-						correlation1SettingsLayout->addWidget(new QLabel("width:"));
+						correlation1SettingsLayout->addWidget(new QLabel("<b><FONT COLOR='#802020' FONT SIZE = 3>Width:</b>"));
 						correlation1SettingsLayout->addWidget(correlation1PointsBox_);
-				shift1PageFormLayout->addRow("C. center:", correlation1SettingsLayout);
+
+				shift1PageFormLayout->addRow("<b><FONT COLOR='#ff0000' FONT SIZE = 3>Center:</b>", correlation1SettingsLayout);
 					QHBoxLayout* correlation1SmothingLayout = new QHBoxLayout();
 						correlation1SmothingLayout->addWidget(correlation1SmoothingBox_);
 						correlation1SmothingLayout->addWidget(smooth1ModelBox_);
@@ -336,11 +312,15 @@ REIXSXESImageInterpolationABEditor::REIXSXESImageInterpolationABEditor(REIXSXESI
 			shift1PageLayout->addLayout(shift1PageFormLayout);
 
 			QHBoxLayout* shiftButtonsLayout = new QHBoxLayout();
-				shiftButtonsLayout->addWidget(manualShiftEntryButton_);
+				QLabel* manualShift1Label = new QLabel("Manual shift:");
+				shiftButtonsLayout->addWidget(manualShift1Label);
+							shiftButtonsLayout->addWidget(shift1LineEdit_);
 			shift1PageLayout->addLayout(shiftButtonsLayout);
 		shift1PageWidget_->setLayout(shift1PageLayout);
 	//END OF SHIFT 1 PAGE LAYOUT
 	tabWidget_->addTab(shift1PageWidget_,"Curve 1");
+
+
 
 	//START OF SHIFT 2 PAGE LAYOUT
 		QWidget* shift2PageWidget_ = new QWidget();
@@ -348,9 +328,9 @@ REIXSXESImageInterpolationABEditor::REIXSXESImageInterpolationABEditor(REIXSXESI
 				QFormLayout* shift2PageFormLayout = new QFormLayout();
 					QHBoxLayout* correlation2SettingsLayout = new QHBoxLayout();
 						correlation2SettingsLayout->addWidget(correlation2CenterBox_);
-						correlation2SettingsLayout->addWidget(new QLabel("width:"));
+						correlation2SettingsLayout->addWidget(new QLabel("<b><FONT COLOR='#208080' FONT SIZE = 3>Width:</b>"));
 						correlation2SettingsLayout->addWidget(correlation2PointsBox_);
-				shift2PageFormLayout->addRow("C. center:", correlation2SettingsLayout);
+				shift2PageFormLayout->addRow("<b><FONT COLOR='#00ffff' FONT SIZE = 3>Center:</b>", correlation2SettingsLayout);
 					QHBoxLayout* correlation2SmothingLayout = new QHBoxLayout();
 						correlation2SmothingLayout->addWidget(correlation2SmoothingBox_);
 						correlation2SmothingLayout->addWidget(smooth2Mode1Box_);
@@ -358,10 +338,10 @@ REIXSXESImageInterpolationABEditor::REIXSXESImageInterpolationABEditor(REIXSXESI
 			shift2PageLayout->addLayout(shift2PageFormLayout);
 
 			QHBoxLayout* shiftButtons2Layout = new QHBoxLayout();
-//				shiftButtons2Layout->addWidget(manualShiftEntryButton_);
-//				shiftButtons2Layout->addWidget(applyToOtherScansButton_);
+				QLabel* manualShift2Label = new QLabel("Manual shift:");
+				shiftButtons2Layout->addWidget(manualShift2Label);
+				shiftButtons2Layout->addWidget(shift2LineEdit_);
 			shift2PageLayout->addLayout(shiftButtons2Layout);
-//			shift2PageLayout->addWidget(shiftDisplayOffsetSlider_);
 		shift2PageWidget_->setLayout(shift2PageLayout);
 	//END OF SHIFT 2 PAGE LAYOUT
 	tabWidget_->addTab(shift2PageWidget_,"Curve 2");
@@ -416,9 +396,6 @@ REIXSXESImageInterpolationABEditor::REIXSXESImageInterpolationABEditor(REIXSXESI
 	setLayout(mainLayout);
 
 	onAnalysisBlockInputDataSourcesChanged();
-	/*
-	onShiftValuesChanged();
-	*/
 
 	// make connections:
 	connect(analysisBlock_, SIGNAL(inputSourcesChanged()), this, SLOT(onAnalysisBlockInputDataSourcesChanged()));
@@ -442,7 +419,10 @@ REIXSXESImageInterpolationABEditor::REIXSXESImageInterpolationABEditor(REIXSXESI
 
 	connect(shiftDisplayOffsetSlider_, SIGNAL(valueChanged(int)), shiftData_, SLOT(setDisplayXOffset(int)));
 
-	connect(manualShiftEntryButton_, SIGNAL(clicked()), this, SLOT(onManualShiftEntryButtonClicked()));
+	//connect(manualShiftEntryButton_, SIGNAL(clicked()), this, SLOT(onManualShiftEntryButtonClicked()));
+	connect(shift2LineEdit_, SIGNAL(editingFinished()), this, SLOT(onShift2LineEdited()));
+	connect(analysisBlock_, SIGNAL(shiftValuesChanged()), this, SLOT(onShiftValuesChanged()));
+
 
 	// direct connections:
 	connect(correlateNowButton_, SIGNAL(clicked()), analysisBlock_, SLOT(correlateNow()));
@@ -575,10 +555,6 @@ void REIXSXESImageInterpolationABEditor::onCSmoothBox1Changed()
 {
 	//index 0 for none, 1 for poly, 2 for median, 3 for average
 
-	/*
-	smoothBoxType type;
-	*/
-
 	switch((smoothBoxType)correlation1SmoothingBox_->currentIndex()) {
 	case None:
 		smooth1ModelBox_->setDisabled(true);
@@ -616,9 +592,6 @@ void REIXSXESImageInterpolationABEditor::onCSmoothBox2Changed()
 {
 	//index 0 for none, 1 for poly, 2 for median, 3 for average
 
-	/*
- smoothBoxType type;
- */
 
 	switch((smoothBoxType)correlation2SmoothingBox_->currentIndex()) {
 	case None:
@@ -719,7 +692,6 @@ void REIXSXESImageInterpolationABEditor::onAnalysisBlockInputDataSourcesChanged(
 		shiftDisplayOffsetSlider_->setEnabled(true);
 		energyCalibrationOffsetBox_->setEnabled(true);
 		tiltCalibrationOffsetBox_->setEnabled(true);
-		manualShiftEntryButton_->setEnabled(true);
 
 		energyCalibrationOffsetBox_->blockSignals(true);
 		energyCalibrationOffsetBox_->setValue(analysisBlock_->energyCalibrationOffset());
@@ -812,6 +784,8 @@ void REIXSXESImageInterpolationABEditor::onAnalysisBlockInputDataSourcesChanged(
 		corrRegion2Left_->setValue(QPointF(analysisBlock_->correlation2CenterPixel()-analysisBlock_->correlation2HalfWidth(), 0));
 		corrRegion2Right_->setValue(QPointF(analysisBlock_->correlation2CenterPixel()+analysisBlock_->correlation2HalfWidth(), 0));
 
+		onShiftValuesChanged();
+
 	}
 
 	else {
@@ -830,7 +804,6 @@ void REIXSXESImageInterpolationABEditor::onAnalysisBlockInputDataSourcesChanged(
 		shiftDisplayOffsetSlider_->setEnabled(false);
 		energyCalibrationOffsetBox_->setEnabled(false);
 		tiltCalibrationOffsetBox_->setEnabled(false);
-		manualShiftEntryButton_->setEnabled(false);
 	}
 
 	placeRangeRectangle();
@@ -882,25 +855,6 @@ void REIXSXESImageInterpolationABEditor::placeRangeRectangle()
 	}
 }
 
-
-/*
-void REIXSXESImageInterpolationABEditor::onShiftValuesChanged()
-{
-	AMIntList shiftValues = analysisBlock_->shiftValues();
-	QVector<qreal> xs, ys;
-
-	int midPixel = analysisBlock_->size(0)/2;
-	// note: this is turned on its side, so the shift values become X, and the row values become Y.
-	for(int j=0,cc=shiftValues.count(); j<cc; j++) {
-		if(j>=analysisBlock_->sumRangeMin() && j<=analysisBlock_->sumRangeMax()) {
-			xs << midPixel + shiftValues.at(j);
-			ys << j;
-		}
-	}
-
-	shiftData_->setValues(xs, ys);
-}
-*/
 
 
 REIXSXESImageInterpolationABEditorEllipticalMask::REIXSXESImageInterpolationABEditorEllipticalMask(REIXSXESImageInterpolationAB *analysisBlock, QObject *parent)
@@ -1409,3 +1363,44 @@ void REIXSXESImageInterpolationABEditor::onManualShiftEntryButtonClicked()
 
 	analysisBlock_->setShiftValues1(newShiftNumbers);
 }
+
+void REIXSXESImageInterpolationABEditor::onShift2LineEdited()
+{
+	QStringList newShifts = shift2LineEdit_->text().split(QRegExp("[,; ]+"), QString::SkipEmptyParts);
+	if(newShifts.count() != analysisBlock_->shiftValues1().count()) {
+		QApplication::beep();
+		AMErrorMon::alert(this, -370, QString("Could not set the shift values manually: you need to provide %1 shift numbers.").arg(analysisBlock_->shiftValues1().count()));
+		return;
+	}
+
+	bool ok;
+	AMIntList newShiftNumbers;
+	foreach(QString s, newShifts) {
+		newShiftNumbers << s.toInt(&ok);
+		if(!ok) {
+			AMErrorMon::alert(this, -370, QString("Could not set the shift values manually: '%1' is not a number.").arg(s));
+			return;
+		}
+	}
+
+	analysisBlock_->setShiftValues2(newShiftNumbers);
+}
+
+void REIXSXESImageInterpolationABEditor::onShiftValuesChanged()
+{
+	// Grab the current shift and convert to text.
+	QStringList shifts1StringList;
+	foreach(int d, analysisBlock_->shiftValues1())
+		shifts1StringList << QString::number(d);
+	shift1LineEdit_->setText(shifts1StringList.join(";"));
+
+
+	QStringList shifts2StringList;
+	foreach(int d, analysisBlock_->shiftValues2())
+		shifts2StringList << QString::number(d);
+	shift2LineEdit_->setText(shifts2StringList.join(";"));
+
+}
+
+
+

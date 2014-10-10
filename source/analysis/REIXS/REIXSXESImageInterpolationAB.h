@@ -48,8 +48,6 @@ class REIXSXESImageInterpolationAB : public AMStandardAnalysisBlock
 
 	Q_PROPERTY(AMIntList shiftValues1 READ shiftValues1 WRITE setShiftValues1)
 	Q_PROPERTY(AMIntList shiftValues2 READ shiftValues2 WRITE setShiftValues2)
-	Q_PROPERTY(int shiftPosition1 READ shiftPosition1 WRITE setShiftPosition1)
-	Q_PROPERTY(int shiftPosition2 READ shiftPosition2 WRITE setShiftPosition2)
 
 
 	Q_PROPERTY(int correlation1CenterPixel READ correlation1CenterPixel WRITE setCorrelation1CenterPixel)
@@ -136,10 +134,6 @@ int outputSize = indexStart.totalPointsTo(indexEnd);
 	AMIntList shiftValues2() const { return shiftValues2_; }
 	/// Returns the last calculate shift values for a given column
 	AMIntList shiftValuesAt(int i);
-	/// Returns the correlation position of shiftValue1
-	int shiftPosition1() const { return shiftPosition1_; }
-	/// Returns the correlation position of shiftValue2
-	int shiftPosition2() const { return shiftPosition2_; }
 
 	/// The central pixel value to use when running an auto-correlation routine
 	int correlation1CenterPixel() const { return correlation1CenterPx_; }
@@ -188,10 +182,6 @@ public slots:
 	void setShiftValues1(const AMIntList& shiftValues1);
 	/// Sets the second shift values for each row. This should have the same size as the height of the image.
 	void setShiftValues2(const AMIntList& shiftValues1);
-	/// Sets the position of the first shift values for each row. This should have the same size as the height of the image.
-	void setShiftPosition1(const int& shiftPosition1);
-	/// Sets the position of the second shift values for each row. This should have the same size as the height of the image.
-	void setShiftPosition2(const int& shiftPosition2);
 
 	void setRangeRound(double rangeRound);
 	
@@ -307,10 +297,6 @@ protected:
 	AMIntList shiftValues1_;
 	/// The second set of shift values used to offset each row of the image when summing
 	AMIntList shiftValues2_;
-	/// The position of the first set of shift values used to offset each row of the image when summing
-	int shiftPosition1_;
-	/// The position of the second set of shift values used to offset each row of the image when summing
-	int shiftPosition2_;
 	/// The level of onterpolation, hard-coded for now
 	int interpolationLevel_;
 	/// The last computed shift value map
