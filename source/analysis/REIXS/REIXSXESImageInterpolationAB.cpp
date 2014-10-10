@@ -40,7 +40,6 @@ REIXSXESImageInterpolationAB::REIXSXESImageInterpolationAB(const QString &output
 	correlation2HalfWidth_ = 40;
 	correlation1Smoothing_ = QPair<int,int>(-1,1);  //-1,1???
 	correlation2Smoothing_ = QPair<int,int>(-1,1);  //-1,1???
-	liveCorrelation_ = false;
 	setCorrelation1Smoothing(QPair<int,int>(1,2)); //poly,quadratic
 	setCorrelation2Smoothing(QPair<int,int>(1,2)); //poly,quadratic
 
@@ -124,12 +123,12 @@ REIXSXESImageInterpolationAB::~REIXSXESImageInterpolationAB() {
 }
 
 
-AMIntList REIXSXESImageInterpolationAB::shiftValuesAt(int i)
+AMDoubleList REIXSXESImageInterpolationAB::shiftValuesAt(int i)
 {
 	if(cacheInvalid_)
 		computeCachedValues();
 
-	AMIntList shiftValuesAt;
+	AMDoubleList shiftValuesAt;
 //	shiftValuesAt.clear();
 
 //	int jSize = inputSource_->size(1);
@@ -147,7 +146,7 @@ AMIntList REIXSXESImageInterpolationAB::shiftValuesAt(int i)
 
 	for(int j = 0; j < jSize; j++)
 	{
-		shiftValuesAt << int(shiftValueMapPointer[interpolatedI*jSize+j]) ;
+		shiftValuesAt << shiftValueMapPointer[interpolatedI*jSize+j];
 	}
 
 

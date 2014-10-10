@@ -133,7 +133,7 @@ int outputSize = indexStart.totalPointsTo(indexEnd);
 	/// Returns the second shift values used interpolated offset of each row before summing. This will have the same size as the height of the image.
 	AMIntList shiftValues2() const { return shiftValues2_; }
 	/// Returns the last calculate shift values for a given column
-	AMIntList shiftValuesAt(int i);
+	AMDoubleList shiftValuesAt(int i);
 
 	/// The central pixel value to use when running an auto-correlation routine
 	int correlation1CenterPixel() const { return correlation1CenterPx_; }
