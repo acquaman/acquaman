@@ -76,6 +76,8 @@ protected:
 	/// Sets the selection state of all the ScanThumbnailView items which intersect the provided
 	/// QRect to a state indicated by the provided selection flags
 	void setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags command);
+	/// Sets the selection state of all the the ScanThumbnailView items between the two QModelIndices start and end
+	void setSelectionBetween(const QModelIndex &start, const QModelIndex &end, QItemSelectionModel::SelectionFlags command);
 	/// Returns the current offset of the vertical scroll bar
 	int verticalOffset() const;
 	/// Returns the visual region which makes up the selection. In this case we simple return the

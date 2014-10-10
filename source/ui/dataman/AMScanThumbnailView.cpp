@@ -279,6 +279,9 @@ void AMScanThumbnailView::setSelection(const QRect &rect, QItemSelectionModel::S
 	QModelIndex startIndex = indexAt(rect.topLeft());
 	QModelIndex endIndex = indexAt(rect.bottomRight());
 
+	if(!endIndex.isValid())
+		endIndex = model()->index(model()->rowCount()-1, 1, QModelIndex());
+
 	if(!startIndex.isValid() || !endIndex.isValid())
 		selectionModel()->select(QModelIndex(), command | QItemSelectionModel::Rows);
 	else
@@ -292,7 +295,6 @@ void AMScanThumbnailView::setSelection(const QRect &rect, QItemSelectionModel::S
 
 			if(currentItemRect.intersects(rect))
 			{
-
 				totalSelectedItems.select(currentSelectionModelIndex, currentSelectionModelIndex);
 			}
 
@@ -300,6 +302,18 @@ void AMScanThumbnailView::setSelection(const QRect &rect, QItemSelectionModel::S
 
 		selectionModel()->select(totalSelectedItems, command | QItemSelectionModel::Rows);
 	}
+
+}
+
+void AMScanThumbnailView::setSelectionBetween(const QModelIndex &start, const QModelIndex &end, QItemSelectionModel::SelectionFlags command)
+{
+	if(!end.isValid() || !start.isValid())
+		return;
+
+	QItemSelection newSelectedItems;
+
+	newSelectedItems.select(start, end);
+	selectionModel()->select(newSelectedItems, command | QItemSelectionModel::Rows);
 
 }
 
@@ -417,7 +431,7 @@ void AMScanThumbnailView::updateScrollBars()
 
 void AMScanThumbnailView::mousePressEvent(QMouseEvent *event)
 {
-	if(event->button() == Qt::LeftButton || selectionModel()->selectedIndexes().count() < 2)
+	if(event->button() == Qt::LeftButton)
 	{
 		if(!selectionRubberBand_)
 			selectionRubberBand_ = new QRubberBand(QRubberBand::Rectangle, viewport());
@@ -425,7 +439,7 @@ void AMScanThumbnailView::mousePressEvent(QMouseEvent *event)
 		rubberBandStart_  = event->pos();
 		selectionRubberBand_->setGeometry(QRect(rubberBandStart_, QSize()));
 		selectionRubberBand_->show();
-		QAbstractItemView::mousePressEvent(event);
+	// ToDo: Add double click detection
 	}
 }
 
@@ -437,7 +451,8 @@ void AMScanThumbnailView::mouseMoveEvent(QMouseEvent *event)
 		{
 			QItemSelectionModel::SelectionFlags commandFlags = QItemSelectionModel::ClearAndSelect;
 			if(event->modifiers()&Qt::ControlModifier || event->modifiers()&Qt::ShiftModifier)
-				commandFlags = QItemSelectionModel::ToggleCurrent;
+				commandFlags = QItemSelectionModel::Select;
+
 			selectionRubberBand_->setGeometry(QRect(rubberBandStart_, event->pos()).normalized());
 			setSelection(QRect(selectionRubberBand_->pos().x(), selectionRubberBand_->pos().y(), selectionRubberBand_->width() +1, selectionRubberBand_->height()+1), commandFlags);
 		}
@@ -482,19 +497,52 @@ void AMScanThumbnailView::mouseReleaseEvent(QMouseEvent *event)
 {
 	if(event->button() == Qt::LeftButton)
 	{
-		if(!selectionRubberBand_->isHidden())
+		if(event->modifiers() & Qt::ShiftModifier)
+		{
+			QModelIndex indexUnderMouse = indexAt(event->pos());
+			if(!indexUnderMouse.isValid())
+				return;
+
+			if(indexUnderMouse.row() == 1)
+				setSelectionBetween(indexUnderMouse, indexUnderMouse, QItemSelectionModel::Select);
+			else
+			{
+
+
+				int rowCursor = indexUnderMouse.row() - 1;
+				QModelIndex previousIndexCursor = model()->index(rowCursor, 1, QModelIndex());
+				bool indexIsSelected = selectionModel()->isSelected(previousIndexCursor);
+				while(!indexIsSelected && rowCursor >= 0)
+				{
+					rowCursor--;
+					previousIndexCursor = model()->index(rowCursor, 1, QModelIndex());
+					indexIsSelected = selectionModel()->isSelected(previousIndexCursor);
+				}
+				setSelectionBetween(previousIndexCursor, indexUnderMouse, QItemSelectionModel::Select);
+			}
+			if(!selectionRubberBand_->isHidden())
+			{
+				selectionRubberBand_->hide();
+				rubberBandStart_.setX(0);
+				rubberBandStart_.setY(0);
+			}
+		}
+		else
 		{
 			QItemSelectionModel::SelectionFlags commandFlags;
 			if(event->modifiers() & Qt::ControlModifier)
-				commandFlags = QItemSelectionModel::ToggleCurrent;
+				commandFlags = QItemSelectionModel::Toggle;
 			else
 				commandFlags = QItemSelectionModel::ClearAndSelect;
 
-			if(selectionRubberBand_->width() == 0 && selectionRubberBand_->height() == 0)
-				setSelection(QRect(rubberBandStart_.x(), rubberBandStart_.y(), 1, 1), commandFlags);
-			selectionRubberBand_->hide();
-			rubberBandStart_.setX(0);
-			rubberBandStart_.setY(0);
+			if(!selectionRubberBand_->isHidden())
+			{
+				if(selectionRubberBand_->width() == 0 && selectionRubberBand_->height() == 0)
+					setSelection(QRect(rubberBandStart_.x(), rubberBandStart_.y(), 1, 1), commandFlags);
+				selectionRubberBand_->hide();
+				rubberBandStart_.setX(0);
+				rubberBandStart_.setY(0);
+			}
 		}
 	}
 }
