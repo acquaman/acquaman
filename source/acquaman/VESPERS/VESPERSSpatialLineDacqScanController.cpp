@@ -620,11 +620,11 @@ bool VESPERSSpatialLineDacqScanController::initializeImplementation()
 			break;
 
 		case VESPERS::WireH:
-			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->createNormalMoveAction(config_->normalPosition()));
+			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->pseudoWireStageMotorGroupObject()->createNormalMoveAction(config_->normalPosition()));
 			break;
 
 		case VESPERS::WireV:
-			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->createNormalMoveAction(config_->normalPosition()));
+			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->pseudoWireStageMotorGroupObject()->createNormalMoveAction(config_->normalPosition()));
 			break;
 
 		default:	// No normal position for big beam.
