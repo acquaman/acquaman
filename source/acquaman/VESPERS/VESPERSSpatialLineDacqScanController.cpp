@@ -573,7 +573,7 @@ bool VESPERSSpatialLineDacqScanController::initializeImplementation()
 			break;
 
 		case VESPERS::WireV:
-			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->createVerticalMoveAction(config_->otherPosition()));
+			//setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->createVerticalMoveAction(config_->otherPosition()));
 			break;
 
 		default:

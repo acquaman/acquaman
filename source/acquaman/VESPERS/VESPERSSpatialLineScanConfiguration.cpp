@@ -111,6 +111,18 @@ VESPERSSpatialLineScanConfiguration::VESPERSSpatialLineScanConfiguration(const V
 	case VESPERS::BigBeamZ:
 		regions_->setDefaultControl(VESPERSBeamline::vespers()->bigBeamZ());
 		break;
+
+	case VESPERS::WireH:
+		regions_->setDefaultControl(VESPERSBeamline::vespers()->pseudoWireStageMotorGroupObject()->horizontalControl());
+		break;
+
+	case VESPERS::WireV:
+		regions_->setDefaultControl(VESPERSBeamline::vespers()->pseudoWireStageMotorGroupObject()->verticalControl());
+		break;
+
+	case VESPERS::WireN:
+		regions_->setDefaultControl(VESPERSBeamline::vespers()->pseudoWireStageMotorGroupObject()->normalControl());
+		break;
 	}
 
 	regions_->setDefaultTimeControl(VESPERSBeamline::vespers()->masterDwellTime());

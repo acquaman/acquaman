@@ -375,7 +375,8 @@ void VESPERSSpatialLineScanConfigurationView::onMotorChanged(int id)
 		break;
 
 	case VESPERS::WireV:
-		otherPosition_->setValue(VESPERSBeamline::vespers()->pseudoWireStageMotorGroupObject()->horizontalControl()->value());
+//		otherPosition_->setValue(VESPERSBeamline::vespers()->pseudoWireStageMotorGroupObject()->horizontalControl()->value());
+		otherPosition_->setValue(-123456789.0);
 		break;
 
 	default:
