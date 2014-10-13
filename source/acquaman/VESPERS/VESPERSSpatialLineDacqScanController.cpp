@@ -142,6 +142,24 @@ VESPERSSpatialLineDacqScanController::VESPERSSpatialLineDacqScanController(VESPE
 		scan_->rawData()->addScanAxis(AMAxisInfo("Big Beam Z", 0, "Vertical Position", "mm"));
 		break;
 
+	case VESPERS::WireH:
+		control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->wireStageHorizontal());
+		pvName_ = control != 0 ? control->writePVName() : "";
+		scan_->rawData()->addScanAxis(AMAxisInfo("H", 0, "Horizontal Position", "mm"));
+		break;
+
+	case VESPERS::WireV:
+		control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->wireStageVertical());
+		pvName_ = control != 0 ? control->writePVName() : "";
+		scan_->rawData()->addScanAxis(AMAxisInfo("V", 0, "Vertical Position", "mm"));
+		break;
+
+	case VESPERS::WireN:
+		control = qobject_cast<AMPVwStatusControl *>(VESPERSBeamline::vespers()->wireStageNormal());
+		pvName_ = control != 0 ? control->writePVName() : "";
+		scan_->rawData()->addScanAxis(AMAxisInfo("N", 0, "Normal Position", "mm"));
+		break;
+
 	default:
 		pvName_ = "";
 		break;
@@ -217,6 +235,18 @@ VESPERSSpatialLineDacqScanController::VESPERSSpatialLineDacqScanController(VESPE
 
 	case VESPERS::BigBeamZ:
 		scan_->rawData()->addMeasurement(AMMeasurementInfo("Z:fbk", "Vertical Feedback", "mm"));
+		break;
+
+	case VESPERS::WireH:
+		scan_->rawData()->addMeasurement(AMMeasurementInfo("H:fbk", "Horizontal Feedback", "mm"));
+		break;
+
+	case VESPERS::WireV:
+		scan_->rawData()->addMeasurement(AMMeasurementInfo("V:fbk", "Vertical Feedback", "mm"));
+		break;
+
+	case VESPERS::WireN:
+		scan_->rawData()->addMeasurement(AMMeasurementInfo("N:fbk", "Normal Feedback", "mm"));
 		break;
 	}
 
@@ -538,6 +568,14 @@ bool VESPERSSpatialLineDacqScanController::initializeImplementation()
 			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->createVerticalMoveAction(config_->otherPosition()));
 			break;
 
+		case VESPERS::WireH:
+			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->createHorizontalMoveAction(config_->otherPosition()));
+			break;
+
+		case VESPERS::WireV:
+			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->createVerticalMoveAction(config_->otherPosition()));
+			break;
+
 		default:
 			break;
 		}
@@ -579,6 +617,14 @@ bool VESPERSSpatialLineDacqScanController::initializeImplementation()
 
 		case VESPERS::AttoZ:
 			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->createNormalMoveAction(config_->normalPosition()));
+			break;
+
+		case VESPERS::WireH:
+			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->createNormalMoveAction(config_->normalPosition()));
+			break;
+
+		case VESPERS::WireV:
+			setupActionsList->appendAction(setupActionsList->stageCount()-1, VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->createNormalMoveAction(config_->normalPosition()));
 			break;
 
 		default:	// No normal position for big beam.

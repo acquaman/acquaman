@@ -761,7 +761,8 @@ bool VESPERSAppController::lineScanMotorAcceptable(int motor) const
 			|| motor == VESPERS::AttoRx
 			|| motor == VESPERS::AttoRy
 			|| motor == VESPERS::AttoRz
-			|| motor == (VESPERS::BigBeamX | VESPERS::BigBeamZ))
+			|| motor == (VESPERS::BigBeamX | VESPERS::BigBeamZ)
+			|| motor == (VESPERS::WireH | VESPERS::WireV))
 
 		return true;
 
@@ -787,6 +788,9 @@ int VESPERSAppController::convertSampleStageMotorToIndividualMotor(int motor) co
 
 	if ((motor & VESPERS::BigBeamX) == VESPERS::BigBeamX)
 		return VESPERS::BigBeamX;
+
+	if ((motor & VESPERS::WireH) == VESPERS::WireH)
+		return VESPERS::WireV;
 
 	// A default that won't cause crashes.
 	return VESPERS::H;

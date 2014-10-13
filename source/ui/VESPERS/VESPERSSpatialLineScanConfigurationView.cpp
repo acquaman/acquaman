@@ -154,8 +154,8 @@ VESPERSSpatialLineScanConfigurationView::VESPERSSpatialLineScanConfigurationView
 
 	// Motor selection.
 	QGroupBox *motorSetChoiceBox = addMotorSelectionView(
-				QStringList() << "H" << "X" << "V" << "Z" << "Atto H" << "Atto V" << "Atto X" << "Atto Z" << "Atto Rz" << "Atto Ry" << "Atto Rx" << "Big Beam X" << "Big Beam Z",
-				QList<int>() << VESPERS::H << VESPERS::X << VESPERS::V << VESPERS::Z << VESPERS::AttoH << VESPERS::AttoV << VESPERS::AttoX << VESPERS::AttoZ << VESPERS::AttoRz << VESPERS::AttoRy << VESPERS::AttoRx << VESPERS::BigBeamX << VESPERS::BigBeamZ);
+				QStringList() << "H" << "X" << "V" << "Z" << "Atto H" << "Atto V" << "Atto X" << "Atto Z" << "Atto Rz" << "Atto Ry" << "Atto Rx" << "Big Beam X" << "Big Beam Z" << "Wire H" << "Wire V" << "Wire N",
+				QList<int>() << VESPERS::H << VESPERS::X << VESPERS::V << VESPERS::Z << VESPERS::AttoH << VESPERS::AttoV << VESPERS::AttoX << VESPERS::AttoZ << VESPERS::AttoRz << VESPERS::AttoRy << VESPERS::AttoRx << VESPERS::BigBeamX << VESPERS::BigBeamZ << VESPERS::WireH << VESPERS::WireV << VESPERS::WireN);
 	motorButtonGroup_->button(int(config_->motor()))->click();
 	connect(config_->dbObject(), SIGNAL(motorChanged(int)), this, SLOT(onMotorUpdated(int)));
 	connect(motorButtonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(onMotorChanged(int)));
@@ -370,6 +370,14 @@ void VESPERSSpatialLineScanConfigurationView::onMotorChanged(int id)
 		otherPosition_->setValue(VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->horizontalControl()->value());
 		break;
 
+	case VESPERS::WireH:
+		otherPosition_->setValue(VESPERSBeamline::vespers()->pseudoWireStageMotorGroupObject()->verticalControl()->value());
+		break;
+
+	case VESPERS::WireV:
+		otherPosition_->setValue(VESPERSBeamline::vespers()->pseudoWireStageMotorGroupObject()->horizontalControl()->value());
+		break;
+
 	default:
 		break;
 	}
@@ -538,6 +546,21 @@ void VESPERSSpatialLineScanConfigurationView::onSetStartPosition()
 		position = VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->verticalControl()->value();
 		otherPosition = VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->horizontalControl()->value();
 		break;
+
+	case VESPERS::WireH:
+		position = VESPERSBeamline::vespers()->pseudoWireStageMotorGroupObject()->horizontalControl()->value();
+		otherPosition = VESPERSBeamline::vespers()->pseudoWireStageMotorGroupObject()->verticalControl()->value();
+		break;
+
+	case VESPERS::WireV:
+		position = VESPERSBeamline::vespers()->pseudoWireStageMotorGroupObject()->verticalControl()->value();
+		otherPosition = VESPERSBeamline::vespers()->pseudoWireStageMotorGroupObject()->horizontalControl()->value();
+		break;
+
+	case VESPERS::WireN:
+		position = VESPERSBeamline::vespers()->pseudoWireStageMotorGroupObject()->normalControl()->value();
+		otherPosition = -123456789.0;
+		break;
 	}
 
 	config_->setStart(position);
@@ -629,6 +652,24 @@ void VESPERSSpatialLineScanConfigurationView::onSetEndPosition()
 	case VESPERS::BigBeamZ:
 		position = VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->verticalControl()->value();
 		otherPosition = VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->horizontalControl()->value();
+		n = 888888.88;
+		break;
+
+	case VESPERS::WireH:
+		position = VESPERSBeamline::vespers()->pseudoWireStageMotorGroupObject()->horizontalControl()->value();
+		otherPosition = VESPERSBeamline::vespers()->pseudoWireStageMotorGroupObject()->verticalControl()->value();
+		n = VESPERSBeamline::vespers()->pseudoWireStageMotorGroupObject()->normalControl()->value();
+		break;
+
+	case VESPERS::WireV:
+		position = VESPERSBeamline::vespers()->pseudoWireStageMotorGroupObject()->verticalControl()->value();
+		otherPosition = VESPERSBeamline::vespers()->pseudoWireStageMotorGroupObject()->horizontalControl()->value();
+		n = VESPERSBeamline::vespers()->pseudoWireStageMotorGroupObject()->normalControl()->value();
+		break;
+
+	case VESPERS::WireN:
+		position = VESPERSBeamline::vespers()->pseudoWireStageMotorGroupObject()->normalControl()->value();
+		otherPosition = -123456789.0;
 		n = 888888.88;
 		break;
 	}

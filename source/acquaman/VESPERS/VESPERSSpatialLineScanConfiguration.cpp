@@ -315,6 +315,14 @@ VESPERS::Motor VESPERSSpatialLineScanConfiguration::otherMotor(VESPERS::Motor mo
 		other = VESPERS::BigBeamX;
 		break;
 
+	case VESPERS::WireH:
+		other = VESPERS::WireV;
+		break;
+
+	case VESPERS::WireV:
+		other = VESPERS::WireH;
+		break;
+
 	default:
 		other = VESPERS::NoMotor;
 		break;
@@ -380,6 +388,17 @@ QString VESPERSSpatialLineScanConfiguration::otherMotorString(VESPERS::Motor mot
 	case VESPERS::BigBeamZ:
 		string = "Horizontal motor, X";
 		break;
+
+	case VESPERS::WireH:
+		string = "Vertical motor, V";
+		break;
+
+	case VESPERS::WireV:
+		string = "Horizontal motor, H";
+		break;
+
+	case VESPERS::WireN:
+		string = "";
 
 	default:
 		string = "";
