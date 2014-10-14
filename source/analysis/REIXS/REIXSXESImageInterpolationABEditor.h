@@ -213,8 +213,6 @@ public slots:
 	void onApplyToOtherScansMenuClicked();
 	/// When a user chooses which scans to apply the current shift to.
 	void onApplyToOtherScansChosen();
-	/// When a user pushes the "manual shift entry" button.
-	void onManualShiftEntryButtonClicked();
 	/// When a user enters new manual shift.
 	void onShift2LineEdited();
 	/// updates Shift2Line edit when shift values cahnge
@@ -226,11 +224,6 @@ public slots:
 	/// signals from analysis block: if the block's input data source changes (to either null, or one with a different size.)
 	void onAnalysisBlockInputDataSourcesChanged();
 
-	/*
-	 Unused; REIXSXESImageInterpolationABEditorShiftModel handles this.
-		/// Called when the shift values change, so we can update our line plot
-		void onShiftValuesChanged();
-	*/
 
 protected:
 

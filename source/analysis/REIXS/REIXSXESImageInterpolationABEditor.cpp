@@ -1333,36 +1333,6 @@ void REIXSXESImageInterpolationABEditor::onApplyToOtherScansChosen()
 #include <QInputDialog>
 #include <QRegExp>
 #include <QApplication>
-void REIXSXESImageInterpolationABEditor::onManualShiftEntryButtonClicked()
-{
-	// Grab the current shift and convert to text.
-	QStringList shifts;
-	foreach(int d, analysisBlock_->shiftValues1())
-		shifts << QString::number(d);
-
-	bool ok;
-	QString newShiftString = QInputDialog::getText(this, "Set shift values manually", QString("Please enter the desired shift amounts for each line (%1)").arg(shifts.count()), QLineEdit::Normal, shifts.join(";"), &ok);
-	if(!ok)
-		return;
-
-	QStringList newShifts = newShiftString.split(QRegExp("[,; ]+"), QString::SkipEmptyParts);
-	if(newShifts.count() != shifts.count()) {
-		QApplication::beep();
-		AMErrorMon::alert(this, -370, QString("Could not set the shift values manually: you need to provide %1 shift numbers.").arg(shifts.count()));
-		return;
-	}
-
-	AMIntList newShiftNumbers;
-	foreach(QString s, newShifts) {
-		newShiftNumbers << s.toInt(&ok);
-		if(!ok) {
-			AMErrorMon::alert(this, -370, QString("Could not set the shift values manually: '%1' is not a number.").arg(s));
-			return;
-		}
-	}
-
-	analysisBlock_->setShiftValues1(newShiftNumbers);
-}
 
 void REIXSXESImageInterpolationABEditor::onShift2LineEdited()
 {

@@ -129,17 +129,7 @@ AMDoubleList REIXSXESImageInterpolationAB::shiftValuesAt(int i)
 		computeCachedValues();
 
 	AMDoubleList shiftValuesAt;
-//	shiftValuesAt.clear();
 
-//	int jSize = inputSource_->size(1);
-//	double weightingValue = double(correlation1CenterPx_-correlation2CenterPx_);
-//	int interpolatedPosition1 = correlation2CenterPx_;
-//	for (int j = 0; j < jSize; j++){
-//		int shiftValue1 = shiftValues1_.at(j);
-//		shiftValuesAt << ((shiftValue1 - shiftValues2_.at(j)) * double((i-interpolatedPosition1))) / weightingValue + shiftValue1;
-//	}
-
-//	int iSize = inputSource_->size(0); //1024
 	int jSize = inputSource_->size(1); //64
 	int interpolatedI = i*interpolationLevel_;
 	double *shiftValueMapPointer = lastShiftValueMap_.data();
