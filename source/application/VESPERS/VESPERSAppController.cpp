@@ -217,7 +217,7 @@ bool VESPERSAppController::ensureProgramStructure()
 
 void VESPERSAppController::shutdown() {
 	// Make sure we release/clean-up the beamline interface
-	delete attoHack_;
+	attoHack_->deleteLater();
 	AMBeamline::releaseBl();
 	AMAppController::shutdown();
 }

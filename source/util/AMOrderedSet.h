@@ -81,7 +81,7 @@ public:
 	}
 
 	/// Destructor
-	virtual ~AMOrderedSet() { delete signalSource_; }
+	virtual ~AMOrderedSet() { signalSource_->deleteLater(); }
 
 	// const access functions:
 	//=====================================

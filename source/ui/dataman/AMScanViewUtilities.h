@@ -173,8 +173,8 @@ public:
 
 
 	virtual ~AMGraphicsViewAndWidget() {
-		delete graphicsWidget_;
-		delete scene_;
+		graphicsWidget_->deleteLater();
+		scene_->deleteLater();
 	}
 
 	QGraphicsWidget* graphicsWidget() const { return graphicsWidget_;}

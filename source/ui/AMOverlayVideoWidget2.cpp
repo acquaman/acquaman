@@ -63,8 +63,8 @@ AMOverlayVideoWidget2::~AMOverlayVideoWidget2() {
   */
 	#ifdef AM_MOBILITY_VIDEO_ENABLED
 	mediaPlayer_->setMedia(QMediaContent());
-	delete videoItem_;
-	delete mediaPlayer_;
+	videoItem_->deleteLater();
+	mediaPlayer_->deleteLater();
 	#endif
 }
 

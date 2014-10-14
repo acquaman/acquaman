@@ -1046,7 +1046,7 @@ void REIXSXESImageABEditor::onApplyToOtherScansChosen()
 	}
 
 	progressDialog->setValue(scans.count());
-	delete progressDialog;
+	progressDialog->deleteLater();
 
 	// User feedback on what just happened:
 	QStringList operationsCompleted;

@@ -750,11 +750,11 @@ bool AMActionHistoryModel3::updateCompletedAction(const AMAction3 *completedActi
 			// OK, this is a specific update.
 			idsRequiringRefresh_ << actionLog->id();
 			specificRefreshFunctionCall_.schedule();
-			delete actionLog;
+			actionLog->deleteLater();
 			return true;
 		}
 
-		delete actionLog;
+		actionLog->deleteLater();
 		return false;
 	}
 	else {

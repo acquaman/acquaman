@@ -80,7 +80,7 @@ SGMFastScanActionController::SGMFastScanActionController(SGMFastScanConfiguratio
 
 SGMFastScanActionController::~SGMFastScanActionController()
 {
-	delete fileWriterThread_;
+	fileWriterThread_->deleteLater();
 }
 
 void SGMFastScanActionController::buildScanController()

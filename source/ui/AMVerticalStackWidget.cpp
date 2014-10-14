@@ -114,7 +114,7 @@ QWidget* AMVerticalStackWidget::takeItem(int index) {
 	vl_->takeAt(2*index);
 	vl_->takeAt(2*index);
 
-	delete b;
+	b->deleteLater();
 	delete item;
 
 	w->removeEventFilter(this);

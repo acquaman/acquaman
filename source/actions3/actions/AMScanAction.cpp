@@ -57,7 +57,7 @@ AMScanAction::~AMScanAction()
 	if (controller_ && hasValidScanController_){
 
 		controller_->disconnect();
-		delete controller_;
+		controller_->deleteLater();
 	}
 }
 
