@@ -32,7 +32,7 @@ class AMDataSourceSeriesData : public QObject, public MPlotAbstractSeriesData
 	Q_OBJECT
 public:
 	/// Constructor. \c dataSource is the source to represent as XY scatter data.
- 	virtual ~AMDataSourceSeriesData();
+	virtual ~AMDataSourceSeriesData();
 	AMDataSourceSeriesData(const AMDataSource* dataSource, QObject* parent = 0);
 
 	/// Call this to switch to representing a different data source
@@ -42,30 +42,16 @@ public:
 	const AMDataSource* dataSource() const { return source_; }
 
 	/// Return the x-value at \c index. \c index must be greater or equal to 0, and less than count().
-	virtual double x(unsigned index) const {
-		return source_->axisValue(0, index);
-	}
+	virtual double x(unsigned index) const;
 	/// Copy the x-values from \c indexStart to \c indexEnd (inclusive) into \c outputValues.
-	virtual void xValues(unsigned indexStart, unsigned indexEnd, qreal *outputValues) const {
-		for(unsigned i=indexStart; i<=indexEnd; ++i)
-			*(outputValues++) = source_->axisValue(0, i);
-	}
+	virtual void xValues(unsigned indexStart, unsigned indexEnd, qreal *outputValues) const;
 	/// Return the y-value at \c index, which must be >= 0 and less than count().
-	virtual double y(unsigned index) const {
-		return source_->value(AMnDIndex(index));
-	}
+	virtual double y(unsigned index) const;
 	/// Copy the y-values from \c indexStart to \c indexEnd (inclusive) into \c outputValues.
-	virtual void yValues(unsigned indexStart, unsigned indexEnd, qreal *outputValues) const {
-		source_->values(AMnDIndex(indexStart), AMnDIndex(indexEnd), outputValues);
-	}
+	virtual void yValues(unsigned indexStart, unsigned indexEnd, qreal *outputValues) const;
 
 	/// Return the number of elements
-	virtual int count() const {
-		if(isValid_)
-			return source_->size(0);
-		else
-			return 0;
-	}
+	virtual int count() const;
 
 protected slots:
 	/// Forward the sizeChanged(), valuesChanged(), and stateChanged() signals from the data source.

@@ -21,7 +21,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMDataSourceSeriesData.h"
 
- AMDataSourceSeriesData::~AMDataSourceSeriesData(){}
+AMDataSourceSeriesData::~AMDataSourceSeriesData(){}
+
 AMDataSourceSeriesData::AMDataSourceSeriesData(const AMDataSource* dataSource, QObject* parent)
 	: QObject(parent), MPlotAbstractSeriesData()
 {
@@ -29,7 +30,6 @@ AMDataSourceSeriesData::AMDataSourceSeriesData(const AMDataSource* dataSource, Q
 	setDataSource(dataSource);
 }
 
-/// Call this to switch to representing a different data source
 void AMDataSourceSeriesData::setDataSource(const AMDataSource* dataSource) {
 
 	// disconnect the old source, if there is a valid old source.
@@ -53,3 +53,35 @@ void AMDataSourceSeriesData::setDataSource(const AMDataSource* dataSource) {
 	onDataSourceDataChanged();
 }
 
+double AMDataSourceSeriesData::x(unsigned index) const
+{
+	return source_->axisValue(0, index);
+}
+
+void AMDataSourceSeriesData::xValues(unsigned indexStart, unsigned indexEnd, qreal *outputValues) const
+{
+	int size = int(indexEnd - indexStart + 1);
+	QVector<AMNumber> axisData = QVector<AMNumber>(size, 0);
+	source_->axisValues(0, int(indexStart), int(indexEnd), axisData.data());
+
+	for(int i = 0; i < size; i++)
+		outputValues[i] = qreal(axisData.at(i));
+}
+
+double AMDataSourceSeriesData::y(unsigned index) const
+{
+	return source_->value(AMnDIndex(index));
+}
+
+void AMDataSourceSeriesData::yValues(unsigned indexStart, unsigned indexEnd, qreal *outputValues) const
+{
+	source_->values(AMnDIndex(indexStart), AMnDIndex(indexEnd), outputValues);
+}
+
+int AMDataSourceSeriesData::count() const
+{
+	if(isValid_)
+		return source_->size(0);
+	else
+		return 0;
+}

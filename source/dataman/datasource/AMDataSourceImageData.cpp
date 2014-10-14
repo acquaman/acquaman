@@ -74,9 +74,19 @@ double AMDataSourceImageData::x(int index) const
 	return xAxis_.at(index);
 }
 
+void AMDataSourceImageData::xValues(int startIndex, int endIndex, double *outputValues)
+{
+	memcpy(outputValues, (xAxis_.constData()+startIndex), (endIndex-startIndex+1)*sizeof(double));
+}
+
 double AMDataSourceImageData::y(int index) const
 {
 	return yAxis_.at(index);
+}
+
+void AMDataSourceImageData::yValues(int startIndex, int endIndex, double *outputValues)
+{
+	memcpy(outputValues, (yAxis_.constData()+startIndex), (endIndex-startIndex+1)*sizeof(double));
 }
 
 double AMDataSourceImageData::z(int xIndex, int yIndex) const
@@ -115,24 +125,36 @@ void AMDataSourceImageData::onAxisValuesChanged(int axisId)
 {
 	if (axisId == -1){
 
+		QVector<AMNumber> axisData = QVector<AMNumber>(xSize_, 0);
+		source_->axisValues(0, 0, xSize_-1, axisData.data());
+
 		for (int i = 0; i < xSize_; i++)
-			xAxis_[i] = source_->axisValue(0, i);
+			xAxis_[i] = double(axisData.at(i));
+
+		axisData = QVector<AMNumber>(ySize_, 0);
+		source_->axisValues(1, 0, ySize_-1, axisData.data());
 
 		for (int j = 0; j < ySize_; j++)
-			yAxis_[j] = source_->axisValue(1, j);
+			yAxis_[j] = double(axisData.at(j));
 	}
 
 	else if (axisId == 0){
 
+		QVector<AMNumber> axisData = QVector<AMNumber>(xSize_, 0);
+		source_->axisValues(0, 0, xSize_-1, axisData.data());
+
 		for (int i = 0; i < xSize_; i++)
-			xAxis_[i] = source_->axisValue(0, i);
+			xAxis_[i] = double(axisData.at(i));
 
 	}
 
 	else if (axisId == 1) {
 
+		QVector<AMNumber> axisData = QVector<AMNumber>(ySize_, 0);
+		source_->axisValues(1, 0, ySize_-1, axisData.data());
+
 		for (int j = 0; j < ySize_; j++)
-			yAxis_[j] = source_->axisValue(1, j);
+			yAxis_[j] = double(axisData.at(j));
 	}
 
 	recomputeBoundingRect(axisId);
