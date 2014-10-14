@@ -111,7 +111,7 @@ void AMExporter::loadKeywordReplacementDictionary()
 	keywordDictionary_.insert("date", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krDate));
 	keywordDictionary_.insert("time", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krTime));
 	keywordDictionary_.insert("dateTime", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krDateTime));
-	keywordDictionary_.insert("ID", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krID));
+	keywordDictionary_.insert("serial", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krSerial));
 
 
 	keywordDictionary_.insert("run", new AMTagReplacementFunctor<AMExporter>(this, &AMExporter::krRun));
@@ -165,7 +165,7 @@ QString AMExporter::krNumber(const QString& arg) {
 	return "[??]";
 }
 
-QString AMExporter::krID(const QString& arg) {
+QString AMExporter::krSerial(const QString& arg) {
 	Q_UNUSED(arg)
 	if(currentScan_)
 		return QString::number(currentScan_->id());

@@ -157,7 +157,7 @@ protected:
 	QString krDate(const QString& arg = QString());
 	QString krTime(const QString& arg = QString());
 	QString krDateTime(const QString& arg = QString());
-	QString krID(const QString& arg = QString());
+	QString krSerial(const QString& arg = QString());
 
 
 	QString krRun(const QString& arg = QString());
