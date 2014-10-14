@@ -237,6 +237,9 @@ bool AMDatamanAppController::startup() {
 			return AMErrorMon::errorAndReturn(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_REVIEWING_EXISTING_USER_DATABASE, "Problem with Acquaman startup: reviewing existing database.");
 	}
 
+	if(!startupCheckExportDirectory())
+		return AMErrorMon::errorAndReturn(this, AMDATAMANAPPCONTROLLER_CANT_CREATE_EXPORT_FOLDER, "Problem with Acquaman startup: checking export data directory.");
+
 	if(!startupRegisterExporters())
 		return AMErrorMon::errorAndReturn(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_REGISTERING_EXPORTERS, "Problem with Acquaman startup: registering exporters.");
 
@@ -511,6 +514,23 @@ bool AMDatamanAppController::startupBackupDataDirectory()
 			synchronizer->appendExcludePattern(excludePatterns.at(x));
 
 		return synchronizer->autoStart();
+	}
+	return true;
+}
+
+bool AMDatamanAppController::startupCheckExportDirectory()
+{
+	QDir exportDir;
+	if(!AMUserSettings::remoteDataFolder.isEmpty())
+		exportDir.setCurrent(AMUserSettings::remoteDataFolder);
+	else
+		exportDir.setCurrent(AMUserSettings::userDataFolder);
+	exportDir.cdUp();
+
+	if(!exportDir.entryList(QDir::AllDirs).contains("exportData")){
+		if(!exportDir.mkdir("exportData"))
+			return false;
+		AMUser::user()->setLastExportDestination(QString("%1/exportData").arg(exportDir.absolutePath()));
 	}
 	return true;
 }
