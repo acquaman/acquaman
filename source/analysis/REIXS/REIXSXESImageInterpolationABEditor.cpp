@@ -158,7 +158,7 @@ REIXSXESImageInterpolationABEditor::REIXSXESImageInterpolationABEditor(REIXSXESI
 	shiftSeries_ = new MPlotSeriesBasic();
 	shiftSeries_->setModel(shiftData_, true);
 	shiftSeries_->setIgnoreWhenAutoScaling(true);
-	shiftSeries_->setLinePen(QPen(QBrush(QColor(Qt::magenta)),1));
+	shiftSeries_->setLinePen(QPen(QBrush(QColor(Qt::magenta)),2));
 	shiftSeries_->setMarker(MPlotMarkerShape::None);
 	plot_->addItem(shiftSeries_);
 	shiftSeries_->setZValue(2999);	// put on top of plot, but below range rectangles.
@@ -167,7 +167,7 @@ REIXSXESImageInterpolationABEditor::REIXSXESImageInterpolationABEditor(REIXSXESI
 	shift1Series_ = new MPlotSeriesBasic();
 	shift1Series_->setModel(shift1Data_, true);
 	shift1Series_->setIgnoreWhenAutoScaling(true);
-	shift1Series_->setLinePen(QPen(QBrush(QColor(Qt::red)),1));
+	shift1Series_->setLinePen(QPen(QBrush(QColor(Qt::red)),2));
 	shift1Series_->setMarker(MPlotMarkerShape::None);
 	plot_->addItem(shift1Series_);
 	shift1Series_->setZValue(2994);	// put on top of plot, but below range rectangles.
@@ -176,7 +176,7 @@ REIXSXESImageInterpolationABEditor::REIXSXESImageInterpolationABEditor(REIXSXESI
 	shift2Series_ = new MPlotSeriesBasic();
 	shift2Series_->setModel(shift2Data_, true);
 	shift2Series_->setIgnoreWhenAutoScaling(true);
-	shift2Series_->setLinePen(QPen(QBrush(QColor(Qt::cyan)),1));
+	shift2Series_->setLinePen(QPen(QBrush(QColor(Qt::green)),2));
 	shift2Series_->setMarker(MPlotMarkerShape::None);
 	plot_->addItem(shift2Series_);
 	shift2Series_->setZValue(2993);	// put on top of plot, but below range rectangles.
@@ -187,7 +187,7 @@ REIXSXESImageInterpolationABEditor::REIXSXESImageInterpolationABEditor(REIXSXESI
 	ellipseSeries_ = new MPlotSeriesBasic();
 	ellipseSeries_->setModel(ellipseData_, true);
 	ellipseSeries_->setIgnoreWhenAutoScaling(true);
-	ellipseSeries_->setLinePen(QPen(QBrush(QColor(Qt::green)),1));
+	ellipseSeries_->setLinePen(QPen(QBrush(QColor(Qt::white)),1));
 	ellipseSeries_->setMarker(MPlotMarkerShape::None);
 	plot_->addItem(ellipseSeries_);
 	ellipseSeries_->setZValue(2999);	// put on top of plot, but below range rectangles.
@@ -208,8 +208,8 @@ REIXSXESImageInterpolationABEditor::REIXSXESImageInterpolationABEditor(REIXSXESI
 
 	corrRegion2Left_ = new MPlotPoint(QPointF(analysisBlock_->correlation2CenterPixel()-analysisBlock_->correlation2HalfWidth(), 0));
 	corrRegion2Right_ = new MPlotPoint(QPointF(analysisBlock_->correlation2CenterPixel()+analysisBlock_->correlation2HalfWidth(), 0));
-	corrRegion2Left_->setMarker(MPlotMarkerShape::VerticalBeam, 2000, QPen(QColor(32,128,128)));
-	corrRegion2Right_->setMarker(MPlotMarkerShape::VerticalBeam, 2000, QPen(QColor(32,128,128)));
+	corrRegion2Left_->setMarker(MPlotMarkerShape::VerticalBeam, 2000, QPen(QColor(32,128,32)));
+	corrRegion2Right_->setMarker(MPlotMarkerShape::VerticalBeam, 2000, QPen(QColor(32,128,32)));
 	corrRegion2Left_->setIgnoreWhenAutoScaling(true);
 	corrRegion2Right_->setIgnoreWhenAutoScaling(true);
 	plot_->addItem(corrRegion2Left_);
@@ -328,9 +328,9 @@ REIXSXESImageInterpolationABEditor::REIXSXESImageInterpolationABEditor(REIXSXESI
 				QFormLayout* shift2PageFormLayout = new QFormLayout();
 					QHBoxLayout* correlation2SettingsLayout = new QHBoxLayout();
 						correlation2SettingsLayout->addWidget(correlation2CenterBox_);
-						correlation2SettingsLayout->addWidget(new QLabel("<b><FONT COLOR='#208080' FONT SIZE = 3>Width:</b>"));
+						correlation2SettingsLayout->addWidget(new QLabel("<b><FONT COLOR='#208020' FONT SIZE = 3>Width:</b>"));
 						correlation2SettingsLayout->addWidget(correlation2PointsBox_);
-				shift2PageFormLayout->addRow("<b><FONT COLOR='#00ffff' FONT SIZE = 3>Center:</b>", correlation2SettingsLayout);
+				shift2PageFormLayout->addRow("<b><FONT COLOR='#00ff00' FONT SIZE = 3>Center:</b>", correlation2SettingsLayout);
 					QHBoxLayout* correlation2SmothingLayout = new QHBoxLayout();
 						correlation2SmothingLayout->addWidget(correlation2SmoothingBox_);
 						correlation2SmothingLayout->addWidget(smooth2Mode1Box_);
