@@ -38,16 +38,14 @@ REIXSXESImageInterpolationAB::REIXSXESImageInterpolationAB(const QString &output
 	correlation2CenterPx_ = 700;
 	correlation1HalfWidth_ = 40;
 	correlation2HalfWidth_ = 40;
-	correlation1Smoothing_ = QPair<int,int>(-1,1);  //-1,1???
-	correlation2Smoothing_ = QPair<int,int>(-1,1);  //-1,1???
-	setCorrelation1Smoothing(QPair<int,int>(1,2)); //poly,quadratic
-	setCorrelation2Smoothing(QPair<int,int>(1,2)); //poly,quadratic
+	setCorrelation1Smoothing(QPair<int,int>(3,5)); //poly,quadratic
+	setCorrelation2Smoothing(QPair<int,int>(3,5)); //poly,quadratic
 
 	energyCalibrationOffset_ = 0;
 	tiltCalibrationOffset_ = 0;
 
 	// Live correlation turned on by default. Need to make sure that this is OK for performance, it should be now that we're using block access.
-	liveCorrelation_ = false;
+	liveCorrelation_ = true;
 	// shift values can start out empty.
 
 	inputSource_ = 0;
@@ -59,19 +57,12 @@ REIXSXESImageInterpolationAB::REIXSXESImageInterpolationAB(const QString &output
 
 	axes_ << AMAxisInfo("invalid", 0, "No input data");
 
-	/*
 	connect(&callCorrelation_, SIGNAL(executed()), this, SLOT(correlateNow()));
-	*/
 	setDescription("XES Interpolated Spectrum");
 
-	// FOR TESTING
 	interpolationLevel_ = 10;
-//	shiftPosition1_ = 0;  //not used using correlation2CenterPx_ instead
-//	shiftPosition2_ = 0;  //not used: using correlation2CenterPx_ instead
-//	shiftValues1_ << 0 << 0 << 0 << 0 << 3 << 6 << 9 << 11 << 12 << 13 << 15 << 16 << 17 << 14 << 12 << 10 << 9 << 8 << 8 << 7 << 7 << 6 << 6 << 5 << 4 << 4 << 3 << 2 << 2 << 1 << 0 << 0 << -1 << -2 << -2 << -3 << -4 << -5 << -6 << -7 << -8 << -9 << -10 << -12 << -13 << -13 << -14 << -14 << -11 << -7 << -2 << 2 << 7 << 9 << 11 << 12 << 13 << 12 << 9 << 6 << 4 << 0 << 0 << 0;
-//	shiftValues2_ << 0 << 0 << 0 << -4 << -6 << -8 << -10 << -11 << -12 << -13 << -13 << -14 << -11 << -9 << -7 << -6 << -5 << -5 << -4 << -3 << -3 << -2 << -2 << -1 << -1 << -1 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << -1 << -1 << -2 << -3 << -4 << -6 << -9 << -12 << -12 << -12 << -11 << -11 << -10 << -8 << -6 << -4 << 0 << 0 << 0;
 	shiftValues1_ << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0;
-	shiftValues2_ << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10 << 10;
+	shiftValues2_ << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0;
 
 
 
@@ -101,7 +92,7 @@ REIXSXESImageInterpolationAB::REIXSXESImageInterpolationAB(AMDatabase *db, int i
 	correlation2Smoothing_ = QPair<int,int>(-1,1);
 	energyCalibrationOffset_ = 0;
 	tiltCalibrationOffset_ = 0;
-	liveCorrelation_ = false;
+	liveCorrelation_ = true;
 	// shift values can start out empty.
 
 	inputSource_ = 0;
@@ -499,14 +490,11 @@ void REIXSXESImageInterpolationAB::computeCachedValues() const
 
 			for(int j = 0; j < jSize; j++){
 
-//				int shiftOffset = int(shiftValueMapPointer[i*jSize+j]) * interpolationLevel_; truncating before defeats sub-pixel shifting!
-				int shiftOffset = qRound(shiftValueMapPointer[i*jSize+j] * interpolationLevel_);// + 0.5); //+ 0.5 for proper rounding
-
+				int shiftOffset = qRound(shiftValueMapPointer[i*jSize+j] * interpolationLevel_);
 
 				if (((i - shiftOffset) < interpolatedISize) && ((i - shiftOffset) > 0))
 				{
-					//finalLargeImagePointer[j + (i - shiftOffset)*jSize] += interpolatedImagePointer[j + i*jSize];
-					//Try adding only one pixel from the interpolated image to each pixel in the shifted image:
+					//add only one pixel from the interpolated image to each pixel in the shifted image:
 					finalLargeImagePointer[j + i*jSize] = interpolatedImagePointer[j + (i + shiftOffset)*jSize];
 				}
 			}
@@ -736,6 +724,7 @@ void REIXSXESImageInterpolationAB::enableLiveCorrelation(bool enabled)
 		callCorrelation_.schedule();
 
 	setModified(true);
+	qDebug() << "Live correlation enabled is now:" << liveCorrelation_;
 }
 
 void REIXSXESImageInterpolationAB::correlateNow()
