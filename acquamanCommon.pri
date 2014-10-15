@@ -771,7 +771,8 @@ HEADERS += \
 	source/beamline/AMStorageRing.h \
 	source/beamline/CLS/CLSStorageRing.h \
 	source/beamline/CLS/CLSSR570.h \
-	source/ui/dataman/AMBrowseScansView.h
+	source/ui/dataman/AMBrowseScansView.h \
+    source/util/AMSleepSupport.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {

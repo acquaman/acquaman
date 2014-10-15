@@ -32,6 +32,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QFileInfo>
 
 #include "util/AMErrorMonitor.h"
+#include "util/AMSleepSupport.h"
 
 // Internal instance records:
 QHash<QString, AMDatabase*> AMDatabase::connectionName2Instance_;
@@ -807,7 +808,7 @@ bool AMDatabase::commitTransaction(int timeoutMs)
 		success = qdb().commit();
 		attempt++;
 		if(!success)
-			usleep(5000);
+			AMSleepSupport::msleep(5000);
 	} while (!success && startTime.elapsed() < timeoutMs);
 
 	qdbMutex_.lock();
@@ -865,7 +866,7 @@ bool AMDatabase::execQuery(QSqlQuery &query, int timeoutMs)
 		lastErrorMessage = query.lastError().text();
 		attempt++;
 		if(lastErrorNumber == 5)
-			usleep(5000);
+			AMSleepSupport::msleep(5000);
 	} while(success != true && startTime.elapsed() < timeoutMs && (lastErrorNumber == 5));
 
 	if(attempt > 1) {

@@ -107,7 +107,7 @@ void AMCrashMonitorSupport::monitor(){
 	arguments << "-m";
 	arguments << app->applicationFilePath();
 	arguments << pathToCrashReportFiles_;
-	arguments << QString("%1").arg(getpid());
+	arguments << QString("%1").arg(getpt());
 
 	QProcess::startDetached(pathToCrashReporter_+"/AMCrashReporter", arguments, QDir::currentPath(), &globalCrashMonitorPID);
 }
@@ -131,7 +131,7 @@ void handle_signal_sigsev(int signum){
 
 	kill(globalCrashMonitorPID, SIGUSR1);
 	signal(signum, SIG_DFL);
-	kill(getpid(), signum);
+	kill(getpt(), signum);
 }
 
 void handle_signal_sigabrt(int signum){
@@ -143,5 +143,5 @@ void handle_signal_sigabrt(int signum){
                 
 	kill(globalCrashMonitorPID, SIGUSR1);
 	signal(signum, SIG_DFL);
-	kill(getpid(), signum);
+	kill(getpt(), signum);
 }
