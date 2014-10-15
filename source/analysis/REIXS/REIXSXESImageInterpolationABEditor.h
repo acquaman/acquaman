@@ -213,7 +213,9 @@ public slots:
 	void onApplyToOtherScansMenuClicked();
 	/// When a user chooses which scans to apply the current shift to.
 	void onApplyToOtherScansChosen();
-	/// When a user enters new manual shift.
+	/// When a user enters new manual shift for curve 1.
+	void onShift1LineEdited();
+	/// When a user enters new manual shift for curve 2.
 	void onShift2LineEdited();
 	/// updates Shift2Line edit when shift values cahnge
 	void onShiftValuesChanged();

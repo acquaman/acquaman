@@ -420,6 +420,7 @@ REIXSXESImageInterpolationABEditor::REIXSXESImageInterpolationABEditor(REIXSXESI
 	connect(shiftDisplayOffsetSlider_, SIGNAL(valueChanged(int)), shiftData_, SLOT(setDisplayXOffset(int)));
 
 	//connect(manualShiftEntryButton_, SIGNAL(clicked()), this, SLOT(onManualShiftEntryButtonClicked()));
+	connect(shift1LineEdit_, SIGNAL(editingFinished()), this, SLOT(onShift1LineEdited()));
 	connect(shift2LineEdit_, SIGNAL(editingFinished()), this, SLOT(onShift2LineEdited()));
 	connect(analysisBlock_, SIGNAL(shiftValuesChanged()), this, SLOT(onShiftValuesChanged()));
 
@@ -1334,12 +1335,36 @@ void REIXSXESImageInterpolationABEditor::onApplyToOtherScansChosen()
 #include <QRegExp>
 #include <QApplication>
 
-void REIXSXESImageInterpolationABEditor::onShift2LineEdited()
+
+void REIXSXESImageInterpolationABEditor::onShift1LineEdited()
 {
-	QStringList newShifts = shift2LineEdit_->text().split(QRegExp("[,; ]+"), QString::SkipEmptyParts);
+	QStringList newShifts = shift1LineEdit_->text().split(QRegExp("[,; ]+"), QString::SkipEmptyParts);
 	if(newShifts.count() != analysisBlock_->shiftValues1().count()) {
 		QApplication::beep();
 		AMErrorMon::alert(this, -370, QString("Could not set the shift values manually: you need to provide %1 shift numbers.").arg(analysisBlock_->shiftValues1().count()));
+		return;
+	}
+
+	bool ok;
+	AMIntList newShiftNumbers;
+	foreach(QString s, newShifts) {
+		newShiftNumbers << s.toInt(&ok);
+		if(!ok) {
+			AMErrorMon::alert(this, -370, QString("Could not set the shift values manually: '%1' is not a number.").arg(s));
+			return;
+		}
+	}
+
+	analysisBlock_->setShiftValues1(newShiftNumbers);
+}
+
+
+void REIXSXESImageInterpolationABEditor::onShift2LineEdited()
+{
+	QStringList newShifts = shift2LineEdit_->text().split(QRegExp("[,; ]+"), QString::SkipEmptyParts);
+	if(newShifts.count() != analysisBlock_->shiftValues2().count()) {
+		QApplication::beep();
+		AMErrorMon::alert(this, -370, QString("Could not set the shift values manually: you need to provide %1 shift numbers.").arg(analysisBlock_->shiftValues2().count()));
 		return;
 	}
 
