@@ -499,10 +499,16 @@ void REIXSXESImageInterpolationAB::computeCachedValues() const
 
 			for(int j = 0; j < jSize; j++){
 
-				int shiftOffset = int(shiftValueMapPointer[i*jSize+j]) * interpolationLevel_;
+//				int shiftOffset = int(shiftValueMapPointer[i*jSize+j]) * interpolationLevel_; truncating before defeats sub-pixel shifting!
+				int shiftOffset = qRound(shiftValueMapPointer[i*jSize+j] * interpolationLevel_);// + 0.5); //+ 0.5 for proper rounding
+
 
 				if (((i - shiftOffset) < interpolatedISize) && ((i - shiftOffset) > 0))
-					finalLargeImagePointer[j + (i - shiftOffset)*jSize] += interpolatedImagePointer[j + i*jSize];
+				{
+					//finalLargeImagePointer[j + (i - shiftOffset)*jSize] += interpolatedImagePointer[j + i*jSize];
+					//Try adding only one pixel from the interpolated image to each pixel in the shifted image:
+					finalLargeImagePointer[j + i*jSize] = interpolatedImagePointer[j + (i + shiftOffset)*jSize];
+				}
 			}
 		}
 
