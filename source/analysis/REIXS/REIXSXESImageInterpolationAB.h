@@ -77,9 +77,7 @@ public:
 	enum ShiftCurveSmoothing { None, Poly, Median, Average};
 
 	/// Constructor. \c outputName is the name() for the output data source.
-	REIXSXESImageInterpolationAB(const QString& outputName, QObject* parent = 0);
-	/// This constructor is used to reload analysis blocks directly out of the database
-	Q_INVOKABLE REIXSXESImageInterpolationAB(AMDatabase* db, int id);
+	Q_INVOKABLE REIXSXESImageInterpolationAB(const QString& outputName = "InvalidInput", QObject* parent = 0);
 
 	/// Destructor
 	virtual ~REIXSXESImageInterpolationAB();
@@ -89,6 +87,9 @@ public:
   - the rank() of that input source must be 2 (two-dimensional)
   */
 	virtual bool areInputDataSourcesAcceptable(const QList<AMDataSource*>& dataSources) const;
+
+	/// Returns the desired rank for input sources.
+	virtual int desiredInputRank() const { return 2; }
 
 protected:
 	/// Set the data source inputs.
@@ -129,10 +130,10 @@ int outputSize = indexStart.totalPointsTo(indexEnd);
 	int sumRangeMinX() const { return sumRangeMinX_; }
 	/// The maximum column to include (inclusive) in the sum
 	int sumRangeMaxX() const { return sumRangeMaxX_; }
-	
+
 	//The "roundness" of the mask (0 for rectangular, 1 for ellipse)
 	double rangeRound() const { return rangeRound_; }
-	
+
 	/// Returns the last comupted shift values that are available for assignment to shiftValues1 or shiftValues2
 	AMIntList shiftValues() const { return shiftValues_; }
 	/// Returns the shift values used to offset each row before summing. This will have the same size as the height of the image.
@@ -197,7 +198,7 @@ public slots:
 
 
 	void setRangeRound(double rangeRound);
-	
+
 	/// Sets the central pixel value to use when running an auto-correlation routine
 	void setCorrelationCenterPixel(int centerPx);
 	/// Sets the full-width of the region around correlationCenterPixel() to compute when running an auto-correlation routine.
@@ -276,8 +277,8 @@ protected:
 	int sumRangeMinY_, sumRangeMaxY_;
 	int sumRangeMinX_, sumRangeMaxX_; //left and right boundaries, so we can have full control over ellipse
 	double rangeRound_; //0 to 1, 0 for rectangular mask, 1 for elliptical
-	
-	
+
+
 	/// The central pixel value to use when running an auto-correlation routine
 	int correlationCenterPx_;
 	/// The full-width of the region around correlationCenterPixel() to compute when running an auto-correlation routine.

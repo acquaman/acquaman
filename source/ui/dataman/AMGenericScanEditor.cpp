@@ -337,6 +337,8 @@ void AMGenericScanEditor::addScan(AMScan* newScan) {
 
 	connect(newScan, SIGNAL(nameChanged(QString)), this, SLOT(onScanDetailsChanged()));
 	connect(newScan, SIGNAL(numberChanged(int)), this, SLOT(onScanDetailsChanged()));
+	connect(currentScan_->scanConfiguration(), SIGNAL(configurationChanged()), this, SLOT(refreshScanInfo()));
+
 
 	emit scanAdded(this, newScan);
 	refreshWindowTitle();
@@ -386,6 +388,8 @@ void AMGenericScanEditor::onCurrentChanged ( const QModelIndex & selected, const
 		disconnect(currentScan_, SIGNAL(numberChanged(int)), this, SLOT(refreshWindowTitle()));
 		disconnect(currentScan_, SIGNAL(nameChanged(QString)), this, SLOT(refreshWindowTitle()));
 		disconnect(currentScan_, SIGNAL(scanInitialConditionsChanged()), this, SLOT(refreshScanConditions()));
+		disconnect(currentScan_->scanConfiguration(), SIGNAL(configurationChanged()), this, SLOT(refreshScanInfo()));
+
 	}
 
 	// it becomes now the new scan:
@@ -406,6 +410,8 @@ void AMGenericScanEditor::onCurrentChanged ( const QModelIndex & selected, const
 		connect(currentScan_, SIGNAL(numberChanged(int)), this, SLOT(refreshWindowTitle()));
 		connect(currentScan_, SIGNAL(nameChanged(QString)), this, SLOT(refreshWindowTitle()));
 		connect(currentScan_, SIGNAL(scanInitialConditionsChanged()), this, SLOT(refreshScanConditions()));
+		connect(currentScan_->scanConfiguration(), SIGNAL(configurationChanged()), this, SLOT(refreshScanInfo()));
+
 
 		// \todo When migrating to multiple scan selection, this will need to be changed:
 		ui_.saveScanButton->setEnabled(true);
@@ -434,8 +440,10 @@ void AMGenericScanEditor::updateEditor(AMScan *scan) {
 		ui_.scanDuration->setText(scan->currentlyScanning() ? ("Acquiring " % AMDateTimeUtils::prettyDuration(currentScan_->dateTime(), QDateTime::currentDateTime(), true))
 															: AMDateTimeUtils::prettyDuration(scan->dateTime(), scan->endDateTime()));
 		ui_.scanTime->setText( scan->dateTime().time().toString("h:mmap") );
-		ui_.scanEnd->setText(scan->currentlyScanning() ? ("Approx " % (scan->dateTime().addSecs(scan->scanConfiguration()->expectedDuration())).time().toString("h:mmap"))
-								  : scan->endDateTime().time().toString("h:mmap"));
+		if(scan->endDateTime().isValid())
+			ui_.scanEnd->setText(scan->endDateTime().time().toString("h:mmap"));
+		else
+			ui_.scanEnd->setText("Approx " % scan->dateTime().addSecs(int(scan->scanConfiguration()->expectedDuration())).time().toString("h:mmap"));
 		ui_.notesEdit->setPlainText( scan->notes() );
 		runSelector_->setCurrentRunId(scan->runId());
 		if(scan->samplePre2013()){

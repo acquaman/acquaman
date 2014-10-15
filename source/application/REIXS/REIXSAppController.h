@@ -53,6 +53,8 @@ public:
 public slots:
 
 protected slots:
+	/// Helper slot that handles the workflow pausing/resuming when the beam dumps or is restored.
+	void onBeamAvailabilityChanged(bool beamAvailable);
 	/// Helper slot that connects generic scan editors that use the 2D scan view to the app controller so that it can enable quick configuration of scans.
 	void onScanEditorCreated(AMGenericScanEditor *editor);
 	/// Helper slot that handles checking out scans when they are added to a scan editor.  For now, all this does is choose which data source is visualized in AMSingleSpectrumView in AM2DScanView.
@@ -61,6 +63,10 @@ protected slots:
 
 
 protected:
+	/// Implementation method that individual applications can flesh out if extra setup is required when a scan action is started.  This is not pure virtual because there is no requirement to do anything to scan actions.
+	virtual void onCurrentScanActionStartedImplementation(AMScanAction *action);
+	/// Implementation method that individual applications can flesh out if extra cleanup is required when a scan action finishes.  This is not pure virtual because there is no requirement to do anything to scan actions.
+	virtual void onCurrentScanActionFinishedImplementation(AMScanAction *action);
 
 	REIXSXESScanConfigurationDetailedView* xesScanConfigurationView_;
 
