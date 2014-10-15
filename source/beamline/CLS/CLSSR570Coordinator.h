@@ -14,18 +14,18 @@ public:
 	~CLSSR570Coordinator();
 
 protected slots:
+	void onCLSSR570ControlsConnectedChanged(bool);
 	void onCLSSR570ConnectedChanged(bool);
 	void onCLSSR570ValueChanged();
 
 protected:
-
-	AMControlSet* clsSR570ControlSet_[];
-
-	QString pvBaseName_;
-	CLSSR570 * clsSR570_;
-	AMControlSet *sr570CoordinatorControlSet;
-
 	bool sensPutConnected_;
+	bool controlSetConnected_;
+	QString pvBaseName_;
+
+	CLSSR570 * clsSR570_;
+	AMControlSet *sr570CoordinatorControlSet_;
+
 };
 
 #endif // CLSSR570COORDINATOR_H
