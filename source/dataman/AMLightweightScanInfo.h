@@ -64,6 +64,8 @@ public:
 	AMDbThumbnail* thumbnailAt(int index) const;
 	/// The number of thumbnails which are currently stored in the database against this scan
 	int thumbnailCount() const;
+	/// Adds the thumbnailId to this scan's list of thumbnails
+	void addThumbnailId(int thumbnailId);
 	/// The id (if any) of the experiment this scan is associated with
 	int experimentId() const;
 

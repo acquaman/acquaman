@@ -168,6 +168,11 @@ int AMLightweightScanInfo::thumbnailCount() const
 	return thumbnailIds_.count();
 }
 
+void AMLightweightScanInfo::addThumbnailId(int thumbnailId)
+{
+	thumbnailIds_.append(thumbnailId);
+}
+
 int AMLightweightScanInfo::experimentId() const
 {
 	return experimentId_;

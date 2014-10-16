@@ -11,7 +11,7 @@ AMLightweightScanInfoModel::AMLightweightScanInfoModel(AMLightweightScanInfoColl
 	connect(scanInfo_, SIGNAL(scanAdded()), this, SLOT(onScanInfoAdded()));
 	connect(scanInfo_, SIGNAL(scanRemoved()), this, SLOT(onScanInfoRemoved()));
 	connect(scanInfo_, SIGNAL(scanUpdated(int)), this, SLOT(onScanInfoUpdated(int)));
-	connect(scanInfo_,SIGNAL(scanThumbnailAdded(int)), this, SLOT(onScanInfoUpdated(int)));
+	connect(scanInfo_,SIGNAL(scanThumbnailAdded(int,int)), this, SLOT(onScanThumbnailAdded(int,int)));
 }
 
 QVariant AMLightweightScanInfoModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -223,6 +223,14 @@ void AMLightweightScanInfoModel::onScanInfoUpdated(int updatedIndex)
 {
 
 	emit dataChanged(index(updatedIndex, 0, QModelIndex()), index(updatedIndex, columnCount()-1, QModelIndex()));
+}
+
+void AMLightweightScanInfoModel::onScanThumbnailAdded(int scanIndex, int thumbnailIndex)
+{
+	QModelIndex scanModelIndex = index(scanIndex, 0, QModelIndex());
+	QModelIndex thumbnailModelIndexStart = index(thumbnailIndex, 0, scanModelIndex);
+	QModelIndex thumbnailModelIndexEnd = index(thumbnailIndex, columnCount(scanModelIndex) -1, scanModelIndex);
+	emit dataChanged(thumbnailModelIndexStart, thumbnailModelIndexEnd);
 }
 
 void AMLightweightScanInfoModel::onScanInfoAboutToBeRemoved(int oldIndex)

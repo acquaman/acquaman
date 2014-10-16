@@ -371,7 +371,7 @@ int AMLightweightScanInfoCollection::getScanIdFromThumbnailId(int thumbnailId)
 	selectQuery.finish();
 	return scanId;
 }
-
+#include <QDebug>
 void AMLightweightScanInfoCollection::onDbItemAdded(const QString &tableName, int id)
 {
 
@@ -391,8 +391,23 @@ void AMLightweightScanInfoCollection::onDbItemAdded(const QString &tableName, in
 	else if(tableName == "AMDbObjectThumbnails_table")
 	{
 		int scanId = getScanIdFromThumbnailId(id);
+		// Add thumbnailId to ScanInfo
+		bool lightweightScanInfoFound = false;
 		if(scanId >=0)
-			emit scanThumbnailAdded(scanId);
+		{
+			for (int iScanInfo = 0, size = scanInfos_.count(); iScanInfo < size && !lightweightScanInfoFound; iScanInfo++)
+			{
+				if(scanInfos_.at(iScanInfo)->id() == scanId)
+				{
+					AMLightweightScanInfo* matchedScanInfo = scanInfos_.at(iScanInfo);
+					qDebug() << "We found a scanInfo with id " << matchedScanInfo->id() << " with thumbnail count " << matchedScanInfo->thumbnailCount();
+					matchedScanInfo->addThumbnailId(id);
+					lightweightScanInfoFound = true;
+				}
+			}
+			qDebug() << QString("Added Thumbnmail %1 to Scan %2").arg(id).arg(scanId);
+			emit scanThumbnailAdded(scanId, id);
+		}
 	}
 	else if(sampleNameMap_.keys().contains(tableName))
 	{
@@ -402,6 +417,7 @@ void AMLightweightScanInfoCollection::onDbItemAdded(const QString &tableName, in
 
 void AMLightweightScanInfoCollection::onDbItemUpdated(const QString &tableName, int id)
 {
+	qDebug() << QString("Updated item %1 in table %2").arg(id).arg(tableName);
 	if(tableName == AMDbObjectSupport::s()->tableNameForClass("AMScan"))
 	{
 		// A scan has been changed. We need to find the scan that matches the id, update the corresponding
@@ -462,6 +478,7 @@ void AMLightweightScanInfoCollection::onDbItemUpdated(const QString &tableName, 
 
 void AMLightweightScanInfoCollection::onDbItemRemoved(const QString &tableName, int oldId)
 {
+	qDebug() << QString("Removed item %1 from table %2").arg(oldId).arg(tableName);
 	if(tableName == AMDbObjectSupport::s()->tableNameForClass("AMScan"))
 	{
 		// A scan has been removed from the database. We need to find the relevant scan, remove it

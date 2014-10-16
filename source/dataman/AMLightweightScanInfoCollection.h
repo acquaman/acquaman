@@ -41,7 +41,7 @@ signals:
 	/// Emitted whenever a scan info is finished being removed from the collection
 	void scanRemoved();
 	/// Emitted whenever a scan has a new thumbnail added to it
-	void scanThumbnailAdded(int scanId);
+	void scanThumbnailAdded(int scanId, int thumbnailId);
 protected slots:
 	/// Slot to handle the database signal indicating that a new item has been added to the database
 	void onDbItemAdded(const QString& tableName, int id);
