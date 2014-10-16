@@ -1,3 +1,16 @@
+/*
+ * For SR570, when the value of sens_put PV is changed, the values of
+ * sens_num and sens_unit are not updated accordingly.
+ * This CLSSR570Coordinator is designed to update sens_num/sens_unit
+ * when the value change of sens_put is changed.To reach this goal,
+ * we have to disable the sens_num/sens_unit PVs before we write the value.
+ * Otherwise, the write operation will trigger an update of sens_put PV.
+ *
+ * To disable a PV, we should set .DISA and .DISV same value;
+ * To enable a PV, we should set .DISA and .DISV differt values and put a non-zero value to .PROC
+ *
+ */
+
 #ifndef CLSSR570COORDINATOR_H
 #define CLSSR570COORDINATOR_H
 
@@ -27,9 +40,9 @@ protected slots:
 	void onSensUnitPROCValueChanged(double);
 
 private:
-	enum PVUpdateStatus {
-		Idle = -1,
-		SensPutValueChanged = 0,
+	enum PVUpdateState {
+		Idle = 0xFF,
+		SensPutValueChanged = 0x00,
 		DisableSensNumDISA = 0x01,
 		UpdateSensNum = 0x02,
 		EnableSensNumDISA = 0x04,
@@ -47,11 +60,12 @@ private:
 	CLSSR570 * clsSR570_;
 	AMControlSet *sr570CoordinatorControlSet_;
 
-	int pvUpdateStatus_;
+	int pvUpdateState_;
 	double sensNumDISAValue_;
 	double sensUnitDISAValue_;
 
-	void pvUpdateStatusTransition(int from, int to);
+	/* transform the PV value update from one state to another to make sure the PVs are updated accordingly */
+	void pvUpdateStateTransition(int from, int to);
 };
 
 #endif // CLSSR570COORDINATOR_H

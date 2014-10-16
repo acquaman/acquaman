@@ -7,7 +7,7 @@
 CLSSR570Coordinator::CLSSR570Coordinator(QString name, QString pvBaseName, QObject *parent)
 	:QObject(parent)
 {
-	pvUpdateStatus_ = Idle;
+	pvUpdateState_ = Idle;
 
 	sensPutConnected_ = false;
 	controlSetConnected_ = false;
@@ -80,34 +80,38 @@ void CLSSR570Coordinator::onCLSSR570ValueChanged()
 	qDebug() << QString("Coordinator(%1): ------").arg(pvBaseName_);
 	qDebug() << QString("Coordinator(%1): sens_put value changed (%2)!").arg(pvBaseName_).arg((clsSR570_->value()));
 
-	pvUpdateStatus_ = SensPutValueChanged;
+	// initial state
+	pvUpdateState_= SensPutValueChanged;
+
+	pvUpdateStateTransition(SensPutValueChanged, DisableSensNumDISA);
 
 	AMControl * sensNumDISAControl = sr570CoordinatorControlSet_->controlNamed(QString("%1:sens_num.DISA").arg(pvBaseName_));
 	AMControl * sensNumDISVControl = sr570CoordinatorControlSet_->controlNamed(QString("%1:sens_num.DISV").arg(pvBaseName_));
-	sensNumDISAValue_ = sensNumDISAControl->value();
 
-	qDebug() << QString("Coordinator(%1): disable sens_num.DISA from %2 to %3!").arg(pvBaseName_).arg(sensNumDISAValue_).arg(sensNumDISVControl->value());
-	pvUpdateStatusTransition(SensPutValueChanged, DisableSensNumDISA);
+	qDebug() << QString("Coordinator(%1): disable sens_num.DISA from %2 to %3!").arg(pvBaseName_).arg(sensNumDISAControl->value()).arg(sensNumDISVControl->value());
+	sensNumDISAValue_ = sensNumDISAControl->value();
 	sensNumDISAControl->move(sensNumDISVControl->value());
+
+
+	pvUpdateStateTransition(SensPutValueChanged, DisableSensUnitDISA);
 
 	AMControl * sensUnitDISAControl = sr570CoordinatorControlSet_->controlNamed(QString("%1:sens_unit.DISA").arg(pvBaseName_));
 	AMControl * sensUnitDISVControl = sr570CoordinatorControlSet_->controlNamed(QString("%1:sens_unit.DISV").arg(pvBaseName_));
-	sensUnitDISAValue_ = sensUnitDISAControl->value();
 
-	qDebug() << QString("Coordinator(%1): disable sens_unit.DISA from %2 to %3!").arg(pvBaseName_).arg(sensUnitDISAValue_).arg(sensUnitDISVControl->value());
-	pvUpdateStatusTransition(SensPutValueChanged, DisableSensUnitDISA);
+	qDebug() << QString("Coordinator(%1): disable sens_unit.DISA from %2 to %3!").arg(pvBaseName_).arg(sensUnitDISAControl->value()).arg(sensUnitDISVControl->value());
+	sensUnitDISAValue_ = sensUnitDISAControl->value();
 	sensUnitDISAControl->move(sensUnitDISVControl->value());
 }
 
 void CLSSR570Coordinator::onSensNumValueChanged(double)
 {
-	if (pvUpdateStatus_ == Idle || !(pvUpdateStatus_ & UpdateSensNum)) {
+	if (pvUpdateState_ == Idle || !(pvUpdateState_ & UpdateSensNum)) {
 		qDebug() << QString("Coordinator(%1): sens_num valueChanged ignored").arg(pvBaseName_);
 		return;
 	}
 
+	pvUpdateStateTransition(UpdateSensNum, EnableSensNumDISA);
 	qDebug() << QString("Coordinator(%1): enable sens_num.DISA!").arg(pvBaseName_);
-	pvUpdateStatusTransition(UpdateSensNum, EnableSensNumDISA);
 
 	AMControl * sensNumDISAControl = sr570CoordinatorControlSet_->controlNamed(QString("%1:sens_num.DISA").arg(pvBaseName_));
 	sensNumDISAControl->move(sensNumDISAValue_);
@@ -119,23 +123,25 @@ void CLSSR570Coordinator::onSensNumDISAValueChanged(double)
 	AMControl * sensNumDISVControl = sr570CoordinatorControlSet_->controlNamed(QString("%1:sens_num.DISV").arg(pvBaseName_));
 
 	if (sensNumDISAControl->value() == sensNumDISVControl->value()) {
-		if (pvUpdateStatus_ == Idle || !(pvUpdateStatus_ & DisableSensNumDISA)) {
+		if (pvUpdateState_ == Idle || !(pvUpdateState_ & DisableSensNumDISA)) {
 			qDebug() << QString("Coordinator(%1): sens_num.DISA valueChanged ignored (to update sens_num value)").arg(pvBaseName_);
 			return;
 		}
 
+		pvUpdateStateTransition(DisableSensNumDISA, UpdateSensNum);
+
 		AMControl * sensNumControl = sr570CoordinatorControlSet_->controlNamed(QString("%1:sens_num").arg(pvBaseName_));
 		qDebug() << QString("Coordinator(%1): move sens_num from %2 to %3!").arg(pvBaseName_).arg(sensNumControl->value()).arg(clsSR570_->sensNumSetpoint());
-		pvUpdateStatusTransition(DisableSensNumDISA, UpdateSensNum);
 		sensNumControl->move(clsSR570_->sensNumSetpoint());
 	} else {
-		if (pvUpdateStatus_ == Idle || !(pvUpdateStatus_ & EnableSensNumDISA)) {
+		if (pvUpdateState_ == Idle || !(pvUpdateState_ & EnableSensNumDISA)) {
 			qDebug() << QString("Coordinator(%1): sens_num.DISA valueChanged ignored (to update sens_num.PROC value)").arg(pvBaseName_);
 			return;
 		}
 
+		pvUpdateStateTransition(EnableSensNumDISA, EnableSensNumPROC);
 		qDebug() << QString("Coordinator(%1): force to enable sens_num.PROC!").arg(pvBaseName_);
-		pvUpdateStatusTransition(EnableSensNumDISA, EnableSensNumPROC);
+
 		AMControl * sensNumPROCControl = sr570CoordinatorControlSet_->controlNamed(QString("%1:sens_num.PROC").arg(pvBaseName_));
 		sensNumPROCControl->move(1);
 	}
@@ -143,25 +149,26 @@ void CLSSR570Coordinator::onSensNumDISAValueChanged(double)
 
 void CLSSR570Coordinator::onSensNumPROCValueChanged(double)
 {
-	if (pvUpdateStatus_ == Idle || !(pvUpdateStatus_ & EnableSensNumPROC)) {
+	if (pvUpdateState_ == Idle || !(pvUpdateState_ & EnableSensNumPROC)) {
 		qDebug() << QString("Coordinator(%1): sens_num.PROC valueChanged ignored").arg(pvBaseName_);
 		return;
 	}
 
+	pvUpdateStateTransition(EnableSensNumPROC, Idle);
 	qDebug() << QString("Coordinator(%1): sens_num.PROC value changed, restore status!").arg(pvBaseName_);
-	pvUpdateStatusTransition(EnableSensNumPROC, Idle);
 }
 
 
 void CLSSR570Coordinator::onSensUnitValueChanged(double)
 {
-	if (pvUpdateStatus_ == Idle || !(pvUpdateStatus_ & UpdateSensUnit)) {
+	if (pvUpdateState_ == Idle || !(pvUpdateState_ & UpdateSensUnit)) {
 		qDebug() << QString("Coordinator(%1): sens_unit valueChanged ignored").arg(pvBaseName_);
 		return;
 	}
 
+	pvUpdateStateTransition(UpdateSensUnit, EnableSensUnitDISA);
 	qDebug() << QString("Coordinator(%1): enable sens_unit.DISA!").arg(pvBaseName_);
-	pvUpdateStatusTransition(UpdateSensUnit, EnableSensUnitDISA);
+
 	AMControl * sensUnitDISAControl = sr570CoordinatorControlSet_->controlNamed(QString("%1:sens_unit.DISA").arg(pvBaseName_));
 	sensUnitDISAControl->move(sensUnitDISAValue_);
 }
@@ -172,23 +179,25 @@ void CLSSR570Coordinator::onSensUnitDISAValueChanged(double)
 	AMControl * sensUnitDISVControl = sr570CoordinatorControlSet_->controlNamed(QString("%1:sens_unit.DISV").arg(pvBaseName_));
 
 	if (sensUnitDISAControl->value() == sensUnitDISVControl->value()) {
-		if (pvUpdateStatus_ == Idle || !(pvUpdateStatus_ & DisableSensUnitDISA)) {
+		if (pvUpdateState_ == Idle || !(pvUpdateState_ & DisableSensUnitDISA)) {
 			qDebug() << QString("Coordinator(%1): sens_unit.DISA valueChanged ignored (to update sens_unit value)").arg(pvBaseName_);
 			return;
 		}
 
+		pvUpdateStateTransition(DisableSensUnitDISA, UpdateSensUnit);
+
 		AMControl * sensUnitControl = sr570CoordinatorControlSet_->controlNamed(QString("%1:sens_unit").arg(pvBaseName_));
 		qDebug() << QString("Coordinator(%1): move sens_unit from %2 to %3!").arg(pvBaseName_).arg(sensUnitControl->value()).arg(clsSR570_->sensUnitSetpoint());
-		pvUpdateStatusTransition(DisableSensUnitDISA, UpdateSensUnit);
 		sensUnitControl->move(clsSR570_->sensUnitSetpoint());
 	} else {
-		if (pvUpdateStatus_ == Idle || !(pvUpdateStatus_ & EnableSensUnitDISA)) {
+		if (pvUpdateState_ == Idle || !(pvUpdateState_ & EnableSensUnitDISA)) {
 			qDebug() << QString("Coordinator(%1): sens_unit.DISA valueChanged ignored (to update sens_unit.PROC value)").arg(pvBaseName_);
 			return;
 		}
 
+		pvUpdateStateTransition(EnableSensUnitDISA, EnableSensUnitPROC);
 		qDebug() << QString("Coordinator(%1): force to enable sens_unit.PROC!").arg(pvBaseName_);
-		pvUpdateStatusTransition(EnableSensUnitDISA, EnableSensUnitPROC);
+
 		AMControl * sensUnitPROCControl = sr570CoordinatorControlSet_->controlNamed(QString("%1:sens_unit.PROC").arg(pvBaseName_));
 		sensUnitPROCControl->move(1);
 	}
@@ -196,26 +205,25 @@ void CLSSR570Coordinator::onSensUnitDISAValueChanged(double)
 
 void CLSSR570Coordinator::onSensUnitPROCValueChanged(double)
 {
-	if (pvUpdateStatus_ == Idle || !(pvUpdateStatus_ & EnableSensUnitPROC)) {
+	if (pvUpdateState_ == Idle || !(pvUpdateState_ & EnableSensUnitPROC)) {
 		qDebug() << QString("Coordinator(%1): sens_unit.PROC valueChanged ignored").arg(pvBaseName_);
 		return;
 	}
 
+	pvUpdateStateTransition(EnableSensUnitPROC, Idle);
 	qDebug() << QString("Coordinator(%1): sens_unit.PROC value changed, restore status!").arg(pvBaseName_);
-	pvUpdateStatusTransition(EnableSensUnitPROC, Idle);
 }
 
-void CLSSR570Coordinator::pvUpdateStatusTransition(int from, int to)
+void CLSSR570Coordinator::pvUpdateStateTransition(int from, int to)
 {
-	pvUpdateStatus_ ^= from;
+	pvUpdateState_ ^= from;
 
 	if (to == Idle) {
-		if (pvUpdateStatus_ == SensPutValueChanged) {
-			pvUpdateStatus_ = Idle;
+		if (pvUpdateState_ == SensPutValueChanged) {
+			pvUpdateState_ = Idle;
 			qDebug() << QString("Coordinator(%1): Mission Accomplished!").arg(pvBaseName_);
 		}
 	} else {
-		pvUpdateStatus_ |= to;
+		pvUpdateState_ |= to;
 	}
 }
-
