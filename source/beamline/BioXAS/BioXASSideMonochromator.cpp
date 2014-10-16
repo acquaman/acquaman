@@ -8,27 +8,37 @@ BioXASSideMonochromator::BioXASSideMonochromator(QObject *parent) :
 
     slitsClosed_ = new AMPVControl("SlitsClosed", "BL1607-5-I21:SlitsClosed", "BL1607-5-I21:SlitsOprCloseCmd", QString(), this);
     paddleOut_ = new AMPVControl("PaddleOut", "BL1607-5-I21:PaddleExtracted", "BL1607-I21:PaddleOprOutCmd", QString(), this);
-    keyStatus_ = new AMReadOnlyPVControl("CrystalStageMotorDisabled", "BL1607-5-I21:KeyStatus", this);
-    crystalChangePositionStatus_ = new AMReadOnlyPVControl("AtCrystalChangePosition", "BL1607-5-I21:XtalChangePos", this);
-    brakeEnabledStatus_ = new AMReadOnlyPVControl("BrakeEnabled", "BL1607-5-I21:BrakeOff", this);
-    crystalStageMotorAbs_ = new AMPVControl("CrystalStageMotorAbsolute", "SMTR1607-5-I21-12:deg:fbk", "SMTR1607-5-I21-12:deg", QString(), this);
-    crystalStageMotorRel_ = new AMPVControl("CrystalStageMotorRelative", "SMTR1607-5-I21-12:step:rel", "SMTR1607-5-I21-12:step:fbk", QString(), this);
-    crystalStageCWLimitStatus_ = new AMReadOnlyPVControl("CrystalStageCWLimit", "SMTR1607-5-I21-22:cw", this);
-    crystalStageCCWLimitStatus_ = new AMReadOnlyPVControl("CrystalStageCCWLimit", "SMTR1607-5-I21-22:ccw", this);
+    crystalChangeEnabled_ = new AMReadOnlyPVControl("CrystalStageMotorDisabled", "BL1607-5-I21:KeyStatus", this);
+    stageAtCrystalChangePosition_ = new AMReadOnlyPVControl("AtCrystalChangePosition", "BL1607-5-I21:XtalChangePos", this);
+    crystalChangeBrakeEnabled_ = new AMReadOnlyPVControl("BrakeEnabled", "BL1607-5-I21:BrakeOff", this);
+    stageMotorAbs_ = new AMPVControl("StageMotorAbsolute", "SMTR1607-5-I21-12:deg:fbk", "SMTR1607-5-I21-12:deg", QString(), this);
+    crystalChangeMotorRel_ = new AMPVControl("CrystalChangeMotorRelative", "SMTR1607-5-I21-22:step:rel", "SMTR1607-5-I21-22:step:fbk", QString(), this);
+    crystalChangeMotorCWLimit_ = new AMReadOnlyPVControl("CrystalChangeMotorCWLimit", "SMTR1607-5-I21-22:cw", this);
+    crystalChangeMotorCCWLimit_ = new AMReadOnlyPVControl("CrystalChangeMotorCCWLimit", "SMTR1607-5-I21-22:ccw", this);
     regionAStatus_ = new AMReadOnlyPVControl("RegionAStatus", "BL1607-5-I21:Region:A", this);
     regionBStatus_ = new AMReadOnlyPVControl("RegionBStatus", "BL1607-5-I21:Region:B", this);
 
     energy_ = new BioXASSideMonochromatorControl("EnergyEV", "BL1607-5-I21:Energy:EV:fbk", "BL1607-5-I21:Energy:EV", "BL1607-5-I21:Energy:status", QString(), this);
 
+    connect( slitsClosed_, SIGNAL(valueChanged(double)), this, SLOT(onSlitsClosedChanged(double)) );
+    connect( paddleOut_, SIGNAL(valueChanged(double)), this, SLOT(onPaddleOutChanged(double)) );
+    connect( crystalChangeEnabled_, SIGNAL(valueChanged(double)), this, SLOT(onCrystalChangeEnabled(double)) );
+    connect( stageAtCrystalChangePosition_, SIGNAL(valueChanged(double)), this, SLOT(onCrystalChangePositionStatusChanged(double)) );
+    connect( crystalChangeBrakeEnabled_, SIGNAL(valueChanged(double)), this, SLOT(onCrystalChangeBrakeEnabledChanged(double)) );
+    connect( crystalChangeMotorCCWLimit_, SIGNAL(valueChanged(double)), this, SLOT(onCrystalChangeMotorCCWLimitStatusChanged(double)) );
+    connect( crystalChangeMotorCWLimit_, SIGNAL(valueChanged(double)), this, SLOT(onCrystalChangeMotorCWLimitStatusChanged(double)) );
+    connect( regionAStatus_, SIGNAL(valueChanged(double)), this, SLOT(onRegionAStatusChanged(double)) );
+    connect( regionBStatus_, SIGNAL(valueChanged(double)), this, SLOT(onRegionBStatusChanged(double)) );
+
     connect( slitsClosed_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
     connect( paddleOut_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
-    connect( keyStatus_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
-    connect( crystalChangePositionStatus_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
-    connect( brakeEnabledStatus_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
-    connect( crystalStageMotorAbs_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
-    connect( crystalStageMotorRel_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
-    connect( crystalStageCWLimitStatus_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
-    connect( crystalStageCCWLimitStatus_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
+    connect( crystalChangeEnabled_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
+    connect( stageAtCrystalChangePosition_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
+    connect( crystalChangeBrakeEnabled_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
+    connect( stageMotorAbs_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
+    connect( crystalChangeMotorRel_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
+    connect( crystalChangeMotorCWLimit_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
+    connect( crystalChangeMotorCCWLimit_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
     connect( regionAStatus_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
     connect( regionBStatus_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
     connect( energy_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
@@ -54,7 +64,7 @@ AMAction3* BioXASSideMonochromator::createCloseSlitsAction()
     return action;
 }
 
-AMAction3* BioXASSideMonochromator::createPaddleOutAction()
+AMAction3* BioXASSideMonochromator::createRemovePaddleAction()
 {
     if (!paddleOut_->isConnected())
         return 0;
@@ -67,124 +77,116 @@ AMAction3* BioXASSideMonochromator::createPaddleOutAction()
     return action;
 }
 
-AMAction3* BioXASSideMonochromator::createWaitForKeyStatusEnabledAction()
+AMAction3* BioXASSideMonochromator::createWaitForCrystalChangeEnabledAction()
 {
-    if (!keyStatus_->isConnected())
+    if (!crystalChangeEnabled_->isConnected())
         return 0;
 
-    AMControlInfo setpoint = keyStatus_->toInfo();
+    AMControlInfo setpoint = crystalChangeEnabled_->toInfo();
     setpoint.setValue(1);
     AMControlWaitActionInfo *actionInfo = new AMControlWaitActionInfo(setpoint);
-    AMControlWaitAction *action = new AMControlWaitAction(actionInfo, keyStatus_);
+    AMControlWaitAction *action = new AMControlWaitAction(actionInfo, crystalChangeEnabled_);
 
     return action;
 }
 
 AMAction3* BioXASSideMonochromator::createMoveToCrystalChangePositionAction()
 {
-    if (!crystalStageMotorAbs_->isConnected())
-        return 0;
-
-    AMControlInfo setpoint = crystalStageMotorAbs_->toInfo();
-    setpoint.setValue(55);
-    AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
-    AMControlMoveAction3 *action = new AMControlMoveAction3(actionInfo, crystalStageMotorAbs_);
-
-    return action;
+    return createMoveStageAction(55);
 }
 
 AMAction3* BioXASSideMonochromator::createWaitForBrakeDisabledAction()
 {
-    if (!brakeEnabledStatus_->isConnected())
+    if (!crystalChangeBrakeEnabled_->isConnected())
         return 0;
 
-    AMControlInfo setpoint = brakeEnabledStatus_->toInfo();
+    AMControlInfo setpoint = crystalChangeBrakeEnabled_->toInfo();
     setpoint.setValue(1);
     AMControlWaitActionInfo *actionInfo = new AMControlWaitActionInfo(setpoint);
-    AMControlWaitAction *action = new AMControlWaitAction(actionInfo, brakeEnabledStatus_);
+    AMControlWaitAction *action = new AMControlWaitAction(actionInfo, crystalChangeBrakeEnabled_);
 
     return action;
 }
 
-AMAction3* BioXASSideMonochromator::createMoveOffCrystalChangePositionAction(int relDestination)
+AMAction3* BioXASSideMonochromator::createMoveCrystalChangeMotorAction(int relDestination)
 {
-    if (!crystalStageMotorRel_->isConnected())
+    if (!crystalChangeMotorRel_->isConnected())
         return 0;
 
-    AMControlInfo setpoint = crystalStageMotorRel_->toInfo();
+    AMControlInfo setpoint = crystalChangeMotorRel_->toInfo();
     setpoint.setValue(relDestination);
     AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
-    AMControlMoveAction3 *action = new AMControlMoveAction3(actionInfo, crystalStageMotorRel_);
+    AMControlMoveAction3 *action = new AMControlMoveAction3(actionInfo, crystalChangeMotorRel_);
 
     return action;
 }
 
 AMAction3* BioXASSideMonochromator::createWaitForBrakeEnabledAction()
 {
-    if (!brakeEnabledStatus_->isConnected())
+    if (!crystalChangeBrakeEnabled_->isConnected())
         return 0;
 
-    AMControlInfo setpoint = brakeEnabledStatus_->toInfo();
+    AMControlInfo setpoint = crystalChangeBrakeEnabled_->toInfo();
     setpoint.setValue(0);
     AMControlWaitActionInfo *actionInfo = new AMControlWaitActionInfo(setpoint);
-    AMControlWaitAction *action = new AMControlWaitAction(actionInfo, brakeEnabledStatus_);
+    AMControlWaitAction *action = new AMControlWaitAction(actionInfo, crystalChangeBrakeEnabled_);
 
     return action;
 }
 
-AMAction3* BioXASSideMonochromator::createSetCrystalStageAngleAction(double degDestination)
+AMAction3* BioXASSideMonochromator::createMoveStageAction(double degDestination)
 {
-    if (!crystalStageMotorAbs_->isConnected())
+    if (!stageMotorAbs_->isConnected())
         return 0;
 
-    AMControlInfo setpoint = crystalStageMotorAbs_->toInfo();
+    AMControlInfo setpoint = stageMotorAbs_->toInfo();
     setpoint.setValue(degDestination);
     AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
-    AMControlMoveAction3 *action = new AMControlMoveAction3(actionInfo, crystalStageMotorAbs_);
+    AMControlMoveAction3 *action = new AMControlMoveAction3(actionInfo, stageMotorAbs_);
 
     return action;
 }
 
 
-AMAction3* BioXASSideMonochromator::createWaitForKeyStatusDisabledAction()
+AMAction3* BioXASSideMonochromator::createWaitForCrystalChangeDisabledAction()
 {
-    if (!keyStatus_->isConnected())
+    if (!crystalChangeEnabled_->isConnected())
         return 0;
 
-    AMControlInfo setpoint = keyStatus_->toInfo();
+    AMControlInfo setpoint = crystalChangeEnabled_->toInfo();
     setpoint.setValue(0);
     AMControlWaitActionInfo *actionInfo = new AMControlWaitActionInfo(setpoint);
-    AMControlWaitAction *action = new AMControlWaitAction(actionInfo, keyStatus_);
+    AMControlWaitAction *action = new AMControlWaitAction(actionInfo, crystalChangeEnabled_);
 
     return action;
 }
 
 
-AMAction3* BioXASSideMonochromator::createWaitForCrystalChangeAction()
+AMAction3* BioXASSideMonochromator::createCrystalChangeAction()
 {
     bool startRegionA, endRegionA;
-    double moveOffDest, moveToRegion;
+    double crystalChangeMotorDestination, newRegionDestination;
 
     startRegionA = ((int)regionAStatus_->value() == 0);
     endRegionA = !startRegionA;
 
     if (endRegionA) {
-        moveOffDest = 12,000;
-        moveToRegion = 140;
+        crystalChangeMotorDestination = 12,000;
+        newRegionDestination = 140;
     } else {
-        moveOffDest = -12,000;
-        moveToRegion = 350;
+        crystalChangeMotorDestination = -12,000;
+        newRegionDestination = 350;
     }
 
     AMAction3 *closeSlits = createCloseSlitsAction();
-    AMAction3 *removePaddle = createPaddleOutAction();
-    AMAction3 *turnKeyCCW = createWaitForKeyStatusEnabledAction();
+    AMAction3 *removePaddle = createRemovePaddleAction();
+    AMAction3 *turnKeyCCW = createWaitForCrystalChangeEnabledAction();
     AMAction3 *toCrystalChangePosition = createMoveToCrystalChangePositionAction();
     AMAction3 *disableBrake = createWaitForBrakeDisabledAction();
-    AMAction3 *fromCrystalChangePosition = createMoveOffCrystalChangePositionAction(moveOffDest);
+    AMAction3 *fromCrystalChangePosition = createMoveCrystalChangeMotorAction(crystalChangeMotorDestination);
     AMAction3 *enableBrake = createWaitForBrakeEnabledAction();
-    AMAction3 *toNewRegion = createSetCrystalStageAngleAction(moveToRegion);
-    AMAction3 *turnKeyCW = createWaitForKeyStatusDisabledAction();
+    AMAction3 *toNewRegion = createMoveStageAction(newRegionDestination);
+    AMAction3 *turnKeyCW = createWaitForCrystalChangeDisabledAction();
 
 
     AMListAction3* crystalChangeAction = new AMListAction3(new AMListActionInfo3("Crystal Change Action", "Crystal Change Action"));
@@ -199,7 +201,6 @@ AMAction3* BioXASSideMonochromator::createWaitForCrystalChangeAction()
     crystalChangeAction->addSubAction(turnKeyCW);
 
     return crystalChangeAction;
-
 }
 
 AMAction3* BioXASSideMonochromator::createSetEnergyAction(double newEnergy)
@@ -218,10 +219,10 @@ AMAction3* BioXASSideMonochromator::createSetEnergyAction(double newEnergy)
 void BioXASSideMonochromator::onConnectedChanged()
 {
     bool currentState = (slitsClosed_->isConnected() && paddleOut_->isConnected() &&
-                         keyStatus_->isConnected() && crystalChangePositionStatus_->isConnected() &&
-                         brakeEnabledStatus_->isConnected() && crystalStageMotorAbs_->isConnected() &&
-                         crystalStageMotorRel_->isConnected() && crystalStageCWLimitStatus_->isConnected() &&
-                         crystalStageCCWLimitStatus_->isConnected() && regionAStatus_->isConnected() &&
+                         crystalChangeEnabled_->isConnected() && stageAtCrystalChangePosition_->isConnected() &&
+                         crystalChangeBrakeEnabled_->isConnected() && stageMotorAbs_->isConnected() &&
+                         crystalChangeMotorRel_->isConnected() && crystalChangeMotorCWLimit_->isConnected() &&
+                         crystalChangeMotorCCWLimit_->isConnected() && regionAStatus_->isConnected() &&
                          regionBStatus_->isConnected() && energy_->isConnected());
 
     if (connected_ != currentState) {
