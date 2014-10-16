@@ -165,18 +165,17 @@ AMAction3* BioXASSideMonochromator::createWaitForCrystalChangeDisabledAction()
 
 AMAction3* BioXASSideMonochromator::createCrystalChangeAction()
 {
-    bool startRegionA, endRegionA;
-    double crystalChangeMotorDestination, newRegionDestination;
+    if (!connected_)
+        return 0;
 
-    startRegionA = ((int)regionAStatus_->value() == 0);
-    endRegionA = !startRegionA;
-
-    if (endRegionA) {
+    if (region_ == A) {
+        crystalChangeMotorDestination = -12,000;
+        newRegionDestination = 350;
+    } else if (region_ == B) {
         crystalChangeMotorDestination = 12,000;
         newRegionDestination = 140;
     } else {
-        crystalChangeMotorDestination = -12,000;
-        newRegionDestination = 350;
+        return 0;
     }
 
     AMAction3 *closeSlits = createCloseSlitsAction();
