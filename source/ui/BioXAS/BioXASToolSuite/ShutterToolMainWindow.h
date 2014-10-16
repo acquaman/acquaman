@@ -19,30 +19,28 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef SHUTTERTOOLMAINWINDOW_H
+#define SHUTTERTOOLMAINWINDOW_H
 
-#include <QMainWindow>
+#include <QWidget>
+#include <QCloseEvent>
 #include <QBoxLayout>
 #include <QLabel>
 #include <QPushButton>
 
 #include "actions3/AMAction3.h"
+#include "beamline/BioXAS/BioXASShutterToolController.h"
 
-#include "Model.h"
-
-class MainWindow : public QMainWindow
+class ShutterToolMainWindow : public QWidget
 {
     Q_OBJECT
 
 public:
-    MainWindow(QWidget *parent = 0);
-    ~MainWindow();
+	ShutterToolMainWindow(QWidget *parent = 0);
+	~ShutterToolMainWindow();
 
 signals:
-
-protected:
-    Model* model();
+	void closed();
 
 protected slots:
     void onEnableButtonClicked();
@@ -60,6 +58,14 @@ protected slots:
     void onInjection();
     void onPostInjection();
 
+protected:
+	BioXASShutterToolController* model();
+
+	void closeEvent(QCloseEvent *event) {
+		emit closed();
+		event->accept();
+	}
+
 private:
     void createComponents();
     void makeConnections();
@@ -71,7 +77,7 @@ private:
     void turnAutomaticShutterControlOff();
 
 private:
-    Model *model_;
+	BioXASShutterToolController *model_;
     QVBoxLayout *mainLayout_;
 
     QLabel *appStatusLabel_;
@@ -83,4 +89,4 @@ private:
     QPushButton *closeShuttersButton_;
 };
 
-#endif // MAINWINDOW_H
+#endif // SHUTTERTOOLMAINWINDOW_H

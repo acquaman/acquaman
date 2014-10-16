@@ -47,8 +47,6 @@ BioXASSideXASScanConfiguration::BioXASSideXASScanConfiguration(const BioXASSideX
 	setUserScanName(original.userScanName());
 
 	edgeEnergy_ = original.edgeEnergy();
-
-	AMScanAxisEXAFSRegion *exafsRegion = qobject_cast<AMScanAxisEXAFSRegion*>(scanAxisAt(0)->regionAt(0));
 }
 
 BioXASSideXASScanConfiguration::~BioXASSideXASScanConfiguration()

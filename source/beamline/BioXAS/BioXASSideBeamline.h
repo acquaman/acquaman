@@ -24,19 +24,19 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/AMBeamline.h"
 #include "beamline/AMControlSet.h"
+#include "beamline/AMMotorGroup.h"
 #include "beamline/CLS/CLSSynchronizedDwellTime.h"
 #include "beamline/CLS/CLSSIS3820Scaler.h"
-#include "beamline/AMMotorGroup.h"
 #include "beamline/CLS/CLSBiStateControl.h"
 #include "beamline/CLS/CLSSIS3820Scaler.h"
+#include "beamline/CLS/CLSBasicScalerChannelDetector.h"
+#include "beamline/CLS/CLSKeithley428.h"
+#include "beamline/CLS/CLSBasicCompositeScalerChannelDetector.h"
+#include "beamline/BioXAS/BioXASCLSMAXvMotor.h"
 
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
-
-#include "beamline/CLS/CLSBasicScalerChannelDetector.h"
-#include "beamline/CLS/CLSKeithley428.h"
-#include "beamline/CLS/CLSBasicCompositeScalerChannelDetector.h"
 
 class CLSMAXvMotor;
 class AMBasicControlDetectorEmulator;
@@ -64,13 +64,19 @@ public:
 	/// Returns the m1 upper slit blade motor control.
 	CLSMAXvMotor* m1UpperSlit();
 
+	/// Returns an instance of the keithley428 amplifier.
+	CLSKeithley428* keithley();
+
+	virtual bool isConnected() const;
+
+	CLSBasicScalerChannelDetector* testDetector();
+
+	QList<BioXASCLSMAXvMotor *> getMotorsByType(BioXASBeamlineDef::BioXASMotorType category);
 	AMPVwStatusControl* energy();
 
 	/// Returns an instance of the keithley428 amplifier.
 	CLSKeithley428* i0Keithley();
 	CLSKeithley428* iTKeithley();
-
-	virtual bool isConnected() const;
 
 	CLSBasicScalerChannelDetector* i0Detector();
 	CLSBasicScalerChannelDetector* iTDetector();
@@ -110,9 +116,14 @@ protected:
 
 protected:
 	CLSSIS3820Scaler *scaler_;
+
+	bool wasConnected_;
+
+	CLSBasicScalerChannelDetector *testDetector_;
+	CLSKeithley428 *keithley_;
+
 	CLSMAXvMotor *m1UpperSlit_;
 	AMPVwStatusControl *energy_;
-	bool wasConnected_;
 
 	CLSBasicScalerChannelDetector *i0Detector_;
 	CLSKeithley428 *i0Keithley_;
@@ -206,6 +217,44 @@ protected:
 	AMControl *tm4_;
 	AMControl *tm5_;
 
+	/// BioXAS side beamline motors
+	/// BioXAS filter motors
+	BioXASCLSMAXvMotor *carbonFilterFarm1_;
+	BioXASCLSMAXvMotor *carbonFilterFarm2_;
+
+	/// BioXAS M1 motors
+	BioXASCLSMAXvMotor *m1VertUpStreamINB_;
+	BioXASCLSMAXvMotor *m1VertUpStreamOUTB_;
+	BioXASCLSMAXvMotor *m1VertDownStream_;
+	BioXASCLSMAXvMotor *m1StripeSelect_;
+	BioXASCLSMAXvMotor *m1Yaw_;
+	BioXASCLSMAXvMotor *m1BenderUpstream_;
+	BioXASCLSMAXvMotor *m1BenderDownStream_;
+	BioXASCLSMAXvMotor *m1UpperSlitBlade_;
+
+	/// BioXAS Variable Mask motors
+	BioXASCLSMAXvMotor *variableMaskVertUpperBlade_;
+	BioXASCLSMAXvMotor *variableMaskVertLowerBlade_;
+
+	/// BioXAS Mono motors
+	BioXASCLSMAXvMotor *monoPhosphorPaddle_;
+	BioXASCLSMAXvMotor *monoBragg_;
+	BioXASCLSMAXvMotor *monoVertical_;
+	BioXASCLSMAXvMotor *monoLateral_;
+	BioXASCLSMAXvMotor *monoXtalXchage_;
+	BioXASCLSMAXvMotor *monoXtal1Pitch_;
+	BioXASCLSMAXvMotor *monoXtal1Roll_;
+	BioXASCLSMAXvMotor *monoXtal2Pitch_;
+	BioXASCLSMAXvMotor *monoXtal2Roll_;
+
+	/// BioXAS M2 motors
+	BioXASCLSMAXvMotor *m2VertUpstreamINB_;
+	BioXASCLSMAXvMotor *m2VertUpstreamOUTB_;
+	BioXASCLSMAXvMotor *m2VertDownstream_;
+	BioXASCLSMAXvMotor *m2StripeSelect_;
+	BioXASCLSMAXvMotor *m2Yaw_;
+	BioXASCLSMAXvMotor *m2BenderUpstream_;
+	BioXASCLSMAXvMotor *m2BenderDownStream_;
 
 };
 
