@@ -575,14 +575,14 @@ bool AMCDFDataStore::axisValues(int axisId, long axisStartIndex, long axisEndInd
 
 		// Which CDF variable corresponds to this measurement:
 		long varNum = axisValueVarNums_.at(axisId);
-		long increment = 1L;
+		long axisOffset = 1L;
 		long size = axisEndIndex-axisStartIndex+1L;
 		QVector<double> axisData = QVector<double>(size, 0);
 
 		for (int i = scanSize_.rank()-1; i > axisId; i--)
-			increment *= scanSize_.at(i);
+			axisOffset *= scanSize_.at(i);
 
-		CDFstatus s = CDFhyperGetzVarData(cdfId_, varNum, increment*axisStartIndex, size, increment, 0, 0, 0, axisData.data());
+		CDFstatus s = CDFhyperGetzVarData(cdfId_, varNum, axisOffset*axisStartIndex, size, 1L, 0, 0, 0, axisData.data());
 
 		for (int i = 0; i < size; i++)
 			outputValues[i] = AMNumber(axisData.at(i));

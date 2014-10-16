@@ -145,7 +145,6 @@ void AMDataSourceImageData::onAxisValuesChanged(int axisId)
 
 		for (int i = 0; i < xSize_; i++)
 			xAxis_[i] = double(axisData.at(i));
-
 	}
 
 	else if (axisId == 1) {

@@ -161,9 +161,6 @@ bool AMRawDataSource::axisValues(int axisNumber, int startIndex, int endIndex, A
 	if (!isValid())
 		return false;
 
-	if (axisNumber >= rank())
-		return false;
-
 #ifdef AM_ENABLE_BOUNDS_CHECKING
 	if (startIndex < 0 || startIndex >= size(axisNumber))
 		return false;
@@ -172,7 +169,18 @@ bool AMRawDataSource::axisValues(int axisNumber, int startIndex, int endIndex, A
 		return false;
 #endif
 
-	return dataStore_->axisValues(axisNumber, startIndex, endIndex, outputValues);
+	if (axisNumber < scanAxesCount_)
+		return dataStore_->axisValues(axisNumber, startIndex, endIndex, outputValues);
+
+	else{
+
+		const AMAxisInfo& axis = axes_.at(axisNumber);
+
+		for (int i = 0, size = endIndex-startIndex+1; i < size; i++)
+			outputValues[i] = AMNumber(double(axis.start) + (startIndex+i)*double(axis.increment));
+	}
+
+	return true;
 }
 
 #include "ui/dataman/AMSimpleDataSourceEditor.h"

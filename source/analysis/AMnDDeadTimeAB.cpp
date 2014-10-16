@@ -338,7 +338,7 @@ bool AMnDDeadTimeAB::axisValues(int axisNumber, int startIndex, int endIndex, AM
 		return false;
 
 #ifdef AM_ENABLE_BOUNDS_CHECKING
-	if (startIndex < 0 || startIndex >= spectrum_->size(rank()) || endIndex < 0 || endIndex >= spectrum_->size(rank()))
+	if (startIndex < 0 || startIndex >= spectrum_->size(axisNumber) || endIndex < 0 || endIndex >= spectrum_->size(axisNumber))
 		return false;
 #endif
 
