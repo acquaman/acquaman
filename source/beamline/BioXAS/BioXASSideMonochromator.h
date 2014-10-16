@@ -16,7 +16,9 @@ class BioXASSideMonochromator : public QObject
 {
     Q_OBJECT
 
-public:    
+public:
+    /// Enumerates the possible mono region states.
+    enum Region { None = 0, A, B };
     /// Constructor.
     explicit BioXASSideMonochromator(QObject *parent = 0);
     /// Destructor.
@@ -24,6 +26,8 @@ public:
 
     /// Returns true if the mono is connected to all of its pvs, false otherwise.
     bool isConnected() const { return connected_; }
+    /// Returns the current region.
+    Region region() const { return region_; }
 
     /// Returns true if both upper and lower slits are closed, false otherwise.
     bool slitsClosed() const { return ((int)slitsClosed_->value() == 1); }
@@ -39,10 +43,6 @@ public:
     bool crystalStageAtCWLimit() const { return ((int)crystalChangeMotorCWLimit_->value() == 0); }
     /// Returns true if the crystal stage motor is at the counterclockwise limit.
     bool crystalStageAtCCWLimit() const { return ((int)crystalChangeMotorCCWLimit_->value() == 0); }
-    /// Returns true if the mono is in region A, false otherwise.
-    bool inRegionA() const { return ((int)regionAStatus_->value() == 1); }
-    /// Returns true if the mono is in region B, false otherwise.
-    bool inRegionB() const { return ((int)regionBStatus_->value() == 1); }
     /// Returns the energy setpoint.
     double energySetpoint() const { return energy_->setpoint(); }
     /// Returns the energy feedback.
@@ -99,6 +99,8 @@ public:
 signals:
     /// Notifier that the mono's connections with its pvs have changed.
     void connected(bool isConnected);
+    /// Notifier that the mono's region has changed.
+    void regionChanged(BioXASSideMonochromator::Region newRegion);
     /// Notifier that the slits closed general status has changed.
     void slitsClosedChanged(bool areClosed);
     /// Notifier that the paddle out status has changed.
@@ -113,10 +115,6 @@ signals:
     void crystalChangeMotorCWLimitStatusChanged(bool atLimit);
     /// Notifier that the crystal stage counterclockwise limit status has changed.
     void crystalChangeMotorCCWLimitStatusChanged(bool atLimit);
-    /// Notifier that the region A status has changed.
-    void regionAStatusChanged(bool inRegion);
-    /// Notifier that the region B status has changed.
-    void regionBStatusChanged(bool inRegion);
     /// Notifier that the energy setpoint has changed.
     void energySetpointChanged(double newSetpoint);
     /// Notifier that the energy feedback has changed.
@@ -129,6 +127,8 @@ public slots:
 protected slots:
     /// Updates the mono's general connected state based on the connected state of each of its pvs.
     void onConnectedChanged();
+    /// Updates the mono's current region state based on the values of regionAStatus_ and regionBStatus_ controls.
+    void onRegionChanged();
     /// Emits the appropriate signal when the mono's slits closed status has changed.
     void onSlitsClosedChanged(double value) { emit slitsClosedChanged((int)value == 1); }
     /// Emits the appropriate signal when the paddle is out.
@@ -143,13 +143,10 @@ protected slots:
     void onCrystalChangeMotorCWLimitStatusChanged(double value) { emit crystalChangeMotorCWLimitStatusChanged((int)value == 0); }
     /// Emits the appropriate signal when the crystal change motor reaches/leaves the CCW limit.
     void onCrystalChangeMotorCCWLimitStatusChanged(double value) { emit crystalChangeMotorCCWLimitStatusChanged((int)value == 0); }
-    /// Emits the appropriate signal when the mono reaches/leaves region A.
-    void onRegionAStatusChanged(double value) { emit regionAStatusChanged((int)value == 1); }
-    /// Emits the appropriate signal when the mono reaches/leaves region B.
-    void onRegionBStatusChanged(double value) { emit regionBStatusChanged((int)value == 1); }
 
 protected:
     bool connected_;
+    Region region_;
 
     AMControl* slitsClosed_;
     AMControl* paddleOut_;

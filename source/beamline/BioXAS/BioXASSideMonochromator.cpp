@@ -5,6 +5,7 @@ BioXASSideMonochromator::BioXASSideMonochromator(QObject *parent) :
     QObject(parent)
 {
     connected_ = false;
+    region_ = None;
 
     slitsClosed_ = new AMPVControl("SlitsClosed", "BL1607-5-I21:SlitsClosed", "BL1607-5-I21:SlitsOprCloseCmd", QString(), this);
     paddleOut_ = new AMPVControl("PaddleOut", "BL1607-5-I21:PaddleExtracted", "BL1607-I21:PaddleOprOutCmd", QString(), this);
@@ -27,8 +28,8 @@ BioXASSideMonochromator::BioXASSideMonochromator(QObject *parent) :
     connect( crystalChangeBrakeEnabled_, SIGNAL(valueChanged(double)), this, SLOT(onCrystalChangeBrakeEnabledChanged(double)) );
     connect( crystalChangeMotorCCWLimit_, SIGNAL(valueChanged(double)), this, SLOT(onCrystalChangeMotorCCWLimitStatusChanged(double)) );
     connect( crystalChangeMotorCWLimit_, SIGNAL(valueChanged(double)), this, SLOT(onCrystalChangeMotorCWLimitStatusChanged(double)) );
-    connect( regionAStatus_, SIGNAL(valueChanged(double)), this, SLOT(onRegionAStatusChanged(double)) );
-    connect( regionBStatus_, SIGNAL(valueChanged(double)), this, SLOT(onRegionBStatusChanged(double)) );
+    connect( regionAStatus_, SIGNAL(valueChanged(double)), this, SLOT(onRegionChanged()) );
+    connect( regionBStatus_, SIGNAL(valueChanged(double)), this, SLOT(onRegionChanged()) );
 
     connect( slitsClosed_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
     connect( paddleOut_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
@@ -229,4 +230,28 @@ void BioXASSideMonochromator::onConnectedChanged()
         connected_ = currentState;
         emit connected(connected_);
     }
+}
+
+void BioXASSideMonochromator::onRegionChanged()
+{
+    int newRegion;
+    int regionAVal = (int)regionAStatus_->value();
+    int regionBVal = (int)regionBStatus_->value();
+
+    if (regionAVal == 0 && regionBVal == 0)
+        newRegion = None;
+    else if (regionAVal == 0 && regionBVal == 1)
+        newRegion = B;
+    else if (regionAVal == 1 && regionBVal == 0)
+        newRegion = A;
+    else if (regionAVal == 1 && regionBVal == 1)
+        newRegion = None;
+    else
+        newRegion = None;
+
+    if (region_ != newRegion) {
+        region_ = newRegion;
+        emit regionChanged(region_);
+    }
+
 }
