@@ -7,15 +7,15 @@ linux-g++ {
 		# CDFlib dependencies
 #		CDF_LIB = -lcdf
 #		CDF_INCLUDE_DIR = /usr/local/include
-		CDF_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/cdf34_1-dist/lib
+		CDF_LIB_DIR = $$PATH_TO_AM/contrib/cdf34_1-dist/lib
 		CDF_LIB = -L$$CDF_LIB_DIR -lcdf
-		CDF_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/cdf34_1-dist/include
+		CDF_INCLUDE_DIR = $$PATH_TO_AM/contrib/cdf34_1-dist/include
 }
 linux-g++-32 {
 		# CDFlib dependencies
-		CDF_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/cdf34_1-dist/lib
+		CDF_LIB_DIR = $$PATH_TO_AM/contrib/cdf34_1-dist/lib
 		CDF_LIB = -L$$CDF_LIB_DIR -lcdf
-		CDF_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/cdf34_1-dist/include
+		CDF_INCLUDE_DIR = $$PATH_TO_AM/contrib/cdf34_1-dist/include
 }
 linux-g++-64 {
 		# CDFlib dependencies

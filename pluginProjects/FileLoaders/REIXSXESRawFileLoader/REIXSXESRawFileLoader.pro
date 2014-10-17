@@ -1,13 +1,13 @@
-include(../AMFileLoaderPluginsCommonOld.pri)
+include(../AMFileLoaderPluginsCommon.pri)
 TEMPLATE        = lib
 CONFIG		+= plugin
 HEADERS		+= REIXSXESRawFileLoaderPlugin.h
 SOURCES		+= REIXSXESRawFileLoaderPlugin.cpp
 TARGET          = $$qtLibraryTarget(REIXSXESRawFileLoaderPlugin)
-DESTDIR         = $$HOME_FOLDER/$$DEV_PATH/acquaman/plugins/FileLoaders
+DESTDIR         = $$PATH_TO_AM/plugins/FileLoaders
 
 # install
-target.path = $$HOME_FOLDER/$$DEV_PATH/acquaman/pluginProjects/FileLoaders/REIXSXESRawFileLoader
+target.path = $$PATH_TO_AM/pluginProjects/FileLoaders/REIXSXESRawFileLoader
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS REIXSXESRawFileLoader.pro
-sources.path = $$HOME_FOLDER/$$DEV_PATH/acquaman/pluginProjects/FileLoaders/REIXSXESRawFileLoader
+sources.path = $$PATH_TO_AM/pluginProjects/FileLoaders/REIXSXESRawFileLoader
 INSTALLS += target sources

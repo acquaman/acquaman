@@ -1,0 +1,28 @@
+macx {
+		# GSL Dependencies
+		GSL_INCLUDE_DIR = $$PATH_TO_AM/contrib/gsl-install/include
+		GSL_LIB = -L$$PATH_TO_AM/contrib/gsl-install/lib -lgsl
+		GSL_CBLAS_LIB = -L$$PATH_TO_AM/contrib/gsl-install/lib -lgslcblas
+}
+linux-g++ {
+		# GSL Dependencies
+		GSL_INCLUDE_DIR = $$PATH_TO_AM/contrib/gsl-install/include
+		GSL_LIB = -L$$PATH_TO_AM/contrib/gsl-install/lib -lgsl
+		GSL_CBLAS_LIB = -L$$PATH_TO_AM/contrib/gsl-install/lib -lgslcblas
+}
+linux-g++-32 {
+		# GSL Dependencies
+		GSL_LIB = -lgsl
+		GSL_CBLAS_LIB = -lgslcblas
+}
+linux-g++-64 {
+		# GSL Dependencies
+		GSL_INCLUDE_DIR = /home/beamline/tools/gsl/gsl-1.14-install/include
+		GSL_LIB = -L/home/beamline/tools/gsl/gsl-1.14-install/lib -lgsl
+		GSL_CBLAS_LIB = -lgslcblas
+}
+
+INCLUDEPATH *= $$GSL_INCLUDE_DIR
+
+LIBS *= $$GSL_LIB \
+	$$GSL_CBLAS_LIB

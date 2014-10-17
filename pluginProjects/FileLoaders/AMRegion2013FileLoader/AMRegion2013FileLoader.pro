@@ -1,4 +1,4 @@
-include(../AMFileLoaderPluginsCommonOld.pri)
+include(../AMFileLoaderPluginsCommon.pri)
 TEMPLATE        = lib
 CONFIG		+= plugin
 HEADERS		+= \
@@ -6,12 +6,12 @@ HEADERS		+= \
 SOURCES		+= \
 	AMRegion2013FileLoaderPlugin.cpp
 TARGET          = $$qtLibraryTarget(AMRegion2013FileLoaderPlugin)
-DESTDIR         = $$HOME_FOLDER/$$DEV_PATH/acquaman/plugins/FileLoaders
+DESTDIR         = $$PATH_TO_AM/plugins/FileLoaders
 
 # install
-target.path = $$HOME_FOLDER/$$DEV_PATH/acquaman/pluginProjects/FileLoaders/AMRegion2013FileLoader
+target.path = $$PATH_TO_AM/pluginProjects/FileLoaders/AMRegion2013FileLoader
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS AMRegion2013FileLoader.pro
-sources.path = $$HOME_FOLDER/$$DEV_PATH/acquaman/pluginProjects/FileLoaders/AMRegion2013FileLoader
+sources.path = $$PATH_TO_AM/pluginProjects/FileLoaders/AMRegion2013FileLoader
 INSTALLS += target sources
 
 

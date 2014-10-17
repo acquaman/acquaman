@@ -1,5 +1,5 @@
 # #####################################################################
-# QMake project file for acquaman.  		Octover 2014. david.k.chevrier@gmail.com
+# QMake project file for acquaman.  		October 2014. david.k.chevrier@gmail.com
 # ####################################################################
 
 include ( $$PATH_TO_AM/compositeCommon/AMCommon.pri )
@@ -17,6 +17,7 @@ include ( $$PATH_TO_AM/compositeCommon/AMMPlot.pri )
 
 include ( $$PATH_TO_AM/compositeCommon/AMMobility.pri )
 include ( $$PATH_TO_AM/compositeCommon/AMCDF.pri )
+include ( $$PATH_TO_AM/compositeCommon/AMGSL.pri )
 
 include ( $$PATH_TO_AM/compositeCommon/Eigen.pri )
 include ( $$PATH_TO_AM/compositeCommon/MuParser.pri )
@@ -33,18 +34,8 @@ HEADERS += \
 	source/acquaman/AMScanController.h \
 	source/application/AMAppController.h \
 	source/util/AMBiHash.h \
-#	source/util/AMErrorMonitor.h \
 	source/util/AMSettings.h \
-#	source/beamline/AMBeamline.h \
-#	source/beamline/AMControl.h \
-#	source/beamline/AMPVControl.h \
-#	source/beamline/AMControlSet.h \
-##	source/beamline/AMControlState.h \
-#	source/beamline/AMProcessVariable.h \
-#	source/beamline/AMProcessVariablePrivate.h \
 	source/beamline/AMPVNames.h \
-#	source/dataman/database/AMDatabase.h \
-#	source/dataman/database/AMDbObject.h \
 	source/dataman/AMExperiment.h \
 	source/dataman/AMImportController.h \
 	source/dataman/AMRun.h \
@@ -53,16 +44,6 @@ HEADERS += \
 	source/dataman/AMXASScan.h \
 	source/dataman/SGM/SGM2004FileLoader.h \
 	source/dataman/SGM/SGM2010FastFileLoader.h \
-#	source/muParser/muParser.h \
-#	source/muParser/muParserBase.h \
-#	source/muParser/muParserBytecode.h \
-#	source/muParser/muParserCallback.h \
-#	source/muParser/muParserDef.h \
-#	source/muParser/muParserError.h \
-#	source/muParser/muParserFixes.h \
-#	source/muParser/muParserStack.h \
-#	source/muParser/muParserToken.h \
-#	source/muParser/muParserTokenReader.h \
 	source/ui/dataman/AMRunSelector.h \
 	source/ui/beamline/AMControlSetView.h \
 	source/ui/dataman/AMCramBarHorizontal.h \
@@ -80,13 +61,11 @@ HEADERS += \
 	source/ui/AMThumbnailScrollViewer.h \
 	source/ui/AMBottomBar.h \
 	source/ui/beamline/AMControlEditor.h \
-#	source/acquaman.h \
 	source/ui/dataman/AMNewRunDialog.h \
 	source/dataman/AMAbstractFileLoader.h \
 	source/ui/AMPrefixSuffixLineEdit.h \
 	source/ui/AMDragDropItemModel.h \
 	source/dataman/AMRunExperimentItems.h \
-#	source/dataman/info/AMControlInfoList.h \
 	source/ui/dataman/AMGenericScanEditor.h \
 	source/ui/AMDetailedItemDelegate.h \
 	source/ui/AMVerticalStackWidget.h \
@@ -104,18 +83,11 @@ HEADERS += \
 	source/dataman/ALSBL8XASFileLoader.h \
 	source/ui/AMWindowPaneModel.h \
 	source/dataman/AMScanEditorModelItem.h \
-#	source/dataman/datasource/AMDataSource.h \
-#	source/dataman/AMAxisInfo.h \
-#	source/dataman/AMNumber.h \
-#	source/dataman/AMnDIndex.h \
 	source/dataman/datastore/AMDataStore.h \
 	source/dataman/AMAnalysisBlock.h \
 	source/dataman/datasource/AMDataSourceSeriesData.h \
 	source/dataman/datasource/AMDataSourceImageData.h \
 	source/analysis/AM1DExpressionAB.h \
-#	source/dataman/database/AMDbObjectSupport.h
-#	source/util/AMOrderedSetSignalSource.h \
-#	source/util/AMOrderedSet.h \
 	source/dataman/datasource/AMRawDataSource.h \
 	source/analysis/AM1DExpressionABEditor.h \
 	source/dataman/AMMeasurementInfo.h \
@@ -125,9 +97,7 @@ HEADERS += \
 	source/analysis/AM2DSummingAB.h \
 	source/analysis/AMStandardAnalysisBlock.h \
 	source/analysis/AM2DSummingABEditor.h \
-#	source/util/AMOrderedList.h \
 	source/dataman/REIXS/REIXSXESRawFileLoader.h \
-#	source/util/AMDeferredFunctionCall.h \
 	source/ui/util/AMPeriodicTableView.h \
 	source/util/AMPeriodicTable.h \
 	source/util/AMElement.h \
@@ -145,7 +115,6 @@ HEADERS += \
 	source/ui/AMFolderPathLineEdit.h \
 	source/util/AMTagReplacementParser.h \
 	source/ui/dataman/AMExporterOptionGeneralAsciiView.h \
-	#source/ui/dataman/AM3dDataSourceView.h \
 	source/ui/AMTopFrame.h \
 	source/dataman/info/CLSOceanOptics65000DetectorInfo.h \
 	source/dataman/SGM/SGM2011XASFileLoader.h \
@@ -191,19 +160,6 @@ HEADERS += \
 	source/beamline/CLS/CLSOMS58Motor.h \
 	source/beamline/CLS/CLSSIS3820Scaler.h \
 	source/ui/CLS/CLSSIS3820ScalerView.h \
-#	source/qjson/json_parser.hh \
-#	source/qjson/json_scanner.h \
-#	source/qjson/location.hh \
-#	source/qjson/parser_p.h \
-#	source/qjson/parser.h \
-#	source/qjson/parserrunnable.h \
-#	source/qjson/position.hh \
-#	source/qjson/qjson_debug.h \
-#	source/qjson/qjson_export.h \
-#	source/qjson/qobjecthelper.h \
-#	source/qjson/serializer.h \
-#	source/qjson/serializerrunnable.h \
-#	source/qjson/stack.hh \
 	source/util/AMGithubManager.h \
 	source/ui/util/AMGithubIssueSubmissionView.h \
 	source/dataman/export/AMExporterAthena.h \
@@ -236,8 +192,6 @@ HEADERS += \
 	source/actions3/AMActionRunner3.h \
 	source/actions3/AMActionRegistry3.h \
 	source/actions3/AMActionLog3.h \
-#	source/actions3/AMActionInfo3.h \
-#	source/actions3/AMAction3.h \
 	source/actions3/editors/AMLoopActionEditor3.h \
 	source/ui/actions3/AMWorkflowView3.h \
 	source/ui/actions3/AMAddActionDialog3.h \
@@ -271,7 +225,6 @@ HEADERS += \
 	source/dataman/REIXS/REIXSXESCalibration2.h \
 	source/ui/beamline/AMExtendedControlEditor.h \
 	source/ui/beamline/AMControlButton.h \
-#	source/dataman/info/AMControlInfo.h \
 	source/dataman/AMLineScan.h \
 	source/ui/AMTopFrame2.h \
 	source/application/AMDatamanAppControllerForActions3.h \
@@ -289,40 +242,25 @@ HEADERS += \
 	source/dataman/info/AMOldDetectorInfo.h \
 	source/beamline/AMOldDetector.h \
 	source/dataman/info/AMOldDetectorInfoSet.h \
-#	source/beamline/AMDetector.h \
 	source/dataman/AMDbUpgrade1Pt1.h \
 	source/dataman/AMDbUpgrade1Pt2.h \
-#	source/dataman/info/AMDetectorInfo.h \
 	source/beamline/CLS/CLSAmptekSDD123DetectorNew.h \
 	source/ui/beamline/AMOldDetectorView.h \
 	source/ui/beamline/AMOldDetectorViewSupport.h \
 	source/ui/beamline/AMDetectorView.h \
-#	source/beamline/AMSynchronizedDwellTime.h \
 	source/beamline/AMDetectorSet.h \
 	source/dataman/info/AMDetectorInfoSet.h \
 	source/ui/beamline/AMDetectorSelectorView.h \
 	source/beamline/CLS/CLSBasicScalerChannelDetector.h \
-#	source/beamline/AMDetectorTriggerSource.h \
 	source/beamline/AMDetectorGroup.h \
 	source/beamline/AMDetectorSelector.h \
-#	source/acquaman/AMAgnosticDataAPI.h \
 	source/acquaman/AMScanActionController.h \
 	source/acquaman/AMScanActionControllerScanAssembler.h \
-#	source/actions3/actions/AMDetectorInitializeActionInfo.h \
-#	source/actions3/actions/AMDetectorInitializeAction.h \
-#	source/actions3/actions/AMDetectorAcquisitionActionInfo.h \
-#	source/actions3/actions/AMDetectorAcquisitionAction.h \
-#	source/actions3/actions/AMDetectorCleanupActionInfo.h \
-#	source/actions3/actions/AMDetectorCleanupAction.h \
 	source/actions3/actions/AMAxisStartedActionInfo.h \
 	source/actions3/actions/AMAxisFinishedActionInfo.h \
 	source/actions3/actions/AMAxisStartedAction.h \
 	source/actions3/actions/AMAxisFinishedAction.h \
 	source/beamline/AMBasicControlDetectorEmulator.h \
-#	source/actions3/actions/AMDetectorTriggerActionInfo.h \
-#	source/actions3/actions/AMDetectorTriggerAction.h \
-#	source/actions3/actions/AMDetectorReadActionInfo.h \
-#	source/actions3/actions/AMDetectorReadAction.h \
 	source/dataman/AMScanAxisRegion.h \
 	source/dataman/AMScanAxis.h \
 	source/acquaman/AMScanActionControllerScanOptimizer.h \
@@ -336,8 +274,6 @@ HEADERS += \
 	source/ui/util/AMMessageBoxWTimeout.h \
 	source/beamline/CLS/CLSPGTDetectorV2.h \
 	source/beamline/CLS/CLSQE65000Detector.h \
-#	source/actions3/actions/AMDetectorDwellTimeActionInfo.h \
-#	source/actions3/actions/AMDetectorDwellTimeAction.h \
 	source/acquaman/AMDetectorDwellTimeSourceScanOptimizer.h \
 	source/beamline/CLS/CLSAdvancedScalerChannelDetector.h \
 	source/dataman/info/CLSSynchronizedDwellTimeConfigurationInfo.h \
@@ -353,7 +289,6 @@ HEADERS += \
 	source/ui/CLS/CLSPseudoMotorGroupView.h \
 	source/beamline/CLS/CLSPseudoMotorGroup.h \
 	source/util/AMPointerTree.h \
-#	source/dataman/database/AMConstDbObject.h \
 	source/dataman/AMDbUpgrade1Pt4.h \
 	source/dataman/AMSamplePre2013.h \
 	source/dataman/AMSamplePlatePre2013.h \
@@ -437,8 +372,6 @@ HEADERS += \
 	source/ui/dataman/AMControlInfoListView.h \
 	source/ui/dataman/AMOldDetectorInfoSetView.h \
 	source/ui/beamline/AMDetectorSelectorRequiredView.h \
-#	source/actions3/actions/AMDetectorSetAsDarkCurrentCorrectionActionInfo.h \
-#	source/actions3/actions/AMDetectorSetAsDarkCurrentCorrectionAction.h \
 	source/actions3/actions/AMControlWaitActionInfo.h \
 	source/actions3/actions/AMControlWaitAction.h \
 	source/analysis/AM1DDarkCurrentCorrectionAB.h \
@@ -491,14 +424,13 @@ HEADERS += \
 	source/ui/util/AMBuildInfoWidget.h \
 	source/ui/util/AMAboutDialog.h \
 	source/beamline/AM1DControlDetectorEmulator.h \
-    source/ui/actions3/AMActionRunnerCurrentViewBase.h \
-    source/dataman/AMDbUpgrade1Pt5.h \
-    source/beamline/AMBeamlineControlAPI.h \
-    source/beamline/AMBeamlineControlSetAPI.h \
-    source/beamline/AMBeamlineDetectorAPI.h \
-    source/beamline/AMBeamlineDetectorSetAPI.h \
-    source/beamline/AMBeamlineSynchronizedDwellTimeAPI.h
-#    source/beamline/AMBeamlineSupport.h
+	source/ui/actions3/AMActionRunnerCurrentViewBase.h \
+	source/dataman/AMDbUpgrade1Pt5.h \
+	source/beamline/AMBeamlineControlAPI.h \
+	source/beamline/AMBeamlineControlSetAPI.h \
+	source/beamline/AMBeamlineDetectorAPI.h \
+	source/beamline/AMBeamlineDetectorSetAPI.h \
+	source/beamline/AMBeamlineSynchronizedDwellTimeAPI.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -528,18 +460,8 @@ SOURCES += \
 	source/acquaman/AMScanConfiguration.cpp \
 	source/acquaman/AMScanController.cpp \
 	source/application/AMAppController.cpp \
-#	source/util/AMErrorMonitor.cpp \
 	source/util/AMSettings.cpp \
-#	source/beamline/AMBeamline.cpp \
-#	source/beamline/AMControl.cpp \
-#	source/beamline/AMPVControl.cpp \
-#	source/beamline/AMControlSet.cpp \
-#	source/beamline/AMControlState.cpp \
-#	source/beamline/AMProcessVariable.cpp \
-#	source/beamline/AMProcessVariablePrivate.cpp \
 	source/beamline/AMPVNames.cpp \
-#	source/dataman/database/AMDatabase.cpp \
-#	source/dataman/database/AMDbObject.cpp \
 	source/dataman/AMExperiment.cpp \
 	source/dataman/AMImportController.cpp \
 	source/dataman/AMRun.cpp \
@@ -548,12 +470,6 @@ SOURCES += \
 	source/dataman/AMXASScan.cpp \
 	source/dataman/SGM/SGM2004FileLoader.cpp \
 	source/dataman/SGM/SGM2010FastFileLoader.cpp \
-#	source/muParser/muParser.cpp \
-#	source/muParser/muParserBase.cpp \
-#	source/muParser/muParserBytecode.cpp \
-#	source/muParser/muParserCallback.cpp \
-#	source/muParser/muParserError.cpp \
-#	source/muParser/muParserTokenReader.cpp \
 	source/ui/dataman/AMRunSelector.cpp \
 	source/ui/beamline/AMControlSetView.cpp \
 	source/ui/dataman/AMCramBarHorizontal.cpp \
@@ -572,7 +488,6 @@ SOURCES += \
 	source/ui/AMPrefixSuffixLineEdit.cpp \
 	source/ui/AMDragDropItemModel.cpp \
 	source/dataman/AMRunExperimentItems.cpp \
-#	source/dataman/info/AMControlInfoList.cpp \
 	source/ui/dataman/AMGenericScanEditor.cpp \
 	source/ui/AMDetailedItemDelegate.cpp \
 	source/ui/AMVerticalStackWidget.cpp \
@@ -590,18 +505,11 @@ SOURCES += \
 	source/dataman/ALSBL8XASFileLoader.cpp \
 	source/ui/AMWindowPaneModel.cpp \
 	source/dataman/AMScanEditorModelItem.cpp \
-#	source/dataman/datasource/AMDataSource.cpp \
-#	source/dataman/AMAxisInfo.cpp \
-#	source/dataman/AMNumber.cpp \
-#	source/dataman/AMnDIndex.cpp \
 	source/dataman/datastore/AMDataStore.cpp \
 	source/dataman/AMAnalysisBlock.cpp \
 	source/dataman/datasource/AMDataSourceSeriesData.cpp \
 	source/dataman/datasource/AMDataSourceImageData.cpp \
 	source/analysis/AM1DExpressionAB.cpp \
-#	source/dataman/database/AMDbObjectSupport.cpp \
-#	source/acquaman.cpp \
-#	source/util/AMOrderedSetSignalSource.cpp \
 	source/dataman/datasource/AMRawDataSource.cpp \
 	source/analysis/AM1DExpressionABEditor.cpp \
 	source/dataman/datastore/AMInMemoryDataStore.cpp \
@@ -611,7 +519,6 @@ SOURCES += \
 	source/analysis/AMStandardAnalysisBlock.cpp \
 	source/analysis/AM2DSummingABEditor.cpp \
 	source/dataman/REIXS/REIXSXESRawFileLoader.cpp \
-#	source/util/AMDeferredFunctionCall.cpp \
 	source/ui/util/AMPeriodicTableView.cpp \
 	source/util/AMPeriodicTable.cpp \
 	source/util/AMElement.cpp \
@@ -630,7 +537,6 @@ SOURCES += \
 	source/ui/dataman/AMExporterOptionGeneralAsciiView.cpp \
 	source/ui/AMTopFrame.cpp \
 	source/dataman/export/AMExporter.cpp \
-	#source/ui/dataman/AM3dDataSourceView.cpp \
 	source/dataman/info/CLSOceanOptics65000DetectorInfo.cpp \
 	source/dataman/SGM/SGM2011XASFileLoader.cpp \
 	source/beamline/CLS/CLSMAXvMotor.cpp \
@@ -672,13 +578,6 @@ SOURCES += \
 	source/beamline/CLS/CLSVariableIntegrationTime.cpp \
 	source/beamline/CLS/CLSSIS3820Scaler.cpp \
 	source/ui/CLS/CLSSIS3820ScalerView.cpp \
-#	source/qjson/json_parser.cc \
-#	source/qjson/json_scanner.cpp \
-#	source/qjson/parser.cpp \
-#	source/qjson/parserrunnable.cpp \
-#	source/qjson/qobjecthelper.cpp \
-#	source/qjson/serializer.cpp \
-#	source/qjson/serializerrunnable.cpp \
 	source/util/AMGithubManager.cpp \
 	source/ui/util/AMGithubIssueSubmissionView.cpp \
 	source/dataman/export/AMExporterAthena.cpp \
@@ -709,8 +608,6 @@ SOURCES += \
 	source/actions3/AMActionRunner3.cpp \
 	source/actions3/AMActionRegistry3.cpp \
 	source/actions3/AMActionLog3.cpp \
-#	source/actions3/AMActionInfo3.cpp \
-#	source/actions3/AMAction3.cpp \
 	source/actions3/editors/AMLoopActionEditor3.cpp \
 	source/ui/actions3/AMWorkflowView3.cpp \
 	source/ui/actions3/AMAddActionDialog3.cpp \
@@ -743,7 +640,6 @@ SOURCES += \
 	source/dataman/REIXS/REIXSXESCalibration2.cpp \
 	source/ui/beamline/AMExtendedControlEditor.cpp \
 	source/ui/beamline/AMControlButton.cpp \
-#	source/dataman/info/AMControlInfo.cpp \
 	source/dataman/AMLineScan.cpp \
 	source/ui/AMTopFrame2.cpp \
 	source/application/AMDatamanAppControllerForActions3.cpp \
@@ -761,40 +657,25 @@ SOURCES += \
 	source/dataman/info/AMOldDetectorInfo.cpp \
 	source/beamline/AMOldDetector.cpp \
 	source/dataman/info/AMOldDetectorInfoSet.cpp \
-#	source/beamline/AMDetector.cpp \
 	source/dataman/AMDbUpgrade1Pt1.cpp \
 	source/dataman/AMDbUpgrade1Pt2.cpp \
-#	source/dataman/info/AMDetectorInfo.cpp \
 	source/beamline/CLS/CLSAmptekSDD123DetectorNew.cpp \
 	source/ui/beamline/AMOldDetectorViewSupport.cpp \
 	source/ui/beamline/AMOldDetectorView.cpp \
 	source/ui/beamline/AMDetectorView.cpp \
-#	source/beamline/AMSynchronizedDwellTime.cpp \
 	source/beamline/AMDetectorSet.cpp \
 	source/dataman/info/AMDetectorInfoSet.cpp \
 	source/ui/beamline/AMDetectorSelectorView.cpp \
 	source/beamline/CLS/CLSBasicScalerChannelDetector.cpp \
-#	source/beamline/AMDetectorTriggerSource.cpp \
 	source/beamline/AMDetectorGroup.cpp \
 	source/beamline/AMDetectorSelector.cpp \
-#	source/acquaman/AMAgnosticDataAPI.cpp \
 	source/acquaman/AMScanActionController.cpp \
 	source/acquaman/AMScanActionControllerScanAssembler.cpp \
-#	source/actions3/actions/AMDetectorInitializeActionInfo.cpp \
-#	source/actions3/actions/AMDetectorInitializeAction.cpp \
-#	source/actions3/actions/AMDetectorAcquisitionActionInfo.cpp \
-#	source/actions3/actions/AMDetectorAcquisitionAction.cpp \
-#	source/actions3/actions/AMDetectorCleanupActionInfo.cpp \
-#	source/actions3/actions/AMDetectorCleanupAction.cpp \
 	source/actions3/actions/AMAxisStartedActionInfo.cpp \
 	source/actions3/actions/AMAxisFinishedActionInfo.cpp \
 	source/actions3/actions/AMAxisStartedAction.cpp \
 	source/actions3/actions/AMAxisFinishedAction.cpp \
 	source/beamline/AMBasicControlDetectorEmulator.cpp \
-#	source/actions3/actions/AMDetectorTriggerActionInfo.cpp \
-#	source/actions3/actions/AMDetectorTriggerAction.cpp \
-#	source/actions3/actions/AMDetectorReadActionInfo.cpp \
-#	source/actions3/actions/AMDetectorReadAction.cpp \
 	source/dataman/AMScanAxisRegion.cpp \
 	source/dataman/AMScanAxis.cpp \
 	source/acquaman/AMScanActionControllerScanOptimizer.cpp \
@@ -808,8 +689,6 @@ SOURCES += \
 	source/ui/util/AMMessageBoxWTimeout.cpp \
 	source/beamline/CLS/CLSPGTDetectorV2.cpp \
 	source/beamline/CLS/CLSQE65000Detector.cpp \
-#	source/actions3/actions/AMDetectorDwellTimeActionInfo.cpp \
-#	source/actions3/actions/AMDetectorDwellTimeAction.cpp \
 	source/acquaman/AMDetectorDwellTimeSourceScanOptimizer.cpp \
 	source/beamline/CLS/CLSAdvancedScalerChannelDetector.cpp \
 	source/dataman/info/CLSSynchronizedDwellTimeConfigurationInfo.cpp \
@@ -825,7 +704,6 @@ SOURCES += \
 	source/ui/CLS/CLSPseudoMotorGroupView.cpp \
 	source/beamline/CLS/CLSPseudoMotorGroup.cpp \
 	source/util/AMPointerTree.cpp \
-#	source/dataman/database/AMConstDbObject.cpp \
 	source/dataman/AMDbUpgrade1Pt4.cpp \
 	source/dataman/AMSamplePre2013.cpp \
 	source/dataman/AMSamplePlatePre2013.cpp \
@@ -907,8 +785,6 @@ SOURCES += \
 	source/ui/dataman/AMControlInfoListView.cpp \
 	source/ui/dataman/AMOldDetectorInfoSetView.cpp \
 	source/ui/beamline/AMDetectorSelectorRequiredView.cpp \
-#	source/actions3/actions/AMDetectorSetAsDarkCurrentCorrectionActionInfo.cpp \
-#	source/actions3/actions/AMDetectorSetAsDarkCurrentCorrectionAction.cpp \
 	source/actions3/actions/AMControlWaitActionInfo.cpp \
 	source/actions3/actions/AMControlWaitAction.cpp \
 	source/analysis/AM1DDarkCurrentCorrectionAB.cpp \
@@ -961,14 +837,13 @@ SOURCES += \
 	source/ui/util/AMBuildInfoWidget.cpp \
 	source/ui/util/AMAboutDialog.cpp \
 	source/beamline/AM1DControlDetectorEmulator.cpp \
-    source/ui/actions3/AMActionRunnerCurrentViewBase.cpp \
-    source/dataman/AMDbUpgrade1Pt5.cpp \
-    source/beamline/AMBeamlineControlAPI.cpp \
-    source/beamline/AMBeamlineControlSetAPI.cpp \
-    source/beamline/AMBeamlineDetectorAPI.cpp \
-    source/beamline/AMBeamlineDetectorSetAPI.cpp \
-    source/beamline/AMBeamlineSynchronizedDwellTimeAPI.cpp
-#    source/beamline/AMBeamlineSupport.cpp
+	source/ui/actions3/AMActionRunnerCurrentViewBase.cpp \
+	source/dataman/AMDbUpgrade1Pt5.cpp \
+	source/beamline/AMBeamlineControlAPI.cpp \
+	source/beamline/AMBeamlineControlSetAPI.cpp \
+	source/beamline/AMBeamlineDetectorAPI.cpp \
+	source/beamline/AMBeamlineDetectorSetAPI.cpp \
+	source/beamline/AMBeamlineSynchronizedDwellTimeAPI.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {

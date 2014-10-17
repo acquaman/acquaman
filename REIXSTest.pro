@@ -1,4 +1,4 @@
-include ( acquamanCommonOld.pri )
+include ( acquamanCommon.pri )
 
 QT += testlib
 TARGET = REIXSTest

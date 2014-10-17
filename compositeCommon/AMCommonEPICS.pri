@@ -1,20 +1,20 @@
 macx {
 		# EPICS Dependencies:
-		EPICS_INCLUDE_DIRS = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/epics/base/include \
-								$$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/epics/base/include/os/Darwin
-		EPICS_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/epics/base/lib/darwin-x86
+		EPICS_INCLUDE_DIRS = $$PATH_TO_AM/contrib/epics/base/include \
+								$$PATH_TO_AM/contrib/epics/base/include/os/Darwin
+		EPICS_LIB_DIR = $$PATH_TO_AM/contrib/epics/base/lib/darwin-x86
 }
 linux-g++ {
 		# EPICS Dependencies:
-		EPICS_INCLUDE_DIRS = $$HOME_FOLDER/$$DEV_PATH/epics/base/include \
-				$$HOME_FOLDER/$$DEV_PATH/epics/base/include/os/Linux
-		EPICS_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/epics/base/lib/linux-x86
+		EPICS_INCLUDE_DIRS = $$PATH_TO_AM/../epics/base/include \
+				$$PATH_TO_AM/../epics/base/include/os/Linux
+		EPICS_LIB_DIR = $$PATH_TO_AM/../epics/base/lib/linux-x86
 }
 linux-g++-32 {
 		# EPICS Dependencies:
-		EPICS_INCLUDE_DIRS = $$HOME_FOLDER/$$DEV_PATH/epics/base/include \
-				$$HOME_FOLDER/$$DEV_PATH/epics/base/include/os/Linux
-		EPICS_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/epics/base/lib/linux-x86
+		EPICS_INCLUDE_DIRS = $$PATH_TO_AM/../epics/base/include \
+				$$PATH_TO_AM/../epics/base/include/os/Linux
+		EPICS_LIB_DIR = $$PATH_TO_AM/../epics/base/lib/linux-x86
 }
 # The following works well for CLS beamline OPI machines, built using VMSL54.cs.clsi.ca
 
