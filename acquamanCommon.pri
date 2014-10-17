@@ -17,7 +17,6 @@ include ( $$PATH_TO_AM/compositeCommon/AMMPlot.pri )
 
 include ( $$PATH_TO_AM/compositeCommon/AMMobility.pri )
 include ( $$PATH_TO_AM/compositeCommon/AMCDF.pri )
-include ( $$PATH_TO_AM/compositeCommon/AMGSL.pri )
 
 include ( $$PATH_TO_AM/compositeCommon/Eigen.pri )
 include ( $$PATH_TO_AM/compositeCommon/MuParser.pri )
