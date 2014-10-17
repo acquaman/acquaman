@@ -29,7 +29,7 @@ SGMSettings::~SGMSettings(){}
 void SGMSettings::load(){
 	QWriteLocker wl(&mutex_);
 
-	// changing to NativeFormat; IniFormat is broken on Mac OS X Lion for SystemScope.  Filed Qt Bug: https://bugreports.qt.nokia.com/browse/QTBUG-21744
+	// changing to NativeFormat, IniFormat is broken on Mac OS X Lion for SystemScope.  Filed Qt Bug: https://bugreports.qt.nokia.com/browse/QTBUG-21744
 #ifdef Q_WS_MAC
 	QSettings settings(QSettings::NativeFormat, QSettings::SystemScope, "SGMAcquaman", "SGMAcquaman");
 #else
@@ -39,14 +39,13 @@ void SGMSettings::load(){
 	// All settings variables are loaded here from disk. Default values must be provided -- they will be used if the particular setting doesn't exist yet.
 	// Don't forget to add here if you add new user options.
 
-	// variable = settings.value(key, defaultValue).toType();
+	// variable = settings.value(key, defaultValue).toType()
 
 #ifdef Q_WS_MAC
 	SGMDataFolder_ = settings.value("SGMDataFolder", "/Users/fawkes/Documents/CLS/SGM/ACQUAMANDATA").toString();
 #else
 	SGMDataFolder_ = settings.value("SGMDataFolder", "/home/sgm/beamline/programming").toString();
 #endif
-//	SGMDatabaseFilename_ = settings.value("SGMDatabaseFilename", "sgmdata.db.bk.July182013NewScanController").toString();
 	SGMDatabaseFilename_ = settings.value("SGMDatabaseFilename", "sgmdata.db").toString();
 	SGMPublicDatabaseFilename_ = settings.value("SGMPublicDatabaseFilename", "sgmpublic.db").toString();
 }
@@ -54,7 +53,7 @@ void SGMSettings::load(){
 void SGMSettings::save(){
 	QReadLocker rl(&mutex_);
 
-	// changing to NativeFormat; IniFormat is broken on Mac OS X Lion for SystemScope.  Filed Qt Bug: https://bugreports.qt.nokia.com/browse/QTBUG-21744
+	// changing to NativeFormat, IniFormat is broken on Mac OS X Lion for SystemScope.  Filed Qt Bug: https://bugreports.qt.nokia.com/browse/QTBUG-21744
 #ifdef Q_WS_MAC
 	QSettings settings(QSettings::NativeFormat, QSettings::SystemScope, "SGMAcquaman", "SGMAcquaman");
 #else

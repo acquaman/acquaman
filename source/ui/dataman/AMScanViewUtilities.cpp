@@ -92,9 +92,6 @@ AMScanViewScanBar::AMScanViewScanBar(AMScanSetModel* model, int scanIndex, QWidg
 	connect(model, SIGNAL(exclusiveDataSourceChanged(QString)), this, SLOT(onExclusiveDataSourceChanged(QString)));
 
 	connect(&sourceButtons_, SIGNAL(buttonClicked(int)), this, SLOT(onSourceButtonClicked(int)));
-
-	// connect(closeButton_, SIGNAL(clicked()), this, SLOT(onCloseButtonClicked()));
-
 }
 
 
@@ -138,7 +135,6 @@ void AMScanViewScanBar::onRowInserted(const QModelIndex& parent, int start, int 
 
 		newButton->setContextMenuPolicy(Qt::CustomContextMenu);
 		connect(newButton, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onDataSourceButtonRightClicked(QPoint)));
-		// qdebug() << "added a data source. exclusiveModeOn is: " << exclusiveModeOn_ << ", source name is:" << source->dataSourceAt(i)->name() << ", exclusiveDataSourceName is:" << model_->exclusiveDataSourceName();
 	}
 
 }
@@ -156,7 +152,7 @@ void AMScanViewScanBar::onRowAboutToBeRemoved(const QModelIndex& parent, int sta
 	for(int di = end; di>=start; di-- ) {
 
 		sourceButtons_.button(di)->disconnect();
-		delete sourceButtons_.button(di);
+		sourceButtons_.button(di)->deleteLater();
 		// the button group's id's from "start+1" to "count+1" are too high now...
 		for(int i=di+1; i<sourceButtons_.buttons().count()+1; i++)
 			sourceButtons_.setId(sourceButtons_.button(i), i-1);
@@ -239,7 +235,6 @@ void AMScanViewScanBar::setExclusiveModeOn(bool exclusiveModeOn) {
 	// turning exclusiveMode off:
 	if(!exclusiveModeOn && exclusiveModeOn_) {
 		exclusiveModeOn_ = false;
-		//chButtons_.setExclusive(false);
 		int numSourceButtons = sourceButtons_.buttons().count();
 		for(int di=0; di<numSourceButtons; di++) {
 			sourceButtons_.button(di)->setChecked( model_->isVisible(scanIndex_, di) );
@@ -763,7 +758,7 @@ void AMScanViewSingleSpectrumView::setDataSources(QList<AMDataSource *> sources)
 
 		sourceButtons_->removeButton(button);
 		sourceButtonsLayout_->removeWidget(button);
-		delete button;
+		button->deleteLater();
 	}
 
 	buttons.clear();

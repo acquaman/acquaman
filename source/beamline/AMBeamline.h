@@ -37,7 +37,7 @@ class AMSamplePlateBrowser;
 
 #define AMBEAMLINE_BEAMLINE_NOT_CREATED_YET 280301
 
-/// One good way for components in the Acquaman framework to access and set a variety of beamline controls is through a centralized AMBeamline object.  This class provides the basic functionality expected of every beamline, and can be subclassed to include the specific controls available on a particular machine.  It uses the singleton design pattern to ensure that only a single instance of the beamline object exists; you can access this object through AMBeamline::bl().
+/// One good way for components in the Acquaman framework to access and set a variety of beamline controls is through a centralized AMBeamline object.  This class provides the basic functionality expected of every beamline, and can be subclassed to include the specific controls available on a particular machine.  It uses the singleton design pattern to ensure that only a single instance of the beamline object exists, you can access this object through AMBeamline::bl().
 
 /*! <b>Note on subclassing and inheritance</b>
   Singleton classes are designed so that only a single instance of the object can be created.  This is accomplished by making the constructor private (or protected), and always accessing the object through a static member function (in this case, AMBeamline::bl()).
@@ -71,7 +71,7 @@ public:
 	virtual ~AMBeamline();
 
 
-	/// Reports whether the beamline is currently in exclusive use, and should not be changed. (For example: you or some other program is running a scan). The base class always returns false; your should re-implement this function if you know better.
+	/// Reports whether the beamline is currently in exclusive use, and should not be changed. (For example: you or some other program is running a scan). The base class always returns false, your should re-implement this function if you know better.
 	virtual bool isBeamlineScanning() const { return false; }
 
 	/// Returns the current beamline sample positioner (you can send a sample position to it and it will there)
@@ -163,7 +163,7 @@ protected slots:
 	void onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest *region);
 
 protected:
-	/// Singleton classes have a protected constructor; all access is through AMBeamline::bl() or YourBeamline::bl()
+	/// Singleton classes have a protected constructor, all access is through AMBeamline::bl() or YourBeamline::bl()
 	AMBeamline(const QString& controlName);
 	/// Instance variable
 	static AMBeamline* instance_;

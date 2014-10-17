@@ -46,10 +46,7 @@ HEADERS += \
 	source/ui/dataman/AMRunSelector.h \
 	source/ui/beamline/AMControlSetView.h \
 	source/ui/dataman/AMCramBarHorizontal.h \
-	source/ui/dataman/AMDataView.h \
-	source/ui/dataman/AMDataViewWithActionButtons.h \
 	source/ui/dataman/AMFirstTimeWidget.h \
-	source/ui/dataman/AMFlowGraphicsLayout.h \
 	source/ui/dataman/AMImportControllerWidget.h \
 	source/ui/AMMainWindow.h \
 	source/ui/dataman/AMRunExperimentInsert.h \
@@ -58,7 +55,6 @@ HEADERS += \
 	source/ui/AMSidebar.h \
 	source/ui/AMStatusView.h \
 	source/ui/AMThumbnailScrollViewer.h \
-	source/ui/AMBottomBar.h \
 	source/ui/beamline/AMControlEditor.h \
 	source/ui/dataman/AMNewRunDialog.h \
 	source/dataman/AMAbstractFileLoader.h \
@@ -75,7 +71,6 @@ HEADERS += \
 	source/ui/dataman/AMDataSourcesEditor.h \
 	source/ui/AMWrappingLineEdit.h \
 	source/ui/AMStartScreen.h \
-	source/ui/AMSignallingGraphicsView.h \
 	source/dataman/AMUser.h \
 	source/dataman/AMXESScan.h \
 	source/dataman/info/ALSBL8XESDetectorInfo.h \
@@ -103,7 +98,6 @@ HEADERS += \
 	source/dataman/info/AMSpectralOutputDetectorInfo.h \
 	source/dataman/SGM/SGMMCPDetectorInfo.h \
 	source/dataman/info/CLSPGTDetectorInfo.h \
-	source/dataman/database/AMQueryTableModel.h \
 	source/dataman/export/AMExportController.h \
 	source/dataman/export/AMExporter.h \
 	source/dataman/export/AMExporterOption.h \
@@ -144,7 +138,6 @@ HEADERS += \
 	source/dataman/AMScanExemplarDictionary.h \
 	source/dataman/AMScanExemplar.h \
 	source/ui/dataman/AMDictionaryLineEdit.h \
-	source/beamline/CLS/CLSSR570.h \
 	source/beamline/CLS/CLSBiStateControl.h \
 	source/application/AMAppControllerSupport.h \
 	source/application/AMPluginsManager.h \
@@ -166,7 +159,6 @@ HEADERS += \
 	source/analysis/AM1DIntegralAB.h \
 	source/analysis/AM1DBasicIntegralABEditor.h \
 	source/util/AMJoystick.h \
-	source/ui/util/AMJoystickTestView.h \
 	source/ui/dataman/AMControlInfoListTableView.h \
 	source/dataman/AM2DScan.h \
 	source/dataman/info/CLSAmptekSDD123DetectorInfo.h \
@@ -407,13 +399,22 @@ HEADERS += \
 	source/application/AMCrashMonitorSupport.h \
 	source/analysis/AM0DAccumulatorAB.h \
 	source/util/AMBuildInfo.h \
+	source/util/AMBuildReporter.h \
+	source/analysis/AM1DTimedDataAB.h \
+	source/analysis/AM1DKSpaceCalculatorAB.h \
+	source/dataman/AMLightweightScanInfo.h \
+	source/dataman/AMLightweightScanInfoCollection.h \
+	source/dataman/AMLightweightScanInfoModel.h \
+	source/ui/util/AMSortFilterWidget.h \
+	source/ui/dataman/AMScanDataView.h \
+	source/dataman/AMLightweightScanInfoFilterProxyModel.h \
+	source/ui/dataman/AMScanTableView.h \
+	source/ui/dataman/AMScanThumbnailView.h \
+	source/ui/dataman/AMScanTreeView.h \
 	source/util/AMRecursiveDirectoryCompare.h \
 	source/util/AMDirectorySynchronizer.h \
 	source/ui/util/AMDirectorySynchronizerDialog.h \
 	source/actions3/actions/AMDirectorySynchronizationAction.h \
-	source/util/AMBuildReporter.h \
-	source/analysis/AM1DTimedDataAB.h \
-	source/analysis/AM1DKSpaceCalculatorAB.h \
 	source/ui/beamline/AMCurrentAmplifierCompositeView.h \
 	source/ui/beamline/AMCurrentAmplifierSingleView.h \
 	source/ui/beamline/AMCurrentAmplifierView.h \
@@ -429,30 +430,20 @@ HEADERS += \
 	source/beamline/AMBeamlineControlSetAPI.h \
 	source/beamline/AMBeamlineDetectorAPI.h \
 	source/beamline/AMBeamlineDetectorSetAPI.h \
-	source/beamline/AMBeamlineSynchronizedDwellTimeAPI.h
+	source/beamline/AMBeamlineSynchronizedDwellTimeAPI.h \
+	source/util/AMThread.h \
+	source/util/AMAppArgumentParser.h \
+	source/beamline/AMStorageRing.h \
+	source/beamline/CLS/CLSStorageRing.h \
+	source/beamline/CLS/CLSSR570.h \
+	source/ui/dataman/AMBrowseScansView.h
 
-# OS-specific files:
-linux-g++|linux-g++-32|linux-g++-64 {
-	 HEADERS *= source/util/AMGenericLinuxJoystick.h
-}
-
-FORMS *= source/ui/dataman/AMDataView.ui \
-	source/ui/dataman/AMDataViewEmptyHeader.ui \
-	source/ui/dataman/AMDataViewSectionHeader.ui \
+FORMS += \
 	source/ui/dataman/AMImportControllerWidget.ui \
-	source/ui/acquaman/AMScanConfigurationView.ui \
-	source/ui/AMBottomBar.ui \
-	source/ui/dataman/AMGenericScanEditor.ui \
-	source/ui/dataman/AMDataSourcesEditor.ui \
 	source/ui/dataman/AMSamplePlateSelector.ui \
-	source/ui/dataman/AMSamplePositionViewActionsWidget.ui \
 	source/ui/dataman/AMExporterOptionGeneralAsciiView.ui \
-	source/ui/dataman/AMDataViewActionsBar.ui \
-	source/ui/dataman/AMChooseScanDialog.ui \
 	source/ui/AMLinePropertyEditor.ui \
 	source/ui/dataman/AMImagePropertyEditor.ui \
-	source/ui/util/AMJoystickTestView.ui \
-	source/ui/actions3/AMAddActionDialog3.ui \
 	source/ui/AMTopFrame2.ui
 
 SOURCES += \
@@ -472,16 +463,12 @@ SOURCES += \
 	source/ui/dataman/AMRunSelector.cpp \
 	source/ui/beamline/AMControlSetView.cpp \
 	source/ui/dataman/AMCramBarHorizontal.cpp \
-	source/ui/dataman/AMDataView.cpp \
-	source/ui/dataman/AMDataViewWithActionButtons.cpp \
-	source/ui/dataman/AMFlowGraphicsLayout.cpp \
 	source/ui/AMMainWindow.cpp \
 	source/ui/dataman/AMRunExperimentInsert.cpp \
 	source/ui/dataman/AMScanView.cpp \
 	source/ui/AMSidebar.cpp \
 	source/ui/AMStatusView.cpp \
 	source/ui/AMThumbnailScrollViewer.cpp \
-	source/ui/AMBottomBar.cpp \
 	source/ui/beamline/AMControlEditor.cpp \
 	source/ui/dataman/AMNewRunDialog.cpp \
 	source/ui/AMPrefixSuffixLineEdit.cpp \
@@ -497,7 +484,6 @@ SOURCES += \
 	source/ui/dataman/AMDataSourcesEditor.cpp \
 	source/ui/AMWrappingLineEdit.cpp \
 	source/ui/AMStartScreen.cpp \
-	source/ui/AMSignallingGraphicsView.cpp \
 	source/dataman/AMUser.cpp \
 	source/dataman/AMXESScan.cpp \
 	source/dataman/info/ALSBL8XESDetectorInfo.cpp \
@@ -524,7 +510,6 @@ SOURCES += \
 	source/dataman/info/AMSpectralOutputDetectorInfo.cpp \
 	source/dataman/SGM/SGMMCPDetectorInfo.cpp \
 	source/dataman/info/CLSPGTDetectorInfo.cpp \
-	source/dataman/database/AMQueryTableModel.cpp \
 	source/dataman/export/AMExportController.cpp \
 	source/dataman/export/AMExporterOption.cpp \
 	source/dataman/export/AMExporterOptionGeneral.cpp \
@@ -564,7 +549,6 @@ SOURCES += \
 	source/dataman/AMScanExemplarDictionary.cpp \
 	source/dataman/AMScanExemplar.cpp \
 	source/ui/dataman/AMDictionaryLineEdit.cpp \
-	source/beamline/CLS/CLSSR570.cpp \
 	source/beamline/CLS/CLSBiStateControl.cpp \
 	source/application/AMPluginsManager.cpp \
 	source/application/AMAppControllerSupport.cpp \
@@ -584,7 +568,6 @@ SOURCES += \
 	source/analysis/AM1DIntegralAB.cpp \
 	source/analysis/AM1DBasicIntegralABEditor.cpp \
 	source/util/AMJoystick.cpp \
-	source/ui/util/AMJoystickTestView.cpp \
 	source/ui/dataman/AMControlInfoListTableView.cpp \
 	source/dataman/AM2DScan.cpp \
 	source/dataman/info/CLSAmptekSDD123DetectorInfo.cpp \
@@ -820,13 +803,22 @@ SOURCES += \
 	source/application/AMCrashMonitorSupport.cpp \
 	source/analysis/AM0DAccumulatorAB.cpp \
 	source/util/AMBuildInfo.cpp \
+	source/util/AMBuildReporter.cpp \
+	source/analysis/AM1DTimedDataAB.cpp \
+	source/analysis/AM1DKSpaceCalculatorAB.cpp \
+	source/dataman/AMLightweightScanInfo.cpp \
+	source/dataman/AMLightweightScanInfoCollection.cpp \
+	source/dataman/AMLightweightScanInfoModel.cpp \
+	source/ui/util/AMSortFilterWidget.cpp \
+	source/ui/dataman/AMScanDataView.cpp \
+	source/dataman/AMLightweightScanInfoFilterProxyModel.cpp \
+	source/ui/dataman/AMScanTableView.cpp \
+	source/ui/dataman/AMScanThumbnailView.cpp \
+	source/ui/dataman/AMScanTreeView.cpp \
 	source/util/AMRecursiveDirectoryCompare.cpp \
 	source/util/AMDirectorySynchronizer.cpp \
 	source/ui/util/AMDirectorySynchronizerDialog.cpp \
 	source/actions3/actions/AMDirectorySynchronizationAction.cpp \
-	source/util/AMBuildReporter.cpp \
-	source/analysis/AM1DTimedDataAB.cpp \
-	source/analysis/AM1DKSpaceCalculatorAB.cpp \
 	source/ui/beamline/AMCurrentAmplifierCompositeView.cpp \
 	source/ui/beamline/AMCurrentAmplifierSingleView.cpp \
 	source/ui/beamline/AMCurrentAmplifierView.cpp \
@@ -842,12 +834,13 @@ SOURCES += \
 	source/beamline/AMBeamlineControlSetAPI.cpp \
 	source/beamline/AMBeamlineDetectorAPI.cpp \
 	source/beamline/AMBeamlineDetectorSetAPI.cpp \
-	source/beamline/AMBeamlineSynchronizedDwellTimeAPI.cpp
-
-# OS-specific files
-linux-g++|linux-g++-32|linux-g++-64 {
-	SOURCES *= source/util/AMGenericLinuxJoystick.cpp
-}
+	source/beamline/AMBeamlineSynchronizedDwellTimeAPI.cpp \
+	source/util/AMThread.cpp \
+	source/util/AMAppArgumentParser.cpp \
+	source/beamline/AMStorageRing.cpp \
+	source/beamline/CLS/CLSStorageRing.cpp \
+	source/beamline/CLS/CLSSR570.cpp \
+	source/ui/dataman/AMBrowseScansView.cpp
 
 RESOURCES *= source/icons/icons.qrc \
 		source/configurationFiles/configurationFiles.qrc \

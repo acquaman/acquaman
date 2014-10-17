@@ -74,7 +74,7 @@ QList<void*> AMPointerTreeNode::clearNode(){
 	while(!childrenNodes_.isEmpty()){
 		descendantItems.append(childrenNodes_.last()->clearNode());
 		AMPointerTreeNode *lastChildNode = childrenNodes_.takeLast();
-		delete lastChildNode;
+		lastChildNode->deleteLater();
 	}
 	if(item_){
 		descendantItems.append(item_);
@@ -90,7 +90,6 @@ void AMPointerTreeNode::appendChildNode(AMPointerTreeNode *childNode){
 		childrenNodes_.append(childNode);
 		emit descendantNodeAppended(childNode);
 		descendantCount_++;
-		//connect(childNode, SIGNAL(childNodeAppended(AMPointerTreeNode*)), this, SIGNAL(childNodeAppended(AMPointerTreeNode*)));
 		connect(childNode, SIGNAL(descendantNodeAppended(AMPointerTreeNode*)), this, SLOT(onDescendantNodeAppended(AMPointerTreeNode*)));
 	}
 }

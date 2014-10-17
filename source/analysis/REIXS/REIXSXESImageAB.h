@@ -60,10 +60,10 @@ protected:
 	int numRows_;
 
 	gsl_multifit_linear_workspace* fitWorkSpace_; ///< Fit: GSL curve fitting context.
-	gsl_matrix* fitXX_;		///< Fit: The matrix of predictor variables XX_ij = x_i^j;  In our case, x is the image row index (y!)
-	gsl_vector* fitY_;		///< Fit: The vector of observations;  In our case, fitY_j is the shift value at j.
-	gsl_vector* fitWeight_;	///< Fit: The weight of the observation; In our case 1 for sumRangeMin_ <= y <= sumRangeMax_; 0 otherwise.
-	gsl_vector* fitC_;		///< Fit: The vector of coefficients; In our case the 3 quadratic fit constants.
+	gsl_matrix* fitXX_;		///< Fit: The matrix of predictor variables XX_ij = x_i^j  In our case, x is the image row index (y!)
+	gsl_vector* fitY_;		///< Fit: The vector of observations.  In our case, fitY_j is the shift value at j.
+	gsl_vector* fitWeight_;	///< Fit: The weight of the observation. In our case 1 for sumRangeMin_ <= y <= sumRangeMax_ 0 otherwise.
+	gsl_vector* fitC_;		///< Fit: The vector of coefficients. In our case the 3 quadratic fit constants.
 	gsl_matrix* fitCov_;		///< Fit: covariance matrix
 	double fitChisq_;		///< Fit: Chi-squared result
 
@@ -88,10 +88,10 @@ protected:
 	int numRows_;
 
 	gsl_multifit_linear_workspace* fitWorkSpace_; ///< Fit: GSL curve fitting context.
-	gsl_matrix* fitXX_;		///< Fit: The matrix of predictor variables XX_ij = x_i^j;
-	gsl_vector* fitY_;		///< Fit: The vector of observations;
-	gsl_vector* fitWeight_;	///< Fit: The weight of the observation;
-	gsl_vector* fitC_;		///< Fit: The vector of coefficients; In our case the 4 Cubic fit constants.
+	gsl_matrix* fitXX_;		///< Fit: The matrix of predictor variables XX_ij = x_i^j
+	gsl_vector* fitY_;		///< Fit: The vector of observations
+	gsl_vector* fitWeight_;	///< Fit: The weight of the observation
+	gsl_vector* fitC_;		///< Fit: The vector of coefficients. In our case the 4 Cubic fit constants.
 	gsl_matrix* fitCov_;		///< Fit: covariance matrix
 	double fitChisq_;		///< Fit: Chi-squared result
 
@@ -116,10 +116,10 @@ protected:
 	int numRows_;
 
 	gsl_multifit_linear_workspace* fitWorkSpace_; ///< Fit: GSL curve fitting context.
-	gsl_matrix* fitXX_;		///< Fit: The matrix of predictor variables XX_ij = x_i^j;
-	gsl_vector* fitY_;		///< Fit: The vector of observations;
-	gsl_vector* fitWeight_;	///< Fit: The weight of the observation;
-	gsl_vector* fitC_;		///< Fit: The vector of coefficients; In our case the 4 Quartic fit constants.
+	gsl_matrix* fitXX_;		///< Fit: The matrix of predictor variables XX_ij = x_i^j
+	gsl_vector* fitY_;		///< Fit: The vector of observations
+	gsl_vector* fitWeight_;	///< Fit: The weight of the observation
+	gsl_vector* fitC_;		///< Fit: The vector of coefficients. In our case the 4 Quartic fit constants.
 	gsl_matrix* fitCov_;		///< Fit: covariance matrix
 	double fitChisq_;		///< Fit: Chi-squared result
 
@@ -186,7 +186,9 @@ class REIXSXESImageAB : public AMStandardAnalysisBlock
 
 public:
 	/// Enum describing the options for smoothing the auto-correlated shift curve.
-	//enum ShiftCurveSmoothing { NoSmoothing, QuadraticSmoothing, CubicSmoothing, QuarticSmoothing, movingMedianSmoothing, movingAverageSmoothing };
+	/*
+	enum ShiftCurveSmoothing { NoSmoothing, QuadraticSmoothing, CubicSmoothing, QuarticSmoothing, movingMedianSmoothing, movingAverageSmoothing };
+	*/
 	enum ShiftCurveSmoothing { None, Poly, Median, Average};
 
 	/// Constructor. \c outputName is the name() for the output data source.
@@ -202,6 +204,9 @@ public:
   - the rank() of that input source must be 2 (two-dimensional)
   */
 	virtual bool areInputDataSourcesAcceptable(const QList<AMDataSource*>& dataSources) const;
+
+	/// Returns the desired rank for input sources.
+	virtual int desiredInputRank() const { return 2; }
 
 protected:
 	/// Set the data source inputs.
@@ -242,10 +247,10 @@ int outputSize = indexStart.totalPointsTo(indexEnd);
 	int sumRangeMinX() const { return sumRangeMinX_; }
 	/// The maximum column to include (inclusive) in the sum
 	int sumRangeMaxX() const { return sumRangeMaxX_; }
-	
+
 	//The "roundness" of the mask (0 for rectangular, 1 for ellipse)
 	double rangeRound() const { return rangeRound_; }
-	
+
 	/// Returns the shift values used to offset each row before summing. This will have the same size as the height of the image.
 	AMIntList shiftValues() const { return shiftValues_; }
 
@@ -287,7 +292,7 @@ public slots:
 	void setShiftValues(const AMIntList& shiftValues);
 
 	void setRangeRound(double rangeRound);
-	
+
 	/// Sets the central pixel value to use when running an auto-correlation routine
 	void setCorrelationCenterPixel(int centerPx);
 	/// Sets the full-width of the region around correlationCenterPixel() to compute when running an auto-correlation routine.
@@ -353,8 +358,8 @@ protected:
 	int sumRangeMinY_, sumRangeMaxY_;
 	int sumRangeMinX_, sumRangeMaxX_; //left and right boundaries, so we can have full control over ellipse
 	double rangeRound_; //0 to 1, 0 for rectangular mask, 1 for elliptical
-	
-	
+
+
 	/// The central pixel value to use when running an auto-correlation routine
 	int correlationCenterPx_;
 	/// The full-width of the region around correlationCenterPixel() to compute when running an auto-correlation routine.
@@ -362,8 +367,10 @@ protected:
 	/// Describes the smoothing that should be applied to the shift curve resulting from the correlation routine.  One of ShiftCurveSmoothing.
 
 	QPair<int, int> correlationSmoothing_;
-	//int correlationSmoothingType_;
-	//int correlationSmoothingMode_;
+	/*
+	int correlationSmoothingType_;
+	int correlationSmoothingMode_;
+	*/
 	/// True if the correlation routine should be run every time the data changes.
 	bool liveCorrelation_;
 	/// The shift values used to offset each row of the image when summing

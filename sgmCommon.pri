@@ -5,7 +5,7 @@
 # Source Files (SGM Common)
 #######################
 
-FORMS += 	source/ui/SGMXASScanConfigurationViewer.ui
+FORMS += 
 
 HEADERS += \
 	source/application/SGM/SGMAppController.h \
@@ -46,8 +46,7 @@ HEADERS += \
 	source/ui/SGM/SGMFastScanConfiguration2013View.h \
 	source/ui/SGM/SGMAdvancedMirrorView.h \
 	source/ui/SGM/SGMSIS3820ScalerView.h \
-	source/ui/dataman/AMScanSearchView.h \
-	source/ui/SGM/SGMDataViewWithActionButtons.h
+	source/ui/dataman/AMScanSearchView.h
 
 SOURCES += \
 	source/application/SGM/SGMAppController.cpp \
@@ -88,7 +87,6 @@ SOURCES += \
 	source/ui/SGM/SGMFastScanConfiguration2013View.cpp \
 	source/ui/SGM/SGMAdvancedMirrorView.cpp \
 	source/ui/SGM/SGMSIS3820ScalerView.cpp \
-	source/ui/dataman/AMScanSearchView.cpp \
-	source/ui/SGM/SGMDataViewWithActionButtons.cpp
+	source/ui/dataman/AMScanSearchView.cpp
 
 

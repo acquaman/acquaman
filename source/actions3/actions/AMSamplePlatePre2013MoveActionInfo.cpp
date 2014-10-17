@@ -26,8 +26,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 AMSamplePlatePre2013MoveActionInfo::AMSamplePlatePre2013MoveActionInfo(int samplePlateId, int samplePositionIndex, QObject *parent) :
 	AMActionInfo3("Sample Move", "Sample Move", ":/system-run.png", parent)
 {
-	//samplePlateId_ = samplePlateId;
-	//samplePositionId_ = samplePositionId;
 	setSamplePlateId(samplePlateId);
 	setSamplePositionIndex(samplePositionIndex);
 	samplePosition_ = 0; //NULL
@@ -37,8 +35,6 @@ AMSamplePlatePre2013MoveActionInfo::AMSamplePlatePre2013MoveActionInfo(int sampl
 AMSamplePlatePre2013MoveActionInfo::AMSamplePlatePre2013MoveActionInfo(const AMSamplePlatePre2013MoveActionInfo &other) :
 	AMActionInfo3(other)
 {
-	//samplePlateId_ = other.samplePlateId();
-	//samplePositionId_ = other.samplePositionId();
 	setSamplePlateId(other.samplePlateId());
 	setSamplePositionIndex(other.samplePositionIndex());
 	samplePosition_ = 0; //NULL
@@ -69,27 +65,16 @@ const AMControlInfoList* AMSamplePlatePre2013MoveActionInfo::samplePosition(){
 	AMSamplePlatePre2013 samplePlate;
 	if(!samplePlate.loadFromDb(AMDatabase::database("user"), samplePlateId_)){
 		AMErrorMon::alert(this, AMSAMPLEPLATEPRE2013MOVEACTIONINFO_INVALID_SAMPLEPLATE_ID, QString("Failed to generate sample move information, there is no plate with id %1 in the database").arg(samplePlateId_));
-		//return samplePosition_;
 		return 0; //NULL
 	}
 
 	int samplePositionId = -1;
 	if(samplePositionIndex_ < samplePlate.count()){
-		//samplePositionId = samplePlate.at(samplePositionIndex_).id();
 		samplePositionId = samplePlate.at(samplePositionIndex_).position().id();
 	}
-	/*
-	int indexOfSamplePosition = -1;
-	for(int x = 0; x < samplePlate.count(); x++){
-		if(samplePlate.at(x).id() == samplePositionIndex_){
-			indexOfSamplePosition = x;
-			break;
-		}
-	}
-	*/
+
 	if(samplePositionId < 0){
 		AMErrorMon::alert(this, AMSAMPLEPLATEPRE2013MOVEACTIONINFO_INVALID_SAMPLEPOSITION_INDEX, QString("Failed to generate sample move information, there is no position at index %1 on plate %2").arg(samplePositionIndex_).arg(samplePlateId_));
-		//return samplePosition_;
 		return 0; //NULL
 	}
 

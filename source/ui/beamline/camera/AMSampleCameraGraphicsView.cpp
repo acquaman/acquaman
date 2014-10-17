@@ -90,7 +90,7 @@ void AMSampleCameraGraphicsView::setVideoItem(QGraphicsVideoItem *item)
 {
 	if(videoItem_)
 		scene()->removeItem(videoItem_);
-	delete videoItem_;
+	videoItem_->deleteLater();
 	videoItem_ = item;
 	scene()->addItem(videoItem_);
 	mediaPlayer()->setVideoOutput(videoItem_);
@@ -152,7 +152,7 @@ QPointF AMSampleCameraGraphicsView::mapVideoToScene(const QPointF &videoCoordina
 void AMSampleCameraGraphicsView::contextMenuEvent(QContextMenuEvent *event)
 {
 	Q_UNUSED(event)
-	/// do nothing;
+	/// do nothing
 }
 
 

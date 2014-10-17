@@ -47,7 +47,7 @@ AMBeamline::~AMBeamline()
 void AMBeamline::releaseBl() {
 
 	if(instance_) {
-		delete instance_;
+		instance_->deleteLater();
 		instance_ = 0;
 		}
 

@@ -228,6 +228,7 @@ public:
 		WasStoppedFailure,		///< The move was prematurely stopped with the stop() command.
 		AlreadyMovingFailure,	///< The move could not be started because the control was already moving, and it does not allowsMovesWhileMoving().
 		RedirectedFailure,		///< Never emitted by AMControl classes. Can be used to represent that a move was redirected while already moving.
+		LimitFailure,			///< Emitted by subclasses that may have information about movements that cannot proceed based on limits
 		OtherFailure 			///< An error code defined by the specific control implementation
 	};
 
@@ -242,6 +243,7 @@ public:
 		case AMControl::WasStoppedFailure:		explanation = "The move was manually interrupted or stopped."; break;
 		case AMControl::AlreadyMovingFailure:	explanation = "The control was already moving."; break;
 		case AMControl::RedirectedFailure:		explanation = "The move was externally re-directed to another destination."; break;
+		case AMControl::LimitFailure:			explanation = "The move requested is not possible because it exceeds a hardware limit."; break;
 		case AMControl::OtherFailure:
 		default:
 			explanation = "An undocumented failure happened."; break;
@@ -468,7 +470,7 @@ The Control abstraction provides two different properties (and associated signal
 	//@}
 
 
-	/// Returns the alarm severity for this control.  This indicates how "serious" the alarm is; it is one of the values in AMControl::AlarmLevel.
+	/// Returns the alarm severity for this control.  This indicates how "serious" the alarm is, it is one of the values in AMControl::AlarmLevel.
 	virtual int alarmSeverity() const { return NoAlarm; }
 	/// Returns the alarm status for this control.  The alarm status is an integer that can be defined by the control implementation to explain the reason for the alarm.
 	virtual int alarmStatus() const { return 0; }
@@ -479,7 +481,7 @@ public slots:
 		Q_UNUSED(setpoint);
 		return NotConnectedFailure;
 	}
-	/// This is used to move a control a relative distance from its current position. Capable of moving relative from the feedback value or the setpoint (see enum documentation for details). For historic reasons, the default is relative from feedback value. The base class implementation simply issues a move() to the current value() plus \c distance. This may not be sufficient if moveRelative() will be called faster than value() updates in your implementation; in that case, it's recommended to re-implement this as appropriate.
+	/// This is used to move a control a relative distance from its current position. Capable of moving relative from the feedback value or the setpoint (see enum documentation for details). For historic reasons, the default is relative from feedback value. The base class implementation simply issues a move() to the current value() plus \c distance. This may not be sufficient if moveRelative() will be called faster than value() updates in your implementation, in that case, it's recommended to re-implement this as appropriate.
 	virtual FailureExplanation moveRelative(double distance, AMControl::RelativeMoveType relativeMoveType = AMControl::RelativeMoveFromValue) {
 		switch(relativeMoveType){
 		case AMControl::RelativeMoveFromValue:
@@ -508,14 +510,6 @@ public slots:
 
 	/// Set this control to accept move() requests while it isMoving(). The default is to reject move() requests if the control is already moving. This should be changed for controls that are capable of being re-targetted while in motion.
 	void setAllowsMovesWhileMoving(bool allowMovesWhileMoving) { allowsMovesWhileMoving_ = allowMovesWhileMoving; }
-
-	// Deprecated:
-//	/// Moves all of the AMControl's subcontrols (children and grandchildren, etc) based on a \c controlList QMap of Control Names and setpoint values.
-//	/*! \param controlList specifies a set of AMControls by their name(), and specifies a target value for each.
-//  \param errorLevel specifies what counts as success. \todo David: write out what these are.
-//  \todo Change name to setChildrenState().
-//   */
-//	bool setState(const QMap<QString, double> controlList, unsigned int errorLevel = 0);
 
 
 signals:
@@ -571,7 +565,7 @@ signals:
 protected:
 	/// List of pointers to our subcontrols
 	QList<AMControl*> children_;
-	/// True if the control should allow additional move() commands while it's already moving. Some hardware can handle this. If this is false, move() requests issued while the control is moving are ignored.  It is false by default; subclassses should change this if required.
+	/// True if the control should allow additional move() commands while it's already moving. Some hardware can handle this. If this is false, move() requests issued while the control is moving are ignored.  It is false by default. Subclassses should change this if required.
 	bool allowsMovesWhileMoving_;
 
 	/// A flag to tell controls whether or not to attempt a move when they are already within tolerance
@@ -591,10 +585,6 @@ protected slots:
 	/// This is used internally to specify the allowed enum names for the move() aspect of the control, if they happen to be different than the enums that apply to value().  This can sometimes happen when there are status enums included in the value() [ex: "Open", "Closed", and "Moving"], so the valid choices for move() are different [ex: "Open" and "Close"].
 	/*! If isEnum() returns true and this is not specified by a subclass implementation, the regular enumNames() will be assumed to apply for both move() and value(). moveEnumNames() will return enumNames(). */
 	void setMoveEnumStates(const QStringList& enumStateNames) { if(moveEnumNames_ == enumStateNames) return; moveEnumNames_ = enumStateNames; emit enumChanged(); }
-
-	// Deprecated:
-//	/// Used internally by setStateList, called recursively. \todo MIGHT NEED TO BE VIRTUAL for reimplementation in child classes
-//	bool searchSetChildren(QMap<QString, double> *controlList, QMap<QString, AMControl*> *executeList, unsigned int errorLevel);
 
 private:
 	// subclasses should use the protected methods to access these, to ensure signal generation.

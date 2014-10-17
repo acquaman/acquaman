@@ -66,7 +66,7 @@ AMAction3::AMAction3(const AMAction3& other)
 // Destructor: deletes the info and prerequisites
 AMAction3::~AMAction3() {
 	if(info_){
-		delete info_;
+		info_->deleteLater();
 		info_ = 0;
 	}
 }
@@ -352,7 +352,7 @@ double AMAction3::pausedTime() const
 	if(!startDateTime_.isValid())
 		return -1.0;
 
-	// if we're still in the paused state, secondsSpentPaused_ hasn't been updated yet. Need to add the length of the current pause break;
+	// if we're still in the paused state, secondsSpentPaused_ hasn't been updated yet. Need to add the length of the current pause break
 	if(state() == Paused)
 		return secondsSpentPaused_ + double(lastPausedAt_.msecsTo(QDateTime::currentDateTime()))/1000.0;
 	else

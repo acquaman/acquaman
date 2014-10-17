@@ -21,26 +21,32 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "BioXASSideXASScanConfiguration.h"
 
-#include "dataman/AMScanAxisRegion.h"
+#include <QDebug>
+
+#include "dataman/AMScanAxisEXAFSRegion.h"
 #include "acquaman/BioXASSide/BioXASSideXASScanActionController.h"
 #include "ui/BioXAS/BioXASSideXASScanConfigurationView.h"
 
 BioXASSideXASScanConfiguration::BioXASSideXASScanConfiguration(QObject *parent) :
-    AMStepScanConfiguration(parent)
+	AMStepScanConfiguration(parent)
 {
-    setName("Unnamed Scan");
-    setUserScanName("Unnamed Scan");
+	setName("Unnamed Scan");
+	setUserScanName("Unnamed Scan");
 
-    AMScanAxisRegion *region = new AMScanAxisRegion();
-    AMScanAxis *axis = new AMScanAxis(AMScanAxis::StepAxis, region);
-    appendScanAxis(axis);
+	edgeEnergy_ = -1;
+
+	AMScanAxisEXAFSRegion *region = new AMScanAxisEXAFSRegion;
+	AMScanAxis *axis = new AMScanAxis(AMScanAxis::StepAxis, region);
+	appendScanAxis(axis);
 }
 
 BioXASSideXASScanConfiguration::BioXASSideXASScanConfiguration(const BioXASSideXASScanConfiguration &original)
-    : AMStepScanConfiguration(original)
+	: AMStepScanConfiguration(original)
 {
-    setName(original.name());
-    setUserScanName(original.userScanName());
+	setName(original.name());
+	setUserScanName(original.userScanName());
+
+	edgeEnergy_ = original.edgeEnergy();
 }
 
 BioXASSideXASScanConfiguration::~BioXASSideXASScanConfiguration()
@@ -50,23 +56,46 @@ BioXASSideXASScanConfiguration::~BioXASSideXASScanConfiguration()
 
 AMScanConfiguration* BioXASSideXASScanConfiguration::createCopy() const
 {
-    return new BioXASSideXASScanConfiguration(*this);
+	return new BioXASSideXASScanConfiguration(*this);
 }
 
 AMScanController* BioXASSideXASScanConfiguration::createController()
 {
-    AMScanActionController *controller = new BioXASSideXASScanActionController(this);
-    controller->buildScanController();
+	AMScanActionController *controller = new BioXASSideXASScanActionController(this);
+	controller->buildScanController();
 
-    return controller;
+	return controller;
 }
 
 AMScanConfigurationView* BioXASSideXASScanConfiguration::createView()
 {
-    return new BioXASSideXASScanConfigurationView(this);
+	return new BioXASSideXASScanConfigurationView(this);
 }
 
 QString BioXASSideXASScanConfiguration::detailedDescription() const
 {
-    return "BioXAS Side XAS Scan";
+	return "BioXAS Side XAS Scan";
+}
+
+double BioXASSideXASScanConfiguration::edgeEnergy() const
+{
+	return edgeEnergy_;
+}
+
+void BioXASSideXASScanConfiguration::setEdgeEnergy(double edgeEnergy){
+	if(edgeEnergy_ != edgeEnergy){
+		edgeEnergy_ = edgeEnergy;
+		emit edgeEnergyChanged(edgeEnergy_);
+		setModified(true);
+	}
+}
+
+void BioXASSideXASScanConfiguration::setEdge(QString edgeName)
+{
+	if (edge_ != edgeName){
+
+		edge_ = edgeName;
+		emit edgeChanged(edgeName);
+		setModified(true);
+	}
 }

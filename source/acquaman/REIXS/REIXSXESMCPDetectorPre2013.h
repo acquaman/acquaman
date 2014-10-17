@@ -33,7 +33,7 @@ class REIXSXESMCPDataSourcePre2013 : public QObject, public AMDataSource {
 	Q_OBJECT
 public:
 	/// Constructor. \c name is the AMDataSource::name() for this source, and imagePV is the process variable containing the image data. We also need the PVs which describe the
- 	virtual ~REIXSXESMCPDataSourcePre2013();
+	virtual ~REIXSXESMCPDataSourcePre2013();
 	REIXSXESMCPDataSourcePre2013(const QString& name, AMProcessVariable* imagePV, AMProcessVariable* resolutionXPV, AMProcessVariable* resolutionYPV, QObject* parent = 0);
 
 	/// Human-readable description of the type of data source this is (ex: "One-dimensional math expression").  Subclasses should re-implement this.
@@ -61,7 +61,8 @@ public:
 		return axes_.at(axisNumber);
 	}
 	/// Returns the id of an axis, by name. (By id, we mean the index of the axis. We called it id to avoid ambiguity with indexes <i>into</i> axes.) This could be slow, so users shouldn't call it repeatedly. Returns -1 if not found.
-	virtual int idOfAxis(const QString& axisName) {
+	virtual int idOfAxis(const QString& axisName) const
+	{
 		if(axisName == axes_.at(0).name)
 			return 0;
 		if(axisName == axes_.at(1).name)
@@ -111,7 +112,7 @@ public:
 
 
 protected slots:
-	/// Called whenever the connection state of any PV changes; emits valuesChanged(), sizeChanged(), and stateChanged() as required.
+	/// Called whenever the connection state of any PV changes: emits valuesChanged(), sizeChanged(), and stateChanged() as required.
 	void onConnectionStateChanged();
 	/// Called when the image PV changes. emits valuesChanged().
 	void onImageValuesChanged();
@@ -202,9 +203,10 @@ public:
 		setName(info.name());
 		setDescription(info.description());
 
-		/// \todo: set HV. (No current way to set it; no PV control)
-
-		// removed for now: success |= setOrientation(info.orientation());
+		/*
+		/// \todo: set HV. (No current way to set it: no PV control)
+		removed for now: success |= setOrientation(info.orientation());
+		*/
 
 		return success;
 	}

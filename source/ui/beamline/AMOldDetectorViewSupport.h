@@ -113,7 +113,6 @@ namespace AMOldDetectorViewSupport{
 		// is it already registered? return true.
 		QString className(viewMo->className());
 		if(registeredClasses_.contains(className)) {
-			//AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, 0, QString("Detector View Support: The class '%1' has already been registered with detector view. Skipping duplicate registration.").arg(className)));
 			return true;
 		}
 

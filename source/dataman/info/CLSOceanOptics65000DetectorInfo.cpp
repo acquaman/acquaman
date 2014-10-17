@@ -40,7 +40,6 @@ CLSOceanOptics65000DetectorInfo::CLSOceanOptics65000DetectorInfo(const QString &
 CLSOceanOptics65000DetectorInfo::CLSOceanOptics65000DetectorInfo(const CLSOceanOptics65000DetectorInfo &original) :
 		AMOldDetectorInfo(original)
 {
-//	retreiveAndSetProperties(original);
 	this->operator =(original);
 }
 
@@ -50,7 +49,6 @@ AMOldDetectorInfo* CLSOceanOptics65000DetectorInfo::toNewInfo() const{
 
 CLSOceanOptics65000DetectorInfo& CLSOceanOptics65000DetectorInfo::operator =(const CLSOceanOptics65000DetectorInfo& other){
 	if(this != &other){
-//		retreiveAndSetProperties(other);
 		AMOldDetectorInfo::operator =(other);
 		setBinCount(other.binCount());
 		setAxisName(other.axisName());

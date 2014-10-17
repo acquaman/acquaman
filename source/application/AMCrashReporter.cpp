@@ -147,7 +147,6 @@ void AMCrashMonitor::onSiguser1Detected(){
 }
 
 void AMCrashMonitor::onSiguser2Detected(){
-	//qDebug() << "Detected SIGUSR2 in AMCrashMonitor, need to close this program now";
 	crashReporterPIDTimer_->stop();
 
 	QTimer::singleShot(1000, QCoreApplication::instance(), SLOT(quit()));
@@ -217,17 +216,12 @@ AMCrashReporter::AMCrashReporter(const QString &executableFullPath, const QStrin
 	int yPosition = (screenGeometry.height()/2)-200 + screenGeometry.y();
 	if(yPosition < 0)
 		yPosition = 0;
-	//qDebug() << "Going to move to " << xPositiion << yPosition << desktopWidget->screenCount();
 	move(xPositiion, yPosition);
 
 	QTimer::singleShot(100, this, SLOT(onSiguser1Detected()));
 }
 
 void AMCrashReporter::onSiguser1Detected(){
-	//qDebug() << "Detected SIGUSR1 in AMCrashReporter, need to check on PID " << watchingPID_;
-
-	//qDebug() << "Does the error file exist?" << QFile::exists(QString("/tmp/ErrorFile%1.txt").arg(watchingPID_));
-
 	QString errorString;
 	QString executableString;
 	QString addressString;
@@ -261,8 +255,6 @@ void AMCrashReporter::onOneSymbolProcessed(){
 		disconnect(activeAddressConversion_, SIGNAL(finished(int)), this, SLOT(onOneSymbolProcessed()));
 
 		QString allStandardOutput = activeAddressConversion_->readAllStandardOutput();
-		//qDebug() << "Got an line number as " << allStandardOutput << "\n";
-
 		allProcessedLines_.append(allStandardOutput);
 	}
 
@@ -282,7 +274,6 @@ void AMCrashReporter::onOneSymbolProcessed(){
 			activeAddressConversion_ = new QProcess();
 			QString program = "addr2line";
 			QStringList arguments;
-			//qDebug() << "Arguments: " << oneSymbol->executable() << oneSymbol->address();
 			arguments << "-e" << oneSymbol->executable() << oneSymbol->address();
 			activeAddressConversion_->start(program, arguments);
 
@@ -292,12 +283,10 @@ void AMCrashReporter::onOneSymbolProcessed(){
 }
 
 void AMCrashReporter::onAllSymbolsProcessed(){
-	//qDebug() << "Processed as: ";
 	QFile reportFile(QString("%1/report_%2_%3_%4_%5.txt").arg(errorFilePath_).arg(executableFullPath_.section('/', -1)).arg(QHostInfo::localHostName()).arg(QDateTime::currentDateTime().toString("hhmmss_ddMMyyyy")).arg(watchingPID_));
 	if(reportFile.open(QIODevice::WriteOnly | QIODevice::Text)){
 		QTextStream reportStream(&reportFile);
 		for(int x = 0; x < allProcessedLines_.count(); x++){
-			//qDebug() << "Report one line: " << allProcessedLines_.at(x);
 			reportStream << allProcessedLines_.at(x);
 		}
 		reportFile.close();
@@ -313,7 +302,6 @@ void AMCrashReporter::onAllSymbolsProcessed(){
 }
 
 void AMCrashReporter::requestMonitorClose(){
-	//qDebug() << "Going to send SIGUSR2 to " << monitorPID_;
 	kill(monitorPID_, SIGUSR2);
 }
 

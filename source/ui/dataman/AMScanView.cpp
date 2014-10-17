@@ -55,7 +55,7 @@ void AMScanViewSourceSelector::setModel(AMScanSetModel* model) {
 	if(model_) {
 
 		while(!scanBars_.isEmpty()) {
-			delete scanBars_.takeLast();
+			scanBars_.takeLast()->deleteLater();
 		}
 
 		disconnect(model_, 0, this, 0);
@@ -102,7 +102,7 @@ void AMScanViewSourceSelector::onRowAboutToBeRemoved(const QModelIndex& parent, 
 	// invalid (top-level) parent: means we're removing scans
 	if(!parent.isValid()){
 		for(int si=end; si>=start; si--) {
-			delete scanBars_.takeAt(si);
+			scanBars_.takeAt(si)->deleteLater();
 			// all the scans above this one need to move their scan index down:
 			for(int i=si; i<scanBars_.count(); i++)
 				scanBars_[i]->scanIndex_--;
@@ -200,7 +200,6 @@ AMScanViewModeBar::AMScanViewModeBar(QWidget* parent)
 	hl->addWidget(showSpectra_);
 
 	hl->setMargin(6);
-	// hl->setSpacing(24);
 	setLayout(hl);
 
 	setObjectName("AMScanViewModeBar");
@@ -233,10 +232,6 @@ AMScanView::AMScanView(AMScanSetModel* model, QWidget *parent) :
 	if(scansModel_->scanCount() >= AM_SCAN_VIEW_HIDE_SCANBARS_AFTER_N_SCANS)
 		setScanBarsVisible(false);
 
-//	modeAnim_ = new QPropertyAnimation(gview_->graphicsWidget(), "geometry", this);
-//	modeAnim_->setDuration(500);
-//	modeAnim_->setEasingCurve(QEasingCurve::InOutCubic);
-
 	changeViewMode(Tabs);
 
 
@@ -245,7 +240,7 @@ AMScanView::AMScanView(AMScanSetModel* model, QWidget *parent) :
 
 AMScanView::~AMScanView() {
 	for(int i=0; i<views_.count(); i++)
-		delete views_.at(i);
+		views_.at(i)->deleteLater();
 }
 
 void AMScanView::setupUI() {
@@ -338,16 +333,12 @@ void AMScanView::changeViewMode(int newMode) {
 		return;
 
 	for (int i = 0, count = views_.size(); i< count; i++)
-//		if (i != mode_)
-			views_.at(i)->hide();
+		views_.at(i)->hide();
 
-//	int oldMode = mode_;
 	mode_ = (ViewMode)newMode;
 	scanBars_->setExclusiveModeOn( (mode_ == Tabs) );
 	views_.at(mode_)->show();
 	resizeViews();
-//	if (oldMode != -1)
-//		views_.at(oldMode)->hide();
 
 	// in case this was called programmatically (instead of by clicking on the button)... the mode button won't be set.  This will re-emit the mode-change signal, but this function will exit immediately on the second time because it's already in the correct mode.
 	modeBar_->modeButtons_->button(mode_)->setChecked(true);
@@ -396,13 +387,6 @@ void AMScanView::resizeViews() {
 		pos = QPointF(-viewSize.width()*mode_, 0);
 
 	gview_->graphicsWidget()->setGeometry(QRectF(pos, mainWidgetSize));
-
-//	modeAnim_->stop();
-
-//	modeAnim_->setStartValue(gview_->graphicsWidget()->geometry());
-//	modeAnim_->setEndValue(QRectF(pos, mainWidgetSize));
-
-//	modeAnim_->start();
 }
 
 /// \todo: should scans held in the view be const or non-const?
@@ -578,7 +562,6 @@ MPlotGW * AMScanViewInternal::createDefaultPlot()
 {
 	MPlotGW* rv = new MPlotGW();
 	rv->plot()->plotArea()->setBrush(QBrush(QColor(Qt::white)));
-	// rv->plot()->axisRight()->setTicks(0);
 	rv->plot()->axisBottom()->setTicks(4);
 	rv->plot()->axisTop()->setTicks(4);
 	rv->plot()->axisLeft()->showGrid(false);
@@ -595,24 +578,13 @@ MPlotGW * AMScanViewInternal::createDefaultPlot()
 	// DragZoomerTools need to be added first ("on the bottom") so they don't steal everyone else's mouse events
 	rv->plot()->addTool(new MPlotDragZoomerTool);
 
-	//		// this tool selects a plot with the mouse
-	//		MPlotPlotSelectorTool psTool;
-	//		plot.addTool(&psTool);
-	//		// psTool.setEnabled(false);
-
 	// this tool adds mouse-wheel based zooming
 	rv->plot()->addTool(new MPlotWheelZoomerTool);
 
-	//		// this tool adds a cursor (or more) to a plot
-	//		MPlotCursorTool crsrTool;
-	//		plot.addTool(&crsrTool);
-	//		// add a cursor
-	//		crsrTool.addCursor();
-	//		crsrTool.cursor(0)->marker()->setPen(QPen(QColor(Qt::blue)));
 	return rv;
 }
 
-// Helper function to create an appropriate MPlotItem and connect it to the data, depending on the dimensionality of \c dataSource.  Returns 0 if we can't handle this dataSource and no item was created (ex: unsupported dimensionality; we only handle 1D or 2D data for now.)
+// Helper function to create an appropriate MPlotItem and connect it to the data, depending on the dimensionality of \c dataSource.  Returns 0 if we can't handle this dataSource and no item was created (ex: unsupported dimensionality, we only handle 1D or 2D data for now.)
 MPlotItem* AMScanViewInternal::createPlotItemForDataSource(const AMDataSource* dataSource, const AMDataSourcePlotSettings& plotSettings) {
 	MPlotItem* rv = 0;
 
@@ -660,28 +632,28 @@ void AMScanViewInternal::reviewPlotAxesConfiguration(MPlotGW *plotGW)
 	bool has1Dsources = (plot->seriesItemsCount() != 0);
 	bool has2Dsources = (plot->imageItemsCount() != 0);
 
-	// No data sources of any kind: hide both axis labels; assign both axes to the left axis scale.
+	// No data sources of any kind: hide both axis labels, assign both axes to the left axis scale.
 	if(!has1Dsources && !has2Dsources) {
 		plot->axisLeft()->showTickLabels(false);
 		plot->axisLeft()->setAxisScale(plot->axisScaleLeft());
 		plot->axisRight()->showTickLabels(false);
 		plot->axisRight()->setAxisScale(plot->axisScaleLeft());
 	}
-	// Only 1D data sources: show the left axis labels, hide the right axis labels; assign both axes to the left axis scale.
+	// Only 1D data sources: show the left axis labels, hide the right axis labels, assign both axes to the left axis scale.
 	else if(has1Dsources && !has2Dsources) {
 		plot->axisLeft()->showTickLabels(true);
 		plot->axisLeft()->setAxisScale(plot->axisScaleLeft());
 		plot->axisRight()->showTickLabels(false);
 		plot->axisRight()->setAxisScale(plot->axisScaleLeft());
 	}
-	// Only 2D data sources: hide the left axis labels, show the right axis labels; assign both axes to the right axis scale.
+	// Only 2D data sources: hide the left axis labels, show the right axis labels, assign both axes to the right axis scale.
 	else if(!has1Dsources && has2Dsources) {
 		plot->axisLeft()->showTickLabels(false);
 		plot->axisLeft()->setAxisScale(plot->axisScaleRight());
 		plot->axisRight()->showTickLabels(true);
 		plot->axisRight()->setAxisScale(plot->axisScaleRight());
 	}
-	// Both 1D and 2D data sources: show the left and right axis labels; assign the left axis to the left axis scale and the right axis to the right axis scale.
+	// Both 1D and 2D data sources: show the left and right axis labels, assign the left axis to the left axis scale and the right axis to the right axis scale.
 	else if(has1Dsources && has2Dsources) {
 		plot->axisLeft()->showTickLabels(true);
 		plot->axisLeft()->setAxisScale(plot->axisScaleLeft());
@@ -730,7 +702,7 @@ AMScanViewExclusiveView::AMScanViewExclusiveView(AMScanView* masterView) : AMSca
 AMScanViewExclusiveView::~AMScanViewExclusiveView() {
 	// PlotSeries's will be deleted as children items of the plot.
 
-	delete plot_;
+	plot_->deleteLater();
 }
 
 void AMScanViewExclusiveView::setPlotCursorVisibility(bool visible)
@@ -781,7 +753,6 @@ void AMScanViewExclusiveView::onRowAboutToBeRemoved(const QModelIndex& parent, i
 	if(!parent.isValid()) {
 		for(int i=end; i>=start; i--) {
 			if(plotItems_.at(i)) {
-				// unnecessary: deleting an item removes it from its plot: plot_->plot()->removeItem(plotItems_.at(i));
 				delete plotItems_.at(i);
 				plotItems_.removeAt(i);
 				plotItemDataSources_.removeAt(i);
@@ -796,7 +767,6 @@ void AMScanViewExclusiveView::onRowAboutToBeRemoved(const QModelIndex& parent, i
 			// Are we displaying the data source that's about to be removed? If we are, we're going to lose it...
 			if(model()->dataSourceAt(si, ci) == plotItemDataSources_.at(si)) {
 				if(plotItems_.at(si)) {
-					// unnecessary: deleting an item removes it from its plot: plot_->plot()->removeItem(plotItems_.at(si));
 					delete plotItems_.at(si);
 					plotItems_[si] = 0;
 				}
@@ -878,7 +848,7 @@ void AMScanViewExclusiveView::refreshTitle() {
 			numScansShown++;
 
 	QString scanCount = (numScansShown == 1) ? " (1 scan)" : QString(" (%1 scans)").arg(numScansShown);
-	/// \todo This should show a data source description; not a name. However, we don't know that all the descriptions (for all the data sources matching the exclusive data source) are the same....
+	/// \todo This should show a data source description, not a name. However, we don't know that all the descriptions (for all the data sources matching the exclusive data source) are the same....
 	plot_->plot()->legend()->setTitleText(model()->exclusiveDataSourceName() + scanCount);	// result ex: "tey (3 scans)"
 }
 
@@ -920,7 +890,7 @@ void AMScanViewExclusiveView::reviewScan(int scanIndex) {
 
 		// the current plot item exists, but it's the wrong type to handle the current scan data. (ie: dataSource->rank() is 2, but we've currently got a plot series instead of a plot image.
 		if(plotItems_.at(scanIndex) && plotItems_.at(scanIndex)->rank() != dataSource->rank() ) {
-			// delete the plot item; we'll recreate the new one of the proper size in the next check.
+			// delete the plot item, we'll recreate the new one of the proper size in the next check.
 			delete plotItems_.at(scanIndex);
 			plotItems_[scanIndex] = 0;
 			plotItemDataSources_[scanIndex] = 0;
@@ -940,13 +910,6 @@ void AMScanViewExclusiveView::reviewScan(int scanIndex) {
 
 			}
 			/// \todo: if there are 2d images on any plots, set their right axis to show the right axisScale, and show ticks.
-			// testing 3D
-			//			if(dataSource->rank() == 2) {
-			//				AM3dDataSourceView* tempView = new AM3dDataSourceView(model()->scanAt(scanIndex), model()->scanAt(scanIndex)->indexOfDataSource(dataSource));
-			//				tempView->setLogScaleEnabled();
-			//				tempView->resize(640,480);
-			//				tempView->show();
-			//			}
 
 			plotItemDataSources_[scanIndex] = dataSource;
 		}
@@ -1054,7 +1017,6 @@ AMScanViewMultiView::AMScanViewMultiView(AMScanView* masterView) : AMScanViewInt
 
 	// create our main plot:
 	plot_ = createDefaultPlot();
-	plot_->plot()->legend()->enableDefaultLegend(false);	// turn on or turn off labels for individual scans in this plot
 
 	connect(plot_->plot()->signalSource(), SIGNAL(dataPositionChanged(QPointF)), this, SIGNAL(dataPositionChanged(QPointF)));
 
@@ -1142,7 +1104,7 @@ AMScanViewMultiView::~AMScanViewMultiView() {
  delete plotSeries_[si][ci];
    }*/
 
-	delete plot_;
+	plot_->deleteLater();
 }
 
 
@@ -1190,7 +1152,6 @@ void AMScanViewMultiView::onRowAboutToBeRemoved(const QModelIndex& parent, int s
 		for(int si=end; si>=start; si--) {
 			for(int ci=0; ci<model()->scanAt(si)->dataSourceCount(); ci++) {
 				if(plotItems_[si][ci]) {
-					// unnecessary: plot_->plot()->removeItem(plotItems_[si][ci]);
 					delete plotItems_[si][ci];
 				}
 			}
@@ -1203,7 +1164,6 @@ void AMScanViewMultiView::onRowAboutToBeRemoved(const QModelIndex& parent, int s
 		int si = parent.row();
 		for(int di = end; di>=start; di--) {
 			if(plotItems_[si][di]) {
-				// unnecessary: plot_->plot()->removeItem(plotItems_[si][ci]);
 				delete plotItems_[si][di];
 			}
 			plotItems_[si].removeAt(di);
@@ -1256,7 +1216,7 @@ void AMScanViewMultiView::onModelDataChanged(const QModelIndex& topLeft, const Q
 						plotItem->setDescription(model()->scanAt(si)->fullName() + ": " + model()->dataSourceAt(si, di)->description());
 					}
 				}
-				// otherwise, already have a plot item; just need to update it.
+				// otherwise, already have a plot item, just need to update it.
 				else {
 					plotItem->setDescription(model()->scanAt(si)->fullName() + ": " + model()->dataSourceAt(si, di)->description());
 					switch(model()->dataSourceAt(si, di)->rank()) {
@@ -1303,10 +1263,6 @@ void AMScanViewMultiView::refreshTitles() {
 		plot_->plot()->legend()->setTitleText("1 scan");
 	else
 		plot_->plot()->legend()->setTitleText(QString("%1 scans").arg(model()->scanCount()));
-
-	/// \todo set legend description on all plot series, and then case use default legend text, instead of custom body text
-
-	plot_->plot()->legend()->setBodyText(model()->scanNames().join("<br>"));
 }
 
 void AMScanViewMultiView::enableLogScale(bool logScaleOn)
@@ -1454,22 +1410,12 @@ void AMScanViewMultiScansView::addScan(int si) {
 	refreshLegend(si);
 
 
-	// note: haven't yet added this new plot to the layout_.  That's up to reLayout();
+	// note: haven't yet added this new plot to the layout_.  That's up to reLayout()
 }
 
 AMScanViewMultiScansView::~AMScanViewMultiScansView() {
-
-	/* NOT necessary to delete all plotSeries. As long as they are added to a plot, they will be deleted when the plot is deleted (below).
- for(int si=0; si<plotSeries_.count(); si++)
-  for(int ci=0; ci<model()->scanAt(si)->dataSourceCount(); ci++)
-   if(plotSeries_[si][ci]) {
- plots_[si]->plot()->removeItem(plotSeries_[si][ci]);
- delete plotSeries_[si][ci];
-   }*/
-
-
 	for(int pi=0; pi<plots_.count(); pi++)
-		delete plots_.at(pi);
+		plots_.at(pi)->deleteLater();
 }
 
 
@@ -1528,7 +1474,6 @@ void AMScanViewMultiScansView::onRowAboutToBeRemoved(const QModelIndex& parent, 
 		for(int si=end; si>=start; si--) {
 			for(int di=0; di<model()->scanAt(si)->dataSourceCount(); di++) {
 				if(plotItems_[si][di]) {
-					// unnecessary: plots_[si]->plot()->removeItem(plotSeries_[si][di]);
 					delete plotItems_[si][di];
 				}
 			}
@@ -1539,7 +1484,7 @@ void AMScanViewMultiScansView::onRowAboutToBeRemoved(const QModelIndex& parent, 
 				plots_.at(si)->plot()->legend()->setTitleText("");
 			}
 			else {
-				delete plots_.takeAt(si);
+				plots_.takeAt(si)->deleteLater();
 			}
 		}
 		reLayout();
@@ -1550,7 +1495,6 @@ void AMScanViewMultiScansView::onRowAboutToBeRemoved(const QModelIndex& parent, 
 		int si = parent.row();
 		for(int di = end; di>=start; di--) {
 			if(plotItems_[si][di]) {
-				// unnecessary: plots_[si]->plot()->removeItem(plotSeries_[si][di]);
 				delete plotItems_[si][di];
 			}
 			plotItems_[si].removeAt(di);
@@ -1631,7 +1575,6 @@ void AMScanViewMultiScansView::onModelDataChanged(const QModelIndex& topLeft, co
 
 			else {	// shouldn't be visible.
 				if(plotItem) {	// need to get rid of? (becoming invisible)
-					// unnecessary: plots_[si]->plot()->removeItem(plotItem);
 					visibilityChanges = true;
 					delete plotItem;
 					plotItems_[si][di] = 0;
@@ -1765,7 +1708,7 @@ AMScanViewMultiSourcesView::~AMScanViewMultiSourcesView() {
 	/* NOT necessary to delete all plotSeries. As long as they are added to a plot, they will be deleted when the plot is deleted (below).*/
 
 	foreach(MPlotGW* plot, dataSource2Plot_)
-		delete plot;
+		plot->deleteLater();
 }
 
 
@@ -1789,11 +1732,10 @@ void AMScanViewMultiSourcesView::onRowAboutToBeRemoved(const QModelIndex& parent
 		for(int si=end; si>=start; si--) {
 			AMScan* scan = model()->scanAt(si);
 
-			// go through all data sources that this scan has; check if they exist; remove and delete plot series if they do.
+			// go through all data sources that this scan has, check if they exist, remove and delete plot series if they do.
 			for(int ci=0; ci<scan->dataSourceCount(); ci++) {
 				QString dataSourceName = scan->dataSourceAt(ci)->name();
 				if(dataSource2Plot_.contains(dataSourceName) && sourceAndScan2PlotItem_[dataSourceName].contains(scan)) {
-					// unnecessary: dataSource2Plot_[dataSourceName]->plot()->removeItem(sourceAndScan2PlotItem_[dataSourceName][scan]);
 					delete sourceAndScan2PlotItem_[dataSourceName][scan];
 					sourceAndScan2PlotItem_[dataSourceName].remove(scan);
 					reviewPlotAxesConfiguration(dataSource2Plot_[dataSourceName]);
@@ -1814,7 +1756,6 @@ void AMScanViewMultiSourcesView::onRowAboutToBeRemoved(const QModelIndex& parent
 		for(int di = end; di>=start; di--) {
 			QString sourceName = model()->dataSourceAt(si, di)->name();
 			if(dataSource2Plot_.contains(sourceName) && sourceAndScan2PlotItem_[sourceName].contains(scan)) {
-				// unnecessary: dataSource2Plot_[sourceName]->plot()->removeItem(sourceAndScan2PlotItem_[sourceName][scan]);
 				delete sourceAndScan2PlotItem_[sourceName][scan];
 				sourceAndScan2PlotItem_[sourceName].remove(scan);
 				reviewPlotAxesConfiguration(dataSource2Plot_[sourceName]);
@@ -1965,7 +1906,6 @@ bool AMScanViewMultiSourcesView::reviewDataSources() {
 		// WAIT: can't delete if it's the last/only plot. Instead, need to remove/delete all series from it and mark it as empty.
 		if(dataSource2Plot_.count() == 1) {
 			foreach(MPlotItem* plotItem, sourceAndScan2PlotItem_[sourceName]) {
-				//unnecessary: dataSource2Plot_[sourceName]->plot()->removeItem(series);
 				delete plotItem;
 			}
 
@@ -1973,7 +1913,7 @@ bool AMScanViewMultiSourcesView::reviewDataSources() {
 			firstPlotEmpty_ = true;
 		}
 		else
-			delete dataSource2Plot_[sourceName];
+			dataSource2Plot_[sourceName]->deleteLater();
 
 		// remove pointer to deleted plot, and pointers to deleted series
 		dataSource2Plot_.remove(sourceName);
@@ -2013,7 +1953,6 @@ bool AMScanViewMultiSourcesView::reviewDataSources() {
 			int di = scan->indexOfDataSource(sourceName);
 			// if not visible, remove and delete series
 			if(!model()->isVisible(si, di)) {
-				//unnecessary: dataSource2Plot_[sourceName]->plot()->removeItem(sourceAndScan2PlotItem_[sourceName][scan]);
 				delete sourceAndScan2PlotItem_[sourceName].take(scan);
 				sourcesNeedingAxesReview << sourceName;
 			}
@@ -2212,8 +2151,8 @@ void AMScanView::printGraphics()
 		printer.setOrientation(QPrinter::Landscape);
 
 		QPrintDialog *dialog = new QPrintDialog(&printer, this);
-		    dialog->setWindowTitle(tr("Print Spectra"));
-		    if (dialog->exec() != QDialog::Accepted)
+			dialog->setWindowTitle(tr("Print Spectra"));
+			if (dialog->exec() != QDialog::Accepted)
 			return;
 
 		QPainter painter(&printer);
@@ -2271,7 +2210,7 @@ void AMScanView::onRowInserted(const QModelIndex &parent, int start, int end)
 	if(!parent.isValid()) {
 		if(scansModel_->scanCount() == AM_SCAN_VIEW_HIDE_SCANBARS_AFTER_N_SCANS) {
 			setScanBarsVisible(false);
-			// this will only happen once; the user can re-show them if they want.
+			// this will only happen once, the user can re-show them if they want.
 		}
 	}
 }

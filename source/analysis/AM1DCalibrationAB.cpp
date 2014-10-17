@@ -19,6 +19,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include <QDebug>
+#include <QtCore/qmath.h>
 
 #include "AM1DCalibrationAB.h"
 
@@ -30,20 +31,24 @@ AM1DCalibrationAB::AM1DCalibrationAB(const QString &outputName, QObject *parent)
 	normalizer_ = 0;
 	canAnalyze_ = false;
 	dataName_ = "";
-	NormalizationName_ = "";
+	normalizationName_ = "";
 	axes_ << AMAxisInfo("invalid", 0, "No input data");
 	setState(AMDataSource::InvalidFlag);
 
 	energyCalibrationOffset_ = 0;
 	energyCalibrationScaling_ = 1;
 	energyCalibrationReference_ = 0;
+	isTransmission_ = false;
+	toEdgeJump_ = false;
+	preEdgePoint_ = -1;
+	postEdgePoint_ = -1;
 
 }
 
 bool AM1DCalibrationAB::areInputDataSourcesAcceptable(const QList<AMDataSource*>& dataSources) const
 {
 	if(dataSources.isEmpty())
-		return true;	// always acceptable; the null input.
+		return true;	// always acceptable, the null input.
 
 	// otherwise we need two input sources, with a rank of 1.
 	if(dataSources.count() == 2 && dataSources.at(0)->rank() == 1 && dataSources.at(1)->rank() == 1)
@@ -119,6 +124,7 @@ void AM1DCalibrationAB::setInputDataSourcesImplementation(const QList<AMDataSour
 	reviewState();
 
 
+	setModified(true);
 	emitSizeChanged(0);
 	emitValuesChanged();
 	emitAxisInfoChanged(0);
@@ -129,26 +135,27 @@ void AM1DCalibrationAB::setDataName(const QString &name)
 {
 	dataName_ = name;
 	setModified(true);
-	canAnalyze_ = canAnalyze(dataName_, NormalizationName_);
+	canAnalyze_ = canAnalyze(dataName_, normalizationName_);
 	setInputSources();
+	emitValuesChanged();
 }
 
 void AM1DCalibrationAB::setNormalizationName(const QString &name)
 {
-	NormalizationName_ = name;
+	normalizationName_ = name;
 	setModified(true);
-	canAnalyze_ = canAnalyze(dataName_, NormalizationName_);
+	canAnalyze_ = canAnalyze(dataName_, normalizationName_);
 	setInputSources();
+	emitValuesChanged();
 }
 
 void AM1DCalibrationAB::setEnergyCalibrationOffset(double offset)
 {
 	if(offset == energyCalibrationOffset_)
 		return;
-
 	energyCalibrationOffset_ = offset;
-	emitValuesChanged();
 	setModified(true);
+	emitValuesChanged();
 }
 
 void AM1DCalibrationAB::setEnergyCalibrationScaling(double scaling)
@@ -157,8 +164,8 @@ void AM1DCalibrationAB::setEnergyCalibrationScaling(double scaling)
 		return;
 
 	energyCalibrationScaling_ = scaling;
-	emitValuesChanged();
 	setModified(true);
+	emitValuesChanged();
 }
 
 void AM1DCalibrationAB::setEnergyCalibrationReference(double reference)
@@ -167,11 +174,51 @@ void AM1DCalibrationAB::setEnergyCalibrationReference(double reference)
 		return;
 
 	energyCalibrationReference_ = reference;
-	emitValuesChanged();
 	setModified(true);
+	emitValuesChanged();
+}
+
+void AM1DCalibrationAB::setIsTransmission(bool isTransmission)
+{
+	if(isTransmission == isTransmission_)
+		return;
+
+	isTransmission_ = isTransmission;
+	setModified(true);
+	emitValuesChanged();
 }
 
 
+void AM1DCalibrationAB::setToEdgeJump(bool toEdgeJump)
+{
+	if(toEdgeJump == toEdgeJump_)
+		return;
+
+	toEdgeJump_ = toEdgeJump;
+	qDebug() << "toEdgeJump is now" << toEdgeJump_;
+	setModified(true);
+	emitValuesChanged();
+}
+
+void AM1DCalibrationAB::setPreEdgePoint(int preEdgePoint)
+{
+	if(preEdgePoint == preEdgePoint_)
+		return;
+
+	preEdgePoint_ = preEdgePoint;
+	setModified(true);
+	emitValuesChanged();
+}
+
+void AM1DCalibrationAB::setPostEdgePoint(int postEdgePoint)
+{
+	if(postEdgePoint == postEdgePoint_)
+		return;
+
+	postEdgePoint_ = postEdgePoint;
+	setModified(true);
+	emitValuesChanged();
+}
 
 void AM1DCalibrationAB::setInputSources()
 {
@@ -192,7 +239,7 @@ void AM1DCalibrationAB::setInputSources()
 	}
 
 	int dataIndex = indexOfInputSource(dataName_);
-	int NormalizationIndex = indexOfInputSource(NormalizationName_);
+	int NormalizationIndex = indexOfInputSource(normalizationName_);
 
 	if (dataIndex >= 0 && NormalizationIndex >= 0){
 
@@ -243,6 +290,13 @@ bool AM1DCalibrationAB::canAnalyze(const QString &dataName, const QString &Norma
 	return false;
 }
 
+
+
+
+
+
+
+
 AMNumber AM1DCalibrationAB::value(const AMnDIndex &indexes) const
 {
 	if (indexes.rank() != 1)
@@ -256,16 +310,74 @@ AMNumber AM1DCalibrationAB::value(const AMnDIndex &indexes) const
 			return AMNumber(AMNumber::OutOfBoundsError);
 #endif
 
-	// Can't divide by zero.
-	if (double(normalizer_->value(indexes)) == 0)
-		return 0;
 
-	// The normalizer must be positive.
-	if (double(normalizer_->value(indexes)) < 0)
-		return -1;
+	double retVal;
+	int totalPoints = data_->size(0);
 
-	return double(data_->value(indexes))/double(normalizer_->value(indexes));
+
+	if(isTransmission_)
+	{
+		if (double(normalizer_->value(indexes)) == 0)
+				retVal = 0;
+
+		else if (double(normalizer_->value(indexes)) * double(data_->value(indexes)) < 0)  //Don't take the log of a negative number
+			retVal = 0;
+
+		else
+			retVal = qLn(double(normalizer_->value(indexes))/double(data_->value(indexes)));
+	}
+	else
+	{
+		if (double(normalizer_->value(indexes)) == 0)  // don't divide by zero
+			retVal = 0;
+
+		else if (double(normalizer_->value(indexes)) < 0) // Not sure, I didn't put it here (DM)
+			retVal = -1;
+
+		else
+			retVal = double(data_->value(indexes))/double(normalizer_->value(indexes));
+	}
+
+	if(toEdgeJump_)
+	{
+		int preEdgePointValue, postEdgePointValue;
+
+		// Determine a safe preEdgePoint
+		if(preEdgePoint() < 0 or preEdgePoint() > totalPoints -1)
+		{
+			preEdgePointValue = 0;
+			if(totalPoints > 1)  preEdgePointValue = 1; //Don't use the first point by defualt, because it's too-often bad.
+		}
+		else
+			preEdgePointValue = preEdgePoint();
+
+		// Determine a safe totalPoints
+		if(postEdgePoint() < 0 or postEdgePoint() > totalPoints -1)
+			postEdgePointValue = totalPoints - 1;
+		else
+			postEdgePointValue = postEdgePoint();
+
+		// determine value of desired offset reference point
+		double offset = int(data_->value(preEdgePointValue));
+		// shift spectra so that pre edge reference point is 0
+			retVal = retVal - offset;
+
+		// determine value of post edge scaling reference point
+		double scale = data_->value(postEdgePointValue);
+		// scale spectra so that post edge reference point is 1
+		if (scale != 0){ // if the postEdgePoint is zero, do nothing, otherwise scale and shift the output values
+			retVal = retVal / scale;
+
+		}
+	}
+	return retVal;
 }
+
+
+
+
+
+
 
 bool AM1DCalibrationAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
 {
@@ -284,6 +396,7 @@ bool AM1DCalibrationAB::values(const AMnDIndex &indexStart, const AMnDIndex &ind
 #endif
 
 	int totalSize = indexStart.totalPointsTo(indexEnd);
+	int totalPoints = data_->size(0);
 
 	QVector<double> data = QVector<double>(totalSize);
 	QVector<double> normalizer = QVector<double>(totalSize);
@@ -293,15 +406,110 @@ bool AM1DCalibrationAB::values(const AMnDIndex &indexStart, const AMnDIndex &ind
 
 	for (int i = 0; i < totalSize; i++){
 
-		if (normalizer.at(i) == 0)
-			outputValues[i] = 0;
+		if(isTransmission())
+		{
+			if (data.at(i) == 0) // don't divide by zero
+				outputValues[i] = 0;
 
-		else if (normalizer.at(i) < 0)
-			outputValues[i] = -1;
+			else if (normalizer.at(i) * data.at(i) < 0)  //Don't take the log of a negative number
+				outputValues[i] = 0;
 
+			else
+				outputValues[i] = qLn(normalizer.at(i)/data.at(i));
+		}
 		else
-			outputValues[i] = data.at(i)/normalizer.at(i);
+		{
+			if (normalizer.at(i) == 0)  // don't divide by zero
+				outputValues[i] = 0;
+
+			else if (normalizer.at(i) < 0) // Not sure, I didn't put it here (DM)
+				outputValues[i] = -1;
+
+			else
+				outputValues[i] = data.at(i)/normalizer.at(i);
+		}
 	}
+
+	if(toEdgeJump_)
+	{
+		int preEdgePointValue, postEdgePointValue;
+
+		// Determine a safe preEdgePoint
+		if(preEdgePoint_ < 0 or preEdgePoint_ > totalPoints -1)
+		{
+			preEdgePointValue = 0;
+			if(totalPoints > 1)  preEdgePointValue = 1; //Don't use the first point by defualt, because it's too-often bad.
+		}
+		else
+			preEdgePointValue = preEdgePoint_;
+
+		// Determine a safe postEdgePoint
+		if(postEdgePoint() < 0 or postEdgePoint() > totalPoints -1)
+			postEdgePointValue = totalPoints - 1;
+		else
+			postEdgePointValue = postEdgePoint_;
+
+		// determine value of desired offset reference point, this is ugly because it must handle the case that the reference point is outside the requested index range for all modes...
+		double offset;
+		if(isTransmission())
+		{
+			if (double(data_->value(preEdgePointValue)) == 0) // don't divide by zero
+				offset = 0;
+
+			else if (double(normalizer_->value(preEdgePointValue)) * double(data_->value(preEdgePointValue)) < 0)  //Don't take the log of a negative number
+				offset = 0;
+
+			else
+				offset = qLn(double(normalizer_->value(preEdgePointValue))/double(data_->value(preEdgePointValue)));
+		}
+		else
+		{
+			if (double(normalizer_->value(preEdgePointValue)) == 0)  // don't divide by zero
+				offset = 0;
+			else
+				offset = double(data_->value(preEdgePointValue))/double(normalizer_->value(preEdgePointValue));
+		}
+
+
+
+		qDebug() << "the choosen pre edge point is" << preEdgePointValue << " with a value of" << offset  ;
+		// shift spectra so that pre edge reference point is 0
+		for (int i = 0; i < totalSize; i++)
+			outputValues[i] = outputValues[i] - offset;
+
+		// determine value of post edge scaling reference point, this is ugly because it must handle the case that the reference point is outside the requested index range for all modes...
+		double scale;
+		if(isTransmission())
+		{
+			if (double(data_->value(postEdgePointValue)) == 0) // don't divide by zero
+				scale = 1;
+
+			else if (double(normalizer_->value(postEdgePointValue)) * double(data_->value(postEdgePointValue)) < 0)  //Don't take the log of a negative number
+				scale = 1;
+
+			else
+				scale = qLn(double(normalizer_->value(postEdgePointValue))/double(data_->value(postEdgePointValue))) - offset;
+		}
+		else
+		{
+			if (double(normalizer_->value(postEdgePointValue)) == 0)  // don't divide by zero
+				scale = 1;
+
+			else
+				scale = (double(data_->value(postEdgePointValue))/double(normalizer_->value(postEdgePointValue))) - offset;
+		}
+
+
+		// scale spectra so that post edge reference point is 1
+		if (scale != 0){ // if the postEdgePoint is zero, do nothing, otherwise scale and shift the output values
+			for (int i = 0; i < totalSize; i++)
+			{
+				outputValues[i] = outputValues[i] / scale;
+			}
+		}
+	}
+
+
 
 	return true;
 }

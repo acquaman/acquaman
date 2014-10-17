@@ -36,7 +36,9 @@ REIXSXESCalibration::REIXSXESCalibration(QObject *parent) :
 
 	gratingMountTilt_ << 5.01 << 4.011 << 2.73 << 2.764 << 3.013;//MEG chages from 3.005 for tip correction
 	gratingMountRoll_ << .261 << .261 << .13 << -.156 << .261;
-	// gratingMountTwist_ << 0.41 << 0.41 << 0.41 << 0.41;
+	/*
+	gratingMountTwist_ << 0.41 << 0.41 << 0.41 << 0.41;
+	*/
 
 	hexapodOrigin_ = QVector3D(2.418, 4.145, -430.478);
 
@@ -49,7 +51,7 @@ REIXSXESCalibration::REIXSXESCalibration(QObject *parent) :
 	opticalOriginsY_ << 0 << 0 << -0.014 << -.014 << 0;
 	opticalOriginsZ_ << 0 << 0 << -1 << 1 << 0;
 
-	detectorHeightError_ = 0;// !!!! -3.03 from old calculations. Who knows?; //mm
+	detectorHeightError_ = 0;// !!!! -3.03 from old calculations. Who knows? //mm
 
 	spectrometerTheta0_ = 2.738; //deg (Calculated from detector position, in hexapod coordinates, at the survey position)
 	spectrometerTheta0m_ = 3.0; // !!!! deg (3.1 from survey data. This number needs more accuracy)
@@ -74,15 +76,6 @@ REIXSXESCalibration::REIXSXESCalibration(QObject *parent) :
 	gratingEVRangesMin_ << 100 << 100 << 100 << 100 << 100;
 	gratingEVRangesMax_ << 1000 << 1000 << 1000 << 1000 << 1000;
 }
-
-//AMControlInfoList REIXSXESCalibration::computeSpectrometerPosition(REIXSXESScanConfiguration *scanConfiguration) const
-//{
-//	return computeSpectrometerPosition(scanConfiguration->gratingNumber(),
-//									   scanConfiguration->centerEV(),
-//									   scanConfiguration->defocusDistanceMm(),
-//									   scanConfiguration->detectorTiltOffset());
-
-//}
 
 AMControlInfoList REIXSXESCalibration::computeSpectrometerPosition(int gratingIndex, double eV, double focusOffsetMm, double tiltOffsetDeg) const
 {
@@ -135,8 +128,6 @@ double REIXSXESCalibration::computeEVFromSpectrometerPosition(int gratingIndex, 
 	double theta = spectrometerTheta(spectrometerRotationDriveMm);
 	QVector3D pos = detectorPosFromThetaAndTranslation(theta, detectorTranslationMm);
 	double dTheta = dThetaFromDetectorPos(pos, gratingIndex);
-
-	// qDebug() << "theta:" << theta << "pos" << pos << "dTheta" << dTheta;
 
 	return eVFromDTheta(dTheta, gratingIndex);
 }

@@ -50,7 +50,7 @@ public:
 
 
 
-    /// Returns the string that will be used (by the implementation) to try to locate a joystick when calling reconnect(). The format of the string could depend on the implementation; for example, on Linux this could be a device file name like /dev/input/js0.
+    /// Returns the string that will be used (by the implementation) to try to locate a joystick when calling reconnect(). The format of the string could depend on the implementation, for example, on Linux this could be a device file name like /dev/input/js0.
     QString deviceIdentifier() const { return deviceIdentifier_; }
 
     /// Returns the name/description of the particular joystick connected, or an empty string if not connected. This could be something like "Sony PLAYSTATION(R)3 Controller" or whatever else the joystick reports itself as.

@@ -157,7 +157,6 @@ QMutex AMDbObjectSupport::instanceMutex_(QMutex::Recursive);
 QString AMDbObjectSupport::dbObjectAttribute(const QMetaObject* mo, const QString& key) {
 	int i = mo->indexOfClassInfo("AMDbObject_Attributes");
 	if(i < 0) {
-		//qdebug() << "AMDBOBJECT" << mo->className() << ": no dbobject attributes set";
 		return QString();
 	}
 	QString allAttributes( mo->classInfo(i).value() );
@@ -167,7 +166,6 @@ QString AMDbObjectSupport::dbObjectAttribute(const QMetaObject* mo, const QStrin
 		if(attributeList.at(i).trimmed().startsWith(key+"="))
 			return attributeList.at(i).section(QChar('='), 1);// return section after "key=".
 	}
-	//qdebug() << "AMDBOBJECT" << mo->className() << ": could not find object attribute " << key;
 	return QString();
 }
 
@@ -175,7 +173,6 @@ QString AMDbObjectSupport::dbObjectAttribute(const QMetaObject* mo, const QStrin
 QString AMDbObjectSupport::dbPropertyAttribute(const QMetaObject* mo, const QString& propertyName, const QString& key) {
 	int i = mo->indexOfClassInfo(propertyName.toAscii().constData());
 	if(i < 0) {
-		//qdebug() << "AMDBOBJECT" << mo->className() << ": no property attributes set for " << propertyName;
 		return QString();	// property attributes not found for this property
 	}
 	QString allAttributes( mo->classInfo(i).value() );
@@ -185,7 +182,6 @@ QString AMDbObjectSupport::dbPropertyAttribute(const QMetaObject* mo, const QStr
 		if(attributeList.at(i).startsWith(key+"="))
 			return attributeList.at(i).section(QChar('='), 1);// return section after "key=".
 	}
-	//qdebug() << "AMDBOBJECT" << mo->className() << ": could not find property attribute " << propertyName << key;
 
 	return QString();
 }
@@ -240,7 +236,7 @@ QString AMDbObjectSupport::tableNameForClass(const QString& className) const {
 	return QString();
 }
 
-// register a new class with the database system. This is all you need to do enable an AMDbObect subclass. Returns false if the initialization failed; true if it was completed successfully, or if the object is already registered.
+// register a new class with the database system. This is all you need to do enable an AMDbObect subclass. Returns false if the initialization failed. True if it was completed successfully, or if the object is already registered.
 bool AMDbObjectSupport::registerClass(const QMetaObject* mo) {
 
 	QWriteLocker wl(&registryMutex_);
@@ -364,7 +360,6 @@ bool AMDbObjectSupport::registerDatabase(AMDatabase* db) {
 	}
 }
 
-#include <QDebug>
 bool AMDbObjectSupport::getDatabaseReadyForClass(AMDatabase* db, const AMDbObjectInfo& info) {
 
 	// have the tables already been created in this database for this class? check the types table:
@@ -531,7 +526,7 @@ bool AMDbObjectSupport::initializeDatabaseForClass(AMDatabase* db, const AMDbObj
 
 		bool success = db->insertOrUpdate(0, allColumnsTableName(), clist, vlist); // always add to the 'allColumns' table.
 
-		if(info.isVisible.at(i) && info.columnTypes.at(i) != qMetaTypeId<AMDbObject*>() && info.columnTypes.at(i) != qMetaTypeId<AMConstDbObject*>())	// no matter what, AMDbObject* reference columns aren't user-visible. There's nothing user-meaningful about a 'tableName;id' string.
+		if(info.isVisible.at(i) && info.columnTypes.at(i) != qMetaTypeId<AMDbObject*>() && info.columnTypes.at(i) != qMetaTypeId<AMConstDbObject*>())	// no matter what, AMDbObject* reference columns aren't user-visible. There's nothing user-meaningful about a 'tableName semicolon id' string.
 			success = success && db->insertOrUpdate(0, visibleColumnsTableName(), clist, vlist);
 
 		if(info.isLoadable.at(i)) // if loadable, add to 'loadColumns' table.
@@ -575,14 +570,8 @@ bool AMDbObjectSupport::isUpgradeRequiredForClass(AMDatabase* db, const AMDbObje
 		// if type of property is AMDbObjectList or AMConstDbObjectList (ie: it 'owns' a set of other AMDbObjects), then there shouldn't be a column. Instead, should be an auxilliary table.  Table name is our table name + "_propertyName".
 		if( info.columnTypes.at(i) == qMetaTypeId<AMDbObjectList>() || info.columnTypes.at(i) == qMetaTypeId<AMConstDbObjectList>()) {
 			QString auxTableName = info.tableName % "_" % info.columns.at(i);
-			// Does SQLite not support the SQL-92 standard INFORMATION_SCHEMA?
-			//				q.prepare("SELECT COUNT(1) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = " % auxTableName % ";");
-			//				AMDatabase::execQuery(q);
-			//				if(!q.first() || q.value(0).toInt() != 1) {
-			//					return true;
-			//				}
 			// Ok, let's try this way.  This will simply fail if the auxiliary table doesn't exist...
-			q.prepare("SELECT COUNT(1) FROM " % auxTableName % " WHERE 1=0;");	// as high-performance of a query as we can make on that table;
+			q.prepare("SELECT COUNT(1) FROM " % auxTableName % " WHERE 1=0;");	// as high-performance of a query as we can make on that table
 			if(!AMDatabase::execQuery(q)) {
 				return true;
 			}
@@ -635,7 +624,7 @@ bool AMDbObjectSupport::upgradeDatabaseForClass(AMDatabase* db, const AMDbObject
 		if( info.columnTypes.at(i) == qMetaTypeId<AMDbObjectList>() || info.columnTypes.at(i) == qMetaTypeId<AMConstDbObjectList>() ) {
 			QString auxTableName = info.tableName % "_" % info.columns.at(i);
 			// Does the table exist?
-			q.prepare("SELECT COUNT(1) FROM " % auxTableName % " WHERE 1=0;");	// as high-performance of a query as we can make on that table;
+			q.prepare("SELECT COUNT(1) FROM " % auxTableName % " WHERE 1=0;");	// as high-performance of a query as we can make on that table
 			if(!AMDatabase::execQuery(q)) {	// fails if table doesn't exist.
 				q.finish();
 				// therefore, we need to create the table:
@@ -698,7 +687,7 @@ bool AMDbObjectSupport::upgradeDatabaseForClass(AMDatabase* db, const AMDbObject
 
 				bool success = db->insertOrUpdate(0, allColumnsTableName(), clist, vlist); // always add to the 'allColumns' table.
 
-				if(info.isVisible.at(i) && info.columnTypes.at(i) != qMetaTypeId<AMDbObject*>() && info.columnTypes.at(i) != qMetaTypeId<AMConstDbObject*>())	// no matter what, AMDbObject* reference columns aren't user-visible. There's nothing user-meaningful about a 'tableName;id' string.
+				if(info.isVisible.at(i) && info.columnTypes.at(i) != qMetaTypeId<AMDbObject*>() && info.columnTypes.at(i) != qMetaTypeId<AMConstDbObject*>())	// no matter what, AMDbObject* reference columns aren't user-visible. There's nothing user-meaningful about a 'tableName semicolon id' string.
 					success = success && db->insertOrUpdate(0, visibleColumnsTableName(), clist, vlist);
 
 				if(info.isLoadable.at(i)) // if loadable, add to 'loadColumns' table.
@@ -796,27 +785,24 @@ AMDbObject* AMDbObjectSupport::createAndLoadObjectAt(AMDatabase* db, const QStri
 		return 0;
 	}
 
-	// this should never happen, so we won't bother to check. But if an object was somehow stored in the wrong table, AMDbObject::loadFromDb() will fail.
-	// if(tableName != objInfo->tableName)
-	// return 0;
-
 	const QMetaObject* mo = objInfo->metaObject;
 
 	// first try a constructor that takes a database and an id. We assume this one calls loadFromDb() automatically.
 	AMDbObject* newObject;
 
-	newObject = qobject_cast<AMDbObject*>( mo->newInstance(	Q_ARG(AMDatabase*, db),
-															Q_ARG(int, id)) );
+	newObject = qobject_cast<AMDbObject*>( mo->newInstance(	Q_ARG(AMDatabase*, db),	Q_ARG(int, id)) );
+
 	if(newObject)
 		return newObject;
 
 	// now try a default constructor taking no arguments:
 	newObject = qobject_cast<AMDbObject*>( mo->newInstance() );
+
 	if(newObject) {
 		if(newObject->loadFromDb(db, id))
 			return newObject;
 		else {
-			delete newObject;	// loading failed, and we're not going to return anything. Make sure not to leak the newly-created object.
+			newObject->deleteLater();	// loading failed, and we're not going to return anything. Make sure not to leak the newly-created object.
 			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, AMDBOBJECTSUPPORT_CANNOT_LOAD_OBJECT_LOAD_CALL_FAILED, QString("[AMDbObjectSupport] Could not load the object with ID %1 from the table '%2': loadFromDb() failed. Please report this bug to the Acquaman developers").arg(id).arg(tableName)));
 		}
 	}

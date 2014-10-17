@@ -43,7 +43,6 @@ CLSSynchronizedDwellTime::CLSSynchronizedDwellTime(QString baseName, QObject *pa
 	connect(startScan_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
 	connect(mode_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
 
-	//connect(dwellTime_, SIGNAL(valueChanged(double)), this, SIGNAL(timeChanged(double)));
 	connect(dwellTime_, SIGNAL(valueChanged(double)), this, SLOT(onDwellTimeChanged(double)));
 	connect(startScan_, SIGNAL(valueChanged(double)), this, SLOT(onScanningChanged(double)));
 	connect(mode_, SIGNAL(valueChanged(double)), this, SLOT(onModeChanged(double)));
@@ -154,7 +153,6 @@ void CLSSynchronizedDwellTime::onTriggerSourceTriggered(AMDetectorDefinitions::R
 		return;
 	}
 
-	//start();
 	if(mode() == CLSSynchronizedDwellTime::Continuous){
 		connect(this, SIGNAL(modeChanged(CLSSynchronizedDwellTime::Mode)), this, SLOT(triggerSynchronizedDwellTimeAcquisition(CLSSynchronizedDwellTime::Mode)));
 		setMode(CLSSynchronizedDwellTime::SingleShot);

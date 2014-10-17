@@ -96,7 +96,6 @@ bool AMVerticalStackWidget::swapItem(int indexOfFirst){
 	vl_->insertWidget(2*(indexOfFirst+1), headerOfFirst);
 	vl_->insertWidget(2*(indexOfFirst+1)+1, widgetOfFirst);
 
-	//QStandardItem *itemOfFirst = model_.takeItem(indexOfFirst);
 	QStandardItem *itemOfFirst = model_.takeRow(indexOfFirst).at(0);
 	model_.insertRow(indexOfFirst+1, itemOfFirst);
 	return true;
@@ -115,7 +114,7 @@ QWidget* AMVerticalStackWidget::takeItem(int index) {
 	vl_->takeAt(2*index);
 	vl_->takeAt(2*index);
 
-	delete b;
+	b->deleteLater();
 	delete item;
 
 	w->removeEventFilter(this);
@@ -174,7 +173,6 @@ void AMVerticalStackWidget::collapseItem(int index) {
 	QWidget* w = model_.data(model_.index(index, 0), AM::PointerRole).value<QWidget*>();
 	if(w){
 		w->hide();
-		// qdebug() << "Is visible " << w->isVisible();
 	}
 	AMHeaderButton* h = model_.data(model_.index(index,0), AM::WidgetRole).value<AMHeaderButton*>();
 	if(h){

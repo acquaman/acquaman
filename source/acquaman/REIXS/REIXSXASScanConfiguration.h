@@ -102,7 +102,7 @@ public:
 	int scanNumber() const { return scanNumber_; }
 	/// Meta-data information to pre-set in the scan.
 	int sampleId() const { return sampleId_; }
-	/// True if we should generate the scan name, number, and sampleId automatically (as best we can; we'll do this based on the last sample move)
+	/// True if we should generate the scan name, number, and sampleId automatically (as best we can, we'll do this based on the last sample move)
 	bool namedAutomatically() const { return namedAutomatically_; }
 
 

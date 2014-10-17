@@ -31,8 +31,9 @@ class VESPERSFourElementVortexDetector : public AMXRFDetector
 
 public:
 	/// Default constructor. Requires the name and description of the detector. It builds all the PV's and connects them accordingly.
- 	virtual ~VESPERSFourElementVortexDetector();
 	VESPERSFourElementVortexDetector(const QString &name, const QString &description, QObject *parent = 0);
+	/// Destructor.
+	virtual ~VESPERSFourElementVortexDetector();
 
 	/// The Vortex doesn't explicitly require powering on
 	virtual bool requiresPower() const { return false; }

@@ -33,7 +33,6 @@ AMOldDetectorInfo::AMOldDetectorInfo(const QString& name, const QString& descrip
 AMOldDetectorInfo::AMOldDetectorInfo(const AMOldDetectorInfo &original) :
 		AMDbObject(original)
 {
-	//retreiveAndSetProperties(original);
 	this->operator =(original);
 }
 

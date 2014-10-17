@@ -35,7 +35,7 @@ AM1DKSpaceCalculatorAB::AM1DKSpaceCalculatorAB(const QString &outputName, QObjec
 bool AM1DKSpaceCalculatorAB::areInputDataSourcesAcceptable(const QList<AMDataSource *> &dataSources) const
 {
 	if (dataSources.isEmpty())
-		return true;	// always acceptable; the null input.
+		return true;	// always acceptable, the null input.
 
 	// Otherwise we need one input source with rank 1.
 	if (dataSources.size() == 1 && dataSources.first()->rank() == 1)

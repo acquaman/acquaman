@@ -31,14 +31,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMOrderedSet.h"
 
 class AMMainWindow;
-class AMBottomBar;
 class AMBottomPanel;
-class AMDataViewWithActionButtons;
 class AMRunExperimentInsert;
 class AMGenericScanEditor;
 class AMSettingsMasterView;
 class AMGithubIssueSubmissionView;
 class AMDatamanStartupSplashScreen;
+class AMScanDataView;
 
 class QMenuBar;
 class QMenu;
@@ -86,6 +85,10 @@ class AMDirectorySynchronizerDialog;
 
 #define AMDATAMANAPPCONTROLLER_USER_SETTINGS_STARTUP_ERROR 270226
 #define AMDATAMANAPPCONTROLLER_DATA_DIR_BACKUP_ERROR 270227
+
+#define AMDATAMANAPPCONTROLLER_STARTUP_ERROR_ISFIRSTTIME 270228
+#define AMDATAMANAPPCONTROLLER_CANT_CREATE_EXPORT_FOLDER 270229
+
 /// This class takes the role of the main application controller for your particular version of the Acquaman program. It marshalls communication between separate widgets/objects, handles menus and menu actions, and all other cross-cutting issues that don't reside within a specific view or controller.  It creates and knows about all top-level GUI objects, and manages them within an AMMainWindow.
 /// This is the bare bones version of the GUI framework because it has no acquisition code inside and therefore forms the basis of a take home Dataman program for users.  It contains the ability to scan through the database, create experiments, and view scans using the scan editor.
 /*! The AMMainWindow class is a reusable GUI framework class that should not contain application-specific code.  Instead, you should subclass this class for your specific version of Acquaman.
@@ -137,6 +140,7 @@ public slots:
 	virtual bool startupCreateDatabases(); ///< Run every time to create the databases (reimplement to create additional databases). This is always called before startupDatabaseUpgrades().
 	bool startupDatabaseUpgrades(); ///< Run every time except the first time, to see if non-trivial database upgrades are necessary. This SHOULD NOT BE SUBCLASSED, if you want other upgrades completed, add them to the databaseUpgrades_.
 	virtual bool startupBackupDataDirectory();
+	virtual bool startupCheckExportDirectory();
 	virtual bool startupRegisterDatabases();
 	virtual bool startupPopulateNewDatabase(); ///< Run on first time only
 	virtual bool startupLoadFromExistingDatabase(); ///< Run on every time except the first time
@@ -278,10 +282,6 @@ protected slots:
 	/// This slot is called when an 'alias' item is clicked in the sidebar of the main window.  Alias items are links that contain additional information that needs to be delivered to the widget.
 	virtual void onMainWindowAliasItemActivated(QWidget* target, const QString& key, const QVariant& value);
 
-	/// This is called when we detect that a new experiment has finished being created. We call it to select that experiment and start editing its name.
-	/*! \c index is the model index of the experiment item in the main window's AMWindowPaneModel. */
-	virtual void onNewExperimentAdded(const QModelIndex& index);
-
 	/// This is called when the user clicks any of the available "close" buttons in the main window's sidebar. For now, this could involve closing a scan editor window, or deleting an experiment.
 	virtual void onWindowPaneCloseButtonClicked(const QModelIndex& index);
 
@@ -290,6 +290,10 @@ protected slots:
 
 	/// This is called by a signal (chosen with the resetFinishedSignal function) to run when the startup is actually finished. Can be reimplemented in subclasses, but you show call this function in it at some point.
 	virtual void onStartupFinished();
+
+	/// This is called when we detect that a new experiment has finished being created. We call it to select that experiment and start editing its name.
+	/*! \c index is the model index of the experiment item in the main window's AMWindowPaneModel. */
+	virtual void onNewExperimentAdded(const QModelIndex& index);
 
 	/// Slot which shows the application's about page
 	void onShowAboutPage();
@@ -306,9 +310,6 @@ protected:
 
 	/// Filters the close-event from the main window, to catch anything we need to check before closing the window.
 	virtual bool eventFilter(QObject *, QEvent *);
-
-//	/// Helper function to process all events for \c ms milliseconds, but stay in the calling function.
-//	void processEventsFor(int ms);
 
 	/// This can be called to reset the signal that will cause the startupFinished slot to run. Pass the object and in something with the signal macro, such as SIGNAL(mySignal(bool itsArgument))
 	bool resetFinishedSignal(QObject *sender, const char *signal);
@@ -329,9 +330,6 @@ protected:
 	/// Method that handles the database upgrades for every other time the database is loaded.  \param upgrades is the list of upgrades that need to be done.
 	bool onEveryTimeDatabaseUpgrade(QList<AMDbUpgrade *> upgrades);
 
-	/// Called to create the dataViewWithActionButtons view. Subclasses can reimplement this to call their own views if needed.
-	virtual AMDataViewWithActionButtons* createDataViewWithActionButtons();
-
 protected:
 	/// Helper method that returns the editor associated with a scan for the scanEditorsScanMapping list.  Returns 0 if not found.
 	AMGenericScanEditor *editorFromScan(AMScan *scan) const;
@@ -351,7 +349,7 @@ protected:
 
 	/// Top-level panes in the main window
 	AMBottomPanel *bottomPanel_;
-	AMDataViewWithActionButtons* dataView_;
+	AMScanDataView* dataView_;
 	AMRunExperimentInsert* runExperimentInsert_;
 
 	/// The startup splash screen for loading
@@ -393,6 +391,9 @@ protected:
 
 	/// Flag for letting individual appControllers default the local storage flag for first time users
 	bool defaultUseLocalStorage_;
+
+	/// Flag for if the call to startupIsFirstTime() detects an error
+	bool firstTimeError_;
 
 private:
 	/// Holds the QObject whose signal is currently being used to connect to the onStartupFinished slot

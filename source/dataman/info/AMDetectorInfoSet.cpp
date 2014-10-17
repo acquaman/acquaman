@@ -93,7 +93,7 @@ void AMDetectorInfoSet::dbLoadDetectorInfos(const AMDbObjectList& newDetectorInf
 		if(newDetectorInfo)
 			append(*newDetectorInfo, newDetectorInfo->name());
 
-		delete newDetectorInfos.at(x);
+		newDetectorInfos.at(x)->deleteLater();
 	}
 }
 

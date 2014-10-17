@@ -127,8 +127,6 @@ AMSampleCameraView::AMSampleCameraView(AMSampleCamera *shapeModel, ViewType view
 
 	crosshairXLine_ = shapeScene_->scene()->addLine(0.5,0,0.5,1,pen);
 	crosshairYLine_ = shapeScene_->scene()->addLine(0,0.5,0,1,pen);
-	//	crosshairXLine_->setVisible(true);
-	//	crosshairYLine_->setVisible(true);
 
 	crosshairXLine_->setVisible(false);
 	crosshairYLine_->setVisible(false);
@@ -154,14 +152,6 @@ AMSampleCameraView::AMSampleCameraView(AMSampleCamera *shapeModel, ViewType view
 
 
 	setGUI(viewType);
-
-
-	//    QStringList wordList;
-	//    wordList_ = new QStringListModel(wordList);
-	//    autoCompleter_ = new QCompleter();
-	//    autoCompleter_->setModel(wordList_);
-	//    autoCompleter_->setCaseSensitivity(Qt::CaseInsensitive);
-	//    autoCompleteBox_->setCompleter(autoCompleter_);
 
 
 	makeConnections(viewType);
@@ -366,7 +356,6 @@ void AMSampleCameraView::setDrawMode()
 	}
 	mode_ = DRAW;
 	markAction_->setToolTip("Press twice for polygon marking.");
-	//    pressTimer_->start();
 	emit modeChange();
 }
 
@@ -577,7 +566,6 @@ void AMSampleCameraView::updateItemName(int index)
 {
 	if(isValid(index))
 	{
-		//        shapeView_->blockSignals(true);
 		if(currentView_ == NAME)
 		{
 			shapeModel_->setName(textItems_[index]->toPlainText(), index);
@@ -590,7 +578,6 @@ void AMSampleCameraView::updateItemName(int index)
 		{
 			shapeModel_->setOtherDataTwo(textItems_[index]->toPlainText(), index);
 		}
-		//        shapeView_->blockSignals(false);
 	}
 
 }
@@ -634,7 +621,6 @@ void AMSampleCameraView::setViewHidden()
 
 void AMSampleCameraView::autoCompleteEnterPressed()
 {
-	//    shapeModel_->setCurrentInfo(autoCompleteBox_->text());
 	refreshSceneView();
 }
 
@@ -1128,8 +1114,10 @@ void AMSampleCameraView::reviewCameraConfiguration()
 	}
 
 	emit cameraWizardFinished();
-	//	delete cameraWizard_;
-	//	cameraWizard_ = NULL;
+	/*
+	delete cameraWizard_;
+	cameraWizard_ = NULL;
+	*/
 }
 
 void AMSampleCameraView::onMoveToBeamToggled(bool checked)
@@ -1331,11 +1319,9 @@ bool AMSampleCameraView::loadSamplePlate(int databaseId)
 
 bool AMSampleCameraView::loadRotationalOffset(int databaseId)
 {
-	//QString rotationalOffsetName = "LastRotationalOffset";
 	AMDatabase *db = AMDatabase::database("SGMPublic");
 	int id;
 	if(databaseId == -1){
-		//QList<int> matchList = db->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMRotationalOffset>(), "name", rotationalOffsetName);
 		QVariantList matchList = db->retrieve(AMDbObjectSupport::s()->tableNameForClass<AMCameraConfiguration>(),"id");
 
 		if(matchList.count() <= 0)
@@ -1354,7 +1340,7 @@ bool AMSampleCameraView::loadRotationalOffset(int databaseId)
 	if(!rotationalOffset->loadFromDb(db, id))
 		return false;
 	shapeModel_->setRotationalOffset(rotationalOffset->rotationalOffset());
-	delete rotationalOffset;
+	rotationalOffset->deleteLater();
 	refreshSceneView();
 
 	if(showGrid_){
@@ -1449,13 +1435,6 @@ void AMSampleCameraView::setCrosshairVisible(bool crosshairVisible)
 {
 	crosshairXLine_->setVisible(crosshairVisible);
 	crosshairYLine_->setVisible(crosshairVisible);
-
-	//        if(showCrosshairCheckBox_->isChecked() != crosshairVisible)
-	//        {
-	//            showCrosshairCheckBox_->blockSignals(true);
-	//            showCrosshairCheckBox_->setChecked(crosshairVisible);
-	//            showCrosshairCheckBox_->blockSignals(false);
-	//        }
 }
 
 void AMSampleCameraView::setCrosshairLocked(bool doLock)
@@ -1581,7 +1560,6 @@ void AMSampleCameraView::initializeSampleShape()
 	QVector3D simpleSamplePlateHeight = QVector3D(vectorValues[6],vectorValues[7],vectorValues[8]);
 	shapeModel_->setSimpleSamplePlate(simpleSamplePlateBase, simpleSamplePlateWidth, simpleSamplePlateHeight);
 	refreshSceneView();
-	//	samplePlateWizard_->updateScene(shapeScene_);
 	wizardManager_->sampleWizardUpdate();
 }
 
@@ -1589,7 +1567,6 @@ void AMSampleCameraView::shiftSampleShape(QPointF shift)
 {
 	shapeModel_->moveSamplePlate(shift);
 	refreshSceneView();
-	//	samplePlateWizard_->updateScene(shapeScene_);
 	wizardManager_->sampleWizardUpdate();
 }
 
@@ -1793,36 +1770,6 @@ void AMSampleCameraView::createIntersectionShapes(QVector<QPolygonF> shapes)
 			shapes.remove(0);
 		}
 	}
-	/*
-=======
-	intersections_.clear();
-	for(int i =0; !shapes.isEmpty(); i++)
-	{
-		QPen pen(colour(INTERSECTION));
-		QBrush brush(colour(INTERSECTION));
-		if(shapes.first() == shapes.last())
-		{
-			brush.setColor(colour(SAMPLEPLATEINTERSECTION));
-			pen.setColor(colour(SAMPLEPLATEINTERSECTION));
-		}
-
-		if(!showBeamOutline_)
-		{
-			pen.setColor(colour(HIDEINTERSECTION));
-			brush.setColor(colour(HIDEINTERSECTION));
-		}
-		QPolygonF polygon(QRectF(5,5,20,20));
-		intersections_<<shapeScene_->scene()->addPolygon(polygon,pen,brush);
-		intersections_[i]->setPolygon(shapes.first());
-		if(shapes.first() == shapes.last())
-		{
-			///do stuff
-		}
-
-		shapes.remove(0);
-	}
->>>>>>> 79443148503d2ac896f197767ce994576bd48390
-*/
 }
 
 void AMSampleCameraView::clearIntersections()
@@ -1845,7 +1792,6 @@ void AMSampleCameraView::mousePressHandler(QPointF position)
 {
 	if(shapeModel_->overrideMouseSelection())
 	{
-		//        shapeModel_->setOverrideMouseSelection(false);
 		return;
 	}
 	connect(this, SIGNAL(mouseMove(QPointF)), this, SLOT(mouseMoveHandler(QPointF)));
@@ -2027,11 +1973,6 @@ void AMSampleCameraView::mouseMoveHandler(QPointF position)
 
 }
 
-
-
-
-
-
 /// append a new rectangle to the current list, add it to the scene
 void AMSampleCameraView::addNewShape()
 {
@@ -2063,7 +2004,7 @@ void AMSampleCameraView::deleteShape()
 	textItems_.removeAt(index_);
 	index_--;
 	delete polygon;
-	delete text;
+	text->deleteLater();
 }
 
 /// change the currently selected item, outline it in blue
@@ -2096,7 +2037,6 @@ void AMSampleCameraView::currentSelectionChanged()
 
 void AMSampleCameraView::createGroupRectangle()
 {
-	//QBrush penBrush(QColor(Qt::magenta));
 	QBrush penBrush(Qt::magenta);
 	QPen pen(penBrush,1,Qt::DotLine);
 	QBrush brush(Qt::transparent);
@@ -2128,9 +2068,7 @@ void AMSampleCameraView::setGUI(ViewType viewType)
 	chl->setContentsMargins(itemMargins);
 	chl->addWidget(showCrosshairCheckBox_ = new QCheckBox("Crosshair:"));
 	chl->addSpacing(space);
-	//chl->addWidget(new QLabel("Color:"));
 	chl->addWidget(crosshairColorPicker_ = new AMColorPickerButton2(Qt::red));
-	//chl->addWidget(new QLabel("Line:"));
 	chl->addWidget(crosshairThicknessSlider_ = new QSlider(Qt::Horizontal));
 	crosshairThicknessSlider_->setMaximumWidth(80);
 	crosshairThicknessSlider_->setRange(1,6);
@@ -2307,12 +2245,8 @@ void AMSampleCameraView::setGUI(ViewType viewType)
 	samplePlateLayout->addWidget(samplePlateButton_ = new QPushButton("Set Sample Plate"));
 	samplePlateLayout->addSpacing(space);
 	samplePlateLayout->addWidget(saveSamplePlate_ = new QPushButton("Save Sample Plate"));
-	//samplePlateLayout->addSpacing(space);
-	//samplePlateLayout->addWidget(showSamplePlate_ = new QCheckBox("Show Sample Plate"));
 	samplePlateLayout->addSpacing(space);
 	samplePlateLayout->addWidget(cameraConfigurationShapeButton_ = new QPushButton("Set Outer Plate"));
-	//samplePlateLayout->addStretch(space);
-	//samplePlateLayout->addWidget(showBeamOutlineCheckBox_ = new QCheckBox("Show beam area"));
 	samplePlateLayout->addStretch();
 	samplePlateFrame->setLayout(samplePlateLayout);
 
@@ -2413,15 +2347,12 @@ void AMSampleCameraView::setGUI(ViewType viewType)
 	editAction_->setCheckable(true);
 	shiftAction_ = new QAction("Shift", actionGroup);
 	shiftAction_->setCheckable(true);
-	//operationAction_ = new QAction("Operation", actionGroup);
 	operationAction_ = new QAction("Click to Move", actionGroup);
 	operationAction_->setCheckable(true);
 	groupAction_ = new QAction("Group", actionGroup);
 	groupAction_->setCheckable(true);
 
 	toolBar_->addAction(markAction_);
-	//toolBar_->addAction(moveAction_);
-	//toolBar_->addAction(editAction_);
 	if(viewType == DEBUG)
 		toolBar_->addAction(shiftAction_);
 	toolBar_->addAction(operationAction_);
@@ -2442,8 +2373,6 @@ void AMSampleCameraView::setGUI(ViewType viewType)
 	viewName_->setChecked(true);
 
 	labelToolBar_->addAction(viewName_);
-	//labelToolBar_->addAction(viewOtherData_);
-	//labelToolBar_->addAction(viewIdNumber_);
 	labelToolBar_->addAction(viewHidden_);
 
 	if(viewType == CONDENSED)
@@ -2561,7 +2490,6 @@ void AMSampleCameraView::makeConnections(ViewType viewType)
 
 	//mouse press -
 	connect(this, SIGNAL(mousePressed(QPointF)), shapeModel_, SLOT(startRectangle(QPointF)));
-	//	connect(this, SIGNAL(mouseRightClicked(QPointF)), shapeModel_, SLOT(deleteRectangle(QPointF)));
 	connect(this, SIGNAL(mouseMovePressed(QPointF)), shapeModel_, SLOT(selectCurrentShape(QPointF)));
 	connect(this, SIGNAL(mouseMoveRightPressed(QPointF)), shapeModel_, SLOT(selectCurrentShape(QPointF)));
 	connect(this, SIGNAL(mouseMoveRightPressed(QPointF)), shapeModel_, SLOT(setZoomPoint(QPointF)));
@@ -2605,12 +2533,7 @@ void AMSampleCameraView::makeConnections(ViewType viewType)
 
 	/// shape view
 	connect(this, SIGNAL(applyDistortion()), this, SLOT(toggleDistortion()));
-
-
 	connect(cameraConfiguration_, SIGNAL(update(AMCameraConfiguration*)), this, SLOT(setCameraModel(AMCameraConfiguration*)));
-
-
-	//    connect(shapeView_, SIGNAL(updateShapes()), this, SLOT(updateCurrentShape()));
 	connect(this, SIGNAL(updateShapes(int)), shapeModel_, SLOT(updateShape(int)));
 
 	cameraConfiguration_->updateAll();
@@ -2649,14 +2572,9 @@ void AMSampleCameraView::makeConnections(ViewType viewType)
 	connect(drawOnShapePushButton_, SIGNAL(clicked()), this, SLOT(setDrawOnShape()));
 	connect(drawOnShapeCheckBox_, SIGNAL(clicked(bool)), this, SLOT(setDrawOnShapeEnabled(bool)));
 	connect(shapeModel_, SIGNAL(drawOnShapeEnabledChanged(bool)), drawOnShapeCheckBox_, SLOT(setChecked(bool)));
-
-
 	connect(distortionButton_, SIGNAL(clicked()), this, SIGNAL(applyDistortion()));
 
-
-
 	/// allows non-rectangle drawing
-
 	connect(pressTimer_, SIGNAL(timeout()), this, SLOT(setMultiDrawMode()));
 	connect(this, SIGNAL(modeChange()), this, SLOT(changeDrawButtonText()));
 
@@ -2677,7 +2595,6 @@ void AMSampleCameraView::makeConnections(ViewType viewType)
 	connect(shapeModel_, SIGNAL(otherDataOneChanged(QString)), this, SLOT(updateDataOne(QString)));
 	connect(shapeModel_, SIGNAL(otherDataTwoChanged(QString)), this, SLOT(updateDataTwo(QString)));
 
-	//connect(advancedButton_, SIGNAL(clicked()), advancedWindow_, SLOT(show()));
 	connect(advancedButton_, SIGNAL(clicked()), this, SLOT(showAdvancedWindow()));
 	connect(moveToBeam_, SIGNAL(toggled(bool)), this, SLOT(onMoveToBeamToggled(bool)));
 	connect(moveOnSamplePlate_, SIGNAL(toggled(bool)), this, SLOT(onMoveOnSamplePlateToggled(bool)));
@@ -2741,19 +2658,14 @@ QColor AMSampleCameraView::colour(AMSampleCameraView::ShapeColour role)
 	switch(role)
 	{
 	case ACTIVEBORDER:
-		//return QColor(Qt::blue);
 		return activeBorderColor_;
 	case BORDER:
-		//return QColor(Qt::red);
 		return borderColor_;
 	case INTERSECTION:
-		//return QColor(Qt::yellow);
 		return intersectionColor_;
 	case SAMPLEPLATEINTERSECTION:
-		//return QColor(Qt::green);
 		return samplePlateIntersectionColor_;
 	case SAMPLEBORDER:
-		//return QColor(Qt::cyan);
 		return sampleBorderColor_;
 	case SAMPLEFILL:
 	case HIDEINTERSECTION:

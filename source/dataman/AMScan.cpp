@@ -58,15 +58,9 @@ AMScan::AMScan(QObject *parent)
 
 	currentlyScanning_ = false;
 
-	data_ = new AMInMemoryDataStore();	// data store is initially empty. Needs axes configured by scan controllers or file loader plugins.  The default implementation uses AMInMemoryDataStore(); replace via replaceDataStore() to use one of the disk-based data stores if you have a lot of data.
-//	data_ = new AMCDFDataStore();
-
-	//sampleNameLoaded_ = false;
+	data_ = new AMInMemoryDataStore();	// data store is initially empty. Needs axes configured by scan controllers or file loader plugins.  The default implementation uses AMInMemoryDataStore(). Replace via replaceDataStore() to use one of the disk-based data stores if you have a lot of data.
 
 	nameDictionary_ = new AMScanDictionary(this, this);
-	//nameDictionary_->setOperatingOnName(true);
-	//exportNameDictionary_ = new AMScanDictionary(this, this);
-	//exportNameDictionary_->setOperatingOnExportName(true);
 
 	// Connect added/removed signals from rawDataSources_ and analyzedDataSources_, to provide a model of all data sources:
 	connect(rawDataSources_.signalSource(), SIGNAL(itemAboutToBeAdded(int)), this, SLOT(onDataSourceAboutToBeAdded(int)));
@@ -83,8 +77,6 @@ AMScan::AMScan(QObject *parent)
 
 
 AMScan::~AMScan() {
-
-//	AMErrorMon::debug(this, AMSCAN_DEBUG_DELETING_SCAN, QString("Deleting %1").arg(fullName()));
 	// delete all data sources.
 	// \note This is expensive if an AMScanSetModel and associated plots are watching. It would be faster to tell those plots, "Peace out, all my data sources are about to disappear", so that they don't need to respond to each removal separately. For now, you should remove this scan from the AMScanSetModel FIRST, and then delete it.
 	int count;
@@ -102,12 +94,12 @@ AMScan::~AMScan() {
 
 	// delete the scan configuration, if we have one
 	if(configuration_) {
-		delete configuration_;
+		configuration_->deleteLater();
 		configuration_ = 0;
 	}
 
 	// delete the raw data store, which was allocated in the constructor.
-	delete data_;
+	data_->deleteLater();
 }
 
 
@@ -154,8 +146,6 @@ double AMScan::elapsedTime() const
 }
 
 int AMScan::sampleId() const{
-	//if(samplePre2013_ && samplePre2013_->object())
-	//	return samplePre2013_->object()->id();
 	const AMDbObject *sampleObject = sampleHelper();
 	if(sampleObject)
 		return sampleObject->id();
@@ -164,7 +154,6 @@ int AMScan::sampleId() const{
 
 const AMSamplePre2013* AMScan::samplePre2013() const{
 	const AMSamplePre2013 *retVal = qobject_cast<const AMSamplePre2013*>(sampleHelper());
-	//const AMSamplePre2013 *retVal = qobject_cast<const AMSamplePre2013*>(samplePre2013_->object());
 	return retVal;
 }
 
@@ -174,13 +163,19 @@ const AMSample* AMScan::sample() const{
 }
 
 // associate this object with a particular run. Set to (-1) to dissociate with any run.  (Note: for now, it's the caller's responsibility to make sure the runId is valid.)
-void AMScan::setRunId(int newRunId) {
+void AMScan::setRunId(int newRunId)
+{
+	if(newRunId <= 0){
 
-	if(newRunId <= 0)
 		runId_ = -1;
-	else
+		setModified(true);
+	}
+
+	else if (runId_ != newRunId){
+
 		runId_ = newRunId;
-	setModified(true);
+		setModified(true);
+	}
 }
 
 
@@ -225,22 +220,6 @@ void AMScan::setSampleId(int newSampleId, const QString &databaseTableName){
 	}
 	setModified(true);
 	emit sampleIdChanged(newSampleId);
-
-	/*
-	if(!samplePre2013_ || !samplePre2013_->object() || (samplePre2013_->object()->id() != newSampleId) ){
-		if(newSampleId <= 0)
-			samplePre2013_ = 0; //NULL
-		else{
-			AMDbObject *newSample = AMDbObjectSupport::s()->createAndLoadObjectAt(AMDatabase::database("user"), AMDbObjectSupport::s()->tableNameForClass<AMSamplePre2013>(), newSampleId);
-			if(!samplePre2013_)
-				samplePre2013_ = new AMConstDbObject(newSample, this);
-			else
-				samplePre2013_->setObject(newSample);
-		}
-		setModified(true);
-		emit sampleIdChanged(newSampleId);
-	}
-	*/
 }
 
 
@@ -257,18 +236,6 @@ void AMScan::setSamplePre2013(const AMSamplePre2013 *samplePre2013){
 	else
 		samplePre2013_->setObject(samplePre2013);
 	setModified(true);
-
-	/*
-	if(!samplePre2013_->object() && !sample)
-		return;
-	if( (!samplePre2013_->object() && sample) || (samplePre2013_->object() && !sample) || (samplePre2013_->object()->id() != sample->id()) ){
-		if(!samplePre2013_)
-			samplePre2013_ = new AMConstDbObject(sample, this);
-		else
-			samplePre2013_->setObject(sample);
-		setModified(true);
-	}
-	*/
 }
 
 void AMScan::setSample(const AMSample *sample){
@@ -296,10 +263,6 @@ void AMScan::setScanInitialConditions(const AMControlInfoList &scanInitialCondit
 QString AMScan::unEvaluatedName() const{
 	return unEvaluatedName_;
 }
-
-//QString AMScan::evaluatedName() const {
-//	return nameDictionary_->parseKeywordString(name());
-//}
 
 // Convenience function: returns the name of the sample (if a sample is set)
 QString AMScan::sampleName() const {
@@ -331,7 +294,7 @@ bool AMScan::loadFromDb(AMDatabase* db, int sourceId) {
 		}
 	}
 
-	delete nameDictionary_;
+	nameDictionary_->deleteLater();
 	nameDictionary_ = new AMScanDictionary(this, this);
 
 	return true;
@@ -344,7 +307,7 @@ void AMScan::dbLoadScanInitialConditions(AMDbObject* newLoadedObject) {
 
 	// delete newLoadedObject, since we don't intend to do anything with it, but we're responsible for it.
 	if(newLoadedObject)
-		delete newLoadedObject;
+		newLoadedObject->deleteLater();
 }
 
 // Returns a list of pointers to the raw data sources, to support db storage.
@@ -369,7 +332,7 @@ void AMScan::dbLoadRawDataSources(const AMDbObjectList& newRawSources) {
 	while( (count = rawDataSources_.count()) ) {
 		AMRawDataSource* deleteMe = rawDataSources_.at(count-1);
 		rawDataSources_.remove(count-1);	// removing at the end is fastest.
-		delete deleteMe;
+		deleteMe->deleteLater();
 	}
 
 	// add new sources. Simply adding these to rawDataSources_ will be enough to emit the signals that tell everyone watching we have new data channels.
@@ -393,7 +356,7 @@ void AMScan::dbLoadAnalyzedDataSources(const AMDbObjectList& newAnalyzedSources)
 	while( (count = analyzedDataSources_.count()) ) {
 		AMAnalysisBlock* deleteMe = analyzedDataSources_.at(count-1);
 		analyzedDataSources_.remove(count-1);	// removing at the end is fastest.
-		delete deleteMe;
+		deleteMe->deleteLater();
 	}
 
 	// Simply adding these to analyzedDataSources_ will be enough to emit the signals that tell everyone watching we have new data channels.
@@ -411,7 +374,7 @@ void AMScan::dbLoadAnalyzedDataSources(const AMDbObjectList& newAnalyzedSources)
 	}
 }
 
-// This returns a string describing the input connections of all the analyzed data sources. It's used to save and restore these connections when loading from the database.  (This system is necessary because AMAnalysisBlocks use pointers to AMDataSources to specify their inputs; these pointers will not be the same after new objects are created when restoring from the database.)
+// This returns a string describing the input connections of all the analyzed data sources. It's used to save and restore these connections when loading from the database.  (This system is necessary because AMAnalysisBlocks use pointers to AMDataSources to specify their inputs. These pointers will not be the same after new objects are created when restoring from the database.)
 /* Implementation note: The string contains one line for each AMAnalysisBlock in analyzedDataSources_, in order.  Every line is a sequence of comma-separated numbers, where the number represents the index of a datasource in dataSourceAt().  So for an analysis block using the 1st, 2nd, and 5th sources (in order), the line would be "0,1,4".
 
 Lines are separated by single '\n', so a full string could look like:
@@ -505,7 +468,7 @@ void AMScan::setScanConfiguration(AMScanConfiguration* newConfiguration) {
 	if(configuration_ == newConfiguration)
 		return;
 	if(configuration_)
-		delete configuration_;
+		configuration_->deleteLater();
 	configuration_ = newConfiguration;
 	setModified(true);
 	emit scanConfigurationChanged();
@@ -579,6 +542,8 @@ bool AMScan::addAnalyzedDataSource(AMAnalysisBlock *newAnalyzedDataSource)
 
 		newAnalyzedDataSource->setScan(this);
 		connect(newAnalyzedDataSource, SIGNAL(modifiedChanged(bool)), this, SLOT(onDataSourceModified(bool)));
+		onDataSourceModified(newAnalyzedDataSource->modified());
+
 		return true;
 	}
 
@@ -663,7 +628,7 @@ AMDbThumbnail AMScan::thumbnail(int index) const {
 	plot->axisBottom()->showGrid(false);
 	plot->axisBottom()->showAxisName(false);
 	plot->axisLeft()->showAxisName(false);
-	plot->legend()->enableDefaultLegend(false);	// don't show default legend names, because we want to provide these as text later; don't include them in the bitmap
+	plot->legend()->enableDefaultLegend(false);	// don't show default legend names, because we want to provide these as text later. Don't include them in the bitmap
 
 	const AMDataSource* dataSource;
 	if(useRawSources)
@@ -875,7 +840,7 @@ bool AMScan::replaceRawDataStore(AMDataStore *dataStore)
 		rawDataSources_[i]->setDataStore(dataStore);
 	}
 
-	delete data_;
+	data_->deleteLater();
 	data_ = dataStore;
 
 	return true;
@@ -922,7 +887,7 @@ AMScan * AMScan::createFromDatabaseUrl(const QUrl &url, bool allowIfScanning, bo
 	}
 
 	if(isScanning.toBool() && !allowIfScanning) {
-		// Don't allow because is scanning. We'll return false here; First, grab the name and number for feedback if requested.
+		// Don't allow because is scanning. We'll return false here. First, grab the name and number for feedback if requested.
 		if(scanName) {
 			QList<QVariant> nameAndNumber = db->retrieve(id, tableName, QStringList() << "name" << "number");
 			*scanName = QString("%1 (#%2)").arg(nameAndNumber.at(0).toString()).arg(nameAndNumber.at(1).toString());
@@ -937,7 +902,7 @@ AMScan * AMScan::createFromDatabaseUrl(const QUrl &url, bool allowIfScanning, bo
 
 	AMScan* scan = qobject_cast<AMScan*>( dbo );
 	if(!scan) {
-		delete dbo;
+		dbo->deleteLater();
 		return 0;
 	}
 

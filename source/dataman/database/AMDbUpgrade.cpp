@@ -184,7 +184,7 @@ bool AMDbUpgradeSupport::dbObjectClassBecomes(AMDatabase *databaseToEdit, const 
 		// Loop over all the parent tables to column names map values
 		QMap<QString, QString>::const_iterator j = parentTablesToColumnNames.constBegin();
 		while (j != parentTablesToColumnNames.constEnd()) {
-			// Grab the list of indices we're interested in and for all those indices update to the new class name while maintaining the original index value (format: table_name;index_value)
+			// Grab the list of indices we're interested in and for all those indices update to the new class name while maintaining the original index value (format: table_name semicolon index_value)
 			QList<int> parentTableIndices = userDb->objectsWhere(j.key(), QString("%1 LIKE '%2;%'").arg(j.value()).arg(originalTableName));
 			for(int x = 0; x < parentTableIndices.count(); x++){
 				QString indexStringToUse = userDb->retrieve(parentTableIndices.at(x), j.key(), j.value()).toString();
@@ -307,7 +307,6 @@ bool AMDbUpgradeSupport::dbObjectClassBecomes(AMDatabase *databaseToEdit, const 
 }
 
 bool AMDbUpgradeSupport::dbObjectClassMerge(AMDatabase *databaseToEdit, const QString &mergeToClassName, const QString &mergeFromClassName, QMap<QString, QString> parentTablesToColumnNames, QMap<QString, int> indexTablesToIndexSide){
-	//AMDatabase *userDb = AMDatabase::database("user");
 	AMDatabase *userDb = databaseToEdit;
 
 	QString mergeToTableName = mergeToClassName%"_table";
@@ -350,7 +349,7 @@ bool AMDbUpgradeSupport::dbObjectClassMerge(AMDatabase *databaseToEdit, const QS
 	// Loop over all the parent tables to column names map values
 	QMap<QString, QString>::const_iterator j = parentTablesToColumnNames.constBegin();
 	while (j != parentTablesToColumnNames.constEnd()) {
-		// Grab the list of indices we're interested in and for all those indices update to the new class name while updating the original index value for the correct offset (format: table_name;index_value)
+		// Grab the list of indices we're interested in and for all those indices update to the new class name while updating the original index value for the correct offset (format: table_name semicolon index_value)
 		QList<int> parentTableIndices = userDb->objectsWhere(j.key(), QString("%1 LIKE '%2;%'").arg(j.value()).arg(mergeFromTableName));
 		for(int x = 0; x < parentTableIndices.count(); x++){
 			QString indexStringToUse = userDb->retrieve(parentTableIndices.at(x), j.key(), j.value()).toString();
@@ -698,7 +697,7 @@ bool AMDbUpgradeSupport::idColumnToConstDbObjectColumn(AMDatabase *databaseToEdi
 		success &= databaseToEdit->update(typeTableName, QString("%1='-1'").arg(constDbObjectColumnName), constDbObjectColumnName, "");
 	else
 		AMErrorMon::alert(0, AMDBUPGRADESUPPORT_COULD_NOT_CHANGE_COLUMN_NAME, QString("Could not change the %1 column to %2 in %3.").arg(idColumnName).arg(constDbObjectColumnName).arg(typeTableName));
-	// If that worked, grab all of the other values and update them from "#" to "relatedTypeTableName;#"
+	// If that worked, grab all of the other values and update them from "#" to "relatedTypeTableName semicolon #"
 	if(success){
 		// Grab id and constDbObjectColumnName column for all rows in typeTableName where the constDbObjectColumnName isn't empty string
 		QSqlQuery query = databaseToEdit->select(typeTableName, QString("id,%2").arg(constDbObjectColumnName), QString("%1!=''").arg(constDbObjectColumnName));
@@ -713,7 +712,7 @@ bool AMDbUpgradeSupport::idColumnToConstDbObjectColumn(AMDatabase *databaseToEdi
 		}
 		query.finish();
 
-		// Start a transaction, for each value in the map update the constDbObjectColumnName column for that id from "#" to "relatedTypeTableName;#"
+		// Start a transaction, for each value in the map update the constDbObjectColumnName column for that id from "#" to "relatedTypeTableName semicolon #"
 		databaseToEdit->startTransaction();
 		QMap<int, QString>::const_iterator i = results.constBegin();
 		while (i != results.constEnd() && success) {

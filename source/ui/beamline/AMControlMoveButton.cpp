@@ -61,7 +61,7 @@ void AMControlMoveButton::setControl(AMControl *control)
 
 	// in the future: if we wanted to be slightly more efficient, could update the context menu to give it an editor for the new control instead of just deleting it and letting a new one be created.
 	if(contextMenu_) {
-		delete contextMenu_;
+		contextMenu_->deleteLater();
 		contextMenu_ = 0;
 	}
 
@@ -112,7 +112,7 @@ bool AMControlMoveButton::setStepSizes(const QList<double> &stepSizes)
 
 	// in the future: if we wanted to be slightly more efficient, could update the context menu instead of letting a whole new one be created.
 	if(contextMenu_) {
-		delete contextMenu_;
+		contextMenu_->deleteLater();
 		contextMenu_ = 0;
 	}
 

@@ -131,7 +131,6 @@ void AMLoopAction3::internalCleanupAction(AMAction3 *action)
 	internalDisconnectAction(cleanupAction);
 	// delete it later (since we might still be executing inside the action's functions).
 	cleanupAction->scheduleForDeletion();
-	//cleanupAction->deleteLater();
 
 	if (!action)
 		currentSubAction_ = 0;
@@ -145,7 +144,6 @@ void AMLoopAction3::internalDoNextAction()
 		internalDisconnectAction(currentSubAction_);
 		// delete it later (since we might still be executing inside the action's functions).
 		currentSubAction_->scheduleForDeletion();
-		//currentSubAction_->deleteLater();
 	}
 
 	// Check if we are stopping now.

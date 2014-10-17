@@ -26,35 +26,3 @@ BareBonesAppController::BareBonesAppController(QObject *parent) :
     AMAppController(parent)
 {
 }
-
-// Re-implemented to create the Beamline object
-
-//bool BareBonesAppController::startupBeforeAnything() {
-//	if(!AMAppController::startupBeforeAnything()) return false;
-
-//	// Initialize the central beamline object
-//	BareBonesBeamline::bl();
-
-//	return true;
-//}
-
-
-// Re-implemented to add custom user-interface elements
-
-//bool BareBonesAppController::startupCreateUserInterface() {
-//	if(!AMAppController::startupCreateUserInterface()) return false;
-
-//	// create UI elements and add to main window
-
-//	return true;
-//}
-
-
-
-//void BareBonesAppController::shutdown() {
-
-//    // Make sure we release/clean-up the beamline interface
-//    AMBeamline::releaseBl();
-
-//    AMAppController::shutdown();
-//}

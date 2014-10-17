@@ -27,8 +27,10 @@ SUBDIRS += \
 	BioXASSideAcquaman.pro \
 	BioXASMainAcquaman.pro \
 	BioXASImagingAcquaman.pro \
-	BioXASShutterTool.pro \
+	BioXASToolSuite.pro \
 	VESPERSDatabaseDuplicateEntryPatch.pro \
 	StripTool2.pro \
-	CLSNetworkDirectorySynchronizer.pro
+	CLSNetworkDirectorySynchronizer.pro \
 #	buildTests/AMBuildTest.pro
+	XRDAnalysis.pro \
+	CLSSR570Coordinator.pro

@@ -71,6 +71,7 @@ AMRecursiveDirectoryCompare::DirectoryCompareResult AMDirectorySynchronizer::pre
 	else if(comparisonResult_ == AMRecursiveDirectoryCompare::FullyMatchingResult)
 		appendToProgressMessage(QString("Contents of %1 and %2 are the same, no copying necessary.").arg(side1Directory_).arg(side2Directory_));
 
+	emit prepared(comparisonResult_);
 	return comparisonResult_;
 }
 
@@ -127,7 +128,6 @@ bool AMDirectorySynchronizer::start()
 
 	QString process = "rsync";
 	QStringList args;
-	//args << "-avt" << "--progress" << "--exclude" << "*.db.bk.*" << "--exclude" << ".BACKUPS";
 	args << "-avt" << "--progress";
 	for(int x = 0, size = excludePatterns_.size(); x < size; x++)
 		args << "--exclude" << excludePatterns_.at(x);

@@ -32,7 +32,7 @@ Q_OBJECT
 Q_CLASSINFO("AMDbObject_Attributes", "description=1D Running Average Filter Block")
 
 public:
- 	virtual ~SGM1DFastScanFilterAB();
+	virtual ~SGM1DFastScanFilterAB();
 	Q_INVOKABLE SGM1DFastScanFilterAB(const QString &outputName = "InvalidInput", QObject *parent = 0);
 
 	QString infoDescription() const { return QString(); }
@@ -42,6 +42,9 @@ public:
 		- the rank() of that input source must be 1 (one-dimensional)
 		*/
 	virtual bool areInputDataSourcesAcceptable(const QList<AMDataSource*>& dataSources) const;
+
+	/// Returns the desired rank for input sources.
+	virtual int desiredInputRank() const { return 1; }
 
 	/// Set the data source inputs.
 	virtual void setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources);

@@ -9,7 +9,8 @@ HEADERS +=\
 	source/ui/util/AMDirectorySynchronizerDialog.h \
 	source/ui/AMVerticalStackWidget.h \
 	source/ui/AMHeaderButton.h \
-	source/ui/util/AMMessageBoxWTimeout.h
+	source/ui/util/AMMessageBoxWTimeout.h \
+	source/util/AMThread.h
 
 SOURCES += \
 	source/application/CLSNetworkDirectorySynchronizer/CLSNetworkDirectorySynchronizerMain.cpp \
@@ -19,6 +20,7 @@ SOURCES += \
 	source/ui/util/AMDirectorySynchronizerDialog.cpp \
 	source/ui/AMVerticalStackWidget.cpp \
 	source/ui/AMHeaderButton.cpp \
-	source/ui/util/AMMessageBoxWTimeout.cpp
+	source/ui/util/AMMessageBoxWTimeout.cpp \
+	source/util/AMThread.cpp
 
 RESOURCES = source/icons/icons.qrc

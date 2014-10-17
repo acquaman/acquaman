@@ -63,7 +63,7 @@ void AMDataSourceImageDatawDefault::minMaxSearch() const
 		minMaxCache_.second = maxZ;
 		minMaxCacheUpdateRequired_ = false;
 	}
-	else {	// large array; don't want to allocate more than 1MB buffer. Do in sections of approximately 1MB.
+	else {	// large array. Don't want to allocate more than 1MB buffer. Do in sections of approximately 1MB.
 		int rowsAtOnce = 125000 / sizeY;
 		if(rowsAtOnce == 0) rowsAtOnce = 1;
 		qreal minZ, maxZ;

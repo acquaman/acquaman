@@ -138,14 +138,12 @@ bool AMAppController::startupCreateUserInterface() {
 		setAutomaticBringScanEditorToFront(true);
 
 		// add the workflow control UI
-		//workflowView_ = new AMWorkflowView3();
 		workflowView_ = new AMWorkflowView3(AMActionRunner3::workflow());
 		mw_->insertHeading("Experiment Tools", 1);
 		mw_->addPane(workflowView_, "Experiment Tools", "Workflow", ":/user-away.png");
 
 		scanActionRunnerView_ = new AMWorkflowView3(AMActionRunner3::scanActionRunner());
 		scanActionRunnerView_->hide();
-		//mw_->addPane(scanActionRunnerView_, "Experiment Tools", "ScanActions", ":/user-away.png");
 
 		// get the "open scans" section to be under the workflow
 		mw_->windowPaneModel()->removeRow(scanEditorsParentItem_->row());
@@ -317,7 +315,7 @@ void AMAppController::launchScanConfigurationFromDb(const QUrl &url)
 
 	AMScanConfigurationView *view = config->createView();
 	if(!view) {
-		delete config;
+		config->deleteLater();
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -401, "Unable to create view from the scan configuration loaded from the database.  Contact Acquaman developers."));
 		return;
 	}
@@ -400,7 +398,6 @@ bool AMAppController::startupInstallActions()
 	if(AMDatamanAppControllerForActions3::startupInstallActions()) {
 
 		QAction *changeRunAction = new QAction("Change Run...", mw_);
-		// changeRunAction->setShortcut(QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_B));
 		changeRunAction->setStatusTip("Change the current run, or create a new one");
 		connect(changeRunAction, SIGNAL(triggered()), this, SLOT(showChooseRunDialog()));
 

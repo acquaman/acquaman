@@ -35,7 +35,6 @@ AMOverlayVideoWidget::AMOverlayVideoWidget(QWidget *parent, bool useOpenGlViewpo
 	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
 	if(useOpenGlViewport) {
-		// setViewport(new QGLWidget());
 		setViewport(new QGLWidget(QGLFormat(QGL::SampleBuffers)));
 		setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
 	}
@@ -51,11 +50,6 @@ AMOverlayVideoWidget::AMOverlayVideoWidget(QWidget *parent, bool useOpenGlViewpo
 
 	scene()->addItem(videoItem_);
 	resize(size());
-
-	// Widgets on top!
-//	QPushButton* test = new QPushButton("Help!");
-//	scene()->addWidget(test);
-
 }
 
 AMOverlayVideoWidget::~AMOverlayVideoWidget() {
@@ -68,8 +62,8 @@ AMOverlayVideoWidget::~AMOverlayVideoWidget() {
 	#ifdef AM_MOBILITY_VIDEO_ENABLED
 	mediaPlayer_->setMedia(QMediaContent());
 
-	delete videoItem_;
-	delete mediaPlayer_;
+	videoItem_->deleteLater();
+	mediaPlayer_->deleteLater();
 	#endif
 }
 

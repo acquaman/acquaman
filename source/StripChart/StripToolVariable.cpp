@@ -67,14 +67,12 @@ StripToolSeries *StripToolVariable::series() const
     return series_;
 }
 
-
-
-//MPlotSeriesBasic* StripToolVariable::plotItem() const
-//{
-//    return series_;
-//}
-
-
+/*
+MPlotSeriesBasic* StripToolVariable::plotItem() const
+{
+    return series_;
+}
+*/
 
 void StripToolVariable::setIndex(const QModelIndex &index)
 {

@@ -57,7 +57,6 @@ void CLSAmptekDetailedDetectorView::buildDetectorView(){
 	tempHBox->addWidget(new QLabel("eV/bin"));
 	tempHBox->addWidget(eVPerBinDoubleSpinBox_);
 	rightLayout_->addLayout(tempHBox);
-	//rightLayout_->addWidget(eVPerBinDoubleSpinBox_);
 	connect(eVPerBinDoubleSpinBox_, SIGNAL(valueChanged(double)), amptekDetector_, SLOT(setEVPerBin(double)));
 
 	temperatureLabel_ = new QLabel();
@@ -73,47 +72,37 @@ void CLSAmptekDetailedDetectorView::buildDetectorView(){
 
 	tempLabel = new QLabel("Fast Counts (avg.)");
 	fastCountsControlEditor_ = new AMControlEditor(amptekDetector_->fastCountsControl(this), amptekDetector_->averageFastCountsControl(this));
-	//averageFastCountsControlEditor_ = new AMControlEditor(amptekDetector_->averageFastCountsControl(this));
 	tempHBox = new QHBoxLayout();
 	tempHBox->addWidget(tempLabel);
 	tempHBox->addWidget(fastCountsControlEditor_);
-//	tempHBox->addWidget(averageFastCountsControlEditor_);
 	rightLayout_->addLayout(tempHBox);
 
 	tempLabel = new QLabel("Slow Counts (avg.)");
 	slowCountsControlEditor_ = new AMControlEditor(amptekDetector_->slowCountsControl(this), amptekDetector_->averageSlowCountsControl(this));
-	//averageSlowCountsControlEditor_ = new AMControlEditor(amptekDetector_->averageSlowCountsControl(this));
 	tempHBox = new QHBoxLayout();
 	tempHBox->addWidget(tempLabel);
 	tempHBox->addWidget(slowCountsControlEditor_);
-	//tempHBox->addWidget(averageSlowCountsControlEditor_);
 	rightLayout_->addLayout(tempHBox);
 
 	tempLabel = new QLabel("Accumulation (avg.)");
 	accumulationTimeControlEditor_ = new AMControlEditor(amptekDetector_->accumulationTimeControl(this), amptekDetector_->averageAccumulationTimeControl(this));
-	//averageAccumulationTimeControlEditor_ = new AMControlEditor(amptekDetector_->averageAccumulationTimeControl(this));
 	tempHBox = new QHBoxLayout();
 	tempHBox->addWidget(tempLabel);
 	tempHBox->addWidget(accumulationTimeControlEditor_);
-	//tempHBox->addWidget(averageAccumulationTimeControlEditor_);
 	rightLayout_->addLayout(tempHBox);
 
 	tempLabel = new QLabel("Real Time (avg.)");
 	realTimeControlEditor_ = new AMControlEditor(amptekDetector_->realTimeControl(this), amptekDetector_->averageRealTimeControl(this));
-	//averageRealTimeControlEditor_ = new AMControlEditor(amptekDetector_->averageRealTimeControl(this));
 	tempHBox = new QHBoxLayout();
 	tempHBox->addWidget(tempLabel);
 	tempHBox->addWidget(realTimeControlEditor_);
-	//tempHBox->addWidget(averageRealTimeControlEditor_);
 	rightLayout_->addLayout(tempHBox);
 
 	tempLabel = new QLabel("Live Time (avg.)");
 	liveTimeControlEditor_ = new AMControlEditor(amptekDetector_->liveTimeControl(this), amptekDetector_->averageLiveTimeControl(this));
-	//averageLiveTimeControlEditor_ = new AMControlEditor(amptekDetector_->averageLiveTimeControl(this));
 	tempHBox = new QHBoxLayout();
 	tempHBox->addWidget(tempLabel);
 	tempHBox->addWidget(liveTimeControlEditor_);
-	//tempHBox->addWidget(averageLiveTimeControlEditor_);
 	rightLayout_->addLayout(tempHBox);
 
 	roiView_ = new CLSAmptekDetectorROIView(amptekDetector_);
@@ -175,8 +164,6 @@ CLSAmptekDetectorROIView::CLSAmptekDetectorROIView(CLSAmptekSDD123DetectorNew *d
 	QDoubleSpinBox *oneLowIndexDoubleSpinBox;
 	QHBoxLayout *oneHBoxLayoutLineEdits;
 	QHBoxLayout *oneHBoxLayoutDoubleSpinBoxes;
-
-
 
 	for(int x = 0; x < 8; x++){
 		oneLineEditNameLabel = new QLabel(QString("ROI %1").arg(x+1));

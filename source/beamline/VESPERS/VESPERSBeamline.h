@@ -64,7 +64,9 @@ class VESPERSBeamline : public AMBeamline
 public:
 
 	/// Returns the instance of the beamline that has been created.
-	static VESPERSBeamline* vespers() {
+
+	static VESPERSBeamline* vespers()
+	{
 		if(!instance_){
 			instance_ = new VESPERSBeamline();
 			instance_->initializeBeamlineSupport();
@@ -627,7 +629,7 @@ protected:
 	/// Sets up all of the detectors that need to be added to scans that aren't a part of typical detectors.  This may just be temporary, not sure.
 	void setupControlsAsDetectors();
 
-	/// Constructor. This is a singleton class; access it through VESPERSBeamline::vespers().
+	/// Constructor. This is a singleton class, access it through VESPERSBeamline::vespers().
 	VESPERSBeamline();
 
 	// Detectors.
@@ -858,8 +860,6 @@ protected:
 	// Scanning settings.
 	AMControl *masterDwellTime_;
 
-	// The ring current.
-	AMControl *ringCurrent_;
 	// The energy setpoint control.
 	AMControl *energySetpointControl_;
 

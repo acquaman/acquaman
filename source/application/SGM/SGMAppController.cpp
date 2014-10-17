@@ -61,6 +61,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/actions/AMSampleMoveAction.h"
 #include "actions3/editors/AMSampleMoveActionEditor.h"
 
+#include "beamline/CLS/CLSStorageRing.h"
+
 #include "actions3/AMActionRunner3.h"
 #include "ui/actions3/AMWorkflowView3.h"
 
@@ -83,7 +85,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/SGM/SGMSampleManagementView.h"
 #include "ui/SGM/SGMSampleManipulatorView.h"
 #include "ui/SGM/SGMSIS3820ScalerView.h"
-#include "ui/SGM/SGMDataViewWithActionButtons.h"
 
 #include "ui/CLS/CLSAmptekSDD123DetailedDetectorView.h"
 #include "ui/CLS/CLSPGTDetectorV2View.h"
@@ -200,6 +201,9 @@ bool SGMAppController::startup() {
 	AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES, QString("SGM Startup: Waiting for detectors"));
 	onSGMBeamlineDetectorAvailabilityChanged(0, false);
 
+	// Initialize the storage ring.
+	CLSStorageRing::sr1();
+
 	// From Darren:  Adding this for SGM because they don't want to have scan editors to always be popping up automatically.
 	setAutomaticBringScanEditorToFront(false);
 
@@ -211,11 +215,6 @@ bool SGMAppController::startup() {
 		firstRun.storeToDb(AMDatabase::database("user"));
 	}
 
-	/*
-	procServs_.append(new CLSProcServManager("IOC1611-427", 10004, "Scaler", this));
-	procServs_.append(new CLSProcServManager("VIOC1611-446", 10028, "Coordination AddOns", this));
-	*/
-
 	// Set up the GUI portions of the SGMAcquamanAppController
 	if(!setupSGMViews())
 		return false;
@@ -223,7 +222,6 @@ bool SGMAppController::startup() {
 	// Center the completed GUI on the screen (which is normally 0,0 but has to be 0 1081 on OPI1611-408)
 	if(QHostInfo::localHostName() == "OPI1611-408"){
 		mw_->move(0, 1081);
-//		QTimer::singleShot(250, this, SLOT(resizeAfterStartup()));
 	}
 	else
 		mw_->move(0, 0);
@@ -321,7 +319,6 @@ bool SGMAppController::startupPopulateNewDatabase(){
 	bool success = true;
 
 	// Call the SGM setup functions. These are done both for new and existing databases, as these functions check for existance before creating and sometimes alter the existing if need be
-	//success &= setupSGMConfigurationFiles();
 	success &= setupSGMPlugins();
 	success &= setupSGMPeriodicTable();
 	success &= setupSGMExporterOptions();
@@ -337,7 +334,6 @@ bool SGMAppController::startupLoadFromExistingDatabase(){
 	bool success = true;
 
 	// Call the SGM setup functions. These are done both for new and existing databases, as these functions check for existance before creating and sometimes alter the existing if need be
-	//success &= setupSGMConfigurationFiles();
 	success &= setupSGMPlugins();
 	success &= setupSGMPeriodicTable();
 	success &= setupSGMExporterOptions();
@@ -418,8 +414,10 @@ void SGMAppController::onSGMBeamlineConnected(){
 
 		xasScanConfiguration2013View_ = new SGMXASScanConfiguration2013View(xasScanConfiguration2013);
 		xasScanConfiguration2013View_->setDetectorSelector(xasDetectorSelector_);
-		// removed as temporary fix (see Issue579)
-		//xasScanConfiguration2013View_->setTrackingSet(SGMBeamline::sgm()->trackingSet());
+		/*
+		 removed as temporary fix (see Issue579)
+		xasScanConfiguration2013View_->setTrackingSet(SGMBeamline::sgm()->trackingSet());
+		*/
 		xasScanConfiguration2013Holder3_->setView(xasScanConfiguration2013View_);
 		//End New XAS
 
@@ -588,7 +586,6 @@ void SGMAppController::onSGMNewPGTDetectorConnected(bool connected){
 	Q_UNUSED(connected)
 	/*
 	if(SGMBeamline::sgm()->newPGTDetector() && SGMBeamline::sgm()->newPGTDetector()->isConnected() && !newPGTDetectorView_){
-		//newPGTDetectorView_ = new AMDetectorGeneralDetailedView(SGMBeamline::sgm()->newPGTDetector());
 		newPGTDetectorView_ = new CLSPGTDetectorV2View(qobject_cast<CLSPGTDetectorV2*>(SGMBeamline::sgm()->newPGTDetector()));
 		mw_->addPane(newPGTDetectorView_, "Beamline Detectors", "SGM PGT", ":/system-software-update.png");
 	}
@@ -614,39 +611,25 @@ void SGMAppController::onSGMNewTEYDetectorConnected(bool connected){
 #include "dataman/AMScanEditorModelItem.h"
 #include "ui/dataman/AMGenericScanEditor.h"
 
-//void SGMAppController::onCurrentScanControllerCreated(){
-//}
-
-//void SGMAppController::onCurrentScanControllerDestroyed(){
-//}
-
 void SGMAppController::onCurrentScanActionStartedImplementation(AMScanAction *action){
 	Q_UNUSED(action)
 
-	/*
-	AMScan *scan = action->controller()->scan();
-
-	SGMXASScanConfiguration *xasConfig = qobject_cast<SGMXASScanConfiguration *>(scan->scanConfiguration());
-	if(xasConfig){
-		if(xasConfig->allDetectorConfigurations().isActiveNamed("teyScaler") || xasConfig->allDetectorConfigurations().isActiveNamed("teyPico"))
-			scanEditorAt(scanEditorCount()-1)->setExclusiveDataSourceByName("TEYNorm");
-		else if(xasConfig->allDetectorConfigurations().isActiveNamed("tfyScaler") || xasConfig->allDetectorConfigurations().isActiveNamed("tfyPico"))
-			scanEditorAt(scanEditorCount()-1)->setExclusiveDataSourceByName("TFYNorm");
-		else
-			scanEditorAt(scanEditorCount()-1)->setExclusiveDataSourceByName("I0");
-		return;
-	}
-
-	SGMFastScanConfiguration *fastConfig = qobject_cast<SGMFastScanConfiguration *>(scan->scanConfiguration());
-	if(fastConfig){
-		scanEditorAt(scanEditorCount()-1)->setExclusiveDataSourceByName("TEY");
-		return;
-	}
-	*/
+	connect(CLSStorageRing::sr1(), SIGNAL(beamAvaliability(bool)), this, SLOT(onBeamAvailabilityChanged(bool)));
 }
 
 void SGMAppController::onCurrentScanActionFinishedImplementation(AMScanAction *action){
 	Q_UNUSED(action)
+	disconnect(CLSStorageRing::sr1(), SIGNAL(beamAvaliability(bool)), this, SLOT(onBeamAvailabilityChanged(bool)));
+}
+
+void SGMAppController::onBeamAvailabilityChanged(bool beamAvailable)
+{
+	if (!beamAvailable && !AMActionRunner3::workflow()->pauseCurrentAction())
+		AMActionRunner3::workflow()->setQueuePaused(true);
+
+	// On VESPERS, we don't like having the scan restart on it's own.
+	else if (beamAvailable && AMActionRunner3::workflow()->queuedActionCount() > 0)
+		AMActionRunner3::workflow()->setQueuePaused(false);
 }
 
 void SGMAppController::onActionSGMSettings(){
@@ -654,12 +637,6 @@ void SGMAppController::onActionSGMSettings(){
 		sgmSettingsMasterView_ = new SGMSettingsMasterView();
 	sgmSettingsMasterView_->show();
 }
-
-//void SGMAppController::onActionProcServManager(){
-//	if(!procServsView_)
-//		procServsView_ = new CLSProcServManagerView(procServs_);
-//	procServsView_->show();
-//}
 
 
 void SGMAppController::onAdvancedCameraOptionsRequested(){
@@ -696,7 +673,6 @@ void SGMAppController::onXRFDetectorViewResized(){
 }
 
 void SGMAppController::resizeToMinimum(){
-	//mw_->resize(mw_->size().width(), mw_->minimumSizeHint().height());
 	mw_->resize(mw_->minimumSizeHint());
 }
 
@@ -782,8 +758,10 @@ bool SGMAppController::setupSGMPlugins()
 }
 
 bool SGMAppController::setupSGMExporterOptions(){
-	// Removed following line until the SGM Axis 2000 export is completed, in reference to Issue594
-	//AMExportController::registerExporter<SGMAxis2000Exporter>();
+	/*
+	 Removed following line until the SGM Axis 2000 export is completed, in reference to Issue594
+	AMExportController::registerExporter<SGMAxis2000Exporter>();
+	*/
 
 	bool success = true;
 
@@ -947,10 +925,12 @@ bool SGMAppController::setupSGMPeriodicTable(){
 		SGMScanInfo scanInfo(elementName%" "%elementEdge, edge, epStart, epMiddle, epEnd);
 		success &= scanInfo.storeToDb(dbSGM);
 
-//		SGMFastScanSettings fs5Settings(elementName%elementEdge%"5sSettings", 5.0, 40000, 5.0, 200, 6000);
-//		success &= fs5Settings.storeToDb(dbSGM);
-//		SGMFastScanParameters *fsp5 = new SGMFastScanParameters(elementName%elementEdge%"5s", AMPeriodicTable::table()->elementBySymbol(elementSymbol)->name(), scanInfo, fs5Settings);
-//		success &= fsp5->storeToDb(dbSGM);
+		/*
+		SGMFastScanSettings fs5Settings(elementName%elementEdge%"5sSettings", 5.0, 40000, 5.0, 200, 6000);
+		success &= fs5Settings.storeToDb(dbSGM);
+		SGMFastScanParameters *fsp5 = new SGMFastScanParameters(elementName%elementEdge%"5s", AMPeriodicTable::table()->elementBySymbol(elementSymbol)->name(), scanInfo, fs5Settings);
+		success &= fsp5->storeToDb(dbSGM);
+		*/
 
 		SGMFastScanSettings fs120Settings(elementName%elementEdge%"120sSettings", 120.0, 872, 120.0, 200, 141);
 		success &= fs120Settings.storeToDb(dbSGM);
@@ -962,14 +942,15 @@ bool SGMAppController::setupSGMPeriodicTable(){
 		SGMFastScanParameters *fsp20 = new SGMFastScanParameters(elementName%elementEdge%"20s", AMPeriodicTable::table()->elementBySymbol(elementSymbol)->name(), scanInfo, fs20Settings);
 		success &= fsp20->storeToDb(dbSGM);
 
-//		SGMFastScanSettings fs120Settings(elementName%elementEdge%"120sSettings", 120.0, 872, 120.0, 200, 141);
-//		success &= fs120Settings.storeToDb(dbSGM);
-//		SGMFastScanParameters *fsp120 = new SGMFastScanParameters(elementName%elementEdge%"120s", AMPeriodicTable::table()->elementBySymbol(elementSymbol)->name(), scanInfo, fs120Settings);
-//		success &= fsp120->storeToDb(dbSGM);
+		/*
+		SGMFastScanSettings fs120Settings(elementName%elementEdge%"120sSettings", 120.0, 872, 120.0, 200, 141);
+		success &= fs120Settings.storeToDb(dbSGM);
+		SGMFastScanParameters *fsp120 = new SGMFastScanParameters(elementName%elementEdge%"120s", AMPeriodicTable::table()->elementBySymbol(elementSymbol)->name(), scanInfo, fs120Settings);
+		success &= fsp120->storeToDb(dbSGM);
+		*/
 
 		SGMElementInfo *elementInfo = new SGMElementInfo(elementName%"ElementInfo", AMPeriodicTable::table()->elementBySymbol(elementSymbol), this);
 		elementInfo->addEdgeInfo(scanInfo);
-//		elementInfo->addFastScanParameters(fsp5);
 		elementInfo->addFastScanParameters(fsp20);
 		elementInfo->addFastScanParameters(fsp120);
 		success &= elementInfo->storeToDb(dbSGM);
@@ -992,10 +973,12 @@ bool SGMAppController::setupSGMPeriodicTable(){
 		SGMScanInfo scanInfo(elementName%" "%elementEdge, edge, epStart, epMiddle, epEnd);
 		success &= scanInfo.storeToDb(dbSGM);
 
-//		SGMFastScanSettings fs5Settings(elementName%elementEdge%"5sSettings", 5.0, 10000, 5.0, 200, 1500);
-//		success &= fs5Settings.storeToDb(dbSGM);
-//		SGMFastScanParameters *fsp5 = new SGMFastScanParameters(elementName%elementEdge%"5s", AMPeriodicTable::table()->elementBySymbol(elementSymbol)->name(), scanInfo, fs5Settings);
-//		success &= fsp5->storeToDb(dbSGM);
+		/*
+		SGMFastScanSettings fs5Settings(elementName%elementEdge%"5sSettings", 5.0, 10000, 5.0, 200, 1500);
+		success &= fs5Settings.storeToDb(dbSGM);
+		SGMFastScanParameters *fsp5 = new SGMFastScanParameters(elementName%elementEdge%"5s", AMPeriodicTable::table()->elementBySymbol(elementSymbol)->name(), scanInfo, fs5Settings);
+		success &= fsp5->storeToDb(dbSGM);
+		*/
 
 		SGMFastScanSettings fs120Settings(elementName%elementEdge%"120sSettings", 120.0, 540, 120.0, 800, 132);
 		success &= fs120Settings.storeToDb(dbSGM);
@@ -1007,14 +990,15 @@ bool SGMAppController::setupSGMPeriodicTable(){
 		SGMFastScanParameters *fsp20 = new SGMFastScanParameters(elementName%elementEdge%"20s", AMPeriodicTable::table()->elementBySymbol(elementSymbol)->name(), scanInfo, fs20Settings);
 		success &= fsp20->storeToDb(dbSGM);
 
-//		SGMFastScanSettings fs120Settings(elementName%elementEdge%"120sSettings", 120.0, 540, 120.0, 800, 132);
-//		success &= fs120Settings.storeToDb(dbSGM);
-//		SGMFastScanParameters *fsp120 = new SGMFastScanParameters(elementName%elementEdge%"120s", AMPeriodicTable::table()->elementBySymbol(elementSymbol)->name(), scanInfo, fs120Settings);
-//		success &= fsp120->storeToDb(dbSGM);
+		/*
+		SGMFastScanSettings fs120Settings(elementName%elementEdge%"120sSettings", 120.0, 540, 120.0, 800, 132);
+		success &= fs120Settings.storeToDb(dbSGM);
+		SGMFastScanParameters *fsp120 = new SGMFastScanParameters(elementName%elementEdge%"120s", AMPeriodicTable::table()->elementBySymbol(elementSymbol)->name(), scanInfo, fs120Settings);
+		success &= fsp120->storeToDb(dbSGM);
+		*/
 
 		SGMElementInfo *elementInfo = new SGMElementInfo(elementName%"ElementInfo", AMPeriodicTable::table()->elementBySymbol(elementSymbol), this);
 		elementInfo->addEdgeInfo(scanInfo);
-//		elementInfo->addFastScanParameters(fsp5);
 		elementInfo->addFastScanParameters(fsp20);
 		elementInfo->addFastScanParameters(fsp120);
 		success &= elementInfo->storeToDb(dbSGM);
@@ -1207,10 +1191,12 @@ bool SGMAppController::setupSGMPeriodicTable(){
 		SGMScanInfo scanInfo(elementName%" "%elementEdge, edge, epStart, epMiddle, epEnd);
 		success &= scanInfo.storeToDb(dbSGM);
 
-		//SGMFastScanSettings fs5Settings(elementName%elementEdge%"5sSettings", 5.0, 8500, 5.0, 200, 1800);
-		//success &= fs5Settings.storeToDb(dbSGM);
-		//SGMFastScanParameters *fsp5 = new SGMFastScanParameters(elementName%elementEdge%"5s", AMPeriodicTable::table()->elementBySymbol(elementSymbol)->name(), scanInfo, fs5Settings);
-		//success &= fsp5->storeToDb(dbSGM);
+		/*
+		SGMFastScanSettings fs5Settings(elementName%elementEdge%"5sSettings", 5.0, 8500, 5.0, 200, 1800);
+		success &= fs5Settings.storeToDb(dbSGM);
+		SGMFastScanParameters *fsp5 = new SGMFastScanParameters(elementName%elementEdge%"5s", AMPeriodicTable::table()->elementBySymbol(elementSymbol)->name(), scanInfo, fs5Settings);
+		success &= fsp5->storeToDb(dbSGM);
+		*/
 
 		SGMFastScanSettings fs20Settings(elementName%elementEdge%"20sSettings", 20.0, 2000, 20.0, 800, 700);
 		success &= fs20Settings.storeToDb(dbSGM);
@@ -1219,7 +1205,6 @@ bool SGMAppController::setupSGMPeriodicTable(){
 
 		SGMElementInfo *elementInfo = new SGMElementInfo(elementName%"ElementInfo", AMPeriodicTable::table()->elementBySymbol(elementSymbol), this);
 		elementInfo->addEdgeInfo(scanInfo);
-		//elementInfo->addFastScanParameters(fsp5);
 		elementInfo->addFastScanParameters(fsp20);
 		success &= elementInfo->storeToDb(dbSGM);
 	}
@@ -1555,16 +1540,14 @@ bool SGMAppController::setupSGMViews(){
 	sgmSidebar_ = new SGMSidebar();
 	mw_->addRightWidget(sgmSidebar_);
 
-//	SGMPeriodicTableView *sgmPeriodicTableView = new SGMPeriodicTableView(SGMPeriodicTable::sgmTable());
-//	sgmPeriodicTableView->show();
-//	SGMFastScanParametersModificationWizard *fastScanWizard = new SGMFastScanParametersModificationWizard();
-//	fastScanWizard->show();
+	/*
+	SGMPeriodicTableView *sgmPeriodicTableView = new SGMPeriodicTableView(SGMPeriodicTable::sgmTable());
+	sgmPeriodicTableView->show();
+	SGMFastScanParametersModificationWizard *fastScanWizard = new SGMFastScanParametersModificationWizard();
+	fastScanWizard->show();
+	*/
 
 	connect(workflowView_, SIGNAL(actionAddedFromDialog(AMAction3*)), this, SLOT(onWorkflowActionAddedFromDialog(AMAction3*)));
 
 	return true;
-}
-
-AMDataViewWithActionButtons* SGMAppController::createDataViewWithActionButtons(){
-	return new SGMDataViewWithActionButtons();
 }

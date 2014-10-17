@@ -1,4 +1,5 @@
 include ( acquamanCommon.pri )
+include ( bioxasCommon.pri )
 
 TARGET = BioXASImagingAcquaman
 
@@ -12,8 +13,3 @@ SOURCES += \
     source/application/BioXAS/BioXASImagingMain.cpp \
     source/application/BioXAS/BioXASImagingAppController.cpp \
     source/beamline/BioXAS/BioXASImagingBeamline.cpp
-
-
-
-
-

@@ -65,7 +65,7 @@ AMActionRunner3 * AMActionRunner3::workflow()
 
 void AMActionRunner3::releaseWorkflow()
 {
-	delete workflowInstance_;
+	workflowInstance_->deleteLater();
 	workflowInstance_ = 0;
 }
 
@@ -76,7 +76,7 @@ AMActionRunner3* AMActionRunner3::scanActionRunner(){
 }
 
 void AMActionRunner3::releaseScanActionRunner(){
-	delete scanActionRunnerInstance_;
+	scanActionRunnerInstance_->deleteLater();
 	scanActionRunnerInstance_ = 0;
 }
 
@@ -172,7 +172,7 @@ void AMActionRunner3::onCurrentActionStateChanged(int state, int previousState)
 	}
 }
 
-// This is a non-GUI class, and we're popping up a QMessageBox. Not ideal; hope you'll let us get away with that.
+// This is a non-GUI class, and we're popping up a QMessageBox. Not ideal, hope you'll let us get away with that.
 
 #include <QMessageBox>
 #include <QPushButton>
@@ -235,7 +235,7 @@ bool AMActionRunner3::deleteActionInQueue(int index)
 	emit queuedActionRemoved(index);
 	disconnect(action->info(), SIGNAL(infoChanged()), this, SIGNAL(queuedActionInfoChanged()));
 
-	delete action;
+	action->deleteLater();
 
 	return true;
 }
@@ -318,7 +318,6 @@ void AMActionRunner3::internalDoNextAction()
 			AMAction3* oldAction = currentAction_;
 			emit currentActionChanged(currentAction_ = 0);
 			oldAction->scheduleForDeletion();
-			//oldAction->deleteLater(); // the action might have sent notifyFailed() or notifySucceeded() in the middle a deep call stack... In that case, we might actually still be executing inside the action's code, so better not delete it until that all has a chance to finish. (Otherwise... Crash!)
 
 			// If we are done with all the actions inside the queue then we should pause the queue so the next action doesn't start right away.
 			if (queuedActionCount() == 0)
@@ -340,7 +339,6 @@ void AMActionRunner3::internalDoNextAction()
 		if(oldAction) {
 			disconnect(oldAction, 0, this, 0);
 			oldAction->scheduleForDeletion();
-			//oldAction->deleteLater();	// the action might have sent notifyFailed() or notifySucceeded() in the middle a deep call stack... In that case, we might actually still be executing inside the action's code, so better not delete it until that all has a chance to finish. (Otherwise... Crash!)
 		}
 
 		connect(currentAction_, SIGNAL(stateChanged(int,int)), this, SLOT(onCurrentActionStateChanged(int,int)));
@@ -395,7 +393,7 @@ void AMActionRunner3::internalDoNextAction()
 	}
 }
 
-// Again, this is a non-GUI class, and we're popping up a QMessageBox. Not ideal; hope you'll let us get away with that.
+// Again, this is a non-GUI class, and we're popping up a QMessageBox. Not ideal, hope you'll let us get away with that.
 int AMActionRunner3::internalAskUserWhatToDoAboutFailedAction(AMAction3* action)
 {
 	QMessageBox box;
@@ -469,7 +467,6 @@ void AMActionRunner3::onImmediateActionStateChanged(int state, int previousState
 		// disconnect and delete it
 		disconnect(action, 0, this, 0);
 		action->scheduleForDeletion();
-		//action->deleteLater();
 	}
 }
 
@@ -992,7 +989,6 @@ bool AMActionRunnerQueueModel3::dropMimeData(const QMimeData *data, Qt::DropActi
 
 	// if we return false to the DropAction, it might retry with IgnoreAction. We need to accept that one.
 	else if(action == Qt::IgnoreAction) {
-		//qdebug() << "AMActionRunnerQueueModel: Wow: Qt actually behaved according to spec and offered the IgnoreAction. Too bad this never happens...";
 		return true;
 	}
 

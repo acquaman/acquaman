@@ -507,9 +507,6 @@ void AMDetector::setTimeOutMS(int timeOutMS){
 }
 
 void AMDetector::setAcquisitionState(AcqusitionState newState){
-	//if(!acceptableChangeAcquisitionState(newState))
-	//	return;
-
 	acquisitionState_ = newState;
 	emit acquisitionStateChanged(acquisitionState_);
 
@@ -579,9 +576,6 @@ bool AMDetector::acceptableChangeAcquisitionState(AcqusitionState newState) cons
 }
 
 void AMDetector::setInitializationState(InitializationState newState){
-	//if(!acceptableChangeInitializationState(newState))
-	//	return;
-
 	initializationState_ = newState;
 	emit initializationStateChanged(initializationState_);
 
@@ -622,9 +616,6 @@ bool AMDetector::acceptableChangeInitializationState(InitializationState newStat
 }
 
 void AMDetector::setCleanupState(CleanupState newState){
-	//if(!acceptableChangeCleanupState(newState))
-	//	return;
-
 	cleanupState_ = newState;
 	emit cleanupStateChanged(cleanupState_);
 

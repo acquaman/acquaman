@@ -39,13 +39,10 @@ SGMXASScanConfiguration2013::SGMXASScanConfiguration2013(QObject *parent) :
 	connect(SGMBeamline::sgm()->undulatorTracking(), SIGNAL(valueChanged(double)), this, SLOT(checkIfMatchesBeamline()));
 	connect(SGMBeamline::sgm()->monoTracking(), SIGNAL(valueChanged(double)), this, SLOT(checkIfMatchesBeamline()));
 	connect(SGMBeamline::sgm()->exitSlitTracking(), SIGNAL(valueChanged(double)), this,SLOT(checkIfMatchesBeamline()));
-	//connect(this, SIGNAL(configurationChanged()), this, SLOT(checkIfMatchesBeamline()));
 	connect(this->dbObject(), SIGNAL(exitSlitGapChanged(double)), this, SLOT(checkIfMatchesBeamline()));
 	connect(this->dbObject(), SIGNAL(gratingChanged(SGMBeamlineInfo::sgmGrating)), this, SLOT(checkIfMatchesBeamline()));
 	connect(this->dbObject(), SIGNAL(harmonicChanged(SGMBeamlineInfo::sgmHarmonic)), this, SLOT(checkIfMatchesBeamline()));
 	connect(this->dbObject(), SIGNAL(trackingGroupChanged()), this, SLOT(checkIfMatchesBeamline()));
-
-	//detectorConfigurations_ = AMBeamline::bl()->exposedDetectors()->toInfoSet();
 }
 
 SGMXASScanConfiguration2013::SGMXASScanConfiguration2013(const SGMXASScanConfiguration2013 &original) :
@@ -60,7 +57,6 @@ SGMXASScanConfiguration2013::SGMXASScanConfiguration2013(const SGMXASScanConfigu
 	connect(SGMBeamline::sgm()->undulatorTracking(), SIGNAL(valueChanged(double)), this, SLOT(checkIfMatchesBeamline()));
 	connect(SGMBeamline::sgm()->monoTracking(), SIGNAL(valueChanged(double)), this, SLOT(checkIfMatchesBeamline()));
 	connect(SGMBeamline::sgm()->exitSlitTracking(), SIGNAL(valueChanged(double)), this,SLOT(checkIfMatchesBeamline()));
-	//connect(this, SIGNAL(configurationChanged()), this, SLOT(checkIfMatchesBeamline()));
 	connect(this->dbObject(), SIGNAL(exitSlitGapChanged(double)), this, SLOT(checkIfMatchesBeamline()));
 	connect(this->dbObject(), SIGNAL(gratingChanged(SGMBeamlineInfo::sgmGrating)), this, SLOT(checkIfMatchesBeamline()));
 	connect(this->dbObject(), SIGNAL(harmonicChanged(SGMBeamlineInfo::sgmHarmonic)), this, SLOT(checkIfMatchesBeamline()));
@@ -169,6 +165,11 @@ void SGMXASScanConfiguration2013::getSettingsFromBeamline()
 	dbObject()->setMonoTracking((int)SGMBeamline::sgm()->monoTracking()->value());
 	dbObject()->setExitSlitTracking((int)SGMBeamline::sgm()->exitSlitTracking()->value());
 
+}
+
+bool SGMXASScanConfiguration2013::matchesCurrentBeamline()
+{
+	return matchesCurrentBeamline_;
 }
 
 void SGMXASScanConfiguration2013::checkIfMatchesBeamline()

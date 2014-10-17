@@ -196,24 +196,22 @@ public:
 	/// Returns read-only access to the set of raw data sources. (A data source represents a single "stream" or "channel" of data. For example, in a simple absorption scan, the electron yield measurements are one raw data source, and the fluorescence yield measurements are another data source.)
 	const AMRawDataSourceSet* rawDataSources() const { return &rawDataSources_; }
 	int rawDataSourceCount() const { return rawDataSources_.count(); }
-	// AMRawDataSourceSet* rawDataSources() { return &rawDataSources_; }
 	/// Publicly expose part of the rawData(), by adding a new AMRawDataSource to the scan. The new data source \c newRawDataSource should be valid, initialized and connected to the data store already.  The scan takes ownership of \c newRawDataSource.  This function returns false if raw data source already exists with the same name as the \c newRawDataSource.
 	bool addRawDataSource(AMRawDataSource* newRawDataSource);
 	/// This overloaded function calls addRawDataSource() after setting the visibleInPlots() and hiddenFromUsers() hints of the data source.
 	bool addRawDataSource(AMRawDataSource* newRawDataSource, bool visibleInPlots, bool hiddenFromUsers);
 	/// Delete and remove an existing raw data source.  \c id is the idnex of the source in rawDataSources().
-	bool deleteRawDataSource(int id) { if((unsigned)id >= (unsigned)rawDataSources_.count()) return false; delete rawDataSources_.takeAt(id); return true; }
+	bool deleteRawDataSource(int id) { if((unsigned)id >= (unsigned)rawDataSources_.count()) return false; rawDataSources_.takeAt(id)->deleteLater(); return true; }
 
 	/// Returns read-only access to the set of analyzed data sources. (Analyzed data sources are built on either raw data sources, or other analyzed sources, by applying an AMAnalysisBlock.)
 	const AMAnalyzedDataSourceSet* analyzedDataSources() const { return &analyzedDataSources_; }
 	int analyzedDataSourceCount() const { return analyzedDataSources_.count(); }
-	// AMAnalyzedDataSourceSet* analyzedDataSources() { return &analyzedDataSources_; }
 	/// Add an new analysis block to the scan.  The scan takes ownership of the \c newAnalysisBlock and exposes it as one of the analyzed data sources.
 	bool addAnalyzedDataSource(AMAnalysisBlock* newAnalyzedDataSource);
 	/// This overloaded function calls addAnalyzedDataSource() after setting the visibleInPlots() and hiddenFromUsers() hints of the data source.
 	bool addAnalyzedDataSource(AMAnalysisBlock *newAnalyzedDataSource, bool visibleInPlots, bool hiddenFromUsers);
 	/// Delete and remove an existing analysis block. \c id is the index of the source in analyzedDataSources().
-	bool deleteAnalyzedDataSource(int id) { if((unsigned)id >= (unsigned)analyzedDataSources_.count()) return false; delete analyzedDataSources_.takeAt(id); return true; }
+	bool deleteAnalyzedDataSource(int id) { if((unsigned)id >= (unsigned)analyzedDataSources_.count()) return false; analyzedDataSources_.takeAt(id)->deleteLater(); return true; }
 
 	// Provides a simple access model to all the data sources (combination of rawDataSources() and analyzedDataSources()
 
@@ -251,7 +249,7 @@ public:
 				return i;
 		for(int i=0; i<analyzedDataSources_.count(); i++)
 			if(source == analyzedDataSources_.at(i))
-				return i+rawCount;	// is an index in the combined set; raw sources come first.
+				return i+rawCount;	// is an index in the combined set, raw sources come first.
 		return -1;
 	}
 
@@ -262,12 +260,12 @@ public:
 			return false;
 		int rawCount = rawDataSources_.count();
 		if(index < rawCount)	{ // is a raw data source.
-			delete rawDataSources_.takeAt(index);
+			rawDataSources_.takeAt(index)->deleteLater();
 			return true;
 		}
 		index -= rawCount;
 		if(index < analyzedDataSources_.count()) {
-			delete analyzedDataSources_.takeAt(index);
+			analyzedDataSources_.takeAt(index)->deleteLater();
 			return true;
 		}
 		return false;
@@ -326,7 +324,7 @@ Returns false and does nothing if the new \c dataStore is incompatible with any 
 	/// Clears the scan's rawData() completely, including all measurements configured within the data store. Also deletes all rawDataSources() that expose this data.
 	void clearRawDataPointsAndMeasurementsAndDataSources() {
 		while(rawDataSources_.count())
-			delete rawDataSources_.takeAt(rawDataSources_.count()-1);
+			rawDataSources_.takeAt(rawDataSources_.count()-1)->deleteLater();
 
 		data_->clearAllMeasurements();
 	}
@@ -357,7 +355,7 @@ Returns false and does nothing if the new \c dataStore is incompatible with any 
 	const AMDataStore* rawData() const { return data_; }
 
 	// should anything be exposed directly, from the data store? For ex:
-	/// Returns the number of dimensions in the scan. (This does not include the dimensions of any multi-dimensional detectors; it's only the dimensions that were 'scanned over'.  For example, an XAS scan over energy has scanRank() of 1. A 2D micro-map scan at fixed energy has scanRank() 2.  A 2D micro-map with an absorption scan at each point has a scanRank() of 3.  For each scan point, you might have a set of detector measurements, each with their own dimensionality, that are not included here.)
+	/// Returns the number of dimensions in the scan. (This does not include the dimensions of any multi-dimensional detectors. It's only the dimensions that were 'scanned over'.  For example, an XAS scan over energy has scanRank() of 1. A 2D micro-map scan at fixed energy has scanRank() 2.  A 2D micro-map with an absorption scan at each point has a scanRank() of 3.  For each scan point, you might have a set of detector measurements, each with their own dimensionality, that are not included here.)
 	virtual int scanRank() const { return data_->scanRank(); }
 	/// Returns the size of the scan along each dimension
 	virtual AMnDIndex scanSize() const { return data_->scanSize(); }
@@ -370,7 +368,6 @@ Returns false and does nothing if the new \c dataStore is incompatible with any 
 	//////////////////////////////
 	/// Independent from the hardware you're connected to right now, an AMControlSetInfo can remember values and descriptions of how some hardware was set at the time of the scan.
 	const AMControlInfoList* scanInitialConditions() const { return &scanInitialConditions_; }
-	//AMControlInfoList* scanInitialConditions() { return &scanInitialConditions_; }
 
 	// Role 7: Access to Scan Configuration and Scan Controller
 	///////////////////////////////
@@ -475,7 +472,7 @@ signals:
 	void dataSourceAdded(int index);
 	/// Emitted just before a data source is removed. \c index in the index of the source in dataSourceAt().
 	void dataSourceAboutToBeRemoved(int index);
-	/// Emitted after a data source was removed. \c index is the index the source used to occupy in dataSourceAt(); it's not there anymore.
+	/// Emitted after a data source was removed. \c index is the index the source used to occupy in dataSourceAt(). It's not there anymore.
 	void dataSourceRemoved(int index);
 
 	/// Emitted when the scan initial conditions are changed
@@ -533,7 +530,7 @@ protected:
 	// Composite members
 	//////////////////////
 
-	/// Raw data storage. All scans will have one of these, but the implementation can vary.  The default is an AMInMemoryDataStore; replace using replaceDataStore().
+	/// Raw data storage. All scans will have one of these, but the implementation can vary.  The default is an AMInMemoryDataStore. Replace using replaceDataStore().
 	AMDataStore* data_;
 	/// Raw data sources.  Provide AMDataSource interfaces to the data_.
 	AMRawDataSourceSet rawDataSources_;
@@ -573,7 +570,7 @@ protected:
 	AMConstDbObject* dbReadSamplePre2013() const;
 	void dbWriteSamplePre2013(AMConstDbObject *newSample);
 
-	/// This returns a string describing the input connections of all the analyzed data sources. It's used to save and restore these connections when loading from the database.  (This system is necessary because AMAnalysisBlocks use pointers to AMDataSources to specify their inputs; these pointers will not be the same after new objects are created when restoring from the database.)
+	/// This returns a string describing the input connections of all the analyzed data sources. It's used to save and restore these connections when loading from the database.  (This system is necessary because AMAnalysisBlocks use pointers to AMDataSources to specify their inputs. These pointers will not be the same after new objects are created when restoring from the database.)
 	/*! Implementation note: The string contains one line for each AMAnalysisBlock in analyzedDataSources_, in order.  Every line is a sequence of comma-separated numbers, where the number represents the index of a datasource in dataSourceAt().  So for an analysis block using the 1st, 2nd, and 5th sources (in order), the line would be "0,1,4".
 
 Lines are separated by single '\n', so a full string could look like:

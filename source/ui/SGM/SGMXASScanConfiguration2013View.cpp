@@ -114,31 +114,6 @@ SGMXASScanConfiguration2013View::SGMXASScanConfiguration2013View(SGMXASScanConfi
 	explanationRow_->addSpacerItem(new QSpacerItem(450, 10));
 	explanationRow_->addWidget(getBeamlineSettings_);
 
-	/*
-	bottomGL_ = new QGridLayout();
-	mainVL_->addLayout(bottomGL_, 10);
-	bottomGL_->addWidget(regionsViewGroupBox, 0, 0, 1, 3);
-	bottomGL_->addWidget(fluxResolutionView_, 1, 0, 1, 2);
-	bottomGL_->setColumnStretch(0, 10);
-	bottomGL_->setColumnMinimumWidth(4, 40);
-	bottomGL_->setContentsMargins(10, 0, 0, 10);
-	QGroupBox *trackingGroupBox = new QGroupBox("Tracking");
-	QVBoxLayout* trackingButtonsLayout = new QVBoxLayout();
-	trackingButtonsLayout->addWidget(undulatorTrackingButton_);
-	trackingButtonsLayout->addWidget(gratingTrackingButton_);
-	trackingButtonsLayout->addWidget(exitSlitTrackingButton_);
-	trackingGroupBox->setLayout(trackingButtonsLayout);
-	//bottomGL_->addLayout(trackingButtonsLayout,0 , 2);
-	bottomGL_->addWidget(trackingGroupBox, 0, 4, 1, 1);
-	bottomGL_->addWidget(matchesBeamlineWarning_, 2, 0);
-	QGridLayout* bottomButtonL = new QGridLayout();
-
-	bottomButtonL->addWidget(getBeamlineSettings_, 0, 0);
-	bottomButtonL->addItem(new QSpacerItem(450, 10),0,1);
-	bottomGL_->addLayout(bottomButtonL,3,0);
-			//addWidget(getBeamlineSettings_, 3, 0);
-	*/
-
 	mainVL_->addLayout(topRow_);
 	mainVL_->addLayout(bottomRow_);
 	mainVL_->addLayout(warningRow_);
@@ -155,6 +130,9 @@ SGMXASScanConfiguration2013View::SGMXASScanConfiguration2013View(SGMXASScanConfi
 	mainVL_->setContentsMargins(0,0,0,0);
 	mainVL_->setSpacing(1);
 	setLayout(mainVL_);
+
+	// on startup, check the current status of beamline so that we can it
+	onMatchingBeamlineSettingsChanged(configuration->matchesCurrentBeamline());
 }
 
 const AMScanConfiguration* SGMXASScanConfiguration2013View::configuration() const{
@@ -166,7 +144,6 @@ void SGMXASScanConfiguration2013View::setDetectorSelector(AMDetectorSelector *xa
 	xasDetectorSelector_ = xasDetectorSelector;
 	if(!xasDetectorSelectorView_){
 		xasDetectorSelectorView_ = new AMDetectorSelectorView(xasDetectorSelector_);
-//		bottomGL_->addWidget(xasDetectorSelectorView_, 1, 3, 1, 2);
 		bottomRow_->addWidget(xasDetectorSelectorView_);
 	}
 }
@@ -182,13 +159,12 @@ void SGMXASScanConfiguration2013View::setTrackingSet(AMControlSet *trackingSet){
 		connect(configuration_->dbObject(), SIGNAL(trackingGroupChanged()), this, SLOT(onTrackingGroupChanged()));
 	}
 }
-*/
 
-/* removed as temporary fix (see Issue579)
 void SGMXASScanConfiguration2013View::onTrackingGroupChanged(){
 	trackingSetView_->setFromInfoList(configuration_->trackingGroup());
 }
 */
+
 void SGMXASScanConfiguration2013View::onFluxResolutionGroupChanged(){
 	fluxResolutionView_->setFromInfoList(configuration_->fluxResolutionGroup());
 }
