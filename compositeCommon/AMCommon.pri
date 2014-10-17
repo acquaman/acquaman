@@ -5,43 +5,36 @@ USERNAME = $$system(whoami)
 
 macx {
 
-contains(USERNAME, helfrij){
-	CONFIG -= mobility
-}
-		QMAKE_CXXFLAGS_X86_64 *= "-mmacosx-version-min=10.7"
+	contains(USERNAME, helfrij){
+		CONFIG -= mobility
+	}
 
-		QMAKE_LFLAGS_DEBUG *= "-mmacosx-version-min=10.7"
-		QMAKE_LFLAGS_RELEASE *= "-mmacosx-version-min=10.7"
+	QMAKE_CXXFLAGS_X86_64 *= "-mmacosx-version-min=10.7"
+
+	QMAKE_LFLAGS_DEBUG *= "-mmacosx-version-min=10.7"
+	QMAKE_LFLAGS_RELEASE *= "-mmacosx-version-min=10.7"
 }
 linux-g++ {
-		QMAKE_LFLAGS_DEBUG *= "-Wl,-rpath,$$CDF_LIB_DIR"
-		QMAKE_LFLAGS_RELEASE *= "-Wl,-rpath,$$CDF_LIB_DIR"
+
 }
 linux-g++-32 {
-
-		# Disable Qt Mobility Video until Darren's laptop is ready for that.
-		CONFIG -= mobility
-
-		QMAKE_LFLAGS_DEBUG *= "-Wl,-rpath,$$CDF_LIB_DIR"
-		QMAKE_LFLAGS_RELEASE *= "-Wl,-rpath,$$CDF_LIB_DIR"
+	# Disable Qt Mobility Video until Darren's laptop is ready for that.
+	CONFIG -= mobility
 }
-# The following works well for CLS beamline OPI machines, built using VMSL54.cs.clsi.ca
-
 linux-g++-64 {
-		QMAKE_LFLAGS_DEBUG *= "-Wl,-rpath,$$CDF_LIB_DIR"
-		QMAKE_LFLAGS_RELEASE *= "-Wl,-rpath,$$CDF_LIB_DIR"
+
 }
 
 # Special build paths and options for running on the Jenkins auto-build server (currently at http://beamteam.usask.ca:8080)
 CONFIG(jenkins_build) {
 
-		message("Detected Jenkins auto-build... Specifying dependency paths for the build server.")
+	message("Detected Jenkins auto-build... Specifying dependency paths for the build server.")
 
-		# Where you want to do your acquaman development (as a path from $HOME). You don't need to include leading or trailing slashes.
-		DEV_PATH = /jobs/AcquamanOnLinux_MasterBranch/workspace
+	# Where you want to do your acquaman development (as a path from $HOME). You don't need to include leading or trailing slashes.
+	DEV_PATH = /jobs/AcquamanOnLinux_MasterBranch/workspace
 
-		# The full path to the acquaman folder.  This MUST point to the location where acquamanCommon.pri lives.
-		PATH_TO_AM = $$HOME_FOLDER/$$DEV_PATH
+	# The full path to the acquaman folder.  This MUST point to the location where acquamanCommon.pri lives.
+	PATH_TO_AM = $$HOME_FOLDER/$$DEV_PATH
 }
 
 DEPENDPATH *= $$PATH_TO_AM $$PATH_TO_AM/source
@@ -53,5 +46,4 @@ QMAKE_CXXFLAGS *= -Wextra -g
 
 DEFINES *= AM_ENABLE_BOUNDS_CHECKING
 
-#QT *= core gui opengl network
 QT *= core gui
