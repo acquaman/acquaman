@@ -40,6 +40,10 @@ signals:
 	void scanAboutToBeRemoved(int rowIndex);
 	/// Emitted whenever a scan info is finished being removed from the collection
 	void scanRemoved();
+	/// Emitted whenever a scan is about to remove its thumbnail from the collection
+	void scanThumbnailAboutToBeRemoved(int scanIndex, int oldThumbnailIndex);
+	/// Emitted whenever a scan has its thumbnail removed from the collection
+	void scanThumbnailRemoved();
 	/// Emitted whenever a scan has a new thumbnail added to it
 	void scanThumbnailAdded(int scanId, int thumbnailId);
 protected slots:
@@ -94,6 +98,8 @@ private:
 	QList<AMLightweightScanInfo*> scanInfos_;
 	/// A mapping of scan id to experiment id. If entry is found for a scan, it's experimentId is set to -1
 	QHash<int, int> experimentIdMap_;
+	/// The id of the last updated scan. If no scan has been updated will equal -1
+	int lastUpdatedScanId_;
 
 
 };

@@ -13,6 +13,7 @@ AMLightweightScanInfoCollection::AMLightweightScanInfoCollection(AMDatabase *dat
 	connect(database_, SIGNAL(created(QString,int)), this, SLOT(onDbItemAdded(QString,int)));
 	connect(database_, SIGNAL(removed(QString,int)), this, SLOT(onDbItemRemoved(QString,int)));
 	connect(database_, SIGNAL(updated(QString,int)), this, SLOT(onDbItemUpdated(QString,int)));
+	lastUpdatedScanId_  = -1;
 }
 
 QUrl AMLightweightScanInfoCollection::getScanUrl(int id) const
@@ -233,6 +234,8 @@ void AMLightweightScanInfoCollection::updateSingleScanInfo(AMLightweightScanInfo
 			QSqlRecord currentRecord = selectQuery.record();
 			QString name = selectQuery.value(currentRecord.indexOf("name")).toString();
 			int number = selectQuery.value(currentRecord.indexOf("number")).toInt();
+			int thumbnailFirstId = selectQuery.value(currentRecord.indexOf("thumbnailFirstId")).toInt();
+			int thumbnailCount = selectQuery.value(currentRecord.indexOf("thumbnailCount")).toInt();
 			QDateTime dateTime = selectQuery.value(currentRecord.indexOf("dateTime")).toDateTime();
 			int runId = selectQuery.value(currentRecord.indexOf("runId")).toInt();
 			QString runName = getRunName(runId);
@@ -248,6 +251,7 @@ void AMLightweightScanInfoCollection::updateSingleScanInfo(AMLightweightScanInfo
 			scanInfo->setRunName(runName);
 			scanInfo->setSampleName(sampleName);
 			scanInfo->setScanType(scanType);
+			scanInfo->resetThumbnails(thumbnailFirstId, thumbnailCount);
 		}
 	}
 	else
@@ -440,6 +444,7 @@ void AMLightweightScanInfoCollection::onDbItemUpdated(const QString &tableName, 
 
 
 		updateSingleScanInfo(matchedScanInfo);
+		lastUpdatedScanId_ = id;
 		emit scanUpdated(lightweightScanInfoIndex);
 	}
 	else if(tableName == AMDbObjectSupport::s()->tableNameForClass("AMRun"))
@@ -504,6 +509,53 @@ void AMLightweightScanInfoCollection::onDbItemRemoved(const QString &tableName, 
 		emit scanRemoved();
 
 	}
+//	else if(tableName == "AMDbObjectThumbnails_table")
+//	{
+//		// Okay, due to the unkennable working of thumbnails, whenever a new thumbnail is added or removed from a scan ALL its thumbnails are
+//		// deleted and re-added (so they can be in a sequence). Because of this a bulk delete is called in AM scan, and all we're going to get
+//		// here is an oldId parameter equal to -1 (indicating something was deleted, but we don't know what). In order to cope with this lastUpdatedScanId_
+//		// stores the last scan that was updated's id. In the two cases that this is used a scan is always updated right before its thumbnails are re-arranged,
+//		// so in future if this assumption breaks it will be necessary to rewrite the thumbnail storage logic.
+
+//		if(lastUpdatedScanId_ != -1)
+//		{
+//			// 1. Find the scan whose thumbnails have just been deleted
+//			qDebug() << QString("Last updated scan id was: %1").arg(lastUpdatedScanId_);
+//			AMLightweightScanInfo* matchedScanInfo = 0;
+//			int lightweightScanInfoIndex = -1;
+//			bool lightweightScanInfoFound = false;
+//			for (int iScanInfo = 0, size = scanInfos_.count(); iScanInfo < size && !lightweightScanInfoFound; iScanInfo++)
+//			{
+//				if(scanInfos_.at(iScanInfo)->id() == lastUpdatedScanId_)
+//				{
+//					lightweightScanInfoIndex = iScanInfo;
+//					matchedScanInfo = scanInfos_.at(iScanInfo);
+//					lightweightScanInfoFound = true;
+//				}
+//			}
+
+//			if(!matchedScanInfo)
+//				return;
+
+//			// If we found it, then iterate through all the thumbnails and signal to the model that we're deleting them
+//			for (int iScanThumbnail = 0, thumbnailAmount = matchedScanInfo->thumbnailCount(); iScanThumbnail < thumbnailAmount; iScanThumbnail++)
+//			{
+//				qDebug() << QString("Signalling to model that we're about to remove thumbnail %1").arg(iScanThumbnail);
+//				emit scanThumbnailAboutToBeRemoved(lightweightScanInfoIndex, iScanThumbnail);
+//			}
+
+//			updateSingleScanInfo(matchedScanInfo);
+
+//			emit scanThumbnailRemoved();
+
+//			emit scanUpdated(lightweightScanInfoIndex);
+//			for (int iScanThumbnail = 0, thumbnailAmount = matchedScanInfo->thumbnailCount(); iScanThumbnail < thumbnailAmount; iScanThumbnail++)
+//			{
+//				emit scanThumbnailAdded(lightweightScanInfoIndex, iScanThumbnail);
+
+//			}
+//		}
+//	}
 }
 
 

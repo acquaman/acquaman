@@ -12,6 +12,8 @@ AMLightweightScanInfoModel::AMLightweightScanInfoModel(AMLightweightScanInfoColl
 	connect(scanInfo_, SIGNAL(scanRemoved()), this, SLOT(onScanInfoRemoved()));
 	connect(scanInfo_, SIGNAL(scanUpdated(int)), this, SLOT(onScanInfoUpdated(int)));
 	connect(scanInfo_,SIGNAL(scanThumbnailAdded(int,int)), this, SLOT(onScanThumbnailAdded(int,int)));
+	connect(scanInfo_, SIGNAL(scanThumbnailAboutToBeRemoved(int,int)), this, SLOT(onScanThumbnailAboutToBeRemoved(int,int)));
+	connect(scanInfo_, SIGNAL(scanThumbnailRemoved()), this, SLOT(onScanThumbnailRemoved()));
 }
 
 QVariant AMLightweightScanInfoModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -231,6 +233,17 @@ void AMLightweightScanInfoModel::onScanThumbnailAdded(int scanIndex, int thumbna
 	QModelIndex thumbnailModelIndexStart = index(thumbnailIndex, 0, scanModelIndex);
 	QModelIndex thumbnailModelIndexEnd = index(thumbnailIndex, columnCount(scanModelIndex) -1, scanModelIndex);
 	emit dataChanged(thumbnailModelIndexStart, thumbnailModelIndexEnd);
+}
+
+void AMLightweightScanInfoModel::onScanThumbnailAboutToBeRemoved(int scanIndex, int oldThumbnailIndex)
+{
+	QModelIndex scanModelIndex = index(scanIndex, 0, QModelIndex());
+	emit beginRemoveRows(scanModelIndex, oldThumbnailIndex, oldThumbnailIndex);
+}
+
+void AMLightweightScanInfoModel::onScanThumbnailRemoved()
+{
+	endRemoveRows();
 }
 
 void AMLightweightScanInfoModel::onScanInfoAboutToBeRemoved(int oldIndex)
