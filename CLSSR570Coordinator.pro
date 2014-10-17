@@ -1,6 +1,6 @@
 include ( acquamanCommon.pri )
 
-TARGET = CLSSR570Coordinator
+TARGET = CLSSR570CoordinatorApp
 
 HEADERS += \
 	source/beamline/CLS/CLSSR570Coordinator.h
