@@ -1,5 +1,3 @@
-USERNAME = $$system(whoami)
-
 # Automatically determines a user's home folder
 HOME_FOLDER = $$system(echo $HOME)
 
@@ -17,7 +15,7 @@ contains(USERNAME, helfrij){
 		# Where you want to do your acquaman development (as a path from $HOME). You don't need to include leading or trailing slashes.
 		DEV_PATH = beamline/programming
 
-		# The full path to the acquaman folder.  This MUST point to the location where acquamanCommon.pri lives.
+		# The full path to the acquaman folder.  This MUST point to the location where acquamanCommonOld.pri lives.
 #		PATH_TO_AM = $$HOME_FOLDER/$$DEV_PATH/acquaman_4_8
 
 		QMAKE_CXXFLAGS_X86_64 *= "-mmacosx-version-min=10.7"
@@ -30,7 +28,7 @@ linux-g++ {
 		# Where you want to do your acquaman development (as a path from $HOME). You don't need to include leading or trailing slashes.
 		DEV_PATH = beamline/programming
 
-		# The full path to the acquaman folder.  This MUST point to the location where acquamanCommon.pri lives.
+		# The full path to the acquaman folder.  This MUST point to the location where acquamanCommonOld.pri lives.
 #		PATH_TO_AM = $$HOME_FOLDER/$$DEV_PATH/acquaman
 
 		QMAKE_LFLAGS_DEBUG *= "-Wl,-rpath,$$CDF_LIB_DIR"
@@ -44,7 +42,7 @@ linux-g++-32 {
 		# Where you want to do your acquaman development (as a path from $HOME). You don't need to include leading or trailing slashes.
 		DEV_PATH = beamline/programming
 
-		# The full path to the acquaman folder.  This MUST point to the location where acquamanCommon.pri lives.
+		# The full path to the acquaman folder.  This MUST point to the location where acquamanCommonOld.pri lives.
 #		PATH_TO_AM = $$HOME_FOLDER/$$DEV_PATH/acquaman
 
 		QMAKE_LFLAGS_DEBUG *= "-Wl,-rpath,$$CDF_LIB_DIR"
@@ -57,7 +55,7 @@ linux-g++-64 {
 		# Where you want to do your acquaman development (as a path from $HOME). You don't need to include leading or trailing slashes.
 		DEV_PATH = beamline/programming
 
-		# The full path to the acquaman folder.  This MUST point to the location where acquamanCommon.pri lives.
+		# The full path to the acquaman folder.  This MUST point to the location where acquamanCommonOld.pri lives.
 #		PATH_TO_AM = $$HOME_FOLDER/$$DEV_PATH/acquaman
 
 		QMAKE_LFLAGS_DEBUG *= "-Wl,-rpath,$$CDF_LIB_DIR"
@@ -72,7 +70,7 @@ CONFIG(jenkins_build) {
 		# Where you want to do your acquaman development (as a path from $HOME). You don't need to include leading or trailing slashes.
 		DEV_PATH = /jobs/AcquamanOnLinux_MasterBranch/workspace
 
-		# The full path to the acquaman folder.  This MUST point to the location where acquamanCommon.pri lives.
+		# The full path to the acquaman folder.  This MUST point to the location where acquamanCommonOld.pri lives.
 		PATH_TO_AM = $$HOME_FOLDER/$$DEV_PATH
 }
 

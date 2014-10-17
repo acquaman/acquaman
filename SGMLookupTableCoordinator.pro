@@ -1,4 +1,7 @@
-include ( acquamanCommon.pri )
+include ( $$PATH_TO_AM/compositeCommon/AMCommon.pri )
+
+include ( $$PATH_TO_AM/compositeCommon/AMPVControl.pri )
+include ( $$PATH_TO_AM/compositeCommon/AMControlSet.pri )
 
 TARGET = SGMLookupTableCoordinator
 
@@ -9,6 +12,6 @@ HEADERS += \
 
 SOURCES += \
 	source/application/SGMLookupTableCoordinator/SGMLookupTableCoordinatorMain.cpp \
-    source/beamline/SGM/SGMLookupTableCoordinator.cpp
+	source/beamline/SGM/SGMLookupTableCoordinator.cpp
 
 

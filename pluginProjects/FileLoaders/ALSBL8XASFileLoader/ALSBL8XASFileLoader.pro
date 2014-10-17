@@ -1,4 +1,4 @@
-include(../AMFileLoaderPluginsCommon.pri)
+include(../AMFileLoaderPluginsCommonOld.pri)
 TEMPLATE        = lib
 CONFIG		+= plugin
 HEADERS		+= ALSBL8XASFileLoaderPlugin.h

@@ -1,4 +1,4 @@
-include ( acquamanCommon.pri )
+include ( acquamanCommonOld.pri )
 
 TARGET = VESPERSDatabaseDuplicateEntryPatch
 

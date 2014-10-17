@@ -1,3 +1,4 @@
+#include ( acquamanCommonOld.pri )
 include ( acquamanCommon.pri )
 include ( sgmCommon.pri )
 

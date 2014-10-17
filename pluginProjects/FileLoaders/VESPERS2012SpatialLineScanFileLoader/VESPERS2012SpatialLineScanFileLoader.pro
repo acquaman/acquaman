@@ -1,4 +1,4 @@
-include(../AMFileLoaderPluginsCommon.pri)
+include(../AMFileLoaderPluginsCommonOld.pri)
 TEMPLATE        = lib
 CONFIG		+= plugin
 HEADERS		+= VESPERS2012SpatialLineScanFileLoaderPlugin.h
