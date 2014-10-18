@@ -269,7 +269,6 @@ void AMDataSourceImageData::recomputeBoundingRect(int axisId)
 
 void AMDataSourceImageData::onDataSourceDeleted()
 {
-	source_ = 0;
 	setDataSource(0);
 }
 
