@@ -21,9 +21,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "CLSSynchronizedDwellTimeView.h"
 
-#pragma GCC diagnostic ignored "-Wunused-private-field"
+#pragma clang diagnostic ignored "-Wunused-private-field"
 #include <QResizeEvent>
-#pragma GCC diagnostic warning "-Wunused-private-field"
+#pragma clang diagnostic warning "-Wunused-private-field"
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>

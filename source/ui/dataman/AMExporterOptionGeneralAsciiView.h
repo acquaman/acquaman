@@ -24,9 +24,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QTabWidget>
 
-#pragma GCC diagnostic ignored "-Wunused-private-field"
+#pragma clang diagnostic ignored "-Wunused-private-field"
 #include "ui_AMExporterOptionGeneralAsciiView.h"
-#pragma GCC diagnostic warning "-Wunused-private-field"
+#pragma clang diagnostic warning "-Wunused-private-field"
 
 class QButtonGroup;
 class QStandardItemModel;

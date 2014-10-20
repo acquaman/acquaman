@@ -204,9 +204,9 @@ void AMGithubIssueSubmissionView::hideAndFinish()
 	emit finished();
 }
 
-#pragma GCC diagnostic ignored "-Wunused-private-field"
+#pragma clang diagnostic ignored "-Wunused-private-field"
 #include <QCloseEvent>
-#pragma GCC diagnostic warning "-Wunused-private-field"
+#pragma clang diagnostic warning "-Wunused-private-field"
 
 void AMGithubIssueSubmissionView::closeEvent(QCloseEvent *e)
 {

@@ -1,8 +1,8 @@
 #include "VESPERS2011XRFFileLoaderPlugin.h"
 
-#pragma GCC diagnostic ignored "-Wunused-private-field"
+#pragma clang diagnostic ignored "-Wunused-private-field"
 #include <QtGui>
-#pragma GCC diagnostic warning "-Wunused-private-field"
+#pragma clang diagnostic warning "-Wunused-private-field"
 
 #include "util/AMErrorMonitor.h"
 #include "analysis/AMDeadTimeAB.h"

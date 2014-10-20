@@ -32,10 +32,10 @@ AMHeaderButton::AMHeaderButton(QWidget *parent) :
 	setMaximumHeight(16);
 }
 
-#pragma GCC diagnostic ignored "-Wunused-private-field"
+#pragma clang diagnostic ignored "-Wunused-private-field"
 #include <QPaintEvent>
 #include <QPainter>
-#pragma GCC diagnostic warning "-Wunused-private-field"
+#pragma clang diagnostic warning "-Wunused-private-field"
 
 void AMHeaderButton::paintEvent(QPaintEvent * event) {
 

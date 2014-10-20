@@ -1,9 +1,9 @@
 #ifndef STCOLORBUTTON_H
 #define STCOLORBUTTON_H
 
-#pragma GCC diagnostic ignored "-Wunused-private-field"
+#pragma clang diagnostic ignored "-Wunused-private-field"
 #include <QPaintEvent>
-#pragma GCC diagnostic warning "-Wunused-private-field"
+#pragma clang diagnostic warning "-Wunused-private-field"
 
 #include <QPushButton>
 #include <QColor>

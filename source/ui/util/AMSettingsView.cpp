@@ -138,9 +138,9 @@ void AMSettingsView::discardChanges(){
 	}
 }
 
-#pragma GCC diagnostic ignored "-Wunused-private-field"
+#pragma clang diagnostic ignored "-Wunused-private-field"
 #include <QShowEvent>
-#pragma GCC diagnostic warning "-Wunused-private-field"
+#pragma clang diagnostic warning "-Wunused-private-field"
 
 void AMSettingsView::showEvent(QShowEvent *e){
 	storeInitialState();

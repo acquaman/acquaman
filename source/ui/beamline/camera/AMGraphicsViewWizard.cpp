@@ -39,9 +39,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QCheckBox>
 #include <QLineEdit>
 
-#pragma GCC diagnostic ignored "-Wunused-private-field"
+#pragma clang diagnostic ignored "-Wunused-private-field"
 #include <QResizeEvent>
-#pragma GCC diagnostic warning "-Wunused-private-field"
+#pragma clang diagnostic warning "-Wunused-private-field"
 
 #include "beamline/camera/AMGraphicsVideoSceneCopier.h"
 #include "AMSampleCameraGraphicsView.h"

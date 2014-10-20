@@ -391,9 +391,9 @@ QWidget *AMActionRunnerCurrentItemDelegate3::createEditor(QWidget *parent, const
 	return rv;
 }
 
-#pragma GCC diagnostic ignored "-Wunused-private-field"
+#pragma clang diagnostic ignored "-Wunused-private-field"
 #include <QKeyEvent>
-#pragma GCC diagnostic warning "-Wunused-private-field"
+#pragma clang diagnostic warning "-Wunused-private-field"
 
 bool AMActionRunnerCurrentItemDelegate3::eventFilter(QObject *object, QEvent *event)
 {

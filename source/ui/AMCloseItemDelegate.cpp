@@ -83,9 +83,9 @@ void AMCloseItemDelegate::drawCloseButton(QPainter *painter, const QStyleOptionV
 
 #include <QEvent>
 
-#pragma GCC diagnostic ignored "-Wunused-private-field"
+#pragma clang diagnostic ignored "-Wunused-private-field"
 #include <QMouseEvent>
-#pragma GCC diagnostic warning "-Wunused-private-field"
+#pragma clang diagnostic warning "-Wunused-private-field"
 
 #include <QApplication>
 
