@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
 	// Make a local QFile for the error file. It needs to be in this scope and get passed into AMCrashMonitorSupport, otherwise it won't work properly
 	// After doing so, star the monitor
 	// Ignore all of this for Mac OSX, it has it's own crash reporter and the two seem to compete
-	QFile localErrorFile(QString("/tmp/ErrorFile%1.txt").arg(getpid()));
+	QFile localErrorFile(QString("/tmp/ErrorFile%1.txt").arg(getpt()));
 	localErrorFile.open(QIODevice::WriteOnly | QIODevice::Text);
 	AMCrashMonitorSupport::s()->setErrorFile(&localErrorFile);
 	AMCrashMonitorSupport::s()->setPathToCrashReportFiles("/home/acquaman/AcquamanApplicationCrashReports/REIXS");

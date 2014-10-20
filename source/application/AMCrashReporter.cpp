@@ -140,7 +140,7 @@ void AMCrashMonitor::onSiguser1Detected(){
 	arguments << executableFullPath_;
 	arguments << errorFilePath_;
 	arguments << QString("%1").arg(watchingPID_);
-	arguments << QString("%1").arg(getpid());
+	arguments << QString("%1").arg(getpt());
 	QProcess::startDetached(QCoreApplication::instance()->arguments().at(0), arguments, QDir::currentPath(), &crashReporterPID_);
 
 	crashReporterPIDTimer_->start();
