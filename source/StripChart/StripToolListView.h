@@ -22,8 +22,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef STRIPTOOLLISTVIEW_H
 #define STRIPTOOLLISTVIEW_H
 
-#include <QListView>
+#pragma GCC diagnostic ignored "-Wunused-private-field"
 #include <QtGui>
+#pragma GCC diagnostic warning "-Wunused-private-field"
+
+#include <QListView>
 
 #include "StripChart/StripToolModel.h"
 

@@ -226,7 +226,10 @@ QWidget * AMActionRunnerQueueItemDelegate3::createEditor(QWidget *parent, const 
 	return rv;
 }
 
+#pragma GCC diagnostic ignored "-Wunused-private-field"
 #include <QKeyEvent>
+#pragma GCC diagnostic warning "-Wunused-private-field"
+
 bool AMActionRunnerQueueItemDelegate3::eventFilter(QObject *object, QEvent *event)
 {
 	QWidget* widget = qobject_cast<QWidget*>(object);

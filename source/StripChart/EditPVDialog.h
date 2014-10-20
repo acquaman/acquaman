@@ -22,8 +22,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef EDITPVDIALOG_H
 #define EDITPVDIALOG_H
 
-#include <QDialog>
+#pragma GCC diagnostic ignored "-Wunused-private-field"
 #include <QtGui>
+#pragma GCC diagnostic warning "-Wunused-private-field"
+
+#include <QDialog>
 
 #include "MPlot/MPlotAxisScale.h"
 

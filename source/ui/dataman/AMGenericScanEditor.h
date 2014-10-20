@@ -34,7 +34,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QLabel>
 #include <QLineEdit>
 #include <QListView>
+
+#pragma GCC diagnostic ignored "-Wunused-private-field"
 #include <QPlainTextEdit>
+#pragma GCC diagnostic warning "-Wunused-private-field"
+
 #include <QPushButton>
 #include <QSpacerItem>
 #include <QSpinBox>

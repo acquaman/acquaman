@@ -22,7 +22,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMDictionaryLineEdit.h"
 
 #include <QLabel>
+
+#pragma GCC diagnostic ignored "-Wunused-private-field"
 #include <QKeyEvent>
+#pragma GCC diagnostic warning "-Wunused-private-field"
 
 #include "dataman/AMScanParametersDictionary.h"
 

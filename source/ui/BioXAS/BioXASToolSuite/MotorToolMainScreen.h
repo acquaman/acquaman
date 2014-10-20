@@ -1,10 +1,13 @@
 #ifndef MOTORTOOLMAINSCREEN_H
 #define MOTORTOOLMAINSCREEN_H
 
+#pragma GCC diagnostic ignored "-Wunused-private-field"
+#include <QCloseEvent>
+#pragma GCC diagnostic warning "-Wunused-private-field"
+
 #include <QWidget>
 #include <QGroupBox>
 #include <QVBoxLayout>
-#include <QCloseEvent>
 
 #include "beamline/BioXAS/BioXASBeamlineDef.h"
 #include "beamline/AMBeamline.h"

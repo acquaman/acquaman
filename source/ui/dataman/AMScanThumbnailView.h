@@ -1,6 +1,9 @@
 #ifndef AMSCANTHUMBNAILVIEW_H
 #define AMSCANTHUMBNAILVIEW_H
 
+#pragma GCC diagnostic ignored "-Wunused-private-field"
+#include <QMouseEvent>
+#pragma GCC diagnostic warning "-Wunused-private-field"
 
 #include <QWidget>
 #include <QAbstractItemView>
@@ -8,7 +11,6 @@
 #include <QLabel>
 #include <QItemDelegate>
 #include <QPainter>
-#include <QMouseEvent>
 #include <QRegion>
 #include <QTimer>
 

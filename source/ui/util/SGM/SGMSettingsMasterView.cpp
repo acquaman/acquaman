@@ -18,12 +18,15 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
+#pragma GCC diagnostic ignored "-Wunused-private-field"
+#include <QCloseEvent>
+#pragma GCC diagnostic warning "-Wunused-private-field"
+
 #include "SGMSettingsMasterView.h"
 #include <QHBoxLayout>
 #include <QMessageBox>
 #include <QCheckBox>
 #include <QLabel>
-#include <QCloseEvent>
 #include <QShowEvent>
 
 #include "beamline/SGM/SGMBeamline.h"

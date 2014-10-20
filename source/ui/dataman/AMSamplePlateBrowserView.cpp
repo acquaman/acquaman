@@ -26,7 +26,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QLineEdit>
 #include <QLabel>
 #include <QPushButton>
+
+#pragma GCC diagnostic ignored "-Wunused-private-field"
 #include <QKeyEvent>
+#pragma GCC diagnostic warning "-Wunused-private-field"
 
 #include "dataman/AMSamplePlate.h"
 

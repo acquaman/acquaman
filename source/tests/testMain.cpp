@@ -21,8 +21,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
-#include <QApplication>
+#pragma GCC diagnostic ignored "-Wunused-private-field"
 #include <QtTest/QtTest>
+#pragma GCC diagnostic warning "-Wunused-private-field"
+
+#include <QApplication>
 #include "util/AMSettings.h"
 #include "beamline/AMPVNames.h"
 #include "tests/TestDataman.h"

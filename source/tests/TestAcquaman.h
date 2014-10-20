@@ -19,8 +19,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#include "util/AMSettings.h"
+#pragma GCC diagnostic ignored "-Wunused-private-field"
 #include <QtTest/QtTest>
+#pragma GCC diagnostic warning "-Wunused-private-field"
+
+#include "util/AMSettings.h"
 #include "beamline/SGM/SGMBeamline.h"
 #include "dataman/database/AMDatabase.h"
 #include "dataman/AMXASScan.h"

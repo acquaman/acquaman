@@ -22,8 +22,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef ENTRYWIDGET_H
 #define ENTRYWIDGET_H
 
-#include <QWidget>
+#pragma GCC diagnostic ignored "-Wunused-private-field"
 #include <QtGui>
+#pragma GCC diagnostic warning "-Wunused-private-field"
+
+#include <QWidget>
 
 class EntryWidget : public QWidget
 {

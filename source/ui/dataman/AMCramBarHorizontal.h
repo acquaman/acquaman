@@ -24,9 +24,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QWidget>
 #include <QScrollArea>
-#include <QResizeEvent>
 #include <QToolButton>
 #include <QHBoxLayout>
+
+#pragma GCC diagnostic ignored "-Wunused-private-field"
+#include <QResizeEvent>
+#pragma GCC diagnostic warning "-Wunused-private-field"
 
 class AMDeferredFunctionCall;
 

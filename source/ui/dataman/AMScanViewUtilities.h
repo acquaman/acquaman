@@ -25,10 +25,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QFrame>
 #include <QLabel>
 #include <QToolButton>
+
+#pragma GCC diagnostic ignored "-Wunused-private-field"
 #include <QGraphicsView>
 #include <QGraphicsWidget>
 #include <QGraphicsLinearLayout>
 #include <QGraphicsGridLayout>
+#pragma GCC diagnostic warning "-Wunused-private-field"
+
 #include <QButtonGroup>
 #include <QPushButton>
 

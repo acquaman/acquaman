@@ -1,5 +1,9 @@
 #include "AMDirectorySynchronizerDialog.h"
 
+#pragma GCC diagnostic ignored "-Wunused-private-field"
+#include <QCloseEvent>
+#pragma GCC diagnostic warning "-Wunused-private-field"
+
 #include <QTextEdit>
 #include <QPushButton>
 #include <QProgressBar>
@@ -7,7 +11,6 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QGridLayout>
-#include <QCloseEvent>
 #include <QMessageBox>
 #include <QApplication>
 

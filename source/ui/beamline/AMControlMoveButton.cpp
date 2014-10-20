@@ -22,8 +22,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMControlMoveButton.h"
 
 #include <QBoxLayout>
-#include <QFocusEvent>
+
+#pragma GCC diagnostic ignored "-Wunused-private-field"
 #include <QStringBuilder>
+#include <QFocusEvent>
+#pragma GCC diagnostic warning "-Wunused-private-field"
+
 #include "beamline/AMControl.h"
 #include "ui/beamline/AMControlEditor.h"
 

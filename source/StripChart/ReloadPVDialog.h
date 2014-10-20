@@ -22,8 +22,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef RELOADPVDIALOG_H
 #define RELOADPVDIALOG_H
 
-#include <QDialog>
+#pragma GCC diagnostic ignored "-Wunused-private-field"
 #include <QtGui>
+#pragma GCC diagnostic warning "-Wunused-private-field"
+
+#include <QDialog>
 
 class ReloadPVDialog : public QDialog
 {

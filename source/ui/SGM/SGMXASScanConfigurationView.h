@@ -22,7 +22,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef AM_SGMXASScanConfigurationViewer_H
 #define AM_SGMXASScanConfigurationViewer_H
 
+#pragma GCC diagnostic ignored "-Wunused-private-field"
 #include <QtGui>
+#pragma GCC diagnostic warning "-Wunused-private-field"
 
 class QPushButton;
 class QVBoxLayout;

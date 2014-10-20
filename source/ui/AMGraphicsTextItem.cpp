@@ -141,7 +141,10 @@ void AMGraphicsTextItem::focusOutEvent(QFocusEvent *event)
 	clearSelection();
 }
 
+#pragma GCC diagnostic ignored "-Wunused-private-field"
 #include <QKeyEvent>
+#pragma GCC diagnostic warning "-Wunused-private-field"
+
 void AMGraphicsTextItem::keyPressEvent(QKeyEvent *event){
 	if(event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return){
 		emit returnPressed(shapeIndex_);

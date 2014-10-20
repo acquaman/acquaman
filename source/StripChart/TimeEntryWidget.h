@@ -23,7 +23,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define TIMEENTRYWIDGET_H
 
 #include <QWidget>
+
+#pragma GCC diagnostic ignored "-Wunused-private-field"
 #include <QtGui>
+#pragma GCC diagnostic warning "-Wunused-private-field"
 
 class TimeEntryWidget : public QWidget
 {

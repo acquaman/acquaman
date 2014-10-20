@@ -116,10 +116,11 @@ protected:
 	AMThumbnailScrollViewer* tv_;
 };
 
-
+#pragma GCC diagnostic ignored "-Wunused-private-field"
 #include <QGraphicsItem>
 #include <QGraphicsLayoutItem>
 #include <QPainterPath>
+#pragma GCC diagnostic warning "-Wunused-private-field"
 
 /// This is a high-performance version of AMThumbnailScrollWidget for use inside the QGraphicsView system
 class AMThumbnailScrollGraphicsWidget : public QGraphicsItem, public QGraphicsLayoutItem {

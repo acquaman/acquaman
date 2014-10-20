@@ -24,7 +24,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMControl.h"
 
 #include <QApplication>
+
+#pragma GCC diagnostic ignored "-Wunused-private-field"
 #include <QMouseEvent>
+#pragma GCC diagnostic warning "-Wunused-private-field"
 
 #include <QDoubleSpinBox>
 #include <QPushButton>

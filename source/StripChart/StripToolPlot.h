@@ -22,7 +22,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef STRIPTOOLPLOT_H
 #define STRIPTOOLPLOT_H
 
+#pragma GCC diagnostic ignored "-Wunused-private-field"
 #include <QtGui>
+#pragma GCC diagnostic warning "-Wunused-private-field"
 
 #include "MPlot/MPlot.h"
 #include "MPlot/MPlotItem.h"

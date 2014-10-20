@@ -21,7 +21,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMCrosshairOverlayVideoWidget.h"
 #include <QGraphicsLineItem>
+
+#pragma GCC diagnostic ignored "-Wunused-private-field"
 #include <QResizeEvent>
+#pragma GCC diagnostic warning "-Wunused-private-field"
 
 #include <QMediaObject>
 #include <QGraphicsVideoItem>

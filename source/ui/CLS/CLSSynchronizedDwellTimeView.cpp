@@ -21,13 +21,15 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "CLSSynchronizedDwellTimeView.h"
 
+#pragma GCC diagnostic ignored "-Wunused-private-field"
+#include <QResizeEvent>
+#pragma GCC diagnostic warning "-Wunused-private-field"
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QGroupBox>
 #include <QMenu>
 #include <QAction>
-#include <QResizeEvent>
 
  CLSSynchronizedDwellTimeElementView::~CLSSynchronizedDwellTimeElementView(){}
 CLSSynchronizedDwellTimeElementView::CLSSynchronizedDwellTimeElementView(CLSSynchronizedDwellTimeElement *dwellTimeElement, QWidget *parent)

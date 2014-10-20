@@ -22,8 +22,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef SHUTTERTOOLMAINWINDOW_H
 #define SHUTTERTOOLMAINWINDOW_H
 
-#include <QWidget>
+#pragma GCC diagnostic ignored "-Wunused-private-field"
 #include <QCloseEvent>
+#pragma GCC diagnostic warning "-Wunused-private-field"
+
+#include <QWidget>
 #include <QBoxLayout>
 #include <QLabel>
 #include <QPushButton>

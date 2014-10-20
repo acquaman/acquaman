@@ -23,8 +23,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AMSCANVIEW_H
 
 #include <QWidget>
+
+#pragma GCC diagnostic ignored "-Wunused-private-field"
 #include <QGraphicsView>
 #include <QGraphicsWidget>
+#pragma GCC diagnostic warning "-Wunused-private-field"
+
 #include <QGraphicsLinearLayout>
 #include <QGraphicsGridLayout>
 #include <QLabel>

@@ -26,7 +26,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QSignalMapper>
 #include <QToolButton>
+
+#pragma GCC diagnostic ignored "-Wunused-private-field"
 #include <QMouseEvent>
+#pragma GCC diagnostic warning "-Wunused-private-field"
 
 #include "util/AMElement.h"
 #include "util/AMPeriodicTable.h"

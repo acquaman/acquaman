@@ -19,7 +19,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
+#pragma GCC diagnostic ignored "-Wunused-private-field"
 #include <QtTest/QtTest>
+#pragma GCC diagnostic warning "-Wunused-private-field"
 
 class TestBeamline: public QObject
 {

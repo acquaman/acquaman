@@ -1,6 +1,8 @@
 #include "VESPERS20122DFileLoaderPlugin.h"
 
+#pragma GCC diagnostic ignored "-Wunused-private-field"
 #include <QtGui>
+#pragma GCC diagnostic warning "-Wunused-private-field"
 
 #include "util/AMErrorMonitor.h"
 #include "analysis/AM1DExpressionAB.h"

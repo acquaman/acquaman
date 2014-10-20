@@ -20,7 +20,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "AMOverlayVideoWidget.h"
+#pragma GCC diagnostic ignored "-Wunused-private-field"
 #include <QResizeEvent>
+#pragma GCC diagnostic warning "-Wunused-private-field"
 
 #include <QGLWidget>
 
