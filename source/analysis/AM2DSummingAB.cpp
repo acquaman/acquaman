@@ -315,7 +315,7 @@ bool AM2DSummingAB::axisValues(int axisNumber, int startIndex, int endIndex, AMN
 
 	int otherAxis = (sumAxis_ == 0) ? 1 : 0;
 
-	if (startIndex >= axes_.at(otherAxis).size || endIndex >= axes_.at(otherAxis).size)
+	if (startIndex >= inputSource_->axisInfoAt(otherAxis).size || endIndex >= inputSource_->axisInfoAt(otherAxis).size)
 		return false;
 
 	return inputSource_->axisValues(otherAxis, startIndex, endIndex, outputValues);

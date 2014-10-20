@@ -27,6 +27,12 @@ AMDataSourceSeriesData::AMDataSourceSeriesData(const AMDataSource* dataSource, Q
 	: QObject(parent), MPlotAbstractSeriesData()
 {
 	source_ = 0;
+	isValid_ = false;
+	axisSize_ = 0;
+	axis_ = QVector<qreal>();
+	data_ = QVector<qreal>();
+	dirtyRange_ = AMRange();
+	dataRange_ = AMRange();
 	setDataSource(dataSource);
 }
 
@@ -130,16 +136,19 @@ void  AMDataSourceSeriesData::onDataChanged(const AMnDIndex &start, const AMnDIn
 	updateCacheRequired_ = true;
 	cachedDataRectUpdateRequired_ = true;
 
+	int dirtyStartIndex = start.isValid() ? start.i() : 0;
+	int dirtyEndIndex = end.isValid() ? end.i() : (axisSize_-1);
+
 	if (!dirtyRange_.isValid())
-		dirtyRange_ = AMRange(start.i(), end.i());
+		dirtyRange_ = AMRange(dirtyStartIndex, dirtyEndIndex);
 
 	else {
 
-		if (start.i() < dirtyRange_.minimum())
-			dirtyRange_.setMinimum(start.i());
+		if (dirtyStartIndex < dirtyRange_.minimum())
+			dirtyRange_.setMinimum(dirtyStartIndex);
 
-		if (end.i() > dirtyRange_.maximum())
-			dirtyRange_.setMaximum(end.i());
+		if (dirtyEndIndex > dirtyRange_.maximum())
+			dirtyRange_.setMaximum(dirtyEndIndex);
 	}
 
 	MPlotAbstractSeriesData::emitDataChanged();
