@@ -472,6 +472,8 @@ public:
 	AMControl *pseudoAttoStageResetControl() const { return pseudoAttoStageResetControl_; }
 	/// Returns the real attocube stage reset control.
 	AMControl *realAttoStageResetControl() const { return realAttoStageResetControl_; }
+	/// Returns the pseudo wire stage reset control.
+	AMControl *pseudoWireStageResetControl() const { return pseudoWireStageResetControl_; }
 
 	// Sample stage PID controls.
 	/// Returns the PID control for the x-direction of the sample stage.
@@ -838,6 +840,7 @@ protected:
 	AMControl *realSampleStageResetControl_;
 	AMControl *pseudoAttoStageResetControl_;
 	AMControl *realAttoStageResetControl_;
+	AMControl *pseudoWireStageResetControl_;
 
 	// Motor group.  Binds all the motors for scanning together.
 	CLSPseudoMotorGroup *motorGroup_;

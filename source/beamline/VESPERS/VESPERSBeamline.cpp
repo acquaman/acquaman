@@ -229,6 +229,7 @@ void VESPERSBeamline::setupSampleStage()
 	realSampleStageResetControl_ = new AMSinglePVControl("Real Sample Stage Reset Control", "TS1607-2-B21-02:XYZ:loadOffsets.PROC", this, 0.1);
 	pseudoAttoStageResetControl_ = new AMSinglePVControl("Pseudo Atto Stage Reset Control", "TS1607-2-B21-07:HNV:loadOffsets.PROC", this, 0.1);
 	realAttoStageResetControl_ = new AMSinglePVControl("Real Atto Stage Reset Control", "TS1607-2-B21-07:XYZ:loadOffsets.PROC", this, 0.1);
+	pseudoWireStageResetControl_ = new AMSinglePVControl("Pseudo Wire Stage Reset Control", "TS1607-2-B21-01:HNV:loadOffsets.PROC", this, 0.1);
 }
 
 void VESPERSBeamline::setupMotorGroup()
@@ -261,7 +262,7 @@ void VESPERSBeamline::setupMotorGroup()
 										 QList<AMControl *>() << wireStageHorizontal_ << wireStageVertical_ << wireStageNormal_,
 										 QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Horizontal << AMMotorGroupObject::Vertical << AMMotorGroupObject::Normal,
 										 QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational,
-										 pseudoSampleStageResetControl_,
+										 pseudoWireStageResetControl_,
 										 this);
 	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
 	motorObject = new CLSPseudoMotorGroupObject("Attocube Stage - H, V, N",
