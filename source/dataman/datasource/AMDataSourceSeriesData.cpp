@@ -116,8 +116,8 @@ QRectF AMDataSourceSeriesData::boundingRect() const
 
 			cachedDataRect_ = QRectF(axis_.first(),
 									 dataRange_.minimum(),
-									 axis_.last()-axis_.first(),
-									 dataRange_.maximum()-dataRange_.minimum());
+									 qMax(axis_.last()-axis_.first(), std::numeric_limits<qreal>::min()),
+									 qMax(dataRange_.maximum()-dataRange_.minimum(), std::numeric_limits<qreal>::min()));
 		}
 
 		cachedDataRectUpdateRequired_ = false;
@@ -203,7 +203,7 @@ void AMDataSourceSeriesData::updateCachedValues() const
 		}
 
 		// The default range is invalid.
-		if (dataRange_.isNull())
+		if (dataRange_.isValid())
 			dataRange_ = AMRange(rangeMinimum, rangeMaximum);
 
 		else {
