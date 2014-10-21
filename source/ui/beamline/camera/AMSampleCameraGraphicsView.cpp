@@ -25,9 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QGraphicsVideoItem>
 #endif
 
-#pragma clang diagnostic ignored "-Wunused-private-field"
-#include <QMouseEvent>
-#pragma clang diagnostic warning "-Wunused-private-field"
+#include "AMQEvents.h"
 
 #include <QDebug>
 

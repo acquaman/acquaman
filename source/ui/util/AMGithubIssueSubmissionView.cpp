@@ -29,6 +29,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QLabel>
 #include <QTimer>
 
+#include "AMQEvents.h"
+
  AMGithubIssueSubmissionView::~AMGithubIssueSubmissionView(){}
 AMGithubIssueSubmissionView::AMGithubIssueSubmissionView(QWidget *parent)
 	: QDialog(parent)
@@ -203,10 +205,6 @@ void AMGithubIssueSubmissionView::hideAndFinish()
 	hide();
 	emit finished();
 }
-
-#pragma clang diagnostic ignored "-Wunused-private-field"
-#include <QCloseEvent>
-#pragma clang diagnostic warning "-Wunused-private-field"
 
 void AMGithubIssueSubmissionView::closeEvent(QCloseEvent *e)
 {

@@ -21,9 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMCrashReporter.h"
 
-#pragma clang diagnostic ignored "-Wunused-private-field"
-#include <QCloseEvent>
-#pragma clang diagnostic warning "-Wunused-private-field"
+#include "AMQEvents.h"
 
 #include <QLabel>
 #include <QBoxLayout>

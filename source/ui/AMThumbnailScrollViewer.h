@@ -24,6 +24,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QLabel>
 #include <QList>
+#include <QPainterPath>
+
+#include "AMQGraphics.h"
 
 #include "dataman/database/AMDbObject.h"
 #include "dataman/database/AMDatabase.h"
@@ -115,12 +118,6 @@ protected:
 	QLabel* c1_, *c2_;
 	AMThumbnailScrollViewer* tv_;
 };
-
-#pragma clang diagnostic ignored "-Wunused-private-field"
-#include <QGraphicsItem>
-#include <QGraphicsLayoutItem>
-#include <QPainterPath>
-#pragma clang diagnostic warning "-Wunused-private-field"
 
 /// This is a high-performance version of AMThumbnailScrollWidget for use inside the QGraphicsView system
 class AMThumbnailScrollGraphicsWidget : public QGraphicsItem, public QGraphicsLayoutItem {

@@ -35,9 +35,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QLineEdit>
 #include <QListView>
 
-#pragma clang diagnostic ignored "-Wunused-private-field"
-#include <QPlainTextEdit>
-#pragma clang diagnostic warning "-Wunused-private-field"
+#include "AMQPlainTextEdit.h"
 
 #include <QPushButton>
 #include <QSpacerItem>

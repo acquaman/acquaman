@@ -24,9 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifdef AM_MOBILITY_VIDEO_ENABLED
 #include <QGraphicsVideoItem>
 
-#pragma clang diagnostic ignored "-Wunused-private-field"
-#include <QResizeEvent>
-#pragma clang diagnostic warning "-Wunused-private-field"
+#include "AMQEvents.h"
 
 #endif
 

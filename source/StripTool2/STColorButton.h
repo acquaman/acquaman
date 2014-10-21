@@ -1,9 +1,7 @@
 #ifndef STCOLORBUTTON_H
 #define STCOLORBUTTON_H
 
-#pragma clang diagnostic ignored "-Wunused-private-field"
-#include <QPaintEvent>
-#pragma clang diagnostic warning "-Wunused-private-field"
+#include "AMQEvents.h"
 
 #include <QPushButton>
 #include <QColor>

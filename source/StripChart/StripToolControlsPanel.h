@@ -22,9 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef STRIPTOOLCONTROLSPANEL_H
 #define STRIPTOOLCONTROLSPANEL_H
 
-#pragma clang diagnostic ignored "-Wunused-private-field"
-#include <QtGui>
-#pragma clang diagnostic warning "-Wunused-private-field"
+#include "AMQtGui.h"
 
 #include <QWidget>
 

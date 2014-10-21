@@ -19,9 +19,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#pragma clang diagnostic ignored "-Wunused-private-field"
-#include <QtTest/QtTest>
-#pragma clang diagnostic warning "-Wunused-private-field"
+#include "AMQtTest.h"
 
 #include "util/AMSettings.h"
 #include "beamline/SGM/SGMBeamline.h"

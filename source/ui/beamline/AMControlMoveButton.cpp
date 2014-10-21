@@ -23,10 +23,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QBoxLayout>
 
-#pragma clang diagnostic ignored "-Wunused-private-field"
 #include <QStringBuilder>
-#include <QFocusEvent>
-#pragma clang diagnostic warning "-Wunused-private-field"
+
+#include "AMQEvents.h"
 
 #include "beamline/AMControl.h"
 #include "ui/beamline/AMControlEditor.h"

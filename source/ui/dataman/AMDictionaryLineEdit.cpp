@@ -23,9 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QLabel>
 
-#pragma clang diagnostic ignored "-Wunused-private-field"
-#include <QKeyEvent>
-#pragma clang diagnostic warning "-Wunused-private-field"
+#include "AMQEvents.h"
 
 #include "dataman/AMScanParametersDictionary.h"
 

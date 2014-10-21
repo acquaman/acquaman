@@ -1,9 +1,7 @@
 #ifndef AMSCANTHUMBNAILVIEW_H
 #define AMSCANTHUMBNAILVIEW_H
 
-#pragma clang diagnostic ignored "-Wunused-private-field"
-#include <QMouseEvent>
-#pragma clang diagnostic warning "-Wunused-private-field"
+#include "AMQEvents.h"
 
 #include <QWidget>
 #include <QAbstractItemView>

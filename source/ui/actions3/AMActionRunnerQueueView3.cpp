@@ -25,6 +25,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "util/AMFontSizes.h"
 
+#include "AMQEvents.h"
+
 #include <QTreeView>
 #include <QBoxLayout>
 #include <QFrame>
@@ -225,10 +227,6 @@ QWidget * AMActionRunnerQueueItemDelegate3::createEditor(QWidget *parent, const 
 
 	return rv;
 }
-
-#pragma clang diagnostic ignored "-Wunused-private-field"
-#include <QKeyEvent>
-#pragma clang diagnostic warning "-Wunused-private-field"
 
 bool AMActionRunnerQueueItemDelegate3::eventFilter(QObject *object, QEvent *event)
 {

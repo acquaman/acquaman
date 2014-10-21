@@ -24,10 +24,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QWidget>
 
-#pragma clang diagnostic ignored "-Wunused-private-field"
 #include <QGraphicsView>
-#include <QGraphicsWidget>
-#pragma clang diagnostic warning "-Wunused-private-field"
+
+#include "AMQGraphics.h"
 
 #include <QGraphicsLinearLayout>
 #include <QGraphicsGridLayout>

@@ -26,12 +26,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QLabel>
 #include <QToolButton>
 
-#pragma clang diagnostic ignored "-Wunused-private-field"
 #include <QGraphicsView>
-#include <QGraphicsWidget>
-#include <QGraphicsLinearLayout>
-#include <QGraphicsGridLayout>
-#pragma clang diagnostic warning "-Wunused-private-field"
+
+#include "AMQGraphics.h"
 
 #include <QButtonGroup>
 #include <QPushButton>

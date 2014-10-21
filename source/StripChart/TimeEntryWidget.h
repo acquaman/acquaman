@@ -24,9 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QWidget>
 
-#pragma clang diagnostic ignored "-Wunused-private-field"
-#include <QtGui>
-#pragma clang diagnostic warning "-Wunused-private-field"
+#include "AMQtGui.h"
 
 class TimeEntryWidget : public QWidget
 {

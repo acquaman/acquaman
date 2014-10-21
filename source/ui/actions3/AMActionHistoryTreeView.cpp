@@ -20,10 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMActionHistoryTreeView.h"
 
-#pragma clang diagnostic ignored "-Wunused-private-field"
-#include <QMouseEvent>
-#include <QKeyEvent>
-#pragma clang diagnostic warning "-Wunused-private-field"
+#include "AMQEvents.h"
 
 #include "AMActionHistoryModel.h"
 

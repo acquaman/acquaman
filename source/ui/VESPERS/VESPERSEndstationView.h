@@ -27,9 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/VESPERS/VESPERSEndstation.h"
 #include "ui/VESPERS/VESPERSMotorView.h"
 
-#pragma clang diagnostic ignored "-Wunused-private-field"
-#include <QCloseEvent>
-#pragma clang diagnostic warning "-Wunused-private-field"
+#include "AMQEvents.h"
 
 #include <QLineEdit>
 #include <QStringList>

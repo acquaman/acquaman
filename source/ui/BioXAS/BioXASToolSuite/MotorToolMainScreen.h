@@ -1,9 +1,7 @@
 #ifndef MOTORTOOLMAINSCREEN_H
 #define MOTORTOOLMAINSCREEN_H
 
-#pragma clang diagnostic ignored "-Wunused-private-field"
-#include <QCloseEvent>
-#pragma clang diagnostic warning "-Wunused-private-field"
+#include "AMQEvents.h"
 
 #include <QWidget>
 #include <QGroupBox>

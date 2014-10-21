@@ -28,6 +28,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QFontMetrics>
 #include <QMessageBox>
 
+#include "AMQEvents.h"
+
 #include "util/AMSettings.h"
 #include "application/AMPluginsManager.h"
 
@@ -137,10 +139,6 @@ void AMSettingsView::discardChanges(){
 		storeInitialState();
 	}
 }
-
-#pragma clang diagnostic ignored "-Wunused-private-field"
-#include <QShowEvent>
-#pragma clang diagnostic warning "-Wunused-private-field"
 
 void AMSettingsView::showEvent(QShowEvent *e){
 	storeInitialState();

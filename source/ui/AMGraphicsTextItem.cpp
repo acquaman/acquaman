@@ -27,6 +27,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QTextCursor>
 #include <QDebug>
 
+#include "AMQEvents.h"
+
 AMGraphicsTextItem::AMGraphicsTextItem(QGraphicsItem* parent, QGraphicsScene* scene) :
 	QGraphicsTextItem(parent,scene)
 {
@@ -140,10 +142,6 @@ void AMGraphicsTextItem::focusOutEvent(QFocusEvent *event)
 	setSelectAll(false);
 	clearSelection();
 }
-
-#pragma clang diagnostic ignored "-Wunused-private-field"
-#include <QKeyEvent>
-#pragma clang diagnostic warning "-Wunused-private-field"
 
 void AMGraphicsTextItem::keyPressEvent(QKeyEvent *event){
 	if(event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return){

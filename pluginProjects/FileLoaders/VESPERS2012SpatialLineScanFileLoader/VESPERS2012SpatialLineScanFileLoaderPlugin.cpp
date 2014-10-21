@@ -1,8 +1,6 @@
 #include "VESPERS2012SpatialLineScanFileLoaderPlugin.h"
 
-#pragma clang diagnostic ignored "-Wunused-private-field"
-#include <QtGui>
-#pragma clang diagnostic warning "-Wunused-private-field"
+#include "AMQtGui.h"
 
 #include "util/AMErrorMonitor.h"
 #include "analysis/AM1DExpressionAB.h"

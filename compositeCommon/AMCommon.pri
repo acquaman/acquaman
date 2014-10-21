@@ -3,6 +3,10 @@ HOME_FOLDER = $$system(echo $HOME)
 
 USERNAME = $$system(whoami)
 
+equals(QMAKE_CXX, "clang++"){
+	DEFINES *= AM_PRAGMA_WARNING_CONTROLS
+}
+
 macx {
 
 	contains(USERNAME, helfrij){
@@ -47,3 +51,10 @@ QMAKE_CXXFLAGS *= -Wextra -g
 DEFINES *= AM_ENABLE_BOUNDS_CHECKING
 
 QT *= core gui
+
+HEADERS *= \
+	source/AMQEvents.h \
+	source/AMQGraphics.h \
+	source/AMQPlainTextEdit.h \
+	source/AMQtGui.h \
+	source/AMQtTest.h

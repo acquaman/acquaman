@@ -22,9 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef AMWRAPPINGLINEEDIT_H
 #define AMWRAPPINGLINEEDIT_H
 
-#pragma clang diagnostic ignored "-Wunused-private-field"
-#include <QPlainTextEdit>
-#pragma clang diagnostic warning "-Wunused-private-field"
+#include "AMQPlainTextEdit.h"
 
 /// This class reduces the behaviour of a QPlainTextEdit and makes it behave more like a QLineEdit. Unlike QLineEdit, wrapping of text onto multiple lines is possible. However, as soon as the Enter or Return key is pressed, the editingFinished() signal is emitted and the extra carriage return is deleted from the text.
 class AMWrappingLineEdit : public QPlainTextEdit
