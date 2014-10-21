@@ -3,3 +3,7 @@
 AMBeamlineDetectorAPI::AMBeamlineDetectorAPI()
 {
 }
+
+AMBeamlineDetectorAPI::~AMBeamlineDetectorAPI()
+{
+}

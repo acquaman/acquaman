@@ -9,6 +9,8 @@ class AMBeamlineDetectorSetAPI {
 public:
 	AMBeamlineDetectorSetAPI();
 
+	virtual ~AMBeamlineDetectorSetAPI();
+
 	/// Returns the detector set that contains all of the public detectors. These are used with scan actions and configurations for automatic lookup.
 	virtual AMDetectorSet* exposedDetectors() const { return 0; }
 

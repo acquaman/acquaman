@@ -11,6 +11,8 @@ class AMBeamlineDetectorAPI {
 public:
 	AMBeamlineDetectorAPI();
 
+	virtual ~AMBeamlineDetectorAPI();
+
 	/// Returns a detector based on the name of the detector. Returns 0 if no detector is found.
 	virtual AMDetector* exposedDetectorByName(const QString &detectorName) { Q_UNUSED(detectorName); return 0; }
 	/// Returns a detector based on the detector info. Returns 0 if no control is found.

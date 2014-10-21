@@ -3,3 +3,7 @@
 AMBeamlineSynchronizedDwellTimeAPI::AMBeamlineSynchronizedDwellTimeAPI()
 {
 }
+
+AMBeamlineSynchronizedDwellTimeAPI::~AMBeamlineSynchronizedDwellTimeAPI()
+{
+}

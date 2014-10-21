@@ -3,3 +3,7 @@
 AMBeamlineControlAPI::AMBeamlineControlAPI()
 {
 }
+
+AMBeamlineControlAPI::~AMBeamlineControlAPI()
+{
+}

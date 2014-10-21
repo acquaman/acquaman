@@ -11,6 +11,8 @@ class AMBeamlineControlAPI {
 public:
 	AMBeamlineControlAPI();
 
+	virtual ~AMBeamlineControlAPI();
+
 	/// Returns a control based on the name of the control.  Returns 0 if no control is found.
 	virtual AMControl *exposedControlByName(const QString &name) { Q_UNUSED(name); return 0; }
 	/// Returns a control based on the control info.  Returns 0 if no control is found.
