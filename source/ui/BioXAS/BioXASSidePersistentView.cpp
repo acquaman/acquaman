@@ -27,8 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
     QWidget(parent)
 {
-    energyControlEditor_ = new AMExtendedControlEditor(BioXASSideBeamline::bioXAS()->mono()->energyControl());
-    energyControlEditor_->setControlFormat('f', 2);
+    energyEditor_ = new BioXASSideMonoBasicEnergyView(BioXASSideBeamline::bioXAS()->mono(), this);
 
     viewCrystalChangeButton_ = new QPushButton("Crystal Change", this);
     viewCrystalChangeButton_->setToolTip("Mono Crystal Change Instructions");
@@ -40,7 +39,7 @@ BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
     keithleyView_->setFormat('e');
 
     QVBoxLayout *layout = new QVBoxLayout();
-    layout->addWidget(energyControlEditor_);
+    layout->addWidget(energyEditor_);
     layout->addWidget(viewCrystalChangeButton_);
     layout->addWidget(keithleyView_);
     layout->addStretch();

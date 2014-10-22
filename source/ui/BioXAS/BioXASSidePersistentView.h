@@ -30,6 +30,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/beamline/AMExtendedControlEditor.h"
 #include "ui/beamline/AMCurrentAmplifierSingleView.h"
 
+#include "ui/BioXAS/BioXASSideMonoBasicEnergyView.h"
 #include "ui/BioXAS/BioXASSideMonoCrystalChangeView.h"
 
 class AMExtendedControlEditor;
@@ -52,7 +53,7 @@ protected slots:
     void toViewMonoCrystalChangeInstructions();
 
 protected:
-    AMExtendedControlEditor *energyControlEditor_;
+    BioXASSideMonoBasicEnergyView *energyEditor_;
     QPushButton *viewCrystalChangeButton_;
     AMCurrentAmplifierSingleView *keithleyView_;
 };
