@@ -102,10 +102,10 @@ void BioXASSideMonoCrystalChangeSteps::setCurrentStepIndex(int newIndex)
 
 void BioXASSideMonoCrystalChangeSteps::start()
 {
-    if (actions_)
+    if (actions_) {
         actions_->start();
-
-    emit stepsStarted();
+        emit stepsStarted();
+    }
 }
 
 void BioXASSideMonoCrystalChangeSteps::onCurrentActionChanged(int actionIndex)
