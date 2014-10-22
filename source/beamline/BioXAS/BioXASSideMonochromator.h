@@ -39,10 +39,10 @@ public:
     bool atCrystalChangePosition() const { return ((int)stageAtCrystalChangePosition_->value() == 0); }
     /// Returns true if the brake is enabled, false otherwise.
     bool brakeEnabled() const { return ((int)crystalChangeBrakeEnabled_->value() == 1); }
-    /// Returns true if the crystal stage motor is at clockwise limit.
-    bool crystalStageAtCWLimit() const { return ((int)crystalChangeMotorCWLimit_->value() == 0); }
-    /// Returns true if the crystal stage motor is at the counterclockwise limit.
-    bool crystalStageAtCCWLimit() const { return ((int)crystalChangeMotorCCWLimit_->value() == 0); }
+    /// Returns true if the crystal change motor is at clockwise limit.
+    bool crystalChangeMotorAtCWLimit() const { return ((int)crystalChangeMotorCWLimit_->value() == 0); }
+    /// Returns true if the crystal change motor is at the counterclockwise limit.
+    bool crystalChangeMotorAtCCWLimit() const { return ((int)crystalChangeMotorCCWLimit_->value() == 0); }
     /// Returns the energy setpoint.
     double energySetpoint() const { return energy_->setpoint(); }
     /// Returns the energy feedback.
@@ -91,7 +91,7 @@ public:
     AMAction3* createMoveStageAction(double degDestination);
     /// Returns a new action that waits for the region key to be turned CW to Disabled, 0 if not connected.
     AMAction3* createWaitForCrystalChangeDisabledAction();
-    /// Returns a new crystal change action, a list of wait actions. 0 if not connected.
+    /// Returns a new crystal change action, 0 if not connected.
     AMAction3* createCrystalChangeAction();
     /// Returns a new set energy action, 0 if not connected.
     AMAction3* createSetEnergyAction(double newEnergy);
@@ -105,7 +105,7 @@ signals:
     void slitsClosedChanged(bool areClosed);
     /// Notifier that the paddle out status has changed.
     void paddleOutChanged(bool isOut);
-    /// Notifier that the key status has changed.
+    /// Notifier that crystal changes are enabled/disabled.
     void crystalChangeEnabledChanged(bool isEnabled);
     /// Notifier that the crystal change position status has changed.
     void crystalChangePositionStatusChanged(bool atPosition);

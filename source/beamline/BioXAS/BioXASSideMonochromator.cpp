@@ -168,6 +168,9 @@ AMAction3* BioXASSideMonochromator::createCrystalChangeAction()
     if (!connected_)
         return 0;
 
+    double crystalChangeMotorDestination;
+    double newRegionDestination;
+
     if (region_ == A) {
         crystalChangeMotorDestination = -12,000;
         newRegionDestination = 350;
@@ -233,7 +236,7 @@ void BioXASSideMonochromator::onConnectedChanged()
 
 void BioXASSideMonochromator::onRegionChanged()
 {
-    int newRegion;
+    Region newRegion;
     int regionAVal = (int)regionAStatus_->value();
     int regionBVal = (int)regionBStatus_->value();
 
