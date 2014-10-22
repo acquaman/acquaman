@@ -164,28 +164,31 @@ void AMDataSourceImageData::onDataChanged(const AMnDIndex &start, const AMnDInde
 {
 	updateCacheRequired_ = true;
 
+	AMnDIndex dirtyStartIndex = start.isValid() ? start : AMnDIndex(0, 0);
+	AMnDIndex dirtyEndIndex = end.isValid() ? end : AMnDIndex(xSize_-1, ySize_-1);
+
 	if (!dirtyRectBottomLeft_.isValid())
-		dirtyRectBottomLeft_ = AMnDIndex(start.i(), start.j());
+		dirtyRectBottomLeft_ = AMnDIndex(dirtyStartIndex.i(), dirtyStartIndex.j());
 
 	else {
 
-		if (dirtyRectBottomLeft_.i() > start.i())
-			dirtyRectBottomLeft_[0] = start.i();
+		if (dirtyRectBottomLeft_.i() > dirtyStartIndex.i())
+			dirtyRectBottomLeft_[0] = dirtyStartIndex.i();
 
-		if (dirtyRectBottomLeft_.j() > start.j())
-			dirtyRectBottomLeft_[1] = start.j();
+		if (dirtyRectBottomLeft_.j() > dirtyStartIndex.j())
+			dirtyRectBottomLeft_[1] = dirtyStartIndex.j();
 	}
 
 	if (!dirtyRectTopRight_.isValid())
-		dirtyRectTopRight_ = AMnDIndex(end.i(), end.j());
+		dirtyRectTopRight_ = AMnDIndex(dirtyEndIndex.i(), dirtyEndIndex.j());
 
 	else {
 
-		if (dirtyRectTopRight_.i() < end.i())
-			dirtyRectTopRight_[0] = end.i();
+		if (dirtyRectTopRight_.i() < dirtyEndIndex.i())
+			dirtyRectTopRight_[0] = dirtyEndIndex.i();
 
-		if (dirtyRectTopRight_.j() < end.j())
-			dirtyRectTopRight_[1] = end.j();
+		if (dirtyRectTopRight_.j() < dirtyEndIndex.j())
+			dirtyRectTopRight_[1] = dirtyEndIndex.j();
 	}
 
 	emitDataChanged();

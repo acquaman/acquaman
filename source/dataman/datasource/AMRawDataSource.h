@@ -159,6 +159,7 @@ int outputSize = indexStart.totalPointsTo(indexEnd);
 \endcode
 */
 	virtual bool values(const AMnDIndex& indexStart, const AMnDIndex& indexEnd, double* outputValues) const {
+
 		if(!isValid())
 			return false;
 		if(indexStart.rank() != rank() || indexEnd.rank() != rank())

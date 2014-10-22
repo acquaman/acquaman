@@ -129,16 +129,38 @@ void AMRawDataSource::onDataChanged(const AMnDIndex& scanIndexStart, const AMnDI
 	start.append(measurementIndexStart_);
 	end.append(measurementIndexEnd_);
 
-	emitValuesChanged(start, end);	/// \todo evaluate performance of creating these start/end indices on every valuesChanged. If no one uses the regions, would be faster not to bother.
+	emitValuesChanged(start, end);
 }
 
 // Called when the size of a scan axis changes.  \c axisId is the id of the changing axis, or -1 if they all did.
 void AMRawDataSource::onScanAxisSizeChanged() {
 	// the nice thing is that within our axes, the scan axes appear first, followed by the measurement axes. So an AMDataStore scan axis id is the same as one of our axis numbers.
 
-	if(scanAxesCount_)
-		axes_[0].size = dataStore_->scanSize(0);
-	emitSizeChanged(0);
+	QList<int> axesChanged;
+
+	for (int i = 0; i < scanAxesCount_; i++){
+
+		if (axes_.at(i).size != dataStore_->scanSize(i)){
+
+			axes_[i].size = dataStore_->scanSize(i);
+			axesChanged << i;
+		}
+	}
+
+	for (int i = 0; i < measurementAxesCount_; i++){
+
+		if (axes_.at(i+scanAxesCount_).size != measurementIndexEnd_.at(i)){
+
+			axes_[i+scanAxesCount_].size = measurementIndexEnd_.at(i)+1;
+			axesChanged << (i+scanAxesCount_);
+		}
+	}
+
+	if (axesChanged.size() > 1)
+		emitSizeChanged(-1);
+
+	else
+		emitSizeChanged(axesChanged.first());
 }
 
 bool AMRawDataSource::isDataStoreCompatible(const AMDataStore *dataStore) const
