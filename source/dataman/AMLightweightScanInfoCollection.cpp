@@ -4,6 +4,7 @@
 #include "util/AMErrorMonitor.h"
 AMLightweightScanInfoCollection::AMLightweightScanInfoCollection(AMDatabase *database)
 {
+	lastUpdatedScanId_ = -1;
 	database_ = database;
 	populateSampleNames();
 	populateRuns();
@@ -13,7 +14,6 @@ AMLightweightScanInfoCollection::AMLightweightScanInfoCollection(AMDatabase *dat
 	connect(database_, SIGNAL(created(QString,int)), this, SLOT(onDbItemAdded(QString,int)));
 	connect(database_, SIGNAL(removed(QString,int)), this, SLOT(onDbItemRemoved(QString,int)));
 	connect(database_, SIGNAL(updated(QString,int)), this, SLOT(onDbItemUpdated(QString,int)));
-	lastUpdatedScanId_  = -1;
 }
 
 QUrl AMLightweightScanInfoCollection::getScanUrl(int id) const
@@ -234,8 +234,6 @@ void AMLightweightScanInfoCollection::updateSingleScanInfo(AMLightweightScanInfo
 			QSqlRecord currentRecord = selectQuery.record();
 			QString name = selectQuery.value(currentRecord.indexOf("name")).toString();
 			int number = selectQuery.value(currentRecord.indexOf("number")).toInt();
-			int thumbnailFirstId = selectQuery.value(currentRecord.indexOf("thumbnailFirstId")).toInt();
-			int thumbnailCount = selectQuery.value(currentRecord.indexOf("thumbnailCount")).toInt();
 			QDateTime dateTime = selectQuery.value(currentRecord.indexOf("dateTime")).toDateTime();
 			int runId = selectQuery.value(currentRecord.indexOf("runId")).toInt();
 			QString runName = getRunName(runId);
@@ -251,7 +249,6 @@ void AMLightweightScanInfoCollection::updateSingleScanInfo(AMLightweightScanInfo
 			scanInfo->setRunName(runName);
 			scanInfo->setSampleName(sampleName);
 			scanInfo->setScanType(scanType);
-			scanInfo->resetThumbnails(thumbnailFirstId, thumbnailCount);
 		}
 	}
 	else
@@ -375,7 +372,8 @@ int AMLightweightScanInfoCollection::getScanIdFromThumbnailId(int thumbnailId)
 	selectQuery.finish();
 	return scanId;
 }
-#include <QDebug>
+
+
 void AMLightweightScanInfoCollection::onDbItemAdded(const QString &tableName, int id)
 {
 
@@ -394,24 +392,30 @@ void AMLightweightScanInfoCollection::onDbItemAdded(const QString &tableName, in
 	}
 	else if(tableName == "AMDbObjectThumbnails_table")
 	{
-		int scanId = getScanIdFromThumbnailId(id);
-		// Add thumbnailId to ScanInfo
+		// While thumbnails are removed in bulk (see onDbItemRemoved), they are added back
+		// one at a time. However, for optimization reasons we still assume that
+		// the scan whose thumbnails are being added is the last one which was updated (lastUpdatedScanId_)
+
+		AMLightweightScanInfo* matchedScanInfo = 0;
+		int lightweightScanInfoIndex = -1;
 		bool lightweightScanInfoFound = false;
-		if(scanId >=0)
+		for (int iScanInfo = 0, size = scanInfos_.count(); iScanInfo < size && !lightweightScanInfoFound; iScanInfo++)
 		{
-			for (int iScanInfo = 0, size = scanInfos_.count(); iScanInfo < size && !lightweightScanInfoFound; iScanInfo++)
+			if(scanInfos_.at(iScanInfo)->id() == lastUpdatedScanId_)
 			{
-				if(scanInfos_.at(iScanInfo)->id() == scanId)
-				{
-					AMLightweightScanInfo* matchedScanInfo = scanInfos_.at(iScanInfo);
-					qDebug() << "We found a scanInfo with id " << matchedScanInfo->id() << " with thumbnail count " << matchedScanInfo->thumbnailCount();
-					matchedScanInfo->addThumbnailId(id);
-					lightweightScanInfoFound = true;
-				}
+				lightweightScanInfoIndex = iScanInfo;
+				matchedScanInfo = scanInfos_.at(iScanInfo);
+				lightweightScanInfoFound = true;
 			}
-			qDebug() << QString("Added Thumbnmail %1 to Scan %2").arg(id).arg(scanId);
-			emit scanThumbnailAdded(scanId, id);
 		}
+
+		if(!matchedScanInfo)
+			return;
+
+		qDebug() << QString("Signalling that thumbnail has been added to scan %1").arg(lightweightScanInfoIndex);
+		emit scanThumbnailAboutToBeAdded(lightweightScanInfoIndex, matchedScanInfo->thumbnailCount(), matchedScanInfo->thumbnailCount());
+		matchedScanInfo->addThumbnailId(id);
+		emit scanThumbnailAdded();
 	}
 	else if(sampleNameMap_.keys().contains(tableName))
 	{
@@ -421,7 +425,6 @@ void AMLightweightScanInfoCollection::onDbItemAdded(const QString &tableName, in
 
 void AMLightweightScanInfoCollection::onDbItemUpdated(const QString &tableName, int id)
 {
-	qDebug() << QString("Updated item %1 in table %2").arg(id).arg(tableName);
 	if(tableName == AMDbObjectSupport::s()->tableNameForClass("AMScan"))
 	{
 		// A scan has been changed. We need to find the scan that matches the id, update the corresponding
@@ -441,7 +444,6 @@ void AMLightweightScanInfoCollection::onDbItemUpdated(const QString &tableName, 
 
 		if(!matchedScanInfo)
 			return;
-
 
 		updateSingleScanInfo(matchedScanInfo);
 		lastUpdatedScanId_ = id;
@@ -483,7 +485,6 @@ void AMLightweightScanInfoCollection::onDbItemUpdated(const QString &tableName, 
 
 void AMLightweightScanInfoCollection::onDbItemRemoved(const QString &tableName, int oldId)
 {
-	qDebug() << QString("Removed item %1 from table %2").arg(oldId).arg(tableName);
 	if(tableName == AMDbObjectSupport::s()->tableNameForClass("AMScan"))
 	{
 		// A scan has been removed from the database. We need to find the relevant scan, remove it
@@ -509,53 +510,51 @@ void AMLightweightScanInfoCollection::onDbItemRemoved(const QString &tableName, 
 		emit scanRemoved();
 
 	}
-//	else if(tableName == "AMDbObjectThumbnails_table")
-//	{
-//		// Okay, due to the unkennable working of thumbnails, whenever a new thumbnail is added or removed from a scan ALL its thumbnails are
-//		// deleted and re-added (so they can be in a sequence). Because of this a bulk delete is called in AM scan, and all we're going to get
-//		// here is an oldId parameter equal to -1 (indicating something was deleted, but we don't know what). In order to cope with this lastUpdatedScanId_
-//		// stores the last scan that was updated's id. In the two cases that this is used a scan is always updated right before its thumbnails are re-arranged,
-//		// so in future if this assumption breaks it will be necessary to rewrite the thumbnail storage logic.
+	else if(tableName == "AMDbObjectThumbnails_table")
+	{
+		// Because thumbnails are deleted in bulk, we only ever receive a -1 here for the oldId. As such
+		// a record is kept of the id of the last updated scan (scans are updated prior to having their
+		// thumbnail's removed). Here we'll need to signal that all of the thumbnails have been removed
+		// for the lastUpdatedScanId
+		if(lastUpdatedScanId_ == -1)
+			return;
 
-//		if(lastUpdatedScanId_ != -1)
-//		{
-//			// 1. Find the scan whose thumbnails have just been deleted
-//			qDebug() << QString("Last updated scan id was: %1").arg(lastUpdatedScanId_);
-//			AMLightweightScanInfo* matchedScanInfo = 0;
-//			int lightweightScanInfoIndex = -1;
-//			bool lightweightScanInfoFound = false;
-//			for (int iScanInfo = 0, size = scanInfos_.count(); iScanInfo < size && !lightweightScanInfoFound; iScanInfo++)
-//			{
-//				if(scanInfos_.at(iScanInfo)->id() == lastUpdatedScanId_)
-//				{
-//					lightweightScanInfoIndex = iScanInfo;
-//					matchedScanInfo = scanInfos_.at(iScanInfo);
-//					lightweightScanInfoFound = true;
-//				}
-//			}
+		QSqlQuery selectQuery = database_->select(AMDbObjectSupport::s()->tableNameForClass("AMScan"), "*", QString("id = %1").arg(lastUpdatedScanId_));
 
-//			if(!matchedScanInfo)
-//				return;
+		if(selectQuery.exec())
+		{
+			while(selectQuery.next())
+			{
+				QSqlRecord currentRecord = selectQuery.record();
+				int thumbnailCount = selectQuery.value(currentRecord.indexOf("thumbnailCount")).toInt();
+				int thumbnailStartId = selectQuery.value(currentRecord.indexOf("thumbnailCount")).toInt();
 
-//			// If we found it, then iterate through all the thumbnails and signal to the model that we're deleting them
-//			for (int iScanThumbnail = 0, thumbnailAmount = matchedScanInfo->thumbnailCount(); iScanThumbnail < thumbnailAmount; iScanThumbnail++)
-//			{
-//				qDebug() << QString("Signalling to model that we're about to remove thumbnail %1").arg(iScanThumbnail);
-//				emit scanThumbnailAboutToBeRemoved(lightweightScanInfoIndex, iScanThumbnail);
-//			}
+				AMLightweightScanInfo* matchedScanInfo = 0;
+				bool scanInfoFound = false;
+				int iScanInfo = 0;
+				for(int scanInfoCount = scanInfos_.count(); iScanInfo < scanInfoCount && !scanInfoFound; iScanInfo++)
+				{
+					if(scanInfos_.at(iScanInfo)->id() == lastUpdatedScanId_)
+					{
+						matchedScanInfo = scanInfos_.at(iScanInfo);
+						scanInfoFound = true;
+					}
+				}
 
-//			updateSingleScanInfo(matchedScanInfo);
+				if(!scanInfoFound)
+					return;
 
-//			emit scanThumbnailRemoved();
-
-//			emit scanUpdated(lightweightScanInfoIndex);
-//			for (int iScanThumbnail = 0, thumbnailAmount = matchedScanInfo->thumbnailCount(); iScanThumbnail < thumbnailAmount; iScanThumbnail++)
-//			{
-//				emit scanThumbnailAdded(lightweightScanInfoIndex, iScanThumbnail);
-
-//			}
-//		}
-//	}
+				emit scanThumbnailAboutToBeRemoved(iScanInfo, 0, matchedScanInfo->thumbnailCount()-1);
+				matchedScanInfo->resetThumbnails(thumbnailCount, thumbnailStartId);
+				emit scanThumbnailRemoved();
+			}
+		}
+		else
+		{
+			AMErrorMon::alert(this, AMLIGHTWEIGHTSCANINFOCOLLECTION_SCANS_SQL_ERROR, QString("Could not complete query to load single scan, with error: %1").arg(selectQuery.lastError().text()));
+		}
+		selectQuery.finish();
+	}
 }
 
 

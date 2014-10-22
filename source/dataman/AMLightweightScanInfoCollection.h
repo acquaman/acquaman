@@ -41,11 +41,13 @@ signals:
 	/// Emitted whenever a scan info is finished being removed from the collection
 	void scanRemoved();
 	/// Emitted whenever a scan is about to remove its thumbnail from the collection
-	void scanThumbnailAboutToBeRemoved(int scanIndex, int oldThumbnailIndex);
+	void scanThumbnailAboutToBeRemoved(int scanIndex, int oldThumbnailIndexStart, int oldThumbnailIndexEnd);
 	/// Emitted whenever a scan has its thumbnail removed from the collection
 	void scanThumbnailRemoved();
-	/// Emitted whenever a scan has a new thumbnail added to it
-	void scanThumbnailAdded(int scanId, int thumbnailId);
+	/// Emitted whenever a scan is about to have a scan added
+	void scanThumbnailAboutToBeAdded(int scanIndex, int thumbnailIndexStart, int thumbnailIndexEnd);
+	/// Emitted whenever a thumbnail is finished being added to a scan
+	void scanThumbnailAdded();
 protected slots:
 	/// Slot to handle the database signal indicating that a new item has been added to the database
 	void onDbItemAdded(const QString& tableName, int id);
@@ -98,10 +100,8 @@ private:
 	QList<AMLightweightScanInfo*> scanInfos_;
 	/// A mapping of scan id to experiment id. If entry is found for a scan, it's experimentId is set to -1
 	QHash<int, int> experimentIdMap_;
-	/// The id of the last updated scan. If no scan has been updated will equal -1
+	/// The Id of the scan which was last updated in the database
 	int lastUpdatedScanId_;
-
-
 };
 
 #endif // AMLIGHTWEIGHTSCANINFOCOLLECTION_H
