@@ -403,7 +403,7 @@ void VESPERS3DScanConfigurationView::onSetWireStartPosition()
 {
 	double wire = VESPERSBeamline::vespers()->pseudoWireStageMotorGroupObject()->verticalControl()->value();
 
-	configuration_->scanAxisAt(0)->regionAt(0)->setRegionStart(wire);
+	configuration_->scanAxisAt(2)->regionAt(0)->setRegionStart(wire);
 	wireStart_->setValue(wire);
 	updateMapInfo();
 	axesAcceptable();
@@ -413,7 +413,7 @@ void VESPERS3DScanConfigurationView::onSetWireEndPosition()
 {
 	double wire = VESPERSBeamline::vespers()->pseudoWireStageMotorGroupObject()->verticalControl()->value();
 
-	configuration_->scanAxisAt(3)->regionAt(0)->setRegionEnd(wire);
+	configuration_->scanAxisAt(2)->regionAt(0)->setRegionEnd(wire);
 	wireEnd_->setValue(wire);
 	updateMapInfo();
 	axesAcceptable();
@@ -463,21 +463,21 @@ void VESPERS3DScanConfigurationView::onYStepChanged()
 
 void VESPERS3DScanConfigurationView::onWireStartChanged()
 {
-	configuration_->scanAxisAt(2)->regionAt(0)->setRegionStart(vStart_->value());
+	configuration_->scanAxisAt(2)->regionAt(0)->setRegionStart(wireStart_->value());
 	updateMapInfo();
 	axesAcceptable();
 }
 
 void VESPERS3DScanConfigurationView::onWireEndChanged()
 {
-	configuration_->scanAxisAt(2)->regionAt(0)->setRegionEnd(vEnd_->value());
+	configuration_->scanAxisAt(2)->regionAt(0)->setRegionEnd(wireEnd_->value());
 	updateMapInfo();
 	axesAcceptable();
 }
 
 void VESPERS3DScanConfigurationView::onWireStepChanged()
 {
-	configuration_->scanAxisAt(2)->regionAt(0)->setRegionStep(vStep_->value()/1000);
+	configuration_->scanAxisAt(2)->regionAt(0)->setRegionStep(wireStep_->value()/1000);
 	updateMapInfo();
 	axesAcceptable();
 }

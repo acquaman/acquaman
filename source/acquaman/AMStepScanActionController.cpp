@@ -61,7 +61,7 @@ void AMStepScanActionController::createScanAssembler()
 void AMStepScanActionController::createAxisOrderMap()
 {
 	for (int i = 0, size = stepConfiguration_->scanAxes().size(); i < size; i++)
-		axisOrderMap_.insert(scan_->rawData()->scanAxisAt(0).name, i);
+		axisOrderMap_.insert(scan_->rawData()->scanAxisAt(i).name, i);
 }
 
 void AMStepScanActionController::buildScanController()
