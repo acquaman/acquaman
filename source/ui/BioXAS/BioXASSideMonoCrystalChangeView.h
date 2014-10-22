@@ -2,26 +2,30 @@
 #define BIOXASSIDEMONOCRYSTALCHANGEVIEW_H
 
 #include <QWidget>
+#include <QGroupBox>
+#include <QScrollArea>
+#include <QDialog>
 #include <QLayout>
 #include <QLabel>
 #include <QPushButton>
+#include <QProgressBar>
 
 #include "beamline/BioXAS/BioXASSideMonochromator.h"
+#include "acquaman/BioXASSide/BioXASSideMonoCrystalChangeSteps.h"
 
-class BioXASSideMonoCrystalChangeStep;
-class BioXASSideMonoCrystalChangeStepView;
-
-class BioXASSideMonoCrystalChangeView : public QWidget
+class BioXASSideMonoCrystalChangeStepsView;
+class BioXASSideMonoCrystalChangeFinalView;
+class BioXASSideMonoCrystalChangeView : public QDialog
 {
     Q_OBJECT
 
 public:
     /// Constructor.
-    explicit BioXASSideMonoCrystalChangeView(BioXASSideMonochromator *toView, QWidget *parent = 0);
+    explicit BioXASSideMonoCrystalChangeView(BioXASSideMonochromator *mono);
     /// Destructor.
     virtual ~BioXASSideMonoCrystalChangeView();
 
-    /// Returns the monochromator being viewed.
+    /// Returns the mono being viewed.
     BioXASSideMonochromator* mono() const;
 
 signals:
@@ -29,34 +33,62 @@ signals:
     void monoChanged(BioXASSideMonochromator *newMono);
 
 public slots:
-    /// Sets the monochromator to be viewed.
-    void setMono(BioXASSideMonochromator *toView);
+    /// Sets the mono being viewed.
+    void setMono(BioXASSideMonochromator *newMono);
+    /// Shows the steps view, hides the final view.
+    void showStepsView();
+    /// Shows the final view with the given message, hides the steps view.
+    void showFinalView(const QString &message);
 
 protected slots:
-    /// Handles monochromator connection changes.
-    void onMonoConnectedChanged();
-
-protected:
-    /// Creates the action steps from the mono's available actions.
-    void createSteps();
-    /// Creates the UI.
-    void createUI();
+    /// Shows final view with appropriate message when the steps have finished.
+    void onStepsFinished();
+    /// Shows final view with appropriate message when the steps have failed.
+    void onStepsFailed();
 
 protected:
     BioXASSideMonochromator *mono_;
+    BioXASSideMonoCrystalChangeSteps *steps_;
 
-    BioXASSideMonoCrystalChangeStep *closeSlits_;
-    BioXASSideMonoCrystalChangeStep *removePaddle_;
-    BioXASSideMonoCrystalChangeStep *turnKeyCCW_;
-    BioXASSideMonoCrystalChangeStep *toCrystalChangePosition_;
-    BioXASSideMonoCrystalChangeStep *disableBrake_;
-    BioXASSideMonoCrystalChangeStep *fromCrystalChangePosition_;
-    BioXASSideMonoCrystalChangeStep *enableBrake_;
-    BioXASSideMonoCrystalChangeStep *toNewRegion_;
-    BioXASSideMonoCrystalChangeStep *turnKeyCW_;
+    BioXASSideMonoCrystalChangeStepsView *stepsView_;
+    BioXASSideMonoCrystalChangeFinalView *finalView_;
+};
 
-    QList<BioXASSideMonoCrystalChangeStep*> steps_;
 
+
+
+class BioXASSideMonoCrystalChangeStepView;
+class BioXASSideMonoCrystalChangeStepsView : public QWidget
+{
+    Q_OBJECT
+
+public:
+    /// Constructor.
+    explicit BioXASSideMonoCrystalChangeStepsView(BioXASSideMonoCrystalChangeSteps *toView, QWidget *parent = 0);
+    /// Destructor.
+    virtual ~BioXASSideMonoCrystalChangeStepsView();
+
+signals:
+    /// Notifier that the steps being viewed have changed.
+    void stepsChanged(BioXASSideMonoCrystalChangeSteps *newSteps);
+
+public slots:
+    /// Sets the steps being viewed.
+    void setSteps(BioXASSideMonoCrystalChangeSteps *steps);
+
+protected slots:
+    /// Updates the step view to display information for the current step.
+    void onCurrentStepChanged(BioXASSideMonoCrystalChangeStep *newStep);
+    /// Updates the progress bar based on steps progress.
+    void onProgressUpdate(double numerator, double denominator);
+
+protected:
+    /// Steps being viewed.
+    BioXASSideMonoCrystalChangeSteps *steps_;
+    /// Progress bar.
+    QProgressBar *progressBar_;
+    /// View of current step.
+    BioXASSideMonoCrystalChangeStepView *stepView_;
 };
 
 
@@ -74,104 +106,63 @@ public:
 
     /// Returns the step being viewed.
     BioXASSideMonoCrystalChangeStep* step() const;
-    /// Returns whether the step is extended.
-    bool isExtended() const;
+    /// Returns whether the step's long description is shown.
+    bool extensionShown() const;
 
 signals:
-    /// Notifier that the step in this view has changed.
+    /// Notifier that the step being viewed has changed.
     void stepChanged(BioXASSideMonoCrystalChangeStep *newStep);
-    /// Notifier that the view is/isn't now extended.
-    void extendedChanged(bool isExtended);
 
 public slots:
     /// Sets the step being viewed.
     void setStep(BioXASSideMonoCrystalChangeStep* newStep);
-    /// Sets whether the view is extended.
-    void setExtended(bool isExtended);
+    /// Sets the displayed description.
+    void setDescription(const QString &description);
+    /// Sets special user instructions.
+    void setUserInstructions(const QString &instructions);
+    /// Sets whether user instructions are shown.
+    void setExtensionShown(bool isShown);
 
 protected slots:
-    /// Handles toggling view extension when moreButton is clicked.
-    void onMoreButtonClicked();
-    /// Handles changes in the step action.
-    void onStepActionChanged();
-    /// Handles changes in step number.
-    void onStepNumberChanged();
-    /// Handles changes in the step basic instructions.
-    void onStepBasicInstructionsChanged();
-    /// Handles changes in the step detailed instructions.
-    void onStepDetailedInstructionsChanged();
-    /// Handles view chanes for when the step has started.
-    void onStepStarted();
-    /// Handles view changes for when the step has succeeded.
-    void onStepSucceeded();
-    /// Handles view changes for when the step has failed.
-    void onStepFailed();
+    /// Updates displayed basic instructions.
+    void onStepDescriptionChanged(const QString &newDescription);
+    /// Updates displayed detailed instructions.
+    void onStepUserInstructionsChanged(const QString &newInstructions);
 
 protected:
     BioXASSideMonoCrystalChangeStep* step_;
-    QLabel *stepNumber_;
-    QLabel *stepBasicInstructions_;
-    QPushButton *moreButton_;
-    QLabel *stepDetailedInstructions_;
 
-    bool isExtended_;
+    QLabel *description_;
+    QLabel *userInstructions_;
+
+    bool extensionShown_;
+    QGroupBox *extension_;
 };
 
 
 
 
-class BioXASSideMonoCrystalChangeStep : public QObject
+class BioXASSideMonoCrystalChangeFinalView : public QWidget
 {
     Q_OBJECT
 
 public:
-    /// Constructor.
-    explicit BioXASSideMonoCrystalChangeStep(AMAction3 *action, QObject *parent = 0);
-    /// Destructor.
-    virtual ~BioXASSideMonoCrystalChangeStep();
-
-    /// Returns the AMAction3 of the step in the crystal change process.
-    AMAction3* action() const;
-    /// Returns the step number.
-    int number() const;
-    /// Returns the basic instructions for this step.
-    QString basicInstructions() const;
-    /// Returns the detailed instructions for this step.
-    QString detailedInstructions() const;
-
+    explicit BioXASSideMonoCrystalChangeFinalView(const QString &message, QWidget *parent = 0);
+    virtual ~BioXASSideMonoCrystalChangeFinalView();
 
 signals:
-    /// Notifier that the action for this step has changed.
-    void actionChanged(AMAction3* newAction);
-    /// Notifier that the step number has changed.
-    void numberChanged(int newNumber);
-    /// Notifier that the basic instructions for this step have changed.
-    void basicInstructionsChanged(const QString &newInstructions);
-    /// Notifier that the detailed instructions for this step have changed.
-    void detailedInstructionsChanged(const QString &newInstructions);
-    /// Notifier that the action for this step has started.
-    void stepStarted();
-    /// Notifier that the action for this step has succeeded.
-    void stepSucceeded();
-    /// Notifier that the action for this step has failed.
-    void stepFailed();
+    /// Notifier that the message displayed has changed.
+    void messageChanged(const QString &newMessage);
+    /// Notifier that the button was clicked.
+    void buttonClicked();
 
 public slots:
-    /// Sets the action for this step.
-    void setAction(AMAction3* newAction);
-    /// Sets the step number for this step.
-    void setNumber(int newNumber);
-    /// Sets the basic instructions for this step.
-    void setBasicInstructions(const QString &newInstructions);
-    /// Sets the detailed instructions for this step.
-    void setDetailedInstructions(const QString &newInstructions);
+    /// Sets the displayed message.
+    void setMessage(const QString &message);
 
 protected:
-    AMAction3* action_;
-    int number_;
-    QString basicInstructions_;
-    QString detailedInstructions_;
-
+    QLabel *message_;
+    QPushButton *button_;
 };
 
 #endif // BIOXASSIDEMONOCRYSTALCHANGEVIEW_H

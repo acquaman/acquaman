@@ -1,25 +1,40 @@
 #include "BioXASSideMonoCrystalChangeView.h"
+#include <QDebug>
 
-BioXASSideMonoCrystalChangeView::BioXASSideMonoCrystalChangeView(BioXASSideMonochromator *toView, QWidget *parent) :
-    QWidget(parent)
+BioXASSideMonoCrystalChangeView::BioXASSideMonoCrystalChangeView(BioXASSideMonochromator *mono) :
+    QDialog()
 {
     // Set variables.
 
     mono_ = 0;
+    steps_ = new BioXASSideMonoCrystalChangeSteps(0, this);
 
-    closeSlits_ = 0;
-    removePaddle_ = 0;
-    turnKeyCCW_ = 0;
-    toCrystalChangePosition_ = 0;
-    disableBrake_ = 0;
-    fromCrystalChangePosition_ = 0;
-    enableBrake_ = 0;
-    toNewRegion_ = 0;
-    turnKeyCW_ = 0;
+    // Create UI elements.
 
-    // Current conditions.
+    stepsView_ = new BioXASSideMonoCrystalChangeStepsView(0, this);
+    finalView_ = new BioXASSideMonoCrystalChangeFinalView("", this);
 
-    setMono(toView);
+    // Create and set layouts.
+
+    QVBoxLayout *mainLayout = new QVBoxLayout();
+    mainLayout->setMargin(0);
+    mainLayout->addWidget(stepsView_);
+    mainLayout->addWidget(finalView_);
+    setLayout(mainLayout);
+
+    // View settings.
+
+    showStepsView();
+
+    // Make connections.
+
+    connect( steps_, SIGNAL(stepsSucceeded()), this, SLOT(onStepsFinished()) );
+    connect( steps_, SIGNAL(stepsFailed()), this, SLOT(onStepsFailed()) );
+    connect( finalView_, SIGNAL(buttonClicked()), this, SLOT(accept()) );
+
+    // Apply mono settings.
+
+    setMono(mono);
 }
 
 BioXASSideMonoCrystalChangeView::~BioXASSideMonoCrystalChangeView()
@@ -36,36 +51,125 @@ void BioXASSideMonoCrystalChangeView::setMono(BioXASSideMonochromator *newMono)
 {
     if (mono_ != newMono) {
 
-        if (mono_)
-            disconnect( mono_, 0, this, 0 );
+        if (mono_) {
+            steps_->setActions(0);
+        }
 
         mono_ = newMono;
 
-        if (mono_) {
-            connect( mono_, SIGNAL(connected(bool)), this, SLOT(onMonoConnectedChanged()) );
+        if (mono_ && mono_->isConnected()) {
+            steps_->setActions(mono_->createCrystalChangeAction());
+            showStepsView();
+
+        } else if (mono_) {
+            showFinalView("Mono is not connected.");
         }
 
-        onMonoConnectedChanged();
+        emit monoChanged(mono_);
+
+    } else if (!mono_) {
+        showFinalView("Mono not found.");
     }
 }
 
-void BioXASSideMonoCrystalChangeView::onMonoConnectedChanged()
+void BioXASSideMonoCrystalChangeView::showStepsView()
 {
-    if (mono_ && mono_->isConnected()) {
-        // if mono is connected...
+    finalView_->hide();
+    stepsView_->show();
+}
 
-    } else {
-        // if mono is disconnected...
+void BioXASSideMonoCrystalChangeView::showFinalView(const QString &message)
+{
+    finalView_->setMessage(message);
+
+    stepsView_->hide();
+    finalView_->show();
+}
+
+void BioXASSideMonoCrystalChangeView::onStepsFinished()
+{
+    showFinalView("Mono crystal change complete.");
+}
+
+void BioXASSideMonoCrystalChangeView::onStepsFailed()
+{
+    showFinalView("Crystal change could not be completed.");
+}
+
+
+
+
+
+
+
+
+
+BioXASSideMonoCrystalChangeStepsView::BioXASSideMonoCrystalChangeStepsView(BioXASSideMonoCrystalChangeSteps *toView, QWidget *parent) :
+    QWidget(parent)
+{
+    // Set variables.
+
+    steps_ = 0;
+
+    // Create UI elements.
+
+    progressBar_ = new QProgressBar(this);
+    stepView_ = new BioXASSideMonoCrystalChangeStepView(0, this);
+
+    // Create and set layouts.
+
+    QVBoxLayout *mainLayout = new QVBoxLayout();
+    mainLayout->addWidget(progressBar_);
+    mainLayout->addWidget(stepView_);
+    setLayout(mainLayout);
+
+    // Make connections.
+
+    connect( steps_, SIGNAL(currentStepChanged(BioXASSideMonoCrystalChangeStep*)), this, SLOT(onCurrentStepChanged(BioXASSideMonoCrystalChangeStep*)) );
+    connect( steps_, SIGNAL(progressChanged(double, double)), this, SLOT(setProgress(double, double)) );
+
+    // View settings.
+
+    progressBar_->setMinimum(0);
+    progressBar_->setMaximum(0);
+
+    // Apply steps settings.
+
+    setSteps(toView);
+}
+
+BioXASSideMonoCrystalChangeStepsView::~BioXASSideMonoCrystalChangeStepsView()
+{
+
+}
+
+void BioXASSideMonoCrystalChangeStepsView::setSteps(BioXASSideMonoCrystalChangeSteps *steps)
+{
+    if (steps_ != steps) {
+
+        if (steps_)
+            disconnect( steps_, 0, this, 0 );
+
+        steps_ = steps;
+
+        if (steps_) {
+            connect( steps_, SIGNAL(currentStepChanged(BioXASSideMonoCrystalChangeStep*)), this, SLOT(onCurrentStepChanged(BioXASSideMonoCrystalChangeStep*)) );
+            connect( steps_, SIGNAL(progressChanged(double,double)), this, SLOT(onProgressUpdate(double, double)) );
+        }
+
+        emit stepsChanged(steps_);
     }
 }
 
-void BioXASSideMonoCrystalChangeView::createSteps()
+void BioXASSideMonoCrystalChangeStepsView::onCurrentStepChanged(BioXASSideMonoCrystalChangeStep *newStep)
 {
-
+    stepView_->setStep(newStep);
 }
 
-void BioXASSideMonoCrystalChangeView::createUI()
+void BioXASSideMonoCrystalChangeStepsView::onProgressUpdate(double numerator, double denominator)
 {
+    progressBar_->setMaximum(denominator);
+    progressBar_->setValue(numerator);
 
 }
 
@@ -83,29 +187,39 @@ BioXASSideMonoCrystalChangeStepView::BioXASSideMonoCrystalChangeStepView(BioXASS
     // Set variables.
 
     step_ = 0;
-    isExtended_ = false;
+    extensionShown_ = false;
 
-    // Create UI.
+    // Create UI elements.
 
-    QGridLayout *mainLayout = new QGridLayout();
+    description_ = new QLabel(this);
+    userInstructions_ = new QLabel(this);
+    extension_ = new QGroupBox(this);
 
-    stepNumber_ = new QLabel(this);
-    mainLayout->addWidget(stepNumber_, 0, 0);
+    // Create and set layouts.
 
-    stepBasicInstructions_ = new QLabel(this);
-    mainLayout->addWidget(stepBasicInstructions_, 0, 1);
+    QHBoxLayout *basicLayout = new QHBoxLayout();
+    basicLayout->setMargin(0);
+    basicLayout->addWidget(description_);
+    basicLayout->addStretch();
 
-    moreButton_ = new QPushButton("More", this);
-    connect( moreButton_, SIGNAL(clicked()), this, SLOT(onMoreButtonClicked()) );
-    mainLayout->addWidget(moreButton_, 0, 2);
+    QHBoxLayout *extensionLayout = new QHBoxLayout();
+    extensionLayout->setMargin(0);
+    extensionLayout->addWidget(userInstructions_);
 
-    stepDetailedInstructions_ = new QLabel(this);
-    mainLayout->addWidget(stepDetailedInstructions_, 1, 0, 3, 3);
-    stepDetailedInstructions_->hide();
+    extension_->setLayout(extensionLayout);
+    extension_->hide();
+
+    QVBoxLayout *mainLayout = new QVBoxLayout();
+    mainLayout->addLayout(basicLayout);
+    mainLayout->addWidget(extension_);
 
     setLayout(mainLayout);
 
-    // Current settings.
+    // Apply view settings.
+
+    userInstructions_->setWordWrap(true);
+
+    // Apply step settings.
 
     setStep(toView);
 }
@@ -120,9 +234,9 @@ BioXASSideMonoCrystalChangeStep* BioXASSideMonoCrystalChangeStepView::step() con
     return step_;
 }
 
-bool BioXASSideMonoCrystalChangeStepView::isExtended() const
+bool BioXASSideMonoCrystalChangeStepView::extensionShown() const
 {
-    return isExtended_;
+    return extensionShown_;
 }
 
 void BioXASSideMonoCrystalChangeStepView::setStep(BioXASSideMonoCrystalChangeStep *newStep)
@@ -135,172 +249,113 @@ void BioXASSideMonoCrystalChangeStepView::setStep(BioXASSideMonoCrystalChangeSte
         step_ = newStep;
 
         if (step_) {
-            connect( step_, SIGNAL(actionChanged(AMAction3*)), this, SLOT(onStepActionChanged()) );
-            connect( step_, SIGNAL(stepNumberChanged(int)), this, SLOT(onStepNumberChanged()) );
-            connect( step_, SIGNAL(basicInstructionsChanged(QString)), this, SLOT(onStepBasicInstructionsChanged()) );
-            connect( step_, SIGNAL(detailedInstructionsChanged(QString)), this, SLOT(onStepDetailedInstructionsChanged()) );
-            connect( step_, SIGNAL(stepStarted()), this, SLOT(onStepStarted()) );
-            connect( step_, SIGNAL(stepSucceeded()), this, SLOT(onStepSucceeded()) );
-            connect( step_, SIGNAL(stepFailed()), this, SLOT(onStepFailed()) );
+            setDescription(step_->description());
+            setUserInstructions(step_->userInstructions());
+
+            if (userInstructions_->text() != "")
+                setExtensionShown(true);
+
+            else
+                setExtensionShown(false);
+
+            connect( step_, SIGNAL(descriptionChanged(QString)), this, SLOT(onStepDescriptionChanged(QString)) );
+            connect( step_, SIGNAL(userInstructionsChanged(QString)), this, SLOT(onStepUserInstructionsChanged(QString)) );
+
+        } else {
+            setDescription("");
+            setUserInstructions("");
         }
 
         emit stepChanged(step_);
     }
 }
 
-void BioXASSideMonoCrystalChangeStepView::setExtended(bool isExtended)
+void BioXASSideMonoCrystalChangeStepView::setDescription(const QString &description)
 {
-    if (isExtended_ != isExtended) {
+    description_->setText(description);
+}
 
-        isExtended_ = isExtended;
+void BioXASSideMonoCrystalChangeStepView::setUserInstructions(const QString &instructions)
+{
+    userInstructions_->setText(instructions);
 
-        if (isExtended) {
-            stepDetailedInstructions_->show();
+    if (instructions == "")
+        setExtensionShown(false);
+    else
+        setExtensionShown(true);
+}
 
-        } else {
-            stepDetailedInstructions_->hide();
-        }
+void BioXASSideMonoCrystalChangeStepView::setExtensionShown(bool isShown)
+{
+    if (extensionShown_ != isShown) {
+        extensionShown_ = isShown;
 
-        emit extendedChanged(isExtended_);
+        if (extensionShown_)
+            extension_->show();
+
+        else
+            extension_->hide();
     }
 }
 
-void BioXASSideMonoCrystalChangeStepView::onMoreButtonClicked()
+void BioXASSideMonoCrystalChangeStepView::onStepDescriptionChanged(const QString &newDescription)
 {
-    setExtended(!isExtended_);
+    setDescription(newDescription);
 }
 
-void BioXASSideMonoCrystalChangeStepView::onStepActionChanged()
+void BioXASSideMonoCrystalChangeStepView::onStepUserInstructionsChanged(const QString &newInstructions)
+{
+    setUserInstructions(newInstructions);
+}
+
+
+
+
+
+
+
+
+
+BioXASSideMonoCrystalChangeFinalView::BioXASSideMonoCrystalChangeFinalView(const QString &message, QWidget *parent) :
+    QWidget(parent)
+{
+    // Create UI elements.
+
+    message_ = new QLabel(message, this);
+    button_ = new QPushButton("Ok", this);
+
+    // Create and set layouts.
+
+    QHBoxLayout *buttonLayout = new QHBoxLayout();
+    buttonLayout->addStretch();
+    buttonLayout->addWidget(button_);
+
+    QVBoxLayout *mainLayout = new QVBoxLayout();
+    mainLayout->addWidget(message_);
+    mainLayout->addLayout(buttonLayout);
+
+    setLayout(mainLayout);
+
+    // View settings.
+
+    message_->setWordWrap(true);
+    button_->setDefault(true);
+
+    // Make connections.
+
+    connect( button_, SIGNAL(clicked()), this, SIGNAL(buttonClicked()) );
+}
+
+BioXASSideMonoCrystalChangeFinalView::~BioXASSideMonoCrystalChangeFinalView()
 {
 
 }
 
-void BioXASSideMonoCrystalChangeStepView::onStepNumberChanged()
+void BioXASSideMonoCrystalChangeFinalView::setMessage(const QString &message)
 {
-    if (step_) {
-        stepNumber_->setText(QString::number(step_->number()));
+    if (message_->text() != message) {
+        message_->setText(message);
+        emit messageChanged(message_->text());
     }
 }
-
-void BioXASSideMonoCrystalChangeStepView::onStepBasicInstructionsChanged()
-{
-    if (step_) {
-        stepBasicInstructions_->setText(step_->basicInstructions());
-    }
-}
-
-void BioXASSideMonoCrystalChangeStepView::onStepDetailedInstructionsChanged()
-{
-    if (step_) {
-        stepDetailedInstructions_->setText(step_->detailedInstructions());
-    }
-}
-
-void BioXASSideMonoCrystalChangeStepView::onStepStarted()
-{
-
-}
-
-void BioXASSideMonoCrystalChangeStepView::onStepSucceeded()
-{
-
-}
-
-void BioXASSideMonoCrystalChangeStepView::onStepFailed()
-{
-
-}
-
-
-
-
-
-
-
-
-
-BioXASSideMonoCrystalChangeStep::BioXASSideMonoCrystalChangeStep(AMAction3 *action, QObject *parent) :
-    QObject(parent)
-{
-    // Set variables.
-
-    action_ = 0;
-    number_ = 0;
-    basicInstructions_ = "";
-    detailedInstructions_ = "";
-
-    // Current settings.
-
-    setAction(action);
-}
-
-BioXASSideMonoCrystalChangeStep::~BioXASSideMonoCrystalChangeStep()
-{
-
-}
-
-AMAction3* BioXASSideMonoCrystalChangeStep::action() const
-{
-    return action_;
-}
-
-int BioXASSideMonoCrystalChangeStep::number() const
-{
-    return number_;
-}
-
-QString BioXASSideMonoCrystalChangeStep::basicInstructions() const
-{
-    return basicInstructions_;
-}
-
-QString BioXASSideMonoCrystalChangeStep::detailedInstructions() const
-{
-    return detailedInstructions_;
-}
-
-void BioXASSideMonoCrystalChangeStep::setAction(AMAction3 *newAction)
-{
-    if (action_ != newAction) {
-
-        if (action_)
-            disconnect( action_, 0, this, 0 );
-
-        action_ = newAction;
-
-        if (action_) {
-            connect( action_, SIGNAL(started()), this, SIGNAL(stepStarted()) );
-            connect( action_, SIGNAL(succeeded()), this, SIGNAL(stepSucceeded()) );
-            connect( action_, SIGNAL(failed()), this, SIGNAL(stepFailed()) );
-        }
-
-        emit actionChanged(action_);
-    }
-}
-
-void BioXASSideMonoCrystalChangeStep::setNumber(int newNumber)
-{
-    if (number_ != newNumber) {
-        number_ = newNumber;
-        emit numberChanged(number_);
-    }
-}
-
-void BioXASSideMonoCrystalChangeStep::setBasicInstructions(const QString &newInstructions)
-{
-    if (basicInstructions_ != newInstructions) {
-        basicInstructions_ = newInstructions;
-        emit basicInstructionsChanged(basicInstructions_);
-    }
-}
-
-void BioXASSideMonoCrystalChangeStep::setDetailedInstructions(const QString &newInstructions)
-{
-    if (detailedInstructions_ != newInstructions) {
-        detailedInstructions_ = newInstructions;
-        emit detailedInstructionsChanged(detailedInstructions_);
-    }
-}
-
-
 
