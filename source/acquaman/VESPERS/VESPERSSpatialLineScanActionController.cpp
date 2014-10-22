@@ -251,7 +251,7 @@ void VESPERSSpatialLineScanActionController::buildScanControllerImplementation()
 AMAction3* VESPERSSpatialLineScanActionController::createInitializationActions()
 {
 	AMSequentialListAction3 *initializationActions = new AMSequentialListAction3(new AMSequentialListActionInfo3("Initialization actions", "Initialization actions"));
-	initializationActions->addSubAction(buildBaseInitializationAction(configuration_->detectorConfigurations()));
+	initializationActions->addSubAction(buildBaseInitializationAction());
 
 	if (!configuration_->ccdDetector().testFlag(VESPERS::NoCCD))
 		initializationActions->addSubAction(buildCCDInitializationAction(configuration_->ccdDetector(), configuration_->ccdFileName()));
