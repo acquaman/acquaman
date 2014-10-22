@@ -116,10 +116,10 @@ void BioXASSideAppController::onScalerConnected()
 void BioXASSideAppController::onBeamlineConnected()
 {
     // removed this condition to work on PersistentView content without need for beamline connection.
-    if (BioXASSideBeamline::bioXAS()->isConnected() && !persistentPanel_) {
+//    if (BioXASSideBeamline::bioXAS()->isConnected() && !persistentPanel_) {
         persistentPanel_ = new BioXASSidePersistentView();
         mw_->addRightWidget(persistentPanel_);
-    }
+//    }
 
 	if (BioXASSideBeamline::bioXAS()->isConnected() && !configurationView_) {
 		configuration_ = new BioXASSideXASScanConfiguration();
@@ -197,9 +197,9 @@ void BioXASSideAppController::setupUserInterface()
 	connect( BioXASSideBeamline::bioXAS(), SIGNAL(connected(bool)), this, SLOT(onBeamlineConnected()) );
 
     // removed this condition to work on PersistentView content without need for beamline connection.
-    if (BioXASSideBeamline::bioXAS()->isConnected()) {
+//    if (BioXASSideBeamline::bioXAS()->isConnected()) {
         onBeamlineConnected();
-    }
+//    }
 }
 
 void BioXASSideAppController::makeConnections()
