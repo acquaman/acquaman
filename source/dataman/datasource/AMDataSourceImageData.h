@@ -48,8 +48,12 @@ public:
 
 	/// Return the x (data value) corresponding an (x,y) \c index.
 	virtual double x(int index) const;
+	/// Copy an entire block of x values from \c startIndex to \c endIndex into \c outputValues.
+	virtual void xValues(int startIndex, int endIndex, double *outputValues);
 	/// Return the y (data value) corresponding an (x,y) \c index.
 	virtual double y(int index) const;
+	/// Copy an entire block of y values from \c startIndex to \c endIndex into \c outputValues.
+	virtual void yValues(int startIndex, int endIndex, double *outputValues);
 	/// Return the z = f(x,y) value corresponding an index (\c xIndex, \c yIndex)
 	virtual double z(int xIndex, int yIndex) const;
 	/// Copy an entire block of z = f(x,y) values from (xStart,yStart) to (xEnd,yEnd) inclusive, into \c outputValues. The data is copied in row-major order, ie: with the x-axis varying the slowest. (Can assume \c outputValues has enough room to hold all the values, that (xStart,yStart) <= (xEnd,yEnd), and that the indexes are not out of range.)

@@ -528,6 +528,28 @@ AMNumber AM1DCalibrationAB::axisValue(int axisNumber, int index) const
 	return AMNumber(energyCalibrationReference_ + ((double(data_->axisValue(axisNumber, index)) - energyCalibrationReference_) * energyCalibrationScaling_) + energyCalibrationOffset_ );
 }
 
+bool AM1DCalibrationAB::axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const
+{
+	if (!isValid())
+		return false;
+
+	if (axisNumber != 0)
+		return false;
+
+	if (startIndex >= axes_.at(axisNumber).size || endIndex >= axes_.at(axisNumber).size)
+		return false;
+
+	double energyCalibrationOffsetAndReference = (1 - energyCalibrationScaling_)*energyCalibrationReference_ + energyCalibrationOffset_;
+	int totalSize = endIndex - startIndex + 1;
+	QVector<AMNumber> axisData = QVector<AMNumber>(totalSize, 0);
+	data_->axisValues(axisNumber, startIndex, endIndex, axisData.data());
+
+	for (int i = 0; i < totalSize; i++)
+		outputValues[i] = AMNumber(double(axisData.at(i))*energyCalibrationScaling_ + energyCalibrationOffsetAndReference);
+
+	return true;
+}
+
 void AM1DCalibrationAB::onInputSourceValuesChanged(const AMnDIndex& start, const AMnDIndex& end)
 {
 	emitValuesChanged(start, end);
