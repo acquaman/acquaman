@@ -25,9 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QWidget>
 #include <QLayout>
 #include <QGroupBox>
-#include <QDialog>
-
-#include "ui/CLS/CLSStopLightButton.h"
+#include <QMessageBox>
 
 #include "ui/BioXAS/BioXASSideMonoBasicEnergyView.h"
 #include "ui/BioXAS/BioXASSideMonoCrystalChangeView.h"

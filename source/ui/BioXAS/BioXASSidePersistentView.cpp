@@ -37,8 +37,8 @@ BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
     energyLayout->addWidget(energyLabel);
     energyLayout->addWidget(energyView_);
 
-    viewCrystalChangeButton_ = new QPushButton("Crystal Change...", this);
-    viewCrystalChangeButton_->setToolTip("View Mono Crystal Change Instructions");
+    viewCrystalChangeButton_ = new QPushButton("Crystal Change", this);
+    viewCrystalChangeButton_->setToolTip("BioXAS Side Mono Crystal Change Instructions");
     connect( viewCrystalChangeButton_, SIGNAL(clicked()), this, SLOT(toViewMonoCrystalChangeInstructions()) );
 
     QVBoxLayout *monoLayout = new QVBoxLayout();
@@ -59,8 +59,7 @@ BioXASSidePersistentView::~BioXASSidePersistentView()
 }
 
 void BioXASSidePersistentView::toViewMonoCrystalChangeInstructions()
-{
-//    BioXASSideMonoCrystalChangeView crystalChangeView_(this);
-//    crystalChangeView_.setMono(BioXASSideBeamline::bioXAS()->mono());
-//    crystalChangeView_.exec();
+{    
+    BioXASSideMonoCrystalChangeView *crystalChangeView = new BioXASSideMonoCrystalChangeView(BioXASSideBeamline::bioXAS()->mono());
+    crystalChangeView->exec();
 }
