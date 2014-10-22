@@ -88,7 +88,7 @@ void VESPERSEnergyScanActionController::buildScanControllerImplementation()
 AMAction3* VESPERSEnergyScanActionController::createInitializationActions()
 {
 	AMSequentialListAction3 *initializationList = new AMSequentialListAction3(new AMSequentialListActionInfo3("Initialization List"));
-	initializationList->addSubAction(buildBaseInitializationAction(configuration_->detectorConfigurations()));
+	initializationList->addSubAction(buildBaseInitializationAction());
 	initializationList->addSubAction(buildCCDInitializationAction(configuration_->ccdDetector(), configuration_->ccdFileName()));
 
 	return initializationList;

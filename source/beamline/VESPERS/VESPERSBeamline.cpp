@@ -28,6 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/VESPERS/VESPERSCCDBasicDetectorEmulator.h"
 #include "beamline/AM1DControlDetectorEmulator.h"
 #include "beamline/CLS/CLSStorageRing.h"
+#include "beamline/AMScalerTimeControlDetector.h"
 
 VESPERSBeamline::VESPERSBeamline()
 	: AMBeamline("VESPERS Beamline")
@@ -465,7 +466,7 @@ void VESPERSBeamline::setupControlSets()
 void VESPERSBeamline::setupMono()
 {
 	mono_ = new VESPERSMonochromator(this);
-	masterDwellTime_ = new AMSinglePVControl("Master Dwell Time", "BL1607-B2-1:dwell:setTime", this);
+	masterDwellTime_ = new AMReadOnlyPVControl("Master Dwell Time", "BL1607-B2-1:mcs:delay", this);
 	intermediateSlits_ = new VESPERSIntermediateSlits(this);
 	energySetpointControl_ = new AMReadOnlyPVControl("EnergySetpoint", "07B2_Mono_SineB_Ea", this);
 }
@@ -532,7 +533,7 @@ void VESPERSBeamline::setupControlsAsDetectors()
 	energyFeedbackDetector_ = new AMBasicControlDetectorEmulator("EnergyFeedback", "Energy Feedback", mono_->EaControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 	energyFeedbackDetector_->setHiddenFromUsers(true);
 	energyFeedbackDetector_->setIsVisible(false);
-	masterDwellTimeDetector_ = new AMBasicControlDetectorEmulator("MasterDwellTime", "Master Dwell Time", scaler_, scaler_, 1, 0, AMDetectorDefinitions::ImmediateRead, this);
+	masterDwellTimeDetector_ = new AMScalerTimeControlDetector("MasterDwellTime", "Master Dwell Time", masterDwellTime_, this);
 	masterDwellTimeDetector_->setHiddenFromUsers(true);
 	masterDwellTimeDetector_->setIsVisible(false);
 	ringCurrentDetector_ = new AMBasicControlDetectorEmulator("RingCurrent", "Ring Current", CLSStorageRing::sr1()->ringCurrentControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);

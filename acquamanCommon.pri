@@ -762,7 +762,8 @@ HEADERS += \
 	source/beamline/AMStorageRing.h \
 	source/beamline/CLS/CLSStorageRing.h \
 	source/beamline/CLS/CLSSR570.h \
-	source/ui/dataman/AMBrowseScansView.h
+	source/ui/dataman/AMBrowseScansView.h \
+    source/beamline/AMScalerTimeControlDetector.h
 
 # OS-specific files:
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1238,7 +1239,8 @@ SOURCES += \
 	source/beamline/AMStorageRing.cpp \
 	source/beamline/CLS/CLSStorageRing.cpp \
 	source/beamline/CLS/CLSSR570.cpp \
-	source/ui/dataman/AMBrowseScansView.cpp
+	source/ui/dataman/AMBrowseScansView.cpp \
+    source/beamline/AMScalerTimeControlDetector.cpp
 
 # OS-specific files
 linux-g++|linux-g++-32|linux-g++-64 {
@@ -1268,6 +1270,8 @@ contains(DEFINES, AM_BUILD_REPORTER_ENABLED){
 
 	SOURCES += source/util/AMRunTimeBuildInfo.cpp
 }
+
+
 
 
 
