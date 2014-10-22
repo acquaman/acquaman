@@ -41,7 +41,7 @@ AMDataSource::AMDataSource(const QString& name)
 
 AMDataSource::~AMDataSource() {
 	signalSource_->emitDeleted();
-	delete signalSource_;
+	signalSource_->deleteLater();
 	signalSource_ = 0;
 }
 

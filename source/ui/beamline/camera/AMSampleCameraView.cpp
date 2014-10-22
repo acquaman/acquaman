@@ -1340,7 +1340,7 @@ bool AMSampleCameraView::loadRotationalOffset(int databaseId)
 	if(!rotationalOffset->loadFromDb(db, id))
 		return false;
 	shapeModel_->setRotationalOffset(rotationalOffset->rotationalOffset());
-	delete rotationalOffset;
+	rotationalOffset->deleteLater();
 	refreshSceneView();
 
 	if(showGrid_){
@@ -2004,7 +2004,7 @@ void AMSampleCameraView::deleteShape()
 	textItems_.removeAt(index_);
 	index_--;
 	delete polygon;
-	delete text;
+	text->deleteLater();
 }
 
 /// change the currently selected item, outline it in blue

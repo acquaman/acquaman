@@ -7,6 +7,16 @@ BioXASSideMonochromator::BioXASSideMonochromator(QObject *parent) :
     connected_ = false;
     region_ = None;
 
+    phosphorPaddleMotor_ = new BioXASCLSMAXvMotor(BioXASBeamlineDef::MonoMotor, QString("SMTR1607-5-I22-11 PHOSPHOR PADDLE"), QString("SMTR1607-5-I22-11"), QString("SMTR1607-5-I22-11 PHOSPHOR PADDLE"), QString(":mm"),  true, 0.05, 2.0, this);
+    braggMotor_ = new BioXASCLSMAXvMotor(BioXASBeamlineDef::MonoMotor, QString("SMTR1607-5-I22-12 BRAGG"), QString("SMTR1607-5-I22-12"), QString("SMTR1607-5-I22-12 BRAGG"), QString(":deg"), true, 0.05, 2.0, this);
+    verticalMotor_ = new BioXASCLSMAXvMotor(BioXASBeamlineDef::MonoMotor, QString("SMTR1607-5-I22-13 VERTICAL"), QString("SMTR1607-5-I22-13"), QString("SMTR1607-5-I22-13 VERTICAL"), QString(":mm"),  true, 0.05, 2.0, this);
+    lateralMotor_ = new BioXASCLSMAXvMotor(BioXASBeamlineDef::MonoMotor, QString("SMTR1607-5-I22-14 LATERAL"), QString("SMTR1607-5-I22-14"), QString("SMTR1607-5-I22-14 LATERAL"), QString(":mm"),  true, 0.05, 2.0, this);
+    crystalExchangeMotor_ = new BioXASCLSMAXvMotor(BioXASBeamlineDef::MonoMotor, QString("SMTR1607-5-I22-22 XTAL XCHAGE"), QString("SMTR1607-5-I22-22"), QString("SMTR1607-5-I22-22 XTAL XCHAGE"), QString(":mm"),  true, 0.05, 2.0, this);
+    crystal1PitchMotor_ = new BioXASCLSMAXvMotor(BioXASBeamlineDef::MonoMotor, QString("SMTR1607-5-I22-23 XTAL 1 PITCH"), QString("SMTR1607-5-I22-23"), QString("SMTR1607-5-I22-23 XTAL 1 PITCH"), QString(":V"),   true, 0.05, 2.0, this);
+    crystal1RollMotor_ = new BioXASCLSMAXvMotor(BioXASBeamlineDef::MonoMotor, QString("SMTR1607-5-I22-24 XTAL 1 ROLL"), QString("SMTR1607-5-I22-24"), QString("SMTR1607-5-I22-24 XTAL 1 ROLL"), QString(":V"),   true, 0.05, 2.0, this);
+    crystal2PitchMotor_ = new BioXASCLSMAXvMotor(BioXASBeamlineDef::MonoMotor, QString("SMTR1607-5-I22-25 XTAL 2 PITCH"), QString("SMTR1607-5-I22-25"), QString("SMTR1607-5-I22-25 XTAL 2 PITCH"), QString(":V"),   true, 0.05, 2.0, this);
+    crystal2RollMotor_ = new BioXASCLSMAXvMotor(BioXASBeamlineDef::MonoMotor, QString("SMTR1607-5-I22-26 XTAL 2 ROLL"), QString("SMTR1607-5-I22-26"), QString("SMTR1607-5-I22-26 XTAL 2 ROLL"), QString(":V"),   true, 0.05, 2.0, this);
+
     slitsClosed_ = new AMPVControl("SlitsClosed", "BL1607-5-I21:SlitsClosed", "BL1607-5-I21:SlitsOprCloseCmd", QString(), this);
     paddleOut_ = new AMPVControl("PaddleOut", "BL1607-5-I21:PaddleExtracted", "BL1607-I21:PaddleOprOutCmd", QString(), this);
     crystalChangeEnabled_ = new AMReadOnlyPVControl("CrystalStageMotorDisabled", "BL1607-5-I21:KeyStatus", this);

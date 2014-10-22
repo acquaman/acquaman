@@ -677,7 +677,7 @@ AM2DScanViewExclusiveView::AM2DScanViewExclusiveView(AM2DScanView* masterView)
 AM2DScanViewExclusiveView::~AM2DScanViewExclusiveView()
 {
 	// PlotSeries's will be deleted as children items of the plot.
-	delete plot_;
+	plot_->deleteLater();
 }
 
 void AM2DScanViewExclusiveView::onRowInserted(const QModelIndex& parent, int start, int end)
@@ -946,7 +946,7 @@ AM2DScanViewMultiSourcesView::~AM2DScanViewMultiSourcesView()
 {
 	/* NOT necessary to delete all plotSeries. As long as they are added to a plot, they will be deleted when the plot is deleted (below).*/
 	foreach(MPlotGW* plot, dataSource2Plot_)
-		delete plot;
+		plot->deleteLater();
 }
 
 void AM2DScanViewMultiSourcesView::onRowInserted(const QModelIndex& parent, int start, int end)
@@ -1119,7 +1119,7 @@ bool AM2DScanViewMultiSourcesView::reviewDataSources() {
 			firstPlotEmpty_ = true;
 		}
 		else
-			delete dataSource2Plot_[sourceName];
+			dataSource2Plot_[sourceName]->deleteLater();
 
 		// remove pointer to deleted plot, and pointers to deleted series
 		dataSource2Plot_.remove(sourceName);

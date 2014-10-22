@@ -94,7 +94,7 @@ void AMDatabase::deleteDatabase(const QString& connectionName) {
 		ml.unlock();
 
 		db->qdb().close();
-		delete db;
+		db->deleteLater();
 	}
 }
 

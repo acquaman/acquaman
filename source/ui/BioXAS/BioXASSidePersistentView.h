@@ -27,7 +27,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QGroupBox>
 #include <QMessageBox>
 
-#include "ui/BioXAS/BioXASSideMonoBasicEnergyView.h"
+#include "ui/beamline/AMExtendedControlEditor.h"
+#include "ui/beamline/AMCurrentAmplifierSingleView.h"
+
 #include "ui/BioXAS/BioXASSideMonoCrystalChangeView.h"
 
 class AMExtendedControlEditor;
@@ -50,8 +52,9 @@ protected slots:
     void toViewMonoCrystalChangeInstructions();
 
 protected:
-    BioXASSideMonoBasicEnergyView *energyView_;
+    AMExtendedControlEditor *energyControlEditor_;
     QPushButton *viewCrystalChangeButton_;
+    AMCurrentAmplifierSingleView *keithleyView_;
 };
 
 #endif // BIOXASSIDEPERSISTENTVIEW_H

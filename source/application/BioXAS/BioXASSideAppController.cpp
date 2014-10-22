@@ -47,15 +47,16 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/BioXASSide/BioXASSideXASScanConfiguration.h"
 #include "ui/BioXAS/BioXASSideXASScanConfigurationView.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
+#include "dataman/AMScanAxisEXAFSRegion.h"
 
 BioXASSideAppController::BioXASSideAppController(QObject *parent)
 	: AMAppController(parent)
 {
-    scalerView_ = 0;
-    persistentPanel_ = 0;
-    configuration_ = 0;
-    configurationView_ = 0;
-    configurationViewHolder_ = 0;
+	scalerView_ = 0;
+	persistentPanel_ = 0;
+	configuration_ = 0;
+	configurationView_ = 0;
+	configurationViewHolder_ = 0;
 }
 
 bool BioXASSideAppController::startup()
@@ -105,40 +106,43 @@ void BioXASSideAppController::shutdown()
 
 void BioXASSideAppController::onScalerConnected()
 {
-    if (BioXASSideBeamline::bioXAS()->scaler()->isConnected() && !scalerView_) {
-        scalerView_ = new CLSSIS3820ScalerView(BioXASSideBeamline::bioXAS()->scaler());
+	if (BioXASSideBeamline::bioXAS()->scaler()->isConnected() && !scalerView_) {
+		scalerView_ = new CLSSIS3820ScalerView(BioXASSideBeamline::bioXAS()->scaler());
 
-        mw_->addPane(scalerView_, "Detectors", "Scaler", ":/system-search.png", true);
-    }
+		mw_->addPane(scalerView_, "Detectors", "Scaler", ":/system-search.png", true);
+	}
 }
 
 void BioXASSideAppController::onBeamlineConnected()
 {
     // removed this condition to work on PersistentView content without need for beamline connection.
-//    if (BioXASSideBeamline::bioXAS()->isConnected() && !persistentPanel_) {
+    if (BioXASSideBeamline::bioXAS()->isConnected() && !persistentPanel_) {
         persistentPanel_ = new BioXASSidePersistentView();
         mw_->addRightWidget(persistentPanel_);
-//    }
-
-    if (BioXASSideBeamline::bioXAS()->isConnected() && !configurationView_) {
-        configuration_ = new BioXASSideXASScanConfiguration();
-        configuration_->scanAxisAt(0)->regionAt(0)->setRegionStart(1.800);
-        configuration_->scanAxisAt(0)->regionAt(0)->setRegionStep(0.005);
-        configuration_->scanAxisAt(0)->regionAt(0)->setRegionEnd(1.850);
-        configuration_->scanAxisAt(0)->regionAt(0)->setRegionTime(1.0);
-
-        configurationView_ = new BioXASSideXASScanConfigurationView(configuration_);
-
-        configurationViewHolder_ = new AMScanConfigurationViewHolder3(configurationView_);
-
-        mw_->addPane(configurationViewHolder_, "Scans", "Test Scan", ":/utilities-system-monitor.png");
     }
+
+	if (BioXASSideBeamline::bioXAS()->isConnected() && !configurationView_) {
+		configuration_ = new BioXASSideXASScanConfiguration();
+		configuration_->setEdgeEnergy(10000);
+		/*
+		configuration_->scanAxisAt(0)->regionAt(0)->setRegionStart(10000);
+		configuration_->scanAxisAt(0)->regionAt(0)->setRegionStep(1);
+		configuration_->scanAxisAt(0)->regionAt(0)->setRegionEnd(10010);
+		configuration_->scanAxisAt(0)->regionAt(0)->setRegionTime(1.0);
+		*/
+
+		configurationView_ = new BioXASSideXASScanConfigurationView(configuration_);
+
+		configurationViewHolder_ = new AMScanConfigurationViewHolder3(configurationView_);
+
+		mw_->addPane(configurationViewHolder_, "Scans", "Test Scan", ":/utilities-system-monitor.png");
+	}
 
 }
 
 void BioXASSideAppController::registerClasses()
 {
-    AMDbObjectSupport::s()->registerClass<BioXASSideXASScanConfiguration>();
+	AMDbObjectSupport::s()->registerClass<BioXASSideXASScanConfiguration>();
 }
 
 void BioXASSideAppController::setupExporterOptions()
@@ -148,9 +152,9 @@ void BioXASSideAppController::setupExporterOptions()
 	AMExporterOptionGeneralAscii *bioXASDefaultXAS = new AMExporterOptionGeneralAscii();
 
 	if (matchIDs.count() != 0)
-			bioXASDefaultXAS->loadFromDb(AMDatabase::database("user"), matchIDs.at(0));
+		bioXASDefaultXAS->loadFromDb(AMDatabase::database("user"), matchIDs.at(0));
 
-    bioXASDefaultXAS->setName("BioXAS Default XAS");
+	bioXASDefaultXAS->setName("BioXAS Default XAS");
 	bioXASDefaultXAS->setFileName("$name_$fsIndex.dat");
 	bioXASDefaultXAS->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[header]\n\n$notes\n\n");
 	bioXASDefaultXAS->setHeaderIncluded(true);
@@ -167,9 +171,9 @@ void BioXASSideAppController::setupExporterOptions()
 	bioXASDefaultXAS->setHigherDimensionsInRows(true);
 	bioXASDefaultXAS->storeToDb(AMDatabase::database("user"));
 
-    if (bioXASDefaultXAS->id() > 0) {
-        AMAppControllerSupport::registerClass<BioXASSideXASScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(bioXASDefaultXAS->id());
-    }
+	if (bioXASDefaultXAS->id() > 0) {
+		AMAppControllerSupport::registerClass<BioXASSideXASScanConfiguration, AMExporterGeneralAscii, AMExporterOptionGeneralAscii>(bioXASDefaultXAS->id());
+	}
 
 }
 
@@ -182,21 +186,20 @@ void BioXASSideAppController::setupUserInterface()
 
 	mw_->insertHeading("Detectors", 1);
 
-    connect( BioXASSideBeamline::bioXAS()->scaler(), SIGNAL(connectedChanged(bool)), this, SLOT(onScalerConnected()) );
+	connect( BioXASSideBeamline::bioXAS()->scaler(), SIGNAL(connectedChanged(bool)), this, SLOT(onScalerConnected()) );
 
-    if (BioXASSideBeamline::bioXAS()->scaler()->isConnected()) {
-        onScalerConnected();
-    }
+	if (BioXASSideBeamline::bioXAS()->scaler()->isConnected()) {
+		onScalerConnected();
+	}
 
 	mw_->insertHeading("Scans", 2);
 
-    connect( BioXASSideBeamline::bioXAS(), SIGNAL(connected(bool)), this, SLOT(onBeamlineConnected()) );
+	connect( BioXASSideBeamline::bioXAS(), SIGNAL(connected(bool)), this, SLOT(onBeamlineConnected()) );
 
     // removed this condition to work on PersistentView content without need for beamline connection.
-//    if (BioXASSideBeamline::bioXAS()->isConnected()) {
+    if (BioXASSideBeamline::bioXAS()->isConnected()) {
         onBeamlineConnected();
-//    }
-
+    }
 }
 
 void BioXASSideAppController::makeConnections()

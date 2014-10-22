@@ -802,7 +802,7 @@ AMDbObject* AMDbObjectSupport::createAndLoadObjectAt(AMDatabase* db, const QStri
 		if(newObject->loadFromDb(db, id))
 			return newObject;
 		else {
-			delete newObject;	// loading failed, and we're not going to return anything. Make sure not to leak the newly-created object.
+			newObject->deleteLater();	// loading failed, and we're not going to return anything. Make sure not to leak the newly-created object.
 			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Debug, AMDBOBJECTSUPPORT_CANNOT_LOAD_OBJECT_LOAD_CALL_FAILED, QString("[AMDbObjectSupport] Could not load the object with ID %1 from the table '%2': loadFromDb() failed. Please report this bug to the Acquaman developers").arg(id).arg(tableName)));
 		}
 	}

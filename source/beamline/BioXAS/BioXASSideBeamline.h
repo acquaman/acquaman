@@ -24,9 +24,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/AMBeamline.h"
 #include "beamline/AMControlSet.h"
+#include "beamline/AMMotorGroup.h"
 #include "beamline/CLS/CLSSynchronizedDwellTime.h"
 #include "beamline/CLS/CLSSIS3820Scaler.h"
-#include "beamline/AMMotorGroup.h"
 #include "beamline/CLS/CLSBiStateControl.h"
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 #include "beamline/CLS/CLSBasicScalerChannelDetector.h"
@@ -36,8 +36,17 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMBiHash.h"
 
 #include "beamline/BioXAS/BioXASSideMonochromator.h"
+#include "beamline/BioXAS/BioXASCLSMAXvMotor.h"
+
+#define BIOXASSIDEBEAMLINE_PRESSURE_TOO_HIGH 54600
+#define BIOXASSIDEBEAMLINE_VALVES_CLOSED 54601
+#define BIOXASSIDEBEAMLINE_TEMPERATURE_TOO_HIGH 54602
+#define BIOXASSIDEBEAMLINE_WATER_FLOW_SWITCH_TRIP 54603
+#define BIOXASSIDEBEAMLINE_WATER_FLOW_TOO_LOW 54604
+#define BIOXASSIDEBEAMLINE_ION_PUMP_TRIP 54605
 
 class CLSMAXvMotor;
+class AMBasicControlDetectorEmulator;
 
 class BioXASSideBeamline : public AMBeamline
 {
@@ -56,18 +65,10 @@ public:
     /// Destructor.
     virtual ~BioXASSideBeamline();
 
-    virtual bool isConnected() const;
-
-    /// Returns the m1 upper slit blade motor control.
-    CLSMAXvMotor* m1UpperSlit() { return m1UpperSlit_; }
-    /// Returns an instance of the keithley428 amplifier.
-    CLSKeithley428* keithley() { return keithley_; }
     /// Returns the beamline monochromator.
     BioXASSideMonochromator *mono() const { return mono_; }
     /// Returns the scaler.
     CLSSIS3820Scaler* scaler() { return scaler_; }
-    /// Returns the temporary test detector.
-    CLSBasicScalerChannelDetector* testDetector() { return testDetector_; }
 
     // Photon and safety shutters.
 
@@ -183,13 +184,56 @@ public:
 
     AMControlSet *temperatureSet() const { return temperatureSet_; }
 
+    // Motors
+
+    QList<BioXASCLSMAXvMotor *> getMotorsByType(BioXASBeamlineDef::BioXASMotorType category);
+
+    CLSKeithley428* i0Keithley() { return i0Keithley_; }
+    CLSKeithley428* iTKeithley() { return iTKeithley_; }
+
+    CLSBasicScalerChannelDetector* i0Detector() { return i0Detector_; }
+    CLSBasicScalerChannelDetector* iTDetector() { return iTDetector_; }
+    AMBasicControlDetectorEmulator* energyFeedbackDetector() { return energyFeedbackDetector_; }
+
+signals:
+    /// Notifier that the pressure status has changed. Argument is false if any of the pressures fall below its setpoint, true otherwise.
+    void pressureStatusChanged(bool);
+    /// Notifier that the valve status has changed. Argument is false if any of the valves are closed, true otherwise.
+    void valveStatusChanged(bool);
+    /// Notifier that the ion pump status has changed. Argument is false if any of the ion pumps fail, true otherwise.
+    void ionPumpStatusChanged(bool);
+    /// Notifier that the flow transducer status has changed. Argument is false if any of the flow rates fall below its setpoint.
+    void flowTransducerStatusChanged(bool);
+    /// Notifier that the flow switch status has changed. Argument is false if any of the flow switches are disabled.
+    void flowSwitchStatusChanged(bool);
+    /// Notifier that the temperature status has changed. Argument is false if any of the temperatures rise above their setpoint.
+    void temperatureStatusChanged(bool);
+
 protected slots:
     /// Sets up pressure control connections once the whole pressure set is connected.
     void onPressureSetConnected(bool connected);
-
-    // Development Misc.
-    void onScalerConnectedChanged(bool connectionState);
-    void onM1UpperSlitConnectedChanged(bool connectionState);
+    /// Handles pressure errors.
+    void onPressureError();
+    /// Sets up valve control connections once the whole valve set is connected.
+    void onValveSetConnected(bool connected);
+    /// Handles valve errors.
+    void onValveError();
+    /// Sets up ion pump control connections once the whole ion pump set is connected.
+    void onIonPumpSetConnected(bool connected);
+    /// Handles ion pump errors.
+    void onIonPumpError();
+    /// Sets up flow transducer control connections once the whole flow transducer set is connected.
+    void onFlowTransducerSetConnected(bool connected);
+    /// Handles flow transducer errors.
+    void onFlowTransducerError();
+    /// Sets up flow switch control connections once the whole flow switch set is connected.
+    void onFlowSwitchSetConnected(bool connected);
+    /// Handles flow switch errors.
+    void onFlowSwitchError();
+    /// Sets up temperature control connections once the whole temperature set is connected.
+    void onTemperatureSetConnected(bool connected);
+    /// Handles temperature errors.
+    void onTemperatureError();
 
 protected:
 	/// Sets up the synchronized dwell time.
@@ -216,18 +260,17 @@ protected:
 	void setupControlsAsDetectors();
 
 	/// Constructor. This is a singleton class, access it through BioXASSideBeamline::bioXAS().
-    BioXASSideBeamline();
+	BioXASSideBeamline();
 
 protected:
 
     // Detectors.
 
-    // Development misc.
-    CLSBasicScalerChannelDetector *testDetector_;
-    CLSMAXvMotor *m1UpperSlit_;
-    bool wasConnected_;
+    CLSBasicScalerChannelDetector *i0Detector_;
+    CLSKeithley428 *i0Keithley_;
 
-    CLSKeithley428 *keithley_;
+    CLSBasicScalerChannelDetector *iTDetector_;
+    CLSKeithley428 *iTKeithley_;
 
     // BioXAS Side monochromator.
 
@@ -339,7 +382,45 @@ protected:
 
     AMControlSet *temperatureSet_;
 
+    // Filter motors
 
+	BioXASCLSMAXvMotor *carbonFilterFarm1_;
+	BioXASCLSMAXvMotor *carbonFilterFarm2_;
+
+    // M1 motors
+
+	BioXASCLSMAXvMotor *m1VertUpStreamINB_;
+	BioXASCLSMAXvMotor *m1VertUpStreamOUTB_;
+	BioXASCLSMAXvMotor *m1VertDownStream_;
+	BioXASCLSMAXvMotor *m1StripeSelect_;
+	BioXASCLSMAXvMotor *m1Yaw_;
+	BioXASCLSMAXvMotor *m1BenderUpstream_;
+	BioXASCLSMAXvMotor *m1BenderDownStream_;
+	BioXASCLSMAXvMotor *m1UpperSlitBlade_;
+
+    // Variable Mask motors
+
+	BioXASCLSMAXvMotor *variableMaskVertUpperBlade_;
+	BioXASCLSMAXvMotor *variableMaskVertLowerBlade_;
+
+    // M2 motors
+
+	BioXASCLSMAXvMotor *m2VertUpstreamINB_;
+	BioXASCLSMAXvMotor *m2VertUpstreamOUTB_;
+	BioXASCLSMAXvMotor *m2VertDownstream_;
+	BioXASCLSMAXvMotor *m2StripeSelect_;
+	BioXASCLSMAXvMotor *m2Yaw_;
+	BioXASCLSMAXvMotor *m2BenderUpstream_;
+	BioXASCLSMAXvMotor *m2BenderDownStream_;
+
+    // Energy setpoint control.
+
+    AMControl *energySetpointControl_;
+
+    // Extra AMDetectors
+
+    AMBasicControlDetectorEmulator *energySetpointDetector_;
+    AMBasicControlDetectorEmulator *energyFeedbackDetector_;
 };
 
 #endif // BIOXASSIDEBEAMLINE_H

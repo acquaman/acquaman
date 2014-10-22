@@ -3,14 +3,15 @@
 
 #include <QObject>
 
-#include "beamline/BioXAS/BioXASSideMonochromatorControl.h"
-
 #include "beamline/AMControl.h"
 #include "beamline/AMPVControl.h"
 #include "actions3/AMAction3.h"
 #include "actions3/actions/AMControlMoveAction3.h"
 #include "actions3/actions/AMControlWaitAction.h"
 #include "actions3/AMListAction3.h"
+
+#include "beamline/BioXAS/BioXASSideMonochromatorControl.h"
+#include "beamline/BioXAS/BioXASCLSMAXvMotor.h"
 
 class BioXASSideMonochromator : public QObject
 {
@@ -47,6 +48,25 @@ public:
     double energySetpoint() const { return energy_->setpoint(); }
     /// Returns the energy feedback.
     double energy() const { return energy_->value(); }
+
+    /// Returns the phosphor paddle motor.
+    BioXASCLSMAXvMotor* phosphorPaddleMotor() const { return phosphorPaddleMotor_; }
+    /// Returns the bragg motor.
+    BioXASCLSMAXvMotor* braggMotor() const { return braggMotor_; }
+    /// Returns the vertical motor.
+    BioXASCLSMAXvMotor* verticalMotor() const { return verticalMotor_; }
+    /// Returns the lateral motor.
+    BioXASCLSMAXvMotor* lateralMotor() const { return lateralMotor_; }
+    /// Returns the crystal change motor.
+    BioXASCLSMAXvMotor* crystalExchangeMotor() const { return crystalExchangeMotor_; }
+    /// Returns the crystal 1 pitch motor.
+    BioXASCLSMAXvMotor* crystal1PitchMotor() const { return crystal1PitchMotor_; }
+    /// Returns the crystal 1 roll motor.
+    BioXASCLSMAXvMotor* crystal1RollMotor() const { return crystal1RollMotor_; }
+    /// Returns the crystal 2 pitch motor.
+    BioXASCLSMAXvMotor* crystal2PitchMotor() const { return crystal2PitchMotor_; }
+    /// Returns the crystal 2 roll motor.
+    BioXASCLSMAXvMotor* crystal2RollMotor() const { return crystal2RollMotor_; }
 
     /// Returns the slitsClosed control.
     AMControl* slitsClosedControl() const { return slitsClosed_; }
@@ -145,8 +165,28 @@ protected slots:
     void onCrystalChangeMotorCCWLimitStatusChanged(double value) { emit crystalChangeMotorCCWLimitStatusChanged((int)value == 0); }
 
 protected:
+
+    // Connected state.
+
     bool connected_;
+
+    // Current region.
+
     Region region_;
+
+    // Motors
+
+    BioXASCLSMAXvMotor *phosphorPaddleMotor_;
+    BioXASCLSMAXvMotor *braggMotor_;
+    BioXASCLSMAXvMotor *verticalMotor_;
+    BioXASCLSMAXvMotor *lateralMotor_;
+    BioXASCLSMAXvMotor *crystalExchangeMotor_;
+    BioXASCLSMAXvMotor *crystal1PitchMotor_;
+    BioXASCLSMAXvMotor *crystal1RollMotor_;
+    BioXASCLSMAXvMotor *crystal2PitchMotor_;
+    BioXASCLSMAXvMotor *crystal2RollMotor_;
+
+    // Controls
 
     AMControl* slitsClosed_;
     AMControl* paddleOut_;
@@ -160,7 +200,6 @@ protected:
     AMControl* regionAStatus_;
     AMControl* regionBStatus_;
     AMControl* energy_;
-
 };
 
 #endif // BIOXASSIDEMONOCHROMATOR_H

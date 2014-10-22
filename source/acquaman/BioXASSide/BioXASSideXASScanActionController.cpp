@@ -26,6 +26,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/BioXAS/BioXASSideBeamline.h"
 #include "beamline/CLS/CLSMAXvMotor.h"
 #include "acquaman/AMGenericScanActionControllerAssembler.h"
+#include "acquaman/AMEXAFSScanActionControllerAssembler.h"
+#include "beamline/AMBasicControlDetectorEmulator.h"
 
 BioXASSideXASScanActionController::BioXASSideXASScanActionController(BioXASSideXASScanConfiguration *configuration, QObject *parent) :
     AMStepScanActionController(configuration, parent)
@@ -39,11 +41,13 @@ BioXASSideXASScanActionController::BioXASSideXASScanActionController(BioXASSideX
     scan_->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));
 
     AMControlInfoList list;
-    list.append(BioXASSideBeamline::bioXAS()->m1UpperSlit()->toInfo());
+    list.append(BioXASSideBeamline::bioXAS()->mono()->energyControl()->toInfo());
     configuration_->setAxisControlInfos(list);
 
     AMDetectorInfoSet bioXASDetectors;
-    bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->testDetector()->toInfo());
+    bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->i0Detector()->toInfo());
+    bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->iTDetector()->toInfo());
+    bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->energyFeedbackDetector()->toInfo());
     configuration_->setDetectorConfigurations(bioXASDetectors);
 }
 
@@ -74,6 +78,6 @@ void BioXASSideXASScanActionController::buildScanControllerImplementation()
 
 void BioXASSideXASScanActionController::createScanAssembler()
 {
-    scanAssembler_ = new AMGenericScanActionControllerAssembler(this);
+    scanAssembler_ = new AMEXAFSScanActionControllerAssembler(this);
 }
 

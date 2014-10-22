@@ -27,30 +27,25 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
     QWidget(parent)
 {
-    QGroupBox* monoInfo = new QGroupBox(this);
-    monoInfo->setTitle("Mono Info");
-
-    QHBoxLayout *energyLayout = new QHBoxLayout();
-    QLabel *energyLabel = new QLabel("Energy: ", this);
-    energyView_ = new BioXASSideMonoBasicEnergyView(BioXASSideBeamline::bioXAS()->mono(), this);
-    energyLabel->setBuddy(energyView_);
-    energyLayout->addWidget(energyLabel);
-    energyLayout->addWidget(energyView_);
+    energyControlEditor_ = new AMExtendedControlEditor(BioXASSideBeamline::bioXAS()->mono()->energyControl());
+    energyControlEditor_->setControlFormat('f', 2);
 
     viewCrystalChangeButton_ = new QPushButton("Crystal Change", this);
-    viewCrystalChangeButton_->setToolTip("BioXAS Side Mono Crystal Change Instructions");
+    viewCrystalChangeButton_->setToolTip("Mono Crystal Change Instructions");
     connect( viewCrystalChangeButton_, SIGNAL(clicked()), this, SLOT(toViewMonoCrystalChangeInstructions()) );
 
-    QVBoxLayout *monoLayout = new QVBoxLayout();
-    monoLayout->addLayout(energyLayout);
-    monoLayout->addWidget(viewCrystalChangeButton_);
-    monoInfo->setLayout(monoLayout);
+    keithleyView_ = BioXASSideBeamline::bioXAS()->i0Keithley()->createView();
+    keithleyView_->setParent(this);
+    keithleyView_->setPrecision(2);
+    keithleyView_->setFormat('e');
 
-    QVBoxLayout *mainLayout = new QVBoxLayout();
-    mainLayout->addWidget(monoInfo);
-    mainLayout->addStretch();
+    QVBoxLayout *layout = new QVBoxLayout();
+    layout->addWidget(energyControlEditor_);
+    layout->addWidget(viewCrystalChangeButton_);
+    layout->addWidget(keithleyView_);
+    layout->addStretch();
 
-    setLayout(mainLayout);
+    setLayout(layout);
 }
 
 BioXASSidePersistentView::~BioXASSidePersistentView()

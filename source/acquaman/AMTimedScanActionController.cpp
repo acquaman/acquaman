@@ -51,7 +51,7 @@ AMTimedScanActionController::AMTimedScanActionController(AMTimedRegionScanConfig
 
 AMTimedScanActionController::~AMTimedScanActionController()
 {
-	delete fileWriterThread_;
+	fileWriterThread_->deleteLater();
 }
 
 void AMTimedScanActionController::buildScanController()

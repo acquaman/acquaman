@@ -92,8 +92,8 @@ AMGraphicsViewWizard::~AMGraphicsViewWizard()
 		QMediaPlayer* player = (QMediaPlayer*)videoItem->mediaObject();
 		player->stop();
 		view_->scene()->removeItem(videoItem);
-		delete player;
-		delete videoItem;
+		player->deleteLater();
+		videoItem->deleteLater();
 	}
 	#endif
 }
@@ -474,7 +474,7 @@ void AMGraphicsViewWizard::mediaPlayerErrorChanged(QMediaPlayer::Error state)
 		// attempt to restart player
 		if(success)
 		{
-			delete mediaPlayer_;
+			mediaPlayer_->deleteLater();
 			mediaPlayer_ = new QMediaPlayer();
 			mediaPlayer_->setMedia(mediaUrl);
 			mediaPlayer_->setVideoOutput(videoItem);
@@ -891,7 +891,7 @@ void AMWizardOptionPage::initializePage()
 void AMWizardOptionPage::cleanupPage()
 {
 	layout()->removeWidget(coordinateFrame_);
-	delete coordinateFrame_;
+	coordinateFrame_->deleteLater();
 }
 
 bool AMWizardOptionPage::isComplete() const

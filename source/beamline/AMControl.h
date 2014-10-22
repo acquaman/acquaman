@@ -228,6 +228,7 @@ public:
 		WasStoppedFailure,		///< The move was prematurely stopped with the stop() command.
 		AlreadyMovingFailure,	///< The move could not be started because the control was already moving, and it does not allowsMovesWhileMoving().
 		RedirectedFailure,		///< Never emitted by AMControl classes. Can be used to represent that a move was redirected while already moving.
+		LimitFailure,			///< Emitted by subclasses that may have information about movements that cannot proceed based on limits
 		OtherFailure 			///< An error code defined by the specific control implementation
 	};
 
@@ -242,6 +243,7 @@ public:
 		case AMControl::WasStoppedFailure:		explanation = "The move was manually interrupted or stopped."; break;
 		case AMControl::AlreadyMovingFailure:	explanation = "The control was already moving."; break;
 		case AMControl::RedirectedFailure:		explanation = "The move was externally re-directed to another destination."; break;
+		case AMControl::LimitFailure:			explanation = "The move requested is not possible because it exceeds a hardware limit."; break;
 		case AMControl::OtherFailure:
 		default:
 			explanation = "An undocumented failure happened."; break;
