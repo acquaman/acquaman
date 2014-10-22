@@ -14,7 +14,8 @@ SOURCES +=\
     source/FCApp/BeamlineShutters.cpp \
     source/FCApp/BeamPositionMonitor.cpp \
     source/FCApp/BeamlineShutterView.cpp \
-    source/FCApp/BeamPositionMonitorView.cpp
+    source/FCApp/BeamPositionMonitorView.cpp \
+    source/FCApp/sidebar.cpp
 
 
 HEADERS  += \
@@ -22,6 +23,7 @@ HEADERS  += \
     source/FCApp/BeamlineShutters.h \
     source/FCApp/BeamlineShutterView.h \
     source/FCApp/BeamPositionMonitor.h \
-    source/FCApp/BeamPositionMonitorView.h
+    source/FCApp/BeamPositionMonitorView.h \
+    source/FCApp/sidebar.h
 
 

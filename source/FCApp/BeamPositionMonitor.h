@@ -23,8 +23,12 @@ public:
     int NumberOfPoints() { return numberOfPoints; }
 
 signals:
+    //This is for instant viewing of incoming PV data
     void newValuesFromPV();
 
+    //This is for waiting until a predefined amount of points has been collected and displaying
+    //them all at once
+    void specifiedValuesCollected();
 
 public slots:
 

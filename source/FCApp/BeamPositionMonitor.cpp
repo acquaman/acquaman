@@ -12,8 +12,7 @@ BeamPositionMonitor::BeamPositionMonitor(const QString &pvXbpm, const QString &p
     connect(processVariableX, SIGNAL(valueChanged(double)), this, SLOT(updateXListfromPV(double)));
     connect(processVariableY, SIGNAL(valueChanged(double)), this, SLOT(updateYListfromPV(double)));
 
-    numberOfPoints = 10;
-
+    numberOfPoints = 3;
 
 }
 
@@ -27,6 +26,15 @@ void BeamPositionMonitor::updateXListfromPV(double value){
         xValuesModel_.append(value);
 
     }
+    else if(xValuesModel_.count() == NumberOfPoints())
+    {
+        xValuesModel_.append(xValuesModel_.first());
+        yValuesModel_.append(yValuesModel_.first());
+        emit specifiedValuesCollected();
+    }
+
+
+
     else
     {
         xValuesModel_.clear();
@@ -34,6 +42,7 @@ void BeamPositionMonitor::updateXListfromPV(double value){
     }
 
     emit newValuesFromPV();
+
 
 }
 

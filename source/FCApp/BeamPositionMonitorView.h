@@ -3,6 +3,14 @@
 
 #include <QWidget>
 #include "BeamPositionMonitor.h"
+#include "BeamlineShutters.h"
+#include "BeamlineShutterView.h"
+//#include "sidebar.h"
+#include <QWidget>
+#include <QLCDNumber>
+#include <QLabel>
+#include <QPushButton>
+
 
 //Adding all the MPlot header files, unsure which I need
 #include "MPlot/MPlotWidget.h"
@@ -26,6 +34,14 @@
 #include <QTimer>
 #include <QTime>
 
+//
+#include <QtGui/QWidget>
+#include <QPainter>
+#include <QPaintEvent>
+#include <QIcon>
+#include <QAction>
+//
+
 
 
 
@@ -42,6 +58,13 @@ public:
     // 1 BPM object that contains the two dimensions
     explicit BeamPositionMonitorView(QWidget *parent = 0);
 
+   //Side bar
+    void addAction(QAction *action);
+    QAction *addAction(const QString &text, const QIcon &icon = QIcon());
+  /////////////////
+
+ bool displayBPM;
+ bool displayShutters;
 
 signals:
 
@@ -53,7 +76,23 @@ protected slots:
     void updateVectorsFromModel();
 
 
+
 protected:
+
+    BeamlineShutterView *bmitView_ ;
+
+    BeamlineShutterView *sylmandView_;
+    BeamlineShutterView *hxmaView_;
+    BeamlineShutterView *sxrmbView_;
+    BeamlineShutterView *vespersView_;
+    BeamlineShutterView *cmcfidView_;
+    BeamlineShutterView *cmcfbmView_;
+    BeamlineShutterView *ideasView_;
+    BeamlineShutterView *smView_;
+    BeamlineShutterView *sgmpgmView_;
+
+    QWidget *wid;
+
     //Model
     BeamPositionMonitor *bpmXY_;
 
@@ -81,95 +120,20 @@ protected:
     QList<double> tempY;
 
 
-};
+    // Side bar
+    void paintEvent(QPaintEvent *event);
+    void mousePressEvent(QMouseEvent *event);
+    void mouseReleaseEvent(QMouseEvent *event);
+    QSize minimumSizeHint() const;
+    //Determine which action the mouse is selecting
 
+    QAction *actionAt(const QPoint &at);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-///Trashing this and re-creating
-///
-///
-///
-/*
- *class BeamPositionMonitorView : public QWidget
-{
-    Q_OBJECT
-public:
-    explicit BeamPositionMonitorView(BeamPositionMonitor *xBPM,
-                                                                          BeamPositionMonitor *yBPM,
-                                                                          QWidget *parent = 0);
-
-    //This is elapsed time between (x,y) values.  This may
-    //not be needed
-    double elapsedTime() const { return elapsedTime_; }
-    void setElapsedTime(double newTime) { elapsedTime_ = newTime; }
-
-    //For showing or hiding the widget
-    bool getIsActive() const { return isActive_; }
-    void  setIsActive(bool value) { isActive_ = value; }
-
-signals:
-
-
-public slots:
-    /*
-    void setXValue(double value);
-    void setYValue(double value);
-    void updatePlot();
-    void removePlotPoint();
-    void showBPM();
-
-protected:
-    BeamPositionMonitor *xBPM_;
-    BeamPositionMonitor *yBPM_;
-
-    double xValue_;
-    double yValue_;
-
-
-    MPlotWidget plotWindowX_;
-    MPlotWidget plotWindowY_;
-    MPlot plotX_;
-    MPlot plotY_;
-
-    /*Changed from MPlotRealtimeModel
-    MPlotRealtimeModel dataX;
-    MPlotRealtimeModel dataY;
-    bool isActive_;
-    double elapsedTime_;
+private:
+    QList<QAction*> _actions;
+    QAction *_pressedAction;
+    QAction *_checkedAction;
 
 };
-*/
 
-
-
-#endif // BEAMPOSITIONMONITORVIEW_H
+#endif

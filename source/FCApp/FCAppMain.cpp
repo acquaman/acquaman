@@ -20,13 +20,39 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QApplication>
 #include "FCApp.h"
+//#include "sidebar.h"
+
 
 int main(int argc, char *argv[])
 {
+    QApplication::setStyle("motif");
     QApplication a(argc, argv);
 
     FCApp app;
+
+    QPalette winPal_(a.palette());
+
+
+
+    winPal_ = app.palette();
+    app.setAutoFillBackground(true);
+
+    winPal_.setColor(winPal_.Background, QColor(12, 12, 29));
+    app.setPalette(winPal_);
+
+
     app.show();
+
+
+/*
+    SideBar w;
+
+    w.addAction("Shutters", QIcon("/home/david/Desktop/147860-Sidebar/Sidebar/icons/light61.png"));
+    w.addAction("Beam", QIcon("/home/david/Desktop/147860-Sidebar/Sidebar/icons/monitoring.png"));
+    w.addAction("Exit", QIcon("/home/david/Desktop/147860-Sidebar/Sidebar/icons/exit13.png"));
+*/
+
+    //w.show();
 
     return a.exec();
 }

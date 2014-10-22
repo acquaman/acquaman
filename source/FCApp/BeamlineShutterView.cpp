@@ -25,6 +25,12 @@ QWidget(parent)
     name_ = new QLabel(name);
     QFont font;
     font.setPointSize(12);
+
+    QPalette Pal(palette());
+    Pal.setColor(QPalette::WindowText, Qt::gray);
+    //name_->setAutoFillBackground(true);
+    name_->setPalette(Pal);
+
     name_->setFont(font);
 
     QHBoxLayout *HLayout = new QHBoxLayout;
