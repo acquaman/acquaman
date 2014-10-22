@@ -35,7 +35,7 @@ class AMnDDeadTimeAB : public AMStandardAnalysisBlock
 
 public:
 	/// Constructor.
- 	virtual ~AMnDDeadTimeAB();
+	virtual ~AMnDDeadTimeAB();
 	Q_INVOKABLE AMnDDeadTimeAB(const QString &outputName = "InvalidInput", QObject *parent = 0);
 
 	/// Returns the description of the analysis block.
@@ -47,6 +47,9 @@ public:
 		- since the data in the sources may not be valid at the time of creation, the order must be spectrum, input counts, output counts.
 	*/
 	virtual bool areInputDataSourcesAcceptable(const QList<AMDataSource*>& dataSources) const;
+
+	/// Returns the desired rank for input sources.  Returns -1 because anything >= 1 is good.  This also shouldn't be auto used (and currently isn't).
+	virtual int desiredInputRank() const { return -1; }
 
 	/// Set the data source inputs.  Requires three data sources and the data in the sources may not be valid at the time of creation, the order must be spectrum, input counts, output counts.
 	virtual void setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources);
@@ -63,6 +66,8 @@ public:
 	virtual bool values(const AMnDIndex& indexStart, const AMnDIndex& indexEnd, double* outputValues) const;
 	/// When the independent values along an axis is not simply the axis index, this returns the independent value along an axis (specified by axis number and index)
 	virtual AMNumber axisValue(int axisNumber, int index) const;
+	/// Performance optimization of axisValue():  instead of a single value, copies a block of values from \c startIndex to \c endIndex in \c outputValues.  The provided pointer must contain enough space for all the requested values.
+	virtual bool axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const;
 
 	/// Re-implemented from AMDbObject to set the AMDataSource name once we have an AMDbObject::name()
 	bool loadFromDb(AMDatabase *db, int id);

@@ -70,7 +70,8 @@ HEADERS +=	source/application/VESPERS/VESPERSAppController.h \
 	source/acquaman/VESPERS/VESPERSTimeScanConfiguration.h \
 	source/acquaman/VESPERS/VESPERSTimeScanActionController.h \
 	source/ui/VESPERS/VESPERSTimeScanConfigurationView.h \
-	source/dataman/VESPERS/VESPERSDbUpgrade1Pt6.h
+	source/dataman/VESPERS/VESPERSDbUpgrade1Pt6.h \
+    source/ui/VESPERS/VESPERSXRFDetectorView.h
 
 SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/application/VESPERS/VESPERSMain.cpp \
@@ -138,10 +139,13 @@ SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/acquaman/VESPERS/VESPERSTimeScanConfiguration.cpp \
 	source/acquaman/VESPERS/VESPERSTimeScanActionController.cpp \
 	source/ui/VESPERS/VESPERSTimeScanConfigurationView.cpp \
-	source/dataman/VESPERS/VESPERSDbUpgrade1Pt6.cpp
+	source/dataman/VESPERS/VESPERSDbUpgrade1Pt6.cpp \
+    source/ui/VESPERS/VESPERSXRFDetectorView.cpp
 
 RESOURCES += \
 	source/icons/VESPERS/vespersIcons.qrc
+
+
 
 
 

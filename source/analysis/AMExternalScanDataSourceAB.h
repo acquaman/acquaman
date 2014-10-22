@@ -57,7 +57,7 @@ public:
 
 	  \note You cannot change the source scan or data source after constructing this object, since the new source might have a different rank than the old source. (AMDataSource outputs are not allowed to change in rank.)
 	  */
- 	virtual ~AMExternalScanDataSourceAB();
+	virtual ~AMExternalScanDataSourceAB();
 	explicit AMExternalScanDataSourceAB(AMDatabase* sourceDatabase, int sourceScanId, const QString& sourceDataSourceName, const QString& outputDataSourceName, RefreshDataWhenSpec whenToLoadData = DeferAfterConstructor, QObject *parent = 0);
 
 	/// Constructor which re-loads a previously-saved block from the database \c db at row \c id.  This is the version used when scans are opened and re-create their analysis blocks, so it loads the external scan data immediately.
@@ -65,6 +65,9 @@ public:
 
 	/// Check if a set of inputs is valid. For this analysis block, we don't accept any input data sources, the only list we accept is the empty list.
 	virtual bool areInputDataSourcesAcceptable(const QList<AMDataSource*>& dataSources) const;
+
+	/// Returns the desired rank for input sources.
+	virtual int desiredInputRank() const { return 1; }
 
 	/// Set the data source inputs.  We don't do anything here, since our input is coming from the external scan instead.
 	virtual void setInputDataSourcesImplementation(const QList<AMDataSource*>&) {}
@@ -83,6 +86,8 @@ public:
 
 	/// When the independent values along an axis is not simply the axis index, this returns the independent value along an axis (specified by axis number and index)
 	virtual AMNumber axisValue(int axisNumber, int index) const;
+	/// Performance optimization of axisValue():  instead of a single value, copies a block of values from \c startIndex to \c endIndex in \c outputValues.  The provided pointer must contain enough space for all the requested values.
+	virtual bool axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const;
 
 
 	// Reading properties
