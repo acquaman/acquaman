@@ -48,6 +48,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/BioXAS/BioXASSideXASScanConfigurationView.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
 #include "dataman/AMScanAxisEXAFSRegion.h"
+#include "beamline/CLS/CLSStorageRing.h"
 
 BioXASSideAppController::BioXASSideAppController(QObject *parent)
 	: AMAppController(parent)
@@ -73,6 +74,10 @@ bool BioXASSideAppController::startup()
 		AMPeriodicTable::table();
 
 		registerClasses();
+
+        // Initialize the storage ring.
+
+        CLSStorageRing::sr1();
 
 		// Ensuring we automatically switch scan editors for new scans.
 		setAutomaticBringScanEditorToFront(true);
@@ -209,9 +214,20 @@ void BioXASSideAppController::makeConnections()
 void BioXASSideAppController::onCurrentScanActionStartedImplementation(AMScanAction *action)
 {
 	Q_UNUSED(action)
+    connect( CLSStorageRing::sr1(), SIGNAL(beamAvaliability(bool)), this, SLOT(onBeamAvailabilityChanged(bool)) );
 }
 
 void BioXASSideAppController::onCurrentScanActionFinishedImplementation(AMScanAction *action)
 {
 	Q_UNUSED(action)
+    connect( CLSStorageRing::sr1(), SIGNAL(beamAvaliability(bool)), this, SLOT(onBeamAvailabilityChanged(bool)) );
+}
+
+void BioXASSideAppController::onBeamAvailabilityChanged(bool beamAvailable)
+{
+    if (!beamAvailable && !AMActionRunner3::workflow()->pauseCurrentAction())
+        AMActionRunner3::workflow()->setQueuePaused(true);
+
+    else if (beamAvailable && AMActionRunner3::workflow()->queuedActionCount() > 0)
+        AMActionRunner3::workflow()->setQueuePaused(false);
 }

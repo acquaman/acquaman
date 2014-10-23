@@ -55,6 +55,8 @@ protected:
 	virtual void onCurrentScanActionStartedImplementation(AMScanAction *action);
 	/// Implementation method that individual applications can flesh out if extra cleanup is required when a scan action finishes.  This is not pure virtual because there is no requirement to do anything to scan actions.
 	virtual void onCurrentScanActionFinishedImplementation(AMScanAction *action);
+    /// Helper slot that handles the workflow pausing/resuming when the beam dumps or is restored.
+    void onBeamAvailabilityChanged(bool beamAvailable);
 
 	// Things to do on startup.
 	/// Registers all of the necessary classes that are VESPERS specific.
