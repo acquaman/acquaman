@@ -160,7 +160,7 @@ void VESPERS3DScanActionController::createAxisOrderMap()
 AMAction3* VESPERS3DScanActionController::createInitializationActions()
 {
 	AMSequentialListAction3 *initializationActions = new AMSequentialListAction3(new AMSequentialListActionInfo3("Initialization actions", "Initialization actions"));
-	initializationActions->addSubAction(buildBaseInitializationAction(configuration_->detectorConfigurations()));
+	initializationActions->addSubAction(buildBaseInitializationAction());
 	initializationActions->addSubAction(buildCCDInitializationAction(configuration_->ccdDetector(), configuration_->ccdFileName()));
 
 	return initializationActions;

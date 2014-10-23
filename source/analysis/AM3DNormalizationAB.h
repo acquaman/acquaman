@@ -44,10 +44,6 @@ class AM3DNormalizationAB : public AMStandardAnalysisBlock
 
 public:
 	/// Constructor.
-<<<<<<< HEAD
-=======
-	virtual ~AM3DNormalizationAB();
->>>>>>> Issue860
 	Q_INVOKABLE AM3DNormalizationAB(const QString &outputName = "InvalidInput", QObject *parent = 0);
 	/// Destructor.
 	virtual ~AM3DNormalizationAB();

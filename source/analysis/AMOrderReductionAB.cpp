@@ -242,7 +242,7 @@ bool AMOrderReductionAB::values(const AMnDIndex &indexStart, const AMnDIndex &in
 
 #ifdef AM_ENABLE_BOUNDS_CHECKING
 	for (int i = 0, size = indexStart.rank(); i < size; i++)
-		if((unsigned)indexStart.at(i) >= (unsigned)axes_.at(i).size && (unsigned)indexStart.at(i) == (unsigned)indexEnd.at(i))
+		if((unsigned)indexStart.at(i) >= (unsigned)axes_.at(i).size || (unsigned)indexStart.at(i) > (unsigned)indexEnd.at(i))
 			return false;
 #endif
 
