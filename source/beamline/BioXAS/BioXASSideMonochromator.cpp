@@ -229,6 +229,16 @@ AMAction3* BioXASSideMonochromator::createSetEnergyAction(double newEnergy)
     return action;
 }
 
+AMAction3* BioXASSideMonochromator::createSetBraggMotorPowerOnAction()
+{
+    return 0;
+}
+
+AMAction3* BioXASSideMonochromator::createSetBraggMotorPowerAutoAction()
+{
+    return 0;
+}
+
 void BioXASSideMonochromator::onConnectedChanged()
 {
     bool currentState = (slitsClosed_->isConnected() && paddleOut_->isConnected() &&
