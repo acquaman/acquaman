@@ -28,20 +28,22 @@ BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
     QWidget(parent)
 {
     energyEditor_ = new BioXASSideMonoBasicEnergyView(BioXASSideBeamline::bioXAS()->mono(), this);
+    energyEditor_->setToolTip("Set mono energy");
 
     viewCrystalChangeButton_ = new QPushButton("Crystal Change", this);
     viewCrystalChangeButton_->setToolTip("Mono Crystal Change Instructions");
     connect( viewCrystalChangeButton_, SIGNAL(clicked()), this, SLOT(toViewMonoCrystalChangeInstructions()) );
 
-    keithleyView_ = BioXASSideBeamline::bioXAS()->i0Keithley()->createView();
-    keithleyView_->setParent(this);
-    keithleyView_->setPrecision(2);
-    keithleyView_->setFormat('e');
+    QVBoxLayout *scalerPanelLayout = new QVBoxLayout();
+    scalerPanelLayout->addWidget(new BioXASSideScalerView());
+
+    QGroupBox *scalerPanel = new QGroupBox("Preamp Settings");
+    scalerPanel->setLayout(scalerPanelLayout);
 
     QVBoxLayout *layout = new QVBoxLayout();
     layout->addWidget(energyEditor_);
     layout->addWidget(viewCrystalChangeButton_);
-    layout->addWidget(keithleyView_);
+    layout->addWidget(scalerPanel);
     layout->addStretch();
 
     setLayout(layout);

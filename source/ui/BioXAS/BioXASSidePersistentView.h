@@ -32,6 +32,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/BioXAS/BioXASSideMonoBasicEnergyView.h"
 #include "ui/BioXAS/BioXASSideMonoCrystalChangeView.h"
+#include "ui/BioXAS/BioXASSideScalerView.h"
 
 class AMExtendedControlEditor;
 
@@ -55,7 +56,6 @@ protected slots:
 protected:
     BioXASSideMonoBasicEnergyView *energyEditor_;
     QPushButton *viewCrystalChangeButton_;
-    AMCurrentAmplifierSingleView *keithleyView_;
 };
 
 #endif // BIOXASSIDEPERSISTENTVIEW_H
