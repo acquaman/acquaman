@@ -24,12 +24,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
  SGMScanConfiguration::~SGMScanConfiguration(){}
 SGMScanConfiguration::SGMScanConfiguration()
 {
-	/*
-	setExitSlitGap(SGMBeamline::sgm()->exitSlitGap()->value());
-	setGrating((SGMBeamline::sgm()->grating()->value() < 1) ? SGMBeamline::lowGrating : ((SGMBeamline::sgm()->grating()->value() < 2) ? SGMBeamline::mediumGrating : SGMBeamline::highGrating));
-	//setHarmonic((SGMBeamline::sgm()->harmonic()->value() < 1) ? SGMBeamline::firstHarmonic : ((SGMBeamline::sgm()->grating()->value() < 2) ? SGMBeamline::firstHarmonic : SGMBeamline::thirdHarmonic));
-	setHarmonic((SGMBeamline::sgm()->harmonic()->value() == 0) ? SGMBeamline::firstHarmonic : SGMBeamline::thirdHarmonic);
-	*/
 	exitSlitGap_ = -1;
 	grating_ = SGMBeamlineInfo::lowGrating;
 	harmonic_ = SGMBeamlineInfo::firstHarmonic;

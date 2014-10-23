@@ -62,10 +62,6 @@ AMActionHistoryView3::AMActionHistoryView3(AMActionRunner3 *actionRunner, AMData
 
 	model_ = new AMActionHistoryModel3(db_, this);
 	model_->setMaximumActionsToDisplay(200);
-	//QDateTime fourHoursAgo = QDateTime::currentDateTime().addSecs(-4*60*60);
-	//model_->setVisibleDateTimeRange(fourHoursAgo);
-//	QDateTime everAgo = QDateTime();
-//	model_->setVisibleDateTimeRange(everAgo);
 
 	// Setup UI
 	//////////////////////
@@ -117,23 +113,18 @@ AMActionHistoryView3::AMActionHistoryView3(AMActionRunner3 *actionRunner, AMData
 	rangeComboBox_->addItem("Last Day");
 	rangeComboBox_->addItem("This Run");
 	rangeComboBox_->addItem("Ever");
-	//rangeComboBox_->setCurrentIndex(1);
 	rangeComboBox_->setCurrentIndex(4);
 	hl->addWidget(rangeComboBox_);
 	rangeComboBox_->hide();
 
-	//treeView_ = new QTreeView();
 	treeView_ = new AMActionHistoryTreeView3();
 	treeView_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	treeView_->setModel(model_);
 	// Had to change to ::SelectItems ... SelectRows seems to behave poorly with the multi-tier, multi-column setup
-	//treeView_->setSelectionBehavior(QAbstractItemView::SelectRows);
 	treeView_->setSelectionBehavior(QAbstractItemView::SelectItems);
 	treeView_->setSelectionMode(QAbstractItemView::ExtendedSelection);
 	treeView_->setAlternatingRowColors(true);
 	// Got rid of this too so we can see the drill downs for the lists and loops
-	//treeView_->setRootIsDecorated(false);	// gets rid of indentation at top level.
-	//treeView_->setHeaderHidden(true);
 	treeView_->scrollToBottom();
 	scrolledToBottom_ = true;
 	treeView_->header()->setStretchLastSection(false);
@@ -166,7 +157,6 @@ AMActionHistoryView3::AMActionHistoryView3(AMActionRunner3 *actionRunner, AMData
 	connect(model_, SIGNAL(modelAboutToBeRefreshed()), this, SLOT(onModelAboutToBeRefreshed()));
 	connect(model_, SIGNAL(modelRefreshed()), this, SLOT(onModelRefreshed()));
 
-	//connect(rangeComboBox_, SIGNAL(activated(int)), this, SLOT(onRangeComboBoxActivated(int)));
 	connect(showMoreActionsButton_, SIGNAL(clicked()), this, SLOT(onShowMoreActionsButtonClicked()));
 
 	connect(reRunActionButton_, SIGNAL(clicked()), this, SLOT(onReRunActionButtonClicked()));
@@ -198,43 +188,8 @@ void AMActionHistoryView3::onShowMoreActionsButtonClicked()
 	// Latch these states for when the deferred call in setMaximumActionsToDisplay finishes
 	showingMoreActions_ = true;
 	countBeforeShowMoreActions_ = model_->childrenCount();
-	//model_->setMaximumActionsToDisplay(model_->maximumActionsToDisplay()*1.5 + 1);
 	model_->setMaximumActionsToDisplay(model_->nextGoodMaximumActions());
 }
-
-/*
-void AMActionHistoryView3::onRangeComboBoxActivated(int rangeIndex)
-{
-	QDateTime oldest = QDateTime::currentDateTime();
-
-	switch(rangeIndex) {
-	case 0: // last hour
-		oldest = oldest.addSecs(-60*60);
-		break;
-	case 1: // last 4 hours
-		oldest = oldest.addSecs(-4*60*60);
-		break;
-	case 2: // last day
-		oldest = oldest.addDays(-1);
-		break;
-	case 3: // this run
-	{
-		AMRun currentRun;
-		currentRun.loadFromDb(AMDatabase::database("user"), AMUser::user()->currentRunId());
-		oldest = currentRun.dateTime();
-	}
-		break;
-	case 4: // ever
-	default:
-		oldest = QDateTime();
-		break;
-	}
-
-	model_->setVisibleDateTimeRange(oldest);
-}
- */
-
-
 
 void AMActionHistoryView3::onReRunActionButtonClicked()
 {
@@ -329,19 +284,15 @@ void AMActionHistoryView3::onModelAboutToBeRefreshed()
 {
 	// we're scrolled to the bottom if the vertical scroll bar value is at maximum. Remember that so we can go back to the bottom after the refresh.
 	scrolledToBottom_ = (treeView_->verticalScrollBar()->value() == treeView_->verticalScrollBar()->maximum());
-	// qdebug() << "Scrolled to bottom:" << scrolledToBottom_;
 }
 
 void AMActionHistoryView3::onModelRefreshed()
 {
 	// if we were scrolled to the most recent (bottom) action before the refresh, let's scroll back there.
 	if(scrolledToBottom_) {
-		// doesn't work: treeView_->verticalScrollBar()->triggerAction(QScrollBar::SliderToMaximum);
-
 		// also doesn't work... Sometimes only goes most of the way there.
 		treeView_->scrollToBottom();
 		// looks like if the tree view is not visible at this time, this won't take effect. Adding another check in our showEvent() to scroll the treeView_ to the bottom if should be scrolledToBottom_
-		// qdebug() << "ScrollING to bottom";
 	}
 
 	// update subtitle text with how many, of how many total.

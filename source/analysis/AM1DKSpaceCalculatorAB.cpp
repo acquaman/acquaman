@@ -35,7 +35,7 @@ AM1DKSpaceCalculatorAB::AM1DKSpaceCalculatorAB(const QString &outputName, QObjec
 bool AM1DKSpaceCalculatorAB::areInputDataSourcesAcceptable(const QList<AMDataSource *> &dataSources) const
 {
 	if (dataSources.isEmpty())
-		return true;	// always acceptable; the null input.
+		return true;	// always acceptable, the null input.
 
 	// Otherwise we need one input source with rank 1.
 	if (dataSources.size() == 1 && dataSources.first()->rank() == 1)
@@ -154,6 +154,20 @@ AMNumber AM1DKSpaceCalculatorAB::axisValue(int axisNumber, int index) const
 		return AMNumber(AMNumber::DimensionError);
 
 	return data_->axisValue(axisNumber, index);
+}
+
+bool AM1DKSpaceCalculatorAB::axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const
+{
+	if (!isValid())
+		return false;
+
+	if (axisNumber != 0)
+		return false;
+
+	if (startIndex >= axes_.at(axisNumber).size || endIndex >= axes_.at(axisNumber).size)
+		return false;
+
+	return data_->axisValues(axisNumber, startIndex, endIndex, outputValues);
 }
 
 void AM1DKSpaceCalculatorAB::onInputSourceValuesChanged(const AMnDIndex& start, const AMnDIndex& end)

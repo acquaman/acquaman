@@ -52,8 +52,6 @@ REIXSXESMCPDetectorView::REIXSXESMCPDetectorView(REIXSXESMCPDetector* detector, 
 
 	persistDurationControl_ = new AMControlEditor(detector_->persistDurationControl());
 
-	// removed: orientationControl_ = new AMControlEditor(detector_->orientationControl());
-
 	countsPerSecondIndicator_ = new QLabel();
 	countsPerSecondIndicator_->setFixedWidth(70);
 	countsPerSecondIndicator_->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
@@ -75,8 +73,6 @@ REIXSXESMCPDetectorView::REIXSXESMCPDetectorView(REIXSXESMCPDetector* detector, 
 	imagePlot_->addTool(new MPlotDragZoomerTool);
 	imagePlot_->addTool(new MPlotWheelZoomerTool);
 
-	// imagePlot_->setXDataRange(0, 1023);
-	// imagePlot_->setYDataRangeLeft(0, 63);
 	imagePlot_->setMarginBottom(10);
 	imagePlot_->setMarginLeft(10);
 	imagePlot_->setMarginRight(5);
@@ -128,10 +124,6 @@ REIXSXESMCPDetectorView::REIXSXESMCPDetectorView(REIXSXESMCPDetector* detector, 
 	hl2->addWidget(imageSelector_);
 	hl2->addWidget(clearButton_);
 
-	// removed:
-	// hl3->addWidget(new QLabel("Orientation:"));
-	// ->addWidget(orientationControl_);
-
 	hl3->addWidget(new QLabel("Persist:"));
 	hl3->addWidget(persistDurationControl_);
 	hl3->addWidget(new QLabel("Averaging Period:"));
@@ -146,7 +138,6 @@ REIXSXESMCPDetectorView::REIXSXESMCPDetectorView(REIXSXESMCPDetector* detector, 
 	//////////////////////
 
 	// hookup signals:
-	//connect(clearButton_, SIGNAL(clicked()), detector_, SLOT(clearImage()));
 	connect(clearButton_, SIGNAL(clicked()), detector_, SLOT(clear()));
 	connect(imageSelector_, SIGNAL(currentIndexChanged(int)), this, SLOT(onImageSelectorChanged(int)));
 	connect(detector_, SIGNAL(countsPerSecondChanged(double)), this, SLOT(onCountsPerSecondChanged(double)));
@@ -178,11 +169,15 @@ void REIXSXESMCPDetectorView::onCountsPerSecondChanged(double countsPerSecond) {
 void REIXSXESMCPDetectorView::onImageSelectorChanged(int index) {
 
 	if(index == 0) {
-		image_->setModel(new AMDataSourceImageData(detector_->instantaneousImage()), true);
+		AMDataSourceImageData *model = new AMDataSourceImageData;
+		model->setDataSource(detector_->instantaneousImage());
+		image_->setModel(model, true);
 		image_->setDescription("Real-time XES Detector Image");
 	}
 	else if(index == 1) {
-		image_->setModel(new AMDataSourceImageData(detector_->image()), true);
+		AMDataSourceImageData *model = new AMDataSourceImageData;
+		model->setDataSource(detector_->image());
+		image_->setModel(model, true);
 		image_->setDescription("Accumulated XES Detector Image");
 	}
 	else {

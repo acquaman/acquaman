@@ -62,7 +62,7 @@ protected:
 	QPersistentModelIndex pi_;
 };
 
-/// This class provides a general property editor for items (data sources) in an AMScanSetModel... such as line color/style, colormap, etc.  Depending on the rank of the data source, it will embed different widgets; this class provides the shell, and the open/close behaviour handling.
+/// This class provides a general property editor for items (data sources) in an AMScanSetModel... such as line color/style, colormap, etc.  Depending on the rank of the data source, it will embed different widgets. This class provides the shell, and the open/close behaviour handling.
 /*! <b>Memory management:</b>
 
 This dialog deletes itself when accept()ed or reject()ed, as well as when the scan or data source it represents is removed from the model. */

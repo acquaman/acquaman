@@ -33,8 +33,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/AMWindowPaneModel.h"
 
 #include <QQueue>
-
-
+#include <QCloseEvent>
+#include <QApplication>
 /// This UI class manages a set of "window panes", which can either be docked and selected using an iTunes-style sidebar, or un-docked to float as independent windows. When an un-docked pane is clicked in the sidebar or closed, it is re-docked in the main window. Finally, a layout is available to add custom widgets above and below the main area.
 /*! Internally, this class is implemented using an an AMWindowPaneModel. Both the sidebar, and the main window area, simply act as "views" on this model.  For full access to the underlying model, call windowPaneModel().*/
 class AMMainWindow : public QWidget
@@ -120,7 +120,7 @@ signals:
 	/// advertises when an "alias" item was selected as the current widget.  "Aliases" are items in the model that don't have their own unique window pane widgets, but instead link to another existing widget. When activated, they can deliver a message (in the form of a \c key and \c value pair) for that widget.
 	void aliasItemActivated(QWidget* target, const QString& key, const QVariant& value);
 
-	/// Emitted when an item in the window pane model has its "Close" button clicked. The model index \c index corresponds to the item in the model. What to do in this situation is up to you; AMMainWindow doesn't take any action here.
+	/// Emitted when an item in the window pane model has its "Close" button clicked. The model index \c index corresponds to the item in the model. What to do in this situation is up to you. AMMainWindow doesn't take any action here.
 	void itemCloseButtonClicked(const QModelIndex& index);
 
 protected slots:
@@ -166,7 +166,6 @@ protected:
 	void addToPreviousSelectionsQueue(const QModelIndex& current);
 	/// returns previous index that should be switched to when removing or undocking \c current.
 	QModelIndex getPreviousSelection(const QModelIndex& current);
-
 };
 
 #endif // AMMAINWINDOW_H

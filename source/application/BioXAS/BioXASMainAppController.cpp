@@ -122,8 +122,10 @@ void BioXASMainAppController::setupExporterOptions()
 	bioXASDefaultXAS->setHigherDimensionsInRows(true);
 	bioXASDefaultXAS->storeToDb(AMDatabase::database("user"));
 
-//	if(bioXASDefaultXAS->id() > 0)
-//			AMAppControllerSupport::registerClass<IDEASXASScanConfiguration, AMExporterAthena, AMExporterOptionGeneralAscii>(bioXASDefaultXAS->id());
+	/*
+	if(bioXASDefaultXAS->id() > 0)
+			AMAppControllerSupport::registerClass<IDEASXASScanConfiguration, AMExporterAthena, AMExporterOptionGeneralAscii>(bioXASDefaultXAS->id());
+	*/
 
 }
 

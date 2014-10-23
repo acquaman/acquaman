@@ -159,7 +159,6 @@ void AMControlSet::onConnectionsTimedOut(){
 }
 
 void AMControlSet::onControlValueChanged(){
-	// DEPRECATED: emit controlSetValuesChanged(toInfoList());
 	emit controlSetValuesChanged();
 }
 

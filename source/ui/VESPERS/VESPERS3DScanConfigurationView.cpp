@@ -530,9 +530,11 @@ void VESPERS3DScanConfigurationView::axesAcceptable()
 	QPalette bad(good);
 	bad.setColor(QPalette::Base, Qt::red);
 
-//	hStep_->setPalette(configuration_->validXAxis() ? good : bad);
-//	vStep_->setPalette(configuration_->validYAxis() ? good : bad);
-//	wireStep_->setPalette(configuration_->validZAxis() ? good : bad);
+	/*
+	hStep_->setPalette(configuration_->validXAxis() ? good : bad);
+	vStep_->setPalette(configuration_->validYAxis() ? good : bad);
+	wireStep_->setPalette(configuration_->validZAxis() ? good : bad);
+	*/
 }
 
 void VESPERS3DScanConfigurationView::setXAxisStart(const AMNumber &value)

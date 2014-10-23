@@ -297,8 +297,6 @@ void SGMSampleManipulatorView::onMOutboardButtonReleased(){
 		mHorizontalCtrl_->stop();
 		mHorizontalCtrl_->setStepVelocity(10000);
 		mHorizontalCtrl_->setStepAcceleration(5000);
-		//mHorizontalCtrl_->setStepVelocity(3000);
-		//mHorizontalCtrl_->setStepAcceleration(2000);
 	}
 }
 

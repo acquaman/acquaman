@@ -23,17 +23,21 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AMDATASOURCESERIESDATA_H
 
 #include <QObject>
-#include "MPlot/MPlotSeriesData.h"
-#include "dataman/datasource/AMDataSource.h"
 
-/// This class wraps any AMDataSource for use as 2-dimensional (XY scatter) series data.  The rank() of the underlying data source must be 1; if the dimensionality is not correct, the wrapper will report a count() of 0.
+#include "MPlot/MPlotSeriesData.h"
+
+#include "dataman/datasource/AMDataSource.h"
+#include "util/AMRange.h"
+
+/// This class wraps any AMDataSource for use as 2-dimensional (XY scatter) series data.  The rank() of the underlying data source must be 1. If the dimensionality is not correct, the wrapper will report a count() of 0.
 class AMDataSourceSeriesData : public QObject, public MPlotAbstractSeriesData
 {
 	Q_OBJECT
 public:
 	/// Constructor. \c dataSource is the source to represent as XY scatter data.
- 	virtual ~AMDataSourceSeriesData();
 	AMDataSourceSeriesData(const AMDataSource* dataSource, QObject* parent = 0);
+	/// Destructor.
+	virtual ~AMDataSourceSeriesData();
 
 	/// Call this to switch to representing a different data source
 	void setDataSource(const AMDataSource* dataSource);
@@ -42,40 +46,51 @@ public:
 	const AMDataSource* dataSource() const { return source_; }
 
 	/// Return the x-value at \c index. \c index must be greater or equal to 0, and less than count().
-	virtual double x(unsigned index) const {
-		return source_->axisValue(0, index);
-	}
+	virtual double x(unsigned index) const;
 	/// Copy the x-values from \c indexStart to \c indexEnd (inclusive) into \c outputValues.
-	virtual void xValues(unsigned indexStart, unsigned indexEnd, qreal *outputValues) const {
-		for(unsigned i=indexStart; i<=indexEnd; ++i)
-			*(outputValues++) = source_->axisValue(0, i);
-	}
+	virtual void xValues(unsigned indexStart, unsigned indexEnd, qreal *outputValues) const;
 	/// Return the y-value at \c index, which must be >= 0 and less than count().
-	virtual double y(unsigned index) const {
-		return source_->value(AMnDIndex(index));
-	}
+	virtual double y(unsigned index) const;
 	/// Copy the y-values from \c indexStart to \c indexEnd (inclusive) into \c outputValues.
-	virtual void yValues(unsigned indexStart, unsigned indexEnd, qreal *outputValues) const {
-		source_->values(AMnDIndex(indexStart), AMnDIndex(indexEnd), outputValues);
-	}
+	virtual void yValues(unsigned indexStart, unsigned indexEnd, qreal *outputValues) const;
 
 	/// Return the number of elements
-	virtual int count() const {
-		if(isValid_)
-			return source_->size(0);
-		else
-			return 0;
-	}
+	virtual int count() const;
+
+	/// Return the bounds of the data (the rectangle containing the max/min x- and y-values). It should be expressed as: QRectF(left, top, width, height) = QRectF(minX, minY, maxX-minX, maxY-minY);
+	virtual QRectF boundingRect() const;
 
 protected slots:
+	/// Handles updating the axis values associated with the given index (will be 0 or 1).
+	void onAxisValuesChanged();
+	/// Handles updating the size of the given axis.  Will invalidate the axis values of that axis.
+	void onSizeChanged();
 	/// Forward the sizeChanged(), valuesChanged(), and stateChanged() signals from the data source.
-	void onDataSourceDataChanged() { MPlotAbstractSeriesData::emitDataChanged(); }
+	void onDataChanged(const AMnDIndex &start, const AMnDIndex &end);
 	/// ensure that we don't keep trying to read data from a source that has been deleted.
-	void onDataSourceDeleted() { source_ = 0; setDataSource(0); }
+	void onDataSourceDeleted();
 
 protected:
+	/// Required method that must be reimplemented that fills in the data when requested.  This method must reset the updateCacheRequired flag and set the dirty rect to null.
+	virtual void updateCachedValues() const;
+
+	/// The data source we are listening to.
 	const AMDataSource* source_;
+	/// The validity flag.
 	bool isValid_;
+
+	/// The size of the independent axis.
+	int axisSize_;
+	/// The cached independent axis data.
+	QVector<qreal> axis_;
+	/// The cached dependent data.
+	mutable QVector<qreal> data_;
+	/// Flag for when to update the cached data.
+	mutable bool updateCacheRequired_;
+	/// Holds the range of dirty values that need to be cached.
+	mutable AMRange dirtyRange_;
+	/// Holds the data range of the dependent values.
+	mutable AMRange dataRange_;
 };
 
 #endif // AMDATASOURCESERIESDATA_H

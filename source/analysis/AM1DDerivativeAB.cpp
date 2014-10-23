@@ -23,9 +23,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "analysis/AM1DBasicDerivativeABEditor.h"
 
- AM1DDerivativeAB::~AM1DDerivativeAB(){}
-AM1DDerivativeAB::AM1DDerivativeAB(const QString &outputName, QObject *parent) :
-	AMStandardAnalysisBlock(outputName, parent)
+AM1DDerivativeAB::~AM1DDerivativeAB(){}
+
+AM1DDerivativeAB::AM1DDerivativeAB(const QString &outputName, QObject *parent)
+	: AMStandardAnalysisBlock(outputName, parent)
 {
 	inputSource_ = 0;
 	analyzedName_ = "";
@@ -35,16 +36,12 @@ AM1DDerivativeAB::AM1DDerivativeAB(const QString &outputName, QObject *parent) :
 	setState(AMDataSource::InvalidFlag);
 }
 
-// Check if a set of inputs is valid. The empty list (no inputs) must always be valid. For non-empty lists, our specific requirements are...
-/* - there must be a single input source or a list of 1D data sources
- - the rank() of that input source must be 1 (one-dimensional)
- */
-
-bool AM1DDerivativeAB::areInputDataSourcesAcceptable(const QList<AMDataSource*>& dataSources) const {
+bool AM1DDerivativeAB::areInputDataSourcesAcceptable(const QList<AMDataSource*>& dataSources) const
+{
 	if(dataSources.isEmpty())
-		return true;	// always acceptable; the null input.
+		return true;	// always acceptable, the null input.
 
-	// otherwise we need a single input source, with a rank of 1.
+	// We need a single input source, with a rank of 1.
 	if(dataSources.count() == 1 && dataSources.at(0)->rank() == 1)
 		return true;
 
@@ -61,11 +58,11 @@ bool AM1DDerivativeAB::areInputDataSourcesAcceptable(const QList<AMDataSource*>&
 	return false;
 }
 
-// Set the data source inputs.
-void AM1DDerivativeAB::setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources) {
-
+void AM1DDerivativeAB::setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources)
+{
 	// disconnect connections from old source, if it exists.
 	if(inputSource_) {
+
 		disconnect(inputSource_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
 		disconnect(inputSource_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
 		disconnect(inputSource_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
@@ -73,6 +70,7 @@ void AM1DDerivativeAB::setInputDataSourcesImplementation(const QList<AMDataSourc
 	}
 
 	if(dataSources.isEmpty()) {
+
 		inputSource_ = 0;
 		sources_.clear();
 		canAnalyze_ = false;
@@ -83,19 +81,18 @@ void AM1DDerivativeAB::setInputDataSourcesImplementation(const QList<AMDataSourc
 
 	// we know that this will only be called with valid input source
 	else if (dataSources.count() == 1){
+
 		inputSource_ = dataSources.at(0);
 		sources_ = dataSources;
 		canAnalyze_ = true;
 
 		axes_[0] = inputSource_->axisInfoAt(0);
 
-		setDescription(QString("Derivative of %1")
-					   .arg(inputSource_->name()));
+		setDescription(QString("Derivative of %1").arg(inputSource_->name()));
 
 		connect(inputSource_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
 		connect(inputSource_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
 		connect(inputSource_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
-
 	}
 
 	else {
@@ -124,6 +121,7 @@ void AM1DDerivativeAB::setInputSource()
 {
 	// disconnect connections from old source, if it exists.
 	if(inputSource_) {
+
 		disconnect(inputSource_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
 		disconnect(inputSource_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
 		disconnect(inputSource_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
@@ -138,8 +136,7 @@ void AM1DDerivativeAB::setInputSource()
 		canAnalyze_ = true;
 
 		axes_[0] = inputSource_->axisInfoAt(0);
-		setDescription(QString("Derivative of %1")
-					   .arg(inputSource_->name()));
+		setDescription(QString("Derivative of %1").arg(inputSource_->name()));
 
 		connect(inputSource_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
 		connect(inputSource_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
@@ -174,7 +171,8 @@ bool AM1DDerivativeAB::canAnalyze(const QString &name) const
 	return false;
 }
 
-AMNumber AM1DDerivativeAB::value(const AMnDIndex& indexes) const{
+AMNumber AM1DDerivativeAB::value(const AMnDIndex& indexes) const
+{
 	if(indexes.rank() != 1)
 		return AMNumber(AMNumber::DimensionError);
 
@@ -247,7 +245,7 @@ bool AM1DDerivativeAB::values(const AMnDIndex &indexStart, const AMnDIndex &inde
 	int offset = indexStart.i();
 	// Bools for knowing whether the indices we were given are at either extreme of the array.
 	bool veryStart = (offset == 0);
-	bool veryEnd = ((unsigned)indexEnd.i() == (unsigned)axes_.at(0).size);
+	bool veryEnd = (totalSize == int(axes_.at(0).size));
 
 	// Although substantially more code, I have split up each possibility so that it covers everything properly.  Perhaps later I'll find a code optimization.
 
@@ -267,7 +265,7 @@ bool AM1DDerivativeAB::values(const AMnDIndex &indexStart, const AMnDIndex &inde
 			double axisStep = double(axisInfo.increment);
 
 			for (int i = 0; i < totalSize; i++)
-				axis[i] = axisStart + (i+offset)*axisStep;
+				axis[i] = axisStart + i*axisStep;
 
 			// Because we computed the axis values we are guarenteed that the values won't be bad.
 			outputValues[0] = (data.at(1)-data.at(0))/(axis.at(1)-axis.at(0));
@@ -281,7 +279,7 @@ bool AM1DDerivativeAB::values(const AMnDIndex &indexStart, const AMnDIndex &inde
 
 			// Fill the axis vector.  Should minimize the overhead of making the same function calls and casting the values multiple times.
 			for (int i = 0; i < totalSize; i++)
-				axis[i] = double(inputSource_->axisValue(0, i+offset));
+				axis[i] = double(inputSource_->axisValue(0, i));
 
 			// Fill a list of all the indices that will cause division by zero.
 			QList<int> badIndices;
@@ -326,7 +324,7 @@ bool AM1DDerivativeAB::values(const AMnDIndex &indexStart, const AMnDIndex &inde
 			double axisStep = double(axisInfo.increment);
 
 			for (int i = 0; i < dataSize; i++)
-				axis[i] = axisStart + (i+offset)*axisStep;
+				axis[i] = axisStart + i*axisStep;
 
 			// Because we computed the axis values we are guarenteed that the values won't be bad.
 			outputValues[0] = (data.at(1)-data.at(0))/(axis.at(1)-axis.at(0));
@@ -471,8 +469,8 @@ bool AM1DDerivativeAB::values(const AMnDIndex &indexStart, const AMnDIndex &inde
 	return true;
 }
 
-AMNumber AM1DDerivativeAB::axisValue(int axisNumber, int index) const{
-
+AMNumber AM1DDerivativeAB::axisValue(int axisNumber, int index) const
+{
 	if(!isValid())
 		return AMNumber(AMNumber::InvalidError);
 
@@ -483,31 +481,43 @@ AMNumber AM1DDerivativeAB::axisValue(int axisNumber, int index) const{
 
 }
 
-/// Connected to be called when the values of the input data source change
-void AM1DDerivativeAB::onInputSourceValuesChanged(const AMnDIndex& start, const AMnDIndex& end) {
+bool AM1DDerivativeAB::axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const
+{
+	if (!isValid())
+		return false;
+
+	if (axisNumber != 0)
+		return false;
+
+	if (startIndex >= axes_.at(axisNumber).size || endIndex >= axes_.at(axisNumber).size)
+		return false;
+
+	return inputSource_->axisValues(axisNumber, startIndex, endIndex, outputValues);
+}
+
+void AM1DDerivativeAB::onInputSourceValuesChanged(const AMnDIndex& start, const AMnDIndex& end)
+{
 	emitValuesChanged(start, end);
 }
 
-/// Connected to be called when the size of the input source changes
-void AM1DDerivativeAB::onInputSourceSizeChanged() {
+void AM1DDerivativeAB::onInputSourceSizeChanged()
+{
 	axes_[0].size = inputSource_->size(0);
 	emitSizeChanged(0);
 }
 
-/// Connected to be called when the state() flags of any input source change
-void AM1DDerivativeAB::onInputSourceStateChanged() {
-
+void AM1DDerivativeAB::onInputSourceStateChanged()
+{
 	// just in case the size has changed while the input source was invalid, and now it's going valid.  Do we need this? probably not, if the input source is well behaved. But it's pretty inexpensive to do it twice... and we know we'll get the size right everytime it goes valid.
 	onInputSourceSizeChanged();
 	reviewState();
 }
 
-void AM1DDerivativeAB::reviewState(){
-
-	if(!canAnalyze_ || inputSource_ == 0 || !inputSource_->isValid()) {
+void AM1DDerivativeAB::reviewState()
+{
+	if(!canAnalyze_ || inputSource_ == 0 || !inputSource_->isValid())
 		setState(AMDataSource::InvalidFlag);
-		return;
-	}
+
 	else
 		setState(0);
 }
@@ -517,9 +527,12 @@ QWidget *AM1DDerivativeAB::createEditorWidget()
 	 return new AM1DBasicDerivativeABEditor(this);
 }
 
-bool AM1DDerivativeAB::loadFromDb(AMDatabase *db, int id) {
+bool AM1DDerivativeAB::loadFromDb(AMDatabase *db, int id)
+{
 	bool success = AMDbObject::loadFromDb(db, id);
+
 	if(success)
 		AMDataSource::name_ = AMDbObject::name();	/// \todo This might change the name of a data-source in mid-life, which is technically not allowed.
+
 	return success;
 }

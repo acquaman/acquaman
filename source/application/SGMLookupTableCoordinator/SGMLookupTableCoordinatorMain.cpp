@@ -29,9 +29,11 @@ int main(int argc, char *argv[])
 	QCoreApplication app(argc, argv);
 	app.setApplicationName("SGM Lookup Table Coordinator");
 
-	//SGMLookupTableCoordinator *coordinator = new SGMLookupTableCoordinator("BL1611-ID-1:Energy:fbk", "PSH16114I1001:V", "BL1611-ID-1:AddOns:lookupTable:linkage", "BL1611-ID-1:AddOns:lookupTable:loadLookup");
 	SGMLookupTableCoordinator *coordinator = new SGMLookupTableCoordinator("BL1611-ID-1:AddOns:InputControl", "BL1611-ID-1:AddOns:OutputControl", "BL1611-ID-1:AddOns:lookupTable:linkage", "BL1611-ID-1:AddOns:lookupTable:loadLookup");
-	//SGMLookupTableCoordinator *coordinator = new SGMLookupTableCoordinator("BL1611-ID-1:AddOns:lookupTable:fakeInput", "BL1611-ID-1:AddOns:lookupTable:fakeOutput", "BL1611-ID-1:AddOns:lookupTable:linkage", "BL1611-ID-1:AddOns:lookupTable:loadLookup");
+	/*
+	SGMLookupTableCoordinator *coordinator = new SGMLookupTableCoordinator("BL1611-ID-1:Energy:fbk", "PSH16114I1001:V", "BL1611-ID-1:AddOns:lookupTable:linkage", "BL1611-ID-1:AddOns:lookupTable:loadLookup");
+	SGMLookupTableCoordinator *coordinator = new SGMLookupTableCoordinator("BL1611-ID-1:AddOns:lookupTable:fakeInput", "BL1611-ID-1:AddOns:lookupTable:fakeOutput", "BL1611-ID-1:AddOns:lookupTable:linkage", "BL1611-ID-1:AddOns:lookupTable:loadLookup");
+	*/
 
 	Q_UNUSED(coordinator)
 

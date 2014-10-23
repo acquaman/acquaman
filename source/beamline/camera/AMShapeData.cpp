@@ -320,7 +320,7 @@ bool AMShapeData::backwards() const
 	QVector3D rayTwo = points[2] - points[1];
 	QVector3D normal = QVector3D::normal(rayOne,rayTwo);
 
-	// normal should be either positive or negative 1;
+	// normal should be either positive or negative 1
 	return(normal.z() < 0);
 }
 

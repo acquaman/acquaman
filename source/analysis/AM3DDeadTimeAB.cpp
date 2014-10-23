@@ -39,7 +39,7 @@ AM3DDeadTimeAB::AM3DDeadTimeAB(const QString &outputName, QObject *parent)
 bool AM3DDeadTimeAB::areInputDataSourcesAcceptable(const QList<AMDataSource*>& dataSources) const
 {
 	if(dataSources.isEmpty())
-		return true; // always acceptable; the null input.
+		return true; // always acceptable, the null input.
 
 	// otherwise there are three data sources, one with rank 3 and two with rank 2.
 	if (dataSources.count() == 3
@@ -209,6 +209,20 @@ AMNumber AM3DDeadTimeAB::axisValue(int axisNumber, int index) const
 #endif
 
 	return spectra_->axisValue(axisNumber, index);
+}
+
+bool AM3DDeadTimeAB::axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const
+{
+	if (!isValid())
+		return false;
+
+	if (axisNumber != 0 && axisNumber != 1 && axisNumber != 2)
+		return false;
+
+	if (startIndex >= axes_.at(axisNumber).size || endIndex >= axes_.at(axisNumber).size)
+		return false;
+
+	return spectra_->axisValues(axisNumber, startIndex, endIndex, outputValues);
 }
 
 // Connected to be called when the values of the input data source change

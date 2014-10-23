@@ -48,8 +48,6 @@ IDEASXASScanActionController::IDEASXASScanActionController(IDEASXASScanConfigura
 	scan_->setIndexType("fileSystem");
 	scan_->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));
 
-	//useFeedback_ = true;
-
 	QString scanName;
 
 	if(configuration_->userScanName() == ""){
@@ -69,8 +67,31 @@ IDEASXASScanActionController::IDEASXASScanActionController(IDEASXASScanConfigura
 	ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->I_0()->toInfo());
 	ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->Sample()->toInfo());
 	ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->Reference()->toInfo());
-	ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->exposedDetectorByName("XRF1E")->toInfo());
-	ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->dwellTime()->toInfo());
+
+//	if (configuration_->fluorescenceDetector().testFlag(IDEASXASScanConfiguration::Ketek)){
+
+//		ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->exposedDetectorByName("KETEK")->toInfo());
+//		ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->ketekDwellTime()->toInfo());
+//	}
+
+//	else if (configuration_->fluorescenceDetector().testFlag(IDEASXASScanConfiguration::Ge13Element)){
+
+//		ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->exposedDetectorByName("13-el Ge")->toInfo());
+//		ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->ketekDwellTime()->toInfo());
+//	}
+
+	if (configuration_->fluorescenceDetector() == IDEASXASScanConfiguration::Ketek){
+
+		ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->exposedDetectorByName("KETEK")->toInfo());
+		ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->ketekDwellTime()->toInfo());
+	}
+
+	else if (configuration_->fluorescenceDetector() == IDEASXASScanConfiguration::Ge13Element){
+
+		ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->exposedDetectorByName("13-el Ge")->toInfo());
+		ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->ge13ElementDwellTime()->toInfo());
+	}
+
 	configuration_->setDetectorConfigurations(ideasDetectors);
 
 	secondsElapsed_ = 0;
@@ -95,14 +116,23 @@ void IDEASXASScanActionController::createScanAssembler()
 
 void IDEASXASScanActionController::buildScanControllerImplementation()
 {
-
 	AMXRFDetector *detector = 0;
 
-	detector = qobject_cast<AMXRFDetector *>(IDEASBeamline::bl()->exposedDetectorByName("XRF1E"));
+//	if (configuration_->fluorescenceDetector().testFlag(IDEASXASScanConfiguration::Ketek))
+//		detector = qobject_cast<AMXRFDetector *>(IDEASBeamline::bl()->exposedDetectorByName("KETEK"));
 
+//	else if (configuration_->fluorescenceDetector().testFlag(IDEASXASScanConfiguration::Ge13Element))
+//		detector = qobject_cast<AMXRFDetector *>(IDEASBeamline::bl()->exposedDetectorByName("13-el Ge"));
+
+	if (configuration_->fluorescenceDetector() == IDEASXASScanConfiguration::Ketek)
+		detector = qobject_cast<AMXRFDetector *>(IDEASBeamline::bl()->exposedDetectorByName("KETEK"));
+
+	else if (configuration_->fluorescenceDetector() == IDEASXASScanConfiguration::Ge13Element)
+		detector = qobject_cast<AMXRFDetector *>(IDEASBeamline::bl()->exposedDetectorByName("13-el Ge"));
 
 	QList<AMDataSource*> raw1DDataSources;
-	for(int i=0; i<scan_->rawDataSources()->count(); i++)
+
+	for(int i = 0, size = scan_->rawDataSourceCount(); i < size; i++)
 		if(scan_->rawDataSources()->at(i)->rank() == 1)
 			raw1DDataSources << scan_->rawDataSources()->at(i);
 
@@ -155,18 +185,16 @@ void IDEASXASScanActionController::buildScanControllerImplementation()
 
 	if (detector && configuration_->isXRFScan()){
 
-	foreach (AMRegionOfInterest *region, detector->regionsOfInterest()){
-		AMRegionOfInterestAB *regionAB = (AMRegionOfInterestAB *)region->valueSource();
-		QString regionName = regionAB->name().replace(" ","_");
-		AM1DExpressionAB* NormXRF = new AM1DExpressionAB(QString("Norm%1").arg(regionName));
-		NormXRF->setDescription(QString("Norm%1").arg(regionName));
-		NormXRF->setInputDataSources(all1DDataSources);
-		NormXRF->setExpression(QString("%1/I_0").arg(regionName));
-		scan_->addAnalyzedDataSource(NormXRF);
+		foreach (AMRegionOfInterest *region, detector->regionsOfInterest()){
+			AMRegionOfInterestAB *regionAB = (AMRegionOfInterestAB *)region->valueSource();
+			QString regionName = regionAB->name().replace(" ","_");
+			AM1DExpressionAB* NormXRF = new AM1DExpressionAB(QString("Norm%1").arg(regionName));
+			NormXRF->setDescription(QString("Norm%1").arg(regionName));
+			NormXRF->setInputDataSources(all1DDataSources);
+			NormXRF->setExpression(QString("%1/I_0").arg(regionName));
+			scan_->addAnalyzedDataSource(NormXRF);
+		}
 	}
-
-
-}
 }
 
 AMAction3* IDEASXASScanActionController::createInitializationActions(){
@@ -197,17 +225,13 @@ AMAction3* IDEASXASScanActionController::createInitializationActions(){
 	moveActionInfo = new AMControlMoveActionInfo3(monoEnergy);
 	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
 	initializationStage1->addSubAction(moveAction);
-	initializationStage1->addSubAction(IDEASBeamline::ideas()->scaler()->createContinuousEnableAction3(false));
+	//initializationStage1->addSubAction(IDEASBeamline::ideas()->scaler()->createContinuousEnableAction3(false));
+	initializationStage1->addSubAction(IDEASBeamline::ideas()->scaler()->createStartAction3(false));
+	initializationStage1->addSubAction(IDEASBeamline::ideas()->scaler()->createTotalScansAction3(1));
+
 
 
 	AMListAction3 *initializationStage2 = new AMListAction3(new AMListActionInfo3("IDEAS XAS Initialization Stage 2", "IDEAS XAS Initialization Stage 2"), AMListAction3::Sequential);
-
-
-	//initializationStage2->addSubAction(IDEASBeamline::ideas()->scaler()->createDwellTimeAction3(configuration_->scanAxisAt(0)->regionAt(0)->regionTime()));
-	//initializationStage2->addSubAction(IDEASBeamline::ideas()->scaler()->createStartAction3(true));
-
-
-
 
 	initializationActions->addSubAction(initializationStage1);
 	initializationActions->addSubAction(initializationStage2);
@@ -242,9 +266,12 @@ AMAction3* IDEASXASScanActionController::createCleanupActions(){
 
 	cleanupActions->addSubAction(new AMWaitAction(new AMWaitActionInfo(IDEASBeamline::ideas()->scaler()->dwellTime())));
 	cleanupActions->addSubAction(IDEASBeamline::ideas()->scaler()->createStartAction3(false));
-	cleanupActions->addSubAction(IDEASBeamline::ideas()->scaler()->createContinuousEnableAction3(false));
+	//cleanupActions->addSubAction(IDEASBeamline::ideas()->scaler()->createContinuousEnableAction3(false));
 	cleanupActions->addSubAction(IDEASBeamline::ideas()->scaler()->createDwellTimeAction3(0.1));
-	cleanupActions->addSubAction(IDEASBeamline::ideas()->scaler()->createContinuousEnableAction3(true));
+	//cleanupActions->addSubAction(IDEASBeamline::ideas()->scaler()->createContinuousEnableAction3(true));
+	cleanupActions->addSubAction(IDEASBeamline::ideas()->scaler()->createTotalScansAction3(0));
+	cleanupActions->addSubAction(IDEASBeamline::ideas()->scaler()->createStartAction3(true));
+
 
 	return cleanupActions;
 }

@@ -285,12 +285,6 @@ AMBeamConfigurationView::AMBeamConfigurationView(AMBeamConfiguration *beam, QWid
 	thl->addWidget(twoButtonFrame);
 	twoFrame->setLayout(thl);
 
-
-	//    QFrame *beamSelectionFrame = new QFrame();
-	//    QHBoxLayout *bhl = new QHBoxLayout();
-	//    bhl->setContentsMargins(12,4,12,4);
-	//    bhl->addWidget(beamSelectionBox_ = new ComboBox());
-
 	QFrame* buttonFrame = new QFrame();
 	QHBoxLayout* buttonLayout = new QHBoxLayout();
 	buttonLayout->setContentsMargins(12,4,12,4);

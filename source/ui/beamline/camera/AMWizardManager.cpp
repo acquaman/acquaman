@@ -129,7 +129,6 @@ void AMWizardManager::startBeamWizard()
 	beamWizard_->setView(view);
 	beamWizard_->show();
 	emit showSamplePlate(true);
-//	showSamplePlate_->setChecked(true);
 }
 
 void AMWizardManager::startSampleWizard()
@@ -151,8 +150,6 @@ void AMWizardManager::startSampleWizard()
 	connect(samplePlateWizard_, SIGNAL(moveTo(QVector3D,double)), this, SIGNAL(moveBeamSamplePlate(QVector3D,double)));
 	connect(this, SIGNAL(motorMovementEnabled(bool)), samplePlateWizard_, SLOT(setMotorMovementEnabled(bool)));
 	connect(this, SIGNAL(moveSucceeded()), samplePlateWizard_, SIGNAL(moveSucceeded()));
-	//connect(samplePlateWizard_, SIGNAL(requestRotation()), this, SIGNAL(transmitMotorRotation()));
-	//connect(this, SIGNAL(motorRotation(double)), samplePlateWizard_, SLOT(setCurrentRotation(double)));
 	connect(samplePlateWizard_, SIGNAL(signalInitializeSampleShape()), this, SIGNAL(initializeSampleShape()));
 	connect(samplePlateWizard_, SIGNAL(signalShiftSampleShape(QPointF)), this, SIGNAL(shiftSampleShape(QPointF)));
 	connect(samplePlateWizard_, SIGNAL(signalSamplePlateWizardMousePressed(QPointF)), this, SIGNAL(sampleShapeMousePressed(QPointF)));

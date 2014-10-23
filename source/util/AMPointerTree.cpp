@@ -90,7 +90,6 @@ void AMPointerTreeNode::appendChildNode(AMPointerTreeNode *childNode){
 		childrenNodes_.append(childNode);
 		emit descendantNodeAppended(childNode);
 		descendantCount_++;
-		//connect(childNode, SIGNAL(childNodeAppended(AMPointerTreeNode*)), this, SIGNAL(childNodeAppended(AMPointerTreeNode*)));
 		connect(childNode, SIGNAL(descendantNodeAppended(AMPointerTreeNode*)), this, SLOT(onDescendantNodeAppended(AMPointerTreeNode*)));
 	}
 }

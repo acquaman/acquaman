@@ -71,6 +71,5 @@ AMSampleManagementPre2013Widget::AMSampleManagementPre2013Widget(QWidget *manipu
 AMSampleManagementPre2013Widget::~AMSampleManagementPre2013Widget(){}
 
 void AMSampleManagementPre2013Widget::onNewSamplePlateSelected() {
-	// qdebug() << "I heard that the current sample plate changed";
 	emit newSamplePlateSelected(plateView_->samplePlate());
 }

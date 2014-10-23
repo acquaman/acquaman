@@ -32,7 +32,6 @@ AMDetectorDwellTimeSourceScanOptimizer::AMDetectorDwellTimeSourceScanOptimizer(A
 }
 
 void AMDetectorDwellTimeSourceScanOptimizer::optimizeImplementation(AMAction3 *scanActionTree){
-	//QMap<AMDetectorDwellTimeSource*, AMListAction3*> dwellTimeSourcesToActionLists;
 	QList<AMDetectorDwellTimeSource*> dwellTimeSources;
 	QList<AMAction3*> tagForRemoval;
 

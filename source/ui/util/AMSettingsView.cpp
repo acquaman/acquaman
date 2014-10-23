@@ -41,11 +41,13 @@ AMUserSettingsView::AMUserSettingsView(QWidget *parent) :
 	userDatabaseFileNameLineEdit_  = new QLineEdit();
 	userDatabaseFileNameLineEdit_->setText(AMUserSettings::userDatabaseFilename);
 	userDatabaseFileNameLineEdit_->setEnabled(false);
-
+	remoteDataFolderLineEdit_= new QLineEdit();
+	remoteDataFolderLineEdit_->setText(AMUserSettings::remoteDataFolder);
+	remoteDataFolderLineEdit_->setEnabled(false);
 	fl_ = new QFormLayout();
 	fl_->addRow("Data Folder", userDataFolderLineEdit_);
 	fl_->addRow("Database", userDatabaseFileNameLineEdit_);
-
+	fl_->addRow("Remote Location", remoteDataFolderLineEdit_);
 	int maxFontWidth = 0;
 	QFontMetrics fontMetric(userDataFolderLineEdit_->font());
 	for(int x = 0; x < fl_->rowCount(); x++){

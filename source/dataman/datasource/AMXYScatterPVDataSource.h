@@ -31,7 +31,7 @@ class AMXYScatterPVDataSource : public QObject, public AMDataSource
 {
 	Q_OBJECT
 public:
- 	virtual ~AMXYScatterPVDataSource();
+	virtual ~AMXYScatterPVDataSource();
 	explicit AMXYScatterPVDataSource(const AMProcessVariable *x, const AMProcessVariable *y, const QString& name, QObject *parent = 0);
 
 	/// Human-readable description of the type of data source this is (ex: "One-dimensional math expression").  Subclasses should re-implement this.
@@ -50,7 +50,7 @@ public:
 		return axes_;
 	}
 
-	// Following can all be determined from above. Included anyway for convenience of classes that use the interface, and for performance. Calling size(axisNumber) should be fast; using axes() to return a full list of AMAxisInfo and extracting the desired axis would be much slower.
+	// Following can all be determined from above. Included anyway for convenience of classes that use the interface, and for performance. Calling size(axisNumber) should be fast. Using axes() to return a full list of AMAxisInfo and extracting the desired axis would be much slower.
 	//////////////////////////////////////////////
 	/// Returns the rank (number of dimensions) of this data set
 	virtual int rank() const { return 1; }
@@ -61,7 +61,7 @@ public:
 	/// Returns a bunch of information about a particular axis. \c axisNumber is assumed to be be 0.
 	virtual AMAxisInfo axisInfoAt(int axisNumber) const { Q_UNUSED(axisNumber) return axes_.at(0); }
 	/// Returns the id of an axis, by name. (By id, we mean the index of the axis. We called it id to avoid ambiguity with indexes <i>into</i> axes.)
-	virtual int idOfAxis(const QString& axisName)
+	virtual int idOfAxis(const QString& axisName) const
 	{
 		if(axisName == axes_.at(0).name)
 			return 0;

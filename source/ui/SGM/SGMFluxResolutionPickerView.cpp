@@ -59,19 +59,15 @@ SGMFluxResolutionPickerStaticView::SGMFluxResolutionPickerStaticView(AMScanAxis 
 	harmonicGroupBox_->setLayout(tmpVL);
 
 	buttonsVL_ = new QVBoxLayout();
-	//buttonsVL_->addStretch();
-	//buttonsVL_->insertSpacing(0, 4);
 
 	ceVL_ = new QVBoxLayout();
 	ceVL_->addWidget(exitSlitGapGroupBox_);
 	ceVL_->addWidget(gratingGroupBox_);
 	ceVL_->addWidget(harmonicGroupBox_);
-	//ceVL_->addStretch(10);
 
 	settingsHL_ = new QHBoxLayout();
 	settingsHL_->addLayout(buttonsVL_);
 	settingsHL_->addSpacing(5);
-	//settingsHL_->addLayout(ceVL_, 10);
 	settingsHL_->addLayout(ceVL_);
 
 	mainVL_ = new QVBoxLayout();

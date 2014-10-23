@@ -163,22 +163,8 @@ void REIXSXESScanActionController::saveRawData(){
 }
 
 bool REIXSXESScanActionController::initializeImplementation(){
-
-	/*
-	AMControlInfoList positions(REIXSBeamline::bl()->exposedControls()->toInfoList());
-
-	// add the spectrometer grating selection, since it's not a "control" anywhere.
-	AMControlInfo grating("spectrometerGrating", REIXSBeamline::bl()->spectrometer()->specifiedGrating(), 0, 0, "[choice]", 0.1, "Spectrometer Grating");
-	grating.setEnumString(REIXSBeamline::bl()->spectrometer()->spectrometerCalibration()->gratingAt(grating.value()).name());
-	positions.insert(9, grating);
-
-	positions.append(REIXSBeamline::bl()->spectrometer()->tmSOE()->toInfo());
-	positions.append(REIXSBeamline::bl()->spectrometer()->tmMCPPreamp()->toInfo());
-	positions.append(REIXSBeamline::bl()->sampleChamber()->tmSample()->toInfo());
-	*/
-
 	//Population Initial condition, prior to initialization moves
-	AMControlInfoList positions;//(REIXSBeamline::bl()->exposedControls()->toInfoList());
+	AMControlInfoList positions;
 
 	positions.append(REIXSBeamline::bl()->photonSource()->energy()->toInfo());
 	positions.append(REIXSBeamline::bl()->photonSource()->userEnergyOffset()->toInfo());
@@ -205,7 +191,7 @@ bool REIXSXESScanActionController::initializeImplementation(){
 	positions.append(REIXSBeamline::bl()->spectrometer()->detectorTiltDrive()->toInfo());
 	// add the spectrometer grating selection, since it's not a "control" anywhere.
 	AMControlInfo grating("spectrometerGrating", REIXSBeamline::bl()->spectrometer()->specifiedGrating(), 0, 0, "[choice]", 0.1, "Spectrometer Grating");
-	grating.setEnumString(REIXSBeamline::bl()->spectrometer()->spectrometerCalibration()->gratingAt(grating.value()).name());
+	grating.setEnumString(REIXSBeamline::bl()->spectrometer()->spectrometerCalibration()->gratingAt(int(grating.value())).name());
 	positions.append(grating);
 	positions.append(REIXSBeamline::bl()->spectrometer()->hexapod()->x()->toInfo());
 	positions.append(REIXSBeamline::bl()->spectrometer()->hexapod()->y()->toInfo());
@@ -251,7 +237,7 @@ void REIXSXESScanActionController::onInitializationActionsListSucceeded(){
 
 
 	//Update Scan Initial Conditions
-	AMControlInfoList positions;//(REIXSBeamline::bl()->exposedControls()->toInfoList());
+	AMControlInfoList positions;
 
 	positions.append(REIXSBeamline::bl()->photonSource()->energy()->toInfo());
 	positions.append(REIXSBeamline::bl()->photonSource()->userEnergyOffset()->toInfo());
@@ -278,7 +264,7 @@ void REIXSXESScanActionController::onInitializationActionsListSucceeded(){
 	positions.append(REIXSBeamline::bl()->spectrometer()->detectorTiltDrive()->toInfo());
 	// add the spectrometer grating selection, since it's not a "control" anywhere.
 	AMControlInfo grating("spectrometerGrating", REIXSBeamline::bl()->spectrometer()->specifiedGrating(), 0, 0, "[choice]", 0.1, "Spectrometer Grating");
-	grating.setEnumString(REIXSBeamline::bl()->spectrometer()->spectrometerCalibration()->gratingAt(grating.value()).name());
+	grating.setEnumString(REIXSBeamline::bl()->spectrometer()->spectrometerCalibration()->gratingAt(int(grating.value())).name());
 	positions.append(grating);
 	positions.append(REIXSBeamline::bl()->spectrometer()->hexapod()->x()->toInfo());
 	positions.append(REIXSBeamline::bl()->spectrometer()->hexapod()->y()->toInfo());
@@ -388,7 +374,7 @@ bool REIXSXESScanActionController::startImplementation()
 	writeHeaderToFile();
 
 	REIXSBeamline::bl()->mcpDetector()->setAcquisitionTime(configuration_->maximumDurationSeconds());
-	REIXSBeamline::bl()->mcpDetector()->setTotalCountTarget(configuration_->maximumTotalCounts());
+	REIXSBeamline::bl()->mcpDetector()->setTotalCountTarget(int(configuration_->maximumTotalCounts()));
 	REIXSBeamline::bl()->mcpDetector()->setFinishedConditionTotalTimeOrTotalCounts();
 	REIXSBeamline::bl()->mcpDetector()->acquire();
 	setStarted();
@@ -472,8 +458,7 @@ void REIXSXESScanActionController::onScanTimerUpdate()
 			secondsElapsed_ = secondsTotal_;
 		else
 			secondsElapsed_ += 1.0;
-		//emit timeRemaining(secondsTotal_-secondsElapsed_); Not in IDEAS controller?
-		//qDebug() << "scan timer updated to" << secondsElapsed_ << "of" << secondsTotal_;
+
 		emit progress(secondsElapsed_, secondsTotal_);
 	}
 }

@@ -46,7 +46,7 @@ class AMRawDataSource : public AMDbObject, public AMDataSource
 
 public:
 	/// Construct a raw data source which exposes measurement number \c measurementId of the specified \c dataStore. Both \c dataStore and \c measurementId must be valid.
- 	virtual ~AMRawDataSource();
+	virtual ~AMRawDataSource();
 	AMRawDataSource(const AMDataStore* dataStore, int measurementId, QObject* parent = 0);
 	/// This constructor re-loads a previously-stored source from the database.
 	Q_INVOKABLE AMRawDataSource(AMDatabase* db, int id);
@@ -90,7 +90,7 @@ public:
 	/// Returns a bunch of information about a particular axis. \c axisId is assumed to be between 0 and rank()-1.
 	virtual AMAxisInfo axisInfoAt(int axisId) const { return axes_.at(axisId); }
 	/// Returns the id of an axis, by name. (By id, we mean the index of the axis. We called it number to avoid ambiguity with indexes <i>into</i> axes.) This could be slow, so users shouldn't call it repeatedly.  Returns -1 if not found.
-	virtual int idOfAxis(const QString& axisName) {
+	virtual int idOfAxis(const QString& axisName) const {
 		for(int i=0; i<axes_.count(); i++)
 			if(axes_.at(i).name == axisName)
 				return i;
@@ -159,6 +159,7 @@ int outputSize = indexStart.totalPointsTo(indexEnd);
 \endcode
 */
 	virtual bool values(const AMnDIndex& indexStart, const AMnDIndex& indexEnd, double* outputValues) const {
+
 		if(!isValid())
 			return false;
 		if(indexStart.rank() != rank() || indexEnd.rank() != rank())
@@ -233,6 +234,8 @@ int outputSize = indexStart.totalPointsTo(indexEnd);
 
 	}
 
+	/// Performance optimization of axisValue():  instead of a single value, copies a block of values from \c startIndex to \c endIndex in \c outputValues.  The provided pointer must contain enough space for all the requested values.
+	virtual bool axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const;
 
 	// Access for database stored values
 	///////////////////
@@ -258,10 +261,6 @@ int outputSize = indexStart.totalPointsTo(indexEnd);
 		axes_.clear();
 		for(int i=0; i<newRank; i++)
 			axes_ << AMAxisInfo("invalid", 0);	// create the proper number of axes, even though they're just placeholders. This keeps the dimension information correct until setDataStore() fills this properly.
-
-		// minimum of one axis, always.
-		//if(axes_.count() == 0)
-		//axes_ << AMAxisInfo("invalid", 0);
 	}
 
 

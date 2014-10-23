@@ -749,10 +749,6 @@ public:
 	bool equalVectors(QVector3D a, QVector3D b, double precision = 0.001) const;
 
 protected:
-	/// removes an item from the shape list - use this rather than
-	/// removing items manually - keeps the model updated
-//	void removeItem(int index);
-
 	/// removes an item from the shape list and returns it
 	/// use this rather than taking manually - keeps the model updated
 	AMShapeData* takeItem(int index);
@@ -911,7 +907,7 @@ protected:
 	/// shape used to check camera configuration
 	AMShapeData* cameraConfigurationShape_;
 
-	/// overrides normal mouse commands; stops text selection from deselecting current item
+	/// overrides normal mouse commands. Stops text selection from deselecting current item
 	bool overrideMouseSelection_;
 
 	/// if true, operation moves to beam. If false, operation moves to crosshair.

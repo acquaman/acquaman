@@ -57,6 +57,7 @@ public:
 	AMControl* monoMirrorTranslation() { return monoMirrorTranslation_; }
 	AMControl* monoMirrorSelector() { return monoMirrorSelector_; }
 	AMControl* monoMirrorAngleStatus() { return monoMirrorAngleStatus_; }
+	AMControl* monoGratingAngleStatus() { return monoGratingAngleStatus_; }
 	AMControl* epuPolarization() { return epuPolarization_; }
 	AMControl* epuPolarizationAngle() { return epuPolarizationAngle_; }
 	AMControl* ringCurrent()  { return ringCurrent_; }
@@ -66,7 +67,7 @@ public:
 
 
 protected:
-	AMControl* directEnergy_, *bypassEnergy_,*userEnergyOffset_, *monoSlit_, *monoGratingTranslation_, *monoGratingSelector_, *monoMirrorAngleStatus_, *monoMirrorTranslation_, *monoMirrorSelector_, *epuPolarization_, *epuPolarizationAngle_, *M5Pitch_, *M5Yaw_, *ringCurrent_;
+	AMControl* directEnergy_, *bypassEnergy_,*userEnergyOffset_, *monoSlit_, *monoGratingTranslation_, *monoGratingSelector_, *monoGratingAngleStatus_, *monoMirrorAngleStatus_, *monoMirrorTranslation_, *monoMirrorSelector_, *epuPolarization_, *epuPolarizationAngle_, *M5Pitch_, *M5Yaw_, *ringCurrent_;
 	REIXSBrokenMonoControl* energy_;
 
 };
@@ -220,8 +221,10 @@ public:
 	AMControl* detectorTiltDrive() { return detectorTiltDrive_; }
 	AMControl* endstationTranslation() { return endstationTranslation_; }  //DAVID ADDED
 	AMControl* gratingMask() { return gratingMask_; } //DAVID ADDED 005
-	// removed motor from endstation in Dec. 2011:
-		// AMControl* detectorRotationDrive() { return detectorRotationDrive_; }
+	/*
+	removed motor from endstation in Dec. 2011:
+	AMControl* detectorRotationDrive() { return detectorRotationDrive_; }
+	*/
 	REIXSHexapod* hexapod() { return hexapod_; }
 	AMControl* tmMCPPreamp() { return tmMCPPreamp_; }
 	AMControl* tmSOE() { return tmSOE_; }
@@ -385,8 +388,8 @@ protected slots:
 	void onMoveActionFailed();
 	/// Called while one of our moves is in progress, and the complete move action succeeded.
 	void onMoveActionSucceeded();
-	/// Called when monoMirrorAngle reports an error, which stalls the energy application unless the move is stopped and restarted
-	void onMonoMirrorAngleError(double error);
+	/// Called when monoMirrorAngle or monoGratingAngle reports an error, which stalls the energy application unless the move is stopped and restarted
+	void onMonoAngleError(double error);
 
 protected:
 	double repeatMoveThreshold_, repeatMoveSettlingTime_, singleMoveSettlingTime_, lowEnergyThreshold_, lowEnergyStepSize_;
@@ -429,7 +432,6 @@ public:
 	/// Access the sample chamber and load-lock controls:
 	REIXSSampleChamber* sampleChamber() { return sampleChamber_; }
 	/// Access the live MCP detector object
-	//REIXSXESMCPDetectorPre2013* mcpDetector() { return mcpDetector_; }
 	REIXSXESMCPDetector* mcpDetector() { return mcpDetector_; }
 	/// Access the valves and shutters
 	REIXSValvesAndShutters* valvesAndShutters() { return valvesAndShutters_; }
@@ -448,7 +450,6 @@ public:
 	/// All the controls for positioning the Spectrometer
 	AMControlSet* spectrometerPositionSet() { return spectrometerPositionSet_; }
 	/// All the controls we want to expose to users for available motions in REIXSControlMoveAction.
-	//AMControlSet* allControlsSet() { return allControlsSet_; }
 	AMControlSet* allControlsSet() { return 0; }
 	/// All temperature monitors set
 	AMControlSet* tmset() { return tmSet_; }
@@ -464,7 +465,7 @@ public slots:
 
 
 protected:
-	/// Constructor. This is a singleton class; access it through REIXSBeamline::bl().
+	/// Constructor. This is a singleton class, access it through REIXSBeamline::bl().
 	REIXSBeamline();
 
 	void setupExposedControls();
@@ -479,7 +480,6 @@ protected:
 	/// A hierarchichal group of controls making up the sample chamber
 	REIXSSampleChamber* sampleChamber_;
 	/// An object for controlling the MCP detector and downloading its image values
-	//REIXSXESMCPDetectorPre2013* mcpDetector_;
 	REIXSXESMCPDetector* mcpDetector_;
 	/// A group of valve and shutter controls
 	REIXSValvesAndShutters* valvesAndShutters_;
@@ -490,8 +490,6 @@ protected:
 	AMControlSet* sampleManipulatorSet_;
 	/// All the controls for positioning the Spectrometer (angleDrive, detectorTranslation, detectorTiltDrive, detectorRotationDrive, hexapod{X, Y, Z, U, V, W, R, S, T}
 	AMControlSet* spectrometerPositionSet_;
-	/// All the controls we want to expose to users for available motions in REIXSControlMoveAction.
-	//AMControlSet* allControlsSet_;
 	/// All tempertature monitors
 	AMControlSet* tmSet_;
 
@@ -507,121 +505,3 @@ protected:
 };
 
 #endif // REIXSBEAMLINE_H
-
-
-
-
-
-
-///* [This is comment is really old. ignore...]
-// * This class is a software-representation of the controllable aspects of the whole beamline.
-// * It's a singleton class so only one instace should ever exist in the program.
-// * The objects reachable through the beamline are:
-// *
-// * AMBeamline
-// *
-// * 		property: ringCurrent
-// *
-// *
-// * 		InsertionDevice reixsID
-// * 			Motor gapMotor			// maybe Tony's eV PV in Mono will take care of this...
-// * 			Shutters ??
-// * 			property: eV
-// * 			property: polarizationType
-// * 			property: polarizationAngle
-// *
-// * 		?InsertionDevice smID?
-// *
-// * 		VariableAperture variableAperture
-// *
-// * 	/////////////////
-// * 		Physically:
-// * 			M1		// doesn't move
-// * 			Photon shutter
-// * 			4-jaw #1		-- maybe control?
-// * /////////////////////
-// *
-// * 		Mono
-// * 			Motor eV (if Tony makes a single process var. to do this)
-// * 			Motor: slitWidthMotor
-// * 			property: grating
-// * 			property: mirror
-// *
-// * ///////////////
-// * 	Physically:
-// * 		4-jaw #2			-- maybe control
-// * 		chopper
-// * 		M3	// need to move M3 out of the way to get light (bool PV)
-// * 		M4	//
-// *
-// * 		Diagnostic panels (4): mesh, yag crystal, and cam.
-// * 			- option: beam clear, mesh in place, crystal in place, etc.
-// *
-// *
-// * 		AmpDetector meshCurrent (I0)
-// * 			- todo...
-// * 		AmpDetector electronYield (TEY)
-// * 		AmpDetector fluorescenceYield (TFY)	// triggering, sampling, dwell times, etc: steal.
-// * 		AmpDetector photodiode
-// * 		TODO: figure out PFY - lots of options...
-// * 		property: xasDetectorsAvailable()
-// * 		property:
-// *
-// * 		Spectrometer
-// * 			Hexapod hexapod
-// * 				Motor xMotor
-// * 				Motor yMotor
-// * 				Motor zMotor
-// * 				Motor uMotor
-// * 				Motor vMotor
-// * 				Motor wMotor
-// * 				set: rotationPoint(P, Q, R)
-// * 			Motor rMotor
-// * 			Motor slitWidthMotor		// PV... I hope - needs calibrating. (Piezos - use PLC 0-10output and calibrate ourselves)
-// * 			Motor dMotor
-// * 			Motor detectorAngleMotor
-// * 			Motor detectorOrientationMotor
-// * 			2DCountDetector mcp
-// * 				- getImage
-// * 				- clearImage
-// * 			property: eV
-// * 			property: grating
-// * 			property: detectorOrientationMode
-// *
-// * 		SampleHolder (make motors private and implement position-checking security?)
-// * 			Motor xMotor
-// * 			Motor yMotor
-// * 			Motor zMotor
-// * 			Motor rMotor
-// * 			Motor sMotor
-// * 			property: position(x, y, z, r, s)
-// * 			TempController sampleHeater (homemade coil -- high temp)	Heatwave labs controller
-// * 			TempController crystatController	(cryostat cooling)		Lakeshore controller
-// *
-// * 			Future: SD-65 (lakeshore) thermal silicon diode
-// *
-// *
-// * 		LoadLock
-// * 			Motor zMotor
-// * 			Motor rMotor
-// *
-// * 		// staff setup panel?
-// *		Motor endstationPosition
-// * 		(or just... inBeam/outOfBeam)
-// *
-// *
-// * Questions - BL8 experience:
-// * 		// Do we (user) ever need to scan to optimize the gap?
-// * 		// Do we (user) ever need to mess with mirrors/mirror feedback?
-// *
-// *
-// * TODO: Channeltron (CEM): voltage on/off (no user adjust.)
-// *
-// *
-// *
-// *
-// * */
-
-
-
-//#endif /*BEAMLINE_H_*/

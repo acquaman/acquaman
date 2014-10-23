@@ -67,7 +67,7 @@ protected slots:
 };
 
 
-/// This widget can be used to view the feedback position and move the setpoint of any AMControl, in a compact space-efficient way.  Normally, the control's value(), units(), and isMoving() status are shown. When a user clicks on the widget, a popup dialog is opened under their mouse; they can enter a new setpoint and hit enter to move the control.
+/// This widget can be used to view the feedback position and move the setpoint of any AMControl, in a compact space-efficient way.  Normally, the control's value(), units(), and isMoving() status are shown. When a user clicks on the widget, a popup dialog is opened under their mouse. They can enter a new setpoint and hit enter to move the control.
 class AMControlEditor : public QFrame
 {
 Q_OBJECT
@@ -92,18 +92,18 @@ protected slots:
 	/*! It's OK to call this when control_ == 0; all other onChanged() slots should only be called under signals from a valid control_*/
 	void reviewControlState();
 
-	/// Called when the control's value changes; updates the valueLabel_.
+	/// Called when the control's value changes, updates the valueLabel_.
 	void onValueChanged(double newVal);
-	/// Called when the control's units change; updates the value suffix.
+	/// Called when the control's units change, updates the value suffix.
 	void onUnitsChanged(const QString& units);
-	/// Called when the control's display precision changes; updates the number of decimals for the setpoint box.
+	/// Called when the control's display precision changes, updates the number of decimals for the setpoint box.
 	void onDisplayPrecisionChanged(int displayPrecision);
-	/// Called when the secondary control's value changes; updates the secondaryValueLabel_.
+	/// Called when the secondary control's value changes, updates the secondaryValueLabel_.
 	void onSecondaryValueChanged(double newValue);
-	/// Called when the secondary control's units change; updates the value suffix.
+	/// Called when the secondary control's units change, updates the value suffix.
 	void onSecondaryUnitsChanged(const QString& units);
 
-	/// Called when the control's isMoving() state changes; shows the moving icon.
+	/// Called when the control's isMoving() state changes, shows the moving icon.
 	void onMotion(bool moving);
 	/// Called when the control's enum information changes. We show or hide the enum button, and configure the entries in it.
 	void onEnumChanged();

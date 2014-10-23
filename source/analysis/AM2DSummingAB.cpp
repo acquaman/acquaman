@@ -41,28 +41,6 @@ AM2DSummingAB::AM2DSummingAB(const QString& outputName, QObject* parent)
 
 }
 
-/// This constructor is used to reload analysis blocks directly out of the database
-AM2DSummingAB::AM2DSummingAB(AMDatabase* db, int id)
-	: AMStandardAnalysisBlock("tempName") {
-
-	sumAxis_ = 0;
-	sumRangeMin_ = 0;
-	sumRangeMax_ = 0;
-
-	inputSource_ = 0;
-	cacheCompletelyInvalid_ = false;
-	// leave sources_ empty for now.
-
-	axes_ << AMAxisInfo("invalid", 0, "No input data");
-	setState(AMDataSource::InvalidFlag);
-
-	loadFromDb(db, id);
-		// will restore sumAxis, sumRangeMin, and sumRangeMax. We'll remain invalid until we get connected.
-
-	AMDataSource::name_ = AMDbObject::name();	// normally it's not okay to change a dataSource's name. Here we get away with it because we're within the constructor, and nothing's watching us yet.
-}
-
-
 // Check if a set of inputs is valid. The empty list (no inputs) must always be valid. For non-empty lists, our specific requirements are...
 /* - there must be a single input source or a list of 2D data sources
 	- the rank() of that input source must be 2 (two-dimensional)
@@ -70,7 +48,7 @@ AM2DSummingAB::AM2DSummingAB(AMDatabase* db, int id)
 bool AM2DSummingAB::areInputDataSourcesAcceptable(const QList<AMDataSource*>& dataSources) const {
 
 	if(dataSources.isEmpty())
-		return true;	// always acceptable; the null input.
+		return true;	// always acceptable, the null input.
 
 	// otherwise we need a single input source, with a rank of 2.
 	if(dataSources.count() == 1 && dataSources.at(0)->rank() == 2)
@@ -226,7 +204,7 @@ AMNumber AM2DSummingAB::value(const AMnDIndex& indexes) const {
 
 	AMNumber rv = cachedValues_.at(indexes.i());
 	// if we haven't calculated this sum yet, the cached value will be invalid. Sum and store.
-        if(!rv.isValid() && sumRangeMin_ <= sumRangeMax_) {
+		if(!rv.isValid() && sumRangeMin_ <= sumRangeMax_) {
 		double newVal = 0.0;	/// \todo preserve int/double nature of values
 		if(sumAxis_ == 0)
 			for(int i=sumRangeMin_; i<=sumRangeMax_; i++)
@@ -260,8 +238,8 @@ bool AM2DSummingAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEn
 		return false;
 #endif
 
-        if (sumRangeMin_ > sumRangeMax_)
-            return false;
+		if (sumRangeMin_ > sumRangeMax_)
+			return false;
 
 	int totalSize = indexStart.totalPointsTo(indexEnd);
 	int offset = indexStart.i();
@@ -319,12 +297,28 @@ AMNumber AM2DSummingAB::axisValue(int axisNumber, int index) const {
 	if(!isValid())
 		return AMNumber(AMNumber::InvalidError);
 
-	if(axisNumber != 0)
+	if(axisNumber != 0 && axisNumber != 1)
 		return AMNumber(AMNumber::DimensionError);
 
 	int otherAxis = (sumAxis_ == 0) ? 1 : 0;
 
 	return inputSource_->axisValue(otherAxis, index);
+}
+
+bool AM2DSummingAB::axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const
+{
+	if (!isValid())
+		return false;
+
+	if (axisNumber != 0 && axisNumber != 1)
+		return false;
+
+	int otherAxis = (sumAxis_ == 0) ? 1 : 0;
+
+	if (startIndex >= inputSource_->axisInfoAt(otherAxis).size || endIndex >= inputSource_->axisInfoAt(otherAxis).size)
+		return false;
+
+	return inputSource_->axisValues(otherAxis, startIndex, endIndex, outputValues);
 }
 
 // Connected to be called when the values of the input data source change

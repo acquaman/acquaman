@@ -58,7 +58,7 @@ REIXSXESMCPDataSource::REIXSXESMCPDataSource(const QString &name, AMReadOnlyPVCo
 
 }
 
-// Called whenever the connection state of any PV changes; emits valuesChanged(), sizeChanged(), and stateChanged() as required.
+// Called whenever the connection state of any PV changes. Emits valuesChanged(), sizeChanged(), and stateChanged() as required.
 void REIXSXESMCPDataSource::onConnectionStateChanged() {
 	bool wasConnected = isConnected_;
 
@@ -82,12 +82,11 @@ void REIXSXESMCPDataSource::onConnectionStateChanged() {
 		emitValuesChanged();
 		emitSizeChanged();
 		emitStateChanged(AMDataSource::ProcessingFlag);
-
-		// AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, 0, "Connection established to MCP Detector " + imagePV_->pvName() + QString(" Size: %1 x %2").arg(pixelsX_).arg(pixelsY_)));
 	}
 }
 
-int REIXSXESMCPDataSource::idOfAxis(const QString& axisName) {
+int REIXSXESMCPDataSource::idOfAxis(const QString& axisName) const
+{
 	if(axisName == axes_.at(0).name)
 		return 0;
 	if(axisName == axes_.at(1).name)
@@ -132,6 +131,16 @@ bool REIXSXESMCPDataSource::values(const AMnDIndex &indexStart, const AMnDIndex 
 AMNumber REIXSXESMCPDataSource::axisValue(int axisNumber, int index) const {
 	Q_UNUSED(axisNumber)
 	return index;
+}
+
+bool REIXSXESMCPDataSource::axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const
+{
+	Q_UNUSED(axisNumber);
+
+	for (int i = 0, size = endIndex-startIndex+1; i < size; i++)
+		outputValues[i] = startIndex + i;
+
+	return true;
 }
 
 // Called when the image PV changes. emits valuesChanged().

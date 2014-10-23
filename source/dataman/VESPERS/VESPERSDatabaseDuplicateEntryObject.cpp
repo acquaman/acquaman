@@ -301,43 +301,6 @@ bool VESPERSDatabaseDuplicateEntryObject::fix()
 	// End of patch.
 	/////////////////////////////////////////////////////////////
 
-	// Helper debug statments.
-	///////////////////////////////////////////////////////////////
-
-//	qDebug() << scanName_;
-//	qDebug() << thumbnailCount_;
-//	qDebug() << fileFormat_;
-//	qDebug() << filePath_;
-//	qDebug() << analyzedDataSourceConnections_;
-//	qDebug() << allRawDataSources_;
-//	qDebug() << allRawDataSourcesAssociatedTableIds_;
-//	qDebug() << allAnalysisBlocks_;
-//	qDebug() << allAnalysisBlocksAssociatedTableIds_;
-//	qDebug() << allAnalysisBlockTableNames_;
-//	qDebug() << allRawDataSources_.size() << allAnalysisBlocks_.size();
-//	qDebug() << allRawDataSourceNames_;
-//	qDebug() << duplicateRawDataSources_;
-//	qDebug() << duplicateRawDataSourceAssociatedTableIds_;
-//	qDebug() << allAnalysisBlockNames_;
-//	qDebug() << duplicateAnalysisBlocks_;
-//	qDebug() << duplicateAnalysisBlockAssociatedTableIds_;
-//	qDebug() << dataSourceIndexToBeRemoved_;
-//	qDebug() << analyzedDataSourceConnectionsToBeRemoved_;
-//	qDebug() << analyzedDataSourceConnectionsToRemain_;
-//	qDebug() << correctedAnalyzedDataSourceConnectionsToRemain_;
-//	qDebug() << fixedFileFormat_;
-//	qDebug() << fixedFilePath_;
-//	qDebug() << fixedAdditionalFilePath_;
-//	qDebug() << QFile::exists(path % filePath_);
-//	qDebug() << correctedThumbnailCount_;
-//	qDebug() << allThumbnailIds_;
-//	qDebug() << allThumbnailNames_;
-//	qDebug() << allThumbnailNumbers_;
-//	qDebug() << duplicateThumbnailIds_;
-//	qDebug() << duplicateThumbnailNumbers_;
-//	qDebug() << correctedThumbnailIds_;
-//	qDebug() << correctedThumbnailNumbers_;
-
 	// End of helper debug statements.
 	//////////////////////////////////////////////////////////////
 

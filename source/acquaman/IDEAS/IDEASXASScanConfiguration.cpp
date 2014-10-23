@@ -34,13 +34,9 @@ IDEASXASScanConfiguration::IDEASXASScanConfiguration(QObject *parent) :
 
 	setName("Unnamed Scan");
 	setUserScanName("Unnamed Scan");
-//	I0Channel_ = "I_0";
-//	ItChannel_ = "I_sample";
-//	IrChannel_ = "I_ref";
 	isXRFScan_ = true;
 	isTransScan_ = true;
 	useRef_ = true;
-
 
 	edge_ = "";
 	energy_ = 0.0;
@@ -51,7 +47,7 @@ IDEASXASScanConfiguration::IDEASXASScanConfiguration(QObject *parent) :
 	minEnergy_ = 0;
 	maxEnergy_ = 0;
 	totalPoints_ = 0;
-
+	fluorescenceDetector_ = IDEASXASScanConfiguration::Ketek;
 
 	AMScanAxisRegion *region = new AMScanAxisEXAFSRegion;
 	AMScanAxis *axis = new AMScanAxis(AMScanAxis::StepAxis, region);
@@ -76,17 +72,11 @@ IDEASXASScanConfiguration::IDEASXASScanConfiguration(const IDEASXASScanConfigura
 
 	setName(original.name());
 	setUserScanName(original.userScanName());
-//	I0Channel_ = original.I0Channel();
-//	ItChannel_ = original.ItChannel();
-//	IrChannel_ = original.IrChannel();
 	isXRFScan_ = original.isXRFScan();
 	isTransScan_ = original.isTransScan();
 	useRef_ = original.useRef();
 	timeOffset_ = original.timeOffset();
 	totalTime_ = original.totalTime();
-
-
-
 
 	edge_ = original.edge();
 	energy_ = original.energy();
@@ -95,7 +85,7 @@ IDEASXASScanConfiguration::IDEASXASScanConfiguration(const IDEASXASScanConfigura
 	minEnergy_ = original.minEnergy();
 	maxEnergy_ = original.maxEnergy();
 	totalPoints_ = original.totalPoints();
-
+	fluorescenceDetector_ = original.fluorescenceDetector();
 
 	computeTotalTime();
 
@@ -222,7 +212,6 @@ void IDEASXASScanConfiguration::setEnergy(double edgeEnergy)
 {
 	if (energy_ != edgeEnergy){
 
-//		exafsRegions()->setDefaultEdgeEnergy(edgeEnergy);
 		foreach (AMScanAxisRegion *region, scanAxisAt(0)->regions().toList())
 			((AMScanAxisEXAFSRegion *)region)->setEdgeEnergy(edgeEnergy);
 
@@ -273,4 +262,45 @@ void IDEASXASScanConfiguration::onRegionRemoved(AMScanAxisRegion *region)
 {
 	region->disconnect(this);
 	computeTotalTime();
+}
+
+void IDEASXASScanConfiguration::setIsXRFScan(bool isXRFScan)
+{
+	if(isXRFScan != isXRFScan_) {
+
+		isXRFScan_ = isXRFScan;
+		setModified(true);
+		emit configurationChanged();
+	}
+}
+
+void IDEASXASScanConfiguration::setIsTransScan(bool isTransScan)
+{
+	if(isTransScan != isTransScan_){
+
+		isTransScan_ = isTransScan;
+		setModified(true);
+		emit configurationChanged();
+	}
+}
+
+void IDEASXASScanConfiguration::setUseRef(bool useRef)
+{
+	if(useRef != useRef_){
+
+		useRef_ = useRef;
+		setModified(true);
+		emit configurationChanged();
+	}
+}
+
+void IDEASXASScanConfiguration::setFluorescenceDetector(IDEASXASScanConfiguration::FluorescenceDetector detector)
+{
+	if (fluorescenceDetector_ != detector){
+
+		fluorescenceDetector_ = detector;
+		emit fluorescenceDetectorChanged(fluorescenceDetector_);
+		emit fluorescenceDetectorChanged(int(fluorescenceDetector_));
+		setModified(true);
+	}
 }

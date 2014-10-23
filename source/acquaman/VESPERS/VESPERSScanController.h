@@ -27,8 +27,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/AMAction3.h"
 #include "dataman/info/AMDetectorInfoSet.h"
 
-//class QEpicsAdvAcq;
-
 /*!
 	This class contains many small helper methods that are used commonly amongst all of VESPERS Dacq scan controllers.
 	These are primarily adding in PV names to the dacq controller, adding non-configurable datasources and measurements,
@@ -39,12 +37,13 @@ class VESPERSScanController
 
 public:
 	/// Constructor.
-	virtual ~VESPERSScanController();
 	VESPERSScanController(VESPERSScanConfiguration *configuration);
+	/// Destructor.
+	virtual ~VESPERSScanController();
 
 protected:
 	/// Helper method that builds the base initialization actions.
-	AMAction3 *buildBaseInitializationAction(const AMDetectorInfoSet &detectorConfigurations);
+	AMAction3 *buildBaseInitializationAction();
 	/// Helper method that builds the CCD file path, name, and number for the beginning of a scan.  Requires the detector enum, ccd file name from the configuration, AND must be called after buildInitializationActions() because it assumes the list has already been created.
 	AMAction3 *buildCCDInitializationAction(VESPERS::CCDDetectors ccdChoice, const QString &ccdName);
 	/// Helper method that builds all of the cleanup actions.

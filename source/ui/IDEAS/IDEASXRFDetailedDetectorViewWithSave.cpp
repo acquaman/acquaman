@@ -59,6 +59,8 @@ void IDEASXRFDetailedDetectorViewWithSave::buildScanSaveViews()
 	scanInfoGridLayout->setVerticalSpacing(4);
 	scanInfoGridLayout->setContentsMargins(12, -1, -1, -1);
 
+	deadTimeCheckButton = new QPushButton("Check Dead Time");
+
 	peakingTimeBox = new QComboBox();
 	peakingTimeBox->setObjectName(QString::fromUtf8("peakingTimeBox"));
 	peakingTimeBox->addItem("Setting Unknown");
@@ -116,6 +118,8 @@ void IDEASXRFDetailedDetectorViewWithSave::buildScanSaveViews()
 
 	scanInfoGridLayout->addWidget(scanNumber, 1, 1, 1, 1);
 
+	rightLayout_->addWidget(deadTimeCheckButton);
+
 	rightLayout_->addWidget(peakingTimeBox);
 
 	rightLayout_->addStretch();
@@ -134,6 +138,7 @@ void IDEASXRFDetailedDetectorViewWithSave::buildScanSaveViews()
 	connect(scanName, SIGNAL(textChanged(QString)), this, SLOT(onScanNameChanged(QString)));
 	connect(scanNumber, SIGNAL(valueChanged(int)), this, SLOT(onScanNumberChanged(int)));
 	connect(peakingTimeBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(onPeakingTimeBoxChanged(QString)));
+	connect(deadTimeCheckButton, SIGNAL(clicked()), this, SLOT(onDeadTimeCheckButtonClicked()));
 	connect(acquireButton_, SIGNAL(clicked(bool)),saveScanButton_, SLOT(setEnabled(bool)));
 	connect(IDEASBeamline::ideas()->ketek(), SIGNAL(acquisitionSucceeded()),this, SLOT(onAcquisitionSucceeded()));
 	connect(cancelButton_, SIGNAL(clicked()),this, SLOT(onAcquisitionSucceeded()));
@@ -230,4 +235,19 @@ void IDEASXRFDetailedDetectorViewWithSave::onKETEKPeakingTimeChanged()
 
     peakingTimeBox->blockSignals(false);
 
+}
+
+void IDEASXRFDetailedDetectorViewWithSave::onDeadTimeCheckButtonClicked()
+{
+	if(detector_->isAcquiring())
+		return;
+
+	double requestedTime = detector_->acquisitionTime();
+
+	AMListAction3 *deadTimeCheckActions = new AMListAction3(new AMListActionInfo3("Quick Deadtime Check", "Quick Deadtime Check"));
+	deadTimeCheckActions->addSubAction(detector_->createSetAcquisitionTimeAction(0.1));
+	deadTimeCheckActions->addSubAction(detector_->createAcquisitionAction(AMDetectorDefinitions::SingleRead));
+	deadTimeCheckActions->addSubAction(detector_->createSetAcquisitionTimeAction(requestedTime));
+
+	deadTimeCheckActions->start();
 }

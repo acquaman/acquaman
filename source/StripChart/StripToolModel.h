@@ -34,99 +34,109 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 class StripToolModel : public QAbstractListModel
 {
-    Q_OBJECT
+	Q_OBJECT
 
 public:
-    explicit StripToolModel(QObject *parent = 0);
-    virtual ~StripToolModel();
+	explicit StripToolModel(QObject *parent = 0);
+	virtual ~StripToolModel();
 
 signals:
-//    void savePVData(QObject *toSave);
-    void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
-    void modelSelectionChange();
-    void selectedVariableDataRangeChanged(MPlotAxisRange *newRange);
-    void selectedVariableDisplayRangeChanged(const MPlotAxisRange *newRange);
-    void selectedVariableInfoChanged();
-    void variableCheckStateChanged(const QModelIndex &index);
+	/*
+	void savePVData(QObject *toSave);
+	*/
+	void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
+	void modelSelectionChange();
+	void selectedVariableDataRangeChanged(MPlotAxisRange *newRange);
+	void selectedVariableDisplayRangeChanged(const MPlotAxisRange *newRange);
+	void selectedVariableInfoChanged();
+	void variableCheckStateChanged(const QModelIndex &index);
 
 public:
-    bool contains(const QString &nameToFind) const;
-    StripToolVariable *findVariable(const QString &name) const;
+	bool contains(const QString &nameToFind) const;
+	StripToolVariable *findVariable(const QString &name) const;
 
-    bool contains(const QModelIndex &indexToFind) const;
-    StripToolVariable *findVariable(const QModelIndex &index) const;
+	bool contains(const QModelIndex &indexToFind) const;
+	StripToolVariable *findVariable(const QModelIndex &index) const;
 
-    bool contains(MPlotItem *itemToFind) const;
-    StripToolVariable* findVariable(MPlotItem *plotItem) const;
-    StripToolVariable* findVariable(int row) const;
+	bool contains(MPlotItem *itemToFind) const;
+	StripToolVariable* findVariable(MPlotItem *plotItem) const;
+	StripToolVariable* findVariable(int row) const;
 
-    bool contains(StripToolVariable *toMatch) const;
-    bool contains(StripToolVariableInfo *toMatch) const;
+	bool contains(StripToolVariable *toMatch) const;
+	bool contains(StripToolVariableInfo *toMatch) const;
 
-    StripToolVariable* selectedVariable() const;
+	StripToolVariable* selectedVariable() const;
 
-//    MPlotItem* plotItem(int row) const;
+	/*
+	MPlotItem* plotItem(int row) const;
+	*/
 
 public slots:
-    bool addVariable(StripToolVariable *variable);
-    bool addVariable(StripToolVariableInfo *infoSource);
+	bool addVariable(StripToolVariable *variable);
+	bool addVariable(StripToolVariableInfo *infoSource);
 
-//    bool removeVariable(StripToolVariable *variable);
-    bool removeVariable(const QModelIndex &index);
-    bool deleteVariable(StripToolVariable *variable);
-    void setSelectedVariable(StripToolVariable *newSelection);
+	/*
+	bool removeVariable(StripToolVariable *variable);
+	*/
+	bool removeVariable(const QModelIndex &index);
+	bool deleteVariable(StripToolVariable *variable);
+	void setSelectedVariable(StripToolVariable *newSelection);
 
-//    void enableWaterfall(bool isEnabled);
-    void changeDisplayedTimeAmount(int amount);
-//    void changeDisplayedTimeUnits(const QString &units);
-    void changeDisplayedTimeUnits(TimeEntryWidget::TimeUnits units);
+	void changeDisplayedTimeAmount(int amount);
+	/*
+	void enableWaterfall(bool isEnabled);
+	void changeDisplayedTimeUnits(const QString &units);
+	*/
+	void changeDisplayedTimeUnits(TimeEntryWidget::TimeUnits units);
 
 protected:
-    /// Returns the item flags for the entry at the given index.
-    Qt::ItemFlags flags(const QModelIndex &index) const;
+	/// Returns the item flags for the entry at the given index.
+	Qt::ItemFlags flags(const QModelIndex &index) const;
 
-    /// Returns the data that should be displayed when the given index is selected in a view--either the pv name or description.
-    QVariant data(const QModelIndex &index, int role) const;
+	/// Returns the data that should be displayed when the given index is selected in a view--either the pv name or description.
+	QVariant data(const QModelIndex &index, int role) const;
 
-    /// Returns the number of pvs in the model.
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
+	/// Returns the number of pvs in the model.
+	int rowCount(const QModelIndex &parent = QModelIndex()) const;
 
-    /// Allows the user to set the pv description directly in the list view.
-    bool setData(const QModelIndex &index, const QVariant &value, int role);
+	/// Allows the user to set the pv description directly in the list view.
+	bool setData(const QModelIndex &index, const QVariant &value, int role);
 
-    /// Returns false--no entries in the model have children.
-    bool hasChildren(const QModelIndex &parent) const;
+	/// Returns false--no entries in the model have children.
+	bool hasChildren(const QModelIndex &parent) const;
 
-    /// Removes a pv from the model, list view, and plot.
-    bool deletePV(const QModelIndex &index);
+	/// Removes a pv from the model, list view, and plot.
+	bool deletePV(const QModelIndex &index);
 
-    void deselectSelectedVariable();
-    void disconnectSelectedVariable();
-    void selectVariable(StripToolVariable *newSelection);
-    void connectSelectedVariable();
+	void deselectSelectedVariable();
+	void disconnectSelectedVariable();
+	void selectVariable(StripToolVariable *newSelection);
+	void connectSelectedVariable();
 
 protected slots:
 
-    /// Apply new line color selection.
-//    void colorPV(const QModelIndex &index, const QColor &color);
+	/*
+	/// Apply new line color selection.
+	void colorPV(const QModelIndex &index, const QColor &color);
+	*/
 
-    /// Handles propagating the change in check state from the view's checkbox to the StripToolPV checkstate, and lets both the plot and the list view know a change has happened.
-    void onCheckStateChanged(const QModelIndex &index, Qt::CheckState checked);
+	/// Handles propagating the change in check state from the view's checkbox to the StripToolPV checkstate, and lets both the plot and the list view know a change has happened.
+	void onCheckStateChanged(const QModelIndex &index, Qt::CheckState checked);
 
-    /// Handles propagating the change in a pv's description from the view's line entry to the StripToolPV description field, and lets the list view know a change has happened.
-    void onDescriptionChanged(const QModelIndex &index, const QString &newDescription);
+	/// Handles propagating the change in a pv's description from the view's line entry to the StripToolPV description field, and lets the list view know a change has happened.
+	void onDescriptionChanged(const QModelIndex &index, const QString &newDescription);
 
 private slots:
-    void toTestRangeSignal(MPlotAxisRange* newRange);
+	void toTestRangeSignal(MPlotAxisRange* newRange);
 
 
 private:
-    void makeConnections();
-    void defaultSettings();
+	void makeConnections();
+	void defaultSettings();
 
 private:
-    QList<StripToolVariable*> variables_;
-    StripToolVariable *selectedVariable_;
+	QList<StripToolVariable*> variables_;
+	StripToolVariable *selectedVariable_;
 
 };
 

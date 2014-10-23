@@ -83,7 +83,6 @@ public:
 
 	/// Returns (or casts) this AMDetectorInfo as an AMMeasurementInfo, which contains the bare-bones dimensional information.
 	operator AMMeasurementInfo() {
-		//return AMMeasurementInfo(name(), description(), units(), axes());
 		if(!description().isEmpty())
 			return AMMeasurementInfo(description().remove(" "), description(), units(), axes());
 		else
@@ -112,9 +111,6 @@ public slots:
 
 	/// Set the size of the detector. This may not be applicable or valid for some detectors (for example, a single-point detector, or one with a fixed dimensionality.  Returns false if it's invalid to set the size.
 	virtual bool setSize(const AMnDIndex& size) { Q_UNUSED(size); return false; }
-
-//protected:
-	//void retreiveAndSetProperties(const AMDetectorInfo &original);
 
 protected:
 	QString description_;

@@ -42,10 +42,6 @@ AM1DExpressionAB::AM1DExpressionAB(const QString& outputName, QObject* parent)
 	xParser_.DefineNameChars("0123456789_:.[]"
 							 "abcdefghijklmnopqrstuvwxyz"
 							 "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-	//parser_.DefineOprtChars("abcdefghijklmnopqrstuvwxyz"
-	//					   "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-	//				   "+-*^/?<>=#!$%&|~'_");
-	//parser_.DefineInfixOprtChars("/+-*^?<>=#!$%&|~'_");
 
 	// initial state is invalid: no inputs.
 	setState(AMDataSource::InvalidFlag);
@@ -67,10 +63,6 @@ AM1DExpressionAB::AM1DExpressionAB(AMDatabase* db, int id)
 	xParser_.DefineNameChars("0123456789_:.[]"
 							 "abcdefghijklmnopqrstuvwxyz"
 							 "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-	//parser_.DefineOprtChars("abcdefghijklmnopqrstuvwxyz"
-	//					   "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-	//				   "+-*^/?<>=#!$%&|~'_");
-	//parser_.DefineInfixOprtChars("/+-*^?<>=#!$%&|~'_");
 
 	// initial state is invalid: no inputs.
 	setState(AMDataSource::InvalidFlag);
@@ -110,7 +102,7 @@ void AM1DExpressionAB::setInputDataSourcesImplementation(const QList<AMDataSourc
 		disconnect(inputDataSourceAt(i)->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
 	}
 
-	// done with the old sources; these are our new sources now
+	// done with the old sources. These are our new sources now
 	sources_ = dataSources;
 
 	// clear old parser variables
@@ -176,7 +168,7 @@ void AM1DExpressionAB::reviewState() {
 // Access to input data sources
 //////////////////////////
 
-// Retrieve index of an input data source by name. (Hopefully no two data sources have the same name; if they do, this returns the first one.) Returns -1 if no input source found with this name.
+// Retrieve index of an input data source by name. (Hopefully no two data sources have the same name, if they do, this returns the first one.) Returns -1 if no input source found with this name.
 /* This might be involve a slow lookup; users should not call repeatedly.*/
 int AM1DExpressionAB::indexOfInputSource(const QString& dataSourceName) const {
 	for(int i=0; i<inputDataSourceCount(); i++)
@@ -264,7 +256,7 @@ AMNumber AM1DExpressionAB::value(const AMnDIndex& indexes) const {
 			return AMNumber(AMNumber::InvalidError);
 		}
 		if (rv == std::numeric_limits<qreal>::infinity() || rv == -std::numeric_limits<qreal>::infinity() || rv == std::numeric_limits<qreal>::quiet_NaN() || std::isnan(rv))
-                        return 0;
+						return 0;
 
 
 		return rv;
@@ -350,7 +342,8 @@ bool AM1DExpressionAB::values(const AMnDIndex &indexStart, const AMnDIndex &inde
 
 
 // When the independent values along an axis is not simply the axis index, this returns the independent value along an axis (specified by axis number and index)
-AMNumber AM1DExpressionAB::axisValue(int axisNumber, int index) const  {
+AMNumber AM1DExpressionAB::axisValue(int axisNumber, int index) const
+{
 	if(!isValid())	// will catch most invalid situations: non matching sizes, invalid inputs, invalid expressions.
 		return AMNumber(AMNumber::InvalidError);
 
@@ -397,7 +390,87 @@ AMNumber AM1DExpressionAB::axisValue(int axisNumber, int index) const  {
 	}
 }
 
+bool AM1DExpressionAB::axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const
+{
+	if(!isValid())	// will catch most invalid situations: non matching sizes, invalid inputs, invalid expressions.
+		return false;
 
+	if(axisNumber != 0)	// someone gave us a multi-dim index for a 1D dataset
+		return false;
+
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+	if(startIndex < 0 || startIndex >= size_)
+		return false;
+
+	if(endIndex < 0 || endIndex >= size_)
+		return false;
+#endif
+
+	if (xDirect_){
+
+		if (xDirectVar_.useAxisValue)
+			sources_.at(xDirectVar_.sourceIndex)->axisValues(axisNumber, startIndex, endIndex, outputValues);
+
+		else {
+
+			int size = endIndex - startIndex + 1;
+			QVector<double> tempOutput = QVector<double>(size, 0);
+			sources_.at(xDirectVar_.sourceIndex)->values(startIndex, endIndex, tempOutput.data());
+
+			for (int i = 0; i < size; i++)
+				outputValues[i] = AMNumber(tempOutput.at(i));
+		}
+	}
+
+	else {
+
+		int totalSize = endIndex - startIndex + 1;
+
+		// block-copy all of the input data sources (that are actually used in the expression) into allVarData.
+		QList<QVector<double> > allVarData;
+		for(int v=0; v<xUsedVariables_.count(); ++v) {
+			QVector<double> varData(totalSize);
+
+			AMParserVariable* usedVar = xUsedVariables_.at(v);
+			if(usedVar->useAxisValue) {
+				for(int i=0; i<totalSize; i++)
+					varData[i] = sources_.at(usedVar->sourceIndex)->axisValue(0, i+startIndex);
+			}
+			else {
+				bool success = sources_.at(usedVar->sourceIndex)->values(startIndex, endIndex, varData.data());
+				if(!success)
+					return false;
+			}
+			allVarData << varData;
+		}
+
+		// loop through and parse all values
+		for(int i=0; i<totalSize; i++) {	// loop through points
+
+			for(int v=0,cc=xUsedVariables_.count(); v<cc; v++) {
+				xUsedVariables_.at(v)->value = allVarData.at(v).at(i);
+			}
+
+			// evaluate using the parser:
+			double rv;
+			try {
+				rv = parser_.Eval();
+			}
+			catch(mu::Parser::exception_type& e) {
+				QString explanation = QString("AM1DExpressionAB Analysis Block: error evaluating value: %1: '%2'.  We found '%3' at position %4.").arg(QString::fromStdString(e.GetMsg()), QString::fromStdString(e.GetExpr()), QString::fromStdString(e.GetToken())).arg(e.GetPos());
+				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, e.GetCode(), explanation));
+				return false;
+			}
+
+			if (rv == std::numeric_limits<qreal>::infinity() || rv == -std::numeric_limits<qreal>::infinity() || rv == std::numeric_limits<qreal>::quiet_NaN() || std::isnan(rv))
+				rv = 0;
+
+			outputValues[i] = AMNumber(rv);
+		}
+	}
+
+	return true;
+}
 
 
 void AM1DExpressionAB::onInputSourceValuesChanged(const AMnDIndex& start, const AMnDIndex& end) {
@@ -506,8 +579,6 @@ bool AM1DExpressionAB::setExpression(const QString& newExpression) {
 
 	}
 	catch(mu::Parser::exception_type& e) {
-		// QString explanation = QString("AM1DExpressionAB Analysis Block: error setting expression: %1: '%2'.  We found '%3' at position %4.").arg(QString::fromStdString(e.GetMsg())).arg(QString::fromStdString(e.GetExpr())).arg(QString::fromStdString(e.GetToken())).arg(e.GetPos());
-		// AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, e.GetCode(), explanation));
 		expressionValid_ = false;
 	}
 
@@ -569,8 +640,6 @@ bool AM1DExpressionAB::setXExpression(const QString& xExpressionIn) {
 
 	}
 	catch(mu::Parser::exception_type& e) {
-		// QString explanation = QString("AM1DExpressionAB Analysis Block: error setting X expression: %1: '%2'.  We found '%3' at position %4.").arg(QString::fromStdString(e.GetMsg())).arg(QString::fromStdString(e.GetExpr())).arg(QString::fromStdString(e.GetToken())).arg(e.GetPos());
-		// AMErrorMon::report(AMErrorReport(this, AMErrorReport::Debug, e.GetCode(), explanation));
 		xExpressionValid_ = false;
 	}
 

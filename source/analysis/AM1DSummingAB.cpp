@@ -36,7 +36,7 @@ AM1DSummingAB::AM1DSummingAB(const QString &outputName, QObject *parent)
 bool AM1DSummingAB::areInputDataSourcesAcceptable(const QList<AMDataSource*>& dataSources) const
 {
 	if(dataSources.isEmpty())
-		return true; // always acceptable; the null input.
+		return true; // always acceptable, the null input.
 
 	// otherwise input sources have rank of 1.
 	for (int i = 0; i < dataSources.count(); i++)
@@ -166,6 +166,20 @@ AMNumber AM1DSummingAB::axisValue(int axisNumber, int index) const
 #endif
 
 	return sources_.first()->axisValue(0, index);
+}
+
+bool AM1DSummingAB::axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const
+{
+	if (!isValid())
+		return false;
+
+	if (axisNumber != 0)
+		return false;
+
+	if (startIndex >= axes_.at(axisNumber).size || endIndex >= axes_.at(axisNumber).size)
+		return false;
+
+	return sources_.first()->axisValues(axisNumber, startIndex, endIndex, outputValues);
 }
 
 // Connected to be called when the values of the input data source change

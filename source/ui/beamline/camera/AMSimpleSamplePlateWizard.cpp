@@ -86,7 +86,6 @@ int AMSimpleSamplePlateWizard::nextId() const
 			return Page_Option;
 		else{
 			return pageWait(0);
-//			return pageSet(0);
 		}
 	case Page_Final:
 		return -1;
@@ -94,14 +93,16 @@ int AMSimpleSamplePlateWizard::nextId() const
 		int id = relativeId();
 		if(isWaitPage(pageId))
 		{
+			/*
 			for(int j = 0; j < numberOfPages(); j++)
 			{
-				/* make sure clicks are disconnected (just in case) */
+				// make sure clicks are disconnected (just in case)
 				if(j != id)
 				{
-//					((AMSimpleSampleSetPage*)page(pageSet(j)))->disconnectMouseSignal();
+					((AMSimpleSampleSetPage*)page(pageSet(j)))->disconnectMouseSignal();
 				}
 			}
+			*/
 
 			return pageSet(id);
 		}
@@ -228,7 +229,9 @@ void AMSimpleSamplePlateWizard::back()
 	}
 	else if (isSetPage(pageId))
 	{
-//		((AMSimpleSampleSetPage*)page(pageId))->disconnectMouseSignal();
+		/*
+		((AMSimpleSampleSetPage*)page(pageId))->disconnectMouseSignal();
+		*/
 		if(relativeId() == 0)
 		{
 			while(currentId() != Page_Intro)

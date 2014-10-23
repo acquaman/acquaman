@@ -78,7 +78,7 @@ bool AMInMemoryDataStore::addScanAxis(const AMAxisInfo &axisDetails) {
 	}
 
 	else {	// there are axes already.
-		// check 1: the size of this axis must not be 0; they must provide a final size
+		// check 1: the size of this axis must not be 0, they must provide a final size
 		if(axisInfo.size < 1) {
 			AMErrorMon::debug(0, -722, QString("AMInMemoryDataStore: Could not add a scan axis '%1' with a size of 0 to the data store; all axes except for the first must specify their final size.").arg(axisDetails.name));
 			return false;
@@ -117,7 +117,7 @@ AMNumber AMInMemoryDataStore::value(const AMnDIndex &scanIndex, int measurementI
 		return AMNumber(AMNumber::DimensionError);
 
 	if((unsigned)measurementId >= (unsigned)measurements_.count())
-		return AMNumber(AMNumber::InvalidError);	// invalid measurement specified;
+		return AMNumber(AMNumber::InvalidError);	// invalid measurement specified
 
 	if(measurementIndex.rank() != measurements_.at(measurementId).rank())
 		return AMNumber(AMNumber::DimensionError);
@@ -149,7 +149,7 @@ bool AMInMemoryDataStore::setValue(const AMnDIndex &scanIndex, int measurementId
 		return false; // scan axis index doesn't provide enough / too many dimensions
 
 	if((unsigned)measurementId >= (unsigned)measurements_.count())
-		return false;	// invalid measurement specified;
+		return false;	// invalid measurement specified
 
 	if(measurementIndex.rank() != measurements_.at(measurementId).rank())
 		return false;
@@ -214,7 +214,7 @@ bool AMInMemoryDataStore::values(const AMnDIndex &scanIndexStart, const AMnDInde
 	// specific cases of scan rank:
 	switch(scanIndexStart.rank()) {
 	case 0: {
-		// null scan space; just copy in the measurement block
+		// null scan space, just copy in the measurement block
 
 		if(measurementIndexStart.rank() == 0) {	// If measurements are scalar values, can optimize.
 			outputValues[0] = double(scalarScanPoint_.at(measurementId).at(0));
@@ -407,7 +407,7 @@ bool AMInMemoryDataStore::setValue(const AMnDIndex &scanIndex, int measurementId
 		return false;
 
 	if((unsigned)measurementId >= (unsigned)measurements_.count())
-		return false;	// invalid measurement specified;
+		return false;	// invalid measurement specified
 
 	// scalar scan space:
 	if(axes_.count() == 0) {
@@ -437,7 +437,7 @@ bool AMInMemoryDataStore::setValue(const AMnDIndex &scanIndex, int measurementId
 		return false;
 
 	if((unsigned)measurementId >= (unsigned)measurements_.count())
-		return false;	// invalid measurement specified;
+		return false;	// invalid measurement specified
 
 	// scalar scan space:
 	if(axes_.count() == 0) {
@@ -477,6 +477,24 @@ AMNumber AMInMemoryDataStore::axisValue(int axisId, long axisIndex) const {
 	else
 		return axisValues_.at(axisId).at(axisIndex);
 
+}
+
+bool AMInMemoryDataStore::axisValues(int axisId, long axisStartIndex, long axisEndIndex, AMNumber *outputValues) const
+{
+	if((unsigned)axisId >= (unsigned)axes_.count())
+		return false;	// invalid axis specified.
+
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+	if((unsigned)axisStartIndex >= (unsigned)axes_.at(axisId).size)
+		return false;
+
+	if((unsigned)axisEndIndex >= (unsigned)axes_.at(axisId).size)
+		return false;
+#endif
+
+	memcpy(outputValues, (axisValues_.at(axisId).constData()+axisStartIndex), (axisEndIndex-axisStartIndex+1)*sizeof(AMNumber));
+
+	return true;
 }
 
 bool AMInMemoryDataStore::setAxisValue(int axisId, long axisIndex, AMNumber newValue) {

@@ -55,7 +55,6 @@ protected slots:
 	void onSGMBeamlineConnected();
 
 protected:
-	//AMSampleManagementWidget* samplePositionView_;
 	SGMSampleManipulatorView* sampleManipulatorView_;
 	SGMSidebar* sgmSidebar_;
 };
