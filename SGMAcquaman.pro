@@ -1,14 +1,8 @@
-#include ( acquamanCommon.pri )
-include ( acquamanCommon.pri )
-include ( sgmCommon.pri )
+# #####################################################################
+# QMake project file for acquaman, including test suites			January 2010. mark.boots@usask.ca
+# #####################################################################
 
-TARGET = SGMAcquaman	
-
-RESOURCES += \
-	source/beamline/SGM/TransferHelpImages/LoadLockOutImages.qrc \
-	source/beamline/SGM/TransferHelpImages/LoadLockInImages.qrc \
-	source/beamline/SGM/TransferHelpImages/ChamberOutImages.qrc \
-	source/beamline/SGM/TransferHelpImages/ChamberInImages.qrc
-
-SOURCES += \
-	source/application/SGM/SGMMain.cpp
+TEMPLATE = subdirs
+SUBDIRS += \
+	Initialize.pro \
+        SGMAcquaman_internal.pro
