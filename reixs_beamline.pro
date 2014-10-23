@@ -3,6 +3,7 @@
 # #####################################################################
 
 TEMPLATE = subdirs
-SUBDIRS +=	REIXSAcquaman.pro \
+SUBDIRS +=	Initialize.pro \
+		REIXSAcquaman.pro \
 		pluginProjects/FileLoaders/AMFileLoaderPlugins.pro \
 		AMCrashReporter.pro
