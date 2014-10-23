@@ -14,7 +14,8 @@ HEADERS += \
     source/ui/BioXAS/BioXASSideMonoBasicEnergyView.h \
     source/ui/BioXAS/BioXASSideMonoCrystalChangeView.h \
     source/beamline/BioXAS/BioXASSideMonochromatorControl.h \
-    source/acquaman/BioXASSide/BioXASSideMonoCrystalChangeSteps.h
+    source/acquaman/BioXASSide/BioXASSideMonoCrystalChangeSteps.h \
+    source/ui/BioXAS/BioXASSideScalerView.h
 
 SOURCES += \
     source/application/BioXAS/BioXASSideMain.cpp \
@@ -28,4 +29,5 @@ SOURCES += \
     source/ui/BioXAS/BioXASSideMonoBasicEnergyView.cpp \
     source/ui/BioXAS/BioXASSideMonoCrystalChangeView.cpp \
     source/beamline/BioXAS/BioXASSideMonochromatorControl.cpp \
-    source/acquaman/BioXASSide/BioXASSideMonoCrystalChangeSteps.cpp
+    source/acquaman/BioXASSide/BioXASSideMonoCrystalChangeSteps.cpp \
+    source/ui/BioXAS/BioXASSideScalerView.cpp
