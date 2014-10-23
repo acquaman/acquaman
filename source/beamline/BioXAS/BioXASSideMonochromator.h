@@ -192,6 +192,7 @@ protected:
 
     // Controls
 
+    AMControl* braggMotorPower_;
     AMControl* slitsClosed_;
     AMControl* paddleOut_;
     AMControl* crystalChangeEnabled_;
