@@ -4,7 +4,6 @@
 #include <QWidget>
 
 #include "beamline/BioXAS/BioXASSideBeamline.h"
-#include "ui/CLS/CLSSIS3820CompositeScalerChannelView.h"
 #include "ui/CLS/CLSSIS3820ScalerView.h"
 
 class BioXASSideScalerView : public QWidget
