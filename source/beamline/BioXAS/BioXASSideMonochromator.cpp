@@ -231,12 +231,22 @@ AMAction3* BioXASSideMonochromator::createSetEnergyAction(double newEnergy)
 
 AMAction3* BioXASSideMonochromator::createSetBraggMotorPowerOnAction()
 {
-    return 0;
+    AMControlInfo *setpoint = braggMotor_->toInfo();
+    setpoint->setValue(1);
+    AMControlMoveActionInfo3 *info = new AMControlMoveActionInfo3(setpoint);
+    AMControlMoveAction3 *action = new AMControlMoveAction3(info, braggMotor_);
+
+    return action;
 }
 
 AMAction3* BioXASSideMonochromator::createSetBraggMotorPowerAutoAction()
 {
-    return 0;
+    AMControlInfo *setpoint = braggMotor_->toInfo();
+    setpoint->setValue(3);
+    AMControlMoveActionInfo3 *info = new AMControlMoveActionInfo3(setpoint);
+    AMControlMoveAction3 *action = new AMControlMoveAction3(info, braggMotor_);
+
+    return action;
 }
 
 void BioXASSideMonochromator::onConnectedChanged()
