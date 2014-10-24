@@ -1,11 +1,11 @@
 macx {
-		# MPlot Source
-		MPLOT_INCLUDE_DIR = $$PATH_TO_AM/../MPlot_4_8/include
-		MPLOT_LIB_DIR = $$PATH_TO_AM/../MPlot_4_8/lib
+	# MPlot Source
+	MPLOT_INCLUDE_DIR = $$PATH_TO_AM/../MPlot_4_8/include
+	MPLOT_LIB_DIR = $$PATH_TO_AM/../MPlot_4_8/lib
 } else {
-		# MPlot Source
-		MPLOT_INCLUDE_DIR = $$PATH_TO_AM/../MPlot/include
-		MPLOT_LIB_DIR = $$PATH_TO_AM/../MPlot/lib
+	# MPlot Source
+	MPLOT_INCLUDE_DIR = $$PATH_TO_AM/../MPlot/include
+	MPLOT_LIB_DIR = $$PATH_TO_AM/../MPlot/lib
 }
 
 contains( DEFINES, AM_PRAGMA_WARNING_CONTROLS){
