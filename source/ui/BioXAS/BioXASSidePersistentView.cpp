@@ -35,7 +35,7 @@ BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
     connect( viewCrystalChangeButton_, SIGNAL(clicked()), this, SLOT(toViewMonoCrystalChangeInstructions()) );
 
     QVBoxLayout *scalerPanelLayout = new QVBoxLayout();
-    scalerPanelLayout->addWidget(new BioXASSideScalerView());
+    scalerPanelLayout->addWidget(new BioXASSideScalerView(this));
 
     QGroupBox *scalerPanel = new QGroupBox("Preamp Settings");
     scalerPanel->setLayout(scalerPanelLayout);

@@ -5,6 +5,7 @@
 
 #include "beamline/BioXAS/BioXASSideBeamline.h"
 #include "ui/CLS/CLSSIS3820ScalerView.h"
+#include "ui/CLS/CLSSIS3820ScalerChannelViewWithDarkCurrent.h"
 
 class BioXASSideScalerView : public QWidget
 {
