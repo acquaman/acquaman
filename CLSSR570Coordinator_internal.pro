@@ -1,4 +1,5 @@
-include ( acquamanCommon.pri )
+include ( $$PATH_TO_AM/compositeCommon/AMCurrentAmplifier.pri )
+include ( $$PATH_TO_AM/compositeCommon/AMControlSet.pri )
 
 TARGET = CLSSR570CoordinatorApp
 
