@@ -56,11 +56,13 @@ CLSSIS3820ScalerChannelViewWithDarkCurrent::~CLSSIS3820ScalerChannelViewWithDark
 
 }
 
-void CLSSIS3820ScalerChannelViewWithDarkCurrent::updateView()
+void CLSSIS3820ScalerChannelViewWithDarkCurrent::updateDarkCurrentView()
 {
-    updateDarkCurrentValue();
-    updateDarkCurrentStatus();
-    updateDarkCurrentCorrected();
+    if (channel_->detector()->canDoDarkCurrentCorrection()) {
+        updateDarkCurrentValue();
+        updateDarkCurrentStatus();
+        updateDarkCurrentCorrected();
+    }
 }
 
 void CLSSIS3820ScalerChannelViewWithDarkCurrent::updateDarkCurrentValue()

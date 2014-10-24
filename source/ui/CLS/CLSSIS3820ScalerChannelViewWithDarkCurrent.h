@@ -43,7 +43,7 @@ signals:
 
 public slots:
     /// Updates all UI elements.
-    void updateView();
+    void updateDarkCurrentView();
 
 protected slots:
     /// Handles updating the displayed dark current value.
