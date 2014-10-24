@@ -224,6 +224,9 @@ void VESPERSBeamline::setupSampleStage()
 	attoStageRy_ = new AMPVwStatusControl("Atto Theta Stage", "SVM1607-2-B21-07:deg:sp", "SVM1607-2-B21-07:deg", "SVM1607-2-B21-07:status", "SVM1607-2-B21-07:stop.PROC", this, 0.01, 10.0);
 	attoStageRx_ = new AMPVwStatusControl("Atto Psi Stage", "SVM1607-2-B21-08:deg:sp", "SVM1607-2-B21-08:deg", "SVM1607-2-B21-08:status", "SVM1607-2-B21-08:stop.PROC", this, 0.01, 10.0);
 
+	bigBeamX_ = new AMPVwStatusControl("Big Beam X", "SMTR1607-2-B21-36:mm:sp", "SMTR1607-2-B21-36:mm", "SMTR1607-2-B21-36:status", "SMTR1607-2-B21-36:stop.PROC", this, 0.01, 10.0);
+	bigBeamZ_ = new AMPVwStatusControl("Big Beam Z", "SMTR1607-2-B21-37:mm:sp", "SMTR1607-2-B21-37:mm", "SMTR1607-2-B21-37:status", "SMTR1607-2-B21-37:stop.PROC", this, 0.01, 10.0);
+
 	// Reset signals.
 	pseudoSampleStageResetControl_ = new AMSinglePVControl("Pseudo Sample Stage Reset Control", "TS1607-2-B21-02:HNV:loadOffsets.PROC", this, 0.1);
 	realSampleStageResetControl_ = new AMSinglePVControl("Real Sample Stage Reset Control", "TS1607-2-B21-02:XYZ:loadOffsets.PROC", this, 0.1);
@@ -289,6 +292,14 @@ void VESPERSBeamline::setupMotorGroup()
 	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
 	motorObject = new AMMotorGroupObject("Attocube Stage - Rz", "Rz", "deg", attoStageRz_, AMMotorGroupObject::Horizontal, AMMotorGroupObject::Rotational, this);
 	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
+	motorObject = new AMMotorGroupObject("Big Beam - X, Z",
+										QStringList() << "X" << "Z",
+										QStringList() << "mm" << "mm",
+										QList<AMControl *>() << bigBeamX_ << bigBeamZ_,
+										QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Horizontal << AMMotorGroupObject::Vertical,
+										QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational,
+										this);
+	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
 }
 
 QString VESPERSBeamline::motorGroupName(VESPERS::Motors motor) const
@@ -313,6 +324,12 @@ QString VESPERSBeamline::motorGroupName(VESPERS::Motors motor) const
 
 	else if (motor.testFlag(VESPERS::AttoRz))
 		return "Attocube Stage - Rz";
+
+	else if (motor.testFlag(VESPERS::BigBeamX) || motor.testFlag(VESPERS::BigBeamZ))
+		return "Big Beam -X, Z";
+
+	else if (motor.testFlag(VESPERS::WireH) || motor.testFlag(VESPERS::WireV) || motor.testFlag(VESPERS::WireN))
+		return "Wire Stage - H, V, N";
 
 	return "Sample Stage - H, V, N";
 }
@@ -683,6 +700,11 @@ void VESPERSBeamline::setupExposedControls()
 	addExposedControl(realSampleStageMotorGroupObject()->horizontalControl());
 	addExposedControl(realSampleStageMotorGroupObject()->verticalControl());
 	addExposedControl(realSampleStageMotorGroupObject()->normalControl());
+	addExposedControl(pseudoWireStageMotorGroupObject()->horizontalControl());
+	addExposedControl(pseudoWireStageMotorGroupObject()->verticalControl());
+	addExposedControl(pseudoWireStageMotorGroupObject()->normalControl());
+	addExposedControl(bigBeamMotorGroupObject()->horizontalControl());
+	addExposedControl(bigBeamMotorGroupObject()->verticalControl());
 	addExposedControl(mono_->delEControl());
 	addExposedControl(mono_->EaControl());
 }
