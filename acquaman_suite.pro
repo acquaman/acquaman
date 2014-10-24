@@ -33,4 +33,5 @@ SUBDIRS += \
 	CLSNetworkDirectorySynchronizer.pro \
 	buildTests/AMBuildTest.pro \
 	XRDAnalysis.pro \
-	CLSSR570Coordinator.pro
+	CLSSR570Coordinator.pro \
+	SXRMBAcquaman.pro
