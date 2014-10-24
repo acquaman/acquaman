@@ -411,6 +411,10 @@ public:
 	AMControl *attoStageRy() const { return attoStageRy_; }
 	/// Returns the psi tilt attocube control.
 	AMControl *attoStageRx() const { return attoStageRx_; }
+	/// Returns the big beam x control.
+	AMControl *bigBeamX() const { return bigBeamX_; }
+	/// Returns the big beam z control.
+	AMControl *bigBeamZ() const { return bigBeamZ_; }
 
 	// The motor group and specific motor group object getters.
 	/// Helper method that returns a name of the motor group object given a VESPERS::Motor enum.
@@ -433,6 +437,8 @@ public:
 	AMMotorGroupObject *attocubeRyMotorGroupObject() const { return motorGroup_->motorGroupObject("Attocube Stage - Ry"); }
 	/// Returns the Rz rotation attocube motor group object.
 	AMMotorGroupObject *attocubeRzMotorGroupObject() const { return motorGroup_->motorGroupObject("Attocube Stage - Rz"); }
+	/// Returns the Big Beam motor group object.
+	AMMotorGroupObject *bigBeamMotorGroupObject() const { return motorGroup_->motorGroupObject("Big Beam - X, Z"); }
 
 	// The reset controls for the pseudo motors.
 	/// Returns the pseudo sample stage reset control.
@@ -793,6 +799,10 @@ protected:
 	AMControl *attoStageRz_;
 	AMControl *attoStageRy_;
 	AMControl *attoStageRx_;
+
+	// Big beam.
+	AMControl *bigBeamX_;
+	AMControl *bigBeamZ_;
 
 	// The reset controls for each sample stage.
 	AMControl *pseudoSampleStageResetControl_;
