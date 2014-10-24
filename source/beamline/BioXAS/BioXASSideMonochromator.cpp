@@ -17,6 +17,7 @@ BioXASSideMonochromator::BioXASSideMonochromator(QObject *parent) :
     crystal2PitchMotor_ = new BioXASCLSMAXvMotor(BioXASBeamlineDef::MonoMotor, QString("SMTR1607-5-I22-25 XTAL 2 PITCH"), QString("SMTR1607-5-I22-25"), QString("SMTR1607-5-I22-25 XTAL 2 PITCH"), QString(":V"),   true, 0.05, 2.0, this);
     crystal2RollMotor_ = new BioXASCLSMAXvMotor(BioXASBeamlineDef::MonoMotor, QString("SMTR1607-5-I22-26 XTAL 2 ROLL"), QString("SMTR1607-5-I22-26"), QString("SMTR1607-5-I22-26 XTAL 2 ROLL"), QString(":V"),   true, 0.05, 2.0, this);
 
+    braggMotorPower_ = new AMPVControl("BraggMotorPower", "SMTR1607-5-I22-12:power", "SMTR1607-5-I22-12:power", QString(), this);
     slitsClosed_ = new AMPVControl("SlitsClosed", "BL1607-5-I21:SlitsClosed", "BL1607-5-I21:SlitsOprCloseCmd", QString(), this);
     paddleOut_ = new AMPVControl("PaddleOut", "BL1607-5-I21:PaddleExtracted", "BL1607-I21:PaddleOprOutCmd", QString(), this);
     crystalChangeEnabled_ = new AMReadOnlyPVControl("CrystalStageMotorDisabled", "BL1607-5-I21:KeyStatus", this);
@@ -225,6 +226,26 @@ AMAction3* BioXASSideMonochromator::createSetEnergyAction(double newEnergy)
     setpoint.setValue(newEnergy);
     AMControlMoveActionInfo3* actionInfo = new AMControlMoveActionInfo3(setpoint);
     AMControlMoveAction3* action = new AMControlMoveAction3(actionInfo, energy_);
+
+    return action;
+}
+
+AMAction3* BioXASSideMonochromator::createSetBraggMotorPowerOnAction()
+{
+    AMControlInfo setpoint = braggMotorPower_->toInfo();
+    setpoint.setValue(1);
+    AMControlMoveActionInfo3 *info = new AMControlMoveActionInfo3(setpoint);
+    AMControlMoveAction3 *action = new AMControlMoveAction3(info, braggMotorPower_);
+
+    return action;
+}
+
+AMAction3* BioXASSideMonochromator::createSetBraggMotorPowerAutoAction()
+{
+    AMControlInfo setpoint = braggMotorPower_->toInfo();
+    setpoint.setValue(3);
+    AMControlMoveActionInfo3 *info = new AMControlMoveActionInfo3(setpoint);
+    AMControlMoveAction3 *action = new AMControlMoveAction3(info, braggMotorPower_);
 
     return action;
 }

@@ -53,12 +53,20 @@ BioXASSideXASScanActionController::BioXASSideXASScanActionController(BioXASSideX
 
 AMAction3* BioXASSideXASScanActionController::createInitializationActions()
 {
-    return 0;
+    AMListActionInfo3 *info = new AMListActionInfo3("BioXASSide Scan Initialization", "BioXASSide Scan Initialization");
+    AMListAction3 *initializationActions = new AMListAction3(info);
+    initializationActions->addSubAction(BioXASSideBeamline::bioXAS()->mono()->createSetBraggMotorPowerOnAction());
+
+    return initializationActions;
 }
 
 AMAction3* BioXASSideXASScanActionController::createCleanupActions()
 {
-    return 0;
+    AMListActionInfo3 *info = new AMListActionInfo3("BioXASSide Scan Cleanup", "BioXASSide Scan Cleanup");
+    AMListAction3 *cleanupActions = new AMListAction3(info);
+    cleanupActions->addSubAction(BioXASSideBeamline::bioXAS()->mono()->createSetBraggMotorPowerAutoAction());
+
+    return cleanupActions;
 }
 
 void BioXASSideXASScanActionController::cancelImplementation()

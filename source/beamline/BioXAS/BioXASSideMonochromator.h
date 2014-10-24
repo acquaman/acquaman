@@ -115,6 +115,10 @@ public:
     AMAction3* createCrystalChangeAction();
     /// Returns a new set energy action, 0 if not connected.
     AMAction3* createSetEnergyAction(double newEnergy);
+    /// Returns a new action that turns on the bragg motor, 0 if not connected.
+    AMAction3* createSetBraggMotorPowerOnAction();
+    /// Returns a new action that sets the bragg motor power to auto-software.
+    AMAction3* createSetBraggMotorPowerAutoAction();
 
 signals:
     /// Notifier that the mono's connections with its pvs have changed.
@@ -188,6 +192,7 @@ protected:
 
     // Controls
 
+    AMControl* braggMotorPower_;
     AMControl* slitsClosed_;
     AMControl* paddleOut_;
     AMControl* crystalChangeEnabled_;
