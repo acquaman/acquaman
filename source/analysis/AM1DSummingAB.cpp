@@ -168,6 +168,20 @@ AMNumber AM1DSummingAB::axisValue(int axisNumber, int index) const
 	return sources_.first()->axisValue(0, index);
 }
 
+bool AM1DSummingAB::axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const
+{
+	if (!isValid())
+		return false;
+
+	if (axisNumber != 0)
+		return false;
+
+	if (startIndex >= axes_.at(axisNumber).size || endIndex >= axes_.at(axisNumber).size)
+		return false;
+
+	return sources_.first()->axisValues(axisNumber, startIndex, endIndex, outputValues);
+}
+
 // Connected to be called when the values of the input data source change
 void AM1DSummingAB::onInputSourceValuesChanged(const AMnDIndex& start, const AMnDIndex& end)
 {

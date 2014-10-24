@@ -192,6 +192,20 @@ AMNumber AM2DDeadTimeCorrectionAB::axisValue(int axisNumber, int index) const
 	return spectra_->axisValue(axisNumber, index);
 }
 
+bool AM2DDeadTimeCorrectionAB::axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const
+{
+	if (!isValid())
+		return false;
+
+	if (axisNumber != 0 && axisNumber != 1)
+		return false;
+
+	if (startIndex >= spectra_->size(axisNumber) || endIndex >= spectra_->size(axisNumber))
+		return false;
+
+	return spectra_->axisValues(axisNumber, startIndex, endIndex, outputValues);
+}
+
 void AM2DDeadTimeCorrectionAB::onInputSourceValuesChanged(const AMnDIndex& start, const AMnDIndex& end)
 {
 	emitValuesChanged(start, end);

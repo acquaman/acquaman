@@ -297,12 +297,28 @@ AMNumber AM2DSummingAB::axisValue(int axisNumber, int index) const {
 	if(!isValid())
 		return AMNumber(AMNumber::InvalidError);
 
-	if(axisNumber != 0)
+	if(axisNumber != 0 && axisNumber != 1)
 		return AMNumber(AMNumber::DimensionError);
 
 	int otherAxis = (sumAxis_ == 0) ? 1 : 0;
 
 	return inputSource_->axisValue(otherAxis, index);
+}
+
+bool AM2DSummingAB::axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const
+{
+	if (!isValid())
+		return false;
+
+	if (axisNumber != 0 && axisNumber != 1)
+		return false;
+
+	int otherAxis = (sumAxis_ == 0) ? 1 : 0;
+
+	if (startIndex >= inputSource_->axisInfoAt(otherAxis).size || endIndex >= inputSource_->axisInfoAt(otherAxis).size)
+		return false;
+
+	return inputSource_->axisValues(otherAxis, startIndex, endIndex, outputValues);
 }
 
 // Connected to be called when the values of the input data source change

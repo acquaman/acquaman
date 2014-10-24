@@ -62,28 +62,6 @@ QString VESPERSFourElementVortexDetector::synchronizedDwellKey() const
 	return "dxp1607-B21-04:EraseStart NPP NMS";
 }
 
-bool VESPERSFourElementVortexDetector::sharesDetectorTriggerSource() const
-{
-	return currentlySynchronizedDwell();
-}
-
-#include "beamline/AMBeamline.h"
-AMDetectorTriggerSource* VESPERSFourElementVortexDetector::detectorTriggerSource()
-{
-	if(currentlySynchronizedDwell())
-		return AMBeamline::bl()->synchronizedDwellTime()->triggerSource();
-
-	return 0;
-}
-
-AMDetectorDwellTimeSource* VESPERSFourElementVortexDetector::detectorDwellTimeSource()
-{
-	if(currentlySynchronizedDwell())
-		return AMBeamline::bl()->synchronizedDwellTime()->dwellTimeSource();
-
-	return 0;
-}
-
 bool VESPERSFourElementVortexDetector::lastContinuousReading(double *outputValues) const
 {
 	Q_UNUSED(outputValues)

@@ -131,6 +131,24 @@ QString VESPERSScanConfiguration::motorHeaderString(VESPERS::Motors motor) const
 	else if (motor == (VESPERS::X | VESPERS::Z))
 		string.append("Using real motors: X and Z.\n");
 
+	else if (motor == VESPERS::BigBeamX)
+		string.append("Using big beam X motor.\n");
+
+	else if (motor == VESPERS::BigBeamZ)
+		string.append("Using big beam Z motor.\n");
+
+	else if (motor == (VESPERS::BigBeamX | VESPERS::BigBeamZ))
+		string.append("Using big beam motors: X and Z.\n");
+
+	else if (motor == VESPERS::WireH)
+		string.append("Using horizontal (H) wire pseudo motor.\n");
+
+	else if (motor == VESPERS::WireV)
+		string.append("Using vertical (V) wire pseudo motor.\n");
+
+	else if (motor == VESPERS::WireN)
+		string.append("Using normal (N) wire pseudo motor.\n");
+
 	return string;
 }
 

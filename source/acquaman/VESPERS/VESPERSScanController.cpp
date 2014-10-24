@@ -35,7 +35,7 @@ VESPERSScanController::VESPERSScanController(VESPERSScanConfiguration *configura
 
 VESPERSScanController::~VESPERSScanController(){}
 
-AMAction3 *VESPERSScanController::buildBaseInitializationAction(const AMDetectorInfoSet &detectorConfigurations)
+AMAction3 *VESPERSScanController::buildBaseInitializationAction()
 {
 	// To initialize the XAS scan, there are four stages.
 	/*
@@ -43,38 +43,18 @@ AMAction3 *VESPERSScanController::buildBaseInitializationAction(const AMDetector
 		Second: Set the mode to single shot,set the time on the synchronized dwell time.
 	 */
 	AMSequentialListAction3 *initializationAction = new AMSequentialListAction3(new AMSequentialListActionInfo3("VESPERS Scan Initialization Actions", "VESPERS Scan Initialization Actions"));
-	CLSSynchronizedDwellTime *synchronizedDwell = qobject_cast<CLSSynchronizedDwellTime*>(VESPERSBeamline::vespers()->synchronizedDwellTime());
+	CLSSIS3820Scaler *scaler = VESPERSBeamline::vespers()->scaler();
 
 	AMListAction3 *stage1 = new AMListAction3(new AMListActionInfo3("VESPERS Initialization Stage 1", "VESPERS Initialization Stage 1"), AMListAction3::Parallel);
-	stage1->addSubAction(synchronizedDwell->createModeAction3(CLSSynchronizedDwellTime::SingleShot));
-	stage1->addSubAction(synchronizedDwell->createScanningAction3(false));
-
-	AMListAction3 *stage2 = new AMListAction3(new AMListActionInfo3("VESPERS Initialization Stage 2", "VESPERS Initialization Stage 2"), AMListAction3::Parallel);
-	QStringList dwellKeys;
-
-	for (int i = 0, size = detectorConfigurations.count(); i < size; i++)
-		dwellKeys << VESPERSBeamline::vespers()->exposedDetectorByInfo(detectorConfigurations.at(i))->synchronizedDwellKey();
-
-	dwellKeys.removeDuplicates();
-
-	for (int i = 0, size = synchronizedDwell->elementCount(); i < size; i++){
-
-		if (synchronizedDwell->enabledAt(i) && !dwellKeys.contains(synchronizedDwell->keyAt(i)))
-			stage2->addSubAction(synchronizedDwell->elementAt(i)->createEnableAction3(false));
-
-		else if (!synchronizedDwell->enabledAt(i) && dwellKeys.contains(synchronizedDwell->keyAt(i)))
-			stage2->addSubAction(synchronizedDwell->elementAt(i)->createEnableAction3(true));
-	}
+	stage1->addSubAction(scaler->createContinuousEnableAction3(false));
 
 	AMListAction3 *stage3 = new AMListAction3(new AMListActionInfo3("VESPERS Initialization Stage 3", "VESPERS Initialization Stage 3"), AMListAction3::Parallel);
-	CLSSIS3820Scaler *scaler = VESPERSBeamline::vespers()->scaler();
 
 	stage3->addSubAction(scaler->createStartAction3(false));
 	stage3->addSubAction(scaler->createScansPerBufferAction3(1));
 	stage3->addSubAction(scaler->createTotalScansAction3(1));
 
 	initializationAction->addSubAction(stage1);
-	initializationAction->addSubAction(stage2);
 	initializationAction->addSubAction(stage3);
 
 	return initializationAction;
@@ -138,20 +118,13 @@ AMAction3 *VESPERSScanController::buildCleanupAction()
 		Third: Disables the variable integration time.  Set the relative energy PV to 0.
 	 */
 	AMListAction3 *cleanup = new AMListAction3(new AMListActionInfo3("VESPERS Cleanup", "VESPERS Cleanup"), AMListAction3::Sequential);
-	CLSSynchronizedDwellTime *synchronizedDwell = qobject_cast<CLSSynchronizedDwellTime*>(VESPERSBeamline::vespers()->synchronizedDwellTime());
+	CLSSIS3820Scaler *scaler = VESPERSBeamline::vespers()->scaler();
 
 	AMListAction3 *stage1 = new AMListAction3(new AMListActionInfo3("VESPERS Cleanup Stage 2", "Setting synchronized dwell options"), AMListAction3::Parallel);
-	stage1->addSubAction(synchronizedDwell->createMasterTimeAction3(1));
-	stage1->addSubAction(synchronizedDwell->createModeAction3(CLSSynchronizedDwellTime::Continuous));
-
-	AMListAction3 *stage2 = new AMListAction3(new AMListActionInfo3("VESPERS Cleanup Stage 1", "Disabling all but the scaler in the synchronized dwell."), AMListAction3::Parallel);
-
-	// The scaler is always first.  Therefore, we know this will always only ensure the scaler is still enabled.
-	for (int i = 0, size = synchronizedDwell->elementCount(); i < size; i++)
-		stage2->addSubAction(synchronizedDwell->elementAt(i)->createEnableAction3(i == 0));
+	stage1->addSubAction(scaler->createDwellTimeAction3(1.0));
+	stage1->addSubAction(scaler->createContinuousEnableAction3(true));
 
 	cleanup->addSubAction(stage1);
-	cleanup->addSubAction(stage2);
 
 	return cleanup;
 }

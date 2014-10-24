@@ -23,16 +23,16 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 AM1DTimedDataAB::AM1DTimedDataAB(const QString &outputName, QObject *parent) : AMStandardAnalysisBlock(outputName, parent)
 {
-    updateOffset_ = 0;
+	updateOffset_ = 0;
 
-    data_ = 0;
-    timestamps_ = 0;
+	data_ = 0;
+	timestamps_ = 0;
 
-    values_ = QVector<double>(0);
-    times_ = QVector<double>(0);
+	values_ = QVector<double>(0);
+	times_ = QVector<double>(0);
 
-    axes_ << AMAxisInfo("invalid", 0, "No input data");
-    setState(AMDataSource::InvalidFlag);
+	axes_ << AMAxisInfo("invalid", 0, "No input data");
+	setState(AMDataSource::InvalidFlag);
 }
 
 AM1DTimedDataAB::~AM1DTimedDataAB()
@@ -42,223 +42,240 @@ AM1DTimedDataAB::~AM1DTimedDataAB()
 
 QVector<double> AM1DTimedDataAB::dataValues() const
 {
-    return values_;
+	return values_;
 }
 
 QVector<double> AM1DTimedDataAB::timeValues() const
 {
-    return times_;
+	return times_;
 }
 
 bool AM1DTimedDataAB::areInputDataSourcesAcceptable(const QList<AMDataSource *> &dataSources) const
 {
-    // null input always acceptable.
-    if (dataSources.isEmpty())
-        return true;
+	// null input always acceptable.
+	if (dataSources.isEmpty())
+		return true;
 
-    // otherwise, we expect two input sources.
-    if (dataSources.count() != 2)
-        return false;
+	// otherwise, we expect two input sources.
+	if (dataSources.count() != 2)
+		return false;
 
-    // both input sources must have rank 1.
-    foreach (AMDataSource* source, dataSources) {
-        if (source->rank() != 1)
-            return false;
-    }
+	// both input sources must have rank 1.
+	foreach (AMDataSource* source, dataSources) {
+		if (source->rank() != 1)
+			return false;
+	}
 
-    return true;
+	return true;
 }
 
 void AM1DTimedDataAB::setInputDataSourcesImplementation(const QList<AMDataSource *> &dataSources)
 {
-    // disconnect from old sources, if they exist.
-    if (data_) {
-        disconnect( data_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onDataSourceValuesChanged(AMnDIndex,AMnDIndex)) );
-        disconnect( data_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()) );
-        data_ = 0;
-    }
+	// disconnect from old sources, if they exist.
+	if (data_) {
+		disconnect( data_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onDataSourceValuesChanged(AMnDIndex,AMnDIndex)) );
+		disconnect( data_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()) );
+		data_ = 0;
+	}
 
-    if (timestamps_) {
-        disconnect( timestamps_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onTimeSourceValuesChanged(AMnDIndex,AMnDIndex)));
-        disconnect( timestamps_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
-        timestamps_ = 0;
-    }
+	if (timestamps_) {
+		disconnect( timestamps_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onTimeSourceValuesChanged(AMnDIndex,AMnDIndex)));
+		disconnect( timestamps_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
+		timestamps_ = 0;
+	}
 
-    if (dataSources.isEmpty()) {
+	if (dataSources.isEmpty()) {
 
-        data_ = 0;
-        timestamps_ = 0;
-        sources_.clear();
+		data_ = 0;
+		timestamps_ = 0;
+		sources_.clear();
 
-        axes_[0] = AMAxisInfo("invalid", 0, "No input data");
-        setDescription("-- No input data --");
-    }
+		axes_[0] = AMAxisInfo("invalid", 0, "No input data");
+		setDescription("-- No input data --");
+	}
 
-    else {
-        data_ = dataSources.at(0);
-        timestamps_ = dataSources.at(1);
-        sources_ = dataSources;
+	else {
+		data_ = dataSources.at(0);
+		timestamps_ = dataSources.at(1);
+		sources_ = dataSources;
 
-        axes_[0] = data_->axisInfoAt(0);
-        setDescription(QString("Timed updates for %1").arg(data_->name()));
+		axes_[0] = data_->axisInfoAt(0);
+		setDescription(QString("Timed updates for %1").arg(data_->name()));
 
-        connect(data_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onDataSourceValuesChanged(AMnDIndex,AMnDIndex)));
-        connect(data_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
+		connect(data_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onDataSourceValuesChanged(AMnDIndex,AMnDIndex)));
+		connect(data_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
 
-        connect(timestamps_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onTimeSourceValuesChanged(AMnDIndex,AMnDIndex)));
-        connect(timestamps_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
-    }
+		connect(timestamps_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onTimeSourceValuesChanged(AMnDIndex,AMnDIndex)));
+		connect(timestamps_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
+	}
 
-    reviewState();
+	reviewState();
 
-    emitSizeChanged(0);
-    emitValuesChanged();
-    emitAxisInfoChanged(0);
-    emitInfoChanged();
+	emitSizeChanged(0);
+	emitValuesChanged();
+	emitAxisInfoChanged(0);
+	emitInfoChanged();
 }
 
 
 AMNumber AM1DTimedDataAB::value(const AMnDIndex &indexes) const
-{    
-    if (!isValid())
-        return AMNumber(AMNumber::InvalidError);
+{
+	if (!isValid())
+		return AMNumber(AMNumber::InvalidError);
 
-    if (indexes.i() < 0 || indexes.i() >= values_.size())
-        return AMNumber(AMNumber::OutOfBoundsError);
+	if (indexes.i() < 0 || indexes.i() >= values_.size())
+		return AMNumber(AMNumber::OutOfBoundsError);
 
-    if (indexes.rank() != 1)
-        return AMNumber(AMNumber::DimensionError);
+	if (indexes.rank() != 1)
+		return AMNumber(AMNumber::DimensionError);
 
-    return values_.at(indexes.i());
+	return values_.at(indexes.i());
 }
 
 bool AM1DTimedDataAB::values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const
 {
-    if (!isValid())
-        return false;
+	if (!isValid())
+		return false;
 
-    if (indexStart.i() < 0 || indexStart.i() >= values_.size())
-        return false;
+	if (indexStart.i() < 0 || indexStart.i() >= values_.size())
+		return false;
 
-    if (indexEnd.i() < 0 || indexEnd.i() >= values_.size())
-        return false;
+	if (indexEnd.i() < 0 || indexEnd.i() >= values_.size())
+		return false;
 
-    if (indexStart.i() > indexEnd.i())
-        return false;
+	if (indexStart.i() > indexEnd.i())
+		return false;
 
-    if (indexStart.rank() != 1 || indexEnd.rank() != 1)
-        return false;
+	if (indexStart.rank() != 1 || indexEnd.rank() != 1)
+		return false;
 
-    int totalPoints = indexStart.totalPointsTo(indexEnd);
+	int totalPoints = indexStart.totalPointsTo(indexEnd);
 
-    for (int i = 0; i < totalPoints; i++) {
-        outputValues[i] = values_.at(i);
-    }
+	for (int i = 0; i < totalPoints; i++) {
+		outputValues[i] = values_.at(i);
+	}
 
-    return true;
+	return true;
 }
 
 AMNumber AM1DTimedDataAB::axisValue(int axisNumber, int index) const
 {
-    if (!isValid())
-        return AMNumber(AMNumber::InvalidError);
+	if (!isValid())
+		return AMNumber(AMNumber::InvalidError);
 
-    if (axisNumber != 0)
-        return AMNumber(AMNumber::DimensionError);
+	if (axisNumber != 0)
+		return AMNumber(AMNumber::DimensionError);
 
-    if (index < 0 || index >= times_.size())
-        return AMNumber(AMNumber::OutOfBoundsError);
+	if (index < 0 || index >= times_.size())
+		return AMNumber(AMNumber::OutOfBoundsError);
 
-    return times_.at(index);
+	return times_.at(index);
+}
+
+bool AM1DTimedDataAB::axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const
+{
+	if (!isValid())
+		return false;
+
+	if (axisNumber != 0)
+		return false;
+
+	if (startIndex >= times_.size() || endIndex >= times_.size())
+		return false;
+
+	for (int i = 0, totalSize = endIndex-startIndex+1; i < totalSize; i++)
+		outputValues[i] = AMNumber(times_.at(i+startIndex));
+
+	return true;
 }
 
 bool AM1DTimedDataAB::loadFromDb(AMDatabase *db, int id)
 {
-    bool success = AMDbObject::loadFromDb(db, id);
+	bool success = AMDbObject::loadFromDb(db, id);
 
-    if (success) {
-        AMDataSource::name_ = AMDbObject::name();
-    }
+	if (success) {
+		AMDataSource::name_ = AMDbObject::name();
+	}
 
-    return success;
+	return success;
 }
 
 void AM1DTimedDataAB::onDataSourceValuesChanged(const AMnDIndex &start, const AMnDIndex &end)
 {
-    Q_UNUSED(start)
-    Q_UNUSED(end)
+	Q_UNUSED(start)
+	Q_UNUSED(end)
 
-    updateOffset_++;
+	updateOffset_++;
 }
 
 void AM1DTimedDataAB::onTimeSourceValuesChanged(const AMnDIndex &start, const AMnDIndex &end)
 {
-    updateOffset_--;
-    reviewValuesChanged(start, end);
+	updateOffset_--;
+	reviewValuesChanged(start, end);
 }
 
 void AM1DTimedDataAB::onInputSourceStateChanged()
 {
-    reviewState();
+	reviewState();
 }
 
 void AM1DTimedDataAB::reviewValuesChanged(const AMnDIndex &start, const AMnDIndex &end)
 {
-    if (updateOffset_ != 0) {
-        qDebug() << "Sources are not updating properly--not in lockstep.";
-        return;
-    }
+	if (updateOffset_ != 0) {
+		qDebug() << "Sources are not updating properly--not in lockstep.";
+		return;
+	}
 
-    int pointsChanged = start.totalPointsTo(end);
+	int pointsChanged = start.totalPointsTo(end);
 
-    if (pointsChanged > 0) {
+	if (pointsChanged > 0) {
 
-        values_.clear();
-        times_.clear();
+		values_.clear();
+		times_.clear();
 
-        values_.resize(pointsChanged);
-        times_.resize(pointsChanged);
+		values_.resize(pointsChanged);
+		times_.resize(pointsChanged);
 
-        data_->values(start, end, values_.data());
-        timestamps_->values(start, end, times_.data());
+		data_->values(start, end, values_.data());
+		timestamps_->values(start, end, times_.data());
 
-        axes_[0] = AMAxisInfo(sources_.at(0)->name(), pointsChanged);
+		axes_[0] = AMAxisInfo(sources_.at(0)->name(), pointsChanged);
 
-        emitValuesChanged(AMnDIndex(0), AMnDIndex(pointsChanged - 1));
-        emitAxisInfoChanged(0);
-        emitSizeChanged(0);
-    }
+		emitValuesChanged(AMnDIndex(0), AMnDIndex(pointsChanged - 1));
+		emitAxisInfoChanged(0);
+		emitSizeChanged(0);
+	}
 }
 
 void AM1DTimedDataAB::reviewState()
 {
-    // are there data sources for this AB?
-    if (sources_.isEmpty()) {
-        setState(AMDataSource::InvalidFlag);
-        return;
-    }
+	// are there data sources for this AB?
+	if (sources_.isEmpty()) {
+		setState(AMDataSource::InvalidFlag);
+		return;
+	}
 
-    // are there two sources?
-    if (sources_.count() != 2) {
-        setState(AMDataSource::InvalidFlag);
-        return;
-    }
+	// are there two sources?
+	if (sources_.count() != 2) {
+		setState(AMDataSource::InvalidFlag);
+		return;
+	}
 
-    // are the two sources identified appropriately?
-    if (!data_ || !timestamps_) {
-        setState(AMDataSource::InvalidFlag);
-        return;
-    }
+	// are the two sources identified appropriately?
+	if (!data_ || !timestamps_) {
+		setState(AMDataSource::InvalidFlag);
+		return;
+	}
 
-    // are both sources valid?
-    foreach (AMDataSource *source, sources_)
-        if (!source->isValid()) {
-            setState(AMDataSource::InvalidFlag);
-            return;
-        }
+	// are both sources valid?
+	foreach (AMDataSource *source, sources_)
+		if (!source->isValid()) {
+			setState(AMDataSource::InvalidFlag);
+			return;
+		}
 
-    // otherwise, this AB is valid.
-    setState(0);
+	// otherwise, this AB is valid.
+	setState(0);
 }
 
 

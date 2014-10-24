@@ -169,17 +169,17 @@ void VESPERSXASScanActionController::buildScanControllerImplementation()
 		foreach (AMRegionOfInterest *region, configuration_->regionsOfInterest()){
 
 			AMRegionOfInterestAB *regionAB = (AMRegionOfInterestAB *)region->valueSource();
-			AMRegionOfInterestAB *newRegion = new AMRegionOfInterestAB(regionAB->name());
+			AMRegionOfInterestAB *newRegion = new AMRegionOfInterestAB(regionAB->name().remove(' '));
 			newRegion->setBinningRange(regionAB->binningRange());
 			newRegion->setInputDataSources(QList<AMDataSource *>() << spectraSource);
 			scan_->addAnalyzedDataSource(newRegion, false, true);
 			detector->addRegionOfInterest(region);
 
-			AM1DNormalizationAB *normalizedRegion = new AM1DNormalizationAB(QString("norm_%1").arg(region->name()));
+			AM1DNormalizationAB *normalizedRegion = new AM1DNormalizationAB(QString("norm_%1").arg(newRegion->name()));
 			normalizedRegion->setInputDataSources(QList<AMDataSource *>() << newRegion << i0Sources);
 			normalizedRegion->setDataName(newRegion->name());
 			normalizedRegion->setNormalizationName(i0Sources.at(int(configuration_->incomingChoice()))->name());
-			scan_->addAnalyzedDataSource(normalizedRegion, region->name().contains(edgeSymbol), !region->name().contains(edgeSymbol));
+			scan_->addAnalyzedDataSource(normalizedRegion, newRegion->name().contains(edgeSymbol), !newRegion->name().contains(edgeSymbol));
 		}
 	}
 }
@@ -191,7 +191,7 @@ void VESPERSXASScanActionController::createScanAssembler()
 
 AMAction3* VESPERSXASScanActionController::createInitializationActions()
 {
-	AMListAction3 *initializationAction = qobject_cast<AMListAction3 *>(buildBaseInitializationAction(configuration_->detectorConfigurations()));
+	AMListAction3 *initializationAction = qobject_cast<AMListAction3 *>(buildBaseInitializationAction());
 
 	initializationAction->addSubAction(VESPERSBeamline::vespers()->mono()->createDelEAction(0));
 	initializationAction->addSubAction(VESPERSBeamline::vespers()->mono()->createEoAction(configuration_->energy()));
@@ -205,7 +205,6 @@ AMAction3* VESPERSXASScanActionController::createCleanupActions()
 
 	AMListAction3 *monoCleanupAction = new AMListAction3(new AMListActionInfo3("VESPERS Cleanup Stage 3", "Resetting the mono position."), AMListAction3::Parallel);
 	monoCleanupAction->addSubAction(VESPERSBeamline::vespers()->mono()->createDelEAction(0));
-	monoCleanupAction->addSubAction(VESPERSBeamline::vespers()->variableIntegrationTime()->createModeAction(CLSVariableIntegrationTime::Disabled));
 
 	cleanupAction->addSubAction(monoCleanupAction);
 

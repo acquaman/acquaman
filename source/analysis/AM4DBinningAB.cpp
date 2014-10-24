@@ -489,6 +489,41 @@ AMNumber AM4DBinningAB::axisValue(int axisNumber, int index) const {
 	return inputSource_->axisValue(actualAxis, index);
 }
 
+bool AM4DBinningAB::axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const
+{
+	if (!isValid())
+		return false;
+
+	if (axisNumber != 0 && axisNumber != 1 && axisNumber != 2)
+		return false;
+
+	int actualAxis = -1;
+
+	switch (sumAxis_){
+
+	case 0:
+		actualAxis = axisNumber + 1;
+		break;
+
+	case 1:
+		actualAxis = axisNumber == 0 ? axisNumber : axisNumber + 1;
+		break;
+
+	case 2:
+		actualAxis = axisNumber == 3 ? axisNumber + 1 : axisNumber;
+		break;
+
+	case 3:
+		actualAxis = axisNumber;
+		break;
+	}
+
+	if (startIndex >= axes_.at(actualAxis).size || endIndex >= axes_.at(actualAxis).size)
+		return false;
+
+	return inputSource_->axisValues(actualAxis, startIndex, endIndex, outputValues);
+}
+
 // Connected to be called when the values of the input data source change
 void AM4DBinningAB::onInputSourceValuesChanged(const AMnDIndex& start, const AMnDIndex& end) {
 

@@ -101,6 +101,8 @@ public:
 	virtual bool values(const AMnDIndex& indexStart, const AMnDIndex& indexEnd, double* outputValues) const;
 	/// When the independent values along an axis is not simply the axis index, this returns the independent value along an axis (specified by axis number and index)
 	virtual AMNumber axisValue(int axisNumber, int index) const;
+	/// Performance optimization of axisValue():  instead of a single value, copies a block of values from \c startIndex to \c endIndex in \c outputValues.  The provided pointer must contain enough space for all the requested values.
+	virtual bool axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const;
 
 	/// Gets the energy axis offset for calibration
 	double energyCalibrationOffset() const {return energyCalibrationOffset_;}

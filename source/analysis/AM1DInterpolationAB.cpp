@@ -135,6 +135,20 @@ AMNumber AM1DInterpolationAB::axisValue(int axisNumber, int index) const{
 
 }
 
+bool AM1DInterpolationAB::axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const
+{
+	if (!isValid())
+		return false;
+
+	if (axisNumber != 0)
+		return false;
+
+	if (startIndex >= axes_.at(axisNumber).size || endIndex >= axes_.at(axisNumber).size)
+		return false;
+
+	return inputSource_->axisValues(axisNumber, startIndex, endIndex, outputValues);
+}
+
 /// Connected to be called when the values of the input data source change
 void AM1DInterpolationAB::onInputSourceValuesChanged(const AMnDIndex& start, const AMnDIndex& end) {
 	emitValuesChanged(start, end);

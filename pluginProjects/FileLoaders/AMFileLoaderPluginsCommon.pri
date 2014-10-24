@@ -46,9 +46,9 @@ linux-g++ {
 		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/include
 		MPLOT_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/lib
 
-                #CDFLib dependencies
-                #CDF_LIB = -lcdf
-                #CDF_INCLUDE_DIR = /usr/local/include
+				#CDFLib dependencies
+				#CDF_LIB = -lcdf
+				#CDF_INCLUDE_DIR = /usr/local/include
 #                CDF_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/cdf34_1-dist/lib
 #                CDF_LIB = -L$$CDF_LIB_DIR -lcdf
 #                CDF_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/cdf34_1-dist/include
@@ -214,7 +214,8 @@ HEADERS         = $$AM_INCLUDE_DIR/dataman/AMFileLoaderInterface.h \
 		$$AM_INCLUDE_DIR/dataman/AMSamplePlate.h \
 		$$AM_INCLUDE_DIR/beamline/camera/AMShapeData.h \
 		$$AM_INCLUDE_DIR/dataman/AMSamplePlatePre2013.h \
-		$$AM_INCLUDE_DIR/util/AMDataSourcePlotSettings.h
+		$$AM_INCLUDE_DIR/util/AMDataSourcePlotSettings.h \
+		$$AM_INCLUDE_DIR/util/AMRange.h
 
 SOURCES         = $$AM_INCLUDE_DIR/dataman/AMScan.cpp \
 		$$AM_INCLUDE_DIR/dataman/AMScanDictionary.cpp \
@@ -257,4 +258,5 @@ SOURCES         = $$AM_INCLUDE_DIR/dataman/AMScan.cpp \
 		$$AM_INCLUDE_DIR/dataman/AMSample.cpp \
 		$$AM_INCLUDE_DIR/dataman/AMSamplePlate.cpp \
 		$$AM_INCLUDE_DIR/beamline/camera/AMShapeData.cpp \
-		$$AM_INCLUDE_DIR/dataman/AMSamplePlatePre2013.cpp
+		$$AM_INCLUDE_DIR/dataman/AMSamplePlatePre2013.cpp \
+		$$AM_INCLUDE_DIR/util/AMRange.cpp

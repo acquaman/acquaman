@@ -102,7 +102,12 @@ namespace VESPERS {
 		AttoY = 2048,
 		AttoRz = 4096,
 		AttoRy = 8192,
-		AttoRx = 16384
+		AttoRx = 16384,
+		BigBeamX = 32768,
+		BigBeamZ = 65536,
+		WireH = 131072,
+		WireV = 262144,
+		WireN = 524288
 	};
 	Q_DECLARE_FLAGS(Motors, Motor)
 
@@ -284,6 +289,12 @@ namespace VESPERS {
 
 		else if (name == "Attocube Stage - Rz")
 			return AttoRz;
+
+		else if (name == "Big Beam - X, Z")
+			return BigBeamX | BigBeamZ;
+
+		else if (name == "Wire Stage - H, V, N")
+			return WireH | WireV;
 
 		return NoMotor;
 	}

@@ -28,11 +28,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/VESPERS/VESPERSCCDBasicDetectorEmulator.h"
 #include "beamline/AM1DControlDetectorEmulator.h"
 #include "beamline/CLS/CLSStorageRing.h"
+#include "beamline/AMScalerTimeControlDetector.h"
 
 VESPERSBeamline::VESPERSBeamline()
 	: AMBeamline("VESPERS Beamline")
 {
-	setupSynchronizedDwellTime();
 	setupComponents();
 	setupDiagnostics();
 	setupSampleStage();
@@ -224,11 +224,15 @@ void VESPERSBeamline::setupSampleStage()
 	attoStageRy_ = new AMPVwStatusControl("Atto Theta Stage", "SVM1607-2-B21-07:deg:sp", "SVM1607-2-B21-07:deg", "SVM1607-2-B21-07:status", "SVM1607-2-B21-07:stop.PROC", this, 0.01, 10.0);
 	attoStageRx_ = new AMPVwStatusControl("Atto Psi Stage", "SVM1607-2-B21-08:deg:sp", "SVM1607-2-B21-08:deg", "SVM1607-2-B21-08:status", "SVM1607-2-B21-08:stop.PROC", this, 0.01, 10.0);
 
+	bigBeamX_ = new AMPVwStatusControl("Big Beam X", "SMTR1607-2-B21-36:mm:sp", "SMTR1607-2-B21-36:mm", "SMTR1607-2-B21-36:status", "SMTR1607-2-B21-36:stop.PROC", this, 0.01, 10.0);
+	bigBeamZ_ = new AMPVwStatusControl("Big Beam Z", "SMTR1607-2-B21-37:mm:sp", "SMTR1607-2-B21-37:mm", "SMTR1607-2-B21-37:status", "SMTR1607-2-B21-37:stop.PROC", this, 0.01, 10.0);
+
 	// Reset signals.
 	pseudoSampleStageResetControl_ = new AMSinglePVControl("Pseudo Sample Stage Reset Control", "TS1607-2-B21-02:HNV:loadOffsets.PROC", this, 0.1);
 	realSampleStageResetControl_ = new AMSinglePVControl("Real Sample Stage Reset Control", "TS1607-2-B21-02:XYZ:loadOffsets.PROC", this, 0.1);
 	pseudoAttoStageResetControl_ = new AMSinglePVControl("Pseudo Atto Stage Reset Control", "TS1607-2-B21-07:HNV:loadOffsets.PROC", this, 0.1);
 	realAttoStageResetControl_ = new AMSinglePVControl("Real Atto Stage Reset Control", "TS1607-2-B21-07:XYZ:loadOffsets.PROC", this, 0.1);
+	pseudoWireStageResetControl_ = new AMSinglePVControl("Pseudo Wire Stage Reset Control", "TS1607-2-B21-01:HNV:loadOffsets.PROC", this, 0.1);
 }
 
 void VESPERSBeamline::setupMotorGroup()
@@ -261,7 +265,7 @@ void VESPERSBeamline::setupMotorGroup()
 										 QList<AMControl *>() << wireStageHorizontal_ << wireStageVertical_ << wireStageNormal_,
 										 QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Horizontal << AMMotorGroupObject::Vertical << AMMotorGroupObject::Normal,
 										 QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational,
-										 pseudoSampleStageResetControl_,
+										 pseudoWireStageResetControl_,
 										 this);
 	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
 	motorObject = new CLSPseudoMotorGroupObject("Attocube Stage - H, V, N",
@@ -288,6 +292,14 @@ void VESPERSBeamline::setupMotorGroup()
 	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
 	motorObject = new AMMotorGroupObject("Attocube Stage - Rz", "Rz", "deg", attoStageRz_, AMMotorGroupObject::Horizontal, AMMotorGroupObject::Rotational, this);
 	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
+	motorObject = new AMMotorGroupObject("Big Beam - X, Z",
+										QStringList() << "X" << "Z",
+										QStringList() << "mm" << "mm",
+										QList<AMControl *>() << bigBeamX_ << bigBeamZ_,
+										QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Horizontal << AMMotorGroupObject::Vertical,
+										QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational,
+										this);
+	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
 }
 
 QString VESPERSBeamline::motorGroupName(VESPERS::Motors motor) const
@@ -312,6 +324,12 @@ QString VESPERSBeamline::motorGroupName(VESPERS::Motors motor) const
 
 	else if (motor.testFlag(VESPERS::AttoRz))
 		return "Attocube Stage - Rz";
+
+	else if (motor.testFlag(VESPERS::BigBeamX) || motor.testFlag(VESPERS::BigBeamZ))
+		return "Big Beam -X, Z";
+
+	else if (motor.testFlag(VESPERS::WireH) || motor.testFlag(VESPERS::WireV) || motor.testFlag(VESPERS::WireN))
+		return "Wire Stage - H, V, N";
 
 	return "Sample Stage - H, V, N";
 }
@@ -465,213 +483,9 @@ void VESPERSBeamline::setupControlSets()
 void VESPERSBeamline::setupMono()
 {
 	mono_ = new VESPERSMonochromator(this);
-	masterDwellTime_ = new AMSinglePVControl("Master Dwell Time", "BL1607-B2-1:dwell:setTime", this);
+	masterDwellTime_ = new AMReadOnlyPVControl("Master Dwell Time", "BL1607-B2-1:mcs:delay", this);
 	intermediateSlits_ = new VESPERSIntermediateSlits(this);
 	energySetpointControl_ = new AMReadOnlyPVControl("EnergySetpoint", "07B2_Mono_SineB_Ea", this);
-}
-
-void VESPERSBeamline::setupSynchronizedDwellTime()
-{
-	synchronizedDwellTime_ = new CLSSynchronizedDwellTime("BL1607-B2-1:dwell", this);
-	synchronizedDwellTime_->addElement(0);
-	synchronizedDwellTime_->addElement(1);
-	synchronizedDwellTime_->addElement(2);
-	synchronizedDwellTime_->addElement(3);
-	synchronizedDwellTime_->addElement(4);
-	synchronizedDwellTime_->addElement(5);
-	connect(synchronizedDwellTime_, SIGNAL(connected(bool)), this, SLOT(synchronizedDwellTimeConnected(bool)));
-
-	// Helper functions for setting the dwell time between regions.
-	dwellTimeTrigger_ = new AMSinglePVControl("Dwell Time Trigger", "BL1607-B2-1:AddOns:dwellTime:trigger", this, 0.1);
-	dwellTimeConfirmed_ = new AMSinglePVControl("Dwell Time Confirmed", "BL1607-B2-1:AddOns:dwellTime:confirmed", this, 0.1);
-
-	// Setting up all of the configurations for the synchronized dwell time.
-	// The scaler.
-	CLSSynchronizedDwellTimeConfigurationInfo *temp = new CLSSynchronizedDwellTimeConfigurationInfo(this);
-	temp->setName("Scaler");
-	temp->setDwellTimePV("BL1607-B2-1:mcs:delay PP NMS");
-	temp->setScale("1000");
-	temp->setOffset("0");
-	temp->setUnits("ms");
-	temp->setModePV("BL1607-B2-1:mcs:continuous PP NMS");
-	temp->setSingleShot("0");
-	temp->setContinuous("1");
-	temp->setTriggerPV("BL1607-B2-1:mcs:startScan NPP NMS");
-	temp->setTrigger(CLSSynchronizedDwellTimeConfigurationInfo::Normal);
-	temp->setPreTrigger(0.0);
-	temp->setDwellHold(0.0);
-	temp->setStatusPV("BL1607-B2-1:mcs:startScan CP NMS");
-	temp->setWaitFor(CLSSynchronizedDwellTimeConfigurationInfo::Nothing);
-	temp->setDelay(5);
-	temp->setWaitPV("");
-	temp->setWaitValue("");
-
-	synchronizedDwellTimeConfigurations_.append(temp);
-
-	// The single element vortex detector.
-	temp = new CLSSynchronizedDwellTimeConfigurationInfo(this);
-	temp->setName("1-El Vortex");
-	temp->setDwellTimePV("IOC1607-004:mca1.PRTM PP NMS");
-	temp->setScale("1");
-	temp->setOffset("0");
-	temp->setUnits("s");
-	temp->setModePV("IOC1607-004:mca1Read.SCAN PP NMS");
-	temp->setSingleShot("1");
-	temp->setContinuous("0");
-	temp->setTriggerPV("IOC1607-004:mca1EraseStart NPP NMS");
-	temp->setTrigger(CLSSynchronizedDwellTimeConfigurationInfo::Normal);
-	temp->setPreTrigger(0.0);
-	temp->setDwellHold(0.0);
-	temp->setStatusPV("IOC1607-004:mca1.ACQG CP NMS");
-	temp->setWaitFor(CLSSynchronizedDwellTimeConfigurationInfo::Nothing);
-	temp->setDelay(0);
-	temp->setWaitPV("");
-	temp->setWaitValue("");
-
-	synchronizedDwellTimeConfigurations_.append(temp);
-
-	// The Roper CCD detector.
-	temp = new CLSSynchronizedDwellTimeConfigurationInfo(this);
-	temp->setName("Roper CCD");
-	temp->setDwellTimePV("IOC1607-003:det1.AcquireTime PP NMS");
-	temp->setScale("1");
-	temp->setOffset("0");
-	temp->setUnits("s");
-	temp->setModePV("");
-	temp->setSingleShot("1");
-	temp->setContinuous("0");
-	temp->setTriggerPV("DIO1607-01:CCD:ExtSync NPP NMS");
-	temp->setTrigger(CLSSynchronizedDwellTimeConfigurationInfo::Normal);
-	temp->setPreTrigger(0.0);
-	temp->setDwellHold(0.0);
-	temp->setStatusPV("CCD1607-001:extTrig:status CP NMS");
-	temp->setWaitFor(CLSSynchronizedDwellTimeConfigurationInfo::Nothing);
-	temp->setDelay(0);
-	temp->setWaitPV("");
-	temp->setWaitValue("");
-
-	synchronizedDwellTimeConfigurations_.append(temp);
-
-	// The picoammeters.
-	temp = new CLSSynchronizedDwellTimeConfigurationInfo(this);
-	temp->setName("Picoammeters");
-	temp->setDwellTimePV("A2607:integ_interval PP NMS");
-	temp->setScale("1");
-	temp->setOffset("0");
-	temp->setUnits("s");
-	temp->setModePV("A2607:configure");
-	temp->setSingleShot("1");
-	temp->setContinuous("2");
-	temp->setTriggerPV("A2607:start_read NPP NMS");
-	temp->setTrigger(CLSSynchronizedDwellTimeConfigurationInfo::Normal);
-	temp->setPreTrigger(0.0);
-	temp->setDwellHold(0.0);
-	temp->setStatusPV("A2607:start_read CP NMS");
-	temp->setWaitFor(CLSSynchronizedDwellTimeConfigurationInfo::Nothing);
-	temp->setDelay(5);
-	temp->setWaitPV("");
-	temp->setWaitValue("");
-
-	synchronizedDwellTimeConfigurations_.append(temp);
-
-	// The four element vortex detector.
-	temp = new CLSSynchronizedDwellTimeConfigurationInfo(this);
-	temp->setName("4-El Vortex");
-	temp->setDwellTimePV("dxp1607-B21-04:PresetReal PP NMS");
-	temp->setScale("1");
-	temp->setOffset("0");
-	temp->setUnits("s");
-	temp->setModePV("");
-	temp->setSingleShot("1");
-	temp->setContinuous("0");
-	temp->setTriggerPV("dxp1607-B21-04:EraseStart NPP NMS");
-	temp->setTrigger(CLSSynchronizedDwellTimeConfigurationInfo::Normal);
-	temp->setPreTrigger(0.0);
-	temp->setDwellHold(0.0);
-	temp->setStatusPV("dxp1607-B21-04:Acquiring CP NMS");
-	temp->setWaitFor(CLSSynchronizedDwellTimeConfigurationInfo::Nothing);
-	temp->setDelay(0);
-	temp->setWaitPV("");
-	temp->setWaitValue("");
-
-	synchronizedDwellTimeConfigurations_.append(temp);
-
-	// The Mar CCD detector.
-	temp = new CLSSynchronizedDwellTimeConfigurationInfo(this);
-	temp->setName("Mar CCD");
-	temp->setDwellTimePV("ccd1607-002:cam1:AcquireTime PP NMS");
-	temp->setScale("1");
-	temp->setOffset("0");
-	temp->setUnits("s");
-	temp->setModePV("");
-	temp->setSingleShot("1");
-	temp->setContinuous("0");
-	temp->setTriggerPV("ccd1607-002:cam1:Acquire NPP NMS");
-	temp->setTrigger(CLSSynchronizedDwellTimeConfigurationInfo::Normal);
-	temp->setPreTrigger(0.0);
-	temp->setDwellHold(0.0);
-	temp->setStatusPV("ccd1607-002:cam1:Acquire CP NMS");
-	temp->setWaitFor(CLSSynchronizedDwellTimeConfigurationInfo::Nothing);
-	temp->setDelay(0);
-	temp->setWaitPV("");
-	temp->setWaitValue("");
-
-	synchronizedDwellTimeConfigurations_.append(temp);
-
-	// The Pilatus pixel array detector.
-	temp = new CLSSynchronizedDwellTimeConfigurationInfo(this);
-	temp->setName("Pilatus CCD");
-	temp->setDwellTimePV("PAD1607-B21-05:cam1:AcquireTime PP NMS");
-	temp->setScale("1");
-	temp->setOffset("0");
-	temp->setUnits("s");
-	temp->setModePV("");
-	temp->setSingleShot("1");
-	temp->setContinuous("0");
-	temp->setTriggerPV("PAD1607-B21-05:cam1:Acquire NPP NMS");
-	temp->setTrigger(CLSSynchronizedDwellTimeConfigurationInfo::Normal);
-	temp->setPreTrigger(0.0);
-	temp->setDwellHold(0.0);
-	temp->setStatusPV("PAD1607-B21-05:cam1:Acquire CP NMS");
-	temp->setWaitFor(CLSSynchronizedDwellTimeConfigurationInfo::Nothing);
-	temp->setDelay(0);
-	temp->setWaitPV("");
-	temp->setWaitValue("");
-
-	synchronizedDwellTimeConfigurations_.append(temp);
-}
-
-void VESPERSBeamline::synchronizedDwellTimeConnected(bool connected)
-{
-	if (connected){
-
-		if (synchronizedDwellTime_->elementAt(0)->name() != "Scaler")
-			synchronizedDwellTime_->elementAt(0)->configure(*synchronizedDwellTimeConfigurationByName("Scaler"));
-
-		if (synchronizedDwellTime_->elementAt(1)->name() != "1-El Vortex")
-			synchronizedDwellTime_->elementAt(1)->configure(*synchronizedDwellTimeConfigurationByName("1-El Vortex"));
-
-		if (synchronizedDwellTime_->elementAt(2)->name() != "Roper CCD")
-			synchronizedDwellTime_->elementAt(2)->configure(*synchronizedDwellTimeConfigurationByName("Roper CCD"));
-
-		if (synchronizedDwellTime_->elementAt(3)->name() != "Pilatus CCD")
-			synchronizedDwellTime_->elementAt(3)->configure(*synchronizedDwellTimeConfigurationByName("Pilatus CCD"));
-
-		if (synchronizedDwellTime_->elementAt(4)->name() != "4-El Vortex")
-			synchronizedDwellTime_->elementAt(4)->configure(*synchronizedDwellTimeConfigurationByName("4-El Vortex"));
-
-		if (synchronizedDwellTime_->elementAt(5)->name() != "Mar CCD")
-			synchronizedDwellTime_->elementAt(5)->configure(*synchronizedDwellTimeConfigurationByName("Mar CCD"));
-	}
-}
-
-CLSSynchronizedDwellTimeConfigurationInfo *VESPERSBeamline::synchronizedDwellTimeConfigurationByName(const QString &name) const
-{
-	for (int i = 0, size = synchronizedDwellTimeConfigurations_.size(); i < size; i++)
-		if (synchronizedDwellTimeConfigurations_.at(i)->name() == name)
-			return synchronizedDwellTimeConfigurations_.at(i);
-
-	return 0;
 }
 
 void VESPERSBeamline::setupComponents()
@@ -684,8 +498,6 @@ void VESPERSBeamline::setupComponents()
 	beamSelectionMotor_ = new CLSMAXvMotor("MonoBeamSelectionMotor", "SMTR1607-1-B20-21", "Motor that controls which beam makes it down the pipe.", false, 1, 2.0, this);
 	connect(beamSelectionMotor_, SIGNAL(movingChanged(bool)), this, SLOT(determineBeam()));
 	connect(beamSelectionMotor_, SIGNAL(valueChanged(double)), this, SLOT(onBeamSelectionMotorConnected()));
-
-	variableIntegrationTime_ = new CLSVariableIntegrationTime("BL1607-B2-1:VarStep", this);
 
 	scaler_ = new CLSSIS3820Scaler("BL1607-B2-1:mcs", this);
 	scaler_->channelAt(5)->setCustomChannelName("Split A");
@@ -738,7 +550,7 @@ void VESPERSBeamline::setupControlsAsDetectors()
 	energyFeedbackDetector_ = new AMBasicControlDetectorEmulator("EnergyFeedback", "Energy Feedback", mono_->EaControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 	energyFeedbackDetector_->setHiddenFromUsers(true);
 	energyFeedbackDetector_->setIsVisible(false);
-	masterDwellTimeDetector_ = new AMBasicControlDetectorEmulator("MasterDwellTime", "Master Dwell Time", synchronizedDwellTime_->dwellTimeControl(), synchronizedDwellTime_->startScanControl(), 1, 0, AMDetectorDefinitions::ImmediateRead, this);
+	masterDwellTimeDetector_ = new AMScalerTimeControlDetector("MasterDwellTime", "Master Dwell Time", masterDwellTime_, this);
 	masterDwellTimeDetector_->setHiddenFromUsers(true);
 	masterDwellTimeDetector_->setIsVisible(false);
 	ringCurrentDetector_ = new AMBasicControlDetectorEmulator("RingCurrent", "Ring Current", CLSStorageRing::sr1()->ringCurrentControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
@@ -888,6 +700,11 @@ void VESPERSBeamline::setupExposedControls()
 	addExposedControl(realSampleStageMotorGroupObject()->horizontalControl());
 	addExposedControl(realSampleStageMotorGroupObject()->verticalControl());
 	addExposedControl(realSampleStageMotorGroupObject()->normalControl());
+	addExposedControl(pseudoWireStageMotorGroupObject()->horizontalControl());
+	addExposedControl(pseudoWireStageMotorGroupObject()->verticalControl());
+	addExposedControl(pseudoWireStageMotorGroupObject()->normalControl());
+	addExposedControl(bigBeamMotorGroupObject()->horizontalControl());
+	addExposedControl(bigBeamMotorGroupObject()->verticalControl());
 	addExposedControl(mono_->delEControl());
 	addExposedControl(mono_->EaControl());
 }

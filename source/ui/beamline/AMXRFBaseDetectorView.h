@@ -45,7 +45,7 @@ class AMXRFBaseDetectorView : public QWidget
 
 public:
 	/// Constructor.  Takes in an AMXRFDetector pointer.
- 	virtual ~AMXRFBaseDetectorView();
+	virtual ~AMXRFBaseDetectorView();
 	explicit AMXRFBaseDetectorView(AMXRFDetector *detector, QWidget *parent = 0);
 
 	/// Builds the for the detector and must be called after the view has been constructed.  All building of the GUI should be done inside of this method.  Reimplement this method when you want to customize the entire look and feel of the detector view.
@@ -71,6 +71,11 @@ signals:
 public slots:
 
 protected slots:
+	/// Starts the acquisition.  Calls acquire() but subclasses can reimplement if there is a more sofisticated start routine.
+	virtual void startAcquisition();
+	/// Cancles the acquisition.  Calls cancel() but subclasses can reimplement if they need a more thorough cancel.
+	virtual void cancelAcquisition();
+
 	/// Updates the status label when the detector acquisition state changes.
 	void onAcquisitionStateChanged(AMDetector::AcqusitionState state);
 	/// Sets the detector acquisition time.

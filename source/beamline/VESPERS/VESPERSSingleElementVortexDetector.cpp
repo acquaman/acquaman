@@ -61,27 +61,6 @@ QString VESPERSSingleElementVortexDetector::synchronizedDwellKey() const
 	return "IOC1607-004:mca1EraseStart NPP NMS";
 }
 
-bool VESPERSSingleElementVortexDetector::sharesDetectorTriggerSource() const
-{
-	return currentlySynchronizedDwell();
-}
-
-AMDetectorTriggerSource* VESPERSSingleElementVortexDetector::detectorTriggerSource()
-{
-	if(currentlySynchronizedDwell())
-		return AMBeamline::bl()->synchronizedDwellTime()->triggerSource();
-
-	return 0;
-}
-
-AMDetectorDwellTimeSource* VESPERSSingleElementVortexDetector::detectorDwellTimeSource()
-{
-	if(currentlySynchronizedDwell())
-		return AMBeamline::bl()->synchronizedDwellTime()->dwellTimeSource();
-
-	return 0;
-}
-
 bool VESPERSSingleElementVortexDetector::lastContinuousReading(double *outputValues) const
 {
 	Q_UNUSED(outputValues)

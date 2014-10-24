@@ -120,27 +120,6 @@ AMAction3 *VESPERSCCDDetector::createFileNumberAction(int number)
 	return action;
 }
 
-bool VESPERSCCDDetector::sharesDetectorTriggerSource() const
-{
-	return currentlySynchronizedDwell();
-}
-
-AMDetectorTriggerSource* VESPERSCCDDetector::detectorTriggerSource()
-{
-	if(currentlySynchronizedDwell())
-		return AMBeamline::bl()->synchronizedDwellTime()->triggerSource();
-
-	return 0;
-}
-
-AMDetectorDwellTimeSource* VESPERSCCDDetector::detectorDwellTimeSource()
-{
-	if(currentlySynchronizedDwell())
-		return AMBeamline::bl()->synchronizedDwellTime()->dwellTimeSource();
-
-	return 0;
-}
-
 bool VESPERSCCDDetector::lastContinuousReading(double *outputValues) const
 {
 	Q_UNUSED(outputValues)

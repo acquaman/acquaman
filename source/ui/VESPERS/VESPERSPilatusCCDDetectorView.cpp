@@ -51,7 +51,7 @@ void VESPERSPilatusCCDDetectorView::onFileSystemInfoUpdate()
 	VESPERSPilatusCCDDetector *detector = (VESPERSPilatusCCDDetector *)detector_;
 	diskUsageBar_->setRange(0, detector->totalAuroraSize());
 	diskUsageBar_->setValue(detector->occupiedAuroraSize());
-	spaceLabel_->setText(QString("%1 TB/%2 TB").arg(detector->occupiedAuroraSize()/1e12, 0, 'f', 2).arg(detector->totalAuroraSize()/1e12, 0, 'f', 2));
+	spaceLabel_->setText(QString("%1 TB/%2 TB").arg(detector->occupiedAuroraSize(), 0, 'f', 2).arg(detector->totalAuroraSize(), 0, 'f', 2));
 
 	double diskUsage = detector->occupiedAuroraSize()/detector->totalAuroraSize();
 

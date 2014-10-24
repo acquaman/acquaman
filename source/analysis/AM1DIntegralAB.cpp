@@ -294,6 +294,20 @@ AMNumber AM1DIntegralAB::axisValue(int axisNumber, int index) const{
 
 }
 
+bool AM1DIntegralAB::axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const
+{
+	if (!isValid())
+		return false;
+
+	if (axisNumber != 0)
+		return false;
+
+	if (startIndex >= axes_.at(axisNumber).size || endIndex >= axes_.at(axisNumber).size)
+		return false;
+
+	return inputSource_->axisValues(axisNumber, startIndex, endIndex, outputValues);
+}
+
 // Connected to be called when the values of the input data source change
 void AM1DIntegralAB::onInputSourceValuesChanged(const AMnDIndex& start, const AMnDIndex& end) {
 

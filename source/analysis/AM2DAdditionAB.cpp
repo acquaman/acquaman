@@ -170,6 +170,20 @@ AMNumber AM2DAdditionAB::axisValue(int axisNumber, int index) const
 	return sources_.at(0)->axisValue(axisNumber, index);
 }
 
+bool AM2DAdditionAB::axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const
+{
+	if (!isValid())
+		return false;
+
+	if (axisNumber != 0 && axisNumber != 1)
+		return false;
+
+	if (startIndex >= axes_.at(axisNumber).size || endIndex >= axes_.at(axisNumber).size)
+		return false;
+
+	return sources_.first()->axisValues(axisNumber, startIndex, endIndex, outputValues);
+}
+
 // Connected to be called when the values of the input data source change
 void AM2DAdditionAB::onInputSourceValuesChanged(const AMnDIndex& start, const AMnDIndex& end)
 {

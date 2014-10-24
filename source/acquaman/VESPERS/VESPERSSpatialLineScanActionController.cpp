@@ -114,6 +114,36 @@ VESPERSSpatialLineScanActionController::VESPERSSpatialLineScanActionController(V
 		scan_->rawData()->addScanAxis(AMAxisInfo("Rz", 0, "Rotational Position", "mm"));
 	}
 
+	else if (motor.testFlag(VESPERS::BigBeamX)){
+
+		list.append(VESPERSBeamline::vespers()->bigBeamX()->toInfo());
+		scan_->rawData()->addScanAxis(AMAxisInfo("Big Beam X", 0, "Horizontal Position", "mm"));
+	}
+
+	else if (motor.testFlag(VESPERS::BigBeamZ)){
+
+		list.append(VESPERSBeamline::vespers()->bigBeamZ()->toInfo());
+		scan_->rawData()->addScanAxis(AMAxisInfo("Big Beam Z", 0, "Vertical Position", "mm"));
+	}
+
+	else if (motor.testFlag(VESPERS::WireH)){
+
+		list.append(VESPERSBeamline::vespers()->wireStageHorizontal()->toInfo());
+		scan_->rawData()->addScanAxis(AMAxisInfo("H", 0, "Horizontal Position", "mm"));
+	}
+
+	else if (motor.testFlag(VESPERS::WireV)){
+
+		list.append(VESPERSBeamline::vespers()->wireStageVertical()->toInfo());
+		scan_->rawData()->addScanAxis(AMAxisInfo("V", 0, "Vertical Position", "mm"));
+	}
+
+	else if (motor.testFlag(VESPERS::WireN)){
+
+		list.append(VESPERSBeamline::vespers()->wireStageNormal()->toInfo());
+		scan_->rawData()->addScanAxis(AMAxisInfo("N", 0, "Normal Position", "mm"));
+	}
+
 	configuration_->setAxisControlInfos(list);
 
 	AMExporterOptionGeneralAscii *vespersDefault = VESPERS::buildStandardExporterOption("VESPERSLineScanDefault", configuration_->exportSpectraSources(), false, false, configuration_->exportSpectraInRows());
@@ -233,13 +263,13 @@ void VESPERSSpatialLineScanActionController::buildScanControllerImplementation()
 		foreach (AMRegionOfInterest *region, configuration_->regionsOfInterest()){
 
 			AMRegionOfInterestAB *regionAB = (AMRegionOfInterestAB *)region->valueSource();
-			AMRegionOfInterestAB *newRegion = new AMRegionOfInterestAB(regionAB->name());
+			AMRegionOfInterestAB *newRegion = new AMRegionOfInterestAB(regionAB->name().remove(' '));
 			newRegion->setBinningRange(regionAB->binningRange());
 			newRegion->setInputDataSources(QList<AMDataSource *>() << spectraSource);
 			scan_->addAnalyzedDataSource(newRegion, false, true);
 			detector->addRegionOfInterest(region);
 
-			AM1DNormalizationAB *normalizedRegion = new AM1DNormalizationAB(QString("norm_%1").arg(region->name()));
+			AM1DNormalizationAB *normalizedRegion = new AM1DNormalizationAB(QString("norm_%1").arg(newRegion->name()));
 			normalizedRegion->setInputDataSources(QList<AMDataSource *>() << newRegion << i0Sources);
 			normalizedRegion->setDataName(newRegion->name());
 			normalizedRegion->setNormalizationName(i0Sources.at(int(configuration_->incomingChoice()))->name());
@@ -251,7 +281,7 @@ void VESPERSSpatialLineScanActionController::buildScanControllerImplementation()
 AMAction3* VESPERSSpatialLineScanActionController::createInitializationActions()
 {
 	AMSequentialListAction3 *initializationActions = new AMSequentialListAction3(new AMSequentialListActionInfo3("Initialization actions", "Initialization actions"));
-	initializationActions->addSubAction(buildBaseInitializationAction(configuration_->detectorConfigurations()));
+	initializationActions->addSubAction(buildBaseInitializationAction());
 
 	if (!configuration_->ccdDetector().testFlag(VESPERS::NoCCD))
 		initializationActions->addSubAction(buildCCDInitializationAction(configuration_->ccdDetector(), configuration_->ccdFileName()));

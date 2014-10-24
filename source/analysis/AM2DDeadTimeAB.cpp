@@ -200,6 +200,20 @@ AMNumber AM2DDeadTimeAB::axisValue(int axisNumber, int index) const
 	return spectra_->axisValue(axisNumber, index);
 }
 
+bool AM2DDeadTimeAB::axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const
+{
+	if (!isValid())
+		return false;
+
+	if (axisNumber != 0 && axisNumber != 1)
+		return false;
+
+	if (startIndex >= spectra_->size(1) || endIndex >= spectra_->size(1))
+		return false;
+
+	return spectra_->axisValues(axisNumber, startIndex, endIndex, outputValues);
+}
+
 // Connected to be called when the values of the input data source change
 void AM2DDeadTimeAB::onInputSourceValuesChanged(const AMnDIndex& start, const AMnDIndex& end)
 {

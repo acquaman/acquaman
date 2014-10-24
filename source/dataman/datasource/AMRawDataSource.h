@@ -159,6 +159,7 @@ int outputSize = indexStart.totalPointsTo(indexEnd);
 \endcode
 */
 	virtual bool values(const AMnDIndex& indexStart, const AMnDIndex& indexEnd, double* outputValues) const {
+
 		if(!isValid())
 			return false;
 		if(indexStart.rank() != rank() || indexEnd.rank() != rank())
@@ -233,6 +234,8 @@ int outputSize = indexStart.totalPointsTo(indexEnd);
 
 	}
 
+	/// Performance optimization of axisValue():  instead of a single value, copies a block of values from \c startIndex to \c endIndex in \c outputValues.  The provided pointer must contain enough space for all the requested values.
+	virtual bool axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const;
 
 	// Access for database stored values
 	///////////////////

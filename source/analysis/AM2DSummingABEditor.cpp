@@ -145,7 +145,9 @@ void AM2DSummingABEditor::onNameChoiceChanged(int index)
 {
 	QString name = names_->itemData(index).toString();
 	analysisBlock_->setAnalyzedName(name);
-	image_->setModel(new AMDataSourceImageData(analysisBlock_->inputDataSourceAt(analysisBlock_->indexOfInputSource(name))), true);
+	AMDataSourceImageData *model = new AMDataSourceImageData;
+	model->setDataSource(analysisBlock_->inputDataSourceAt(analysisBlock_->indexOfInputSource(name)));
+	image_->setModel(model, true);
 }
 
 
@@ -188,7 +190,9 @@ void AM2DSummingABEditor::onAnalysisBlockInputDataSourcesChanged() {
 		rangeMaxControl_->blockSignals(false);
 
 		image_ = new MPlotImageBasic();
-		image_->setModel(new AMDataSourceImageData(inputSource), true);
+		AMDataSourceImageData *model = new AMDataSourceImageData;
+		model->setDataSource(inputSource);
+		image_->setModel(model, true);
 		plot_->addItem(image_);
 	}
 

@@ -31,6 +31,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class AMDataSource;
 
 #define AMDATASOURCE_VALUES_BASE_IMPLEMENTATION_CALLED 595001
+#define AMDATASOURCE_AXISVALUES_BASE_IMPLEMENTATION_CALLED 595002
 
 /// This class acts as a proxy to emit signals for AMDataSource. You can receive the dataChanged(), sizeChanged(), etc. signals by hooking up to AMDataSource::signalSource().  You should never need to create an instance of this class directly.
 /*! To allow classes that implement AMDataSource to also inherit QObject, AMDataSource does NOT inherit QObject.  However, it still needs a way to emit signals notifying of changes to the data, which is the role of this class.
@@ -156,6 +157,9 @@ int outputSize = indexStart.totalPointsTo(indexEnd);
 
 	/// When the independent values along an axis is not simply the axis index, this returns the independent value along an axis (specified by axis number and index).
 	virtual AMNumber axisValue(int axisNumber, int index) const = 0;
+
+	/// Performance optimization of axisValue():  instead of a single value, copies a block of values from \c startIndex to \c endIndex in \c outputValues.  The provided pointer must contain enough space for all the requested values.
+	virtual bool axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const;
 
 	// Observers
 	//////////////////////////

@@ -25,6 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "acquaman/VESPERS/VESPERSXRFScanConfiguration.h"
 #include "acquaman/AMScanController.h"
 #include "dataman/VESPERS/AMXRFScan.h"
+#include "beamline/AMXRFDetector.h"
 
 class VESPERSXRFScanController : public AMScanController
 {
@@ -58,6 +59,9 @@ protected:
 	virtual void stopImplementation(const QString &command) { Q_UNUSED(command); setFinished(); }
 	/// Saves the data after a scan is stopped.
 	void saveData();
+
+	/// The pointer to the detector that we're using.
+	AMXRFDetector *detector_;
 };
 
 #endif // VESPERSXRFSCANCONTROLLER_H
