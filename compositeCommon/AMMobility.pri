@@ -14,7 +14,10 @@ linux-g++-32 {
 
 }
 linux-g++-64 {
+contains(USERNAME, david){
 
+	CONFIG -= mobility
+}
 }
 
 # Special build paths and options for running on the Jenkins auto-build server (currently at http://beamteam.usask.ca:8080)

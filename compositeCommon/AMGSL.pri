@@ -8,10 +8,17 @@ macx|linux-g++ {
 		GSL_LIB = -lgsl
 		GSL_CBLAS_LIB = -lgslcblas
 } else:linux-g++-64 {
+	contains(USERNAME, david){
+		# GSL Dependencies
+		GSL_LIB = -lgsl
+		GSL_CBLAS_LIB = -lgslcblas
+	} else{
+
 		# GSL Dependencies
 		GSL_INCLUDE_DIR = /home/beamline/tools/gsl/gsl-1.14-install/include
 		GSL_LIB = -L/home/beamline/tools/gsl/gsl-1.14-install/lib -lgsl
 		GSL_CBLAS_LIB = -lgslcblas
+}
 }
 
 INCLUDEPATH *= $$GSL_INCLUDE_DIR

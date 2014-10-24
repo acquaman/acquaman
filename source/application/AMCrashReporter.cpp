@@ -35,6 +35,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDesktopWidget>
 #include <QMessageBox>
 
+#include<unistd.h>
+
+
 int AMCrashReporterUnixSignalHandler::sigusr1Fd[2];
 int AMCrashReporterUnixSignalHandler::sigusr2Fd[2];
 
