@@ -1,3 +1,7 @@
+# #####################################################################
+# QMake project file for acquaman build tests			October 2014. david.k.chevrier@gmail.com
+# #####################################################################
+
 TEMPLATE = subdirs
 SUBDIRS += \
 	AMControlInfoTest/AMControlInfoTest.pro \

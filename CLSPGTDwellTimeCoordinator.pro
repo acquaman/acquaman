@@ -1,17 +1,8 @@
-include ( $$PATH_TO_AM/compositeCommon/AMCommon.pri )
+# #####################################################################
+# QMake project file for acquaman, including test suites			January 2010. mark.boots@usask.ca
+# #####################################################################
 
-include ( $$PATH_TO_AM/compositeCommon/AMPVControl.pri )
-include ( $$PATH_TO_AM/compositeCommon/AMControlSet.pri )
-
-TARGET = CLSPGTDwellTimeCoordinator
-
-FORMS +=
-
-HEADERS += \ 
-	source/beamline/CLS/CLSPGTDwellTimeCoordinator.h
-
-SOURCES += \
-	source/application/CLSPGTDwellTimeCoordinator/CLSPGTDwellTimeCoordinatorMain.cpp \
-	source/beamline/CLS/CLSPGTDwellTimeCoordinator.cpp
-
-
+TEMPLATE = subdirs
+SUBDIRS += \
+	Initialize.pro \
+	CLSPGTDwellTimeCoordinator_internal.pro

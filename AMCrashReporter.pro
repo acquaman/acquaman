@@ -1,14 +1,8 @@
-include ( $$PATH_TO_AM/compositeCommon/AMCommon.pri )
+# #####################################################################
+# QMake project file for acquaman crash reporter			October 2014. david.k.chevrier@gmail.com
+# #####################################################################
 
-QT *= network
-
-TARGET = AMCrashReporter
-
-HEADERS +=\
-	source/application/AMCrashReporter.h
-
-SOURCES += \
-	source/application/AMCrashReporter.cpp \
-	source/application/AMCrashReporterMain.cpp
-
-
+TEMPLATE = subdirs
+SUBDIRS += \
+	Initialize.pro \
+	AMCrashReporter_internal.pro

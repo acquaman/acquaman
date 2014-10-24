@@ -1,17 +1,8 @@
-include ( $$PATH_TO_AM/compositeCommon/AMCommon.pri )
+# #####################################################################
+# QMake project file for acquaman, including test suites			January 2010. mark.boots@usask.ca
+# #####################################################################
 
-include ( $$PATH_TO_AM/compositeCommon/AMPVControl.pri )
-include ( $$PATH_TO_AM/compositeCommon/AMControlSet.pri )
-
-TARGET = SGMLookupTableCoordinator
-
-FORMS +=
-
-HEADERS += \ 
-    source/beamline/SGM/SGMLookupTableCoordinator.h
-
-SOURCES += \
-	source/application/SGMLookupTableCoordinator/SGMLookupTableCoordinatorMain.cpp \
-	source/beamline/SGM/SGMLookupTableCoordinator.cpp
-
-
+TEMPLATE = subdirs
+SUBDIRS += \
+	Initialize.pro \
+	SGMLookupTableCoordinator_internal.pro
