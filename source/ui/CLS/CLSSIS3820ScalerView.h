@@ -70,8 +70,8 @@ public slots:
 	void setEnableCheckBoxVisibility(bool visible);
 	/// Sets the custom name visibility.
 	void setCustomNameVisibility(bool visible);
-	/// Sets the SR570 visibility (does nothing if no SR570 is set).
-	void setSR570Visibility(bool visible);
+    /// Sets the amplifier view visibility (does nothing if no amplifier is set).
+    void setAmplifierVisibility(bool visible);
 	/// Sets the output visibility.
 	void setOutputVisibility(bool visible);
 	/// Sets the status label visibility.
@@ -88,7 +88,7 @@ protected slots:
 	void onScalerOutputClicked();
 	/// Handles updating the status label.  Includes the color and updating the tool tip.
 	void updateStatusLabel();
-	/// Handles setting up the SR570 view if it is added after the channel has been set inside the view.
+    /// Handles setting up the amplifier view if it is added after the channel has been set inside the view.
 	void onNewCurrentAmplifierAttached();
 
 protected:
@@ -103,7 +103,7 @@ protected:
 	OutputViewMode viewMode_;
 	/// Label holding the name of the scaler channel.
 	QLabel *channelName_;
-	/// Holds the SR570, should there be a SR570 bound to this channel.
+    /// Holds the amplifier view, should there be an amplifier bound to this channel.
 	AMCurrentAmplifierSingleView *amplifierView_;
 	/// Holds the label for the status.
 	QLabel *statusLabel_;

@@ -418,7 +418,7 @@ void CLSSIS3820ScalerChannelView::setCustomNameVisibility(bool visible)
 	channelName_->setVisible(visible);
 }
 
-void CLSSIS3820ScalerChannelView::setSR570Visibility(bool visible)
+void CLSSIS3820ScalerChannelView::setAmplifierVisibility(bool visible)
 {
 	if (amplifierView_)
 		amplifierView_->setVisible(visible);

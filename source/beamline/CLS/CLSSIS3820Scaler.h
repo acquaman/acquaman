@@ -247,9 +247,9 @@ public:
 	/// Returns the custom settable name
 	QString customChannelName() const { return customChannelName_; }
 
-	/// Sets a SR570 to this particular channel.  It is assumed that the SR570 ACTUALLY corresponds to the scalar channel, otherwise, this is meaningless.
+    /// Sets a current amplifier for this particular channel.  It is assumed that the amplifier ACTUALLY corresponds to the scalar channel, otherwise, this is meaningless.
 	void setCurrentAmplifier(AMCurrentAmplifier *amplifier);
-	/// Returns the SR570 that this scaler channel uses for sensitivity changes.  Returns 0 if not set.
+    /// Returns the amplifier that this scaler channel uses for sensitivity changes.  Returns 0 if not set.
 	AMCurrentAmplifier *currentAmplifier() const { return currentAmplifier_; }
 
 	/// Sets an AMDetector to this particular channel. This connection grants us access to the detector's dark current measurement/correction abilities.
