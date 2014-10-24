@@ -31,6 +31,6 @@ SUBDIRS += \
 	VESPERSDatabaseDuplicateEntryPatch.pro \
 	StripTool2.pro \
 	CLSNetworkDirectorySynchronizer.pro \
-#	buildTests/AMBuildTest.pro
+	buildTests/AMBuildTest.pro \
 	XRDAnalysis.pro \
 	CLSSR570Coordinator.pro
