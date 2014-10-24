@@ -22,7 +22,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMDictionaryLineEdit.h"
 
 #include <QLabel>
-#include <QKeyEvent>
+
+#include "AMQEvents.h"
 
 #include "dataman/AMScanParametersDictionary.h"
 

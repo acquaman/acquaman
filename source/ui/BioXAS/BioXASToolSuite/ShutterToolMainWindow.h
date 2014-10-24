@@ -22,8 +22,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef SHUTTERTOOLMAINWINDOW_H
 #define SHUTTERTOOLMAINWINDOW_H
 
+#include "AMQEvents.h"
+
 #include <QWidget>
-#include <QCloseEvent>
 #include <QBoxLayout>
 #include <QLabel>
 #include <QPushButton>

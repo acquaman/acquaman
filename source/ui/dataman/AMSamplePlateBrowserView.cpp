@@ -26,7 +26,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QLineEdit>
 #include <QLabel>
 #include <QPushButton>
-#include <QKeyEvent>
+
+#include "AMQEvents.h"
 
 #include "dataman/AMSamplePlate.h"
 

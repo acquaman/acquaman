@@ -26,7 +26,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QSignalMapper>
 #include <QToolButton>
-#include <QMouseEvent>
+
+#include "AMQEvents.h"
 
 #include "util/AMElement.h"
 #include "util/AMPeriodicTable.h"

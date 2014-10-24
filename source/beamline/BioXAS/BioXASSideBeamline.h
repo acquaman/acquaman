@@ -49,8 +49,10 @@ public:
 	/// Returns the instance of the beamline that has been created.
 	static BioXASSideBeamline* bioXAS()
 	{
-		if(!instance_)
+		if(!instance_){
 			instance_ = new BioXASSideBeamline();
+			instance_->initializeBeamlineSupport();
+		}
 
 		return static_cast<BioXASSideBeamline*>(instance_);
 	}

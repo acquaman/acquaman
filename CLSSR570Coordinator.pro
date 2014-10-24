@@ -1,10 +1,8 @@
-include ( acquamanCommon.pri )
+# #####################################################################
+# QMake project file for acquaman, including test suites			January 2010. mark.boots@usask.ca
+# #####################################################################
 
-TARGET = CLSSR570CoordinatorApp
-
-HEADERS += \
-	source/beamline/CLS/CLSSR570Coordinator.h
-
-SOURCES += \
-	source/application/CLSSR570Coordinator/CLSSR570CoordinatorMain.cpp \
-	source/beamline/CLS/CLSSR570Coordinator.cpp
+TEMPLATE = subdirs
+SUBDIRS += \
+	Initialize.pro \
+	CLSSR570Coordinator_internal.pro

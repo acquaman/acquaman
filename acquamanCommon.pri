@@ -1,305 +1,29 @@
 # #####################################################################
-# QMake project file for acquaman.  		January 2010. mark.boots@usask.ca
-# Note: Set EPICS_INCLUDE_DIRS, EPICS_LIB_DIR, VLC_*, and GSL_* correctly for platform
+# QMake project file for acquaman.  		October 2014. david.k.chevrier@gmail.com
 # ####################################################################
 
 # Video Support: Remove this line if you do not have the multimedia module from QtMobility
-CONFIG += mobility
+CONFIG *= mobility
+
+include ( $$PATH_TO_AM/compositeCommon/AMCommon.pri )
+
+QT *= network
 
 # Debug: Uncomment this to build the program in debug mode (no optimizations; include debugging symbols.)
 # Note that as of November 18, 2011, building in debug mode triggers a failure in the dacq library: the main (eV) PV ends up disabled in the dacq scan config.  This is likely a serious memory error.
 # CONFIG += debug
 
-USERNAME = $$system(whoami)
+include ( $$PATH_TO_AM/compositeCommon/AMMPlot.pri )
 
-# Automatically determines a user's home folder
-HOME_FOLDER = $$system(echo $HOME)
+include ( $$PATH_TO_AM/compositeCommon/AMMobility.pri )
+include ( $$PATH_TO_AM/compositeCommon/AMCDF.pri )
 
-USERNAME = $$system(whoami)
+include ( $$PATH_TO_AM/compositeCommon/Eigen.pri )
+include ( $$PATH_TO_AM/compositeCommon/MuParser.pri )
+include ( $$PATH_TO_AM/compositeCommon/QJSON.pri )
 
-contains(USERNAME, liux0){
-        HOME_FOLDER = /home/liux0/
-}
-
-macx {
-
-		contains(USERNAME, helfrij){
-			CONFIG -= mobility
-		}
-
-		contains(USERNAME, darrenhunter){
-			CONFIG -= mobility
-		}
-		# Disable Qt Mobility Video until everyone's Mac laptops support that
-		#CONFIG -= mobility
-
-		# Where you want to do your acquaman development (as a path from $HOME). You don't need to include leading or trailing slashes.
-		DEV_PATH = beamline/programming
-
-		# The full path to the acquaman folder.  This MUST point to the location where acquamanCommon.pri lives.
-		PATH_TO_AM = $$HOME_FOLDER/$$DEV_PATH/acquaman_4_8
-
-		# EPICS Dependencies:
-		EPICS_INCLUDE_DIRS = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/epics/base/include \
-								$$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/epics/base/include/os/Darwin
-		EPICS_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/epics/base/lib/darwin-x86
-
-		# MPlot Source
-		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot_4_8/include
-		MPLOT_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot_4_8/lib
-
-		GSL_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/gsl-install/include
-
-		# GSL Dependencies
-		GSL_LIB = -L$$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/gsl-install/lib -lgsl
-		GSL_CBLAS_LIB = -L$$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/gsl-install/lib -lgslcblas
-
-		# QwtPlot3d dependencies (Disabled for now...)
-		 #QWTPLOT3D_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman_4_8/contrib/qwtplot3d/lib
-		 #QWTPLOT3D_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman_4_8/contrib/qwtplot3d/include
-
-		# CDFlib dependencies
-		CDF_LIB = /Applications/cdf34_0-dist/lib/libcdf.a
-		CDF_INCLUDE_DIR = /Applications/cdf34_0-dist/include
-
-				#Eigen
-		EIGEN_INCLUDE_DIR = $$PATH_TO_AM/source/Eigen
-
-		MOBILITY_QT_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/qt-mobility/qt-mobility-opensource-src-1.1.3/install/Library/Frameworks/QtMultimediaKit.framework/Versions/Current
-		MOBILITY_QT_LIB = -L$$MOBILITY_QT_LIB_DIR -lQtMultimediaKit
-		MOBILITY_QT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/qt-mobility/qt-mobility-opensource-src-1.1.3/install/include/QtMultimediaKit \
-						$$HOME_FOLDER/$$DEV_PATH/qt-mobility/qt-mobility-opensource-src-1.1.3/install/include/QtMobility
-
-		QMAKE_CXXFLAGS_X86_64 += "-mmacosx-version-min=10.7"
-
-		QMAKE_LFLAGS_DEBUG += "-mmacosx-version-min=10.7"
-		QMAKE_LFLAGS_RELEASE += "-mmacosx-version-min=10.7"
-}
-linux-g++ {
-
-		# Where you want to do your acquaman development (as a path from $HOME). You don't need to include leading or trailing slashes.
-		DEV_PATH = beamline/programming
-
-		# The full path to the acquaman folder.  This MUST point to the location where acquamanCommon.pri lives.
-		PATH_TO_AM = $$HOME_FOLDER/$$DEV_PATH/acquaman
-
-		# EPICS Dependencies:
-		EPICS_INCLUDE_DIRS = $$HOME_FOLDER/$$DEV_PATH/epics/base/include \
-				$$HOME_FOLDER/$$DEV_PATH/epics/base/include/os/Linux
-		EPICS_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/epics/base/lib/linux-x86
-
-		# MPlot Source
-		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/include
-		MPLOT_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/lib
-
-
-#                GSL_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/gsl-install/include
-#                GSL_LIB = -L$$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/gsl-install/lib -lgsl
-#                GSL_CBLAS_LIB = -lgslcblas
-
-		# GSL Dependencies
-		GSL_INCLUDE_DIR = $$PATH_TO_AM/contrib/gsl-install/include
-		GSL_LIB = -L$$PATH_TO_AM/contrib/gsl-install/lib -lgsl
-		GSL_CBLAS_LIB = -L$$PATH_TO_AM/contrib/gsl-install/lib -lgslcblas
-
-
-				#Qt Mobility Dependencies
-				MOBILITY_QT_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/qt-mobility-1.1.3-Ubuntu12.04/lib
-				MOBILITY_QT_LIB = -L$$MOBILITY_QT_LIB_DIR -lQtMultimediaKit
-				MOBILITY_QT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/qt-mobility-1.1.3-Ubuntu12.04/include
-
-				#Eigen
-		EIGEN_INCLUDE_DIR = $$PATH_TO_AM/source/Eigen
-
-		# CDFlib dependencies
-#		CDF_LIB = -lcdf
-#		CDF_INCLUDE_DIR = /usr/local/include
-		CDF_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/cdf34_1-dist/lib
-		CDF_LIB = -L$$CDF_LIB_DIR -lcdf
-		CDF_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/cdf34_1-dist/include
-
-
-		QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$CDF_LIB_DIR"
-		QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$CDF_LIB_DIR"
-}
-linux-g++-32 {
-
-		# Disable Qt Mobility Video until Darren's laptop is ready for that.
-		CONFIG -= mobility
-
-		# Where you want to do your acquaman development (as a path from $HOME). You don't need to include leading or trailing slashes.
-		DEV_PATH = beamline/programming
-
-		# The full path to the acquaman folder.  This MUST point to the location where acquamanCommon.pri lives.
-		PATH_TO_AM = $$HOME_FOLDER/$$DEV_PATH/acquaman
-
-		# EPICS Dependencies:
-		EPICS_INCLUDE_DIRS = $$HOME_FOLDER/$$DEV_PATH/epics/base/include \
-				$$HOME_FOLDER/$$DEV_PATH/epics/base/include/os/Linux
-		EPICS_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/epics/base/lib/linux-x86
-
-		# MPlot Source
-		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/include
-		MPLOT_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/lib
-
-		# GSL Dependencies
-		GSL_LIB = -lgsl
-		GSL_CBLAS_LIB = -lgslcblas
-
-		# QwtPlot3d dependencies (Disabled for now...)
-#		QWTPLOT3D_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/qwtplot3d/lib
-#		QWTPLOT3D_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/qwtplot3d/include
-
-		# CDFlib dependencies
-		CDF_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/cdf34_1-dist/lib
-		CDF_LIB = -L$$CDF_LIB_DIR -lcdf
-		CDF_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/cdf34_1-dist/include
-
-		QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$CDF_LIB_DIR"
-		QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$CDF_LIB_DIR"
-
-				#Eigen
-		EIGEN_INCLUDE_DIR = $$PATH_TO_AM/source/Eigen
-}
-# The following works well for CLS beamline OPI machines, built using VMSL54.cs.clsi.ca
-
-linux-g++-64 {
-
-		# Where you want to do your acquaman development (as a path from $HOME). You don't need to include leading or trailing slashes.
-		DEV_PATH = beamline/programming
-
-		# The full path to the acquaman folder.  This MUST point to the location where acquamanCommon.pri lives.
-		PATH_TO_AM = $$HOME_FOLDER/$$DEV_PATH/acquaman
-
-		# EPICS Dependencies:
-		EPICS_INCLUDE_DIRS = /home/epics/src/R3.14.12/base/include \
-				/home/epics/src/R3.14.12/base/include/os/Linux
-		EPICS_LIB_DIR = /home/epics/src/R3.14.12/base/lib/linux-x86_64
-
-		# MPlot Source
-		MPLOT_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/include
-		MPLOT_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/MPlot/lib
-
-		# GSL Dependencies
-		GSL_INCLUDE_DIR = /home/beamline/tools/gsl/gsl-1.14-install/include
-		GSL_LIB = -L/home/beamline/tools/gsl/gsl-1.14-install/lib -lgsl
-		GSL_CBLAS_LIB = -lgslcblas
-
-		# QwtPlot3d dependencies (Disabled for now...)
-		# QWTPLOT3D_LIB_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/qwtplot3d/lib
-		# QWTPLOT3D_INCLUDE_DIR = $$HOME_FOLDER/$$DEV_PATH/acquaman/contrib/qwtplot3d/include
-
-		# CDFlib dependencies
-		CDF_LIB_DIR = /home/beamline/tools/cdf/lib
-		CDF_LIB = -L$$CDF_LIB_DIR -lcdf
-		CDF_INCLUDE_DIR = /home/beamline/tools/cdf/include
-
-		QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$CDF_LIB_DIR"
-		QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$CDF_LIB_DIR"
-
-				#Eigen
-		EIGEN_INCLUDE_DIR = $$PATH_TO_AM/source/Eigen
-
-}
-
-# Special build paths and options for running on the Jenkins auto-build server (currently at http://beamteam.usask.ca:8080)
-CONFIG(jenkins_build) {
-
-		message("Detected Jenkins auto-build... Specifying dependency paths for the build server.")
-
-		# Disable Qt Mobility Video until the Jenkins-machine supports that
-		CONFIG -= mobility
-
-		# Where you want to do your acquaman development (as a path from $HOME). You don't need to include leading or trailing slashes.
-		DEV_PATH = /jobs/AcquamanOnLinux_MasterBranch/workspace
-
-		# The full path to the acquaman folder.  This MUST point to the location where acquamanCommon.pri lives.
-		PATH_TO_AM = $$HOME_FOLDER/$$DEV_PATH
-
-		# EPICS Dependencies:
-		EPICS_INCLUDE_DIRS = /home/mark/dev/epics/base/include \
-				/home/mark/dev/epics/base/include/os/Linux
-		EPICS_LIB_DIR = /home/mark/dev/epics/base/lib/linux-x86
-
-		# MPlot Source
-		MPLOT_INCLUDE_DIR = "/var/lib/jenkins/jobs/MPlotOnLinux_MasterBranch/workspace/include"
-		MPLOT_LIB_DIR = "/var/lib/jenkins/jobs/MPlotOnLinux_MasterBranch/workspace/lib"
-
-		#Eigen
-		EIGEN_INCLUDE_DIR = $$PATH_TO_AM/source/Eigen
-}
-
-QT += core gui sql opengl network
-
-# add video using Multimedia module from QtMobility, if we have it
-CONFIG(mobility) {
-	MOBILITY += multimedia
-}
-
-DESTDIR = build
-
-DEPENDPATH += $$PATH_TO_AM $$PATH_TO_AM/source
-INCLUDEPATH += $$PATH_TO_AM $$PATH_TO_AM/source
-
-INCLUDEPATH += $$EPICS_INCLUDE_DIRS \
-		$$MPLOT_INCLUDE_DIR \
-		$$GSL_INCLUDE_DIR \
-		$$QWTPLOT3D_INCLUDE_DIR \
-				$$CDF_INCLUDE_DIR \
-				$$EIGEN_INCLUDE_DIR
-
-LIBS += $$GSL_LIB \
-		$$GSL_CBLAS_LIB \
-		-L$$MPLOT_LIB_DIR -lMPlot \
-#		-L$$QWTPLOT3D_LIB_DIR -lqwtplot3d \
-		-L$$EPICS_LIB_DIR -lca -lCom \
-		$$CDF_LIB
-
-CONFIG(mobility) {
-		INCLUDEPATH += $$MOBILITY_QT_INCLUDE_DIR
-		LIBS += $$MOBILITY_QT_LIB
-}
-
-DEFINES += AM_ENABLE_BOUNDS_CHECKING
-
-
-# Set standard level of compiler warnings for everyone. (Otherwise the warnings shown will be system-dependent.)
-QMAKE_CXXFLAGS += -Wextra -g
-
-# Specify RPATH (runtime library search paths) so that libraries can be found without requiring LD_LIBRARY_PATH
-# For Qt 4.7.1 and earlier, need to use this instead:
-								#QMAKE_LFLAGS_RPATH += "$$EPICS_LIB_DIR"
-								#QMAKE_LFLAGS_RPATH += "$$QWTPLOT3D_LIB_DIR"
-
-contains(USERNAME, helfrij){
-	QMAKE_CXXFLAGS_X86_64 += "-mmacosx-version-min=10.7"
-
-	QMAKE_LFLAGS_DEBUG += "-mmacosx-version-min=10.7"
-	QMAKE_LFLAGS_RELEASE += "-mmacosx-version-min=10.7"
-
-	#QMAKE_LFLAGS_DEBUG += "-mmacosx-version-min=10.7"
-	#QMAKE_LFLAGS_RELEASE += "-mmacosx-version-min=10.7"
-}
-
-contains(USERNAME, chevrid){
-	QMAKE_CXXFLAGS_X86_64 += "-mmacosx-version-min=10.7"
-
-	QMAKE_LFLAGS_DEBUG += "-mmacosx-version-min=10.7"
-	QMAKE_LFLAGS_RELEASE += "-mmacosx-version-min=10.7"
-}
-
-contains(USERNAME, darrenhunter){
-	QMAKE_CXXFLAGS_X86_64 += "-mmacosx-version-min=10.7"
-
-	QMAKE_LFLAGS_DEBUG += "-mmacosx-version-min=10.7"
-	QMAKE_LFLAGS_RELEASE += "-mmacosx-version-min=10.7"
-}
-
-QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$EPICS_LIB_DIR"
-QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$EPICS_LIB_DIR"
-
-QMAKE_LFLAGS_DEBUG += "-Wl,-rpath,$$MPLOT_LIB_DIR"
-QMAKE_LFLAGS_RELEASE += "-Wl,-rpath,$$MPLOT_LIB_DIR"
+include ( $$PATH_TO_AM/compositeCommon/AMBeamline.pri )
+include ( $$PATH_TO_AM/compositeCommon/AMPVControl.pri )
 
 # Source Files (Acquaman Framework Common)
 #######################
@@ -309,18 +33,8 @@ HEADERS += \
 	source/acquaman/AMScanController.h \
 	source/application/AMAppController.h \
 	source/util/AMBiHash.h \
-	source/util/AMErrorMonitor.h \
 	source/util/AMSettings.h \
-	source/beamline/AMBeamline.h \
-	source/beamline/AMControl.h \
-	source/beamline/AMPVControl.h \
-	source/beamline/AMControlSet.h \
-#	source/beamline/AMControlState.h \
-	source/beamline/AMProcessVariable.h \
-	source/beamline/AMProcessVariablePrivate.h \
 	source/beamline/AMPVNames.h \
-	source/dataman/database/AMDatabase.h \
-	source/dataman/database/AMDbObject.h \
 	source/dataman/AMExperiment.h \
 	source/dataman/AMImportController.h \
 	source/dataman/AMRun.h \
@@ -329,16 +43,6 @@ HEADERS += \
 	source/dataman/AMXASScan.h \
 	source/dataman/SGM/SGM2004FileLoader.h \
 	source/dataman/SGM/SGM2010FastFileLoader.h \
-	source/muParser/muParser.h \
-	source/muParser/muParserBase.h \
-	source/muParser/muParserBytecode.h \
-	source/muParser/muParserCallback.h \
-	source/muParser/muParserDef.h \
-	source/muParser/muParserError.h \
-	source/muParser/muParserFixes.h \
-	source/muParser/muParserStack.h \
-	source/muParser/muParserToken.h \
-	source/muParser/muParserTokenReader.h \
 	source/ui/dataman/AMRunSelector.h \
 	source/ui/beamline/AMControlSetView.h \
 	source/ui/dataman/AMCramBarHorizontal.h \
@@ -352,13 +56,11 @@ HEADERS += \
 	source/ui/AMStatusView.h \
 	source/ui/AMThumbnailScrollViewer.h \
 	source/ui/beamline/AMControlEditor.h \
-	source/acquaman.h \
 	source/ui/dataman/AMNewRunDialog.h \
 	source/dataman/AMAbstractFileLoader.h \
 	source/ui/AMPrefixSuffixLineEdit.h \
 	source/ui/AMDragDropItemModel.h \
 	source/dataman/AMRunExperimentItems.h \
-	source/dataman/info/AMControlInfoList.h \
 	source/ui/dataman/AMGenericScanEditor.h \
 	source/ui/AMDetailedItemDelegate.h \
 	source/ui/AMVerticalStackWidget.h \
@@ -375,18 +77,11 @@ HEADERS += \
 	source/dataman/ALSBL8XASFileLoader.h \
 	source/ui/AMWindowPaneModel.h \
 	source/dataman/AMScanEditorModelItem.h \
-	source/dataman/datasource/AMDataSource.h \
-	source/dataman/AMAxisInfo.h \
-	source/dataman/AMNumber.h \
-	source/dataman/AMnDIndex.h \
 	source/dataman/datastore/AMDataStore.h \
 	source/dataman/AMAnalysisBlock.h \
 	source/dataman/datasource/AMDataSourceSeriesData.h \
 	source/dataman/datasource/AMDataSourceImageData.h \
 	source/analysis/AM1DExpressionAB.h \
-	source/dataman/database/AMDbObjectSupport.h \
-	source/util/AMOrderedSetSignalSource.h \
-	source/util/AMOrderedSet.h \
 	source/dataman/datasource/AMRawDataSource.h \
 	source/analysis/AM1DExpressionABEditor.h \
 	source/dataman/AMMeasurementInfo.h \
@@ -396,9 +91,7 @@ HEADERS += \
 	source/analysis/AM2DSummingAB.h \
 	source/analysis/AMStandardAnalysisBlock.h \
 	source/analysis/AM2DSummingABEditor.h \
-	source/util/AMOrderedList.h \
 	source/dataman/REIXS/REIXSXESRawFileLoader.h \
-	source/util/AMDeferredFunctionCall.h \
 	source/ui/util/AMPeriodicTableView.h \
 	source/util/AMPeriodicTable.h \
 	source/util/AMElement.h \
@@ -415,7 +108,6 @@ HEADERS += \
 	source/ui/AMFolderPathLineEdit.h \
 	source/util/AMTagReplacementParser.h \
 	source/ui/dataman/AMExporterOptionGeneralAsciiView.h \
-	#source/ui/dataman/AM3dDataSourceView.h \
 	source/ui/AMTopFrame.h \
 	source/dataman/info/CLSOceanOptics65000DetectorInfo.h \
 	source/dataman/SGM/SGM2011XASFileLoader.h \
@@ -460,19 +152,6 @@ HEADERS += \
 	source/beamline/CLS/CLSOMS58Motor.h \
 	source/beamline/CLS/CLSSIS3820Scaler.h \
 	source/ui/CLS/CLSSIS3820ScalerView.h \
-	source/qjson/json_parser.hh \
-	source/qjson/json_scanner.h \
-	source/qjson/location.hh \
-	source/qjson/parser_p.h \
-	source/qjson/parser.h \
-	source/qjson/parserrunnable.h \
-	source/qjson/position.hh \
-	source/qjson/qjson_debug.h \
-	source/qjson/qjson_export.h \
-	source/qjson/qobjecthelper.h \
-	source/qjson/serializer.h \
-	source/qjson/serializerrunnable.h \
-	source/qjson/stack.hh \
 	source/util/AMGithubManager.h \
 	source/ui/util/AMGithubIssueSubmissionView.h \
 	source/dataman/export/AMExporterAthena.h \
@@ -504,8 +183,6 @@ HEADERS += \
 	source/actions3/AMActionRunner3.h \
 	source/actions3/AMActionRegistry3.h \
 	source/actions3/AMActionLog3.h \
-	source/actions3/AMActionInfo3.h \
-	source/actions3/AMAction3.h \
 	source/actions3/editors/AMLoopActionEditor3.h \
 	source/ui/actions3/AMWorkflowView3.h \
 	source/ui/actions3/AMAddActionDialog3.h \
@@ -539,7 +216,6 @@ HEADERS += \
 	source/dataman/REIXS/REIXSXESCalibration2.h \
 	source/ui/beamline/AMExtendedControlEditor.h \
 	source/ui/beamline/AMControlButton.h \
-	source/dataman/info/AMControlInfo.h \
 	source/dataman/AMLineScan.h \
 	source/ui/AMTopFrame2.h \
 	source/application/AMDatamanAppControllerForActions3.h \
@@ -557,40 +233,25 @@ HEADERS += \
 	source/dataman/info/AMOldDetectorInfo.h \
 	source/beamline/AMOldDetector.h \
 	source/dataman/info/AMOldDetectorInfoSet.h \
-	source/beamline/AMDetector.h \
 	source/dataman/AMDbUpgrade1Pt1.h \
 	source/dataman/AMDbUpgrade1Pt2.h \
-	source/dataman/info/AMDetectorInfo.h \
 	source/beamline/CLS/CLSAmptekSDD123DetectorNew.h \
 	source/ui/beamline/AMOldDetectorView.h \
 	source/ui/beamline/AMOldDetectorViewSupport.h \
 	source/ui/beamline/AMDetectorView.h \
-	source/beamline/AMSynchronizedDwellTime.h \
 	source/beamline/AMDetectorSet.h \
 	source/dataman/info/AMDetectorInfoSet.h \
 	source/ui/beamline/AMDetectorSelectorView.h \
 	source/beamline/CLS/CLSBasicScalerChannelDetector.h \
-	source/beamline/AMDetectorTriggerSource.h \
 	source/beamline/AMDetectorGroup.h \
 	source/beamline/AMDetectorSelector.h \
-	source/acquaman/AMAgnosticDataAPI.h \
 	source/acquaman/AMScanActionController.h \
 	source/acquaman/AMScanActionControllerScanAssembler.h \
-	source/actions3/actions/AMDetectorInitializeActionInfo.h \
-	source/actions3/actions/AMDetectorInitializeAction.h \
-	source/actions3/actions/AMDetectorAcquisitionActionInfo.h \
-	source/actions3/actions/AMDetectorAcquisitionAction.h \
-	source/actions3/actions/AMDetectorCleanupActionInfo.h \
-	source/actions3/actions/AMDetectorCleanupAction.h \
 	source/actions3/actions/AMAxisStartedActionInfo.h \
 	source/actions3/actions/AMAxisFinishedActionInfo.h \
 	source/actions3/actions/AMAxisStartedAction.h \
 	source/actions3/actions/AMAxisFinishedAction.h \
 	source/beamline/AMBasicControlDetectorEmulator.h \
-	source/actions3/actions/AMDetectorTriggerActionInfo.h \
-	source/actions3/actions/AMDetectorTriggerAction.h \
-	source/actions3/actions/AMDetectorReadActionInfo.h \
-	source/actions3/actions/AMDetectorReadAction.h \
 	source/dataman/AMScanAxisRegion.h \
 	source/dataman/AMScanAxis.h \
 	source/acquaman/AMScanActionControllerScanOptimizer.h \
@@ -604,8 +265,6 @@ HEADERS += \
 	source/ui/util/AMMessageBoxWTimeout.h \
 	source/beamline/CLS/CLSPGTDetectorV2.h \
 	source/beamline/CLS/CLSQE65000Detector.h \
-	source/actions3/actions/AMDetectorDwellTimeActionInfo.h \
-	source/actions3/actions/AMDetectorDwellTimeAction.h \
 	source/acquaman/AMDetectorDwellTimeSourceScanOptimizer.h \
 	source/beamline/CLS/CLSAdvancedScalerChannelDetector.h \
 	source/dataman/info/CLSSynchronizedDwellTimeConfigurationInfo.h \
@@ -621,7 +280,6 @@ HEADERS += \
 	source/ui/CLS/CLSPseudoMotorGroupView.h \
 	source/beamline/CLS/CLSPseudoMotorGroup.h \
 	source/util/AMPointerTree.h \
-	source/dataman/database/AMConstDbObject.h \
 	source/dataman/AMDbUpgrade1Pt4.h \
 	source/dataman/AMSamplePre2013.h \
 	source/dataman/AMSamplePlatePre2013.h \
@@ -705,8 +363,6 @@ HEADERS += \
 	source/ui/dataman/AMControlInfoListView.h \
 	source/ui/dataman/AMOldDetectorInfoSetView.h \
 	source/ui/beamline/AMDetectorSelectorRequiredView.h \
-	source/actions3/actions/AMDetectorSetAsDarkCurrentCorrectionActionInfo.h \
-	source/actions3/actions/AMDetectorSetAsDarkCurrentCorrectionAction.h \
 	source/actions3/actions/AMControlWaitActionInfo.h \
 	source/actions3/actions/AMControlWaitAction.h \
 	source/analysis/AM1DDarkCurrentCorrectionAB.h \
@@ -769,29 +425,18 @@ HEADERS += \
 	source/ui/util/AMAboutDialog.h \
 	source/beamline/AM1DControlDetectorEmulator.h \
 	source/ui/actions3/AMActionRunnerCurrentViewBase.h \
-	source/util/AMThread.h \
 	source/dataman/AMDbUpgrade1Pt5.h \
+	source/beamline/AMBeamlineControlAPI.h \
+	source/beamline/AMBeamlineControlSetAPI.h \
+	source/beamline/AMBeamlineDetectorAPI.h \
+	source/beamline/AMBeamlineDetectorSetAPI.h \
+	source/beamline/AMBeamlineSynchronizedDwellTimeAPI.h \
+	source/util/AMThread.h \
 	source/util/AMAppArgumentParser.h \
 	source/beamline/AMStorageRing.h \
 	source/beamline/CLS/CLSStorageRing.h \
 	source/beamline/CLS/CLSSR570.h \
 	source/ui/dataman/AMBrowseScansView.h
-
-# OS-specific files:
-linux-g++|linux-g++-32|linux-g++-64 {
-	 HEADERS +=
-}
-
-# Only when the Mobility Video framework is available:
-CONFIG(mobility) {
-DEFINES += AM_MOBILITY_VIDEO_ENABLED
-
-HEADERS += source/ui/AMCrosshairOverlayVideoWidget.h \
-	source/ui/AMOverlayVideoWidget.h \
-	source/ui/AMBeamlineCameraWidget.h \
-	source/ui/AMBeamlineCameraWidgetWithSourceTabs.h \
-	source/ui/AMBeamlineCameraBrowser.h
-}
 
 FORMS += \
 	source/ui/dataman/AMImportControllerWidget.ui \
@@ -805,18 +450,8 @@ SOURCES += \
 	source/acquaman/AMScanConfiguration.cpp \
 	source/acquaman/AMScanController.cpp \
 	source/application/AMAppController.cpp \
-	source/util/AMErrorMonitor.cpp \
 	source/util/AMSettings.cpp \
-	source/beamline/AMBeamline.cpp \
-	source/beamline/AMControl.cpp \
-	source/beamline/AMPVControl.cpp \
-	source/beamline/AMControlSet.cpp \
-#	source/beamline/AMControlState.cpp \
-	source/beamline/AMProcessVariable.cpp \
-	source/beamline/AMProcessVariablePrivate.cpp \
 	source/beamline/AMPVNames.cpp \
-	source/dataman/database/AMDatabase.cpp \
-	source/dataman/database/AMDbObject.cpp \
 	source/dataman/AMExperiment.cpp \
 	source/dataman/AMImportController.cpp \
 	source/dataman/AMRun.cpp \
@@ -825,12 +460,6 @@ SOURCES += \
 	source/dataman/AMXASScan.cpp \
 	source/dataman/SGM/SGM2004FileLoader.cpp \
 	source/dataman/SGM/SGM2010FastFileLoader.cpp \
-	source/muParser/muParser.cpp \
-	source/muParser/muParserBase.cpp \
-	source/muParser/muParserBytecode.cpp \
-	source/muParser/muParserCallback.cpp \
-	source/muParser/muParserError.cpp \
-	source/muParser/muParserTokenReader.cpp \
 	source/ui/dataman/AMRunSelector.cpp \
 	source/ui/beamline/AMControlSetView.cpp \
 	source/ui/dataman/AMCramBarHorizontal.cpp \
@@ -845,7 +474,6 @@ SOURCES += \
 	source/ui/AMPrefixSuffixLineEdit.cpp \
 	source/ui/AMDragDropItemModel.cpp \
 	source/dataman/AMRunExperimentItems.cpp \
-	source/dataman/info/AMControlInfoList.cpp \
 	source/ui/dataman/AMGenericScanEditor.cpp \
 	source/ui/AMDetailedItemDelegate.cpp \
 	source/ui/AMVerticalStackWidget.cpp \
@@ -862,18 +490,11 @@ SOURCES += \
 	source/dataman/ALSBL8XASFileLoader.cpp \
 	source/ui/AMWindowPaneModel.cpp \
 	source/dataman/AMScanEditorModelItem.cpp \
-	source/dataman/datasource/AMDataSource.cpp \
-	source/dataman/AMAxisInfo.cpp \
-	source/dataman/AMNumber.cpp \
-	source/dataman/AMnDIndex.cpp \
 	source/dataman/datastore/AMDataStore.cpp \
 	source/dataman/AMAnalysisBlock.cpp \
 	source/dataman/datasource/AMDataSourceSeriesData.cpp \
 	source/dataman/datasource/AMDataSourceImageData.cpp \
 	source/analysis/AM1DExpressionAB.cpp \
-	source/dataman/database/AMDbObjectSupport.cpp \
-	source/acquaman.cpp \
-	source/util/AMOrderedSetSignalSource.cpp \
 	source/dataman/datasource/AMRawDataSource.cpp \
 	source/analysis/AM1DExpressionABEditor.cpp \
 	source/dataman/datastore/AMInMemoryDataStore.cpp \
@@ -883,7 +504,6 @@ SOURCES += \
 	source/analysis/AMStandardAnalysisBlock.cpp \
 	source/analysis/AM2DSummingABEditor.cpp \
 	source/dataman/REIXS/REIXSXESRawFileLoader.cpp \
-	source/util/AMDeferredFunctionCall.cpp \
 	source/ui/util/AMPeriodicTableView.cpp \
 	source/util/AMPeriodicTable.cpp \
 	source/util/AMElement.cpp \
@@ -901,7 +521,6 @@ SOURCES += \
 	source/ui/dataman/AMExporterOptionGeneralAsciiView.cpp \
 	source/ui/AMTopFrame.cpp \
 	source/dataman/export/AMExporter.cpp \
-	#source/ui/dataman/AM3dDataSourceView.cpp \
 	source/dataman/info/CLSOceanOptics65000DetectorInfo.cpp \
 	source/dataman/SGM/SGM2011XASFileLoader.cpp \
 	source/beamline/CLS/CLSMAXvMotor.cpp \
@@ -942,13 +561,6 @@ SOURCES += \
 	source/beamline/CLS/CLSVariableIntegrationTime.cpp \
 	source/beamline/CLS/CLSSIS3820Scaler.cpp \
 	source/ui/CLS/CLSSIS3820ScalerView.cpp \
-	source/qjson/json_parser.cc \
-	source/qjson/json_scanner.cpp \
-	source/qjson/parser.cpp \
-	source/qjson/parserrunnable.cpp \
-	source/qjson/qobjecthelper.cpp \
-	source/qjson/serializer.cpp \
-	source/qjson/serializerrunnable.cpp \
 	source/util/AMGithubManager.cpp \
 	source/ui/util/AMGithubIssueSubmissionView.cpp \
 	source/dataman/export/AMExporterAthena.cpp \
@@ -978,8 +590,6 @@ SOURCES += \
 	source/actions3/AMActionRunner3.cpp \
 	source/actions3/AMActionRegistry3.cpp \
 	source/actions3/AMActionLog3.cpp \
-	source/actions3/AMActionInfo3.cpp \
-	source/actions3/AMAction3.cpp \
 	source/actions3/editors/AMLoopActionEditor3.cpp \
 	source/ui/actions3/AMWorkflowView3.cpp \
 	source/ui/actions3/AMAddActionDialog3.cpp \
@@ -1012,7 +622,6 @@ SOURCES += \
 	source/dataman/REIXS/REIXSXESCalibration2.cpp \
 	source/ui/beamline/AMExtendedControlEditor.cpp \
 	source/ui/beamline/AMControlButton.cpp \
-	source/dataman/info/AMControlInfo.cpp \
 	source/dataman/AMLineScan.cpp \
 	source/ui/AMTopFrame2.cpp \
 	source/application/AMDatamanAppControllerForActions3.cpp \
@@ -1030,40 +639,25 @@ SOURCES += \
 	source/dataman/info/AMOldDetectorInfo.cpp \
 	source/beamline/AMOldDetector.cpp \
 	source/dataman/info/AMOldDetectorInfoSet.cpp \
-	source/beamline/AMDetector.cpp \
 	source/dataman/AMDbUpgrade1Pt1.cpp \
 	source/dataman/AMDbUpgrade1Pt2.cpp \
-	source/dataman/info/AMDetectorInfo.cpp \
 	source/beamline/CLS/CLSAmptekSDD123DetectorNew.cpp \
 	source/ui/beamline/AMOldDetectorViewSupport.cpp \
 	source/ui/beamline/AMOldDetectorView.cpp \
 	source/ui/beamline/AMDetectorView.cpp \
-	source/beamline/AMSynchronizedDwellTime.cpp \
 	source/beamline/AMDetectorSet.cpp \
 	source/dataman/info/AMDetectorInfoSet.cpp \
 	source/ui/beamline/AMDetectorSelectorView.cpp \
 	source/beamline/CLS/CLSBasicScalerChannelDetector.cpp \
-	source/beamline/AMDetectorTriggerSource.cpp \
 	source/beamline/AMDetectorGroup.cpp \
 	source/beamline/AMDetectorSelector.cpp \
-	source/acquaman/AMAgnosticDataAPI.cpp \
 	source/acquaman/AMScanActionController.cpp \
 	source/acquaman/AMScanActionControllerScanAssembler.cpp \
-	source/actions3/actions/AMDetectorInitializeActionInfo.cpp \
-	source/actions3/actions/AMDetectorInitializeAction.cpp \
-	source/actions3/actions/AMDetectorAcquisitionActionInfo.cpp \
-	source/actions3/actions/AMDetectorAcquisitionAction.cpp \
-	source/actions3/actions/AMDetectorCleanupActionInfo.cpp \
-	source/actions3/actions/AMDetectorCleanupAction.cpp \
 	source/actions3/actions/AMAxisStartedActionInfo.cpp \
 	source/actions3/actions/AMAxisFinishedActionInfo.cpp \
 	source/actions3/actions/AMAxisStartedAction.cpp \
 	source/actions3/actions/AMAxisFinishedAction.cpp \
 	source/beamline/AMBasicControlDetectorEmulator.cpp \
-	source/actions3/actions/AMDetectorTriggerActionInfo.cpp \
-	source/actions3/actions/AMDetectorTriggerAction.cpp \
-	source/actions3/actions/AMDetectorReadActionInfo.cpp \
-	source/actions3/actions/AMDetectorReadAction.cpp \
 	source/dataman/AMScanAxisRegion.cpp \
 	source/dataman/AMScanAxis.cpp \
 	source/acquaman/AMScanActionControllerScanOptimizer.cpp \
@@ -1077,8 +671,6 @@ SOURCES += \
 	source/ui/util/AMMessageBoxWTimeout.cpp \
 	source/beamline/CLS/CLSPGTDetectorV2.cpp \
 	source/beamline/CLS/CLSQE65000Detector.cpp \
-	source/actions3/actions/AMDetectorDwellTimeActionInfo.cpp \
-	source/actions3/actions/AMDetectorDwellTimeAction.cpp \
 	source/acquaman/AMDetectorDwellTimeSourceScanOptimizer.cpp \
 	source/beamline/CLS/CLSAdvancedScalerChannelDetector.cpp \
 	source/dataman/info/CLSSynchronizedDwellTimeConfigurationInfo.cpp \
@@ -1094,7 +686,6 @@ SOURCES += \
 	source/ui/CLS/CLSPseudoMotorGroupView.cpp \
 	source/beamline/CLS/CLSPseudoMotorGroup.cpp \
 	source/util/AMPointerTree.cpp \
-	source/dataman/database/AMConstDbObject.cpp \
 	source/dataman/AMDbUpgrade1Pt4.cpp \
 	source/dataman/AMSamplePre2013.cpp \
 	source/dataman/AMSamplePlatePre2013.cpp \
@@ -1176,8 +767,6 @@ SOURCES += \
 	source/ui/dataman/AMControlInfoListView.cpp \
 	source/ui/dataman/AMOldDetectorInfoSetView.cpp \
 	source/ui/beamline/AMDetectorSelectorRequiredView.cpp \
-	source/actions3/actions/AMDetectorSetAsDarkCurrentCorrectionActionInfo.cpp \
-	source/actions3/actions/AMDetectorSetAsDarkCurrentCorrectionAction.cpp \
 	source/actions3/actions/AMControlWaitActionInfo.cpp \
 	source/actions3/actions/AMControlWaitAction.cpp \
 	source/analysis/AM1DDarkCurrentCorrectionAB.cpp \
@@ -1240,43 +829,31 @@ SOURCES += \
 	source/ui/util/AMAboutDialog.cpp \
 	source/beamline/AM1DControlDetectorEmulator.cpp \
 	source/ui/actions3/AMActionRunnerCurrentViewBase.cpp \
-	source/util/AMThread.cpp \
 	source/dataman/AMDbUpgrade1Pt5.cpp \
+	source/beamline/AMBeamlineControlAPI.cpp \
+	source/beamline/AMBeamlineControlSetAPI.cpp \
+	source/beamline/AMBeamlineDetectorAPI.cpp \
+	source/beamline/AMBeamlineDetectorSetAPI.cpp \
+	source/beamline/AMBeamlineSynchronizedDwellTimeAPI.cpp \
+	source/util/AMThread.cpp \
 	source/util/AMAppArgumentParser.cpp \
 	source/beamline/AMStorageRing.cpp \
 	source/beamline/CLS/CLSStorageRing.cpp \
 	source/beamline/CLS/CLSSR570.cpp \
 	source/ui/dataman/AMBrowseScansView.cpp
 
-# OS-specific files
-linux-g++|linux-g++-32|linux-g++-64 {
-	SOURCES +=
-}
-
-CONFIG(mobility) {
-SOURCES +=	source/ui/AMOverlayVideoWidget.cpp \
-		source/ui/AMCrosshairOverlayVideoWidget.cpp \
-		source/ui/AMBeamlineCameraWidget.cpp \
-		source/ui/AMBeamlineCameraWidgetWithSourceTabs.cpp \
-		source/ui/AMBeamlineCameraBrowser.cpp
-}
-
-RESOURCES = source/icons/icons.qrc \
+RESOURCES *= source/icons/icons.qrc \
 		source/configurationFiles/configurationFiles.qrc \
 		source/util/ElementData.qrc \
 		source/stylesheets/stylesheets.qrc
 
 
-OTHER_FILES += \
+OTHER_FILES *= \
 	source/stylesheets/sliderWaitLessThan.qss \
 	source/stylesheets/sliderWaitGreaterThan.qss
 
 contains(DEFINES, AM_BUILD_REPORTER_ENABLED){
-	HEADERS += source/util/AMRunTimeBuildInfo.h
+	HEADERS *= source/util/AMRunTimeBuildInfo.h
 
-	SOURCES += source/util/AMRunTimeBuildInfo.cpp
+	SOURCES *= source/util/AMRunTimeBuildInfo.cpp
 }
-
-
-
-

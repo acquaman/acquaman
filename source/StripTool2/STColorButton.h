@@ -1,12 +1,13 @@
 #ifndef STCOLORBUTTON_H
 #define STCOLORBUTTON_H
 
+#include "AMQEvents.h"
+
 #include <QPushButton>
 #include <QColor>
 #include <QColorDialog>
 #include <QRect>
 #include <QPainter>
-#include <QPaintEvent>
 #include <QStyle>
 #include <QStyleOptionButton>
 

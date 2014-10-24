@@ -1,6 +1,7 @@
 #ifndef AMSCANTHUMBNAILVIEW_H
 #define AMSCANTHUMBNAILVIEW_H
 
+#include "AMQEvents.h"
 
 #include <QWidget>
 #include <QAbstractItemView>
@@ -8,7 +9,6 @@
 #include <QLabel>
 #include <QItemDelegate>
 #include <QPainter>
-#include <QMouseEvent>
 #include <QRegion>
 #include <QTimer>
 

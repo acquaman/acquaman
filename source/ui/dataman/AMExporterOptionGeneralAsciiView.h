@@ -23,7 +23,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AMEXPORTEROPTIONGENERALASCIIVIEW_H
 
 #include <QTabWidget>
+
+#ifdef AM_PRAGMA_WARNING_CONTROLS
+#pragma clang diagnostic ignored "-Wunused-private-field"
+#endif
 #include "ui_AMExporterOptionGeneralAsciiView.h"
+#ifdef AM_PRAGMA_WARNING_CONTROLS
+#pragma clang diagnostic warning "-Wunused-private-field"
+#endif
 
 class QButtonGroup;
 class QStandardItemModel;

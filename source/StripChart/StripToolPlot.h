@@ -22,7 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef STRIPTOOLPLOT_H
 #define STRIPTOOLPLOT_H
 
-#include <QtGui>
+#include "AMQtGui.h"
 
 #include "MPlot/MPlot.h"
 #include "MPlot/MPlotItem.h"
