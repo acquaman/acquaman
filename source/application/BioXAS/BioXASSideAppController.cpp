@@ -128,13 +128,7 @@ void BioXASSideAppController::onBeamlineConnected()
 
 	if (BioXASSideBeamline::bioXAS()->isConnected() && !configurationView_) {
 		configuration_ = new BioXASSideXASScanConfiguration();
-		configuration_->setEdgeEnergy(10000);
-		/*
-		configuration_->scanAxisAt(0)->regionAt(0)->setRegionStart(10000);
-		configuration_->scanAxisAt(0)->regionAt(0)->setRegionStep(1);
-		configuration_->scanAxisAt(0)->regionAt(0)->setRegionEnd(10010);
-		configuration_->scanAxisAt(0)->regionAt(0)->setRegionTime(1.0);
-		*/
+        configuration_->setEdgeEnergy(10000);
 
 		configurationView_ = new BioXASSideXASScanConfigurationView(configuration_);
 
@@ -209,6 +203,7 @@ void BioXASSideAppController::setupUserInterface()
 
 void BioXASSideAppController::makeConnections()
 {
+
 }
 
 void BioXASSideAppController::onCurrentScanActionStartedImplementation(AMScanAction *action)
