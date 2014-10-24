@@ -2,6 +2,12 @@
 # QMake project file for acquaman file loaders.  	October 2014. david.k.chevrier@gmail.com
 # ####################################################################
 
+CONFIG(jenkins_build) {
+	message("Jenkins test.")
+	message($$PATH_TO_AM)
+	message($$HOME_FOLDER)
+}
+
 include ( $$PATH_TO_AM/compositeCommon/AMCommon.pri )
 
 include ( $$PATH_TO_AM/compositeCommon/AMMPlot.pri )
