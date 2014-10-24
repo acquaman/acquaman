@@ -26,112 +26,82 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 CLSSIS3820ScalerChannelViewWithDarkCurrent::CLSSIS3820ScalerChannelViewWithDarkCurrent(CLSSIS3820ScalerChannel *channel, QWidget *parent) :
     CLSSIS3820ScalerChannelView(channel, parent)
 {
-    darkCurrentValueLabel_ = new QLabel();
-    setDarkCurrentValueLabel(channel_->detector()->darkCurrentMeasurementValue());
-
-    correctedMeasurementLabel_ = new QLabel();
-    setCorrectedMeasurementLabel(0);
-
-    content_ = new QVBoxLayout(this);
-    content_->addWidget(darkCurrentValueLabel_);
-    content_->addWidget(correctedMeasurementLabel_);
-
     if (channel_->detector()->canDoDarkCurrentCorrection()) {
 
-        connect( channel_->detector(), SIGNAL(newDarkCurrentMeasurementValueReady(double)), this, SLOT(onNewDarkCurrentMeasurementValue(double)) );
-        connect( channel_->detector(), SIGNAL(requiresNewDarkCurrentMeasurement(bool)), this, SLOT(onNewDarkCurrentMeasurementState(bool)) );
-        connect( channel_->detector(), SIGNAL(newValuesAvailable()), this, SLOT(onDetectorNewValuesAvailable()) );
+        // Create and initialize UI elements.
 
-        setDarkCurrentViewMode(Show);
+        darkCurrentValue_ = new QLabel();
+        setDisplayedDarkCurrentValue(channel_->detector()->darkCurrentMeasurementValue());
 
-    } else {
-        setDarkCurrentViewMode(Hide);
+        darkCurrentCorrected_ = new QLabel();
+        setDisplayedDarkCurrentCorrected(0);
+
+        // Create and set layouts.
+
+        QVBoxLayout *layout = new QVBoxLayout(this);
+        layout->addWidget(darkCurrentValue_);
+        layout->addWidget(darkCurrentCorrected_);
+        channelLayout_->addLayout(layout);
+
+        // Make connections.
+
+        connect( channel_->detector(), SIGNAL(newDarkCurrentMeasurementValueReady(double)), this, SLOT(updateDarkCurrentValue()) );
+        connect( channel_->detector(), SIGNAL(requiresNewDarkCurrentMeasurement(bool)), this, SLOT(updateDarkCurrentStatus()) );
+        connect( channel_->detector(), SIGNAL(newValuesAvailable()), this, SLOT(updateDarkCurrentCorrected()) );
     }
 }
-
-
 
 CLSSIS3820ScalerChannelViewWithDarkCurrent::~CLSSIS3820ScalerChannelViewWithDarkCurrent()
 {
 
 }
 
-
-
-CLSSIS3820ScalerChannelViewWithDarkCurrent::DarkCurrentViewMode CLSSIS3820ScalerChannelViewWithDarkCurrent::darkCurrentViewMode()
+void CLSSIS3820ScalerChannelViewWithDarkCurrent::updateView()
 {
-    return darkCurrentViewMode_;
+    updateDarkCurrentValue();
+    updateDarkCurrentStatus();
+    updateDarkCurrentCorrected();
 }
 
-
-
-void CLSSIS3820ScalerChannelViewWithDarkCurrent::setDarkCurrentViewMode(DarkCurrentViewMode newMode)
+void CLSSIS3820ScalerChannelViewWithDarkCurrent::updateDarkCurrentValue()
 {
-    darkCurrentViewMode_ = newMode;
-
-    if (darkCurrentViewMode_ == Hide) {
-        channelLayout_->removeItem(content_);
-        emit darkCurrentViewModeChanged(darkCurrentViewMode_);
-
-    } else if (darkCurrentViewMode_ == Show) {
-        channelLayout_->addLayout(content_);
-        emit darkCurrentViewModeChanged(darkCurrentViewMode_);
-
-    } else {
-        setDarkCurrentViewMode(Hide);
-    }
+    setDisplayedDarkCurrentValue(channel_->detector()->darkCurrentMeasurementValue());
 }
 
-
-
-void CLSSIS3820ScalerChannelViewWithDarkCurrent::onNewDarkCurrentMeasurementValue(double newValue)
+void CLSSIS3820ScalerChannelViewWithDarkCurrent::updateDarkCurrentStatus()
 {
-    setDarkCurrentValueLabel(newValue);
-}
-
-
-
-void CLSSIS3820ScalerChannelViewWithDarkCurrent::onNewDarkCurrentMeasurementState(bool measurementUpToDate)
-{
-    if (measurementUpToDate)
-        darkCurrentValueLabel_->setStyleSheet("color: blue;");
+    if (channel_->detector()->requiresNewDarkCurrentMeasurement())
+        darkCurrentValue_->setStyleSheet("color: red;");
 
     else
-        darkCurrentValueLabel_->setStyleSheet("color: red;");
+        darkCurrentValue_->setStyleSheet("color: blue;");
 }
 
-
-
-void CLSSIS3820ScalerChannelViewWithDarkCurrent::onDetectorNewValuesAvailable()
+void CLSSIS3820ScalerChannelViewWithDarkCurrent::updateDarkCurrentCorrected()
 {
-    // we arrive at a dark current corrected value by dividing the number of counts aquired by the measurement dwell time, and subtract the dark current.
-    double *newValue = 0;
-    channel_->detector()->data(newValue);
+    // grab the latest measurement and dwell time from the detector.
+
+    double *measurement = 0;
+    channel_->detector()->data(measurement);
 
     double dwellTime = channel_->detector()->acquisitionTime();
 
-    // the latest value of the detector's dark current. this is normalized by its acquisition time already (see AMDetector::setAsDarkCurrentMeasurementValue()).
+    // the detector's dark current is normalized by its acquisition time already (see AMDetector::setAsDarkCurrentMeasurementValue()).
+
     double darkCurrent = channel_->detector()->darkCurrentMeasurementValue();
 
-    double correctedMeasurement_ = *newValue / dwellTime - darkCurrent;
-
-    qDebug() << "CLSSIS3820ScalerChannelView has new DC corrected value : " << correctedMeasurement_;
-
-    setCorrectedMeasurementLabel(correctedMeasurement_);
+    double correctedMeasurement = (*measurement / dwellTime) - darkCurrent;
+    setDisplayedDarkCurrentCorrected(correctedMeasurement);
 }
 
-
-
-void CLSSIS3820ScalerChannelViewWithDarkCurrent::setDarkCurrentValueLabel(double displayValue)
+void CLSSIS3820ScalerChannelViewWithDarkCurrent::setDisplayedDarkCurrentValue(double displayValue)
 {
-    darkCurrentValueLabel_->setText(QString("Dark current value : %1").arg(displayValue, 0, 'f', 2));
+    darkCurrentValue_->setText(QString("Dark current value : %1").arg(displayValue, 0, 'f', 2));
 }
 
-
-
-void CLSSIS3820ScalerChannelViewWithDarkCurrent::setCorrectedMeasurementLabel(double displayValue)
+void CLSSIS3820ScalerChannelViewWithDarkCurrent::setDisplayedDarkCurrentCorrected(double displayValue)
 {
-    correctedMeasurementLabel_->setText(QString("Corrected measurement : %1").arg(displayValue, 0, 'f', 2));
+    darkCurrentCorrected_->setText(QString("Corrected measurement : %1").arg(displayValue, 0, 'f', 2));
 }
 
 
