@@ -32,6 +32,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSBasicScalerChannelDetector.h"
 #include "beamline/CLS/CLSBasicCompositeScalerChannelDetector.h"
 #include "beamline/BioXAS/BioXASCLSMAXvMotor.h"
+#include "beamline/SXRMB/SXRMBBrukerDetector.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
@@ -54,6 +55,9 @@ public:
 
 	/// Destructor.
 	virtual ~SXRMBBeamline();
+
+	/// Returns the bruker fluorescence detector.
+	SXRMBBrukerDetector *brukerDetector() const { return brukerDetector_; }
 
 protected:
 	/// Sets up the synchronized dwell time.
@@ -81,6 +85,9 @@ protected:
 
 	/// Constructor. This is a singleton class, access it through SXRMBBeamline::sxrmb().
 	SXRMBBeamline();
+
+	/// The bruker detector.
+	SXRMBBrukerDetector *brukerDetector_;
 };
 
 #endif // SXRMBBEAMLINE_H
