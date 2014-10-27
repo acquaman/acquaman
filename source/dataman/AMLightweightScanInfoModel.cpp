@@ -1,7 +1,6 @@
 #include "AMLightweightScanInfoModel.h"
 #include "database/AMDbObject.h"
 
-#include <QDebug>
 AMLightweightScanInfoModel::AMLightweightScanInfoModel(AMLightweightScanInfoCollection *scanInfo, QObject *parent) :
 	QAbstractItemModel(parent)
 {
@@ -11,7 +10,7 @@ AMLightweightScanInfoModel::AMLightweightScanInfoModel(AMLightweightScanInfoColl
 	connect(scanInfo_, SIGNAL(scanAdded()), this, SLOT(onScanInfoAdded()));
 	connect(scanInfo_, SIGNAL(scanRemoved()), this, SLOT(onScanInfoRemoved()));
 	connect(scanInfo_, SIGNAL(scanUpdated(int)), this, SLOT(onScanInfoUpdated(int)));
-	connect(scanInfo_, SIGNAL(scanThumbnailAboutToBeAdded(int,int,int)), this, SLOT(onScanThumbnailAboutToBeAdded(int,int,int)));
+	connect(scanInfo_, SIGNAL(scanThumbnailAboutToBeAdded()), this, SLOT(onScanThumbnailAboutToBeAdded()));
 	connect(scanInfo_, SIGNAL(scanThumbnailAdded()), this, SLOT(onScanThumbnailAdded()));
 	connect(scanInfo_, SIGNAL(scanThumbnailAboutToBeRemoved(int, int,int)), this, SLOT(onScanThumbnailAboutToBeRemoved(int, int, int)));
 	connect(scanInfo_, SIGNAL(scanThumbnailRemoved()), this, SLOT(onScanThumbnailRemoved()));
@@ -228,11 +227,8 @@ void AMLightweightScanInfoModel::onScanInfoUpdated(int updatedIndex)
 	emit dataChanged(index(updatedIndex, 0, QModelIndex()), index(updatedIndex, columnCount()-1, QModelIndex()));
 }
 
-void AMLightweightScanInfoModel::onScanThumbnailAboutToBeAdded(int scanIndex, int thumbnailIndexStart, int thumbnailIndexEnd)
+void AMLightweightScanInfoModel::onScanThumbnailAboutToBeAdded()
 {
-	qDebug() << QString("Responding to signal that scan %1 has had thumbnail added at: %2").arg(scanIndex).arg(thumbnailIndexStart);
-	QModelIndex scanModelIndex = index(scanIndex, 0, QModelIndex());
-	qDebug() << QString("Model then signals that a row is being inserted from %1 to %2 for parent: (row %3, column %4)").arg(thumbnailIndexStart).arg(thumbnailIndexEnd).arg(scanModelIndex.row()).arg(scanModelIndex.column());
 	beginResetModel();
 }
 

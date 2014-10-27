@@ -45,7 +45,7 @@ signals:
 	/// Emitted whenever a scan has its thumbnail removed from the collection
 	void scanThumbnailRemoved();
 	/// Emitted whenever a scan is about to have a scan added
-	void scanThumbnailAboutToBeAdded(int scanIndex, int thumbnailIndexStart, int thumbnailIndexEnd);
+	void scanThumbnailAboutToBeAdded();
 	/// Emitted whenever a thumbnail is finished being added to a scan
 	void scanThumbnailAdded();
 protected slots:

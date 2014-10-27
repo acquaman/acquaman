@@ -412,8 +412,7 @@ void AMLightweightScanInfoCollection::onDbItemAdded(const QString &tableName, in
 		if(!matchedScanInfo)
 			return;
 
-		qDebug() << QString("Signalling that thumbnail has been added to scan %1").arg(lightweightScanInfoIndex);
-		emit scanThumbnailAboutToBeAdded(lightweightScanInfoIndex, matchedScanInfo->thumbnailCount(), matchedScanInfo->thumbnailCount());
+		emit scanThumbnailAboutToBeAdded();
 		matchedScanInfo->addThumbnailId(id);
 		emit scanThumbnailAdded();
 		emit scanUpdated(lightweightScanInfoIndex);
