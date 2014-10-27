@@ -26,3 +26,8 @@ VESPERSCCDBasicDetectorEmulator::VESPERSCCDBasicDetectorEmulator(VESPERSCCDDetec
 {
 	ccd_ = ccd;
 }
+
+bool VESPERSCCDBasicDetectorEmulator::acquireImplementation(AMDetectorDefinitions::ReadMode readMode)
+{
+	return ccd_->acquire(readMode);
+}

@@ -35,15 +35,14 @@ public:
 	VESPERSCCDBasicDetectorEmulator(VESPERSCCDDetector *ccd, const QString &name, const QString &description, AMControl *control, AMControl *statusControl, double statusAcquiringValue, double statusNotAcquiringValue, AMDetectorDefinitions::ReadMethod readMethod,  QObject *parent = 0);
 
 	/// The cannot be configured in this manner
-	virtual bool supportsSynchronizedDwell() const { return ccd_->supportsSynchronizedDwell(); }
+	virtual bool supportsSynchronizedDwell() const { return false; }
 	/// Returns empty string
 	virtual QString synchronizedDwellKey() const { return ccd_->synchronizedDwellKey();}
-	/// Returns the trigger source.
-	virtual AMDetectorTriggerSource* detectorTriggerSource() { return ccd_->detectorTriggerSource(); }
-	/// Returns the synchronized dwell time dwell time source if we're currently enabled, otherwise a null pointer
-	virtual AMDetectorDwellTimeSource* detectorDwellTimeSource() { return ccd_->detectorDwellTimeSource(); }
 
 protected:
+	/// This function is called from the Acquiring (acquisition) state when the implementation should start the detector's acquisition. Once the detector is done acquiring you must call setAcquisitionSucceeded or setAcquisitionFailed
+	virtual bool acquireImplementation(AMDetectorDefinitions::ReadMode readMode);
+
 	/// The pointer to the CCD.
 	VESPERSCCDDetector *ccd_;
 };
