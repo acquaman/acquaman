@@ -22,8 +22,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef ENTRYWIDGET_H
 #define ENTRYWIDGET_H
 
+#include "AMQtGui.h"
+
 #include <QWidget>
-#include <QtGui>
 
 class EntryWidget : public QWidget
 {

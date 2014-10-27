@@ -134,7 +134,7 @@ AMScanConfiguration *AMScanActionInfo::getConfigurationFromDb() const
 	if(!scan) {
 
 		AMErrorMon::alert(this, AMSCANACTIONINFO_DB_OBJECT_NOT_A_SCAN, "Object loaded from the database was not a scan.");
-		delete dbo;
+		dbo->deleteLater();
 		return 0; //NULL
 	}
 	// Does the scan have a configuration?

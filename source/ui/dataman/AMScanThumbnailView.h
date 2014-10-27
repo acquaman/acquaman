@@ -1,6 +1,7 @@
 #ifndef AMSCANTHUMBNAILVIEW_H
 #define AMSCANTHUMBNAILVIEW_H
 
+#include "AMQEvents.h"
 
 #include <QWidget>
 #include <QAbstractItemView>
@@ -8,7 +9,6 @@
 #include <QLabel>
 #include <QItemDelegate>
 #include <QPainter>
-#include <QMouseEvent>
 #include <QRegion>
 #include <QTimer>
 
@@ -106,6 +106,10 @@ protected:
 	QRect getImageRectangle(const QRect& thumbnailRectangle) const;
 	/// Obtains the position within thumbnailRectangle of the Scan Title
 	QRect getTitleRectangle(const QRect& thumbnailRectangle) const;
+	/// Obtains the position within the thumbnailRectangle of the Scan Start Date
+	QRect getScanStartDateRectangle(const QRect& thumbnailRectangle) const;
+	/// Obtains the position within the thumbnailRectangle of the Scan Technique
+	QRect getScanTechniqueRectangle(const QRect& thumbnailRectangle) const;
 private:
 	/// The size of a single thumbnailView item
 	QSize itemDimensions_;

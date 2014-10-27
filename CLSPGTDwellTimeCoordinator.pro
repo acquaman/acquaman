@@ -1,14 +1,8 @@
-include ( acquamanCommon.pri )
+# #####################################################################
+# QMake project file for acquaman, including test suites			January 2010. mark.boots@usask.ca
+# #####################################################################
 
-TARGET = CLSPGTDwellTimeCoordinator
-
-FORMS +=
-
-HEADERS += \ 
-    source/beamline/CLS/CLSPGTDwellTimeCoordinator.h
-
-SOURCES += \
-	source/application/CLSPGTDwellTimeCoordinator/CLSPGTDwellTimeCoordinatorMain.cpp \
-    source/beamline/CLS/CLSPGTDwellTimeCoordinator.cpp
-
-
+TEMPLATE = subdirs
+SUBDIRS += \
+	Initialize.pro \
+	CLSPGTDwellTimeCoordinator_internal.pro

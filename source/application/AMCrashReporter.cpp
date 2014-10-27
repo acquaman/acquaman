@@ -21,6 +21,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMCrashReporter.h"
 
+#include "AMQEvents.h"
+
 #include <QLabel>
 #include <QBoxLayout>
 #include <QDir>
@@ -31,8 +33,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDateTime>
 #include <QHostInfo>
 #include <QDesktopWidget>
-#include <QCloseEvent>
 #include <QMessageBox>
+
+#include<unistd.h>
+
 
 int AMCrashReporterUnixSignalHandler::sigusr1Fd[2];
 int AMCrashReporterUnixSignalHandler::sigusr2Fd[2];

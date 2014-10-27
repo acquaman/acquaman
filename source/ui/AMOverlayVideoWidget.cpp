@@ -20,7 +20,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "AMOverlayVideoWidget.h"
-#include <QResizeEvent>
+
+#include "AMQEvents.h"
 
 #include <QGLWidget>
 
@@ -62,8 +63,8 @@ AMOverlayVideoWidget::~AMOverlayVideoWidget() {
 	#ifdef AM_MOBILITY_VIDEO_ENABLED
 	mediaPlayer_->setMedia(QMediaContent());
 
-	delete videoItem_;
-	delete mediaPlayer_;
+	videoItem_->deleteLater();
+	mediaPlayer_->deleteLater();
 	#endif
 }
 

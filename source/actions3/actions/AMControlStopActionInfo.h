@@ -56,7 +56,7 @@ public:
 	/// For database storing only.
 	AMControlInfo* dbReadControlInfo() { return &controlInfo_; }
 	/// For database loading only. This function will never be called since dbReadControlInfo() always returns a valid setpoint, but it needs to be here.
-	void dbLoadControlInfo(AMDbObject* newLoadedObject) { delete newLoadedObject; }
+	void dbLoadControlInfo(AMDbObject* newLoadedObject) { newLoadedObject->deleteLater(); }
 
 protected:
 	/// The AMControlInfo that specifies where to move to
