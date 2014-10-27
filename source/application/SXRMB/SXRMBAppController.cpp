@@ -40,6 +40,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMRun.h"
 
 #include "ui/beamline/AMXRFDetailedDetectorView.h"
+#include "ui/SXRMB/SXRMBPersistentView.h"
 
 #include "util/AMPeriodicTable.h"
 
@@ -124,6 +125,9 @@ void SXRMBAppController::setupUserInterface()
 
 	mw_->insertHeading("Scans", 2);
 
+
+	sxrmbPersistentView_ = new SXRMBPersistentView();
+	mw_->addRightWidget(sxrmbPersistentView_);
 }
 
 void SXRMBAppController::makeConnections()
