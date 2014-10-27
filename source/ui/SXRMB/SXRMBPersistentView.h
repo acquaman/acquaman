@@ -18,7 +18,7 @@ public:
 	SXRMBPersistentView(QWidget *parent = 0);
 
 	/// Destructor
-	~SXRMBPersistentView();
+	virtual ~SXRMBPersistentView();
 
 protected:
 	/// Main layout holding overall group box

@@ -23,6 +23,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QDebug>
 
+#include "beamline/AMBasicControlDetectorEmulator.h"
+
 SXRMBBeamline::SXRMBBeamline()
 	: AMBeamline("SXRMB Beamline")
 {
@@ -38,6 +40,14 @@ SXRMBBeamline::SXRMBBeamline()
 	microprobeSampleStageControlSet_->addControl(microprobeSampleStageX_);
 	microprobeSampleStageControlSet_->addControl(microprobeSampleStageY_);
 	microprobeSampleStageControlSet_->addControl(microprobeSampleStageZ_);
+
+	scaler_ = new CLSSIS3820Scaler("BL1606-B1-1:mcs", this);
+
+	i0Detector_ = new CLSBasicScalerChannelDetector("I0Detector", "I0 Detector", scaler_, 17, this);
+	teyDetector_ = new CLSBasicScalerChannelDetector("TEYDetector", "TEY Detector", scaler_, 18, this);
+
+	energyFeedbackControl_ = new AMReadOnlyPVControl("EnergyFeedback", "BL1606-B1-1:Energy:fbk", this);
+	energyFeedbackDetector_ = new AMBasicControlDetectorEmulator("EnergyFeedback", "Energy Feedback", energyFeedbackControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 
 	setupSynchronizedDwellTime();
 	setupComponents();
@@ -87,6 +97,22 @@ bool SXRMBBeamline::isConnected() const{
 	return energy_->isConnected() && beamlineStatus_->isConnected() && microprobeSampleStageControlSet_->isConnected();
 }
 
+CLSBasicScalerChannelDetector* SXRMBBeamline::i0Detector() const{
+	return i0Detector_;
+}
+
+CLSBasicScalerChannelDetector* SXRMBBeamline::teyDetector() const{
+	return teyDetector_;
+}
+
+AMBasicControlDetectorEmulator* SXRMBBeamline::energyFeedbackDetector() const{
+	return energyFeedbackDetector_;
+}
+
+SXRMBBrukerDetector* SXRMBBeamline::brukerDetector() const{
+	return brukerDetector_;
+}
+
 void SXRMBBeamline::setupDiagnostics()
 {
 
@@ -133,11 +159,14 @@ void SXRMBBeamline::setupControlsAsDetectors()
 
 void SXRMBBeamline::setupExposedControls()
 {
-
+	addExposedControl(energy_);
 }
 
 void SXRMBBeamline::setupExposedDetectors()
 {
+	addExposedDetector(i0Detector_);
+	addExposedDetector(teyDetector_);
+	addExposedDetector(energyFeedbackDetector_);
 	addExposedDetector(brukerDetector_);
 }
 

@@ -39,9 +39,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/export/AMExporterAthena.h"
 #include "dataman/AMRun.h"
 
+#include "acquaman/SXRMB/SXRMBEXAFSScanConfiguration.h"
+#include "ui/acquaman/AMScanConfigurationViewHolder3.h"
 #include "ui/beamline/AMXRFDetailedDetectorView.h"
 #include "ui/SXRMB/SXRMBPersistentView.h"
-
+#include "ui/SXRMB/SXRMBEXAFSScanConfigurationView.h"
 #include "util/AMPeriodicTable.h"
 
 SXRMBAppController::SXRMBAppController(QObject *parent)
@@ -94,6 +96,19 @@ void SXRMBAppController::shutdown()
 	AMAppController::shutdown();
 }
 
+void SXRMBAppController::onBeamlineConnected(bool connected)
+{
+	if (connected && !eXAFSScanConfigurationView_) {
+		eXAFSScanConfiguration_ = new SXRMBEXAFSScanConfiguration();
+		eXAFSScanConfiguration_->setEdgeEnergy(3000);
+
+		eXAFSScanConfigurationView_ = new SXRMBEXAFSScanConfigurationView(eXAFSScanConfiguration_);
+		eXAFSScanConfigurationViewHolder_ = new AMScanConfigurationViewHolder3(eXAFSScanConfigurationView_);
+
+		mw_->addPane(eXAFSScanConfigurationViewHolder_, "Scans", "EXAFS Scan", ":/utilites-system-monitor.png");
+	}
+}
+
 void SXRMBAppController::registerClasses()
 {
 
@@ -128,6 +143,8 @@ void SXRMBAppController::setupUserInterface()
 
 	sxrmbPersistentView_ = new SXRMBPersistentView();
 	mw_->addRightWidget(sxrmbPersistentView_);
+
+	connect(SXRMBBeamline::sxrmb(), SIGNAL(connected(bool)), this, SLOT(onBeamlineConnected(bool)));
 }
 
 void SXRMBAppController::makeConnections()

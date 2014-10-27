@@ -24,7 +24,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "application/AMAppController.h"
 
+class AMScanConfigurationViewHolder3;
 class SXRMBPersistentView;
+class SXRMBEXAFSScanConfiguration;
+class SXRMBEXAFSScanConfigurationView;
 
 class SXRMBAppController  : public AMAppController
 {
@@ -41,6 +44,10 @@ public:
 
 	/// destroy all of the windows, widgets, and data objects created by applicationStartup(). Only call this if startup() has ran successfully.  If reimplementing, must call the base-class shutdown() as the last thing it does.
 	virtual void shutdown();
+
+protected slots:
+	/// slot to handle Beamline connected signal
+	void onBeamlineConnected(bool);
 
 protected:
 	/// Implementation method that individual applications can flesh out if extra setup is required when a scan action is started.  This is not pure virtual because there is no requirement to do anything to scan actions.
@@ -61,6 +68,16 @@ protected:
 protected:
 	/// Persistent sidebar for SXRMB
 	SXRMBPersistentView *sxrmbPersistentView_;
+
+	/// EXAFS scan configuration
+	SXRMBEXAFSScanConfiguration* eXAFSScanConfiguration_;
+
+	/// EXAFS scan configuration view
+	SXRMBEXAFSScanConfigurationView* eXAFSScanConfigurationView_;
+
+	/// EXAFS scan configuration view holder
+	AMScanConfigurationViewHolder3* eXAFSScanConfigurationViewHolder_;
+
 
 };
 
