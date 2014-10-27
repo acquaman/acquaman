@@ -60,12 +60,12 @@ AMDetector::AMDetector(const QString &name, const QString &description, QObject 
 	autoSetCancelling_ = true;
 	autoSetCleaningUp_ = true;
 
-	isVisible_ = true;
+	isVisible_ = false;
 	hiddenFromUsers_ = false;
 
-    darkCurrentMeasurementValue_ = 0;
-    darkCurrentMeasurementTime_ = 0;
-    requiresNewDarkCurrentMeasurement_ = true;
+	darkCurrentMeasurementValue_ = 0;
+	darkCurrentMeasurementTime_ = 0;
+	requiresNewDarkCurrentMeasurement_ = true;
 
 	QTimer::singleShot(0, this, SLOT(initiateTimedOutTimer()));
 }
@@ -88,24 +88,24 @@ AMDetector::operator AMMeasurementInfo() {
 }
 
 double AMDetector::darkCurrentMeasurementValue() const {
-    if (canDoDarkCurrentCorrection())
-        return darkCurrentMeasurementValue_;
+	if (canDoDarkCurrentCorrection())
+		return darkCurrentMeasurementValue_;
 
-    return -1;
+	return -1;
 }
 
 int AMDetector::darkCurrentMeasurementTime() const {
-    if (canDoDarkCurrentCorrection())
-        return darkCurrentMeasurementTime_;
+	if (canDoDarkCurrentCorrection())
+		return darkCurrentMeasurementTime_;
 
-    return -1;
+	return -1;
 }
 
 bool AMDetector::requiresNewDarkCurrentMeasurement() const {
-    if (canDoDarkCurrentCorrection())
-        return requiresNewDarkCurrentMeasurement_;
+	if (canDoDarkCurrentCorrection())
+		return requiresNewDarkCurrentMeasurement_;
 
-    return false;
+	return false;
 }
 
 QString AMDetector::acquisitionStateDescription(AMDetector::AcqusitionState state){
@@ -297,12 +297,12 @@ AMAction3* AMDetector::createCleanupActions(){
 }
 
 AMAction3* AMDetector::createDarkCurrentCorrectionActions(double dwellTime){
-    Q_UNUSED(dwellTime)
-    return 0;
+	Q_UNUSED(dwellTime)
+	return 0;
 }
 
 AMAction3* AMDetector::createSetAsDarkCurrentCorrectionAction(){
-    return new AMDetectorSetAsDarkCurrentCorrectionAction(new AMDetectorSetAsDarkCurrentCorrectionActionInfo(toInfo()), this);
+	return new AMDetectorSetAsDarkCurrentCorrectionAction(new AMDetectorSetAsDarkCurrentCorrectionActionInfo(toInfo()), this);
 }
 
 void AMDetector::setInitializing(){
@@ -429,28 +429,28 @@ bool AMDetector::clear(){
 }
 
 void AMDetector::setAsDarkCurrentMeasurementValue(){
-    if (canDoDarkCurrentCorrection()){
-        darkCurrentMeasurementValue_ = double(singleReading()) / acquisitionTime();
-        setRequiresNewDarkCurrentMeasurement(false);
-        emit newDarkCurrentMeasurementValueReady(darkCurrentMeasurementValue_);
-    }
+	if (canDoDarkCurrentCorrection()){
+		darkCurrentMeasurementValue_ = double(singleReading()) / acquisitionTime();
+		setRequiresNewDarkCurrentMeasurement(false);
+		emit newDarkCurrentMeasurementValueReady(darkCurrentMeasurementValue_);
+	}
 }
 
 void AMDetector::setAsDarkCurrentMeasurementTime(double lastTime) {
-    if (canDoDarkCurrentCorrection()) {
+	if (canDoDarkCurrentCorrection()) {
 
-        if (lastTime > darkCurrentMeasurementTime_)
-            setRequiresNewDarkCurrentMeasurement(true);
+		if (lastTime > darkCurrentMeasurementTime_)
+			setRequiresNewDarkCurrentMeasurement(true);
 
-        darkCurrentMeasurementTime_ = lastTime;
-    }
+		darkCurrentMeasurementTime_ = lastTime;
+	}
 }
 
 void AMDetector::setRequiresNewDarkCurrentMeasurement(bool needsNewDCC) {
-    if (canDoDarkCurrentCorrection()) {
+	if (canDoDarkCurrentCorrection()) {
 
-        emit requiresNewDarkCurrentMeasurement(requiresNewDarkCurrentMeasurement_ = needsNewDCC);
-    }
+		emit requiresNewDarkCurrentMeasurement(requiresNewDarkCurrentMeasurement_ = needsNewDCC);
+	}
 }
 
 bool AMDetector::cancelAcquisitionImplementation(){
