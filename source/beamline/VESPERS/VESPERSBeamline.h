@@ -26,7 +26,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/VESPERS/VESPERSPIDLoopControl.h"
 #include "beamline/VESPERS/VESPERSMonochromator.h"
 #include "beamline/VESPERS/VESPERSIntermediateSlits.h"
-#include "beamline/CLS/CLSSynchronizedDwellTime.h"
 #include "beamline/VESPERS/VESPERSEndstation.h"
 #include "beamline/CLS/CLSVariableIntegrationTime.h"
 #include "beamline/VESPERS/VESPERSRoperCCDDetector.h"
@@ -104,42 +103,14 @@ public:
 	VESPERSFourElementVortexDetector *vespersFourElementVortexDetector() const { return fourElementVortexDetector_; }
 
 	// Accessing control elements:
-
-	// The monochromator abstraction.
 	/// Returns the monochromator abstraction for the VESPERS beamline.
 	VESPERSMonochromator *mono() const { return mono_; }
 
-	// End of monochromator abstraction.
-
-	// The intermediate slits.
 	/// Returns the intermediate slits object.
 	VESPERSIntermediateSlits *intermediateSlits() const { return intermediateSlits_; }
 
-	// End of intermediate slits.
-
-	// The synchronized dwell time.
-	/// Returns the synchronized dwell time.
-	AMSynchronizedDwellTime *synchronizedDwellTime() const { return synchronizedDwellTime_; }
-	/// Returns the synchronized dwell time configuration info's list.
-	QList<CLSSynchronizedDwellTimeConfigurationInfo *> synchronizedDwellTimeConfigurations() const { return synchronizedDwellTimeConfigurations_; }
-	/// Returns a synchronized dwell time configuration info from the index provided.
-	CLSSynchronizedDwellTimeConfigurationInfo *synchronizedDwellTimeConfigurationAt(int index) const { return synchronizedDwellTimeConfigurations_.at(index); }
-	/// Returns the synchronized dwell time configuration info based on the name provided.  Returns 0 if not found.
-	CLSSynchronizedDwellTimeConfigurationInfo *synchronizedDwellTimeConfigurationByName(const QString &name) const;
-
-	// End of synchronized dwell time.
-
-	// The variable integration time.
-	/// Returns the variable integration time.
-	CLSVariableIntegrationTime *variableIntegrationTime() const { return variableIntegrationTime_; }
-
-	// End of variable integration time.
-
-	// The scaler.
 	/// Returns the scaler.
 	CLSSIS3820Scaler *scaler() const { return scaler_; }
-
-	// End of scaler.
 
 	// The photon and safety shutters.
 	/// Returns the first photon shutter.
@@ -442,6 +413,10 @@ public:
 	AMControl *attoStageRy() const { return attoStageRy_; }
 	/// Returns the psi tilt attocube control.
 	AMControl *attoStageRx() const { return attoStageRx_; }
+	/// Returns the big beam x control.
+	AMControl *bigBeamX() const { return bigBeamX_; }
+	/// Returns the big beam z control.
+	AMControl *bigBeamZ() const { return bigBeamZ_; }
 
 	// The motor group and specific motor group object getters.
 	/// Helper method that returns a name of the motor group object given a VESPERS::Motor enum.
@@ -464,6 +439,8 @@ public:
 	AMMotorGroupObject *attocubeRyMotorGroupObject() const { return motorGroup_->motorGroupObject("Attocube Stage - Ry"); }
 	/// Returns the Rz rotation attocube motor group object.
 	AMMotorGroupObject *attocubeRzMotorGroupObject() const { return motorGroup_->motorGroupObject("Attocube Stage - Rz"); }
+	/// Returns the Big Beam motor group object.
+	AMMotorGroupObject *bigBeamMotorGroupObject() const { return motorGroup_->motorGroupObject("Big Beam - X, Z"); }
 
 	// The reset controls for the pseudo motors.
 	/// Returns the pseudo sample stage reset control.
@@ -474,6 +451,8 @@ public:
 	AMControl *pseudoAttoStageResetControl() const { return pseudoAttoStageResetControl_; }
 	/// Returns the real attocube stage reset control.
 	AMControl *realAttoStageResetControl() const { return realAttoStageResetControl_; }
+	/// Returns the pseudo wire stage reset control.
+	AMControl *pseudoWireStageResetControl() const { return pseudoWireStageResetControl_; }
 
 	// Sample stage PID controls.
 	/// Returns the PID control for the x-direction of the sample stage.
@@ -592,8 +571,6 @@ protected slots:
 	void flowTransducerError();
 	/// Slot used to dead with sample stage motor errors.
 	void sampleStageError();
-	/// Slot that is used for making sure the synchronized dwell time is configured properly once it is connected.
-	void synchronizedDwellTimeConnected(bool connected);
 	/// Determines whether the beam has dumped or not.
 	void onPOEStatusChanged();
 
@@ -604,8 +581,6 @@ protected slots:
 
 
 protected:
-	/// Sets up the synchronized dwell time.
-	void setupSynchronizedDwellTime();
 	/// Sets up the readings such as pressure, flow switches, temperature, etc.
 	void setupDiagnostics();
 	/// Sets up logical groupings of controls into sets.
@@ -650,14 +625,6 @@ protected:
 
 	// Intermediate slits.
 	VESPERSIntermediateSlits *intermediateSlits_;
-
-	// Synchronized Dwell time
-	CLSSynchronizedDwellTime *synchronizedDwellTime_;
-	// List of all the various synchronized dwell time configurations.
-	QList<CLSSynchronizedDwellTimeConfigurationInfo *> synchronizedDwellTimeConfigurations_;
-
-	// Variable integration time.
-	CLSVariableIntegrationTime *variableIntegrationTime_;
 
 	// Scaler.
 	CLSSIS3820Scaler *scaler_;
@@ -835,11 +802,16 @@ protected:
 	AMControl *attoStageRy_;
 	AMControl *attoStageRx_;
 
+	// Big beam.
+	AMControl *bigBeamX_;
+	AMControl *bigBeamZ_;
+
 	// The reset controls for each sample stage.
 	AMControl *pseudoSampleStageResetControl_;
 	AMControl *realSampleStageResetControl_;
 	AMControl *pseudoAttoStageResetControl_;
 	AMControl *realAttoStageResetControl_;
+	AMControl *pseudoWireStageResetControl_;
 
 	// Motor group.  Binds all the motors for scanning together.
 	CLSPseudoMotorGroup *motorGroup_;

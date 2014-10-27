@@ -129,6 +129,30 @@ void AMDataSource::valuesImplementationRecursive(const AMnDIndex &indexStart, co
 	}
 }
 
+bool AMDataSource::axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const
+{
+	AMErrorMon::debug(0, AMDATASOURCE_AXISVALUES_BASE_IMPLEMENTATION_CALLED, QString("AMDataSource: Warning: Data source '%1' is using the base implementation of AMDataSource::axisValues(), which is very inefficient. Re-implement axisValues() to improve performance.  (This warning will only be given once.)").arg(name()));
+
+	if (!isValid())
+		return false;
+
+	if (axisNumber >= rank())
+		return false;
+
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+	if (startIndex < 0 || startIndex >= size(axisNumber))
+		return false;
+
+	if (endIndex < 0 || endIndex >= size(axisNumber))
+		return false;
+#endif
+
+	for (int i = 0, size = endIndex-startIndex+1; i < size; i++)
+		outputValues[i] = axisValue(axisNumber, i+startIndex);
+
+	return true;
+}
+
 void AMDataSource::setVisibleInPlots(bool isVisible)
 {
 	if(isVisible == visibleInPlots_) return;

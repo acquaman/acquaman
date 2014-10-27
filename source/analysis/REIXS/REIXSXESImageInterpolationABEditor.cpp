@@ -571,7 +571,9 @@ void REIXSXESImageInterpolationABEditor::onAnalysisBlockInputDataSourcesChanged(
 
 		image_ = new MPlotImageBasic();
 		image_->setColorMap(*colorMap_);
-		image_->setModel(new AMDataSourceImageData(inputSource), true);
+		AMDataSourceImageData *model = new AMDataSourceImageData;
+		model->setDataSource(inputSource);
+		image_->setModel(model, true);
 		plot_->addItem(image_);
 
 		corrRegionLeft_->setValue(QPointF(analysisBlock_->correlationCenterPixel()-analysisBlock_->correlationHalfWidth(), 0));
