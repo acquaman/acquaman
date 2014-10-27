@@ -55,6 +55,26 @@ public:
 	/// Destructor.
 	virtual ~SXRMBBeamline();
 
+	/// Returns the scaler for SXRMB
+	CLSSIS3820Scaler* scaler() const;
+
+	/// ReturnsEnergy control for SXRMB
+	AMPVwStatusControl* energy() const;
+
+	/// Returns the X Stage for the microrobe sample stage
+	AMPVwStatusControl* microprobeSampleStageX() const;
+	/// Returns the Y Stage for the microrobe sample stage
+	AMPVwStatusControl* microprobeSampleStageY() const;
+	/// Returns the Z Stage for the microrobe sample stage
+	AMPVwStatusControl* microprobeSampleStageZ() const;
+
+	/// Returns the SXRMB overall status control
+	AMReadOnlyPVControl* beamlineStatus() const;
+
+	/// Returns whether the PVs are connected or not
+	virtual bool isConnected() const;
+
+
 protected:
 	/// Sets up the synchronized dwell time.
 	void setupSynchronizedDwellTime();
@@ -79,8 +99,43 @@ protected:
 	/// Sets up all of the detectors that need to be added to scans that aren't a part of typical detectors.  This may just be temporary, not sure.
 	void setupControlsAsDetectors();
 
+	/// Helper function to check for changes in the connected state
+	void connectedHelper();
+
 	/// Constructor. This is a singleton class, access it through SXRMBBeamline::sxrmb().
 	SXRMBBeamline();
+
+protected slots:
+	/// Handles connected status of the energy
+	void onEnergyPVConnected(bool);
+	/// Handles connected status of the beamline status
+	void onBeamlineStatusPVConnected(bool);
+	/// Handles connected status of all of the microprobe sample stage controls
+	void onMicroprobeSampleStagePVsConnected(bool);
+
+protected:
+	/// Scaler for SXRMB
+	CLSSIS3820Scaler *scaler_;
+
+	/// Energy control for SXRMB
+	AMPVwStatusControl *energy_;
+
+	/// X Stage for the microrobe sample stage
+	AMPVwStatusControl *microprobeSampleStageX_;
+	/// Y Stage for the microrobe sample stage
+	AMPVwStatusControl *microprobeSampleStageY_;
+	/// Z Stage for the microrobe sample stage
+	AMPVwStatusControl *microprobeSampleStageZ_;
+
+	/// Control set for microprobe sample stage
+	AMControlSet *microprobeSampleStageControlSet_;
+
+	/// SXRMB overall status control
+	AMReadOnlyPVControl *beamlineStatus_;
+
+	/// Previous connected state for the whole SXRMB beamline
+	bool wasConnected_;
+
 };
 
 #endif // SXRMBBEAMLINE_H
