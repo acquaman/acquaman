@@ -39,6 +39,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/export/AMExporterAthena.h"
 #include "dataman/AMRun.h"
 
+#include "ui/beamline/AMXRFDetailedDetectorView.h"
+
 #include "util/AMPeriodicTable.h"
 
 SXRMBAppController::SXRMBAppController(QObject *parent)
@@ -110,6 +112,15 @@ void SXRMBAppController::setupUserInterface()
 	mw_->insertHeading("General", 0);
 
 	mw_->insertHeading("Detectors", 1);
+
+	AMXRFDetailedDetectorView *brukerView = new AMXRFDetailedDetectorView(SXRMBBeamline::sxrmb()->brukerDetector());
+	brukerView->buildDetectorView();
+	brukerView->setEnergyRange(3000, 20000);
+	brukerView->addEmissionLineNameFilter(QRegExp("1"));
+	brukerView->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
+	brukerView->addCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));
+
+	mw_->addPane(brukerView, "Detectors", "Bruker", ":/system-search.png");
 
 	mw_->insertHeading("Scans", 2);
 

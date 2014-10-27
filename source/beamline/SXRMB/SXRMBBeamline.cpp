@@ -103,7 +103,7 @@ void SXRMBBeamline::setupMotorGroup()
 
 void SXRMBBeamline::setupDetectors()
 {
-
+	brukerDetector_ = new SXRMBBrukerDetector("Bruker", "Bruker XRF detector", this);
 }
 
 void SXRMBBeamline::setupControlSets()
@@ -138,7 +138,7 @@ void SXRMBBeamline::setupExposedControls()
 
 void SXRMBBeamline::setupExposedDetectors()
 {
-
+	addExposedDetector(brukerDetector_);
 }
 
 SXRMBBeamline::~SXRMBBeamline()
