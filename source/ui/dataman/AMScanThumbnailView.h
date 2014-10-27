@@ -54,7 +54,8 @@ protected slots:
 	void rowsInserted(const QModelIndex &parent, int start, int end);
 	/// Handles rows being removed from the source model. Resets the displayed thumbnail index for all
 	/// the scans back to zero and updates the scroll bars.
-	void rowsRemoved(const QModelIndex& parent, int start, int end);
+	void rowsAboutToBeRemoved(const QModelIndex& parent, int start, int end);
+
 	/// Handles the timer used to decide whether the mouse in its current position can be considered
 	/// 'hovering'
 	void onTimerTimout();

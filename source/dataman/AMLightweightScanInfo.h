@@ -66,8 +66,8 @@ public:
 	int thumbnailCount() const;
 	/// Adds the thumbnailId to this scan's list of thumbnails
 	void addThumbnailId(int thumbnailId);
-	/// Resets the current list of thumbnails which are associated with the Scan
-	void resetThumbnails(int thumbnailFirstId, int thumbnailCount);
+	/// Clears all the thumbnails for this scan
+	void clearThumbnails();
 	/// The id (if any) of the experiment this scan is associated with
 	int experimentId() const;
 

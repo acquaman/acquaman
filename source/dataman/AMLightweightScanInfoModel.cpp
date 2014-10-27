@@ -230,14 +230,15 @@ void AMLightweightScanInfoModel::onScanInfoUpdated(int updatedIndex)
 
 void AMLightweightScanInfoModel::onScanThumbnailAboutToBeAdded(int scanIndex, int thumbnailIndexStart, int thumbnailIndexEnd)
 {
-	QModelIndex scanModelIndex = index(scanIndex, 0, QModelIndex());
-	beginInsertRows(scanModelIndex, thumbnailIndexStart, thumbnailIndexEnd);
 	qDebug() << QString("Responding to signal that scan %1 has had thumbnail added at: %2").arg(scanIndex).arg(thumbnailIndexStart);
+	QModelIndex scanModelIndex = index(scanIndex, 0, QModelIndex());
+	qDebug() << QString("Model then signals that a row is being inserted from %1 to %2 for parent: (row %3, column %4)").arg(thumbnailIndexStart).arg(thumbnailIndexEnd).arg(scanModelIndex.row()).arg(scanModelIndex.column());
+	beginResetModel();
 }
 
 void AMLightweightScanInfoModel::onScanThumbnailAdded()
 {
-	endInsertRows();
+	endResetModel();
 }
 
 void AMLightweightScanInfoModel::onScanThumbnailAboutToBeRemoved(int scanIndex, int oldThumbnailIndexStart, int oldThumbnailIndexEnd)

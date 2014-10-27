@@ -173,16 +173,9 @@ void AMLightweightScanInfo::addThumbnailId(int thumbnailId)
 	thumbnailIds_.append(thumbnailId);
 }
 
-void AMLightweightScanInfo::resetThumbnails(int thumbnailFirstId, int thumbnailCount)
+void AMLightweightScanInfo::clearThumbnails()
 {
-	if(!thumbnailIds_.isEmpty() && thumbnailFirstId == thumbnailIds_.at(0) && thumbnailCount == thumbnailIds_.count())
-		return;
-
-	for(int iThumbnailId = 0; iThumbnailId < thumbnailCount; iThumbnailId++)
-	{
-		thumbnailIds_.append(thumbnailFirstId);
-		thumbnailFirstId++;
-	}
+	thumbnailIds_.clear();
 	thumbnailsMap_.clear();
 }
 

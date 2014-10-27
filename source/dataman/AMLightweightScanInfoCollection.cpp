@@ -416,6 +416,7 @@ void AMLightweightScanInfoCollection::onDbItemAdded(const QString &tableName, in
 		emit scanThumbnailAboutToBeAdded(lightweightScanInfoIndex, matchedScanInfo->thumbnailCount(), matchedScanInfo->thumbnailCount());
 		matchedScanInfo->addThumbnailId(id);
 		emit scanThumbnailAdded();
+		emit scanUpdated(lightweightScanInfoIndex);
 	}
 	else if(sampleNameMap_.keys().contains(tableName))
 	{
@@ -519,41 +520,26 @@ void AMLightweightScanInfoCollection::onDbItemRemoved(const QString &tableName, 
 		if(lastUpdatedScanId_ == -1)
 			return;
 
-		QSqlQuery selectQuery = database_->select(AMDbObjectSupport::s()->tableNameForClass("AMScan"), "*", QString("id = %1").arg(lastUpdatedScanId_));
 
-		if(selectQuery.exec())
+		AMLightweightScanInfo* matchedScanInfo = 0;
+		bool scanInfoFound = false;
+		int iScanInfo = 0;
+		for(int scanInfoCount = scanInfos_.count(); iScanInfo < scanInfoCount && !scanInfoFound; iScanInfo++)
 		{
-			while(selectQuery.next())
+			if(scanInfos_.at(iScanInfo)->id() == lastUpdatedScanId_)
 			{
-				QSqlRecord currentRecord = selectQuery.record();
-				int thumbnailCount = selectQuery.value(currentRecord.indexOf("thumbnailCount")).toInt();
-				int thumbnailStartId = selectQuery.value(currentRecord.indexOf("thumbnailCount")).toInt();
-
-				AMLightweightScanInfo* matchedScanInfo = 0;
-				bool scanInfoFound = false;
-				int iScanInfo = 0;
-				for(int scanInfoCount = scanInfos_.count(); iScanInfo < scanInfoCount && !scanInfoFound; iScanInfo++)
-				{
-					if(scanInfos_.at(iScanInfo)->id() == lastUpdatedScanId_)
-					{
-						matchedScanInfo = scanInfos_.at(iScanInfo);
-						scanInfoFound = true;
-					}
-				}
-
-				if(!scanInfoFound)
-					return;
-
-				emit scanThumbnailAboutToBeRemoved(iScanInfo, 0, matchedScanInfo->thumbnailCount()-1);
-				matchedScanInfo->resetThumbnails(thumbnailCount, thumbnailStartId);
-				emit scanThumbnailRemoved();
+				matchedScanInfo = scanInfos_.at(iScanInfo);
+				scanInfoFound = true;
 			}
 		}
-		else
-		{
-			AMErrorMon::alert(this, AMLIGHTWEIGHTSCANINFOCOLLECTION_SCANS_SQL_ERROR, QString("Could not complete query to load single scan, with error: %1").arg(selectQuery.lastError().text()));
-		}
-		selectQuery.finish();
+
+		if(!scanInfoFound)
+			return;
+
+		emit scanThumbnailAboutToBeRemoved(iScanInfo, 0, matchedScanInfo->thumbnailCount()-1);
+		matchedScanInfo->clearThumbnails();
+		emit scanThumbnailRemoved();
+		emit scanUpdated(iScanInfo);
 	}
 }
 
