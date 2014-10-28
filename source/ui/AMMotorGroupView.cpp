@@ -267,10 +267,10 @@ void AMMotorGroupObjectView::onStopClicked()
 
 void AMMotorGroupObjectView::onMovingChanged()
 {
-	bool isMoving = true;
+	bool isMoving = false;
 
 	foreach (AMControl *control, motorGroupObject_->controls())
-		isMoving &= control->isMoving();
+		isMoving |= control->isMoving();
 
 	status_->setPixmap(QIcon(isMoving ? ":/ON.png" : ":/OFF.png").pixmap(25));
 
