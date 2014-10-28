@@ -5,7 +5,7 @@
 
 class QVBoxLayout;
 class QGroupBox;
-
+class AMMotorGroupView;
 class AMExtendedControlEditor;
 
 class SXRMBPersistentView : public QWidget
@@ -33,6 +33,9 @@ protected:
 	AMExtendedControlEditor *energyControlEditor_;
 	/// Control editor for the status (read only)
 	AMExtendedControlEditor *statusControlEditor_;
+
+	/// The view that holds all the motor group objects.
+	AMMotorGroupView *motorGroupView_;
 };
 
 #endif // SXRMBPERSISTENTVIEW_H

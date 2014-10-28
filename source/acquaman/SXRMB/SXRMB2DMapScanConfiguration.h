@@ -2,10 +2,15 @@
 #define SXRMB2DMAPSCANCONFIGURATION_H
 
 #include "acquaman/AMStepScanConfiguration.h"
+#include "acquaman/SXRMB/SXRMBScanConfiguration.h"
 
-class SXRMB2DMapScanConfiguration : public AMStepScanConfiguration
+/// This class holds the configuration of
+class SXRMB2DMapScanConfiguration : public AMStepScanConfiguration, public SXRMBScanConfiguration
 {
 	Q_OBJECT
+
+	Q_PROPERTY(AMDbObject* configurationDbObject READ dbReadScanConfigurationDbObject WRITE dbWriteScanConfigurationDbObject)
+	Q_PROPERTY(QString header READ headerText WRITE setHeaderText)
 
 	Q_CLASSINFO("AMDbObject_Attributes", "description=SXRMB 2D Scan Configuration")
 
@@ -25,6 +30,21 @@ public:
 
 	/// Returns a pointer to a newly-created AMScanConfigurationView that is appropriate for viewing and editing this kind of scan configuration. Ownership of the new controller becomes the responsibility of the caller.
 	virtual AMScanConfigurationView* createView();
+
+	/// Get a nice looking string that contains all the standard information in an XAS scan.   Used when exporting.
+	virtual QString headerText() const;
+
+signals:
+	/// Notifier that the total time estimate has changed.
+	void totalTimeChanged(double);
+
+protected slots:
+	/// Computes the total time any time the regions list changes.
+	void computeTotalTime() { computeTotalTimeImplementation(); }
+
+protected:
+	/// Method that does all the calculations for calculating the estimated scan time.
+	virtual void computeTotalTimeImplementation();
 };
 
 #endif // SXRMB2DMAPSCANCONFIGURATION_H

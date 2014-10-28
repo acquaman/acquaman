@@ -33,6 +33,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSBasicCompositeScalerChannelDetector.h"
 #include "beamline/BioXAS/BioXASCLSMAXvMotor.h"
 #include "beamline/SXRMB/SXRMBBrukerDetector.h"
+#include "beamline/AMMotorGroup.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
@@ -70,6 +71,11 @@ public:
 	AMPVwStatusControl* microprobeSampleStageY() const;
 	/// Returns the Z Stage for the microrobe sample stage
 	AMPVwStatusControl* microprobeSampleStageZ() const;
+
+	/// Returns the motor group for this beamline.
+	AMMotorGroup *motorGroup() const;
+	/// Returns the microprobe stage motor group object.
+	AMMotorGroupObject *microprobeSampleStageMotorGroupObject() const;
 
 	/// Returns the SXRMB overall status control
 	AMReadOnlyPVControl* beamlineStatus() const;
@@ -152,6 +158,9 @@ protected:
 
 	/// Control set for microprobe sample stage
 	AMControlSet *microprobeSampleStageControlSet_;
+
+	/// Motor group.  Holds sets of motors that are used together.
+	AMMotorGroup *motorGroup_;
 
 	/// SXRMB overall status control
 	AMReadOnlyPVControl *beamlineStatus_;
