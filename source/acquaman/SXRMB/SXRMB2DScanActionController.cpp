@@ -29,6 +29,9 @@ SXRMB2DScanActionController::SXRMB2DScanActionController(SXRMB2DMapScanConfigura
 
 	AMDetectorInfoSet detectors;
 
+	SXRMBBeamline::sxrmb()->brukerDetector()->setIsVisible(false);
+	SXRMBBeamline::sxrmb()->brukerDetector()->setHiddenFromUsers(true);
+
 	detectors.addDetectorInfo(SXRMBBeamline::sxrmb()->exposedDetectorByName("Bruker")->toInfo());
 	detectors.addDetectorInfo(SXRMBBeamline::sxrmb()->exposedDetectorByName("I0Detector")->toInfo());
 	detectors.addDetectorInfo(SXRMBBeamline::sxrmb()->exposedDetectorByName("TEYDetector")->toInfo());
@@ -82,10 +85,6 @@ void SXRMB2DScanActionController::createAxisOrderMap()
 
 AMAction3* SXRMB2DScanActionController::createInitializationActions()
 {
-	AMXRFDetector *detector = SXRMBBeamline::sxrmb()->brukerDetector();
-	detector->setIsVisible(false);
-	detector->setHiddenFromUsers(true);
-
 	return 0;
 }
 
