@@ -30,6 +30,8 @@ SXRMB2DScanActionController::SXRMB2DScanActionController(SXRMB2DMapScanConfigura
 	AMDetectorInfoSet detectors;
 
 	detectors.addDetectorInfo(SXRMBBeamline::sxrmb()->exposedDetectorByName("Bruker")->toInfo());
+	detectors.addDetectorInfo(SXRMBBeamline::sxrmb()->exposedDetectorByName("I0Detector")->toInfo());
+	detectors.addDetectorInfo(SXRMBBeamline::sxrmb()->exposedDetectorByName("TEYDetector")->toInfo());
 
 	configuration_->setDetectorConfigurations(detectors);
 
@@ -51,10 +53,7 @@ void SXRMB2DScanActionController::buildScanControllerImplementation()
 
 	detector->removeAllRegionsOfInterest();
 
-//	QList<AMDataSource *> i0Sources = QList<AMDataSource *>()
-//			<< scan_->dataSourceAt(scan_->indexOfDataSource("SplitIonChamber"))
-//			   << scan_->dataSourceAt(scan_->indexOfDataSource("PreKBIonChamber"))
-//				  << scan_->dataSourceAt(scan_->indexOfDataSource("MiniIonChamber"));
+	QList<AMDataSource *> i0Sources = QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource("I0Detector"));
 
 	AMDataSource *spectraSource = scan_->dataSourceAt(scan_->indexOfDataSource(detector->name()));
 
@@ -67,11 +66,11 @@ void SXRMB2DScanActionController::buildScanControllerImplementation()
 		scan_->addAnalyzedDataSource(newRegion, false, true);
 		detector->addRegionOfInterest(region);
 
-//		AM2DNormalizationAB *normalizedRegion = new AM2DNormalizationAB(QString("norm_%1").arg(newRegion->name()));
-//		normalizedRegion->setInputDataSources(QList<AMDataSource *>() << newRegion << i0Sources);
-//		normalizedRegion->setDataName(newRegion->name());
-//		normalizedRegion->setNormalizationName(i0Sources.at(int(configuration_->incomingChoice()))->name());
-//		scan_->addAnalyzedDataSource(normalizedRegion, true, false);
+		AM2DNormalizationAB *normalizedRegion = new AM2DNormalizationAB(QString("norm_%1").arg(newRegion->name()));
+		normalizedRegion->setInputDataSources(QList<AMDataSource *>() << newRegion << i0Sources);
+		normalizedRegion->setDataName(newRegion->name());
+		normalizedRegion->setNormalizationName(i0Sources.first()->name());
+		scan_->addAnalyzedDataSource(normalizedRegion, true, false);
 	}
 }
 

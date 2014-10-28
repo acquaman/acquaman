@@ -200,6 +200,10 @@ void SXRMBBeamline::setupControlsAsDetectors()
 void SXRMBBeamline::setupExposedControls()
 {
 	addExposedControl(energy_);
+
+	addExposedControl(microprobeSampleStageX_);
+	addExposedControl(microprobeSampleStageY_);
+	addExposedControl(microprobeSampleStageZ_);
 }
 
 void SXRMBBeamline::setupExposedDetectors()
