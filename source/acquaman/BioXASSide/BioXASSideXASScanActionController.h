@@ -31,7 +31,11 @@ class BioXASSideXASScanActionController : public AMStepScanActionController
 	Q_OBJECT
 
 public:
+	/// Constructor takes a BioXASSideXAS scan configuration
 	explicit BioXASSideXASScanActionController(BioXASSideXASScanConfiguration *configuration, QObject *parent = 0);
+
+	/// Destructor
+	virtual ~BioXASSideXASScanActionController();
 
 signals:
 

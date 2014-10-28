@@ -38,6 +38,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
 
+class AMBasicControlDetectorEmulator;
+
 class SXRMBBeamline : public AMBeamline
 {
 	Q_OBJECT
@@ -81,8 +83,16 @@ public:
 	/// Returns whether the PVs are connected or not
 	virtual bool isConnected() const;
 
+	/// Returns the I0 Detector
+	CLSBasicScalerChannelDetector* i0Detector() const;
+	/// Returns the TEY Detector
+	CLSBasicScalerChannelDetector* teyDetector() const;
+
+	/// Returns the energy feedback detector (emulator)
+	AMBasicControlDetectorEmulator* energyFeedbackDetector() const;
+
 	/// Returns the bruker fluorescence detector.
-	SXRMBBrukerDetector *brukerDetector() const { return brukerDetector_; }
+	SXRMBBrukerDetector *brukerDetector() const;
 
 protected:
 	/// Sets up the synchronized dwell time.
@@ -129,12 +139,22 @@ protected:
 	/// Energy control for SXRMB
 	AMPVwStatusControl *energy_;
 
+	/// Energy feedback control for SXRMB
+	AMControl *energyFeedbackControl_;
+	/// Detector for getting the energy feedback
+	AMBasicControlDetectorEmulator *energyFeedbackDetector_;
+
 	/// X Stage for the microrobe sample stage
 	AMPVwStatusControl *microprobeSampleStageX_;
 	/// Y Stage for the microrobe sample stage
 	AMPVwStatusControl *microprobeSampleStageY_;
 	/// Z Stage for the microrobe sample stage
 	AMPVwStatusControl *microprobeSampleStageZ_;
+
+	/// Detector for the I0Detector channel on the scaler
+	CLSBasicScalerChannelDetector *i0Detector_;
+	/// Detector for the TEYDetctor channel on the scaler
+	CLSBasicScalerChannelDetector *teyDetector_;
 
 	/// Control set for microprobe sample stage
 	AMControlSet *microprobeSampleStageControlSet_;

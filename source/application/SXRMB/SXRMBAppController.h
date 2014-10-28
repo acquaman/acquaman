@@ -24,6 +24,15 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "application/AMAppController.h"
 
+class AMScanConfigurationViewHolder3;
+class SXRMBPersistentView;
+class SXRMBEXAFSScanConfiguration;
+class SXRMBEXAFSScanConfigurationView;
+class SXRMB2DMapScanConfiguration;
+class SXRMB2DMapScanConfigurationView;
+class CLSSIS3820ScalerView;
+
+
 class SXRMBAppController  : public AMAppController
 {
 	Q_OBJECT
@@ -39,6 +48,13 @@ public:
 
 	/// destroy all of the windows, widgets, and data objects created by applicationStartup(). Only call this if startup() has ran successfully.  If reimplementing, must call the base-class shutdown() as the last thing it does.
 	virtual void shutdown();
+
+protected slots:
+	/// slot to handle Beamline connected signal
+	void onBeamlineConnected(bool);
+
+	/// Handles showing (or hiding) the scaler view when the scaler connects (disconnects)
+	void onScalerConnected(bool isConnected);
 
 protected:
 	/// Implementation method that individual applications can flesh out if extra setup is required when a scan action is started.  This is not pure virtual because there is no requirement to do anything to scan actions.
@@ -56,6 +72,26 @@ protected:
 	/// Sets up all of the connections.
 	void makeConnections();
 
+protected:
+	/// Persistent sidebar for SXRMB
+	SXRMBPersistentView *sxrmbPersistentView_;
+
+	/// EXAFS scan configuration
+	SXRMBEXAFSScanConfiguration* exafsScanConfiguration_;
+	/// EXAFS scan configuration view
+	SXRMBEXAFSScanConfigurationView* exafsScanConfigurationView_;
+	/// EXAFS scan configuration view holder
+	AMScanConfigurationViewHolder3* exafsScanConfigurationViewHolder_;
+
+	/// 2D scan configuration
+	SXRMB2DMapScanConfiguration* microProbe2DScanConfiguration_;
+	/// 2D scan configuration view
+	SXRMB2DMapScanConfigurationView* microProbe2DScanConfigurationView_;
+	/// 2D scan configuration view holder
+	AMScanConfigurationViewHolder3* microProbe2DScanConfigurationViewHolder_;
+
+	/// The view for SXRMB's scaler
+	CLSSIS3820ScalerView *scalerView_;
 };
 
 #endif // SXRMBAPPCONTROLLER_H
