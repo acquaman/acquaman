@@ -31,7 +31,8 @@ class SXRMBEXAFSScanConfigurationView;
 class SXRMB2DMapScanConfiguration;
 class SXRMB2DMapScanConfigurationView;
 class CLSSIS3820ScalerView;
-
+class SXRMBUserConfiguration;
+class AMRegionOfInterest;
 
 class SXRMBAppController  : public AMAppController
 {
@@ -55,6 +56,13 @@ protected slots:
 
 	/// Handles showing (or hiding) the scaler view when the scaler connects (disconnects)
 	void onScalerConnected(bool isConnected);
+
+	/// Handles setting up all the necessary settings based on the loaded user configuration.
+	void onUserConfigurationLoadedFromDb();
+	/// Handles adding regions of interest to all the configurations that would care.
+	void onRegionOfInterestAdded(AMRegionOfInterest *region);
+	/// Handles removing regions of interest from all the configurations that would care.
+	void onRegionOfInterestRemoved(AMRegionOfInterest *region);
 
 protected:
 	/// Implementation method that individual applications can flesh out if extra setup is required when a scan action is started.  This is not pure virtual because there is no requirement to do anything to scan actions.
@@ -92,6 +100,9 @@ protected:
 
 	/// The view for SXRMB's scaler
 	CLSSIS3820ScalerView *scalerView_;
+
+	/// Holds the user configuration used for automatically setting up some simple aspects of the user interface.
+	SXRMBUserConfiguration *userConfiguration_;
 };
 
 #endif // SXRMBAPPCONTROLLER_H
