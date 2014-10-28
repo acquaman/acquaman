@@ -90,8 +90,14 @@ bool SXRMBAppController::startup()
 		setupUserInterface();
 		makeConnections();
 
-		if (!userConfiguration_->loadFromDb(AMDatabase::database("user"), 1))
+		if (!userConfiguration_->loadFromDb(AMDatabase::database("user"), 1)){
 			userConfiguration_->storeToDb(AMDatabase::database("user"));
+
+			AMDetector *detector = SXRMBBeamline::sxrmb()->brukerDetector();
+			// This is connected here because we want to listen to the detectors for updates, but don't want to double add regions on startup.
+			connect(detector, SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
+			connect(detector, SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
+		}
 
 		return true;
 	}
@@ -143,6 +149,7 @@ void SXRMBAppController::registerClasses()
 	AMDbObjectSupport::s()->registerClass<SXRMBScanConfigurationDbObject>();
 	AMDbObjectSupport::s()->registerClass<SXRMBEXAFSScanConfiguration>();
 	AMDbObjectSupport::s()->registerClass<SXRMB2DMapScanConfiguration>();
+	AMDbObjectSupport::s()->registerClass<SXRMBUserConfiguration>();
 }
 
 void SXRMBAppController::setupExporterOptions()
@@ -172,7 +179,7 @@ void SXRMBAppController::setupUserInterface()
 
 	AMXRFDetailedDetectorView *brukerView = new AMXRFDetailedDetectorView(SXRMBBeamline::sxrmb()->brukerDetector());
 	brukerView->buildDetectorView();
-	brukerView->setEnergyRange(3000, 20000);
+	brukerView->setEnergyRange(1800, 10000);
 	brukerView->addEmissionLineNameFilter(QRegExp("1"));
 	brukerView->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
 	brukerView->addCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));
