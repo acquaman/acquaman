@@ -35,9 +35,13 @@ SXRMBBeamline::SXRMBBeamline()
 	beamlineStatus_ = new AMReadOnlyPVControl("BeamlineStatus", "BL1606-B01:ready:status", this);
 
 	// these motors actually have the encoder reporting positions to the "mm:sp" PV
-	microprobeSampleStageX_ = new AMPVwStatusControl("MicroprobeSampleStageX", "SVM1606-5-B10-07:mm:sp", "SVM1606-5-B10-07:mm", "SVM1606-5-B10-07:status", "SVM1606-5-B10-07:stop", this, 0.1, 2.0, new AMControlStatusCheckerCLSMAXv());
-	microprobeSampleStageY_ = new AMPVwStatusControl("MicroprobeSampleStageY", "SVM1606-5-B10-08:mm:sp", "SVM1606-5-B10-08:mm", "SVM1606-5-B10-08:status", "SVM1606-5-B10-08:stop", this, 0.1, 2.0, new AMControlStatusCheckerCLSMAXv());
-	microprobeSampleStageZ_ = new AMPVwStatusControl("MicroprobeSampleStageZ", "SVM1606-5-B10-09:mm:sp", "SVM1606-5-B10-09:mm", "SVM1606-5-B10-09:status", "SVM1606-5-B10-09:stop", this, 0.1, 2.0, new AMControlStatusCheckerCLSMAXv());
+	microprobeSampleStageX_ = new AMPVwStatusControl("MicroprobeSampleStageX", "SVM1606-5-B10-07:mm:sp", "SVM1606-5-B10-07:mm", "SVM1606-5-B10-07:status", "SVM1606-5-B10-07:stop", this, 0.05, 2.0, new AMControlStatusCheckerCLSMAXv());
+	microprobeSampleStageY_ = new AMPVwStatusControl("MicroprobeSampleStageY", "SVM1606-5-B10-08:mm:sp", "SVM1606-5-B10-08:mm", "SVM1606-5-B10-08:status", "SVM1606-5-B10-08:stop", this, 0.05, 2.0, new AMControlStatusCheckerCLSMAXv());
+	microprobeSampleStageZ_ = new AMPVwStatusControl("MicroprobeSampleStageZ", "SVM1606-5-B10-09:mm:sp", "SVM1606-5-B10-09:mm", "SVM1606-5-B10-09:status", "SVM1606-5-B10-09:stop", this, 0.05, 2.0, new AMControlStatusCheckerCLSMAXv());
+
+	microprobeSampleStageX_->setAttemptMoveWhenWithinTolerance(false);
+	microprobeSampleStageY_->setAttemptMoveWhenWithinTolerance(false);
+	microprobeSampleStageZ_->setAttemptMoveWhenWithinTolerance(false);
 
 	microprobeSampleStageControlSet_ = new AMControlSet(this);
 	microprobeSampleStageControlSet_->addControl(microprobeSampleStageX_);

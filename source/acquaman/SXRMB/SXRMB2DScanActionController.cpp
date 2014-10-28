@@ -82,6 +82,10 @@ void SXRMB2DScanActionController::createAxisOrderMap()
 
 AMAction3* SXRMB2DScanActionController::createInitializationActions()
 {
+	AMXRFDetector *detector = SXRMBBeamline::sxrmb()->brukerDetector();
+	detector->setIsVisible(false);
+	detector->setHiddenFromUsers(true);
+
 	return 0;
 }
 

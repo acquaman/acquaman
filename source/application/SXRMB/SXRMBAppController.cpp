@@ -135,7 +135,9 @@ void SXRMBAppController::onScalerConnected(bool isConnected){
 
 void SXRMBAppController::registerClasses()
 {
+	AMDbObjectSupport::s()->registerClass<SXRMBScanConfigurationDbObject>();
 	AMDbObjectSupport::s()->registerClass<SXRMBEXAFSScanConfiguration>();
+	AMDbObjectSupport::s()->registerClass<SXRMB2DMapScanConfiguration>();
 }
 
 void SXRMBAppController::setupExporterOptions()
