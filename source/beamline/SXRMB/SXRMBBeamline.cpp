@@ -79,6 +79,16 @@ AMPVwStatusControl* SXRMBBeamline::microprobeSampleStageZ() const {
 	return microprobeSampleStageZ_;
 }
 
+AMMotorGroup *SXRMBBeamline::motorGroup() const
+{
+	return motorGroup_;
+}
+
+AMMotorGroupObject *SXRMBBeamline::microprobeSampleStageMotorGroupObject() const
+{
+	return motorGroup_->motorGroupObject("Microprobe Stage - X, Z, Y");
+}
+
 AMReadOnlyPVControl* SXRMBBeamline::beamlineStatus() const {
 	return beamlineStatus_;
 }
@@ -99,6 +109,18 @@ void SXRMBBeamline::setupSampleStage()
 
 void SXRMBBeamline::setupMotorGroup()
 {
+	AMMotorGroupObject *motorObject = 0;
+	motorGroup_ = new AMMotorGroup(this);
+
+	motorObject = new AMMotorGroupObject("Microprobe Stage - X, Z, Y",
+										 QStringList() << "X" << "Z" << "Y",
+										 QStringList() << "mm" << "mm" << "mm",
+										 QList<AMControl *>() << microprobeSampleStageX_ << microprobeSampleStageZ_ << microprobeSampleStageY_,
+										 QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Horizontal << AMMotorGroupObject::Vertical << AMMotorGroupObject::Normal,
+										 QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational,
+										 this);
+
+	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
 }
 
 void SXRMBBeamline::setupDetectors()
