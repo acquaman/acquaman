@@ -5,6 +5,7 @@
 
 #include "beamline/SXRMB/SXRMBBeamline.h"
 #include "ui/beamline/AMExtendedControlEditor.h"
+#include "ui/AMMotorGroupView.h"
 
 SXRMBPersistentView::SXRMBPersistentView(QWidget *parent) :
 	QWidget(parent)
@@ -19,11 +20,15 @@ SXRMBPersistentView::SXRMBPersistentView(QWidget *parent) :
 	energyControlEditor_->setControlFormat('f', 2);
 	statusControlEditor_ = new AMExtendedControlEditor(SXRMBBeamline::sxrmb()->beamlineStatus(), 0, true);
 
+	motorGroupView_ = new AMMotorGroupView(SXRMBBeamline::sxrmb()->motorGroup());
+	motorGroupView_->setMotorGroupView("Microprobe Stage - X, Z, Y");
+
 	mainVL_ = new QVBoxLayout();
 	mainVL_->setContentsMargins(2, 2, 2, 2);
 
 	mainVL_->addWidget(statusControlEditor_);
 	mainVL_->addWidget(energyControlEditor_);
+	mainVL_->addWidget(motorGroupView_);
 	mainVL_->addStretch();
 
 	mainGroupBox_->setLayout(mainVL_);

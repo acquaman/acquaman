@@ -34,5 +34,4 @@ SUBDIRS += \
 	buildTests/AMBuildTest.pro \
 	XRDAnalysis.pro \
 	CLSSR570Coordinator.pro \
-	SXRMBAcquaman.pro \
-	SXRMBAddOnsCoordinator.pro
+	SXRMBAcquaman.pro
