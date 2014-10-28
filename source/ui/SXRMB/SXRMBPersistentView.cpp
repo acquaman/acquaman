@@ -16,6 +16,7 @@ SXRMBPersistentView::SXRMBPersistentView(QWidget *parent) :
 	setLayout(mainGroupBoxVL_);
 
 	energyControlEditor_ = new AMExtendedControlEditor(SXRMBBeamline::sxrmb()->energy());
+	energyControlEditor_->setControlFormat('f', 2);
 	statusControlEditor_ = new AMExtendedControlEditor(SXRMBBeamline::sxrmb()->beamlineStatus(), 0, true);
 
 	mainVL_ = new QVBoxLayout();

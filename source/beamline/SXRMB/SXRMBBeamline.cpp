@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDebug>
 
 #include "beamline/AMBasicControlDetectorEmulator.h"
+#include "beamline/CLS/CLSSR570.h"
 
 SXRMBBeamline::SXRMBBeamline()
 	: AMBeamline("SXRMB Beamline")
@@ -32,6 +33,7 @@ SXRMBBeamline::SXRMBBeamline()
 
 	beamlineStatus_ = new AMReadOnlyPVControl("BeamlineStatus", "BL1606-B01:ready:status", this);
 
+	// these motors actually have the encoder reporting positions to the "mm:sp" PV
 	microprobeSampleStageX_ = new AMPVwStatusControl("MicroprobeSampleStageX", "SVM1606-5-B10-07:mm:sp", "SVM1606-5-B10-07:mm", "SVM1606-5-B10-07:status", "SVM1606-5-B10-07:stop", this, 0.1, 2.0, new AMControlStatusCheckerCLSMAXv());
 	microprobeSampleStageY_ = new AMPVwStatusControl("MicroprobeSampleStageY", "SVM1606-5-B10-08:mm:sp", "SVM1606-5-B10-08:mm", "SVM1606-5-B10-08:status", "SVM1606-5-B10-08:stop", this, 0.1, 2.0, new AMControlStatusCheckerCLSMAXv());
 	microprobeSampleStageZ_ = new AMPVwStatusControl("MicroprobeSampleStageZ", "SVM1606-5-B10-09:mm:sp", "SVM1606-5-B10-09:mm", "SVM1606-5-B10-09:status", "SVM1606-5-B10-09:stop", this, 0.1, 2.0, new AMControlStatusCheckerCLSMAXv());
@@ -41,10 +43,25 @@ SXRMBBeamline::SXRMBBeamline()
 	microprobeSampleStageControlSet_->addControl(microprobeSampleStageY_);
 	microprobeSampleStageControlSet_->addControl(microprobeSampleStageZ_);
 
+	CLSSR570 *tempSR570;
+
 	scaler_ = new CLSSIS3820Scaler("BL1606-B1-1:mcs", this);
 
+	tempSR570 = new CLSSR570("TEY", "Amp1606-5-B10-03", this);
+	scaler_->channelAt(18)->setCurrentAmplifier(tempSR570);
+	scaler_->channelAt(18)->setVoltagRange(AMRange(1.0, 6.5));
+	scaler_->channelAt(18)->setCustomChannelName("TEY");
+
+	tempSR570 = new CLSSR570("I0", "Amp1606-5-B10-02", this);
+	scaler_->channelAt(17)->setCurrentAmplifier(tempSR570);
+	scaler_->channelAt(17)->setVoltagRange(AMRange(1.0, 6.5));
+	scaler_->channelAt(17)->setCustomChannelName("I0");
+
 	i0Detector_ = new CLSBasicScalerChannelDetector("I0Detector", "I0 Detector", scaler_, 17, this);
+	scaler_->channelAt(17)->setDetector(i0Detector_);
+
 	teyDetector_ = new CLSBasicScalerChannelDetector("TEYDetector", "TEY Detector", scaler_, 18, this);
+	scaler_->channelAt(18)->setDetector(teyDetector_);
 
 	energyFeedbackControl_ = new AMReadOnlyPVControl("EnergyFeedback", "BL1606-B1-1:Energy:fbk", this);
 	energyFeedbackDetector_ = new AMBasicControlDetectorEmulator("EnergyFeedback", "Energy Feedback", energyFeedbackControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);

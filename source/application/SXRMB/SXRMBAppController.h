@@ -28,6 +28,10 @@ class AMScanConfigurationViewHolder3;
 class SXRMBPersistentView;
 class SXRMBEXAFSScanConfiguration;
 class SXRMBEXAFSScanConfigurationView;
+class SXRMB2DMapScanConfiguration;
+class SXRMB2DMapScanConfigurationView;
+class CLSSIS3820ScalerView;
+
 
 class SXRMBAppController  : public AMAppController
 {
@@ -48,6 +52,9 @@ public:
 protected slots:
 	/// slot to handle Beamline connected signal
 	void onBeamlineConnected(bool);
+
+	/// Handles showing (or hiding) the scaler view when the scaler connects (disconnects)
+	void onScalerConnected(bool isConnected);
 
 protected:
 	/// Implementation method that individual applications can flesh out if extra setup is required when a scan action is started.  This is not pure virtual because there is no requirement to do anything to scan actions.
@@ -70,15 +77,21 @@ protected:
 	SXRMBPersistentView *sxrmbPersistentView_;
 
 	/// EXAFS scan configuration
-	SXRMBEXAFSScanConfiguration* eXAFSScanConfiguration_;
-
+	SXRMBEXAFSScanConfiguration* exafsScanConfiguration_;
 	/// EXAFS scan configuration view
-	SXRMBEXAFSScanConfigurationView* eXAFSScanConfigurationView_;
-
+	SXRMBEXAFSScanConfigurationView* exafsScanConfigurationView_;
 	/// EXAFS scan configuration view holder
-	AMScanConfigurationViewHolder3* eXAFSScanConfigurationViewHolder_;
+	AMScanConfigurationViewHolder3* exafsScanConfigurationViewHolder_;
 
+	/// 2D scan configuration
+	SXRMB2DMapScanConfiguration* microProbe2DScanConfiguration_;
+	/// 2D scan configuration view
+	SXRMB2DMapScanConfigurationView* microProbe2DScanConfigurationView_;
+	/// 2D scan configuration view holder
+	AMScanConfigurationViewHolder3* microProbe2DScanConfigurationViewHolder_;
 
+	/// The view for SXRMB's scaler
+	CLSSIS3820ScalerView *scalerView_;
 };
 
 #endif // SXRMBAPPCONTROLLER_H

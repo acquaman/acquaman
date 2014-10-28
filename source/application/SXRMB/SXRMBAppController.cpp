@@ -30,6 +30,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/actions/AMScanAction.h"
 #include "actions3/AMListAction3.h"
 
+#include "acquaman/SXRMB/SXRMBEXAFSScanConfiguration.h"
+
 #include "application/AMAppControllerSupport.h"
 
 #include "dataman/database/AMDbObjectSupport.h"
@@ -39,16 +41,19 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/export/AMExporterAthena.h"
 #include "dataman/AMRun.h"
 
-#include "acquaman/SXRMB/SXRMBEXAFSScanConfiguration.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
 #include "ui/beamline/AMXRFDetailedDetectorView.h"
 #include "ui/SXRMB/SXRMBPersistentView.h"
 #include "ui/SXRMB/SXRMBEXAFSScanConfigurationView.h"
+#include "ui/SXRMB/SXRMB2DMapScanConfigurationView.h"
+#include "ui/CLS/CLSSIS3820ScalerView.h"
+
 #include "util/AMPeriodicTable.h"
 
 SXRMBAppController::SXRMBAppController(QObject *parent)
 	: AMAppController(parent)
 {
+
 }
 
 bool SXRMBAppController::startup()
@@ -98,20 +103,39 @@ void SXRMBAppController::shutdown()
 
 void SXRMBAppController::onBeamlineConnected(bool connected)
 {
-	if (connected && !eXAFSScanConfigurationView_) {
-		eXAFSScanConfiguration_ = new SXRMBEXAFSScanConfiguration();
-		eXAFSScanConfiguration_->setEdgeEnergy(3000);
+	if (connected && !exafsScanConfigurationView_) {
+		exafsScanConfiguration_ = new SXRMBEXAFSScanConfiguration();
 
-		eXAFSScanConfigurationView_ = new SXRMBEXAFSScanConfigurationView(eXAFSScanConfiguration_);
-		eXAFSScanConfigurationViewHolder_ = new AMScanConfigurationViewHolder3(eXAFSScanConfigurationView_);
+		exafsScanConfigurationView_ = new SXRMBEXAFSScanConfigurationView(exafsScanConfiguration_);
+		exafsScanConfigurationViewHolder_ = new AMScanConfigurationViewHolder3(exafsScanConfigurationView_);
 
-		mw_->addPane(eXAFSScanConfigurationViewHolder_, "Scans", "EXAFS Scan", ":/utilites-system-monitor.png");
+		mw_->addPane(exafsScanConfigurationViewHolder_, "Scans", "EXAFS Scan", ":/utilites-system-monitor.png");
 	}
+
+	if (connected && !microProbe2DScanConfigurationView_) {
+		microProbe2DScanConfiguration_ = new SXRMB2DMapScanConfiguration();
+
+		microProbe2DScanConfigurationView_ = new SXRMB2DMapScanConfigurationView(microProbe2DScanConfiguration_);
+		microProbe2DScanConfigurationViewHolder_ = new AMScanConfigurationViewHolder3(microProbe2DScanConfigurationView_);
+
+		mw_->addPane(microProbe2DScanConfigurationViewHolder_, "Scans", "2D Scan", ":/utilites-system-monitor.png");
+	}
+}
+
+void SXRMBAppController::onScalerConnected(bool isConnected){
+	if(isConnected && SXRMBBeamline::sxrmb()->isConnected()){
+		if(!scalerView_)
+			scalerView_ = new CLSSIS3820ScalerView(SXRMBBeamline::sxrmb()->scaler());
+
+		mw_->addPane(scalerView_, "Detectors", "Scaler", ":/system-search.png", true);
+	}
+	else if(scalerView_)
+		mw_->removePane(scalerView_);
 }
 
 void SXRMBAppController::registerClasses()
 {
-
+	AMDbObjectSupport::s()->registerClass<SXRMBEXAFSScanConfiguration>();
 }
 
 void SXRMBAppController::setupExporterOptions()
@@ -121,6 +145,16 @@ void SXRMBAppController::setupExporterOptions()
 
 void SXRMBAppController::setupUserInterface()
 {
+	exafsScanConfiguration_ = 0; //NULL
+	exafsScanConfigurationView_ = 0; //NULL
+	exafsScanConfigurationViewHolder_ = 0; //NULL
+
+	microProbe2DScanConfiguration_ = 0; //NULL
+	microProbe2DScanConfigurationView_ = 0; //NULL
+	microProbe2DScanConfigurationViewHolder_ = 0; //NULL
+
+	scalerView_ = 0; //NULL
+
 	// Create panes in the main window:
 	////////////////////////////////////
 
@@ -140,11 +174,17 @@ void SXRMBAppController::setupUserInterface()
 
 	mw_->insertHeading("Scans", 2);
 
-
 	sxrmbPersistentView_ = new SXRMBPersistentView();
 	mw_->addRightWidget(sxrmbPersistentView_);
 
 	connect(SXRMBBeamline::sxrmb(), SIGNAL(connected(bool)), this, SLOT(onBeamlineConnected(bool)));
+	connect(SXRMBBeamline::sxrmb()->scaler(), SIGNAL(connectedChanged(bool)), this, SLOT(onScalerConnected(bool)));
+
+	if(SXRMBBeamline::sxrmb()->isConnected()){
+		onBeamlineConnected(true);
+		if(SXRMBBeamline::sxrmb()->scaler()->isConnected())
+			onScalerConnected(true);
+	}
 }
 
 void SXRMBAppController::makeConnections()

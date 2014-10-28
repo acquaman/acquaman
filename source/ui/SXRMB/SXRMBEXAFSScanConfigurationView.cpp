@@ -62,8 +62,8 @@ SXRMBEXAFSScanConfigurationView::SXRMBEXAFSScanConfigurationView(SXRMBEXAFSScanC
 
 	if (configuration_->edge().isEmpty()){
 
-		elementChoice_->setText("Cu");
-		fillLinesComboBox(AMPeriodicTable::table()->elementBySymbol("Cu"));
+		elementChoice_->setText("Cl");
+		fillLinesComboBox(AMPeriodicTable::table()->elementBySymbol("Cl"));
 		lineChoice_->setCurrentIndex(0);
 	}
 	// Resets the view for the view to what it should be.  Using the saved for the energy in case it is different from the original line energy.
