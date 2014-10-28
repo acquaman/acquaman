@@ -4,7 +4,7 @@
 #include "acquaman/AMStepScanConfiguration.h"
 #include "acquaman/SXRMB/SXRMBScanConfiguration.h"
 
-/// This class holds the configuration of
+/// This class holds the configuration of a standard 2D map.
 class SXRMB2DMapScanConfiguration : public AMStepScanConfiguration, public SXRMBScanConfiguration
 {
 	Q_OBJECT
