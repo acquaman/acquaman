@@ -3,6 +3,9 @@
 #include "acquaman/SXRMB/SXRMB2DScanActionController.h"
 #include "ui/SXRMB/SXRMB2DMapScanConfigurationView.h"
 
+#include <math.h>
+#include <QStringBuilder>
+
 SXRMB2DMapScanConfiguration::SXRMB2DMapScanConfiguration(QObject *parent)
 	: AMStepScanConfiguration(parent)
 {
@@ -56,4 +59,37 @@ AMScanController *SXRMB2DMapScanConfiguration::createController()
 AMScanConfigurationView *SXRMB2DMapScanConfiguration::createView()
 {
 	return new SXRMB2DMapScanConfigurationView(this);
+}
+
+QString SXRMB2DMapScanConfiguration::headerText() const
+{
+	QString header("Configuration of the Scan\n\n");
+
+	header.append(regionsOfInterestHeaderString(regionsOfInterest()) % "\n");
+
+	header.append("\n");
+	header.append("Map Dimensions\n");
+	header.append("X Axis\n");
+	header.append(QString("Start:\t%1 mm\tEnd:\t%2 mm\n").arg(double(scanAxisAt(0)->regionAt(0)->regionStart())).arg(double(scanAxisAt(0)->regionAt(0)->regionEnd())));
+	header.append(QString("Step Size:\t%1 mm\n").arg(double(scanAxisAt(0)->regionAt(0)->regionStep())));
+	header.append("Y Axis\n");
+	header.append(QString("Start:\t%1 mm\tEnd:\t%2 mm\n").arg(double(scanAxisAt(1)->regionAt(0)->regionStart())).arg(double(scanAxisAt(1)->regionAt(0)->regionEnd())));
+	header.append(QString("Step Size:\t%1 mm\n").arg(double(scanAxisAt(1)->regionAt(0)->regionStep())));
+	header.append("\n");
+	header.append(QString("Focus position:\t%1 mm\n").arg(normalPosition()));
+
+	return header;
+}
+
+void SXRMB2DMapScanConfiguration::computeTotalTimeImplementation()
+{
+	double time = 0;
+
+	// Get the number of points.
+	time = 	fabs((double(scanAxisAt(0)->regionAt(0)->regionEnd())-double(scanAxisAt(0)->regionAt(0)->regionStart()))/double(scanAxisAt(0)->regionAt(0)->regionStep())+1)
+			*fabs((double(scanAxisAt(1)->regionAt(0)->regionEnd())-double(scanAxisAt(1)->regionAt(0)->regionStart()))/double(scanAxisAt(1)->regionAt(0)->regionStep())+1);
+
+	totalTime_ = time;
+	setExpectedDuration(totalTime_);
+	emit totalTimeChanged(totalTime_);
 }

@@ -32,6 +32,17 @@ SXRMB2DScanActionController::SXRMB2DScanActionController(SXRMB2DMapScanConfigura
 	detectors.addDetectorInfo(SXRMBBeamline::sxrmb()->exposedDetectorByName("Bruker")->toInfo());
 
 	configuration_->setDetectorConfigurations(detectors);
+
+	secondsElapsed_ = 0;
+	secondsTotal_ = configuration_->totalTime();
+	elapsedTime_.setInterval(1000);
+	connect(this, SIGNAL(started()), &elapsedTime_, SLOT(start()));
+	connect(this, SIGNAL(cancelled()), &elapsedTime_, SLOT(stop()));
+	connect(this, SIGNAL(paused()), &elapsedTime_, SLOT(stop()));
+	connect(this, SIGNAL(resumed()), &elapsedTime_, SLOT(start()));
+	connect(this, SIGNAL(failed()), &elapsedTime_, SLOT(stop()));
+	connect(this, SIGNAL(finished()), &elapsedTime_, SLOT(stop()));
+	connect(&elapsedTime_, SIGNAL(timeout()), this, SLOT(onScanTimerUpdate()));
 }
 
 void SXRMB2DScanActionController::buildScanControllerImplementation()
@@ -45,23 +56,23 @@ void SXRMB2DScanActionController::buildScanControllerImplementation()
 //			   << scan_->dataSourceAt(scan_->indexOfDataSource("PreKBIonChamber"))
 //				  << scan_->dataSourceAt(scan_->indexOfDataSource("MiniIonChamber"));
 
-//	AMDataSource *spectraSource = scan_->dataSourceAt(scan_->indexOfDataSource(detector->name()));
+	AMDataSource *spectraSource = scan_->dataSourceAt(scan_->indexOfDataSource(detector->name()));
 
-//	foreach (AMRegionOfInterest *region, configuration_->regionsOfInterest()){
+	foreach (AMRegionOfInterest *region, configuration_->regionsOfInterest()){
 
-//		AMRegionOfInterestAB *regionAB = (AMRegionOfInterestAB *)region->valueSource();
-//		AMRegionOfInterestAB *newRegion = new AMRegionOfInterestAB(regionAB->name().remove(' '));
-//		newRegion->setBinningRange(regionAB->binningRange());
-//		newRegion->setInputDataSources(QList<AMDataSource *>() << spectraSource);
-//		scan_->addAnalyzedDataSource(newRegion, false, true);
-//		detector->addRegionOfInterest(region);
+		AMRegionOfInterestAB *regionAB = (AMRegionOfInterestAB *)region->valueSource();
+		AMRegionOfInterestAB *newRegion = new AMRegionOfInterestAB(regionAB->name().remove(' '));
+		newRegion->setBinningRange(regionAB->binningRange());
+		newRegion->setInputDataSources(QList<AMDataSource *>() << spectraSource);
+		scan_->addAnalyzedDataSource(newRegion, false, true);
+		detector->addRegionOfInterest(region);
 
 //		AM2DNormalizationAB *normalizedRegion = new AM2DNormalizationAB(QString("norm_%1").arg(newRegion->name()));
 //		normalizedRegion->setInputDataSources(QList<AMDataSource *>() << newRegion << i0Sources);
 //		normalizedRegion->setDataName(newRegion->name());
 //		normalizedRegion->setNormalizationName(i0Sources.at(int(configuration_->incomingChoice()))->name());
 //		scan_->addAnalyzedDataSource(normalizedRegion, true, false);
-//	}
+	}
 }
 
 void SXRMB2DScanActionController::createAxisOrderMap()
@@ -82,4 +93,17 @@ AMAction3* SXRMB2DScanActionController::createCleanupActions()
 	detector->setIsVisible(true);
 
 	return 0;
+}
+
+void SXRMB2DScanActionController::onScanTimerUpdate()
+{
+	if (elapsedTime_.isActive()){
+
+		if (secondsElapsed_ >= secondsTotal_)
+			secondsElapsed_ = secondsTotal_;
+		else
+			secondsElapsed_ += 1.0;
+
+		emit progress(secondsElapsed_, secondsTotal_);
+	}
 }

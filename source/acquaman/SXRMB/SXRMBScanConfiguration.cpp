@@ -19,6 +19,17 @@ SXRMBScanConfiguration::~SXRMBScanConfiguration()
 	dbObject_->deleteLater();
 }
 
+void SXRMBScanConfiguration::dbWriteScanConfigurationDbObject(AMDbObject *object)
+{
+	SXRMBScanConfigurationDbObject *dbo;
+
+	if ((dbo = qobject_cast<SXRMBScanConfigurationDbObject *>(object)))
+		dbObject_ = dbo;
+
+	else
+		object->deleteLater();
+}
+
 double SXRMBScanConfiguration::totalTime(bool recompute)
 {
 	if (recompute)
