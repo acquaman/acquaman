@@ -7,7 +7,7 @@
 #include <QStringBuilder>
 
 SXRMB2DMapScanConfiguration::SXRMB2DMapScanConfiguration(QObject *parent)
-	: AMStepScanConfiguration(parent)
+	: AMStepScanConfiguration(parent), SXRMBScanConfiguration()
 {
 	setName("2D Map");
 	setUserScanName("2D Map");
@@ -29,7 +29,7 @@ SXRMB2DMapScanConfiguration::SXRMB2DMapScanConfiguration(QObject *parent)
 }
 
 SXRMB2DMapScanConfiguration::SXRMB2DMapScanConfiguration(const SXRMB2DMapScanConfiguration &original)
-	: AMStepScanConfiguration(original)
+	: AMStepScanConfiguration(original), SXRMBScanConfiguration(original)
 {
 	setName(original.name());
 	setUserScanName(original.userScanName());
@@ -88,6 +88,8 @@ void SXRMB2DMapScanConfiguration::computeTotalTimeImplementation()
 	// Get the number of points.
 	time = 	fabs((double(scanAxisAt(0)->regionAt(0)->regionEnd())-double(scanAxisAt(0)->regionAt(0)->regionStart()))/double(scanAxisAt(0)->regionAt(0)->regionStep())+1)
 			*fabs((double(scanAxisAt(1)->regionAt(0)->regionEnd())-double(scanAxisAt(1)->regionAt(0)->regionStart()))/double(scanAxisAt(1)->regionAt(0)->regionStep())+1);
+
+	time *= double(scanAxisAt(0)->regionAt(0)->regionTime()) + timeOffset_;
 
 	totalTime_ = time;
 	setExpectedDuration(totalTime_);

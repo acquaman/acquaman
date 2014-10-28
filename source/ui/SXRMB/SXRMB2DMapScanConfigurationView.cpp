@@ -71,10 +71,9 @@ SXRMB2DMapScanConfigurationView::SXRMB2DMapScanConfigurationView(SXRMB2DMapScanC
 	stepSizeLayout->addWidget(vStep_);
 	stepSizeLayout->addStretch();
 
-//	normalPosition_ = createPositionDoubleSpinBox("N: ", " mm", configuration_->normalPosition(), 3);
-	normalPosition_ = createPositionDoubleSpinBox("N: ", " mm", 0, 3);
+	normalPosition_ = createPositionDoubleSpinBox("N: ", " mm", configuration_->normalPosition(), 3);
 	connect(normalPosition_, SIGNAL(editingFinished()), this, SLOT(onNormalPositionChanged()));
-//	connect(configuration_->dbObject(), SIGNAL(normalPositionChanged(double)), normalPosition_, SLOT(setValue(double)));
+	connect(configuration_->dbObject(), SIGNAL(normalPositionChanged(double)), normalPosition_, SLOT(setValue(double)));
 
 	QPushButton *updateNormalPosition = new QPushButton("Set Normal");
 	connect(updateNormalPosition, SIGNAL(clicked()), this, SLOT(onSetNormalPosition()));
@@ -193,7 +192,7 @@ void SXRMB2DMapScanConfigurationView::onScanNameEdited()
 
 void SXRMB2DMapScanConfigurationView::onEstimatedTimeChanged()
 {
-//	estimatedTime_->setText("Estimated time per scan:\t" + convertTimeToString(configuration_->totalTime()));
+	estimatedTime_->setText("Estimated time per scan:\t" + convertTimeToString(configuration_->totalTime()));
 }
 
 void SXRMB2DMapScanConfigurationView::onSetStartPosition()
@@ -204,7 +203,7 @@ void SXRMB2DMapScanConfigurationView::onSetStartPosition()
 
 	configuration_->scanAxisAt(0)->regionAt(0)->setRegionStart(h);
 	configuration_->scanAxisAt(1)->regionAt(0)->setRegionStart(v);
-//	configuration_->setNormalPosition(n);
+	configuration_->setNormalPosition(n);
 	hStart_->setValue(h);
 	vStart_->setValue(v);
 	updateMapInfo();
@@ -225,7 +224,7 @@ void SXRMB2DMapScanConfigurationView::onSetEndPosition()
 void SXRMB2DMapScanConfigurationView::onSetNormalPosition()
 {
 	double n = SXRMBBeamline::sxrmb()->microprobeSampleStageY()->value();
-//	configuration_->setNormalPosition(n);
+	configuration_->setNormalPosition(n);
 	updateMapInfo();
 }
 
@@ -267,7 +266,7 @@ void SXRMB2DMapScanConfigurationView::onYStepChanged()
 
 void SXRMB2DMapScanConfigurationView::onNormalPositionChanged()
 {
-//	configuration_->setNormalPosition(normalPosition_->value());
+	configuration_->setNormalPosition(normalPosition_->value());
 	updateMapInfo();
 }
 
