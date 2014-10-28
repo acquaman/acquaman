@@ -2,10 +2,20 @@
 #define SXRMBEXAFSSCANCONFIGURATION_H
 
 #include "acquaman/AMStepScanConfiguration.h"
+#include "acquaman/SXRMB/SXRMBScanConfiguration.h"
 
-class SXRMBEXAFSScanConfiguration : public AMStepScanConfiguration
+/// This class holds the scan configuration of a standard EXAFS/XAS scan.
+class SXRMBEXAFSScanConfiguration : public AMStepScanConfiguration, public SXRMBScanConfiguration
 {
-Q_OBJECT
+	Q_OBJECT
+
+	Q_PROPERTY(AMDbObject* configurationDbObject READ dbReadScanConfigurationDbObject WRITE dbWriteScanConfigurationDbObject)
+	Q_PROPERTY(QString edge READ edge WRITE setEdge)
+	Q_PROPERTY(double edgeEnergy READ edgeEnergy WRITE setEdgeEnergy)
+	Q_PROPERTY(QString header READ headerText WRITE setHeaderText)
+
+	Q_CLASSINFO("AMDbObject_Attributes", "description=SXRMB EXAFS Scan Configuration")
+
 public:
 	/// Constructor
 	Q_INVOKABLE SXRMBEXAFSScanConfiguration(QObject *parent = 0);
@@ -33,11 +43,16 @@ public:
 	/// Returns the name of the current edge.
 	QString edge() const { return edge_; }
 
+	/// Get a nice looking string that contains all the standard information in an XAS scan.   Used when exporting.
+	virtual QString headerText() const;
+
 signals:
 	/// Emitted when the edge energy (in EV) changes
 	void edgeEnergyChanged(double edgeEnergy);
 	/// Emitted when the edge of interest (elemental edge name) changes
 	void edgeChanged(const QString &edge);
+	/// Notifier that the total time estimate has changed.
+	void totalTimeChanged(double);
 
 public slots:
 	/// Sets the actual edge energy in EV
@@ -46,13 +61,22 @@ public slots:
 	/// Sets the current edge for the scan.
 	void setEdge(QString edgeName);
 
+protected slots:
+	/// Computes the total time any time the regions list changes.
+	void computeTotalTime() { computeTotalTimeImplementation(); }
+	/// Helper slot that connects the new region to the computeTotalTime slot.
+	void onRegionAdded(AMScanAxisRegion *region);
+	/// Helper slot that disconnects the region from the computTotalTime slot.
+	void onRegionRemoved(AMScanAxisRegion *region);
+
 protected:
+	/// Method that does all the calculations for calculating the estimated scan time.
+	virtual void computeTotalTimeImplementation();
+
 	/// Actual edge energy we're referring to
 	double edgeEnergy_;
 	/// The edge being scanned.
 	QString edge_;
-
-
 };
 
 #endif // SXRMBEXAFSSCANCONFIGURATION_H

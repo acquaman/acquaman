@@ -40,6 +40,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/export/AMExporterGeneralAscii.h"
 #include "dataman/export/AMExporterAthena.h"
 #include "dataman/AMRun.h"
+#include "dataman/SXRMB/SXRMBUserConfiguration.h"
+#include "dataman/AMRegionOfInterest.h"
 
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
 #include "ui/beamline/AMXRFDetailedDetectorView.h"
@@ -53,7 +55,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 SXRMBAppController::SXRMBAppController(QObject *parent)
 	: AMAppController(parent)
 {
-
+	userConfiguration_ = new SXRMBUserConfiguration(this);
 }
 
 bool SXRMBAppController::startup()
@@ -80,13 +82,16 @@ bool SXRMBAppController::startup()
 		// We'll use loading a run from the db as a sign of whether this is the first time an application has been run because startupIsFirstTime will return false after the user data folder is created.
 		if (!existingRun.loadFromDb(AMDatabase::database("user"), 1)){
 
-                        AMRun firstRun("SXRMB", 9);	/// \todo For now, we know that 7 is the ID of the BioXAS main endstation facility, but this is a hardcoded hack.
+						AMRun firstRun("SXRMB", 9);	/// \todo For now, we know that 7 is the ID of the BioXAS main endstation facility, but this is a hardcoded hack.
 			firstRun.storeToDb(AMDatabase::database("user"));
 		}
 
 		setupExporterOptions();
 		setupUserInterface();
 		makeConnections();
+
+		if (!userConfiguration_->loadFromDb(AMDatabase::database("user"), 1))
+			userConfiguration_->storeToDb(AMDatabase::database("user"));
 
 		return true;
 	}
@@ -191,14 +196,44 @@ void SXRMBAppController::setupUserInterface()
 
 void SXRMBAppController::makeConnections()
 {
+	// It is sufficient to only connect the user configuration to the single element because the single element and four element are synchronized together.
+	connect(userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()));
 }
 
 void SXRMBAppController::onCurrentScanActionStartedImplementation(AMScanAction *action)
 {
 	Q_UNUSED(action)
+	userConfiguration_->storeToDb(AMDatabase::database("user"));
 }
 
 void SXRMBAppController::onCurrentScanActionFinishedImplementation(AMScanAction *action)
 {
 	Q_UNUSED(action)
+	userConfiguration_->storeToDb(AMDatabase::database("user"));
+}
+
+void SXRMBAppController::onUserConfigurationLoadedFromDb()
+{
+	AMXRFDetector *detector = SXRMBBeamline::sxrmb()->brukerDetector();
+
+	foreach (AMRegionOfInterest *region, userConfiguration_->regionsOfInterest())
+		detector->addRegionOfInterest(region->createCopy());
+
+	// This is connected here because we want to listen to the detectors for updates, but don't want to double add regions on startup.
+	connect(detector, SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
+	connect(detector, SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
+}
+
+void SXRMBAppController::onRegionOfInterestAdded(AMRegionOfInterest *region)
+{
+	userConfiguration_->addRegionOfInterest(region);
+	microProbe2DScanConfiguration_->addRegionOfInterest(region);
+	exafsScanConfiguration_->addRegionOfInterest(region);
+}
+
+void SXRMBAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
+{
+	userConfiguration_->removeRegionOfInterest(region);
+	microProbe2DScanConfiguration_->removeRegionOfInterest(region);
+	exafsScanConfiguration_->removeRegionOfInterest(region);
 }
