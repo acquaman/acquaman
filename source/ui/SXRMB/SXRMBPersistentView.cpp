@@ -11,7 +11,6 @@ SXRMBPersistentView::SXRMBPersistentView(QWidget *parent) :
 	QWidget(parent)
 {
 	mainGroupBox_ = new QGroupBox("SXRMB Beamline");
-	mainGroupBox_->setMinimumWidth(400);
 	mainGroupBoxVL_ = new QVBoxLayout();
 	mainGroupBoxVL_->addWidget(mainGroupBox_);
 	setLayout(mainGroupBoxVL_);
@@ -31,6 +30,7 @@ SXRMBPersistentView::SXRMBPersistentView(QWidget *parent) :
 	mainVL_->addWidget(motorGroupView_);
 	mainVL_->addStretch();
 
+	setFixedWidth(350);
 	mainGroupBox_->setLayout(mainVL_);
 }
 
