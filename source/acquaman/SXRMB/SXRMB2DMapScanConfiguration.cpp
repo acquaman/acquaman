@@ -91,7 +91,7 @@ void SXRMB2DMapScanConfiguration::computeTotalTimeImplementation()
 
 	time *= double(scanAxisAt(0)->regionAt(0)->regionTime()) + timeOffset_;
 
-	totalTime_ = time;
+	totalTime_ = time + 9; // initialization time is about 9s
 	setExpectedDuration(totalTime_);
 	emit totalTimeChanged(totalTime_);
 }
