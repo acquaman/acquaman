@@ -35,13 +35,9 @@ SXRMBBeamline::SXRMBBeamline()
 	beamlineStatus_ = new AMReadOnlyPVControl("BeamlineStatus", "BL1606-B01:ready:status", this);
 
 	// these motors actually have the encoder reporting positions to the "mm:sp" PV
-	microprobeSampleStageX_ = new AMPVwStatusControl("MicroprobeSampleStageX", "SVM1606-5-B10-07:mm:sp", "SVM1606-5-B10-07:mm", "SVM1606-5-B10-07:status", "SVM1606-5-B10-07:stop", this, 0.005, 2.0, new AMControlStatusCheckerCLSMAXv());
-	microprobeSampleStageY_ = new AMPVwStatusControl("MicroprobeSampleStageY", "SVM1606-5-B10-08:mm:sp", "SVM1606-5-B10-08:mm", "SVM1606-5-B10-08:status", "SVM1606-5-B10-08:stop", this, 0.005, 2.0, new AMControlStatusCheckerCLSMAXv());
-	microprobeSampleStageZ_ = new AMPVwStatusControl("MicroprobeSampleStageZ", "SVM1606-5-B10-09:mm:sp", "SVM1606-5-B10-09:mm", "SVM1606-5-B10-09:status", "SVM1606-5-B10-09:stop", this, 0.005, 2.0, new AMControlStatusCheckerCLSMAXv());
-
-	microprobeSampleStageX_->setAttemptMoveWhenWithinTolerance(false);
-	microprobeSampleStageY_->setAttemptMoveWhenWithinTolerance(false);
-	microprobeSampleStageZ_->setAttemptMoveWhenWithinTolerance(false);
+	microprobeSampleStageX_ = new AMPVwStatusControl("MicroprobeSampleStageX", "BL1606-B1-1:AddOns:uProbe:SampleStage:X:mm:fbk", "BL1606-B1-1:AddOns:uProbe:SampleStage:X:mm", "BL1606-B1-1:AddOns:uProbe:SampleStage:X:status", "SVM1606-5-B10-07:stop", this, 0.005, 2.0, new AMControlStatusCheckerCLSMAXv());
+	microprobeSampleStageY_ = new AMPVwStatusControl("MicroprobeSampleStageY", "BL1606-B1-1:AddOns:uProbe:SampleStage:Y:mm:fbk", "BL1606-B1-1:AddOns:uProbe:SampleStage:Y:mm", "BL1606-B1-1:AddOns:uProbe:SampleStage:Y:status", "SVM1606-5-B10-08:stop", this, 0.005, 2.0, new AMControlStatusCheckerCLSMAXv());
+	microprobeSampleStageZ_ = new AMPVwStatusControl("MicroprobeSampleStageZ", "BL1606-B1-1:AddOns:uProbe:SampleStage:Z:mm:fbk", "BL1606-B1-1:AddOns:uProbe:SampleStage:Z:mm", "BL1606-B1-1:AddOns:uProbe:SampleStage:Z:status", "SVM1606-5-B10-09:stop", this, 0.005, 2.0, new AMControlStatusCheckerCLSMAXv());
 
 	microprobeSampleStageControlSet_ = new AMControlSet(this);
 	microprobeSampleStageControlSet_->addControl(microprobeSampleStageX_);

@@ -19,6 +19,12 @@ SXRMBEXAFSScanActionController::SXRMBEXAFSScanActionController(SXRMBEXAFSScanCon
 	scan_->setIndexType("fileSystem");
 	scan_->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));
 
+	QString scanName = configuration_->userScanName();
+	if (scanName == "") {
+		scanName = configuration_->autoScanName();
+	}
+	scan_->setName(scanName);
+
 	AMControlInfoList list;
 	list.append(SXRMBBeamline::sxrmb()->energy()->toInfo());
 	configuration_->setAxisControlInfos(list);
@@ -29,6 +35,17 @@ SXRMBEXAFSScanActionController::SXRMBEXAFSScanActionController(SXRMBEXAFSScanCon
 	sxrmbDetectors.addDetectorInfo(SXRMBBeamline::sxrmb()->energyFeedbackDetector()->toInfo());
 	sxrmbDetectors.addDetectorInfo(SXRMBBeamline::sxrmb()->brukerDetector()->toInfo());
 	configuration_->setDetectorConfigurations(sxrmbDetectors);
+
+	secondsElapsed_ = 0;
+	secondsTotal_ = configuration_->totalTime();
+	elapsedTime_.setInterval(1000);
+	connect(this, SIGNAL(started()), &elapsedTime_, SLOT(start()));
+	connect(this, SIGNAL(cancelled()), &elapsedTime_, SLOT(stop()));
+	connect(this, SIGNAL(paused()), &elapsedTime_, SLOT(stop()));
+	connect(this, SIGNAL(resumed()), &elapsedTime_, SLOT(start()));
+	connect(this, SIGNAL(failed()), &elapsedTime_, SLOT(stop()));
+	connect(this, SIGNAL(finished()), &elapsedTime_, SLOT(stop()));
+	connect(&elapsedTime_, SIGNAL(timeout()), this, SLOT(onScanTimerUpdate()));
 }
 
 SXRMBEXAFSScanActionController::~SXRMBEXAFSScanActionController()
@@ -37,22 +54,44 @@ SXRMBEXAFSScanActionController::~SXRMBEXAFSScanActionController()
 
 AMAction3* SXRMBEXAFSScanActionController::createInitializationActions()
 {
-	return 0;
+	AMListAction3 *initializationActions = new AMListAction3(new AMListActionInfo3("SXRMB EXAFS Initialization Actions", "SXRMB EXAFS Initialization Actions"), AMListAction3::Sequential);
+	// Figure out if they want capability like this?
+	/*
+	AMControlMoveActionInfo3 *moveActionInfo;
+	AMControlMoveAction3 *moveAction;
+	AMControl *tmpControl;
+
+
+	tmpControl = SXRMBBeamline::sxrmb()->microprobeSampleStageY();
+	AMControlInfo normalSetpoint = tmpControl->toInfo();
+	normalSetpoint.setValue(configuration_->normalPosition());
+	moveActionInfo = new AMControlMoveActionInfo3(normalSetpoint);
+	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
+	initializationActions->addSubAction(moveAction);
+	*/
+
+	CLSSIS3820Scaler *scaler = SXRMBBeamline::sxrmb()->scaler();
+	initializationActions->addSubAction(scaler->createStartAction3(false));
+	initializationActions->addSubAction(scaler->createContinuousEnableAction3(false));
+
+	initializationActions->addSubAction(scaler->createScansPerBufferAction3(1));
+	initializationActions->addSubAction(scaler->createTotalScansAction3(1));
+
+	// Bruker actions?
+
+	return initializationActions;
 }
 
 AMAction3* SXRMBEXAFSScanActionController::createCleanupActions()
 {
-	return 0;
-}
+	AMListAction3 *cleanupActions = new AMListAction3(new AMListActionInfo3("SXRMB EXAFS Cleanup Actions", "SXRMB EXAFS Cleanup Actions"), AMListAction3::Sequential);
 
-void SXRMBEXAFSScanActionController::cancelImplementation()
-{
+	CLSSIS3820Scaler *scaler = SXRMBBeamline::sxrmb()->scaler();
+	cleanupActions->addSubAction(scaler->createDwellTimeAction3(scaler->dwellTime()));
+	cleanupActions->addSubAction(scaler->createScansPerBufferAction3(scaler->scansPerBuffer()));
+	cleanupActions->addSubAction(scaler->createContinuousEnableAction3(scaler->isContinuous()));
 
-}
-
-void SXRMBEXAFSScanActionController::onInitializationActionsListSucceeded()
-{
-
+	return cleanupActions;
 }
 
 void SXRMBEXAFSScanActionController::buildScanControllerImplementation()
@@ -87,4 +126,17 @@ void SXRMBEXAFSScanActionController::buildScanControllerImplementation()
 void SXRMBEXAFSScanActionController::createScanAssembler()
 {
 	scanAssembler_ = new AMEXAFSScanActionControllerAssembler(this);
+}
+
+void SXRMBEXAFSScanActionController::onScanTimerUpdate()
+{
+	if (elapsedTime_.isActive()){
+
+		if (secondsElapsed_ >= secondsTotal_)
+			secondsElapsed_ = secondsTotal_;
+		else
+			secondsElapsed_ += 1.0;
+
+		emit progress(secondsElapsed_, secondsTotal_);
+	}
 }

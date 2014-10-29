@@ -13,6 +13,7 @@
 #include <QLineEdit>
 #include <QLabel>
 #include <QToolButton>
+#include <QGroupBox>
 
 #include "acquaman/AMScanController.h"
 #include "acquaman/SXRMB/SXRMBEXAFSScanConfiguration.h"
@@ -40,12 +41,6 @@ SXRMBEXAFSScanConfigurationView::SXRMBEXAFSScanConfigurationView(SXRMBEXAFSScanC
 
 	pseudoXAFSButton_ = new QPushButton("Auto Set EXAFS Regions");
 	connect(pseudoXAFSButton_, SIGNAL(clicked()), this, SLOT(setupDefaultEXAFSScanRegions()));
-
-	scanName_ = new QLineEdit();
-	scanName_->setText(configuration_->userScanName());
-
-	connect(scanName_, SIGNAL(editingFinished()), this, SLOT(onScanNameEdited()));
-	connect(configuration_, SIGNAL(nameChanged(QString)), scanName_, SLOT(setText(QString)));
 
 	// Energy (Eo) selection
 	energy_ = new QDoubleSpinBox;
@@ -86,21 +81,58 @@ SXRMBEXAFSScanConfigurationView::SXRMBEXAFSScanConfigurationView(SXRMBEXAFSScanC
 	energyLayout->addWidget(elementChoice_);
 	energyLayout->addWidget(lineChoice_);
 
-	QVBoxLayout *mainVL = new QVBoxLayout();
-	mainVL->addWidget(topFrame_);
-	mainVL->addLayout(energyLayout);
-	mainVL->addWidget(regionsView_);
-
 	QHBoxLayout *regionsHL = new QHBoxLayout();
 	regionsHL->addStretch();
 	regionsHL->addWidget(autoRegionButton_);
 	regionsHL->addWidget(pseudoXAFSButton_);
 
-	QVBoxLayout *settingsVL = new QVBoxLayout();
-	settingsVL->addLayout(regionsHL);
+	QVBoxLayout *scanRegionConfigurationBoxLayout = new QVBoxLayout;
+	scanRegionConfigurationBoxLayout->addLayout(energyLayout);
+	scanRegionConfigurationBoxLayout->addWidget(regionsView_);
+	scanRegionConfigurationBoxLayout->addLayout(regionsHL);
 
+	QGroupBox *scanRegionConfigurationGroupBox = new QGroupBox("Scan Region Configuration");
+	scanRegionConfigurationGroupBox->setLayout(scanRegionConfigurationBoxLayout);
+
+	// Scan information:  scan name selection
+	scanName_ = new QLineEdit();
+	scanName_->setText(configuration_->userScanName());
+	scanName_->setAlignment(Qt::AlignCenter);
+	connect(scanName_, SIGNAL(editingFinished()), this, SLOT(onScanNameEdited()));
+	connect(configuration_, SIGNAL(nameChanged(QString)), scanName_, SLOT(setText(QString)));
+	onScanNameEdited();
+
+	QFormLayout *scanNameLayout = new QFormLayout;
+	scanNameLayout->addRow("Scan Name:", scanName_);
+
+	// Scan information: the estimated scan time.
+	estimatedTime_ = new QLabel;
+	connect(configuration_, SIGNAL(totalTimeChanged(double)), this, SLOT(onEstimatedTimeChanged()));
+	onEstimatedTimeChanged();
+
+	QVBoxLayout *scanInfoBoxLayout = new QVBoxLayout;
+	scanInfoBoxLayout->addLayout(scanNameLayout);
+	scanInfoBoxLayout->addWidget(estimatedTime_);
+
+	QGroupBox *scanInfoGroupBox = new QGroupBox("Scan Information");
+	scanInfoGroupBox->setLayout(scanInfoBoxLayout);
+
+	// Scan content layout
+	QVBoxLayout *scanSettingContentVL = new QVBoxLayout();
+	scanSettingContentVL->setSpacing(10);
+	scanSettingContentVL->addWidget(scanRegionConfigurationGroupBox);
+	scanSettingContentVL->addWidget(scanInfoGroupBox);
+
+	QHBoxLayout *squeezeContents = new QHBoxLayout;
+	squeezeContents->addStretch();
+	squeezeContents->addLayout(scanSettingContentVL);
+	squeezeContents->addStretch();
+
+	// Main content layout
+	QVBoxLayout *mainVL = new QVBoxLayout();
+	mainVL->addWidget(topFrame_);
 	mainVL->addStretch();
-	mainVL->addLayout(settingsVL);
+	mainVL->addLayout(squeezeContents);
 	mainVL->addStretch();
 
 	mainVL->setContentsMargins(20,0,0,20);
@@ -176,6 +208,11 @@ void SXRMBEXAFSScanConfigurationView::onScanNameEdited()
 	configuration_->setUserScanName(scanName_->text());
 }
 
+void SXRMBEXAFSScanConfigurationView::onEstimatedTimeChanged()
+{
+	estimatedTime_->setText("Estimated time per scan:\t" + convertTimeToString(configuration_->totalTime()));
+}
+
 void SXRMBEXAFSScanConfigurationView::setEnergy()
 {
 	configuration_->setEdgeEnergy(energy_->value());
@@ -237,4 +274,38 @@ void SXRMBEXAFSScanConfigurationView::onEdgeChanged()
 
 	if (energy_->value() != configuration_->edgeEnergy())
 		energy_->setValue(configuration_->edgeEnergy());
+}
+
+QString SXRMBEXAFSScanConfigurationView::convertTimeToString(double time)
+{
+	QString timeString;
+
+	int days = int(time/3600.0/24.0);
+
+	if (days > 0){
+
+		time -= days*3600.0*24;
+		timeString += QString::number(days) + "d:";
+	}
+
+	int hours = int(time/3600.0);
+
+	if (hours > 0){
+
+		time -= hours*3600;
+		timeString += QString::number(hours) + "h:";
+	}
+
+	int minutes = int(time/60.0);
+
+	if (minutes > 0){
+
+		time -= minutes*60;
+		timeString += QString::number(minutes) + "m:";
+	}
+
+	int seconds = ((int)time)%60;
+	timeString += QString::number(seconds) + "s";
+
+	return timeString;
 }

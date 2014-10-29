@@ -17,7 +17,6 @@ SXRMB2DScanActionController::SXRMB2DScanActionController(SXRMB2DMapScanConfigura
 	configuration_ = configuration;
 
 	scan_ = new AM2DScan();
-	scan_->setName(configuration_->name());
 	scan_->setScanConfiguration(configuration_);
 	scan_->setFileFormat("amCDFv1");
 	scan_->setIndexType("fileSystem");
@@ -44,6 +43,13 @@ SXRMB2DScanActionController::SXRMB2DScanActionController(SXRMB2DMapScanConfigura
 	list.append(SXRMBBeamline::sxrmb()->microprobeSampleStageZ()->toInfo());
 	scan_->rawData()->addScanAxis(AMAxisInfo("H", 0, "Horizontal Position", "mm"));
 	scan_->rawData()->addScanAxis(AMAxisInfo("V", yPoints, "Vertical Position", "mm"));
+
+	QString scanName = configuration_->userScanName();
+	if (scanName == "") {
+		scanName = configuration_->autoScanName();
+	}
+	scan_->setName(scanName);
+
 
 	configuration_->setAxisControlInfos(list);
 
@@ -139,9 +145,9 @@ AMAction3* SXRMB2DScanActionController::createCleanupActions()
 	AMListAction3 *cleanupActions = new AMListAction3(new AMListActionInfo3("SXRMB 2D Map Cleanup Actions", "SXRMB 2D Map Cleanup Actions"), AMListAction3::Sequential);
 
 	CLSSIS3820Scaler *scaler = SXRMBBeamline::sxrmb()->scaler();
-	cleanupActions->addSubAction(scaler->createContinuousEnableAction3(scaler->isContinuous()));
+	cleanupActions->addSubAction(scaler->createDwellTimeAction3(scaler->dwellTime()));
 	cleanupActions->addSubAction(scaler->createScansPerBufferAction3(scaler->scansPerBuffer()));
-	cleanupActions->addSubAction(scaler->createTotalScansAction3(scaler->totalScans()));
+	cleanupActions->addSubAction(scaler->createContinuousEnableAction3(scaler->isContinuous()));
 
 	return cleanupActions;
 }

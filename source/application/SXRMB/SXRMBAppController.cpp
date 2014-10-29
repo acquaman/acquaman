@@ -60,8 +60,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 SXRMBAppController::SXRMBAppController(QObject *parent)
 	: AMAppController(parent)
 {
+	userConfiguration_ = 0;
 	moveImmediatelyAction_ = 0;
-	userConfiguration_ = new SXRMBUserConfiguration(this);
 }
 
 bool SXRMBAppController::startup()
@@ -96,15 +96,6 @@ bool SXRMBAppController::startup()
 		setupUserInterface();
 		makeConnections();
 
-		if (!userConfiguration_->loadFromDb(AMDatabase::database("user"), 1)){
-			userConfiguration_->storeToDb(AMDatabase::database("user"));
-
-			AMDetector *detector = SXRMBBeamline::sxrmb()->brukerDetector();
-			// This is connected here because we want to listen to the detectors for updates, but don't want to double add regions on startup.
-			connect(detector, SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
-			connect(detector, SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
-		}
-
 		return true;
 	}
 	else
@@ -136,6 +127,23 @@ void SXRMBAppController::onBeamlineConnected(bool connected)
 		microProbe2DScanConfigurationViewHolder_ = new AMScanConfigurationViewHolder3(microProbe2DScanConfigurationView_);
 
 		mw_->addPane(microProbe2DScanConfigurationViewHolder_, "Scans", "2D Scan", ":/utilites-system-monitor.png");
+	}
+
+	if (connected && !userConfiguration_){
+		qDebug() << "Going to set user configuration for the first time";
+		userConfiguration_ = new SXRMBUserConfiguration(this);
+
+		// It is sufficient to only connect the user configuration to the single element because the single element and four element are synchronized together.
+		connect(userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()));
+
+		if (!userConfiguration_->loadFromDb(AMDatabase::database("user"), 1)){
+			userConfiguration_->storeToDb(AMDatabase::database("user"));
+
+			AMDetector *detector = SXRMBBeamline::sxrmb()->brukerDetector();
+			// This is connected here because we want to listen to the detectors for updates, but don't want to double add regions on startup.
+			connect(detector, SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
+			connect(detector, SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
+		}
 	}
 }
 
@@ -191,7 +199,7 @@ void SXRMBAppController::setupUserInterface()
 
 	AMXRFDetailedDetectorView *brukerView = new AMXRFDetailedDetectorView(SXRMBBeamline::sxrmb()->brukerDetector());
 	brukerView->buildDetectorView();
-	brukerView->setEnergyRange(1800, 10000);
+	brukerView->setEnergyRange(1700, 10000);
 	brukerView->addEmissionLineNameFilter(QRegExp("1"));
 	brukerView->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
 	brukerView->addCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));
@@ -216,9 +224,6 @@ void SXRMBAppController::setupUserInterface()
 void SXRMBAppController::makeConnections()
 {
 	connect(this, SIGNAL(scanEditorCreated(AMGenericScanEditor*)), this, SLOT(onScanEditorCreated(AMGenericScanEditor*)));
-
-	// It is sufficient to only connect the user configuration to the single element because the single element and four element are synchronized together.
-	connect(userConfiguration_, SIGNAL(loadedFromDb()), this, SLOT(onUserConfigurationLoadedFromDb()));
 }
 
 void SXRMBAppController::onCurrentScanActionStartedImplementation(AMScanAction *action)
@@ -237,8 +242,11 @@ void SXRMBAppController::onUserConfigurationLoadedFromDb()
 {
 	AMXRFDetector *detector = SXRMBBeamline::sxrmb()->brukerDetector();
 
-	foreach (AMRegionOfInterest *region, userConfiguration_->regionsOfInterest())
+	foreach (AMRegionOfInterest *region, userConfiguration_->regionsOfInterest()){
 		detector->addRegionOfInterest(region->createCopy());
+		microProbe2DScanConfiguration_->addRegionOfInterest(region);
+		exafsScanConfiguration_->addRegionOfInterest(region);
+	}
 
 	// This is connected here because we want to listen to the detectors for updates, but don't want to double add regions on startup.
 	connect(detector, SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));

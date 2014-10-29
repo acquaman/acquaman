@@ -49,8 +49,43 @@ protected slots:
 	/// Handles changes coming from the new addOns energy stop
 	void onAddOnsEnergyStopValueChanged(double value);
 
-	/// Used to set the addOns energy status to return to the old energy status value after faking a move
+	/// Used to set the addOns energy status to the old energy status value after faking a move
 	void restoreEnergyStatus();
+
+	/// Handles changes coming from the old SXRMB microprobe sample stage X
+	void onSXRMBMicroprobeSampleStageXValueChanged(double value);
+	/// Handles changes coming from the old SXRMB microprobe sample stage Y
+	void onSXRMBMicroprobeSampleStageYValueChanged(double value);
+	/// Handles changes coming from the old SXRMB microprobe sample stage Z
+	void onSXRMBMicroprobeSampleStageZValueChanged(double value);
+
+	/// Handles changes coming from the old SXRMB microprobe sample stage X feedback
+	void onSXRMBMicroprobeSampleStageFeedbackXValueChanged(double value);
+	/// Handles changes coming from the old SXRMB microprobe sample stage Y feedback
+	void onSXRMBMicroprobeSampleStageFeedbackYValueChanged(double value);
+	/// Handles changes coming from the old SXRMB microprobe sample stage Z feedback
+	void onSXRMBMicroprobeSampleStageFeedbackZValueChanged(double value);
+
+	/// Handles changes coming from the old SXRMB microprobe sample stage X status
+	void onSXRMBMicroprobeSampleStageStatusXValueChanged(double value);
+	/// Handles changes coming from the old SXRMB microprobe sample stage Y status
+	void onSXRMBMicroprobeSampleStageStatusYValueChanged(double value);
+	/// Handles changes coming from the old SXRMB microprobe sample stage Z status
+	void onSXRMBMicroprobeSampleStageStatusZValueChanged(double value);
+
+	/// Handles changes coming from the new AddOns sample stage X
+	void onAddOnsMicroprobeSampleStageXValueChanged(double value);
+	/// Handles changes coming from the new AddOns sample stage Y
+	void onAddOnsMicroprobeSampleStageYValueChanged(double value);
+	/// Handles changes coming from the new AddOns sample stage Z
+	void onAddOnsMicroprobeSampleStageZValueChanged(double value);
+
+	/// Used to set the addOns sample stage X status to the old SXRMB sample stage X status value after faking a move
+	void restoreAddOnsMicroprobeSampleStageStatusX();
+	/// Used to set the addOns sample stage Y status to the old SXRMB sample stage X status value after faking a move
+	void restoreAddOnsMicroprobeSampleStageStatusY();
+	/// Used to set the addOns sample stage Z status to the old SXRMB sample stage X status value after faking a move
+	void restoreAddOnsMicroprobeSampleStageStatusZ();
 
 protected:
 
@@ -79,6 +114,48 @@ protected:
 	AMControl *monoThetaStopControl_;
 	/// New AddOns energy stop control
 	AMControl *addOnsEnergyStop_;
+
+	/// Old SXRMB Microprobe Sample Stage X
+	AMControl *sxrmbMicroprobeSampleStageX_;
+	/// Old SXRMB Microprobe Sample Stage Y
+	AMControl *sxrmbMicroprobeSampleStageY_;
+	/// Old SXRMB Microprobe Sample Stage Z
+	AMControl *sxrmbMicroprobeSampleStageZ_;
+
+	/// New AddOns Microprobe Sample Stage X
+	AMControl *addOnsMicroprobeSampleStageX_;
+	/// New AddOns Microprobe Sample Stage Y
+	AMControl *addOnsMicroprobeSampleStageY_;
+	/// New AddOns Microprobe Sample Stage Z
+	AMControl *addOnsMicroprobeSampleStageZ_;
+
+	/// Old SXRMB Microprobe Sample Stage Feedback X
+	AMControl *sxrmbMicroprobeSampleStageFeedbackX_;
+	/// Old SXRMB Microprobe Sample Stage Feedback Y
+	AMControl *sxrmbMicroprobeSampleStageFeedbackY_;
+	/// Old SXRMB Microprobe Sample Stage Feedback Z
+	AMControl *sxrmbMicroprobeSampleStageFeedbackZ_;
+
+	/// New AddOns Microprobe Sample Stage Feedback X
+	AMControl *addOnsMicroprobeSampleStageFeedbackX_;
+	/// New AddOns Microprobe Sample Stage Feedback Y
+	AMControl *addOnsMicroprobeSampleStageFeedbackY_;
+	/// New AddOns Microprobe Sample Stage Feedback Z
+	AMControl *addOnsMicroprobeSampleStageFeedbackZ_;
+
+	/// Old SXRMB Microprobe Sample Stage Status X
+	AMControl *sxrmbMicroprobeSampleStageStatusX_;
+	/// Old SXRMB Microprobe Sample Stage Status Y
+	AMControl *sxrmbMicroprobeSampleStageStatusY_;
+	/// Old SXRMB Microprobe Sample Stage Status Z
+	AMControl *sxrmbMicroprobeSampleStageStatusZ_;
+
+	/// New AddOns Microprobe Sample Stage Status X
+	AMControl *addOnsMicroprobeSampleStageStatusX_;
+	/// New AddOns Microprobe Sample Stage Status Y
+	AMControl *addOnsMicroprobeSampleStageStatusY_;
+	/// New AddOns Microprobe Sample Stage Status Z
+	AMControl *addOnsMicroprobeSampleStageStatusZ_;
 
 	/// All the controls (for checking connectivity)
 	AMControlSet *allControls_;
