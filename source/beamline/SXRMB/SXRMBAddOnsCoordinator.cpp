@@ -40,6 +40,9 @@ SXRMBAddOnsCoordinator::SXRMBAddOnsCoordinator(QObject *parent) :
 	addOnsEnergyStatus_ = new AMSinglePVControl("AddOnsEnergyStatus", "BL1606-B1-1:AddOns:Energy:status", this, 0.5);
 	addOnsEnergyStop_ = new AMSinglePVControl("AddOnsEnergyStop", "BL1606-B1-1:AddOns:Energy:stop", this, 0.5);
 
+	addOnsEnergyDRVH_ = new AMSinglePVControl("AddOnsEnergyDRVH", "BL1606-B1-1:AddOns:Energy.DRVH", this, 0.001);
+	addOnsEnergyDRVL_ = new AMSinglePVControl("AddOnsEnergyDRVL", "BL1606-B1-1:AddOns:Energy.DRVL", this, 0.001);
+
 	sxrmbMicroprobeSampleStageX_ = new AMSinglePVControl("SXRMBMicroprobleSampleStageX", "SVM1606-5-B10-07:mm", this, 0.0001);
 	sxrmbMicroprobeSampleStageY_ = new AMSinglePVControl("SXRMBMicroprobleSampleStageY", "SVM1606-5-B10-08:mm", this, 0.0001);
 	sxrmbMicroprobeSampleStageZ_ = new AMSinglePVControl("SXRMBMicroprobleSampleStageZ", "SVM1606-5-B10-09:mm", this, 0.0001);
@@ -64,6 +67,15 @@ SXRMBAddOnsCoordinator::SXRMBAddOnsCoordinator(QObject *parent) :
 	addOnsMicroprobeSampleStageStatusY_ = new AMSinglePVControl("AddOnsMicroprobleSampleStageStatusY", "BL1606-B1-1:AddOns:uProbe:SampleStage:Y:status", this, 0.5);
 	addOnsMicroprobeSampleStageStatusZ_ = new AMSinglePVControl("AddOnsMicroprobleSampleStageStatusZ", "BL1606-B1-1:AddOns:uProbe:SampleStage:Z:status", this, 0.5);
 
+	addOnsMicroprobeSampleStageDRVHX_ = new AMSinglePVControl("AddOnsMicroprobleSampleStageDRVHX", "BL1606-B1-1:AddOns:uProbe:SampleStage:X:mm.DRVH", this, 0.0001);
+	addOnsMicroprobeSampleStageDRVLX_ = new AMSinglePVControl("AddOnsMicroprobleSampleStageDRVLX", "BL1606-B1-1:AddOns:uProbe:SampleStage:X:mm.DRVL", this, 0.0001);
+
+	addOnsMicroprobeSampleStageDRVHY_ = new AMSinglePVControl("AddOnsMicroprobleSampleStageDRVHY", "BL1606-B1-1:AddOns:uProbe:SampleStage:Y:mm.DRVH", this, 0.0001);
+	addOnsMicroprobeSampleStageDRVLY_ = new AMSinglePVControl("AddOnsMicroprobleSampleStageDRVLY", "BL1606-B1-1:AddOns:uProbe:SampleStage:Y:mm.DRVL", this, 0.0001);
+
+	addOnsMicroprobeSampleStageDRVHZ_ = new AMSinglePVControl("AddOnsMicroprobleSampleStageDRVHZ", "BL1606-B1-1:AddOns:uProbe:SampleStage:Z:mm.DRVH", this, 0.0001);
+	addOnsMicroprobeSampleStageDRVLZ_ = new AMSinglePVControl("AddOnsMicroprobleSampleStageDRVLZ", "BL1606-B1-1:AddOns:uProbe:SampleStage:Z:mm.DRVL", this, 0.0001);
+
 	allControls_ = new AMControlSet(this);
 	allControls_->addControl(oldEnergy_);
 	allControls_->addControl(oldEnergyFeedback_);
@@ -75,6 +87,8 @@ SXRMBAddOnsCoordinator::SXRMBAddOnsCoordinator(QObject *parent) :
 	allControls_->addControl(addOnsEnergyFeedback_);
 	allControls_->addControl(addOnsEnergyStatus_);
 	allControls_->addControl(addOnsEnergyStop_);
+	allControls_->addControl(addOnsEnergyDRVH_);
+	allControls_->addControl(addOnsEnergyDRVL_);
 	allControls_->addControl(sxrmbMicroprobeSampleStageX_);
 	allControls_->addControl(sxrmbMicroprobeSampleStageY_);
 	allControls_->addControl(sxrmbMicroprobeSampleStageZ_);
@@ -93,6 +107,12 @@ SXRMBAddOnsCoordinator::SXRMBAddOnsCoordinator(QObject *parent) :
 	allControls_->addControl(addOnsMicroprobeSampleStageStatusX_);
 	allControls_->addControl(addOnsMicroprobeSampleStageStatusY_);
 	allControls_->addControl(addOnsMicroprobeSampleStageStatusZ_);
+	allControls_->addControl(addOnsMicroprobeSampleStageDRVHX_);
+	allControls_->addControl(addOnsMicroprobeSampleStageDRVLX_);
+	allControls_->addControl(addOnsMicroprobeSampleStageDRVHY_);
+	allControls_->addControl(addOnsMicroprobeSampleStageDRVLY_);
+	allControls_->addControl(addOnsMicroprobeSampleStageDRVHZ_);
+	allControls_->addControl(addOnsMicroprobeSampleStageDRVLZ_);
 
 	connect(allControls_, SIGNAL(connected(bool)), this, SLOT(onAllControlsConnected(bool)));
 
@@ -153,6 +173,22 @@ void SXRMBAddOnsCoordinator::onAllControlsConnected(bool connected){
 		onSXRMBMicroprobeSampleStageFeedbackZValueChanged(sxrmbMicroprobeSampleStageFeedbackZ_->value());
 		qDebug() << "Checking start up value from the OLD sample stage Z status as " << sxrmbMicroprobeSampleStageStatusZ_->value();
 		onSXRMBMicroprobeSampleStageStatusZValueChanged(sxrmbMicroprobeSampleStageStatusZ_->value());
+
+		qDebug() << "Checking start up range for OLD energy as " << oldEnergy_->minimumValue() << oldEnergy_->maximumValue();
+		addOnsEnergyDRVH_->move(oldEnergy_->maximumValue());
+		addOnsEnergyDRVL_->move(oldEnergy_->minimumValue());
+
+		qDebug() << "Checking start up range for OLD sample X as " << sxrmbMicroprobeSampleStageX_->minimumValue() << sxrmbMicroprobeSampleStageX_->maximumValue();
+		addOnsMicroprobeSampleStageDRVHX_->move(sxrmbMicroprobeSampleStageX_->maximumValue());
+		addOnsMicroprobeSampleStageDRVLX_->move(sxrmbMicroprobeSampleStageX_->minimumValue());
+
+		qDebug() << "Checking start up range for OLD sample Y as " << sxrmbMicroprobeSampleStageY_->minimumValue() << sxrmbMicroprobeSampleStageY_->maximumValue();
+		addOnsMicroprobeSampleStageDRVHY_->move(sxrmbMicroprobeSampleStageY_->maximumValue());
+		addOnsMicroprobeSampleStageDRVLY_->move(sxrmbMicroprobeSampleStageY_->minimumValue());
+
+		qDebug() << "Checking start up range for OLD sample Z as " << sxrmbMicroprobeSampleStageZ_->minimumValue() << sxrmbMicroprobeSampleStageZ_->maximumValue();
+		addOnsMicroprobeSampleStageDRVHZ_->move(sxrmbMicroprobeSampleStageZ_->maximumValue());
+		addOnsMicroprobeSampleStageDRVLZ_->move(sxrmbMicroprobeSampleStageZ_->minimumValue());
 	}
 }
 
