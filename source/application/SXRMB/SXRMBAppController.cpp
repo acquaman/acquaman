@@ -285,7 +285,7 @@ void SXRMBAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
 void SXRMBAppController::onScanEditorCreated(AMGenericScanEditor *editor)
 {
 	connect(editor, SIGNAL(scanAdded(AMGenericScanEditor*,AMScan*)), this, SLOT(onScanAddedToEditor(AMGenericScanEditor*,AMScan*)));
-	editor->setPlotRange(1800, 10000);
+	editor->setPlotRange(1700, 10000);
 
 	if (editor->using2DScanView())
 		connect(editor, SIGNAL(dataPositionChanged(AMGenericScanEditor*,QPoint)), this, SLOT(onDataPositionChanged(AMGenericScanEditor*,QPoint)));
@@ -324,7 +324,7 @@ void SXRMBAppController::configureSingleSpectrumView(AMGenericScanEditor *editor
 	if (!spectraNames.isEmpty())
 		editor->setSingleSpectrumViewDataSourceName(spectraNames.first());
 
-	editor->setPlotRange(1800, 10000);
+	editor->setPlotRange(1700, 10000);
 }
 
 void SXRMBAppController::onDataPositionChanged(AMGenericScanEditor *editor, const QPoint &pos)
