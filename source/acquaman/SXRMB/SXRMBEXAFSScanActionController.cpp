@@ -37,8 +37,6 @@ SXRMBEXAFSScanActionController::~SXRMBEXAFSScanActionController()
 
 AMAction3* SXRMBEXAFSScanActionController::createInitializationActions()
 {
-//	return 0;
-
 	AMListAction3 *initializationActions = new AMListAction3(new AMListActionInfo3("SXRMB EXAFS Initialization Actions", "SXRMB EXAFS Initialization Actions"), AMListAction3::Sequential);
 	// Figure out if they want capability like this?
 	/*
@@ -72,19 +70,14 @@ AMAction3* SXRMBEXAFSScanActionController::createCleanupActions()
 	AMListAction3 *cleanupActions = new AMListAction3(new AMListActionInfo3("SXRMB EXAFS Cleanup Actions", "SXRMB EXAFS Cleanup Actions"), AMListAction3::Sequential);
 
 	CLSSIS3820Scaler *scaler = SXRMBBeamline::sxrmb()->scaler();
-	cleanupActions->addSubAction(scaler->createContinuousEnableAction3(scaler->isContinuous()));
+	cleanupActions->addSubAction(scaler->createDwellTimeAction3(scaler->dwellTime()));
 	cleanupActions->addSubAction(scaler->createScansPerBufferAction3(scaler->scansPerBuffer()));
-	cleanupActions->addSubAction(scaler->createTotalScansAction3(scaler->totalScans()));
+	cleanupActions->addSubAction(scaler->createContinuousEnableAction3(scaler->isContinuous()));
 
 	return cleanupActions;
 }
 
 void SXRMBEXAFSScanActionController::cancelImplementation()
-{
-
-}
-
-void SXRMBEXAFSScanActionController::onInitializationActionsListSucceeded()
 {
 
 }

@@ -121,9 +121,9 @@ AMAction3* SXRMB2DScanActionController::createCleanupActions()
 	AMListAction3 *cleanupActions = new AMListAction3(new AMListActionInfo3("SXRMB 2D Map Cleanup Actions", "SXRMB 2D Map Cleanup Actions"), AMListAction3::Sequential);
 
 	CLSSIS3820Scaler *scaler = SXRMBBeamline::sxrmb()->scaler();
-	cleanupActions->addSubAction(scaler->createContinuousEnableAction3(scaler->isContinuous()));
+	cleanupActions->addSubAction(scaler->createDwellTimeAction3(scaler->dwellTime()));
 	cleanupActions->addSubAction(scaler->createScansPerBufferAction3(scaler->scansPerBuffer()));
-	cleanupActions->addSubAction(scaler->createTotalScansAction3(scaler->totalScans()));
+	cleanupActions->addSubAction(scaler->createContinuousEnableAction3(scaler->isContinuous()));
 
 	return cleanupActions;
 }
