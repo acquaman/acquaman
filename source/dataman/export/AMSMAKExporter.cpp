@@ -254,8 +254,8 @@ void AMSMAKExporter::writeSMAKFile()
 
 	QList<AMDataSource *> sources;
 
-	for (int i = 0; i < currentScan_->rawDataSourceCount(); i++)
-		if (currentScan_->rawDataSources()->at(i)->name().contains(QRegExp("Ka1|Kb1|La1|Lb1|Lg1|Isplit|Iprekb|Imini")))
+	for (int i = 0; i < currentScan_->dataSourceCount(); i++)
+		if (currentScan_->dataSourceAt(i)->name().contains(QRegExp("Ka1|Kb1|La1|Lb1|Lg1|I0Detector|TEYDetector")))
 			sources.append(currentScan_->dataSourceAt(i));
 
 	ts << QString("* Abscissa points :\t%1\n").arg(xRange);
