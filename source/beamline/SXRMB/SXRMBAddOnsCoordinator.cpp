@@ -44,25 +44,25 @@ SXRMBAddOnsCoordinator::SXRMBAddOnsCoordinator(QObject *parent) :
 	sxrmbMicroprobeSampleStageY_ = new AMSinglePVControl("SXRMBMicroprobleSampleStageY", "SVM1606-5-B10-08:mm", this, 0.0001);
 	sxrmbMicroprobeSampleStageZ_ = new AMSinglePVControl("SXRMBMicroprobleSampleStageZ", "SVM1606-5-B10-09:mm", this, 0.0001);
 
-	addOnsMicroprobeSampleStageX_ = new AMSinglePVControl("SXRMBMicroprobleSampleStageFeedbackX", "SVM1606-5-B10-07:mm:sp", this, 0.0001);
-	addOnsMicroprobeSampleStageY_ = new AMSinglePVControl("SXRMBMicroprobleSampleStageFeedbackY", "SVM1606-5-B10-08:mm:sp", this, 0.0001);
-	addOnsMicroprobeSampleStageZ_ = new AMSinglePVControl("SXRMBMicroprobleSampleStageFeedbackZ", "SVM1606-5-B10-09:mm:sp", this, 0.0001);
+	sxrmbMicroprobeSampleStageFeedbackX_ = new AMSinglePVControl("SXRMBMicroprobleSampleStageFeedbackX", "SVM1606-5-B10-07:mm:sp", this, 0.0001);
+	sxrmbMicroprobeSampleStageFeedbackY_ = new AMSinglePVControl("SXRMBMicroprobleSampleStageFeedbackY", "SVM1606-5-B10-08:mm:sp", this, 0.0001);
+	sxrmbMicroprobeSampleStageFeedbackZ_ = new AMSinglePVControl("SXRMBMicroprobleSampleStageFeedbackZ", "SVM1606-5-B10-09:mm:sp", this, 0.0001);
 
-	sxrmbMicroprobeSampleStageFeedbackX_ = new AMSinglePVControl("SXRMBMicroprobleSampleStageStatusX", "SVM1606-5-B10-07:mm:status", this, 0.5);
-	sxrmbMicroprobeSampleStageFeedbackY_ = new AMSinglePVControl("SXRMBMicroprobleSampleStageStatusY", "SVM1606-5-B10-08:mm:status", this, 0.5);
-	sxrmbMicroprobeSampleStageFeedbackZ_ = new AMSinglePVControl("SXRMBMicroprobleSampleStageStatusZ", "SVM1606-5-B10-09:mm:status", this, 0.5);
+	sxrmbMicroprobeSampleStageStatusX_ = new AMSinglePVControl("SXRMBMicroprobleSampleStageStatusX", "SVM1606-5-B10-07:status", this, 0.5);
+	sxrmbMicroprobeSampleStageStatusY_ = new AMSinglePVControl("SXRMBMicroprobleSampleStageStatusY", "SVM1606-5-B10-08:status", this, 0.5);
+	sxrmbMicroprobeSampleStageStatusZ_ = new AMSinglePVControl("SXRMBMicroprobleSampleStageStatusZ", "SVM1606-5-B10-09:status", this, 0.5);
 
-	addOnsMicroprobeSampleStageFeedbackX_ = new AMSinglePVControl("AddOnsMicroprobleSampleStageX", "BL1606-B1-1:AddOns:uProbe:SampleStage:X:mm", this, 0.0001);
-	addOnsMicroprobeSampleStageFeedbackY_ = new AMSinglePVControl("AddOnsMicroprobleSampleStageY", "BL1606-B1-1:AddOns:uProbe:SampleStage:Y:mm", this, 0.0001);
-	addOnsMicroprobeSampleStageFeedbackZ_ = new AMSinglePVControl("AddOnsMicroprobleSampleStageZ", "BL1606-B1-1:AddOns:uProbe:SampleStage:Z:mm", this, 0.0001);
+	addOnsMicroprobeSampleStageX_ = new AMSinglePVControl("AddOnsMicroprobleSampleStageX", "BL1606-B1-1:AddOns:uProbe:SampleStage:X:mm", this, 0.0001);
+	addOnsMicroprobeSampleStageY_ = new AMSinglePVControl("AddOnsMicroprobleSampleStageY", "BL1606-B1-1:AddOns:uProbe:SampleStage:Y:mm", this, 0.0001);
+	addOnsMicroprobeSampleStageZ_ = new AMSinglePVControl("AddOnsMicroprobleSampleStageZ", "BL1606-B1-1:AddOns:uProbe:SampleStage:Z:mm", this, 0.0001);
 
-	sxrmbMicroprobeSampleStageStatusX_ = new AMSinglePVControl("AddOnsMicroprobleSampleStageFeedbackX", "BL1606-B1-1:AddOns:uProbe:SampleStage:X:mm:fbk", this, 0.0001);
-	sxrmbMicroprobeSampleStageStatusY_ = new AMSinglePVControl("AddOnsMicroprobleSampleStageFeedbackY", "BL1606-B1-1:AddOns:uProbe:SampleStage:Y:mm:fbk", this, 0.0001);
-	sxrmbMicroprobeSampleStageStatusZ_ = new AMSinglePVControl("AddOnsMicroprobleSampleStageFeedbackZ", "BL1606-B1-1:AddOns:uProbe:SampleStage:Z:mm:fbk", this, 0.0001);
+	addOnsMicroprobeSampleStageFeedbackX_ = new AMSinglePVControl("AddOnsMicroprobleSampleStageFeedbackX", "BL1606-B1-1:AddOns:uProbe:SampleStage:X:mm:fbk", this, 0.0001);
+	addOnsMicroprobeSampleStageFeedbackY_ = new AMSinglePVControl("AddOnsMicroprobleSampleStageFeedbackY", "BL1606-B1-1:AddOns:uProbe:SampleStage:Y:mm:fbk", this, 0.0001);
+	addOnsMicroprobeSampleStageFeedbackZ_ = new AMSinglePVControl("AddOnsMicroprobleSampleStageFeedbackZ", "BL1606-B1-1:AddOns:uProbe:SampleStage:Z:mm:fbk", this, 0.0001);
 
-	addOnsMicroprobeSampleStageStatusX_ = new AMSinglePVControl("AddOnsMicroprobleSampleStageStatusX", "BL1606-B1-1:AddOns:uProbe:SampleStage:X:mm:status", this, 0.5);
-	addOnsMicroprobeSampleStageStatusY_ = new AMSinglePVControl("AddOnsMicroprobleSampleStageStatusY", "BL1606-B1-1:AddOns:uProbe:SampleStage:Y:mm:status", this, 0.5);
-	addOnsMicroprobeSampleStageStatusZ_ = new AMSinglePVControl("AddOnsMicroprobleSampleStageStatusZ", "BL1606-B1-1:AddOns:uProbe:SampleStage:Z:mm:status", this, 0.5);
+	addOnsMicroprobeSampleStageStatusX_ = new AMSinglePVControl("AddOnsMicroprobleSampleStageStatusX", "BL1606-B1-1:AddOns:uProbe:SampleStage:X:status", this, 0.5);
+	addOnsMicroprobeSampleStageStatusY_ = new AMSinglePVControl("AddOnsMicroprobleSampleStageStatusY", "BL1606-B1-1:AddOns:uProbe:SampleStage:Y:status", this, 0.5);
+	addOnsMicroprobeSampleStageStatusZ_ = new AMSinglePVControl("AddOnsMicroprobleSampleStageStatusZ", "BL1606-B1-1:AddOns:uProbe:SampleStage:Z:status", this, 0.5);
 
 	allControls_ = new AMControlSet(this);
 	allControls_->addControl(oldEnergy_);
@@ -132,6 +132,27 @@ void SXRMBAddOnsCoordinator::onAllControlsConnected(bool connected){
 		onOldEnergyFeedbackValueChanged(oldEnergyFeedback_->value());
 		qDebug() << "Checking start up value from the OLD energy status as " << oldEnergyStatus_->value();
 		onOldEnergyStatusValueChanged(oldEnergyStatus_->value());
+
+		qDebug() << "Checking start up value from the OLD sample stage X as " << sxrmbMicroprobeSampleStageX_->value();
+		onSXRMBMicroprobeSampleStageXValueChanged(sxrmbMicroprobeSampleStageX_->value());
+		qDebug() << "Checking start up value from the OLD sample stage X feedback as " << sxrmbMicroprobeSampleStageFeedbackX_->value();
+		onSXRMBMicroprobeSampleStageFeedbackXValueChanged(sxrmbMicroprobeSampleStageFeedbackX_->value());
+		qDebug() << "Checking start up value from the OLD sample stage X status as " << sxrmbMicroprobeSampleStageStatusX_->value();
+		onSXRMBMicroprobeSampleStageStatusXValueChanged(sxrmbMicroprobeSampleStageStatusX_->value());
+
+		qDebug() << "Checking start up value from the OLD sample stage Y as " << sxrmbMicroprobeSampleStageY_->value();
+		onSXRMBMicroprobeSampleStageYValueChanged(sxrmbMicroprobeSampleStageY_->value());
+		qDebug() << "Checking start up value from the OLD sample stage Y feedback as " << sxrmbMicroprobeSampleStageFeedbackY_->value();
+		onSXRMBMicroprobeSampleStageFeedbackYValueChanged(sxrmbMicroprobeSampleStageFeedbackY_->value());
+		qDebug() << "Checking start up value from the OLD sample stage Y status as " << sxrmbMicroprobeSampleStageStatusY_->value();
+		onSXRMBMicroprobeSampleStageStatusYValueChanged(sxrmbMicroprobeSampleStageStatusY_->value());
+
+		qDebug() << "Checking start up value from the OLD sample stage Z as " << sxrmbMicroprobeSampleStageZ_->value();
+		onSXRMBMicroprobeSampleStageZValueChanged(sxrmbMicroprobeSampleStageZ_->value());
+		qDebug() << "Checking start up value from the OLD sample stage Z feedback as " << sxrmbMicroprobeSampleStageFeedbackZ_->value();
+		onSXRMBMicroprobeSampleStageFeedbackZValueChanged(sxrmbMicroprobeSampleStageFeedbackZ_->value());
+		qDebug() << "Checking start up value from the OLD sample stage Z status as " << sxrmbMicroprobeSampleStageStatusZ_->value();
+		onSXRMBMicroprobeSampleStageStatusZValueChanged(sxrmbMicroprobeSampleStageStatusZ_->value());
 	}
 }
 
@@ -226,19 +247,8 @@ void SXRMBAddOnsCoordinator::onSXRMBMicroprobeSampleStageXValueChanged(double va
 
 	qDebug() << "Detected OLD microprobe stage X move of " << sxrmbMicroprobeSampleStageX_->value() << " versus " << addOnsMicroprobeSampleStageX_->value();
 
-	// If we're requesting the same stage X with AddOns as was in the old stage X AND the old stage X feedback matches the old stage X setpoint AND the status is MOVE DONE
-	// THEN issuing a move will not do anything SO we'll trick the status to say "MOVE ACTIVE" then "MOVE DONE"
-	if(sxrmbMicroprobeSampleStageX_->withinTolerance(addOnsMicroprobeSampleStageX_->value()) && sxrmbMicroprobeSampleStageX_->withinTolerance(sxrmbMicroprobeSampleStageFeedbackX_->value()) && sxrmbMicroprobeSampleStageStatusX_->withinTolerance(0.0)){
-		qDebug() << "Faking a sample stage X move";
-		addOnsMicroprobeSampleStageStatusX_->move(1.0);
-		QTimer::singleShot(100, this, SLOT(restoreAddOnsMicroprobeSampleStageStatusX()));
-		return;
-	}
-
-	if(!addOnsMicroprobeSampleStageX_->withinTolerance(sxrmbMicroprobeSampleStageX_->value())){
-		qDebug() << "Doing sample stage X move in the regular way";
+	if(!addOnsMicroprobeSampleStageX_->withinTolerance(sxrmbMicroprobeSampleStageX_->value()))
 		addOnsMicroprobeSampleStageX_->move(sxrmbMicroprobeSampleStageX_->value());
-	}
 }
 
 void SXRMBAddOnsCoordinator::onSXRMBMicroprobeSampleStageYValueChanged(double value){
@@ -248,19 +258,8 @@ void SXRMBAddOnsCoordinator::onSXRMBMicroprobeSampleStageYValueChanged(double va
 
 	qDebug() << "Detected OLD microprobe stage Y move of " << sxrmbMicroprobeSampleStageY_->value() << " versus " << addOnsMicroprobeSampleStageY_->value();
 
-	// If we're requesting the same stage Y with AddOns as was in the old stage Y AND the old stage Y feedback matches the old stage Y setpoint AND the status is MOVE DONE
-	// THEN issuing a move will not do anything SO we'll trick the status to say "MOVE ACTIVE" then "MOVE DONE"
-	if(sxrmbMicroprobeSampleStageY_->withinTolerance(addOnsMicroprobeSampleStageY_->value()) && sxrmbMicroprobeSampleStageY_->withinTolerance(sxrmbMicroprobeSampleStageFeedbackY_->value()) && sxrmbMicroprobeSampleStageStatusY_->withinTolerance(0.0)){
-		qDebug() << "Faking a sample stage Y move";
-		addOnsMicroprobeSampleStageStatusY_->move(1.0);
-		QTimer::singleShot(100, this, SLOT(restoreAddOnsMicroprobeSampleStageStatusY()));
-		return;
-	}
-
-	if(!addOnsMicroprobeSampleStageY_->withinTolerance(sxrmbMicroprobeSampleStageY_->value())){
-		qDebug() << "Doing sample stage Y move in the regular way";
+	if(!addOnsMicroprobeSampleStageY_->withinTolerance(sxrmbMicroprobeSampleStageY_->value()))
 		addOnsMicroprobeSampleStageY_->move(sxrmbMicroprobeSampleStageY_->value());
-	}
 }
 
 void SXRMBAddOnsCoordinator::onSXRMBMicroprobeSampleStageZValueChanged(double value){
@@ -270,19 +269,8 @@ void SXRMBAddOnsCoordinator::onSXRMBMicroprobeSampleStageZValueChanged(double va
 
 	qDebug() << "Detected OLD microprobe stage Z move of " << sxrmbMicroprobeSampleStageZ_->value() << " versus " << addOnsMicroprobeSampleStageZ_->value();
 
-	// If we're requesting the same stage Z with AddOns as was in the old stage Z AND the old stage Z feedback matches the old stage Z setpoint AND the status is MOVE DONE
-	// THEN issuing a move will not do anything SO we'll trick the status to say "MOVE ACTIVE" then "MOVE DONE"
-	if(sxrmbMicroprobeSampleStageZ_->withinTolerance(addOnsMicroprobeSampleStageZ_->value()) && sxrmbMicroprobeSampleStageZ_->withinTolerance(sxrmbMicroprobeSampleStageFeedbackZ_->value()) && sxrmbMicroprobeSampleStageStatusZ_->withinTolerance(0.0)){
-		qDebug() << "Faking a sample stage Z move";
-		addOnsMicroprobeSampleStageStatusZ_->move(1.0);
-		QTimer::singleShot(100, this, SLOT(restoreAddOnsMicroprobeSampleStageStatusZ()));
-		return;
-	}
-
-	if(!addOnsMicroprobeSampleStageZ_->withinTolerance(sxrmbMicroprobeSampleStageZ_->value())){
-		qDebug() << "Doing sample stage Z move in the regular way";
+	if(!addOnsMicroprobeSampleStageZ_->withinTolerance(sxrmbMicroprobeSampleStageZ_->value()))
 		addOnsMicroprobeSampleStageZ_->move(sxrmbMicroprobeSampleStageZ_->value());
-	}
 }
 
 void SXRMBAddOnsCoordinator::onSXRMBMicroprobeSampleStageFeedbackXValueChanged(double value){
@@ -358,8 +346,19 @@ void SXRMBAddOnsCoordinator::onAddOnsMicroprobeSampleStageXValueChanged(double v
 
 	qDebug() << "Detected new AddOns microprobe stage X move of " << addOnsMicroprobeSampleStageX_->value() << " versus " << sxrmbMicroprobeSampleStageX_->value();
 
-	if(!sxrmbMicroprobeSampleStageX_->withinTolerance(addOnsMicroprobeSampleStageX_->value()))
+	// If we're requesting the same stage X with AddOns as was in the old stage X AND the old stage X feedback matches the old stage X setpoint AND the status is MOVE DONE
+	// THEN issuing a move will not do anything SO we'll trick the status to say "MOVE ACTIVE" then "MOVE DONE"
+	if(sxrmbMicroprobeSampleStageX_->withinTolerance(addOnsMicroprobeSampleStageX_->value()) && sxrmbMicroprobeSampleStageX_->withinTolerance(sxrmbMicroprobeSampleStageFeedbackX_->value()) && sxrmbMicroprobeSampleStageStatusX_->withinTolerance(0.0)){
+		qDebug() << "Faking a sample stage X move";
+		addOnsMicroprobeSampleStageStatusX_->move(1.0);
+		QTimer::singleShot(100, this, SLOT(restoreAddOnsMicroprobeSampleStageStatusX()));
+		return;
+	}
+
+	if(!sxrmbMicroprobeSampleStageX_->withinTolerance(addOnsMicroprobeSampleStageX_->value())){
+		qDebug() << "Doing addOns Sample Stage X move in the regular way";
 		sxrmbMicroprobeSampleStageX_->move(addOnsMicroprobeSampleStageX_->value());
+	}
 }
 
 void SXRMBAddOnsCoordinator::onAddOnsMicroprobeSampleStageYValueChanged(double value){
@@ -369,8 +368,19 @@ void SXRMBAddOnsCoordinator::onAddOnsMicroprobeSampleStageYValueChanged(double v
 
 	qDebug() << "Detected new AddOns microprobe stage Y move of " << addOnsMicroprobeSampleStageY_->value() << " versus " << sxrmbMicroprobeSampleStageY_->value();
 
-	if(!sxrmbMicroprobeSampleStageY_->withinTolerance(addOnsMicroprobeSampleStageY_->value()))
+	// If we're requesting the same stage Y with AddOns as was in the old stage Y AND the old stage Y feedback matches the old stage Y setpoint AND the status is MOVE DONE
+	// THEN issuing a move will not do anything SO we'll trick the status to say "MOVE ACTIVE" then "MOVE DONE"
+	if(sxrmbMicroprobeSampleStageY_->withinTolerance(addOnsMicroprobeSampleStageY_->value()) && sxrmbMicroprobeSampleStageY_->withinTolerance(sxrmbMicroprobeSampleStageFeedbackY_->value()) && sxrmbMicroprobeSampleStageStatusY_->withinTolerance(0.0)){
+		qDebug() << "Faking a sample stage Y move";
+		addOnsMicroprobeSampleStageStatusY_->move(1.0);
+		QTimer::singleShot(100, this, SLOT(restoreAddOnsMicroprobeSampleStageStatusY()));
+		return;
+	}
+
+	if(!sxrmbMicroprobeSampleStageY_->withinTolerance(addOnsMicroprobeSampleStageY_->value())){
+		qDebug() << "Doing addOns Sample Stage Y move in the regular way";
 		sxrmbMicroprobeSampleStageY_->move(addOnsMicroprobeSampleStageY_->value());
+	}
 }
 
 void SXRMBAddOnsCoordinator::onAddOnsMicroprobeSampleStageZValueChanged(double value){
@@ -380,8 +390,19 @@ void SXRMBAddOnsCoordinator::onAddOnsMicroprobeSampleStageZValueChanged(double v
 
 	qDebug() << "Detected new AddOns microprobe stage Z move of " << addOnsMicroprobeSampleStageZ_->value() << " versus " << sxrmbMicroprobeSampleStageZ_->value();
 
-	if(!sxrmbMicroprobeSampleStageZ_->withinTolerance(addOnsMicroprobeSampleStageZ_->value()))
+	// If we're requesting the same stage Z with AddOns as was in the old stage Z AND the old stage Z feedback matches the old stage Z setpoint AND the status is MOVE DONE
+	// THEN issuing a move will not do anything SO we'll trick the status to say "MOVE ACTIVE" then "MOVE DONE"
+	if(sxrmbMicroprobeSampleStageZ_->withinTolerance(addOnsMicroprobeSampleStageZ_->value()) && sxrmbMicroprobeSampleStageZ_->withinTolerance(sxrmbMicroprobeSampleStageFeedbackZ_->value()) && sxrmbMicroprobeSampleStageStatusZ_->withinTolerance(0.0)){
+		qDebug() << "Faking a sample stage Z move";
+		addOnsMicroprobeSampleStageStatusZ_->move(1.0);
+		QTimer::singleShot(100, this, SLOT(restoreAddOnsMicroprobeSampleStageStatusZ()));
+		return;
+	}
+
+	if(!sxrmbMicroprobeSampleStageZ_->withinTolerance(addOnsMicroprobeSampleStageZ_->value())){
+		qDebug() << "Doing addOns Sample Stage Z move in the regular way";
 		sxrmbMicroprobeSampleStageZ_->move(addOnsMicroprobeSampleStageZ_->value());
+	}
 }
 
 void SXRMBAddOnsCoordinator::restoreAddOnsMicroprobeSampleStageStatusX(){
