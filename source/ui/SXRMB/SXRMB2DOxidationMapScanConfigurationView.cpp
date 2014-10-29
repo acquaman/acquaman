@@ -1,4 +1,4 @@
-#include "SXRMB2DMapScanConfigurationView.h"
+#include "SXRMB2DOxidationMapScanConfigurationView.h"
 
 #include "beamline/SXRMB/SXRMBBeamline.h"
 #include "ui/AMTopFrame.h"
@@ -14,7 +14,7 @@
 #include <QSpinBox>
 #include <QMenu>
 
-SXRMB2DMapScanConfigurationView::SXRMB2DMapScanConfigurationView(SXRMB2DMapScanConfiguration *configuration, QWidget *parent)
+SXRMB2DOxidationMapScanConfigurationView::SXRMB2DOxidationMapScanConfigurationView(SXRMB2DMapScanConfiguration *configuration, QWidget *parent)
 	: AMScanConfigurationView(parent)
 {
 	configuration_ = configuration;
@@ -139,8 +139,8 @@ SXRMB2DMapScanConfigurationView::SXRMB2DMapScanConfigurationView(SXRMB2DMapScanC
 	QGridLayout *contentsLayout = new QGridLayout;
 	contentsLayout->addWidget(positionsBox, 0, 0, 2, 4);
 	contentsLayout->addWidget(timeGroupBox, 2, 0, 1, 4);
-	contentsLayout->addWidget(scanNameGroupBox, 3, 0, 1, 3);
-	contentsLayout->addWidget(autoExportGroupBox, 3, 3, 1, 1);
+	contentsLayout->addWidget(scanNameGroupBox, 3, 0, 1, 2);
+	contentsLayout->addWidget(autoExportGroupBox, 3, 2, 1, 2);
 
 	QHBoxLayout *squeezeContents = new QHBoxLayout;
 	squeezeContents->addStretch();
@@ -156,7 +156,7 @@ SXRMB2DMapScanConfigurationView::SXRMB2DMapScanConfigurationView(SXRMB2DMapScanC
 	setLayout(configViewLayout);
 }
 
-QLineEdit *SXRMB2DMapScanConfigurationView::createScanNameView(const QString &name)
+QLineEdit *SXRMB2DOxidationMapScanConfigurationView::createScanNameView(const QString &name)
 {
 	QLineEdit *scanName = new QLineEdit;
 	scanName->setText(name);
@@ -165,7 +165,7 @@ QLineEdit *SXRMB2DMapScanConfigurationView::createScanNameView(const QString &na
 	return scanName;
 }
 
-QDoubleSpinBox *SXRMB2DMapScanConfigurationView::createPositionDoubleSpinBox(const QString &prefix, const QString &suffix, double value, int decimals)
+QDoubleSpinBox *SXRMB2DOxidationMapScanConfigurationView::createPositionDoubleSpinBox(const QString &prefix, const QString &suffix, double value, int decimals)
 {
 	QDoubleSpinBox *box = new QDoubleSpinBox;
 	box->setPrefix(prefix);
@@ -178,7 +178,7 @@ QDoubleSpinBox *SXRMB2DMapScanConfigurationView::createPositionDoubleSpinBox(con
 	return box;
 }
 
-QDoubleSpinBox *SXRMB2DMapScanConfigurationView::createDwellTimeSpinBox(double time)
+QDoubleSpinBox *SXRMB2DOxidationMapScanConfigurationView::createDwellTimeSpinBox(double time)
 {
 	QDoubleSpinBox *dwellTime = new QDoubleSpinBox;
 	dwellTime->setRange(0, 1000000);
@@ -190,19 +190,19 @@ QDoubleSpinBox *SXRMB2DMapScanConfigurationView::createDwellTimeSpinBox(double t
 	return dwellTime;
 }
 
-void SXRMB2DMapScanConfigurationView::onScanNameEdited()
+void SXRMB2DOxidationMapScanConfigurationView::onScanNameEdited()
 {
 	QString name = scanName_->text();
 	configuration_->setName(name);
 	configuration_->setUserScanName(name);
 }
 
-void SXRMB2DMapScanConfigurationView::onEstimatedTimeChanged()
+void SXRMB2DOxidationMapScanConfigurationView::onEstimatedTimeChanged()
 {
 	estimatedTime_->setText("Estimated time per scan:\t" + SXRMB::convertTimeToString(configuration_->totalTime()));
 }
 
-void SXRMB2DMapScanConfigurationView::onSetStartPosition()
+void SXRMB2DOxidationMapScanConfigurationView::onSetStartPosition()
 {
 	double h = SXRMBBeamline::sxrmb()->microprobeSampleStageX()->value();
 	double v = SXRMBBeamline::sxrmb()->microprobeSampleStageZ()->value();
@@ -216,7 +216,7 @@ void SXRMB2DMapScanConfigurationView::onSetStartPosition()
 	updateMapInfo();
 }
 
-void SXRMB2DMapScanConfigurationView::onSetEndPosition()
+void SXRMB2DOxidationMapScanConfigurationView::onSetEndPosition()
 {
 	double h = SXRMBBeamline::sxrmb()->microprobeSampleStageX()->value();
 	double v = SXRMBBeamline::sxrmb()->microprobeSampleStageZ()->value();
@@ -228,62 +228,62 @@ void SXRMB2DMapScanConfigurationView::onSetEndPosition()
 	updateMapInfo();
 }
 
-void SXRMB2DMapScanConfigurationView::onSetNormalPosition()
+void SXRMB2DOxidationMapScanConfigurationView::onSetNormalPosition()
 {
 	double n = SXRMBBeamline::sxrmb()->microprobeSampleStageY()->value();
 	configuration_->setNormalPosition(n);
 	updateMapInfo();
 }
 
-void SXRMB2DMapScanConfigurationView::onXStartChanged()
+void SXRMB2DOxidationMapScanConfigurationView::onXStartChanged()
 {
 	configuration_->scanAxisAt(0)->regionAt(0)->setRegionStart(hStart_->value());
 	updateMapInfo();
 }
 
-void SXRMB2DMapScanConfigurationView::onXEndChanged()
+void SXRMB2DOxidationMapScanConfigurationView::onXEndChanged()
 {
 	configuration_->scanAxisAt(0)->regionAt(0)->setRegionEnd(hEnd_->value());
 	updateMapInfo();
 }
 
-void SXRMB2DMapScanConfigurationView::onXStepChanged()
+void SXRMB2DOxidationMapScanConfigurationView::onXStepChanged()
 {
 	configuration_->scanAxisAt(0)->regionAt(0)->setRegionStep(hStep_->value()/1000);
 	updateMapInfo();
 }
 
-void SXRMB2DMapScanConfigurationView::onYStartChanged()
+void SXRMB2DOxidationMapScanConfigurationView::onYStartChanged()
 {
 	configuration_->scanAxisAt(1)->regionAt(0)->setRegionStart(vStart_->value());
 	updateMapInfo();
 }
 
-void SXRMB2DMapScanConfigurationView::onYEndChanged()
+void SXRMB2DOxidationMapScanConfigurationView::onYEndChanged()
 {
 	configuration_->scanAxisAt(1)->regionAt(0)->setRegionEnd(vEnd_->value());
 	updateMapInfo();
 }
 
-void SXRMB2DMapScanConfigurationView::onYStepChanged()
+void SXRMB2DOxidationMapScanConfigurationView::onYStepChanged()
 {
 	configuration_->scanAxisAt(1)->regionAt(0)->setRegionStep(vStep_->value()/1000);
 	updateMapInfo();
 }
 
-void SXRMB2DMapScanConfigurationView::onNormalPositionChanged()
+void SXRMB2DOxidationMapScanConfigurationView::onNormalPositionChanged()
 {
 	configuration_->setNormalPosition(normalPosition_->value());
 	updateMapInfo();
 }
 
-void SXRMB2DMapScanConfigurationView::onDwellTimeChanged()
+void SXRMB2DOxidationMapScanConfigurationView::onDwellTimeChanged()
 {
 	configuration_->scanAxisAt(0)->regionAt(0)->setRegionTime(dwellTime_->value());
 	configuration_->scanAxisAt(1)->regionAt(0)->setRegionTime(dwellTime_->value());
 }
 
-void SXRMB2DMapScanConfigurationView::updateMapInfo()
+void SXRMB2DOxidationMapScanConfigurationView::updateMapInfo()
 {
 	double hSize = fabs(double(configuration_->scanAxisAt(0)->regionAt(0)->regionEnd())-double(configuration_->scanAxisAt(0)->regionAt(0)->regionStart()));
 	double vSize = fabs(double(configuration_->scanAxisAt(1)->regionAt(0)->regionEnd())-double(configuration_->scanAxisAt(1)->regionAt(0)->regionStart()));
@@ -309,7 +309,7 @@ void SXRMB2DMapScanConfigurationView::updateMapInfo()
 					  );
 }
 
-QGroupBox *SXRMB2DMapScanConfigurationView::addExporterOptionsView(QStringList list)
+QGroupBox *SXRMB2DOxidationMapScanConfigurationView::addExporterOptionsView(QStringList list)
 {
 	QRadioButton *autoExportButton;
 	QHBoxLayout *autoExportLayout = new QHBoxLayout;
@@ -328,42 +328,42 @@ QGroupBox *SXRMB2DMapScanConfigurationView::addExporterOptionsView(QStringList l
 	return autoExportGroupBox;
 }
 
-void SXRMB2DMapScanConfigurationView::setXAxisStart(const AMNumber &value)
+void SXRMB2DOxidationMapScanConfigurationView::setXAxisStart(const AMNumber &value)
 {
 	hStart_->setValue(double(value));
 }
 
-void SXRMB2DMapScanConfigurationView::setYAxisStart(const AMNumber &value)
+void SXRMB2DOxidationMapScanConfigurationView::setYAxisStart(const AMNumber &value)
 {
 	vStart_->setValue(double(value));
 }
 
-void SXRMB2DMapScanConfigurationView::setXAxisStep(const AMNumber &value)
+void SXRMB2DOxidationMapScanConfigurationView::setXAxisStep(const AMNumber &value)
 {
 	hStep_->setValue(double(value)*1000);
 }
 
-void SXRMB2DMapScanConfigurationView::setYAxisStep(const AMNumber &value)
+void SXRMB2DOxidationMapScanConfigurationView::setYAxisStep(const AMNumber &value)
 {
 	vStep_->setValue(double(value)*1000);
 }
 
-void SXRMB2DMapScanConfigurationView::setXAxisEnd(const AMNumber &value)
+void SXRMB2DOxidationMapScanConfigurationView::setXAxisEnd(const AMNumber &value)
 {
 	hEnd_->setValue(double(value));
 }
 
-void SXRMB2DMapScanConfigurationView::setYAxisEnd(const AMNumber &value)
+void SXRMB2DOxidationMapScanConfigurationView::setYAxisEnd(const AMNumber &value)
 {
 	vEnd_->setValue(double(value));
 }
 
-void SXRMB2DMapScanConfigurationView::setDwellTime(const AMNumber &value)
+void SXRMB2DOxidationMapScanConfigurationView::setDwellTime(const AMNumber &value)
 {
 	dwellTime_->setValue(double(value));
 }
 
-void SXRMB2DMapScanConfigurationView::updateAutoExporter(int useAscii)
+void SXRMB2DOxidationMapScanConfigurationView::updateAutoExporter(int useAscii)
 {
 	configuration_->setExportAsAscii(useAscii == 0);
 }

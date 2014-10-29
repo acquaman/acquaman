@@ -30,6 +30,7 @@ class SXRMBEXAFSScanConfiguration;
 class SXRMBEXAFSScanConfigurationView;
 class SXRMB2DMapScanConfiguration;
 class SXRMB2DMapScanConfigurationView;
+class SXRMB2DOxidationMapScanConfigurationView;
 class CLSSIS3820ScalerView;
 class SXRMBUserConfiguration;
 class AMRegionOfInterest;
@@ -122,6 +123,13 @@ protected:
 	SXRMB2DMapScanConfigurationView* microProbe2DScanConfigurationView_;
 	/// 2D scan configuration view holder
 	AMScanConfigurationViewHolder3* microProbe2DScanConfigurationViewHolder_;
+
+	/// 2D scan configuration
+	SXRMB2DMapScanConfiguration* microProbe2DOxidationScanConfiguration_;
+	/// 2D scan configuration view
+	SXRMB2DOxidationMapScanConfigurationView* microProbe2DOxidationScanConfigurationView_;
+	/// 2D scan configuration view holder
+	AMScanConfigurationViewHolder3* microProbe2DOxidationScanConfigurationViewHolder_;
 
 	/// The view for SXRMB's scaler
 	CLSSIS3820ScalerView *scalerView_;

@@ -51,6 +51,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/SXRMB/SXRMBPersistentView.h"
 #include "ui/SXRMB/SXRMBEXAFSScanConfigurationView.h"
 #include "ui/SXRMB/SXRMB2DMapScanConfigurationView.h"
+#include "ui/SXRMB/SXRMB2DOxidationMapScanConfigurationView.h"
 #include "ui/CLS/CLSSIS3820ScalerView.h"
 #include "ui/SXRMB/SXRMBChooseDataFolderDialog.h"
 
@@ -147,6 +148,25 @@ void SXRMBAppController::onBeamlineConnected(bool connected)
 		mw_->addPane(microProbe2DScanConfigurationViewHolder_, "Scans", "2D Scan", ":/utilites-system-monitor.png");
 	}
 
+	if (connected && !microProbe2DOxidationScanConfigurationView_) {
+		microProbe2DOxidationScanConfiguration_ = new SXRMB2DMapScanConfiguration();
+
+		microProbe2DOxidationScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStart(0.0);
+		microProbe2DOxidationScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStep(0.01);
+		microProbe2DOxidationScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionEnd(0.1);
+
+		microProbe2DOxidationScanConfiguration_->scanAxisAt(1)->regionAt(0)->setRegionStart(0.0);
+		microProbe2DOxidationScanConfiguration_->scanAxisAt(1)->regionAt(0)->setRegionStep(0.01);
+		microProbe2DOxidationScanConfiguration_->scanAxisAt(1)->regionAt(0)->setRegionEnd(0.1);
+
+		microProbe2DOxidationScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionTime(1.0);
+
+		microProbe2DOxidationScanConfigurationView_ = new SXRMB2DOxidationMapScanConfigurationView(microProbe2DScanConfiguration_);
+		microProbe2DOxidationScanConfigurationViewHolder_ = new AMScanConfigurationViewHolder3(microProbe2DScanConfigurationView_);
+
+		mw_->addPane(microProbe2DOxidationScanConfigurationViewHolder_, "Scans", "Oxidation Map", ":/utilites-system-monitor.png");
+	}
+
 	if (connected && !sxrmbPersistentView_){
 
 		sxrmbPersistentView_ = new SXRMBPersistentView();
@@ -210,6 +230,10 @@ void SXRMBAppController::setupUserInterface()
 	microProbe2DScanConfiguration_ = 0; //NULL
 	microProbe2DScanConfigurationView_ = 0; //NULL
 	microProbe2DScanConfigurationViewHolder_ = 0; //NULL
+
+	microProbe2DOxidationScanConfiguration_ = 0; //NULL
+	microProbe2DOxidationScanConfigurationView_ = 0; //NULL
+	microProbe2DOxidationScanConfigurationViewHolder_ = 0; //NULL
 
 	scalerView_ = 0; //NULL
 	sxrmbPersistentView_ = 0;
