@@ -9,6 +9,8 @@
 #include <QDoubleSpinBox>
 #include <QLabel>
 #include <QLineEdit>
+#include <QGroupBox>
+#include <QButtonGroup>
 
 class SXRMB2DMapScanConfigurationView : public AMScanConfigurationView
 {
@@ -69,11 +71,12 @@ protected slots:
 
 	/// Helper slot that handles the setting the estimated time label.
 	void onEstimatedTimeChanged();
+	/// Helper slot that sets whether we use SMAK or Ascii for the auto exporter.
+	void updateAutoExporter(int useAscii);
 
 protected:
-	/// Helper method that takes a time in seconds and returns a string of d:h:m:s.
-	QString convertTimeToString(double time);
-
+	/// Add the export options view.  Returns a pointer to the widget.
+	QGroupBox *addExporterOptionsView(QStringList list);
 	/// Add the scan name view.  Returns the widget.
 	QLineEdit *createScanNameView(const QString &name);
 	/// Build a position QDoubleSpinBox based on the prefix, suffix and value.  They have the same format, this should cut down on duplicate code.
@@ -107,6 +110,9 @@ protected:
 	QLabel *mapInfo_;
 	/// Label holding the current estimated time for the scan to complete.  Takes into account extra time per point based on experience on the beamline.
 	QLabel *estimatedTime_;
+
+	/// Button group for the exporter options.
+	QButtonGroup *autoExportButtonGroup_;
 };
 
 #endif // SXRMB2DMAPSCANCONFIGURATIONVIEW_H

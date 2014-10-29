@@ -11,6 +11,7 @@ SXRMB2DMapScanConfiguration::SXRMB2DMapScanConfiguration(QObject *parent)
 {
 	setName("2D Map");
 	setUserScanName("2D Map");
+	setExportAsAscii(false);
 
 	AMScanAxisRegion *region = new AMScanAxisRegion;
 	AMScanAxis *axis = new AMScanAxis(AMScanAxis::StepAxis, region);
@@ -33,6 +34,7 @@ SXRMB2DMapScanConfiguration::SXRMB2DMapScanConfiguration(const SXRMB2DMapScanCon
 {
 	setName(original.name());
 	setUserScanName(original.userScanName());
+	setExportAsAscii(original.exportAsAscii());
 
 	connect(scanAxisAt(0)->regionAt(0), SIGNAL(regionStartChanged(AMNumber)), this, SLOT(computeTotalTime()));
 	connect(scanAxisAt(0)->regionAt(0), SIGNAL(regionStepChanged(AMNumber)), this, SLOT(computeTotalTime()));
@@ -94,4 +96,12 @@ void SXRMB2DMapScanConfiguration::computeTotalTimeImplementation()
 	totalTime_ = time + 9; // initialization time is about 9s
 	setExpectedDuration(totalTime_);
 	emit totalTimeChanged(totalTime_);
+}
+
+void SXRMB2DMapScanConfiguration::setExportAsAscii(bool exportAsAscii)
+{
+	if (exportAsAscii_ == exportAsAscii)
+		return;
+
+	exportAsAscii_ = exportAsAscii;
 }

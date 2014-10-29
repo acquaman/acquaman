@@ -2,6 +2,7 @@
 
 #include "beamline/SXRMB/SXRMBBeamline.h"
 #include "ui/AMTopFrame.h"
+#include "application/SXRMB/SXRMB.h"
 
 #include <QGridLayout>
 #include <QVBoxLayout>
@@ -129,11 +130,17 @@ SXRMB2DMapScanConfigurationView::SXRMB2DMapScanConfigurationView(SXRMB2DMapScanC
 	QGroupBox *scanNameGroupBox = new QGroupBox("Scan Name");
 	scanNameGroupBox->setLayout(scanNameLayout);
 
+	// Auto-export option.
+	QGroupBox *autoExportGroupBox = addExporterOptionsView(QStringList() << "Ascii" << "SMAK");
+	connect(autoExportButtonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(updateAutoExporter(int)));
+	autoExportButtonGroup_->button(configuration_->exportAsAscii() ? 0 : 1)->click();
+
 	// Setting up the layout.
 	QGridLayout *contentsLayout = new QGridLayout;
-	contentsLayout->addWidget(positionsBox, 0, 0, 2, 3);
-	contentsLayout->addWidget(timeGroupBox, 2, 0, 1, 3);
-	contentsLayout->addWidget(scanNameGroupBox, 3, 0, 1, 3);
+	contentsLayout->addWidget(positionsBox, 0, 0, 2, 4);
+	contentsLayout->addWidget(timeGroupBox, 2, 0, 1, 4);
+	contentsLayout->addWidget(scanNameGroupBox, 3, 0, 1, 2);
+	contentsLayout->addWidget(autoExportGroupBox, 3, 2, 1, 2);
 
 	QHBoxLayout *squeezeContents = new QHBoxLayout;
 	squeezeContents->addStretch();
@@ -192,7 +199,7 @@ void SXRMB2DMapScanConfigurationView::onScanNameEdited()
 
 void SXRMB2DMapScanConfigurationView::onEstimatedTimeChanged()
 {
-	estimatedTime_->setText("Estimated time per scan:\t" + convertTimeToString(configuration_->totalTime()));
+	estimatedTime_->setText("Estimated time per scan:\t" + SXRMB::convertTimeToString(configuration_->totalTime()));
 }
 
 void SXRMB2DMapScanConfigurationView::onSetStartPosition()
@@ -302,38 +309,23 @@ void SXRMB2DMapScanConfigurationView::updateMapInfo()
 					  );
 }
 
-QString SXRMB2DMapScanConfigurationView::convertTimeToString(double time)
+QGroupBox *SXRMB2DMapScanConfigurationView::addExporterOptionsView(QStringList list)
 {
-	QString timeString;
+	QRadioButton *autoExportButton;
+	QHBoxLayout *autoExportLayout = new QHBoxLayout;
+	autoExportButtonGroup_ = new QButtonGroup;
 
-	int days = int(time/3600.0/24.0);
+	for (int i = 0, iSize = list.size(); i < iSize; i++){
 
-	if (days > 0){
-
-		time -= days*3600.0*24;
-		timeString += QString::number(days) + "d:";
+		autoExportButton = new QRadioButton(list.at(i));
+		autoExportButtonGroup_->addButton(autoExportButton, i);
+		autoExportLayout->addWidget(autoExportButton);
 	}
 
-	int hours = int(time/3600.0);
+	QGroupBox *autoExportGroupBox = new QGroupBox("Export Options");
+	autoExportGroupBox->setLayout(autoExportLayout);
 
-	if (hours > 0){
-
-		time -= hours*3600;
-		timeString += QString::number(hours) + "h:";
-	}
-
-	int minutes = int(time/60.0);
-
-	if (minutes > 0){
-
-		time -= minutes*60;
-		timeString += QString::number(minutes) + "m:";
-	}
-
-	int seconds = ((int)time)%60;
-	timeString += QString::number(seconds) + "s";
-
-	return timeString;
+	return autoExportGroupBox;
 }
 
 void SXRMB2DMapScanConfigurationView::setXAxisStart(const AMNumber &value)
@@ -369,4 +361,9 @@ void SXRMB2DMapScanConfigurationView::setYAxisEnd(const AMNumber &value)
 void SXRMB2DMapScanConfigurationView::setDwellTime(const AMNumber &value)
 {
 	dwellTime_->setValue(double(value));
+}
+
+void SXRMB2DMapScanConfigurationView::updateAutoExporter(int useAscii)
+{
+	configuration_->setExportAsAscii(useAscii == 0);
 }

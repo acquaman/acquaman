@@ -34,9 +34,16 @@ public:
 	/// Get a nice looking string that contains all the standard information in an XAS scan.   Used when exporting.
 	virtual QString headerText() const;
 
+	/// Returns whether we are using Ascii or SMAK data formats for auto-exporting.
+	bool exportAsAscii() const { return exportAsAscii_; }
+
 signals:
 	/// Notifier that the total time estimate has changed.
 	void totalTimeChanged(double);
+
+public slots:
+	/// Sets which data file format we use for auto-export.  True = Ascii, false = SMAK.
+	void setExportAsAscii(bool exportAsAscii);
 
 protected slots:
 	/// Computes the total time any time the regions list changes.
@@ -45,6 +52,9 @@ protected slots:
 protected:
 	/// Method that does all the calculations for calculating the estimated scan time.
 	virtual void computeTotalTimeImplementation();
+
+	/// Flag holding whether we are exporting as Ascii or SMAK.
+	bool exportAsAscii_;
 };
 
 #endif // SXRMB2DMAPSCANCONFIGURATION_H

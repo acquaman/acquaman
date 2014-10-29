@@ -3,10 +3,13 @@
 #include "actions3/AMListAction3.h"
 #include "actions3/actions/AMControlMoveAction3.h"
 
+#include "analysis/AM2DNormalizationAB.h"
+#include "application/SXRMB/SXRMB.h"
 #include "application/AMAppControllerSupport.h"
 #include "beamline/SXRMB/SXRMBBeamline.h"
 #include "dataman/AM2DScan.h"
-#include "analysis/AM2DNormalizationAB.h"
+#include "dataman/export/AMExporter2DAscii.h"
+#include "dataman/export/AMSMAKExporter.h"
 
 SXRMB2DScanActionController::SXRMB2DScanActionController(SXRMB2DMapScanConfiguration *configuration, QObject *parent)
 	: AMStepScanActionController(configuration, parent)
@@ -18,6 +21,21 @@ SXRMB2DScanActionController::SXRMB2DScanActionController(SXRMB2DMapScanConfigura
 	scan_->setScanConfiguration(configuration_);
 	scan_->setFileFormat("amCDFv1");
 	scan_->setIndexType("fileSystem");
+
+	if (configuration_->exportAsAscii()){
+
+		AMExporterOptionGeneralAscii *sxrmbExportOptions = SXRMB::buildStandardExporterOption("SXRMB2DDefault", true, false, false, true);
+		if(sxrmbExportOptions->id() > 0)
+			AMAppControllerSupport::registerClass<SXRMB2DMapScanConfiguration, AMExporter2DAscii, AMExporterOptionGeneralAscii>(sxrmbExportOptions->id());
+	}
+
+	else{
+
+		// SMAK format requires a specific spectra file format.
+		AMExporterOptionGeneralAscii *sxrmbExportOptions = SXRMB::buildStandardExporterOption("SXRMB2DDefault", true, false, false, true);
+		if(sxrmbExportOptions->id() > 0)
+			AMAppControllerSupport::registerClass<SXRMB2DMapScanConfiguration, AMSMAKExporter, AMExporterOptionGeneralAscii>(sxrmbExportOptions->id());
+	}
 
 	int yPoints = int(round((double(configuration_->scanAxisAt(1)->regionAt(0)->regionEnd()) - double(configuration_->scanAxisAt(1)->regionAt(0)->regionStart()))/double(configuration_->scanAxisAt(0)->regionAt(0)->regionStep()))) + 1;
 
