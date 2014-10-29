@@ -7,9 +7,11 @@ SXRMBBrukerDetector::SXRMBBrukerDetector(const QString &name, const QString &des
 {
 	units_ = "Counts";
 
+	eVPerBin_ = 5.0;
+
 	AMAxisInfo ai("Energy", 2048, "Energy", "eV");
-	ai.start = AMNumber(0);
-	ai.increment = 10;
+	ai.start = AMNumber(-18);
+	ai.increment = eVPerBin_;
 	ai.isUniform = true;
 	axes_ << ai;
 
@@ -24,6 +26,10 @@ SXRMBBrukerDetector::SXRMBBrukerDetector(const QString &name, const QString &des
 	spectraControls_.append(new AMReadOnlyPVControl("Raw Spectrum", "mca1606-B10-03:mca1", this));
 
 	allControlsCreated();
+
+	((AM1DProcessVariableDataSource *)rawSpectraSources_.first())->setScale(ai.increment);
+	((AM1DProcessVariableDataSource *)rawSpectraSources_.first())->setOffset(ai.start);
+
 }
 
 SXRMBBrukerDetector::~SXRMBBrukerDetector()
