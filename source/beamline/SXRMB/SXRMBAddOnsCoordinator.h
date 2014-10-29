@@ -106,6 +106,11 @@ protected:
 	/// New AddOns Energy status control
 	AMControl *addOnsEnergyStatus_;
 
+	/// New AddOns Energy DRVH control
+	AMControl *addOnsEnergyDRVH_;
+	/// New AddOns Energy DRVL control
+	AMControl *addOnsEnergyDRVL_;
+
 	/// SXRMB Mono Z2 stop control
 	AMControl *monoZ2StopControl_;
 	/// SXRMB Mono Y2 stop control
@@ -156,6 +161,21 @@ protected:
 	AMControl *addOnsMicroprobeSampleStageStatusY_;
 	/// New AddOns Microprobe Sample Stage Status Z
 	AMControl *addOnsMicroprobeSampleStageStatusZ_;
+
+	/// New AddOns Microprobe Sample Stage X DRVH
+	AMControl *addOnsMicroprobeSampleStageDRVHX_;
+	/// New AddOns Microprobe Sample Stage X DRVL
+	AMControl *addOnsMicroprobeSampleStageDRVLX_;
+
+	/// New AddOns Microprobe Sample Stage Y DRVH
+	AMControl *addOnsMicroprobeSampleStageDRVHY_;
+	/// New AddOns Microprobe Sample Stage Y DRVL
+	AMControl *addOnsMicroprobeSampleStageDRVLY_;
+
+	/// New AddOns Microprobe Sample Stage Z DRVH
+	AMControl *addOnsMicroprobeSampleStageDRVHZ_;
+	/// New AddOns Microprobe Sample Stage Z DRVL
+	AMControl *addOnsMicroprobeSampleStageDRVLZ_;
 
 	/// All the controls (for checking connectivity)
 	AMControlSet *allControls_;
