@@ -147,6 +147,12 @@ void SXRMBAppController::onBeamlineConnected(bool connected)
 		mw_->addPane(microProbe2DScanConfigurationViewHolder_, "Scans", "2D Scan", ":/utilites-system-monitor.png");
 	}
 
+	if (connected && !sxrmbPersistentView_){
+
+		sxrmbPersistentView_ = new SXRMBPersistentView();
+		mw_->addRightWidget(sxrmbPersistentView_);
+	}
+
 	if (connected && !userConfiguration_){
 		qDebug() << "Going to set user configuration for the first time";
 		userConfiguration_ = new SXRMBUserConfiguration(this);
@@ -206,6 +212,8 @@ void SXRMBAppController::setupUserInterface()
 	microProbe2DScanConfigurationViewHolder_ = 0; //NULL
 
 	scalerView_ = 0; //NULL
+	sxrmbPersistentView_ = 0;
+
 
 	// Create panes in the main window:
 	////////////////////////////////////
@@ -225,9 +233,6 @@ void SXRMBAppController::setupUserInterface()
 	mw_->addPane(brukerView, "Detectors", "Bruker", ":/system-search.png");
 
 	mw_->insertHeading("Scans", 2);
-
-	sxrmbPersistentView_ = new SXRMBPersistentView();
-	mw_->addRightWidget(sxrmbPersistentView_);
 
 	connect(SXRMBBeamline::sxrmb(), SIGNAL(connected(bool)), this, SLOT(onBeamlineConnected(bool)));
 	connect(SXRMBBeamline::sxrmb()->scaler(), SIGNAL(connectedChanged(bool)), this, SLOT(onScalerConnected(bool)));
