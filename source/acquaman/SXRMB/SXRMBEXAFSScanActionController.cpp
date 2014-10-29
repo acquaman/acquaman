@@ -37,47 +37,46 @@ SXRMBEXAFSScanActionController::~SXRMBEXAFSScanActionController()
 
 AMAction3* SXRMBEXAFSScanActionController::createInitializationActions()
 {
-	return 0;
+//	return 0;
 
-//	AMListAction3 *initializationActions = new AMListAction3(new AMListActionInfo3("SXRMB EXAFS Initialization Actions", "SXRMB EXAFS Initialization Actions"));
-//	// Figure out if they want capability like this?
-//	/*
-//	AMControlMoveActionInfo3 *moveActionInfo;
-//	AMControlMoveAction3 *moveAction;
-//	AMControl *tmpControl;
+	AMListAction3 *initializationActions = new AMListAction3(new AMListActionInfo3("SXRMB EXAFS Initialization Actions", "SXRMB EXAFS Initialization Actions"), AMListAction3::Sequential);
+	// Figure out if they want capability like this?
+	/*
+	AMControlMoveActionInfo3 *moveActionInfo;
+	AMControlMoveAction3 *moveAction;
+	AMControl *tmpControl;
 
 
-//	tmpControl = SXRMBBeamline::sxrmb()->microprobeSampleStageY();
-//	AMControlInfo normalSetpoint = tmpControl->toInfo();
-//	normalSetpoint.setValue(configuration_->normalPosition());
-//	moveActionInfo = new AMControlMoveActionInfo3(normalSetpoint);
-//	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
-//	initializationActions->addSubAction(moveAction);
-//	*/
+	tmpControl = SXRMBBeamline::sxrmb()->microprobeSampleStageY();
+	AMControlInfo normalSetpoint = tmpControl->toInfo();
+	normalSetpoint.setValue(configuration_->normalPosition());
+	moveActionInfo = new AMControlMoveActionInfo3(normalSetpoint);
+	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
+	initializationActions->addSubAction(moveAction);
+	*/
 
-//	CLSSIS3820Scaler *scaler = SXRMBBeamline::sxrmb()->scaler();
-//	initializationActions->addSubAction(scaler->createStartAction3(false));
-//	initializationActions->addSubAction(scaler->createContinuousEnableAction3(false));
+	CLSSIS3820Scaler *scaler = SXRMBBeamline::sxrmb()->scaler();
+	initializationActions->addSubAction(scaler->createStartAction3(false));
+	initializationActions->addSubAction(scaler->createContinuousEnableAction3(false));
 
-//	initializationActions->addSubAction(scaler->createScansPerBufferAction3(1));
-//	initializationActions->addSubAction(scaler->createTotalScansAction3(1));
+	initializationActions->addSubAction(scaler->createScansPerBufferAction3(1));
+	initializationActions->addSubAction(scaler->createTotalScansAction3(1));
 
-//	// Bruker actions?
+	// Bruker actions?
 
-//	return initializationActions;
+	return initializationActions;
 }
 
 AMAction3* SXRMBEXAFSScanActionController::createCleanupActions()
 {
-	return 0;
-//	AMListAction3 *cleanupActions = new AMListAction3(new AMListActionInfo3("SXRMB EXAFS Cleanup Actions", "SXRMB EXAFS Cleanup Actions"), AMListAction3::Sequential);
+	AMListAction3 *cleanupActions = new AMListAction3(new AMListActionInfo3("SXRMB EXAFS Cleanup Actions", "SXRMB EXAFS Cleanup Actions"), AMListAction3::Sequential);
 
-//	CLSSIS3820Scaler *scaler = SXRMBBeamline::sxrmb()->scaler();
-//	cleanupActions->addSubAction(scaler->createContinuousEnableAction3(scaler->isContinuous()));
-//	cleanupActions->addSubAction(scaler->createScansPerBufferAction3(scaler->scansPerBuffer()));
-//	cleanupActions->addSubAction(scaler->createTotalScansAction3(scaler->totalScans()));
+	CLSSIS3820Scaler *scaler = SXRMBBeamline::sxrmb()->scaler();
+	cleanupActions->addSubAction(scaler->createContinuousEnableAction3(scaler->isContinuous()));
+	cleanupActions->addSubAction(scaler->createScansPerBufferAction3(scaler->scansPerBuffer()));
+	cleanupActions->addSubAction(scaler->createTotalScansAction3(scaler->totalScans()));
 
-//	return cleanupActions;
+	return cleanupActions;
 }
 
 void SXRMBEXAFSScanActionController::cancelImplementation()
