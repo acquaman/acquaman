@@ -19,6 +19,10 @@ signals:
 
 public slots:
 
+protected slots:
+	/// Handles updating time elapsed for scan and progress bar
+	void onScanTimerUpdate();
+
 protected:
 	/// Reimplemented to provide actions that will setupd the beamine for optimzed operation of the XAS scan.
 	AMAction3* createInitializationActions();
@@ -34,7 +38,15 @@ protected:
 
 
 protected:
+	/// Our scan configuration
 	SXRMBEXAFSScanConfiguration *configuration_;
+
+	/// Timer used for determinging the elasped time for a scan.
+	QTimer elapsedTime_;
+	/// Number of seconds since the timer started.
+	double secondsElapsed_;
+	/// Number of seconds total for the scan to complete (estimate).
+	double secondsTotal_;
 };
 
 #endif // SXRMBEXAFSSCANACTIONCONTROLLER_H

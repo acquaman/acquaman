@@ -9,6 +9,8 @@
 SXRMB2DMapScanConfiguration::SXRMB2DMapScanConfiguration(QObject *parent)
 	: AMStepScanConfiguration(parent), SXRMBScanConfiguration()
 {
+	timeOffset_ = 0.8;
+
 	setName("2D Map");
 	setUserScanName("2D Map");
 

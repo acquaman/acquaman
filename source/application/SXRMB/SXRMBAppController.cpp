@@ -191,7 +191,7 @@ void SXRMBAppController::setupUserInterface()
 
 	AMXRFDetailedDetectorView *brukerView = new AMXRFDetailedDetectorView(SXRMBBeamline::sxrmb()->brukerDetector());
 	brukerView->buildDetectorView();
-	brukerView->setEnergyRange(1800, 10000);
+	brukerView->setEnergyRange(1700, 10000);
 	brukerView->addEmissionLineNameFilter(QRegExp("1"));
 	brukerView->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
 	brukerView->addCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));

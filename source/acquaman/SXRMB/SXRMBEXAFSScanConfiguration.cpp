@@ -10,6 +10,8 @@
 SXRMBEXAFSScanConfiguration::SXRMBEXAFSScanConfiguration(QObject *parent) :
 	AMStepScanConfiguration(parent), SXRMBScanConfiguration()
 {
+	timeOffset_ = 1.333;
+
 	setName("Unnamed Scan");
 	setUserScanName("Unnamed Scan");
 
@@ -169,7 +171,7 @@ void SXRMBEXAFSScanConfiguration::computeTotalTimeImplementation()
 		}
 
 		else
-			time += double(exafsRegion->regionTime())*numberOfPoints;
+			time += (double(exafsRegion->regionTime())+timeOffset_)*numberOfPoints;
 	}
 
 	totalTime_ = time; // There is a 9 second miscellaneous startup delay.

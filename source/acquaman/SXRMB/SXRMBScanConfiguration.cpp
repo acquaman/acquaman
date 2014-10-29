@@ -3,7 +3,7 @@
 SXRMBScanConfiguration::SXRMBScanConfiguration()
 {
 	dbObject_ = new SXRMBScanConfigurationDbObject;
-	timeOffset_ = 0.8;
+	timeOffset_ = 0;
 	totalTime_ = 0;
 }
 

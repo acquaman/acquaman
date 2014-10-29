@@ -14,7 +14,6 @@ SXRMB2DScanActionController::SXRMB2DScanActionController(SXRMB2DMapScanConfigura
 	configuration_ = configuration;
 
 	scan_ = new AM2DScan();
-	scan_->setName(configuration_->name());
 	scan_->setScanConfiguration(configuration_);
 	scan_->setFileFormat("amCDFv1");
 	scan_->setIndexType("fileSystem");
@@ -26,6 +25,13 @@ SXRMB2DScanActionController::SXRMB2DScanActionController(SXRMB2DMapScanConfigura
 	list.append(SXRMBBeamline::sxrmb()->microprobeSampleStageZ()->toInfo());
 	scan_->rawData()->addScanAxis(AMAxisInfo("H", 0, "Horizontal Position", "mm"));
 	scan_->rawData()->addScanAxis(AMAxisInfo("V", yPoints, "Vertical Position", "mm"));
+
+	QString scanName = configuration_->userScanName();
+	if (scanName == "") {
+		scanName = configuration_->autoScanName();
+	}
+	scan_->setName(scanName);
+
 
 	configuration_->setAxisControlInfos(list);
 
