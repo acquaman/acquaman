@@ -52,6 +52,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/SXRMB/SXRMBEXAFSScanConfigurationView.h"
 #include "ui/SXRMB/SXRMB2DMapScanConfigurationView.h"
 #include "ui/CLS/CLSSIS3820ScalerView.h"
+#include "ui/SXRMB/SXRMBChooseDataFolderDialog.h"
 
 #include "util/AMPeriodicTable.h"
 
@@ -66,7 +67,9 @@ SXRMBAppController::SXRMBAppController(QObject *parent)
 
 bool SXRMBAppController::startup()
 {
-	getUserDataFolderFromDialog();
+	// Get a destination folder.
+	if (!SXRMBChooseDataFolderDialog::getDataFolder())
+		return false;
 
 	// Start up the main program.
 	if(AMAppController::startup()) {
