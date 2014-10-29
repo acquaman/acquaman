@@ -5,6 +5,7 @@
 
 #include "ui/acquaman/AMScanConfigurationView.h"
 #include "acquaman/SXRMB/SXRMB2DMapScanConfiguration.h"
+#include "ui/util/AMEnergyListView.h"
 
 #include <QDoubleSpinBox>
 #include <QLabel>
@@ -113,6 +114,9 @@ protected:
 
 	/// Button group for the exporter options.
 	QButtonGroup *autoExportButtonGroup_;
+
+	/// The energy list view.
+	AMEnergyListView *oxidationEnergyListView_;
 };
 
 #endif // SXRMB2DOXIDATIONMAPSCANCONFIGURATIONVIEW_H
