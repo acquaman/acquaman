@@ -23,14 +23,19 @@ SXRMBPersistentView::SXRMBPersistentView(QWidget *parent) :
 	motorGroupView_ = new AMMotorGroupView(SXRMBBeamline::sxrmb()->motorGroup());
 	motorGroupView_->setMotorGroupView("Microprobe Stage - X, Z, Y");
 
+	i0DetectorSR570View_ = new CLSSIS3820ScalerChannelView(SXRMBBeamline::sxrmb()->scaler()->channelAt(17));
+	teyDetectorSR570View_ = new CLSSIS3820ScalerChannelView(SXRMBBeamline::sxrmb()->scaler()->channelAt(18));
+	i0DetectorSR570View_->setEnableCheckBoxVisibility(false);
+	teyDetectorSR570View_->setEnableCheckBoxVisibility(false);
+
 	mainVL_ = new QVBoxLayout();
 	mainVL_->setContentsMargins(2, 2, 2, 2);
 
 	mainVL_->addWidget(statusControlEditor_);
 	mainVL_->addWidget(energyControlEditor_);
 	mainVL_->addWidget(motorGroupView_);
-	mainVL_->addWidget(new CLSSIS3820ScalerChannelView(SXRMBBeamline::sxrmb()->scaler()->channelAt(17)));
-	mainVL_->addWidget(new CLSSIS3820ScalerChannelView(SXRMBBeamline::sxrmb()->scaler()->channelAt(18)));
+	mainVL_->addWidget(i0DetectorSR570View_);
+	mainVL_->addWidget(teyDetectorSR570View_);
 	mainVL_->addStretch();
 
 	setFixedWidth(350);

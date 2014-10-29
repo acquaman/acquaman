@@ -48,6 +48,10 @@ public slots:
 
 	/// Vortex detectors do not support clearing
 	virtual bool clear() { return false; }
+
+protected:
+	/// The eV/bin ratio for this detector
+	double eVPerBin_;
 };
 
 #endif // SXRMBBRUKERDETECTOR_H

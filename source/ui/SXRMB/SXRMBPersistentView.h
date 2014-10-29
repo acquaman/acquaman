@@ -7,6 +7,7 @@ class QVBoxLayout;
 class QGroupBox;
 class AMMotorGroupView;
 class AMExtendedControlEditor;
+class CLSSIS3820ScalerChannelView;
 
 class SXRMBPersistentView : public QWidget
 {
@@ -36,6 +37,11 @@ protected:
 
 	/// The view that holds all the motor group objects.
 	AMMotorGroupView *motorGroupView_;
+
+	/// View for the I0Detector SR570
+	CLSSIS3820ScalerChannelView *i0DetectorSR570View_;
+	/// View for the TEYDetector SR570
+	CLSSIS3820ScalerChannelView *teyDetectorSR570View_;
 };
 
 #endif // SXRMBPERSISTENTVIEW_H
