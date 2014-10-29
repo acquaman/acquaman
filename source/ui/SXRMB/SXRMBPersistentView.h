@@ -3,11 +3,14 @@
 
 #include <QWidget>
 
+class QPushButton;
 class QVBoxLayout;
 class QGroupBox;
+
 class AMMotorGroupView;
 class AMExtendedControlEditor;
 class CLSSIS3820ScalerChannelView;
+class AMAction3;
 
 class SXRMBPersistentView : public QWidget
 {
@@ -20,6 +23,17 @@ public:
 
 	/// Destructor
 	virtual ~SXRMBPersistentView();
+
+protected slots:
+	/// Handles turning beam on when button clicked
+	void onBeamOnButtonClicked();
+	/// Handles disconnecting signals and deleting when beam on action is done
+	void onBeamOnActionFinished();
+
+	/// Handles turning beam off when button clicked
+	void onBeamOffButtonClicked();
+	/// Handles disconnecting signals and deleting when beam off action is done
+	void onBeamOffActionFinished();
 
 protected:
 	/// Main layout holding overall group box
@@ -42,6 +56,16 @@ protected:
 	CLSSIS3820ScalerChannelView *i0DetectorSR570View_;
 	/// View for the TEYDetector SR570
 	CLSSIS3820ScalerChannelView *teyDetectorSR570View_;
+
+	/// Button to turn on beam
+	QPushButton *beamOnButton_;
+	/// Button to turn off beam
+	QPushButton *beamOffButton_;
+
+	/// Our copy of the beam on action
+	AMAction3 *beamOnAction_;
+	/// Our copy of the beam off action
+	AMAction3 *beamOffAction_;
 };
 
 #endif // SXRMBPERSISTENTVIEW_H

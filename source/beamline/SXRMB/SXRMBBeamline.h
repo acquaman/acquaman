@@ -94,6 +94,11 @@ public:
 	/// Returns the bruker fluorescence detector.
 	SXRMBBrukerDetector *brukerDetector() const;
 
+	/// Returns the list of actions to turn the beam on
+	AMAction3* createBeamOnActions() const;
+	/// Returns the list of actions to turn the beam off (just photon shutter 2 right now)
+	AMAction3* createBeamOffActions() const;
+
 protected:
 	/// Sets up the synchronized dwell time.
 	void setupSynchronizedDwellTime();
@@ -170,6 +175,16 @@ protected:
 
 	/// The bruker detector.
 	SXRMBBrukerDetector *brukerDetector_;
+
+	/// Beamline valves
+	AMControl *PSH1406B1002Shutter_;
+	AMControl *VVR16064B1003Valve_;
+	AMControl *VVR16064B1004Valve_;
+	// NOT THIS ONE! It's connected to the pump on the mono
+//	AMControl *VVR16064B1005Valve_;
+	AMControl *VVR16064B1006Valve_;
+	AMControl *VVR16064B1007Valve_;
+	AMControl *VVR16065B1001Valve_;
 };
 
 #endif // SXRMBBEAMLINE_H
