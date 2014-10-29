@@ -28,8 +28,6 @@ protected:
 	AMAction3* createInitializationActions();
 	/// Reimplemented to put the beamline in a good state after a scan has been completed.
 	AMAction3* createCleanupActions();
-	/// Re-implemented due to the extra complexity of setting up IDEAS.
-	virtual void cancelImplementation();
 
 	/// Sets the scan axis and adds anything extra.
 	virtual void buildScanControllerImplementation();

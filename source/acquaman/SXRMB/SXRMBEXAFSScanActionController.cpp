@@ -94,11 +94,6 @@ AMAction3* SXRMBEXAFSScanActionController::createCleanupActions()
 	return cleanupActions;
 }
 
-void SXRMBEXAFSScanActionController::cancelImplementation()
-{
-
-}
-
 void SXRMBEXAFSScanActionController::buildScanControllerImplementation()
 {
 	AMXRFDetector *detector = SXRMBBeamline::sxrmb()->brukerDetector();
