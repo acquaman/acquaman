@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "SXRMBAppController.h"
 
 #include "beamline/SXRMB/SXRMBBeamline.h"
+#include "application/SXRMB/SXRMB.h"
 
 #include "ui/AMMainWindow.h"
 #include "ui/dataman/AMGenericScanEditor.h"
@@ -40,6 +41,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
 #include "dataman/export/AMExporterGeneralAscii.h"
 #include "dataman/export/AMExporterAthena.h"
+#include "dataman/export/AMSMAKExporter.h"
 #include "dataman/AMRun.h"
 #include "dataman/SXRMB/SXRMBUserConfiguration.h"
 #include "dataman/AMRegionOfInterest.h"
@@ -158,7 +160,13 @@ void SXRMBAppController::registerClasses()
 
 void SXRMBAppController::setupExporterOptions()
 {
+	AMExporterOptionGeneralAscii *sxrmbExportOptions = SXRMB::buildStandardExporterOption("SXRMBXASDefault", true, true, true, true);
+	if(sxrmbExportOptions->id() > 0)
+		AMAppControllerSupport::registerClass<SXRMBEXAFSScanConfiguration, AMExporterAthena, AMExporterOptionGeneralAscii>(sxrmbExportOptions->id());
 
+	sxrmbExportOptions = SXRMB::buildStandardExporterOption("SXRMB2DDefault", true, false, false, true);
+	if(sxrmbExportOptions->id() > 0)
+		AMAppControllerSupport::registerClass<SXRMB2DMapScanConfiguration, AMSMAKExporter, AMExporterOptionGeneralAscii>(sxrmbExportOptions->id());
 }
 
 void SXRMBAppController::setupUserInterface()

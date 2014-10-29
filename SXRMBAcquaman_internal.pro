@@ -17,7 +17,8 @@ HEADERS += \
     source/ui/SXRMB/SXRMB2DMapScanConfigurationView.h \
     source/acquaman/SXRMB/SXRMBScanConfiguration.h \
     source/acquaman/SXRMB/SXRMBScanConfigurationDbObject.h \
-    source/dataman/SXRMB/SXRMBUserConfiguration.h
+    source/dataman/SXRMB/SXRMBUserConfiguration.h \
+    source/application/SXRMB/SXRMB.h
 
 SOURCES += \
     source/application/SXRMB/SXRMBMain.cpp \
@@ -34,6 +35,7 @@ SOURCES += \
     source/acquaman/SXRMB/SXRMBScanConfiguration.cpp \
     source/acquaman/SXRMB/SXRMBScanConfigurationDbObject.cpp \
     source/dataman/SXRMB/SXRMBUserConfiguration.cpp
+
 
 
 
