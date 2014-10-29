@@ -6,6 +6,7 @@
 #include "beamline/SXRMB/SXRMBBeamline.h"
 #include "ui/beamline/AMExtendedControlEditor.h"
 #include "ui/AMMotorGroupView.h"
+#include "ui/CLS/CLSSIS3820ScalerView.h"
 
 SXRMBPersistentView::SXRMBPersistentView(QWidget *parent) :
 	QWidget(parent)
@@ -28,6 +29,8 @@ SXRMBPersistentView::SXRMBPersistentView(QWidget *parent) :
 	mainVL_->addWidget(statusControlEditor_);
 	mainVL_->addWidget(energyControlEditor_);
 	mainVL_->addWidget(motorGroupView_);
+	mainVL_->addWidget(new CLSSIS3820ScalerChannelView(SXRMBBeamline::sxrmb()->scaler()->channelAt(17)));
+	mainVL_->addWidget(new CLSSIS3820ScalerChannelView(SXRMBBeamline::sxrmb()->scaler()->channelAt(18)));
 	mainVL_->addStretch();
 
 	setFixedWidth(350);
