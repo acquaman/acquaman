@@ -65,7 +65,7 @@ class AM1DExpressionAB : public AMAnalysisBlock
 public:
 	/// Constructor. \c outputName is the name() for the output data source.
 	virtual ~AM1DExpressionAB();
-	AM1DExpressionAB(const QString& outputName, QObject* parent = 0);
+	Q_INVOKABLE AM1DExpressionAB(const QString& outputName, QObject* parent = 0);
 	/// This constructor is used to reload analysis blocks directly out of the database
 	Q_INVOKABLE AM1DExpressionAB(AMDatabase* db, int id);
 
@@ -77,6 +77,9 @@ public:
 		- anything else?
 		*/
 	virtual bool areInputDataSourcesAcceptable(const QList<AMDataSource*>& dataSources) const;
+
+	/// Returns the desired rank for input sources.
+	virtual int desiredInputRank() const { return 1; }
 
 	/// Set the data source inputs.  The existing expression() and xExpression() are preserved
 	virtual void setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources);
@@ -141,6 +144,8 @@ int outputSize = indexStart.totalPointsTo(indexEnd);
 
 	/// When the independent values along an axis is not simply the axis index, this returns the independent value along an axis (specified by axis number and index)
 	virtual AMNumber axisValue(int axisNumber, int index) const;
+	/// Performance optimization of axisValue():  instead of a single value, copies a block of values from \c startIndex to \c endIndex in \c outputValues.  The provided pointer must contain enough space for all the requested values.
+	virtual bool axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const;
 
 	// Expression Setting for Y values
 	//////////////////////////////

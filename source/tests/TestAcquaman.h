@@ -19,8 +19,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
+#include "AMQtTest.h"
+
 #include "util/AMSettings.h"
-#include <QtTest/QtTest>
 #include "beamline/SGM/SGMBeamline.h"
 #include "dataman/database/AMDatabase.h"
 #include "dataman/AMXASScan.h"

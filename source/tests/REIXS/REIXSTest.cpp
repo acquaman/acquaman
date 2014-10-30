@@ -20,7 +20,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include <QtCore/QString>
-#include <QtTest/QtTest>
+
+#include "AMQtTest.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMSettings.h"

@@ -352,7 +352,7 @@ void AMExportWizardOptionPage::initializePage()
 
 void AMExportWizardOptionPage::onOptionSelectorIndexChanged(int index)
 {
-	delete optionView_;	// might be 0 if no option yet... or if last option couldn't create an editor. but that's okay.
+	optionView_->deleteLater();	// might be 0 if no option yet... or if last option couldn't create an editor. but that's okay.
 
 	// add new option...
 	if(index < 1) {

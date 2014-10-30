@@ -23,9 +23,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #ifdef AM_MOBILITY_VIDEO_ENABLED
 #include <QGraphicsVideoItem>
+
+#include "AMQEvents.h"
+
 #endif
 
-#include <QResizeEvent>
 #include <QGLWidget>
 #include <QLayout>
 #include <QDebug>
@@ -63,8 +65,8 @@ AMOverlayVideoWidget2::~AMOverlayVideoWidget2() {
   */
 	#ifdef AM_MOBILITY_VIDEO_ENABLED
 	mediaPlayer_->setMedia(QMediaContent());
-	delete videoItem_;
-	delete mediaPlayer_;
+	videoItem_->deleteLater();
+	mediaPlayer_->deleteLater();
 	#endif
 }
 

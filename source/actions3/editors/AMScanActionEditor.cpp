@@ -56,7 +56,7 @@ AMScanActionEditor::~AMScanActionEditor()
 {
 	if (configView_){
 
-		delete configView_;
+		configView_->deleteLater();
 		configView_ = 0;
 	}
 }

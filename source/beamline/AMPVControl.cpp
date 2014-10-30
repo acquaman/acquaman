@@ -391,13 +391,13 @@ AMControl::FailureExplanation AMPVwStatusControl::move(double Setpoint) {
 
 	if(isMoving()) {
 		if(!allowsMovesWhileMoving()) {
-			AMErrorMon::debug(this, AMPVCONTROL_COULD_NOT_MOVE_WHILE_MOVING, QString("AMPVControl: Could not move %1 (%2) to %3, because the control is already moving.").arg(name()).arg(writePV_->pvName()).arg(setpoint_));
+			AMErrorMon::debug(this, AMPVCONTROL_COULD_NOT_MOVE_WHILE_MOVING, QString("AMPVwStatusControl: Could not move %1 (%2) to %3, because the control is already moving.").arg(name()).arg(writePV_->pvName()).arg(setpoint_));
 			return AlreadyMovingFailure;
 		}
 
 		if(!moveInProgress()) {
 			// the control is already moving, but it's not one of our moves. In this situation, there is no way that we can start a move and be assured that we'll be notified when OUR move finishes.
-			AMErrorMon::debug(this, AMPVCONTROL_COULD_NOT_MOVE_WHILE_MOVING_EXTERNAL, QString("AMPVControl: Could not move %1 (%2) to %3, because the control is already moving.").arg(name()).arg(writePV_->pvName()).arg(setpoint_));
+			AMErrorMon::debug(this, AMPVCONTROL_COULD_NOT_MOVE_WHILE_MOVING_EXTERNAL, QString("AMPVwStatusControl: Could not move %1 (%2) to %3, because the control is already moving.").arg(name()).arg(writePV_->pvName()).arg(setpoint_));
 			return AlreadyMovingFailure;
 		}
 

@@ -18,12 +18,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
+#include "AMQEvents.h"
+
 #include "SGMSettingsMasterView.h"
 #include <QHBoxLayout>
 #include <QMessageBox>
 #include <QCheckBox>
 #include <QLabel>
-#include <QCloseEvent>
 #include <QShowEvent>
 
 #include "beamline/SGM/SGMBeamline.h"

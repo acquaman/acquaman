@@ -198,7 +198,7 @@ void AMWizardManager::cameraWizardUpdate()
 		AMSampleCameraGraphicsView *view = new AMSampleCameraGraphicsView();
 		view->setScene(parentView_->scene());
 		cameraWizard_->updateScene(view);
-		delete view;
+		view->deleteLater();
 	}
 }
 
@@ -209,7 +209,7 @@ void AMWizardManager::beamWizardUpdate()
 		AMSampleCameraGraphicsView *view = new AMSampleCameraGraphicsView();
 		view->setScene(parentView_->scene());
 		beamWizard_->updateScene(view);
-		delete view;
+		view->deleteLater();
 	}
 }
 
@@ -220,7 +220,7 @@ void AMWizardManager::sampleWizardUpdate()
 		AMSampleCameraGraphicsView *view = new AMSampleCameraGraphicsView();
 		view->setScene(parentView_->scene());
 		samplePlateWizard_->updateScene(view);
-		delete view;
+		view->deleteLater();
 	}
 }
 
@@ -231,7 +231,7 @@ void AMWizardManager::rotationWizardUpdate()
 		AMSampleCameraGraphicsView *view = new AMSampleCameraGraphicsView();
 		view->setScene(parentView_->scene());
 		rotationWizard_->updateScene(view);
-		delete view;
+		view->deleteLater();
 	}
 }
 
@@ -243,14 +243,14 @@ void AMWizardManager::updateBeamWizardShape(QGraphicsPolygonItem *item)
 void AMWizardManager::cameraWizardDone()
 {
 	emit cameraWizardFinished();
-	delete cameraWizard_;
+	cameraWizard_->deleteLater();
 	cameraWizard_ = 0;
 }
 
 void AMWizardManager::beamWizardDone()
 {
 	emit beamWizardFinished();
-	delete beamWizard_;
+	beamWizard_->deleteLater();
 	beamWizard_ = 0;
 }
 
@@ -260,13 +260,13 @@ void AMWizardManager::sampleWizardDone()
 		emit sampleWizardFinished();
 	else if(samplePlateWizardType() == SIMPLE)
 		emit simpleSampleWizardFinished();
-	delete samplePlateWizard_;
+	samplePlateWizard_->deleteLater();
 	samplePlateWizard_ = 0;
 }
 
 void AMWizardManager::rotationWizardDone()
 {
 	emit rotationWizardFinished();
-	delete rotationWizard_;
+	rotationWizard_->deleteLater();
 	rotationWizard_ = 0;
 }

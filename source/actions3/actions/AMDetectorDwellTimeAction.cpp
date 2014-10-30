@@ -21,7 +21,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMDetectorDwellTimeAction.h"
 
-#include "beamline/AMBeamline.h"
+#include <math.h>
+
+#include "beamline/AMBeamlineSupport.h"
 #include "util/AMErrorMonitor.h"
 
  AMDetectorDwellTimeAction::~AMDetectorDwellTimeAction(){}
@@ -31,8 +33,11 @@ AMDetectorDwellTimeAction::AMDetectorDwellTimeAction(AMDetectorDwellTimeActionIn
 	dwellTimeSource_ = 0; //NULL
 	if(detector)
 		detector_ = detector;
+	else if(AMBeamlineSupport::beamlineDetectorAPI())
+		detector_ = AMBeamlineSupport::beamlineDetectorAPI()->exposedDetectorByInfo(*(info->detectorInfo()));
+		//detector_ = AMBeamline::bl()->exposedDetectorByInfo(*(info->detectorInfo()));
 	else
-		detector_ = AMBeamline::bl()->exposedDetectorByInfo(*(info->detectorInfo()));
+		detector_ = 0; //NULL
 }
 
 AMDetectorDwellTimeAction::AMDetectorDwellTimeAction(const AMDetectorDwellTimeAction &other) :
@@ -40,8 +45,10 @@ AMDetectorDwellTimeAction::AMDetectorDwellTimeAction(const AMDetectorDwellTimeAc
 {
 	const AMDetectorDwellTimeActionInfo *info = qobject_cast<const AMDetectorDwellTimeActionInfo*>(other.info());
 
-	if(info)
-		detector_ = AMBeamline::bl()->exposedDetectorByInfo(*(info->detectorInfo()));
+	//if(info)
+	//	detector_ = AMBeamline::bl()->exposedDetectorByInfo(*(detectorDwellTimeInfo()->detectorInfo()));
+	if(info && AMBeamlineSupport::beamlineDetectorAPI())
+		detector_ = AMBeamlineSupport::beamlineDetectorAPI()->exposedDetectorByInfo(*(detectorDwellTimeInfo()->detectorInfo()));
 	else
 		detector_ = 0;
 
@@ -51,8 +58,10 @@ AMDetectorDwellTimeAction::AMDetectorDwellTimeAction(const AMDetectorDwellTimeAc
 #include "beamline/AMDetectorTriggerSource.h"
 void AMDetectorDwellTimeAction::startImplementation(){
 	// If you still don't have a detector, check the exposed detectors one last time.
-	if(!detector_)
-		detector_ = AMBeamline::bl()->exposedDetectorByInfo(*(detectorDwellTimeInfo()->detectorInfo()));
+	//if(!detector_)
+	//	detector_ = AMBeamline::bl()->exposedDetectorByInfo(*(detectorDwellTimeInfo()->detectorInfo()));
+	if(!detector_ && AMBeamlineSupport::beamlineDetectorAPI())
+		detector_ = AMBeamlineSupport::beamlineDetectorAPI()->exposedDetectorByInfo(*(detectorDwellTimeInfo()->detectorInfo()));
 
 	if(!detector_) {
 		AMErrorMon::alert(this,
@@ -100,14 +109,17 @@ void AMDetectorDwellTimeAction::startImplementation(){
 	}
 }
 
-void AMDetectorDwellTimeAction::onDwellSetStarted(double dwellSeconds){
+void AMDetectorDwellTimeAction::onDwellSetStarted(double dwellTime){
 	if(dwellTimeSource_)
 		disconnect(dwellTimeSource_, SIGNAL(setDwellTime(double)), this, SLOT(onDwellSetStarted(double)));
 
-	if(dwellSeconds != detectorDwellTimeInfo()->dwellSeconds())
+	if(fabs(dwellTime - detectorDwellTimeInfo()->dwellSeconds()) < detector_->acquisitionTimeTolerance())
+		setSucceeded();
+	else{
+
+		AMErrorMon::alert(this, AMDETECTORDWELLTIMEACTION_TIME_INVALID_ON_START, "Failed to set the dwell time within tolerance.");
 		setFailed();
-	else
-		setStarted();
+	}
 }
 
 void AMDetectorDwellTimeAction::onDwellSetSucceeded(){
@@ -118,13 +130,17 @@ void AMDetectorDwellTimeAction::onDwellSetSucceeded(){
 	setSucceeded();
 }
 
-void AMDetectorDwellTimeAction::onDwellTimeChanged(double dwellSeconds){
+void AMDetectorDwellTimeAction::onDwellTimeChanged(double dwellTime){
 	disconnect(detector_, 0, this, 0);
 
-	if(dwellSeconds != detectorDwellTimeInfo()->dwellSeconds())
-		setFailed();
-	else
+	if(fabs(dwellTime - detectorDwellTimeInfo()->dwellSeconds()) < detector_->acquisitionTimeTolerance())
 		setSucceeded();
+
+	else{
+
+		AMErrorMon::alert(this, AMDETECTORDWELLTIMEACTION_TIME_INVALID_ON_CHANGED, "Failed to set the dwell time within tolerance.");
+		setFailed();
+	}
 }
 
 void AMDetectorDwellTimeAction::onDwellSetFailed(){

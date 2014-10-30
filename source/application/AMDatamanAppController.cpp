@@ -33,9 +33,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/export/AMExportController.h"
 #include "dataman/export/AMExporterGeneralAscii.h"
 #include "dataman/export/AMExporterAthena.h"
+#include "dataman/export/AMSMAKExporter.h"
+#include "dataman/export/AMExporter2DAscii.h"
 
 #include "ui/AMMainWindow.h"
-#include "ui/AMBottomBar.h"
 #include "ui/AMDatamanAppBottomPanel.h"
 #include "ui/dataman/AMScanDataView.h"
 #include "ui/dataman/AMRunExperimentInsert.h"
@@ -237,6 +238,9 @@ bool AMDatamanAppController::startup() {
 		if(!startupLoadFromExistingDatabase())
 			return AMErrorMon::errorAndReturn(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_REVIEWING_EXISTING_USER_DATABASE, "Problem with Acquaman startup: reviewing existing database.");
 	}
+
+	if(!startupCheckExportDirectory())
+		return AMErrorMon::errorAndReturn(this, AMDATAMANAPPCONTROLLER_CANT_CREATE_EXPORT_FOLDER, "Problem with Acquaman startup: checking export data directory.");
 
 	if(!startupRegisterExporters())
 		return AMErrorMon::errorAndReturn(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_REGISTERING_EXPORTERS, "Problem with Acquaman startup: registering exporters.");
@@ -512,6 +516,23 @@ bool AMDatamanAppController::startupBackupDataDirectory()
 			synchronizer->appendExcludePattern(excludePatterns.at(x));
 
 		return synchronizer->autoStart();
+	}
+	return true;
+}
+
+bool AMDatamanAppController::startupCheckExportDirectory()
+{
+	QDir exportDir;
+	if(!AMUserSettings::remoteDataFolder.isEmpty())
+		exportDir.setCurrent(AMUserSettings::remoteDataFolder);
+	else
+		exportDir.setCurrent(AMUserSettings::userDataFolder);
+	exportDir.cdUp();
+
+	if(!exportDir.entryList(QDir::AllDirs).contains("exportData")){
+		if(!exportDir.mkdir("exportData"))
+			return false;
+		AMUser::user()->setLastExportDestination(QString("%1/exportData").arg(exportDir.absolutePath()));
 	}
 	return true;
 }
@@ -804,6 +825,8 @@ bool AMDatamanAppController::startupRegisterExporters()
 	// Install exporters
 	AMExportController::registerExporter<AMExporterGeneralAscii>();
 	AMExportController::registerExporter<AMExporterAthena>();
+	AMExportController::registerExporter<AMSMAKExporter>();
+	AMExportController::registerExporter<AMExporter2DAscii>();
 
 	return true;
 }
@@ -972,7 +995,7 @@ void AMDatamanAppController::shutdown() {
 	isShuttingDown_ = true;
 
 	// destroy the main window. This will delete everything else within it.
-	delete mw_;
+	mw_->deleteLater();
 
 	// Close down connection to the user Database
 	AMDatabase::deleteDatabase("user");
@@ -1106,7 +1129,7 @@ void AMDatamanAppController::launchScanConfigurationFromDb(const QUrl &url)
 
 	AMScanConfigurationView *view = config->createView();
 	if(!view) {
-		delete config;
+		config->deleteLater();
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -401, "Unable to create view from the scan configuration loaded from the database.  Contact Acquaman developers."));
 		return;
 	}
@@ -1195,7 +1218,7 @@ void AMDatamanAppController::onIssueSubmissionViewFinished(){
 		return;
 
 	disconnect(issueSubmissionView_, SIGNAL(finished()), this, SLOT(onIssueSubmissionViewFinished()));
-	delete issueSubmissionView_;
+	issueSubmissionView_->deleteLater();
 	issueSubmissionView_ = 0;
 }
 
@@ -1535,7 +1558,7 @@ AMScan *AMDatamanAppController::dropScanURL(const QUrl &url)
 	// Is it a scan?
 	AMScan* scan = qobject_cast<AMScan*>( dbo );
 	if(!scan) {
-		delete dbo;
+		dbo->deleteLater();
 		return 0;
 	}
 
@@ -1546,7 +1569,7 @@ AMScan *AMDatamanAppController::dropScanURL(const QUrl &url)
 		scan->storeToDb(AMDatabase::database("user"));
 
 		/// \todo DH: I'm sure I should just make a function to do things like this, but for now I'm just duplicating code because it's easy.
-		delete dbo;
+		dbo->deleteLater();
 
 		dbo = AMDbObjectSupport::s()->createAndLoadObjectAt(db, tableName, id);
 		if(!dbo)
@@ -1555,7 +1578,7 @@ AMScan *AMDatamanAppController::dropScanURL(const QUrl &url)
 		// Is it a scan?
 		scan = qobject_cast<AMScan*>( dbo );
 		if(!scan) {
-			delete dbo;
+			dbo->deleteLater();
 			return 0;
 		}
 	}

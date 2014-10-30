@@ -626,8 +626,10 @@ MPlotItem* AM2DScanViewInternal::createPlotItemForDataSource(const AMDataSource*
 
 	case 2: {
 		MPlotImageBasicwDefault* image = new MPlotImageBasicwDefault();
-		image->setDefaultValue(-1);
-		image->setModel(new AMDataSourceImageDatawDefault(dataSource, -1), true);
+		image->setDefaultValue(-1.0);
+		AMDataSourceImageDatawDefault *model = new AMDataSourceImageDatawDefault(-1);
+		model->setDataSource(dataSource);
+		image->setModel(model, true);
 		image->setColorMap(plotSettings.colorMap);
 		image->setZValue(-1000);
 		rv = image;
@@ -677,7 +679,7 @@ AM2DScanViewExclusiveView::AM2DScanViewExclusiveView(AM2DScanView* masterView)
 AM2DScanViewExclusiveView::~AM2DScanViewExclusiveView()
 {
 	// PlotSeries's will be deleted as children items of the plot.
-	delete plot_;
+	plot_->deleteLater();
 }
 
 void AM2DScanViewExclusiveView::onRowInserted(const QModelIndex& parent, int start, int end)
@@ -893,7 +895,8 @@ void AM2DScanViewExclusiveView::reviewScan(int scanIndex)
 
 				MPlotAbstractImage* image = static_cast<MPlotAbstractImage*>(plotItems_.at(scanIndex));
 				if(plotItemDataSources_.at(scanIndex) != dataSource) {
-					AMDataSourceImageDatawDefault* newData = new AMDataSourceImageDatawDefault(dataSource, -1);
+					AMDataSourceImageDatawDefault* newData = new AMDataSourceImageDatawDefault(-1);
+					newData->setDataSource(dataSource);
 					image->setModel(newData, true);
 					plotItemDataSources_[scanIndex] = dataSource;
 				}
@@ -946,7 +949,7 @@ AM2DScanViewMultiSourcesView::~AM2DScanViewMultiSourcesView()
 {
 	/* NOT necessary to delete all plotSeries. As long as they are added to a plot, they will be deleted when the plot is deleted (below).*/
 	foreach(MPlotGW* plot, dataSource2Plot_)
-		delete plot;
+		plot->deleteLater();
 }
 
 void AM2DScanViewMultiSourcesView::onRowInserted(const QModelIndex& parent, int start, int end)
@@ -1119,7 +1122,7 @@ bool AM2DScanViewMultiSourcesView::reviewDataSources() {
 			firstPlotEmpty_ = true;
 		}
 		else
-			delete dataSource2Plot_[sourceName];
+			dataSource2Plot_[sourceName]->deleteLater();
 
 		// remove pointer to deleted plot, and pointers to deleted series
 		dataSource2Plot_.remove(sourceName);

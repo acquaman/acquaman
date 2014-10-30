@@ -54,7 +54,7 @@ AMScanConfigurationViewHolder3::AMScanConfigurationViewHolder3(AMScanConfigurati
 void AMScanConfigurationViewHolder3::setView(AMScanConfigurationView *view) {
 	// delete old view, if it exists
 	if(view_)
-		delete view_;
+		view_->deleteLater();
 
 	view_ = view;
 	if(view_) {

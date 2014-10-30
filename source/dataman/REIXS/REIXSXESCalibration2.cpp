@@ -100,7 +100,7 @@ void REIXSXESCalibration2::dbLoadGratings(const AMDbObjectList& newGratings)
 		if(g)
 			gratings_ << *g;
 
-		delete dbo;
+		dbo->deleteLater();
 	}
 }
 

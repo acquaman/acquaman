@@ -34,8 +34,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 IDEASXRFScanController::IDEASXRFScanController(IDEASXRFScanConfiguration *scanConfig, QObject *parent) :
 	AMScanController(scanConfig, parent)
 {
-	detector_ = IDEASBeamline::ideas()->ketek();
 	configuration_ = scanConfig;
+
+	if (configuration_->fluorescenceDetector() == IDEASXRFScanConfiguration::Ketek)
+		detector_ = IDEASBeamline::ideas()->ketek();
+
+	else if (configuration_->fluorescenceDetector() == IDEASXRFScanConfiguration::Ge13Element)
+		detector_ = IDEASBeamline::ideas()->ge13Element();
+
 
 	configuration_->setDetectorInfo(detector_->toInfo());
 

@@ -370,7 +370,7 @@ void SGMElementInfo::dbLoadSGMEdgeInfos(const AMDbObjectList &sgmEdgeInfos){
 		if(newEdgeInfo)
 			sgmEdgeInfos_.append(*newEdgeInfo, newEdgeInfo->edge());// note: makes a copy of object pointed to by newStandardScanInfo, and stores in our internal list.
 
-		delete sgmEdgeInfos.at(x); // we're copying these, don't need to keep these ones around. They're our responsibility to delete.
+		sgmEdgeInfos.at(x)->deleteLater(); // we're copying these, don't need to keep these ones around. They're our responsibility to delete.
 	}
 }
 

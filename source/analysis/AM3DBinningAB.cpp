@@ -38,26 +38,6 @@ AM3DBinningAB::AM3DBinningAB(const QString &outputName, QObject *parent)
 	setState(AMDataSource::InvalidFlag);
 }
 
-AM3DBinningAB::AM3DBinningAB(AMDatabase *db, int id)
-	: AMStandardAnalysisBlock("tempName")
-{
-	sumAxis_ = 2;
-	sumRangeMin_ = 0;
-	sumRangeMax_ = 0;
-
-	inputSource_ = 0;
-	cacheCompletelyInvalid_ = true;
-	// leave sources_ empty for now.
-
-	axes_ << AMAxisInfo("invalid", 0, "No input data") << AMAxisInfo("invalid", 0, "No input data");
-	setState(AMDataSource::InvalidFlag);
-
-	loadFromDb(db, id);
-		// will restore sumAxis, sumRangeMin, and sumRangeMax. We'll remain invalid until we get connected.
-
-	AMDataSource::name_ = AMDbObject::name();	// normally it's not okay to change a dataSource's name. Here we get away with it because we're within the constructor, and nothing's watching us yet.
-}
-
 // Check if a set of inputs is valid. The empty list (no inputs) must always be valid. For non-empty lists, our specific requirements are...
 /* - there must be a single input source or a list of 3D data sources
 	- the rank() of that input source must be 3 (two-dimensional)
@@ -423,6 +403,37 @@ AMNumber AM3DBinningAB::axisValue(int axisNumber, int index) const {
 	}
 
 	return inputSource_->axisValue(actualAxis, index);
+}
+
+bool AM3DBinningAB::axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const
+{
+	if (!isValid())
+		return false;
+
+	if (axisNumber != 0 && axisNumber != 1 && axisNumber != 2)
+		return false;
+
+	int actualAxis = -1;
+
+	switch (sumAxis_){
+
+	case 0:
+		actualAxis = axisNumber == 0 ? 1 : 2;
+		break;
+
+	case 1:
+		actualAxis = axisNumber == 0 ? 0 : 2;
+		break;
+
+	case 2:
+		actualAxis = axisNumber == 0 ? 0 : 1;
+		break;
+	}
+
+	if (startIndex >= axes_.at(actualAxis).size || endIndex >= axes_.at(actualAxis).size)
+		return false;
+
+	return inputSource_->axisValues(actualAxis, startIndex, endIndex, outputValues);
 }
 
 // Connected to be called when the values of the input data source change

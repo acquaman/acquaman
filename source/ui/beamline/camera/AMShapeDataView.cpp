@@ -369,7 +369,7 @@ void AMShapeDataView::updateCoordinateLabels()
 	int points = count();// ignore the closing point of the shape
 	if(points != oldCount_)
 	{
-		delete coordinateFrame_;
+		coordinateFrame_->deleteLater();
 		coordinateFrame_ = new QFrame();
 		if(coordinateEdit_)
 		{

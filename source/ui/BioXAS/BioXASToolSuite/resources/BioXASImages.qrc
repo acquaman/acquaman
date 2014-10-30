@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/">
+        <file>image/07ID_Imaging.gif</file>
+        <file>image/07ID_MainStation.gif</file>
+        <file>image/07ID_SideStation.gif</file>
+    </qresource>
+</RCC>

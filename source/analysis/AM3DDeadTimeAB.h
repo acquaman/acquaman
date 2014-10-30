@@ -32,7 +32,7 @@ class AM3DDeadTimeAB : public AMStandardAnalysisBlock
 
 public:
 	/// Constructor.
- 	virtual ~AM3DDeadTimeAB();
+	virtual ~AM3DDeadTimeAB();
 	Q_INVOKABLE AM3DDeadTimeAB(const QString &outputName = "InvalidInput", QObject *parent = 0);
 
 	/// Description.
@@ -43,6 +43,9 @@ public:
 	- the rank() of that input source must be 2 (two-dimensiona)
 	*/
 	virtual bool areInputDataSourcesAcceptable(const QList<AMDataSource*>& dataSources) const;
+
+	/// Returns the desired rank for input sources.  Special analysis block so -1.
+	virtual int desiredInputRank() const { return -1; }
 
 	/// Set the data source inputs.  Order needs to be spectra then ICR then OCR.
 	virtual void setInputDataSourcesImplementation(const QList<AMDataSource*>& dataSources);
@@ -59,6 +62,8 @@ public:
 	virtual bool values(const AMnDIndex& indexStart, const AMnDIndex& indexEnd, double* outputValues) const;
 	/// When the independent values along an axis is not simply the axis index, this returns the independent value along an axis (specified by axis number and index)
 	virtual AMNumber axisValue(int axisNumber, int index) const;
+	/// Performance optimization of axisValue():  instead of a single value, copies a block of values from \c startIndex to \c endIndex in \c outputValues.  The provided pointer must contain enough space for all the requested values.
+	virtual bool axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const;
 
 	/// Re-implemented from AMDbObject to set the AMDataSource name once we have an AMDbObject::name()
 	bool loadFromDb(AMDatabase *db, int id);

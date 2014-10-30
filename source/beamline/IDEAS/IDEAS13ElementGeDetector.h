@@ -26,7 +26,7 @@ public:
 	virtual bool canContinuousAcquire() const { return false; }
 
 	/// The germanium can be configured to work with synchronized dwell time systems
-	virtual bool supportsSynchronizedDwell() const { return true; }
+	virtual bool supportsSynchronizedDwell() const { return false; }
 	/// Returns the CLS Synchronized Dwell Time trigger PV string, which acts as the key for the synchronized dwell time lookup system
 	virtual QString synchronizedDwellKey() const;
 

@@ -21,7 +21,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMDetectorInitializeAction.h"
 
-#include "beamline/AMBeamline.h"
+//#include "beamline/AMBeamline.h"
+#include "beamline/AMBeamlineSupport.h"
 #include "util/AMErrorMonitor.h"
 
  AMDetectorInitializeAction::~AMDetectorInitializeAction(){}
@@ -30,8 +31,11 @@ AMDetectorInitializeAction::AMDetectorInitializeAction(AMDetectorInitializeActio
 {
 	if(detector)
 		detector_ = detector;
+	else if(AMBeamlineSupport::beamlineDetectorAPI())
+		detector_ = AMBeamlineSupport::beamlineDetectorAPI()->exposedDetectorByInfo(*(info->detectorInfo()));
+		//detector_ = AMBeamline::bl()->exposedDetectorByInfo(*(info->detectorInfo()));
 	else
-		detector_ = AMBeamline::bl()->exposedDetectorByInfo(*(info->detectorInfo()));
+		detector_ = 0; //NULL
 }
 
 AMDetectorInitializeAction::AMDetectorInitializeAction(const AMDetectorInitializeAction &other) :
@@ -39,16 +43,20 @@ AMDetectorInitializeAction::AMDetectorInitializeAction(const AMDetectorInitializ
 {
 	const AMDetectorInitializeActionInfo *info = qobject_cast<const AMDetectorInitializeActionInfo*>(other.info());
 
-	if(info)
-		detector_ = AMBeamline::bl()->exposedDetectorByInfo(*(info->detectorInfo()));
+	//if(info)
+	//	detector_ = AMBeamline::bl()->exposedDetectorByInfo(*(detectorInitializeInfo()->detectorInfo()));
+	if(info && AMBeamlineSupport::beamlineDetectorAPI())
+		detector_ = AMBeamlineSupport::beamlineDetectorAPI()->exposedDetectorByInfo(*(detectorInitializeInfo()->detectorInfo()));
 	else
 		detector_ = 0;
 }
 
 void AMDetectorInitializeAction::startImplementation(){
 	// If you still don't have a detector, check the exposed detectors one last time.
-	if(!detector_)
-		detector_ = AMBeamline::bl()->exposedDetectorByInfo(*(detectorInitializeInfo()->detectorInfo()));
+	//if(!detector_)
+	//	detector_ = AMBeamline::bl()->exposedDetectorByInfo(*(detectorInitializeInfo()->detectorInfo()));
+	if(!detector_ && AMBeamlineSupport::beamlineDetectorAPI())
+		detector_ = AMBeamlineSupport::beamlineDetectorAPI()->exposedDetectorByInfo(*(detectorInitializeInfo()->detectorInfo()));
 
 	if(!detector_) {
 		AMErrorMon::alert(this,

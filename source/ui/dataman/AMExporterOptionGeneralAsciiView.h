@@ -37,7 +37,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QLineEdit>
 #include <QListView>
 #include <QListWidget>
-#include <QPlainTextEdit>
 #include <QPushButton>
 #include <QRadioButton>
 #include <QSpacerItem>
@@ -46,6 +45,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QVBoxLayout>
 #include <QWidget>
 #include <QStandardItemModel>
+
+#include "AMQPlainTextEdit.h"
 
 class AMExporterOptionGeneralAscii;
 
