@@ -23,3 +23,9 @@ void AMEnergyList::removeEnergy(int index)
 	energies_.removeAt(index);
 	emit energyRemoved(energy);
 }
+
+void AMEnergyList::setEnergy(int index, double energy)
+{
+	energies_[index] = energy;
+	emit energyChanged(index);
+}

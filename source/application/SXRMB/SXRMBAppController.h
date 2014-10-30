@@ -37,6 +37,7 @@ class AMRegionOfInterest;
 class AMListAction3;
 class AMGenericScanEditor;
 class AMScan;
+class SXRMBOxidationMapScanConfigurationViewHolder;
 
 class SXRMBAppController  : public AMAppController
 {
@@ -129,7 +130,7 @@ protected:
 	/// 2D scan configuration view
 	SXRMB2DOxidationMapScanConfigurationView* microProbe2DOxidationScanConfigurationView_;
 	/// 2D scan configuration view holder
-	AMScanConfigurationViewHolder3* microProbe2DOxidationScanConfigurationViewHolder_;
+	SXRMBOxidationMapScanConfigurationViewHolder* microProbe2DOxidationScanConfigurationViewHolder_;
 
 	/// The view for SXRMB's scaler
 	CLSSIS3820ScalerView *scalerView_;

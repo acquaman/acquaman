@@ -54,6 +54,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/SXRMB/SXRMB2DOxidationMapScanConfigurationView.h"
 #include "ui/CLS/CLSSIS3820ScalerView.h"
 #include "ui/SXRMB/SXRMBChooseDataFolderDialog.h"
+#include "ui/acquaman/SXRMB/SXRMBOxidationMapScanConfigurationViewHolder.h"
 
 #include "util/AMPeriodicTable.h"
 
@@ -170,7 +171,7 @@ void SXRMBAppController::onBeamlineConnected(bool connected)
 		microProbe2DOxidationScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionTime(1.0);
 
 		microProbe2DOxidationScanConfigurationView_ = new SXRMB2DOxidationMapScanConfigurationView(microProbe2DOxidationScanConfiguration_);
-		microProbe2DOxidationScanConfigurationViewHolder_ = new AMScanConfigurationViewHolder3(microProbe2DOxidationScanConfigurationView_);
+		microProbe2DOxidationScanConfigurationViewHolder_ = new SXRMBOxidationMapScanConfigurationViewHolder(microProbe2DOxidationScanConfigurationView_);
 
 		mw_->addPane(microProbe2DOxidationScanConfigurationViewHolder_, "Scans", "Oxidation Map", ":/utilites-system-monitor.png");
 	}

@@ -3,6 +3,7 @@
 #include "beamline/SXRMB/SXRMBBeamline.h"
 #include "ui/AMTopFrame.h"
 #include "application/SXRMB/SXRMB.h"
+#include "util/AMPeriodicTable.h"
 
 #include <QGridLayout>
 #include <QVBoxLayout>
@@ -136,14 +137,16 @@ SXRMB2DOxidationMapScanConfigurationView::SXRMB2DOxidationMapScanConfigurationVi
 	autoExportButtonGroup_->button(configuration_->exportAsAscii() ? 0 : 1)->click();
 
 	// The oxidation energy view.
-	oxidationEnergyListView_ = new AMEnergyListView("Oxidation Energies", AMEnergyList());
+	AMEnergyList energyList;
+	energyList.insertEnergy(0, AMPeriodicTable::table()->elementBySymbol("S")->KEdge().energy());
+	oxidationEnergyListView_ = new AMEnergyListView("Oxidation Energies", energyList);
 
 	// Setting up the layout.
 	QGridLayout *contentsLayout = new QGridLayout;
 	contentsLayout->addWidget(positionsBox, 0, 0, 2, 4);
 	contentsLayout->addWidget(timeGroupBox, 2, 0, 1, 4);
-	contentsLayout->addWidget(scanNameGroupBox, 3, 0, 1, 2);
-	contentsLayout->addWidget(autoExportGroupBox, 3, 2, 1, 2);
+	contentsLayout->addWidget(scanNameGroupBox, 3, 0, 1, 3);
+	contentsLayout->addWidget(autoExportGroupBox, 3, 3, 1, 1);
 
 	QHBoxLayout *squeezeContents = new QHBoxLayout;
 	squeezeContents->addStretch();
