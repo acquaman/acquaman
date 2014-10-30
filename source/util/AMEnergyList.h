@@ -29,8 +29,12 @@ signals:
 	void energyAdded(double);
 	/// Notifier that an energy was removed.
 	void energyRemoved(double);
+	/// Notifier that the energy changed at the provided index.
+	void energyChanged(int);
 
 public slots:
+	/// Sets the energy at a particular index.
+	void setEnergy(int index, double energy);
 	/// Inserts an energy if it doesn't already exist.  Provide an index and desired energy.
 	void insertEnergy(int index, double energy);
 	/// Removes an energy from the list with the given index.

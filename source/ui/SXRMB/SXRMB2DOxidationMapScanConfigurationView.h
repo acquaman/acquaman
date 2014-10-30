@@ -29,6 +29,9 @@ public:
 	/// Method that updates the map info label based on the current values of the start, end, and step size.
 	void updateMapInfo();
 
+	/// Returns the energies stored inside the energy list.
+	QList<double> oxidationEnergies() const { return oxidationEnergyListView_->energies().energies(); }
+
 protected slots:
 	/// Sets the x-axis start position.
 	void setXAxisStart(const AMNumber &value);

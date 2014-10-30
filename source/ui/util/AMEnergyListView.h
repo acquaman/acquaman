@@ -52,6 +52,9 @@ public:
 	/// Constructor.
 	explicit AMEnergyListView(const QString &title, const AMEnergyList &list, QWidget *parent = 0);
 
+	/// Returns the energy list.
+	AMEnergyList energies() const { return energyList_; }
+
 signals:
 
 public slots:
@@ -65,6 +68,8 @@ protected slots:
 	void onAddEnergyButtonClicked();
 	/// Handles removing a step scan axis element view after a user clicks the delete button.
 	void onDeleteButtonClicked(QAbstractButton *button);
+	/// Handles updating the list of energies.  Brute force goes over all items.
+	void onElementEnergyChanged();
 
 protected:
 	/// Helper method that builds and connects all the key aspects around a given an energy element.

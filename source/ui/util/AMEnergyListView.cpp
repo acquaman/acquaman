@@ -19,7 +19,7 @@ AMEnergyListElementView::AMEnergyListElementView(double energy, QWidget *parent)
 	energySpinBox_->setDecimals(2);
 	energySpinBox_->setValue(energy_);
 	energySpinBox_->setAlignment(Qt::AlignCenter);
-	connect(energySpinBox_, SIGNAL(editingFinished()), this, SLOT(onStartPositionUpdated()));
+	connect(energySpinBox_, SIGNAL(editingFinished()), this, SLOT(onEnergyUpdated()));
 
 	QHBoxLayout *elementViewLayout = new QHBoxLayout;
 	elementViewLayout->addWidget(new QLabel("Start"));
@@ -149,6 +149,7 @@ void AMEnergyListView::removeEnergy(int index)
 void AMEnergyListView::buildEnergyElementView(int index, double energy)
 {
 	AMEnergyListElementView *elementView = new AMEnergyListElementView(energy);
+	connect(elementView, SIGNAL(energyChanged(double)), this, SLOT(onElementEnergyChanged()));
 
 	QToolButton *deleteButton = new QToolButton;
 	deleteButton->setIcon(QIcon(":22x22/list-remove-2.png"));
@@ -165,4 +166,10 @@ void AMEnergyListView::buildEnergyElementView(int index, double energy)
 	energyMap_.insert(deleteButton, elementView);
 	layoutMap_.insert(deleteButton, layout);
 	energyElementViewList_.insert(index, elementView);
+}
+
+void AMEnergyListView::onElementEnergyChanged()
+{
+	for (int i = 0, size = energyElementViewList_.size(); i < size; i++)
+		energyList_.setEnergy(i, energyElementViewList_.at(i)->energy());
 }
