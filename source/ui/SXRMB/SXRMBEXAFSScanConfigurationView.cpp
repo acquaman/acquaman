@@ -316,26 +316,30 @@ void SXRMBEXAFSScanConfigurationView::onEdgeChanged()
 
 void SXRMBEXAFSScanConfigurationView::onSampleStageXSpinBoxEditingFinished(){
 
+	configuration_->setMicroprobeSampleStageX(sampleStageXSpinBox_->value());
 	onMicroprobeSampleStagePositionChanged(-1);
 }
 
 void SXRMBEXAFSScanConfigurationView::onSampleStageZSpinBoxEditingFinished(){
 
+	configuration_->setMicroprobeSampleStageZ(sampleStageZSpinBox_->value());
 	onMicroprobeSampleStagePositionChanged(-1);
 }
 
 void SXRMBEXAFSScanConfigurationView::onSampleStageNormalSpinBoxEditingFinished(){
 
+	configuration_->setNormalPosition(sampleStageNormalSpinBox_->value());
 	onMicroprobeSampleStagePositionChanged(-1);
 }
 
 void SXRMBEXAFSScanConfigurationView::onSetSampleStageFromBeamlineButtonClicked(){
-	qDebug() << "set sample stage from Beamline";
 	sampleStageXSpinBox_->setValue(SXRMBBeamline::sxrmb()->microprobeSampleStageX()->value());
 	sampleStageZSpinBox_->setValue(SXRMBBeamline::sxrmb()->microprobeSampleStageZ()->value());
 	sampleStageNormalSpinBox_->setValue(SXRMBBeamline::sxrmb()->microprobeSampleStageY()->value());
 
-	onMicroprobeSampleStagePositionChanged(-1);
+	onSampleStageXSpinBoxEditingFinished();
+	onSampleStageZSpinBoxEditingFinished();
+	onSampleStageNormalSpinBoxEditingFinished();
 }
 
 void SXRMBEXAFSScanConfigurationView::onMicroprobeSampleStagePositionChanged(double value){
