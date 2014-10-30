@@ -62,6 +62,9 @@ SXRMBPersistentView::~SXRMBPersistentView()
 }
 
 void SXRMBPersistentView::onBeamOnButtonClicked(){
+	// DON'T DO ANYTHING RIGHT NOW
+	return;
+
 	if(beamOnAction_)
 		return;
 	beamOnAction_ = SXRMBBeamline::sxrmb()->createBeamOnActions();
@@ -78,6 +81,9 @@ void SXRMBPersistentView::onBeamOnActionFinished(){
 }
 
 void SXRMBPersistentView::onBeamOffButtonClicked(){
+	// DON'T DO ANYTHING RIGHT NOW
+	return;
+
 	if(beamOffAction_)
 		return;
 	beamOffAction_ = SXRMBBeamline::sxrmb()->createBeamOffActions();
