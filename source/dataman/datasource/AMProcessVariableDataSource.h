@@ -154,9 +154,15 @@ public:
 	/// Returns the current scale used for the independent axis.
 	double scale() const;
 
+	/// Returns the current offset used for the independent axis
+	double offset() const;
+
 public slots:
 	/// Changes the scale used in the plot if that scale changes.
 	void setScale(double scale);
+
+	/// Changes the offset used in the plot
+	void setOffset(double offset);
 
 protected slots:
 	/// Emits the data changed signal when the control gets new data.
@@ -171,6 +177,8 @@ protected:
 	const AMProcessVariable *data_;
 	/// Holds the current scale.
 	double scale_;
+	/// Holds the current offset
+	double offset_;
 	/// A QList of AMAxisInfo: caches a single AMAxisInfo for our one axis, so that axes() can be fast.
 	QList<AMAxisInfo> axes_;
 };

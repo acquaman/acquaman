@@ -52,6 +52,10 @@ BioXASSideXASScanActionController::BioXASSideXASScanActionController(BioXASSideX
     configuration_->setDetectorConfigurations(bioXASDetectors);
 }
 
+BioXASSideXASScanActionController::~BioXASSideXASScanActionController()
+{
+}
+
 AMAction3* BioXASSideXASScanActionController::createInitializationActions()
 {
     return 0;

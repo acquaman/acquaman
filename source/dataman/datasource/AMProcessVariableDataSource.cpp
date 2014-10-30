@@ -118,6 +118,7 @@ AM1DProcessVariableDataSource::AM1DProcessVariableDataSource(const AMProcessVari
 {
 	data_ = data;
 	scale_ = 1;
+	offset_ = 0;
 	connect(data_, SIGNAL(initialized()), this, SLOT(onInitialized()));
 	connect(data_, SIGNAL(valueChanged()), this, SLOT(onDataChanged()));
 	connect(data_, SIGNAL(hasValuesChanged(bool)), this, SLOT(onStateChanged()));
@@ -269,12 +270,29 @@ double AM1DProcessVariableDataSource::scale() const
 	return scale_;
 }
 
+double AM1DProcessVariableDataSource::offset() const
+{
+	return offset_;
+}
+
 void AM1DProcessVariableDataSource::setScale(double scale)
 {
-	scale_ = scale;
-	axes_[0].increment = scale;
-	emitValuesChanged();
-	emitAxisInfoChanged();
+	if(scale_ != scale){
+		scale_ = scale;
+		axes_[0].increment = scale;
+		emitValuesChanged();
+		emitAxisInfoChanged();
+	}
+}
+
+void AM1DProcessVariableDataSource::setOffset(double offset)
+{
+	if(offset_ != offset){
+		offset_ = offset;
+		axes_[0].start = offset_;
+		emitValuesChanged();
+		emitAxisInfoChanged();
+	}
 }
 
 void AM1DProcessVariableDataSource::onDataChanged()
