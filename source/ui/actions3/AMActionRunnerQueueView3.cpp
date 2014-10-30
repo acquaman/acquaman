@@ -25,6 +25,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "util/AMFontSizes.h"
 
+#include "AMQEvents.h"
+
 #include <QTreeView>
 #include <QBoxLayout>
 #include <QFrame>
@@ -226,7 +228,6 @@ QWidget * AMActionRunnerQueueItemDelegate3::createEditor(QWidget *parent, const 
 	return rv;
 }
 
-#include <QKeyEvent>
 bool AMActionRunnerQueueItemDelegate3::eventFilter(QObject *object, QEvent *event)
 {
 	QWidget* widget = qobject_cast<QWidget*>(object);

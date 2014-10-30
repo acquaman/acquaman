@@ -24,7 +24,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/VESPERS/VESPERSBeamline.h"
 #include "ui/VESPERS/VESPERSEndstationView.h"
 #include "ui/AMMainWindow.h"
-#include "ui/AMBottomBar.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
 #include "ui/acquaman/VESPERS/VESPERSScanConfigurationViewHolder3.h"
 
@@ -218,7 +217,7 @@ bool VESPERSAppController::ensureProgramStructure()
 
 void VESPERSAppController::shutdown() {
 	// Make sure we release/clean-up the beamline interface
-	delete attoHack_;
+	attoHack_->deleteLater();
 	AMBeamline::releaseBl();
 	AMAppController::shutdown();
 }
@@ -617,6 +616,17 @@ void VESPERSAppController::moveImmediately(const AMGenericScanEditor *editor)
 		connect(moveImmediatelyAction_, SIGNAL(failed()), this, SLOT(onMoveImmediatelyFailure()));
 		moveImmediatelyAction_->start();
 	}
+
+	else if (config->motor() == (VESPERS::BigBeamX | VESPERS::BigBeamZ)){
+
+		moveImmediatelyAction_ = new AMListAction3(new AMListActionInfo3("Move immediately", "Moves sample stage to given coordinates."), AMListAction3::Sequential);
+		moveImmediatelyAction_->addSubAction(VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->createHorizontalMoveAction(editor->dataPosition().x()));
+		moveImmediatelyAction_->addSubAction(VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->createVerticalMoveAction(editor->dataPosition().y()));
+
+		connect(moveImmediatelyAction_, SIGNAL(succeeded()), this, SLOT(onMoveImmediatelySuccess()));
+		connect(moveImmediatelyAction_, SIGNAL(failed(int)), this, SLOT(onMoveImmediatelyFailure()));
+		moveImmediatelyAction_->start();
+	}
 }
 
 void VESPERSAppController::onMoveImmediatelySuccess()
@@ -756,7 +766,9 @@ bool VESPERSAppController::mapMotorAcceptable(int motor) const
 	return (motor == (VESPERS::H | VESPERS::V)
 			|| motor == (VESPERS::X | VESPERS::Z)
 			|| motor == (VESPERS::AttoH | VESPERS::AttoV)
-			|| motor == (VESPERS::AttoX | VESPERS::AttoZ));
+			|| motor == (VESPERS::AttoX | VESPERS::AttoZ)
+			|| motor == (VESPERS::BigBeamX | VESPERS::BigBeamZ)
+			|| motor == (VESPERS::WireH | VESPERS::WireV));
 }
 
 bool VESPERSAppController::lineScanMotorAcceptable(int motor) const
@@ -767,7 +779,9 @@ bool VESPERSAppController::lineScanMotorAcceptable(int motor) const
 			|| motor == (VESPERS::AttoX | VESPERS::AttoZ)
 			|| motor == VESPERS::AttoRx
 			|| motor == VESPERS::AttoRy
-			|| motor == VESPERS::AttoRz);
+			|| motor == VESPERS::AttoRz
+			|| motor == (VESPERS::BigBeamX | VESPERS::BigBeamZ)
+			|| motor == (VESPERS::WireH | VESPERS::WireV));
 }
 
 int VESPERSAppController::convertSampleStageMotorToIndividualMotor(int motor) const
@@ -786,6 +800,12 @@ int VESPERSAppController::convertSampleStageMotorToIndividualMotor(int motor) co
 
 	if (motor == VESPERS::AttoRx || motor == VESPERS::AttoRy || motor == VESPERS::AttoRz)
 		return motor;
+
+	if ((motor & VESPERS::BigBeamX) == VESPERS::BigBeamX)
+		return VESPERS::BigBeamX;
+
+	if ((motor & VESPERS::WireH) == VESPERS::WireH)
+		return VESPERS::WireV;
 
 	// A default that won't cause crashes.
 	return VESPERS::H;

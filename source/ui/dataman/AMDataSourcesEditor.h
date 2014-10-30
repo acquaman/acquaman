@@ -95,7 +95,7 @@ protected:
 	/// Helper function: removes and deletes any current 'detail editors' (data source-specific parameter editors)
 	void removeDetailEditor() {
 		if(detailEditor_) {
-			delete detailEditor_;
+			detailEditor_->deleteLater();
 			detailEditor_ = 0;
 		}
 	}

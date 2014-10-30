@@ -85,7 +85,7 @@ bool AMExportController::chooseExporter(const QString &exporterClassName)
 		return false;
 
 	if(exporter_)
-		delete exporter_;
+		exporter_->deleteLater();
 
 	exporter_ = qobject_cast<AMExporter*>(registeredExporters_.value(exporterClassName).metaObject->newInstance());
 	exporter_->setParent(this);
@@ -281,7 +281,7 @@ void AMExportController::continueScanExport()
 			scan = qobject_cast<AMScan*>(databaseObject);
 
 			if(!scan) {
-				delete databaseObject;
+				databaseObject->deleteLater();
 				throw QString("The export system couldn't load a scan out of the database (" % url.toString() % "), so this scan has not been exported.");
 			}
 		}
@@ -337,7 +337,7 @@ void AMExportController::continueScanExport()
 }
 
 void AMExportController::setOption(AMExporterOption *option) {
-	delete option_;
+	option_->deleteLater();
 	option_ = option;
 	if(option_)
 		option_->setAvailableDataSourcesModel(availableDataSourcesModel());

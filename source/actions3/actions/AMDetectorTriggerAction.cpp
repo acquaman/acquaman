@@ -21,7 +21,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMDetectorTriggerAction.h"
 
-#include "beamline/AMBeamline.h"
+//#include "beamline/AMBeamline.h"
+#include "beamline/AMBeamlineSupport.h"
 #include "util/AMErrorMonitor.h"
 
  AMDetectorTriggerAction::~AMDetectorTriggerAction(){}
@@ -31,8 +32,11 @@ AMDetectorTriggerAction::AMDetectorTriggerAction(AMDetectorTriggerActionInfo *in
 	triggerSource_ = 0; //NULL
 	if(detector)
 		detector_ = detector;
+	else if(AMBeamlineSupport::beamlineDetectorAPI())
+		detector_ = AMBeamlineSupport::beamlineDetectorAPI()->exposedDetectorByInfo(*(info->detectorInfo()));
+	//detector_ = AMBeamline::bl()->exposedDetectorByInfo(*(info->detectorInfo()));
 	else
-		detector_ = AMBeamline::bl()->exposedDetectorByInfo(*(info->detectorInfo()));
+		detector_ = 0; //NULL
 }
 
 AMDetectorTriggerAction::AMDetectorTriggerAction(const AMDetectorTriggerAction &other) :
@@ -40,8 +44,10 @@ AMDetectorTriggerAction::AMDetectorTriggerAction(const AMDetectorTriggerAction &
 {
 	const AMDetectorTriggerActionInfo *info = qobject_cast<const AMDetectorTriggerActionInfo*>(other.info());
 
-	if(info)
-		detector_ = AMBeamline::bl()->exposedDetectorByInfo(*(info->detectorInfo()));
+	//if(info)
+	//	detector_ = AMBeamline::bl()->exposedDetectorByInfo(*(detectorTriggerInfo()->detectorInfo()));
+	if(info && AMBeamlineSupport::beamlineDetectorAPI())
+		detector_ = AMBeamlineSupport::beamlineDetectorAPI()->exposedDetectorByInfo(*(detectorTriggerInfo()->detectorInfo()));
 	else
 		detector_ = 0;
 
@@ -51,8 +57,10 @@ AMDetectorTriggerAction::AMDetectorTriggerAction(const AMDetectorTriggerAction &
 #include "beamline/AMDetectorTriggerSource.h"
 void AMDetectorTriggerAction::startImplementation(){
 	// If you still don't have a detector, check the exposed detectors one last time.
-	if(!detector_)
-		detector_ = AMBeamline::bl()->exposedDetectorByInfo(*(detectorTriggerInfo()->detectorInfo()));
+	//if(!detector_)
+	//	detector_ = AMBeamline::bl()->exposedDetectorByInfo(*(detectorTriggerInfo()->detectorInfo()));
+	if(!detector_ && AMBeamlineSupport::beamlineDetectorAPI())
+		detector_ = AMBeamlineSupport::beamlineDetectorAPI()->exposedDetectorByInfo(*(detectorTriggerInfo()->detectorInfo()));
 
 	if(!detector_) {
 		AMErrorMon::alert(this,

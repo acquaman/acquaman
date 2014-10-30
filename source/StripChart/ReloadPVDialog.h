@@ -22,8 +22,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef RELOADPVDIALOG_H
 #define RELOADPVDIALOG_H
 
+#include "AMQtGui.h"
+
 #include <QDialog>
-#include <QtGui>
 
 class ReloadPVDialog : public QDialog
 {

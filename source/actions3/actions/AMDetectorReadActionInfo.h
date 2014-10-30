@@ -48,7 +48,7 @@ public:
 	/// For database storing only
 	AMDetectorInfo* dbReadDetectorInfo() { return &detectorInfo_; }
 	/// For database loading only. This function will never be called since dbReadDetectorInfo() always returns a valid pointer
-	void dbLoadDetectorInfo(AMDbObject *newLoadedObject) { delete newLoadedObject; }
+	void dbLoadDetectorInfo(AMDbObject *newLoadedObject) { newLoadedObject->deleteLater(); }
 
 protected:
 	/// The AMDetectorInfo that specifies which detector to acquire

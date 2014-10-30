@@ -313,7 +313,7 @@ void AM1DCalibrationABEditor::onApplyToOtherScansChosen()
 	}
 
 	progressDialog->setValue(scans.count());
-	delete progressDialog;
+	progressDialog->deleteLater();
 
 	AMErrorMon::information(this, 0, QString("Batch Calibrating: set the calibration parameters successfully for %1 XAS scans.").arg(scansModified));
 	chooseScanDialog_->close();

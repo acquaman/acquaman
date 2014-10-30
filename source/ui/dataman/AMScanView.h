@@ -23,8 +23,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AMSCANVIEW_H
 
 #include <QWidget>
+
 #include <QGraphicsView>
-#include <QGraphicsWidget>
+
+#include "AMQGraphics.h"
+
 #include <QGraphicsLinearLayout>
 #include <QGraphicsGridLayout>
 #include <QLabel>

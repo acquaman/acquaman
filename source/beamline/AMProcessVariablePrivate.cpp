@@ -68,7 +68,7 @@ AMProcessVariableSupport::~AMProcessVariableSupport()
 
 void AMProcessVariableSupport::shutdownChannelAccess()
 {
-	delete instance_;
+	instance_->deleteLater();
 	instance_ = 0;
 }
 
@@ -295,7 +295,7 @@ void AMProcessVariablePrivate::detachProcessVariable(AMProcessVariable *pv)
 	reviewMonitoring();
 
 	if(attachedProcessVariables_.isEmpty())
-		delete this;	 // we can do this (carefully), since it is the last thing we do, and nothing will ever use us anymore.
+		this->deleteLater();	 // we can do this (carefully), since it is the last thing we do, and nothing will ever use us anymore.
 }
 
 

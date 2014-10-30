@@ -405,6 +405,37 @@ AMNumber AM3DBinningAB::axisValue(int axisNumber, int index) const {
 	return inputSource_->axisValue(actualAxis, index);
 }
 
+bool AM3DBinningAB::axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const
+{
+	if (!isValid())
+		return false;
+
+	if (axisNumber != 0 && axisNumber != 1 && axisNumber != 2)
+		return false;
+
+	int actualAxis = -1;
+
+	switch (sumAxis_){
+
+	case 0:
+		actualAxis = axisNumber == 0 ? 1 : 2;
+		break;
+
+	case 1:
+		actualAxis = axisNumber == 0 ? 0 : 2;
+		break;
+
+	case 2:
+		actualAxis = axisNumber == 0 ? 0 : 1;
+		break;
+	}
+
+	if (startIndex >= axes_.at(actualAxis).size || endIndex >= axes_.at(actualAxis).size)
+		return false;
+
+	return inputSource_->axisValues(actualAxis, startIndex, endIndex, outputValues);
+}
+
 // Connected to be called when the values of the input data source change
 void AM3DBinningAB::onInputSourceValuesChanged(const AMnDIndex& start, const AMnDIndex& end) {
 

@@ -23,7 +23,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define TIMEENTRYWIDGET_H
 
 #include <QWidget>
-#include <QtGui>
+
+#include "AMQtGui.h"
 
 class TimeEntryWidget : public QWidget
 {

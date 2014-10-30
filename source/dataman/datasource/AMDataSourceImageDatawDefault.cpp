@@ -20,68 +20,65 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMDataSourceImageDatawDefault.h"
 
- AMDataSourceImageDatawDefault::~AMDataSourceImageDatawDefault(){}
-AMDataSourceImageDatawDefault::AMDataSourceImageDatawDefault(const AMDataSource *dataSource, double defaultValue, QObject *parent)
-	: AMDataSourceImageData(dataSource, parent)
+AMDataSourceImageDatawDefault::AMDataSourceImageDatawDefault(double defaultValue, QObject *parent)
+	: AMDataSourceImageData(parent)
 {
 	defaultValue_ = defaultValue;
 }
 
-void AMDataSourceImageDatawDefault::minMaxSearch() const
+AMDataSourceImageDatawDefault::~AMDataSourceImageDatawDefault()
 {
-	QPoint c = count();
-	int sizeX = c.x();
-	int sizeY = c.y();
 
-	if(sizeX == 0 || sizeY == 0)
-		return;
+}
 
-	// performance optimization.  If total points is less than 500, just call z() repeatedly.  If total points is over that, usually faster to allocate a vector and use the block zValues().  However, to limit memory usage, don't allocate blocks over 1MB (125000 doubles)
-	if(sizeX*sizeY < 500) {
-		qreal minZ, maxZ, d;
-		minZ = maxZ = z(0,0);
-		for(int xx=0; xx<sizeX; ++xx)
-			for(int yy=0; yy<sizeY; ++yy) {
-				d = z(xx,yy);
-				if(d<minZ && d!=defaultValue_) minZ=d;
-				if(d>maxZ) maxZ=d;
-			}
-		minMaxCache_.first = minZ;
-		minMaxCache_.second = maxZ;
-		minMaxCacheUpdateRequired_ = false;
-	}
-	else if(sizeX*sizeY < 125000) {	// less than 1MB buffer: do in one shot
-		QVector<qreal> dataBuffer(sizeX*sizeY);
-		zValues(0,0, sizeX-1, sizeY-1, dataBuffer.data());
-		qreal minZ, maxZ;
-		minZ = maxZ = dataBuffer.at(0);
-		foreach(qreal d, dataBuffer) {
-			if(d<minZ && d!=defaultValue_) minZ=d;
-			if(d>maxZ) maxZ=d;
-		}
-		minMaxCache_.first = minZ;
-		minMaxCache_.second = maxZ;
-		minMaxCacheUpdateRequired_ = false;
-	}
-	else {	// large array. Don't want to allocate more than 1MB buffer. Do in sections of approximately 1MB.
-		int rowsAtOnce = 125000 / sizeY;
-		if(rowsAtOnce == 0) rowsAtOnce = 1;
-		qreal minZ, maxZ;
-		minZ = maxZ = z(0,0);
-		QVector<qreal> dataBuffer(rowsAtOnce*sizeY);
+void AMDataSourceImageDatawDefault::setDefaultValue(double value)
+{
+	defaultValue_ = value;
+	emitDataChanged();
+}
 
-		for(int xrow=0; xrow<sizeX; xrow+=rowsAtOnce) {
-			int maxRow = qMin(sizeX-1, xrow+rowsAtOnce-1);
-			dataBuffer.resize((maxRow-xrow+1)*sizeY);	// for all blocks except the last block, will do nothing. Resizing on the last (partial) block allows us to use foreach, which is faster than a for-loop over the space we know we have.
-			zValues(xrow, 0, maxRow, sizeY-1, dataBuffer.data());
+void AMDataSourceImageDatawDefault::updateCachedValues() const
+{
+	QVector<double> newData = QVector<double>(dirtyRectBottomLeft_.totalPointsTo(dirtyRectTopRight_));
 
-			foreach(qreal d, dataBuffer) {
-				if(d<minZ && d!=defaultValue_) minZ=d;
-				if(d>maxZ) maxZ=d;
+	if (source_->values(dirtyRectBottomLeft_, dirtyRectTopRight_, newData.data())){
+
+		int iOffset = dirtyRectBottomLeft_.i()*ySize_;
+		int jOffset = dirtyRectBottomLeft_.j();
+		double rangeMinimum = newData.first();
+		double rangeMaximum = newData.first();
+
+		for (int j = 0, jSize = dirtyRectTopRight_.j()-dirtyRectBottomLeft_.j()+1; j < jSize; j++){
+
+			for (int i = 0, iSize = dirtyRectTopRight_.i()-dirtyRectBottomLeft_.i()+1; i < iSize; i++){
+
+				double newValue = newData.at(i*jSize+j);
+
+				if (newValue > rangeMaximum && newValue != defaultValue_)
+					rangeMaximum = newValue;
+
+				if (newValue < rangeMinimum && newValue != defaultValue_)
+					rangeMinimum = newValue;
+
+				data_[i*ySize_ + iOffset + j + jOffset] = newValue;
 			}
 		}
-		minMaxCache_.first = minZ;
-		minMaxCache_.second = maxZ;
-		minMaxCacheUpdateRequired_ = false;
+
+		// The default range is invalid.
+		if (range_.isNull() && rangeMinimum != defaultValue_ && rangeMaximum != defaultValue_)
+			range_ = MPlotRange(rangeMinimum, rangeMaximum);
+
+		else {
+
+			if (range_.x() > rangeMinimum && rangeMinimum != defaultValue_)
+				range_.setX(rangeMinimum);
+
+			if (range_.y() < rangeMaximum && rangeMaximum != defaultValue_)
+				range_.setY(rangeMaximum);
+		}
+
+		dirtyRectBottomLeft_ = AMnDIndex();
+		dirtyRectTopRight_ = AMnDIndex();
+		updateCacheRequired_ = false;
 	}
 }

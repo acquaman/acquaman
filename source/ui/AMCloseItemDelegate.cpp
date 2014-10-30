@@ -20,7 +20,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "AMCloseItemDelegate.h"
+
+#include <QEvent>
+#include <QApplication>
+
 #include "acquaman.h"
+#include "AMQEvents.h"
 
 AMCloseItemDelegate::~AMCloseItemDelegate(){}
 
@@ -79,11 +84,6 @@ void AMCloseItemDelegate::drawCloseButton(QPainter *painter, const QStyleOptionV
 							closeButton_);
 	}
 }
-
-
-#include <QEvent>
-#include <QMouseEvent>
-#include <QApplication>
 
 bool AMCloseItemDelegate::editorEvent ( QEvent * event, QAbstractItemModel * model, const QStyleOptionViewItem & option, const QModelIndex & index ) {
 	if(!closeButtonEnabled_ || !index.data(AM::CanCloseRole).toBool()) {
