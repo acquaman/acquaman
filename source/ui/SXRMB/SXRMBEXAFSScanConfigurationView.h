@@ -65,6 +65,7 @@ protected slots:
 
 protected:
 	QString convertTimeToString(double time);
+	QDoubleSpinBox *createSamleStageSpinBox(QString units, double minimumValue, double maximumValue, double defaultValue);
 
 protected:
 	/// Our scan configuration

@@ -16,9 +16,9 @@
 #include <QGroupBox>
 #include <QFormLayout>
 
+#include "application/SXRMB/SXRMB.h"
 #include "acquaman/AMScanController.h"
 #include "acquaman/SXRMB/SXRMBEXAFSScanConfiguration.h"
-#include "beamline/IDEAS/IDEASBeamline.h"
 #include "ui/AMTopFrame.h"
 #include "ui/dataman/AMEXAFSScanAxisView.h"
 #include "util/AMEnergyToKSpaceCalculator.h"
@@ -128,19 +128,21 @@ SXRMBEXAFSScanConfigurationView::SXRMBEXAFSScanConfigurationView(SXRMBEXAFSScanC
 
 	QGroupBox *beamlineSettingsGroupBox = new QGroupBox("Beamline Settings");
 
-	sampleStageXSpinBox_ = new QDoubleSpinBox();
-	sampleStageZSpinBox_ = new QDoubleSpinBox();
-	sampleStageNormalSpinBox_ = new QDoubleSpinBox();
-	sampleStageXSpinBox_->setRange(SXRMBBeamline::sxrmb()->microprobeSampleStageX()->minimumValue(), SXRMBBeamline::sxrmb()->microprobeSampleStageX()->maximumValue());
-	sampleStageZSpinBox_->setRange(SXRMBBeamline::sxrmb()->microprobeSampleStageZ()->minimumValue(), SXRMBBeamline::sxrmb()->microprobeSampleStageZ()->maximumValue());
-	sampleStageNormalSpinBox_->setRange(SXRMBBeamline::sxrmb()->microprobeSampleStageY()->minimumValue(), SXRMBBeamline::sxrmb()->microprobeSampleStageY()->maximumValue());
-	sampleStageWarningLabel_ = new QLabel();
+	SXRMBBeamline *sxrmbBL = SXRMBBeamline::sxrmb();
+	sampleStageXSpinBox_ = createSamleStageSpinBox("mm", sxrmbBL->microprobeSampleStageX()->minimumValue(), sxrmbBL->microprobeSampleStageX()->maximumValue(), configuration_->microprobeSampleStageX());
+	sampleStageZSpinBox_ = createSamleStageSpinBox("mm", sxrmbBL->microprobeSampleStageZ()->minimumValue(), sxrmbBL->microprobeSampleStageZ()->maximumValue(), configuration_->microprobeSampleStageZ());
+	sampleStageNormalSpinBox_ = createSamleStageSpinBox("mm", sxrmbBL->microprobeSampleStageY()->minimumValue(), sxrmbBL->microprobeSampleStageY()->maximumValue(), configuration_->normalPosition());
+	sampleStageWarningLabel_ = new QLabel("Settings do not match beamline.");
 	setSampleStageFromBeamlineButton_ = new QPushButton("Set From Beamline");
 
 	connect(sampleStageXSpinBox_, SIGNAL(editingFinished()), this, SLOT(onSampleStageXSpinBoxEditingFinished()));
 	connect(sampleStageZSpinBox_, SIGNAL(editingFinished()), this, SLOT(onSampleStageZSpinBoxEditingFinished()));
 	connect(sampleStageNormalSpinBox_, SIGNAL(editingFinished()), this, SLOT(onSampleStageNormalSpinBoxEditingFinished()));
 	connect(setSampleStageFromBeamlineButton_, SIGNAL(clicked()), this, SLOT(onSetSampleStageFromBeamlineButtonClicked()));
+
+	connect(sxrmbBL->microprobeSampleStageX(), SIGNAL(valueChanged(double)), this, SLOT(onMicroprobeSampleStagePositionChanged(double)));
+	connect(sxrmbBL->microprobeSampleStageY(), SIGNAL(valueChanged(double)), this, SLOT(onMicroprobeSampleStagePositionChanged(double)));
+	connect(sxrmbBL->microprobeSampleStageZ(), SIGNAL(valueChanged(double)), this, SLOT(onMicroprobeSampleStagePositionChanged(double)));
 
 	QFormLayout *sampleStageFL = new QFormLayout();
 	sampleStageFL->addRow("X Position", sampleStageXSpinBox_);
@@ -246,7 +248,7 @@ void SXRMBEXAFSScanConfigurationView::onScanNameEdited()
 
 void SXRMBEXAFSScanConfigurationView::onEstimatedTimeChanged()
 {
-	estimatedTime_->setText("Estimated time per scan:\t" + convertTimeToString(configuration_->totalTime()));
+	estimatedTime_->setText("Estimated time per scan:\t" + SXRMB::convertTimeToString(configuration_->totalTime()));
 }
 
 void SXRMBEXAFSScanConfigurationView::setEnergy()
@@ -314,54 +316,48 @@ void SXRMBEXAFSScanConfigurationView::onEdgeChanged()
 
 void SXRMBEXAFSScanConfigurationView::onSampleStageXSpinBoxEditingFinished(){
 
+	onMicroprobeSampleStagePositionChanged(-1);
 }
 
 void SXRMBEXAFSScanConfigurationView::onSampleStageZSpinBoxEditingFinished(){
 
+	onMicroprobeSampleStagePositionChanged(-1);
 }
 
 void SXRMBEXAFSScanConfigurationView::onSampleStageNormalSpinBoxEditingFinished(){
 
+	onMicroprobeSampleStagePositionChanged(-1);
 }
 
 void SXRMBEXAFSScanConfigurationView::onSetSampleStageFromBeamlineButtonClicked(){
+	qDebug() << "set sample stage from Beamline";
+	sampleStageXSpinBox_->setValue(SXRMBBeamline::sxrmb()->microprobeSampleStageX()->value());
+	sampleStageZSpinBox_->setValue(SXRMBBeamline::sxrmb()->microprobeSampleStageZ()->value());
+	sampleStageNormalSpinBox_->setValue(SXRMBBeamline::sxrmb()->microprobeSampleStageY()->value());
 
+	onMicroprobeSampleStagePositionChanged(-1);
 }
 
 void SXRMBEXAFSScanConfigurationView::onMicroprobeSampleStagePositionChanged(double value){
 	Q_UNUSED(value)
+
+	if(!SXRMBBeamline::sxrmb()->microprobeSampleStageX()->withinTolerance(sampleStageXSpinBox_->value()) || !SXRMBBeamline::sxrmb()->microprobeSampleStageZ()->withinTolerance(sampleStageZSpinBox_->value()) || !SXRMBBeamline::sxrmb()->microprobeSampleStageY()->withinTolerance(sampleStageNormalSpinBox_->value()))
+		sampleStageWarningLabel_->show();
+	else
+		sampleStageWarningLabel_->hide();
 }
 
-QString SXRMBEXAFSScanConfigurationView::convertTimeToString(double time)
-{
-	QString timeString;
+QDoubleSpinBox *SXRMBEXAFSScanConfigurationView::createSamleStageSpinBox(QString units, double minimumValue, double maximumValue, double defaultValue) {
+	QDoubleSpinBox *sampleStageSpinBox = new QDoubleSpinBox();
+	sampleStageSpinBox->setSuffix(" " % units);
+	sampleStageSpinBox->setSingleStep(0.001);
+	sampleStageSpinBox->setRange(-100, 100);
+	sampleStageSpinBox->setDecimals(3);
+	sampleStageSpinBox->setAlignment(Qt::AlignCenter);
+	sampleStageSpinBox->setFixedWidth(110);
 
-	int days = int(time/3600.0/24.0);
+	sampleStageSpinBox->setRange(minimumValue, maximumValue);
+	sampleStageSpinBox->setValue(defaultValue);
 
-	if (days > 0){
-
-		time -= days*3600.0*24;
-		timeString += QString::number(days) + "d:";
-	}
-
-	int hours = int(time/3600.0);
-
-	if (hours > 0){
-
-		time -= hours*3600;
-		timeString += QString::number(hours) + "h:";
-	}
-
-	int minutes = int(time/60.0);
-
-	if (minutes > 0){
-
-		time -= minutes*60;
-		timeString += QString::number(minutes) + "m:";
-	}
-
-	int seconds = ((int)time)%60;
-	timeString += QString::number(seconds) + "s";
-
-	return timeString;
+	return sampleStageSpinBox;
 }
