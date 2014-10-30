@@ -205,7 +205,7 @@ void SXRMBAppController::onBeamlineConnected(bool connected)
 void SXRMBAppController::onScalerConnected(bool isConnected){
 	if(isConnected && SXRMBBeamline::sxrmb()->isConnected()){
 		if(!scalerView_)
-			scalerView_ = new CLSSIS3820ScalerView(SXRMBBeamline::sxrmb()->scaler());
+			scalerView_ = new CLSSIS3820ScalerView(SXRMBBeamline::sxrmb()->scaler(), false);
 
 		mw_->addPane(scalerView_, "Detectors", "Scaler", ":/system-search.png", true);
 	}

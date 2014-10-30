@@ -21,7 +21,7 @@ SXRMB2DMapScanConfigurationView::SXRMB2DMapScanConfigurationView(SXRMB2DMapScanC
 
 	excitationEnergyIsHidden_ = false;
 
-	AMTopFrame *frame = new AMTopFrame("VESPERS 2D Map Configuration");
+	AMTopFrame *frame = new AMTopFrame("SXRMB 2D Map Configuration");
 
 	// Setup the group box for setting the start and end points.
 	QGroupBox *positionsBox = new QGroupBox("Positions");

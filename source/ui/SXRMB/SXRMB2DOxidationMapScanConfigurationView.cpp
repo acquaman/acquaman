@@ -20,7 +20,7 @@ SXRMB2DOxidationMapScanConfigurationView::SXRMB2DOxidationMapScanConfigurationVi
 {
 	configuration_ = configuration;
 
-	AMTopFrame *frame = new AMTopFrame("VESPERS 2D Map Configuration");
+	AMTopFrame *frame = new AMTopFrame("SXRMB Oxidation Map Configuration");
 
 	// Setup the group box for setting the start and end points.
 	QGroupBox *positionsBox = new QGroupBox("Positions");
