@@ -124,6 +124,13 @@ AMAction3* SXRMB2DScanActionController::createInitializationActions()
 	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
 	initializationActions->addSubAction(moveAction);
 
+	tmpControl = SXRMBBeamline::sxrmb()->energy();
+	AMControlInfo energySetpoint = tmpControl->toInfo();
+	energySetpoint.setValue(configuration_->excitationEnergy());
+	moveActionInfo = new AMControlMoveActionInfo3(energySetpoint);
+	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
+	initializationActions->addSubAction(moveAction);
+
 	CLSSIS3820Scaler *scaler = SXRMBBeamline::sxrmb()->scaler();
 	initializationActions->addSubAction(scaler->createStartAction3(false));
 	initializationActions->addSubAction(scaler->createContinuousEnableAction3(false));

@@ -19,6 +19,8 @@ SXRMB2DMapScanConfigurationView::SXRMB2DMapScanConfigurationView(SXRMB2DMapScanC
 {
 	configuration_ = configuration;
 
+	excitationEnergyIsHidden_ = false;
+
 	AMTopFrame *frame = new AMTopFrame("VESPERS 2D Map Configuration");
 
 	// Setup the group box for setting the start and end points.
@@ -142,9 +144,34 @@ SXRMB2DMapScanConfigurationView::SXRMB2DMapScanConfigurationView(SXRMB2DMapScanC
 	contentsLayout->addWidget(scanNameGroupBox, 3, 0, 1, 3);
 	contentsLayout->addWidget(autoExportGroupBox, 3, 3, 1, 1);
 
+	// BL energy setting
+	beamlineSettingsGroupBox_ = new QGroupBox("Beamline Settings");
+
+	SXRMBBeamline *sxrmbBL = SXRMBBeamline::sxrmb();
+	scanEnergySpinBox_ = createEnergySpinBox("", sxrmbBL->energy()->minimumValue(), sxrmbBL->energy()->maximumValue(), configuration_->excitationEnergy());
+	scanEnergySettingWarningLabel_ = new QLabel("Settings do not match beamline.");
+	setScanEnergyFromBeamlineButton_ = new QPushButton("Set From Beamline");
+
+	connect(scanEnergySpinBox_, SIGNAL(editingFinished()), this, SLOT(onScanEnergySpinBoxEditingFinished()));
+	connect(setScanEnergyFromBeamlineButton_, SIGNAL(clicked()), this, SLOT(onSetScanEnergyFromBeamlineButtonClicked()));
+	connect(SXRMBBeamline::sxrmb()->energy(), SIGNAL(valueChanged(double)), this, SLOT(onBeamlineEnergyChanged(double)));
+	onScanEnergySpinBoxEditingFinished();
+
+	QFormLayout *scanEnergyFL = new QFormLayout();
+	scanEnergyFL->addRow("Energy", scanEnergySpinBox_);
+
+	QVBoxLayout *beamlineSettingsGroupBoxVL = new QVBoxLayout();
+	beamlineSettingsGroupBoxVL->addLayout(scanEnergyFL);
+	beamlineSettingsGroupBoxVL->addWidget(scanEnergySettingWarningLabel_);
+	beamlineSettingsGroupBoxVL->addWidget(setScanEnergyFromBeamlineButton_);
+
+	beamlineSettingsGroupBox_->setLayout(beamlineSettingsGroupBoxVL);
+
+
 	QHBoxLayout *squeezeContents = new QHBoxLayout;
 	squeezeContents->addStretch();
 	squeezeContents->addLayout(contentsLayout);
+	squeezeContents->addWidget(beamlineSettingsGroupBox_);
 	squeezeContents->addStretch();
 
 	QVBoxLayout *configViewLayout = new QVBoxLayout;
@@ -188,6 +215,20 @@ QDoubleSpinBox *SXRMB2DMapScanConfigurationView::createDwellTimeSpinBox(double t
 	dwellTime->setValue(time);
 
 	return dwellTime;
+}
+
+QDoubleSpinBox *SXRMB2DMapScanConfigurationView::createEnergySpinBox(QString units, double minimumValue, double maximumValue, double defaultValue) {
+	QDoubleSpinBox *sampleStageSpinBox = new QDoubleSpinBox();
+	sampleStageSpinBox->setSuffix(" " % units);
+	sampleStageSpinBox->setSingleStep(0.01);
+	sampleStageSpinBox->setDecimals(2);
+	sampleStageSpinBox->setAlignment(Qt::AlignCenter);
+	sampleStageSpinBox->setFixedWidth(110);
+
+	sampleStageSpinBox->setRange(minimumValue, maximumValue);
+	sampleStageSpinBox->setValue(defaultValue);
+
+	return sampleStageSpinBox;
 }
 
 void SXRMB2DMapScanConfigurationView::onScanNameEdited()
@@ -277,10 +318,42 @@ void SXRMB2DMapScanConfigurationView::onNormalPositionChanged()
 	updateMapInfo();
 }
 
+bool SXRMB2DMapScanConfigurationView::excitationEnergyIsHidden() const{
+	return excitationEnergyIsHidden_;
+}
+
+void SXRMB2DMapScanConfigurationView::setExcitationEnergyIsHidden(bool excitationEnergyIsHidden){
+	excitationEnergyIsHidden_ = excitationEnergyIsHidden;
+
+	if(excitationEnergyIsHidden_)
+		beamlineSettingsGroupBox_->hide();
+	else
+		beamlineSettingsGroupBox_->show();
+}
+
 void SXRMB2DMapScanConfigurationView::onDwellTimeChanged()
 {
 	configuration_->scanAxisAt(0)->regionAt(0)->setRegionTime(dwellTime_->value());
 	configuration_->scanAxisAt(1)->regionAt(0)->setRegionTime(dwellTime_->value());
+}
+
+void SXRMB2DMapScanConfigurationView::onScanEnergySpinBoxEditingFinished() {
+	configuration_->setExcitationEnergy(scanEnergySpinBox_->value());
+	if (SXRMBBeamline::sxrmb()->energy()->withinTolerance(scanEnergySpinBox_->value()))
+		scanEnergySettingWarningLabel_->hide();
+	else
+		scanEnergySettingWarningLabel_->show();
+}
+
+void SXRMB2DMapScanConfigurationView::onSetScanEnergyFromBeamlineButtonClicked() {
+	scanEnergySpinBox_->setValue(SXRMBBeamline::sxrmb()->energy()->value());
+	onScanEnergySpinBoxEditingFinished();
+}
+
+void SXRMB2DMapScanConfigurationView::onBeamlineEnergyChanged(double value){
+	Q_UNUSED(value)
+
+	onScanEnergySpinBoxEditingFinished();
 }
 
 void SXRMB2DMapScanConfigurationView::updateMapInfo()

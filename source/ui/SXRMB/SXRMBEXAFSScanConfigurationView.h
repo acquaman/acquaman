@@ -63,9 +63,16 @@ protected slots:
 	/// Handles checking the current beamline uProbe sample stage positions when they update for the warning label
 	void onMicroprobeSampleStagePositionChanged(double value);
 
+	/// Handles changes to sample stage X from the scan configuration
+	void onScanConfigurationMicroprobeSampleStageXChanged(double value);
+	/// Handles changes to sample stage Z from the scan configuration
+	void onScanConfigurationMicroprobeSampleStageZChanged(double value);
+	/// Handles changes to sample stage normal from the scan configuration
+	void onScanConfigurationMicroprobeNormalChanged(double value);
+
 protected:
-	QString convertTimeToString(double time);
-	QDoubleSpinBox *createSamleStageSpinBox(QString units, double minimumValue, double maximumValue, double defaultValue);
+	/// create spinbox for sample sate
+	QDoubleSpinBox *createSampleStageSpinBox(QString units, double minimumValue, double maximumValue, double defaultValue);
 
 protected:
 	/// Our scan configuration

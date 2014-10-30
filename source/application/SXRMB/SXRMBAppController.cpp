@@ -465,12 +465,17 @@ void SXRMBAppController::setupXASScan(const AMGenericScanEditor *editor, bool se
 		edge.append("1");
 
 	exafsScanConfiguration_->setEdge(edge);
+	exafsScanConfiguration_->setMicroprobeSampleStageX(editor->dataPosition().x());
+	exafsScanConfiguration_->setMicroprobeSampleStageZ(editor->dataPosition().y());
+
+	qDebug() << "Config " << exafsScanConfiguration_->microprobeSampleStageX() << exafsScanConfiguration_->microprobeSampleStageZ() << " editor " << editor->dataPosition().x() << editor->dataPosition().y();
 
 	// This should always succeed because the only way to get into this function is using the 2D scan view which currently only is accessed by 2D scans.
 	SXRMB2DMapScanConfiguration *configuration = qobject_cast<SXRMB2DMapScanConfiguration *>(editor->currentScan()->scanConfiguration());
 	if (configuration){
 
 		exafsScanConfiguration_->setName(configuration->name());
+		exafsScanConfiguration_->setNormalPosition(configuration->normalPosition());
 	}
 
 	if (setupEXAFS)

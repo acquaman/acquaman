@@ -6,6 +6,7 @@
 #include "ui/acquaman/AMScanConfigurationView.h"
 #include "acquaman/SXRMB/SXRMB2DMapScanConfiguration.h"
 
+#include <QPushButton>
 #include <QDoubleSpinBox>
 #include <QLabel>
 #include <QLineEdit>
@@ -27,6 +28,13 @@ public:
 
 	/// Method that updates the map info label based on the current values of the start, end, and step size.
 	void updateMapInfo();
+
+	/// Returns whether or not the excitation energy side box is hidden
+	bool excitationEnergyIsHidden() const;
+
+public slots:
+	/// Sets whether or not the excitation energy side box is hidden
+	void setExcitationEnergyIsHidden(bool excitationEnergyIsHidden);
 
 protected slots:
 	/// Sets the x-axis start position.
@@ -69,6 +77,14 @@ protected slots:
 	/// Helper slot that manages setting the time per point.
 	void onDwellTimeChanged();
 
+	/// Handles setting scan energy when the spin box is changed
+	void onScanEnergySpinBoxEditingFinished();
+	/// Handles setting the scan energy when the button is clicked
+	void onSetScanEnergyFromBeamlineButtonClicked();
+
+	/// Handles changes from the beamline energy to check the warning label
+	void onBeamlineEnergyChanged(double value);
+
 	/// Helper slot that handles the setting the estimated time label.
 	void onEstimatedTimeChanged();
 	/// Helper slot that sets whether we use SMAK or Ascii for the auto exporter.
@@ -83,7 +99,8 @@ protected:
 	QDoubleSpinBox *createPositionDoubleSpinBox(const QString &prefix, const QString &suffix, double value, int decimals);
 	/// Add the dwell time box.  Returns a pointer to the widget.
 	QDoubleSpinBox *createDwellTimeSpinBox(double time);
-
+	/// create spinbox
+	QDoubleSpinBox *createEnergySpinBox(QString units, double minimumValue, double maximumValue, double defaultValue);
 	/// Pointer to the specific scan config the view is modifying.
 	SXRMB2DMapScanConfiguration *configuration_;
 
@@ -106,6 +123,13 @@ protected:
 	/// Pointer to the normal position used for the scan.
 	QDoubleSpinBox *normalPosition_;
 
+	/// Double spin box to set the scan energy for 2D scan
+	QDoubleSpinBox *scanEnergySpinBox_;
+	/// Label used to warn the user when the current beamline settings don't match the request settings in the configuration
+	QLabel *scanEnergySettingWarningLabel_;
+	/// Button to quickly set the scan energy from the current beamline settings
+	QPushButton *setScanEnergyFromBeamlineButton_;
+
 	/// Pointer to the label that holds the current map settings.
 	QLabel *mapInfo_;
 	/// Label holding the current estimated time for the scan to complete.  Takes into account extra time per point based on experience on the beamline.
@@ -113,6 +137,11 @@ protected:
 
 	/// Button group for the exporter options.
 	QButtonGroup *autoExportButtonGroup_;
+
+	/// Option to hide the excitation energy side box
+	bool excitationEnergyIsHidden_;
+	/// Holds the beamline settings (ie,, excitation energy)
+	QGroupBox *beamlineSettingsGroupBox_;
 };
 
 #endif // SXRMB2DMAPSCANCONFIGURATIONVIEW_H

@@ -129,9 +129,9 @@ SXRMBEXAFSScanConfigurationView::SXRMBEXAFSScanConfigurationView(SXRMBEXAFSScanC
 	QGroupBox *beamlineSettingsGroupBox = new QGroupBox("Beamline Settings");
 
 	SXRMBBeamline *sxrmbBL = SXRMBBeamline::sxrmb();
-	sampleStageXSpinBox_ = createSamleStageSpinBox("mm", sxrmbBL->microprobeSampleStageX()->minimumValue(), sxrmbBL->microprobeSampleStageX()->maximumValue(), configuration_->microprobeSampleStageX());
-	sampleStageZSpinBox_ = createSamleStageSpinBox("mm", sxrmbBL->microprobeSampleStageZ()->minimumValue(), sxrmbBL->microprobeSampleStageZ()->maximumValue(), configuration_->microprobeSampleStageZ());
-	sampleStageNormalSpinBox_ = createSamleStageSpinBox("mm", sxrmbBL->microprobeSampleStageY()->minimumValue(), sxrmbBL->microprobeSampleStageY()->maximumValue(), configuration_->normalPosition());
+	sampleStageXSpinBox_ = createSampleStageSpinBox("mm", sxrmbBL->microprobeSampleStageX()->minimumValue(), sxrmbBL->microprobeSampleStageX()->maximumValue(), configuration_->microprobeSampleStageX());
+	sampleStageZSpinBox_ = createSampleStageSpinBox("mm", sxrmbBL->microprobeSampleStageZ()->minimumValue(), sxrmbBL->microprobeSampleStageZ()->maximumValue(), configuration_->microprobeSampleStageZ());
+	sampleStageNormalSpinBox_ = createSampleStageSpinBox("mm", sxrmbBL->microprobeSampleStageY()->minimumValue(), sxrmbBL->microprobeSampleStageY()->maximumValue(), configuration_->normalPosition());
 	sampleStageWarningLabel_ = new QLabel("Settings do not match beamline.");
 	setSampleStageFromBeamlineButton_ = new QPushButton("Set From Beamline");
 
@@ -143,6 +143,10 @@ SXRMBEXAFSScanConfigurationView::SXRMBEXAFSScanConfigurationView(SXRMBEXAFSScanC
 	connect(sxrmbBL->microprobeSampleStageX(), SIGNAL(valueChanged(double)), this, SLOT(onMicroprobeSampleStagePositionChanged(double)));
 	connect(sxrmbBL->microprobeSampleStageY(), SIGNAL(valueChanged(double)), this, SLOT(onMicroprobeSampleStagePositionChanged(double)));
 	connect(sxrmbBL->microprobeSampleStageZ(), SIGNAL(valueChanged(double)), this, SLOT(onMicroprobeSampleStagePositionChanged(double)));
+
+	connect(configuration, SIGNAL(microprobeSampleStageXChanged(double)), this, SLOT(onScanConfigurationMicroprobeSampleStageXChanged(double)));
+	connect(configuration, SIGNAL(microprobeSampleStageZChanged(double)), this, SLOT(onScanConfigurationMicroprobeSampleStageZChanged(double)));
+	connect(configuration->dbObject(), SIGNAL(normalPositionChanged(double)), this, SLOT(onScanConfigurationMicroprobeNormalChanged(double)));
 
 	QFormLayout *sampleStageFL = new QFormLayout();
 	sampleStageFL->addRow("X Position", sampleStageXSpinBox_);
@@ -298,8 +302,7 @@ void SXRMBEXAFSScanConfigurationView::onLinesComboBoxIndexChanged(int index)
 	configuration_->setEdge(lineChoice_->itemText(index).split(":").first());
 }
 
-void SXRMBEXAFSScanConfigurationView::onEdgeChanged()
-{
+void SXRMBEXAFSScanConfigurationView::onEdgeChanged(){
 	QString currentChoice = lineChoice_->itemText(lineChoice_->currentIndex()).split(":").first();
 	if (configuration_->edge() == currentChoice)
 		return;
@@ -351,11 +354,28 @@ void SXRMBEXAFSScanConfigurationView::onMicroprobeSampleStagePositionChanged(dou
 		sampleStageWarningLabel_->hide();
 }
 
-QDoubleSpinBox *SXRMBEXAFSScanConfigurationView::createSamleStageSpinBox(QString units, double minimumValue, double maximumValue, double defaultValue) {
+void SXRMBEXAFSScanConfigurationView::onScanConfigurationMicroprobeSampleStageXChanged(double value){
+	sampleStageXSpinBox_->setValue(value);
+
+	onSampleStageXSpinBoxEditingFinished();
+}
+
+void SXRMBEXAFSScanConfigurationView::onScanConfigurationMicroprobeSampleStageZChanged(double value){
+	sampleStageZSpinBox_->setValue(value);
+
+	onSampleStageZSpinBoxEditingFinished();
+}
+
+void SXRMBEXAFSScanConfigurationView::onScanConfigurationMicroprobeNormalChanged(double value){
+	sampleStageNormalSpinBox_->setValue(value);
+
+	onSampleStageNormalSpinBoxEditingFinished();
+}
+
+QDoubleSpinBox *SXRMBEXAFSScanConfigurationView::createSampleStageSpinBox(QString units, double minimumValue, double maximumValue, double defaultValue) {
 	QDoubleSpinBox *sampleStageSpinBox = new QDoubleSpinBox();
 	sampleStageSpinBox->setSuffix(" " % units);
 	sampleStageSpinBox->setSingleStep(0.001);
-	sampleStageSpinBox->setRange(-100, 100);
 	sampleStageSpinBox->setDecimals(3);
 	sampleStageSpinBox->setAlignment(Qt::AlignCenter);
 	sampleStageSpinBox->setFixedWidth(110);
