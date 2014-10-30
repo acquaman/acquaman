@@ -22,21 +22,35 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef AMEXPORTEROPTIONGENERALASCIIVIEW_H
 #define AMEXPORTEROPTIONGENERALASCIIVIEW_H
 
+#include <QVariant>
+#include <QAction>
+#include <QApplication>
+#include <QButtonGroup>
+#include <QCheckBox>
+#include <QFormLayout>
+#include <QFrame>
+#include <QGridLayout>
+#include <QGroupBox>
+#include <QHBoxLayout>
+#include <QHeaderView>
+#include <QLabel>
+#include <QLineEdit>
+#include <QListView>
+#include <QListWidget>
+#include <QPushButton>
+#include <QRadioButton>
+#include <QSpacerItem>
 #include <QTabWidget>
+#include <QToolButton>
+#include <QVBoxLayout>
+#include <QWidget>
+#include <QStandardItemModel>
 
-#ifdef AM_PRAGMA_WARNING_CONTROLS
-#pragma clang diagnostic ignored "-Wunused-private-field"
-#endif
-#include "ui_AMExporterOptionGeneralAsciiView.h"
-#ifdef AM_PRAGMA_WARNING_CONTROLS
-#pragma clang diagnostic warning "-Wunused-private-field"
-#endif
+#include "AMQPlainTextEdit.h"
 
-class QButtonGroup;
-class QStandardItemModel;
 class AMExporterOptionGeneralAscii;
 
-class AMExporterOptionGeneralAsciiView : public QTabWidget, private Ui::AMExporterOptionGeneralAsciiView
+class AMExporterOptionGeneralAsciiView : public QTabWidget
 {
 	Q_OBJECT
 
@@ -53,7 +67,92 @@ protected:
 
 
 	QButtonGroup* dataSourceLocationGroup_, *columnSeparatorGroup_, *newlineGroup_;
-
+	QWidget *tabHeader_;
+	QVBoxLayout *verticalLayout_;
+	QGroupBox *groupBox_;
+	QHBoxLayout *horizontalLayout2_;
+	QLabel *headerHelpText_;
+	QPushButton *headerHelpButton_;
+	QCheckBox *headerIncludeCheck_;
+	QPlainTextEdit *headerText_;
+	QHBoxLayout *horizontalLayout_;
+	QSpacerItem *horizontalSpacer_;
+	QToolButton *headerKeywordButton_;
+	QWidget *tabDataSources_;
+	QVBoxLayout *verticalLayout8_;
+	QGroupBox *groupBox2_;
+	QHBoxLayout *horizontalLayout3_;
+	QLabel *sourcesHelpText_;
+	QPushButton *sourcesHelpButton_;
+	QCheckBox *includeAllSourcesCheck_;
+	QCheckBox *firstColumnOnlyCheck_;
+	QCheckBox *separateHigherDimensionSourcesCheck_;
+	QCheckBox *higherDimensionsInRows_;
+	QFrame *sourcesSelectorFrame_;
+	QVBoxLayout *verticalLayout9_;
+	QGridLayout *gridLayout_;
+	QLabel *detectedSourcesLabel_;
+	QLabel *includedSourcesLabel_;
+	QVBoxLayout *verticalLayout5_;
+	QToolButton *sourcesAddButton_;
+	QToolButton *sourcesRemoveButton_;
+	QToolButton *sourcesAddExtraButton_;
+	QListWidget *sourcesIncludedListWidget_;
+	QVBoxLayout *verticalLayout4_;
+	QGroupBox *sourcesDetailsBox_;
+	QVBoxLayout *verticalLayout3_;
+	QCheckBox *sourcesRequiredCheck_;
+	QCheckBox *sourcesOmitAxisValuesCheck_;
+	QGroupBox *sourcesLocationBox_;
+	QVBoxLayout *verticalLayout2_;
+	QRadioButton *sourcesMainTableButton_;
+	QRadioButton *sourcesSeparateSectionButton_;
+	QRadioButton *sourcesSeparateFileButton_;
+	QSpacerItem *verticalSpacer3_;
+	QListView *sourcesAvailableListView_;
+	QWidget *tabLayout_;
+	QVBoxLayout *verticalLayout6_;
+	QGroupBox *groupBox3_;
+	QHBoxLayout *horizontalLayout6_;
+	QLabel *layoutHelpText_;
+	QPushButton *layoutHelpButton_;
+	QFormLayout *formLayout_;
+	QCheckBox *columnHeaderCheck_;
+	QLineEdit *columnHeaderText_;
+	QLabel *columnHeaderHelpLabel_;
+	QCheckBox *sectionHeaderCheck_;
+	QPlainTextEdit *sectionHeaderText_;
+	QLabel *sectionHeaderHelpText_;
+	QFrame *line_;
+	QLabel *columnSeparatorLabel_;
+	QHBoxLayout *horizontalLayout4_;
+	QRadioButton *columnSeparatorTabButton_;
+	QRadioButton *columnSeparatorSpaceButton_;
+	QRadioButton *columnSeparatorCommaButton_;
+	QRadioButton *columnSeparatorSemicolonButton_;
+	QRadioButton *columnSeparatorOtherButton_;
+	QLineEdit *columnSeparatorOtherText_;
+	QSpacerItem *horizontalSpacer3_;
+	QLabel *endOfLineSeparatorLabel_;
+	QHBoxLayout *horizontalLayout5_;
+	QRadioButton *newlineCRLFCheck_;
+	QRadioButton *newlineLFCheck_;
+	QRadioButton *newlineOtherCheck_;
+	QLineEdit *newlineOtherText_;
+	QSpacerItem *horizontalSpacer2_;
+	QWidget *tabFileName_;
+	QVBoxLayout *verticalLayout7_;
+	QGroupBox *groupBox4_;
+	QHBoxLayout *horizontalLayout7_;
+	QLabel *fileNamesHelpText_;
+	QPushButton *fileNamesHelpButton_;
+	QSpacerItem *verticalSpacer_;
+	QFormLayout *formLayout2_;
+	QLabel *fileNameLabel_;
+	QLineEdit *fileNameText_;
+	QLabel *fileNameSeparateSectionLabel_;
+	QLineEdit *fileNameSeparateSectionText_;
+	QSpacerItem *verticalSpacer2_;
 
 protected slots:
 	/// disable add button when none selected, enable when are.
@@ -96,6 +195,8 @@ protected slots:
 	void onHigherDimensionsInRowsToggled(bool checked);
 
 private slots:
+private:
+
 };
 
 #endif // AMEXPORTEROPTIONGENERALASCIIVIEW_H
