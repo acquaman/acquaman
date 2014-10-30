@@ -18,7 +18,7 @@ AMAction3 * SXRMBOxidationMapScanConfigurationViewHolder::createAction()
 	if(view_){
 
 		SXRMB2DOxidationMapScanConfigurationView *configurationView = qobject_cast<SXRMB2DOxidationMapScanConfigurationView *>(view_);
-		AMListAction3 *scanList = new AMListAction3(new AMListActionInfo3(configurationView->configuration()->name()));
+		AMSequentialListAction3 *scanList = new AMSequentialListAction3(new AMSequentialListActionInfo3(configurationView->configuration()->name()));
 
 		SXRMB2DMapScanConfiguration *configuration;
 
