@@ -28,6 +28,9 @@ SXRMBPersistentView::SXRMBPersistentView(QWidget *parent) :
 	beamOnOffHL->addWidget(beamOnButton_);
 	beamOnOffHL->addWidget(beamOffButton_);
 
+	beamOnButton_->setDisabled(true);
+	beamOffButton_->setDisabled(true);
+
 	energyControlEditor_ = new AMExtendedControlEditor(SXRMBBeamline::sxrmb()->energy());
 	energyControlEditor_->setControlFormat('f', 2);
 
@@ -38,6 +41,10 @@ SXRMBPersistentView::SXRMBPersistentView(QWidget *parent) :
 	teyDetectorSR570View_ = new CLSSIS3820ScalerChannelView(SXRMBBeamline::sxrmb()->scaler()->channelAt(18));
 	i0DetectorSR570View_->setEnableCheckBoxVisibility(false);
 	teyDetectorSR570View_->setEnableCheckBoxVisibility(false);
+	i0DetectorSR570View_->setAmplifierViewPrecision(3);
+	teyDetectorSR570View_->setAmplifierViewPrecision(3);
+	i0DetectorSR570View_->setAmplifierViewFormat('g');
+	teyDetectorSR570View_->setAmplifierViewFormat('g');
 
 	mainVL_ = new QVBoxLayout();
 	mainVL_->setContentsMargins(2, 2, 2, 2);

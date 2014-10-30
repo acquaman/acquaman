@@ -204,8 +204,12 @@ void SXRMBAppController::onBeamlineConnected(bool connected)
 
 void SXRMBAppController::onScalerConnected(bool isConnected){
 	if(isConnected && SXRMBBeamline::sxrmb()->isConnected()){
-		if(!scalerView_)
+		if(!scalerView_){
+
 			scalerView_ = new CLSSIS3820ScalerView(SXRMBBeamline::sxrmb()->scaler(), false);
+			scalerView_->setAmplifierViewFormat('g');
+			scalerView_->setAmplifierViewPrecision(3);
+		}
 
 		QGroupBox *scalerGroupBox = new QGroupBox;
 		QHBoxLayout *scalerHorizontalSqueezeLayout = new QHBoxLayout;
