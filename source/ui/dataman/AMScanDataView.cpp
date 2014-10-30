@@ -151,11 +151,18 @@ void AMScanDataView::onFilterChanged(bool isCurrentlyFiltered)
 	else
 		titleLabel_->setText(QString("%1: Data").arg(AMUser::user()->name()));
 }
-
+#include <QDebug>
 void AMScanDataView::onChildViewDoubleClicked()
 {
 	if(numberOfSelectedItems() > 0)
 	{
+		QList<QUrl> currentSelectedItems = selectedItems();
+		int itemCount = currentSelectedItems.count();
+		qDebug()<< "Selected URLs";
+		for (int i = 0; i < itemCount; i++)
+		{
+			qDebug() << currentSelectedItems.at(i).toString();
+		}
 		emit selectionActivated(selectedItems());
 	}
 }

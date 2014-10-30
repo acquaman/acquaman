@@ -106,6 +106,8 @@ AMScanThumbnailView::AMScanThumbnailView(QWidget *parent)
 	setMouseTracking(true);
 	currentGridRowMouseOver_ = -1;
 	connect(&hoverTimer_, SIGNAL(timeout()), this, SLOT(onTimerTimout()));
+	doubleClickDelay_ = 1000;
+	doubleClickTimer_.setSingleShot(true);
 }
 
 QModelIndex AMScanThumbnailView::indexAt(const QPoint &point) const
@@ -439,7 +441,7 @@ void AMScanThumbnailView::mousePressEvent(QMouseEvent *event)
 		rubberBandStart_  = event->pos();
 		selectionRubberBand_->setGeometry(QRect(rubberBandStart_, QSize()));
 		selectionRubberBand_->show();
-	// ToDo: Add double click detection
+
 	}
 }
 
@@ -492,7 +494,7 @@ void AMScanThumbnailView::mouseMoveEvent(QMouseEvent *event)
 	}
 
 }
-
+#include <QDebug>
 void AMScanThumbnailView::mouseReleaseEvent(QMouseEvent *event)
 {
 	if(event->button() == Qt::LeftButton)
@@ -535,13 +537,24 @@ void AMScanThumbnailView::mouseReleaseEvent(QMouseEvent *event)
 			else
 				commandFlags = QItemSelectionModel::ClearAndSelect;
 
-			if(!selectionRubberBand_->isHidden())
+			if(selectionRubberBand_->width() == 0 && selectionRubberBand_->height() == 0)
+				setSelection(QRect(rubberBandStart_.x(), rubberBandStart_.y(), 1, 1), commandFlags);
+			selectionRubberBand_->hide();
+			rubberBandStart_.setX(0);
+			rubberBandStart_.setY(0);
+
+			if(doubleClickTimer_.isActive())
 			{
-				if(selectionRubberBand_->width() == 0 && selectionRubberBand_->height() == 0)
-					setSelection(QRect(rubberBandStart_.x(), rubberBandStart_.y(), 1, 1), commandFlags);
-				selectionRubberBand_->hide();
-				rubberBandStart_.setX(0);
-				rubberBandStart_.setY(0);
+				QModelIndex indexUnderMouse = indexAt(event->pos());
+				if(!indexUnderMouse.isValid())
+					return;
+				emit doubleClicked(indexUnderMouse);
+				qDebug() << "Detecting double click";
+			}
+			else
+			{
+				qDebug() << "Starting timer";
+				doubleClickTimer_.start(doubleClickDelay_);
 			}
 		}
 	}
