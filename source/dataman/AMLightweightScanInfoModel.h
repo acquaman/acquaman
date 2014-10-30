@@ -52,6 +52,14 @@ public slots:
 	void onScanInfoAdded();
 	/// Handles the collection signalling that one of its members has been changed
 	void onScanInfoUpdated(int updatedIndex);
+	/// Handles the collection signalling that a given scan is about to have thumbnails added
+	void onScanThumbnailAboutToBeAdded();
+	/// Handles the collection signalling that it is done adding thumbnails to a scan
+	void onScanThumbnailAdded();
+	/// Handles the collection signalling that a given scan has had a given thumbnail removed
+	void onScanThumbnailAboutToBeRemoved(int scanIndex, int oldThumbnailIndexStart, int oldThumbnailIndexEnd);
+	/// Handles the collection signalling that it has finsished remvoing a thumbnail
+	void onScanThumbnailRemoved();
 	/// Handles the collection signalling that a scan is about to be removed
 	void onScanInfoAboutToBeRemoved(int oldIndex);
 	/// Handles the collection signalling that it has finished removing a scan

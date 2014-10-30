@@ -3,7 +3,6 @@
 
 
 
-
 //////////////////////////////////////////////////
 // Definitions for AMScanThumbnailViewItemDelegate
 //////////////////////////////////////////////////
@@ -213,13 +212,7 @@ QRect AMScanThumbnailView::visualRect(const QModelIndex &index) const
 
 void AMScanThumbnailView::setModel(QAbstractItemModel *newModel)
 {
-	if(model())
-	{
-		disconnect(model(), SIGNAL(rowsRemoved(const QModelIndex& parent, int start, int end)), this, SLOT(rowsRemoved(QModelIndex,int,int)));
-	}
-
 	QAbstractItemView::setModel(newModel);
-	connect(model(), SIGNAL(rowsRemoved(const QModelIndex&, int, int )), this, SLOT(rowsRemoved(QModelIndex,int,int)));
 	updateScrollBars();
 }
 
@@ -458,6 +451,7 @@ void AMScanThumbnailView::mouseMoveEvent(QMouseEvent *event)
 		QPoint posInsideRect(event->x() - currentIndexRect.x(), event->y() - currentIndexRect.y());
 
 		int thumbnailCount = model()->rowCount(currentHoveringIndex);
+
 		if(thumbnailCount == 0)
 			return;
 		int widthOfEachThumbnail = gridDimensions().width() / thumbnailCount;
@@ -515,7 +509,7 @@ void AMScanThumbnailView::rowsInserted(const QModelIndex &parent, int start, int
 	QAbstractItemView::rowsInserted(parent, start, end);
 }
 
-void AMScanThumbnailView::rowsRemoved(const QModelIndex &parent, int start, int end)
+void AMScanThumbnailView::rowsAboutToBeRemoved(const QModelIndex &parent, int start, int end)
 {
 	rowCurrentDisplayedThumbnailMap_.clear();
 	updateScrollBars();
