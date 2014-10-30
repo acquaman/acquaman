@@ -207,7 +207,19 @@ void SXRMBAppController::onScalerConnected(bool isConnected){
 		if(!scalerView_)
 			scalerView_ = new CLSSIS3820ScalerView(SXRMBBeamline::sxrmb()->scaler(), false);
 
-		mw_->addPane(scalerView_, "Detectors", "Scaler", ":/system-search.png", true);
+		QGroupBox *scalerGroupBox = new QGroupBox;
+		QHBoxLayout *scalerHorizontalSqueezeLayout = new QHBoxLayout;
+		scalerHorizontalSqueezeLayout->addStretch();
+		scalerHorizontalSqueezeLayout->addWidget(scalerView_);
+		scalerHorizontalSqueezeLayout->addStretch();
+
+		QVBoxLayout *scalerVerticalSqueezeLayout = new QVBoxLayout;
+		scalerVerticalSqueezeLayout->addWidget(new AMTopFrame("Scaler"));
+		scalerVerticalSqueezeLayout->addStretch();
+		scalerVerticalSqueezeLayout->addLayout(scalerHorizontalSqueezeLayout);
+		scalerVerticalSqueezeLayout->addStretch();
+		scalerGroupBox->setLayout(scalerVerticalSqueezeLayout);
+		mw_->addPane(scalerGroupBox, "Detectors", "Scaler", ":/system-search.png", true);
 	}
 	else if(scalerView_)
 		mw_->removePane(scalerView_);
