@@ -10,7 +10,7 @@ SXRMBBrukerDetector::SXRMBBrukerDetector(const QString &name, const QString &des
 	eVPerBin_ = 5.0;
 
 	AMAxisInfo ai("Energy", 2048, "Energy", "eV");
-	ai.start = AMNumber(-18);
+	ai.start = AMNumber(-450);
 	ai.increment = eVPerBin_;
 	ai.isUniform = true;
 	axes_ << ai;
