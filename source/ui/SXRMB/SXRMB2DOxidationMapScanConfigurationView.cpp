@@ -139,7 +139,13 @@ SXRMB2DOxidationMapScanConfigurationView::SXRMB2DOxidationMapScanConfigurationVi
 	// The oxidation energy view.
 	AMEnergyList energyList;
 	energyList.insertEnergy(0, AMPeriodicTable::table()->elementBySymbol("S")->KEdge().energy());
-	oxidationEnergyListView_ = new AMEnergyListView("Oxidation Energies", energyList);
+	oxidationEnergyListView_ = new AMEnergyListView("", energyList);
+	oxidationEnergyListView_->setRange(SXRMBBeamline::sxrmb()->energy()->minimumValue(), SXRMBBeamline::sxrmb()->energy()->maximumValue());
+
+	QGroupBox *energyListViewBox = new QGroupBox("Oxidation Energies");
+	QVBoxLayout *energyListViewBoxLayout = new QVBoxLayout;
+	energyListViewBoxLayout->addWidget(oxidationEnergyListView_);
+	energyListViewBox->setLayout(energyListViewBoxLayout);
 
 	// Setting up the layout.
 	QGridLayout *contentsLayout = new QGridLayout;
@@ -151,7 +157,7 @@ SXRMB2DOxidationMapScanConfigurationView::SXRMB2DOxidationMapScanConfigurationVi
 	QHBoxLayout *squeezeContents = new QHBoxLayout;
 	squeezeContents->addStretch();
 	squeezeContents->addLayout(contentsLayout);
-	squeezeContents->addWidget(oxidationEnergyListView_, 0, Qt::AlignTop);
+	squeezeContents->addWidget(energyListViewBox, 0, Qt::AlignTop);
 	squeezeContents->addStretch();
 
 	QVBoxLayout *configViewLayout = new QVBoxLayout;

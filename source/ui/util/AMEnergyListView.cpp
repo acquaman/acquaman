@@ -22,7 +22,7 @@ AMEnergyListElementView::AMEnergyListElementView(double energy, QWidget *parent)
 	connect(energySpinBox_, SIGNAL(editingFinished()), this, SLOT(onEnergyUpdated()));
 
 	QHBoxLayout *elementViewLayout = new QHBoxLayout;
-	elementViewLayout->addWidget(new QLabel("Start"));
+	elementViewLayout->addWidget(new QLabel("Energy"));
 	elementViewLayout->addWidget(energySpinBox_);
 
 	setLayout(elementViewLayout);
@@ -43,12 +43,20 @@ void AMEnergyListElementView::onEnergyUpdated()
 	emit energyChanged(energy_);
 }
 
+void AMEnergyListElementView::setEnergyRange(const AMRange &newRange)
+{
+	if (newRange.isValid())
+		energySpinBox_->setRange(newRange.minimum(), newRange.maximum());
+}
+
 // AMEnergyListView
 /////////////////////////////////////////////
 
 AMEnergyListView::AMEnergyListView(const QString &title, const AMEnergyList &list, QWidget *parent)
 	: QWidget(parent)
 {
+	energyRange_ = AMRange();
+
 	foreach (double energy, list.energies())
 		energyList_.insertEnergy(energyList_.energies().size()-1, energy);
 
@@ -125,7 +133,7 @@ void AMEnergyListView::onAddEnergyButtonClicked()
 void AMEnergyListView::onDeleteButtonClicked(QAbstractButton *button)
 {
 	AMEnergyListElementView *view = energyMap_.value(button);
-	energyList_.removeEnergy(view->energy());
+	energyList_.removeEnergy(energyElementViewList_.indexOf(view));
 	deleteButtonGroup_->removeButton(button);
 	energyMap_.remove(button);
 	energyElementViewList_.removeOne(view);
@@ -149,6 +157,7 @@ void AMEnergyListView::removeEnergy(int index)
 void AMEnergyListView::buildEnergyElementView(int index, double energy)
 {
 	AMEnergyListElementView *elementView = new AMEnergyListElementView(energy);
+	elementView->setEnergyRange(energyRange_);
 	connect(elementView, SIGNAL(energyChanged(double)), this, SLOT(onElementEnergyChanged()));
 
 	QToolButton *deleteButton = new QToolButton;
@@ -172,4 +181,12 @@ void AMEnergyListView::onElementEnergyChanged()
 {
 	for (int i = 0, size = energyElementViewList_.size(); i < size; i++)
 		energyList_.setEnergy(i, energyElementViewList_.at(i)->energy());
+}
+
+void AMEnergyListView::setRange(double minimum, double maximum)
+{
+	energyRange_ = AMRange(minimum, maximum);
+
+	foreach (AMEnergyListElementView *view, energyElementViewList_)
+		view->setEnergyRange(energyRange_);
 }

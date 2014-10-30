@@ -4,6 +4,7 @@
 #include <QWidget>
 
 #include "util/AMEnergyList.h"
+#include "util/AMRange.h"
 
 #include <QDoubleSpinBox>
 #include <QMap>
@@ -30,6 +31,8 @@ signals:
 public slots:
 	/// Set the energy spin box.
 	void setEnergySpinBox(double energy);
+	/// Set the range for the spin box.
+	void setEnergyRange(const AMRange &newRange);
 
 protected slots:
 	/// Handles updating the energy when it changes.
@@ -63,6 +66,9 @@ public slots:
 	/// Removes a region from the given index.
 	void removeEnergy(int index);
 
+	/// Sets the energy range for the spin boxes.
+	void setRange(double minimum, double maximum);
+
 protected slots:
 	/// Handles adding a new region.
 	void onAddEnergyButtonClicked();
@@ -89,6 +95,8 @@ protected:
 	QButtonGroup *deleteButtonGroup_;
 	/// The add region button.  Used for proper placement of the popup menu when adding regions.
 	QToolButton *addRegionButton_;
+	/// Hold the range for the spin boxes.
+	AMRange energyRange_;
 };
 
 #endif // AMENERGYLISTVIEW_H

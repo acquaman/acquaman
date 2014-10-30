@@ -148,6 +148,7 @@ void SXRMBAppController::onBeamlineConnected(bool connected)
 		microProbe2DScanConfiguration_->scanAxisAt(1)->regionAt(0)->setRegionEnd(0.1);
 
 		microProbe2DScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionTime(1.0);
+		microProbe2DScanConfiguration_->scanAxisAt(1)->regionAt(0)->setRegionTime(1.0);
 
 		microProbe2DScanConfigurationView_ = new SXRMB2DMapScanConfigurationView(microProbe2DScanConfiguration_);
 		microProbe2DScanConfigurationViewHolder_ = new AMScanConfigurationViewHolder3(microProbe2DScanConfigurationView_);
@@ -169,6 +170,7 @@ void SXRMBAppController::onBeamlineConnected(bool connected)
 		microProbe2DOxidationScanConfiguration_->scanAxisAt(1)->regionAt(0)->setRegionEnd(0.1);
 
 		microProbe2DOxidationScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionTime(1.0);
+		microProbe2DOxidationScanConfiguration_->scanAxisAt(1)->regionAt(0)->setRegionTime(1.0);
 
 		microProbe2DOxidationScanConfigurationView_ = new SXRMB2DOxidationMapScanConfigurationView(microProbe2DOxidationScanConfiguration_);
 		microProbe2DOxidationScanConfigurationViewHolder_ = new SXRMBOxidationMapScanConfigurationViewHolder(microProbe2DOxidationScanConfigurationView_);
@@ -302,6 +304,7 @@ void SXRMBAppController::onUserConfigurationLoadedFromDb()
 		detector->addRegionOfInterest(region->createCopy());
 		microProbe2DScanConfiguration_->addRegionOfInterest(region);
 		exafsScanConfiguration_->addRegionOfInterest(region);
+		microProbe2DOxidationScanConfiguration_->addRegionOfInterest(region);
 	}
 
 	// This is connected here because we want to listen to the detectors for updates, but don't want to double add regions on startup.
@@ -314,6 +317,7 @@ void SXRMBAppController::onRegionOfInterestAdded(AMRegionOfInterest *region)
 	userConfiguration_->addRegionOfInterest(region);
 	microProbe2DScanConfiguration_->addRegionOfInterest(region);
 	exafsScanConfiguration_->addRegionOfInterest(region);
+	microProbe2DOxidationScanConfiguration_->addRegionOfInterest(region);
 }
 
 void SXRMBAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
@@ -321,6 +325,7 @@ void SXRMBAppController::onRegionOfInterestRemoved(AMRegionOfInterest *region)
 	userConfiguration_->removeRegionOfInterest(region);
 	microProbe2DScanConfiguration_->removeRegionOfInterest(region);
 	exafsScanConfiguration_->removeRegionOfInterest(region);
+	microProbe2DOxidationScanConfiguration_->removeRegionOfInterest(region);
 }
 
 void SXRMBAppController::onScanEditorCreated(AMGenericScanEditor *editor)
