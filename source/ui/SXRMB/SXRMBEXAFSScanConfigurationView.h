@@ -51,6 +51,18 @@ protected slots:
 	/// Handles setting the proper information if the edge is changed.
 	void onEdgeChanged();
 
+	/// Handles setting the X position of the uProbe sample stage when the spin box is changed
+	void onSampleStageXSpinBoxEditingFinished();
+	/// Handles setting the Z position of the uProbe sample stage when the spin box is changed
+	void onSampleStageZSpinBoxEditingFinished();
+	/// Handles setting the normal position of the uProbe sample stage when the spin box is changed
+	void onSampleStageNormalSpinBoxEditingFinished();
+	/// Handles setting X, Y, and Z positions of the uProbe sample stage when the button is clicked
+	void onSetSampleStageFromBeamlineButtonClicked();
+
+	/// Handles checking the current beamline uProbe sample stage positions when they update for the warning label
+	void onMicroprobeSampleStagePositionChanged(double value);
+
 protected:
 	QString convertTimeToString(double time);
 
@@ -82,6 +94,17 @@ protected:
 	QLabel *pointPerScan_;
 	/// Label holding the energy space scan range.
 	QLabel *scanEnergyRange_;
+
+	/// Double spin box for changing the X position of the uProbe sample stage
+	QDoubleSpinBox *sampleStageXSpinBox_;
+	/// Double spin box for changing the Z position of the uProbe sample stage
+	QDoubleSpinBox *sampleStageZSpinBox_;
+	/// Double spin box for changing the normal (focal) position of the uProbe sample stage
+	QDoubleSpinBox *sampleStageNormalSpinBox_;
+	/// Label used to warn the user when the current beamline settings don't match the request settings in the configuration
+	QLabel *sampleStageWarningLabel_;
+	/// Button to quickly set the X, Y, and Z position of the uProbe sample stage from the current beamline settings
+	QPushButton *setSampleStageFromBeamlineButton_;
 
 };
 

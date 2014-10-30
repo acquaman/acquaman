@@ -18,6 +18,9 @@ SXRMBEXAFSScanConfiguration::SXRMBEXAFSScanConfiguration(QObject *parent) :
 	edgeEnergy_ = -1;
 	edge_ = "";
 
+	microprobeSampleStageX_ = 0.0;
+	microprobeSampleStageZ_ = 0.0;
+
 	AMScanAxisEXAFSRegion *region = new AMScanAxisEXAFSRegion;
 	AMScanAxis *axis = new AMScanAxis(AMScanAxis::StepAxis, region);
 	appendScanAxis(axis);
@@ -40,6 +43,9 @@ SXRMBEXAFSScanConfiguration::SXRMBEXAFSScanConfiguration(const SXRMBEXAFSScanCon
 
 	edgeEnergy_ = original.edgeEnergy();
 	edge_ = original.edge();
+
+	microprobeSampleStageX_ = original.microprobeSampleStageX();
+	microprobeSampleStageZ_ = original.microprobeSampleStageZ();
 
 	computeTotalTime();
 
@@ -109,6 +115,24 @@ void SXRMBEXAFSScanConfiguration::setEdge(QString edgeName)
 	}
 }
 
+void SXRMBEXAFSScanConfiguration::setMicroprobeSampleStageX(double microprobeSampleStageX)
+{
+	if(microprobeSampleStageX_ != microprobeSampleStageX){
+		microprobeSampleStageX_ = microprobeSampleStageX;
+		emit microprobeSampleStageXChanged(microprobeSampleStageX_);
+		setModified(true);
+	}
+}
+
+void SXRMBEXAFSScanConfiguration::setMicroprobeSampleStageZ(double microprobeSampleStageZ)
+{
+	if(microprobeSampleStageZ_ != microprobeSampleStageZ){
+		microprobeSampleStageZ_ = microprobeSampleStageZ;
+		emit microprobeSampleStageZChanged(microprobeSampleStageZ_);
+		setModified(true);
+	}
+}
+
 QString SXRMBEXAFSScanConfiguration::headerText() const
 {
 	QString header("Configuration of the Scan\n\n");
@@ -148,6 +172,16 @@ QString SXRMBEXAFSScanConfiguration::headerText() const
 	}
 
 	return header;
+}
+
+double SXRMBEXAFSScanConfiguration::microprobeSampleStageX() const
+{
+	return microprobeSampleStageX_;
+}
+
+double SXRMBEXAFSScanConfiguration::microprobeSampleStageZ() const
+{
+	return microprobeSampleStageZ_;
 }
 
 void SXRMBEXAFSScanConfiguration::computeTotalTimeImplementation()

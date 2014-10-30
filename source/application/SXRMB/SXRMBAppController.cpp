@@ -118,6 +118,10 @@ void SXRMBAppController::onBeamlineConnected(bool connected)
 	if (connected && !exafsScanConfigurationView_) {
 		exafsScanConfiguration_ = new SXRMBEXAFSScanConfiguration();
 
+		exafsScanConfiguration_->setNormalPosition(SXRMBBeamline::sxrmb()->microprobeSampleStageY()->value());
+		exafsScanConfiguration_->setMicroprobeSampleStageX(SXRMBBeamline::sxrmb()->microprobeSampleStageX()->value());
+		exafsScanConfiguration_->setMicroprobeSampleStageZ(SXRMBBeamline::sxrmb()->microprobeSampleStageZ()->value());
+
 		exafsScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStart(-11);
 		exafsScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStep(0.5);
 		exafsScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionEnd(9);
@@ -131,6 +135,8 @@ void SXRMBAppController::onBeamlineConnected(bool connected)
 
 	if (connected && !microProbe2DScanConfigurationView_) {
 		microProbe2DScanConfiguration_ = new SXRMB2DMapScanConfiguration();
+
+		microProbe2DScanConfiguration_->setExcitationEnergy(SXRMBBeamline::sxrmb()->energy()->value());
 
 		microProbe2DScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStart(0.0);
 		microProbe2DScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStep(0.01);
@@ -150,6 +156,8 @@ void SXRMBAppController::onBeamlineConnected(bool connected)
 
 	if (connected && !microProbe2DOxidationScanConfigurationView_) {
 		microProbe2DOxidationScanConfiguration_ = new SXRMB2DMapScanConfiguration();
+
+		microProbe2DScanConfiguration_->setExcitationEnergy(SXRMBBeamline::sxrmb()->energy()->value());
 
 		microProbe2DOxidationScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStart(0.0);
 		microProbe2DOxidationScanConfiguration_->scanAxisAt(0)->regionAt(0)->setRegionStep(0.01);

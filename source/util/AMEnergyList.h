@@ -11,6 +11,9 @@ class AMEnergyList : public QObject
 public:
 	/// Constructor.
 	explicit AMEnergyList(QObject *parent = 0);
+	/// Copy constructor
+	AMEnergyList(const AMEnergyList &original);
+
 	/// Destructor.
 	virtual ~AMEnergyList(){}
 

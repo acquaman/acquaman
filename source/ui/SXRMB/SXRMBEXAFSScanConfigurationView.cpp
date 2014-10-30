@@ -14,6 +14,7 @@
 #include <QLabel>
 #include <QToolButton>
 #include <QGroupBox>
+#include <QFormLayout>
 
 #include "acquaman/AMScanController.h"
 #include "acquaman/SXRMB/SXRMBEXAFSScanConfiguration.h"
@@ -24,6 +25,8 @@
 #include "ui/util/AMPeriodicTableDialog.h"
 #include "util/AMPeriodicTable.h"
 #include "util/AMElement.h"
+
+#include "beamline/SXRMB/SXRMBBeamline.h"
 
 
 SXRMBEXAFSScanConfigurationView::SXRMBEXAFSScanConfigurationView(SXRMBEXAFSScanConfiguration *configuration, QWidget *parent) :
@@ -123,9 +126,41 @@ SXRMBEXAFSScanConfigurationView::SXRMBEXAFSScanConfigurationView(SXRMBEXAFSScanC
 	scanSettingContentVL->addWidget(scanRegionConfigurationGroupBox);
 	scanSettingContentVL->addWidget(scanInfoGroupBox);
 
+	QGroupBox *beamlineSettingsGroupBox = new QGroupBox("Beamline Settings");
+
+	sampleStageXSpinBox_ = new QDoubleSpinBox();
+	sampleStageZSpinBox_ = new QDoubleSpinBox();
+	sampleStageNormalSpinBox_ = new QDoubleSpinBox();
+	sampleStageXSpinBox_->setRange(SXRMBBeamline::sxrmb()->microprobeSampleStageX()->minimumValue(), SXRMBBeamline::sxrmb()->microprobeSampleStageX()->maximumValue());
+	sampleStageZSpinBox_->setRange(SXRMBBeamline::sxrmb()->microprobeSampleStageZ()->minimumValue(), SXRMBBeamline::sxrmb()->microprobeSampleStageZ()->maximumValue());
+	sampleStageNormalSpinBox_->setRange(SXRMBBeamline::sxrmb()->microprobeSampleStageY()->minimumValue(), SXRMBBeamline::sxrmb()->microprobeSampleStageY()->maximumValue());
+	sampleStageWarningLabel_ = new QLabel();
+	setSampleStageFromBeamlineButton_ = new QPushButton("Set From Beamline");
+
+	connect(sampleStageXSpinBox_, SIGNAL(editingFinished()), this, SLOT(onSampleStageXSpinBoxEditingFinished()));
+	connect(sampleStageZSpinBox_, SIGNAL(editingFinished()), this, SLOT(onSampleStageZSpinBoxEditingFinished()));
+	connect(sampleStageNormalSpinBox_, SIGNAL(editingFinished()), this, SLOT(onSampleStageNormalSpinBoxEditingFinished()));
+	connect(setSampleStageFromBeamlineButton_, SIGNAL(clicked()), this, SLOT(onSetSampleStageFromBeamlineButtonClicked()));
+
+	QFormLayout *sampleStageFL = new QFormLayout();
+	sampleStageFL->addRow("X Position", sampleStageXSpinBox_);
+	sampleStageFL->addRow("Z Position", sampleStageZSpinBox_);
+	sampleStageFL->addRow("Normal Position", sampleStageNormalSpinBox_);
+
+	QVBoxLayout *beamlineSettingsGroupBoxVL = new QVBoxLayout();
+	beamlineSettingsGroupBoxVL->addLayout(sampleStageFL);
+	beamlineSettingsGroupBoxVL->addWidget(sampleStageWarningLabel_);
+	beamlineSettingsGroupBoxVL->addWidget(setSampleStageFromBeamlineButton_);
+
+	if(SXRMBBeamline::sxrmb()->isConnected())
+		onMicroprobeSampleStagePositionChanged(-1);
+
+	beamlineSettingsGroupBox->setLayout(beamlineSettingsGroupBoxVL);
+
 	QHBoxLayout *squeezeContents = new QHBoxLayout;
 	squeezeContents->addStretch();
 	squeezeContents->addLayout(scanSettingContentVL);
+	squeezeContents->addWidget(beamlineSettingsGroupBox);
 	squeezeContents->addStretch();
 
 	// Main content layout
@@ -137,6 +172,7 @@ SXRMBEXAFSScanConfigurationView::SXRMBEXAFSScanConfigurationView(SXRMBEXAFSScanC
 
 	mainVL->setContentsMargins(20,0,0,20);
 	mainVL->setSpacing(1);
+
 	setLayout(mainVL);
 }
 
@@ -274,6 +310,26 @@ void SXRMBEXAFSScanConfigurationView::onEdgeChanged()
 
 	if (energy_->value() != configuration_->edgeEnergy())
 		energy_->setValue(configuration_->edgeEnergy());
+}
+
+void SXRMBEXAFSScanConfigurationView::onSampleStageXSpinBoxEditingFinished(){
+
+}
+
+void SXRMBEXAFSScanConfigurationView::onSampleStageZSpinBoxEditingFinished(){
+
+}
+
+void SXRMBEXAFSScanConfigurationView::onSampleStageNormalSpinBoxEditingFinished(){
+
+}
+
+void SXRMBEXAFSScanConfigurationView::onSetSampleStageFromBeamlineButtonClicked(){
+
+}
+
+void SXRMBEXAFSScanConfigurationView::onMicroprobeSampleStagePositionChanged(double value){
+	Q_UNUSED(value)
 }
 
 QString SXRMBEXAFSScanConfigurationView::convertTimeToString(double time)
