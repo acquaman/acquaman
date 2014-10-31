@@ -106,7 +106,7 @@ AMScanThumbnailView::AMScanThumbnailView(QWidget *parent)
 	setMouseTracking(true);
 	currentGridRowMouseOver_ = -1;
 	connect(&hoverTimer_, SIGNAL(timeout()), this, SLOT(onTimerTimout()));
-	doubleClickDelay_ = 1000;
+	doubleClickDelay_ = 500;
 	doubleClickTimer_.setSingleShot(true);
 }
 
@@ -275,7 +275,6 @@ QModelIndex AMScanThumbnailView::moveCursor(QAbstractItemView::CursorAction curs
 	return QModelIndex();
 }
 
-
 void AMScanThumbnailView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags command)
 {
 	QModelIndex startIndex = indexAt(rect.topLeft());
@@ -397,7 +396,6 @@ void AMScanThumbnailView::paintEvent(QPaintEvent *pe)
 	}
 }
 
-
 void AMScanThumbnailView::resizeEvent(QResizeEvent *event)
 {
 	Q_UNUSED(event);
@@ -494,7 +492,7 @@ void AMScanThumbnailView::mouseMoveEvent(QMouseEvent *event)
 	}
 
 }
-#include <QDebug>
+
 void AMScanThumbnailView::mouseReleaseEvent(QMouseEvent *event)
 {
 	if(event->button() == Qt::LeftButton)
@@ -549,11 +547,9 @@ void AMScanThumbnailView::mouseReleaseEvent(QMouseEvent *event)
 				if(!indexUnderMouse.isValid())
 					return;
 				emit doubleClicked(indexUnderMouse);
-				qDebug() << "Detecting double click";
 			}
 			else
 			{
-				qDebug() << "Starting timer";
 				doubleClickTimer_.start(doubleClickDelay_);
 			}
 		}
@@ -584,8 +580,6 @@ void AMScanThumbnailView::rowsRemoved(const QModelIndex &parent, int start, int 
 	QAbstractItemView::rowsAboutToBeRemoved(parent, start, end);
 }
 
-
-
 QRect AMScanThumbnailView::getScanNameRectangle(const QRect &thumbnailRectangle) const
 {
 	return QRect(thumbnailRectangle.x() + 15, thumbnailRectangle.y() + 15, thumbnailRectangle.width() - 30, fontMetrics().height());
@@ -612,7 +606,6 @@ QRect AMScanThumbnailView::getScanTechniqueRectangle(const QRect &thumbnailRecta
 {
 	return QRect(thumbnailRectangle.x() + 15, thumbnailRectangle.y() + thumbnailRectangle.height() - fontMetrics().height() - 35, thumbnailRectangle.width() - 30, fontMetrics().height());
 }
-
 
 void AMScanThumbnailView::onTimerTimout()
 {
