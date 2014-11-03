@@ -73,7 +73,7 @@ bool AMScanDatabaseImportController::setSourceFolderAndLoadDatabase(const QStrin
 
 
 	if(!AMDbObjectSupport::s()->registerDatabase(sourceDb_)) {
-		delete sourceDb_;
+		sourceDb_->deleteLater();
 		sourceDb_ = 0;
 		return false;
 	}
@@ -432,7 +432,7 @@ void AMScanDatabaseImportController::copyScans()
 											 AMErrorReport::Alert,
 											 -4,
 											 QString("Error copying the scan with ID '%1' out of the import database: it wasn't a scan object. Your database might be corrupted. Please report this problem to the Acquaman developers.").arg(scanIds.at(i))));
-			delete object;
+			object->deleteLater();
 			continue;
 		}
 

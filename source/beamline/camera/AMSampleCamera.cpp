@@ -28,8 +28,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QGraphicsVideoItem>
 #endif
 
+#include "AMQEvents.h"
+
 #include <QGraphicsRectItem>
-#include <QResizeEvent>
 #include <QVector3D>
 #include <QDebug>
 #include <QVector4D>
@@ -1065,7 +1066,7 @@ void AMSampleCamera::deleteRectangle(QPointF position)
 			{
 				if(polygon == calibrationPoints_[j])
 				{
-					delete calibrationPoints_[j];
+					calibrationPoints_[j]->deleteLater();
 					calibrationPoints_[j] = 0;
 					j = SAMPLEPOINTS;
 					deleted = true;
@@ -1075,7 +1076,7 @@ void AMSampleCamera::deleteRectangle(QPointF position)
 				{
 					if(polygon == beamMarkers_[j])
 					{
-						delete beamMarkers_[j];
+						beamMarkers_[j]->deleteLater();
 						beamMarkers_[j] = 0;
 						j = SAMPLEPOINTS;
 						deleted = true;
@@ -1084,13 +1085,13 @@ void AMSampleCamera::deleteRectangle(QPointF position)
 			}
 			if(!deleted && (polygon == samplePlateShape_))
 			{
-				delete samplePlateShape_;
+				samplePlateShape_->deleteLater();
 				samplePlateShape_ = 0;
 				deleted = true;
 			}
 			if(!deleted && (polygon == cameraConfigurationShape_))
 			{
-				delete cameraConfigurationShape_;
+				cameraConfigurationShape_->deleteLater();
 				cameraConfigurationShape_ = 0;
 				deleted = true;
 			}

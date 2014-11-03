@@ -36,6 +36,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMErrorMonitor.h"
 #include "dataman/database/AMDbObjectSupport.h"
 #include "dataman/AMScan.h"
+#include "application/AMAppControllerSupport.h"
 
 QHash<QString, AMExporterInfo> AMExportController::registeredExporters_;
 
@@ -53,6 +54,13 @@ AMExportController::AMExportController(const QList<QUrl>& scansToExport) :
 	searchScanIndex_ = -1;
 	exportScanIndex_ = -1;
 	succeededCount_ = failedCount_ = 0;
+
+	if(!scansToExport.isEmpty())
+	{
+		AMScan* scan = scanFromUrl(scansToExport.at(0));
+		if (scan && scan->scanConfiguration())
+			option_ = AMAppControllerSupport::createExporterOption(scan->scanConfiguration());
+	}
 
 	destinationFolderPath_ = AMUser::user()->lastExportDestination();
 	if(destinationFolderPath_.isEmpty())
@@ -74,6 +82,13 @@ AMExportController::AMExportController(const QList<AMScan*>& scansToExport) :
 	exportScanIndex_ = -1;
 	succeededCount_ = failedCount_ = 0;
 
+	if(!scansToExport.isEmpty())
+	{
+		AMScan* scan = scansToExport.at(0);
+		if(scan && scan->scanConfiguration())
+			option_ = AMAppControllerSupport::createExporterOption(scan->scanConfiguration());
+	}
+
 	destinationFolderPath_ = AMUser::user()->lastExportDestination();
 	if(destinationFolderPath_.isEmpty())
 		destinationFolderPath_ = QDir::toNativeSeparators(QDir::homePath());
@@ -85,7 +100,7 @@ bool AMExportController::chooseExporter(const QString &exporterClassName)
 		return false;
 
 	if(exporter_)
-		delete exporter_;
+		exporter_->deleteLater();
 
 	exporter_ = qobject_cast<AMExporter*>(registeredExporters_.value(exporterClassName).metaObject->newInstance());
 	exporter_->setParent(this);
@@ -281,7 +296,7 @@ void AMExportController::continueScanExport()
 			scan = qobject_cast<AMScan*>(databaseObject);
 
 			if(!scan) {
-				delete databaseObject;
+				databaseObject->deleteLater();
 				throw QString("The export system couldn't load a scan out of the database (" % url.toString() % "), so this scan has not been exported.");
 			}
 		}
@@ -337,7 +352,7 @@ void AMExportController::continueScanExport()
 }
 
 void AMExportController::setOption(AMExporterOption *option) {
-	delete option_;
+	option_->deleteLater();
 	option_ = option;
 	if(option_)
 		option_->setAvailableDataSourcesModel(availableDataSourcesModel());
@@ -355,6 +370,31 @@ bool AMExportController::cancel()
 
 AMExportController::~AMExportController() {
 	// nothing for now
+}
+
+AMScan *AMExportController::scanFromUrl(const QUrl &scanUrl)
+{
+			AMDatabase* db = 0;
+			QString tableName;
+			int id = 0;
+			bool idOkay = false;
+			QStringList path;
+
+			if(!( scanUrl.scheme() == "amd" &&
+				  (db = AMDatabase::database(scanUrl.host())) &&
+				  (path = scanUrl.path().split('/', QString::SkipEmptyParts)).count() == 2 &&
+				  (id = path.at(1).toInt(&idOkay)) > 0 &&
+				  idOkay == true &&
+				  (tableName = path.at(0)).isEmpty() == false
+				  ))
+			{
+				return 0;
+			}
+
+			AMDbObject* databaseObject = AMDbObjectSupport::s()->createAndLoadObjectAt(db, tableName, id);
+			AMScan* scan = qobject_cast<AMScan*>(databaseObject);
+
+			return scan;
 }
 
 bool AMExportController::pause()

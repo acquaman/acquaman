@@ -118,6 +118,7 @@ AM1DProcessVariableDataSource::AM1DProcessVariableDataSource(const AMProcessVari
 {
 	data_ = data;
 	scale_ = 1;
+	offset_ = 0;
 	connect(data_, SIGNAL(initialized()), this, SLOT(onInitialized()));
 	connect(data_, SIGNAL(valueChanged()), this, SLOT(onDataChanged()));
 	connect(data_, SIGNAL(hasValuesChanged(bool)), this, SLOT(onStateChanged()));
@@ -239,17 +240,59 @@ AMNumber AM1DProcessVariableDataSource::axisValue(int axisNumber, int index) con
 	return index*scale_;
 }
 
+bool AM1DProcessVariableDataSource::axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const
+{
+	if (!data_->isConnected())
+		return false;
+
+	if (!isValid())
+		return false;
+
+	if (axisNumber != 0)
+		return false;
+
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+	if (startIndex < 0 || startIndex >= size(axisNumber))
+		return false;
+
+	if (endIndex < 0 || endIndex >= size(axisNumber))
+		return false;
+#endif
+
+	for (int i = 0, size = endIndex-startIndex+1; i < size; i++)
+		outputValues[i] = AMNumber((i+startIndex)*scale_);
+
+	return true;
+}
+
 double AM1DProcessVariableDataSource::scale() const
 {
 	return scale_;
 }
 
+double AM1DProcessVariableDataSource::offset() const
+{
+	return offset_;
+}
+
 void AM1DProcessVariableDataSource::setScale(double scale)
 {
-	scale_ = scale;
-	axes_[0].increment = scale;
-	emitValuesChanged();
-	emitAxisInfoChanged();
+	if(scale_ != scale){
+		scale_ = scale;
+		axes_[0].increment = scale;
+		emitValuesChanged();
+		emitAxisInfoChanged();
+	}
+}
+
+void AM1DProcessVariableDataSource::setOffset(double offset)
+{
+	if(offset_ != offset){
+		offset_ = offset;
+		axes_[0].start = offset_;
+		emitValuesChanged();
+		emitAxisInfoChanged();
+	}
 }
 
 void AM1DProcessVariableDataSource::onDataChanged()
@@ -399,6 +442,33 @@ AMNumber AM2DProcessVariableDataSource::axisValue(int axisNumber, int index) con
 #endif
 		return index*sy_;
 	}
+}
+
+bool AM2DProcessVariableDataSource::axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const
+{
+	if (!data_->isConnected())
+		return false;
+
+	if (!isValid())
+		return false;
+
+	if (axisNumber > 1)
+		return false;
+
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+	if (startIndex < 0 || startIndex >= size(axisNumber))
+		return false;
+
+	if (endIndex < 0 || endIndex >= size(axisNumber))
+		return false;
+#endif
+
+	double scaler = axisNumber == 0 ? sx_ : sy_;
+
+	for (int i = 0, size = endIndex-startIndex+1; i < size; i++)
+		outputValues[i] = AMNumber((i+startIndex)*scaler);
+
+	return true;
 }
 
 QPair<double, double> AM2DProcessVariableDataSource::scale() const

@@ -21,7 +21,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/VESPERS/VESPERSEndstationView.h"
 #include "ui/AMTopFrame.h"
-#include "ui/CLS/CLSSynchronizedDwellTimeView.h"
 #include "beamline/VESPERS/VESPERSBeamline.h"
 
 #include <QGridLayout>
@@ -129,12 +128,9 @@ VESPERSEndstationView::VESPERSEndstationView(VESPERSEndstation *endstation, QWid
 	connect(endstation_, SIGNAL(currentControlChanged(AMControl*)), this, SLOT(setWindow(AMControl*)));
 	endstation_->setCurrent("1-Element Vortex motor");
 
-	CLSSynchronizedDwellTimeView *dwellTimeView = new CLSSynchronizedDwellTimeView(qobject_cast<CLSSynchronizedDwellTime *>(VESPERSBeamline::vespers()->synchronizedDwellTime()));
-
 	QGridLayout *endstationLayout = new QGridLayout;
 	endstationLayout->addWidget(controlGB, 0, 0, 3, 3);
 	endstationLayout->addWidget(windowGB, 0, 3);
-	endstationLayout->addWidget(dwellTimeView, 1, 3);
 
 	QHBoxLayout *squishLayout = new QHBoxLayout;
 	squishLayout->addStretch();
@@ -153,7 +149,7 @@ VESPERSEndstationView::VESPERSEndstationView(VESPERSEndstation *endstation, QWid
 
 VESPERSEndstationView::~VESPERSEndstationView()
 {
-	delete config_;
+	config_->deleteLater();
 }
 
 void VESPERSEndstationView::onLaserDistanceChanged()

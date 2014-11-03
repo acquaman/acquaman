@@ -1,7 +1,6 @@
 #include "AMLightweightScanInfoModel.h"
 #include "database/AMDbObject.h"
 
-#include <QDebug>
 AMLightweightScanInfoModel::AMLightweightScanInfoModel(AMLightweightScanInfoCollection *scanInfo, QObject *parent) :
 	QAbstractItemModel(parent)
 {
@@ -11,6 +10,10 @@ AMLightweightScanInfoModel::AMLightweightScanInfoModel(AMLightweightScanInfoColl
 	connect(scanInfo_, SIGNAL(scanAdded()), this, SLOT(onScanInfoAdded()));
 	connect(scanInfo_, SIGNAL(scanRemoved()), this, SLOT(onScanInfoRemoved()));
 	connect(scanInfo_, SIGNAL(scanUpdated(int)), this, SLOT(onScanInfoUpdated(int)));
+	connect(scanInfo_, SIGNAL(scanThumbnailAboutToBeAdded()), this, SLOT(onScanThumbnailAboutToBeAdded()));
+	connect(scanInfo_, SIGNAL(scanThumbnailAdded()), this, SLOT(onScanThumbnailAdded()));
+	connect(scanInfo_, SIGNAL(scanThumbnailAboutToBeRemoved(int, int,int)), this, SLOT(onScanThumbnailAboutToBeRemoved(int, int, int)));
+	connect(scanInfo_, SIGNAL(scanThumbnailRemoved()), this, SLOT(onScanThumbnailRemoved()));
 }
 
 QVariant AMLightweightScanInfoModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -224,6 +227,27 @@ void AMLightweightScanInfoModel::onScanInfoUpdated(int updatedIndex)
 	emit dataChanged(index(updatedIndex, 0, QModelIndex()), index(updatedIndex, columnCount()-1, QModelIndex()));
 }
 
+void AMLightweightScanInfoModel::onScanThumbnailAboutToBeAdded()
+{
+	beginResetModel();
+}
+
+void AMLightweightScanInfoModel::onScanThumbnailAdded()
+{
+	endResetModel();
+}
+
+void AMLightweightScanInfoModel::onScanThumbnailAboutToBeRemoved(int scanIndex, int oldThumbnailIndexStart, int oldThumbnailIndexEnd)
+{
+	QModelIndex scanModelIndex = index(scanIndex, 0, QModelIndex());
+	emit beginRemoveRows(scanModelIndex, oldThumbnailIndexStart, oldThumbnailIndexEnd);
+}
+
+void AMLightweightScanInfoModel::onScanThumbnailRemoved()
+{
+	endRemoveRows();
+}
+
 void AMLightweightScanInfoModel::onScanInfoAboutToBeRemoved(int oldIndex)
 {
 	beginRemoveRows(QModelIndex(), oldIndex, oldIndex);
@@ -233,5 +257,4 @@ void AMLightweightScanInfoModel::onScanInfoRemoved()
 {
 	endRemoveRows();
 }
-
 

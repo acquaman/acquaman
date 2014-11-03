@@ -25,10 +25,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QFrame>
 #include <QLabel>
 #include <QToolButton>
+
 #include <QGraphicsView>
-#include <QGraphicsWidget>
-#include <QGraphicsLinearLayout>
-#include <QGraphicsGridLayout>
+
+#include "AMQGraphics.h"
+
 #include <QButtonGroup>
 #include <QPushButton>
 
@@ -173,8 +174,8 @@ public:
 
 
 	virtual ~AMGraphicsViewAndWidget() {
-		delete graphicsWidget_;
-		delete scene_;
+		graphicsWidget_->deleteLater();
+		scene_->deleteLater();
 	}
 
 	QGraphicsWidget* graphicsWidget() const { return graphicsWidget_;}

@@ -19,7 +19,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "AMAddActionDialog3.h"
-#include "ui_AMAddActionDialog3.h"
 
 #include "actions3/AMActionRegistry3.h"
 #include "actions3/AMActionRunner3.h"
@@ -29,21 +28,94 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMErrorMonitor.h"
 
 AMAddActionDialog3::AMAddActionDialog3(QWidget *parent) :
-	QDialog(parent, Qt::Tool),
-	ui(new Ui::AMAddActionDialog3)
+	QDialog(parent, Qt::Tool)
 {
-	ui->setupUi(this);
+	if (objectName().isEmpty())
+		setObjectName(QString::fromUtf8("AMAddActionDialog3"));
+	resize(515, 397);
+	verticalLayout3_ = new QVBoxLayout(this);
+	verticalLayout3_->setObjectName(QString::fromUtf8("verticalLayout_3"));
+	titleLabel_ = new QLabel(this);
+	titleLabel_->setObjectName(QString::fromUtf8("titleLabel"));
+	QFont font;
+	font.setBold(true);
+	font.setWeight(75);
+	titleLabel_->setFont(font);
 
-	connect(ui->actionsListWidget, SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)), this, SLOT(onListWidgetCurrentIndexChanged(QListWidgetItem*,QListWidgetItem*)));
+	verticalLayout3_->addWidget(titleLabel_);
+
+	horizontalLayout_ = new QHBoxLayout();
+	horizontalLayout_->setObjectName(QString::fromUtf8("horizontalLayout"));
+	actionsListWidget_ = new QListWidget(this);
+	actionsListWidget_->setObjectName(QString::fromUtf8("actionsListWidget"));
+	actionsListWidget_->setMovement(QListView::Static);
+	actionsListWidget_->setResizeMode(QListView::Adjust);
+	actionsListWidget_->setViewMode(QListView::IconMode);
+	actionsListWidget_->setWordWrap(true);
+
+	horizontalLayout_->addWidget(actionsListWidget_);
+
+	verticalLayout_ = new QVBoxLayout();
+	verticalLayout_->setSpacing(2);
+	verticalLayout_->setObjectName(QString::fromUtf8("verticalLayout"));
+	actionNameLabel_ = new QLabel(this);
+	actionNameLabel_->setObjectName(QString::fromUtf8("actionNameLabel"));
+	actionNameLabel_->setFont(font);
+	actionNameLabel_->setWordWrap(true);
+
+	verticalLayout_->addWidget(actionNameLabel_);
+
+	actionDescriptionGroupBox_ = new QGroupBox(this);
+	actionDescriptionGroupBox_->setObjectName(QString::fromUtf8("actionDescriptionGroupBox"));
+	verticalLayout2_ = new QVBoxLayout(actionDescriptionGroupBox_);
+	verticalLayout2_->setContentsMargins(4, 4, 4, 4);
+	verticalLayout2_->setObjectName(QString::fromUtf8("verticalLayout_2"));
+	actionDescription_ = new QLabel(actionDescriptionGroupBox_);
+	actionDescription_->setObjectName(QString::fromUtf8("actionDescription"));
+	actionDescription_->setAlignment(Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop);
+	actionDescription_->setWordWrap(true);
+
+	verticalLayout2_->addWidget(actionDescription_);
+
+
+	verticalLayout_->addWidget(actionDescriptionGroupBox_);
+
+	verticalSpacer_ = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
+
+	verticalLayout_->addItem(verticalSpacer_);
+
+	addToWorkflowButton_ = new QPushButton(this);
+	addToWorkflowButton_->setObjectName(QString::fromUtf8("addToWorkflowButton"));
+	addToWorkflowButton_->setEnabled(false);
+
+	verticalLayout_->addWidget(addToWorkflowButton_);
+
+
+	horizontalLayout_->addLayout(verticalLayout_);
+
+	horizontalLayout_->setStretch(0, 2);
+	horizontalLayout_->setStretch(1, 1);
+
+	verticalLayout3_->addLayout(horizontalLayout_);
+
+
+	setWindowTitle(QApplication::translate("AMAddActionDialog3", "Add Action...", 0, QApplication::UnicodeUTF8));
+	titleLabel_->setText(QApplication::translate("AMAddActionDialog3", "Add an action...", 0, QApplication::UnicodeUTF8));
+	actionNameLabel_->setText(QApplication::translate("AMAddActionDialog3", "[None Selected]", 0, QApplication::UnicodeUTF8));
+	actionDescriptionGroupBox_->setTitle(QString());
+	actionDescription_->setText(QString());
+	addToWorkflowButton_->setText(QApplication::translate("AMAddActionDialog3", "Add to Workflow", 0, QApplication::UnicodeUTF8));
+
+	connect(actionsListWidget_, SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)), this, SLOT(onListWidgetCurrentIndexChanged(QListWidgetItem*,QListWidgetItem*)));
 	populateWithRegisteredActions();
 
-	connect(ui->addToWorkflowButton, SIGNAL(clicked()), this, SLOT(onAddToWorkflowButtonClicked()));
-	connect(ui->actionsListWidget, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(onAddToWorkflowButtonClicked()));
+	connect(addToWorkflowButton_, SIGNAL(clicked()), this, SLOT(onAddToWorkflowButtonClicked()));
+	connect(actionsListWidget_, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(onAddToWorkflowButtonClicked()));
 }
 
 AMAddActionDialog3::~AMAddActionDialog3()
 {
-	delete ui;
+
 }
 
 void AMAddActionDialog3::onListWidgetCurrentIndexChanged(QListWidgetItem* current, QListWidgetItem* previous)
@@ -51,21 +123,21 @@ void AMAddActionDialog3::onListWidgetCurrentIndexChanged(QListWidgetItem* curren
 	Q_UNUSED(previous)
 
 	if(current) {
-		ui->addToWorkflowButton->setEnabled(true);
-		ui->actionNameLabel->setText(current->text() % " Action");
-		ui->actionDescription->setText(current->data(AM::DescriptionRole).toString());
+		addToWorkflowButton_->setEnabled(true);
+		actionNameLabel_->setText(current->text() % " Action");
+		actionDescription_->setText(current->data(AM::DescriptionRole).toString());
 	}
 	else {
-		ui->addToWorkflowButton->setEnabled(false);
-		ui->actionNameLabel->setText("[None Selected]");
-		ui->actionDescription->setText(QString());
+		addToWorkflowButton_->setEnabled(false);
+		actionNameLabel_->setText("[None Selected]");
+		actionDescription_->setText(QString());
 	}
 }
 
 void AMAddActionDialog3::populateWithRegisteredActions()
 {
 	// first, clear the list widget
-	ui->actionsListWidget->clear();
+	actionsListWidget_->clear();
 
 	// grab the set of registered actions
 	QHash<QString, AMActionInfoActionRegistration3> registeredActions = AMActionRegistry3::s()->infoAndActionRegistry();
@@ -79,21 +151,21 @@ void AMAddActionDialog3::populateWithRegisteredActions()
 
 		if (registration.exposeToAddActionDialog){
 
-			QListWidgetItem* item = new QListWidgetItem(registration.shortDescription, ui->actionsListWidget);
+			QListWidgetItem* item = new QListWidgetItem(registration.shortDescription, actionsListWidget_);
 			item->setIcon(QIcon(registration.iconFileName));
 			item->setData(AM::DescriptionRole, registration.longDescription);
 			item->setData(AM::NameRole, i.key());	// this holds the class name of the AMActionInfo, so we can pull it out of AMActionRegistry later.
 		}
 	}
 
-	if(ui->actionsListWidget->count())
-		ui->actionsListWidget->setCurrentRow(0);
+	if(actionsListWidget_->count())
+		actionsListWidget_->setCurrentRow(0);
 }
 
 void AMAddActionDialog3::onAddToWorkflowButtonClicked()
 {
 	// Get the selected item from the list widget
-	QListWidgetItem* currentItem = ui->actionsListWidget->currentItem();
+	QListWidgetItem* currentItem = actionsListWidget_->currentItem();
 	if(!currentItem)
 		return;
 

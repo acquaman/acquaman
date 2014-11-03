@@ -451,10 +451,28 @@ AMNumber AMOrderReductionAB::axisValue(int axisNumber, int index) const
 	if (axisNumber >= rank())
 		return AMNumber(AMNumber::DimensionError);
 
-	if (index >= axes_.at(axisNumber).size)
+	int actualAxis = inputAxisIndex(axisNumber);
+
+	if (index >= axes_.at(actualAxis).size)
 		return AMNumber(AMNumber::DimensionError);
 
-	return source_->axisValue(inputAxisIndex(axisNumber), index);
+	return source_->axisValue(actualAxis, index);
+}
+
+bool AMOrderReductionAB::axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const
+{
+	if (!isValid())
+		return false;
+
+	if (axisNumber >= rank())
+		return false;
+
+	int actualAxis = inputAxisIndex(axisNumber);
+
+	if (startIndex >= axes_.at(actualAxis).size || endIndex >= axes_.at(actualAxis).size)
+		return false;
+
+	return source_->axisValues(actualAxis, startIndex, endIndex, outputValues);
 }
 
 void AMOrderReductionAB::onInputSourceValuesChanged(const AMnDIndex &start, const AMnDIndex &end)

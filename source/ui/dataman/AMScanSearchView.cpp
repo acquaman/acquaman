@@ -280,7 +280,7 @@ AMScanSearchInfoListModel::AMScanSearchInfoListModel(QObject *parent) :
 AMScanSearchInfoListModel::~AMScanSearchInfoListModel()
 {
 	for (int iCache = 0; iCache < scanIds_.count(); iCache++)
-		delete scanCache_[iCache];
+		scanCache_[iCache]->deleteLater();
 	delete[] scanCache_;
 }
 

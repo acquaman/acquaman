@@ -75,7 +75,7 @@ REIXSXESScanActionController::REIXSXESScanActionController(REIXSXESScanConfigura
 
 REIXSXESScanActionController::~REIXSXESScanActionController()
 {
-	delete fileWriterThread_;
+	fileWriterThread_->deleteLater();
 }
 
 void REIXSXESScanActionController::buildScanController()

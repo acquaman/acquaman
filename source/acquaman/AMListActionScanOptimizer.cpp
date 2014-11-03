@@ -49,7 +49,7 @@ void AMEmptyListScanOptimizer::optimizeImplementation(AMAction3 *scanActionTree)
 		}
 	}
 
-	delete templateListAction;
+	templateListAction->deleteLater();
 }
 
  AMSingleElementListOptimizer::~AMSingleElementListOptimizer(){}

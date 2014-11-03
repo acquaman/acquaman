@@ -71,45 +71,6 @@ REIXSXESImageInterpolationAB::REIXSXESImageInterpolationAB(const QString &output
 	*/
 }
 
-
-REIXSXESImageInterpolationAB::REIXSXESImageInterpolationAB(AMDatabase *db, int id) :
-	AMStandardAnalysisBlock("tempName", 0)
-{
-	curve1Smoother_ = 0;
-	curve2Smoother_ = 0;
-
-
-	sumRangeMinY_ = 3;
-	sumRangeMaxY_ = 60;
-	sumRangeMinX_ = 50;
-	sumRangeMaxX_ = 950;
-	rangeRound_ = 1.0;
-	correlation1CenterPx_ = 250;
-	correlation1HalfWidth_ = 40;
-	correlation1Smoothing_ = QPair<int,int>(-1,1);
-	correlation2CenterPx_ = 700;
-	correlation2HalfWidth_ = 40;
-	correlation2Smoothing_ = QPair<int,int>(-1,1);
-	energyCalibrationOffset_ = 0;
-	tiltCalibrationOffset_ = 0;
-	liveCorrelation_ = true;
-	// shift values can start out empty.
-
-	inputSource_ = 0;
-	cacheInvalid_ = true;
-	axisValueCacheInvalid_ = true;
-	interpolationLevel_ = 10;
-
-	// leave sources_ empty for now.
-
-	axes_ << AMAxisInfo("invalid", 0, "No input data");
-
-	loadFromDb(db, id); // will restore the parameters sumRangeMin_, sumRangeMax_, correlation settings, and shift values. We'll remain invalid until we get connected to a data source.
-	AMDataSource::name_ = AMDbObject::name();	// normally it's not okay to change a dataSource's name. Here we get away with it because we're within the constructor, and nothing's watching us yet.
-
-	connect(&callCorrelation_, SIGNAL(executed()), this, SLOT(correlateNow()));
-}
-
 REIXSXESImageInterpolationAB::~REIXSXESImageInterpolationAB() {
 }
 

@@ -47,16 +47,9 @@ public:
 	virtual bool canContinuousAcquire() const { return false; }
 
 	/// The Vortex can be configured to work with synchronized dwell time systems
-	virtual bool supportsSynchronizedDwell() const { return true; }
+	virtual bool supportsSynchronizedDwell() const { return false; }
 	/// Returns the CLS Synchronized Dwell Time trigger PV string, which acts as the key for the synchronized dwell time lookup system
 	virtual QString synchronizedDwellKey() const;
-
-	/// The Vortex detectors share a triggering source  sometimes uses the synchronized dwell time object
-	virtual bool sharesDetectorTriggerSource() const;
-	/// Returns the synchronized dwell time trigger source if we're currently enabled, otherwise a null pointer
-	virtual AMDetectorTriggerSource* detectorTriggerSource();
-	/// Returns the synchronized dwell time dwell time source if we're currently enabled, otherwise a null pointer
-	virtual AMDetectorDwellTimeSource* detectorDwellTimeSource();
 
 	/// Returns RequestRead as the type
 	virtual AMDetectorDefinitions::ReadMethod readMethod() const { return AMDetectorDefinitions::RequestRead; }

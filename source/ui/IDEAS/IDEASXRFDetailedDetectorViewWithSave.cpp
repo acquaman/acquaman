@@ -31,6 +31,12 @@ IDEASXRFDetailedDetectorViewWithSave::IDEASXRFDetailedDetectorViewWithSave(AMXRF
 {
 	config_ = new IDEASXRFScanConfiguration;
 
+	if (detector_->name() == "KETEK")
+		config_->setFluorescenceDetector(IDEASXRFScanConfiguration::Ketek);
+
+	else if (detector_->name() == "13-el Ge")
+		config_->setFluorescenceDetector(IDEASXRFScanConfiguration::Ge13Element);
+
         scanAction_ = 0; //NULL
 }
 
@@ -140,7 +146,7 @@ void IDEASXRFDetailedDetectorViewWithSave::buildScanSaveViews()
 	connect(peakingTimeBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(onPeakingTimeBoxChanged(QString)));
 	connect(deadTimeCheckButton, SIGNAL(clicked()), this, SLOT(onDeadTimeCheckButtonClicked()));
 	connect(acquireButton_, SIGNAL(clicked(bool)),saveScanButton_, SLOT(setEnabled(bool)));
-	connect(IDEASBeamline::ideas()->ketek(), SIGNAL(acquisitionSucceeded()),this, SLOT(onAcquisitionSucceeded()));
+	connect(detector_, SIGNAL(acquisitionSucceeded()),this, SLOT(onAcquisitionSucceeded()));
 	connect(cancelButton_, SIGNAL(clicked()),this, SLOT(onAcquisitionSucceeded()));
 
 

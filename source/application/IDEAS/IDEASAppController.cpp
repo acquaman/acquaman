@@ -44,6 +44,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMRun.h"
 
 #include "util/AMPeriodicTable.h"
+#include "beamline/CLS/CLSStorageRing.h"
 
 //#include "ui/CLS/CLSSynchronizedDwellTimeView.h"
 #include "ui/IDEAS/IDEASXASScanConfigurationView.h"
@@ -61,16 +62,17 @@ IDEASAppController::IDEASAppController(QObject *parent)
 
 bool IDEASAppController::startup()
 {
-
 	getUserDataFolderFromDialog();
+
 	// Start up the main program.
 	if(AMAppController::startup()) {
 
-
-				// Initialize central beamline object
+		// Initialize central beamline object
 		IDEASBeamline::ideas();
 		// Initialize the periodic table object.
 		AMPeriodicTable::table();
+		// Initialize the storage ring.
+		CLSStorageRing::sr1();
 
 		registerClasses();
 
@@ -187,7 +189,7 @@ void IDEASAppController::setupUserInterface()
 
 void IDEASAppController::makeConnections()
 {
-    connect(this, SIGNAL(scanEditorCreated(AMGenericScanEditor*)), this, SLOT(onScanEditorCreated(AMGenericScanEditor*)));
+	connect(this, SIGNAL(scanEditorCreated(AMGenericScanEditor*)), this, SLOT(onScanEditorCreated(AMGenericScanEditor*)));
 
 }
 
@@ -206,11 +208,22 @@ void IDEASAppController::onEnergyConnected(bool connected){
 void IDEASAppController::onCurrentScanActionStartedImplementation(AMScanAction *action)
 {
 	Q_UNUSED(action)
+	connect(CLSStorageRing::sr1(), SIGNAL(beamAvaliability(bool)), this, SLOT(onBeamAvailabilityChanged(bool)));
 }
 
 void IDEASAppController::onCurrentScanActionFinishedImplementation(AMScanAction *action)
 {
 	Q_UNUSED(action)
+	disconnect(CLSStorageRing::sr1(), SIGNAL(beamAvaliability(bool)), this, SLOT(onBeamAvailabilityChanged(bool)));
+}
+
+void IDEASAppController::onBeamAvailabilityChanged(bool beamAvailable)
+{
+	if (!beamAvailable && !AMActionRunner3::workflow()->pauseCurrentAction())
+		AMActionRunner3::workflow()->setQueuePaused(true);
+
+	else if (beamAvailable && AMActionRunner3::workflow()->queuedActionCount() > 0)
+		AMActionRunner3::workflow()->setQueuePaused(false);
 }
 
 void IDEASAppController::onScanEditorCreated(AMGenericScanEditor *editor)
@@ -234,13 +247,13 @@ void IDEASAppController::onScanAddedToEditor(AMGenericScanEditor *editor, AMScan
 			exclusiveName = source->name();
 	}
 	if (exclusiveName.isNull())
-	    for (int i = 0, count = scan->analyzedDataSourceCount(); i < count && exclusiveName.isNull(); i++){
+		for (int i = 0, count = scan->analyzedDataSourceCount(); i < count && exclusiveName.isNull(); i++){
 
-		    AMDataSource *source = scan->analyzedDataSources()->at(i);
+			AMDataSource *source = scan->analyzedDataSources()->at(i);
 
-		    if (source->name().contains("normSample"))
-			    exclusiveName = source->name();
-	    }
+			if (source->name().contains("normSample"))
+				exclusiveName = source->name();
+		}
 
 
 	if (!exclusiveName.isNull())
@@ -261,7 +274,8 @@ void IDEASAppController::configureSingleSpectrumView(AMGenericScanEditor *editor
 		if (scan->dataSourceAt(i)->rank()-scanRank == 1)
 			spectraNames << scan->dataSourceAt(i)->name();
 
-	editor->setSingleSpectrumViewDataSourceName(spectraNames.first());
+	if(!spectraNames.isEmpty())
+			editor->setSingleSpectrumViewDataSourceName(spectraNames.first());
 
 	editor->setPlotRange(AMPeriodicTable::table()->elementBySymbol("Al")->Kalpha().energy(), 20480);
 }

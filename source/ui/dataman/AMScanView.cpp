@@ -55,7 +55,7 @@ void AMScanViewSourceSelector::setModel(AMScanSetModel* model) {
 	if(model_) {
 
 		while(!scanBars_.isEmpty()) {
-			delete scanBars_.takeLast();
+			scanBars_.takeLast()->deleteLater();
 		}
 
 		disconnect(model_, 0, this, 0);
@@ -102,7 +102,7 @@ void AMScanViewSourceSelector::onRowAboutToBeRemoved(const QModelIndex& parent, 
 	// invalid (top-level) parent: means we're removing scans
 	if(!parent.isValid()){
 		for(int si=end; si>=start; si--) {
-			delete scanBars_.takeAt(si);
+			scanBars_.takeAt(si)->deleteLater();
 			// all the scans above this one need to move their scan index down:
 			for(int i=si; i<scanBars_.count(); i++)
 				scanBars_[i]->scanIndex_--;
@@ -240,7 +240,7 @@ AMScanView::AMScanView(AMScanSetModel* model, QWidget *parent) :
 
 AMScanView::~AMScanView() {
 	for(int i=0; i<views_.count(); i++)
-		delete views_.at(i);
+		views_.at(i)->deleteLater();
 }
 
 void AMScanView::setupUI() {
@@ -605,7 +605,9 @@ MPlotItem* AMScanViewInternal::createPlotItemForDataSource(const AMDataSource* d
 
 	case 2: {
 		MPlotImageBasic* image = new MPlotImageBasic();
-		image->setModel(new AMDataSourceImageData(dataSource), true);
+		AMDataSourceImageData *model = new AMDataSourceImageData;
+		model->setDataSource(dataSource);
+		image->setModel(model, true);
 		image->setColorMap(plotSettings.colorMap);
 		image->setZValue(-1000);
 		rv = image;
@@ -702,7 +704,7 @@ AMScanViewExclusiveView::AMScanViewExclusiveView(AMScanView* masterView) : AMSca
 AMScanViewExclusiveView::~AMScanViewExclusiveView() {
 	// PlotSeries's will be deleted as children items of the plot.
 
-	delete plot_;
+	plot_->deleteLater();
 }
 
 void AMScanViewExclusiveView::setPlotCursorVisibility(bool visible)
@@ -930,7 +932,8 @@ void AMScanViewExclusiveView::reviewScan(int scanIndex) {
 			case 2: {
 				MPlotAbstractImage* image = static_cast<MPlotAbstractImage*>(plotItems_.at(scanIndex));
 				if(plotItemDataSources_.at(scanIndex) != dataSource) {
-					AMDataSourceImageData* newData = new AMDataSourceImageData(dataSource);
+					AMDataSourceImageData* newData = new AMDataSourceImageData;
+					newData->setDataSource(dataSource);
 					image->setModel(newData, true);
 					plotItemDataSources_[scanIndex] = dataSource;
 				}
@@ -1104,7 +1107,7 @@ AMScanViewMultiView::~AMScanViewMultiView() {
  delete plotSeries_[si][ci];
    }*/
 
-	delete plot_;
+	plot_->deleteLater();
 }
 
 
@@ -1415,7 +1418,7 @@ void AMScanViewMultiScansView::addScan(int si) {
 
 AMScanViewMultiScansView::~AMScanViewMultiScansView() {
 	for(int pi=0; pi<plots_.count(); pi++)
-		delete plots_.at(pi);
+		plots_.at(pi)->deleteLater();
 }
 
 
@@ -1484,7 +1487,7 @@ void AMScanViewMultiScansView::onRowAboutToBeRemoved(const QModelIndex& parent, 
 				plots_.at(si)->plot()->legend()->setTitleText("");
 			}
 			else {
-				delete plots_.takeAt(si);
+				plots_.takeAt(si)->deleteLater();
 			}
 		}
 		reLayout();
@@ -1708,7 +1711,7 @@ AMScanViewMultiSourcesView::~AMScanViewMultiSourcesView() {
 	/* NOT necessary to delete all plotSeries. As long as they are added to a plot, they will be deleted when the plot is deleted (below).*/
 
 	foreach(MPlotGW* plot, dataSource2Plot_)
-		delete plot;
+		plot->deleteLater();
 }
 
 
@@ -1913,7 +1916,7 @@ bool AMScanViewMultiSourcesView::reviewDataSources() {
 			firstPlotEmpty_ = true;
 		}
 		else
-			delete dataSource2Plot_[sourceName];
+			dataSource2Plot_[sourceName]->deleteLater();
 
 		// remove pointer to deleted plot, and pointers to deleted series
 		dataSource2Plot_.remove(sourceName);

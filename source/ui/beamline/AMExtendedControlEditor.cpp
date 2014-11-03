@@ -23,7 +23,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMControl.h"
 
 #include <QApplication>
-#include <QMouseEvent>
+
+#include "AMQEvents.h"
 
 #include <QComboBox>
 #include <QDoubleSpinBox>
@@ -81,10 +82,10 @@ AMExtendedControlEditor::AMExtendedControlEditor(AMControl* control, AMControl* 
 	hl->setMargin(2);
 	vl->addLayout(hl);
 	if(statusTagControl_){
-		QHBoxLayout* hl2 = new QHBoxLayout();
-		hl2->addWidget(statusLabel_, Qt::AlignCenter);
-		hl2->setStretch(0, 2);
-		vl->addLayout(hl2);
+                statusLayout_ = new QHBoxLayout();
+                statusLayout_->addWidget(statusLabel_, Qt::AlignCenter);
+                statusLayout_->setStretch(0, 2);
+                vl->addLayout(statusLayout_);
 	}
 	vl->setSpacing(1);
 	vl->setMargin(2);
@@ -248,7 +249,7 @@ void AMExtendedControlEditor::onEditStart() {
 	}
 	else
 		dialog_->setDoubleValue(control_->value());
-	dialog_->setDoubleDecimals(3);	// todo: display precision?
+	dialog_->setDoubleDecimals(precision_);
 	dialog_->setLabelText(control_->objectName());
 	dialog_->setSuffix(control_->units());
 	dialog_->show();

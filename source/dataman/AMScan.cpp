@@ -94,12 +94,12 @@ AMScan::~AMScan() {
 
 	// delete the scan configuration, if we have one
 	if(configuration_) {
-		delete configuration_;
+		configuration_->deleteLater();
 		configuration_ = 0;
 	}
 
 	// delete the raw data store, which was allocated in the constructor.
-	delete data_;
+	data_->deleteLater();
 }
 
 
@@ -294,7 +294,7 @@ bool AMScan::loadFromDb(AMDatabase* db, int sourceId) {
 		}
 	}
 
-	delete nameDictionary_;
+	nameDictionary_->deleteLater();
 	nameDictionary_ = new AMScanDictionary(this, this);
 
 	return true;
@@ -307,7 +307,7 @@ void AMScan::dbLoadScanInitialConditions(AMDbObject* newLoadedObject) {
 
 	// delete newLoadedObject, since we don't intend to do anything with it, but we're responsible for it.
 	if(newLoadedObject)
-		delete newLoadedObject;
+		newLoadedObject->deleteLater();
 }
 
 // Returns a list of pointers to the raw data sources, to support db storage.
@@ -332,7 +332,7 @@ void AMScan::dbLoadRawDataSources(const AMDbObjectList& newRawSources) {
 	while( (count = rawDataSources_.count()) ) {
 		AMRawDataSource* deleteMe = rawDataSources_.at(count-1);
 		rawDataSources_.remove(count-1);	// removing at the end is fastest.
-		delete deleteMe;
+		deleteMe->deleteLater();
 	}
 
 	// add new sources. Simply adding these to rawDataSources_ will be enough to emit the signals that tell everyone watching we have new data channels.
@@ -356,7 +356,7 @@ void AMScan::dbLoadAnalyzedDataSources(const AMDbObjectList& newAnalyzedSources)
 	while( (count = analyzedDataSources_.count()) ) {
 		AMAnalysisBlock* deleteMe = analyzedDataSources_.at(count-1);
 		analyzedDataSources_.remove(count-1);	// removing at the end is fastest.
-		delete deleteMe;
+		deleteMe->deleteLater();
 	}
 
 	// Simply adding these to analyzedDataSources_ will be enough to emit the signals that tell everyone watching we have new data channels.
@@ -468,7 +468,7 @@ void AMScan::setScanConfiguration(AMScanConfiguration* newConfiguration) {
 	if(configuration_ == newConfiguration)
 		return;
 	if(configuration_)
-		delete configuration_;
+		configuration_->deleteLater();
 	configuration_ = newConfiguration;
 	setModified(true);
 	emit scanConfigurationChanged();
@@ -651,7 +651,10 @@ AMDbThumbnail AMScan::thumbnail(int index) const {
 
 			MPlotImageBasicwDefault* image = new MPlotImageBasicwDefault();
 			image->setDefaultValue(-1);
-			image->setModel(new AMDataSourceImageDatawDefault(dataSource, -1), true);
+			AMDataSourceImageDatawDefault *model = new AMDataSourceImageDatawDefault(-1);
+			model->setDataSource(dataSource);
+			image->setModel(model, true);
+
 			plot->addItem(image);
 			plot->doDelayedAutoScale();
 		}
@@ -659,7 +662,9 @@ AMDbThumbnail AMScan::thumbnail(int index) const {
 		else{
 
 			MPlotImageBasic* image = new MPlotImageBasic();
-			image->setModel(new AMDataSourceImageData(dataSource), true);
+			AMDataSourceImageData *model = new AMDataSourceImageData;
+			model->setDataSource(dataSource);
+			image->setModel(model, true);
 			plot->addItem(image);
 			plot->doDelayedAutoScale();
 		}
@@ -672,7 +677,9 @@ AMDbThumbnail AMScan::thumbnail(int index) const {
 
 			MPlotImageBasicwDefault* image = new MPlotImageBasicwDefault();
 			image->setDefaultValue(-1);
-			image->setModel(new AMDataSourceImageDatawDefault(dataSource, -1), true);
+			AMDataSourceImageDatawDefault *model = new AMDataSourceImageDatawDefault(-1);
+			model->setDataSource(dataSource);
+			image->setModel(model, true);
 			plot->addItem(image);
 			plot->doDelayedAutoScale();
 		}
@@ -680,7 +687,9 @@ AMDbThumbnail AMScan::thumbnail(int index) const {
 		else{
 
 			MPlotImageBasic* image = new MPlotImageBasic();
-			image->setModel(new AMDataSourceImageData(dataSource), true);
+			AMDataSourceImageData *model = new AMDataSourceImageData;
+			model->setDataSource(dataSource);
+			image->setModel(model, true);
 			plot->addItem(image);
 			plot->doDelayedAutoScale();
 		}
@@ -840,7 +849,7 @@ bool AMScan::replaceRawDataStore(AMDataStore *dataStore)
 		rawDataSources_[i]->setDataStore(dataStore);
 	}
 
-	delete data_;
+	data_->deleteLater();
 	data_ = dataStore;
 
 	return true;
@@ -902,7 +911,7 @@ AMScan * AMScan::createFromDatabaseUrl(const QUrl &url, bool allowIfScanning, bo
 
 	AMScan* scan = qobject_cast<AMScan*>( dbo );
 	if(!scan) {
-		delete dbo;
+		dbo->deleteLater();
 		return 0;
 	}
 
