@@ -48,19 +48,17 @@ class REIXSXESImageInterpolationAB : public AMStandardAnalysisBlock
 
 	Q_PROPERTY(AMIntList shiftValues1 READ shiftValues1 WRITE setShiftValues1)
 	Q_PROPERTY(AMIntList shiftValues2 READ shiftValues2 WRITE setShiftValues2)
-	Q_PROPERTY(int shiftPosition1 READ shiftPosition1 WRITE setShiftPosition1)
-	Q_PROPERTY(int shiftPosition2 READ shiftPosition2 WRITE setShiftPosition2)
 
 
-	Q_PROPERTY(int correlationCenterPixel READ correlationCenterPixel WRITE setCorrelationCenterPixel)
-	Q_PROPERTY(int correlationHalfWidth READ correlationHalfWidth WRITE setCorrelationHalfWidth)
-	/*
-	Q_PROPERTY(int correlationSmoothing READ correlationSmoothing WRITE setCorrelationSmoothing)
-	Q_PROPERTY(QPair correlationSmoothing READ correlationSmoothing WRITE setCorrelationSmoothing)
-	*/
+	Q_PROPERTY(int correlation1CenterPixel READ correlation1CenterPixel WRITE setCorrelation1CenterPixel)
+	Q_PROPERTY(int correlation1HalfWidth READ correlation1HalfWidth WRITE setCorrelation1HalfWidth)
+	Q_PROPERTY(int correlation2CenterPixel READ correlation2CenterPixel WRITE setCorrelation2CenterPixel)
+	Q_PROPERTY(int correlation2HalfWidth READ correlation2HalfWidth WRITE setCorrelation2HalfWidth)
 
-	Q_PROPERTY(int correlationSmoothingType READ correlationSmoothingType WRITE setCorrelationSmoothingType)
-	Q_PROPERTY(int correlationSmoothingMode READ correlationSmoothingMode WRITE setCorrelationSmoothingMode)
+	Q_PROPERTY(int correlation1SmoothingType READ correlation1SmoothingType WRITE setCorrelation1SmoothingType)
+	Q_PROPERTY(int correlation1SmoothingMode READ correlation1SmoothingMode WRITE setCorrelation1SmoothingMode)
+	Q_PROPERTY(int correlation2SmoothingType READ correlation2SmoothingType WRITE setCorrelation2SmoothingType)
+	Q_PROPERTY(int correlation2SmoothingMode READ correlation2SmoothingMode WRITE setCorrelation2SmoothingMode)
 
 	Q_PROPERTY(bool liveCorrelation READ liveCorrelation WRITE enableLiveCorrelation)
 	Q_PROPERTY(double energyCalibrationOffset READ energyCalibrationOffset WRITE setEnergyCalibrationOffset)
@@ -71,9 +69,6 @@ class REIXSXESImageInterpolationAB : public AMStandardAnalysisBlock
 
 public:
 	/// Enum describing the options for smoothing the auto-correlated shift curve.
-	/*
-	enum ShiftCurveSmoothing { NoSmoothing, QuadraticSmoothing, CubicSmoothing, QuarticSmoothing, movingMedianSmoothing, movingAverageSmoothing };
-	*/
 	enum ShiftCurveSmoothing { None, Poly, Median, Average};
 
 	/// Constructor. \c outputName is the name() for the output data source.
@@ -135,25 +130,30 @@ int outputSize = indexStart.totalPointsTo(indexEnd);
 	double rangeRound() const { return rangeRound_; }
 
 	/// Returns the last comupted shift values that are available for assignment to shiftValues1 or shiftValues2
-	AMIntList shiftValues() const { return shiftValues_; }
-	/// Returns the shift values used to offset each row before summing. This will have the same size as the height of the image.
 	AMIntList shiftValues1() const { return shiftValues1_; }
 	/// Returns the second shift values used interpolated offset of each row before summing. This will have the same size as the height of the image.
 	AMIntList shiftValues2() const { return shiftValues2_; }
-	/// Returns the correlation position of shiftValue1
-	int shiftPosition1() const { return shiftPosition1_; }
-	/// Returns the correlation position of shiftValue2
-	int shiftPosition2() const { return shiftPosition2_; }
+	/// Returns the last calculate shift values for a given column
+	AMDoubleList shiftValuesAt(int i);
 
 	/// The central pixel value to use when running an auto-correlation routine
-	int correlationCenterPixel() const { return correlationCenterPx_; }
+	int correlation1CenterPixel() const { return correlation1CenterPx_; }
+	/// The central pixel value to use when running an auto-correlation routine
+	int correlation2CenterPixel() const { return correlation2CenterPx_; }
+
 	/// The full-width of the region around correlationCenterPixel() to compute when running an auto-correlation routine.
-	int correlationHalfWidth() const{ return correlationHalfWidth_; }
+	int correlation1HalfWidth() const{ return correlation1HalfWidth_; }
+	/// The type of smoothing to apply to the shift curve generated using correlation. One of ShiftCurveSmoothing.
+	/// The full-width of the region around correlationCenterPixel() to compute when running an auto-correlation routine.
+	int correlation2HalfWidth() const{ return correlation2HalfWidth_; }
 	/// The type of smoothing to apply to the shift curve generated using correlation. One of ShiftCurveSmoothing.
 
-	QPair<int,int> correlationSmoothing() const {return correlationSmoothing_;}
-	int correlationSmoothingType() const { return correlationSmoothing_.first; }
-	int correlationSmoothingMode() const { return correlationSmoothing_.second;}
+	QPair<int,int> correlation1Smoothing() const {return correlation1Smoothing_;}
+	int correlation1SmoothingType() const { return correlation1Smoothing_.first; }
+	int correlation1SmoothingMode() const { return correlation1Smoothing_.second;}
+	QPair<int,int> correlation2Smoothing() const {return correlation2Smoothing_;}
+	int correlation2SmoothingType() const { return correlation2Smoothing_.first; }
+	int correlation2SmoothingMode() const { return correlation2Smoothing_.second;}
 
 	/// True if the correlation routine should be run every time the data changes.
 	bool liveCorrelation() const { return liveCorrelation_; }
@@ -180,34 +180,33 @@ public slots:
 	/// Set the maximum index in the region of interest. If the sum range is beyond the size of the summed axis, the output goes invalid. However, the value remains as set.
 	void setSumRangeMaxX(int sumRangeMaxX);
 	/// Sets the comupted shift values
-	void setShiftValues(const AMIntList &shiftValues){shiftValues_ = shiftValues;}
-	/// Sets the first shift values for each row. This should have the same size as the height of the image.
 	void setShiftValues1(const AMIntList& shiftValues1);
 	/// Sets the second shift values for each row. This should have the same size as the height of the image.
 	void setShiftValues2(const AMIntList& shiftValues1);
-	/// Sets the position of the first shift values for each row. This should have the same size as the height of the image.
-	void setShiftPosition1(const int& shiftPosition1);
-	/// Sets the position of the second shift values for each row. This should have the same size as the height of the image.
-	void setShiftPosition2(const int& shiftPosition2);
-
-	/// Copies compute shiftValues into shiftValues1, and sets shiftPosition1
-	void assignShiftValues1(int position){setShiftValues1(shiftValues_); setShiftPosition1(position);}
-	/// Copies compute shiftValues into shiftValues2, and sets shiftPosition2
-	void assignShiftValues2(int position){setShiftValues2(shiftValues_); setShiftPosition2(position);}
-
-
 
 	void setRangeRound(double rangeRound);
 
 	/// Sets the central pixel value to use when running an auto-correlation routine
-	void setCorrelationCenterPixel(int centerPx);
+	void setCorrelation1CenterPixel(int centerPx);
 	/// Sets the full-width of the region around correlationCenterPixel() to compute when running an auto-correlation routine.
-	void setCorrelationHalfWidth(int width);
+	void setCorrelation1HalfWidth(int width);
 	/// Sets the smoothing used on the shift curve after correlation. \c type must be one of ShiftCurveSmoothing.
+	void setCorrelation1Smoothing(QPair<int,int> cSmooth);
 
-	void setCorrelationSmoothing(QPair<int,int> cSmooth);
-	void setCorrelationSmoothingType(int type);
-	void setCorrelationSmoothingMode(int mode);
+	/// Sets the central pixel value to use when running an auto-correlation routine
+	void setCorrelation2CenterPixel(int centerPx);
+	/// Sets the full-width of the region around correlationCenterPixel() to compute when running an auto-correlation routine.
+	void setCorrelation2HalfWidth(int width);
+	/// Sets the smoothing used on the shift curve after correlation. \c type must be one of ShiftCurveSmoothing.
+	void setCorrelation2Smoothing(QPair<int,int> cSmooth);
+
+	void setCorrelation1SmoothingType(int type);
+	void setCorrelation1SmoothingMode(int mode);
+
+	void setCorrelation2SmoothingType(int type);
+	void setCorrelation2SmoothingMode(int mode);
+
+
 	/// Enable (or disable) automatically running the correlation routine every time the data changes
 	void enableLiveCorrelation(bool enabled);
 
@@ -280,31 +279,29 @@ protected:
 
 
 	/// The central pixel value to use when running an auto-correlation routine
-	int correlationCenterPx_;
+	int correlation1CenterPx_;
 	/// The full-width of the region around correlationCenterPixel() to compute when running an auto-correlation routine.
-	int correlationHalfWidth_;
+	int correlation1HalfWidth_;
 	/// Describes the smoothing that should be applied to the shift curve resulting from the correlation routine.  One of ShiftCurveSmoothing.
+	QPair<int, int> correlation1Smoothing_;
 
-	QPair<int, int> correlationSmoothing_;
-	/*
-	int correlationSmoothingType_;
-	int correlationSmoothingMode_;
-	*/
+	/// The central pixel value to use when running an auto-correlation routine
+	int correlation2CenterPx_;
+	/// The full-width of the region around correlationCenterPixel() to compute when running an auto-correlation routine.
+	int correlation2HalfWidth_;
+	/// Describes the smoothing that should be applied to the shift curve resulting from the correlation routine.  One of ShiftCurveSmoothing.
+	QPair<int, int> correlation2Smoothing_;
 
 	/// True if the correlation routine should be run every time the data changes.
 	bool liveCorrelation_;
-	/// The internal computed shift values that can be assigned to shiftValues1_ or shiftValues2_
-	AMIntList shiftValues_;
 	/// The first set of shift values used to offset each row of the image when summing
 	AMIntList shiftValues1_;
 	/// The second set of shift values used to offset each row of the image when summing
 	AMIntList shiftValues2_;
-	/// The position of the first set of shift values used to offset each row of the image when summing
-	int shiftPosition1_;
-	/// The position of the second set of shift values used to offset each row of the image when summing
-	int shiftPosition2_;
 	/// The level of onterpolation, hard-coded for now
 	int interpolationLevel_;
+	/// The last computed shift value map
+	mutable QVector<double> lastShiftValueMap_;
 
 	/// Calibration tweaks: an artificial (user-supplied) offset for the detector energy, in eV
 	double energyCalibrationOffset_;
@@ -317,7 +314,7 @@ protected:
 
 
 	/// Smoothing object used for the shift curve after correlation
-	REIXSFunctionFitter* curveSmoother_;
+	REIXSFunctionFitter* curve1Smoother_, * curve2Smoother_;
 
 };
 
