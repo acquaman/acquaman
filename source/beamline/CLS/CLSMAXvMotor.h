@@ -94,7 +94,7 @@ public:
 	  \param parent QObject parent class
 	  */
  	virtual ~CLSMAXvMotor();
-	CLSMAXvMotor(const QString &name, const QString &baseName, const QString &description, bool hasEncoder, double tolerance, double moveStartTimeoutSeconds = 2.0, QObject *parent = 0);
+	CLSMAXvMotor(const QString &name, const QString &baseName, const QString &description, bool hasEncoder, double tolerance, double moveStartTimeoutSeconds = 2.0, QObject *parent = 0, QString pvUnitFieldName=":mm");
 
 	/// Indicates that all process variables for this motor are connected
 	virtual bool isConnected() const;

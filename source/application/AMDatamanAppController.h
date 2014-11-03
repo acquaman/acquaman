@@ -31,7 +31,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMOrderedSet.h"
 
 class AMMainWindow;
-class AMBottomBar;
 class AMBottomPanel;
 class AMRunExperimentInsert;
 class AMGenericScanEditor;
@@ -88,6 +87,7 @@ class AMDirectorySynchronizerDialog;
 #define AMDATAMANAPPCONTROLLER_DATA_DIR_BACKUP_ERROR 270227
 
 #define AMDATAMANAPPCONTROLLER_STARTUP_ERROR_ISFIRSTTIME 270228
+#define AMDATAMANAPPCONTROLLER_CANT_CREATE_EXPORT_FOLDER 270229
 
 /// This class takes the role of the main application controller for your particular version of the Acquaman program. It marshalls communication between separate widgets/objects, handles menus and menu actions, and all other cross-cutting issues that don't reside within a specific view or controller.  It creates and knows about all top-level GUI objects, and manages them within an AMMainWindow.
 /// This is the bare bones version of the GUI framework because it has no acquisition code inside and therefore forms the basis of a take home Dataman program for users.  It contains the ability to scan through the database, create experiments, and view scans using the scan editor.
@@ -140,6 +140,7 @@ public slots:
 	virtual bool startupCreateDatabases(); ///< Run every time to create the databases (reimplement to create additional databases). This is always called before startupDatabaseUpgrades().
 	bool startupDatabaseUpgrades(); ///< Run every time except the first time, to see if non-trivial database upgrades are necessary. This SHOULD NOT BE SUBCLASSED, if you want other upgrades completed, add them to the databaseUpgrades_.
 	virtual bool startupBackupDataDirectory();
+	virtual bool startupCheckExportDirectory();
 	virtual bool startupRegisterDatabases();
 	virtual bool startupPopulateNewDatabase(); ///< Run on first time only
 	virtual bool startupLoadFromExistingDatabase(); ///< Run on every time except the first time

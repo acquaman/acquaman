@@ -390,7 +390,7 @@ bool AMActionHistoryView3::recurseDbLoadIndex(const QModelIndex &index, AMListAc
 	if(!action) {
 		QMessageBox::warning(this, "Cannot re-run this action", "Could not re-run this action because running the '" % info->typeDescription() %  "' action isn't enabled for your beamline's version of Acquaman. If you don't think this should be the case, please report this to the Acquaman developers.");
 		AMErrorMon::debug(this, AMACTIONHISTORYVIEW_COULD_NOT_CREATE_ACTION, "Could not re-run this action because running '" % actionLog.name() % "' isn't enabled for your beamline's version of Acquaman. If you don't think this should be the case, please report this to the Acquaman developers.");
-		delete info;
+		info->deleteLater();
 		return false;
 	}
 
@@ -407,7 +407,7 @@ bool AMActionHistoryView3::recurseDbLoadIndex(const QModelIndex &index, AMListAc
 	}
 	if(!childrenSuccess){
 		if(!parentAction)
-			delete action;
+			action->deleteLater();
 		AMErrorMon::alert(this, AMACTIONHISTORYVIEW_COULD_NOT_LOAD_CHILD, "Could not re-run this action because running one or more children failed to load. Please report this to the Acquaman developers.");
 		return false;
 	}

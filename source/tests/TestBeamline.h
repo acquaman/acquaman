@@ -19,7 +19,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#include <QtTest/QtTest>
+#include "AMQtTest.h"
 
 class TestBeamline: public QObject
 {

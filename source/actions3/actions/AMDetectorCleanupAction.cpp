@@ -21,7 +21,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMDetectorCleanupAction.h"
 
-#include "beamline/AMBeamline.h"
+//#include "beamline/AMBeamline.h"
+#include "beamline/AMBeamlineSupport.h"
 #include "util/AMErrorMonitor.h"
 
  AMDetectorCleanupAction::~AMDetectorCleanupAction(){}
@@ -30,8 +31,11 @@ AMDetectorCleanupAction::AMDetectorCleanupAction(AMDetectorCleanupActionInfo *in
 {
 	if(detector)
 		detector_ = detector;
+	else if(AMBeamlineSupport::beamlineDetectorAPI())
+		detector_ = AMBeamlineSupport::beamlineDetectorAPI()->exposedDetectorByInfo(*(info->detectorInfo()));
+		//detector_ = AMBeamline::bl()->exposedDetectorByInfo(*(info->detectorInfo()));
 	else
-		detector_ = AMBeamline::bl()->exposedDetectorByInfo(*(info->detectorInfo()));
+		detector_ = 0; //NULL
 }
 
 AMDetectorCleanupAction::AMDetectorCleanupAction(const AMDetectorCleanupAction &other) :
@@ -39,16 +43,20 @@ AMDetectorCleanupAction::AMDetectorCleanupAction(const AMDetectorCleanupAction &
 {
 	const AMDetectorCleanupActionInfo *info = qobject_cast<const AMDetectorCleanupActionInfo*>(other.info());
 
-	if(info)
-		detector_ = AMBeamline::bl()->exposedDetectorByInfo(*(info->detectorInfo()));
+	//if(info)
+	//	detector_ = AMBeamline::bl()->exposedDetectorByInfo(*(detectorCleanupInfo()->detectorInfo()));
+	if(info && AMBeamlineSupport::beamlineDetectorAPI())
+		detector_ = AMBeamlineSupport::beamlineDetectorAPI()->exposedDetectorByInfo(*(detectorCleanupInfo()->detectorInfo()));
 	else
 		detector_ = 0;
 }
 
 void AMDetectorCleanupAction::startImplementation(){
 	// If you still don't have a detector, check the exposed detectors one last time.
-	if(!detector_)
-		detector_ = AMBeamline::bl()->exposedDetectorByInfo(*(detectorCleanupInfo()->detectorInfo()));
+	//if(!detector_)
+	//	detector_ = AMBeamline::bl()->exposedDetectorByInfo(*(detectorCleanupInfo()->detectorInfo()));
+	if(!detector_ && AMBeamlineSupport::beamlineDetectorAPI())
+		detector_ = AMBeamlineSupport::beamlineDetectorAPI()->exposedDetectorByInfo(*(detectorCleanupInfo()->detectorInfo()));
 
 	if(!detector_) {
 		AMErrorMon::alert(this,

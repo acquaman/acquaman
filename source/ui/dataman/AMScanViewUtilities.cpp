@@ -153,7 +153,7 @@ void AMScanViewScanBar::onRowAboutToBeRemoved(const QModelIndex& parent, int sta
 	for(int di = end; di>=start; di-- ) {
 
 		sourceButtons_.button(di)->disconnect();
-		delete sourceButtons_.button(di);
+		sourceButtons_.button(di)->deleteLater();
 		// the button group's id's from "start+1" to "count+1" are too high now...
 		for(int i=di+1; i<sourceButtons_.buttons().count()+1; i++)
 			sourceButtons_.setId(sourceButtons_.button(i), i-1);
@@ -740,7 +740,7 @@ void AMScanViewSingleSpectrumView::setDataSources(QList<AMDataSource *> sources)
 
 		sourceButtons_->removeButton(button);
 		sourceButtonsLayout_->removeWidget(button);
-		delete button;
+		button->deleteLater();
 	}
 
 	buttons.clear();

@@ -1,6 +1,7 @@
 #ifndef AMSCANTHUMBNAILVIEW_H
 #define AMSCANTHUMBNAILVIEW_H
 
+#include "AMQEvents.h"
 
 #include <QWidget>
 #include <QAbstractItemView>
@@ -8,7 +9,6 @@
 #include <QLabel>
 #include <QItemDelegate>
 #include <QPainter>
-#include <QMouseEvent>
 #include <QRegion>
 #include <QTimer>
 
@@ -54,7 +54,8 @@ protected slots:
 	void rowsInserted(const QModelIndex &parent, int start, int end);
 	/// Handles rows being removed from the source model. Resets the displayed thumbnail index for all
 	/// the scans back to zero and updates the scroll bars.
-	void rowsRemoved(const QModelIndex& parent, int start, int end);
+	void rowsAboutToBeRemoved(const QModelIndex& parent, int start, int end);
+
 	/// Handles the timer used to decide whether the mouse in its current position can be considered
 	/// 'hovering'
 	void onTimerTimout();
@@ -106,6 +107,10 @@ protected:
 	QRect getImageRectangle(const QRect& thumbnailRectangle) const;
 	/// Obtains the position within thumbnailRectangle of the Scan Title
 	QRect getTitleRectangle(const QRect& thumbnailRectangle) const;
+	/// Obtains the position within the thumbnailRectangle of the Scan Start Date
+	QRect getScanStartDateRectangle(const QRect& thumbnailRectangle) const;
+	/// Obtains the position within the thumbnailRectangle of the Scan Technique
+	QRect getScanTechniqueRectangle(const QRect& thumbnailRectangle) const;
 private:
 	/// The size of a single thumbnailView item
 	QSize itemDimensions_;

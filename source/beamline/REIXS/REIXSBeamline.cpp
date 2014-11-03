@@ -591,7 +591,7 @@ bool REIXSSpectrometer::stop()
 	if(moveInProgress()) {
 		moveAction_->cancel();
 		/// \todo Actually, have to flag that a stop has started, and also catch when the stop is finished... Motors will take a while to actually receive and decelerate.
-		delete moveAction_;
+		moveAction_->deleteLater();
 		moveAction_ = 0;
 		emit moveFailed(AMControl::WasStoppedFailure);
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, AMControl::WasStoppedFailure, "Spectrometer Move Stopped."));
@@ -937,7 +937,7 @@ void REIXSBrokenMonoControl::onMonoAngleError(double error)
 
 
 REIXSBrokenMonoControl::~REIXSBrokenMonoControl() {
-	delete control_;
+	control_->deleteLater();
 	control_ = 0;
 }
 

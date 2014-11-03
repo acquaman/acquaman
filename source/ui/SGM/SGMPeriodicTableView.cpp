@@ -72,7 +72,7 @@ void SGMPeriodicTableView::onClicked(int atomicNumber){
 	QList<SGMFastScanParameters*> allFastScans = SGMPeriodicTable::sgmTable()->fastScanPresets(SGMPeriodicTable::SGMPeriodicTableAllDatabasesConnectionName());
 
 	if(availableScansMenu_)
-		delete availableScansMenu_;
+		availableScansMenu_->deleteLater();
 	availableScansMenu_ = new QMenu();
 	QAction *tempAction;
 	bool foundOne = false;

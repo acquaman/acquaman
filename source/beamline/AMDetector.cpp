@@ -21,7 +21,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMDetector.h"
 
-#include "beamline/AMBeamline.h"
+#include <math.h>
+
+#include <QTimer>
+
+//#include "beamline/AMBeamline.h"
+#include "beamline/AMBeamlineSupport.h"
+#include "beamline/AMSynchronizedDwellTime.h"
+
 #include "util/AMErrorMonitor.h"
 #include "actions3/actions/AMDetectorSetAsDarkCurrentCorrectionAction.h"
 #include "actions3/actions/AMDetectorInitializeAction.h"
@@ -167,10 +174,15 @@ int AMDetector::size(int axisNumber) const
 }
 
 bool AMDetector::currentlySynchronizedDwell() const{
-	if(AMBeamline::bl()->synchronizedDwellTime()){
-		int index = AMBeamline::bl()->synchronizedDwellTime()->indexOfDetector(this);
+//	if(AMBeamline::bl()->synchronizedDwellTime()){
+//		int index = AMBeamline::bl()->synchronizedDwellTime()->indexOfDetector(this);
+//		if(index >= 0)
+//			return AMBeamline::bl()->synchronizedDwellTime()->enabledAt(index);
+//	}
+	if(AMBeamlineSupport::beamlineSynchronizedDwellTimeAPI() && AMBeamlineSupport::beamlineSynchronizedDwellTimeAPI()->synchronizedDwellTime()){
+		int index = AMBeamlineSupport::beamlineSynchronizedDwellTimeAPI()->synchronizedDwellTime()->indexOfDetector(this);
 		if(index >= 0)
-			return AMBeamline::bl()->synchronizedDwellTime()->enabledAt(index);
+			return AMBeamlineSupport::beamlineSynchronizedDwellTimeAPI()->synchronizedDwellTime()->enabledAt(index);
 	}
 	return false;
 }

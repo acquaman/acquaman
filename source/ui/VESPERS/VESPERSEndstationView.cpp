@@ -149,7 +149,7 @@ VESPERSEndstationView::VESPERSEndstationView(VESPERSEndstation *endstation, QWid
 
 VESPERSEndstationView::~VESPERSEndstationView()
 {
-	delete config_;
+	config_->deleteLater();
 }
 
 void VESPERSEndstationView::onLaserDistanceChanged()

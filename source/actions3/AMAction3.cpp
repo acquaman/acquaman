@@ -66,7 +66,7 @@ AMAction3::AMAction3(const AMAction3& other)
 // Destructor: deletes the info and prerequisites
 AMAction3::~AMAction3() {
 	if(info_){
-		delete info_;
+		info_->deleteLater();
 		info_ = 0;
 	}
 }

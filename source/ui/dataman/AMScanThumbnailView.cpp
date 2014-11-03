@@ -1,6 +1,5 @@
 #include "AMScanThumbnailView.h"
-
-
+#include "util/AMDateTimeUtils.h"
 
 
 
@@ -20,21 +19,35 @@ void AMScanThumbnailViewItemDelegate::paint(QPainter *painter, const QStyleOptio
 
 	if(!index.parent().isValid())
 	{
+		// Painting a scan
+
+		// Get formatted data string
+		QVariant data = index.data(Qt::DisplayRole);
+		QString textToPaint;
+		if (data.type() == QVariant::DateTime)
+			textToPaint = AMDateTimeUtils::prettyDateTime(data.toDateTime());
+		else
+			textToPaint = data.toString();
+
+		// Elide text if required
+		textToPaint = option.fontMetrics.elidedText(textToPaint, Qt::ElideRight, option.rect.width());
+
 		if(option.state & QStyle::State_Selected)
 		{
 			painter->save();
 			painter->setPen(option.palette.color(QPalette::Normal, QPalette::HighlightedText));
-			painter->drawText(option.rect, index.data(Qt::DisplayRole).toString());
+			painter->drawText(option.rect, textToPaint);
 			painter->restore();
 		}
 		else
 		{
-			painter->drawText(option.rect, index.data(Qt::DisplayRole).toString());
+			painter->drawText(option.rect, textToPaint);
 		}
 
 	}
 	else
 	{
+		// Painting a thumbnail
 		if(index.column() == 1)
 		{
 			QPixmap pixmap = index.data(Qt::DecorationRole).value<QPixmap>();
@@ -53,7 +66,11 @@ void AMScanThumbnailViewItemDelegate::paint(QPainter *painter, const QStyleOptio
 				}
 				else
 				{
-					painter->drawText(option.rect, index.data(Qt::DisplayRole).toString());
+					QString textToPaint = index.data(Qt::DisplayRole).toString();
+
+					// Elide text if required
+					textToPaint = option.fontMetrics.elidedText(textToPaint, Qt::ElideRight, option.rect.width());
+					painter->drawText(option.rect, textToPaint);
 				}
 		}
 	}
@@ -68,7 +85,7 @@ AMScanThumbnailView::AMScanThumbnailView(QWidget *parent)
 	:QAbstractItemView(parent)
 {
 	itemDimensions_.setWidth(260);
-	itemDimensions_.setHeight(260);
+	itemDimensions_.setHeight(290);
 
 	imageDimensions_.setWidth(240);
 	imageDimensions_.setHeight(180);
@@ -168,7 +185,6 @@ QRect AMScanThumbnailView::visualRect(const QModelIndex &index) const
 		{
 		case 1:
 			return getImageRectangle(thumbnailRectangle);
-
 		case 2:
 			return getTitleRectangle(thumbnailRectangle);
 		default:
@@ -178,22 +194,25 @@ QRect AMScanThumbnailView::visualRect(const QModelIndex &index) const
 	// * If the parent is not valid, we're looking at a scan
 	else
 	{
-		if(index.column() == 1)
-			return getScanNameRectangle(thumbnailRectangle);
-		else
+		switch (index.column())
+		{
+		case 0:
 			return thumbnailRectangle;
+		case 1:
+			return getScanNameRectangle(thumbnailRectangle);
+		case 3:
+			return getScanStartDateRectangle(thumbnailRectangle);
+		case 4:
+			return getScanTechniqueRectangle(thumbnailRectangle);
+		default:
+			return QRect();
+		}
 	}
 }
 
 void AMScanThumbnailView::setModel(QAbstractItemModel *newModel)
 {
-	if(model())
-	{
-		disconnect(model(), SIGNAL(rowsRemoved(const QModelIndex& parent, int start, int end)), this, SLOT(rowsRemoved(QModelIndex,int,int)));
-	}
-
 	QAbstractItemView::setModel(newModel);
-	connect(model(), SIGNAL(rowsRemoved(const QModelIndex&, int, int )), this, SLOT(rowsRemoved(QModelIndex,int,int)));
 	updateScrollBars();
 }
 
@@ -302,6 +321,8 @@ void AMScanThumbnailView::paintEvent(QPaintEvent *pe)
 	for(int iDataRow = 0; iDataRow < model()->rowCount(); iDataRow++)
 	{
 		QModelIndex scanNameIndex = model()->index(iDataRow, 1);
+		QModelIndex scanDateIndex = model()->index(iDataRow, 3);
+		QModelIndex scanTechniqueIndex = model()->index(iDataRow, 4);
 		QModelIndex selectionRowIndex = model()->index(iDataRow, 0);
 		QRect dataRowRectangle = rectangleGridRow(scanNameIndex.row());
 		QRect containerRectangle(dataRowRectangle.x() + 10, dataRowRectangle.y() + 10, dataRowRectangle.width()-20, dataRowRectangle.height()-20);
@@ -329,6 +350,7 @@ void AMScanThumbnailView::paintEvent(QPaintEvent *pe)
 		{
 
 			int currentThumbnailIndex = rowCurrentDisplayedThumbnailMap_.value(scanNameIndex.row(), 0);
+
 			QModelIndex thumbnailIndex = model()->index(currentThumbnailIndex, 1, scanNameIndex);
 			option.rect = visualRect(thumbnailIndex);
 			itemDelegate()->paint(&painter, option, thumbnailIndex);
@@ -342,6 +364,12 @@ void AMScanThumbnailView::paintEvent(QPaintEvent *pe)
 
 		option.rect = visualRect(scanNameIndex);
 		itemDelegate()->paint(&painter, option, scanNameIndex);
+
+		option.rect = visualRect(scanDateIndex);
+		itemDelegate()->paint(&painter, option, scanDateIndex);
+
+		option.rect = visualRect(scanTechniqueIndex);
+		itemDelegate()->paint(&painter, option, scanTechniqueIndex);
 
 	}
 }
@@ -423,6 +451,7 @@ void AMScanThumbnailView::mouseMoveEvent(QMouseEvent *event)
 		QPoint posInsideRect(event->x() - currentIndexRect.x(), event->y() - currentIndexRect.y());
 
 		int thumbnailCount = model()->rowCount(currentHoveringIndex);
+
 		if(thumbnailCount == 0)
 			return;
 		int widthOfEachThumbnail = gridDimensions().width() / thumbnailCount;
@@ -480,7 +509,7 @@ void AMScanThumbnailView::rowsInserted(const QModelIndex &parent, int start, int
 	QAbstractItemView::rowsInserted(parent, start, end);
 }
 
-void AMScanThumbnailView::rowsRemoved(const QModelIndex &parent, int start, int end)
+void AMScanThumbnailView::rowsAboutToBeRemoved(const QModelIndex &parent, int start, int end)
 {
 	rowCurrentDisplayedThumbnailMap_.clear();
 	updateScrollBars();
@@ -505,6 +534,16 @@ QRect AMScanThumbnailView::getImageRectangle(const QRect &thumbnailRectangle) co
 QRect AMScanThumbnailView::getTitleRectangle(const QRect &thumbnailRectangle) const
 {
 	return QRect(thumbnailRectangle.x() + 15, thumbnailRectangle.y() + thumbnailRectangle.height() - fontMetrics().height() - 15, thumbnailRectangle.width() - 30, fontMetrics().height());
+}
+
+QRect AMScanThumbnailView::getScanStartDateRectangle(const QRect &thumbnailRectangle) const
+{
+	return QRect(thumbnailRectangle.x() + 15, thumbnailRectangle.y() + fontMetrics().height() + 20, thumbnailRectangle.width(), fontMetrics().height());
+}
+
+QRect AMScanThumbnailView::getScanTechniqueRectangle(const QRect &thumbnailRectangle) const
+{
+	return QRect(thumbnailRectangle.x() + 15, thumbnailRectangle.y() + thumbnailRectangle.height() - fontMetrics().height() - 35, thumbnailRectangle.width() - 30, fontMetrics().height());
 }
 
 

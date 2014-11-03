@@ -31,15 +31,27 @@ class IDEASXRFScanConfiguration : public AMScanConfiguration
 {
 	Q_OBJECT
 
+	Q_PROPERTY(int fluorescenceDetector READ fluorescenceDetector WRITE setFluorescenceDetector)
 	Q_PROPERTY(AMDbObject* xrfDetectorInfo READ dbReadXRFDetectorInfo WRITE dbLoadXRFDetectorInfo)
 
 	Q_CLASSINFO("AMDbObject_Attributes", "description=IDEAS XRF Scan Configuration")
 
 public:
+	/// Handles the XRF detector choice.  Available choices are None, KETEK, and 13-element Ge.
+	enum FluorescenceDetector {
+
+		None = 0,
+		Ketek = 1,
+		Ge13Element = 2
+	};
+//	Q_DECLARE_FLAGS(FluorescenceDetectors, FluorescenceDetector)
+
 	/// The constructor used for database loading.
 	Q_INVOKABLE explicit IDEASXRFScanConfiguration(QObject *parent = 0);
 	/// Default constructor.
 	IDEASXRFScanConfiguration(AMDetectorInfo detectorInfo, QObject *parent = 0);
+	/// Copy constructor.
+	IDEASXRFScanConfiguration(const IDEASXRFScanConfiguration &original);
 	/// Destructor.
 	virtual ~IDEASXRFScanConfiguration();
 
@@ -76,6 +88,14 @@ public:
 	/// Returns initial positions
 	AMControlInfoList positions() const { return positions_; }
 
+	/// Returns the current fluorescence detector choice.
+	IDEASXRFScanConfiguration::FluorescenceDetector fluorescenceDetector() const { return fluorescenceDetector_; }
+
+signals:
+	/// Notifier that the fluorescence choice has changed.
+	void fluorescenceDetectorChanged(IDEASXRFScanConfiguration::FluorescenceDetector);
+	/// Same signal.  Just passing as an int.
+	void fluorescenceDetectorChanged(int);
 
 public slots:
 	/// Sets the detector info to the given detector info.
@@ -97,8 +117,10 @@ public slots:
 	/// sets initial positions
 	void setPositions(AMControlInfoList positions) { positions_ = positions; }
 
-
-
+	/// Sets the choice for the fluorescence detector.
+	void setFluorescenceDetector(IDEASXRFScanConfiguration::FluorescenceDetector detector);
+	/// Overloaded.  Used for database loading.
+	void setFluorescenceDetector(int detector) { setFluorescenceDetector((IDEASXRFScanConfiguration::FluorescenceDetector)detector); }
 
 
 protected:
@@ -126,7 +148,10 @@ protected:
 	int scanNumber_;
 	/// Beamline conditions at the time a scan is started
 	AMControlInfoList positions_;
-
+	/// Fluorescence detector choice.
+	IDEASXRFScanConfiguration::FluorescenceDetector fluorescenceDetector_;
 };
+
+//Q_DECLARE_OPERATORS_FOR_FLAGS(IDEASXASScanConfiguration::FluorescenceDetectors)
 
 #endif // IDEASXRFSCANCONFIGURATION_H

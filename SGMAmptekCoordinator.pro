@@ -1,13 +1,8 @@
-include ( acquamanCommon.pri )
+# #####################################################################
+# QMake project file for acquaman, including test suites			January 2010. mark.boots@usask.ca
+# #####################################################################
 
-TARGET = SGMAmptekCoordinator
-
-FORMS +=
-
-HEADERS += \
-	source/beamline/SGM/SGMAmptekCoordinator.h
-
-SOURCES += \
-	source/application/SGMAmptekCoordinator/SGMAmptekCoordinatorMain.cpp \
-	source/beamline/SGM/SGMAmptekCoordinator.cpp
-
+TEMPLATE = subdirs
+SUBDIRS += \
+	Initialize.pro \
+	SGMAmptekCoordinator_internal.pro

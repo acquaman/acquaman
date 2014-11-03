@@ -28,7 +28,7 @@ void AMStorageRing::releaseStorageRing()
 {
 	if (instance_){
 
-		delete instance_;
+		instance_->deleteLater();
 		instance_ = 0;
 	}
 }

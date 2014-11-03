@@ -274,7 +274,8 @@ void IDEASAppController::configureSingleSpectrumView(AMGenericScanEditor *editor
 		if (scan->dataSourceAt(i)->rank()-scanRank == 1)
 			spectraNames << scan->dataSourceAt(i)->name();
 
-	editor->setSingleSpectrumViewDataSourceName(spectraNames.first());
+	if(!spectraNames.isEmpty())
+			editor->setSingleSpectrumViewDataSourceName(spectraNames.first());
 
 	editor->setPlotRange(AMPeriodicTable::table()->elementBySymbol("Al")->Kalpha().energy(), 20480);
 }

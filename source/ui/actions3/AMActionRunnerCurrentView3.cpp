@@ -28,6 +28,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMFontSizes.h"
 #include "util/AMErrorMonitor.h"
 
+#include "AMQEvents.h"
+
 #include <QTreeView>
 #include <QBoxLayout>
 #include <QFrame>
@@ -390,8 +392,6 @@ QWidget *AMActionRunnerCurrentItemDelegate3::createEditor(QWidget *parent, const
 
 	return rv;
 }
-
-#include <QKeyEvent>
 
 bool AMActionRunnerCurrentItemDelegate3::eventFilter(QObject *object, QEvent *event)
 {

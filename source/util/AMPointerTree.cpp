@@ -74,7 +74,7 @@ QList<void*> AMPointerTreeNode::clearNode(){
 	while(!childrenNodes_.isEmpty()){
 		descendantItems.append(childrenNodes_.last()->clearNode());
 		AMPointerTreeNode *lastChildNode = childrenNodes_.takeLast();
-		delete lastChildNode;
+		lastChildNode->deleteLater();
 	}
 	if(item_){
 		descendantItems.append(item_);
