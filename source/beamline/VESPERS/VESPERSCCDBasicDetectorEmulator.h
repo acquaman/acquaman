@@ -39,11 +39,11 @@ public:
 	/// Returns empty string
 	virtual QString synchronizedDwellKey() const { return ccd_->synchronizedDwellKey();}
 
-	/// Returns a newly created action to set the acquisition time on this detector
+	/// Returns a setAcquisitionTime action from the actual CCD rather than this detector since this detector merely encapsulates a CCD as a number.
 	virtual AMAction3* createSetAcquisitionTimeAction(double seconds);
-
+	/// Returns an acquisition action from the actual CCD rather than this detector since this detector merely encapsulates a CCD as a number.
 	virtual AMAction3* createAcquisitionAction(AMDetectorDefinitions::ReadMode readMode = AMDetectorDefinitions::SingleRead);
-
+	/// Returns a trigger action from the actual CCD rather than this detector since this detector merely encapsulates a CCD as a number.
 	virtual AMAction3* createTriggerAction(AMDetectorDefinitions::ReadMode readMode = AMDetectorDefinitions::SingleRead);
 
 protected:
