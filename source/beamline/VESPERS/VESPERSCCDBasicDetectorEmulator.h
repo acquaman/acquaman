@@ -39,6 +39,13 @@ public:
 	/// Returns empty string
 	virtual QString synchronizedDwellKey() const { return ccd_->synchronizedDwellKey();}
 
+	/// Returns a newly created action to set the acquisition time on this detector
+	virtual AMAction3* createSetAcquisitionTimeAction(double seconds);
+
+	virtual AMAction3* createAcquisitionAction(AMDetectorDefinitions::ReadMode readMode = AMDetectorDefinitions::SingleRead);
+
+	virtual AMAction3* createTriggerAction(AMDetectorDefinitions::ReadMode readMode = AMDetectorDefinitions::SingleRead);
+
 protected:
 	/// This function is called from the Acquiring (acquisition) state when the implementation should start the detector's acquisition. Once the detector is done acquiring you must call setAcquisitionSucceeded or setAcquisitionFailed
 	virtual bool acquireImplementation(AMDetectorDefinitions::ReadMode readMode);
