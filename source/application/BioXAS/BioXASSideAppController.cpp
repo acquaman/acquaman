@@ -111,16 +111,15 @@ void BioXASSideAppController::shutdown()
 
 void BioXASSideAppController::onScalerConnected()
 {
-	if (BioXASSideBeamline::bioXAS()->scaler()->isConnected() && !scalerView_) {
-		scalerView_ = new CLSSIS3820ScalerView(BioXASSideBeamline::bioXAS()->scaler());
+    if (BioXASSideBeamline::bioXAS()->scaler() && BioXASSideBeamline::bioXAS()->scaler()->isConnected() && !scalerView_) {
+        scalerView_ = new CLSSIS3820ScalerView(BioXASSideBeamline::bioXAS()->scaler());
 
-		mw_->addPane(scalerView_, "Detectors", "Scaler", ":/system-search.png", true);
-	}
+        mw_->addPane(scalerView_, "Detectors", "Scaler", ":/system-search.png", true);
+    }
 }
 
 void BioXASSideAppController::onBeamlineConnected()
 {
-    // removed this condition to work on PersistentView content without need for beamline connection.
     if (BioXASSideBeamline::bioXAS()->isConnected() && !persistentPanel_) {
         persistentPanel_ = new BioXASSidePersistentView();
         mw_->addRightWidget(persistentPanel_);
@@ -185,7 +184,7 @@ void BioXASSideAppController::setupUserInterface()
 
 	mw_->insertHeading("Detectors", 1);
 
-	connect( BioXASSideBeamline::bioXAS()->scaler(), SIGNAL(connectedChanged(bool)), this, SLOT(onScalerConnected()) );
+//	connect( BioXASSideBeamline::bioXAS()->scaler(), SIGNAL(connectedChanged(bool)), this, SLOT(onScalerConnected()) );
 
 	if (BioXASSideBeamline::bioXAS()->scaler()->isConnected()) {
 		onScalerConnected();
@@ -195,7 +194,6 @@ void BioXASSideAppController::setupUserInterface()
 
 	connect( BioXASSideBeamline::bioXAS(), SIGNAL(connected(bool)), this, SLOT(onBeamlineConnected()) );
 
-    // removed this condition to work on PersistentView content without need for beamline connection.
     if (BioXASSideBeamline::bioXAS()->isConnected()) {
         onBeamlineConnected();
     }
