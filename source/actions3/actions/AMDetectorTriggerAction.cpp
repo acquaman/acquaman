@@ -94,7 +94,12 @@ void AMDetectorTriggerAction::startImplementation(){
 		connect(detector_, SIGNAL(acquiring()), this, SLOT(onAcquisitionStarted()));
 		connect(detector_, SIGNAL(acquisitionSucceeded()), this, SLOT(onAcquisitionSucceeded()));
 		connect(detector_, SIGNAL(acquisitionFailed()), this, SLOT(onAcquisitionFailed()));
-		detector_->acquire(detectorTriggerInfo()->readMode());
+
+		if (detector_->isReadyForAcquisition())
+			detector_->acquire(detectorTriggerInfo()->readMode());
+
+		else
+			connect(detector_, SIGNAL(readyForAcquisition()), this, SLOT(onDetectorReadyForAcquisition()));
 	}
 }
 
@@ -130,4 +135,10 @@ void AMDetectorTriggerAction::cancelImplementation(){
 
 	// FIGURE OUT WHAT TO DO HERE
 	setCancelled();
+}
+
+void AMDetectorTriggerAction::onDetectorReadyForAcquisition()
+{
+	disconnect(detector_, SIGNAL(readyForAcquisition()), this, SLOT(onDetectorReadyForAcquisition()));
+	detector_->acquire(detectorTriggerInfo()->readMode());
 }
