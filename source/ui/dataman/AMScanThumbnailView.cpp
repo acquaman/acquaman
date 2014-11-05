@@ -105,6 +105,8 @@ AMScanThumbnailView::AMScanThumbnailView(QWidget *parent)
 	setMouseTracking(true);
 	currentGridRowMouseOver_ = -1;
 	connect(&hoverTimer_, SIGNAL(timeout()), this, SLOT(onTimerTimout()));
+	doubleClickDelay_ = 500;
+	doubleClickTimer_.setSingleShot(true);
 }
 
 QModelIndex AMScanThumbnailView::indexAt(const QPoint &point) const
@@ -266,11 +268,13 @@ QModelIndex AMScanThumbnailView::moveCursor(QAbstractItemView::CursorAction curs
 	return QModelIndex();
 }
 
-
 void AMScanThumbnailView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags command)
 {
 	QModelIndex startIndex = indexAt(rect.topLeft());
 	QModelIndex endIndex = indexAt(rect.bottomRight());
+
+	if(!endIndex.isValid())
+		endIndex = model()->index(model()->rowCount()-1, 1, QModelIndex());
 
 	if(!startIndex.isValid() || !endIndex.isValid())
 		selectionModel()->select(QModelIndex(), command | QItemSelectionModel::Rows);
@@ -285,7 +289,6 @@ void AMScanThumbnailView::setSelection(const QRect &rect, QItemSelectionModel::S
 
 			if(currentItemRect.intersects(rect))
 			{
-
 				totalSelectedItems.select(currentSelectionModelIndex, currentSelectionModelIndex);
 			}
 
@@ -293,6 +296,18 @@ void AMScanThumbnailView::setSelection(const QRect &rect, QItemSelectionModel::S
 
 		selectionModel()->select(totalSelectedItems, command | QItemSelectionModel::Rows);
 	}
+
+}
+
+void AMScanThumbnailView::setSelectionBetween(const QModelIndex &start, const QModelIndex &end, QItemSelectionModel::SelectionFlags command)
+{
+	if(!end.isValid() || !start.isValid())
+		return;
+
+	QItemSelection newSelectedItems;
+
+	newSelectedItems.select(start, end);
+	selectionModel()->select(newSelectedItems, command | QItemSelectionModel::Rows);
 
 }
 
@@ -374,7 +389,6 @@ void AMScanThumbnailView::paintEvent(QPaintEvent *pe)
 	}
 }
 
-
 void AMScanThumbnailView::resizeEvent(QResizeEvent *event)
 {
 	Q_UNUSED(event);
@@ -410,7 +424,7 @@ void AMScanThumbnailView::updateScrollBars()
 
 void AMScanThumbnailView::mousePressEvent(QMouseEvent *event)
 {
-	if(event->button() == Qt::LeftButton || selectionModel()->selectedIndexes().count() < 2)
+	if(event->button() == Qt::LeftButton)
 	{
 		if(!selectionRubberBand_)
 			selectionRubberBand_ = new QRubberBand(QRubberBand::Rectangle, viewport());
@@ -418,7 +432,7 @@ void AMScanThumbnailView::mousePressEvent(QMouseEvent *event)
 		rubberBandStart_  = event->pos();
 		selectionRubberBand_->setGeometry(QRect(rubberBandStart_, QSize()));
 		selectionRubberBand_->show();
-		QAbstractItemView::mousePressEvent(event);
+
 	}
 }
 
@@ -430,7 +444,8 @@ void AMScanThumbnailView::mouseMoveEvent(QMouseEvent *event)
 		{
 			QItemSelectionModel::SelectionFlags commandFlags = QItemSelectionModel::ClearAndSelect;
 			if(event->modifiers()&Qt::ControlModifier || event->modifiers()&Qt::ShiftModifier)
-				commandFlags = QItemSelectionModel::ToggleCurrent;
+				commandFlags = QItemSelectionModel::Select;
+
 			selectionRubberBand_->setGeometry(QRect(rubberBandStart_, event->pos()).normalized());
 			setSelection(QRect(selectionRubberBand_->pos().x(), selectionRubberBand_->pos().y(), selectionRubberBand_->width() +1, selectionRubberBand_->height()+1), commandFlags);
 		}
@@ -476,11 +491,41 @@ void AMScanThumbnailView::mouseReleaseEvent(QMouseEvent *event)
 {
 	if(event->button() == Qt::LeftButton)
 	{
-		if(!selectionRubberBand_->isHidden())
+		if(event->modifiers() & Qt::ShiftModifier)
+		{
+			QModelIndex indexUnderMouse = indexAt(event->pos());
+			if(!indexUnderMouse.isValid())
+				return;
+
+			if(indexUnderMouse.row() == 1)
+				setSelectionBetween(indexUnderMouse, indexUnderMouse, QItemSelectionModel::Select);
+			else
+			{
+
+
+				int rowCursor = indexUnderMouse.row() - 1;
+				QModelIndex previousIndexCursor = model()->index(rowCursor, 1, QModelIndex());
+				bool indexIsSelected = selectionModel()->isSelected(previousIndexCursor);
+				while(!indexIsSelected && rowCursor >= 0)
+				{
+					rowCursor--;
+					previousIndexCursor = model()->index(rowCursor, 1, QModelIndex());
+					indexIsSelected = selectionModel()->isSelected(previousIndexCursor);
+				}
+				setSelectionBetween(previousIndexCursor, indexUnderMouse, QItemSelectionModel::Select);
+			}
+			if(!selectionRubberBand_->isHidden())
+			{
+				selectionRubberBand_->hide();
+				rubberBandStart_.setX(0);
+				rubberBandStart_.setY(0);
+			}
+		}
+		else
 		{
 			QItemSelectionModel::SelectionFlags commandFlags;
 			if(event->modifiers() & Qt::ControlModifier)
-				commandFlags = QItemSelectionModel::ToggleCurrent;
+				commandFlags = QItemSelectionModel::Toggle;
 			else
 				commandFlags = QItemSelectionModel::ClearAndSelect;
 
@@ -489,6 +534,18 @@ void AMScanThumbnailView::mouseReleaseEvent(QMouseEvent *event)
 			selectionRubberBand_->hide();
 			rubberBandStart_.setX(0);
 			rubberBandStart_.setY(0);
+
+			if(doubleClickTimer_.isActive())
+			{
+				QModelIndex indexUnderMouse = indexAt(event->pos());
+				if(!indexUnderMouse.isValid())
+					return;
+				emit doubleClicked(indexUnderMouse);
+			}
+			else
+			{
+				doubleClickTimer_.start(doubleClickDelay_);
+			}
 		}
 	}
 }
@@ -517,8 +574,6 @@ void AMScanThumbnailView::rowsAboutToBeRemoved(const QModelIndex &parent, int st
 	QAbstractItemView::rowsAboutToBeRemoved(parent, start, end);
 }
 
-
-
 QRect AMScanThumbnailView::getScanNameRectangle(const QRect &thumbnailRectangle) const
 {
 	return QRect(thumbnailRectangle.x() + 15, thumbnailRectangle.y() + 15, thumbnailRectangle.width() - 30, fontMetrics().height());
@@ -545,7 +600,6 @@ QRect AMScanThumbnailView::getScanTechniqueRectangle(const QRect &thumbnailRecta
 {
 	return QRect(thumbnailRectangle.x() + 15, thumbnailRectangle.y() + thumbnailRectangle.height() - fontMetrics().height() - 35, thumbnailRectangle.width() - 30, fontMetrics().height());
 }
-
 
 void AMScanThumbnailView::onTimerTimout()
 {
