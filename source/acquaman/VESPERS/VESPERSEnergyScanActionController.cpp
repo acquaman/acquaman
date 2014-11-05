@@ -58,13 +58,13 @@ VESPERSEnergyScanActionController::VESPERSEnergyScanActionController(VESPERSEner
 
 	VESPERS::CCDDetectors ccdDetector = configuration_->ccdDetector();
 
-	if (ccdDetector == VESPERS::Roper)
+	if (ccdDetector.testFlag(VESPERS::Roper))
 		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("RoperFileNumber")->toInfo());
 
-	if (ccdDetector == VESPERS::Mar)
+	if (ccdDetector.testFlag(VESPERS::Mar))
 		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("MarFileNumber")->toInfo());
 
-	if (ccdDetector == VESPERS::Pilatus)
+	if (ccdDetector.testFlag(VESPERS::Pilatus))
 		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("PilatusFileNumber")->toInfo());
 
 	configuration_->setDetectorConfigurations(detectors);

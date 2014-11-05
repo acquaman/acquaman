@@ -61,13 +61,15 @@ void AMStepScanActionController::createScanAssembler()
 void AMStepScanActionController::createAxisOrderMap()
 {
 	for (int i = 0, size = stepConfiguration_->scanAxes().size(); i < size; i++)
-		axisOrderMap_.insert(scan_->rawData()->scanAxisAt(0).name, i);
+		axisOrderMap_.insert(scan_->rawData()->scanAxisAt(i).name, i);
 }
 
 void AMStepScanActionController::buildScanController()
 {
 	// Build the scan assembler.
 	createScanAssembler();
+	// Create the axis order map for higher dimensional scans.
+	createAxisOrderMap();
 
 	currentAxisValueIndex_ = AMnDIndex(scan_->rawData()->scanAxesCount(), AMnDIndex::DoInit, 0);
 
@@ -79,8 +81,13 @@ void AMStepScanActionController::buildScanController()
 
 		for (int j = 0, regionCount = stepConfiguration_->scanAxisAt(i)->regionCount(); j < regionCount; j++)
 			stepConfiguration_->scanAxisAt(i)->regionAt(j)->setName(QString("%1 %2 %3").arg(scan_->rawData()->scanAxisAt(i).name).arg("region").arg(j+1));
+	}
 
-		scanAssembler_->insertAxis(axisOrderMap_.value(scan_->rawData()->scanAxisAt(i).name), AMBeamline::bl()->exposedControlByInfo(stepConfiguration_->axisControlInfos().at(i)), stepConfiguration_->scanAxisAt(i));
+	// Configure the scan assemblers axes.
+	for (int i = 0, axisCount = scan_->rawData()->scanAxesCount(); i < axisCount; i++){
+
+		int actualAxis = axisOrderMap_.value(scan_->rawData()->scanAxisAt(i).name);
+		scanAssembler_->insertAxis(i, AMBeamline::bl()->exposedControlByInfo(stepConfiguration_->axisControlInfos().at(actualAxis)), stepConfiguration_->scanAxisAt(actualAxis));
 	}
 
 	// Add all the detectors.
@@ -497,7 +504,7 @@ void AMStepScanActionController::prefillScanPoints()
 
 							else if ((scan_->rawDataSources()->at(di)->rank() - scanRank) == 1){
 
-								QVector<int> data = QVector<int>(scan_->rawDataSources()->at(di)->size(0), -1);
+								QVector<int> data = QVector<int>(scan_->rawDataSources()->at(di)->size(scan_->rawDataSources()->at(di)->rank()-1), -1);
 								scan_->rawData()->setValue(insertIndex, di, data.constData());
 							}
 						}
