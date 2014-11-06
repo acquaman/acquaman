@@ -676,7 +676,10 @@ void CLSSIS3820ScalerChannel::setCurrentAmplifier(AMCurrentAmplifier *amplifier)
 
 void CLSSIS3820ScalerChannel::setDetector(AMDetector *detector)
 {
-	detector_ = detector;
+    if (detector_ != detector) {
+        detector_ = detector;
+        emit detectorChanged(detector_);
+    }
 }
 
 void CLSSIS3820ScalerChannel::setMinimumVoltage(double min)

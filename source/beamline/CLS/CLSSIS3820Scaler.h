@@ -303,6 +303,8 @@ signals:
 	void voltageRangeChanged(const AMRange &);
 	/// Notifier that the SR570 sensitivity has changed.
 	void sensitivityChanged();
+    /// Notifier that the channel detector has changed.
+    void detectorChanged(AMDetector* detector);
 
 
 protected slots:
