@@ -42,10 +42,6 @@ protected:
 	AMAction3* createInitializationActions();
 	/// Reimplemented to put the beamline in a good state after a scan has been completed.
 	AMAction3* createCleanupActions();
-	/// Re-implemented due to the extra complexity of setting up IDEAS.
-	virtual void cancelImplementation();
-	/// Reimplemented to populate scan initial conditions
-	void onInitializationActionsListSucceeded();
 
 	/// Sets the scan axis and adds anything extra.
 	virtual void buildScanControllerImplementation();
@@ -54,6 +50,7 @@ protected:
 
 
 protected:
+    /// Specific scan configuration with all the BioXASSide specific information inside.
 	BioXASSideXASScanConfiguration *configuration_;
 
 };

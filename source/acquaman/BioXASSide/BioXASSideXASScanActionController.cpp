@@ -48,6 +48,7 @@ BioXASSideXASScanActionController::BioXASSideXASScanActionController(BioXASSideX
     bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->i0Detector()->toInfo());
     bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->iTDetector()->toInfo());
     bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->energyFeedbackDetector()->toInfo());
+
     configuration_->setDetectorConfigurations(bioXASDetectors);
 }
 
@@ -67,16 +68,6 @@ AMAction3* BioXASSideXASScanActionController::createCleanupActions()
     cleanupActions->addSubAction(BioXASSideBeamline::bioXAS()->mono()->createSetBraggMotorPowerAutoAction());
 
     return cleanupActions;
-}
-
-void BioXASSideXASScanActionController::cancelImplementation()
-{
-
-}
-
-void BioXASSideXASScanActionController::onInitializationActionsListSucceeded()
-{
-
 }
 
 void BioXASSideXASScanActionController::buildScanControllerImplementation()
