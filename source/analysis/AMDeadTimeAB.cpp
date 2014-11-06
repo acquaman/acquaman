@@ -204,7 +204,11 @@ bool AMDeadTimeAB::axisValues(int axisNumber, int startIndex, int endIndex, AMNu
 // Connected to be called when the values of the input data source change
 void AMDeadTimeAB::onInputSourceValuesChanged(const AMnDIndex& start, const AMnDIndex& end)
 {
-	emitValuesChanged(start, end);
+	if (start.isValid() && end.isValid())
+		emitValuesChanged(start, end);
+
+	else
+		emitValuesChanged();
 }
 
 // Connected to be called when the size of the input source changes
