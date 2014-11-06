@@ -21,7 +21,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "VESPERSScanConfiguration.h"
 
- VESPERSScanConfiguration::~VESPERSScanConfiguration(){}
 VESPERSScanConfiguration::VESPERSScanConfiguration()
 {
 	dbObject_ = new VESPERSScanConfigurationDbObject;
@@ -34,6 +33,11 @@ VESPERSScanConfiguration::VESPERSScanConfiguration(const VESPERSScanConfiguratio
 	dbObject_ = new VESPERSScanConfigurationDbObject(*original.dbObject());
 	timeOffset_ = original.timeOffset();
 	totalTime_ = original.totalTime();
+}
+
+VESPERSScanConfiguration::~VESPERSScanConfiguration()
+{
+	dbObject_->deleteLater();
 }
 
 void VESPERSScanConfiguration::dbWriteScanConfigurationDbObject(AMDbObject *object)
