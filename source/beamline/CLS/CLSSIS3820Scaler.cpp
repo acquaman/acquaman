@@ -55,10 +55,6 @@ CLSSIS3820Scaler::CLSSIS3820Scaler(const QString &baseName, QObject *parent) :
 		scalerChannels_.append(tmpChannel);
 		connect(tmpChannel, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
 		connect( tmpChannel, SIGNAL(sensitivityChanged()), this, SIGNAL(sensitivityChanged()) );
-		/*
-		connect( this, SIGNAL(newDarkCurrentMeasurementValue(double)), tmpChannel, SIGNAL(newDarkCurrentMeasurementValue(double)) );
-		connect( this, SIGNAL(newDarkCurrentMeasurementState(CLSSIS3820Scaler::DarkCurrentCorrectionState)), tmpChannel, SIGNAL(newDarkCurrentMeasurementState(CLSSIS3820Scaler::DarkCurrentCorrectionState)) );
-		*/
 	}
 
 	startToggle_ = new AMPVControl("Start/Scanning", baseName+":startScan", baseName+":startScan", QString(), this, 0.1);
@@ -649,27 +645,17 @@ void CLSSIS3820ScalerChannel::setCustomChannelName(const QString &customChannelN
 	emit customNameChanged(customChannelName_ = customChannelName);
 }
 
-void CLSSIS3820ScalerChannel::onChannelEnabledChanged()
-{
-	emit enabledChanged(channelEnable_->withinTolerance(1));
-}
-
-void CLSSIS3820ScalerChannel::onChannelReadingChanged(double reading)
-{
-	emit readingChanged((int)reading);
-}
-
 void CLSSIS3820ScalerChannel::setCurrentAmplifier(AMCurrentAmplifier *amplifier)
 {
-	if (currentAmplifier_) {
-		disconnect( currentAmplifier_, SIGNAL(isConnected(bool)), this, SLOT(onConnectedChanged()));
-		disconnect( currentAmplifier_, SIGNAL(valueChanged()), this, SIGNAL(sensitivityChanged()) );
-	}
+    if (currentAmplifier_) {
+        disconnect( currentAmplifier_, SIGNAL(isConnected(bool)), this, SLOT(onConnectedChanged()));
+        disconnect( currentAmplifier_, SIGNAL(valueChanged()), this, SIGNAL(sensitivityChanged()) );
+    }
 
-	currentAmplifier_ = amplifier;
+    currentAmplifier_ = amplifier;
 
-	connect( currentAmplifier_, SIGNAL(isConnected(bool)), this, SLOT(onConnectedChanged()) );
-	connect( currentAmplifier_, SIGNAL(valueChanged()), this, SIGNAL(sensitivityChanged()) );
+    connect( currentAmplifier_, SIGNAL(isConnected(bool)), this, SLOT(onConnectedChanged()) );
+    connect( currentAmplifier_, SIGNAL(valueChanged()), this, SIGNAL(sensitivityChanged()) );
 
     emit currentAmplifierAttached();
 }
@@ -680,6 +666,16 @@ void CLSSIS3820ScalerChannel::setDetector(AMDetector *detector)
         detector_ = detector;
         emit detectorChanged(detector_);
     }
+}
+
+void CLSSIS3820ScalerChannel::onChannelEnabledChanged()
+{
+	emit enabledChanged(channelEnable_->withinTolerance(1));
+}
+
+void CLSSIS3820ScalerChannel::onChannelReadingChanged(double reading)
+{
+	emit readingChanged((int)reading);
 }
 
 void CLSSIS3820ScalerChannel::setMinimumVoltage(double min)

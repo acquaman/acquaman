@@ -247,13 +247,8 @@ public:
 	/// Returns the custom settable name
 	QString customChannelName() const { return customChannelName_; }
 
-    /// Sets a current amplifier for this particular channel.  It is assumed that the amplifier ACTUALLY corresponds to the scalar channel, otherwise, this is meaningless.
-	void setCurrentAmplifier(AMCurrentAmplifier *amplifier);
     /// Returns the amplifier that this scaler channel uses for sensitivity changes.  Returns 0 if not set.
 	AMCurrentAmplifier *currentAmplifier() const { return currentAmplifier_; }
-
-	/// Sets an AMDetector to this particular channel. This connection grants us access to the detector's dark current measurement/correction abilities.
-	void setDetector(AMDetector *detector);
 	/// Returns the AMDetector that this scaler channel uses.
 	AMDetector* detector() const { return detector_; }
 
@@ -276,6 +271,11 @@ public slots:
 	void setEnabled(bool isEnabled);
 	/// Sets the custom channel name, default is an empty string
 	void setCustomChannelName(const QString &customChannelName);
+
+    /// Sets a current amplifier for this particular channel.  It is assumed that the amplifier ACTUALLY corresponds to the scalar channel, otherwise, this is meaningless.
+    void setCurrentAmplifier(AMCurrentAmplifier *amplifier);
+    /// Sets an AMDetector to this particular channel. This connection grants us access to the detector's dark current measurement/correction abilities.
+    void setDetector(AMDetector *detector);
 
 	/// Sets the minimum voltage for the linear range for the detector.
 	void setMinimumVoltage(double min);
