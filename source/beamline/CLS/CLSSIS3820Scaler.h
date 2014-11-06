@@ -304,14 +304,6 @@ signals:
 	/// Notifier that the SR570 sensitivity has changed.
 	void sensitivityChanged();
 
-	/*
-	use detector() to access these signals!
-	/// Emitted when the scaler channel is notified of a change in the dark current measurement value. Communicates change to scaler channel view.
-	void newDarkCurrentMeasurementValue(double newValue);
-	/// Emitted when the scaler channel is notified of a change in the dark current measurement status. Communicates change to the scaler channel view.
-	void newDarkCurrentMeasurementState(bool);
-	*/
-
 
 protected slots:
 	/// Helper slot that emits the enabledChanged() signal.
