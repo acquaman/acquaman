@@ -106,6 +106,7 @@ void AMScanActionControllerBasicFileWriter::writeToFile(int fileRank, const QStr
 	}
 }
 
+#include <QDebug>
 void AMScanActionControllerBasicFileWriter::finishWriting()
 {
 	dataFile_->close();
@@ -116,6 +117,7 @@ void AMScanActionControllerBasicFileWriter::finishWriting()
 		spectraFile_->deleteLater();
 	}
 
+	qDebug() << "We should have closed those files now";
 	emit fileWriterIsBusy(false);
 }
 

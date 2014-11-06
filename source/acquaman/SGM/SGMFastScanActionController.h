@@ -50,6 +50,9 @@ public:
 	/// Destructor.
 	virtual ~SGMFastScanActionController();
 
+	/// Returns whether it is safe to be deleted.  This is importanat due to the multi-threaded nature of the file writing.
+	virtual bool isReadyForDeletion() const;
+
 	/// Builds all the raw data sources and configures and starts up the file writer thread.
 	virtual void buildScanController();
 
@@ -64,6 +67,8 @@ protected slots:
 	void onFileWriterError(AMScanActionControllerBasicFileWriter::FileWriterError error);
 	/// Handles dealing with the file writer when it changes busy state.
 	void onFileWriterIsBusy(bool isBusy);
+	/// Handles notifying that we're ready for deletion once the fileWriter thread has been cleaned up and emits finished
+	void onFileWriterThreadFinished();
 
 	void onEverythingFinished();
 
@@ -106,6 +111,7 @@ protected:
 
 	QThread *fileWriterThread_;
 	bool fileWriterIsBusy_;
+	bool readyForDeletion_;
 
 	bool goodInitialState_;
 };

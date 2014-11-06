@@ -200,8 +200,14 @@ void AMScanAction::skipImplementation(const QString &command)
 
 void AMScanAction::scheduleForDeletion()
 {
-	if(!controller_ || controller_->isReadyForDeletion())
+	qDebug() << "In AMScanAction::scheduleForDeletion()";
+	if(!controller_)
+		qDebug() << "No controller pointer";
+	else
+		qDebug() << "Controller isReadyForDeletion() " << controller_->isReadyForDeletion();
+	if(!controller_ || controller_->isReadyForDeletion()){
 		deleteLater();
+	}
 
 	else
 		connect(controller_, SIGNAL(readyForDeletion(bool)), this, SLOT(onReadyForDeletionChanged(bool)));
@@ -415,6 +421,9 @@ void AMScanAction::onControllerStateChanged()
 
 void AMScanAction::onReadyForDeletionChanged(bool isReady)
 {
-	if(isReady)
+	qDebug() << "Received " << isReady << " in onReadyForDeletionChanged";
+	if(isReady){
+		qDebug() << "Delete ourself (the scan action)";
 		deleteLater();
+	}
 }
