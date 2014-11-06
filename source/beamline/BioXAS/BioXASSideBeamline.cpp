@@ -673,10 +673,12 @@ void BioXASSideBeamline::setupComponents()
     i0Keithley_ = new CLSKeithley428("I0 Channel", "AMP1607-601:Gain");
     scaler_->channelAt(0)->setCustomChannelName("I0 Channel");
     scaler_->channelAt(0)->setCurrentAmplifier(i0Keithley_);
+    scaler_->channelAt(0)->setDetector(scaler_);
 
     iTKeithley_ = new CLSKeithley428("IT Channel", "AMP1607-602:Gain");
     scaler_->channelAt(1)->setCustomChannelName("IT Channel");
     scaler_->channelAt(1)->setCurrentAmplifier(iTKeithley_);
+    scaler_->channelAt(1)->setDetector(scaler_);
 }
 
 void BioXASSideBeamline::setupControlsAsDetectors()
