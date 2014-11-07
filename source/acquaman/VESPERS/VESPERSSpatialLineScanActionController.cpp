@@ -286,6 +286,60 @@ AMAction3* VESPERSSpatialLineScanActionController::createInitializationActions()
 	if (!configuration_->ccdDetector().testFlag(VESPERS::NoCCD))
 		initializationActions->addSubAction(buildCCDInitializationAction(configuration_->ccdDetector(), configuration_->ccdFileName()));
 
+	if (configuration_->normalPosition() != 888888.88){
+
+		VESPERS::Motors motor = configuration_->motor();
+
+		if (motor.testFlag(VESPERS::H) || motor.testFlag(VESPERS::V)
+				|| motor.testFlag(VESPERS::AttoH) || motor.testFlag(VESPERS::AttoV))
+			initializationActions->addSubAction(VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->createNormalMoveAction(configuration_->normalPosition()));
+
+		else if (motor.testFlag(VESPERS::X) || motor.testFlag(VESPERS::Z)
+				 || motor.testFlag(VESPERS::AttoX) || motor.testFlag(VESPERS::AttoZ))
+			initializationActions->addSubAction(VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->createNormalMoveAction(configuration_->normalPosition()));
+
+		else if (motor.testFlag(VESPERS::WireH) || motor.testFlag(VESPERS::WireV))
+			initializationActions->addSubAction(VESPERSBeamline::vespers()->pseudoWireStageMotorGroupObject()->createNormalMoveAction(configuration_->normalPosition()));
+	}
+
+	VESPERS::Motors otherMotor = configuration_->otherMotor(configuration_->motor());
+
+	if (otherMotor.testFlag(VESPERS::H))
+		initializationActions->addSubAction(VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->createHorizontalMoveAction(configuration_->otherPosition()));
+
+	else if (otherMotor.testFlag(VESPERS::V))
+		initializationActions->addSubAction(VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->createVerticalMoveAction(configuration_->otherPosition()));
+
+	else if (otherMotor.testFlag(VESPERS::X))
+		initializationActions->addSubAction(VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->createHorizontalMoveAction(configuration_->otherPosition()));
+
+	else if (otherMotor.testFlag(VESPERS::Z))
+		initializationActions->addSubAction(VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->createVerticalMoveAction(configuration_->otherPosition()));
+
+	else if (otherMotor.testFlag(VESPERS::AttoH))
+		initializationActions->addSubAction(VESPERSBeamline::vespers()->pseudoAttocubeStageMotorGroupObject()->createHorizontalMoveAction(configuration_->otherPosition()));
+
+	else if (otherMotor.testFlag(VESPERS::AttoV))
+		initializationActions->addSubAction(VESPERSBeamline::vespers()->pseudoAttocubeStageMotorGroupObject()->createVerticalMoveAction(configuration_->otherPosition()));
+
+	else if (otherMotor.testFlag(VESPERS::AttoX))
+		initializationActions->addSubAction(VESPERSBeamline::vespers()->realAttocubeStageMotorGroupObject()->createHorizontalMoveAction(configuration_->otherPosition()));
+
+	else if (otherMotor.testFlag(VESPERS::AttoZ))
+		initializationActions->addSubAction(VESPERSBeamline::vespers()->realAttocubeStageMotorGroupObject()->createVerticalMoveAction(configuration_->otherPosition()));
+
+	else if (otherMotor.testFlag(VESPERS::BigBeamX))
+		initializationActions->addSubAction(VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->createHorizontalMoveAction(configuration_->otherPosition()));
+
+	else if (otherMotor.testFlag(VESPERS::BigBeamZ))
+		initializationActions->addSubAction(VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->createVerticalMoveAction(configuration_->otherPosition()));
+
+	else if (otherMotor.testFlag(VESPERS::WireH))
+		initializationActions->addSubAction(VESPERSBeamline::vespers()->pseudoWireStageMotorGroupObject()->createHorizontalMoveAction(configuration_->otherPosition()));
+
+	else if (otherMotor.testFlag(VESPERS::WireV))
+		initializationActions->addSubAction(VESPERSBeamline::vespers()->pseudoWireStageMotorGroupObject()->createVerticalMoveAction(configuration_->otherPosition()));
+
 	return initializationActions;
 }
 

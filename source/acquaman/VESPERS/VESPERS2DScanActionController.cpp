@@ -257,6 +257,22 @@ AMAction3* VESPERS2DScanActionController::createInitializationActions()
 	if (!configuration_->ccdDetector().testFlag(VESPERS::NoCCD))
 		initializationActions->addSubAction(buildCCDInitializationAction(configuration_->ccdDetector(), configuration_->ccdFileName()));
 
+	if (configuration_->normalPosition() != 888888.88){
+
+		VESPERS::Motors motor = configuration_->motor();
+
+		if (motor.testFlag(VESPERS::H) || motor.testFlag(VESPERS::V)
+				|| motor.testFlag(VESPERS::AttoH) || motor.testFlag(VESPERS::AttoV))
+			initializationActions->addSubAction(VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->createNormalMoveAction(configuration_->normalPosition()));
+
+		else if (motor.testFlag(VESPERS::X) || motor.testFlag(VESPERS::Z)
+				 || motor.testFlag(VESPERS::AttoX) || motor.testFlag(VESPERS::AttoZ))
+			initializationActions->addSubAction(VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->createNormalMoveAction(configuration_->normalPosition()));
+
+		else if (motor.testFlag(VESPERS::WireH) || motor.testFlag(VESPERS::WireV))
+			initializationActions->addSubAction(VESPERSBeamline::vespers()->pseudoWireStageMotorGroupObject()->createNormalMoveAction(configuration_->normalPosition()));
+	}
+
 	return initializationActions;
 }
 
