@@ -176,14 +176,6 @@ AM2DScanView::AM2DScanView(AMScanSetModel* model, QWidget *parent)
 	multiScanBars_->setModel(scansModel_);
 
 	currentExclusiveDataSource_ = 0;
-
-	exclusiveModeAnim_ = new QPropertyAnimation(gExclusiveView_->graphicsWidget(), "geometry", this);
-	exclusiveModeAnim_->setDuration(500);
-	exclusiveModeAnim_->setEasingCurve(QEasingCurve::InOutCubic);
-
-	multiViewModeAnim_ = new QPropertyAnimation(gMultiView_->graphicsWidget(), "geometry", this);
-	multiViewModeAnim_->setDuration(500);
-	multiViewModeAnim_->setEasingCurve(QEasingCurve::InOutCubic);
 }
 
 AM2DScanView::~AM2DScanView()
@@ -417,13 +409,7 @@ void AM2DScanView::resizeExclusiveViews()
 	QSizeF mainWidgetSize = QSizeF(viewSize.width(), viewSize.height());
 
 	gExclusiveView_->setSceneRect(QRectF(QPointF(0,0), viewSize ));
-
-	QPointF pos = QPointF(-viewSize.width()*0, 0);
-
-	exclusiveModeAnim_->stop();
-	exclusiveModeAnim_->setStartValue(gExclusiveView_->graphicsWidget()->geometry());
-	exclusiveModeAnim_->setEndValue(QRectF(pos, mainWidgetSize));
-	exclusiveModeAnim_->start();
+	gExclusiveView_->graphicsWidget()->setGeometry(QRectF(QPointF(0,0), mainWidgetSize));
 }
 
 void AM2DScanView::resizeMultiViews()
@@ -432,13 +418,7 @@ void AM2DScanView::resizeMultiViews()
 	QSizeF mainWidgetSize = QSizeF(viewSize.width(), viewSize.height());
 
 	gMultiView_->setSceneRect(QRectF(QPointF(0,0), viewSize ));
-
-	QPointF pos = QPointF(-viewSize.width()*0, 0);
-
-	multiViewModeAnim_->stop();
-	multiViewModeAnim_->setStartValue(gMultiView_->graphicsWidget()->geometry());
-	multiViewModeAnim_->setEndValue(QRectF(pos, mainWidgetSize));
-	multiViewModeAnim_->start();
+	gMultiView_->graphicsWidget()->setGeometry(QRectF(QPointF(0,0), mainWidgetSize));
 }
 
 void AM2DScanView::onScanAdded(AMScan *scan)

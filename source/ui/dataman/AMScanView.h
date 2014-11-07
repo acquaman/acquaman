@@ -141,8 +141,6 @@ signals:
 	void dataPositionChanged(const QPointF &);
 };
 
-#include <QPropertyAnimation>
-
 #define AM_SCAN_VIEW_HIDE_SCANBARS_AFTER_N_SCANS 7
 
 class QGroupBox;
@@ -238,8 +236,6 @@ protected:
 
 	AMScanViewModeBar* modeBar_;
 	AMScanViewSourceSelector* scanBars_;
-
-	QPropertyAnimation* modeAnim_;
 
 	AMScanViewSingleSpectrumView *spectrumView_;
 	QGroupBox *spectrumViewBox_;
