@@ -99,6 +99,19 @@ public:
 	/// Indicates that all process variables for this motor are connected
 	virtual bool isConnected() const;
 
+	/// Returns the basename of the MAXvMotor PVs
+	QString pvBaseName() const;
+	/// Returns the pv name of the MAXvMotor read PV
+	QString readPVName() const;
+	/// Returns the pv name of the MAXvMotor write PV
+	QString writePVName() const;
+	/// Returns the pv name of the MAXvMotor CW Limit PV (:cw)
+	QString CWPVName() const;
+	/// Returns the pv name of the MAXvMotor CCW Limit PV (:ccw)
+	QString CCWPVName() const;
+	/// Returns the pv name of the MAXvMotor status PV (:status)
+	QString statusPVName() const;
+
 	/// Returns the (EGU) velocity setting for the velocity profile.  Returns 0 if the motor isn't connected yet.
 	double EGUVelocity() const;
 	/// Returns the (EGU) base velocity setting for the velocity profile.  Returns 0 if the motor isn't connected yet.
@@ -169,6 +182,8 @@ public:
 	/// Returns the encoder/step soft ratio. Returns 0 if the motor isn't connected yet.
 	double encoderStepSoftRatio() const;
 
+	/// Returns the status PV control, which can be used as the statusTagControl for control editor
+	AMReadOnlyPVControl *statusPVControl();
 
 	/// Returns a newly created action to move the motor. This is a convenience function that calls the EGU move action. Returns 0 if the control is not connected.
 	AMAction3* createMotorMoveAction(double position);
@@ -293,6 +308,8 @@ public slots:
 	void setEncoderPercentApproach(double encoderPercentApproach);
 	/// Sets the encoder/step soft ratio
 	void setEncoderStepSoftRatio(double encoderStepSoftRatio);
+	/// Start a move to the value setpoint (reimplemented)
+	virtual FailureExplanation move(double setpoint);
 
 signals:
 	/// Emitted when the (EGU) velocity setting changes
@@ -393,6 +410,9 @@ protected slots:
 	void onEncoderMovementTypeChanged(double value);
 
 protected:
+	/// the baseName of the MAXvMotor PVs
+	QString pvBaseName_;
+
 	/// Read-write control for the (EGU) velocity setting
 	AMPVControl *EGUVelocity_;
 	/// Read-write control for (EGU) base velocity setting
@@ -422,6 +442,9 @@ protected:
 	AMReadOnlyPVControl *cwLimit_;
 	/// Readonly contorl for whether or not the motor is at the CCW limit
 	AMReadOnlyPVControl *ccwLimit_;
+
+	/// Readonly contorl for PV status, which can be used as the statusTagControl for control editor
+	AMReadOnlyPVControl *statusPVControl_;
 
 	/// Read-write control for the power state settings
 	AMPVControl *powerState_;
