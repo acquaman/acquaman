@@ -348,7 +348,11 @@ bool AMnDDeadTimeAB::axisValues(int axisNumber, int startIndex, int endIndex, AM
 
 void AMnDDeadTimeAB::onInputSourceValuesChanged(const AMnDIndex& start, const AMnDIndex& end)
 {
-	emitValuesChanged(start, end);
+	if (start.rank() == axes_.size() && end.rank() == axes_.size())
+		emitValuesChanged(start, end);
+
+	else
+		emitValuesChanged();
 }
 
 void AMnDDeadTimeAB::onInputSourceSizeChanged()

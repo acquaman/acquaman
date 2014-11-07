@@ -217,7 +217,11 @@ bool AM2DDeadTimeAB::axisValues(int axisNumber, int startIndex, int endIndex, AM
 // Connected to be called when the values of the input data source change
 void AM2DDeadTimeAB::onInputSourceValuesChanged(const AMnDIndex& start, const AMnDIndex& end)
 {
-	emitValuesChanged(start, end);
+	if (start.rank() == axes_.size() && end.rank() == axes_.size())
+		emitValuesChanged(start, end);
+
+	else
+		emitValuesChanged();
 }
 
 // Connected to be called when the size of the input source changes

@@ -530,10 +530,52 @@ void AM4DBinningAB::onInputSourceValuesChanged(const AMnDIndex& start, const AMn
 	if(start.isValid() && end.isValid()) {
 
 		int offset = start.product();
+
+		AMnDIndex startIndex = AMnDIndex(3, AMnDIndex::DoInit, 0);
+		AMnDIndex endIndex = AMnDIndex(3, AMnDIndex::DoInit, 0);
+
+		switch (sumAxis_){
+
+		case 0:
+
+			startIndex[0] = start.at(1);
+			startIndex[1] = start.at(2);
+			startIndex[2] = start.at(3);
+			endIndex[0] = end.at(1);
+			endIndex[1] = end.at(2);
+			endIndex[2] = end.at(3);
+
+			break;
+
+		case 1:
+
+			startIndex[0] = start.at(0);
+			startIndex[1] = start.at(2);
+			startIndex[2] = start.at(3);
+			endIndex[0] = end.at(0);
+			endIndex[1] = end.at(2);
+			endIndex[2] = end.at(3);
+
+			break;
+
+		case 2:
+
+			startIndex[0] = start.at(0);
+			startIndex[1] = start.at(1);
+			startIndex[2] = start.at(2);
+			endIndex[0] = end.at(0);
+			endIndex[1] = end.at(1);
+			endIndex[2] = end.at(2);
+
+			break;
+		}
+
 		int totalPoints = start.totalPointsTo(end);
+
 		for(int i = offset, count = totalPoints + offset; i < count; i++)
 			cachedValues_[i] = AM3DMAGICNUMBER;	// invalidate the changed region
-		emitValuesChanged(start, end);
+
+		emitValuesChanged(startIndex, endIndex);
 	}
 	else {
 		invalidateCache();
