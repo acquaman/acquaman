@@ -13,7 +13,7 @@
 #include <QList>
 #include <QStringBuilder>
 
-#include "dataman/export/AMExporterOptionGeneralAscii.h"
+#include "dataman/export/AMExporterOptionSMAK.h"
 #include "dataman/database/AMDbObjectSupport.h"
 
 namespace SXRMB {
@@ -83,6 +83,42 @@ namespace SXRMB {
 		sxrmbExporterOption->setSeparateHigherDimensionalSources(true);
 		sxrmbExporterOption->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.dat");
 		sxrmbExporterOption->setHigherDimensionsInRows(exportSpectraInRows);
+		sxrmbExporterOption->storeToDb(AMDatabase::database("user"));
+
+		return sxrmbExporterOption;
+	}
+
+	/// Builds the SMAK exporter option used for all exported scans.
+	inline AMExporterOptionSMAK *buildSMAKExporterOption(const QString &name, bool includeHigherOrderSources, bool hasGotoPosition, bool addeVFeedbackMessage, bool exportSpectraInRows)
+	{
+		QList<int> matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionSMAK>(), "name", name);
+
+		AMExporterOptionSMAK *sxrmbExporterOption = new AMExporterOptionSMAK();
+
+		if (matchIDs.count() != 0)
+			sxrmbExporterOption->loadFromDb(AMDatabase::database("user"), matchIDs.at(0));
+
+		sxrmbExporterOption->setName(name);
+		sxrmbExporterOption->setFileName("$name_$fsIndex.dat");
+		if (hasGotoPosition && addeVFeedbackMessage)
+			sxrmbExporterOption->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[header]\nActual Horizontal Position:\t$controlValue[Horizontal Sample Stage] mm\nActual Vertical Position:\t$controlValue[Vertical Sample Stage] mm\n\n$notes\nNote that I0.X is the energy feedback.\n\n");
+		else if (hasGotoPosition)
+			sxrmbExporterOption->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[header]\nActual Horizontal Position:\t$controlValue[Horizontal Sample Stage] mm\n\n$notes\n\n");
+		else
+			sxrmbExporterOption->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[header]\n\n$notes\n\n");
+		sxrmbExporterOption->setHeaderIncluded(true);
+		sxrmbExporterOption->setColumnHeader("$dataSetName $dataSetInfoDescription");
+		sxrmbExporterOption->setColumnHeaderIncluded(true);
+		sxrmbExporterOption->setColumnHeaderDelimiter("");
+		sxrmbExporterOption->setSectionHeader("");
+		sxrmbExporterOption->setSectionHeaderIncluded(true);
+		sxrmbExporterOption->setIncludeAllDataSources(true);
+		sxrmbExporterOption->setFirstColumnOnly(true);
+		sxrmbExporterOption->setIncludeHigherDimensionSources(includeHigherOrderSources);
+		sxrmbExporterOption->setSeparateHigherDimensionalSources(true);
+		sxrmbExporterOption->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.dat");
+		sxrmbExporterOption->setHigherDimensionsInRows(exportSpectraInRows);
+		sxrmbExporterOption->setRegExpString("Ka1|Kb1|La1|Lb1|Lg1|I0Detector|TEYDetector");
 		sxrmbExporterOption->storeToDb(AMDatabase::database("user"));
 
 		return sxrmbExporterOption;

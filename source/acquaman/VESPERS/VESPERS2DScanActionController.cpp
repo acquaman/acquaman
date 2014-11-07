@@ -26,7 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/VESPERS/VESPERSBeamline.h"
 #include "dataman/AM2DScan.h"
 #include "dataman/database/AMDbObjectSupport.h"
-#include "dataman/export/AMExporterOptionGeneralAscii.h"
+#include "dataman/export/AMExporterOptionSMAK.h"
 #include "dataman/export/VESPERS/VESPERSExporter2DAscii.h"
 #include "dataman/export/VESPERS/VESPERSExporterSMAK.h"
 #include "analysis/AM2DNormalizationAB.h"
@@ -54,9 +54,9 @@ VESPERS2DScanActionController::VESPERS2DScanActionController(VESPERS2DScanConfig
 	else{
 
 		// SMAK format requires a specific spectra file format.
-		AMExporterOptionGeneralAscii *vespersDefault = VESPERS::buildStandardExporterOption("VESPERS2DDefault", configuration_->exportSpectraSources(), false, false, true);
+		AMExporterOptionSMAK *vespersDefault = VESPERS::buildSMAKExporterOption("VESPERS2DDefault", configuration_->exportSpectraSources(), false, false, true);
 		if(vespersDefault->id() > 0)
-			AMAppControllerSupport::registerClass<VESPERS2DScanConfiguration, VESPERSExporterSMAK, AMExporterOptionGeneralAscii>(vespersDefault->id());
+			AMAppControllerSupport::registerClass<VESPERS2DScanConfiguration, VESPERSExporterSMAK, AMExporterOptionSMAK>(vespersDefault->id());
 	}
 
 	int yPoints = int(round((double(configuration_->scanAxisAt(1)->regionAt(0)->regionEnd()) - double(configuration_->scanAxisAt(1)->regionAt(0)->regionStart()))/double(configuration_->scanAxisAt(1)->regionAt(0)->regionStep()))) + 1;

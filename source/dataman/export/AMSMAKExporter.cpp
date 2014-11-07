@@ -74,7 +74,7 @@ QString AMSMAKExporter::exportScan(const AMScan *scan, const QString &destinatio
 
 	// prepare scan and option
 	setCurrentScan(scan);
-	option_ = qobject_cast<const AMExporterOptionGeneralAscii*>(option);
+	option_ = qobject_cast<const AMExporterOptionSMAK*>(option);
 	if(!option_) {
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -2, "Invalid options specified for the General Ascii Exporter. Please report this bug to the Acquaman developers."));
 		return QString();
@@ -252,10 +252,11 @@ void AMSMAKExporter::writeSMAKFile()
 	int yRange = currentScan_->scanSize(1);
 	int xRange = currentScan_->scanSize(0);
 
+	const AMExporterOptionSMAK *smakOption = qobject_cast<const AMExporterOptionSMAK *>(option_);
 	QList<AMDataSource *> sources;
 
 	for (int i = 0; i < currentScan_->dataSourceCount(); i++)
-		if (currentScan_->dataSourceAt(i)->name().contains(QRegExp("Ka1|Kb1|La1|Lb1|Lg1|I0Detector|TEYDetector")))
+		if (currentScan_->dataSourceAt(i)->name().contains(QRegExp(smakOption->regExpString())))
 			sources.append(currentScan_->dataSourceAt(i));
 
 	ts << QString("* Abscissa points :\t%1\n").arg(xRange);
