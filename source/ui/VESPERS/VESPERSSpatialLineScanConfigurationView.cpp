@@ -87,6 +87,18 @@ VESPERSSpatialLineScanConfigurationView::VESPERSSpatialLineScanConfigurationView
 	otherPositionLayout->addWidget(otherPosition_);
 	otherPositionLayout->addStretch();
 
+	normalPosition_ = createPositionDoubleSpinBox("N: ", " mm", configuration_->normalPosition(), 3);
+	connect(normalPosition_, SIGNAL(editingFinished()), this, SLOT(onNormalPositionChanged()));
+	connect(configuration_->dbObject(), SIGNAL(normalPositionChanged(double)), normalPosition_, SLOT(setValue(double)));
+
+	QPushButton *updateNormalPosition = new QPushButton("Set Normal");
+	connect(updateNormalPosition, SIGNAL(clicked()), this, SLOT(onSetNormalPosition()));
+
+	QHBoxLayout *normalLayout = new QHBoxLayout;
+	normalLayout->addWidget(new QLabel("Focus Position:"));
+	normalLayout->addWidget(normalPosition_);
+	normalLayout->addWidget(updateNormalPosition);
+
 	mapInfo_ = new QLabel;
 	updateMapInfo();
 
@@ -95,6 +107,7 @@ VESPERSSpatialLineScanConfigurationView::VESPERSSpatialLineScanConfigurationView
 	positionsLayout->addLayout(endPointLayout);
 	positionsLayout->addLayout(stepSizeLayout);
 	positionsLayout->addLayout(otherPositionLayout);
+	positionsLayout->addLayout(normalLayout);
 	positionsLayout->addWidget(mapInfo_);
 
 	positionsBox->setLayout(positionsLayout);
