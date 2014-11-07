@@ -51,23 +51,17 @@ public:
 	/// Destructor.
 	virtual ~AMStepScanActionController();
 
-	/// Returns whether it is safe to be deleted.  This is importanat due to the multi-threaded nature of the file writing.
-	virtual bool isReadyForDeletion() const;
-
 	/// Method that builds all the general aspects, such as measurements and raw data sources, and the file writer capabilities for the scan controller.
 	virtual void buildScanController();
 
 signals:
 	/// Notifier that new information/data should be written to file.
 	void requestWriteToFile(int fileRank, const QString &textToWrite);
-	/// Notifier that tells the file writer that all file writing activities are done after a scan has finished and to close all file access.
-	void finishWritingToFile();
 
 protected slots:
 	/// Handles dealing with file writer errors.
 	void onFileWriterError(AMScanActionControllerBasicFileWriter::FileWriterError error);
-	/// Handles dealing with the file writer when it changes busy state.
-	void onFileWriterIsBusy(bool isBusy);
+
 	/// Helper slot that tells AMCDFDataStore to flush it's contents to disk.  This prevents it from corrupting itself.
 	void flushCDFDataStoreToDisk();
 
@@ -117,10 +111,6 @@ protected:
 	/// Flag for when we are stopping at the end of the the line.
 	bool stoppingAtEndOfLine_;
 
-	/// Pointer to the thread that handles all the file writing.
-	QThread *fileWriterThread_;
-	/// Flag for keeping track of whether the file writer thread is busy or not.
-	bool fileWriterIsBusy_;
 	/// A timer used when using AMCDFDataStore.  After a timeout it flushes the contents to disk.
 	QTimer flushToDiskTimer_;
 };

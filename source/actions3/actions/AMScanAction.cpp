@@ -201,11 +201,18 @@ void AMScanAction::skipImplementation(const QString &command)
 void AMScanAction::scheduleForDeletion()
 {
 	qDebug() << "In AMScanAction::scheduleForDeletion()";
-	if(!controller_)
-		qDebug() << "No controller pointer";
-	else
-		qDebug() << "Controller isReadyForDeletion() " << controller_->isReadyForDeletion();
-	if(!controller_ || controller_->isReadyForDeletion()){
+
+	if(controller_){
+		qDebug() << "Going to schedule deletion on the scan controller now";
+		connect(controller_, SIGNAL(destroyed()), this, SLOT(deleteLater()));
+		controller_->scheduleForDeletion();
+		controller_ = 0;
+		hasValidScanController_ = false;
+		return;
+	}
+
+//	if(!controller_ || controller_->isReadyForDeletion()){
+	if(!controller_){
 		deleteLater();
 	}
 

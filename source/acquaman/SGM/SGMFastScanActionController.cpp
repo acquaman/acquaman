@@ -43,8 +43,6 @@ SGMFastScanActionController::SGMFastScanActionController(SGMFastScanConfiguratio
 {
 	goodInitialState_ = false;
 
-	fileWriterIsBusy_ = false;
-	readyForDeletion_ = true;
 	configuration_ = configuration;
 	insertionIndex_ = AMnDIndex(0);
 
@@ -81,12 +79,7 @@ SGMFastScanActionController::SGMFastScanActionController(SGMFastScanConfiguratio
 
 SGMFastScanActionController::~SGMFastScanActionController()
 {
-	fileWriterThread_->deleteLater();
-}
-
-bool SGMFastScanActionController::isReadyForDeletion() const{
-//	return !fileWriterIsBusy_;
-	return readyForDeletion_;
+	// No need to clean up fileWriterThread, we'll be informed to delete ourself after it is destroyed
 }
 
 void SGMFastScanActionController::buildScanController()
@@ -99,10 +92,6 @@ void SGMFastScanActionController::buildScanController()
 	scan_->setFilePath(fullPath.filePath()+".dat");	// relative path and extension (is what the database wants)
 
 	fileWriterThread_ = new QThread();
-	connect(this, SIGNAL(finished()), fileWriterThread_, SLOT(quit()));
-	connect(this, SIGNAL(cancelled()), fileWriterThread_, SLOT(quit()));
-	connect(this, SIGNAL(failed()), fileWriterThread_, SLOT(quit()));
-	connect(fileWriterThread_, SIGNAL(finished()), this, SLOT(onFileWriterThreadFinished()));
 
 	qRegisterMetaType<AMScanActionControllerBasicFileWriter::FileWriterError>("FileWriterError");
 	AMScanActionControllerBasicFileWriter *fileWriter = new AMScanActionControllerBasicFileWriter(AMUserSettings::userDataFolder+fullPath.filePath(), false);
@@ -145,28 +134,6 @@ void SGMFastScanActionController::onFileWriterError(AMScanActionControllerBasicF
 	box.setDefaultButton(acknowledgeButton_);
 
 	box.execWTimeout();
-}
-
-void SGMFastScanActionController::onFileWriterIsBusy(bool isBusy){
-	qDebug() << "FileWriter changed to busy state " << isBusy;
-
-	fileWriterIsBusy_ = isBusy;
-//	emit readyForDeletion(!fileWriterIsBusy_);
-	if(fileWriterIsBusy_){
-		readyForDeletion_ = false;
-		emit readyForDeletion(readyForDeletion_);
-	}
-//	else {
-//		connect(fileWriterThread_, SIGNAL(finished()), this, SLOT(onFileWriterThreadFinished()));
-//		qDebug() << "File writer is no longer busy, quit the thread and wait for signal";
-//		fileWriterThread_->quit();
-//	}
-}
-
-void SGMFastScanActionController::onFileWriterThreadFinished(){
-	readyForDeletion_ = true;
-	qDebug() << "Okay, ready for deletion";
-	emit readyForDeletion(readyForDeletion_);
 }
 
 void SGMFastScanActionController::onEverythingFinished(){

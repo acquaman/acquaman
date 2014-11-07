@@ -43,14 +43,14 @@ AMStepScanActionController::AMStepScanActionController(AMStepScanConfiguration *
 	: AMScanActionController(configuration, parent)
 {
 	stepConfiguration_ = configuration;
-	fileWriterIsBusy_ = false;
+
 	useFeedback_ = false;
 	stoppingAtEndOfLine_ = false;
 }
 
 AMStepScanActionController::~AMStepScanActionController()
 {
-	fileWriterThread_->deleteLater();
+	// No need to clean up fileWriterThread, we'll be informed to delete ourself after it is destroyed
 }
 
 void AMStepScanActionController::createScanAssembler()
@@ -149,9 +149,6 @@ void AMStepScanActionController::buildScanController()
 	connect(this, SIGNAL(finishWritingToFile()), fileWriter, SLOT(finishWriting()));
 
 	fileWriterThread_ = new QThread();
-	connect(this, SIGNAL(finished()), fileWriterThread_, SLOT(quit()));
-	connect(this, SIGNAL(cancelled()), fileWriterThread_, SLOT(quit()));
-	connect(this, SIGNAL(failed()), fileWriterThread_, SLOT(quit()));
 	fileWriter->moveToThread(fileWriterThread_);
 	fileWriterThread_->start();
 
@@ -174,11 +171,6 @@ void AMStepScanActionController::buildScanController()
 
 	else
 		setFailed();
-}
-
-bool AMStepScanActionController::isReadyForDeletion() const
-{
-	return !fileWriterIsBusy_;
 }
 
 void AMStepScanActionController::flushCDFDataStoreToDisk()
@@ -227,12 +219,6 @@ void AMStepScanActionController::onFileWriterError(AMScanActionControllerBasicFi
 	box.execWTimeout();
 }
 
-void AMStepScanActionController::onFileWriterIsBusy(bool isBusy)
-{
-	fileWriterIsBusy_ = isBusy;
-	emit readyForDeletion(!fileWriterIsBusy_);
-}
-
 bool AMStepScanActionController::event(QEvent *e)
 {
 	if (e->type() == (QEvent::Type)AMAgnosticDataAPIDefinitions::MessageEvent){
@@ -270,6 +256,7 @@ bool AMStepScanActionController::event(QEvent *e)
 
 				connect(AMActionRunner3::scanActionRunner()->currentAction(), SIGNAL(cancelled()), this, SLOT(onScanningActionsSucceeded()));
 				AMActionRunner3::scanActionRunner()->cancelCurrentAction();
+				emit finishWritingToFile();
 			}
 
 			break;}
@@ -289,6 +276,7 @@ bool AMStepScanActionController::event(QEvent *e)
 
 				connect(AMActionRunner3::scanActionRunner()->currentAction(), SIGNAL(cancelled()), this, SLOT(onScanningActionsSucceeded()));
 				AMActionRunner3::scanActionRunner()->cancelCurrentAction();
+				emit finishWritingToFile();
 			}
 
 			break;

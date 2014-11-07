@@ -42,7 +42,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 AMTimedScanActionController::AMTimedScanActionController(AMTimedRegionScanConfiguration *configuration, QObject *parent)
 	: AMScanActionController(configuration, parent)
 {
-	fileWriterIsBusy_ = false;
 	timedRegionsConfiguration_ = configuration;
 	currentAxisValueIndex_ = AMnDIndex(0);
 	currentAxisValue_ = 0.0;
@@ -51,7 +50,7 @@ AMTimedScanActionController::AMTimedScanActionController(AMTimedRegionScanConfig
 
 AMTimedScanActionController::~AMTimedScanActionController()
 {
-	fileWriterThread_->deleteLater();
+	// No need to clean up fileWriterThread, we'll be informed to delete ourself after it is destroyed}
 }
 
 void AMTimedScanActionController::buildScanController()
@@ -136,10 +135,23 @@ void AMTimedScanActionController::buildScanController()
 	buildScanControllerImplementation();
 }
 
-bool AMTimedScanActionController::isReadyForDeletion() const
-{
-	return !fileWriterIsBusy_;
-}
+//void AMTimedScanActionController::scheduleForDeletion()
+//{
+//	connect(fileWriterThread_, SIGNAL(destroyed()), this, SLOT(deleteLater()));
+//	if(!fileWriterIsBusy_ && fileWriterThread_->isFinished()){
+//		qDebug() << "Going to clean up the fast scan controller because we're ready right now";
+//		fileWriterThread_->deleteLater();
+//	}
+//	else if(!fileWriterIsBusy_){
+//		qDebug() << "Catch the file writer once its done but before the thread is cleaned up";
+//		deleteFileWriterImmediately_ = true;
+//	}
+//	else{
+//		qDebug() << "Cancel or fail I guess, do manual clean up";
+//		deleteFileWriterImmediately_ = true;
+//		emit finishWritingToFile();
+//	}
+//}
 
 void AMTimedScanActionController::flushCDFDataStoreToDisk()
 {
@@ -185,12 +197,6 @@ void AMTimedScanActionController::onFileWriterError(AMScanActionControllerBasicF
 	box.setDefaultButton(acknowledgeButton_);
 
 	box.execWTimeout();
-}
-
-void AMTimedScanActionController::onFileWriterIsBusy(bool isBusy)
-{
-	fileWriterIsBusy_ = isBusy;
-	emit readyForDeletion(!fileWriterIsBusy_);
 }
 
 bool AMTimedScanActionController::event(QEvent *e)
