@@ -21,9 +21,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AM1DDarkCurrentCorrectionAB.h"
 #include <QDebug>
 
- AM1DDarkCurrentCorrectionAB::~AM1DDarkCurrentCorrectionAB(){}
-AM1DDarkCurrentCorrectionAB::AM1DDarkCurrentCorrectionAB(const QString &outputName, QObject *parent)
-    : AMStandardAnalysisBlock(outputName, parent)
+AM1DDarkCurrentCorrectionAB::AM1DDarkCurrentCorrectionAB(const QString &outputName, QObject *parent) :
+    AMStandardAnalysisBlock(outputName, parent)
 {
     data_ = 0;
     dwellTime_ = 0;
@@ -31,14 +30,17 @@ AM1DDarkCurrentCorrectionAB::AM1DDarkCurrentCorrectionAB(const QString &outputNa
     canAnalyze_ = false;
     dataName_ = "";
     dwellTimeName_ = "";
+    timeUnitMultiplier_ = 1;
     axes_ << AMAxisInfo("invalid", 0, "No input data");
     setState(AMDataSource::InvalidFlag);
 }
 
+AM1DDarkCurrentCorrectionAB::~AM1DDarkCurrentCorrectionAB(){}
+
 bool AM1DDarkCurrentCorrectionAB::areInputDataSourcesAcceptable(const QList<AMDataSource*>& dataSources) const
 {
     if(dataSources.isEmpty())
-	return true;	// always acceptable, the null input.
+        return true;	// always acceptable, the null input.
 
     // otherwise we need two input sources, with a rank of 1.
     if(dataSources.count() == 2 && dataSources.at(0)->rank() == 1 && dataSources.at(1)->rank() == 1)
@@ -328,8 +330,6 @@ void AM1DDarkCurrentCorrectionAB::reviewState(){
     else
         setState(0);
 }
-
-//#include "analysis/AM1DDarkCurrentCorrectionABEditor.h"
 
 QWidget *AM1DDarkCurrentCorrectionAB::createEditorWidget()
 {

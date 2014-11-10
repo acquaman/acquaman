@@ -35,7 +35,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 		2) Dwell time per point
 		3) (not actually a data source) dark current correction value in counts/sec.
 
-The actual data source used by ??? is determined by the analyzed name provided.
+The actual data source used is determined by the analyzed name provided.
   */
 class AM1DDarkCurrentCorrectionAB : public AMStandardAnalysisBlock
 {
@@ -46,7 +46,7 @@ class AM1DDarkCurrentCorrectionAB : public AMStandardAnalysisBlock
 	Q_PROPERTY(double darkCurrent READ darkCurrent WRITE setDarkCurrent)
 	Q_PROPERTY(double timeUnitMultiplier READ timeUnitMultiplier WRITE setTimeUnitMultiplier)
 
-	Q_CLASSINFO("AMDbObject_Attributes", "description=1D Normalization Block")
+    Q_CLASSINFO("AMDbObject_Attributes", "description=1D Dark Current Correction Block")
 
 public:
 	/// Constructor.
