@@ -62,6 +62,8 @@ AMShapeData::AMShapeData(QPolygonF shape, QString name, QString otherDataFieldOn
 AMShapeData::~AMShapeData()
 {
 	coordinate_.clear();
+
+	delete shape_;
 }
 
 QPolygonF* AMShapeData::shape() const
