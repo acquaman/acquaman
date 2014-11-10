@@ -60,7 +60,7 @@ AMOldDetector::AMOldDetector(const QString &name, AMOldDetector::ReadMethod read
 
 AMOldDetector::~AMOldDetector() {
 	signalSource_->emitDeleted();
-	delete signalSource_;
+	signalSource_->deleteLater();
 	signalSource_ = 0;
 }
 

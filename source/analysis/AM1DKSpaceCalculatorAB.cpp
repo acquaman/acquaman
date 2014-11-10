@@ -156,6 +156,20 @@ AMNumber AM1DKSpaceCalculatorAB::axisValue(int axisNumber, int index) const
 	return data_->axisValue(axisNumber, index);
 }
 
+bool AM1DKSpaceCalculatorAB::axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const
+{
+	if (!isValid())
+		return false;
+
+	if (axisNumber != 0)
+		return false;
+
+	if (startIndex >= axes_.at(axisNumber).size || endIndex >= axes_.at(axisNumber).size)
+		return false;
+
+	return data_->axisValues(axisNumber, startIndex, endIndex, outputValues);
+}
+
 void AM1DKSpaceCalculatorAB::onInputSourceValuesChanged(const AMnDIndex& start, const AMnDIndex& end)
 {
 	emitValuesChanged(start, end);

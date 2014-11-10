@@ -22,8 +22,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMControlMoveButton.h"
 
 #include <QBoxLayout>
-#include <QFocusEvent>
+
 #include <QStringBuilder>
+
+#include "AMQEvents.h"
+
 #include "beamline/AMControl.h"
 #include "ui/beamline/AMControlEditor.h"
 
@@ -61,7 +64,7 @@ void AMControlMoveButton::setControl(AMControl *control)
 
 	// in the future: if we wanted to be slightly more efficient, could update the context menu to give it an editor for the new control instead of just deleting it and letting a new one be created.
 	if(contextMenu_) {
-		delete contextMenu_;
+		contextMenu_->deleteLater();
 		contextMenu_ = 0;
 	}
 
@@ -112,7 +115,7 @@ bool AMControlMoveButton::setStepSizes(const QList<double> &stepSizes)
 
 	// in the future: if we wanted to be slightly more efficient, could update the context menu instead of letting a whole new one be created.
 	if(contextMenu_) {
-		delete contextMenu_;
+		contextMenu_->deleteLater();
 		contextMenu_ = 0;
 	}
 

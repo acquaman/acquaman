@@ -787,7 +787,7 @@ void AMDbObject::updateThumbnailsInSeparateThread(AMDatabase *db, int id, const 
 	QCoreApplication::postEvent(AMDbObjectSupport::s(), new AMDbThumbnailsGeneratedEvent(thumbnails, db, dbTableName, id, neverSavedHereBefore));
 
 	// And now we're done with the object...
-	delete object;
+	object->deleteLater();
 }
 
 void AMDbObject::updateThumbnailsInCurrentThread(bool neverSavedHereBefore)

@@ -159,7 +159,7 @@ void AMListAction3::setLoggingDatabase(AMDatabase *loggingDatabase){
 bool AMListAction3::deleteSubAction(int index)
 {
 	AMAction3* action = takeSubActionAt(index);
-	delete action;	// harmless if 0
+	action->deleteLater();	// harmless if 0
 
 	return (action != 0);
 }

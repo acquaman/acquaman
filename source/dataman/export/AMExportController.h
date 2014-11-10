@@ -146,6 +146,8 @@ public:
 		return 0;
 	}
 
+	/// Converts a database url into a scan
+	AMScan* scanFromUrl(const QUrl& scanUrl);
 
 	/// Call this to select and load an exporter subclass (using the class name of an exporter registered previously, using registerExporter()).  Returns true if valid.  Once this has been called and has returned true, exporter() will return a valid instance.
 	bool chooseExporter(const QString& exporterClassName);

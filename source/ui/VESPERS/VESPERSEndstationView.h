@@ -27,9 +27,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/VESPERS/VESPERSEndstation.h"
 #include "ui/VESPERS/VESPERSMotorView.h"
 
+#include "AMQEvents.h"
+
 #include <QLineEdit>
 #include <QStringList>
-#include <QCloseEvent>
 #include <QSlider>
 #include <QToolButton>
 #include <QMap>

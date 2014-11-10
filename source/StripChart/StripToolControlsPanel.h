@@ -22,8 +22,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef STRIPTOOLCONTROLSPANEL_H
 #define STRIPTOOLCONTROLSPANEL_H
 
+#include "AMQtGui.h"
+
 #include <QWidget>
-#include <QtGui>
 
 #include "StripChart/StripToolModel.h"
 #include "StripChart/EntryWidget.h"

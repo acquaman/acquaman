@@ -25,6 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <cmath>
 
 #include "ui/VESPERS/VESPERS3DScanConfigurationView.h"
+#include "acquaman/VESPERS/VESPERS3DScanActionController.h"
 
 VESPERS3DScanConfiguration::~VESPERS3DScanConfiguration(){}
 
@@ -96,7 +97,10 @@ AMScanConfiguration * VESPERS3DScanConfiguration::createCopy() const
 
 AMScanController * VESPERS3DScanConfiguration::createController()
 {
-	return 0; //NULL
+	AMScanActionController *controller = new VESPERS3DScanActionController(this);
+	controller->buildScanController();
+
+	return controller;
 }
 
 AMScanConfigurationView * VESPERS3DScanConfiguration::createView()

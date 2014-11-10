@@ -65,7 +65,7 @@ AMActionRunner3 * AMActionRunner3::workflow()
 
 void AMActionRunner3::releaseWorkflow()
 {
-	delete workflowInstance_;
+	workflowInstance_->deleteLater();
 	workflowInstance_ = 0;
 }
 
@@ -76,7 +76,7 @@ AMActionRunner3* AMActionRunner3::scanActionRunner(){
 }
 
 void AMActionRunner3::releaseScanActionRunner(){
-	delete scanActionRunnerInstance_;
+	scanActionRunnerInstance_->deleteLater();
 	scanActionRunnerInstance_ = 0;
 }
 
@@ -235,7 +235,7 @@ bool AMActionRunner3::deleteActionInQueue(int index)
 	emit queuedActionRemoved(index);
 	disconnect(action->info(), SIGNAL(infoChanged()), this, SIGNAL(queuedActionInfoChanged()));
 
-	delete action;
+	action->deleteLater();
 
 	return true;
 }

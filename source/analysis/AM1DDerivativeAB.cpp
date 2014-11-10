@@ -481,6 +481,20 @@ AMNumber AM1DDerivativeAB::axisValue(int axisNumber, int index) const
 
 }
 
+bool AM1DDerivativeAB::axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const
+{
+	if (!isValid())
+		return false;
+
+	if (axisNumber != 0)
+		return false;
+
+	if (startIndex >= axes_.at(axisNumber).size || endIndex >= axes_.at(axisNumber).size)
+		return false;
+
+	return inputSource_->axisValues(axisNumber, startIndex, endIndex, outputValues);
+}
+
 void AM1DDerivativeAB::onInputSourceValuesChanged(const AMnDIndex& start, const AMnDIndex& end)
 {
 	emitValuesChanged(start, end);

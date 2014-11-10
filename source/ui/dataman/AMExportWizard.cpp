@@ -352,7 +352,7 @@ void AMExportWizardOptionPage::initializePage()
 
 void AMExportWizardOptionPage::onOptionSelectorIndexChanged(int index)
 {
-	delete optionView_;	// might be 0 if no option yet... or if last option couldn't create an editor. but that's okay.
+	optionView_->deleteLater();	// might be 0 if no option yet... or if last option couldn't create an editor. but that's okay.
 
 	// add new option...
 	if(index < 1) {
@@ -410,7 +410,17 @@ void AMExportWizardOptionPage::populateOptionSelector()
 		q.finish();
 	}
 
-	optionSelector_->setCurrentIndex(optionSelector_->count()-1);
+	if(controller_->option())
+	{
+		QString controllerOptionName = controller_->option()->name();
+
+		for (int iComboBoxOption = 0, size = optionSelector_->count(); iComboBoxOption < size; iComboBoxOption++)
+		{
+			if(optionSelector_->itemText(iComboBoxOption) == controllerOptionName)
+				optionSelector_->setCurrentIndex(iComboBoxOption);
+		}
+	}
+
 	optionSelector_->blockSignals(false);
 
 	onOptionSelectorIndexChanged(optionSelector_->count()-1);

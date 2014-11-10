@@ -59,9 +59,10 @@ AMScanViewScanBar::AMScanViewScanBar(AMScanSetModel* model, int scanIndex, QWidg
 
 
 	if(source) {
-		for(int i=0; i<source->dataSourceCount(); i++) {
-			QColor color = model->plotColor(scanIndex, i);
 
+		for(int i=0; i<source->dataSourceCount(); i++) {
+
+			QColor color = model->plotColor(scanIndex, i);
 			QToolButton* sourceButton = new AMColoredTextToolButton(color); /// \todo special buttons, with lines underneath that show the line color / style, and differentiate 1D, 2D datasets.
 
 			sourceButton->setMaximumHeight(18);
@@ -152,7 +153,7 @@ void AMScanViewScanBar::onRowAboutToBeRemoved(const QModelIndex& parent, int sta
 	for(int di = end; di>=start; di-- ) {
 
 		sourceButtons_.button(di)->disconnect();
-		delete sourceButtons_.button(di);
+		sourceButtons_.button(di)->deleteLater();
 		// the button group's id's from "start+1" to "count+1" are too high now...
 		for(int i=di+1; i<sourceButtons_.buttons().count()+1; i++)
 			sourceButtons_.setId(sourceButtons_.button(i), i-1);
@@ -291,14 +292,8 @@ void AMScanViewScanBarContextMenu::hideAllExceptDataSource()
 
 	int dataSourceCount = scan->dataSourceCount();
 
-	for (int i = 0; i < dataSourceCount; i++){
-
-		if (i == dataSourceIndex)
-			model_->setVisible(scanIndex, i, true);
-
-		else
-			model_->setVisible(scanIndex, i, false);
-	}
+	for (int i = 0; i < dataSourceCount; i++)
+			model_->setVisible(scanIndex, i, i == dataSourceIndex);
 }
 
 void AMScanViewScanBarContextMenu::showAllDataSource()
@@ -308,24 +303,11 @@ void AMScanViewScanBarContextMenu::showAllDataSource()
 
 	int scanIndex = pi_.parent().row();
 	int dataSourceIndex = pi_.row();
-
 	QString nameOfDataSource(model_->dataSourceAt(scanIndex, dataSourceIndex)->name());
-	int scanCount = model_->scanCount();
-	int dataSourceCount = 0;
 
-	for (int i = 0; i < scanCount; i++){
-
-		dataSourceCount = model_->scanAt(i)->dataSourceCount();
-
-		for (int j = 0; j < dataSourceCount; j++){
-
-			if (model_->dataSourceAt(i, j)->name() == nameOfDataSource)
-				model_->setVisible(i, j, true);
-
-			else
-				model_->setVisible(i, j, false);
-		}
-	}
+	for (int i = 0, scanCount = model_->scanCount(); i < scanCount; i++)
+		for (int j = 0, dataSourceCount = model_->scanAt(i)->dataSourceCount(); j < dataSourceCount; j++)
+				model_->setVisible(i, j, model_->dataSourceAt(i, j)->name() == nameOfDataSource);
 }
 
 void AMScanViewScanBarContextMenu::showAll()
@@ -758,7 +740,7 @@ void AMScanViewSingleSpectrumView::setDataSources(QList<AMDataSource *> sources)
 
 		sourceButtons_->removeButton(button);
 		sourceButtonsLayout_->removeWidget(button);
-		delete button;
+		button->deleteLater();
 	}
 
 	buttons.clear();

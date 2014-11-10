@@ -105,6 +105,7 @@ void VESPERSMotorView::setControl(AMControl *control)
 	connect(jogLeft_, SIGNAL(clicked()), this, SLOT(jogLeft()));
 	connect(jogRight_, SIGNAL(clicked()), this, SLOT(jogRight()));
 
+//	this->layout()->deleteLater();
 	delete this->layout();
 
 	QGridLayout *layout = new QGridLayout;
@@ -166,6 +167,7 @@ void VESPERSMotorView::setControl(AMControl *control, double lowLimit, double hi
 	connect(jogLeft_, SIGNAL(clicked()), this, SLOT(jogLeft()));
 	connect(jogRight_, SIGNAL(clicked()), this, SLOT(jogRight()));
 
+//	this->layout()->deleteLater();
 	delete this->layout();
 
 	QGridLayout *layout = new QGridLayout;
@@ -219,6 +221,7 @@ void VESPERSMotorView::setControl(AMControl *control, double firstSetpoint, doub
 	connect(firstSetpointButton_, SIGNAL(clicked()), this, SLOT(moveToFirstSetpoint()));
 	connect(secondSetpointButton_, SIGNAL(clicked()), this, SLOT(moveToSecondSetpoint()));
 
+//	this->layout()->deleteLater();
 	delete this->layout();
 
 	QGridLayout *layout = new QGridLayout;

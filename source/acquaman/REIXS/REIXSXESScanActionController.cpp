@@ -24,7 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMXESScan.h"
 #include "acquaman/REIXS/REIXSXESScanConfiguration.h"
 #include "beamline/REIXS/REIXSBeamline.h"
-#include "analysis/REIXS/REIXSXESImageAB.h"
+#include "analysis/REIXS/REIXSXESImageInterpolationAB.h"
 #include "dataman/datastore/AMCDFDataStore.h"
 #include "dataman/AMTextStream.h"
 
@@ -75,7 +75,7 @@ REIXSXESScanActionController::REIXSXESScanActionController(REIXSXESScanConfigura
 
 REIXSXESScanActionController::~REIXSXESScanActionController()
 {
-	delete fileWriterThread_;
+	fileWriterThread_->deleteLater();
 }
 
 void REIXSXESScanActionController::buildScanController()
@@ -121,12 +121,8 @@ void REIXSXESScanActionController::buildScanController()
 
 void REIXSXESScanActionController::buildScanControllerImplementation()
 {
-	REIXSXESImageAB* xesSpectrum = new REIXSXESImageAB("xesSpectrum");
+	REIXSXESImageInterpolationAB* xesSpectrum = new REIXSXESImageInterpolationAB("xesSpectrum");
 	xesSpectrum->setInputDataSources(QList<AMDataSource*>() << scan_->rawDataSources()->at(0));
-	xesSpectrum->setSumRangeMaxY(58);
-	xesSpectrum->setSumRangeMinY(5);
-	xesSpectrum->setCorrelationHalfWidth(100);	// monitor for performance. Makes nicer fits when wider.
-	xesSpectrum->enableLiveCorrelation(true);
 	scan_->addAnalyzedDataSource(xesSpectrum);
 }
 

@@ -27,6 +27,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QTextCursor>
 #include <QDebug>
 
+#include "AMQEvents.h"
+
 AMGraphicsTextItem::AMGraphicsTextItem(QGraphicsItem* parent, QGraphicsScene* scene) :
 	QGraphicsTextItem(parent,scene)
 {
@@ -141,7 +143,6 @@ void AMGraphicsTextItem::focusOutEvent(QFocusEvent *event)
 	clearSelection();
 }
 
-#include <QKeyEvent>
 void AMGraphicsTextItem::keyPressEvent(QKeyEvent *event){
 	if(event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return){
 		emit returnPressed(shapeIndex_);

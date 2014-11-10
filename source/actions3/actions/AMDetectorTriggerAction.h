@@ -34,7 +34,7 @@ class AMDetectorTriggerAction : public AMAction3
 Q_OBJECT
 public:
 	/// Constructor. Requires and takes ownership of an existing AMDetectorTriggerActionInfo \c info.  Provides a AMDetector \param control that will be controlled.  If the default is used instead, then a lookup based on AMBeamline::exposedDetectors will be used instead.
- 	virtual ~AMDetectorTriggerAction();
+	virtual ~AMDetectorTriggerAction();
 	AMDetectorTriggerAction(AMDetectorTriggerActionInfo *info, AMDetector *detector = 0, QObject *parent = 0);
 
 	/// Copy Constructor
@@ -77,6 +77,8 @@ protected slots:
 	void onAcquisitionStarted();
 	void onAcquisitionSucceeded();
 	void onAcquisitionFailed();
+	/// Handles starting the detector once it's ready for acquisition.
+	void onDetectorReadyForAcquisition();
 
 protected:
 	/// We can always access our info object via info_ or info(), but it will come back as a AMActionInfo* pointer that we would need to cast to AMDetectorInitializeActionInfo. This makes it easier to access.

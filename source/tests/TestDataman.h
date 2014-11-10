@@ -20,7 +20,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
-#include <QtTest/QtTest>
+#include "AMQtTest.h"
+
 #include "dataman/database/AMDatabase.h"
 #include "dataman/AMScan.h"
 #include "dataman/AMXASScan.h"
