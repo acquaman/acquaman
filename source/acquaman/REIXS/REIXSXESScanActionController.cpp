@@ -75,7 +75,8 @@ REIXSXESScanActionController::REIXSXESScanActionController(REIXSXESScanConfigura
 
 REIXSXESScanActionController::~REIXSXESScanActionController()
 {
-	fileWriterThread_->deleteLater();
+	// No need to clean up fileWriterThread, we'll be informed to delete ourself after it is destroyed
+//	fileWriterThread_->deleteLater();
 }
 
 void REIXSXESScanActionController::buildScanController()
@@ -513,6 +514,9 @@ void REIXSXESScanActionController::writeDataToFiles()
 	*/
 
 	emit requestWriteToFile(2, rank1String);
+
+	// Do we have to wait for something else?
+	emit finishWritingToFile();
 }
 
 void REIXSXESScanActionController::onFileWriterError(AMScanActionControllerBasicFileWriter::FileWriterError error)
@@ -554,14 +558,14 @@ void REIXSXESScanActionController::onFileWriterError(AMScanActionControllerBasic
 	box.execWTimeout();
 }
 
-void REIXSXESScanActionController::onFileWriterIsBusy(bool isBusy)
-{
-	fileWriterIsBusy_ = isBusy;
-	emit readyForDeletion(!fileWriterIsBusy_);
-}
+//void REIXSXESScanActionController::onFileWriterIsBusy(bool isBusy)
+//{
+//	fileWriterIsBusy_ = isBusy;
+//	emit readyForDeletion(!fileWriterIsBusy_);
+//}
 
 void REIXSXESScanActionController::onScanControllerFinished()
 {
 	writeDataToFiles();
-	fileWriterThread_->quit();
+//	fileWriterThread_->quit();
 }

@@ -56,14 +56,10 @@ public:
 signals:
 	/// Notifier that new information/data should be written to file.
 	void requestWriteToFile(int fileRank, const QString &textToWrite);
-	/// Notifier that tells the file writer that all file writing activities are done after a scan has finished and to close all file access.
-	void finishWritingToFile();
 
 protected slots:
 	/// Handles dealing with file writer errors.
 	void onFileWriterError(AMScanActionControllerBasicFileWriter::FileWriterError error);
-	/// Handles dealing with the file writer when it changes busy state.
-	void onFileWriterIsBusy(bool isBusy);
 
 	void onEverythingFinished();
 
@@ -103,9 +99,6 @@ protected:
 
 	QMap< QString, QVector<double> > allDataMap_;
 	AMnDIndex insertionIndex_;
-
-	QThread *fileWriterThread_;
-	bool fileWriterIsBusy_;
 
 	bool goodInitialState_;
 };

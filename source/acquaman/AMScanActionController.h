@@ -26,6 +26,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "actions3/AMAction3.h"
 
+class QThread;
+
 #define AMSCANACTIONCONTROLLER_CANNOT_INTIALIZE 262001
 #define AMSCANACTIONCONTROLLER_CANNOT_PAUSE 262002
 #define AMSCANACTIONCONTROLLER_CANNOT_RESUME 262003
@@ -49,8 +51,15 @@ public:
 	virtual void buildScanController() = 0;
 
 signals:
+	/// Relays that the fileWriterIsBusy flag has changed
+	void fileWriterIsBusyChanged(bool fileWriterIsBusy);
+
+	/// Notifier that tells the file writer that all file writing activities are done after a scan has finished and to close all file access.
+	void finishWritingToFile();
 
 public slots:
+	/// Call to tell the scan controller that it should clean up itself and its components
+	virtual void scheduleForDeletion();
 
 protected slots:
 	/// Helper slot that ensures all the necessary database and event handler clean up is done.  Closes any open database transaction and removes this object from the QEvent receiver list.
@@ -70,6 +79,14 @@ protected slots:
 	virtual void onScanningActionsSucceeded();
 	/// Handles starting the cleanup actions list after the scan controller actions tree failed.  Can be reimplemented for more specific behaviour.
 	virtual void onScanningActionsFailed();
+
+	/// Handles dealing with the file writer when it changes busy state.
+	void onFileWriterIsBusy(bool isBusy);
+	/// Handles notifying that we're ready for deletion once the fileWriter thread has been cleaned up and emits finished
+	void onFileWriterThreadFinished();
+
+	/// Handles the current action succeeding during a skip command
+	virtual void onSkipCurrentActionSucceeded();
 
 protected:
 	/// Method that does all the subclass specific additions, such as analysis blocks.
@@ -95,6 +112,10 @@ protected:
 	/// Method that builds all the necessary actions to properly cleanup your scan.  Default does nothing, but should be reimplemented in subclasses.
 	virtual AMAction3 *createCleanupActions() { return 0; }
 
+	/// Helper function to check on whether we're in an okay state to setFinished()
+	bool readyForFinished() const;
+
+protected:
 	/// The pointer that holds the scanning actions.
 	AMAction3 *scanningActions_;
 	/// Flag holding whether the scan was successful or not.
@@ -103,6 +124,15 @@ protected:
 	AMAction3 *initializationActions_;
 	/// The cleanup actions for the scan.
 	AMAction3 *cleanupActions_;
+
+	/// Pointer to the thread that handles all the file writing.
+	QThread *fileWriterThread_;
+	/// Flag to delete file writer when finished (used for cancel and fail)
+	bool deleteFileWriterImmediately_;
+	/// Flag for keeping track of whether the file writer thread is busy or not.
+	bool fileWriterIsBusy_;
+	/// Flag for keeping track of whether the state machine has gone through a real succeeded phase
+	bool scanControllerStateMachineFinished_;
 };
 
 #endif // AMSCANACTIONCONTROLLER_H
