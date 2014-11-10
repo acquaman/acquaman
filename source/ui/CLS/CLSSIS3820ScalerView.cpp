@@ -138,13 +138,13 @@ CLSSIS3820ScalerView::CLSSIS3820ScalerView(CLSSIS3820Scaler *scaler, QWidget *pa
 	CLSSIS3820ScalerChannelView *channelView = 0;
 	int channelCount = scaler_->channels().count();
 
-	for (int i = 0; i < channelCount; i++){
+    for (int i = 0; i < channelCount; i++) {
 		CLSSIS3820ScalerChannel *channel = scaler_->channelAt(i);
 
 		if (!showDarkCurrentWidget && channel->detector() && channel->detector()->canDoDarkCurrentCorrection())
 			showDarkCurrentWidget = true;
 
-		if(channel->detector() && channel->detector()->canDoDarkCurrentCorrection())
+        if (channel->detector() && channel->detector()->canDoDarkCurrentCorrection())
 			channelView = new CLSSIS3820ScalerChannelViewWithDarkCurrent(channel);
 		else
 			channelView = new CLSSIS3820ScalerChannelView(scaler_->channelAt(i));
@@ -159,8 +159,9 @@ CLSSIS3820ScalerView::CLSSIS3820ScalerView(CLSSIS3820Scaler *scaler, QWidget *pa
 
 
 	// if one of the detectors associated with a channel can perform dark current correction, show the 'do dark current' widget.
-	if (showDarkCurrentWidget)
+    if (showDarkCurrentWidget) {
 		darkCurrentWidget->show();
+    }
 }
 
 CLSSIS3820ScalerView::~CLSSIS3820ScalerView(){}
