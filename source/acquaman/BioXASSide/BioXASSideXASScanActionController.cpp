@@ -34,12 +34,6 @@ BioXASSideXASScanActionController::BioXASSideXASScanActionController(BioXASSideX
 {
     configuration_ = configuration;
 
-    scan_ = new AMXASScan();
-    scan_->setFileFormat("amRegionAscii2013");
-    scan_->setScanConfiguration(configuration);
-    scan_->setIndexType("fileSystem");
-    scan_->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));
-
     AMControlInfoList list;
     list.append(BioXASSideBeamline::bioXAS()->mono()->energyControl()->toInfo());
     configuration_->setAxisControlInfos(list);
@@ -50,6 +44,22 @@ BioXASSideXASScanActionController::BioXASSideXASScanActionController(BioXASSideX
     bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->energyFeedbackDetector()->toInfo());
 
     configuration_->setDetectorConfigurations(bioXASDetectors);
+
+    scan_ = new AMXASScan();
+    scan_->setFileFormat("amRegionAscii2013");
+    scan_->setScanConfiguration(configuration);
+    scan_->setIndexType("fileSystem");
+    scan_->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));
+
+    AM1DDarkCurrentCorrectionAB *dccI0 = new AM1DDarkCurrentCorrectionAB("Dark Current Corrected i0");
+    dccI0->setInputDataSources(QList<AMDataSource*>() << scan_->rawDataSources()->at(0));
+    dccI0->setDarkCurrent(BioXASSideBeamline::bioXAS()->i0Detector()->darkCurrentMeasurementValue());
+    scan_->addAnalyzedDataSource(dccI0, true, false);
+
+    AM1DDarkCurrentCorrectionAB *dccIT = new AM1DDarkCurrentCorrectionAB("Dark Current Corrected iT");
+    dccIT->setInputDataSources(QList<AMDataSource*>() << scan_->rawDataSources()->at(1));
+    dccIT->setDarkCurrent(BioXASSideBeamline::bioXAS()->iTDetector()->darkCurrentMeasurementValue());
+    scan_->addAnalyzedDataSource(dccIT, true, false);
 }
 
 AMAction3* BioXASSideXASScanActionController::createInitializationActions()

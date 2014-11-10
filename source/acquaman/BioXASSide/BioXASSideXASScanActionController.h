@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define BIOXASSIDEXASSCANACTIONCONTROLLER_H
 
 #include "acquaman/AMStepScanActionController.h"
+#include "analysis/AM1DDarkCurrentCorrectionAB.h"
 
 class BioXASSideXASScanConfiguration;
 
