@@ -26,7 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 CLSSIS3820ScalerChannelViewWithDarkCurrent::CLSSIS3820ScalerChannelViewWithDarkCurrent(CLSSIS3820ScalerChannel *channel, QWidget *parent) :
     CLSSIS3820ScalerChannelView(channel, parent)
 {
-    if (channel_->detector()->canDoDarkCurrentCorrection()) {
+    if (channel_->detector() && channel_->detector()->canDoDarkCurrentCorrection()) {
 
         // Create and initialize UI elements.
 
