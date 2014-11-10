@@ -46,6 +46,7 @@ AMStepScanActionController::AMStepScanActionController(AMStepScanConfiguration *
 
 	useFeedback_ = false;
 	stoppingAtEndOfLine_ = false;
+	axisStackCounter_ = 0;
 }
 
 AMStepScanActionController::~AMStepScanActionController()
@@ -229,6 +230,8 @@ bool AMStepScanActionController::event(QEvent *e)
 
 		case AMAgnosticDataAPIDefinitions::AxisStarted:{
 
+			axisStackCounter_++;
+
 			if (message.uniqueID().contains(scan_->rawData()->scanAxisAt(0).name))
 				writeHeaderToFile();
 
@@ -243,11 +246,8 @@ bool AMStepScanActionController::event(QEvent *e)
 			if (scan_->scanRank() == 0)
 				writeDataToFiles();
 
-			if (scan_->rawData()->scanAxesCount() == 1){
-
+			if (scan_->rawData()->scanAxesCount() == 1)
 				scan_->rawData()->endInsertRows();
-				emit finishWritingToFile();
-			}
 
 			// This should be safe and fine regardless of if the CDF data store is being used or not.
 			flushCDFDataStoreToDisk();
@@ -257,6 +257,14 @@ bool AMStepScanActionController::event(QEvent *e)
 				connect(AMActionRunner3::scanActionRunner()->currentAction(), SIGNAL(cancelled()), this, SLOT(onScanningActionsSucceeded()));
 				AMActionRunner3::scanActionRunner()->cancelCurrentAction();
 				emit finishWritingToFile();
+			}
+
+			else {
+
+				axisStackCounter_--;
+
+				if (axisStackCounter_ == 0)
+					emit finishWritingToFile();
 			}
 
 			break;}

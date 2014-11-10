@@ -113,6 +113,9 @@ protected:
 
 	/// A timer used when using AMCDFDataStore.  After a timeout it flushes the contents to disk.
 	QTimer flushToDiskTimer_;
+
+	/// Axis stack counter. Keeps track of how many axes are currently running.
+	int axisStackCounter_;
 };
 
 #endif // AMSTEPSCANACTIONCONTROLLER_H
