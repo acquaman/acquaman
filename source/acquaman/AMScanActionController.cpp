@@ -50,20 +50,14 @@ AMScanActionController::AMScanActionController(AMScanConfiguration *configuratio
 void AMScanActionController::scheduleForDeletion()
 {
 	if(fileWriterThread_){
-		qDebug() << "AMScanActionController has been scheduled for deletion";
 		connect(fileWriterThread_, SIGNAL(destroyed()), this, SLOT(deleteLater()));
 
-		if(readyForFinished()){
-			qDebug() << "Going to clean up the fast scan controller because we're ready right now";
+		if(readyForFinished())
 			fileWriterThread_->deleteLater();
-		}
 		else{
-			qDebug() << "Must be waiting on the file writer thread, set to auto delete it";
 			deleteFileWriterImmediately_ = true;
-			if(fileWriterIsBusy_){
-				qDebug() << "Looks like we're also waiting on the file writer, give it a kick";
+			if(fileWriterIsBusy_)
 				emit finishWritingToFile();
-			}
 		}
 	}
 }
@@ -163,11 +157,8 @@ void AMScanActionController::resumeImplementation()
 
 void AMScanActionController::cancelImplementation()
 {
-	qDebug() << "Try to cancel";
-	if (AMActionRunner3::scanActionRunner()->cancelCurrentAction()){
-		qDebug() << "Cancelled the current action";
+	if (AMActionRunner3::scanActionRunner()->cancelCurrentAction())
 		setCancelled();
-	}
 
 	else
 		AMErrorMon::alert(this, AMSCANACTIONCONTROLLER_CANNOT_CANCEL, "Was unable to cancel the current action.");
@@ -265,22 +256,17 @@ void AMScanActionController::onScanningActionsFailed()
 
 void AMScanActionController::onFileWriterIsBusy(bool isBusy)
 {
-	qDebug() << "FileWriter changed to busy state " << isBusy;
-
 	fileWriterIsBusy_ = isBusy;
 	if(!fileWriterIsBusy_ && fileWriterThread_){
 		connect(fileWriterThread_, SIGNAL(finished()), this, SLOT(onFileWriterThreadFinished()));
-		qDebug() << "File writer is no longer busy, quit the thread and wait for signal";
 		fileWriterThread_->quit();
 	}
 }
 
 void AMScanActionController::onFileWriterThreadFinished(){
-	if(deleteFileWriterImmediately_){
-		qDebug() << "onFileWriterThreadFinished with deleteImmediately";
+	if(deleteFileWriterImmediately_)
 		fileWriterThread_->deleteLater();
-	}
-	qDebug() << "Call scanFinishHelper from onFileWriterThreadFinished";
+
 	if(readyForFinished())
 		setFinished();
 }
@@ -288,14 +274,10 @@ void AMScanActionController::onFileWriterThreadFinished(){
 void AMScanActionController::onSkipCurrentActionSucceeded(){
 	scanControllerStateMachineFinished_ = true;
 	// This shouldn't be the case, because we're skipping so the file writer is probably waiting to be told to finish
-	if(readyForFinished()){
-		qDebug() << "In skip and we can setFinished because everything is ready to go";
+	if(readyForFinished())
 		setFinished();
-	}
-	else if(fileWriterIsBusy_){
-		qDebug() << "In skip, but we have to trigger the file writer to finish";
+	else if(fileWriterIsBusy_)
 		emit finishWritingToFile();
-	}
 }
 
 void AMScanActionController::onCleanupActionsListSucceeded()

@@ -138,7 +138,7 @@ void SGMFastScanActionController::onFileWriterError(AMScanActionControllerBasicF
 
 void SGMFastScanActionController::onEverythingFinished(){
 	if(goodInitialState_ && (!SGMBeamline::sgm()->undulatorTracking()->withinTolerance(1) || !SGMBeamline::sgm()->exitSlitTracking()->withinTolerance(1)) ){
-		qDebug() << "\n\n\nDETECTED A LOSS OF TRACKING STATE\n\n";
+//		qDebug() << "\n\n\nDETECTED A LOSS OF TRACKING STATE\n\n";
 	}
 }
 

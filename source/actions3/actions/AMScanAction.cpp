@@ -200,10 +200,7 @@ void AMScanAction::skipImplementation(const QString &command)
 
 void AMScanAction::scheduleForDeletion()
 {
-	qDebug() << "In AMScanAction::scheduleForDeletion()";
-
 	if(controller_){
-		qDebug() << "Going to schedule deletion on the scan controller now";
 		connect(controller_, SIGNAL(destroyed()), this, SLOT(deleteLater()));
 		controller_->scheduleForDeletion();
 		controller_ = 0;
@@ -211,7 +208,6 @@ void AMScanAction::scheduleForDeletion()
 		return;
 	}
 
-//	if(!controller_ || controller_->isReadyForDeletion()){
 	if(!controller_){
 		deleteLater();
 	}
@@ -428,9 +424,6 @@ void AMScanAction::onControllerStateChanged()
 
 void AMScanAction::onReadyForDeletionChanged(bool isReady)
 {
-	qDebug() << "Received " << isReady << " in onReadyForDeletionChanged";
-	if(isReady){
-		qDebug() << "Delete ourself (the scan action)";
+	if(isReady)
 		deleteLater();
-	}
 }

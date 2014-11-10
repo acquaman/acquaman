@@ -183,8 +183,6 @@ void AMStepScanActionController::flushCDFDataStoreToDisk()
 
 void AMStepScanActionController::onFileWriterError(AMScanActionControllerBasicFileWriter::FileWriterError error)
 {
-	qDebug() << "Got a file writer error " << error;
-
 	QString userErrorString;
 
 	switch(error){
