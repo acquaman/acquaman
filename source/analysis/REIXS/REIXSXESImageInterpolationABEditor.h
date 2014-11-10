@@ -22,6 +22,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define REIXSXESImageInterpolationABEDITOR_H
 
 #include <QWidget>
+#include <QLineEdit>
 
 class QSpinBox;
 class QCheckBox;
@@ -31,6 +32,8 @@ class QAction;
 class QToolButton;
 class QDoubleSpinBox;
 class QComboBox;
+class QTabWidget;
+class QWidget;
 
 
 class MPlotWidget;
@@ -76,9 +79,57 @@ protected:
 
 };
 
+/// Helper class for REIXSXESImageInterpolationABEditor: Exposes REIXSXESImageInterpolationAB's shift data as MPlotAbstractSeriesData
+class REIXSXESImageInterpolationABEditorShift1Model : public QObject, public MPlotAbstractSeriesData {
+	Q_OBJECT
+public:
+	/// Constructor: exposes the shiftValues() in \c analysisBlock (must be valid).
+	REIXSXESImageInterpolationABEditorShift1Model(REIXSXESImageInterpolationAB* analysisBlock, QObject* parent = 0);
 
+	virtual qreal x(unsigned index) const;
+	virtual void xValues(unsigned indexStart, unsigned indexEnd, qreal *outputValues) const;
+	virtual qreal y(unsigned index) const;
+	virtual void yValues(unsigned indexStart, unsigned indexEnd, qreal *outputValues) const;
+	virtual int count() const;
+
+protected slots:
+	/// Called when the size of the analysis block changes: reset displayXOffset_.
+	void onOutputSizeChanged();
+	/// Called when the shift values change: calls emitDataChanged().
+	void onShiftValuesChanged();
+
+protected:
+	REIXSXESImageInterpolationAB* analysisBlock_;
+
+};
 
 /// Helper class for REIXSXESImageInterpolationABEditor: Exposes REIXSXESImageInterpolationAB's shift data as MPlotAbstractSeriesData
+class REIXSXESImageInterpolationABEditorShift2Model : public QObject, public MPlotAbstractSeriesData {
+	Q_OBJECT
+public:
+	/// Constructor: exposes the shiftValues() in \c analysisBlock (must be valid).
+	REIXSXESImageInterpolationABEditorShift2Model(REIXSXESImageInterpolationAB* analysisBlock, QObject* parent = 0);
+
+	virtual qreal x(unsigned index) const;
+	virtual void xValues(unsigned indexStart, unsigned indexEnd, qreal *outputValues) const;
+	virtual qreal y(unsigned index) const;
+	virtual void yValues(unsigned indexStart, unsigned indexEnd, qreal *outputValues) const;
+	virtual int count() const;
+
+protected slots:
+	/// Called when the size of the analysis block changes: reset displayXOffset_.
+	void onOutputSizeChanged();
+	/// Called when the shift values change: calls emitDataChanged().
+	void onShiftValuesChanged();
+
+protected:
+	REIXSXESImageInterpolationAB* analysisBlock_;
+
+};
+
+
+
+/// Helper class for REIXSXESImageInterpolationABEditor: Exposes REIXSXESImageInterpolationAB's mask data as MPlotAbstractSeriesData
 class REIXSXESImageInterpolationABEditorEllipticalMask : public QObject, public MPlotAbstractSeriesData {
 	Q_OBJECT
 public:
@@ -106,10 +157,6 @@ protected slots:
 
 protected:
 	REIXSXESImageInterpolationAB* analysisBlock_;
-	/*
-	/// Adds this offset to the x-values of the shift data, so that it can be shown at any point on the plot. Initialized to analysisBlock_->size(0)/2.
-	int displayXOffset_;
-	*/
 };
 
 
@@ -151,10 +198,14 @@ public slots:
 	
 	
 	/// Called when the correlation settings are changed
-	void onCorrelationCenterBoxChanged(int);
-	void onCorrelationPointsBoxChanged(int);
-	void onCSmoothBoxChanged();
-	void onCSmoothModeChanged();
+	void onCorrelation1CenterBoxChanged(int);
+	void onCorrelation2CenterBoxChanged(int);
+	void onCorrelation1PointsBoxChanged(int);
+	void onCorrelation2PointsBoxChanged(int);
+	void onCSmoothBox1Changed();
+	void onCSmoothBox2Changed();
+	void onCSmooth1ModeChanged();
+	void onCSmooth2ModeChanged();
 
 
 	// The "Apply to other scans" button applies this shift curve to many scans at once.
@@ -162,17 +213,19 @@ public slots:
 	void onApplyToOtherScansMenuClicked();
 	/// When a user chooses which scans to apply the current shift to.
 	void onApplyToOtherScansChosen();
-	/// When a user pushes the "manual shift entry" button.
-	void onManualShiftEntryButtonClicked();
+	/// When a user enters new manual shift for curve 1.
+	void onShift1LineEdited();
+	/// When a user enters new manual shift for curve 2.
+	void onShift2LineEdited();
+	/// updates Shift2Line edit when shift values cahnge
+	void onShiftValuesChanged();
+	/// sets shift 2 line edit string
+	void setShift2LineEdit(QString shifts) {shift2LineEdit_->setText(shifts);}
+
 
 	/// signals from analysis block: if the block's input data source changes (to either null, or one with a different size.)
 	void onAnalysisBlockInputDataSourcesChanged();
 
-	/*
-	 Unused; REIXSXESImageInterpolationABEditorShiftModel handles this.
-		/// Called when the shift values change, so we can update our line plot
-		void onShiftValuesChanged();
-	*/
 
 protected:
 
@@ -180,15 +233,20 @@ protected:
 
 	// GUI elements:
 	QSpinBox* rangeMinYControl_, *rangeMaxYControl_, *rangeMinXControl_, *rangeMaxXControl_;
-	QSpinBox* correlationCenterBox_, *correlationPointsBox_, *smoothModeBox_;
+	QSpinBox* correlation1CenterBox_, *correlation1PointsBox_, *smooth1ModelBox_;
+	QSpinBox* correlation2CenterBox_, *correlation2PointsBox_, *smooth2Mode1Box_;
 	QPushButton* correlateNowButton_;
-	QComboBox* correlationSmoothingBox_;
+	QComboBox* correlation1SmoothingBox_;
+	QComboBox* correlation2SmoothingBox_;
 	QCheckBox* liveCorrelationCheckBox_;
 	QDoubleSpinBox* energyCalibrationOffsetBox_, *tiltCalibrationOffsetBox_, *rangeRoundControl_;
+	QTabWidget* tabWidget_;
+	QLineEdit* shift1LineEdit_, *shift2LineEdit_;
+
 
 	QSlider* shiftDisplayOffsetSlider_;
 
-	QToolButton* applyToOtherScansButton_;
+	QPushButton* applyToOtherScansButton_;
 	QToolButton* manualShiftEntryButton_;
 
 
@@ -199,9 +257,12 @@ protected:
 	MPlotImageBasic* image_;
 	MPlotRectangle* rangeRectangleY1_, *rangeRectangleY2_, *rangeRectangleX1_, *rangeRectangleX2_;
 	
-	MPlotSeriesBasic* shiftSeries_;
-	MPlotPoint* corrRegionLeft_, * corrRegionRight_;
+	MPlotSeriesBasic* shiftSeries_, * shift1Series_, * shift2Series_;
+	MPlotPoint* corrRegion1Left_, * corrRegion1Right_, * corrRegion2Left_, * corrRegion2Right_;
 	REIXSXESImageInterpolationABEditorShiftModel* shiftData_;
+	REIXSXESImageInterpolationABEditorShift1Model* shift1Data_;
+	REIXSXESImageInterpolationABEditorShift2Model* shift2Data_;
+
 	
 	MPlotSeriesBasic* ellipseSeries_;
 	REIXSXESImageInterpolationABEditorEllipticalMask* ellipseData_;
@@ -210,13 +271,13 @@ protected:
 	/// Dialog to ask the user for a set of scans (to apply the same shift curve to many at once)
 	AMChooseScanDialog* chooseScanDialog_;
 	/// A checkable menu action that indicates "batch apply" should apply correlation settings to all scans.
-	QAction* batchApplyCorrelationSettings_;
+	QCheckBox* batchApplyCorrelationSettings_;
 	/// A checkable menu action that indicates "batch apply" should apply the shift curve to all scans.
-	QAction* batchApplyShiftCurve_;
+	QCheckBox* batchApplyShiftCurve_;
 	/// A checkable menu action that indicates "batch apply" should apply the sum range (min, max) to all scans.
-	QAction* batchApplySumRange_;
+	QCheckBox* batchApplySumRange_;
 	/// A checkable menu action that indicates "batch apply" shouuld apply the calibration offsets (energy, tilt) to all scans.
-	QAction* batchApplyCalibrationOffsets_;
+	QCheckBox* batchApplyCalibrationOffsets_;
 
 
 	/// called to position and show/hide the range rectangle, as appropriate.

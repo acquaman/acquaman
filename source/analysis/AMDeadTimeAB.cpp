@@ -187,10 +187,28 @@ AMNumber AMDeadTimeAB::axisValue(int axisNumber, int index) const
 	return spectra_->axisValue(axisNumber, index);
 }
 
+bool AMDeadTimeAB::axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const
+{
+	if (!isValid())
+		return false;
+
+	if (axisNumber != 0)
+		return false;
+
+	if (startIndex >= spectra_->size(0) || endIndex >= spectra_->size(0))
+		return false;
+
+	return spectra_->axisValues(axisNumber, startIndex, endIndex, outputValues);
+}
+
 // Connected to be called when the values of the input data source change
 void AMDeadTimeAB::onInputSourceValuesChanged(const AMnDIndex& start, const AMnDIndex& end)
 {
-	emitValuesChanged(start, end);
+	if (start.isValid() && end.isValid())
+		emitValuesChanged(start, end);
+
+	else
+		emitValuesChanged();
 }
 
 // Connected to be called when the size of the input source changes

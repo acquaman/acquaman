@@ -211,10 +211,28 @@ AMNumber AM3DDeadTimeAB::axisValue(int axisNumber, int index) const
 	return spectra_->axisValue(axisNumber, index);
 }
 
+bool AM3DDeadTimeAB::axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const
+{
+	if (!isValid())
+		return false;
+
+	if (axisNumber != 0 && axisNumber != 1 && axisNumber != 2)
+		return false;
+
+	if (startIndex >= axes_.at(axisNumber).size || endIndex >= axes_.at(axisNumber).size)
+		return false;
+
+	return spectra_->axisValues(axisNumber, startIndex, endIndex, outputValues);
+}
+
 // Connected to be called when the values of the input data source change
 void AM3DDeadTimeAB::onInputSourceValuesChanged(const AMnDIndex& start, const AMnDIndex& end)
 {
-	emitValuesChanged(start, end);
+	if (start.rank() == axes_.size() && end.rank() == axes_.size())
+		emitValuesChanged(start, end);
+
+	else
+		emitValuesChanged();
 }
 
 // Connected to be called when the size of the input source changes

@@ -21,7 +21,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMCrosshairOverlayVideoWidget.h"
 #include <QGraphicsLineItem>
-#include <QResizeEvent>
+
+#include "AMQEvents.h"
 
 #include <QMediaObject>
 #include <QGraphicsVideoItem>

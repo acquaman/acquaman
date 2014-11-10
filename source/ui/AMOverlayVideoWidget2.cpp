@@ -23,9 +23,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #ifdef AM_MOBILITY_VIDEO_ENABLED
 #include <QGraphicsVideoItem>
+
+#include "AMQEvents.h"
+
 #endif
 
-#include <QResizeEvent>
 #include <QGLWidget>
 #include <QLayout>
 #include <QDebug>

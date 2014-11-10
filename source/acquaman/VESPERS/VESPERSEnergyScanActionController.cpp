@@ -58,13 +58,13 @@ VESPERSEnergyScanActionController::VESPERSEnergyScanActionController(VESPERSEner
 
 	VESPERS::CCDDetectors ccdDetector = configuration_->ccdDetector();
 
-	if (ccdDetector == VESPERS::Roper)
+	if (ccdDetector.testFlag(VESPERS::Roper))
 		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("RoperFileNumber")->toInfo());
 
-	if (ccdDetector == VESPERS::Mar)
+	if (ccdDetector.testFlag(VESPERS::Mar))
 		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("MarFileNumber")->toInfo());
 
-	if (ccdDetector == VESPERS::Pilatus)
+	if (ccdDetector.testFlag(VESPERS::Pilatus))
 		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("PilatusFileNumber")->toInfo());
 
 	configuration_->setDetectorConfigurations(detectors);
@@ -88,7 +88,7 @@ void VESPERSEnergyScanActionController::buildScanControllerImplementation()
 AMAction3* VESPERSEnergyScanActionController::createInitializationActions()
 {
 	AMSequentialListAction3 *initializationList = new AMSequentialListAction3(new AMSequentialListActionInfo3("Initialization List"));
-	initializationList->addSubAction(buildBaseInitializationAction(configuration_->detectorConfigurations()));
+	initializationList->addSubAction(buildBaseInitializationAction());
 	initializationList->addSubAction(buildCCDInitializationAction(configuration_->ccdDetector(), configuration_->ccdFileName()));
 
 	return initializationList;

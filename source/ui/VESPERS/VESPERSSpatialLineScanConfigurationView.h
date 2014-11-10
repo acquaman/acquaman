@@ -107,6 +107,8 @@ protected:
 	QLabel *otherPositionLabel_;
 	/// Pointer to the spin box holding the other position.
 	QDoubleSpinBox *otherPosition_;
+	/// Pointer to the normal position used for the scan.
+	QDoubleSpinBox *normalPosition_;
 
 	/// Pointer to the CCD help group box.
 	QGroupBox *ccdTextBox_;

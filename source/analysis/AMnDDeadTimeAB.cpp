@@ -329,9 +329,30 @@ AMNumber AMnDDeadTimeAB::axisValue(int axisNumber, int index) const
 	return spectrum_->axisValue(axisNumber, index);
 }
 
+bool AMnDDeadTimeAB::axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const
+{
+	if(!isValid())
+		return false;
+
+	if(axisNumber < 0 || axisNumber >= rank())
+		return false;
+
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+	if (startIndex < 0 || startIndex >= spectrum_->size(axisNumber) || endIndex < 0 || endIndex >= spectrum_->size(axisNumber))
+		return false;
+#endif
+
+	return spectrum_->axisValues(axisNumber, startIndex, endIndex, outputValues);
+}
+
+
 void AMnDDeadTimeAB::onInputSourceValuesChanged(const AMnDIndex& start, const AMnDIndex& end)
 {
-	emitValuesChanged(start, end);
+	if (start.rank() == axes_.size() && end.rank() == axes_.size())
+		emitValuesChanged(start, end);
+
+	else
+		emitValuesChanged();
 }
 
 void AMnDDeadTimeAB::onInputSourceSizeChanged()

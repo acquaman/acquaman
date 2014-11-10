@@ -62,6 +62,11 @@ BioXASSideXASScanActionController::BioXASSideXASScanActionController(BioXASSideX
     scan_->addAnalyzedDataSource(dccIT, true, false);
 }
 
+BioXASSideXASScanActionController::~BioXASSideXASScanActionController()
+{
+
+}
+
 AMAction3* BioXASSideXASScanActionController::createInitializationActions()
 {
     AMListActionInfo3 *info = new AMListActionInfo3("BioXASSide Scan Initialization", "BioXASSide Scan Initialization");

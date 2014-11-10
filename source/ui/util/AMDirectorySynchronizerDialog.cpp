@@ -1,5 +1,7 @@
 #include "AMDirectorySynchronizerDialog.h"
 
+#include "AMQEvents.h"
+
 #include <QTextEdit>
 #include <QPushButton>
 #include <QProgressBar>
@@ -7,7 +9,6 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QGridLayout>
-#include <QCloseEvent>
 #include <QMessageBox>
 #include <QApplication>
 

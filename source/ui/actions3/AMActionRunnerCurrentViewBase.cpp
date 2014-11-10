@@ -151,7 +151,11 @@ void AMActionRunnerCurrentViewBase::onSkipButtonClicked()
 
 void AMActionRunnerCurrentViewBase::onCancelButtonClicked()
 {
-	if (qobject_cast<AMScanAction *>(actionRunner_->currentAction()) && showCancelPrompt_){
+	AMScanAction *scanAction = qobject_cast<AMScanAction *>(actionRunner_->currentAction());
+	AMListAction3 *listAction = qobject_cast<AMListAction3 *>(actionRunner_->currentAction());
+	bool scanActionRunning = (scanAction != 0) || (qobject_cast<AMScanAction *>(listAction->currentSubAction()) != 0);
+
+	if (scanActionRunning && showCancelPrompt_){
 
 		AMCancelActionPrompt cancelPrompt;
 		cancelPrompt.setWindowTitle("Cancel Scan");

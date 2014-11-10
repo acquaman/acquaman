@@ -28,8 +28,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QGraphicsVideoItem>
 #endif
 
+#include "AMQEvents.h"
+
 #include <QGraphicsRectItem>
-#include <QResizeEvent>
 #include <QVector3D>
 #include <QDebug>
 #include <QVector4D>

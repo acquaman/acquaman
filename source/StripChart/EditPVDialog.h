@@ -22,8 +22,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef EDITPVDIALOG_H
 #define EDITPVDIALOG_H
 
+#include "AMQtGui.h"
+
 #include <QDialog>
-#include <QtGui>
 
 #include "MPlot/MPlotAxisScale.h"
 

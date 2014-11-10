@@ -25,7 +25,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QGraphicsVideoItem>
 #endif
 
-#include <QMouseEvent>
+#include "AMQEvents.h"
+
 #include <QDebug>
 
 AMSampleCameraGraphicsView::AMSampleCameraGraphicsView(QWidget *parent, bool useOpenGlViewport) :

@@ -23,7 +23,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMControl.h"
 
 #include <QApplication>
-#include <QMouseEvent>
+
+#include "AMQEvents.h"
 
 #include <QComboBox>
 #include <QDoubleSpinBox>

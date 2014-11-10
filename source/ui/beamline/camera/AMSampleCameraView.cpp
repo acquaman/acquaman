@@ -29,9 +29,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMediaObject>
 #endif
 
+#include "AMQEvents.h"
+
 #include <QApplication>
 #include <QGraphicsLineItem>
-#include <QResizeEvent>
 #include <QGraphicsItem>
 #include <QMap>
 #include <QDebug>

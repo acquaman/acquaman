@@ -29,6 +29,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AMDetectorGroup.h"
 #include "beamline/AMXRFDetector.h"
 
+#include "beamline/AMBeamlineSupport.h"
+
 class AMSamplePlate;
 class AMSample;
 class AMSamplePlateBrowser;
@@ -55,7 +57,7 @@ which sets AMBeamline's protected instance_ variable.
 As long as the FIRST call to use the beamline is through YOURBeamline::bl(), then all successive calls to AMBeamline::bl() will return the instance of your specific beamline.  If anything calls AMBeamline::bl() before this, there will be no instance_ yet, and it will return 0.  Therefore, it's necessary to call YOURBeamline::bl() to initialize the beamline object before any other code might access AMBeamline; we would normally place this intialization inside your specific version of AMAppController::startup().
 */
 
-class AMBeamline : public AMControl {
+class AMBeamline : public AMControl, public AMBeamlineControlAPI, public AMBeamlineControlSetAPI, public AMBeamlineDetectorAPI, public AMBeamlineDetectorSetAPI, public AMBeamlineSynchronizedDwellTimeAPI {
 
 	Q_OBJECT
 
@@ -85,28 +87,28 @@ public:
 	virtual int currentSamplePlateId() const { return -1;}
 
 	/// Returns the control set that contains all of the public controls.  These are used with actions for automatic lookup.
-	AMControlSet *exposedControls() const { return exposedControls_; }
+	virtual AMControlSet *exposedControls() const { return exposedControls_; }
 	/// Returns a control based on the name of the control.  Returns 0 if no control is found.
-	AMControl *exposedControlByName(const QString &name) { return exposedControls_->controlNamed(name); }
+	virtual AMControl *exposedControlByName(const QString &name) { return exposedControls_->controlNamed(name); }
 	/// Returns a control based on the control info.  Returns 0 if no control is found.
-	AMControl *exposedControlByInfo(const AMControlInfo &info) { return exposedControls_->controlNamed(info.name()); }
+	virtual AMControl *exposedControlByInfo(const AMControlInfo &info) { return exposedControls_->controlNamed(info.name()); }
 
 	/// Adds a control to the exposed set.
-	void addExposedControl(AMControl *control) { exposedControls_->addControl(control); }
+	virtual bool addExposedControl(AMControl *control) { return exposedControls_->addControl(control); }
 
 	/// Returns the detector set that contains all of the public detectors. These are used with scan actions and configurations for automatic lookup.
-	AMDetectorSet* exposedDetectors() const { return exposedDetectors_; }
+	virtual AMDetectorSet* exposedDetectors() const { return exposedDetectors_; }
 	/// Returns a detector based on the name of the detector. Returns 0 if no detector is found.
-	AMDetector* exposedDetectorByName(const QString &detectorName) { return exposedDetectors_->detectorNamed(detectorName); }
+	virtual AMDetector* exposedDetectorByName(const QString &detectorName) { return exposedDetectors_->detectorNamed(detectorName); }
 	/// Returns a detector based on the detector info. Returns 0 if no control is found.
-	AMDetector* exposedDetectorByInfo(const AMDetectorInfo &detectorInfo) { return exposedDetectors_->detectorNamed(detectorInfo.name()); }
+	virtual AMDetector* exposedDetectorByInfo(const AMDetectorInfo &detectorInfo) { return exposedDetectors_->detectorNamed(detectorInfo.name()); }
 	/// Returns a new detector set which includes a subset of detectors for a particular keyed purpose (passing the type of a scan should return the detectors that can be used for that type of scan). The detector set is a new object, so the caller is responsible for the memory. The default implementation returns a NULL pointer.
 	virtual AMDetectorSet* detectorsFor(const QString &key) { Q_UNUSED(key); return 0; }
 	/// Returns true if the detector referred to by this detector info is available (connected)
-	bool detectorAvailable(const AMDetectorInfo &detectorInfo);
+	virtual bool detectorAvailable(const AMDetectorInfo &detectorInfo);
 
 	/// Adds a detector to the exposed set. Returns whether or not the detector was successfully added.
-	bool addExposedDetector(AMDetector *detector) { return exposedDetectors_->addDetector(detector); }
+	virtual bool addExposedDetector(AMDetector *detector) { return exposedDetectors_->addDetector(detector); }
 
 	/// Returns the list of the exposed detector groups.
 	QList<AMDetectorGroup*> exposedDetectorGroups() const { return exposedDetectorGroups_; }
@@ -137,8 +139,10 @@ public:
 	/// Adds an AMXRFDetector to the syncrhonized XRF detector list.
 	void addSynchronizedXRFDetector(AMXRFDetector *detector);
 
-    /// Returns an action that can turn off the beam.
-    virtual AMAction3* createTurnOffBeamActions();
+	/// Returns an action that can turn off the beam.
+	virtual AMAction3* createTurnOffBeamActions();
+
+	void initializeBeamlineSupport();
 
 signals:
 	/// Emit this signal whenever isBeamlineScanning() changes.

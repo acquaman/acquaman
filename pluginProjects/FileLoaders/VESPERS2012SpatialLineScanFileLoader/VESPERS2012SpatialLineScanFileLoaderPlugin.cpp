@@ -1,6 +1,6 @@
 #include "VESPERS2012SpatialLineScanFileLoaderPlugin.h"
 
-#include <QtGui>
+#include "AMQtGui.h"
 
 #include "util/AMErrorMonitor.h"
 #include "analysis/AM1DExpressionAB.h"

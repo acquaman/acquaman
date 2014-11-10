@@ -34,7 +34,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QLabel>
 #include <QLineEdit>
 #include <QListView>
-#include <QPlainTextEdit>
+
+#include "AMQPlainTextEdit.h"
+
 #include <QPushButton>
 #include <QSpacerItem>
 #include <QSpinBox>

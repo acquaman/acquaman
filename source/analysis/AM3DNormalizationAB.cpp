@@ -290,6 +290,20 @@ AMNumber AM3DNormalizationAB::axisValue(int axisNumber, int index) const
 	return data_->axisValue(axisNumber, index);
 }
 
+bool AM3DNormalizationAB::axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const
+{
+	if (!isValid())
+		return false;
+
+	if (axisNumber != 0 && axisNumber != 1 && axisNumber != 2)
+		return false;
+
+	if (startIndex >= axes_.at(axisNumber).size || endIndex >= axes_.at(axisNumber).size)
+		return false;
+
+	return data_->axisValues(axisNumber, startIndex, endIndex, outputValues);
+}
+
 void AM3DNormalizationAB::onInputSourceValuesChanged(const AMnDIndex& start, const AMnDIndex& end)
 {
 	emitValuesChanged(start, end);

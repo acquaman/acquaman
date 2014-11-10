@@ -169,11 +169,15 @@ void REIXSXESMCPDetectorView::onCountsPerSecondChanged(double countsPerSecond) {
 void REIXSXESMCPDetectorView::onImageSelectorChanged(int index) {
 
 	if(index == 0) {
-		image_->setModel(new AMDataSourceImageData(detector_->instantaneousImage()), true);
+		AMDataSourceImageData *model = new AMDataSourceImageData;
+		model->setDataSource(detector_->instantaneousImage());
+		image_->setModel(model, true);
 		image_->setDescription("Real-time XES Detector Image");
 	}
 	else if(index == 1) {
-		image_->setModel(new AMDataSourceImageData(detector_->image()), true);
+		AMDataSourceImageData *model = new AMDataSourceImageData;
+		model->setDataSource(detector_->image());
+		image_->setModel(model, true);
 		image_->setDescription("Accumulated XES Detector Image");
 	}
 	else {
