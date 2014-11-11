@@ -226,7 +226,6 @@ void AMExtendedControlEditor::onMotion(bool moving) {
 		setHappy(control_->isConnected());
 }
 
-#include <QDebug>
 void AMExtendedControlEditor::onEditStart() {
 
 	if(readOnly_ || !control_->canMove()) {
@@ -236,8 +235,6 @@ void AMExtendedControlEditor::onEditStart() {
 
 	dialog_->setDoubleMaximum(control_->maximumValue());
 	dialog_->setDoubleMinimum(control_->minimumValue());
-
-	qDebug() << "Configure only is " << configureOnly_ << " current value is " << control_->value() << " current in widget is " << valueLabel_->text();
 
 	if(configureOnly_ && control_->isEnum() && control_->enumNames().contains(valueLabel_->text()))
 		dialog_->setDoubleValue(control_->enumNames().indexOf(valueLabel_->text()));
