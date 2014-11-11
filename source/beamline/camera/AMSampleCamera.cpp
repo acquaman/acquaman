@@ -1890,17 +1890,28 @@ void AMSampleCamera::createSamplePlate(QVector<QVector3D> coordinates, QVector<Q
 	}
 
 
-	QVector< QVector<QVector3D> > pointResults;
-	QVector<QPointF> vertexPoints;
+	QVector< QVector<QVector3D> > pointResults = QVector< QVector<QVector3D> >(numberOfVertices);
 	for(int i = 0; i < numberOfVertices; i++)
 	{
+		QVector<QPointF> vertexPoints = QVector<QPointF>(NUMBER_OF_COORDINATES);
+
 		for(int j = 0; j < NUMBER_OF_COORDINATES; j++)
-		{
-			vertexPoints<<pointList[i*NUMBER_OF_COORDINATES + j];
-		}
-		pointResults<<findSamplePlateCoordinate(coordinates,vertexPoints,rotations,numberOfPoints);
-		vertexPoints.clear();
+			vertexPoints[j] = pointList[i*NUMBER_OF_COORDINATES + j];
+
+		pointResults[i] = findSamplePlateCoordinate(coordinates,vertexPoints,rotations,numberOfPoints);
 	}
+
+//	QVector< QVector<QVector3D> > pointResults;
+//	QVector<QPointF> vertexPoints;
+//	for(int i = 0; i < numberOfVertices; i++)
+//	{
+//		for(int j = 0; j < NUMBER_OF_COORDINATES; j++)
+//		{
+//			vertexPoints<<pointList[i*NUMBER_OF_COORDINATES + j];
+//		}
+//		pointResults<<findSamplePlateCoordinate(coordinates,vertexPoints,rotations,numberOfPoints);
+//		vertexPoints.clear();
+//	}
 
 
 	QVector<QVector3D> plateShape;
@@ -3377,19 +3388,27 @@ QVector<QVector3D> AMSampleCamera::findSamplePlateCoordinate(const QVector<QVect
 	/// to the matrix defined below.
 
 	// first get rid of the lens distortion on the test points.
-	QVector<QPointF> adjustedPoints;
+	QVector<QPointF> adjustedPoints = QVector<QPointF>(numberOfPoints);
 	for(int i = 0; i < numberOfPoints; i++)
-	{
-		adjustedPoints<<undistortPoint(points.at(i));
-	}
+		adjustedPoints[i] = undistortPoint(points.at(i));
+
+//	QVector<QPointF> adjustedPoints;
+//	for(int i = 0; i < numberOfPoints; i++)
+//	{
+//		adjustedPoints<<undistortPoint(points.at(i));
+//	}
 
 	// find a reasonable starting point for the calculations. Use the positions of the
 	// calibration points to get approximations of the actual coordinate
-	QVector<double> depths;
+	QVector<double> depths = QVector<double>(numberOfPoints);
 	for(int i = 0; i < numberOfPoints; i++)
-	{
-		depths<<depth(coordinates.at(i));
-	}
+		depths[i] = depth(coordinates.at(i));
+
+//	QVector<double> depths;
+//	for(int i = 0; i < numberOfPoints; i++)
+//	{
+//		depths<<depth(coordinates.at(i));
+//	}
 
 	/// Find the line along which each coordinate lies
 	/// //////////////////////////////////////////////////////////////////////////////////////////
