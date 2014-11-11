@@ -3260,10 +3260,6 @@ QVector3D AMSampleCamera::beamIntersectionPoint(QVector3D samplePoint, bool find
 	// then find where the beam intersects this plane.
 	double y = samplePoint.y();
 	QVector3D beamSpot(0,0,0);
-	AMShapeData* newShape = new AMShapeData();
-	QVector<QVector3D> coordinateShape;
-	coordinateShape<<QVector3D(0,0,0)<<QVector3D(0,0,0)<<QVector3D(0,0,0)<<QVector3D(0,0,0);
-	newShape->setCoordinateShape(coordinateShape);
 	QVector3D topLeftBeamIntersectionPoint;
 	for(int i = 0; i < beamConfiguration()->count()-1; i++)
 	{
@@ -3306,7 +3302,6 @@ QVector3D AMSampleCamera::beamIntersectionPoint(QVector3D samplePoint, bool find
 		double x = x0 + a*beamLength;
 		double z = z0 + c*beamLength;
 		QVector3D beamPoint(x,y,z);
-		newShape->setCoordinate(beamPoint,i);
 		beamSpot+=beamPoint;
 		if(findCorner && i == 0)
 		{
@@ -3316,8 +3311,6 @@ QVector3D AMSampleCamera::beamIntersectionPoint(QVector3D samplePoint, bool find
 
 	}
 
-	newShape->setName(QString("Shape %1").arg(index_));
-	updateShape(newShape);
 	// find the center of the point
 	beamSpot /= beamConfiguration()->count()-1;
 	if(findCorner)
