@@ -66,8 +66,12 @@ AMListAction3::AMListAction3(const AMListAction3& other)
 	foreach(AMAction3* action, subActions_)
 		action->setParentAction(this);
 }
+
 // Destructor: deletes the sub-actions
 AMListAction3::~AMListAction3() {
+	foreach(AMAction3* action, subActions_)
+		if(action)
+			action->deleteLater();
 }
 
 int AMListAction3::indexOfSubAction(const AMAction3 *action) const
