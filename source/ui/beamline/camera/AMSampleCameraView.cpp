@@ -1503,7 +1503,8 @@ void AMSampleCameraView::intersection()
 {
 	if(shapeModel_->findIntersections())
 	{
-		if(!intersections_.isEmpty()) clearIntersections();
+		if(!intersections_.isEmpty())
+			clearIntersections();
 		createIntersectionShapes(shapeModel_->intersections());
 	}
 }
@@ -1818,7 +1819,9 @@ void AMSampleCameraView::clearIntersections()
 	while(!intersections_.isEmpty())
 	{
 		shapeScene_->scene()->removeItem(intersections_.first());
+		QGraphicsPolygonItem *toDelete = intersections_.first();
 		intersections_.remove(0);
+		delete toDelete;
 	}
 }
 
@@ -2730,7 +2733,10 @@ void AMSampleCameraView::drawSamplePlate()
 			if(!samplePlate_)
 				AMErrorMon::alert(this, AMSAMPLECAMERAVIEW_DRAWSAMPLEPLATE_NULL_SAMPLEPLATE, QString("A call to drawSamplePlate has a null sample plate.") );
 			shapeScene_->scene()->removeItem(samplePlate_);
+			QGraphicsPolygonItem *oldSamplePlate = samplePlate_;
 			samplePlate_ = shapeScene_->scene()->addPolygon(samplePlate, pen, brush);
+			if(oldSamplePlate)
+				delete oldSamplePlate;
 		}
 	}
 	if(samplePlate_)
