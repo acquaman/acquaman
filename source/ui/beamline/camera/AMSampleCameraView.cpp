@@ -312,9 +312,13 @@ void AMSampleCameraView::refreshSceneView()
 
 	// show the polygon currently being drawn
 	QPolygonF currentPolygon = shapeModel_->currentPolygon();
-	QPainterPath* path = new QPainterPath();
-	path->addPolygon(currentPolygon);
-	currentShape_->setPath(*path);
+//	QPainterPath* path = new QPainterPath();
+//	path->addPolygon(currentPolygon);
+//	currentShape_->setPath(*path);
+
+	QPainterPath path;
+	path.addPolygon(currentPolygon);
+	currentShape_->setPath(path);
 
 	shapeModel_->updateView();
 
@@ -1323,12 +1327,14 @@ bool AMSampleCameraView::loadRotationalOffset(int databaseId)
 	AMDatabase *db = AMDatabase::database("SGMPublic");
 	int id;
 	if(databaseId == -1){
-		QVariantList matchList = db->retrieve(AMDbObjectSupport::s()->tableNameForClass<AMCameraConfiguration>(),"id");
+		//QVariantList matchList = db->retrieve(AMDbObjectSupport::s()->tableNameForClass<AMCameraConfiguration>(),"id");
+		QVariantList matchList = db->retrieve(AMDbObjectSupport::s()->tableNameForClass<AMRotationalOffset>(),"id");
 
 		if(matchList.count() <= 0)
 			return false;
 
 		bool* success = new bool(true);
+		qDebug() << "MatchList count for rotationalOffsets is " << matchList.count() << " using last as " << matchList.last().toInt();
 		id = matchList.last().toInt(success);
 
 		if(!success)
@@ -1338,8 +1344,10 @@ bool AMSampleCameraView::loadRotationalOffset(int databaseId)
 		id = databaseId;
 
 	AMRotationalOffset *rotationalOffset = new AMRotationalOffset();
-	if(!rotationalOffset->loadFromDb(db, id))
+	if(!rotationalOffset->loadFromDb(db, id)){
+		qDebug() << "Something went wrong loading from db";
 		return false;
+	}
 	shapeModel_->setRotationalOffset(rotationalOffset->rotationalOffset());
 	rotationalOffset->deleteLater();
 	refreshSceneView();

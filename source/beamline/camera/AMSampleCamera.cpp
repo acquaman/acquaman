@@ -2518,7 +2518,11 @@ void AMSampleCamera::applyMotorRotation(int index, double rotation)
 
 QVector<QVector3D> AMSampleCamera::applyMotorRotation(AMShapeData *shape, double rotation) const
 {
-	return applySpecifiedRotation(shape, directionOfRotation_, centerOfRotation_, rotation - oldRotation_->radians())->coordinates();
+	AMShapeData *shapeData = applySpecifiedRotation(shape, directionOfRotation_, centerOfRotation_, rotation - oldRotation_->radians());
+	QVector<QVector3D> retVal = shapeData->coordinates();
+	shapeData->deleteLater();
+	return retVal;
+	//     return applySpecifiedRotation(shape, directionOfRotation_, centerOfRotation_, rotation - oldRotation_->radians())->coordinates();
 }
 
 
@@ -2665,26 +2669,51 @@ QPolygonF AMSampleCamera::subShape(const AMShapeData* shape) const
 {
 	if(!(shape) && !debuggingSuppressed_)
 		AMErrorMon::debug(this, AMSAMPLECAMERA_NULL_SUBSHAPE, QString("A call to subShape was made with a null shape.") );
-	AMShapeData* rotatedShape = new AMShapeData();
-	rotatedShape->copy(shape);
 
-	if(rotatedShape->rotation() != 0)
-	{
-		rotatedShape = applySpecifiedRotation(rotatedShape,ZAXIS);
+	AMShapeData *initialShape = 0;
+	AMShapeData *zRotatedShape = 0;
+	AMShapeData *xRotatedShape = 0;
+	AMShapeData *rotatedShape = 0;
+
+
+	initialShape = new AMShapeData();
+	initialShape->copy(shape);
+
+	// If we need to rotate about Z, do so. This will create new memory inside of applySpecifiedRotation(). If not, copy the initialShape. Either way, delete the initialShape
+	if(initialShape->rotation() != 0){
+		zRotatedShape = applySpecifiedRotation(initialShape,ZAXIS);
 	}
-	if(rotatedShape->tilt() != 0)
-	{
-		rotatedShape = applySpecifiedRotation(rotatedShape,XAXIS);
+	else{
+		zRotatedShape = new AMShapeData();
+		zRotatedShape->copy(initialShape);
 	}
-	if(rotatedShape->yAxisRotation() != 0)
-	{
-		rotatedShape = applySpecifiedRotation(rotatedShape,YAXIS);
+	initialShape->deleteLater();
+
+	// If we need to rotate about X, do so. This will create new memory inside of applySpecifiedRotation(). If not, copy the zRotatedShape. Either way, delete the zRotatedShape
+	if(zRotatedShape->tilt() != 0){
+		xRotatedShape = applySpecifiedRotation(zRotatedShape,XAXIS);
 	}
+	else{
+		xRotatedShape = new AMShapeData();
+		xRotatedShape->copy(zRotatedShape);
+	}
+	zRotatedShape->deleteLater();
+
+	// If we need to rotate about Y, do so. This will create new memory inside of applySpecifiedRotation(). If not, copy the xRotatedShape. Either way, delete the xRotatedShape
+	if(xRotatedShape->yAxisRotation() != 0){
+		rotatedShape = applySpecifiedRotation(xRotatedShape,YAXIS);
+	}
+	else{
+		rotatedShape = new AMShapeData();
+		rotatedShape->copy(xRotatedShape);
+	}
+	xRotatedShape->deleteLater();
 
 	QPolygonF newShape;
 	for(int i = 0; i < rotatedShape->count(); i++)
 	{
-		newShape<<camera_->transform3Dto2D(rotatedShape->coordinate(i));
+
+		newShape << camera_->transform3Dto2D(rotatedShape->coordinate(i));
 	}
 
 	if(distortion_)
@@ -2692,7 +2721,40 @@ QPolygonF AMSampleCamera::subShape(const AMShapeData* shape) const
 		newShape = applyDistortion(newShape);
 	}
 
+	rotatedShape->deleteLater();
 	return newShape;
+
+//	if(!(shape) && !debuggingSuppressed_)
+//		AMErrorMon::debug(this, AMSAMPLECAMERA_NULL_SUBSHAPE, QString("A call to subShape was made with a null shape.") );
+//	AMShapeData* rotatedShape = new AMShapeData();
+//	rotatedShape->copy(shape);
+
+//	if(rotatedShape->rotation() != 0)
+//	{
+//		rotatedShape = applySpecifiedRotation(rotatedShape,ZAXIS);
+//	}
+//	if(rotatedShape->tilt() != 0)
+//	{
+//		rotatedShape = applySpecifiedRotation(rotatedShape,XAXIS);
+//	}
+//	if(rotatedShape->yAxisRotation() != 0)
+//	{
+//		rotatedShape = applySpecifiedRotation(rotatedShape,YAXIS);
+//	}
+
+//	QPolygonF newShape;
+//	for(int i = 0; i < rotatedShape->count(); i++)
+//	{
+//		newShape<<camera_->transform3Dto2D(rotatedShape->coordinate(i));
+//	}
+
+//	if(distortion_)
+//	{
+//		newShape = applyDistortion(newShape);
+//	}
+
+//	rotatedShape->deleteLater();
+//	return newShape;
 }
 
 /// applies distortion to the shape
@@ -2765,17 +2827,64 @@ void AMSampleCamera::motorMovement(double x, double y, double z, double r)
 /// applies 3D rotation and tilt to the 3D shape in an AMShapeData
 QVector<QVector3D> AMSampleCamera::rotateShape(const AMShapeData *shape) const
 {
-	AMShapeData* newShape = new AMShapeData();
-	newShape->copy(shape);
-	if(newShape->rotation() != 0) newShape = applySpecifiedRotation(newShape, ZAXIS);
-	if(newShape->tilt() != 0) newShape = applySpecifiedRotation(newShape, XAXIS);
-	if(newShape->yAxisRotation() != 0) newShape = applySpecifiedRotation(newShape, YAXIS);
-	QVector<QVector3D> returnShape;
-	for(int i = 0; i < newShape->count(); i++)
-	{
-		returnShape<<newShape->coordinate(i);
+	AMShapeData *initialShape = 0;
+	AMShapeData *zRotatedShape = 0;
+	AMShapeData *xRotatedShape = 0;
+	AMShapeData *rotatedShape = 0;
+
+	initialShape = new AMShapeData();
+	initialShape->copy(shape);
+
+	// If we need to rotate about Z, do so. This will create new memory inside of applySpecifiedRotation(). If not, copy the initialShape. Either way, delete the initialShape
+	if(initialShape->rotation() != 0){
+		zRotatedShape = applySpecifiedRotation(initialShape,ZAXIS);
 	}
+	else{
+		zRotatedShape = new AMShapeData();
+		zRotatedShape->copy(initialShape);
+	}
+	initialShape->deleteLater();
+
+	// If we need to rotate about X, do so. This will create new memory inside of applySpecifiedRotation(). If not, copy the zRotatedShape. Either way, delete the zRotatedShape
+	if(zRotatedShape->tilt() != 0){
+		xRotatedShape = applySpecifiedRotation(zRotatedShape,XAXIS);
+	}
+	else{
+		xRotatedShape = new AMShapeData();
+		xRotatedShape->copy(zRotatedShape);
+	}
+	zRotatedShape->deleteLater();
+
+	// If we need to rotate about Y, do so. This will create new memory inside of applySpecifiedRotation(). If not, copy the xRotatedShape. Either way, delete the xRotatedShape
+	if(xRotatedShape->yAxisRotation() != 0){
+		rotatedShape = applySpecifiedRotation(xRotatedShape,YAXIS);
+	}
+	else{
+		rotatedShape = new AMShapeData();
+		rotatedShape->copy(xRotatedShape);
+	}
+	xRotatedShape->deleteLater();
+
+	QVector<QVector3D> returnShape;
+	for(int i = 0; i < rotatedShape->count(); i++)
+	{
+		returnShape << rotatedShape->coordinate(i);
+	}
+	rotatedShape->deleteLater();
 	return returnShape;
+
+//	AMShapeData* newShape = new AMShapeData();
+//	newShape->copy(shape);
+//	if(newShape->rotation() != 0) newShape = applySpecifiedRotation(newShape, ZAXIS);
+//	if(newShape->tilt() != 0) newShape = applySpecifiedRotation(newShape, XAXIS);
+//	if(newShape->yAxisRotation() != 0) newShape = applySpecifiedRotation(newShape, YAXIS);
+//	QVector<QVector3D> returnShape;
+//	for(int i = 0; i < newShape->count(); i++)
+//	{
+//		returnShape << newShape->coordinate(i);
+//	}
+//	newShape->deleteLater();
+//	return returnShape;
 }
 
 /// transforms a coordinate point for display on the screen
@@ -2994,7 +3103,7 @@ QPolygonF AMSampleCamera::intersectionScreenShape(QVector<QVector3D> shape3D) co
 
 	QPolygonF shape;
 	shape = subShape(newShape);
-	/// \todo delete newShape
+	newShape->deleteLater();
 
 	shape = screenShape(shape);
 

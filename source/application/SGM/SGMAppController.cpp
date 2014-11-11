@@ -940,6 +940,11 @@ bool SGMAppController::setupSGMPeriodicTable(){
 		success &= fsp5->storeToDb(dbSGM);
 		*/
 
+		SGMFastScanSettings fs1Settings(elementName%elementEdge%"1sSettings", 1.0, 50000, 1.0, 200, 8000);
+		success &= fs1Settings.storeToDb(dbSGM);
+		SGMFastScanParameters *fsp1 = new SGMFastScanParameters(elementName%elementEdge%"1s", AMPeriodicTable::table()->elementBySymbol(elementSymbol)->name(), scanInfo, fs1Settings);
+		success &= fsp1->storeToDb(dbSGM);
+
 		SGMFastScanSettings fs2Settings(elementName%elementEdge%"2sSettings", 2.0, 40000, 2.0, 200, 6000);
 		success &= fs2Settings.storeToDb(dbSGM);
 		SGMFastScanParameters *fsp2 = new SGMFastScanParameters(elementName%elementEdge%"2s", AMPeriodicTable::table()->elementBySymbol(elementSymbol)->name(), scanInfo, fs2Settings);
@@ -964,6 +969,7 @@ bool SGMAppController::setupSGMPeriodicTable(){
 
 		SGMElementInfo *elementInfo = new SGMElementInfo(elementName%"ElementInfo", AMPeriodicTable::table()->elementBySymbol(elementSymbol), this);
 		elementInfo->addEdgeInfo(scanInfo);
+		elementInfo->addFastScanParameters(fsp1);
 		elementInfo->addFastScanParameters(fsp2);
 		elementInfo->addFastScanParameters(fsp20);
 		elementInfo->addFastScanParameters(fsp120);
