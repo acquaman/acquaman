@@ -3393,16 +3393,25 @@ QVector<QVector3D> AMSampleCamera::findSamplePlateCoordinate(const QVector<QVect
 	/// //////////////////////////////////////////////////////////////////////////////////////////
 	// get two different points that could correspond to the selected point, at different depths
 	// these points will be used to calculate the line along which the desired coordinate lies
-	QVector<QVector3D> bases;
-	QVector<QVector3D> lengths;
-	QVector<QVector3D> vectors;
+
+	QVector<QVector3D> bases = QVector<QVector3D>(numberOfPoints);
+	QVector<QVector3D> lengths = QVector<QVector3D>(numberOfPoints);
+	QVector<QVector3D> vectors = QVector<QVector3D>(numberOfPoints);
+
+//	QVector<QVector3D> bases;
+//	QVector<QVector3D> lengths;
+//	QVector<QVector3D> vectors;
 	int additionalDepth = 5;
 
 	for(int i = 0; i < numberOfPoints; i++)
 	{
-		bases<<camera_->transform2Dto3D(adjustedPoints.at(i), depths.at(i));
-		lengths<<camera_->transform2Dto3D(adjustedPoints.at(i), depths.at(i) + additionalDepth);
-		vectors<<(lengths.at(i)-bases.at(i)).normalized();
+		bases[i] = camera_->transform2Dto3D(adjustedPoints.at(i), depths.at(i));
+		lengths[i] = camera_->transform2Dto3D(adjustedPoints.at(i), depths.at(i) + additionalDepth);
+		vectors[i] = (lengths.at(i)-bases.at(i)).normalized();
+
+//		bases<<camera_->transform2Dto3D(adjustedPoints.at(i), depths.at(i));
+//		lengths<<camera_->transform2Dto3D(adjustedPoints.at(i), depths.at(i) + additionalDepth);
+//		vectors<<(lengths.at(i)-bases.at(i)).normalized();
 
 	}
 
@@ -3458,38 +3467,47 @@ QVector<QVector3D> AMSampleCamera::findSamplePlateCoordinate(const QVector<QVect
 	/// This is done using the SVD decomposition
 
 
-	QVector<QVector3D> centreOfRotations;
-	QVector3D unitRotation;
-	QVector<AMAngle *> referenceRotations;
-	QVector<QVector3D> lnx;
-	QVector<QVector3D> lny;
-	QVector<QVector3D> lnz;
+	QVector<AMAngle *> referenceRotations = QVector<AMAngle *>(numberOfPoints);
+//	QVector<AMAngle *> referenceRotations;
 
 	for(int i = 0; i < numberOfPoints; i++)
 	{
-		referenceRotations<<new AMAngle(rotations.at(i)-rotations.first(), AMAngle::DEG);// assign in degrees
+		referenceRotations[i] = new AMAngle(rotations.at(i)-rotations.first(), AMAngle::DEG);// assign in degrees
+//		referenceRotations<<new AMAngle(rotations.at(i)-rotations.first(), AMAngle::DEG);// assign in degrees
 	}
 
+	QVector3D unitRotation;
 	unitRotation = directionOfRotation_.normalized();
 
+	QVector<QVector3D> centreOfRotations = QVector<QVector3D>(numberOfPoints);
+	//QVector<QVector3D> centreOfRotations;
 	for(int i = 0; i < numberOfPoints; i ++)
 	{
-		centreOfRotations<<coordinates.at(i)+rotationalOffset();
+		centreOfRotations[i] = coordinates.at(i)+rotationalOffset();
+//		centreOfRotations<<coordinates.at(i)+rotationalOffset();
 	}
 
+	QVector<QVector3D> lnx = QVector<QVector3D>(numberOfPoints);
+	QVector<QVector3D> lny = QVector<QVector3D>(numberOfPoints);
+	QVector<QVector3D> lnz = QVector<QVector3D>(numberOfPoints);
+//	QVector<QVector3D> lnx;
+//	QVector<QVector3D> lny;
+//	QVector<QVector3D> lnz;
 	for(int i = 0 ; i < numberOfPoints; i++)
 	{
-		lnx<<findRotationMatrixXRow(unitRotation,referenceRotations.at(i)->radians());
-		lny<<findRotationMatrixYRow(unitRotation,referenceRotations.at(i)->radians());
-		lnz<<findRotationMatrixZRow(unitRotation,referenceRotations.at(i)->radians());
+		lnx[i] = findRotationMatrixXRow(unitRotation,referenceRotations.at(i)->radians());
+		lny[i] = findRotationMatrixYRow(unitRotation,referenceRotations.at(i)->radians());
+		lnz[i] = findRotationMatrixZRow(unitRotation,referenceRotations.at(i)->radians());
+
+//		lnx<<findRotationMatrixXRow(unitRotation,referenceRotations.at(i)->radians());
+//		lny<<findRotationMatrixYRow(unitRotation,referenceRotations.at(i)->radians());
+//		lnz<<findRotationMatrixZRow(unitRotation,referenceRotations.at(i)->radians());
 	}
 	/// delete the angles when done with them
 	foreach(AMAngle *angle, referenceRotations)
 	{
 		delete angle;
 	}
-
-
 
 	MatrixXd coeffMatrix = constructSampleCoefficientMatrix(vectors,lnx,lny,lnz, numberOfPoints);
 
@@ -3572,18 +3590,18 @@ QVector<QVector3D> AMSampleCamera::findSamplePlateCoordinate(const QVector<QVect
 			AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, QString("%1").arg(parameters(i)) );
 		}
 	}
-	QVector<QVector3D> solutions;
+
+	QVector<QVector3D> solutions = QVector<QVector3D>(numberOfPoints);
+	//QVector<QVector3D> solutions;
 	for(int i = 0; i < numberOfPoints; i++)
 	{
-		solutions<<QVector3D(parameters(3*i),parameters(3*i+1),parameters(3*i+2));
+		solutions[i] = QVector3D(parameters(3*i),parameters(3*i+1),parameters(3*i+2));
+//		solutions<<QVector3D(parameters(3*i),parameters(3*i+1),parameters(3*i+2));
 	}
 
 	/// The last element of solutions should be the coordinate corresponding to the current motor coordinates
 
 	return solutions;
-
-
-
 }
 
 /// construct the coefficient matrix for solving for the sample plate position
@@ -3744,14 +3762,23 @@ MatrixXd AMSampleCamera::constructCentreOfRotationMatrix(const QVector<AMAngle *
 	const int dimensions = 3;
 	QVector3D rotationVector = directionOfRotation_;
 
-	QVector<QVector<QVector3D> > rotationRows;
+	QVector<QVector<QVector3D> > rotationRows = QVector<QVector<QVector3D> >(numberOfPoints);
+//	QVector<QVector<QVector3D> > rotationRows;
+
 	for(int i = 0; i < numberOfPoints; i++)
 	{
-		QVector<QVector3D> newVector;
-		newVector<<findRotationMatrixXRow(rotationVector,rotations.at(i)->radians());
-		newVector<<findRotationMatrixYRow(rotationVector,rotations.at(i)->radians());
-		newVector<<findRotationMatrixZRow(rotationVector,rotations.at(i)->radians());
-		rotationRows<<newVector;
+		QVector<QVector3D> newVector = QVector<QVector3D>(3);
+		newVector[0] = findRotationMatrixXRow(rotationVector,rotations.at(i)->radians());
+		newVector[1] = findRotationMatrixYRow(rotationVector,rotations.at(i)->radians());
+		newVector[2] = findRotationMatrixZRow(rotationVector,rotations.at(i)->radians());
+
+//		QVector<QVector3D> newVector;
+//		newVector<<findRotationMatrixXRow(rotationVector,rotations.at(i)->radians());
+//		newVector<<findRotationMatrixYRow(rotationVector,rotations.at(i)->radians());
+//		newVector<<findRotationMatrixZRow(rotationVector,rotations.at(i)->radians());
+
+		rotationRows[i] = newVector;
+//		rotationRows<<newVector;
 	}
 
 	int rows = dimensions * numberOfPoints;
