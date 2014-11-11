@@ -751,8 +751,17 @@ void AMSampleCamera::findCamera(QPointF points [], QVector3D coordinates[])
 	for(int i = 0; i < SAMPLEPOINTS; i++)
 	{
 		shapes[i] = new AMShapeData();
-		QVector<QVector3D> shapeCoordinates;
-		shapeCoordinates<<QVector3D(-0.2,0.2,0)<<QVector3D(0.2,0.2,0)<<QVector3D(0.2,-0.2,0)<<QVector3D(-0.2,-0.2,0)<<QVector3D(-0.2,0.2,0);
+
+		QVector<QVector3D> shapeCoordinates = QVector<QVector3D>(5);
+		shapeCoordinates[0] = QVector3D(-0.2,0.2,0);
+		shapeCoordinates[1] = QVector3D(0.2,0.2,0);
+		shapeCoordinates[2] = QVector3D(0.2,-0.2,0);
+		shapeCoordinates[3] = QVector3D(-0.2,-0.2,0);
+		shapeCoordinates[4] = QVector3D(-0.2,0.2,0);
+
+//		QVector<QVector3D> shapeCoordinates;
+//		shapeCoordinates<<QVector3D(-0.2,0.2,0)<<QVector3D(0.2,0.2,0)<<QVector3D(0.2,-0.2,0)<<QVector3D(-0.2,-0.2,0)<<QVector3D(-0.2,0.2,0);
+
 		shapes[i]->setCoordinateShape(shapeCoordinates);
 		shapes[i]->shiftTo(coordinates[i]);
 		shapes[i]->setTilt(0);
@@ -3841,7 +3850,7 @@ void AMSampleCamera::blockBeam()
 	while(i != distances->constEnd())
 	{
 		QVector<QVector3D> currentIntersection = intersectionShapes_[i.value()];
-		QVector<QVector3D> projectedUsedBeam;
+		QVector<QVector3D> projectedUsedBeam = QVector<QVector3D>(usedBeam.count());
 		/// project used beam to current intersection plane
 		// point of intersection is the point
 		// la+(lb-la)t
@@ -3879,7 +3888,9 @@ void AMSampleCamera::blockBeam()
 				   ax0.z();
 			MatrixXd solution = matrixOne.inverse()*matrixTwo;
 			t = solution(0);
-			projectedUsedBeam<<usedBeam.at(j) + t*beamDirection;
+
+			projectedUsedBeam[j] = usedBeam.at(j) + t*beamDirection;
+			//projectedUsedBeam<<usedBeam.at(j) + t*beamDirection;
 		}
 
 
@@ -3925,9 +3936,9 @@ void AMSampleCamera::blockBeam()
 		/// find the xHat, yHat components of each point, map it to xy in 2D, then get the new shapes,
 		/// map xy to xHat,yHat, keep the nHat component what it was (should be the same for all points)
 
-		QVector<QVector3D> alternateProjectedCoordinates;
+		QVector<QVector3D> alternateProjectedCoordinates = QVector<QVector3D>(projectedUsedBeam.count());
 		QPolygonF alternateProjectedShape;
-		QVector<QVector3D> alternateIntersectionCoordinates;
+		QVector<QVector3D> alternateIntersectionCoordinates = QVector<QVector3D>(currentIntersection.count());
 		QPolygonF alternateIntersectionShape;
 		/// get each point in terms of the new orthogonal components
 		for(int pcount = 0; pcount < projectedUsedBeam.count(); pcount++)
@@ -3939,7 +3950,10 @@ void AMSampleCamera::blockBeam()
 			realCoordinate = vectorToMatrix(point, realCoordinate);
 			MatrixXd newPoint = realCoordinate * planeMatrix;
 			alternatePoint = matrixToVector(newPoint);
-			alternateProjectedCoordinates<<alternatePoint;
+
+			alternateProjectedCoordinates[pcount] = alternatePoint;
+			//alternateProjectedCoordinates<<alternatePoint;
+
 			alternateProjectedShape<<alternatePoint.toPointF();
 		}
 		for(int pcount = 0; pcount < currentIntersection.count(); pcount++)
@@ -3949,7 +3963,10 @@ void AMSampleCamera::blockBeam()
 			MatrixXd realCoordinate (1,3);
 			realCoordinate = vectorToMatrix(point, realCoordinate);
 			alternatePoint = matrixToVector(realCoordinate*planeMatrix);
-			alternateIntersectionCoordinates<<alternatePoint;
+
+			alternateIntersectionCoordinates[pcount] = alternatePoint;
+			//alternateIntersectionCoordinates<<alternatePoint;
+
 			alternateIntersectionShape<<alternatePoint.toPointF();
 		}
 		/// find the total blocked beam
@@ -3976,10 +3993,10 @@ void AMSampleCamera::blockBeam()
 		}
 		double zComponent = alternateProjectedCoordinates.at(0).z();
 
-		alternateProjectedCoordinates.clear();
+		alternateProjectedCoordinates = QVector<QVector3D>(newUsedBeam.count());
+		//alternateProjectedCoordinates.clear();
 
-		QVector<QVector3D> newUsedBeamCoords;
-		QVector<QVector3D> newIntersectionCoords;
+		QVector<QVector3D> newUsedBeamCoords = QVector<QVector3D>(newUsedBeam.count());
 
 		for(int pcount = 0; pcount < newUsedBeam.count(); pcount++)
 		{
@@ -4025,27 +4042,39 @@ void AMSampleCamera::blockBeam()
 				//
 			}
 			*/
-			alternateProjectedCoordinates<<QVector3D(newUsedBeam.at(pcount).x(),newUsedBeam.at(pcount).y(),zComponent);
+
+			alternateProjectedCoordinates[pcount] = QVector3D(newUsedBeam.at(pcount).x(),newUsedBeam.at(pcount).y(),zComponent);
+			//alternateProjectedCoordinates<<QVector3D(newUsedBeam.at(pcount).x(),newUsedBeam.at(pcount).y(),zComponent);
+
 			MatrixXd coordinate (1,3);
 			coordinate = vectorToMatrix(alternateProjectedCoordinates.at(pcount),coordinate);
-			newUsedBeamCoords<<matrixToVector(coordinate*planeMatrix.transpose());
+
+			newUsedBeamCoords[pcount] = matrixToVector(coordinate*planeMatrix.transpose());
+			//newUsedBeamCoords<<matrixToVector(coordinate*planeMatrix.transpose());
 		}
 
 		zComponent = alternateIntersectionCoordinates.at(0).z();
 
-		alternateIntersectionCoordinates.clear();
+		alternateIntersectionCoordinates = QVector<QVector3D>(newIntersectionShape.count());
+		//alternateIntersectionCoordinates.clear();
+
+		QVector<QVector3D> newIntersectionCoords = QVector<QVector3D>(newIntersectionShape.count());
 
 		for(int pcount = 0; pcount < newIntersectionShape.count(); pcount++)
 		{
 			QVector3D point = QVector3D(newIntersectionShape.at(pcount).x(),newIntersectionShape.at(pcount).y(),zComponent);
-			alternateIntersectionCoordinates<<point;
+
+			alternateIntersectionCoordinates[pcount] = point;
+			//alternateIntersectionCoordinates<<point;
+
 			MatrixXd coordinate (1,3);
 			coordinate = vectorToMatrix(point,coordinate);
 			if(!debuggingSuppressed_)
 				AMErrorMon::debug(this, AMSAMPLECAMERA_DEBUG_OUTPUT, QString("Coordinate: ") );
 			debugPrintMatrix(coordinate);
-			newIntersectionCoords<<matrixToVector(coordinate*planeMatrix.transpose());
-//>>>>>>> Issue496ToMergeWithSGMRelease
+
+			newIntersectionCoords[pcount] = matrixToVector(coordinate*planeMatrix.transpose());
+			//newIntersectionCoords<<matrixToVector(coordinate*planeMatrix.transpose());
 		}
 
 

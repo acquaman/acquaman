@@ -238,6 +238,7 @@ void AMShapeData::setVisible(bool visible)
 	}
 }
 
+#include <QDebug>
 void AMShapeData::copy(const AMShapeData *other)
 {
 	if(!(other))
@@ -251,11 +252,19 @@ void AMShapeData::copy(const AMShapeData *other)
 	setYAxisRotation(other->yAxisRotation());
 	setVisible(other->visible());
 	setShape(*other->shape());
+
 	QVector<QVector3D> nullShape;
-	for(int i = 0; i < other->count(); i++)
-	{
-		nullShape.append(QVector3D(0,0,0));
-	}
+	if(other->count() > 0)
+		nullShape = QVector<QVector3D>(other->count(), QVector3D(0,0,0));
+
+
+//	QVector<QVector3D> nullShape;
+//	for(int i = 0; i < other->count(); i++)
+//	{
+//		nullShape.append(QVector3D(0,0,0));
+//	}
+
+
 	setCoordinateShape(nullShape);
 	for(int i = 0; i < other->count(); i++)
 	{

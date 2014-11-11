@@ -640,8 +640,8 @@ void SGMAppController::onActionSGMSettings(){
 
 
 void SGMAppController::onAdvancedCameraOptionsRequested(){
-//	if(sampleManagementView_)
-//		sampleManagementView_->requestAdvancedCameraOptionsWindow();
+	if(sampleManagementView_)
+		sampleManagementView_->requestAdvancedCameraOptionsWindow();
 }
 
 void SGMAppController::onActionMirrorVeiw(){
@@ -1472,8 +1472,8 @@ bool SGMAppController::setupSGMViews(){
 	AMSampleCamera::set()->setSSAManipulatorY(SGMBeamline::sgm()->ssaManipulatorY());
 	AMSampleCamera::set()->setSSAManipulatorZ(SGMBeamline::sgm()->ssaManipulatorZ());
 	AMSampleCamera::set()->setSSAManipulatorRot(SGMBeamline::sgm()->ssaManipulatorRot());
-//	sampleManagementView_ = new SGMSampleManagementView();
-//	mw_->addPane(sampleManagementView_, "Beamline Control", "SGM Sample Management", ":/system-software-update.png");
+	sampleManagementView_ = new SGMSampleManagementView();
+	mw_->addPane(sampleManagementView_, "Beamline Control", "SGM Sample Management", ":/system-software-update.png");
 
 	SGMAdvancedControls_ = new SGMAdvancedControlsView();
 	mw_->addPane(SGMAdvancedControls_, "Beamline Control", "SGM Advanced Controls", ":/system-software-update.png");

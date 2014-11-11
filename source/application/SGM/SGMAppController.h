@@ -153,8 +153,8 @@ protected:
 	bool setupSGMViews();
 
 protected:
-//	AMSamplePlateView *samplePlateView_;
-//	AMBeamlineSampleManagementView *sampleManagementView_;
+	AMSamplePlateView *samplePlateView_;
+	AMBeamlineSampleManagementView *sampleManagementView_;
 
 	/// View for controlling the SGM scaler
 	CLSSIS3820ScalerView *sgmScalerView_;
