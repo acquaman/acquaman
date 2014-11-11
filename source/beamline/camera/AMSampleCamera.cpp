@@ -414,6 +414,8 @@ void AMSampleCamera::setBeamModel(AMBeamConfiguration *model)
 {
 	if(beamModel_ != model)
 	{
+		if(beamModel_)
+			beamModel_->deleteLater();
 		beamModel_ = model;
 		emit beamChanged(beamModel_);
 	}

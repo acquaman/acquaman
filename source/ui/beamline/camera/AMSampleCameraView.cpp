@@ -1220,8 +1220,11 @@ bool AMSampleCameraView::loadBeam(int databaseId)
 		bool* success = new bool(true);
 		id = matchList.last().toInt(success);
 
-		if(!(*success))
+		if(!(*success)){
+			delete success;
 			return false;
+		}
+		delete success;
 	}
 	else
 		id = databaseId;
@@ -1249,8 +1252,11 @@ bool AMSampleCameraView::loadCamera(int databaseId)
 		bool* success = new bool(true);
 		id = matchList.last().toInt(success);
 
-		if(!success)
+		if(!success){
+			delete success;
 			return false;
+		}
+		delete success;
 	}
 	else
 		id = databaseId;
@@ -1337,8 +1343,11 @@ bool AMSampleCameraView::loadRotationalOffset(int databaseId)
 		qDebug() << "MatchList count for rotationalOffsets is " << matchList.count() << " using last as " << matchList.last().toInt();
 		id = matchList.last().toInt(success);
 
-		if(!success)
+		if(!success){
+			delete success;
 			return false;
+		}
+		delete success;
 	}
 	else
 		id = databaseId;
