@@ -117,6 +117,7 @@ AMBeamlineSampleManagementView::AMBeamlineSampleManagementView(AMBeamline *beaml
 
 AMBeamlineSampleManagementView::~AMBeamlineSampleManagementView()
 {
+	samplePlateBrowserView_->deleteLater();
 }
 
 void AMBeamlineSampleManagementView::requestAdvancedCameraOptionsWindow(){

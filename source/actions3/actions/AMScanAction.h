@@ -77,9 +77,6 @@ public:
 	/// Scan actions CAN NOT be parallelized.  This is for everyones sake, too many things need to be working syncronously.
 	virtual bool canParallelize() const { return false; }
 
-public slots:
-	virtual void scheduleForDeletion();
-
 protected slots:
 
 	// Slots that handle the state transitions of the scan controller.
@@ -102,7 +99,9 @@ protected slots:
 	/// Helper slot that updates the status text when the controller changes state.
 	void onControllerStateChanged();
 
-	void onReadyForDeletionChanged(bool isReady);
+	/// Handles making sure that we're ready for deletion
+	void checkReadyForDeletion();
+//	void onReadyForDeletionChanged(bool isReady);
 
 protected:
 	/// This function is called from the Starting state when the implementation should initiate the action. Once the action is started, you should call notifyStarted().
@@ -116,6 +115,9 @@ protected:
 	virtual void cancelImplementation();
 	/// For the controllers that support skipping, this will do the necessary work.
 	virtual void skipImplementation(const QString &command);
+
+	/// Handles the details of readying a scan action for deletion
+	virtual void scheduleForDeletionImplementation();
 
 	/// Exports a the scan with the registered exporter and option when a scan successfully completes.
 	void autoExportScan();

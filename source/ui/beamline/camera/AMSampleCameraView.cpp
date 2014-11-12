@@ -312,9 +312,13 @@ void AMSampleCameraView::refreshSceneView()
 
 	// show the polygon currently being drawn
 	QPolygonF currentPolygon = shapeModel_->currentPolygon();
-	QPainterPath* path = new QPainterPath();
-	path->addPolygon(currentPolygon);
-	currentShape_->setPath(*path);
+//	QPainterPath* path = new QPainterPath();
+//	path->addPolygon(currentPolygon);
+//	currentShape_->setPath(*path);
+
+	QPainterPath path;
+	path.addPolygon(currentPolygon);
+	currentShape_->setPath(path);
 
 	shapeModel_->updateView();
 
@@ -699,7 +703,6 @@ void AMSampleCameraView::samplePlateCreate()
 	// "pointList" is 0abcd0efgh0ijkl0
 	// "combinedPoints" is aeibfjcgkdhl
 	QList<QPointF> *list = new QList<QPointF>[numberOfPoints];
-	QVector<QPointF> combinedPoints;
 	int index = 0;
 	for(int i = 0; i < numberOfPoints; i++)
 	{
@@ -716,6 +719,14 @@ void AMSampleCameraView::samplePlateCreate()
 		}
 	}
 
+	int combinedPointsCount = 0;
+	while(!samplePointListEmpty(list,numberOfPoints))
+		for(int i = 0; i < numberOfPoints; i++)
+			if(!list[i].isEmpty())
+				combinedPointsCount++;
+
+	int combinedPointsIndexer = 0;
+	QVector<QPointF> combinedPoints = QVector<QPointF>(combinedPointsCount);
 	/// interleave the created lists
 	while(!samplePointListEmpty(list,numberOfPoints))
 	{
@@ -723,12 +734,28 @@ void AMSampleCameraView::samplePlateCreate()
 		{
 			if(!list[i].isEmpty())
 			{
-				combinedPoints<<(list[i].takeFirst());
+				combinedPoints[combinedPointsIndexer] = (list[i].takeFirst());
+				combinedPointsIndexer++;
 			}
 			else
 				AMErrorMon::alert(this, AMSAMPLECAMERAVIEW_SAMPLEPLATECREATE_LIST_UNEXPECTEDLY_EMPTY, QString("A call to samplePlateCreate has an unexpectedly empty list at index %1.").arg(i) );
 		}
 	}
+
+//	QVector<QPointF> combinedPoints;
+//	/// interleave the created lists
+//	while(!samplePointListEmpty(list,numberOfPoints))
+//	{
+//		for(int i = 0; i < numberOfPoints; i++)
+//		{
+//			if(!list[i].isEmpty())
+//			{
+//				combinedPoints<<(list[i].takeFirst());
+//			}
+//			else
+//				AMErrorMon::alert(this, AMSAMPLECAMERAVIEW_SAMPLEPLATECREATE_LIST_UNEXPECTEDLY_EMPTY, QString("A call to samplePlateCreate has an unexpectedly empty list at index %1.").arg(i) );
+//		}
+//	}
 
 	const QList<QVector3D*>* coordinateList = wizardManager_->samplePlateWizard()->getCoordinateList();
 	QVector<QVector3D> sampleCoordinateList;
@@ -761,17 +788,20 @@ void AMSampleCameraView::rotationConfiguration()
 	QList<double> rotationList = *wizardManager_->rotationWizard()->getRotationList();
 	int numberOfPoints = wizardManager_->rotationWizard()->numberOfPoints();
 	QVector<QVector3D> coordinates;
-	QVector<QPointF> points;
 	QVector<AMAngle *> rotations;
 	foreach (QVector3D *coordinate, coordinateList)
 	{
 		coordinates<<*coordinate;
 	}
 
-	foreach (QPointF *point, pointList)
-	{
-		points<<*point;
-	}
+	QVector<QPointF> points = QVector<QPointF>(pointList.count());
+	for(int i = 0, size = pointList.count(); i < size; i++)
+		points[i] = *(pointList.at(i));
+//	QVector<QPointF> points;
+//	foreach (QPointF *point, pointList)
+//	{
+//		points<<*point;
+//	}
 
 	foreach (double rotation, rotationList)
 	{
@@ -1216,8 +1246,11 @@ bool AMSampleCameraView::loadBeam(int databaseId)
 		bool* success = new bool(true);
 		id = matchList.last().toInt(success);
 
-		if(!(*success))
+		if(!(*success)){
+			delete success;
 			return false;
+		}
+		delete success;
 	}
 	else
 		id = databaseId;
@@ -1245,8 +1278,11 @@ bool AMSampleCameraView::loadCamera(int databaseId)
 		bool* success = new bool(true);
 		id = matchList.last().toInt(success);
 
-		if(!success)
+		if(!success){
+			delete success;
 			return false;
+		}
+		delete success;
 	}
 	else
 		id = databaseId;
@@ -1323,23 +1359,30 @@ bool AMSampleCameraView::loadRotationalOffset(int databaseId)
 	AMDatabase *db = AMDatabase::database("SGMPublic");
 	int id;
 	if(databaseId == -1){
-		QVariantList matchList = db->retrieve(AMDbObjectSupport::s()->tableNameForClass<AMCameraConfiguration>(),"id");
+		//QVariantList matchList = db->retrieve(AMDbObjectSupport::s()->tableNameForClass<AMCameraConfiguration>(),"id");
+		QVariantList matchList = db->retrieve(AMDbObjectSupport::s()->tableNameForClass<AMRotationalOffset>(),"id");
 
 		if(matchList.count() <= 0)
 			return false;
 
 		bool* success = new bool(true);
+		qDebug() << "MatchList count for rotationalOffsets is " << matchList.count() << " using last as " << matchList.last().toInt();
 		id = matchList.last().toInt(success);
 
-		if(!success)
+		if(!success){
+			delete success;
 			return false;
+		}
+		delete success;
 	}
 	else
 		id = databaseId;
 
 	AMRotationalOffset *rotationalOffset = new AMRotationalOffset();
-	if(!rotationalOffset->loadFromDb(db, id))
+	if(!rotationalOffset->loadFromDb(db, id)){
+		qDebug() << "Something went wrong loading from db";
 		return false;
+	}
 	shapeModel_->setRotationalOffset(rotationalOffset->rotationalOffset());
 	rotationalOffset->deleteLater();
 	refreshSceneView();
@@ -1460,7 +1503,8 @@ void AMSampleCameraView::intersection()
 {
 	if(shapeModel_->findIntersections())
 	{
-		if(!intersections_.isEmpty()) clearIntersections();
+		if(!intersections_.isEmpty())
+			clearIntersections();
 		createIntersectionShapes(shapeModel_->intersections());
 	}
 }
@@ -1742,9 +1786,6 @@ void AMSampleCameraView::updateCurrentShape()
 
 void AMSampleCameraView::createIntersectionShapes(QVector<QPolygonF> shapes)
 {
-	/*
-<<<<<<< HEAD
-*/
 	intersections_.clear();
 	QPen pen(colour(SAMPLEPLATEINTERSECTION));
 	QBrush brush(colour(SAMPLEPLATEINTERSECTION));
@@ -1778,7 +1819,9 @@ void AMSampleCameraView::clearIntersections()
 	while(!intersections_.isEmpty())
 	{
 		shapeScene_->scene()->removeItem(intersections_.first());
+		QGraphicsPolygonItem *toDelete = intersections_.first();
 		intersections_.remove(0);
+		delete toDelete;
 	}
 }
 
@@ -2690,7 +2733,10 @@ void AMSampleCameraView::drawSamplePlate()
 			if(!samplePlate_)
 				AMErrorMon::alert(this, AMSAMPLECAMERAVIEW_DRAWSAMPLEPLATE_NULL_SAMPLEPLATE, QString("A call to drawSamplePlate has a null sample plate.") );
 			shapeScene_->scene()->removeItem(samplePlate_);
+			QGraphicsPolygonItem *oldSamplePlate = samplePlate_;
 			samplePlate_ = shapeScene_->scene()->addPolygon(samplePlate, pen, brush);
+			if(oldSamplePlate)
+				delete oldSamplePlate;
 		}
 	}
 	if(samplePlate_)

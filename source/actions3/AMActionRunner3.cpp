@@ -91,6 +91,9 @@ void AMActionRunner3::onCurrentActionStateChanged(int state, int previousState)
 
 	if(state == AMAction3::Starting){
 
+		if(loggingDatabase_)
+			currentAction_->setIsLoggingFinished(false);
+
 		AMListAction3* listAction = qobject_cast<AMListAction3*>(currentAction_);
 
 		if(listAction){
@@ -102,7 +105,6 @@ void AMActionRunner3::onCurrentActionStateChanged(int state, int previousState)
 				parentLogId = parentAction->logActionId();
 
 			AMActionHistoryModel3 *historyModel = AMAppControllerSupport::actionHistoryModelFromDatabaseName(loggingDatabase()->connectionName());
-			//if(!AMActionLog3::logUncompletedAction(currentAction_, loggingDatabase_, parentLogId)) {
 			if(!historyModel || !historyModel->logUncompletedAction(currentAction_, loggingDatabase_, parentLogId)){
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -200, "There was a problem logging the uncompleted action to your database.  Please report this problem to the Acquaman developers."));
 			}
@@ -151,17 +153,21 @@ void AMActionRunner3::onCurrentActionStateChanged(int state, int previousState)
 			parentLogId = parentAction->logActionId();
 		if(!(listAction && listAction->shouldLogSubActionsSeparately())) {
 			AMActionHistoryModel3 *historyModel = AMAppControllerSupport::actionHistoryModelFromDatabaseName(loggingDatabase()->connectionName());
-			//if(!AMActionLog3::logCompletedAction(currentAction_, loggingDatabase_, parentLogId)) {
+
 			if(!historyModel || !historyModel->logCompletedAction(currentAction_, loggingDatabase_, parentLogId)){
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -200, "There was a problem logging the completed action to your database.  Please report this problem to the Acquaman developers."));
 			}
+			else
+				currentAction_->setIsLoggingFinished(true);
 		}
 		else if(listAction){
 			AMActionHistoryModel3 *historyModel = AMAppControllerSupport::actionHistoryModelFromDatabaseName(loggingDatabase()->connectionName());
-			//if(!AMActionLog3::updateCompletedAction(currentAction_, loggingDatabase_)) {
+
 			if(!historyModel || !historyModel->updateCompletedAction(currentAction_, loggingDatabase_)){
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -200, "There was a problem updating the log of the completed action to your database.  Please report this problem to the Acquaman developers."));
 			}
+			else
+				currentAction_->setIsLoggingFinished(true);
 		}
 
 		if (isScanAction())

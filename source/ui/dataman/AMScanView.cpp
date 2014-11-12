@@ -704,6 +704,7 @@ AMScanViewExclusiveView::AMScanViewExclusiveView(AMScanView* masterView) : AMSca
 AMScanViewExclusiveView::~AMScanViewExclusiveView() {
 	// PlotSeries's will be deleted as children items of the plot.
 
+	delete plotCursor_;
 	plot_->deleteLater();
 }
 
@@ -1107,6 +1108,7 @@ AMScanViewMultiView::~AMScanViewMultiView() {
  delete plotSeries_[si][ci];
    }*/
 
+	delete plotCursor_;
 	plot_->deleteLater();
 }
 

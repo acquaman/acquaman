@@ -30,6 +30,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/database/AMDatabase.h"
 #include "ui/dataman/AMNewRunDialog.h"
 
+class AMDetailedItemDelegate;
 
 /// author: Rachel Si (August 2010)
 class AMRunSelector: public QComboBox
@@ -69,7 +70,7 @@ protected:
 	bool runUpdateScheduled_;
 	int lastValidRunId_;
 
-
+	AMDetailedItemDelegate *itemDelegate_;
 };
 
 #endif // COMBOBOX_H

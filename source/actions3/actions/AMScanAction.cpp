@@ -198,10 +198,11 @@ void AMScanAction::skipImplementation(const QString &command)
 		setSucceeded();
 }
 
-void AMScanAction::scheduleForDeletion()
+void AMScanAction::scheduleForDeletionImplementation()
 {
 	if(controller_){
-		connect(controller_, SIGNAL(destroyed()), this, SLOT(deleteLater()));
+		//connect(controller_, SIGNAL(destroyed()), this, SLOT(deleteLater()));
+		connect(controller_, SIGNAL(destroyed()), this, SLOT(checkReadyForDeletion()));
 		controller_->scheduleForDeletion();
 		controller_ = 0;
 		hasValidScanController_ = false;
@@ -209,11 +210,21 @@ void AMScanAction::scheduleForDeletion()
 	}
 
 	if(!controller_){
-		deleteLater();
+		checkReadyForDeletion();
+//		deleteLater();
 	}
 
-	else
-		connect(controller_, SIGNAL(readyForDeletion(bool)), this, SLOT(onReadyForDeletionChanged(bool)));
+//	else
+//		connect(controller_, SIGNAL(readyForDeletion(bool)), this, SLOT(onReadyForDeletionChanged(bool)));
+}
+
+void AMScanAction::checkReadyForDeletion()
+{
+	if(isLoggingFinished())
+		deleteLater();
+	else{
+		connect(this, SIGNAL(loggingIsFinished()), this, SLOT(deleteLater()));
+	}
 }
 
 void AMScanAction::onControllerInitialized()
@@ -422,8 +433,8 @@ void AMScanAction::onControllerStateChanged()
 
 }
 
-void AMScanAction::onReadyForDeletionChanged(bool isReady)
-{
-	if(isReady)
-		deleteLater();
-}
+//void AMScanAction::onReadyForDeletionChanged(bool isReady)
+//{
+//	if(isReady)
+//		deleteLater();
+//}

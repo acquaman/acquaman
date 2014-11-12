@@ -42,6 +42,8 @@ AMSampleMoveAction::AMSampleMoveAction(const AMSampleMoveAction &other) :
 
 AMSampleMoveAction::~AMSampleMoveAction()
 {
+	if(moveListAction_)
+		moveListAction_->deleteLater();
 }
 
 AMAction3* AMSampleMoveAction::createCopy() const{
