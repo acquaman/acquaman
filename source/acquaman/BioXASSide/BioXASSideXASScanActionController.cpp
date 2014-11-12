@@ -50,16 +50,6 @@ BioXASSideXASScanActionController::BioXASSideXASScanActionController(BioXASSideX
     scan_->setScanConfiguration(configuration);
     scan_->setIndexType("fileSystem");
     scan_->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));
-
-    AM1DDarkCurrentCorrectionAB *dccI0 = new AM1DDarkCurrentCorrectionAB("Dark Current Corrected i0");
-    dccI0->setInputDataSources(QList<AMDataSource*>() << scan_->rawDataSources()->at(0));
-    dccI0->setDarkCurrent(BioXASSideBeamline::bioXAS()->i0Detector()->darkCurrentMeasurementValue());
-    scan_->addAnalyzedDataSource(dccI0, true, false);
-
-    AM1DDarkCurrentCorrectionAB *dccIT = new AM1DDarkCurrentCorrectionAB("Dark Current Corrected iT");
-    dccIT->setInputDataSources(QList<AMDataSource*>() << scan_->rawDataSources()->at(1));
-    dccIT->setDarkCurrent(BioXASSideBeamline::bioXAS()->iTDetector()->darkCurrentMeasurementValue());
-    scan_->addAnalyzedDataSource(dccIT, true, false);
 }
 
 BioXASSideXASScanActionController::~BioXASSideXASScanActionController()
@@ -69,9 +59,42 @@ BioXASSideXASScanActionController::~BioXASSideXASScanActionController()
 
 AMAction3* BioXASSideXASScanActionController::createInitializationActions()
 {
-    AMListActionInfo3 *info = new AMListActionInfo3("BioXASSide Scan Initialization", "BioXASSide Scan Initialization");
-    AMListAction3 *initializationActions = new AMListAction3(info);
-    initializationActions->addSubAction(BioXASSideBeamline::bioXAS()->mono()->createSetBraggMotorPowerOnAction());
+    AMListAction3 *initializationActions = new AMListAction3(new AMListActionInfo3("BioXASSide XAS Scan Initialization", "BioXASSide XAS Scan Initialization"));
+
+    // turn on the mono bragg motor.
+
+    AMListAction3 *braggMotorSetup = new AMListAction3(new AMListActionInfo3("BioXAS Bragg Motor Setup", "BioXAS Bragg Motor Setup"), AMListAction3::Sequential);
+    braggMotorSetup->addSubAction(BioXASSideBeamline::bioXAS()->mono()->createSetBraggMotorPowerOnAction());
+
+    // set up dark current correction.
+
+    AMListAction3 *darkCurrentSetup = new AMListAction3(new AMListActionInfo3("BioXAS Dark Current Setup", "BioXAS Dark Current Setup"), AMListAction3::Sequential);
+
+    for (int i = 0, size = configuration_->detectorConfigurations().count(); i < size; i++) {
+        AMDetector *detector = AMBeamline::bl()->exposedDetectorByInfo(configuration_->detectorConfigurations().at(i));
+
+        bool sharedSouceFound = false;
+
+        if (detector) {
+            int detectorIndex = scan_->indexOfDataSource(detector->name());
+
+            if (detectorIndex != -1 && detector->rank() == 0 && detector->canDoDarkCurrentCorrection()) {
+                bool isSourceShared = detector->sharesDetectorTriggerSource();
+
+                if (isSourceShared && !sharedSourceFound) {
+                    sharedSourceFound = true;
+                    darkCurrentSetup->addSubAction(detector->createDarkCurrentCorrectionActions(10));
+                } else if (!isSourceShared) {
+                    darkCurrentSetup->addSubAction(detector->createDarkCurrentCorrectionActions(10));
+                }
+            }
+        }
+    }
+
+    // add setup actions to total list of initialization actions.
+
+    initializationActions->addSubAction(braggMotorSetup);
+    initializationActions->addSubAction(darkCurrentSetup);
 
     return initializationActions;
 }
@@ -87,7 +110,37 @@ AMAction3* BioXASSideXASScanActionController::createCleanupActions()
 
 void BioXASSideXASScanActionController::buildScanControllerImplementation()
 {
+    // Create data sources of dark current corrected measurements of each detector in the configuration_ that can perform dark current correction.
+    // Add data sources to list of analyzed data sources.
 
+    int dwellTimeIndex = scan_->indexOfDataSource(BioXASSideBeamline::bioXAS()->dwellTimeDetector()->name());
+
+    if (dwellTimeIndex != -1) {
+        AMDataSource *dwellTimeSource = scan_->dataSourceAt(dwellTimeIndex);
+
+        for (int i = 0, size = configuration_->detectorConfigurations().count(); i < size; i++) {
+            AMDetector *detector = AMBeamline::bl()->exposedDetectorByInfo(configuration_->detectorConfigurations().at(i));
+
+            if (detector) {
+                int detectorIndex = scan_->indexOfDataSource(detector->name());
+
+                if (detectorIndex != -1 && detector->rank() == 0 && detector->canDoDarkCurrentCorrection()) {
+                    AMDataSource *detectorSource = scan_->dataSourceAt(detectorIndex);
+
+                    AM1DDarkCurrentCorrectionAB *detectorCorrection = new AM1DDarkCurrentCorrectionAB(QString("%1_DarkCorrect").arg(detector->name()));
+                    detectorCorrection->setDescription(QString("%1 Dark Current Correction").arg(detector->name()));
+                    detectorCorrection->setDataName(detectorSource->name());
+                    detectorCorrection->setDwellTimeName(dwellTimeSource->name());
+                    detectorCorrection->setInputDataSources(QList<AMDataSource*>() << detectorSource << dwellTimeSource);
+                    detectorCorrection->setTimeUnitMultiplier(0.001);
+
+                    connect( detector, SIGNAL(newDarkCurrentMeasurementValueReady(double)), detectorCorrection, SLOT(setDarkCurrent(double)) );
+
+                    scan_->addAnalyzedDataSource(detectorCorrection, true, false);
+                }
+            }
+        }
+    }
 }
 
 void BioXASSideXASScanActionController::createScanAssembler()
