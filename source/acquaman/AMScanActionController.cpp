@@ -21,6 +21,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMScanActionController.h"
 
+#include <QThread>
+
 #include "actions3/AMActionRunner3.h"
 #include "acquaman/AMAgnosticDataAPI.h"
 #include "application/AMAppController.h"
@@ -36,8 +38,28 @@ AMScanActionController::AMScanActionController(AMScanConfiguration *configuratio
 	initializationActions_ = 0;
 	cleanupActions_ = 0;
 	scanningActionsSucceeded_ = false;
+	scanControllerStateMachineFinished_ = false;
+
+	fileWriterThread_ = 0;
+	fileWriterIsBusy_ = false;
+	deleteFileWriterImmediately_ = false;
 
 	connect(this, SIGNAL(stateChanged(int,int)), this, SLOT(onStateChanged(int,int)));
+}
+
+void AMScanActionController::scheduleForDeletion()
+{
+	if(fileWriterThread_){
+		connect(fileWriterThread_, SIGNAL(destroyed()), this, SLOT(deleteLater()));
+
+		if(readyForFinished())
+			fileWriterThread_->deleteLater();
+		else{
+			deleteFileWriterImmediately_ = true;
+			if(fileWriterIsBusy_)
+				emit finishWritingToFile();
+		}
+	}
 }
 
 void AMScanActionController::onStateChanged(int oldState, int newState)
@@ -148,9 +170,17 @@ void AMScanActionController::stopImplementation(const QString &command)
 
 	if(currentAction){
 
-		connect(currentAction, SIGNAL(succeeded()), this, SLOT(setFinished()));
+		connect(currentAction, SIGNAL(succeeded()), this, SLOT(onSkipCurrentActionSucceeded()));
 		currentAction->skip(command);
 	}
+}
+
+bool AMScanActionController::readyForFinished() const
+{
+	if(fileWriterThread_)
+		return (!fileWriterIsBusy_ && fileWriterThread_->isFinished() && scanControllerStateMachineFinished_);
+	else
+		return (!fileWriterIsBusy_ && scanControllerStateMachineFinished_);
 }
 
 AMAction3* AMScanActionController::scanningActions()
@@ -196,8 +226,12 @@ void AMScanActionController::onScanningActionsSucceeded()
 		AMActionRunner3::scanActionRunner()->setQueuePaused(false);
 	}
 
-	else
-		setFinished();
+	else{
+		scanControllerStateMachineFinished_ = true;
+		// Don't do anything else, if we're not ready for finished but we're succeeding then the file writing should finish soon and will check again
+		if(readyForFinished())
+			setFinished();
+	}
 }
 
 void AMScanActionController::onScanningActionsFailed()
@@ -220,14 +254,43 @@ void AMScanActionController::onScanningActionsFailed()
 		setFailed();
 }
 
+void AMScanActionController::onFileWriterIsBusy(bool isBusy)
+{
+	fileWriterIsBusy_ = isBusy;
+	if(!fileWriterIsBusy_ && fileWriterThread_){
+		connect(fileWriterThread_, SIGNAL(finished()), this, SLOT(onFileWriterThreadFinished()));
+		fileWriterThread_->quit();
+	}
+}
+
+void AMScanActionController::onFileWriterThreadFinished(){
+	if(deleteFileWriterImmediately_)
+		fileWriterThread_->deleteLater();
+
+	if(readyForFinished())
+		setFinished();
+}
+
+void AMScanActionController::onSkipCurrentActionSucceeded(){
+	scanControllerStateMachineFinished_ = true;
+	// This shouldn't be the case, because we're skipping so the file writer is probably waiting to be told to finish
+	if(readyForFinished())
+		setFinished();
+	else if(fileWriterIsBusy_)
+		emit finishWritingToFile();
+}
+
 void AMScanActionController::onCleanupActionsListSucceeded()
 {
 	disconnect(cleanupActions_, SIGNAL(succeeded()), this, SLOT(onCleanupActionsListSucceeded()));
 	disconnect(cleanupActions_, SIGNAL(failed()), this, SLOT(onCleanupActionsListFailed()));
 
-	if(scanningActionsSucceeded_)
-		setFinished();
-
+	if(scanningActionsSucceeded_){
+		scanControllerStateMachineFinished_ = true;
+		// Don't do anything else, if we're not ready for finished but we're succeeding then the file writing should finish soon and will check again
+		if(readyForFinished())
+			setFinished();
+	}
 	else
 		setFailed();
 }

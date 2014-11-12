@@ -43,7 +43,6 @@ SGMFastScanActionController::SGMFastScanActionController(SGMFastScanConfiguratio
 {
 	goodInitialState_ = false;
 
-	fileWriterIsBusy_ = false;
 	configuration_ = configuration;
 	insertionIndex_ = AMnDIndex(0);
 
@@ -80,7 +79,7 @@ SGMFastScanActionController::SGMFastScanActionController(SGMFastScanConfiguratio
 
 SGMFastScanActionController::~SGMFastScanActionController()
 {
-	fileWriterThread_->deleteLater();
+	// No need to clean up fileWriterThread, we'll be informed to delete ourself after it is destroyed
 }
 
 void SGMFastScanActionController::buildScanController()
@@ -137,14 +136,9 @@ void SGMFastScanActionController::onFileWriterError(AMScanActionControllerBasicF
 	box.execWTimeout();
 }
 
-void SGMFastScanActionController::onFileWriterIsBusy(bool isBusy){
-	fileWriterIsBusy_ = isBusy;
-	emit readyForDeletion(!fileWriterIsBusy_);
-}
-
 void SGMFastScanActionController::onEverythingFinished(){
 	if(goodInitialState_ && (!SGMBeamline::sgm()->undulatorTracking()->withinTolerance(1) || !SGMBeamline::sgm()->exitSlitTracking()->withinTolerance(1)) ){
-		qDebug() << "\n\n\nDETECTED A LOSS OF TRACKING STATE\n\n";
+//		qDebug() << "\n\n\nDETECTED A LOSS OF TRACKING STATE\n\n";
 	}
 }
 
@@ -307,6 +301,8 @@ bool SGMFastScanActionController::event(QEvent *e){
 						}
 			*/
 			writeDataToFiles();
+
+			emit finishWritingToFile();
 
 			break;}
 		case AMAgnosticDataAPIDefinitions::AxisValueFinished:

@@ -200,8 +200,17 @@ void AMScanAction::skipImplementation(const QString &command)
 
 void AMScanAction::scheduleForDeletion()
 {
-	if(!controller_ || controller_->isReadyForDeletion())
+	if(controller_){
+		connect(controller_, SIGNAL(destroyed()), this, SLOT(deleteLater()));
+		controller_->scheduleForDeletion();
+		controller_ = 0;
+		hasValidScanController_ = false;
+		return;
+	}
+
+	if(!controller_){
 		deleteLater();
+	}
 
 	else
 		connect(controller_, SIGNAL(readyForDeletion(bool)), this, SLOT(onReadyForDeletionChanged(bool)));

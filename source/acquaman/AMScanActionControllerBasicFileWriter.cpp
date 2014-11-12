@@ -106,6 +106,7 @@ void AMScanActionControllerBasicFileWriter::writeToFile(int fileRank, const QStr
 	}
 }
 
+#include <QDebug>
 void AMScanActionControllerBasicFileWriter::finishWriting()
 {
 	dataFile_->close();

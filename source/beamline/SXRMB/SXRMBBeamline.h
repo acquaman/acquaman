@@ -31,7 +31,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 #include "beamline/CLS/CLSBasicScalerChannelDetector.h"
 #include "beamline/CLS/CLSBasicCompositeScalerChannelDetector.h"
-#include "beamline/BioXAS/BioXASCLSMAXvMotor.h"
+#include "beamline/CLS/CLSMAXvMotor.h"
 #include "beamline/SXRMB/SXRMBBrukerDetector.h"
 #include "beamline/AMMotorGroup.h"
 

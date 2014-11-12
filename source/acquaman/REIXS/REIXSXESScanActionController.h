@@ -49,8 +49,8 @@ public:
 signals:
 	/// Notifier that new information/data should be written to file.
 	void requestWriteToFile(int fileRank, const QString &textToWrite);
-	/// Notifier that tells the file writer that all file writing activities are done after a scan has finished and to close all file access.
-	void finishWritingToFile();
+//	/// Notifier that tells the file writer that all file writing activities are done after a scan has finished and to close all file access.
+//	void finishWritingToFile();
 
 public slots:
 	/// Method that builds all the general aspects, such as measurements and raw data sources, and the file writer capabilities for the scan controller.
@@ -76,8 +76,8 @@ protected slots:
 
 	/// Handles dealing with file writer errors.
 	void onFileWriterError(AMScanActionControllerBasicFileWriter::FileWriterError error);
-	/// Handles dealing with the file writer when it changes busy state.
-	void onFileWriterIsBusy(bool isBusy);
+//	/// Handles dealing with the file writer when it changes busy state.
+//	void onFileWriterIsBusy(bool isBusy);
 
 	/// Method that writes out the header information into the scanning file.
 	void writeHeaderToFile();
@@ -112,8 +112,8 @@ protected:
 
 	/// Pointer to the thread that handles all the file writing.
 	QThread *fileWriterThread_;
-	/// Flag for keeping track of whether the file writer thread is busy or not.
-	bool fileWriterIsBusy_;
+//	/// Flag for keeping track of whether the file writer thread is busy or not.
+//	bool fileWriterIsBusy_;
 
 	/// Holds the header string so that we don't have to recreate it everytime data is updated.
 	QString headerText_;
