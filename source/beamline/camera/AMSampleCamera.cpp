@@ -1842,9 +1842,9 @@ void AMSampleCamera::setSimpleSamplePlate(QVector3D base, QVector3D width, QVect
 
 	QVector<QVector3D> simpleSamplePlateShape;
 	simpleSamplePlateShape <<base
-			      <<base + width
-			     <<base + width + height
-			    <<base + height
+				  <<base + width
+				 <<base + width + height
+				<<base + height
 			   <<base;
 	/// set the sample shape data
 	AMShapeData *simpleSamplePlate = new AMShapeData();
@@ -1879,26 +1879,27 @@ void AMSampleCamera::createSamplePlate(QVector<QVector3D> coordinates, QVector<Q
 	/// need to do this for each vertex of the plate
 	// points should be in n-pairs for each vertex in that order
 	int numberOfVertices = points.count()/NUMBER_OF_COORDINATES;
-	QPointF *pointList = new QPointF [numberOfVertices*NUMBER_OF_COORDINATES];
-	/// fill pointList with the values from "points".
-	for(int i = 0; i < numberOfVertices; i++)
-	{
-		for(int j = 0; j < NUMBER_OF_COORDINATES; j++)
-		{
-			pointList[i*NUMBER_OF_COORDINATES + j] = points.at(i*NUMBER_OF_COORDINATES + j);
-		}
-	}
+//	QPointF *pointList = new QPointF [numberOfVertices*NUMBER_OF_COORDINATES];
+//	/// fill pointList with the values from "points".
+//	for(int i = 0; i < numberOfVertices; i++)
+//	{
+//		for(int j = 0; j < NUMBER_OF_COORDINATES; j++)
+//		{
+//			pointList[i*NUMBER_OF_COORDINATES + j] = points.at(i*NUMBER_OF_COORDINATES + j);
+//		}
+//	}
 
 
 	QVector< QVector<QVector3D> > pointResults = QVector< QVector<QVector3D> >(numberOfVertices);
 	for(int i = 0; i < numberOfVertices; i++)
 	{
-		QVector<QPointF> vertexPoints = QVector<QPointF>(NUMBER_OF_COORDINATES);
+//		QVector<QPointF> vertexPoints = QVector<QPointF>(NUMBER_OF_COORDINATES);
 
-		for(int j = 0; j < NUMBER_OF_COORDINATES; j++)
-			vertexPoints[j] = pointList[i*NUMBER_OF_COORDINATES + j];
+//		for(int j = 0; j < NUMBER_OF_COORDINATES; j++)
+//			vertexPoints[j] = points.at(i*NUMBER_OF_COORDINATES + j);
 
-		pointResults[i] = findSamplePlateCoordinate(coordinates,vertexPoints,rotations,numberOfPoints);
+		pointResults[i] = findSamplePlateCoordinate(coordinates, points.mid(i*NUMBER_OF_COORDINATES, NUMBER_OF_COORDINATES), rotations, numberOfPoints);
+//		pointResults[i] = findSamplePlateCoordinate(coordinates,vertexPoints,rotations,numberOfPoints);
 	}
 
 //	QVector< QVector<QVector3D> > pointResults;
@@ -1914,11 +1915,11 @@ void AMSampleCamera::createSamplePlate(QVector<QVector3D> coordinates, QVector<Q
 //	}
 
 
-	QVector<QVector3D> plateShape;
+	QVector<QVector3D> plateShape = QVector<QVector3D>(numberOfVertices);
 
 	for(int i = 0; i < numberOfVertices; i++)
 	{
-		plateShape<<pointResults.at(i).last();
+		plateShape[i] = pointResults.at(i).last();
 	}
 
 	AMShapeData *samplePlateShape = new AMShapeData();

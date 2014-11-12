@@ -686,7 +686,7 @@ void AMSampleCameraView::beamCalibrate()
 }
 
 void AMSampleCameraView::samplePlateCreate()
-{	
+{
 	const QList<QPointF*>* pointList = wizardManager_->samplePlateWizard()->getPointList();
 	int numberOfPoints = wizardManager_->samplePlateWizard()->numberOfPoints();
 	/// create sample plate takes a QVector of QVector3D and a QVector of QPointF
@@ -758,22 +758,31 @@ void AMSampleCameraView::samplePlateCreate()
 //	}
 
 	const QList<QVector3D*>* coordinateList = wizardManager_->samplePlateWizard()->getCoordinateList();
-	QVector<QVector3D> sampleCoordinateList;
-	foreach(QVector3D* coordinate, *coordinateList)
-	{
-		sampleCoordinateList<<*coordinate;
-	}
+	QVector<QVector3D> sampleCoordinateList = QVector<QVector3D>(coordinateList->size());
+
+	for (int i = 0, size = coordinateList->size(); i < size; i++)
+		sampleCoordinateList[i] = *(coordinateList->at(i));
+
+//	foreach(QVector3D* coordinate, *coordinateList)
+//	{
+//		sampleCoordinateList <<*coordinate;
+//	}
 
 	const QList<double> *rotationsList = wizardManager_->samplePlateWizard()->getRotationList();
-	QVector<double> rotations;
-	foreach(double angle, *rotationsList)
-	{
-		rotations<<angle;
-	}
+	QVector<double> rotations = QVector<double>(rotationsList->size());
+
+	for (int i = 0, size = rotationsList->size(); i < size; i++)
+		rotations[i] = rotationsList->at(i);
+
+//	foreach(double angle, *rotationsList)
+//	{
+//		rotations<<angle;
+//	}
 	shapeModel_->createSamplePlate(sampleCoordinateList,combinedPoints, rotations, numberOfPoints);
 
 	emit samplePlateWizardFinished(true);
 
+	delete list;
 }
 
 void AMSampleCameraView::simpleSamplePlateCreate()
