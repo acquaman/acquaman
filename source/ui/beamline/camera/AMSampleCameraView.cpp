@@ -312,10 +312,6 @@ void AMSampleCameraView::refreshSceneView()
 
 	// show the polygon currently being drawn
 	QPolygonF currentPolygon = shapeModel_->currentPolygon();
-//	QPainterPath* path = new QPainterPath();
-//	path->addPolygon(currentPolygon);
-//	currentShape_->setPath(*path);
-
 	QPainterPath path;
 	path.addPolygon(currentPolygon);
 	currentShape_->setPath(path);
@@ -742,31 +738,11 @@ void AMSampleCameraView::samplePlateCreate()
 		}
 	}
 
-//	QVector<QPointF> combinedPoints;
-//	/// interleave the created lists
-//	while(!samplePointListEmpty(list,numberOfPoints))
-//	{
-//		for(int i = 0; i < numberOfPoints; i++)
-//		{
-//			if(!list[i].isEmpty())
-//			{
-//				combinedPoints<<(list[i].takeFirst());
-//			}
-//			else
-//				AMErrorMon::alert(this, AMSAMPLECAMERAVIEW_SAMPLEPLATECREATE_LIST_UNEXPECTEDLY_EMPTY, QString("A call to samplePlateCreate has an unexpectedly empty list at index %1.").arg(i) );
-//		}
-//	}
-
 	const QList<QVector3D*>* coordinateList = wizardManager_->samplePlateWizard()->getCoordinateList();
 	QVector<QVector3D> sampleCoordinateList = QVector<QVector3D>(coordinateList->size());
 
 	for (int i = 0, size = coordinateList->size(); i < size; i++)
 		sampleCoordinateList[i] = *(coordinateList->at(i));
-
-//	foreach(QVector3D* coordinate, *coordinateList)
-//	{
-//		sampleCoordinateList <<*coordinate;
-//	}
 
 	const QList<double> *rotationsList = wizardManager_->samplePlateWizard()->getRotationList();
 	QVector<double> rotations = QVector<double>(rotationsList->size());
@@ -774,10 +750,6 @@ void AMSampleCameraView::samplePlateCreate()
 	for (int i = 0, size = rotationsList->size(); i < size; i++)
 		rotations[i] = rotationsList->at(i);
 
-//	foreach(double angle, *rotationsList)
-//	{
-//		rotations<<angle;
-//	}
 	shapeModel_->createSamplePlate(sampleCoordinateList,combinedPoints, rotations, numberOfPoints);
 
 	emit samplePlateWizardFinished(true);
@@ -806,11 +778,6 @@ void AMSampleCameraView::rotationConfiguration()
 	QVector<QPointF> points = QVector<QPointF>(pointList.count());
 	for(int i = 0, size = pointList.count(); i < size; i++)
 		points[i] = *(pointList.at(i));
-//	QVector<QPointF> points;
-//	foreach (QPointF *point, pointList)
-//	{
-//		points<<*point;
-//	}
 
 	foreach (double rotation, rotationList)
 	{
