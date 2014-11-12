@@ -640,8 +640,8 @@ void SGMAppController::onActionSGMSettings(){
 
 
 void SGMAppController::onAdvancedCameraOptionsRequested(){
-	if(sampleManagementView_)
-		sampleManagementView_->requestAdvancedCameraOptionsWindow();
+//	if(sampleManagementView_)
+//		sampleManagementView_->requestAdvancedCameraOptionsWindow();
 }
 
 void SGMAppController::onActionMirrorVeiw(){
@@ -914,9 +914,17 @@ bool SGMAppController::setupSGMPeriodicTable(){
 	elementEdge = "K";
 	matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMElementInfo>(), "name", elementName+"ElementInfo");
 	if(matchIDs.count() == 0){
-		SGMEnergyPosition epStart(elementName%elementEdge%"Start", 270.0, -397720, -149991, 286.63, 0);
-		SGMEnergyPosition epMiddle(elementName%elementEdge%"Middle", 295.0, -377497, -140470, 200.46, 0);
-		SGMEnergyPosition epEnd(elementName%elementEdge%"End", 320.0, -348005, -133061, 100.54, 0);
+
+//		SGMEnergyPosition epStart(elementName%elementEdge%"Start", 270.0, -397720, -149991, 286.63, 0);
+//		SGMEnergyPosition epMiddle(elementName%elementEdge%"Middle", 295.0, -377497, -140470, 200.46, 0);
+//		SGMEnergyPosition epEnd(elementName%elementEdge%"End", 320.0, -348005, -133061, 100.54, 0);
+//		success &= epStart.storeToDb(dbSGM);
+//		success &= epMiddle.storeToDb(dbSGM);
+//		success &= epEnd.storeToDb(dbSGM);
+
+		SGMEnergyPosition epStart(elementName%elementEdge%"Start", 300.0, -371207, -141240, 1.0, 0);
+		SGMEnergyPosition epMiddle(elementName%elementEdge%"Middle", 301.0, -369973, -140888, 1.0, 0);
+		SGMEnergyPosition epEnd(elementName%elementEdge%"End", 302.0, -368750, -140571, 1.0, 0);
 		success &= epStart.storeToDb(dbSGM);
 		success &= epMiddle.storeToDb(dbSGM);
 		success &= epEnd.storeToDb(dbSGM);
@@ -931,6 +939,11 @@ bool SGMAppController::setupSGMPeriodicTable(){
 		SGMFastScanParameters *fsp5 = new SGMFastScanParameters(elementName%elementEdge%"5s", AMPeriodicTable::table()->elementBySymbol(elementSymbol)->name(), scanInfo, fs5Settings);
 		success &= fsp5->storeToDb(dbSGM);
 		*/
+
+		SGMFastScanSettings fs2Settings(elementName%elementEdge%"2sSettings", 2.0, 40000, 2.0, 200, 6000);
+		success &= fs2Settings.storeToDb(dbSGM);
+		SGMFastScanParameters *fsp2 = new SGMFastScanParameters(elementName%elementEdge%"2s", AMPeriodicTable::table()->elementBySymbol(elementSymbol)->name(), scanInfo, fs2Settings);
+		success &= fsp2->storeToDb(dbSGM);
 
 		SGMFastScanSettings fs120Settings(elementName%elementEdge%"120sSettings", 120.0, 872, 120.0, 200, 141);
 		success &= fs120Settings.storeToDb(dbSGM);
@@ -951,6 +964,7 @@ bool SGMAppController::setupSGMPeriodicTable(){
 
 		SGMElementInfo *elementInfo = new SGMElementInfo(elementName%"ElementInfo", AMPeriodicTable::table()->elementBySymbol(elementSymbol), this);
 		elementInfo->addEdgeInfo(scanInfo);
+		elementInfo->addFastScanParameters(fsp2);
 		elementInfo->addFastScanParameters(fsp20);
 		elementInfo->addFastScanParameters(fsp120);
 		success &= elementInfo->storeToDb(dbSGM);
@@ -1458,8 +1472,8 @@ bool SGMAppController::setupSGMViews(){
 	AMSampleCamera::set()->setSSAManipulatorY(SGMBeamline::sgm()->ssaManipulatorY());
 	AMSampleCamera::set()->setSSAManipulatorZ(SGMBeamline::sgm()->ssaManipulatorZ());
 	AMSampleCamera::set()->setSSAManipulatorRot(SGMBeamline::sgm()->ssaManipulatorRot());
-	sampleManagementView_ = new SGMSampleManagementView();
-	mw_->addPane(sampleManagementView_, "Beamline Control", "SGM Sample Management", ":/system-software-update.png");
+//	sampleManagementView_ = new SGMSampleManagementView();
+//	mw_->addPane(sampleManagementView_, "Beamline Control", "SGM Sample Management", ":/system-software-update.png");
 
 	SGMAdvancedControls_ = new SGMAdvancedControlsView();
 	mw_->addPane(SGMAdvancedControls_, "Beamline Control", "SGM Advanced Controls", ":/system-software-update.png");

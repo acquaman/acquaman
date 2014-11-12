@@ -4,11 +4,11 @@
 #include <QMenu>
 #include <QDebug>
 
-BioXASCLSMAXvMotorControlEditor::BioXASCLSMAXvMotorControlEditor(BioXASCLSMAXvMotor* control, AMControl* statusTagControl, bool readOnly, bool configureOnly, QWidget *parent)
+BioXASCLSMAXvMotorControlEditor::BioXASCLSMAXvMotorControlEditor(CLSMAXvMotor* control, AMControl* statusTagControl, bool readOnly, bool configureOnly, QWidget *parent)
 	:AMExtendedControlEditor(control, statusTagControl, readOnly, configureOnly, parent)
 {
-	valueLabel_->setToolTip(control->feedbackPVName());
-	unitsLabel_->setToolTip(control->feedbackPVName() + " (units)");
+	valueLabel_->setToolTip(control->readPVName());
+	unitsLabel_->setToolTip(control->readPVName() + " (units)");
 	statusLabel_->setToolTip(control->statusPVName());
 
 	QFont statusFont;
@@ -45,7 +45,7 @@ BioXASCLSMAXvMotorControlEditor::~BioXASCLSMAXvMotorControlEditor()
 
 void BioXASCLSMAXvMotorControlEditor::onShowContextMenu(const QPoint& pos)
 {
-	BioXASCLSMAXvMotor * bioxasMAXvMotor = (BioXASCLSMAXvMotor *)control_;
+	CLSMAXvMotor * bioxasMAXvMotor = (CLSMAXvMotor *)control_;
 
 	QMenu contextMenu;
 	contextMenu.addAction("Stop " + bioxasMAXvMotor->pvBaseName());

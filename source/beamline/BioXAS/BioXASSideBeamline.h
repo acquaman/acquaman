@@ -32,11 +32,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSBasicScalerChannelDetector.h"
 #include "beamline/CLS/CLSKeithley428.h"
 #include "beamline/CLS/CLSBasicCompositeScalerChannelDetector.h"
+#include "beamline/CLS/CLSMAXvMotor.h"
+
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
 
+#include "beamline/BioXAS/BioXASBeamlineDef.h"
 #include "beamline/BioXAS/BioXASSideMonochromator.h"
-#include "beamline/BioXAS/BioXASCLSMAXvMotor.h"
 
 #define BIOXASSIDEBEAMLINE_PRESSURE_TOO_HIGH 54600
 #define BIOXASSIDEBEAMLINE_VALVES_CLOSED 54601
@@ -270,7 +272,6 @@ protected:
 	BioXASSideBeamline();
 
 protected:
-
     // Detectors
 
     CLSBasicScalerChannelDetector *i0Detector_;
@@ -401,34 +402,34 @@ protected:
 
     // Filter motors
 
-	BioXASCLSMAXvMotor *carbonFilterFarm1_;
-	BioXASCLSMAXvMotor *carbonFilterFarm2_;
+    CLSMAXvMotor *carbonFilterFarm1_;
+    CLSMAXvMotor *carbonFilterFarm2_;
 
     // M1 motors
 
-	BioXASCLSMAXvMotor *m1VertUpStreamINB_;
-	BioXASCLSMAXvMotor *m1VertUpStreamOUTB_;
-	BioXASCLSMAXvMotor *m1VertDownStream_;
-	BioXASCLSMAXvMotor *m1StripeSelect_;
-	BioXASCLSMAXvMotor *m1Yaw_;
-	BioXASCLSMAXvMotor *m1BenderUpstream_;
-	BioXASCLSMAXvMotor *m1BenderDownStream_;
-	BioXASCLSMAXvMotor *m1UpperSlitBlade_;
+    CLSMAXvMotor *m1VertUpStreamINB_;
+    CLSMAXvMotor *m1VertUpStreamOUTB_;
+    CLSMAXvMotor *m1VertDownStream_;
+    CLSMAXvMotor *m1StripeSelect_;
+    CLSMAXvMotor *m1Yaw_;
+    CLSMAXvMotor *m1BenderUpstream_;
+    CLSMAXvMotor *m1BenderDownStream_;
+    CLSMAXvMotor *m1UpperSlitBlade_;
 
     // Variable Mask motors
 
-	BioXASCLSMAXvMotor *variableMaskVertUpperBlade_;
-	BioXASCLSMAXvMotor *variableMaskVertLowerBlade_;
+    CLSMAXvMotor *variableMaskVertUpperBlade_;
+    CLSMAXvMotor *variableMaskVertLowerBlade_;
 
     // M2 motors
 
-	BioXASCLSMAXvMotor *m2VertUpstreamINB_;
-	BioXASCLSMAXvMotor *m2VertUpstreamOUTB_;
-	BioXASCLSMAXvMotor *m2VertDownstream_;
-	BioXASCLSMAXvMotor *m2StripeSelect_;
-	BioXASCLSMAXvMotor *m2Yaw_;
-	BioXASCLSMAXvMotor *m2BenderUpstream_;
-	BioXASCLSMAXvMotor *m2BenderDownStream_;
+    CLSMAXvMotor *m2VertUpstreamINB_;
+    CLSMAXvMotor *m2VertUpstreamOUTB_;
+    CLSMAXvMotor *m2VertDownstream_;
+    CLSMAXvMotor *m2StripeSelect_;
+    CLSMAXvMotor *m2Yaw_;
+    CLSMAXvMotor *m2BenderUpstream_;
+    CLSMAXvMotor *m2BenderDownStream_;
 };
 
 #endif // BIOXASSIDEBEAMLINE_H

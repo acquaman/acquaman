@@ -43,14 +43,15 @@ AMStepScanActionController::AMStepScanActionController(AMStepScanConfiguration *
 	: AMScanActionController(configuration, parent)
 {
 	stepConfiguration_ = configuration;
-	fileWriterIsBusy_ = false;
+
 	useFeedback_ = false;
 	stoppingAtEndOfLine_ = false;
+	axisStackCounter_ = 0;
 }
 
 AMStepScanActionController::~AMStepScanActionController()
 {
-	fileWriterThread_->deleteLater();
+	// No need to clean up fileWriterThread, we'll be informed to delete ourself after it is destroyed
 }
 
 void AMStepScanActionController::createScanAssembler()
@@ -156,9 +157,6 @@ void AMStepScanActionController::buildScanController()
 	connect(this, SIGNAL(finishWritingToFile()), fileWriter, SLOT(finishWriting()));
 
 	fileWriterThread_ = new QThread();
-	connect(this, SIGNAL(finished()), fileWriterThread_, SLOT(quit()));
-	connect(this, SIGNAL(cancelled()), fileWriterThread_, SLOT(quit()));
-	connect(this, SIGNAL(failed()), fileWriterThread_, SLOT(quit()));
 	fileWriter->moveToThread(fileWriterThread_);
 	fileWriterThread_->start();
 
@@ -183,11 +181,6 @@ void AMStepScanActionController::buildScanController()
 		setFailed();
 }
 
-bool AMStepScanActionController::isReadyForDeletion() const
-{
-	return !fileWriterIsBusy_;
-}
-
 void AMStepScanActionController::flushCDFDataStoreToDisk()
 {
 	AMCDFDataStore *dataStore = qobject_cast<AMCDFDataStore *>(scan_->rawData());
@@ -197,8 +190,6 @@ void AMStepScanActionController::flushCDFDataStoreToDisk()
 
 void AMStepScanActionController::onFileWriterError(AMScanActionControllerBasicFileWriter::FileWriterError error)
 {
-	qDebug() << "Got a file writer error " << error;
-
 	QString userErrorString;
 
 	switch(error){
@@ -234,12 +225,6 @@ void AMStepScanActionController::onFileWriterError(AMScanActionControllerBasicFi
 	box.execWTimeout();
 }
 
-void AMStepScanActionController::onFileWriterIsBusy(bool isBusy)
-{
-	fileWriterIsBusy_ = isBusy;
-	emit readyForDeletion(!fileWriterIsBusy_);
-}
-
 bool AMStepScanActionController::event(QEvent *e)
 {
 	if (e->type() == (QEvent::Type)AMAgnosticDataAPIDefinitions::MessageEvent){
@@ -249,6 +234,8 @@ bool AMStepScanActionController::event(QEvent *e)
 		switch(message.messageType()){
 
 		case AMAgnosticDataAPIDefinitions::AxisStarted:{
+
+			axisStackCounter_++;
 
 			if (message.uniqueID().contains(scan_->rawData()->scanAxisAt(0).name))
 				writeHeaderToFile();
@@ -264,11 +251,8 @@ bool AMStepScanActionController::event(QEvent *e)
 			if (scan_->scanRank() == 0)
 				writeDataToFiles();
 
-			if (scan_->rawData()->scanAxesCount() == 1){
-
+			if (scan_->rawData()->scanAxesCount() == 1)
 				scan_->rawData()->endInsertRows();
-				emit finishWritingToFile();
-			}
 
 			// This should be safe and fine regardless of if the CDF data store is being used or not.
 			flushCDFDataStoreToDisk();
@@ -277,6 +261,15 @@ bool AMStepScanActionController::event(QEvent *e)
 
 				connect(AMActionRunner3::scanActionRunner()->currentAction(), SIGNAL(cancelled()), this, SLOT(onScanningActionsSucceeded()));
 				AMActionRunner3::scanActionRunner()->cancelCurrentAction();
+				emit finishWritingToFile();
+			}
+
+			else {
+
+				axisStackCounter_--;
+
+				if (axisStackCounter_ == 0)
+					emit finishWritingToFile();
 			}
 
 			break;}
@@ -296,6 +289,7 @@ bool AMStepScanActionController::event(QEvent *e)
 
 				connect(AMActionRunner3::scanActionRunner()->currentAction(), SIGNAL(cancelled()), this, SLOT(onScanningActionsSucceeded()));
 				AMActionRunner3::scanActionRunner()->cancelCurrentAction();
+				emit finishWritingToFile();
 			}
 
 			break;
