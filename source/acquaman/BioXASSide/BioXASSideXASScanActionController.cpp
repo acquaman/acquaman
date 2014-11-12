@@ -73,7 +73,7 @@ AMAction3* BioXASSideXASScanActionController::createInitializationActions()
     for (int i = 0, size = configuration_->detectorConfigurations().count(); i < size; i++) {
         AMDetector *detector = AMBeamline::bl()->exposedDetectorByInfo(configuration_->detectorConfigurations().at(i));
 
-        bool sharedSouceFound = false;
+        bool sharedSourceFound = false;
 
         if (detector) {
             int detectorIndex = scan_->indexOfDataSource(detector->name());

@@ -7,15 +7,15 @@ BioXASSideMonochromator::BioXASSideMonochromator(QObject *parent) :
     connected_ = false;
     region_ = None;
 
-    phosphorPaddleMotor_ = new BioXASCLSMAXvMotor(BioXASBeamlineDef::MonoMotor, QString("SMTR1607-5-I22-11 PHOSPHOR PADDLE"), QString("SMTR1607-5-I22-11"), QString("SMTR1607-5-I22-11 PHOSPHOR PADDLE"), QString(":mm"),  true, 0.05, 2.0, this);
-    braggMotor_ = new BioXASCLSMAXvMotor(BioXASBeamlineDef::MonoMotor, QString("SMTR1607-5-I22-12 BRAGG"), QString("SMTR1607-5-I22-12"), QString("SMTR1607-5-I22-12 BRAGG"), QString(":deg"), true, 0.05, 2.0, this);
-    verticalMotor_ = new BioXASCLSMAXvMotor(BioXASBeamlineDef::MonoMotor, QString("SMTR1607-5-I22-13 VERTICAL"), QString("SMTR1607-5-I22-13"), QString("SMTR1607-5-I22-13 VERTICAL"), QString(":mm"),  true, 0.05, 2.0, this);
-    lateralMotor_ = new BioXASCLSMAXvMotor(BioXASBeamlineDef::MonoMotor, QString("SMTR1607-5-I22-14 LATERAL"), QString("SMTR1607-5-I22-14"), QString("SMTR1607-5-I22-14 LATERAL"), QString(":mm"),  true, 0.05, 2.0, this);
-    crystalExchangeMotor_ = new BioXASCLSMAXvMotor(BioXASBeamlineDef::MonoMotor, QString("SMTR1607-5-I22-22 XTAL XCHAGE"), QString("SMTR1607-5-I22-22"), QString("SMTR1607-5-I22-22 XTAL XCHAGE"), QString(":mm"),  true, 0.05, 2.0, this);
-    crystal1PitchMotor_ = new BioXASCLSMAXvMotor(BioXASBeamlineDef::MonoMotor, QString("SMTR1607-5-I22-23 XTAL 1 PITCH"), QString("SMTR1607-5-I22-23"), QString("SMTR1607-5-I22-23 XTAL 1 PITCH"), QString(":V"),   true, 0.05, 2.0, this);
-    crystal1RollMotor_ = new BioXASCLSMAXvMotor(BioXASBeamlineDef::MonoMotor, QString("SMTR1607-5-I22-24 XTAL 1 ROLL"), QString("SMTR1607-5-I22-24"), QString("SMTR1607-5-I22-24 XTAL 1 ROLL"), QString(":V"),   true, 0.05, 2.0, this);
-    crystal2PitchMotor_ = new BioXASCLSMAXvMotor(BioXASBeamlineDef::MonoMotor, QString("SMTR1607-5-I22-25 XTAL 2 PITCH"), QString("SMTR1607-5-I22-25"), QString("SMTR1607-5-I22-25 XTAL 2 PITCH"), QString(":V"),   true, 0.05, 2.0, this);
-    crystal2RollMotor_ = new BioXASCLSMAXvMotor(BioXASBeamlineDef::MonoMotor, QString("SMTR1607-5-I22-26 XTAL 2 ROLL"), QString("SMTR1607-5-I22-26"), QString("SMTR1607-5-I22-26 XTAL 2 ROLL"), QString(":V"),   true, 0.05, 2.0, this);
+    phosphorPaddleMotor_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-11 PHOSPHOR PADDLE"), QString("SMTR1607-5-I22-11"), QString("SMTR1607-5-I22-11 PHOSPHOR PADDLE"), true, 0.05, 2.0, this);
+    braggMotor_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-12 BRAGG"), QString("SMTR1607-5-I22-12"), QString("SMTR1607-5-I22-12 BRAGG"), true, 0.05, 2.0, this, QString(":deg"));
+    verticalMotor_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-13 VERTICAL"), QString("SMTR1607-5-I22-13"), QString("SMTR1607-5-I22-13 VERTICAL"), true, 0.05, 2.0, this);
+    lateralMotor_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-14 LATERAL"), QString("SMTR1607-5-I22-14"), QString("SMTR1607-5-I22-14 LATERAL"), true, 0.05, 2.0, this);
+    crystalExchangeMotor_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-22 XTAL XCHAGE"), QString("SMTR1607-5-I22-22"), QString("SMTR1607-5-I22-22 XTAL XCHAGE"), true, 0.05, 2.0, this);
+    crystal1PitchMotor_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-23 XTAL 1 PITCH"), QString("SMTR1607-5-I22-23"), QString("SMTR1607-5-I22-23 XTAL 1 PITCH"), true, 0.05, 2.0, this, QString(":V"));
+    crystal1RollMotor_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-24 XTAL 1 ROLL"), QString("SMTR1607-5-I22-24"), QString("SMTR1607-5-I22-24 XTAL 1 ROLL"),   true, 0.05, 2.0, this, QString(":V"));
+    crystal2PitchMotor_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-25 XTAL 2 PITCH"), QString("SMTR1607-5-I22-25"), QString("SMTR1607-5-I22-25 XTAL 2 PITCH"), true, 0.05, 2.0, this, QString(":V"));
+    crystal2RollMotor_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-26 XTAL 2 ROLL"), QString("SMTR1607-5-I22-26"), QString("SMTR1607-5-I22-26 XTAL 2 ROLL"), true, 0.05, 2.0, this, QString(":V"));
 
     braggMotorPower_ = new AMPVControl("BraggMotorPower", "SMTR1607-5-I22-12:power", "SMTR1607-5-I22-12:power", QString(), this);
     slitsClosed_ = new AMPVControl("SlitsClosed", "BL1607-5-I21:SlitsClosed", "BL1607-5-I21:SlitsOprCloseCmd", QString(), this);

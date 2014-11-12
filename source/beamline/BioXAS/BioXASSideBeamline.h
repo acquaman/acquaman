@@ -190,7 +190,7 @@ public:
 
     // Motors
 
-    QList<BioXASCLSMAXvMotor *> getMotorsByType(BioXASBeamlineDef::BioXASMotorType category) const;
+    QList<CLSMAXvMotor *> getMotorsByType(BioXASBeamlineDef::BioXASMotorType category) const;
 
     // Current amplifiers
 
@@ -202,7 +202,7 @@ public:
     CLSBasicScalerChannelDetector* i0Detector() const { return i0Detector_; }
     CLSBasicScalerChannelDetector* iTDetector() const { return iTDetector_; }
     AMBasicControlDetectorEmulator* energyFeedbackDetector() const { return energyFeedbackDetector_; }
-    AMDetector* dwellTimeDetector() const { return dwellTimeDetector_; }
+    AMBasicControlDetectorEmulator* dwellTimeDetector() { return dwellTimeDetector_; }
 
 signals:
     /// Notifier that the pressure status has changed. Argument is false if any of the pressures fall below its setpoint, true otherwise.
