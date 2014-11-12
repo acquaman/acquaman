@@ -224,7 +224,7 @@ namespace VESPERS {
 		vespersDefault->setSeparateHigherDimensionalSources(true);
 		vespersDefault->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.dat");
 		vespersDefault->setHigherDimensionsInRows(exportSpectraInRows);
-		vespersDefault->setRegExpString("Ka1|Kb1|La1|Lb1|Lg1|SplitIonChamber|PreKBIonChamber|MiniIonChamber");
+		vespersDefault->setRegExpString("^\\w{1,2}Ka1|^\\w{1,2}Kb1|^\\w{1,2}La1|^\\w{1,2}Lb1|^\\w{1,2}Lg1|SplitIonChamber|PreKBIonChamber|MiniIonChamber");
 		vespersDefault->storeToDb(AMDatabase::database("user"));
 
 		return vespersDefault;
