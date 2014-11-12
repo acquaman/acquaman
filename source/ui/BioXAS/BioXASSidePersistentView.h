@@ -45,9 +45,7 @@ signals:
 public slots:
 
 protected:
-    AMExtendedControlEditor *motorControlEditor_;
     AMExtendedControlEditor *energyControlEditor_;
-    AMCurrentAmplifierSingleView *keithleyView_;
 };
 
 #endif // BIOXASSIDEPERSISTENTVIEW_H
