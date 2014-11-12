@@ -31,8 +31,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 #include "beamline/CLS/CLSBasicScalerChannelDetector.h"
 #include "beamline/CLS/CLSBasicCompositeScalerChannelDetector.h"
-#include "beamline/BioXAS/BioXASCLSMAXvMotor.h"
+#include "beamline/CLS/CLSMAXvMotor.h"
 
+#include "beamline/BioXAS/BioXASBeamlineDef.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
@@ -56,7 +57,7 @@ public:
 	/// Destructor.
 	virtual ~BioXASImagingBeamline();
 
-	QList<BioXASCLSMAXvMotor *> getMotorsByType(BioXASBeamlineDef::BioXASMotorType category);
+	QList<CLSMAXvMotor *> getMotorsByType(BioXASBeamlineDef::BioXASMotorType category);
 
 protected:
 	/// Sets up the synchronized dwell time.
@@ -87,39 +88,39 @@ protected:
 
 	/// BioXAS imaging beamline motors
 	/// BioXAS filter motors
-	BioXASCLSMAXvMotor *imagingCarbonFilterFarm1_;
-	BioXASCLSMAXvMotor *imagingCarbonFilterFarm2_;
+	CLSMAXvMotor *imagingCarbonFilterFarm1_;
+	CLSMAXvMotor *imagingCarbonFilterFarm2_;
 
 	/// BioXAS M1 motors
-	BioXASCLSMAXvMotor *m1VertUpStreamINB_;
-	BioXASCLSMAXvMotor *m1VertUpStreamOUTB_;
-	BioXASCLSMAXvMotor *m1VertDownStream_;
-	BioXASCLSMAXvMotor *m1StripeSelect_;
-	BioXASCLSMAXvMotor *m1Yaw_;
-	BioXASCLSMAXvMotor *m1BenderUpstream_;
-	BioXASCLSMAXvMotor *m1BenderDownStream_;
+	CLSMAXvMotor *m1VertUpStreamINB_;
+	CLSMAXvMotor *m1VertUpStreamOUTB_;
+	CLSMAXvMotor *m1VertDownStream_;
+	CLSMAXvMotor *m1StripeSelect_;
+	CLSMAXvMotor *m1Yaw_;
+	CLSMAXvMotor *m1BenderUpstream_;
+	CLSMAXvMotor *m1BenderDownStream_;
 
 	/// BioXAS Variable Mask motors
-	BioXASCLSMAXvMotor *variableMaskVertUpperBlade_;
-	BioXASCLSMAXvMotor *variableMaskVertLowerBlade_;
+	CLSMAXvMotor *variableMaskVertUpperBlade_;
+	CLSMAXvMotor *variableMaskVertLowerBlade_;
 
 	/// BioXAS Mono motors
-	BioXASCLSMAXvMotor *monoCrystal2Z_;
-	BioXASCLSMAXvMotor *monoCrystal2Y_;
-	BioXASCLSMAXvMotor *monoCrystal2Pitch_;
-	BioXASCLSMAXvMotor *monoCrystal2Roll_;
-	BioXASCLSMAXvMotor *monoBragg_;
-	BioXASCLSMAXvMotor *monoVertical_;
-	BioXASCLSMAXvMotor *monoLateral_;
+	CLSMAXvMotor *monoCrystal2Z_;
+	CLSMAXvMotor *monoCrystal2Y_;
+	CLSMAXvMotor *monoCrystal2Pitch_;
+	CLSMAXvMotor *monoCrystal2Roll_;
+	CLSMAXvMotor *monoBragg_;
+	CLSMAXvMotor *monoVertical_;
+	CLSMAXvMotor *monoLateral_;
 
 	/// BioXAS M2 motors
-	BioXASCLSMAXvMotor *m2VertUpstreamINB_;
-	BioXASCLSMAXvMotor *m2VertUpstreamOUTB_;
-	BioXASCLSMAXvMotor *m2VertDownstream_;
-	BioXASCLSMAXvMotor *m2StripeSelect_;
-	BioXASCLSMAXvMotor *m2Yaw_;
-	BioXASCLSMAXvMotor *m2BenderUpstream_;
-	BioXASCLSMAXvMotor *m2BenderDownStream_;
+	CLSMAXvMotor *m2VertUpstreamINB_;
+	CLSMAXvMotor *m2VertUpstreamOUTB_;
+	CLSMAXvMotor *m2VertDownstream_;
+	CLSMAXvMotor *m2StripeSelect_;
+	CLSMAXvMotor *m2Yaw_;
+	CLSMAXvMotor *m2BenderUpstream_;
+	CLSMAXvMotor *m2BenderDownStream_;
 };
 
 #endif // BIOXASIMAGINGBEAMLINE_H
