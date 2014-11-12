@@ -188,14 +188,19 @@ public:
 
     // Motors
 
-    QList<BioXASCLSMAXvMotor *> getMotorsByType(BioXASBeamlineDef::BioXASMotorType category);
+    QList<BioXASCLSMAXvMotor *> getMotorsByType(BioXASBeamlineDef::BioXASMotorType category) const;
 
-    CLSKeithley428* i0Keithley() { return i0Keithley_; }
-    CLSKeithley428* iTKeithley() { return iTKeithley_; }
+    // Current amplifiers
 
-    CLSBasicScalerChannelDetector* i0Detector() { return i0Detector_; }
-    CLSBasicScalerChannelDetector* iTDetector() { return iTDetector_; }
-    AMBasicControlDetectorEmulator* energyFeedbackDetector() { return energyFeedbackDetector_; }
+    CLSKeithley428* i0Keithley() const { return i0Keithley_; }
+    CLSKeithley428* iTKeithley() const { return iTKeithley_; }
+
+    // Detectors
+
+    CLSBasicScalerChannelDetector* i0Detector() const { return i0Detector_; }
+    CLSBasicScalerChannelDetector* iTDetector() const { return iTDetector_; }
+    AMBasicControlDetectorEmulator* energyFeedbackDetector() const { return energyFeedbackDetector_; }
+    AMDetector* dwellTimeDetector() const { return dwellTimeDetector_; }
 
 signals:
     /// Notifier that the pressure status has changed. Argument is false if any of the pressures fall below its setpoint, true otherwise.
@@ -266,23 +271,33 @@ protected:
 
 protected:
 
-    // Detectors.
+    // Detectors
 
     CLSBasicScalerChannelDetector *i0Detector_;
-    CLSKeithley428 *i0Keithley_;
-
     CLSBasicScalerChannelDetector *iTDetector_;
-    CLSKeithley428 *iTKeithley_;
+    AMBasicControlDetectorEmulator *energySetpointDetector_;
+    AMBasicControlDetectorEmulator *energyFeedbackDetector_;
+    AMBasicControlDetectorEmulator *dwellTimeDetector_;
 
-    // BioXAS Side monochromator.
+    // Monochromator
 
     BioXASSideMonochromator *mono_;
 
-    // Scaler.
+    // Scaler
 
     CLSSIS3820Scaler *scaler_;
+    AMControl *scalerDwellTime_;
 
-    // Shutters
+    // Amplifiers
+
+    CLSKeithley428 *i0Keithley_;
+    CLSKeithley428 *iTKeithley_;
+
+    // Misc controls
+
+    AMControl *energySetpointControl_;
+
+    // Shutter controls
 
     CLSBiStateControl *psh1_;
     CLSBiStateControl *psh2_;
@@ -414,15 +429,6 @@ protected:
 	BioXASCLSMAXvMotor *m2Yaw_;
 	BioXASCLSMAXvMotor *m2BenderUpstream_;
 	BioXASCLSMAXvMotor *m2BenderDownStream_;
-
-    // Energy setpoint control.
-
-    AMControl *energySetpointControl_;
-
-    // Extra AMDetectors
-
-    AMBasicControlDetectorEmulator *energySetpointDetector_;
-    AMBasicControlDetectorEmulator *energyFeedbackDetector_;
 };
 
 #endif // BIOXASSIDEBEAMLINE_H

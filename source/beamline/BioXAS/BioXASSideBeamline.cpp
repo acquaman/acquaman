@@ -146,7 +146,7 @@ bool BioXASSideBeamline::allValvesClosed() const
     return false;
 }
 
-QList<BioXASCLSMAXvMotor *> BioXASSideBeamline::getMotorsByType(BioXASBeamlineDef::BioXASMotorType category)
+QList<BioXASCLSMAXvMotor *> BioXASSideBeamline::getMotorsByType(BioXASBeamlineDef::BioXASMotorType category) const
 {
     QList<BioXASCLSMAXvMotor *> matchedMotors;
 
@@ -670,6 +670,8 @@ void BioXASSideBeamline::setupComponents()
 {
 	scaler_ = new CLSSIS3820Scaler("BL07ID-Side:mcs", this);
 
+    scalerDwellTime_ = new AMReadOnlyPVControl("ScalerDwellTime", "BL07ID-Side:mcs:delay", this, "Scaler Dwell Time");
+
     i0Keithley_ = new CLSKeithley428("I0 Channel", "AMP1607-601:Gain");
     scaler_->channelAt(0)->setCustomChannelName("I0 Channel");
     scaler_->channelAt(0)->setCurrentAmplifier(i0Keithley_);
@@ -690,6 +692,8 @@ void BioXASSideBeamline::setupControlsAsDetectors()
     energyFeedbackDetector_ = new AMBasicControlDetectorEmulator("EnergyFeedback", "Energy Feedback", mono_->energyControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
     energyFeedbackDetector_->setHiddenFromUsers(true);
     energyFeedbackDetector_->setIsVisible(false);
+
+    dwellTimeDetector_ = new AMBasicControlDetectorEmulator("DwellTimeFeedback", "Dwell Time Feedback", scalerDwellTime_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 }
 
 void BioXASSideBeamline::setupExposedControls()
@@ -699,6 +703,7 @@ void BioXASSideBeamline::setupExposedControls()
 
 void BioXASSideBeamline::setupExposedDetectors()
 {
+    addExposedDetector(dwellTimeDetector_);
 	addExposedDetector(i0Detector_);
 	addExposedDetector(iTDetector_);
     addExposedDetector(energySetpointDetector_);
