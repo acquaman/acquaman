@@ -12,6 +12,7 @@ public:
     explicit STListView(QWidget *parent = 0);
     virtual ~STListView();
 
+    /// Returns the list of QModelIndex for all list view's selected items.
     QModelIndexList selection() const;
 
 signals:

@@ -2,11 +2,11 @@
 #define STEDITOR_H
 
 #include <QWidget>
-#include <QFrame>
 
-class STEditor : public QFrame
+class STEditor : public QWidget
 {
     Q_OBJECT
+
 public:
     explicit STEditor(QWidget *parent = 0);
     virtual ~STEditor();

@@ -29,8 +29,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMenu>
 #include <QAction>
 
-#include "beamline/AMPVControl.h"
-
 #include "MPlot/MPlotSeriesData.h"
 #include "MPlot/MPlotSeries.h"
 

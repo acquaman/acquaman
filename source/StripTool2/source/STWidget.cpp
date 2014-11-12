@@ -202,6 +202,8 @@ void STWidget::addSR1Current()
     sr1Current->setDescription("SR1 Current");
     sr1Current->setUnits("mA");
     sr1Current->setColor(QColor(Qt::blue));
+    sr1Current->enableMarkers(false);
+    sr1Current->setPointsSaved(100);
 }
 
 void STWidget::showEditorDialog(STEditor *editor)

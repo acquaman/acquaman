@@ -24,7 +24,7 @@ STPlotEditor::STPlotEditor(STPlotWidget *plot, QWidget *parent) : STEditor(paren
     mainLayout->addWidget(nameShown_, 1, 1, 1, 2);
 
     QLabel *timeLabel = new QLabel(this);
-    timeLabel->setText("Time :");
+    timeLabel->setText("Display :");
     timeEntry_ = new QLineEdit(this);
     timeUnits_ = new QComboBox();
     mainLayout->addWidget(timeLabel, 2, 0, 1, 1);

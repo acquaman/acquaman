@@ -27,7 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "analysis/AMStandardAnalysisBlock.h"
 
-#include "StripTool2/STTime.h"
+#include "STTime.h"
 
 class ST0DTimestampAB : public AMStandardAnalysisBlock
 {

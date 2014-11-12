@@ -25,28 +25,26 @@ STVariable::STVariable(const QString &name, QObject *parent) :
     QObject(parent)
 {
     index_ = -1;
+    pointsSaved_ = 50;
 
     description_ = "";
-    hasDescription_ = false;
 
     units_ = "";
-    hasUnits_ = false;
-
-    color_ = QColor(Qt::red);
 
     created_ = QDateTime::currentDateTime();
 
     pv_ = new AMProcessVariable(name, true, this);
 
     data_ = new AM0DAccumulatorAB("PVData", this);
-    data_->setDataStoredCountMax(50);
-    data_->setInputDataSources(QList<AMDataSource*>() << new AM0DProcessVariableDataSource(pv_, pv_->pvName(), this));
+    data_->setDataStoredCountMax(pointsSaved_);
 
     times_ = new ST0DTimestampAB("Timestamps", this);
-    times_->setDataStoredCountMax(50);
-    times_->setInputDataSources(QList<AMDataSource*>() << new AM0DProcessVariableDataSource(pv_, pv_->pvName(), this));
+    times_->setDataStoredCountMax(pointsSaved_);
 
     timedData_ = new AM1DTimedDataAB("TimedData", this);
+
+    data_->setInputDataSources(QList<AMDataSource*>() << new AM0DProcessVariableDataSource(pv_, pv_->pvName(), this));
+    times_->setInputDataSources(QList<AMDataSource*>() << new AM0DProcessVariableDataSource(pv_, pv_->pvName(), this));
     timedData_->setInputDataSources(QList<AMDataSource*>() << data_ << times_);
 
     seriesData_ = new AMDataSourceSeriesData(timedData_);
@@ -54,7 +52,6 @@ STVariable::STVariable(const QString &name, QObject *parent) :
     series_->setModel(seriesData_, true);
     series_->setDescription(" ");
 
-    showMarkers_ = false;
     series_->setMarker(MPlotMarkerShape::None);
 
     connect( pv_, SIGNAL(valueChanged(double)), this, SIGNAL(valueChanged(double)) );
@@ -74,6 +71,11 @@ int STVariable::index() const
     return index_;
 }
 
+int STVariable::pointsSaved() const
+{
+    return pointsSaved_;
+}
+
 QString STVariable::name() const
 {
     return pv_->pvName();
@@ -86,7 +88,12 @@ QString STVariable::description() const
 
 bool STVariable::hasDescription() const
 {
-    return hasDescription_;
+    return (description_ != "");
+}
+
+bool STVariable::showDescription() const
+{
+    return (series_->description() != " ");
 }
 
 QString STVariable::units() const
@@ -96,12 +103,17 @@ QString STVariable::units() const
 
 bool STVariable::hasUnits() const
 {
-    return hasUnits_;
+    return (units_ != "");
 }
 
 QColor STVariable::color() const
 {
-    return color_;
+    return series_->linePen().color();
+}
+
+int STVariable::lineThickness() const
+{
+    return series_->linePen().width();
 }
 
 QDateTime STVariable::created() const
@@ -131,7 +143,7 @@ MPlotSeriesBasic* STVariable::series() const
 
 bool STVariable::markersEnabled() const
 {
-    return showMarkers_;
+    return (series_->marker() != 0);
 }
 
 bool STVariable::operator==(const STVariable &other) const
@@ -156,17 +168,39 @@ void STVariable::setIndex(int newIndex)
     }
 }
 
+void STVariable::setPointsSaved(int newPoints)
+{
+    if (newPoints > 0) {
+        pointsSaved_ = newPoints;
+
+        data_->setDataStoredCountMax(pointsSaved_);
+        times_->setDataStoredCountMax(pointsSaved_);
+
+        emit pointsSavedChanged(pointsSaved_);
+    }
+}
+
 void STVariable::setDescription(const QString &newDescription)
 {
     if (description_ != newDescription) {
         description_ = newDescription;
 
-        if (description_ != "")
-            hasDescription_ = true;
-        else
-            hasDescription_ = false;
-
         emit descriptionChanged(description_);
+    }
+}
+
+void STVariable::setShowDescription(bool showDescription)
+{
+    bool showState = (series_->description() != " ");
+
+    if (showState != showDescription) {
+        if (showDescription)
+            series_->setDescription(description_);
+
+        else
+            series_->setDescription(" ");
+
+        emit showDescriptionChanged(showDescription);
     }
 }
 
@@ -175,21 +209,30 @@ void STVariable::setUnits(const QString &units)
     if (units_ != units) {
         units_ = units;
 
-        if (units_ != "")
-            hasUnits_ = true;
-        else
-            hasUnits_ = false;
-
         emit unitsChanged(units_);
     }
 }
 
 void STVariable::setColor(const QColor &newColor)
 {
-    if (color_ != newColor) {
-        color_ = newColor;
-        series()->setLinePen( QPen(color_) );
-        emit colorChanged(color_);
+    QColor currentColor = series_->linePen().color();
+
+    if (currentColor != newColor) {
+        series_->setLinePen(QPen(newColor));
+        emit colorChanged(newColor);
+    }
+}
+
+void STVariable::setLineThickness(int newThickness)
+{
+    if (newThickness < 0)
+        return;
+
+    int currentThickness = series_->linePen().width();
+
+    if (currentThickness != newThickness) {
+        series_->setLinePen(QPen(QBrush(color()), newThickness));
+        emit lineThicknessChanged(newThickness);
     }
 }
 
@@ -214,13 +257,15 @@ void STVariable::setTimeFilteringEnabled(bool isEnabled)
     times_->enableTimeFiltering(isEnabled);
 }
 
-void STVariable::enableMarkers(bool isEnabled)
+void STVariable::enableMarkers(bool newState)
 {
-    if (showMarkers_ != isEnabled) {
-        showMarkers_ = isEnabled;
+    bool enabledState = (series_->marker() != 0);
 
-        if (showMarkers_)
-            series_->setMarker(MPlotMarkerShape::Circle, 6, QPen(color_));
+    if (enabledState != newState) {
+        QColor lineColor = series_->linePen().color();
+
+        if (newState)
+            series_->setMarker(MPlotMarkerShape::Circle, 6, QPen(lineColor));
         else
             series_->setMarker(MPlotMarkerShape::None);
 
