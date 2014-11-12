@@ -243,9 +243,9 @@ void SXRMBAppController::setupExporterOptions()
 	if(sxrmbExportOptions->id() > 0)
 		AMAppControllerSupport::registerClass<SXRMBEXAFSScanConfiguration, AMExporterAthena, AMExporterOptionGeneralAscii>(sxrmbExportOptions->id());
 
-	sxrmbExportOptions = SXRMB::buildStandardExporterOption("SXRMB2DDefault", true, false, false, true);
+	sxrmbExportOptions = SXRMB::buildSMAKExporterOption("SXRMB2DDefault", true, false, false, true);
 	if(sxrmbExportOptions->id() > 0)
-		AMAppControllerSupport::registerClass<SXRMB2DMapScanConfiguration, AMSMAKExporter, AMExporterOptionGeneralAscii>(sxrmbExportOptions->id());
+		AMAppControllerSupport::registerClass<SXRMB2DMapScanConfiguration, AMSMAKExporter, AMExporterOptionSMAK>(sxrmbExportOptions->id());
 }
 
 void SXRMBAppController::setupUserInterface()

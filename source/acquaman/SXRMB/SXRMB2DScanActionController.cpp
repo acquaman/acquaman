@@ -10,6 +10,7 @@
 #include "dataman/AM2DScan.h"
 #include "dataman/export/AMExporter2DAscii.h"
 #include "dataman/export/AMSMAKExporter.h"
+#include "dataman/export/AMExporterOptionSMAK.h"
 
 SXRMB2DScanActionController::SXRMB2DScanActionController(SXRMB2DMapScanConfiguration *configuration, QObject *parent)
 	: AMStepScanActionController(configuration, parent)
@@ -31,9 +32,9 @@ SXRMB2DScanActionController::SXRMB2DScanActionController(SXRMB2DMapScanConfigura
 	else{
 
 		// SMAK format requires a specific spectra file format.
-		AMExporterOptionGeneralAscii *sxrmbExportOptions = SXRMB::buildStandardExporterOption("SXRMB2DDefault", true, false, false, true);
+		AMExporterOptionSMAK *sxrmbExportOptions = SXRMB::buildSMAKExporterOption("SXRMB2DDefault", true, false, false, true);
 		if(sxrmbExportOptions->id() > 0)
-			AMAppControllerSupport::registerClass<SXRMB2DMapScanConfiguration, AMSMAKExporter, AMExporterOptionGeneralAscii>(sxrmbExportOptions->id());
+			AMAppControllerSupport::registerClass<SXRMB2DMapScanConfiguration, AMSMAKExporter, AMExporterOptionSMAK>(sxrmbExportOptions->id());
 	}
 
 	int yPoints = int(round((double(configuration_->scanAxisAt(1)->regionAt(0)->regionEnd()) - double(configuration_->scanAxisAt(1)->regionAt(0)->regionStart()))/double(configuration_->scanAxisAt(0)->regionAt(0)->regionStep()))) + 1;

@@ -85,6 +85,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "analysis/AM1DSummingAB.h"
 #include "analysis/AMDeadTimeAB.h"
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
+#include "dataman/export/AMExporterOptionSMAK.h"
 #include "dataman/AM2DScan.h"
 #include "dataman/AM3DScan.h"
 #include "analysis/AM1DIntegralAB.h"
@@ -761,6 +762,7 @@ bool AMDatamanAppController::startupRegisterDatabases()
 	success &= AMDbObjectSupport::s()->registerClass<AMRegionOfInterestAB>();
 
 	success &= AMDbObjectSupport::s()->registerClass<AMExporterOptionGeneralAscii>();
+	success &= AMDbObjectSupport::s()->registerClass<AMExporterOptionSMAK>();
 
 	success &= AMDbObjectSupport::s()->registerClass<AMUser>();
 

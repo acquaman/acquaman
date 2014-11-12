@@ -23,17 +23,22 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QPushButton>
 #include "ui/dataman/AMExporterOptionGeneralAsciiView.h"
 
- AMExporterOptionGeneralAscii::~AMExporterOptionGeneralAscii(){}
+AMExporterOptionGeneralAscii::~AMExporterOptionGeneralAscii(){}
+
 AMExporterOptionGeneralAscii::AMExporterOptionGeneralAscii(QObject *parent) :
 	AMExporterOptionGeneral(parent)
 {
 	columnDelimiter_ = "\t";
 	newlineDelimiter_ = "\r\n";
 
-	fileName_ = "$name_$number_$dateTime[yyyyMMdd_hhmmss].txt";
-	separateSectionFileName_ = "$name_$number_$dataSetName_$dateTime[yyyyMMdd_hhmmss].txt";
-
 	setModified(false);
+}
+
+AMExporterOptionGeneralAscii::AMExporterOptionGeneralAscii(const AMExporterOptionGeneralAscii &original)
+	: AMExporterOptionGeneral(original)
+{
+	columnDelimiter_ = original.columnDelimiter();
+	newlineDelimiter_ = original.newlineDelimiter();
 }
 
 const QMetaObject* AMExporterOptionGeneralAscii::getMetaObject(){

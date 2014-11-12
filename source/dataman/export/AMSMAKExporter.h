@@ -2,6 +2,7 @@
 #define AMSMAKEXPORTER_H
 
 #include "dataman/export/AMExporterGeneralAscii.h"
+#include "dataman/export/AMExporterOptionSMAK.h"
 
 /*!
 	This class extends the generic exporter to write the files in a way that can be
@@ -31,6 +32,9 @@ public:
 	virtual QString longDescription() const {
 		return "The SMAK 2D Map file format creates two data files.  One is in SMAK's format and one contains one table of data in a plain text file where each data source is in a single column.  You can choose which data sources to include.";
 	}
+
+	/// The exporter option class name.
+	virtual QString exporterOptionClassName() const { return "AMExporterOptionSMAK"; }
 
 	/// Exports the scan.
 	virtual QString exportScan(const AMScan *scan, const QString &destinationFolderPath, const AMExporterOption *option, int autoIndex = 0);

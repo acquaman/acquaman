@@ -65,8 +65,12 @@ public:
 		SeparateFilesMode ///< Make a table for each 2d data source, and create a separate file for each. (Files named using separateFilesExtension())
 	};
 
- 	virtual ~AMExporterOptionGeneral();
+	/// Constructor.
 	explicit AMExporterOptionGeneral(QObject *parent = 0);
+	/// Copy constructor.
+	AMExporterOptionGeneral(const AMExporterOptionGeneral &original);
+	/// Destructor.
+	virtual ~AMExporterOptionGeneral();
 
 	const QMetaObject* getMetaObject();
 

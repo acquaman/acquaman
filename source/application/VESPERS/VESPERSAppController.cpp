@@ -64,6 +64,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/VESPERS/VESPERSDbUpgrade1Pt6.h"
 
 #include "dataman/export/AMExportController.h"
+#include "dataman/export/AMExporterOptionSMAK.h"
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
 #include "dataman/export/AMExporterGeneralAscii.h"
 #include "dataman/export/AMExporterAthena.h"
