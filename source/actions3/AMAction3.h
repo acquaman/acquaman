@@ -120,6 +120,12 @@ public:
 	/// Destructor: deletes the info and prerequisites
 	virtual ~AMAction3();
 
+	/// Returns whether or not this action is currently scheduled for deletion
+	bool isScheduledForDeletion() const;
+
+	/// Returns whether or not this action has finished logging (it may have never starting logging and that's okay because the default value is true)
+	bool isLoggingFinished() const;
+
 
 	// Info API
 	//////////////////////
@@ -216,7 +222,11 @@ public slots:
 	/// Setting to true will cause the action to generate  messages with AMAgnositicDataAPI if it is capable of doing so.
 	void setGenerateScanActionMessage(bool generateScanActionMessages) { generateScanActionMessages_ = generateScanActionMessages; }
 
-	virtual void scheduleForDeletion();
+	/// Called to let this action delete itself at the appropriate time. If called more than once, subsequent calls will do nothing. Subclasses may be much more complicated and can use scheduleForDeletionImplementation() to do the fancy work.
+	void scheduleForDeletion();
+
+	/// Called to set the isLoggingFinishedFlag for logged actions
+	void setIsLoggingFinished(bool isLoggingFinished);
 
 public:
 	// Progress API
@@ -275,6 +285,11 @@ signals:
 	/// Emitted when the statusText() changes.
 	void statusTextChanged(const QString& statusText);
 
+	/// Emitted when the isLoggingFinished flag changes states
+	void isLoggingFinishedChanged(bool isLoggingFinished);
+	/// Emitted when the isLoggingFinished flag goes from false to true
+	void loggingIsFinished();
+
 
 protected slots:
 	/// Implementations should call this to notify of their progress.   \c numerator gives the amount done, relative to the total expected amount \c denominator. For example, \c numerator could be a percentage value, and \c denominator could be 100.  If you don't know the level of progress, call this with (0,0).
@@ -305,6 +320,9 @@ protected:
 
 	/// Implementation method for skipping.  If the action supports skipping then this should do all the necessary actions for stopping the action.  This method is a bit of an exception in that setSkipped() is not called inside this method (not an absolute, but likely).  Therefore, the part of the action that DOES do the actual work must call setSkipped().
 	virtual void skipImplementation(const QString &command) = 0;
+
+	/// Implementation method for scheduleForDeletion. Default is simply to call deleteLater(), subclasses can implement more complex behaviors.
+	virtual void scheduleForDeletionImplementation();
 
 
 
@@ -370,6 +388,11 @@ private:
 	QDateTime lastPausedAt_;
 	/// Optional failure string that Actions can use to report why they failed or their current settings
 	QString failureMessage_;
+
+	/// Flag for holding whether or not logging to a database is finished. Some actions never get logged, so the default value is true
+	bool isLoggingFinished_;
+	/// Flag for holding whether or not this action has been schdeduled for deletion
+	bool isScheduledForDeletion_;
 };
 
 #endif // AMACTION3_H

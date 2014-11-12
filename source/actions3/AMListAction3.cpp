@@ -70,8 +70,8 @@ AMListAction3::AMListAction3(const AMListAction3& other)
 // Destructor: deletes the sub-actions
 AMListAction3::~AMListAction3() {
 	foreach(AMAction3* action, subActions_)
-		if(action)
-			action->deleteLater();
+		if(action && !action->isScheduledForDeletion())
+			action->scheduleForDeletion();
 }
 
 int AMListAction3::indexOfSubAction(const AMAction3 *action) const
@@ -322,12 +322,16 @@ void AMListAction3::internalOnSubActionStateChanged(int newState, int oldState)
 	Q_UNUSED(oldState)
 
 	if(newState == AMListAction3::Starting){
+		AMAction3 *generalAction = qobject_cast<AMAction3*>(QObject::sender());
 		AMListAction3* listAction = qobject_cast<AMListAction3*>(QObject::sender());
+
+		if(generalAction && loggingDatabase_)
+			generalAction->setIsLoggingFinished(false);
+
 		if(listAction && loggingDatabase_){
 			int parentLogId = logActionId();
 			AMActionHistoryModel3 *historyModel = AMAppControllerSupport::actionHistoryModelFromDatabaseName(loggingDatabase_->connectionName());
 
-			//if(!AMActionLog3::logUncompletedAction(listAction, loggingDatabase_, parentLogId)) {
 			if(!historyModel || !historyModel->logUncompletedAction(listAction, loggingDatabase_, parentLogId)){
 				//NEM April 5th, 2012
 			}
@@ -338,17 +342,38 @@ void AMListAction3::internalOnSubActionStateChanged(int newState, int oldState)
 		AMListAction3* listAction = qobject_cast<AMListAction3*>(QObject::sender());
 		if(listAction && loggingDatabase_){
 			AMActionHistoryModel3 *historyModel = AMAppControllerSupport::actionHistoryModelFromDatabaseName(loggingDatabase_->connectionName());
-			//if(!AMActionLog3::updateCompletedAction(listAction, loggingDatabase_)) {
-			if(!historyModel || !historyModel->updateCompletedAction(listAction, loggingDatabase_)){
-				//NEM April 5th, 2012
+
+			if(!historyModel){
+				//NEM November 12th, 2014
 			}
+			else{
+				bool logSuccessful = historyModel->updateCompletedAction(listAction, loggingDatabase_);
+				if(!logSuccessful){
+					//NEM November 12th, 2014
+				}
+				else
+					generalAction->setIsLoggingFinished(true);
+			}
+
+//			if(!historyModel || !historyModel->updateCompletedAction(listAction, loggingDatabase_)){
+//				//NEM April 5th, 2012
+//			}
 		}
 		else{
 			if(internalShouldLogSubAction(generalAction) && loggingDatabase_){
 				int parentLogId = logActionId();
 				AMActionHistoryModel3 *historyModel = AMAppControllerSupport::actionHistoryModelFromDatabaseName(loggingDatabase()->connectionName());
-				if(historyModel)
-					historyModel->logCompletedAction(generalAction, loggingDatabase_, parentLogId);
+				if(!historyModel){
+					//NEM November 12th, 2014
+				}
+				else{
+					bool logSuccessful = historyModel->logCompletedAction(generalAction, loggingDatabase_, parentLogId);
+					if(!logSuccessful){
+						//NEM November 12th, 2014
+					}
+					else
+						generalAction->setIsLoggingFinished(true);
+				}
 			}
 		}
 	}
