@@ -354,10 +354,6 @@ void AMListAction3::internalOnSubActionStateChanged(int newState, int oldState)
 				else
 					generalAction->setIsLoggingFinished(true);
 			}
-
-//			if(!historyModel || !historyModel->updateCompletedAction(listAction, loggingDatabase_)){
-//				//NEM April 5th, 2012
-//			}
 		}
 		else{
 			if(internalShouldLogSubAction(generalAction) && loggingDatabase_){

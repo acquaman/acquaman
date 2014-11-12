@@ -209,13 +209,8 @@ void AMScanAction::scheduleForDeletionImplementation()
 		return;
 	}
 
-	if(!controller_){
+	if(!controller_)
 		checkReadyForDeletion();
-//		deleteLater();
-	}
-
-//	else
-//		connect(controller_, SIGNAL(readyForDeletion(bool)), this, SLOT(onReadyForDeletionChanged(bool)));
 }
 
 void AMScanAction::checkReadyForDeletion()
@@ -432,9 +427,3 @@ void AMScanAction::onControllerStateChanged()
 {
 
 }
-
-//void AMScanAction::onReadyForDeletionChanged(bool isReady)
-//{
-//	if(isReady)
-//		deleteLater();
-//}
