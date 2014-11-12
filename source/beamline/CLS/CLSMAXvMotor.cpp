@@ -983,7 +983,7 @@ AMControl::FailureExplanation CLSMAXvMotor::move(double setpoint){
 	CLSMAXvMotor::Limit limitCondition = atLimit();
 
 	if(limitCondition == CLSMAXvMotor::LimitNone)
-		return CLSMAXvMotor::move(setpoint);
+		return AMPVwStatusControl::move(setpoint);
 	else if(limitCondition == CLSMAXvMotor::LimitError)
 		return AMControl::LimitFailure;
 

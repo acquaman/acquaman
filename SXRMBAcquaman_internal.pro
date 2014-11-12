@@ -23,6 +23,7 @@ HEADERS += \
 	source/ui/SXRMB/SXRMB2DOxidationMapScanConfigurationView.h \
 	source/ui/acquaman/SXRMB/SXRMBOxidationMapScanConfigurationViewHolder.h
 
+
 SOURCES += \
 	source/application/SXRMB/SXRMBMain.cpp \
 	source/application/SXRMB/SXRMBAppController.cpp \
