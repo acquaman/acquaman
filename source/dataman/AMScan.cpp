@@ -60,7 +60,7 @@ AMScan::AMScan(QObject *parent)
 
 	data_ = new AMInMemoryDataStore();	// data store is initially empty. Needs axes configured by scan controllers or file loader plugins.  The default implementation uses AMInMemoryDataStore(). Replace via replaceDataStore() to use one of the disk-based data stores if you have a lot of data.
 
-	nameDictionary_ = new AMScanDictionary(this, this);
+	nameDictionary_ = new AMScanDictionary(this);
 
 	// Connect added/removed signals from rawDataSources_ and analyzedDataSources_, to provide a model of all data sources:
 	connect(rawDataSources_.signalSource(), SIGNAL(itemAboutToBeAdded(int)), this, SLOT(onDataSourceAboutToBeAdded(int)));
@@ -100,6 +100,9 @@ AMScan::~AMScan() {
 
 	// delete the raw data store, which was allocated in the constructor.
 	data_->deleteLater();
+
+	if(nameDictionary_)
+		nameDictionary_->deleteLater();
 }
 
 
@@ -294,8 +297,11 @@ bool AMScan::loadFromDb(AMDatabase* db, int sourceId) {
 		}
 	}
 
-	nameDictionary_->deleteLater();
-	nameDictionary_ = new AMScanDictionary(this, this);
+	if(nameDictionary_){
+		nameDictionary_->deleteLater();
+		nameDictionary_ = 0;
+	}
+	nameDictionary_ = new AMScanDictionary(this);
 
 	return true;
 }

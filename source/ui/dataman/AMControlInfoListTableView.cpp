@@ -30,7 +30,7 @@ AMControlInfoListTableView::AMControlInfoListTableView(const AMControlInfoList* 
 	QWidget(parent)
 {
 	// setup UI:
-	QVBoxLayout* vl = new QVBoxLayout(this);
+	QVBoxLayout* vl = new QVBoxLayout();
 	table_ = new QTableWidget();
 	table_->setColumnCount(3);
 	table_->setRowCount(0);
@@ -39,10 +39,17 @@ AMControlInfoListTableView::AMControlInfoListTableView(const AMControlInfoList* 
 
 	// Populate the table
 	setFromInfoList(list);
+
+	setLayout(vl);
 }
 
 void AMControlInfoListTableView::setFromInfoList(const AMControlInfoList* list)
 {
+	while(table_->rowCount() != 0){
+		QTableWidgetItem *deleteItem = table_->takeItem(table_->rowCount()-1, 0);
+		delete deleteItem;
+	}
+
 	table_->setRowCount(0);
 
 	if(list) {
