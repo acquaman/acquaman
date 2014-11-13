@@ -241,12 +241,15 @@ void AMAppController::updateScanEditorModelItem()
 
 void AMAppController::onCurrentScanActionStarted(AMScanAction *action)
 {
+	// Testing fast scans without GSE taking up memory
+	/*
 	AMScan *scan = action->controller()->scan();
 	openScanInEditor(scan, automaticBringScanEditorToFrontWithRunningScans());
 
 	scanEditorScanMapping_.append(qMakePair(scan, scanEditorAt(scanEditorCount()-1)));
 	connect(action, SIGNAL(stateChanged(int,int)), this, SLOT(updateScanEditorModelItem()));
 	updateScanEditorModelItem();
+	*/
 
 	onCurrentScanActionStartedImplementation(action);
 }

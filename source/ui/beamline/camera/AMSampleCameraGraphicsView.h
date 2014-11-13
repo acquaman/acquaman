@@ -45,7 +45,7 @@ public:
 	void mouseMoveEvent(QMouseEvent *event);
 
 	#ifdef AM_MOBILITY_VIDEO_ENABLED
-	void setVideoItem(QGraphicsVideoItem* item);
+	void setVideoItem(AMGraphicsVideoItem* item);
 	#endif
 
 	/// Helper function to convert scene coordinates to video-relative coordinates. (This is only tricky because depending on the videoItem()'s aspectRatioMode(), there might be letterbox bars at the top or sides of the display.

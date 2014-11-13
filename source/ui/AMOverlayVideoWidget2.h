@@ -24,11 +24,31 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #ifdef AM_MOBILITY_VIDEO_ENABLED
 #include <QMediaPlayer>
-class QGraphicsVideoItem;
+#include <QGraphicsVideoItem>
 #endif
 
 #include <QGraphicsView>
 
+#ifdef AM_MOBILITY_VIDEO_ENABLED
+class AMGraphicsVideoItem : public QGraphicsVideoItem
+{
+Q_OBJECT
+
+public:
+	AMGraphicsVideoItem(QGraphicsItem *parent = 0);
+	virtual ~AMGraphicsVideoItem();
+
+	bool paintBlack() const;
+
+	void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
+
+public slots:
+	void setPaintBlack(bool paintBlack);
+
+protected:
+	bool paintBlack_;
+};
+#endif
 
 /// Ever wanted to draw on top of live video? This is a convenience class that provides a QMediaPlayer, and a QGraphicsVideoItem embedded  inside a QGraphicsScene, so that other QGraphicsItems can be painted on top of it.
 /*! The class itself is a QGraphicsView widget, and it creates the following objects automatically for you:
@@ -69,6 +89,8 @@ public:
 	QGraphicsVideoItem* videoItem() { return videoItem_; }
 	#endif
 
+	void setPaintBlack(bool paintBlack);
+
 	virtual QSize sizeHint() const;
 
 signals:
@@ -80,7 +102,7 @@ protected:
 	void resizeEvent(QResizeEvent *event);
 
 	#ifdef AM_MOBILITY_VIDEO_ENABLED
-	QGraphicsVideoItem* videoItem_;
+	AMGraphicsVideoItem* videoItem_;
 	QMediaPlayer* mediaPlayer_;
 	#endif
 };
