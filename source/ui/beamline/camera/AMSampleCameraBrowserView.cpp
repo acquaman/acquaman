@@ -76,6 +76,7 @@ void AMSampleCameraBrowserView::onSourceComboBoxChanged(int index)
 			videoWidget_->setMedia(url);
 			videoWidget_->play();
 			#endif
+			noSourceButton_->setEnabled(true);
 		}
 		else {
 			QMessageBox::warning(this, "Invalid camera source address", "Sorry! That doesn't look like a valid URL for a camera or media source:\n\n" % stringUrl);
@@ -85,10 +86,8 @@ void AMSampleCameraBrowserView::onSourceComboBoxChanged(int index)
 }
 
 void AMSampleCameraBrowserView::onNoSourceButtonClicked(){
-//	#ifdef AM_MOBILITY_VIDEO_ENABLED
-//	videoWidget_->setMedia(QMediaContent());
-//	#endif
 	sourceComboBox_->setCurrentIndex(-1);
+	noSourceButton_->setEnabled(false);
 }
 
 void AMSampleCameraBrowserView::onRowsInserted(const QModelIndex &index, int start, int end){
@@ -163,6 +162,7 @@ void AMSampleCameraBrowserView::onMediaPlayerError(QMediaPlayer::Error e)
 	QMessageBox::warning(this, "AcquaCam Error", "Sorry! There was an error trying to open that media URL.");
 	cameraBrowser_->removeURL(sourceComboBox_->currentText());
 	sourceComboBox_->removeItem(sourceComboBox_->currentIndex());
+	noSourceButton_->setEnabled(false);
 }
 #endif
 

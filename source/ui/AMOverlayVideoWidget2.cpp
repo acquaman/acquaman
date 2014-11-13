@@ -52,7 +52,8 @@ void AMGraphicsVideoItem::paint(QPainter *painter, const QStyleOptionGraphicsIte
 		painter->setBrush(QBrush(Qt::black));
 		painter->drawRect(boundingRect());
 	}
-	QGraphicsVideoItem::paint(painter, option, widget);
+	else
+		QGraphicsVideoItem::paint(painter, option, widget);
 }
 
 void AMGraphicsVideoItem::setPaintBlack(bool paintBlack){
@@ -101,6 +102,7 @@ AMOverlayVideoWidget2::~AMOverlayVideoWidget2() {
 void AMOverlayVideoWidget2::setPaintBlack(bool paintBlack){
 	#ifdef AM_MOBILITY_VIDEO_ENABLED
 	videoItem_->setPaintBlack(paintBlack);
+	videoItem_->update();
 	#endif
 }
 

@@ -1199,14 +1199,12 @@ void AMSampleCameraView::toggleDistortion()
 void AMSampleCameraView::setMedia(QMediaContent url)
 {
 	if((url.isNull()) && shapeScene_ && shapeScene_->mediaPlayer() && (shapeScene_->mediaPlayer()->state() == QMediaPlayer::PlayingState) ){
-		qDebug() << "Going to try to paint it black";
 		//shapeScene_->mediaPlayer()->stop();
 		shapeScene_->setPaintBlack(true);
 	}
-	else{
-		qDebug() << "Not going to paint it black anymore";
+	else
 		shapeScene_->setPaintBlack(false);
-	}
+
 	shapeScene_->mediaPlayer()->setMedia(url);
 }
 
