@@ -141,26 +141,34 @@ SGMAppController::SGMAppController(QObject *parent) :
 	prependDatabaseUpgrade(sgm1Pt1SGMPublicDb);
 
 	AMDbUpgrade *sgm1Pt1UserDb = new SGMDbUpgrade1Pt1("user", this);
-	prependDatabaseUpgrade(sgm1Pt1UserDb);
 	AMDbUpgrade *sgm1Pt1ActionsDb = new SGMDbUpgrade1Pt1("actions", this);
+	sgm1Pt1UserDb->setIsResponsibleForUpgrade(hasUpgradePermission);;
+	sgm1Pt1ActionsDb->setIsResponsibleForUpgrade(hasUpgradePermission);;
+	prependDatabaseUpgrade(sgm1Pt1UserDb);
 	prependDatabaseUpgrade(sgm1Pt1ActionsDb);
 
 	// Append the AM upgrade 1.1 to the list for the SGMBeamline database and public database
 	AMDbUpgrade *am1Pt1UserDb = new AMDbUpgrade1Pt1("SGMBeamline", this);
-	appendDatabaseUpgrade(am1Pt1UserDb);
 	AMDbUpgrade *am1Pt1SGMPublicDb = new AMDbUpgrade1Pt1("SGMPublic", this);
+	am1Pt1UserDb->setIsResponsibleForUpgrade(hasUpgradePermission);;
+	am1Pt1SGMPublicDb->setIsResponsibleForUpgrade(hasUpgradePermission);;
+	appendDatabaseUpgrade(am1Pt1UserDb);
 	appendDatabaseUpgrade(am1Pt1SGMPublicDb);
 
 	// Append the AM upgrade 1.2 to the list for the SGMBeamline database and public database
 	AMDbUpgrade *am1Pt2UserDb = new AMDbUpgrade1Pt2("SGMBeamline", this);
-	appendDatabaseUpgrade(am1Pt2UserDb);
 	AMDbUpgrade *am1Pt2SGMPublicDb = new AMDbUpgrade1Pt2("SGMPublic", this);
+	am1Pt2UserDb->setIsResponsibleForUpgrade(hasUpgradePermission);;
+	am1Pt2SGMPublicDb->setIsResponsibleForUpgrade(hasUpgradePermission);;
+	appendDatabaseUpgrade(am1Pt2UserDb);
 	appendDatabaseUpgrade(am1Pt2SGMPublicDb);
 
 	// Append the AM upgrade 1.4 to the list for the SGMBeamline database and public database
 	AMDbUpgrade *am1Pt4UserDb = new AMDbUpgrade1Pt4("SGMBeamline", this);
-	appendDatabaseUpgrade(am1Pt4UserDb);
 	AMDbUpgrade *am1Pt4SGMPublicDb = new AMDbUpgrade1Pt4("SGMPublic", this);
+	am1Pt4UserDb->setIsResponsibleForUpgrade(hasUpgradePermission);;
+	am1Pt4SGMPublicDb->setIsResponsibleForUpgrade(hasUpgradePermission);;
+	appendDatabaseUpgrade(am1Pt4UserDb);
 	appendDatabaseUpgrade(am1Pt4SGMPublicDb);
 
 	// Add the SGM Beamline database as a source of exporter options
