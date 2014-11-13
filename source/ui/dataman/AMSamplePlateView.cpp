@@ -28,6 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QLabel>
 #include <QToolButton>
 #include <QPushButton>
+#include <QTimer>
 
 #include "util/AMDateTimeUtils.h"
 #include "ui/dataman/AMSampleView.h"
@@ -302,9 +303,10 @@ AMSamplePlateView::AMSamplePlateView(AMSamplePlate *samplePlate, QWidget *parent
 	samplePlateItemModel_ = 0; //NULL
 	sampleListView_ = 0; //NULL
 
+
 	emptyModel_ = new AMSamplePlateItemModel(0);
 	noSamplePlateLabel_ = new QLabel("No Sample Plate Selected");
-	samplePlateModifiedLabel_ = new QLabel("Sample Plate Modified");
+	samplePlateModifiedLabel_ = new QLabel("Sample Plate\nModified");
 	QFont samplePlateModifiedLabelFont = samplePlateModifiedLabel_->font();
 	samplePlateModifiedLabelFont.setBold(true);
 	samplePlateModifiedLabelFont.setItalic(true);
@@ -319,6 +321,11 @@ AMSamplePlateView::AMSamplePlateView(AMSamplePlate *samplePlate, QWidget *parent
 	vl_ = new QVBoxLayout();
 	vl_->addWidget(noSamplePlateLabel_);
 	setLayout(vl_);
+
+	samplePlateModifiedTimer_ = new QTimer();
+	samplePlateModifiedTimer_->setSingleShot(true);
+	connect(samplePlateModifiedTimer_, SIGNAL(timeout()), samplePlateModifiedLabel_, SLOT(show()));
+	connect(samplePlateModifiedTimer_, SIGNAL(timeout()), saveSamplePlateButton_, SLOT(show()));
 
 	setSamplePlate(samplePlate);
 }
@@ -395,8 +402,12 @@ void AMSamplePlateView::onRowClosedPressed(int row){
 
 void AMSamplePlateView::onSamplePlateModifiedChanged(bool isModified){
 	if(isModified){
-		samplePlateModifiedLabel_->show();
-		saveSamplePlateButton_->show();
+		//samplePlateModifiedLabel_->show();
+		//saveSamplePlateButton_->show();
+		samplePlateModifiedTimer_->start(500);
+	}
+	else if(samplePlateModifiedTimer_->isActive()){
+		samplePlateModifiedTimer_->stop();
 	}
 	else{
 		samplePlateModifiedLabel_->hide();
