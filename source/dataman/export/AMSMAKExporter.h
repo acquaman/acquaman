@@ -52,6 +52,11 @@ protected:
 	virtual bool writeSeparateFiles(const QString& destinationFolderPath);
 	/// Method that writes the SMAK data file.
 	void writeSMAKFile();
+
+	/// The y-range.  May be smaller than the scan size due to scans being cancelled or skipped.
+	int yRange_;
+	/// The x-index.  This is used for the last row where scans have been cancelled or skipped.
+	int xIndex_;
 };
 
 #endif // AMSMAKEXPORTER_H

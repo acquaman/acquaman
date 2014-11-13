@@ -76,7 +76,7 @@ void VESPERSExporterSMAK::writeMainTable()
 		suffix = "tif";
 
 	QString ccdFileName = config->ccdFileName();
-	int yRange = currentScan_->scanSize(1);
+	int yRange = yRange_ == -1 ? currentScan_->scanSize(1) : (yRange_-1);
 	int xRange = currentScan_->scanSize(0);
 
 	for(int y = 0; y < yRange; y++) {
@@ -110,6 +110,40 @@ void VESPERSExporterSMAK::writeMainTable()
 			ts << option_->newlineDelimiter();
 		}
 	}
+
+	if (yRange_ != -1 && xIndex_ != -1){
+
+		for (int x = 0; x < xIndex_; x++){
+
+			// over rows within columns
+			for(int c=0; c<mainTableDataSources_.count(); c++) {
+
+				setCurrentDataSource(mainTableDataSources_.at(c));
+				AMDataSource* ds = currentScan_->dataSourceAt(currentDataSourceIndex_);
+
+				// print x and y column?
+				if(mainTableIncludeX_.at(c)) {
+
+					ts << ds->axisValue(0,x).toString();
+					ts << option_->columnDelimiter();
+					ts << ds->axisValue(1, yRange_-1).toString();
+					ts << option_->columnDelimiter();
+				}
+
+				if(ds->name().contains("FileNumber"))
+					ts << QString("%1_%2.%3").arg(ccdFileName).arg(int(ds->value(AMnDIndex(x, yRange_-1)))-1).arg(suffix);	// The -1 is because the value stored here is the NEXT number in the scan.  Purely a nomenclature setup from the EPICS interface.
+
+				else
+					ts << ds->value(AMnDIndex(x, yRange_-1)).toString();
+
+				ts << option_->columnDelimiter();
+			}
+
+
+			ts << option_->newlineDelimiter();
+		}
+	}
+
 
 	ts << option_->newlineDelimiter();
 }

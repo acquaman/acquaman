@@ -12,7 +12,8 @@
 AMSMAKExporter::AMSMAKExporter(QObject *parent)
 	: AMExporterGeneralAscii(parent)
 {
-
+	xIndex_ = -1;
+	yRange_ = -1;
 }
 
 AMSMAKExporter::~AMSMAKExporter()
@@ -56,6 +57,25 @@ bool AMSMAKExporter::prepareDataSources()
 					separateFileDataSources_ << i;	// The spectra data sources.
 				break;
 			}
+		}
+
+		int xRange = currentScan_->scanSize(0);
+		int yRange = currentScan_->scanSize(1);
+		QVector<double> fillerData = QVector<double>(yRange);
+		currentScan_->dataSourceAt(0)->values(AMnDIndex(0,0), AMnDIndex(0, yRange-1), fillerData.data());
+
+		for (int j = 0; j < yRange && yRange_ == -1; j++)
+			if (int(fillerData.at(j)) == -1)
+				yRange_ = j;
+
+		if (yRange_ != -1){
+
+			fillerData = QVector<double>(xRange);
+			currentScan_->dataSourceAt(0)->values(AMnDIndex(0, yRange_-1), AMnDIndex(xRange-1, yRange_-1), fillerData.data());
+
+			for (int i = 0; i < xRange && xIndex_ == -1; i++)
+				if (int(fillerData.at(i)) == -1)
+					xIndex_ = i;
 		}
 	}
 
@@ -164,7 +184,7 @@ void AMSMAKExporter::writeMainTable()
 	ts << option_->newlineDelimiter() << option_->columnHeaderDelimiter() << option_->newlineDelimiter();
 
 	// 2. rows
-	int yRange = currentScan_->scanSize(1);
+	int yRange = yRange_ == -1 ? currentScan_->scanSize(1) : (yRange_-1);
 	int xRange = currentScan_->scanSize(0);
 
 	for(int y = 0; y < yRange; y++) {
@@ -186,6 +206,33 @@ void AMSMAKExporter::writeMainTable()
 				}
 
 				ts << ds->value(AMnDIndex(x, y)).toString();
+
+				ts << option_->columnDelimiter();
+			}
+
+			ts << option_->newlineDelimiter();
+		}
+	}
+
+	if (yRange_ != -1 && xIndex_ != -1){
+
+		for (int i = 0; i < xIndex_; i++){
+
+			// over rows within columns
+			for(int c=0; c<mainTableDataSources_.count(); c++) {
+				setCurrentDataSource(mainTableDataSources_.at(c));
+				AMDataSource* ds = currentScan_->dataSourceAt(currentDataSourceIndex_);
+
+				// print x and y column?
+				if(mainTableIncludeX_.at(c)) {
+
+					ts << ds->axisValue(0,i).toString();
+					ts << option_->columnDelimiter();
+					ts << ds->axisValue(1, yRange_-1).toString();
+					ts << option_->columnDelimiter();
+				}
+
+				ts << ds->value(AMnDIndex(i, yRange_-1)).toString();
 
 				ts << option_->columnDelimiter();
 			}
@@ -222,10 +269,12 @@ bool AMSMAKExporter::writeSeparateFiles(const QString &destinationFolderPath)
 		int spectraSize = source->size(2);
 		QVector<double> data(spectraSize);
 		int index = 0;
+		int yRange = yRange_ == -1 ? currentScan_->scanSize(1) : (yRange_-1);
+		int xRange = currentScan_->scanSize(0);
 
-		for (int y = 0, ySize = source->size(1); y < ySize; y++){
+		for (int y = 0; y < yRange; y++){
 
-			for (int x = 0, xSize = source->size(0); x < xSize; x++){
+			for (int x = 0; x < xRange; x++){
 
 				source->values(AMnDIndex(x, y, 0), AMnDIndex(x, y, spectraSize-1), data.data());
 
@@ -236,6 +285,23 @@ bool AMSMAKExporter::writeSeparateFiles(const QString &destinationFolderPath)
 
 				out << "\n";
 			}
+		}
+
+		if (yRange_ != -1 && xIndex_ != -1){
+
+			for (int i = 0; i < xIndex_; i++){
+
+				source->values(AMnDIndex(i, yRange_-1, 0), AMnDIndex(i, yRange_-1, spectraSize-1), data.data());
+
+				out << ++index;
+
+				for (int i = 0; i < spectraSize; i++)
+					out << "\t" << int(data.at(i));
+
+				out << "\n";
+			}
+
+			out << "\n";
 		}
 
 		output.close();
@@ -249,8 +315,8 @@ void AMSMAKExporter::writeSMAKFile()
 	QTextStream ts(file_);
 
 	// This will return -1 if it fails.  This means any checks inside this loop will always fail if the CCD was not included.
-	int yRange = currentScan_->scanSize(1);
-	int xRange = currentScan_->scanSize(0);
+	int yRange = yRange_ == -1 ? currentScan_->scanSize(1) : yRange_;
+	int xRange = yRange_ > 1 ? currentScan_->scanSize(0) : xIndex_;
 
 	const AMExporterOptionSMAK *smakOption = qobject_cast<const AMExporterOptionSMAK *>(option_);
 	QList<AMDataSource *> sources;
@@ -286,6 +352,8 @@ void AMSMAKExporter::writeSMAKFile()
 	temp.append("\n* BLANK LINE\n* BLANK LINE\n* Energy points requested:\n*\t30000.0\n* BLANK LINE\n* DATA\n");
 	ts << temp;
 
+	yRange = yRange_-1;
+
 	for(int y = 0; y < yRange; y++) {
 
 		for (int x = 0; x < xRange; x++){
@@ -309,6 +377,33 @@ void AMSMAKExporter::writeSMAKFile()
 
 			ts << option_->newlineDelimiter();
 		}
+	}
+
+	if (yRange_ != -1 && xIndex_ != -1){
+
+		for (int i = 0; i < xIndex_; i++){
+
+			// over rows within columns
+			for(int c=0; c < sources.size(); c++) {
+
+				AMDataSource* ds = sources.at(c);
+
+				// print x and y column?
+				if(c == 0) {
+					ts << ds->axisValue(0, i).toString();
+					ts << "\t";
+					ts << ds->axisValue(1, yRange_-1).toString();
+					ts << "\t";
+				}
+
+				ts << ds->value(AMnDIndex(i, yRange_-1)).toString();
+				ts << "\t";
+			}
+
+			ts << option_->newlineDelimiter();
+		}
+
+		ts << "\n";
 	}
 
 	ts << option_->newlineDelimiter();
