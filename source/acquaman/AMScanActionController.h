@@ -82,6 +82,8 @@ protected slots:
 
 	/// Handles dealing with the file writer when it changes busy state.
 	void onFileWriterIsBusy(bool isBusy);
+	/// Handles the file writer being destroyed
+	void onFileWriterDestroyed();
 	/// Handles notifying that we're ready for deletion once the fileWriter thread has been cleaned up and emits finished
 	void onFileWriterThreadFinished();
 
@@ -127,6 +129,8 @@ protected:
 
 	/// Pointer to the thread that handles all the file writing.
 	QThread *fileWriterThread_;
+	/// Pointer to the file writing object
+	QObject *fileWriter_;
 	/// Flag to delete file writer when finished (used for cancel and fail)
 	bool deleteFileWriterImmediately_;
 	/// Flag for keeping track of whether the file writer thread is busy or not.
