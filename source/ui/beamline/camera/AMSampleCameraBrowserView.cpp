@@ -59,7 +59,6 @@ AMSampleCameraBrowserView::AMSampleCameraBrowserView(QWidget *parent, bool useOp
 void AMSampleCameraBrowserView::onSourceComboBoxChanged(int index)
 {
 	if(index < 0) {
-		setWindowTitle("AcquaCam");
 		#ifdef AM_MOBILITY_VIDEO_ENABLED
 		videoWidget_->setMedia(QMediaContent());
 		#endif
@@ -83,6 +82,13 @@ void AMSampleCameraBrowserView::onSourceComboBoxChanged(int index)
 			sourceComboBox_->removeItem(index);
 		}
 	}
+}
+
+void AMSampleCameraBrowserView::onNoSourceButtonClicked(){
+//	#ifdef AM_MOBILITY_VIDEO_ENABLED
+//	videoWidget_->setMedia(QMediaContent());
+//	#endif
+	sourceComboBox_->setCurrentIndex(-1);
 }
 
 void AMSampleCameraBrowserView::onRowsInserted(const QModelIndex &index, int start, int end){
@@ -240,6 +246,8 @@ void AMSampleCameraBrowserView::init(AMSampleCameraBrowser *cameraBrowser)
 	shl->addWidget(new QLabel("Video URL:"), 0);
 	shl->addWidget(sourceComboBox_ = new QComboBox(), 2);
 	sourceComboBox_->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
+	noSourceButton_ = new QPushButton("Disable");
+	shl->addWidget(noSourceButton_);
 	sourceFrame->setLayout(shl);
 
 
@@ -266,6 +274,7 @@ void AMSampleCameraBrowserView::init(AMSampleCameraBrowser *cameraBrowser)
 
 	connect(sourceComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onSourceComboBoxChanged(int)));
 	connect(sourceComboBox_->model(), SIGNAL(rowsInserted(QModelIndex, int, int)), this, SLOT(onRowsInserted(QModelIndex,int,int)));
+	connect(noSourceButton_, SIGNAL(clicked()), this, SLOT(onNoSourceButtonClicked()));
 
 	#ifdef AM_MOBILITY_VIDEO_ENABLED
 	connect(videoWidget_->mediaPlayer(), SIGNAL(error(QMediaPlayer::Error)), this, SLOT(onMediaPlayerError(QMediaPlayer::Error)));

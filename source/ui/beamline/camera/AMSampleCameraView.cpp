@@ -27,6 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMediaPlayer>
 #include <QGraphicsVideoItem>
 #include <QMediaObject>
+#include <QMediaContent>
 #endif
 
 #include "AMQEvents.h"
@@ -1197,6 +1198,15 @@ void AMSampleCameraView::toggleDistortion()
 #ifdef AM_MOBILITY_VIDEO_ENABLED
 void AMSampleCameraView::setMedia(QMediaContent url)
 {
+	if((url.isNull()) && shapeScene_ && shapeScene_->mediaPlayer() && (shapeScene_->mediaPlayer()->state() == QMediaPlayer::PlayingState) ){
+		qDebug() << "Going to try to paint it black";
+		//shapeScene_->mediaPlayer()->stop();
+		shapeScene_->setPaintBlack(true);
+	}
+	else{
+		qDebug() << "Not going to paint it black anymore";
+		shapeScene_->setPaintBlack(false);
+	}
 	shapeScene_->mediaPlayer()->setMedia(url);
 }
 

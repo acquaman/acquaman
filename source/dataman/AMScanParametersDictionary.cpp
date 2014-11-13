@@ -208,7 +208,6 @@ QString AMScanParametersDictionary::krExportName(const QString &arg){
 
 /***************************************************/
 
- AMOldScanParametersDictionary::~AMOldScanParametersDictionary(){}
 AMOldScanParametersDictionary::AMOldScanParametersDictionary(QObject *parent) :
 	QObject(parent)
 {
@@ -217,6 +216,11 @@ AMOldScanParametersDictionary::AMOldScanParametersDictionary(QObject *parent) :
 	operatingNow_ = false;
 	lastInputString_ = "";
 	keywordParser_ = new AMTagReplacementParser();
+}
+
+AMOldScanParametersDictionary::~AMOldScanParametersDictionary()
+{
+	delete keywordParser_;
 }
 
 bool AMOldScanParametersDictionary::operatingOnName() const{
