@@ -62,11 +62,11 @@ bool AMSMAKExporter::prepareDataSources()
 		int xRange = currentScan_->scanSize(0);
 		int yRange = currentScan_->scanSize(1);
 		QVector<double> fillerData = QVector<double>(yRange);
-		currentScan_->dataSourceAt(0)->values(AMnDIndex(0,0), AMnDIndex(0, yRange-1), fillerData.data());
+		currentScan_->dataSourceAt(0)->values(AMnDIndex(xRange-1,0), AMnDIndex(xRange-1, yRange-1), fillerData.data());
 
 		for (int j = 0; j < yRange && yRange_ == -1; j++)
 			if (int(fillerData.at(j)) == -1)
-				yRange_ = j;
+				yRange_ = j+1;	// The +1 is because we want the next row.
 
 		if (yRange_ != -1){
 
