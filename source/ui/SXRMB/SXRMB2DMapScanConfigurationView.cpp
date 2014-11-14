@@ -146,6 +146,7 @@ SXRMB2DMapScanConfigurationView::SXRMB2DMapScanConfigurationView(SXRMB2DMapScanC
 
 	// BL energy setting
 	beamlineSettingsGroupBox_ = new QGroupBox("Beamline Settings");
+	beamlineSettingsGroupBox_->setMinimumWidth(230);
 
 	SXRMBBeamline *sxrmbBL = SXRMBBeamline::sxrmb();
 	scanEnergySpinBox_ = createEnergySpinBox("", sxrmbBL->energy()->minimumValue(), sxrmbBL->energy()->maximumValue(), configuration_->excitationEnergy());

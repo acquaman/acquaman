@@ -164,6 +164,7 @@ SXRMBEXAFSScanConfigurationView::SXRMBEXAFSScanConfigurationView(SXRMBEXAFSScanC
 	beamlineSettingsGroupBox->setLayout(beamlineSettingsGroupBoxVL);
 
 	QHBoxLayout *squeezeContents = new QHBoxLayout;
+	squeezeContents->setSpacing(10);
 	squeezeContents->addStretch();
 	squeezeContents->addLayout(scanSettingContentVL);
 	squeezeContents->addWidget(beamlineSettingsGroupBox);

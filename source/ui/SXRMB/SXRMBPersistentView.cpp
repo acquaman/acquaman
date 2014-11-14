@@ -15,51 +15,79 @@ SXRMBPersistentView::SXRMBPersistentView(QWidget *parent) :
 	beamOnAction_ = 0; //NULL
 	beamOffAction_ = 0; //NULL
 
+	// create persistent view component container
+	mainVL_ = new QVBoxLayout();
+	mainVL_->setContentsMargins(4, 2, 4, 2);
+
 	mainGroupBox_ = new QGroupBox("SXRMB Beamline");
+	mainGroupBox_->setLayout(mainVL_);
+
 	mainGroupBoxVL_ = new QVBoxLayout();
 	mainGroupBoxVL_->addWidget(mainGroupBox_);
+
 	setLayout(mainGroupBoxVL_);
+	setFixedWidth(350);
 
+	//create Beamline Status components group
 	statusControlEditor_ = new AMExtendedControlEditor(SXRMBBeamline::sxrmb()->beamlineStatus(), 0, true);
+	mainVL_->addWidget(statusControlEditor_);
 
+	//create and add beam on/off buttons
 	beamOnButton_ = new QPushButton("Beam On");
+	beamOnButton_->setDisabled(true);
 	beamOffButton_ = new QPushButton("Beam Off");
+	beamOffButton_->setDisabled(true);
+
 	QHBoxLayout *beamOnOffHL = new QHBoxLayout();
 	beamOnOffHL->addWidget(beamOnButton_);
 	beamOnOffHL->addWidget(beamOffButton_);
 
-	beamOnButton_->setDisabled(true);
-	beamOffButton_->setDisabled(true);
+	mainVL_->addLayout(beamOnOffHL);
 
+	// create energy component
 	energyControlEditor_ = new AMExtendedControlEditor(SXRMBBeamline::sxrmb()->energy());
 	energyControlEditor_->setControlFormat('f', 2);
 
+	mainVL_->addWidget(energyControlEditor_);
+
+	// create motor groups
 	motorGroupView_ = new AMMotorGroupView(SXRMBBeamline::sxrmb()->motorGroup());
 	motorGroupView_->setMotorGroupView("Microprobe Stage - X, Z, Y");
 
+	QVBoxLayout *motorGroupLayout = new QVBoxLayout();
+	motorGroupLayout->setContentsMargins(4, 0, 4, 0);
+	motorGroupLayout->addWidget(motorGroupView_);
+
+	QGroupBox *motorGroupBox = new QGroupBox("MotorGroup");
+	motorGroupBox->setLayout(motorGroupLayout);
+
+	mainVL_->addWidget(motorGroupBox);
+
+	//create scale groups
 	i0DetectorSR570View_ = new CLSSIS3820ScalerChannelView(SXRMBBeamline::sxrmb()->scaler()->channelAt(17));
-	teyDetectorSR570View_ = new CLSSIS3820ScalerChannelView(SXRMBBeamline::sxrmb()->scaler()->channelAt(18));
 	i0DetectorSR570View_->setEnableCheckBoxVisibility(false);
-	teyDetectorSR570View_->setEnableCheckBoxVisibility(false);
 	i0DetectorSR570View_->setAmplifierViewPrecision(3);
-	teyDetectorSR570View_->setAmplifierViewPrecision(3);
 	i0DetectorSR570View_->setAmplifierViewFormat('g');
+
+	teyDetectorSR570View_ = new CLSSIS3820ScalerChannelView(SXRMBBeamline::sxrmb()->scaler()->channelAt(18));
+	teyDetectorSR570View_->setEnableCheckBoxVisibility(false);
+	teyDetectorSR570View_->setAmplifierViewPrecision(3);
 	teyDetectorSR570View_->setAmplifierViewFormat('g');
 
-	mainVL_ = new QVBoxLayout();
-	mainVL_->setContentsMargins(2, 2, 2, 2);
+	QVBoxLayout *scalerGroupLayout = new QVBoxLayout();
+	scalerGroupLayout->setContentsMargins(4, 0, 4, 0);
+	scalerGroupLayout->addWidget(i0DetectorSR570View_);
+	scalerGroupLayout->addWidget(teyDetectorSR570View_);
 
-	mainVL_->addWidget(statusControlEditor_);
-	mainVL_->addLayout(beamOnOffHL);
-	mainVL_->addWidget(energyControlEditor_);
-	mainVL_->addWidget(motorGroupView_);
-	mainVL_->addWidget(i0DetectorSR570View_);
-	mainVL_->addWidget(teyDetectorSR570View_);
+	QGroupBox *scalerGroupBox = new QGroupBox("Scalers");
+	scalerGroupBox->setLayout(scalerGroupLayout);
+
+	mainVL_->addWidget(scalerGroupBox);
+
+	// add stretch for display purpose
 	mainVL_->addStretch();
 
-	setFixedWidth(350);
-	mainGroupBox_->setLayout(mainVL_);
-
+	// connect to signals
 	connect(beamOnButton_, SIGNAL(clicked()), this, SLOT(onBeamOnButtonClicked()));
 	connect(beamOffButton_, SIGNAL(clicked()), this, SLOT(onBeamOffButtonClicked()));
 }
