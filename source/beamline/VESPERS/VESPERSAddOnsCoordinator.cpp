@@ -56,6 +56,31 @@ VESPERSAddOnsCoordinator::VESPERSAddOnsCoordinator(QObject *parent) :
 
 	// Sample X, Z, Y
 
+	oldSampleXSetpointControl_ = new AMSinglePVControl("oldSampleXSetpoint", "TS1607-2-B21-02:X:user:mm", this, 0.001);
+	oldSampleXFeedbackControl_ = new AMReadOnlyPVControl("oldSampleXFeedback", "TS1607-2-B21-02:X:user:mm:fbk", this);
+
+	oldSampleZSetpointControl_ = new AMSinglePVControl("oldSampleZSetpoint", "TS1607-2-B21-02:Z:user:mm", this, 0.001);
+	oldSampleZFeedbackControl_ = new AMReadOnlyPVControl("oldSampleZFeedback", "TS1607-2-B21-02:Z:user:mm:fbk", this);
+
+	oldSampleYSetpointControl_ = new AMSinglePVControl("oldSampleYSetpoint", "TS1607-2-B21-02:Y:user:mm", this, 0.001);
+	oldSampleYFeedbackControl_ = new AMReadOnlyPVControl("oldSampleYFeedback", "TS1607-2-B21-02:Y:user:mm:fbk", this);
+
+	oldRealSampleXStatusControl_ = new AMReadOnlyPVControl("oldRealSampleXFeedback", "SVM1607-2-B21-05:status", this);
+	oldRealSampleYStatusControl_ = new AMReadOnlyPVControl("oldRealSampleYFeedback", "SVM1607-2-B21-06:status", this);
+	oldRealSampleZStatusControl_ = new AMReadOnlyPVControl("oldRealSampleZFeedback", "SVM1607-2-B21-04:status", this);
+
+	addOnsSampleXSetpointControl_ = new AMSinglePVControl("AddOnsSampleXSetpoint", "BL1607-B2-1:AddOns:SampleStage:X:mm", this, 0.001);
+	addOnsSampleXFeedbackControl_ = new AMSinglePVControl("AddOnsSampleXFeedback", "BL1607-B2-1:AddOns:SampleStage:X:mm:fbk", this, 0.001);
+	addOnsSampleXStatusControl_ = new AMSinglePVControl("AddOnsSampleXStatus", "BL1607-B2-1:AddOns:SampleStage:X:status", this, 0.5);
+
+	addOnsSampleZSetpointControl_ = new AMSinglePVControl("AddOnsSampleZSetpoint", "BL1607-B2-1:AddOns:SampleStage:Z:mm", this, 0.001);
+	addOnsSampleZFeedbackControl_ = new AMSinglePVControl("AddOnsSampleZFeedback", "BL1607-B2-1:AddOns:SampleStage:Z:mm:fbk", this, 0.001);
+	addOnsSampleZStatusControl_ = new AMSinglePVControl("AddOnsSampleZStatus", "BL1607-B2-1:AddOns:SampleStage:Z:status", this, 0.5);
+
+	addOnsSampleYSetpointControl_ = new AMSinglePVControl("AddOnsSampleYSetpoint", "BL1607-B2-1:AddOns:SampleStage:Y:mm", this, 0.001);
+	addOnsSampleYFeedbackControl_ = new AMSinglePVControl("AddOnsSampleYFeedback", "BL1607-B2-1:AddOns:SampleStage:Y:mm:fbk", this, 0.001);
+	addOnsSampleYStatusControl_ = new AMSinglePVControl("AddOnsSampleHStatus", "BL1607-B2-1:AddOns:SampleStage:Y:status", this, 0.5);
+
 	// Atto H, V, N
 
 	oldAttoHSetpointControl_ = new AMSinglePVControl("oldAttoHSetpoint", "TS1607-2-B21-02:H:user:mm", this, 0.001);
@@ -83,8 +108,32 @@ VESPERSAddOnsCoordinator::VESPERSAddOnsCoordinator(QObject *parent) :
 	addOnsAttoNFeedbackControl_ = new AMSinglePVControl("AddOnsAttoNFeedback", "BL1607-B2-1:AddOns:AttoStage:N:mm:fbk", this, 0.001);
 	addOnsAttoNStatusControl_ = new AMSinglePVControl("AddOnsAttoHStatus", "BL1607-B2-1:AddOns:AttoStage:N:status", this, 0.5);
 
-
 	// Atto X, Z, Y
+
+	oldAttoXSetpointControl_ = new AMSinglePVControl("oldAttoXSetpoint", "TS1607-2-B21-02:X:user:mm", this, 0.001);
+	oldAttoXFeedbackControl_ = new AMReadOnlyPVControl("oldAttoXFeedback", "TS1607-2-B21-02:X:user:mm:fbk", this);
+
+	oldAttoZSetpointControl_ = new AMSinglePVControl("oldAttoZSetpoint", "TS1607-2-B21-02:Z:user:mm", this, 0.001);
+	oldAttoZFeedbackControl_ = new AMReadOnlyPVControl("oldAttoZFeedback", "TS1607-2-B21-02:Z:user:mm:fbk", this);
+
+	oldAttoYSetpointControl_ = new AMSinglePVControl("oldAttoYSetpoint", "TS1607-2-B21-02:Y:user:mm", this, 0.001);
+	oldAttoYFeedbackControl_ = new AMReadOnlyPVControl("oldAttoYFeedback", "TS1607-2-B21-02:Y:user:mm:fbk", this);
+
+	oldRealAttoXStatusControl_ = new AMReadOnlyPVControl("oldRealAttoXFeedback", "SVM1607-2-B21-05:status", this);
+	oldRealAttoYStatusControl_ = new AMReadOnlyPVControl("oldRealAttoYFeedback", "SVM1607-2-B21-06:status", this);
+	oldRealAttoZStatusControl_ = new AMReadOnlyPVControl("oldRealAttoZFeedback", "SVM1607-2-B21-04:status", this);
+
+	addOnsAttoXSetpointControl_ = new AMSinglePVControl("AddOnsAttoXSetpoint", "BL1607-B2-1:AddOns:AttoStage:X:mm", this, 0.001);
+	addOnsAttoXFeedbackControl_ = new AMSinglePVControl("AddOnsAttoXFeedback", "BL1607-B2-1:AddOns:AttoStage:X:mm:fbk", this, 0.001);
+	addOnsAttoXStatusControl_ = new AMSinglePVControl("AddOnsAttoXStatus", "BL1607-B2-1:AddOns:AttoStage:X:status", this, 0.5);
+
+	addOnsAttoZSetpointControl_ = new AMSinglePVControl("AddOnsAttoZSetpoint", "BL1607-B2-1:AddOns:AttoStage:Z:mm", this, 0.001);
+	addOnsAttoZFeedbackControl_ = new AMSinglePVControl("AddOnsAttoZFeedback", "BL1607-B2-1:AddOns:AttoStage:Z:mm:fbk", this, 0.001);
+	addOnsAttoZStatusControl_ = new AMSinglePVControl("AddOnsAttoZStatus", "BL1607-B2-1:AddOns:AttoStage:Z:status", this, 0.5);
+
+	addOnsAttoYSetpointControl_ = new AMSinglePVControl("AddOnsAttoYSetpoint", "BL1607-B2-1:AddOns:AttoStage:Y:mm", this, 0.001);
+	addOnsAttoYFeedbackControl_ = new AMSinglePVControl("AddOnsAttoYFeedback", "BL1607-B2-1:AddOns:AttoStage:Y:mm:fbk", this, 0.001);
+	addOnsAttoYStatusControl_ = new AMSinglePVControl("AddOnsAttoHStatus", "BL1607-B2-1:AddOns:AttoStage:Y:status", this, 0.5);
 
 	// Wire H, V, N
 
@@ -128,10 +177,6 @@ VESPERSAddOnsCoordinator::VESPERSAddOnsCoordinator(QObject *parent) :
 	allControls_->addControl(oldSampleNSetpointControl_);
 	allControls_->addControl(oldSampleNFeedbackControl_);
 
-	allControls_->addControl(oldRealSampleXStatusControl_);
-	allControls_->addControl(oldRealSampleYStatusControl_);
-	allControls_->addControl(oldRealSampleZStatusControl_);
-
 	allControls_->addControl(addOnsSampleHSetpointControl_);
 	allControls_->addControl(addOnsSampleHFeedbackControl_);
 	allControls_->addControl(addOnsSampleHStatusControl_);
@@ -146,6 +191,33 @@ VESPERSAddOnsCoordinator::VESPERSAddOnsCoordinator(QObject *parent) :
 
 	// Sample X, Z, Y
 
+	allControls_->addControl(oldSampleXSetpointControl_);
+	allControls_->addControl(oldSampleXFeedbackControl_);
+
+	allControls_->addControl(oldSampleZSetpointControl_);
+	allControls_->addControl(oldSampleZFeedbackControl_);
+
+	allControls_->addControl(oldSampleYSetpointControl_);
+	allControls_->addControl(oldSampleYFeedbackControl_);
+
+	allControls_->addControl(addOnsSampleXSetpointControl_);
+	allControls_->addControl(addOnsSampleXFeedbackControl_);
+	allControls_->addControl(addOnsSampleXStatusControl_);
+
+	allControls_->addControl(addOnsSampleZSetpointControl_);
+	allControls_->addControl(addOnsSampleZFeedbackControl_);
+	allControls_->addControl(addOnsSampleZStatusControl_);
+
+	allControls_->addControl(addOnsSampleYSetpointControl_);
+	allControls_->addControl(addOnsSampleYFeedbackControl_);
+	allControls_->addControl(addOnsSampleYStatusControl_);
+
+	// Sample low level status
+
+	allControls_->addControl(oldRealSampleXStatusControl_);
+	allControls_->addControl(oldRealSampleYStatusControl_);
+	allControls_->addControl(oldRealSampleZStatusControl_);
+
 	// Atto H, V, N
 
 	allControls_->addControl(oldAttoHSetpointControl_);
@@ -156,10 +228,6 @@ VESPERSAddOnsCoordinator::VESPERSAddOnsCoordinator(QObject *parent) :
 
 	allControls_->addControl(oldAttoNSetpointControl_);
 	allControls_->addControl(oldAttoNFeedbackControl_);
-
-	allControls_->addControl(oldRealAttoXStatusControl_);
-	allControls_->addControl(oldRealAttoYStatusControl_);
-	allControls_->addControl(oldRealAttoZStatusControl_);
 
 	allControls_->addControl(addOnsAttoHSetpointControl_);
 	allControls_->addControl(addOnsAttoHFeedbackControl_);
@@ -174,6 +242,33 @@ VESPERSAddOnsCoordinator::VESPERSAddOnsCoordinator(QObject *parent) :
 	allControls_->addControl(addOnsAttoNStatusControl_);
 
 	// Atto X, Z, Y
+
+	allControls_->addControl(oldAttoXSetpointControl_);
+	allControls_->addControl(oldAttoXFeedbackControl_);
+
+	allControls_->addControl(oldAttoZSetpointControl_);
+	allControls_->addControl(oldAttoZFeedbackControl_);
+
+	allControls_->addControl(oldAttoYSetpointControl_);
+	allControls_->addControl(oldAttoYFeedbackControl_);
+
+	allControls_->addControl(addOnsAttoXSetpointControl_);
+	allControls_->addControl(addOnsAttoXFeedbackControl_);
+	allControls_->addControl(addOnsAttoXStatusControl_);
+
+	allControls_->addControl(addOnsAttoZSetpointControl_);
+	allControls_->addControl(addOnsAttoZFeedbackControl_);
+	allControls_->addControl(addOnsAttoZStatusControl_);
+
+	allControls_->addControl(addOnsAttoYSetpointControl_);
+	allControls_->addControl(addOnsAttoYFeedbackControl_);
+	allControls_->addControl(addOnsAttoYStatusControl_);
+
+	// Atto low level status
+
+	allControls_->addControl(oldRealAttoXStatusControl_);
+	allControls_->addControl(oldRealAttoYStatusControl_);
+	allControls_->addControl(oldRealAttoZStatusControl_);
 
 	// Wire H, V, N
 
@@ -217,15 +312,30 @@ VESPERSAddOnsCoordinator::VESPERSAddOnsCoordinator(QObject *parent) :
 	connect(oldSampleNSetpointControl_, SIGNAL(valueChanged(double)), this, SLOT(onOldSampleNSetpointControlChanged()));
 	connect(oldSampleNFeedbackControl_, SIGNAL(valueChanged(double)), this, SLOT(onOldSampleNFeedbackControlChanged()));
 
-	connect(oldRealSampleXStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(onOldRealSampleXStatusControlChanged()));
-	connect(oldRealSampleYStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(onOldRealSampleYAndZStatusControlChanged()));
-	connect(oldRealSampleZStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(onOldRealSampleYAndZStatusControlChanged()));
-
 	connect(addOnsSampleHSetpointControl_, SIGNAL(valueChanged(double)), this, SLOT(onAddOnsSampleHSetpointControlChanged()));
 	connect(addOnsSampleVSetpointControl_, SIGNAL(valueChanged(double)), this, SLOT(onAddOnsSampleVSetpointControlChanged()));
 	connect(addOnsSampleNSetpointControl_, SIGNAL(valueChanged(double)), this, SLOT(onAddOnsSampleNSetpointControlChanged()));
 
 	// Sample X, Z, Y
+
+	connect(oldSampleXSetpointControl_, SIGNAL(valueChanged(double)), this, SLOT(onOldSampleXSetpointControlChanged()));
+	connect(oldSampleXFeedbackControl_, SIGNAL(valueChanged(double)), this, SLOT(onOldSampleXFeedbackControlChanged()));
+
+	connect(oldSampleZSetpointControl_, SIGNAL(valueChanged(double)), this, SLOT(onOldSampleZSetpointControlChanged()));
+	connect(oldSampleZFeedbackControl_, SIGNAL(valueChanged(double)), this, SLOT(onOldSampleZFeedbackControlChanged()));
+
+	connect(oldSampleYSetpointControl_, SIGNAL(valueChanged(double)), this, SLOT(onOldSampleYSetpointControlChanged()));
+	connect(oldSampleYFeedbackControl_, SIGNAL(valueChanged(double)), this, SLOT(onOldSampleYFeedbackControlChanged()));
+
+	connect(addOnsSampleXSetpointControl_, SIGNAL(valueChanged(double)), this, SLOT(onAddOnsSampleXSetpointControlChanged()));
+	connect(addOnsSampleZSetpointControl_, SIGNAL(valueChanged(double)), this, SLOT(onAddOnsSampleZSetpointControlChanged()));
+	connect(addOnsSampleYSetpointControl_, SIGNAL(valueChanged(double)), this, SLOT(onAddOnsSampleYSetpointControlChanged()));
+
+	// Sample low level status
+
+	connect(oldRealSampleXStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(onOldRealSampleXStatusControlChanged()));
+	connect(oldRealSampleYStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(onOldRealSampleYStatusControlChanged()));
+	connect(oldRealSampleZStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(onOldRealSampleZStatusControlChanged()));
 
 	// Atto H, V, N
 
@@ -238,15 +348,30 @@ VESPERSAddOnsCoordinator::VESPERSAddOnsCoordinator(QObject *parent) :
 	connect(oldAttoNSetpointControl_, SIGNAL(valueChanged(double)), this, SLOT(onOldAttoNSetpointControlChanged()));
 	connect(oldAttoNFeedbackControl_, SIGNAL(valueChanged(double)), this, SLOT(onOldAttoNFeedbackControlChanged()));
 
-	connect(oldRealAttoXStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(onOldRealAttoXStatusControlChanged()));
-	connect(oldRealAttoYStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(onOldRealAttoYAndZStatusControlChanged()));
-	connect(oldRealAttoZStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(onOldRealAttoYAndZStatusControlChanged()));
-
 	connect(addOnsAttoHSetpointControl_, SIGNAL(valueChanged(double)), this, SLOT(onAddOnsAttoHSetpointControlChanged()));
 	connect(addOnsAttoVSetpointControl_, SIGNAL(valueChanged(double)), this, SLOT(onAddOnsAttoVSetpointControlChanged()));
 	connect(addOnsAttoNSetpointControl_, SIGNAL(valueChanged(double)), this, SLOT(onAddOnsAttoNSetpointControlChanged()));
 
 	// Atto X, Z, Y
+
+	connect(oldAttoXSetpointControl_, SIGNAL(valueChanged(double)), this, SLOT(onOldAttoXSetpointControlChanged()));
+	connect(oldAttoXFeedbackControl_, SIGNAL(valueChanged(double)), this, SLOT(onOldAttoXFeedbackControlChanged()));
+
+	connect(oldAttoZSetpointControl_, SIGNAL(valueChanged(double)), this, SLOT(onOldAttoZSetpointControlChanged()));
+	connect(oldAttoZFeedbackControl_, SIGNAL(valueChanged(double)), this, SLOT(onOldAttoZFeedbackControlChanged()));
+
+	connect(oldAttoYSetpointControl_, SIGNAL(valueChanged(double)), this, SLOT(onOldAttoYSetpointControlChanged()));
+	connect(oldAttoYFeedbackControl_, SIGNAL(valueChanged(double)), this, SLOT(onOldAttoYFeedbackControlChanged()));
+
+	connect(addOnsAttoXSetpointControl_, SIGNAL(valueChanged(double)), this, SLOT(onAddOnsAttoXSetpointControlChanged()));
+	connect(addOnsAttoZSetpointControl_, SIGNAL(valueChanged(double)), this, SLOT(onAddOnsAttoZSetpointControlChanged()));
+	connect(addOnsAttoYSetpointControl_, SIGNAL(valueChanged(double)), this, SLOT(onAddOnsAttoYSetpointControlChanged()));
+
+	// Atto low level status
+
+	connect(oldRealAttoXStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(onOldRealAttoXStatusControlChanged()));
+	connect(oldRealAttoYStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(onOldRealAttoYAndZStatusControlChanged()));
+	connect(oldRealAttoZStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(onOldRealAttoYAndZStatusControlChanged()));
 
 	// Wire H, V, N
 
@@ -293,8 +418,9 @@ void VESPERSAddOnsCoordinator::onAllControlsConnected(bool connected)
 		qDebug() << "Checking start up value from old read X status control" << oldRealSampleXStatusControl_->value();
 		onOldRealSampleXStatusControlChanged();
 		qDebug() << "Checking start up value from old read Y status control" << oldRealSampleYStatusControl_->value();
+		onOldRealSampleYStatusControlChanged();
 		qDebug() << "Checking start up value from old read Z status control" << oldRealSampleZStatusControl_->value();
-		onOldRealSampleYAndZStatusControlChanged();
+		onOldRealSampleZStatusControlChanged();
 
 
 	}
@@ -395,33 +521,6 @@ void VESPERSAddOnsCoordinator::onOldSampleNFeedbackControlChanged()
 		qDebug() << "Detected OLD sample N feedback move of " << oldSampleNFeedbackControl_->value() << " versus " << addOnsSampleNFeedbackControl_->value();
 		addOnsSampleNFeedbackControl_->move(oldSampleNFeedbackControl_->value());
 	}
-}
-
-void VESPERSAddOnsCoordinator::onOldRealSampleXStatusControlChanged()
-{
-	if(!connectedOnce_)
-		return;
-
-	qDebug() << "Detected OLD sample X status move of " << oldRealSampleXStatusControl_->value() << " versus " << addOnsSampleHStatusControl_->value();
-
-	if(!addOnsSampleHStatusControl_->withinTolerance(oldRealSampleXStatusControl_->value()))
-		addOnsSampleHStatusControl_->move(oldRealSampleXStatusControl_->value());
-}
-
-void VESPERSAddOnsCoordinator::onOldRealSampleYAndZStatusControlChanged()
-{
-	if(!connectedOnce_)
-		return;
-
-	qDebug() << "Detected OLD sample Y status move of " << oldRealSampleYStatusControl_->value() << " versus " << addOnsSampleVStatusControl_->value() << " and " << addOnsSampleNStatusControl_->value();
-
-	int finalStatus = computeFinalStatus(int(oldRealSampleYStatusControl_->value()), int(oldRealSampleZStatusControl_->value()));
-
-	if(!addOnsSampleVStatusControl_->withinTolerance(finalStatus))
-		addOnsSampleVStatusControl_->move(finalStatus);
-
-	if(!addOnsSampleNStatusControl_->withinTolerance(finalStatus))
-		addOnsSampleNStatusControl_->move(finalStatus);
 }
 
 void VESPERSAddOnsCoordinator::onAddOnsSampleHSetpointControlChanged()
@@ -526,6 +625,235 @@ void VESPERSAddOnsCoordinator::restoreAddOnsSampleVAndNStatus()
 // Sample X, Z, Y
 //////////////////////////////////////////////
 
+void VESPERSAddOnsCoordinator::onOldSampleXSetpointControlChanged()
+{
+	if(!connectedOnce_)
+		return;
+
+	qDebug() << "Detected OLD sample X setpoint move of " << oldSampleXSetpointControl_->value() << " versus " << addOnsSampleXSetpointControl_->value();
+
+	if(!addOnsSampleXSetpointControl_->withinTolerance(oldSampleXSetpointControl_->value()))
+		addOnsSampleXSetpointControl_->move(oldSampleXSetpointControl_->value());
+}
+
+void VESPERSAddOnsCoordinator::onOldSampleXFeedbackControlChanged()
+{
+	if(!connectedOnce_)
+		return;
+
+
+	if(!addOnsSampleXFeedbackControl_->withinTolerance(oldSampleXFeedbackControl_->value())){
+		qDebug() << "Detected OLD sample X feedback move of " << oldSampleXFeedbackControl_->value() << " versus " << addOnsSampleXFeedbackControl_->value();
+		addOnsSampleXFeedbackControl_->move(oldSampleXFeedbackControl_->value());
+	}
+}
+
+void VESPERSAddOnsCoordinator::onOldSampleZSetpointControlChanged()
+{
+	if(!connectedOnce_)
+		return;
+
+	qDebug() << "Detected OLD sample Z setpoint move of " << oldSampleZSetpointControl_->value() << " versus " << addOnsSampleZSetpointControl_->value();
+
+	if(!addOnsSampleZSetpointControl_->withinTolerance(oldSampleZSetpointControl_->value()))
+		addOnsSampleZSetpointControl_->move(oldSampleZSetpointControl_->value());
+}
+
+void VESPERSAddOnsCoordinator::onOldSampleZFeedbackControlChanged()
+{
+	if(!connectedOnce_)
+		return;
+
+
+	if(!addOnsSampleZFeedbackControl_->withinTolerance(oldSampleZFeedbackControl_->value())){
+		addOnsSampleZFeedbackControl_->move(oldSampleZFeedbackControl_->value());
+		qDebug() << "Detected OLD sample Z feedback move of " << oldSampleZFeedbackControl_->value() << " versus " << addOnsSampleZFeedbackControl_->value();
+	}
+}
+
+void VESPERSAddOnsCoordinator::onOldSampleYSetpointControlChanged()
+{
+	if(!connectedOnce_)
+		return;
+
+	qDebug() << "Detected OLD sample Y setpoint move of " << oldSampleYSetpointControl_->value() << " versus " << addOnsSampleYSetpointControl_->value();
+
+	if(!addOnsSampleYSetpointControl_->withinTolerance(oldSampleYSetpointControl_->value()))
+		addOnsSampleYSetpointControl_->move(oldSampleYSetpointControl_->value());
+}
+
+void VESPERSAddOnsCoordinator::onOldSampleYFeedbackControlChanged()
+{
+	if(!connectedOnce_)
+		return;
+
+
+	if(!addOnsSampleYFeedbackControl_->withinTolerance(oldSampleYFeedbackControl_->value())){
+		qDebug() << "Detected OLD sample Y feedback move of " << oldSampleYFeedbackControl_->value() << " versus " << addOnsSampleYFeedbackControl_->value();
+		addOnsSampleYFeedbackControl_->move(oldSampleYFeedbackControl_->value());
+	}
+}
+
+void VESPERSAddOnsCoordinator::onAddOnsSampleXSetpointControlChanged()
+{
+	if(!connectedOnce_)
+		return;
+
+	qDebug() << "Detected new AddOns sample X move of " << addOnsSampleXSetpointControl_->value() << " versus " << oldSampleXSetpointControl_->value();
+
+	// If we're requesting the same stage X with AddOns as was in the old stage X AND the old stage X feedback matches the old stage X setpoint AND the status is MOVE DONE
+	// THEN issuing a move will not do anything SO we'll trick the status to say "MOVE ACTIVE" then "MOVE DONE"
+	if(oldSampleXSetpointControl_->withinTolerance(addOnsSampleXSetpointControl_->value()) && oldRealSampleXStatusControl_->withinTolerance(0.0)){
+		qDebug() << "Faking a sample stage X move";
+		addOnsSampleXStatusControl_->move(1.0);
+		QTimer::singleShot(50, this, SLOT(restoreAddOnsSampleXStatus()));
+		return;
+	}
+
+	if(!oldSampleXSetpointControl_->withinTolerance(addOnsSampleXSetpointControl_->value())){
+		qDebug() << "Doing addOns Sample X move in the regular way";
+		oldSampleXSetpointControl_->move(addOnsSampleXSetpointControl_->value());
+	}
+}
+
+void VESPERSAddOnsCoordinator::onAddOnsSampleZSetpointControlChanged()
+{
+	if(!connectedOnce_)
+		return;
+
+	qDebug() << "Detected new AddOns sample Z move of " << addOnsSampleZSetpointControl_->value() << " versus " << oldSampleZSetpointControl_->value();
+
+	// If we're requesting the same stage X with AddOns as was in the old stage X AND the old stage X feedback matches the old stage X setpoint AND the status is MOZE DONE
+	// THEN issuing a move will not do anything SO we'll trick the status to say "MOZE ACTIZE" then "MOZE DONE"
+	if(oldSampleZSetpointControl_->withinTolerance(addOnsSampleZSetpointControl_->value()) && oldRealSampleZStatusControl_->withinTolerance(0.0)){
+		qDebug() << "Faking a sample stage Z move";
+		addOnsSampleZStatusControl_->move(1.0);
+		QTimer::singleShot(50, this, SLOT(restoreAddOnsSampleZStatus()));
+		return;
+	}
+
+	if(!oldSampleZSetpointControl_->withinTolerance(addOnsSampleZSetpointControl_->value())){
+		qDebug() << "Doing addOns Sample Z move in the regular way";
+		oldSampleZSetpointControl_->move(addOnsSampleZSetpointControl_->value());
+	}
+}
+
+void VESPERSAddOnsCoordinator::onAddOnsSampleYSetpointControlChanged()
+{
+	if(!connectedOnce_)
+		return;
+
+	qDebug() << "Detected new AddOns sample Y move of " << addOnsSampleYSetpointControl_->value() << " versus " << oldSampleYSetpointControl_->value();
+
+	// If we're requesting the same stage X with AddOns as was in the old stage X AND the old stage X feedback matches the old stage X setpoint AND the status is MOVE DONE
+	// THEN issuing a move will not do anything SO we'll trick the status to say "MOVE ACTIVE" then "MOVE DONE"
+	if(oldSampleYSetpointControl_->withinTolerance(addOnsSampleYSetpointControl_->value()) && oldRealSampleYStatusControl_->withinTolerance(0.0)){
+		qDebug() << "Faking a sample stage Y move";
+		addOnsSampleYStatusControl_->move(1.0);
+		QTimer::singleShot(50, this, SLOT(restoreAddOnsSampleYStatus()));
+		return;
+	}
+
+	if(!oldSampleYSetpointControl_->withinTolerance(addOnsSampleYSetpointControl_->value())){
+		qDebug() << "Doing addOns Sample Y move in the regular way";
+		oldSampleYSetpointControl_->move(addOnsSampleYSetpointControl_->value());
+	}
+}
+
+void VESPERSAddOnsCoordinator::restoreAddOnsSampleXStatus()
+{
+	if(!connectedOnce_)
+		return;
+
+	qDebug() << "Restoring AddOns sample stage X status to old VESPERS sample stage X status with AddOns " << addOnsSampleXStatusControl_->value() << " and old X status " << oldRealSampleXStatusControl_->value();
+
+	if(!addOnsSampleXStatusControl_->withinTolerance(oldRealSampleXStatusControl_->value()))
+		addOnsSampleXStatusControl_->move(oldRealSampleXStatusControl_->value());
+}
+
+void VESPERSAddOnsCoordinator::restoreAddOnsSampleZStatus()
+{
+	if(!connectedOnce_)
+		return;
+
+	qDebug() << "Restoring AddOns sample stage Z status to old VESPERS sample stage Z status with AddOns " << addOnsSampleZStatusControl_->value() << " and old Z status " << oldRealSampleZStatusControl_->value();
+
+	if(!addOnsSampleZStatusControl_->withinTolerance(oldRealSampleZStatusControl_->value()))
+		addOnsSampleZStatusControl_->move(oldRealSampleZStatusControl_->value());
+}
+
+void VESPERSAddOnsCoordinator::restoreAddOnsSampleYStatus()
+{
+	if(!connectedOnce_)
+		return;
+
+	qDebug() << "Restoring AddOns sample stage Y status to old VESPERS sample stage Y status with AddOns " << addOnsSampleYStatusControl_->value() << " and old Y status " << oldRealSampleYStatusControl_->value();
+
+	if(!addOnsSampleYStatusControl_->withinTolerance(oldRealSampleYStatusControl_->value()))
+		addOnsSampleYStatusControl_->move(oldRealSampleYStatusControl_->value());
+}
+
+// Sample low level status
+/////////////////////////////////////////////
+
+void VESPERSAddOnsCoordinator::onOldRealSampleXStatusControlChanged()
+{
+	if(!connectedOnce_)
+		return;
+
+	qDebug() << "Detected OLD sample X status move of " << oldRealSampleXStatusControl_->value() << " versus " << addOnsSampleHStatusControl_->value();
+
+	if(!addOnsSampleHStatusControl_->withinTolerance(oldRealSampleXStatusControl_->value()))
+		addOnsSampleHStatusControl_->move(oldRealSampleXStatusControl_->value());
+
+	qDebug() << "Detected OLD sample X status move of " << oldRealSampleXStatusControl_->value() << " versus " << addOnsSampleXStatusControl_->value();
+
+	if(!addOnsSampleXStatusControl_->withinTolerance(oldRealSampleXStatusControl_->value()))
+		addOnsSampleXStatusControl_->move(oldRealSampleXStatusControl_->value());
+}
+
+void VESPERSAddOnsCoordinator::onOldRealSampleYStatusControlChanged()
+{
+	if(!connectedOnce_)
+		return;
+
+	qDebug() << "Detected OLD sample Y status move of " << oldRealSampleYStatusControl_->value() << " versus " << addOnsSampleVStatusControl_->value() << " and " << addOnsSampleNStatusControl_->value();
+
+	int finalStatus = computeFinalStatus(int(oldRealSampleYStatusControl_->value()), int(oldRealSampleZStatusControl_->value()));
+
+	if(!addOnsSampleVStatusControl_->withinTolerance(finalStatus))
+		addOnsSampleVStatusControl_->move(finalStatus);
+
+	if(!addOnsSampleNStatusControl_->withinTolerance(finalStatus))
+		addOnsSampleNStatusControl_->move(finalStatus);
+
+	qDebug() << "Detected OLD sample Y status move of " << oldRealSampleYStatusControl_->value() << " versus " << addOnsSampleYStatusControl_->value();
+
+	if(!addOnsSampleNStatusControl_->withinTolerance(oldRealSampleYStatusControl_->value()))
+		addOnsSampleNStatusControl_->move(oldRealSampleYStatusControl_->value());
+}
+
+void VESPERSAddOnsCoordinator::onOldRealSampleZStatusControlChanged()
+{
+	if(!connectedOnce_)
+		return;
+
+	qDebug() << "Detected OLD sample Y status move of " << oldRealSampleYStatusControl_->value() << " versus " << addOnsSampleVStatusControl_->value() << " and " << addOnsSampleNStatusControl_->value();
+
+	int finalStatus = computeFinalStatus(int(oldRealSampleYStatusControl_->value()), int(oldRealSampleZStatusControl_->value()));
+
+	if(!addOnsSampleVStatusControl_->withinTolerance(finalStatus))
+		addOnsSampleVStatusControl_->move(finalStatus);
+
+	if(!addOnsSampleNStatusControl_->withinTolerance(finalStatus))
+		addOnsSampleNStatusControl_->move(finalStatus);
+
+	qDebug() << "Detected OLD sample Z status move of " << oldRealSampleZStatusControl_->value() << " versus " << addOnsSampleZStatusControl_->value();
+
+	if(!addOnsSampleZStatusControl_->withinTolerance(oldRealSampleZStatusControl_->value()))
+		addOnsSampleZStatusControl_->move(oldRealSampleZStatusControl_->value());
+}
+
 // Atto H, V, N
 //////////////////////////////////////////////
 
@@ -596,33 +924,6 @@ void VESPERSAddOnsCoordinator::onOldAttoNFeedbackControlChanged()
 		qDebug() << "Detected OLD atto N feedback move of " << oldAttoNFeedbackControl_->value() << " versus " << addOnsAttoNFeedbackControl_->value();
 		addOnsAttoNFeedbackControl_->move(oldAttoNFeedbackControl_->value());
 	}
-}
-
-void VESPERSAddOnsCoordinator::onOldRealAttoXStatusControlChanged()
-{
-	if(!connectedOnce_)
-		return;
-
-	qDebug() << "Detected OLD atto X status move of " << oldRealAttoXStatusControl_->value() << " versus " << addOnsAttoHStatusControl_->value();
-
-	if(!addOnsAttoHStatusControl_->withinTolerance(oldRealAttoXStatusControl_->value()))
-		addOnsAttoHStatusControl_->move(oldRealAttoXStatusControl_->value());
-}
-
-void VESPERSAddOnsCoordinator::onOldRealAttoYAndZStatusControlChanged()
-{
-	if(!connectedOnce_)
-		return;
-
-	qDebug() << "Detected OLD atto Y status move of " << oldRealAttoYStatusControl_->value() << " versus " << addOnsAttoVStatusControl_->value() << " and " << addOnsAttoNStatusControl_->value();
-
-	int finalStatus = computeFinalStatus(int(oldRealAttoYStatusControl_->value()), int(oldRealAttoZStatusControl_->value()));
-
-	if(!addOnsAttoVStatusControl_->withinTolerance(finalStatus))
-		addOnsAttoVStatusControl_->move(finalStatus);
-
-	if(!addOnsAttoNStatusControl_->withinTolerance(finalStatus))
-		addOnsAttoNStatusControl_->move(finalStatus);
 }
 
 void VESPERSAddOnsCoordinator::onAddOnsAttoHSetpointControlChanged()
@@ -726,6 +1027,235 @@ void VESPERSAddOnsCoordinator::restoreAddOnsAttoVAndNStatus()
 
 // Atto X, Z, Y
 //////////////////////////////////////////////
+
+void VESPERSAddOnsCoordinator::onOldAttoXSetpointControlChanged()
+{
+	if(!connectedOnce_)
+		return;
+
+	qDebug() << "Detected OLD sample X setpoint move of " << oldAttoXSetpointControl_->value() << " versus " << addOnsAttoXSetpointControl_->value();
+
+	if(!addOnsAttoXSetpointControl_->withinTolerance(oldAttoXSetpointControl_->value()))
+		addOnsAttoXSetpointControl_->move(oldAttoXSetpointControl_->value());
+}
+
+void VESPERSAddOnsCoordinator::onOldAttoXFeedbackControlChanged()
+{
+	if(!connectedOnce_)
+		return;
+
+
+	if(!addOnsAttoXFeedbackControl_->withinTolerance(oldAttoXFeedbackControl_->value())){
+		qDebug() << "Detected OLD sample X feedback move of " << oldAttoXFeedbackControl_->value() << " versus " << addOnsAttoXFeedbackControl_->value();
+		addOnsAttoXFeedbackControl_->move(oldAttoXFeedbackControl_->value());
+	}
+}
+
+void VESPERSAddOnsCoordinator::onOldAttoZSetpointControlChanged()
+{
+	if(!connectedOnce_)
+		return;
+
+	qDebug() << "Detected OLD sample Z setpoint move of " << oldAttoZSetpointControl_->value() << " versus " << addOnsAttoZSetpointControl_->value();
+
+	if(!addOnsAttoZSetpointControl_->withinTolerance(oldAttoZSetpointControl_->value()))
+		addOnsAttoZSetpointControl_->move(oldAttoZSetpointControl_->value());
+}
+
+void VESPERSAddOnsCoordinator::onOldAttoZFeedbackControlChanged()
+{
+	if(!connectedOnce_)
+		return;
+
+
+	if(!addOnsAttoZFeedbackControl_->withinTolerance(oldAttoZFeedbackControl_->value())){
+		addOnsAttoZFeedbackControl_->move(oldAttoZFeedbackControl_->value());
+		qDebug() << "Detected OLD sample Z feedback move of " << oldAttoZFeedbackControl_->value() << " versus " << addOnsAttoZFeedbackControl_->value();
+	}
+}
+
+void VESPERSAddOnsCoordinator::onOldAttoYSetpointControlChanged()
+{
+	if(!connectedOnce_)
+		return;
+
+	qDebug() << "Detected OLD sample Y setpoint move of " << oldAttoYSetpointControl_->value() << " versus " << addOnsAttoYSetpointControl_->value();
+
+	if(!addOnsAttoYSetpointControl_->withinTolerance(oldAttoYSetpointControl_->value()))
+		addOnsAttoYSetpointControl_->move(oldAttoYSetpointControl_->value());
+}
+
+void VESPERSAddOnsCoordinator::onOldAttoYFeedbackControlChanged()
+{
+	if(!connectedOnce_)
+		return;
+
+
+	if(!addOnsAttoYFeedbackControl_->withinTolerance(oldAttoYFeedbackControl_->value())){
+		qDebug() << "Detected OLD sample Y feedback move of " << oldAttoYFeedbackControl_->value() << " versus " << addOnsAttoYFeedbackControl_->value();
+		addOnsAttoYFeedbackControl_->move(oldAttoYFeedbackControl_->value());
+	}
+}
+
+void VESPERSAddOnsCoordinator::onAddOnsAttoXSetpointControlChanged()
+{
+	if(!connectedOnce_)
+		return;
+
+	qDebug() << "Detected new AddOns sample X move of " << addOnsAttoXSetpointControl_->value() << " versus " << oldAttoXSetpointControl_->value();
+
+	// If we're requesting the same stage X with AddOns as was in the old stage X AND the old stage X feedback matches the old stage X setpoint AND the status is MOVE DONE
+	// THEN issuing a move will not do anything SO we'll trick the status to say "MOVE ACTIVE" then "MOVE DONE"
+	if(oldAttoXSetpointControl_->withinTolerance(addOnsAttoXSetpointControl_->value()) && oldRealAttoXStatusControl_->withinTolerance(0.0)){
+		qDebug() << "Faking a sample stage X move";
+		addOnsAttoXStatusControl_->move(1.0);
+		QTimer::singleShot(50, this, SLOT(restoreAddOnsAttoXStatus()));
+		return;
+	}
+
+	if(!oldAttoXSetpointControl_->withinTolerance(addOnsAttoXSetpointControl_->value())){
+		qDebug() << "Doing addOns Atto X move in the regular way";
+		oldAttoXSetpointControl_->move(addOnsAttoXSetpointControl_->value());
+	}
+}
+
+void VESPERSAddOnsCoordinator::onAddOnsAttoZSetpointControlChanged()
+{
+	if(!connectedOnce_)
+		return;
+
+	qDebug() << "Detected new AddOns sample Z move of " << addOnsAttoZSetpointControl_->value() << " versus " << oldAttoZSetpointControl_->value();
+
+	// If we're requesting the same stage X with AddOns as was in the old stage X AND the old stage X feedback matches the old stage X setpoint AND the status is MOZE DONE
+	// THEN issuing a move will not do anything SO we'll trick the status to say "MOZE ACTIZE" then "MOZE DONE"
+	if(oldAttoZSetpointControl_->withinTolerance(addOnsAttoZSetpointControl_->value()) && oldRealAttoZStatusControl_->withinTolerance(0.0)){
+		qDebug() << "Faking a sample stage Z move";
+		addOnsAttoZStatusControl_->move(1.0);
+		QTimer::singleShot(50, this, SLOT(restoreAddOnsAttoZStatus()));
+		return;
+	}
+
+	if(!oldAttoZSetpointControl_->withinTolerance(addOnsAttoZSetpointControl_->value())){
+		qDebug() << "Doing addOns Atto Z move in the regular way";
+		oldAttoZSetpointControl_->move(addOnsAttoZSetpointControl_->value());
+	}
+}
+
+void VESPERSAddOnsCoordinator::onAddOnsAttoYSetpointControlChanged()
+{
+	if(!connectedOnce_)
+		return;
+
+	qDebug() << "Detected new AddOns sample Y move of " << addOnsAttoYSetpointControl_->value() << " versus " << oldAttoYSetpointControl_->value();
+
+	// If we're requesting the same stage X with AddOns as was in the old stage X AND the old stage X feedback matches the old stage X setpoint AND the status is MOVE DONE
+	// THEN issuing a move will not do anything SO we'll trick the status to say "MOVE ACTIVE" then "MOVE DONE"
+	if(oldAttoYSetpointControl_->withinTolerance(addOnsAttoYSetpointControl_->value()) && oldRealAttoYStatusControl_->withinTolerance(0.0)){
+		qDebug() << "Faking a sample stage Y move";
+		addOnsAttoYStatusControl_->move(1.0);
+		QTimer::singleShot(50, this, SLOT(restoreAddOnsAttoYStatus()));
+		return;
+	}
+
+	if(!oldAttoYSetpointControl_->withinTolerance(addOnsAttoYSetpointControl_->value())){
+		qDebug() << "Doing addOns Atto Y move in the regular way";
+		oldAttoYSetpointControl_->move(addOnsAttoYSetpointControl_->value());
+	}
+}
+
+void VESPERSAddOnsCoordinator::restoreAddOnsAttoXStatus()
+{
+	if(!connectedOnce_)
+		return;
+
+	qDebug() << "Restoring AddOns sample stage X status to old VESPERS sample stage X status with AddOns " << addOnsAttoXStatusControl_->value() << " and old X status " << oldRealAttoXStatusControl_->value();
+
+	if(!addOnsAttoXStatusControl_->withinTolerance(oldRealAttoXStatusControl_->value()))
+		addOnsAttoXStatusControl_->move(oldRealAttoXStatusControl_->value());
+}
+
+void VESPERSAddOnsCoordinator::restoreAddOnsAttoZStatus()
+{
+	if(!connectedOnce_)
+		return;
+
+	qDebug() << "Restoring AddOns sample stage Z status to old VESPERS sample stage Z status with AddOns " << addOnsAttoZStatusControl_->value() << " and old Z status " << oldRealAttoZStatusControl_->value();
+
+	if(!addOnsAttoZStatusControl_->withinTolerance(oldRealAttoZStatusControl_->value()))
+		addOnsAttoZStatusControl_->move(oldRealAttoZStatusControl_->value());
+}
+
+void VESPERSAddOnsCoordinator::restoreAddOnsAttoYStatus()
+{
+	if(!connectedOnce_)
+		return;
+
+	qDebug() << "Restoring AddOns sample stage Y status to old VESPERS sample stage Y status with AddOns " << addOnsAttoYStatusControl_->value() << " and old Y status " << oldRealAttoYStatusControl_->value();
+
+	if(!addOnsAttoYStatusControl_->withinTolerance(oldRealAttoYStatusControl_->value()))
+		addOnsAttoYStatusControl_->move(oldRealAttoYStatusControl_->value());
+}
+
+// Atto low level status
+/////////////////////////////////////////////
+
+void VESPERSAddOnsCoordinator::onOldRealAttoXStatusControlChanged()
+{
+	if(!connectedOnce_)
+		return;
+
+	qDebug() << "Detected OLD sample X status move of " << oldRealAttoXStatusControl_->value() << " versus " << addOnsAttoHStatusControl_->value();
+
+	if(!addOnsAttoHStatusControl_->withinTolerance(oldRealAttoXStatusControl_->value()))
+		addOnsAttoHStatusControl_->move(oldRealAttoXStatusControl_->value());
+
+	qDebug() << "Detected OLD sample X status move of " << oldRealAttoXStatusControl_->value() << " versus " << addOnsAttoXStatusControl_->value();
+
+	if(!addOnsAttoXStatusControl_->withinTolerance(oldRealAttoXStatusControl_->value()))
+		addOnsAttoXStatusControl_->move(oldRealAttoXStatusControl_->value());
+}
+
+void VESPERSAddOnsCoordinator::onOldRealAttoYStatusControlChanged()
+{
+	if(!connectedOnce_)
+		return;
+
+	qDebug() << "Detected OLD sample Y status move of " << oldRealAttoYStatusControl_->value() << " versus " << addOnsAttoVStatusControl_->value() << " and " << addOnsAttoNStatusControl_->value();
+
+	int finalStatus = computeFinalStatus(int(oldRealAttoYStatusControl_->value()), int(oldRealAttoZStatusControl_->value()));
+
+	if(!addOnsAttoVStatusControl_->withinTolerance(finalStatus))
+		addOnsAttoVStatusControl_->move(finalStatus);
+
+	if(!addOnsAttoNStatusControl_->withinTolerance(finalStatus))
+		addOnsAttoNStatusControl_->move(finalStatus);
+
+	qDebug() << "Detected OLD sample Y status move of " << oldRealAttoYStatusControl_->value() << " versus " << addOnsAttoYStatusControl_->value();
+
+	if(!addOnsAttoNStatusControl_->withinTolerance(oldRealAttoYStatusControl_->value()))
+		addOnsAttoNStatusControl_->move(oldRealAttoYStatusControl_->value());
+}
+
+void VESPERSAddOnsCoordinator::onOldRealAttoZStatusControlChanged()
+{
+	if(!connectedOnce_)
+		return;
+
+	qDebug() << "Detected OLD sample Y status move of " << oldRealAttoYStatusControl_->value() << " versus " << addOnsAttoVStatusControl_->value() << " and " << addOnsAttoNStatusControl_->value();
+
+	int finalStatus = computeFinalStatus(int(oldRealAttoYStatusControl_->value()), int(oldRealAttoZStatusControl_->value()));
+
+	if(!addOnsAttoVStatusControl_->withinTolerance(finalStatus))
+		addOnsAttoVStatusControl_->move(finalStatus);
+
+	if(!addOnsAttoNStatusControl_->withinTolerance(finalStatus))
+		addOnsAttoNStatusControl_->move(finalStatus);
+
+	qDebug() << "Detected OLD sample Z status move of " << oldRealAttoZStatusControl_->value() << " versus " << addOnsAttoZStatusControl_->value();
+
+	if(!addOnsAttoZStatusControl_->withinTolerance(oldRealAttoZStatusControl_->value()))
+		addOnsAttoZStatusControl_->move(oldRealAttoZStatusControl_->value());
+}
 
 // Wire H, V, N
 //////////////////////////////////////////////

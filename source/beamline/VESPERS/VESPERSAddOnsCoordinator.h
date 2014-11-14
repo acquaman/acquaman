@@ -49,9 +49,6 @@ protected slots:
 	void onOldSampleNSetpointControlChanged();
 	void onOldSampleNFeedbackControlChanged();
 
-	void onOldRealSampleXStatusControlChanged();
-	void onOldRealSampleYAndZStatusControlChanged();
-
 	void onAddOnsSampleHSetpointControlChanged();
 	void onAddOnsSampleVSetpointControlChanged();
 	void onAddOnsSampleNSetpointControlChanged();
@@ -60,6 +57,29 @@ protected slots:
 	void restoreAddOnsSampleVAndNStatus();
 
 	// Sample X, Z, Y
+
+	void onOldSampleXSetpointControlChanged();
+	void onOldSampleXFeedbackControlChanged();
+
+	void onOldSampleZSetpointControlChanged();
+	void onOldSampleZFeedbackControlChanged();
+
+	void onOldSampleYSetpointControlChanged();
+	void onOldSampleYFeedbackControlChanged();
+
+	void onAddOnsSampleXSetpointControlChanged();
+	void onAddOnsSampleZSetpointControlChanged();
+	void onAddOnsSampleYSetpointControlChanged();
+
+	void restoreAddOnsSampleXStatus();
+	void restoreAddOnsSampleZStatus();
+	void restoreAddOnsSampleYStatus();
+
+	// Sample low level status
+
+	void onOldRealSampleXStatusControlChanged();
+	void onOldRealSampleZStatusControlChanged();
+	void onOldRealSampleYStatusControlChanged();
 
 	// Atto H, V, N
 
@@ -72,9 +92,6 @@ protected slots:
 	void onOldAttoNSetpointControlChanged();
 	void onOldAttoNFeedbackControlChanged();
 
-	void onOldRealAttoXStatusControlChanged();
-	void onOldRealAttoYAndZStatusControlChanged();
-
 	void onAddOnsAttoHSetpointControlChanged();
 	void onAddOnsAttoVSetpointControlChanged();
 	void onAddOnsAttoNSetpointControlChanged();
@@ -83,6 +100,29 @@ protected slots:
 	void restoreAddOnsAttoVAndNStatus();
 
 	// Atto X, Z, Y
+
+	void onOldAttoXSetpointControlChanged();
+	void onOldAttoXFeedbackControlChanged();
+
+	void onOldAttoZSetpointControlChanged();
+	void onOldAttoZFeedbackControlChanged();
+
+	void onOldAttoYSetpointControlChanged();
+	void onOldAttoYFeedbackControlChanged();
+
+	void onAddOnsAttoXSetpointControlChanged();
+	void onAddOnsAttoZSetpointControlChanged();
+	void onAddOnsAttoYSetpointControlChanged();
+
+	void restoreAddOnsAttoXStatus();
+	void restoreAddOnsAttoZStatus();
+	void restoreAddOnsAttoYStatus();
+
+	// Atto low level status
+
+	void onOldRealAttoXStatusControlChanged();
+	void onOldRealAttoZStatusControlChanged();
+	void onOldRealAttoYStatusControlChanged();
 
 	// Wire H, V, N
 
@@ -125,10 +165,6 @@ protected:
 	AMSinglePVControl *oldSampleNSetpointControl_;
 	AMReadOnlyPVControl *oldSampleNFeedbackControl_;
 
-	AMReadOnlyPVControl *oldRealSampleXStatusControl_;
-	AMReadOnlyPVControl *oldRealSampleYStatusControl_;
-	AMReadOnlyPVControl *oldRealSampleZStatusControl_;
-
 	AMSinglePVControl *addOnsSampleHSetpointControl_;
 	AMSinglePVControl *addOnsSampleHFeedbackControl_;
 	AMSinglePVControl *addOnsSampleHStatusControl_;
@@ -143,6 +179,33 @@ protected:
 
 	// Sample X, Z, Y
 
+	AMSinglePVControl *oldSampleXSetpointControl_;
+	AMReadOnlyPVControl *oldSampleXFeedbackControl_;
+
+	AMSinglePVControl *oldSampleZSetpointControl_;
+	AMReadOnlyPVControl *oldSampleZFeedbackControl_;
+
+	AMSinglePVControl *oldSampleYSetpointControl_;
+	AMReadOnlyPVControl *oldSampleYFeedbackControl_;
+
+	AMSinglePVControl *addOnsSampleXSetpointControl_;
+	AMSinglePVControl *addOnsSampleXFeedbackControl_;
+	AMSinglePVControl *addOnsSampleXStatusControl_;
+
+	AMSinglePVControl *addOnsSampleZSetpointControl_;
+	AMSinglePVControl *addOnsSampleZFeedbackControl_;
+	AMSinglePVControl *addOnsSampleZStatusControl_;
+
+	AMSinglePVControl *addOnsSampleYSetpointControl_;
+	AMSinglePVControl *addOnsSampleYFeedbackControl_;
+	AMSinglePVControl *addOnsSampleYStatusControl_;
+
+	// Sample low level status
+
+	AMReadOnlyPVControl *oldRealSampleXStatusControl_;
+	AMReadOnlyPVControl *oldRealSampleYStatusControl_;
+	AMReadOnlyPVControl *oldRealSampleZStatusControl_;
+
 	// Atto H, V, N
 
 	AMSinglePVControl *oldAttoHSetpointControl_;
@@ -153,10 +216,6 @@ protected:
 
 	AMSinglePVControl *oldAttoNSetpointControl_;
 	AMReadOnlyPVControl *oldAttoNFeedbackControl_;
-
-	AMReadOnlyPVControl *oldRealAttoXStatusControl_;
-	AMReadOnlyPVControl *oldRealAttoYStatusControl_;
-	AMReadOnlyPVControl *oldRealAttoZStatusControl_;
 
 	AMSinglePVControl *addOnsAttoHSetpointControl_;
 	AMSinglePVControl *addOnsAttoHFeedbackControl_;
@@ -171,6 +230,33 @@ protected:
 	AMSinglePVControl *addOnsAttoNStatusControl_;
 
 	// Atto X, Z, Y
+
+	AMSinglePVControl *oldAttoXSetpointControl_;
+	AMReadOnlyPVControl *oldAttoXFeedbackControl_;
+
+	AMSinglePVControl *oldAttoZSetpointControl_;
+	AMReadOnlyPVControl *oldAttoZFeedbackControl_;
+
+	AMSinglePVControl *oldAttoYSetpointControl_;
+	AMReadOnlyPVControl *oldAttoYFeedbackControl_;
+
+	AMSinglePVControl *addOnsAttoXSetpointControl_;
+	AMSinglePVControl *addOnsAttoXFeedbackControl_;
+	AMSinglePVControl *addOnsAttoXStatusControl_;
+
+	AMSinglePVControl *addOnsAttoZSetpointControl_;
+	AMSinglePVControl *addOnsAttoZFeedbackControl_;
+	AMSinglePVControl *addOnsAttoZStatusControl_;
+
+	AMSinglePVControl *addOnsAttoYSetpointControl_;
+	AMSinglePVControl *addOnsAttoYFeedbackControl_;
+	AMSinglePVControl *addOnsAttoYStatusControl_;
+
+	// Atto low level status
+
+	AMReadOnlyPVControl *oldRealAttoXStatusControl_;
+	AMReadOnlyPVControl *oldRealAttoYStatusControl_;
+	AMReadOnlyPVControl *oldRealAttoZStatusControl_;
 
 	// Wire H, V, N
 
