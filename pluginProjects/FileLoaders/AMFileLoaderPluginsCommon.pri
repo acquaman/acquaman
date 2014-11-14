@@ -50,7 +50,8 @@ HEADERS         *= $$PATH_TO_AM/source/dataman/AMFileLoaderInterface.h \
 		$$PATH_TO_AM/source/beamline/camera/AMShapeData.h \
 		$$PATH_TO_AM/source/dataman/AMSamplePlatePre2013.h \
 		$$PATH_TO_AM/source/util/AMDataSourcePlotSettings.h \
-		$$PATH_TO_AM/source/util/AMRange.h
+		$$PATH_TO_AM/source/util/AMRange.h \
+		$$PATH_TO_AM/source/util/AMDeferredFunctionCall.h
 
 SOURCES         *= $$PATH_TO_AM/source/dataman/AMScan.cpp \
 		$$PATH_TO_AM/source/dataman/AMScanDictionary.cpp \
@@ -83,4 +84,5 @@ SOURCES         *= $$PATH_TO_AM/source/dataman/AMScan.cpp \
 		$$PATH_TO_AM/source/dataman/AMSamplePlate.cpp \
 		$$PATH_TO_AM/source/beamline/camera/AMShapeData.cpp \
 		$$PATH_TO_AM/source/dataman/AMSamplePlatePre2013.cpp \
-		$$PATH_TO_AM/source/util/AMRange.cpp
+		$$PATH_TO_AM/source/util/AMRange.cpp \
+		$$PATH_TO_AM/source/util/AMDeferredFunctionCall.cpp

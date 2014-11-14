@@ -67,7 +67,6 @@ SGMFastScanConfiguration2013::SGMFastScanConfiguration2013(const SGMFastScanConf
 }
 
 SGMFastScanConfiguration2013::~SGMFastScanConfiguration2013(){
-	currentEnergyParameters_->deleteLater();
 }
 
 const QMetaObject* SGMFastScanConfiguration2013::getMetaObject(){
@@ -317,8 +316,6 @@ bool SGMFastScanConfiguration2013::setEnergyParameters(SGMEnergyParameters *para
 	if(!parameters)
 		return false;
 	if( !currentEnergyParameters_ || (*currentEnergyParameters_ != *parameters)){
-		if(currentEnergyParameters_)
-			currentEnergyParameters_->deleteLater();
 		currentEnergyParameters_ = parameters;
 		emit spacingParameterChanged(currentEnergyParameters_->spacingParameter());
 		emit c1ParameterChanged(currentEnergyParameters_->c1Parameter());
