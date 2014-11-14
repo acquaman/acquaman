@@ -632,11 +632,14 @@ bool AMDbObject::loadFromDb(AMDatabase* db, int sourceId) {
 					QString tableName = objectLocation.at(0);
 					int dbId = objectLocation.at(1).toInt();
 					constObject = new AMConstDbObject(databaseToUse, tableName, dbId);
+					setProperty(columnName, QVariant::fromValue(constObject));
 				}
-				else
-					constObject = new AMConstDbObject(0);
+				else{
+					// if it wasn't reloaded successfully, you'll still get a setProperty call, but it will be with a null pointer.
+					setProperty(columnName, QVariant::fromValue((AMConstDbObject*)0));
+//					constObject = new AMConstDbObject(0);
+				}
 
-				setProperty(columnName, QVariant::fromValue(constObject));
 			}
 			else if(columnType == qMetaTypeId<AMnDIndex>()) {
 				AMnDIndex ndIndex;
