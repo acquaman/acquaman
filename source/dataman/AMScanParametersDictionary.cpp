@@ -24,7 +24,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QStringBuilder>
 #include "util/AMTagReplacementParser.h"
 
- AMScanParametersDictionary::~AMScanParametersDictionary(){}
 AMScanParametersDictionary::AMScanParametersDictionary(AMScanParametersDictionary::OperatingParameter operatingOn, QObject *parent) :
 	QObject(parent)
 {
@@ -32,6 +31,14 @@ AMScanParametersDictionary::AMScanParametersDictionary(AMScanParametersDictionar
 		setOperatingOn(operatingOn);
 	else
 		operatingOn_ = AMScanParametersDictionary::OperateOnNone;
+}
+
+AMScanParametersDictionary::~AMScanParametersDictionary()
+{
+	foreach (AMAbstractTagReplacementFunctor *tag, keywordDictionary_.values())
+		delete tag;
+
+	keywordDictionary_.clear();
 }
 
 const QString& AMScanParametersDictionary::input() const{
@@ -221,6 +228,11 @@ AMOldScanParametersDictionary::AMOldScanParametersDictionary(QObject *parent) :
 AMOldScanParametersDictionary::~AMOldScanParametersDictionary()
 {
 	delete keywordParser_;
+
+	foreach (AMAbstractTagReplacementFunctor *tag, keywordDictionary_.values())
+		delete tag;
+
+	keywordDictionary_.clear();
 }
 
 bool AMOldScanParametersDictionary::operatingOnName() const{

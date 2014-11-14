@@ -729,6 +729,7 @@ bool AMScan::loadData()
 		if((accepts = acceptingFileLoaders.at(x)->accepts(this))){
 			AMFileLoaderInterface* fileLoader = acceptingFileLoaders.at(x)->createFileLoader();
 			success = fileLoader->load(this, AMUserSettings::userDataFolder, AMErrorMon::mon());
+			delete fileLoader;
 			break;
 		}
 

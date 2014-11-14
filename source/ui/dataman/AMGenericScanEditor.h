@@ -58,6 +58,7 @@ class AMSampleBriefView;
 class AMDataSourcesEditor;
 class AMChooseScanDialog;
 class AMControlInfoListTableView;
+class AMDetailedItemDelegate;
 
 class AMGenericScanEditor : public QWidget
 {
@@ -309,6 +310,14 @@ protected:
 	AMChooseScanDialog* chooseScanDialog_;
 	/// Customized LineEdit which allows for validation of scan names
 	AMRegExpLineEdit* scanNameEdit_;
+
+	/// The item delegate for the scan list view
+	AMDetailedItemDelegate* del_;
+
+	/// Update timer for when scans are running
+	QTimer* oneSecondTimer_;
+
+
 private:
 	void setupUi();
 
