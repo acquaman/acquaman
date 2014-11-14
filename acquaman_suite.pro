@@ -35,4 +35,6 @@ SUBDIRS += \
 	XRDAnalysis.pro \
 	CLSSR570Coordinator.pro \
 	SXRMBAcquaman.pro \
-	SXRMBAddOnsCoordinator.pro
+	SXRMBAddOnsCoordinator.pro \
+	VESPERSAddOnsCoordinator.pro
+
