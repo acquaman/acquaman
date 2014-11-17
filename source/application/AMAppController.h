@@ -88,6 +88,9 @@ protected slots:
 	/// Slot that changes the state of the scanEditorModelItem state when the scan action state changes.
 	void updateScanEditorModelItem();
 
+	/// Handles the menu action for toggling whether we will automatically open new scans in editors
+	void onActionAutomaticLaunchScanEditorToggled(bool toggled);
+
 protected:
 	/// Implementation method that individual applications can flesh out if extra setup is required when a scan action is started.  This is not pure virtual because there is no requirement to do anything to scan actions.
 	virtual void onCurrentScanActionStartedImplementation(AMScanAction *action) { Q_UNUSED(action); }
@@ -107,6 +110,12 @@ protected:
 	void setAutomaticBringScanEditorToFront(bool flag) { automaticBringScanEditorToFrontWithRunningScans_ = flag; }
 	/// Returns the flag that automatically brings new scan editors to the front on the stacked widget stack when the scan is running.
 	bool automaticBringScanEditorToFrontWithRunningScans() const { return automaticBringScanEditorToFrontWithRunningScans_; }
+
+	/// Sets the flag that automatically launches new scan editors
+	void setAutomaticLaunchScanEditor(bool automaticLaunchScanEditor) { automaticLaunchScanEditor_ = automaticLaunchScanEditor; }
+	/// Returns the flag that automatically launches new scan editors
+	bool automaticLaunchScanEditor() const { return automaticLaunchScanEditor_; }
+
 	/// Set whether the action runner cancel prompt should be shown.
 	void setActionRunnerCancelPromptVisibility(bool showPrompt);
 
@@ -115,6 +124,8 @@ protected:
 	AMWorkflowView3 *scanActionRunnerView_;
 	/// Flag holding whether the AMGenericScanEditor's automatically are switched to when they have a running scan.  The default is true.
 	bool automaticBringScanEditorToFrontWithRunningScans_;
+	/// Flag hodling whether the scans will automatically get launched into an AMGenericScanEditor
+	bool automaticLaunchScanEditor_;
 
 	/// Menus
 	QMenu *viewMenu_;

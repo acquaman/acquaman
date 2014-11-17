@@ -30,13 +30,18 @@ SGMBeamlineInfo* SGMBeamlineInfo::sgmInfo(){
 	return instance_;
 }
 
- SGMBeamlineInfo::~SGMBeamlineInfo(){}
 SGMBeamlineInfo::SGMBeamlineInfo(QObject *parent) :
 	QObject(parent)
 {
 	standardEnergyParameters_.append( new SGMEnergyParameters(1.68923e-06, 2.45477e-05, -1.59392, 509.468, 3.05575, this), "lowGrating" );
 	standardEnergyParameters_.append( new SGMEnergyParameters(9.16358e-07, 2.46204e-05, -1.59047, 511.292, 3.05478, this), "mediumGrating" );
 	standardEnergyParameters_.append( new SGMEnergyParameters(5.9087e-07,  2.45691e-05, -1.59401, 510.465, 3.05458, this), "highGrating" );
+}
+
+SGMBeamlineInfo::~SGMBeamlineInfo()
+{
+	while(standardEnergyParameters_.count() > 0)
+		standardEnergyParameters_.takeAt(standardEnergyParameters_.count()-1)->deleteLater();
 }
 
 QString SGMBeamlineInfo::sgmGratingName(SGMBeamlineInfo::sgmGrating grating) const {

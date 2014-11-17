@@ -628,9 +628,6 @@ void SGMAppController::onCurrentScanActionStartedImplementation(AMScanAction *ac
 void SGMAppController::onCurrentScanActionFinishedImplementation(AMScanAction *action){
 	Q_UNUSED(action)
 	disconnect(CLSStorageRing::sr1(), SIGNAL(beamAvaliability(bool)), this, SLOT(onBeamAvailabilityChanged(bool)));
-
-	if(action && action->controller() && action->controller()->scan())
-		action->controller()->scan()->deleteLater();
 }
 
 void SGMAppController::onBeamAvailabilityChanged(bool beamAvailable)
