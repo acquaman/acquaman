@@ -26,8 +26,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QLayout>
 
 #include "beamline/CLS/CLSMAXvMotor.h"
-#include "beamline/CLS/CLSKeithley428.h"
-#include "ui/beamline/AMCurrentAmplifierSingleView.h"
 
 class AMExtendedControlEditor;
 
@@ -45,9 +43,7 @@ signals:
 public slots:
 
 protected:
-    AMExtendedControlEditor *motorControlEditor_;
     AMExtendedControlEditor *energyControlEditor_;
-    AMCurrentAmplifierSingleView *keithleyView_;
 };
 
 #endif // BIOXASSIDEPERSISTENTVIEW_H
