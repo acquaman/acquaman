@@ -22,8 +22,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/AMPVControl.h"
 
-VESPERSAddOnsCoordinator::VESPERSAddOnsCoordinator(QObject *parent) :
-	QObject(parent)
+VESPERSAddOnsCoordinator::VESPERSAddOnsCoordinator(QObject *parent)
+	: QObject(parent)
 {
 	connectedOnce_ = false;
 
@@ -37,10 +37,6 @@ VESPERSAddOnsCoordinator::VESPERSAddOnsCoordinator(QObject *parent) :
 
 	oldSampleNSetpointControl_ = new AMSinglePVControl("oldSampleNSetpoint", "TS1607-2-B21-02:N:user:mm", this, 0.001);
 	oldSampleNFeedbackControl_ = new AMReadOnlyPVControl("oldSampleNFeedback", "TS1607-2-B21-02:N:user:mm:fbk", this);
-
-	oldRealSampleXStatusControl_ = new AMReadOnlyPVControl("oldRealSampleXFeedback", "SVM1607-2-B21-05:status", this);
-	oldRealSampleYStatusControl_ = new AMReadOnlyPVControl("oldRealSampleYFeedback", "SVM1607-2-B21-06:status", this);
-	oldRealSampleZStatusControl_ = new AMReadOnlyPVControl("oldRealSampleZFeedback", "SVM1607-2-B21-04:status", this);
 
 	addOnsSampleHSetpointControl_ = new AMSinglePVControl("AddOnsSampleHSetpoint", "BL1607-B2-1:AddOns:SampleStage:H:mm", this, 0.001);
 	addOnsSampleHFeedbackControl_ = new AMSinglePVControl("AddOnsSampleHFeedback", "BL1607-B2-1:AddOns:SampleStage:H:mm:fbk", this, 0.001);
@@ -65,10 +61,6 @@ VESPERSAddOnsCoordinator::VESPERSAddOnsCoordinator(QObject *parent) :
 	oldSampleYSetpointControl_ = new AMSinglePVControl("oldSampleYSetpoint", "TS1607-2-B21-02:Y:user:mm", this, 0.001);
 	oldSampleYFeedbackControl_ = new AMReadOnlyPVControl("oldSampleYFeedback", "TS1607-2-B21-02:Y:user:mm:fbk", this);
 
-	oldRealSampleXStatusControl_ = new AMReadOnlyPVControl("oldRealSampleXFeedback", "SVM1607-2-B21-05:status", this);
-	oldRealSampleYStatusControl_ = new AMReadOnlyPVControl("oldRealSampleYFeedback", "SVM1607-2-B21-06:status", this);
-	oldRealSampleZStatusControl_ = new AMReadOnlyPVControl("oldRealSampleZFeedback", "SVM1607-2-B21-04:status", this);
-
 	addOnsSampleXSetpointControl_ = new AMSinglePVControl("AddOnsSampleXSetpoint", "BL1607-B2-1:AddOns:SampleStage:X:mm", this, 0.001);
 	addOnsSampleXFeedbackControl_ = new AMSinglePVControl("AddOnsSampleXFeedback", "BL1607-B2-1:AddOns:SampleStage:X:mm:fbk", this, 0.001);
 	addOnsSampleXStatusControl_ = new AMSinglePVControl("AddOnsSampleXStatus", "BL1607-B2-1:AddOns:SampleStage:X:status", this, 0.5);
@@ -81,20 +73,22 @@ VESPERSAddOnsCoordinator::VESPERSAddOnsCoordinator(QObject *parent) :
 	addOnsSampleYFeedbackControl_ = new AMSinglePVControl("AddOnsSampleYFeedback", "BL1607-B2-1:AddOns:SampleStage:Y:mm:fbk", this, 0.001);
 	addOnsSampleYStatusControl_ = new AMSinglePVControl("AddOnsSampleHStatus", "BL1607-B2-1:AddOns:SampleStage:Y:status", this, 0.5);
 
+	// Sample status
+
+	oldRealSampleXStatusControl_ = new AMReadOnlyPVControl("oldRealSampleXFeedback", "SVM1607-2-B21-05:status", this);
+	oldRealSampleYStatusControl_ = new AMReadOnlyPVControl("oldRealSampleYFeedback", "SVM1607-2-B21-06:status", this);
+	oldRealSampleZStatusControl_ = new AMReadOnlyPVControl("oldRealSampleZFeedback", "SVM1607-2-B21-04:status", this);
+
 	// Atto H, V, N
 
-	oldAttoHSetpointControl_ = new AMSinglePVControl("oldAttoHSetpoint", "TS1607-2-B21-02:H:user:mm", this, 0.001);
-	oldAttoHFeedbackControl_ = new AMReadOnlyPVControl("oldAttoHFeedback", "TS1607-2-B21-02:H:user:mm:fbk", this);
+	oldAttoHSetpointControl_ = new AMSinglePVControl("oldAttoHSetpoint", "TS1607-2-B21-07:H:user:mm", this, 0.001);
+	oldAttoHFeedbackControl_ = new AMReadOnlyPVControl("oldAttoHFeedback", "TS1607-2-B21-07:H:user:mm:fbk", this);
 
-	oldAttoVSetpointControl_ = new AMSinglePVControl("oldAttoVSetpoint", "TS1607-2-B21-02:V:user:mm", this, 0.001);
-	oldAttoVFeedbackControl_ = new AMReadOnlyPVControl("oldAttoVFeedback", "TS1607-2-B21-02:V:user:mm:fbk", this);
+	oldAttoVSetpointControl_ = new AMSinglePVControl("oldAttoVSetpoint", "TS1607-2-B21-07:V:user:mm", this, 0.001);
+	oldAttoVFeedbackControl_ = new AMReadOnlyPVControl("oldAttoVFeedback", "TS1607-2-B21-07:V:user:mm:fbk", this);
 
-	oldAttoNSetpointControl_ = new AMSinglePVControl("oldAttoNSetpoint", "TS1607-2-B21-02:N:user:mm", this, 0.001);
-	oldAttoNFeedbackControl_ = new AMReadOnlyPVControl("oldAttoNFeedback", "TS1607-2-B21-02:N:user:mm:fbk", this);
-
-	oldRealAttoXStatusControl_ = new AMReadOnlyPVControl("oldRealAttoXFeedback", "SVM1607-2-B21-05:status", this);
-	oldRealAttoYStatusControl_ = new AMReadOnlyPVControl("oldRealAttoYFeedback", "SVM1607-2-B21-06:status", this);
-	oldRealAttoZStatusControl_ = new AMReadOnlyPVControl("oldRealAttoZFeedback", "SVM1607-2-B21-04:status", this);
+	oldAttoNSetpointControl_ = new AMSinglePVControl("oldAttoNSetpoint", "TS1607-2-B21-07:N:user:mm", this, 0.001);
+	oldAttoNFeedbackControl_ = new AMReadOnlyPVControl("oldAttoNFeedback", "TS1607-2-B21-07:N:user:mm:fbk", this);
 
 	addOnsAttoHSetpointControl_ = new AMSinglePVControl("AddOnsAttoHSetpoint", "BL1607-B2-1:AddOns:AttoStage:H:mm", this, 0.001);
 	addOnsAttoHFeedbackControl_ = new AMSinglePVControl("AddOnsAttoHFeedback", "BL1607-B2-1:AddOns:AttoStage:H:mm:fbk", this, 0.001);
@@ -110,18 +104,14 @@ VESPERSAddOnsCoordinator::VESPERSAddOnsCoordinator(QObject *parent) :
 
 	// Atto X, Z, Y
 
-	oldAttoXSetpointControl_ = new AMSinglePVControl("oldAttoXSetpoint", "TS1607-2-B21-02:X:user:mm", this, 0.001);
-	oldAttoXFeedbackControl_ = new AMReadOnlyPVControl("oldAttoXFeedback", "TS1607-2-B21-02:X:user:mm:fbk", this);
+	oldAttoXSetpointControl_ = new AMSinglePVControl("oldAttoXSetpoint", "TS1607-2-B21-07:X:user:mm", this, 0.001);
+	oldAttoXFeedbackControl_ = new AMReadOnlyPVControl("oldAttoXFeedback", "TS1607-2-B21-07:X:user:mm:fbk", this);
 
-	oldAttoZSetpointControl_ = new AMSinglePVControl("oldAttoZSetpoint", "TS1607-2-B21-02:Z:user:mm", this, 0.001);
-	oldAttoZFeedbackControl_ = new AMReadOnlyPVControl("oldAttoZFeedback", "TS1607-2-B21-02:Z:user:mm:fbk", this);
+	oldAttoZSetpointControl_ = new AMSinglePVControl("oldAttoZSetpoint", "TS1607-2-B21-07:Z:user:mm", this, 0.001);
+	oldAttoZFeedbackControl_ = new AMReadOnlyPVControl("oldAttoZFeedback", "TS1607-2-B21-07:Z:user:mm:fbk", this);
 
-	oldAttoYSetpointControl_ = new AMSinglePVControl("oldAttoYSetpoint", "TS1607-2-B21-02:Y:user:mm", this, 0.001);
-	oldAttoYFeedbackControl_ = new AMReadOnlyPVControl("oldAttoYFeedback", "TS1607-2-B21-02:Y:user:mm:fbk", this);
-
-	oldRealAttoXStatusControl_ = new AMReadOnlyPVControl("oldRealAttoXFeedback", "SVM1607-2-B21-05:status", this);
-	oldRealAttoYStatusControl_ = new AMReadOnlyPVControl("oldRealAttoYFeedback", "SVM1607-2-B21-06:status", this);
-	oldRealAttoZStatusControl_ = new AMReadOnlyPVControl("oldRealAttoZFeedback", "SVM1607-2-B21-04:status", this);
+	oldAttoYSetpointControl_ = new AMSinglePVControl("oldAttoYSetpoint", "TS1607-2-B21-07:Y:user:mm", this, 0.001);
+	oldAttoYFeedbackControl_ = new AMReadOnlyPVControl("oldAttoYFeedback", "TS1607-2-B21-07:Y:user:mm:fbk", this);
 
 	addOnsAttoXSetpointControl_ = new AMSinglePVControl("AddOnsAttoXSetpoint", "BL1607-B2-1:AddOns:AttoStage:X:mm", this, 0.001);
 	addOnsAttoXFeedbackControl_ = new AMSinglePVControl("AddOnsAttoXFeedback", "BL1607-B2-1:AddOns:AttoStage:X:mm:fbk", this, 0.001);
@@ -135,20 +125,22 @@ VESPERSAddOnsCoordinator::VESPERSAddOnsCoordinator(QObject *parent) :
 	addOnsAttoYFeedbackControl_ = new AMSinglePVControl("AddOnsAttoYFeedback", "BL1607-B2-1:AddOns:AttoStage:Y:mm:fbk", this, 0.001);
 	addOnsAttoYStatusControl_ = new AMSinglePVControl("AddOnsAttoHStatus", "BL1607-B2-1:AddOns:AttoStage:Y:status", this, 0.5);
 
+	// Atto status
+
+	oldRealAttoXStatusControl_ = new AMReadOnlyPVControl("oldRealAttoXFeedback", "SVM1607-2-B21-11:status", this);
+	oldRealAttoYStatusControl_ = new AMReadOnlyPVControl("oldRealAttoYFeedback", "SVM1607-2-B21-10:status", this);
+	oldRealAttoZStatusControl_ = new AMReadOnlyPVControl("oldRealAttoZFeedback", "SVM1607-2-B21-12:status", this);
+
 	// Wire H, V, N
 
-	oldWireHSetpointControl_ = new AMSinglePVControl("oldWireHSetpoint", "TS1607-2-B21-02:H:user:mm", this, 0.001);
-	oldWireHFeedbackControl_ = new AMReadOnlyPVControl("oldWireHFeedback", "TS1607-2-B21-02:H:user:mm:fbk", this);
+	oldWireHSetpointControl_ = new AMSinglePVControl("oldWireHSetpoint", "TS1607-2-B21-01:H:user:mm", this, 0.001);
+	oldWireHFeedbackControl_ = new AMReadOnlyPVControl("oldWireHFeedback", "TS1607-2-B21-01:H:user:mm:fbk", this);
 
-	oldWireVSetpointControl_ = new AMSinglePVControl("oldWireVSetpoint", "TS1607-2-B21-02:V:user:mm", this, 0.001);
-	oldWireVFeedbackControl_ = new AMReadOnlyPVControl("oldWireVFeedback", "TS1607-2-B21-02:V:user:mm:fbk", this);
+	oldWireVSetpointControl_ = new AMSinglePVControl("oldWireVSetpoint", "TS1607-2-B21-01:V:user:mm", this, 0.001);
+	oldWireVFeedbackControl_ = new AMReadOnlyPVControl("oldWireVFeedback", "TS1607-2-B21-01:V:user:mm:fbk", this);
 
-	oldWireNSetpointControl_ = new AMSinglePVControl("oldWireNSetpoint", "TS1607-2-B21-02:N:user:mm", this, 0.001);
-	oldWireNFeedbackControl_ = new AMReadOnlyPVControl("oldWireNFeedback", "TS1607-2-B21-02:N:user:mm:fbk", this);
-
-	oldRealWireXStatusControl_ = new AMReadOnlyPVControl("oldRealWireXFeedback", "SVM1607-2-B21-05:status", this);
-	oldRealWireYStatusControl_ = new AMReadOnlyPVControl("oldRealWireYFeedback", "SVM1607-2-B21-06:status", this);
-	oldRealWireZStatusControl_ = new AMReadOnlyPVControl("oldRealWireZFeedback", "SVM1607-2-B21-04:status", this);
+	oldWireNSetpointControl_ = new AMSinglePVControl("oldWireNSetpoint", "TS1607-2-B21-01:N:user:mm", this, 0.001);
+	oldWireNFeedbackControl_ = new AMReadOnlyPVControl("oldWireNFeedback", "TS1607-2-B21-01:N:user:mm:fbk", this);
 
 	addOnsWireHSetpointControl_ = new AMSinglePVControl("AddOnsWireHSetpoint", "BL1607-B2-1:AddOns:WireStage:H:mm", this, 0.001);
 	addOnsWireHFeedbackControl_ = new AMSinglePVControl("AddOnsWireHFeedback", "BL1607-B2-1:AddOns:WireStage:H:mm:fbk", this, 0.001);
@@ -161,6 +153,12 @@ VESPERSAddOnsCoordinator::VESPERSAddOnsCoordinator(QObject *parent) :
 	addOnsWireNSetpointControl_ = new AMSinglePVControl("AddOnsWireNSetpoint", "BL1607-B2-1:AddOns:WireStage:N:mm", this, 0.001);
 	addOnsWireNFeedbackControl_ = new AMSinglePVControl("AddOnsWireNFeedback", "BL1607-B2-1:AddOns:WireStage:N:mm:fbk", this, 0.001);
 	addOnsWireNStatusControl_ = new AMSinglePVControl("AddOnsWireHStatus", "BL1607-B2-1:AddOns:WireStage:N:status", this, 0.5);
+
+	// Wire status
+
+	oldRealWireXStatusControl_ = new AMReadOnlyPVControl("oldRealWireXFeedback", "SVM1607-2-B21-02:status", this);
+	oldRealWireYStatusControl_ = new AMReadOnlyPVControl("oldRealWireYFeedback", "SVM1607-2-B21-03:status", this);
+	oldRealWireZStatusControl_ = new AMReadOnlyPVControl("oldRealWireZFeedback", "SVM1607-2-B21-01:status", this);
 
 	/////////////////////////////////////////////
 
@@ -905,8 +903,8 @@ void VESPERSAddOnsCoordinator::onOldRealSampleYStatusControlChanged()
 
 	qDebug() << "Detected OLD sample Y status move of " << oldRealSampleYStatusControl_->value() << " versus " << addOnsSampleYStatusControl_->value();
 
-	if(!addOnsSampleNStatusControl_->withinTolerance(oldRealSampleYStatusControl_->value()))
-		addOnsSampleNStatusControl_->move(oldRealSampleYStatusControl_->value());
+	if(!addOnsSampleYStatusControl_->withinTolerance(oldRealSampleYStatusControl_->value()))
+		addOnsSampleYStatusControl_->move(oldRealSampleYStatusControl_->value());
 }
 
 void VESPERSAddOnsCoordinator::onOldRealSampleZStatusControlChanged()
@@ -1145,8 +1143,8 @@ void VESPERSAddOnsCoordinator::onOldAttoZFeedbackControlChanged()
 
 
 	if(!addOnsAttoZFeedbackControl_->withinTolerance(oldAttoZFeedbackControl_->value())){
-		addOnsAttoZFeedbackControl_->move(oldAttoZFeedbackControl_->value());
 		qDebug() << "Detected OLD sample Z feedback move of " << oldAttoZFeedbackControl_->value() << " versus " << addOnsAttoZFeedbackControl_->value();
+		addOnsAttoZFeedbackControl_->move(oldAttoZFeedbackControl_->value());
 	}
 }
 
@@ -1308,8 +1306,8 @@ void VESPERSAddOnsCoordinator::onOldRealAttoYStatusControlChanged()
 
 	qDebug() << "Detected OLD sample Y status move of " << oldRealAttoYStatusControl_->value() << " versus " << addOnsAttoYStatusControl_->value();
 
-	if(!addOnsAttoNStatusControl_->withinTolerance(oldRealAttoYStatusControl_->value()))
-		addOnsAttoNStatusControl_->move(oldRealAttoYStatusControl_->value());
+	if(!addOnsAttoYStatusControl_->withinTolerance(oldRealAttoYStatusControl_->value()))
+		addOnsAttoYStatusControl_->move(oldRealAttoYStatusControl_->value());
 }
 
 void VESPERSAddOnsCoordinator::onOldRealAttoZStatusControlChanged()
