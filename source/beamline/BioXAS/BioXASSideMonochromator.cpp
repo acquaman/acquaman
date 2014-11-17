@@ -32,6 +32,8 @@ BioXASSideMonochromator::BioXASSideMonochromator(QObject *parent) :
 
     energy_ = new BioXASSideMonochromatorControl("EnergyEV", "BL1607-5-I21:Energy:EV:fbk", "BL1607-5-I21:Energy:EV", "BL1607-5-I21:Energy:status", QString(), this);
 
+    // Controls value changes.
+    connect( braggMotorPower_, SIGNAL(valueChanged(double)), this, SLOT(onBraggMotorPowerChanged(double)) );
     connect( slitsClosed_, SIGNAL(valueChanged(double)), this, SLOT(onSlitsClosedChanged(double)) );
     connect( paddleOut_, SIGNAL(valueChanged(double)), this, SLOT(onPaddleOutChanged(double)) );
     connect( crystalChangeEnabled_, SIGNAL(valueChanged(double)), this, SLOT(onCrystalChangeEnabled(double)) );
@@ -42,6 +44,18 @@ BioXASSideMonochromator::BioXASSideMonochromator(QObject *parent) :
     connect( regionAStatus_, SIGNAL(valueChanged(double)), this, SLOT(onRegionChanged()) );
     connect( regionBStatus_, SIGNAL(valueChanged(double)), this, SLOT(onRegionChanged()) );
 
+    // Motors connection state.
+    connect( phosphorPaddleMotor_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
+    connect( braggMotor_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
+    connect( verticalMotor_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
+    connect( lateralMotor_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
+    connect( crystalExchangeMotor_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
+    connect( crystal1PitchMotor_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
+    connect( crystal1RollMotor_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
+    connect( crystal2PitchMotor_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
+    connect( crystal2RollMotor_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
+
+    // Controls connection state.
     connect( slitsClosed_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
     connect( paddleOut_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
     connect( crystalChangeEnabled_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
@@ -252,12 +266,22 @@ AMAction3* BioXASSideMonochromator::createSetBraggMotorPowerAutoAction()
 
 void BioXASSideMonochromator::onConnectedChanged()
 {
-    bool currentState = (slitsClosed_->isConnected() && paddleOut_->isConnected() &&
-                         crystalChangeEnabled_->isConnected() && stageAtCrystalChangePosition_->isConnected() &&
-                         crystalChangeBrakeEnabled_->isConnected() && stageMotorAbs_->isConnected() &&
-                         crystalChangeMotorRel_->isConnected() && crystalChangeMotorCWLimit_->isConnected() &&
-                         crystalChangeMotorCCWLimit_->isConnected() && regionAStatus_->isConnected() &&
-                         regionBStatus_->isConnected() && energy_->isConnected());
+    bool currentState = (
+                // Motors
+                phosphorPaddleMotor_->isConnected() && braggMotor_->isConnected() &&
+                verticalMotor_->isConnected() && lateralMotor_->isConnected() &&
+                crystalExchangeMotor_->isConnected() && crystal1PitchMotor_->isConnected() &&
+                crystal1RollMotor_->isConnected() && crystal2PitchMotor_->isConnected() &&
+                crystal2RollMotor_->isConnected() &&
+
+                // Controls
+                braggMotorPower_->isConnected() && slitsClosed_->isConnected() && paddleOut_->isConnected() &&
+                crystalChangeEnabled_->isConnected() && stageAtCrystalChangePosition_->isConnected() &&
+                crystalChangeBrakeEnabled_->isConnected() && stageMotorAbs_->isConnected() &&
+                crystalChangeMotorRel_->isConnected() && crystalChangeMotorCWLimit_->isConnected() &&
+                crystalChangeMotorCCWLimit_->isConnected() && regionAStatus_->isConnected() &&
+                regionBStatus_->isConnected() && energy_->isConnected()
+                );
 
     if (connected_ != currentState) {
         connected_ = currentState;

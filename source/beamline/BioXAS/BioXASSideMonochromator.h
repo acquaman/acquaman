@@ -125,6 +125,8 @@ signals:
     void connected(bool isConnected);
     /// Notifier that the mono's region has changed.
     void regionChanged(BioXASSideMonochromator::Region newRegion);
+    /// Notifier that the bragg motor power status has changed.
+    void braggMotorPowerChanged(bool isOn);
     /// Notifier that the slits closed general status has changed.
     void slitsClosedChanged(bool areClosed);
     /// Notifier that the paddle out status has changed.
@@ -153,6 +155,8 @@ protected slots:
     void onConnectedChanged();
     /// Updates the mono's current region state based on the values of regionAStatus_ and regionBStatus_ controls.
     void onRegionChanged();
+    /// Emits the appropriate signal when the mono's bragg motor has changed power states.
+    void onBraggMotorPowerChanged(double value) { emit braggMotorPowerChanged((int)value == 1); }
     /// Emits the appropriate signal when the mono's slits closed status has changed.
     void onSlitsClosedChanged(double value) { emit slitsClosedChanged((int)value == 1); }
     /// Emits the appropriate signal when the paddle is out.
