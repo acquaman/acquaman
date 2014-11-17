@@ -69,6 +69,9 @@ public:
     /// Destructor.
     virtual ~BioXASSideBeamline();
 
+    /// Returns the most recent connection state of the beamline.
+    virtual bool isConnected() const { return isConnected_; }
+
     /// Returns the beamline monochromator.
     BioXASSideMonochromator *mono() const { return mono_; }
     /// Returns the scaler.
@@ -205,6 +208,8 @@ public:
     AMBasicControlDetectorEmulator* dwellTimeDetector() { return dwellTimeDetector_; }
 
 signals:
+    /// Notifier that the beamline's global connection state has changed.
+    void connected(bool);
     /// Notifier that the pressure status has changed. Argument is false if any of the pressures fall below its setpoint, true otherwise.
     void pressureStatusChanged(bool);
     /// Notifier that the valve status has changed. Argument is false if any of the valves are closed, true otherwise.
@@ -219,6 +224,8 @@ signals:
     void temperatureStatusChanged(bool);
 
 protected slots:
+    /// Updates the beamline's reported connection state.
+    void onConnectionChanged();
     /// Sets up pressure control connections once the whole pressure set is connected.
     void onPressureSetConnected(bool connected);
     /// Handles pressure errors.
@@ -246,7 +253,7 @@ protected slots:
 
 protected:
 	/// Sets up the synchronized dwell time.
-	void setupSynchronizedDwellTime();
+//	void setupSynchronizedDwellTime();
 	/// Sets up the readings such as pressure, flow switches, temperature, etc.
 	void setupDiagnostics();
 	/// Sets up logical groupings of controls into sets.
@@ -272,6 +279,9 @@ protected:
 	BioXASSideBeamline();
 
 protected:
+    /// The beamline connection state.
+    bool isConnected_;
+
     // Detectors
 
     CLSBasicScalerChannelDetector *i0Detector_;

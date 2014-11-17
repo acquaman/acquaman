@@ -29,7 +29,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 BioXASSideBeamline::BioXASSideBeamline()
 	: AMBeamline("BioXAS Beamline - Side Endstation")
 {
-	setupSynchronizedDwellTime();
+    // Before the beamline is set up, we assume it is not connected.
+    isConnected_ = false;
+
+//	setupSynchronizedDwellTime();
 	setupComponents();
 	setupDiagnostics();
 	setupSampleStage();
@@ -201,6 +204,28 @@ QList<CLSMAXvMotor *> BioXASSideBeamline::getMotorsByType(BioXASBeamlineDef::Bio
     return matchedMotors;
 }
 
+void BioXASSideBeamline::onConnectionChanged()
+{
+    bool newState = (
+                // Mono.
+                mono_->isConnected() &&
+
+                // Scaler.
+                scaler_->isConnected() && scalerDwellTime_->isConnected() &&
+
+                // Control sets.
+                pressureSet_->isConnected() && valveSet_->isConnected() &&
+                ionPumpSet_->isConnected() && flowTransducerSet_->isConnected() &&
+                flowSwitchSet_->isConnected() && temperatureSet_->isConnected()
+
+                );
+
+    if (isConnected_ != newState) {
+        isConnected_ = newState;
+        emit connected(isConnected_);
+    }
+}
+
 void BioXASSideBeamline::onPressureSetConnected(bool connected)
 {
     if (connected) {
@@ -209,6 +234,8 @@ void BioXASSideBeamline::onPressureSetConnected(bool connected)
 
         onPressureError();
     }
+
+    onConnectionChanged();
 }
 
 void BioXASSideBeamline::onPressureError()
@@ -242,6 +269,8 @@ void BioXASSideBeamline::onValveSetConnected(bool connected)
         connect( valveSet_, SIGNAL(controlSetValuesChanged()), this, SLOT(onValveError()) );
         onValveError();
     }
+
+    onConnectionChanged();
 }
 
 void BioXASSideBeamline::onValveError()
@@ -286,6 +315,8 @@ void BioXASSideBeamline::onIonPumpSetConnected(bool connected)
         connect( ionPumpSet_, SIGNAL(controlSetValuesChanged()), this, SLOT(onIonPumpError()) );
         onIonPumpError();
     }
+
+    onConnectionChanged();
 }
 
 void BioXASSideBeamline::onIonPumpError()
@@ -321,6 +352,8 @@ void BioXASSideBeamline::onFlowTransducerSetConnected(bool connected)
 
         onFlowTransducerError();
     }
+
+    onConnectionChanged();
 }
 
 void BioXASSideBeamline::onFlowTransducerError()
@@ -354,6 +387,8 @@ void BioXASSideBeamline::onFlowSwitchSetConnected(bool connected)
         connect( flowSwitchSet_, SIGNAL(controlSetValuesChanged()), this, SLOT(onFlowSwitchError()) );
         onFlowSwitchError();
     }
+
+    onConnectionChanged();
 }
 
 void BioXASSideBeamline::onFlowSwitchError()
@@ -389,6 +424,8 @@ void BioXASSideBeamline::onTemperatureSetConnected(bool connected)
 
         onTemperatureError();
     }
+
+    onConnectionChanged();
 }
 
 void BioXASSideBeamline::onTemperatureError()
@@ -507,6 +544,7 @@ void BioXASSideBeamline::setupDiagnostics()
 	tm3_ = new AMReadOnlyPVwStatusControl("Temperature 3", "TM1407-I00-03", "TM1407-I00-03:trip", this, new AMControlStatusCheckerDefault(0));
 	tm4_ = new AMReadOnlyPVwStatusControl("Temperature 4", "TM1407-I00-04", "TM1407-I00-04:trip", this, new AMControlStatusCheckerDefault(0));
 	tm5_ = new AMReadOnlyPVwStatusControl("Temperature 5", "TM1407-I00-05", "TM1407-I00-05:trip", this, new AMControlStatusCheckerDefault(0));
+
 }
 
 void BioXASSideBeamline::setupSampleStage()
@@ -516,7 +554,7 @@ void BioXASSideBeamline::setupSampleStage()
 
 void BioXASSideBeamline::setupMotorGroup()
 {
-    // Filter motors
+    // Filter farm motors
 
     carbonFilterFarm1_ = new CLSMAXvMotor(QString("SMTR1607-5-I00-01 Filter 1"), QString("SMTR1607-5-I00-01"), QString("SMTR1607-5-I00-01 Filter 1"), true, 0.05, 2.0, this);
     carbonFilterFarm2_ = new CLSMAXvMotor(QString("SMTR1607-5-I00-02 Filter 2"), QString("SMTR1607-5-I00-02"), QString("SMTR1607-5-I00-02 Filter 2"), true, 0.05, 2.0, this);
@@ -657,17 +695,15 @@ void BioXASSideBeamline::setupControlSets()
 void BioXASSideBeamline::setupMono()
 {
     mono_ = new BioXASSideMonochromator(this);
+    connect( mono_, SIGNAL(connected(bool)), this, SLOT(onConnectionChanged()) );
+
     energySetpointControl_ = new AMReadOnlyPVControl("EnergySetpoint", "BL1607-5-I21:Energy:EV", this);
-}
-
-void BioXASSideBeamline::setupSynchronizedDwellTime()
-{
-
 }
 
 void BioXASSideBeamline::setupComponents()
 {
 	scaler_ = new CLSSIS3820Scaler("BL07ID-Side:mcs", this);
+    connect( scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(onConnectionChanged()) );
 
     scalerDwellTime_ = new AMReadOnlyPVControl("ScalerDwellTime", "BL07ID-Side:mcs:delay", this, "Scaler Dwell Time");
 
