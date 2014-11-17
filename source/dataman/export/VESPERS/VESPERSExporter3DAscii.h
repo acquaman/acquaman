@@ -41,7 +41,7 @@ class VESPERSExporter3DAscii : public AMExporterGeneralAscii
 
 public:
 	/// Constructor.
- 	virtual ~VESPERSExporter3DAscii();
+	virtual ~VESPERSExporter3DAscii();
 	Q_INVOKABLE explicit VESPERSExporter3DAscii(QObject *parent = 0);
 
 	/// Description of the exporter.
@@ -66,6 +66,13 @@ protected:
 	virtual void writeSeparateSections();
 	/// Method that writes the separate files for other data sources.
 	virtual bool writeSeparateFiles(const QString& destinationFolderPath);
+
+	/// The y-range.  May be smaller than the scan size due to scans being cancelled or skipped.
+	int yRange_;
+	/// The x-index.  This is used for the last row where scans have been cancelled or skipped.
+	int xRange_;
+	/// The wire index.  This is used for the last point where scans have been cancelled or skipped.
+	int wireIndex_;
 };
 
 #endif // VESPERSEXPORTER3DASCII_H

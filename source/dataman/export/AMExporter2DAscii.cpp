@@ -12,6 +12,8 @@
 AMExporter2DAscii::AMExporter2DAscii(QObject *parent)
 	: AMExporterGeneralAscii(parent)
 {
+	xIndex_ = -1;
+	yRange_ = -1;
 }
 
 AMExporter2DAscii::~AMExporter2DAscii()
@@ -55,6 +57,25 @@ bool AMExporter2DAscii::prepareDataSources()
 					separateFileDataSources_ << i;
 				break;
 			}
+		}
+
+		int xRange = currentScan_->scanSize(0);
+		int yRange = currentScan_->scanSize(1);
+		QVector<double> fillerData = QVector<double>(yRange);
+		currentScan_->dataSourceAt(0)->values(AMnDIndex(xRange-1,0), AMnDIndex(xRange-1, yRange-1), fillerData.data());
+
+		for (int j = 0; j < yRange && yRange_ == -1; j++)
+			if (int(fillerData.at(j)) == -1)
+				yRange_ = j+1;	// The +1 is because we want the next row.
+
+		if (yRange_ != -1){
+
+			fillerData = QVector<double>(xRange);
+			currentScan_->dataSourceAt(0)->values(AMnDIndex(0, yRange_-1), AMnDIndex(xRange-1, yRange_-1), fillerData.data());
+
+			for (int i = 0; i < xRange && xIndex_ == -1; i++)
+				if (int(fillerData.at(i)) == -1)
+					xIndex_ = i;
 		}
 	}
 
@@ -147,7 +168,7 @@ void AMExporter2DAscii::writeMainTable()
 	ts << option_->newlineDelimiter() << option_->columnHeaderDelimiter() << option_->newlineDelimiter();
 
 	// 2. rows
-	int yRange = currentScan_->scanSize(1);
+	int yRange = yRange_ == -1 ? currentScan_->scanSize(1) : (yRange_-1);
 	int xRange = currentScan_->scanSize(0);
 
 	for(int y = 0; y < yRange; y++) {
@@ -169,6 +190,33 @@ void AMExporter2DAscii::writeMainTable()
 				}
 
 				ts << ds->value(AMnDIndex(x, y)).toString();
+
+				ts << option_->columnDelimiter();
+			}
+
+			ts << option_->newlineDelimiter();
+		}
+	}
+
+	if (yRange_ != -1 && xIndex_ != -1){
+
+		for (int i = 0; i < xIndex_; i++){
+
+			// over rows within columns
+			for(int c=0; c<mainTableDataSources_.count(); c++) {
+				setCurrentDataSource(mainTableDataSources_.at(c));
+				AMDataSource* ds = currentScan_->dataSourceAt(currentDataSourceIndex_);
+
+				// print x and y column?
+				if(mainTableIncludeX_.at(c)) {
+
+					ts << ds->axisValue(0,i).toString();
+					ts << option_->columnDelimiter();
+					ts << ds->axisValue(1, yRange_-1).toString();
+					ts << option_->columnDelimiter();
+				}
+
+				ts << ds->value(AMnDIndex(i, yRange_-1)).toString();
 
 				ts << option_->columnDelimiter();
 			}
@@ -206,10 +254,12 @@ bool AMExporter2DAscii::writeSeparateFiles(const QString &destinationFolderPath)
 			QString columnDelimiter = option_->columnDelimiter();
 			QString newLineDelimiter = option_->newlineDelimiter();
 			QTextStream out(&output);
+			int yRange = yRange_ == -1 ? currentScan_->scanSize(1) : (yRange_-1);
+			int xRange = currentScan_->scanSize(0);
 
-			for (int y = 0, ySize = source->size(1); y < ySize; y++){
+			for (int y = 0; y < yRange; y++){
 
-				for (int x = 0, xSize = source->size(0); x < xSize; x++){
+				for (int x = 0; x < xRange; x++){
 
 					QVector<double> data(spectraSize);
 					source->values(AMnDIndex(x, y, 0), AMnDIndex(x, y, spectraSize-1), data.data());
@@ -219,6 +269,22 @@ bool AMExporter2DAscii::writeSeparateFiles(const QString &destinationFolderPath)
 
 					out << newLineDelimiter;
 				}
+			}
+
+			if (yRange_ != -1 && xIndex_ != -1){
+
+				for (int i = 0; i < xIndex_; i++){
+
+					QVector<double> data(spectraSize);
+					source->values(AMnDIndex(i, yRange_-1, 0), AMnDIndex(i, yRange_-1, spectraSize-1), data.data());
+
+					for (int i = 0; i < spectraSize; i++)
+						out << data.at(i) << columnDelimiter;
+
+					out << newLineDelimiter;
+				}
+
+				out << newLineDelimiter;
 			}
 
 			output.close();
@@ -244,12 +310,20 @@ bool AMExporter2DAscii::writeSeparateFiles(const QString &destinationFolderPath)
 			QString columnDelimiter = option_->columnDelimiter();
 			QString newLineDelimiter = option_->newlineDelimiter();
 			QTextStream out(&output);
+			int yRange = yRange_ == -1 ? currentScan_->scanSize(1) : (yRange_-1);
+			int xRange = currentScan_->scanSize(0);
 
 			for (int i = 0; i < spectraSize; i++){
 
-				for (int y = 0, ySize = source->size(1); y < ySize; y++)
-					for (int x = 0, xSize = source->size(0); x < xSize; x++)
+				for (int y = 0; y < yRange; y++)
+					for (int x = 0; x < xRange; x++)
 						out << double(source->value(AMnDIndex(x, y, i))) << columnDelimiter;
+
+				if (yRange_ != -1 && xIndex_ != -1){
+
+					for (int x = 0; x < xIndex_; x++)
+						out << double(source->value(AMnDIndex(x, yRange_-1, i))) << columnDelimiter;
+				}
 
 				out << newLineDelimiter;
 			}
