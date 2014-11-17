@@ -370,8 +370,8 @@ VESPERSAddOnsCoordinator::VESPERSAddOnsCoordinator(QObject *parent) :
 	// Atto low level status
 
 	connect(oldRealAttoXStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(onOldRealAttoXStatusControlChanged()));
-	connect(oldRealAttoYStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(onOldRealAttoYAndZStatusControlChanged()));
-	connect(oldRealAttoZStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(onOldRealAttoYAndZStatusControlChanged()));
+	connect(oldRealAttoYStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(onOldRealAttoYStatusControlChanged()));
+	connect(oldRealAttoZStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(onOldRealAttoZStatusControlChanged()));
 
 	// Wire H, V, N
 
@@ -401,28 +401,104 @@ void VESPERSAddOnsCoordinator::onAllControlsConnected(bool connected)
 
 		connectedOnce_ = true;
 
-		qDebug() << "Checking start up value from old H setpoint control" << oldSampleHSetpointControl_->value();
+		// Sample stage
+		/////////////////////////////////////
+
+		qDebug() << "Checking start up value from old sample H setpoint control" << oldSampleHSetpointControl_->value();
 		onOldSampleHSetpointControlChanged();
-		qDebug() << "Checking start up value from old V setpoint control" << oldSampleVSetpointControl_->value();
+		qDebug() << "Checking start up value from old sample V setpoint control" << oldSampleVSetpointControl_->value();
 		onOldSampleVSetpointControlChanged();
-		qDebug() << "Checking start up value from old N setpoint control" << oldSampleNSetpointControl_->value();
+		qDebug() << "Checking start up value from old sample N setpoint control" << oldSampleNSetpointControl_->value();
 		onOldSampleNSetpointControlChanged();
 
-		qDebug() << "Checking start up value from old H feedback control" << oldSampleHFeedbackControl_->value();
+		qDebug() << "Checking start up value from old sample H feedback control" << oldSampleHFeedbackControl_->value();
 		onOldSampleHFeedbackControlChanged();
-		qDebug() << "Checking start up value from old V feedback control" << oldSampleVFeedbackControl_->value();
+		qDebug() << "Checking start up value from old sample V feedback control" << oldSampleVFeedbackControl_->value();
 		onOldSampleVFeedbackControlChanged();
-		qDebug() << "Checking start up value from old N feedback control" << oldSampleNFeedbackControl_->value();
+		qDebug() << "Checking start up value from old sample N feedback control" << oldSampleNFeedbackControl_->value();
 		onOldSampleNFeedbackControlChanged();
 
-		qDebug() << "Checking start up value from old read X status control" << oldRealSampleXStatusControl_->value();
+		qDebug() << "Checking start up value from old sample X setpoint control" << oldSampleXSetpointControl_->value();
+		onOldSampleXSetpointControlChanged();
+		qDebug() << "Checking start up value from old sample Z setpoint control" << oldSampleZSetpointControl_->value();
+		onOldSampleZSetpointControlChanged();
+		qDebug() << "Checking start up value from old sample Y setpoint control" << oldSampleYSetpointControl_->value();
+		onOldSampleYSetpointControlChanged();
+
+		qDebug() << "Checking start up value from old sample X feedback control" << oldSampleXFeedbackControl_->value();
+		onOldSampleXFeedbackControlChanged();
+		qDebug() << "Checking start up value from old sample Z feedback control" << oldSampleZFeedbackControl_->value();
+		onOldSampleZFeedbackControlChanged();
+		qDebug() << "Checking start up value from old sample Y feedback control" << oldSampleYFeedbackControl_->value();
+		onOldSampleYFeedbackControlChanged();
+
+		qDebug() << "Checking start up value from old sample X status control" << oldRealSampleXStatusControl_->value();
 		onOldRealSampleXStatusControlChanged();
-		qDebug() << "Checking start up value from old read Y status control" << oldRealSampleYStatusControl_->value();
+		qDebug() << "Checking start up value from old sample Y status control" << oldRealSampleYStatusControl_->value();
 		onOldRealSampleYStatusControlChanged();
-		qDebug() << "Checking start up value from old read Z status control" << oldRealSampleZStatusControl_->value();
+		qDebug() << "Checking start up value from old sample Z status control" << oldRealSampleZStatusControl_->value();
 		onOldRealSampleZStatusControlChanged();
 
+		// Atto stage
+		//////////////////////////////////////////
 
+		qDebug() << "Checking start up value from old atto H setpoint control" << oldAttoHSetpointControl_->value();
+		onOldAttoHSetpointControlChanged();
+		qDebug() << "Checking start up value from old atto V setpoint control" << oldAttoVSetpointControl_->value();
+		onOldAttoVSetpointControlChanged();
+		qDebug() << "Checking start up value from old atto N setpoint control" << oldAttoNSetpointControl_->value();
+		onOldAttoNSetpointControlChanged();
+
+		qDebug() << "Checking start up value from old atto H feedback control" << oldAttoHFeedbackControl_->value();
+		onOldAttoHFeedbackControlChanged();
+		qDebug() << "Checking start up value from old atto V feedback control" << oldAttoVFeedbackControl_->value();
+		onOldAttoVFeedbackControlChanged();
+		qDebug() << "Checking start up value from old atto N feedback control" << oldAttoNFeedbackControl_->value();
+		onOldAttoNFeedbackControlChanged();
+
+		qDebug() << "Checking start up value from old atto X setpoint control" << oldAttoXSetpointControl_->value();
+		onOldAttoXSetpointControlChanged();
+		qDebug() << "Checking start up value from old atto Z setpoint control" << oldAttoZSetpointControl_->value();
+		onOldAttoZSetpointControlChanged();
+		qDebug() << "Checking start up value from old atto Y setpoint control" << oldAttoYSetpointControl_->value();
+		onOldAttoYSetpointControlChanged();
+
+		qDebug() << "Checking start up value from old atto X feedback control" << oldAttoXFeedbackControl_->value();
+		onOldAttoXFeedbackControlChanged();
+		qDebug() << "Checking start up value from old atto Z feedback control" << oldAttoZFeedbackControl_->value();
+		onOldAttoZFeedbackControlChanged();
+		qDebug() << "Checking start up value from old atto Y feedback control" << oldAttoYFeedbackControl_->value();
+		onOldAttoYFeedbackControlChanged();
+
+		qDebug() << "Checking start up value from old atto X status control" << oldRealAttoXStatusControl_->value();
+		onOldRealAttoXStatusControlChanged();
+		qDebug() << "Checking start up value from old atto Y status control" << oldRealAttoYStatusControl_->value();
+		onOldRealAttoYStatusControlChanged();
+		qDebug() << "Checking start up value from old atto Z status control" << oldRealAttoZStatusControl_->value();
+		onOldRealAttoZStatusControlChanged();
+
+		// Wire stage
+		//////////////////////////////////////////
+
+		qDebug() << "Checking start up value from old wire H setpoint control" << oldWireHSetpointControl_->value();
+		onOldWireHSetpointControlChanged();
+		qDebug() << "Checking start up value from old wire V setpoint control" << oldWireVSetpointControl_->value();
+		onOldWireVSetpointControlChanged();
+		qDebug() << "Checking start up value from old wire N setpoint control" << oldWireNSetpointControl_->value();
+		onOldWireNSetpointControlChanged();
+
+		qDebug() << "Checking start up value from old wire H feedback control" << oldWireHFeedbackControl_->value();
+		onOldWireHFeedbackControlChanged();
+		qDebug() << "Checking start up value from old wire V feedback control" << oldWireVFeedbackControl_->value();
+		onOldWireVFeedbackControlChanged();
+		qDebug() << "Checking start up value from old wire N feedback control" << oldWireNFeedbackControl_->value();
+		onOldWireNFeedbackControlChanged();
+
+		qDebug() << "Checking start up value from old wire X status control" << oldRealWireXStatusControl_->value();
+		onOldRealWireXStatusControlChanged();
+		qDebug() << "Checking start up value from old wire Y status control" << oldRealWireYStatusControl_->value();
+		qDebug() << "Checking start up value from old wire Z status control" << oldRealWireZStatusControl_->value();
+		onOldRealWireYAndZStatusControlChanged();
 	}
 }
 
