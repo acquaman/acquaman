@@ -20,64 +20,173 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "AMLinePropertyEditor.h"
-
-#include "ui_AMLinePropertyEditor.h"
-
+#include "ui/dataman/AMColorPickerButton.h"
 #include <QPen>
 #include <QBrush>
+#include <QApplication>
 
 AMLinePropertyEditor::AMLinePropertyEditor(QWidget *parent) :
-	QFrame(parent), ui_(new Ui::AMLinePropertyEditor)
+	QFrame(parent)
 {
-	ui_->setupUi(this);
+	setupUi();
 
-	ui_->fillColorButton->setEnabled(false);
-	connect(ui_->fillCheckBox, SIGNAL(clicked(bool)), ui_->fillColorButton, SLOT(setEnabled(bool)));
+	fillColorButton->setEnabled(false);
+	connect(fillCheckBox, SIGNAL(clicked(bool)), fillColorButton, SLOT(setEnabled(bool)));
 
-	connect(ui_->colorButton, SIGNAL(colorChanged(QColor)), this, SLOT(onPenSettingsChanged()));
-	connect(ui_->widthSlider, SIGNAL(valueChanged(int)), this, SLOT(onPenSettingsChanged()));
-	connect(ui_->lineStyleBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onPenSettingsChanged()));
+	connect(colorButton, SIGNAL(colorChanged(QColor)), this, SLOT(onPenSettingsChanged()));
+	connect(widthSlider, SIGNAL(valueChanged(int)), this, SLOT(onPenSettingsChanged()));
+	connect(lineStyleBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onPenSettingsChanged()));
 
-	connect(ui_->fillCheckBox, SIGNAL(clicked(bool)), this, SIGNAL(areaFilledChanged(bool)));
-	connect(ui_->fillColorButton, SIGNAL(colorChanged(QColor)), this, SLOT(onAreaFillColorChanged(QColor)));
+	connect(fillCheckBox, SIGNAL(clicked(bool)), this, SIGNAL(areaFilledChanged(bool)));
+	connect(fillColorButton, SIGNAL(colorChanged(QColor)), this, SLOT(onAreaFillColorChanged(QColor)));
 }
 
 AMLinePropertyEditor::AMLinePropertyEditor(const QPen& initialPen, bool areaFilled, const QBrush& areaFillColor, QWidget* parent) :
-	QFrame(parent), ui_(new Ui::AMLinePropertyEditor)
+	QFrame(parent)
 {
-	ui_->setupUi(this);
+	setupUi();
 
-	ui_->colorButton->setColor(initialPen.color());
-	ui_->widthSlider->setValue(initialPen.width());
-	ui_->lineStyleBox->setCurrentIndex(qBound(0, initialPen.style()-1, 4));
+	colorButton->setColor(initialPen.color());
+	widthSlider->setValue(initialPen.width());
+	lineStyleBox->setCurrentIndex(qBound(0, initialPen.style()-1, 4));
 
-	ui_->fillCheckBox->setChecked(areaFilled);
-	ui_->fillColorButton->setColor(areaFillColor.color());
+	fillCheckBox->setChecked(areaFilled);
+	fillColorButton->setColor(areaFillColor.color());
 
-	ui_->fillColorButton->setEnabled(areaFilled);
-	connect(ui_->fillCheckBox, SIGNAL(clicked(bool)), ui_->fillColorButton, SLOT(setEnabled(bool)));
+	fillColorButton->setEnabled(areaFilled);
+	connect(fillCheckBox, SIGNAL(clicked(bool)), fillColorButton, SLOT(setEnabled(bool)));
 
-	connect(ui_->colorButton, SIGNAL(colorChanged(QColor)), this, SLOT(onPenSettingsChanged()));
-	connect(ui_->widthSlider, SIGNAL(valueChanged(int)), this, SLOT(onPenSettingsChanged()));
-	connect(ui_->lineStyleBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onPenSettingsChanged()));
+	connect(colorButton, SIGNAL(colorChanged(QColor)), this, SLOT(onPenSettingsChanged()));
+	connect(widthSlider, SIGNAL(valueChanged(int)), this, SLOT(onPenSettingsChanged()));
+	connect(lineStyleBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onPenSettingsChanged()));
 
-	connect(ui_->fillCheckBox, SIGNAL(clicked(bool)), this, SIGNAL(areaFilledChanged(bool)));
-	connect(ui_->fillColorButton, SIGNAL(colorChanged(QColor)), this, SLOT(onAreaFillColorChanged(QColor)));
-}
-
-
-AMLinePropertyEditor::~AMLinePropertyEditor() {
-	delete ui_;
+	connect(fillCheckBox, SIGNAL(clicked(bool)), this, SIGNAL(areaFilledChanged(bool)));
+	connect(fillColorButton, SIGNAL(colorChanged(QColor)), this, SLOT(onAreaFillColorChanged(QColor)));
 }
 
 void AMLinePropertyEditor::onPenSettingsChanged()
 {
-	emit linePenChanged(QPen(ui_->colorButton->color(),
-							 ui_->widthSlider->value(),
-							 (Qt::PenStyle)(ui_->lineStyleBox->currentIndex()+1)));
+	emit linePenChanged(QPen(colorButton->color(),
+							 widthSlider->value(),
+							 (Qt::PenStyle)(lineStyleBox->currentIndex()+1)));
 }
 
 void AMLinePropertyEditor::onAreaFillColorChanged(const QColor &color)
 {
 	emit areaFillBrushChanged(QBrush(color));
+}
+
+void AMLinePropertyEditor::setupUi()
+{
+	if (objectName().isEmpty())
+		setObjectName(QString::fromUtf8("AMLinePropertyEditor"));
+	resize(159, 193);
+	setStyleSheet(QString::fromUtf8("#AMLinePropertyEditor {\n"
+				"	background-color: rgba(0, 0, 0, 179);\n"
+				"}"));
+	setFrameShape(QFrame::NoFrame);
+	setFrameShadow(QFrame::Plain);
+	verticalLayout = new QVBoxLayout(this);
+	verticalLayout->setContentsMargins(6, 6, 6, 6);
+	verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
+	horizontalLayout = new QHBoxLayout();
+	horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
+	labelColor = new QLabel(this);
+	labelColor->setObjectName(QString::fromUtf8("labelColor"));
+	labelColor->setStyleSheet(QString::fromUtf8("color: rgb(230, 230, 230);"));
+
+	horizontalLayout->addWidget(labelColor);
+
+	colorButton = new AMColorPickerButton(this);
+	colorButton->setObjectName(QString::fromUtf8("colorButton"));
+
+	horizontalLayout->addWidget(colorButton);
+
+
+	verticalLayout->addLayout(horizontalLayout);
+
+	horizontalLayout_2 = new QHBoxLayout();
+	horizontalLayout_2->setObjectName(QString::fromUtf8("horizontalLayout_2"));
+	labelWidth = new QLabel(this);
+	labelWidth->setObjectName(QString::fromUtf8("labelWidth"));
+	labelWidth->setStyleSheet(QString::fromUtf8("color: rgb(230, 230, 230);"));
+
+	horizontalLayout_2->addWidget(labelWidth);
+
+	widthSlider = new QSlider(this);
+	widthSlider->setObjectName(QString::fromUtf8("widthSlider"));
+	widthSlider->setMinimum(1);
+	widthSlider->setMaximum(10);
+	widthSlider->setPageStep(2);
+	widthSlider->setOrientation(Qt::Horizontal);
+	widthSlider->setTickPosition(QSlider::TicksBelow);
+	widthSlider->setTickInterval(2);
+
+	horizontalLayout_2->addWidget(widthSlider);
+
+
+	verticalLayout->addLayout(horizontalLayout_2);
+
+	lineStyleBox = new QComboBox(this);
+	lineStyleBox->setObjectName(QString::fromUtf8("lineStyleBox"));
+
+	verticalLayout->addWidget(lineStyleBox);
+
+	verticalSpacer = new QSpacerItem(20, 10, QSizePolicy::Minimum, QSizePolicy::MinimumExpanding);
+
+	verticalLayout->addItem(verticalSpacer);
+
+	horizontalLayout_3 = new QHBoxLayout();
+	horizontalLayout_3->setObjectName(QString::fromUtf8("horizontalLayout_3"));
+	labelFill = new QLabel(this);
+	labelFill->setObjectName(QString::fromUtf8("labelFill"));
+	labelFill->setStyleSheet(QString::fromUtf8("color: rgb(230, 230, 230);"));
+
+	horizontalLayout_3->addWidget(labelFill);
+
+	horizontalSpacer = new QSpacerItem(10, 10, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+	horizontalLayout_3->addItem(horizontalSpacer);
+
+	fillCheckBox = new QCheckBox(this);
+	fillCheckBox->setObjectName(QString::fromUtf8("fillCheckBox"));
+
+	horizontalLayout_3->addWidget(fillCheckBox);
+
+
+	verticalLayout->addLayout(horizontalLayout_3);
+
+	horizontalLayout_4 = new QHBoxLayout();
+	horizontalLayout_4->setObjectName(QString::fromUtf8("horizontalLayout_4"));
+	labelFillColor = new QLabel(this);
+	labelFillColor->setObjectName(QString::fromUtf8("labelFillColor"));
+	labelFillColor->setStyleSheet(QString::fromUtf8("color: rgb(230, 230, 230);"));
+
+	horizontalLayout_4->addWidget(labelFillColor);
+
+	fillColorButton = new AMColorPickerButton(this);
+	fillColorButton->setObjectName(QString::fromUtf8("fillColorButton"));
+
+	horizontalLayout_4->addWidget(fillColorButton);
+
+
+	verticalLayout->addLayout(horizontalLayout_4);
+
+
+	setWindowTitle(QApplication::translate("AMLinePropertyEditor", "Frame", 0, QApplication::UnicodeUTF8));
+	labelColor->setText(QApplication::translate("AMLinePropertyEditor", "Color", 0, QApplication::UnicodeUTF8));
+	colorButton->setText(QApplication::translate("AMLinePropertyEditor", "...", 0, QApplication::UnicodeUTF8));
+	labelWidth->setText(QApplication::translate("AMLinePropertyEditor", "Width", 0, QApplication::UnicodeUTF8));
+	lineStyleBox->clear();
+	lineStyleBox->insertItems(0, QStringList()
+	 << QApplication::translate("AMLinePropertyEditor", "\342\216\257\342\216\257\342\216\257\342\216\257\342\216\257\342\216\257\342\216\257", 0, QApplication::UnicodeUTF8)
+	 << QApplication::translate("AMLinePropertyEditor", "\342\200\224  \342\200\224  \342\200\224  \342\200\224  \342\200\224", 0, QApplication::UnicodeUTF8)
+	 << QApplication::translate("AMLinePropertyEditor", "\302\267 \302\267 \302\267 \302\267 \302\267 \302\267 \302\267 \302\267 \302\267 \302\267 \302\267", 0, QApplication::UnicodeUTF8)
+	 << QApplication::translate("AMLinePropertyEditor", "\342\200\224 \302\267 \342\200\224 \302\267 \342\200\224 \302\267 \342\200\224", 0, QApplication::UnicodeUTF8)
+	 << QApplication::translate("AMLinePropertyEditor", " \342\200\224 \302\267 \302\267 \342\200\224 \302\267 \302\267 \342\200\224", 0, QApplication::UnicodeUTF8)
+	);
+	labelFill->setText(QApplication::translate("AMLinePropertyEditor", "Area Fill", 0, QApplication::UnicodeUTF8));
+	fillCheckBox->setText(QString());
+	labelFillColor->setText(QApplication::translate("AMLinePropertyEditor", "Fill Color", 0, QApplication::UnicodeUTF8));
+	fillColorButton->setText(QApplication::translate("AMLinePropertyEditor", "...", 0, QApplication::UnicodeUTF8));
 }
