@@ -447,7 +447,6 @@ HEADERS += \
 FORMS += \
 	source/ui/dataman/AMImportControllerWidget.ui \
 	source/ui/dataman/AMSamplePlateSelector.ui \
-	source/ui/AMLinePropertyEditor.ui \
 	source/ui/dataman/AMImagePropertyEditor.ui \
 	source/ui/AMTopFrame2.ui
 
