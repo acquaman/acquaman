@@ -173,17 +173,25 @@ void VESPERSBeamline::setupDiagnostics()
 void VESPERSBeamline::setupSampleStage()
 {
 	// Currently, the wire stage and sample stage have been flipped due to hardware problems with the sample stage.
-	sampleStageHorizontal_ = new CLSPseudoMotorControl("Horizontal Sample Stage", "TS1607-2-B21-02:H:user:mm:sp", "TS1607-2-B21-02:H:user:mm", "TS1607-2-B21-02:H:status", "TS1607-2-B21-02:HNV:stop.PROC", this, 0.001, 10.0);
-	sampleStageVertical_ = new CLSPseudoMotorControl("Vertical Sample Stage", "TS1607-2-B21-02:V:user:mm:sp", "TS1607-2-B21-02:V:user:mm", "TS1607-2-B21-02:V:status", "TS1607-2-B21-02:HNV:stop.PROC", this, 0.001, 10.0);
-	sampleStageNormal_ = new CLSPseudoMotorControl("Normal Sample Stage", "TS1607-2-B21-02:N:user:mm:sp", "TS1607-2-B21-02:N:user:mm", "TS1607-2-B21-02:N:status", "TS1607-2-B21-02:HNV:stop.PROC", this, 0.001, 10.0);
+//	sampleStageHorizontal_ = new CLSPseudoMotorControl("Horizontal Sample Stage", "TS1607-2-B21-02:H:user:mm:sp", "TS1607-2-B21-02:H:user:mm", "TS1607-2-B21-02:H:status", "TS1607-2-B21-02:HNV:stop.PROC", this, 0.001, 10.0);
+//	sampleStageVertical_ = new CLSPseudoMotorControl("Vertical Sample Stage", "TS1607-2-B21-02:V:user:mm:sp", "TS1607-2-B21-02:V:user:mm", "TS1607-2-B21-02:V:status", "TS1607-2-B21-02:HNV:stop.PROC", this, 0.001, 10.0);
+//	sampleStageNormal_ = new CLSPseudoMotorControl("Normal Sample Stage", "TS1607-2-B21-02:N:user:mm:sp", "TS1607-2-B21-02:N:user:mm", "TS1607-2-B21-02:N:status", "TS1607-2-B21-02:HNV:stop.PROC", this, 0.001, 10.0);
 
-	sampleStageHorizontal_->setAttemptMoveWhenWithinTolerance(false);
-	sampleStageVertical_->setAttemptMoveWhenWithinTolerance(false);
-	sampleStageNormal_->setAttemptMoveWhenWithinTolerance(false);
+	sampleStageHorizontal_ = new AMPVwStatusControl("Horizontal Sample Stage", "BL1607-B2-1:AddOns:SampleStage:H:mm:fbk", "BL1607-B2-1:AddOns:SampleStage:H:mm", "BL1607-B2-1:AddOns:SampleStage:H:status", "TS1607-2-B21-02:HNV:stop.PROC", this, 0.005, 10.0);
+	sampleStageVertical_ = new AMPVwStatusControl("Vertical Sample Stage", "BL1607-B2-1:AddOns:SampleStage:V:mm:fbk", "BL1607-B2-1:AddOns:SampleStage:V:mm", "BL1607-B2-1:AddOns:SampleStage:V:status", "TS1607-2-B21-02:HNV:stop.PROC", this, 0.005, 10.0);
+	sampleStageNormal_ = new AMPVwStatusControl("Normal Sample Stage", "BL1607-B2-1:AddOns:SampleStage:N:mm:fbk", "BL1607-B2-1:AddOns:SampleStage:N:mm", "BL1607-B2-1:AddOns:SampleStage:N:status", "TS1607-2-B21-02:HNV:stop.PROC", this, 0.005, 10.0);
 
-	sampleStageX_ = new CLSPseudoMotorControl("X Motor Sample Stage", "TS1607-2-B21-02:X:user:mm:sp", "TS1607-2-B21-02:X:user:mm", "TS1607-2-B21-02:X:status", "TS1607-2-B21-02:XYZ:stop.PROC", this, 0.001, 10.0);
-	sampleStageY_ = new CLSPseudoMotorControl("Y Motor Sample Stage", "TS1607-2-B21-02:Y:user:mm:sp", "TS1607-2-B21-02:Y:user:mm", "TS1607-2-B21-02:Y:status", "TS1607-2-B21-02:XYZ:stop.PROC", this, 0.001, 10.0);
-	sampleStageZ_ = new CLSPseudoMotorControl("Z Motor Sample Stage", "TS1607-2-B21-02:Z:user:mm:sp", "TS1607-2-B21-02:Z:user:mm", "TS1607-2-B21-02:Z:status", "TS1607-2-B21-02:XYZ:stop.PROC", this, 0.001, 10.0);
+//	sampleStageHorizontal_->setAttemptMoveWhenWithinTolerance(false);
+//	sampleStageVertical_->setAttemptMoveWhenWithinTolerance(false);
+//	sampleStageNormal_->setAttemptMoveWhenWithinTolerance(false);
+
+//	sampleStageX_ = new CLSPseudoMotorControl("X Motor Sample Stage", "TS1607-2-B21-02:X:user:mm:sp", "TS1607-2-B21-02:X:user:mm", "TS1607-2-B21-02:X:status", "TS1607-2-B21-02:XYZ:stop.PROC", this, 0.001, 10.0);
+//	sampleStageY_ = new CLSPseudoMotorControl("Y Motor Sample Stage", "TS1607-2-B21-02:Y:user:mm:sp", "TS1607-2-B21-02:Y:user:mm", "TS1607-2-B21-02:Y:status", "TS1607-2-B21-02:XYZ:stop.PROC", this, 0.001, 10.0);
+//	sampleStageZ_ = new CLSPseudoMotorControl("Z Motor Sample Stage", "TS1607-2-B21-02:Z:user:mm:sp", "TS1607-2-B21-02:Z:user:mm", "TS1607-2-B21-02:Z:status", "TS1607-2-B21-02:XYZ:stop.PROC", this, 0.001, 10.0);
+
+	sampleStageX_ = new AMPVwStatusControl("X Motor Sample Stage", "BL1607-B2-1:AddOns:SampleStage:X:mm:fbk", "BL1607-B2-1:AddOns:SampleStage:X:mm", "BL1607-B2-1:AddOns:SampleStage:X:status", "TS1607-2-B21-02:XYZ:stop.PROC", this, 0.005, 10.0);
+	sampleStageY_ = new AMPVwStatusControl("Y Motor Sample Stage", "BL1607-B2-1:AddOns:SampleStage:Y:mm:fbk", "BL1607-B2-1:AddOns:SampleStage:Y:mm", "BL1607-B2-1:AddOns:SampleStage:Y:status", "TS1607-2-B21-02:XYZ:stop.PROC", this, 0.005, 10.0);
+	sampleStageZ_ = new AMPVwStatusControl("Z Motor Sample Stage", "BL1607-B2-1:AddOns:SampleStage:Z:mm:fbk", "BL1607-B2-1:AddOns:SampleStage:Z:mm", "BL1607-B2-1:AddOns:SampleStage:Z:status", "TS1607-2-B21-02:XYZ:stop.PROC", this, 0.005, 10.0);
 
 	sampleStageMotorSet_ = new AMControlSet(this);
 	sampleStageMotorSet_->addControl(sampleStageHorizontal_);
@@ -207,22 +215,34 @@ void VESPERSBeamline::setupSampleStage()
 
 	wireStagePID_ = new VESPERSPIDLoopControl("PID - Wire Stage", wireStagePidX_, wireStagePidY_, wireStagePidZ_, this);
 
-	wireStageHorizontal_ = new CLSPseudoMotorControl("Horizontal Wire Stage", "TS1607-2-B21-01:H:user:mm:sp", "TS1607-2-B21-01:H:user:mm", "TS1607-2-B21-01:H:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.01, 10.0);
-	wireStageVertical_ = new CLSPseudoMotorControl("Vertical Wire Stage", "TS1607-2-B21-01:V:user:mm:sp", "TS1607-2-B21-01:V:user:mm", "TS1607-2-B21-01:V:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.01, 10.0);
-	wireStageNormal_ = new CLSPseudoMotorControl("Normal Wire Stage", "TS1607-2-B21-01:N:user:mm:sp", "TS1607-2-B21-01:N:user:mm", "TS1607-2-B21-01:N:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.01, 10.0);
+//	wireStageHorizontal_ = new CLSPseudoMotorControl("Horizontal Wire Stage", "TS1607-2-B21-01:H:user:mm:sp", "TS1607-2-B21-01:H:user:mm", "TS1607-2-B21-01:H:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.01, 10.0);
+//	wireStageVertical_ = new CLSPseudoMotorControl("Vertical Wire Stage", "TS1607-2-B21-01:V:user:mm:sp", "TS1607-2-B21-01:V:user:mm", "TS1607-2-B21-01:V:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.01, 10.0);
+//	wireStageNormal_ = new CLSPseudoMotorControl("Normal Wire Stage", "TS1607-2-B21-01:N:user:mm:sp", "TS1607-2-B21-01:N:user:mm", "TS1607-2-B21-01:N:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.01, 10.0);
 
-	wireStageHorizontal_->setAttemptMoveWhenWithinTolerance(false);
-	wireStageVertical_->setAttemptMoveWhenWithinTolerance(false);
-	wireStageNormal_->setAttemptMoveWhenWithinTolerance(false);
+	wireStageHorizontal_ = new AMPVwStatusControl("Horizontal Wire Stage", "BL1607-B2-1:AddOns:WireStage:H:mm:fbk", "BL1607-B2-1:AddOns:WireStage:H:mm", "BL1607-B2-1:AddOns:WireStage:H:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.005, 10.0);
+	wireStageVertical_ = new AMPVwStatusControl("Vertical Wire Stage", "BL1607-B2-1:AddOns:WireStage:V:mm:fbk", "BL1607-B2-1:AddOns:WireStage:V:mm", "BL1607-B2-1:AddOns:WireStage:V:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.005, 10.0);
+	wireStageNormal_ = new AMPVwStatusControl("Normal Wire Stage", "BL1607-B2-1:AddOns:WireStage:N:mm:fbk", "BL1607-B2-1:AddOns:WireStage:N:mm", "BL1607-B2-1:AddOns:WireStage:N:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.005, 10.0);
+
+//	wireStageHorizontal_->setAttemptMoveWhenWithinTolerance(false);
+//	wireStageVertical_->setAttemptMoveWhenWithinTolerance(false);
+//	wireStageNormal_->setAttemptMoveWhenWithinTolerance(false);
 
 	// attocube
-	attoStageHorizontal_ = new CLSPseudoMotorControl("Horizontal Atto Stage", "TS1607-2-B21-07:H:user:mm:sp", "TS1607-2-B21-07:H:user:mm", "TS1607-2-B21-07:H:status", "TS1607-2-B21-07:HNV:stop.PROC", this, 0.01, 10.0);
-	attoStageVertical_ = new CLSPseudoMotorControl("Vertical Atto Stage", "TS1607-2-B21-07:V:user:mm:sp", "TS1607-2-B21-07:V:user:mm", "TS1607-2-B21-07:V:status", "TS1607-2-B21-07:HNV:stop.PROC", this, 0.01, 10.0);
-	attoStageNormal_ = new CLSPseudoMotorControl("Normal Atto Stage", "TS1607-2-B21-07:N:user:mm:sp", "TS1607-2-B21-07:N:user:mm", "TS1607-2-B21-07:N:status", "TS1607-2-B21-07:HNV:stop.PROC", this, 0.01, 10.0);
+	attoStageHorizontal_ = new AMPVwStatusControl("Horizontal Atto Stage", "BL1607-B2-1:AddOns:AttoStage:H:mm:fbk", "BL1607-B2-1:AddOns:AttoStage:H:mm", "BL1607-B2-1:AddOns:AttoStage:H:status", "TS1607-2-B21-07:HNV:stop.PROC", this, 0.005, 10.0);
+	attoStageVertical_ = new AMPVwStatusControl("Vertical Atto Stage", "BL1607-B2-1:AddOns:AttoStage:V:mm:fbk", "BL1607-B2-1:AddOns:AttoStage:V:mm", "BL1607-B2-1:AddOns:AttoStage:V:status", "TS1607-2-B21-07:HNV:stop.PROC", this, 0.005, 10.0);
+	attoStageNormal_ = new AMPVwStatusControl("Normal Atto Stage", "BL1607-B2-1:AddOns:AttoStage:N:mm:fbk", "BL1607-B2-1:AddOns:AttoStage:N:mm", "BL1607-B2-1:AddOns:AttoStage:N:status", "TS1607-2-B21-07:HNV:stop.PROC", this, 0.005, 10.0);
 
-	attoStageX_ = new CLSPseudoMotorControl("Atto X Stage", "TS1607-2-B21-07:X:user:mm:sp", "TS1607-2-B21-07:X:user:mm", "TS1607-2-B21-07:X:user:status", "TS1607-2-B21-07:XYZ:stop.PROC", this, 0.01, 10.0);
-	attoStageZ_ = new CLSPseudoMotorControl("Atto Z Stage", "TS1607-2-B21-07:Z:user:mm:sp", "TS1607-2-B21-07:Z:user:mm", "TS1607-2-B21-07:Z:user:status", "TS1607-2-B21-07:XYZ:stop.PROC", this, 0.01, 10.0);
-	attoStageY_ = new CLSPseudoMotorControl("Atto Y Stage", "TS1607-2-B21-07:Y:user:mm:sp", "TS1607-2-B21-07:Y:user:mm", "TS1607-2-B21-07:Y:user:status", "TS1607-2-B21-07:XYZ:stop.PROC", this, 0.01, 10.0);
+//	attoStageHorizontal_ = new CLSPseudoMotorControl("Horizontal Atto Stage", "TS1607-2-B21-07:H:user:mm:sp", "TS1607-2-B21-07:H:user:mm", "TS1607-2-B21-07:H:status", "TS1607-2-B21-07:HNV:stop.PROC", this, 0.01, 10.0);
+//	attoStageVertical_ = new CLSPseudoMotorControl("Vertical Atto Stage", "TS1607-2-B21-07:V:user:mm:sp", "TS1607-2-B21-07:V:user:mm", "TS1607-2-B21-07:V:status", "TS1607-2-B21-07:HNV:stop.PROC", this, 0.01, 10.0);
+//	attoStageNormal_ = new CLSPseudoMotorControl("Normal Atto Stage", "TS1607-2-B21-07:N:user:mm:sp", "TS1607-2-B21-07:N:user:mm", "TS1607-2-B21-07:N:status", "TS1607-2-B21-07:HNV:stop.PROC", this, 0.01, 10.0);
+
+	attoStageX_ = new CLSPseudoMotorControl("Atto X Stage", "BL1607-B2-1:AddOns:AttoStage:X:mm:fbk", "BL1607-B2-1:AddOns:AttoStage:X:mm", "BL1607-B2-1:AddOns:AttoStage:X:status", "TS1607-2-B21-07:XYZ:stop.PROC", this, 0.01, 10.0);
+	attoStageZ_ = new CLSPseudoMotorControl("Atto Z Stage", "BL1607-B2-1:AddOns:AttoStage:Z:mm:fbk", "BL1607-B2-1:AddOns:AttoStage:Z:mm", "BL1607-B2-1:AddOns:AttoStage:Z:status", "TS1607-2-B21-07:XYZ:stop.PROC", this, 0.01, 10.0);
+	attoStageY_ = new CLSPseudoMotorControl("Atto Y Stage", "BL1607-B2-1:AddOns:AttoStage:Y:mm:fbk", "BL1607-B2-1:AddOns:AttoStage:Y:mm", "BL1607-B2-1:AddOns:AttoStage:Y:status", "TS1607-2-B21-07:XYZ:stop.PROC", this, 0.01, 10.0);
+
+//	attoStageX_ = new CLSPseudoMotorControl("Atto X Stage", "TS1607-2-B21-07:X:user:mm:sp", "TS1607-2-B21-07:X:user:mm", "TS1607-2-B21-07:X:user:status", "TS1607-2-B21-07:XYZ:stop.PROC", this, 0.01, 10.0);
+//	attoStageZ_ = new CLSPseudoMotorControl("Atto Z Stage", "TS1607-2-B21-07:Z:user:mm:sp", "TS1607-2-B21-07:Z:user:mm", "TS1607-2-B21-07:Z:user:status", "TS1607-2-B21-07:XYZ:stop.PROC", this, 0.01, 10.0);
+//	attoStageY_ = new CLSPseudoMotorControl("Atto Y Stage", "TS1607-2-B21-07:Y:user:mm:sp", "TS1607-2-B21-07:Y:user:mm", "TS1607-2-B21-07:Y:user:status", "TS1607-2-B21-07:XYZ:stop.PROC", this, 0.01, 10.0);
 
 	attoStageRz_ = new AMPVwStatusControl("Atto Phi Stage", "SVM1607-2-B21-09:deg:sp", "SVM1607-2-B21-09:deg", "SVM1607-2-B21-09:status", "SVM1607-2-B21-09:stop.PROC", this, 0.01, 10.0);
 	attoStageRy_ = new AMPVwStatusControl("Atto Theta Stage", "SVM1607-2-B21-07:deg:sp", "SVM1607-2-B21-07:deg", "SVM1607-2-B21-07:status", "SVM1607-2-B21-07:stop.PROC", this, 0.01, 10.0);
