@@ -45,6 +45,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/util/AMGithubIssueSubmissionView.h"
 #include "ui/AMDatamanStartupSplashScreen.h"
 #include "ui/util/AMAboutDialog.h"
+#include "ui/AMScanEditorsCloseView.h"
 
 #include "application/AMPluginsManager.h"
 
@@ -840,10 +841,13 @@ bool AMDatamanAppController::startupCreateUserInterface()
 	settingsMasterView_ = 0;
 	issueSubmissionView_ = 0;
 
+	scanEditorCloseView_ = 0;
+
 	//Create the main tab window:
 	mw_ = new AMMainWindow();
 	mw_->setWindowTitle("Acquaman");
 	connect(mw_, SIGNAL(itemCloseButtonClicked(QModelIndex)), this, SLOT(onWindowPaneCloseButtonClicked(QModelIndex)));
+	connect(mw_, SIGNAL(itemRightClicked(QModelIndex,QPoint)), this, SLOT(onWindowPaneRightClicked(QModelIndex,QPoint)));
 	mw_->installEventFilter(this);
 
 	addBottomPanel();
@@ -953,6 +957,10 @@ bool AMDatamanAppController::startupInstallActions()
 	amShowAboutPageAction->setStatusTip("About Acquaman");
 	connect(amShowAboutPageAction, SIGNAL(triggered()), this, SLOT(onShowAboutPage()));
 
+	QAction* amCloseScanEditorsAction = new QAction("Close Scan Editors", mw_);
+	amCloseScanEditorsAction->setStatusTip("Close One or More Open Scan Editors");
+	connect(amCloseScanEditorsAction, SIGNAL(triggered()), this, SLOT(openScanEditorsCloseView()));
+
 	exportGraphicsAction_ = new QAction("Export Plot...", mw_);
 	exportGraphicsAction_->setStatusTip("Export the current plot to a PDF file.");
 	connect(exportGraphicsAction_, SIGNAL(triggered()), this, SLOT(onActionExportGraphics()));
@@ -983,6 +991,9 @@ bool AMDatamanAppController::startupInstallActions()
 	fileMenu_->addAction(amSettingsAction);
 
 	fileMenu_->addAction(forceQuitAction);
+
+	viewMenu_ = menuBar_->addMenu("View");
+	viewMenu_->addAction(amCloseScanEditorsAction);
 
 	helpMenu_ = menuBar_->addMenu("Help");
 	helpMenu_->addAction(amIssueSubmissionAction);
@@ -1215,6 +1226,26 @@ void AMDatamanAppController::onWindowPaneCloseButtonClicked(const QModelIndex& i
 	}
 }
 
+void AMDatamanAppController::onWindowPaneRightClicked(const QModelIndex &index, const QPoint &globalPosition){
+	if(mw_->windowPaneModel()->itemFromIndex(index.parent()) == scanEditorsParentItem_) {
+		AMGenericScanEditor *editor = qobject_cast<AMGenericScanEditor*>(index.data(AM::WidgetRole).value<QWidget*>());
+		if(editor)
+			qDebug() << "Received right click from item " << editor->scanAt(0)->name() << " at " << globalPosition;
+		else
+			return;
+
+		QMenu *menu = new QMenu();
+		menu->addAction("Close Options...");
+		QAction *temp = menu->exec(globalPosition);
+
+		if (temp){
+			openScanEditorsCloseView(editor);
+			temp->deleteLater();
+		}
+		menu->deleteLater();
+	}
+}
+
 void AMDatamanAppController::onIssueSubmissionViewFinished(){
 	if(!issueSubmissionView_)
 		return;
@@ -1235,6 +1266,48 @@ void AMDatamanAppController::onShowAboutPage()
 	aboutPage->exec();
 
 	aboutPage->deleteLater();
+}
+
+void AMDatamanAppController::openScanEditorsCloseView(AMGenericScanEditor *editor)
+{
+	if(scanEditorCloseView_)
+		scanEditorCloseView_->close();
+
+	if(scanEditorsParentItem_->rowCount() != 0){
+		scanEditorCloseView_ = new AMScanEditorsCloseView(scanEditorsParentItem_, this, editor);
+		scanEditorCloseView_->show();
+		connect(scanEditorCloseView_, SIGNAL(closeRequested(QList<AMGenericScanEditor*>)), this, SLOT(onScanEditorsCloseViewCloseRequested(QList<AMGenericScanEditor*>)));
+		connect(scanEditorCloseView_, SIGNAL(closed()), this, SLOT(onScanEditorsCloseViewClosed()));
+	}
+	else
+		QMessageBox::information(0, "No Scan Editors To Open", "There are no scan editors open at this time", QMessageBox::Ok);
+}
+
+void AMDatamanAppController::onScanEditorsCloseViewCloseRequested(QList<AMGenericScanEditor *> editorsToClose)
+{
+
+	AMGenericScanEditor * scanEditor;
+	QList<AMGenericScanEditor*> availableEditors_;
+	for(int x = 0, size = scanEditorsParentItem_->rowCount(); x < size; x++){
+		scanEditor = qobject_cast<AMGenericScanEditor*>(scanEditorsParentItem_->child(x, 0)->data(AM::WidgetRole).value<QWidget*>());
+		if(scanEditor)
+			availableEditors_.append(scanEditor);
+	}
+
+	for(int x = 0, size = editorsToClose.count(); x < size; x++){
+		qDebug() << "Want to close an editor " << editorsToClose.at(x)->scanAt(0)->name();
+		if(availableEditors_.contains(editorsToClose.at(x)))
+			closeScanEditor(editorsToClose.at(x));
+	}
+}
+
+void AMDatamanAppController::onScanEditorsCloseViewClosed()
+{
+	disconnect(scanEditorCloseView_, SIGNAL(closeRequested(QList<AMGenericScanEditor*>)), this, SLOT(onScanEditorsCloseViewCloseRequested(QList<AMGenericScanEditor*>)));
+	disconnect(scanEditorCloseView_, SIGNAL(closed()), this, SLOT(onScanEditorsCloseViewClosed()));
+
+	scanEditorCloseView_->deleteLater();
+	scanEditorCloseView_ = 0;
 }
 
 #include "dataman/export/AMExportController.h"
