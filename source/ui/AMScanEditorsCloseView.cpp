@@ -82,7 +82,6 @@ AMScanEditorsCloseView::~AMScanEditorsCloseView()
 {
 	AMScanEditorModelItem *scanEditorItem;
 	while(scanEditorsModel_->rowCount() > 0){
-		qDebug() << "Row count is " << scanEditorsModel_->rowCount();
 		scanEditorItem = static_cast<AMScanEditorModelItem*>(scanEditorsModel_->takeRow(scanEditorsModel_->rowCount()-1).at(0));
 		delete scanEditorItem;
 	}
