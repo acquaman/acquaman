@@ -1229,9 +1229,7 @@ void AMDatamanAppController::onWindowPaneCloseButtonClicked(const QModelIndex& i
 void AMDatamanAppController::onWindowPaneRightClicked(const QModelIndex &index, const QPoint &globalPosition){
 	if(mw_->windowPaneModel()->itemFromIndex(index.parent()) == scanEditorsParentItem_) {
 		AMGenericScanEditor *editor = qobject_cast<AMGenericScanEditor*>(index.data(AM::WidgetRole).value<QWidget*>());
-		if(editor)
-			qDebug() << "Received right click from item " << editor->scanAt(0)->name() << " at " << globalPosition;
-		else
+		if(!editor)
 			return;
 
 		QMenu *menu = new QMenu();
@@ -1295,7 +1293,6 @@ void AMDatamanAppController::onScanEditorsCloseViewCloseRequested(QList<AMGeneri
 	}
 
 	for(int x = 0, size = editorsToClose.count(); x < size; x++){
-		qDebug() << "Want to close an editor " << editorsToClose.at(x)->scanAt(0)->name();
 		if(availableEditors_.contains(editorsToClose.at(x)))
 			closeScanEditor(editorsToClose.at(x));
 	}
