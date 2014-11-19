@@ -126,9 +126,6 @@ protected:
 	bool automaticBringScanEditorToFrontWithRunningScans_;
 	/// Flag hodling whether the scans will automatically get launched into an AMGenericScanEditor
 	bool automaticLaunchScanEditor_;
-
-	/// Menus
-	QMenu *viewMenu_;
 };
 
 #endif // AMAPPCONTROLLER_H

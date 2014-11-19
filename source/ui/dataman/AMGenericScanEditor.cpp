@@ -719,7 +719,7 @@ int AMGenericScanEditor::shouldSaveModifiedScan(AMScan *scan)
 
 
 
-bool AMGenericScanEditor::canCloseEditor()
+bool AMGenericScanEditor::canCloseEditor(bool promptToSave)
 {
 	bool canClose = true;
 
@@ -737,7 +737,9 @@ bool AMGenericScanEditor::canCloseEditor()
 	// Check for any modified scans?
 	for(int i=0; i<scanCount(); i++) {
 		AMScan* scan = scanAt(i);
-		if(scan->modified()) {
+		if(scan->modified() && !promptToSave)
+			return false;
+		else if(scan->modified()) {
 			// find out if we should cancel, or save or discard changes
 			int response = shouldSaveModifiedScan(scan);
 			if(response == QMessageBox::Cancel) {
