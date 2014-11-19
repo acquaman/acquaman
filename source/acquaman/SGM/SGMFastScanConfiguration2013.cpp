@@ -202,6 +202,13 @@ QStringList SGMFastScanConfiguration2013::presets() const{
 	return SGMPeriodicTable::sgmTable()->fastScanPresetsStrings(SGMPeriodicTable::SGMPeriodicTableAllDatabasesConnectionName());
 }
 
+int SGMFastScanConfiguration2013::currentPresetIndex() const{
+	for(int x = 0; x < settings_.count(); x++)
+		if(settings_.at(x) == currentSettings_)
+			return x;
+	return -1;
+}
+
 SGMFastScanParameters* SGMFastScanConfiguration2013::currentParameters() const{
 	return currentSettings_;
 }

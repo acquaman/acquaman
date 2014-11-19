@@ -128,6 +128,8 @@ public:
 
 	/// Returns the preset string from the SGM Periodic Table (list of available fast scans)
 	QStringList presets() const;
+	/// Returns the index of the preset if the currentParameters are from the preset list, otherwise -1
+	int currentPresetIndex() const;
 	/// Returns the SGMFastScanParameters object currently being used
 	SGMFastScanParameters* currentParameters() const;
 	/// Returns the SGMEnergyParameters object currently being used
