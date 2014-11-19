@@ -96,6 +96,7 @@ protected:
 
 	QComboBox *presetsComboBox_;
 	QLabel *warningsLabel_;
+	QCheckBox *enableUpDownScanningCheckBox_;
 
 	QLabel *scanNameLabel_;
 	AMRegExpLineEdit *scanNameEdit_;

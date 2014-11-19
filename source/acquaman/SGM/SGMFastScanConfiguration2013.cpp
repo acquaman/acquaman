@@ -31,6 +31,7 @@ SGMFastScanConfiguration2013::SGMFastScanConfiguration2013(QObject *parent) : AM
 	autoExportEnabled_ = false; // We're not going to do auto exporting for fast scans right now
 	currentSettings_ = 0; //NULL
 	currentEnergyParameters_ = 0; //NULL
+	enableUpDownScanning_ = true;
 
 	settings_ = SGMPeriodicTable::sgmTable()->fastScanPresets(SGMPeriodicTable::SGMPeriodicTableAllDatabasesConnectionName());
 
@@ -46,6 +47,7 @@ SGMFastScanConfiguration2013::SGMFastScanConfiguration2013(const SGMFastScanConf
 	autoExportEnabled_ = false; // We're not going to do auto exporting for fast scans right now
 	currentSettings_ = 0; //NULL
 	currentEnergyParameters_ = 0; //NULL
+	enableUpDownScanning_ = original.enableUpDownScanning();
 
 	settings_ = SGMPeriodicTable::sgmTable()->fastScanPresets(SGMPeriodicTable::SGMPeriodicTableAllDatabasesConnectionName());
 
@@ -89,6 +91,10 @@ AMScanController* SGMFastScanConfiguration2013::createController(){
 
 AMScanConfigurationView* SGMFastScanConfiguration2013::createView(){
 	return new SGMFastScanConfiguration2013View(this);
+}
+
+QString SGMFastScanConfiguration2013::description() const{
+	return QString("Fast Scan from %1 to %2 [%3s]").arg(startEnergy()).arg(endEnergy()).arg(runTime());
 }
 
 QString SGMFastScanConfiguration2013::detailedDescription() const{
@@ -200,6 +206,10 @@ bool SGMFastScanConfiguration2013::setParametersFromPreset(int index){
 	bool retVal = setParameters(settings_.at(index));
 
 	return retVal;
+}
+
+bool SGMFastScanConfiguration2013::enableUpDownScanning() const{
+	return enableUpDownScanning_;
 }
 
 bool SGMFastScanConfiguration2013::setParameters(SGMFastScanParameters *settings){
@@ -405,6 +415,14 @@ bool SGMFastScanConfiguration2013::setExitSlitDistance(double exitSlitDistance){
 bool SGMFastScanConfiguration2013::setSGMGrating(int sgmGrating){
 	currentSettings_->setSGMGrating(sgmGrating);
 	setModified(true);
+	return true;
+}
+
+bool SGMFastScanConfiguration2013::setEnableUpDownScanning(bool enableUpDownScanning){
+	if(enableUpDownScanning_ != enableUpDownScanning){
+		enableUpDownScanning_ = enableUpDownScanning;
+		emit enableUpDownScanningChanged(enableUpDownScanning_);
+	}
 	return true;
 }
 
