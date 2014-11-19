@@ -87,6 +87,9 @@ protected:
 	/// Helper function to generate the notes for this Scan
 	QString buildNotes();
 
+	/// Helper function to figure out which should be start and end values if up/down scanning is enabled
+	void configureStartEndValues();
+
 protected:
 	SGMFastScanConfiguration2013 *configuration_;
 
@@ -96,6 +99,12 @@ protected:
 	double c2Param_;
 	double sParam_;
 	double thetaParam_;
+
+	bool enableUpDownScanning_;
+	double startEnergy_;
+	double endEnergy_;
+	int startUndulatorStep_;
+	int undulatorRelativeStep_;
 
 	QMap< QString, QVector<double> > allDataMap_;
 	AMnDIndex insertionIndex_;

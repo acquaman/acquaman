@@ -44,6 +44,7 @@ class SGMFastScanConfiguration2013 : public AMFastScanConfiguration, public SGMS
 	Q_PROPERTY(double c2Parameter READ c2Parameter WRITE setC2Parameter)
 	Q_PROPERTY(double sParameter READ sParameter WRITE setSParameter)
 	Q_PROPERTY(double thetaParameter READ thetaParameter WRITE setThetaParameter)
+	Q_PROPERTY(bool enableUpDownScanning READ enableUpDownScanning WRITE setEnableUpDownScanning)
 	Q_PROPERTY(AMDbObject* fastScanParameters READ dbReadFastScanParameters WRITE dbLoadFastScanParameters)
 
 	Q_CLASSINFO("AMDbObject_Attributes", "description=SGM XAS Scan Configuration")
@@ -129,6 +130,8 @@ public:
 	/// Overrides the warnings string to check warnings from the fast scan parameters in the database
 	virtual QString dbLoadWarnings() const;
 
+	bool enableUpDownScanning() const;
+
 public slots:
 	/// Changes the currentSettings based on selecting one of the presets in the list
 	bool setParametersFromPreset(int index);
@@ -178,6 +181,9 @@ public slots:
 	bool setExitSlitDistance(double exitSlitDistance);
 	/// Changes which grating to use (low, medium, high) in the current settings and emits the associated change signal
 	bool setSGMGrating(int sgmGrating);
+
+	/// Changes the flag for allowing the controller to decide whether to scan up or down
+	bool setEnableUpDownScanning(bool enableUpDownScanning);
 
 signals:
 	/// Emitted when the element name changes
@@ -234,6 +240,9 @@ signals:
 	/// Emitted when the parameters change
 	void parametersChanged();
 
+	/// Emitted when the up/down scanning enable flag changes
+	void enableUpDownScanningChanged(bool enableUpDownScanning);
+
 protected:
 	/// Used for writing the fast scan parameters to the database
 	AMDbObject* dbReadFastScanParameters();
@@ -251,6 +260,9 @@ protected:
 
 	/// Holds a warning regarding old saved versions of fast scans if no parameters were saved
 	QString dbLoadWarnings_;
+
+	/// Flag to let the controller know it can decided whether to scan up or down
+	bool enableUpDownScanning_;
 };
 
 #endif // SGMFASTSCANCONFIGURATION2013_H
