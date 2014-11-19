@@ -131,7 +131,7 @@ AMImportController::~AMImportController() {
 		delete importers_[i];
 
 	fileDialog_->deleteLater();
-	w_->deleteLater();
+	importWidget_->deleteLater();
 }
 
 AMImportController::AMImportController(QObject *parent) :
@@ -140,29 +140,22 @@ AMImportController::AMImportController(QObject *parent) :
 	installImporters();
 
 	fileDialog_ = new QFileDialog();
-	w_ = new AMImportControllerWidget();
+	importWidget_ = new AMImportControllerWidget();
 
 	foreach(AMImporter* importer, importers_)
-		w_->formatComboBox->addItem(importer->description());
+		importWidget_->addFormat(importer->description());
 
 
 	connect(fileDialog_, SIGNAL(finished(int)), this, SLOT(onFileDialogFinished(int)));
 
-	connect(w_->nextButton, SIGNAL(clicked()), this, SLOT(onNextButtonClicked()));
-	connect(w_->applyAllButton, SIGNAL(clicked()), this, SLOT(onApplyAllButtonClicked()));
-	connect(w_->cancelButton, SIGNAL(clicked()), this, SLOT(onCancelButtonClicked()));
-	connect(w_->formatComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onFileTypeComboBoxChanged(int)));
+	connect(importWidget_, SIGNAL(nextClicked()), this, SLOT(onNextButtonClicked()));
+	connect(importWidget_, SIGNAL(applyAllClicked()), this, SLOT(onApplyAllButtonClicked()));
+	connect(importWidget_, SIGNAL(cancelClicked()), this, SLOT(onCancelButtonClicked()));
+	connect(importWidget_, SIGNAL(selectedFormatChanged(int)), this, SLOT(onFileTypeComboBoxChanged(int)));
 
-	QSignalMapper* mapper = new QSignalMapper(this);
-	connect(w_->checkName, SIGNAL(clicked()), mapper, SLOT(map()));
-	connect(w_->checkNumber, SIGNAL(clicked()), mapper, SLOT(map()));
-	connect(w_->checkDateTime, SIGNAL(clicked()), mapper, SLOT(map()));
-
-	mapper->setMapping(w_->checkName, "name");
-	mapper->setMapping(w_->checkNumber, "number");
-	mapper->setMapping(w_->checkDateTime, "dateTime");
-	connect(mapper, SIGNAL(mapped(QString)), this, SLOT(onGetInfoFromFileBoxChecked(QString)));
-
+	connect(importWidget_, SIGNAL(includeNameChanged(bool)), this, SLOT(onIncludeNameChanged(bool)));
+	connect(importWidget_, SIGNAL(includeNumberChanged(bool)), this, SLOT(onIncludeNumberChanged(bool)));
+	connect(importWidget_, SIGNAL(includeDateTimeChanged(bool)), this, SLOT(onIncludeDateTimeChanged(bool)));
 
 	onStart();
 }
@@ -203,8 +196,8 @@ void AMImportController::onFileDialogFinished(int result) {
 	fileDialog_->hide();
 	currentFile_ = 0;
 
-	w_->show();
-	w_->resize(w_->minimumSizeHint());
+	importWidget_->show();
+	importWidget_->resize(importWidget_->minimumSizeHint());
 	setupNextFile();
 }
 
@@ -238,64 +231,46 @@ void AMImportController::setupNextFile() {
 		}
 	}
 
-	w_->progressBar->setValue(currentFile_);
-	w_->progressBar->setMaximum(filesToImport_.count());
-	w_->progressBar->setMinimum(0);
-	w_->progressLabel->setText(QString("File %1 of %2").arg(currentFile_+1).arg(filesToImport_.count()));
+	importWidget_->progressBar()->setValue(currentFile_);
+	importWidget_->progressBar()->setMaximum(filesToImport_.count());
+	importWidget_->progressBar()->setMinimum(0);
+	importWidget_->setProgressLabel(QString("File %1 of %2").arg(currentFile_+1).arg(filesToImport_.count()));
 
 	// separate file name and path
 	QFileInfo fi(filesToImport_.at(currentFile_));
 	QString name = fi.fileName();
 	QString path = fi.path();
 
-	w_->thumbnailViewer->setCaption1(name);
-	w_->thumbnailViewer->setCaption2(path);
+	importWidget_->thumbnailViewer()->setCaption1(name);
+	importWidget_->thumbnailViewer()->setCaption2(path);
 
 	/// \todo: switch importer automatically if current one doesn't match filter, and another does.
 
-	AMImporter* importer = importers_.at(w_->formatComboBox->currentIndex());
+	AMImporter* importer = importers_.at(importWidget_->selectedFormatIndex());
 	currentScan_ = importer->createScanAndImport(filesToImport_.at(currentFile_));
 
-	w_->thumbnailViewer->setSource(currentScan_);
+	importWidget_->thumbnailViewer()->setSource(currentScan_);
 
 	if(currentScan_ == 0) {
-		w_->loadingStatusLabel->setText("Could not load this file.");
-		w_->loadingStatusLabel->setStyleSheet("color: red;");
+
+		importWidget_->setLoadingStatus("Could not load this file.");
 	}
 
 	else {
-		w_->loadingStatusLabel->setText("Loaded successfully.");
-		w_->loadingStatusLabel->setStyleSheet("color: black;");
+		importWidget_->setLoadingStatus("Loaded successfully.");
 	}
 
 
 	/// todo: you could generalize this for meta-data types, instead of doing them all separately.
 	///////////////////////
-	if(w_->checkName->isChecked()) {
-		w_->nameEdit->setEnabled(false);
-		if(currentScan_)
-			w_->nameEdit->setText(currentScan_->name());
-	}
-	else
-		w_->nameEdit->setEnabled(true);
+	if(importWidget_->isIncludeNameChecked() && currentScan_)
+		importWidget_->setName(currentScan_->name());
 
+	if(importWidget_->isIncludeNumberChecked() && currentScan_)
+		importWidget_->setNumber(currentScan_->number());
 
-	if(w_->checkNumber->isChecked()) {
-		w_->numberEdit->setEnabled(false);
-		if(currentScan_)
-			w_->numberEdit->setValue(currentScan_->number());
-	}
-	else
-		w_->numberEdit->setEnabled(true);
-
-
-	if(w_->checkDateTime->isChecked()) {
-		w_->dateTimeEdit->setEnabled(false);
-		if(currentScan_)
-			w_->dateTimeEdit->setDateTime(currentScan_->dateTime());
-	}
-	else
-		w_->dateTimeEdit->setEnabled(true);
+	if(importWidget_->isIncludeDataTimeChecked() && currentScan_)
+		importWidget_->setDateTime(currentScan_->dateTime());
 	/////////////////////////////
 
 
@@ -312,9 +287,9 @@ void AMImportController::finalizeImport() {
 	// error loading:
 	if(currentScan_ == 0) {
 		int doSkip = QMessageBox::question(
-					w_,
+					importWidget_,
 					"Skip this file?",
-					QString("Couldn't load this file (%1) with the '%2' format.\n\nDo you want to skip this file?").arg(filesToImport_.at(currentFile_)).arg(w_->formatComboBox->currentText()),
+					QString("Couldn't load this file (%1) with the '%2' format.\n\nDo you want to skip this file?").arg(filesToImport_.at(currentFile_)).arg(importWidget_->format()),
 					QMessageBox::Ok | QMessageBox::Cancel);
 
 		if(doSkip == QMessageBox::Ok) {
@@ -329,23 +304,23 @@ void AMImportController::finalizeImport() {
 
 	// success:
 	else {
-		if(!w_->checkName->isChecked())
-			currentScan_->setName(w_->nameEdit->text());
+		if(!importWidget_->isIncludeNameChecked())
+			currentScan_->setName(importWidget_->name());
 
-		if(!w_->checkNumber->isChecked())
-			currentScan_->setNumber(w_->numberEdit->value());
+		if(!importWidget_->isIncludeNumberChecked())
+			currentScan_->setNumber(importWidget_->number());
 
-		if(!w_->checkDateTime->isChecked())
-			currentScan_->setDateTime(w_->dateTimeEdit->dateTime());
+		if(!importWidget_->isIncludeDataTimeChecked())
+			currentScan_->setDateTime(importWidget_->dateTime());
 
-		currentScan_->setSampleId(w_->sampleEdit->value());
-		currentScan_->setRunId(w_->runEdit->currentRunId());
+		currentScan_->setSampleId(importWidget_->sampleId());
+		currentScan_->setRunId(importWidget_->runEdit()->currentRunId());
 
 		QString copyErrorMessage;
 		if(!copyRawDataFiles(copyErrorMessage)) {
 			AMErrorMon::report(AMErrorReport(0, AMErrorReport::Serious, -2, "AMImportController: Could not copy the imported file into the library. Maybe this file exists already?"));
 			int doSkip = QMessageBox::question(
-						w_,
+						importWidget_,
 						"Skip this file?",
 						QString("The file '%1' was opened correctly, but it couldn't be copied to the data library. (%2) \n\nDo you want to skip this file?").arg(filesToImport_.at(currentFile_)).arg(copyErrorMessage),
 						QMessageBox::Ok | QMessageBox::Cancel);
@@ -367,7 +342,7 @@ void AMImportController::finalizeImport() {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Serious, -1, "The file was loaded correctly, but it could not be saved to the database."));
 		}
 
-		w_->thumbnailViewer->setSource(0);
+		importWidget_->thumbnailViewer()->setSource(0);
 		currentScan_->deleteLater();
 		currentScan_ = 0;
 	}
@@ -426,7 +401,7 @@ void AMImportController::onApplyAllButtonClicked() {
 /// called when the cancel button is clicked while reviewing
 void AMImportController::onCancelButtonClicked() {
 	int doCancel = QMessageBox::question(
-				w_,
+				importWidget_,
 				"Cancel import?",
 				QString("You've imported %1 of %2 files. If you stop now, the remaining %3 will not be imported.\n\nAre you sure you want to stop?").arg(qMax(0, currentFile_ -1)).arg(filesToImport_.count()).arg(filesToImport_.count()-currentFile_),
 				QMessageBox::Cancel | QMessageBox::Ok);
@@ -443,46 +418,28 @@ void AMImportController::onFileTypeComboBoxChanged(int index) {
 	setupNextFile();
 }
 
-/// This slot is called from the signal mapper whenever any of the check-boxes are changed, indicating whether to get
-void AMImportController::onGetInfoFromFileBoxChecked(const QString& key) {
+void AMImportController::onIncludeNameChanged(bool)
+{
+	if(currentScan_)
+		importWidget_->setName(currentScan_->name());
+}
 
-	/// \todo change UI components to an array of the same type of object, indexed by meta-data key. Handle generally.
+void AMImportController::onIncludeNumberChanged(bool)
+{
+	if(currentScan_)
+		importWidget_->setNumber(currentScan_->number());
 
-	if(key == "name") {
-		if(w_->checkName->isChecked()) {
-			w_->nameEdit->setEnabled(false);
-			if(currentScan_)
-				w_->nameEdit->setText(currentScan_->name());
-		}
-		else
-			w_->nameEdit->setEnabled(true);
-	}
+}
 
-	if(key == "number") {
-		if(w_->checkNumber->isChecked()) {
-			w_->numberEdit->setEnabled(false);
-			if(currentScan_)
-				w_->numberEdit->setValue(currentScan_->number());
-		}
-		else
-			w_->numberEdit->setEnabled(true);
-	}
-
-	if(key == "dateTime") {
-		if(w_->checkDateTime->isChecked()) {
-			w_->dateTimeEdit->setEnabled(false);
-			if(currentScan_)
-				w_->dateTimeEdit->setDateTime(currentScan_->dateTime());
-		}
-		else
-			w_->dateTimeEdit->setEnabled(true);
-	}
-
+void AMImportController::onIncludeDateTimeChanged(bool)
+{
+	if(currentScan_)
+		importWidget_->setDateTime(currentScan_->dateTime());
 }
 
 /// called when the whole process is finished.
 void AMImportController::onFinished() {
-	w_->hide();
+	importWidget_->hide();
 	AMErrorMon::report(AMErrorReport(0, AMErrorReport::Information, 0, QString("Imported %1 files").arg(numSuccess_)));
 	deleteLater();
 }

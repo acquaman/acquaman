@@ -851,7 +851,8 @@ SOURCES += \
     source/dataman/export/AMExporter2DAscii.cpp \
     source/util/AMEnergyList.cpp \
     source/ui/util/AMEnergyListView.cpp \
-    source/dataman/export/AMExporterOptionSMAK.cpp
+    source/dataman/export/AMExporterOptionSMAK.cpp \
+    source/ui/dataman/AMImportControllerWidget.cpp
 
 RESOURCES *= source/icons/icons.qrc \
 		source/configurationFiles/configurationFiles.qrc \
