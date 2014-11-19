@@ -93,6 +93,10 @@ AMScanConfigurationView* SGMFastScanConfiguration2013::createView(){
 	return new SGMFastScanConfiguration2013View(this);
 }
 
+QString SGMFastScanConfiguration2013::description() const{
+	return QString("Fast Scan from %1 to %2 [%3s]").arg(startEnergy()).arg(endEnergy()).arg(runTime());
+}
+
 QString SGMFastScanConfiguration2013::detailedDescription() const{
 	return QString("Fast Scan from %1 to %2\nIntegration Time: %3").arg(startEnergy())
 			.arg(endEnergy())

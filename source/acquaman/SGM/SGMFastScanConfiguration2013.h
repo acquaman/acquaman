@@ -68,6 +68,9 @@ public:
 
 	virtual AMScanConfigurationView* createView();
 
+	/// A human-readable description of this scan configuration. Can be re-implemented to provide more details. Used by scan action to set the title for the action view.
+	virtual QString description() const;
+
 	/// A human-readable synopsis of this scan configuration. Can be re-implemented to proved more details. Used by scan action to set the main text in the action view.
 	virtual QString detailedDescription() const;
 
