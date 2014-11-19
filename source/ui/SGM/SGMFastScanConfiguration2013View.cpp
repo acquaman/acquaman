@@ -46,6 +46,8 @@ SGMFastScanConfiguration2013View::SGMFastScanConfiguration2013View(SGMFastScanCo
 
 		presetsComboBox_ = new QComboBox();
 		presetsComboBox_->addItems(sfsc->presets());
+		if(cfg_->currentPresetIndex() >= 0)
+			presetsComboBox_->setCurrentIndex(cfg_->currentPresetIndex());
 		connect(presetsComboBox_, SIGNAL(currentIndexChanged(int)), sfsc, SLOT(setParametersFromPreset(int)));
 
 		enableUpDownScanningCheckBox_ = new QCheckBox("Up/Down Scanning");
@@ -137,14 +139,11 @@ SGMFastScanConfiguration2013View::SGMFastScanConfiguration2013View(SGMFastScanCo
 SGMFastScanConfiguration2013View::~SGMFastScanConfiguration2013View(){}
 
 const AMScanConfiguration* SGMFastScanConfiguration2013View::configuration() const{
-	qDebug() << "Calling configuration, count is " << fastDetectorSelector_->selectedDetectorInfos().count();
-
 	cfg_->setDetectorConfigurations(fastDetectorSelector_->selectedDetectorInfos());
 
 	AMControlInfoList list;
 	list.append(SGMBeamline::sgm()->energy()->toInfo());
 	cfg_->setAxisControlInfos(list);
-	qDebug() << "And again, " << cfg_->detectorConfigurations().count();
 
 	return cfg_;
 }

@@ -431,6 +431,7 @@ void SGMAppController::onSGMBeamlineConnected(){
 
 		// Do New Fast
 		SGMFastScanConfiguration2013 *fastScanConfiguration2013 = new SGMFastScanConfiguration2013(this);
+		fastScanConfiguration2013->setParametersFromPreset(0);
 
 		fastDetectorSelector_ = new AMDetectorSelector(SGMBeamline::sgm()->FastDetectorGroup());
 		QStringList preferentialFastOrdering;
