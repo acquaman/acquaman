@@ -160,8 +160,6 @@ bool SGMFastScanActionController::startImplementation(){
 	if(scanActionMessager)
 		scanActionMessager->addReceiver(this);
 
-//	SGMFastScanParameters *settings = configuration_->currentParameters();
-
 	AMControlMoveActionInfo3 *moveActionInfo;
 	AMControlMoveAction3 *moveAction;
 	AMControl *tmpControl;
@@ -199,7 +197,6 @@ bool SGMFastScanActionController::startImplementation(){
 	AMListAction3 *fastActionsEnergyAndScaler = new AMListAction3(new AMListActionInfo3("SGM Fast Actions Energy and Scaler", "SGM Fast Actions Energy and Scaler"), AMListAction3::Parallel);
 	tmpControl = SGMBeamline::sgm()->energy();
 	AMControlInfo energySetpoint = tmpControl->toInfo();
-	//energySetpoint.setValue(settings->energyEnd());
 	energySetpoint.setValue(endEnergy_);
 	moveActionInfo = new AMControlMoveActionInfo3(energySetpoint);
 	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
@@ -467,7 +464,6 @@ AMAction3* SGMFastScanActionController::createInitializationActions(){
 	AMListAction3 *fastActionsFastInitialPositions = new AMListAction3(new AMListActionInfo3("SGM Fast Actions Fast Initial Positions", "SGM Fast Actions Fast Initial Positions"), AMListAction3::Parallel);
 	tmpControl = SGMBeamline::sgm()->energy();
 	AMControlInfo energyStartSetpoint = tmpControl->toInfo();
-	//energyStartSetpoint.setValue(settings->energyStart());
 	energyStartSetpoint.setValue(startEnergy_);
 	moveActionInfo = new AMControlMoveActionInfo3(energyStartSetpoint);
 	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
@@ -475,7 +471,6 @@ AMAction3* SGMFastScanActionController::createInitializationActions(){
 
 	tmpControl = SGMBeamline::sgm()->undulatorStep();
 	AMControlInfo undulatorStepSetpoint = tmpControl->toInfo();
-	//undulatorStepSetpoint.setValue(settings->undulatorStartStep());
 	undulatorStepSetpoint.setValue(startUndulatorStep_);
 	moveActionInfo = new AMControlMoveActionInfo3(undulatorStepSetpoint);
 	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
@@ -589,7 +584,6 @@ AMAction3* SGMFastScanActionController::createInitializationActions(){
 	// Undulator Relative Step Storage to relative step
 	tmpControl = SGMBeamline::sgm()->undulatorRelativeStepStorage();
 	AMControlInfo undulatorRelativeStepStorageSetpoint = tmpControl->toInfo();
-	//undulatorRelativeStepStorageSetpoint.setValue(settings->undulatorRelativeStep());
 	undulatorRelativeStepStorageSetpoint.setValue(undulatorRelativeStep_);
 	moveActionInfo = new AMControlMoveActionInfo3(undulatorRelativeStepStorageSetpoint);
 	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
