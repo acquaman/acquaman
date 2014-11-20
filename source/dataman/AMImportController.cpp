@@ -153,9 +153,9 @@ AMImportController::AMImportController(QObject *parent) :
 	connect(importWidget_, SIGNAL(cancelClicked()), this, SLOT(onCancelButtonClicked()));
 	connect(importWidget_, SIGNAL(selectedFormatChanged(int)), this, SLOT(onFileTypeComboBoxChanged(int)));
 
-	connect(importWidget_, SIGNAL(includeNameChanged(bool)), this, SLOT(onIncludeNameChanged(bool)));
-	connect(importWidget_, SIGNAL(includeNumberChanged(bool)), this, SLOT(onIncludeNumberChanged(bool)));
-	connect(importWidget_, SIGNAL(includeDateTimeChanged(bool)), this, SLOT(onIncludeDateTimeChanged(bool)));
+	connect(importWidget_, SIGNAL(customizeNameChanged(bool)), this, SLOT(onCustomizeNameChanged(bool)));
+	connect(importWidget_, SIGNAL(customizeNumberChanged(bool)), this, SLOT(onCustomizeNumberChanged(bool)));
+	connect(importWidget_, SIGNAL(customizeDateTimeChanged(bool)), this, SLOT(onCustomizeDateTimeChanged(bool)));
 
 	onStart();
 }
@@ -263,13 +263,13 @@ void AMImportController::setupNextFile() {
 
 	/// todo: you could generalize this for meta-data types, instead of doing them all separately.
 	///////////////////////
-	if(importWidget_->isIncludeNameChecked() && currentScan_)
+	if(!importWidget_->isCustomizeNameChecked() && currentScan_)
 		importWidget_->setName(currentScan_->name());
 
-	if(importWidget_->isIncludeNumberChecked() && currentScan_)
+	if(!importWidget_->isCustomizeNumberChecked() && currentScan_)
 		importWidget_->setNumber(currentScan_->number());
 
-	if(importWidget_->isIncludeDataTimeChecked() && currentScan_)
+	if(!importWidget_->isCustomizeDataTimeChecked() && currentScan_)
 		importWidget_->setDateTime(currentScan_->dateTime());
 	/////////////////////////////
 
@@ -304,13 +304,13 @@ void AMImportController::finalizeImport() {
 
 	// success:
 	else {
-		if(!importWidget_->isIncludeNameChecked())
+		if(importWidget_->isCustomizeNameChecked())
 			currentScan_->setName(importWidget_->name());
 
-		if(!importWidget_->isIncludeNumberChecked())
+		if(importWidget_->isCustomizeNumberChecked())
 			currentScan_->setNumber(importWidget_->number());
 
-		if(!importWidget_->isIncludeDataTimeChecked())
+		if(importWidget_->isCustomizeDataTimeChecked())
 			currentScan_->setDateTime(importWidget_->dateTime());
 
 		currentScan_->setSampleId(importWidget_->sampleId());
@@ -418,20 +418,20 @@ void AMImportController::onFileTypeComboBoxChanged(int index) {
 	setupNextFile();
 }
 
-void AMImportController::onIncludeNameChanged(bool)
+void AMImportController::onCustomizeNameChanged(bool)
 {
 	if(currentScan_)
 		importWidget_->setName(currentScan_->name());
 }
 
-void AMImportController::onIncludeNumberChanged(bool)
+void AMImportController::onCustomizeNumberChanged(bool)
 {
 	if(currentScan_)
 		importWidget_->setNumber(currentScan_->number());
 
 }
 
-void AMImportController::onIncludeDateTimeChanged(bool)
+void AMImportController::onCustomizeDateTimeChanged(bool)
 {
 	if(currentScan_)
 		importWidget_->setDateTime(currentScan_->dateTime());

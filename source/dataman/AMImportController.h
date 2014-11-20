@@ -131,12 +131,12 @@ protected slots:
 	void onFinished();
 	/// while reviewing, the file type sets the method used to import. If it's changed, need to retry.
 	void onFileTypeComboBoxChanged(int index);
-	/// Called when the user changes the state of the Include Name checkbox in the Widget
-	void onIncludeNameChanged(bool);
-	/// Called when the user changes the state of the Include Number checkbox in the Widget
-	void onIncludeNumberChanged(bool);
-	/// Called when the user changes the state of the Include DateTime checkbox in the Widget
-	void onIncludeDateTimeChanged(bool);
+	/// Called when the user changes the state of the Customize Name checkbox in the Widget
+	void onCustomizeNameChanged(bool);
+	/// Called when the user changes the state of the Customize Number checkbox in the Widget
+	void onCustomizeNumberChanged(bool);
+	/// Called when the user changes the state of the Customize DateTime checkbox in the Widget
+	void onCustomizeDateTimeChanged(bool);
 
 	/// Temporary solution only: Identifies what looks like a "spectra" file: an auxiliary file used by the CLS dacq library, which shouldn't be imported on its own.
 	bool isAuxiliaryFile(const QString& fullFileName);

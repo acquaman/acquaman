@@ -92,17 +92,17 @@ int AMImportControllerWidget::selectedFormatIndex()
 	return formatComboBox_->currentIndex();
 }
 
-bool AMImportControllerWidget::isIncludeNameChecked()
+bool AMImportControllerWidget::isCustomizeNameChecked()
 {
 	return checkName_->isChecked();
 }
 
-bool AMImportControllerWidget::isIncludeNumberChecked()
+bool AMImportControllerWidget::isCustomizeNumberChecked()
 {
 	return checkNumber_->isChecked();
 }
 
-bool AMImportControllerWidget::isIncludeDataTimeChecked()
+bool AMImportControllerWidget::isCustomizeDataTimeChecked()
 {
 	return checkDateTime_->isChecked();
 }
@@ -190,7 +190,7 @@ void AMImportControllerWidget::setupUi()
 	gridLayout->setObjectName(QString::fromUtf8("gridLayout"));
 	checkName_ = new QCheckBox(AMImportControllerWidgetFrame1);
 	checkName_->setObjectName(QString::fromUtf8("checkName"));
-	checkName_->setChecked(true);
+	checkName_->setChecked(false);
 
 	gridLayout->addWidget(checkName_, 0, 0, 1, 1);
 
@@ -207,7 +207,7 @@ void AMImportControllerWidget::setupUi()
 
 	checkNumber_ = new QCheckBox(AMImportControllerWidgetFrame1);
 	checkNumber_->setObjectName(QString::fromUtf8("checkNumber"));
-	checkNumber_->setChecked(true);
+	checkNumber_->setChecked(false);
 
 	gridLayout->addWidget(checkNumber_, 1, 0, 1, 1);
 
@@ -219,12 +219,13 @@ void AMImportControllerWidget::setupUi()
 	numberEdit_ = new QSpinBox(AMImportControllerWidgetFrame1);
 	numberEdit_->setObjectName(QString::fromUtf8("numberEdit"));
 	numberEdit_->setMaximum(999999999);
+	numberEdit_->setEnabled(false);
 
 	gridLayout->addWidget(numberEdit_, 1, 2, 1, 1);
 
 	checkDateTime_ = new QCheckBox(AMImportControllerWidgetFrame1);
 	checkDateTime_->setObjectName(QString::fromUtf8("checkDateTime"));
-	checkDateTime_->setChecked(true);
+	checkDateTime_->setChecked(false);
 
 	gridLayout->addWidget(checkDateTime_, 2, 0, 1, 1);
 
@@ -312,7 +313,7 @@ void AMImportControllerWidget::setupUi()
 	progressLabel_->setText(QApplication::translate("AMImportControllerWidget", "File 3 of 10", 0, QApplication::UnicodeUTF8));
 	formatLabel_->setText(QApplication::translate("AMImportControllerWidget", "File Format:", 0, QApplication::UnicodeUTF8));
 	loadingStatusLabel_->setText(QApplication::translate("AMImportControllerWidget", "Loaded successfully", 0, QApplication::UnicodeUTF8));
-	checkInstructionLabel_->setText(QApplication::translate("AMImportControllerWidget", "Check to use values in the data file:", 0, QApplication::UnicodeUTF8));
+	checkInstructionLabel_->setText(QApplication::translate("AMImportControllerWidget", "Check to set customized values:", 0, QApplication::UnicodeUTF8));
 	checkName_->setText(QString());
 	nameLabel_->setText(QApplication::translate("AMImportControllerWidget", "Name:", 0, QApplication::UnicodeUTF8));
 	checkNumber_->setText(QString());
@@ -335,28 +336,28 @@ void AMImportControllerWidget::connectSignals()
 	connect(applyAllButton_, SIGNAL(clicked()), this, SIGNAL(nextClicked()));
 	connect(cancelButton_, SIGNAL(clicked()), this, SIGNAL(cancelClicked()));
 	connect(formatComboBox_, SIGNAL(currentIndexChanged(int)), this, SIGNAL(selectedFormatChanged(int)));
-	connect(checkName_, SIGNAL(clicked(bool)), this, SLOT(onNameIncludeCheckboxChecked(bool)));
-	connect(checkNumber_, SIGNAL(clicked(bool)), this, SLOT(onNumberIncludeCheckboxChecked(bool)));
-	connect(checkDateTime_, SIGNAL(clicked(bool)), this, SLOT(onDateTimeIncludeCheckboxChanged(bool)));
+	connect(checkName_, SIGNAL(clicked(bool)), this, SLOT(onNameCustomizeCheckboxChecked(bool)));
+	connect(checkNumber_, SIGNAL(clicked(bool)), this, SLOT(onNumberCustomizeCheckboxChecked(bool)));
+	connect(checkDateTime_, SIGNAL(clicked(bool)), this, SLOT(onDateTimeCustomizeCheckboxChanged(bool)));
 }
 
 
-void AMImportControllerWidget::onNameIncludeCheckboxChecked(bool include)
+void AMImportControllerWidget::onNameCustomizeCheckboxChecked(bool include)
 {
 	nameEdit_->setEnabled(include);
-	emit includeNameChanged(include);
+	emit customizeNameChanged(include);
 }
 
-void AMImportControllerWidget::onNumberIncludeCheckboxChecked(bool include)
+void AMImportControllerWidget::onNumberCustomizeCheckboxChecked(bool include)
 {
 	numberEdit_->setEnabled(include);
-	emit includeNumberChanged(include);
+	emit customizeNumberChanged(include);
 }
 
-void AMImportControllerWidget::onDateTimeIncludeCheckboxChanged(bool include)
+void AMImportControllerWidget::onDateTimeCustomizeCheckboxChanged(bool include)
 {
 	dateTimeEdit_->setEnabled(include);
-	emit includeDateTimeChanged(include);
+	emit customizeDateTimeChanged(include);
 }
 
 

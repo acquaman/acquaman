@@ -42,6 +42,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/dataman/AMRunSelector.h"
 
 class AMImportControllerWidget : public QWidget {
+	Q_OBJECT
 public:
  	virtual ~AMImportControllerWidget(){}
 	explicit AMImportControllerWidget(QWidget* parent = 0);
@@ -65,18 +66,18 @@ public:
 	QString format();
 	int selectedFormatIndex();
 
-	bool isIncludeNameChecked();
-	bool isIncludeNumberChecked();
-	bool isIncludeDataTimeChecked();
+	bool isCustomizeNameChecked();
+	bool isCustomizeNumberChecked();
+	bool isCustomizeDataTimeChecked();
 	// UI elements
 signals:
 	void nextClicked();
 	void applyAllClicked();
 	void cancelClicked();
 	void selectedFormatChanged(int);
-	void includeNameChanged(bool);
-	void includeNumberChanged(bool);
-	void includeDateTimeChanged(bool);
+	void customizeNameChanged(bool);
+	void customizeNumberChanged(bool);
+	void customizeDateTimeChanged(bool);
 
 protected:
 	AMThumbnailScrollWidget* thumbnailViewer_;
@@ -117,9 +118,9 @@ protected:
 	QPushButton *nextButton_;
 	QPushButton *applyAllButton_;
 protected slots:
-	void onNameIncludeCheckboxChecked(bool);
-	void onNumberIncludeCheckboxChecked(bool);
-	void onDateTimeIncludeCheckboxChanged(bool);
+	void onNameCustomizeCheckboxChecked(bool);
+	void onNumberCustomizeCheckboxChecked(bool);
+	void onDateTimeCustomizeCheckboxChanged(bool);
 
 private:
 	void setupUi();
