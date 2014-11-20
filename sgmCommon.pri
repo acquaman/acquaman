@@ -46,7 +46,8 @@ HEADERS += \
 	source/ui/SGM/SGMFastScanConfiguration2013View.h \
 	source/ui/SGM/SGMAdvancedMirrorView.h \
 	source/ui/SGM/SGMSIS3820ScalerView.h \
-	source/ui/dataman/AMScanSearchView.h
+	source/ui/dataman/AMScanSearchView.h \
+    $$PWD/source/ui/SGM/SGMFastScanCreateSampleScanListView.h
 
 SOURCES += \
 	source/application/SGM/SGMAppController.cpp \
@@ -87,6 +88,7 @@ SOURCES += \
 	source/ui/SGM/SGMFastScanConfiguration2013View.cpp \
 	source/ui/SGM/SGMAdvancedMirrorView.cpp \
 	source/ui/SGM/SGMSIS3820ScalerView.cpp \
-	source/ui/dataman/AMScanSearchView.cpp
+	source/ui/dataman/AMScanSearchView.cpp \
+    $$PWD/source/ui/SGM/SGMFastScanCreateSampleScanListView.cpp
 
 
