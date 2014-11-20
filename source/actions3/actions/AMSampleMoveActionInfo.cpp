@@ -40,6 +40,10 @@ AMSampleMoveActionInfo::AMSampleMoveActionInfo(const AMSampleMoveActionInfo &oth
 
 AMSampleMoveActionInfo::~AMSampleMoveActionInfo()
 {
+	if(sample_){
+		sample_->setObject(0);
+		sample_->deleteLater();
+	}
 }
 
 AMActionInfo3* AMSampleMoveActionInfo::createCopy() const{

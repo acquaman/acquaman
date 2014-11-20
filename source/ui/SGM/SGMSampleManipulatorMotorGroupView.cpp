@@ -22,8 +22,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "SGMSampleManipulatorMotorGroupView.h"
 
 #include <QGridLayout>
+#include <QPushButton>
+#include <QCheckBox>
 
 #include "ui/beamline/AMExtendedControlEditor.h"
+
+#include "beamline/SGM/SGMBeamline.h"
 
 SGMSampleManipulatorMotorGroupObjectView::SGMSampleManipulatorMotorGroupObjectView(AMMotorGroupObject *motorGroupObject, QWidget *parent) :
 	AMMotorGroupObjectView(motorGroupObject, parent)
@@ -32,6 +36,10 @@ SGMSampleManipulatorMotorGroupObjectView::SGMSampleManipulatorMotorGroupObjectVi
 
 	rotateCW_ = new QToolButton();
 	rotateCCW_ = new QToolButton();
+
+	setInFocusButton_ = new QPushButton("Set In Focus");
+	moveInFocusFocusCheckBox_ = new QCheckBox("Move In Focus");
+	moveInFocusFocusCheckBox_->setEnabled(false);
 
 	rotateCW_->setIcon(QIcon(":/ArrowCW.png"));
 	rotateCCW_->setIcon(QIcon(":/ArrowCCW.png"));
@@ -58,12 +66,21 @@ SGMSampleManipulatorMotorGroupObjectView::SGMSampleManipulatorMotorGroupObjectVi
 	bottomHL->addWidget(status_);
 	leftVL->addLayout(bottomHL);
 
+	QHBoxLayout *focusHL = new QHBoxLayout();
+	focusHL->addWidget(setInFocusButton_);
+	focusHL->addWidget(moveInFocusFocusCheckBox_);
+	leftVL->addLayout(focusHL);
+
 	motorGroupLayout_->addLayout(leftVL);
 	motorGroupLayout_->addStretch(0);
 	motorGroupLayout_->addLayout(absoluteValueLayout_);
 
 	connect(rotateCW_, SIGNAL(clicked()), this, SLOT(onRotateCWClicked()));
 	connect(rotateCCW_, SIGNAL(clicked()), this, SLOT(onRotateCCWClicked()));
+
+	connect(setInFocusButton_, SIGNAL(clicked()), this, SLOT(onSetInFocusButtonClicked()));
+	connect(moveInFocusFocusCheckBox_, SIGNAL(toggled(bool)), this, SLOT(onMoveInFocusCheckBoxToggled(bool)));
+	connect(SGMBeamline::sgm(), SIGNAL(moveInFocusChanged(bool)), moveInFocusFocusCheckBox_, SLOT(setChecked(bool)));
 
 	for(int x = 0, size = controlSetpointLayouts_.count(); x < size; x++){
 		controlSetpointLayouts_.at(x)->itemAt(0)->widget()->hide();
@@ -147,6 +164,15 @@ void SGMSampleManipulatorMotorGroupObjectView::onMovingChanged(){
 	rotateCCW_->setDisabled(isMoving);
 
 	AMMotorGroupObjectView::onMovingChanged();
+}
+
+void SGMSampleManipulatorMotorGroupObjectView::onSetInFocusButtonClicked(){
+	SGMBeamline::sgm()->setInFocus();
+	moveInFocusFocusCheckBox_->setEnabled(true);
+}
+
+void SGMSampleManipulatorMotorGroupObjectView::onMoveInFocusCheckBoxToggled(bool moveInFocus){
+	SGMBeamline::sgm()->setMoveInFocus(moveInFocus);
 }
 
 SGMSampleManipulatorMotorGroupView::SGMSampleManipulatorMotorGroupView(AMMotorGroup *motorGroup, QWidget *parent) :
