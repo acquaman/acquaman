@@ -96,14 +96,6 @@ bool AMAppController::startup(){
 		success &= AMActionRegistry3::s()->registerInfoAndAction<AMWaitActionInfo, AMWaitAction>("Wait Action", "Waits for a predetermined amount of time", ":/user-away.png", true);
 		success &= AMActionRegistry3::s()->registerInfoAndEditor<AMWaitActionInfo, AMWaitActionEditor>();
 
-		/* Removed as per Issue597. AMSamplePlatePre2013MoveActionInfo moved to REIXSAppController, AMSampleMoveActionInfo moved to SGMAppController
-		success &= AMActionRegistry3::s()->registerInfoAndAction<AMSamplePlatePre2013MoveActionInfo, AMSamplePlatePre2013MoveAction>("Move Sample Position", "Move to a different marked sample position", ":system-run.png");
-		success &= AMActionRegistry3::s()->registerInfoAndEditor<AMSamplePlatePre2013MoveActionInfo, AMSamplePlatePre2013MoveActionEditor>();
-
-		success &= AMActionRegistry3::s()->registerInfoAndAction<AMSampleMoveActionInfo, AMSampleMoveAction>("Move to Beam Sample", "Move the beam over a given sample", ":system-run.png");
-		success &= AMActionRegistry3::s()->registerInfoAndEditor<AMSampleMoveActionInfo, AMSampleMoveActionEditor>();
-		*/
-
 		success &= AMActionRegistry3::s()->registerInfoAndAction<AMControlWaitActionInfo, AMControlWaitAction>("Wait for Control", "Wait for Control", ":system-run.png", false);
 
 		AMAgnosticDataMessageQEventHandler *scanActionMessager = new AMAgnosticDataMessageQEventHandler();
