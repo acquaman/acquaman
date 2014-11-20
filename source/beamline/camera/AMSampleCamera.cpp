@@ -1268,7 +1268,6 @@ void AMSampleCamera::moveToSampleRequested(AMShapeData *shapeData){
 		upStreamDownStream = shift.y();
 		upDown = shift.z();
 
-		//moveMotors(inboardOutboard, upStreamDownStream, upDown);
 		moveXZ(inboardOutboard, upDown);
 
 	}
@@ -1305,11 +1304,6 @@ AMAction3* AMSampleCamera::createMoveToSampleAction(const AMSample *sample){
 	moveControlInfo.setValue(inboardOutboard);
 	moveAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(moveControlInfo), ssaManipulatorX_);
 	retVal->addSubAction(moveAction);
-
-//	moveControlInfo = ssaManipulatorY_->toInfo();
-//	moveControlInfo.setValue(upStreamDownStream);
-//	moveAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(moveControlInfo), ssaManipulatorY_);
-//	retVal->addSubAction(moveAction);
 
 	moveControlInfo = ssaManipulatorZ_->toInfo();
 	moveControlInfo.setValue(upDown);
@@ -1377,7 +1371,6 @@ void AMSampleCamera::shiftToPoint(QPointF position, QPointF crosshairPosition)
 		upStreamDownStream = shift.y();
 		upDown = shift.z();
 
-		//moveMotors(inboardOutboard, upStreamDownStream, upDown);
 		moveXZ(inboardOutboard, upDown);
 
 	}
