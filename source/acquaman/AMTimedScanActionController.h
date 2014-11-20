@@ -96,9 +96,6 @@ protected:
 	/// The time that is used to fill up the currentAxisValue_.
 	QTime scanElapsedTime_;
 
-//	/// Pointer to the thread that handles all the file writing.
-//	QThread *fileWriterThread_;
-
 	/// A timer used when using AMCDFDataStore.  After a timeout it flushes the contents to disk.
 	QTimer flushToDiskTimer_;
 };

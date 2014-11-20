@@ -129,8 +129,13 @@ void REIXSXESScanActionController::buildScanControllerImplementation()
 
 void REIXSXESScanActionController::onDetectorAcquisitionSucceeded(){
 	updateTimer_->stop();
+	disconnect(REIXSBeamline::bl()->mcpDetector(), SIGNAL(imageDataChanged()), this, SLOT(writeDataToFiles()));
 	saveRawData();
-	setFinished();
+	scanControllerStateMachineFinished_ = true;
+	if(readyForFinished())
+		setFinished();
+	else if(fileWriterIsBusy_)
+		emit finishWritingToFile();
 }
 
 
@@ -409,9 +414,14 @@ void REIXSXESScanActionController::stopImplementation(const QString &command)
 		disconnect(REIXSBeamline::bl()->mcpDetector(), SIGNAL(imageDataChanged()), this, SLOT(onNewImageValues()));
 	}
 
+	disconnect(REIXSBeamline::bl()->mcpDetector(), SIGNAL(imageDataChanged()), this, SLOT(writeDataToFiles()));
 	REIXSBeamline::bl()->mcpDetector()->cancelAcquisition();
 	saveRawData();
-	setFinished();
+	writeDataToFiles();
+	if(readyForFinished())
+		setFinished();
+	else if(fileWriterIsBusy_)
+		emit finishWritingToFile();
 }
 
 #include "dataman/AMSample.h"
@@ -514,9 +524,6 @@ void REIXSXESScanActionController::writeDataToFiles()
 	*/
 
 	emit requestWriteToFile(2, rank1String);
-
-	// Do we have to wait for something else?
-	emit finishWritingToFile();
 }
 
 void REIXSXESScanActionController::onFileWriterError(AMScanActionControllerBasicFileWriter::FileWriterError error)

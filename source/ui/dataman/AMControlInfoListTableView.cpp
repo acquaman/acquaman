@@ -45,8 +45,9 @@ AMControlInfoListTableView::AMControlInfoListTableView(const AMControlInfoList* 
 
 void AMControlInfoListTableView::setFromInfoList(const AMControlInfoList* list)
 {
-	while(table_->rowCount() != 0){
-		QTableWidgetItem *deleteItem = table_->takeItem(table_->rowCount()-1, 0);
+	for(int x = 0,size = table_->rowCount();x < size; x++)
+	{
+		QTableWidgetItem *deleteItem = table_->takeItem(x, 0);
 		delete deleteItem;
 	}
 
