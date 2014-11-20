@@ -47,9 +47,6 @@ protected slots:
 	/// Handles changes in the connected state of the control, relays to AMCurrentAmplifier API
 	void onSensitivityControlConnectedChanged(bool connected);
 
-	void valueTo8();
-	void valueTo0();
-
 protected:
 	/// Returns whether the current amplifier is at minimum sensitivity.
 	virtual bool atMinimumSensitivity() const;
