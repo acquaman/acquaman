@@ -30,8 +30,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QLineEdit>
 #include <QFormLayout>
 #include <QCheckBox>
+#include <QPushButton>
 
 #include "ui/AMTopFrame.h"
+#include "ui/SGM/SGMFastScanCreateSampleScanListView.h"
 
 SGMFastScanConfiguration2013View::SGMFastScanConfiguration2013View(SGMFastScanConfiguration2013 *sfsc, QWidget *parent) :
 		AMScanConfigurationView(parent)
@@ -64,6 +66,10 @@ SGMFastScanConfiguration2013View::SGMFastScanConfiguration2013View(SGMFastScanCo
 		warningsFont.setPointSize(48);
 		warningsLabel_->setFont(warningsFont);
 		warningsLabel_->setStyleSheet( "QLabel{ color: red }" );
+
+		setupSampleButton_ = new QPushButton("Set Up Sample Loop");
+		setupSampleView_ = 0;
+		connect(setupSampleButton_, SIGNAL(clicked()), this, SLOT(onSetupSampleButtonClicked()));
 
 		scanNameLabel_ = new QLabel("Scan Name");
 		scanNameEdit_ = new AMRegExpLineEdit("/|;|@|#|<|>", Qt::CaseInsensitive, "/;#>@< characters are not allowed.");
@@ -111,6 +117,10 @@ SGMFastScanConfiguration2013View::SGMFastScanConfiguration2013View(SGMFastScanCo
 		hl->addLayout(settingsLayout_);
 		hl->addLayout(positionsLayout);
 
+		QHBoxLayout *setupSampleHL = new QHBoxLayout();
+		setupSampleHL->addWidget(setupSampleButton_);
+		setupSampleHL->addStretch();
+
 		QHBoxLayout *nameHL = new QHBoxLayout();
 		nameHL->addWidget(scanNameLabel_);
 		nameHL->addWidget(scanNameEdit_);
@@ -120,6 +130,7 @@ SGMFastScanConfiguration2013View::SGMFastScanConfiguration2013View(SGMFastScanCo
 		mainLayout->addLayout(hl);
 		mainLayout->addWidget(warningsLabel_);
 		mainLayout->addStretch(10);
+		mainLayout->addLayout(setupSampleHL);
 		mainLayout->addLayout(nameHL);
 
 		QVBoxLayout *vl = new QVBoxLayout();
@@ -228,4 +239,20 @@ void SGMFastScanConfiguration2013View::onEndPositionCopyChanged(){
 
 void SGMFastScanConfiguration2013View::onFastScanSettingsCopyChanged(){
 	cfg_->currentParameters()->setFastScanSettings(fastScanSettingsCopy_);
+}
+
+void SGMFastScanConfiguration2013View::onSetupSampleButtonClicked(){
+	if(setupSampleView_)
+		setupSampleView_->close();
+
+	SGMFastScanConfiguration2013 *configurationCopy = qobject_cast<SGMFastScanConfiguration2013*>(configuration()->createCopy());
+	if(configurationCopy){
+		setupSampleView_ = new SGMFastScanCreateSampleScanListView(configurationCopy);
+		connect(setupSampleView_, SIGNAL(destroyed()), this, SLOT(onSetupSampleViewDestroyed()));
+		setupSampleView_->show();
+	}
+}
+
+void SGMFastScanConfiguration2013View::onSetupSampleViewDestroyed(){
+	setupSampleView_ = 0;
 }

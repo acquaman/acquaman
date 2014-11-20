@@ -67,6 +67,10 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	connect(this, SIGNAL(criticalConnectionsChanged()), this, SLOT(recomputeWarnings()));
 	connect(energy(), SIGNAL(valueChanged(double)), this, SLOT(onEnergyValueChanged()));
 
+	xFocus_ = AMNumber(AMNumber::Null);
+	yFocus_ = AMNumber(AMNumber::Null);
+	moveInFocus_ = false;
+
 	addChildControl(energy_);
 	addChildControl(energySpacingParam_);
 	addChildControl(energyC1Param_);
@@ -796,6 +800,14 @@ bool SGMBeamline::isVisibleLightOn() const{
 	return false;
 }
 
+bool SGMBeamline::validInFocusPair() const{
+	return xFocus_.isValid() && yFocus_.isValid();
+}
+
+bool SGMBeamline::movingInFocus() const{
+	return validInFocusPair() && moveInFocus_;
+}
+
 void SGMBeamline::setCurrentSamplePlate(AMSamplePlatePre2013 *newSamplePlate){
 	if(currentSamplePlate_ != newSamplePlate){
 		currentSamplePlate_ = newSamplePlate;
@@ -834,6 +846,24 @@ void SGMBeamline::setCurrentMirrorStripe(SGMBeamlineInfo::sgmMirrorStripe mirror
 	else if(mirrorStripe == SGMBeamlineInfo::siliconStripe)
 		mirrorStripeSelectSilicon_->move(1);
 	return;
+}
+
+void SGMBeamline::setInFocus(){
+	if(isConnected()){
+		xFocus_ = ssaManipulatorX()->value();
+		yFocus_ = ssaManipulatorY()->value();
+	}
+}
+
+void SGMBeamline::setMoveInFocus(bool moveInFocus){
+	if(validInFocusPair() && moveInFocus_ != moveInFocus){
+		moveInFocus_ = moveInFocus;
+		if(moveInFocus_)
+			connect(ssaManipulatorX(), SIGNAL(setpointChanged(double)), this, SLOT(moveToYFocusPosition(double)));
+		else
+			disconnect(ssaManipulatorX(), SIGNAL(setpointChanged(double)), this, SLOT(moveToYFocusPosition(double)));
+		emit moveInFocusChanged(moveInFocus_);
+	}
 }
 
 void SGMBeamline::onBeamlineScanningValueChanged(double value){
@@ -977,6 +1007,14 @@ void SGMBeamline::computeBeamlineInitialized(){
 void SGMBeamline::onAllDetectorsGroupAllDetectorResponded(){
 	if(!beamlineIsInitialized_)
 		computeBeamlineInitialized();
+}
+
+void SGMBeamline::moveToYFocusPosition(double xSetpoint){
+	if(isConnected()){
+		double currentRotationRadians = (ssaManipulatorRot()->value()*3.14159)/180.0;
+		double yFocusSetpoint = double(yFocus_) + (xSetpoint - double(xFocus_))*tan(currentRotationRadians);
+		ssaManipulatorY()->move(yFocusSetpoint);
+	}
 }
 
 void SGMBeamline::setupNameToPVLookup(){

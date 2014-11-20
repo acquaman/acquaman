@@ -1343,14 +1343,12 @@ bool AMSampleCameraView::loadRotationalOffset(int databaseId)
 	AMDatabase *db = AMDatabase::database("SGMPublic");
 	int id;
 	if(databaseId == -1){
-		//QVariantList matchList = db->retrieve(AMDbObjectSupport::s()->tableNameForClass<AMCameraConfiguration>(),"id");
 		QVariantList matchList = db->retrieve(AMDbObjectSupport::s()->tableNameForClass<AMRotationalOffset>(),"id");
 
 		if(matchList.count() <= 0)
 			return false;
 
 		bool* success = new bool(true);
-		qDebug() << "MatchList count for rotationalOffsets is " << matchList.count() << " using last as " << matchList.last().toInt();
 		id = matchList.last().toInt(success);
 
 		if(!success){
