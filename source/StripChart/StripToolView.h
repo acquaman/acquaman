@@ -22,7 +22,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef STRIPTOOLVIEW_H
 #define STRIPTOOLVIEW_H
 
-#include <QtGui>
+#include "AMQtGui.h"
+
 #include <QDebug>
 
 #include "StripChart/StripToolPlot.h"

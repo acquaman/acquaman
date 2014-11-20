@@ -31,6 +31,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QDebug>
 
+#include <unistd.h>
+
 qint64 globalCrashMonitorPID;
 QFile *globalErrorFile;
 

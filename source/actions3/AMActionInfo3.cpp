@@ -42,13 +42,3 @@ AMActionInfo3::AMActionInfo3(const AMActionInfo3& other)
 	canCopy_ = other.canCopy();
 }
 
-//AMDbThumbnail AMActionInfo3::thumbnail(int index) const
-//{
-//	Q_UNUSED(index)
-
-//	if(iconFileName_.isEmpty())
-//		return AMDbThumbnail(shortDescription(), longDescription());
-//	else
-//		return AMDbThumbnail(shortDescription(), longDescription(), QImage(iconFileName_));
-//}
-

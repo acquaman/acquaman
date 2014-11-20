@@ -30,13 +30,17 @@ BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
     motorControlEditor_ = new AMExtendedControlEditor(BioXASSideBeamline::bioXAS()->m1UpperSlit());
     motorControlEditor_->setControlFormat('g', 4);
 
-    keithleyView_ = BioXASSideBeamline::bioXAS()->keithley()->createView();
+    energyControlEditor_ = new AMExtendedControlEditor(BioXASSideBeamline::bioXAS()->energy());
+    energyControlEditor_->setControlFormat('f', 2);
+
+    keithleyView_ = BioXASSideBeamline::bioXAS()->i0Keithley()->createView();
     keithleyView_->setParent(this);
     keithleyView_->setPrecision(2);
     keithleyView_->setFormat('e');
 
     QVBoxLayout *layout = new QVBoxLayout();
     layout->addWidget(motorControlEditor_);
+    layout->addWidget(energyControlEditor_);
     layout->addWidget(keithleyView_);
     layout->addStretch();
 

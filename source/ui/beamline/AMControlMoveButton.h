@@ -35,7 +35,7 @@ class AMControlMoveButton : public QToolButton
 {
 	Q_OBJECT
 public:
-	/// Create a move button for the given \c control. The available move step sizes (in the control's units) are given by \c stepSizes.  If you specify \c reverseDirection, the direction of the move will be opposite of the sign of the values in stepSizes.  It's okay for \c control to be 0; this button will simply do nothing (and be disabled) until you call setControl() with a valid control.  This widget does not take ownership of the control.
+	/// Create a move button for the given \c control. The available move step sizes (in the control's units) are given by \c stepSizes.  If you specify \c reverseDirection, the direction of the move will be opposite of the sign of the values in stepSizes.  It's okay for \c control to be 0. This button will simply do nothing (and be disabled) until you call setControl() with a valid control.  This widget does not take ownership of the control.
  	virtual ~AMControlMoveButton();
 	explicit AMControlMoveButton(QWidget *parent = 0,
 								 AMControl* control = 0,

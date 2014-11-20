@@ -46,6 +46,8 @@ public:
 		function_ = function;
 	}
 
+	virtual ~AMTagReplacementFunctor(){}
+
 	/// getText() function call: calls the encapsulated member function
 	virtual QString getText(const QString& argument) {
 		return (*object_.*function_)(argument);

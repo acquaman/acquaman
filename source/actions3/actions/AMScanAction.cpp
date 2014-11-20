@@ -57,7 +57,7 @@ AMScanAction::~AMScanAction()
 	if (controller_ && hasValidScanController_){
 
 		controller_->disconnect();
-		delete controller_;
+		controller_->deleteLater();
 	}
 }
 
@@ -198,13 +198,28 @@ void AMScanAction::skipImplementation(const QString &command)
 		setSucceeded();
 }
 
-void AMScanAction::scheduleForDeletion()
+void AMScanAction::scheduleForDeletionImplementation()
 {
-	if(!controller_ || controller_->isReadyForDeletion())
-		deleteLater();
+	if(controller_){
+		//connect(controller_, SIGNAL(destroyed()), this, SLOT(deleteLater()));
+		connect(controller_, SIGNAL(destroyed()), this, SLOT(checkReadyForDeletion()));
+		controller_->scheduleForDeletion();
+		controller_ = 0;
+		hasValidScanController_ = false;
+		return;
+	}
 
-	else
-		connect(controller_, SIGNAL(readyForDeletion(bool)), this, SLOT(onReadyForDeletionChanged(bool)));
+	if(!controller_)
+		checkReadyForDeletion();
+}
+
+void AMScanAction::checkReadyForDeletion()
+{
+	if(isLoggingFinished())
+		deleteLater();
+	else{
+		connect(this, SIGNAL(loggingIsFinished()), this, SLOT(deleteLater()));
+	}
 }
 
 void AMScanAction::onControllerInitialized()
@@ -359,7 +374,12 @@ void AMScanAction::autoExportScan()
 				AMExportController *exportController = new AMExportController(QList<AMScan *>() << controller_->scan());
 
 				// This needs to be generalized so the user can set it (on beamlines where this is acceptable)
-				QDir exportDir(AMUserSettings::userDataFolder);
+				//QDir exportDir(AMUserSettings::userDataFolder);
+				QDir exportDir;
+				if(!AMUserSettings::remoteDataFolder.isEmpty())
+					exportDir.setCurrent(AMUserSettings::remoteDataFolder);
+				else
+					exportDir.setCurrent(AMUserSettings::userDataFolder);
 				exportDir.cdUp();
 
 				if(!exportDir.entryList(QDir::AllDirs).contains("exportData")){
@@ -405,11 +425,5 @@ void AMScanAction::autoExportScan()
 
 void AMScanAction::onControllerStateChanged()
 {
-//	setStatusText(stateDescription(state()) % "\n" % controllerStateString());
-}
 
-void AMScanAction::onReadyForDeletionChanged(bool isReady)
-{
-	if(isReady)
-		deleteLater();
 }

@@ -42,7 +42,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 AMTimedScanActionController::AMTimedScanActionController(AMTimedRegionScanConfiguration *configuration, QObject *parent)
 	: AMScanActionController(configuration, parent)
 {
-	fileWriterIsBusy_ = false;
 	timedRegionsConfiguration_ = configuration;
 	currentAxisValueIndex_ = AMnDIndex(0);
 	currentAxisValue_ = 0.0;
@@ -51,7 +50,7 @@ AMTimedScanActionController::AMTimedScanActionController(AMTimedRegionScanConfig
 
 AMTimedScanActionController::~AMTimedScanActionController()
 {
-	delete fileWriterThread_;
+	// No need to clean up fileWriterThread, we'll be informed to delete ourself after it is destroyed}
 }
 
 void AMTimedScanActionController::buildScanController()
@@ -108,17 +107,17 @@ void AMTimedScanActionController::buildScanController()
 	}
 
 	qRegisterMetaType<AMScanActionControllerBasicFileWriter::FileWriterError>("FileWriterError");
-	AMScanActionControllerBasicFileWriter *fileWriter = new AMScanActionControllerBasicFileWriter(AMUserSettings::userDataFolder % fullPath.filePath(), has1DDetectors);
-	connect(fileWriter, SIGNAL(fileWriterIsBusy(bool)), this, SLOT(onFileWriterIsBusy(bool)));
-	connect(fileWriter, SIGNAL(fileWriterError(AMScanActionControllerBasicFileWriter::FileWriterError)), this, SLOT(onFileWriterError(AMScanActionControllerBasicFileWriter::FileWriterError)));
-	connect(this, SIGNAL(requestWriteToFile(int,QString)), fileWriter, SLOT(writeToFile(int,QString)));
-	connect(this, SIGNAL(finishWritingToFile()), fileWriter, SLOT(finishWriting()));
+	fileWriter_ = new AMScanActionControllerBasicFileWriter(AMUserSettings::userDataFolder % fullPath.filePath(), has1DDetectors);
+	connect(fileWriter_, SIGNAL(fileWriterIsBusy(bool)), this, SLOT(onFileWriterIsBusy(bool)));
+	connect(fileWriter_, SIGNAL(fileWriterError(AMScanActionControllerBasicFileWriter::FileWriterError)), this, SLOT(onFileWriterError(AMScanActionControllerBasicFileWriter::FileWriterError)));
+	connect(this, SIGNAL(requestWriteToFile(int,QString)), fileWriter_, SLOT(writeToFile(int,QString)));
+	connect(this, SIGNAL(finishWritingToFile()), fileWriter_, SLOT(finishWriting()));
 
 	fileWriterThread_ = new QThread();
 	connect(this, SIGNAL(finished()), fileWriterThread_, SLOT(quit()));
 	connect(this, SIGNAL(cancelled()), fileWriterThread_, SLOT(quit()));
 	connect(this, SIGNAL(failed()), fileWriterThread_, SLOT(quit()));
-	fileWriter->moveToThread(fileWriterThread_);
+	fileWriter_->moveToThread(fileWriterThread_);
 	fileWriterThread_->start();
 
 	// Get all the detectors added to the scan.
@@ -136,10 +135,23 @@ void AMTimedScanActionController::buildScanController()
 	buildScanControllerImplementation();
 }
 
-bool AMTimedScanActionController::isReadyForDeletion() const
-{
-	return !fileWriterIsBusy_;
-}
+//void AMTimedScanActionController::scheduleForDeletion()
+//{
+//	connect(fileWriterThread_, SIGNAL(destroyed()), this, SLOT(deleteLater()));
+//	if(!fileWriterIsBusy_ && fileWriterThread_->isFinished()){
+//		qDebug() << "Going to clean up the fast scan controller because we're ready right now";
+//		fileWriterThread_->deleteLater();
+//	}
+//	else if(!fileWriterIsBusy_){
+//		qDebug() << "Catch the file writer once its done but before the thread is cleaned up";
+//		deleteFileWriterImmediately_ = true;
+//	}
+//	else{
+//		qDebug() << "Cancel or fail I guess, do manual clean up";
+//		deleteFileWriterImmediately_ = true;
+//		emit finishWritingToFile();
+//	}
+//}
 
 void AMTimedScanActionController::flushCDFDataStoreToDisk()
 {
@@ -150,8 +162,6 @@ void AMTimedScanActionController::flushCDFDataStoreToDisk()
 
 void AMTimedScanActionController::onFileWriterError(AMScanActionControllerBasicFileWriter::FileWriterError error)
 {
-	qDebug() << "Got a file writer error " << error;
-
 	QString userErrorString;
 
 	switch(error){
@@ -185,12 +195,6 @@ void AMTimedScanActionController::onFileWriterError(AMScanActionControllerBasicF
 	box.setDefaultButton(acknowledgeButton_);
 
 	box.execWTimeout();
-}
-
-void AMTimedScanActionController::onFileWriterIsBusy(bool isBusy)
-{
-	fileWriterIsBusy_ = isBusy;
-	emit readyForDeletion(!fileWriterIsBusy_);
 }
 
 bool AMTimedScanActionController::event(QEvent *e)

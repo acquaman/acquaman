@@ -42,7 +42,6 @@ REIXSXESScanController::REIXSXESScanController(REIXSXESScanConfiguration* config
 	AMScanController(configuration, parent)
 {
 	config_ = configuration;
-//	initialMoveAction_ = new AMInternalControlMoveAction(REIXSBeamline::bl()->spectrometer(), 0, this);
 
 	/////////////////////////
 
@@ -62,12 +61,10 @@ REIXSXESScanController::REIXSXESScanController(REIXSXESScanConfiguration* config
 	scan_->setScanConfiguration(config_);
 	///////////////////////////
 
-	// resolve any potential differences between the configured detector info, and the size of the actual detector. (Cumbersome, I know... The detector size seems configurable but isn't; you have to use the actual size of the real detector.)
+	// resolve any potential differences between the configured detector info, and the size of the actual detector. (Cumbersome, I know... The detector size seems configurable but isn't, you have to use the actual size of the real detector.)
 
 	/// \todo Check at this point that we have the actual size for the real detector reporting already.
-	// AMMeasurementInfo realDetector = *(REIXSBeamline::bl()->mcpDetector()); // REIXSXESMCPDetector has cast operator to AMDetectorInfo, which has cast operator to AMMeasurementInfo.
 	AMMeasurementInfo configuredDetector = *(config_->mcpDetectorInfo());
-	//if(REIXSBeamline::bl()->mcpDetector()->canRead()) {
 	if(REIXSBeamline::bl()->mcpDetector()->isConnected()) {
 		configuredDetector.axes[0].size = REIXSBeamline::bl()->mcpDetector()->image()->size(0);
 		configuredDetector.axes[1].size = REIXSBeamline::bl()->mcpDetector()->image()->size(1);
@@ -143,19 +140,6 @@ bool REIXSXESScanController::initializeImplementation() {
 		REIXSBeamline::bl()->spectrometer()->specifyDetectorTiltOffset(config_->detectorTiltOffset());
 		REIXSBeamline::bl()->spectrometer()->specifyFocusOffset(config_->defocusDistanceMm());
 
-		//if(initialMoveAction_->isRunning())
-		//	initialMoveAction_->cancel();
-
-//		if(!initialMoveAction_->setSetpoint(config_->centerEV())) {
-//			AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 12, "Could not start moving the spectrometer into position."));
-//			return false;
-//		}
-
-//		connect(initialMoveAction_, SIGNAL(succeeded()), this, SLOT(onInitialSetupMoveSucceeded()));
-//		connect(initialMoveAction_, SIGNAL(failed()), this, SLOT(onInitialSetupMoveFailed()));
-//		initialMoveAction_->start();
-
-		// AMErrorMon::report(AMErrorReport(this, AMErrorReport::Information, 0, "Moving spectrometer into position before starting the scan..."));
 		return true;
 	}
 }
@@ -163,23 +147,19 @@ bool REIXSXESScanController::initializeImplementation() {
 
 void REIXSXESScanController::onInitialSetupMoveFailed() {
 	AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 13, "Could not move the spectrometer into position before starting a scan."));
-//	disconnect(initialMoveAction_, 0, this, 0);
 	setFailed();
 }
 
 void REIXSXESScanController::onInitialSetupMoveSucceeded() {
 
-//	disconnect(initialMoveAction_, 0, this, 0);
 
 	// remember the state of the beamline at the beginning of the scan.
-//	AMControlInfoList positions(REIXSBeamline::bl()->allControlsSet()->toInfoList());
 	AMControlInfoList positions(REIXSBeamline::bl()->exposedControls()->toInfoList());
 	// add the spectrometer grating selection, since it's not a "control" anywhere.
 	AMControlInfo grating("spectrometerGrating", REIXSBeamline::bl()->spectrometer()->specifiedGrating(), 0, 0, "[choice]", 0.1, "Spectrometer Grating");
 	grating.setEnumString(REIXSBeamline::bl()->spectrometer()->spectrometerCalibration()->gratingAt(int(grating.value())).name());
 	positions.insert(0, grating);
 
-	//scan_->scanInitialConditions()->setValuesFrom(positions);
 	scan_->setScanInitialConditions(positions);
 
 	// tell the controller API we're now ready to go.
@@ -189,7 +169,6 @@ void REIXSXESScanController::onInitialSetupMoveSucceeded() {
 bool REIXSXESScanController::startImplementation() {
 
 	if(!config_->doNotClearExistingCounts()) {
-//		REIXSBeamline::bl()->mcpDetector()->clearImage();
 		REIXSBeamline::bl()->mcpDetector()->clear();
 	}
 

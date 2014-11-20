@@ -107,7 +107,9 @@ void AMCamera::getTransforms(QPointF points[], QVector3D coordinates[])
 		row = "";
 	}
 
-//	cameraConfiguration_->setCameraMatrixFromMatrix(matrixA*matrixExtrinsic);
+	/*
+	cameraConfiguration_->setCameraMatrixFromMatrix(matrixA*matrixExtrinsic);
+	*/
 	MatrixXd cameraMatrix = matrixA*matrixExtrinsic;
 	cameraConfiguration_->setCameraMatrixFromMatrix(cameraMatrix);
 
@@ -305,8 +307,10 @@ QVector3D AMCamera::transform2Dto3D(QPointF point, double depth) const
 
 	if(vHat.isNull())
 	{
-		//        shiftedCameraCenter += QVector3D(0,0.001,0);
-		//        vHat = QVector3D::normal(idealCameraCenter,shiftedCameraCenter);
+		/*
+		shiftedCameraCenter += QVector3D(0,0.001,0);
+		vHat = QVector3D::normal(idealCameraCenter,shiftedCameraCenter);
+		*/
 		vHat = QVector3D(0,1,0);
 		if(vHat.isNull())
 			AMErrorMon::alert(this, AMCAMERA_TRANSFORM2DTO3D_NULL_VHAT, QString("VHat is still null in 2D to 3D transform.") );
@@ -388,8 +392,10 @@ QPointF AMCamera::transform3Dto2D(QVector3D coordinate) const
 	{
 		// the camera is not rotated (already looks along the z-axis)
 		// simply perform the shift
-		//        cameraRotation += QVector3D(0,0.001,0);
-		//        vHat = QVector3D::normal(zHat,cameraRotation);
+		/*
+			cameraRotation += QVector3D(0,0.001,0);
+			vHat = QVector3D::normal(zHat,cameraRotation);
+		*/
 		vHat = QVector3D(0,-1,0);
 		if(vHat.isNull())
 			AMErrorMon::alert(this, AMCAMERA_TRANSFORM3DTO2D_NULL_VHAT, QString("VHat is still null in 3D to 2D transform.") );
@@ -642,12 +648,14 @@ QPointF AMCamera::undistortPoint(QPointF point) const
 
 	}
 	/// if c>=0 the number is entirely real
-	/// use a + b;
+	/// use a + b
 	else
 	{
 		b = sqrt(c)/2.0;
 		wo = a+b;
-		//w1 = a-b;
+		/*
+		w1 = a-b
+		*/
 		// cannot cube root a negative wo
 		if(wo<0)
 		{
@@ -741,9 +749,11 @@ QVector3D AMCamera::transform2Dto3DMatrix(QPointF point, double depth) const
 
 	MatrixXd coordinateTwo = computeSVDLeastSquares(matrixP, matrixPointTwo);
 	// SVD
-	//    JacobiSVD<MatrixXd> svdOfMatrixP(matrixP);
-	//    svdOfMatrixP.compute(matrixP, ComputeThinU|ComputeThinV);
-	//	coordinateTwo = svdOfMatrixP.solve(matrixPointTwo);
+	/*
+	JacobiSVD<MatrixXd> svdOfMatrixP(matrixP);
+	svdOfMatrixP.compute(matrixP, ComputeThinU|ComputeThinV);
+	coordinateTwo = svdOfMatrixP.solve(matrixPointTwo);
+	*/
 	// Normalize [ X Y Z 1]T
 	coordinateTwo /= coordinateTwo(3,0);
 	QVector3D locationTwo = QVector3D(coordinateTwo(0,0),coordinateTwo(1,0),coordinateTwo(2,0));
@@ -760,15 +770,20 @@ QVector3D AMCamera::transform2Dto3DMatrix(QPointF point, double depth) const
 	QPointF centrePoint = QPointF(0,0);
 	MatrixXd centrePointOne (3,1);
 	MatrixXd centrePointTwo (3,1);
-	// centrePointOne is 0,0,1; centrePointTwo is 0,0,100;
+	/*
+	centrePointOne is 0,0,1; centrePointTwo is 0,0,100;
+	*/
 	centrePointOne<<centrePoint.x(),centrePoint.y(),1;
 	centrePointTwo<<0,0,100;
 
 	// solve for center point using qr and svd
 
 	MatrixXd centreCoordinateOne = matrixP.colPivHouseholderQr().solve(centrePointOne);
-	//    svdOfMatrixP.compute(matrixP, ComputeThinU|ComputeThinV);
-	MatrixXd centreCoordinateTwo = computeSVDLeastSquares(matrixP,centrePointTwo);//svdOfMatrixP.solve(centrePointTwo);
+	/*
+	svdOfMatrixP.compute(matrixP, ComputeThinU|ComputeThinV);
+	svdOfMatrixP.solve(centrePointTwo);
+	*/
+	MatrixXd centreCoordinateTwo = computeSVDLeastSquares(matrixP,centrePointTwo);
 	// normalize the coordinates ([X Y Z 1]T)
 	centreCoordinateOne /= centreCoordinateOne(3,0);
 	centreCoordinateTwo /= centreCoordinateTwo(3,0);

@@ -116,7 +116,6 @@ class AMSampleSetPage : public AMViewPage
 {
 	Q_OBJECT
 public:
-	//    AMSampleSetPage(QWidget* parent = 0);
 	void initializePage();
 
 public slots:

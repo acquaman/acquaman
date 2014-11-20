@@ -1,9 +1,7 @@
 #include "AMDirectorySynchronizer.h"
-//#include "dataman/database/AMDatabase.h"
 #include <QFile>
 #include <QFileInfo>
 #include <QDir>
-#include <QDebug>
 
 AMDirectorySynchronizer::AMDirectorySynchronizer(const QString &side1Directory, const QString &side2Directory, QObject *parent)
 	:QObject(parent)
@@ -128,7 +126,6 @@ bool AMDirectorySynchronizer::start()
 
 	QString process = "rsync";
 	QStringList args;
-	//args << "-avt" << "--progress" << "--exclude" << "*.db.bk.*" << "--exclude" << ".BACKUPS";
 	args << "-avt" << "--progress";
 	for(int x = 0, size = excludePatterns_.size(); x < size; x++)
 		args << "--exclude" << excludePatterns_.at(x);

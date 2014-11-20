@@ -26,7 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 class AMScan;
 
-/// This analysis block provides a way to access a data soure from another scan.  You can create one by specifying the database, id, and data source name of the source data in the constructor. The external scan will be loaded and the appropriate data source will be copied and exposed through this analysis block. Note that the data is not "live"; to pick up changes from the external scan, you must call refreshData().
+/// This analysis block provides a way to access a data soure from another scan.  You can create one by specifying the database, id, and data source name of the source data in the constructor. The external scan will be loaded and the appropriate data source will be copied and exposed through this analysis block. Note that the data is not "live", to pick up changes from the external scan, you must call refreshData().
 /*! \note Limitation: This version only supports data sources up to 5 dimensions */
 class AMExternalScanDataSourceAB : public AMStandardAnalysisBlock
 {
@@ -57,14 +57,17 @@ public:
 
 	  \note You cannot change the source scan or data source after constructing this object, since the new source might have a different rank than the old source. (AMDataSource outputs are not allowed to change in rank.)
 	  */
- 	virtual ~AMExternalScanDataSourceAB();
+	virtual ~AMExternalScanDataSourceAB();
 	explicit AMExternalScanDataSourceAB(AMDatabase* sourceDatabase, int sourceScanId, const QString& sourceDataSourceName, const QString& outputDataSourceName, RefreshDataWhenSpec whenToLoadData = DeferAfterConstructor, QObject *parent = 0);
 
 	/// Constructor which re-loads a previously-saved block from the database \c db at row \c id.  This is the version used when scans are opened and re-create their analysis blocks, so it loads the external scan data immediately.
 	Q_INVOKABLE AMExternalScanDataSourceAB(AMDatabase* db, int id);
 
-	/// Check if a set of inputs is valid. For this analysis block, we don't accept any input data sources; the only list we accept is the empty list.
+	/// Check if a set of inputs is valid. For this analysis block, we don't accept any input data sources, the only list we accept is the empty list.
 	virtual bool areInputDataSourcesAcceptable(const QList<AMDataSource*>& dataSources) const;
+
+	/// Returns the desired rank for input sources.
+	virtual int desiredInputRank() const { return 1; }
 
 	/// Set the data source inputs.  We don't do anything here, since our input is coming from the external scan instead.
 	virtual void setInputDataSourcesImplementation(const QList<AMDataSource*>&) {}
@@ -83,6 +86,8 @@ public:
 
 	/// When the independent values along an axis is not simply the axis index, this returns the independent value along an axis (specified by axis number and index)
 	virtual AMNumber axisValue(int axisNumber, int index) const;
+	/// Performance optimization of axisValue():  instead of a single value, copies a block of values from \c startIndex to \c endIndex in \c outputValues.  The provided pointer must contain enough space for all the requested values.
+	virtual bool axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const;
 
 
 	// Reading properties
@@ -118,7 +123,7 @@ public:
 signals:
 
 public slots:
-	/// Refresh the data. This will create, load, and copy the data from the external scan's data source, and then delete the external scan.  Returns true if data was successfully loaded; returns false if there was a problem.
+	/// Refresh the data. This will create, load, and copy the data from the external scan's data source, and then delete the external scan.  Returns true if data was successfully loaded, returns false if there was a problem.
 	/*! \note Our output is not automatically updated if the data within the external scan changes.  You must call refreshData() again to pick up the changes. */
 	bool refreshData();
 
@@ -134,7 +139,7 @@ protected:
 	QString sourceDataSourceName_;
 	AMScan* scan_;
 
-	/// Only used when re-loading out of the database [We can't store a database pointer; instead we store the connection name]
+	/// Only used when re-loading out of the database [We can't store a database pointer, instead we store the connection name]
 	QString dbLoadConnectionName_;
 	int dbLoadScanId_;
 	QString dbLoadSourceDataSourceName_;

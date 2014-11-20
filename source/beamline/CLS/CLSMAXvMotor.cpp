@@ -24,20 +24,22 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/actions/AMControlMoveAction3.h"
 #include "actions3/actions/AMControlStopAction.h"
 
- CLSMAXvMotor::~CLSMAXvMotor(){}
-CLSMAXvMotor::CLSMAXvMotor(const QString &name, const QString &baseName, const QString &description, bool hasEncoder, double tolerance, double moveStartTimeoutSeconds, QObject *parent) :
-	AMPVwStatusControl(name, hasEncoder ? baseName+":mm:fbk" : baseName+":mm:sp", baseName+":mm", baseName+":status", baseName+":stop", parent, tolerance, moveStartTimeoutSeconds, new AMControlStatusCheckerCLSMAXv(), 1, description)
+CLSMAXvMotor::~CLSMAXvMotor(){}
+CLSMAXvMotor::CLSMAXvMotor(const QString &name, const QString &baseName, const QString &description, bool hasEncoder, double tolerance, double moveStartTimeoutSeconds, QObject *parent, QString pvUnitFieldName) :
+	AMPVwStatusControl(name, hasEncoder ? baseName+pvUnitFieldName+":fbk" : baseName+pvUnitFieldName+":sp", baseName+pvUnitFieldName, baseName+":status", baseName+":stop", parent, tolerance, moveStartTimeoutSeconds, new AMControlStatusCheckerCLSMAXv(), 1, description)
 		//AMPVwStatusControl(name, baseName+":mm:fbk", baseName+":mm", baseName+":status", baseName+":stop", parent, tolerance, moveStartTimeoutSeconds, new AMControlStatusCheckerStopped(0), 1, description)
 {
+	pvBaseName_ = baseName;
+
 	hasEncoder_ = hasEncoder;
 	usingKill_ = false;
 	killPV_ = new AMProcessVariable(baseName+":kill", true, this);
 
-	EGUVelocity_ = new AMPVControl(name+"EGUVelocity", baseName+":vel:mmps:sp", baseName+":velo:mmps", QString(), this, 0.05);
-	EGUBaseVelocity_ = new AMPVControl(name+"EGUBaseVelocity", baseName+":vBase:mmps:sp", baseName+":vBase:mmps", QString(), this, 0.05);
-	EGUAcceleration_ = new AMPVControl(name+"EGUAcceleration", baseName+":acc:mmpss:sp", baseName+":accel:mmpss", QString(), this, 2);
-	EGUCurrentVelocity_ = new AMReadOnlyPVControl(name+"EGUCurrentVelocity", baseName+":vel:mmps:fbk", this);
-	EGUOffset_ = new AMPVControl(name+"EGUOffset", baseName+":mm:offset", baseName+":mm:offset", QString(), this, 0.005);
+	EGUVelocity_ = new AMPVControl(name+"EGUVelocity", baseName+":vel"+pvUnitFieldName+"ps:sp", baseName+":velo"+pvUnitFieldName+"ps", QString(), this, 0.05);
+	EGUBaseVelocity_ = new AMPVControl(name+"EGUBaseVelocity", baseName+":vBase"+pvUnitFieldName+"ps:sp", baseName+":vBase"+pvUnitFieldName+"ps", QString(), this, 0.05);
+	EGUAcceleration_ = new AMPVControl(name+"EGUAcceleration", baseName+":acc"+pvUnitFieldName+"pss:sp", baseName+":accel"+pvUnitFieldName+"pss", QString(), this, 2);
+	EGUCurrentVelocity_ = new AMReadOnlyPVControl(name+"EGUCurrentVelocity", baseName+":vel"+pvUnitFieldName+"ps:fbk", this);
+	EGUOffset_ = new AMPVControl(name+"EGUOffset", baseName+pvUnitFieldName+":offset", baseName+pvUnitFieldName+":offset", QString(), this, 0.005);
 
 	step_ = new AMPVControl(name+"Step", baseName+":step:sp", baseName+":step", QString(), this, 20);
 	stepVelocity_ = new AMPVControl(name+"StepVelocity", baseName+":velo:sp", baseName+":velo", QString(), this, 2);
@@ -49,6 +51,8 @@ CLSMAXvMotor::CLSMAXvMotor(const QString &name, const QString &baseName, const Q
 	cwLimit_->setTolerance(0.1);
 	ccwLimit_ = new AMReadOnlyPVControl(name+"CCWLimit", baseName+":ccw", this);
 	ccwLimit_->setTolerance(0.1);
+
+	statusPVControl_ = new AMReadOnlyPVControl("Motor moving status", baseName+":status", this);
 
 	powerState_ = new AMPVControl(name+"PowerState", baseName+":power", baseName+":power", QString(), this, 0.1);
 	powerInverted_ = new AMPVControl(name+"PowerInverted", baseName+":invertPower", baseName+":invertPower", QString(), this, 0.1);
@@ -181,6 +185,30 @@ bool CLSMAXvMotor::isConnected() const{
 			&& encoderPercentApproach_->isConnected()
 			&& encoderStepSoftRatio_->isConnected();
 	return coreFunctions && encoderFunctions;
+}
+
+QString CLSMAXvMotor::pvBaseName() const {
+	return pvBaseName_;
+}
+
+QString CLSMAXvMotor::readPVName() const {
+	return readPV_->pvName();
+}
+
+QString CLSMAXvMotor::writePVName() const {
+	return writePV_->pvName();
+}
+
+QString CLSMAXvMotor::CWPVName() const {
+	return cwLimit_->readPVName();
+}
+
+QString CLSMAXvMotor::CCWPVName() const {
+	return ccwLimit_->readPVName();
+}
+
+QString CLSMAXvMotor::statusPVName() const {
+	return statusPVControl_->readPVName();
 }
 
 double CLSMAXvMotor::EGUVelocity() const{
@@ -451,6 +479,10 @@ double CLSMAXvMotor::encoderStepSoftRatio() const{
 	if(isConnected())
 		return encoderStepSoftRatio_->value();
 	return 0;
+}
+
+AMReadOnlyPVControl *CLSMAXvMotor::statusPVControl(){
+	return statusPVControl_;
 }
 
 AMAction3 *CLSMAXvMotor::createMotorMoveAction(double position)
@@ -945,6 +977,59 @@ void CLSMAXvMotor::setEncoderPercentApproach(double encoderPercentApproach){
 void CLSMAXvMotor::setEncoderStepSoftRatio(double encoderStepSoftRatio){
 	if(isConnected())
 		encoderStepSoftRatio_->move(encoderStepSoftRatio);
+}
+
+AMControl::FailureExplanation CLSMAXvMotor::move(double setpoint){
+	CLSMAXvMotor::Limit limitCondition = atLimit();
+
+	if(limitCondition == CLSMAXvMotor::LimitNone)
+		return AMPVwStatusControl::move(setpoint);
+	else if(limitCondition == CLSMAXvMotor::LimitError)
+		return AMControl::LimitFailure;
+
+	double currentPosition = value();
+
+	bool positiveSlope = false;
+	if(stepCalibrationSlope_->value() > 0)
+		positiveSlope = true;
+
+	bool positiveMovement = false;
+	if(setpoint > currentPosition)
+		positiveMovement = true;
+
+	bool canMoveAwayFromLimit = false;
+	if(limitCondition == CLSMAXvMotor::LimitCW && positiveMovement && !positiveSlope)
+		canMoveAwayFromLimit = true;
+	else if(limitCondition == CLSMAXvMotor::LimitCW && !positiveMovement && positiveSlope)
+		canMoveAwayFromLimit = true;
+	else if(limitCondition == CLSMAXvMotor::LimitCCW && !positiveMovement && !positiveSlope)
+		canMoveAwayFromLimit = true;
+	else if(limitCondition == CLSMAXvMotor::LimitCCW && positiveMovement && positiveSlope)
+		canMoveAwayFromLimit = true;
+
+	if(!canMoveAwayFromLimit)
+		return AMControl::LimitFailure;
+
+	settlingInProgress_ = false;
+	stopInProgress_ = false;
+	moveInProgress_ = false;
+	// Flag that "our" move started:
+	startInProgress_ = true;
+
+	// This is our new target:
+	setpoint_ = setpoint;
+
+	// Normal move:
+	// Issue the move command, check on attemptMoveWhenWithinTolerance
+	if(!attemptMoveWhenWithinTolerance_ && inPosition())
+		emit moveSucceeded();
+	else{
+		writePV_->setValue(setpoint_);
+		// start the timer to check if our move failed to start:
+		moveStartTimer_.start(int(moveStartTimeout_*1000.0));
+	}
+
+	return NoFailure;
 }
 
 void CLSMAXvMotor::onLimitsChanged(double value){

@@ -22,13 +22,44 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMOverlayVideoWidget2.h"
 
 #ifdef AM_MOBILITY_VIDEO_ENABLED
-#include <QGraphicsVideoItem>
+#include "AMQEvents.h"
 #endif
 
-#include <QResizeEvent>
 #include <QGLWidget>
 #include <QLayout>
 #include <QDebug>
+
+#ifdef AM_MOBILITY_VIDEO_ENABLED
+AMGraphicsVideoItem::AMGraphicsVideoItem(QGraphicsItem *parent) :
+	QGraphicsVideoItem(parent)
+{
+	paintBlack_ = false;
+}
+
+AMGraphicsVideoItem::~AMGraphicsVideoItem()
+{
+
+}
+
+bool AMGraphicsVideoItem::paintBlack() const{
+	return paintBlack_;
+}
+
+void AMGraphicsVideoItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
+	if(paintBlack_){
+		painter->setPen(QPen(Qt::black));
+		painter->setBrush(QBrush(Qt::black));
+		painter->drawRect(boundingRect());
+	}
+	else
+		QGraphicsVideoItem::paint(painter, option, widget);
+}
+
+void AMGraphicsVideoItem::setPaintBlack(bool paintBlack){
+	paintBlack_ = paintBlack;
+}
+#endif
 
 AMOverlayVideoWidget2::AMOverlayVideoWidget2(QWidget *parent, bool useOpenGlViewport) :
 	QGraphicsView(parent)
@@ -36,7 +67,6 @@ AMOverlayVideoWidget2::AMOverlayVideoWidget2(QWidget *parent, bool useOpenGlView
 	setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 
 	if(useOpenGlViewport) {
-		// setViewport(new QGLWidget());
 		setViewport(new QGLWidget(QGLFormat(QGL::SampleBuffers)));
 		setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
 	}
@@ -45,7 +75,7 @@ AMOverlayVideoWidget2::AMOverlayVideoWidget2(QWidget *parent, bool useOpenGlView
 	scene()->setBackgroundBrush(QBrush(QColor(50,50,50)));
 
 	#ifdef AM_MOBILITY_VIDEO_ENABLED
-	videoItem_ = new QGraphicsVideoItem();
+	videoItem_ = new AMGraphicsVideoItem();
 	mediaPlayer_ = new QMediaPlayer();
 	mediaPlayer_->setVideoOutput(videoItem_);
 	videoItem_->setAspectRatioMode(Qt::KeepAspectRatio);
@@ -53,11 +83,6 @@ AMOverlayVideoWidget2::AMOverlayVideoWidget2(QWidget *parent, bool useOpenGlView
 	scene()->addItem(videoItem_);
 	#endif
 	resize(size());
-
-	// Widgets on top!
-//    QPushButton* test = new QPushButton("Help!");
-//    scene()->addWidget(test);
-
 }
 
 AMOverlayVideoWidget2::~AMOverlayVideoWidget2() {
@@ -69,8 +94,15 @@ AMOverlayVideoWidget2::~AMOverlayVideoWidget2() {
   */
 	#ifdef AM_MOBILITY_VIDEO_ENABLED
 	mediaPlayer_->setMedia(QMediaContent());
-	delete videoItem_;
-	delete mediaPlayer_;
+	videoItem_->deleteLater();
+	mediaPlayer_->deleteLater();
+	#endif
+}
+
+void AMOverlayVideoWidget2::setPaintBlack(bool paintBlack){
+	#ifdef AM_MOBILITY_VIDEO_ENABLED
+	videoItem_->setPaintBlack(paintBlack);
+	videoItem_->update();
 	#endif
 }
 

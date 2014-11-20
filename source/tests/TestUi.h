@@ -19,7 +19,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#include <QtTest/QtTest>
+#include "AMQtTest.h"
 
 #include "util/AMSettings.h"
 #include "dataman/AMXASScan.h"
@@ -121,7 +121,6 @@ private slots:
 		AMXASScan s2;
 		s2.setName("scan 2");
 		model->addScan(&s2);
-		//s1Loader = s2;
 		s1Loader.setTarget(&s2);
 
 		QVERIFY(s1Loader.loadFromFile(fileName, true, true, true));
@@ -137,9 +136,6 @@ private slots:
 		QTest::qWait(4000);
 
 		QVERIFY(s2.deleteDataSourceAt(s2.indexOfDataSource("tey_raw")));
-
-
-
 
 		QTest::qWait(8000);
 
@@ -186,12 +182,6 @@ private slots:
 		qDebug() << "geometry" << g->geometry();
 		qDebug() << "bounding rect" << g->boundingRect();
 		qDebug() << "shape" << g->shape();
-
-
-		//scene->setFocus(Qt::MouseFocusReason);
-		//view->setMouseTracking(true);
-
-		//g->grabMouse();
 
 		QTest::qWait(2000);
 
@@ -542,9 +532,6 @@ private slots:
 		QTest::qWait(80000);
 
 	}
-
-
-
 
 protected:
 };

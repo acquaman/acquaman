@@ -21,13 +21,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "CLSSynchronizedDwellTimeView.h"
 
+#include "AMQEvents.h"
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QGroupBox>
 #include <QMenu>
 #include <QAction>
-#include <QResizeEvent>
 
  CLSSynchronizedDwellTimeElementView::~CLSSynchronizedDwellTimeElementView(){}
 CLSSynchronizedDwellTimeElementView::CLSSynchronizedDwellTimeElementView(CLSSynchronizedDwellTimeElement *dwellTimeElement, QWidget *parent)

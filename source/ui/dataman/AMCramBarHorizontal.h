@@ -24,9 +24,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QWidget>
 #include <QScrollArea>
-#include <QResizeEvent>
 #include <QToolButton>
 #include <QHBoxLayout>
+
+#include "AMQEvents.h"
 
 class AMDeferredFunctionCall;
 
@@ -61,25 +62,7 @@ protected:
 	}
 };
 
-///// This widget can be useful as a container QWidget, which provides a resized() signal whenever it is resized.
-//class AMSizeSignallingWidget : public QWidget {
-//	Q_OBJECT
-
-//public:
-//	explicit AMSizeSignallingWidget(QWidget* parent = 0)
-//		: QWidget(parent) {}
-
-//signals:
-//	void resized(const QSize& newSize);
-
-//protected:
-//	void resizeEvent(QResizeEvent *event) {
-//		emit resized(event->size());
-//		QWidget::resizeEvent(event);
-//	}
-//};
-
-/// This class provides a container widget with a horizontal layout. The contents are placed inside a scroll area so that they can extend "off-widget" if the container is too small. Scroll buttons appear at both ends of the bar whenever the extra room is required; they disappear when not needed.
+/// This class provides a container widget with a horizontal layout. The contents are placed inside a scroll area so that they can extend "off-widget" if the container is too small. Scroll buttons appear at both ends of the bar whenever the extra room is required, they disappear when not needed.
 class AMCramBarHorizontal : public QWidget
 {
 Q_OBJECT
@@ -103,13 +86,6 @@ public slots:
 protected slots:
 	/// called when either scroll button (for the channel button scroll area) is clicked
 	void onScrollButtonClicked();
-
-//	/// called when the contents of the scroll widget (ie: the set of channel buttons) changes size
-//	void onScrollWidgetResized(const QSize&);
-
-//	/// called when the scroll area itself is resized:
-//	void onScrollAreaResized(const QSize&) { onScrollAreaResized(); }
-//	void onScrollAreaResized();
 
 	void reviewScrollButtonsRequired();
 

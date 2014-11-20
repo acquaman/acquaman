@@ -113,12 +113,18 @@ public:
 	/// Copy constructor. Takes care of making copies of the info and prerequisites. NOTE that the state() is reset to Constructed: the copy should look like a new action that hasn't been run yet.
 	AMAction3(const AMAction3& other);
 
-	/// This virtual function takes the role of a virtual copy constructor. This implementation always returns 0; therefore, all actions MUST RE-IMPLEMENT to be able to create and return a an independent copy of themselves. (This allows us to get a detailed subclass copy without knowing the type of the action.) NOTE that the returned instance should be a perfect copy except for the state() -- which will be reset to Constructed -- and any other subclass-specific state information: the copy should look like a new action that hasn't been run yet.
+	/// This virtual function takes the role of a virtual copy constructor. This implementation always returns 0 therefore, all actions MUST RE-IMPLEMENT to be able to create and return a an independent copy of themselves. (This allows us to get a detailed subclass copy without knowing the type of the action.) NOTE that the returned instance should be a perfect copy except for the state() -- which will be reset to Constructed -- and any other subclass-specific state information: the copy should look like a new action that hasn't been run yet.
 	/*! It's recommended to make use of the copy constructor when implementing this, to ensure that the base class is copied properly.*/
 	virtual AMAction3* createCopy() const { return 0; }
 
 	/// Destructor: deletes the info and prerequisites
 	virtual ~AMAction3();
+
+	/// Returns whether or not this action is currently scheduled for deletion
+	bool isScheduledForDeletion() const;
+
+	/// Returns whether or not this action has finished logging (it may have never starting logging and that's okay because the default value is true)
+	bool isLoggingFinished() const;
 
 
 	// Info API
@@ -201,7 +207,7 @@ public slots:
 	/// Start running the action. Allowed from Constructed. State will change to WaitingForPrereqs or Starting.
 	bool start();
 
-	/// Explicitly cancel the action. Allowed from anything except Cancelling, Succeeded, or Failed. The state will change Cancelling. The action could take a while to finish cancelling itself; the state will change to Cancelled when that finally happens.
+	/// Explicitly cancel the action. Allowed from anything except Cancelling, Succeeded, or Failed. The state will change Cancelling. The action could take a while to finish cancelling itself, the state will change to Cancelled when that finally happens.
 	bool cancel();
 
 	/// For actions that support pausing, request to pause the action. Allowed from WaitingForPrereqs or Running, if canPause() is true. The state will change to Paused or Pausing (respectively).
@@ -216,7 +222,11 @@ public slots:
 	/// Setting to true will cause the action to generate  messages with AMAgnositicDataAPI if it is capable of doing so.
 	void setGenerateScanActionMessage(bool generateScanActionMessages) { generateScanActionMessages_ = generateScanActionMessages; }
 
-	virtual void scheduleForDeletion();
+	/// Called to let this action delete itself at the appropriate time. If called more than once, subsequent calls will do nothing. Subclasses may be much more complicated and can use scheduleForDeletionImplementation() to do the fancy work.
+	void scheduleForDeletion();
+
+	/// Called to set the isLoggingFinishedFlag for logged actions
+	void setIsLoggingFinished(bool isLoggingFinished);
 
 public:
 	// Progress API
@@ -275,18 +285,23 @@ signals:
 	/// Emitted when the statusText() changes.
 	void statusTextChanged(const QString& statusText);
 
+	/// Emitted when the isLoggingFinished flag changes states
+	void isLoggingFinishedChanged(bool isLoggingFinished);
+	/// Emitted when the isLoggingFinished flag goes from false to true
+	void loggingIsFinished();
+
 
 protected slots:
 	/// Implementations should call this to notify of their progress.   \c numerator gives the amount done, relative to the total expected amount \c denominator. For example, \c numerator could be a percentage value, and \c denominator could be 100.  If you don't know the level of progress, call this with (0,0).
 	void setProgress(double numerator, double denominator) { progress_ = QPair<double,double>(numerator,denominator); emit progressChanged(numerator, denominator); }
 	/// Implementations should call this to notify of the expected total duration (in seconds) of the action. If you don't know how long the action will take, call this with -1.
 	void setExpectedDuration(double expectedTotalTimeInSeconds) { info_->setExpectedDuration(expectedTotalTimeInSeconds); }
-	/// Implementations should call this to describe the action's status while running; for example, "Moving motor X to 30.4mm"
+	/// Implementations should call this to describe the action's status while running, for example, "Moving motor X to 30.4mm"
 	void setStatusText(const QString& statusText) { emit statusTextChanged(statusText_ = statusText); }
 
 protected:
 
-	// The following functions are used to define the unique behaviour of the action.  We set them up in this way so that subclasses don't need to worry about (and cannot) break the state machine logic; they only need to fill in their pieces.
+	// The following functions are used to define the unique behaviour of the action.  We set them up in this way so that subclasses don't need to worry about (and cannot) break the state machine logic, they only need to fill in their pieces.
 
 	// These pure-virtual functions allow subclasses to implement their unique action behaviour.  They are called at the appropriate time by the base class, when base-class-initiated state changes happen: ->Starting, ->Cancelling, ->Pausing, ->Resuming
 	/////////////////////////
@@ -305,6 +320,9 @@ protected:
 
 	/// Implementation method for skipping.  If the action supports skipping then this should do all the necessary actions for stopping the action.  This method is a bit of an exception in that setSkipped() is not called inside this method (not an absolute, but likely).  Therefore, the part of the action that DOES do the actual work must call setSkipped().
 	virtual void skipImplementation(const QString &command) = 0;
+
+	/// Implementation method for scheduleForDeletion. Default is simply to call deleteLater(), subclasses can implement more complex behaviors.
+	virtual void scheduleForDeletionImplementation();
 
 
 
@@ -363,13 +381,18 @@ private:
 
 	/// A pointer to our associated AMActionInfo object
 	AMActionInfo3 *info_;
-	/// This variable tracks the number of seconds that the action has spent in the Paused or Pausing states; we use it to implement runningTime().
+	/// This variable tracks the number of seconds that the action has spent in the Paused or Pausing states, we use it to implement runningTime().
 	/*! \note It is only updated _after_ the action has resumed().*/
 	double secondsSpentPaused_;
 	/// This variable stores the time at which we were last paused. It is set in pause().
 	QDateTime lastPausedAt_;
 	/// Optional failure string that Actions can use to report why they failed or their current settings
 	QString failureMessage_;
+
+	/// Flag for holding whether or not logging to a database is finished. Some actions never get logged, so the default value is true
+	bool isLoggingFinished_;
+	/// Flag for holding whether or not this action has been schdeduled for deletion
+	bool isScheduledForDeletion_;
 };
 
 #endif // AMACTION3_H

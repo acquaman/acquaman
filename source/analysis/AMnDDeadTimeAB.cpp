@@ -35,7 +35,7 @@ AMnDDeadTimeAB::AMnDDeadTimeAB(const QString &outputName, QObject *parent)
 bool AMnDDeadTimeAB::areInputDataSourcesAcceptable(const QList<AMDataSource*>& dataSources) const
 {
 	if(dataSources.isEmpty())
-		return true; // always acceptable; the null input.
+		return true; // always acceptable, the null input.
 
 	// otherwise there are three data sources
 	if (dataSources.size() == 3){
@@ -58,14 +58,17 @@ void AMnDDeadTimeAB::setInputDataSourcesImplementation(const QList<AMDataSource*
 	if(spectrum_ != 0 && inputCounts_ != 0 && outputCounts_ != 0) {
 
 		disconnect(spectrum_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
+		disconnect(spectrum_->signalSource(), SIGNAL(axisInfoChanged(int)), this, SLOT(onInputSourceSizeChanged()));
 		disconnect(spectrum_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
 		disconnect(spectrum_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
 
 		disconnect(inputCounts_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
+		disconnect(inputCounts_->signalSource(), SIGNAL(axisInfoChanged(int)), this, SLOT(onInputSourceSizeChanged()));
 		disconnect(inputCounts_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
 		disconnect(inputCounts_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
 
 		disconnect(outputCounts_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
+		disconnect(outputCounts_->signalSource(), SIGNAL(axisInfoChanged(int)), this, SLOT(onInputSourceSizeChanged()));
 		disconnect(outputCounts_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
 		disconnect(outputCounts_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
 
@@ -101,10 +104,12 @@ void AMnDDeadTimeAB::setInputDataSourcesImplementation(const QList<AMDataSource*
 		connect(spectrum_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
 
 		connect(inputCounts_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
+		connect(inputCounts_->signalSource(), SIGNAL(axisInfoChanged(int)), this, SLOT(onInputSourceSizeChanged()));
 		connect(inputCounts_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
 		connect(inputCounts_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
 
 		connect(outputCounts_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
+		connect(outputCounts_->signalSource(), SIGNAL(axisInfoChanged(int)), this, SLOT(onInputSourceSizeChanged()));
 		connect(outputCounts_->signalSource(), SIGNAL(sizeChanged(int)), this, SLOT(onInputSourceSizeChanged()));
 		connect(outputCounts_->signalSource(), SIGNAL(stateChanged(int)), this, SLOT(onInputSourceStateChanged()));
 	}
@@ -317,16 +322,37 @@ AMNumber AMnDDeadTimeAB::axisValue(int axisNumber, int index) const
 		return AMNumber(AMNumber::DimensionError);
 
 #ifdef AM_ENABLE_BOUNDS_CHECKING
-	if (index < 0 || index >= spectrum_->size(rank()))
+	if (index < 0 || index >= spectrum_->size(rank()-1))
 		return AMNumber(AMNumber::OutOfBoundsError);
 #endif
 
 	return spectrum_->axisValue(axisNumber, index);
 }
 
+bool AMnDDeadTimeAB::axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const
+{
+	if(!isValid())
+		return false;
+
+	if(axisNumber < 0 || axisNumber >= rank())
+		return false;
+
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+	if (startIndex < 0 || startIndex >= spectrum_->size(axisNumber) || endIndex < 0 || endIndex >= spectrum_->size(axisNumber))
+		return false;
+#endif
+
+	return spectrum_->axisValues(axisNumber, startIndex, endIndex, outputValues);
+}
+
+
 void AMnDDeadTimeAB::onInputSourceValuesChanged(const AMnDIndex& start, const AMnDIndex& end)
 {
-	emitValuesChanged(start, end);
+	if (start.rank() == axes_.size() && end.rank() == axes_.size())
+		emitValuesChanged(start, end);
+
+	else
+		emitValuesChanged();
 }
 
 void AMnDDeadTimeAB::onInputSourceSizeChanged()

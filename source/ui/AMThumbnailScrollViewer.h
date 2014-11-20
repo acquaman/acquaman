@@ -24,6 +24,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QLabel>
 #include <QList>
+#include <QPainterPath>
+
+#include "AMQGraphics.h"
 
 #include "dataman/database/AMDbObject.h"
 #include "dataman/database/AMDatabase.h"
@@ -116,11 +119,6 @@ protected:
 	AMThumbnailScrollViewer* tv_;
 };
 
-
-#include <QGraphicsItem>
-#include <QGraphicsLayoutItem>
-#include <QPainterPath>
-
 /// This is a high-performance version of AMThumbnailScrollWidget for use inside the QGraphicsView system
 class AMThumbnailScrollGraphicsWidget : public QGraphicsItem, public QGraphicsLayoutItem {
 
@@ -141,16 +139,6 @@ public:
 	int objectId() const { return objectId_; }
 	/// Returns the database pointer, if this widget is representing an object out of the database. If we're representing a temporary AMDbThumbnail instead, this will return 0.
 	AMDatabase* database() const { return sourceDb_; }
-
-/*
-	/// This bounding rect is just big enough for the picture box, the text underneath, and some extra room to erase the shadow graphics effect we apply when hover-overed
-	virtual QRectF boundingRect() const {
-		return QRectF(0,
-					  0,
-					  width_ + shadowBlurRadius(),
-					  width_*3.0/4.0 + textHeight_ + shadowBlurRadius());
-	}
-	*/
 
 	/// This bounding rect is crude but fast. It gives generous room for blur effects and selection borders
 	virtual QRectF boundingRect() const {
@@ -230,7 +218,7 @@ protected:
 	bool sourceIsDb_;
 	/// When sourceIsDb_ = true, this is a pointer to the database that should be queried for thumbnails.
 	AMDatabase* sourceDb_;
-	/// When sourceIsDb_ = false, this is pointer to the AMDbObject, that can be asked for its thumbnailCount() and thumbnail(int index);
+	/// When sourceIsDb_ = false, this is pointer to the AMDbObject, that can be asked for its thumbnailCount() and thumbnail(int index)
 	AMDbObject* sourceObject_;
 	/// When sourceIsDb_ = true, this is the set of rows in the thumbnail table to use.
 	QList<int> ids_;
@@ -267,18 +255,7 @@ protected:
 	/// re-implemented from QGraphicsItem to change the thumbnail when the mouse is moved over top
 	void hoverLeaveEvent(QGraphicsSceneHoverEvent *event);
 
-//	/// Re-implemented from QGraphicsItem to be a drag-and-drop source containing the database, table name and id of the object that this thumbnail represents.
-//	void mousePressEvent(QGraphicsSceneMouseEvent *event);
-//	/// Re-implemented from QGraphicsItem to be a drag-and-drop source containing the database, table name and id of the object that this thumbnail represents.
-//	void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
-//	/// Re-implemented from QGraphicsItem to be a drag-and-drop source containing the database, table name and id of the object that this thumbnail represents.
-//	void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
-
-//	/// This is a helper function that creates a new QDrag object and returns a pointer to it.  The QDrag object has the MIME type "text/uri-list" with one URL: 'amd://databaseName/tableName/id', which describes the object represented by this thumbnail.  It also has image data set (MIME type "image/x-") so that the drag icon is visible.  If it's impossible to determine which object this thumbnail represents (for ex: setSource() hasn't been called yet, or was called with an invalid object), this function returns 0.
-//	QDrag* createDragObject(QWidget* dragSourceWidget);
-
 	QSizeF sizeHint(Qt::SizeHint which, const QSizeF &constraint) const;
-
 };
 
 

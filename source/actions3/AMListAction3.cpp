@@ -66,13 +66,12 @@ AMListAction3::AMListAction3(const AMListAction3& other)
 	foreach(AMAction3* action, subActions_)
 		action->setParentAction(this);
 }
+
 // Destructor: deletes the sub-actions
 AMListAction3::~AMListAction3() {
-	//qDeleteAll(subActions_);
-	//subActions_.clear();
-
-//	while(subActions_.count() > 0)
-//		delete subActions_.takeLast();
+	foreach(AMAction3* action, subActions_)
+		if(action && !action->isScheduledForDeletion())
+			action->scheduleForDeletion();
 }
 
 int AMListAction3::indexOfSubAction(const AMAction3 *action) const
@@ -164,7 +163,7 @@ void AMListAction3::setLoggingDatabase(AMDatabase *loggingDatabase){
 bool AMListAction3::deleteSubAction(int index)
 {
 	AMAction3* action = takeSubActionAt(index);
-	delete action;	// harmless if 0
+	action->deleteLater();	// harmless if 0
 
 	return (action != 0);
 }
@@ -172,7 +171,7 @@ bool AMListAction3::deleteSubAction(int index)
 bool AMListAction3::canPause() const
 {
 	if(subActionMode() == Sequential) {
-		// if we have no actions or null sub actions at 0 or currentSubAction, then cannot pause; we'll complete instantly.
+		// if we have no actions or null sub actions at 0 or currentSubAction, then cannot pause, we'll complete instantly.
 		if(subActionCount() == 0 || subActionAt(0) == 0 || (currentSubAction() == 0 && currentSubActionIndex_ != -1))
 			return false;
 		// if we just have one sub-action and it cannot pause, then we can't pause.
@@ -259,7 +258,7 @@ void AMListAction3::resumeImplementation()
 {
 	// If this is called by the base class, we know that we're now in Resuming and used to be in Pause.
 	if(subActionMode() == Sequential) {
-		// The currentSubAction() will either be Paused (if it supported pausing when we were paused), or Constructed (if the last action didn't support pausing and completed; now we're at the beginning of the next one).
+		// The currentSubAction() will either be Paused (if it supported pausing when we were paused), or Constructed (if the last action didn't support pausing and completed, now we're at the beginning of the next one).
 		if(currentSubAction()) {
 			if(currentSubAction()->state() == Paused)
 				currentSubAction()->resume();
@@ -323,12 +322,16 @@ void AMListAction3::internalOnSubActionStateChanged(int newState, int oldState)
 	Q_UNUSED(oldState)
 
 	if(newState == AMListAction3::Starting){
+		AMAction3 *generalAction = qobject_cast<AMAction3*>(QObject::sender());
 		AMListAction3* listAction = qobject_cast<AMListAction3*>(QObject::sender());
+
+		if(generalAction && loggingDatabase_)
+			generalAction->setIsLoggingFinished(false);
+
 		if(listAction && loggingDatabase_){
 			int parentLogId = logActionId();
 			AMActionHistoryModel3 *historyModel = AMAppControllerSupport::actionHistoryModelFromDatabaseName(loggingDatabase_->connectionName());
 
-			//if(!AMActionLog3::logUncompletedAction(listAction, loggingDatabase_, parentLogId)) {
 			if(!historyModel || !historyModel->logUncompletedAction(listAction, loggingDatabase_, parentLogId)){
 				//NEM April 5th, 2012
 			}
@@ -339,18 +342,34 @@ void AMListAction3::internalOnSubActionStateChanged(int newState, int oldState)
 		AMListAction3* listAction = qobject_cast<AMListAction3*>(QObject::sender());
 		if(listAction && loggingDatabase_){
 			AMActionHistoryModel3 *historyModel = AMAppControllerSupport::actionHistoryModelFromDatabaseName(loggingDatabase_->connectionName());
-			//if(!AMActionLog3::updateCompletedAction(listAction, loggingDatabase_)) {
-			if(!historyModel || !historyModel->updateCompletedAction(listAction, loggingDatabase_)){
-				//NEM April 5th, 2012
+
+			if(!historyModel){
+				//NEM November 12th, 2014
+			}
+			else{
+				bool logSuccessful = historyModel->updateCompletedAction(listAction, loggingDatabase_);
+				if(!logSuccessful){
+					//NEM November 12th, 2014
+				}
+				else
+					generalAction->setIsLoggingFinished(true);
 			}
 		}
 		else{
 			if(internalShouldLogSubAction(generalAction) && loggingDatabase_){
 				int parentLogId = logActionId();
 				AMActionHistoryModel3 *historyModel = AMAppControllerSupport::actionHistoryModelFromDatabaseName(loggingDatabase()->connectionName());
-				//AMActionLog3::logCompletedAction(generalAction, loggingDatabase_, parentLogId);
-				if(historyModel)
-					historyModel->logCompletedAction(generalAction, loggingDatabase_, parentLogId);
+				if(!historyModel){
+					//NEM November 12th, 2014
+				}
+				else{
+					bool logSuccessful = historyModel->logCompletedAction(generalAction, loggingDatabase_, parentLogId);
+					if(!logSuccessful){
+						//NEM November 12th, 2014
+					}
+					else
+						generalAction->setIsLoggingFinished(true);
+				}
 			}
 		}
 	}

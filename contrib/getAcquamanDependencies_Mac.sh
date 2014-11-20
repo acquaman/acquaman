@@ -19,7 +19,7 @@ cd ../
 # 3. EPICS:
 echo "Downloading and building EPICS"
 
-curl http://www.aps.anl.gov/epics/download/base/baseR3.14.12.tar.gz > epics.tar.gz
+curl http://www.aps.anl.gov/epics/download/base/baseR3.14.12.3.tar.gz > epics.tar.gz
 tar -zxvf epics.tar.gz
 cd base-3.14.12
 export EPICS_HOST_ARCH=darwin-x86
@@ -29,6 +29,7 @@ export EPICS_HOST_ARCH=darwin-x86
 #(note: to get iOs cross-compile libs, use CONFIG_SITE.darwin-x86.Common)
 # Also, if you don't have readline available (in 64bit dev), comment out COMMANDLINE_LIBRARY=READLINE in configure/os/CONFIG.darwinCommon.darwinCommon
 
+# NOTE! This patch is no longer necessary if you take baseR3.14.12.3.tar.gz!!!!!
 # On Mac OS X Lion, you need to apply Jeff Hill's patch to remove some variable argument + multiple inheritance problems that don't work with the compiler on OS X 10.7
 curl https://launchpadlibrarian.net/77048945/816678.patch > epicsMacOSXLionPatch.patch
 patch -p0 < epicsMacOSXLionPatch.patch

@@ -99,7 +99,7 @@ bool SGM2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 		line = fs.readLine();
 	if(fs.atEnd()) {
 		errorMonitor->exteriorReport(AMErrorReport(0, AMErrorReport::Serious, SGM2011XASFILELOADERPLUGIN_BAD_FORMAT_NO_EVENT_HEADER, "SGM2011XASFileLoader parse error while loading scan data from file. Missing #(1) event line."));
-		return false;	// bad format; missing the #1 event header
+		return false;	// bad format. Missing the #1 event header
 	}
 	colNames1 = line.split(QChar(' '));
 	// the first column is not a column name, it's just the event description header ("#(1)")
@@ -107,7 +107,7 @@ bool SGM2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 	for(int i=0; i<colNames1.count(); i++){
 		if(!pv2columnName(colNames1[i])){
 			errorMonitor->exteriorReport(AMErrorReport(0, AMErrorReport::Serious, SGM2011XASFILELOADERPLUGIN_BAD_FORMAT_NO_PV_CONVERSION, QString("SGM2011XASFileLoader parse error while loading scan data from file. Unknown PV in header at %1 .").arg(i)));
-			return false;	// bad format; no conversion column for this PV name
+			return false;	// bad format. No conversion column for this PV name
 		}
 	}
 
@@ -116,7 +116,7 @@ bool SGM2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 	int eVIndex = colNames1.indexOf("eV");
 	if(eVIndex < 0) {
 		errorMonitor->exteriorReport(AMErrorReport(0, AMErrorReport::Serious, SGM2011XASFILELOADERPLUGIN_BAD_FORMAT_NO_ENERGY_COLUMN, "SGM2011XASFileLoader parse error while loading scan data from file. I couldn't find the energy (eV) column."));
-		return false;	// bad format; no primary column
+		return false;	// bad format. No primary column
 
 	}
 
@@ -147,7 +147,7 @@ bool SGM2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 				spectraFile = afp;
 		if(spectraFile == ""){
 			errorMonitor->exteriorReport(AMErrorReport(0, AMErrorReport::Serious, SGM2011XASFILELOADERPLUGIN_MISSING_SPECTRA_FILE, "SGM2011XASFileLoader parse error while loading scan data from file. I couldn't find the the spectra.dat file when I need one."));
-			return false;	// bad format; no spectra.dat file in the additional files paths
+			return false;	// bad format. No spectra.dat file in the additional files paths
 		}
 		spectraFileInfo.setFile(spectraFile);
 		if(spectraFileInfo.isRelative())
@@ -239,7 +239,6 @@ bool SGM2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 	}
 	//Check for a spectraFile, load it if we can
 	if(spectraFile != ""){
-		//QFile sf(spectraFile);
 		QFile sf(spectraFileInfo.filePath());
 		if(!sf.open(QIODevice::ReadOnly)) {
 			errorMonitor->exteriorReport(AMErrorReport(0, AMErrorReport::Serious, SGM2011XASFILELOADERPLUGIN_CANNOT_OPEN_SPECTRA_FILE, "SGM2011XASFileLoader parse error while loading scan data from file. Missing spectra.dat file."));
@@ -365,8 +364,6 @@ bool SGM2011XASFileLoaderPlugin::load(AMScan *scan, const QString &userDataFolde
 		}
 	}
 
-
-	/// scan->onDataChanged(); \todo Is this still used? What does it mean?
 	return true;
 }
 

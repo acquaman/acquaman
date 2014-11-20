@@ -39,7 +39,7 @@ AM1DRunningAverageFilterAB::AM1DRunningAverageFilterAB(int filterSize, const QSt
 
 bool AM1DRunningAverageFilterAB::areInputDataSourcesAcceptable(const QList<AMDataSource*>& dataSources) const {
 	if(dataSources.isEmpty())
-		return true;	// always acceptable; the null input.
+		return true;	// always acceptable, the null input.
 
 	// otherwise we need a single input source, with a rank of 1.
 	if(dataSources.count() == 1 && dataSources.at(0)->rank() == 1)
@@ -251,6 +251,20 @@ AMNumber AM1DRunningAverageFilterAB::axisValue(int axisNumber, int index) const{
 
 	return inputSource_->axisValue(0, index);
 
+}
+
+bool AM1DRunningAverageFilterAB::axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const
+{
+	if (!isValid())
+		return false;
+
+	if (axisNumber != 0)
+		return false;
+
+	if (startIndex >= axes_.at(axisNumber).size || endIndex >= axes_.at(axisNumber).size)
+		return false;
+
+	return inputSource_->axisValues(axisNumber, startIndex, endIndex, outputValues);
 }
 
 /// Connected to be called when the values of the input data source change

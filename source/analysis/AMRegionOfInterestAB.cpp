@@ -35,7 +35,7 @@ AMRegionOfInterestAB::~AMRegionOfInterestAB(){}
 bool AMRegionOfInterestAB::areInputDataSourcesAcceptable(const QList<AMDataSource*>& dataSources) const
 {
 	if(dataSources.isEmpty())
-		return true; // always acceptable; the null input.
+		return true; // always acceptable, the null input.
 
 	// otherwise there is one data source
 	if (dataSources.size() == 1)
@@ -255,7 +255,7 @@ AMNumber AMRegionOfInterestAB::axisValue(int axisNumber, int index) const
 	if(!isValid())
 		return AMNumber(AMNumber::InvalidError);
 
-	if(axisNumber < 0 && axisNumber >= rank())
+	if(axisNumber < 0 || axisNumber >= rank())
 		return AMNumber(AMNumber::DimensionError);
 
 #ifdef AM_ENABLE_BOUNDS_CHECKING
@@ -267,6 +267,25 @@ AMNumber AMRegionOfInterestAB::axisValue(int axisNumber, int index) const
 		return AMNumber(AMNumber::Null);
 
 	return spectrum_->axisValue(axisNumber, index);
+}
+
+bool AMRegionOfInterestAB::axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const
+{
+	if (!isValid())
+		return false;
+
+	if (axisNumber < 0 || axisNumber >= rank())
+		return false;
+
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+	if (startIndex < 0 || startIndex >= spectrum_->size(rank()) || endIndex < 0 || endIndex >= spectrum_->size(rank()))
+		return false;
+#endif
+
+	if (rank() == 0)
+		return false;
+
+	return spectrum_->axisValues(axisNumber, startIndex, endIndex, outputValues);
 }
 
 void AMRegionOfInterestAB::onInputSourceValuesChanged(const AMnDIndex& start, const AMnDIndex& end)

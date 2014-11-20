@@ -182,7 +182,6 @@ bool CLSPGTDetectorV2::clear(){
 }
 
 bool CLSPGTDetectorV2::initializeImplementation(){
-	//setInitializing();
 	setInitialized();
 	return true;
 }

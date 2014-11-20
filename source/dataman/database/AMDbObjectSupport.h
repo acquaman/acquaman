@@ -89,7 +89,7 @@ public:
 
 	QString className;	///< the class name (C++ type name) of these objects
 	QString tableName;	///< table used to store these objects
-	bool sharedTable;	///< true if this class does not create a table of its own, but shares another class's table. (Note: this is only true for secondary classes that share an existing table; NOT for the first/original class which makes its own.)
+	bool sharedTable;	///< true if this class does not create a table of its own, but shares another class's table. (Note: this is only true for secondary classes that share an existing table. NOT for the first/original class which makes its own.)
 	const QMetaObject* metaObject;	///< QMetaObject pointer with the complete class meta-information. The remaining values can be determined by parsing the metaObject's classInfo parameters, but are stored here for efficiency.
 
 	QString classDescription;	///< human-readable description for this class. Defined with Q_CLASSINFO("AMDbObject_Attributes", "description=Your Description")
@@ -164,7 +164,7 @@ public:
 
 	// Singleton class accessor:
 	/////////////////////////////////
-	/// AMDbObjectSupport is a singleton class; access the only instance of it using AMDbObjectSupport::s().
+	/// AMDbObjectSupport is a singleton class. Access the only instance of it using AMDbObjectSupport::s().
 	static AMDbObjectSupport* s();
 
 	// Public Functions: Registration
@@ -173,10 +173,10 @@ public:
 	/// register a new database with the object-database system. This must be done before trying to save or load any AMDbObject database objects into it/from it.
 	bool registerDatabase(AMDatabase* db);
 
-	/// register a new class with the database system. This is all you need to do enable an AMDbObect subclass. Returns false if the initialization failed; true if it was completed successfully, or if the object is already registered.
+	/// register a new class with the database system. This is all you need to do enable an AMDbObect subclass. Returns false if the initialization failed. True if it was completed successfully, or if the object is already registered.
 	template <class T>
 	bool registerClass() {	return registerClass(&(T::staticMetaObject)); }
-	/// register a new class with the database system. This is all you need to do enable an AMDbObect subclass. Returns false if the initialization failed; true if it was completed successfully, or if the object is already registered.
+	/// register a new class with the database system. This is all you need to do enable an AMDbObect subclass. Returns false if the initialization failed. True if it was completed successfully, or if the object is already registered.
 	bool registerClass(const QMetaObject* mo);
 
 

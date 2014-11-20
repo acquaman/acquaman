@@ -37,25 +37,25 @@ public:
  	virtual ~AMOrderedSetSignalSource();
 	AMOrderedSetSignalSource();
 
-	/// Do not call this function; it should be considered only available to AMOrderedSet.
+	/// Do not call this function, it should be considered only available to AMOrderedSet.
 	void emitItemAboutToBeAdded(int atIndex) { emit itemAboutToBeAdded(atIndex); }
-	/// Do not call this function; it should be considered only available to AMOrderedSet.
+	/// Do not call this function, it should be considered only available to AMOrderedSet.
 	void emitItemAdded(int atIndex) { emit itemAdded(atIndex); }
-	/// Do not call this function; it should be considered only available to AMOrderedSet.
+	/// Do not call this function, it should be considered only available to AMOrderedSet.
 	void emitItemAboutToBeRemoved(int atIndex) { emit itemAboutToBeRemoved(atIndex); }
-	/// Do not call this function; it should be considered only available to AMOrderedSet.
+	/// Do not call this function, it should be considered only available to AMOrderedSet.
 	void emitItemRemoved(int atIndex) { emit itemRemoved(atIndex); }
-	/// Do not call this function; it should be considered only available to AMOrderedSet. This immediately emits the itemChanged() signal, after an AMOrderedSet::replace()
+	/// Do not call this function, it should be considered only available to AMOrderedSet. This immediately emits the itemChanged() signal, after an AMOrderedSet::replace()
 	void emitItemChanged(int index) { emit itemChanged(index); }
 
-	/// Do not call this function; it should be considered only available to AMOrderedSet. It schedules the itemChanged() signal to be emitted when control returns to the event loop. (Useful to call after the non-const AMOrderedSet::operator[] is used to access and possibly modify an item.)
+	/// Do not call this function, it should be considered only available to AMOrderedSet. It schedules the itemChanged() signal to be emitted when control returns to the event loop. (Useful to call after the non-const AMOrderedSet::operator[] is used to access and possibly modify an item.)
 	void scheduleItemChanged(int index);
 
 	/// Returns true if a delayed itemChanged() signal is pending to be issued.
 	bool delayedItemChangedScheduled() const { return delayedItemChangedScheduled_; }
 
 signals:
-	/// Emitted just before a new item is added; the new item will end up at \c index, but it's not there yet.
+	/// Emitted just before a new item is added, the new item will end up at \c index, but it's not there yet.
 	void itemAboutToBeAdded(int index);
 	/// Emitted after a new item is added at \c index
 	void itemAdded(int index);
@@ -66,9 +66,6 @@ signals:
 	/// Emitted after the item at \c index is replaced, or (possibly) changed in some way. This signal is emitted immediately after AMOrderedSet::replace() finishes. It's also emitted once when control goes back to the event loop after the non-const version of AMOrderedSet::operator[]() is used one or more times to access (and possibly modify) an item.  This merges multiple non-const accesses into one itemChanged() signal, but has the drawback that this signal will not be emitted when using AMOrderedSet outside of an event loop.
 	void itemChanged(int index);
 
-
-
-
 protected:
 	/// true if a delayed itemChanged() notification is scheduled.
 	bool delayedItemChangedScheduled_;
@@ -78,7 +75,6 @@ protected:
 	/// Receive delayed AMOrderedSetSignalSourceItemChangedEvent events
 	bool event(QEvent* event);
 	void onDelayedItemChanged();
-
 };
 
 #endif // AMORDEREDSETSIGNALSOURCE_H

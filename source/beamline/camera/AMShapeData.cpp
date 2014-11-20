@@ -62,6 +62,8 @@ AMShapeData::AMShapeData(QPolygonF shape, QString name, QString otherDataFieldOn
 AMShapeData::~AMShapeData()
 {
 	coordinate_.clear();
+
+	delete shape_;
 }
 
 QPolygonF* AMShapeData::shape() const
@@ -238,6 +240,7 @@ void AMShapeData::setVisible(bool visible)
 	}
 }
 
+#include <QDebug>
 void AMShapeData::copy(const AMShapeData *other)
 {
 	if(!(other))
@@ -251,11 +254,11 @@ void AMShapeData::copy(const AMShapeData *other)
 	setYAxisRotation(other->yAxisRotation());
 	setVisible(other->visible());
 	setShape(*other->shape());
+
 	QVector<QVector3D> nullShape;
-	for(int i = 0; i < other->count(); i++)
-	{
-		nullShape.append(QVector3D(0,0,0));
-	}
+	if(other->count() > 0)
+		nullShape = QVector<QVector3D>(other->count(), QVector3D(0,0,0));
+
 	setCoordinateShape(nullShape);
 	for(int i = 0; i < other->count(); i++)
 	{
@@ -320,7 +323,7 @@ bool AMShapeData::backwards() const
 	QVector3D rayTwo = points[2] - points[1];
 	QVector3D normal = QVector3D::normal(rayOne,rayTwo);
 
-	// normal should be either positive or negative 1;
+	// normal should be either positive or negative 1
 	return(normal.z() < 0);
 }
 

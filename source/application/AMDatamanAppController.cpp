@@ -33,17 +33,19 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/export/AMExportController.h"
 #include "dataman/export/AMExporterGeneralAscii.h"
 #include "dataman/export/AMExporterAthena.h"
+#include "dataman/export/AMSMAKExporter.h"
+#include "dataman/export/AMExporter2DAscii.h"
 
 #include "ui/AMMainWindow.h"
-#include "ui/AMBottomBar.h"
 #include "ui/AMDatamanAppBottomPanel.h"
-#include "ui/dataman/AMDataViewWithActionButtons.h"
+#include "ui/dataman/AMScanDataView.h"
 #include "ui/dataman/AMRunExperimentInsert.h"
 #include "ui/dataman/AMGenericScanEditor.h"
 #include "ui/util/AMSettingsView.h"
 #include "ui/util/AMGithubIssueSubmissionView.h"
 #include "ui/AMDatamanStartupSplashScreen.h"
 #include "ui/util/AMAboutDialog.h"
+#include "ui/AMScanEditorsCloseView.h"
 
 #include "application/AMPluginsManager.h"
 
@@ -84,6 +86,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "analysis/AM1DSummingAB.h"
 #include "analysis/AMDeadTimeAB.h"
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
+#include "dataman/export/AMExporterOptionSMAK.h"
 #include "dataman/AM2DScan.h"
 #include "dataman/AM3DScan.h"
 #include "analysis/AM1DIntegralAB.h"
@@ -116,8 +119,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMDbUpgrade1Pt5.h"
 
 #include "dataman/database/AMDbObjectSupport.h"
+#include "dataman/database/AMDatabase.h"
+
 #include "ui/dataman/AMDbObjectGeneralView.h"
 #include "ui/dataman/AMDbObjectGeneralViewSupport.h"
+#include "ui/util/AMDirectorySynchronizerDialog.h"
+#include "ui/util/AMMessageBoxWTimeout.h"
 
 #include "beamline/camera/AMCameraConfiguration.h"
 #include "beamline/camera/AMRotationalOffset.h"
@@ -125,9 +132,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMSample.h"
 #include "dataman/AMSamplePlate.h"
 #include "beamline/camera/AMSampleCameraBrowser.h"
-
-#include "ui/util/AMDirectorySynchronizerDialog.h"
-#include "ui/util/AMMessageBoxWTimeout.h"
 
 AMDatamanAppController::AMDatamanAppController(QObject *parent) :
 	QObject(parent)
@@ -143,10 +147,6 @@ AMDatamanAppController::AMDatamanAppController(QObject *parent) :
 	isBadDatabaseDirectory_ = false;
 	finishedSender_ = 0;
 	resetFinishedSignal(this, SIGNAL(datamanStartupFinished()));
-
-	// shutdown is called automatically from the destructor if necessary, but Qt recommends that clean-up be handled in the aboutToQuit() signal. MS Windows doesn't always let the main function finish during logouts.
-	// HOWEVER, we're not doing this for now, since this change could cause some existing applications to crash on shutdown, because they're not ready for events to be delivered during their shutdown process.
-	// connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(shutdown()));
 
 	// Prepend the AM upgrade 1.1 to the list for the user database
 	AMDbUpgrade *am1Pt1UserDb = new AMDbUpgrade1Pt1("user", this);
@@ -191,7 +191,9 @@ AMDatamanAppController::AMDatamanAppController(QObject *parent) :
 
 bool AMDatamanAppController::startup() {
 
-	//AMErrorMon::enableDebugNotifications(true);
+	/*
+	AMErrorMon::enableDebugNotifications(true);
+	*/
 
 	AM::registerTypes();
 
@@ -238,6 +240,9 @@ bool AMDatamanAppController::startup() {
 		if(!startupLoadFromExistingDatabase())
 			return AMErrorMon::errorAndReturn(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_REVIEWING_EXISTING_USER_DATABASE, "Problem with Acquaman startup: reviewing existing database.");
 	}
+
+	if(!startupCheckExportDirectory())
+		return AMErrorMon::errorAndReturn(this, AMDATAMANAPPCONTROLLER_CANT_CREATE_EXPORT_FOLDER, "Problem with Acquaman startup: checking export data directory.");
 
 	if(!startupRegisterExporters())
 		return AMErrorMon::errorAndReturn(this, AMDATAMANAPPCONTROLLER_STARTUP_ERROR_REGISTERING_EXPORTERS, "Problem with Acquaman startup: registering exporters.");
@@ -517,6 +522,23 @@ bool AMDatamanAppController::startupBackupDataDirectory()
 	return true;
 }
 
+bool AMDatamanAppController::startupCheckExportDirectory()
+{
+	QDir exportDir;
+	if(!AMUserSettings::remoteDataFolder.isEmpty())
+		exportDir.setCurrent(AMUserSettings::remoteDataFolder);
+	else
+		exportDir.setCurrent(AMUserSettings::userDataFolder);
+	exportDir.cdUp();
+
+	if(!exportDir.entryList(QDir::AllDirs).contains("exportData")){
+		if(!exportDir.mkdir("exportData"))
+			return false;
+		AMUser::user()->setLastExportDestination(QString("%1/exportData").arg(exportDir.absolutePath()));
+	}
+	return true;
+}
+
 bool AMDatamanAppController::onFirstTimeDatabaseUpgrade(QList<AMDbUpgrade *> upgrades)
 {
 	// Loop over the database upgrades and make sure the upgrade table reflects the current starting state
@@ -669,10 +691,6 @@ bool AMDatamanAppController::onEveryTimeDatabaseUpgrade(QList<AMDbUpgrade *> upg
 	return true;
 }
 
-AMDataViewWithActionButtons* AMDatamanAppController::createDataViewWithActionButtons(){
-	return new AMDataViewWithActionButtons();
-}
-
 bool AMDatamanAppController::startupRegisterDatabases()
 {
 	AMErrorMon::information(this, AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES, "Acquaman Startup: Registering Databases");
@@ -745,6 +763,7 @@ bool AMDatamanAppController::startupRegisterDatabases()
 	success &= AMDbObjectSupport::s()->registerClass<AMRegionOfInterestAB>();
 
 	success &= AMDbObjectSupport::s()->registerClass<AMExporterOptionGeneralAscii>();
+	success &= AMDbObjectSupport::s()->registerClass<AMExporterOptionSMAK>();
 
 	success &= AMDbObjectSupport::s()->registerClass<AMUser>();
 
@@ -809,6 +828,8 @@ bool AMDatamanAppController::startupRegisterExporters()
 	// Install exporters
 	AMExportController::registerExporter<AMExporterGeneralAscii>();
 	AMExportController::registerExporter<AMExporterAthena>();
+	AMExportController::registerExporter<AMSMAKExporter>();
+	AMExportController::registerExporter<AMExporter2DAscii>();
 
 	return true;
 }
@@ -820,10 +841,13 @@ bool AMDatamanAppController::startupCreateUserInterface()
 	settingsMasterView_ = 0;
 	issueSubmissionView_ = 0;
 
+	scanEditorCloseView_ = 0;
+
 	//Create the main tab window:
 	mw_ = new AMMainWindow();
 	mw_->setWindowTitle("Acquaman");
 	connect(mw_, SIGNAL(itemCloseButtonClicked(QModelIndex)), this, SLOT(onWindowPaneCloseButtonClicked(QModelIndex)));
+	connect(mw_, SIGNAL(itemRightClicked(QModelIndex,QPoint)), this, SLOT(onWindowPaneRightClicked(QModelIndex,QPoint)));
 	mw_->installEventFilter(this);
 
 	addBottomPanel();
@@ -838,8 +862,7 @@ bool AMDatamanAppController::startupCreateUserInterface()
 
 	// Make a dataview widget and add it under two links/headings: "Runs" and "Experiments". See AMMainWindowModel for more information.
 	////////////////////////////////////
-	dataView_ = createDataViewWithActionButtons();
-	dataView_->buildView();
+	dataView_ = new AMScanDataView(AMDatabase::database("user"));
 	dataView_->setWindowTitle("Data");
 
 	QStandardItem* dataViewItem = new QStandardItem();
@@ -934,6 +957,10 @@ bool AMDatamanAppController::startupInstallActions()
 	amShowAboutPageAction->setStatusTip("About Acquaman");
 	connect(amShowAboutPageAction, SIGNAL(triggered()), this, SLOT(onShowAboutPage()));
 
+	QAction* amCloseScanEditorsAction = new QAction("Close Scan Editors", mw_);
+	amCloseScanEditorsAction->setStatusTip("Close One or More Open Scan Editors");
+	connect(amCloseScanEditorsAction, SIGNAL(triggered()), this, SLOT(openScanEditorsCloseView()));
+
 	exportGraphicsAction_ = new QAction("Export Plot...", mw_);
 	exportGraphicsAction_->setStatusTip("Export the current plot to a PDF file.");
 	connect(exportGraphicsAction_, SIGNAL(triggered()), this, SLOT(onActionExportGraphics()));
@@ -965,6 +992,9 @@ bool AMDatamanAppController::startupInstallActions()
 
 	fileMenu_->addAction(forceQuitAction);
 
+	viewMenu_ = menuBar_->addMenu("View");
+	viewMenu_->addAction(amCloseScanEditorsAction);
+
 	helpMenu_ = menuBar_->addMenu("Help");
 	helpMenu_->addAction(amIssueSubmissionAction);
 	helpMenu_->addAction(amShowAboutPageAction);
@@ -978,7 +1008,7 @@ void AMDatamanAppController::shutdown() {
 	isShuttingDown_ = true;
 
 	// destroy the main window. This will delete everything else within it.
-	delete mw_;
+	mw_->deleteLater();
 
 	// Close down connection to the user Database
 	AMDatabase::deleteDatabase("user");
@@ -1034,18 +1064,15 @@ void AMDatamanAppController::onMainWindowAliasItemActivated(QWidget *target, con
 
 	if(target == dataView_) {
 		if(key == "Runs")
-			dataView_->dataView()->showRun(value.toInt());
+			dataView_->showRun(value.toInt());
 		if(key == "Experiments")
-			dataView_->dataView()->showExperiment(value.toInt());
+			dataView_->showExperiment(value.toInt());
 	}
 }
 
 void AMDatamanAppController::onNewExperimentAdded(const QModelIndex &index) {
 	mw_->sidebar()->expand(index.parent()); //Do this to show people where it ended up...
-	//mw_->sidebar()->setCurrentIndex(index);
 }
-
-
 
 #include "dataman/AMExperiment.h"
 void AMDatamanAppController::onAddButtonClicked() {
@@ -1115,7 +1142,7 @@ void AMDatamanAppController::launchScanConfigurationFromDb(const QUrl &url)
 
 	AMScanConfigurationView *view = config->createView();
 	if(!view) {
-		delete config;
+		config->deleteLater();
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -401, "Unable to create view from the scan configuration loaded from the database.  Contact Acquaman developers."));
 		return;
 	}
@@ -1176,7 +1203,7 @@ void AMDatamanAppController::onWindowPaneCloseButtonClicked(const QModelIndex& i
 	}
 
 	// is this an experiment asking to be deleted?
-	/// \todo bad code; improve this with better architecture and functionality in expItem.  Don't like trusting dynamic_cast; there's no guarantee that someone didn't put a non-AMExperimentModelItem into the model under experimentsParentItem_.
+	/// \todo bad code, improve this with better architecture and functionality in expItem.  Don't like trusting dynamic_cast, there's no guarantee that someone didn't put a non-AMExperimentModelItem into the model under experimentsParentItem_.
 	else if(mw_->windowPaneModel()->itemFromIndex(index.parent()) == experimentsParentItem_) {
 
 		AMExperimentModelItem* expItem = dynamic_cast<AMExperimentModelItem*>(mw_->windowPaneModel()->itemFromIndex(index));
@@ -1199,12 +1226,30 @@ void AMDatamanAppController::onWindowPaneCloseButtonClicked(const QModelIndex& i
 	}
 }
 
+void AMDatamanAppController::onWindowPaneRightClicked(const QModelIndex &index, const QPoint &globalPosition){
+	if(mw_->windowPaneModel()->itemFromIndex(index.parent()) == scanEditorsParentItem_) {
+		AMGenericScanEditor *editor = qobject_cast<AMGenericScanEditor*>(index.data(AM::WidgetRole).value<QWidget*>());
+		if(!editor)
+			return;
+
+		QMenu *menu = new QMenu();
+		menu->addAction("Close Options...");
+		QAction *temp = menu->exec(globalPosition);
+
+		if (temp){
+			openScanEditorsCloseView(editor);
+			temp->deleteLater();
+		}
+		menu->deleteLater();
+	}
+}
+
 void AMDatamanAppController::onIssueSubmissionViewFinished(){
 	if(!issueSubmissionView_)
 		return;
 
 	disconnect(issueSubmissionView_, SIGNAL(finished()), this, SLOT(onIssueSubmissionViewFinished()));
-	delete issueSubmissionView_;
+	issueSubmissionView_->deleteLater();
 	issueSubmissionView_ = 0;
 }
 
@@ -1219,6 +1264,47 @@ void AMDatamanAppController::onShowAboutPage()
 	aboutPage->exec();
 
 	aboutPage->deleteLater();
+}
+
+void AMDatamanAppController::openScanEditorsCloseView(AMGenericScanEditor *editor)
+{
+	if(scanEditorCloseView_)
+		scanEditorCloseView_->close();
+
+	if(scanEditorsParentItem_->rowCount() != 0){
+		scanEditorCloseView_ = new AMScanEditorsCloseView(scanEditorsParentItem_, this, editor);
+		scanEditorCloseView_->show();
+		connect(scanEditorCloseView_, SIGNAL(closeRequested(QList<AMGenericScanEditor*>)), this, SLOT(onScanEditorsCloseViewCloseRequested(QList<AMGenericScanEditor*>)));
+		connect(scanEditorCloseView_, SIGNAL(closed()), this, SLOT(onScanEditorsCloseViewClosed()));
+	}
+	else
+		QMessageBox::information(0, "No Scan Editors To Open", "There are no scan editors open at this time", QMessageBox::Ok);
+}
+
+void AMDatamanAppController::onScanEditorsCloseViewCloseRequested(QList<AMGenericScanEditor *> editorsToClose)
+{
+
+	AMGenericScanEditor * scanEditor;
+	QList<AMGenericScanEditor*> availableEditors_;
+	for(int x = 0, size = scanEditorsParentItem_->rowCount(); x < size; x++){
+		scanEditor = qobject_cast<AMGenericScanEditor*>(scanEditorsParentItem_->child(x, 0)->data(AM::WidgetRole).value<QWidget*>());
+		if(scanEditor)
+			availableEditors_.append(scanEditor);
+	}
+
+	for(int x = 0, size = editorsToClose.count(); x < size; x++){
+		if(availableEditors_.contains(editorsToClose.at(x)))
+			closeScanEditor(editorsToClose.at(x));
+	}
+}
+
+void AMDatamanAppController::onScanEditorsCloseViewClosed()
+{
+	disconnect(scanEditorCloseView_, SIGNAL(closeRequested(QList<AMGenericScanEditor*>)), this, SLOT(onScanEditorsCloseViewCloseRequested(QList<AMGenericScanEditor*>)));
+	disconnect(scanEditorCloseView_, SIGNAL(closed()), this, SLOT(onScanEditorsCloseViewClosed()));
+
+	scanEditorCloseView_->deleteLater();
+	scanEditorCloseView_ = 0;
 }
 
 #include "dataman/export/AMExportController.h"
@@ -1305,13 +1391,6 @@ AMGenericScanEditor *AMDatamanAppController::createNewScanEditor(bool use2DScanV
 
 bool AMDatamanAppController::canCloseScanEditors() const
 {
-	//	bool canCloseEditors = true;
-	//	for(int i=0, count = scanEditorCount(); i<count; i++) {
-	//		AMGenericScanEditor* editor = scanEditorAt(i);
-	//		if(editor) canCloseEditors &= editor->canCloseEditor();
-	//	}
-	//	return canCloseEditors;
-
 	// Do we need to check all, or is it okay to stop as soon as we find one that doesn't allow closing?
 	for(int i=0, count = scanEditorCount(); i<count; i++) {
 		AMGenericScanEditor* editor = scanEditorAt(i);
@@ -1331,16 +1410,6 @@ bool AMDatamanAppController::defaultUseLocalStorage() const{
 void AMDatamanAppController::setDefaultUseLocalStorage(bool defaultUseLocalStorage){
 	defaultUseLocalStorage_ = defaultUseLocalStorage;
 }
-
-//void AMDatamanAppController::processEventsFor(int ms)
-//{
-//	QTime t;
-//	t.start();
-//	while(t.elapsed() <ms) {
-//		qApp->sendPostedEvents();
-//		qApp->processEvents();
-//	}
-//}
 
 bool AMDatamanAppController::eventFilter(QObject* o, QEvent* e)
 {
@@ -1393,7 +1462,7 @@ AMGenericScanEditor * AMDatamanAppController::isScanOpenForEditing(int id, AMDat
 
 bool AMDatamanAppController::dropScanURLs(const QList<QUrl> &urls, AMGenericScanEditor *editor, bool openInIndividualEditors)
 {
-	if(	!urls.count() )
+	if( !urls.count() )
 		return false;
 
 	bool accepted = false;
@@ -1561,7 +1630,7 @@ AMScan *AMDatamanAppController::dropScanURL(const QUrl &url)
 	// Is it a scan?
 	AMScan* scan = qobject_cast<AMScan*>( dbo );
 	if(!scan) {
-		delete dbo;
+		dbo->deleteLater();
 		return 0;
 	}
 
@@ -1572,7 +1641,7 @@ AMScan *AMDatamanAppController::dropScanURL(const QUrl &url)
 		scan->storeToDb(AMDatabase::database("user"));
 
 		/// \todo DH: I'm sure I should just make a function to do things like this, but for now I'm just duplicating code because it's easy.
-		delete dbo;
+		dbo->deleteLater();
 
 		dbo = AMDbObjectSupport::s()->createAndLoadObjectAt(db, tableName, id);
 		if(!dbo)
@@ -1581,7 +1650,7 @@ AMScan *AMDatamanAppController::dropScanURL(const QUrl &url)
 		// Is it a scan?
 		scan = qobject_cast<AMScan*>( dbo );
 		if(!scan) {
-			delete dbo;
+			dbo->deleteLater();
 			return 0;
 		}
 	}
@@ -1666,7 +1735,7 @@ void AMDatamanAppController::getUserDataFolderFromDialog(bool presentAsParentFol
 	QString newFolder = QFileDialog::getExistingDirectory(0, "Choose the folder for your Acquaman data...", initialFolder, QFileDialog::ShowDirsOnly);
 
 	if(newFolder.isEmpty())
-		return;	// user cancelled; do nothing.
+		return;	// user cancelled, do nothing.
 
 	newFolder = QDir::fromNativeSeparators(newFolder);
 	newFolder.append("/");

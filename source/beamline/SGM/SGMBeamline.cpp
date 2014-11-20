@@ -46,7 +46,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSBasicScalerChannelDetector.h"
 #include "beamline/CLS/CLSAdvancedScalerChannelDetector.h"
 #include "beamline/AMBasicControlDetectorEmulator.h"
-#include "beamline/CLS/CLSSensitivitySR570.h"
+#include "beamline/CLS/CLSSR570.h"
 
 #include "beamline/CLS/CLSBiStateControl.h"
 
@@ -183,26 +183,26 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	unconnectedSets_.append(beamOnControlSet_);
 	connect(beamOnControlSet_, SIGNAL(connected(bool)), this, SLOT(onControlSetConnected(bool)));
 
-	CLSSensitivitySR570 *tempSR570;
+	CLSSR570 *tempSR570;
 
 	scaler_ = new CLSSIS3820Scaler("BL1611-ID-1:mcs", this);
 
-	tempSR570 = new CLSSensitivitySR570("TEY", "Amp1611-4-21", this);
+	tempSR570 = new CLSSR570("TEY", "Amp1611-4-21", this);
 	scaler_->channelAt(0)->setCurrentAmplifier(tempSR570);
 	scaler_->channelAt(0)->setVoltagRange(AMRange(1.0, 6.5));
 	scaler_->channelAt(0)->setCustomChannelName("TEY");
 
-	tempSR570 = new CLSSensitivitySR570("I0", "Amp1611-4-22", this);
+	tempSR570 = new CLSSR570("I0", "Amp1611-4-22", this);
 	scaler_->channelAt(1)->setCurrentAmplifier(tempSR570);
 	scaler_->channelAt(1)->setVoltagRange(AMRange(1.0, 6.5));
 	scaler_->channelAt(1)->setCustomChannelName("I0");
 
-	tempSR570 = new CLSSensitivitySR570("TFY PD", "Amp1611-4-23", this);
+	tempSR570 = new CLSSR570("TFY PD", "Amp1611-4-23", this);
 	scaler_->channelAt(2)->setCurrentAmplifier(tempSR570);
 	scaler_->channelAt(2)->setVoltagRange(AMRange(1.0, 6.5));
 	scaler_->channelAt(2)->setCustomChannelName("TFY PD ");
 
-	tempSR570 = new CLSSensitivitySR570("PD", "Amp1611-4-24", this);
+	tempSR570 = new CLSSR570("PD", "Amp1611-4-24", this);
 	scaler_->channelAt(3)->setCurrentAmplifier(tempSR570);
 	scaler_->channelAt(3)->setVoltagRange(AMRange(1.0, 6.5));
 	scaler_->channelAt(3)->setCustomChannelName("PD");
@@ -898,8 +898,6 @@ void SGMBeamline::onCriticalControlsConnectedChanged(bool isConnected, AMControl
 }
 
 void SGMBeamline::onCriticalsConnectedChanged(){
-	//qdebug() << "Critical controls are connected: " << criticalControlsSet_->isConnected();
-	//qdebug() << "Critical detectors are connected: " << criticalDetectorsSet_->isConnected();
 	emit criticalConnectionsChanged();
 	reviewConnected();
 }
@@ -1044,7 +1042,6 @@ void SGMBeamline::setupControls(){
 	amNames2pvNames_.resetLookup();
 
 	QString sgmPVName = amNames2pvNames_.valueF("energy");
-	//energy_ = new AMPVwStatusControl("energy", sgmPVName+":fbk", sgmPVName, "BL1611-ID-1:ready", sgmPVName, this, 0.25);
 	energy_ = new AMPVwStatusControl("energy", sgmPVName+":fbk", sgmPVName, "BL1611-ID-1:ready", "SMTR16114I1002:stop", this, 0.25);
 	energy_->setDescription("Energy");
 	sgmPVName = amNames2pvNames_.valueF("energySpacingParam");
@@ -1072,9 +1069,7 @@ void SGMBeamline::setupControls(){
 	energy_->addChildControl(exitSlit);
 
 	sgmPVName = amNames2pvNames_.valueF("exitSlitGap");
-	//exitSlitGap_ = new AMPVwStatusControl("exitSlitGap", sgmPVName+":Y:mm:fbk", sgmPVName+":Y:mm:encsp", "SMTR16114I1017:status", "SMTR16114I1017:stop", this, 0.5);
 	exitSlitGap_ = new AMPVwStatusControl("exitSlitGap", sgmPVName+":Y:mm:fbk", "BL1611-ID-1:AddOns:ExitSlitGap:Y:mm", "BL1611-ID-1:AddOns:ExitSlitGap:Y:status", "SMTR16114I1017:stop", this, 0.5);
-	//((AMPVwStatusControl*)exitSlitGap_)->setMoveStartTolerance(0.02);
 	exitSlitGap_->setDescription("Exit Slit Gap");
 	sgmPVName = amNames2pvNames_.valueF("entranceSlitGap");
 	entranceSlitGap_ = new AMPVwStatusControl("entranceSlitGap", sgmPVName+":Y:mm:fbk", sgmPVName+":Y:mm:encsp", "SMTR16114I1001:status", "SMTR16114I1001:stop", this, 0.1);
@@ -1285,12 +1280,12 @@ void SGMBeamline::setupControls(){
 	motorGroup_ = new AMMotorGroup(this);
 	//motorObject = new AMMotorGroupObject("Manipulator",
 	motorObject = new SGMSampleManipulatorMotorGroupObject("Manipulator",
-								   QStringList() << "X" << "Y" << "Z" << "R",
-								   QStringList() << "mm" << "mm" << "mm" << "deg",
-						 QList<AMControl*>() << ssaManipulatorX_ << ssaManipulatorY_ << ssaManipulatorZ_ << ssaManipulatorRot_,
-						 QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Horizontal << AMMotorGroupObject::Normal << AMMotorGroupObject::Vertical << AMMotorGroupObject::Other,
-						 QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational << AMMotorGroupObject::Rotational,
-						 this);
+							       QStringList() << "X" << "Y" << "Z" << "R",
+							       QStringList() << "mm" << "mm" << "mm" << "deg",
+							       QList<AMControl*>() << ssaManipulatorX_ << ssaManipulatorY_ << ssaManipulatorZ_ << ssaManipulatorRot_,
+							       QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Horizontal << AMMotorGroupObject::Normal << AMMotorGroupObject::Vertical << AMMotorGroupObject::Other,
+							       QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational << AMMotorGroupObject::Rotational,
+							       this);
 	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
 }
 
@@ -1310,7 +1305,6 @@ void SGMBeamline::setupExposedDetectors(){
 	addExposedDetector(newAmptekSDD3_);
 	addExposedDetector(newAmptekSDD4_);
 	addExposedDetector(newAmptekSDD5_);
-	//addExposedDetector(newPGTDetector_);
 	addExposedDetector(newQE65000Detector_);
 	addExposedDetector(newTEYDetector_);
 	addExposedDetector(newI0Detector_);
@@ -1340,8 +1334,10 @@ void SGMBeamline::reviewConnected(){
 
 SGMBeamline* SGMBeamline::sgm() {
 
-	if(instance_ == 0)
+	if(instance_ == 0){
 		instance_ = new SGMBeamline();
+		instance_->initializeBeamlineSupport();
+	}
 
 	return static_cast<SGMBeamline*>(instance_);
 

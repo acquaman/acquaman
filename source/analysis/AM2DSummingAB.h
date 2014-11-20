@@ -37,10 +37,9 @@ class AM2DSummingAB : public AMStandardAnalysisBlock {
 
 public:
 	/// Constructor. \c outputName is the name() for the output data source.
- 	virtual ~AM2DSummingAB();
-	AM2DSummingAB(const QString& outputName, QObject* parent = 0);
-	/// This constructor is used to reload analysis blocks directly out of the database
-	Q_INVOKABLE AM2DSummingAB(AMDatabase* db, int id);
+	Q_INVOKABLE AM2DSummingAB(const QString& outputName = "InvalidInput", QObject* parent = 0);
+	/// Destructor.
+	virtual ~AM2DSummingAB();
 
 	QString infoDescription() const { return QString("(Axis %1 from %2 to %3)").arg(sumAxis_).arg(sumRangeMin_).arg(sumRangeMax_); }
 
@@ -49,6 +48,9 @@ public:
   - the rank() of that input source must be 2 (two-dimensional)
   */
 	virtual bool areInputDataSourcesAcceptable(const QList<AMDataSource*>& dataSources) const;
+
+	/// Returns the desired rank for input sources.
+	virtual int desiredInputRank() const { return 2; }
 
 protected:
 	/// Set the data source inputs.
@@ -86,7 +88,8 @@ public:
 	virtual bool values(const AMnDIndex& indexStart, const AMnDIndex& indexEnd, double* outputValues) const;
 	/// When the independent values along an axis is not simply the axis index, this returns the independent value along an axis (specified by axis number and index)
 	virtual AMNumber axisValue(int axisNumber, int index) const;
-
+	/// Performance optimization of axisValue():  instead of a single value, copies a block of values from \c startIndex to \c endIndex in \c outputValues.  The provided pointer must contain enough space for all the requested values.
+	virtual bool axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const;
 
 	// Analysis parameters
 	///////////////////////////

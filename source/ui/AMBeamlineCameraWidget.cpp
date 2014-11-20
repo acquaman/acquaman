@@ -63,7 +63,6 @@ AMBeamlineCameraWidget::AMBeamlineCameraWidget(QWidget *parent, bool useOpenGlVi
 	chl->addWidget(lockCrosshairCheckBox_ = new QCheckBox("Lock position"));
 	chl->addStretch();
 	crosshairFrame->setLayout(chl);
-	//showCrosshairCheckBox_->setChecked(true);
 
 	vl->addWidget(crosshairFrame);
 	vl->addWidget(videoWidget_ = new AMCrosshairOverlayVideoWidget(0, useOpenGlViewport));
@@ -163,7 +162,6 @@ int AMBeamlineCameraWidget::crosshairLineThickness() const
 void AMBeamlineCameraWidget::playSource(const QUrl& sourceUrl)
 {
 	videoWidget_->mediaPlayer()->setMedia(sourceUrl);
-	// qdebug() << "AMBeamlineCameraWidget: Loading and playing" << url.toString();
 	videoWidget_->mediaPlayer()->play();
 }
 

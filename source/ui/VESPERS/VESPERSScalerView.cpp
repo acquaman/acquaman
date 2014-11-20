@@ -40,6 +40,7 @@ VESPERSScalerView::VESPERSScalerView(QWidget *parent)
 	compositeView_->setFixedWidth(300);
 	compositeView_->setAmplifierViewPrecision(3);
 	compositeView_->setAmplifierViewFormat('g');
+	compositeView_->setOutputViewMode(CLSSIS3820CompositeScalerChannelView::Voltage);
 	connect(compositeView_, SIGNAL(amplifierViewModeChanged(AMCurrentAmplifierView::ViewMode)), this, SLOT(onSR570ViewChanged(AMCurrentAmplifierView::ViewMode)));
 	connect(compositeView_, SIGNAL(outputViewModeChanged(CLSSIS3820CompositeScalerChannelView::OutputViewMode)), this, SLOT(onOutputViewModeChanged(CLSSIS3820CompositeScalerChannelView::OutputViewMode)));
 	layout->addWidget(compositeView_);
@@ -50,6 +51,7 @@ VESPERSScalerView::VESPERSScalerView(QWidget *parent)
 		view->setAmplifierViewPrecision(3);
 		view->setAmplifierViewFormat('g');
 		view->setEnableCheckBoxVisibility(false);
+		view->setOutputViewMode(CLSSIS3820ScalerChannelView::Voltage);
 		singleViews_ << view;
 		view->setFixedHeight(55);
 		connect(view, SIGNAL(amplifierViewModeChanged(AMCurrentAmplifierView::ViewMode)), this, SLOT(onSR570ViewChanged(AMCurrentAmplifierView::ViewMode)) );
@@ -73,20 +75,6 @@ void VESPERSScalerView::onSR570ViewChanged(AMCurrentAmplifierView::ViewMode mode
 		channel->blockSignals(false);
 	}
 }
-
-//void VESPERSScalerView::onSR570ViewChanged(AMCurrentAmplifierView::ViewMode mode)
-//{
-//	compositeView_->blockSignals(true);
-//    compositeView_->setAmplifierViewMode(mode);
-//	compositeView_->blockSignals(false);
-
-//    foreach (CLSSIS3820ScalerChannelView *channel, singleViews_){
-
-//        channel->blockSignals(true);
-//        channel->setAmplifierViewMode((AMCurrentAmplifierView::ViewMode)mode);
-//        channel->blockSignals(false);
-//    }
-//}
 
 void VESPERSScalerView::onOutputViewModeChanged(CLSSIS3820CompositeScalerChannelView::OutputViewMode mode)
 {

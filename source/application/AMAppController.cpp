@@ -68,6 +68,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 AMAppController::AMAppController(QObject *parent)
 	: AMDatamanAppControllerForActions3(parent)
 {
+	automaticBringScanEditorToFrontWithRunningScans_ = true;
+	automaticLaunchScanEditor_ = true;
 }
 
 AMAppController::~AMAppController()
@@ -138,14 +140,12 @@ bool AMAppController::startupCreateUserInterface() {
 		setAutomaticBringScanEditorToFront(true);
 
 		// add the workflow control UI
-		//workflowView_ = new AMWorkflowView3();
 		workflowView_ = new AMWorkflowView3(AMActionRunner3::workflow());
 		mw_->insertHeading("Experiment Tools", 1);
 		mw_->addPane(workflowView_, "Experiment Tools", "Workflow", ":/user-away.png");
 
 		scanActionRunnerView_ = new AMWorkflowView3(AMActionRunner3::scanActionRunner());
 		scanActionRunnerView_->hide();
-		//mw_->addPane(scanActionRunnerView_, "Experiment Tools", "ScanActions", ":/user-away.png");
 
 		// get the "open scans" section to be under the workflow
 		mw_->windowPaneModel()->removeRow(scanEditorsParentItem_->row());
@@ -241,14 +241,20 @@ void AMAppController::updateScanEditorModelItem()
 	}
 }
 
+void AMAppController::onActionAutomaticLaunchScanEditorToggled(bool toggled){
+	setAutomaticLaunchScanEditor(toggled);
+}
+
 void AMAppController::onCurrentScanActionStarted(AMScanAction *action)
 {
-	AMScan *scan = action->controller()->scan();
-	openScanInEditor(scan, automaticBringScanEditorToFrontWithRunningScans());
+	if(automaticLaunchScanEditor_){
+		AMScan *scan = action->controller()->scan();
+		openScanInEditor(scan, automaticBringScanEditorToFrontWithRunningScans());
 
-	scanEditorScanMapping_.append(qMakePair(scan, scanEditorAt(scanEditorCount()-1)));
-	connect(action, SIGNAL(stateChanged(int,int)), this, SLOT(updateScanEditorModelItem()));
-	updateScanEditorModelItem();
+		scanEditorScanMapping_.append(qMakePair(scan, scanEditorAt(scanEditorCount()-1)));
+		connect(action, SIGNAL(stateChanged(int,int)), this, SLOT(updateScanEditorModelItem()));
+		updateScanEditorModelItem();
+	}
 
 	onCurrentScanActionStartedImplementation(action);
 }
@@ -258,10 +264,13 @@ void AMAppController::onCurrentScanActionFinished(AMScanAction *action)
 	disconnect(action, SIGNAL(stateChanged(int,int)), this, SLOT(updateScanEditorModelItem()));
 
 	// It is possible to cancel a scan just before it starts, so we need to check this to see if there's any controller at all
-	if(action->controller())
+	if(action->controller() && automaticLaunchScanEditor_)
 		updateScanEditorModelItem();
 
 	onCurrentScanActionFinishedImplementation(action);
+
+	if(!automaticLaunchScanEditor_ && action && action->controller() && action->controller()->scan())
+		action->controller()->scan()->deleteLater();
 }
 
 void AMAppController::openScanInEditor(AMScan *scan, bool bringEditorToFront, bool openInExistingEditor)
@@ -317,7 +326,7 @@ void AMAppController::launchScanConfigurationFromDb(const QUrl &url)
 
 	AMScanConfigurationView *view = config->createView();
 	if(!view) {
-		delete config;
+		config->deleteLater();
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -401, "Unable to create view from the scan configuration loaded from the database.  Contact Acquaman developers."));
 		return;
 	}
@@ -400,7 +409,6 @@ bool AMAppController::startupInstallActions()
 	if(AMDatamanAppControllerForActions3::startupInstallActions()) {
 
 		QAction *changeRunAction = new QAction("Change Run...", mw_);
-		// changeRunAction->setShortcut(QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_B));
 		changeRunAction->setStatusTip("Change the current run, or create a new one");
 		connect(changeRunAction, SIGNAL(triggered()), this, SLOT(showChooseRunDialog()));
 
@@ -408,11 +416,17 @@ bool AMAppController::startupInstallActions()
 		openScanActionsViewAction->setStatusTip("Open the view to see all actions done by scans");
 		connect(openScanActionsViewAction, SIGNAL(triggered()), this, SLOT(showScanActionsView()));
 
+		QAction *automaticLaunchScanEditorAction = new QAction("Launch New Scans in Editors", mw_);
+		automaticLaunchScanEditorAction->setStatusTip("Launch all new scans in an new scan editor to view them");
+		automaticLaunchScanEditorAction->setCheckable(true);
+		automaticLaunchScanEditorAction->setChecked(true);
+		connect(automaticLaunchScanEditorAction, SIGNAL(toggled(bool)), this, SLOT(onActionAutomaticLaunchScanEditorToggled(bool)));
+
 		fileMenu_->addSeparator();
 		fileMenu_->addAction(changeRunAction);
 
-		viewMenu_ = menuBar_->addMenu("View");
 		viewMenu_->addAction(openScanActionsViewAction);
+		viewMenu_->addAction(automaticLaunchScanEditorAction);
 
 		return true;
 	}

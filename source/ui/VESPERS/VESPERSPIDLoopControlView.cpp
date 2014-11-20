@@ -57,7 +57,7 @@ VESPERSPIDLoopControlView::VESPERSPIDLoopControlView(VESPERSPIDLoopControl *pid,
 
 VESPERSPIDLoopControlView::~VESPERSPIDLoopControlView()
 {
-	delete timer_;
+	timer_->deleteLater();
 }
 
 void VESPERSPIDLoopControlView::toggleButtonColor()

@@ -73,7 +73,7 @@ bool AMScanDatabaseImportController::setSourceFolderAndLoadDatabase(const QStrin
 
 
 	if(!AMDbObjectSupport::s()->registerDatabase(sourceDb_)) {
-		delete sourceDb_;
+		sourceDb_->deleteLater();
 		sourceDb_ = 0;
 		return false;
 	}
@@ -298,7 +298,7 @@ void AMScanDatabaseImportController::copyFacilities()
 		if(state_ != Importing) return;
 		i.next();
 		emit stepProgress(int(100.0*(++currentStep)/totalSteps));
-		// key is id; value is id in destination database, or -1 if not there yet. (if not there, need to insert)
+		// key is id. Value is id in destination database, or -1 if not there yet. (if not there, need to insert)
 		int sourceId = i.key(), destinationId = i.value();
 		if(destinationId<1) {
 			AMFacility f;
@@ -327,7 +327,7 @@ void AMScanDatabaseImportController::copyRuns()
 		if(state_ != Importing) return;
 		i.next();
 		emit stepProgress(int(100.0*(++currentStep)/totalSteps));
-		// key is id; value is id in destination database, or -1 if not there yet. (if not there, need to insert)
+		// key is id. Value is id in destination database, or -1 if not there yet. (if not there, need to insert)
 		int sourceId = i.key(), destinationId = i.value();
 		if(destinationId<1) {
 			AMRun r;
@@ -356,7 +356,7 @@ void AMScanDatabaseImportController::copyExperiments()
 		if(state_ != Importing) return;
 		i.next();
 		emit stepProgress(int(100.0*(++currentStep)/totalSteps));
-		// key is id; value is id in destination database, or -1 if not there yet. (if not there, need to insert)
+		// key is id. Value is id in destination database, or -1 if not there yet. (if not there, need to insert)
 		int sourceId = i.key(), destinationId = i.value();
 		if(destinationId<1) {
 			AMExperiment e;
@@ -385,7 +385,7 @@ void AMScanDatabaseImportController::copySamples()
 		if(state_ != Importing) return;
 		i.next();
 		emit stepProgress(int(100.0*(++currentStep)/totalSteps));
-		// key is id; value is id in destination database, or -1 if not there yet. (if not there, need to insert)
+		// key is id. Value is id in destination database, or -1 if not there yet. (if not there, need to insert)
 		int sourceId = i.key(), destinationId = i.value();
 		if(destinationId<1) {
 			AMSamplePre2013 s;
@@ -432,7 +432,7 @@ void AMScanDatabaseImportController::copyScans()
 											 AMErrorReport::Alert,
 											 -4,
 											 QString("Error copying the scan with ID '%1' out of the import database: it wasn't a scan object. Your database might be corrupted. Please report this problem to the Acquaman developers.").arg(scanIds.at(i))));
-			delete object;
+			object->deleteLater();
 			continue;
 		}
 

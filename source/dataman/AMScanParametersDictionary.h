@@ -136,7 +136,7 @@ public:
  	virtual ~AMOldScanParametersDictionary();
 	AMOldScanParametersDictionary(QObject *parent = 0);
 
-	/// Parse an input string for recognizable "$keyword" tags, and return a converted string. The results depend on the currentScan_ and currentDataSourceIndex_;
+	/// Parse an input string for recognizable "$keyword" tags, and return a converted string. The results depend on the currentScan_ and currentDataSourceIndex_
 	QString parseKeywordString(const QString& inputString);
 
 	/// Parse an input string and operate on either name or exportName (calls operateImplementation()). If not operating on anything, acts the same as parseKeywordString.

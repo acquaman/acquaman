@@ -37,7 +37,7 @@ AM2DNormalizationAB::AM2DNormalizationAB(const QString &outputName, QObject *par
 bool AM2DNormalizationAB::areInputDataSourcesAcceptable(const QList<AMDataSource*>& dataSources) const
 {
 	if(dataSources.isEmpty())
-		return true;	// always acceptable; the null input.
+		return true;	// always acceptable, the null input.
 
 	// otherwise we need two input sources, with a rank of 2.
 	if(dataSources.count() == 2 && dataSources.at(0)->rank() == 2 && dataSources.at(1)->rank() == 2)
@@ -286,6 +286,20 @@ AMNumber AM2DNormalizationAB::axisValue(int axisNumber, int index) const
 		return AMNumber(AMNumber::DimensionError);
 
 	return data_->axisValue(axisNumber, index);
+}
+
+bool AM2DNormalizationAB::axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const
+{
+	if (!isValid())
+		return false;
+
+	if (axisNumber != 0 && axisNumber != 1)
+		return false;
+
+	if (startIndex >= axes_.at(axisNumber).size || endIndex >= axes_.at(axisNumber).size)
+		return false;
+
+	return data_->axisValues(axisNumber, startIndex, endIndex, outputValues);
 }
 
 void AM2DNormalizationAB::onInputSourceValuesChanged(const AMnDIndex& start, const AMnDIndex& end)

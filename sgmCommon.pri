@@ -1,34 +1,11 @@
 # #####################################################################
 # QMake project file for SGM common files  	January 2012. david.k.chevrier@gmail.com
-# Note: Set EPICS_INCLUDE_DIRS, EPICS_LIB_DIR, VLC_*, and GSL_* correctly for platform
 # ####################################################################
-
-# Automatically determines a user's home folder
-HOME_FOLDER = $$system(echo $HOME)
-
-macx {
-		# Where you want to do your acquaman development (as a path from $HOME). You don't need to include leading or trailing slashes.
-		DEV_PATH = beamline/programming
-}
-linux-g++ {
-		# Where you want to do your acquaman development (as a path from $HOME). You don't need to include leading or trailing slashes.
-		DEV_PATH = beamline/programming
-}
-linux-g++-32 {
-		# Where you want to do your acquaman development (as a path from $HOME). You don't need to include leading or trailing slashes.
-		DEV_PATH = beamline/programming
-}
-# The following works well for CLS beamline OPI machines, built using VMSL54.cs.clsi.ca
-
-linux-g++-64 {
-		# Where you want to do your acquaman development (as a path from $HOME). You don't need to include leading or trailing slashes.
-		DEV_PATH = beamline/programming
-}
 
 # Source Files (SGM Common)
 #######################
 
-FORMS += 	source/ui/SGMXASScanConfigurationViewer.ui
+FORMS += 
 
 HEADERS += \
 	source/application/SGM/SGMAppController.h \
@@ -69,8 +46,7 @@ HEADERS += \
 	source/ui/SGM/SGMFastScanConfiguration2013View.h \
 	source/ui/SGM/SGMAdvancedMirrorView.h \
 	source/ui/SGM/SGMSIS3820ScalerView.h \
-	source/ui/dataman/AMScanSearchView.h \
-	source/ui/SGM/SGMDataViewWithActionButtons.h
+	source/ui/dataman/AMScanSearchView.h
 
 SOURCES += \
 	source/application/SGM/SGMAppController.cpp \
@@ -111,7 +87,6 @@ SOURCES += \
 	source/ui/SGM/SGMFastScanConfiguration2013View.cpp \
 	source/ui/SGM/SGMAdvancedMirrorView.cpp \
 	source/ui/SGM/SGMSIS3820ScalerView.cpp \
-	source/ui/dataman/AMScanSearchView.cpp \
-	source/ui/SGM/SGMDataViewWithActionButtons.cpp
+	source/ui/dataman/AMScanSearchView.cpp
 
 

@@ -23,8 +23,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AMSCANVIEW_H
 
 #include <QWidget>
+
 #include <QGraphicsView>
-#include <QGraphicsWidget>
+
+#include "AMQGraphics.h"
+
 #include <QGraphicsLinearLayout>
 #include <QGraphicsGridLayout>
 #include <QLabel>
@@ -86,10 +89,6 @@ public:
 
 	explicit AMScanViewInternal(AMScanView* masterView);
 
-signals:
-	/// Notifier that the data position marker has changed.
-	void dataPositionChanged(const QPointF &);
-
 public slots:
 	/// Must re-implement in subclasses: turn on log scale on the y-axis.
 	virtual void enableLogScale(bool logScaleOn = true) { logScaleEnabled_ = logScaleOn; }
@@ -100,25 +99,15 @@ public slots:
 	/// Must re-implement in subclasses: enable or disable the waterfall effect
 	virtual void enableWaterfallOffset(bool waterfallOn = true) { waterfallEnabled_ = waterfallOn; }
 
-protected slots:
-	/// after a scan or data source is added in the model
-	virtual void onRowInserted(const QModelIndex& parent, int start, int end) = 0;
-	/// before a scan or data source is deleted in the model:
-	virtual void onRowAboutToBeRemoved(const QModelIndex& parent, int start, int end) = 0;
-	/// after a scan or data source is deleted in the model:
-	virtual void onRowRemoved(const QModelIndex& parent, int start, int end) = 0;
-	/// when data changes:
-	virtual void onModelDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight) = 0;
-
 protected:
-	/// Helper function to create an appropriate MPlotItem and connect it to the \c dataSource, depending on the dimensionality of \c dataSource.  Returns 0 if we can't handle this dataSource and no item was created (ex: unsupported dimensionality; we only handle 1D or 2D data for now.)
+	/// Helper function to create an appropriate MPlotItem and connect it to the \c dataSource, depending on the dimensionality of \c dataSource.  Returns 0 if we can't handle this dataSource and no item was created (ex: unsupported dimensionality, we only handle 1D or 2D data for now.)
 	MPlotItem* createPlotItemForDataSource(const AMDataSource* dataSource, const AMDataSourcePlotSettings& plotSettings);
 	/// Helper function to look at a plot and configure the left and right axes depending on whether there are 1D and/or 2D data sources in the plot.
 	/*! We plot 2D data sources on the right axis scale, and 1D data sources on the left axis scale.  We could therefore end up in one of 4 states for the axes configuration:
-0: No data sources of any kind: hide both axis labels; assign both axes to the left axis scale.
-1: Only 1D data sources: show the left axis labels, hide the right axis labels; assign both axes to the left axis scale.
-2: Only 2D data sources: hide the left axis labels, show the right axis labels; assign both axes to the right axis scale.
-3: Both 1D and 2D data sources: show the left and right axis labels; assign the left axis to the left axis scale and the right axis to the right axis scale.
+		0: No data sources of any kind: hide both axis labels; assign both axes to the left axis scale.
+		1: Only 1D data sources: show the left axis labels, hide the right axis labels; assign both axes to the left axis scale.
+		2: Only 2D data sources: hide the left axis labels, show the right axis labels; assign both axes to the right axis scale.
+		3: Both 1D and 2D data sources: show the left and right axis labels; assign the left axis to the left axis scale and the right axis to the right axis scale.
 	  */
 	void reviewPlotAxesConfiguration(MPlotGW* plot);
 
@@ -136,9 +125,21 @@ protected:
 	bool normalizationEnabled_, waterfallEnabled_;
 
 	MPlotGW* createDefaultPlot();
-};
 
-#include <QPropertyAnimation>
+protected slots:
+	/// after a scan or data source is added in the model
+	virtual void onRowInserted(const QModelIndex& parent, int start, int end) = 0;
+	/// before a scan or data source is deleted in the model:
+	virtual void onRowAboutToBeRemoved(const QModelIndex& parent, int start, int end) = 0;
+	/// after a scan or data source is deleted in the model:
+	virtual void onRowRemoved(const QModelIndex& parent, int start, int end) = 0;
+	/// when data changes:
+	virtual void onModelDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight) = 0;
+
+signals:
+	/// Notifier that the data position marker has changed.
+	void dataPositionChanged(const QPointF &);
+};
 
 #define AM_SCAN_VIEW_HIDE_SCANBARS_AFTER_N_SCANS 7
 
@@ -151,7 +152,7 @@ class AMScanView : public QWidget
 public:
 	enum ViewMode { Invalid = -1, Tabs = 0, OverPlot, MultiScans, MultiSources };
 
-	/// Constructs a new AMScanView based on a set of scans given by \c model. If \c model is 0,  it creates its own model to use internally; otherwise it uses the supplied model.
+	/// Constructs a new AMScanView based on a set of scans given by \c model. If \c model is 0,  it creates its own model to use internally, otherwise it uses the supplied model.
 	explicit AMScanView(AMScanSetModel* model = 0, QWidget *parent = 0);
 	virtual ~AMScanView();
 
@@ -181,7 +182,7 @@ public slots:
 	/// Sets the color of the plot cursor.
 	void setPlotCursorColor(const QColor &color);
 
-	/// change the view mode (newMode is a ViewMode enum: 0 for one data source at a time; 1 for all data sources overplotted; 2 for one plot per scan; 3 for one plot per data source.
+	/// change the view mode (newMode is a ViewMode enum: 0 for one data source at a time, 1 for all data sources overplotted, 2 for one plot per scan, 3 for one plot per data source.
 	void changeViewMode(int newMode);
 
 	/// add a scan to the view:
@@ -235,8 +236,6 @@ protected:
 
 	AMScanViewModeBar* modeBar_;
 	AMScanViewSourceSelector* scanBars_;
-
-	QPropertyAnimation* modeAnim_;
 
 	AMScanViewSingleSpectrumView *spectrumView_;
 	QGroupBox *spectrumViewBox_;

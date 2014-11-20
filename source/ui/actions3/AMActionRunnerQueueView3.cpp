@@ -25,6 +25,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "util/AMFontSizes.h"
 
+#include "AMQEvents.h"
+
 #include <QTreeView>
 #include <QBoxLayout>
 #include <QFrame>
@@ -226,7 +228,6 @@ QWidget * AMActionRunnerQueueItemDelegate3::createEditor(QWidget *parent, const 
 	return rv;
 }
 
-#include <QKeyEvent>
 bool AMActionRunnerQueueItemDelegate3::eventFilter(QObject *object, QEvent *event)
 {
 	QWidget* widget = qobject_cast<QWidget*>(object);
@@ -240,77 +241,4 @@ bool AMActionRunnerQueueItemDelegate3::eventFilter(QObject *object, QEvent *even
 	return QObject::eventFilter(object, event);
 }
 
-
-//void AMActionRunnerQueueItemDelegate::updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const
-//{
-//}
-
-
-
-
-//QModelIndex AMActionRunnerQueueModel::index(int row, int column, const QModelIndex &parent) const
-//{
-//	// column must be 0.
-//	if(column != 0)
-//		return QModelIndex();
-
-//	// if parent is the root... This is an index for a top-level action in the queue.
-//	if(!parent.isValid()) {
-//		if(row < 0 || row >= actionRunner_->queuedActionCount())
-//			return QModelIndex();
-//		return createIndex(row, column, 0);
-//	}
-//	else {
-//		AMAction* parentAction = actionAtIndex(parent);
-//		if(!parentAction)
-//			return QModelIndex();
-
-//		// todozzzz If a loop action, provide indexes for child actions. The internal pointer will be a pointer to the parent (loop) action.
-//		// for now:
-//		return QModelIndex();
-//	}
-//}
-
-//QModelIndex AMActionRunnerQueueModel::parent(const QModelIndex &child) const
-//{
-//	// if no parent pointer stored in the internal id, this is a top-level action
-//	if(!child.internalPointer())
-//		return QModelIndex();
-//	else {
-//		// so child.internalPointer() is our parent action. But we need to know what its row is in _its_ parent (which might be the top level.
-//		AMAction* parentAction = qobject_cast<AMAction*>
-//	}
-//}
-
-//int AMActionRunnerQueueModel::rowCount(const QModelIndex &parent) const
-//{
-//}
-
-//int AMActionRunnerQueueModel::columnCount(const QModelIndex &parent) const
-//{
-//}
-
-//QVariant AMActionRunnerQueueModel::data(const QModelIndex &index, int role) const
-//{
-//}
-
-//bool AMActionRunnerQueueModel::hasChildren(const QModelIndex &parent) const
-//{
-//}
-
-//AMAction * AMActionRunnerQueueModel::actionAtIndex(const QModelIndex &index)
-//{
-//	// if no parent pointer stored in the internal id, this is a top-level action
-//	if(!index.internalPointer()) {
-//		if(index.row() < 0 || index.row() >= actionRunner_->queuedActionCount())
-//			return 0;
-//		return actionRunner_->queuedActionAt(index.row());
-//	}
-//	else {
-//		// the internal pointer is a pointer to a hierarchical loop action
-//		AMAction* parentAction = qobject_cast<AMAction*>(index.internalPointer());
-//		// todozzzz return sub action
-//		return 0;
-//	}
-//}
- AMActionRunnerQueueItemDelegate3::~AMActionRunnerQueueItemDelegate3(){}
+AMActionRunnerQueueItemDelegate3::~AMActionRunnerQueueItemDelegate3(){}

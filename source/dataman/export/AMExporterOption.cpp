@@ -21,11 +21,19 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMExporterOption.h"
 
- AMExporterOption::~AMExporterOption(){}
+AMExporterOption::~AMExporterOption(){}
+
 AMExporterOption::AMExporterOption(QObject *parent) :
 	AMDbObject(parent)
 {
 	fileName_ = "$name_$number_$dateTime[yyyyMMdd_hhmmss].dat";
+	availableDataSourcesModel_ = 0;
+}
+
+AMExporterOption::AMExporterOption(const AMExporterOption &original)
+	: AMDbObject(original)
+{
+	fileName_ = original.fileName();
 	availableDataSourcesModel_ = 0;
 }
 

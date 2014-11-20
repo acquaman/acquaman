@@ -56,14 +56,10 @@ public:
 signals:
 	/// Notifier that new information/data should be written to file.
 	void requestWriteToFile(int fileRank, const QString &textToWrite);
-	/// Notifier that tells the file writer that all file writing activities are done after a scan has finished and to close all file access.
-	void finishWritingToFile();
 
 protected slots:
 	/// Handles dealing with file writer errors.
 	void onFileWriterError(AMScanActionControllerBasicFileWriter::FileWriterError error);
-	/// Handles dealing with the file writer when it changes busy state.
-	void onFileWriterIsBusy(bool isBusy);
 
 	void onEverythingFinished();
 
@@ -91,6 +87,9 @@ protected:
 	/// Helper function to generate the notes for this Scan
 	QString buildNotes();
 
+	/// Helper function to figure out which should be start and end values if up/down scanning is enabled
+	void configureStartEndValues();
+
 protected:
 	SGMFastScanConfiguration2013 *configuration_;
 
@@ -101,11 +100,14 @@ protected:
 	double sParam_;
 	double thetaParam_;
 
+	bool enableUpDownScanning_;
+	double startEnergy_;
+	double endEnergy_;
+	int startUndulatorStep_;
+	int undulatorRelativeStep_;
+
 	QMap< QString, QVector<double> > allDataMap_;
 	AMnDIndex insertionIndex_;
-
-	QThread *fileWriterThread_;
-	bool fileWriterIsBusy_;
 
 	bool goodInitialState_;
 };

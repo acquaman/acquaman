@@ -29,59 +29,63 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 class AM0DAccumulatorAB : public AMStandardAnalysisBlock
 {
-    Q_OBJECT
+	Q_OBJECT
 
-    Q_CLASSINFO("AMDbObject_Attributes", "description=0D Accumulator Block")
+	Q_CLASSINFO("AMDbObject_Attributes", "description=0D Accumulator Block")
 
 public:
-    /// Constructor.
-    Q_INVOKABLE AM0DAccumulatorAB(const QString &outputName, QObject *parent = 0);
-    /// Destructor.
-    virtual ~AM0DAccumulatorAB();
+	/// Constructor.
+	Q_INVOKABLE AM0DAccumulatorAB(const QString &outputName, QObject *parent = 0);
+	/// Destructor.
+	virtual ~AM0DAccumulatorAB();
 
-    /// Returns the data stored in this analysis block, for the input data source.
-    QList<double> dataStored() const;
-    /// Returns the number of data elements stored in this analysis block.
-    int dataStoredCount() const;
-    /// Returns the maximum number of data elements stored in this analysis block.
-    int dataStoredCountMax() const;
+	/// Returns the data stored in this analysis block, for the input data source.
+	QList<double> dataStored() const;
+	/// Returns the number of data elements stored in this analysis block.
+	int dataStoredCount() const;
+	/// Returns the maximum number of data elements stored in this analysis block.
+	int dataStoredCountMax() const;
 
-    /// Check that the input sources are acceptable. The empty list is always valid. For non-empty list of sources, the list must be of size 1 and the source must have rank 0.
-    virtual bool areInputDataSourcesAcceptable(const QList<AMDataSource *> &dataSources) const;
-    /// Set the data source inputs.
-    virtual void setInputDataSourcesImplementation(const QList<AMDataSource *> &dataSources);
-    /// Returns the dependent value at a (complete) set of axis indexes. Returns an invalid AMNumber if the indexes are out of range, are incomplete, or the data is not ready.
-    virtual AMNumber value(const AMnDIndex &indexes) const;
-    /// Returns the block of values from indexStart to indexEnd, copied into outputValues. Returns false if the provided AMnDIndex values have the wrong dimension or if they are out of range.
-    virtual bool values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const;
-    /// Returns the independent value at the given axis and index.
-    virtual AMNumber axisValue(int axisNumber, int index) const;
-    /// Reimplemented from AMDbObject to set the AMDataSource name once we have an AMDbObject::name().
-    virtual bool loadFromDb(AMDatabase *db, int id);
+	/// Check that the input sources are acceptable. The empty list is always valid. For non-empty list of sources, the list must be of size 1 and the source must have rank 0.
+	virtual bool areInputDataSourcesAcceptable(const QList<AMDataSource *> &dataSources) const;
+	/// Returns the desired rank for input sources.
+	virtual int desiredInputRank() const { return 0; }
+	/// Set the data source inputs.
+	virtual void setInputDataSourcesImplementation(const QList<AMDataSource *> &dataSources);
+	/// Returns the dependent value at a (complete) set of axis indexes. Returns an invalid AMNumber if the indexes are out of range, are incomplete, or the data is not ready.
+	virtual AMNumber value(const AMnDIndex &indexes) const;
+	/// Returns the block of values from indexStart to indexEnd, copied into outputValues. Returns false if the provided AMnDIndex values have the wrong dimension or if they are out of range.
+	virtual bool values(const AMnDIndex &indexStart, const AMnDIndex &indexEnd, double *outputValues) const;
+	/// Returns the independent value at the given axis and index.
+	virtual AMNumber axisValue(int axisNumber, int index) const;
+	/// Performance optimization of axisValue():  instead of a single value, copies a block of values from \c startIndex to \c endIndex in \c outputValues.  The provided pointer must contain enough space for all the requested values.
+	virtual bool axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const;
+	/// Reimplemented from AMDbObject to set the AMDataSource name once we have an AMDbObject::name().
+	virtual bool loadFromDb(AMDatabase *db, int id);
 
 signals:
-    /// Emitted when the maximum number of elements stored has been changed.
-    void dataStoredMaxChanged(int newMax);
+	/// Emitted when the maximum number of elements stored has been changed.
+	void dataStoredMaxChanged(int newMax);
 
 public slots:
-    /// Sets the maximum number of elements stored.
-    void setDataStoredCountMax(int newMax);
+	/// Sets the maximum number of elements stored.
+	void setDataStoredCountMax(int newMax);
 
 protected slots:
-    /// Handles adding the new value to the dataStored_ for this particular data source.
-    void onInputSourceValuesChanged(const AMnDIndex &start, const AMnDIndex &end);
-    /// Handles checking whether this AB is valid if the state of any sources changes.
-    void onInputSourceStateChanged();
+	/// Handles adding the new value to the dataStored_ for this particular data source.
+	void onInputSourceValuesChanged(const AMnDIndex &start, const AMnDIndex &end);
+	/// Handles checking whether this AB is valid if the state of any sources changes.
+	void onInputSourceStateChanged();
 
 protected:
-    /// Helper function that reviews this AB's current state.
-    void reviewState();
+	/// Helper function that reviews this AB's current state.
+	void reviewState();
 
 protected:
-    /// Data stored in this analysis block.
-    QList<double> dataStored_;
-    /// The maximum number of items stored in this analysis block.
-    int dataMax_;
+	/// Data stored in this analysis block.
+	QList<double> dataStored_;
+	/// The maximum number of items stored in this analysis block.
+	int dataMax_;
 
 };
 

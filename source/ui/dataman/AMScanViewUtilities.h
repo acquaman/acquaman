@@ -25,10 +25,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QFrame>
 #include <QLabel>
 #include <QToolButton>
+
 #include <QGraphicsView>
-#include <QGraphicsWidget>
-#include <QGraphicsLinearLayout>
-#include <QGraphicsGridLayout>
+
+#include "AMQGraphics.h"
+
 #include <QButtonGroup>
 #include <QPushButton>
 
@@ -78,7 +79,6 @@ protected:
 	/// ui components:
 	QLabel* nameLabel_;
 	QButtonGroup sourceButtons_;
-	// REMOVED: QToolButton* closeButton_;
 	AMCramBarHorizontal* cramBar_;
 
 	/// Index of "our" scan in the model:
@@ -174,8 +174,8 @@ public:
 
 
 	virtual ~AMGraphicsViewAndWidget() {
-		delete graphicsWidget_;
-		delete scene_;
+		graphicsWidget_->deleteLater();
+		scene_->deleteLater();
 	}
 
 	QGraphicsWidget* graphicsWidget() const { return graphicsWidget_;}

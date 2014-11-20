@@ -156,7 +156,6 @@ void AMXRFDetailedDetectorView::buildPileUpPeakButtons()
 
 void AMXRFDetailedDetectorView::buildShowSpectraButtons()
 {
-	//QComboBox *spectraComboBox_ = new QComboBox;
 	spectraComboBox_ = new QComboBox;
 
 	for (int i = 0, size = detector_->allSpectrumSources().size(); i < size; i++){
@@ -251,7 +250,6 @@ void AMXRFDetailedDetectorView::buildPeriodicTableViewAndElementView()
 	bottomLayoutWithHeader->addWidget(bottomLayoutWidget_);
 
 	bottomLayout_->addLayout(bottomLayoutWithHeader);
-	//bottomLayout_->addLayout(completeBottomLayout);
 
 	connect(emissionLineValidator_, SIGNAL(validatorChanged()), this, SLOT(updateEmissionLineMarkers()));
 	connect(periodicTable_, SIGNAL(elementSelected(AMElement*)), this, SLOT(onElementSelected(AMElement*)));
@@ -623,7 +621,7 @@ void AMXRFDetailedDetectorView::onShowMultipleSpectraButtonClicked()
 
 		foreach (AMDataSource *source, detector_->allSpectrumSources()){
 
-			if (source->name() == spectraNames.at(spectraNamesIterator)){
+			if (spectraNames.contains(source->name())){
 
 				MPlotSeriesBasic *newSpectrum = new MPlotSeriesBasic;
 				newSpectrum->setModel(new AMDataSourceSeriesData(source), true);

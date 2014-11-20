@@ -130,7 +130,6 @@ AMMotorGroupObjectView::AMMotorGroupObjectView(AMMotorGroupObject *motorGroupObj
 	stopButton_->setIcon(QIcon(":/stop.png"));
 	connect(stopButton_, SIGNAL(clicked()), this, SLOT(onStopClicked()));
 
-	//QGridLayout *arrowLayout_ = new QGridLayout;
 	arrowLayout_ = new QGridLayout;
 	arrowLayout_->addWidget(goUp_, 0, 1);
 	arrowLayout_->addWidget(goDown_, 2, 1);
@@ -159,12 +158,10 @@ AMMotorGroupObjectView::AMMotorGroupObjectView(AMMotorGroupObject *motorGroupObj
 	jog_->setAlignment(Qt::AlignCenter);
 	jog_->setFixedWidth(110);
 
-	//QHBoxLayout *jogLayout_ = new QHBoxLayout;
 	jogLayout_ = new QHBoxLayout;
 	jogLayout_->addWidget(jog, 0, Qt::AlignRight);
 	jogLayout_->addWidget(jog_, 0, Qt::AlignRight);
 
-	//QVBoxLayout *absoluteValueLayout_ = new QVBoxLayout;
 	absoluteValueLayout_ = new QVBoxLayout;
 
 	for (int i = 0, size = motorGroupObject_->size(); i < size; i++){
@@ -193,8 +190,11 @@ AMMotorGroupObjectView::AMMotorGroupObjectView(AMMotorGroupObject *motorGroupObj
 		connect(motorGroupObject_->controlAt(i), SIGNAL(valueChanged(double)), controlSetpoints_.at(i), SLOT(setValue(double)));
 		connect(motorGroupObject_->controlAt(i), SIGNAL(movingChanged(bool)), this, SLOT(onMovingChanged()));
 
-		if(motorGroupObject_->controlAt(i)->isConnected())
+		if(motorGroupObject_->controlAt(i)->isConnected()){
+
 			controlSetpoints_.at(i)->setValue(motorGroupObject_->controlAt(i)->value());
+			controlSetpoints_.at(i)->setRange(motorGroupObject_->controlAt(i)->range().first, motorGroupObject_->controlAt(i)->range().second);
+		}
 	}
 
 	connect(controlSetpoints_.at(0), SIGNAL(editingFinished()), this, SLOT(onFirstControlSetpoint()));
@@ -205,7 +205,6 @@ AMMotorGroupObjectView::AMMotorGroupObjectView(AMMotorGroupObject *motorGroupObj
 	if (controlSetpoints_.size() > 2)
 		connect(controlSetpoints_.at(2), SIGNAL(editingFinished()), this, SLOT(onThirdControlSetpoint()));
 
-	//QHBoxLayout *motorGroupLayout_ = new QHBoxLayout;
 	motorGroupLayout_ = new QHBoxLayout;
 	motorGroupLayout_->addLayout(arrowLayout_);
 	motorGroupLayout_->addLayout(absoluteValueLayout_);
@@ -271,10 +270,10 @@ void AMMotorGroupObjectView::onStopClicked()
 
 void AMMotorGroupObjectView::onMovingChanged()
 {
-	bool isMoving = true;
+	bool isMoving = false;
 
 	foreach (AMControl *control, motorGroupObject_->controls())
-		isMoving &= control->isMoving();
+		isMoving |= control->isMoving();
 
 	status_->setPixmap(QIcon(isMoving ? ":/ON.png" : ":/OFF.png").pixmap(25));
 
@@ -311,13 +310,6 @@ AMMotorGroupView::AMMotorGroupView(AMMotorGroup *motorGroup, QWidget *parent)
 
 	availableMotorGroupObjects_ = new QComboBox;
 
-	/*
-	foreach(QString name, motorGroup_->names()){
-
-		availableMotorGroupObjects_->addItem(name);
-		motorGroupViews_.insert(name, new AMMotorGroupObjectView(motorGroup_->motorGroupObject(name)));
-	}
-	*/
 	QString name;
 	for(int x = 0; x < motorGroup_->size(); x++){
 		name = motorGroup_->names().at(x);
@@ -325,8 +317,6 @@ AMMotorGroupView::AMMotorGroupView(AMMotorGroup *motorGroup, QWidget *parent)
 		AMMotorGroupObjectView *motorGroupObjectView = motorGroup->motorGroupObjects().at(x)->createMotorGroupObjectView();
 		if(motorGroupObjectView)
 			motorGroupViews_.insert(name, motorGroupObjectView);
-		//else
-		//	motorGroupViews_.insert(name, new AMMotorGroupObjectView(motorGroup_->motorGroupObject(name)));
 	}
 
 	foreach (AMMotorGroupObjectView *view, motorGroupViews_.values())

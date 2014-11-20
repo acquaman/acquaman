@@ -35,7 +35,7 @@ AMOrderReductionAB::AMOrderReductionAB(const QString &outputName, QObject *paren
 bool AMOrderReductionAB::areInputDataSourcesAcceptable(const QList<AMDataSource *> &dataSources) const
 {
 	if (dataSources.isEmpty())
-		return true;	// always acceptable; the null input.
+		return true;	// always acceptable, the null input.
 
 	// otherwise we need one input source that is NOT rank 0.
 	if (dataSources.count() == 1 && dataSources.at(0)->rank() != 0)
@@ -119,6 +119,8 @@ void AMOrderReductionAB::setInputSources()
 
 		for (int i = 0; i < source_->rank()-1; i++)
 			axes_.append(AMAxisInfo("invalid", 0, "No input data"));
+
+		updateAxes();
 
 		setDescription(QString("Reduced Order of %1").arg(source_->name()));
 		connect(source_->signalSource(), SIGNAL(valuesChanged(AMnDIndex,AMnDIndex)), this, SLOT(onInputSourceValuesChanged(AMnDIndex,AMnDIndex)));
@@ -242,7 +244,7 @@ bool AMOrderReductionAB::values(const AMnDIndex &indexStart, const AMnDIndex &in
 
 #ifdef AM_ENABLE_BOUNDS_CHECKING
 	for (int i = 0, size = indexStart.rank(); i < size; i++)
-		if((unsigned)indexStart.at(i) >= (unsigned)axes_.at(i).size && (unsigned)indexStart.at(i) == (unsigned)indexEnd.at(i))
+		if((unsigned)indexStart.at(i) >= (unsigned)axes_.at(i).size || (unsigned)indexStart.at(i) > (unsigned)indexEnd.at(i))
 			return false;
 #endif
 
@@ -451,10 +453,28 @@ AMNumber AMOrderReductionAB::axisValue(int axisNumber, int index) const
 	if (axisNumber >= rank())
 		return AMNumber(AMNumber::DimensionError);
 
-	if (index >= axes_.at(axisNumber).size)
+	int actualAxis = inputAxisIndex(axisNumber);
+
+	if (index >= axes_.at(actualAxis).size)
 		return AMNumber(AMNumber::DimensionError);
 
-	return source_->axisValue(inputAxisIndex(axisNumber), index);
+	return source_->axisValue(actualAxis, index);
+}
+
+bool AMOrderReductionAB::axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const
+{
+	if (!isValid())
+		return false;
+
+	if (axisNumber >= rank())
+		return false;
+
+	int actualAxis = inputAxisIndex(axisNumber);
+
+	if (startIndex >= axes_.at(actualAxis).size || endIndex >= axes_.at(actualAxis).size)
+		return false;
+
+	return source_->axisValues(actualAxis, startIndex, endIndex, outputValues);
 }
 
 void AMOrderReductionAB::onInputSourceValuesChanged(const AMnDIndex &start, const AMnDIndex &end)

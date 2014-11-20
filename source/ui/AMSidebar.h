@@ -119,9 +119,6 @@ public:
 		model_->removeRow(item->row(), item->parent()->index());
 	}
 
-	/// Access a QStandardItemModel containing all of the sidebar entries: call QTreeView::model().
-	// QStandardItemModel* model() const;
-
 	/// Access the heading item for a given category
 	AMSidebarHeading* heading(const QString& headingTitle);
 

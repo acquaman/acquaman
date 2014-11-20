@@ -129,7 +129,6 @@ void AMWizardManager::startBeamWizard()
 	beamWizard_->setView(view);
 	beamWizard_->show();
 	emit showSamplePlate(true);
-//	showSamplePlate_->setChecked(true);
 }
 
 void AMWizardManager::startSampleWizard()
@@ -151,8 +150,6 @@ void AMWizardManager::startSampleWizard()
 	connect(samplePlateWizard_, SIGNAL(moveTo(QVector3D,double)), this, SIGNAL(moveBeamSamplePlate(QVector3D,double)));
 	connect(this, SIGNAL(motorMovementEnabled(bool)), samplePlateWizard_, SLOT(setMotorMovementEnabled(bool)));
 	connect(this, SIGNAL(moveSucceeded()), samplePlateWizard_, SIGNAL(moveSucceeded()));
-	//connect(samplePlateWizard_, SIGNAL(requestRotation()), this, SIGNAL(transmitMotorRotation()));
-	//connect(this, SIGNAL(motorRotation(double)), samplePlateWizard_, SLOT(setCurrentRotation(double)));
 	connect(samplePlateWizard_, SIGNAL(signalInitializeSampleShape()), this, SIGNAL(initializeSampleShape()));
 	connect(samplePlateWizard_, SIGNAL(signalShiftSampleShape(QPointF)), this, SIGNAL(shiftSampleShape(QPointF)));
 	connect(samplePlateWizard_, SIGNAL(signalSamplePlateWizardMousePressed(QPointF)), this, SIGNAL(sampleShapeMousePressed(QPointF)));
@@ -201,7 +198,7 @@ void AMWizardManager::cameraWizardUpdate()
 		AMSampleCameraGraphicsView *view = new AMSampleCameraGraphicsView();
 		view->setScene(parentView_->scene());
 		cameraWizard_->updateScene(view);
-		delete view;
+		view->deleteLater();
 	}
 }
 
@@ -212,7 +209,7 @@ void AMWizardManager::beamWizardUpdate()
 		AMSampleCameraGraphicsView *view = new AMSampleCameraGraphicsView();
 		view->setScene(parentView_->scene());
 		beamWizard_->updateScene(view);
-		delete view;
+		view->deleteLater();
 	}
 }
 
@@ -223,7 +220,7 @@ void AMWizardManager::sampleWizardUpdate()
 		AMSampleCameraGraphicsView *view = new AMSampleCameraGraphicsView();
 		view->setScene(parentView_->scene());
 		samplePlateWizard_->updateScene(view);
-		delete view;
+		view->deleteLater();
 	}
 }
 
@@ -234,7 +231,7 @@ void AMWizardManager::rotationWizardUpdate()
 		AMSampleCameraGraphicsView *view = new AMSampleCameraGraphicsView();
 		view->setScene(parentView_->scene());
 		rotationWizard_->updateScene(view);
-		delete view;
+		view->deleteLater();
 	}
 }
 
@@ -246,14 +243,14 @@ void AMWizardManager::updateBeamWizardShape(QGraphicsPolygonItem *item)
 void AMWizardManager::cameraWizardDone()
 {
 	emit cameraWizardFinished();
-	delete cameraWizard_;
+	cameraWizard_->deleteLater();
 	cameraWizard_ = 0;
 }
 
 void AMWizardManager::beamWizardDone()
 {
 	emit beamWizardFinished();
-	delete beamWizard_;
+	beamWizard_->deleteLater();
 	beamWizard_ = 0;
 }
 
@@ -263,13 +260,13 @@ void AMWizardManager::sampleWizardDone()
 		emit sampleWizardFinished();
 	else if(samplePlateWizardType() == SIMPLE)
 		emit simpleSampleWizardFinished();
-	delete samplePlateWizard_;
+	samplePlateWizard_->deleteLater();
 	samplePlateWizard_ = 0;
 }
 
 void AMWizardManager::rotationWizardDone()
 {
 	emit rotationWizardFinished();
-	delete rotationWizard_;
+	rotationWizard_->deleteLater();
 	rotationWizard_ = 0;
 }

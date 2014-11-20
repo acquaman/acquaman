@@ -1,19 +1,8 @@
-include ( acquamanCommon.pri )
+# #####################################################################
+# QMake project file for BioXAS Imaging			October 2014. david.k.chevrier@gmail.com
+# #####################################################################
 
-TARGET = BioXASImagingAcquaman
-
-FORMS +=
-
-HEADERS += \
-    source/application/BioXAS/BioXASImagingAppController.h \
-    source/beamline/BioXAS/BioXASImagingBeamline.h
-
-SOURCES += \
-    source/application/BioXAS/BioXASImagingMain.cpp \
-    source/application/BioXAS/BioXASImagingAppController.cpp \
-    source/beamline/BioXAS/BioXASImagingBeamline.cpp
-
-
-
-
-
+TEMPLATE = subdirs
+SUBDIRS += \
+	Initialize.pro \
+	BioXASImagingAcquaman_internal.pro

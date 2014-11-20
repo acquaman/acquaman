@@ -148,10 +148,8 @@ bool AMSamplePositionPre2013::matchesPositionWithinTolerances(const AMControlInf
 	for(int x = 0; x < position().count(); x++){
 		double otherValue = other.at(x).value();
 		double topLeftValue = topLeftPosition().at(x).value();
-		//double topLeftTolerance = topLeftPosition().at(x).tolerance();
 		double topLeftTolerance = tolerances.at(x);
 		double bottomRightValue = bottomRightPosition().at(x).value();
-		//double bottomRightTolerance = bottomRightPosition().at(x).tolerance();
 		double bottomRightTolerance = tolerances.at(x);
 
 		if(otherValue > std::max(topLeftValue+topLeftTolerance, bottomRightValue+bottomRightTolerance) )
@@ -259,8 +257,6 @@ int AMSamplePlatePre2013::sampleIdAtPosition(const AMControlInfoList &position, 
 	if( tolerances.count() == 0 ){
 		for(int x = count()-1; x >= 0; x--){
 			if( at(x).matchesPosition(position) ){
-			//if( at(x).position() == position ){
-				//qdebug() << "Position at " << x << " matches " << position;
 				return at(x).sampleId();
 			}
 		}
@@ -271,13 +267,7 @@ int AMSamplePlatePre2013::sampleIdAtPosition(const AMControlInfoList &position, 
 		int closestIndex = -1;
 		for(int x = count()-1; x >= 0; x--){
 			tmpRMS = 0;
-			//if( at(x).position().compareWithinTolerance(position, tolerances)){
 			if( at(x).matchesPositionWithinTolerances(position, tolerances)){
-				/*
-				for(int y = 0; y < position.count(); y++)
-					tmpRMS += fabs(at(x).position().at(y).value() - position.at(y).value()) * fabs(at(x).position().at(y).value() - position.at(y).value());
-				tmpRMS = sqrt(tmpRMS);
-				*/
 				tmpRMS = at(x).rms3SpaceDistance(position);
 				if(tmpRMS < rmsDistance){
 					rmsDistance = tmpRMS;
@@ -314,9 +304,6 @@ AMDbObjectList AMSamplePlatePre2013::dbGetPositions() {
 
 // Load the positions for an existing sample plate from the database
 void AMSamplePlatePre2013::dbLoadPositions(const AMDbObjectList& newPositions) {
-
-	//qdebug() << "AMSamplePlate: loading positions in loadFromDb()";
-
 	clear();	// get rid of our existing
 
 	for(int i=0; i<newPositions.count(); i++) {
@@ -329,7 +316,7 @@ void AMSamplePlatePre2013::dbLoadPositions(const AMDbObjectList& newPositions) {
 		}
 
 		if(newPositions.at(i))
-			delete newPositions.at(i);	// we're copying these; don't need to keep these ones around. Our responsibility to delete.
+			newPositions.at(i)->deleteLater();	// we're copying these. Don't need to keep these ones around. Our responsibility to delete.
 	}
 }
 
@@ -346,8 +333,6 @@ bool AMSamplePlatePre2013::loadFromDb(AMDatabase *db, int id)
 		}
 
 		QDateTime afterTime = QDateTime::currentDateTime();
-		//qdebug() << "Started at " << beforeTime.toString("hh:mm:ss.zzz") << " Ended at " << afterTime.toString("hh:mm:ss.zzz") << " Difference of " << afterTime.msecsTo(beforeTime);
-
 		return true;
 	}
 

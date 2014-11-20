@@ -34,6 +34,7 @@ class IDEASXASScanActionController : public AMStepScanActionController
 public:
 	/// Constructor.  Builds a runnable scan action controller for the SGM beamline.
 	IDEASXASScanActionController(IDEASXASScanConfiguration *cfg, QObject *parent = 0);
+	/// Destructor.
 	virtual ~IDEASXASScanActionController();
 
 protected slots:
@@ -49,8 +50,6 @@ protected:
 	virtual void cancelImplementation();
 	/// Reimplemented to populate scan initial conditions
 	void onInitializationActionsListSucceeded();
-
-
 
 	/// Sets the scan axis and adds anything extra.
 	virtual void buildScanControllerImplementation();

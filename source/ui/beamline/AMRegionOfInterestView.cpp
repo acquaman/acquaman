@@ -159,5 +159,5 @@ void AMRegionOfInterestView::removeRegionOfInterest(AMRegionOfInterest *region)
 	AMRegionOfInterestElementView *view = regionsAndViews_.take(region);
 
 	if (view)
-		delete view;
+		view->deleteLater();
 }

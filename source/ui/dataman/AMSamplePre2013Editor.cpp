@@ -52,7 +52,6 @@ AMSamplePre2013Editor::AMSamplePre2013Editor(AMDatabase* db, QWidget *parent) :
 
 	sampleSelector_ = new QComboBox();
 	QListView* lview = new QListView();
-	// lview->setResizeMode(QListView::Adjust);
 	AMDetailedItemDelegate* del = new AMDetailedItemDelegate(this);
 	del->setCloseButtonsEnabled(true);
 	connect(del, SIGNAL(closeButtonClicked(QModelIndex)), this, SLOT(onSampleDeleteButtonClicked(QModelIndex)));
@@ -70,7 +69,6 @@ AMSamplePre2013Editor::AMSamplePre2013Editor(AMDatabase* db, QWidget *parent) :
 	gl->addWidget(l, 0, 0);
 
 	sampleName_ = new QLineEdit();
-	// sampleName_->setFrame(false);
 	gl->addWidget(sampleName_, 0, 1);
 
 	l = new QLabel("created");
@@ -84,7 +82,6 @@ AMSamplePre2013Editor::AMSamplePre2013Editor(AMDatabase* db, QWidget *parent) :
 	gl->addWidget(l, 2, 0);
 
 	sampleElements_ = new QLineEdit();
-	// sampleElements_->setFrame(false);
 	gl->addWidget(sampleElements_, 2, 1);
 
 	setStyleSheet( "#AMSampleEditorLabel {"
@@ -286,7 +283,7 @@ void AMSamplePre2013Editor::onCBCurrentIndexChanged(int index) {
 void AMSamplePre2013Editor::createNewSample() {
 	static int sampleNum = 1;
 
-	delete sample_;
+	sample_->deleteLater();
 	sample_ = new AMSamplePre2013(QString("New Sample %1").arg(sampleNum++), this);
 	sample_->setDateTime(QDateTime::currentDateTime());
 	sample_->storeToDb(db_);

@@ -141,8 +141,6 @@ public:
 
 	}
 
-	// void accept();
-
 
 protected:
 	void initializePage ( int id ) {

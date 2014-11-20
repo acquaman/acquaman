@@ -362,8 +362,10 @@ namespace mu
         case cmDIV:
         case cmPOW:
         case cmASSIGN:
-              //if (len!=sTok.length())
-              //  continue;
+              /*
+              if (len!=sTok.length())
+                continue;
+              */
 
               // The assignement operator need special treatment
               if (i==cmASSIGN && m_iSynFlags & noASSIGN)
@@ -758,7 +760,7 @@ namespace mu
       value_type *fVar = m_pFactory(strTok.c_str(), m_pFactoryData);
       a_Tok.SetVar(fVar, strTok );
 
-      // Do not use m_pParser->DefineVar( strTok, fVar );
+      // Do not use m_pParser->DefineVar( strTok, fVar )
       // in order to define the new variable, it will clear the
       // m_UsedVar array which will kill previousely defined variables
       // from the list
@@ -815,7 +817,7 @@ namespace mu
 		m_pParser->m_vStringBuf.push_back(strTok); // Store string in internal buffer
     a_Tok.SetString(strTok, m_pParser->m_vStringBuf.size());
 
-    m_iPos += (int)strTok.length() + 2 + (int)iSkip;  // +2 wg Anführungszeichen; +iSkip für entfernte escape zeichen
+    m_iPos += (int)strTok.length() + 2 + (int)iSkip;  // +2 wg Anführungszeichen +iSkip für entfernte escape zeichen
     m_iSynFlags = m_iSynFlags = noANY ^ ( noARG_SEP | noBC | noOPT | noEND );
 
     return true;

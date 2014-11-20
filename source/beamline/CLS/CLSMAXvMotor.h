@@ -29,11 +29,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 class AMControlStatusCheckerCLSMAXv : public AMAbstractControlStatusChecker {
 public:
 	/// Status values will be compare to \c isStoppedValue, and return true if the status value is not equal to isStoppedValue (something that isn't stopped is moving)
- 	virtual ~AMControlStatusCheckerCLSMAXv();
+	virtual ~AMControlStatusCheckerCLSMAXv();
 	AMControlStatusCheckerCLSMAXv() {}
 
-	/// Return true (moving) if the \c statusValue is not 0 (STOPPED) and is not 3 (FORCED STOP) and is not 4 (ERROR)
-	virtual bool operator()(quint32 statusValue) { return (statusValue != 0) && (statusValue != 3) && (statusValue != 4); }
+	/// Return true (moving) if the \c statusValue is not 0 (STOPPED) and is not 2 (AT LIMIT) and is not 3 (FORCED STOP) and is not 4 (ERROR)
+	virtual bool operator()(quint32 statusValue) { return (statusValue != 0) && (statusValue != 2) && (statusValue != 3) && (statusValue != 4); }
 };
 
 /*!
@@ -93,11 +93,24 @@ public:
 	  \param moveStartTimeout How long the motor has to start moving before something is considered amis
 	  \param parent QObject parent class
 	  */
- 	virtual ~CLSMAXvMotor();
-	CLSMAXvMotor(const QString &name, const QString &baseName, const QString &description, bool hasEncoder, double tolerance, double moveStartTimeoutSeconds = 2.0, QObject *parent = 0);
+	virtual ~CLSMAXvMotor();
+	CLSMAXvMotor(const QString &name, const QString &baseName, const QString &description, bool hasEncoder, double tolerance, double moveStartTimeoutSeconds = 2.0, QObject *parent = 0, QString pvUnitFieldName=":mm");
 
 	/// Indicates that all process variables for this motor are connected
 	virtual bool isConnected() const;
+
+	/// Returns the basename of the MAXvMotor PVs
+	QString pvBaseName() const;
+	/// Returns the pv name of the MAXvMotor read PV
+	QString readPVName() const;
+	/// Returns the pv name of the MAXvMotor write PV
+	QString writePVName() const;
+	/// Returns the pv name of the MAXvMotor CW Limit PV (:cw)
+	QString CWPVName() const;
+	/// Returns the pv name of the MAXvMotor CCW Limit PV (:ccw)
+	QString CCWPVName() const;
+	/// Returns the pv name of the MAXvMotor status PV (:status)
+	QString statusPVName() const;
 
 	/// Returns the (EGU) velocity setting for the velocity profile.  Returns 0 if the motor isn't connected yet.
 	double EGUVelocity() const;
@@ -169,6 +182,8 @@ public:
 	/// Returns the encoder/step soft ratio. Returns 0 if the motor isn't connected yet.
 	double encoderStepSoftRatio() const;
 
+	/// Returns the status PV control, which can be used as the statusTagControl for control editor
+	AMReadOnlyPVControl *statusPVControl();
 
 	/// Returns a newly created action to move the motor. This is a convenience function that calls the EGU move action. Returns 0 if the control is not connected.
 	AMAction3* createMotorMoveAction(double position);
@@ -293,6 +308,8 @@ public slots:
 	void setEncoderPercentApproach(double encoderPercentApproach);
 	/// Sets the encoder/step soft ratio
 	void setEncoderStepSoftRatio(double encoderStepSoftRatio);
+	/// Start a move to the value setpoint (reimplemented)
+	virtual FailureExplanation move(double setpoint);
 
 signals:
 	/// Emitted when the (EGU) velocity setting changes
@@ -393,6 +410,9 @@ protected slots:
 	void onEncoderMovementTypeChanged(double value);
 
 protected:
+	/// the baseName of the MAXvMotor PVs
+	QString pvBaseName_;
+
 	/// Read-write control for the (EGU) velocity setting
 	AMPVControl *EGUVelocity_;
 	/// Read-write control for (EGU) base velocity setting
@@ -422,6 +442,9 @@ protected:
 	AMReadOnlyPVControl *cwLimit_;
 	/// Readonly contorl for whether or not the motor is at the CCW limit
 	AMReadOnlyPVControl *ccwLimit_;
+
+	/// Readonly contorl for PV status, which can be used as the statusTagControl for control editor
+	AMReadOnlyPVControl *statusPVControl_;
 
 	/// Read-write control for the power state settings
 	AMPVControl *powerState_;

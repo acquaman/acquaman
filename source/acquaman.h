@@ -39,10 +39,6 @@ namespace AM {
 	/// Application-wide type definitions used inthe Qt StandardItem Model/View system
 	enum ItemTypes { DragDropItem = QStandardItem::UserType + 1, SidebarItem, SidebarHeadingItem };
 
-
-	// REMOVED: Application-wide QVariant user types
-	// enum AcquamanType { IntList = QVariant::UserType + 20, DoubleList };
-
 	/// Acquaman-specific event types
 	enum EventType { AcqEvent = QEvent::User+20, AcqErrorEvent, VideoResizeEvent, ItemChangedEvent, ThumbnailsGeneratedEvent };
 

@@ -92,7 +92,7 @@ void AMActionRunnerCurrentViewBase::onPauseButtonClicked()
 	}
 
 	if(currentAction->state() == AMAction3::Running && currentAction->pause())
-		;	// successfully paused; do nothing.
+		;	// successfully paused, do nothing.
 	else
 		QMessageBox::warning(this, "This action can't be paused", QString("This '%1' action cannot be paused right now.\n\n(Some actions just can't be paused, and others can't be paused at certain points in time.)").arg(currentAction->info()->typeDescription()), QMessageBox::Ok);
 }
@@ -151,7 +151,11 @@ void AMActionRunnerCurrentViewBase::onSkipButtonClicked()
 
 void AMActionRunnerCurrentViewBase::onCancelButtonClicked()
 {
-	if (qobject_cast<AMScanAction *>(actionRunner_->currentAction()) && showCancelPrompt_){
+	AMScanAction *scanAction = qobject_cast<AMScanAction *>(actionRunner_->currentAction());
+	AMListAction3 *listAction = qobject_cast<AMListAction3 *>(actionRunner_->currentAction());
+	bool scanActionRunning = (scanAction != 0) || (qobject_cast<AMScanAction *>(listAction->currentSubAction()) != 0);
+
+	if (scanActionRunning && showCancelPrompt_){
 
 		AMCancelActionPrompt cancelPrompt;
 		cancelPrompt.setWindowTitle("Cancel Scan");

@@ -52,7 +52,6 @@ AMExportWizard::AMExportWizard(AMExportController* controller, QWidget *parent) 
 	addPage(new AMExportWizardChooseExporterPage);
 	optionsPage_ = new AMExportWizardOptionPage();
 	addPage(optionsPage_);
-	//addPage(new AMExportWizardOptionPage);
 	addPage(new AMExportWizardProgressPage);
 
 	setWindowTitle(QString("Exporting %1 Scans...").arg(controller_->scanCount()));
@@ -101,10 +100,6 @@ AMExportWizardChooseExporterPage::AMExportWizardChooseExporterPage(QWidget *pare
 	populateExporterComboBox();
 	connect(exporterComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onExporterComboBoxIndexChanged(int)));
 	connect(browseButton_, SIGNAL(clicked()), this, SLOT(onBrowseButtonClicked()));
-
-	//registerField("exporterComboBoxIndex", exporterComboBox_);
-	//registerField("exportLocation", destinationFolder_);
-
 
 	QFormLayout* fl = new QFormLayout();
 	QHBoxLayout* hl = new QHBoxLayout();
@@ -253,7 +248,6 @@ bool AMExportWizardOptionPage::onSaveOptionButtonClicked() {
 			else if(ok) {
 				option_->setName(name);
 				if(option_->storeToDb(AMDatabase::database("user"))) {
-					// populateOptionSelector(); instead... sneak it into the list without forcing a re-load.
 					optionSelector_->blockSignals(true);
 					optionSelector_->addItem(option_->name(), QString("%1||%2").arg(option_->database()->connectionName()).arg(option_->id()));
 					optionSelector_->setCurrentIndex(optionSelector_->count()-1);
@@ -267,7 +261,7 @@ bool AMExportWizardOptionPage::onSaveOptionButtonClicked() {
 					return false;	// storeToDb save failed.
 			}
 		}
-		// prompt was cancelled; not saved.
+		// prompt was cancelled, not saved.
 		return false;
 	}
 }
@@ -291,7 +285,6 @@ bool AMExportWizardOptionPage::onSaveAsOptionButtonClicked(){
 		else if(ok) {
 			option_->setName(name);
 			if(option_->storeToDb(AMDatabase::database("user"))) {
-				// populateOptionSelector(); instead... sneak it into the list without forcing a re-load.
 				optionSelector_->blockSignals(true);
 				optionSelector_->addItem(option_->name(), QString("%1||%2").arg(option_->database()->connectionName()).arg(option_->id()));
 				optionSelector_->setCurrentIndex(optionSelector_->count()-1);
@@ -305,7 +298,7 @@ bool AMExportWizardOptionPage::onSaveAsOptionButtonClicked(){
 				return false;	// storeToDb save failed.
 		}
 	}
-	// prompt was cancelled; not saved.
+	// prompt was cancelled, not saved.
 	return false;
 }
 
@@ -359,13 +352,12 @@ void AMExportWizardOptionPage::initializePage()
 
 void AMExportWizardOptionPage::onOptionSelectorIndexChanged(int index)
 {
-	delete optionView_;	// might be 0 if no option yet... or if last option couldn't create an editor. but that's okay.
+	optionView_->deleteLater();	// might be 0 if no option yet... or if last option couldn't create an editor. but that's okay.
 
 	// add new option...
 	if(index < 1) {
 		option_ = exporter_->createDefaultOption();
 		controller_->setOption(option_);	// will delete the previous option_
-		//saveOptionButton_->setText("Save As...");
 		saveOptionButton_->setEnabled(false);
 		saveAsOptionButton_->setEnabled(true);
 	}
@@ -418,7 +410,17 @@ void AMExportWizardOptionPage::populateOptionSelector()
 		q.finish();
 	}
 
-	optionSelector_->setCurrentIndex(optionSelector_->count()-1);
+	if(controller_->option())
+	{
+		QString controllerOptionName = controller_->option()->name();
+
+		for (int iComboBoxOption = 0, size = optionSelector_->count(); iComboBoxOption < size; iComboBoxOption++)
+		{
+			if(optionSelector_->itemText(iComboBoxOption) == controllerOptionName)
+				optionSelector_->setCurrentIndex(iComboBoxOption);
+		}
+	}
+
 	optionSelector_->blockSignals(false);
 
 	onOptionSelectorIndexChanged(optionSelector_->count()-1);

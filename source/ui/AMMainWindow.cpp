@@ -55,6 +55,7 @@ AMMainWindow::AMMainWindow(QWidget *parent) : QWidget(parent) {
 							" QTreeView::item::selected { background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(91, 146, 213, 255), stop:1 rgba(22, 84, 170, 255)); } ");
 	AMCloseItemDelegate* del = new AMCloseItemDelegate();
 	del->setCloseButtonsEnabled(true);
+	del->setRightClickEnabled(true);
 	sidebar_->setItemDelegate(del);
 
 
@@ -85,6 +86,9 @@ AMMainWindow::AMMainWindow(QWidget *parent) : QWidget(parent) {
 
 	// connect 'close' signal from AMCloseItemDelegate
 	connect(del, SIGNAL(closeButtonClicked(QModelIndex)), this, SLOT(onItemCloseButtonClicked(QModelIndex)));
+	// connect 'right click' signal from AMCloseItemDelegate
+	connect(del, SIGNAL(rightClickDetected(QModelIndex,QPoint)), this, SLOT(onItemRightClickDetected(QModelIndex,QPoint)));
+
 }
 
 AMMainWindow::~AMMainWindow() {
@@ -92,13 +96,13 @@ AMMainWindow::~AMMainWindow() {
 	QList<QWidget*> panes = model_->allPanes();
 
 	// get rid of the sidebar, so that it's not emitting signals and causing changes while we delete the widgets themselves.
-	delete sidebar_;
+	sidebar_->deleteLater();
 
 	// delete the model.
-	delete model_;
+	model_->deleteLater();
 
 	foreach(QWidget* pane, panes) {
-		delete pane;
+		pane->deleteLater();
 	}
 }
 
@@ -118,7 +122,7 @@ void AMMainWindow::deletePane(QWidget* pane) {
 	removePane(pane);
 
 	// delete actual widget:
-	delete pane;
+	pane->deleteLater();
 }
 
 
@@ -145,13 +149,10 @@ void AMMainWindow::onModelRowsInserted(const QModelIndex &parent, int start, int
 	for(int row=start; row<=end; row++) {
 		QModelIndex i = model_->index(row, 0, parent);
 
-		// qdebug() << "Inserting new item. isAlias() = " << model_->isAlias(i) << "isHeading = " << model_->isHeading(i);
-
 		// for "real" item entries. (Nothing to do for aliases or headings)
 		if(!model_->isAlias(i) && !model_->isHeading(i)) {
 
 			QWidget* pane = model_->pane(i);
-			// qdebug() << "  Still inserting new item. pane is:" << pane;
 
 			if(model_->isDocked(i) && pane) {
 				stackWidget_->addWidget(pane);
@@ -184,9 +185,6 @@ void AMMainWindow::onModelRowsAboutToBeRemoved(const QModelIndex &parent, int st
 					// If this was the currently-selected item, select something different in the main window. We don't want to have that sidebar item selected if its corresponding widget is removed.
 					if(stackWidget_->currentWidget() == pane)
 						sidebar_->setCurrentIndex(getPreviousSelection(i));
-					else {
-						// qdebug() << "Not current widget";
-					}
 
 					QSize oldSize = pane->size();
 					QPoint oldPos = pane->mapToGlobal(pane->geometry().topLeft());
@@ -202,6 +200,10 @@ void AMMainWindow::onModelRowsAboutToBeRemoved(const QModelIndex &parent, int st
 
 void AMMainWindow::onItemCloseButtonClicked(const QModelIndex &index) {
 	emit itemCloseButtonClicked(index);
+}
+
+void AMMainWindow::onItemRightClickDetected(const QModelIndex &index, const QPoint &globalPosition){
+	emit itemRightClicked(index, globalPosition);
 }
 
 void AMMainWindow::onDockStateChanged(QWidget* pane, bool isDocked, bool shouldResize) {
@@ -263,8 +265,6 @@ void AMMainWindow::onSidebarItemSelectionChanged() {
 		index = selectedItems.at(0);
 	}
 
-	// qdebug() << "Sidebar selection changed with index " << index;
-
 	if(!index.isValid()) {
 		// do nothing?
 		return;
@@ -308,9 +308,6 @@ void AMMainWindow::addToPreviousSelectionsQueue(const QModelIndex &current)
 
 QModelIndex AMMainWindow::getPreviousSelection(const QModelIndex &current)
 {
-	// qdebug() << "Current index:" << current;
-	// qdebug()<< "Previous selections list:" << previousSelections_;
-
 	QPersistentModelIndex potential;
 	bool searchSuccess = false;
 	while(!searchSuccess && !previousSelections_.isEmpty() ) {
@@ -320,8 +317,6 @@ QModelIndex AMMainWindow::getPreviousSelection(const QModelIndex &current)
 	}
 
 	QModelIndex rv = searchSuccess ? QModelIndex(potential) : QModelIndex();
-
-	// qdebug() << "Recommending go to" << rv;
 	return rv;
 }
 

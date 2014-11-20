@@ -36,7 +36,7 @@ AM3DDeadTimeCorrectionAB::AM3DDeadTimeCorrectionAB(const QString &outputName, QO
 bool AM3DDeadTimeCorrectionAB::areInputDataSourcesAcceptable(const QList<AMDataSource*>& dataSources) const
 {
 	if(dataSources.isEmpty())
-		return true; // always acceptable; the null input.
+		return true; // always acceptable, the null input.
 
 	// otherwise there are three data sources with rank 2.
 	if (dataSources.count() == 3
@@ -199,6 +199,20 @@ AMNumber AM3DDeadTimeCorrectionAB::axisValue(int axisNumber, int index) const
 #endif
 
 	return spectra_->axisValue(axisNumber, index);
+}
+
+bool AM3DDeadTimeCorrectionAB::axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const
+{
+	if (!isValid())
+		return false;
+
+	if (axisNumber != 0 && axisNumber != 1 && axisNumber != 2)
+		return false;
+
+	if (startIndex >= spectra_->size(axisNumber) || endIndex >= spectra_->size(axisNumber))
+		return false;
+
+	return spectra_->axisValues(axisNumber, startIndex, endIndex, outputValues);
 }
 
 void AM3DDeadTimeCorrectionAB::onInputSourceValuesChanged(const AMnDIndex& start, const AMnDIndex& end)

@@ -298,19 +298,21 @@ void AMSampleView::setCurrentTag()
 void AMSampleView::updateTags(QStringList tags)
 {
 	Q_UNUSED(tags)
-	//	qdebug()<<"Updating tags";
-	//	updateFrames();
-	//	QStringListModel* stringModel = qobject_cast<QStringListModel*>(tagBox_->model());
-	//	stringModel->setStringList(sample_->tags());
-	//	if(stringModel)
-	//	{
-	//		stringModel->setStringList(tags);
-	//		tagBox_->setModel(stringModel);
-	//	}
-	//	else
-	//	{
-	//		qdebug()<<"AMSampleView::updateTags - Failed to cast string list";
-	//	}
+	/*
+	qdebug()<<"Updating tags";
+	updateFrames();
+	QStringListModel* stringModel = qobject_cast<QStringListModel*>(tagBox_->model());
+	stringModel->setStringList(sample_->tags());
+	if(stringModel)
+	{
+		stringModel->setStringList(tags);
+		tagBox_->setModel(stringModel);
+	}
+	else
+	{
+		qdebug()<<"AMSampleView::updateTags - Failed to cast string list";
+	}
+	*/
 }
 
 void AMSampleView::onSampleAboutToBeRemoved()

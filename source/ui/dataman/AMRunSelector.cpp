@@ -40,7 +40,8 @@ AMRunSelector:: AMRunSelector(AMDatabase* db, QWidget *parent)
 
 	QListView* v = new QListView();
 	setView(v);
-	v->setItemDelegate(new AMDetailedItemDelegate());
+	itemDelegate_ = new AMDetailedItemDelegate();
+	v->setItemDelegate(itemDelegate_);
 	v->setResizeMode(QListView::Adjust);
 
 	database_ = db;
@@ -64,7 +65,9 @@ AMRunSelector:: AMRunSelector(AMDatabase* db, QWidget *parent)
 
 
 AMRunSelector::~AMRunSelector(){
-
+	itemDelegate_->deleteLater();
+	if(newRunDialog_)
+		newRunDialog_->deleteLater();
 }
 
 /// This function searches through the database for existing runs and adds the run names into the database. In addition, this function also stores the facility thumbnail as a decoration role, the run id as a user role, and the facility description as a tool tip role. \todo Performance question: check how often this is getting called. It might be being called more often than necessary.
@@ -164,9 +167,9 @@ void AMRunSelector::showAddRunDialog() {
 		newRunDialog_->deleteLater();
 		newRunDialog_ = 0;
 	}
-	newRunDialog_ = new AMNewRunDialog(database_, this);
+	newRunDialog_ = new AMNewRunDialog(database_);
 	newRunDialog_->show();
-	connect(newRunDialog_,SIGNAL(dialogBoxClosed(int)),this,SLOT(onAddRunDialogClosed(int)));
+	connect(newRunDialog_, SIGNAL(dialogBoxClosed(int)), this, SLOT(onAddRunDialogClosed(int)));
 }
 
 /// This function adds all runs from the database and sets the combo box index to select the 1st run down.

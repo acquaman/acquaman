@@ -38,7 +38,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QAbstractButton>
 #include <QCheckBox>
 #include <QLineEdit>
-#include <QResizeEvent>
+
+#include "AMQEvents.h"
 
 #include "beamline/camera/AMGraphicsVideoSceneCopier.h"
 #include "AMSampleCameraGraphicsView.h"
@@ -65,7 +66,7 @@ AMGraphicsViewWizard::AMGraphicsViewWizard(QWidget* parent)
 	#endif
 
 	/// set the default free page. Make sure to set if not using
-	/// default pages.  Set through setFreePage(freePageNumber);
+	/// default pages.  Set through setFreePage(freePageNumber)
 	freePage_ = Default_Free;
 
 
@@ -90,12 +91,10 @@ AMGraphicsViewWizard::~AMGraphicsViewWizard()
 	if(videoItem)
 	{
 		QMediaPlayer* player = (QMediaPlayer*)videoItem->mediaObject();
-//		QVideoWidget* nullPlayer = 0;
 		player->stop();
-//		player->setVideoOutput(nullPlayer);
 		view_->scene()->removeItem(videoItem);
-		delete player;
-		delete videoItem;
+		player->deleteLater();
+		videoItem->deleteLater();
 	}
 	#endif
 }
@@ -201,9 +200,9 @@ QString AMGraphicsViewWizard::message(int type)
 	//  case page1:
 	//      switch(type)
 	//          case Title:
-	//              return "Title Text";
+	//              return "Title Text"
 	//          case Help:
-	//              return "Help message text";
+	//              return "Help message text"
 	//  etc.
 	//  when using non-specified wait/set pages, put in default case:
 	//	default:
@@ -299,9 +298,7 @@ void AMGraphicsViewWizard::checkMotorMovementState()
 
 void AMGraphicsViewWizard::setView(AMSampleCameraGraphicsView *view)
 {
-	view_ = view;//new AMSampleCameraGraphicsView();
-
-//	copyView(view_,view);
+	view_ = view;
 
 	view_->setObjectName("AMGraphicsViewWizard view 1");
 
@@ -340,7 +337,6 @@ void AMGraphicsViewWizard::setView(AMSampleCameraGraphicsView *view)
 			QGraphicsVideoItem* videoItem = qgraphicsitem_cast<QGraphicsVideoItem*>(item);
 			if(videoItem)
 			{
-//				view_->setVideoItem(videoItem);
 				QMediaPlayer* videoPlayer = qobject_cast<QMediaPlayer*>(videoItem->mediaObject());
 				if(videoPlayer)
 				{
@@ -479,7 +475,7 @@ void AMGraphicsViewWizard::mediaPlayerErrorChanged(QMediaPlayer::Error state)
 		// attempt to restart player
 		if(success)
 		{
-			delete mediaPlayer_;
+			mediaPlayer_->deleteLater();
 			mediaPlayer_ = new QMediaPlayer();
 			mediaPlayer_->setMedia(mediaUrl);
 			mediaPlayer_->setVideoOutput(videoItem);
@@ -845,7 +841,6 @@ void AMWizardOptionPage::initializePage()
 	{
 		coordinateEdit_[i] = new QLineEdit();
 	}
-	//    int numberOfRows = points/2 + points%2;
 	QFrame* rowFrame [points];
 	QHBoxLayout* rowLayout [points];
 	coordinateFrame_ = new QFrame();
@@ -897,7 +892,7 @@ void AMWizardOptionPage::initializePage()
 void AMWizardOptionPage::cleanupPage()
 {
 	layout()->removeWidget(coordinateFrame_);
-	delete coordinateFrame_;
+	coordinateFrame_->deleteLater();
 }
 
 bool AMWizardOptionPage::isComplete() const
@@ -938,10 +933,3 @@ void AMWizardOptionPage::textChanged()
 
 
 }
-
-
-
-
-
-
-

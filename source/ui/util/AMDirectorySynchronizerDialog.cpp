@@ -1,5 +1,7 @@
 #include "AMDirectorySynchronizerDialog.h"
 
+#include "AMQEvents.h"
+
 #include <QTextEdit>
 #include <QPushButton>
 #include <QProgressBar>
@@ -7,7 +9,6 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QGridLayout>
-#include <QCloseEvent>
 #include <QMessageBox>
 #include <QApplication>
 
@@ -95,12 +96,9 @@ AMDirectorySynchronizerDialog::AMDirectorySynchronizerDialog(const QString &side
 
 
 	setLayout(mainLayout);
-	//synchronizer_ = new AMDirectorySynchronizer(AMUserSettings::userDataFolder, AMUserSettings::remoteDataFolder);
 	synchronizer_ = new AMDirectorySynchronizer(side1Directory_, side2Directory_);
 	synchronizer_->setSide1DirectorName(side1DirectoryName_);
 	synchronizer_->setSide2DirectorName(side2DirectoryName_);
-//	synchronizer_->appendExcludePattern("*.db.bk.*");
-//	synchronizer_->appendExcludePattern(".BACKUPS");
 	synchronizer_->setAllowSide1Creation(true);
 
 	connect(synchronizer_, SIGNAL(copyCompleted()), this, SLOT(onSynchronizerComplete()));
@@ -232,9 +230,6 @@ void AMDirectorySynchronizerDialog::prepare(){
 	feedbackStackWidget_->collapseItem(1);
 	feedbackStackWidget_->collapseItem(2);
 
-
-//	lastCompareResult_ = synchronizer_->prepare();
-
 	qRegisterMetaType<AMRecursiveDirectoryCompare::DirectoryCompareResult>("DirectorCompareResult");
 	connect(synchronizer_, SIGNAL(prepared(AMRecursiveDirectoryCompare::DirectoryCompareResult)), this, SLOT(onPrepared(AMRecursiveDirectoryCompare::DirectoryCompareResult)));
 
@@ -247,8 +242,18 @@ void AMDirectorySynchronizerDialog::prepare(){
 	QTimer::singleShot(0, synchronizer_, SLOT(prepare()));
 }
 
+void AMDirectorySynchronizerDialog::onPreparedHelper(){
+	onPrepared(lastCompareResult_);
+}
+
 void AMDirectorySynchronizerDialog::onPrepared(AMRecursiveDirectoryCompare::DirectoryCompareResult comparisonResult){
 	lastCompareResult_ = comparisonResult;
+
+	if(synchronizer_->thread() != thread()){
+		QTimer::singleShot(10, this, SLOT(onPreparedHelper()));
+		return;
+	}
+
 
 	overallTransferProgressBar_->setMinimum(100);
 	overallTransferProgressBar_->setMaximum(100);
@@ -351,19 +356,6 @@ bool AMDirectorySynchronizerDialog::start()
 	connect(this, SIGNAL(prepared()), this, SLOT(onStartPrepared()));
 	prepare();
 	return true;
-
-//	mainStatusLabel_->setText("Synchronzing directories. This may take some time, please wait ...");
-
-//	prepareButton_->setEnabled(false);
-//	startButton_->setEnabled(false);
-
-//	feedbackStackWidget_->collapseItem(1);
-
-//	if(synchronizer_->start())
-//		return true;
-
-//	onSynchronizerFailed();
-//	return false;
 }
 
 void AMDirectorySynchronizerDialog::onStartPrepared(){

@@ -40,7 +40,6 @@ public:
 	/// Returns the number of dimensions in the output of this detector. This is a spectrum detector, so it has a rank of 1.
 	virtual int rank() const { return 1; }
 	/// Returns the size (ie: number of elements) along each dimension of the detector.  Currently this is hardcoded to 3648.
-	//virtual AMnDIndex size() const { return AMnDIndex(1024); }
 	virtual AMnDIndex size() const { return AMnDIndex(3648); }
 	/// Returns the size along a single axis \c axisNumber. This should be fast. \c axisNumber is assumed to be between 0 and rank()-1.
 	virtual int size(int axisNumber) const;
