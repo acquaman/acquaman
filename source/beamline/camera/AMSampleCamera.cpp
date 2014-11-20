@@ -1268,7 +1268,8 @@ void AMSampleCamera::moveToSampleRequested(AMShapeData *shapeData){
 		upStreamDownStream = shift.y();
 		upDown = shift.z();
 
-		moveMotors(inboardOutboard, upStreamDownStream, upDown);
+		//moveMotors(inboardOutboard, upStreamDownStream, upDown);
+		moveXZ(inboardOutboard, upDown);
 
 	}
 	emit motorCoordinateChanged(motorCoordinate());
@@ -1305,10 +1306,10 @@ AMAction3* AMSampleCamera::createMoveToSampleAction(const AMSample *sample){
 	moveAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(moveControlInfo), ssaManipulatorX_);
 	retVal->addSubAction(moveAction);
 
-	moveControlInfo = ssaManipulatorY_->toInfo();
-	moveControlInfo.setValue(upStreamDownStream);
-	moveAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(moveControlInfo), ssaManipulatorY_);
-	retVal->addSubAction(moveAction);
+//	moveControlInfo = ssaManipulatorY_->toInfo();
+//	moveControlInfo.setValue(upStreamDownStream);
+//	moveAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(moveControlInfo), ssaManipulatorY_);
+//	retVal->addSubAction(moveAction);
 
 	moveControlInfo = ssaManipulatorZ_->toInfo();
 	moveControlInfo.setValue(upDown);
@@ -1376,7 +1377,8 @@ void AMSampleCamera::shiftToPoint(QPointF position, QPointF crosshairPosition)
 		upStreamDownStream = shift.y();
 		upDown = shift.z();
 
-		moveMotors(inboardOutboard, upStreamDownStream, upDown);
+		//moveMotors(inboardOutboard, upStreamDownStream, upDown);
+		moveXZ(inboardOutboard, upDown);
 
 	}
 	emit motorCoordinateChanged(motorCoordinate());
@@ -3237,6 +3239,15 @@ QVector3D AMSampleCamera::beamIntersectionPoint(QVector3D samplePoint, bool find
 		return topLeftBeamIntersectionPoint;
 	}
 	return  beamSpot;
+}
+
+bool AMSampleCamera::moveXZ(double x, double z){
+	if(motorMovementEnabled()){
+		AMControl::FailureExplanation xRetVal = ssaManipulatorX_->move(x);
+		AMControl::FailureExplanation zRetVal = ssaManipulatorZ_->move(z);
+		return ((xRetVal == AMControl::NoFailure) && (zRetVal == AMControl::NoFailure));
+	}
+	return false;
 }
 
 /// moves the x, y, z motors
