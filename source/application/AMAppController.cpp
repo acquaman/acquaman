@@ -425,7 +425,6 @@ bool AMAppController::startupInstallActions()
 		fileMenu_->addSeparator();
 		fileMenu_->addAction(changeRunAction);
 
-		viewMenu_ = menuBar_->addMenu("View");
 		viewMenu_->addAction(openScanActionsViewAction);
 		viewMenu_->addAction(automaticLaunchScanEditorAction);
 

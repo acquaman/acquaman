@@ -48,6 +48,7 @@ class AMDatabase;
 class AMDbUpgrade;
 class AMScan;
 class AMDirectorySynchronizerDialog;
+class AMScanEditorsCloseView;
 
 #define AMDATAMANAPPCONTROLLER_STARTUP_MESSAGES 42001
 #define AMDATAMANAPPCONTROLLER_STARTUP_FINISHED 42002
@@ -285,6 +286,9 @@ protected slots:
 	/// This is called when the user clicks any of the available "close" buttons in the main window's sidebar. For now, this could involve closing a scan editor window, or deleting an experiment.
 	virtual void onWindowPaneCloseButtonClicked(const QModelIndex& index);
 
+	/// This is called when the user right clicks any of the items in the main window's sidebar.
+	virtual void onWindowPaneRightClicked(const QModelIndex &index, const QPoint &globalPosition);
+
 	/// This is called when the issue submission view is finished and no longer needed
 	virtual void onIssueSubmissionViewFinished();
 
@@ -297,6 +301,13 @@ protected slots:
 
 	/// Slot which shows the application's about page
 	void onShowAboutPage();
+
+	/// Handles opening up the AMScanEditorsCloseView
+	void openScanEditorsCloseView(AMGenericScanEditor *editor = 0);
+	/// Handles request from the AMScanEditorsCloseView to close a list of editors
+	void onScanEditorsCloseViewCloseRequested(QList<AMGenericScanEditor*> editorsToClose);
+	/// Handles cleaning up the AMScanEditorsCloseView when its closed
+	void onScanEditorsCloseViewClosed();
 
 protected:
 	/// Returns whether or not this application intends to use local storage as the default
@@ -341,7 +352,9 @@ protected:
 
 	/// Menus
 	QMenuBar* menuBar_;
-	QMenu *fileMenu_, *helpMenu_;
+	QMenu *fileMenu_;
+	QMenu *viewMenu_;
+	QMenu *helpMenu_;
 	/// The action that triggers saving the current AMScanView image.
 	QAction* exportGraphicsAction_;
 	QAction* printGraphicsAction_;
@@ -394,6 +407,9 @@ protected:
 
 	/// Flag for if the call to startupIsFirstTime() detects an error
 	bool firstTimeError_;
+
+	/// Window to handle closing of multiple scan editors
+	AMScanEditorsCloseView *scanEditorCloseView_;
 
 private:
 	/// Holds the QObject whose signal is currently being used to connect to the onStartupFinished slot

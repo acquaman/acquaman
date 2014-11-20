@@ -55,6 +55,7 @@ AMMainWindow::AMMainWindow(QWidget *parent) : QWidget(parent) {
 							" QTreeView::item::selected { background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(91, 146, 213, 255), stop:1 rgba(22, 84, 170, 255)); } ");
 	AMCloseItemDelegate* del = new AMCloseItemDelegate();
 	del->setCloseButtonsEnabled(true);
+	del->setRightClickEnabled(true);
 	sidebar_->setItemDelegate(del);
 
 
@@ -85,6 +86,9 @@ AMMainWindow::AMMainWindow(QWidget *parent) : QWidget(parent) {
 
 	// connect 'close' signal from AMCloseItemDelegate
 	connect(del, SIGNAL(closeButtonClicked(QModelIndex)), this, SLOT(onItemCloseButtonClicked(QModelIndex)));
+	// connect 'right click' signal from AMCloseItemDelegate
+	connect(del, SIGNAL(rightClickDetected(QModelIndex,QPoint)), this, SLOT(onItemRightClickDetected(QModelIndex,QPoint)));
+
 }
 
 AMMainWindow::~AMMainWindow() {
@@ -196,6 +200,10 @@ void AMMainWindow::onModelRowsAboutToBeRemoved(const QModelIndex &parent, int st
 
 void AMMainWindow::onItemCloseButtonClicked(const QModelIndex &index) {
 	emit itemCloseButtonClicked(index);
+}
+
+void AMMainWindow::onItemRightClickDetected(const QModelIndex &index, const QPoint &globalPosition){
+	emit itemRightClicked(index, globalPosition);
 }
 
 void AMMainWindow::onDockStateChanged(QWidget* pane, bool isDocked, bool shouldResize) {

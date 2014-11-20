@@ -55,21 +55,24 @@ public:
 	/// indicates whether items are immediately removed and deleted from the model when a close button is clicked
 	CloseButtonAction closeButtonAction() const { return closeButtonAction_; }
 
+	/// Indicates whether or not right clicks are processed
+	bool rightClickEnabled() const;
+
 
 signals:
+	/// Emitted when a valid close button is clicked with the index of the item that was closed
 	void closeButtonClicked(const QModelIndex& itemIndex);
 
+	/// Emitted when a valid right click is received with the index of the item and the global screen position
+	void rightClickDetected(const QModelIndex &itemIndex, const QPoint &globalPositionPoint);
+
 public slots:
-	void setCloseButtonsEnabled(bool closeButtonsOn = true) {
-		if( (closeButtonEnabled_ = closeButtonsOn) )
-			closeButton_ = QPixmap(":/closeButton.png");
-		else
-			closeButton_ = QPixmap();
-	}
+	void setCloseButtonsEnabled(bool closeButtonsOn = true);
+
 	/// This controls the behaviour when the close buttons are enabled, and the user clicks the close button on an item.  If the \c closeButtonAction is AMDetailedItemDelegate::SignalOnly, then only the closeButtonClicked() signal is emitted with the index of the item.  If the \c closeButtonAction is AMDetailedItemDelegate::RemoveFromModel, then the item will be instantly removed from the model as well.
-	void setCloseButtonAction(int closeButtonAction = SignalOnly) {
-		closeButtonAction_ = (CloseButtonAction)closeButtonAction;
-	}
+	void setCloseButtonAction(int closeButtonAction = SignalOnly);
+
+	void setRightClickEnabled(bool rightClickEnabled);
 
 protected:
 
@@ -82,6 +85,9 @@ protected:
 	bool closeButtonEnabled_;
 	/// holds the rectangle occupied by the close button, in "local" (referenced to item rect's topLeft()) coordinates
 	mutable QRect closeButtonRect_;
+
+	/// Flag for whether or not this item delegate will emit signals related to right click events
+	bool rightClickEnabled_;
 
 
 	CloseButtonAction closeButtonAction_;

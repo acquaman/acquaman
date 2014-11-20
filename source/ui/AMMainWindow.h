@@ -125,6 +125,9 @@ signals:
 	/// Emitted when an item in the window pane model has its "Close" button clicked. The model index \c index corresponds to the item in the model. What to do in this situation is up to you. AMMainWindow doesn't take any action here.
 	void itemCloseButtonClicked(const QModelIndex& index);
 
+	/// Emitted when can item in the window pane model is right clicked
+	void itemRightClicked(const QModelIndex &index, const QPoint &globalPosition);
+
 protected slots:
 	// Responding to the sidebar QTreeView selections
 	//////////////////////////////////////////////////
@@ -149,6 +152,9 @@ protected slots:
 
 	/// Catches when an item has been 'closed' by clicking on it's 'X' in the sidebar
 	void onItemCloseButtonClicked(const QModelIndex& index);
+
+	/// Catches when an item has been 'right clicked'
+	void onItemRightClickDetected(const QModelIndex& index, const QPoint &globalPosition);
 
 protected:
 	QStackedWidget* stackWidget_;

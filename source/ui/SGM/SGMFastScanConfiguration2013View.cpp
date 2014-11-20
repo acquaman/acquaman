@@ -29,10 +29,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QSpinBox>
 #include <QLineEdit>
 #include <QFormLayout>
+#include <QCheckBox>
 
 #include "ui/AMTopFrame.h"
 
- SGMFastScanConfiguration2013View::~SGMFastScanConfiguration2013View(){}
 SGMFastScanConfiguration2013View::SGMFastScanConfiguration2013View(SGMFastScanConfiguration2013 *sfsc, QWidget *parent) :
 		AMScanConfigurationView(parent)
 {
@@ -46,7 +46,13 @@ SGMFastScanConfiguration2013View::SGMFastScanConfiguration2013View(SGMFastScanCo
 
 		presetsComboBox_ = new QComboBox();
 		presetsComboBox_->addItems(sfsc->presets());
+		if(cfg_->currentPresetIndex() >= 0)
+			presetsComboBox_->setCurrentIndex(cfg_->currentPresetIndex());
 		connect(presetsComboBox_, SIGNAL(currentIndexChanged(int)), sfsc, SLOT(setParametersFromPreset(int)));
+
+		enableUpDownScanningCheckBox_ = new QCheckBox("Up/Down Scanning");
+		enableUpDownScanningCheckBox_->setChecked(cfg_->enableUpDownScanning());
+		connect(enableUpDownScanningCheckBox_, SIGNAL(toggled(bool)), cfg_, SLOT(setEnableUpDownScanning(bool)));
 
 		connect(sfsc, SIGNAL(startPositionChanged()), this, SLOT(onParametersStartPositionChanged()));
 		connect(sfsc, SIGNAL(middlePositionChanged()), this, SLOT(onParametersMiddlePositionChanged()));
@@ -85,7 +91,9 @@ SGMFastScanConfiguration2013View::SGMFastScanConfiguration2013View(SGMFastScanCo
 
 		QHBoxLayout *presetsLayout = new QHBoxLayout();
 		presetsLayout->addWidget(presetsComboBox_);
-		presetsLayout->addStretch(10);
+		presetsLayout->addSpacing(40);
+		presetsLayout->addWidget(enableUpDownScanningCheckBox_);
+		presetsLayout->addStretch();
 
 		settingsLayout_ = new QVBoxLayout();
 		settingsLayout_->addWidget(fastScanSettingsView_);
@@ -128,15 +136,14 @@ SGMFastScanConfiguration2013View::SGMFastScanConfiguration2013View(SGMFastScanCo
 	}
 }
 
-const AMScanConfiguration* SGMFastScanConfiguration2013View::configuration() const{
-	qDebug() << "Calling configuration, count is " << fastDetectorSelector_->selectedDetectorInfos().count();
+SGMFastScanConfiguration2013View::~SGMFastScanConfiguration2013View(){}
 
+const AMScanConfiguration* SGMFastScanConfiguration2013View::configuration() const{
 	cfg_->setDetectorConfigurations(fastDetectorSelector_->selectedDetectorInfos());
 
 	AMControlInfoList list;
 	list.append(SGMBeamline::sgm()->energy()->toInfo());
 	cfg_->setAxisControlInfos(list);
-	qDebug() << "And again, " << cfg_->detectorConfigurations().count();
 
 	return cfg_;
 }

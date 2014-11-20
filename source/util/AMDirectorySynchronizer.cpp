@@ -1,9 +1,7 @@
 #include "AMDirectorySynchronizer.h"
-//#include "dataman/database/AMDatabase.h"
 #include <QFile>
 #include <QFileInfo>
 #include <QDir>
-#include <QDebug>
 
 AMDirectorySynchronizer::AMDirectorySynchronizer(const QString &side1Directory, const QString &side2Directory, QObject *parent)
 	:QObject(parent)

@@ -212,6 +212,8 @@ void SXRMBAppController::onScalerConnected(bool isConnected){
 		}
 
 		QGroupBox *scalerGroupBox = new QGroupBox;
+		scalerGroupBox->setFlat(true);
+
 		QHBoxLayout *scalerHorizontalSqueezeLayout = new QHBoxLayout;
 		scalerHorizontalSqueezeLayout->addStretch();
 		scalerHorizontalSqueezeLayout->addWidget(scalerView_);
