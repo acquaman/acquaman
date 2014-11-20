@@ -7,6 +7,7 @@ class QComboBox;
 class QDoubleSpinBox;
 class QSpinBox;
 class QPushButton;
+class QCheckBox;
 
 class SGMFastScanConfiguration2013;
 
@@ -32,6 +33,10 @@ protected:
 
 	/// A combo box to select the sample to be scanned
 	QComboBox *sampleComboBox_;
+	/// A double spin box to choose the rotation
+	QDoubleSpinBox *rotationDoubleSpinBox_;
+	/// A check box to determine if we'll do initialization before starting any scans
+	QCheckBox *oneTimeInitializationCheckBox_;
 	/// A spin box to choose the number of rows
 	QSpinBox *rowsSpinBox_;
 	/// A double spin box to choose the size of the veritcal steps
@@ -40,8 +45,6 @@ protected:
 	QSpinBox *columnsSpinBox_;
 	/// A double spin box to choose the size of the horizontal steps
 	QDoubleSpinBox *horizontalStepSpinBox_;
-	/// A double spin box to choose the rotation
-	QDoubleSpinBox *rotationDoubleSpinBox_;
 
 	/// Button to confirm and add to workflow
 	QPushButton *addToWorkflowButton_;
