@@ -128,7 +128,7 @@ void AMGraphicsVideoSceneCopier::updateChange(QGraphicsScene *sceneToUpdate, QGr
 	QList<QGraphicsItem*> newList = sceneToUpdateWith->items();
 
 	sceneToUpdate->setSceneRect(sceneToUpdateWith->sceneRect());
-	AMErrorMon::debug(this, AMGRAPHICSVIDEOSCENECOPIER_DEBUG_OUTPUT, QString("Scene rect: Old: %1 %2 New: %3 %4").arg(sceneToUpdate->sceneRect().x()).arg(sceneToUpdate->sceneRect().y()).arg(sceneToUpdateWith->sceneRect().y()).arg(sceneToUpdateWith->sceneRect().y()) );
+//	AMErrorMon::debug(this, AMGRAPHICSVIDEOSCENECOPIER_DEBUG_OUTPUT, QString("Scene rect: Old: %1 %2 New: %3 %4").arg(sceneToUpdate->sceneRect().x()).arg(sceneToUpdate->sceneRect().y()).arg(sceneToUpdateWith->sceneRect().y()).arg(sceneToUpdateWith->sceneRect().y()) );
 
 	foreach(QGraphicsItem* oldItems, sceneToUpdate->items())
 	{
