@@ -142,33 +142,33 @@ SGMAppController::SGMAppController(QObject *parent) :
 
 	AMDbUpgrade *sgm1Pt1UserDb = new SGMDbUpgrade1Pt1("user", this);
 	AMDbUpgrade *sgm1Pt1ActionsDb = new SGMDbUpgrade1Pt1("actions", this);
-	sgm1Pt1UserDb->setIsResponsibleForUpgrade(hasUpgradePermission);;
-	sgm1Pt1ActionsDb->setIsResponsibleForUpgrade(hasUpgradePermission);;
+//	sgm1Pt1UserDb->setIsResponsibleForUpgrade(hasUpgradePermission);;
+//	sgm1Pt1ActionsDb->setIsResponsibleForUpgrade(hasUpgradePermission);;
 	prependDatabaseUpgrade(sgm1Pt1UserDb);
 	prependDatabaseUpgrade(sgm1Pt1ActionsDb);
 
 	// Append the AM upgrade 1.1 to the list for the SGMBeamline database and public database
-	AMDbUpgrade *am1Pt1UserDb = new AMDbUpgrade1Pt1("SGMBeamline", this);
+	AMDbUpgrade *am1Pt1SGMDb = new AMDbUpgrade1Pt1("SGMBeamline", this);
 	AMDbUpgrade *am1Pt1SGMPublicDb = new AMDbUpgrade1Pt1("SGMPublic", this);
-	am1Pt1UserDb->setIsResponsibleForUpgrade(hasUpgradePermission);;
+	am1Pt1SGMDb->setIsResponsibleForUpgrade(hasUpgradePermission);;
 	am1Pt1SGMPublicDb->setIsResponsibleForUpgrade(hasUpgradePermission);;
-	appendDatabaseUpgrade(am1Pt1UserDb);
+	appendDatabaseUpgrade(am1Pt1SGMDb);
 	appendDatabaseUpgrade(am1Pt1SGMPublicDb);
 
 	// Append the AM upgrade 1.2 to the list for the SGMBeamline database and public database
-	AMDbUpgrade *am1Pt2UserDb = new AMDbUpgrade1Pt2("SGMBeamline", this);
+	AMDbUpgrade *am1Pt2SGMDb = new AMDbUpgrade1Pt2("SGMBeamline", this);
 	AMDbUpgrade *am1Pt2SGMPublicDb = new AMDbUpgrade1Pt2("SGMPublic", this);
-	am1Pt2UserDb->setIsResponsibleForUpgrade(hasUpgradePermission);;
+	am1Pt2SGMDb->setIsResponsibleForUpgrade(hasUpgradePermission);;
 	am1Pt2SGMPublicDb->setIsResponsibleForUpgrade(hasUpgradePermission);;
-	appendDatabaseUpgrade(am1Pt2UserDb);
+	appendDatabaseUpgrade(am1Pt2SGMDb);
 	appendDatabaseUpgrade(am1Pt2SGMPublicDb);
 
 	// Append the AM upgrade 1.4 to the list for the SGMBeamline database and public database
-	AMDbUpgrade *am1Pt4UserDb = new AMDbUpgrade1Pt4("SGMBeamline", this);
+	AMDbUpgrade *am1Pt4SGMDb = new AMDbUpgrade1Pt4("SGMBeamline", this);
 	AMDbUpgrade *am1Pt4SGMPublicDb = new AMDbUpgrade1Pt4("SGMPublic", this);
-	am1Pt4UserDb->setIsResponsibleForUpgrade(hasUpgradePermission);;
+	am1Pt4SGMDb->setIsResponsibleForUpgrade(hasUpgradePermission);;
 	am1Pt4SGMPublicDb->setIsResponsibleForUpgrade(hasUpgradePermission);;
-	appendDatabaseUpgrade(am1Pt4UserDb);
+	appendDatabaseUpgrade(am1Pt4SGMDb);
 	appendDatabaseUpgrade(am1Pt4SGMPublicDb);
 
 	// Add the SGM Beamline database as a source of exporter options
@@ -221,6 +221,13 @@ bool SGMAppController::startup() {
 		// no run yet... let's create one.
 		AMRun firstRun("SGM", 3);	/// \todo For now, we know that 3 is the ID of the SGM facility, but this is a hardcoded hack.
 		firstRun.storeToDb(AMDatabase::database("user"));
+	}
+
+	QList<int> allURLIds = AMDatabase::database("user")->objectsWhere(AMDbObjectSupport::s()->tableNameForClass<AMSampleCameraURL>());
+	if(allURLIds.count() == 0){
+		AMSampleCameraURL *newURL = new AMSampleCameraURL("http://10.52.48.103/axis-cgi/mjpg/video.cgi?resolution=1280x1024&.mjpg");
+		newURL->storeToDb(AMDatabase::database("user"));
+
 	}
 
 	// Set up the GUI portions of the SGMAcquamanAppController
