@@ -33,6 +33,10 @@ class QPushButton;
 class QLabel;
 class QProgressBar;
 class QCheckBox;
+class QGroupBox;
+
+
+
 
 class AMExtendedControlEditor;
 
@@ -85,7 +89,7 @@ protected:
 
 
 
-    AMExtendedControlEditor *energyControlEditor_;
+    AMExtendedControlEditor *energyControlEditor_, *jjSlitHorizontalGap_, *jjSlitHorizontalCenter_, *jjSlitVerticalGap_, *jjSlitVerticalCenter_;
 
     QLabel *ringCurrent_;
     QLabel *monoCrystal_;
