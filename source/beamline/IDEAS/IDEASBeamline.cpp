@@ -59,6 +59,26 @@ void IDEASBeamline::setupSampleStage()
 
 void IDEASBeamline::setupMotorGroup()
 {
+	AMMotorGroupObject *motorObject = 0;
+	motorGroup_ = new AMMotorGroup(this);
+	motorObject = new AMMotorGroupObject("Sample Platform",
+							       QStringList() << "X" << "Y",
+							       QStringList() << "mm" << "mm",
+							       QList<AMControl*>() << samplePlatformHorizontal_ << samplePlatformVertical_,
+							       QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Horizontal << AMMotorGroupObject::Vertical,
+							       QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational,
+							       this);
+	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
+
+	motorObject = new AMMotorGroupObject("Vacuum Stage",
+							       QStringList() << "Z",
+							       QStringList() << "mm",
+							       QList<AMControl*>() << vacuumSampleStage_,
+							       QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Vertical,
+							       QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Translational,
+							       this);
+	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
+
 
 }
 
