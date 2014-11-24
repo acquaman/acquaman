@@ -7,5 +7,5 @@ SUBDIRS +=	Initialize.pro \
 		pluginProjects/FileLoaders/AMFileLoaderPlugins.pro \
 		VESPERSBendingMirrors.pro \
 		VESPERSAcquaman.pro \
-		VESPERSAddOnsCoordinator.pro
+		VESPERSAddOnsCoordinator.pro \
 		AMCrashReporter.pro
