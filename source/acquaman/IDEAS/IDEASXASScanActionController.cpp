@@ -69,18 +69,6 @@ IDEASXASScanActionController::IDEASXASScanActionController(IDEASXASScanConfigura
 	ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->Sample()->toInfo());
 	ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->Reference()->toInfo());
 
-//	if (configuration_->fluorescenceDetector().testFlag(IDEASXASScanConfiguration::Ketek)){
-
-//		ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->exposedDetectorByName("KETEK")->toInfo());
-//		ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->ketekDwellTime()->toInfo());
-//	}
-
-//	else if (configuration_->fluorescenceDetector().testFlag(IDEASXASScanConfiguration::Ge13Element)){
-
-//		ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->exposedDetectorByName("13-el Ge")->toInfo());
-//		ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->ketekDwellTime()->toInfo());
-//	}
-
 	if (configuration_->fluorescenceDetector() == IDEASXASScanConfiguration::Ketek){
 
 		ideasDetectors.addDetectorInfo(IDEASBeamline::ideas()->exposedDetectorByName("KETEK")->toInfo());
@@ -119,12 +107,6 @@ void IDEASXASScanActionController::buildScanControllerImplementation()
 {
 	AMXRFDetector *detector = 0;
 
-//	if (configuration_->fluorescenceDetector().testFlag(IDEASXASScanConfiguration::Ketek))
-//		detector = qobject_cast<AMXRFDetector *>(IDEASBeamline::bl()->exposedDetectorByName("KETEK"));
-
-//	else if (configuration_->fluorescenceDetector().testFlag(IDEASXASScanConfiguration::Ge13Element))
-//		detector = qobject_cast<AMXRFDetector *>(IDEASBeamline::bl()->exposedDetectorByName("13-el Ge"));
-
 	if (configuration_->fluorescenceDetector() == IDEASXASScanConfiguration::Ketek)
 		detector = qobject_cast<AMXRFDetector *>(IDEASBeamline::bl()->exposedDetectorByName("KETEK"));
 
@@ -160,7 +142,7 @@ void IDEASXASScanActionController::buildScanControllerImplementation()
 		NormSample->setInputDataSources(raw1DDataSources);
 		NormSample->setIsTransmission(true);
 		NormSample->setToEdgeJump(true);
-		NormSample->setName("Sample");
+		NormSample->setDataName("Sample");
 		NormSample->setNormalizationName("I_0");
 		scan_->addAnalyzedDataSource(NormSample);
 	 }
@@ -172,7 +154,7 @@ void IDEASXASScanActionController::buildScanControllerImplementation()
 		NormRef->setInputDataSources(raw1DDataSources);
 		NormRef->setIsTransmission(true);
 		NormRef->setToEdgeJump(true);
-		NormRef->setName("Reference");
+		NormRef->setDataName("Reference");
 		NormRef->setNormalizationName("Sample");
 		scan_->addAnalyzedDataSource(NormRef);
 	}
@@ -201,8 +183,8 @@ void IDEASXASScanActionController::buildScanControllerImplementation()
 			NormXRF->setDescription(QString("Norm%1").arg(regionName));
 			NormXRF->setInputDataSources(all1DDataSources);
 			NormXRF->setToEdgeJump(true);
-			NormXRF->setName(regionName);
-			NormXRF->setNormalizationName("I_O");
+			NormXRF->setDataName(regionName);
+			NormXRF->setNormalizationName("I_0");
 			scan_->addAnalyzedDataSource(NormXRF);
 		}
 	}
