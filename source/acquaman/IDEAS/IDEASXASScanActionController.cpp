@@ -33,6 +33,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/actions/AMControlMoveAction3.h"
 #include "actions3/actions/AMWaitAction.h"
 #include "acquaman/AMEXAFSScanActionControllerAssembler.h"
+#include "analysis/AM1DCalibrationAB.h"
 
 
 #include <QDebug>
@@ -154,44 +155,54 @@ void IDEASXASScanActionController::buildScanControllerImplementation()
 
 	if(rawI0Index != -1 && rawIsampleIndex != -1 && configuration_->isTransScan()) {
 
-		AM1DExpressionAB* NormSample = new AM1DExpressionAB("NormSample");
+		AM1DCalibrationAB* NormSample = new AM1DCalibrationAB("NormSample");
 		NormSample->setDescription("NormSample");
 		NormSample->setInputDataSources(raw1DDataSources);
-		NormSample->setExpression("ln(I_0/Sample)");
+		NormSample->setIsTransmission(true);
+		NormSample->setToEdgeJump(true);
+		NormSample->setName("Sample");
+		NormSample->setNormalizationName("I_0");
 		scan_->addAnalyzedDataSource(NormSample);
 	 }
 
 	if(rawIrefIndex != -1 && rawIsampleIndex != -1 && configuration_->isTransScan() && configuration_->useRef()) {
 
-		AM1DExpressionAB* NormRef = new AM1DExpressionAB("NormRef");
+		AM1DCalibrationAB* NormRef = new AM1DCalibrationAB("NormRef");
 		NormRef->setDescription("NormRef");
 		NormRef->setInputDataSources(raw1DDataSources);
-		NormRef->setExpression("ln(Sample/Reference)");
+		NormRef->setIsTransmission(true);
+		NormRef->setToEdgeJump(true);
+		NormRef->setName("Reference");
+		NormRef->setNormalizationName("Sample");
 		scan_->addAnalyzedDataSource(NormRef);
 	}
 
-	QList<AMDataSource*> raw2DDataSources;
-	for(int i=0; i<scan_->rawDataSources()->count(); i++)
-		if(scan_->rawDataSources()->at(i)->rank() == 2)
-			raw2DDataSources << scan_->rawDataSources()->at(i);
-
-	QList<AMDataSource*> all1DDataSources;
-	for(int i=0; i<scan_->analyzedDataSources()->count(); i++)
-		if(scan_->analyzedDataSources()->at(i)->rank() == 1)
-			all1DDataSources << scan_->analyzedDataSources()->at(i);
-	for(int i=0; i<scan_->rawDataSources()->count(); i++)
-		if(scan_->rawDataSources()->at(i)->rank() == 1)
-			all1DDataSources << scan_->rawDataSources()->at(i);
-
 	if (detector && configuration_->isXRFScan()){
+
+		QList<AMDataSource*> raw2DDataSources;
+		for(int i=0; i<scan_->rawDataSources()->count(); i++)
+			if(scan_->rawDataSources()->at(i)->rank() == 2)
+				raw2DDataSources << scan_->rawDataSources()->at(i);
+
+
+		QList<AMDataSource*> all1DDataSources;
+		for(int i=0; i<scan_->analyzedDataSources()->count(); i++)
+			if(scan_->analyzedDataSources()->at(i)->rank() == 1)
+				all1DDataSources << scan_->analyzedDataSources()->at(i);
+		for(int i=0; i<scan_->rawDataSources()->count(); i++)
+			if(scan_->rawDataSources()->at(i)->rank() == 1)
+				all1DDataSources << scan_->rawDataSources()->at(i);
+
 
 		foreach (AMRegionOfInterest *region, detector->regionsOfInterest()){
 			AMRegionOfInterestAB *regionAB = (AMRegionOfInterestAB *)region->valueSource();
 			QString regionName = regionAB->name().replace(" ","_");
-			AM1DExpressionAB* NormXRF = new AM1DExpressionAB(QString("Norm%1").arg(regionName));
+			AM1DCalibrationAB* NormXRF = new AM1DCalibrationAB(QString("Norm%1").arg(regionName));
 			NormXRF->setDescription(QString("Norm%1").arg(regionName));
 			NormXRF->setInputDataSources(all1DDataSources);
-			NormXRF->setExpression(QString("%1/I_0").arg(regionName));
+			NormXRF->setToEdgeJump(true);
+			NormXRF->setName(regionName);
+			NormXRF->setNormalizationName("I_O");
 			scan_->addAnalyzedDataSource(NormXRF);
 		}
 	}
