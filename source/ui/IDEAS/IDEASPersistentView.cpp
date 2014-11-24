@@ -87,6 +87,7 @@ IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
 	scalerContinuousButton_ = new QPushButton("Enable Continuous Updates");
 
 		QGroupBox *jjSlitGroupBox_ = new QGroupBox;
+		jjSlitGroupBox_->setTitle("JJ Sample Slits");
 			QGridLayout *jjSlitLayout_ = new QGridLayout;
 				jjSlitHorizontalGap_ = new AMExtendedControlEditor(IDEASBeamline::ideas()->jjSlitHGap());
 				jjSlitHorizontalGap_->setControlFormat('f', 1);
