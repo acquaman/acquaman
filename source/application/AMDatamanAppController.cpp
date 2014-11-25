@@ -559,7 +559,7 @@ bool AMDatamanAppController::onFirstTimeDatabaseUpgrade(QList<AMDbUpgrade *> upg
 
 		// For the beamline database (and others like it) the upgrade better be done already
 		if(!upgrade->isResponsibleForUpgrade() && upgrade->upgradeRequired()){
-			AMErrorMon::alert(0, AMDATAMANAPPCONTROLLER_DB_UPGRADE_FIRSTTIME_SHARED_DB_FAILURE, "Failure in initialization of upgrade table, an upgrade is not done on a (shared) database the user application is not responsible for");
+			AMErrorMon::alert(0, AMDATAMANAPPCONTROLLER_DB_UPGRADE_FIRSTTIME_SHARED_DB_FAILURE, QString("Failure in initialization of upgrade table, an upgrade is not done on a (shared) database [%1 -> %2] the user application is not responsible for").arg(upgrade->databaseNameToUpgrade()).arg(upgrade->upgradeToTag()));
 			return false;
 		}
 		// Only upgrade things we're responsible for

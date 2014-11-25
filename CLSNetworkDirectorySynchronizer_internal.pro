@@ -1,6 +1,6 @@
 include ( $$PATH_TO_AM/compositeCommon/AMCommon.pri )
 
-TARGET = build/CLSNetworkDirectorySynchronizer
+TARGET = CLSNetworkDirectorySynchronizer
 
 HEADERS +=\
 	source/application/CLSNetworkDirectorySynchronizer/CLSNetworkDirectorySynchronizer.h \

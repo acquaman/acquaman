@@ -756,6 +756,9 @@ protected:
 	/// used to find the point to move the plate to, to position beneath the beam
 	QVector3D beamIntersectionPoint(QVector3D samplePoint, bool findCorner = false);
 
+	/// Only move the X and Z motors
+	bool moveXZ(double x, double z);
+
 	/// move the motors
 	bool moveMotors(double x, double y, double z);
 
