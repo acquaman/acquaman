@@ -778,6 +778,58 @@ AMAction3* SGMBeamline::createGoToMeasurementPositionActions3(){
 	return goToMeasurePostionActionsList;
 }
 
+AMAction3* SGMBeamline::createRestorePreFastScanDefaultActions(){
+	if(!beamOnControlSet_->isConnected())
+		return 0;
+
+	AMListAction3 *retVal = new AMListAction3(new AMListActionInfo3(QString("Restore beamline defaults"), QString("Restore beamline defaults")), AMListAction3::Parallel);
+
+	AMControlMoveActionInfo3 *moveActionInfo;
+	AMControlMoveAction3 *moveAction;
+	AMControl *tmpControl;
+
+	tmpControl = SGMBeamline::sgm()->gratingVelocity();
+	AMControlInfo gratingVelocityInfo = tmpControl->toInfo();
+	gratingVelocityInfo.setValue(10000);
+	moveActionInfo = new AMControlMoveActionInfo3(gratingVelocityInfo);
+	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
+	retVal->addSubAction(moveAction);
+
+	tmpControl = SGMBeamline::sgm()->gratingBaseVelocity();
+	AMControlInfo gratingBaseVelocityInfo = tmpControl->toInfo();
+	gratingBaseVelocityInfo.setValue(0);
+	moveActionInfo = new AMControlMoveActionInfo3(gratingBaseVelocityInfo);
+	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
+	retVal->addSubAction(moveAction);
+
+	tmpControl = SGMBeamline::sgm()->gratingAcceleration();
+	AMControlInfo gratingAccelerationInfo = tmpControl->toInfo();
+	gratingAccelerationInfo.setValue(5000);
+	moveActionInfo = new AMControlMoveActionInfo3(gratingAccelerationInfo);
+	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
+	retVal->addSubAction(moveAction);
+
+	retVal->addSubAction(rawScaler()->createDwellTimeAction3(1.0));
+	retVal->addSubAction(rawScaler()->createScansPerBufferAction3(1));
+	retVal->addSubAction(rawScaler()->createTotalScansAction3(1));
+
+	tmpControl = SGMBeamline::sgm()->undulatorTracking();
+	AMControlInfo undulatorTrackingInfo = tmpControl->toInfo();
+	undulatorTrackingInfo.setValue(1);
+	moveActionInfo = new AMControlMoveActionInfo3(undulatorTrackingInfo);
+	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
+	retVal->addSubAction(moveAction);
+
+	tmpControl = SGMBeamline::sgm()->exitSlitTracking();
+	AMControlInfo exitSlitTrackingInfo = tmpControl->toInfo();
+	exitSlitTrackingInfo.setValue(1);
+	moveActionInfo = new AMControlMoveActionInfo3(exitSlitTrackingInfo);
+	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
+	retVal->addSubAction(moveAction);
+
+	return retVal;
+}
+
 CLSSIS3820Scaler* SGMBeamline::scaler(){
 	if(scaler_->isConnected())
 		return scaler_;

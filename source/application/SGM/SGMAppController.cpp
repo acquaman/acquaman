@@ -501,14 +501,9 @@ void SGMAppController::onSGMBeamlineConnected(){
 			badStartupSettingsChoice.setEscapeButton(QMessageBox::Cancel);
 
 			if(badStartupSettingsChoice.exec() == QMessageBox::Ok){
-				SGMBeamline::sgm()->gratingVelocity()->move(10000);
-				SGMBeamline::sgm()->gratingBaseVelocity()->move(0);
-				SGMBeamline::sgm()->gratingAcceleration()->move(5000);
-				SGMBeamline::sgm()->rawScaler()->setDwellTime(1.0);
-				SGMBeamline::sgm()->rawScaler()->setScansPerBuffer(1);
-				SGMBeamline::sgm()->rawScaler()->setTotalScans(1);
-				SGMBeamline::sgm()->undulatorTracking()->move(1);
-				SGMBeamline::sgm()->exitSlitTracking()->move(1);
+				AMAction3 *cleanupSettingAction = SGMBeamline::sgm()->createRestorePreFastScanDefaultActions();
+				connect(cleanupSettingAction, SIGNAL(succeeded()), cleanupSettingAction, SLOT(deleteLater()));
+				cleanupSettingAction->start();
 			}
 		}
 	}
@@ -931,19 +926,21 @@ bool SGMAppController::setupSGMPeriodicTable(){
 	matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMElementInfo>(), "name", elementName+"ElementInfo");
 	if(matchIDs.count() == 0){
 
-//		SGMEnergyPosition epStart(elementName%elementEdge%"Start", 270.0, -397720, -149991, 286.63, 0);
-//		SGMEnergyPosition epMiddle(elementName%elementEdge%"Middle", 295.0, -377497, -140470, 200.46, 0);
-//		SGMEnergyPosition epEnd(elementName%elementEdge%"End", 320.0, -348005, -133061, 100.54, 0);
-//		success &= epStart.storeToDb(dbSGM);
-//		success &= epMiddle.storeToDb(dbSGM);
-//		success &= epEnd.storeToDb(dbSGM);
+		SGMEnergyPosition epStart(elementName%elementEdge%"Start", 270.0, -397720, -149991, 286.63, 0);
+		SGMEnergyPosition epMiddle(elementName%elementEdge%"Middle", 295.0, -377497, -140470, 200.46, 0);
+		SGMEnergyPosition epEnd(elementName%elementEdge%"End", 320.0, -348005, -133061, 100.54, 0);
+		success &= epStart.storeToDb(dbSGM);
+		success &= epMiddle.storeToDb(dbSGM);
+		success &= epEnd.storeToDb(dbSGM);
 
+		/* Settings for faking really quick carbon scans
 		SGMEnergyPosition epStart(elementName%elementEdge%"Start", 300.0, -371207, -141240, 1.0, 0);
 		SGMEnergyPosition epMiddle(elementName%elementEdge%"Middle", 301.0, -369973, -140888, 1.0, 0);
 		SGMEnergyPosition epEnd(elementName%elementEdge%"End", 302.0, -368750, -140571, 1.0, 0);
 		success &= epStart.storeToDb(dbSGM);
 		success &= epMiddle.storeToDb(dbSGM);
 		success &= epEnd.storeToDb(dbSGM);
+		*/
 
 		AMAbsorptionEdge edge = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->KEdge();
 		SGMScanInfo scanInfo(elementName%" "%elementEdge, edge, epStart, epMiddle, epEnd);
@@ -956,6 +953,7 @@ bool SGMAppController::setupSGMPeriodicTable(){
 		success &= fsp5->storeToDb(dbSGM);
 		*/
 
+		/* Quick scans for carbon testing
 		SGMFastScanSettings fs1Settings(elementName%elementEdge%"1sSettings", 1.0, 50000, 1.0, 200, 8000);
 		success &= fs1Settings.storeToDb(dbSGM);
 		SGMFastScanParameters *fsp1 = new SGMFastScanParameters(elementName%elementEdge%"1s", AMPeriodicTable::table()->elementBySymbol(elementSymbol)->name(), scanInfo, fs1Settings);
@@ -965,6 +963,7 @@ bool SGMAppController::setupSGMPeriodicTable(){
 		success &= fs2Settings.storeToDb(dbSGM);
 		SGMFastScanParameters *fsp2 = new SGMFastScanParameters(elementName%elementEdge%"2s", AMPeriodicTable::table()->elementBySymbol(elementSymbol)->name(), scanInfo, fs2Settings);
 		success &= fsp2->storeToDb(dbSGM);
+		*/
 
 		SGMFastScanSettings fs120Settings(elementName%elementEdge%"120sSettings", 120.0, 872, 120.0, 200, 141);
 		success &= fs120Settings.storeToDb(dbSGM);
@@ -985,8 +984,10 @@ bool SGMAppController::setupSGMPeriodicTable(){
 
 		SGMElementInfo *elementInfo = new SGMElementInfo(elementName%"ElementInfo", AMPeriodicTable::table()->elementBySymbol(elementSymbol), this);
 		elementInfo->addEdgeInfo(scanInfo);
+		/*
 		elementInfo->addFastScanParameters(fsp1);
 		elementInfo->addFastScanParameters(fsp2);
+		*/
 		elementInfo->addFastScanParameters(fsp20);
 		elementInfo->addFastScanParameters(fsp120);
 		success &= elementInfo->storeToDb(dbSGM);

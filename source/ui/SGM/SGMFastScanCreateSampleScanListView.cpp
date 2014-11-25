@@ -110,7 +110,7 @@ void SGMFastScanCreateSampleScanListView::closeEvent(QCloseEvent *closeEvent){
 }
 
 void SGMFastScanCreateSampleScanListView::onAddToWorkflowButtonClicked(){
-	AMListAction3 *masterList = new AMListAction3(new AMListActionInfo3(QString("%1 %2").arg(sampleComboBox_->currentText()).arg(configuration_->description()), QString("%1 %2").arg(sampleComboBox_->currentText()).arg(configuration_->description())), AMListAction3::Sequential);
+	AMListAction3 *masterList = new AMListAction3(new AMListActionInfo3(QString("%1 %2 - [%3 x %4]").arg(sampleComboBox_->currentText()).arg(configuration_->description()).arg(rowsSpinBox_->value()).arg(columnsSpinBox_->value()), QString("%1 %2 - [%3 x %4]").arg(sampleComboBox_->currentText()).arg(configuration_->description()).arg(rowsSpinBox_->value()).arg(columnsSpinBox_->value())), AMListAction3::Sequential);
 
 	AMControlMoveActionInfo3 *moveActionInfo;
 	AMControlMoveAction3 *moveAction;
