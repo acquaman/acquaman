@@ -531,6 +531,13 @@ void REIXSXESImageInterpolationABEditor::onCorrelation1CenterBoxChanged(int cent
 	if(center == analysisBlock_->correlation1CenterPixel())
 		return;
 
+	if(center == analysisBlock_->correlation2CenterPixel() && center == 1)
+		center = 2;
+	else if(center == analysisBlock_->correlation2CenterPixel() && center == 1023)
+		center = 1022;
+	else if(center == analysisBlock_->correlation2CenterPixel())
+		center--;
+
 	analysisBlock_->setCorrelation1CenterPixel(center);
 
 	// update lines showing correlation range.
@@ -542,6 +549,14 @@ void REIXSXESImageInterpolationABEditor::onCorrelation2CenterBoxChanged(int cent
 {
 	if(center == analysisBlock_->correlation2CenterPixel())
 		return;
+
+	if(center == analysisBlock_->correlation1CenterPixel() && center == 1)
+		center = 2;
+	else if(center == analysisBlock_->correlation1CenterPixel() && center == 1023)
+		center = 1022;
+	else if(center == analysisBlock_->correlation1CenterPixel())
+		center++;
+
 
 	analysisBlock_->setCorrelation2CenterPixel(center);
 
@@ -1398,6 +1413,5 @@ void REIXSXESImageInterpolationABEditor::onShiftValuesChanged()
 	shift2LineEdit_->setText(shifts2StringList.join(";"));
 
 }
-
 
 
