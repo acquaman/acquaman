@@ -503,6 +503,7 @@ void SGMAppController::onSGMBeamlineConnected(){
 			if(badStartupSettingsChoice.exec() == QMessageBox::Ok){
 				AMAction3 *cleanupSettingAction = SGMBeamline::sgm()->createRestorePreFastScanDefaultActions();
 				connect(cleanupSettingAction, SIGNAL(succeeded()), cleanupSettingAction, SLOT(deleteLater()));
+				connect(cleanupSettingAction, SIGNAL(failed()), cleanupSettingAction, SLOT(deleteLater()));
 				cleanupSettingAction->start();
 			}
 		}
