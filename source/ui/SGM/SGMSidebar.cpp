@@ -435,14 +435,14 @@ void SGMSidebar::onRestoreBeamlineSettingsButtonClicked(){
 	if(restoreBeamlineAction_)
 		return;
 	restoreBeamlineAction_ = SGMBeamline::sgm()->createRestorePreFastScanDefaultActions();
-	connect(restoreBeamlineAction_, SIGNAL(succeeded()), this, SLOT(onStopMotorsActionFinished()));
-	connect(restoreBeamlineAction_, SIGNAL(failed()), this, SLOT(onStopMotorsActionFinished()));
+	connect(restoreBeamlineAction_, SIGNAL(succeeded()), this, SLOT(onRestoreBeamlineActionFinished()));
+	connect(restoreBeamlineAction_, SIGNAL(failed()), this, SLOT(onRestoreBeamlineActionFinished()));
 	restoreBeamlineAction_->start();
 }
 
 void SGMSidebar::onRestoreBeamlineActionFinished(){
-	disconnect(restoreBeamlineAction_, SIGNAL(succeeded()), this, SLOT(onStopMotorsActionFinished()));
-	disconnect(restoreBeamlineAction_, SIGNAL(failed()), this, SLOT(onStopMotorsActionFinished()));
+	disconnect(restoreBeamlineAction_, SIGNAL(succeeded()), this, SLOT(onRestoreBeamlineActionFinished()));
+	disconnect(restoreBeamlineAction_, SIGNAL(failed()), this, SLOT(onRestoreBeamlineActionFinished()));
 	restoreBeamlineAction_->deleteLater();
 	restoreBeamlineAction_ = 0;
 }
