@@ -29,30 +29,30 @@ class AMDetectorSetAsDarkCurrentCorrectionActionInfo : public AMActionInfo3
 {
 Q_OBJECT
 public:
-    /// Constructor
-    Q_INVOKABLE AMDetectorSetAsDarkCurrentCorrectionActionInfo(const AMDetectorInfo &detectorInfo = AMDetectorInfo(), QObject *parent = 0);
-    virtual ~AMDetectorSetAsDarkCurrentCorrectionActionInfo();
+	/// Constructor
+	Q_INVOKABLE AMDetectorSetAsDarkCurrentCorrectionActionInfo(const AMDetectorInfo &detectorInfo = AMDetectorInfo(), QObject *parent = 0);
+	virtual ~AMDetectorSetAsDarkCurrentCorrectionActionInfo();
 
-    /// Copy Constructor
-    AMDetectorSetAsDarkCurrentCorrectionActionInfo(const AMDetectorSetAsDarkCurrentCorrectionActionInfo &other);
+	/// Copy Constructor
+	AMDetectorSetAsDarkCurrentCorrectionActionInfo(const AMDetectorSetAsDarkCurrentCorrectionActionInfo &other);
 
-    /// This function is used as a virtual copy constructor
-    virtual AMDetectorSetAsDarkCurrentCorrectionActionInfo* createCopy() const { return new AMDetectorSetAsDarkCurrentCorrectionActionInfo(*this); }
+	/// This function is used as a virtual copy constructor
+	virtual AMActionInfo3* createCopy() const;
 
-    /// This should describe the type of the action
-    virtual QString typeDescription() const { return "Detector Set Dark Current Correction"; }
+	/// This should describe the type of the action
+	virtual QString typeDescription() const { return "Detector Set Dark Current Correction"; }
 
-    /// Returns a pointer to our detectorInfo
-    const AMDetectorInfo* detectorInfo() const { return &detectorInfo_; }
+	/// Returns a pointer to our detectorInfo
+	const AMDetectorInfo* detectorInfo() const { return &detectorInfo_; }
 
-    /// For database storing only
-    AMDetectorInfo* dbReadDetectorInfo() { return &detectorInfo_; }
-    /// For database loading only. This function will never be called since dbReadDetectorInfo() always returns a valid pointer
-    void dbLoadDetectorInfo(AMDbObject *newLoadedObject) { newLoadedObject->deleteLater(); }
+	/// For database storing only
+	AMDetectorInfo* dbReadDetectorInfo() { return &detectorInfo_; }
+	/// For database loading only. This function will never be called since dbReadDetectorInfo() always returns a valid pointer
+	void dbLoadDetectorInfo(AMDbObject *newLoadedObject) { newLoadedObject->deleteLater(); }
 
 protected:
-    /// The AMDetectorInfo that specifies which detector to initialize
-    AMDetectorInfo detectorInfo_;
+	/// The AMDetectorInfo that specifies which detector to initialize
+	AMDetectorInfo detectorInfo_;
 };
 
 #endif // AMDETECTORSETASDARKCURRENTCORRECTIONACTIONINFO_H

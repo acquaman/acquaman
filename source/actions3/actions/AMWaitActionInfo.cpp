@@ -15,9 +15,11 @@ AMWaitActionInfo::AMWaitActionInfo(const AMWaitActionInfo &other)
 	waitTime_ = other.waitTime();
 }
 
-AMWaitActionInfo *AMWaitActionInfo::createCopy() const
+AMActionInfo3 *AMWaitActionInfo::createCopy() const
 {
-	return new AMWaitActionInfo(*this);
+	AMActionInfo3 *info = new AMWaitActionInfo(*this);
+	info->dissociateFromDb(true);
+	return info;
 }
 
 void AMWaitActionInfo::setWaitTime(double newTime)

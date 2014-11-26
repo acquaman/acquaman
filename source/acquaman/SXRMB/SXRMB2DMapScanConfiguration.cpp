@@ -52,7 +52,9 @@ SXRMB2DMapScanConfiguration::SXRMB2DMapScanConfiguration(const SXRMB2DMapScanCon
 
 AMScanConfiguration *SXRMB2DMapScanConfiguration::createCopy() const
 {
-	return new SXRMB2DMapScanConfiguration(*this);
+	AMScanConfiguration *configuration = new SXRMB2DMapScanConfiguration(*this);
+	configuration->dissociateFromDb(true);
+	return configuration;
 }
 
 AMScanController *SXRMB2DMapScanConfiguration::createController()
