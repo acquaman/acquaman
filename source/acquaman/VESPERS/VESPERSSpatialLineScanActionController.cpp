@@ -45,112 +45,129 @@ VESPERSSpatialLineScanActionController::VESPERSSpatialLineScanActionController(V
 	scan_->setIndexType("fileSystem");
 	scan_->setNotes(buildNotes());
 
+	AMExporterOptionGeneralAscii *vespersDefault = VESPERS::buildStandardExporterOption("VESPERSLineScanDefault", configuration_->exportSpectraSources(), false, false, configuration_->exportSpectraInRows());
+	if(vespersDefault->id() > 0)
+		AMAppControllerSupport::registerClass<VESPERSSpatialLineScanConfiguration, VESPERSExporterLineScanAscii, AMExporterOptionGeneralAscii>(vespersDefault->id());
+
 	AMControlInfoList list;
+	AMDetectorInfoSet detectors;
+
 	VESPERS::Motors motor = configuration_->motor();
 
 	if (motor.testFlag(VESPERS::H)){
 
 		list.append(VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->horizontalControl()->toInfo());
 		scan_->rawData()->addScanAxis(AMAxisInfo("H", 0, "Horizontal Position", "mm"));
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("SampleHFeedback")->toInfo());
 	}
 
 	else if (motor.testFlag(VESPERS::V)){
 
 		list.append(VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->verticalControl()->toInfo());
 		scan_->rawData()->addScanAxis(AMAxisInfo("V", 0, "Vertical Position", "mm"));
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("SampleVFeedback")->toInfo());
 	}
 
 	else if (motor.testFlag(VESPERS::X)){
 
 		list.append(VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->horizontalControl()->toInfo());
 		scan_->rawData()->addScanAxis(AMAxisInfo("X", 0, "Horizontal Position", "mm"));
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("SampleXFeedback")->toInfo());
 	}
 
 	else if (motor.testFlag(VESPERS::Z)){
 
 		list.append(VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->verticalControl()->toInfo());
 		scan_->rawData()->addScanAxis(AMAxisInfo("Z", 0, "Vertical Position", "mm"));
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("SampleZFeedback")->toInfo());
 	}
 
 	else if (motor.testFlag(VESPERS::AttoH)){
 
 		list.append(VESPERSBeamline::vespers()->pseudoAttocubeStageMotorGroupObject()->horizontalControl()->toInfo());
 		scan_->rawData()->addScanAxis(AMAxisInfo("H", 0, "Horizontal Position", "mm"));
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("AttoHFeedback")->toInfo());
 	}
 
 	else if (motor.testFlag(VESPERS::AttoV)){
 
 		list.append(VESPERSBeamline::vespers()->pseudoAttocubeStageMotorGroupObject()->verticalControl()->toInfo());
 		scan_->rawData()->addScanAxis(AMAxisInfo("V", 0, "Vertical Position", "mm"));
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("AttoVFeedback")->toInfo());
 	}
 
 	else if (motor.testFlag(VESPERS::AttoX)){
 
 		list.append(VESPERSBeamline::vespers()->realAttocubeStageMotorGroupObject()->horizontalControl()->toInfo());
 		scan_->rawData()->addScanAxis(AMAxisInfo("X", 0, "Horizontal Position", "mm"));
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("AttoXFeedback")->toInfo());
 	}
 
 	else if (motor.testFlag(VESPERS::AttoZ)){
 
 		list.append(VESPERSBeamline::vespers()->realAttocubeStageMotorGroupObject()->verticalControl()->toInfo());
 		scan_->rawData()->addScanAxis(AMAxisInfo("Z", 0, "Vertical Position", "mm"));
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("AttoZFeedback")->toInfo());
 	}
 
 	else if (motor.testFlag(VESPERS::AttoRx)){
 
 		list.append(VESPERSBeamline::vespers()->attoStageRx()->toInfo());
 		scan_->rawData()->addScanAxis(AMAxisInfo("Rx", 0, "Rotational Position", "mm"));
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("AttoRxFeedback")->toInfo());
 	}
 
 	else if (motor.testFlag(VESPERS::AttoRy)){
 
 		list.append(VESPERSBeamline::vespers()->attoStageRy()->toInfo());
 		scan_->rawData()->addScanAxis(AMAxisInfo("Ry", 0, "Rotational Position", "mm"));
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("AttoRyFeedback")->toInfo());
 	}
 
 	else if (motor.testFlag(VESPERS::AttoRz)){
 
 		list.append(VESPERSBeamline::vespers()->attoStageRz()->toInfo());
 		scan_->rawData()->addScanAxis(AMAxisInfo("Rz", 0, "Rotational Position", "mm"));
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("AttoRzFeedback")->toInfo());
 	}
 
 	else if (motor.testFlag(VESPERS::BigBeamX)){
 
 		list.append(VESPERSBeamline::vespers()->bigBeamX()->toInfo());
 		scan_->rawData()->addScanAxis(AMAxisInfo("Big Beam X", 0, "Horizontal Position", "mm"));
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("BigBeamXFeedback")->toInfo());
 	}
 
 	else if (motor.testFlag(VESPERS::BigBeamZ)){
 
 		list.append(VESPERSBeamline::vespers()->bigBeamZ()->toInfo());
 		scan_->rawData()->addScanAxis(AMAxisInfo("Big Beam Z", 0, "Vertical Position", "mm"));
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("BigBeamZFeedback")->toInfo());
 	}
 
 	else if (motor.testFlag(VESPERS::WireH)){
 
 		list.append(VESPERSBeamline::vespers()->wireStageHorizontal()->toInfo());
 		scan_->rawData()->addScanAxis(AMAxisInfo("H", 0, "Horizontal Position", "mm"));
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("WireHFeedback")->toInfo());
 	}
 
 	else if (motor.testFlag(VESPERS::WireV)){
 
 		list.append(VESPERSBeamline::vespers()->wireStageVertical()->toInfo());
 		scan_->rawData()->addScanAxis(AMAxisInfo("V", 0, "Vertical Position", "mm"));
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("WireVFeedback")->toInfo());
 	}
 
 	else if (motor.testFlag(VESPERS::WireN)){
 
 		list.append(VESPERSBeamline::vespers()->wireStageNormal()->toInfo());
 		scan_->rawData()->addScanAxis(AMAxisInfo("N", 0, "Normal Position", "mm"));
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("SampleHFeedback")->toInfo());
 	}
 
 	configuration_->setAxisControlInfos(list);
 
-	AMExporterOptionGeneralAscii *vespersDefault = VESPERS::buildStandardExporterOption("VESPERSLineScanDefault", configuration_->exportSpectraSources(), false, false, configuration_->exportSpectraInRows());
-	if(vespersDefault->id() > 0)
-		AMAppControllerSupport::registerClass<VESPERSSpatialLineScanConfiguration, VESPERSExporterLineScanAscii, AMExporterOptionGeneralAscii>(vespersDefault->id());
-
-	AMDetectorInfoSet detectors;
 	detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("SplitIonChamber")->toInfo());
 	detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("PreKBIonChamber")->toInfo());
 	detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("MiniIonChamber")->toInfo());

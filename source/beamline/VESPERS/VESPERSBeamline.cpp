@@ -702,6 +702,89 @@ void VESPERSBeamline::setupControlsAsDetectors()
 	fourElementVortexRawSpectrum4_ = new AM1DControlDetectorEmulator("FourElementVortexRawSpectrum4", "Four Element Vortex Raw Spectrum 4", 2048, fourElementVortexRawSpectrumControl4_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 	fourElementVortexRawSpectrum4_->setHiddenFromUsers(true);
 	fourElementVortexRawSpectrum4_->setIsVisible(false);
+
+	// Motors
+	sampleStageHorizontalFeedbackControl_ = new AMReadOnlyPVControl("SampleHFeedback", "BL1607-B2-1:AddOns:SampleStage:H:mm:fbk", this);
+	sampleStageVerticalFeedbackControl_ = new AMReadOnlyPVControl("SampleVFeedback", "BL1607-B2-1:AddOns:SampleStage:V:mm:fbk", this);
+	sampleStageNormalFeedbackControl_ = new AMReadOnlyPVControl("SampleNFeedback", "BL1607-B2-1:AddOns:SampleStage:N:mm:fbk", this);
+	wireStageHorizontalFeedbackControl_ = new AMReadOnlyPVControl("WireHFeedback", "BL1607-B2-1:AddOns:WireStage:H:mm:fbk", this);
+	wireStageVerticalFeedbackControl_ = new AMReadOnlyPVControl("WireVFeedback", "BL1607-B2-1:AddOns:WireStage:V:mm:fbk", this);
+	wireStageNormalFeedbackControl_ = new AMReadOnlyPVControl("WireNFeedback", "BL1607-B2-1:AddOns:WireStage:N:mm:fbk", this);
+	sampleStageXFeedbackControl_ = new AMReadOnlyPVControl("SampleXFeedback", "BL1607-B2-1:AddOns:SampleStage:X:mm:fbk", this);
+	sampleStageYFeedbackControl_ = new AMReadOnlyPVControl("SampleYFeedback", "BL1607-B2-1:AddOns:SampleStage:Y:mm:fbk", this);
+	sampleStageZFeedbackControl_ = new AMReadOnlyPVControl("SampleZFeedback", "BL1607-B2-1:AddOns:SampleStage:Z:mm:fbk", this);
+	attoStageHorizontalFeedbackControl_ = new AMReadOnlyPVControl("AttoHFeedback", "BL1607-B2-1:AddOns:AttoStage:H:mm:fbk", this);
+	attoStageVerticalFeedbackControl_ = new AMReadOnlyPVControl("AttoVFeedback", "BL1607-B2-1:AddOns:AttoStage:V:mm:fbk", this);
+	attoStageNormalFeedbackControl_ = new AMReadOnlyPVControl("AttoNFeedback", "BL1607-B2-1:AddOns:AttoStage:N:mm:fbk", this);
+	attoStageXFeedbackControl_ = new AMReadOnlyPVControl("AttoXFeedback", "BL1607-B2-1:AddOns:AttoStage:X:mm:fbk", this);
+	attoStageZFeedbackControl_ = new AMReadOnlyPVControl("AttoZFeedback", "BL1607-B2-1:AddOns:AttoStage:Z:mm:fbk", this);
+	attoStageYFeedbackControl_ = new AMReadOnlyPVControl("AttoYFeedback", "BL1607-B2-1:AddOns:AttoStage:Y:mm:fbk", this);
+	attoStageRxFeedbackControl_ = new AMReadOnlyPVControl("AttoRxFeedback", "SVM1607-2-B21-08:deg:fbk", this);
+	attoStageRzFeedbackControl_ = new AMReadOnlyPVControl("AttoRzFeedback", "SVM1607-2-B21-09:deg:sp", this);
+	attoStageRyFeedbackControl_ = new AMReadOnlyPVControl("AttoRyFeedback", "SVM1607-2-B21-07:deg:sp", this);
+	bigBeamXFeedbackControl_ = new AMReadOnlyPVControl("BigBeamXFeedback", "SMTR1607-2-B21-36:mm:sp", this);
+	bigBeamZFeedbackControl_ = new AMReadOnlyPVControl("BigBeamZFeedback", "SMTR1607-2-B21-37:mm:sp", this);
+
+	sampleStageHorizontalFeedback_ = new AMBasicControlDetectorEmulator("SampleHFeedback", "Sample H Feedback", sampleStageHorizontalFeedbackControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	sampleStageHorizontalFeedback_->setHiddenFromUsers(true);
+	sampleStageHorizontalFeedback_->setIsVisible(false);
+	sampleStageVerticalFeedback_ = new AMBasicControlDetectorEmulator("SampleVFeedback", "Sample V Feedback", sampleStageVerticalFeedbackControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	sampleStageVerticalFeedback_->setHiddenFromUsers(true);
+	sampleStageVerticalFeedback_->setIsVisible(false);
+	sampleStageNormalFeedback_ = new AMBasicControlDetectorEmulator("SampleNFeedback", "Sample N Feedback", sampleStageNormalFeedbackControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	sampleStageNormalFeedback_->setHiddenFromUsers(true);
+	sampleStageNormalFeedback_->setIsVisible(false);
+	wireStageHorizontalFeedback_ = new AMBasicControlDetectorEmulator("WireHFeedback", "Wire H Feedback", wireStageHorizontalFeedbackControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	wireStageHorizontalFeedback_->setHiddenFromUsers(true);
+	wireStageHorizontalFeedback_->setIsVisible(false);
+	wireStageVerticalFeedback_ = new AMBasicControlDetectorEmulator("WireVFeedback", "Wire V Feedback", wireStageVerticalFeedbackControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	wireStageVerticalFeedback_->setHiddenFromUsers(true);
+	wireStageVerticalFeedback_->setIsVisible(false);
+	wireStageNormalFeedback_ = new AMBasicControlDetectorEmulator("WireNFeedback", "Wire N Feedback", wireStageNormalFeedbackControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	wireStageNormalFeedback_->setHiddenFromUsers(true);
+	wireStageNormalFeedback_->setIsVisible(false);
+	sampleStageXFeedback_ = new AMBasicControlDetectorEmulator("SampleXFeedback", "Sample X Feedback", sampleStageXFeedbackControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	sampleStageXFeedback_->setHiddenFromUsers(true);
+	sampleStageXFeedback_->setIsVisible(false);
+	sampleStageYFeedback_ = new AMBasicControlDetectorEmulator("SampleYFeedback", "Sample Y Feedback", sampleStageYFeedbackControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	sampleStageYFeedback_->setHiddenFromUsers(true);
+	sampleStageYFeedback_->setIsVisible(false);
+	sampleStageZFeedback_ = new AMBasicControlDetectorEmulator("SampleZFeedback", "Sample Z Feedback", sampleStageZFeedbackControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	sampleStageZFeedback_->setHiddenFromUsers(true);
+	sampleStageZFeedback_->setIsVisible(false);
+	attoStageHorizontalFeedback_ = new AMBasicControlDetectorEmulator("AttoHFeedback", "Atto H Feedback", attoStageHorizontalFeedbackControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	attoStageHorizontalFeedback_->setHiddenFromUsers(true);
+	attoStageHorizontalFeedback_->setIsVisible(false);
+	attoStageVerticalFeedback_ = new AMBasicControlDetectorEmulator("AttoVFeedback", "Atto V Feedback", attoStageVerticalFeedbackControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	attoStageVerticalFeedback_->setHiddenFromUsers(true);
+	attoStageVerticalFeedback_->setIsVisible(false);
+	attoStageNormalFeedback_ = new AMBasicControlDetectorEmulator("AttoNFeedback", "Atto N Feedback", attoStageNormalFeedbackControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	attoStageNormalFeedback_->setHiddenFromUsers(true);
+	attoStageNormalFeedback_->setIsVisible(false);
+	attoStageXFeedback_ = new AMBasicControlDetectorEmulator("AttoXFeedback", "Atto X Feedback", attoStageXFeedbackControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	attoStageXFeedback_->setHiddenFromUsers(true);
+	attoStageXFeedback_->setIsVisible(false);
+	attoStageZFeedback_ = new AMBasicControlDetectorEmulator("AttoZFeedback", "Atto Z Feedback", attoStageZFeedbackControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	attoStageZFeedback_->setHiddenFromUsers(true);
+	attoStageZFeedback_->setIsVisible(false);
+	attoStageYFeedback_ = new AMBasicControlDetectorEmulator("AttoYFeedback", "Atto Y Feedback", attoStageYFeedbackControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	attoStageYFeedback_->setHiddenFromUsers(true);
+	attoStageYFeedback_->setIsVisible(false);
+	attoStageRxFeedback_ = new AMBasicControlDetectorEmulator("AttoRxFeedback", "Atto Rx Feedback", attoStageRxFeedbackControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	attoStageRxFeedback_->setHiddenFromUsers(true);
+	attoStageRxFeedback_->setIsVisible(false);
+	attoStageRzFeedback_ = new AMBasicControlDetectorEmulator("AttoRzFeedback", "Atto Rz Feedback", attoStageRzFeedbackControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	attoStageRzFeedback_->setHiddenFromUsers(true);
+	attoStageRzFeedback_->setIsVisible(false);
+	attoStageRyFeedback_ = new AMBasicControlDetectorEmulator("AttoRyFeedback", "Atto Ry Feedback", attoStageRyFeedbackControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	attoStageRyFeedback_->setHiddenFromUsers(true);
+	attoStageRyFeedback_->setIsVisible(false);
+	bigBeamXFeedback_ = new AMBasicControlDetectorEmulator("BigBeamXFeedback", "Big Beam X Feedback", bigBeamXFeedbackControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	bigBeamXFeedback_->setHiddenFromUsers(true);
+	bigBeamXFeedback_->setIsVisible(false);
+	bigBeamZFeedback_ = new AMBasicControlDetectorEmulator("BigBeamZFeedback", "Big Beam Z Feedback", bigBeamXFeedbackControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	bigBeamZFeedback_->setHiddenFromUsers(true);
+	bigBeamZFeedback_->setIsVisible(false);
 }
 
 void VESPERSBeamline::setupExposedControls()
@@ -771,6 +854,28 @@ void VESPERSBeamline::setupExposedDetectors()
 	addExposedDetector(fourElementVortexRawSpectrum2_);
 	addExposedDetector(fourElementVortexRawSpectrum3_);
 	addExposedDetector(fourElementVortexRawSpectrum4_);
+
+	// All the extra motors
+	addExposedDetector(sampleStageHorizontalFeedback_);
+	addExposedDetector(sampleStageVerticalFeedback_);
+	addExposedDetector(sampleStageNormalFeedback_);
+	addExposedDetector(wireStageHorizontalFeedback_);
+	addExposedDetector(wireStageVerticalFeedback_);
+	addExposedDetector(wireStageNormalFeedback_);
+	addExposedDetector(sampleStageXFeedback_);
+	addExposedDetector(sampleStageYFeedback_);
+	addExposedDetector(sampleStageZFeedback_);
+	addExposedDetector(attoStageHorizontalFeedback_);
+	addExposedDetector(attoStageVerticalFeedback_);
+	addExposedDetector(attoStageNormalFeedback_);
+	addExposedDetector(attoStageXFeedback_);
+	addExposedDetector(attoStageZFeedback_);
+	addExposedDetector(attoStageYFeedback_);
+	addExposedDetector(attoStageRxFeedback_);
+	addExposedDetector(attoStageRyFeedback_);
+	addExposedDetector(attoStageYFeedback_);
+	addExposedDetector(bigBeamXFeedback_);
+	addExposedDetector(bigBeamZFeedback_);
 }
 
 AMAction3 *VESPERSBeamline::createBeamChangeAction(VESPERS::Beam beam)

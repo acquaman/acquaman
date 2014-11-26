@@ -908,6 +908,49 @@ protected:
 	AMDetector *fourElementVortexRawSpectrum2_;
 	AMDetector *fourElementVortexRawSpectrum3_;
 	AMDetector *fourElementVortexRawSpectrum4_;
+
+	// Motors
+	AMControl *sampleStageHorizontalFeedbackControl_;
+	AMControl *sampleStageVerticalFeedbackControl_;
+	AMControl *sampleStageNormalFeedbackControl_;
+	AMControl *wireStageHorizontalFeedbackControl_;
+	AMControl *wireStageVerticalFeedbackControl_;
+	AMControl *wireStageNormalFeedbackControl_;
+	AMControl *sampleStageXFeedbackControl_;
+	AMControl *sampleStageYFeedbackControl_;
+	AMControl *sampleStageZFeedbackControl_;
+	AMControl *attoStageHorizontalFeedbackControl_;
+	AMControl *attoStageVerticalFeedbackControl_;
+	AMControl *attoStageNormalFeedbackControl_;
+	AMControl *attoStageXFeedbackControl_;
+	AMControl *attoStageZFeedbackControl_;
+	AMControl *attoStageYFeedbackControl_;
+	AMControl *attoStageRxFeedbackControl_;
+	AMControl *attoStageRzFeedbackControl_;
+	AMControl *attoStageRyFeedbackControl_;
+	AMControl *bigBeamXFeedbackControl_;
+	AMControl *bigBeamZFeedbackControl_;
+
+	AMDetector *sampleStageHorizontalFeedback_;
+	AMDetector *sampleStageVerticalFeedback_;
+	AMDetector *sampleStageNormalFeedback_;
+	AMDetector *wireStageHorizontalFeedback_;
+	AMDetector *wireStageVerticalFeedback_;
+	AMDetector *wireStageNormalFeedback_;
+	AMDetector *sampleStageXFeedback_;
+	AMDetector *sampleStageYFeedback_;
+	AMDetector *sampleStageZFeedback_;
+	AMDetector *attoStageHorizontalFeedback_;
+	AMDetector *attoStageVerticalFeedback_;
+	AMDetector *attoStageNormalFeedback_;
+	AMDetector *attoStageXFeedback_;
+	AMDetector *attoStageZFeedback_;
+	AMDetector *attoStageYFeedback_;
+	AMDetector *attoStageRxFeedback_;
+	AMDetector *attoStageRzFeedback_;
+	AMDetector *attoStageRyFeedback_;
+	AMDetector *bigBeamXFeedback_;
+	AMDetector *bigBeamZFeedback_;
 };
 
 #endif // VESPERSBEAMLINE_H

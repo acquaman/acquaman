@@ -63,6 +63,7 @@ VESPERS2DScanActionController::VESPERS2DScanActionController(VESPERS2DScanConfig
 
 	VESPERS::Motors motor = configuration_->motor();
 	AMControlInfoList list;
+	AMDetectorInfoSet detectors;
 
 	if (motor.testFlag(VESPERS::H) && motor.testFlag(VESPERS::V)){
 
@@ -70,6 +71,8 @@ VESPERS2DScanActionController::VESPERS2DScanActionController(VESPERS2DScanConfig
 		list.append(VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->verticalControl()->toInfo());
 		scan_->rawData()->addScanAxis(AMAxisInfo("H", 0, "Horizontal Position", "mm"));
 		scan_->rawData()->addScanAxis(AMAxisInfo("V", yPoints, "Vertical Position", "mm"));
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("SampleHFeedback")->toInfo());
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("SampleVFeedback")->toInfo());
 	}
 
 	else if (motor.testFlag(VESPERS::X) && motor.testFlag(VESPERS::Z)){
@@ -78,6 +81,8 @@ VESPERS2DScanActionController::VESPERS2DScanActionController(VESPERS2DScanConfig
 		list.append(VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->verticalControl()->toInfo());
 		scan_->rawData()->addScanAxis(AMAxisInfo("X", 0, "Horizontal Position", "mm"));
 		scan_->rawData()->addScanAxis(AMAxisInfo("Z", yPoints, "Vertical Position", "mm"));
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("SampleXFeedback")->toInfo());
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("SampleZFeedback")->toInfo());
 	}
 
 	else if (motor.testFlag(VESPERS::AttoH) && motor.testFlag(VESPERS::AttoV)){
@@ -86,6 +91,8 @@ VESPERS2DScanActionController::VESPERS2DScanActionController(VESPERS2DScanConfig
 		list.append(VESPERSBeamline::vespers()->pseudoAttocubeStageMotorGroupObject()->verticalControl()->toInfo());
 		scan_->rawData()->addScanAxis(AMAxisInfo("H", 0, "Horizontal Position", "mm"));
 		scan_->rawData()->addScanAxis(AMAxisInfo("V", yPoints, "Vertical Position", "mm"));
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("AttoHFeedback")->toInfo());
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("AttoVFeedback")->toInfo());
 	}
 
 	else if (motor.testFlag(VESPERS::AttoX) && motor.testFlag(VESPERS::AttoZ)){
@@ -94,6 +101,8 @@ VESPERS2DScanActionController::VESPERS2DScanActionController(VESPERS2DScanConfig
 		list.append(VESPERSBeamline::vespers()->realAttocubeStageMotorGroupObject()->verticalControl()->toInfo());
 		scan_->rawData()->addScanAxis(AMAxisInfo("X", 0, "Horizontal Position", "mm"));
 		scan_->rawData()->addScanAxis(AMAxisInfo("Z", yPoints, "Vertical Position", "mm"));
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("AttoXFeedback")->toInfo());
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("AttoZFeedback")->toInfo());
 	}
 
 	else if (motor.testFlag(VESPERS::BigBeamX) && motor.testFlag(VESPERS::BigBeamZ)){
@@ -102,11 +111,12 @@ VESPERS2DScanActionController::VESPERS2DScanActionController(VESPERS2DScanConfig
 		list.append(VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->verticalControl()->toInfo());
 		scan_->rawData()->addScanAxis(AMAxisInfo("X", 0, "Horizontal Position", "mm"));
 		scan_->rawData()->addScanAxis(AMAxisInfo("Z", yPoints, "Vertical Position", "mm"));
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("BigBeamXFeedback")->toInfo());
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("BigBeamZFeedback")->toInfo());
 	}
 
 	configuration_->setAxisControlInfos(list);
 
-	AMDetectorInfoSet detectors;
 	detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("SplitIonChamber")->toInfo());
 	detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("PreKBIonChamber")->toInfo());
 	detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("MiniIonChamber")->toInfo());
