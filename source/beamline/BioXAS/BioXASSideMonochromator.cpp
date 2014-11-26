@@ -18,17 +18,17 @@ BioXASSideMonochromator::BioXASSideMonochromator(QObject *parent) :
     crystal2RollMotor_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-26 XTAL 2 ROLL"), QString("SMTR1607-5-I22-26"), QString("SMTR1607-5-I22-26 XTAL 2 ROLL"), true, 0.05, 2.0, this, QString(":V"));
 
     braggMotorPower_ = new AMPVControl("BraggMotorPower", "SMTR1607-5-I22-12:power", "SMTR1607-5-I22-12:power", QString(), this);
-    slitsClosed_ = new AMPVControl("SlitsClosed", "BL1607-5-I21:SlitsClosed", "BL1607-5-I21:SlitsOprCloseCmd", QString(), this);
-    paddleOut_ = new AMPVControl("PaddleOut", "BL1607-5-I21:PaddleExtracted", "BL1607-I21:PaddleOprOutCmd", QString(), this);
-    crystalChangeEnabled_ = new AMReadOnlyPVControl("CrystalStageMotorDisabled", "BL1607-5-I21:KeyStatus", this);
-    stageAtCrystalChangePosition_ = new AMReadOnlyPVControl("AtCrystalChangePosition", "BL1607-5-I21:XtalChangePos", this);
-    crystalChangeBrakeEnabled_ = new AMReadOnlyPVControl("BrakeEnabled", "BL1607-5-I21:BrakeOff", this);
+    slitsClosed_ = new AMPVControl("SlitsClosed", "BL1607-5-I21:Mono:SlitsClosed", "BL1607-5-I21:Mono:SlitsOprCloseCmd", QString(), this);
+    paddleOut_ = new AMPVControl("PaddleOut", "BL1607-5-I21:Mono:PaddleExtracted", "BL1607-5-I21:Mono:PaddleOprOutCmd", QString(), this);
+    crystalChangeEnabled_ = new AMReadOnlyPVControl("CrystalStageMotorDisabled", "BL1607-5-I21:Mono:KeyStatus", this);
+    stageAtCrystalChangePosition_ = new AMReadOnlyPVControl("AtCrystalChangePosition", "BL1607-5-I21:Mono:XtalChangePos", this);
+    crystalChangeBrakeEnabled_ = new AMReadOnlyPVControl("BrakeEnabled", "BL1607-5-I21:Mono:BrakeOff", this);
     stageMotorAbs_ = new AMPVControl("StageMotorAbsolute", "SMTR1607-5-I21-12:deg:fbk", "SMTR1607-5-I21-12:deg", QString(), this);
-    crystalChangeMotorRel_ = new AMPVControl("CrystalChangeMotorRelative", "SMTR1607-5-I21-22:step:rel", "SMTR1607-5-I21-22:step:fbk", QString(), this);
+    crystalChangeMotorRel_ = new AMPVControl("CrystalChangeMotorRelative", "SMTR1607-5-I21-22:step:rel", "SMTR1607-5-I21-22:step:sp", QString(), this);
     crystalChangeMotorCWLimit_ = new AMReadOnlyPVControl("CrystalChangeMotorCWLimit", "SMTR1607-5-I21-22:cw", this);
     crystalChangeMotorCCWLimit_ = new AMReadOnlyPVControl("CrystalChangeMotorCCWLimit", "SMTR1607-5-I21-22:ccw", this);
-    regionAStatus_ = new AMReadOnlyPVControl("RegionAStatus", "BL1607-5-I21:Region:A", this);
-    regionBStatus_ = new AMReadOnlyPVControl("RegionBStatus", "BL1607-5-I21:Region:B", this);
+    regionAStatus_ = new AMReadOnlyPVControl("RegionAStatus", "BL1607-5-I21:Mono:Region:A", this);
+    regionBStatus_ = new AMReadOnlyPVControl("RegionBStatus", "BL1607-5-I21:Mono:Region:B", this);
 
     energy_ = new BioXASSideMonochromatorControl("EnergyEV", "BL1607-5-I21:Energy:EV:fbk", "BL1607-5-I21:Energy:EV", "BL1607-5-I21:Energy:status", QString(), this);
 
