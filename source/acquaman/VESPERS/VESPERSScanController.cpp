@@ -117,14 +117,11 @@ AMAction3 *VESPERSScanController::buildCleanupAction()
 		Second: Set the dwell time to 1 second.  Set the scan mode to continuous.  This starts the synchronized dwell time.
 		Third: Disables the variable integration time.  Set the relative energy PV to 0.
 	 */
-	AMListAction3 *cleanup = new AMListAction3(new AMListActionInfo3("VESPERS Cleanup", "VESPERS Cleanup"), AMListAction3::Sequential);
 	CLSSIS3820Scaler *scaler = VESPERSBeamline::vespers()->scaler();
 
-	AMListAction3 *stage1 = new AMListAction3(new AMListActionInfo3("VESPERS Cleanup Stage 2", "Setting synchronized dwell options"), AMListAction3::Parallel);
-	stage1->addSubAction(scaler->createDwellTimeAction3(1.0));
-	stage1->addSubAction(scaler->createContinuousEnableAction3(true));
-
-	cleanup->addSubAction(stage1);
+	AMListAction3 *cleanup = new AMListAction3(new AMListActionInfo3("VESPERS Cleanup", "VESPERS Cleanup"), AMListAction3::Sequential);
+	cleanup->addSubAction(scaler->createDwellTimeAction3(1.0));
+	cleanup->addSubAction(scaler->createContinuousEnableAction3(true));
 
 	return cleanup;
 }
