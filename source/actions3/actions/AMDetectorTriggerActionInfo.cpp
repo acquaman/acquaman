@@ -39,3 +39,10 @@ AMDetectorTriggerActionInfo::AMDetectorTriggerActionInfo(const AMDetectorTrigger
 	detectorInfo_.setValuesFrom(*(other.detectorInfo()));
 	readMode_ = other.readMode();
 }
+
+AMActionInfo3 *AMDetectorTriggerActionInfo::createCopy() const
+{
+	AMActionInfo3 *info = new AMDetectorTriggerActionInfo(*this);
+	info->dissociateFromDb(true);
+	return info;
+}

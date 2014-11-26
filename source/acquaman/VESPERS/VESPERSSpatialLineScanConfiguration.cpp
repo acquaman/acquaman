@@ -73,7 +73,9 @@ VESPERSSpatialLineScanConfiguration::VESPERSSpatialLineScanConfiguration(const V
 
 AMScanConfiguration *VESPERSSpatialLineScanConfiguration::createCopy() const
 {
-	return new VESPERSSpatialLineScanConfiguration(*this);
+	AMScanConfiguration *configuration = new VESPERSSpatialLineScanConfiguration(*this);
+	configuration->dissociateFromDb(true);
+	return configuration;
 }
 
 AMScanController *VESPERSSpatialLineScanConfiguration::createController()

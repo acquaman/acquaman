@@ -71,7 +71,9 @@ SXRMBEXAFSScanConfiguration::~SXRMBEXAFSScanConfiguration()
 
 AMScanConfiguration* SXRMBEXAFSScanConfiguration::createCopy() const
 {
-	return new SXRMBEXAFSScanConfiguration(*this);
+	AMScanConfiguration *configuration = new SXRMBEXAFSScanConfiguration(*this);
+	configuration->dissociateFromDb(true);
+	return configuration;
 }
 
 AMScanController* SXRMBEXAFSScanConfiguration::createController()
