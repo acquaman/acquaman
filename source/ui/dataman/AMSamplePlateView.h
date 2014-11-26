@@ -146,6 +146,8 @@ protected:
 	QHBoxLayout *samplePlateModifiedHL_;
 	QLabel *samplePlateModifiedLabel_;
 	QPushButton *saveSamplePlateButton_;
+
+	QTimer *samplePlateModifiedTimer_;
 };
 
 #endif // AMSAMPLEPLATEVIEW_H

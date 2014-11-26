@@ -20,7 +20,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "AMOverlayVideoWidget.h"
-#include <QResizeEvent>
+
+#include "AMQEvents.h"
 
 #include <QGLWidget>
 

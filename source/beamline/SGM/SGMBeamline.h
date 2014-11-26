@@ -58,6 +58,11 @@ public:
 	bool isBeamlineScanning() const;
 	bool isVisibleLightOn() const;
 
+	/// Returns whether or not there's a valid X/Y for focus moving
+	bool validInFocusPair() const;
+	/// Returns whether or not we're currently moving in focus (validInFocusPair must return true for this to be true)
+	bool movingInFocus() const;
+
 	QStringList unconnectedCriticals() const;
 
 	QString beamlineWarnings();
@@ -243,6 +248,9 @@ public:
 	AMAction3* createGoToTransferPositionActions3();
 	AMAction3* createGoToMeasurementPositionActions3();
 
+	/// A list of actions that will restore the defaults for grating velocity/acceleration, scaler settings, and tracking settings to nominal values
+	AMAction3* createRestorePreFastScanDefaultActions();
+
 public slots:
 	void setCurrentSamplePlate(AMSamplePlatePre2013 *newSamplePlate);
 
@@ -253,6 +261,11 @@ public slots:
 
 	void setCurrentEndstation(SGMBeamlineInfo::sgmEndstation endstation);
 	void setCurrentMirrorStripe(SGMBeamlineInfo::sgmMirrorStripe mirrorStripe);
+
+	/// Call to set the current SSA Manipulator X/Y values to an in-focus pair
+	void setInFocus();
+	/// Call to set the focus tracking on Y to follow X movements
+	void setMoveInFocus(bool moveInFocus);
 
 signals:
 	void beamlineScanningChanged(bool scanning);
@@ -272,6 +285,9 @@ signals:
 	void currentMirrorStripeChanged(SGMBeamlineInfo::sgmMirrorStripe);
 
 	void beamlineInitialized();
+
+	/// Emitted when the flag for Y tracking of X position
+	void moveInFocusChanged(bool moveInFocus);
 
 protected slots:
 	void onBeamlineScanningValueChanged(double value);
@@ -294,6 +310,9 @@ protected slots:
 	void computeBeamlineInitialized();
 
 	void onAllDetectorsGroupAllDetectorResponded();
+
+	/// Handles moving to the new Y focus position when X focus tracking is on
+	void moveToYFocusPosition(double xSetpoint);
 
 protected:
 	void setupControls();
@@ -481,6 +500,13 @@ protected:
 	AMBiHashWChecking<QString, QString> amNames2pvNames_;
 
 	double lastEnergyValue_;
+
+	/// The SSA Manipulator X value for an in focus pair
+	AMNumber xFocus_;
+	/// The SSA Manipulator Y value for an in focus pair
+	AMNumber yFocus_;
+	/// A flag to toggle whether or not we'll keep Y in focus during X moves
+	bool moveInFocus_;
 };
 
 

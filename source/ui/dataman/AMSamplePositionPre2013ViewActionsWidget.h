@@ -24,7 +24,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QFrame>
 #include <QToolButton>
-
+#include <QHBoxLayout>
+#include <QSpacerItem>
 /// This widget adds a "Mark", "Move To", and "Remove" button when editing sample position items, it's used by AMSamplePlateView.
 class AMSamplePositionPre2013ViewActionsWidget : public QFrame
 {
@@ -53,6 +54,7 @@ protected:
 	QToolButton *markButton_;
 	QToolButton *moveToButton_;
 	QToolButton *removeButton_;
+	QHBoxLayout *horizontalLayout_;
 
 protected slots:
 	void onMarkButtonPressed() { emit rowMarkPressed(row_); }

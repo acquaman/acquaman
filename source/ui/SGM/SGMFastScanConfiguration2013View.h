@@ -32,6 +32,7 @@ class QLineEdit;
 class QFormLayout;
 
 class AMTopFrame;
+class SGMFastScanCreateSampleScanListView;
 
 #include <algorithm>
 
@@ -71,6 +72,9 @@ protected slots:
 	void onEndPositionCopyChanged();
 	void onFastScanSettingsCopyChanged();
 
+	void onSetupSampleButtonClicked();
+	void onSetupSampleViewDestroyed();
+
 protected:
 	SGMFastScanConfiguration2013 *cfg_;
 
@@ -96,6 +100,10 @@ protected:
 
 	QComboBox *presetsComboBox_;
 	QLabel *warningsLabel_;
+	QCheckBox *enableUpDownScanningCheckBox_;
+
+	QPushButton *setupSampleButton_;
+	SGMFastScanCreateSampleScanListView *setupSampleView_;
 
 	QLabel *scanNameLabel_;
 	AMRegExpLineEdit *scanNameEdit_;

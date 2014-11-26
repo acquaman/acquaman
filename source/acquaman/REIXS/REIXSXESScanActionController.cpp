@@ -24,7 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMXESScan.h"
 #include "acquaman/REIXS/REIXSXESScanConfiguration.h"
 #include "beamline/REIXS/REIXSBeamline.h"
-#include "analysis/REIXS/REIXSXESImageAB.h"
+#include "analysis/REIXS/REIXSXESImageInterpolationAB.h"
 #include "dataman/datastore/AMCDFDataStore.h"
 #include "dataman/AMTextStream.h"
 
@@ -75,7 +75,8 @@ REIXSXESScanActionController::REIXSXESScanActionController(REIXSXESScanConfigura
 
 REIXSXESScanActionController::~REIXSXESScanActionController()
 {
-	fileWriterThread_->deleteLater();
+	// No need to clean up fileWriterThread, we'll be informed to delete ourself after it is destroyed
+//	fileWriterThread_->deleteLater();
 }
 
 void REIXSXESScanActionController::buildScanController()
@@ -103,17 +104,17 @@ void REIXSXESScanActionController::buildScanController()
 	QFileInfo fullPath(path);	// ex: 2010/09/Mon_03_12_24_48_0000   (Relative, and with no extension)
 
 	qRegisterMetaType<AMScanActionControllerBasicFileWriter::FileWriterError>("FileWriterError");
-	REIXSScanActionControllerMCPFileWriter *fileWriter = new REIXSScanActionControllerMCPFileWriter(AMUserSettings::userDataFolder % fullPath.filePath());
-	connect(fileWriter, SIGNAL(fileWriterIsBusy(bool)), this, SLOT(onFileWriterIsBusy(bool)));
-	connect(fileWriter, SIGNAL(fileWriterError(AMScanActionControllerBasicFileWriter::FileWriterError)), this, SLOT(onFileWriterError(AMScanActionControllerBasicFileWriter::FileWriterError)));
-	connect(this, SIGNAL(requestWriteToFile(int,QString)), fileWriter, SLOT(writeToFile(int,QString)));
-	connect(this, SIGNAL(finishWritingToFile()), fileWriter, SLOT(finishWriting()));
+	fileWriter_ = new REIXSScanActionControllerMCPFileWriter(AMUserSettings::userDataFolder % fullPath.filePath());
+	connect(fileWriter_, SIGNAL(fileWriterIsBusy(bool)), this, SLOT(onFileWriterIsBusy(bool)));
+	connect(fileWriter_, SIGNAL(fileWriterError(AMScanActionControllerBasicFileWriter::FileWriterError)), this, SLOT(onFileWriterError(AMScanActionControllerBasicFileWriter::FileWriterError)));
+	connect(this, SIGNAL(requestWriteToFile(int,QString)), fileWriter_, SLOT(writeToFile(int,QString)));
+	connect(this, SIGNAL(finishWritingToFile()), fileWriter_, SLOT(finishWriting()));
 
 	fileWriterThread_ = new QThread();
 	connect(this, SIGNAL(finished()), this, SLOT(onScanControllerFinished()));
 	connect(this, SIGNAL(cancelled()), this, SLOT(onScanControllerFinished()));
 	connect(this, SIGNAL(failed()), this, SLOT(onScanControllerFinished()));
-	fileWriter->moveToThread(fileWriterThread_);
+	fileWriter_->moveToThread(fileWriterThread_);
 	fileWriterThread_->start();
 
 	buildScanControllerImplementation();
@@ -121,19 +122,20 @@ void REIXSXESScanActionController::buildScanController()
 
 void REIXSXESScanActionController::buildScanControllerImplementation()
 {
-	REIXSXESImageAB* xesSpectrum = new REIXSXESImageAB("xesSpectrum");
+	REIXSXESImageInterpolationAB* xesSpectrum = new REIXSXESImageInterpolationAB("xesSpectrum");
 	xesSpectrum->setInputDataSources(QList<AMDataSource*>() << scan_->rawDataSources()->at(0));
-	xesSpectrum->setSumRangeMaxY(58);
-	xesSpectrum->setSumRangeMinY(5);
-	xesSpectrum->setCorrelationHalfWidth(100);	// monitor for performance. Makes nicer fits when wider.
-	xesSpectrum->enableLiveCorrelation(true);
 	scan_->addAnalyzedDataSource(xesSpectrum);
 }
 
 void REIXSXESScanActionController::onDetectorAcquisitionSucceeded(){
 	updateTimer_->stop();
+	disconnect(REIXSBeamline::bl()->mcpDetector(), SIGNAL(imageDataChanged()), this, SLOT(writeDataToFiles()));
 	saveRawData();
-	setFinished();
+	scanControllerStateMachineFinished_ = true;
+	if(readyForFinished())
+		setFinished();
+	else if(fileWriterIsBusy_)
+		emit finishWritingToFile();
 }
 
 
@@ -412,9 +414,14 @@ void REIXSXESScanActionController::stopImplementation(const QString &command)
 		disconnect(REIXSBeamline::bl()->mcpDetector(), SIGNAL(imageDataChanged()), this, SLOT(onNewImageValues()));
 	}
 
+	disconnect(REIXSBeamline::bl()->mcpDetector(), SIGNAL(imageDataChanged()), this, SLOT(writeDataToFiles()));
 	REIXSBeamline::bl()->mcpDetector()->cancelAcquisition();
 	saveRawData();
-	setFinished();
+	writeDataToFiles();
+	if(readyForFinished())
+		setFinished();
+	else if(fileWriterIsBusy_)
+		emit finishWritingToFile();
 }
 
 #include "dataman/AMSample.h"
@@ -558,14 +565,14 @@ void REIXSXESScanActionController::onFileWriterError(AMScanActionControllerBasic
 	box.execWTimeout();
 }
 
-void REIXSXESScanActionController::onFileWriterIsBusy(bool isBusy)
-{
-	fileWriterIsBusy_ = isBusy;
-	emit readyForDeletion(!fileWriterIsBusy_);
-}
+//void REIXSXESScanActionController::onFileWriterIsBusy(bool isBusy)
+//{
+//	fileWriterIsBusy_ = isBusy;
+//	emit readyForDeletion(!fileWriterIsBusy_);
+//}
 
 void REIXSXESScanActionController::onScanControllerFinished()
 {
 	writeDataToFiles();
-	fileWriterThread_->quit();
+//	fileWriterThread_->quit();
 }

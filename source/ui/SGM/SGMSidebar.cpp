@@ -98,6 +98,10 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	exitSlitNC_->overrideTitle("Exit Slit");
 	exitSlitNC_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 
+	restoreBeamlineAction_ = 0; //NULL
+	restoreBeamlineSettingsButton_ = new QPushButton("Restore Settings");
+	connect(restoreBeamlineSettingsButton_, SIGNAL(clicked()), this, SLOT(onRestoreBeamlineSettingsButtonClicked()));
+
 	scanningLabel_ = new AMExtendedControlEditor(SGMBeamline::sgm()->beamlineScanning(), NULL, true);
 	scanningLabel_->setNoUnitsBox(true);
 	scanningLabel_->overrideTitle("");
@@ -107,8 +111,9 @@ SGMSidebar::SGMSidebar(QWidget *parent) :
 	scanningResetButton_->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
 	connect(scanningResetButton_, SIGNAL(clicked()), this, SLOT(onScanningResetButtonClicked()));
 	QHBoxLayout *shl = new QHBoxLayout();
-	shl->addWidget(scanningLabel_);
-	shl->addWidget(scanningResetButton_);
+//	shl->addWidget(scanningLabel_);
+//	shl->addWidget(scanningResetButton_);
+	shl->addWidget(restoreBeamlineSettingsButton_);
 	shl->setSpacing(0);
 	shl->setContentsMargins(2, 2, 2, 2);
 
@@ -424,6 +429,22 @@ void SGMSidebar::onStopMotorsActionFinished(){
 	disconnect(stopMotorsAction_, SIGNAL(failed()), this, SLOT(onStopMotorsActionFinished()));
 	stopMotorsAction_->deleteLater();
 	stopMotorsAction_ = 0;
+}
+
+void SGMSidebar::onRestoreBeamlineSettingsButtonClicked(){
+	if(restoreBeamlineAction_)
+		return;
+	restoreBeamlineAction_ = SGMBeamline::sgm()->createRestorePreFastScanDefaultActions();
+	connect(restoreBeamlineAction_, SIGNAL(succeeded()), this, SLOT(onRestoreBeamlineActionFinished()));
+	connect(restoreBeamlineAction_, SIGNAL(failed()), this, SLOT(onRestoreBeamlineActionFinished()));
+	restoreBeamlineAction_->start();
+}
+
+void SGMSidebar::onRestoreBeamlineActionFinished(){
+	disconnect(restoreBeamlineAction_, SIGNAL(succeeded()), this, SLOT(onRestoreBeamlineActionFinished()));
+	disconnect(restoreBeamlineAction_, SIGNAL(failed()), this, SLOT(onRestoreBeamlineActionFinished()));
+	restoreBeamlineAction_->deleteLater();
+	restoreBeamlineAction_ = 0;
 }
 
 void SGMSidebar::onScanningResetButtonClicked(){

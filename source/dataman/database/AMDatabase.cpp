@@ -796,6 +796,7 @@ bool AMDatabase::startTransaction()
 	return success;
 }
 
+#include <unistd.h>
 bool AMDatabase::commitTransaction(int timeoutMs)
 {
 	QTime startTime;
@@ -816,7 +817,7 @@ bool AMDatabase::commitTransaction(int timeoutMs)
 
 	if(attempt > 1) {
 		if(success) {
-			AMErrorMon::debug(this, AMDATABASE_COMMIT_CONTENTION_SUCCEEDED, QString("AMDatabase detected contention for database access in commitTransaction(). It took %1 tries for the commit to succeed.").arg(attempt) );
+            AMErrorMon::debug(this, AMDATABASE_COMMIT_CONTENTION_SUCCEEDED, QString("AMDatabase detected contention for database access in commitTransaction(). It took %1 tries for the commit to succeed.").arg(attempt) );
 		}
 		else {
 			AMErrorMon::debug(this, AMDATABASE_COMMIT_CONTENTION_FAILED, QString("AMDatabase detected contention for database access in commitTransaction(). After %1 attempts, the commit still did not succeed.").arg(attempt) );

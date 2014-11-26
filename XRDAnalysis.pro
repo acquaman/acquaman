@@ -1,15 +1,8 @@
-include ( acquamanCommon.pri )
+# #####################################################################
+# QMake project file for acquaman, including test suites			January 2010. mark.boots@usask.ca
+# #####################################################################
 
-TARGET = XRDAnalaysis
-
-FORMS +=
-
-HEADERS += \
-	source/application/XRDAnalysis/XRDAnalysisAppController.h \
-	source/ui/XRDAnalysis/XRDAnalysisMainWindow.h
-
-SOURCES += source/application/XRDAnalysis/XRDAnalysisMain.cpp \
-	source/application/XRDAnalysis/XRDAnalysisAppController.cpp \
-	source/ui/XRDAnalysis/XRDAnalysisMainWindow.cpp
-
-RESOURCES += \
+TEMPLATE = subdirs
+SUBDIRS += \
+	Initialize.pro \
+	XRDAnalysis_internal.pro

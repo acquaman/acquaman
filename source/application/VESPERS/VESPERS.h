@@ -34,7 +34,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QList>
 #include <QStringBuilder>
 
-#include "dataman/export/AMExporterOptionGeneralAscii.h"
+#include "dataman/export/AMExporterOptionSMAK.h"
 #include "dataman/database/AMDbObjectSupport.h"
 #include "beamline/AMProcessVariable.h"
 
@@ -102,7 +102,12 @@ namespace VESPERS {
 		AttoY = 2048,
 		AttoRz = 4096,
 		AttoRy = 8192,
-		AttoRx = 16384
+		AttoRx = 16384,
+		BigBeamX = 32768,
+		BigBeamZ = 65536,
+		WireH = 131072,
+		WireV = 262144,
+		WireN = 524288
 	};
 	Q_DECLARE_FLAGS(Motors, Motor)
 
@@ -184,6 +189,42 @@ namespace VESPERS {
 		vespersDefault->setSeparateHigherDimensionalSources(true);
 		vespersDefault->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.dat");
 		vespersDefault->setHigherDimensionsInRows(exportSpectraInRows);
+		vespersDefault->storeToDb(AMDatabase::database("user"));
+
+		return vespersDefault;
+	}
+
+	/// Builds the SMAK exporter option used for all exported scans.
+	inline AMExporterOptionSMAK *buildSMAKExporterOption(const QString &name, bool includeHigherOrderSources, bool hasGotoPosition, bool addeVFeedbackMessage, bool exportSpectraInRows)
+	{
+		QList<int> matchIDs = AMDatabase::database("user")->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMExporterOptionSMAK>(), "name", name);
+
+		AMExporterOptionSMAK *vespersDefault = new AMExporterOptionSMAK();
+
+		if (matchIDs.count() != 0)
+			vespersDefault->loadFromDb(AMDatabase::database("user"), matchIDs.at(0));
+
+		vespersDefault->setName(name);
+		vespersDefault->setFileName("$name_$fsIndex.dat");
+		if (hasGotoPosition && addeVFeedbackMessage)
+			vespersDefault->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[header]\nActual Horizontal Position:\t$controlValue[Horizontal Sample Stage] mm\nActual Vertical Position:\t$controlValue[Vertical Sample Stage] mm\n\n$notes\nNote that I0.X is the energy feedback.\n\n");
+		else if (hasGotoPosition)
+			vespersDefault->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[header]\nActual Horizontal Position:\t$controlValue[Horizontal Sample Stage] mm\n\n$notes\n\n");
+		else
+			vespersDefault->setHeaderText("Scan: $name #$number\nDate: $dateTime\nSample: $sample\nFacility: $facilityDescription\n\n$scanConfiguration[header]\n\n$notes\n\n");
+		vespersDefault->setHeaderIncluded(true);
+		vespersDefault->setColumnHeader("$dataSetName $dataSetInfoDescription");
+		vespersDefault->setColumnHeaderIncluded(true);
+		vespersDefault->setColumnHeaderDelimiter("");
+		vespersDefault->setSectionHeader("");
+		vespersDefault->setSectionHeaderIncluded(true);
+		vespersDefault->setIncludeAllDataSources(true);
+		vespersDefault->setFirstColumnOnly(true);
+		vespersDefault->setIncludeHigherDimensionSources(includeHigherOrderSources);
+		vespersDefault->setSeparateHigherDimensionalSources(true);
+		vespersDefault->setSeparateSectionFileName("$name_$dataSetName_$fsIndex.dat");
+		vespersDefault->setHigherDimensionsInRows(exportSpectraInRows);
+		vespersDefault->setRegExpString("^\\w{1,2}Ka1|^\\w{1,2}Kb1|^\\w{1,2}La1|^\\w{1,2}Lb1|^\\w{1,2}Lg1|SplitIonChamber|PreKBIonChamber|MiniIonChamber");
 		vespersDefault->storeToDb(AMDatabase::database("user"));
 
 		return vespersDefault;
@@ -284,6 +325,12 @@ namespace VESPERS {
 
 		else if (name == "Attocube Stage - Rz")
 			return AttoRz;
+
+		else if (name == "Big Beam - X, Z")
+			return BigBeamX | BigBeamZ;
+
+		else if (name == "Wire Stage - H, V, N")
+			return WireH | WireV;
 
 		return NoMotor;
 	}

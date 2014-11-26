@@ -41,6 +41,8 @@ AMAction3::AMAction3(AMActionInfo3* info, QObject *parent)
 	failureResponseAsSubAction_ = MoveOnResponse;
 
 	generateScanActionMessages_ = false;
+	isScheduledForDeletion_ = false;
+	isLoggingFinished_ = true;
 }
 
 // Copy constructor. Takes care of making copies of the info and prerequisites.
@@ -57,6 +59,9 @@ AMAction3::AMAction3(const AMAction3& other)
 	failureResponseInActionRunner_ = other.failureResponseInActionRunner_;
 	failureResponseAsSubAction_ = other.failureResponseAsSubAction_;
 
+	isScheduledForDeletion_ = false;
+	isLoggingFinished_ = true;
+
 	info_ = other.info()->createCopy();
 	generateScanActionMessages_ = other.generateScanActionMessages();
 	connect(info_, SIGNAL(expectedDurationChanged(double)), this, SIGNAL(expectedDurationChanged(double)));
@@ -71,7 +76,13 @@ AMAction3::~AMAction3() {
 	}
 }
 
+bool AMAction3::isScheduledForDeletion() const{
+	return isScheduledForDeletion_;
+}
 
+bool AMAction3::isLoggingFinished() const{
+	return isLoggingFinished_;
+}
 
 bool AMAction3::start()
 {
@@ -154,7 +165,26 @@ bool AMAction3::skip(const QString &command)
 }
 
 void AMAction3::scheduleForDeletion(){
-	deleteLater();
+	if(!isScheduledForDeletion_){
+		isScheduledForDeletion_ = true;
+		scheduleForDeletionImplementation();
+	}
+}
+
+void AMAction3::setIsLoggingFinished(bool isLoggingFinished){
+	if(isLoggingFinished_ != isLoggingFinished){
+		isLoggingFinished_ = isLoggingFinished;
+		emit isLoggingFinishedChanged(isLoggingFinished_);
+		if(isLoggingFinished_)
+			emit loggingIsFinished();
+	}
+}
+
+void AMAction3::scheduleForDeletionImplementation(){
+	if(isLoggingFinished())
+		deleteLater();
+	else
+		connect(this, SIGNAL(loggingIsFinished()), this, SLOT(deleteLater()));
 }
 
 void AMAction3::setStarted()

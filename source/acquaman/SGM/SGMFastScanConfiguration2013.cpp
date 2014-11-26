@@ -26,16 +26,17 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "util/SGM/SGMPeriodicTable.h"
 
-SGMFastScanConfiguration2013::SGMFastScanConfiguration2013(QObject *parent) : AMFastScanConfiguration(parent), SGMScanConfiguration()
+SGMFastScanConfiguration2013::SGMFastScanConfiguration2013(QObject *parent) :
+	AMFastScanConfiguration(parent), SGMScanConfiguration()
 {
 	autoExportEnabled_ = false; // We're not going to do auto exporting for fast scans right now
 	currentSettings_ = 0; //NULL
 	currentEnergyParameters_ = 0; //NULL
+	enableUpDownScanning_ = true;
 
 	settings_ = SGMPeriodicTable::sgmTable()->fastScanPresets(SGMPeriodicTable::SGMPeriodicTableAllDatabasesConnectionName());
 
-
-	setParametersFromPreset(0);
+	currentSettings_ = new SGMFastScanParameters();
 
 	currentEnergyParameters_ = new SGMEnergyParameters(SGMBeamlineInfo::sgmInfo()->energyParametersForGrating(SGMBeamline::sgm()->currentGrating()));
 }
@@ -46,6 +47,7 @@ SGMFastScanConfiguration2013::SGMFastScanConfiguration2013(const SGMFastScanConf
 	autoExportEnabled_ = false; // We're not going to do auto exporting for fast scans right now
 	currentSettings_ = 0; //NULL
 	currentEnergyParameters_ = 0; //NULL
+	enableUpDownScanning_ = original.enableUpDownScanning();
 
 	settings_ = SGMPeriodicTable::sgmTable()->fastScanPresets(SGMPeriodicTable::SGMPeriodicTableAllDatabasesConnectionName());
 
@@ -73,6 +75,21 @@ const QMetaObject* SGMFastScanConfiguration2013::getMetaObject(){
 	return metaObject();
 }
 
+bool SGMFastScanConfiguration2013::loadFromDb(AMDatabase *db, int id){
+	if(AMFastScanConfiguration::loadFromDb(db, id)){
+		bool foundPreset = false;
+		for(int x = 0; x < settings_.count(); x++){
+			if(!foundPreset && *(settings_.at(x)) == *(currentSettings_) ){
+				setParametersFromPreset(x);
+				foundPreset = true;
+			}
+		}
+
+		return true;
+	}
+	return false;
+}
+
 AMScanConfiguration* SGMFastScanConfiguration2013::createCopy() const{
 	return new SGMFastScanConfiguration2013(*this);
 }
@@ -89,6 +106,10 @@ AMScanController* SGMFastScanConfiguration2013::createController(){
 
 AMScanConfigurationView* SGMFastScanConfiguration2013::createView(){
 	return new SGMFastScanConfiguration2013View(this);
+}
+
+QString SGMFastScanConfiguration2013::description() const{
+	return QString("Fast Scan from %1 to %2 [%3s]").arg(startEnergy()).arg(endEnergy()).arg(runTime());
 }
 
 QString SGMFastScanConfiguration2013::detailedDescription() const{
@@ -181,6 +202,13 @@ QStringList SGMFastScanConfiguration2013::presets() const{
 	return SGMPeriodicTable::sgmTable()->fastScanPresetsStrings(SGMPeriodicTable::SGMPeriodicTableAllDatabasesConnectionName());
 }
 
+int SGMFastScanConfiguration2013::currentPresetIndex() const{
+	for(int x = 0; x < settings_.count(); x++)
+		if(settings_.at(x) == currentSettings_)
+			return x;
+	return -1;
+}
+
 SGMFastScanParameters* SGMFastScanConfiguration2013::currentParameters() const{
 	return currentSettings_;
 }
@@ -202,10 +230,20 @@ bool SGMFastScanConfiguration2013::setParametersFromPreset(int index){
 	return retVal;
 }
 
+bool SGMFastScanConfiguration2013::enableUpDownScanning() const{
+	return enableUpDownScanning_;
+}
+
 bool SGMFastScanConfiguration2013::setParameters(SGMFastScanParameters *settings){
 	if(!settings)
 		return false;
 	disconnect(currentSettings_, 0);
+
+	if(currentSettings_ && !settings_.contains(currentSettings_)){
+		currentSettings_->deleteLater();
+		currentSettings_ = 0;
+	}
+
 	currentSettings_ = settings;
 	setStartEnergy(currentSettings_->energyStart());
 	setEndEnergy(currentSettings_->energyEnd());
@@ -408,14 +446,31 @@ bool SGMFastScanConfiguration2013::setSGMGrating(int sgmGrating){
 	return true;
 }
 
+bool SGMFastScanConfiguration2013::setEnableUpDownScanning(bool enableUpDownScanning){
+	if(enableUpDownScanning_ != enableUpDownScanning){
+		enableUpDownScanning_ = enableUpDownScanning;
+		emit enableUpDownScanningChanged(enableUpDownScanning_);
+	}
+	return true;
+}
+
 AMDbObject* SGMFastScanConfiguration2013::dbReadFastScanParameters(){
 	return currentSettings_;
 }
 
 void SGMFastScanConfiguration2013::dbLoadFastScanParameters(AMDbObject *fastScanParameters){
 	SGMFastScanParameters *scanParameters = qobject_cast<SGMFastScanParameters*>(fastScanParameters);
-	if(scanParameters)
-		currentSettings_ = scanParameters;
+	if(scanParameters){
+		bool foundPreset = false;
+		for(int x = 0; x < settings_.count(); x++){
+			if(!foundPreset && *(settings_.at(x)) == *(scanParameters) ){
+				setParametersFromPreset(x);
+				foundPreset = true;
+			}
+		}
+		if(!foundPreset)
+			setParameters(scanParameters);
+	}
 	else
 		dbLoadWarnings_ = "This scan was run before fast scans were saving necessary information. YOU SHOULD NOT PROCEED WITH THIS SCAN.";
 }

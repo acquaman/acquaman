@@ -29,7 +29,7 @@ AMBeamline* AMBeamline::instance_ = 0;
 
 
 AMBeamline::AMBeamline(const QString& controlName)
-	: AMControl(controlName, "")
+	: AMControl(controlName, ""), AMBeamlineControlAPI(), AMBeamlineControlSetAPI(), AMBeamlineDetectorAPI(), AMBeamlineDetectorSetAPI(), AMBeamlineSynchronizedDwellTimeAPI()
 {
 	exposedControls_ = new AMControlSet(this);
 	exposedDetectors_ = new AMDetectorSet(this);
@@ -181,4 +181,12 @@ void AMBeamline::onRegionOfInterestBoundingRangeChanged(AMRegionOfInterest *regi
 		foreach (AMRegionOfInterest *tempRegion, detector->regionsOfInterest())
 			if (region->name() == tempRegion->name() && tempRegion->boundingRange() != region->boundingRange())
 				tempRegion->setBoundingRange(region->boundingRange());
+}
+
+void AMBeamline::initializeBeamlineSupport(){
+	AMBeamlineSupport::setBeamlineControlAPI(AMBeamline::AMBeamline::bl());
+	AMBeamlineSupport::setBeamlineControlSetAPI(AMBeamline::bl());
+	AMBeamlineSupport::setBeamineDetectorAPI(AMBeamline::bl());
+	AMBeamlineSupport::setBeamlineDetectorSetAPI(AMBeamline::bl());
+	AMBeamlineSupport::setBeamlineSynchronizedDwellTimeAPI(AMBeamline::bl());
 }

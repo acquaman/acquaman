@@ -93,8 +93,8 @@ public:
 	/// Pointer to the scan this instance is controlling.
 	virtual AMScan* scan() { return scan_; }
 
-	/// Returns whether the scan controller is in a state where it can be deleted.
-	virtual bool isReadyForDeletion() const;
+//	/// Returns whether the scan controller is in a state where it can be deleted.
+//	virtual bool isReadyForDeletion() const;
 
 signals:
 	/// This signal provides public notification whenever the scan changes it's state() to \c newState.  The \c oldState that it is transitioning out of is also provided.  The state numbers (typed as integers for easy signal handling) correspond to the enum defined in AMScanController::ScanState.
@@ -126,8 +126,8 @@ signals:
 	/// Progress of scan (arbitrary units: some amount \c elapsed of a \c total amount). Implementations should emit this periodically.
 	void progress(double elapsed, double total);
 
-	/// Notifier that the scan controller deletion state has changed.  Passes the new state.
-	void readyForDeletion(bool isReady);
+//	/// Notifier that the scan controller deletion state has changed.  Passes the new state.
+//	void readyForDeletion(bool isReady);
 
 
 public slots:
@@ -146,6 +146,9 @@ public slots:
 	void cancel();
 	/// Stop the scan.  The same action as cancel() but with the implication that the scan should still be considered complete.  Requires a command because there can be a variety of reasons for stopping a scan like this.  This is defaulted to an empty string because you may not need to distinguish between reasons.
 	void stop(const QString &command = QString(""));
+
+	/// Call to tell the scan controller that it should clean up itself and its components
+	virtual void scheduleForDeletion();
 
 protected slots:
 	// Protected notification functions.  Call these to notify the AMScanController API when you want to trigger a transition between scan states.

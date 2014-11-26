@@ -164,8 +164,8 @@ VESPERS2DScanConfigurationView::VESPERS2DScanConfigurationView(VESPERS2DScanConf
 
 	// Motor selection.
 	motorSelectionComboBox_ = createMotorSelectionComboBox(
-				QStringList() << "H & V" << "X & Z" << "Atto H & V" << "Atto X & Z",
-				QList<int>() << (VESPERS::H | VESPERS::V) << (VESPERS::X | VESPERS::Z) << (VESPERS::AttoH | VESPERS::AttoV) << (VESPERS::AttoX | VESPERS::AttoZ));
+				QStringList() << "H & V" << "X & Z" << "Atto H & V" << "Atto X & Z" << "Big Beam X & Z",
+				QList<int>() << (VESPERS::H | VESPERS::V) << (VESPERS::X | VESPERS::Z) << (VESPERS::AttoH | VESPERS::AttoV) << (VESPERS::AttoX | VESPERS::AttoZ) << (VESPERS::BigBeamX | VESPERS::BigBeamZ));
 	connect(motorSelectionComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onMotorChanged(int)));
 	connect(configuration_->dbObject(), SIGNAL(motorChanged(int)), this, SLOT(updateMotorSelectionComboBox(int)));
 
@@ -383,6 +383,13 @@ void VESPERS2DScanConfigurationView::onSetStartPosition()
 		n = VESPERSBeamline::vespers()->sampleStageY()->value();
 	}
 
+	else if (motor == (VESPERS::BigBeamX | VESPERS::BigBeamZ)){
+
+		h = VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->horizontalControl()->value();
+		v = VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->verticalControl()->value();
+		n = 888888.88;
+	}
+
 	configuration_->scanAxisAt(0)->regionAt(0)->setRegionStart(h);
 	configuration_->scanAxisAt(1)->regionAt(0)->setRegionStart(v);
 	configuration_->setNormalPosition(n);
@@ -422,6 +429,12 @@ void VESPERS2DScanConfigurationView::onSetEndPosition()
 		v = VESPERSBeamline::vespers()->attoStageZ()->value();
 	}
 
+	else if (motor == (VESPERS::BigBeamX | VESPERS::BigBeamZ)){
+
+		h = VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->horizontalControl()->value();
+		v = VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->verticalControl()->value();
+	}
+
 	configuration_->scanAxisAt(0)->regionAt(0)->setRegionEnd(h);
 	configuration_->scanAxisAt(1)->regionAt(0)->setRegionEnd(v);
 	hEnd_->setValue(h);
@@ -446,6 +459,9 @@ void VESPERS2DScanConfigurationView::onSetNormalPosition()
 
 	if (motor == (VESPERS::AttoX | VESPERS::AttoZ))
 		n = VESPERSBeamline::vespers()->sampleStageY()->value();
+
+	if (motor == (VESPERS::BigBeamX | VESPERS::BigBeamZ))
+		n = 888888.88;
 
 	configuration_->setNormalPosition(n);
 	updateMapInfo();
@@ -537,10 +553,21 @@ void VESPERS2DScanConfigurationView::axesAcceptable()
 	QPalette bad(good);
 	bad.setColor(QPalette::Base, Qt::red);
 
-	/*
-	hStep_->setPalette(config_->validXAxis() ? good : bad);
-	vStep_->setPalette(config_->validYAxis() ? good : bad);
-	*/
+	AMScanAxisRegion *region = configuration_->scanAxisAt(0)->regionAt(0);
+
+	if (double(region->regionStart()) < double(region->regionEnd()) && double(region->regionStep()) > 0)
+		hStep_->setPalette(good);
+
+	else
+		hStep_->setPalette(bad);
+
+	region = configuration_->scanAxisAt(1)->regionAt(0);
+
+	if (double(region->regionStart()) < double(region->regionEnd()) && double(region->regionStep()) > 0)
+		vStep_->setPalette(good);
+
+	else
+		vStep_->setPalette(bad);
 }
 
 void VESPERS2DScanConfigurationView::setXAxisStart(const AMNumber &value)

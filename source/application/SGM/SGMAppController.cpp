@@ -141,26 +141,34 @@ SGMAppController::SGMAppController(QObject *parent) :
 	prependDatabaseUpgrade(sgm1Pt1SGMPublicDb);
 
 	AMDbUpgrade *sgm1Pt1UserDb = new SGMDbUpgrade1Pt1("user", this);
-	prependDatabaseUpgrade(sgm1Pt1UserDb);
 	AMDbUpgrade *sgm1Pt1ActionsDb = new SGMDbUpgrade1Pt1("actions", this);
+//	sgm1Pt1UserDb->setIsResponsibleForUpgrade(hasUpgradePermission);;
+//	sgm1Pt1ActionsDb->setIsResponsibleForUpgrade(hasUpgradePermission);;
+	prependDatabaseUpgrade(sgm1Pt1UserDb);
 	prependDatabaseUpgrade(sgm1Pt1ActionsDb);
 
 	// Append the AM upgrade 1.1 to the list for the SGMBeamline database and public database
-	AMDbUpgrade *am1Pt1UserDb = new AMDbUpgrade1Pt1("SGMBeamline", this);
-	appendDatabaseUpgrade(am1Pt1UserDb);
+	AMDbUpgrade *am1Pt1SGMDb = new AMDbUpgrade1Pt1("SGMBeamline", this);
 	AMDbUpgrade *am1Pt1SGMPublicDb = new AMDbUpgrade1Pt1("SGMPublic", this);
+	am1Pt1SGMDb->setIsResponsibleForUpgrade(hasUpgradePermission);;
+	am1Pt1SGMPublicDb->setIsResponsibleForUpgrade(hasUpgradePermission);;
+	appendDatabaseUpgrade(am1Pt1SGMDb);
 	appendDatabaseUpgrade(am1Pt1SGMPublicDb);
 
 	// Append the AM upgrade 1.2 to the list for the SGMBeamline database and public database
-	AMDbUpgrade *am1Pt2UserDb = new AMDbUpgrade1Pt2("SGMBeamline", this);
-	appendDatabaseUpgrade(am1Pt2UserDb);
+	AMDbUpgrade *am1Pt2SGMDb = new AMDbUpgrade1Pt2("SGMBeamline", this);
 	AMDbUpgrade *am1Pt2SGMPublicDb = new AMDbUpgrade1Pt2("SGMPublic", this);
+	am1Pt2SGMDb->setIsResponsibleForUpgrade(hasUpgradePermission);;
+	am1Pt2SGMPublicDb->setIsResponsibleForUpgrade(hasUpgradePermission);;
+	appendDatabaseUpgrade(am1Pt2SGMDb);
 	appendDatabaseUpgrade(am1Pt2SGMPublicDb);
 
 	// Append the AM upgrade 1.4 to the list for the SGMBeamline database and public database
-	AMDbUpgrade *am1Pt4UserDb = new AMDbUpgrade1Pt4("SGMBeamline", this);
-	appendDatabaseUpgrade(am1Pt4UserDb);
+	AMDbUpgrade *am1Pt4SGMDb = new AMDbUpgrade1Pt4("SGMBeamline", this);
 	AMDbUpgrade *am1Pt4SGMPublicDb = new AMDbUpgrade1Pt4("SGMPublic", this);
+	am1Pt4SGMDb->setIsResponsibleForUpgrade(hasUpgradePermission);;
+	am1Pt4SGMPublicDb->setIsResponsibleForUpgrade(hasUpgradePermission);;
+	appendDatabaseUpgrade(am1Pt4SGMDb);
 	appendDatabaseUpgrade(am1Pt4SGMPublicDb);
 
 	// Add the SGM Beamline database as a source of exporter options
@@ -213,6 +221,13 @@ bool SGMAppController::startup() {
 		// no run yet... let's create one.
 		AMRun firstRun("SGM", 3);	/// \todo For now, we know that 3 is the ID of the SGM facility, but this is a hardcoded hack.
 		firstRun.storeToDb(AMDatabase::database("user"));
+	}
+
+	QList<int> allURLIds = AMDatabase::database("user")->objectsWhere(AMDbObjectSupport::s()->tableNameForClass<AMSampleCameraURL>());
+	if(allURLIds.count() == 0){
+		AMSampleCameraURL *newURL = new AMSampleCameraURL("http://10.52.48.103/axis-cgi/mjpg/video.cgi?resolution=1280x1024&.mjpg");
+		newURL->storeToDb(AMDatabase::database("user"));
+
 	}
 
 	// Set up the GUI portions of the SGMAcquamanAppController
@@ -423,6 +438,7 @@ void SGMAppController::onSGMBeamlineConnected(){
 
 		// Do New Fast
 		SGMFastScanConfiguration2013 *fastScanConfiguration2013 = new SGMFastScanConfiguration2013(this);
+		fastScanConfiguration2013->setParametersFromPreset(0);
 
 		fastDetectorSelector_ = new AMDetectorSelector(SGMBeamline::sgm()->FastDetectorGroup());
 		QStringList preferentialFastOrdering;
@@ -485,14 +501,10 @@ void SGMAppController::onSGMBeamlineConnected(){
 			badStartupSettingsChoice.setEscapeButton(QMessageBox::Cancel);
 
 			if(badStartupSettingsChoice.exec() == QMessageBox::Ok){
-				SGMBeamline::sgm()->gratingVelocity()->move(10000);
-				SGMBeamline::sgm()->gratingBaseVelocity()->move(0);
-				SGMBeamline::sgm()->gratingAcceleration()->move(5000);
-				SGMBeamline::sgm()->rawScaler()->setDwellTime(1.0);
-				SGMBeamline::sgm()->rawScaler()->setScansPerBuffer(1);
-				SGMBeamline::sgm()->rawScaler()->setTotalScans(1);
-				SGMBeamline::sgm()->undulatorTracking()->move(1);
-				SGMBeamline::sgm()->exitSlitTracking()->move(1);
+				AMAction3 *cleanupSettingAction = SGMBeamline::sgm()->createRestorePreFastScanDefaultActions();
+				connect(cleanupSettingAction, SIGNAL(succeeded()), cleanupSettingAction, SLOT(deleteLater()));
+				connect(cleanupSettingAction, SIGNAL(failed()), cleanupSettingAction, SLOT(deleteLater()));
+				cleanupSettingAction->start();
 			}
 		}
 	}
@@ -914,12 +926,22 @@ bool SGMAppController::setupSGMPeriodicTable(){
 	elementEdge = "K";
 	matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<SGMElementInfo>(), "name", elementName+"ElementInfo");
 	if(matchIDs.count() == 0){
+
 		SGMEnergyPosition epStart(elementName%elementEdge%"Start", 270.0, -397720, -149991, 286.63, 0);
 		SGMEnergyPosition epMiddle(elementName%elementEdge%"Middle", 295.0, -377497, -140470, 200.46, 0);
 		SGMEnergyPosition epEnd(elementName%elementEdge%"End", 320.0, -348005, -133061, 100.54, 0);
 		success &= epStart.storeToDb(dbSGM);
 		success &= epMiddle.storeToDb(dbSGM);
 		success &= epEnd.storeToDb(dbSGM);
+
+		/* Settings for faking really quick carbon scans
+		SGMEnergyPosition epStart(elementName%elementEdge%"Start", 300.0, -371207, -141240, 1.0, 0);
+		SGMEnergyPosition epMiddle(elementName%elementEdge%"Middle", 301.0, -369973, -140888, 1.0, 0);
+		SGMEnergyPosition epEnd(elementName%elementEdge%"End", 302.0, -368750, -140571, 1.0, 0);
+		success &= epStart.storeToDb(dbSGM);
+		success &= epMiddle.storeToDb(dbSGM);
+		success &= epEnd.storeToDb(dbSGM);
+		*/
 
 		AMAbsorptionEdge edge = AMPeriodicTable::table()->elementBySymbol(elementSymbol)->KEdge();
 		SGMScanInfo scanInfo(elementName%" "%elementEdge, edge, epStart, epMiddle, epEnd);
@@ -930,6 +952,18 @@ bool SGMAppController::setupSGMPeriodicTable(){
 		success &= fs5Settings.storeToDb(dbSGM);
 		SGMFastScanParameters *fsp5 = new SGMFastScanParameters(elementName%elementEdge%"5s", AMPeriodicTable::table()->elementBySymbol(elementSymbol)->name(), scanInfo, fs5Settings);
 		success &= fsp5->storeToDb(dbSGM);
+		*/
+
+		/* Quick scans for carbon testing
+		SGMFastScanSettings fs1Settings(elementName%elementEdge%"1sSettings", 1.0, 50000, 1.0, 200, 8000);
+		success &= fs1Settings.storeToDb(dbSGM);
+		SGMFastScanParameters *fsp1 = new SGMFastScanParameters(elementName%elementEdge%"1s", AMPeriodicTable::table()->elementBySymbol(elementSymbol)->name(), scanInfo, fs1Settings);
+		success &= fsp1->storeToDb(dbSGM);
+
+		SGMFastScanSettings fs2Settings(elementName%elementEdge%"2sSettings", 2.0, 40000, 2.0, 200, 6000);
+		success &= fs2Settings.storeToDb(dbSGM);
+		SGMFastScanParameters *fsp2 = new SGMFastScanParameters(elementName%elementEdge%"2s", AMPeriodicTable::table()->elementBySymbol(elementSymbol)->name(), scanInfo, fs2Settings);
+		success &= fsp2->storeToDb(dbSGM);
 		*/
 
 		SGMFastScanSettings fs120Settings(elementName%elementEdge%"120sSettings", 120.0, 872, 120.0, 200, 141);
@@ -951,6 +985,10 @@ bool SGMAppController::setupSGMPeriodicTable(){
 
 		SGMElementInfo *elementInfo = new SGMElementInfo(elementName%"ElementInfo", AMPeriodicTable::table()->elementBySymbol(elementSymbol), this);
 		elementInfo->addEdgeInfo(scanInfo);
+		/*
+		elementInfo->addFastScanParameters(fsp1);
+		elementInfo->addFastScanParameters(fsp2);
+		*/
 		elementInfo->addFastScanParameters(fsp20);
 		elementInfo->addFastScanParameters(fsp120);
 		success &= elementInfo->storeToDb(dbSGM);

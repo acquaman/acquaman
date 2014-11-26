@@ -43,14 +43,15 @@ AMStepScanActionController::AMStepScanActionController(AMStepScanConfiguration *
 	: AMScanActionController(configuration, parent)
 {
 	stepConfiguration_ = configuration;
-	fileWriterIsBusy_ = false;
+
 	useFeedback_ = false;
 	stoppingAtEndOfLine_ = false;
+	axisStackCounter_ = 0;
 }
 
 AMStepScanActionController::~AMStepScanActionController()
 {
-	fileWriterThread_->deleteLater();
+	// No need to clean up fileWriterThread, we'll be informed to delete ourself after it is destroyed
 }
 
 void AMStepScanActionController::createScanAssembler()
@@ -61,13 +62,15 @@ void AMStepScanActionController::createScanAssembler()
 void AMStepScanActionController::createAxisOrderMap()
 {
 	for (int i = 0, size = stepConfiguration_->scanAxes().size(); i < size; i++)
-		axisOrderMap_.insert(scan_->rawData()->scanAxisAt(0).name, i);
+		axisOrderMap_.insert(scan_->rawData()->scanAxisAt(i).name, i);
 }
 
 void AMStepScanActionController::buildScanController()
 {
 	// Build the scan assembler.
 	createScanAssembler();
+	// Create the axis order map for higher dimensional scans.
+	createAxisOrderMap();
 
 	currentAxisValueIndex_ = AMnDIndex(scan_->rawData()->scanAxesCount(), AMnDIndex::DoInit, 0);
 
@@ -79,8 +82,13 @@ void AMStepScanActionController::buildScanController()
 
 		for (int j = 0, regionCount = stepConfiguration_->scanAxisAt(i)->regionCount(); j < regionCount; j++)
 			stepConfiguration_->scanAxisAt(i)->regionAt(j)->setName(QString("%1 %2 %3").arg(scan_->rawData()->scanAxisAt(i).name).arg("region").arg(j+1));
+	}
 
-		scanAssembler_->insertAxis(axisOrderMap_.value(scan_->rawData()->scanAxisAt(i).name), AMBeamline::bl()->exposedControlByInfo(stepConfiguration_->axisControlInfos().at(i)), stepConfiguration_->scanAxisAt(i));
+	// Configure the scan assemblers axes.
+	for (int i = 0, axisCount = scan_->rawData()->scanAxesCount(); i < axisCount; i++){
+
+		int actualAxis = axisOrderMap_.value(scan_->rawData()->scanAxisAt(i).name);
+		scanAssembler_->insertAxis(i, AMBeamline::bl()->exposedControlByInfo(stepConfiguration_->axisControlInfos().at(actualAxis)), stepConfiguration_->scanAxisAt(actualAxis));
 	}
 
 	// Add all the detectors.
@@ -142,17 +150,14 @@ void AMStepScanActionController::buildScanController()
 	}
 
 	qRegisterMetaType<AMScanActionControllerBasicFileWriter::FileWriterError>("FileWriterError");
-	AMScanActionControllerBasicFileWriter *fileWriter = new AMScanActionControllerBasicFileWriter(AMUserSettings::userDataFolder % fullPath.filePath(), has1DDetectors);
-	connect(fileWriter, SIGNAL(fileWriterIsBusy(bool)), this, SLOT(onFileWriterIsBusy(bool)));
-	connect(fileWriter, SIGNAL(fileWriterError(AMScanActionControllerBasicFileWriter::FileWriterError)), this, SLOT(onFileWriterError(AMScanActionControllerBasicFileWriter::FileWriterError)));
-	connect(this, SIGNAL(requestWriteToFile(int,QString)), fileWriter, SLOT(writeToFile(int,QString)));
-	connect(this, SIGNAL(finishWritingToFile()), fileWriter, SLOT(finishWriting()));
+	fileWriter_ = new AMScanActionControllerBasicFileWriter(AMUserSettings::userDataFolder % fullPath.filePath(), has1DDetectors);
+	connect(fileWriter_, SIGNAL(fileWriterIsBusy(bool)), this, SLOT(onFileWriterIsBusy(bool)));
+	connect(fileWriter_, SIGNAL(fileWriterError(AMScanActionControllerBasicFileWriter::FileWriterError)), this, SLOT(onFileWriterError(AMScanActionControllerBasicFileWriter::FileWriterError)));
+	connect(this, SIGNAL(requestWriteToFile(int,QString)), fileWriter_, SLOT(writeToFile(int,QString)));
+	connect(this, SIGNAL(finishWritingToFile()), fileWriter_, SLOT(finishWriting()));
 
 	fileWriterThread_ = new QThread();
-	connect(this, SIGNAL(finished()), fileWriterThread_, SLOT(quit()));
-	connect(this, SIGNAL(cancelled()), fileWriterThread_, SLOT(quit()));
-	connect(this, SIGNAL(failed()), fileWriterThread_, SLOT(quit()));
-	fileWriter->moveToThread(fileWriterThread_);
+	fileWriter_->moveToThread(fileWriterThread_);
 	fileWriterThread_->start();
 
 	// Get all the detectors added to the scan.
@@ -176,11 +181,6 @@ void AMStepScanActionController::buildScanController()
 		setFailed();
 }
 
-bool AMStepScanActionController::isReadyForDeletion() const
-{
-	return !fileWriterIsBusy_;
-}
-
 void AMStepScanActionController::flushCDFDataStoreToDisk()
 {
 	AMCDFDataStore *dataStore = qobject_cast<AMCDFDataStore *>(scan_->rawData());
@@ -190,8 +190,6 @@ void AMStepScanActionController::flushCDFDataStoreToDisk()
 
 void AMStepScanActionController::onFileWriterError(AMScanActionControllerBasicFileWriter::FileWriterError error)
 {
-	qDebug() << "Got a file writer error " << error;
-
 	QString userErrorString;
 
 	switch(error){
@@ -227,12 +225,6 @@ void AMStepScanActionController::onFileWriterError(AMScanActionControllerBasicFi
 	box.execWTimeout();
 }
 
-void AMStepScanActionController::onFileWriterIsBusy(bool isBusy)
-{
-	fileWriterIsBusy_ = isBusy;
-	emit readyForDeletion(!fileWriterIsBusy_);
-}
-
 bool AMStepScanActionController::event(QEvent *e)
 {
 	if (e->type() == (QEvent::Type)AMAgnosticDataAPIDefinitions::MessageEvent){
@@ -242,6 +234,8 @@ bool AMStepScanActionController::event(QEvent *e)
 		switch(message.messageType()){
 
 		case AMAgnosticDataAPIDefinitions::AxisStarted:{
+
+			axisStackCounter_++;
 
 			if (message.uniqueID().contains(scan_->rawData()->scanAxisAt(0).name))
 				writeHeaderToFile();
@@ -257,11 +251,8 @@ bool AMStepScanActionController::event(QEvent *e)
 			if (scan_->scanRank() == 0)
 				writeDataToFiles();
 
-			if (scan_->rawData()->scanAxesCount() == 1){
-
+			if (scan_->rawData()->scanAxesCount() == 1)
 				scan_->rawData()->endInsertRows();
-				emit finishWritingToFile();
-			}
 
 			// This should be safe and fine regardless of if the CDF data store is being used or not.
 			flushCDFDataStoreToDisk();
@@ -270,6 +261,15 @@ bool AMStepScanActionController::event(QEvent *e)
 
 				connect(AMActionRunner3::scanActionRunner()->currentAction(), SIGNAL(cancelled()), this, SLOT(onScanningActionsSucceeded()));
 				AMActionRunner3::scanActionRunner()->cancelCurrentAction();
+				emit finishWritingToFile();
+			}
+
+			else {
+
+				axisStackCounter_--;
+
+				if (axisStackCounter_ == 0)
+					emit finishWritingToFile();
 			}
 
 			break;}
@@ -289,6 +289,7 @@ bool AMStepScanActionController::event(QEvent *e)
 
 				connect(AMActionRunner3::scanActionRunner()->currentAction(), SIGNAL(cancelled()), this, SLOT(onScanningActionsSucceeded()));
 				AMActionRunner3::scanActionRunner()->cancelCurrentAction();
+				emit finishWritingToFile();
 			}
 
 			break;
@@ -497,7 +498,7 @@ void AMStepScanActionController::prefillScanPoints()
 
 							else if ((scan_->rawDataSources()->at(di)->rank() - scanRank) == 1){
 
-								QVector<int> data = QVector<int>(scan_->rawDataSources()->at(di)->size(0), -1);
+								QVector<int> data = QVector<int>(scan_->rawDataSources()->at(di)->size(scan_->rawDataSources()->at(di)->rank()-1), -1);
 								scan_->rawData()->setValue(insertIndex, di, data.constData());
 							}
 						}

@@ -54,18 +54,17 @@ public:
 	/// Vortex detectors are not currently capable of continuous acquisition
 	virtual bool canContinuousAcquire() const { return false; }
 	/// The Vortex can be configured to work with synchronized dwell time systems
-	virtual bool supportsSynchronizedDwell() const { return true; }
-	/// The Vortex detectors share a triggering source  sometimes uses the synchronized dwell time object
-	virtual bool sharesDetectorTriggerSource() const;
-	/// Returns the synchronized dwell time trigger source if we're currently enabled, otherwise a null pointer
-	virtual AMDetectorTriggerSource* detectorTriggerSource();
-	/// Returns the synchronized dwell time dwell time source if we're currently enabled, otherwise a null pointer
-	virtual AMDetectorDwellTimeSource* detectorDwellTimeSource();
+	virtual bool supportsSynchronizedDwell() const { return false; }
 
 	/// Returns RequestRead as the type
 	virtual AMDetectorDefinitions::ReadMethod readMethod() const { return AMDetectorDefinitions::RequestRead; }
 	/// Returns SingleRead as the type
 	virtual AMDetectorDefinitions::ReadMode readMode() const { return AMDetectorDefinitions::SingleRead; }
+
+//	/// Returns the trigger source for this detector.
+//	virtual AMDetectorTriggerSource* detectorTriggerSource();
+//	/// Returns the dwell time source for this detector.
+//	virtual AMDetectorDwellTimeSource* detectorDwellTimeSource();
 
 	/// Returns false, because the Vortex detectors do not support continuous reads
 	virtual bool lastContinuousReading(double *outputValues) const;

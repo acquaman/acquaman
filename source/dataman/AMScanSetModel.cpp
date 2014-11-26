@@ -272,8 +272,7 @@ void AMScanSetModel::addScan(AMScan* newScan)
 	QList<AMDataSourcePlotSettings> plotSettings;
 	for(int i=0; i<newScan->dataSourceCount(); i++) {
 		AMDataSourcePlotSettings ps; /// \todo set up nicer default colors (related within scans)
-		//ps.visible = newScan->dataSourceAt(i)->visibleInPlots() // Initial visibility is now controlled in AMDataSource::visibleInPlots().  Scan controllers can initialize this, and it will be saved in the database.
-		ps.visible = false;
+		ps.visible = newScan->dataSourceAt(i)->visibleInPlots(); // Initial visibility is now controlled in AMDataSource::visibleInPlots().  Scan controllers can initialize this, and it will be saved in the database.
 
 		// Hack for Darren's 2D XRF maps and Mark's XES scans.
 		if (newScan->scanRank() == 0){
@@ -523,6 +522,7 @@ bool AMScanSetModel::isVisible(int scanIndex, int dataSourceIndex) const
 {
 	// If the data source is hidden from users, it should not be visible regardless of the user's visibility setting.
 	return !isHiddenFromUsers(scanIndex, dataSourceIndex) && sourcePlotSettings_.at(scanIndex).at(dataSourceIndex).visible;
+//	return !isHiddenFromUsers(scanIndex, dataSourceIndex) && scans_.at(scanIndex)->dataSourceAt(dataSourceIndex)->visibleInPlots();
 }
 
 void AMScanSetModel::setHiddenFromUsers(int scanIndex, int dataSourceIndex, bool isHiddenFromUsers)

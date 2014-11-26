@@ -25,7 +25,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QGraphicsVideoItem>
 #endif
 
-#include <QMouseEvent>
+#include "AMQEvents.h"
+
 #include <QDebug>
 
 AMSampleCameraGraphicsView::AMSampleCameraGraphicsView(QWidget *parent, bool useOpenGlViewport) :
@@ -86,7 +87,7 @@ void AMSampleCameraGraphicsView::mouseMoveEvent(QMouseEvent *event)
 }
 
 #ifdef AM_MOBILITY_VIDEO_ENABLED
-void AMSampleCameraGraphicsView::setVideoItem(QGraphicsVideoItem *item)
+void AMSampleCameraGraphicsView::setVideoItem(AMGraphicsVideoItem *item)
 {
 	if(videoItem_)
 		scene()->removeItem(videoItem_);

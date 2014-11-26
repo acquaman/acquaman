@@ -32,8 +32,12 @@ class AMExporterOptionGeneralAscii : public AMExporterOptionGeneral
 	Q_PROPERTY(QString newlineDelimiter READ newlineDelimiter WRITE setNewlineDelimiter)
 
 public:
- 	virtual ~AMExporterOptionGeneralAscii();
+	/// Constructor.
 	Q_INVOKABLE explicit AMExporterOptionGeneralAscii(QObject *parent = 0);
+	/// Copy Constructor.
+	AMExporterOptionGeneralAscii(const AMExporterOptionGeneralAscii &original);
+	/// Destructor.
+	virtual ~AMExporterOptionGeneralAscii();
 
 	const QMetaObject* getMetaObject();
 
