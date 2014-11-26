@@ -77,18 +77,15 @@ void AMLightweightScanInfoCollection::populateSampleNames()
 	while(selectQuery.next())
 	{
 		// Sample results are stored in format table_name;id
-		QVariant resultsIndex0 = selectQuery.value(0);
-		if(resultsIndex0.isValid() && !resultsIndex0.isNull())
-		{
-			QString sampleResults = selectQuery.value(0).toString();
+		QString sampleResults = selectQuery.value(0).toString();
 
 
-			QStringList splitResults = sampleResults.split(";");
+		QStringList splitResults = sampleResults.split(";");
 
-			if(!sampleNameMap_.contains(splitResults.at(0)))
-				sampleNameMap_.insert(splitResults.at(0), QHash<int, QString>());
+		if(!sampleNameMap_.contains(splitResults.at(0)))
+			sampleNameMap_.insert(splitResults.at(0), QHash<int, QString>());
 
-		}
+
 	}
 
 	selectQuery.finish();
