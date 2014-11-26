@@ -56,7 +56,6 @@ void AMLightweightScanInfoCollection::populateExperimentIds()
 		int objectId = selectQuery.value(0).toInt();
 		int experimentId = selectQuery.value(1).toInt();
 
-		if(objectId)
 		experimentIdMap_.insert(objectId, experimentId);
 	}
 }
