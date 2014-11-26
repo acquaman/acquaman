@@ -12,8 +12,8 @@ SXRMBEXAFSScanConfiguration::SXRMBEXAFSScanConfiguration(QObject *parent) :
 {
 	timeOffset_ = 1.333;
 
-	setName("Unnamed Scan");
-	setUserScanName("Unnamed Scan");
+    setName("EXAFS Scan");
+    setUserScanName("EXAFS Scan");
 
 	edgeEnergy_ = -1;
 	edge_ = "";

@@ -91,6 +91,8 @@ protected:
 	QLineEdit *scanName_;
 	/// Label holding the current estimated time for the scan to complete.  Takes into account extra time per point based on experience on the beamline.
 	QLabel *estimatedTime_;
+    /// Checkbox for enabling/disabling Bruker detector
+    QCheckBox *enableBrukerDetector;
 
 	/// Double spin box for changing the energy.
 	QDoubleSpinBox *energy_;

@@ -6,6 +6,7 @@
 #include "ui/acquaman/AMScanConfigurationView.h"
 #include "acquaman/SXRMB/SXRMB2DMapScanConfiguration.h"
 
+#include <QCheckBox>
 #include <QPushButton>
 #include <QDoubleSpinBox>
 #include <QLabel>
@@ -108,6 +109,8 @@ protected:
 	QDoubleSpinBox *dwellTime_;
 	/// Line edit for changing the name of the scan.
 	QLineEdit *scanName_;
+    /// Checkbox for enabling/disabling Bruker detector
+    QCheckBox *enableBrukerDetector;
 	/// Pointer to the horizontal start point.
 	QDoubleSpinBox *hStart_;
 	/// Pointer to the horizontal end point.

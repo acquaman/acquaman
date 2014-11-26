@@ -98,8 +98,7 @@ SXRMBEXAFSScanConfigurationView::SXRMBEXAFSScanConfigurationView(SXRMBEXAFSScanC
 	scanRegionConfigurationGroupBox->setLayout(scanRegionConfigurationBoxLayout);
 
 	// Scan information:  scan name selection
-	scanName_ = new QLineEdit();
-	scanName_->setText(configuration_->userScanName());
+    scanName_ = new QLineEdit(configuration_->userScanName());
 	scanName_->setAlignment(Qt::AlignCenter);
 	connect(scanName_, SIGNAL(editingFinished()), this, SLOT(onScanNameEdited()));
 	connect(configuration_, SIGNAL(nameChanged(QString)), scanName_, SLOT(setText(QString)));
@@ -120,11 +119,24 @@ SXRMBEXAFSScanConfigurationView::SXRMBEXAFSScanConfigurationView(SXRMBEXAFSScanC
 	QGroupBox *scanInfoGroupBox = new QGroupBox("Scan Information");
 	scanInfoGroupBox->setLayout(scanInfoBoxLayout);
 
+    // Bruker detector setting
+    enableBrukerDetector = new QCheckBox("Enable Bruker Detector");
+
+    QVBoxLayout *detectorBoxLayout = new QVBoxLayout;
+    detectorBoxLayout->addWidget(enableBrukerDetector);
+
+    QGroupBox *detectorGroupBox = new QGroupBox("Detector Setting");
+    detectorGroupBox->setLayout(detectorBoxLayout);
+
+    QHBoxLayout * scanSettingBoxLayout = new QHBoxLayout;
+    scanSettingBoxLayout->addWidget(scanInfoGroupBox);
+    scanSettingBoxLayout->addWidget(detectorGroupBox);
+
 	// Scan content layout
 	QVBoxLayout *scanSettingContentVL = new QVBoxLayout();
 	scanSettingContentVL->setSpacing(10);
 	scanSettingContentVL->addWidget(scanRegionConfigurationGroupBox);
-	scanSettingContentVL->addWidget(scanInfoGroupBox);
+    scanSettingContentVL->addLayout(scanSettingBoxLayout);
 
 	QGroupBox *beamlineSettingsGroupBox = new QGroupBox("Beamline Settings");
 
