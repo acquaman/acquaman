@@ -9,6 +9,7 @@
 REIXSScanActionControllerMCPFileWriter::REIXSScanActionControllerMCPFileWriter(const QString &filePath, QObject *parent)
 	: AMScanActionControllerBasicFileWriter(filePath, false, parent)
 {
+	isWritingToFile = false;
 }
 
 REIXSScanActionControllerMCPFileWriter::~REIXSScanActionControllerMCPFileWriter()
@@ -21,11 +22,14 @@ void REIXSScanActionControllerMCPFileWriter::writeToFile(int fileRank, const QSt
 	switch(fileRank){
 
 	case 2:{
-
-		AMTextStream dataStream(dataFile_);
-		dataStream.seek(0);
-		dataStream << textToWrite;
-
+		if (!isWritingToFile)
+		{
+			isWritingToFile = true;
+			AMTextStream dataStream(dataFile_);
+			dataStream.seek(0);
+			dataStream << textToWrite;
+			isWritingToFile = false;
+		}
 		break;
 	}
 
