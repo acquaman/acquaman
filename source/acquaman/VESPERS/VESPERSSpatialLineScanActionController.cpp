@@ -163,7 +163,7 @@ VESPERSSpatialLineScanActionController::VESPERSSpatialLineScanActionController(V
 
 		list.append(VESPERSBeamline::vespers()->wireStageNormal()->toInfo());
 		scan_->rawData()->addScanAxis(AMAxisInfo("N", 0, "Normal Position", "mm"));
-		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("SampleHFeedback")->toInfo());
+		detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("WireNFeedback")->toInfo());
 	}
 
 	configuration_->setAxisControlInfos(list);
