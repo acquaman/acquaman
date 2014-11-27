@@ -40,7 +40,7 @@ public:
 	virtual ~VESPERSSetStringActionInfo();
 
 	/// This function is used as a virtual copy constructor.
-	virtual AMActionInfo3 *createCopy() const { return new VESPERSSetStringActionInfo(*this); }
+	virtual AMActionInfo3 *createCopy() const;
 
 	// Re-implemented public functions
 	/////////////////////////////////

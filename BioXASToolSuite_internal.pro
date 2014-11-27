@@ -15,7 +15,10 @@ HEADERS  += \
 	source/beamline/BioXAS/BioXASShutterToolController.h \
 	source/ui/BioXAS/BioXASToolSuite/MainWindow.h \
 	source/ui/BioXAS/BioXASToolSuite/ShutterToolMainWindow.h \
-	source/ui/BioXAS/BioXASToolSuite/MotorToolMainScreen.h
+	source/ui/BioXAS/BioXASToolSuite/MotorToolMainScreen.h \
+	source/beamline/BioXAS/BioXASSideMonochromatorControl.h \
+	source/beamline/BioXAS/BioXASSideMonochromator.h
+
 SOURCES += \
 	source/application/BioXAS/BioXASToolSuiteMain.cpp \
 	source/beamline/BioXAS/BioXASMainBeamline.cpp \
@@ -24,7 +27,9 @@ SOURCES += \
 	source/beamline/BioXAS/BioXASShutterToolController.cpp \
 	source/ui/BioXAS/BioXASToolSuite/MainWindow.cpp \
 	source/ui/BioXAS/BioXASToolSuite/ShutterToolMainWindow.cpp \
-	source/ui/BioXAS/BioXASToolSuite/MotorToolMainScreen.cpp
+	source/ui/BioXAS/BioXASToolSuite/MotorToolMainScreen.cpp \
+	source/beamline/BioXAS/BioXASSideMonochromatorControl.cpp \
+	source/beamline/BioXAS/BioXASSideMonochromator.cpp
 
 RESOURCES += \
 	source/ui/BioXAS/BioXASToolSuite/resources/BioXASImages.qrc

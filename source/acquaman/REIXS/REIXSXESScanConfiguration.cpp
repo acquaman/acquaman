@@ -98,8 +98,11 @@ REIXSXESScanConfiguration::REIXSXESScanConfiguration(const REIXSXESScanConfigura
 }
 
 // Returns a pointer to a newly-created copy of this scan configuration.  (It takes the role of a copy constructor, but is virtual so that our high-level classes can copy a scan configuration without knowing exactly what kind it is.)
-AMScanConfiguration* REIXSXESScanConfiguration::createCopy() const {
-	return new REIXSXESScanConfiguration(*this);	// can use the default auto-generated copy-constructor.
+AMScanConfiguration* REIXSXESScanConfiguration::createCopy() const
+{
+	AMScanConfiguration *configuration = new REIXSXESScanConfiguration(*this);
+	configuration->dissociateFromDb(true);
+	return configuration;
 }
 
 //#include "acquaman/REIXS/REIXSXESScanController.h"

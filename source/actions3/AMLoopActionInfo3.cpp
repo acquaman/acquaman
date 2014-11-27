@@ -36,3 +36,10 @@ void AMLoopActionInfo3::setLoopCount(int loopCount)
 	setModified(true);
 	emit loopCountChanged(loopCount_);
 }
+
+AMActionInfo3 *AMLoopActionInfo3::createCopy() const
+{
+	AMActionInfo3 *info = new AMLoopActionInfo3(*this);
+	info->dissociateFromDb(true);
+	return info;
+}

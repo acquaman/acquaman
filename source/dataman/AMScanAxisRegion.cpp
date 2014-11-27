@@ -43,7 +43,9 @@ AMScanAxisRegion::AMScanAxisRegion(const AMScanAxisRegion &original)
 
 AMScanAxisRegion *AMScanAxisRegion::createCopy() const
 {
-	return new AMScanAxisRegion(*this);
+	AMScanAxisRegion *region = new AMScanAxisRegion(*this);
+	region->dissociateFromDb(true);
+	return region;
 }
 
 AMNumber AMScanAxisRegion::regionStart() const

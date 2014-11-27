@@ -93,6 +93,7 @@ protected:
 	virtual void buildScanControllerImplementation();
 
 	virtual bool initializeImplementation();
+	virtual void initializePositions();
 	virtual bool startImplementation();
 	virtual void cancelImplementation();
 	/// The implementation for skipping XES scans.

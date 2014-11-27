@@ -27,24 +27,24 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 class AMDoDarkCurrentCorrectionActionInfo : public AMActionInfo3
 {
-    Q_OBJECT
+	Q_OBJECT
 
 public:
-    explicit AMDoDarkCurrentCorrectionActionInfo(CLSSIS3820Scaler *scaler, double dwellTime, QObject *parent = 0);
-    virtual ~AMDoDarkCurrentCorrectionActionInfo();
+	explicit AMDoDarkCurrentCorrectionActionInfo(CLSSIS3820Scaler *scaler, double dwellTime, QObject *parent = 0);
+	virtual ~AMDoDarkCurrentCorrectionActionInfo();
 
-    AMDoDarkCurrentCorrectionActionInfo(const AMDoDarkCurrentCorrectionActionInfo &other);
+	AMDoDarkCurrentCorrectionActionInfo(const AMDoDarkCurrentCorrectionActionInfo &other);
 
-    virtual AMDoDarkCurrentCorrectionActionInfo* createCopy() const;
+	virtual AMActionInfo3* createCopy() const;
 
-    virtual QString typeDescription() const;
+	virtual QString typeDescription() const;
 
-    CLSSIS3820Scaler* scaler() const;
-    double dwellTime() const;
+	CLSSIS3820Scaler* scaler() const;
+	double dwellTime() const;
 
 protected:
-    CLSSIS3820Scaler *scaler_;
-    double dwellTime_;
+	CLSSIS3820Scaler *scaler_;
+	double dwellTime_;
 
 
 };

@@ -75,7 +75,9 @@ VESPERSEnergyScanConfiguration::VESPERSEnergyScanConfiguration(const VESPERSEner
 
 AMScanConfiguration *VESPERSEnergyScanConfiguration::createCopy() const
 {
-	return new VESPERSEnergyScanConfiguration(*this);
+	AMScanConfiguration *configuration = new VESPERSEnergyScanConfiguration(*this);
+	configuration->dissociateFromDb(true);
+	return configuration;
 }
 
 AMScanController *VESPERSEnergyScanConfiguration::createController()
