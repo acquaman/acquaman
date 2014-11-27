@@ -132,7 +132,7 @@ void VESPERSXRFScanController::onStatusChanged()
 
 bool VESPERSXRFScanController::startImplementation()
 {
-	connect(detector_, SIGNAL(statusChanged(bool)), this, SLOT(onStatusChanged()));
+	connect(detector_, SIGNAL(acquisitionStateChanged(AMDetector::AcqusitionState)), this, SLOT(onStatusChanged()));
 	connect(detector_, SIGNAL(elapsedTimeChanged(double)), this, SLOT(onProgressUpdate()));
 	detector_->acquire();
 
@@ -143,14 +143,14 @@ bool VESPERSXRFScanController::startImplementation()
 
 void VESPERSXRFScanController::onDetectorAcquisitionFinished()
 {
-	disconnect(detector_, SIGNAL(statusChanged(bool)), this, SLOT(onStatusChanged()));
+	disconnect(detector_, SIGNAL(acquisitionStateChanged(AMDetector::AcqusitionState)), this, SLOT(onStatusChanged()));
 	disconnect(detector_, SIGNAL(elapsedTimeChanged(double)), this, SLOT(onProgressUpdate()));
 
 	QVector<double> spectrum = QVector<double>(detector_->size(0));
 
 	for (int i = 0, elements = detector_->elements(); i < elements; i++){
 
-		detector_->rawSpectrumSources().at(i)->values(AMnDIndex(0), AMnDIndex(detector_->size(0)), spectrum.data());
+		detector_->rawSpectrumSources().at(i)->values(AMnDIndex(0), AMnDIndex(detector_->size(0)-1), spectrum.data());
 		scan_->rawData()->setValue(AMnDIndex(), i, spectrum.constData());
 		scan_->rawData()->setValue(AMnDIndex(), i+elements, AMnDIndex(), detector_->inputCountSourceAt(i)->value(AMnDIndex()));
 		scan_->rawData()->setValue(AMnDIndex(), i+2*elements, AMnDIndex(), detector_->outputCountSourceAt(i)->value(AMnDIndex()));
