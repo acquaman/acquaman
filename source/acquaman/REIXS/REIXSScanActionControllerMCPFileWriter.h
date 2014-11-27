@@ -19,6 +19,8 @@ public slots:
 	virtual void writeToFile(int fileRank, const QString &textToWrite);
 
 protected:
+	/// Write protection flag
+	bool isWritingToFile_;
 };
 
 #endif // REIXSSCANACTIONCONTROLLERMCPFILEWRITER_H

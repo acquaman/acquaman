@@ -37,7 +37,7 @@ public:
 	virtual ~AMAxisValueFinishedActionInfo(){}
 
 	/// This function is used as a virtual copy constructor.
-	virtual AMAxisValueFinishedActionInfo *createCopy() const { return new AMAxisValueFinishedActionInfo(*this); }
+	virtual AMActionInfo3 *createCopy() const;
 
 	/// Returns the description of the action.
 	virtual QString typeDescription() const { return "Axis Value Finished"; }

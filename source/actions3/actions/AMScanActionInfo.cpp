@@ -70,6 +70,13 @@ AMScanActionInfo::~AMScanActionInfo()
 {
 }
 
+AMActionInfo3 *AMScanActionInfo::createCopy() const
+{
+	AMActionInfo3 *info = new AMScanActionInfo(*this);
+	info->dissociateFromDb(true);
+	return info;
+}
+
 const AMScanConfiguration *AMScanActionInfo::configuration() const
 {
 	if (config_)

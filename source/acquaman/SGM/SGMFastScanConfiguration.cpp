@@ -71,8 +71,11 @@ const QMetaObject* SGMFastScanConfiguration::getMetaObject(){
 	return metaObject();
 }
 
-AMScanConfiguration* SGMFastScanConfiguration::createCopy() const{
-	return new SGMFastScanConfiguration(*this);
+AMScanConfiguration* SGMFastScanConfiguration::createCopy() const
+{
+	AMScanConfiguration *configuration = new SGMFastScanConfiguration(*this);
+	configuration->dissociateFromDb(true);
+	return configuration;
 }
 
 AMScanController* SGMFastScanConfiguration::createController(){

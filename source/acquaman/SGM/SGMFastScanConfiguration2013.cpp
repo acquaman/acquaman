@@ -90,8 +90,11 @@ bool SGMFastScanConfiguration2013::loadFromDb(AMDatabase *db, int id){
 	return false;
 }
 
-AMScanConfiguration* SGMFastScanConfiguration2013::createCopy() const{
-	return new SGMFastScanConfiguration2013(*this);
+AMScanConfiguration* SGMFastScanConfiguration2013::createCopy() const
+{
+	AMScanConfiguration *configuration = new SGMFastScanConfiguration2013(*this);
+	configuration->dissociateFromDb(true);
+	return configuration;
 }
 
 #include "acquaman/SGM/SGMFastScanActionController.h"

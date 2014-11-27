@@ -36,10 +36,13 @@ VESPERS3DScanActionController::VESPERS3DScanActionController(VESPERS3DScanConfig
 	scan_->rawData()->addScanAxis(AMAxisInfo("H", 0, "Horizontal Position", "mm"));
 	scan_->rawData()->addScanAxis(AMAxisInfo("V", yPoints, "Vertical Position", "mm"));
 	scan_->rawData()->addScanAxis(AMAxisInfo("Wire", zPoints, "Wire Position", "mm"));
-
 	configuration_->setAxisControlInfos(list);
 
 	AMDetectorInfoSet detectors;
+	detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("SampleHFeedback")->toInfo());
+	detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("SampleVFeedback")->toInfo());
+	detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("WireVFeedback")->toInfo());
+
 	detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("SplitIonChamber")->toInfo());
 	detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("PreKBIonChamber")->toInfo());
 	detectors.addDetectorInfo(VESPERSBeamline::vespers()->exposedDetectorByName("MiniIonChamber")->toInfo());

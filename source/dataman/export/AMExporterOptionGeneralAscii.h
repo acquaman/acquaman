@@ -41,7 +41,7 @@ public:
 
 	const QMetaObject* getMetaObject();
 
-	virtual AMExporterOption* createCopy() const { return new AMExporterOptionGeneralAscii(*this);}
+	virtual AMExporterOption* createCopy() const;
 
 	/// The delimiter to use between columns
 	QString columnDelimiter() const { return columnDelimiter_; }

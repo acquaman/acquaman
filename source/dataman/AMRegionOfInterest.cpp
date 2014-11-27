@@ -61,7 +61,9 @@ AMRegionOfInterest::AMRegionOfInterest(const AMRegionOfInterest &original)
 
 AMRegionOfInterest *AMRegionOfInterest::createCopy() const
 {
-	return new AMRegionOfInterest(*this);
+	AMRegionOfInterest *region = new AMRegionOfInterest(*this);
+	region->dissociateFromDb(true);
+	return region;
 }
 
 AMRegionOfInterest &AMRegionOfInterest::operator =(const AMRegionOfInterest &other)
