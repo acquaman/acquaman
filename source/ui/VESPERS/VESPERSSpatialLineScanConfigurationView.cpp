@@ -676,6 +676,12 @@ void VESPERSSpatialLineScanConfigurationView::onSetEndPosition()
 	axesAcceptable();
 }
 
+void VESPERSSpatialLineScanConfigurationView::onNormalPositionChanged()
+{
+	configuration_->setNormalPosition(normalPosition_->value());
+	updateMapInfo();
+}
+
 void VESPERSSpatialLineScanConfigurationView::onStartChanged()
 {
 	configuration_->setStart(start_->value());
@@ -705,6 +711,30 @@ void VESPERSSpatialLineScanConfigurationView::onDwellTimeChanged()
 void VESPERSSpatialLineScanConfigurationView::onOtherPositionChanged()
 {
 	configuration_->setOtherPosition(otherPosition_->value());
+}
+
+void VESPERSSpatialLineScanConfigurationView::onSetNormalPosition()
+{
+	double n = 0;
+	VESPERS::Motors motor = configuration_->motor();
+
+	if (motor.testFlag(VESPERS::H) || motor.testFlag(VESPERS::V))
+		n = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->normalControl()->value();
+
+	if (motor.testFlag(VESPERS::X) || motor.testFlag(VESPERS::Z))
+		n = VESPERSBeamline::vespers()->sampleStageY()->value();
+
+	if (motor.testFlag(VESPERS::AttoH) || motor.testFlag(VESPERS::AttoV))
+		n = VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->normalControl()->value();  // focusing isn't done with attocube motors.
+
+	if (motor.testFlag(VESPERS::AttoX) || motor.testFlag(VESPERS::AttoZ))
+		n = VESPERSBeamline::vespers()->sampleStageY()->value();
+
+	if (motor.testFlag(VESPERS::BigBeamX) || motor.testFlag(VESPERS::BigBeamZ))
+		n = 888888.88;
+
+	configuration_->setNormalPosition(n);
+	updateMapInfo();
 }
 
 void VESPERSSpatialLineScanConfigurationView::updateMapInfo()
