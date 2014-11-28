@@ -19,6 +19,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <QApplication>
+#include <QPalette>
 #include "FCApp.h"
 
 int main(int argc, char *argv[])
@@ -26,6 +27,11 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
 
     FCApp app;
+
+    QPalette Pal;
+    Pal.setColor(QPalette::Background, Qt::black);
+    app.setAutoFillBackground(true);
+    app.setPalette(Pal);
     app.show();
 
     return a.exec();

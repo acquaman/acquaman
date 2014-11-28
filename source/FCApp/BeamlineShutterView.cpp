@@ -23,8 +23,14 @@ QWidget(parent)
 
     QString name = beamline->nameOfBeamline();
     name_ = new QLabel(name);
-    QFont font;
+    QFont font("Helvetica", 12, QFont::Bold);
     font.setPointSize(12);
+
+    QPalette textPal;
+    textPal.setColor(QPalette::WindowText, Qt::white);
+    name_->setPalette(textPal);
+
+
     name_->setFont(font);
 
     QHBoxLayout *HLayout = new QHBoxLayout;

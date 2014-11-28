@@ -20,14 +20,7 @@ protected:
     QLabel *label_;
     QLCDNumber *currentValue_;
 
-    //BPM
-    QLabel *xAxisLabel_;
-    QLabel *yAxisLabel_;
-    QLCDNumber *xBMP_;
-    QLCDNumber *yBMP_;
-
-    QPushButton *bpmButton_;
-
+   QLabel *footer_;
 
 };
 
