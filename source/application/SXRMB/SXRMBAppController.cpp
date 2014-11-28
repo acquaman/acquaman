@@ -158,6 +158,8 @@ void SXRMBAppController::onBeamlineConnected(bool connected)
 
 	if (connected && !microProbe2DOxidationScanConfigurationView_) {
 		microProbe2DOxidationScanConfiguration_ = new SXRMB2DMapScanConfiguration();
+        microProbe2DOxidationScanConfiguration_->setName("Oxidation Map");
+        microProbe2DOxidationScanConfiguration_->setUserScanName("Oxidation Map");
 
 		microProbe2DScanConfiguration_->setExcitationEnergy(SXRMBBeamline::sxrmb()->energy()->value());
 

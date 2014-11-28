@@ -42,7 +42,9 @@ SXRMB2DScanActionController::SXRMB2DScanActionController(SXRMB2DMapScanConfigura
 	AMControlInfoList list;
 	list.append(SXRMBBeamline::sxrmb()->microprobeSampleStageX()->toInfo());
 	list.append(SXRMBBeamline::sxrmb()->microprobeSampleStageZ()->toInfo());
-	scan_->rawData()->addScanAxis(AMAxisInfo("H", 0, "Horizontal Position", "mm"));
+    configuration_->setAxisControlInfos(list);
+
+    scan_->rawData()->addScanAxis(AMAxisInfo("H", 0, "Horizontal Position", "mm"));
 	scan_->rawData()->addScanAxis(AMAxisInfo("V", yPoints, "Vertical Position", "mm"));
 
 	QString scanName = configuration_->userScanName();
@@ -51,17 +53,15 @@ SXRMB2DScanActionController::SXRMB2DScanActionController(SXRMB2DMapScanConfigura
 	}
 	scan_->setName(scanName);
 
-
-	configuration_->setAxisControlInfos(list);
-
 	AMDetectorInfoSet detectors;
-
-	SXRMBBeamline::sxrmb()->brukerDetector()->setIsVisible(false);
-	SXRMBBeamline::sxrmb()->brukerDetector()->setHiddenFromUsers(true);
-
-	detectors.addDetectorInfo(SXRMBBeamline::sxrmb()->exposedDetectorByName("Bruker")->toInfo());
 	detectors.addDetectorInfo(SXRMBBeamline::sxrmb()->exposedDetectorByName("I0Detector")->toInfo());
 	detectors.addDetectorInfo(SXRMBBeamline::sxrmb()->exposedDetectorByName("TEYDetector")->toInfo());
+
+    if (configuration_->enableBrukerDetector()) {
+        SXRMBBeamline::sxrmb()->brukerDetector()->setIsVisible(false);
+        SXRMBBeamline::sxrmb()->brukerDetector()->setHiddenFromUsers(true);
+        detectors.addDetectorInfo(SXRMBBeamline::sxrmb()->exposedDetectorByName("Bruker")->toInfo());
+    }
 
 	configuration_->setDetectorConfigurations(detectors);
 
@@ -79,6 +79,9 @@ SXRMB2DScanActionController::SXRMB2DScanActionController(SXRMB2DMapScanConfigura
 
 void SXRMB2DScanActionController::buildScanControllerImplementation()
 {
+    if (!configuration_->enableBrukerDetector())
+        return;
+
 	AMXRFDetector *detector = SXRMBBeamline::sxrmb()->brukerDetector();
 
 	detector->removeAllRegionsOfInterest();

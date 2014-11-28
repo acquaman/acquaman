@@ -35,7 +35,8 @@ SXRMBEXAFSScanActionController::SXRMBEXAFSScanActionController(SXRMBEXAFSScanCon
 	sxrmbDetectors.addDetectorInfo(SXRMBBeamline::sxrmb()->i0Detector()->toInfo());
 	sxrmbDetectors.addDetectorInfo(SXRMBBeamline::sxrmb()->teyDetector()->toInfo());
 	sxrmbDetectors.addDetectorInfo(SXRMBBeamline::sxrmb()->energyFeedbackDetector()->toInfo());
-	sxrmbDetectors.addDetectorInfo(SXRMBBeamline::sxrmb()->brukerDetector()->toInfo());
+    if (configuration_->enableBrukerDetector())
+        sxrmbDetectors.addDetectorInfo(SXRMBBeamline::sxrmb()->brukerDetector()->toInfo());
 	configuration_->setDetectorConfigurations(sxrmbDetectors);
 
 	secondsElapsed_ = 0;
@@ -109,6 +110,9 @@ AMAction3* SXRMBEXAFSScanActionController::createCleanupActions()
 
 void SXRMBEXAFSScanActionController::buildScanControllerImplementation()
 {
+    if (!configuration_->enableBrukerDetector())
+        return;
+
 	AMXRFDetector *detector = SXRMBBeamline::sxrmb()->brukerDetector();
 
 	detector->removeAllRegionsOfInterest();
