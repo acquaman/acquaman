@@ -1,10 +1,5 @@
 #include "SXRMB2DOxidationMapScanConfigurationView.h"
 
-#include "beamline/SXRMB/SXRMBBeamline.h"
-#include "ui/AMTopFrame.h"
-#include "application/SXRMB/SXRMB.h"
-#include "util/AMPeriodicTable.h"
-
 #include <QGridLayout>
 #include <QVBoxLayout>
 #include <QFormLayout>
@@ -14,6 +9,11 @@
 #include <QPushButton>
 #include <QSpinBox>
 #include <QMenu>
+
+#include "application/SXRMB/SXRMB.h"
+#include "beamline/SXRMB/SXRMBBeamline.h"
+#include "ui/AMTopFrame.h"
+#include "util/AMPeriodicTable.h"
 
 SXRMB2DOxidationMapScanConfigurationView::SXRMB2DOxidationMapScanConfigurationView(SXRMB2DMapScanConfiguration *configuration, QWidget *parent)
 	: AMScanConfigurationView(parent)
@@ -168,13 +168,6 @@ SXRMB2DOxidationMapScanConfigurationView::SXRMB2DOxidationMapScanConfigurationVi
 	energyListViewBoxLayout->addWidget(oxidationEnergyListView_);
     QGroupBox *energyListViewBox = new QGroupBox("Oxidation Energies");
     energyListViewBox->setLayout(energyListViewBoxLayout);
-
-//	// Setting up the layout.
-//	QGridLayout *contentsLayout = new QGridLayout;
-//	contentsLayout->addWidget(positionsBox, 0, 0, 2, 4);
-//	contentsLayout->addWidget(timeGroupBox, 2, 0, 1, 4);
-//	contentsLayout->addWidget(scanNameGroupBox, 3, 0, 1, 3);
-//	contentsLayout->addWidget(autoExportGroupBox, 3, 3, 1, 1);
 
 	QHBoxLayout *squeezeContents = new QHBoxLayout;
 	squeezeContents->addStretch();

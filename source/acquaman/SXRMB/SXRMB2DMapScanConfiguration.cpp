@@ -16,7 +16,7 @@ SXRMB2DMapScanConfiguration::SXRMB2DMapScanConfiguration(QObject *parent)
 	setName("2D Map");
 	setUserScanName("2D Map");
 	setExportAsAscii(false);
-    setEnableBrukerDetector(false);
+    setEnableBrukerDetector(true);
 
 	AMScanAxisRegion *region = new AMScanAxisRegion;
 	AMScanAxis *axis = new AMScanAxis(AMScanAxis::StepAxis, region);
