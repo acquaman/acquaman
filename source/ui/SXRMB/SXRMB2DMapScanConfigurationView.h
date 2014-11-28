@@ -91,6 +91,9 @@ protected slots:
 	/// Helper slot that sets whether we use SMAK or Ascii for the auto exporter.
 	void updateAutoExporter(int useAscii);
 
+    /// Handles changes to enable bruker detector
+    void onEnableBrukerDetectorChanged(int state);
+
 protected:
 	/// Add the export options view.  Returns a pointer to the widget.
 	QGroupBox *addExporterOptionsView(QStringList list);
@@ -110,7 +113,7 @@ protected:
 	/// Line edit for changing the name of the scan.
 	QLineEdit *scanName_;
     /// Checkbox for enabling/disabling Bruker detector
-    QCheckBox *enableBrukerDetector;
+    QCheckBox *enableBrukerDetector_;
 	/// Pointer to the horizontal start point.
 	QDoubleSpinBox *hStart_;
 	/// Pointer to the horizontal end point.

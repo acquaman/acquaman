@@ -131,10 +131,12 @@ SXRMB2DMapScanConfigurationView::SXRMB2DMapScanConfigurationView(SXRMB2DMapScanC
 	scanNameGroupBox->setLayout(scanNameLayout);
 
     // detector setting
-    enableBrukerDetector = new QCheckBox("Enable Bruker Detector");
+    enableBrukerDetector_ = new QCheckBox("Enable Bruker Detector");
+    enableBrukerDetector_->setChecked(configuration_->enableBrukerDetector());
+    connect(enableBrukerDetector_, SIGNAL(stateChanged(int)), this, SLOT(onEnableBrukerDetectorChanged(int)));
 
     QVBoxLayout * detectorBoxLayout = new QVBoxLayout;
-    detectorBoxLayout->addWidget(enableBrukerDetector);
+    detectorBoxLayout->addWidget(enableBrukerDetector_);
 
     QGroupBox * detectorSettingGroupBox = new QGroupBox("Detector Setting");
     detectorSettingGroupBox->setLayout(detectorBoxLayout);
@@ -160,7 +162,8 @@ SXRMB2DMapScanConfigurationView::SXRMB2DMapScanConfigurationView(SXRMB2DMapScanC
 	SXRMBBeamline *sxrmbBL = SXRMBBeamline::sxrmb();
 	scanEnergySpinBox_ = createEnergySpinBox("", sxrmbBL->energy()->minimumValue(), sxrmbBL->energy()->maximumValue(), configuration_->excitationEnergy());
 	scanEnergySettingWarningLabel_ = new QLabel("Settings do not match beamline.");
-	setScanEnergyFromBeamlineButton_ = new QPushButton("Set From Beamline");
+    scanEnergySettingWarningLabel_->setStyleSheet("QLabel {color: red}");
+    setScanEnergyFromBeamlineButton_ = new QPushButton("Set From Beamline");
 
 	connect(scanEnergySpinBox_, SIGNAL(editingFinished()), this, SLOT(onScanEnergySpinBoxEditingFinished()));
 	connect(setScanEnergyFromBeamlineButton_, SIGNAL(clicked()), this, SLOT(onSetScanEnergyFromBeamlineButtonClicked()));
@@ -172,6 +175,7 @@ SXRMB2DMapScanConfigurationView::SXRMB2DMapScanConfigurationView(SXRMB2DMapScanC
 
 	QVBoxLayout *beamlineSettingsGroupBoxVL = new QVBoxLayout();
 	beamlineSettingsGroupBoxVL->addLayout(scanEnergyFL);
+    beamlineSettingsGroupBoxVL->addStretch();
 	beamlineSettingsGroupBoxVL->addWidget(scanEnergySettingWarningLabel_);
 	beamlineSettingsGroupBoxVL->addWidget(setScanEnergyFromBeamlineButton_);
 
@@ -452,4 +456,9 @@ void SXRMB2DMapScanConfigurationView::setDwellTime(const AMNumber &value)
 void SXRMB2DMapScanConfigurationView::updateAutoExporter(int useAscii)
 {
 	configuration_->setExportAsAscii(useAscii == 0);
+}
+
+void SXRMB2DMapScanConfigurationView::onEnableBrukerDetectorChanged(int state)
+{
+    configuration_->setEnableBrukerDetector(state == Qt::Checked);
 }

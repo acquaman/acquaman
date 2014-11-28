@@ -22,10 +22,8 @@ SXRMB2DOxidationMapScanConfigurationView::SXRMB2DOxidationMapScanConfigurationVi
 
 	AMTopFrame *frame = new AMTopFrame("SXRMB Oxidation Map Configuration");
 
-	// Setup the group box for setting the start and end points.
-	QGroupBox *positionsBox = new QGroupBox("Positions");
-
-	hStart_ = createPositionDoubleSpinBox("H: ", " mm", configuration_->scanAxisAt(0)->regionAt(0)->regionStart(), 3);
+    // 1st row: set the start position
+    hStart_ = createPositionDoubleSpinBox("H: ", " mm", configuration_->scanAxisAt(0)->regionAt(0)->regionStart(), 3);
 	connect(hStart_, SIGNAL(editingFinished()), this, SLOT(onXStartChanged()));
 	connect(configuration_->scanAxisAt(0)->regionAt(0), SIGNAL(regionStartChanged(AMNumber)), this, SLOT(setXAxisStart(AMNumber)));
 
@@ -34,15 +32,10 @@ SXRMB2DOxidationMapScanConfigurationView::SXRMB2DOxidationMapScanConfigurationVi
 	connect(configuration_->scanAxisAt(1)->regionAt(0), SIGNAL(regionStartChanged(AMNumber)), this, SLOT(setYAxisStart(AMNumber)));
 
 	QPushButton *startUseCurrentButton = new QPushButton("Use Current");
-	connect(startUseCurrentButton, SIGNAL(clicked()), this, SLOT(onSetStartPosition()));
+    connect(startUseCurrentButton, SIGNAL(clicked()), this, SLOT(onSetStartPosition()));
 
-	QHBoxLayout *startPointLayout = new QHBoxLayout;
-	startPointLayout->addWidget(new QLabel("Start:"));
-	startPointLayout->addWidget(hStart_);
-	startPointLayout->addWidget(vStart_);
-	startPointLayout->addWidget(startUseCurrentButton);
-
-	hEnd_ = createPositionDoubleSpinBox("H: ", " mm", configuration_->scanAxisAt(0)->regionAt(0)->regionEnd(), 3);
+    // 2nd row: set the end position
+    hEnd_ = createPositionDoubleSpinBox("H: ", " mm", configuration_->scanAxisAt(0)->regionAt(0)->regionEnd(), 3);
 	connect(hEnd_, SIGNAL(editingFinished()), this, SLOT(onXEndChanged()));
 	connect(configuration_->scanAxisAt(0)->regionAt(0), SIGNAL(regionEndChanged(AMNumber)), this, SLOT(setXAxisEnd(AMNumber)));
 
@@ -53,13 +46,8 @@ SXRMB2DOxidationMapScanConfigurationView::SXRMB2DOxidationMapScanConfigurationVi
 	QPushButton *endUseCurrentButton = new QPushButton("Use Current");
 	connect(endUseCurrentButton, SIGNAL(clicked()), this, SLOT(onSetEndPosition()));
 
-	QHBoxLayout *endPointLayout = new QHBoxLayout;
-	endPointLayout->addWidget(new QLabel("End:"));
-	endPointLayout->addWidget(hEnd_);
-	endPointLayout->addWidget(vEnd_);
-	endPointLayout->addWidget(endUseCurrentButton);
-
-	hStep_ = createPositionDoubleSpinBox("H: ", QString(" %1").arg(QString::fromUtf8("µm")), double(configuration_->scanAxisAt(0)->regionAt(0)->regionStep())*1000, 1);	// xStep needs to be in mm.
+    // 3rd row: set the step size
+    hStep_ = createPositionDoubleSpinBox("H: ", QString(" %1").arg(QString::fromUtf8("µm")), double(configuration_->scanAxisAt(0)->regionAt(0)->regionStep())*1000, 1);	// xStep needs to be in mm.
 	connect(hStep_, SIGNAL(editingFinished()), this, SLOT(onXStepChanged()));
 	connect(configuration_->scanAxisAt(0)->regionAt(0), SIGNAL(regionStepChanged(AMNumber)), this, SLOT(setXAxisStep(AMNumber)));
 
@@ -67,35 +55,46 @@ SXRMB2DOxidationMapScanConfigurationView::SXRMB2DOxidationMapScanConfigurationVi
 	connect(vStep_, SIGNAL(editingFinished()), this, SLOT(onYStepChanged()));
 	connect(configuration_->scanAxisAt(1)->regionAt(0), SIGNAL(regionStepChanged(AMNumber)), this, SLOT(setYAxisStep(AMNumber)));
 
-	QHBoxLayout *stepSizeLayout = new QHBoxLayout;
-	stepSizeLayout->addWidget(new QLabel("Step Size:"));
-	stepSizeLayout->addWidget(hStep_);
-	stepSizeLayout->addWidget(vStep_);
-	stepSizeLayout->addStretch();
-
-	normalPosition_ = createPositionDoubleSpinBox("N: ", " mm", configuration_->normalPosition(), 3);
+    // 4th row: set the focus position
+    normalPosition_ = createPositionDoubleSpinBox("N: ", " mm", configuration_->normalPosition(), 3);
 	connect(normalPosition_, SIGNAL(editingFinished()), this, SLOT(onNormalPositionChanged()));
 	connect(configuration_->dbObject(), SIGNAL(normalPositionChanged(double)), normalPosition_, SLOT(setValue(double)));
 
 	QPushButton *updateNormalPosition = new QPushButton("Set Normal");
-	connect(updateNormalPosition, SIGNAL(clicked()), this, SLOT(onSetNormalPosition()));
+    connect(updateNormalPosition, SIGNAL(clicked()), this, SLOT(onSetNormalPosition()));
 
-	QHBoxLayout *normalLayout = new QHBoxLayout;
-	normalLayout->addWidget(new QLabel("Focus Position:"));
-	normalLayout->addWidget(normalPosition_);
-	normalLayout->addWidget(updateNormalPosition);
+    // the grid layout to hold the positions
+    QGridLayout *positionGridLayout = new QGridLayout;
+    positionGridLayout->addWidget(new QLabel("Start:"), 0, 0, 1, 2);
+    positionGridLayout->addWidget(hStart_, 0, 2, 1, 2);
+    positionGridLayout->addWidget(vStart_, 0, 4, 1, 2);
+    positionGridLayout->addWidget(startUseCurrentButton, 0, 6, 1, 2);
 
-	mapInfo_ = new QLabel;
+    positionGridLayout->addWidget(new QLabel("End:"), 1, 0, 1, 2);
+    positionGridLayout->addWidget(hEnd_, 1, 2, 1, 2);
+    positionGridLayout->addWidget(vEnd_, 1, 4, 1, 2);
+    positionGridLayout->addWidget(endUseCurrentButton, 1, 6, 1, 2);
+
+    positionGridLayout->addWidget(new QLabel("Step Size:"), 2, 0, 1, 2);
+    positionGridLayout->addWidget(hStep_, 2, 2, 1, 2);
+    positionGridLayout->addWidget(vStep_, 2, 4, 1, 2);
+
+    positionGridLayout->addWidget(new QLabel("Focus Position:"), 3, 0, 1, 2);
+    positionGridLayout->addWidget(normalPosition_, 3, 2, 1, 2);
+    positionGridLayout->addWidget(updateNormalPosition, 3, 6, 1, 2);
+
+    // the map information
+    mapInfo_ = new QLabel;
 	updateMapInfo();
 
-	QVBoxLayout *positionsLayout = new QVBoxLayout;
-	positionsLayout->addLayout(startPointLayout);
-	positionsLayout->addLayout(endPointLayout);
-	positionsLayout->addLayout(stepSizeLayout);
-	positionsLayout->addLayout(normalLayout);
-	positionsLayout->addWidget(mapInfo_);
+    /// Setup the group box for setting the start and end points.
+    QVBoxLayout *positionsLayout = new QVBoxLayout;
+    positionsLayout->addLayout(positionGridLayout);
+    positionsLayout->addWidget(mapInfo_);
 
-	positionsBox->setLayout(positionsLayout);
+    // Setup the group box for setting the start and end points.
+    QGroupBox *positionsBox = new QGroupBox("Positions");
+    positionsBox->setLayout(positionsLayout);
 
 	// Dwell time.
 	dwellTime_ = createDwellTimeSpinBox(configuration_->scanAxisAt(0)->regionAt(0)->regionTime());

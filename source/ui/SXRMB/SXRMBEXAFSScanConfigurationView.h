@@ -70,6 +70,9 @@ protected slots:
 	/// Handles changes to sample stage normal from the scan configuration
 	void onScanConfigurationMicroprobeNormalChanged(double value);
 
+    /// Handles changes to enable bruker detector
+    void onEnableBrukerDetectorChanged(int state);
+
 protected:
 	/// create spinbox for sample sate
 	QDoubleSpinBox *createSampleStageSpinBox(QString units, double minimumValue, double maximumValue, double defaultValue);
@@ -92,7 +95,7 @@ protected:
 	/// Label holding the current estimated time for the scan to complete.  Takes into account extra time per point based on experience on the beamline.
 	QLabel *estimatedTime_;
     /// Checkbox for enabling/disabling Bruker detector
-    QCheckBox *enableBrukerDetector;
+    QCheckBox *enableBrukerDetector_;
 
 	/// Double spin box for changing the energy.
 	QDoubleSpinBox *energy_;
