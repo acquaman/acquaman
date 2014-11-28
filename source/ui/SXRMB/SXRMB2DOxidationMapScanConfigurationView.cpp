@@ -130,28 +130,51 @@ SXRMB2DOxidationMapScanConfigurationView::SXRMB2DOxidationMapScanConfigurationVi
 	QGroupBox *scanNameGroupBox = new QGroupBox("Scan Name");
 	scanNameGroupBox->setLayout(scanNameLayout);
 
-	// Auto-export option.
+    // detector setting
+    enableBrukerDetector_ = new QCheckBox("Enable Bruker Detector");
+    enableBrukerDetector_->setChecked(configuration_->enableBrukerDetector());
+    connect(enableBrukerDetector_, SIGNAL(stateChanged(int)), this, SLOT(onEnableBrukerDetectorChanged(int)));
+
+    QVBoxLayout * detectorBoxLayout = new QVBoxLayout;
+    detectorBoxLayout->addWidget(enableBrukerDetector_);
+
+    QGroupBox * detectorSettingGroupBox = new QGroupBox("Detector Setting");
+    detectorSettingGroupBox->setLayout(detectorBoxLayout);
+
+    // Auto-export option.
 	QGroupBox *autoExportGroupBox = addExporterOptionsView(QStringList() << "Ascii" << "SMAK");
 	connect(autoExportButtonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(updateAutoExporter(int)));
 	autoExportButtonGroup_->button(configuration_->exportAsAscii() ? 0 : 1)->click();
 
-	// The oxidation energy view.
+    /// setup the layout for Scan name selection, dector setting and auto-export option
+    QHBoxLayout *scanSettingBoxLayout = new QHBoxLayout;
+    scanSettingBoxLayout->addWidget(scanNameGroupBox);
+    scanSettingBoxLayout->addWidget(detectorSettingGroupBox);
+    scanSettingBoxLayout->addWidget(autoExportGroupBox);
+
+    /// Setting up the content layout to host the position setting, time setting, and scan setting
+    QVBoxLayout *contentsLayout = new QVBoxLayout;
+    contentsLayout->addWidget(positionsBox);
+    contentsLayout->addWidget(timeGroupBox);
+    contentsLayout->addLayout(scanSettingBoxLayout);
+
+    /// The oxidation energy view.
 	AMEnergyList energyList;
 	energyList.insertEnergy(0, AMPeriodicTable::table()->elementBySymbol("S")->KEdge().energy());
 	oxidationEnergyListView_ = new AMEnergyListView("", energyList);
 	oxidationEnergyListView_->setRange(SXRMBBeamline::sxrmb()->energy()->minimumValue(), SXRMBBeamline::sxrmb()->energy()->maximumValue());
 
-	QGroupBox *energyListViewBox = new QGroupBox("Oxidation Energies");
 	QVBoxLayout *energyListViewBoxLayout = new QVBoxLayout;
 	energyListViewBoxLayout->addWidget(oxidationEnergyListView_);
-	energyListViewBox->setLayout(energyListViewBoxLayout);
+    QGroupBox *energyListViewBox = new QGroupBox("Oxidation Energies");
+    energyListViewBox->setLayout(energyListViewBoxLayout);
 
-	// Setting up the layout.
-	QGridLayout *contentsLayout = new QGridLayout;
-	contentsLayout->addWidget(positionsBox, 0, 0, 2, 4);
-	contentsLayout->addWidget(timeGroupBox, 2, 0, 1, 4);
-	contentsLayout->addWidget(scanNameGroupBox, 3, 0, 1, 3);
-	contentsLayout->addWidget(autoExportGroupBox, 3, 3, 1, 1);
+//	// Setting up the layout.
+//	QGridLayout *contentsLayout = new QGridLayout;
+//	contentsLayout->addWidget(positionsBox, 0, 0, 2, 4);
+//	contentsLayout->addWidget(timeGroupBox, 2, 0, 1, 4);
+//	contentsLayout->addWidget(scanNameGroupBox, 3, 0, 1, 3);
+//	contentsLayout->addWidget(autoExportGroupBox, 3, 3, 1, 1);
 
 	QHBoxLayout *squeezeContents = new QHBoxLayout;
 	squeezeContents->addStretch();
@@ -378,4 +401,9 @@ void SXRMB2DOxidationMapScanConfigurationView::setDwellTime(const AMNumber &valu
 void SXRMB2DOxidationMapScanConfigurationView::updateAutoExporter(int useAscii)
 {
 	configuration_->setExportAsAscii(useAscii == 0);
+}
+
+void SXRMB2DOxidationMapScanConfigurationView::onEnableBrukerDetectorChanged(int state)
+{
+    configuration_->setEnableBrukerDetector(state == Qt::Checked);
 }

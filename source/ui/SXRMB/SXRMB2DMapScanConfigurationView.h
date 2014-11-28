@@ -2,10 +2,6 @@
 #define SXRMB2DMAPSCANCONFIGURATIONVIEW_H
 
 #include <QWidget>
-
-#include "ui/acquaman/AMScanConfigurationView.h"
-#include "acquaman/SXRMB/SXRMB2DMapScanConfiguration.h"
-
 #include <QCheckBox>
 #include <QPushButton>
 #include <QDoubleSpinBox>
@@ -13,6 +9,10 @@
 #include <QLineEdit>
 #include <QGroupBox>
 #include <QButtonGroup>
+
+#include "acquaman/SXRMB/SXRMB2DMapScanConfiguration.h"
+#include "ui/acquaman/AMScanConfigurationView.h"
+
 
 class SXRMB2DMapScanConfigurationView : public AMScanConfigurationView
 {
