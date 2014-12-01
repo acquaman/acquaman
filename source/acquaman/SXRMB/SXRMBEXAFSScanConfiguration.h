@@ -53,9 +53,6 @@ public:
 	/// Returns the desired Z position for the uProbe sample stage
 	double microprobeSampleStageZ() const;
 
-    /// Returns whether bruker detector is enabled or not
-    bool enableBrukerDetector() const { return enableBrukerDetector_; }
-
 signals:
 	/// Emitted when the edge energy (in EV) changes
 	void edgeEnergyChanged(double edgeEnergy);
@@ -81,9 +78,6 @@ public slots:
 	/// Sets the Z position for the uProbe sample stage
 	void setMicroprobeSampleStageZ(double microprobeSampleStageZ);
 
-    /// Sets the Bruker detector setting
-    void setEnableBrukerDetector(bool enable);
-
 protected slots:
 	/// Computes the total time any time the regions list changes.
 	void computeTotalTime() { computeTotalTimeImplementation(); }
@@ -105,9 +99,6 @@ protected:
 	double microprobeSampleStageX_;
 	/// The Z position for the uProbe sample stage
 	double microprobeSampleStageZ_;
-
-    /// Flag to enable Bruker Detector, default: disable
-    bool enableBrukerDetector_;
 };
 
 #endif // SXRMBEXAFSSCANCONFIGURATION_H

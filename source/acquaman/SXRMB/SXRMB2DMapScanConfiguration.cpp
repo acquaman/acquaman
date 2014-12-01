@@ -15,8 +15,9 @@ SXRMB2DMapScanConfiguration::SXRMB2DMapScanConfiguration(QObject *parent)
 
 	setName("2D Map");
 	setUserScanName("2D Map");
-	setExportAsAscii(false);
-    setEnableBrukerDetector(true);
+
+	exportAsAscii_ = false;
+	setEnableBrukerDetector(true);
 
 	AMScanAxisRegion *region = new AMScanAxisRegion;
 	AMScanAxis *axis = new AMScanAxis(AMScanAxis::StepAxis, region);
@@ -41,8 +42,9 @@ SXRMB2DMapScanConfiguration::SXRMB2DMapScanConfiguration(const SXRMB2DMapScanCon
 
 	setName(original.name());
 	setUserScanName(original.userScanName());
-	setExportAsAscii(original.exportAsAscii());
-    setEnableBrukerDetector(original.enableBrukerDetector());
+
+	exportAsAscii_ = original.exportAsAscii();
+	setEnableBrukerDetector(original.enableBrukerDetector());
 
 	connect(scanAxisAt(0)->regionAt(0), SIGNAL(regionStartChanged(AMNumber)), this, SLOT(computeTotalTime()));
 	connect(scanAxisAt(0)->regionAt(0), SIGNAL(regionStepChanged(AMNumber)), this, SLOT(computeTotalTime()));
@@ -126,12 +128,4 @@ void SXRMB2DMapScanConfiguration::setExcitationEnergy(double excitationEnergy)
 		emit excitationEnergyChanged(excitationEnergy_);
 		setModified(true);
 	}
-}
-
-void SXRMB2DMapScanConfiguration::setEnableBrukerDetector(bool enableDetector)
-{
-    if (enableBrukerDetector_ == enableDetector)
-        return;
-
-    enableBrukerDetector_ = enableDetector;
 }

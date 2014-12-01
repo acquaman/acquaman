@@ -41,9 +41,6 @@ public:
 	/// Returns the desired excitation energy for this map
 	double excitationEnergy() const;
 
-    /// Returns whether we are enabling Bruker Detector
-    bool enableBrukerDetector() const { return enableBrukerDetector_; }
-
 signals:
 	/// Notifier that the total time estimate has changed.
 	void totalTimeChanged(double);
@@ -58,9 +55,6 @@ public slots:
 	/// Sets the desired excitation energy
 	void setExcitationEnergy(double excitationEnergy);
 
-    /// Sets the Bruker detector setting
-    void setEnableBrukerDetector(bool enable);
-
 protected slots:
 	/// Computes the total time any time the regions list changes.
 	void computeTotalTime() { computeTotalTimeImplementation(); }
@@ -74,9 +68,6 @@ protected:
 
 	/// Holds the desired excitation energy for this map
 	double excitationEnergy_;
-
-    /// Flag to enable Bruker Detector, default: disable
-    bool enableBrukerDetector_;
 };
 
 #endif // SXRMB2DMAPSCANCONFIGURATION_H

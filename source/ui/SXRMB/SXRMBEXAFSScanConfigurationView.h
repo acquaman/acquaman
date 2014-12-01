@@ -19,7 +19,7 @@ class AMElement;
 
 class SXRMBEXAFSScanConfigurationView : public AMScanConfigurationView
 {
-Q_OBJECT
+	Q_OBJECT
 public:
 	/// Constructor takes an SXRMB EXAFS scan configuration to view
 	SXRMBEXAFSScanConfigurationView(SXRMBEXAFSScanConfiguration *configuration, QWidget *parent = 0);
@@ -70,8 +70,8 @@ protected slots:
 	/// Handles changes to sample stage normal from the scan configuration
 	void onScanConfigurationMicroprobeNormalChanged(double value);
 
-    /// Handles changes to enable bruker detector
-    void onEnableBrukerDetectorChanged(int state);
+	/// Handles changes to enable bruker detector
+	void onEnableBrukerDetectorChanged(int state);
 
 protected:
 	/// create spinbox for sample sate
@@ -94,8 +94,8 @@ protected:
 	QLineEdit *scanName_;
 	/// Label holding the current estimated time for the scan to complete.  Takes into account extra time per point based on experience on the beamline.
 	QLabel *estimatedTime_;
-    /// Checkbox for enabling/disabling Bruker detector
-    QCheckBox *enableBrukerDetector_;
+	/// Checkbox for enabling/disabling Bruker detector
+	QCheckBox *enableBrukerDetector_;
 
 	/// Double spin box for changing the energy.
 	QDoubleSpinBox *energy_;
