@@ -870,17 +870,18 @@ void AMGenericScanEditor::setupUi()
 	if (objectName().isEmpty())
 		setObjectName(QString::fromUtf8("AMGenericScanEditor"));
 	resize(801, 574);
-	verticalLayout3_ = new QVBoxLayout(this);
+	verticalLayout3_ = new QVBoxLayout();
 	verticalLayout3_->setSpacing(0);
 	verticalLayout3_->setContentsMargins(0, 0, 0, 0);
 	verticalLayout3_->setObjectName(QString::fromUtf8("verticalLayout_3"));
-	scanTitleFrame_ = new QFrame(this);
+	scanTitleFrame_ = new QFrame();
 	scanTitleFrame_->setObjectName(QString::fromUtf8("scanTitleFrame_"));
 	scanTitleFrame_->setMinimumSize(QSize(0, 60));
 	scanTitleFrame_->setStyleSheet(QString::fromUtf8("background-color: rgb(236, 236, 236);"));
-	horizontalLayout3_ = new QHBoxLayout(scanTitleFrame_);
+	horizontalLayout3_ = new QHBoxLayout();
 	horizontalLayout3_->setObjectName(QString::fromUtf8("horizontalLayout_3"));
-	scanTitleIcon_ = new QLabel(scanTitleFrame_);
+	scanTitleFrame_->setLayout(horizontalLayout3_);
+	scanTitleIcon_ = new QLabel();
 	scanTitleIcon_->setObjectName(QString::fromUtf8("scanTitleIcon_"));
 	scanTitleIcon_->setMaximumSize(QSize(36, 36));
 	scanTitleIcon_->setPixmap(QPixmap(QString::fromUtf8(":/system-software-update.png")));
@@ -888,7 +889,7 @@ void AMGenericScanEditor::setupUi()
 
 	horizontalLayout3_->addWidget(scanTitleIcon_);
 
-	scanTitle_ = new QLabel(scanTitleFrame_);
+	scanTitle_ = new QLabel();
 	scanTitle_->setObjectName(QString::fromUtf8("scanTitle_"));
 	scanTitle_->setStyleSheet(QString::fromUtf8("font: 16pt \"Lucida Grande\";\n"
 "color: rgb(79, 79, 79);"));
@@ -902,7 +903,7 @@ void AMGenericScanEditor::setupUi()
 
 	verticalLayout3_->addWidget(scanTitleFrame_);
 
-	statusFrame_ = new QFrame(this);
+	statusFrame_ = new QFrame();
 	statusFrame_->setObjectName(QString::fromUtf8("statusFrame_"));
 	statusFrame_->setMinimumSize(QSize(0, 30));
 	statusFrame_->setMaximumSize(QSize(16777215, 30));
@@ -910,19 +911,20 @@ void AMGenericScanEditor::setupUi()
 "background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(81, 81, 81, 255), stop:0.494444 rgba(81, 81, 81, 255), stop:0.5 rgba(64, 64, 64, 255), stop:1 rgba(64, 64, 64, 255));\n"
 "border-bottom: 1px solid black;\n"
 "}"));
-	horizontalLayout4_ = new QHBoxLayout(statusFrame_);
+	horizontalLayout4_ = new QHBoxLayout();
 	horizontalLayout4_->setObjectName(QString::fromUtf8("horizontalLayout_4"));
 	horizontalLayout4_->setContentsMargins(-1, 6, -1, 6);
 	statusFrameHorizontalSpacer_ = new QSpacerItem(478, 9, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
 	horizontalLayout4_->addItem(statusFrameHorizontalSpacer_);
 
-	statusTextLabel_ = new QLabel(statusFrame_);
+	statusTextLabel_ = new QLabel();
 	statusTextLabel_->setObjectName(QString::fromUtf8("statusTextLabel_"));
 	statusTextLabel_->setStyleSheet(QString::fromUtf8("color: white;\n"
 "font: bold 10pt \"Lucida Grande\""));
 
 	horizontalLayout4_->addWidget(statusTextLabel_);
+	scanTitleFrame_->setLayout(horizontalLayout4_);
 
 
 	verticalLayout3_->addWidget(statusFrame_);
@@ -940,7 +942,7 @@ void AMGenericScanEditor::setupUi()
 	openScansLayout_->setSpacing(0);
 	openScansLayout_->setObjectName(QString::fromUtf8("openScansLayout_"));
 	openScansLayout_->setContentsMargins(-1, -1, 0, -1);
-	openScansTitleButton_ = new QToolButton(this);
+	openScansTitleButton_ = new QToolButton();
 	openScansTitleButton_->setObjectName(QString::fromUtf8("openScansTitleButton_"));
 	QSizePolicy sizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
 	sizePolicy.setHorizontalStretch(0);
@@ -952,7 +954,7 @@ void AMGenericScanEditor::setupUi()
 
 	openScansLayout_->addWidget(openScansTitleButton_);
 
-	scanListView_ = new QListView(this);
+	scanListView_ = new QListView();
 	scanListView_->setObjectName(QString::fromUtf8("scanListView_"));
 	scanListView_->setMinimumSize(QSize(200, 0));
 
@@ -961,17 +963,17 @@ void AMGenericScanEditor::setupUi()
 	scanButtonLayout_ = new QHBoxLayout();
 	scanButtonLayout_->setObjectName(QString::fromUtf8("scanButtonLayout_"));
 	scanButtonLayout_->setContentsMargins(-1, 6, -1, -1);
-	openScanButton_ = new QPushButton(this);
+	openScanButton_ = new QPushButton();
 	openScanButton_->setObjectName(QString::fromUtf8("openScanButton_"));
 
 	scanButtonLayout_->addWidget(openScanButton_);
 
-	saveScanButton_ = new QPushButton(this);
+	saveScanButton_ = new QPushButton();
 	saveScanButton_->setObjectName(QString::fromUtf8("saveScanButton_"));
 
 	scanButtonLayout_->addWidget(saveScanButton_);
 
-	closeScanButton_ = new QPushButton(this);
+	closeScanButton_ = new QPushButton();
 	closeScanButton_->setObjectName(QString::fromUtf8("closeScanButton_"));
 
 	scanButtonLayout_->addWidget(closeScanButton_);
@@ -986,7 +988,7 @@ void AMGenericScanEditor::setupUi()
 	scanInformationLayout_->setSpacing(0);
 	scanInformationLayout_->setObjectName(QString::fromUtf8("scanInformationLayout_"));
 	scanInformationLayout_->setContentsMargins(-1, -1, 0, -1);
-	scanInformationTitleButton_ = new QToolButton(this);
+	scanInformationTitleButton_ = new QToolButton();
 	scanInformationTitleButton_->setObjectName(QString::fromUtf8("scanInformationTitleButton_"));
 	QSizePolicy sizePolicy1(QSizePolicy::Preferred, QSizePolicy::Fixed);
 	sizePolicy1.setHorizontalStretch(0);
@@ -998,25 +1000,26 @@ void AMGenericScanEditor::setupUi()
 
 	scanInformationLayout_->addWidget(scanInformationTitleButton_);
 
-	scanInformationFrame_ = new QFrame(this);
+	scanInformationFrame_ = new QFrame();
 	scanInformationFrame_->setObjectName(QString::fromUtf8("scanInformationFrame_"));
 	scanInformationFrame_->setStyleSheet(QString::fromUtf8("background-color: white;\n"));
 	scanInformationFrame_->setFrameShape(QFrame::StyledPanel);
 	scanInformationFrame_->setFrameShadow(QFrame::Raised);
-	scanInfoLayout = new QVBoxLayout(scanInformationFrame_);
+	scanInfoLayout = new QVBoxLayout();
 	scanInfoLayout->setSpacing(6);
 	scanInfoLayout->setObjectName(QString::fromUtf8("scanInfoLayout"));
 	scanInfoLayout->setContentsMargins(-1, 6, -1, -1);
+	scanInformationFrame_->setLayout(scanInfoLayout);
 	scanInformationGridLayout_ = new QGridLayout();
 	scanInformationGridLayout_->setObjectName(QString::fromUtf8("scanInformationGridLayout_"));
 	scanInformationGridLayout_->setVerticalSpacing(4);
 	scanInformationGridLayout_->setContentsMargins(12, -1, -1, -1);
-	scanDate_ = new QLabel(scanInformationFrame_);
+	scanDate_ = new QLabel();
 	scanDate_->setObjectName(QString::fromUtf8("scanDate_"));
 
 	scanInformationGridLayout_->addWidget(scanDate_, 3, 1, 1, 1);
 
-	scanTimeLabel_ = new QLabel(scanInformationFrame_);
+	scanTimeLabel_ = new QLabel();
 	scanTimeLabel_->setObjectName(QString::fromUtf8("scanTimeLabel_"));
 	scanTimeLabel_->setStyleSheet(QString::fromUtf8("color: rgb(121, 121, 121);\n"
 "font-weight: bold;\n"
@@ -1024,7 +1027,7 @@ void AMGenericScanEditor::setupUi()
 
 	scanInformationGridLayout_->addWidget(scanTimeLabel_, 4, 0, 1, 1);
 
-	scanDurationLabel_ = new QLabel(scanInformationFrame_);
+	scanDurationLabel_ = new QLabel();
 	scanDurationLabel_->setObjectName(QString::fromUtf8("scanDurationLabel_"));
 	scanDurationLabel_->setStyleSheet(QString::fromUtf8("color: rgb(121, 121, 121);\n"
 "font-weight: bold;\n"
@@ -1032,7 +1035,7 @@ void AMGenericScanEditor::setupUi()
 
 	scanInformationGridLayout_->addWidget(scanDurationLabel_, 6, 0, 1, 1);
 
-	scanRunLabel_ = new QLabel(scanInformationFrame_);
+	scanRunLabel_ = new QLabel();
 	scanRunLabel_->setObjectName(QString::fromUtf8("scanRunLabel_"));
 	scanRunLabel_->setStyleSheet(QString::fromUtf8("color: rgb(121, 121, 121);\n"
 "font-weight: bold;\n"
@@ -1040,7 +1043,7 @@ void AMGenericScanEditor::setupUi()
 
 	scanInformationGridLayout_->addWidget(scanRunLabel_, 7, 0, 1, 1);
 
-	scanDateLabel_ = new QLabel(scanInformationFrame_);
+	scanDateLabel_ = new QLabel();
 	scanDateLabel_->setObjectName(QString::fromUtf8("scanDateLabel_"));
 	scanDateLabel_->setStyleSheet(QString::fromUtf8("color: rgb(121, 121, 121);\n"
 "font-weight: bold;\n"
@@ -1048,12 +1051,12 @@ void AMGenericScanEditor::setupUi()
 
 	scanInformationGridLayout_->addWidget(scanDateLabel_, 3, 0, 1, 1);
 
-	scanDuration_ = new QLabel(scanInformationFrame_);
+	scanDuration_ = new QLabel();
 	scanDuration_->setObjectName(QString::fromUtf8("scanDuration_"));
 
 	scanInformationGridLayout_->addWidget(scanDuration_, 6, 1, 1, 1);
 
-	scanNameLabel_ = new QLabel(scanInformationFrame_);
+	scanNameLabel_ = new QLabel();
 	scanNameLabel_->setObjectName(QString::fromUtf8("scanNameLabel_"));
 	scanNameLabel_->setStyleSheet(QString::fromUtf8("color: rgb(121, 121, 121);\n"
 "font-weight: bold;\n"
@@ -1061,7 +1064,7 @@ void AMGenericScanEditor::setupUi()
 
 	scanInformationGridLayout_->addWidget(scanNameLabel_, 1, 0, 1, 1);
 
-	scanNumberLabel_ = new QLabel(scanInformationFrame_);
+	scanNumberLabel_ = new QLabel();
 	scanNumberLabel_->setObjectName(QString::fromUtf8("scanNumberLabel_"));
 	scanNumberLabel_->setStyleSheet(QString::fromUtf8("color: rgb(121, 121, 121);\n"
 "font-weight: bold;\n"
@@ -1069,7 +1072,7 @@ void AMGenericScanEditor::setupUi()
 
 	scanInformationGridLayout_->addWidget(scanNumberLabel_, 2, 0, 1, 1);
 
-	scanNumber_ = new QSpinBox(scanInformationFrame_);
+	scanNumber_ = new QSpinBox();
 	scanNumber_->setObjectName(QString::fromUtf8("scanNumber_"));
 	scanNumber_->setMaximumSize(QSize(16777215, 18));
 	scanNumber_->setFrame(false);
@@ -1078,7 +1081,7 @@ void AMGenericScanEditor::setupUi()
 
 	scanInformationGridLayout_->addWidget(scanNumber_, 2, 1, 1, 1);
 
-	scanIdLabel_ = new QLabel(scanInformationFrame_);
+	scanIdLabel_ = new QLabel();
 	scanIdLabel_->setObjectName(QString::fromUtf8("scanIdLabel_"));
 	QPalette palette;
 	QBrush brush(QColor(121, 121, 121, 255));
@@ -1102,24 +1105,24 @@ void AMGenericScanEditor::setupUi()
 
 	scanInformationGridLayout_->addWidget(scanIdLabel_, 0, 0, 1, 1);
 
-	scanId_ = new QLineEdit(scanInformationFrame_);
+	scanId_ = new QLineEdit();
 	scanId_->setObjectName(QString::fromUtf8("scanId_"));
 	scanId_->setEnabled(false);
 	scanId_->setFrame(false);
 
 	scanInformationGridLayout_->addWidget(scanId_, 0, 1, 1, 1);
 
-	scanTime_ = new QLabel(scanInformationFrame_);
+	scanTime_ = new QLabel();
 	scanTime_->setObjectName(QString::fromUtf8("scanTime_"));
 
 	scanInformationGridLayout_->addWidget(scanTime_, 4, 1, 1, 1);
 
-	scanEnd_ = new QLabel(scanInformationFrame_);
+	scanEnd_ = new QLabel();
 	scanEnd_->setObjectName(QString::fromUtf8("scanEnd_"));
 
 	scanInformationGridLayout_->addWidget(scanEnd_, 5, 1, 1, 1);
 
-	scanEndLabel_ = new QLabel(scanInformationFrame_);
+	scanEndLabel_ = new QLabel();
 	scanEndLabel_->setObjectName(QString::fromUtf8("scanEndLabel_"));
 	QPalette palette1;
 	palette1.setBrush(QPalette::Active, QPalette::WindowText, brush);
@@ -1154,7 +1157,7 @@ void AMGenericScanEditor::setupUi()
 	notesLayout_->setSpacing(0);
 	notesLayout_->setObjectName(QString::fromUtf8("notesLayout_"));
 	notesLayout_->setContentsMargins(-1, -1, 0, -1);
-	notesTitleButton_ = new QToolButton(this);
+	notesTitleButton_ = new QToolButton();
 	notesTitleButton_->setObjectName(QString::fromUtf8("notesTitleButton_"));
 	sizePolicy.setHeightForWidth(notesTitleButton_->sizePolicy().hasHeightForWidth());
 	notesTitleButton_->setSizePolicy(sizePolicy);
@@ -1164,7 +1167,7 @@ void AMGenericScanEditor::setupUi()
 
 	notesLayout_->addWidget(notesTitleButton_);
 
-	notesEdit_ = new QPlainTextEdit(this);
+	notesEdit_ = new QPlainTextEdit();
 	notesEdit_->setObjectName(QString::fromUtf8("notesEdit_"));
 	QSizePolicy sizePolicy2(QSizePolicy::MinimumExpanding, QSizePolicy::Expanding);
 	sizePolicy2.setHorizontalStretch(4);
@@ -1221,4 +1224,6 @@ void AMGenericScanEditor::setupUi()
 	scanEndLabel_->setText(QApplication::translate("AMGenericScanEditor", "end", 0, QApplication::UnicodeUTF8));
 	notesTitleButton_->setText(QApplication::translate("AMGenericScanEditor", "Notes", 0, QApplication::UnicodeUTF8));
 	notesEdit_->setPlainText(QString());
+
+	setLayout(verticalLayout3_);
 }
