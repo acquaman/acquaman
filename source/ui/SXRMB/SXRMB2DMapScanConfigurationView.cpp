@@ -61,10 +61,12 @@ SXRMB2DMapScanConfigurationView::SXRMB2DMapScanConfigurationView(SXRMB2DMapScanC
 	endPointLayout->addWidget(endUseCurrentButton);
 
 	hStep_ = createPositionDoubleSpinBox("H: ", QString(" %1").arg(QString::fromUtf8("µm")), double(configuration_->scanAxisAt(0)->regionAt(0)->regionStep())*1000, 1);	// xStep needs to be in mm.
+	hStep_->setMinimum(0);
 	connect(hStep_, SIGNAL(editingFinished()), this, SLOT(onXStepChanged()));
 	connect(configuration_->scanAxisAt(0)->regionAt(0), SIGNAL(regionStepChanged(AMNumber)), this, SLOT(setXAxisStep(AMNumber)));
 
 	vStep_ = createPositionDoubleSpinBox("V: ", QString(" %1").arg(QString::fromUtf8("µm")), double(configuration_->scanAxisAt(1)->regionAt(0)->regionStep())*1000, 1);	// yStep needs to be in mm.
+	vStep_->setMinimum(0);
 	connect(vStep_, SIGNAL(editingFinished()), this, SLOT(onYStepChanged()));
 	connect(configuration_->scanAxisAt(1)->regionAt(0), SIGNAL(regionStepChanged(AMNumber)), this, SLOT(setYAxisStep(AMNumber)));
 
@@ -137,12 +139,15 @@ SXRMB2DMapScanConfigurationView::SXRMB2DMapScanConfigurationView(SXRMB2DMapScanC
 	connect(autoExportButtonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(updateAutoExporter(int)));
 	autoExportButtonGroup_->button(configuration_->exportAsAscii() ? 0 : 1)->click();
 
-	// Setting up the layout.
-	QGridLayout *contentsLayout = new QGridLayout;
-	contentsLayout->addWidget(positionsBox, 0, 0, 2, 4);
-	contentsLayout->addWidget(timeGroupBox, 2, 0, 1, 4);
-	contentsLayout->addWidget(scanNameGroupBox, 3, 0, 1, 3);
-	contentsLayout->addWidget(autoExportGroupBox, 3, 3, 1, 1);
+	// Error label.
+	errorLabel_ = new QLabel;
+	QFont font = this->font();
+	font.setPixelSize(16);
+	font.setBold(true);
+	QPalette palette = this->palette();
+	palette.setColor(QPalette::WindowText, Qt::red);
+	errorLabel_->setFont(font);
+	errorLabel_->setPalette(palette);
 
 	// BL energy setting
 	beamlineSettingsGroupBox_ = new QGroupBox("Beamline Settings");
@@ -168,11 +173,18 @@ SXRMB2DMapScanConfigurationView::SXRMB2DMapScanConfigurationView(SXRMB2DMapScanC
 
 	beamlineSettingsGroupBox_->setLayout(beamlineSettingsGroupBoxVL);
 
+	// Setting up the layout.
+	QGridLayout *contentsLayout = new QGridLayout;
+	contentsLayout->addWidget(positionsBox, 0, 0, 2, 4);
+	contentsLayout->addWidget(timeGroupBox, 2, 0, 1, 4);
+	contentsLayout->addWidget(scanNameGroupBox, 3, 0, 1, 3);
+	contentsLayout->addWidget(autoExportGroupBox, 3, 3, 1, 1);
+	contentsLayout->addWidget(beamlineSettingsGroupBox_, 0, 4, 4, 2);
+	contentsLayout->addWidget(errorLabel_, 4, 0, 2, 4);
 
 	QHBoxLayout *squeezeContents = new QHBoxLayout;
 	squeezeContents->addStretch();
 	squeezeContents->addLayout(contentsLayout);
-	squeezeContents->addWidget(beamlineSettingsGroupBox_);
 	squeezeContents->addStretch();
 
 	QVBoxLayout *configViewLayout = new QVBoxLayout;
@@ -256,6 +268,7 @@ void SXRMB2DMapScanConfigurationView::onSetStartPosition()
 	hStart_->setValue(h);
 	vStart_->setValue(v);
 	updateMapInfo();
+	checkScanAxisValidity();
 }
 
 void SXRMB2DMapScanConfigurationView::onSetEndPosition()
@@ -268,6 +281,7 @@ void SXRMB2DMapScanConfigurationView::onSetEndPosition()
 	hEnd_->setValue(h);
 	vEnd_->setValue(v);
 	updateMapInfo();
+	checkScanAxisValidity();
 }
 
 void SXRMB2DMapScanConfigurationView::onSetNormalPosition()
@@ -281,42 +295,49 @@ void SXRMB2DMapScanConfigurationView::onXStartChanged()
 {
 	configuration_->scanAxisAt(0)->regionAt(0)->setRegionStart(hStart_->value());
 	updateMapInfo();
+	checkScanAxisValidity();
 }
 
 void SXRMB2DMapScanConfigurationView::onXEndChanged()
 {
 	configuration_->scanAxisAt(0)->regionAt(0)->setRegionEnd(hEnd_->value());
 	updateMapInfo();
+	checkScanAxisValidity();
 }
 
 void SXRMB2DMapScanConfigurationView::onXStepChanged()
 {
 	configuration_->scanAxisAt(0)->regionAt(0)->setRegionStep(hStep_->value()/1000);
 	updateMapInfo();
+	checkScanAxisValidity();
 }
 
 void SXRMB2DMapScanConfigurationView::onYStartChanged()
 {
 	configuration_->scanAxisAt(1)->regionAt(0)->setRegionStart(vStart_->value());
 	updateMapInfo();
+	checkScanAxisValidity();
 }
 
 void SXRMB2DMapScanConfigurationView::onYEndChanged()
 {
 	configuration_->scanAxisAt(1)->regionAt(0)->setRegionEnd(vEnd_->value());
 	updateMapInfo();
+	checkScanAxisValidity();
 }
 
 void SXRMB2DMapScanConfigurationView::onYStepChanged()
 {
 	configuration_->scanAxisAt(1)->regionAt(0)->setRegionStep(vStep_->value()/1000);
 	updateMapInfo();
+	checkScanAxisValidity();
 }
 
 void SXRMB2DMapScanConfigurationView::onNormalPositionChanged()
 {
 	configuration_->setNormalPosition(normalPosition_->value());
 	updateMapInfo();
+	checkScanAxisValidity();
 }
 
 bool SXRMB2DMapScanConfigurationView::excitationEnergyIsHidden() const{
@@ -440,4 +461,32 @@ void SXRMB2DMapScanConfigurationView::setDwellTime(const AMNumber &value)
 void SXRMB2DMapScanConfigurationView::updateAutoExporter(int useAscii)
 {
 	configuration_->setExportAsAscii(useAscii == 0);
+}
+
+void SXRMB2DMapScanConfigurationView::checkScanAxisValidity()
+{
+	QString errorString = "";
+
+	if (hEnd_->value() <= hStart_->value()){
+
+		hStep_->setStyleSheet("QDoubleSpinBox { background-color: red; }");
+		errorString.append("Horizontal end value must be larger than start value.\n");
+	}
+
+	else {
+
+		hStep_->setStyleSheet(this->styleSheet());
+	}
+
+	if (vEnd_->value() <= vStart_->value()){
+
+		vStep_->setStyleSheet("QDoubleSpinBox { background-color: red; }");
+		errorString.append("Vertical end value must be larger than start value.\n");
+	}
+
+	else{
+		vStep_->setStyleSheet(this->styleSheet());
+	}
+
+	errorLabel_->setText(errorString);
 }
