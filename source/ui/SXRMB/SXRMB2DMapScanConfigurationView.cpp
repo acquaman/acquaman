@@ -132,37 +132,10 @@ SXRMB2DMapScanConfigurationView::SXRMB2DMapScanConfigurationView(SXRMB2DMapScanC
 	QGroupBox *scanNameGroupBox = new QGroupBox("Scan Information");
 	scanNameGroupBox->setLayout(scanNameLayout);
 
-	// detector setting
-	enableBrukerDetector_ = new QCheckBox("Enable Bruker Detector");
-	enableBrukerDetector_->setChecked(configuration_->enableBrukerDetector());
-	connect(enableBrukerDetector_, SIGNAL(stateChanged(int)), this, SLOT(onEnableBrukerDetectorChanged(int)));
-
-	QVBoxLayout * detectorBoxLayout = new QVBoxLayout;
-	detectorBoxLayout->addWidget(enableBrukerDetector_);
-
-	QGroupBox * detectorSettingGroupBox = new QGroupBox("Detector Setting");
-	detectorSettingGroupBox->setLayout(detectorBoxLayout);
-
 	// Auto-export option.
 	QGroupBox *autoExportGroupBox = addExporterOptionsView(QStringList() << "Ascii" << "SMAK");
 	connect(autoExportButtonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(updateAutoExporter(int)));
 	autoExportButtonGroup_->button(configuration_->exportAsAscii() ? 0 : 1)->click();
-
-	// Error label.
-	errorLabel_ = new QLabel;
-	QFont font = this->font();
-	font.setPixelSize(16);
-	font.setBold(true);
-	QPalette palette = this->palette();
-	palette.setColor(QPalette::WindowText, Qt::red);
-	errorLabel_->setFont(font);
-	errorLabel_->setPalette(palette);
-
-	// setup the layout for Scan name selection, dector setting and auto-export option
-	QHBoxLayout *scanSettingBoxLayout = new QHBoxLayout;
-	scanSettingBoxLayout->addWidget(scanNameGroupBox);
-	scanSettingBoxLayout->addWidget(detectorSettingGroupBox);
-	scanSettingBoxLayout->addWidget(autoExportGroupBox);
 
 	// BL energy setting
 	SXRMBBeamline *sxrmbBL = SXRMBBeamline::sxrmb();
@@ -179,6 +152,17 @@ SXRMB2DMapScanConfigurationView::SXRMB2DMapScanConfigurationView(SXRMB2DMapScanC
 	QFormLayout *scanEnergyFL = new QFormLayout();
 	scanEnergyFL->addRow("Energy", scanEnergySpinBox_);
 
+	// detector setting
+	enableBrukerDetector_ = new QCheckBox("Enable Bruker Detector");
+	enableBrukerDetector_->setChecked(configuration_->enableBrukerDetector());
+	connect(enableBrukerDetector_, SIGNAL(stateChanged(int)), this, SLOT(onEnableBrukerDetectorChanged(int)));
+
+	QVBoxLayout * detectorBoxLayout = new QVBoxLayout;
+	detectorBoxLayout->addWidget(enableBrukerDetector_);
+
+	QGroupBox * detectorSettingGroupBox = new QGroupBox("Detector Setting");
+	detectorSettingGroupBox->setLayout(detectorBoxLayout);
+
 	QVBoxLayout *beamlineSettingsGroupBoxVL = new QVBoxLayout();
 	beamlineSettingsGroupBoxVL->addLayout(scanEnergyFL);
 	beamlineSettingsGroupBoxVL->addStretch();
@@ -189,12 +173,24 @@ SXRMB2DMapScanConfigurationView::SXRMB2DMapScanConfigurationView(SXRMB2DMapScanC
 	beamlineSettingsGroupBox_->setMinimumWidth(230);
 	beamlineSettingsGroupBox_->setLayout(beamlineSettingsGroupBoxVL);
 
+	// Error label.
+	errorLabel_ = new QLabel;
+	QFont font = this->font();
+	font.setPixelSize(16);
+	font.setBold(true);
+	QPalette palette = this->palette();
+	palette.setColor(QPalette::WindowText, Qt::red);
+	errorLabel_->setFont(font);
+	errorLabel_->setPalette(palette);
+
 	// Setting up the layout.
 	QGridLayout *contentsLayout = new QGridLayout;
 	contentsLayout->addWidget(positionsBox, 0, 0, 2, 4);
 	contentsLayout->addWidget(timeGroupBox, 2, 0, 1, 4);
-	contentsLayout->addLayout(scanSettingBoxLayout, 3, 0, 1, 4);
-	contentsLayout->addWidget(beamlineSettingsGroupBox_, 0, 4, 4, 2);
+	contentsLayout->addWidget(scanNameGroupBox, 3, 0, 1, 3);
+	contentsLayout->addWidget(autoExportGroupBox, 3, 3, 1, 1);
+	contentsLayout->addWidget(beamlineSettingsGroupBox_, 0, 4, 3, 2);
+	contentsLayout->addWidget(detectorSettingGroupBox, 3, 4, 1, 2);
 	contentsLayout->addWidget(errorLabel_, 4, 0, 2, 4);
 
 	/// the squeeze layout of the window

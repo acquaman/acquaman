@@ -79,6 +79,9 @@ protected slots:
 	/// Helper slot that sets whether we use SMAK or Ascii for the auto exporter.
 	void updateAutoExporter(int useAscii);
 
+	/// Helper method that checks to see if the map dimensions are acceptable.  Makes visual changes if not valid.
+	void checkScanAxisValidity();
+
 	/// Handles changes to enable bruker detector
 	void onEnableBrukerDetectorChanged(int state);
 
@@ -120,6 +123,9 @@ protected:
 	QLabel *mapInfo_;
 	/// Label holding the current estimated time for the scan to complete.  Takes into account extra time per point based on experience on the beamline.
 	QLabel *estimatedTime_;
+
+	/// This is an error display label.
+	QLabel *errorLabel_;
 
 	/// Button group for the exporter options.
 	QButtonGroup *autoExportButtonGroup_;
