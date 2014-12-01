@@ -18,14 +18,11 @@ SXRMB2DMapScanConfigurationView::SXRMB2DMapScanConfigurationView(SXRMB2DMapScanC
 	: AMScanConfigurationView(parent)
 {
 	configuration_ = configuration;
-
 	excitationEnergyIsHidden_ = false;
 
 	AMTopFrame *frame = new AMTopFrame("SXRMB 2D Map Configuration");
 
-	// Setup the group box for setting the start and end points.
-	QGroupBox *positionsBox = new QGroupBox("Positions");
-
+	// 1st row: set the start position
 	hStart_ = createPositionDoubleSpinBox("H: ", " mm", configuration_->scanAxisAt(0)->regionAt(0)->regionStart(), 3);
 	connect(hStart_, SIGNAL(editingFinished()), this, SLOT(onXStartChanged()));
 	connect(configuration_->scanAxisAt(0)->regionAt(0), SIGNAL(regionStartChanged(AMNumber)), this, SLOT(setXAxisStart(AMNumber)));
@@ -37,12 +34,7 @@ SXRMB2DMapScanConfigurationView::SXRMB2DMapScanConfigurationView(SXRMB2DMapScanC
 	QPushButton *startUseCurrentButton = new QPushButton("Use Current");
 	connect(startUseCurrentButton, SIGNAL(clicked()), this, SLOT(onSetStartPosition()));
 
-	QHBoxLayout *startPointLayout = new QHBoxLayout;
-	startPointLayout->addWidget(new QLabel("Start:"));
-	startPointLayout->addWidget(hStart_);
-	startPointLayout->addWidget(vStart_);
-	startPointLayout->addWidget(startUseCurrentButton);
-
+	// 2nd row: set the end position
 	hEnd_ = createPositionDoubleSpinBox("H: ", " mm", configuration_->scanAxisAt(0)->regionAt(0)->regionEnd(), 3);
 	connect(hEnd_, SIGNAL(editingFinished()), this, SLOT(onXEndChanged()));
 	connect(configuration_->scanAxisAt(0)->regionAt(0), SIGNAL(regionEndChanged(AMNumber)), this, SLOT(setXAxisEnd(AMNumber)));
@@ -54,12 +46,7 @@ SXRMB2DMapScanConfigurationView::SXRMB2DMapScanConfigurationView(SXRMB2DMapScanC
 	QPushButton *endUseCurrentButton = new QPushButton("Use Current");
 	connect(endUseCurrentButton, SIGNAL(clicked()), this, SLOT(onSetEndPosition()));
 
-	QHBoxLayout *endPointLayout = new QHBoxLayout;
-	endPointLayout->addWidget(new QLabel("End:"));
-	endPointLayout->addWidget(hEnd_);
-	endPointLayout->addWidget(vEnd_);
-	endPointLayout->addWidget(endUseCurrentButton);
-
+	// 3rd row: set the step size
 	hStep_ = createPositionDoubleSpinBox("H: ", QString(" %1").arg(QString::fromUtf8("µm")), double(configuration_->scanAxisAt(0)->regionAt(0)->regionStep())*1000, 1);	// xStep needs to be in mm.
 	connect(hStep_, SIGNAL(editingFinished()), this, SLOT(onXStepChanged()));
 	connect(configuration_->scanAxisAt(0)->regionAt(0), SIGNAL(regionStepChanged(AMNumber)), this, SLOT(setXAxisStep(AMNumber)));
@@ -68,12 +55,7 @@ SXRMB2DMapScanConfigurationView::SXRMB2DMapScanConfigurationView(SXRMB2DMapScanC
 	connect(vStep_, SIGNAL(editingFinished()), this, SLOT(onYStepChanged()));
 	connect(configuration_->scanAxisAt(1)->regionAt(0), SIGNAL(regionStepChanged(AMNumber)), this, SLOT(setYAxisStep(AMNumber)));
 
-	QHBoxLayout *stepSizeLayout = new QHBoxLayout;
-	stepSizeLayout->addWidget(new QLabel("Step Size:"));
-	stepSizeLayout->addWidget(hStep_);
-	stepSizeLayout->addWidget(vStep_);
-	stepSizeLayout->addStretch();
-
+	// 4th row: set the focus position
 	normalPosition_ = createPositionDoubleSpinBox("N: ", " mm", configuration_->normalPosition(), 3);
 	connect(normalPosition_, SIGNAL(editingFinished()), this, SLOT(onNormalPositionChanged()));
 	connect(configuration_->dbObject(), SIGNAL(normalPositionChanged(double)), normalPosition_, SLOT(setValue(double)));
@@ -81,21 +63,36 @@ SXRMB2DMapScanConfigurationView::SXRMB2DMapScanConfigurationView(SXRMB2DMapScanC
 	QPushButton *updateNormalPosition = new QPushButton("Set Normal");
 	connect(updateNormalPosition, SIGNAL(clicked()), this, SLOT(onSetNormalPosition()));
 
-	QHBoxLayout *normalLayout = new QHBoxLayout;
-	normalLayout->addWidget(new QLabel("Focus Position:"));
-	normalLayout->addWidget(normalPosition_);
-	normalLayout->addWidget(updateNormalPosition);
+	// the grid layout to hold the positions
+	QGridLayout *positionGridLayout = new QGridLayout;
+	positionGridLayout->addWidget(new QLabel("Start:"), 0, 0, 1, 2);
+	positionGridLayout->addWidget(hStart_, 0, 2, 1, 2);
+	positionGridLayout->addWidget(vStart_, 0, 4, 1, 2);
+	positionGridLayout->addWidget(startUseCurrentButton, 0, 6, 1, 2);
 
+	positionGridLayout->addWidget(new QLabel("End:"), 1, 0, 1, 2);
+	positionGridLayout->addWidget(hEnd_, 1, 2, 1, 2);
+	positionGridLayout->addWidget(vEnd_, 1, 4, 1, 2);
+	positionGridLayout->addWidget(endUseCurrentButton, 1, 6, 1, 2);
+
+	positionGridLayout->addWidget(new QLabel("Step Size:"), 2, 0, 1, 2);
+	positionGridLayout->addWidget(hStep_, 2, 2, 1, 2);
+	positionGridLayout->addWidget(vStep_, 2, 4, 1, 2);
+
+	positionGridLayout->addWidget(new QLabel("Focus Position:"), 3, 0, 1, 2);
+	positionGridLayout->addWidget(normalPosition_, 3, 2, 1, 2);
+	positionGridLayout->addWidget(updateNormalPosition, 3, 6, 1, 2);
+
+	// the map information
 	mapInfo_ = new QLabel;
 	updateMapInfo();
 
+	/// Setup the group box for setting the start and end points.
 	QVBoxLayout *positionsLayout = new QVBoxLayout;
-	positionsLayout->addLayout(startPointLayout);
-	positionsLayout->addLayout(endPointLayout);
-	positionsLayout->addLayout(stepSizeLayout);
-	positionsLayout->addLayout(normalLayout);
+	positionsLayout->addLayout(positionGridLayout);
 	positionsLayout->addWidget(mapInfo_);
 
+	QGroupBox *positionsBox = new QGroupBox("Positions");
 	positionsBox->setLayout(positionsLayout);
 
 	// Dwell time.
@@ -113,6 +110,7 @@ SXRMB2DMapScanConfigurationView::SXRMB2DMapScanConfigurationView(SXRMB2DMapScanC
 	connect(configuration_, SIGNAL(totalTimeChanged(double)), this, SLOT(onEstimatedTimeChanged()));
 	onEstimatedTimeChanged();
 
+	/// Setup the group box for time.
 	QVBoxLayout *timeBoxLayout = new QVBoxLayout;
 	timeBoxLayout->addLayout(timeLayout);
 	timeBoxLayout->addWidget(estimatedTime_);
@@ -121,7 +119,7 @@ SXRMB2DMapScanConfigurationView::SXRMB2DMapScanConfigurationView(SXRMB2DMapScanC
 	timeGroupBox->setLayout(timeBoxLayout);
 
 	// Scan name selection
-	scanName_ = createScanNameView(configuration_->name());
+	scanName_ = createScanNameView(configuration_->userScanName());
 	connect(scanName_, SIGNAL(editingFinished()), this, SLOT(onScanNameEdited()));
 	connect(configuration_, SIGNAL(nameChanged(QString)), scanName_, SLOT(setText(QString)));
 	onScanNameEdited();
@@ -129,28 +127,42 @@ SXRMB2DMapScanConfigurationView::SXRMB2DMapScanConfigurationView(SXRMB2DMapScanC
 	QFormLayout *scanNameLayout = new QFormLayout;
 	scanNameLayout->addRow("Scan Name:", scanName_);
 
-	QGroupBox *scanNameGroupBox = new QGroupBox("Scan Name");
+	QGroupBox *scanNameGroupBox = new QGroupBox("Scan Information");
 	scanNameGroupBox->setLayout(scanNameLayout);
+
+	// detector setting
+	enableBrukerDetector_ = new QCheckBox("Enable Bruker Detector");
+	enableBrukerDetector_->setChecked(configuration_->enableBrukerDetector());
+	connect(enableBrukerDetector_, SIGNAL(stateChanged(int)), this, SLOT(onEnableBrukerDetectorChanged(int)));
+
+	QVBoxLayout * detectorBoxLayout = new QVBoxLayout;
+	detectorBoxLayout->addWidget(enableBrukerDetector_);
+
+	QGroupBox * detectorSettingGroupBox = new QGroupBox("Detector Setting");
+	detectorSettingGroupBox->setLayout(detectorBoxLayout);
 
 	// Auto-export option.
 	QGroupBox *autoExportGroupBox = addExporterOptionsView(QStringList() << "Ascii" << "SMAK");
 	connect(autoExportButtonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(updateAutoExporter(int)));
 	autoExportButtonGroup_->button(configuration_->exportAsAscii() ? 0 : 1)->click();
 
-	// Setting up the layout.
-	QGridLayout *contentsLayout = new QGridLayout;
-	contentsLayout->addWidget(positionsBox, 0, 0, 2, 4);
-	contentsLayout->addWidget(timeGroupBox, 2, 0, 1, 4);
-	contentsLayout->addWidget(scanNameGroupBox, 3, 0, 1, 3);
-	contentsLayout->addWidget(autoExportGroupBox, 3, 3, 1, 1);
+	/// setup the layout for Scan name selection, dector setting and auto-export option
+	QHBoxLayout *scanSettingBoxLayout = new QHBoxLayout;
+	scanSettingBoxLayout->addWidget(scanNameGroupBox);
+	scanSettingBoxLayout->addWidget(detectorSettingGroupBox);
+	scanSettingBoxLayout->addWidget(autoExportGroupBox);
 
-	// BL energy setting
-	beamlineSettingsGroupBox_ = new QGroupBox("Beamline Settings");
-	beamlineSettingsGroupBox_->setMinimumWidth(230);
+	/// Setting up the content layout to host the position setting, time setting, and scan setting
+	QVBoxLayout *contentsLayout = new QVBoxLayout;
+	contentsLayout->addWidget(positionsBox);
+	contentsLayout->addWidget(timeGroupBox);
+	contentsLayout->addLayout(scanSettingBoxLayout);
 
+	/// BL energy setting
 	SXRMBBeamline *sxrmbBL = SXRMBBeamline::sxrmb();
 	scanEnergySpinBox_ = createEnergySpinBox("", sxrmbBL->energy()->minimumValue(), sxrmbBL->energy()->maximumValue(), configuration_->excitationEnergy());
 	scanEnergySettingWarningLabel_ = new QLabel("Settings do not match beamline.");
+	scanEnergySettingWarningLabel_->setStyleSheet("QLabel {color: red}");
 	setScanEnergyFromBeamlineButton_ = new QPushButton("Set From Beamline");
 
 	connect(scanEnergySpinBox_, SIGNAL(editingFinished()), this, SLOT(onScanEnergySpinBoxEditingFinished()));
@@ -163,12 +175,16 @@ SXRMB2DMapScanConfigurationView::SXRMB2DMapScanConfigurationView(SXRMB2DMapScanC
 
 	QVBoxLayout *beamlineSettingsGroupBoxVL = new QVBoxLayout();
 	beamlineSettingsGroupBoxVL->addLayout(scanEnergyFL);
+	beamlineSettingsGroupBoxVL->addStretch();
 	beamlineSettingsGroupBoxVL->addWidget(scanEnergySettingWarningLabel_);
 	beamlineSettingsGroupBoxVL->addWidget(setScanEnergyFromBeamlineButton_);
 
+	beamlineSettingsGroupBox_ = new QGroupBox("Beamline Settings");
+	beamlineSettingsGroupBox_->setMinimumWidth(230);
 	beamlineSettingsGroupBox_->setLayout(beamlineSettingsGroupBoxVL);
 
 
+	/// the squeeze layout of the window
 	QHBoxLayout *squeezeContents = new QHBoxLayout;
 	squeezeContents->addStretch();
 	squeezeContents->addLayout(contentsLayout);
@@ -375,12 +391,12 @@ void SXRMB2DMapScanConfigurationView::updateMapInfo()
 		vPoints += 2;
 
 	mapInfo_->setText(QString("Map Size: %1 %2 x %3 %2\t Points: %4 x %5")
-					  .arg(QString::number(hSize*1000, 'f', 1))
-					  .arg(QString::fromUtf8("µm"))
-					  .arg(QString::number(vSize*1000, 'f', 1))
-					  .arg(hPoints)
-					  .arg(vPoints)
-					  );
+			  .arg(QString::number(hSize*1000, 'f', 1))
+			  .arg(QString::fromUtf8("µm"))
+			  .arg(QString::number(vSize*1000, 'f', 1))
+			  .arg(hPoints)
+			  .arg(vPoints)
+			  );
 }
 
 QGroupBox *SXRMB2DMapScanConfigurationView::addExporterOptionsView(QStringList list)
@@ -440,4 +456,12 @@ void SXRMB2DMapScanConfigurationView::setDwellTime(const AMNumber &value)
 void SXRMB2DMapScanConfigurationView::updateAutoExporter(int useAscii)
 {
 	configuration_->setExportAsAscii(useAscii == 0);
+}
+
+void SXRMB2DMapScanConfigurationView::onEnableBrukerDetectorChanged(int state)
+{
+	if(state == Qt::Checked)
+		configuration_->setEnableBrukerDetector(true);
+	else
+		configuration_->setEnableBrukerDetector(false);
 }

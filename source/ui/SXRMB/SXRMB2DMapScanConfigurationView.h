@@ -2,16 +2,17 @@
 #define SXRMB2DMAPSCANCONFIGURATIONVIEW_H
 
 #include <QWidget>
-
-#include "ui/acquaman/AMScanConfigurationView.h"
-#include "acquaman/SXRMB/SXRMB2DMapScanConfiguration.h"
-
+#include <QCheckBox>
 #include <QPushButton>
 #include <QDoubleSpinBox>
 #include <QLabel>
 #include <QLineEdit>
 #include <QGroupBox>
 #include <QButtonGroup>
+
+#include "acquaman/SXRMB/SXRMB2DMapScanConfiguration.h"
+#include "ui/acquaman/AMScanConfigurationView.h"
+
 
 class SXRMB2DMapScanConfigurationView : public AMScanConfigurationView
 {
@@ -90,6 +91,9 @@ protected slots:
 	/// Helper slot that sets whether we use SMAK or Ascii for the auto exporter.
 	void updateAutoExporter(int useAscii);
 
+    /// Handles changes to enable bruker detector
+    void onEnableBrukerDetectorChanged(int state);
+
 protected:
 	/// Add the export options view.  Returns a pointer to the widget.
 	QGroupBox *addExporterOptionsView(QStringList list);
@@ -108,6 +112,8 @@ protected:
 	QDoubleSpinBox *dwellTime_;
 	/// Line edit for changing the name of the scan.
 	QLineEdit *scanName_;
+    /// Checkbox for enabling/disabling Bruker detector
+    QCheckBox *enableBrukerDetector_;
 	/// Pointer to the horizontal start point.
 	QDoubleSpinBox *hStart_;
 	/// Pointer to the horizontal end point.

@@ -4,12 +4,14 @@ SXRMBScanConfigurationDbObject::SXRMBScanConfigurationDbObject(QObject *parent)
 	: AMDbObject(parent)
 {
 	normalPosition_ = 0.0;
+	enableBrukerDetector_ = true;
 }
 
 SXRMBScanConfigurationDbObject::SXRMBScanConfigurationDbObject(const SXRMBScanConfigurationDbObject &original)
 	: AMDbObject(original)
 {
 	normalPosition_ = original.normalPosition();
+	enableBrukerDetector_ = original.enableBrukerDetector();
 
 	foreach (AMRegionOfInterest *region, original.regionsOfInterest())
 		addRegionOfInterest(region->createCopy());
@@ -69,3 +71,8 @@ void SXRMBScanConfigurationDbObject::removeRegionOfInterest(AMRegionOfInterest *
 		}
 }
 
+void SXRMBScanConfigurationDbObject::setEnableBrukerDetector(bool enableDetector)
+{
+	if (enableBrukerDetector_ != enableDetector)
+		enableBrukerDetector_ = enableDetector;
+}
