@@ -164,12 +164,6 @@ SXRMB2DMapScanConfigurationView::SXRMB2DMapScanConfigurationView(SXRMB2DMapScanC
 	scanSettingBoxLayout->addWidget(detectorSettingGroupBox);
 	scanSettingBoxLayout->addWidget(autoExportGroupBox);
 
-	// Setting up the content layout to host the position setting, time setting, and scan setting
-	QVBoxLayout *contentsLayout = new QVBoxLayout;
-	contentsLayout->addWidget(positionsBox);
-	contentsLayout->addWidget(timeGroupBox);
-	contentsLayout->addLayout(scanSettingBoxLayout);
-
 	// BL energy setting
 	SXRMBBeamline *sxrmbBL = SXRMBBeamline::sxrmb();
 	scanEnergySpinBox_ = createEnergySpinBox("", sxrmbBL->energy()->minimumValue(), sxrmbBL->energy()->maximumValue(), configuration_->excitationEnergy());
@@ -199,8 +193,7 @@ SXRMB2DMapScanConfigurationView::SXRMB2DMapScanConfigurationView(SXRMB2DMapScanC
 	QGridLayout *contentsLayout = new QGridLayout;
 	contentsLayout->addWidget(positionsBox, 0, 0, 2, 4);
 	contentsLayout->addWidget(timeGroupBox, 2, 0, 1, 4);
-	contentsLayout->addWidget(scanNameGroupBox, 3, 0, 1, 3);
-	contentsLayout->addWidget(autoExportGroupBox, 3, 3, 1, 1);
+	contentsLayout->addLayout(scanSettingBoxLayout, 3, 0, 1, 4);
 	contentsLayout->addWidget(beamlineSettingsGroupBox_, 0, 4, 4, 2);
 	contentsLayout->addWidget(errorLabel_, 4, 0, 2, 4);
 
