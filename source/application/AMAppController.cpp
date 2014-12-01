@@ -144,7 +144,7 @@ bool AMAppController::startupCreateUserInterface() {
 		mw_->windowPaneModel()->removeRow(scanEditorsParentItem_->row());
 		scanEditorsParentItem_ = mw_->windowPaneModel()->headingItem("Open Scans", QModelIndex(), mw_->windowPaneModel()->rowCount()-1);
 
-		connect(AMActionRunner3::workflow(), SIGNAL(scanActionStarted(AMScanAction*)), this, SLOT(onCurrentScanActionStarted(AMScanAction*)));
+		connect(AMActionRunner3::workflow(), SIGNAL(scanActionCreated(AMScanAction*)), this, SLOT(onCurrentScanActionStarted(AMScanAction*)));
 		connect(AMActionRunner3::workflow(), SIGNAL(scanActionFinished(AMScanAction *)), this, SLOT(onCurrentScanActionFinished(AMScanAction*)));
 
 		AMStartScreen* chooseRunDialog = new AMStartScreen(true, mw_);
