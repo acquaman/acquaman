@@ -129,7 +129,7 @@ SXRMB2DOxidationMapScanConfigurationView::SXRMB2DOxidationMapScanConfigurationVi
 	QFormLayout *scanNameLayout = new QFormLayout;
 	scanNameLayout->addRow("Scan Name:", scanName_);
 
-	QGroupBox *scanNameGroupBox = new QGroupBox("Scan Name");
+	QGroupBox *scanNameGroupBox = new QGroupBox("Scan Information");
 	scanNameGroupBox->setLayout(scanNameLayout);
 
 	// Auto-export option.
@@ -143,6 +143,13 @@ SXRMB2DOxidationMapScanConfigurationView::SXRMB2DOxidationMapScanConfigurationVi
 	oxidationEnergyListView_ = new AMEnergyListView("", energyList);
 	oxidationEnergyListView_->setRange(SXRMBBeamline::sxrmb()->energy()->minimumValue(), SXRMBBeamline::sxrmb()->energy()->maximumValue());
 
+	QVBoxLayout *energyListViewBoxLayout = new QVBoxLayout;
+	energyListViewBoxLayout->addWidget(oxidationEnergyListView_);
+	energyListViewBoxLayout->addStretch();
+
+	QGroupBox *energyListViewBox = new QGroupBox("Oxidation Energies");
+	energyListViewBox->setLayout(energyListViewBoxLayout);
+
 	// detector setting
 	enableBrukerDetector_ = new QCheckBox("Enable Bruker Detector");
 	enableBrukerDetector_->setChecked(configuration_->enableBrukerDetector());
@@ -153,13 +160,6 @@ SXRMB2DOxidationMapScanConfigurationView::SXRMB2DOxidationMapScanConfigurationVi
 
 	QGroupBox * detectorSettingGroupBox = new QGroupBox("Detector Setting");
 	detectorSettingGroupBox->setLayout(detectorBoxLayout);
-
-	QVBoxLayout *energyListViewBoxLayout = new QVBoxLayout;
-	energyListViewBoxLayout->addWidget(oxidationEnergyListView_);
-	energyListViewBoxLayout->addStretch();
-
-	QGroupBox *energyListViewBox = new QGroupBox("Oxidation Energies");
-	energyListViewBox->setLayout(energyListViewBoxLayout);
 
 	// Error label.
 	errorLabel_ = new QLabel;

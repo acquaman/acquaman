@@ -152,6 +152,16 @@ SXRMB2DMapScanConfigurationView::SXRMB2DMapScanConfigurationView(SXRMB2DMapScanC
 	QFormLayout *scanEnergyFL = new QFormLayout();
 	scanEnergyFL->addRow("Energy", scanEnergySpinBox_);
 
+	QVBoxLayout *beamlineSettingsGroupBoxVL = new QVBoxLayout();
+	beamlineSettingsGroupBoxVL->addLayout(scanEnergyFL);
+	beamlineSettingsGroupBoxVL->addStretch();
+	beamlineSettingsGroupBoxVL->addWidget(scanEnergySettingWarningLabel_);
+	beamlineSettingsGroupBoxVL->addWidget(setScanEnergyFromBeamlineButton_);
+
+	beamlineSettingsGroupBox_ = new QGroupBox("Beamline Settings");
+	beamlineSettingsGroupBox_->setMinimumWidth(230);
+	beamlineSettingsGroupBox_->setLayout(beamlineSettingsGroupBoxVL);
+
 	// detector setting
 	enableBrukerDetector_ = new QCheckBox("Enable Bruker Detector");
 	enableBrukerDetector_->setChecked(configuration_->enableBrukerDetector());
@@ -162,16 +172,6 @@ SXRMB2DMapScanConfigurationView::SXRMB2DMapScanConfigurationView(SXRMB2DMapScanC
 
 	QGroupBox * detectorSettingGroupBox = new QGroupBox("Detector Setting");
 	detectorSettingGroupBox->setLayout(detectorBoxLayout);
-
-	QVBoxLayout *beamlineSettingsGroupBoxVL = new QVBoxLayout();
-	beamlineSettingsGroupBoxVL->addLayout(scanEnergyFL);
-	beamlineSettingsGroupBoxVL->addStretch();
-	beamlineSettingsGroupBoxVL->addWidget(scanEnergySettingWarningLabel_);
-	beamlineSettingsGroupBoxVL->addWidget(setScanEnergyFromBeamlineButton_);
-
-	beamlineSettingsGroupBox_ = new QGroupBox("Beamline Settings");
-	beamlineSettingsGroupBox_->setMinimumWidth(230);
-	beamlineSettingsGroupBox_->setLayout(beamlineSettingsGroupBoxVL);
 
 	// Error label.
 	errorLabel_ = new QLabel;

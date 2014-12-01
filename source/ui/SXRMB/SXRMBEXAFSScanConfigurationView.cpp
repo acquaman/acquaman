@@ -119,27 +119,6 @@ SXRMBEXAFSScanConfigurationView::SXRMBEXAFSScanConfigurationView(SXRMBEXAFSScanC
 	QGroupBox *scanInfoGroupBox = new QGroupBox("Scan Information");
 	scanInfoGroupBox->setLayout(scanInfoBoxLayout);
 
-	// Bruker detector setting
-	enableBrukerDetector_ = new QCheckBox("Enable Bruker Detector");
-	enableBrukerDetector_->setChecked(configuration_->enableBrukerDetector());
-	connect(enableBrukerDetector_, SIGNAL(stateChanged(int)), this, SLOT(onEnableBrukerDetectorChanged(int)));
-
-	QVBoxLayout *detectorBoxLayout = new QVBoxLayout;
-	detectorBoxLayout->addWidget(enableBrukerDetector_);
-
-	QGroupBox *detectorGroupBox = new QGroupBox("Detector Setting");
-	detectorGroupBox->setLayout(detectorBoxLayout);
-
-	QHBoxLayout * scanSettingBoxLayout = new QHBoxLayout;
-	scanSettingBoxLayout->addWidget(scanInfoGroupBox);
-	scanSettingBoxLayout->addWidget(detectorGroupBox);
-
-	// Scan content layout
-	QVBoxLayout *scanSettingContentVL = new QVBoxLayout();
-	scanSettingContentVL->setSpacing(10);
-	scanSettingContentVL->addWidget(scanRegionConfigurationGroupBox);
-	scanSettingContentVL->addLayout(scanSettingBoxLayout);
-
 	// Beamline setting layout
 	SXRMBBeamline *sxrmbBL = SXRMBBeamline::sxrmb();
 	sampleStageXSpinBox_ = createSampleStageSpinBox("mm", sxrmbBL->microprobeSampleStageX()->minimumValue(), sxrmbBL->microprobeSampleStageX()->maximumValue(), configuration_->microprobeSampleStageX());
@@ -178,12 +157,29 @@ SXRMBEXAFSScanConfigurationView::SXRMBEXAFSScanConfigurationView(SXRMBEXAFSScanC
 	QGroupBox *beamlineSettingsGroupBox = new QGroupBox("Beamline Settings");
 	beamlineSettingsGroupBox->setLayout(beamlineSettingsGroupBoxVL);
 
+	// Bruker detector setting
+	enableBrukerDetector_ = new QCheckBox("Enable Bruker Detector");
+	enableBrukerDetector_->setChecked(configuration_->enableBrukerDetector());
+	connect(enableBrukerDetector_, SIGNAL(stateChanged(int)), this, SLOT(onEnableBrukerDetectorChanged(int)));
+
+	QVBoxLayout *detectorBoxLayout = new QVBoxLayout;
+	detectorBoxLayout->addWidget(enableBrukerDetector_);
+
+	QGroupBox *detectorGroupBox = new QGroupBox("Detector Setting");
+	detectorGroupBox->setLayout(detectorBoxLayout);
+
+	// layout the contents
+	QGridLayout *contentLayout = new QGridLayout();
+	contentLayout->addWidget(scanRegionConfigurationGroupBox, 0, 0, 1, 1);
+	contentLayout->addWidget(scanInfoGroupBox, 1, 0, 1, 1);
+	contentLayout->addWidget(beamlineSettingsGroupBox, 0, 4, 1, 1);
+	contentLayout->addWidget(detectorGroupBox, 1, 4, 1, 1);
+
 	// setup the squeeze contents
 	QHBoxLayout *squeezeContents = new QHBoxLayout;
 	squeezeContents->setSpacing(10);
 	squeezeContents->addStretch();
-	squeezeContents->addLayout(scanSettingContentVL);
-	squeezeContents->addWidget(beamlineSettingsGroupBox);
+	squeezeContents->addLayout(contentLayout);
 	squeezeContents->addStretch();
 
 	// Main content layout
@@ -394,7 +390,8 @@ void SXRMBEXAFSScanConfigurationView::onEnableBrukerDetectorChanged(int state)
 	if(state == Qt::Checked)
 		configuration_->setEnableBrukerDetector(true);
 	else
-		configuration_->setEnableBrukerDetector(false);}
+		configuration_->setEnableBrukerDetector(false);
+}
 
 QDoubleSpinBox *SXRMBEXAFSScanConfigurationView::createSampleStageSpinBox(QString units, double minimumValue, double maximumValue, double defaultValue) {
 	QDoubleSpinBox *sampleStageSpinBox = new QDoubleSpinBox();
