@@ -99,6 +99,18 @@ protected:
 	/// The implementation for skipping XES scans.
 	virtual void stopImplementation(const QString &command);
 
+	/// For actions which support pausing, this function is called from the Pausing state when the implementation should pause the action. Once the action is paused, you should call notifyPaused().  The base class implementation does nothing and must be re-implemented.
+	virtual void pauseImplementation() {
+		setPaused();
+	}
+
+	/// For actions that support resuming, this function is called from the Paused state when the implementation should resume the action. Once the action is running again, you should call notifyResumed().
+	virtual void resumeImplementation() { setResumed(); }
+
+	/// Returns whether scan action can pause or not.  Returns false if there is currently no scan running.
+	virtual bool canPause() const {return true;}
+
+
 	AMAction3* createInitializationActions();
 
 	REIXSXESScanConfiguration *configuration_;
