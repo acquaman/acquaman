@@ -65,6 +65,8 @@ protected slots:
 	void onDwellTimeChanged();
 	/// Helper slot that sets the other position.
 	void onOtherPositionChanged();
+	/// Helper slot that manages setting the normal position.
+	void onNormalPositionChanged();
 
 	/// Handles passing the name of the CCD file name to the scan configuration when the CCD check box is enabled.
 	void onCCDDetectorChanged(int id);
@@ -82,6 +84,8 @@ protected slots:
 	void setTimeOffset(double time) { configuration_->setTimeOffset(time); }
 	/// Helper slot that handles the setting the estimated time label.
 	void onEstimatedTimeChanged();
+	/// Handles setting the normal position when the "Set Normal" button is pushed.
+	void onSetNormalPosition();
 
 	/// Slot that updates the horizontal step size spin box.
 	void updateStep(double val) { step_->setValue(val*1000); }

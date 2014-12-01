@@ -46,6 +46,8 @@ SGMFastScanActionController::SGMFastScanActionController(SGMFastScanConfiguratio
 	configuration_ = configuration;
 	insertionIndex_ = AMnDIndex(0);
 
+	enableUpDownScanning_ = configuration_->enableUpDownScanning();
+
 	scan_ = new AMFastScan();
 	scan_->rawData()->addScanAxis(AMAxisInfo("ev", 0, "Incident Energy", "eV"));
 	scan_->setName("SGM Fast Scan");
@@ -75,6 +77,8 @@ SGMFastScanActionController::SGMFastScanActionController(SGMFastScanConfiguratio
 		scan_->setName(QString("%1 - %2").arg(scanName).arg(sampleName));
 	}
 	scan_->setNotes(buildNotes());
+
+	configureStartEndValues();
 }
 
 SGMFastScanActionController::~SGMFastScanActionController()
@@ -156,8 +160,6 @@ bool SGMFastScanActionController::startImplementation(){
 	if(scanActionMessager)
 		scanActionMessager->addReceiver(this);
 
-	SGMFastScanParameters *settings = configuration_->currentParameters();
-
 	AMControlMoveActionInfo3 *moveActionInfo;
 	AMControlMoveAction3 *moveAction;
 	AMControl *tmpControl;
@@ -187,7 +189,7 @@ bool SGMFastScanActionController::startImplementation(){
 	masterFastScanActionList->addSubAction(axisStartAction);
 
 	// Wait 1.0 seconds
-	masterFastScanActionList->addSubAction(new AMWaitAction(new AMWaitActionInfo(1.0)));
+	masterFastScanActionList->addSubAction(new AMWaitAction(new AMWaitActionInfo(0.25)));
 
 	// Energy and Scaler:
 	// Energy to end energy
@@ -195,7 +197,7 @@ bool SGMFastScanActionController::startImplementation(){
 	AMListAction3 *fastActionsEnergyAndScaler = new AMListAction3(new AMListActionInfo3("SGM Fast Actions Energy and Scaler", "SGM Fast Actions Energy and Scaler"), AMListAction3::Parallel);
 	tmpControl = SGMBeamline::sgm()->energy();
 	AMControlInfo energySetpoint = tmpControl->toInfo();
-	energySetpoint.setValue(settings->energyEnd());
+	energySetpoint.setValue(endEnergy_);
 	moveActionInfo = new AMControlMoveActionInfo3(energySetpoint);
 	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
 	fastActionsEnergyAndScaler->addSubAction(moveAction);
@@ -271,35 +273,41 @@ bool SGMFastScanActionController::event(QEvent *e){
 			int currentEncoderValue = encoderStartValue_;
 			double energyFeedback;
 
-
+			QVector<double> energyList = QVector<double>(1000);
 			for(int x = 0; x < allDataMap_.value("EncoderUp").count(); x++){
 				currentEncoderValue += allDataMap_.value("EncoderUp").at(x);
 				currentEncoderValue -= allDataMap_.value("EncoderDown").at(x);
 				energyFeedback = (1.0e-9*1239.842*sParam_)/(2*spacingParam_*c1Param_*c2Param_*(double)currentEncoderValue*cos(thetaParam_/2));
 
-				scan_->rawData()->beginInsertRows(1, -1);
-				scan_->rawData()->setAxisValue(0, insertionIndex_.i(), energyFeedback);
-				for(int y = 0; y < configuration_->detectorConfigurations().count(); y++)
-					scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement(configuration_->detectorConfigurations().detectorInfoAt(y).name()), AMnDIndex(), allDataMap_.value(configuration_->detectorConfigurations().detectorInfoAt(y).name()).at(x));
-
-				scan_->rawData()->endInsertRows();
-				insertionIndex_[0] = insertionIndex_.i()+1;
+				energyList[x] = energyFeedback;
 			}
-			/*
-			for(int x = 0; x < allDataMap_.value("NEWEncoderUp").count(); x++){
-								currentEncoderValue += allDataMap_.value("NEWEncoderUp").at(x);
-								currentEncoderValue -= allDataMap_.value("NEWEncoderDown").at(x);
-								energyFeedback = (1.0e-9*1239.842*sParam_)/(2*spacingParam_*c1Param_*c2Param_*(double)currentEncoderValue*cos(thetaParam_/2));
 
-								scan_->rawData()->beginInsertRows(1, -1);
-								scan_->rawData()->setAxisValue(0, insertionIndex_.i(), energyFeedback);
-								for(int y = 0; y < configuration_->detectorConfigurations().count(); y++)
-										scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement(configuration_->detectorConfigurations().detectorInfoAt(y).name()), AMnDIndex(), allDataMap_.value(configuration_->detectorConfigurations().detectorInfoAt(y).name()).at(x));
+			bool upScan = false;
+			if(energyList.at(0) < energyList.at(999))
+				upScan = true;
 
-								scan_->rawData()->endInsertRows();
-								insertionIndex_[0] = insertionIndex_.i()+1;
-						}
-			*/
+			if(upScan){
+				for(int x = 0; x < allDataMap_.value("EncoderUp").count(); x++){
+					scan_->rawData()->beginInsertRows(1, -1);
+					scan_->rawData()->setAxisValue(0, insertionIndex_.i(), energyList.at(x));
+					for(int y = 0; y < configuration_->detectorConfigurations().count(); y++)
+						scan_->rawData()->setValue(insertionIndex_, scan_->rawData()->idOfMeasurement(configuration_->detectorConfigurations().detectorInfoAt(y).name()), AMnDIndex(), allDataMap_.value(configuration_->detectorConfigurations().detectorInfoAt(y).name()).at(x));
+
+					scan_->rawData()->endInsertRows();
+					insertionIndex_[0] = insertionIndex_.i()+1;
+				}
+			}
+			else{
+				for(int x = 0; x < allDataMap_.value("EncoderUp").count(); x++){
+					scan_->rawData()->beginInsertRows(1, 0);
+					scan_->rawData()->setAxisValue(0, 0, energyList.at(x));
+					for(int y = 0; y < configuration_->detectorConfigurations().count(); y++)
+						scan_->rawData()->setValue(AMnDIndex(0), scan_->rawData()->idOfMeasurement(configuration_->detectorConfigurations().detectorInfoAt(y).name()), AMnDIndex(), allDataMap_.value(configuration_->detectorConfigurations().detectorInfoAt(y).name()).at(x));
+
+					scan_->rawData()->endInsertRows();
+					insertionIndex_[0] = insertionIndex_.i()+1;
+				}
+			}
 			writeDataToFiles();
 
 			emit finishWritingToFile();
@@ -370,7 +378,6 @@ void SGMFastScanActionController::writeDataToFiles(){
 	*/
 
 	AMnDIndex requestIndex = AMnDIndex(0);
-
 	for(int x = 0; x < insertionIndex_.i()-1; x++){
 		rank1String.clear();
 		rank1String.append(QString("%1 ").arg((double)scan_->rawDataSources()->at(0)->axisValue(0, requestIndex.i())));
@@ -386,7 +393,6 @@ void SGMFastScanActionController::writeDataToFiles(){
 		QTime endTime = QTime::currentTime();
 		qdebug() << "Time to ready data for writing " << startTime.msecsTo(endTime);
 		*/
-
 		emit requestWriteToFile(0, rank1String);
 		requestIndex[0] = requestIndex.i()+1;
 	}
@@ -457,14 +463,14 @@ AMAction3* SGMFastScanActionController::createInitializationActions(){
 	AMListAction3 *fastActionsFastInitialPositions = new AMListAction3(new AMListActionInfo3("SGM Fast Actions Fast Initial Positions", "SGM Fast Actions Fast Initial Positions"), AMListAction3::Parallel);
 	tmpControl = SGMBeamline::sgm()->energy();
 	AMControlInfo energyStartSetpoint = tmpControl->toInfo();
-	energyStartSetpoint.setValue(settings->energyStart());
+	energyStartSetpoint.setValue(startEnergy_);
 	moveActionInfo = new AMControlMoveActionInfo3(energyStartSetpoint);
 	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
 	fastActionsFastInitialPositions->addSubAction(moveAction);
 
 	tmpControl = SGMBeamline::sgm()->undulatorStep();
 	AMControlInfo undulatorStepSetpoint = tmpControl->toInfo();
-	undulatorStepSetpoint.setValue(settings->undulatorStartStep());
+	undulatorStepSetpoint.setValue(startUndulatorStep_);
 	moveActionInfo = new AMControlMoveActionInfo3(undulatorStepSetpoint);
 	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
 	fastActionsFastInitialPositions->addSubAction(moveAction);
@@ -577,7 +583,7 @@ AMAction3* SGMFastScanActionController::createInitializationActions(){
 	// Undulator Relative Step Storage to relative step
 	tmpControl = SGMBeamline::sgm()->undulatorRelativeStepStorage();
 	AMControlInfo undulatorRelativeStepStorageSetpoint = tmpControl->toInfo();
-	undulatorRelativeStepStorageSetpoint.setValue(settings->undulatorRelativeStep());
+	undulatorRelativeStepStorageSetpoint.setValue(undulatorRelativeStep_);
 	moveActionInfo = new AMControlMoveActionInfo3(undulatorRelativeStepStorageSetpoint);
 	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
 	retVal->addSubAction(moveAction);
@@ -750,4 +756,24 @@ QString SGMFastScanActionController::buildNotes()
 
 
 	return returnString;
+}
+
+void SGMFastScanActionController::configureStartEndValues(){
+	SGMFastScanParameters *settings = configuration_->currentParameters();
+
+	double currentEnergy = SGMBeamline::sgm()->energy()->value();
+	double deltaUp = fabs(settings->energyStart() - currentEnergy);
+	double deltaDown = fabs(settings->energyEnd() - currentEnergy);
+	if(enableUpDownScanning_ && deltaDown < deltaUp){
+		startEnergy_ = settings->energyEnd();
+		startUndulatorStep_ = settings->scanInfo().end().undulatorStepSetpoint();
+		endEnergy_ = settings->energyStart();
+		undulatorRelativeStep_ = settings->scanInfo().start().undulatorStepSetpoint() - settings->scanInfo().end().undulatorStepSetpoint();
+	}
+	else{
+		startEnergy_ = settings->energyStart();
+		startUndulatorStep_ = settings->undulatorStartStep();
+		endEnergy_ = settings->energyEnd();
+		undulatorRelativeStep_ = settings->undulatorRelativeStep();
+	}
 }

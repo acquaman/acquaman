@@ -93,6 +93,7 @@ protected:
 	virtual void buildScanControllerImplementation();
 
 	virtual bool initializeImplementation();
+	virtual void initializePositions();
 	virtual bool startImplementation();
 	virtual void cancelImplementation();
 	/// The implementation for skipping XES scans.
@@ -109,11 +110,6 @@ protected:
 	double secondsElapsed_;
 	/// Number of seconds total for the scan to complete (estimate).
 	double secondsTotal_;
-
-	/// Pointer to the thread that handles all the file writing.
-	QThread *fileWriterThread_;
-//	/// Flag for keeping track of whether the file writer thread is busy or not.
-//	bool fileWriterIsBusy_;
 
 	/// Holds the header string so that we don't have to recreate it everytime data is updated.
 	QString headerText_;

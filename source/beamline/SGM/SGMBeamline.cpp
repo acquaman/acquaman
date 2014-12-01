@@ -67,6 +67,10 @@ SGMBeamline::SGMBeamline() : AMBeamline("SGMBeamline") {
 	connect(this, SIGNAL(criticalConnectionsChanged()), this, SLOT(recomputeWarnings()));
 	connect(energy(), SIGNAL(valueChanged(double)), this, SLOT(onEnergyValueChanged()));
 
+	xFocus_ = AMNumber(AMNumber::Null);
+	yFocus_ = AMNumber(AMNumber::Null);
+	moveInFocus_ = false;
+
 	addChildControl(energy_);
 	addChildControl(energySpacingParam_);
 	addChildControl(energyC1Param_);
@@ -774,6 +778,58 @@ AMAction3* SGMBeamline::createGoToMeasurementPositionActions3(){
 	return goToMeasurePostionActionsList;
 }
 
+AMAction3* SGMBeamline::createRestorePreFastScanDefaultActions(){
+	if(!beamOnControlSet_->isConnected())
+		return 0;
+
+	AMListAction3 *retVal = new AMListAction3(new AMListActionInfo3(QString("Restore beamline defaults"), QString("Restore beamline defaults")), AMListAction3::Parallel);
+
+	AMControlMoveActionInfo3 *moveActionInfo;
+	AMControlMoveAction3 *moveAction;
+	AMControl *tmpControl;
+
+	tmpControl = SGMBeamline::sgm()->gratingVelocity();
+	AMControlInfo gratingVelocityInfo = tmpControl->toInfo();
+	gratingVelocityInfo.setValue(10000);
+	moveActionInfo = new AMControlMoveActionInfo3(gratingVelocityInfo);
+	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
+	retVal->addSubAction(moveAction);
+
+	tmpControl = SGMBeamline::sgm()->gratingBaseVelocity();
+	AMControlInfo gratingBaseVelocityInfo = tmpControl->toInfo();
+	gratingBaseVelocityInfo.setValue(0);
+	moveActionInfo = new AMControlMoveActionInfo3(gratingBaseVelocityInfo);
+	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
+	retVal->addSubAction(moveAction);
+
+	tmpControl = SGMBeamline::sgm()->gratingAcceleration();
+	AMControlInfo gratingAccelerationInfo = tmpControl->toInfo();
+	gratingAccelerationInfo.setValue(5000);
+	moveActionInfo = new AMControlMoveActionInfo3(gratingAccelerationInfo);
+	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
+	retVal->addSubAction(moveAction);
+
+	retVal->addSubAction(rawScaler()->createDwellTimeAction3(1.0));
+	retVal->addSubAction(rawScaler()->createScansPerBufferAction3(1));
+	retVal->addSubAction(rawScaler()->createTotalScansAction3(1));
+
+	tmpControl = SGMBeamline::sgm()->undulatorTracking();
+	AMControlInfo undulatorTrackingInfo = tmpControl->toInfo();
+	undulatorTrackingInfo.setValue(1);
+	moveActionInfo = new AMControlMoveActionInfo3(undulatorTrackingInfo);
+	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
+	retVal->addSubAction(moveAction);
+
+	tmpControl = SGMBeamline::sgm()->exitSlitTracking();
+	AMControlInfo exitSlitTrackingInfo = tmpControl->toInfo();
+	exitSlitTrackingInfo.setValue(1);
+	moveActionInfo = new AMControlMoveActionInfo3(exitSlitTrackingInfo);
+	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
+	retVal->addSubAction(moveAction);
+
+	return retVal;
+}
+
 CLSSIS3820Scaler* SGMBeamline::scaler(){
 	if(scaler_->isConnected())
 		return scaler_;
@@ -794,6 +850,14 @@ bool SGMBeamline::isVisibleLightOn() const{
 	if(visibleLightToggle_->value() == 1)
 		return true;
 	return false;
+}
+
+bool SGMBeamline::validInFocusPair() const{
+	return xFocus_.isValid() && yFocus_.isValid();
+}
+
+bool SGMBeamline::movingInFocus() const{
+	return validInFocusPair() && moveInFocus_;
 }
 
 void SGMBeamline::setCurrentSamplePlate(AMSamplePlatePre2013 *newSamplePlate){
@@ -834,6 +898,24 @@ void SGMBeamline::setCurrentMirrorStripe(SGMBeamlineInfo::sgmMirrorStripe mirror
 	else if(mirrorStripe == SGMBeamlineInfo::siliconStripe)
 		mirrorStripeSelectSilicon_->move(1);
 	return;
+}
+
+void SGMBeamline::setInFocus(){
+	if(isConnected()){
+		xFocus_ = ssaManipulatorX()->value();
+		yFocus_ = ssaManipulatorY()->value();
+	}
+}
+
+void SGMBeamline::setMoveInFocus(bool moveInFocus){
+	if(validInFocusPair() && moveInFocus_ != moveInFocus){
+		moveInFocus_ = moveInFocus;
+		if(moveInFocus_)
+			connect(ssaManipulatorX(), SIGNAL(setpointChanged(double)), this, SLOT(moveToYFocusPosition(double)));
+		else
+			disconnect(ssaManipulatorX(), SIGNAL(setpointChanged(double)), this, SLOT(moveToYFocusPosition(double)));
+		emit moveInFocusChanged(moveInFocus_);
+	}
 }
 
 void SGMBeamline::onBeamlineScanningValueChanged(double value){
@@ -977,6 +1059,14 @@ void SGMBeamline::computeBeamlineInitialized(){
 void SGMBeamline::onAllDetectorsGroupAllDetectorResponded(){
 	if(!beamlineIsInitialized_)
 		computeBeamlineInitialized();
+}
+
+void SGMBeamline::moveToYFocusPosition(double xSetpoint){
+	if(isConnected()){
+		double currentRotationRadians = (ssaManipulatorRot()->value()*3.14159)/180.0;
+		double yFocusSetpoint = double(yFocus_) + (xSetpoint - double(xFocus_))*tan(currentRotationRadians);
+		ssaManipulatorY()->move(yFocusSetpoint);
+	}
 }
 
 void SGMBeamline::setupNameToPVLookup(){

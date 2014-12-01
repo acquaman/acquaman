@@ -60,6 +60,11 @@ protected slots:
 	void onStopMotorsButtonClicked();
 	void onStopMotorsActionFinished();
 
+	/// Handles clicks from the button to run the actions
+	void onRestoreBeamlineSettingsButtonClicked();
+	/// Handles cleaning up after the restore actions
+	void onRestoreBeamlineActionFinished();
+
 	void onScanningResetButtonClicked();
 
 	void onStripToolTimerTimeout();
@@ -104,6 +109,8 @@ protected:
 	QToolButton *scanningResetButton_;
 	QHBoxLayout *warningAndPlotHL_;
 	QLabel *beamlineWarningsLabel_;
+	/// Runs the actions to clean up after fast scanning problems (sets to default values)
+	QPushButton *restoreBeamlineSettingsButton_;
 
 	QCheckBox *i0CheckBox_, *teyCheckBox_, *tfyCheckBox_, *pdCheckBox_, *fpd1CheckBox_, *fpd2CheckBox_, *fpd3CheckBox_, *fpd4CheckBox_;
 	QCheckBox *autoScaleCheckBox_, *logCheckBox_;
@@ -127,6 +134,7 @@ protected:
 
 	AMAction3 *beamOnAction_;
 	AMAction3 *stopMotorsAction_;
+	AMAction3 *restoreBeamlineAction_;
 
 	QLabel *controlsConnectedLabel_;
 	QLabel *detectorsConnectedLabel_;

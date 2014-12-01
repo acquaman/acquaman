@@ -30,14 +30,14 @@ class AMDetectorDwellTimeActionInfo : public AMActionInfo3
 Q_OBJECT
 public:
 	/// Constructor
- 	virtual ~AMDetectorDwellTimeActionInfo();
+	virtual ~AMDetectorDwellTimeActionInfo();
 	Q_INVOKABLE AMDetectorDwellTimeActionInfo(const AMDetectorInfo &detectorInfo = AMDetectorInfo(), double dwellSeconds = 1,  QObject *parent = 0);
 
 	/// Copy Constructor
 	AMDetectorDwellTimeActionInfo(const AMDetectorDwellTimeActionInfo &other);
 
 	/// This function is used as a virtual copy constructor
-	virtual AMDetectorDwellTimeActionInfo* createCopy() const { return new AMDetectorDwellTimeActionInfo(*this); }
+	virtual AMActionInfo3* createCopy() const;
 
 	/// This should describe the type of the action
 	virtual QString typeDescription() const { return "Detector Dwell Time"; }

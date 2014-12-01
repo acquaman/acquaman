@@ -110,8 +110,11 @@ IDEASXASScanConfiguration::~IDEASXASScanConfiguration()
 
 }
 
-AMScanConfiguration* IDEASXASScanConfiguration::createCopy() const{
-	return new IDEASXASScanConfiguration(*this);
+AMScanConfiguration* IDEASXASScanConfiguration::createCopy() const
+{
+	AMScanConfiguration *configuration = new IDEASXASScanConfiguration(*this);
+	configuration->dissociateFromDb(true);
+	return configuration;
 }
 
 AMScanController* IDEASXASScanConfiguration::createController()

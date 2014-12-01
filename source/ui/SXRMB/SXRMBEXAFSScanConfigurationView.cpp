@@ -98,8 +98,7 @@ SXRMBEXAFSScanConfigurationView::SXRMBEXAFSScanConfigurationView(SXRMBEXAFSScanC
 	scanRegionConfigurationGroupBox->setLayout(scanRegionConfigurationBoxLayout);
 
 	// Scan information:  scan name selection
-	scanName_ = new QLineEdit();
-	scanName_->setText(configuration_->userScanName());
+	scanName_ = new QLineEdit(configuration_->userScanName());
 	scanName_->setAlignment(Qt::AlignCenter);
 	connect(scanName_, SIGNAL(editingFinished()), this, SLOT(onScanNameEdited()));
 	connect(configuration_, SIGNAL(nameChanged(QString)), scanName_, SLOT(setText(QString)));
@@ -120,19 +119,34 @@ SXRMBEXAFSScanConfigurationView::SXRMBEXAFSScanConfigurationView(SXRMBEXAFSScanC
 	QGroupBox *scanInfoGroupBox = new QGroupBox("Scan Information");
 	scanInfoGroupBox->setLayout(scanInfoBoxLayout);
 
+	// Bruker detector setting
+	enableBrukerDetector_ = new QCheckBox("Enable Bruker Detector");
+	enableBrukerDetector_->setChecked(configuration_->enableBrukerDetector());
+	connect(enableBrukerDetector_, SIGNAL(stateChanged(int)), this, SLOT(onEnableBrukerDetectorChanged(int)));
+
+	QVBoxLayout *detectorBoxLayout = new QVBoxLayout;
+	detectorBoxLayout->addWidget(enableBrukerDetector_);
+
+	QGroupBox *detectorGroupBox = new QGroupBox("Detector Setting");
+	detectorGroupBox->setLayout(detectorBoxLayout);
+
+	QHBoxLayout * scanSettingBoxLayout = new QHBoxLayout;
+	scanSettingBoxLayout->addWidget(scanInfoGroupBox);
+	scanSettingBoxLayout->addWidget(detectorGroupBox);
+
 	// Scan content layout
 	QVBoxLayout *scanSettingContentVL = new QVBoxLayout();
 	scanSettingContentVL->setSpacing(10);
 	scanSettingContentVL->addWidget(scanRegionConfigurationGroupBox);
-	scanSettingContentVL->addWidget(scanInfoGroupBox);
+	scanSettingContentVL->addLayout(scanSettingBoxLayout);
 
-	QGroupBox *beamlineSettingsGroupBox = new QGroupBox("Beamline Settings");
-
+	// Beamline setting layout
 	SXRMBBeamline *sxrmbBL = SXRMBBeamline::sxrmb();
 	sampleStageXSpinBox_ = createSampleStageSpinBox("mm", sxrmbBL->microprobeSampleStageX()->minimumValue(), sxrmbBL->microprobeSampleStageX()->maximumValue(), configuration_->microprobeSampleStageX());
 	sampleStageZSpinBox_ = createSampleStageSpinBox("mm", sxrmbBL->microprobeSampleStageZ()->minimumValue(), sxrmbBL->microprobeSampleStageZ()->maximumValue(), configuration_->microprobeSampleStageZ());
 	sampleStageNormalSpinBox_ = createSampleStageSpinBox("mm", sxrmbBL->microprobeSampleStageY()->minimumValue(), sxrmbBL->microprobeSampleStageY()->maximumValue(), configuration_->normalPosition());
 	sampleStageWarningLabel_ = new QLabel("Settings do not match beamline.");
+	sampleStageWarningLabel_->setStyleSheet("QLabel {color: red}");
 	setSampleStageFromBeamlineButton_ = new QPushButton("Set From Beamline");
 
 	connect(sampleStageXSpinBox_, SIGNAL(editingFinished()), this, SLOT(onSampleStageXSpinBoxEditingFinished()));
@@ -143,6 +157,8 @@ SXRMBEXAFSScanConfigurationView::SXRMBEXAFSScanConfigurationView(SXRMBEXAFSScanC
 	connect(sxrmbBL->microprobeSampleStageX(), SIGNAL(valueChanged(double)), this, SLOT(onMicroprobeSampleStagePositionChanged(double)));
 	connect(sxrmbBL->microprobeSampleStageY(), SIGNAL(valueChanged(double)), this, SLOT(onMicroprobeSampleStagePositionChanged(double)));
 	connect(sxrmbBL->microprobeSampleStageZ(), SIGNAL(valueChanged(double)), this, SLOT(onMicroprobeSampleStagePositionChanged(double)));
+	if(sxrmbBL->isConnected())
+		onMicroprobeSampleStagePositionChanged(-1);
 
 	connect(configuration, SIGNAL(microprobeSampleStageXChanged(double)), this, SLOT(onScanConfigurationMicroprobeSampleStageXChanged(double)));
 	connect(configuration, SIGNAL(microprobeSampleStageZChanged(double)), this, SLOT(onScanConfigurationMicroprobeSampleStageZChanged(double)));
@@ -155,14 +171,14 @@ SXRMBEXAFSScanConfigurationView::SXRMBEXAFSScanConfigurationView(SXRMBEXAFSScanC
 
 	QVBoxLayout *beamlineSettingsGroupBoxVL = new QVBoxLayout();
 	beamlineSettingsGroupBoxVL->addLayout(sampleStageFL);
+	beamlineSettingsGroupBoxVL->addStretch();
 	beamlineSettingsGroupBoxVL->addWidget(sampleStageWarningLabel_);
 	beamlineSettingsGroupBoxVL->addWidget(setSampleStageFromBeamlineButton_);
 
-	if(SXRMBBeamline::sxrmb()->isConnected())
-		onMicroprobeSampleStagePositionChanged(-1);
-
+	QGroupBox *beamlineSettingsGroupBox = new QGroupBox("Beamline Settings");
 	beamlineSettingsGroupBox->setLayout(beamlineSettingsGroupBoxVL);
 
+	// setup the squeeze contents
 	QHBoxLayout *squeezeContents = new QHBoxLayout;
 	squeezeContents->setSpacing(10);
 	squeezeContents->addStretch();
@@ -372,6 +388,13 @@ void SXRMBEXAFSScanConfigurationView::onScanConfigurationMicroprobeNormalChanged
 
 	onSampleStageNormalSpinBoxEditingFinished();
 }
+
+void SXRMBEXAFSScanConfigurationView::onEnableBrukerDetectorChanged(int state)
+{
+	if(state == Qt::Checked)
+		configuration_->setEnableBrukerDetector(true);
+	else
+		configuration_->setEnableBrukerDetector(false);}
 
 QDoubleSpinBox *SXRMBEXAFSScanConfigurationView::createSampleStageSpinBox(QString units, double minimumValue, double maximumValue, double defaultValue) {
 	QDoubleSpinBox *sampleStageSpinBox = new QDoubleSpinBox();

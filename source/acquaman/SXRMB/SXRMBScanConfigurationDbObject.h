@@ -17,6 +17,9 @@ class SXRMBScanConfigurationDbObject : public AMDbObject
 
 	Q_PROPERTY(double normalPosition READ normalPosition WRITE setNormalPosition)
 	Q_PROPERTY(AMDbObjectList regionsOfInterest READ dbReadRegionsOfInterest WRITE dbLoadRegionsOfInterest)
+	Q_PROPERTY(bool enableBrukerDetector READ enableBrukerDetector WRITE setEnableBrukerDetector)
+
+	Q_CLASSINFO("enableBrukerDetector", "upgradeDefault=false")
 
 	Q_CLASSINFO("AMDbObject_Attributes", "description=SXRMB Scan Configuration Database Object")
 
@@ -33,6 +36,9 @@ public:
 	/// Returns the list of regions the configuration has a hold of.
 	QList<AMRegionOfInterest *> regionsOfInterest() const { return regionsOfInterest_; }
 
+	/// Returns whether we are enabling Bruker Detector
+	bool enableBrukerDetector() const { return enableBrukerDetector_; }
+
 signals:
 	/// Notifier that the normal position has changed.
 	void normalPositionChanged(double);
@@ -45,6 +51,9 @@ public slots:
 	/// Removes a region of interest from the list.
 	void removeRegionOfInterest(AMRegionOfInterest *region);
 
+	/// Sets the Bruker detector setting
+	void setEnableBrukerDetector(bool enable);
+
 protected:
 	/// Returns the regions of interest list.
 	AMDbObjectList dbReadRegionsOfInterest();
@@ -55,6 +64,9 @@ protected:
 	double normalPosition_;
 	/// The list of the regions of interest.
 	QList<AMRegionOfInterest *> regionsOfInterest_;
+
+	/// Flag to enable Bruker Detector, default: enable
+	bool enableBrukerDetector_;
 };
 
 #endif // SXRMBSCANCONFIGURATIONDBOBJECT_H

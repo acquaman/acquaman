@@ -39,8 +39,11 @@ AMNumberChangeActionInfo::AMNumberChangeActionInfo(const AMNumberChangeActionInf
 	updateDescriptionText();
 }
 
-AMActionInfo3* AMNumberChangeActionInfo::createCopy() const{
-	return new AMNumberChangeActionInfo(*this);
+AMActionInfo3* AMNumberChangeActionInfo::createCopy() const
+{
+	AMActionInfo3 *info = new AMNumberChangeActionInfo(*this);
+	info->dissociateFromDb(true);
+	return info;
 }
 
 QString AMNumberChangeActionInfo::typeDescription() const{

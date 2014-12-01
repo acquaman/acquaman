@@ -42,7 +42,7 @@ BioXASSideXASScanActionController::BioXASSideXASScanActionController(BioXASSideX
 
     AMControlInfoList list;
     //list.append(BioXASSideBeamline::bioXAS()->m1UpperSlit()->toInfo());
-    list.append(BioXASSideBeamline::bioXAS()->energy()->toInfo());
+    list.append(BioXASSideBeamline::bioXAS()->mono()->energyControl()->toInfo());
     configuration_->setAxisControlInfos(list);
 
     AMDetectorInfoSet bioXASDetectors;

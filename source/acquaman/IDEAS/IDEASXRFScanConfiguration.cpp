@@ -60,7 +60,9 @@ IDEASXRFScanConfiguration::~IDEASXRFScanConfiguration()
 
 AMScanConfiguration *IDEASXRFScanConfiguration::createCopy() const
 {
-		return new IDEASXRFScanConfiguration(*this);
+	AMScanConfiguration *configuration = new IDEASXRFScanConfiguration(*this);
+	configuration->dissociateFromDb(true);
+	return configuration;
 }
 
 AMScanController *IDEASXRFScanConfiguration::createController()

@@ -103,8 +103,8 @@ public:
 	/// Returns the current scan that the generic scan editor is looking at.
 	AMScan *currentScan() const { return currentScan_; }
 
-	/// Call this function to find out if this editor can be closed. Checks for scans in progress and prompts the user for what to do with modified scans.  Returns true if the editor can be closed, returns false if any scans are acquiring or if the user responded "cancel" to a save-request.
-	bool canCloseEditor();
+	/// Call this function to find out if this editor can be closed. Will prompt the user to save with a message box if promptToSave if true (which is the default). Checks for scans in progress and prompts the user for what to do with modified scans.  Returns true if the editor can be closed, returns false if any scans are acquiring or if the user responded "cancel" to a save-request.
+	bool canCloseEditor(bool promptToSave = true);
 
 	/// Returns the current exclusive data source name for the model.
 	QString exclusiveDataSourceName() const { return scanSetModel_->exclusiveDataSourceName(); }

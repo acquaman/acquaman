@@ -24,6 +24,9 @@ public:
 	/// Returns the energy of view.
 	double energy() const { return energy_; }
 
+	/// Returns the energy spinbox of view
+	QDoubleSpinBox *energySpinBox() const { return energySpinBox_; }
+
 signals:
 	/// Notifier that the energy has changed.
 	void energyChanged(double);
@@ -39,7 +42,6 @@ protected slots:
 	void onEnergyUpdated();
 
 protected:
-
 	/// The energy.
 	double energy_;
 	/// The spin box that holds the energy.
@@ -80,6 +82,9 @@ protected slots:
 protected:
 	/// Helper method that builds and connects all the key aspects around a given an energy element.
 	void buildEnergyElementView(int index, double energy);
+
+	/// Reset the tab orders of the EnergyElementView
+	void resetEnergyElementViewTabOrder(int index);
 
 	/// Holds the list of energies.
 	AMEnergyList energyList_;

@@ -61,7 +61,9 @@ AMScanAxis::AMScanAxis(const AMScanAxis &original)
 
 AMScanAxis *AMScanAxis::createCopy() const
 {
-	return new AMScanAxis(*this);
+	AMScanAxis *axis = new AMScanAxis(*this);
+	axis->dissociateFromDb(true);
+	return axis;
 }
 
 AMScanAxis::AxisType AMScanAxis::axisType() const

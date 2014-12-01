@@ -86,6 +86,8 @@ protected slots:
 	/// Handles decrementing the delay countdown when delayedStart() is called with a non-zero time
 	void onDelayCountdown();
 
+	/// Sometime we get into a race condition with regard to prepare, this helps us wait until we can successfully proceed
+	void onPreparedHelper();
 	/// Handles the prepared() signal from the synchronizer and emits our prepared() signal at the end
 	void onPrepared(AMRecursiveDirectoryCompare::DirectoryCompareResult comparisonResult);
 	/// Handles calling the rest of the start routine after start first calls prepare()
@@ -140,6 +142,7 @@ protected:
 	AMDirectorySynchronizer *synchronizer_;
 	/// The result of the last prepare() comparison
 	AMRecursiveDirectoryCompare::DirectoryCompareResult lastCompareResult_;
+
 
 	/// Button to call prepare
 	QPushButton *prepareButton_;

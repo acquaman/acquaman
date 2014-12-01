@@ -39,3 +39,10 @@ AMDetectorAcquisitionActionInfo::AMDetectorAcquisitionActionInfo(const AMDetecto
 	detectorInfo_.setValuesFrom(*(other.detectorInfo()));
 	readMode_ = other.readMode();
 }
+
+AMActionInfo3 *AMDetectorAcquisitionActionInfo::createCopy() const
+{
+	AMActionInfo3 *info = new AMDetectorAcquisitionActionInfo(*this);
+	info->dissociateFromDb(true);
+	return info;
+}

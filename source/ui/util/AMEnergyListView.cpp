@@ -74,7 +74,7 @@ AMEnergyListView::AMEnergyListView(const QString &title, const AMEnergyList &lis
 	energyViewLayout_->addLayout(topRowLayout);
 
 	foreach (double energy, energyList_.energies())
-		buildEnergyElementView(energyList_.energyCount(), energy);
+		buildEnergyElementView(energyElementViewList_.count(), energy);
 
 	connect(deleteButtonGroup_, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(onDeleteButtonClicked(QAbstractButton*)));
 
@@ -107,7 +107,6 @@ void AMEnergyListView::onAddEnergyButtonClicked()
 		if (temp){
 
 			if (temp->text() == "Beginning"){
-
 
 				energyList_.insertEnergy(0, 0);
 				buildEnergyElementView(0, 0);
@@ -175,6 +174,23 @@ void AMEnergyListView::buildEnergyElementView(int index, double energy)
 	energyMap_.insert(deleteButton, elementView);
 	layoutMap_.insert(deleteButton, layout);
 	energyElementViewList_.insert(index, elementView);
+
+	resetEnergyElementViewTabOrder(index);
+}
+
+void AMEnergyListView::resetEnergyElementViewTabOrder(int index)
+{
+	AMEnergyListElementView * succeedingElementView = 0;
+	AMEnergyListElementView * modifiedElementView = energyElementViewList_.at(index);
+
+	int startIndex = index == 0 ? index : index - 1;
+	for (int i = startIndex; i < energyElementViewList_.count() - 1; i++) {
+		if( (i+1) < energyElementViewList_.count()){
+			modifiedElementView = energyElementViewList_.at(i);
+			succeedingElementView = energyElementViewList_.at(i + 1);
+			setTabOrder(modifiedElementView->energySpinBox(), succeedingElementView->energySpinBox());
+		}
+	}
 }
 
 void AMEnergyListView::onElementEnergyChanged()

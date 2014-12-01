@@ -173,17 +173,20 @@ void VESPERSBeamline::setupDiagnostics()
 void VESPERSBeamline::setupSampleStage()
 {
 	// Currently, the wire stage and sample stage have been flipped due to hardware problems with the sample stage.
-	sampleStageHorizontal_ = new CLSPseudoMotorControl("Horizontal Sample Stage", "TS1607-2-B21-02:H:user:mm:sp", "TS1607-2-B21-02:H:user:mm", "TS1607-2-B21-02:H:status", "TS1607-2-B21-02:HNV:stop.PROC", this, 0.001, 10.0);
-	sampleStageVertical_ = new CLSPseudoMotorControl("Vertical Sample Stage", "TS1607-2-B21-02:V:user:mm:sp", "TS1607-2-B21-02:V:user:mm", "TS1607-2-B21-02:V:status", "TS1607-2-B21-02:HNV:stop.PROC", this, 0.001, 10.0);
-	sampleStageNormal_ = new CLSPseudoMotorControl("Normal Sample Stage", "TS1607-2-B21-02:N:user:mm:sp", "TS1607-2-B21-02:N:user:mm", "TS1607-2-B21-02:N:status", "TS1607-2-B21-02:HNV:stop.PROC", this, 0.001, 10.0);
+//	sampleStageHorizontal_ = new AMPVwStatusControl("Horizontal Sample Stage", "BL1607-B2-1:AddOns:SampleStage:H:mm:fbk", "BL1607-B2-1:AddOns:SampleStage:H:mm", "BL1607-B2-1:AddOns:SampleStage:H:status", "TS1607-2-B21-02:HNV:stop.PROC", this, 0.005, 10.0);
+//	sampleStageVertical_ = new AMPVwStatusControl("Vertical Sample Stage", "BL1607-B2-1:AddOns:SampleStage:V:mm:fbk", "BL1607-B2-1:AddOns:SampleStage:V:mm", "BL1607-B2-1:AddOns:SampleStage:V:status", "TS1607-2-B21-02:HNV:stop.PROC", this, 0.005, 10.0);
+//	sampleStageNormal_ = new AMPVwStatusControl("Normal Sample Stage", "BL1607-B2-1:AddOns:SampleStage:N:mm:fbk", "BL1607-B2-1:AddOns:SampleStage:N:mm", "BL1607-B2-1:AddOns:SampleStage:N:status", "TS1607-2-B21-02:HNV:stop.PROC", this, 0.005, 10.0);
+	sampleStageHorizontal_ = new AMPVwStatusControl("Horizontal Sample Stage", "BL1607-B2-1:AddOns:SampleStage:H:mm", "BL1607-B2-1:AddOns:SampleStage:H:mm", "BL1607-B2-1:AddOns:SampleStage:H:status", "TS1607-2-B21-02:HNV:stop.PROC", this, 0.005, 10.0);
+	sampleStageVertical_ = new AMPVwStatusControl("Vertical Sample Stage", "BL1607-B2-1:AddOns:SampleStage:V:mm", "BL1607-B2-1:AddOns:SampleStage:V:mm", "BL1607-B2-1:AddOns:SampleStage:V:status", "TS1607-2-B21-02:HNV:stop.PROC", this, 0.005, 10.0);
+	sampleStageNormal_ = new AMPVwStatusControl("Normal Sample Stage", "BL1607-B2-1:AddOns:SampleStage:N:mm", "BL1607-B2-1:AddOns:SampleStage:N:mm", "BL1607-B2-1:AddOns:SampleStage:N:status", "TS1607-2-B21-02:HNV:stop.PROC", this, 0.005, 10.0);
 
-	sampleStageHorizontal_->setAttemptMoveWhenWithinTolerance(false);
-	sampleStageVertical_->setAttemptMoveWhenWithinTolerance(false);
-	sampleStageNormal_->setAttemptMoveWhenWithinTolerance(false);
+//	sampleStageX_ = new AMPVwStatusControl("X Motor Sample Stage", "BL1607-B2-1:AddOns:SampleStage:X:mm:fbk", "BL1607-B2-1:AddOns:SampleStage:X:mm", "BL1607-B2-1:AddOns:SampleStage:X:status", "TS1607-2-B21-02:XYZ:stop.PROC", this, 0.005, 10.0);
+//	sampleStageY_ = new AMPVwStatusControl("Y Motor Sample Stage", "BL1607-B2-1:AddOns:SampleStage:Y:mm:fbk", "BL1607-B2-1:AddOns:SampleStage:Y:mm", "BL1607-B2-1:AddOns:SampleStage:Y:status", "TS1607-2-B21-02:XYZ:stop.PROC", this, 0.005, 10.0);
+//	sampleStageZ_ = new AMPVwStatusControl("Z Motor Sample Stage", "BL1607-B2-1:AddOns:SampleStage:Z:mm:fbk", "BL1607-B2-1:AddOns:SampleStage:Z:mm", "BL1607-B2-1:AddOns:SampleStage:Z:status", "TS1607-2-B21-02:XYZ:stop.PROC", this, 0.005, 10.0);
+	sampleStageX_ = new AMPVwStatusControl("X Motor Sample Stage", "BL1607-B2-1:AddOns:SampleStage:X:mm", "BL1607-B2-1:AddOns:SampleStage:X:mm", "BL1607-B2-1:AddOns:SampleStage:X:status", "TS1607-2-B21-02:XYZ:stop.PROC", this, 0.005, 10.0);
+	sampleStageY_ = new AMPVwStatusControl("Y Motor Sample Stage", "BL1607-B2-1:AddOns:SampleStage:Y:mm", "BL1607-B2-1:AddOns:SampleStage:Y:mm", "BL1607-B2-1:AddOns:SampleStage:Y:status", "TS1607-2-B21-02:XYZ:stop.PROC", this, 0.005, 10.0);
+	sampleStageZ_ = new AMPVwStatusControl("Z Motor Sample Stage", "BL1607-B2-1:AddOns:SampleStage:Z:mm", "BL1607-B2-1:AddOns:SampleStage:Z:mm", "BL1607-B2-1:AddOns:SampleStage:Z:status", "TS1607-2-B21-02:XYZ:stop.PROC", this, 0.005, 10.0);
 
-	sampleStageX_ = new CLSPseudoMotorControl("X Motor Sample Stage", "TS1607-2-B21-02:X:user:mm:sp", "TS1607-2-B21-02:X:user:mm", "TS1607-2-B21-02:X:status", "TS1607-2-B21-02:XYZ:stop.PROC", this, 0.001, 10.0);
-	sampleStageY_ = new CLSPseudoMotorControl("Y Motor Sample Stage", "TS1607-2-B21-02:Y:user:mm:sp", "TS1607-2-B21-02:Y:user:mm", "TS1607-2-B21-02:Y:status", "TS1607-2-B21-02:XYZ:stop.PROC", this, 0.001, 10.0);
-	sampleStageZ_ = new CLSPseudoMotorControl("Z Motor Sample Stage", "TS1607-2-B21-02:Z:user:mm:sp", "TS1607-2-B21-02:Z:user:mm", "TS1607-2-B21-02:Z:status", "TS1607-2-B21-02:XYZ:stop.PROC", this, 0.001, 10.0);
 
 	sampleStageMotorSet_ = new AMControlSet(this);
 	sampleStageMotorSet_->addControl(sampleStageHorizontal_);
@@ -207,22 +210,27 @@ void VESPERSBeamline::setupSampleStage()
 
 	wireStagePID_ = new VESPERSPIDLoopControl("PID - Wire Stage", wireStagePidX_, wireStagePidY_, wireStagePidZ_, this);
 
-	wireStageHorizontal_ = new CLSPseudoMotorControl("Horizontal Wire Stage", "TS1607-2-B21-01:H:user:mm:sp", "TS1607-2-B21-01:H:user:mm", "TS1607-2-B21-01:H:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.01, 10.0);
-	wireStageVertical_ = new CLSPseudoMotorControl("Vertical Wire Stage", "TS1607-2-B21-01:V:user:mm:sp", "TS1607-2-B21-01:V:user:mm", "TS1607-2-B21-01:V:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.01, 10.0);
-	wireStageNormal_ = new CLSPseudoMotorControl("Normal Wire Stage", "TS1607-2-B21-01:N:user:mm:sp", "TS1607-2-B21-01:N:user:mm", "TS1607-2-B21-01:N:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.01, 10.0);
-
-	wireStageHorizontal_->setAttemptMoveWhenWithinTolerance(false);
-	wireStageVertical_->setAttemptMoveWhenWithinTolerance(false);
-	wireStageNormal_->setAttemptMoveWhenWithinTolerance(false);
+//	wireStageHorizontal_ = new AMPVwStatusControl("Horizontal Wire Stage", "BL1607-B2-1:AddOns:WireStage:H:mm:fbk", "BL1607-B2-1:AddOns:WireStage:H:mm", "BL1607-B2-1:AddOns:WireStage:H:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.005, 10.0);
+//	wireStageVertical_ = new AMPVwStatusControl("Vertical Wire Stage", "BL1607-B2-1:AddOns:WireStage:V:mm:fbk", "BL1607-B2-1:AddOns:WireStage:V:mm", "BL1607-B2-1:AddOns:WireStage:V:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.005, 10.0);
+//	wireStageNormal_ = new AMPVwStatusControl("Normal Wire Stage", "BL1607-B2-1:AddOns:WireStage:N:mm:fbk", "BL1607-B2-1:AddOns:WireStage:N:mm", "BL1607-B2-1:AddOns:WireStage:N:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.005, 10.0);
+	wireStageHorizontal_ = new AMPVwStatusControl("Horizontal Wire Stage", "BL1607-B2-1:AddOns:WireStage:H:mm", "BL1607-B2-1:AddOns:WireStage:H:mm", "BL1607-B2-1:AddOns:WireStage:H:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.005, 10.0);
+	wireStageVertical_ = new AMPVwStatusControl("Vertical Wire Stage", "BL1607-B2-1:AddOns:WireStage:V:mm", "BL1607-B2-1:AddOns:WireStage:V:mm", "BL1607-B2-1:AddOns:WireStage:V:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.005, 10.0);
+	wireStageNormal_ = new AMPVwStatusControl("Normal Wire Stage", "BL1607-B2-1:AddOns:WireStage:N:mm", "BL1607-B2-1:AddOns:WireStage:N:mm", "BL1607-B2-1:AddOns:WireStage:N:status", "TS1607-2-B21-01:HNV:stop.PROC", this, 0.005, 10.0);
 
 	// attocube
-	attoStageHorizontal_ = new CLSPseudoMotorControl("Horizontal Atto Stage", "TS1607-2-B21-07:H:user:mm:sp", "TS1607-2-B21-07:H:user:mm", "TS1607-2-B21-07:H:status", "TS1607-2-B21-07:HNV:stop.PROC", this, 0.01, 10.0);
-	attoStageVertical_ = new CLSPseudoMotorControl("Vertical Atto Stage", "TS1607-2-B21-07:V:user:mm:sp", "TS1607-2-B21-07:V:user:mm", "TS1607-2-B21-07:V:status", "TS1607-2-B21-07:HNV:stop.PROC", this, 0.01, 10.0);
-	attoStageNormal_ = new CLSPseudoMotorControl("Normal Atto Stage", "TS1607-2-B21-07:N:user:mm:sp", "TS1607-2-B21-07:N:user:mm", "TS1607-2-B21-07:N:status", "TS1607-2-B21-07:HNV:stop.PROC", this, 0.01, 10.0);
+//	attoStageHorizontal_ = new AMPVwStatusControl("Horizontal Atto Stage", "BL1607-B2-1:AddOns:AttoStage:H:mm:fbk", "BL1607-B2-1:AddOns:AttoStage:H:mm", "BL1607-B2-1:AddOns:AttoStage:H:status", "TS1607-2-B21-07:HNV:stop.PROC", this, 0.005, 10.0);
+//	attoStageVertical_ = new AMPVwStatusControl("Vertical Atto Stage", "BL1607-B2-1:AddOns:AttoStage:V:mm:fbk", "BL1607-B2-1:AddOns:AttoStage:V:mm", "BL1607-B2-1:AddOns:AttoStage:V:status", "TS1607-2-B21-07:HNV:stop.PROC", this, 0.005, 10.0);
+//	attoStageNormal_ = new AMPVwStatusControl("Normal Atto Stage", "BL1607-B2-1:AddOns:AttoStage:N:mm:fbk", "BL1607-B2-1:AddOns:AttoStage:N:mm", "BL1607-B2-1:AddOns:AttoStage:N:status", "TS1607-2-B21-07:HNV:stop.PROC", this, 0.005, 10.0);
+	attoStageHorizontal_ = new AMPVwStatusControl("Horizontal Atto Stage", "BL1607-B2-1:AddOns:AttoStage:H:mm", "BL1607-B2-1:AddOns:AttoStage:H:mm", "BL1607-B2-1:AddOns:AttoStage:H:status", "TS1607-2-B21-07:HNV:stop.PROC", this, 0.005, 10.0);
+	attoStageVertical_ = new AMPVwStatusControl("Vertical Atto Stage", "BL1607-B2-1:AddOns:AttoStage:V:mm", "BL1607-B2-1:AddOns:AttoStage:V:mm", "BL1607-B2-1:AddOns:AttoStage:V:status", "TS1607-2-B21-07:HNV:stop.PROC", this, 0.005, 10.0);
+	attoStageNormal_ = new AMPVwStatusControl("Normal Atto Stage", "BL1607-B2-1:AddOns:AttoStage:N:mm", "BL1607-B2-1:AddOns:AttoStage:N:mm", "BL1607-B2-1:AddOns:AttoStage:N:status", "TS1607-2-B21-07:HNV:stop.PROC", this, 0.005, 10.0);
 
-	attoStageX_ = new CLSPseudoMotorControl("Atto X Stage", "TS1607-2-B21-07:X:user:mm:sp", "TS1607-2-B21-07:X:user:mm", "TS1607-2-B21-07:X:user:status", "TS1607-2-B21-07:XYZ:stop.PROC", this, 0.01, 10.0);
-	attoStageZ_ = new CLSPseudoMotorControl("Atto Z Stage", "TS1607-2-B21-07:Z:user:mm:sp", "TS1607-2-B21-07:Z:user:mm", "TS1607-2-B21-07:Z:user:status", "TS1607-2-B21-07:XYZ:stop.PROC", this, 0.01, 10.0);
-	attoStageY_ = new CLSPseudoMotorControl("Atto Y Stage", "TS1607-2-B21-07:Y:user:mm:sp", "TS1607-2-B21-07:Y:user:mm", "TS1607-2-B21-07:Y:user:status", "TS1607-2-B21-07:XYZ:stop.PROC", this, 0.01, 10.0);
+//	attoStageX_ = new CLSPseudoMotorControl("Atto X Stage", "BL1607-B2-1:AddOns:AttoStage:X:mm:fbk", "BL1607-B2-1:AddOns:AttoStage:X:mm", "BL1607-B2-1:AddOns:AttoStage:X:status", "TS1607-2-B21-07:XYZ:stop.PROC", this, 0.01, 10.0);
+//	attoStageZ_ = new CLSPseudoMotorControl("Atto Z Stage", "BL1607-B2-1:AddOns:AttoStage:Z:mm:fbk", "BL1607-B2-1:AddOns:AttoStage:Z:mm", "BL1607-B2-1:AddOns:AttoStage:Z:status", "TS1607-2-B21-07:XYZ:stop.PROC", this, 0.01, 10.0);
+//	attoStageY_ = new CLSPseudoMotorControl("Atto Y Stage", "BL1607-B2-1:AddOns:AttoStage:Y:mm:fbk", "BL1607-B2-1:AddOns:AttoStage:Y:mm", "BL1607-B2-1:AddOns:AttoStage:Y:status", "TS1607-2-B21-07:XYZ:stop.PROC", this, 0.01, 10.0);
+	attoStageX_ = new AMPVwStatusControl("Atto X Stage", "BL1607-B2-1:AddOns:AttoStage:X:mm", "BL1607-B2-1:AddOns:AttoStage:X:mm", "BL1607-B2-1:AddOns:AttoStage:X:status", "TS1607-2-B21-07:XYZ:stop.PROC", this, 0.01, 10.0);
+	attoStageZ_ = new AMPVwStatusControl("Atto Z Stage", "BL1607-B2-1:AddOns:AttoStage:Z:mm", "BL1607-B2-1:AddOns:AttoStage:Z:mm", "BL1607-B2-1:AddOns:AttoStage:Z:status", "TS1607-2-B21-07:XYZ:stop.PROC", this, 0.01, 10.0);
+	attoStageY_ = new AMPVwStatusControl("Atto Y Stage", "BL1607-B2-1:AddOns:AttoStage:Y:mm", "BL1607-B2-1:AddOns:AttoStage:Y:mm", "BL1607-B2-1:AddOns:AttoStage:Y:status", "TS1607-2-B21-07:XYZ:stop.PROC", this, 0.01, 10.0);
 
 	attoStageRz_ = new AMPVwStatusControl("Atto Phi Stage", "SVM1607-2-B21-09:deg:sp", "SVM1607-2-B21-09:deg", "SVM1607-2-B21-09:status", "SVM1607-2-B21-09:stop.PROC", this, 0.01, 10.0);
 	attoStageRy_ = new AMPVwStatusControl("Atto Theta Stage", "SVM1607-2-B21-07:deg:sp", "SVM1607-2-B21-07:deg", "SVM1607-2-B21-07:status", "SVM1607-2-B21-07:stop.PROC", this, 0.01, 10.0);
@@ -694,6 +702,89 @@ void VESPERSBeamline::setupControlsAsDetectors()
 	fourElementVortexRawSpectrum4_ = new AM1DControlDetectorEmulator("FourElementVortexRawSpectrum4", "Four Element Vortex Raw Spectrum 4", 2048, fourElementVortexRawSpectrumControl4_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 	fourElementVortexRawSpectrum4_->setHiddenFromUsers(true);
 	fourElementVortexRawSpectrum4_->setIsVisible(false);
+
+	// Motors
+	sampleStageHorizontalFeedbackControl_ = new AMReadOnlyPVControl("SampleHFeedback", "BL1607-B2-1:AddOns:SampleStage:H:mm:fbk", this);
+	sampleStageVerticalFeedbackControl_ = new AMReadOnlyPVControl("SampleVFeedback", "BL1607-B2-1:AddOns:SampleStage:V:mm:fbk", this);
+	sampleStageNormalFeedbackControl_ = new AMReadOnlyPVControl("SampleNFeedback", "BL1607-B2-1:AddOns:SampleStage:N:mm:fbk", this);
+	wireStageHorizontalFeedbackControl_ = new AMReadOnlyPVControl("WireHFeedback", "BL1607-B2-1:AddOns:WireStage:H:mm:fbk", this);
+	wireStageVerticalFeedbackControl_ = new AMReadOnlyPVControl("WireVFeedback", "BL1607-B2-1:AddOns:WireStage:V:mm:fbk", this);
+	wireStageNormalFeedbackControl_ = new AMReadOnlyPVControl("WireNFeedback", "BL1607-B2-1:AddOns:WireStage:N:mm:fbk", this);
+	sampleStageXFeedbackControl_ = new AMReadOnlyPVControl("SampleXFeedback", "BL1607-B2-1:AddOns:SampleStage:X:mm:fbk", this);
+	sampleStageYFeedbackControl_ = new AMReadOnlyPVControl("SampleYFeedback", "BL1607-B2-1:AddOns:SampleStage:Y:mm:fbk", this);
+	sampleStageZFeedbackControl_ = new AMReadOnlyPVControl("SampleZFeedback", "BL1607-B2-1:AddOns:SampleStage:Z:mm:fbk", this);
+	attoStageHorizontalFeedbackControl_ = new AMReadOnlyPVControl("AttoHFeedback", "BL1607-B2-1:AddOns:AttoStage:H:mm:fbk", this);
+	attoStageVerticalFeedbackControl_ = new AMReadOnlyPVControl("AttoVFeedback", "BL1607-B2-1:AddOns:AttoStage:V:mm:fbk", this);
+	attoStageNormalFeedbackControl_ = new AMReadOnlyPVControl("AttoNFeedback", "BL1607-B2-1:AddOns:AttoStage:N:mm:fbk", this);
+	attoStageXFeedbackControl_ = new AMReadOnlyPVControl("AttoXFeedback", "BL1607-B2-1:AddOns:AttoStage:X:mm:fbk", this);
+	attoStageZFeedbackControl_ = new AMReadOnlyPVControl("AttoZFeedback", "BL1607-B2-1:AddOns:AttoStage:Z:mm:fbk", this);
+	attoStageYFeedbackControl_ = new AMReadOnlyPVControl("AttoYFeedback", "BL1607-B2-1:AddOns:AttoStage:Y:mm:fbk", this);
+	attoStageRxFeedbackControl_ = new AMReadOnlyPVControl("AttoRxFeedback", "SVM1607-2-B21-08:deg:fbk", this);
+	attoStageRzFeedbackControl_ = new AMReadOnlyPVControl("AttoRzFeedback", "SVM1607-2-B21-09:deg:sp", this);
+	attoStageRyFeedbackControl_ = new AMReadOnlyPVControl("AttoRyFeedback", "SVM1607-2-B21-07:deg:sp", this);
+	bigBeamXFeedbackControl_ = new AMReadOnlyPVControl("BigBeamXFeedback", "SMTR1607-2-B21-36:mm:sp", this);
+	bigBeamZFeedbackControl_ = new AMReadOnlyPVControl("BigBeamZFeedback", "SMTR1607-2-B21-37:mm:sp", this);
+
+	sampleStageHorizontalFeedback_ = new AMBasicControlDetectorEmulator("SampleHFeedback", "Sample H Feedback", sampleStageHorizontalFeedbackControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	sampleStageHorizontalFeedback_->setHiddenFromUsers(true);
+	sampleStageHorizontalFeedback_->setIsVisible(false);
+	sampleStageVerticalFeedback_ = new AMBasicControlDetectorEmulator("SampleVFeedback", "Sample V Feedback", sampleStageVerticalFeedbackControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	sampleStageVerticalFeedback_->setHiddenFromUsers(true);
+	sampleStageVerticalFeedback_->setIsVisible(false);
+	sampleStageNormalFeedback_ = new AMBasicControlDetectorEmulator("SampleNFeedback", "Sample N Feedback", sampleStageNormalFeedbackControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	sampleStageNormalFeedback_->setHiddenFromUsers(true);
+	sampleStageNormalFeedback_->setIsVisible(false);
+	wireStageHorizontalFeedback_ = new AMBasicControlDetectorEmulator("WireHFeedback", "Wire H Feedback", wireStageHorizontalFeedbackControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	wireStageHorizontalFeedback_->setHiddenFromUsers(true);
+	wireStageHorizontalFeedback_->setIsVisible(false);
+	wireStageVerticalFeedback_ = new AMBasicControlDetectorEmulator("WireVFeedback", "Wire V Feedback", wireStageVerticalFeedbackControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	wireStageVerticalFeedback_->setHiddenFromUsers(true);
+	wireStageVerticalFeedback_->setIsVisible(false);
+	wireStageNormalFeedback_ = new AMBasicControlDetectorEmulator("WireNFeedback", "Wire N Feedback", wireStageNormalFeedbackControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	wireStageNormalFeedback_->setHiddenFromUsers(true);
+	wireStageNormalFeedback_->setIsVisible(false);
+	sampleStageXFeedback_ = new AMBasicControlDetectorEmulator("SampleXFeedback", "Sample X Feedback", sampleStageXFeedbackControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	sampleStageXFeedback_->setHiddenFromUsers(true);
+	sampleStageXFeedback_->setIsVisible(false);
+	sampleStageYFeedback_ = new AMBasicControlDetectorEmulator("SampleYFeedback", "Sample Y Feedback", sampleStageYFeedbackControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	sampleStageYFeedback_->setHiddenFromUsers(true);
+	sampleStageYFeedback_->setIsVisible(false);
+	sampleStageZFeedback_ = new AMBasicControlDetectorEmulator("SampleZFeedback", "Sample Z Feedback", sampleStageZFeedbackControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	sampleStageZFeedback_->setHiddenFromUsers(true);
+	sampleStageZFeedback_->setIsVisible(false);
+	attoStageHorizontalFeedback_ = new AMBasicControlDetectorEmulator("AttoHFeedback", "Atto H Feedback", attoStageHorizontalFeedbackControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	attoStageHorizontalFeedback_->setHiddenFromUsers(true);
+	attoStageHorizontalFeedback_->setIsVisible(false);
+	attoStageVerticalFeedback_ = new AMBasicControlDetectorEmulator("AttoVFeedback", "Atto V Feedback", attoStageVerticalFeedbackControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	attoStageVerticalFeedback_->setHiddenFromUsers(true);
+	attoStageVerticalFeedback_->setIsVisible(false);
+	attoStageNormalFeedback_ = new AMBasicControlDetectorEmulator("AttoNFeedback", "Atto N Feedback", attoStageNormalFeedbackControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	attoStageNormalFeedback_->setHiddenFromUsers(true);
+	attoStageNormalFeedback_->setIsVisible(false);
+	attoStageXFeedback_ = new AMBasicControlDetectorEmulator("AttoXFeedback", "Atto X Feedback", attoStageXFeedbackControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	attoStageXFeedback_->setHiddenFromUsers(true);
+	attoStageXFeedback_->setIsVisible(false);
+	attoStageZFeedback_ = new AMBasicControlDetectorEmulator("AttoZFeedback", "Atto Z Feedback", attoStageZFeedbackControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	attoStageZFeedback_->setHiddenFromUsers(true);
+	attoStageZFeedback_->setIsVisible(false);
+	attoStageYFeedback_ = new AMBasicControlDetectorEmulator("AttoYFeedback", "Atto Y Feedback", attoStageYFeedbackControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	attoStageYFeedback_->setHiddenFromUsers(true);
+	attoStageYFeedback_->setIsVisible(false);
+	attoStageRxFeedback_ = new AMBasicControlDetectorEmulator("AttoRxFeedback", "Atto Rx Feedback", attoStageRxFeedbackControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	attoStageRxFeedback_->setHiddenFromUsers(true);
+	attoStageRxFeedback_->setIsVisible(false);
+	attoStageRzFeedback_ = new AMBasicControlDetectorEmulator("AttoRzFeedback", "Atto Rz Feedback", attoStageRzFeedbackControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	attoStageRzFeedback_->setHiddenFromUsers(true);
+	attoStageRzFeedback_->setIsVisible(false);
+	attoStageRyFeedback_ = new AMBasicControlDetectorEmulator("AttoRyFeedback", "Atto Ry Feedback", attoStageRyFeedbackControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	attoStageRyFeedback_->setHiddenFromUsers(true);
+	attoStageRyFeedback_->setIsVisible(false);
+	bigBeamXFeedback_ = new AMBasicControlDetectorEmulator("BigBeamXFeedback", "Big Beam X Feedback", bigBeamXFeedbackControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	bigBeamXFeedback_->setHiddenFromUsers(true);
+	bigBeamXFeedback_->setIsVisible(false);
+	bigBeamZFeedback_ = new AMBasicControlDetectorEmulator("BigBeamZFeedback", "Big Beam Z Feedback", bigBeamXFeedbackControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	bigBeamZFeedback_->setHiddenFromUsers(true);
+	bigBeamZFeedback_->setIsVisible(false);
 }
 
 void VESPERSBeamline::setupExposedControls()
@@ -763,6 +854,28 @@ void VESPERSBeamline::setupExposedDetectors()
 	addExposedDetector(fourElementVortexRawSpectrum2_);
 	addExposedDetector(fourElementVortexRawSpectrum3_);
 	addExposedDetector(fourElementVortexRawSpectrum4_);
+
+	// All the extra motors
+	addExposedDetector(sampleStageHorizontalFeedback_);
+	addExposedDetector(sampleStageVerticalFeedback_);
+	addExposedDetector(sampleStageNormalFeedback_);
+	addExposedDetector(wireStageHorizontalFeedback_);
+	addExposedDetector(wireStageVerticalFeedback_);
+	addExposedDetector(wireStageNormalFeedback_);
+	addExposedDetector(sampleStageXFeedback_);
+	addExposedDetector(sampleStageYFeedback_);
+	addExposedDetector(sampleStageZFeedback_);
+	addExposedDetector(attoStageHorizontalFeedback_);
+	addExposedDetector(attoStageVerticalFeedback_);
+	addExposedDetector(attoStageNormalFeedback_);
+	addExposedDetector(attoStageXFeedback_);
+	addExposedDetector(attoStageZFeedback_);
+	addExposedDetector(attoStageYFeedback_);
+	addExposedDetector(attoStageRxFeedback_);
+	addExposedDetector(attoStageRyFeedback_);
+	addExposedDetector(attoStageYFeedback_);
+	addExposedDetector(bigBeamXFeedback_);
+	addExposedDetector(bigBeamZFeedback_);
 }
 
 AMAction3 *VESPERSBeamline::createBeamChangeAction(VESPERS::Beam beam)

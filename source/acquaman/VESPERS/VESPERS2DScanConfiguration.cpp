@@ -82,7 +82,9 @@ VESPERS2DScanConfiguration::VESPERS2DScanConfiguration(const VESPERS2DScanConfig
 
 AMScanConfiguration *VESPERS2DScanConfiguration::createCopy() const
 {
-	return new VESPERS2DScanConfiguration(*this);
+	AMScanConfiguration *configuration = new VESPERS2DScanConfiguration(*this);
+	configuration->dissociateFromDb(true);
+	return configuration;
 }
 
 AMScanController *VESPERS2DScanConfiguration::createController()

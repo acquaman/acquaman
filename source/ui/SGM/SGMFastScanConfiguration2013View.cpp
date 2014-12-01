@@ -29,10 +29,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QSpinBox>
 #include <QLineEdit>
 #include <QFormLayout>
+#include <QCheckBox>
+#include <QPushButton>
 
 #include "ui/AMTopFrame.h"
+#include "ui/SGM/SGMFastScanCreateSampleScanListView.h"
 
- SGMFastScanConfiguration2013View::~SGMFastScanConfiguration2013View(){}
 SGMFastScanConfiguration2013View::SGMFastScanConfiguration2013View(SGMFastScanConfiguration2013 *sfsc, QWidget *parent) :
 		AMScanConfigurationView(parent)
 {
@@ -46,7 +48,13 @@ SGMFastScanConfiguration2013View::SGMFastScanConfiguration2013View(SGMFastScanCo
 
 		presetsComboBox_ = new QComboBox();
 		presetsComboBox_->addItems(sfsc->presets());
+		if(cfg_->currentPresetIndex() >= 0)
+			presetsComboBox_->setCurrentIndex(cfg_->currentPresetIndex());
 		connect(presetsComboBox_, SIGNAL(currentIndexChanged(int)), sfsc, SLOT(setParametersFromPreset(int)));
+
+		enableUpDownScanningCheckBox_ = new QCheckBox("Up/Down Scanning");
+		enableUpDownScanningCheckBox_->setChecked(cfg_->enableUpDownScanning());
+		connect(enableUpDownScanningCheckBox_, SIGNAL(toggled(bool)), cfg_, SLOT(setEnableUpDownScanning(bool)));
 
 		connect(sfsc, SIGNAL(startPositionChanged()), this, SLOT(onParametersStartPositionChanged()));
 		connect(sfsc, SIGNAL(middlePositionChanged()), this, SLOT(onParametersMiddlePositionChanged()));
@@ -58,6 +66,10 @@ SGMFastScanConfiguration2013View::SGMFastScanConfiguration2013View(SGMFastScanCo
 		warningsFont.setPointSize(48);
 		warningsLabel_->setFont(warningsFont);
 		warningsLabel_->setStyleSheet( "QLabel{ color: red }" );
+
+		setupSampleButton_ = new QPushButton("Set Up Sample Loop");
+		setupSampleView_ = 0;
+		connect(setupSampleButton_, SIGNAL(clicked()), this, SLOT(onSetupSampleButtonClicked()));
 
 		scanNameLabel_ = new QLabel("Scan Name");
 		scanNameEdit_ = new AMRegExpLineEdit("/|;|@|#|<|>", Qt::CaseInsensitive, "/;#>@< characters are not allowed.");
@@ -85,7 +97,9 @@ SGMFastScanConfiguration2013View::SGMFastScanConfiguration2013View(SGMFastScanCo
 
 		QHBoxLayout *presetsLayout = new QHBoxLayout();
 		presetsLayout->addWidget(presetsComboBox_);
-		presetsLayout->addStretch(10);
+		presetsLayout->addSpacing(40);
+		presetsLayout->addWidget(enableUpDownScanningCheckBox_);
+		presetsLayout->addStretch();
 
 		settingsLayout_ = new QVBoxLayout();
 		settingsLayout_->addWidget(fastScanSettingsView_);
@@ -103,6 +117,10 @@ SGMFastScanConfiguration2013View::SGMFastScanConfiguration2013View(SGMFastScanCo
 		hl->addLayout(settingsLayout_);
 		hl->addLayout(positionsLayout);
 
+		QHBoxLayout *setupSampleHL = new QHBoxLayout();
+		setupSampleHL->addWidget(setupSampleButton_);
+		setupSampleHL->addStretch();
+
 		QHBoxLayout *nameHL = new QHBoxLayout();
 		nameHL->addWidget(scanNameLabel_);
 		nameHL->addWidget(scanNameEdit_);
@@ -112,6 +130,7 @@ SGMFastScanConfiguration2013View::SGMFastScanConfiguration2013View(SGMFastScanCo
 		mainLayout->addLayout(hl);
 		mainLayout->addWidget(warningsLabel_);
 		mainLayout->addStretch(10);
+		mainLayout->addLayout(setupSampleHL);
 		mainLayout->addLayout(nameHL);
 
 		QVBoxLayout *vl = new QVBoxLayout();
@@ -128,15 +147,14 @@ SGMFastScanConfiguration2013View::SGMFastScanConfiguration2013View(SGMFastScanCo
 	}
 }
 
-const AMScanConfiguration* SGMFastScanConfiguration2013View::configuration() const{
-	qDebug() << "Calling configuration, count is " << fastDetectorSelector_->selectedDetectorInfos().count();
+SGMFastScanConfiguration2013View::~SGMFastScanConfiguration2013View(){}
 
+const AMScanConfiguration* SGMFastScanConfiguration2013View::configuration() const{
 	cfg_->setDetectorConfigurations(fastDetectorSelector_->selectedDetectorInfos());
 
 	AMControlInfoList list;
 	list.append(SGMBeamline::sgm()->energy()->toInfo());
 	cfg_->setAxisControlInfos(list);
-	qDebug() << "And again, " << cfg_->detectorConfigurations().count();
 
 	return cfg_;
 }
@@ -221,4 +239,20 @@ void SGMFastScanConfiguration2013View::onEndPositionCopyChanged(){
 
 void SGMFastScanConfiguration2013View::onFastScanSettingsCopyChanged(){
 	cfg_->currentParameters()->setFastScanSettings(fastScanSettingsCopy_);
+}
+
+void SGMFastScanConfiguration2013View::onSetupSampleButtonClicked(){
+	if(setupSampleView_)
+		setupSampleView_->close();
+
+	SGMFastScanConfiguration2013 *configurationCopy = qobject_cast<SGMFastScanConfiguration2013*>(configuration()->createCopy());
+	if(configurationCopy){
+		setupSampleView_ = new SGMFastScanCreateSampleScanListView(configurationCopy);
+		connect(setupSampleView_, SIGNAL(destroyed()), this, SLOT(onSetupSampleViewDestroyed()));
+		setupSampleView_->show();
+	}
+}
+
+void SGMFastScanConfiguration2013View::onSetupSampleViewDestroyed(){
+	setupSampleView_ = 0;
 }
