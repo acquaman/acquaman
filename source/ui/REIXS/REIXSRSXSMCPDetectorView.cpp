@@ -26,6 +26,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "QBoxLayout"
 
 #include <cmath>
+#include <QToolBar>
 #include "dataman/datasource/AMDataSourceImageData.h"
 
 #include "MPlot/MPlotTools.h"
@@ -40,6 +41,11 @@ REIXSRSXSMCPDetectorView::REIXSRSXSMCPDetectorView(QWidget *parent) :
 {
 	imageControl_ = new AMReadOnlyPVControl("Memory Buffer", "PDTR0000-01:zippedBuffer");
 	dataSource_ = new REIXSRSXSMCPDataSource("MCP Image" , imageControl_);
+	waysToGetBuffer_ = new AMSinglePVControl("Way to get buffer","PDTR0000-01:waysToGetBuffer");
+	downloadMemory_ = new AMSinglePVControl("Download Memory", "PDTR0000-01:downloadMemory");
+	startAccumulation_ = new AMSinglePVControl("Start Accumulation", "PDTR0000-01:startAccumulation");
+	ROI1Counts_ = new AMReadOnlyPVControl("ROI 1 Counts", "PDTR0000-01:getROICounts");
+
 
 	// create UI elements
 	imageView_ = new MPlotWidget();
@@ -87,8 +93,12 @@ REIXSRSXSMCPDetectorView::REIXSRSXSMCPDetectorView(QWidget *parent) :
 //	imagePlot_->addTool(new MPlotDragZoomerTool);
 //	imagePlot_->addTool(new MPlotWheelZoomerTool);
 
-	adjustColorMapButton_ = new QToolButton();
-	adjustColorMapButton_->setText("Adjust colors...");
+	adjustColorMapButton_ = new QPushButton("Adjust colors...");
+	updateButton_ = new QPushButton("Update Image");
+	acquireButton_ = new QPushButton("Acquire Image");
+
+	ROI1CountsLabel_ = new QLabel(QString(" ROI #1 Counts: %1 ").arg(ROI1Counts_->value()));
+	ROI1CountsLabel_->setStyleSheet("QLabel { background-color : white; color : black; }");
 
 	MPlotDataPositionTool *positionTool = new MPlotDataPositionTool(true);
 	imagePlot_->addTool(positionTool);
@@ -98,11 +108,17 @@ REIXSRSXSMCPDetectorView::REIXSRSXSMCPDetectorView(QWidget *parent) :
 	connect(imagePlot_->signalSource(), SIGNAL(selectedDataRectChanged(QRectF)), this, SLOT(onSelectedDataRectChanged(QRectF)));
 
 	connect(adjustColorMapButton_, SIGNAL(clicked()), this, SLOT(onAdjustColorMapButtonClicked()));
+	connect(updateButton_, SIGNAL(clicked()), this, SLOT(onUpdateButtonClicked()));
+	connect(acquireButton_, SIGNAL(clicked()), this, SLOT(onAcquireButtonClicked()));
+
+
 
 	connect(getTopLeftX1_, SIGNAL(valueChanged(double)), this, SLOT(drawRegions()));
 	connect(getTopLeftY1_, SIGNAL(valueChanged(double)), this, SLOT(drawRegions()));
 	connect(getBottomRightX1_, SIGNAL(valueChanged(double)), this, SLOT(drawRegions()));
 	connect(getBottomRightY1_, SIGNAL(valueChanged(double)), this, SLOT(drawRegions()));
+
+	connect(ROI1Counts_, SIGNAL(valueChanged(double)), SLOT(updateCounts()));
 
 
 
@@ -128,9 +144,20 @@ REIXSRSXSMCPDetectorView::REIXSRSXSMCPDetectorView(QWidget *parent) :
 	imagePlot_->addItem(image_);
 
 	QVBoxLayout *layout = new QVBoxLayout;
+	QHBoxLayout* bottomLayout = new QHBoxLayout();
+
 	layout->addWidget(imageView_);
 
-	layout->addWidget(adjustColorMapButton_);
+	bottomLayout->addWidget(adjustColorMapButton_);
+	bottomLayout->addStretch();
+	bottomLayout->addWidget(ROI1CountsLabel_);
+	bottomLayout->addStretch();
+	bottomLayout->addWidget(acquireButton_);
+	bottomLayout->addWidget(updateButton_);
+
+	layout->addLayout(bottomLayout);
+
+
 
 
 	setLayout(layout);
@@ -153,12 +180,32 @@ void REIXSRSXSMCPDetectorView::onSelectedDataRectChanged(QRectF rect)
 		int bottomRightY1 = qBound(0, qRound(rect.bottomRight().y()),127);
 
 		topLeftX1_->move(topLeftX1);
-		topLeftY1_->move(topLeftY1);
 		bottomRightX1_->move(bottomRightX1);
-		bottomRightY1_ ->move(bottomRightY1);
+
+		topLeftY1_->move(bottomRightY1);
+		bottomRightY1_ ->move(topLeftY1);
+//		topLeftY1_->move(topLeftY1);
+//		bottomRightY1_ ->move(bottomRightY1);
+
 	}
 }
 
+void REIXSRSXSMCPDetectorView::onAcquireButtonClicked()
+{
+	startAccumulation_->move(1);
+}
+
+void REIXSRSXSMCPDetectorView::onUpdateButtonClicked()
+{
+
+	waysToGetBuffer_->move(1);
+	downloadMemory_->move(1);
+}
+
+void REIXSRSXSMCPDetectorView::updateCounts()
+{
+	ROI1CountsLabel_->setText(QString(" ROI #1 Counts: %1 ").arg(ROI1Counts_->value()));
+}
 
 void REIXSRSXSMCPDetectorView::onAdjustColorMapButtonClicked()
 {
@@ -182,7 +229,6 @@ void REIXSRSXSMCPDetectorView::onColorMapChanged(const MPlotColorMap &map)
 	image_->setColorMap(map);
 }
 
-
 void REIXSRSXSMCPDetectorView::drawRegions()
 {
 
@@ -190,7 +236,9 @@ void REIXSRSXSMCPDetectorView::drawRegions()
 	rangeRectangleY1_->setYAxisTarget(imagePlot_->axisScaleLeft());	// note: does nothing if already correct
 
 
-	rangeRectangleY1_->setRect(QRectF(QPoint(getTopLeftX1_->value(),getBottomRightY1_->value()),  QPoint(getBottomRightX1_->value(),  getTopLeftY1_->value())));
+	//rangeRectangleY1_->setRect(QRectF(QPoint(getTopLeftX1_->value(),getBottomRightY1_->value()),  QPoint(getBottomRightX1_->value(),  getTopLeftY1_->value())));
+	rangeRectangleY1_->setRect(QRectF(QPoint(getTopLeftX1_->value(),getTopLeftY1_->value()),  QPoint(getBottomRightX1_->value(),  getBottomRightY1_->value())));
+
 	rangeRectangleY1_->setVisible(true);
 }
 

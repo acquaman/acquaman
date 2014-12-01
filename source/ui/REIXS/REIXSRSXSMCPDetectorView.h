@@ -57,19 +57,31 @@ protected:
 	AMReadOnlyPVControl *imageControl_;
 	AMSinglePVControl *topLeftX1_, *topLeftY1_, *bottomRightX1_, *bottomRightY1_;
 	AMReadOnlyPVControl *getTopLeftX1_, *getTopLeftY1_, *getBottomRightX1_, *getBottomRightY1_;
-	QToolButton *adjustColorMapButton_;
+	QPushButton *adjustColorMapButton_, *updateButton_, *acquireButton_;
+
 	QDialog* colorMapEditor_;
 	MPlotRectangle* rangeRectangleY1_;
+	AMSinglePVControl *waysToGetBuffer_, *downloadMemory_, *startAccumulation_;
+	AMReadOnlyPVControl *ROI1Counts_;
+	QLabel *ROI1CountsLabel_;
 
 protected slots:
+	/// not actually used
 	void onDataPositionChanged(QPointF);
+	/// triggered when a region is drag-selected
 	void onSelectedDataRectChanged(QRectF);
+	/// When button to trigger image download is clicked
+	void onUpdateButtonClicked();
+	/// When button to trigger image acquistiton is clicked
+	void onAcquireButtonClicked();
 	/// When the button to adjust the plot image's color map is clicked
 	void onAdjustColorMapButtonClicked();
 	/// When the color map inside the dialog is changed
 	void onColorMapChanged(const MPlotColorMap& map);
 	/// Draws currently set regions from 'get' PVs
 	void drawRegions();
+	/// Updates the displayed counts when PVs update
+	void updateCounts();
 
 
 
