@@ -33,12 +33,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QLabel>
 #include <QProgressBar>
 #include <QToolButton>
+#include <QRadioButton>
 
 class QDialog;
 class REIXSRSXSMCPDataSource;
 class AMReadOnlyPVControl;
 class AMSinglePVControl;
 class AMReadOnlyPVControl;
+class MPlotDataPositionTool;
 struct MPlotRectangle;
 
 class REIXSRSXSMCPDetectorView : public QWidget
@@ -53,17 +55,23 @@ protected:
 	MPlotWidget* imageView_;
 	MPlot* imagePlot_;
 	MPlotImageBasic* image_;
+	MPlotDataPositionTool *positionTool_;
 	REIXSRSXSMCPDataSource *dataSource_;
 	AMReadOnlyPVControl *imageControl_;
 	AMSinglePVControl *topLeftX1_, *topLeftY1_, *bottomRightX1_, *bottomRightY1_;
+	AMSinglePVControl *topLeftX2_, *topLeftY2_, *bottomRightX2_, *bottomRightY2_;
 	AMReadOnlyPVControl *getTopLeftX1_, *getTopLeftY1_, *getBottomRightX1_, *getBottomRightY1_;
+	AMReadOnlyPVControl *getTopLeftX2_, *getTopLeftY2_, *getBottomRightX2_, *getBottomRightY2_;
 	QPushButton *adjustColorMapButton_, *updateButton_, *acquireButton_;
 
+
 	QDialog* colorMapEditor_;
-	MPlotRectangle* rangeRectangleY1_;
+	MPlotRectangle* rangeRectangle1_, *rangeRectangle2_;
 	AMSinglePVControl *waysToGetBuffer_, *downloadMemory_, *startAccumulation_;
-	AMReadOnlyPVControl *ROI1Counts_;
-	QLabel *ROI1CountsLabel_;
+	AMReadOnlyPVControl *ROI1Counts_,*ROI2Counts_, *totalCounts_;
+	QLabel *ROI1CountsLabel_, *ROI2CountsLabel_, *totalCountsLabel_;
+	QRadioButton *ROI1Select_, *ROI2Select_;
+
 
 protected slots:
 	/// not actually used
@@ -89,96 +97,6 @@ protected slots:
 
 
 
-//class REIXSRSXSMCPDetector;
-
-//class REIXSRSXSMCPDetectorView : public QWidget
-//{
-//	Q_OBJECT
-//public:
-//	REIXSRSXSMCPDetectorView(REIXSRSXSMCPDetector* detector, QWidget *parent = 0);
-//	virtual ~REIXSRSXSMCPDetectorView();
-
-//signals:
-
-//public slots:
-
-//protected slots:
-//	/// When the detector's countsPerSecond changes, we update the text indicator and progress bar.
-//	void onCountsPerSecondChanged(double countsPerSecond);
-//	/// When the user changes which image to view from the selector
-//	void onImageSelectorChanged(int index);
-
-//	/// When the button to adjust the plot image's color map is clicked
-//	void onAdjustColorMapButtonClicked();
-//	/// When the color map inside the dialog is changed
-//	void onColorMapChanged(const MPlotColorMap& map);
-
-//protected:
-//	/// The detector we provide a view for
-//	REIXSRSXSMCPDetector* detector_;
-
-//	/// UI components:
-//	MPlotWidget* imageView_;
-//	MPlot* imagePlot_;
-//	MPlotImageBasic* image_;
-
-
-//	QPushButton* clearButton_;
-//	QComboBox* imageSelector_;
-//	AMControlEditor* averagingPeriodControl_;
-//	AMControlEditor* persistDurationControl_;
-
-//	QLabel* countsPerSecondIndicator_;
-//	QProgressBar* countsPerSecondBar_;
-
-//	QToolButton* adjustColorMapButton_;
-//	QDialog* colorMapEditor_;
-//};
-//class REIXSRSXSMCPDetector;
-
-//class REIXSRSXSMCPDetectorView : public QWidget
-//{
-//	Q_OBJECT
-//public:
-//	REIXSRSXSMCPDetectorView(REIXSRSXSMCPDetector* detector, QWidget *parent = 0);
-//	virtual ~REIXSRSXSMCPDetectorView();
-
-//signals:
-
-//public slots:
-
-//protected slots:
-//	/// When the detector's countsPerSecond changes, we update the text indicator and progress bar.
-//	void onCountsPerSecondChanged(double countsPerSecond);
-//	/// When the user changes which image to view from the selector
-//	void onImageSelectorChanged(int index);
-
-//	/// When the button to adjust the plot image's color map is clicked
-//	void onAdjustColorMapButtonClicked();
-//	/// When the color map inside the dialog is changed
-//	void onColorMapChanged(const MPlotColorMap& map);
-
-//protected:
-//	/// The detector we provide a view for
-//	REIXSRSXSMCPDetector* detector_;
-
-//	/// UI components:
-//	MPlotWidget* imageView_;
-//	MPlot* imagePlot_;
-//	MPlotImageBasic* image_;
-
-
-//	QPushButton* clearButton_;
-//	QComboBox* imageSelector_;
-//	AMControlEditor* averagingPeriodControl_;
-//	AMControlEditor* persistDurationControl_;
-
-//	QLabel* countsPerSecondIndicator_;
-//	QProgressBar* countsPerSecondBar_;
-
-//	QToolButton* adjustColorMapButton_;
-//	QDialog* colorMapEditor_;
-//};
 
 
 #endif // REIXSRSXSMCPDETECTORVIEW_H

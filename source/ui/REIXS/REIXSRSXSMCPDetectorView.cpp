@@ -44,7 +44,6 @@ REIXSRSXSMCPDetectorView::REIXSRSXSMCPDetectorView(QWidget *parent) :
 	waysToGetBuffer_ = new AMSinglePVControl("Way to get buffer","PDTR0000-01:waysToGetBuffer");
 	downloadMemory_ = new AMSinglePVControl("Download Memory", "PDTR0000-01:downloadMemory");
 	startAccumulation_ = new AMSinglePVControl("Start Accumulation", "PDTR0000-01:startAccumulation");
-	ROI1Counts_ = new AMReadOnlyPVControl("ROI 1 Counts", "PDTR0000-01:getROICounts");
 
 
 	// create UI elements
@@ -55,26 +54,54 @@ REIXSRSXSMCPDetectorView::REIXSRSXSMCPDetectorView(QWidget *parent) :
 
 	colorMapEditor_ = 0;
 
-	topLeftX1_ = new AMSinglePVControl("Top Left X 1", "PDTR0000-01:setLeftTopX");
-	topLeftY1_ = new AMSinglePVControl("Top Left Y 1", "PDTR0000-01:setLeftTopY");
-	bottomRightX1_ = new AMSinglePVControl("Bottom Right X 1", "PDTR0000-01:setRightBottomX");
-	bottomRightY1_ = new AMSinglePVControl("Bottom Right Y 1", "PDTR0000-01:setRightBottomY");
+	topLeftX1_ = new AMSinglePVControl("Top Left X 1", "PDTR0000-01:setLeftTopX1");
+	topLeftY1_ = new AMSinglePVControl("Top Left Y 1", "PDTR0000-01:setLeftTopY1");
+	bottomRightX1_ = new AMSinglePVControl("Bottom Right X 1", "PDTR0000-01:setRightBottomX1");
+	bottomRightY1_ = new AMSinglePVControl("Bottom Right Y 1", "PDTR0000-01:setRightBottomY1");
+	ROI1Counts_ = new AMReadOnlyPVControl("ROI 1 Counts", "PDTR0000-01:getRoi1Counts");
+
+
+	topLeftX2_ = new AMSinglePVControl("Top Left X 2", "PDTR0000-01:setLeftTopX2");
+	topLeftY2_ = new AMSinglePVControl("Top Left Y 2", "PDTR0000-01:setLeftTopY2");
+	bottomRightX2_ = new AMSinglePVControl("Bottom Right X 2", "PDTR0000-01:setRightBottomX2");
+	bottomRightY2_ = new AMSinglePVControl("Bottom Right Y 2", "PDTR0000-01:setRightBottomY2");
+	ROI2Counts_ = new AMReadOnlyPVControl("ROI 2 Counts", "PDTR0000-01:getRoi2Counts");
+
+	totalCounts_ = new AMReadOnlyPVControl("Total Counts", "PDTR0000-01:getTotalCounts");
+
 
 
 
 	//Rectangle Displays currnet region 1 rectangle
 	QColor white(Qt::white);
 	white.setAlphaF(0.4);
-	rangeRectangleY1_ = new MPlotRectangle(QRectF(0,0,10,10), Qt::NoPen, QBrush(white));
-	rangeRectangleY1_->setSelectable(false);
-	rangeRectangleY1_->setIgnoreWhenAutoScaling(true);
-	rangeRectangleY1_->setZValue(3000);
-	imagePlot_->addItem(rangeRectangleY1_);
+	rangeRectangle1_ = new MPlotRectangle(QRectF(0,0,10,10), Qt::NoPen, QBrush(white));
+	rangeRectangle1_->setSelectable(false);
+	rangeRectangle1_->setIgnoreWhenAutoScaling(true);
+	rangeRectangle1_->setZValue(3000);
+	imagePlot_->addItem(rangeRectangle1_);
 
-	getTopLeftX1_ = new AMReadOnlyPVControl("Top Left X 1 readback", "PDTR0000-01:getLeftTopX");
-	getTopLeftY1_ = new AMReadOnlyPVControl("Top Left Y 1 readback", "PDTR0000-01:getLeftTopY");
-	getBottomRightX1_ = new AMReadOnlyPVControl("Bottom Right X 1 readback", "PDTR0000-01:getRightBottomX");
-	getBottomRightY1_ = new AMReadOnlyPVControl("Bottom Right Y 1 readback", "PDTR0000-01:getRightBottomY");
+	//Rectangle Displays currnet region 2 rectangle
+	QColor black(Qt::black);
+	black.setAlphaF(0.4);
+	rangeRectangle2_ = new MPlotRectangle(QRectF(0,0,10,10), Qt::NoPen, QBrush(black));
+	rangeRectangle2_->setSelectable(false);
+	rangeRectangle2_->setIgnoreWhenAutoScaling(true);
+	rangeRectangle2_->setZValue(3000);
+	imagePlot_->addItem(rangeRectangle2_);
+
+
+
+	getTopLeftX1_ = new AMReadOnlyPVControl("Top Left X 1 readback", "PDTR0000-01:getLeftTopX1");
+	getTopLeftY1_ = new AMReadOnlyPVControl("Top Left Y 1 readback", "PDTR0000-01:getLeftTopY1");
+	getBottomRightX1_ = new AMReadOnlyPVControl("Bottom Right X 1 readback", "PDTR0000-01:getRightBottomX1");
+	getBottomRightY1_ = new AMReadOnlyPVControl("Bottom Right Y 1 readback", "PDTR0000-01:getRightBottomY1");
+
+	getTopLeftX2_ = new AMReadOnlyPVControl("Top Left X 2 readback", "PDTR0000-01:getLeftTopX2");
+	getTopLeftY2_ = new AMReadOnlyPVControl("Top Left Y 2 readback", "PDTR0000-01:getLeftTopY2");
+	getBottomRightX2_ = new AMReadOnlyPVControl("Bottom Right X 2 readback", "PDTR0000-01:getRightBottomX2");
+	getBottomRightY2_ = new AMReadOnlyPVControl("Bottom Right Y 2 readback", "PDTR0000-01:getRightBottomY2");
+
 
 
 	// configure UI elements
@@ -100,11 +127,23 @@ REIXSRSXSMCPDetectorView::REIXSRSXSMCPDetectorView(QWidget *parent) :
 	ROI1CountsLabel_ = new QLabel(QString(" ROI #1 Counts: %1 ").arg(ROI1Counts_->value()));
 	ROI1CountsLabel_->setStyleSheet("QLabel { background-color : white; color : black; }");
 
-	MPlotDataPositionTool *positionTool = new MPlotDataPositionTool(true);
-	imagePlot_->addTool(positionTool);
-	positionTool->setDataPositionIndicator(imagePlot_->axisScaleBottom(), imagePlot_->axisScaleLeft());
+	ROI2CountsLabel_ = new QLabel(QString(" ROI #2 Counts: %1 ").arg(ROI2Counts_->value()));
+	ROI2CountsLabel_->setStyleSheet("QLabel { background-color : black; color : white; }");
 
-	//connect(imagePlot_->signalSource(), SIGNAL(dataPositionChanged(QPointF)), this, SLOT(onDataPositionChanged(QPointF)));
+	totalCountsLabel_ = new QLabel(QString(" Total Counts: %1 ").arg(totalCounts_->value()));
+
+
+	QVBoxLayout *ROIRadioButtons = new QVBoxLayout;
+	ROI1Select_ = new QRadioButton("Set ROI #&1");
+	ROI2Select_ = new QRadioButton("Set ROI #&2");
+	ROI1Select_->setChecked(true);
+	ROIRadioButtons->addWidget(ROI1Select_);
+	ROIRadioButtons->addWidget(ROI2Select_);
+
+	positionTool_ = new MPlotDataPositionTool(true);
+	imagePlot_->addTool(positionTool_);
+	positionTool_->setDataPositionIndicator(imagePlot_->axisScaleBottom(), imagePlot_->axisScaleLeft());
+
 	connect(imagePlot_->signalSource(), SIGNAL(selectedDataRectChanged(QRectF)), this, SLOT(onSelectedDataRectChanged(QRectF)));
 
 	connect(adjustColorMapButton_, SIGNAL(clicked()), this, SLOT(onAdjustColorMapButtonClicked()));
@@ -117,8 +156,17 @@ REIXSRSXSMCPDetectorView::REIXSRSXSMCPDetectorView(QWidget *parent) :
 	connect(getTopLeftY1_, SIGNAL(valueChanged(double)), this, SLOT(drawRegions()));
 	connect(getBottomRightX1_, SIGNAL(valueChanged(double)), this, SLOT(drawRegions()));
 	connect(getBottomRightY1_, SIGNAL(valueChanged(double)), this, SLOT(drawRegions()));
+	connect(getTopLeftX2_, SIGNAL(valueChanged(double)), this, SLOT(drawRegions()));
+	connect(getTopLeftY2_, SIGNAL(valueChanged(double)), this, SLOT(drawRegions()));
+	connect(getBottomRightX2_, SIGNAL(valueChanged(double)), this, SLOT(drawRegions()));
+	connect(getBottomRightY2_, SIGNAL(valueChanged(double)), this, SLOT(drawRegions()));
+
 
 	connect(ROI1Counts_, SIGNAL(valueChanged(double)), SLOT(updateCounts()));
+	connect(ROI2Counts_, SIGNAL(valueChanged(double)), SLOT(updateCounts()));
+	connect(totalCounts_, SIGNAL(valueChanged(double)), SLOT(updateCounts()));
+
+
 
 
 
@@ -146,11 +194,17 @@ REIXSRSXSMCPDetectorView::REIXSRSXSMCPDetectorView(QWidget *parent) :
 	QVBoxLayout *layout = new QVBoxLayout;
 	QHBoxLayout* bottomLayout = new QHBoxLayout();
 
+	QVBoxLayout *ROICountslayout = new QVBoxLayout;
+	ROICountslayout->addWidget(ROI1CountsLabel_);
+	ROICountslayout->addWidget(ROI2CountsLabel_);
+
 	layout->addWidget(imageView_);
 
 	bottomLayout->addWidget(adjustColorMapButton_);
 	bottomLayout->addStretch();
-	bottomLayout->addWidget(ROI1CountsLabel_);
+	bottomLayout->addLayout(ROICountslayout);
+	bottomLayout->addLayout(ROIRadioButtons);
+	bottomLayout->addWidget(totalCountsLabel_);
 	bottomLayout->addStretch();
 	bottomLayout->addWidget(acquireButton_);
 	bottomLayout->addWidget(updateButton_);
@@ -174,18 +228,27 @@ void REIXSRSXSMCPDetectorView::onSelectedDataRectChanged(QRectF rect)
 {
 	if(rect.size() != QSize(0,0))
 	{
-		int topLeftX1 = qBound(0, qRound(rect.topLeft().x()),127);
-		int topLeftY1 = qBound(0, qRound(rect.topLeft().y()),127);
-		int bottomRightX1 = qBound(0, qRound(rect.bottomRight().x()),127);
-		int bottomRightY1 = qBound(0, qRound(rect.bottomRight().y()),127);
 
-		topLeftX1_->move(topLeftX1);
-		bottomRightX1_->move(bottomRightX1);
 
-		topLeftY1_->move(bottomRightY1);
-		bottomRightY1_ ->move(topLeftY1);
-//		topLeftY1_->move(topLeftY1);
-//		bottomRightY1_ ->move(bottomRightY1);
+		int topLeftX = qBound(0, qRound(rect.topLeft().x()),127);
+		int topLeftY = qBound(0, qRound(rect.topLeft().y()),127);
+		int bottomRightX = qBound(0, qRound(rect.bottomRight().x()),127);
+		int bottomRightY = qBound(0, qRound(rect.bottomRight().y()),127);
+
+		if(ROI1Select_->isChecked())
+		{
+		topLeftX1_->move(topLeftX);
+		bottomRightX1_->move(bottomRightX);
+		topLeftY1_->move(bottomRightY);
+		bottomRightY1_ ->move(topLeftY);
+		}
+		else if(ROI2Select_->isChecked())
+		{
+		topLeftX2_->move(topLeftX);
+		bottomRightX2_->move(bottomRightX);
+		topLeftY2_->move(bottomRightY);
+		bottomRightY2_ ->move(topLeftY);
+		}
 
 	}
 }
@@ -205,6 +268,9 @@ void REIXSRSXSMCPDetectorView::onUpdateButtonClicked()
 void REIXSRSXSMCPDetectorView::updateCounts()
 {
 	ROI1CountsLabel_->setText(QString(" ROI #1 Counts: %1 ").arg(ROI1Counts_->value()));
+	ROI2CountsLabel_->setText(QString(" ROI #2 Counts: %1 ").arg(ROI2Counts_->value()));
+	totalCountsLabel_->setText(QString(" Total Counts: %1 ").arg(totalCounts_->value()));
+
 }
 
 void REIXSRSXSMCPDetectorView::onAdjustColorMapButtonClicked()
@@ -232,192 +298,27 @@ void REIXSRSXSMCPDetectorView::onColorMapChanged(const MPlotColorMap &map)
 void REIXSRSXSMCPDetectorView::drawRegions()
 {
 
-	rangeRectangleY1_->setXAxisTarget(imagePlot_->axisScaleBottom());	// note: does nothing if already correct
-	rangeRectangleY1_->setYAxisTarget(imagePlot_->axisScaleLeft());	// note: does nothing if already correct
+	rangeRectangle1_->setXAxisTarget(imagePlot_->axisScaleBottom());	// note: does nothing if already correct
+	rangeRectangle1_->setYAxisTarget(imagePlot_->axisScaleLeft());	// note: does nothing if already correct
 
 
 	//rangeRectangleY1_->setRect(QRectF(QPoint(getTopLeftX1_->value(),getBottomRightY1_->value()),  QPoint(getBottomRightX1_->value(),  getTopLeftY1_->value())));
-	rangeRectangleY1_->setRect(QRectF(QPoint(getTopLeftX1_->value(),getTopLeftY1_->value()),  QPoint(getBottomRightX1_->value(),  getBottomRightY1_->value())));
+	rangeRectangle1_->setRect(QRectF(QPoint(getTopLeftX1_->value(),getTopLeftY1_->value()),  QPoint(getBottomRightX1_->value(),  getBottomRightY1_->value())));
 
-	rangeRectangleY1_->setVisible(true);
+	rangeRectangle1_->setVisible(true);
+
+	rangeRectangle2_->setXAxisTarget(imagePlot_->axisScaleBottom());	// note: does nothing if already correct
+	rangeRectangle2_->setYAxisTarget(imagePlot_->axisScaleLeft());	// note: does nothing if already correct
+
+
+	//rangeRectangleY2_->setRect(QRectF(QPoint(getTopLeftX2_->value(),getBottomRightY2_->value()),  QPoint(getBottomRightX2_->value(),  getTopLeftY2_->value())));
+	rangeRectangle2_->setRect(QRectF(QPoint(getTopLeftX2_->value(),getTopLeftY2_->value()),  QPoint(getBottomRightX2_->value(),  getBottomRightY2_->value())));
+
+	rangeRectangle2_->setVisible(true);
+
+
+
 }
 
 
-
-// REIXSRSXSMCPDetectorView::~REIXSRSXSMCPDetectorView(){}
-////REIXSRSXSMCPDetectorView::REIXSRSXSMCPDetectorView(REIXSRSXSMCPDetectorPre2013* detector, QWidget *parent) :
-//REIXSRSXSMCPDetectorView::REIXSRSXSMCPDetectorView(REIXSRSXSMCPDetector* detector, QWidget *parent) :
-//	QWidget(parent)
-//{
-//	detector_ = detector;
-
-//	// create UI elementstrue
-//	imageView_ = new MPlotWidget();
-//	imagePlot_ = new MPlot();
-//	imageView_->setPlot(imagePlot_);
-//	image_ = new MPlotImageBasic();
-
-//	clearButton_ = new QPushButton("Clear All Counts");
-
-//	imageSelector_ = new QComboBox();
-//	averagingPeriodControl_ = new AMControlEditor(detector_->averagingPeriodControl());
-
-//	persistDurationControl_ = new AMControlEditor(detector_->persistDurationControl());
-
-//	countsPerSecondIndicator_ = new QLabel();
-//	countsPerSecondIndicator_->setFixedWidth(70);
-//	countsPerSecondIndicator_->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
-//	countsPerSecondBar_ = new QProgressBar();
-
-//	colorMapEditor_ = 0;
-
-//	///////////////////////
-
-//	// configure UI elements
-
-//	image_->setDescription("XES Detector Image");
-
-//	imagePlot_->axisScaleLeft()->setAutoScaleEnabled();
-//	imagePlot_->axisScaleBottom()->setAutoScaleEnabled();
-//	imagePlot_->axisScaleLeft()->setPadding(1);
-//	imagePlot_->axisScaleBottom()->setPadding(1);
-
-//	imagePlot_->addTool(new MPlotDragZoomerTool);
-//	imagePlot_->addTool(new MPlotWheelZoomerTool);
-
-//	imagePlot_->setMarginBottom(10);
-//	imagePlot_->setMarginLeft(10);
-//	imagePlot_->setMarginRight(5);
-//	imagePlot_->setMarginTop(5);
-
-
-//	imagePlot_->plotArea()->setBrush(QBrush(QColor(Qt::white)));
-//	imagePlot_->axisRight()->setTicks(4);
-//	imagePlot_->axisBottom()->setTicks(4);
-//	imagePlot_->axisLeft()->showGrid(false);
-//	imagePlot_->axisBottom()->showAxisName(false);
-//	imagePlot_->axisLeft()->showAxisName(false);
-
-//	MPlotColorMap colorMap(MPlotColorMap::Bone);
-//	colorMap.setContrast(2.1);
-//	colorMap.setBrightness(0.08);
-//	colorMap.setGamma(1.0);
-//	image_->setColorMap(colorMap);
-//	imagePlot_->addItem(image_);
-
-//	imageSelector_->addItem("Realtime Image");
-//	imageSelector_->addItem("Accumulated Image");
-//	imageSelector_->addItem("None");
-
-//	countsPerSecondBar_->setOrientation(Qt::Vertical);
-//	countsPerSecondBar_->setRange(0, 600);
-//	countsPerSecondBar_->setValue(0);
-//	countsPerSecondBar_->setFormat(QString());
-
-//	adjustColorMapButton_ = new QToolButton();
-//	adjustColorMapButton_->setText("Adjust colors...");
-
-//	///////////////////////
-
-//	// create layout
-//	QVBoxLayout* vl = new QVBoxLayout();
-//	QHBoxLayout* hl1 = new QHBoxLayout();
-//	QHBoxLayout* hl2 = new QHBoxLayout();
-//	QHBoxLayout* hl3 = new QHBoxLayout();
-//	QVBoxLayout* vl1 = new QVBoxLayout();
-
-//	hl1->addWidget(imageView_);
-//	vl1->addWidget(countsPerSecondBar_);
-//	vl1->addWidget(countsPerSecondIndicator_);
-//	hl1->addLayout(vl1);
-
-//	hl2->addWidget(adjustColorMapButton_);
-//	hl2->addStretch();
-//	hl2->addWidget(imageSelector_);
-//	hl2->addWidget(clearButton_);
-
-//	hl3->addWidget(new QLabel("Persist:"));
-//	hl3->addWidget(persistDurationControl_);
-//	hl3->addWidget(new QLabel("Averaging Period:"));
-//	hl3->addWidget(averagingPeriodControl_);
-
-//	vl->addLayout(hl1);
-//	vl->addLayout(hl2);
-//	vl->addLayout(hl3);
-
-//	setLayout(vl);
-
-//	//////////////////////
-
-//	// hookup signals:
-//	connect(clearButton_, SIGNAL(clicked()), detector_, SLOT(clear()));
-//	connect(imageSelector_, SIGNAL(currentIndexChanged(int)), this, SLOT(onImageSelectorChanged(int)));
-//	connect(detector_, SIGNAL(countsPerSecondChanged(double)), this, SLOT(onCountsPerSecondChanged(double)));
-
-//	connect(adjustColorMapButton_, SIGNAL(clicked()), this, SLOT(onAdjustColorMapButtonClicked()));
-
-
-//	//////////////////////////
-
-//	// connect the real-time data source to the plot image.
-//	onCountsPerSecondChanged(0);
-//	onImageSelectorChanged(0);
-
-//}
-
-//void REIXSRSXSMCPDetectorView::onCountsPerSecondChanged(double countsPerSecond) {
-
-
-//	countsPerSecondIndicator_->setText(QString("%1").arg(countsPerSecond, 0, 'e', 1));
-
-//	// log(0) is undefined...
-//	if(countsPerSecond == 0)
-//		countsPerSecond = 1;
-
-//	countsPerSecondBar_->setValue(int(log10(countsPerSecond)*100));	// integer scale goes up to 600.  Highest count rate we'll see is 1e6.
-//}
-
-
-//void REIXSRSXSMCPDetectorView::onImageSelectorChanged(int index) {
-
-//	if(index == 0) {
-//		AMDataSourceImageData *model = new AMDataSourceImageData;
-//		model->setDataSource(detector_->instantaneousImage());
-//		image_->setModel(model, true);
-//		image_->setDescription("Real-time XES Detector Image");
-//	}
-//	else if(index == 1) {
-//		AMDataSourceImageData *model = new AMDataSourceImageData;
-//		model->setDataSource(detector_->image());
-//		image_->setModel(model, true);
-//		image_->setDescription("Accumulated XES Detector Image");
-//	}
-//	else {
-//		image_->setModel(0, true);
-//		image_->setDescription(QString());
-//	}
-
-//}
-
-//void REIXSRSXSMCPDetectorView::onAdjustColorMapButtonClicked()
-//{
-//	if(!colorMapEditor_) {
-//		colorMapEditor_ = new QDialog(adjustColorMapButton_);
-//		colorMapEditor_->setAttribute(Qt::WA_TranslucentBackground);
-//		QVBoxLayout* vl = new QVBoxLayout();
-//		vl->setContentsMargins(0,0,0,0);
-//		AMImagePropertyEditor* ipe = new AMImagePropertyEditor(image_->colorMap());
-//		vl->addWidget(ipe);
-//		colorMapEditor_->setLayout(vl);
-
-//		connect(ipe, SIGNAL(colorMapChanged(MPlotColorMap)), this, SLOT(onColorMapChanged(MPlotColorMap)));
-//	}
-
-//	colorMapEditor_->show();
-//}
-
-//void REIXSRSXSMCPDetectorView::onColorMapChanged(const MPlotColorMap &map)
-//{
-//	image_->setColorMap(map);
-//}
 
