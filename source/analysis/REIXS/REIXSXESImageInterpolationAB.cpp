@@ -25,6 +25,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 REIXSXESImageInterpolationAB::REIXSXESImageInterpolationAB(const QString &outputName, QObject *parent) :
 	AMStandardAnalysisBlock(outputName, parent)
 {
+	// Live correlation turned off by default. Prevents correlation while loading from db and no shift is really better than a random shift initially.
+	liveCorrelation_ = false;
 
 	curve1Smoother_ = 0;
 	curve2Smoother_ = 0;
@@ -44,9 +46,6 @@ REIXSXESImageInterpolationAB::REIXSXESImageInterpolationAB(const QString &output
 	energyCalibrationOffset_ = 0;
 	tiltCalibrationOffset_ = 0;
 
-	// Live correlation turned on by default. Need to make sure that this is OK for performance, it should be now that we're using block access.
-	liveCorrelation_ = true;
-	// shift values can start out empty.
 
 	inputSource_ = 0;
 	cacheInvalid_ = true;
@@ -56,19 +55,14 @@ REIXSXESImageInterpolationAB::REIXSXESImageInterpolationAB(const QString &output
 	// leave sources_ empty for now.
 
 	axes_ << AMAxisInfo("invalid", 0, "No input data");
-
 	connect(&callCorrelation_, SIGNAL(executed()), this, SLOT(correlateNow()));
 	setDescription("XES Interpolated Spectrum");
 
 	interpolationLevel_ = 10;
+	// shift values can start out empty.
 	shiftValues1_ << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0;
 	shiftValues2_ << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0 << 0;
 
-
-
-	/*
-	shiftValues2_.clear();
-	*/
 }
 
 REIXSXESImageInterpolationAB::~REIXSXESImageInterpolationAB() {
@@ -106,7 +100,9 @@ void REIXSXESImageInterpolationAB::setSumRangeMinY(int sumRangeMinY)
 
 	sumRangeMinY_ = sumRangeMinY;
 	if(liveCorrelation())
+	{
 		callCorrelation_.schedule();
+	}
 
 	cacheInvalid_ = true;
 	reviewState();
@@ -122,7 +118,9 @@ void REIXSXESImageInterpolationAB::setSumRangeMaxY(int sumRangeMaxY)
 
 	sumRangeMaxY_ = sumRangeMaxY;
 	if(liveCorrelation())
+	{
 		callCorrelation_.schedule();
+	}
 
 	cacheInvalid_ = true;
 	reviewState();
@@ -139,7 +137,9 @@ void REIXSXESImageInterpolationAB::setSumRangeMinX(int sumRangeMinX)
 
 	sumRangeMinX_ = sumRangeMinX;
 	if(liveCorrelation())
+	{
 		callCorrelation_.schedule();
+	}
 
 	cacheInvalid_ = true;
 	reviewState();
@@ -155,7 +155,9 @@ void REIXSXESImageInterpolationAB::setSumRangeMaxX(int sumRangeMaxX)
 
 	sumRangeMaxX_ = sumRangeMaxX;
 	if(liveCorrelation())
+	{
 		callCorrelation_.schedule();
+	}
 
 	cacheInvalid_ = true;
 	reviewState();
@@ -184,8 +186,8 @@ void REIXSXESImageInterpolationAB::setShiftValues2(const AMIntList &shiftValues2
 {
 	if(shiftValues2 == shiftValues2_)
 		return;
-
 	shiftValues2_ = shiftValues2;
+
 	cacheInvalid_ = true;	// could change all our cached values
 	reviewState();	// might change the state to valid, if we didn't have proper number of shift values before.
 
@@ -202,7 +204,9 @@ void REIXSXESImageInterpolationAB::setRangeRound(double rangeRound)
 
 	rangeRound_ = rangeRound;
 	if(liveCorrelation())
+	{
 		callCorrelation_.schedule();
+	}
 
 	cacheInvalid_ = true;
 	reviewState();
@@ -586,9 +590,10 @@ void REIXSXESImageInterpolationAB::onInputSourceValuesChanged(const AMnDIndex &s
 	Q_UNUSED(start)
 	Q_UNUSED(end)
 
-	// THIS MAY NEED TO BE REMOVED IF CORRELATING ON EVERY DATA UPDATE IS TOO SLOW
 	if(liveCorrelation())
+	{
 		callCorrelation_.schedule();
+	}
 
 	// invalidate the cache.
 	cacheInvalid_ = true;
@@ -609,7 +614,9 @@ void REIXSXESImageInterpolationAB::onInputSourceSizeChanged()
 	}
 
 	if(liveCorrelation())
+	{
 		callCorrelation_.schedule();
+	}
 
 	// If the sumRangeMin/sumRangeMax were out of range before, they might be valid now.
 	reviewState();
@@ -634,7 +641,9 @@ void REIXSXESImageInterpolationAB::setCorrelation1CenterPixel(int centerPx)
 
 	correlation1CenterPx_ = centerPx;
 	if(liveCorrelation())
+	{
 		callCorrelation_.schedule();
+	}
 
 	setModified(true);
 }
@@ -646,7 +655,9 @@ void REIXSXESImageInterpolationAB::setCorrelation1HalfWidth(int width)
 
 	correlation1HalfWidth_ = width;
 	if(liveCorrelation())
+	{
 		callCorrelation_.schedule();
+	}
 
 	setModified(true);
 }
@@ -658,7 +669,9 @@ void REIXSXESImageInterpolationAB::setCorrelation2CenterPixel(int centerPx)
 
 	correlation2CenterPx_ = centerPx;
 	if(liveCorrelation())
+	{
 		callCorrelation_.schedule();
+	}
 
 	setModified(true);
 }
@@ -667,10 +680,11 @@ void REIXSXESImageInterpolationAB::setCorrelation2HalfWidth(int width)
 {
 	if(correlation2HalfWidth_ == width)
 		return;
-
 	correlation2HalfWidth_ = width;
 	if(liveCorrelation())
+	{
 		callCorrelation_.schedule();
+	}
 
 	setModified(true);
 }
@@ -682,14 +696,16 @@ void REIXSXESImageInterpolationAB::enableLiveCorrelation(bool enabled)
 
 	liveCorrelation_ = enabled;
 	if(liveCorrelation_)
+	{
 		callCorrelation_.schedule();
+	}
 
 	setModified(true);
-	qDebug() << "Live correlation enabled is now:" << liveCorrelation_;
 }
 
 void REIXSXESImageInterpolationAB::correlateNow()
 {
+
 
 	if(!inputSource_ || !inputSource_->isValid())
 		return;
@@ -1038,7 +1054,9 @@ void REIXSXESImageInterpolationAB::setCorrelation1SmoothingType(int type)
 	emitValuesChanged();
 
 	if(liveCorrelation())
-			callCorrelation_.schedule();
+	{
+		callCorrelation_.schedule();
+	}
 
 	setModified(true);
 
@@ -1051,7 +1069,9 @@ void REIXSXESImageInterpolationAB::setCorrelation1SmoothingMode(int mode)
 	emitValuesChanged();
 
 	if(liveCorrelation())
+	{
 		callCorrelation_.schedule();
+	}
 
 	setModified(true);
 
@@ -1091,9 +1111,10 @@ void REIXSXESImageInterpolationAB::setCorrelation1Smoothing(QPair<int,int> cSmoo
 		break;
 	}
 
-
 	if(liveCorrelation())
-			callCorrelation_.schedule();
+	{
+		callCorrelation_.schedule();
+	}
 
 	setModified(true);
 }
@@ -1109,7 +1130,9 @@ void REIXSXESImageInterpolationAB::setCorrelation2SmoothingType(int type)
 	emitValuesChanged();
 
 	if(liveCorrelation())
+	{
 		callCorrelation_.schedule();
+	}
 
 	setModified(true);
 
@@ -1122,7 +1145,9 @@ void REIXSXESImageInterpolationAB::setCorrelation2SmoothingMode(int mode)
 	emitValuesChanged();
 
 	if(liveCorrelation())
+	{
 		callCorrelation_.schedule();
+	}
 
 	setModified(true);
 
@@ -1164,7 +1189,9 @@ void REIXSXESImageInterpolationAB::setCorrelation2Smoothing(QPair<int,int> cSmoo
 
 
 	if(liveCorrelation())
+	{
 		callCorrelation_.schedule();
+	}
 
 	setModified(true);
 }
