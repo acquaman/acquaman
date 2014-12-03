@@ -12,7 +12,7 @@ public:
 	/// Constructor.  Builds a more detailed view for SXRMBBrukerDetector.
 	SXRMBXRFDetailedDetectorView(SXRMBBrukerDetector *detector, QWidget *parent = 0);
 	/// Destructor.
-	~SXRMBXRFDetailedDetectorView();
+	virtual ~SXRMBXRFDetailedDetectorView();
 
 	/// enable the deadtimeLabel
 	void enableDeadTimeDisplay();
