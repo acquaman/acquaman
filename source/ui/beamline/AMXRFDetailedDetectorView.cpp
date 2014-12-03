@@ -115,7 +115,7 @@ void AMXRFDetailedDetectorView::buildDeadTimeView()
 	squeezedDeadTimeButtonsLayout->addStretch();
 
 	QVBoxLayout *deadTimeLayout = new QVBoxLayout;
-	deadTimeLayout->addWidget(deadTimeLabel_, 0, Qt::AlignCenter);
+	deadTimeLayout->addWidget(deadTimeLabel_, 0, Qt::AlignLeft);
 	deadTimeLayout->addLayout(squeezedDeadTimeButtonsLayout);
 
 	// Remove the "addStretch" from the basic layout before adding the new elements.
