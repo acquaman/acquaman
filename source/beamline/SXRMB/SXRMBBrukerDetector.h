@@ -14,9 +14,9 @@ public:
 	/// Destructor.
 	virtual ~SXRMBBrukerDetector();
 
-	/// Returns the dead time as a percentage.  If there are multiple dead times (for many elements) then it returns the worst.
+	/// Returns the dead time of deadTimeControl_.
 	virtual double deadTime() const;
-	/// Returns a specific dead time as a percentage.
+	/// Returns the dead time of deadTimeControl_.
 	virtual double deadTimeAt(int index) const;
 
 	/// The Vortex doesn't explicitly require powering on
