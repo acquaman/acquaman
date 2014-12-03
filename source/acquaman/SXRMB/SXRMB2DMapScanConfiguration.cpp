@@ -1,10 +1,11 @@
 #include "SXRMB2DMapScanConfiguration.h"
 
+#include <math.h>
+#include <QStringBuilder>
+
 #include "acquaman/SXRMB/SXRMB2DScanActionController.h"
 #include "ui/SXRMB/SXRMB2DMapScanConfigurationView.h"
 
-#include <math.h>
-#include <QStringBuilder>
 
 SXRMB2DMapScanConfiguration::SXRMB2DMapScanConfiguration(QObject *parent)
 	: AMStepScanConfiguration(parent), SXRMBScanConfiguration()
@@ -14,7 +15,9 @@ SXRMB2DMapScanConfiguration::SXRMB2DMapScanConfiguration(QObject *parent)
 
 	setName("2D Map");
 	setUserScanName("2D Map");
-	setExportAsAscii(false);
+
+	exportAsAscii_ = false;
+	setEnableBrukerDetector(true);
 
 	AMScanAxisRegion *region = new AMScanAxisRegion;
 	AMScanAxis *axis = new AMScanAxis(AMScanAxis::StepAxis, region);
@@ -39,7 +42,9 @@ SXRMB2DMapScanConfiguration::SXRMB2DMapScanConfiguration(const SXRMB2DMapScanCon
 
 	setName(original.name());
 	setUserScanName(original.userScanName());
-	setExportAsAscii(original.exportAsAscii());
+
+	exportAsAscii_ = original.exportAsAscii();
+	setEnableBrukerDetector(original.enableBrukerDetector());
 
 	connect(scanAxisAt(0)->regionAt(0), SIGNAL(regionStartChanged(AMNumber)), this, SLOT(computeTotalTime()));
 	connect(scanAxisAt(0)->regionAt(0), SIGNAL(regionStepChanged(AMNumber)), this, SLOT(computeTotalTime()));
