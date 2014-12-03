@@ -26,9 +26,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "util/AMSettings.h"
 
+#include <QCheckBox>
+
 class QLabel;
 class QFileDialog;
-class QCheckBox;
 class QDir;
 class QPushButton;
 class QComboBox;
@@ -48,6 +49,8 @@ public:
 	static bool getDataFolder(QWidget *parent = 0);
 	/// Returns the current path.
 	QString filePath() const { return folder_; }
+	/// Returns the state of the advanced check box.
+	bool isFullPath() const { return advancedCheck_->isChecked(); }
 
 protected slots:
 	/// Slot that does the work of opening a file dialog and getting the new file path.

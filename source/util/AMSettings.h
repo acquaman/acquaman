@@ -77,8 +77,8 @@ public:
 	/// Load settings from disk:
 	static void load() ;
 
-	/// Save settings to disk:
-	static void save();
+	/// Save settings to disk:  This will not update the remote data folder if it is empty.  But there are times when you need to override that behaviour.
+	static void save(bool forceRemoteDataFolderUpdate = false);
 
 };
 

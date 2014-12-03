@@ -190,20 +190,6 @@ bool VESPERSAppController::startup()
 
 bool VESPERSAppController::ensureProgramStructure()
 {
-	QString homeDir = VESPERS::getHomeDirectory();
-
-	if (!QFileInfo(homeDir % "/acquaman/devConfigurationFiles/VESPERS").exists()){
-
-		QDir temp = QDir();
-		temp.cd(homeDir % "/acquaman/devConfigurationFiles");
-
-		if (!temp.mkdir("VESPERS")){
-
-			AMErrorMon::error(this, VESPERSAPPCONTROLLER_COULD_NOT_CREATE_VESPERS_FOLDER, "Could not create the VESPERS config folder.  Notify beamline staff.");
-			return false;
-		}
-	}
-
 	if (!QFileInfo("/nas/vespers").exists()){
 
 		AMErrorMon::error(this, VESPERSAPPCONTROLLER_AURORA_PATH_NOT_FOUND, "Path to aurora not found.  Notify beamline staff.");
@@ -295,14 +281,14 @@ void VESPERSAppController::setupUserInterface()
 
 	VESPERSXRFDetailedDetectorView *singleElementVortexView = new VESPERSXRFDetailedDetectorView(VESPERSBeamline::vespers()->vespersSingleElementVortexDetector());
 	singleElementVortexView->buildDetectorView();
-	singleElementVortexView->setEnergyRange(AMPeriodicTable::table()->elementBySymbol("K")->Kalpha().energy(), 20480);
+	singleElementVortexView->setEnergyRange(2000, 20480);
 	singleElementVortexView->addEmissionLineNameFilter(QRegExp("1"));
 	singleElementVortexView->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
 	singleElementVortexView->addCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));
 
 	VESPERSXRFDetailedDetectorView *fourElementVortexView = new VESPERSXRFDetailedDetectorView(VESPERSBeamline::vespers()->vespersFourElementVortexDetector());
 	fourElementVortexView->buildDetectorView();
-	fourElementVortexView->setEnergyRange(AMPeriodicTable::table()->elementBySymbol("K")->Kalpha().energy(), 20480);
+	fourElementVortexView->setEnergyRange(2000, 20480);
 	fourElementVortexView->addEmissionLineNameFilter(QRegExp("1"));
 	fourElementVortexView->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
 	fourElementVortexView->addCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));
