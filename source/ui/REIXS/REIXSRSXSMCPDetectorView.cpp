@@ -39,11 +39,11 @@ REIXSRSXSMCPDetectorView::~REIXSRSXSMCPDetectorView(){}
 REIXSRSXSMCPDetectorView::REIXSRSXSMCPDetectorView(QWidget *parent) :
 	QWidget(parent)
 {
-	imageControl_ = new AMReadOnlyPVControl("Memory Buffer", "PDTR0000-01:zippedBuffer");
+	imageControl_ = new AMReadOnlyPVControl("Memory Buffer", "PDTR0000-01:zippedBuffer", this);
 	dataSource_ = new REIXSRSXSMCPDataSource("MCP Image" , imageControl_);
-	waysToGetBuffer_ = new AMSinglePVControl("Way to get buffer","PDTR0000-01:waysToGetBuffer");
-	downloadMemory_ = new AMSinglePVControl("Download Memory", "PDTR0000-01:downloadMemory");
-	startAccumulation_ = new AMSinglePVControl("Start Accumulation", "PDTR0000-01:startAccumulation");
+	waysToGetBuffer_ = new AMSinglePVControl("Way to get buffer","PDTR0000-01:waysToGetBuffer", this);
+	downloadMemory_ = new AMSinglePVControl("Download Memory", "PDTR0000-01:downloadMemory", this);
+	startAccumulation_ = new AMSinglePVControl("Start Accumulation", "PDTR0000-01:startAccumulation", this);
 
 
 	// create UI elements
@@ -54,20 +54,20 @@ REIXSRSXSMCPDetectorView::REIXSRSXSMCPDetectorView(QWidget *parent) :
 
 	colorMapEditor_ = 0;
 
-	topLeftX1_ = new AMSinglePVControl("Top Left X 1", "PDTR0000-01:setLeftTopX1");
-	topLeftY1_ = new AMSinglePVControl("Top Left Y 1", "PDTR0000-01:setLeftTopY1");
-	bottomRightX1_ = new AMSinglePVControl("Bottom Right X 1", "PDTR0000-01:setRightBottomX1");
-	bottomRightY1_ = new AMSinglePVControl("Bottom Right Y 1", "PDTR0000-01:setRightBottomY1");
-	ROI1Counts_ = new AMReadOnlyPVControl("ROI 1 Counts", "PDTR0000-01:getRoi1Counts");
+	topLeftX1_ = new AMSinglePVControl("Top Left X 1", "PDTR0000-01:setLeftTopX1", this);
+	topLeftY1_ = new AMSinglePVControl("Top Left Y 1", "PDTR0000-01:setLeftTopY1", this);
+	bottomRightX1_ = new AMSinglePVControl("Bottom Right X 1", "PDTR0000-01:setRightBottomX1", this);
+	bottomRightY1_ = new AMSinglePVControl("Bottom Right Y 1", "PDTR0000-01:setRightBottomY1", this);
+	ROI1Counts_ = new AMReadOnlyPVControl("ROI 1 Counts", "PDTR0000-01:getRoi1Counts", this);
 
 
-	topLeftX2_ = new AMSinglePVControl("Top Left X 2", "PDTR0000-01:setLeftTopX2");
-	topLeftY2_ = new AMSinglePVControl("Top Left Y 2", "PDTR0000-01:setLeftTopY2");
-	bottomRightX2_ = new AMSinglePVControl("Bottom Right X 2", "PDTR0000-01:setRightBottomX2");
-	bottomRightY2_ = new AMSinglePVControl("Bottom Right Y 2", "PDTR0000-01:setRightBottomY2");
-	ROI2Counts_ = new AMReadOnlyPVControl("ROI 2 Counts", "PDTR0000-01:getRoi2Counts");
+	topLeftX2_ = new AMSinglePVControl("Top Left X 2", "PDTR0000-01:setLeftTopX2", this);
+	topLeftY2_ = new AMSinglePVControl("Top Left Y 2", "PDTR0000-01:setLeftTopY2", this);
+	bottomRightX2_ = new AMSinglePVControl("Bottom Right X 2", "PDTR0000-01:setRightBottomX2", this);
+	bottomRightY2_ = new AMSinglePVControl("Bottom Right Y 2", "PDTR0000-01:setRightBottomY2", this);
+	ROI2Counts_ = new AMReadOnlyPVControl("ROI 2 Counts", "PDTR0000-01:getRoi2Counts", this);
 
-	totalCounts_ = new AMReadOnlyPVControl("Total Counts", "PDTR0000-01:getTotalCounts");
+	totalCounts_ = new AMReadOnlyPVControl("Total Counts", "PDTR0000-01:getTotalCounts", this);
 
 
 
@@ -92,15 +92,15 @@ REIXSRSXSMCPDetectorView::REIXSRSXSMCPDetectorView(QWidget *parent) :
 
 
 
-	getTopLeftX1_ = new AMReadOnlyPVControl("Top Left X 1 readback", "PDTR0000-01:getLeftTopX1");
-	getTopLeftY1_ = new AMReadOnlyPVControl("Top Left Y 1 readback", "PDTR0000-01:getLeftTopY1");
-	getBottomRightX1_ = new AMReadOnlyPVControl("Bottom Right X 1 readback", "PDTR0000-01:getRightBottomX1");
-	getBottomRightY1_ = new AMReadOnlyPVControl("Bottom Right Y 1 readback", "PDTR0000-01:getRightBottomY1");
+	getTopLeftX1_ = new AMReadOnlyPVControl("Top Left X 1 readback", "PDTR0000-01:getLeftTopX1", this);
+	getTopLeftY1_ = new AMReadOnlyPVControl("Top Left Y 1 readback", "PDTR0000-01:getLeftTopY1", this);
+	getBottomRightX1_ = new AMReadOnlyPVControl("Bottom Right X 1 readback", "PDTR0000-01:getRightBottomX1", this);
+	getBottomRightY1_ = new AMReadOnlyPVControl("Bottom Right Y 1 readback", "PDTR0000-01:getRightBottomY1", this);
 
-	getTopLeftX2_ = new AMReadOnlyPVControl("Top Left X 2 readback", "PDTR0000-01:getLeftTopX2");
-	getTopLeftY2_ = new AMReadOnlyPVControl("Top Left Y 2 readback", "PDTR0000-01:getLeftTopY2");
-	getBottomRightX2_ = new AMReadOnlyPVControl("Bottom Right X 2 readback", "PDTR0000-01:getRightBottomX2");
-	getBottomRightY2_ = new AMReadOnlyPVControl("Bottom Right Y 2 readback", "PDTR0000-01:getRightBottomY2");
+	getTopLeftX2_ = new AMReadOnlyPVControl("Top Left X 2 readback", "PDTR0000-01:getLeftTopX2", this);
+	getTopLeftY2_ = new AMReadOnlyPVControl("Top Left Y 2 readback", "PDTR0000-01:getLeftTopY2", this);
+	getBottomRightX2_ = new AMReadOnlyPVControl("Bottom Right X 2 readback", "PDTR0000-01:getRightBottomX2", this);
+	getBottomRightY2_ = new AMReadOnlyPVControl("Bottom Right Y 2 readback", "PDTR0000-01:getRightBottomY2", this);
 
 
 

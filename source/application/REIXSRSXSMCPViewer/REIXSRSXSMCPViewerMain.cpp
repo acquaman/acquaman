@@ -43,8 +43,11 @@ int main(int argc, char *argv[])
 	int retVal = -1;
 	retVal = app.exec();
 
+
 	/// Program Shutdown:
 	// =================================
+
+	w->deleteLater();
 
 	return retVal;
 }
