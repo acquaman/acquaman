@@ -1305,11 +1305,13 @@ void REIXSXESImageInterpolationABEditor::onApplyToOtherScansChosen()
 			REIXSXESImageInterpolationAB* xesAB = qobject_cast<REIXSXESImageInterpolationAB*>(scan->analyzedDataSources()->at(i));
 			if(xesAB) {
 				xesABFound = true;
+				xesAB->enableLiveCorrelation(analysisBlock_->liveCorrelation());
 				if(batchApplySumRange_->isChecked()) {
 					xesAB->setSumRangeMaxY(analysisBlock_->sumRangeMaxY());
 					xesAB->setSumRangeMinY(analysisBlock_->sumRangeMinY());
 					xesAB->setSumRangeMaxX(analysisBlock_->sumRangeMaxX());
 					xesAB->setSumRangeMinX(analysisBlock_->sumRangeMinX());
+					xesAB->setRangeRound(analysisBlock_->rangeRound());
 				}
 				if(batchApplyCalibrationOffsets_->isChecked()) {
 					xesAB->setEnergyCalibrationOffset(analysisBlock_->energyCalibrationOffset());
@@ -1319,7 +1321,10 @@ void REIXSXESImageInterpolationABEditor::onApplyToOtherScansChosen()
 					xesAB->setCorrelation1CenterPixel(analysisBlock_->correlation1CenterPixel());
 					xesAB->setCorrelation1HalfWidth(analysisBlock_->correlation1HalfWidth());
 					xesAB->setCorrelation1Smoothing(analysisBlock_->correlation1Smoothing());
-					xesAB->enableLiveCorrelation(analysisBlock_->liveCorrelation());
+					xesAB->setCorrelation2CenterPixel(analysisBlock_->correlation2CenterPixel());
+					xesAB->setCorrelation2HalfWidth(analysisBlock_->correlation2HalfWidth());
+					xesAB->setCorrelation2Smoothing(analysisBlock_->correlation2Smoothing());
+
 				}
 				if(batchApplyShiftCurve_->isChecked()) {
 					xesAB->setShiftValues1(analysisBlock_->shiftValues1());
