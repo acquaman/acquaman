@@ -13,16 +13,16 @@ AMSortFilterBuilder::AMSortFilterBuilder(QWidget *parent) :
 	criteriaLineEdit_ = new QLineEdit();
 	caseSensitiveCheckBox_ = new QCheckBox();
 
-	QFormLayout* layout = new QFormLayout();
+	layout_ = new QFormLayout();
 
-	layout->addRow("Search Criteria:", criteriaLineEdit_);
-	layout->addRow("Field:", fieldComboBox_);
-	layout->addRow("Filter Mode:", modeComboBox_);
-	layout->addRow("Case Sensitive:", caseSensitiveCheckBox_);
+	layout_->addRow("Search Criteria:", criteriaLineEdit_);
+	layout_->addRow("Field:", fieldComboBox_);
+	layout_->addRow("Filter Mode:", modeComboBox_);
+	layout_->addRow("Case Sensitive:", caseSensitiveCheckBox_);
 
 	fieldComboBox_->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 	modeComboBox_->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-	setLayout(layout);
+	setLayout(layout_);
 }
 
 int AMSortFilterBuilder::filterKeyColumn() const
@@ -55,6 +55,11 @@ void AMSortFilterBuilder::addField(const QString &fieldName)
 void AMSortFilterBuilder::clearFields()
 {
 	fieldComboBox_->clear();
+}
+
+QFormLayout* AMSortFilterBuilder::formLayout()
+{
+	return layout_;
 }
 
 void AMSortFilterBuilder::clear()
@@ -169,6 +174,11 @@ void AMSortFilterWidget::setFilterAreaVisible(bool visible)
 {
 	filterBuilder_->setVisible(visible);
 	applyFilterPushButton_->setVisible(visible);
+}
+
+QSortFilterProxyModel *AMSortFilterWidget::model()
+{
+	return proxyModel_;
 }
 
 void AMSortFilterWidget::onFilterApplied()

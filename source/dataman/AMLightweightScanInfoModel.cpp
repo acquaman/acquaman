@@ -102,6 +102,11 @@ QUrl AMLightweightScanInfoModel::rowToUrl(const QModelIndex &index)
 	return scanInfo_->getScanUrl(index.data(Qt::DisplayRole).toInt());
 }
 
+QHash<int, QString>* AMLightweightScanInfoModel::runMap()
+{
+	return scanInfo_->runMap();
+}
+
 QVariant AMLightweightScanInfoModel::getScanData(const QModelIndex &index, int role) const
 {
 

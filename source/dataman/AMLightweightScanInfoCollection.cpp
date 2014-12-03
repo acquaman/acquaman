@@ -41,6 +41,11 @@ int AMLightweightScanInfoCollection::indexOf(AMLightweightScanInfo *scan, int fr
 	return scanInfos_.indexOf(scan, from);
 }
 
+QHash<int, QString> *AMLightweightScanInfoCollection::runMap()
+{
+	return &runMap_;
+}
+
 void AMLightweightScanInfoCollection::populateExperimentIds()
 {
 	QSqlQuery selectQuery = database_->select("ObjectExperimentEntries", "objectId, ExperimentId");

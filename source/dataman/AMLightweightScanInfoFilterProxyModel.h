@@ -25,6 +25,8 @@ public:
 	int runId() const;
 	/// Sets the provided experimentId to be the top level filter associated with the model. Setting this
 	/// to -1 indicates clearing the experimentId filter. if there is currently a runId, this will be reset
+	/// A map of all the runs known. Maps Runids to Run Names.
+	QHash<int, QString>* runMap();
 	/// to -1, effectively clearing the run filter
 	void setExperimentId(int id);
 	/// Returns the experimentId which is currently filtering the model, if none is applied then -1
