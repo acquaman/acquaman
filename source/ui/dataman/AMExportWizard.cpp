@@ -420,6 +420,8 @@ void AMExportWizardOptionPage::populateOptionSelector()
 				optionSelector_->setCurrentIndex(iComboBoxOption);
 		}
 	}
+	else
+		optionSelector_->setCurrentIndex(optionSelector_->count()-1);
 
 	optionSelector_->blockSignals(false);
 
