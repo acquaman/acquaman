@@ -27,7 +27,7 @@ function buildProject() {
 
 	source /home/beamline/tools/qt/startup/startup.qt-4.7.3.sh
 	if [ $1 -ne 1 ]; then
-		qmake -r $1
+		qmake -r $2
 	fi
 	make
 

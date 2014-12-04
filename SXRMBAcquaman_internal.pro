@@ -20,7 +20,8 @@ HEADERS += \
 	source/dataman/SXRMB/SXRMBUserConfiguration.h \
 	source/application/SXRMB/SXRMB.h \
 	source/ui/SXRMB/SXRMBChooseDataFolderDialog.h \
-	source/ui/SXRMB/SXRMB2DOxidationMapScanConfigurationView.h \
+        source/ui/SXRMB/SXRMB2DOxidationMapScanConfigurationView.h \
+        source/ui/SXRMB/SXRMBXRFDetailedDetectorView.h \
 	source/ui/acquaman/SXRMB/SXRMBOxidationMapScanConfigurationViewHolder.h
 
 
@@ -41,6 +42,7 @@ SOURCES += \
 	source/dataman/SXRMB/SXRMBUserConfiguration.cpp \
 	source/ui/SXRMB/SXRMBChooseDataFolderDialog.cpp \
 	source/ui/SXRMB/SXRMB2DOxidationMapScanConfigurationView.cpp \
+        source/ui/SXRMB/SXRMBXRFDetailedDetectorView.cpp \
 	source/ui/acquaman/SXRMB/SXRMBOxidationMapScanConfigurationViewHolder.cpp
 
 

@@ -47,7 +47,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMRegionOfInterest.h"
 
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
-#include "ui/beamline/AMXRFDetailedDetectorView.h"
+#include "ui/SXRMB/SXRMBXRFDetailedDetectorView.h"
 #include "ui/SXRMB/SXRMBPersistentView.h"
 #include "ui/SXRMB/SXRMBEXAFSScanConfigurationView.h"
 #include "ui/SXRMB/SXRMB2DMapScanConfigurationView.h"
@@ -275,15 +275,15 @@ void SXRMBAppController::setupUserInterface()
 
 
 	mw_->insertHeading("General", 0);
-
 	mw_->insertHeading("Detectors", 1);
 
-	AMXRFDetailedDetectorView *brukerView = new AMXRFDetailedDetectorView(SXRMBBeamline::sxrmb()->brukerDetector());
+	SXRMBXRFDetailedDetectorView *brukerView = new SXRMBXRFDetailedDetectorView(SXRMBBeamline::sxrmb()->brukerDetector());
 	brukerView->buildDetectorView();
 	brukerView->setEnergyRange(1700, 10000);
 	brukerView->addEmissionLineNameFilter(QRegExp("1"));
 	brukerView->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
 	brukerView->addCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));
+	brukerView->enableDeadTimeDisplay();
 
 	mw_->addPane(brukerView, "Detectors", "Bruker", ":/system-search.png");
 

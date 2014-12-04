@@ -14,6 +14,11 @@ public:
 	/// Destructor.
 	virtual ~SXRMBBrukerDetector();
 
+	/// Returns the dead time of deadTimeControl_.
+	virtual double deadTime() const;
+	/// Returns the dead time of deadTimeControl_.
+	virtual double deadTimeAt(int index) const;
+
 	/// The Vortex doesn't explicitly require powering on
 	virtual bool requiresPower() const { return false; }
 
@@ -49,7 +54,14 @@ public slots:
 	/// Vortex detectors do not support clearing
 	virtual bool clear() { return false; }
 
+protected slots:
+	/// handles deadTimeControl PV connect signal
+	void onDeadTimeControlConnected(bool);
+
 protected:
+	/// Control handling the bruker deadtime.
+	AMReadOnlyPVControl *deadTimeControl_;
+
 	/// The eV/bin ratio for this detector
 	double eVPerBin_;
 };
