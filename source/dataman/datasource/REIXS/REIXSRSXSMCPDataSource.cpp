@@ -118,8 +118,6 @@ bool REIXSRSXSMCPDataSource::values(const AMnDIndex &indexStart, const AMnDIndex
 	int totalSize = indexStart.totalPointsTo(indexEnd);
 	QVector<int> data = imageControl_->readPV()->lastIntegerValues();
 
-//	for (int i = 0, size = imageControl_->readPV()->lastIntegerValues(); i < size; i++)
-//		stuff;
 	foreach(int v, imageControl_->readPV()->lastIntegerValues())
 		*(outputValues++) = double(v);
 
