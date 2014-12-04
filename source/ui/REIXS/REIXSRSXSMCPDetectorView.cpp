@@ -55,6 +55,8 @@ REIXSRSXSMCPDetectorView::REIXSRSXSMCPDetectorView(QWidget *parent) :
 
 	colorMapEditor_ = 0;
 
+	fullImageDialog_ = 0;
+
 	topLeftX1_ = new AMSinglePVControl("Top Left X 1", "PDTR0000-01:setLeftTopX1", this);
 	topLeftY1_ = new AMSinglePVControl("Top Left Y 1", "PDTR0000-01:setLeftTopY1", this);
 	bottomRightX1_ = new AMSinglePVControl("Bottom Right X 1", "PDTR0000-01:setRightBottomX1", this);
@@ -192,16 +194,22 @@ REIXSRSXSMCPDetectorView::REIXSRSXSMCPDetectorView(QWidget *parent) :
 
 	QVBoxLayout *layout = new QVBoxLayout;
 	QHBoxLayout* bottomLayout = new QHBoxLayout();
+	QHBoxLayout* topLayout = new QHBoxLayout();
+
 
 	QVBoxLayout *ROICountslayout = new QVBoxLayout;
 	ROICountslayout->addWidget(ROI1CountsLabel_);
 	ROICountslayout->addWidget(ROI2CountsLabel_);
 
+
+	topLayout->addWidget(adjustColorMapButton_);
+	topLayout->addStretch();
+	topLayout->addWidget(fullImageButton_);
+
+	layout->addLayout(topLayout);
+
 	layout->addWidget(imageView_);
 
-	bottomLayout->addWidget(adjustColorMapButton_);
-	bottomLayout->addWidget(fullImageButton_);
-	bottomLayout->addStretch();
 	bottomLayout->addLayout(ROICountslayout);
 	bottomLayout->addLayout(ROIRadioButtons);
 	bottomLayout->addWidget(totalCountsLabel_);
@@ -297,7 +305,16 @@ void REIXSRSXSMCPDetectorView::onFullImageButtonClicked()
 
 	}
 
-	fullImageDialog_->show();
+	if (fullImageDialog_->isVisible())
+	{
+		fullImageDialog_->hide();
+		fullImageButton_->setText("Show Full Image");
+	}
+	else
+	{
+		fullImageDialog_->show();
+		fullImageButton_->setText("Hide Full Image");
+	}
 }
 
 void REIXSRSXSMCPDetectorView::onColorMapChanged(const MPlotColorMap &map)
