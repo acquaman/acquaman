@@ -42,7 +42,7 @@ public:
 	AMControlMoveActionInfo3(const AMControlMoveActionInfo3 &other);
 
 	/// This function is used as a virtual copy constructor
-	virtual AMActionInfo3* createCopy() const { return new AMControlMoveActionInfo3(*this); }
+	virtual AMActionInfo3* createCopy() const;
 
 	// Re-implemented public functions
 	/////////////////////////////////

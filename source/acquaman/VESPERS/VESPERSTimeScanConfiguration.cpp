@@ -39,7 +39,9 @@ VESPERSTimeScanConfiguration::VESPERSTimeScanConfiguration(const VESPERSTimeScan
 
 AMScanConfiguration *VESPERSTimeScanConfiguration::createCopy() const
 {
-	return new VESPERSTimeScanConfiguration(*this);
+	AMScanConfiguration *configuration = new VESPERSTimeScanConfiguration(*this);
+	configuration->dissociateFromDb(true);
+	return configuration;
 }
 
 AMScanController *VESPERSTimeScanConfiguration::createController()

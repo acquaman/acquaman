@@ -41,7 +41,9 @@ VESPERSXRFScanConfiguration::~VESPERSXRFScanConfiguration()
 
 AMScanConfiguration *VESPERSXRFScanConfiguration::createCopy() const
 {
-	return new VESPERSXRFScanConfiguration(*this);
+	AMScanConfiguration *configuration = new VESPERSXRFScanConfiguration(*this);
+	configuration->dissociateFromDb(true);
+	return configuration;
 }
 
 AMScanController *VESPERSXRFScanConfiguration::createController()

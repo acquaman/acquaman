@@ -39,3 +39,10 @@ AMDetectorSetAsDarkCurrentCorrectionActionInfo::AMDetectorSetAsDarkCurrentCorrec
 {
    detectorInfo_.setValuesFrom(*(other.detectorInfo()));
 }
+
+AMActionInfo3 *AMDetectorSetAsDarkCurrentCorrectionActionInfo::createCopy() const
+{
+	AMActionInfo3 *info = new AMDetectorSetAsDarkCurrentCorrectionActionInfo(*this);
+	info->dissociateFromDb(true);
+	return info;
+}

@@ -108,8 +108,9 @@ REIXSXASScanConfiguration::REIXSXASScanConfiguration(const REIXSXASScanConfigura
 
 AMScanConfiguration * REIXSXASScanConfiguration::createCopy() const
 {
-	// using default copy constructor:
-	return new REIXSXASScanConfiguration(*this);
+	AMScanConfiguration *configuration = new REIXSXASScanConfiguration(*this);
+	configuration->dissociateFromDb(true);
+	return configuration;
 }
 
 #include "acquaman/REIXS/REIXSXASScanActionController.h"

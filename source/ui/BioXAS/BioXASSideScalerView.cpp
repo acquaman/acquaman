@@ -1,28 +1,35 @@
 #include "BioXASSideScalerView.h"
 
-BioXASSideScalerView::BioXASSideScalerView(QWidget *parent) :
+BioXASSideScalerView::BioXASSideScalerView(CLSSIS3820Scaler *scaler, QWidget *parent) :
     QWidget(parent)
 {
-    CLSSIS3820Scaler *scaler = BioXASSideBeamline::bioXAS()->scaler();
+    scaler_ = scaler;
 
-    QVBoxLayout *layout = new QVBoxLayout();
+    if (scaler_) {
 
-    // Create scaler channel views.
+        QVBoxLayout *layout = new QVBoxLayout();
 
-    for (int i = 0; i < 2; i++) {
+        // Create scaler channel views.
 
-        CLSSIS3820ScalerChannelView *view = new CLSSIS3820ScalerChannelView(scaler->channelAt(i), this);
-        channelViews_ << view;
+        for (int i = 0; i < 2; i++) {
 
-        view->setFixedHeight(55);
+            CLSSIS3820ScalerChannelViewWithDarkCurrent *view = new CLSSIS3820ScalerChannelViewWithDarkCurrent(scaler_->channelAt(i), this);
+            view->setEnableCheckBoxVisibility(false);
+            view->setAmplifierViewFormat('g');
+            view->setAmplifierViewPrecision(3);
+            view->setFixedHeight(55);
+            view->setMinimumWidth(300);
 
-        connect( view, SIGNAL(amplifierViewModeChanged(AMCurrentAmplifierView::ViewMode)), this, SLOT(onAmplifierViewModeChanged(AMCurrentAmplifierView::ViewMode)) );
-        connect( view, SIGNAL(outputViewModeChanged(CLSSIS3820ScalerChannelView::OutputViewMode)), this, SLOT(onOutputViewModeChanged(CLSSIS3820ScalerChannelView::OutputViewMode)) );
+            channelViews_ << view;
 
-        layout->addWidget(view);
+            connect( view, SIGNAL(amplifierViewModeChanged(AMCurrentAmplifierView::ViewMode)), this, SLOT(onAmplifierViewModeChanged(AMCurrentAmplifierView::ViewMode)) );
+            connect( view, SIGNAL(outputViewModeChanged(CLSSIS3820ScalerChannelView::OutputViewMode)), this, SLOT(onOutputViewModeChanged(CLSSIS3820ScalerChannelView::OutputViewMode)) );
+
+            layout->addWidget(view);
+        }
+
+        setLayout(layout);
     }
-
-    setLayout(layout);
 }
 
 BioXASSideScalerView::~BioXASSideScalerView()

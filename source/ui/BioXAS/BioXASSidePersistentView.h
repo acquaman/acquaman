@@ -25,16 +25,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QWidget>
 #include <QLayout>
 #include <QGroupBox>
-#include <QMessageBox>
+#include <QPushButton>
 
 #include "ui/beamline/AMExtendedControlEditor.h"
-#include "ui/beamline/AMCurrentAmplifierSingleView.h"
+#include "beamline/BioXAS/BioXASSideBeamline.h"
 
-#include "ui/BioXAS/BioXASSideMonoBasicEnergyView.h"
-#include "ui/BioXAS/BioXASSideMonoCrystalChangeView.h"
-#include "ui/BioXAS/BioXASSideScalerView.h"
-
-class AMExtendedControlEditor;
+#include "BioXASSideScalerView.h"
 
 class BioXASSidePersistentView : public QWidget
 {
@@ -46,16 +42,14 @@ public:
     /// Destructor.
     virtual ~BioXASSidePersistentView();
 
-signals:
-
-public slots:
-
 protected slots:
+    /// Brings up the mono crystal change instructions when the button is clicked.
     void toViewMonoCrystalChangeInstructions();
 
 protected:
-    BioXASSideMonoBasicEnergyView *energyEditor_;
+    AMExtendedControlEditor *energyControlEditor_;
     QPushButton *viewCrystalChangeButton_;
+    BioXASSideScalerView *scalerView_;
 };
 
 #endif // BIOXASSIDEPERSISTENTVIEW_H

@@ -158,6 +158,8 @@ void SXRMBAppController::onBeamlineConnected(bool connected)
 
 	if (connected && !microProbe2DOxidationScanConfigurationView_) {
 		microProbe2DOxidationScanConfiguration_ = new SXRMB2DMapScanConfiguration();
+		microProbe2DOxidationScanConfiguration_->setName("Oxidation Map");
+		microProbe2DOxidationScanConfiguration_->setUserScanName("Oxidation Map");
 
 		microProbe2DScanConfiguration_->setExcitationEnergy(SXRMBBeamline::sxrmb()->energy()->value());
 
@@ -402,9 +404,9 @@ void SXRMBAppController::onDataPositionChanged(AMGenericScanEditor *editor, cons
 	QString text;
 
 	text = QString("Setup at (H,V,N): (%1 mm, %2 mm, %3 mm)")
-				.arg(editor->dataPosition().x(), 0, 'f', 3)
-				.arg(editor->dataPosition().y(), 0, 'f', 3)
-				.arg(config->normalPosition());
+			.arg(editor->dataPosition().x(), 0, 'f', 3)
+			.arg(editor->dataPosition().y(), 0, 'f', 3)
+			.arg(config->normalPosition());
 
 	QMenu popup(text, editor);
 	QAction *temp = popup.addAction(text);

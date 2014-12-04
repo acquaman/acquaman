@@ -18,35 +18,55 @@ You should have received a copy of the GNU General Public License
 along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #include "BioXASSidePersistentView.h"
-
 #include "beamline/BioXAS/BioXASSideBeamline.h"
-#include "ui/beamline/AMExtendedControlEditor.h"
 
 BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
     QWidget(parent)
 {
-    energyEditor_ = new BioXASSideMonoBasicEnergyView(BioXASSideBeamline::bioXAS()->mono(), this);
-    energyEditor_->setToolTip("Set mono energy");
+    // Create UI elements.
+
+    energyControlEditor_ = new AMExtendedControlEditor(BioXASSideBeamline::bioXAS()->mono()->energyControl());
+    energyControlEditor_->setMaximumWidth(200);
+    energyControlEditor_->setControlFormat('f', 2);
 
     viewCrystalChangeButton_ = new QPushButton("Crystal Change", this);
+    viewCrystalChangeButton_->setMaximumWidth(200);
     viewCrystalChangeButton_->setToolTip("Mono Crystal Change Instructions");
-    connect( viewCrystalChangeButton_, SIGNAL(clicked()), this, SLOT(toViewMonoCrystalChangeInstructions()) );
 
-    QVBoxLayout *scalerPanelLayout = new QVBoxLayout();
-    scalerPanelLayout->addWidget(new BioXASSideScalerView());
+    scalerView_ = new BioXASSideScalerView(BioXASSideBeamline::bioXAS()->scaler(), this);
+
+    QGroupBox *monoPanel = new QGroupBox("Monochromator");
 
     QGroupBox *scalerPanel = new QGroupBox("Preamp Settings");
+
+    // Create and set layouts.
+
+    QVBoxLayout *monoPanelLayout = new QVBoxLayout();
+    monoPanelLayout->addWidget(energyControlEditor_);
+    monoPanelLayout->addWidget(viewCrystalChangeButton_);
+    monoPanelLayout->addWidget(scalerView_);
+
+    monoPanel->setLayout(monoPanelLayout);
+
+    QVBoxLayout *scalerPanelLayout = new QVBoxLayout();
+    scalerPanelLayout->addWidget(scalerView_);
+
     scalerPanel->setLayout(scalerPanelLayout);
 
     QVBoxLayout *layout = new QVBoxLayout();
-    layout->addWidget(energyEditor_);
-    layout->addWidget(viewCrystalChangeButton_);
+    layout->addWidget(monoPanel);
     layout->addWidget(scalerPanel);
     layout->addStretch();
 
     setLayout(layout);
+
+    setMaximumWidth(400);
+    setMinimumWidth(400);
+
+    // Make connections.
+
+    connect( viewCrystalChangeButton_, SIGNAL(clicked()), this, SLOT(toViewMonoCrystalChangeInstructions()) );
 }
 
 BioXASSidePersistentView::~BioXASSidePersistentView()
@@ -56,6 +76,6 @@ BioXASSidePersistentView::~BioXASSidePersistentView()
 
 void BioXASSidePersistentView::toViewMonoCrystalChangeInstructions()
 {    
-    BioXASSideMonoCrystalChangeView *crystalChangeView = new BioXASSideMonoCrystalChangeView(BioXASSideBeamline::bioXAS()->mono());
-    crystalChangeView->exec();
+//    BioXASSideMonoCrystalChangeView *crystalChangeView = new BioXASSideMonoCrystalChangeView(BioXASSideBeamline::bioXAS()->mono());
+//    crystalChangeView->exec();
 }

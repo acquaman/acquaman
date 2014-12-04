@@ -42,3 +42,9 @@ AMActionInfo3::AMActionInfo3(const AMActionInfo3& other)
 	canCopy_ = other.canCopy();
 }
 
+AMActionInfo3 *AMActionInfo3::createCopy() const
+{
+	AMActionInfo3 *info = new AMActionInfo3(*this);
+	info->dissociateFromDb(true);
+	return info;
+}

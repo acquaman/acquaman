@@ -2,16 +2,17 @@
 #define SXRMB2DOXIDATIONMAPSCANCONFIGURATIONVIEW_H
 
 #include <QWidget>
-
-#include "ui/acquaman/AMScanConfigurationView.h"
-#include "acquaman/SXRMB/SXRMB2DMapScanConfiguration.h"
-#include "ui/util/AMEnergyListView.h"
-
 #include <QDoubleSpinBox>
 #include <QLabel>
 #include <QLineEdit>
 #include <QGroupBox>
 #include <QButtonGroup>
+#include <QCheckBox>
+
+
+#include "acquaman/SXRMB/SXRMB2DMapScanConfiguration.h"
+#include "ui/acquaman/AMScanConfigurationView.h"
+#include "ui/util/AMEnergyListView.h"
 
 class SXRMB2DOxidationMapScanConfigurationView : public AMScanConfigurationView
 {
@@ -78,6 +79,12 @@ protected slots:
 	/// Helper slot that sets whether we use SMAK or Ascii for the auto exporter.
 	void updateAutoExporter(int useAscii);
 
+	/// Helper method that checks to see if the map dimensions are acceptable.  Makes visual changes if not valid.
+	void checkScanAxisValidity();
+
+	/// Handles changes to enable bruker detector
+	void onEnableBrukerDetectorChanged(int state);
+
 protected:
 	/// Add the export options view.  Returns a pointer to the widget.
 	QGroupBox *addExporterOptionsView(QStringList list);
@@ -95,6 +102,8 @@ protected:
 	QDoubleSpinBox *dwellTime_;
 	/// Line edit for changing the name of the scan.
 	QLineEdit *scanName_;
+	/// Checkbox for enabling/disabling Bruker detector
+	QCheckBox *enableBrukerDetector_;
 	/// Pointer to the horizontal start point.
 	QDoubleSpinBox *hStart_;
 	/// Pointer to the horizontal end point.
@@ -114,6 +123,9 @@ protected:
 	QLabel *mapInfo_;
 	/// Label holding the current estimated time for the scan to complete.  Takes into account extra time per point based on experience on the beamline.
 	QLabel *estimatedTime_;
+
+	/// This is an error display label.
+	QLabel *errorLabel_;
 
 	/// Button group for the exporter options.
 	QButtonGroup *autoExportButtonGroup_;

@@ -19,7 +19,9 @@ AMExporterOptionSMAK::~AMExporterOptionSMAK()
 
 AMExporterOption *AMExporterOptionSMAK::createCopy() const
 {
-	return new AMExporterOptionSMAK(*this);
+	AMExporterOption *option = new AMExporterOptionSMAK(*this);
+	option->dissociateFromDb(true);
+	return option;
 }
 
 void AMExporterOptionSMAK::setRegExpString(const QString &regExp)

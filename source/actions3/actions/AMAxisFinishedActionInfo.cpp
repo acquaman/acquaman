@@ -36,3 +36,10 @@ AMAxisFinishedActionInfo::AMAxisFinishedActionInfo(const AMAxisFinishedActionInf
 {
 	axisName_ = other.axisName();
 }
+
+AMActionInfo3 *AMAxisFinishedActionInfo::createCopy() const
+{
+	AMActionInfo3 *info = new AMAxisFinishedActionInfo(*this);
+	info->dissociateFromDb(true);
+	return info;
+}

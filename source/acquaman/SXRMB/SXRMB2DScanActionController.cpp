@@ -37,31 +37,30 @@ SXRMB2DScanActionController::SXRMB2DScanActionController(SXRMB2DMapScanConfigura
 			AMAppControllerSupport::registerClass<SXRMB2DMapScanConfiguration, AMSMAKExporter, AMExporterOptionSMAK>(sxrmbExportOptions->id());
 	}
 
-	int yPoints = int(round((double(configuration_->scanAxisAt(1)->regionAt(0)->regionEnd()) - double(configuration_->scanAxisAt(1)->regionAt(0)->regionStart()))/double(configuration_->scanAxisAt(0)->regionAt(0)->regionStep()))) + 1;
+	int yPoints = int(round((fabs(double(configuration_->scanAxisAt(1)->regionAt(0)->regionEnd()) - double(configuration_->scanAxisAt(1)->regionAt(0)->regionStart())))/double(configuration_->scanAxisAt(0)->regionAt(0)->regionStep()))) + 1;
 
 	AMControlInfoList list;
 	list.append(SXRMBBeamline::sxrmb()->microprobeSampleStageX()->toInfo());
 	list.append(SXRMBBeamline::sxrmb()->microprobeSampleStageZ()->toInfo());
+	configuration_->setAxisControlInfos(list);
+
 	scan_->rawData()->addScanAxis(AMAxisInfo("H", 0, "Horizontal Position", "mm"));
 	scan_->rawData()->addScanAxis(AMAxisInfo("V", yPoints, "Vertical Position", "mm"));
 
 	QString scanName = configuration_->userScanName();
-	if (scanName == "") {
+	if (scanName == "")
 		scanName = configuration_->autoScanName();
-	}
 	scan_->setName(scanName);
 
-
-	configuration_->setAxisControlInfos(list);
-
 	AMDetectorInfoSet detectors;
-
-	SXRMBBeamline::sxrmb()->brukerDetector()->setIsVisible(false);
-	SXRMBBeamline::sxrmb()->brukerDetector()->setHiddenFromUsers(true);
-
-	detectors.addDetectorInfo(SXRMBBeamline::sxrmb()->exposedDetectorByName("Bruker")->toInfo());
 	detectors.addDetectorInfo(SXRMBBeamline::sxrmb()->exposedDetectorByName("I0Detector")->toInfo());
 	detectors.addDetectorInfo(SXRMBBeamline::sxrmb()->exposedDetectorByName("TEYDetector")->toInfo());
+
+	if (configuration_->enableBrukerDetector()) {
+		SXRMBBeamline::sxrmb()->brukerDetector()->setIsVisible(false);
+		SXRMBBeamline::sxrmb()->brukerDetector()->setHiddenFromUsers(true);
+		detectors.addDetectorInfo(SXRMBBeamline::sxrmb()->exposedDetectorByName("Bruker")->toInfo());
+	}
 
 	configuration_->setDetectorConfigurations(detectors);
 
@@ -79,28 +78,30 @@ SXRMB2DScanActionController::SXRMB2DScanActionController(SXRMB2DMapScanConfigura
 
 void SXRMB2DScanActionController::buildScanControllerImplementation()
 {
-	AMXRFDetector *detector = SXRMBBeamline::sxrmb()->brukerDetector();
+	if (configuration_->enableBrukerDetector()){
+		AMXRFDetector *detector = SXRMBBeamline::sxrmb()->brukerDetector();
 
-	detector->removeAllRegionsOfInterest();
+		detector->removeAllRegionsOfInterest();
 
-	QList<AMDataSource *> i0Sources = QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource("I0Detector"));
+		QList<AMDataSource *> i0Sources = QList<AMDataSource *>() << scan_->dataSourceAt(scan_->indexOfDataSource("I0Detector"));
 
-	AMDataSource *spectraSource = scan_->dataSourceAt(scan_->indexOfDataSource(detector->name()));
+		AMDataSource *spectraSource = scan_->dataSourceAt(scan_->indexOfDataSource(detector->name()));
 
-	foreach (AMRegionOfInterest *region, configuration_->regionsOfInterest()){
+		foreach (AMRegionOfInterest *region, configuration_->regionsOfInterest()){
 
-		AMRegionOfInterestAB *regionAB = (AMRegionOfInterestAB *)region->valueSource();
-		AMRegionOfInterestAB *newRegion = new AMRegionOfInterestAB(regionAB->name().remove(' '));
-		newRegion->setBinningRange(regionAB->binningRange());
-		newRegion->setInputDataSources(QList<AMDataSource *>() << spectraSource);
-		scan_->addAnalyzedDataSource(newRegion, false, true);
-		detector->addRegionOfInterest(region);
+			AMRegionOfInterestAB *regionAB = (AMRegionOfInterestAB *)region->valueSource();
+			AMRegionOfInterestAB *newRegion = new AMRegionOfInterestAB(regionAB->name().remove(' '));
+			newRegion->setBinningRange(regionAB->binningRange());
+			newRegion->setInputDataSources(QList<AMDataSource *>() << spectraSource);
+			scan_->addAnalyzedDataSource(newRegion, false, true);
+			detector->addRegionOfInterest(region);
 
-		AM2DNormalizationAB *normalizedRegion = new AM2DNormalizationAB(QString("norm_%1").arg(newRegion->name()));
-		normalizedRegion->setInputDataSources(QList<AMDataSource *>() << newRegion << i0Sources);
-		normalizedRegion->setDataName(newRegion->name());
-		normalizedRegion->setNormalizationName(i0Sources.first()->name());
-		scan_->addAnalyzedDataSource(normalizedRegion, true, false);
+			AM2DNormalizationAB *normalizedRegion = new AM2DNormalizationAB(QString("norm_%1").arg(newRegion->name()));
+			normalizedRegion->setInputDataSources(QList<AMDataSource *>() << newRegion << i0Sources);
+			normalizedRegion->setDataName(newRegion->name());
+			normalizedRegion->setNormalizationName(i0Sources.first()->name());
+			scan_->addAnalyzedDataSource(normalizedRegion, true, false);
+		}
 	}
 }
 
