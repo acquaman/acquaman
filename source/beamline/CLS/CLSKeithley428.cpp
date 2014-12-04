@@ -56,10 +56,13 @@ double CLSKeithley428::valueAt(int index) const
 {
     double value = -1;
 
-    if (amplifierMode_ == Gain)
-        value = gains_.at(index);
-    else if (amplifierMode_ == Sensitivity)
-        value = toSensitivity(gains_.at(index));
+    if (index > -1) {
+
+        if (amplifierMode_ == Gain)
+            value = gains_.at(index);
+        else if (amplifierMode_ == Sensitivity)
+            value = toSensitivity(gains_.at(index));
+    }
 
     return value;
 }
