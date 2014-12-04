@@ -33,6 +33,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QTabWidget>
 #include <QGroupBox>
 #include <QLineEdit>
+#include <QMessageBox>
 #include "MPlot/MPlotWidget.h"
 #include "MPlot/MPlot.h"
 #include "MPlot/MPlotImage.h"
@@ -1229,28 +1230,37 @@ void REIXSXESImageInterpolationABEditorShift2Model::yValues(unsigned indexStart,
 
 void REIXSXESImageInterpolationABEditor::onApplyToOtherScansMenuClicked()
 {
-	if(!chooseScanDialog_) {
-		chooseScanDialog_ = new AMChooseScanDialog(AMDatabase::database("user"), "Choose scans...", "Choose the scans you want to apply these analysis parameters to.", true, this);
-		/*
-		chooseScanDialog_->dataView_->setOrganizeMode(AMDataViews::OrganizeScanTypes);
-		*/
-		chooseScanDialog_->setAttribute(Qt::WA_DeleteOnClose, false);
+	int confirm = QMessageBox::Yes;
+
+	QMessageBox confirmBox;
+	confirmBox.setText("This will apply changes directly to the database, open scan will not be affected until they are closed (without saving) and re-opened. It is recommended that you close all scans that you wish to apply setting to before proceeding.");
+	confirmBox.setInformativeText("Do you wish to proceed now?");
+	confirmBox.setStandardButtons(QMessageBox::Yes | QMessageBox::Abort);
+	confirmBox.setDefaultButton(QMessageBox::Yes);
+	confirm = confirmBox.exec();
+
+	if (confirm == QMessageBox::Yes)
+	{
+		if(!chooseScanDialog_) {
+			chooseScanDialog_ = new AMChooseScanDialog(AMDatabase::database("user"), "Choose scans...", "Choose the scans you want to apply these analysis parameters to.", true, this);
+			chooseScanDialog_->setAttribute(Qt::WA_DeleteOnClose, false);
+		}
+		connect(chooseScanDialog_, SIGNAL(accepted()), this, SLOT(onApplyToOtherScansChosen()));
+
+		// User feedback on what will happen:
+		QStringList operationsCompleted;
+		if(batchApplySumRange_->isChecked())
+			operationsCompleted << "Sum Range";
+		if(batchApplyCalibrationOffsets_->isChecked())
+			operationsCompleted << "Calibration offsets (energy, tilt)";
+		if(batchApplyCorrelationSettings_->isChecked())
+			operationsCompleted << "Correlation Settings";
+		if(batchApplyShiftCurve_->isChecked())
+			operationsCompleted << "Shift Curve";
+
+		chooseScanDialog_->setPrompt(QString("Choose the scans you want to apply these analysis parameters (%1) to.").arg(operationsCompleted.join(", ")));
+		chooseScanDialog_->show();
 	}
-	connect(chooseScanDialog_, SIGNAL(accepted()), this, SLOT(onApplyToOtherScansChosen()));
-
-	// User feedback on what will happen:
-	QStringList operationsCompleted;
-	if(batchApplySumRange_->isChecked())
-		operationsCompleted << "Sum Range";
-	if(batchApplyCalibrationOffsets_->isChecked())
-		operationsCompleted << "Calibration offsets (energy, tilt)";
-	if(batchApplyCorrelationSettings_->isChecked())
-		operationsCompleted << "Correlation Settings";
-	if(batchApplyShiftCurve_->isChecked())
-		operationsCompleted << "Shift Curve";
-
-	chooseScanDialog_->setPrompt(QString("Choose the scans you want to apply these analysis parameters (%1) to.").arg(operationsCompleted.join(", ")));
-	chooseScanDialog_->show();
 }
 
 #include "dataman/AMScan.h"
@@ -1295,11 +1305,13 @@ void REIXSXESImageInterpolationABEditor::onApplyToOtherScansChosen()
 			REIXSXESImageInterpolationAB* xesAB = qobject_cast<REIXSXESImageInterpolationAB*>(scan->analyzedDataSources()->at(i));
 			if(xesAB) {
 				xesABFound = true;
+				xesAB->enableLiveCorrelation(analysisBlock_->liveCorrelation());
 				if(batchApplySumRange_->isChecked()) {
 					xesAB->setSumRangeMaxY(analysisBlock_->sumRangeMaxY());
 					xesAB->setSumRangeMinY(analysisBlock_->sumRangeMinY());
 					xesAB->setSumRangeMaxX(analysisBlock_->sumRangeMaxX());
 					xesAB->setSumRangeMinX(analysisBlock_->sumRangeMinX());
+					xesAB->setRangeRound(analysisBlock_->rangeRound());
 				}
 				if(batchApplyCalibrationOffsets_->isChecked()) {
 					xesAB->setEnergyCalibrationOffset(analysisBlock_->energyCalibrationOffset());
@@ -1309,7 +1321,10 @@ void REIXSXESImageInterpolationABEditor::onApplyToOtherScansChosen()
 					xesAB->setCorrelation1CenterPixel(analysisBlock_->correlation1CenterPixel());
 					xesAB->setCorrelation1HalfWidth(analysisBlock_->correlation1HalfWidth());
 					xesAB->setCorrelation1Smoothing(analysisBlock_->correlation1Smoothing());
-					xesAB->enableLiveCorrelation(analysisBlock_->liveCorrelation());
+					xesAB->setCorrelation2CenterPixel(analysisBlock_->correlation2CenterPixel());
+					xesAB->setCorrelation2HalfWidth(analysisBlock_->correlation2HalfWidth());
+					xesAB->setCorrelation2Smoothing(analysisBlock_->correlation2Smoothing());
+
 				}
 				if(batchApplyShiftCurve_->isChecked()) {
 					xesAB->setShiftValues1(analysisBlock_->shiftValues1());
