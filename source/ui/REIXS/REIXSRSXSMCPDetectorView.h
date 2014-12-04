@@ -74,8 +74,6 @@ protected:
 
 
 protected slots:
-	/// not actually used
-	void onDataPositionChanged(QPointF);
 	/// triggered when a region is drag-selected
 	void onSelectedDataRectChanged(QRectF);
 	/// When button to trigger image download is clicked

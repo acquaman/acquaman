@@ -117,9 +117,6 @@ REIXSRSXSMCPDetectorView::REIXSRSXSMCPDetectorView(QWidget *parent) :
 	imagePlot_->axisScaleLeft()->setPadding(1);
 	imagePlot_->axisScaleBottom()->setPadding(1);
 
-//	imagePlot_->addTool(new MPlotDragZoomerTool);
-//	imagePlot_->addTool(new MPlotWheelZoomerTool);
-
 	adjustColorMapButton_ = new QPushButton("Adjust colors...");
 	updateButton_ = new QPushButton("Update Image");
 	acquireButton_ = new QPushButton("Acquire Image");
@@ -219,11 +216,6 @@ REIXSRSXSMCPDetectorView::REIXSRSXSMCPDetectorView(QWidget *parent) :
 
 }
 
-void REIXSRSXSMCPDetectorView::onDataPositionChanged(QPointF point)
-{
-	//qDebug() << point;
-}
-
 void REIXSRSXSMCPDetectorView::onSelectedDataRectChanged(QRectF rect)
 {
 	if(rect.size() != QSize(0,0))
@@ -301,17 +293,15 @@ void REIXSRSXSMCPDetectorView::drawRegions()
 	rangeRectangle1_->setXAxisTarget(imagePlot_->axisScaleBottom());	// note: does nothing if already correct
 	rangeRectangle1_->setYAxisTarget(imagePlot_->axisScaleLeft());	// note: does nothing if already correct
 
-
-	//rangeRectangleY1_->setRect(QRectF(QPoint(getTopLeftX1_->value(),getBottomRightY1_->value()),  QPoint(getBottomRightX1_->value(),  getTopLeftY1_->value())));
 	rangeRectangle1_->setRect(QRectF(QPoint(getTopLeftX1_->value(),getTopLeftY1_->value()),  QPoint(getBottomRightX1_->value(),  getBottomRightY1_->value())));
 
 	rangeRectangle1_->setVisible(true);
 
+
+
 	rangeRectangle2_->setXAxisTarget(imagePlot_->axisScaleBottom());	// note: does nothing if already correct
 	rangeRectangle2_->setYAxisTarget(imagePlot_->axisScaleLeft());	// note: does nothing if already correct
 
-
-	//rangeRectangleY2_->setRect(QRectF(QPoint(getTopLeftX2_->value(),getBottomRightY2_->value()),  QPoint(getBottomRightX2_->value(),  getTopLeftY2_->value())));
 	rangeRectangle2_->setRect(QRectF(QPoint(getTopLeftX2_->value(),getTopLeftY2_->value()),  QPoint(getBottomRightX2_->value(),  getBottomRightY2_->value())));
 
 	rangeRectangle2_->setVisible(true);
