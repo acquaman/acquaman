@@ -50,8 +50,10 @@ public:
 	/// Returns the instance of the beamline that has been created.
 	static IDEASBeamline* ideas()
 	{
-		if(!instance_)
+		if(!instance_){
 			instance_ = new IDEASBeamline();
+			instance_->initializeBeamlineSupport();
+		}
 
 		return static_cast<IDEASBeamline*>(instance_);
 	}

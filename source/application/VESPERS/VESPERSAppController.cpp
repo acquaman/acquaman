@@ -64,6 +64,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/VESPERS/VESPERSDbUpgrade1Pt6.h"
 
 #include "dataman/export/AMExportController.h"
+#include "dataman/export/AMExporterOptionSMAK.h"
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
 #include "dataman/export/AMExporterGeneralAscii.h"
 #include "dataman/export/AMExporterAthena.h"
@@ -85,6 +86,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/VESPERS/VESPERSFourElementVortexDetector.h"
 #include "ui/beamline/AMXRFBaseDetectorView.h"
 #include "ui/beamline/AMXRFDetailedDetectorView.h"
+#include "ui/VESPERS/VESPERSXRFDetailedDetectorView.h"
 
 #include "acquaman/VESPERS/VESPERSTimeScanConfiguration.h"
 #include "ui/VESPERS/VESPERSTimeScanConfigurationView.h"
@@ -291,16 +293,16 @@ void VESPERSAppController::setupUserInterface()
 	*/
 	pilatusView_ = new VESPERSPilatusCCDDetectorView(VESPERSBeamline::vespers()->vespersPilatusAreaDetector());
 
-	AMXRFDetailedDetectorView *singleElementVortexView = new AMXRFDetailedDetectorView(VESPERSBeamline::vespers()->vespersSingleElementVortexDetector());
+	VESPERSXRFDetailedDetectorView *singleElementVortexView = new VESPERSXRFDetailedDetectorView(VESPERSBeamline::vespers()->vespersSingleElementVortexDetector());
 	singleElementVortexView->buildDetectorView();
-	singleElementVortexView->setEnergyRange(3000, 20000);
+	singleElementVortexView->setEnergyRange(AMPeriodicTable::table()->elementBySymbol("K")->Kalpha().energy(), 20480);
 	singleElementVortexView->addEmissionLineNameFilter(QRegExp("1"));
 	singleElementVortexView->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
 	singleElementVortexView->addCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));
 
-	AMXRFDetailedDetectorView *fourElementVortexView = new AMXRFDetailedDetectorView(VESPERSBeamline::vespers()->vespersFourElementVortexDetector());
+	VESPERSXRFDetailedDetectorView *fourElementVortexView = new VESPERSXRFDetailedDetectorView(VESPERSBeamline::vespers()->vespersFourElementVortexDetector());
 	fourElementVortexView->buildDetectorView();
-	fourElementVortexView->setEnergyRange(3000, 20000);
+	fourElementVortexView->setEnergyRange(AMPeriodicTable::table()->elementBySymbol("K")->Kalpha().energy(), 20480);
 	fourElementVortexView->addEmissionLineNameFilter(QRegExp("1"));
 	fourElementVortexView->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
 	fourElementVortexView->addCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));
@@ -616,6 +618,17 @@ void VESPERSAppController::moveImmediately(const AMGenericScanEditor *editor)
 		connect(moveImmediatelyAction_, SIGNAL(failed()), this, SLOT(onMoveImmediatelyFailure()));
 		moveImmediatelyAction_->start();
 	}
+
+	else if (config->motor() == (VESPERS::BigBeamX | VESPERS::BigBeamZ)){
+
+		moveImmediatelyAction_ = new AMListAction3(new AMListActionInfo3("Move immediately", "Moves sample stage to given coordinates."), AMListAction3::Sequential);
+		moveImmediatelyAction_->addSubAction(VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->createHorizontalMoveAction(editor->dataPosition().x()));
+		moveImmediatelyAction_->addSubAction(VESPERSBeamline::vespers()->bigBeamMotorGroupObject()->createVerticalMoveAction(editor->dataPosition().y()));
+
+		connect(moveImmediatelyAction_, SIGNAL(succeeded()), this, SLOT(onMoveImmediatelySuccess()));
+		connect(moveImmediatelyAction_, SIGNAL(failed(int)), this, SLOT(onMoveImmediatelyFailure()));
+		moveImmediatelyAction_->start();
+	}
 }
 
 void VESPERSAppController::onMoveImmediatelySuccess()
@@ -755,7 +768,9 @@ bool VESPERSAppController::mapMotorAcceptable(int motor) const
 	return (motor == (VESPERS::H | VESPERS::V)
 			|| motor == (VESPERS::X | VESPERS::Z)
 			|| motor == (VESPERS::AttoH | VESPERS::AttoV)
-			|| motor == (VESPERS::AttoX | VESPERS::AttoZ));
+			|| motor == (VESPERS::AttoX | VESPERS::AttoZ)
+			|| motor == (VESPERS::BigBeamX | VESPERS::BigBeamZ)
+			|| motor == (VESPERS::WireH | VESPERS::WireV));
 }
 
 bool VESPERSAppController::lineScanMotorAcceptable(int motor) const
@@ -766,7 +781,9 @@ bool VESPERSAppController::lineScanMotorAcceptable(int motor) const
 			|| motor == (VESPERS::AttoX | VESPERS::AttoZ)
 			|| motor == VESPERS::AttoRx
 			|| motor == VESPERS::AttoRy
-			|| motor == VESPERS::AttoRz);
+			|| motor == VESPERS::AttoRz
+			|| motor == (VESPERS::BigBeamX | VESPERS::BigBeamZ)
+			|| motor == (VESPERS::WireH | VESPERS::WireV));
 }
 
 int VESPERSAppController::convertSampleStageMotorToIndividualMotor(int motor) const
@@ -785,6 +802,12 @@ int VESPERSAppController::convertSampleStageMotorToIndividualMotor(int motor) co
 
 	if (motor == VESPERS::AttoRx || motor == VESPERS::AttoRy || motor == VESPERS::AttoRz)
 		return motor;
+
+	if ((motor & VESPERS::BigBeamX) == VESPERS::BigBeamX)
+		return VESPERS::BigBeamX;
+
+	if ((motor & VESPERS::WireH) == VESPERS::WireH)
+		return VESPERS::WireV;
 
 	// A default that won't cause crashes.
 	return VESPERS::H;

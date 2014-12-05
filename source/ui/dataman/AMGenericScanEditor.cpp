@@ -88,10 +88,10 @@ AMGenericScanEditor::AMGenericScanEditor(QWidget *parent) :
 	scanListView_->setModel(scanSetModel_);
 	scanListView_->setSelectionMode(QAbstractItemView::SingleSelection);
 
-	AMDetailedItemDelegate* del = new AMDetailedItemDelegate(this);
-	del->setCloseButtonsEnabled(true);
-	connect(del, SIGNAL(closeButtonClicked(QModelIndex)), this, SLOT(onScanModelCloseClicked(QModelIndex)));
-	scanListView_->setItemDelegate(del);
+	del_ = new AMDetailedItemDelegate(this);
+	del_->setCloseButtonsEnabled(true);
+	connect(del_, SIGNAL(closeButtonClicked(QModelIndex)), this, SLOT(onScanModelCloseClicked(QModelIndex)));
+	scanListView_->setItemDelegate(del_);
 	scanListView_->setAlternatingRowColors(true);
 	scanListView_->setAttribute( Qt::WA_MacShowFocusRect, false);
 
@@ -154,10 +154,10 @@ AMGenericScanEditor::AMGenericScanEditor(QWidget *parent) :
 
 	chooseScanDialog_ = 0;
 
-	QTimer* oneSecondTimer = new QTimer(this);
-	connect(oneSecondTimer, SIGNAL(timeout()), this, SLOT(onOneSecondTimer()));
+	oneSecondTimer_ = new QTimer(this);
+	connect(oneSecondTimer_, SIGNAL(timeout()), this, SLOT(onOneSecondTimer()));
 
-	oneSecondTimer->start(1000);
+	oneSecondTimer_->start(1000);
 }
 
 AMGenericScanEditor::AMGenericScanEditor(bool use2DScanView, QWidget *parent)
@@ -208,10 +208,10 @@ AMGenericScanEditor::AMGenericScanEditor(bool use2DScanView, QWidget *parent)
 	scanListView_->setModel(scanSetModel_);
 	scanListView_->setSelectionMode(QAbstractItemView::SingleSelection);
 
-	AMDetailedItemDelegate* del = new AMDetailedItemDelegate(this);
-	del->setCloseButtonsEnabled(true);
-	connect(del, SIGNAL(closeButtonClicked(QModelIndex)), this, SLOT(onScanModelCloseClicked(QModelIndex)));
-	scanListView_->setItemDelegate(del);
+	del_ = new AMDetailedItemDelegate(this);
+	del_->setCloseButtonsEnabled(true);
+	connect(del_, SIGNAL(closeButtonClicked(QModelIndex)), this, SLOT(onScanModelCloseClicked(QModelIndex)));
+	scanListView_->setItemDelegate(del_);
 	scanListView_->setAlternatingRowColors(true);
 	scanListView_->setAttribute( Qt::WA_MacShowFocusRect, false);
 
@@ -266,9 +266,9 @@ AMGenericScanEditor::AMGenericScanEditor(bool use2DScanView, QWidget *parent)
 
 	chooseScanDialog_ = 0;
 
-	QTimer* oneSecondTimer = new QTimer(this);
-	connect(oneSecondTimer, SIGNAL(timeout()), this, SLOT(onOneSecondTimer()));
-	oneSecondTimer->start(1000);
+	oneSecondTimer_ = new QTimer(this);
+	connect(oneSecondTimer_, SIGNAL(timeout()), this, SLOT(onOneSecondTimer()));
+	oneSecondTimer_->start(1000);
 }
 
 AMGenericScanEditor::~AMGenericScanEditor() {
@@ -279,6 +279,10 @@ AMGenericScanEditor::~AMGenericScanEditor() {
 		s->deleteLater();
 	}
 
+	del_->deleteLater();
+	oneSecondTimer_->deleteLater();
+	if(chooseScanDialog_)
+		chooseScanDialog_->deleteLater();
 }
 
 QPointF AMGenericScanEditor::dataPosition() const
@@ -715,7 +719,7 @@ int AMGenericScanEditor::shouldSaveModifiedScan(AMScan *scan)
 
 
 
-bool AMGenericScanEditor::canCloseEditor()
+bool AMGenericScanEditor::canCloseEditor(bool promptToSave)
 {
 	bool canClose = true;
 
@@ -733,7 +737,9 @@ bool AMGenericScanEditor::canCloseEditor()
 	// Check for any modified scans?
 	for(int i=0; i<scanCount(); i++) {
 		AMScan* scan = scanAt(i);
-		if(scan->modified()) {
+		if(scan->modified() && !promptToSave)
+			return false;
+		else if(scan->modified()) {
 			// find out if we should cancel, or save or discard changes
 			int response = shouldSaveModifiedScan(scan);
 			if(response == QMessageBox::Cancel) {

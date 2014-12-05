@@ -42,7 +42,7 @@ public:
 	AMAxisStartedActionInfo(const AMAxisStartedActionInfo &other);
 
 	/// This function is used as a virtual copy constructor
-	virtual AMAxisStartedActionInfo* createCopy() const { return new AMAxisStartedActionInfo(*this); }
+	virtual AMActionInfo3* createCopy() const;
 
 	/// This should describe the type of the action
 	virtual QString typeDescription() const { return "Start Axis"; }

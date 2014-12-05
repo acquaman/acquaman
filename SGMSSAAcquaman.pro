@@ -1,11 +1,8 @@
-include ( acquamanCommon.pri )
-include ( sgmCommon.pri )
+# #####################################################################
+# QMake project file for acquaman, including test suites			January 2010. mark.boots@usask.ca
+# #####################################################################
 
-TARGET = SGMSSAAcquaman
-
-HEADERS += \
-	source/application/SGMSSAApplication/SGMSSAWidget.h
-
-SOURCES += \
-	source/application/SGM/SGMSSAMain.cpp \
-	source/application/SGMSSAApplication/SGMSSAWidget.cpp
+TEMPLATE = subdirs
+SUBDIRS += \
+	Initialize.pro \
+	SGMSSAAcquaman_internal.pro

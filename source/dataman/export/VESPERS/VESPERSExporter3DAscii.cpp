@@ -35,6 +35,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 VESPERSExporter3DAscii::VESPERSExporter3DAscii(QObject *parent)
 	: AMExporterGeneralAscii(parent)
 {
+	xRange_ = -1;
+	yRange_ = -1;
+	wireIndex_ = -1;
 }
 
 bool VESPERSExporter3DAscii::prepareDataSources()
@@ -74,6 +77,36 @@ bool VESPERSExporter3DAscii::prepareDataSources()
 					separateFileDataSources_ << i;
 				break;
 			}
+		}
+
+		int xRange = currentScan_->scanSize(0);
+		int yRange = currentScan_->scanSize(1);
+		int wireRange = currentScan_->scanSize(2);
+		QVector<double> fillerData = QVector<double>(yRange);
+		currentScan_->dataSourceAt(0)->values(AMnDIndex(xRange-1,0,0), AMnDIndex(xRange-1, yRange-1, 0), fillerData.data());
+
+		for (int j = 0; j < yRange && yRange_ == -1; j++)
+			if (int(fillerData.at(j)) == -1)
+				yRange_ = j+1;
+
+		if (yRange_ != -1){
+
+			fillerData = QVector<double>(xRange);
+			currentScan_->dataSourceAt(0)->values(AMnDIndex(0, yRange_-1, wireRange-1), AMnDIndex(xRange-1, yRange_-1, wireRange-1), fillerData.data());
+
+			for (int i = 0; i < xRange && xRange_ == -1; i++)
+				if (int(fillerData.at(i)) == -1)
+					xRange_ = i+1;
+		}
+
+		if (xRange_ != -1){
+
+			fillerData = QVector<double>(wireRange);
+			currentScan_->dataSourceAt(0)->values(AMnDIndex(xRange_-1, yRange_-1, 0), AMnDIndex(xRange_-1, yRange_-1, wireRange-1), fillerData.data());
+
+			for (int k = 0; k < xRange && wireIndex_ == -1; k++)
+				if (int(fillerData.at(k)) == -1)
+					wireIndex_ = k;
 		}
 	}
 
@@ -174,7 +207,7 @@ void VESPERSExporter3DAscii::writeMainTable()
 	int indexOfCCDName = currentScan_->indexOfDataSource("CCDFileNumber");
 	QString ccdFileName = config->ccdFileName();
 	int zRange = currentScan_->scanSize(2);
-	int yRange = currentScan_->scanSize(1);
+	int yRange = yRange_ == -1 ? currentScan_->scanSize(1) : (yRange_-1);
 	int xRange = currentScan_->scanSize(0);
 
 	QString ccdString;
@@ -225,6 +258,75 @@ void VESPERSExporter3DAscii::writeMainTable()
 		}
 	}
 
+	if (yRange_ != -1 && xRange_ != -1){
+
+		xRange = xRange_ == -1 ? currentScan_->scanSize(0) : (xRange_-1);
+
+		for (int x = 0; x < xRange; x++){
+
+			for (int z = 0; z < zRange; z++){
+
+				// over rows within columns
+				for(int c=0; c<mainTableDataSources_.count(); c++) {
+					setCurrentDataSource(mainTableDataSources_.at(c));
+					AMDataSource* ds = currentScan_->dataSourceAt(currentDataSourceIndex_);
+
+					// print x and y column?
+					if(mainTableIncludeX_.at(c)) {
+
+						ts << ds->axisValue(0, x).toString();
+						ts << option_->columnDelimiter();
+						ts << ds->axisValue(1, yRange_-1).toString();
+						ts << option_->columnDelimiter();
+						ts << ds->axisValue(2, z).toString();
+						ts << option_->columnDelimiter();
+					}
+
+					if(c == indexOfCCDName)
+						ts << QString(ccdString).arg(int(ds->value(AMnDIndex(x, yRange_-1, z)))-1);	// The -1 is because the value stored here is the NEXT number in the scan.  Purely a nomenclature setup from the EPICS interface.
+					else
+						ts << ds->value(AMnDIndex(x, yRange_-1, z)).toString();
+
+					ts << option_->columnDelimiter();
+				}
+
+				ts << option_->newlineDelimiter();
+			}
+		}
+	}
+
+	if (yRange_ != -1 && xRange_ != -1 && wireIndex_ == -1){
+
+		for (int z = 0; z < wireIndex_; z++){
+
+			// over rows within columns
+			for(int c=0; c<mainTableDataSources_.count(); c++) {
+				setCurrentDataSource(mainTableDataSources_.at(c));
+				AMDataSource* ds = currentScan_->dataSourceAt(currentDataSourceIndex_);
+
+				// print x and y column?
+				if(mainTableIncludeX_.at(c)) {
+
+					ts << ds->axisValue(0, xRange_-1).toString();
+					ts << option_->columnDelimiter();
+					ts << ds->axisValue(1, yRange_-1).toString();
+					ts << option_->columnDelimiter();
+					ts << ds->axisValue(2, z).toString();
+					ts << option_->columnDelimiter();
+				}
+
+				if(c == indexOfCCDName)
+					ts << QString(ccdString).arg(int(ds->value(AMnDIndex(xRange_-1, yRange_-1, z)))-1);	// The -1 is because the value stored here is the NEXT number in the scan.  Purely a nomenclature setup from the EPICS interface.
+				else
+					ts << ds->value(AMnDIndex(xRange_-1, yRange_-1, z)).toString();
+
+				ts << option_->columnDelimiter();
+			}
+
+			ts << option_->newlineDelimiter();
+		}
+	}
+
 	ts << option_->newlineDelimiter();
 }
 
@@ -254,12 +356,15 @@ bool VESPERSExporter3DAscii::writeSeparateFiles(const QString &destinationFolder
 			QString columnDelimiter = option_->columnDelimiter();
 			QString newLineDelimiter = option_->newlineDelimiter();
 			QTextStream out(&output);
+			int zRange = currentScan_->scanSize(2);
+			int yRange = yRange_ == -1 ? currentScan_->scanSize(1) : (yRange_-1);
+			int xRange = currentScan_->scanSize(0);
 
-			for (int y = 0, ySize = source->size(1); y < ySize; y++){
+			for (int y = 0; y < yRange; y++){
 
-				for (int x = 0, xSize = source->size(0); x < xSize; x++){
+				for (int x = 0; x < xRange; x++){
 
-					for (int z = 0, zSize = source->size(2); z < zSize; z++){
+					for (int z = 0; z < zRange; z++){
 
 						QVector<double> data(spectraSize);
 						source->values(AMnDIndex(x, y, z, 0), AMnDIndex(x, y, z, spectraSize-1), data.data());
@@ -272,37 +377,39 @@ bool VESPERSExporter3DAscii::writeSeparateFiles(const QString &destinationFolder
 				}
 			}
 
-			output.close();
-		}
-	}
+			if (yRange_ != -1 && xRange_ != -1){
 
-	else{
+				xRange = xRange_ == -1 ? currentScan_->scanSize(0) : (xRange_-1);
 
-		for (int s = 0, sSize = separateFileDataSources_.size(); s < sSize; s++) {
+				for (int x = 0; x < xRange; x++){
 
-			setCurrentDataSource(separateFileDataSources_.at(s));	// sets currentDataSourceIndex_
-			AMDataSource* source = currentScan_->dataSourceAt(currentDataSourceIndex_);
+					for (int z = 0; z < zRange; z++){
 
-			QFile output;
-			QString separateFileName = parseKeywordString( destinationFolderPath % "/" % option_->separateSectionFileName() );
+						QVector<double> data(spectraSize);
+						source->values(AMnDIndex(x, yRange_-1, z, 0), AMnDIndex(x, yRange_-1, z, spectraSize-1), data.data());
 
-			if(!openFile(&output, separateFileName)) {
-				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -4, "Export failed (partially): You selected to create separate files for certain data sets. Could not open the file '" % separateFileName % "' for writing.  Check that you have permission to save files there, and that a file with that name doesn't already exists."));
-				return false;
-			}
+						for (int i = 0; i < spectraSize; i++)
+							out << data.at(i) << columnDelimiter;
 
-			int spectraSize = source->size(2);
-			QString columnDelimiter = option_->columnDelimiter();
-			QString newLineDelimiter = option_->newlineDelimiter();
-			QTextStream out(&output);
-
-			for (int i = 0; i < spectraSize; i++){
-
-				for (int y = 0, ySize = source->size(1); y < ySize; y++)
-					for (int x = 0, xSize = source->size(0); x < xSize; x++)
-						out << double(source->value(AMnDIndex(x, y, i))) << columnDelimiter;
+						out << newLineDelimiter;
+					}
+				}
 
 				out << newLineDelimiter;
+			}
+
+			if (yRange_ != -1 && xRange_ != -1 && wireIndex_ == -1){
+
+				for (int z = 0; z < wireIndex_; z++){
+
+					QVector<double> data(spectraSize);
+					source->values(AMnDIndex(xRange_-1, yRange_-1, z, 0), AMnDIndex(xRange_-1, yRange_-1, z, spectraSize-1), data.data());
+
+					for (int i = 0; i < spectraSize; i++)
+						out << data.at(i) << columnDelimiter;
+
+					out << newLineDelimiter;
+				}
 			}
 
 			output.close();

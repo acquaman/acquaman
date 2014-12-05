@@ -272,7 +272,7 @@ AMAction3* SGMXASScanActionController::createInitializationActions(){
 	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
 	initializationStage3->addSubAction(moveAction);
 
-	qDebug() << "Undulator tracking " << configuration_->trackingGroup().controlNamed(tmpControl->name()).value();
+//	qDebug() << "Undulator tracking " << configuration_->trackingGroup().controlNamed(tmpControl->name()).value();
 
 	tmpControl = SGMBeamline::sgm()->exitSlitTracking();
 	AMControlInfo exitSlitTrackingSetpoint = tmpControl->toInfo();
@@ -281,7 +281,7 @@ AMAction3* SGMXASScanActionController::createInitializationActions(){
 	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
 	initializationStage3->addSubAction(moveAction);
 
-	qDebug() << "Exitslit tracking " << configuration_->trackingGroup().controlNamed(tmpControl->name()).value();
+//	qDebug() << "Exitslit tracking " << configuration_->trackingGroup().controlNamed(tmpControl->name()).value();
 
 	tmpControl = SGMBeamline::sgm()->monoTracking();
 	AMControlInfo monoTrackingSetpoint = tmpControl->toInfo();
@@ -290,7 +290,7 @@ AMAction3* SGMXASScanActionController::createInitializationActions(){
 	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
 	initializationStage3->addSubAction(moveAction);
 
-	qDebug() << "Mono tracking " << configuration_->trackingGroup().controlNamed(tmpControl->name()).value();
+//	qDebug() << "Mono tracking " << configuration_->trackingGroup().controlNamed(tmpControl->name()).value();
 
 	//really? here?
 	tmpControl = SGMBeamline::sgm()->harmonic();
@@ -357,7 +357,7 @@ AMAction3* SGMXASScanActionController::createCleanupActions(){
 	for(int x = 0; x < syncDwell->elementCount(); x++)
 		cleanupActions->addSubAction(syncDwell->elementAt(x)->createEnableAction3(syncDwell->enabledAt(x)));
 
-	qDebug() << "Will go back to " << syncDwell->time();
+//	qDebug() << "Will go back to " << syncDwell->time();
 
 	cleanupActions->addSubAction(syncDwell->createMasterTimeAction3(syncDwell->time()));
 

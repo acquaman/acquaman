@@ -34,8 +34,11 @@ AMListActionInfo3::AMListActionInfo3(const AMListActionInfo3 &other) :
 {
 }
 
-AMActionInfo3* AMListActionInfo3::createCopy() const{
-	return new AMListActionInfo3(*this);
+AMActionInfo3* AMListActionInfo3::createCopy() const
+{
+	AMActionInfo3 *info = new AMListActionInfo3(*this);
+	info->dissociateFromDb(true);
+	return info;
 }
 
 QString AMListActionInfo3::typeDescription() const{
@@ -56,8 +59,11 @@ AMSequentialListActionInfo3::AMSequentialListActionInfo3(const AMSequentialListA
 {
 }
 
-AMActionInfo3* AMSequentialListActionInfo3::createCopy() const{
-	return new AMSequentialListActionInfo3(*this);
+AMActionInfo3* AMSequentialListActionInfo3::createCopy() const
+{
+	AMActionInfo3 *info = new AMSequentialListActionInfo3(*this);
+	info->dissociateFromDb(true);
+	return info;
 }
 
 QString AMSequentialListActionInfo3::typeDescription() const{
@@ -78,8 +84,11 @@ AMParallelListActionInfo3::AMParallelListActionInfo3(const AMParallelListActionI
 {
 }
 
-AMActionInfo3* AMParallelListActionInfo3::createCopy() const{
-	return new AMParallelListActionInfo3(*this);
+AMActionInfo3* AMParallelListActionInfo3::createCopy() const
+{
+	AMActionInfo3 *info = new AMParallelListActionInfo3(*this);
+	info->dissociateFromDb(true);
+	return info;
 }
 
 QString AMParallelListActionInfo3::typeDescription() const{

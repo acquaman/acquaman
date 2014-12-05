@@ -605,7 +605,9 @@ MPlotItem* AMScanViewInternal::createPlotItemForDataSource(const AMDataSource* d
 
 	case 2: {
 		MPlotImageBasic* image = new MPlotImageBasic();
-		image->setModel(new AMDataSourceImageData(dataSource), true);
+		AMDataSourceImageData *model = new AMDataSourceImageData;
+		model->setDataSource(dataSource);
+		image->setModel(model, true);
 		image->setColorMap(plotSettings.colorMap);
 		image->setZValue(-1000);
 		rv = image;
@@ -702,6 +704,7 @@ AMScanViewExclusiveView::AMScanViewExclusiveView(AMScanView* masterView) : AMSca
 AMScanViewExclusiveView::~AMScanViewExclusiveView() {
 	// PlotSeries's will be deleted as children items of the plot.
 
+	delete plotCursor_;
 	plot_->deleteLater();
 }
 
@@ -930,7 +933,8 @@ void AMScanViewExclusiveView::reviewScan(int scanIndex) {
 			case 2: {
 				MPlotAbstractImage* image = static_cast<MPlotAbstractImage*>(plotItems_.at(scanIndex));
 				if(plotItemDataSources_.at(scanIndex) != dataSource) {
-					AMDataSourceImageData* newData = new AMDataSourceImageData(dataSource);
+					AMDataSourceImageData* newData = new AMDataSourceImageData;
+					newData->setDataSource(dataSource);
 					image->setModel(newData, true);
 					plotItemDataSources_[scanIndex] = dataSource;
 				}
@@ -1104,6 +1108,7 @@ AMScanViewMultiView::~AMScanViewMultiView() {
  delete plotSeries_[si][ci];
    }*/
 
+	delete plotCursor_;
 	plot_->deleteLater();
 }
 

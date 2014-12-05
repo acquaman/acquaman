@@ -44,6 +44,7 @@ class SGMFastScanConfiguration2013 : public AMFastScanConfiguration, public SGMS
 	Q_PROPERTY(double c2Parameter READ c2Parameter WRITE setC2Parameter)
 	Q_PROPERTY(double sParameter READ sParameter WRITE setSParameter)
 	Q_PROPERTY(double thetaParameter READ thetaParameter WRITE setThetaParameter)
+	Q_PROPERTY(bool enableUpDownScanning READ enableUpDownScanning WRITE setEnableUpDownScanning)
 	Q_PROPERTY(AMDbObject* fastScanParameters READ dbReadFastScanParameters WRITE dbLoadFastScanParameters)
 
 	Q_CLASSINFO("AMDbObject_Attributes", "description=SGM XAS Scan Configuration")
@@ -59,6 +60,9 @@ public:
 	/// Returns the metaObject
 	const QMetaObject* getMetaObject();
 
+	/// Overloading the loadFromDb call to do a little clean up at the end
+	virtual bool loadFromDb(AMDatabase* db, int id);
+
 	/// Returns a pointer to a newly-created copy of this scan configuration.  (It takes the role of a copy constructor, but is virtual so that our high-level classes can copy a scan configuration without knowing exactly what kind it is.)
 	virtual AMScanConfiguration* createCopy() const;
 
@@ -66,6 +70,9 @@ public:
 	virtual AMScanController* createController();
 
 	virtual AMScanConfigurationView* createView();
+
+	/// A human-readable description of this scan configuration. Can be re-implemented to provide more details. Used by scan action to set the title for the action view.
+	virtual QString description() const;
 
 	/// A human-readable synopsis of this scan configuration. Can be re-implemented to proved more details. Used by scan action to set the main text in the action view.
 	virtual QString detailedDescription() const;
@@ -121,6 +128,8 @@ public:
 
 	/// Returns the preset string from the SGM Periodic Table (list of available fast scans)
 	QStringList presets() const;
+	/// Returns the index of the preset if the currentParameters are from the preset list, otherwise -1
+	int currentPresetIndex() const;
 	/// Returns the SGMFastScanParameters object currently being used
 	SGMFastScanParameters* currentParameters() const;
 	/// Returns the SGMEnergyParameters object currently being used
@@ -128,6 +137,8 @@ public:
 
 	/// Overrides the warnings string to check warnings from the fast scan parameters in the database
 	virtual QString dbLoadWarnings() const;
+
+	bool enableUpDownScanning() const;
 
 public slots:
 	/// Changes the currentSettings based on selecting one of the presets in the list
@@ -178,6 +189,9 @@ public slots:
 	bool setExitSlitDistance(double exitSlitDistance);
 	/// Changes which grating to use (low, medium, high) in the current settings and emits the associated change signal
 	bool setSGMGrating(int sgmGrating);
+
+	/// Changes the flag for allowing the controller to decide whether to scan up or down
+	bool setEnableUpDownScanning(bool enableUpDownScanning);
 
 signals:
 	/// Emitted when the element name changes
@@ -234,6 +248,9 @@ signals:
 	/// Emitted when the parameters change
 	void parametersChanged();
 
+	/// Emitted when the up/down scanning enable flag changes
+	void enableUpDownScanningChanged(bool enableUpDownScanning);
+
 protected:
 	/// Used for writing the fast scan parameters to the database
 	AMDbObject* dbReadFastScanParameters();
@@ -251,6 +268,9 @@ protected:
 
 	/// Holds a warning regarding old saved versions of fast scans if no parameters were saved
 	QString dbLoadWarnings_;
+
+	/// Flag to let the controller know it can decided whether to scan up or down
+	bool enableUpDownScanning_;
 };
 
 #endif // SGMFASTSCANCONFIGURATION2013_H

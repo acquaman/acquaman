@@ -190,8 +190,11 @@ AMMotorGroupObjectView::AMMotorGroupObjectView(AMMotorGroupObject *motorGroupObj
 		connect(motorGroupObject_->controlAt(i), SIGNAL(valueChanged(double)), controlSetpoints_.at(i), SLOT(setValue(double)));
 		connect(motorGroupObject_->controlAt(i), SIGNAL(movingChanged(bool)), this, SLOT(onMovingChanged()));
 
-		if(motorGroupObject_->controlAt(i)->isConnected())
+		if(motorGroupObject_->controlAt(i)->isConnected()){
+
 			controlSetpoints_.at(i)->setValue(motorGroupObject_->controlAt(i)->value());
+			controlSetpoints_.at(i)->setRange(motorGroupObject_->controlAt(i)->range().first, motorGroupObject_->controlAt(i)->range().second);
+		}
 	}
 
 	connect(controlSetpoints_.at(0), SIGNAL(editingFinished()), this, SLOT(onFirstControlSetpoint()));
@@ -267,10 +270,10 @@ void AMMotorGroupObjectView::onStopClicked()
 
 void AMMotorGroupObjectView::onMovingChanged()
 {
-	bool isMoving = true;
+	bool isMoving = false;
 
 	foreach (AMControl *control, motorGroupObject_->controls())
-		isMoving &= control->isMoving();
+		isMoving |= control->isMoving();
 
 	status_->setPixmap(QIcon(isMoving ? ":/ON.png" : ":/OFF.png").pixmap(25));
 

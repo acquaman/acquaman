@@ -176,14 +176,6 @@ AM2DScanView::AM2DScanView(AMScanSetModel* model, QWidget *parent)
 	multiScanBars_->setModel(scansModel_);
 
 	currentExclusiveDataSource_ = 0;
-
-	exclusiveModeAnim_ = new QPropertyAnimation(gExclusiveView_->graphicsWidget(), "geometry", this);
-	exclusiveModeAnim_->setDuration(500);
-	exclusiveModeAnim_->setEasingCurve(QEasingCurve::InOutCubic);
-
-	multiViewModeAnim_ = new QPropertyAnimation(gMultiView_->graphicsWidget(), "geometry", this);
-	multiViewModeAnim_->setDuration(500);
-	multiViewModeAnim_->setEasingCurve(QEasingCurve::InOutCubic);
 }
 
 AM2DScanView::~AM2DScanView()
@@ -417,13 +409,7 @@ void AM2DScanView::resizeExclusiveViews()
 	QSizeF mainWidgetSize = QSizeF(viewSize.width(), viewSize.height());
 
 	gExclusiveView_->setSceneRect(QRectF(QPointF(0,0), viewSize ));
-
-	QPointF pos = QPointF(-viewSize.width()*0, 0);
-
-	exclusiveModeAnim_->stop();
-	exclusiveModeAnim_->setStartValue(gExclusiveView_->graphicsWidget()->geometry());
-	exclusiveModeAnim_->setEndValue(QRectF(pos, mainWidgetSize));
-	exclusiveModeAnim_->start();
+	gExclusiveView_->graphicsWidget()->setGeometry(QRectF(QPointF(0,0), mainWidgetSize));
 }
 
 void AM2DScanView::resizeMultiViews()
@@ -432,13 +418,7 @@ void AM2DScanView::resizeMultiViews()
 	QSizeF mainWidgetSize = QSizeF(viewSize.width(), viewSize.height());
 
 	gMultiView_->setSceneRect(QRectF(QPointF(0,0), viewSize ));
-
-	QPointF pos = QPointF(-viewSize.width()*0, 0);
-
-	multiViewModeAnim_->stop();
-	multiViewModeAnim_->setStartValue(gMultiView_->graphicsWidget()->geometry());
-	multiViewModeAnim_->setEndValue(QRectF(pos, mainWidgetSize));
-	multiViewModeAnim_->start();
+	gMultiView_->graphicsWidget()->setGeometry(QRectF(QPointF(0,0), mainWidgetSize));
 }
 
 void AM2DScanView::onScanAdded(AMScan *scan)
@@ -626,8 +606,10 @@ MPlotItem* AM2DScanViewInternal::createPlotItemForDataSource(const AMDataSource*
 
 	case 2: {
 		MPlotImageBasicwDefault* image = new MPlotImageBasicwDefault();
-		image->setDefaultValue(-1);
-		image->setModel(new AMDataSourceImageDatawDefault(dataSource, -1), true);
+		image->setDefaultValue(-1.0);
+		AMDataSourceImageDatawDefault *model = new AMDataSourceImageDatawDefault(-1);
+		model->setDataSource(dataSource);
+		image->setModel(model, true);
 		image->setColorMap(plotSettings.colorMap);
 		image->setZValue(-1000);
 		rv = image;
@@ -893,7 +875,8 @@ void AM2DScanViewExclusiveView::reviewScan(int scanIndex)
 
 				MPlotAbstractImage* image = static_cast<MPlotAbstractImage*>(plotItems_.at(scanIndex));
 				if(plotItemDataSources_.at(scanIndex) != dataSource) {
-					AMDataSourceImageDatawDefault* newData = new AMDataSourceImageDatawDefault(dataSource, -1);
+					AMDataSourceImageDatawDefault* newData = new AMDataSourceImageDatawDefault(-1);
+					newData->setDataSource(dataSource);
 					image->setModel(newData, true);
 					plotItemDataSources_[scanIndex] = dataSource;
 				}

@@ -73,7 +73,9 @@ VESPERSSpatialLineScanConfiguration::VESPERSSpatialLineScanConfiguration(const V
 
 AMScanConfiguration *VESPERSSpatialLineScanConfiguration::createCopy() const
 {
-	return new VESPERSSpatialLineScanConfiguration(*this);
+	AMScanConfiguration *configuration = new VESPERSSpatialLineScanConfiguration(*this);
+	configuration->dissociateFromDb(true);
+	return configuration;
 }
 
 AMScanController *VESPERSSpatialLineScanConfiguration::createController()
@@ -252,6 +254,22 @@ VESPERS::Motors VESPERSSpatialLineScanConfiguration::otherMotor(VESPERS::Motors 
 		other = VESPERS::NoMotor;
 		break;
 
+	case VESPERS::BigBeamX:
+		other = VESPERS::BigBeamZ;
+		break;
+
+	case VESPERS::BigBeamZ:
+		other = VESPERS::BigBeamX;
+		break;
+
+	case VESPERS::WireH:
+		other = VESPERS::WireV;
+		break;
+
+	case VESPERS::WireV:
+		other = VESPERS::WireH;
+		break;
+
 	default:
 		other = VESPERS::NoMotor;
 		break;
@@ -307,6 +325,26 @@ QString VESPERSSpatialLineScanConfiguration::otherMotorString(VESPERS::Motors mo
 		break;
 
 	case VESPERS::AttoRz:
+		string = "";
+		break;
+
+	case VESPERS::BigBeamX:
+		string = "Vertical motor, Z";
+		break;
+
+	case VESPERS::BigBeamZ:
+		string = "Horizontal motor, X";
+		break;
+
+	case VESPERS::WireH:
+		string = "Vertical motor, V";
+		break;
+
+	case VESPERS::WireV:
+		string = "Horizontal motor, H";
+		break;
+
+	case VESPERS::WireN:
 		string = "";
 		break;
 

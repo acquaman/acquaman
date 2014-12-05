@@ -31,3 +31,10 @@ AMAxisValueFinishedActionInfo::AMAxisValueFinishedActionInfo(const AMAxisValueFi
 {
 
 }
+
+AMActionInfo3 *AMAxisValueFinishedActionInfo::createCopy() const
+{
+	AMActionInfo3 *info = new AMAxisValueFinishedActionInfo(*this);
+	info->dissociateFromDb(true);
+	return info;
+}

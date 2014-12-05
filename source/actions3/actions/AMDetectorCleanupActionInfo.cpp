@@ -37,3 +37,10 @@ AMDetectorCleanupActionInfo::AMDetectorCleanupActionInfo(const AMDetectorCleanup
 {
 	detectorInfo_.setValuesFrom(*(other.detectorInfo()));
 }
+
+AMActionInfo3 *AMDetectorCleanupActionInfo::createCopy() const
+{
+	AMActionInfo3 *info = new AMDetectorCleanupActionInfo(*this);
+	info->dissociateFromDb(true);
+	return info;
+}

@@ -49,7 +49,7 @@ public:
 	virtual ~AMScanActionInfo();
 
 	/// Creates a copy of this action info.
-	virtual AMActionInfo3 *createCopy() const { return new AMScanActionInfo(*this); }
+	virtual AMActionInfo3 *createCopy() const;
 
 	// Re-implemented public functions
 	/////////////////////////////////

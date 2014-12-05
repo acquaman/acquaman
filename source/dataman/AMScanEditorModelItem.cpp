@@ -21,14 +21,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMScanEditorModelItem.h"
 
-#include "ui/AMWindowPaneModel.h"
-#include "application/AMDatamanAppController.h"
-#include "ui/dataman/AMGenericScanEditor.h"
-
 #include <QUrl>
 #include <QList>
 
- AMScanEditorModelItem::~AMScanEditorModelItem(){}
+#include "ui/AMWindowPaneModel.h"
+#include "application/AMDatamanAppController.h"
+#include "ui/dataman/AMGenericScanEditor.h"
+#include "dataman/AMScan.h"
+
 AMScanEditorModelItem::AMScanEditorModelItem(AMGenericScanEditor *editorWidget, AMDatamanAppController* controller)
 	: AMDragDropItem()
 {
@@ -54,6 +54,42 @@ AMScanEditorModelItem::AMScanEditorModelItem(AMGenericScanEditor *editorWidget, 
 
 	setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsDropEnabled);
 	setDropEnabled(true);
+}
+
+AMScanEditorModelItem::~AMScanEditorModelItem(){}
+
+QVariant AMScanEditorModelItem::data(int role) const{
+	switch(role){
+	case AMScanEditorModelItem::IsModifiedRole:
+		if(editorWidget())
+			return !editorWidget()->canCloseEditor(false);
+		return false;
+	case AMScanEditorModelItem::IsMultipleRole:
+		if(editorWidget() && editorWidget()->scanCount() > 1)
+			return true;
+		return false;
+	case AMScanEditorModelItem::ScanTextRole:
+		if(editorWidget()){
+			QString retVal;
+			if(editorWidget()->scanCount() == 0)
+				retVal = "Empty Editor";
+			else if(editorWidget()->scanCount() == 1)
+				retVal.append(QString("%1 [%2]").arg(editorWidget()->scanAt(0)->name()).arg(editorWidget()->scanAt(0)->id()));
+			else{
+				retVal.append(QString("%1 Scans [%2").arg(editorWidget()->scanCount()).arg(editorWidget()->scanAt(0)->id()));
+				for(int x = 1, size = editorWidget()->scanCount(); x < size; x++)
+					retVal.append(QString(",%1").arg(editorWidget()->scanAt(x)->id()));
+				retVal.append("]");
+			}
+
+			if(!editorWidget()->canCloseEditor(false))
+				retVal.append(" (Modified)");
+			return retVal;
+		}
+		return QString();
+	default:
+		return AMDragDropItem::data(role);
+	}
 }
 
 

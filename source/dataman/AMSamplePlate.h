@@ -26,6 +26,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMOrderedSet.h"
 #include "dataman/AMSample.h"
 
+class AMDeferredFunctionCall;
+
 class AMSamplePlate : public AMDbObject
 {
 Q_OBJECT
@@ -124,11 +126,14 @@ protected:
 	/// Holds the list of samples
 	AMOrderedList<AMSample*> samples_;
 
-	/// position of the sample plate
+	/// Position of the sample plate
 	QVector3D platePosition_;
 
-	/// rotation of sample plate
+	/// Rotation of sample plate
 	double plateRotation_;
+
+	/// Used to schedule a delayed call to refreshFromDb()
+	AMDeferredFunctionCall *storeToDbFunctionCall_;
 };
 
 class AMSamplePlateBrowser : public QAbstractListModel

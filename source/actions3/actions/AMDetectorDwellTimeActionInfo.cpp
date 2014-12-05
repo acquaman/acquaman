@@ -39,3 +39,10 @@ AMDetectorDwellTimeActionInfo::AMDetectorDwellTimeActionInfo(const AMDetectorDwe
 	detectorInfo_.setValuesFrom(*(other.detectorInfo()));
 	dwellSeconds_ = other.dwellSeconds();
 }
+
+AMActionInfo3 *AMDetectorDwellTimeActionInfo::createCopy() const
+{
+	AMActionInfo3 *info = new AMDetectorDwellTimeActionInfo(*this);
+	info->dissociateFromDb(true);
+	return info;
+}

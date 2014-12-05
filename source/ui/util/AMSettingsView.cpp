@@ -28,6 +28,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QFontMetrics>
 #include <QMessageBox>
 
+#include "AMQEvents.h"
+
 #include "util/AMSettings.h"
 #include "application/AMPluginsManager.h"
 
@@ -138,7 +140,6 @@ void AMSettingsView::discardChanges(){
 	}
 }
 
-#include <QShowEvent>
 void AMSettingsView::showEvent(QShowEvent *e){
 	storeInitialState();
 	e->accept();

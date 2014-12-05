@@ -43,3 +43,10 @@ void VESPERSSetStringActionInfo::setText(const QString &newText)
 		setModified(true);
 	}
 }
+
+AMActionInfo3 *VESPERSSetStringActionInfo::createCopy() const
+{
+	AMActionInfo3 *info = new VESPERSSetStringActionInfo(*this);
+	info->dissociateFromDb(true);
+	return info;
+}

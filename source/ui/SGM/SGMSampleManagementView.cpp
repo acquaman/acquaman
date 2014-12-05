@@ -92,6 +92,7 @@ void SGMSampleManagementView::onTransferPositionButtonClicked(){
 		return;
 	if(transferPositionActions_)
 		transferPositionActions_->deleteLater();
+	SGMBeamline::sgm()->setMoveInFocus(false);
 	transferPositionActions_ = SGMBeamline::sgm()->createGoToTransferPositionActions3();
 	transferPositionActions_->start();
 }
@@ -101,6 +102,7 @@ void SGMSampleManagementView::onMeasurePositionButtonClicked(){
 		return;
 	if(measurementPositionActions_)
 		measurementPositionActions_->deleteLater();
+	SGMBeamline::sgm()->setMoveInFocus(false);
 	measurementPositionActions_ = SGMBeamline::sgm()->createGoToMeasurementPositionActions3();
 	measurementPositionActions_->start();
 }

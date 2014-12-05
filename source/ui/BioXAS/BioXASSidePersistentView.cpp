@@ -21,30 +21,23 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "BioXASSidePersistentView.h"
 
-#include "beamline/BioXAS/BioXASSideBeamline.h"
-#include "ui/beamline/AMExtendedControlEditor.h"
-
 BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
     QWidget(parent)
 {
-    energyEditor_ = new BioXASSideMonoBasicEnergyView(BioXASSideBeamline::bioXAS()->mono(), this);
+    energyControlEditor_ = new AMExtendedControlEditor(BioXASSideBeamline::bioXAS()->mono()->energyControl());
+    energyControlEditor_->setControlFormat('f', 2);
 
     viewCrystalChangeButton_ = new QPushButton("Crystal Change", this);
     viewCrystalChangeButton_->setToolTip("Mono Crystal Change Instructions");
-    connect( viewCrystalChangeButton_, SIGNAL(clicked()), this, SLOT(toViewMonoCrystalChangeInstructions()) );
-
-    keithleyView_ = BioXASSideBeamline::bioXAS()->i0Keithley()->createView();
-    keithleyView_->setParent(this);
-    keithleyView_->setPrecision(2);
-    keithleyView_->setFormat('e');
 
     QVBoxLayout *layout = new QVBoxLayout();
-    layout->addWidget(energyEditor_);
+    layout->addWidget(energyControlEditor_);
     layout->addWidget(viewCrystalChangeButton_);
-    layout->addWidget(keithleyView_);
     layout->addStretch();
 
     setLayout(layout);
+
+    connect( viewCrystalChangeButton_, SIGNAL(clicked()), this, SLOT(toViewMonoCrystalChangeInstructions()) );
 }
 
 BioXASSidePersistentView::~BioXASSidePersistentView()
@@ -54,6 +47,6 @@ BioXASSidePersistentView::~BioXASSidePersistentView()
 
 void BioXASSidePersistentView::toViewMonoCrystalChangeInstructions()
 {    
-    BioXASSideMonoCrystalChangeView *crystalChangeView = new BioXASSideMonoCrystalChangeView(BioXASSideBeamline::bioXAS()->mono());
-    crystalChangeView->exec();
+//    BioXASSideMonoCrystalChangeView *crystalChangeView = new BioXASSideMonoCrystalChangeView(BioXASSideBeamline::bioXAS()->mono());
+//    crystalChangeView->exec();
 }

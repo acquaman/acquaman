@@ -60,11 +60,11 @@ void AMXRFBaseDetectorView::buildDetectorView()
 
 	acquireButton_ = new QPushButton(QIcon(":/22x22/media-playback-start.png"), "Acquire");
 	acquireButton_->setMaximumHeight(25);
-	connect(acquireButton_, SIGNAL(clicked()), detector_, SLOT(acquire()));
+	connect(acquireButton_, SIGNAL(clicked()), this, SLOT(startAcquisition()));
 
 	cancelButton_ = new QPushButton(QIcon(":/22x22/media-playback-stop.png"), "Stop");
 	cancelButton_->setMaximumHeight(25);
-	connect(cancelButton_, SIGNAL(clicked()), detector_, SLOT(cancelAcquisition()));
+	connect(cancelButton_, SIGNAL(clicked()), this, SLOT(cancelAcquisition()));
 
 	statusLabel_ = new QLabel;
 	statusLabel_->setPixmap(QIcon(":/OFF.png").pixmap(22));
@@ -151,6 +151,16 @@ void AMXRFBaseDetectorView::setupPlot()
 
 	// Set the autoscale constraints.
 	plot_->axisScaleLeft()->setDataRangeConstraint(MPlotAxisRange(0, MPLOT_POS_INFINITY));
+}
+
+void AMXRFBaseDetectorView::startAcquisition()
+{
+	detector_->acquire();
+}
+
+void AMXRFBaseDetectorView::cancelAcquisition()
+{
+	detector_->cancelAcquisition();
 }
 
 void AMXRFBaseDetectorView::onAcquisitionStateChanged(AMDetector::AcqusitionState state)

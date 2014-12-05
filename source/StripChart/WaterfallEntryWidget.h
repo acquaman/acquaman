@@ -22,8 +22,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef WATERFALLENTRYWIDGET_H
 #define WATERFALLENTRYWIDGET_H
 
+#include "AMQtGui.h"
+
 #include <QWidget>
-#include <QtGui>
 
 
 class WaterfallEntryWidget : public QWidget

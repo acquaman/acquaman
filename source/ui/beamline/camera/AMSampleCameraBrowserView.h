@@ -122,13 +122,18 @@ protected:
 
 protected:
 	AMSampleCameraBrowser *cameraBrowser_;
-	AMSampleCameraView* videoWidget_;
-	QComboBox* sourceComboBox_;
+	AMSampleCameraView *videoWidget_;
+	QComboBox *sourceComboBox_;
+
+	QPushButton *noSourceButton_;
 
 protected slots:
 
-	/// called when the user selects a different source from the combobox
+	/// Called when the user selects a different source from the combobox
 	void onSourceComboBoxChanged(int index);
+
+	/// Called when the user wants to disable the stream
+	void onNoSourceButtonClicked();
 
 	void onRowsInserted(const QModelIndex &index, int start, int end);
 

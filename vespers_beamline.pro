@@ -3,7 +3,9 @@
 # #####################################################################
 
 TEMPLATE = subdirs
-SUBDIRS +=	pluginProjects/FileLoaders/AMFileLoaderPlugins.pro \
+SUBDIRS +=	Initialize.pro \
+		pluginProjects/FileLoaders/AMFileLoaderPlugins.pro \
 		VESPERSBendingMirrors.pro \
 		VESPERSAcquaman.pro \
+		VESPERSAddOnsCoordinator.pro \
 		AMCrashReporter.pro

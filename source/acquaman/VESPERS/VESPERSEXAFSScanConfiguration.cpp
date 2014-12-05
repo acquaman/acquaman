@@ -95,7 +95,9 @@ VESPERSEXAFSScanConfiguration::VESPERSEXAFSScanConfiguration(const VESPERSEXAFSS
 
 AMScanConfiguration *VESPERSEXAFSScanConfiguration::createCopy() const
 {
-	return new VESPERSEXAFSScanConfiguration(*this);
+	AMScanConfiguration *configuration = new VESPERSEXAFSScanConfiguration(*this);
+	configuration->dissociateFromDb(true);
+	return configuration;
 }
 
 AMScanController *VESPERSEXAFSScanConfiguration::createController()

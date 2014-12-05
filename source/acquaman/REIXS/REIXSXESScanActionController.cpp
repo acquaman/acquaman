@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMXESScan.h"
 #include "acquaman/REIXS/REIXSXESScanConfiguration.h"
 #include "beamline/REIXS/REIXSBeamline.h"
+#include "analysis/REIXS/REIXSXESImageInterpolationAB.h"
 #include "analysis/REIXS/REIXSXESImageAB.h"
 #include "dataman/datastore/AMCDFDataStore.h"
 #include "dataman/AMTextStream.h"
@@ -75,7 +76,8 @@ REIXSXESScanActionController::REIXSXESScanActionController(REIXSXESScanConfigura
 
 REIXSXESScanActionController::~REIXSXESScanActionController()
 {
-	fileWriterThread_->deleteLater();
+	// No need to clean up fileWriterThread, we'll be informed to delete ourself after it is destroyed
+//	fileWriterThread_->deleteLater();
 }
 
 void REIXSXESScanActionController::buildScanController()
@@ -103,17 +105,17 @@ void REIXSXESScanActionController::buildScanController()
 	QFileInfo fullPath(path);	// ex: 2010/09/Mon_03_12_24_48_0000   (Relative, and with no extension)
 
 	qRegisterMetaType<AMScanActionControllerBasicFileWriter::FileWriterError>("FileWriterError");
-	REIXSScanActionControllerMCPFileWriter *fileWriter = new REIXSScanActionControllerMCPFileWriter(AMUserSettings::userDataFolder % fullPath.filePath());
-	connect(fileWriter, SIGNAL(fileWriterIsBusy(bool)), this, SLOT(onFileWriterIsBusy(bool)));
-	connect(fileWriter, SIGNAL(fileWriterError(AMScanActionControllerBasicFileWriter::FileWriterError)), this, SLOT(onFileWriterError(AMScanActionControllerBasicFileWriter::FileWriterError)));
-	connect(this, SIGNAL(requestWriteToFile(int,QString)), fileWriter, SLOT(writeToFile(int,QString)));
-	connect(this, SIGNAL(finishWritingToFile()), fileWriter, SLOT(finishWriting()));
+	fileWriter_ = new REIXSScanActionControllerMCPFileWriter(AMUserSettings::userDataFolder % fullPath.filePath());
+	connect(fileWriter_, SIGNAL(fileWriterIsBusy(bool)), this, SLOT(onFileWriterIsBusy(bool)));
+	connect(fileWriter_, SIGNAL(fileWriterError(AMScanActionControllerBasicFileWriter::FileWriterError)), this, SLOT(onFileWriterError(AMScanActionControllerBasicFileWriter::FileWriterError)));
+	connect(this, SIGNAL(requestWriteToFile(int,QString)), fileWriter_, SLOT(writeToFile(int,QString)));
+	connect(this, SIGNAL(finishWritingToFile()), fileWriter_, SLOT(finishWriting()));
 
 	fileWriterThread_ = new QThread();
 	connect(this, SIGNAL(finished()), this, SLOT(onScanControllerFinished()));
 	connect(this, SIGNAL(cancelled()), this, SLOT(onScanControllerFinished()));
 	connect(this, SIGNAL(failed()), this, SLOT(onScanControllerFinished()));
-	fileWriter->moveToThread(fileWriterThread_);
+	fileWriter_->moveToThread(fileWriterThread_);
 	fileWriterThread_->start();
 
 	buildScanControllerImplementation();
@@ -121,19 +123,22 @@ void REIXSXESScanActionController::buildScanController()
 
 void REIXSXESScanActionController::buildScanControllerImplementation()
 {
-	REIXSXESImageAB* xesSpectrum = new REIXSXESImageAB("xesSpectrum");
+	initializePositions();  //initialized here so that they're ready for the the AB when it's created.
+
+	REIXSXESImageInterpolationAB* xesSpectrum = new REIXSXESImageInterpolationAB("xesSpectrum");
 	xesSpectrum->setInputDataSources(QList<AMDataSource*>() << scan_->rawDataSources()->at(0));
-	xesSpectrum->setSumRangeMaxY(58);
-	xesSpectrum->setSumRangeMinY(5);
-	xesSpectrum->setCorrelationHalfWidth(100);	// monitor for performance. Makes nicer fits when wider.
-	xesSpectrum->enableLiveCorrelation(true);
 	scan_->addAnalyzedDataSource(xesSpectrum);
 }
 
 void REIXSXESScanActionController::onDetectorAcquisitionSucceeded(){
 	updateTimer_->stop();
+	disconnect(REIXSBeamline::bl()->mcpDetector(), SIGNAL(imageDataChanged()), this, SLOT(writeDataToFiles()));
 	saveRawData();
-	setFinished();
+	scanControllerStateMachineFinished_ = true;
+	if(readyForFinished())
+		setFinished();
+	else if(fileWriterIsBusy_)
+		emit finishWritingToFile();
 }
 
 
@@ -162,57 +167,61 @@ void REIXSXESScanActionController::saveRawData(){
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, 38, "Error saving the currently-running XES scan's raw data file to disk. Watch out... your data may not be saved! Please report this bug to the beamline software developers."));
 }
 
+void REIXSXESScanActionController::initializePositions(){
+
+//Population Initial condition, prior to initialization moves
+AMControlInfoList positions;
+
+positions.append(REIXSBeamline::bl()->photonSource()->energy()->toInfo());
+positions.append(REIXSBeamline::bl()->photonSource()->userEnergyOffset()->toInfo());
+positions.append(REIXSBeamline::bl()->photonSource()->monoSlit()->toInfo());
+positions.append(REIXSBeamline::bl()->sampleChamber()->x()->toInfo());
+positions.append(REIXSBeamline::bl()->sampleChamber()->y()->toInfo());
+positions.append(REIXSBeamline::bl()->sampleChamber()->z()->toInfo());
+positions.append(REIXSBeamline::bl()->sampleChamber()->r()->toInfo());
+positions.append(REIXSBeamline::bl()->spectrometer()->gratingMask()->toInfo());  //D
+positions.append(REIXSBeamline::bl()->spectrometer()->toInfo());
+// add the polarization selection, since it's not a "control" anywhere.
+AMControlInfo polarization("beamlinePolarization", REIXSBeamline::bl()->photonSource()->epuPolarization()->value(), 0, 0, "[choice]", 0.1, "EPU Polarization");
+polarization.setEnumString(REIXSBeamline::bl()->photonSource()->epuPolarization()->enumNameAt(REIXSBeamline::bl()->photonSource()->epuPolarization()->value()));
+positions.append(polarization);
+	if(REIXSBeamline::bl()->photonSource()->epuPolarization()->value() == 5)
+	{
+		AMControlInfo polarizationAngle("beamlinePolarizationAngle", REIXSBeamline::bl()->photonSource()->epuPolarizationAngle()->value(), 0, 0, "degrees", 0.1, "EPU Polarization Angle");
+		positions.append(polarizationAngle);
+	}
+positions.append(REIXSBeamline::bl()->photonSource()->monoGratingSelector()->toInfo());
+positions.append(REIXSBeamline::bl()->photonSource()->monoMirrorSelector()->toInfo());
+positions.append(REIXSBeamline::bl()->spectrometer()->spectrometerRotationDrive()->toInfo());
+positions.append(REIXSBeamline::bl()->spectrometer()->detectorTranslation()->toInfo());
+positions.append(REIXSBeamline::bl()->spectrometer()->detectorTiltDrive()->toInfo());
+// add the spectrometer grating selection, since it's not a "control" anywhere.
+AMControlInfo grating("spectrometerGrating", REIXSBeamline::bl()->spectrometer()->specifiedGrating(), 0, 0, "[choice]", 0.1, "Spectrometer Grating");
+grating.setEnumString(REIXSBeamline::bl()->spectrometer()->spectrometerCalibration()->gratingAt(int(grating.value())).name());
+positions.append(grating);
+positions.append(REIXSBeamline::bl()->spectrometer()->hexapod()->x()->toInfo());
+positions.append(REIXSBeamline::bl()->spectrometer()->hexapod()->y()->toInfo());
+positions.append(REIXSBeamline::bl()->spectrometer()->hexapod()->z()->toInfo());
+positions.append(REIXSBeamline::bl()->spectrometer()->hexapod()->u()->toInfo());
+positions.append(REIXSBeamline::bl()->spectrometer()->hexapod()->v()->toInfo());
+positions.append(REIXSBeamline::bl()->spectrometer()->hexapod()->w()->toInfo());
+positions.append(REIXSBeamline::bl()->spectrometer()->hexapod()->r()->toInfo());
+positions.append(REIXSBeamline::bl()->spectrometer()->hexapod()->s()->toInfo());
+positions.append(REIXSBeamline::bl()->spectrometer()->hexapod()->t()->toInfo());
+positions.append(REIXSBeamline::bl()->spectrometer()->endstationTranslation()->toInfo());
+positions.append(REIXSBeamline::bl()->photonSource()->M5Pitch()->toInfo());
+positions.append(REIXSBeamline::bl()->photonSource()->M5Yaw()->toInfo());
+
+positions.append(REIXSBeamline::bl()->spectrometer()->tmSOE()->toInfo());
+positions.append(REIXSBeamline::bl()->spectrometer()->tmMCPPreamp()->toInfo());
+positions.append(REIXSBeamline::bl()->sampleChamber()->tmSample()->toInfo());
+
+
+scan_->setScanInitialConditions(positions);
+}
+
+
 bool REIXSXESScanActionController::initializeImplementation(){
-	//Population Initial condition, prior to initialization moves
-	AMControlInfoList positions;
-
-	positions.append(REIXSBeamline::bl()->photonSource()->energy()->toInfo());
-	positions.append(REIXSBeamline::bl()->photonSource()->userEnergyOffset()->toInfo());
-	positions.append(REIXSBeamline::bl()->photonSource()->monoSlit()->toInfo());
-	positions.append(REIXSBeamline::bl()->sampleChamber()->x()->toInfo());
-	positions.append(REIXSBeamline::bl()->sampleChamber()->y()->toInfo());
-	positions.append(REIXSBeamline::bl()->sampleChamber()->z()->toInfo());
-	positions.append(REIXSBeamline::bl()->sampleChamber()->r()->toInfo());
-	positions.append(REIXSBeamline::bl()->spectrometer()->gratingMask()->toInfo());  //D
-	positions.append(REIXSBeamline::bl()->spectrometer()->toInfo());
-	// add the polarization selection, since it's not a "control" anywhere.
-	AMControlInfo polarization("beamlinePolarization", REIXSBeamline::bl()->photonSource()->epuPolarization()->value(), 0, 0, "[choice]", 0.1, "EPU Polarization");
-	polarization.setEnumString(REIXSBeamline::bl()->photonSource()->epuPolarization()->enumNameAt(REIXSBeamline::bl()->photonSource()->epuPolarization()->value()));
-	positions.append(polarization);
-		if(REIXSBeamline::bl()->photonSource()->epuPolarization()->value() == 5)
-		{
-			AMControlInfo polarizationAngle("beamlinePolarizationAngle", REIXSBeamline::bl()->photonSource()->epuPolarizationAngle()->value(), 0, 0, "degrees", 0.1, "EPU Polarization Angle");
-			positions.append(polarizationAngle);
-		}
-	positions.append(REIXSBeamline::bl()->photonSource()->monoGratingSelector()->toInfo());
-	positions.append(REIXSBeamline::bl()->photonSource()->monoMirrorSelector()->toInfo());
-	positions.append(REIXSBeamline::bl()->spectrometer()->spectrometerRotationDrive()->toInfo());
-	positions.append(REIXSBeamline::bl()->spectrometer()->detectorTranslation()->toInfo());
-	positions.append(REIXSBeamline::bl()->spectrometer()->detectorTiltDrive()->toInfo());
-	// add the spectrometer grating selection, since it's not a "control" anywhere.
-	AMControlInfo grating("spectrometerGrating", REIXSBeamline::bl()->spectrometer()->specifiedGrating(), 0, 0, "[choice]", 0.1, "Spectrometer Grating");
-	grating.setEnumString(REIXSBeamline::bl()->spectrometer()->spectrometerCalibration()->gratingAt(int(grating.value())).name());
-	positions.append(grating);
-	positions.append(REIXSBeamline::bl()->spectrometer()->hexapod()->x()->toInfo());
-	positions.append(REIXSBeamline::bl()->spectrometer()->hexapod()->y()->toInfo());
-	positions.append(REIXSBeamline::bl()->spectrometer()->hexapod()->z()->toInfo());
-	positions.append(REIXSBeamline::bl()->spectrometer()->hexapod()->u()->toInfo());
-	positions.append(REIXSBeamline::bl()->spectrometer()->hexapod()->v()->toInfo());
-	positions.append(REIXSBeamline::bl()->spectrometer()->hexapod()->w()->toInfo());
-	positions.append(REIXSBeamline::bl()->spectrometer()->hexapod()->r()->toInfo());
-	positions.append(REIXSBeamline::bl()->spectrometer()->hexapod()->s()->toInfo());
-	positions.append(REIXSBeamline::bl()->spectrometer()->hexapod()->t()->toInfo());
-	positions.append(REIXSBeamline::bl()->spectrometer()->endstationTranslation()->toInfo());
-	positions.append(REIXSBeamline::bl()->photonSource()->M5Pitch()->toInfo());
-	positions.append(REIXSBeamline::bl()->photonSource()->M5Yaw()->toInfo());
-
-	positions.append(REIXSBeamline::bl()->spectrometer()->tmSOE()->toInfo());
-	positions.append(REIXSBeamline::bl()->spectrometer()->tmMCPPreamp()->toInfo());
-	positions.append(REIXSBeamline::bl()->sampleChamber()->tmSample()->toInfo());
-
-
-	scan_->setScanInitialConditions(positions);
-
 
 	// Is the detector connected?
 	//if(!REIXSBeamline::bl()->mcpDetector()->canRead() || !REIXSBeamline::bl()->mcpDetector()->canConfigure()) {
@@ -412,9 +421,14 @@ void REIXSXESScanActionController::stopImplementation(const QString &command)
 		disconnect(REIXSBeamline::bl()->mcpDetector(), SIGNAL(imageDataChanged()), this, SLOT(onNewImageValues()));
 	}
 
+	disconnect(REIXSBeamline::bl()->mcpDetector(), SIGNAL(imageDataChanged()), this, SLOT(writeDataToFiles()));
 	REIXSBeamline::bl()->mcpDetector()->cancelAcquisition();
 	saveRawData();
-	setFinished();
+	writeDataToFiles();
+	if(readyForFinished())
+		setFinished();
+	else if(fileWriterIsBusy_)
+		emit finishWritingToFile();
 }
 
 #include "dataman/AMSample.h"
@@ -558,14 +572,14 @@ void REIXSXESScanActionController::onFileWriterError(AMScanActionControllerBasic
 	box.execWTimeout();
 }
 
-void REIXSXESScanActionController::onFileWriterIsBusy(bool isBusy)
-{
-	fileWriterIsBusy_ = isBusy;
-	emit readyForDeletion(!fileWriterIsBusy_);
-}
+//void REIXSXESScanActionController::onFileWriterIsBusy(bool isBusy)
+//{
+//	fileWriterIsBusy_ = isBusy;
+//	emit readyForDeletion(!fileWriterIsBusy_);
+//}
 
 void REIXSXESScanActionController::onScanControllerFinished()
 {
 	writeDataToFiles();
-	fileWriterThread_->quit();
+//	fileWriterThread_->quit();
 }

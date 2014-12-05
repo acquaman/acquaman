@@ -51,6 +51,10 @@ BioXASSideXASScanActionController::BioXASSideXASScanActionController(BioXASSideX
     configuration_->setDetectorConfigurations(bioXASDetectors);
 }
 
+BioXASSideXASScanActionController::~BioXASSideXASScanActionController()
+{
+}
+
 AMAction3* BioXASSideXASScanActionController::createInitializationActions()
 {
     AMListActionInfo3 *info = new AMListActionInfo3("BioXASSide Scan Initialization", "BioXASSide Scan Initialization");

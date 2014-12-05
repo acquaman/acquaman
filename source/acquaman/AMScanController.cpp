@@ -106,10 +106,10 @@ bool AMScanController::isFailed() const
 	return state_ == AMScanController::Failed;
 }
 
-bool AMScanController::isReadyForDeletion() const
-{
-	return true;
-}
+//bool AMScanController::isReadyForDeletion() const
+//{
+//	return true;
+//}
 
 bool AMScanController::initialize()
 {
@@ -159,6 +159,11 @@ void AMScanController::stop(const QString &command)
 {
 	if (changeState(AMScanController::Stopping))
 		stopImplementation(command);
+}
+
+void AMScanController::scheduleForDeletion()
+{
+	deleteLater();
 }
 
 bool AMScanController::setInitialized()

@@ -39,3 +39,10 @@ AMAxisStartedActionInfo::AMAxisStartedActionInfo(const AMAxisStartedActionInfo &
 	axisName_ = other.axisName();
 	axisType_ = other.axisType();
 }
+
+AMActionInfo3 *AMAxisStartedActionInfo::createCopy() const
+{
+	AMActionInfo3 *info = new AMAxisStartedActionInfo(*this);
+	info->dissociateFromDb(true);
+	return info;
+}

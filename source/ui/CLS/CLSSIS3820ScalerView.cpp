@@ -30,10 +30,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 // CLSSIS3820ScalerView
 ///////////////////////////////////////////////
 
-CLSSIS3820ScalerView::CLSSIS3820ScalerView(CLSSIS3820Scaler *scaler, QWidget *parent) :
+CLSSIS3820ScalerView::CLSSIS3820ScalerView(CLSSIS3820Scaler *scaler, bool enableDarkCurrentCorrection, QWidget *parent) :
 	QWidget(parent)
 {
 	scaler_ = scaler;
+
+	enableDarkCurrentCorrection_ = enableDarkCurrentCorrection;
 
 	// Build the top part.
 	modeChoice_ = new QComboBox;
@@ -141,10 +143,10 @@ CLSSIS3820ScalerView::CLSSIS3820ScalerView(CLSSIS3820Scaler *scaler, QWidget *pa
 	for (int i = 0; i < channelCount; i++){
 		CLSSIS3820ScalerChannel *channel = scaler_->channelAt(i);
 
-		if (!showDarkCurrentWidget && channel->detector() && channel->detector()->canDoDarkCurrentCorrection())
-			showDarkCurrentWidget = true;
+        if (!showDarkCurrentWidget && channel->detector() && channel->detector()->canDoDarkCurrentCorrection() && enableDarkCurrentCorrection_)
+            showDarkCurrentWidget = true;
 
-		if(channel->detector() && channel->detector()->canDoDarkCurrentCorrection())
+		if(channel->detector() && channel->detector()->canDoDarkCurrentCorrection() && enableDarkCurrentCorrection_)
 			channelView = new CLSSIS3820ScalerChannelViewWithDarkCurrent(channel);
 		else
 			channelView = new CLSSIS3820ScalerChannelView(scaler_->channelAt(i));
@@ -253,6 +255,11 @@ void CLSSIS3820ScalerView::onOutputViewModeChanged(CLSSIS3820ScalerChannelView::
 		channel->setOutputViewMode(mode);
 		channel->blockSignals(false);
 	}
+}
+
+bool CLSSIS3820ScalerView::darkCurrentCorrectionEnabled() const
+{
+	return enableDarkCurrentCorrection_;
 }
 
 void CLSSIS3820ScalerView::setAmplifierViewPrecision(int newPrecision)

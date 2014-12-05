@@ -5,7 +5,7 @@
 #include <QImage>
 #include <QPushButton>
 
-#include "beamline/BioXAS/BioXASCLSMAXvMotor.h"
+#include "beamline/CLS/CLSMAXvMotor.h"
 #include "beamline/BioXAS/BioXASBeamlineDef.h"
 #include "beamline/BioXAS/BioXASMainBeamline.h"
 #include "beamline/BioXAS/BioXASSideBeamline.h"
@@ -162,7 +162,7 @@ QGroupBox * MotorToolMainScreen::setupMotorGroupLayout(QString groupBoxTitle, Bi
 
 void MotorToolMainScreen::setupMotorsLayout(BioXASBeamlineDef::BioXASMotorType motorType, QVBoxLayout *pvLayoutBox)
 {
-	QList<BioXASCLSMAXvMotor *> matchedMotors;
+	QList<CLSMAXvMotor *> matchedMotors;
 	switch (beamlineId_) {
 	case BioXASBeamlineDef::BioXASMainBeamLine:
 		matchedMotors = BioXASMainBeamline::bioXAS()->getMotorsByType(motorType);
