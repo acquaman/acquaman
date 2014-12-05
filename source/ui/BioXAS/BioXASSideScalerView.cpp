@@ -13,7 +13,7 @@ BioXASSideScalerView::BioXASSideScalerView(CLSSIS3820Scaler *scaler, QWidget *pa
 
         for (int i = 0; i < 2; i++) {
 
-            CLSSIS3820ScalerChannelViewWithDarkCurrent *view = new CLSSIS3820ScalerChannelViewWithDarkCurrent(scaler_->channelAt(i), this);
+            CLSSIS3820ScalerChannelView *view = new CLSSIS3820ScalerChannelView(scaler_->channelAt(i), this);
             view->setEnableCheckBoxVisibility(false);
             view->setAmplifierViewFormat('g');
             view->setAmplifierViewPrecision(3);
