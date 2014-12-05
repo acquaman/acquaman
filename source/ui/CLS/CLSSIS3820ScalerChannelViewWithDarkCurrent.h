@@ -25,38 +25,21 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "CLSSIS3820ScalerView.h"
 #include "source/beamline/CLS/CLSSIS3820Scaler.h"
 
-#include <QGroupBox>
-
-class CLSSIS3820Scaler;
-
 class CLSSIS3820ScalerChannelViewWithDarkCurrent : public CLSSIS3820ScalerChannelView
 {
     Q_OBJECT
 
 public:
-
-    /// Enum indicates what view modes are available to display dark current information: Hide keeps darkCurrentContent_ hidden, Show displays darkCurrentContent_ widget.
-    enum DarkCurrentViewMode {
-        Hide = 0,
-        Show = 1
-    };
-
+    /// Constructor.
     explicit CLSSIS3820ScalerChannelViewWithDarkCurrent(CLSSIS3820ScalerChannel *channel, QWidget *parent = 0);
+    /// Destructor.
     virtual ~CLSSIS3820ScalerChannelViewWithDarkCurrent();
+    /// Returns boolean indicating whether the dark current information is shown for this channel.
+    bool darkCurrentShown() const { return darkCurrentShown_; }
 
-signals:
-    /// Emitted when darkCurrentViewMode_ is set to a new value.
-    void darkCurrentViewModeChanged(CLSSIS3820ScalerChannelViewWithDarkCurrent::DarkCurrentViewMode newMode);
-    /// Emitted when the displayed dark current value is changed.
-    void darkCurrentValueChanged(double newValue);
-    /// Emitted when the displayed corrected measurement is changed.
-    void correctedMeasurementChanged(double newMeasurement);
-
-public:
-    /// Returns the current dark current view mode.
-    CLSSIS3820ScalerChannelViewWithDarkCurrent::DarkCurrentViewMode darkCurrentViewMode();
-    /// Sets the dark current view mode--whether or not dark current information is displayed.
-    void setDarkCurrentViewMode(DarkCurrentViewMode newMode);
+public slots:
+    /// Sets whether or not dark current information is displayed.
+    void setDarkCurrentShown(bool shown);
 
 protected slots:
     /// Handles updating the displayed dark current value as updates are made available.
@@ -72,16 +55,15 @@ protected:
     /// Sets the text for the corrected measurement label.
     void setCorrectedMeasurementLabel(double displayValue);
 
-private:
-    /// Enum value indicating whether or not to display dark current information.
-    DarkCurrentViewMode darkCurrentViewMode_;
-
-    /// The content that is shown or hidden, depending on the dark current view mode.
-    QVBoxLayout *content_;
-
+protected:
+    /// Indicates whether or not the dark current information can be displayed at all.
+    bool darkCurrentShowable_;
+    /// Indicates whether or not dark current information is displayed.
+    bool darkCurrentShown_;
+    /// The content that is shown or hidden, depending on darkCurrentShown_.
+    QWidget *darkCurrentContent_;
     /// Label displaying the latest dark current value measurement information. The status of this information (whether or not it's stale) is indicated by label color.
     QLabel *darkCurrentValueLabel_;
-
     /// Label displaying the latest dark current corrected measurement information.
     QLabel *correctedMeasurementLabel_;
 
