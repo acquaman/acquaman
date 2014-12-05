@@ -203,7 +203,7 @@ void AMDataSourceSeriesData::updateCachedValues() const
 		}
 
 		// The default range is invalid.
-		if (dataRange_.isValid())
+		if (!dataRange_.isValid())
 			dataRange_ = AMRange(rangeMinimum, rangeMaximum);
 
 		else {
