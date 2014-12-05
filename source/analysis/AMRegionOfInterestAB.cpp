@@ -106,8 +106,10 @@ AMNumber AMRegionOfInterestAB::value(const AMnDIndex &indexes) const
 		return AMNumber(AMNumber::InvalidError);
 
 	// Need to turn the range into index positions.
-	int minimum = int(binningRange_.minimum()/double(spectrum_->axisInfoAt(spectrum_->rank()-1).increment));
-	int maximum = int(binningRange_.maximum()/double(spectrum_->axisInfoAt(spectrum_->rank()-1).increment));
+	AMAxisInfo axisInfoOfInterest = spectrum_->axisInfoAt(spectrum_->rank()-1);
+
+	int minimum = int((binningRange_.minimum() - double(axisInfoOfInterest.start))/double(axisInfoOfInterest.increment));
+	int maximum = int((binningRange_.maximum() - double(axisInfoOfInterest.start))/double(axisInfoOfInterest.increment));
 
 	AMnDIndex start = AMnDIndex(indexes.rank()+1, AMnDIndex::DoNotInit);
 	AMnDIndex end = AMnDIndex(indexes.rank()+1, AMnDIndex::DoNotInit);
@@ -158,8 +160,10 @@ bool AMRegionOfInterestAB::values(const AMnDIndex &indexStart, const AMnDIndex &
 		return false;
 
 	// Need to turn the range into index positions.
-	int minimum = int(binningRange_.minimum()/double(spectrum_->axisInfoAt(spectrum_->rank()-1).increment));
-	int maximum = int(binningRange_.maximum()/double(spectrum_->axisInfoAt(spectrum_->rank()-1).increment));
+	AMAxisInfo axisInfoOfInterest = spectrum_->axisInfoAt(spectrum_->rank()-1);
+
+	int minimum = int((binningRange_.minimum() - double(axisInfoOfInterest.start))/double(axisInfoOfInterest.increment));
+	int maximum = int((binningRange_.maximum() - double(axisInfoOfInterest.start))/double(axisInfoOfInterest.increment));
 	int axisLength = maximum - minimum + 1;
 
 	AMnDIndex start = AMnDIndex(indexStart.rank()+1, AMnDIndex::DoNotInit);
