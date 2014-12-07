@@ -38,7 +38,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QAbstractButton>
 #include <QCheckBox>
 #include <QLineEdit>
-#include <QResizeEvent>
+
+#include "AMQEvents.h"
 
 #include "beamline/camera/AMGraphicsVideoSceneCopier.h"
 #include "AMSampleCameraGraphicsView.h"

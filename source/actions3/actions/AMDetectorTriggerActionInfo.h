@@ -30,14 +30,14 @@ class AMDetectorTriggerActionInfo : public AMActionInfo3
 Q_OBJECT
 public:
 	/// Constructor
- 	virtual ~AMDetectorTriggerActionInfo();
+	virtual ~AMDetectorTriggerActionInfo();
 	Q_INVOKABLE AMDetectorTriggerActionInfo(const AMDetectorInfo &detectorInfo = AMDetectorInfo(), AMDetectorDefinitions::ReadMode readMode = AMDetectorDefinitions::SingleRead,  QObject *parent = 0);
 
 	/// Copy Constructor
 	AMDetectorTriggerActionInfo(const AMDetectorTriggerActionInfo &other);
 
 	/// This function is used as a virtual copy constructor
-	virtual AMDetectorTriggerActionInfo* createCopy() const { return new AMDetectorTriggerActionInfo(*this); }
+	virtual AMActionInfo3* createCopy() const;
 
 	/// This should describe the type of the action
 	virtual QString typeDescription() const { return "Detector Trigger"; }

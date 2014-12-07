@@ -4,7 +4,7 @@
 #include <QLabel>
 
 #include "beamline/AMControl.h"
-#include "beamline/BioXAS/BioXASCLSMAXvMotor.h"
+#include "beamline/CLS/CLSMAXvMotor.h"
 #include "ui/beamline/AMExtendedControlEditor.h"
 
 class BioXASCLSMAXvMotorControlEditor : public AMExtendedControlEditor
@@ -12,7 +12,7 @@ class BioXASCLSMAXvMotorControlEditor : public AMExtendedControlEditor
 	Q_OBJECT
 
 public:
-	BioXASCLSMAXvMotorControlEditor(BioXASCLSMAXvMotor* control, AMControl* statusTagControl = NULL, bool readOnly = false, bool configureOnly = false, QWidget *parent = 0);
+	BioXASCLSMAXvMotorControlEditor(CLSMAXvMotor* control, AMControl* statusTagControl = NULL, bool readOnly = false, bool configureOnly = false, QWidget *parent = 0);
 	~BioXASCLSMAXvMotorControlEditor();
 
 protected slots:

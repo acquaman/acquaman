@@ -265,6 +265,35 @@ AMNumber AMExternalScanDataSourceAB::axisValue(int axisNumber, int index) const
 	}
 }
 
+bool AMExternalScanDataSourceAB::axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const
+{
+	if(axisNumber >= axes_.count())
+		return false;
+
+	const AMAxisInfo& axisInfo = axes_.at(axisNumber);
+
+	if(axisInfo.isUniform){
+
+		for (int i = 0, size = endIndex-startIndex+1; i < size; i++)
+			outputValues[i] = double(axisInfo.start) + (i+startIndex)*double(axisInfo.increment);
+
+		return true;
+	}
+
+	else {
+
+#ifdef AM_ENABLE_BOUNDS_CHECKING
+		if((unsigned)startIndex >= (unsigned)axisInfo.size || (unsigned)endIndex >= (unsigned)axisInfo.size)
+			return false;
+#endif
+
+		for (int i = 0, size = endIndex-startIndex+1; i < size; i++)
+			outputValues[i] = axisValues_.at(axisNumber).at(i+startIndex);
+
+		return true;
+	}
+}
+
 void AMExternalScanDataSourceAB::copyValues(int dataSourceIndex)
 {
 	AMDataSource* ds = scan_->dataSourceAt(dataSourceIndex);

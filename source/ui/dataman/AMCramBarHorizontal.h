@@ -24,9 +24,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QWidget>
 #include <QScrollArea>
-#include <QResizeEvent>
 #include <QToolButton>
 #include <QHBoxLayout>
+
+#include "AMQEvents.h"
 
 class AMDeferredFunctionCall;
 

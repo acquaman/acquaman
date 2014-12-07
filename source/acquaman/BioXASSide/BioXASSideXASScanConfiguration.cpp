@@ -56,7 +56,9 @@ BioXASSideXASScanConfiguration::~BioXASSideXASScanConfiguration()
 
 AMScanConfiguration* BioXASSideXASScanConfiguration::createCopy() const
 {
-	return new BioXASSideXASScanConfiguration(*this);
+	AMScanConfiguration *configuration = new BioXASSideXASScanConfiguration(*this);
+	configuration->dissociateFromDb(true);
+	return configuration;
 }
 
 AMScanController* BioXASSideXASScanConfiguration::createController()

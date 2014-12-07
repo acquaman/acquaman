@@ -1,10 +1,11 @@
 #ifndef MOTORTOOLMAINSCREEN_H
 #define MOTORTOOLMAINSCREEN_H
 
+#include "AMQEvents.h"
+
 #include <QWidget>
 #include <QGroupBox>
 #include <QVBoxLayout>
-#include <QCloseEvent>
 
 #include "beamline/BioXAS/BioXASBeamlineDef.h"
 #include "beamline/AMBeamline.h"

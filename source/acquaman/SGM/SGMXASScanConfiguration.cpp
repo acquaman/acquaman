@@ -76,8 +76,11 @@ QString SGMXASScanConfiguration::enumConvert(const QString &enumName, int enumVa
 	return "[??]";
 }
 
-AMScanConfiguration* SGMXASScanConfiguration::createCopy() const{
-	return new SGMXASScanConfiguration(*this);
+AMScanConfiguration* SGMXASScanConfiguration::createCopy() const
+{
+	AMScanConfiguration *configuration = new SGMXASScanConfiguration(*this);
+	configuration->dissociateFromDb(true);
+	return configuration;
 }
 
 AMScanController* SGMXASScanConfiguration::createController(){

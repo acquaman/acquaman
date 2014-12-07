@@ -1,10 +1,8 @@
-TARGET = build/AMDeploy
+# #####################################################################
+# QMake project file for acquaman, including test suites			January 2010. mark.boots@usask.ca
+# #####################################################################
 
-HEADERS +=\
-	source/application/AMDeploy/AMDeploy.h
-
-SOURCES += \
-	source/application/AMDeploy/AMDeploy.cpp \
-	source/application/AMDeploy/AMDeployMain.cpp
-
-
+TEMPLATE = subdirs
+SUBDIRS += \
+	Initialize.pro \
+	AMDeploy_internal.pro

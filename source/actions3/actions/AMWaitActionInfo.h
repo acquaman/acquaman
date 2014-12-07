@@ -19,7 +19,7 @@ public:
 	virtual ~AMWaitActionInfo(){}
 
 	/// This function is used as a virtual copy constructor.
-	virtual AMWaitActionInfo *createCopy() const;
+	virtual AMActionInfo3 *createCopy() const;
 
 	/// This should describe the type of the action.
 	virtual QString typeDescription() const { return QString("Timed Wait of %1 seconds").arg(waitTime_); }

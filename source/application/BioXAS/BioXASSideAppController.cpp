@@ -111,21 +111,17 @@ void BioXASSideAppController::shutdown()
 
 void BioXASSideAppController::onScalerConnected()
 {
-	if (BioXASSideBeamline::bioXAS()->scaler()->isConnected() && !scalerView_) {
-		scalerView_ = new CLSSIS3820ScalerView(BioXASSideBeamline::bioXAS()->scaler());
+    scalerView_ = 0;
 
-		mw_->addPane(scalerView_, "Detectors", "Scaler", ":/system-search.png", true);
-	}
+//	if (BioXASSideBeamline::bioXAS()->scaler()->isConnected() && !scalerView_) {
+//        scalerView_ = new CLSSIS3820ScalerView(BioXASSideBeamline::bioXAS()->scaler(), false);
+
+//		mw_->addPane(scalerView_, "Detectors", "Scaler", ":/system-search.png", true);
+//	}
 }
 
 void BioXASSideAppController::onBeamlineConnected()
 {
-    // removed this condition to work on PersistentView content without need for beamline connection.
-    if (BioXASSideBeamline::bioXAS()->isConnected() && !persistentPanel_) {
-        persistentPanel_ = new BioXASSidePersistentView();
-        mw_->addRightWidget(persistentPanel_);
-    }
-
 	if (BioXASSideBeamline::bioXAS()->isConnected() && !configurationView_) {
 		configuration_ = new BioXASSideXASScanConfiguration();
 		configuration_->setEdgeEnergy(10000);
@@ -142,7 +138,6 @@ void BioXASSideAppController::onBeamlineConnected()
 
 		mw_->addPane(configurationViewHolder_, "Scans", "Test Scan", ":/utilities-system-monitor.png");
 	}
-
 }
 
 void BioXASSideAppController::registerClasses()
@@ -199,12 +194,11 @@ void BioXASSideAppController::setupUserInterface()
 
 	mw_->insertHeading("Scans", 2);
 
-	connect( BioXASSideBeamline::bioXAS(), SIGNAL(connected(bool)), this, SLOT(onBeamlineConnected()) );
+    persistentPanel_ = new BioXASSidePersistentView();
+    mw_->addRightWidget(persistentPanel_);
 
-    // removed this condition to work on PersistentView content without need for beamline connection.
-    if (BioXASSideBeamline::bioXAS()->isConnected()) {
-        onBeamlineConnected();
-    }
+    connect( BioXASSideBeamline::bioXAS(), SIGNAL(connected(bool)), this, SLOT(onBeamlineConnected()) );
+    onBeamlineConnected();
 }
 
 void BioXASSideAppController::makeConnections()

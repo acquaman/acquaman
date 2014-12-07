@@ -22,8 +22,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMControlMoveButton.h"
 
 #include <QBoxLayout>
-#include <QFocusEvent>
+
 #include <QStringBuilder>
+
+#include "AMQEvents.h"
+
 #include "beamline/AMControl.h"
 #include "ui/beamline/AMControlEditor.h"
 

@@ -1,5 +1,7 @@
 #include "AMDirectorySynchronizerDialog.h"
 
+#include "AMQEvents.h"
+
 #include <QTextEdit>
 #include <QPushButton>
 #include <QProgressBar>
@@ -7,7 +9,6 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QGridLayout>
-#include <QCloseEvent>
 #include <QMessageBox>
 #include <QApplication>
 
@@ -241,8 +242,18 @@ void AMDirectorySynchronizerDialog::prepare(){
 	QTimer::singleShot(0, synchronizer_, SLOT(prepare()));
 }
 
+void AMDirectorySynchronizerDialog::onPreparedHelper(){
+	onPrepared(lastCompareResult_);
+}
+
 void AMDirectorySynchronizerDialog::onPrepared(AMRecursiveDirectoryCompare::DirectoryCompareResult comparisonResult){
 	lastCompareResult_ = comparisonResult;
+
+	if(synchronizer_->thread() != thread()){
+		QTimer::singleShot(10, this, SLOT(onPreparedHelper()));
+		return;
+	}
+
 
 	overallTransferProgressBar_->setMinimum(100);
 	overallTransferProgressBar_->setMaximum(100);

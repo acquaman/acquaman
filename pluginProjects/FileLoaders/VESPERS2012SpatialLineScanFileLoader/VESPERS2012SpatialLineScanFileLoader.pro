@@ -4,10 +4,10 @@ CONFIG		+= plugin
 HEADERS		+= VESPERS2012SpatialLineScanFileLoaderPlugin.h
 SOURCES		+= VESPERS2012SpatialLineScanFileLoaderPlugin.cpp
 TARGET          = $$qtLibraryTarget(VESPERS2012SpatialLineScanFileLoaderPlugin)
-DESTDIR         = $$HOME_FOLDER/$$DEV_PATH/acquaman/plugins/FileLoaders
+DESTDIR         = $$PATH_TO_AM/plugins/FileLoaders
 
 # install
-target.path = $$HOME_FOLDER/$$DEV_PATH/acquaman/pluginProjects/FileLoaders/VESPERS2012SpatialLineScanFileLoader
+target.path = $$PATH_TO_AM/pluginProjects/FileLoaders/VESPERS2012SpatialLineScanFileLoader
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS VESPERS2012SpatialLineScanFileLoader.pro
-sources.path = $$HOME_FOLDER/$$DEV_PATH/acquaman/pluginProjects/FileLoaders/VESPERS2012SpatialLineScanFileLoader
+sources.path = $$PATH_TO_AM/pluginProjects/FileLoaders/VESPERS2012SpatialLineScanFileLoader
 INSTALLS += target sources

@@ -33,8 +33,12 @@ class AMExporterOption : public AMDbObject
 	Q_PROPERTY(QString fileName READ fileName WRITE setFileName)
 
 public:
- 	virtual ~AMExporterOption();
+	/// Constructor.
 	explicit AMExporterOption(QObject *parent = 0);
+	/// Copy constructor.
+	AMExporterOption(const AMExporterOption &original);
+	/// Destructor.
+	virtual ~AMExporterOption();
 
 	virtual const QMetaObject* getMetaObject();
 

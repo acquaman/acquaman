@@ -22,7 +22,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AM2DSCANVIEW_H
 
 #include <QWidget>
-#include <QPropertyAnimation>
 #include <QGroupBox>
 #include <QCheckBox>
 #include <QVBoxLayout>
@@ -233,9 +232,6 @@ protected:
 
 	QGroupBox *multiViewBox_;
 	QGroupBox *spectrumViewBox_;
-
-	QPropertyAnimation* exclusiveModeAnim_;
-	QPropertyAnimation *multiViewModeAnim_;
 };
 
 /// This class handles changes in the scan set model and propogates it to both views inside of it.

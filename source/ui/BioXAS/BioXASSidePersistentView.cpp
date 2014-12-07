@@ -27,26 +27,29 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
     QWidget(parent)
 {
-    energyEditor_ = new BioXASSideMonoBasicEnergyView(BioXASSideBeamline::bioXAS()->mono(), this);
-    energyEditor_->setToolTip("Set mono energy");
+    // Create UI elements.
+
+    energyControlEditor_ = new AMExtendedControlEditor(BioXASSideBeamline::bioXAS()->mono()->energyControl());
+    energyControlEditor_->setControlFormat('f', 2);
 
     viewCrystalChangeButton_ = new QPushButton("Crystal Change", this);
-    viewCrystalChangeButton_->setToolTip("Mono Crystal Change Instructions");
-    connect( viewCrystalChangeButton_, SIGNAL(clicked()), this, SLOT(toViewMonoCrystalChangeInstructions()) );
+    viewCrystalChangeButton_->setToolTip("View mono crystal change instructions");
 
-    QVBoxLayout *scalerPanelLayout = new QVBoxLayout();
-    scalerPanelLayout->addWidget(new BioXASSideScalerView());
+//    scalerView_ = new BioXASSideScalerView();
 
-    QGroupBox *scalerPanel = new QGroupBox("Preamp Settings");
-    scalerPanel->setLayout(scalerPanelLayout);
+    // Create and set layouts.
 
     QVBoxLayout *layout = new QVBoxLayout();
-    layout->addWidget(energyEditor_);
+    layout->addWidget(energyControlEditor_);
     layout->addWidget(viewCrystalChangeButton_);
-    layout->addWidget(scalerPanel);
+//    layout->addWidget(scalerView_);
     layout->addStretch();
 
     setLayout(layout);
+
+    // Make connections.
+
+    connect( viewCrystalChangeButton_, SIGNAL(clicked()), this, SLOT(toViewMonoCrystalChangeInstructions()) );
 }
 
 BioXASSidePersistentView::~BioXASSidePersistentView()
@@ -56,6 +59,6 @@ BioXASSidePersistentView::~BioXASSidePersistentView()
 
 void BioXASSidePersistentView::toViewMonoCrystalChangeInstructions()
 {    
-    BioXASSideMonoCrystalChangeView *crystalChangeView = new BioXASSideMonoCrystalChangeView(BioXASSideBeamline::bioXAS()->mono());
-    crystalChangeView->exec();
+//    BioXASSideMonoCrystalChangeView *crystalChangeView = new BioXASSideMonoCrystalChangeView(BioXASSideBeamline::bioXAS()->mono());
+//    crystalChangeView->exec();
 }

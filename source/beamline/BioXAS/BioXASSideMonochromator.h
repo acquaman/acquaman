@@ -10,8 +10,9 @@
 #include "actions3/actions/AMControlWaitAction.h"
 #include "actions3/AMListAction3.h"
 
+#include "beamline/CLS/CLSMAXvMotor.h"
+
 #include "beamline/BioXAS/BioXASSideMonochromatorControl.h"
-#include "beamline/BioXAS/BioXASCLSMAXvMotor.h"
 
 class BioXASSideMonochromator : public QObject
 {
@@ -50,23 +51,23 @@ public:
     double energy() const { return energy_->value(); }
 
     /// Returns the phosphor paddle motor.
-    BioXASCLSMAXvMotor* phosphorPaddleMotor() const { return phosphorPaddleMotor_; }
+    CLSMAXvMotor* phosphorPaddleMotor() const { return phosphorPaddleMotor_; }
     /// Returns the bragg motor.
-    BioXASCLSMAXvMotor* braggMotor() const { return braggMotor_; }
+    CLSMAXvMotor* braggMotor() const { return braggMotor_; }
     /// Returns the vertical motor.
-    BioXASCLSMAXvMotor* verticalMotor() const { return verticalMotor_; }
+    CLSMAXvMotor* verticalMotor() const { return verticalMotor_; }
     /// Returns the lateral motor.
-    BioXASCLSMAXvMotor* lateralMotor() const { return lateralMotor_; }
+    CLSMAXvMotor* lateralMotor() const { return lateralMotor_; }
     /// Returns the crystal change motor.
-    BioXASCLSMAXvMotor* crystalExchangeMotor() const { return crystalExchangeMotor_; }
+    CLSMAXvMotor* crystalExchangeMotor() const { return crystalExchangeMotor_; }
     /// Returns the crystal 1 pitch motor.
-    BioXASCLSMAXvMotor* crystal1PitchMotor() const { return crystal1PitchMotor_; }
+    CLSMAXvMotor* crystal1PitchMotor() const { return crystal1PitchMotor_; }
     /// Returns the crystal 1 roll motor.
-    BioXASCLSMAXvMotor* crystal1RollMotor() const { return crystal1RollMotor_; }
+    CLSMAXvMotor* crystal1RollMotor() const { return crystal1RollMotor_; }
     /// Returns the crystal 2 pitch motor.
-    BioXASCLSMAXvMotor* crystal2PitchMotor() const { return crystal2PitchMotor_; }
+    CLSMAXvMotor* crystal2PitchMotor() const { return crystal2PitchMotor_; }
     /// Returns the crystal 2 roll motor.
-    BioXASCLSMAXvMotor* crystal2RollMotor() const { return crystal2RollMotor_; }
+    CLSMAXvMotor* crystal2RollMotor() const { return crystal2RollMotor_; }
 
     /// Returns the slitsClosed control.
     AMControl* slitsClosedControl() const { return slitsClosed_; }
@@ -115,12 +116,18 @@ public:
     AMAction3* createCrystalChangeAction();
     /// Returns a new set energy action, 0 if not connected.
     AMAction3* createSetEnergyAction(double newEnergy);
+    /// Returns a new action that turns on the bragg motor, 0 if not connected.
+    AMAction3* createSetBraggMotorPowerOnAction();
+    /// Returns a new action that sets the bragg motor power to auto-software.
+    AMAction3* createSetBraggMotorPowerAutoAction();
 
 signals:
     /// Notifier that the mono's connections with its pvs have changed.
     void connected(bool isConnected);
     /// Notifier that the mono's region has changed.
     void regionChanged(BioXASSideMonochromator::Region newRegion);
+    /// Notifier that the bragg motor power status has changed.
+    void braggMotorPowerChanged(bool isOn);
     /// Notifier that the slits closed general status has changed.
     void slitsClosedChanged(bool areClosed);
     /// Notifier that the paddle out status has changed.
@@ -149,6 +156,8 @@ protected slots:
     void onConnectedChanged();
     /// Updates the mono's current region state based on the values of regionAStatus_ and regionBStatus_ controls.
     void onRegionChanged();
+    /// Emits the appropriate signal when the mono's bragg motor has changed power states.
+    void onBraggMotorPowerChanged(double value) { emit braggMotorPowerChanged((int)value == 1); }
     /// Emits the appropriate signal when the mono's slits closed status has changed.
     void onSlitsClosedChanged(double value) { emit slitsClosedChanged((int)value == 1); }
     /// Emits the appropriate signal when the paddle is out.
@@ -176,18 +185,19 @@ protected:
 
     // Motors
 
-    BioXASCLSMAXvMotor *phosphorPaddleMotor_;
-    BioXASCLSMAXvMotor *braggMotor_;
-    BioXASCLSMAXvMotor *verticalMotor_;
-    BioXASCLSMAXvMotor *lateralMotor_;
-    BioXASCLSMAXvMotor *crystalExchangeMotor_;
-    BioXASCLSMAXvMotor *crystal1PitchMotor_;
-    BioXASCLSMAXvMotor *crystal1RollMotor_;
-    BioXASCLSMAXvMotor *crystal2PitchMotor_;
-    BioXASCLSMAXvMotor *crystal2RollMotor_;
+    CLSMAXvMotor *phosphorPaddleMotor_;
+    CLSMAXvMotor *braggMotor_;
+    CLSMAXvMotor *verticalMotor_;
+    CLSMAXvMotor *lateralMotor_;
+    CLSMAXvMotor *crystalExchangeMotor_;
+    CLSMAXvMotor *crystal1PitchMotor_;
+    CLSMAXvMotor *crystal1RollMotor_;
+    CLSMAXvMotor *crystal2PitchMotor_;
+    CLSMAXvMotor *crystal2RollMotor_;
 
     // Controls
 
+    AMControl* braggMotorPower_;
     AMControl* slitsClosed_;
     AMControl* paddleOut_;
     AMControl* crystalChangeEnabled_;

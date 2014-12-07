@@ -30,14 +30,14 @@ class AMDetectorReadActionInfo : public AMActionInfo3
 Q_OBJECT
 public:
 	/// Constructor
- 	virtual ~AMDetectorReadActionInfo();
+	virtual ~AMDetectorReadActionInfo();
 	Q_INVOKABLE AMDetectorReadActionInfo(const AMDetectorInfo &detectorInfo = AMDetectorInfo(), QObject *parent = 0);
 
 	/// Copy Constructor
 	AMDetectorReadActionInfo(const AMDetectorReadActionInfo &other);
 
 	/// This function is used as a virtual copy constructor
-	virtual AMDetectorReadActionInfo* createCopy() const { return new AMDetectorReadActionInfo(*this); }
+	virtual AMActionInfo3* createCopy() const;
 
 	/// This should describe the type of the action
 	virtual QString typeDescription() const { return "Detector Read"; }

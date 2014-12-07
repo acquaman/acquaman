@@ -1,12 +1,8 @@
+# #####################################################################
+# QMake project file for acquaman, including test suites			January 2010. mark.boots@usask.ca
+# #####################################################################
 
-include ( acquamanCommon.pri )
-
-QT       += core gui
-
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
-
-
-TARGET = StripTool2
-TEMPLATE = app
-
-SOURCES += source/StripTool2/STMain.cpp
+TEMPLATE = subdirs
+SUBDIRS += \
+	Initialize.pro \
+	StripTool2_internal.pro

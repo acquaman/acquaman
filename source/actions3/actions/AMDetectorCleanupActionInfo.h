@@ -30,14 +30,14 @@ class AMDetectorCleanupActionInfo : public AMActionInfo3
 Q_OBJECT
 public:
 	/// Constructor
- 	virtual ~AMDetectorCleanupActionInfo();
+	virtual ~AMDetectorCleanupActionInfo();
 	Q_INVOKABLE AMDetectorCleanupActionInfo(const AMDetectorInfo &detectorInfo = AMDetectorInfo(), QObject *parent = 0);
 
 	/// Copy Constructor
 	AMDetectorCleanupActionInfo(const AMDetectorCleanupActionInfo &other);
 
 	/// This function is used as a virtual copy constructor
-	virtual AMDetectorCleanupActionInfo* createCopy() const { return new AMDetectorCleanupActionInfo(*this); }
+	virtual AMActionInfo3* createCopy() const;
 
 	/// This should describe the type of the action
 	virtual QString typeDescription() const { return "Detector Cleanup"; }

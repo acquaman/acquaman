@@ -25,6 +25,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/AMMotorGroupView.h"
 
 class QGridLayout;
+class QPushButton;
+class QCheckBox;
 
 class AMExtendedControlEditor;
 
@@ -62,9 +64,15 @@ protected slots:
 
 	virtual void onMovingChanged();
 
+	void onSetInFocusButtonClicked();
+	void onMoveInFocusCheckBoxToggled(bool moveInFocus);
+
 protected:
 	QToolButton *rotateCW_;
 	QToolButton *rotateCCW_;
+
+	QPushButton *setInFocusButton_;
+	QCheckBox *moveInFocusFocusCheckBox_;
 
 	/// The tolerance below which we don't care that the motor moved so we don't get jittering updates
 	double controlTolerane_;

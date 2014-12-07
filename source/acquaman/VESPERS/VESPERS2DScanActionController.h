@@ -49,13 +49,13 @@ protected:
 
 	/// Adds anything extra (eg: analysis blocks) to the scan before it's started.
 	virtual void buildScanControllerImplementation();
-	/// Creates the axis order for higher dimensional scans.  The default order is the axis order, but if a different order is desired, then you should reimplement this in subclasses.
+	/// Creates the axis order for higher dimensional scans.  Changed order to axis 1, 0.
 	virtual void createAxisOrderMap();
 
 	/// Specific scan configuration with all the VESPERS specific information inside.
 	VESPERS2DScanConfiguration *configuration_;
 
-	/// Timer used for determinging the elasped time for a scan.
+	/// Timer used for determining the elasped time for a scan.
 	QTimer elapsedTime_;
 	/// Number of seconds since the timer started.
 	double secondsElapsed_;

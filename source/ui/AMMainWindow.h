@@ -33,7 +33,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/AMWindowPaneModel.h"
 
 #include <QQueue>
-#include <QCloseEvent>
+
+#include "AMQEvents.h"
+
 #include <QApplication>
 /// This UI class manages a set of "window panes", which can either be docked and selected using an iTunes-style sidebar, or un-docked to float as independent windows. When an un-docked pane is clicked in the sidebar or closed, it is re-docked in the main window. Finally, a layout is available to add custom widgets above and below the main area.
 /*! Internally, this class is implemented using an an AMWindowPaneModel. Both the sidebar, and the main window area, simply act as "views" on this model.  For full access to the underlying model, call windowPaneModel().*/
@@ -123,6 +125,9 @@ signals:
 	/// Emitted when an item in the window pane model has its "Close" button clicked. The model index \c index corresponds to the item in the model. What to do in this situation is up to you. AMMainWindow doesn't take any action here.
 	void itemCloseButtonClicked(const QModelIndex& index);
 
+	/// Emitted when can item in the window pane model is right clicked
+	void itemRightClicked(const QModelIndex &index, const QPoint &globalPosition);
+
 protected slots:
 	// Responding to the sidebar QTreeView selections
 	//////////////////////////////////////////////////
@@ -147,6 +152,9 @@ protected slots:
 
 	/// Catches when an item has been 'closed' by clicking on it's 'X' in the sidebar
 	void onItemCloseButtonClicked(const QModelIndex& index);
+
+	/// Catches when an item has been 'right clicked'
+	void onItemRightClickDetected(const QModelIndex& index, const QPoint &globalPosition);
 
 protected:
 	QStackedWidget* stackWidget_;

@@ -42,8 +42,11 @@ AMSamplePlatePre2013MoveActionInfo::AMSamplePlatePre2013MoveActionInfo(const AMS
 
 AMSamplePlatePre2013MoveActionInfo::~AMSamplePlatePre2013MoveActionInfo(){}
 
-AMActionInfo3* AMSamplePlatePre2013MoveActionInfo::createCopy() const{
-	return new AMSamplePlatePre2013MoveActionInfo(*this);
+AMActionInfo3* AMSamplePlatePre2013MoveActionInfo::createCopy() const
+{
+	AMActionInfo3 *info = new AMSamplePlatePre2013MoveActionInfo(*this);
+	info->dissociateFromDb(true);
+	return info;
 }
 
 QString AMSamplePlatePre2013MoveActionInfo::typeDescription() const{

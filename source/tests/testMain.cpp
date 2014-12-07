@@ -21,8 +21,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
+#include "AMQtTest.h"
+
 #include <QApplication>
-#include <QtTest/QtTest>
 #include "util/AMSettings.h"
 #include "beamline/AMPVNames.h"
 #include "tests/TestDataman.h"

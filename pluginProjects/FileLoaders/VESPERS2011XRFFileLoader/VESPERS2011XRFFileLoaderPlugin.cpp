@@ -1,6 +1,6 @@
 #include "VESPERS2011XRFFileLoaderPlugin.h"
 
-#include <QtGui>
+#include "AMQtGui.h"
 
 #include "util/AMErrorMonitor.h"
 #include "analysis/AMDeadTimeAB.h"

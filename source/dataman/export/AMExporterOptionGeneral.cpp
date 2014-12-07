@@ -21,7 +21,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMExporterOptionGeneral.h"
 
- AMExporterOptionGeneral::~AMExporterOptionGeneral(){}
+AMExporterOptionGeneral::~AMExporterOptionGeneral(){}
+
 AMExporterOptionGeneral::AMExporterOptionGeneral(QObject *parent) :
 	AMExporterOption(parent)
 {
@@ -47,6 +48,29 @@ AMExporterOptionGeneral::AMExporterOptionGeneral(QObject *parent) :
 	sectionHeaderIncluded_ = true;
 
 	separateSectionFileName_ = "$name_$number_$dataSet_$dateTime[yyyyMMdd_hhmmss].dat";
+}
+
+AMExporterOptionGeneral::AMExporterOptionGeneral(const AMExporterOptionGeneral &original)
+	: AMExporterOption(original)
+{
+	includeAllDataSources_ = original.includeAllDataSources();
+	includeHigherDimensionSources_ = original.includeHigherDimensionSources();
+	firstColumnOnly_ = original.firstColumnOnly();
+	separateHigherDimensionalSources_ = original.separateHigherDimensionalSources();
+	higherDimensionsInRows_ = original.higherDimensionsInRows();
+	headerText_ = original.headerText();
+
+	headerIncluded_ = original.headerIncluded();
+
+	columnHeader_ =	original.columnHeader();
+	columnHeaderIncluded_ = original.columnHeaderIncluded();
+
+	columnHeaderDelimiter_ = original.columnHeaderDelimiter();
+
+	sectionHeader_ = original.sectionHeader();
+	sectionHeaderIncluded_ = original.sectionHeaderIncluded();
+
+	separateSectionFileName_ = original.separateSectionFileName();
 }
 
 const QMetaObject* AMExporterOptionGeneral::getMetaObject(){

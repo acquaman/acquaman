@@ -34,6 +34,13 @@ AMControlStopActionInfo::AMControlStopActionInfo(const AMControlStopActionInfo &
 	controlInfo_.setValuesFrom(*(other.controlInfo()));
 }
 
+AMActionInfo3 *AMControlStopActionInfo::createCopy() const
+{
+	AMActionInfo3 *info = new AMControlStopActionInfo(*this);
+	info->dissociateFromDb(true);
+	return info;
+}
+
 void AMControlStopActionInfo::setControlInfo(const AMControlInfo &controlInfo)
 {
 	controlInfo_.setValuesFrom(controlInfo);

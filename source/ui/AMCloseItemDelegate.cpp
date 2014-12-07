@@ -20,7 +20,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "AMCloseItemDelegate.h"
+
+#include <QEvent>
+#include <QApplication>
+
 #include "acquaman.h"
+#include "AMQEvents.h"
 
 AMCloseItemDelegate::~AMCloseItemDelegate(){}
 
@@ -29,6 +34,8 @@ AMCloseItemDelegate::AMCloseItemDelegate(QObject *parent) :
 {
 	closeButtonEnabled_ = false;
 	closeButtonAction_ = SignalOnly;
+
+	rightClickEnabled_ = false;
 }
 
 #include <QStyleOptionViewItemV4>
@@ -80,19 +87,24 @@ void AMCloseItemDelegate::drawCloseButton(QPainter *painter, const QStyleOptionV
 	}
 }
 
-
-#include <QEvent>
-#include <QMouseEvent>
-#include <QApplication>
-
 bool AMCloseItemDelegate::editorEvent ( QEvent * event, QAbstractItemModel * model, const QStyleOptionViewItem & option, const QModelIndex & index ) {
-	if(!closeButtonEnabled_ || !index.data(AM::CanCloseRole).toBool()) {
+	bool closeValid = closeButtonEnabled_ && index.data(AM::CanCloseRole).toBool();
+
+	if(!closeValid && !rightClickEnabled_) {
 		return QStyledItemDelegate::editorEvent(event, model, option, index);
 	}
 
+	QMouseEvent *mouseEvent = 0;
+	if(event->type() == QEvent::MouseButtonPress || event->type() == QEvent::MouseButtonRelease)
+		mouseEvent = static_cast<QMouseEvent*>(event);
 
-	if(event->type() == QEvent::MouseButtonPress) {
-		mouseDownPosition_ = static_cast<QMouseEvent*>(event)->pos();
+	if(rightClickEnabled_ && mouseEvent && mouseEvent->button() == Qt::RightButton && event->type() == QEvent::MouseButtonPress){
+		QPoint rightClickPoint = mouseEvent->globalPos();
+		emit rightClickDetected(index, rightClickPoint);
+		return true;
+	}
+	else if(closeValid && mouseEvent && mouseEvent->button() == Qt::LeftButton && event->type() == QEvent::MouseButtonPress) {
+		mouseDownPosition_ = mouseEvent->pos();
 		QPoint localPos = mouseDownPosition_ - option.rect.topLeft();
 
 		if(closeButtonRect_.contains(localPos)) {
@@ -110,12 +122,12 @@ bool AMCloseItemDelegate::editorEvent ( QEvent * event, QAbstractItemModel * mod
 	}
 
 #ifndef Q_WS_MAC
-	else if(event->type() == QEvent::MouseButtonRelease) {
-		QMouseEvent* e = static_cast<QMouseEvent*>(event);
+	else if(closeValid && mouseEvent && mouseEvent->button() == Qt::LeftButton && event->type() == QEvent::MouseButtonRelease) {
 		// Normally, a "click" has to be released nearly in the same position as where it was pushed down. I should actually check that both the down and the up are within the confines of the same widget/button, but we don't really have buttons here now.
 		// This is our criteria for a valid click. Now is it on a close button?
-		if( (mouseDownPosition_ - e->pos()).manhattanLength() < QApplication::startDragDistance() ) {
-			QPoint localPos = e->pos() - option.rect.topLeft();
+
+		if( (mouseDownPosition_ - mouseEvent->pos()).manhattanLength() < QApplication::startDragDistance() ) {
+			QPoint localPos = mouseEvent->pos() - option.rect.topLeft();
 
 			// we're on the button!
 			if( closeButtonRect_.contains(localPos) ) {
@@ -132,4 +144,23 @@ bool AMCloseItemDelegate::editorEvent ( QEvent * event, QAbstractItemModel * mod
 #endif
 
 	return QStyledItemDelegate::editorEvent(event, model, option, index);
+}
+
+bool AMCloseItemDelegate::rightClickEnabled() const{
+	return rightClickEnabled_;
+}
+
+void AMCloseItemDelegate::setCloseButtonsEnabled(bool closeButtonsOn){
+	if( (closeButtonEnabled_ = closeButtonsOn) )
+		closeButton_ = QPixmap(":/closeButton.png");
+	else
+		closeButton_ = QPixmap();
+}
+
+void AMCloseItemDelegate::setCloseButtonAction(int closeButtonAction){
+	closeButtonAction_ = (CloseButtonAction)closeButtonAction;
+}
+
+void AMCloseItemDelegate::setRightClickEnabled(bool rightClickEnabled){
+	rightClickEnabled_ = rightClickEnabled;
 }

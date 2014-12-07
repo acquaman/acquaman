@@ -29,6 +29,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QLabel>
 #include <QTimer>
 
+#include "AMQEvents.h"
+
  AMGithubIssueSubmissionView::~AMGithubIssueSubmissionView(){}
 AMGithubIssueSubmissionView::AMGithubIssueSubmissionView(QWidget *parent)
 	: QDialog(parent)
@@ -204,7 +206,6 @@ void AMGithubIssueSubmissionView::hideAndFinish()
 	emit finished();
 }
 
-#include <QCloseEvent>
 void AMGithubIssueSubmissionView::closeEvent(QCloseEvent *e)
 {
 	e->accept();

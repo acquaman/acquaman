@@ -22,8 +22,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef DOUBLEBUTTONWIDGET_H
 #define DOUBLEBUTTONWIDGET_H
 
+#include "AMQtGui.h"
+
 #include <QWidget>
-#include <QtGui>
 
 class DoubleButtonWidget : public QWidget
 {

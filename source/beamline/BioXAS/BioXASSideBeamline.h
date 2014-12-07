@@ -32,11 +32,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSBasicScalerChannelDetector.h"
 #include "beamline/CLS/CLSKeithley428.h"
 #include "beamline/CLS/CLSBasicCompositeScalerChannelDetector.h"
+#include "beamline/CLS/CLSMAXvMotor.h"
+
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
 
+#include "beamline/BioXAS/BioXASBeamlineDef.h"
 #include "beamline/BioXAS/BioXASSideMonochromator.h"
-#include "beamline/BioXAS/BioXASCLSMAXvMotor.h"
 
 #define BIOXASSIDEBEAMLINE_PRESSURE_TOO_HIGH 54600
 #define BIOXASSIDEBEAMLINE_VALVES_CLOSED 54601
@@ -45,7 +47,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define BIOXASSIDEBEAMLINE_WATER_FLOW_TOO_LOW 54604
 #define BIOXASSIDEBEAMLINE_ION_PUMP_TRIP 54605
 
-class CLSMAXvMotor;
 class AMBasicControlDetectorEmulator;
 
 class BioXASSideBeamline : public AMBeamline
@@ -56,14 +57,19 @@ public:
 	/// Returns the instance of the beamline that has been created.
 	static BioXASSideBeamline* bioXAS()
 	{
-		if(!instance_)
+		if(!instance_){
 			instance_ = new BioXASSideBeamline();
+			instance_->initializeBeamlineSupport();
+		}
 
 		return static_cast<BioXASSideBeamline*>(instance_);
 	}
 
     /// Destructor.
     virtual ~BioXASSideBeamline();
+
+    /// Returns the most recent connection state of the beamline.
+    virtual bool isConnected() const { return isConnected_; }
 
     /// Returns the beamline monochromator.
     BioXASSideMonochromator *mono() const { return mono_; }
@@ -186,16 +192,23 @@ public:
 
     // Motors
 
-    QList<BioXASCLSMAXvMotor *> getMotorsByType(BioXASBeamlineDef::BioXASMotorType category);
+    QList<CLSMAXvMotor *> getMotorsByType(BioXASBeamlineDef::BioXASMotorType category) const;
 
-    CLSKeithley428* i0Keithley() { return i0Keithley_; }
-    CLSKeithley428* iTKeithley() { return iTKeithley_; }
+    // Current amplifiers
 
-    CLSBasicScalerChannelDetector* i0Detector() { return i0Detector_; }
-    CLSBasicScalerChannelDetector* iTDetector() { return iTDetector_; }
-    AMBasicControlDetectorEmulator* energyFeedbackDetector() { return energyFeedbackDetector_; }
+    CLSKeithley428* i0Keithley() const { return i0Keithley_; }
+    CLSKeithley428* iTKeithley() const { return iTKeithley_; }
+
+    // Detectors
+
+    CLSBasicScalerChannelDetector* i0Detector() const { return i0Detector_; }
+    CLSBasicScalerChannelDetector* iTDetector() const { return iTDetector_; }
+    AMBasicControlDetectorEmulator* energyFeedbackDetector() const { return energyFeedbackDetector_; }
+    AMBasicControlDetectorEmulator* dwellTimeDetector() { return dwellTimeDetector_; }
 
 signals:
+    /// Notifier that the beamline's global connection state has changed.
+    void connected(bool);
     /// Notifier that the pressure status has changed. Argument is false if any of the pressures fall below its setpoint, true otherwise.
     void pressureStatusChanged(bool);
     /// Notifier that the valve status has changed. Argument is false if any of the valves are closed, true otherwise.
@@ -210,6 +223,8 @@ signals:
     void temperatureStatusChanged(bool);
 
 protected slots:
+    /// Updates the beamline's reported connection state.
+    void onConnectionChanged();
     /// Sets up pressure control connections once the whole pressure set is connected.
     void onPressureSetConnected(bool connected);
     /// Handles pressure errors.
@@ -237,7 +252,7 @@ protected slots:
 
 protected:
 	/// Sets up the synchronized dwell time.
-	void setupSynchronizedDwellTime();
+//	void setupSynchronizedDwellTime();
 	/// Sets up the readings such as pressure, flow switches, temperature, etc.
 	void setupDiagnostics();
 	/// Sets up logical groupings of controls into sets.
@@ -263,24 +278,36 @@ protected:
 	BioXASSideBeamline();
 
 protected:
+    // The beamline connection state.
+    bool isConnected_;
 
-    // Detectors.
+    // Detectors
 
     CLSBasicScalerChannelDetector *i0Detector_;
-    CLSKeithley428 *i0Keithley_;
-
     CLSBasicScalerChannelDetector *iTDetector_;
-    CLSKeithley428 *iTKeithley_;
+    AMBasicControlDetectorEmulator *energySetpointDetector_;
+    AMBasicControlDetectorEmulator *energyFeedbackDetector_;
+    AMBasicControlDetectorEmulator *dwellTimeDetector_;
 
-    // BioXAS Side monochromator.
+    // Monochromator
 
     BioXASSideMonochromator *mono_;
 
-    // Scaler.
+    // Scaler
 
     CLSSIS3820Scaler *scaler_;
+    AMControl *scalerDwellTime_;
 
-    // Shutters
+    // Amplifiers
+
+    CLSKeithley428 *i0Keithley_;
+    CLSKeithley428 *iTKeithley_;
+
+    // Misc controls
+
+    AMControl *energySetpointControl_;
+
+    // Shutter controls
 
     CLSBiStateControl *psh1_;
     CLSBiStateControl *psh2_;
@@ -384,43 +411,34 @@ protected:
 
     // Filter motors
 
-	BioXASCLSMAXvMotor *carbonFilterFarm1_;
-	BioXASCLSMAXvMotor *carbonFilterFarm2_;
+    CLSMAXvMotor *carbonFilterFarm1_;
+    CLSMAXvMotor *carbonFilterFarm2_;
 
     // M1 motors
 
-	BioXASCLSMAXvMotor *m1VertUpStreamINB_;
-	BioXASCLSMAXvMotor *m1VertUpStreamOUTB_;
-	BioXASCLSMAXvMotor *m1VertDownStream_;
-	BioXASCLSMAXvMotor *m1StripeSelect_;
-	BioXASCLSMAXvMotor *m1Yaw_;
-	BioXASCLSMAXvMotor *m1BenderUpstream_;
-	BioXASCLSMAXvMotor *m1BenderDownStream_;
-	BioXASCLSMAXvMotor *m1UpperSlitBlade_;
+    CLSMAXvMotor *m1VertUpStreamINB_;
+    CLSMAXvMotor *m1VertUpStreamOUTB_;
+    CLSMAXvMotor *m1VertDownStream_;
+    CLSMAXvMotor *m1StripeSelect_;
+    CLSMAXvMotor *m1Yaw_;
+    CLSMAXvMotor *m1BenderUpstream_;
+    CLSMAXvMotor *m1BenderDownStream_;
+    CLSMAXvMotor *m1UpperSlitBlade_;
 
     // Variable Mask motors
 
-	BioXASCLSMAXvMotor *variableMaskVertUpperBlade_;
-	BioXASCLSMAXvMotor *variableMaskVertLowerBlade_;
+    CLSMAXvMotor *variableMaskVertUpperBlade_;
+    CLSMAXvMotor *variableMaskVertLowerBlade_;
 
     // M2 motors
 
-	BioXASCLSMAXvMotor *m2VertUpstreamINB_;
-	BioXASCLSMAXvMotor *m2VertUpstreamOUTB_;
-	BioXASCLSMAXvMotor *m2VertDownstream_;
-	BioXASCLSMAXvMotor *m2StripeSelect_;
-	BioXASCLSMAXvMotor *m2Yaw_;
-	BioXASCLSMAXvMotor *m2BenderUpstream_;
-	BioXASCLSMAXvMotor *m2BenderDownStream_;
-
-    // Energy setpoint control.
-
-    AMControl *energySetpointControl_;
-
-    // Extra AMDetectors
-
-    AMBasicControlDetectorEmulator *energySetpointDetector_;
-    AMBasicControlDetectorEmulator *energyFeedbackDetector_;
+    CLSMAXvMotor *m2VertUpstreamINB_;
+    CLSMAXvMotor *m2VertUpstreamOUTB_;
+    CLSMAXvMotor *m2VertDownstream_;
+    CLSMAXvMotor *m2StripeSelect_;
+    CLSMAXvMotor *m2Yaw_;
+    CLSMAXvMotor *m2BenderUpstream_;
+    CLSMAXvMotor *m2BenderDownStream_;
 };
 
 #endif // BIOXASSIDEBEAMLINE_H

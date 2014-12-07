@@ -24,13 +24,17 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QApplication>
 #include <QStyle>
 
-#include "util/AMDateTimeUtils.h"
 #include "beamline/camera/AMShapeData.h"
+#include "util/AMDateTimeUtils.h"
+#include "util/AMDeferredFunctionCall.h"
 
 AMSamplePlate::AMSamplePlate(QObject *parent) :
 	AMDbObject(parent)
 {
 	dateTime_ = QDateTime::currentDateTime();
+
+	storeToDbFunctionCall_ = new AMDeferredFunctionCall();
+	connect(storeToDbFunctionCall_, SIGNAL(executed()), this, SLOT(onSampleRequestStoreToDb()));
 
 	// Forward internal signals (itemAdded, etc.) from our signalSource() as our own
 	connect(samples_.signalSource(), SIGNAL(itemAboutToBeAdded(int)), this, SIGNAL(sampleAboutToBeAdded(int)));
@@ -42,6 +46,13 @@ AMSamplePlate::AMSamplePlate(QObject *parent) :
 
 AMSamplePlate::~AMSamplePlate()
 {
+	if(storeToDbFunctionCall_){
+		if(storeToDbFunctionCall_->isScheduled())
+			storeToDbFunctionCall_->unschedule();
+		if(storeToDbFunctionCall_->willRunLater())
+			storeToDbFunctionCall_->cancelRunLater();
+		storeToDbFunctionCall_->deleteLater();
+	}
 }
 
 QDateTime AMSamplePlate::dateTime() const{
@@ -176,6 +187,10 @@ void AMSamplePlate::setPlatePosition(QVector3D position)
 	{
 		platePosition_ = position;
 		setModified(true);
+
+		if(storeToDbFunctionCall_->willRunLater())
+			storeToDbFunctionCall_->cancelRunLater();
+		storeToDbFunctionCall_->runLater(50);
 	}
 }
 
@@ -185,6 +200,10 @@ void AMSamplePlate::setPlateRotation(double rotation)
 	{
 		plateRotation_ = rotation;
 		setModified(true);
+
+		if(storeToDbFunctionCall_->willRunLater())
+			storeToDbFunctionCall_->cancelRunLater();
+		storeToDbFunctionCall_->runLater(50);
 	}
 }
 
@@ -201,8 +220,13 @@ void AMSamplePlate::onSampleModified(bool isModified){
 	for(int x = 0; x < sampleCount(); x++)
 		modifiedNow |= sampleAt(x)->modified();
 
-	if(modifiedNow != modifiedBefore)
+	if(modifiedNow != modifiedBefore){
 		setModified(modifiedNow);
+
+		if(storeToDbFunctionCall_->willRunLater())
+			storeToDbFunctionCall_->cancelRunLater();
+		storeToDbFunctionCall_->runLater(50);
+	}
 }
 
 void AMSamplePlate::onSampleRequestStoreToDb(){

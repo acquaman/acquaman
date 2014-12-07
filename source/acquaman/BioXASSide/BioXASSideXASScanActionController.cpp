@@ -41,6 +41,7 @@ BioXASSideXASScanActionController::BioXASSideXASScanActionController(BioXASSideX
     scan_->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));
 
     AMControlInfoList list;
+    //list.append(BioXASSideBeamline::bioXAS()->m1UpperSlit()->toInfo());
     list.append(BioXASSideBeamline::bioXAS()->mono()->energyControl()->toInfo());
     configuration_->setAxisControlInfos(list);
 
@@ -49,6 +50,10 @@ BioXASSideXASScanActionController::BioXASSideXASScanActionController(BioXASSideX
     bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->iTDetector()->toInfo());
     bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->energyFeedbackDetector()->toInfo());
     configuration_->setDetectorConfigurations(bioXASDetectors);
+}
+
+BioXASSideXASScanActionController::~BioXASSideXASScanActionController()
+{
 }
 
 AMAction3* BioXASSideXASScanActionController::createInitializationActions()

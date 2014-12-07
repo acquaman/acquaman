@@ -203,11 +203,11 @@ public:
 	/// Returns true if the detector is currently cancelling an acquisition
 	bool isCancellingAcquisition() const { return acquisitionState() == AMDetector::Cancelling; }
 	/// Returns true if the detector has just cancelled an acquisition
-	bool acquisitionCancelled() const { return acquisitionState() == AMDetector::Cancelled; }
+	bool isAcquisitionCancelled() const { return acquisitionState() == AMDetector::Cancelled; }
 	/// Returns true if the detector has just succeeded in an acquisition
-	bool acquisitionSucceeded() const { return acquisitionState() == AMDetector::Succeeded; }
+	bool isAcquisitionSucceeded() const { return acquisitionState() == AMDetector::Succeeded; }
 	/// Returns true if the detector has just failed in an acquisition
-	bool acquisitionFailed() const { return acquisitionState() == AMDetector::Failed; }
+	bool isAcquisitionFailed() const { return acquisitionState() == AMDetector::Failed; }
 	/// Returns true if the detector is not ready for acquisition but also not currently acquiring
 	bool isNotReadyForAcquisition() const { return acquisitionState() == AMDetector::NotReadyForAcquisition; }
 	/// Returns true if the detector is ready to start an acquisition
