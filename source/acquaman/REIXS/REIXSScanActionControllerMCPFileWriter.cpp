@@ -10,6 +10,7 @@ REIXSScanActionControllerMCPFileWriter::REIXSScanActionControllerMCPFileWriter(c
 	: AMScanActionControllerBasicFileWriter(filePath, false, parent)
 {
 	isWritingToFile_ = false;
+	closeAfterWrite_ = false;
 }
 
 REIXSScanActionControllerMCPFileWriter::~REIXSScanActionControllerMCPFileWriter()
@@ -22,7 +23,7 @@ void REIXSScanActionControllerMCPFileWriter::writeToFile(int fileRank, const QSt
 	switch(fileRank){
 
 	case 2:{
-		if (!isWritingToFile_)
+		if (!isWritingToFile_ && dataFile_ && dataFile_->isOpen())
 		{
 			isWritingToFile_ = true;
 			AMTextStream dataStream(dataFile_);
@@ -30,10 +31,32 @@ void REIXSScanActionControllerMCPFileWriter::writeToFile(int fileRank, const QSt
 			dataStream << textToWrite;
 			isWritingToFile_ = false;
 		}
+		if(!isWritingToFile_ && closeAfterWrite_)
+			finishWriting();
 		break;
 	}
 
 	default:
 		break;
+	}
+}
+
+void REIXSScanActionControllerMCPFileWriter::finishWriting()
+{
+	if(!isWritingToFile_){
+		dataFile_->close();
+		dataFile_->deleteLater();
+		dataFile_ = 0;
+
+		if(hasSpectraData_){
+			spectraFile_->close();
+			spectraFile_->deleteLater();
+			spectraFile_ = 0;
+		}
+
+		emit fileWriterIsBusy(false);
+	}
+	else{
+		closeAfterWrite_ = true;
 	}
 }
