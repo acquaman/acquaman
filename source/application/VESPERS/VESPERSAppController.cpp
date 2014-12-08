@@ -100,6 +100,8 @@ VESPERSAppController::VESPERSAppController(QObject *parent) :
 	marCCDStartup_ = false;
 	pilatusCCDStartup_ = false;
 
+	setDefaultUseLocalStorage(true);
+
 	userConfiguration_ = new VESPERSUserConfiguration(this);
 
 	// Remember!!!!  Every upgrade needs to be done to the user AND actions databases!

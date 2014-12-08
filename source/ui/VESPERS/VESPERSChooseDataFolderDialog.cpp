@@ -68,7 +68,7 @@ VESPERSChooseDataFolderDialog::VESPERSChooseDataFolderDialog(const QString &data
 	folderButton->setIcon(QIcon(":/22x22/folder.png"));
 	okButton_ = new QPushButton(QIcon(":/22x22/greenCheck.png"), "Okay");
 	QPushButton *cancelButton = new QPushButton(QIcon(":/22x22/list-remove-2.png"), "Cancel");
-	QString path = VESPERS::getProposalNumber(folder_);
+	QString shortFormPath = VESPERS::getProposalNumber(folder_);
 
 	connect(folderButton, SIGNAL(clicked()), this, SLOT(getFilePath()));
 	connect(okButton_, SIGNAL(clicked()), this, SLOT(accept()));
@@ -76,13 +76,17 @@ VESPERSChooseDataFolderDialog::VESPERSChooseDataFolderDialog(const QString &data
 	connect(path_, SIGNAL(editTextChanged(QString)), this, SLOT(onTextChanged(QString)));
 	connect(advancedCheck_, SIGNAL(toggled(bool)), folderButton, SLOT(setEnabled(bool)));
 
-	advancedCheck_->setChecked(path.isEmpty());
-	folderButton->setEnabled(path.isEmpty());
+	advancedCheck_->setChecked(shortFormPath.isEmpty());
+	folderButton->setEnabled(shortFormPath.isEmpty());
 
-	if (path.isEmpty())
-		path = folder_;
+	// If small form could not be resolved, then just use a full path.  Otherwise, set the folder text to the short form.
+	if (shortFormPath.isEmpty())
+		shortFormPath = folder_;
 
-	path_->setEditText(path);
+	else
+		folder_ = shortFormPath;
+
+	path_->setEditText(shortFormPath);
 
 	QHBoxLayout *lineEditLayout = new QHBoxLayout;
 	lineEditLayout->addWidget(path_);
@@ -118,7 +122,7 @@ bool VESPERSChooseDataFolderDialog::getDataFolder(QWidget *parent)
 		if (!dialog.isFullPath()){
 
 			QString originalInput = dialog.filePath();
-			QDir remoteFullPath("/nas/vespers/users/" % originalInput);
+			QFileInfo remoteFullPath("/nas/vespers/users/" % originalInput);
 			bool isFirstTimeUser = !remoteFullPath.exists();
 
 			if (!remoteFullPath.exists()){
