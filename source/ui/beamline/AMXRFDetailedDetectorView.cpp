@@ -426,6 +426,8 @@ void AMXRFDetailedDetectorView::setMinimumEnergy(double newMinimum)
 	periodicTableView_->setMinimumEnergy(newMinimum);
 	elementView_->setMinimumEnergy(newMinimum);
 	minimumEnergySpinBox_->setValue(newMinimum);
+
+	setMinimumEnergyImplementation(newMinimum);
 }
 
 void AMXRFDetailedDetectorView::setMaximumEnergy(double newMaximum)
@@ -434,6 +436,8 @@ void AMXRFDetailedDetectorView::setMaximumEnergy(double newMaximum)
 	periodicTableView_->setMaximumEnergy(newMaximum);
 	elementView_->setMaximumEnergy(newMaximum);
 	maximumEnergySpinBox_->setValue(newMaximum);
+
+	setMaximumEnergyImplementation(newMaximum);
 }
 
 void AMXRFDetailedDetectorView::onMinimumEnergyChanged()

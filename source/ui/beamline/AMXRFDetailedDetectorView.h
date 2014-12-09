@@ -221,6 +221,11 @@ protected:
 	/// Helper method to show or hide the periodic table related views and fix the header button
 	void hidePeriodicTableViews(bool setHidden);
 
+	/// Implementation method for setMinimumEnergy.  The view handles all the visuals, but if there is something specific that needs to be passed on to the detector or viewing subclass, you can implement that here.
+	virtual void setMinimumEnergyImplementation(double energy){ Q_UNUSED(energy); }
+	/// Implementation method for setMaximumEnergy.  The view handles all the visuals, but if there is something specific that needs to be passed on to the detector or viewing subclass, you can implement that here.
+	virtual void setMaximumEnergyImplementation(double energy){ Q_UNUSED(energy); }
+
 	/// The drop down button to show or hide the periodic table related information
 	AMHeaderButton *periodicTableHeaderButton_;
 	/// Widget to hold all of the periodic table related views, this way we can hide and show them all at once
