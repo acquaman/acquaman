@@ -415,16 +415,25 @@ void REIXSXESScanActionController::stopImplementation(const QString &command)
 {
 	Q_UNUSED(command);
 
-	ScanState currentState = state();
+	//ScanState currentState = state();
 
-	if(currentState == Running || currentState == Paused) {
+	//if(currentState == Running || currentState == Paused) {
 		disconnect(REIXSBeamline::bl()->mcpDetector(), SIGNAL(imageDataChanged()), this, SLOT(onNewImageValues()));
-	}
+		disconnect(REIXSBeamline::bl()->mcpDetector(), SIGNAL(imageDataChanged()), this, SLOT(writeDataToFiles()));
+	//}
 
-	disconnect(REIXSBeamline::bl()->mcpDetector(), SIGNAL(imageDataChanged()), this, SLOT(writeDataToFiles()));
+//		AMAction3 *currentAction = AMActionRunner3::scanActionRunner()->currentAction();
+
+//		if(currentAction){
+
+//			connect(currentAction, SIGNAL(succeeded()), this, SLOT(onSkipCurrentActionSucceeded()));
+//			currentAction->skip(command);
+//		}
+	//connect(REIXSBeamline::bl()->mcpDetector(), SIGNAL(cancelled()), this, SLOT(onSkipCurrentActionSucceeded()));
 	REIXSBeamline::bl()->mcpDetector()->cancelAcquisition();
 	saveRawData();
 	writeDataToFiles();
+	scanControllerStateMachineFinished_ = true;
 	if(readyForFinished())
 		setFinished();
 	else if(fileWriterIsBusy_)

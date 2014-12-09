@@ -47,7 +47,7 @@ protected:
 	AMAction3* createInitializationActions();
 	/// Reimplemented to put the beamline in a good state after a scan has been completed.
 	AMAction3* createCleanupActions();
-	/// Re-implemented due to the extra complexity of setting up IDEAS.
+	/// Re-implemented since the MCP is unique.
 	virtual void cancelImplementation();
 
 
