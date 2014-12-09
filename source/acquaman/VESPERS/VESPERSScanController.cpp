@@ -35,7 +35,7 @@ VESPERSScanController::VESPERSScanController(VESPERSScanConfiguration *configura
 
 VESPERSScanController::~VESPERSScanController(){}
 
-AMAction3 *VESPERSScanController::buildBaseInitializationAction()
+AMAction3 *VESPERSScanController::buildBaseInitializationAction(double firstRegionTime)
 {
 	// To initialize the XAS scan, there are four stages.
 	/*
@@ -47,15 +47,27 @@ AMAction3 *VESPERSScanController::buildBaseInitializationAction()
 
 	AMListAction3 *stage1 = new AMListAction3(new AMListActionInfo3("VESPERS Initialization Stage 1", "VESPERS Initialization Stage 1"), AMListAction3::Parallel);
 	stage1->addSubAction(scaler->createContinuousEnableAction3(false));
+//	stage1->addSubAction(scaler->createDwellTimeAction3(firstRegionTime));
+
+	AMListAction3 *stage2 = new AMListAction3(new AMListActionInfo3("VESPERS Initialization Stage 2", "VESPERS Initialization Stage 2"), AMListAction3::Parallel);
+
+	stage2->addSubAction(scaler->createStartAction3(false));
+	stage2->addSubAction(scaler->createScansPerBufferAction3(1));
+	stage2->addSubAction(scaler->createTotalScansAction3(1));
 
 	AMListAction3 *stage3 = new AMListAction3(new AMListActionInfo3("VESPERS Initialization Stage 3", "VESPERS Initialization Stage 3"), AMListAction3::Parallel);
+	stage3->addSubAction(scaler->createStartAction3(true));
+	stage3->addSubAction(scaler->createWaitForDwellFinishedAction());
 
-	stage3->addSubAction(scaler->createStartAction3(false));
-	stage3->addSubAction(scaler->createScansPerBufferAction3(1));
-	stage3->addSubAction(scaler->createTotalScansAction3(1));
+	AMListAction3 *stage4 = new AMListAction3(new AMListActionInfo3("VESPERS Initialization Stage 4", "VESPERS Initialization Stage 4"), AMListAction3::Parallel);
+	stage4->addSubAction(scaler->createStartAction3(true));
+	stage4->addSubAction(scaler->createWaitForDwellFinishedAction());
 
 	initializationAction->addSubAction(stage1);
+	initializationAction->addSubAction(stage2);
+	initializationAction->addSubAction(scaler->createDwellTimeAction3(firstRegionTime));
 	initializationAction->addSubAction(stage3);
+	initializationAction->addSubAction(stage4);
 
 	return initializationAction;
 }
