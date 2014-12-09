@@ -388,7 +388,7 @@ void AMListAction3::internalOnSubActionStateChanged(int newState, int oldState)
 			return;
 		case Running:
 
-			if (isScanAction())
+			if (isScanAction() && state() != Resuming)
 				emit scanActionStarted((AMScanAction *)currentSubAction());
 
 			// If we had a current action paused:
