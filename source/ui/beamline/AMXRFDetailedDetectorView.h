@@ -184,6 +184,10 @@ protected slots:
 	void onRegionOfInterestBoundsChanged(int id);
 	/// Handles changing the scale of the axis to logarithmic or linear.
 	void onLogScaleClicked(bool logScale);
+	/// Handles setting the minimum energy after a new input from the spin box.
+	void onMinimumEnergyChanged();
+	/// Handles setting the maximum energy after a new input from the spin box.
+	void onMaximumEnergyChanged();
 
 	/// Handles showing or hiding the periodic table related views when the button is clicked
 	void onPeriodicTableHeaderButtonClicked();
@@ -207,6 +211,8 @@ protected:
 	void buildDeadTimeView();
 	/// Method that builds the region of interest views and associated things.
 	void buildRegionOfInterestViews();
+	/// Method that builds two spin boxes that will change the energy range filter.
+	void buildEnergyRangeSpinBoxView();
 	/// Helper method that removes all of the plot items from the provided list.
 	void removeAllPlotItems(QList<MPlotItem *> &items);
 	/// Method that takes two AMEmissionLines and adds them to the plot as a pile up peak if it would fit.
@@ -276,6 +282,13 @@ protected:
 	QButtonGroup *deadTimeButtons_;
 	/// The button for showing the regions of interest edit widget.
 	QPushButton *editRegionsOfInterestButton_;
+
+	/// The button that shows or hides the energy range spin boxes.
+	QPushButton *showEnergyRangeSpinBoxes_;
+	/// The minimum energy spin box.
+	QDoubleSpinBox *minimumEnergySpinBox_;
+	/// The maximum energy spin box.
+	QDoubleSpinBox *maximumEnergySpinBox_;
 };
 
 #endif // AMXRFDETAILEDDETECTORVIEW_H
