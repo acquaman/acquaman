@@ -70,6 +70,7 @@ void AMXRFDetailedDetectorView::buildDetectorView()
 	buildShowSpectraButtons();
 	buildPileUpPeakButtons();
 	buildDeadTimeView();
+	buildEnergyRangeSpinBoxView();
 	buildRegionOfInterestViews();
 }
 
@@ -124,6 +125,43 @@ void AMXRFDetailedDetectorView::buildDeadTimeView()
 	rightLayout_->addStretch();
 
 	deadTimeLabel_->setVisible(deadTimeEnabled);
+}
+
+void AMXRFDetailedDetectorView::buildEnergyRangeSpinBoxView()
+{
+	showEnergyRangeSpinBoxes_ = new QPushButton(QIcon(":/system-run.png"), "Settings");
+	showEnergyRangeSpinBoxes_->setCheckable(true);
+
+	minimumEnergySpinBox_ = new QDoubleSpinBox;
+	minimumEnergySpinBox_->setMinimum(0);
+	minimumEnergySpinBox_->setMaximum(100000);
+	minimumEnergySpinBox_->setPrefix("Minimum: ");
+	minimumEnergySpinBox_->setSuffix(" eV");
+	minimumEnergySpinBox_->setValue(energyRange().minimum());
+	minimumEnergySpinBox_->setAlignment(Qt::AlignCenter);
+	minimumEnergySpinBox_->hide();
+
+	maximumEnergySpinBox_ = new QDoubleSpinBox;
+	maximumEnergySpinBox_->setMinimum(0);
+	maximumEnergySpinBox_->setMaximum(100000);
+	maximumEnergySpinBox_->setPrefix("Maximum: ");
+	maximumEnergySpinBox_->setSuffix(" eV");
+	maximumEnergySpinBox_->setValue(energyRange().maximum());
+	maximumEnergySpinBox_->setAlignment(Qt::AlignCenter);
+	maximumEnergySpinBox_->hide();
+
+	connect(showEnergyRangeSpinBoxes_, SIGNAL(toggled(bool)), minimumEnergySpinBox_, SLOT(setVisible(bool)));
+	connect(showEnergyRangeSpinBoxes_, SIGNAL(toggled(bool)), maximumEnergySpinBox_, SLOT(setVisible(bool)));
+	connect(minimumEnergySpinBox_, SIGNAL(editingFinished()), this, SLOT(onMinimumEnergyChanged()));
+	connect(maximumEnergySpinBox_, SIGNAL(editingFinished()), this, SLOT(onMaximumEnergyChanged()));
+
+	energyRangeLayout_ = new QVBoxLayout;
+	energyRangeLayout_->addWidget(showEnergyRangeSpinBoxes_);
+	energyRangeLayout_->addWidget(minimumEnergySpinBox_);
+	energyRangeLayout_->addWidget(maximumEnergySpinBox_);
+	energyRangeLayout_->addStretch();
+
+	rightLayout_->addLayout(energyRangeLayout_);
 }
 
 void AMXRFDetailedDetectorView::buildPileUpPeakButtons()
@@ -300,7 +338,7 @@ void AMXRFDetailedDetectorView::onElementDeselected(AMElement *element)
 
 	foreach(MPlotItem *item, emissionLineMarkers_){
 
-                if (item->description().contains(QRegExp(QString("^%1 (K|L|M)").arg(symbol))))
+				if (item->description().contains(QRegExp(QString("^%1 (K|L|M)").arg(symbol))))
 			if (plot_->removeItem(item)){
 
 				emissionLineMarkers_.removeOne(item);
@@ -373,6 +411,8 @@ void AMXRFDetailedDetectorView::setEnergyRange(const AMRange &newRange)
 	combinationPileUpPeakValidator_->setRange(newRange);
 	periodicTableView_->setEnergyRange(newRange);
 	elementView_->setEnergyRange(newRange);
+	minimumEnergySpinBox_->setValue(newRange.minimum());
+	maximumEnergySpinBox_->setValue(newRange.maximum());
 }
 
 void AMXRFDetailedDetectorView::setEnergyRange(double minimum, double maximum)
@@ -385,6 +425,9 @@ void AMXRFDetailedDetectorView::setMinimumEnergy(double newMinimum)
 	emissionLineValidator_->setMinimum(newMinimum);
 	periodicTableView_->setMinimumEnergy(newMinimum);
 	elementView_->setMinimumEnergy(newMinimum);
+	minimumEnergySpinBox_->setValue(newMinimum);
+
+	setMinimumEnergyImplementation(newMinimum);
 }
 
 void AMXRFDetailedDetectorView::setMaximumEnergy(double newMaximum)
@@ -392,6 +435,20 @@ void AMXRFDetailedDetectorView::setMaximumEnergy(double newMaximum)
 	emissionLineValidator_->setMaximum(newMaximum);
 	periodicTableView_->setMaximumEnergy(newMaximum);
 	elementView_->setMaximumEnergy(newMaximum);
+	maximumEnergySpinBox_->setValue(newMaximum);
+
+	setMaximumEnergyImplementation(newMaximum);
+}
+
+void AMXRFDetailedDetectorView::onMinimumEnergyChanged()
+{
+	setMinimumEnergy(minimumEnergySpinBox_->value());
+}
+
+
+void AMXRFDetailedDetectorView::onMaximumEnergyChanged()
+{
+	setMaximumEnergy(maximumEnergySpinBox_->value());
 }
 
 void AMXRFDetailedDetectorView::expandPeriodicTableViews(){

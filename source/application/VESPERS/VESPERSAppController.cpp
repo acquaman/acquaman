@@ -87,6 +87,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/beamline/AMXRFBaseDetectorView.h"
 #include "ui/beamline/AMXRFDetailedDetectorView.h"
 #include "ui/VESPERS/VESPERSXRFDetailedDetectorView.h"
+#include "ui/VESPERS/VESPERSSingleElementVortexDetectorView.h"
+#include "ui/VESPERS/VESPERSFourElementVortexDetectorView.h"
 
 #include "acquaman/VESPERS/VESPERSTimeScanConfiguration.h"
 #include "ui/VESPERS/VESPERSTimeScanConfigurationView.h"
@@ -281,14 +283,14 @@ void VESPERSAppController::setupUserInterface()
 	*/
 	pilatusView_ = new VESPERSPilatusCCDDetectorView(VESPERSBeamline::vespers()->vespersPilatusAreaDetector());
 
-	VESPERSXRFDetailedDetectorView *singleElementVortexView = new VESPERSXRFDetailedDetectorView(VESPERSBeamline::vespers()->vespersSingleElementVortexDetector());
+	VESPERSSingleElementVortexDetectorView *singleElementVortexView = new VESPERSSingleElementVortexDetectorView(VESPERSBeamline::vespers()->vespersSingleElementVortexDetector());
 	singleElementVortexView->buildDetectorView();
 	singleElementVortexView->setEnergyRange(2000, 20480);
 	singleElementVortexView->addEmissionLineNameFilter(QRegExp("1"));
 	singleElementVortexView->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
 	singleElementVortexView->addCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));
 
-	VESPERSXRFDetailedDetectorView *fourElementVortexView = new VESPERSXRFDetailedDetectorView(VESPERSBeamline::vespers()->vespersFourElementVortexDetector());
+	VESPERSFourElementVortexDetectorView *fourElementVortexView = new VESPERSFourElementVortexDetectorView(VESPERSBeamline::vespers()->vespersFourElementVortexDetector());
 	fourElementVortexView->buildDetectorView();
 	fourElementVortexView->setEnergyRange(2000, 20480);
 	fourElementVortexView->addEmissionLineNameFilter(QRegExp("1"));
