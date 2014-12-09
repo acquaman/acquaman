@@ -457,7 +457,7 @@ void REIXSXESImageInterpolationAB::computeCachedValues() const
 
 				int shiftOffset = qRound(shiftValueMapPointer[i*jSize+j] * interpolationLevel_);
 
-				if (((i - shiftOffset) < interpolatedISize) && ((i - shiftOffset) > 0))
+				if (((i + shiftOffset) < interpolatedISize) && ((i + shiftOffset) > 0))
 				{
 					//add only one pixel from the interpolated image to each pixel in the shifted image:
 					finalLargeImagePointer[j + i*jSize] = interpolatedImagePointer[j + (i + shiftOffset)*jSize];
