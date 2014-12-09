@@ -106,12 +106,16 @@ void AMUserSettings::load() {
 }
 
 /// Save settings to disk:
-void AMUserSettings::save() {
+void AMUserSettings::save(bool forceRemoteDataFolderUpdate)
+{
 	QSettings settings(QSettings::IniFormat, QSettings::UserScope, "Acquaman", "Acquaman");
 
 	// All settings variables are saved here to the user-specific file.
 	// Don't forget to add here if you add new user options.
-	if(!remoteDataFolder.isEmpty())
+	if (forceRemoteDataFolderUpdate)
+		settings.setValue("remoteDataFolder", remoteDataFolder);
+
+	else if(!remoteDataFolder.isEmpty())
 		settings.setValue("remoteDataFolder", remoteDataFolder);
 
 	settings.setValue("userDataFolder", userDataFolder);

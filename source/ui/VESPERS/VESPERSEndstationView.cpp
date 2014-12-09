@@ -375,7 +375,12 @@ VESPERSEndstationLimitsView::VESPERSEndstationLimitsView(QWidget *parent)
 
 void VESPERSEndstationLimitsView::saveFile()
 {
-	QFile file(QDir::currentPath() + "/endstation.config");
+	QString filePath = VESPERS::getHomeDirectory() % "/acquaman/build/endstation.config";
+
+	if (filePath.contains("hunterd"))
+		filePath = "/home/hunterd/beamline/programming/VESPERSAcquaman-build-desktop/build";
+
+	QFile file(filePath);
 
 	if (!file.open(QFile::WriteOnly | QFile::Text)){
 		QMessageBox::warning(this, tr("Endstation Configuration"),
@@ -419,7 +424,12 @@ void VESPERSEndstationLimitsView::saveFile()
 
 void VESPERSEndstationLimitsView::loadFile()
 {
-	QFile file(QDir::currentPath() + "/endstation.config");
+	QString filePath = VESPERS::getHomeDirectory() % "/acquaman/build/endstation.config";
+
+	if (filePath.contains("hunterd"))
+		filePath = "/home/hunterd/beamline/programming/VESPERSAcquaman-build-desktop/build";
+
+	QFile file(filePath);
 
 	// If there is no configuration file, then it creates a file with some default values.
 	if (!file.open(QFile::ReadOnly | QFile::Text)){
