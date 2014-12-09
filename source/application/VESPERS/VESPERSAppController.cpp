@@ -972,8 +972,15 @@ void VESPERSAppController::onUserConfigurationLoadedFromDb()
 
 	AMXRFDetector *detector = VESPERSBeamline::vespers()->vespersSingleElementVortexDetector();
 
-	foreach (AMRegionOfInterest *region, userConfiguration_->regionsOfInterest())
-		detector->addRegionOfInterest(region->createCopy());
+	foreach (AMRegionOfInterest *region, userConfiguration_->regionsOfInterest()){
+
+		AMRegionOfInterest *newRegion = region->createCopy();
+		detector->addRegionOfInterest(newRegion);
+		mapScanConfiguration_->addRegionOfInterest(region);
+		map3DScanConfiguration_->addRegionOfInterest(region);
+		exafsScanConfiguration_->addRegionOfInterest(region);
+		lineScanConfiguration_->addRegionOfInterest(region);
+	}
 
 	// This is connected here because we want to listen to the detectors for updates, but don't want to double add regions on startup.
 	connect(VESPERSBeamline::vespers()->vespersSingleElementVortexDetector(), SIGNAL(addedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestAdded(AMRegionOfInterest*)));
