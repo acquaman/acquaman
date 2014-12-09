@@ -288,6 +288,8 @@ protected:
 	/// The button for showing the regions of interest edit widget.
 	QPushButton *editRegionsOfInterestButton_;
 
+	/// The layout for the energy range ui elements.
+	QVBoxLayout *energyRangeLayout_;
 	/// The button that shows or hides the energy range spin boxes.
 	QPushButton *showEnergyRangeSpinBoxes_;
 	/// The minimum energy spin box.

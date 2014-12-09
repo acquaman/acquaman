@@ -155,13 +155,13 @@ void AMXRFDetailedDetectorView::buildEnergyRangeSpinBoxView()
 	connect(minimumEnergySpinBox_, SIGNAL(editingFinished()), this, SLOT(onMinimumEnergyChanged()));
 	connect(maximumEnergySpinBox_, SIGNAL(editingFinished()), this, SLOT(onMaximumEnergyChanged()));
 
-	QVBoxLayout *energyLayout = new QVBoxLayout;
-	energyLayout->addWidget(showEnergyRangeSpinBoxes_);
-	energyLayout->addWidget(minimumEnergySpinBox_);
-	energyLayout->addWidget(maximumEnergySpinBox_);
-	energyLayout->addStretch();
+	energyRangeLayout_ = new QVBoxLayout;
+	energyRangeLayout_->addWidget(showEnergyRangeSpinBoxes_);
+	energyRangeLayout_->addWidget(minimumEnergySpinBox_);
+	energyRangeLayout_->addWidget(maximumEnergySpinBox_);
+	energyRangeLayout_->addStretch();
 
-	rightLayout_->addLayout(energyLayout);
+	rightLayout_->addLayout(energyRangeLayout_);
 }
 
 void AMXRFDetailedDetectorView::buildPileUpPeakButtons()
