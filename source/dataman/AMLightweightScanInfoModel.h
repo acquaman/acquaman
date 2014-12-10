@@ -41,6 +41,8 @@ public:
 	/// URL format: amd://databaseConnectionName/tableName/objectId
 	/// If the index refers to a thumbnail, then the URL of the parent scan is returned
 	QUrl rowToUrl(const QModelIndex& index);
+	/// Returns a map of all the known runs. Maps runIDs to runNames.
+	const QHash<int, QString> runMap();
 public slots:
 
 	// Functions which respond to signals indicating changes in the underlying collection

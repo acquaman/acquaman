@@ -34,6 +34,8 @@ public:
 	void addField(const QString& fieldName);
 	/// Clears all fields from the field combo box
 	void clearFields();
+	/// Returns the form layout used to hold the FilterBuilder's Widgets
+	QFormLayout* formLayout();
 public slots:
 	/// Clears the search criteria
 	void clear();
@@ -42,6 +44,7 @@ private:
 	QComboBox* modeComboBox_;
 	QLineEdit* criteriaLineEdit_;
 	QCheckBox* caseSensitiveCheckBox_;
+	QFormLayout* layout_;
 };
 
 /**
@@ -73,6 +76,8 @@ protected slots:
 	void onClearFilterButtonClicked();
 	/// Sets the visibility state of the main filter layout area
 	void setFilterAreaVisible(bool visible);
+	/// The sort filter proxy model this widget is controlling
+	QSortFilterProxyModel* model();
 protected:
 	/// The model which the AMSortFilterWidget is controlling
 	QSortFilterProxyModel* proxyModel();
@@ -84,7 +89,6 @@ protected:
 	void initPushButtons();
 	/// Handles changes between a filter being applied to the data and not
 	void setCurrentlyFiltered(bool value);
-private:
 	QPushButton* toggleHideButton_;
 	QLabel* filteredWarningLabel_;
 	QPushButton* clearFilterPushButton_;
@@ -92,6 +96,8 @@ private:
 	QSortFilterProxyModel* proxyModel_;
 	AMSortFilterBuilder* filterBuilder_;
 	bool isCurrentlyFiltered_;
+private:
+
 
 };
 

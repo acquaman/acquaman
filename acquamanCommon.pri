@@ -443,7 +443,8 @@ HEADERS += \
     source/util/AMEnergyList.h \
     source/ui/util/AMEnergyListView.h \
     source/dataman/export/AMExporterOptionSMAK.h \
-    source/ui/AMScanEditorsCloseView.h
+    source/ui/AMScanEditorsCloseView.h \
+    source/ui/util/AMSortFilterScansWidget.h
 
 FORMS += \
 	source/ui/dataman/AMImportControllerWidget.ui \
@@ -853,7 +854,8 @@ SOURCES += \
     source/util/AMEnergyList.cpp \
     source/ui/util/AMEnergyListView.cpp \
     source/dataman/export/AMExporterOptionSMAK.cpp \
-    source/ui/AMScanEditorsCloseView.cpp
+    source/ui/AMScanEditorsCloseView.cpp \
+    source/ui/util/AMSortFilterScansWidget.cpp
 
 RESOURCES *= source/icons/icons.qrc \
 		source/configurationFiles/configurationFiles.qrc \
