@@ -32,6 +32,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/AMListAction3.h"
 #include "actions3/actions/AMControlMoveAction3.h"
 #include "actions3/AMActionRunner3.h"
+#include "actions3/actions/AMWaitAction.h"
 #include "ui/util/AMMessageBoxWTimeout.h"
 
 #include <QThread>
@@ -244,56 +245,7 @@ bool REIXSXESScanActionController::initializeImplementation(){
 
 void REIXSXESScanActionController::onInitializationActionsListSucceeded(){
 
-
-	//Update Scan Initial Conditions
-	AMControlInfoList positions;
-
-	positions.append(REIXSBeamline::bl()->photonSource()->energy()->toInfo());
-	positions.append(REIXSBeamline::bl()->photonSource()->userEnergyOffset()->toInfo());
-	positions.append(REIXSBeamline::bl()->photonSource()->monoSlit()->toInfo());
-	positions.append(REIXSBeamline::bl()->sampleChamber()->x()->toInfo());
-	positions.append(REIXSBeamline::bl()->sampleChamber()->y()->toInfo());
-	positions.append(REIXSBeamline::bl()->sampleChamber()->z()->toInfo());
-	positions.append(REIXSBeamline::bl()->sampleChamber()->r()->toInfo());
-	positions.append(REIXSBeamline::bl()->spectrometer()->gratingMask()->toInfo());  //D
-	positions.append(REIXSBeamline::bl()->spectrometer()->toInfo());
-	// add the polarization selection, since it's not a "control" anywhere.
-	AMControlInfo polarization("beamlinePolarization", REIXSBeamline::bl()->photonSource()->epuPolarization()->value(), 0, 0, "[choice]", 0.1, "EPU Polarization");
-	polarization.setEnumString(REIXSBeamline::bl()->photonSource()->epuPolarization()->enumNameAt(REIXSBeamline::bl()->photonSource()->epuPolarization()->value()));
-	positions.append(polarization);
-		if(REIXSBeamline::bl()->photonSource()->epuPolarization()->value() == 5)
-		{
-			AMControlInfo polarizationAngle("beamlinePolarizationAngle", REIXSBeamline::bl()->photonSource()->epuPolarizationAngle()->value(), 0, 0, "degrees", 0.1, "EPU Polarization Angle");
-			positions.append(polarizationAngle);
-		}
-	positions.append(REIXSBeamline::bl()->photonSource()->monoGratingSelector()->toInfo());
-	positions.append(REIXSBeamline::bl()->photonSource()->monoMirrorSelector()->toInfo());
-	positions.append(REIXSBeamline::bl()->spectrometer()->spectrometerRotationDrive()->toInfo());
-	positions.append(REIXSBeamline::bl()->spectrometer()->detectorTranslation()->toInfo());
-	positions.append(REIXSBeamline::bl()->spectrometer()->detectorTiltDrive()->toInfo());
-	// add the spectrometer grating selection, since it's not a "control" anywhere.
-	AMControlInfo grating("spectrometerGrating", REIXSBeamline::bl()->spectrometer()->specifiedGrating(), 0, 0, "[choice]", 0.1, "Spectrometer Grating");
-	grating.setEnumString(REIXSBeamline::bl()->spectrometer()->spectrometerCalibration()->gratingAt(int(grating.value())).name());
-	positions.append(grating);
-	positions.append(REIXSBeamline::bl()->spectrometer()->hexapod()->x()->toInfo());
-	positions.append(REIXSBeamline::bl()->spectrometer()->hexapod()->y()->toInfo());
-	positions.append(REIXSBeamline::bl()->spectrometer()->hexapod()->z()->toInfo());
-	positions.append(REIXSBeamline::bl()->spectrometer()->hexapod()->u()->toInfo());
-	positions.append(REIXSBeamline::bl()->spectrometer()->hexapod()->v()->toInfo());
-	positions.append(REIXSBeamline::bl()->spectrometer()->hexapod()->w()->toInfo());
-	positions.append(REIXSBeamline::bl()->spectrometer()->hexapod()->r()->toInfo());
-	positions.append(REIXSBeamline::bl()->spectrometer()->hexapod()->s()->toInfo());
-	positions.append(REIXSBeamline::bl()->spectrometer()->hexapod()->t()->toInfo());
-	positions.append(REIXSBeamline::bl()->spectrometer()->endstationTranslation()->toInfo());
-	positions.append(REIXSBeamline::bl()->photonSource()->M5Pitch()->toInfo());
-	positions.append(REIXSBeamline::bl()->photonSource()->M5Yaw()->toInfo());
-
-	positions.append(REIXSBeamline::bl()->spectrometer()->tmSOE()->toInfo());
-	positions.append(REIXSBeamline::bl()->spectrometer()->tmMCPPreamp()->toInfo());
-	positions.append(REIXSBeamline::bl()->sampleChamber()->tmSample()->toInfo());
-
-
-	scan_->setScanInitialConditions(positions);
+	initializePositions();
 
 	disconnect(xesActionsInitializationList_, SIGNAL(succeeded()), this, SLOT(onInitializationActionsListSucceeded()));
 	disconnect(xesActionsInitializationList_, SIGNAL(failed()), this, SLOT(onInitializationActionsListFailed()));
@@ -361,12 +313,35 @@ AMAction3* REIXSXESScanActionController::createInitializationActions(){
 
 
 	if(configuration_->applyEnergy()){
+		AMListAction3 *energyMoveAction = new AMListAction3(new AMListActionInfo3("REIXS Mono Energy Initialization Actions",
+																					   "REIXS Mono Energy Initialization Actions"),
+																 AMListAction3::Sequential);
+
+
 		tmpControl = REIXSBeamline::bl()->photonSource()->energy();
 		AMControlInfo energySetpoint = tmpControl->toInfo();
 		energySetpoint.setValue(configuration_->energy());
+
 		moveActionInfo = new AMControlMoveActionInfo3(energySetpoint);
 		moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
-		initializationActions->addSubAction(moveAction);
+		energyMoveAction->addSubAction(moveAction);
+
+		energyMoveAction->addSubAction(new AMWaitAction(new AMWaitActionInfo(1.1)));  // for mono encoder time averaging to settle
+
+
+		moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
+		energyMoveAction->addSubAction(moveAction);  //Yes, three times to be sure that we're there, but REIXSBrokenMonoContorl will ignore latter moves if we already made it.
+
+		energyMoveAction->addSubAction(new AMWaitAction(new AMWaitActionInfo(1.1)));  // for mono encoder time averaging to settle
+
+
+		moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
+		energyMoveAction->addSubAction(moveAction);
+
+		energyMoveAction->addSubAction(new AMWaitAction(new AMWaitActionInfo(1.1)));  // for mono encoder time averaging to settle
+
+		initializationActions->addSubAction(energyMoveAction);
+
 	}
 
 	initializationCombinedActions->addSubAction(initializationPreActions);
