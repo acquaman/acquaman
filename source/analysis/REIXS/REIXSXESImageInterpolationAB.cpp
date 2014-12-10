@@ -1029,8 +1029,8 @@ void REIXSXESImageInterpolationAB::setEnergyCalibrationOffset(double energyCalib
 
 	energyCalibrationOffset_ = energyCalibrationOffset;
 	axisValueCacheInvalid_ = true;
+	emitSizeChanged(0);
 	emitValuesChanged();
-
 	setModified(true);
 }
 
@@ -1041,8 +1041,8 @@ void REIXSXESImageInterpolationAB::setTiltCalibrationOffset(double tiltCalibrati
 
 	tiltCalibrationOffset_ = tiltCalibrationOffset;
 	axisValueCacheInvalid_ = true;
+	emitSizeChanged(0);
 	emitValuesChanged();
-
 	setModified(true);
 }
 
