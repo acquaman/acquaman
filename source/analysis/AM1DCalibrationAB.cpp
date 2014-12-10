@@ -154,6 +154,7 @@ void AM1DCalibrationAB::setEnergyCalibrationOffset(double offset)
 	if(offset == energyCalibrationOffset_)
 		return;
 	energyCalibrationOffset_ = offset;
+	emitSizeChanged(0);
 	setModified(true);
 	emitValuesChanged();
 }
@@ -164,6 +165,7 @@ void AM1DCalibrationAB::setEnergyCalibrationScaling(double scaling)
 		return;
 
 	energyCalibrationScaling_ = scaling;
+	emitSizeChanged(0);
 	setModified(true);
 	emitValuesChanged();
 }
@@ -174,6 +176,7 @@ void AM1DCalibrationAB::setEnergyCalibrationReference(double reference)
 		return;
 
 	energyCalibrationReference_ = reference;
+	emitSizeChanged(0);
 	setModified(true);
 	emitValuesChanged();
 }
