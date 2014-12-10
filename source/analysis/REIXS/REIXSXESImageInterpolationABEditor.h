@@ -198,6 +198,7 @@ public slots:
 	
 	
 	/// Called when the correlation settings are changed
+	void onCurve2DiabledCheckBoxChanged(bool);
 	void onCorrelation1CenterBoxChanged(int);
 	void onCorrelation2CenterBoxChanged(int);
 	void onCorrelation1PointsBoxChanged(int);
@@ -233,6 +234,7 @@ protected:
 
 	// GUI elements:
 	QSpinBox* rangeMinYControl_, *rangeMaxYControl_, *rangeMinXControl_, *rangeMaxXControl_;
+	QCheckBox* curve2DisabledCheckBox_;
 	QSpinBox* correlation1CenterBox_, *correlation1PointsBox_, *smooth1ModelBox_;
 	QSpinBox* correlation2CenterBox_, *correlation2PointsBox_, *smooth2Mode1Box_;
 	QPushButton* correlateNowButton_;
