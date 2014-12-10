@@ -30,7 +30,7 @@ public:
 	/// position from. Returns -1 if no item matched
 	int indexOf(AMLightweightScanInfo* scan, int from = 0) const;
 	/// A map of all the runs currently known. Maps run ids to run name
-	QHash<int, QString>* runMap();
+	const QHash<int, QString> runMap();
 signals:
 	/// Emitted just before a scan info is added to the collection
 	void scanAboutToBeAdded(int rowIndex);

@@ -22,7 +22,7 @@ int AMLightweightScanInfoFilterProxyModel::runId() const
 	return runId_;
 }
 
-QHash<int, QString> *AMLightweightScanInfoFilterProxyModel::runMap()
+const QHash<int, QString> AMLightweightScanInfoFilterProxyModel::runMap()
 {
 	QAbstractItemModel* model = sourceModel();
 	if(model)
@@ -33,7 +33,7 @@ QHash<int, QString> *AMLightweightScanInfoFilterProxyModel::runMap()
 		if(actualModel)
 			return actualModel->runMap();
 	}
-	return 0;
+	return QHash<int, QString>();
 }
 
 void AMLightweightScanInfoFilterProxyModel::setExperimentId(int id)

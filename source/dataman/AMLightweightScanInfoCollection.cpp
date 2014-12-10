@@ -41,9 +41,9 @@ int AMLightweightScanInfoCollection::indexOf(AMLightweightScanInfo *scan, int fr
 	return scanInfos_.indexOf(scan, from);
 }
 
-QHash<int, QString> *AMLightweightScanInfoCollection::runMap()
+const QHash<int, QString> AMLightweightScanInfoCollection::runMap()
 {
-	return &runMap_;
+	return runMap_;
 }
 
 void AMLightweightScanInfoCollection::populateExperimentIds()

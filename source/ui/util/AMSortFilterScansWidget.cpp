@@ -15,17 +15,15 @@ AMSortFilterScansWidget::AMSortFilterScansWidget(AMLightweightScanInfoFilterProx
 	runComboBox_->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 	if(model)
 	{
-		QHash<int, QString>* runs = model->runMap();
+		const QHash<int, QString> runs = model->runMap();
 
-		if(runs)
+		for(int iCurrentRun = 0, runCount = runs.count();
+			iCurrentRun < runCount;
+			++iCurrentRun)
 		{
-			for(int iCurrentRun = 0, runCount = runs->count();
-				iCurrentRun < runCount;
-				++iCurrentRun)
-			{
-				runComboBox_->addItem(runs->value(iCurrentRun +1), iCurrentRun+1);
-			}
+			runComboBox_->addItem(runs.value(iCurrentRun +1), iCurrentRun+1);
 		}
+
 	}
 
 
