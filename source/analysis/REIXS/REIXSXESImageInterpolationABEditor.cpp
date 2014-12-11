@@ -414,7 +414,7 @@ REIXSXESImageInterpolationABEditor::REIXSXESImageInterpolationABEditor(REIXSXESI
 
 	connect(rangeRoundControl_,SIGNAL(valueChanged(double)),this, SLOT(onRangeRoundControlChanged(double)));
 
-	connect(curve2DisabledCheckBox_, SIGNAL(toggled(bool)), this, SLOT(onCurve2DiabledCheckBoxChanged(bool)));
+	connect(curve2DisabledCheckBox_, SIGNAL(toggled(bool)), this, SLOT(onCurve2DisabledCheckBoxChanged(bool)));
 
 	connect(correlation1CenterBox_, SIGNAL(valueChanged(int)), this, SLOT(onCorrelation1CenterBoxChanged(int)));
 	connect(correlation1PointsBox_, SIGNAL(valueChanged(int)), this, SLOT(onCorrelation1PointsBoxChanged(int)));
@@ -531,7 +531,7 @@ void REIXSXESImageInterpolationABEditor::onRangeRoundControlChanged(double newRa
 
 }
 
-void REIXSXESImageInterpolationABEditor::onCurve2DiabledCheckBoxChanged(bool disabled)
+void REIXSXESImageInterpolationABEditor::onCurve2DisabledCheckBoxChanged(bool disabled)
 {
 	if(disabled == analysisBlock_->curve2Disabled())
 		return;
