@@ -127,7 +127,6 @@ protected:
 	CLSMAXvMotor *m2BenderDownStream_;
 
 	/// BioXAS Pseudo motors
-//	CLSMAXvMotor *m1PseudoPitch_;
 	BioXASPseudoMotorControl *m1PseudoPitch_;
 };
 

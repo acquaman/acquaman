@@ -1,7 +1,6 @@
 #include "BioXASPseudoMotorControl.h"
 
 BioXASPseudoMotorControl::BioXASPseudoMotorControl(const QString &name, const QString& pvBaseName, const QString &readPVname, const QString &writePVname, const QString &movingPVname, const QString &enabledPVname, const QString &stopPVname, double tolerance, double moveStartTimeoutSeconds, AMAbstractControlStatusChecker *statusChecker, int stopValue, const QString &description, QObject *parent)
-//	: CLSPseudoMotorControl(name, readPVname, writePVname, movingPVname, stopPVname, parent, tolerance, moveStartTimeoutSeconds, statusChecker, stopValue, description)
 	: CLSPseudoMotorControl(name, pvBaseName+readPVname, pvBaseName+writePVname, pvBaseName+movingPVname, pvBaseName+stopPVname, parent, tolerance, moveStartTimeoutSeconds, statusChecker, stopValue, description)
 {
 	pvBaseName_ = pvBaseName;
@@ -30,4 +29,9 @@ QString BioXASPseudoMotorControl::statusPVName() const
 AMReadOnlyPVControl * BioXASPseudoMotorControl::statusPVControl()
 {
 	return statusPVControl_;
+}
+
+bool BioXASPseudoMotorControl::canMove() const
+{
+	return enabledPVControl_->isConnected() ? (writePV_->canWrite() && (enabledPVControl_->value() == 1)) : false;
 }

@@ -90,10 +90,8 @@ void BioXASMainBeamline::setupMotorGroup()
 	m2BenderDownStream_ = new CLSMAXvMotor(QString("SMTR1607-5-I21-21 BENDER (DOWNSTREAM)"), QString("SMTR1607-5-I21-21"), QString("SMTR1607-5-I21-21 BENDER (DOWNSTREAM)"), true, 0.05, 2.0, this, QString(":lbs"));
 
 	// BioXAS M1 Pseudo motors
-//	m1PseudoPitch_ = new CLSMAXvMotor(QString("BL1607-5-I10 M1 Pitch"), QString("BL1607-5-I10:M1:Pitch"), QString("BL1607-5-I10 M1 Pitch"), true, 0.05, 2.0, this, QString(":deg"));
 												 //name,				   pvBaseName,				readPVname,	writePVname, movingPVname,	enabledPVname, stopPVname, tolerance, moveStartTimeoutSeconds, statusChecker, stopValue, description, parent = 0
 	m1PseudoPitch_ = new BioXASPseudoMotorControl("BL1607-5-I10 M1 Pitch", "BL1607-5-I10:M1:Pitch", ":deg:fbk", ":deg", ":status", ":enabled", ":stop");
-//	m1PseudoPitch_ = new BioXASPseudoMotorControl("BL1607-5-I10 M1 Pitch", "BL1607-5-I10:M1:Pitch", "BL1607-5-I10:M1:Pitch:deg:fbk", "BL1607-5-I10:M1:Pitch:deg", "BL1607-5-I10:M1:Pitch:status", "BL1607-5-I10:M1:Pitch:enabled", "BL1607-5-I10:M1:Pitch:stop");
 
 }
 
