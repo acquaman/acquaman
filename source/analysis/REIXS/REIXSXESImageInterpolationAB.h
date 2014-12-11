@@ -49,6 +49,7 @@ class REIXSXESImageInterpolationAB : public AMStandardAnalysisBlock
 	Q_PROPERTY(AMIntList shiftValues1 READ shiftValues1 WRITE setShiftValues1)
 	Q_PROPERTY(AMIntList shiftValues2 READ shiftValues2 WRITE setShiftValues2)
 
+	Q_PROPERTY(bool curve2Disabled READ curve2Disabled WRITE setCurve2Disabled)
 
 	Q_PROPERTY(int correlation1CenterPixel READ correlation1CenterPixel WRITE setCorrelation1CenterPixel)
 	Q_PROPERTY(int correlation1HalfWidth READ correlation1HalfWidth WRITE setCorrelation1HalfWidth)
@@ -137,6 +138,8 @@ int outputSize = indexStart.totalPointsTo(indexEnd);
 	AMDoubleList shiftValuesAt(int i);
 
 	/// The central pixel value to use when running an auto-correlation routine
+	int curve2Disabled() const { return curve2Disabled_; }
+	/// The central pixel value to use when running an auto-correlation routine
 	int correlation1CenterPixel() const { return correlation1CenterPx_; }
 	/// The central pixel value to use when running an auto-correlation routine
 	int correlation2CenterPixel() const { return correlation2CenterPx_; }
@@ -186,6 +189,8 @@ public slots:
 
 	void setRangeRound(double rangeRound);
 
+	/// enables or disables curve interpolation
+	void setCurve2Disabled(bool disabled);
 	/// Sets the central pixel value to use when running an auto-correlation routine
 	void setCorrelation1CenterPixel(int centerPx);
 	/// Sets the full-width of the region around correlationCenterPixel() to compute when running an auto-correlation routine.
@@ -277,7 +282,8 @@ protected:
 	int sumRangeMinX_, sumRangeMaxX_; //left and right boundaries, so we can have full control over ellipse
 	double rangeRound_; //0 to 1, 0 for rectangular mask, 1 for elliptical
 
-
+	/// bool to disable interpolation and use a single curve shift
+	bool curve2Disabled_;
 	/// The central pixel value to use when running an auto-correlation routine
 	int correlation1CenterPx_;
 	/// The full-width of the region around correlationCenterPixel() to compute when running an auto-correlation routine.

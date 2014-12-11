@@ -36,6 +36,7 @@ REIXSXESImageInterpolationAB::REIXSXESImageInterpolationAB(const QString &output
 	sumRangeMinX_ = 75;
 	sumRangeMaxX_ = 925;
 	rangeRound_ = 0.6;
+	curve2Disabled_ = false;
 	correlation1CenterPx_ = 250;
 	correlation2CenterPx_ = 700;
 	correlation1HalfWidth_ = 40;
@@ -358,8 +359,6 @@ bool REIXSXESImageInterpolationAB::values(const AMnDIndex &indexStart, const AMn
 
 void REIXSXESImageInterpolationAB::computeCachedValues() const
 {
-	QTime fullTime;
-	fullTime.start();
 	int iSize = inputSource_->size(0); //1024
 	int jSize = inputSource_->size(1); //64
 
@@ -372,7 +371,7 @@ void REIXSXESImageInterpolationAB::computeCachedValues() const
 	}
 
 	//If there is on one shift value, don't interpolate.
-	if(shiftValues2().isEmpty())
+	if(shiftValues2().isEmpty() || curve2Disabled_)
 	{
 		//The center point of the sum region
 		double originX = (double)sumRangeMinX_ + ((double)sumRangeMaxX_ - (double)sumRangeMinX_)/2.0;
@@ -632,6 +631,18 @@ void REIXSXESImageInterpolationAB::onInputSourceStateChanged()
 	reviewState();
 }
 
+void REIXSXESImageInterpolationAB::setCurve2Disabled(bool disabled)
+{
+	if(disabled == curve2Disabled_)
+		return;
+
+	curve2Disabled_ = disabled;
+
+	computeCachedValues();
+	setModified(true);
+	emitValuesChanged();
+
+}
 
 
 void REIXSXESImageInterpolationAB::setCorrelation1CenterPixel(int centerPx)

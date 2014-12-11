@@ -89,6 +89,8 @@ REIXSXESImageInterpolationABEditor::REIXSXESImageInterpolationABEditor(REIXSXESI
 	rangeRoundControl_->setMinimum(0.0);
 	rangeRoundControl_->setMaximum(1.0);
 
+	curve2DisabledCheckBox_ = new QCheckBox("Disable");
+
 	correlation1CenterBox_ = new QSpinBox();
 	correlation1CenterBox_->setSingleStep(1);
 	correlation1CenterBox_->setMinimum(1);
@@ -342,12 +344,13 @@ REIXSXESImageInterpolationABEditor::REIXSXESImageInterpolationABEditor(REIXSXESI
 				QLabel* manualShift2Label = new QLabel("Manual shift:");
 				shiftButtons2Layout->addWidget(manualShift2Label);
 				shiftButtons2Layout->addWidget(shift2LineEdit_);
+				shiftButtons2Layout->addWidget(curve2DisabledCheckBox_);
 			shift2PageLayout->addLayout(shiftButtons2Layout);
 		shift2PageWidget_->setLayout(shift2PageLayout);
 	//END OF SHIFT 2 PAGE LAYOUT
 	tabWidget_->addTab(shift2PageWidget_,"Curve 2");
 
-	//START OF SHIFT 2 PAGE LAYOUT
+	//START OF APPLY TO PAGE LAYOUT
 			QGroupBox* applyGroupBox = new QGroupBox("Apply to other Scans:");
 				QVBoxLayout* applyPageLayout = new QVBoxLayout();
 					QHBoxLayout* applyPageColumnLayout = new QHBoxLayout();
@@ -376,7 +379,7 @@ REIXSXESImageInterpolationABEditor::REIXSXESImageInterpolationABEditor(REIXSXESI
 				applyPageLayout->addLayout(applyPageColumnLayout);
 				applyPageLayout->addWidget(applyToOtherScansButton_);
 			applyGroupBox->setLayout(applyPageLayout);
-		//END OF SHIFT 2 PAGE LAYOUT
+		//END OF APPLY TO PAGE LAYOUT
 		tabWidget_->addTab(applyGroupBox,"Apply");
 
 
@@ -411,6 +414,7 @@ REIXSXESImageInterpolationABEditor::REIXSXESImageInterpolationABEditor(REIXSXESI
 
 	connect(rangeRoundControl_,SIGNAL(valueChanged(double)),this, SLOT(onRangeRoundControlChanged(double)));
 
+	connect(curve2DisabledCheckBox_, SIGNAL(toggled(bool)), this, SLOT(onCurve2DiabledCheckBoxChanged(bool)));
 
 	connect(correlation1CenterBox_, SIGNAL(valueChanged(int)), this, SLOT(onCorrelation1CenterBoxChanged(int)));
 	connect(correlation1PointsBox_, SIGNAL(valueChanged(int)), this, SLOT(onCorrelation1PointsBoxChanged(int)));
@@ -526,6 +530,29 @@ void REIXSXESImageInterpolationABEditor::onRangeRoundControlChanged(double newRa
 	ellipseData_->rangeValuesChanged();
 
 }
+
+void REIXSXESImageInterpolationABEditor::onCurve2DiabledCheckBoxChanged(bool disabled)
+{
+	if(disabled == analysisBlock_->curve2Disabled())
+		return;
+
+	correlation2CenterBox_->setDisabled(disabled);
+	correlation2PointsBox_->setDisabled(disabled);
+	correlation2SmoothingBox_->setDisabled(disabled);
+	smooth2Mode1Box_->setDisabled(disabled);
+	shift2LineEdit_->setDisabled(disabled);
+
+	shift1Series_->setVisible(!disabled);
+	shift2Series_->setVisible(!disabled);
+	corrRegion2Left_->setVisible(!disabled);
+	corrRegion2Right_->setVisible(!disabled);
+
+
+	analysisBlock_->setCurve2Disabled(disabled);
+
+}
+
+
 
 void REIXSXESImageInterpolationABEditor::onCorrelation1CenterBoxChanged(int center)
 {
@@ -698,6 +725,8 @@ void REIXSXESImageInterpolationABEditor::onAnalysisBlockInputDataSourcesChanged(
 		rangeMaxXControl_->setEnabled(true);
 		rangeRoundControl_->setEnabled(true);
 
+		curve2DisabledCheckBox_->setEnabled(true);
+
 		correlation1CenterBox_->setEnabled(true);
 		correlation1PointsBox_->setEnabled(true);
 		correlation1SmoothingBox_->setEnabled(true);
@@ -743,6 +772,10 @@ void REIXSXESImageInterpolationABEditor::onAnalysisBlockInputDataSourcesChanged(
 		rangeRoundControl_->setMinimum(0.0);
 		rangeRoundControl_->setValue(analysisBlock_->rangeRound());
 		rangeRoundControl_->blockSignals(false);
+
+		curve2DisabledCheckBox_->blockSignals(true);
+		curve2DisabledCheckBox_->setChecked(analysisBlock_->curve2Disabled());
+		curve2DisabledCheckBox_->blockSignals(false);
 
 		correlation1CenterBox_->blockSignals(true);
 		correlation1CenterBox_->setMaximum(inputSource->size(0) - 1);
@@ -1057,7 +1090,10 @@ REIXSXESImageInterpolationABEditorShiftModel::REIXSXESImageInterpolationABEditor
 
 qreal REIXSXESImageInterpolationABEditorShiftModel::x(unsigned index) const
 {
-	return analysisBlock_->shiftValuesAt(displayXOffset_).at(index) + displayXOffset_;
+	if (analysisBlock_->curve2Disabled())
+		return analysisBlock_->shiftValues1().at(index) + displayXOffset_;
+	else
+		return analysisBlock_->shiftValuesAt(displayXOffset_).at(index) + displayXOffset_;
 }
 
 qreal REIXSXESImageInterpolationABEditorShiftModel::y(unsigned index) const
@@ -1089,8 +1125,12 @@ void REIXSXESImageInterpolationABEditorShiftModel::onShiftValuesChanged()
 
 void REIXSXESImageInterpolationABEditorShiftModel::xValues(unsigned indexStart, unsigned indexEnd, qreal *outputValues) const
 {
-	for(unsigned i=indexStart; i<=indexEnd; ++i)
-		*(outputValues++) = analysisBlock_->shiftValuesAt(displayXOffset_).at(i) + displayXOffset_;
+	if (analysisBlock_->curve2Disabled())
+		for(unsigned i=indexStart; i<=indexEnd; ++i)
+			*(outputValues++) = analysisBlock_->shiftValues1().at(i) + displayXOffset_;
+	else
+		for(unsigned i=indexStart; i<=indexEnd; ++i)
+			*(outputValues++) = analysisBlock_->shiftValuesAt(displayXOffset_).at(i) + displayXOffset_;
 }
 
 void REIXSXESImageInterpolationABEditorShiftModel::yValues(unsigned indexStart, unsigned indexEnd, qreal *outputValues) const
