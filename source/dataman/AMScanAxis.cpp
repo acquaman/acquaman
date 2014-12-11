@@ -301,6 +301,9 @@ AMDbObjectList AMScanAxis::dbReadRegions() const
 
 void AMScanAxis::dbLoadRegions(const AMDbObjectList &newAxisRegions)
 {
+	for (int i = 0, size = regions_.count(); i < size; i++)
+		regions_.at(i)->deleteLater();
+
 	regions_.clear();
 
 	foreach (AMDbObject *object, newAxisRegions){

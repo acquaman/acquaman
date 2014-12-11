@@ -53,6 +53,9 @@ AMDbObjectList AMStepScanConfiguration::dbReadScanAxes()
 
 void AMStepScanConfiguration::dbLoadScanAxes(const AMDbObjectList &newScanAxes)
 {
+	for (int i = 0, size = scanAxes_.count(); i < size; i++)
+		scanAxes_.at(i)->deleteLater();
+
 	scanAxes_.clear();
 
 	foreach (AMDbObject *object, newScanAxes){
