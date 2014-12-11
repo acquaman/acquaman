@@ -148,9 +148,9 @@ bool BioXASSideBeamline::allValvesClosed() const
     return false;
 }
 
-QList<CLSMAXvMotor *> BioXASSideBeamline::getMotorsByType(BioXASBeamlineDef::BioXASMotorType category) const
+QList<AMPVwStatusControl *> BioXASSideBeamline::getMotorsByType(BioXASBeamlineDef::BioXASMotorType category) const
 {
-    QList<CLSMAXvMotor *> matchedMotors;
+	QList<AMPVwStatusControl *> matchedMotors;
 
     switch (category) {
     case BioXASBeamlineDef::FilterMotor: // BioXAS Filter motors
@@ -556,32 +556,32 @@ void BioXASSideBeamline::setupMotorGroup()
 {
     // Filter farm motors
 
-    carbonFilterFarm1_ = new CLSMAXvMotor(QString("SMTR1607-5-I00-01 Filter 1"), QString("SMTR1607-5-I00-01"), QString("SMTR1607-5-I00-01 Filter 1"), true, 0.05, 2.0, this);
-    carbonFilterFarm2_ = new CLSMAXvMotor(QString("SMTR1607-5-I00-02 Filter 2"), QString("SMTR1607-5-I00-02"), QString("SMTR1607-5-I00-02 Filter 2"), true, 0.05, 2.0, this);
+	carbonFilterFarm1_ = new CLSMAXvMotor(QString("SMTR1607-5-I00-01 Filter 1"), QString("SMTR1607-5-I00-01"), QString("SMTR1607-5-I00-01 Filter 1"), true, 0.05, 2.0, this, QString(":mm"));
+	carbonFilterFarm2_ = new CLSMAXvMotor(QString("SMTR1607-5-I00-02 Filter 2"), QString("SMTR1607-5-I00-02"), QString("SMTR1607-5-I00-02 Filter 2"), true, 0.05, 2.0, this, QString(":mm"));
 
     // M1 motors
 
-    m1VertUpStreamINB_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-01 VERT INB (UPSTREAM)"), QString("SMTR1607-5-I22-01"), QString("SMTR1607-5-I22-01 VERT INB (UPSTREAM)"), true, 0.05, 2.0, this);
-    m1VertUpStreamOUTB_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-02 VERT OUTB (UPSTREAM)"), QString("SMTR1607-5-I22-02"), QString("SMTR1607-5-I22-02 VERT OUTB (UPSTREAM)"), true, 0.05, 2.0, this);
-    m1VertDownStream_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-03 VERT (DOWNSTREAM)"), QString("SMTR1607-5-I22-03"), QString("SMTR1607-5-I22-03 VERT (DOWNSTREAM)"), true, 0.05, 2.0, this);
-    m1StripeSelect_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-04 STRIPE SELECT"), QString("SMTR1607-5-I22-04"), QString("SMTR1607-5-I22-04 STRIPE SELECT"), true, 0.05, 2.0, this);
-    m1Yaw_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-05 YAW"), QString("SMTR1607-5-I22-05"), QString("SMTR1607-5-I22-05 YAW"), true, 0.05, 2.0, this);
+	m1VertUpStreamINB_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-01 VERT INB (UPSTREAM)"), QString("SMTR1607-5-I22-01"), QString("SMTR1607-5-I22-01 VERT INB (UPSTREAM)"), true, 0.05, 2.0, this, QString(":mm"));
+	m1VertUpStreamOUTB_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-02 VERT OUTB (UPSTREAM)"), QString("SMTR1607-5-I22-02"), QString("SMTR1607-5-I22-02 VERT OUTB (UPSTREAM)"), true, 0.05, 2.0, this, QString(":mm"));
+	m1VertDownStream_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-03 VERT (DOWNSTREAM)"), QString("SMTR1607-5-I22-03"), QString("SMTR1607-5-I22-03 VERT (DOWNSTREAM)"), true, 0.05, 2.0, this, QString(":mm"));
+	m1StripeSelect_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-04 STRIPE SELECT"), QString("SMTR1607-5-I22-04"), QString("SMTR1607-5-I22-04 STRIPE SELECT"), true, 0.05, 2.0, this, QString(":mm"));
+	m1Yaw_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-05 YAW"), QString("SMTR1607-5-I22-05"), QString("SMTR1607-5-I22-05 YAW"), true, 0.05, 2.0, this, QString(":mm"));
     m1BenderUpstream_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-06 BENDER (UPSTREAM)"), QString("SMTR1607-5-I22-06"), QString("SMTR1607-5-I22-06 BENDER (UPSTREAM)"), true, 0.05, 2.0, this, QString(":lbs"));
     m1BenderDownStream_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-07 BENDER (DOWNSTREAM)"), QString("SMTR1607-5-I22-07"), QString("SMTR1607-5-I22-07 BENDER (DOWNSTREAM)"), true, 0.05, 2.0, this, QString(":lbs"));
-    m1UpperSlitBlade_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-08 UPPER SLIT BLADE"), QString("SMTR1607-5-I22-08"), QString("SMTR1607-5-I22-08 UPPER SLIT BLADE"), true, 0.05, 2.0, this);
+	m1UpperSlitBlade_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-08 UPPER SLIT BLADE"), QString("SMTR1607-5-I22-08"), QString("SMTR1607-5-I22-08 UPPER SLIT BLADE"), true, 0.05, 2.0, this, QString(":mm"));
 
     // Variable mask motors
 
-    variableMaskVertUpperBlade_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-09 VERT UPPER BLADE"), QString("SMTR1607-5-I22-09"), QString("SMTR1607-5-I22-09 VERT UPPER BLADE"), true, 0.05, 2.0, this);
-    variableMaskVertLowerBlade_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-10 VERT LOWER BLADE"), QString("SMTR1607-5-I22-10"), QString("SMTR1607-5-I22-10 VERT LOWER BLADE"), true, 0.05, 2.0, this);
+	variableMaskVertUpperBlade_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-09 VERT UPPER BLADE"), QString("SMTR1607-5-I22-09"), QString("SMTR1607-5-I22-09 VERT UPPER BLADE"), true, 0.05, 2.0, this, QString(":mm"));
+	variableMaskVertLowerBlade_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-10 VERT LOWER BLADE"), QString("SMTR1607-5-I22-10"), QString("SMTR1607-5-I22-10 VERT LOWER BLADE"), true, 0.05, 2.0, this, QString(":mm"));
 
     // M2 motors
 
-    m2VertUpstreamINB_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-15 VERT INB (UPSTREAM)"), QString("SMTR1607-5-I22-15"), QString("SMTR1607-5-I22-15 VERT INB (UPSTREAM)"), true, 0.05, 2.0, this);
-    m2VertUpstreamOUTB_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-16 VERT OUTB (UPSTREAM)"), QString("SMTR1607-5-I22-16"), QString("SMTR1607-5-I22-16 VERT OUTB (UPSTREAM)"), true, 0.05, 2.0, this);
-    m2VertDownstream_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-17 VERT (DOWNSTREAM)"), QString("SMTR1607-5-I22-17"), QString("SMTR1607-5-I22-17 VERT (DOWNSTREAM)"), true, 0.05, 2.0, this);
-    m2StripeSelect_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-18 STRIPE SELECT"), QString("SMTR1607-5-I22-18"), QString("SMTR1607-5-I22-18 STRIPE SELECT"), true, 0.05, 2.0, this);
-    m2Yaw_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-19 YAW"), QString("SMTR1607-5-I22-19"), QString("SMTR1607-5-I22-19 YAW"), true, 0.05, 2.0, this);
+	m2VertUpstreamINB_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-15 VERT INB (UPSTREAM)"), QString("SMTR1607-5-I22-15"), QString("SMTR1607-5-I22-15 VERT INB (UPSTREAM)"), true, 0.05, 2.0, this, QString(":mm"));
+	m2VertUpstreamOUTB_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-16 VERT OUTB (UPSTREAM)"), QString("SMTR1607-5-I22-16"), QString("SMTR1607-5-I22-16 VERT OUTB (UPSTREAM)"), true, 0.05, 2.0, this, QString(":mm"));
+	m2VertDownstream_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-17 VERT (DOWNSTREAM)"), QString("SMTR1607-5-I22-17"), QString("SMTR1607-5-I22-17 VERT (DOWNSTREAM)"), true, 0.05, 2.0, this, QString(":mm"));
+	m2StripeSelect_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-18 STRIPE SELECT"), QString("SMTR1607-5-I22-18"), QString("SMTR1607-5-I22-18 STRIPE SELECT"), true, 0.05, 2.0, this, QString(":mm"));
+	m2Yaw_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-19 YAW"), QString("SMTR1607-5-I22-19"), QString("SMTR1607-5-I22-19 YAW"), true, 0.05, 2.0, this, QString(":mm"));
     m2BenderUpstream_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-20 BENDER (UPSTREAM)"), QString("SMTR1607-5-I22-20"), QString("SMTR1607-5-I22-20 BENDER (UPSTREAM)"), true, 0.05, 2.0, this, QString(":lbs"));
     m2BenderDownStream_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-21 BENDER (DOWNSTREAM)"), QString("SMTR1607-5-I22-21"), QString("SMTR1607-5-I22-21 BENDER (DOWNSTREAM)"), true, 0.05, 2.0, this, QString(":lbs"));
 }

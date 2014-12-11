@@ -33,6 +33,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSBasicCompositeScalerChannelDetector.h"
 #include "beamline/CLS/CLSMAXvMotor.h"
 
+#include "beamline/BioXAS/BioXASPseudoMotorControl.h"
 #include "beamline/BioXAS/BioXASBeamlineDef.h"
 
 #include "util/AMErrorMonitor.h"
@@ -57,7 +58,7 @@ public:
 	/// Destructor.
 	virtual ~BioXASMainBeamline();
 
-	QList<CLSMAXvMotor *> getMotorsByType(BioXASBeamlineDef::BioXASMotorType category);
+	QList<AMPVwStatusControl *> getMotorsByType(BioXASBeamlineDef::BioXASMotorType category);
 
 protected:
 	/// Sets up the synchronized dwell time.
@@ -124,6 +125,10 @@ protected:
 	CLSMAXvMotor *m2Yaw_;
 	CLSMAXvMotor *m2BenderUpstream_;
 	CLSMAXvMotor *m2BenderDownStream_;
+
+	/// BioXAS Pseudo motors
+//	CLSMAXvMotor *m1PseudoPitch_;
+	BioXASPseudoMotorControl *m1PseudoPitch_;
 };
 
 #endif // BIOXASMAINBEAMLINE_H

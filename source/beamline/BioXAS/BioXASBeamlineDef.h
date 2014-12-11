@@ -15,7 +15,12 @@ namespace BioXASBeamlineDef {
 		M1Motor,
 		MaskMotor,
 		MonoMotor,
-		M2Motor
+		M2Motor,
+		PseudoFilterMotor,
+		PseudoM1Motor,
+		PseudoMaskMotor,
+		PseudoMonoMotor,
+		PseudoM2Motor
 	};
 }
 

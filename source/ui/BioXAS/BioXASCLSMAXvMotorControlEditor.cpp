@@ -11,6 +11,7 @@ BioXASCLSMAXvMotorControlEditor::BioXASCLSMAXvMotorControlEditor(CLSMAXvMotor* c
 	unitsLabel_->setToolTip(control->readPVName() + " (units)");
 	statusLabel_->setToolTip(control->statusPVName());
 
+	// setup the CW/CCW label
 	QFont statusFont;
 	statusFont.setPointSize(10);
 
@@ -52,9 +53,9 @@ void BioXASCLSMAXvMotorControlEditor::onShowContextMenu(const QPoint& pos)
 	QAction* selectedItem = contextMenu.exec(mapToGlobal(pos));
 	if (selectedItem) {
 		if (bioxasMAXvMotor->stop())
-			qDebug() << "BioXAX motor "+ bioxasMAXvMotor->pvBaseName() + ":stop is stopped.";
+			qDebug() << "BioXAS motor "+ bioxasMAXvMotor->pvBaseName() + ":stop is stopped.";
 		else
-			qDebug() << "Failed to stop BioXAX motor "+ bioxasMAXvMotor->pvBaseName() + ":stop.";
+			qDebug() << "Failed to stop BioXAS motor "+ bioxasMAXvMotor->pvBaseName() + ":stop.";
 	}
 }
 

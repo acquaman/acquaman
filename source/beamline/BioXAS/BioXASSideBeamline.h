@@ -193,7 +193,7 @@ public:
 
     // Motors
 
-    QList<CLSMAXvMotor *> getMotorsByType(BioXASBeamlineDef::BioXASMotorType category) const;
+	QList<AMPVwStatusControl *> getMotorsByType(BioXASBeamlineDef::BioXASMotorType category) const;
 
     // Current amplifiers
 

@@ -19,31 +19,41 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef BIOXASTOOLSUITEMAINWINDOW_H
+#define BIOXASTOOLSUITEMAINWINDOW_H
 
 #include <QMainWindow>
 #include <QPushButton>
 
-class MainWindow : public QMainWindow
+#include "beamline/BioXAS/BioXASBeamlineDef.h"
+
+class BioXASToolSuiteMainWindow : public QMainWindow
 {
 	Q_OBJECT
 
 public:
-	MainWindow(QWidget *parent = 0);
-	~MainWindow();
+	BioXASToolSuiteMainWindow(QWidget *parent = 0);
+	~BioXASToolSuiteMainWindow();
 
 protected slots:
 	void onShutterToolButtonClicked();
 	void onMainBLMotorToolButtonClicked();
 	void onSideBLMotorToolButtonClicked();
 	void onImagingBLMotorToolButtonClicked();
+	void onMainBLPseudoMotorToolButtonClicked();
+	void onSideBLPseudoMotorToolButtonClicked();
+	void onImagingBLPseudoMotorToolButtonClicked();
 
 	void onToolWindowClosed();
+
+protected:
+
+	/// common function to create and display the main screen
+	void displayToolScreen(QWidget *toolWindow);
 
 private:
 	void setupUi();
 
 };
 
-#endif // MAINWINDOW_H
+#endif // BIOXASTOOLSUITEMAINWINDOW_H
