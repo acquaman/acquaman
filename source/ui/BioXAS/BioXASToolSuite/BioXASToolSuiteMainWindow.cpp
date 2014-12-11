@@ -57,13 +57,13 @@ void BioXASToolSuiteMainWindow::onMainBLMotorToolButtonClicked()
 
 void BioXASToolSuiteMainWindow::onSideBLMotorToolButtonClicked()
 {
-	MotorToolMainScreen *motorToolScreen = new MotorToolMainScreen(BioXASBeamlineDef::BioXASMainBeamLine, false);
+	MotorToolMainScreen *motorToolScreen = new MotorToolMainScreen(BioXASBeamlineDef::BioXASSideBeamLine, false);
 	displayToolScreen(motorToolScreen);
 }
 
 void BioXASToolSuiteMainWindow::onImagingBLMotorToolButtonClicked()
 {
-	MotorToolMainScreen *motorToolScreen = new MotorToolMainScreen(BioXASBeamlineDef::BioXASMainBeamLine, false);
+	MotorToolMainScreen *motorToolScreen = new MotorToolMainScreen(BioXASBeamlineDef::BioXASImagingBeamLine, false);
 	displayToolScreen(motorToolScreen);
 }
 
@@ -75,13 +75,13 @@ void BioXASToolSuiteMainWindow::onMainBLPseudoMotorToolButtonClicked()
 
 void BioXASToolSuiteMainWindow::onSideBLPseudoMotorToolButtonClicked()
 {
-	MotorToolMainScreen *motorToolScreen = new MotorToolMainScreen(BioXASBeamlineDef::BioXASMainBeamLine, true);
+	MotorToolMainScreen *motorToolScreen = new MotorToolMainScreen(BioXASBeamlineDef::BioXASSideBeamLine, true);
 	displayToolScreen(motorToolScreen);
 }
 
 void BioXASToolSuiteMainWindow::onImagingBLPseudoMotorToolButtonClicked()
 {
-	MotorToolMainScreen *motorToolScreen = new MotorToolMainScreen(BioXASBeamlineDef::BioXASMainBeamLine, true);
+	MotorToolMainScreen *motorToolScreen = new MotorToolMainScreen(BioXASBeamlineDef::BioXASImagingBeamLine, true);
 	displayToolScreen(motorToolScreen);
 }
 

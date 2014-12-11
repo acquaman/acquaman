@@ -85,6 +85,11 @@ void BioXASImagingBeamline::setupMotorGroup()
 	m2Yaw_ = new CLSMAXvMotor(QString("SMTR1607-5-I10-21 YAW"), QString("SMTR1607-5-I10-21"), QString("SMTR1607-5-I10-21 YAW"), true, 0.05, 2.0, this, QString(":mm"));
 	m2BenderUpstream_ = new CLSMAXvMotor(QString("SMTR1607-5-I10-22 BENDER (UPSTREAM)"), QString("SMTR1607-5-I10-22"), QString("SMTR1607-5-I10-22 BENDER (UPSTREAM)"), true, 0.05, 2.0, this, QString(":lbs"));
 	m2BenderDownStream_ = new CLSMAXvMotor(QString("SMTR1607-5-I10-23 BENDER (DOWNSTREAM)"), QString("SMTR1607-5-I10-23"), QString("SMTR1607-5-I10-23 BENDER (DOWNSTREAM)"), true, 0.05, 2.0, this, QString(":lbs"));
+
+	// BioXAS M1 Pseudo motors					   name,				   pvBaseName,				readPVname,	writePVname, movingPVname,	enabledPVname, stopPVname, tolerance, moveStartTimeoutSeconds, statusChecker, stopValue, description, parent = 0
+	m1PseudoPitch_ = new BioXASPseudoMotorControl("BL1607-5-I10 Imaging M1 Pitch", "BL1607-5-I10:M1:Pitch", ":deg:fbk", ":deg", ":status", ":enabled", ":stop");
+	m1PseudoHeight_ = new BioXASPseudoMotorControl("BL1607-5-I10 Imaging M1 Height", "BL1607-5-I10:M1:Height", ":mm:fbk", ":mm", ":status", ":enabled", ":stop");
+	m1PseudoRoll_ = new BioXASPseudoMotorControl("BL1607-5-I10 Imaging M1 Roll", "BL1607-5-I10:M1:Roll", ":deg:fbk", ":deg", ":status", ":enabled", ":stop");
 }
 
 void BioXASImagingBeamline::setupDetectors()
@@ -175,6 +180,12 @@ QList<AMPVwStatusControl *> BioXASImagingBeamline::getMotorsByType(BioXASBeamlin
 		matchedMotors.append(m2Yaw_);
 		matchedMotors.append(m2BenderUpstream_);
 		matchedMotors.append(m2BenderDownStream_);
+		break;
+
+	case BioXASBeamlineDef::PseudoM1Motor: // BioXAS Pseudo M1 motor
+		matchedMotors.append(m1PseudoPitch_);
+		matchedMotors.append(m1PseudoHeight_);
+		matchedMotors.append(m1PseudoRoll_);
 		break;
 
 	default:

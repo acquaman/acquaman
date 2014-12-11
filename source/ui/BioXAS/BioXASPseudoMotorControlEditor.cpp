@@ -20,9 +20,7 @@ BioXASPseudoMotorControlEditor::BioXASPseudoMotorControlEditor(BioXASPseudoMotor
 	statusLayout_->addWidget(enabledStatusLabel_);
 
 	connect(control, SIGNAL(enabledPVValueChanged(double)), this, SLOT(onEnabledPVStatusChanged(double)));
-	if (control->isConnected()) {
-		onEnabledPVStatusChanged(control->value());
-	}
+	onEnabledPVStatusChanged(control->enabledPVStatus());
 
 	// setup context menu for stopping a motor
 	setContextMenuPolicy(Qt::CustomContextMenu);
@@ -46,11 +44,13 @@ void BioXASPseudoMotorControlEditor::onShowContextMenu(const QPoint& pos)
 
 void BioXASPseudoMotorControlEditor::onEnabledPVStatusChanged(double value)
 {
-	if (value == 1)
+	if (value == -1)
+		enabledStatusLabel_->setText("NOT CONNECTED");
+	else if (value == 1)
 		enabledStatusLabel_->setText("ENABLED");
 	else
 		enabledStatusLabel_->setText("DISABLED");
 
-	this->setReadOnly(!control_->canMove());
+	setReadOnly(!control_->canMove());
 }
 

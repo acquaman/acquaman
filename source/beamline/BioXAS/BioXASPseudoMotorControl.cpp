@@ -31,6 +31,14 @@ AMReadOnlyPVControl * BioXASPseudoMotorControl::statusPVControl()
 	return statusPVControl_;
 }
 
+double BioXASPseudoMotorControl::enabledPVStatus()
+{
+	double status = -1;
+	if (enabledPVControl_->isConnected())
+		status = enabledPVControl_->value();
+	return status;
+}
+
 bool BioXASPseudoMotorControl::canMove() const
 {
 	return enabledPVControl_->isConnected() ? (writePV_->canWrite() && (enabledPVControl_->value() == 1)) : false;

@@ -36,6 +36,9 @@ public:
 	/// Returns the status PV control, which can be used as the statusTagControl for control editor
 	AMReadOnlyPVControl *statusPVControl();
 
+	/// Returns the status of Enabled PV control (-1: NOT CONNECTED; 0: DISBLED; 1: ENABLED)
+	double enabledPVStatus();
+
 	/// Indicates that this control currently can cause moves:
 	virtual bool canMove() const;
 

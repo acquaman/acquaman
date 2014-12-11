@@ -32,6 +32,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSBasicScalerChannelDetector.h"
 #include "beamline/CLS/CLSBasicCompositeScalerChannelDetector.h"
 #include "beamline/CLS/CLSMAXvMotor.h"
+#include "beamline/BioXAS/BioXASPseudoMotorControl.h"
 
 #include "beamline/BioXAS/BioXASBeamlineDef.h"
 
@@ -121,6 +122,11 @@ protected:
 	CLSMAXvMotor *m2Yaw_;
 	CLSMAXvMotor *m2BenderUpstream_;
 	CLSMAXvMotor *m2BenderDownStream_;
+
+	/// BioXAS Pseudo motors
+	BioXASPseudoMotorControl *m1PseudoPitch_;
+	BioXASPseudoMotorControl *m1PseudoHeight_;
+	BioXASPseudoMotorControl *m1PseudoRoll_;
 };
 
 #endif // BIOXASIMAGINGBEAMLINE_H

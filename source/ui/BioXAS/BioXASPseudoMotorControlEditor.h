@@ -19,7 +19,7 @@ protected slots:
 	/// the slot to handle the context menu
 	void onShowContextMenu(const QPoint&);
 	/// the slot to handle the enabledPVStatusChanged signal
-	void onEnabledPVStatusChanged(double);
+	void onEnabledPVStatusChanged(double value);
 
 protected:
 	QLabel *enabledStatusLabel_;
