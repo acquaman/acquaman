@@ -30,10 +30,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMLineScan.h"
 
 #include "actions3/AMActionRunner3.h"
-#include "actions3/actions/AMScanAction.h"
 #include "actions3/AMListAction3.h"
+#include "actions3/actions/AMScanAction.h"
+#include "actions3/actions/AMWaitAction.h"
 #include "acquaman/AMScanActionController.h"
-
 #include "beamline/CLS/CLSStorageRing.h"
 
 #include "ui/VESPERS/VESPERSXRFScanConfigurationView.h"
@@ -587,8 +587,11 @@ void VESPERSAppController::moveImmediately(const AMGenericScanEditor *editor)
 		moveImmediatelyAction_->addSubAction(VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->createHorizontalMoveAction(editor->dataPosition().x()));
 		moveImmediatelyAction_->addSubAction(VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->createVerticalMoveAction(editor->dataPosition().y()));
 
-		if (config->normalPosition() != 888888.88)
+		if (config->normalPosition() != 888888.88){
+
+			moveImmediatelyAction_->addSubAction(new AMWaitAction(new AMWaitActionInfo(0.01)));
 			moveImmediatelyAction_->addSubAction(VESPERSBeamline::vespers()->pseudoSampleStageMotorGroupObject()->createNormalMoveAction(config->normalPosition()));
+		}
 
 		connect(moveImmediatelyAction_, SIGNAL(succeeded()), this, SLOT(onMoveImmediatelySuccess()));
 		connect(moveImmediatelyAction_, SIGNAL(failed()), this, SLOT(onMoveImmediatelyFailure()));
@@ -601,8 +604,11 @@ void VESPERSAppController::moveImmediately(const AMGenericScanEditor *editor)
 		moveImmediatelyAction_->addSubAction(VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->createHorizontalMoveAction(editor->dataPosition().x()));
 		moveImmediatelyAction_->addSubAction(VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->createVerticalMoveAction(editor->dataPosition().y()));
 
-		if (config->normalPosition() != 888888.88)
+		if (config->normalPosition() != 888888.88){
+
+			moveImmediatelyAction_->addSubAction(new AMWaitAction(new AMWaitActionInfo(0.01)));
 			moveImmediatelyAction_->addSubAction(VESPERSBeamline::vespers()->realSampleStageMotorGroupObject()->createNormalMoveAction(config->normalPosition()));
+		}
 
 		connect(moveImmediatelyAction_, SIGNAL(succeeded()), this, SLOT(onMoveImmediatelySuccess()));
 		connect(moveImmediatelyAction_, SIGNAL(failed()), this, SLOT(onMoveImmediatelyFailure()));

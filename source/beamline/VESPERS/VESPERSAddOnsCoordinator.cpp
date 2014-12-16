@@ -606,7 +606,7 @@ void VESPERSAddOnsCoordinator::onAddOnsSampleHSetpointControlChanged()
 
 	// If we're requesting the same stage X with AddOns as was in the old stage X AND the old stage X feedback matches the old stage X setpoint AND the status is MOVE DONE
 	// THEN issuing a move will not do anything SO we'll trick the status to say "MOVE ACTIVE" then "MOVE DONE"
-	if(oldSampleHSetpointControl_->withinTolerance(addOnsSampleHSetpointControl_->value()) && oldRealSampleXStatusControl_->withinTolerance(0.0)){
+	if(oldSampleHSetpointControl_->withinTolerance(addOnsSampleHSetpointControl_->value()) && !oldRealSampleXStatusControl_->withinTolerance(1.0)){
 		qDebug() << "Faking a sample stage X move";
 		addOnsSampleHStatusControl_->move(1.0);
 		QTimer::singleShot(50, this, SLOT(restoreAddOnsSampleHStatus()));
@@ -629,8 +629,8 @@ void VESPERSAddOnsCoordinator::onAddOnsSampleVSetpointControlChanged()
 	// If we're requesting the same stage X with AddOns as was in the old stage X AND the old stage X feedback matches the old stage X setpoint AND the status is MOVE DONE
 	// THEN issuing a move will not do anything SO we'll trick the status to say "MOVE ACTIVE" then "MOVE DONE"
 	if(oldSampleVSetpointControl_->withinTolerance(addOnsSampleVSetpointControl_->value())
-			&& oldRealSampleYStatusControl_->withinTolerance(0.0)
-			 && oldRealSampleZStatusControl_->withinTolerance(0.0)){
+			&& !oldRealSampleYStatusControl_->withinTolerance(1.0)
+			 && !oldRealSampleZStatusControl_->withinTolerance(1.0)){
 		qDebug() << "Faking a sample stage V move";
 		addOnsSampleVStatusControl_->move(1.0);
 		addOnsSampleNStatusControl_->move(1.0);
@@ -654,8 +654,8 @@ void VESPERSAddOnsCoordinator::onAddOnsSampleNSetpointControlChanged()
 	// If we're requesting the same stage X with AddOns as was in the old stage X AND the old stage X feedback matches the old stage X setpoint AND the status is MOVE DONE
 	// THEN issuing a move will not do anything SO we'll trick the status to say "MOVE ACTIVE" then "MOVE DONE"
 	if(oldSampleNSetpointControl_->withinTolerance(addOnsSampleNSetpointControl_->value())
-			&& oldRealSampleYStatusControl_->withinTolerance(0.0)
-			 && oldRealSampleZStatusControl_->withinTolerance(0.0)){
+			&& !oldRealSampleYStatusControl_->withinTolerance(1.0)
+			 && !oldRealSampleZStatusControl_->withinTolerance(1.0)){
 		qDebug() << "Faking a sample stage N move";
 		addOnsSampleVStatusControl_->move(1.0);
 		addOnsSampleNStatusControl_->move(1.0);
@@ -777,7 +777,7 @@ void VESPERSAddOnsCoordinator::onAddOnsSampleXSetpointControlChanged()
 
 	// If we're requesting the same stage X with AddOns as was in the old stage X AND the old stage X feedback matches the old stage X setpoint AND the status is MOVE DONE
 	// THEN issuing a move will not do anything SO we'll trick the status to say "MOVE ACTIVE" then "MOVE DONE"
-	if(oldSampleXSetpointControl_->withinTolerance(addOnsSampleXSetpointControl_->value()) && oldRealSampleXStatusControl_->withinTolerance(0.0)){
+	if(oldSampleXSetpointControl_->withinTolerance(addOnsSampleXSetpointControl_->value()) && !oldRealSampleXStatusControl_->withinTolerance(1.0)){
 		qDebug() << "Faking a sample stage X move";
 		addOnsSampleXStatusControl_->move(1.0);
 		QTimer::singleShot(50, this, SLOT(restoreAddOnsSampleXStatus()));
@@ -799,7 +799,7 @@ void VESPERSAddOnsCoordinator::onAddOnsSampleZSetpointControlChanged()
 
 	// If we're requesting the same stage X with AddOns as was in the old stage X AND the old stage X feedback matches the old stage X setpoint AND the status is MOZE DONE
 	// THEN issuing a move will not do anything SO we'll trick the status to say "MOZE ACTIZE" then "MOZE DONE"
-	if(oldSampleZSetpointControl_->withinTolerance(addOnsSampleZSetpointControl_->value()) && oldRealSampleZStatusControl_->withinTolerance(0.0)){
+	if(oldSampleZSetpointControl_->withinTolerance(addOnsSampleZSetpointControl_->value()) && !oldRealSampleZStatusControl_->withinTolerance(1.0)){
 		qDebug() << "Faking a sample stage Z move";
 		addOnsSampleZStatusControl_->move(1.0);
 		QTimer::singleShot(50, this, SLOT(restoreAddOnsSampleZStatus()));
@@ -821,7 +821,7 @@ void VESPERSAddOnsCoordinator::onAddOnsSampleYSetpointControlChanged()
 
 	// If we're requesting the same stage X with AddOns as was in the old stage X AND the old stage X feedback matches the old stage X setpoint AND the status is MOVE DONE
 	// THEN issuing a move will not do anything SO we'll trick the status to say "MOVE ACTIVE" then "MOVE DONE"
-	if(oldSampleYSetpointControl_->withinTolerance(addOnsSampleYSetpointControl_->value()) && oldRealSampleYStatusControl_->withinTolerance(0.0)){
+	if(oldSampleYSetpointControl_->withinTolerance(addOnsSampleYSetpointControl_->value()) && !oldRealSampleYStatusControl_->withinTolerance(1.0)){
 		qDebug() << "Faking a sample stage Y move";
 		addOnsSampleYStatusControl_->move(1.0);
 		QTimer::singleShot(50, this, SLOT(restoreAddOnsSampleYStatus()));
@@ -912,7 +912,7 @@ void VESPERSAddOnsCoordinator::onOldRealSampleZStatusControlChanged()
 	if(!connectedOnce_)
 		return;
 
-	qDebug() << "Detected OLD sample Y status move of " << oldRealSampleYStatusControl_->value() << " versus " << addOnsSampleVStatusControl_->value() << " and " << addOnsSampleNStatusControl_->value();
+	qDebug() << "Detected OLD sample Z status move of " << oldRealSampleZStatusControl_->value() << " versus " << addOnsSampleVStatusControl_->value() << " and " << addOnsSampleNStatusControl_->value();
 
 	int finalStatus = computeFinalStatus(int(oldRealSampleYStatusControl_->value()), int(oldRealSampleZStatusControl_->value()));
 
@@ -1009,7 +1009,7 @@ void VESPERSAddOnsCoordinator::onAddOnsAttoHSetpointControlChanged()
 
 	// If we're requesting the same stage X with AddOns as was in the old stage X AND the old stage X feedback matches the old stage X setpoint AND the status is MOVE DONE
 	// THEN issuing a move will not do anything SO we'll trick the status to say "MOVE ACTIVE" then "MOVE DONE"
-	if(oldAttoHSetpointControl_->withinTolerance(addOnsAttoHSetpointControl_->value()) && oldRealAttoXStatusControl_->withinTolerance(0.0)){
+	if(oldAttoHSetpointControl_->withinTolerance(addOnsAttoHSetpointControl_->value()) && !oldRealAttoXStatusControl_->withinTolerance(1.0)){
 		qDebug() << "Faking a atto stage X move";
 		addOnsAttoHStatusControl_->move(1.0);
 		QTimer::singleShot(50, this, SLOT(restoreAddOnsAttoHStatus()));
@@ -1032,8 +1032,8 @@ void VESPERSAddOnsCoordinator::onAddOnsAttoVSetpointControlChanged()
 	// If we're requesting the same stage X with AddOns as was in the old stage X AND the old stage X feedback matches the old stage X setpoint AND the status is MOVE DONE
 	// THEN issuing a move will not do anything SO we'll trick the status to say "MOVE ACTIVE" then "MOVE DONE"
 	if(oldAttoVSetpointControl_->withinTolerance(addOnsAttoVSetpointControl_->value())
-			&& oldRealAttoYStatusControl_->withinTolerance(0.0)
-			 && oldRealAttoZStatusControl_->withinTolerance(0.0)){
+			&& !oldRealAttoYStatusControl_->withinTolerance(1.0)
+			 && !oldRealAttoZStatusControl_->withinTolerance(1.0)){
 		qDebug() << "Faking a sample stage V move";
 		addOnsAttoVStatusControl_->move(1.0);
 		addOnsAttoNStatusControl_->move(1.0);
@@ -1057,8 +1057,8 @@ void VESPERSAddOnsCoordinator::onAddOnsAttoNSetpointControlChanged()
 	// If we're requesting the same stage X with AddOns as was in the old stage X AND the old stage X feedback matches the old stage X setpoint AND the status is MOVE DONE
 	// THEN issuing a move will not do anything SO we'll trick the status to say "MOVE ACTIVE" then "MOVE DONE"
 	if(oldAttoNSetpointControl_->withinTolerance(addOnsAttoNSetpointControl_->value())
-			&& oldRealAttoYStatusControl_->withinTolerance(0.0)
-			 && oldRealAttoZStatusControl_->withinTolerance(0.0)){
+			&& !oldRealAttoYStatusControl_->withinTolerance(1.0)
+			 && !oldRealAttoZStatusControl_->withinTolerance(1.0)){
 		qDebug() << "Faking a sample stage N move";
 		addOnsAttoVStatusControl_->move(1.0);
 		addOnsAttoNStatusControl_->move(1.0);
@@ -1180,7 +1180,7 @@ void VESPERSAddOnsCoordinator::onAddOnsAttoXSetpointControlChanged()
 
 	// If we're requesting the same stage X with AddOns as was in the old stage X AND the old stage X feedback matches the old stage X setpoint AND the status is MOVE DONE
 	// THEN issuing a move will not do anything SO we'll trick the status to say "MOVE ACTIVE" then "MOVE DONE"
-	if(oldAttoXSetpointControl_->withinTolerance(addOnsAttoXSetpointControl_->value()) && oldRealAttoXStatusControl_->withinTolerance(0.0)){
+	if(oldAttoXSetpointControl_->withinTolerance(addOnsAttoXSetpointControl_->value()) && !oldRealAttoXStatusControl_->withinTolerance(1.0)){
 		qDebug() << "Faking a sample stage X move";
 		addOnsAttoXStatusControl_->move(1.0);
 		QTimer::singleShot(50, this, SLOT(restoreAddOnsAttoXStatus()));
@@ -1202,7 +1202,7 @@ void VESPERSAddOnsCoordinator::onAddOnsAttoZSetpointControlChanged()
 
 	// If we're requesting the same stage X with AddOns as was in the old stage X AND the old stage X feedback matches the old stage X setpoint AND the status is MOZE DONE
 	// THEN issuing a move will not do anything SO we'll trick the status to say "MOZE ACTIZE" then "MOZE DONE"
-	if(oldAttoZSetpointControl_->withinTolerance(addOnsAttoZSetpointControl_->value()) && oldRealAttoZStatusControl_->withinTolerance(0.0)){
+	if(oldAttoZSetpointControl_->withinTolerance(addOnsAttoZSetpointControl_->value()) && !oldRealAttoZStatusControl_->withinTolerance(1.0)){
 		qDebug() << "Faking a sample stage Z move";
 		addOnsAttoZStatusControl_->move(1.0);
 		QTimer::singleShot(50, this, SLOT(restoreAddOnsAttoZStatus()));
@@ -1224,7 +1224,7 @@ void VESPERSAddOnsCoordinator::onAddOnsAttoYSetpointControlChanged()
 
 	// If we're requesting the same stage X with AddOns as was in the old stage X AND the old stage X feedback matches the old stage X setpoint AND the status is MOVE DONE
 	// THEN issuing a move will not do anything SO we'll trick the status to say "MOVE ACTIVE" then "MOVE DONE"
-	if(oldAttoYSetpointControl_->withinTolerance(addOnsAttoYSetpointControl_->value()) && oldRealAttoYStatusControl_->withinTolerance(0.0)){
+	if(oldAttoYSetpointControl_->withinTolerance(addOnsAttoYSetpointControl_->value()) && !oldRealAttoYStatusControl_->withinTolerance(1.0)){
 		qDebug() << "Faking a sample stage Y move";
 		addOnsAttoYStatusControl_->move(1.0);
 		QTimer::singleShot(50, this, SLOT(restoreAddOnsAttoYStatus()));
@@ -1439,7 +1439,7 @@ void VESPERSAddOnsCoordinator::onAddOnsWireHSetpointControlChanged()
 
 	// If we're requesting the same stage X with AddOns as was in the old stage X AND the old stage X feedback matches the old stage X setpoint AND the status is MOVE DONE
 	// THEN issuing a move will not do anything SO we'll trick the status to say "MOVE ACTIVE" then "MOVE DONE"
-	if(oldWireHSetpointControl_->withinTolerance(addOnsWireHSetpointControl_->value()) && oldRealWireXStatusControl_->withinTolerance(0.0)){
+	if(oldWireHSetpointControl_->withinTolerance(addOnsWireHSetpointControl_->value()) && !oldRealWireXStatusControl_->withinTolerance(1.0)){
 		qDebug() << "Faking a wire stage X move";
 		addOnsWireHStatusControl_->move(1.0);
 		QTimer::singleShot(50, this, SLOT(restoreAddOnsWireHStatus()));
@@ -1462,8 +1462,8 @@ void VESPERSAddOnsCoordinator::onAddOnsWireVSetpointControlChanged()
 	// If we're requesting the same stage X with AddOns as was in the old stage X AND the old stage X feedback matches the old stage X setpoint AND the status is MOVE DONE
 	// THEN issuing a move will not do anything SO we'll trick the status to say "MOVE ACTIVE" then "MOVE DONE"
 	if(oldWireVSetpointControl_->withinTolerance(addOnsWireVSetpointControl_->value())
-			&& oldRealWireYStatusControl_->withinTolerance(0.0)
-			 && oldRealWireZStatusControl_->withinTolerance(0.0)){
+			&& !oldRealWireYStatusControl_->withinTolerance(1.0)
+			 && !oldRealWireZStatusControl_->withinTolerance(1.0)){
 		qDebug() << "Faking a wire stage V move";
 		addOnsWireVStatusControl_->move(1.0);
 		addOnsWireNStatusControl_->move(1.0);
@@ -1487,8 +1487,8 @@ void VESPERSAddOnsCoordinator::onAddOnsWireNSetpointControlChanged()
 	// If we're requesting the same stage X with AddOns as was in the old stage X AND the old stage X feedback matches the old stage X setpoint AND the status is MOVE DONE
 	// THEN issuing a move will not do anything SO we'll trick the status to say "MOVE ACTIVE" then "MOVE DONE"
 	if(oldWireNSetpointControl_->withinTolerance(addOnsWireNSetpointControl_->value())
-			&& oldRealWireYStatusControl_->withinTolerance(0.0)
-			 && oldRealWireZStatusControl_->withinTolerance(0.0)){
+			&& !oldRealWireYStatusControl_->withinTolerance(1.0)
+			 && !oldRealWireZStatusControl_->withinTolerance(1.0)){
 		qDebug() << "Faking a sample stage N move";
 		addOnsWireVStatusControl_->move(1.0);
 		addOnsWireNStatusControl_->move(1.0);
