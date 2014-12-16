@@ -52,7 +52,7 @@ private:
 
 	QString getBeamlineName();
 	QString getBeamlineImageName(BioXASBeamlineDef::BioXASBeamLineID beamlineId);
-	QGroupBox * setupMotorGroupLayout(QString groupBoxTitle, BioXASBeamlineDef::BioXASMotorType motorType, int expectedHeight=600, int expectedWidth=320);
+	QGroupBox * setupMotorGroupLayout(QString groupBoxTitle, BioXASBeamlineDef::BioXASMotorType motorType, int expectedHeight=650, int expectedWidth=320);
 	void setupMotorsLayout(BioXASBeamlineDef::BioXASMotorType motorType, QVBoxLayout *pvLayoutBox);
 
 };
