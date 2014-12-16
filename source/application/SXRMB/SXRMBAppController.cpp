@@ -42,6 +42,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/export/AMExporterGeneralAscii.h"
 #include "dataman/export/AMExporterAthena.h"
 #include "dataman/export/AMSMAKExporter.h"
+#include "dataman/export/AMExporter2DAscii.h"
 #include "dataman/AMRun.h"
 #include "dataman/SXRMB/SXRMBUserConfiguration.h"
 #include "dataman/AMRegionOfInterest.h"
@@ -250,6 +251,11 @@ void SXRMBAppController::setupExporterOptions()
 	sxrmbExportOptions = SXRMB::buildSMAKExporterOption("SXRMB2DDefault", true, false, false, true);
 	if(sxrmbExportOptions->id() > 0)
 		AMAppControllerSupport::registerClass<SXRMB2DMapScanConfiguration, AMSMAKExporter, AMExporterOptionSMAK>(sxrmbExportOptions->id());
+
+
+	sxrmbExportOptions = SXRMB::buildStandardExporterOption("SXRMB2DDefault", true, false, false, true);
+	if(sxrmbExportOptions->id() > 0)
+		AMAppControllerSupport::registerClass<SXRMB2DMapScanConfiguration, AMExporter2DAscii, AMExporterOptionGeneralAscii>(sxrmbExportOptions->id());
 }
 
 void SXRMBAppController::setupUserInterface()

@@ -237,7 +237,7 @@ AMNumber AM1DProcessVariableDataSource::axisValue(int axisNumber, int index) con
 		return AMNumber(AMNumber::OutOfBoundsError);
 #endif
 
-	return index*scale_;
+	return (offset_ + index*scale_);
 }
 
 bool AM1DProcessVariableDataSource::axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const
@@ -260,7 +260,7 @@ bool AM1DProcessVariableDataSource::axisValues(int axisNumber, int startIndex, i
 #endif
 
 	for (int i = 0, size = endIndex-startIndex+1; i < size; i++)
-		outputValues[i] = AMNumber((i+startIndex)*scale_);
+		outputValues[i] = AMNumber(offset_ + (i+startIndex)*scale_);
 
 	return true;
 }
@@ -282,6 +282,7 @@ void AM1DProcessVariableDataSource::setScale(double scale)
 		axes_[0].increment = scale;
 		emitValuesChanged();
 		emitAxisInfoChanged();
+		emitSizeChanged();
 	}
 }
 
@@ -292,6 +293,7 @@ void AM1DProcessVariableDataSource::setOffset(double offset)
 		axes_[0].start = offset_;
 		emitValuesChanged();
 		emitAxisInfoChanged();
+		emitSizeChanged();
 	}
 }
 

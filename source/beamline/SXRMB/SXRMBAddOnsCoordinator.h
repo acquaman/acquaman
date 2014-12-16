@@ -106,6 +106,9 @@ protected:
 	/// New AddOns Energy status control
 	AMControl *addOnsEnergyStatus_;
 
+	/// Old SXRMB Energy tracking control
+	AMControl *oldEnergyTracking_;
+
 	/// New AddOns Energy DRVH control
 	AMControl *addOnsEnergyDRVH_;
 	/// New AddOns Energy DRVL control

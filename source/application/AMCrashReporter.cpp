@@ -140,6 +140,8 @@ AMCrashMonitor::~AMCrashMonitor()
 void AMCrashMonitor::onSiguser1Detected(){
 	watchingPIDTimer_->stop();
 
+	qDebug() << "Monitor got siguser1, create reporter";
+
 	QStringList arguments;
 	arguments << executableFullPath_;
 	arguments << errorFilePath_;
@@ -226,6 +228,8 @@ AMCrashReporter::AMCrashReporter(const QString &executableFullPath, const QStrin
 }
 
 void AMCrashReporter::onSiguser1Detected(){
+	qDebug() << "Reporter going to do some work";
+
 	QString errorString;
 	QString executableString;
 	QString addressString;
@@ -233,6 +237,7 @@ void AMCrashReporter::onSiguser1Detected(){
 	QFile errorFile(QString("/tmp/ErrorFile%1.txt").arg(watchingPID_));
 	if(errorFile.open(QIODevice::ReadOnly | QIODevice::Text)){
 		while(!errorFile.atEnd()){
+			qDebug() << "Appending one symbol";
 			errorString = errorFile.readLine();
 			executableString = errorString.section('[', 0, 0);
 			addressString = errorString.section('[', 1, 1).remove(']');
@@ -242,6 +247,7 @@ void AMCrashReporter::onSiguser1Detected(){
 				oneSymbol->setInvalid(true);
 			allSymbols_.append(oneSymbol);
 		}
+		qDebug() << "Processed, ready to close";
 
 		errorFile.close();
 		errorFile.remove();
@@ -260,9 +266,11 @@ void AMCrashReporter::onOneSymbolProcessed(){
 
 		QString allStandardOutput = activeAddressConversion_->readAllStandardOutput();
 		allProcessedLines_.append(allStandardOutput);
+		qDebug() << "Appended one processed line";
 	}
 
 	if(allSymbols_.isEmpty()){
+		qDebug() << "All symbols processed";
 		progressBar_->setRange(0, 1);
 		progressBar_->setValue(1);
 
@@ -271,10 +279,12 @@ void AMCrashReporter::onOneSymbolProcessed(){
 	else{
 		AMCrashReporterStackTraceSymbol *oneSymbol = allSymbols_.takeFirst();
 		if(oneSymbol->isInvalid()){
+			qDebug() << "Invalid symbol";
 			activeAddressConversion_ = 0;
 			onOneSymbolProcessed();
 		}
 		else{
+			qDebug() << "Start process for one symbol";
 			activeAddressConversion_ = new QProcess();
 			QString program = "addr2line";
 			QStringList arguments;

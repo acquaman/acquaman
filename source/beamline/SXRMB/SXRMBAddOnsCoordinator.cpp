@@ -30,6 +30,7 @@ SXRMBAddOnsCoordinator::SXRMBAddOnsCoordinator(QObject *parent) :
 	oldEnergy_ =  new AMSinglePVControl("OldEnergy", "BL1606-B1-1:Energy", this, 0.01);
 	oldEnergyFeedback_ = new AMReadOnlyPVControl("OldEnergyFeedback", "BL1606-B1-1:Energy:fbk", this);
 	oldEnergyStatus_ = new AMReadOnlyPVControl("OldEnergyStatus", "BL1606-B1-1:Energy:status", this);
+	oldEnergyTracking_ = new AMSinglePVControl("OldEnergyTracking", "MONO1606-4-B10-01:Energy:track", this, 0.5);
 
 	monoZ2StopControl_ = new AMSinglePVControl("MonoZ2Stop", "SMTR1606-4-B10-11:stop", this, 0.5);
 	monoY2StopControl_ = new AMSinglePVControl("MonoY2Stop", "SMTR1606-4-B10-12:stop", this, 0.5);
@@ -80,6 +81,7 @@ SXRMBAddOnsCoordinator::SXRMBAddOnsCoordinator(QObject *parent) :
 	allControls_->addControl(oldEnergy_);
 	allControls_->addControl(oldEnergyFeedback_);
 	allControls_->addControl(oldEnergyStatus_);
+	allControls_->addControl(oldEnergyTracking_);
 	allControls_->addControl(monoZ2StopControl_);
 	allControls_->addControl(monoY2StopControl_);
 	allControls_->addControl(monoThetaStopControl_);
@@ -199,7 +201,7 @@ void SXRMBAddOnsCoordinator::onOldEnergyValueChanged(double value){
 
 	qDebug() << "Detected OLD energy move requested for " << oldEnergy_->value() << " versus " << addOnsEnergy_->value();
 
-	if(!addOnsEnergy_->withinTolerance(oldEnergy_->value()))
+	if(!addOnsEnergy_->withinTolerance(oldEnergy_->value()) && oldEnergyTracking_->withinTolerance(1))
 		addOnsEnergy_->move(oldEnergy_->value());
 }
 
