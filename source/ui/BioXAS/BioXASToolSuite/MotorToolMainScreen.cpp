@@ -108,8 +108,11 @@ void MotorToolMainScreen::setupUiLayout()
 		motorGroupBox = setupMotorGroupLayout(beamlineName + " Pseudo M1 Motors", BioXASBeamlineDef::PseudoM1Motor);
 		secondRowPVLayout->addWidget(motorGroupBox);
 
-		 motorGroupBox = setupMotorGroupLayout(beamlineName + " Pseudo Mono Motors", BioXASBeamlineDef::PseudoMonoMotor);
-		 secondRowPVLayout->addWidget(motorGroupBox);
+		// At this moment, we don't have pseudo energy motor for Imaging beamline
+		if (beamlineId_ != BioXASBeamlineDef::BioXASImagingBeamLine) {
+			motorGroupBox = setupMotorGroupLayout(beamlineName + " Pseudo Mono Motors", BioXASBeamlineDef::PseudoMonoMotor);
+			secondRowPVLayout->addWidget(motorGroupBox);
+		}
 
 		motorGroupBox = setupMotorGroupLayout(beamlineName + " Pseudo M2 Motors", BioXASBeamlineDef::PseudoM2Motor);
 		secondRowPVLayout->addWidget(motorGroupBox);

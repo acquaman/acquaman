@@ -8,7 +8,7 @@ BioXASPseudoMotorControlEditor::BioXASPseudoMotorControlEditor(BioXASPseudoMotor
 	:AMExtendedControlEditor(control, statusTagControl, readOnly, configureOnly, parent)
 {
 	valueLabel_->setToolTip(control->readPVName());
-	unitsLabel_->setToolTip(control->readPVName() + " (unit)");
+	unitsLabel_->setToolTip(control->readPVName() + ".EGU");
 	statusLabel_->setToolTip(control->statusPVName());
 
 	// setup the enabled status dispaly
