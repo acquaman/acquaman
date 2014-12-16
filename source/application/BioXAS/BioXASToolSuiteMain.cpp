@@ -26,13 +26,12 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 int main(int argc, char *argv[])
 {
-	int windowWidth = 280;
-	int windowHeight = 350;
+	int windowWidth = 300;
 
 	QApplication app(argc, argv);
 	BioXASToolSuiteMainWindow mainWindow;
 
-	mainWindow.setFixedSize(windowWidth,windowHeight);
+	mainWindow.setFixedWidth(windowWidth);
 	mainWindow.move(QApplication::desktop()->screen()->rect().center() - mainWindow.rect().center());
 	mainWindow.show();
 

@@ -16,7 +16,7 @@ class MotorToolMainScreen : public QWidget
 
 public:
 	explicit MotorToolMainScreen(BioXASBeamlineDef::BioXASBeamLineID beamlineId, bool pseudoMotorScreen=false, QWidget *parent = 0);
-    ~MotorToolMainScreen();
+	~MotorToolMainScreen();
 
 signals:
 	void closed();

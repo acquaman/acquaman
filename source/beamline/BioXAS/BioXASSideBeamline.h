@@ -192,8 +192,7 @@ public:
 
     AMControlSet *temperatureSet() const { return temperatureSet_; }
 
-    // Motors
-
+	/// return the set of BioXAS Motors by given motor category
 	QList<AMPVwStatusControl *> getMotorsByType(BioXASBeamlineDef::BioXASMotorType category) const;
 
     // Current amplifiers
