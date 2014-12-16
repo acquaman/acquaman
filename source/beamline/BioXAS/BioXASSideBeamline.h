@@ -39,6 +39,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/BioXAS/BioXASBeamlineDef.h"
 #include "beamline/BioXAS/BioXASSideMonochromator.h"
+#include "beamline/BioXAS/BioXASPseudoMotorControl.h"
 
 #define BIOXASSIDEBEAMLINE_PRESSURE_TOO_HIGH 54600
 #define BIOXASSIDEBEAMLINE_VALVES_CLOSED 54601
@@ -440,6 +441,19 @@ protected:
     CLSMAXvMotor *m2Yaw_;
     CLSMAXvMotor *m2BenderUpstream_;
     CLSMAXvMotor *m2BenderDownStream_;
+
+	/// BioXAS Pseudo motors
+	BioXASPseudoMotorControl *m1PseudoRoll_;
+	BioXASPseudoMotorControl *m1PseudoPitch_;
+	BioXASPseudoMotorControl *m1PseudoHeight_;
+	BioXASPseudoMotorControl *m1PseudoYaw_;
+	BioXASPseudoMotorControl *m1PseudoLateral_;
+
+	BioXASPseudoMotorControl *m2PseudoRoll_;
+	BioXASPseudoMotorControl *m2PseudoPitch_;
+	BioXASPseudoMotorControl *m2PseudoHeight_;
+	BioXASPseudoMotorControl *m2PseudoYaw_;
+	BioXASPseudoMotorControl *m2PseudoLateral_;
 };
 
 #endif // BIOXASSIDEBEAMLINE_H

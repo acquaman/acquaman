@@ -18,7 +18,10 @@ MotorToolMainScreen::MotorToolMainScreen(BioXASBeamlineDef::BioXASBeamLineID bea
 	:QWidget(parent)
 {
 	setAttribute(Qt::WA_ShowWithoutActivating);
-	resize(1190, 1600);
+	if (pseudoMotorScreen)
+		resize(1190, 600);
+	else
+		resize(1190, 1600);
 
 	pseudoMotorScreen_ = pseudoMotorScreen;
 	beamlineId_  = beamlineId;
@@ -95,35 +98,37 @@ void MotorToolMainScreen::setupUiLayout()
 		beamlineName = "Imaging";
 
 	QGroupBox *motorGroupBox;
-	if (pseudoMotorScreen_)
-		motorGroupBox = setupMotorGroupLayout("Carbon Pseudo Filter Farm Motors", BioXASBeamlineDef::PseudoFilterMotor, 170);
-	else
-		motorGroupBox = setupMotorGroupLayout("Carbon Filter Farm Motors", BioXASBeamlineDef::FilterMotor, 170);
-	firstRowPVLayout->addWidget(motorGroupBox);
+	if (pseudoMotorScreen_) {
+		// motorGroupBox = setupMotorGroupLayout("Carbon Pseudo Filter Farm Motors", BioXASBeamlineDef::PseudoFilterMotor, 170);
+		// firstRowPVLayout->addWidget(motorGroupBox);
 
-	if (pseudoMotorScreen_)
-		motorGroupBox = setupMotorGroupLayout(beamlineName + " Pseudo Mask Motors", BioXASBeamlineDef::PseudoMaskMotor, 170);
-	else
-		motorGroupBox = setupMotorGroupLayout(beamlineName + " Mask Motors", BioXASBeamlineDef::MaskMotor, 170);
-	firstRowPVLayout->addWidget(motorGroupBox);
+		// motorGroupBox = setupMotorGroupLayout(beamlineName + " Pseudo Mask Motors", BioXASBeamlineDef::PseudoMaskMotor, 170);
+		// firstRowPVLayout->addWidget(motorGroupBox);
 
-	if (pseudoMotorScreen_)
 		motorGroupBox = setupMotorGroupLayout(beamlineName + " Pseudo M1 Motors", BioXASBeamlineDef::PseudoM1Motor);
-	else
-		motorGroupBox = setupMotorGroupLayout(beamlineName + " M1 Motors", BioXASBeamlineDef::M1Motor);
-	secondRowPVLayout->addWidget(motorGroupBox);
+		secondRowPVLayout->addWidget(motorGroupBox);
 
-	if (pseudoMotorScreen_)
-		motorGroupBox = setupMotorGroupLayout(beamlineName + " Pseudo Mono Motors", BioXASBeamlineDef::PseudoMonoMotor);
-	else
-		motorGroupBox = setupMotorGroupLayout(beamlineName + " Mono Motors", BioXASBeamlineDef::MonoMotor);
-	secondRowPVLayout->addWidget(motorGroupBox);
+		// motorGroupBox = setupMotorGroupLayout(beamlineName + " Pseudo Mono Motors", BioXASBeamlineDef::PseudoMonoMotor);
+		// secondRowPVLayout->addWidget(motorGroupBox);
 
-	if (pseudoMotorScreen_)
 		motorGroupBox = setupMotorGroupLayout(beamlineName + " Pseudo M2 Motors", BioXASBeamlineDef::PseudoM2Motor);
-	else
+		secondRowPVLayout->addWidget(motorGroupBox);
+	} else {
+		motorGroupBox = setupMotorGroupLayout("Carbon Filter Farm Motors", BioXASBeamlineDef::FilterMotor, 170);
+		firstRowPVLayout->addWidget(motorGroupBox);
+
+		motorGroupBox = setupMotorGroupLayout(beamlineName + " Mask Motors", BioXASBeamlineDef::MaskMotor, 170);
+		firstRowPVLayout->addWidget(motorGroupBox);
+
+		motorGroupBox = setupMotorGroupLayout(beamlineName + " M1 Motors", BioXASBeamlineDef::M1Motor);
+		secondRowPVLayout->addWidget(motorGroupBox);
+
+		motorGroupBox = setupMotorGroupLayout(beamlineName + " Mono Motors", BioXASBeamlineDef::MonoMotor);
+		secondRowPVLayout->addWidget(motorGroupBox);
+
 		motorGroupBox = setupMotorGroupLayout(beamlineName + " M2 Motors", BioXASBeamlineDef::M2Motor);
-	secondRowPVLayout->addWidget(motorGroupBox);
+		secondRowPVLayout->addWidget(motorGroupBox);
+	}
 }
 
 QString MotorToolMainScreen::getBeamlineName()

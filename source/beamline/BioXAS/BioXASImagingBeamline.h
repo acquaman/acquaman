@@ -124,9 +124,17 @@ protected:
 	CLSMAXvMotor *m2BenderDownStream_;
 
 	/// BioXAS Pseudo motors
+	BioXASPseudoMotorControl *m1PseudoRoll_;
 	BioXASPseudoMotorControl *m1PseudoPitch_;
 	BioXASPseudoMotorControl *m1PseudoHeight_;
-	BioXASPseudoMotorControl *m1PseudoRoll_;
+	BioXASPseudoMotorControl *m1PseudoYaw_;
+	BioXASPseudoMotorControl *m1PseudoLateral_;
+
+	BioXASPseudoMotorControl *m2PseudoRoll_;
+	BioXASPseudoMotorControl *m2PseudoPitch_;
+	BioXASPseudoMotorControl *m2PseudoHeight_;
+	BioXASPseudoMotorControl *m2PseudoYaw_;
+	BioXASPseudoMotorControl *m2PseudoLateral_;
 };
 
 #endif // BIOXASIMAGINGBEAMLINE_H
