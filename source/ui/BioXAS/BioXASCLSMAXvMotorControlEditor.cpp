@@ -47,6 +47,8 @@ BioXASCLSMAXvMotorControlEditor::~BioXASCLSMAXvMotorControlEditor()
 void BioXASCLSMAXvMotorControlEditor::onShowContextMenu(const QPoint& pos)
 {
 	CLSMAXvMotor * bioxasMAXvMotor = (CLSMAXvMotor *)control_;
+	if (!bioxasMAXvMotor->canMove())
+		return;
 
 	QMenu contextMenu;
 	contextMenu.addAction("Stop " + bioxasMAXvMotor->pvBaseName());

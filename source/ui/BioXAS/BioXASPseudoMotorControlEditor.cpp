@@ -30,6 +30,8 @@ BioXASPseudoMotorControlEditor::BioXASPseudoMotorControlEditor(BioXASPseudoMotor
 void BioXASPseudoMotorControlEditor::onShowContextMenu(const QPoint& pos)
 {
 	BioXASPseudoMotorControl * bioxasPseudoMotor = (BioXASPseudoMotorControl *)control_;
+	if (!bioxasPseudoMotor->canMove())
+		return;
 
 	QMenu contextMenu;
 	contextMenu.addAction("Stop " + bioxasPseudoMotor->pvBaseName());
