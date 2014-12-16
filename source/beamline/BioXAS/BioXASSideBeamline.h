@@ -67,189 +67,189 @@ public:
 		return static_cast<BioXASSideBeamline*>(instance_);
 	}
 
-    /// Destructor.
-    virtual ~BioXASSideBeamline();
+	/// Destructor.
+	virtual ~BioXASSideBeamline();
 
-    /// Returns the most recent connection state of the beamline.
-    virtual bool isConnected() const { return isConnected_; }
+	/// Returns the most recent connection state of the beamline.
+	virtual bool isConnected() const { return isConnected_; }
 
-    /// Returns the beamline monochromator.
-    BioXASSideMonochromator *mono() const { return mono_; }
-    /// Returns the scaler.
-    CLSSIS3820Scaler* scaler() { return scaler_; }
+	/// Returns the beamline monochromator.
+	BioXASSideMonochromator *mono() const { return mono_; }
+	/// Returns the scaler.
+	CLSSIS3820Scaler* scaler() { return scaler_; }
 
-    // Photon and safety shutters.
+	// Photon and safety shutters.
 
-    /// Returns the first photon shutter.
-    AMControl *photonShutter1() const { return psh1_; }
-    /// Returns the second photon shutter.
-    AMControl *photonShutter2() const { return psh2_; }
-    /// Returns the first safety shutter.
-    AMControl *safetyShutter1() const { return ssh1_; }
-    /// Returns the second safety shutter.
-    AMControl *safetyShutter2() const { return sshSide1_; }
+	/// Returns the first photon shutter.
+	AMControl *photonShutter1() const { return psh1_; }
+	/// Returns the second photon shutter.
+	AMControl *photonShutter2() const { return psh2_; }
+	/// Returns the first safety shutter.
+	AMControl *safetyShutter1() const { return ssh1_; }
+	/// Returns the second safety shutter.
+	AMControl *safetyShutter2() const { return sshSide1_; }
 
-    bool openPhotonShutter1();
-    bool closePhotonShutter1();
-    bool openPhotonShutter2();
-    bool closePhotonShutter2();
-    bool openSafetyShutter1();
-    bool closeSafetyShutter1();
-    bool openSafetyShutter2();
-    bool closeSafetyShutter2();
+	bool openPhotonShutter1();
+	bool closePhotonShutter1();
+	bool openPhotonShutter2();
+	bool closePhotonShutter2();
+	bool openSafetyShutter1();
+	bool closeSafetyShutter1();
+	bool openSafetyShutter2();
+	bool closeSafetyShutter2();
 
-    // Pressure monitors.
+	// Pressure monitors.
 
-    AMControl *ccg1() const { return ccg1_; }
-    AMControl *ccg2() const { return ccg2_; }
-    AMControl *ccg3() const { return ccg3_; }
-    AMControl *ccgSide1() const { return ccgSide1_; }
-    AMControl *ccgSide2() const { return ccgSide2_; }
-    AMControl *ccgSide3() const { return ccgSide3_; }
-    AMControl *ccgSide4() const { return ccgSide4_; }
-    AMControl *ccgSide5() const { return ccgSide5_; }
-    AMControl *ccgSide6() const { return ccgSide6_; }
+	AMControl *ccg1() const { return ccg1_; }
+	AMControl *ccg2() const { return ccg2_; }
+	AMControl *ccg3() const { return ccg3_; }
+	AMControl *ccgSide1() const { return ccgSide1_; }
+	AMControl *ccgSide2() const { return ccgSide2_; }
+	AMControl *ccgSide3() const { return ccgSide3_; }
+	AMControl *ccgSide4() const { return ccgSide4_; }
+	AMControl *ccgSide5() const { return ccgSide5_; }
+	AMControl *ccgSide6() const { return ccgSide6_; }
 
-    AMControlSet *pressureSet() const { return pressureSet_; }
+	AMControlSet *pressureSet() const { return pressureSet_; }
 
-    // Vaccum values.
+	// Vaccum values.
 
-    AMControl *vvr1() const { return vvr1_; }
-    AMControl *vvr2() const { return vvr2_; }
-    AMControl *vvr3() const { return vvr3_; }
-    AMControl *vvr4() const { return vvr4_; }
-    AMControl *vvr5() const { return vvr5_; }
-    AMControl *vvrSide1() const { return vvrSide1_; }
-    AMControl *vvrSide2() const { return vvrSide2_; }
-    AMControl *vvrSide3() const { return vvrSide3_; }
-    AMControl *vvrSide4() const { return vvrSide4_; }
-    AMControl *vvrSide5() const { return vvrSide5_; }
-    AMControl *vvrSide6() const { return vvrSide6_; }
+	AMControl *vvr1() const { return vvr1_; }
+	AMControl *vvr2() const { return vvr2_; }
+	AMControl *vvr3() const { return vvr3_; }
+	AMControl *vvr4() const { return vvr4_; }
+	AMControl *vvr5() const { return vvr5_; }
+	AMControl *vvrSide1() const { return vvrSide1_; }
+	AMControl *vvrSide2() const { return vvrSide2_; }
+	AMControl *vvrSide3() const { return vvrSide3_; }
+	AMControl *vvrSide4() const { return vvrSide4_; }
+	AMControl *vvrSide5() const { return vvrSide5_; }
+	AMControl *vvrSide6() const { return vvrSide6_; }
 
-    AMControlSet *valveSet() const { return valveSet_; }
+	AMControlSet *valveSet() const { return valveSet_; }
 
-    bool allValvesOpen() const;
-    bool allValvesClosed() const;
+	bool allValvesOpen() const;
+	bool allValvesClosed() const;
 
-    // Ion pumps.
+	// Ion pumps.
 
-    AMControl *iop1() const { return iop1_; }
-    AMControl *iop2() const { return iop2_; }
-    AMControl *iop3() const { return iop3_; }
-    AMControl *iop4() const { return iop4_; }
-    AMControl *iop5() const { return iop5_; }
-    AMControl *iopSide1() const { return iopSide1_; }
-    AMControl *iopSide2() const { return iopSide2_; }
-    AMControl *iopSide3() const { return iopSide3_; }
-    AMControl *iopSide4() const { return iopSide4_; }
-    AMControl *iopSide5() const { return iopSide5_; }
-    AMControl *iopSide6() const { return iopSide6_; }
-    AMControl *iopSide7() const { return iopSide7_; }
+	AMControl *iop1() const { return iop1_; }
+	AMControl *iop2() const { return iop2_; }
+	AMControl *iop3() const { return iop3_; }
+	AMControl *iop4() const { return iop4_; }
+	AMControl *iop5() const { return iop5_; }
+	AMControl *iopSide1() const { return iopSide1_; }
+	AMControl *iopSide2() const { return iopSide2_; }
+	AMControl *iopSide3() const { return iopSide3_; }
+	AMControl *iopSide4() const { return iopSide4_; }
+	AMControl *iopSide5() const { return iopSide5_; }
+	AMControl *iopSide6() const { return iopSide6_; }
+	AMControl *iopSide7() const { return iopSide7_; }
 
-    AMControlSet *ionPumpSet() const { return ionPumpSet_; }
+	AMControlSet *ionPumpSet() const { return ionPumpSet_; }
 
-    // Flow transducers.
+	// Flow transducers.
 
-    AMControl *flt1() const { return flt1_; }
-    AMControl *flt2() const { return flt2_; }
-    AMControl *flt3() const { return flt3_; }
-    AMControl *flt4() const { return flt4_; }
-    AMControl *flt5() const { return flt5_; }
-    AMControl *flt6() const { return flt6_; }
-    AMControl *flt7() const { return flt7_; }
-    AMControl *flt8() const { return flt8_; }
-    AMControl *flt9() const { return flt9_; }
-    AMControl *flt10() const { return flt10_; }
-    AMControl *flt11() const { return flt11_; }
-    AMControl *flt12() const { return flt12_; }
-    AMControl *flt13() const { return flt13_; }
-    AMControl *flt14() const { return flt14_; }
-    AMControl *flt15() const { return flt15_; }
-    AMControl *flt16() const { return flt16_; }
-    AMControl *flt17() const { return flt17_; }
-    AMControl *flt18() const { return flt18_; }
-    AMControl *flt19() const { return flt19_; }
-    AMControl *flt20() const { return flt20_; }
+	AMControl *flt1() const { return flt1_; }
+	AMControl *flt2() const { return flt2_; }
+	AMControl *flt3() const { return flt3_; }
+	AMControl *flt4() const { return flt4_; }
+	AMControl *flt5() const { return flt5_; }
+	AMControl *flt6() const { return flt6_; }
+	AMControl *flt7() const { return flt7_; }
+	AMControl *flt8() const { return flt8_; }
+	AMControl *flt9() const { return flt9_; }
+	AMControl *flt10() const { return flt10_; }
+	AMControl *flt11() const { return flt11_; }
+	AMControl *flt12() const { return flt12_; }
+	AMControl *flt13() const { return flt13_; }
+	AMControl *flt14() const { return flt14_; }
+	AMControl *flt15() const { return flt15_; }
+	AMControl *flt16() const { return flt16_; }
+	AMControl *flt17() const { return flt17_; }
+	AMControl *flt18() const { return flt18_; }
+	AMControl *flt19() const { return flt19_; }
+	AMControl *flt20() const { return flt20_; }
 
-    AMControlSet *flowTransducerSet() const { return flowTransducerSet_; }
+	AMControlSet *flowTransducerSet() const { return flowTransducerSet_; }
 
-    // Flow switches.
+	// Flow switches.
 
-    AMControl *swf1() const { return swf1_; }
-    AMControl *swf2() const { return swf2_; }
-    AMControl *swf3() const { return swf3_; }
-    AMControl *swf4() const { return swf4_; }
+	AMControl *swf1() const { return swf1_; }
+	AMControl *swf2() const { return swf2_; }
+	AMControl *swf3() const { return swf3_; }
+	AMControl *swf4() const { return swf4_; }
 
-    AMControlSet *flowSwitchSet() const { return flowSwitchSet_; }
+	AMControlSet *flowSwitchSet() const { return flowSwitchSet_; }
 
-    // Temperature monitors.
+	// Temperature monitors.
 
-    AMControl *tm1() const { return tm1_; }
-    AMControl *tm2() const { return tm2_; }
-    AMControl *tm3() const { return tm3_; }
-    AMControl *tm4() const { return tm4_; }
-    AMControl *tm5() const { return tm5_; }
+	AMControl *tm1() const { return tm1_; }
+	AMControl *tm2() const { return tm2_; }
+	AMControl *tm3() const { return tm3_; }
+	AMControl *tm4() const { return tm4_; }
+	AMControl *tm5() const { return tm5_; }
 
-    AMControlSet *temperatureSet() const { return temperatureSet_; }
+	AMControlSet *temperatureSet() const { return temperatureSet_; }
 
 	/// return the set of BioXAS Motors by given motor category
 	QList<AMPVwStatusControl *> getMotorsByType(BioXASBeamlineDef::BioXASMotorType category) const;
 
-    // Current amplifiers
+	// Current amplifiers
 
-    CLSKeithley428* i0Keithley() const { return i0Keithley_; }
-    CLSKeithley428* iTKeithley() const { return iTKeithley_; }
+	CLSKeithley428* i0Keithley() const { return i0Keithley_; }
+	CLSKeithley428* iTKeithley() const { return iTKeithley_; }
 
-    // Detectors
+	// Detectors
 
-    CLSBasicScalerChannelDetector* i0Detector() const { return i0Detector_; }
-    CLSBasicScalerChannelDetector* iTDetector() const { return iTDetector_; }
-    AMBasicControlDetectorEmulator* energyFeedbackDetector() const { return energyFeedbackDetector_; }
-    AMBasicControlDetectorEmulator* dwellTimeDetector() { return dwellTimeDetector_; }
+	CLSBasicScalerChannelDetector* i0Detector() const { return i0Detector_; }
+	CLSBasicScalerChannelDetector* iTDetector() const { return iTDetector_; }
+	AMBasicControlDetectorEmulator* energyFeedbackDetector() const { return energyFeedbackDetector_; }
+	AMBasicControlDetectorEmulator* dwellTimeDetector() { return dwellTimeDetector_; }
 
 signals:
-    /// Notifier that the beamline's global connection state has changed.
-    void connected(bool);
-    /// Notifier that the pressure status has changed. Argument is false if any of the pressures fall below its setpoint, true otherwise.
-    void pressureStatusChanged(bool);
-    /// Notifier that the valve status has changed. Argument is false if any of the valves are closed, true otherwise.
-    void valveStatusChanged(bool);
-    /// Notifier that the ion pump status has changed. Argument is false if any of the ion pumps fail, true otherwise.
-    void ionPumpStatusChanged(bool);
-    /// Notifier that the flow transducer status has changed. Argument is false if any of the flow rates fall below its setpoint.
-    void flowTransducerStatusChanged(bool);
-    /// Notifier that the flow switch status has changed. Argument is false if any of the flow switches are disabled.
-    void flowSwitchStatusChanged(bool);
-    /// Notifier that the temperature status has changed. Argument is false if any of the temperatures rise above their setpoint.
-    void temperatureStatusChanged(bool);
+	/// Notifier that the beamline's global connection state has changed.
+	void connected(bool);
+	/// Notifier that the pressure status has changed. Argument is false if any of the pressures fall below its setpoint, true otherwise.
+	void pressureStatusChanged(bool);
+	/// Notifier that the valve status has changed. Argument is false if any of the valves are closed, true otherwise.
+	void valveStatusChanged(bool);
+	/// Notifier that the ion pump status has changed. Argument is false if any of the ion pumps fail, true otherwise.
+	void ionPumpStatusChanged(bool);
+	/// Notifier that the flow transducer status has changed. Argument is false if any of the flow rates fall below its setpoint.
+	void flowTransducerStatusChanged(bool);
+	/// Notifier that the flow switch status has changed. Argument is false if any of the flow switches are disabled.
+	void flowSwitchStatusChanged(bool);
+	/// Notifier that the temperature status has changed. Argument is false if any of the temperatures rise above their setpoint.
+	void temperatureStatusChanged(bool);
 
 protected slots:
-    /// Updates the beamline's reported connection state.
-    void onConnectionChanged();
-    /// Sets up pressure control connections once the whole pressure set is connected.
-    void onPressureSetConnected(bool connected);
-    /// Handles pressure errors.
-    void onPressureError();
-    /// Sets up valve control connections once the whole valve set is connected.
-    void onValveSetConnected(bool connected);
-    /// Handles valve errors.
-    void onValveError();
-    /// Sets up ion pump control connections once the whole ion pump set is connected.
-    void onIonPumpSetConnected(bool connected);
-    /// Handles ion pump errors.
-    void onIonPumpError();
-    /// Sets up flow transducer control connections once the whole flow transducer set is connected.
-    void onFlowTransducerSetConnected(bool connected);
-    /// Handles flow transducer errors.
-    void onFlowTransducerError();
-    /// Sets up flow switch control connections once the whole flow switch set is connected.
-    void onFlowSwitchSetConnected(bool connected);
-    /// Handles flow switch errors.
-    void onFlowSwitchError();
-    /// Sets up temperature control connections once the whole temperature set is connected.
-    void onTemperatureSetConnected(bool connected);
-    /// Handles temperature errors.
-    void onTemperatureError();
+	/// Updates the beamline's reported connection state.
+	void onConnectionChanged();
+	/// Sets up pressure control connections once the whole pressure set is connected.
+	void onPressureSetConnected(bool connected);
+	/// Handles pressure errors.
+	void onPressureError();
+	/// Sets up valve control connections once the whole valve set is connected.
+	void onValveSetConnected(bool connected);
+	/// Handles valve errors.
+	void onValveError();
+	/// Sets up ion pump control connections once the whole ion pump set is connected.
+	void onIonPumpSetConnected(bool connected);
+	/// Handles ion pump errors.
+	void onIonPumpError();
+	/// Sets up flow transducer control connections once the whole flow transducer set is connected.
+	void onFlowTransducerSetConnected(bool connected);
+	/// Handles flow transducer errors.
+	void onFlowTransducerError();
+	/// Sets up flow switch control connections once the whole flow switch set is connected.
+	void onFlowSwitchSetConnected(bool connected);
+	/// Handles flow switch errors.
+	void onFlowSwitchError();
+	/// Sets up temperature control connections once the whole temperature set is connected.
+	void onTemperatureSetConnected(bool connected);
+	/// Handles temperature errors.
+	void onTemperatureError();
 
 protected:
 	/// Sets up the synchronized dwell time.
@@ -279,167 +279,167 @@ protected:
 	BioXASSideBeamline();
 
 protected:
-    /// The beamline connection state.
-    bool isConnected_;
+	/// The beamline connection state.
+	bool isConnected_;
 
-    // Detectors
+	// Detectors
 
-    CLSBasicScalerChannelDetector *i0Detector_;
-    CLSBasicScalerChannelDetector *iTDetector_;
-    AMBasicControlDetectorEmulator *energySetpointDetector_;
-    AMBasicControlDetectorEmulator *energyFeedbackDetector_;
-    AMBasicControlDetectorEmulator *dwellTimeDetector_;
+	CLSBasicScalerChannelDetector *i0Detector_;
+	CLSBasicScalerChannelDetector *iTDetector_;
+	AMBasicControlDetectorEmulator *energySetpointDetector_;
+	AMBasicControlDetectorEmulator *energyFeedbackDetector_;
+	AMBasicControlDetectorEmulator *dwellTimeDetector_;
 
-    // Monochromator
+	// Monochromator
 
-    BioXASSideMonochromator *mono_;
+	BioXASSideMonochromator *mono_;
 
-    // Scaler
+	// Scaler
 
-    CLSSIS3820Scaler *scaler_;
-    AMControl *scalerDwellTime_;
+	CLSSIS3820Scaler *scaler_;
+	AMControl *scalerDwellTime_;
 
-    // Amplifiers
+	// Amplifiers
 
-    CLSKeithley428 *i0Keithley_;
-    CLSKeithley428 *iTKeithley_;
+	CLSKeithley428 *i0Keithley_;
+	CLSKeithley428 *iTKeithley_;
 
-    // Misc controls
+	// Misc controls
 
-    AMControl *energySetpointControl_;
+	AMControl *energySetpointControl_;
 
-    // Shutter controls
+	// Shutter controls
 
-    CLSBiStateControl *psh1_;
-    CLSBiStateControl *psh2_;
-    CLSBiStateControl *ssh1_;
+	CLSBiStateControl *psh1_;
+	CLSBiStateControl *psh2_;
+	CLSBiStateControl *ssh1_;
 
-    CLSBiStateControl *sshSide1_;
+	CLSBiStateControl *sshSide1_;
 
-    // Pressure controls
+	// Pressure controls
 
-    AMControl *ccg1_;
-    AMControl *ccg2_;
-    AMControl *ccg3_;
+	AMControl *ccg1_;
+	AMControl *ccg2_;
+	AMControl *ccg3_;
 
-    AMControl *ccgSide1_;
-    AMControl *ccgSide2_;
-    AMControl *ccgSide3_;
-    AMControl *ccgSide4_;
-    AMControl *ccgSide5_;
-    AMControl *ccgSide6_;
+	AMControl *ccgSide1_;
+	AMControl *ccgSide2_;
+	AMControl *ccgSide3_;
+	AMControl *ccgSide4_;
+	AMControl *ccgSide5_;
+	AMControl *ccgSide6_;
 
-    AMControlSet *pressureSet_;
+	AMControlSet *pressureSet_;
 
-    // Vacuum valve controls
+	// Vacuum valve controls
 
-    CLSBiStateControl *vvr1_;
-    CLSBiStateControl *vvr2_;
-    CLSBiStateControl *vvr3_;
-    CLSBiStateControl *vvr4_;
-    CLSBiStateControl *vvr5_;
+	CLSBiStateControl *vvr1_;
+	CLSBiStateControl *vvr2_;
+	CLSBiStateControl *vvr3_;
+	CLSBiStateControl *vvr4_;
+	CLSBiStateControl *vvr5_;
 
-    CLSBiStateControl *vvrSide1_;
-    CLSBiStateControl *vvrSide2_;
-    CLSBiStateControl *vvrSide3_;
-    CLSBiStateControl *vvrSide4_;
-    CLSBiStateControl *vvrSide5_;
-    CLSBiStateControl *vvrSide6_;
+	CLSBiStateControl *vvrSide1_;
+	CLSBiStateControl *vvrSide2_;
+	CLSBiStateControl *vvrSide3_;
+	CLSBiStateControl *vvrSide4_;
+	CLSBiStateControl *vvrSide5_;
+	CLSBiStateControl *vvrSide6_;
 
-    AMControlSet *valveSet_;
+	AMControlSet *valveSet_;
 
-    // Ion pump controls
+	// Ion pump controls
 
-    AMControl *iop1_;
-    AMControl *iop2_;
-    AMControl *iop3_;
-    AMControl *iop4_;
-    AMControl *iop5_;
+	AMControl *iop1_;
+	AMControl *iop2_;
+	AMControl *iop3_;
+	AMControl *iop4_;
+	AMControl *iop5_;
 
-    AMControl *iopSide1_;
-    AMControl *iopSide2_;
-    AMControl *iopSide3_;
-    AMControl *iopSide4_;
-    AMControl *iopSide5_;
-    AMControl *iopSide6_;
-    AMControl *iopSide7_;
+	AMControl *iopSide1_;
+	AMControl *iopSide2_;
+	AMControl *iopSide3_;
+	AMControl *iopSide4_;
+	AMControl *iopSide5_;
+	AMControl *iopSide6_;
+	AMControl *iopSide7_;
 
-    AMControlSet *ionPumpSet_;
+	AMControlSet *ionPumpSet_;
 
-    // Flow transducer controls
+	// Flow transducer controls
 
-    AMControl *flt1_;
-    AMControl *flt2_;
-    AMControl *flt3_;
-    AMControl *flt4_;
-    AMControl *flt5_;
-    AMControl *flt6_;
-    AMControl *flt7_;
-    AMControl *flt8_;
-    AMControl *flt9_;
-    AMControl *flt10_;
-    AMControl *flt11_;
-    AMControl *flt12_;
-    AMControl *flt13_;
-    AMControl *flt14_;
-    AMControl *flt15_;
-    AMControl *flt16_;
-    AMControl *flt17_;
-    AMControl *flt18_;
-    AMControl *flt19_;
-    AMControl *flt20_;
+	AMControl *flt1_;
+	AMControl *flt2_;
+	AMControl *flt3_;
+	AMControl *flt4_;
+	AMControl *flt5_;
+	AMControl *flt6_;
+	AMControl *flt7_;
+	AMControl *flt8_;
+	AMControl *flt9_;
+	AMControl *flt10_;
+	AMControl *flt11_;
+	AMControl *flt12_;
+	AMControl *flt13_;
+	AMControl *flt14_;
+	AMControl *flt15_;
+	AMControl *flt16_;
+	AMControl *flt17_;
+	AMControl *flt18_;
+	AMControl *flt19_;
+	AMControl *flt20_;
 
-    AMControlSet *flowTransducerSet_;
+	AMControlSet *flowTransducerSet_;
 
-    // Flow switch controls
+	// Flow switch controls
 
-    AMControl *swf1_;
-    AMControl *swf2_;
-    AMControl *swf3_;
-    AMControl *swf4_;
+	AMControl *swf1_;
+	AMControl *swf2_;
+	AMControl *swf3_;
+	AMControl *swf4_;
 
-    AMControlSet *flowSwitchSet_;
+	AMControlSet *flowSwitchSet_;
 
-    // Temperature monitor controls
+	// Temperature monitor controls
 
-    AMControl *tm1_;
-    AMControl *tm2_;
-    AMControl *tm3_;
-    AMControl *tm4_;
-    AMControl *tm5_;
+	AMControl *tm1_;
+	AMControl *tm2_;
+	AMControl *tm3_;
+	AMControl *tm4_;
+	AMControl *tm5_;
 
-    AMControlSet *temperatureSet_;
+	AMControlSet *temperatureSet_;
 
-    // Filter motors
+	// Filter motors
 
-    CLSMAXvMotor *carbonFilterFarm1_;
-    CLSMAXvMotor *carbonFilterFarm2_;
+	CLSMAXvMotor *carbonFilterFarm1_;
+	CLSMAXvMotor *carbonFilterFarm2_;
 
-    // M1 motors
+	// M1 motors
 
-    CLSMAXvMotor *m1VertUpStreamINB_;
-    CLSMAXvMotor *m1VertUpStreamOUTB_;
-    CLSMAXvMotor *m1VertDownStream_;
-    CLSMAXvMotor *m1StripeSelect_;
-    CLSMAXvMotor *m1Yaw_;
-    CLSMAXvMotor *m1BenderUpstream_;
-    CLSMAXvMotor *m1BenderDownStream_;
-    CLSMAXvMotor *m1UpperSlitBlade_;
+	CLSMAXvMotor *m1VertUpStreamINB_;
+	CLSMAXvMotor *m1VertUpStreamOUTB_;
+	CLSMAXvMotor *m1VertDownStream_;
+	CLSMAXvMotor *m1StripeSelect_;
+	CLSMAXvMotor *m1Yaw_;
+	CLSMAXvMotor *m1BenderUpstream_;
+	CLSMAXvMotor *m1BenderDownStream_;
+	CLSMAXvMotor *m1UpperSlitBlade_;
 
-    // Variable Mask motors
+	// Variable Mask motors
 
-    CLSMAXvMotor *variableMaskVertUpperBlade_;
-    CLSMAXvMotor *variableMaskVertLowerBlade_;
+	CLSMAXvMotor *variableMaskVertUpperBlade_;
+	CLSMAXvMotor *variableMaskVertLowerBlade_;
 
-    // M2 motors
+	// M2 motors
 
-    CLSMAXvMotor *m2VertUpstreamINB_;
-    CLSMAXvMotor *m2VertUpstreamOUTB_;
-    CLSMAXvMotor *m2VertDownstream_;
-    CLSMAXvMotor *m2StripeSelect_;
-    CLSMAXvMotor *m2Yaw_;
-    CLSMAXvMotor *m2BenderUpstream_;
-    CLSMAXvMotor *m2BenderDownStream_;
+	CLSMAXvMotor *m2VertUpstreamINB_;
+	CLSMAXvMotor *m2VertUpstreamOUTB_;
+	CLSMAXvMotor *m2VertDownstream_;
+	CLSMAXvMotor *m2StripeSelect_;
+	CLSMAXvMotor *m2Yaw_;
+	CLSMAXvMotor *m2BenderUpstream_;
+	CLSMAXvMotor *m2BenderDownStream_;
 
 	/// BioXAS Pseudo motors
 	BioXASPseudoMotorControl *m1PseudoRoll_;

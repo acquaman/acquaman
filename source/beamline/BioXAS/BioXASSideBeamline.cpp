@@ -29,8 +29,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 BioXASSideBeamline::BioXASSideBeamline()
 	: AMBeamline("BioXAS Beamline - Side Endstation")
 {
-    // Before the beamline is set up, we assume it is not connected.
-    isConnected_ = false;
+	// Before the beamline is set up, we assume it is not connected.
+	isConnected_ = false;
 
 //	setupSynchronizedDwellTime();
 	setupComponents();
@@ -52,149 +52,149 @@ BioXASSideBeamline::~BioXASSideBeamline()
 
 bool BioXASSideBeamline::openPhotonShutter1()
 {
-    if (ssh1_->isOpen() || (ssh1_->isClosed() && psh2_->isClosed())) {
-        psh1_->open();
-        return true;
-    }
+	if (ssh1_->isOpen() || (ssh1_->isClosed() && psh2_->isClosed())) {
+		psh1_->open();
+		return true;
+	}
 
-    return false;
+	return false;
 }
 
 bool BioXASSideBeamline::closePhotonShutter1()
 {
-    if (psh1_->isOpen()) {
-        psh1_->close();
-        return true;
-    }
+	if (psh1_->isOpen()) {
+		psh1_->close();
+		return true;
+	}
 
-    return false;
+	return false;
 }
 
 bool BioXASSideBeamline::openPhotonShutter2()
 {
-    if (ssh1_->isOpen() || (ssh1_->isClosed() && psh1_->isClosed())) {
-        psh2_->open();
-        return true;
-    }
+	if (ssh1_->isOpen() || (ssh1_->isClosed() && psh1_->isClosed())) {
+		psh2_->open();
+		return true;
+	}
 
-    return false;
+	return false;
 }
 
 bool BioXASSideBeamline::closePhotonShutter2()
 {
-    if (psh2_->isOpen()) {
-        psh2_->close();
-        return true;
-    }
+	if (psh2_->isOpen()) {
+		psh2_->close();
+		return true;
+	}
 
-    return false;
+	return false;
 }
 
 bool BioXASSideBeamline::openSafetyShutter1()
 {
-    if (ssh1_->isClosed()) {
-        ssh1_->open();
-        return true;
-    }
+	if (ssh1_->isClosed()) {
+		ssh1_->open();
+		return true;
+	}
 
-    return false;
+	return false;
 }
 
 bool BioXASSideBeamline::closeSafetyShutter1()
 {
-    if ((psh1_->isOpen() && psh2_->isClosed()) || (psh1_->isClosed() && psh2_->isOpen())) {
-        ssh1_->close();
-        return true;
-    }
+	if ((psh1_->isOpen() && psh2_->isClosed()) || (psh1_->isClosed() && psh2_->isOpen())) {
+		ssh1_->close();
+		return true;
+	}
 
-    return false;
+	return false;
 }
 
 bool BioXASSideBeamline::openSafetyShutter2()
 {
-    if (sshSide1_->isClosed()) {
-        sshSide1_->open();
-        return true;
-    }
+	if (sshSide1_->isClosed()) {
+		sshSide1_->open();
+		return true;
+	}
 
-    return false;
+	return false;
 }
 
 bool BioXASSideBeamline::closeSafetyShutter2()
 {
-    if (sshSide1_->isOpen()) {
-        sshSide1_->close();
-        return true;
-    }
+	if (sshSide1_->isOpen()) {
+		sshSide1_->close();
+		return true;
+	}
 
-    return false;
+	return false;
 }
 
 bool BioXASSideBeamline::allValvesOpen() const
 {
-    if (vvr1_->isOpen() && vvr2_->isOpen() && vvr3_->isOpen() && vvr4_->isOpen() && vvr5_->isOpen()
-            && vvrSide1_->isOpen() && vvrSide1_->isOpen() && vvrSide2_->isOpen() && vvrSide3_->isOpen() && vvrSide4_->isOpen() && vvrSide5_->isOpen() && vvrSide6_->isOpen())
-        return true;
+	if (vvr1_->isOpen() && vvr2_->isOpen() && vvr3_->isOpen() && vvr4_->isOpen() && vvr5_->isOpen()
+			&& vvrSide1_->isOpen() && vvrSide1_->isOpen() && vvrSide2_->isOpen() && vvrSide3_->isOpen() && vvrSide4_->isOpen() && vvrSide5_->isOpen() && vvrSide6_->isOpen())
+		return true;
 
-    return false;
+	return false;
 }
 
 bool BioXASSideBeamline::allValvesClosed() const
 {
-    if (vvr1_->isClosed() && vvr2_->isClosed() && vvr3_->isClosed() && vvr4_->isClosed() && vvr5_->isClosed()
-            && vvrSide1_->isClosed() && vvrSide1_->isClosed() && vvrSide2_->isClosed() && vvrSide3_->isClosed() && vvrSide4_->isClosed() && vvrSide5_->isClosed() && vvrSide6_->isClosed())
-        return true;
+	if (vvr1_->isClosed() && vvr2_->isClosed() && vvr3_->isClosed() && vvr4_->isClosed() && vvr5_->isClosed()
+			&& vvrSide1_->isClosed() && vvrSide1_->isClosed() && vvrSide2_->isClosed() && vvrSide3_->isClosed() && vvrSide4_->isClosed() && vvrSide5_->isClosed() && vvrSide6_->isClosed())
+		return true;
 
-    return false;
+	return false;
 }
 
 QList<AMPVwStatusControl *> BioXASSideBeamline::getMotorsByType(BioXASBeamlineDef::BioXASMotorType category) const
 {
 	QList<AMPVwStatusControl *> matchedMotors;
 
-    switch (category) {
-    case BioXASBeamlineDef::FilterMotor: // BioXAS Filter motors
-        matchedMotors.append(carbonFilterFarm1_);
-        matchedMotors.append(carbonFilterFarm2_);
-        break;
+	switch (category) {
+	case BioXASBeamlineDef::FilterMotor: // BioXAS Filter motors
+		matchedMotors.append(carbonFilterFarm1_);
+		matchedMotors.append(carbonFilterFarm2_);
+		break;
 
-    case BioXASBeamlineDef::M1Motor:	// BioXAS M1 motors
-        matchedMotors.append(m1VertUpStreamINB_);
-        matchedMotors.append(m1VertUpStreamOUTB_);
-        matchedMotors.append(m1VertDownStream_);
-        matchedMotors.append(m1StripeSelect_);
-        matchedMotors.append(m1Yaw_);
-        matchedMotors.append(m1BenderUpstream_);
-        matchedMotors.append(m1BenderDownStream_);
-        matchedMotors.append(m1UpperSlitBlade_);
-        break;
+	case BioXASBeamlineDef::M1Motor:	// BioXAS M1 motors
+		matchedMotors.append(m1VertUpStreamINB_);
+		matchedMotors.append(m1VertUpStreamOUTB_);
+		matchedMotors.append(m1VertDownStream_);
+		matchedMotors.append(m1StripeSelect_);
+		matchedMotors.append(m1Yaw_);
+		matchedMotors.append(m1BenderUpstream_);
+		matchedMotors.append(m1BenderDownStream_);
+		matchedMotors.append(m1UpperSlitBlade_);
+		break;
 
-    case BioXASBeamlineDef::MaskMotor:	// BioXAS Variable Mask motors
-        matchedMotors.append(variableMaskVertUpperBlade_);
-        matchedMotors.append(variableMaskVertLowerBlade_);
-        break;
+	case BioXASBeamlineDef::MaskMotor:	// BioXAS Variable Mask motors
+		matchedMotors.append(variableMaskVertUpperBlade_);
+		matchedMotors.append(variableMaskVertLowerBlade_);
+		break;
 
-    case BioXASBeamlineDef::MonoMotor:	// Mono motors
-        matchedMotors.append(mono_->phosphorPaddleMotor());
-        matchedMotors.append(mono_->braggMotor());
-        matchedMotors.append(mono_->verticalMotor());
-        matchedMotors.append(mono_->lateralMotor());
-        matchedMotors.append(mono_->crystalExchangeMotor());
-        matchedMotors.append(mono_->crystal1PitchMotor());
-        matchedMotors.append(mono_->crystal1RollMotor());
-        matchedMotors.append(mono_->crystal2PitchMotor());
-        matchedMotors.append(mono_->crystal2RollMotor());
-        break;
+	case BioXASBeamlineDef::MonoMotor:	// Mono motors
+		matchedMotors.append(mono_->phosphorPaddleMotor());
+		matchedMotors.append(mono_->braggMotor());
+		matchedMotors.append(mono_->verticalMotor());
+		matchedMotors.append(mono_->lateralMotor());
+		matchedMotors.append(mono_->crystalExchangeMotor());
+		matchedMotors.append(mono_->crystal1PitchMotor());
+		matchedMotors.append(mono_->crystal1RollMotor());
+		matchedMotors.append(mono_->crystal2PitchMotor());
+		matchedMotors.append(mono_->crystal2RollMotor());
+		break;
 
-    case BioXASBeamlineDef::M2Motor:	// BioXAS M2 motors
-        matchedMotors.append(m2VertUpstreamINB_);
-        matchedMotors.append(m2VertUpstreamOUTB_);
-        matchedMotors.append(m2VertDownstream_);
-        matchedMotors.append(m2StripeSelect_);
-        matchedMotors.append(m2Yaw_);
-        matchedMotors.append(m2BenderUpstream_);
-        matchedMotors.append(m2BenderDownStream_);
-        break;
+	case BioXASBeamlineDef::M2Motor:	// BioXAS M2 motors
+		matchedMotors.append(m2VertUpstreamINB_);
+		matchedMotors.append(m2VertUpstreamOUTB_);
+		matchedMotors.append(m2VertDownstream_);
+		matchedMotors.append(m2StripeSelect_);
+		matchedMotors.append(m2Yaw_);
+		matchedMotors.append(m2BenderUpstream_);
+		matchedMotors.append(m2BenderDownStream_);
+		break;
 
 	case BioXASBeamlineDef::PseudoM1Motor: // BioXAS Pseudo M1 motor
 		matchedMotors.append(m1PseudoRoll_);
@@ -217,260 +217,260 @@ QList<AMPVwStatusControl *> BioXASSideBeamline::getMotorsByType(BioXASBeamlineDe
 		break;
 
 	default:
-        qDebug() << "ERROR: invalid BioXAS Motor category: " << category;
-        break;
-    }
+		qDebug() << "ERROR: invalid BioXAS Motor category: " << category;
+		break;
+	}
 
-    return matchedMotors;
+	return matchedMotors;
 }
 
 void BioXASSideBeamline::onConnectionChanged()
 {
-    bool newState = (
-                // Mono.
-                mono_->isConnected() &&
+	bool newState = (
+				// Mono.
+				mono_->isConnected() &&
 
-                // Scaler.
-                scaler_->isConnected() && scalerDwellTime_->isConnected() &&
+				// Scaler.
+				scaler_->isConnected() && scalerDwellTime_->isConnected() &&
 
-                // Control sets.
-                pressureSet_->isConnected() && valveSet_->isConnected() &&
-                ionPumpSet_->isConnected() && flowTransducerSet_->isConnected() &&
-                flowSwitchSet_->isConnected() && temperatureSet_->isConnected()
+				// Control sets.
+				pressureSet_->isConnected() && valveSet_->isConnected() &&
+				ionPumpSet_->isConnected() && flowTransducerSet_->isConnected() &&
+				flowSwitchSet_->isConnected() && temperatureSet_->isConnected()
 
-                );
+				);
 
-    if (isConnected_ != newState) {
-        isConnected_ = newState;
-        emit connected(isConnected_);
-    }
+	if (isConnected_ != newState) {
+		isConnected_ = newState;
+		emit connected(isConnected_);
+	}
 }
 
 void BioXASSideBeamline::onPressureSetConnected(bool connected)
 {
-    if (connected) {
-        for(int i = 0; i < pressureSet_->count(); i++)
-            connect( pressureSet_->at(i), SIGNAL(movingChanged(bool)), this, SLOT(onPressureError()) );
+	if (connected) {
+		for(int i = 0; i < pressureSet_->count(); i++)
+			connect( pressureSet_->at(i), SIGNAL(movingChanged(bool)), this, SLOT(onPressureError()) );
 
-        onPressureError();
-    }
+		onPressureError();
+	}
 
-    onConnectionChanged();
+	onConnectionChanged();
 }
 
 void BioXASSideBeamline::onPressureError()
 {
-    if (!pressureSet_->isConnected())
-        return;
+	if (!pressureSet_->isConnected())
+		return;
 
-    QString error("");
-    AMReadOnlyPVwStatusControl *current = 0;
+	QString error("");
+	AMReadOnlyPVwStatusControl *current = 0;
 
-    for (int i = 0; i < pressureSet_->count(); i++){
+	for (int i = 0; i < pressureSet_->count(); i++){
 
-        current = qobject_cast<AMReadOnlyPVwStatusControl *>(pressureSet_->at(i));
+		current = qobject_cast<AMReadOnlyPVwStatusControl *>(pressureSet_->at(i));
 
-        if (current->isMoving())
-            error += tr("%1 (%2) %3 %4\n").arg(current->name()).arg(current->readPVName()).arg(current->value(), 0, 'e', 3).arg(current->units());
-    }
+		if (current->isMoving())
+			error += tr("%1 (%2) %3 %4\n").arg(current->name()).arg(current->readPVName()).arg(current->value(), 0, 'e', 3).arg(current->units());
+	}
 
-    if (!error.isEmpty()){
+	if (!error.isEmpty()){
 
-        error.prepend("The following pressure readings are at a critical level:\n");
-        AMErrorMon::error(this, BIOXASSIDEBEAMLINE_PRESSURE_TOO_HIGH, error);
-    }
+		error.prepend("The following pressure readings are at a critical level:\n");
+		AMErrorMon::error(this, BIOXASSIDEBEAMLINE_PRESSURE_TOO_HIGH, error);
+	}
 
-    emit pressureStatusChanged(error.isEmpty());
+	emit pressureStatusChanged(error.isEmpty());
 }
 
 void BioXASSideBeamline::onValveSetConnected(bool connected)
 {
-    if (connected){
-        connect( valveSet_, SIGNAL(controlSetValuesChanged()), this, SLOT(onValveError()) );
-        onValveError();
-    }
+	if (connected){
+		connect( valveSet_, SIGNAL(controlSetValuesChanged()), this, SLOT(onValveError()) );
+		onValveError();
+	}
 
-    onConnectionChanged();
+	onConnectionChanged();
 }
 
 void BioXASSideBeamline::onValveError()
 {
-    if (!valveSet_->isConnected())
-        return;
+	if (!valveSet_->isConnected())
+		return;
 
-    QString error("");
-    CLSBiStateControl *current = 0;
+	QString error("");
+	CLSBiStateControl *current = 0;
 
-    for (int i = 0; i < valveSet_->count(); i++){
+	for (int i = 0; i < valveSet_->count(); i++){
 
-        if (i == 0){
+		if (i == 0){
 
-            AMReadOnlyPVwStatusControl *first = qobject_cast<AMReadOnlyPVwStatusControl *>(valveSet_->at(i));
+			AMReadOnlyPVwStatusControl *first = qobject_cast<AMReadOnlyPVwStatusControl *>(valveSet_->at(i));
 
-            if (first->isMoving()) // Closed is 0.
-                error += QString("%1 (%2)\n").arg(first->name()).arg(first->movingPVName());
-        }
+			if (first->isMoving()) // Closed is 0.
+				error += QString("%1 (%2)\n").arg(first->name()).arg(first->movingPVName());
+		}
 
-        else {
+		else {
 
-            current = qobject_cast<CLSBiStateControl *>(valveSet_->at(i));
+			current = qobject_cast<CLSBiStateControl *>(valveSet_->at(i));
 
-            if (current->state() == 0) // Closed is 0.
-                error += QString("%1 (%2)\n").arg(current->name()).arg(current->statePVName());
-        }
-    }
+			if (current->state() == 0) // Closed is 0.
+				error += QString("%1 (%2)\n").arg(current->name()).arg(current->statePVName());
+		}
+	}
 
-    if (!error.isEmpty()){
+	if (!error.isEmpty()){
 
-        error.prepend("The following valves are closed:\n");
-        AMErrorMon::error(this, BIOXASSIDEBEAMLINE_VALVES_CLOSED, error);
-    }
+		error.prepend("The following valves are closed:\n");
+		AMErrorMon::error(this, BIOXASSIDEBEAMLINE_VALVES_CLOSED, error);
+	}
 
-    emit valveStatusChanged(error.isEmpty());
+	emit valveStatusChanged(error.isEmpty());
 }
 
 void BioXASSideBeamline::onIonPumpSetConnected(bool connected)
 {
-    if (connected){
-        connect( ionPumpSet_, SIGNAL(controlSetValuesChanged()), this, SLOT(onIonPumpError()) );
-        onIonPumpError();
-    }
+	if (connected){
+		connect( ionPumpSet_, SIGNAL(controlSetValuesChanged()), this, SLOT(onIonPumpError()) );
+		onIonPumpError();
+	}
 
-    onConnectionChanged();
+	onConnectionChanged();
 }
 
 void BioXASSideBeamline::onIonPumpError()
 {
-    if (!ionPumpSet_->isConnected())
-        return;
+	if (!ionPumpSet_->isConnected())
+		return;
 
-    QString error("");
-    AMReadOnlyPVControl *current = 0;
+	QString error("");
+	AMReadOnlyPVControl *current = 0;
 
-    for (int i = 0; i < ionPumpSet_->count(); i++){
+	for (int i = 0; i < ionPumpSet_->count(); i++){
 
-        current = qobject_cast<AMReadOnlyPVControl *>(ionPumpSet_->at(i));
+		current = qobject_cast<AMReadOnlyPVControl *>(ionPumpSet_->at(i));
 
-        if (!current->value())
-            error += tr("%1 (%2)\n").arg(current->name()).arg(current->readPVName());
-    }
+		if (!current->value())
+			error += tr("%1 (%2)\n").arg(current->name()).arg(current->readPVName());
+	}
 
-    if (!error.isEmpty()){
+	if (!error.isEmpty()){
 
-        error.prepend("The following ion pumps are no longer operating correctly:\n");
-        AMErrorMon::error(this, BIOXASSIDEBEAMLINE_ION_PUMP_TRIP, error);
-    }
+		error.prepend("The following ion pumps are no longer operating correctly:\n");
+		AMErrorMon::error(this, BIOXASSIDEBEAMLINE_ION_PUMP_TRIP, error);
+	}
 
-    emit ionPumpStatusChanged(error.isEmpty());
+	emit ionPumpStatusChanged(error.isEmpty());
 }
 
 void BioXASSideBeamline::onFlowTransducerSetConnected(bool connected)
 {
-    if (connected) {
-        for (int i = 0; i < flowTransducerSet_->count(); i++)
-            connect( flowTransducerSet_->at(i), SIGNAL(movingChanged(bool)), this, SLOT(onFlowTransducerError()) );
+	if (connected) {
+		for (int i = 0; i < flowTransducerSet_->count(); i++)
+			connect( flowTransducerSet_->at(i), SIGNAL(movingChanged(bool)), this, SLOT(onFlowTransducerError()) );
 
-        onFlowTransducerError();
-    }
+		onFlowTransducerError();
+	}
 
-    onConnectionChanged();
+	onConnectionChanged();
 }
 
 void BioXASSideBeamline::onFlowTransducerError()
 {
-    if (!flowTransducerSet_->isConnected())
-        return;
+	if (!flowTransducerSet_->isConnected())
+		return;
 
-    QString error("");
-    AMReadOnlyPVwStatusControl *current = 0;
+	QString error("");
+	AMReadOnlyPVwStatusControl *current = 0;
 
-    for (int i = 0; i < flowTransducerSet_->count(); i++){
+	for (int i = 0; i < flowTransducerSet_->count(); i++){
 
-        current = qobject_cast<AMReadOnlyPVwStatusControl *>(flowTransducerSet_->at(i));
+		current = qobject_cast<AMReadOnlyPVwStatusControl *>(flowTransducerSet_->at(i));
 
-        if (current->isMoving())
-            error += tr("%1 (%2) %3 %4\n").arg(current->name()).arg(current->readPVName()).arg(current->value(), 0, 'e', 3).arg(current->units());
-    }
+		if (current->isMoving())
+			error += tr("%1 (%2) %3 %4\n").arg(current->name()).arg(current->readPVName()).arg(current->value(), 0, 'e', 3).arg(current->units());
+	}
 
-    if (!error.isEmpty()){
+	if (!error.isEmpty()){
 
-        error.prepend("The following flow transducers are measuring too low:\n");
-        AMErrorMon::error(this, BIOXASSIDEBEAMLINE_WATER_FLOW_TOO_LOW, error);
-    }
+		error.prepend("The following flow transducers are measuring too low:\n");
+		AMErrorMon::error(this, BIOXASSIDEBEAMLINE_WATER_FLOW_TOO_LOW, error);
+	}
 
-    emit flowTransducerStatusChanged(error.isEmpty());
+	emit flowTransducerStatusChanged(error.isEmpty());
 }
 
 void BioXASSideBeamline::onFlowSwitchSetConnected(bool connected)
 {
-    if (connected){
-        connect( flowSwitchSet_, SIGNAL(controlSetValuesChanged()), this, SLOT(onFlowSwitchError()) );
-        onFlowSwitchError();
-    }
+	if (connected){
+		connect( flowSwitchSet_, SIGNAL(controlSetValuesChanged()), this, SLOT(onFlowSwitchError()) );
+		onFlowSwitchError();
+	}
 
-    onConnectionChanged();
+	onConnectionChanged();
 }
 
 void BioXASSideBeamline::onFlowSwitchError()
 {
-    if (!flowSwitchSet_->isConnected())
-        return;
+	if (!flowSwitchSet_->isConnected())
+		return;
 
-    QString error("");
-    AMReadOnlyPVControl *current = 0;
+	QString error("");
+	AMReadOnlyPVControl *current = 0;
 
-    for (int i = 0; i < flowSwitchSet_->count(); i++){
+	for (int i = 0; i < flowSwitchSet_->count(); i++){
 
-        current = qobject_cast<AMReadOnlyPVControl *>(flowSwitchSet_->at(i));
+		current = qobject_cast<AMReadOnlyPVControl *>(flowSwitchSet_->at(i));
 
-        if (!current->value())
-            error += tr("%1 (%2)\n").arg(current->name()).arg(current->readPVName());
-    }
+		if (!current->value())
+			error += tr("%1 (%2)\n").arg(current->name()).arg(current->readPVName());
+	}
 
-    if (!error.isEmpty()){
+	if (!error.isEmpty()){
 
-        error.prepend("The following flow switches have tripped:\n");
-        AMErrorMon::error(this, BIOXASSIDEBEAMLINE_WATER_FLOW_SWITCH_TRIP, error);
-    }
+		error.prepend("The following flow switches have tripped:\n");
+		AMErrorMon::error(this, BIOXASSIDEBEAMLINE_WATER_FLOW_SWITCH_TRIP, error);
+	}
 
-    emit flowSwitchStatusChanged(error.isEmpty());
+	emit flowSwitchStatusChanged(error.isEmpty());
 }
 
 void BioXASSideBeamline::onTemperatureSetConnected(bool connected)
 {
-    if (connected) {
-        for (int i = 0; i < temperatureSet_->count(); i++)
-            connect( temperatureSet_->at(i), SIGNAL(movingChanged(bool)), this, SLOT(onTemperatureError()) );
+	if (connected) {
+		for (int i = 0; i < temperatureSet_->count(); i++)
+			connect( temperatureSet_->at(i), SIGNAL(movingChanged(bool)), this, SLOT(onTemperatureError()) );
 
-        onTemperatureError();
-    }
+		onTemperatureError();
+	}
 
-    onConnectionChanged();
+	onConnectionChanged();
 }
 
 void BioXASSideBeamline::onTemperatureError()
 {
-    if (!temperatureSet_->isConnected())
-        return;
+	if (!temperatureSet_->isConnected())
+		return;
 
-    QString error("");
-    AMReadOnlyPVwStatusControl *current = 0;
+	QString error("");
+	AMReadOnlyPVwStatusControl *current = 0;
 
-    for (int i = 0; i < temperatureSet_->count(); i++){
+	for (int i = 0; i < temperatureSet_->count(); i++){
 
-        current = qobject_cast<AMReadOnlyPVwStatusControl *>(temperatureSet_->at(i));
+		current = qobject_cast<AMReadOnlyPVwStatusControl *>(temperatureSet_->at(i));
 
-        if (current->isMoving())
-            error += tr("%1 (%2) %3 %4\n").arg(current->name()).arg(current->readPVName()).arg(current->value(), 0, 'e', 3).arg(current->units());
-    }
+		if (current->isMoving())
+			error += tr("%1 (%2) %3 %4\n").arg(current->name()).arg(current->readPVName()).arg(current->value(), 0, 'e', 3).arg(current->units());
+	}
 
-    if (!error.isEmpty()){
+	if (!error.isEmpty()){
 
-        error.prepend("The following temperature sensors are reading too high:\n");
-        AMErrorMon::error(this, BIOXASSIDEBEAMLINE_TEMPERATURE_TOO_HIGH, error);
-    }
+		error.prepend("The following temperature sensors are reading too high:\n");
+		AMErrorMon::error(this, BIOXASSIDEBEAMLINE_TEMPERATURE_TOO_HIGH, error);
+	}
 
-    emit temperatureStatusChanged(error.isEmpty());
+	emit temperatureStatusChanged(error.isEmpty());
 }
 
 void BioXASSideBeamline::setupDiagnostics()
@@ -574,36 +574,36 @@ void BioXASSideBeamline::setupSampleStage()
 
 void BioXASSideBeamline::setupMotorGroup()
 {
-    // Filter farm motors
+	// Filter farm motors
 
 	carbonFilterFarm1_ = new CLSMAXvMotor(QString("SMTR1607-5-I00-01 Filter 1"), QString("SMTR1607-5-I00-01"), QString("SMTR1607-5-I00-01 Filter 1"), true, 0.05, 2.0, this, QString(":mm"));
 	carbonFilterFarm2_ = new CLSMAXvMotor(QString("SMTR1607-5-I00-02 Filter 2"), QString("SMTR1607-5-I00-02"), QString("SMTR1607-5-I00-02 Filter 2"), true, 0.05, 2.0, this, QString(":mm"));
 
-    // M1 motors
+	// M1 motors
 
 	m1VertUpStreamINB_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-01 VERT INB (UPSTREAM)"), QString("SMTR1607-5-I22-01"), QString("SMTR1607-5-I22-01 VERT INB (UPSTREAM)"), true, 0.05, 2.0, this, QString(":mm"));
 	m1VertUpStreamOUTB_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-02 VERT OUTB (UPSTREAM)"), QString("SMTR1607-5-I22-02"), QString("SMTR1607-5-I22-02 VERT OUTB (UPSTREAM)"), true, 0.05, 2.0, this, QString(":mm"));
 	m1VertDownStream_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-03 VERT (DOWNSTREAM)"), QString("SMTR1607-5-I22-03"), QString("SMTR1607-5-I22-03 VERT (DOWNSTREAM)"), true, 0.05, 2.0, this, QString(":mm"));
 	m1StripeSelect_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-04 STRIPE SELECT"), QString("SMTR1607-5-I22-04"), QString("SMTR1607-5-I22-04 STRIPE SELECT"), true, 0.05, 2.0, this, QString(":mm"));
 	m1Yaw_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-05 YAW"), QString("SMTR1607-5-I22-05"), QString("SMTR1607-5-I22-05 YAW"), true, 0.05, 2.0, this, QString(":mm"));
-    m1BenderUpstream_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-06 BENDER (UPSTREAM)"), QString("SMTR1607-5-I22-06"), QString("SMTR1607-5-I22-06 BENDER (UPSTREAM)"), true, 0.05, 2.0, this, QString(":lbs"));
-    m1BenderDownStream_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-07 BENDER (DOWNSTREAM)"), QString("SMTR1607-5-I22-07"), QString("SMTR1607-5-I22-07 BENDER (DOWNSTREAM)"), true, 0.05, 2.0, this, QString(":lbs"));
+	m1BenderUpstream_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-06 BENDER (UPSTREAM)"), QString("SMTR1607-5-I22-06"), QString("SMTR1607-5-I22-06 BENDER (UPSTREAM)"), true, 0.05, 2.0, this, QString(":lbs"));
+	m1BenderDownStream_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-07 BENDER (DOWNSTREAM)"), QString("SMTR1607-5-I22-07"), QString("SMTR1607-5-I22-07 BENDER (DOWNSTREAM)"), true, 0.05, 2.0, this, QString(":lbs"));
 	m1UpperSlitBlade_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-08 UPPER SLIT BLADE"), QString("SMTR1607-5-I22-08"), QString("SMTR1607-5-I22-08 UPPER SLIT BLADE"), true, 0.05, 2.0, this, QString(":mm"));
 
-    // Variable mask motors
+	// Variable mask motors
 
 	variableMaskVertUpperBlade_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-09 VERT UPPER BLADE"), QString("SMTR1607-5-I22-09"), QString("SMTR1607-5-I22-09 VERT UPPER BLADE"), true, 0.05, 2.0, this, QString(":mm"));
 	variableMaskVertLowerBlade_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-10 VERT LOWER BLADE"), QString("SMTR1607-5-I22-10"), QString("SMTR1607-5-I22-10 VERT LOWER BLADE"), true, 0.05, 2.0, this, QString(":mm"));
 
-    // M2 motors
+	// M2 motors
 
 	m2VertUpstreamINB_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-15 VERT INB (UPSTREAM)"), QString("SMTR1607-5-I22-15"), QString("SMTR1607-5-I22-15 VERT INB (UPSTREAM)"), true, 0.05, 2.0, this, QString(":mm"));
 	m2VertUpstreamOUTB_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-16 VERT OUTB (UPSTREAM)"), QString("SMTR1607-5-I22-16"), QString("SMTR1607-5-I22-16 VERT OUTB (UPSTREAM)"), true, 0.05, 2.0, this, QString(":mm"));
 	m2VertDownstream_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-17 VERT (DOWNSTREAM)"), QString("SMTR1607-5-I22-17"), QString("SMTR1607-5-I22-17 VERT (DOWNSTREAM)"), true, 0.05, 2.0, this, QString(":mm"));
 	m2StripeSelect_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-18 STRIPE SELECT"), QString("SMTR1607-5-I22-18"), QString("SMTR1607-5-I22-18 STRIPE SELECT"), true, 0.05, 2.0, this, QString(":mm"));
 	m2Yaw_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-19 YAW"), QString("SMTR1607-5-I22-19"), QString("SMTR1607-5-I22-19 YAW"), true, 0.05, 2.0, this, QString(":mm"));
-    m2BenderUpstream_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-20 BENDER (UPSTREAM)"), QString("SMTR1607-5-I22-20"), QString("SMTR1607-5-I22-20 BENDER (UPSTREAM)"), true, 0.05, 2.0, this, QString(":lbs"));
-    m2BenderDownStream_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-21 BENDER (DOWNSTREAM)"), QString("SMTR1607-5-I22-21"), QString("SMTR1607-5-I22-21 BENDER (DOWNSTREAM)"), true, 0.05, 2.0, this, QString(":lbs"));
+	m2BenderUpstream_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-20 BENDER (UPSTREAM)"), QString("SMTR1607-5-I22-20"), QString("SMTR1607-5-I22-20 BENDER (UPSTREAM)"), true, 0.05, 2.0, this, QString(":lbs"));
+	m2BenderDownStream_ = new CLSMAXvMotor(QString("SMTR1607-5-I22-21 BENDER (DOWNSTREAM)"), QString("SMTR1607-5-I22-21"), QString("SMTR1607-5-I22-21 BENDER (DOWNSTREAM)"), true, 0.05, 2.0, this, QString(":lbs"));
 
 	// BioXAS M1 Pseudo motors					   name,				   pvBaseName,				readPVname,	writePVname, movingPVname,	enabledPVname, stopPVname, tolerance, moveStartTimeoutSeconds, statusChecker, stopValue, description, parent = 0
 	m1PseudoRoll_ = new BioXASPseudoMotorControl("BL1607-5-I22 Side M1 Roll", "BL1607-5-I22:M1:Roll", ":deg:fbk", ":deg", ":status", ":enabled", ":stop");
@@ -625,114 +625,114 @@ void BioXASSideBeamline::setupMotorGroup()
 
 void BioXASSideBeamline::setupDetectors()
 {
-    i0Detector_ = new CLSBasicScalerChannelDetector("I0Detector", "I0 Detector", scaler_, 0, this);
-    iTDetector_ = new CLSBasicScalerChannelDetector("ITDetector", "IT Detector", scaler_, 1, this);
+	i0Detector_ = new CLSBasicScalerChannelDetector("I0Detector", "I0 Detector", scaler_, 0, this);
+	iTDetector_ = new CLSBasicScalerChannelDetector("ITDetector", "IT Detector", scaler_, 1, this);
 }
 
 void BioXASSideBeamline::setupControlSets()
 {
-    // Pressure control set.
+	// Pressure control set.
 
-    pressureSet_ = new AMControlSet(this);
-    pressureSet_->addControl(ccg1_);
-    pressureSet_->addControl(ccg2_);
-    pressureSet_->addControl(ccg3_);
-    pressureSet_->addControl(ccgSide1_);
-    pressureSet_->addControl(ccgSide2_);
-    pressureSet_->addControl(ccgSide3_);
-    pressureSet_->addControl(ccgSide4_);
-    pressureSet_->addControl(ccgSide5_);
-    pressureSet_->addControl(ccgSide6_);
+	pressureSet_ = new AMControlSet(this);
+	pressureSet_->addControl(ccg1_);
+	pressureSet_->addControl(ccg2_);
+	pressureSet_->addControl(ccg3_);
+	pressureSet_->addControl(ccgSide1_);
+	pressureSet_->addControl(ccgSide2_);
+	pressureSet_->addControl(ccgSide3_);
+	pressureSet_->addControl(ccgSide4_);
+	pressureSet_->addControl(ccgSide5_);
+	pressureSet_->addControl(ccgSide6_);
 
-    connect( pressureSet_, SIGNAL(connected(bool)), this, SLOT(onPressureSetConnected(bool)) );
+	connect( pressureSet_, SIGNAL(connected(bool)), this, SLOT(onPressureSetConnected(bool)) );
 
-    // Vacuum valve control set.
+	// Vacuum valve control set.
 
-    valveSet_ = new AMControlSet(this);
-    valveSet_->addControl(vvr1_);
-    valveSet_->addControl(vvr2_);
-    valveSet_->addControl(vvr3_);
-    valveSet_->addControl(vvr4_);
-    valveSet_->addControl(vvr5_);
-    valveSet_->addControl(vvrSide1_);
-    valveSet_->addControl(vvrSide2_);
-    valveSet_->addControl(vvrSide3_);
-    valveSet_->addControl(vvrSide4_);
-    valveSet_->addControl(vvrSide5_);
-    valveSet_->addControl(vvrSide6_);
+	valveSet_ = new AMControlSet(this);
+	valveSet_->addControl(vvr1_);
+	valveSet_->addControl(vvr2_);
+	valveSet_->addControl(vvr3_);
+	valveSet_->addControl(vvr4_);
+	valveSet_->addControl(vvr5_);
+	valveSet_->addControl(vvrSide1_);
+	valveSet_->addControl(vvrSide2_);
+	valveSet_->addControl(vvrSide3_);
+	valveSet_->addControl(vvrSide4_);
+	valveSet_->addControl(vvrSide5_);
+	valveSet_->addControl(vvrSide6_);
 
-    connect( valveSet_, SIGNAL(connected(bool)), this, SLOT(onValveSetConnected(bool)) );
+	connect( valveSet_, SIGNAL(connected(bool)), this, SLOT(onValveSetConnected(bool)) );
 
-    // Ion pump control set.
+	// Ion pump control set.
 
-    ionPumpSet_ = new AMControlSet(this);
-    ionPumpSet_->addControl(iop1_);
-    ionPumpSet_->addControl(iop2_);
-    ionPumpSet_->addControl(iop3_);
-    ionPumpSet_->addControl(iop4_);
-    ionPumpSet_->addControl(iop5_);
-    ionPumpSet_->addControl(iopSide1_);
-    ionPumpSet_->addControl(iopSide2_);
-    ionPumpSet_->addControl(iopSide3_);
-    ionPumpSet_->addControl(iopSide4_);
-    ionPumpSet_->addControl(iopSide5_);
-    ionPumpSet_->addControl(iopSide6_);
-    ionPumpSet_->addControl(iopSide7_);
+	ionPumpSet_ = new AMControlSet(this);
+	ionPumpSet_->addControl(iop1_);
+	ionPumpSet_->addControl(iop2_);
+	ionPumpSet_->addControl(iop3_);
+	ionPumpSet_->addControl(iop4_);
+	ionPumpSet_->addControl(iop5_);
+	ionPumpSet_->addControl(iopSide1_);
+	ionPumpSet_->addControl(iopSide2_);
+	ionPumpSet_->addControl(iopSide3_);
+	ionPumpSet_->addControl(iopSide4_);
+	ionPumpSet_->addControl(iopSide5_);
+	ionPumpSet_->addControl(iopSide6_);
+	ionPumpSet_->addControl(iopSide7_);
 
-    connect( ionPumpSet_, SIGNAL(connected(bool)), this, SLOT(onIonPumpSetConnected(bool)) );
+	connect( ionPumpSet_, SIGNAL(connected(bool)), this, SLOT(onIonPumpSetConnected(bool)) );
 
-    // Flow transducer control set.
+	// Flow transducer control set.
 
-    flowTransducerSet_ = new AMControlSet(this);
-    flowTransducerSet_->addControl(flt1_);
-    flowTransducerSet_->addControl(flt2_);
-    flowTransducerSet_->addControl(flt3_);
-    flowTransducerSet_->addControl(flt4_);
-    flowTransducerSet_->addControl(flt5_);
-    flowTransducerSet_->addControl(flt6_);
-    flowTransducerSet_->addControl(flt7_);
-    flowTransducerSet_->addControl(flt8_);
-    flowTransducerSet_->addControl(flt9_);
-    flowTransducerSet_->addControl(flt10_);
-    flowTransducerSet_->addControl(flt11_);
-    flowTransducerSet_->addControl(flt12_);
-    flowTransducerSet_->addControl(flt13_);
-    flowTransducerSet_->addControl(flt14_);
-    flowTransducerSet_->addControl(flt15_);
-    flowTransducerSet_->addControl(flt16_);
-    flowTransducerSet_->addControl(flt17_);
-    flowTransducerSet_->addControl(flt18_);
-    flowTransducerSet_->addControl(flt19_);
-    flowTransducerSet_->addControl(flt20_);
+	flowTransducerSet_ = new AMControlSet(this);
+	flowTransducerSet_->addControl(flt1_);
+	flowTransducerSet_->addControl(flt2_);
+	flowTransducerSet_->addControl(flt3_);
+	flowTransducerSet_->addControl(flt4_);
+	flowTransducerSet_->addControl(flt5_);
+	flowTransducerSet_->addControl(flt6_);
+	flowTransducerSet_->addControl(flt7_);
+	flowTransducerSet_->addControl(flt8_);
+	flowTransducerSet_->addControl(flt9_);
+	flowTransducerSet_->addControl(flt10_);
+	flowTransducerSet_->addControl(flt11_);
+	flowTransducerSet_->addControl(flt12_);
+	flowTransducerSet_->addControl(flt13_);
+	flowTransducerSet_->addControl(flt14_);
+	flowTransducerSet_->addControl(flt15_);
+	flowTransducerSet_->addControl(flt16_);
+	flowTransducerSet_->addControl(flt17_);
+	flowTransducerSet_->addControl(flt18_);
+	flowTransducerSet_->addControl(flt19_);
+	flowTransducerSet_->addControl(flt20_);
 
-    connect( flowTransducerSet_, SIGNAL(connected(bool)), this, SLOT(onFlowTransducerSetConnected(bool)) );
+	connect( flowTransducerSet_, SIGNAL(connected(bool)), this, SLOT(onFlowTransducerSetConnected(bool)) );
 
-    // Flow switch control set.
+	// Flow switch control set.
 
-    flowSwitchSet_ = new AMControlSet(this);
-    flowSwitchSet_->addControl(swf1_);
-    flowSwitchSet_->addControl(swf2_);
-    flowSwitchSet_->addControl(swf3_);
-    flowSwitchSet_->addControl(swf4_);
+	flowSwitchSet_ = new AMControlSet(this);
+	flowSwitchSet_->addControl(swf1_);
+	flowSwitchSet_->addControl(swf2_);
+	flowSwitchSet_->addControl(swf3_);
+	flowSwitchSet_->addControl(swf4_);
 
-    connect( flowSwitchSet_, SIGNAL(connected(bool)), this, SLOT(onFlowSwitchSetConnected(bool)) );
+	connect( flowSwitchSet_, SIGNAL(connected(bool)), this, SLOT(onFlowSwitchSetConnected(bool)) );
 
-    // Temperature monitor control set.
+	// Temperature monitor control set.
 
-    temperatureSet_ = new AMControlSet(this);
-    temperatureSet_->addControl(tm1_);
-    temperatureSet_->addControl(tm2_);
-    temperatureSet_->addControl(tm3_);
-    temperatureSet_->addControl(tm4_);
-    temperatureSet_->addControl(tm5_);
+	temperatureSet_ = new AMControlSet(this);
+	temperatureSet_->addControl(tm1_);
+	temperatureSet_->addControl(tm2_);
+	temperatureSet_->addControl(tm3_);
+	temperatureSet_->addControl(tm4_);
+	temperatureSet_->addControl(tm5_);
 
-    connect( temperatureSet_, SIGNAL(connected(bool)), this, SLOT(onTemperatureSetConnected(bool)) );
+	connect( temperatureSet_, SIGNAL(connected(bool)), this, SLOT(onTemperatureSetConnected(bool)) );
 }
 
 void BioXASSideBeamline::setupMono()
 {
-    mono_ = new BioXASSideMonochromator(this);
-    connect( mono_, SIGNAL(connected(bool)), this, SLOT(onConnectionChanged()) );
+	mono_ = new BioXASSideMonochromator(this);
+	connect( mono_, SIGNAL(connected(bool)), this, SLOT(onConnectionChanged()) );
 
 	energySetpointControl_ = new AMReadOnlyPVControl("EnergySetpoint", "BL1607-5-I22:Energy:EV", this);
 }
@@ -740,44 +740,44 @@ void BioXASSideBeamline::setupMono()
 void BioXASSideBeamline::setupComponents()
 {
 	scaler_ = new CLSSIS3820Scaler("BL07ID-Side:mcs", this);
-    connect( scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(onConnectionChanged()) );
+	connect( scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(onConnectionChanged()) );
 
-    scalerDwellTime_ = new AMReadOnlyPVControl("ScalerDwellTime", "BL07ID-Side:mcs:delay", this, "Scaler Dwell Time");
+	scalerDwellTime_ = new AMReadOnlyPVControl("ScalerDwellTime", "BL07ID-Side:mcs:delay", this, "Scaler Dwell Time");
 
-    i0Keithley_ = new CLSKeithley428("I0 Channel", "AMP1607-601:Gain");
-    scaler_->channelAt(0)->setCustomChannelName("I0 Channel");
-    scaler_->channelAt(0)->setCurrentAmplifier(i0Keithley_);
-    scaler_->channelAt(0)->setDetector(i0Detector_);
+	i0Keithley_ = new CLSKeithley428("I0 Channel", "AMP1607-601:Gain");
+	scaler_->channelAt(0)->setCustomChannelName("I0 Channel");
+	scaler_->channelAt(0)->setCurrentAmplifier(i0Keithley_);
+	scaler_->channelAt(0)->setDetector(i0Detector_);
 
-    iTKeithley_ = new CLSKeithley428("IT Channel", "AMP1607-602:Gain");
-    scaler_->channelAt(1)->setCustomChannelName("IT Channel");
-    scaler_->channelAt(1)->setCurrentAmplifier(iTKeithley_);
-    scaler_->channelAt(1)->setDetector(iTDetector_);
+	iTKeithley_ = new CLSKeithley428("IT Channel", "AMP1607-602:Gain");
+	scaler_->channelAt(1)->setCustomChannelName("IT Channel");
+	scaler_->channelAt(1)->setCurrentAmplifier(iTKeithley_);
+	scaler_->channelAt(1)->setDetector(iTDetector_);
 }
 
 void BioXASSideBeamline::setupControlsAsDetectors()
 {
-    energySetpointDetector_ = new AMBasicControlDetectorEmulator("EnergySetpoint", "Energy Setpoint", energySetpointControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-    energySetpointDetector_->setHiddenFromUsers(true);
-    energySetpointDetector_->setIsVisible(false);
+	energySetpointDetector_ = new AMBasicControlDetectorEmulator("EnergySetpoint", "Energy Setpoint", energySetpointControl_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	energySetpointDetector_->setHiddenFromUsers(true);
+	energySetpointDetector_->setIsVisible(false);
 
-    energyFeedbackDetector_ = new AMBasicControlDetectorEmulator("EnergyFeedback", "Energy Feedback", mono_->energyControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
-    energyFeedbackDetector_->setHiddenFromUsers(true);
-    energyFeedbackDetector_->setIsVisible(false);
+	energyFeedbackDetector_ = new AMBasicControlDetectorEmulator("EnergyFeedback", "Energy Feedback", mono_->energyControl(), 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	energyFeedbackDetector_->setHiddenFromUsers(true);
+	energyFeedbackDetector_->setIsVisible(false);
 
-    dwellTimeDetector_ = new AMBasicControlDetectorEmulator("DwellTimeFeedback", "Dwell Time Feedback", scalerDwellTime_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	dwellTimeDetector_ = new AMBasicControlDetectorEmulator("DwellTimeFeedback", "Dwell Time Feedback", scalerDwellTime_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
 }
 
 void BioXASSideBeamline::setupExposedControls()
 {
-    addExposedControl(mono_->energyControl());
+	addExposedControl(mono_->energyControl());
 }
 
 void BioXASSideBeamline::setupExposedDetectors()
 {
-    addExposedDetector(dwellTimeDetector_);
+	addExposedDetector(dwellTimeDetector_);
 	addExposedDetector(i0Detector_);
 	addExposedDetector(iTDetector_);
-    addExposedDetector(energySetpointDetector_);
+	addExposedDetector(energySetpointDetector_);
 	addExposedDetector(energyFeedbackDetector_);
 }
