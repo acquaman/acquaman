@@ -454,6 +454,8 @@ protected:
 	BioXASPseudoMotorControl *m2PseudoHeight_;
 	BioXASPseudoMotorControl *m2PseudoYaw_;
 	BioXASPseudoMotorControl *m2PseudoLateral_;
+
+	BioXASPseudoMotorControl *monoPseudoEnergy_;
 };
 
 #endif // BIOXASSIDEBEAMLINE_H

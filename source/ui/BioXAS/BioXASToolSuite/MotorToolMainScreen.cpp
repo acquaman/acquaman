@@ -108,8 +108,8 @@ void MotorToolMainScreen::setupUiLayout()
 		motorGroupBox = setupMotorGroupLayout(beamlineName + " Pseudo M1 Motors", BioXASBeamlineDef::PseudoM1Motor);
 		secondRowPVLayout->addWidget(motorGroupBox);
 
-		// motorGroupBox = setupMotorGroupLayout(beamlineName + " Pseudo Mono Motors", BioXASBeamlineDef::PseudoMonoMotor);
-		// secondRowPVLayout->addWidget(motorGroupBox);
+		 motorGroupBox = setupMotorGroupLayout(beamlineName + " Pseudo Mono Motors", BioXASBeamlineDef::PseudoMonoMotor);
+		 secondRowPVLayout->addWidget(motorGroupBox);
 
 		motorGroupBox = setupMotorGroupLayout(beamlineName + " Pseudo M2 Motors", BioXASBeamlineDef::PseudoM2Motor);
 		secondRowPVLayout->addWidget(motorGroupBox);

@@ -212,6 +212,10 @@ QList<AMPVwStatusControl *> BioXASSideBeamline::getMotorsByType(BioXASBeamlineDe
 		matchedMotors.append(m2PseudoLateral_);
 		break;
 
+	case BioXASBeamlineDef::PseudoMonoMotor: // BioXAS Pseudo Mono motor
+		matchedMotors.append(monoPseudoEnergy_);
+		break;
+
 	default:
         qDebug() << "ERROR: invalid BioXAS Motor category: " << category;
         break;
@@ -615,6 +619,8 @@ void BioXASSideBeamline::setupMotorGroup()
 	m2PseudoYaw_ = new BioXASPseudoMotorControl("BL1607-5-I22 Side M2 Yaw", "BL1607-5-I22:M2:Yaw", ":deg:fbk", ":deg", ":status", ":enabled", ":stop");
 	m2PseudoLateral_ = new BioXASPseudoMotorControl("BL1607-5-I22 Side M2 Lateral", "BL1607-5-I22:M2:Lateral", ":mm:fbk", ":mm", ":status", ":enabled", ":stop");
 
+	// BioXAS Mono Pseudo motors					   name,				   pvBaseName,				readPVname,	writePVname, movingPVname,	enabledPVname, stopPVname, tolerance, moveStartTimeoutSeconds, statusChecker, stopValue, description, parent = 0
+	monoPseudoEnergy_ = new BioXASPseudoMotorControl("BL1607-5-I22 Side Mono Energy", "BL1607-5-I22:Energy", ":EV:fbk", ":EV", ":status", ":enabled", ":stop");
 }
 
 void BioXASSideBeamline::setupDetectors()
