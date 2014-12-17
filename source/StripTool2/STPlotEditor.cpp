@@ -13,7 +13,7 @@ STPlotEditor::STPlotEditor(STPlotWidget *plot, QWidget *parent) : STEditor(paren
 
     // Create UI.
 
-    QGridLayout *mainLayout = new QGridLayout(this);
+    QGridLayout *mainLayout = new QGridLayout();
 
     QLabel *nameLabel = new QLabel(this);
     nameLabel->setText("Name :");

@@ -34,11 +34,13 @@ AMLoopActionEditor3::AMLoopActionEditor3(AMLoopActionInfo3 *info, QWidget *paren
 	spinBox_ = new QSpinBox();
 	spinBox_->setRange(1, 9999);
 
-	QHBoxLayout* hl = new QHBoxLayout(this);
+	QHBoxLayout* hl = new QHBoxLayout();
 	hl->addWidget(new QLabel("Looping"));
 	hl->addWidget(spinBox_);
 	hl->addWidget(new QLabel("times"));
 	hl->addStretch();
+
+	setLayout(hl);
 
 	spinBox_->setValue(info_->loopCount());
 	connect(spinBox_, SIGNAL(editingFinished()), this, SLOT(onSpinBoxEditingFinished()));

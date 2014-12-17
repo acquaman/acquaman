@@ -18,19 +18,21 @@ AMBrowseScansView::AMBrowseScansView(AMDatabase *database, QWidget *parent) :
 
 	// Set up widgets
 	viewButtonGroup_ = new QButtonGroup(this);
-	childViewDisplayArea_ = new QStackedWidget(this);
-	selectedItemCount_ = new QLabel(this);
-	sortFilterWidget_ = new AMSortFilterScansWidget(proxyModel_, this);
+	childViewDisplayArea_ = new QStackedWidget();
+	selectedItemCount_ = new QLabel();
+	sortFilterWidget_ = new AMSortFilterScansWidget(proxyModel_);
 	sortFilterWidget_->addManualColumn("Data Source");
 
 	// Set up layout
-	QVBoxLayout* mainLayout = new QVBoxLayout(this);
+	QVBoxLayout* mainLayout = new QVBoxLayout();
 	viewButtonLayout_ = new QHBoxLayout();
 	viewButtonLayout_->addStretch();
 	mainLayout->addLayout(viewButtonLayout_);
 	mainLayout->addWidget(sortFilterWidget_);
 	mainLayout->addWidget(childViewDisplayArea_);
 	mainLayout->addWidget(selectedItemCount_);
+
+	setLayout(mainLayout);
 
 	initializeChildViews();
 

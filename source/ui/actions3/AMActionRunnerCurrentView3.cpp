@@ -47,8 +47,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMessageBox>
 #include <QCheckBox>
 
-AMActionRunnerCurrentView3::~AMActionRunnerCurrentView3(){}
-
 AMActionRunnerCurrentView3::AMActionRunnerCurrentView3(AMActionRunner3* actionRunner, QWidget *parent)
 	: AMActionRunnerCurrentViewBase(actionRunner, parent)
 {
@@ -57,7 +55,7 @@ AMActionRunnerCurrentView3::AMActionRunnerCurrentView3(AMActionRunner3* actionRu
 	topFrame->setObjectName("topFrame");
 	topFrame->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
 	topFrame->setStyleSheet("QFrame#topFrame {\nbackground-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(89, 89, 89, 255), stop:0.494444 rgba(89, 89, 89, 255), stop:0.5 rgba(58, 58, 58, 255), stop:1 rgba(58, 58, 58, 255));\nborder-bottom: 1px solid black;\n}");
-	QHBoxLayout* hl = new QHBoxLayout(topFrame);
+	QHBoxLayout* hl = new QHBoxLayout();
 	hl->setSpacing(0);
 	hl->setContentsMargins(6, 2, 12, 1);
 
@@ -110,7 +108,9 @@ AMActionRunnerCurrentView3::AMActionRunnerCurrentView3(AMActionRunner3* actionRu
 	cancelButton_->setEnabled(false);
 	hl->addWidget(cancelButton_);
 
-	QVBoxLayout* vl = new QVBoxLayout(this);
+	topFrame->setLayout(hl);
+
+	QVBoxLayout* vl = new QVBoxLayout();
 	vl->setSpacing(0);
 	vl->setContentsMargins(0,0,0,0);
 	vl->addWidget(topFrame);
@@ -126,7 +126,11 @@ AMActionRunnerCurrentView3::AMActionRunnerCurrentView3(AMActionRunner3* actionRu
 	currentActionView_->setHeaderHidden(true);
 	currentActionView_->setAttribute(Qt::WA_MacShowFocusRect, false);
 	currentActionView_->setItemDelegate(new AMActionRunnerCurrentItemDelegate3(this));
+
+	setLayout(vl);
 }
+
+AMActionRunnerCurrentView3::~AMActionRunnerCurrentView3(){}
 
 void AMActionRunnerCurrentView3::onCurrentActionChanged(AMAction3* action)
 {

@@ -51,7 +51,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 // AMActionHistoryView
 ////////////////////////////
 
- AMActionHistoryView3::~AMActionHistoryView3(){}
 AMActionHistoryView3::AMActionHistoryView3(AMActionRunner3 *actionRunner, AMDatabase *db, QWidget *parent) : QWidget(parent)
 {
 	actionRunner_ = actionRunner;
@@ -71,7 +70,7 @@ AMActionHistoryView3::AMActionHistoryView3(AMActionRunner3 *actionRunner, AMData
 	topFrame->setObjectName("topFrame");
 	topFrame->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
 	topFrame->setStyleSheet("QFrame#topFrame {\nbackground-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(89, 89, 89, 255), stop:0.494444 rgba(89, 89, 89, 255), stop:0.5 rgba(58, 58, 58, 255), stop:1 rgba(58, 58, 58, 255));\nborder-bottom: 1px solid black;\n}");
-	QHBoxLayout* hl = new QHBoxLayout(topFrame);
+	QHBoxLayout* hl = new QHBoxLayout();
 	hl->setSpacing(0);
 	hl->setContentsMargins(6, 2, 12, 1);
 
@@ -117,6 +116,8 @@ AMActionHistoryView3::AMActionHistoryView3(AMActionRunner3 *actionRunner, AMData
 	hl->addWidget(rangeComboBox_);
 	rangeComboBox_->hide();
 
+	topFrame->setLayout(hl);
+
 	treeView_ = new AMActionHistoryTreeView3();
 	treeView_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	treeView_->setModel(model_);
@@ -141,11 +142,13 @@ AMActionHistoryView3::AMActionHistoryView3(AMActionRunner3 *actionRunner, AMData
 
 	treeView_->setItemDelegate(new AMActionLogItemDelegate3(treeView_, this));
 
-	QVBoxLayout* vl = new QVBoxLayout(this);
+	QVBoxLayout* vl = new QVBoxLayout();
 	vl->setSpacing(0);
 	vl->setContentsMargins(0,0,0,0);
 	vl->addWidget(topFrame);
 	vl->addWidget(treeView_);
+
+	setLayout(vl);
 
 	treeView_->setContextMenuPolicy(Qt::CustomContextMenu);
 
@@ -168,6 +171,8 @@ AMActionHistoryView3::AMActionHistoryView3(AMActionRunner3 *actionRunner, AMData
 
 	connect(treeView_, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)));
 }
+
+AMActionHistoryView3::~AMActionHistoryView3(){}
 
 void AMActionHistoryView3::collapse(bool doCollapse)
 {

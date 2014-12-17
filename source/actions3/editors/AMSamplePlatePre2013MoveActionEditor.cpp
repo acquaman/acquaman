@@ -36,7 +36,7 @@ AMSamplePlatePre2013MoveActionEditor::AMSamplePlatePre2013MoveActionEditor(AMSam
 {
 	info_ = info;
 
-	QHBoxLayout *hl = new QHBoxLayout(this);
+	QHBoxLayout *hl = new QHBoxLayout();
 	samplePositionSelectorBox_ = new QComboBox();
 	hl->addWidget(new QLabel("Sample: "));
 	hl->addWidget(samplePositionSelectorBox_);
@@ -47,6 +47,8 @@ AMSamplePlatePre2013MoveActionEditor::AMSamplePlatePre2013MoveActionEditor(AMSam
 	hl->addWidget(new QLabel("Sample Plate: "));
 	hl->addWidget(samplePlateSelectorBox_);
 	hl->addStretch(0);
+
+	setLayout(hl);
 
 	populateSamplePlates();
 	populateSamplePositions();

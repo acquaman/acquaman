@@ -88,7 +88,7 @@ AMGenericScanEditor::AMGenericScanEditor(QWidget *parent) :
 	scanListView_->setModel(scanSetModel_);
 	scanListView_->setSelectionMode(QAbstractItemView::SingleSelection);
 
-	del_ = new AMDetailedItemDelegate(this);
+	del_ = new AMDetailedItemDelegate();
 	del_->setCloseButtonsEnabled(true);
 	connect(del_, SIGNAL(closeButtonClicked(QModelIndex)), this, SLOT(onScanModelCloseClicked(QModelIndex)));
 	scanListView_->setItemDelegate(del_);
@@ -208,7 +208,7 @@ AMGenericScanEditor::AMGenericScanEditor(bool use2DScanView, QWidget *parent)
 	scanListView_->setModel(scanSetModel_);
 	scanListView_->setSelectionMode(QAbstractItemView::SingleSelection);
 
-	del_ = new AMDetailedItemDelegate(this);
+	del_ = new AMDetailedItemDelegate();
 	del_->setCloseButtonsEnabled(true);
 	connect(del_, SIGNAL(closeButtonClicked(QModelIndex)), this, SLOT(onScanModelCloseClicked(QModelIndex)));
 	scanListView_->setItemDelegate(del_);
@@ -924,7 +924,7 @@ void AMGenericScanEditor::setupUi()
 "font: bold 10pt \"Lucida Grande\""));
 
 	horizontalLayout4_->addWidget(statusTextLabel_);
-	scanTitleFrame_->setLayout(horizontalLayout4_);
+	statusFrame_->setLayout(horizontalLayout4_);
 
 
 	verticalLayout3_->addWidget(statusFrame_);
