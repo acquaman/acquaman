@@ -12,13 +12,18 @@
 #include "beamline/BioXAS/BioXASImagingBeamline.h"
 
 #include "ui/BioXAS/BioXASCLSMAXvMotorControlEditor.h"
+#include "ui/BioXAS/BioXASPseudoMotorControlEditor.h"
 
-MotorToolMainScreen::MotorToolMainScreen(BioXASBeamlineDef::BioXASBeamLineID beamlineId, QWidget *parent)
+MotorToolMainScreen::MotorToolMainScreen(BioXASBeamlineDef::BioXASBeamLineID beamlineId, bool pseudoMotorScreen, QWidget *parent)
 	:QWidget(parent)
 {
 	setAttribute(Qt::WA_ShowWithoutActivating);
-	resize(1190, 1600);
+	if (pseudoMotorScreen)
+		resize(1190, 600);
+	else
+		resize(1190, 1600);
 
+	pseudoMotorScreen_ = pseudoMotorScreen;
 	beamlineId_  = beamlineId;
 
 	setWindowTitle(getBeamlineName() + " Motor Tool");
@@ -92,20 +97,41 @@ void MotorToolMainScreen::setupUiLayout()
 	else if (beamlineId_ == BioXASBeamlineDef::BioXASImagingBeamLine)
 		beamlineName = "Imaging";
 
-	QGroupBox *motorGroupBox = setupMotorGroupLayout("Carbon Filter Farm Motors", BioXASBeamlineDef::FilterMotor, 170);
-	firstRowPVLayout->addWidget(motorGroupBox);
+	QGroupBox *motorGroupBox;
+	if (pseudoMotorScreen_) {
+		// motorGroupBox = setupMotorGroupLayout("Carbon Pseudo Filter Farm Motors", BioXASBeamlineDef::PseudoFilterMotor, 170);
+		// firstRowPVLayout->addWidget(motorGroupBox);
 
-	motorGroupBox = setupMotorGroupLayout(beamlineName + " Mask Motors", BioXASBeamlineDef::MaskMotor, 170);
-	firstRowPVLayout->addWidget(motorGroupBox);
+		// motorGroupBox = setupMotorGroupLayout(beamlineName + " Pseudo Mask Motors", BioXASBeamlineDef::PseudoMaskMotor, 170);
+		// firstRowPVLayout->addWidget(motorGroupBox);
 
-	motorGroupBox = setupMotorGroupLayout(beamlineName + " M1 Motors", BioXASBeamlineDef::M1Motor);
-	secondRowPVLayout->addWidget(motorGroupBox);
+		motorGroupBox = setupMotorGroupLayout(beamlineName + " Pseudo M1 Motors", BioXASBeamlineDef::PseudoM1Motor, 400);
+		secondRowPVLayout->addWidget(motorGroupBox);
 
-	motorGroupBox = setupMotorGroupLayout(beamlineName + " Mono Motors", BioXASBeamlineDef::MonoMotor);
-	secondRowPVLayout->addWidget(motorGroupBox);
+		// At this moment, we don't have pseudo energy motor for Imaging beamline
+		if (beamlineId_ != BioXASBeamlineDef::BioXASImagingBeamLine) {
+			motorGroupBox = setupMotorGroupLayout(beamlineName + " Pseudo Mono Motors", BioXASBeamlineDef::PseudoMonoMotor, 400);
+			secondRowPVLayout->addWidget(motorGroupBox);
+		}
 
-	motorGroupBox = setupMotorGroupLayout(beamlineName + " M2 Motors", BioXASBeamlineDef::M2Motor);
-	secondRowPVLayout->addWidget(motorGroupBox);
+		motorGroupBox = setupMotorGroupLayout(beamlineName + " Pseudo M2 Motors", BioXASBeamlineDef::PseudoM2Motor, 400);
+		secondRowPVLayout->addWidget(motorGroupBox);
+	} else {
+		motorGroupBox = setupMotorGroupLayout("Carbon Filter Farm Motors", BioXASBeamlineDef::FilterMotor, 170);
+		firstRowPVLayout->addWidget(motorGroupBox);
+
+		motorGroupBox = setupMotorGroupLayout(beamlineName + " Mask Motors", BioXASBeamlineDef::MaskMotor, 170);
+		firstRowPVLayout->addWidget(motorGroupBox);
+
+		motorGroupBox = setupMotorGroupLayout(beamlineName + " M1 Motors", BioXASBeamlineDef::M1Motor);
+		secondRowPVLayout->addWidget(motorGroupBox);
+
+		motorGroupBox = setupMotorGroupLayout(beamlineName + " Mono Motors", BioXASBeamlineDef::MonoMotor);
+		secondRowPVLayout->addWidget(motorGroupBox);
+
+		motorGroupBox = setupMotorGroupLayout(beamlineName + " M2 Motors", BioXASBeamlineDef::M2Motor);
+		secondRowPVLayout->addWidget(motorGroupBox);
+	}
 }
 
 QString MotorToolMainScreen::getBeamlineName()
@@ -162,7 +188,7 @@ QGroupBox * MotorToolMainScreen::setupMotorGroupLayout(QString groupBoxTitle, Bi
 
 void MotorToolMainScreen::setupMotorsLayout(BioXASBeamlineDef::BioXASMotorType motorType, QVBoxLayout *pvLayoutBox)
 {
-	QList<CLSMAXvMotor *> matchedMotors;
+	QList<AMControl *> matchedMotors;
 	switch (beamlineId_) {
 	case BioXASBeamlineDef::BioXASMainBeamLine:
 		matchedMotors = BioXASMainBeamline::bioXAS()->getMotorsByType(motorType);
@@ -175,13 +201,25 @@ void MotorToolMainScreen::setupMotorsLayout(BioXASBeamlineDef::BioXASMotorType m
 	case BioXASBeamlineDef::BioXASImagingBeamLine:
 		matchedMotors = BioXASImagingBeamline::bioXAS()->getMotorsByType(motorType);
 		break;
+
 	default:
 		break;
 	}
 
+	bool pseudoMotor = BioXASBeamlineDef::isPseudoMotor(motorType);//(motorType >= BioXASBeamlineDef::PseudoFilterMotor && motorType <= BioXASBeamlineDef::PseudoM2Motor);
 	for (int i = 0; i < matchedMotors.size(); i++) {
-		BioXASCLSMAXvMotorControlEditor *motorEditor = new BioXASCLSMAXvMotorControlEditor(matchedMotors[i], matchedMotors[i]->statusPVControl());
+		AMExtendedControlEditor *motorEditor;
+		if (pseudoMotor) {
+			BioXASPseudoMotorControl * clsPseudoMotor = (BioXASPseudoMotorControl *)matchedMotors[i];
+			motorEditor = new BioXASPseudoMotorControlEditor(clsPseudoMotor, clsPseudoMotor->statusPVControl());
+		} else {
+			CLSMAXvMotor * clsMAXvMotor = (CLSMAXvMotor *)matchedMotors[i];
+			motorEditor = new BioXASCLSMAXvMotorControlEditor(clsMAXvMotor, clsMAXvMotor->statusPVControl());
+		}
+
 		motorEditor->setControlFormat('f', 4);
 		pvLayoutBox->addWidget(motorEditor);
 	}
+
+	pvLayoutBox->addStretch();
 }

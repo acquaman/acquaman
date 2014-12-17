@@ -22,17 +22,16 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QApplication>
 #include <QDesktopWidget>
 
-#include "ui/BioXAS/BioXASToolSuite/MainWindow.h"
+#include "ui/BioXAS/BioXASToolSuite/BioXASToolSuiteMainWindow.h"
 
 int main(int argc, char *argv[])
 {
-	int windowWidth = 280;
-	int windowHeight = 200;
+	int windowWidth = 300;
 
 	QApplication app(argc, argv);
-	MainWindow mainWindow;
+	BioXASToolSuiteMainWindow mainWindow;
 
-	mainWindow.setFixedSize(windowWidth,windowHeight);
+	mainWindow.setFixedWidth(windowWidth);
 	mainWindow.move(QApplication::desktop()->screen()->rect().center() - mainWindow.rect().center());
 	mainWindow.show();
 
