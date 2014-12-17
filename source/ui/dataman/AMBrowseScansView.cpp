@@ -1,5 +1,5 @@
 #include "AMBrowseScansView.h"
-#include "ui/util/AMSortFilterWidget.h"
+#include "ui/util/AMSortFilterScansWidget.h"
 #include "ui/dataman/AMScanTableView.h"
 #include "ui/dataman/AMScanThumbnailView.h"
 #include "ui/dataman/AMScanTreeView.h"
@@ -20,7 +20,7 @@ AMBrowseScansView::AMBrowseScansView(AMDatabase *database, QWidget *parent) :
 	viewButtonGroup_ = new QButtonGroup(this);
 	childViewDisplayArea_ = new QStackedWidget(this);
 	selectedItemCount_ = new QLabel(this);
-	sortFilterWidget_ = new AMSortFilterWidget(proxyModel_, this);
+	sortFilterWidget_ = new AMSortFilterScansWidget(proxyModel_, this);
 	sortFilterWidget_->addManualColumn("Data Source");
 
 	// Set up layout

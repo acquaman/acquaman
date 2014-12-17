@@ -191,7 +191,7 @@ void VESPERSXASScanActionController::createScanAssembler()
 
 AMAction3* VESPERSXASScanActionController::createInitializationActions()
 {
-	AMListAction3 *initializationAction = qobject_cast<AMListAction3 *>(buildBaseInitializationAction());
+	AMListAction3 *initializationAction = qobject_cast<AMListAction3 *>(buildBaseInitializationAction(double(configuration_->scanAxisAt(0)->regionAt(0)->regionTime())));
 
 	initializationAction->addSubAction(VESPERSBeamline::vespers()->mono()->createDelEAction(0));
 	initializationAction->addSubAction(VESPERSBeamline::vespers()->mono()->createEoAction(configuration_->energy()));

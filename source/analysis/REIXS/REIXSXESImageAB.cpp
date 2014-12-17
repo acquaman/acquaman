@@ -750,7 +750,7 @@ void REIXSXESImageAB::setEnergyCalibrationOffset(double energyCalibrationOffset)
 	energyCalibrationOffset_ = energyCalibrationOffset;
 	axisValueCacheInvalid_ = true;
 	emitValuesChanged();
-
+	emitSizeChanged(0);
 	setModified(true);
 }
 
@@ -762,7 +762,7 @@ void REIXSXESImageAB::setTiltCalibrationOffset(double tiltCalibrationOffset)
 	tiltCalibrationOffset_ = tiltCalibrationOffset;
 	axisValueCacheInvalid_ = true;
 	emitValuesChanged();
-
+	emitSizeChanged(0);
 	setModified(true);
 }
 void REIXSXESImageAB::setCorrelationSmoothingType(int type)

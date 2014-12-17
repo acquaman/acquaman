@@ -12,7 +12,7 @@
 #include <QIcon>
 #include <QToolButton>
 
-class AMSortFilterWidget;
+class AMSortFilterScansWidget;
 class AMDatabase;
 class AMLightweightScanInfoModel;
 class AMLightweightScanInfoFilterProxyModel;
@@ -72,7 +72,7 @@ private:
 	QLabel* selectedItemCount_;
 	QStackedWidget* childViewDisplayArea_;
 	QVector<QAbstractItemView*> childViews_;
-	AMSortFilterWidget* sortFilterWidget_;
+	AMSortFilterScansWidget* sortFilterWidget_;
 	QButtonGroup* viewButtonGroup_;
 	QHBoxLayout* viewButtonLayout_;
 	AMLightweightScanInfoModel* model_;

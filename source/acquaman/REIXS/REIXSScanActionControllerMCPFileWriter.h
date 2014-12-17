@@ -17,10 +17,14 @@ public:
 public slots:
 	/// Writes the given string to the file.  The only rank that should be passed into this function is 2.
 	virtual void writeToFile(int fileRank, const QString &textToWrite);
+	/// Must be called after the scan has completed.  Does the necessary clean up of the files.
+	virtual void finishWriting();
 
 protected:
 	/// Write protection flag
 	bool isWritingToFile_;
+	/// Flag for requesting file cleanup after current write is done
+	bool closeAfterWrite_;
 };
 
 #endif // REIXSSCANACTIONCONTROLLERMCPFILEWRITER_H

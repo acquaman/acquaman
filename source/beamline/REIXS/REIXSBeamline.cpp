@@ -250,8 +250,8 @@ REIXSPhotonSource::REIXSPhotonSource(QObject *parent) :
 	epuPolarization_->enumNames() << "Circular Left";
 	epuPolarization_->enumNames() << "Circular Right";
 	epuPolarization_->enumNames() << "Linear Horizontal";
-	epuPolarization_->enumNames() << "Linear Vertical +";
 	epuPolarization_->enumNames() << "Linear Vertical -";
+	epuPolarization_->enumNames() << "Linear Vertical +";
 	epuPolarization_->enumNames() << "Linear Inclined";
 	epuPolarizationAngle_ = new AMPVwStatusControl("epuPolarization", "REIXS:UND1410-02:polarAngle", "REIXS:UND1410-02:polarAngle", "REIXS:UND1410-02:energy:status", QString(), this, 0.5);
 	epuPolarizationAngle_->setDescription("EPU Polarization Angle");
@@ -765,6 +765,8 @@ void REIXSBrokenMonoControl::onControlMovingChanged(bool)
 		emit movingChanged(wasMoving_ = nowMoving);
 }
 
+
+
 AMControl::FailureExplanation REIXSBrokenMonoControl::move(double setpoint)
 {
 	if(moveAction_) {
@@ -778,66 +780,75 @@ AMControl::FailureExplanation REIXSBrokenMonoControl::move(double setpoint)
 	stopInProgress_ = false;
 	moveAction_ = new AMListAction3(new AMListActionInfo3("REIXS mono move", "REIXS mono move"));
 
-	// n-step sub moves
-	if(fabs(value() - setpoint_) > repeatMoveThreshold_) {
-		control_->setSettlingTime(repeatMoveSettlingTime_);	// ensures we wait for this long before finishing each sub-move.
-		double movePoint_ = value();
+	//NO MOVE REQUIRED
+	if (fabs(value() - setpoint_) < 0.0025)  //naughty arbitrary magic number for now
+	{
+		onMoveActionSucceeded();
+		return AMControl::NoFailure;
+	}
 
-		if(setpoint_ > lowEnergyThreshold_ && value() < lowEnergyThreshold_) { //below lowEnergySetpoint moving up
+	//REPEAT MOVE REQUIRED
+	else if(fabs(value() - setpoint_) > repeatMoveThreshold_)
+	{
+			control_->setSettlingTime(repeatMoveSettlingTime_);	// ensures we wait for this long before finishing each sub-move.
+			double movePoint_ = value();
 
-			while(movePoint_ < lowEnergyThreshold_) {
-				movePoint_ = movePoint_ + lowEnergyStepSize_;
-				moveAction_->addSubAction(AMActionSupport::buildControlMoveAction(control_, movePoint_));
+			if(setpoint_ > lowEnergyThreshold_ && value() < lowEnergyThreshold_) { //below lowEnergySetpoint moving up
+
+				while(movePoint_ < lowEnergyThreshold_) {
+					movePoint_ = movePoint_ + lowEnergyStepSize_;
+					moveAction_->addSubAction(AMActionSupport::buildControlMoveAction(control_, movePoint_));
+				}
+
+
 			}
 
+			else if(setpoint_ <= lowEnergyThreshold_ && value() > lowEnergyThreshold_) {   //above lowEnergySetpoint moving into
 
-		}
+				movePoint_ = lowEnergyThreshold_;
 
-		if(setpoint_ <= lowEnergyThreshold_ && value() > lowEnergyThreshold_) {   //above lowEnergySetpoint moving into
+				for(int i=0; i<repeatMoveAttempts_; ++i) {
+					moveAction_->addSubAction(AMActionSupport::buildControlMoveAction(control_, movePoint_));
+				}
 
-			movePoint_ = lowEnergyThreshold_;
+				while(movePoint_ - setpoint_ > lowEnergyStepSize_) {
+					movePoint_ = movePoint_ - lowEnergyStepSize_;
+					moveAction_->addSubAction(AMActionSupport::buildControlMoveAction(control_, movePoint_));
+				}
+
+
+			}
+
+			else if(setpoint_ <= lowEnergyThreshold_ && value() <= lowEnergyThreshold_ && setpoint_ > value() ) {   //below lowEnergySetpoint moving up within
+
+
+				while(setpoint_ - movePoint_ > lowEnergyStepSize_) {
+					movePoint_ = movePoint_ + lowEnergyStepSize_;
+					moveAction_->addSubAction(AMActionSupport::buildControlMoveAction(control_, movePoint_));
+				}
+
+			}
+
+			else if(setpoint_ <= lowEnergyThreshold_ && value() <= lowEnergyThreshold_ && setpoint_ < value() ) {   //below lowEnergySetpoint moving down within
+
+
+				while(movePoint_ - setpoint_ > lowEnergyStepSize_) {
+					movePoint_ = movePoint_ - lowEnergyStepSize_;
+					moveAction_->addSubAction(AMActionSupport::buildControlMoveAction(control_, movePoint_));
+				}
+
+			}
+
+			//Fall though or finalize move:
 
 			for(int i=0; i<repeatMoveAttempts_; ++i) {
-				moveAction_->addSubAction(AMActionSupport::buildControlMoveAction(control_, movePoint_));
+				moveAction_->addSubAction(AMActionSupport::buildControlMoveAction(control_, setpoint_));
 			}
-
-			while(movePoint_ - setpoint_ > lowEnergyStepSize_) {
-				movePoint_ = movePoint_ - lowEnergyStepSize_;
-				moveAction_->addSubAction(AMActionSupport::buildControlMoveAction(control_, movePoint_));
-			}
-
-
-		}
-
-		if(setpoint_ <= lowEnergyThreshold_ && value() <= lowEnergyThreshold_ && setpoint_ > value() ) {   //below lowEnergySetpoint moving up within
-
-
-			while(setpoint_ - movePoint_ > lowEnergyStepSize_) {
-				movePoint_ = movePoint_ + lowEnergyStepSize_;
-				moveAction_->addSubAction(AMActionSupport::buildControlMoveAction(control_, movePoint_));
-			}
-
-		}
-
-		if(setpoint_ <= lowEnergyThreshold_ && value() <= lowEnergyThreshold_ && setpoint_ < value() ) {   //below lowEnergySetpoint moving down within
-
-
-			while(movePoint_ - setpoint_ > lowEnergyStepSize_) {
-				movePoint_ = movePoint_ - lowEnergyStepSize_;
-				moveAction_->addSubAction(AMActionSupport::buildControlMoveAction(control_, movePoint_));
-			}
-
-		}
-
-		//Fall though or finalize move:
-
-		for(int i=0; i<repeatMoveAttempts_; ++i) {
-			moveAction_->addSubAction(AMActionSupport::buildControlMoveAction(control_, setpoint_));
-		}
 
 
 
 	}
+	//SMALL MOVE, JUST DO IT
 	else {
 		control_->setSettlingTime(0);
 		setTolerance(AMCONTROL_TOLERANCE_DONT_CARE);

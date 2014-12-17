@@ -25,7 +25,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dataman/info/AMControlInfoList.h"
 
- AMControlInfoListTableView::~AMControlInfoListTableView(){}
 AMControlInfoListTableView::AMControlInfoListTableView(const AMControlInfoList* list, QWidget *parent) :
 	QWidget(parent)
 {
@@ -43,13 +42,18 @@ AMControlInfoListTableView::AMControlInfoListTableView(const AMControlInfoList* 
 	setLayout(vl);
 }
 
+AMControlInfoListTableView::~AMControlInfoListTableView()
+{
+	while(table_->rowCount() > 0)
+		table_->removeRow(table_->rowCount()-1);
+
+	table_->setRowCount(0);
+}
+
 void AMControlInfoListTableView::setFromInfoList(const AMControlInfoList* list)
 {
-	for(int x = 0,size = table_->rowCount();x < size; x++)
-	{
-		QTableWidgetItem *deleteItem = table_->takeItem(x, 0);
-		delete deleteItem;
-	}
+	while(table_->rowCount() > 0)
+		table_->removeRow(table_->rowCount()-1);
 
 	table_->setRowCount(0);
 

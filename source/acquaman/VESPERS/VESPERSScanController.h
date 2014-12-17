@@ -43,7 +43,7 @@ public:
 
 protected:
 	/// Helper method that builds the base initialization actions.
-	AMAction3 *buildBaseInitializationAction();
+	AMAction3 *buildBaseInitializationAction(double firstRegionTime);
 	/// Helper method that builds the CCD file path, name, and number for the beginning of a scan.  Requires the detector enum, ccd file name from the configuration, AND must be called after buildInitializationActions() because it assumes the list has already been created.
 	AMAction3 *buildCCDInitializationAction(VESPERS::CCDDetectors ccdChoice, const QString &ccdName);
 	/// Helper method that builds all of the cleanup actions.

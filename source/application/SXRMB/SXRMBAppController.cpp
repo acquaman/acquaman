@@ -42,12 +42,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/export/AMExporterGeneralAscii.h"
 #include "dataman/export/AMExporterAthena.h"
 #include "dataman/export/AMSMAKExporter.h"
+#include "dataman/export/AMExporter2DAscii.h"
 #include "dataman/AMRun.h"
 #include "dataman/SXRMB/SXRMBUserConfiguration.h"
 #include "dataman/AMRegionOfInterest.h"
 
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
-#include "ui/beamline/AMXRFDetailedDetectorView.h"
+#include "ui/SXRMB/SXRMBXRFDetailedDetectorView.h"
 #include "ui/SXRMB/SXRMBPersistentView.h"
 #include "ui/SXRMB/SXRMBEXAFSScanConfigurationView.h"
 #include "ui/SXRMB/SXRMB2DMapScanConfigurationView.h"
@@ -158,6 +159,8 @@ void SXRMBAppController::onBeamlineConnected(bool connected)
 
 	if (connected && !microProbe2DOxidationScanConfigurationView_) {
 		microProbe2DOxidationScanConfiguration_ = new SXRMB2DMapScanConfiguration();
+		microProbe2DOxidationScanConfiguration_->setName("Oxidation Map");
+		microProbe2DOxidationScanConfiguration_->setUserScanName("Oxidation Map");
 
 		microProbe2DScanConfiguration_->setExcitationEnergy(SXRMBBeamline::sxrmb()->energy()->value());
 
@@ -248,6 +251,10 @@ void SXRMBAppController::setupExporterOptions()
 	sxrmbExportOptions = SXRMB::buildSMAKExporterOption("SXRMB2DDefault", true, false, false, true);
 	if(sxrmbExportOptions->id() > 0)
 		AMAppControllerSupport::registerClass<SXRMB2DMapScanConfiguration, AMSMAKExporter, AMExporterOptionSMAK>(sxrmbExportOptions->id());
+
+	sxrmbExportOptions = SXRMB::buildStandardExporterOption("SXRMB2DDefault", true, false, false, true);
+	if(sxrmbExportOptions->id() > 0)
+		AMAppControllerSupport::registerClass<SXRMB2DMapScanConfiguration, AMExporter2DAscii, AMExporterOptionGeneralAscii>(sxrmbExportOptions->id());
 }
 
 void SXRMBAppController::setupUserInterface()
@@ -273,15 +280,15 @@ void SXRMBAppController::setupUserInterface()
 
 
 	mw_->insertHeading("General", 0);
-
 	mw_->insertHeading("Detectors", 1);
 
-	AMXRFDetailedDetectorView *brukerView = new AMXRFDetailedDetectorView(SXRMBBeamline::sxrmb()->brukerDetector());
+	SXRMBXRFDetailedDetectorView *brukerView = new SXRMBXRFDetailedDetectorView(SXRMBBeamline::sxrmb()->brukerDetector());
 	brukerView->buildDetectorView();
 	brukerView->setEnergyRange(1700, 10000);
 	brukerView->addEmissionLineNameFilter(QRegExp("1"));
 	brukerView->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
 	brukerView->addCombinationPileUpPeakNameFilter(QRegExp("(Ka1|La1|Ma1)"));
+	brukerView->enableDeadTimeDisplay();
 
 	mw_->addPane(brukerView, "Detectors", "Bruker", ":/system-search.png");
 
@@ -402,9 +409,9 @@ void SXRMBAppController::onDataPositionChanged(AMGenericScanEditor *editor, cons
 	QString text;
 
 	text = QString("Setup at (H,V,N): (%1 mm, %2 mm, %3 mm)")
-				.arg(editor->dataPosition().x(), 0, 'f', 3)
-				.arg(editor->dataPosition().y(), 0, 'f', 3)
-				.arg(config->normalPosition());
+			.arg(editor->dataPosition().x(), 0, 'f', 3)
+			.arg(editor->dataPosition().y(), 0, 'f', 3)
+			.arg(config->normalPosition());
 
 	QMenu popup(text, editor);
 	QAction *temp = popup.addAction(text);

@@ -143,7 +143,7 @@ public:
 	virtual int count() const;
 	//call when range or roundness changes: call emitDataChanged()
 	void rangeValuesChanged();
-	
+
 public slots:
 
 protected slots:
@@ -192,12 +192,13 @@ public slots:
 	void onRangeMinXControlChanged(int);
 	/// signals from GUI objects: range maximum control
 	void onRangeMaxXControlChanged(int);
-	
+
 	/// signals from GUI objects: mask roundness control
 	void onRangeRoundControlChanged(double);
-	
-	
+
+
 	/// Called when the correlation settings are changed
+	void onCurve2DisabledCheckBoxChanged(bool);
 	void onCorrelation1CenterBoxChanged(int);
 	void onCorrelation2CenterBoxChanged(int);
 	void onCorrelation1PointsBoxChanged(int);
@@ -233,6 +234,7 @@ protected:
 
 	// GUI elements:
 	QSpinBox* rangeMinYControl_, *rangeMaxYControl_, *rangeMinXControl_, *rangeMaxXControl_;
+	QCheckBox* curve2DisabledCheckBox_;
 	QSpinBox* correlation1CenterBox_, *correlation1PointsBox_, *smooth1ModelBox_;
 	QSpinBox* correlation2CenterBox_, *correlation2PointsBox_, *smooth2Mode1Box_;
 	QPushButton* correlateNowButton_;
@@ -256,17 +258,17 @@ protected:
 	MPlotColorMap* colorMap_;
 	MPlotImageBasic* image_;
 	MPlotRectangle* rangeRectangleY1_, *rangeRectangleY2_, *rangeRectangleX1_, *rangeRectangleX2_;
-	
+
 	MPlotSeriesBasic* shiftSeries_, * shift1Series_, * shift2Series_;
 	MPlotPoint* corrRegion1Left_, * corrRegion1Right_, * corrRegion2Left_, * corrRegion2Right_;
 	REIXSXESImageInterpolationABEditorShiftModel* shiftData_;
 	REIXSXESImageInterpolationABEditorShift1Model* shift1Data_;
 	REIXSXESImageInterpolationABEditorShift2Model* shift2Data_;
 
-	
+
 	MPlotSeriesBasic* ellipseSeries_;
 	REIXSXESImageInterpolationABEditorEllipticalMask* ellipseData_;
-	
+
 
 	/// Dialog to ask the user for a set of scans (to apply the same shift curve to many at once)
 	AMChooseScanDialog* chooseScanDialog_;
@@ -282,7 +284,7 @@ protected:
 
 	/// called to position and show/hide the range rectangle, as appropriate.
 	void placeRangeRectangle();
-	
+
 
 };
 

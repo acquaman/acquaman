@@ -71,7 +71,7 @@ VESPERS3DScanConfiguration::VESPERS3DScanConfiguration(const VESPERS3DScanConfig
 	: AMStepScanConfiguration(original), VESPERSScanConfiguration(original)
 {
 	setName(original.name());
-	setUserScanName(original.userScanName());
+	setUserScanName(original.name());
 	dbObject_->setParent(this);
 	setExportAsAscii(original.exportAsAscii());
 	setExportSpectraSources(original.exportSpectraSources());
@@ -108,6 +108,16 @@ AMScanController * VESPERS3DScanConfiguration::createController()
 AMScanConfigurationView * VESPERS3DScanConfiguration::createView()
 {
 	return new  VESPERS3DScanConfigurationView(this);
+}
+
+QString VESPERS3DScanConfiguration::technique() const
+{
+	return "3D Scan";
+}
+
+QString VESPERS3DScanConfiguration::description() const
+{
+	return "3D Scan";
 }
 
 QString  VESPERS3DScanConfiguration::detailedDescription() const

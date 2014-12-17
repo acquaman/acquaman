@@ -50,7 +50,7 @@ public slots:
 	/// Writes the given string to a file.  You need to provide either 0 or 1 for the file rank (scaler data or spectral data).
 	virtual void writeToFile(int fileRank, const QString &textToWrite);
 	/// Must be called after the scan has completed.  Does the necessary clean up of the files.
-	void finishWriting();
+	virtual void finishWriting();
 
 signals:
 	/// Notifier that there was a write error.  Passes the error.

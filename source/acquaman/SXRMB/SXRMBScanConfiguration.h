@@ -43,6 +43,9 @@ public:
 	/// Returns the time offset.
 	double timeOffset() const { return timeOffset_; }
 
+	/// Returns whether we are enabling Bruker Detector
+	bool enableBrukerDetector() const { return dbObject_->enableBrukerDetector(); }
+
 	// Setters
 	////////////////////////////////////////
 
@@ -55,6 +58,9 @@ public:
 
 	/// Sets the time offset used for estimating the scan time.
 	void setTimeOffset(double offset) { timeOffset_ = offset; computeTotalTimeImplementation(); }
+
+	/// Sets the Bruker detector setting
+	void setEnableBrukerDetector(bool enable) { dbObject_->setEnableBrukerDetector(enable); }
 
 protected:
 	/// Computes the total time any time the regions list changes.  It is expected that subclasses will have a signal totalTimeChanged(double) that is emitted by this method.

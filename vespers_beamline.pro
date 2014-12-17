@@ -8,4 +8,5 @@ SUBDIRS +=	Initialize.pro \
 		VESPERSBendingMirrors.pro \
 		VESPERSAcquaman.pro \
 		VESPERSAddOnsCoordinator.pro \
-		AMCrashReporter.pro
+		AMCrashReporter.pro \
+		CLSNetworkDirectorySynchronizer.pro

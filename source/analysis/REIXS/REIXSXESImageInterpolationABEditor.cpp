@@ -33,6 +33,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QTabWidget>
 #include <QGroupBox>
 #include <QLineEdit>
+#include <QMessageBox>
 #include "MPlot/MPlotWidget.h"
 #include "MPlot/MPlot.h"
 #include "MPlot/MPlotImage.h"
@@ -87,6 +88,8 @@ REIXSXESImageInterpolationABEditor::REIXSXESImageInterpolationABEditor(REIXSXESI
 	rangeRoundControl_->setSingleStep(0.05);
 	rangeRoundControl_->setMinimum(0.0);
 	rangeRoundControl_->setMaximum(1.0);
+
+	curve2DisabledCheckBox_ = new QCheckBox("Disable");
 
 	correlation1CenterBox_ = new QSpinBox();
 	correlation1CenterBox_->setSingleStep(1);
@@ -341,12 +344,13 @@ REIXSXESImageInterpolationABEditor::REIXSXESImageInterpolationABEditor(REIXSXESI
 				QLabel* manualShift2Label = new QLabel("Manual shift:");
 				shiftButtons2Layout->addWidget(manualShift2Label);
 				shiftButtons2Layout->addWidget(shift2LineEdit_);
+				shiftButtons2Layout->addWidget(curve2DisabledCheckBox_);
 			shift2PageLayout->addLayout(shiftButtons2Layout);
 		shift2PageWidget_->setLayout(shift2PageLayout);
 	//END OF SHIFT 2 PAGE LAYOUT
 	tabWidget_->addTab(shift2PageWidget_,"Curve 2");
 
-	//START OF SHIFT 2 PAGE LAYOUT
+	//START OF APPLY TO PAGE LAYOUT
 			QGroupBox* applyGroupBox = new QGroupBox("Apply to other Scans:");
 				QVBoxLayout* applyPageLayout = new QVBoxLayout();
 					QHBoxLayout* applyPageColumnLayout = new QHBoxLayout();
@@ -375,7 +379,7 @@ REIXSXESImageInterpolationABEditor::REIXSXESImageInterpolationABEditor(REIXSXESI
 				applyPageLayout->addLayout(applyPageColumnLayout);
 				applyPageLayout->addWidget(applyToOtherScansButton_);
 			applyGroupBox->setLayout(applyPageLayout);
-		//END OF SHIFT 2 PAGE LAYOUT
+		//END OF APPLY TO PAGE LAYOUT
 		tabWidget_->addTab(applyGroupBox,"Apply");
 
 
@@ -410,6 +414,7 @@ REIXSXESImageInterpolationABEditor::REIXSXESImageInterpolationABEditor(REIXSXESI
 
 	connect(rangeRoundControl_,SIGNAL(valueChanged(double)),this, SLOT(onRangeRoundControlChanged(double)));
 
+	connect(curve2DisabledCheckBox_, SIGNAL(toggled(bool)), this, SLOT(onCurve2DisabledCheckBoxChanged(bool)));
 
 	connect(correlation1CenterBox_, SIGNAL(valueChanged(int)), this, SLOT(onCorrelation1CenterBoxChanged(int)));
 	connect(correlation1PointsBox_, SIGNAL(valueChanged(int)), this, SLOT(onCorrelation1PointsBoxChanged(int)));
@@ -525,6 +530,29 @@ void REIXSXESImageInterpolationABEditor::onRangeRoundControlChanged(double newRa
 	ellipseData_->rangeValuesChanged();
 
 }
+
+void REIXSXESImageInterpolationABEditor::onCurve2DisabledCheckBoxChanged(bool disabled)
+{
+	if(disabled == analysisBlock_->curve2Disabled())
+		return;
+
+	correlation2CenterBox_->setDisabled(disabled);
+	correlation2PointsBox_->setDisabled(disabled);
+	correlation2SmoothingBox_->setDisabled(disabled);
+	smooth2Mode1Box_->setDisabled(disabled);
+	shift2LineEdit_->setDisabled(disabled);
+
+	shift1Series_->setVisible(!disabled);
+	shift2Series_->setVisible(!disabled);
+	corrRegion2Left_->setVisible(!disabled);
+	corrRegion2Right_->setVisible(!disabled);
+
+
+	analysisBlock_->setCurve2Disabled(disabled);
+
+}
+
+
 
 void REIXSXESImageInterpolationABEditor::onCorrelation1CenterBoxChanged(int center)
 {
@@ -697,6 +725,8 @@ void REIXSXESImageInterpolationABEditor::onAnalysisBlockInputDataSourcesChanged(
 		rangeMaxXControl_->setEnabled(true);
 		rangeRoundControl_->setEnabled(true);
 
+		curve2DisabledCheckBox_->setEnabled(true);
+
 		correlation1CenterBox_->setEnabled(true);
 		correlation1PointsBox_->setEnabled(true);
 		correlation1SmoothingBox_->setEnabled(true);
@@ -742,6 +772,21 @@ void REIXSXESImageInterpolationABEditor::onAnalysisBlockInputDataSourcesChanged(
 		rangeRoundControl_->setMinimum(0.0);
 		rangeRoundControl_->setValue(analysisBlock_->rangeRound());
 		rangeRoundControl_->blockSignals(false);
+
+		bool disabled = analysisBlock_->curve2Disabled();
+		curve2DisabledCheckBox_->blockSignals(true);
+		correlation2CenterBox_->setDisabled(disabled);
+		correlation2PointsBox_->setDisabled(disabled);
+		correlation2SmoothingBox_->setDisabled(disabled);
+		smooth2Mode1Box_->setDisabled(disabled);
+		shift2LineEdit_->setDisabled(disabled);
+
+		shift1Series_->setVisible(!disabled);
+		shift2Series_->setVisible(!disabled);
+		corrRegion2Left_->setVisible(!disabled);
+		corrRegion2Right_->setVisible(!disabled);
+		curve2DisabledCheckBox_->setChecked(analysisBlock_->curve2Disabled());
+		curve2DisabledCheckBox_->blockSignals(false);
 
 		correlation1CenterBox_->blockSignals(true);
 		correlation1CenterBox_->setMaximum(inputSource->size(0) - 1);
@@ -1056,7 +1101,10 @@ REIXSXESImageInterpolationABEditorShiftModel::REIXSXESImageInterpolationABEditor
 
 qreal REIXSXESImageInterpolationABEditorShiftModel::x(unsigned index) const
 {
-	return analysisBlock_->shiftValuesAt(displayXOffset_).at(index) + displayXOffset_;
+	if (analysisBlock_->curve2Disabled())
+		return analysisBlock_->shiftValues1().at(index) + displayXOffset_;
+	else
+		return analysisBlock_->shiftValuesAt(displayXOffset_).at(index) + displayXOffset_;
 }
 
 qreal REIXSXESImageInterpolationABEditorShiftModel::y(unsigned index) const
@@ -1088,8 +1136,12 @@ void REIXSXESImageInterpolationABEditorShiftModel::onShiftValuesChanged()
 
 void REIXSXESImageInterpolationABEditorShiftModel::xValues(unsigned indexStart, unsigned indexEnd, qreal *outputValues) const
 {
-	for(unsigned i=indexStart; i<=indexEnd; ++i)
-		*(outputValues++) = analysisBlock_->shiftValuesAt(displayXOffset_).at(i) + displayXOffset_;
+	if (analysisBlock_->curve2Disabled())
+		for(unsigned i=indexStart; i<=indexEnd; ++i)
+			*(outputValues++) = analysisBlock_->shiftValues1().at(i) + displayXOffset_;
+	else
+		for(unsigned i=indexStart; i<=indexEnd; ++i)
+			*(outputValues++) = analysisBlock_->shiftValuesAt(displayXOffset_).at(i) + displayXOffset_;
 }
 
 void REIXSXESImageInterpolationABEditorShiftModel::yValues(unsigned indexStart, unsigned indexEnd, qreal *outputValues) const
@@ -1229,28 +1281,37 @@ void REIXSXESImageInterpolationABEditorShift2Model::yValues(unsigned indexStart,
 
 void REIXSXESImageInterpolationABEditor::onApplyToOtherScansMenuClicked()
 {
-	if(!chooseScanDialog_) {
-		chooseScanDialog_ = new AMChooseScanDialog(AMDatabase::database("user"), "Choose scans...", "Choose the scans you want to apply these analysis parameters to.", true, this);
-		/*
-		chooseScanDialog_->dataView_->setOrganizeMode(AMDataViews::OrganizeScanTypes);
-		*/
-		chooseScanDialog_->setAttribute(Qt::WA_DeleteOnClose, false);
+	int confirm = QMessageBox::Yes;
+
+	QMessageBox confirmBox;
+	confirmBox.setText("This will apply changes directly to the database, open scan will not be affected until they are closed (without saving) and re-opened. It is recommended that you close all scans that you wish to apply setting to before proceeding.");
+	confirmBox.setInformativeText("Do you wish to proceed now?");
+	confirmBox.setStandardButtons(QMessageBox::Yes | QMessageBox::Abort);
+	confirmBox.setDefaultButton(QMessageBox::Yes);
+	confirm = confirmBox.exec();
+
+	if (confirm == QMessageBox::Yes)
+	{
+		if(!chooseScanDialog_) {
+			chooseScanDialog_ = new AMChooseScanDialog(AMDatabase::database("user"), "Choose scans...", "Choose the scans you want to apply these analysis parameters to.", true, this);
+			chooseScanDialog_->setAttribute(Qt::WA_DeleteOnClose, false);
+		}
+		connect(chooseScanDialog_, SIGNAL(accepted()), this, SLOT(onApplyToOtherScansChosen()));
+
+		// User feedback on what will happen:
+		QStringList operationsCompleted;
+		if(batchApplySumRange_->isChecked())
+			operationsCompleted << "Sum Range";
+		if(batchApplyCalibrationOffsets_->isChecked())
+			operationsCompleted << "Calibration offsets (energy, tilt)";
+		if(batchApplyCorrelationSettings_->isChecked())
+			operationsCompleted << "Correlation Settings";
+		if(batchApplyShiftCurve_->isChecked())
+			operationsCompleted << "Shift Curve";
+
+		chooseScanDialog_->setPrompt(QString("Choose the scans you want to apply these analysis parameters (%1) to.").arg(operationsCompleted.join(", ")));
+		chooseScanDialog_->show();
 	}
-	connect(chooseScanDialog_, SIGNAL(accepted()), this, SLOT(onApplyToOtherScansChosen()));
-
-	// User feedback on what will happen:
-	QStringList operationsCompleted;
-	if(batchApplySumRange_->isChecked())
-		operationsCompleted << "Sum Range";
-	if(batchApplyCalibrationOffsets_->isChecked())
-		operationsCompleted << "Calibration offsets (energy, tilt)";
-	if(batchApplyCorrelationSettings_->isChecked())
-		operationsCompleted << "Correlation Settings";
-	if(batchApplyShiftCurve_->isChecked())
-		operationsCompleted << "Shift Curve";
-
-	chooseScanDialog_->setPrompt(QString("Choose the scans you want to apply these analysis parameters (%1) to.").arg(operationsCompleted.join(", ")));
-	chooseScanDialog_->show();
 }
 
 #include "dataman/AMScan.h"
@@ -1295,11 +1356,13 @@ void REIXSXESImageInterpolationABEditor::onApplyToOtherScansChosen()
 			REIXSXESImageInterpolationAB* xesAB = qobject_cast<REIXSXESImageInterpolationAB*>(scan->analyzedDataSources()->at(i));
 			if(xesAB) {
 				xesABFound = true;
+				xesAB->enableLiveCorrelation(analysisBlock_->liveCorrelation());
 				if(batchApplySumRange_->isChecked()) {
 					xesAB->setSumRangeMaxY(analysisBlock_->sumRangeMaxY());
 					xesAB->setSumRangeMinY(analysisBlock_->sumRangeMinY());
 					xesAB->setSumRangeMaxX(analysisBlock_->sumRangeMaxX());
 					xesAB->setSumRangeMinX(analysisBlock_->sumRangeMinX());
+					xesAB->setRangeRound(analysisBlock_->rangeRound());
 				}
 				if(batchApplyCalibrationOffsets_->isChecked()) {
 					xesAB->setEnergyCalibrationOffset(analysisBlock_->energyCalibrationOffset());
@@ -1309,7 +1372,10 @@ void REIXSXESImageInterpolationABEditor::onApplyToOtherScansChosen()
 					xesAB->setCorrelation1CenterPixel(analysisBlock_->correlation1CenterPixel());
 					xesAB->setCorrelation1HalfWidth(analysisBlock_->correlation1HalfWidth());
 					xesAB->setCorrelation1Smoothing(analysisBlock_->correlation1Smoothing());
-					xesAB->enableLiveCorrelation(analysisBlock_->liveCorrelation());
+					xesAB->setCorrelation2CenterPixel(analysisBlock_->correlation2CenterPixel());
+					xesAB->setCorrelation2HalfWidth(analysisBlock_->correlation2HalfWidth());
+					xesAB->setCorrelation2Smoothing(analysisBlock_->correlation2Smoothing());
+
 				}
 				if(batchApplyShiftCurve_->isChecked()) {
 					xesAB->setShiftValues1(analysisBlock_->shiftValues1());

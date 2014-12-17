@@ -15,8 +15,8 @@ class MotorToolMainScreen : public QWidget
     Q_OBJECT
 
 public:
-	explicit MotorToolMainScreen(BioXASBeamlineDef::BioXASBeamLineID beamlineId, QWidget *parent = 0);
-    ~MotorToolMainScreen();
+	explicit MotorToolMainScreen(BioXASBeamlineDef::BioXASBeamLineID beamlineId, bool pseudoMotorScreen=false, QWidget *parent = 0);
+	~MotorToolMainScreen();
 
 signals:
 	void closed();
@@ -47,11 +47,12 @@ protected:
 	void setupUiLayout();
 
 private:
+	bool pseudoMotorScreen_;
 	BioXASBeamlineDef::BioXASBeamLineID beamlineId_;
 
 	QString getBeamlineName();
 	QString getBeamlineImageName(BioXASBeamlineDef::BioXASBeamLineID beamlineId);
-	QGroupBox * setupMotorGroupLayout(QString groupBoxTitle, BioXASBeamlineDef::BioXASMotorType motorType, int expectedHeight=600, int expectedWidth=320);
+	QGroupBox * setupMotorGroupLayout(QString groupBoxTitle, BioXASBeamlineDef::BioXASMotorType motorType, int expectedHeight=650, int expectedWidth=320);
 	void setupMotorsLayout(BioXASBeamlineDef::BioXASMotorType motorType, QVBoxLayout *pvLayoutBox);
 
 };
