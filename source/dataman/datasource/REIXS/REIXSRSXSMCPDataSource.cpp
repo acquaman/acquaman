@@ -27,7 +27,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDebug>
 
  REIXSRSXSMCPDataSource::~REIXSRSXSMCPDataSource(){}
-REIXSRSXSMCPDataSource::REIXSRSXSMCPDataSource(const QString &name, AMReadOnlyPVControl *imagePV, QObject *parent)
+REIXSRSXSMCPDataSource::REIXSRSXSMCPDataSource(const QString& name, AMReadOnlyPVControl* imagePV, int sizeX, int sizeY, QObject* parent)
+
 	: QObject(parent), AMDataSource(name) {
 
 	setDescription("RSXS Detector Image");
@@ -35,7 +36,8 @@ REIXSRSXSMCPDataSource::REIXSRSXSMCPDataSource(const QString &name, AMReadOnlyPV
 
 	axes_ << AMAxisInfo("x", 0, "x axis", "pixels");
 	axes_ << AMAxisInfo("y", 0, "y axis", "pixels");
-	pixelsX_ = pixelsY_ = 128;
+	pixelsX_ = sizeX;
+	pixelsY_ = sizeY;
 
 	axes_[0].isUniform = true;
 	axes_[1].isUniform = true;

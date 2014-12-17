@@ -20,6 +20,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "REIXSRSXSMCPDetectorView.h"
+#include "REIXSRSXSMCPDetectorFullView.h"
 #include "dataman/datasource/REIXS/REIXSRSXSMCPDataSource.h"
 #include "beamline/AMPVControl.h"
 
@@ -53,6 +54,8 @@ REIXSRSXSMCPDetectorView::REIXSRSXSMCPDetectorView(QWidget *parent) :
 	image_ = new MPlotImageBasic();
 
 	colorMapEditor_ = 0;
+
+	fullImageDialog_ = 0;
 
 	topLeftX1_ = new AMSinglePVControl("Top Left X 1", "PDTR0000-01:setLeftTopX1", this);
 	topLeftY1_ = new AMSinglePVControl("Top Left Y 1", "PDTR0000-01:setLeftTopY1", this);
@@ -106,7 +109,6 @@ REIXSRSXSMCPDetectorView::REIXSRSXSMCPDetectorView(QWidget *parent) :
 
 	// configure UI elements
 
-	image_->setDescription("RSXS Detector Image");
 	AMDataSourceImageData *model = new AMDataSourceImageData;
 	model->setDataSource(dataSource_);
 	image_->setModel(model, true);
@@ -118,6 +120,7 @@ REIXSRSXSMCPDetectorView::REIXSRSXSMCPDetectorView(QWidget *parent) :
 	imagePlot_->axisScaleBottom()->setPadding(1);
 
 	adjustColorMapButton_ = new QPushButton("Adjust colors...");
+	fullImageButton_ = new QPushButton("Show Full Image");
 	updateButton_ = new QPushButton("Update Image");
 	acquireButton_ = new QPushButton("Acquire Image");
 
@@ -144,6 +147,7 @@ REIXSRSXSMCPDetectorView::REIXSRSXSMCPDetectorView(QWidget *parent) :
 	connect(imagePlot_->signalSource(), SIGNAL(selectedDataRectChanged(QRectF)), this, SLOT(onSelectedDataRectChanged(QRectF)));
 
 	connect(adjustColorMapButton_, SIGNAL(clicked()), this, SLOT(onAdjustColorMapButtonClicked()));
+	connect(fullImageButton_, SIGNAL(clicked()), this, SLOT(onFullImageButtonClicked()));
 	connect(updateButton_, SIGNAL(clicked()), this, SLOT(onUpdateButtonClicked()));
 	connect(acquireButton_, SIGNAL(clicked()), this, SLOT(onAcquireButtonClicked()));
 
@@ -190,15 +194,22 @@ REIXSRSXSMCPDetectorView::REIXSRSXSMCPDetectorView(QWidget *parent) :
 
 	QVBoxLayout *layout = new QVBoxLayout;
 	QHBoxLayout* bottomLayout = new QHBoxLayout();
+	QHBoxLayout* topLayout = new QHBoxLayout();
+
 
 	QVBoxLayout *ROICountslayout = new QVBoxLayout;
 	ROICountslayout->addWidget(ROI1CountsLabel_);
 	ROICountslayout->addWidget(ROI2CountsLabel_);
 
+
+	topLayout->addWidget(adjustColorMapButton_);
+	topLayout->addStretch();
+	topLayout->addWidget(fullImageButton_);
+
+	layout->addLayout(topLayout);
+
 	layout->addWidget(imageView_);
 
-	bottomLayout->addWidget(adjustColorMapButton_);
-	bottomLayout->addStretch();
 	bottomLayout->addLayout(ROICountslayout);
 	bottomLayout->addLayout(ROIRadioButtons);
 	bottomLayout->addWidget(totalCountsLabel_);
@@ -282,6 +293,30 @@ void REIXSRSXSMCPDetectorView::onAdjustColorMapButtonClicked()
 	colorMapEditor_->show();
 }
 
+void REIXSRSXSMCPDetectorView::onFullImageButtonClicked()
+{
+	if(!fullImageDialog_) {
+		fullImageDialog_ = new QDialog(fullImageButton_);
+		QVBoxLayout* vl = new QVBoxLayout();
+		vl->setContentsMargins(0,0,0,0);
+		REIXSRSXSMCPDetectorFullView* fullView = new REIXSRSXSMCPDetectorFullView();
+		vl->addWidget(fullView);
+		fullImageDialog_->setLayout(vl);
+
+	}
+
+	if (fullImageDialog_->isVisible())
+	{
+		fullImageDialog_->hide();
+		fullImageButton_->setText("Show Full Image");
+	}
+	else
+	{
+		fullImageDialog_->show();
+		fullImageButton_->setText("Hide Full Image");
+	}
+}
+
 void REIXSRSXSMCPDetectorView::onColorMapChanged(const MPlotColorMap &map)
 {
 	image_->setColorMap(map);
@@ -309,6 +344,20 @@ void REIXSRSXSMCPDetectorView::drawRegions()
 
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

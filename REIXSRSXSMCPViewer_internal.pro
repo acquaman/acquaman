@@ -17,7 +17,8 @@ HEADERS += \
 	source/dataman/AMAxisInfo.h \
 	source/dataman/datasource/AMDataSourceImageData.h \
 	source/ui/dataman/AMImagePropertyEditor.h \
-	source/ui/dataman/AMColorPickerButton.h
+	source/ui/dataman/AMColorPickerButton.h \
+    source/ui/REIXS/REIXSRSXSMCPDetectorFullView.h
 
 SOURCES += \
 	source/dataman/datasource/REIXS/REIXSRSXSMCPDataSource.cpp \
@@ -28,6 +29,9 @@ SOURCES += \
 	source/dataman/AMAxisInfo.cpp \
 	source/dataman/datasource/AMDataSourceImageData.cpp \
 	source/ui/dataman/AMImagePropertyEditor.cpp \
-	source/ui/dataman/AMColorPickerButton.cpp
+	source/ui/dataman/AMColorPickerButton.cpp \
+    source/ui/REIXS/REIXSRSXSMCPDetectorFullView.cpp
+
+
 
 
