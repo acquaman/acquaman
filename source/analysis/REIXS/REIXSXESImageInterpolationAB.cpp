@@ -638,9 +638,12 @@ void REIXSXESImageInterpolationAB::setCurve2Disabled(bool disabled)
 
 	curve2Disabled_ = disabled;
 
-	computeCachedValues();
-	setModified(true);
-	emitValuesChanged();
+	if(inputSource_)
+	{
+		computeCachedValues();
+		setModified(true);
+		emitValuesChanged();
+	}
 
 }
 
