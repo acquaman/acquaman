@@ -22,6 +22,14 @@ namespace BioXASBeamlineDef {
 		PseudoMonoMotor,
 		PseudoM2Motor
 	};
+
+	/// check whether a given motor type is pseudo motor or not
+	inline bool isPseudoMotor(int type)
+	{
+		return (type == PseudoFilterMotor) || (type == PseudoM1Motor)
+			|| (type == PseudoMaskMotor)|| (type == PseudoMonoMotor)
+			|| (type == PseudoM2Motor);
+	}
 }
 
 #endif // BIOXASBEAMLINEDEF_H

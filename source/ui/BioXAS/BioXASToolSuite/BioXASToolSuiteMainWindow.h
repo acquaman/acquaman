@@ -54,6 +54,8 @@ protected:
 private:
 	void setupUi();
 
+	QWidget * toolWindow_;
+
 };
 
 #endif // BIOXASTOOLSUITEMAINWINDOW_H

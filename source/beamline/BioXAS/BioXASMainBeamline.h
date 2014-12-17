@@ -58,7 +58,7 @@ public:
 	/// Destructor.
 	virtual ~BioXASMainBeamline();
 
-	QList<AMPVwStatusControl *> getMotorsByType(BioXASBeamlineDef::BioXASMotorType category);
+	QList<AMControl *> getMotorsByType(BioXASBeamlineDef::BioXASMotorType category);
 
 protected:
 	/// Sets up the synchronized dwell time.

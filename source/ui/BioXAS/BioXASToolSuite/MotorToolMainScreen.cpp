@@ -188,7 +188,7 @@ QGroupBox * MotorToolMainScreen::setupMotorGroupLayout(QString groupBoxTitle, Bi
 
 void MotorToolMainScreen::setupMotorsLayout(BioXASBeamlineDef::BioXASMotorType motorType, QVBoxLayout *pvLayoutBox)
 {
-	QList<AMPVwStatusControl *> matchedMotors;
+	QList<AMControl *> matchedMotors;
 	switch (beamlineId_) {
 	case BioXASBeamlineDef::BioXASMainBeamLine:
 		matchedMotors = BioXASMainBeamline::bioXAS()->getMotorsByType(motorType);
@@ -201,11 +201,12 @@ void MotorToolMainScreen::setupMotorsLayout(BioXASBeamlineDef::BioXASMotorType m
 	case BioXASBeamlineDef::BioXASImagingBeamLine:
 		matchedMotors = BioXASImagingBeamline::bioXAS()->getMotorsByType(motorType);
 		break;
+
 	default:
 		break;
 	}
 
-	bool pseudoMotor = (motorType >= BioXASBeamlineDef::PseudoFilterMotor && motorType <= BioXASBeamlineDef::PseudoM2Motor);
+	bool pseudoMotor = BioXASBeamlineDef::isPseudoMotor(motorType);//(motorType >= BioXASBeamlineDef::PseudoFilterMotor && motorType <= BioXASBeamlineDef::PseudoM2Motor);
 	for (int i = 0; i < matchedMotors.size(); i++) {
 		AMExtendedControlEditor *motorEditor;
 		if (pseudoMotor) {

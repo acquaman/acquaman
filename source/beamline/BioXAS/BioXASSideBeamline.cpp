@@ -148,9 +148,9 @@ bool BioXASSideBeamline::allValvesClosed() const
 	return false;
 }
 
-QList<AMPVwStatusControl *> BioXASSideBeamline::getMotorsByType(BioXASBeamlineDef::BioXASMotorType category) const
+QList<AMControl *> BioXASSideBeamline::getMotorsByType(BioXASBeamlineDef::BioXASMotorType category) const
 {
-	QList<AMPVwStatusControl *> matchedMotors;
+	QList<AMControl *> matchedMotors;
 
 	switch (category) {
 	case BioXASBeamlineDef::FilterMotor: // BioXAS Filter motors

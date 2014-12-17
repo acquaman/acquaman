@@ -152,9 +152,9 @@ BioXASMainBeamline::~BioXASMainBeamline()
 
 }
 
-QList<AMPVwStatusControl *> BioXASMainBeamline::getMotorsByType(BioXASBeamlineDef::BioXASMotorType category)
+QList<AMControl *> BioXASMainBeamline::getMotorsByType(BioXASBeamlineDef::BioXASMotorType category)
 {
-	QList<AMPVwStatusControl *> matchedMotors;
+	QList<AMControl *> matchedMotors;
 
 	switch (category) {
 	case BioXASBeamlineDef::FilterMotor: // BioXAS Filter motors

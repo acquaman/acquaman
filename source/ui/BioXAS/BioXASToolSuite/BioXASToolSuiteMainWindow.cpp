@@ -87,15 +87,22 @@ void BioXASToolSuiteMainWindow::onImagingBLPseudoMotorToolButtonClicked()
 
 void BioXASToolSuiteMainWindow::onToolWindowClosed()
 {
+	if (toolWindow_) {
+		toolWindow_->deleteLater();
+		toolWindow_ = 0; // NULL
+	}
+
 	show();
 }
 
 void BioXASToolSuiteMainWindow::displayToolScreen(QWidget * toolWindow)
 {
-	connect(toolWindow, SIGNAL(closed()), this, SLOT(onToolWindowClosed()));
+	toolWindow_ = toolWindow;
 
-	toolWindow->move(QApplication::desktop()->screen()->rect().center() - toolWindow->rect().center());
-	toolWindow->show();
+	connect(toolWindow_, SIGNAL(closed()), this, SLOT(onToolWindowClosed()));
+
+	toolWindow_->move(QApplication::desktop()->screen()->rect().center() - toolWindow_->rect().center());
+	toolWindow_->show();
 	hide();
 }
 
