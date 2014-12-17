@@ -175,10 +175,7 @@ protected slots:
 protected:
 	/// The epics PV being used as a data source.
 	const AMProcessVariable *data_;
-	/// Holds the current scale.
-	double scale_;
-	/// Holds the current offset
-	double offset_;
+
 	/// A QList of AMAxisInfo: caches a single AMAxisInfo for our one axis, so that axes() can be fast.
 	QList<AMAxisInfo> axes_;
 };

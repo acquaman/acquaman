@@ -371,6 +371,10 @@ void AMExportWizardOptionPage::onOptionSelectorIndexChanged(int index)
 						AMDatabase::database(optionInfo.section("||", 0, 0)),
 						AMDbObjectSupport::s()->tableNameForClass(exporter_->exporterOptionClassName()),
 						optionInfo.section("||", 1, 1).toInt()));
+		if (!option_) {
+			QMessageBox::warning(this, "Exporter error", QString("No matching export found for '%1'").arg(optionInfo), QMessageBox::Ok);
+			return;
+		}
 
 		controller_->setOption(option_); // will delete the previous option_
 		saveOptionButton_->setText("Save");

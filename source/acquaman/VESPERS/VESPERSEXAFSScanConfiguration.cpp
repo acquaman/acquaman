@@ -65,7 +65,7 @@ VESPERSEXAFSScanConfiguration::VESPERSEXAFSScanConfiguration(const VESPERSEXAFSS
 	: AMStepScanConfiguration(original), VESPERSScanConfiguration(original)
 {
 	setName(original.name());
-	setUserScanName(original.userScanName());
+	setUserScanName(original.name());
 	dbObject_->setParent(this);
 	edge_ = original.edge();
 	energy_ = original.energy();
@@ -111,6 +111,16 @@ AMScanController *VESPERSEXAFSScanConfiguration::createController()
 AMScanConfigurationView *VESPERSEXAFSScanConfiguration::createView()
 {
 	return new VESPERSEXAFSScanConfigurationView(this);
+}
+
+QString VESPERSEXAFSScanConfiguration::technique() const
+{
+	return "XAS Scan";
+}
+
+QString VESPERSEXAFSScanConfiguration::description() const
+{
+	return "XAS Scan";
 }
 
 QString VESPERSEXAFSScanConfiguration::detailedDescription() const
