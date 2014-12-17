@@ -15,52 +15,52 @@ STVariableEditor::STVariableEditor(STVariable *toEdit, QWidget *parent) : STEdit
 
     QGridLayout *mainLayout = new QGridLayout();
 
-    QLabel *nameLabel = new QLabel("Name: ", this);
-    name_ = new QLabel(this);
+    QLabel *nameLabel = new QLabel("Name: ");
+    name_ = new QLabel();
     nameLabel->setBuddy(name_);
     mainLayout->addWidget(nameLabel, 0, 0);
     mainLayout->addWidget(name_, 0, 1);
 
-    QLabel *descriptionLabel = new QLabel("Description: ", this);
-    descriptionEntry_ = new QLineEdit(this);
+    QLabel *descriptionLabel = new QLabel("Description: ");
+    descriptionEntry_ = new QLineEdit();
     descriptionLabel->setBuddy(descriptionEntry_);
     mainLayout->addWidget(descriptionLabel, 1, 0);
     mainLayout->addWidget(descriptionEntry_, 1, 1);
 
-    QLabel *creationLabel = new QLabel("Created: ", this);
-    creation_ = new QLabel(this);
+    QLabel *creationLabel = new QLabel("Created: ");
+    creation_ = new QLabel();
     creationLabel->setBuddy(creation_);
     mainLayout->addWidget(creationLabel, 2, 0);
     mainLayout->addWidget(creation_, 2, 1);
 
-    QLabel *connectedLabel = new QLabel("Connected: ", this);
-    connected_ = new QLabel(this);
+    QLabel *connectedLabel = new QLabel("Connected: ");
+    connected_ = new QLabel();
     connectedLabel->setBuddy(connected_);
     mainLayout->addWidget(connectedLabel, 3, 0);
     mainLayout->addWidget(connected_, 3, 1);
 
-    QLabel *valueLabel = new QLabel("Latest value: ", this);
-    value_ = new QLabel(this);
+    QLabel *valueLabel = new QLabel("Latest value: ");
+    value_ = new QLabel();
     valueLabel->setBuddy(value_);
     mainLayout->addWidget(valueLabel, 4, 0);
     mainLayout->addWidget(value_, 4, 1);
 
-    QLabel *unitsLabel = new QLabel("Units: ", this);
-    unitsEntry_ = new QLineEdit(this);
+    QLabel *unitsLabel = new QLabel("Units: ");
+    unitsEntry_ = new QLineEdit();
     unitsLabel->setBuddy(unitsEntry_);
     mainLayout->addWidget(unitsLabel, 5, 0);
     mainLayout->addWidget(unitsEntry_, 5, 1);
 
-    QLabel *colorLabel = new QLabel("Color: ", this);
-    colorButton_ = new STColorButton(this);
+    QLabel *colorLabel = new QLabel("Color: ");
+    colorButton_ = new STColorButton();
     colorLabel->setBuddy(colorButton_);
     mainLayout->addWidget(colorLabel, 6, 0);
     mainLayout->addWidget(colorButton_, 6, 1);
 
-    showMarkers_ = new QCheckBox("Show plot markers", this);
+    showMarkers_ = new QCheckBox("Show plot markers");
     mainLayout->addWidget(showMarkers_, 7, 1);
 
-    removeButton_ = new QPushButton("Remove", this);
+    removeButton_ = new QPushButton("Remove");
     removeButton_->setEnabled(false);
     mainLayout->addWidget(removeButton_, 8, 1);
 

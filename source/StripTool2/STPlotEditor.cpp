@@ -15,17 +15,17 @@ STPlotEditor::STPlotEditor(STPlotWidget *plot, QWidget *parent) : STEditor(paren
 
     QGridLayout *mainLayout = new QGridLayout();
 
-    QLabel *nameLabel = new QLabel(this);
+    QLabel *nameLabel = new QLabel();
     nameLabel->setText("Name :");
-    nameEntry_ = new QLineEdit(this);
-    nameShown_ = new QCheckBox("Name shown", this);
+    nameEntry_ = new QLineEdit();
+    nameShown_ = new QCheckBox("Name shown");
     mainLayout->addWidget(nameLabel, 0, 0);
     mainLayout->addWidget(nameEntry_, 0, 1, 1, 2);
     mainLayout->addWidget(nameShown_, 1, 1, 1, 2);
 
-    QLabel *timeLabel = new QLabel(this);
+    QLabel *timeLabel = new QLabel();
     timeLabel->setText("Time :");
-    timeEntry_ = new QLineEdit(this);
+    timeEntry_ = new QLineEdit();
     timeUnits_ = new QComboBox();
     mainLayout->addWidget(timeLabel, 2, 0, 1, 1);
     mainLayout->addWidget(timeEntry_, 2, 1, 1, 1);

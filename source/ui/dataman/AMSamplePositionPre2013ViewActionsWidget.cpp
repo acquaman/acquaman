@@ -39,7 +39,7 @@ AMSamplePositionPre2013ViewActionsWidget::AMSamplePositionPre2013ViewActionsWidg
 	horizontalLayout_->setSpacing(2);
 	horizontalLayout_->setObjectName(QString::fromUtf8("horizontalLayout_"));
 	horizontalLayout_->setContentsMargins(4, 2, 4, 3);
-	markButton_ = new QToolButton(this);
+	markButton_ = new QToolButton();
 	markButton_->setObjectName(QString::fromUtf8("markButton_"));
 
 	horizontalLayout_->addWidget(markButton_);
