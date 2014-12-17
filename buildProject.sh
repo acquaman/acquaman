@@ -29,7 +29,7 @@ function buildProject() {
 	if [ $1 -ne 1 ]; then
 		qmake -r $2
 	fi
-	make
+	make -j 3
 
 	echo
 }
