@@ -9,12 +9,12 @@ FORMS +=
 
 HEADERS += \
 	source/beamline/BioXAS/BioXASBeamlineDef.h \
-	source/ui/BioXAS/BioXASCLSMAXvMotorControlEditor.h \
-	source/beamline/BioXAS/BioXASPseudoMotorControl.h
+	source/beamline/BioXAS/BioXASPseudoMotorControl.h \
+	source/ui/BioXAS/BioXASCLSMAXvMotorControlEditor.h
 
 SOURCES += \
-	source/ui/BioXAS/BioXASCLSMAXvMotorControlEditor.cpp \
-	source/beamline/BioXAS/BioXASPseudoMotorControl.cpp
+	source/beamline/BioXAS/BioXASPseudoMotorControl.cpp \
+	source/ui/BioXAS/BioXASCLSMAXvMotorControlEditor.cpp
 
 
 
