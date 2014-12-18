@@ -13,8 +13,8 @@ HEADERS += \
 	source/ui/BioXAS/BioXASCLSMAXvMotorControlEditor.h
 
 SOURCES += \
-	source/ui/BioXAS/BioXASCLSMAXvMotorControlEditor.cpp \
-	source/beamline/BioXAS/BioXASPseudoMotorControl.cpp
+	source/beamline/BioXAS/BioXASPseudoMotorControl.cpp \
+	source/ui/BioXAS/BioXASCLSMAXvMotorControlEditor.cpp
 
 
 
