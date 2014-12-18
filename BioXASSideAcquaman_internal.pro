@@ -19,7 +19,6 @@ HEADERS += \
 SOURCES += \
 	source/application/BioXAS/BioXASSideMain.cpp \
 	source/application/BioXAS/BioXASSideAppController.cpp \
-	source/beamline/BioXAS/BioXASSideBeamline.cpp \
 	source/ui/BioXAS/BioXASSidePersistentView.cpp \
 	source/acquaman/BioXASSide/BioXASSideXASScanActionController.cpp \
 	source/acquaman/BioXASSide/BioXASSideXASScanConfiguration.cpp \
