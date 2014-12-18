@@ -36,7 +36,7 @@ BioXASSideBeamline::BioXASSideBeamline()
 	setupComponents();
 	setupDiagnostics();
 	setupSampleStage();
-	setupDetectors();
+//	setupDetectors();
 	setupControlSets();
 	setupMono();
 	setupMotorGroup();
@@ -226,6 +226,7 @@ QList<AMControl *> BioXASSideBeamline::getMotorsByType(BioXASBeamlineDef::BioXAS
 
 void BioXASSideBeamline::onConnectionChanged()
 {
+	qDebug() << pressureSet_->isConnected() << valveSet_->isConnected();
 	bool newState = (
 				// Mono.
 				mono_->isConnected() &&
@@ -234,7 +235,8 @@ void BioXASSideBeamline::onConnectionChanged()
 				scaler_->isConnected() && scalerDwellTime_->isConnected() &&
 
 				// Control sets.
-				pressureSet_->isConnected() && valveSet_->isConnected() &&
+				//pressureSet_->isConnected() && valveSet_->isConnected() &&
+				pressureSet_->isConnected() &&
 				ionPumpSet_->isConnected() && flowTransducerSet_->isConnected() &&
 				flowSwitchSet_->isConnected() && temperatureSet_->isConnected()
 
@@ -627,6 +629,7 @@ void BioXASSideBeamline::setupDetectors()
 {
 	i0Detector_ = new CLSBasicScalerChannelDetector("I0Detector", "I0 Detector", scaler_, 0, this);
 	iTDetector_ = new CLSBasicScalerChannelDetector("ITDetector", "IT Detector", scaler_, 1, this);
+	i2Detector_ = new CLSBasicScalerChannelDetector("I2Detector", "I2 Detector", scaler_, 15, this);
 }
 
 void BioXASSideBeamline::setupControlSets()
@@ -744,6 +747,8 @@ void BioXASSideBeamline::setupComponents()
 
 	scalerDwellTime_ = new AMReadOnlyPVControl("ScalerDwellTime", "BL07ID-Side:mcs:delay", this, "Scaler Dwell Time");
 
+	setupDetectors();
+
 	i0Keithley_ = new CLSKeithley428("I0 Channel", "AMP1607-601:Gain");
 	scaler_->channelAt(0)->setCustomChannelName("I0 Channel");
 	scaler_->channelAt(0)->setCurrentAmplifier(i0Keithley_);
@@ -753,6 +758,11 @@ void BioXASSideBeamline::setupComponents()
 	scaler_->channelAt(1)->setCustomChannelName("IT Channel");
 	scaler_->channelAt(1)->setCurrentAmplifier(iTKeithley_);
 	scaler_->channelAt(1)->setDetector(iTDetector_);
+
+	i2Keithley_ = new CLSKeithley428("I2 Channel", "AMP1607-603:Gain");
+	scaler_->channelAt(15)->setCustomChannelName("I2 Channel");
+	scaler_->channelAt(15)->setCurrentAmplifier(i2Keithley_);
+	scaler_->channelAt(15)->setDetector(i2Detector_);
 }
 
 void BioXASSideBeamline::setupControlsAsDetectors()
@@ -778,6 +788,7 @@ void BioXASSideBeamline::setupExposedDetectors()
 	addExposedDetector(dwellTimeDetector_);
 	addExposedDetector(i0Detector_);
 	addExposedDetector(iTDetector_);
+	addExposedDetector(i2Detector_);
 	addExposedDetector(energySetpointDetector_);
 	addExposedDetector(energyFeedbackDetector_);
 }

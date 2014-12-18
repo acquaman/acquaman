@@ -199,11 +199,13 @@ public:
 
 	CLSKeithley428* i0Keithley() const { return i0Keithley_; }
 	CLSKeithley428* iTKeithley() const { return iTKeithley_; }
+	CLSKeithley428* i2Keithley() const { return i2Keithley_; }
 
 	// Detectors
 
 	CLSBasicScalerChannelDetector* i0Detector() const { return i0Detector_; }
 	CLSBasicScalerChannelDetector* iTDetector() const { return iTDetector_; }
+	CLSBasicScalerChannelDetector* i2Detector() const { return i2Detector_; }
 	AMBasicControlDetectorEmulator* energyFeedbackDetector() const { return energyFeedbackDetector_; }
 	AMBasicControlDetectorEmulator* dwellTimeDetector() { return dwellTimeDetector_; }
 
@@ -286,6 +288,7 @@ protected:
 
 	CLSBasicScalerChannelDetector *i0Detector_;
 	CLSBasicScalerChannelDetector *iTDetector_;
+	CLSBasicScalerChannelDetector *i2Detector_;
 	AMBasicControlDetectorEmulator *energySetpointDetector_;
 	AMBasicControlDetectorEmulator *energyFeedbackDetector_;
 	AMBasicControlDetectorEmulator *dwellTimeDetector_;
@@ -303,6 +306,7 @@ protected:
 
 	CLSKeithley428 *i0Keithley_;
 	CLSKeithley428 *iTKeithley_;
+	CLSKeithley428 *i2Keithley_;
 
 	// Misc controls
 

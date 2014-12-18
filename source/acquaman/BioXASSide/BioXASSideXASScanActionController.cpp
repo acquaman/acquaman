@@ -48,6 +48,7 @@ BioXASSideXASScanActionController::BioXASSideXASScanActionController(BioXASSideX
     AMDetectorInfoSet bioXASDetectors;
     bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->i0Detector()->toInfo());
     bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->iTDetector()->toInfo());
+    bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->i2Detector()->toInfo());
     bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->energyFeedbackDetector()->toInfo());
     configuration_->setDetectorConfigurations(bioXASDetectors);
 }
@@ -64,16 +65,6 @@ AMAction3* BioXASSideXASScanActionController::createInitializationActions()
 AMAction3* BioXASSideXASScanActionController::createCleanupActions()
 {
     return 0;
-}
-
-void BioXASSideXASScanActionController::cancelImplementation()
-{
-
-}
-
-void BioXASSideXASScanActionController::onInitializationActionsListSucceeded()
-{
-
 }
 
 void BioXASSideXASScanActionController::buildScanControllerImplementation()
