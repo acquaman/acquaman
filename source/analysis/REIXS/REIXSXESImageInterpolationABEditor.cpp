@@ -773,7 +773,18 @@ void REIXSXESImageInterpolationABEditor::onAnalysisBlockInputDataSourcesChanged(
 		rangeRoundControl_->setValue(analysisBlock_->rangeRound());
 		rangeRoundControl_->blockSignals(false);
 
+		bool disabled = analysisBlock_->curve2Disabled();
 		curve2DisabledCheckBox_->blockSignals(true);
+		correlation2CenterBox_->setDisabled(disabled);
+		correlation2PointsBox_->setDisabled(disabled);
+		correlation2SmoothingBox_->setDisabled(disabled);
+		smooth2Mode1Box_->setDisabled(disabled);
+		shift2LineEdit_->setDisabled(disabled);
+
+		shift1Series_->setVisible(!disabled);
+		shift2Series_->setVisible(!disabled);
+		corrRegion2Left_->setVisible(!disabled);
+		corrRegion2Right_->setVisible(!disabled);
 		curve2DisabledCheckBox_->setChecked(analysisBlock_->curve2Disabled());
 		curve2DisabledCheckBox_->blockSignals(false);
 

@@ -250,8 +250,8 @@ REIXSPhotonSource::REIXSPhotonSource(QObject *parent) :
 	epuPolarization_->enumNames() << "Circular Left";
 	epuPolarization_->enumNames() << "Circular Right";
 	epuPolarization_->enumNames() << "Linear Horizontal";
-	epuPolarization_->enumNames() << "Linear Vertical +";
 	epuPolarization_->enumNames() << "Linear Vertical -";
+	epuPolarization_->enumNames() << "Linear Vertical +";
 	epuPolarization_->enumNames() << "Linear Inclined";
 	epuPolarizationAngle_ = new AMPVwStatusControl("epuPolarization", "REIXS:UND1410-02:polarAngle", "REIXS:UND1410-02:polarAngle", "REIXS:UND1410-02:energy:status", QString(), this, 0.5);
 	epuPolarizationAngle_->setDescription("EPU Polarization Angle");

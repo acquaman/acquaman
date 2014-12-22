@@ -117,15 +117,15 @@ AM1DProcessVariableDataSource::AM1DProcessVariableDataSource(const AMProcessVari
 	: QObject(parent), AMDataSource(name)
 {
 	data_ = data;
-	scale_ = 1;
-	offset_ = 0;
+
 	connect(data_, SIGNAL(initialized()), this, SLOT(onInitialized()));
 	connect(data_, SIGNAL(valueChanged()), this, SLOT(onDataChanged()));
 	connect(data_, SIGNAL(hasValuesChanged(bool)), this, SLOT(onStateChanged()));
 
 	AMAxisInfo ai("xAxis", 0, "Array X-axis");
 	ai.isUniform = true;
-	ai.increment = scale_;
+	ai.increment = 1.0;
+	ai.start = 0.0;
 	axes_ << ai;
 }
 
@@ -226,18 +226,18 @@ bool AM1DProcessVariableDataSource::values(const AMnDIndex& indexStart, const AM
 
 AMNumber AM1DProcessVariableDataSource::axisValue(int axisNumber, int index) const
 {
-	Q_UNUSED(axisNumber)
-
 	if(!data_->isConnected())
 		return AMNumber();
+
 	if(axisNumber != 0)
 		return AMNumber(AMNumber::DimensionError);
+
 #ifdef AM_ENABLE_BOUNDS_CHECKING
 	if ((unsigned)index >= data_->count())
 		return AMNumber(AMNumber::OutOfBoundsError);
 #endif
 
-	return (offset_ + index*scale_);
+	return double(axes_.at(0).start) + index*double(axes_.at(0).increment);
 }
 
 bool AM1DProcessVariableDataSource::axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const
@@ -260,25 +260,25 @@ bool AM1DProcessVariableDataSource::axisValues(int axisNumber, int startIndex, i
 #endif
 
 	for (int i = 0, size = endIndex-startIndex+1; i < size; i++)
-		outputValues[i] = AMNumber(offset_ + (i+startIndex)*scale_);
+		outputValues[i] = AMNumber(double(axes_.at(0).start) + (i+startIndex)*double(axes_.at(0).increment));
 
 	return true;
 }
 
 double AM1DProcessVariableDataSource::scale() const
 {
-	return scale_;
+	return double(axes_.at(0).increment);
 }
 
 double AM1DProcessVariableDataSource::offset() const
 {
-	return offset_;
+	return double(axes_.at(0).start);
 }
 
 void AM1DProcessVariableDataSource::setScale(double scale)
 {
-	if(scale_ != scale){
-		scale_ = scale;
+	if(double(axes_.at(0).increment) != scale){
+
 		axes_[0].increment = scale;
 		emitValuesChanged();
 		emitAxisInfoChanged();
@@ -288,9 +288,9 @@ void AM1DProcessVariableDataSource::setScale(double scale)
 
 void AM1DProcessVariableDataSource::setOffset(double offset)
 {
-	if(offset_ != offset){
-		offset_ = offset;
-		axes_[0].start = offset_;
+	if(double(axes_.at(0).start) != offset){
+
+		axes_[0].start = offset;
 		emitValuesChanged();
 		emitAxisInfoChanged();
 		emitSizeChanged();

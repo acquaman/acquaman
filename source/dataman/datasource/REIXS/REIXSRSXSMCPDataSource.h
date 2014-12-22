@@ -34,7 +34,7 @@ class REIXSRSXSMCPDataSource : public QObject, public AMDataSource {
 public:
 	/// Constructor. \c name is the AMDataSource::name() for this source, and imagePV is the process variable containing the image data. We also need the PVs which describe the
 	virtual ~REIXSRSXSMCPDataSource();
-	REIXSRSXSMCPDataSource(const QString& name, AMReadOnlyPVControl* imagePV, QObject* parent = 0);
+	REIXSRSXSMCPDataSource(const QString& name, AMReadOnlyPVControl* imagePV, int sizeX = 128, int sizeY = 128, QObject* parent = 0);
 
 	/// Human-readable description of the type of data source this is (ex: "One-dimensional math expression").  Subclasses should re-implement this.
 	virtual QString typeDescription() const { return "XES Imaging Detector"; }

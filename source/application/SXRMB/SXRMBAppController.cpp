@@ -252,7 +252,6 @@ void SXRMBAppController::setupExporterOptions()
 	if(sxrmbExportOptions->id() > 0)
 		AMAppControllerSupport::registerClass<SXRMB2DMapScanConfiguration, AMSMAKExporter, AMExporterOptionSMAK>(sxrmbExportOptions->id());
 
-
 	sxrmbExportOptions = SXRMB::buildStandardExporterOption("SXRMB2DDefault", true, false, false, true);
 	if(sxrmbExportOptions->id() > 0)
 		AMAppControllerSupport::registerClass<SXRMB2DMapScanConfiguration, AMExporter2DAscii, AMExporterOptionGeneralAscii>(sxrmbExportOptions->id());
