@@ -65,7 +65,7 @@ void MotorToolMainScreen::closeEvent(QCloseEvent *event) {
 void MotorToolMainScreen::setupUiLayout()
 {
 	// the primay layout is a vertical layout
-	QVBoxLayout *mainLayout = new QVBoxLayout(this);
+	QVBoxLayout *mainLayout = new QVBoxLayout();
 
 	// the second level layout
 	QHBoxLayout *firstRowPVLayout = new QHBoxLayout();
@@ -75,6 +75,8 @@ void MotorToolMainScreen::setupUiLayout()
 	mainLayout->addLayout(firstRowPVLayout);
 	mainLayout->addLayout(blImageLayout);
 	mainLayout->addLayout(secondRowPVLayout);
+
+	setLayout(mainLayout);
 
 	//initialize the beamline image
 	QLabel *imageLabel = new QLabel();

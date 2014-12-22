@@ -35,16 +35,16 @@ AMSamplePositionPre2013ViewActionsWidget::AMSamplePositionPre2013ViewActionsWidg
 	setAutoFillBackground(false);
 	setStyleSheet(QString::fromUtf8("background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(233, 233, 233, 255), stop:0.502513 rgba(199, 198, 198, 255), stop:1 rgba(163, 162, 162, 255));\n"
 	"border: 1px solid rgb(102, 102, 102);"));
-	horizontalLayout_ = new QHBoxLayout(this);
+	horizontalLayout_ = new QHBoxLayout();
 	horizontalLayout_->setSpacing(2);
 	horizontalLayout_->setObjectName(QString::fromUtf8("horizontalLayout_"));
 	horizontalLayout_->setContentsMargins(4, 2, 4, 3);
-	markButton_ = new QToolButton(this);
+	markButton_ = new QToolButton();
 	markButton_->setObjectName(QString::fromUtf8("markButton_"));
 
 	horizontalLayout_->addWidget(markButton_);
 
-	moveToButton_ = new QToolButton(this);
+	moveToButton_ = new QToolButton();
 	moveToButton_->setObjectName(QString::fromUtf8("moveToButton_"));
 
 	horizontalLayout_->addWidget(moveToButton_);
@@ -53,10 +53,12 @@ AMSamplePositionPre2013ViewActionsWidget::AMSamplePositionPre2013ViewActionsWidg
 
 	horizontalLayout_->addItem(horizontalSpacer);
 
-	removeButton_ = new QToolButton(this);
+	removeButton_ = new QToolButton();
 	removeButton_->setObjectName(QString::fromUtf8("removeButton_"));
 
 	horizontalLayout_->addWidget(removeButton_);
+
+	setLayout(horizontalLayout_);
 
 	setWindowTitle(QApplication::translate("AMSamplePositionViewActionsWidget", "Sample Position Actions", 0, QApplication::UnicodeUTF8));
 	markButton_->setText(QApplication::translate("AMSamplePositionViewActionsWidget", "Mark", 0, QApplication::UnicodeUTF8));

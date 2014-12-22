@@ -42,12 +42,14 @@ AMLiveLoopActionEditor3::AMLiveLoopActionEditor3(AMLoopAction3 *action, QWidget 
 	connect(action_->info(), SIGNAL(infoChanged()), this, SLOT(onLoopCountChanged()));
 	connect(loopCount_, SIGNAL(editingFinished()), this, SLOT(setLoopCount()));
 
-	QHBoxLayout *hl = new QHBoxLayout(this);
+	QHBoxLayout *hl = new QHBoxLayout();
 	hl->addWidget(new QLabel("Current: "));
 	hl->addWidget(iteration_);
 	hl->addWidget(new QLabel(" of "));
 	hl->addWidget(loopCount_);
 	hl->addStretch();
+
+	setLayout(hl);
 }
 
 void AMLiveLoopActionEditor3::onIterationUpdate(int val)

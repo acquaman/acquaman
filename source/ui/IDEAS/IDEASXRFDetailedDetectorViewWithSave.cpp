@@ -98,7 +98,7 @@ void IDEASXRFDetailedDetectorViewWithSave::buildScanSaveViews()
 
 	scanInfoGridLayout->addWidget(scanNameLabel, 0, 0, 1, 1);
 
-	scanName = new QLineEdit(this);
+	scanName = new QLineEdit();
 	scanName->setObjectName(QString::fromUtf8("scanName"));
 	scanName->setFrame(false);
 	scanName->setText("XRF Scan");
@@ -114,7 +114,7 @@ void IDEASXRFDetailedDetectorViewWithSave::buildScanSaveViews()
 	scanInfoGridLayout->addWidget(scanNumberLabel, 1, 0, 1, 1);
 
 
-	scanNumber = new QSpinBox(this);
+	scanNumber = new QSpinBox();
 	scanNumber->setObjectName(QString::fromUtf8("scanNumber"));
 	scanNumber->setMaximumSize(QSize(16777215, 18));
 	scanNumber->setFrame(false);

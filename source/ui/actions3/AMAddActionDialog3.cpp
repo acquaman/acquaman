@@ -33,9 +33,9 @@ AMAddActionDialog3::AMAddActionDialog3(QWidget *parent) :
 	if (objectName().isEmpty())
 		setObjectName(QString::fromUtf8("AMAddActionDialog3"));
 	resize(515, 397);
-	verticalLayout3_ = new QVBoxLayout(this);
+	verticalLayout3_ = new QVBoxLayout();
 	verticalLayout3_->setObjectName(QString::fromUtf8("verticalLayout_3"));
-	titleLabel_ = new QLabel(this);
+	titleLabel_ = new QLabel();
 	titleLabel_->setObjectName(QString::fromUtf8("titleLabel"));
 	QFont font;
 	font.setBold(true);
@@ -46,7 +46,7 @@ AMAddActionDialog3::AMAddActionDialog3(QWidget *parent) :
 
 	horizontalLayout_ = new QHBoxLayout();
 	horizontalLayout_->setObjectName(QString::fromUtf8("horizontalLayout"));
-	actionsListWidget_ = new QListWidget(this);
+	actionsListWidget_ = new QListWidget();
 	actionsListWidget_->setObjectName(QString::fromUtf8("actionsListWidget"));
 	actionsListWidget_->setMovement(QListView::Static);
 	actionsListWidget_->setResizeMode(QListView::Adjust);
@@ -58,14 +58,14 @@ AMAddActionDialog3::AMAddActionDialog3(QWidget *parent) :
 	verticalLayout_ = new QVBoxLayout();
 	verticalLayout_->setSpacing(2);
 	verticalLayout_->setObjectName(QString::fromUtf8("verticalLayout"));
-	actionNameLabel_ = new QLabel(this);
+	actionNameLabel_ = new QLabel();
 	actionNameLabel_->setObjectName(QString::fromUtf8("actionNameLabel"));
 	actionNameLabel_->setFont(font);
 	actionNameLabel_->setWordWrap(true);
 
 	verticalLayout_->addWidget(actionNameLabel_);
 
-	actionDescriptionGroupBox_ = new QGroupBox(this);
+	actionDescriptionGroupBox_ = new QGroupBox();
 	actionDescriptionGroupBox_->setObjectName(QString::fromUtf8("actionDescriptionGroupBox"));
 	verticalLayout2_ = new QVBoxLayout(actionDescriptionGroupBox_);
 	verticalLayout2_->setContentsMargins(4, 4, 4, 4);
@@ -84,7 +84,7 @@ AMAddActionDialog3::AMAddActionDialog3(QWidget *parent) :
 
 	verticalLayout_->addItem(verticalSpacer_);
 
-	addToWorkflowButton_ = new QPushButton(this);
+	addToWorkflowButton_ = new QPushButton();
 	addToWorkflowButton_->setObjectName(QString::fromUtf8("addToWorkflowButton"));
 	addToWorkflowButton_->setEnabled(false);
 
@@ -97,6 +97,8 @@ AMAddActionDialog3::AMAddActionDialog3(QWidget *parent) :
 	horizontalLayout_->setStretch(1, 1);
 
 	verticalLayout3_->addLayout(horizontalLayout_);
+
+	setLayout(verticalLayout3_);
 
 
 	setWindowTitle(QApplication::translate("AMAddActionDialog3", "Add Action...", 0, QApplication::UnicodeUTF8));

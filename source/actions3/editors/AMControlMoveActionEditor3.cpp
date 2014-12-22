@@ -28,37 +28,40 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/AMBeamline.h"
 
- AMControlMoveActionEditor3::~AMControlMoveActionEditor3(){}
 AMControlMoveActionEditor3::AMControlMoveActionEditor3(AMControlMoveActionInfo3 *info, QWidget *parent)
-	: QFrame(parent) {
+	 : QFrame(parent) {
 
-	info_ = info;
+	 info_ = info;
 
-	// Setup UI
-	QHBoxLayout* hl = new QHBoxLayout(this);
-	controlSelectorBox_ = new QComboBox();
-	hl->addWidget(new QLabel("Move:"));
-	hl->addWidget(controlSelectorBox_);
-	toLabel_ = new QLabel(info_->isRelativeMove() ? "by:" : "to:");
-	hl->addWidget(toLabel_);
-	setpointBox_ = new QDoubleSpinBox();
-	setpointBox_->setDecimals(3);
-	hl->addWidget(setpointBox_);
-	unitsLabel_ = new QLabel("");
-	hl->addWidget(unitsLabel_);
-	relativeCheckBox_ = new QCheckBox("Relative Move");
-    relativeCheckBox_->setChecked(info_->isRelativeMove());
-	hl->addWidget(relativeCheckBox_);
-	hl->addStretch(0);
-	////////////////////
+	 // Setup UI
+	 QHBoxLayout* hl = new QHBoxLayout();
+	 controlSelectorBox_ = new QComboBox();
+	 hl->addWidget(new QLabel("Move:"));
+	 hl->addWidget(controlSelectorBox_);
+	 toLabel_ = new QLabel(info_->isRelativeMove() ? "by:" : "to:");
+	 hl->addWidget(toLabel_);
+	 setpointBox_ = new QDoubleSpinBox();
+	 setpointBox_->setDecimals(3);
+	 hl->addWidget(setpointBox_);
+	 unitsLabel_ = new QLabel("");
+	 hl->addWidget(unitsLabel_);
+	 relativeCheckBox_ = new QCheckBox("Relative Move");
+	 relativeCheckBox_->setChecked(info_->isRelativeMove());
+	 hl->addWidget(relativeCheckBox_);
+	 hl->addStretch(0);
+
+	 setLayout(hl);
+	 ////////////////////
 
 
-	populateControls();
+	 populateControls();
 
-	connect(controlSelectorBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onControlSelectorBoxCurrentIndexChanged(int)));
-	connect(setpointBox_, SIGNAL(editingFinished()), this, SLOT(onSetpointBoxEditingFinished()));
-	connect(relativeCheckBox_, SIGNAL(toggled(bool)), this, SLOT(onRelativeCheckBoxToggled(bool)));
-}
+	 connect(controlSelectorBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onControlSelectorBoxCurrentIndexChanged(int)));
+	 connect(setpointBox_, SIGNAL(editingFinished()), this, SLOT(onSetpointBoxEditingFinished()));
+	 connect(relativeCheckBox_, SIGNAL(toggled(bool)), this, SLOT(onRelativeCheckBoxToggled(bool)));
+ }
+
+AMControlMoveActionEditor3::~AMControlMoveActionEditor3(){}
 
 void AMControlMoveActionEditor3::onControlSelectorBoxCurrentIndexChanged(int index)
 {

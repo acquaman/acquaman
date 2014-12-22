@@ -5,7 +5,7 @@
 # Source Files (BioXAS Common)
 #######################
 
-FORMS += 
+FORMS +=
 
 HEADERS += \
 	source/beamline/BioXAS/BioXASBeamlineDef.h \
@@ -15,6 +15,3 @@ HEADERS += \
 SOURCES += \
 	source/beamline/BioXAS/BioXASPseudoMotorControl.cpp \
 	source/ui/BioXAS/BioXASCLSMAXvMotorControlEditor.cpp
-
-
-

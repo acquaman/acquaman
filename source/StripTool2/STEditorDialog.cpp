@@ -5,8 +5,8 @@ STEditorDialog::STEditorDialog(STEditor *editor, QWidget *parent) : QWidget(pare
     // Set variables.
 
     editor_ = editor;
-    okButton_ = new QPushButton("Ok", this);
-    cancelButton_ = new QPushButton("Cancel", this);
+    okButton_ = new QPushButton("Ok");
+    cancelButton_ = new QPushButton("Cancel");
 
     // Create UI.
 

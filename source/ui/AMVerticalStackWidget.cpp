@@ -23,8 +23,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/AMHeaderButton.h"
 
-
- AMVerticalStackWidget::~AMVerticalStackWidget(){}
 AMVerticalStackWidget::AMVerticalStackWidget(QWidget *parent) :
 		QFrame(parent)
 {
@@ -38,6 +36,15 @@ AMVerticalStackWidget::AMVerticalStackWidget(QWidget *parent) :
 	setFrameShape(QFrame::StyledPanel);
 	setFrameShadow(QFrame::Sunken);
 	setStyleSheet("AMVerticalStackWidget {background:white; }");
+}
+
+AMVerticalStackWidget::~AMVerticalStackWidget()
+{
+	QWidget *oneWidget;
+	while(count() > 0){
+		oneWidget = takeItem(count()-1);
+		oneWidget->deleteLater();
+	}
 }
 
 

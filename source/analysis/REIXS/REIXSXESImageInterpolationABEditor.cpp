@@ -354,10 +354,10 @@ REIXSXESImageInterpolationABEditor::REIXSXESImageInterpolationABEditor(REIXSXESI
 			QGroupBox* applyGroupBox = new QGroupBox("Apply to other Scans:");
 				QVBoxLayout* applyPageLayout = new QVBoxLayout();
 					QHBoxLayout* applyPageColumnLayout = new QHBoxLayout();
-						batchApplyCorrelationSettings_ = new QCheckBox("Curve Settings", this);
-						batchApplyShiftCurve_ = new QCheckBox("Curves", this);
-						batchApplySumRange_ = new QCheckBox("Mask", this);
-						batchApplyCalibrationOffsets_ = new QCheckBox("Calibration", this);
+						batchApplyCorrelationSettings_ = new QCheckBox("Curve Settings");
+						batchApplyShiftCurve_ = new QCheckBox("Curves");
+						batchApplySumRange_ = new QCheckBox("Mask");
+						batchApplyCalibrationOffsets_ = new QCheckBox("Calibration");
 						batchApplyCorrelationSettings_->setCheckable(true);
 						batchApplyCorrelationSettings_->setChecked(true);
 						batchApplyShiftCurve_->setCheckable(true);
