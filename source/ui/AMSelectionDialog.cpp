@@ -32,6 +32,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 AMSelectionDialog::AMSelectionDialog(const QString &title, const QStringList &items, QWidget *parent)
 	: QDialog(parent)
 {
+	emptySelectedItemsAllowed_ = false;
+
 	setWindowTitle(title);
 	setModal(true);
 
@@ -46,6 +48,8 @@ AMSelectionDialog::AMSelectionDialog(const QString &title, const QStringList &it
 		item->setChecked(true);
 		itemLayout->addWidget(item);
 		items_->addButton(item);
+
+		connect(item, SIGNAL(stateChanged(int)), this, SLOT(onItemCheckStateChanged(int)));
 	}
 
 	QGroupBox *itemBox = new QGroupBox;
@@ -57,21 +61,23 @@ AMSelectionDialog::AMSelectionDialog(const QString &title, const QStringList &it
 	itemScrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
 	QPushButton *cancelButton = new QPushButton(QIcon(":/22x22/list-remove-2.png"), "Cancel");
-	QPushButton *okayButton = new QPushButton(QIcon(":/22x22/greenCheck.png"), "Okay");
+	okayButton_ = new QPushButton(QIcon(":/22x22/greenCheck.png"), "Okay");
 
 	connect(cancelButton, SIGNAL(clicked()), this, SLOT(reject()));
-	connect(okayButton, SIGNAL(clicked()), this, SLOT(accept()));
+	connect(okayButton_, SIGNAL(clicked()), this, SLOT(accept()));
 
 	QHBoxLayout *buttonLayout = new QHBoxLayout;
 	buttonLayout->addStretch();
 	buttonLayout->addWidget(cancelButton);
-	buttonLayout->addWidget(okayButton);
+	buttonLayout->addWidget(okayButton_);
 
 	QVBoxLayout *mainLayout = new QVBoxLayout;
 	mainLayout->addWidget(itemScrollArea);
 	mainLayout->addLayout(buttonLayout);
 
 	setLayout(mainLayout);
+
+	onItemCheckStateChanged(Qt::Checked);
 }
 
 QStringList AMSelectionDialog::selectedItems() const
@@ -83,4 +89,28 @@ QStringList AMSelectionDialog::selectedItems() const
 			names << button->text();
 
 	return names;
+}
+
+void AMSelectionDialog::enableEmptySelectedItemsAllowed()
+{
+	emptySelectedItemsAllowed_ = true;
+}
+
+void AMSelectionDialog::onItemCheckStateChanged(int state)
+{
+	Q_UNUSED(state)
+
+	bool okEnabled = false;
+	if (emptySelectedItemsAllowed_)
+		okEnabled = true;
+	else {
+		foreach (QAbstractButton *button, items_->buttons()) {
+			if (button->isChecked()) {
+				okEnabled = true;
+				break;
+			}
+		}
+	}
+
+	okayButton_->setEnabled(okEnabled);
 }

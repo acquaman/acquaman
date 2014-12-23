@@ -673,6 +673,7 @@ void AMXRFDetailedDetectorView::onShowMultipleSpectraButtonClicked()
 		removeAllPlotItems(spectraPlotItems_);
 		spectraNames = dialog.selectedItems();
 
+
 		// These will still be in order.
 		int spectraNamesIterator = 0;
 
