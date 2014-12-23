@@ -4,17 +4,17 @@ function cleanBuild() {
 	
 	make clean
 
-	echo rm build_obj/*.o
-	rm build_obj/*.o
+	echo rm *.o
+	rm *.o
 
-	echo rm build_moc/moc_*
-	rm build_moc/moc_*
+	echo rm moc_*
+	rm moc_*
 
 	echo rm qrc_*
 	rm qrc_*
 
-	echo rm build_ui/ui_*
-	rm build_ui/ui_*
+	echo rm ui_*
+	rm ui_*
 	
 	echo rm Makefile*
 	rm Makefile*

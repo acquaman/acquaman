@@ -53,9 +53,6 @@ DEFINES *= AM_ENABLE_BOUNDS_CHECKING
 QT *= core gui
 
 DESTDIR = build
-OBJECTS_DIR = build_obj
-MOC_DIR = build_moc
-UI_DIR = build_ui
 
 HEADERS *= \
 	source/AMQEvents.h \
