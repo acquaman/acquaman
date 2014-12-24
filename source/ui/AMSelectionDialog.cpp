@@ -49,7 +49,7 @@ AMSelectionDialog::AMSelectionDialog(const QString &title, const QStringList &it
 		itemLayout->addWidget(item);
 		items_->addButton(item);
 
-		connect(item, SIGNAL(stateChanged(int)), this, SLOT(onItemCheckStateChanged(int)));
+		connect(item, SIGNAL(stateChanged(int)), this, SLOT(onItemCheckStateChanged()));
 	}
 
 	QGroupBox *itemBox = new QGroupBox;
@@ -77,7 +77,7 @@ AMSelectionDialog::AMSelectionDialog(const QString &title, const QStringList &it
 
 	setLayout(mainLayout);
 
-	onItemCheckStateChanged(Qt::Checked);
+	onItemCheckStateChanged();
 }
 
 QStringList AMSelectionDialog::selectedItems() const
@@ -96,10 +96,8 @@ void AMSelectionDialog::enableEmptySelectedItemsAllowed()
 	emptySelectedItemsAllowed_ = true;
 }
 
-void AMSelectionDialog::onItemCheckStateChanged(int state)
+void AMSelectionDialog::onItemCheckStateChanged()
 {
-	Q_UNUSED(state)
-
 	bool okEnabled = false;
 	if (emptySelectedItemsAllowed_)
 		okEnabled = true;

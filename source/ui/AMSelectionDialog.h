@@ -43,7 +43,7 @@ public:
 	void enableEmptySelectedItemsAllowed();
 
 protected slots:
-	void onItemCheckStateChanged(int state);
+	void onItemCheckStateChanged();
 
 protected:
 	/// Flag to mark whether allows select nothing (default False)
