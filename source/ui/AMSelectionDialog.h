@@ -39,8 +39,8 @@ public:
 	/// Returns the items that are selected as a string list.
 	QStringList selectedItems() const;
 
-	/// allows to select nothing
-	void enableEmptySelectedItemsAllowed();
+	/// config the emptySelectedItemsAllowed flag, default False
+	void setEmptySelectedItemsAllowed(bool allowed=false);
 
 protected slots:
 	void onItemCheckStateChanged();
