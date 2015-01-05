@@ -32,10 +32,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 AMSelectionDialog::AMSelectionDialog(const QString &title, const QStringList &items, QWidget *parent)
 	: QDialog(parent)
 {
-	emptySelectedItemsAllowed_ = false;
-
 	setWindowTitle(title);
 	setModal(true);
+
+	setEmptySelectedItemsAllowed(false);
 
 	items_ = new QButtonGroup(this);
 	items_->setExclusive(false);
@@ -91,9 +91,9 @@ QStringList AMSelectionDialog::selectedItems() const
 	return names;
 }
 
-void AMSelectionDialog::enableEmptySelectedItemsAllowed()
+void AMSelectionDialog::setEmptySelectedItemsAllowed(bool allowed)
 {
-	emptySelectedItemsAllowed_ = true;
+	emptySelectedItemsAllowed_ = allowed;
 }
 
 void AMSelectionDialog::onItemCheckStateChanged()
