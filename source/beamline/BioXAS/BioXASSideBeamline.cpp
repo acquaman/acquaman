@@ -776,6 +776,8 @@ void BioXASSideBeamline::setupControlsAsDetectors()
 	energyFeedbackDetector_->setIsVisible(false);
 
 	dwellTimeDetector_ = new AMBasicControlDetectorEmulator("DwellTimeFeedback", "Dwell Time Feedback", scalerDwellTime_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	dwellTimeDetector_->setHiddenFromUsers(true);
+	dwellTimeDetector_->setIsVisible(false);
 }
 
 void BioXASSideBeamline::setupExposedControls()
