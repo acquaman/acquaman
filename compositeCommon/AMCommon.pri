@@ -56,6 +56,7 @@ DESTDIR = build
 OBJECTS_DIR = build_obj
 MOC_DIR = build_moc
 UI_DIR = build_ui
+RCC_DIR = build_rcc
 
 HEADERS *= \
 	source/AMQEvents.h \
