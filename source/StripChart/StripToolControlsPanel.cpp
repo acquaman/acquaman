@@ -73,10 +73,10 @@ QPushButton* StripToolControlsPanel::sidebarButton() const {
 
 void StripToolControlsPanel::buildComponents()
 {
-	nameEntry_ = new EntryWidget(this);
-	timeEntry_ = new TimeEntryWidget(this);
-	sidebarButton_ = new QPushButton(this);
-	waterfallEntry_ = new WaterfallEntryWidget(this);
+	nameEntry_ = new EntryWidget();
+	timeEntry_ = new TimeEntryWidget();
+	sidebarButton_ = new QPushButton();
+	waterfallEntry_ = new WaterfallEntryWidget();
 }
 
 

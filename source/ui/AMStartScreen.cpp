@@ -36,7 +36,7 @@ AMStartScreen::AMStartScreen(bool mustAccept, QWidget *parent) :
 
 	QVBoxLayout *overallLayout = new QVBoxLayout();
 	QGridLayout *startLayout = new QGridLayout();
-	QLabel *selectRunLabel = new QLabel(tr("Welcome to Acquaman!\n\nThis is your current run.\nIt will be used to organize your data for this visit to the facility.\n\nYou can change it, or create a new one."),this);
+	QLabel *selectRunLabel = new QLabel(tr("Welcome to Acquaman!\n\nThis is your current run.\nIt will be used to organize your data for this visit to the facility.\n\nYou can change it, or create a new one."));
 	QPushButton *ok= new QPushButton("Select");
 
 	startLayout->addWidget(selectRunLabel,1,1);

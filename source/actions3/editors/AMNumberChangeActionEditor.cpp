@@ -32,7 +32,7 @@ AMNumberChangeActionEditor::AMNumberChangeActionEditor(AMNumberChangeActionInfo 
 {
 	info_ = info;
 
-	QHBoxLayout* hl = new QHBoxLayout(this);
+	QHBoxLayout* hl = new QHBoxLayout();
 
 	descriptionLabel_ = new QLabel(QString("Changing index %1 to %2").arg(info_->indexToChange()).arg(info_->newNumber()));
 	hl->addWidget(descriptionLabel_);
@@ -47,6 +47,8 @@ AMNumberChangeActionEditor::AMNumberChangeActionEditor(AMNumberChangeActionInfo 
 	newNumberSpinBox_->setValue(info_->newNumber());
 	hl->addWidget(newNumberSpinBox_);
 	hl->addStretch(0);
+
+	setLayout(hl);
 
 	connect(indexSpinBox_, SIGNAL(editingFinished()), this, SLOT(onIndexSpinBoxEditingFinished()));
 	connect(newNumberSpinBox_, SIGNAL(editingFinished()), this, SLOT(onNewNumberSpinBoxEditingFinished()));
