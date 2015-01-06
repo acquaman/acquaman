@@ -401,7 +401,7 @@ void AMStepScanActionController::writeDataToFiles()
 	foreach (AMRawDataSource *oneRawDataSource, scan_->rawDataSources()->toList()){
 
 		if ((oneRawDataSource->rank() - scanRank) == 0)
-			rank1String.append(QString("%1 ").arg((double)oneRawDataSource->value(currentAxisValueIndex_)));
+			rank1String.append(QString("%1 ").arg((double)oneRawDataSource->value(currentAxisValueIndex_), 0, 'g', 19));
 
 		if ((oneRawDataSource->rank() - scanRank) == 1){
 

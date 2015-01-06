@@ -385,7 +385,7 @@ void SGMFastScanActionController::writeDataToFiles(){
 		for(int y = 0; y < scan_->rawDataSourceCount(); y++){
 			oneRawDataSource = scan_->rawDataSources()->at(y);
 			if(oneRawDataSource->rank() == 1)
-				rank1String.append(QString("%1 ").arg((double)oneRawDataSource->value(requestIndex)));
+				rank1String.append(QString("%1 ").arg((double)oneRawDataSource->value(requestIndex), 0, 'g', 19));
 		}
 		rank1String.append("\n");
 

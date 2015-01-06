@@ -298,7 +298,7 @@ void AMTimedScanActionController::writeDataToFiles()
 	QTime startTime  = QTime::currentTime();
 	*/
 
-	rank1String.append(QString("%1 ").arg((double)scan_->rawDataSources()->at(0)->axisValue(0, currentAxisValueIndex_.i())));
+	rank1String.append(QString("%1 ").arg((double)scan_->rawDataSources()->at(0)->axisValue(0, currentAxisValueIndex_.i()), 0, 'g', 19));
 
 	foreach (AMRawDataSource *oneRawDataSource, scan_->rawDataSources()->toList()){
 
