@@ -396,7 +396,7 @@ void AMStepScanActionController::writeDataToFiles()
 	int scanRank = scan_->rawData()->scanRank();
 
 	for (int i = 0; i < scanRank; i++)
-		rank1String.append(QString("%1 ").arg((double)scan_->rawDataSources()->at(0)->axisValue(i, currentAxisValueIndex_.at(i))));
+		rank1String.append(QString("%1 ").arg((double)scan_->rawDataSources()->at(0)->axisValue(i, currentAxisValueIndex_.at(i)), 0, 'g', 19));
 
 	foreach (AMRawDataSource *oneRawDataSource, scan_->rawDataSources()->toList()){
 
@@ -412,7 +412,7 @@ void AMStepScanActionController::writeDataToFiles()
 			oneRawDataSource->values(startIndex, endIndex, outputValues.data());
 
 			for(int y = 0; y < dataSourceSize; y++)
-				rank2String.append(QString("%1 ").arg(outputValues.at(y)));
+				rank2String.append(QString("%1 ").arg(outputValues.at(y), 0, 'g', 19));
 
 			rank2String.append("\n");
 		}
