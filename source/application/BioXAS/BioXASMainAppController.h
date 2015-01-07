@@ -24,6 +24,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "application/AMAppController.h"
 
+class BioXASMainPersistentView;
+
 class BioXASMainAppController  : public AMAppController
 {
 	Q_OBJECT
@@ -55,6 +57,10 @@ protected:
 	void setupUserInterface();
 	/// Sets up all of the connections.
 	void makeConnections();
+
+protected:
+    /// The side panel view.
+    BioXASMainPersistentView *persistentPanel_;
 
 };
 

@@ -41,6 +41,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "util/AMPeriodicTable.h"
 
+#include "ui/BioXAS/BioXASMainPersistentView.h"
+
 BioXASMainAppController::BioXASMainAppController(QObject *parent)
 	: AMAppController(parent)
 {
@@ -140,6 +142,9 @@ void BioXASMainAppController::setupUserInterface()
 	mw_->insertHeading("Detectors", 1);
 
 	mw_->insertHeading("Scans", 2);
+
+    persistentPanel_ = new BioXASMainPersistentView();
+    mw_->addRightWidget(persistentPanel_);
 
 }
 
