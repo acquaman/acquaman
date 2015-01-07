@@ -1,3 +1,5 @@
+
+######
 # script to build Acquaman projects. Usage:
 #	"	buildProject.sh [-c] [-m] [-h] [-p project.pro]"
 #
