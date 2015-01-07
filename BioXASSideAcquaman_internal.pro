@@ -1,4 +1,5 @@
 include ( acquamanCommon.pri )
+include ( bioxasCommon.pri )
 include ( bioxasSideCommon.pri )
 
 TARGET = BioXASSideAcquaman
