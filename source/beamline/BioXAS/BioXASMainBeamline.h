@@ -35,6 +35,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/BioXAS/BioXASPseudoMotorControl.h"
 #include "beamline/BioXAS/BioXASBeamlineDef.h"
+#include "beamline/BioXAS/BioXASMainMonochromator.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
@@ -57,6 +58,8 @@ public:
 
 	/// Destructor.
 	virtual ~BioXASMainBeamline();
+    /// Returns the beamline monochromator.
+    BioXASMainMonochromator *mono() const { return mono_; }
 
 	QList<AMControl *> getMotorsByType(BioXASBeamlineDef::BioXASMotorType category);
 
@@ -106,16 +109,9 @@ protected:
 	CLSMAXvMotor *variableMaskVertUpperBlade_;
 	CLSMAXvMotor *variableMaskVertLowerBlade_;
 
-	/// BioXAS Mono motors
-	CLSMAXvMotor *monoPhosphorPaddle_;
-	CLSMAXvMotor *monoBragg_;
-	CLSMAXvMotor *monoVertical_;
-	CLSMAXvMotor *monoLateral_;
-	CLSMAXvMotor *monoXtalXchage_;
-	CLSMAXvMotor *monoXtal1Pitch_;
-	CLSMAXvMotor *monoXtal1Roll_;
-	CLSMAXvMotor *monoXtal2Pitch_;
-	CLSMAXvMotor *monoXtal2Roll_;
+    // Monochromator
+
+    BioXASMainMonochromator *mono_;
 
 	/// BioXAS M2 motors
 	CLSMAXvMotor *m2VertUpstreamINB_;
