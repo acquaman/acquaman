@@ -27,10 +27,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QPushButton>
 #include <QDoubleSpinBox>
 #include <QComboBox>
+#include <QToolButton>
 
 #include "application/VESPERS/VESPERS.h"
 #include "beamline/VESPERS/VESPERSBeamline.h"
-#include "ui/CLS/CLSStopLightButton.h"
 #include "ui/CLS/CLSPseudoMotorGroupView.h"
 
 class VESPERSSampleStageView;
@@ -73,14 +73,26 @@ protected slots:
 	void onPressureStateChanged();
 	/// Handles when the water state changes.  This holds the flow switches and the flow transducers.  If any of them are bad the state is RED, otherwise it's green.
 	void onWaterStateChanged();
-	/// Handles the logic for opening PSH1.
-	void onPSH1Clicked();
-	/// Handles the logic for opening PSH2.
-	void onPSH2Clicked();
-	/// Handles the logic for opening SSH1.
-	void onSSH1Clicked();
-	/// Handles the logic for opening SSH2.
-	void onSSH2Clicked();
+	/// Handles the logic for opening and closing photon shutter 1.
+	void onPhotonShutter1Clicked();
+	/// Handles the state changes for the button appearance for photon shutter 1.
+	void onPhotonShutter1StateChanged(int state);
+	/// Handles the logic for opening and closing photon shutter 2
+	void onPhotonShutter2Clicked();
+	/// Handles the state changes for the button appearance for photon shutter 2.
+	void onPhotonShutter2StateChanged(int state);
+	/// Handles the logic for opening and closing safety shutter 1.
+	void onSafetyShutter1Clicked();
+	/// Handles the state changes for the button appearance for safety shutter 1.
+	void onSafetyShutter1StateChanged(int state);
+	/// Handles the logic for opening and closing safety shutter 2.
+	void onSafetyShutter2Clicked();
+	/// Handles the state changes for the button appearance for safety shutter 2.
+	void onSafetyShutter2StateChanged(int state);
+	/// Handles creating and starting the beam on sequence.
+	void onBeamOnClicked();
+	/// Handles creating and starting the beam off sequence.
+	void onBeamOffClicked();
 	/// Handles updates from the lower shutter filter push button.
 	void toggleShutterState();
 	/// Handles the state change from the shutter.  Changes the label to the either a red or green light.  Green means open.
@@ -105,6 +117,9 @@ protected slots:
 	void onPOEStatusEnablePopupMenuRequested(const QPoint &point);
 
 protected:
+	/// Helper method that returns the color based on the current state of the shutter.
+	QColor colorFromShutterState(int state) const;
+
 	/// Button and label for the valves.
 	QPushButton *valvesButton_;
 	QToolButton *valveStatusButton_;
@@ -144,11 +159,18 @@ protected:
 	AMControlSet *flowSwitches_;
 	/// The flow transducers set.
 	AMControlSet *flowTransducers_;
-	/// The photon and safety shutters.
-	CLSStopLightButton *psh1_;
-	CLSStopLightButton *psh2_;
-	CLSStopLightButton *ssh1_;
-	CLSStopLightButton *ssh2_;
+	/// The button for photon shutter 1.
+	QToolButton *photonShutter1Button_;
+	/// The button for photon shutter 2.
+	QToolButton *photonShutter2Button_;
+	/// The button for safety shutter 1.
+	QToolButton *safetyShutter1Button_;
+	/// The button for safety shutter 2.
+	QToolButton *safetyShutter2Button_;
+	/// The beam on button.
+	QPushButton *beamOnButton_;
+	/// The beam off button.
+	QPushButton *beamOffButton_;
 
 	/// Pointer to the slits.
 	VESPERSIntermediateSlits *slits_;

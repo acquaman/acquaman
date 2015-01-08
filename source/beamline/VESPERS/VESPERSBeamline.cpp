@@ -49,10 +49,10 @@ VESPERSBeamline::VESPERSBeamline()
 void VESPERSBeamline::setupDiagnostics()
 {
 	// The shutters.
-	psh1_ = new CLSBiStateControl("PSH", "First Photon Shutter", "PSH1408-B20-01:state", "PSH1408-B20-01:opr:open", "PSH1408-B20-01:opr:close", new AMControlStatusCheckerDefault(2), this);
-	psh2_ = new CLSBiStateControl("Optic", "Second Photon Shutter", "PSH1408-B20-02:state", "PSH1408-B20-02:opr:open", "PSH1408-B20-02:opr:close", new AMControlStatusCheckerDefault(2), this);
-	ssh1_ = new CLSBiStateControl("SSH", "First Safety Shutter", "SSH1408-B20-01:state", "SSH1408-B20-01:opr:open", "SSH1408-B20-01:opr:close", new AMControlStatusCheckerDefault(2), this);
-	ssh2_ = new CLSBiStateControl("Exp.", "Second Safety Shutter", "SSH1607-1-B21-01:state", "SSH1607-1-B21-01:opr:open", "SSH1607-1-B21-01:opr:close", new AMControlStatusCheckerDefault(2), this);
+	photonShutter1_ = new CLSBiStateControl("PSH", "First Photon Shutter", "PSH1408-B20-01:state", "PSH1408-B20-01:opr:open", "PSH1408-B20-01:opr:close", new AMControlStatusCheckerDefault(2), this);
+	photonShutter2_ = new CLSBiStateControl("Optic", "Second Photon Shutter", "PSH1408-B20-02:state", "PSH1408-B20-02:opr:open", "PSH1408-B20-02:opr:close", new AMControlStatusCheckerDefault(2), this);
+	safetyShutter1_ = new CLSBiStateControl("SSH", "First Safety Shutter", "SSH1408-B20-01:state", "SSH1408-B20-01:opr:open", "SSH1408-B20-01:opr:close", new AMControlStatusCheckerDefault(2), this);
+	safetyShutter2_ = new CLSBiStateControl("Exp.", "Second Safety Shutter", "SSH1607-1-B21-01:state", "SSH1607-1-B21-01:opr:open", "SSH1607-1-B21-01:opr:close", new AMControlStatusCheckerDefault(2), this);
 
 	// Pressure controls.
 	ccgFE1_ =  new AMReadOnlyPVwStatusControl("Pressure FE1", "CCG1408-B20-01:vac:p", "CCG1408-B20-01:vac", this, new AMControlStatusCheckerDefault(0));
@@ -906,6 +906,43 @@ AMAction3 *VESPERSBeamline::createBeamChangeAction(VESPERS::Beam beam)
 	return changeBeamAction;
 }
 
+AMAction3 *VESPERSBeamline::createBeamOnAction()
+{
+	// The correct order for turning the beam on is turning on the safety shutter and then the second photon shutter.
+	AMSequentialListAction3 *beamOnAction = new AMSequentialListAction3(new AMSequentialListActionInfo3("The beam on action.", "The beam on action."));
+
+	AMControlInfo setpoint = safetyShutter1_->toInfo();
+	setpoint.setValue(1);
+	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
+	AMControlMoveAction3 *action = new AMControlMoveAction3(actionInfo, safetyShutter1_);
+	beamOnAction->addSubAction(action);
+
+	setpoint = photonShutter2_->toInfo();
+	setpoint.setValue(1);
+	actionInfo = new AMControlMoveActionInfo3(setpoint);
+	action = new AMControlMoveAction3(actionInfo, photonShutter2_);
+	beamOnAction->addSubAction(action);
+
+	setpoint = safetyShutter2_->toInfo();
+	setpoint.setValue(1);
+	actionInfo = new AMControlMoveActionInfo3(setpoint);
+	action = new AMControlMoveAction3(actionInfo, safetyShutter2_);
+	beamOnAction->addSubAction(action);
+
+	return beamOnAction;
+}
+
+AMAction3 *VESPERSBeamline::createBeamOffAction()
+{
+	// The correct order for turning the beam off is turning off the second photon shutter and then the safety shutter.
+	AMControlInfo setpoint = safetyShutter2_->toInfo();
+	setpoint.setValue(0);
+	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
+	AMControlMoveAction3 *beamOffAction = new AMControlMoveAction3(actionInfo, safetyShutter2_);
+
+	return beamOffAction;
+}
+
 void VESPERSBeamline::determineBeam()
 {
 	VESPERS::Beam temp;
@@ -1221,9 +1258,9 @@ void VESPERSBeamline::closeAllValvesHelper()
 
 bool VESPERSBeamline::openPhotonShutter1()
 {
-	if (ssh1_->value() == 1 || (ssh1_->value() == 0 && psh2_->value() == 0)){
+	if (safetyShutter1_->isOpen() || (safetyShutter1_->isClosed() && photonShutter2_->isClosed())){
 
-		psh1_->move(1);
+		photonShutter1_->open();
 		return true;
 	}
 
@@ -1232,9 +1269,9 @@ bool VESPERSBeamline::openPhotonShutter1()
 
 bool VESPERSBeamline::closePhotonShutter1()
 {
-	if (psh1_->value() == 1){
+	if (photonShutter1_->isOpen()){
 
-		psh1_->move(0);
+		photonShutter1_->close();
 		return true;
 	}
 
@@ -1243,9 +1280,9 @@ bool VESPERSBeamline::closePhotonShutter1()
 
 bool VESPERSBeamline::openPhotonShutter2()
 {
-	if (ssh1_->value() == 1 || (ssh1_->value() == 0 && psh1_->value() == 0)){
+	if (safetyShutter1_->isOpen() || (safetyShutter1_->isClosed() && photonShutter1_->isClosed())){
 
-		psh2_->move(1);
+		photonShutter2_->open();
 		return true;
 	}
 
@@ -1254,9 +1291,9 @@ bool VESPERSBeamline::openPhotonShutter2()
 
 bool VESPERSBeamline::closePhotonShutter2()
 {
-	if (psh2_->value() == 1){
+	if (photonShutter2_->isOpen()){
 
-		psh2_->move(0);
+		photonShutter2_->close();
 		return true;
 	}
 
@@ -1265,9 +1302,9 @@ bool VESPERSBeamline::closePhotonShutter2()
 
 bool VESPERSBeamline::openSafetyShutter1()
 {
-	if (ssh1_->value() == 0){
+	if (safetyShutter1_->isClosed()){
 
-		ssh1_->move(1);
+		safetyShutter1_->open();
 		return true;
 	}
 
@@ -1276,9 +1313,9 @@ bool VESPERSBeamline::openSafetyShutter1()
 
 bool VESPERSBeamline::closeSafetyShutter1()
 {
-	if ((psh1_->value() == 1 && psh2_->value() == 0) || (psh1_->value() == 0 && psh2_->value() == 1)){
+	if ((photonShutter1_->isOpen() && photonShutter2_->isClosed()) || (photonShutter1_->isClosed() && photonShutter2_->isOpen())){
 
-		ssh1_->move(0);
+		safetyShutter1_->close();
 		return true;
 	}
 
@@ -1287,9 +1324,9 @@ bool VESPERSBeamline::closeSafetyShutter1()
 
 bool VESPERSBeamline::openSafetyShutter2()
 {
-	if (ssh2_->value() == 0){
+	if (safetyShutter2_->isClosed()){
 
-		ssh2_->move(1);
+		safetyShutter2_->open();
 		return true;
 	}
 
@@ -1298,9 +1335,9 @@ bool VESPERSBeamline::openSafetyShutter2()
 
 bool VESPERSBeamline::closeSafetyShutter2()
 {
-	if (ssh2_->value() == 1){
+	if (safetyShutter2_->isOpen()){
 
-		ssh2_->move(0);
+		safetyShutter2_->close();
 		return false;
 	}
 
