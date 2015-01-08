@@ -39,6 +39,7 @@ CLSSIS3820Scaler::CLSSIS3820Scaler(const QString &baseName, QObject *parent) :
 	connectedOnce_ = false;
 	switchingReadModes_ = false;
 	doingDarkCurrentCorrection_ = false;
+	triggerSourceTriggered_ = false;
 
 	triggerSource_ = new AMDetectorTriggerSource(QString("%1TriggerSource").arg(baseName), this);
 	connect(triggerSource_, SIGNAL(triggered(AMDetectorDefinitions::ReadMode)), this, SLOT(onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode)));
@@ -491,6 +492,18 @@ bool CLSSIS3820Scaler::triggerScalerAcquisition(bool isContinuous){
 	if(isContinuous)
 		return false;
 
+	// say that we're triggered and need to do some waiting
+	triggerSourceTriggered_ = true;
+	// connect to all of the enabled channels
+	// make of list of the enabled channels we're waiting for
+	for(int x = 0, size = scalerChannels_.count(); x < size; x++){
+		if(scalerChannels_.at(x)->isEnabled()){
+
+			waitingChannels_.append(x);
+			connect(scalerChannels_.at(x), SIGNAL(readingChanged(int)), this, SLOT(onChannelReadingChanged(int)));
+		}
+	}
+
 	setScanning(true);
 	return true;
 }
@@ -498,7 +511,36 @@ bool CLSSIS3820Scaler::triggerScalerAcquisition(bool isContinuous){
 void CLSSIS3820Scaler::onReadingChanged(double value){
 	Q_UNUSED(value)
 	emit readingChanged();
-	triggerSource_->setSucceeded();
+
+	// check if we've even been trigged
+	// call a helper function to check if the all of the channels in the wait list have monitored
+	// if so, succeed
+
+	if(triggerSourceTriggered_ && waitingChannels_.count() == 0){
+
+		triggerSourceTriggered_ = false;
+		triggerSource_->setSucceeded();
+	}
+}
+
+// get a monitor from one channel
+// say that that channel is good in the check list
+// call helper function to check on shiatzu
+void CLSSIS3820Scaler::onChannelReadingChanged(int value){
+	Q_UNUSED(value)
+	CLSSIS3820ScalerChannel *senderChannel = qobject_cast<CLSSIS3820ScalerChannel*>(QObject::sender());
+
+	if(waitingChannels_.contains(senderChannel->index())){
+
+		waitingChannels_.removeAll(senderChannel->index());
+		disconnect(senderChannel, SIGNAL(readingChanged(int)), this, SLOT(onChannelReadingChanged(int)));
+	}
+
+	if(triggerSourceTriggered_ && waitingChannels_.count() == 0){
+
+		triggerSourceTriggered_ = false;
+		triggerSource_->setSucceeded();
+	}
 }
 
 void CLSSIS3820Scaler::onDwellTimeSourceSetDwellTime(double dwellSeconds){

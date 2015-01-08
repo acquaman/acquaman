@@ -171,6 +171,7 @@ protected slots:
 	void onModeSwitchSignal();
 	bool triggerScalerAcquisition(bool isContinuous);
 	void onReadingChanged(double value);
+	void onChannelReadingChanged(int value);
 
 	void onDwellTimeSourceSetDwellTime(double dwellSeconds);
 	void onDwellTimeSourceSetDarkCurrentCorrectionTime(double timeSeconds);
@@ -217,6 +218,8 @@ protected:
 	bool doingDarkCurrentCorrection_;
 	double lastDwellTime_;
 
+	bool triggerSourceTriggered_;
+	QList<int> waitingChannels_;
 };
 
 /// This class is an abstraction of an individual channel for the scaler class.
