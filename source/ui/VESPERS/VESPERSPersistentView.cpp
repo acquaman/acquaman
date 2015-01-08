@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/VESPERS/VESPERSPIDLoopControlView.h"
 #include "ui/VESPERS/VESPERSBeamSelectorView.h"
 #include "ui/VESPERS/VESPERSScalerView.h"
+#include "beamline/CLS/CLSBiStateControl.h"
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -32,19 +33,48 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMenu>
 #include <QAction>
 
- VESPERSPersistentView::~VESPERSPersistentView(){}
+VESPERSPersistentView::~VESPERSPersistentView(){}
+
 VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	QWidget(parent)
 {
+	beamOnButton_ = new QPushButton("Beam On");
+	connect(beamOnButton_, SIGNAL(clicked()), this, SLOT(onBeamOnClicked()));
+
+	beamOffButton_ = new QPushButton("Beam Off");
+	connect(beamOffButton_, SIGNAL(clicked()), this, SLOT(onBeamOffClicked()));
+
 	// The shutter buttons.
-	psh1_ = new CLSStopLightButton(qobject_cast<CLSBiStateControl *>(VESPERSBeamline::vespers()->photonShutter1()));
-	connect(psh1_, SIGNAL(clicked()), this, SLOT(onPSH1Clicked()));
-	psh2_ = new CLSStopLightButton(qobject_cast<CLSBiStateControl *>(VESPERSBeamline::vespers()->photonShutter2()));
-	connect(psh2_, SIGNAL(clicked()), this, SLOT(onPSH2Clicked()));
-	ssh1_ = new CLSStopLightButton(qobject_cast<CLSBiStateControl *>(VESPERSBeamline::vespers()->safetyShutter1()));
-	connect(ssh1_, SIGNAL(clicked()), this, SLOT(onSSH1Clicked()));
-	ssh2_ = new CLSStopLightButton(qobject_cast<CLSBiStateControl *>(VESPERSBeamline::vespers()->safetyShutter2()));
-	connect(ssh2_, SIGNAL(clicked()), this, SLOT(onSSH2Clicked()));
+	photonShutter1Button_ = new QToolButton;
+	photonShutter1Button_->setAutoRaise(false);
+	photonShutter1Button_->setFixedSize(70, 12);
+	photonShutter1Button_->setToolTip("Photon Shutter 1");
+	connect(VESPERSBeamline::vespers()->photonShutter1(), SIGNAL(stateChanged(int)), this, SLOT(onPhotonShutter1StateChanged(int)));
+	onPhotonShutter1StateChanged(VESPERSBeamline::vespers()->photonShutter1()->state());
+
+	photonShutter2Button_ = new QToolButton;
+	photonShutter2Button_->setAutoRaise(true);
+	photonShutter2Button_->setFixedSize(70, 12);
+	photonShutter2Button_->setToolTip("Photon Shutter 2");
+	connect(photonShutter2Button_, SIGNAL(clicked()), this, SLOT(onPhotonShutter2Clicked()));
+	connect(VESPERSBeamline::vespers()->photonShutter2(), SIGNAL(stateChanged(int)), this, SLOT(onPhotonShutter2StateChanged(int)));
+	onPhotonShutter2StateChanged(VESPERSBeamline::vespers()->photonShutter2()->state());
+
+	safetyShutter1Button_ = new QToolButton;
+	safetyShutter1Button_->setAutoRaise(true);
+	safetyShutter1Button_->setFixedSize(70, 12);
+	safetyShutter1Button_->setToolTip("Safety Shutter 1");
+	connect(safetyShutter1Button_, SIGNAL(clicked()), this, SLOT(onSafetyShutter1Clicked()));
+	connect(VESPERSBeamline::vespers()->safetyShutter1(), SIGNAL(stateChanged(int)), this, SLOT(onSafetyShutter1StateChanged(int)));
+	onSafetyShutter1StateChanged(VESPERSBeamline::vespers()->safetyShutter1()->state());
+
+	safetyShutter2Button_ = new QToolButton;
+	safetyShutter2Button_->setAutoRaise(true);
+	safetyShutter2Button_->setFixedSize(70, 12);
+	safetyShutter2Button_->setToolTip("Safety Shutter 2");
+	connect(safetyShutter2Button_, SIGNAL(clicked()), this, SLOT(onSafetyShutter2Clicked()));
+	connect(VESPERSBeamline::vespers()->safetyShutter2(), SIGNAL(stateChanged(int)), this, SLOT(onSafetyShutter2StateChanged(int)));
+	onSafetyShutter2StateChanged(VESPERSBeamline::vespers()->safetyShutter2()->state());
 
 	motorGroupView_ = new CLSPseudoMotorGroupView(VESPERSBeamline::vespers()->motorGroup(), AMMotorGroupView::Exclusive);
 	connect(motorGroupView_, SIGNAL(currentMotorGroupObjectViewChanged(QString)), this, SIGNAL(currentSampleStageChanged(QString)));
@@ -99,10 +129,12 @@ VESPERSPersistentView::VESPERSPersistentView(QWidget *parent) :
 	QGridLayout *shutterLayout = new QGridLayout;
 	shutterLayout->addWidget(pshShutterLabel, 0, 0, 1, 2);
 	shutterLayout->addWidget(sshShutterLabel, 0, 2, 1, 2);
-	shutterLayout->addWidget(psh1_);
-	shutterLayout->addWidget(ssh1_);
-	shutterLayout->addWidget(psh2_);
-	shutterLayout->addWidget(ssh2_);
+	shutterLayout->addWidget(photonShutter1Button_);
+	shutterLayout->addWidget(safetyShutter1Button_);
+	shutterLayout->addWidget(photonShutter2Button_);
+	shutterLayout->addWidget(safetyShutter2Button_);
+	shutterLayout->addWidget(beamOffButton_, 2, 0, 1, 2);
+	shutterLayout->addWidget(beamOnButton_, 2, 2, 1, 2);
 
 	// Beam selection and mono energy setting.
 	VESPERSBeamSelectorView *beamSelectorView = new VESPERSBeamSelectorView;
@@ -406,10 +438,10 @@ void VESPERSPersistentView::onWaterStateChanged()
 	waterStatusButton_->setStyleSheet(allGood ? "" : "QToolButton { background-color: red }");
 }
 
-void VESPERSPersistentView::onPSH1Clicked()
+void VESPERSPersistentView::onPhotonShutter1Clicked()
 {
 	// If currently open, simply close.
-	if (VESPERSBeamline::vespers()->photonShutter1()->value() == 1)
+	if (VESPERSBeamline::vespers()->photonShutter1()->isOpen())
 		VESPERSBeamline::vespers()->closePhotonShutter1();
 
 	// Need to check if opening is okay before opening.  Emits a message if not successful.
@@ -417,35 +449,87 @@ void VESPERSPersistentView::onPSH1Clicked()
 		QMessageBox::information(this, "Beamline Instructions", QString("You must open the %1 shutter before opening %2 shutter.").arg(VESPERSBeamline::vespers()->safetyShutter1()->name()).arg(VESPERSBeamline::vespers()->photonShutter1()->name()));
 }
 
-void VESPERSPersistentView::onPSH2Clicked()
+void VESPERSPersistentView::onPhotonShutter1StateChanged(int state)
+{
+	photonShutter1Button_->setStyleSheet(QString("QToolButton:!hover {background-color: %1; border: 1px; border-color: black; border-style: outset; border-radius: 4px;}"
+												  "QToolButton:hover {background-color: %1; border: 1px; border-color: black; border-style: outset; border-radius: 4px}").arg(colorFromShutterState(state).name()));
+}
+
+void VESPERSPersistentView::onPhotonShutter2Clicked()
 {
 	// If currently open, simply close.
-	if (VESPERSBeamline::vespers()->photonShutter2()->value() == 1)
+	if (VESPERSBeamline::vespers()->photonShutter2()->isOpen())
 		VESPERSBeamline::vespers()->closePhotonShutter2();
 
 	// Need to check if opening is okay before opening.  Emits a message if not successful.
-	else if (VESPERSBeamline::vespers()->photonShutter2()->value() == 0 && !VESPERSBeamline::vespers()->openPhotonShutter2())
+	else if (VESPERSBeamline::vespers()->photonShutter2()->isClosed() && !VESPERSBeamline::vespers()->openPhotonShutter2())
 		QMessageBox::information(this, "Beamline Instructions", QString("You must open the %1 shutter before opening %2 shutter.").arg(VESPERSBeamline::vespers()->safetyShutter1()->name()).arg(VESPERSBeamline::vespers()->photonShutter2()->name()));
 }
 
-void VESPERSPersistentView::onSSH1Clicked()
+void VESPERSPersistentView::onPhotonShutter2StateChanged(int state)
+{
+	photonShutter2Button_->setStyleSheet(QString("QToolButton:!hover {background-color: %1; border: 1px; border-color: black; border-style: outset; border-radius: 4px;}").arg(colorFromShutterState(state).name()));
+}
+
+void VESPERSPersistentView::onSafetyShutter1Clicked()
 {
 	// If currently closed, simply open.
-	if (VESPERSBeamline::vespers()->safetyShutter1()->value() == 0)
+	if (VESPERSBeamline::vespers()->safetyShutter1()->isClosed())
 		VESPERSBeamline::vespers()->openSafetyShutter1();
 
 	// Need to check if closing is okay before closing.  Emits a message if not successful.
-	else if (VESPERSBeamline::vespers()->safetyShutter1()->value() == 1 && !VESPERSBeamline::vespers()->closeSafetyShutter1())
+	else if (VESPERSBeamline::vespers()->safetyShutter1()->isOpen() && !VESPERSBeamline::vespers()->closeSafetyShutter1())
 		QMessageBox::information(this, "Beamline Instructions", QString("You must close either the %1 shutter or the %2 shutter before closing the %3 shutter.").arg(VESPERSBeamline::vespers()->photonShutter1()->name()).arg(VESPERSBeamline::vespers()->photonShutter2()->name()).arg(VESPERSBeamline::vespers()->safetyShutter1()->name()));
 }
 
-void VESPERSPersistentView::onSSH2Clicked()
+void VESPERSPersistentView::onSafetyShutter1StateChanged(int state)
 {
-	if (VESPERSBeamline::vespers()->safetyShutter2()->value() == 0)
+	safetyShutter1Button_->setStyleSheet(QString("QToolButton:!hover {background-color: %1; border: 1px; border-color: black; border-style: outset; border-radius: 4px;}").arg(colorFromShutterState(state).name()));
+}
+
+void VESPERSPersistentView::onSafetyShutter2Clicked()
+{
+	if (VESPERSBeamline::vespers()->safetyShutter2()->isClosed())
 		VESPERSBeamline::vespers()->openSafetyShutter2();
 
-	else if (VESPERSBeamline::vespers()->safetyShutter2()->value() == 1)
+	else if (VESPERSBeamline::vespers()->safetyShutter2()->isOpen())
 		VESPERSBeamline::vespers()->closeSafetyShutter2();
+}
+
+void VESPERSPersistentView::onSafetyShutter2StateChanged(int state)
+{
+	safetyShutter2Button_->setStyleSheet(QString("QToolButton:!hover {background-color: %1; border: 1px; border-color: black; border-style: outset; border-radius: 4px;}").arg(colorFromShutterState(state).name()));
+}
+
+void VESPERSPersistentView::onBeamOnClicked()
+{
+	AMAction3 *beamOnAction = VESPERSBeamline::vespers()->createBeamOnAction();
+	connect(beamOnAction, SIGNAL(succeeded()), beamOnAction, SLOT(scheduleForDeletion()));
+	connect(beamOnAction, SIGNAL(failed()), beamOnAction, SLOT(scheduleForDeletion()));
+	connect(beamOnAction, SIGNAL(cancelled()), beamOnAction, SLOT(scheduleForDeletion()));
+
+	beamOnAction->start();
+}
+
+void VESPERSPersistentView::onBeamOffClicked()
+{
+	AMAction3 *beamOffAction = VESPERSBeamline::vespers()->createBeamOffAction();
+	connect(beamOffAction, SIGNAL(succeeded()), beamOffAction, SLOT(scheduleForDeletion()));
+	connect(beamOffAction, SIGNAL(failed()), beamOffAction, SLOT(scheduleForDeletion()));
+	connect(beamOffAction, SIGNAL(cancelled()), beamOffAction, SLOT(scheduleForDeletion()));
+
+	beamOffAction->start();
+}
+
+QColor VESPERSPersistentView::colorFromShutterState(int state) const
+{
+	if (state == 1)
+		return Qt::green;
+
+	else if (state == 0)
+		return Qt::red;
+
+	return Qt::yellow;
 }
 
 void VESPERSPersistentView::onValvesStatusClicked()

@@ -201,20 +201,12 @@ AMAction3* VESPERSXASScanActionController::createInitializationActions()
 {
 	AMListAction3 *initializationAction = qobject_cast<AMListAction3 *>(buildBaseInitializationAction(double(configuration_->scanAxisAt(0)->regionAt(0)->regionTime())));
 
-	initializationAction->addSubAction(VESPERSBeamline::vespers()->mono()->createDelEAction(0));
-	initializationAction->addSubAction(VESPERSBeamline::vespers()->mono()->createEoAction(configuration_->energy()));
-
 	return initializationAction;
 }
 
 AMAction3* VESPERSXASScanActionController::createCleanupActions()
 {
 	AMListAction3 *cleanupAction = qobject_cast<AMListAction3 *>(buildCleanupAction());
-
-	AMListAction3 *monoCleanupAction = new AMListAction3(new AMListActionInfo3("VESPERS Cleanup Stage 3", "Resetting the mono position."), AMListAction3::Parallel);
-	monoCleanupAction->addSubAction(VESPERSBeamline::vespers()->mono()->createDelEAction(0));
-
-	cleanupAction->addSubAction(monoCleanupAction);
 
 	return cleanupAction;
 }
