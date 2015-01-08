@@ -39,6 +39,9 @@ CLSSIS3820Scaler::CLSSIS3820Scaler(const QString &baseName, QObject *parent) :
 	connectedOnce_ = false;
 	switchingReadModes_ = false;
 	doingDarkCurrentCorrection_ = false;
+	triggerSourceTriggered_ = false;
+
+	triggerChannelMapper_ = new QSignalMapper(this);
 
 	triggerSource_ = new AMDetectorTriggerSource(QString("%1TriggerSource").arg(baseName), this);
 	connect(triggerSource_, SIGNAL(triggered(AMDetectorDefinitions::ReadMode)), this, SLOT(onTriggerSourceTriggered(AMDetectorDefinitions::ReadMode)));
@@ -54,7 +57,8 @@ CLSSIS3820Scaler::CLSSIS3820Scaler(const QString &baseName, QObject *parent) :
 		tmpChannel = new CLSSIS3820ScalerChannel(baseName, x, this);
 		scalerChannels_.append(tmpChannel);
 		connect(tmpChannel, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()));
-		connect( tmpChannel, SIGNAL(sensitivityChanged()), this, SIGNAL(sensitivityChanged()) );
+		connect(tmpChannel, SIGNAL(sensitivityChanged()), this, SIGNAL(sensitivityChanged()));
+		connect(tmpChannel, SIGNAL(readingChanged(int)), triggerChannelMapper_, SLOT(map()));
 		/*
 		connect( this, SIGNAL(newDarkCurrentMeasurementValue(double)), tmpChannel, SIGNAL(newDarkCurrentMeasurementValue(double)) );
 		connect( this, SIGNAL(newDarkCurrentMeasurementState(CLSSIS3820Scaler::DarkCurrentCorrectionState)), tmpChannel, SIGNAL(newDarkCurrentMeasurementState(CLSSIS3820Scaler::DarkCurrentCorrectionState)) );
@@ -486,19 +490,54 @@ void CLSSIS3820Scaler::onModeSwitchSignal(){
 	}
 }
 
-bool CLSSIS3820Scaler::triggerScalerAcquisition(bool isContinuous){
+bool CLSSIS3820Scaler::triggerScalerAcquisition(bool isContinuous)
+{
 	disconnect(this, SIGNAL(continuousChanged(bool)), this, SLOT(triggerScalerAcquisition(bool)));
 	if(isContinuous)
 		return false;
+
+	triggerSourceTriggered_ = true;
+
+	for(int x = 0, size = scalerChannels_.count(); x < size; x++){
+		if(scalerChannels_.at(x)->isEnabled()){
+
+			waitingChannels_.append(x);
+			triggerChannelMapper_->setMapping(scalerChannels_.at(x), x);
+		}
+	}
+
+	connect(triggerChannelMapper_, SIGNAL(mapped(int)), this, SLOT(onChannelReadingChanged(int)));
 
 	setScanning(true);
 	return true;
 }
 
-void CLSSIS3820Scaler::onReadingChanged(double value){
+void CLSSIS3820Scaler::onReadingChanged(double value)
+{
 	Q_UNUSED(value)
 	emit readingChanged();
-	triggerSource_->setSucceeded();
+
+	if(triggerSourceTriggered_ && waitingChannels_.count() == 0){
+
+		triggerSourceTriggered_ = false;
+		triggerSource_->setSucceeded();
+	}
+}
+
+void CLSSIS3820Scaler::onChannelReadingChanged(int channelIndex)
+{
+	if(waitingChannels_.contains(channelIndex)){
+
+		waitingChannels_.removeAll(channelIndex);
+		triggerChannelMapper_->removeMappings(channelAt(channelIndex));
+	}
+
+	if(triggerSourceTriggered_ && waitingChannels_.count() == 0){
+
+		triggerSourceTriggered_ = false;
+		disconnect(triggerChannelMapper_, SIGNAL(mapped(int)), this, SLOT(onChannelReadingChanged(int)));
+		triggerSource_->setSucceeded();
+	}
 }
 
 void CLSSIS3820Scaler::onDwellTimeSourceSetDwellTime(double dwellSeconds){
