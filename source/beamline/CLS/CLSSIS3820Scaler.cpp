@@ -496,10 +496,8 @@ bool CLSSIS3820Scaler::triggerScalerAcquisition(bool isContinuous)
 	if(isContinuous)
 		return false;
 
-	// say that we're triggered and need to do some waiting
 	triggerSourceTriggered_ = true;
-	// connect to all of the enabled channels
-	// make of list of the enabled channels we're waiting for
+
 	for(int x = 0, size = scalerChannels_.count(); x < size; x++){
 		if(scalerChannels_.at(x)->isEnabled()){
 
@@ -519,10 +517,6 @@ void CLSSIS3820Scaler::onReadingChanged(double value)
 	Q_UNUSED(value)
 	emit readingChanged();
 
-	// check if we've even been trigged
-	// call a helper function to check if the all of the channels in the wait list have monitored
-	// if so, succeed
-
 	if(triggerSourceTriggered_ && waitingChannels_.count() == 0){
 
 		triggerSourceTriggered_ = false;
@@ -530,9 +524,6 @@ void CLSSIS3820Scaler::onReadingChanged(double value)
 	}
 }
 
-// get a monitor from one channel
-// say that that channel is good in the check list
-// call helper function to check on shiatzu
 void CLSSIS3820Scaler::onChannelReadingChanged(int channelIndex)
 {
 	if(waitingChannels_.contains(channelIndex)){
