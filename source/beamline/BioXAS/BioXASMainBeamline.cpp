@@ -167,17 +167,17 @@ QList<AMControl *> BioXASMainBeamline::getMotorsByType(BioXASBeamlineDef::BioXAS
 		matchedMotors.append(variableMaskVertLowerBlade_);
 		break;
 
-//	case BioXASBeamlineDef::MonoMotor:	// BioXAS Mono motors
-//		matchedMotors.append(monoPhosphorPaddle_);
-//		matchedMotors.append(monoBragg_);
-//		matchedMotors.append(monoVertical_);
-//		matchedMotors.append(monoLateral_);
-//		matchedMotors.append(monoXtalXchage_);
-//		matchedMotors.append(monoXtal1Pitch_);
-//		matchedMotors.append(monoXtal1Roll_);
-//		matchedMotors.append(monoXtal2Pitch_);
-//		matchedMotors.append(monoXtal2Roll_);
-//		break;
+    case BioXASBeamlineDef::MonoMotor:	// BioXAS Mono motors
+        matchedMotors.append(mono_->phosphorPaddleMotor());
+        matchedMotors.append(mono_->braggMotor());
+        matchedMotors.append(mono_->verticalMotor());
+        matchedMotors.append(mono_->lateralMotor());
+        matchedMotors.append(mono_->crystalExchangeMotor());
+        matchedMotors.append(mono_->crystal1PitchMotor());
+        matchedMotors.append(mono_->crystal1RollMotor());
+        matchedMotors.append(mono_->crystal2PitchMotor());
+        matchedMotors.append(mono_->crystal2RollMotor());
+        break;
 
 	case BioXASBeamlineDef::M2Motor:	// BioXAS M2 motors
 		matchedMotors.append(m2VertUpstreamINB_);
