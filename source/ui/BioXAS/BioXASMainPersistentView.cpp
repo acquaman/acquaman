@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/BioXAS/BioXASMainBeamline.h"
 #include "ui/beamline/AMExtendedControlEditor.h"
+#include "ui/BioXAS/BioXASMainMonoCrystalChangeView.h"
 
 BioXASMainPersistentView::BioXASMainPersistentView(QWidget *parent) :
     QWidget(parent)
@@ -33,6 +34,10 @@ BioXASMainPersistentView::BioXASMainPersistentView(QWidget *parent) :
     energyControlEditor_->setControlFormat('f', 2);
 
     crystalChange_ = new QPushButton("Crystal Change", this);
+
+    crystalChangeView_ = new BioXASMainMonoCrystalChangeView(BioXASMainBeamline::bioXAS()->mono(), this);
+    crystalChangeView_->setWindowFlags(Qt::Sheet);
+    crystalChangeView_->hide();
 
     // create and set layouts.
 
@@ -45,6 +50,7 @@ BioXASMainPersistentView::BioXASMainPersistentView(QWidget *parent) :
 
     // make connections.
 
+    connect( BioXASMainBeamline::bioXAS(), SIGNAL(connected(bool)), this, SLOT(onBeamlineConnectedChanged(bool)) );
     connect( crystalChange_, SIGNAL(clicked()), this, SLOT(onCrystalChangeButtonClicked()) );
 }
 
@@ -55,5 +61,5 @@ BioXASMainPersistentView::~BioXASMainPersistentView()
 
 void BioXASMainPersistentView::onCrystalChangeButtonClicked()
 {
-    // to implement.
+    crystalChangeView_->show();
 }

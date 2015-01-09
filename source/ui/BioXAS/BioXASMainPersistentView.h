@@ -28,6 +28,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/CLS/CLSMAXvMotor.h"
 
+#include "ui/BioXAS/BioXASMainMonoCrystalChangeView.h"
+
 class AMExtendedControlEditor;
 
 class BioXASMainPersistentView : public QWidget
@@ -53,6 +55,8 @@ protected:
     AMExtendedControlEditor *energyControlEditor_;
     /// Button that initiates the crystal change procedure.
     QPushButton *crystalChange_;
+    /// The crystal change guide.
+    BioXASMainMonoCrystalChangeView *crystalChangeView_;
 };
 
 #endif // BIOXASMAINPERSISTENTVIEW_H
