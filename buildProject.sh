@@ -1,20 +1,17 @@
 
+######
+# script to build Acquaman projects. Usage:
+#	"	buildProject.sh [-c] [-m] [-h] [-p project.pro]"
+#
+#	"	-h help"
+#	"	-c make a clean build"
+#	"	-m make the current project. No Makefile will be updated."
+#	"	-p make the given project. Makefile will be updated."
+
 function cleanBuild() {
 	echo $"Clean project files"
 	
 	make clean
-
-	echo rm *.o
-	rm *.o
-
-	echo rm moc_*
-	rm moc_*
-
-	echo rm qrc_*
-	rm qrc_*
-
-	echo rm ui_*
-	rm ui_*
 	
 	echo rm Makefile*
 	rm Makefile*
@@ -29,6 +26,7 @@ function buildProject() {
 	if [ $1 -ne 1 ]; then
 		qmake -r $2
 	fi
+
 	make -j 3
 
 	echo

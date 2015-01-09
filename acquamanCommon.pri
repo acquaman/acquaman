@@ -147,7 +147,6 @@ HEADERS += \
 	source/ui/beamline/AMControlMoveButton.h \
 	source/beamline/AMSampleManipulator.h \
 	source/beamline/AMControlSetSampleManipulator.h \
-	source/ui/CLS/CLSStopLightButton.h \
 	source/beamline/CLS/CLSVariableIntegrationTime.h \
 	source/beamline/CLS/CLSOMS58Motor.h \
 	source/beamline/CLS/CLSSIS3820Scaler.h \
@@ -564,7 +563,6 @@ SOURCES += \
 	source/beamline/CLS/CLSMDriveMotorControl.cpp \
 	source/ui/beamline/AMControlMoveButton.cpp \
 	source/beamline/AMControlSetSampleManipulator.cpp \
-	source/ui/CLS/CLSStopLightButton.cpp \
 	source/beamline/CLS/CLSVariableIntegrationTime.cpp \
 	source/beamline/CLS/CLSSIS3820Scaler.cpp \
 	source/ui/CLS/CLSSIS3820ScalerView.cpp \
@@ -872,6 +870,8 @@ contains(DEFINES, AM_BUILD_REPORTER_ENABLED){
 
 	SOURCES *= source/util/AMRunTimeBuildInfo.cpp
 }
+
+
 
 
 
