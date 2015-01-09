@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QWidget>
 #include <QLayout>
+#include <QPushButton>
 
 #include "beamline/CLS/CLSMAXvMotor.h"
 
@@ -43,8 +44,15 @@ signals:
 
 public slots:
 
+protected slots:
+    /// Handles initiating the crystal change procedure.
+    void onCrystalChangeButtonClicked();
+
 protected:
+    /// Basic editor for selecting mono energy.
     AMExtendedControlEditor *energyControlEditor_;
+    /// Button that initiates the crystal change procedure.
+    QPushButton *crystalChange_;
 };
 
 #endif // BIOXASMAINPERSISTENTVIEW_H

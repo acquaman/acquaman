@@ -27,17 +27,33 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 BioXASMainPersistentView::BioXASMainPersistentView(QWidget *parent) :
     QWidget(parent)
 {
+    // create UI elements.
+
     energyControlEditor_ = new AMExtendedControlEditor(BioXASMainBeamline::bioXAS()->mono()->energyControl());
     energyControlEditor_->setControlFormat('f', 2);
 
+    crystalChange_ = new QPushButton("Crystal Change", this);
+
+    // create and set layouts.
+
     QVBoxLayout *layout = new QVBoxLayout();
     layout->addWidget(energyControlEditor_);
+    layout->addWidget(crystalChange_);
     layout->addStretch();
 
     setLayout(layout);
+
+    // make connections.
+
+    connect( crystalChange_, SIGNAL(clicked()), this, SLOT(onCrystalChangeButtonClicked()) );
 }
 
 BioXASMainPersistentView::~BioXASMainPersistentView()
 {
 
+}
+
+void BioXASMainPersistentView::onCrystalChangeButtonClicked()
+{
+    // to implement.
 }
