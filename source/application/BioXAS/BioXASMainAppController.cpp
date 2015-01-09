@@ -144,6 +144,7 @@ void BioXASMainAppController::setupUserInterface()
 	mw_->insertHeading("Scans", 2);
 
     persistentPanel_ = new BioXASMainPersistentView();
+    persistentPanel_->setMaximumWidth(300);
     mw_->addRightWidget(persistentPanel_);
 
 }
