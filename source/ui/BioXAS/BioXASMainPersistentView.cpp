@@ -50,7 +50,6 @@ BioXASMainPersistentView::BioXASMainPersistentView(QWidget *parent) :
 
     // make connections.
 
-    connect( BioXASMainBeamline::bioXAS(), SIGNAL(connected(bool)), this, SLOT(onBeamlineConnectedChanged(bool)) );
     connect( crystalChange_, SIGNAL(clicked()), this, SLOT(onCrystalChangeButtonClicked()) );
 }
 

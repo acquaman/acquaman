@@ -30,7 +30,7 @@ BioXASMainMonoCrystalChangeView::BioXASMainMonoCrystalChangeView(BioXASMainMonoc
 
     // make connections.
 
-    connect( startView_, SIGNAL(okClicked()), this, SLOT(toShowActionsView()) );
+    connect( startView_, SIGNAL(okClicked()), this, SLOT(showActionsView()) );
     connect( startView_, SIGNAL(closeClicked()), this, SLOT(close()) );
 
     connect( actionsView_, SIGNAL(actionsComplete(bool)), this, SLOT(onActionsComplete(bool)) );
