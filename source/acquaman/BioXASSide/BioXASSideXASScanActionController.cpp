@@ -35,7 +35,8 @@ BioXASSideXASScanActionController::BioXASSideXASScanActionController(BioXASSideX
     configuration_ = configuration;
 
     scan_ = new AMXASScan();
-    scan_->setFileFormat("amRegionAscii2013");
+//    scan_->setFileFormat("amRegionAscii2013");
+    scan_->setFileFormat("amCDFv1");
     scan_->setScanConfiguration(configuration);
     scan_->setIndexType("fileSystem");
     scan_->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));
@@ -50,6 +51,8 @@ BioXASSideXASScanActionController::BioXASSideXASScanActionController(BioXASSideX
     bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->iTDetector()->toInfo());
     bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->i2Detector()->toInfo());
     bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->energyFeedbackDetector()->toInfo());
+    bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->energySetpointDetector()->toInfo());
+    bioXASDetectors.addDetectorInfo(BioXASSideBeamline::bioXAS()->dwellTimeDetector()->toInfo());
     configuration_->setDetectorConfigurations(bioXASDetectors);
 }
 
