@@ -106,6 +106,7 @@ QString AMExporter2DAscii::exportScan(const AMScan *scan, const QString &destina
 
 	// prepare export file
 	mainFileName_ = parseKeywordString( destinationFolderPath % "/" % option->fileName() );
+	mainFileName_ = removeNonPrintableCharacters(mainFileName_);
 
 	if(!openFile(mainFileName_)) {
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -3, "Export failed: Could not open the file '" % mainFileName_ % "' for writing.  Check that you have permission to save files there, and that a file with that name doesn't already exists."));
@@ -244,6 +245,7 @@ bool AMExporter2DAscii::writeSeparateFiles(const QString &destinationFolderPath)
 
 			QFile output;
 			QString separateFileName = parseKeywordString( destinationFolderPath % "/" % option_->separateSectionFileName() );
+			separateFileName = removeNonPrintableCharacters(separateFileName);
 
 			if(!openFile(&output, separateFileName)) {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -4, "Export failed (partially): You selected to create separate files for certain data sets. Could not open the file '" % separateFileName % "' for writing.  Check that you have permission to save files there, and that a file with that name doesn't already exists."));

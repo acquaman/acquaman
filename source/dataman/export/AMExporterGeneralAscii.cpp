@@ -93,21 +93,20 @@ QString AMExporterGeneralAscii::exportScan(const AMScan *scan, const QString &de
 
 	// prepare export file
 	mainFileName_ = parseKeywordString( destinationFolderPath % "/" % option->fileName() );
-	bool detectedNonprintable = false;
-	for(int x = 0, size = mainFileName_.size(); (x < size) && !detectedNonprintable; x++)
-		if(!mainFileName_.at(x).isPrint())
-			detectedNonprintable = true;
+	mainFileName_ = removeNonPrintableCharacters(mainFileName_);
 
-	if(detectedNonprintable){
-		QString oldMainFileName = mainFileName_;
-		mainFileName_.clear();
-		for(int x = 0, size = oldMainFileName.size(); x < size; x++)
-			if(oldMainFileName.at(x).isPrint())
-				mainFileName_.append(oldMainFileName.at(x));
+//	bool detectedNonprintable = false;
+//	for(int x = 0, size = mainFileName_.size(); (x < size) && !detectedNonprintable; x++)
+//		if(!mainFileName_.at(x).isPrint())
+//			detectedNonprintable = true;
 
-		qDebug() << "Old main file name: " << oldMainFileName;
-		qDebug() << "New main file name: " << mainFileName_;
-	}
+//	if(detectedNonprintable){
+//		QString oldMainFileName = mainFileName_;
+//		mainFileName_.clear();
+//		for(int x = 0, size = oldMainFileName.size(); x < size; x++)
+//			if(oldMainFileName.at(x).isPrint())
+//				mainFileName_.append(oldMainFileName.at(x));
+//	}
 
 	if(!openFile(mainFileName_)) {
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -3, "Export failed: Could not open the file '" % mainFileName_ % "' for writing.  Check that you have permission to save files there, and that a file with that name doesn't already exists."));
@@ -531,21 +530,19 @@ bool AMExporterGeneralAscii::writeSeparateFiles(const QString& destinationFolder
 
 			QFile file;
 			QString separateFileName = parseKeywordString( destinationFolderPath % "/" % option_->separateSectionFileName() );
-			bool detectedNonprintable = false;
-			for(int x = 0, size = separateFileName.size(); (x < size) && !detectedNonprintable; x++)
-				if(!separateFileName.at(x).isPrint())
-					detectedNonprintable = true;
+			separateFileName = removeNonPrintableCharacters(separateFileName);
+//			bool detectedNonprintable = false;
+//			for(int x = 0, size = separateFileName.size(); (x < size) && !detectedNonprintable; x++)
+//				if(!separateFileName.at(x).isPrint())
+//					detectedNonprintable = true;
 
-			if(detectedNonprintable){
-				QString oldSeparateFileName = separateFileName;
-				separateFileName.clear();
-				for(int x = 0, size = oldSeparateFileName.size(); x < size; x++)
-					if(oldSeparateFileName.at(x).isPrint())
-						separateFileName.append(oldSeparateFileName.at(x));
-
-				qDebug() << "Old separate file name: " << oldSeparateFileName;
-				qDebug() << "New separate file name: " << separateFileName;
-			}
+//			if(detectedNonprintable){
+//				QString oldSeparateFileName = separateFileName;
+//				separateFileName.clear();
+//				for(int x = 0, size = oldSeparateFileName.size(); x < size; x++)
+//					if(oldSeparateFileName.at(x).isPrint())
+//						separateFileName.append(oldSeparateFileName.at(x));
+//			}
 
 			if(!openFile(&file, separateFileName)) {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -4, "Export failed (partially): You selected to create separate files for certain data sets. Could not open the file '" % separateFileName % "' for writing.  Check that you have permission to save files there, and that a file with that name doesn't already exists."));

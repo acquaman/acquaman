@@ -642,3 +642,21 @@ QString AMExporter::krFileSystemAutoIncrement(const QString &arg)
 
 	return QString::number(currentScan_->number());
 }
+
+
+QString AMExporter::removeNonPrintableCharacters(const QString &fileName){
+	QString retVal = fileName;
+	bool detectedNonprintable = false;
+	for(int x = 0, size = fileName.size(); (x < size) && !detectedNonprintable; x++)
+		if(!fileName.at(x).isPrint())
+			detectedNonprintable = true;
+
+	if(detectedNonprintable){
+		retVal.clear();
+		for(int x = 0, size = fileName.size(); x < size; x++)
+			if(fileName.at(x).isPrint())
+				retVal.append(fileName.at(x));
+	}
+
+	return retVal;
+}
