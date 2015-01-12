@@ -86,18 +86,18 @@ void AMLinePropertyEditor::setupUi()
 				"}"));
 	setFrameShape(QFrame::NoFrame);
 	setFrameShadow(QFrame::Plain);
-	verticalLayout = new QVBoxLayout(this);
+	verticalLayout = new QVBoxLayout();
 	verticalLayout->setContentsMargins(6, 6, 6, 6);
 	verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
 	horizontalLayout = new QHBoxLayout();
 	horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
-	labelColor = new QLabel(this);
+	labelColor = new QLabel();
 	labelColor->setObjectName(QString::fromUtf8("labelColor"));
 	labelColor->setStyleSheet(QString::fromUtf8("color: rgb(230, 230, 230);"));
 
 	horizontalLayout->addWidget(labelColor);
 
-	colorButton = new AMColorPickerButton(this);
+	colorButton = new AMColorPickerButton();
 	colorButton->setObjectName(QString::fromUtf8("colorButton"));
 
 	horizontalLayout->addWidget(colorButton);
@@ -107,13 +107,13 @@ void AMLinePropertyEditor::setupUi()
 
 	horizontalLayout_2 = new QHBoxLayout();
 	horizontalLayout_2->setObjectName(QString::fromUtf8("horizontalLayout_2"));
-	labelWidth = new QLabel(this);
+	labelWidth = new QLabel();
 	labelWidth->setObjectName(QString::fromUtf8("labelWidth"));
 	labelWidth->setStyleSheet(QString::fromUtf8("color: rgb(230, 230, 230);"));
 
 	horizontalLayout_2->addWidget(labelWidth);
 
-	widthSlider = new QSlider(this);
+	widthSlider = new QSlider();
 	widthSlider->setObjectName(QString::fromUtf8("widthSlider"));
 	widthSlider->setMinimum(1);
 	widthSlider->setMaximum(10);
@@ -127,7 +127,7 @@ void AMLinePropertyEditor::setupUi()
 
 	verticalLayout->addLayout(horizontalLayout_2);
 
-	lineStyleBox = new QComboBox(this);
+	lineStyleBox = new QComboBox();
 	lineStyleBox->setObjectName(QString::fromUtf8("lineStyleBox"));
 
 	verticalLayout->addWidget(lineStyleBox);
@@ -138,7 +138,7 @@ void AMLinePropertyEditor::setupUi()
 
 	horizontalLayout_3 = new QHBoxLayout();
 	horizontalLayout_3->setObjectName(QString::fromUtf8("horizontalLayout_3"));
-	labelFill = new QLabel(this);
+	labelFill = new QLabel();
 	labelFill->setObjectName(QString::fromUtf8("labelFill"));
 	labelFill->setStyleSheet(QString::fromUtf8("color: rgb(230, 230, 230);"));
 
@@ -148,7 +148,7 @@ void AMLinePropertyEditor::setupUi()
 
 	horizontalLayout_3->addItem(horizontalSpacer);
 
-	fillCheckBox = new QCheckBox(this);
+	fillCheckBox = new QCheckBox();
 	fillCheckBox->setObjectName(QString::fromUtf8("fillCheckBox"));
 
 	horizontalLayout_3->addWidget(fillCheckBox);
@@ -158,20 +158,20 @@ void AMLinePropertyEditor::setupUi()
 
 	horizontalLayout_4 = new QHBoxLayout();
 	horizontalLayout_4->setObjectName(QString::fromUtf8("horizontalLayout_4"));
-	labelFillColor = new QLabel(this);
+	labelFillColor = new QLabel();
 	labelFillColor->setObjectName(QString::fromUtf8("labelFillColor"));
 	labelFillColor->setStyleSheet(QString::fromUtf8("color: rgb(230, 230, 230);"));
 
 	horizontalLayout_4->addWidget(labelFillColor);
 
-	fillColorButton = new AMColorPickerButton(this);
+	fillColorButton = new AMColorPickerButton();
 	fillColorButton->setObjectName(QString::fromUtf8("fillColorButton"));
 
 	horizontalLayout_4->addWidget(fillColorButton);
 
 
 	verticalLayout->addLayout(horizontalLayout_4);
-
+	setLayout(verticalLayout);
 
 	setWindowTitle(QApplication::translate("AMLinePropertyEditor", "Frame", 0, QApplication::UnicodeUTF8));
 	labelColor->setText(QApplication::translate("AMLinePropertyEditor", "Color", 0, QApplication::UnicodeUTF8));
