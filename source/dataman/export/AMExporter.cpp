@@ -644,7 +644,7 @@ QString AMExporter::krFileSystemAutoIncrement(const QString &arg)
 }
 
 
-QString AMExporter::removeNonPrintableCharacters(const QString &fileName){
+QString AMExporter::removeNonPrintableCharacters(const QString &fileName) const{
 	QString retVal = fileName;
 	bool detectedNonprintable = false;
 	for(int x = 0, size = fileName.size(); (x < size) && !detectedNonprintable; x++)

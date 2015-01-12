@@ -302,6 +302,7 @@ bool AMExporter2DAscii::writeSeparateFiles(const QString &destinationFolderPath)
 
 			QFile output;
 			QString separateFileName = parseKeywordString( destinationFolderPath % "/" % option_->separateSectionFileName() );
+			separateFileName = removeNonPrintableCharacters(separateFileName);
 
 			if(!openFile(&output, separateFileName)) {
 				AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -4, "Export failed (partially): You selected to create separate files for certain data sets. Could not open the file '" % separateFileName % "' for writing.  Check that you have permission to save files there, and that a file with that name doesn't already exists."));

@@ -201,7 +201,7 @@ protected:
 	QString krFileSystemAutoIncrement(const QString &arg = QString());
 
 	/// Helper function to remove non-printable characters from a file name
-	QString removeNonPrintableCharacters(const QString &fileName);
+	QString removeNonPrintableCharacters(const QString &fileName) const;
 
 };
 
