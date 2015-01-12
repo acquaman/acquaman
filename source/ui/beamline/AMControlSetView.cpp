@@ -42,7 +42,7 @@ AMControlSetView::AMControlSetView(AMControlSet *viewSet, bool configureOnly, QW
 		connect(tmpCE, SIGNAL(setpointRequested(double)), this, SLOT(onConfigurationValueChanged()));
 	}
 
-	hl_ = new QHBoxLayout(this);
+	hl_ = new QHBoxLayout();
 	hl_->addLayout(vl);
 	setLayout(hl_);
 	setFixedSize(300, 200);

@@ -32,7 +32,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMErrorMonitor.h"
 #include "dataman/database/AMDbObjectSupport.h"
 
- AMDataSourcesEditor::~AMDataSourcesEditor(){}
 AMDataSourcesEditor::AMDataSourcesEditor(AMScanSetModel* model, QWidget *parent) :
 		QWidget(parent)
 {
@@ -40,23 +39,23 @@ AMDataSourcesEditor::AMDataSourcesEditor(AMScanSetModel* model, QWidget *parent)
 	if (objectName().isEmpty())
 		setObjectName(QString::fromUtf8("AMDataSourcesEditor"));
 	resize(317, 230);
-	QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
-	sizePolicy.setHorizontalStretch(0);
-	sizePolicy.setVerticalStretch(0);
-	sizePolicy.setHeightForWidth(this->sizePolicy().hasHeightForWidth());
-	setSizePolicy(sizePolicy);
-	verticalLayout = new QVBoxLayout(this);
-	verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
-	scanSetView_ = new QTreeView(this);
+	QSizePolicy localSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
+	localSizePolicy.setHorizontalStretch(0);
+	localSizePolicy.setVerticalStretch(0);
+	localSizePolicy.setHeightForWidth(sizePolicy().hasHeightForWidth());
+	setSizePolicy(localSizePolicy);
+	verticalLayout_ = new QVBoxLayout();
+	verticalLayout_->setObjectName(QString::fromUtf8("verticalLayout"));
+	scanSetView_ = new QTreeView();
 	scanSetView_->setObjectName(QString::fromUtf8("scanSetView_"));
 	scanSetView_->setAlternatingRowColors(true);
 
-	verticalLayout->addWidget(scanSetView_);
+	verticalLayout_->addWidget(scanSetView_);
 
 	addAnalysisToolButtonLayout_ = new QHBoxLayout();
 	addAnalysisToolButtonLayout_->setObjectName(QString::fromUtf8("addAnalysisToolButtonLayout_"));
 	addAnalysisToolButtonLayout_->setContentsMargins(12, 0, 12, -1);
-	addDataSourceButton_ = new QToolButton(this);
+	addDataSourceButton_ = new QToolButton();
 	addDataSourceButton_->setObjectName(QString::fromUtf8("addDataSourceButton_"));
 
 	addAnalysisToolButtonLayout_->addWidget(addDataSourceButton_);
@@ -66,18 +65,18 @@ AMDataSourcesEditor::AMDataSourcesEditor(AMScanSetModel* model, QWidget *parent)
 	addAnalysisToolButtonLayout_->addItem(horizontalSpacer_2);
 
 
-	verticalLayout->addLayout(addAnalysisToolButtonLayout_);
+	verticalLayout_->addLayout(addAnalysisToolButtonLayout_);
 
 	analysisDetailsLayout_ = new QGridLayout();
 	analysisDetailsLayout_->setObjectName(QString::fromUtf8("analysisDetailsLayout_"));
 	analysisDetailsLayout_->setContentsMargins(-1, 0, -1, -1);
-	nameEdit_ = new QLineEdit(this);
+	nameEdit_ = new QLineEdit();
 	nameEdit_->setObjectName(QString::fromUtf8("nameEdit_"));
 	nameEdit_->setFrame(false);
 
 	analysisDetailsLayout_->addWidget(nameEdit_, 0, 1, 1, 1);
 
-	descriptionLabel_ = new QLabel(this);
+	descriptionLabel_ = new QLabel();
 	descriptionLabel_->setObjectName(QString::fromUtf8("descriptionLabel_"));
 	descriptionLabel_->setStyleSheet(QString::fromUtf8("font: bold \"Lucida Grande\";\n"
 "color: rgb(121,121,121);"));
@@ -85,13 +84,13 @@ AMDataSourcesEditor::AMDataSourcesEditor(AMScanSetModel* model, QWidget *parent)
 
 	analysisDetailsLayout_->addWidget(descriptionLabel_, 1, 0, 1, 1);
 
-	descriptionEdit_ = new QLineEdit(this);
+	descriptionEdit_ = new QLineEdit();
 	descriptionEdit_->setObjectName(QString::fromUtf8("descriptionEdit_"));
 	descriptionEdit_->setFrame(false);
 
 	analysisDetailsLayout_->addWidget(descriptionEdit_, 1, 1, 1, 1);
 
-	nameLabel_ = new QLabel(this);
+	nameLabel_ = new QLabel();
 	nameLabel_->setObjectName(QString::fromUtf8("nameLabel_"));
 	nameLabel_->setStyleSheet(QString::fromUtf8("font: bold \"Lucida Grande\";\n"
 "color: rgb(121,121,121);"));
@@ -100,19 +99,19 @@ AMDataSourcesEditor::AMDataSourcesEditor(AMScanSetModel* model, QWidget *parent)
 	analysisDetailsLayout_->addWidget(nameLabel_, 0, 0, 1, 1);
 
 
-	verticalLayout->addLayout(analysisDetailsLayout_);
+	verticalLayout_->addLayout(analysisDetailsLayout_);
 
-	lineBreak_ = new QFrame(this);
+	lineBreak_ = new QFrame();
 	lineBreak_->setObjectName(QString::fromUtf8("lineBreak_"));
 	lineBreak_->setFrameShape(QFrame::HLine);
 	lineBreak_->setFrameShadow(QFrame::Sunken);
 
-	verticalLayout->addWidget(lineBreak_);
+	verticalLayout_->addWidget(lineBreak_);
 
 	detailEditorLayout_ = new QVBoxLayout();
 	detailEditorLayout_->setObjectName(QString::fromUtf8("detailEditorLayout_"));
 
-	verticalLayout->addLayout(detailEditorLayout_);
+	verticalLayout_->addLayout(detailEditorLayout_);
 
 	setWindowTitle(QApplication::translate("AMDataSourcesEditor", "Form", 0, QApplication::UnicodeUTF8));
 	addDataSourceButton_->setText(QApplication::translate("AMDataSourcesEditor", "Add Analysis Tool", 0, QApplication::UnicodeUTF8));
@@ -127,10 +126,10 @@ AMDataSourcesEditor::AMDataSourcesEditor(AMScanSetModel* model, QWidget *parent)
 
 
 	// apply 'close item' boxes onto the list of data sources
-	AMCloseItemDelegate* itemDelegate = new AMCloseItemDelegate(this);
-	itemDelegate->setCloseButtonsEnabled(true);
-	connect(itemDelegate, SIGNAL(closeButtonClicked(QModelIndex)), this, SLOT(onCloseButtonClicked(QModelIndex)));
-	scanSetView_->setItemDelegate(itemDelegate);
+	itemDelegate_ = new AMCloseItemDelegate();
+	itemDelegate_->setCloseButtonsEnabled(true);
+	connect(itemDelegate_, SIGNAL(closeButtonClicked(QModelIndex)), this, SLOT(onCloseButtonClicked(QModelIndex)));
+	scanSetView_->setItemDelegate(itemDelegate_);
 
 	// apply the existing scan set model to the data source list view:
 	model_ = model;
@@ -151,6 +150,16 @@ AMDataSourcesEditor::AMDataSourcesEditor(AMScanSetModel* model, QWidget *parent)
 	showAllDataSources_ = false;
 	scanSetView_->setContextMenuPolicy(Qt::CustomContextMenu);
 	connect(scanSetView_, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onCustomContextMenuRequested(QPoint)));
+
+	setLayout(verticalLayout_);
+}
+
+AMDataSourcesEditor::~AMDataSourcesEditor()
+{
+	if(itemDelegate_){
+		itemDelegate_->deleteLater();
+		itemDelegate_ = 0;
+	}
 }
 
 void AMDataSourcesEditor::onCustomContextMenuRequested(QPoint point)

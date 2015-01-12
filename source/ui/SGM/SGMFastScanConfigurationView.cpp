@@ -59,7 +59,7 @@ SGMFastScanConfigurationView::SGMFastScanConfigurationView(SGMFastScanConfigurat
 	warningsLabel_->setStyleSheet( "QLabel{ color: red }" );
 
 	scanNameLabel_ = new QLabel("Scan Name");
-	scanNameEdit_ = new QLineEdit(this);
+	scanNameEdit_ = new QLineEdit();
 
 	connect(scanNameEdit_, SIGNAL(textEdited(QString)), this, SLOT(onScanNameEditChanged(QString)));
 

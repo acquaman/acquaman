@@ -37,6 +37,8 @@ class AMCurrentAmplifier;
 #include "actions3/AMListAction3.h"
 #include "source/beamline/AMDetector.h"
 
+#include <QSignalMapper>
+
 /*!
   Builds an abstraction for the SIS 3820 scaler used throughout the CLS.  It takes in a base name of the PV's and builds all the PV's
   and makes the necessary connections.
@@ -171,6 +173,7 @@ protected slots:
 	void onModeSwitchSignal();
 	bool triggerScalerAcquisition(bool isContinuous);
 	void onReadingChanged(double value);
+	void onChannelReadingChanged(int channelIndex);
 
 	void onDwellTimeSourceSetDwellTime(double dwellSeconds);
 	void onDwellTimeSourceSetDarkCurrentCorrectionTime(double timeSeconds);
@@ -217,6 +220,12 @@ protected:
 	bool doingDarkCurrentCorrection_;
 	double lastDwellTime_;
 
+	/// Holds the mapping of the enabled channels during an acquisition.
+	QSignalMapper *triggerChannelMapper_;
+	/// Flag for knowing if the scaler has been triggered.
+	bool triggerSourceTriggered_;
+	/// The list of channels we are still waiting to get their monitor before emitting that the scaler acquisition has finished.
+	QList<int> waitingChannels_;
 };
 
 /// This class is an abstraction of an individual channel for the scaler class.

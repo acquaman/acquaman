@@ -7,8 +7,8 @@ AMScanDataView::AMScanDataView(AMDatabase *database, QWidget *parent) :
 
 
 	// Widgets
-	browseScansView_ = new AMBrowseScansView(database, this);
-	titleLabel_ = new QLabel(this);
+	browseScansView_ = new AMBrowseScansView(database);
+	titleLabel_ = new QLabel();
 	titleLabel_->setObjectName(QString::fromUtf8("headingLabel_"));
 	titleLabel_->setStyleSheet(QString::fromUtf8("font: 20pt \"Lucida Grande\";\n"
 	"color: rgb(79, 79, 79);"));
@@ -37,7 +37,7 @@ AMScanDataView::AMScanDataView(AMDatabase *database, QWidget *parent) :
 
 	editButtonIcon.addFile(QString::fromUtf8(":/32x32/edit-find-replace.png"), QSize(), QIcon::Normal, QIcon::Off);
 
-	editButton_ = new QToolButton(this);
+	editButton_ = new QToolButton();
 	editButton_->setIcon(editButtonIcon);
 	editButton_->setIconSize(QSize(32, 32));
 	editButton_->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
@@ -50,7 +50,7 @@ AMScanDataView::AMScanDataView(AMDatabase *database, QWidget *parent) :
 	QIcon compareButtonIcon;
 	compareButtonIcon.addFile(QString::fromUtf8(":/32x32/preferences-desktop-theme.png"), QSize(), QIcon::Normal, QIcon::Off);
 
-	compareButton_ = new QToolButton(this);
+	compareButton_ = new QToolButton();
 	compareButton_->setIcon(compareButtonIcon);
 	compareButton_->setIconSize(QSize(32, 32));
 	compareButton_->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
@@ -63,7 +63,7 @@ AMScanDataView::AMScanDataView(AMDatabase *database, QWidget *parent) :
 	QIcon exportButtonIcon;
 	exportButtonIcon.addFile(QString::fromUtf8(":/32x32/system-file-manager.png"), QSize(), QIcon::Normal, QIcon::Off);
 
-	exportButton_ = new QToolButton(this);
+	exportButton_ = new QToolButton();
 	exportButton_->setIcon(exportButtonIcon);
 	exportButton_->setIconSize(QSize(32, 32));
 	exportButton_->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
@@ -76,7 +76,7 @@ AMScanDataView::AMScanDataView(AMDatabase *database, QWidget *parent) :
 	QIcon configButtonIcon;
 	configButtonIcon.addFile(QString::fromUtf8(":/32x32/hammer-wrench.png"), QSize(), QIcon::Normal, QIcon::Off);
 
-	configButton_ = new QToolButton(this);
+	configButton_ = new QToolButton();
 	configButton_->setIcon(configButtonIcon);
 	configButton_->setIconSize(QSize(32, 32));
 	configButton_->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);

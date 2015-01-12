@@ -35,7 +35,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QPushButton>
 #include <QStandardItemModel>
 
- AMActionRunnerQueueView3::~AMActionRunnerQueueView3(){}
 AMActionRunnerQueueView3::AMActionRunnerQueueView3(AMActionRunner3* actionRunner, QWidget *parent) :
 	QWidget(parent)
 {
@@ -65,7 +64,7 @@ AMActionRunnerQueueView3::AMActionRunnerQueueView3(AMActionRunner3* actionRunner
 	topFrame->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
 	topFrame->setObjectName("topFrame");
 	topFrame->setStyleSheet("QFrame#topFrame {\nbackground-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(89, 89, 89, 255), stop:0.494444 rgba(89, 89, 89, 255), stop:0.5 rgba(58, 58, 58, 255), stop:1 rgba(58, 58, 58, 255));\nborder-bottom: 1px solid black;\n}");
-	QHBoxLayout* hl = new QHBoxLayout(topFrame);
+	QHBoxLayout* hl = new QHBoxLayout();
 	hl->setSpacing(0);
 	hl->setContentsMargins(6, 2, 12, 1);
 
@@ -107,11 +106,15 @@ AMActionRunnerQueueView3::AMActionRunnerQueueView3(AMActionRunner3* actionRunner
 	hl->addWidget(pauseButton_);
 	pauseButtonConfiguration();
 
-	QVBoxLayout* vl = new QVBoxLayout(this);
+	topFrame->setLayout(hl);
+
+	QVBoxLayout* vl = new QVBoxLayout();
 	vl->setContentsMargins(0,0,0,0);
 	vl->setSpacing(0);
 	vl->addWidget(topFrame);
 	vl->addWidget(treeView_);
+
+	setLayout(vl);
 
 	connect(hideButton_, SIGNAL(toggled(bool)), this, SLOT(collapse(bool)));
 	connect(pauseButton_, SIGNAL(toggled(bool)), this, SLOT(onPauseButtonClicked(bool)));
@@ -125,6 +128,8 @@ AMActionRunnerQueueView3::AMActionRunnerQueueView3(AMActionRunner3* actionRunner
 
 	connect(actionRunner_, SIGNAL(queuePausedChanged(bool)), this, SLOT(onQueuePaused(bool)));
 }
+
+AMActionRunnerQueueView3::~AMActionRunnerQueueView3(){}
 
 void AMActionRunnerQueueView3::onPauseButtonClicked(bool isPaused)
 {

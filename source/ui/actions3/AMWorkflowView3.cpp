@@ -29,7 +29,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QPixmap>
 #include <QPushButton>
 
- AMWorkflowView3::~AMWorkflowView3(){}
 AMWorkflowView3::AMWorkflowView3(AMActionRunner3 *actionRunner, QWidget *parent) :
 	QWidget(parent)
 {
@@ -56,7 +55,7 @@ AMWorkflowView3::AMWorkflowView3(AMActionRunner3 *actionRunner, QWidget *parent)
 	historyView_ = new AMActionHistoryView3(actionRunner, actionRunner->loggingDatabase());
 	addActionDialog_ = 0;
 
-	QVBoxLayout* vl = new QVBoxLayout(this);
+	QVBoxLayout* vl = new QVBoxLayout();
 	vl->setContentsMargins(0,0,0,0);
 	vl->setSpacing(0);
 
@@ -67,10 +66,14 @@ AMWorkflowView3::AMWorkflowView3(AMActionRunner3 *actionRunner, QWidget *parent)
 	vl->addSpacing(12);
 	vl->addWidget(queueView_);
 
+	setLayout(vl);
+
 	connect(queueView_, SIGNAL(collapsed(bool)), this, SLOT(onViewCollapsed()));
 	connect(historyView_, SIGNAL(collapsed(bool)), this, SLOT(onViewCollapsed()));
 	connect(addActionButton_, SIGNAL(clicked()), this, SLOT(onAddActionButtonClicked()));
 }
+
+AMWorkflowView3::~AMWorkflowView3(){}
 
 
 #include <QSpacerItem>
