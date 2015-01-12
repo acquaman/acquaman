@@ -228,13 +228,22 @@ void VESPERSBeamline::setupSampleStage()
 //	attoStageX_ = new CLSPseudoMotorControl("Atto X Stage", "BL1607-B2-1:AddOns:AttoStage:X:mm:fbk", "BL1607-B2-1:AddOns:AttoStage:X:mm", "BL1607-B2-1:AddOns:AttoStage:X:status", "TS1607-2-B21-07:XYZ:stop.PROC", this, 0.01, 10.0);
 //	attoStageZ_ = new CLSPseudoMotorControl("Atto Z Stage", "BL1607-B2-1:AddOns:AttoStage:Z:mm:fbk", "BL1607-B2-1:AddOns:AttoStage:Z:mm", "BL1607-B2-1:AddOns:AttoStage:Z:status", "TS1607-2-B21-07:XYZ:stop.PROC", this, 0.01, 10.0);
 //	attoStageY_ = new CLSPseudoMotorControl("Atto Y Stage", "BL1607-B2-1:AddOns:AttoStage:Y:mm:fbk", "BL1607-B2-1:AddOns:AttoStage:Y:mm", "BL1607-B2-1:AddOns:AttoStage:Y:status", "TS1607-2-B21-07:XYZ:stop.PROC", this, 0.01, 10.0);
-	attoStageX_ = new AMPVwStatusControl("Atto X Stage", "BL1607-B2-1:AddOns:AttoStage:X:mm", "BL1607-B2-1:AddOns:AttoStage:X:mm", "BL1607-B2-1:AddOns:AttoStage:X:status", "TS1607-2-B21-07:XYZ:stop.PROC", this, 0.01, 10.0);
-	attoStageZ_ = new AMPVwStatusControl("Atto Z Stage", "BL1607-B2-1:AddOns:AttoStage:Z:mm", "BL1607-B2-1:AddOns:AttoStage:Z:mm", "BL1607-B2-1:AddOns:AttoStage:Z:status", "TS1607-2-B21-07:XYZ:stop.PROC", this, 0.01, 10.0);
-	attoStageY_ = new AMPVwStatusControl("Atto Y Stage", "BL1607-B2-1:AddOns:AttoStage:Y:mm", "BL1607-B2-1:AddOns:AttoStage:Y:mm", "BL1607-B2-1:AddOns:AttoStage:Y:status", "TS1607-2-B21-07:XYZ:stop.PROC", this, 0.01, 10.0);
+//	attoStageX_ = new AMPVwStatusControl("Atto X Stage", "BL1607-B2-1:AddOns:AttoStage:X:mm", "BL1607-B2-1:AddOns:AttoStage:X:mm", "BL1607-B2-1:AddOns:AttoStage:X:status", "TS1607-2-B21-07:XYZ:stop.PROC", this, 0.005, 10.0);
+//	attoStageZ_ = new AMPVwStatusControl("Atto Z Stage", "BL1607-B2-1:AddOns:AttoStage:Z:mm", "BL1607-B2-1:AddOns:AttoStage:Z:mm", "BL1607-B2-1:AddOns:AttoStage:Z:status", "TS1607-2-B21-07:XYZ:stop.PROC", this, 0.005, 10.0);
+//	attoStageY_ = new AMPVwStatusControl("Atto Y Stage", "BL1607-B2-1:AddOns:AttoStage:Y:mm", "BL1607-B2-1:AddOns:AttoStage:Y:mm", "BL1607-B2-1:AddOns:AttoStage:Y:status", "TS1607-2-B21-07:XYZ:stop.PROC", this, 0.005, 10.0);
+	attoStageX_ = new AMPVControl("Atto X Stage", "BL1607-B2-1:AddOns:AttoStage:X:mm", "BL1607-B2-1:AddOns:AttoStage:X:mm", "TS1607-2-B21-07:XYZ:stop.PROC", this, 0.002, 30.0);
+	attoStageZ_ = new AMPVControl("Atto Z Stage", "BL1607-B2-1:AddOns:AttoStage:Z:mm", "BL1607-B2-1:AddOns:AttoStage:Z:mm", "TS1607-2-B21-07:XYZ:stop.PROC", this, 0.002, 30.0);
+	attoStageY_ = new AMPVControl("Atto Y Stage", "BL1607-B2-1:AddOns:AttoStage:Y:mm", "BL1607-B2-1:AddOns:AttoStage:Y:mm", "TS1607-2-B21-07:XYZ:stop.PROC", this, 0.002, 30.0);
 
-	attoStageRz_ = new AMPVwStatusControl("Atto Phi Stage (Rz)", "SVM1607-2-B21-09:deg:sp", "SVM1607-2-B21-09:deg", "SVM1607-2-B21-09:status", "SVM1607-2-B21-09:stop.PROC", this, 0.01, 10.0);
-	attoStageRy_ = new AMPVwStatusControl("Atto Theta Stage (Ry)", "SVM1607-2-B21-07:deg:sp", "SVM1607-2-B21-07:deg", "SVM1607-2-B21-07:status", "SVM1607-2-B21-07:stop.PROC", this, 0.01, 10.0);
-	attoStageRx_ = new AMPVwStatusControl("Atto Psi Stage (Rx)", "SVM1607-2-B21-08:deg:sp", "SVM1607-2-B21-08:deg", "SVM1607-2-B21-08:status", "SVM1607-2-B21-08:stop.PROC", this, 0.01, 10.0);
+//	attoStageRz_ = new AMPVwStatusControl("Atto Phi Stage (Rz)", "SVM1607-2-B21-09:deg:sp", "SVM1607-2-B21-09:deg", "SVM1607-2-B21-09:status", "SVM1607-2-B21-09:stop.PROC", this, 0.01, 10.0);
+//	attoStageRy_ = new AMPVwStatusControl("Atto Theta Stage (Ry)", "SVM1607-2-B21-07:deg:sp", "SVM1607-2-B21-07:deg", "SVM1607-2-B21-07:status", "SVM1607-2-B21-07:stop.PROC", this, 0.01, 10.0);
+//	attoStageRx_ = new AMPVwStatusControl("Atto Psi Stage (Rx)", "SVM1607-2-B21-08:deg:sp", "SVM1607-2-B21-08:deg", "SVM1607-2-B21-08:status", "SVM1607-2-B21-08:stop.PROC", this, 0.01, 10.0);
+//	attoStageRz_ = new AMPVwStatusControl("Atto Phi Stage (Rz)", "BL1607-B2-1:AddOns:AttoStage:Rz:deg:fbk", "BL1607-B2-1:AddOns:AttoStage:Rz:deg", "BL1607-B2-1:AddOns:AttoStage:Rz:status", "SVM1607-2-B21-09:stop.PROC", this, 0.01, 10.0);
+//	attoStageRy_ = new AMPVwStatusControl("Atto Theta Stage (Ry)", "BL1607-B2-1:AddOns:AttoStage:Ry:deg:fbk", "BL1607-B2-1:AddOns:AttoStage:Ry:deg", "BL1607-B2-1:AddOns:AttoStage:Ry:status", "SVM1607-2-B21-07:stop.PROC", this, 0.01, 10.0);
+//	attoStageRx_ = new AMPVwStatusControl("Atto Psi Stage (Rx)", "BL1607-B2-1:AddOns:AttoStage:Rx:deg:fbk", "BL1607-B2-1:AddOns:AttoStage:Rx:deg", "BL1607-B2-1:AddOns:AttoStage:Rx:status", "SVM1607-2-B21-08:stop.PROC", this, 0.01, 10.0);
+	attoStageRz_ = new AMPVControl("Atto Phi Stage (Rz)", "BL1607-B2-1:AddOns:AttoStage:Rz:deg:fbk", "BL1607-B2-1:AddOns:AttoStage:Rz:deg", "SVM1607-2-B21-09:stop.PROC", this, 0.001, 30.0);
+	attoStageRy_ = new AMPVControl("Atto Theta Stage (Ry)", "BL1607-B2-1:AddOns:AttoStage:Ry:deg:fbk", "BL1607-B2-1:AddOns:AttoStage:Ry:deg", "SVM1607-2-B21-07:stop.PROC", this, 0.001, 30.0);
+	attoStageRx_ = new AMPVControl("Atto Psi Stage (Rx)", "BL1607-B2-1:AddOns:AttoStage:Rx:deg:fbk", "BL1607-B2-1:AddOns:AttoStage:Rx:deg", "SVM1607-2-B21-08:stop.PROC", this, 0.001, 30.0);
 
 	bigBeamX_ = new AMPVwStatusControl("Big Beam X", "SMTR1607-2-B21-36:mm:sp", "SMTR1607-2-B21-36:mm", "SMTR1607-2-B21-36:status", "SMTR1607-2-B21-36:stop.PROC", this, 0.01, 10.0);
 	bigBeamZ_ = new AMPVwStatusControl("Big Beam Z", "SMTR1607-2-B21-37:mm:sp", "SMTR1607-2-B21-37:mm", "SMTR1607-2-B21-37:status", "SMTR1607-2-B21-37:stop.PROC", this, 0.01, 10.0);
