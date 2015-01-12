@@ -126,13 +126,7 @@ public:
 	}
 
 	/// Print as a string
-	QString toString() {
-		if(!isValid()) return "[X]";
-		if(type_ == Integer)
-			return QString::number(value_.i);
-		else
-			return QString::number(value_.d);
-	}
+	QString toString(QChar format = 'g', int precision = 19);
 
 
 protected:
