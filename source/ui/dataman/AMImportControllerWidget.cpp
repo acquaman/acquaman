@@ -113,9 +113,10 @@ void AMImportControllerWidget::setupUi()
 		setObjectName(QString::fromUtf8("AMImportControllerWidget"));
 	resize(642, 380);
 	setMinimumSize(QSize(0, 380));
-	verticalLayout_3 = new QVBoxLayout(this);
+	verticalLayout_3 = new QVBoxLayout();
 	verticalLayout_3->setObjectName(QString::fromUtf8("verticalLayout_3"));
-	AMImportControllerWidgetFrame1 = new QFrame(this);
+
+	AMImportControllerWidgetFrame1 = new QFrame();
 	AMImportControllerWidgetFrame1->setObjectName(QString::fromUtf8("AMImportControllerWidgetFrame1"));
 	AMImportControllerWidgetFrame1->setStyleSheet(QString::fromUtf8("QFrame#AMImportControllerWidgetFrame1 {\n"
 "background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(206, 206, 206, 255), stop:0.502513 rgba(188, 188, 188, 255), stop:1 rgba(168, 168, 168, 255));\n"
@@ -124,8 +125,11 @@ void AMImportControllerWidget::setupUi()
 "}\n"
 ""));
 	AMImportControllerWidgetFrame1->setFrameShape(QFrame::StyledPanel);
-	horizontalLayout_2 = new QHBoxLayout(AMImportControllerWidgetFrame1);
+
+	horizontalLayout_2 = new QHBoxLayout();
 	horizontalLayout_2->setObjectName(QString::fromUtf8("horizontalLayout_2"));
+	AMImportControllerWidgetFrame1->setLayout(horizontalLayout_2);
+
 	verticalLayoutLeft = new QVBoxLayout();
 	verticalLayoutLeft->setSpacing(1);
 	verticalLayoutLeft->setObjectName(QString::fromUtf8("verticalLayoutLeft"));
@@ -133,13 +137,13 @@ void AMImportControllerWidget::setupUi()
 
 	verticalLayoutLeft->addItem(verticalSpacer_2);
 
-	progressBar_ = new QProgressBar(AMImportControllerWidgetFrame1);
+	progressBar_ = new QProgressBar();
 	progressBar_->setObjectName(QString::fromUtf8("progressBar"));
 	progressBar_->setValue(24);
 
 	verticalLayoutLeft->addWidget(progressBar_);
 
-	progressLabel_ = new QLabel(AMImportControllerWidgetFrame1);
+	progressLabel_ = new QLabel();
 	progressLabel_->setObjectName(QString::fromUtf8("progressLabel"));
 	progressLabel_->setAlignment(Qt::AlignCenter);
 
@@ -158,7 +162,7 @@ void AMImportControllerWidget::setupUi()
 
 	horizontalLayout->addWidget(formatLabel_);
 
-	formatComboBox_ = new QComboBox(AMImportControllerWidgetFrame1);
+	formatComboBox_ = new QComboBox();
 	formatComboBox_->setObjectName(QString::fromUtf8("formatComboBox"));
 	QSizePolicy sizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
 	sizePolicy.setHorizontalStretch(0);
@@ -171,7 +175,7 @@ void AMImportControllerWidget::setupUi()
 
 	verticalLayoutRight->addLayout(horizontalLayout);
 
-	loadingStatusLabel_ = new QLabel(AMImportControllerWidgetFrame1);
+	loadingStatusLabel_ = new QLabel();
 	loadingStatusLabel_->setObjectName(QString::fromUtf8("loadingStatusLabel"));
 	loadingStatusLabel_->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
@@ -181,89 +185,89 @@ void AMImportControllerWidget::setupUi()
 
 	verticalLayoutRight->addItem(verticalSpacer);
 
-	checkInstructionLabel_ = new QLabel(AMImportControllerWidgetFrame1);
+	checkInstructionLabel_ = new QLabel();
 	checkInstructionLabel_->setObjectName(QString::fromUtf8("checkInstructionLabel"));
 
 	verticalLayoutRight->addWidget(checkInstructionLabel_);
 
 	gridLayout = new QGridLayout();
 	gridLayout->setObjectName(QString::fromUtf8("gridLayout"));
-	checkName_ = new QCheckBox(AMImportControllerWidgetFrame1);
+	checkName_ = new QCheckBox();
 	checkName_->setObjectName(QString::fromUtf8("checkName"));
 	checkName_->setChecked(false);
 
 	gridLayout->addWidget(checkName_, 0, 0, 1, 1);
 
-	nameLabel_ = new QLabel(AMImportControllerWidgetFrame1);
+	nameLabel_ = new QLabel();
 	nameLabel_->setObjectName(QString::fromUtf8("nameLabel"));
 
 	gridLayout->addWidget(nameLabel_, 0, 1, 1, 1);
 
-	nameEdit_ = new QLineEdit(AMImportControllerWidgetFrame1);
+	nameEdit_ = new QLineEdit();
 	nameEdit_->setObjectName(QString::fromUtf8("nameEdit"));
 	nameEdit_->setEnabled(false);
 
 	gridLayout->addWidget(nameEdit_, 0, 2, 1, 1);
 
-	checkNumber_ = new QCheckBox(AMImportControllerWidgetFrame1);
+	checkNumber_ = new QCheckBox();
 	checkNumber_->setObjectName(QString::fromUtf8("checkNumber"));
 	checkNumber_->setChecked(false);
 
 	gridLayout->addWidget(checkNumber_, 1, 0, 1, 1);
 
-	numberLabel_ = new QLabel(AMImportControllerWidgetFrame1);
+	numberLabel_ = new QLabel();
 	numberLabel_->setObjectName(QString::fromUtf8("numberLabel"));
 
 	gridLayout->addWidget(numberLabel_, 1, 1, 1, 1);
 
-	numberEdit_ = new QSpinBox(AMImportControllerWidgetFrame1);
+	numberEdit_ = new QSpinBox();
 	numberEdit_->setObjectName(QString::fromUtf8("numberEdit"));
 	numberEdit_->setMaximum(999999999);
 	numberEdit_->setEnabled(false);
 
 	gridLayout->addWidget(numberEdit_, 1, 2, 1, 1);
 
-	checkDateTime_ = new QCheckBox(AMImportControllerWidgetFrame1);
+	checkDateTime_ = new QCheckBox();
 	checkDateTime_->setObjectName(QString::fromUtf8("checkDateTime"));
 	checkDateTime_->setChecked(false);
 
 	gridLayout->addWidget(checkDateTime_, 2, 0, 1, 1);
 
-	dateTimeLabel_ = new QLabel(AMImportControllerWidgetFrame1);
+	dateTimeLabel_ = new QLabel();
 	dateTimeLabel_->setObjectName(QString::fromUtf8("dateTimeLabel"));
 
 	gridLayout->addWidget(dateTimeLabel_, 2, 1, 1, 1);
 
-	dateTimeEdit_ = new QDateTimeEdit(AMImportControllerWidgetFrame1);
+	dateTimeEdit_ = new QDateTimeEdit();
 	dateTimeEdit_->setObjectName(QString::fromUtf8("dateTimeEdit"));
 	dateTimeEdit_->setEnabled(false);
 	dateTimeEdit_->setCalendarPopup(true);
 
 	gridLayout->addWidget(dateTimeEdit_, 2, 2, 1, 1);
 
-	checkRun_ = new QCheckBox(AMImportControllerWidgetFrame1);
+	checkRun_ = new QCheckBox();
 	checkRun_->setObjectName(QString::fromUtf8("checkRun"));
 	checkRun_->setEnabled(false);
 
 	gridLayout->addWidget(checkRun_, 3, 0, 1, 1);
 
-	runLabel_ = new QLabel(AMImportControllerWidgetFrame1);
+	runLabel_ = new QLabel();
 	runLabel_->setObjectName(QString::fromUtf8("runLabel"));
 
 	gridLayout->addWidget(runLabel_, 3, 1, 1, 1);
 
-	checkSample_ = new QCheckBox(AMImportControllerWidgetFrame1);
+	checkSample_ = new QCheckBox();
 	checkSample_->setObjectName(QString::fromUtf8("checkSample"));
 	checkSample_->setEnabled(false);
 
 	gridLayout->addWidget(checkSample_, 4, 0, 1, 1);
 
-	sampleLabel_ = new QLabel(AMImportControllerWidgetFrame1);
+	sampleLabel_ = new QLabel();
 	sampleLabel_->setObjectName(QString::fromUtf8("sampleLabel"));
 
 	gridLayout->addWidget(sampleLabel_, 4, 1, 1, 1);
 
-	sampleEdit_ = new QSpinBox(AMImportControllerWidgetFrame1);
+	sampleEdit_ = new QSpinBox();
 	sampleEdit_->setObjectName(QString::fromUtf8("sampleEdit"));
 	sampleEdit_->setMinimum(-1);
 	sampleEdit_->setMaximum(999999999);
@@ -282,7 +286,7 @@ void AMImportControllerWidget::setupUi()
 
 	horizontalLayout_3 = new QHBoxLayout();
 	horizontalLayout_3->setObjectName(QString::fromUtf8("horizontalLayout_3"));
-	cancelButton_ = new QPushButton(this);
+	cancelButton_ = new QPushButton();
 	cancelButton_->setObjectName(QString::fromUtf8("cancelButton"));
 	cancelButton_->setAutoDefault(true);
 
@@ -292,7 +296,7 @@ void AMImportControllerWidget::setupUi()
 
 	horizontalLayout_3->addItem(horizontalSpacer);
 
-	nextButton_ = new QPushButton(this);
+	nextButton_ = new QPushButton();
 	nextButton_->setObjectName(QString::fromUtf8("nextButton"));
 	nextButton_->setAutoDefault(true);
 	nextButton_->setDefault(true);
@@ -300,7 +304,7 @@ void AMImportControllerWidget::setupUi()
 
 	horizontalLayout_3->addWidget(nextButton_);
 
-	applyAllButton_ = new QPushButton(this);
+	applyAllButton_ = new QPushButton();
 	applyAllButton_->setObjectName(QString::fromUtf8("applyAllButton"));
 	applyAllButton_->setAutoDefault(true);
 
@@ -308,6 +312,8 @@ void AMImportControllerWidget::setupUi()
 
 
 	verticalLayout_3->addLayout(horizontalLayout_3);
+
+	setLayout(verticalLayout_3);
 
 	setWindowTitle(QApplication::translate("AMImportControllerWidget", "Reviewing files to import...", 0, QApplication::UnicodeUTF8));
 	progressLabel_->setText(QApplication::translate("AMImportControllerWidget", "File 3 of 10", 0, QApplication::UnicodeUTF8));
