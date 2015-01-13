@@ -27,7 +27,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "application/REIXS/REIXSAppController.h"
 #include "application/AMCrashMonitorSupport.h"
-
+#include <unistd.h>
 
 int main(int argc, char *argv[])
 {
