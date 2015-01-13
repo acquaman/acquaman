@@ -54,11 +54,18 @@ public:
 	/// Virtual copy constructor
 	virtual AMAction3* createCopy() const { return new AMControlMoveAction3(*this); }
 
-
 	/// Returns the control that this action will move.
 	AMControl *control() const { return control_; }
 	/// Sets the control used by this action.  This will generally not be used because the control will be provided by the constructor.
 	void setControl(AMControl *control) { control_ = control; }
+
+	/// Returns the destination of this move in absolute position
+	double destination() const;
+
+	/// Returns the maximum number of times we'll retry this action if it fails
+	int retries() const;
+	/// Retruns the number of times we've attempted the action thus far
+	int attempts() const;
 
 	// Re-implemented public functions
 	///////////////////////////////
@@ -81,6 +88,8 @@ public:
 signals:
 
 public slots:
+	/// Sets the maximum number of times we'll retry this action if it fails
+	void setRetries(int retries);
 
 protected:
 
@@ -124,6 +133,13 @@ protected:
 	AMControl* control_;
 	/// Stores the start position, which we use for calculating progress
 	AMControlInfo startPosition_;
+	/// Stores the actual destination of this move in absolute position (for retries in particular)
+	double destination_;
+
+	/// Stores the number of times we're willing to retry on failure
+	int retries_;
+	/// Stores the number of attempts to this point, to compare with the retries_ value
+	int attempts_;
 };
 
 #endif // AMCONTROLMOVEACTION3_H

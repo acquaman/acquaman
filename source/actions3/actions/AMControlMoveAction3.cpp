@@ -25,7 +25,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "util/AMErrorMonitor.h"
 #include "acquaman/AMAgnosticDataAPI.h"
 
- AMControlMoveAction3::~AMControlMoveAction3(){}
 AMControlMoveAction3::AMControlMoveAction3(AMControlMoveActionInfo3 *info, AMControl *control, QObject *parent)
 	: AMAction3(info, parent)
 {
@@ -33,6 +32,10 @@ AMControlMoveAction3::AMControlMoveAction3(AMControlMoveActionInfo3 *info, AMCon
 		control_ = control;
 	else
 		control_ = AMBeamline::bl()->exposedControlByInfo(*(info->controlInfo()));
+
+	retries_ = 1;
+	attempts_ = 0;
+	destination_ = 0;
 }
 
 AMControlMoveAction3::AMControlMoveAction3(const AMControlMoveAction3 &other)
@@ -44,6 +47,32 @@ AMControlMoveAction3::AMControlMoveAction3(const AMControlMoveAction3 &other)
 		control_ = AMBeamline::bl()->exposedControlByInfo(*(info->controlInfo()));
 	else
 		control_ = 0;
+
+	retries_ = 1;
+	attempts_ = 0;
+	destination_ = 0;
+}
+
+AMControlMoveAction3::~AMControlMoveAction3(){}
+
+double AMControlMoveAction3::destination() const
+{
+	return destination_;
+}
+
+int AMControlMoveAction3::retries() const
+{
+	return retries_;
+}
+
+int AMControlMoveAction3::attempts() const
+{
+	return attempts_;
+}
+
+void AMControlMoveAction3::setRetries(int retries)
+{
+	retries_ = retries;
 }
 
 void AMControlMoveAction3::startImplementation()
@@ -85,15 +114,21 @@ void AMControlMoveAction3::startImplementation()
 	// remember the start position:
 	startPosition_ = control_->toInfo();
 
-	// start the move:
-	int failureExplanation;
-	if(controlMoveInfo()->isRelativeMove() && controlMoveInfo()->isRelativeFromSetpoint())
-		failureExplanation = control_->moveRelative(setpoint.value(), AMControl::RelativeMoveFromSetpoint);
-	else if(controlMoveInfo()->isRelativeMove())
-		failureExplanation = control_->moveRelative(setpoint.value(), AMControl::RelativeMoveFromValue);
-	else
-		failureExplanation = control_->move(setpoint.value());
+	attempts_ = 1;
 
+	// determine the absolute destination
+	if(controlMoveInfo()->isRelativeMove() && controlMoveInfo()->isRelativeFromSetpoint())
+		destination_ = control_->setpoint() + setpoint.value();
+		//failureExplanation = control_->moveRelative(setpoint.value(), AMControl::RelativeMoveFromSetpoint);
+	else if(controlMoveInfo()->isRelativeMove())
+		destination_ = control_->value() + setpoint.value();
+		//failureExplanation = control_->moveRelative(setpoint.value(), AMControl::RelativeMoveFromValue);
+	else
+		destination_ = setpoint.value();
+		//failureExplanation = control_->move(setpoint.value());
+
+	// start the move:
+	int failureExplanation = control_->move(destination_);
 	if(failureExplanation != AMControl::NoFailure)
 		onMoveFailed(failureExplanation);
 }
@@ -123,6 +158,8 @@ void AMControlMoveAction3::onMoveFailed(int reason)
 	progressTick_.stop();
 	disconnect(&progressTick_, 0, this, 0);
 
+	bool retryAvailable = false;
+
 	int definedFailureReason;
 	switch(reason){
 	case AMControl::NotConnectedFailure:
@@ -130,18 +167,22 @@ void AMControlMoveAction3::onMoveFailed(int reason)
 		break;
 	case AMControl::ToleranceFailure:
 		definedFailureReason = AMCONTROLMOVEACTION3_TOLERANCE_FAILURE;
+		retryAvailable = true;
 		break;
 	case AMControl::TimeoutFailure:
 		definedFailureReason = AMCONTROLMOVEACTION3_TIMEOUT_FAILURE;
+		retryAvailable = true;
 		break;
 	case AMControl::WasStoppedFailure:
 		definedFailureReason = AMCONTROLMOVEACTION3_WAS_STOPPED_FAILURE;
 		break;
 	case AMControl::AlreadyMovingFailure:
 		definedFailureReason = AMCONTROLMOVEACTION3_ALREADY_MOVING_FAILURE;
+		retryAvailable = true;
 		break;
 	case AMControl::RedirectedFailure:
 		definedFailureReason = AMCONTROLMOVEACTION3_REDIRECTED_FAILURE;
+		retryAvailable = true;
 		break;
 	case AMControl::OtherFailure:
 		definedFailureReason = AMCONTROLMOVEACTION3_OTHER_FAILURE;
@@ -151,10 +192,26 @@ void AMControlMoveAction3::onMoveFailed(int reason)
 		break;
 	}
 
-	QString fundamentalFailureMessage = QString("There was an error moving the control '%1' into position. Target: %2 %3. Actual position: %4 %5. Tolerance %6. Reason: %7.").arg(control_->name()).arg(control_->setpoint()).arg(control_->units()).arg(control_->value()).arg(control_->units()).arg(control_->tolerance()).arg(AMControl::failureExplanation(reason));
+	if(retryAvailable && attempts_ > retries_)
+		retryAvailable = false;
+
+	QString retryAvailableString = "No";
+	if(retryAvailable)
+		retryAvailableString = "Yes";
+	QString fundamentalFailureMessage = QString("There was an error moving the control '%1' into position (Retry %2, attempt %3 of %4). Target: %5 %6. Actual position: %7 %8. Tolerance %9. Reason: %q.").arg(control_->name()).arg(retryAvailableString).arg(attempts_).arg(retries_).arg(control_->setpoint()).arg(control_->units()).arg(control_->value()).arg(control_->units()).arg(control_->tolerance()).arg(AMControl::failureExplanation(reason));
 	// error message with reason
 	AMErrorMon::alert(this, definedFailureReason, QString("%1. Please report this problem to the beamline staff.").arg(fundamentalFailureMessage));
-	setFailed(fundamentalFailureMessage);
+
+	if(retryAvailable){
+		attempts_++;
+
+		// retry move
+		int failureExplanation = control_->move(destination_);
+		if(failureExplanation != AMControl::NoFailure)
+			onMoveFailed(failureExplanation);
+	}
+	else
+		setFailed(fundamentalFailureMessage);
 }
 
 void AMControlMoveAction3::onMoveSucceeded()
