@@ -169,7 +169,7 @@ AMAction3* BioXASMainMonochromator::createMoveCrystalChangeMotorAction(int relDe
     setpoint.setValue(relDestination);
 
     AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
-    actionInfo->setShortDescription("Moving crystal change motor by " + QString::number(relDestination) + "degrees...");
+    actionInfo->setShortDescription("Moving crystal change motor by " + QString::number(relDestination) + " degrees...");
     actionInfo->setLongDescription("");
 
     AMControlMoveAction3 *action = new AMControlMoveAction3(actionInfo, crystalChangeMotorRel_);
@@ -204,7 +204,7 @@ AMAction3* BioXASMainMonochromator::createMoveStageAction(double degDestination)
     setpoint.setValue(degDestination);
 
     AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
-    actionInfo->setShortDescription("Moving stage to " + QString::number(degDestination) + "degrees...");
+    actionInfo->setShortDescription("Moving stage to " + QString::number(degDestination) + " degrees...");
     actionInfo->setLongDescription("");
 
     AMControlMoveAction3 *action = new AMControlMoveAction3(actionInfo, stageMotorAbs_);
@@ -311,21 +311,33 @@ AMAction3* BioXASMainMonochromator::createSetBraggMotorPowerAutoAction()
 void BioXASMainMonochromator::onConnectedChanged()
 {
     bool currentState = (
+
                 // Motors
-                phosphorPaddleMotor_->isConnected() && braggMotor_->isConnected() &&
-                verticalMotor_->isConnected() && lateralMotor_->isConnected() &&
-                crystalExchangeMotor_->isConnected() && crystal1PitchMotor_->isConnected() &&
-                crystal1RollMotor_->isConnected() && crystal2PitchMotor_->isConnected() &&
+                phosphorPaddleMotor_->isConnected() &&
+                braggMotor_->isConnected() &&
+                verticalMotor_->isConnected() &&
+                lateralMotor_->isConnected() &&
+                crystalExchangeMotor_->isConnected() &&
+                crystal1PitchMotor_->isConnected() &&
+                crystal1RollMotor_->isConnected() &&
+                crystal2PitchMotor_->isConnected() &&
                 crystal2RollMotor_->isConnected() &&
 
                 // Controls
-                //braggMotorPower_->isConnected() && slitsClosed_->isConnected() && paddleOut_->isConnected() &&
                 braggMotorPower_->isConnected() &&
-                crystalChangeEnabled_->isConnected() && stageAtCrystalChangePosition_->isConnected() &&
-                crystalChangeBrakeEnabled_->isConnected() && stageMotorAbs_->isConnected() &&
-                crystalChangeMotorRel_->isConnected() && crystalChangeMotorCWLimit_->isConnected() &&
-                crystalChangeMotorCCWLimit_->isConnected() && regionAStatus_->isConnected() &&
-                regionBStatus_->isConnected() && energy_->isConnected()
+                slitsClosed_->isConnected() &&
+                paddleOut_->isConnected() &&
+                crystalChangeEnabled_->isConnected() &&
+                stageAtCrystalChangePosition_->isConnected() &&
+                crystalChangeBrakeEnabled_->isConnected() &&
+                stageMotorAbs_->isConnected() &&
+                crystalChangeMotorRel_->isConnected() &&
+                crystalChangeMotorCWLimit_->isConnected() &&
+                crystalChangeMotorCCWLimit_->isConnected() &&
+                regionAStatus_->isConnected() &&
+                regionBStatus_->isConnected() &&
+                energy_->isConnected()
+
                 );
 
     if (connected_ != currentState) {
@@ -337,6 +349,7 @@ void BioXASMainMonochromator::onConnectedChanged()
 void BioXASMainMonochromator::onRegionChanged()
 {
     Region newRegion;
+
     int regionAVal = (int)regionAStatus_->value();
     int regionBVal = (int)regionBStatus_->value();
 

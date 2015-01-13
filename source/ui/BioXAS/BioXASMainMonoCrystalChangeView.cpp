@@ -32,9 +32,7 @@ BioXASMainMonoCrystalChangeView::BioXASMainMonoCrystalChangeView(BioXASMainMonoc
 
     connect( startView_, SIGNAL(okClicked()), this, SLOT(showActionsView()) );
     connect( startView_, SIGNAL(closeClicked()), this, SLOT(close()) );
-
     connect( actionsView_, SIGNAL(actionsComplete(bool)), this, SLOT(onActionsComplete(bool)) );
-
     connect( finalView_, SIGNAL(closeClicked()), this, SLOT(close()) );
 
     // initial settings.
@@ -46,7 +44,7 @@ BioXASMainMonoCrystalChangeView::BioXASMainMonoCrystalChangeView(BioXASMainMonoc
     startView_->setCloseButtonShown(true);
     startView_->setCloseButtonEnabled(true);
 
-    finalView_->setMessage(successMessage_);
+//    finalView_->setMessage(successMessage_);
     finalView_->setOKButtonShown(false);
     finalView_->setCloseButtonShown(true);
     finalView_->setCloseButtonDefault(true);
@@ -77,9 +75,12 @@ void BioXASMainMonoCrystalChangeView::setMono(BioXASMainMonochromator *newMono)
         if (mono_) {
             connect( mono_, SIGNAL(connected(bool)), this, SLOT(onMonoConnectedChanged(bool)) );
             actionsView_->setActions(mono_->createCrystalChangeAction());
+            onMonoConnectedChanged(mono_->isConnected());
+
+        } else {
+            onMonoConnectedChanged(false);
         }
 
-        onMonoConnectedChanged(mono_->isConnected());
 
         emit monoChanged(mono_);
     }
