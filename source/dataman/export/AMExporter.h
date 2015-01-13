@@ -200,6 +200,9 @@ protected:
 
 	QString krFileSystemAutoIncrement(const QString &arg = QString());
 
+	/// Helper function to remove non-printable characters from a file name
+	QString removeNonPrintableCharacters(const QString &fileName) const;
+
 };
 
 #endif // AMEXPORTER_H
