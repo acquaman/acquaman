@@ -54,7 +54,8 @@ public:
 	//////////////////////////
 
 	/// Returns a pointer to our move destination setpoint
-	const AMControlInfo* controlInfo() const { return &controlInfo_; }
+//	const AMControlInfo* controlInfo() const { return &controlInfo_; }
+	AMControlInfo controlInfo() const { return controlInfo_; }
 	/// Returns true if this is to be a relative move (otherwise returns false for absolute).
 	bool isRelativeMove() const { return isRelative_; }
 	/// Returns true if this is to be a relative move from the setpoint as opposed to the feedback value
@@ -70,6 +71,11 @@ public:
 	/// Sets whether this should be a relative move from the setpoint as opposed to the feedback value.
 	void setIsRelativeFromSetpoint(bool isRelativeFromSetpoint);
 
+public slots:
+
+signals:
+
+protected:
 	// Database loading/storing
 	////////////////////////////
 
@@ -77,10 +83,6 @@ public:
 	AMControlInfo* dbReadControlInfo() { return &controlInfo_; }
 	/// For database loading only. This function will never be called since dbReadControlInfo() always returns a valid setpoint, but it needs to be here.
 	void dbLoadControlInfo(AMDbObject* newLoadedObject) { newLoadedObject->deleteLater(); }
-
-signals:
-
-public slots:
 
 protected:
 	/// The AMControlInfo that specifies where to move to

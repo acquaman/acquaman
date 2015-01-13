@@ -61,7 +61,8 @@ public:
 	//////////////////////////
 
 	/// Returns a pointer to our move destination setpoint
-	const AMControlInfo* controlInfo() const { return &controlInfo_; }
+//	const AMControlInfo* controlInfo() const { return &controlInfo_; }
+	AMControlInfo controlInfo() const { return controlInfo_; }
 
 	/// Returns our timeout.
 	double timeout() const;
@@ -78,6 +79,11 @@ public:
 	void setTimeout(double newTimeout);
 	void setMatchType(AMControlWaitActionInfo::MatchType newMatchType);
 
+public slots:
+
+signals:
+
+protected:
 	// Database loading/storing
 	////////////////////////////
 
@@ -86,10 +92,6 @@ public:
 	/// For database loading only. This function will never be called since dbReadControlInfo() always returns a valid setpoint, but it needs to be here.
 	void dbLoadControlInfo(AMDbObject* newLoadedObject) { newLoadedObject->deleteLater(); }
 
-signals:
-
-public slots:
-protected:
 	int matchTypeAsInt() const;
 	void setMatchTypeAsInt(int newMatchType);
 

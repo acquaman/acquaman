@@ -33,7 +33,7 @@ AMControlStopAction::AMControlStopAction(AMControlStopActionInfo *info, AMContro
 		control_ = control;
 
 	else
-		control_ = AMBeamline::bl()->exposedControlByInfo(*(info->controlInfo()));
+		control_ = AMBeamline::bl()->exposedControlByInfo(info->controlInfo());
 }
 
 AMControlStopAction::AMControlStopAction(const AMControlStopAction &other)
@@ -42,7 +42,7 @@ AMControlStopAction::AMControlStopAction(const AMControlStopAction &other)
 	const AMControlStopActionInfo *info = qobject_cast<const AMControlStopActionInfo *>(other.info());
 
 	if (info)
-		control_ = AMBeamline::bl()->exposedControlByInfo(*(info->controlInfo()));
+		control_ = AMBeamline::bl()->exposedControlByInfo(info->controlInfo());
 	else
 		control_ = 0;
 }
@@ -50,7 +50,7 @@ AMControlStopAction::AMControlStopAction(const AMControlStopAction &other)
 void AMControlStopAction::startImplementation()
 {
 	AMControlStopActionInfo *controlStopInfo = qobject_cast<AMControlStopActionInfo *>(info());
-	const AMControlInfo& setpoint = *(controlStopInfo->controlInfo());
+	const AMControlInfo& setpoint = controlStopInfo->controlInfo();
 
 	// If you still don't have a control, check the exposed controls one last time.
 	if (!control_)

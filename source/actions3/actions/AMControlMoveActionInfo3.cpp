@@ -34,7 +34,7 @@ AMControlMoveActionInfo3::AMControlMoveActionInfo3(const AMControlInfo &setpoint
 AMControlMoveActionInfo3::AMControlMoveActionInfo3(const AMControlMoveActionInfo3 &other)
 	: AMActionInfo3(other)
 {
-	controlInfo_.setValuesFrom(*(other.controlInfo()));
+	controlInfo_.setValuesFrom(other.controlInfo());
 	isRelative_ = other.isRelativeMove();
 	isRelativeFromSetpoint_ = other.isRelativeFromSetpoint();
 }
