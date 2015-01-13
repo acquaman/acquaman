@@ -45,7 +45,6 @@ public:
 	virtual QString typeDescription() const { return "Control Stop"; }
 
 	/// Returns a pointer to our move destination setpoint
-//	const AMControlInfo* controlInfo() const { return &controlInfo_; }
 	AMControlInfo controlInfo() const { return controlInfo_; }
 	/// Set the move destination setpoint, including the control name, value, and description.
 	/*! \note We make a copy of \c controlInfo's values, and do not retain any reference to it afterward. */
