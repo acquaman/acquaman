@@ -154,10 +154,6 @@ void AMControlMoveAction3::onMoveReTargetted()
 
 void AMControlMoveAction3::onMoveFailed(int reason)
 {
-	disconnect(control_, 0, this, 0);
-	progressTick_.stop();
-	disconnect(&progressTick_, 0, this, 0);
-
 	bool retryAvailable = false;
 
 	int definedFailureReason;
@@ -198,7 +194,7 @@ void AMControlMoveAction3::onMoveFailed(int reason)
 	QString retryAvailableString = "No";
 	if(retryAvailable)
 		retryAvailableString = "Yes";
-	QString fundamentalFailureMessage = QString("There was an error moving the control '%1' into position (Retry %2, attempt %3 of %4). Target: %5 %6. Actual position: %7 %8. Tolerance %9. Reason: %q.").arg(control_->name()).arg(retryAvailableString).arg(attempts_).arg(retries_).arg(control_->setpoint()).arg(control_->units()).arg(control_->value()).arg(control_->units()).arg(control_->tolerance()).arg(AMControl::failureExplanation(reason));
+	QString fundamentalFailureMessage = QString("There was an error moving the control '%1' into position (Retry %2, attempt %3 of %4). Target: %5 %6. Actual position: %7 %8. Tolerance %9. Reason: %10.").arg(control_->name()).arg(retryAvailableString).arg(attempts_).arg(retries_+1).arg(control_->setpoint()).arg(control_->units()).arg(control_->value()).arg(control_->units()).arg(control_->tolerance()).arg(AMControl::failureExplanation(reason));
 	// error message with reason
 	AMErrorMon::alert(this, definedFailureReason, QString("%1. Please report this problem to the beamline staff.").arg(fundamentalFailureMessage));
 
@@ -206,12 +202,18 @@ void AMControlMoveAction3::onMoveFailed(int reason)
 		attempts_++;
 
 		// retry move
+		qDebug() << "Retrying move to " << destination_;
 		int failureExplanation = control_->move(destination_);
 		if(failureExplanation != AMControl::NoFailure)
 			onMoveFailed(failureExplanation);
 	}
-	else
+	else{
+		disconnect(control_, 0, this, 0);
+		progressTick_.stop();
+		disconnect(&progressTick_, 0, this, 0);
+
 		setFailed(fundamentalFailureMessage);
+	}
 }
 
 void AMControlMoveAction3::onMoveSucceeded()
