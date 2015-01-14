@@ -30,14 +30,12 @@ public:
     /// Returns the current region.
     Region region() const { return region_; }
 
-    /// Returns true if both upper and lower slits are closed, false otherwise.
+    /// Returns true if both slits are closed, false otherwise.
     bool slitsClosed() const { return ((int)slitsClosed_->value() == 1); }
-    /// Returns true if the paddle is out, false otherwise.
-    bool paddleOut() const { return ((int)paddleOut_->value() == 1); }
     /// Returns true if crystal change (key status) is enabled, false if disabled.
     bool crystalChangeEnabled() const { return ((int)crystalChangeEnabled_->value() == 1); }
     /// Returns true if the crystal stage is at the change position, false otherwise.
-    bool atCrystalChangePosition() const { return ((int)stageAtCrystalChangePosition_->value() == 0); }
+    bool atCrystalChangePosition() const { return ((int)atCrystalChangePosition_->value() == 0); }
     /// Returns true if the brake is enabled, false otherwise.
     bool brakeEnabled() const { return ((int)crystalChangeBrakeEnabled_->value() == 1); }
     /// Returns true if the crystal change motor is at clockwise limit.
@@ -49,6 +47,10 @@ public:
     /// Returns the energy feedback.
     double energy() const { return energy_->value(); }
 
+    /// Returns the upper slit blade motor.
+    CLSMAXvMotor* upperSlitBladeMotor() const { return upperSlitBladeMotor_; }
+    /// Returns the lower slit blade motor.
+    CLSMAXvMotor* lowerSlitBladeMotor() const { return lowerSlitBladeMotor_; }
     /// Returns the phosphor paddle motor.
     CLSMAXvMotor* phosphorPaddleMotor() const { return phosphorPaddleMotor_; }
     /// Returns the bragg motor.
@@ -68,14 +70,10 @@ public:
     /// Returns the crystal 2 roll motor.
     CLSMAXvMotor* crystal2RollMotor() const { return crystal2RollMotor_; }
 
-    /// Returns the slitsClosed control.
-    AMControl* slitsClosedControl() const { return slitsClosed_; }
-    /// Returns the control for whether the paddle is completely removed.
-    AMControl* paddleOutControl() const { return paddleOut_; }
     /// Returns the control for whether the crystal change operation is enabled.
     AMControl* crystalChangeEnabledControl() const { return crystalChangeEnabled_; }
     /// Returns the control for whether the mono is at the crystal change position.
-    AMControl* crystalChangePositionStatusControl() const { return stageAtCrystalChangePosition_; }
+    AMControl* crystalChangePositionStatusControl() const { return atCrystalChangePosition_; }
     /// Returns the absolute crystal stage motor control.
     AMControl* crystalStageMotorAbsControl() const { return stageMotorAbs_; }
     /// Returns the relative crystal change motor control.
@@ -93,14 +91,24 @@ public:
     /// Returns the energy setpoint control.
     AMControl* energyControl() const { return energy_; }
 
+    /// Returns a new close upper slit action, 0 if not connected.
+    AMAction3* createCloseUpperSlitAction();
+    /// Returns a new close lower slit action, 0 if not connected.
+    AMAction3* createCloseLowerSlitAction();
     /// Returns a new close slits action, 0 if not connected.
     AMAction3* createCloseSlitsAction();
+    /// Returns a new action that waits for the slits to signal they are closed.
+    AMAction3 *createWaitForSlitsClosedAction();
     /// Returns a new remove paddle action, 0 if not connected.
     AMAction3* createRemovePaddleAction();
+    /// Returns a new action that waits for the paddle to confirm that it is removed.
+    AMAction3* createWaitForPaddleRemovedAction();
     /// Returns a new action that waits for the region key to be turned CCW to Disabled, 0 if not connected.
     AMAction3* createWaitForCrystalChangeEnabledAction();
     /// Returns a new action that sends the crystal motor to the change position.
     AMAction3* createMoveToCrystalChangePositionAction();
+    /// Returns a new action that waits for the mono to signal it has reached the crystal change position.
+    AMAction3* createWaitForAtCrystalChangePositionAction();
     /// Returns a new action that waits for the brake to be disabled, 0 if not connected.
     AMAction3* createWaitForBrakeDisabledAction();
     /// Returns a new action that moves the crystal change motor by the given degrees (relative).
@@ -127,8 +135,8 @@ signals:
     void regionChanged(BioXASMainMonochromator::Region newRegion);
     /// Notifier that the bragg motor power status has changed.
     void braggMotorPowerChanged(bool isOn);
-    /// Notifier that the slits closed general status has changed.
-    void slitsClosedChanged(bool areClosed);
+//    /// Notifier that the slits closed general status has changed.
+//    void slitsClosedChanged(bool areClosed);
     /// Notifier that the paddle out status has changed.
     void paddleOutChanged(bool isOut);
     /// Notifier that crystal changes are enabled/disabled.
@@ -157,8 +165,6 @@ protected slots:
     void onRegionChanged();
     /// Emits the appropriate signal when the mono's bragg motor has changed power states.
     void onBraggMotorPowerChanged(double value) { emit braggMotorPowerChanged((int)value == 1); }
-    /// Emits the appropriate signal when the mono's slits closed status has changed.
-    void onSlitsClosedChanged(double value) { emit slitsClosedChanged((int)value == 1); }
     /// Emits the appropriate signal when the paddle is out.
     void onPaddleOutChanged(double value) { emit paddleOutChanged((int)value == 1); }
     /// Emits the appropriate signal when the crystal change motor is enabled/disabled.
@@ -184,6 +190,8 @@ protected:
 
     // Motors
 
+    CLSMAXvMotor *lowerSlitBladeMotor_;
+    CLSMAXvMotor *upperSlitBladeMotor_;
     CLSMAXvMotor *phosphorPaddleMotor_;
     CLSMAXvMotor *braggMotor_;
     CLSMAXvMotor *verticalMotor_;
@@ -196,11 +204,11 @@ protected:
 
     // Controls
 
-    AMControl* braggMotorPower_;
     AMControl* slitsClosed_;
-    AMControl* paddleOut_;
+    AMControl* phosphorPaddleOut_;
+    AMControl* braggMotorPower_;
     AMControl* crystalChangeEnabled_;
-    AMControl* stageAtCrystalChangePosition_;
+    AMControl* atCrystalChangePosition_;
     AMControl* crystalChangeBrakeEnabled_;
     AMControl* stageMotorAbs_;
     AMControl* crystalChangeMotorRel_;
