@@ -23,6 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AMCRASHMONITORSUPPORT_H
 
 #include <QFile>
+#include <unistd.h>
 
 class AMCrashMonitorSupport
 {
