@@ -39,11 +39,17 @@ IDEASSampleCameraPanel::IDEASSampleCameraPanel(QWidget *parent) :
 	QVBoxLayout *airStageLayout = new QVBoxLayout;
 	QGroupBox *vacStageGroup = new QGroupBox;
 	QVBoxLayout *vacStageLayout = new QVBoxLayout;
-
+	QGroupBox *camera3Group = new QGroupBox;
+	QVBoxLayout *camera3Layout = new QVBoxLayout;
+	QGroupBox *camera4Group = new QGroupBox;
+	QVBoxLayout *camera4Layout = new QVBoxLayout;
 
 
 #ifdef AM_MOBILITY_VIDEO_ENABLED
-	AMBeamlineCameraWidget *sampleCameraWidget, *vacuumCameraWidget, *camera3Widget, *camera4Widget;
+	AMBeamlineCameraWidget *sampleCameraWidget;
+	AMBeamlineCameraWidget *vacuumCameraWidget;
+	AMBeamlineCameraWidget *camera3Widget;
+	AMBeamlineCameraWidget *camera4Widget;
 
 	sampleCameraWidget = new AMBeamlineCameraWidget(0,false);
 	vacuumCameraWidget = new AMBeamlineCameraWidget(0,false);
@@ -56,6 +62,8 @@ IDEASSampleCameraPanel::IDEASSampleCameraPanel(QWidget *parent) :
 
 	airStageLayout->addWidget(sampleCameraWidget);
 	vacStageLayout->addWidget(vacuumCameraWidget);
+	camera3Layout->addWidget(camera3Widget);
+	camera4Layout->addWidget(camera4Widget);
 #endif
 
 
@@ -68,8 +76,11 @@ IDEASSampleCameraPanel::IDEASSampleCameraPanel(QWidget *parent) :
 	vacStageLayout->addWidget(vacuumMotorGroupView_);
 	sampleStageTabs->addTab(vacStageGroup,"Vacuum Stage");
 
-	sampleStageTabs->addTab(camera3Widget, "Camera 3");
-	sampleStageTabs->addTab(camera4Widget, "Camera 4");
+	camera3Group->setLayout(camera3Layout);
+	sampleStageTabs->addTab(camera3Group, "Camera 3");
+
+	camera4Group->setLayout(camera4Layout);
+	sampleStageTabs->addTab(camera4Group, "Camera 4");
 
 	cameraPanelLayout->addWidget(sampleStageTabs);
 
