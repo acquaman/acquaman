@@ -48,7 +48,7 @@ AMControlMoveAction3::AMControlMoveAction3(const AMControlMoveAction3 &other)
 	else
 		control_ = 0;
 
-	retries_ = 1;
+	retries_ = other.retries();
 	attempts_ = 0;
 	destination_ = 0;
 }
@@ -119,13 +119,10 @@ void AMControlMoveAction3::startImplementation()
 	// determine the absolute destination
 	if(controlMoveInfo()->isRelativeMove() && controlMoveInfo()->isRelativeFromSetpoint())
 		destination_ = control_->setpoint() + setpoint.value();
-		//failureExplanation = control_->moveRelative(setpoint.value(), AMControl::RelativeMoveFromSetpoint);
 	else if(controlMoveInfo()->isRelativeMove())
 		destination_ = control_->value() + setpoint.value();
-		//failureExplanation = control_->moveRelative(setpoint.value(), AMControl::RelativeMoveFromValue);
 	else
 		destination_ = setpoint.value();
-		//failureExplanation = control_->move(setpoint.value());
 
 	// start the move:
 	int failureExplanation = control_->move(destination_);
@@ -202,7 +199,6 @@ void AMControlMoveAction3::onMoveFailed(int reason)
 		attempts_++;
 
 		// retry move
-		qDebug() << "Retrying move to " << destination_;
 		int failureExplanation = control_->move(destination_);
 		if(failureExplanation != AMControl::NoFailure)
 			onMoveFailed(failureExplanation);
