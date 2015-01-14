@@ -54,7 +54,7 @@ public:
 	//////////////////////////
 
 	/// Returns a pointer to our move destination setpoint
-	AMControlInfo controlInfo() const { return controlInfo_; }
+	const AMControlInfo& controlInfo() const { return controlInfo_; }
 	/// Returns true if this is to be a relative move (otherwise returns false for absolute).
 	bool isRelativeMove() const { return isRelative_; }
 	/// Returns true if this is to be a relative move from the setpoint as opposed to the feedback value

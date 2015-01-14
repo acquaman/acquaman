@@ -61,7 +61,7 @@ public:
 	//////////////////////////
 
 	/// Returns a pointer to our move destination setpoint
-	AMControlInfo controlInfo() const { return controlInfo_; }
+	const AMControlInfo& controlInfo() const { return controlInfo_; }
 
 	/// Returns our timeout.
 	double timeout() const;
