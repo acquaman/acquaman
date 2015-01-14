@@ -21,7 +21,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "AMScanActionControllerBasicFileWriter.h"
 
-#include <QTimer>
 #include <QFile>
 #include <QFileInfo>
 
@@ -69,10 +68,10 @@ AMScanActionControllerBasicFileWriter::AMScanActionControllerBasicFileWriter(con
 	}
 
 	// start the timer (2mins) to check whether we are writing to the files consistently
-	QTimer *dataFileSizeCheckTimer = new QTimer(this);
-	dataFileSizeCheckTimer->setInterval(120*1000); // 2 mins
-	connect(dataFileSizeCheckTimer, SIGNAL(timeout()), this, SLOT(onDataFileSizeCheckerTimerTimeout()));
-	dataFileSizeCheckTimer->start();
+	dataFileSizeCheckTimer_ = new QTimer();
+	dataFileSizeCheckTimer_->setInterval(120*1000); // 2 mins
+	connect(dataFileSizeCheckTimer_, SIGNAL(timeout()), this, SLOT(onDataFileSizeCheckerTimerTimeout()));
+	dataFileSizeCheckTimer_->start();
 }
 
 void AMScanActionControllerBasicFileWriter::writeToFile(int fileRank, const QString &textToWrite)
@@ -129,6 +128,9 @@ void AMScanActionControllerBasicFileWriter::finishWriting()
 		spectraFile_->close();
 		spectraFile_->deleteLater();
 	}
+
+	dataFileSizeCheckTimer_->stop();
+	dataFileSizeCheckTimer_->deleteLater();
 
 	emit fileWriterIsBusy(false);
 }

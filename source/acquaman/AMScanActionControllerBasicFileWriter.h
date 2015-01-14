@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QString>
 #include <QObject>
+#include <QTimer>
 
 class QFile;
 
@@ -80,6 +81,8 @@ protected:
 	/// The file for the spectral data file.
 	QFile *spectraFile_;
 
+	/// The time to check whether we are writing to data file continuously
+	QTimer *dataFileSizeCheckTimer_;
 	/// The size of the data file we checked last time
 	int dataFileSizeCheckPoint_;
 	/// The size of the spectra file we checked last time
