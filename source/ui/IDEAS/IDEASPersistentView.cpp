@@ -24,8 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/IDEAS/IDEASBeamline.h"
 #include "ui/IDEAS/IDEASScalerView.h"
 #include "actions3/actions/AMWaitAction.h"
-
-
+#include "source/StripTool2/IDEAS/IDEASScalerStripTool.h"
 
 
 #include "ui/beamline/AMExtendedControlEditor.h"
@@ -48,6 +47,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
 	QWidget(parent)
 {
+	stripTool_ = new IDEASScalerStripTool(this);
+	//stripTool_->variables_->addVariable("BL08B2-1:mcs00:fbk");
+
 	beamStatusLabel_ = new QLabel("Beam is off!");
 
 	beamOnButton_ = new QPushButton("Beam On");
@@ -238,6 +240,7 @@ IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
 	mainPanelLayout->addWidget(monoCrystal_);
 	mainPanelLayout->addWidget(monoEnergyRange_);
 	mainPanelLayout->addStretch();
+	mainPanelLayout->addWidget(stripTool_);
 
 	QVBoxLayout *scalerPanelLayout = new QVBoxLayout;
 	scalerPanelLayout->addWidget(new IDEASScalerView());

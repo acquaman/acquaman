@@ -248,6 +248,9 @@ public:
 	AMAction3* createGoToTransferPositionActions3();
 	AMAction3* createGoToMeasurementPositionActions3();
 
+	/// A list of actions that will restore the defaults for grating velocity/acceleration, scaler settings, and tracking settings to nominal values
+	AMAction3* createRestorePreFastScanDefaultActions();
+
 public slots:
 	void setCurrentSamplePlate(AMSamplePlatePre2013 *newSamplePlate);
 

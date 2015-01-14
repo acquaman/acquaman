@@ -64,7 +64,7 @@ VESPERS2DScanConfiguration::VESPERS2DScanConfiguration(const VESPERS2DScanConfig
 	: AMStepScanConfiguration(original), VESPERSScanConfiguration(original)
 {
 	setName(original.name());
-	setUserScanName(original.userScanName());
+	setUserScanName(original.name());
 	dbObject_->setParent(this);
 	setExportAsAscii(original.exportAsAscii());
 	setExportSpectraSources(original.exportSpectraSources());
@@ -82,7 +82,9 @@ VESPERS2DScanConfiguration::VESPERS2DScanConfiguration(const VESPERS2DScanConfig
 
 AMScanConfiguration *VESPERS2DScanConfiguration::createCopy() const
 {
-	return new VESPERS2DScanConfiguration(*this);
+	AMScanConfiguration *configuration = new VESPERS2DScanConfiguration(*this);
+	configuration->dissociateFromDb(true);
+	return configuration;
 }
 
 AMScanController *VESPERS2DScanConfiguration::createController()
@@ -96,6 +98,16 @@ AMScanController *VESPERS2DScanConfiguration::createController()
 AMScanConfigurationView *VESPERS2DScanConfiguration::createView()
 {
 	return new VESPERS2DScanConfigurationView(this);
+}
+
+QString VESPERS2DScanConfiguration::technique() const
+{
+	return "2D Scan";
+}
+
+QString VESPERS2DScanConfiguration::description() const
+{
+	return "2D Scan";
 }
 
 QString VESPERS2DScanConfiguration::detailedDescription() const

@@ -396,12 +396,12 @@ void AMStepScanActionController::writeDataToFiles()
 	int scanRank = scan_->rawData()->scanRank();
 
 	for (int i = 0; i < scanRank; i++)
-		rank1String.append(QString("%1 ").arg((double)scan_->rawDataSources()->at(0)->axisValue(i, currentAxisValueIndex_.at(i))));
+		rank1String.append(QString("%1 ").arg((double)scan_->rawDataSources()->at(0)->axisValue(i, currentAxisValueIndex_.at(i)), 0, 'g', 19));
 
 	foreach (AMRawDataSource *oneRawDataSource, scan_->rawDataSources()->toList()){
 
 		if ((oneRawDataSource->rank() - scanRank) == 0)
-			rank1String.append(QString("%1 ").arg((double)oneRawDataSource->value(currentAxisValueIndex_)));
+			rank1String.append(QString("%1 ").arg((double)oneRawDataSource->value(currentAxisValueIndex_), 0, 'g', 19));
 
 		if ((oneRawDataSource->rank() - scanRank) == 1){
 
@@ -412,7 +412,7 @@ void AMStepScanActionController::writeDataToFiles()
 			oneRawDataSource->values(startIndex, endIndex, outputValues.data());
 
 			for(int y = 0; y < dataSourceSize; y++)
-				rank2String.append(QString("%1 ").arg(outputValues.at(y)));
+				rank2String.append(QString("%1 ").arg(outputValues.at(y), 0, 'g', 19));
 
 			rank2String.append("\n");
 		}
@@ -462,23 +462,11 @@ void AMStepScanActionController::prefillScanPoints()
 					insertIndex = AMnDIndex(i, j);
 					scan_->rawData()->setAxisValue(0, insertIndex.i(), starts.at(0) + i*steps.at(0));
 					scan_->rawData()->setAxisValue(1, insertIndex.j(), starts.at(1) + j*steps.at(1));
-
-					for (int di = 0, dataSourceCount = scan_->rawDataSourceCount(); di < dataSourceCount; di++){
-
-						if ((scan_->rawDataSources()->at(di)->rank() - scanRank) == 0)
-							scan_->rawData()->setValue(insertIndex, di, AMnDIndex(), -1);
-
-						else if ((scan_->rawDataSources()->at(di)->rank() - scanRank) == 1){
-
-							QVector<double> data = QVector<double>(scan_->rawDataSources()->at(di)->size(scan_->rawDataSources()->at(di)->rank()-1), -1);
-							scan_->rawData()->setValue(insertIndex, di, data.constData());
-						}
-					}
 				}
 			}
 		}
 
-		else if (scan_->rawData()->scanRank() == 3){
+		else if (scanRank == 3){
 
 			for (int k = 0; k < axisSizes.at(2); k++){
 
@@ -490,18 +478,6 @@ void AMStepScanActionController::prefillScanPoints()
 						scan_->rawData()->setAxisValue(0, insertIndex.i(), starts.at(0) + i*steps.at(0));
 						scan_->rawData()->setAxisValue(1, insertIndex.j(), starts.at(1) + j*steps.at(1));
 						scan_->rawData()->setAxisValue(2, insertIndex.k(), starts.at(2) + j*steps.at(2));
-
-						for (int di = 0, dataSourceCount = scan_->rawDataSourceCount(); di < dataSourceCount; di++){
-
-							if ((scan_->rawDataSources()->at(di)->rank() - scanRank) == 0)
-								scan_->rawData()->setValue(insertIndex, di, AMnDIndex(), -1);
-
-							else if ((scan_->rawDataSources()->at(di)->rank() - scanRank) == 1){
-
-								QVector<int> data = QVector<int>(scan_->rawDataSources()->at(di)->size(scan_->rawDataSources()->at(di)->rank()-1), -1);
-								scan_->rawData()->setValue(insertIndex, di, data.constData());
-							}
-						}
 					}
 				}
 			}

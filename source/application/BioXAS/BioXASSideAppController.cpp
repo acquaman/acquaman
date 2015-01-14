@@ -106,8 +106,10 @@ void BioXASSideAppController::shutdown()
 
 void BioXASSideAppController::onScalerConnected()
 {
+//	scalerView_ = 0;
+
 	if (BioXASSideBeamline::bioXAS()->scaler()->isConnected() && !scalerView_) {
-		scalerView_ = new CLSSIS3820ScalerView(BioXASSideBeamline::bioXAS()->scaler());
+		scalerView_ = new CLSSIS3820ScalerView(BioXASSideBeamline::bioXAS()->scaler(), false);
 
 		mw_->addPane(scalerView_, "Detectors", "Scaler", ":/system-search.png", true);
 	}
@@ -115,11 +117,6 @@ void BioXASSideAppController::onScalerConnected()
 
 void BioXASSideAppController::onBeamlineConnected()
 {
-	if (BioXASSideBeamline::bioXAS()->isConnected() && !persistentPanel_) {
-		persistentPanel_ = new BioXASSidePersistentView();
-		mw_->addRightWidget(persistentPanel_);
-	}
-
 	if (BioXASSideBeamline::bioXAS()->isConnected() && !configurationView_) {
 		configuration_ = new BioXASSideXASScanConfiguration();
 		configuration_->setEdgeEnergy(10000);
@@ -136,7 +133,6 @@ void BioXASSideAppController::onBeamlineConnected()
 
 		mw_->addPane(configurationViewHolder_, "Scans", "Test Scan", ":/utilities-system-monitor.png");
 	}
-
 }
 
 void BioXASSideAppController::registerClasses()
@@ -193,12 +189,12 @@ void BioXASSideAppController::setupUserInterface()
 
 	mw_->insertHeading("Scans", 2);
 
-	connect( BioXASSideBeamline::bioXAS(), SIGNAL(connected(bool)), this, SLOT(onBeamlineConnected()) );
 
-	if (BioXASSideBeamline::bioXAS()->isConnected()) {
-		onBeamlineConnected();
-	}
+    persistentPanel_ = new BioXASSidePersistentView();
+    mw_->addRightWidget(persistentPanel_);
 
+    connect( BioXASSideBeamline::bioXAS(), SIGNAL(connected(bool)), this, SLOT(onBeamlineConnected()) );
+    onBeamlineConnected();
 }
 
 void BioXASSideAppController::makeConnections()

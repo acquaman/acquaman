@@ -305,6 +305,7 @@ bool SGMFastScanActionController::event(QEvent *e){
 						scan_->rawData()->setValue(AMnDIndex(0), scan_->rawData()->idOfMeasurement(configuration_->detectorConfigurations().detectorInfoAt(y).name()), AMnDIndex(), allDataMap_.value(configuration_->detectorConfigurations().detectorInfoAt(y).name()).at(x));
 
 					scan_->rawData()->endInsertRows();
+					insertionIndex_[0] = insertionIndex_.i()+1;
 				}
 			}
 			writeDataToFiles();
@@ -377,15 +378,14 @@ void SGMFastScanActionController::writeDataToFiles(){
 	*/
 
 	AMnDIndex requestIndex = AMnDIndex(0);
-
 	for(int x = 0; x < insertionIndex_.i()-1; x++){
 		rank1String.clear();
-		rank1String.append(QString("%1 ").arg((double)scan_->rawDataSources()->at(0)->axisValue(0, requestIndex.i())));
+		rank1String.append(QString("%1 ").arg((double)scan_->rawDataSources()->at(0)->axisValue(0, requestIndex.i()), 0, 'g', 19));
 		AMRawDataSource *oneRawDataSource;
 		for(int y = 0; y < scan_->rawDataSourceCount(); y++){
 			oneRawDataSource = scan_->rawDataSources()->at(y);
 			if(oneRawDataSource->rank() == 1)
-				rank1String.append(QString("%1 ").arg((double)oneRawDataSource->value(requestIndex)));
+				rank1String.append(QString("%1 ").arg((double)oneRawDataSource->value(requestIndex), 0, 'g', 19));
 		}
 		rank1String.append("\n");
 
@@ -393,7 +393,6 @@ void SGMFastScanActionController::writeDataToFiles(){
 		QTime endTime = QTime::currentTime();
 		qdebug() << "Time to ready data for writing " << startTime.msecsTo(endTime);
 		*/
-
 		emit requestWriteToFile(0, rank1String);
 		requestIndex[0] = requestIndex.i()+1;
 	}

@@ -41,6 +41,12 @@ AMExporterOptionGeneralAscii::AMExporterOptionGeneralAscii(const AMExporterOptio
 	newlineDelimiter_ = original.newlineDelimiter();
 }
 
+AMExporterOption *AMExporterOptionGeneralAscii::createCopy() const
+{
+	AMExporterOption *option = new AMExporterOptionGeneralAscii(*this);
+	option->dissociateFromDb(true);
+	return option;
+}
 const QMetaObject* AMExporterOptionGeneralAscii::getMetaObject(){
 	return metaObject();
 }

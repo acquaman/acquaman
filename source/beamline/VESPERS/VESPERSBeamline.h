@@ -56,6 +56,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define VESPERSBEAMLINE_FOUR_ELEMENT_NOT_CONNECTED 67807
 #define VESPERSBEAMLINE_SAMPLE_STAGE_NOT_CONNECTED 67808
 
+class CLSBiStateControl;
+
 /// This class is the master class that holds EVERY control inside the VESPERS beamline.
 class VESPERSBeamline : public AMBeamline
 {
@@ -114,13 +116,13 @@ public:
 
 	// The photon and safety shutters.
 	/// Returns the first photon shutter.
-	AMControl *photonShutter1() const { return psh1_; }
+	CLSBiStateControl *photonShutter1() const { return photonShutter1_; }
 	/// Returns the second photon shutter.
-	AMControl *photonShutter2() const { return psh2_; }
+	CLSBiStateControl *photonShutter2() const { return photonShutter2_; }
 	/// Returns the first safety shutter.
-	AMControl *safetyShutter1() const { return ssh1_; }
+	CLSBiStateControl *safetyShutter1() const { return safetyShutter1_; }
 	/// Returns the second safety shutter.
-	AMControl *safetyShutter2() const { return ssh2_; }
+	CLSBiStateControl *safetyShutter2() const { return safetyShutter2_; }
 
 	// Because there is some logic involved with opening and closing the shutters each shutter has it's own method for opening and closing.
 	/// Opens the first photon shutter.  Returns whether the beamline was in the proper state before changing the shutter.
@@ -505,8 +507,13 @@ public:
 
 	//////////////////////////////////////////////////////////////////////////////////////
 	// Actions
+
 	/// Creates an action that changes the beam.  Returns 0 if unable to create.
 	AMAction3 *createBeamChangeAction(VESPERS::Beam beam);
+	/// Creates an action that opens the shutters to act like a Beam On.
+	AMAction3 *createBeamOnAction();
+	/// Creates an action that closes the shutters to act like a Beam Off.
+	AMAction3 *createBeamOffAction();
 
 	// End of Actions
 	//////////////////////////////////////////////////////////////////////////////////////
@@ -636,10 +643,10 @@ protected:
 	AMControl *poeBeamStatusEnable_;
 
 	// The shutters.
-	AMControl *psh1_;
-	AMControl *psh2_;
-	AMControl *ssh1_;
-	AMControl *ssh2_;
+	CLSBiStateControl *photonShutter1_;
+	CLSBiStateControl *photonShutter2_;
+	CLSBiStateControl *safetyShutter1_;
+	CLSBiStateControl *safetyShutter2_;
 
 	// Endstation
 	VESPERSEndstation *endstation_;
@@ -908,6 +915,49 @@ protected:
 	AMDetector *fourElementVortexRawSpectrum2_;
 	AMDetector *fourElementVortexRawSpectrum3_;
 	AMDetector *fourElementVortexRawSpectrum4_;
+
+	// Motors
+	AMControl *sampleStageHorizontalFeedbackControl_;
+	AMControl *sampleStageVerticalFeedbackControl_;
+	AMControl *sampleStageNormalFeedbackControl_;
+	AMControl *wireStageHorizontalFeedbackControl_;
+	AMControl *wireStageVerticalFeedbackControl_;
+	AMControl *wireStageNormalFeedbackControl_;
+	AMControl *sampleStageXFeedbackControl_;
+	AMControl *sampleStageYFeedbackControl_;
+	AMControl *sampleStageZFeedbackControl_;
+	AMControl *attoStageHorizontalFeedbackControl_;
+	AMControl *attoStageVerticalFeedbackControl_;
+	AMControl *attoStageNormalFeedbackControl_;
+	AMControl *attoStageXFeedbackControl_;
+	AMControl *attoStageZFeedbackControl_;
+	AMControl *attoStageYFeedbackControl_;
+	AMControl *attoStageRxFeedbackControl_;
+	AMControl *attoStageRzFeedbackControl_;
+	AMControl *attoStageRyFeedbackControl_;
+	AMControl *bigBeamXFeedbackControl_;
+	AMControl *bigBeamZFeedbackControl_;
+
+	AMDetector *sampleStageHorizontalFeedback_;
+	AMDetector *sampleStageVerticalFeedback_;
+	AMDetector *sampleStageNormalFeedback_;
+	AMDetector *wireStageHorizontalFeedback_;
+	AMDetector *wireStageVerticalFeedback_;
+	AMDetector *wireStageNormalFeedback_;
+	AMDetector *sampleStageXFeedback_;
+	AMDetector *sampleStageYFeedback_;
+	AMDetector *sampleStageZFeedback_;
+	AMDetector *attoStageHorizontalFeedback_;
+	AMDetector *attoStageVerticalFeedback_;
+	AMDetector *attoStageNormalFeedback_;
+	AMDetector *attoStageXFeedback_;
+	AMDetector *attoStageZFeedback_;
+	AMDetector *attoStageYFeedback_;
+	AMDetector *attoStageRxFeedback_;
+	AMDetector *attoStageRzFeedback_;
+	AMDetector *attoStageRyFeedback_;
+	AMDetector *bigBeamXFeedback_;
+	AMDetector *bigBeamZFeedback_;
 };
 
 #endif // VESPERSBEAMLINE_H

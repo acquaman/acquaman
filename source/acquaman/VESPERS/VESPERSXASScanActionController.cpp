@@ -32,6 +32,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "analysis/AM1DKSpaceCalculatorAB.h"
 #include "analysis/AM1DNormalizationAB.h"
 #include "analysis/AM2DAdditionAB.h"
+#include "analysis/AM1DExpressionAB.h"
 
 VESPERSXASScanActionController::~VESPERSXASScanActionController(){}
 
@@ -142,14 +143,14 @@ void VESPERSXASScanActionController::buildScanControllerImplementation()
 	else if (xrfDetector.testFlag(VESPERS::FourElement))
 		detector = qobject_cast<AMXRFDetector *>(VESPERSBeamline::vespers()->exposedDetectorByName("FourElementVortex"));
 
+	QList<AMDataSource *> i0Sources = QList<AMDataSource *>()
+			<< scan_->dataSourceAt(scan_->indexOfDataSource("SplitIonChamber"))
+			   << scan_->dataSourceAt(scan_->indexOfDataSource("PreKBIonChamber"))
+				  << scan_->dataSourceAt(scan_->indexOfDataSource("MiniIonChamber"));
+
 	if (detector){
 
 		detector->removeAllRegionsOfInterest();
-
-		QList<AMDataSource *> i0Sources = QList<AMDataSource *>()
-				<< scan_->dataSourceAt(scan_->indexOfDataSource("SplitIonChamber"))
-				   << scan_->dataSourceAt(scan_->indexOfDataSource("PreKBIonChamber"))
-					  << scan_->dataSourceAt(scan_->indexOfDataSource("MiniIonChamber"));
 
 		AMDataSource *spectraSource = 0;
 
@@ -182,6 +183,13 @@ void VESPERSXASScanActionController::buildScanControllerImplementation()
 			scan_->addAnalyzedDataSource(normalizedRegion, newRegion->name().contains(edgeSymbol), !newRegion->name().contains(edgeSymbol));
 		}
 	}
+
+	QList<AMDataSource *> allIonChambers = QList<AMDataSource *>() << i0Sources << scan_->dataSourceAt(scan_->indexOfDataSource("PostIonChamber"));
+	AM1DExpressionAB* transmission = new AM1DExpressionAB("trans");
+	transmission->setDescription("Transmission");
+	transmission->setInputDataSources(allIonChambers);
+	transmission->setExpression(QString("ln(%1/%2)").arg(allIonChambers.at(int(configuration_->incomingChoice()))->name()).arg(allIonChambers.at(configuration_->transmissionChoice())->name()));
+	scan_->addAnalyzedDataSource(transmission, true, false);
 }
 
 void VESPERSXASScanActionController::createScanAssembler()
@@ -191,10 +199,7 @@ void VESPERSXASScanActionController::createScanAssembler()
 
 AMAction3* VESPERSXASScanActionController::createInitializationActions()
 {
-	AMListAction3 *initializationAction = qobject_cast<AMListAction3 *>(buildBaseInitializationAction());
-
-	initializationAction->addSubAction(VESPERSBeamline::vespers()->mono()->createDelEAction(0));
-	initializationAction->addSubAction(VESPERSBeamline::vespers()->mono()->createEoAction(configuration_->energy()));
+	AMListAction3 *initializationAction = qobject_cast<AMListAction3 *>(buildBaseInitializationAction(double(configuration_->scanAxisAt(0)->regionAt(0)->regionTime())));
 
 	return initializationAction;
 }
@@ -202,11 +207,6 @@ AMAction3* VESPERSXASScanActionController::createInitializationActions()
 AMAction3* VESPERSXASScanActionController::createCleanupActions()
 {
 	AMListAction3 *cleanupAction = qobject_cast<AMListAction3 *>(buildCleanupAction());
-
-	AMListAction3 *monoCleanupAction = new AMListAction3(new AMListActionInfo3("VESPERS Cleanup Stage 3", "Resetting the mono position."), AMListAction3::Parallel);
-	monoCleanupAction->addSubAction(VESPERSBeamline::vespers()->mono()->createDelEAction(0));
-
-	cleanupAction->addSubAction(monoCleanupAction);
 
 	return cleanupAction;
 }

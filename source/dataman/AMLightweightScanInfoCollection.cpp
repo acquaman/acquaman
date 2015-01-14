@@ -41,6 +41,11 @@ int AMLightweightScanInfoCollection::indexOf(AMLightweightScanInfo *scan, int fr
 	return scanInfos_.indexOf(scan, from);
 }
 
+const QHash<int, QString> AMLightweightScanInfoCollection::runMap()
+{
+	return runMap_;
+}
+
 void AMLightweightScanInfoCollection::populateExperimentIds()
 {
 	QSqlQuery selectQuery = database_->select("ObjectExperimentEntries", "objectId, ExperimentId");
@@ -65,7 +70,7 @@ void AMLightweightScanInfoCollection::populateSampleNames()
 	// Building up the first section of the map, such that after this first part is done sampleNameMap_
 	// will contain a key for each table name mentioned in the sample field of AMScan_table mapped to
 	// an empty Hash (which in the second part will be filled with the sample id mapped to the sample name
-	QSqlQuery selectQuery = database_->select(AMDbObjectSupport::s()->tableNameForClass("AMScan"), "sample");
+	QSqlQuery selectQuery = database_->select(AMDbObjectSupport::s()->tableNameForClass("AMScan"), "sample", "sample IS NOT NULL");
 
 	if(!selectQuery.exec())
 	{
@@ -78,10 +83,13 @@ void AMLightweightScanInfoCollection::populateSampleNames()
 		// Sample results are stored in format table_name;id
 		QString sampleResults = selectQuery.value(0).toString();
 
+
 		QStringList splitResults = sampleResults.split(";");
 
 		if(!sampleNameMap_.contains(splitResults.at(0)))
 			sampleNameMap_.insert(splitResults.at(0), QHash<int, QString>());
+
+
 	}
 
 	selectQuery.finish();

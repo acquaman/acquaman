@@ -41,6 +41,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QWidget>
 #include "dataman/AMScanSetModel.h"
 
+class AMCloseItemDelegate;
 
 /// This widget is used inside AMGenericScanEditor to let users create, delete, and modify the analysis chains / analysis blocks for a set of scans.  It's a quick first prototype, the eventual interface should let users create custom analysis chains and edit the parameters at each level within the chain.  This version only displays the current analysis blocks.
 class AMDataSourcesEditor : public QWidget
@@ -125,7 +126,7 @@ protected:
 	/// Flag holding whether all of the data sources should be visible or not, despite their state of hidden from users.
 	bool showAllDataSources_;
 
-	QVBoxLayout *verticalLayout;
+	QVBoxLayout *verticalLayout_;
 	QTreeView *scanSetView_;
 	QHBoxLayout *addAnalysisToolButtonLayout_;
 	QToolButton *addDataSourceButton_;
@@ -137,6 +138,8 @@ protected:
 	QLabel *nameLabel_;
 	QFrame *lineBreak_;
 	QVBoxLayout *detailEditorLayout_;
+
+	AMCloseItemDelegate* itemDelegate_;
 };
 
 #endif // AMDATASOURCESEDITOR_H

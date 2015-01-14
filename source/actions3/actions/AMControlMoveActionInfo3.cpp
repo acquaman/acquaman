@@ -39,6 +39,13 @@ AMControlMoveActionInfo3::AMControlMoveActionInfo3(const AMControlMoveActionInfo
 	isRelativeFromSetpoint_ = other.isRelativeFromSetpoint();
 }
 
+AMActionInfo3 *AMControlMoveActionInfo3::createCopy() const
+{
+	AMActionInfo3 *info = new AMControlMoveActionInfo3(*this);
+	info->dissociateFromDb(true);
+	return info;
+}
+
 void AMControlMoveActionInfo3::setSetpoint(double setpoint)
 {
 	controlInfo_.setValue(setpoint);

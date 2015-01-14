@@ -35,7 +35,7 @@ VESPERSScanController::VESPERSScanController(VESPERSScanConfiguration *configura
 
 VESPERSScanController::~VESPERSScanController(){}
 
-AMAction3 *VESPERSScanController::buildBaseInitializationAction()
+AMAction3 *VESPERSScanController::buildBaseInitializationAction(double firstRegionTime)
 {
 	// To initialize the XAS scan, there are four stages.
 	/*
@@ -47,20 +47,32 @@ AMAction3 *VESPERSScanController::buildBaseInitializationAction()
 
 	AMListAction3 *stage1 = new AMListAction3(new AMListActionInfo3("VESPERS Initialization Stage 1", "VESPERS Initialization Stage 1"), AMListAction3::Parallel);
 	stage1->addSubAction(scaler->createContinuousEnableAction3(false));
+//	stage1->addSubAction(scaler->createDwellTimeAction3(firstRegionTime));
+
+	AMListAction3 *stage2 = new AMListAction3(new AMListActionInfo3("VESPERS Initialization Stage 2", "VESPERS Initialization Stage 2"), AMListAction3::Parallel);
+
+	stage2->addSubAction(scaler->createStartAction3(false));
+	stage2->addSubAction(scaler->createScansPerBufferAction3(1));
+	stage2->addSubAction(scaler->createTotalScansAction3(1));
 
 	AMListAction3 *stage3 = new AMListAction3(new AMListActionInfo3("VESPERS Initialization Stage 3", "VESPERS Initialization Stage 3"), AMListAction3::Parallel);
+	stage3->addSubAction(scaler->createStartAction3(true));
+	stage3->addSubAction(scaler->createWaitForDwellFinishedAction());
 
-	stage3->addSubAction(scaler->createStartAction3(false));
-	stage3->addSubAction(scaler->createScansPerBufferAction3(1));
-	stage3->addSubAction(scaler->createTotalScansAction3(1));
+	AMListAction3 *stage4 = new AMListAction3(new AMListActionInfo3("VESPERS Initialization Stage 4", "VESPERS Initialization Stage 4"), AMListAction3::Parallel);
+	stage4->addSubAction(scaler->createStartAction3(true));
+	stage4->addSubAction(scaler->createWaitForDwellFinishedAction());
 
 	initializationAction->addSubAction(stage1);
+	initializationAction->addSubAction(stage2);
+	initializationAction->addSubAction(scaler->createDwellTimeAction3(firstRegionTime));
 	initializationAction->addSubAction(stage3);
+	initializationAction->addSubAction(stage4);
 
 	return initializationAction;
 }
 
-AMAction3 *VESPERSScanController::buildCCDInitializationAction(VESPERS::CCDDetectors ccdChoice, const QString &ccdName)
+AMAction3 *VESPERSScanController::buildCCDInitializationAction(VESPERS::CCDDetectors ccdChoice, const QString &ccdName, int newScanNumber)
 {
 	AMParallelListAction3 *action = new AMParallelListAction3(new AMParallelListActionInfo3("CCD Setup Action", "Sets the path, base file name and file number to the detector."));
 
@@ -95,14 +107,11 @@ AMAction3 *VESPERSScanController::buildCCDInitializationAction(VESPERS::CCDDetec
 		QString dataFolder = AMUserSettings::userDataFolder;
 
 		if (dataFolder.contains(QRegExp("\\d{2,2}-\\d{4,4}")))
-			action->addSubAction(ccd->createFilePathAction("/ramdisk/" % dataFolder.mid(dataFolder.indexOf(QRegExp("\\d{2,2}-\\d{4,4}")), 7)));
+			action->addSubAction(ccd->createFilePathAction(QString("/ramdisk/%1/%2_%3").arg(dataFolder.mid(dataFolder.indexOf(QRegExp("\\d{2,2}-\\d{4,4}")), 7))
+													.arg(config_->ccdFileName())
+													.arg(newScanNumber)));
 
-		QString uniqueName = getUniqueCCDName(ccd->ccdFilePath(), ccdName);
-
-		if (config_->ccdFileName() != uniqueName)
-			config_->setCCDFileName(uniqueName);
-
-		action->addSubAction(ccd->createFileNameAction(uniqueName));
+		action->addSubAction(ccd->createFileNameAction(config_->ccdFileName()));
 		action->addSubAction(ccd->createFileNumberAction(1));
 	}
 
@@ -117,14 +126,11 @@ AMAction3 *VESPERSScanController::buildCleanupAction()
 		Second: Set the dwell time to 1 second.  Set the scan mode to continuous.  This starts the synchronized dwell time.
 		Third: Disables the variable integration time.  Set the relative energy PV to 0.
 	 */
-	AMListAction3 *cleanup = new AMListAction3(new AMListActionInfo3("VESPERS Cleanup", "VESPERS Cleanup"), AMListAction3::Sequential);
 	CLSSIS3820Scaler *scaler = VESPERSBeamline::vespers()->scaler();
 
-	AMListAction3 *stage1 = new AMListAction3(new AMListActionInfo3("VESPERS Cleanup Stage 2", "Setting synchronized dwell options"), AMListAction3::Parallel);
-	stage1->addSubAction(scaler->createDwellTimeAction3(1.0));
-	stage1->addSubAction(scaler->createContinuousEnableAction3(true));
-
-	cleanup->addSubAction(stage1);
+	AMListAction3 *cleanup = new AMListAction3(new AMListActionInfo3("VESPERS Cleanup", "VESPERS Cleanup"), AMListAction3::Sequential);
+	cleanup->addSubAction(scaler->createDwellTimeAction3(1.0));
+	cleanup->addSubAction(scaler->createContinuousEnableAction3(true));
 
 	return cleanup;
 }

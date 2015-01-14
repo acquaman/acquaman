@@ -33,11 +33,13 @@ AMSampleMoveActionEditor::AMSampleMoveActionEditor(AMSampleMoveActionInfo *info,
 {
 	info_ = info;
 
-	QHBoxLayout *hl = new QHBoxLayout(this);
+	QHBoxLayout *hl = new QHBoxLayout();
 	sampleSelectorBox_ = new QComboBox();
 	hl->addWidget(new QLabel("Sample: "));
 	hl->addWidget(sampleSelectorBox_);
 	hl->addStretch(0);
+
+	setLayout(hl);
 
 	populateSamples();
 

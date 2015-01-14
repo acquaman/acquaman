@@ -34,10 +34,19 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSBasicCompositeScalerChannelDetector.h"
 #include "beamline/CLS/CLSMAXvMotor.h"
 
-#include "beamline/BioXAS/BioXASBeamlineDef.h"
-
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
+
+#include "beamline/BioXAS/BioXASBeamlineDef.h"
+#include "beamline/BioXAS/BioXASSideMonochromator.h"
+#include "beamline/BioXAS/BioXASPseudoMotorControl.h"
+
+#define BIOXASSIDEBEAMLINE_PRESSURE_TOO_HIGH 54600
+#define BIOXASSIDEBEAMLINE_VALVES_CLOSED 54601
+#define BIOXASSIDEBEAMLINE_TEMPERATURE_TOO_HIGH 54602
+#define BIOXASSIDEBEAMLINE_WATER_FLOW_SWITCH_TRIP 54603
+#define BIOXASSIDEBEAMLINE_WATER_FLOW_TOO_LOW 54604
+#define BIOXASSIDEBEAMLINE_ION_PUMP_TRIP 54605
 
 class CLSMAXvMotor;
 class AMBasicControlDetectorEmulator;
@@ -61,38 +70,193 @@ public:
 	/// Destructor.
 	virtual ~BioXASSideBeamline();
 
+	/// Returns the most recent connection state of the beamline.
+	virtual bool isConnected() const { return isConnected_; }
+
+	/// Returns the beamline monochromator.
+	BioXASSideMonochromator *mono() const { return mono_; }
 	/// Returns the scaler.
-	CLSSIS3820Scaler* scaler();
+	CLSSIS3820Scaler* scaler() { return scaler_; }
 
-	/// Returns the m1 upper slit blade motor control.
-	CLSMAXvMotor* m1UpperSlit();
+	// Photon and safety shutters.
 
-	/// Returns an instance of the keithley428 amplifier.
-	CLSKeithley428* keithley();
+	/// Returns the first photon shutter.
+	AMControl *photonShutter1() const { return psh1_; }
+	/// Returns the second photon shutter.
+	AMControl *photonShutter2() const { return psh2_; }
+	/// Returns the first safety shutter.
+	AMControl *safetyShutter1() const { return ssh1_; }
+	/// Returns the second safety shutter.
+	AMControl *safetyShutter2() const { return sshSide1_; }
 
-	virtual bool isConnected() const;
+	bool openPhotonShutter1();
+	bool closePhotonShutter1();
+	bool openPhotonShutter2();
+	bool closePhotonShutter2();
+	bool openSafetyShutter1();
+	bool closeSafetyShutter1();
+	bool openSafetyShutter2();
+	bool closeSafetyShutter2();
 
-	CLSBasicScalerChannelDetector* testDetector();
+	// Pressure monitors.
 
-	QList<CLSMAXvMotor *> getMotorsByType(BioXASBeamlineDef::BioXASMotorType category);
-	AMPVwStatusControl* energy();
+	AMControl *ccg1() const { return ccg1_; }
+	AMControl *ccg2() const { return ccg2_; }
+	AMControl *ccg3() const { return ccg3_; }
+	AMControl *ccgSide1() const { return ccgSide1_; }
+	AMControl *ccgSide2() const { return ccgSide2_; }
+	AMControl *ccgSide3() const { return ccgSide3_; }
+	AMControl *ccgSide4() const { return ccgSide4_; }
+	AMControl *ccgSide5() const { return ccgSide5_; }
+	AMControl *ccgSide6() const { return ccgSide6_; }
 
-	/// Returns an instance of the keithley428 amplifier.
-	CLSKeithley428* i0Keithley();
-	CLSKeithley428* iTKeithley();
+	AMControlSet *pressureSet() const { return pressureSet_; }
 
-	CLSBasicScalerChannelDetector* i0Detector();
-	CLSBasicScalerChannelDetector* iTDetector();
-	AMBasicControlDetectorEmulator* energyFeedbackDetector();
+	// Vaccum values.
+
+	AMControl *vvr1() const { return vvr1_; }
+	AMControl *vvr2() const { return vvr2_; }
+	AMControl *vvr3() const { return vvr3_; }
+	AMControl *vvr4() const { return vvr4_; }
+	AMControl *vvr5() const { return vvr5_; }
+	AMControl *vvrSide1() const { return vvrSide1_; }
+	AMControl *vvrSide2() const { return vvrSide2_; }
+	AMControl *vvrSide3() const { return vvrSide3_; }
+	AMControl *vvrSide4() const { return vvrSide4_; }
+	AMControl *vvrSide5() const { return vvrSide5_; }
+	AMControl *vvrSide6() const { return vvrSide6_; }
+
+	AMControlSet *valveSet() const { return valveSet_; }
+
+	bool allValvesOpen() const;
+	bool allValvesClosed() const;
+
+	// Ion pumps.
+
+	AMControl *iop1() const { return iop1_; }
+	AMControl *iop2() const { return iop2_; }
+	AMControl *iop3() const { return iop3_; }
+	AMControl *iop4() const { return iop4_; }
+	AMControl *iop5() const { return iop5_; }
+	AMControl *iopSide1() const { return iopSide1_; }
+	AMControl *iopSide2() const { return iopSide2_; }
+	AMControl *iopSide3() const { return iopSide3_; }
+	AMControl *iopSide4() const { return iopSide4_; }
+	AMControl *iopSide5() const { return iopSide5_; }
+	AMControl *iopSide6() const { return iopSide6_; }
+	AMControl *iopSide7() const { return iopSide7_; }
+
+	AMControlSet *ionPumpSet() const { return ionPumpSet_; }
+
+	// Flow transducers.
+
+	AMControl *flt1() const { return flt1_; }
+	AMControl *flt2() const { return flt2_; }
+	AMControl *flt3() const { return flt3_; }
+	AMControl *flt4() const { return flt4_; }
+	AMControl *flt5() const { return flt5_; }
+	AMControl *flt6() const { return flt6_; }
+	AMControl *flt7() const { return flt7_; }
+	AMControl *flt8() const { return flt8_; }
+	AMControl *flt9() const { return flt9_; }
+	AMControl *flt10() const { return flt10_; }
+	AMControl *flt11() const { return flt11_; }
+	AMControl *flt12() const { return flt12_; }
+	AMControl *flt13() const { return flt13_; }
+	AMControl *flt14() const { return flt14_; }
+	AMControl *flt15() const { return flt15_; }
+	AMControl *flt16() const { return flt16_; }
+	AMControl *flt17() const { return flt17_; }
+	AMControl *flt18() const { return flt18_; }
+	AMControl *flt19() const { return flt19_; }
+	AMControl *flt20() const { return flt20_; }
+
+	AMControlSet *flowTransducerSet() const { return flowTransducerSet_; }
+
+	// Flow switches.
+
+	AMControl *swf1() const { return swf1_; }
+	AMControl *swf2() const { return swf2_; }
+	AMControl *swf3() const { return swf3_; }
+	AMControl *swf4() const { return swf4_; }
+
+	AMControlSet *flowSwitchSet() const { return flowSwitchSet_; }
+
+	// Temperature monitors.
+
+	AMControl *tm1() const { return tm1_; }
+	AMControl *tm2() const { return tm2_; }
+	AMControl *tm3() const { return tm3_; }
+	AMControl *tm4() const { return tm4_; }
+	AMControl *tm5() const { return tm5_; }
+
+	AMControlSet *temperatureSet() const { return temperatureSet_; }
+
+	/// return the set of BioXAS Motors by given motor category
+	QList<AMControl *> getMotorsByType(BioXASBeamlineDef::BioXASMotorType category) const;
+
+	// Current amplifiers
+
+	CLSKeithley428* i0Keithley() const { return i0Keithley_; }
+	CLSKeithley428* iTKeithley() const { return iTKeithley_; }
+	CLSKeithley428* i2Keithley() const { return i2Keithley_; }
+
+	// Detectors
+
+	CLSBasicScalerChannelDetector* i0Detector() const { return i0Detector_; }
+	CLSBasicScalerChannelDetector* iTDetector() const { return iTDetector_; }
+	CLSBasicScalerChannelDetector* i2Detector() const { return i2Detector_; }
+	AMBasicControlDetectorEmulator* energyFeedbackDetector() const { return energyFeedbackDetector_; }
+	AMBasicControlDetectorEmulator* energySetpointDetector() const { return energySetpointDetector_; }
+	AMBasicControlDetectorEmulator* dwellTimeDetector() { return dwellTimeDetector_; }
+
+signals:
+	/// Notifier that the beamline's global connection state has changed.
+	void connected(bool);
+	/// Notifier that the pressure status has changed. Argument is false if any of the pressures fall below its setpoint, true otherwise.
+	void pressureStatusChanged(bool);
+	/// Notifier that the valve status has changed. Argument is false if any of the valves are closed, true otherwise.
+	void valveStatusChanged(bool);
+	/// Notifier that the ion pump status has changed. Argument is false if any of the ion pumps fail, true otherwise.
+	void ionPumpStatusChanged(bool);
+	/// Notifier that the flow transducer status has changed. Argument is false if any of the flow rates fall below its setpoint.
+	void flowTransducerStatusChanged(bool);
+	/// Notifier that the flow switch status has changed. Argument is false if any of the flow switches are disabled.
+	void flowSwitchStatusChanged(bool);
+	/// Notifier that the temperature status has changed. Argument is false if any of the temperatures rise above their setpoint.
+	void temperatureStatusChanged(bool);
 
 protected slots:
-	void onScalerConnectedChanged(bool connectionState);
-	void onM1UpperSlitConnectedChanged(bool connectionState);
-	void onEnergyConnectedChanged(bool connectionState);
+	/// Updates the beamline's reported connection state.
+	void onConnectionChanged();
+	/// Sets up pressure control connections once the whole pressure set is connected.
+	void onPressureSetConnected(bool connected);
+	/// Handles pressure errors.
+	void onPressureError();
+	/// Sets up valve control connections once the whole valve set is connected.
+	void onValveSetConnected(bool connected);
+	/// Handles valve errors.
+	void onValveError();
+	/// Sets up ion pump control connections once the whole ion pump set is connected.
+	void onIonPumpSetConnected(bool connected);
+	/// Handles ion pump errors.
+	void onIonPumpError();
+	/// Sets up flow transducer control connections once the whole flow transducer set is connected.
+	void onFlowTransducerSetConnected(bool connected);
+	/// Handles flow transducer errors.
+	void onFlowTransducerError();
+	/// Sets up flow switch control connections once the whole flow switch set is connected.
+	void onFlowSwitchSetConnected(bool connected);
+	/// Handles flow switch errors.
+	void onFlowSwitchError();
+	/// Sets up temperature control connections once the whole temperature set is connected.
+	void onTemperatureSetConnected(bool connected);
+	/// Handles temperature errors.
+	void onTemperatureError();
 
 protected:
 	/// Sets up the synchronized dwell time.
-	void setupSynchronizedDwellTime();
+//	void setupSynchronizedDwellTime();
 	/// Sets up the readings such as pressure, flow switches, temperature, etc.
 	void setupDiagnostics();
 	/// Sets up logical groupings of controls into sets.
@@ -118,26 +282,39 @@ protected:
 	BioXASSideBeamline();
 
 protected:
-	CLSSIS3820Scaler *scaler_;
+	/// The beamline connection state.
+	bool isConnected_;
 
-	bool wasConnected_;
-
-	CLSBasicScalerChannelDetector *testDetector_;
-	CLSKeithley428 *keithley_;
-
-	CLSMAXvMotor *m1UpperSlit_;
-	AMPVwStatusControl *energy_;
+	// Detectors
 
 	CLSBasicScalerChannelDetector *i0Detector_;
-	CLSKeithley428 *i0Keithley_;
-
 	CLSBasicScalerChannelDetector *iTDetector_;
-	CLSKeithley428 *iTKeithley_;
-
-	AMControl *energyFeedbackControl_;
+	CLSBasicScalerChannelDetector *i2Detector_;
+	AMBasicControlDetectorEmulator *energySetpointDetector_;
 	AMBasicControlDetectorEmulator *energyFeedbackDetector_;
+	AMBasicControlDetectorEmulator *dwellTimeDetector_;
 
-	// Shutters
+	// Monochromator
+
+	BioXASSideMonochromator *mono_;
+
+	// Scaler
+
+	CLSSIS3820Scaler *scaler_;
+	AMControl *scalerDwellTime_;
+
+	// Amplifiers
+
+	CLSKeithley428 *i0Keithley_;
+	CLSKeithley428 *iTKeithley_;
+	CLSKeithley428 *i2Keithley_;
+
+	// Misc controls
+
+	AMControl *energySetpointControl_;
+
+	// Shutter controls
+
 	CLSBiStateControl *psh1_;
 	CLSBiStateControl *psh2_;
 	CLSBiStateControl *ssh1_;
@@ -145,6 +322,7 @@ protected:
 	CLSBiStateControl *sshSide1_;
 
 	// Pressure controls
+
 	AMControl *ccg1_;
 	AMControl *ccg2_;
 	AMControl *ccg3_;
@@ -156,7 +334,10 @@ protected:
 	AMControl *ccgSide5_;
 	AMControl *ccgSide6_;
 
-	// vacuum valve controls
+	AMControlSet *pressureSet_;
+
+	// Vacuum valve controls
+
 	CLSBiStateControl *vvr1_;
 	CLSBiStateControl *vvr2_;
 	CLSBiStateControl *vvr3_;
@@ -170,7 +351,10 @@ protected:
 	CLSBiStateControl *vvrSide5_;
 	CLSBiStateControl *vvrSide6_;
 
+	AMControlSet *valveSet_;
+
 	// Ion pump controls
+
 	AMControl *iop1_;
 	AMControl *iop2_;
 	AMControl *iop3_;
@@ -185,7 +369,10 @@ protected:
 	AMControl *iopSide6_;
 	AMControl *iopSide7_;
 
+	AMControlSet *ionPumpSet_;
+
 	// Flow transducer controls
+
 	AMControl *flt1_;
 	AMControl *flt2_;
 	AMControl *flt3_;
@@ -207,25 +394,34 @@ protected:
 	AMControl *flt19_;
 	AMControl *flt20_;
 
+	AMControlSet *flowTransducerSet_;
+
 	// Flow switch controls
+
 	AMControl *swf1_;
 	AMControl *swf2_;
 	AMControl *swf3_;
 	AMControl *swf4_;
 
+	AMControlSet *flowSwitchSet_;
+
 	// Temperature monitor controls
+
 	AMControl *tm1_;
 	AMControl *tm2_;
 	AMControl *tm3_;
 	AMControl *tm4_;
 	AMControl *tm5_;
 
-	/// BioXAS side beamline motors
-	/// BioXAS filter motors
+	AMControlSet *temperatureSet_;
+
+	// Filter motors
+
 	CLSMAXvMotor *carbonFilterFarm1_;
 	CLSMAXvMotor *carbonFilterFarm2_;
 
-	/// BioXAS M1 motors
+	// M1 motors
+
 	CLSMAXvMotor *m1VertUpStreamINB_;
 	CLSMAXvMotor *m1VertUpStreamOUTB_;
 	CLSMAXvMotor *m1VertDownStream_;
@@ -235,22 +431,13 @@ protected:
 	CLSMAXvMotor *m1BenderDownStream_;
 	CLSMAXvMotor *m1UpperSlitBlade_;
 
-	/// BioXAS Variable Mask motors
+	// Variable Mask motors
+
 	CLSMAXvMotor *variableMaskVertUpperBlade_;
 	CLSMAXvMotor *variableMaskVertLowerBlade_;
 
-	/// BioXAS Mono motors
-	CLSMAXvMotor *monoPhosphorPaddle_;
-	CLSMAXvMotor *monoBragg_;
-	CLSMAXvMotor *monoVertical_;
-	CLSMAXvMotor *monoLateral_;
-	CLSMAXvMotor *monoXtalXchage_;
-	CLSMAXvMotor *monoXtal1Pitch_;
-	CLSMAXvMotor *monoXtal1Roll_;
-	CLSMAXvMotor *monoXtal2Pitch_;
-	CLSMAXvMotor *monoXtal2Roll_;
+	// M2 motors
 
-	/// BioXAS M2 motors
 	CLSMAXvMotor *m2VertUpstreamINB_;
 	CLSMAXvMotor *m2VertUpstreamOUTB_;
 	CLSMAXvMotor *m2VertDownstream_;
@@ -259,6 +446,20 @@ protected:
 	CLSMAXvMotor *m2BenderUpstream_;
 	CLSMAXvMotor *m2BenderDownStream_;
 
+	/// BioXAS Pseudo motors
+	BioXASPseudoMotorControl *m1PseudoRoll_;
+	BioXASPseudoMotorControl *m1PseudoPitch_;
+	BioXASPseudoMotorControl *m1PseudoHeight_;
+	BioXASPseudoMotorControl *m1PseudoYaw_;
+	BioXASPseudoMotorControl *m1PseudoLateral_;
+
+	BioXASPseudoMotorControl *m2PseudoRoll_;
+	BioXASPseudoMotorControl *m2PseudoPitch_;
+	BioXASPseudoMotorControl *m2PseudoHeight_;
+	BioXASPseudoMotorControl *m2PseudoYaw_;
+	BioXASPseudoMotorControl *m2PseudoLateral_;
+
+	BioXASPseudoMotorControl *monoPseudoEnergy_;
 };
 
 #endif // BIOXASSIDEBEAMLINE_H

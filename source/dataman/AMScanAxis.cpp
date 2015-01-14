@@ -61,7 +61,9 @@ AMScanAxis::AMScanAxis(const AMScanAxis &original)
 
 AMScanAxis *AMScanAxis::createCopy() const
 {
-	return new AMScanAxis(*this);
+	AMScanAxis *axis = new AMScanAxis(*this);
+	axis->dissociateFromDb(true);
+	return axis;
 }
 
 AMScanAxis::AxisType AMScanAxis::axisType() const
@@ -299,6 +301,9 @@ AMDbObjectList AMScanAxis::dbReadRegions() const
 
 void AMScanAxis::dbLoadRegions(const AMDbObjectList &newAxisRegions)
 {
+	for (int i = 0, size = regions_.count(); i < size; i++)
+		regions_.at(i)->deleteLater();
+
 	regions_.clear();
 
 	foreach (AMDbObject *object, newAxisRegions){

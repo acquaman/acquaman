@@ -61,13 +61,23 @@ AMScanActionInfo::AMScanActionInfo(const AMScanActionInfo &other)
 	setExpectedDuration(config_->expectedDuration());
 
 	if(!config_->detailedDescription().isEmpty()){
-		setShortDescription(config_->userScanName()%"\n"%config_->description());
+		QString scanName = config_->userScanName();
+		if(scanName.isEmpty())
+			scanName = other.shortDescription();
+		setShortDescription(scanName);
 		setLongDescription(config_->detailedDescription());
 	}
 }
 
 AMScanActionInfo::~AMScanActionInfo()
 {
+}
+
+AMActionInfo3 *AMScanActionInfo::createCopy() const
+{
+	AMActionInfo3 *info = new AMScanActionInfo(*this);
+	info->dissociateFromDb(true);
+	return info;
 }
 
 const AMScanConfiguration *AMScanActionInfo::configuration() const

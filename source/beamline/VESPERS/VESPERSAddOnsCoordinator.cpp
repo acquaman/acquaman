@@ -48,7 +48,7 @@ VESPERSAddOnsCoordinator::VESPERSAddOnsCoordinator(QObject *parent)
 
 	addOnsSampleNSetpointControl_ = new AMSinglePVControl("AddOnsSampleNSetpoint", "BL1607-B2-1:AddOns:SampleStage:N:mm", this, 0.001);
 	addOnsSampleNFeedbackControl_ = new AMSinglePVControl("AddOnsSampleNFeedback", "BL1607-B2-1:AddOns:SampleStage:N:mm:fbk", this, 0.001);
-	addOnsSampleNStatusControl_ = new AMSinglePVControl("AddOnsSampleHStatus", "BL1607-B2-1:AddOns:SampleStage:N:status", this, 0.5);
+	addOnsSampleNStatusControl_ = new AMSinglePVControl("AddOnsSampleNStatus", "BL1607-B2-1:AddOns:SampleStage:N:status", this, 0.5);
 
 	// Sample X, Z, Y
 
@@ -71,7 +71,7 @@ VESPERSAddOnsCoordinator::VESPERSAddOnsCoordinator(QObject *parent)
 
 	addOnsSampleYSetpointControl_ = new AMSinglePVControl("AddOnsSampleYSetpoint", "BL1607-B2-1:AddOns:SampleStage:Y:mm", this, 0.001);
 	addOnsSampleYFeedbackControl_ = new AMSinglePVControl("AddOnsSampleYFeedback", "BL1607-B2-1:AddOns:SampleStage:Y:mm:fbk", this, 0.001);
-	addOnsSampleYStatusControl_ = new AMSinglePVControl("AddOnsSampleHStatus", "BL1607-B2-1:AddOns:SampleStage:Y:status", this, 0.5);
+	addOnsSampleYStatusControl_ = new AMSinglePVControl("AddOnsSampleYStatus", "BL1607-B2-1:AddOns:SampleStage:Y:status", this, 0.5);
 
 	// Sample status
 
@@ -100,7 +100,7 @@ VESPERSAddOnsCoordinator::VESPERSAddOnsCoordinator(QObject *parent)
 
 	addOnsAttoNSetpointControl_ = new AMSinglePVControl("AddOnsAttoNSetpoint", "BL1607-B2-1:AddOns:AttoStage:N:mm", this, 0.001);
 	addOnsAttoNFeedbackControl_ = new AMSinglePVControl("AddOnsAttoNFeedback", "BL1607-B2-1:AddOns:AttoStage:N:mm:fbk", this, 0.001);
-	addOnsAttoNStatusControl_ = new AMSinglePVControl("AddOnsAttoHStatus", "BL1607-B2-1:AddOns:AttoStage:N:status", this, 0.5);
+	addOnsAttoNStatusControl_ = new AMSinglePVControl("AddOnsAttoNStatus", "BL1607-B2-1:AddOns:AttoStage:N:status", this, 0.5);
 
 	// Atto X, Z, Y
 
@@ -123,13 +123,42 @@ VESPERSAddOnsCoordinator::VESPERSAddOnsCoordinator(QObject *parent)
 
 	addOnsAttoYSetpointControl_ = new AMSinglePVControl("AddOnsAttoYSetpoint", "BL1607-B2-1:AddOns:AttoStage:Y:mm", this, 0.001);
 	addOnsAttoYFeedbackControl_ = new AMSinglePVControl("AddOnsAttoYFeedback", "BL1607-B2-1:AddOns:AttoStage:Y:mm:fbk", this, 0.001);
-	addOnsAttoYStatusControl_ = new AMSinglePVControl("AddOnsAttoHStatus", "BL1607-B2-1:AddOns:AttoStage:Y:status", this, 0.5);
+	addOnsAttoYStatusControl_ = new AMSinglePVControl("AddOnsAttoYStatus", "BL1607-B2-1:AddOns:AttoStage:Y:status", this, 0.5);
 
 	// Atto status
 
 	oldRealAttoXStatusControl_ = new AMReadOnlyPVControl("oldRealAttoXFeedback", "SVM1607-2-B21-11:status", this);
 	oldRealAttoYStatusControl_ = new AMReadOnlyPVControl("oldRealAttoYFeedback", "SVM1607-2-B21-10:status", this);
 	oldRealAttoZStatusControl_ = new AMReadOnlyPVControl("oldRealAttoZFeedback", "SVM1607-2-B21-12:status", this);
+
+	// Atto rotation Rx, Ry, Rz
+
+	oldAttoRxSetpointControl_ = new AMSinglePVControl("oldAttoRxSetpoint", "SVM1607-2-B21-08:deg", this, 0.001);
+	oldAttoRxFeedbackControl_ = new AMReadOnlyPVControl("oldAttoRxFeedback", "SVM1607-2-B21-08:deg:fbk", this);
+
+	oldAttoRzSetpointControl_ = new AMSinglePVControl("oldAttoRzSetpoint", "SVM1607-2-B21-09:deg", this, 0.001);
+	oldAttoRzFeedbackControl_ = new AMReadOnlyPVControl("oldAttoRzFeedback", "SVM1607-2-B21-09:deg:fbk", this);
+
+	oldAttoRySetpointControl_ = new AMSinglePVControl("oldAttoRySetpoint", "SVM1607-2-B21-07:deg", this, 0.001);
+	oldAttoRyFeedbackControl_ = new AMReadOnlyPVControl("oldAttoRyFeedback", "SVM1607-2-B21-07:deg:fbk", this);
+
+	addOnsAttoRxSetpointControl_ = new AMSinglePVControl("AddOnsAttoRxSetpoint", "BL1607-B2-1:AddOns:AttoStage:Rx:deg", this, 0.001);
+	addOnsAttoRxFeedbackControl_ = new AMSinglePVControl("AddOnsAttoRxFeedback", "BL1607-B2-1:AddOns:AttoStage:Rx:deg:fbk", this, 0.001);
+	addOnsAttoRxStatusControl_ = new AMSinglePVControl("AddOnsAttoRxStatus", "BL1607-B2-1:AddOns:AttoStage:Rx:status", this, 0.5);
+
+	addOnsAttoRzSetpointControl_ = new AMSinglePVControl("AddOnsAttoRzSetpoint", "BL1607-B2-1:AddOns:AttoStage:Rz:deg", this, 0.001);
+	addOnsAttoRzFeedbackControl_ = new AMSinglePVControl("AddOnsAttoRzFeedback", "BL1607-B2-1:AddOns:AttoStage:Rz:deg:fbk", this, 0.001);
+	addOnsAttoRzStatusControl_ = new AMSinglePVControl("AddOnsAttoRzStatus", "BL1607-B2-1:AddOns:AttoStage:Rz:status", this, 0.5);
+
+	addOnsAttoRySetpointControl_ = new AMSinglePVControl("AddOnsAttoRySetpoint", "BL1607-B2-1:AddOns:AttoStage:Ry:deg", this, 0.001);
+	addOnsAttoRyFeedbackControl_ = new AMSinglePVControl("AddOnsAttoRyFeedback", "BL1607-B2-1:AddOns:AttoStage:Ry:deg:fbk", this, 0.001);
+	addOnsAttoRyStatusControl_ = new AMSinglePVControl("AddOnsAttoRyStatus", "BL1607-B2-1:AddOns:AttoStage:Ry:status", this, 0.5);
+
+	// Atto rotation status
+
+	oldRealAttoRxStatusControl_ = new AMReadOnlyPVControl("oldRealAttoRxFeedback", "SVM1607-2-B21-08:status", this);
+	oldRealAttoRyStatusControl_ = new AMReadOnlyPVControl("oldRealAttoRyFeedback", "SVM1607-2-B21-07:status", this);
+	oldRealAttoRzStatusControl_ = new AMReadOnlyPVControl("oldRealAttoRzFeedback", "SVM1607-2-B21-09:status", this);
 
 	// Wire H, V, N
 
@@ -152,7 +181,7 @@ VESPERSAddOnsCoordinator::VESPERSAddOnsCoordinator(QObject *parent)
 
 	addOnsWireNSetpointControl_ = new AMSinglePVControl("AddOnsWireNSetpoint", "BL1607-B2-1:AddOns:WireStage:N:mm", this, 0.001);
 	addOnsWireNFeedbackControl_ = new AMSinglePVControl("AddOnsWireNFeedback", "BL1607-B2-1:AddOns:WireStage:N:mm:fbk", this, 0.001);
-	addOnsWireNStatusControl_ = new AMSinglePVControl("AddOnsWireHStatus", "BL1607-B2-1:AddOns:WireStage:N:status", this, 0.5);
+	addOnsWireNStatusControl_ = new AMSinglePVControl("AddOnsWireNStatus", "BL1607-B2-1:AddOns:WireStage:N:status", this, 0.5);
 
 	// Wire status
 
@@ -268,6 +297,35 @@ VESPERSAddOnsCoordinator::VESPERSAddOnsCoordinator(QObject *parent)
 	allControls_->addControl(oldRealAttoYStatusControl_);
 	allControls_->addControl(oldRealAttoZStatusControl_);
 
+	// Atto rotation Rx, Rz, Ry
+
+	allControls_->addControl(oldAttoRxSetpointControl_);
+	allControls_->addControl(oldAttoRxFeedbackControl_);
+
+	allControls_->addControl(oldAttoRzSetpointControl_);
+	allControls_->addControl(oldAttoRzFeedbackControl_);
+
+	allControls_->addControl(oldAttoRySetpointControl_);
+	allControls_->addControl(oldAttoRyFeedbackControl_);
+
+	allControls_->addControl(addOnsAttoRxSetpointControl_);
+	allControls_->addControl(addOnsAttoRxFeedbackControl_);
+	allControls_->addControl(addOnsAttoRxStatusControl_);
+
+	allControls_->addControl(addOnsAttoRzSetpointControl_);
+	allControls_->addControl(addOnsAttoRzFeedbackControl_);
+	allControls_->addControl(addOnsAttoRzStatusControl_);
+
+	allControls_->addControl(addOnsAttoRySetpointControl_);
+	allControls_->addControl(addOnsAttoRyFeedbackControl_);
+	allControls_->addControl(addOnsAttoRyStatusControl_);
+
+	// Atto low level status
+
+	allControls_->addControl(oldRealAttoRxStatusControl_);
+	allControls_->addControl(oldRealAttoRyStatusControl_);
+	allControls_->addControl(oldRealAttoRzStatusControl_);
+
 	// Wire H, V, N
 
 	allControls_->addControl(oldWireHSetpointControl_);
@@ -370,6 +428,27 @@ VESPERSAddOnsCoordinator::VESPERSAddOnsCoordinator(QObject *parent)
 	connect(oldRealAttoXStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(onOldRealAttoXStatusControlChanged()));
 	connect(oldRealAttoYStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(onOldRealAttoYStatusControlChanged()));
 	connect(oldRealAttoZStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(onOldRealAttoZStatusControlChanged()));
+
+	// Atto rotation Rx, Rz, Ry
+
+	connect(oldAttoRxSetpointControl_, SIGNAL(valueChanged(double)), this, SLOT(onOldAttoRxSetpointControlChanged()));
+	connect(oldAttoRxFeedbackControl_, SIGNAL(valueChanged(double)), this, SLOT(onOldAttoRxFeedbackControlChanged()));
+
+	connect(oldAttoRzSetpointControl_, SIGNAL(valueChanged(double)), this, SLOT(onOldAttoRzSetpointControlChanged()));
+	connect(oldAttoRzFeedbackControl_, SIGNAL(valueChanged(double)), this, SLOT(onOldAttoRzFeedbackControlChanged()));
+
+	connect(oldAttoRySetpointControl_, SIGNAL(valueChanged(double)), this, SLOT(onOldAttoRySetpointControlChanged()));
+	connect(oldAttoRyFeedbackControl_, SIGNAL(valueChanged(double)), this, SLOT(onOldAttoRyFeedbackControlChanged()));
+
+	connect(addOnsAttoRxSetpointControl_, SIGNAL(valueChanged(double)), this, SLOT(onAddOnsAttoRxSetpointControlChanged()));
+	connect(addOnsAttoRzSetpointControl_, SIGNAL(valueChanged(double)), this, SLOT(onAddOnsAttoRzSetpointControlChanged()));
+	connect(addOnsAttoRySetpointControl_, SIGNAL(valueChanged(double)), this, SLOT(onAddOnsAttoRySetpointControlChanged()));
+
+	// Atto rotation low level status
+
+	connect(oldRealAttoRxStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(onOldRealAttoRxStatusControlChanged()));
+	connect(oldRealAttoRyStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(onOldRealAttoRyStatusControlChanged()));
+	connect(oldRealAttoRzStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(onOldRealAttoRzStatusControlChanged()));
 
 	// Wire H, V, N
 
@@ -474,6 +553,29 @@ void VESPERSAddOnsCoordinator::onAllControlsConnected(bool connected)
 		onOldRealAttoYStatusControlChanged();
 		qDebug() << "Checking start up value from old atto Z status control" << oldRealAttoZStatusControl_->value();
 		onOldRealAttoZStatusControlChanged();
+
+		// Atto Rotation
+
+		qDebug() << "Checking start up value from old atto Rx setpoint control" << oldAttoRxSetpointControl_->value();
+		onOldAttoRxSetpointControlChanged();
+		qDebug() << "Checking start up value from old atto Rz setpoint control" << oldAttoRzSetpointControl_->value();
+		onOldAttoRzSetpointControlChanged();
+		qDebug() << "Checking start up value from old atto Ry setpoint control" << oldAttoRySetpointControl_->value();
+		onOldAttoRySetpointControlChanged();
+
+		qDebug() << "Checking start up value from old atto Rx feedback control" << oldAttoRxFeedbackControl_->value();
+		onOldAttoRxFeedbackControlChanged();
+		qDebug() << "Checking start up value from old atto Rz feedback control" << oldAttoRzFeedbackControl_->value();
+		onOldAttoRzFeedbackControlChanged();
+		qDebug() << "Checking start up value from old atto Ry feedback control" << oldAttoRyFeedbackControl_->value();
+		onOldAttoRyFeedbackControlChanged();
+
+		qDebug() << "Checking start up value from old atto Rx status control" << oldRealAttoRxStatusControl_->value();
+		onOldRealAttoRxStatusControlChanged();
+		qDebug() << "Checking start up value from old atto Ry status control" << oldRealAttoRyStatusControl_->value();
+		onOldRealAttoRyStatusControlChanged();
+		qDebug() << "Checking start up value from old atto Rz status control" << oldRealAttoRzStatusControl_->value();
+		onOldRealAttoRzStatusControlChanged();
 
 		// Wire stage
 		//////////////////////////////////////////
@@ -606,7 +708,7 @@ void VESPERSAddOnsCoordinator::onAddOnsSampleHSetpointControlChanged()
 
 	// If we're requesting the same stage X with AddOns as was in the old stage X AND the old stage X feedback matches the old stage X setpoint AND the status is MOVE DONE
 	// THEN issuing a move will not do anything SO we'll trick the status to say "MOVE ACTIVE" then "MOVE DONE"
-	if(oldSampleHSetpointControl_->withinTolerance(addOnsSampleHSetpointControl_->value()) && oldRealSampleXStatusControl_->withinTolerance(0.0)){
+	if(oldSampleHSetpointControl_->withinTolerance(addOnsSampleHSetpointControl_->value()) && !oldRealSampleXStatusControl_->withinTolerance(1.0)){
 		qDebug() << "Faking a sample stage X move";
 		addOnsSampleHStatusControl_->move(1.0);
 		QTimer::singleShot(50, this, SLOT(restoreAddOnsSampleHStatus()));
@@ -629,8 +731,8 @@ void VESPERSAddOnsCoordinator::onAddOnsSampleVSetpointControlChanged()
 	// If we're requesting the same stage X with AddOns as was in the old stage X AND the old stage X feedback matches the old stage X setpoint AND the status is MOVE DONE
 	// THEN issuing a move will not do anything SO we'll trick the status to say "MOVE ACTIVE" then "MOVE DONE"
 	if(oldSampleVSetpointControl_->withinTolerance(addOnsSampleVSetpointControl_->value())
-			&& oldRealSampleYStatusControl_->withinTolerance(0.0)
-			 && oldRealSampleZStatusControl_->withinTolerance(0.0)){
+			&& !oldRealSampleYStatusControl_->withinTolerance(1.0)
+			 && !oldRealSampleZStatusControl_->withinTolerance(1.0)){
 		qDebug() << "Faking a sample stage V move";
 		addOnsSampleVStatusControl_->move(1.0);
 		addOnsSampleNStatusControl_->move(1.0);
@@ -654,8 +756,8 @@ void VESPERSAddOnsCoordinator::onAddOnsSampleNSetpointControlChanged()
 	// If we're requesting the same stage X with AddOns as was in the old stage X AND the old stage X feedback matches the old stage X setpoint AND the status is MOVE DONE
 	// THEN issuing a move will not do anything SO we'll trick the status to say "MOVE ACTIVE" then "MOVE DONE"
 	if(oldSampleNSetpointControl_->withinTolerance(addOnsSampleNSetpointControl_->value())
-			&& oldRealSampleYStatusControl_->withinTolerance(0.0)
-			 && oldRealSampleZStatusControl_->withinTolerance(0.0)){
+			&& !oldRealSampleYStatusControl_->withinTolerance(1.0)
+			 && !oldRealSampleZStatusControl_->withinTolerance(1.0)){
 		qDebug() << "Faking a sample stage N move";
 		addOnsSampleVStatusControl_->move(1.0);
 		addOnsSampleNStatusControl_->move(1.0);
@@ -777,7 +879,7 @@ void VESPERSAddOnsCoordinator::onAddOnsSampleXSetpointControlChanged()
 
 	// If we're requesting the same stage X with AddOns as was in the old stage X AND the old stage X feedback matches the old stage X setpoint AND the status is MOVE DONE
 	// THEN issuing a move will not do anything SO we'll trick the status to say "MOVE ACTIVE" then "MOVE DONE"
-	if(oldSampleXSetpointControl_->withinTolerance(addOnsSampleXSetpointControl_->value()) && oldRealSampleXStatusControl_->withinTolerance(0.0)){
+	if(oldSampleXSetpointControl_->withinTolerance(addOnsSampleXSetpointControl_->value()) && !oldRealSampleXStatusControl_->withinTolerance(1.0)){
 		qDebug() << "Faking a sample stage X move";
 		addOnsSampleXStatusControl_->move(1.0);
 		QTimer::singleShot(50, this, SLOT(restoreAddOnsSampleXStatus()));
@@ -799,7 +901,7 @@ void VESPERSAddOnsCoordinator::onAddOnsSampleZSetpointControlChanged()
 
 	// If we're requesting the same stage X with AddOns as was in the old stage X AND the old stage X feedback matches the old stage X setpoint AND the status is MOZE DONE
 	// THEN issuing a move will not do anything SO we'll trick the status to say "MOZE ACTIZE" then "MOZE DONE"
-	if(oldSampleZSetpointControl_->withinTolerance(addOnsSampleZSetpointControl_->value()) && oldRealSampleZStatusControl_->withinTolerance(0.0)){
+	if(oldSampleZSetpointControl_->withinTolerance(addOnsSampleZSetpointControl_->value()) && !oldRealSampleZStatusControl_->withinTolerance(1.0)){
 		qDebug() << "Faking a sample stage Z move";
 		addOnsSampleZStatusControl_->move(1.0);
 		QTimer::singleShot(50, this, SLOT(restoreAddOnsSampleZStatus()));
@@ -821,7 +923,7 @@ void VESPERSAddOnsCoordinator::onAddOnsSampleYSetpointControlChanged()
 
 	// If we're requesting the same stage X with AddOns as was in the old stage X AND the old stage X feedback matches the old stage X setpoint AND the status is MOVE DONE
 	// THEN issuing a move will not do anything SO we'll trick the status to say "MOVE ACTIVE" then "MOVE DONE"
-	if(oldSampleYSetpointControl_->withinTolerance(addOnsSampleYSetpointControl_->value()) && oldRealSampleYStatusControl_->withinTolerance(0.0)){
+	if(oldSampleYSetpointControl_->withinTolerance(addOnsSampleYSetpointControl_->value()) && !oldRealSampleYStatusControl_->withinTolerance(1.0)){
 		qDebug() << "Faking a sample stage Y move";
 		addOnsSampleYStatusControl_->move(1.0);
 		QTimer::singleShot(50, this, SLOT(restoreAddOnsSampleYStatus()));
@@ -912,7 +1014,7 @@ void VESPERSAddOnsCoordinator::onOldRealSampleZStatusControlChanged()
 	if(!connectedOnce_)
 		return;
 
-	qDebug() << "Detected OLD sample Y status move of " << oldRealSampleYStatusControl_->value() << " versus " << addOnsSampleVStatusControl_->value() << " and " << addOnsSampleNStatusControl_->value();
+	qDebug() << "Detected OLD sample Z status move of " << oldRealSampleZStatusControl_->value() << " versus " << addOnsSampleVStatusControl_->value() << " and " << addOnsSampleNStatusControl_->value();
 
 	int finalStatus = computeFinalStatus(int(oldRealSampleYStatusControl_->value()), int(oldRealSampleZStatusControl_->value()));
 
@@ -1009,7 +1111,7 @@ void VESPERSAddOnsCoordinator::onAddOnsAttoHSetpointControlChanged()
 
 	// If we're requesting the same stage X with AddOns as was in the old stage X AND the old stage X feedback matches the old stage X setpoint AND the status is MOVE DONE
 	// THEN issuing a move will not do anything SO we'll trick the status to say "MOVE ACTIVE" then "MOVE DONE"
-	if(oldAttoHSetpointControl_->withinTolerance(addOnsAttoHSetpointControl_->value()) && oldRealAttoXStatusControl_->withinTolerance(0.0)){
+	if(oldAttoHSetpointControl_->withinTolerance(addOnsAttoHSetpointControl_->value()) && !oldRealAttoXStatusControl_->withinTolerance(1.0)){
 		qDebug() << "Faking a atto stage X move";
 		addOnsAttoHStatusControl_->move(1.0);
 		QTimer::singleShot(50, this, SLOT(restoreAddOnsAttoHStatus()));
@@ -1032,8 +1134,8 @@ void VESPERSAddOnsCoordinator::onAddOnsAttoVSetpointControlChanged()
 	// If we're requesting the same stage X with AddOns as was in the old stage X AND the old stage X feedback matches the old stage X setpoint AND the status is MOVE DONE
 	// THEN issuing a move will not do anything SO we'll trick the status to say "MOVE ACTIVE" then "MOVE DONE"
 	if(oldAttoVSetpointControl_->withinTolerance(addOnsAttoVSetpointControl_->value())
-			&& oldRealAttoYStatusControl_->withinTolerance(0.0)
-			 && oldRealAttoZStatusControl_->withinTolerance(0.0)){
+			&& !oldRealAttoYStatusControl_->withinTolerance(1.0)
+			 && !oldRealAttoZStatusControl_->withinTolerance(1.0)){
 		qDebug() << "Faking a sample stage V move";
 		addOnsAttoVStatusControl_->move(1.0);
 		addOnsAttoNStatusControl_->move(1.0);
@@ -1057,8 +1159,8 @@ void VESPERSAddOnsCoordinator::onAddOnsAttoNSetpointControlChanged()
 	// If we're requesting the same stage X with AddOns as was in the old stage X AND the old stage X feedback matches the old stage X setpoint AND the status is MOVE DONE
 	// THEN issuing a move will not do anything SO we'll trick the status to say "MOVE ACTIVE" then "MOVE DONE"
 	if(oldAttoNSetpointControl_->withinTolerance(addOnsAttoNSetpointControl_->value())
-			&& oldRealAttoYStatusControl_->withinTolerance(0.0)
-			 && oldRealAttoZStatusControl_->withinTolerance(0.0)){
+			&& !oldRealAttoYStatusControl_->withinTolerance(1.0)
+			 && !oldRealAttoZStatusControl_->withinTolerance(1.0)){
 		qDebug() << "Faking a sample stage N move";
 		addOnsAttoVStatusControl_->move(1.0);
 		addOnsAttoNStatusControl_->move(1.0);
@@ -1180,7 +1282,7 @@ void VESPERSAddOnsCoordinator::onAddOnsAttoXSetpointControlChanged()
 
 	// If we're requesting the same stage X with AddOns as was in the old stage X AND the old stage X feedback matches the old stage X setpoint AND the status is MOVE DONE
 	// THEN issuing a move will not do anything SO we'll trick the status to say "MOVE ACTIVE" then "MOVE DONE"
-	if(oldAttoXSetpointControl_->withinTolerance(addOnsAttoXSetpointControl_->value()) && oldRealAttoXStatusControl_->withinTolerance(0.0)){
+	if(oldAttoXSetpointControl_->withinTolerance(addOnsAttoXSetpointControl_->value()) && !oldRealAttoXStatusControl_->withinTolerance(1.0)){
 		qDebug() << "Faking a sample stage X move";
 		addOnsAttoXStatusControl_->move(1.0);
 		QTimer::singleShot(50, this, SLOT(restoreAddOnsAttoXStatus()));
@@ -1202,7 +1304,7 @@ void VESPERSAddOnsCoordinator::onAddOnsAttoZSetpointControlChanged()
 
 	// If we're requesting the same stage X with AddOns as was in the old stage X AND the old stage X feedback matches the old stage X setpoint AND the status is MOZE DONE
 	// THEN issuing a move will not do anything SO we'll trick the status to say "MOZE ACTIZE" then "MOZE DONE"
-	if(oldAttoZSetpointControl_->withinTolerance(addOnsAttoZSetpointControl_->value()) && oldRealAttoZStatusControl_->withinTolerance(0.0)){
+	if(oldAttoZSetpointControl_->withinTolerance(addOnsAttoZSetpointControl_->value()) && !oldRealAttoZStatusControl_->withinTolerance(1.0)){
 		qDebug() << "Faking a sample stage Z move";
 		addOnsAttoZStatusControl_->move(1.0);
 		QTimer::singleShot(50, this, SLOT(restoreAddOnsAttoZStatus()));
@@ -1224,7 +1326,7 @@ void VESPERSAddOnsCoordinator::onAddOnsAttoYSetpointControlChanged()
 
 	// If we're requesting the same stage X with AddOns as was in the old stage X AND the old stage X feedback matches the old stage X setpoint AND the status is MOVE DONE
 	// THEN issuing a move will not do anything SO we'll trick the status to say "MOVE ACTIVE" then "MOVE DONE"
-	if(oldAttoYSetpointControl_->withinTolerance(addOnsAttoYSetpointControl_->value()) && oldRealAttoYStatusControl_->withinTolerance(0.0)){
+	if(oldAttoYSetpointControl_->withinTolerance(addOnsAttoYSetpointControl_->value()) && !oldRealAttoYStatusControl_->withinTolerance(1.0)){
 		qDebug() << "Faking a sample stage Y move";
 		addOnsAttoYStatusControl_->move(1.0);
 		QTimer::singleShot(50, this, SLOT(restoreAddOnsAttoYStatus()));
@@ -1329,6 +1431,212 @@ void VESPERSAddOnsCoordinator::onOldRealAttoZStatusControlChanged()
 
 	if(!addOnsAttoZStatusControl_->withinTolerance(oldRealAttoZStatusControl_->value()))
 		addOnsAttoZStatusControl_->move(oldRealAttoZStatusControl_->value());
+}
+
+// Atto Rotation Rx, Rz, Ry
+//////////////////////////////////////////////
+
+void VESPERSAddOnsCoordinator::onOldAttoRxSetpointControlChanged()
+{
+	if(!connectedOnce_)
+		return;
+
+	qDebug() << "Detected OLD atto Rx setpoint move of " << oldAttoRxSetpointControl_->value() << " versus " << addOnsAttoRxSetpointControl_->value();
+
+	if(!addOnsAttoRxSetpointControl_->withinTolerance(oldAttoRxSetpointControl_->value()))
+		addOnsAttoRxSetpointControl_->move(oldAttoRxSetpointControl_->value());
+}
+
+void VESPERSAddOnsCoordinator::onOldAttoRxFeedbackControlChanged()
+{
+	if(!connectedOnce_)
+		return;
+
+
+	if(!addOnsAttoRxFeedbackControl_->withinTolerance(oldAttoRxFeedbackControl_->value())){
+		qDebug() << "Detected OLD atto Rx feedback move of " << oldAttoRxFeedbackControl_->value() << " versus " << addOnsAttoRxFeedbackControl_->value();
+		addOnsAttoRxFeedbackControl_->move(oldAttoRxFeedbackControl_->value());
+	}
+}
+
+void VESPERSAddOnsCoordinator::onOldAttoRzSetpointControlChanged()
+{
+	if(!connectedOnce_)
+		return;
+
+	qDebug() << "Detected OLD atto Rz setpoint move of " << oldAttoRzSetpointControl_->value() << " versus " << addOnsAttoRzSetpointControl_->value();
+
+	if(!addOnsAttoRzSetpointControl_->withinTolerance(oldAttoRzSetpointControl_->value()))
+		addOnsAttoRzSetpointControl_->move(oldAttoRzSetpointControl_->value());
+}
+
+void VESPERSAddOnsCoordinator::onOldAttoRzFeedbackControlChanged()
+{
+	if(!connectedOnce_)
+		return;
+
+	if(!addOnsAttoRzFeedbackControl_->withinTolerance(oldAttoRzFeedbackControl_->value())){
+		qDebug() << "Detected OLD atto Rz feedback move of " << oldAttoRzFeedbackControl_->value() << " versus " << addOnsAttoRzFeedbackControl_->value();
+		addOnsAttoRzFeedbackControl_->move(oldAttoRzFeedbackControl_->value());
+	}
+}
+
+void VESPERSAddOnsCoordinator::onOldAttoRySetpointControlChanged()
+{
+	if(!connectedOnce_)
+		return;
+
+	qDebug() << "Detected OLD atto Ry setpoint move of " << oldAttoRySetpointControl_->value() << " versus " << addOnsAttoRySetpointControl_->value();
+
+	if(!addOnsAttoRySetpointControl_->withinTolerance(oldAttoRySetpointControl_->value()))
+		addOnsAttoRySetpointControl_->move(oldAttoRySetpointControl_->value());
+}
+
+void VESPERSAddOnsCoordinator::onOldAttoRyFeedbackControlChanged()
+{
+	if(!connectedOnce_)
+		return;
+
+
+	if(!addOnsAttoRyFeedbackControl_->withinTolerance(oldAttoRyFeedbackControl_->value())){
+		qDebug() << "Detected OLD atto Ry feedback move of " << oldAttoRyFeedbackControl_->value() << " versus " << addOnsAttoRyFeedbackControl_->value();
+		addOnsAttoRyFeedbackControl_->move(oldAttoRyFeedbackControl_->value());
+	}
+}
+
+void VESPERSAddOnsCoordinator::onAddOnsAttoRxSetpointControlChanged()
+{
+	if(!connectedOnce_)
+		return;
+
+	qDebug() << "Detected new AddOns atto Rx move of " << addOnsAttoRxSetpointControl_->value() << " versus " << oldAttoRxSetpointControl_->value();
+
+	// If we're requesting the same stage Rx with AddOns as was in the old stage Rx AND the old stage Rx feedback matches the old stage Rx setpoint AND the status is MOVE DONE
+	// THEN issuing a move will not do anything SO we'll trick the status to say "MOVE ACTIVE" then "MOVE DONE"
+	if(oldAttoRxSetpointControl_->withinTolerance(addOnsAttoRxSetpointControl_->value()) && !oldRealAttoRxStatusControl_->withinTolerance(1.0)){
+		qDebug() << "Faking a atto stage Rx move";
+		addOnsAttoRxStatusControl_->move(1.0);
+		QTimer::singleShot(50, this, SLOT(restoreAddOnsAttoRxStatus()));
+		return;
+	}
+
+	if(!oldAttoRxSetpointControl_->withinTolerance(addOnsAttoRxSetpointControl_->value())){
+		qDebug() << "Doing addOns Atto Rx move in the regular way";
+		oldAttoRxSetpointControl_->move(addOnsAttoRxSetpointControl_->value());
+	}
+}
+
+void VESPERSAddOnsCoordinator::onAddOnsAttoRzSetpointControlChanged()
+{
+	if(!connectedOnce_)
+		return;
+
+	qDebug() << "Detected new AddOns atto Rz move of " << addOnsAttoRzSetpointControl_->value() << " versus " << oldAttoRzSetpointControl_->value();
+
+	// If we're requesting the same stage Rz with AddOns as was in the old stage Rz AND the old stage Rz feedback matches the old stage Rz setpoint AND the status is MOZE DONE
+	// THEN issuing a move will not do anything SO we'll trick the status to say "MOZE ACTIZE" then "MOZE DONE"
+	if(oldAttoRzSetpointControl_->withinTolerance(addOnsAttoRzSetpointControl_->value()) && !oldRealAttoRzStatusControl_->withinTolerance(1.0)){
+		qDebug() << "Faking a atto stage Rz move";
+		addOnsAttoRzStatusControl_->move(1.0);
+		QTimer::singleShot(50, this, SLOT(restoreAddOnsAttoRzStatus()));
+		return;
+	}
+
+	if(!oldAttoRzSetpointControl_->withinTolerance(addOnsAttoRzSetpointControl_->value())){
+		qDebug() << "Doing addOns Atto Rz move in the regular way";
+		oldAttoRzSetpointControl_->move(addOnsAttoRzSetpointControl_->value());
+	}
+}
+
+void VESPERSAddOnsCoordinator::onAddOnsAttoRySetpointControlChanged()
+{
+	if(!connectedOnce_)
+		return;
+
+	qDebug() << "Detected new AddOns atto Ry move of " << addOnsAttoRySetpointControl_->value() << " versus " << oldAttoRySetpointControl_->value();
+
+	// If we're requesting the same stage Ry with AddOns as was in the old stage Ry AND the old stage Ry feedback matches the old stage Ry setpoint AND the status is MOVE DONE
+	// THEN issuing a move will not do anything SO we'll trick the status to say "MOVE ACTIVE" then "MOVE DONE"
+	if(oldAttoRySetpointControl_->withinTolerance(addOnsAttoRySetpointControl_->value()) && !oldRealAttoRyStatusControl_->withinTolerance(1.0)){
+		qDebug() << "Faking a atto stage Ry move";
+		addOnsAttoRyStatusControl_->move(1.0);
+		QTimer::singleShot(50, this, SLOT(restoreAddOnsAttoRyStatus()));
+		return;
+	}
+
+	if(!oldAttoRySetpointControl_->withinTolerance(addOnsAttoRySetpointControl_->value())){
+		qDebug() << "Doing addOns Atto Ry move in the regular way";
+		oldAttoRySetpointControl_->move(addOnsAttoRySetpointControl_->value());
+	}
+}
+
+void VESPERSAddOnsCoordinator::restoreAddOnsAttoRxStatus()
+{
+	if(!connectedOnce_)
+		return;
+
+	qDebug() << "Restoring AddOns atto stage Rx status to old VESPERS atto stage Rx status with AddOns " << addOnsAttoRxStatusControl_->value() << " and old Rx status " << oldRealAttoRxStatusControl_->value();
+
+	if(!addOnsAttoRxStatusControl_->withinTolerance(oldRealAttoRxStatusControl_->value()))
+		addOnsAttoRxStatusControl_->move(oldRealAttoRxStatusControl_->value());
+}
+
+void VESPERSAddOnsCoordinator::restoreAddOnsAttoRzStatus()
+{
+	if(!connectedOnce_)
+		return;
+
+	qDebug() << "Restoring AddOns atto stage Rz status to old VESPERS atto stage Rz status with AddOns " << addOnsAttoRzStatusControl_->value() << " and old Rz status " << oldRealAttoRzStatusControl_->value();
+
+	if(!addOnsAttoRzStatusControl_->withinTolerance(oldRealAttoRzStatusControl_->value()))
+		addOnsAttoRzStatusControl_->move(oldRealAttoRzStatusControl_->value());
+}
+
+void VESPERSAddOnsCoordinator::restoreAddOnsAttoRyStatus()
+{
+	if(!connectedOnce_)
+		return;
+
+	qDebug() << "Restoring AddOns atto stage Ry status to old VESPERS atto stage Ry status with AddOns " << addOnsAttoRyStatusControl_->value() << " and old Ry status " << oldRealAttoRyStatusControl_->value();
+
+	if(!addOnsAttoRyStatusControl_->withinTolerance(oldRealAttoRyStatusControl_->value()))
+		addOnsAttoRyStatusControl_->move(oldRealAttoRyStatusControl_->value());
+}
+
+// Atto low level status
+/////////////////////////////////////////////
+
+void VESPERSAddOnsCoordinator::onOldRealAttoRxStatusControlChanged()
+{
+	if(!connectedOnce_)
+		return;
+
+	qDebug() << "Detected OLD atto Rx status move of " << oldRealAttoRxStatusControl_->value() << " versus " << addOnsAttoRxStatusControl_->value();
+
+	if(!addOnsAttoRxStatusControl_->withinTolerance(oldRealAttoRxStatusControl_->value()))
+		addOnsAttoRxStatusControl_->move(oldRealAttoRxStatusControl_->value());
+}
+
+void VESPERSAddOnsCoordinator::onOldRealAttoRyStatusControlChanged()
+{
+	if(!connectedOnce_)
+		return;
+
+	qDebug() << "Detected OLD atto Ry status move of " << oldRealAttoRyStatusControl_->value() << " versus " << addOnsAttoRyStatusControl_->value();
+
+	if(!addOnsAttoRyStatusControl_->withinTolerance(oldRealAttoRyStatusControl_->value()))
+		addOnsAttoRyStatusControl_->move(oldRealAttoRyStatusControl_->value());
+}
+
+void VESPERSAddOnsCoordinator::onOldRealAttoRzStatusControlChanged()
+{
+	if(!connectedOnce_)
+		return;
+
+	qDebug() << "Detected OLD atto Rz status move of " << oldRealAttoRzStatusControl_->value() << " versus " << addOnsAttoRzStatusControl_->value();
+
+	if(!addOnsAttoRzStatusControl_->withinTolerance(oldRealAttoRzStatusControl_->value()))
+		addOnsAttoRzStatusControl_->move(oldRealAttoRzStatusControl_->value());
 }
 
 // Wire H, V, N
@@ -1439,7 +1747,7 @@ void VESPERSAddOnsCoordinator::onAddOnsWireHSetpointControlChanged()
 
 	// If we're requesting the same stage X with AddOns as was in the old stage X AND the old stage X feedback matches the old stage X setpoint AND the status is MOVE DONE
 	// THEN issuing a move will not do anything SO we'll trick the status to say "MOVE ACTIVE" then "MOVE DONE"
-	if(oldWireHSetpointControl_->withinTolerance(addOnsWireHSetpointControl_->value()) && oldRealWireXStatusControl_->withinTolerance(0.0)){
+	if(oldWireHSetpointControl_->withinTolerance(addOnsWireHSetpointControl_->value()) && !oldRealWireXStatusControl_->withinTolerance(1.0)){
 		qDebug() << "Faking a wire stage X move";
 		addOnsWireHStatusControl_->move(1.0);
 		QTimer::singleShot(50, this, SLOT(restoreAddOnsWireHStatus()));
@@ -1462,8 +1770,8 @@ void VESPERSAddOnsCoordinator::onAddOnsWireVSetpointControlChanged()
 	// If we're requesting the same stage X with AddOns as was in the old stage X AND the old stage X feedback matches the old stage X setpoint AND the status is MOVE DONE
 	// THEN issuing a move will not do anything SO we'll trick the status to say "MOVE ACTIVE" then "MOVE DONE"
 	if(oldWireVSetpointControl_->withinTolerance(addOnsWireVSetpointControl_->value())
-			&& oldRealWireYStatusControl_->withinTolerance(0.0)
-			 && oldRealWireZStatusControl_->withinTolerance(0.0)){
+			&& !oldRealWireYStatusControl_->withinTolerance(1.0)
+			 && !oldRealWireZStatusControl_->withinTolerance(1.0)){
 		qDebug() << "Faking a wire stage V move";
 		addOnsWireVStatusControl_->move(1.0);
 		addOnsWireNStatusControl_->move(1.0);
@@ -1487,8 +1795,8 @@ void VESPERSAddOnsCoordinator::onAddOnsWireNSetpointControlChanged()
 	// If we're requesting the same stage X with AddOns as was in the old stage X AND the old stage X feedback matches the old stage X setpoint AND the status is MOVE DONE
 	// THEN issuing a move will not do anything SO we'll trick the status to say "MOVE ACTIVE" then "MOVE DONE"
 	if(oldWireNSetpointControl_->withinTolerance(addOnsWireNSetpointControl_->value())
-			&& oldRealWireYStatusControl_->withinTolerance(0.0)
-			 && oldRealWireZStatusControl_->withinTolerance(0.0)){
+			&& !oldRealWireYStatusControl_->withinTolerance(1.0)
+			 && !oldRealWireZStatusControl_->withinTolerance(1.0)){
 		qDebug() << "Faking a sample stage N move";
 		addOnsWireVStatusControl_->move(1.0);
 		addOnsWireNStatusControl_->move(1.0);

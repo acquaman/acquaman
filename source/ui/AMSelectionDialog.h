@@ -39,9 +39,21 @@ public:
 	/// Returns the items that are selected as a string list.
 	QStringList selectedItems() const;
 
+	/// config the emptySelectedItemsAllowed flag, default False
+	void setEmptySelectedItemsAllowed(bool allowed=false);
+
+protected slots:
+	void onItemCheckStateChanged();
+
 protected:
+	/// Flag to mark whether allows select nothing (default False)
+	bool emptySelectedItemsAllowed_;
+
 	/// The button group that holds all of the check boxes.
 	QButtonGroup *items_;
+
+	/// The okeyButton, which is controlled by emptySelectedItemsAllowed_
+	QPushButton *okayButton_;
 };
 
 #endif // AMSELECTIONDIALOG_H

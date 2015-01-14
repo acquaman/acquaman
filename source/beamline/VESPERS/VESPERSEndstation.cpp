@@ -21,6 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "VESPERSEndstation.h"
 #include "beamline/CLS/CLSMAXvMotor.h"
+#include "application/VESPERS/VESPERS.h"
 
 #include <QMessageBox>
 #include <QDir>
@@ -94,7 +95,12 @@ void VESPERSEndstation::onLaserPositionValidityChanged(double value)
 
 bool VESPERSEndstation::loadConfiguration()
 {
-	QFile file(QDir::currentPath() + "/endstation.config");
+	QString filePath = VESPERS::getHomeDirectory() % "/acquaman/build/endstation.config";
+
+	if (filePath.contains("hunterd"))
+		filePath = "/home/hunterd/beamline/programming/VESPERSAcquaman-build-desktop/build";
+
+	QFile file(filePath);
 
 	if (!file.open(QFile::ReadOnly | QFile::Text))
 		return false;

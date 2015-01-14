@@ -25,7 +25,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QLabel>
 #include <QFileDialog>
-#include <QCheckBox>
 #include <QStringList>
 #include <QToolButton>
 #include <QHBoxLayout>
@@ -50,10 +49,9 @@ VESPERSChooseDataFolderDialog::VESPERSChooseDataFolderDialog(const QString &data
 
 	if (folder_.contains("/users")){
 
-		QDir dir(folder_);
-
-		while (dir.dirName() != "users" && !dir.dirName().isEmpty())
-			dir.cdUp();
+		QString tempFolder = folder_;
+		tempFolder = tempFolder.left(tempFolder.indexOf(QRegExp("/users"))+6);
+		QDir dir(tempFolder);
 
 		directories_ = dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot, QDir::Name);
 	}
@@ -70,7 +68,7 @@ VESPERSChooseDataFolderDialog::VESPERSChooseDataFolderDialog(const QString &data
 	folderButton->setIcon(QIcon(":/22x22/folder.png"));
 	okButton_ = new QPushButton(QIcon(":/22x22/greenCheck.png"), "Okay");
 	QPushButton *cancelButton = new QPushButton(QIcon(":/22x22/list-remove-2.png"), "Cancel");
-	QString path = VESPERS::getProposalNumber(folder_);
+	QString shortFormPath = VESPERS::getProposalNumber(folder_);
 
 	connect(folderButton, SIGNAL(clicked()), this, SLOT(getFilePath()));
 	connect(okButton_, SIGNAL(clicked()), this, SLOT(accept()));
@@ -78,13 +76,17 @@ VESPERSChooseDataFolderDialog::VESPERSChooseDataFolderDialog(const QString &data
 	connect(path_, SIGNAL(editTextChanged(QString)), this, SLOT(onTextChanged(QString)));
 	connect(advancedCheck_, SIGNAL(toggled(bool)), folderButton, SLOT(setEnabled(bool)));
 
-	advancedCheck_->setChecked(path.isEmpty());
-	folderButton->setEnabled(path.isEmpty());
+	advancedCheck_->setChecked(shortFormPath.isEmpty());
+	folderButton->setEnabled(shortFormPath.isEmpty());
 
-	if (path.isEmpty())
-		path = folder_;
+	// If small form could not be resolved, then just use a full path.  Otherwise, set the folder text to the short form.
+	if (shortFormPath.isEmpty())
+		shortFormPath = folder_;
 
-	path_->setEditText(path);
+	else
+		folder_ = shortFormPath;
+
+	path_->setEditText(shortFormPath);
 
 	QHBoxLayout *lineEditLayout = new QHBoxLayout;
 	lineEditLayout->addWidget(path_);
@@ -111,55 +113,38 @@ VESPERSChooseDataFolderDialog::VESPERSChooseDataFolderDialog(const QString &data
 bool VESPERSChooseDataFolderDialog::getDataFolder(QWidget *parent)
 {
 	AMUserSettings::load();
-	VESPERSChooseDataFolderDialog dialog(AMUserSettings::userDataFolder, parent);
 
+	VESPERSChooseDataFolderDialog dialog(AMUserSettings::userDataFolder, parent);
 	dialog.exec();
 
 	if (dialog.result() == QDialog::Accepted){
 
-		QString dir = dialog.filePath();
+		if (!dialog.isFullPath()){
 
-		if (dir.contains(QRegExp("^\\d{2,2}-\\d{4,4}$"))){
+			QString originalInput = dialog.filePath();
+			QFileInfo remoteFullPath("/nas/vespers/users/" % originalInput);
+			bool isFirstTimeUser = !remoteFullPath.exists();
 
-			QFileInfo info("/nas/vespers/users/" % dir);
-
-			if (!info.exists()){
+			if (!remoteFullPath.exists()){
 
 				QDir newPath("/nas/vespers/users");
-				newPath.mkdir(dir);
-				newPath.cd(dir);
+				newPath.mkpath(QString("%1/userData").arg(originalInput));
+				newPath.mkpath(QString("%1/XRD Images").arg(originalInput));
 			}
 
-			dir = "/nas/vespers/users/" % dir;
-		}
+			if (isFirstTimeUser){
 
-		if (!dir.endsWith("/"))
-			dir += "/";
+				AMUserSettings::userDataFolder = QString("/nas/vespers/users/%1/userData/").arg(originalInput);
+				AMUserSettings::remoteDataFolder = "";
+				AMUserSettings::save(true);
+			}
 
-		if (!dir.contains("CCD Images")){
+			else {
 
-			QDir makeNewDir(dir);
-			makeNewDir.rename("CCD Images", "XRD Images");
-		}
-
-		if (!dir.contains("XRD Images")){
-
-			QDir makeNewDir(dir);
-			makeNewDir.mkdir("XRD Images");
-		}
-
-		if (!dir.contains("userData")){
-
-			QDir makeNewDir(dir);
-			makeNewDir.mkdir("userData");
-			makeNewDir.cd("userData");
-			dir = makeNewDir.absolutePath() + "/";
-		}
-
-		if (dir.compare(AMUserSettings::userDataFolder) != 0){
-
-			AMUserSettings::userDataFolder = dir;
-			AMUserSettings::save();
+				AMUserSettings::userDataFolder = QString("/AcquamanLocalData/vespers/users/%1/userData/").arg(originalInput);
+				AMUserSettings::remoteDataFolder = QString("/nas/vespers/users/%1/userData/").arg(originalInput);
+				AMUserSettings::save();
+			}
 		}
 
 		return true;

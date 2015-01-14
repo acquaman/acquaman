@@ -27,21 +27,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 BioXASSidePersistentView::BioXASSidePersistentView(QWidget *parent) :
     QWidget(parent)
 {
-    motorControlEditor_ = new AMExtendedControlEditor(BioXASSideBeamline::bioXAS()->m1UpperSlit());
-    motorControlEditor_->setControlFormat('g', 4);
-
-    energyControlEditor_ = new AMExtendedControlEditor(BioXASSideBeamline::bioXAS()->energy());
+    energyControlEditor_ = new AMExtendedControlEditor(BioXASSideBeamline::bioXAS()->mono()->energyControl());
     energyControlEditor_->setControlFormat('f', 2);
 
-    keithleyView_ = BioXASSideBeamline::bioXAS()->i0Keithley()->createView();
-    keithleyView_->setParent(this);
-    keithleyView_->setPrecision(2);
-    keithleyView_->setFormat('e');
-
     QVBoxLayout *layout = new QVBoxLayout();
-    layout->addWidget(motorControlEditor_);
     layout->addWidget(energyControlEditor_);
-    layout->addWidget(keithleyView_);
     layout->addStretch();
 
     setLayout(layout);

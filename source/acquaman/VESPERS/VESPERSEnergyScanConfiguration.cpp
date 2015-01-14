@@ -54,7 +54,7 @@ VESPERSEnergyScanConfiguration::VESPERSEnergyScanConfiguration(const VESPERSEner
 	: AMStepScanConfiguration(original), VESPERSScanConfiguration(original)
 {
 	setName(original.name());
-	setUserScanName(original.userScanName());
+	setUserScanName(original.name());
 	dbObject_->setParent(this);
 
 	goToPosition_ = original.goToPosition();
@@ -75,7 +75,9 @@ VESPERSEnergyScanConfiguration::VESPERSEnergyScanConfiguration(const VESPERSEner
 
 AMScanConfiguration *VESPERSEnergyScanConfiguration::createCopy() const
 {
-	return new VESPERSEnergyScanConfiguration(*this);
+	AMScanConfiguration *configuration = new VESPERSEnergyScanConfiguration(*this);
+	configuration->dissociateFromDb(true);
+	return configuration;
 }
 
 AMScanController *VESPERSEnergyScanConfiguration::createController()
@@ -89,6 +91,16 @@ AMScanController *VESPERSEnergyScanConfiguration::createController()
 AMScanConfigurationView *VESPERSEnergyScanConfiguration::createView()
 {
 	return new VESPERSEnergyScanConfigurationView(this);
+}
+
+QString VESPERSEnergyScanConfiguration::technique() const
+{
+	return "Energy Scan";
+}
+
+QString VESPERSEnergyScanConfiguration::description() const
+{
+	return "Energy Scan";
 }
 
 QString VESPERSEnergyScanConfiguration::detailedDescription() const

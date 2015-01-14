@@ -64,8 +64,11 @@ SGMXASScanConfiguration2013::SGMXASScanConfiguration2013(const SGMXASScanConfigu
 
 }
 
-AMScanConfiguration* SGMXASScanConfiguration2013::createCopy() const{
-	return new SGMXASScanConfiguration2013(*this);
+AMScanConfiguration* SGMXASScanConfiguration2013::createCopy() const
+{
+	AMScanConfiguration *configuration = new SGMXASScanConfiguration2013(*this);
+	configuration->dissociateFromDb(true);
+	return configuration;
 }
 
 #include "SGMXASScanActionController.h"

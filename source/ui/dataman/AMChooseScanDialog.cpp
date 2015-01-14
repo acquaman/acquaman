@@ -34,14 +34,14 @@ AMChooseScanDialog::AMChooseScanDialog(AMDatabase* db, const QString& title, con
 {
 	setWindowTitle(title);
 	resize(1024,768);
-	browseScansView_ = new AMBrowseScansView(db, this);
+	browseScansView_ = new AMBrowseScansView(db);
 
-	QVBoxLayout* layout = new QVBoxLayout(this);
+	QVBoxLayout* layout = new QVBoxLayout();
 
 	dialogButtons_ = new QButtonGroup(this);
 
-	QPushButton* okayButton = new QPushButton("Okay", this);
-	QPushButton* cancelButton = new QPushButton("Cancel", this);
+	QPushButton* okayButton = new QPushButton("Okay");
+	QPushButton* cancelButton = new QPushButton("Cancel");
 
 	dialogButtons_->addButton(okayButton, 0);
 	dialogButtons_->button(0)->setEnabled(false);

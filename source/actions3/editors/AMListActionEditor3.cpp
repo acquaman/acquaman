@@ -31,7 +31,9 @@ AMListActionEditor3::AMListActionEditor3(AMListActionInfo3 *info, QWidget *paren
 	info_ = info;
 	setFrameStyle(QFrame::StyledPanel);
 
-	QHBoxLayout* hl = new QHBoxLayout(this);
+	QHBoxLayout* hl = new QHBoxLayout();
 	hl->addWidget(new QLabel("List of actions"));
 	hl->addStretch();
+
+	setLayout(hl);
 }

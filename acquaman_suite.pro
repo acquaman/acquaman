@@ -7,34 +7,34 @@ SUBDIRS += \
 	Initialize.pro \
 	pluginProjects/FileLoaders/AMFileLoaderPlugins.pro \
 	# pluginProjects/AnalysisBlocks/AMAnalysisBlockPlugins.pro \
-	REIXSTest.pro \
-	REIXSAcquaman.pro \
-	SGMAcquaman.pro \
-	BareBonesAcquaman.pro \
-	acquamanTest.pro \
-	VESPERSAcquaman.pro \
-	MidIRBPM.pro \
-	CLSPGTDwellTimeCoordinator.pro \
-	SGMAddOnsCoordinator.pro \
-	SGMSSAAcquaman.pro \
 	EnsureHeaderNotice.pro \
-	VESPERSBendingMirrors.pro \
-	SGMAmptekCoordinator.pro \
-	SGMLookupTableCoordinator.pro \
 	AMCrashReporter.pro \
-	StripToolProject.pro \
-	IDEASAcquaman.pro \
-	BioXASSideAcquaman.pro \
+	CLSNetworkDirectorySynchronizer.pro \
 	BioXASMainAcquaman.pro \
+	BioXASSideAcquaman.pro \
 	BioXASImagingAcquaman.pro \
 	BioXASToolSuite.pro \
-	VESPERSDatabaseDuplicateEntryPatch.pro \
-	StripTool2.pro \
-	CLSNetworkDirectorySynchronizer.pro \
-	buildTests/AMBuildTest.pro \
-	XRDAnalysis.pro \
-	CLSSR570Coordinator.pro \
+	MidIRBPM.pro \
+	REIXSTest.pro \
+	REIXSAcquaman.pro \
+	IDEASAcquaman.pro \
+	SGMAcquaman.pro \
+	SGMAddOnsCoordinator.pro \
+	SGMAmptekCoordinator.pro \
+	SGMLookupTableCoordinator.pro \
+	SGMSSAAcquaman.pro \
 	SXRMBAcquaman.pro \
 	SXRMBAddOnsCoordinator.pro \
-	VESPERSAddOnsCoordinator.pro
+	VESPERSAcquaman.pro \
+	VESPERSBendingMirrors.pro \
+	VESPERSDatabaseDuplicateEntryPatch.pro \
+	VESPERSAddOnsCoordinator.pro \
+	BareBonesAcquaman.pro \
+	acquamanTest.pro \
+	buildTests/AMBuildTest.pro \
+	XRDAnalysis.pro \
+	StripToolProject.pro \
+	StripTool2.pro \
+	CLSPGTDwellTimeCoordinator.pro \
+	CLSSR570Coordinator.pro
 

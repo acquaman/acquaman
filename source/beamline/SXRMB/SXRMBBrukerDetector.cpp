@@ -30,11 +30,30 @@ SXRMBBrukerDetector::SXRMBBrukerDetector(const QString &name, const QString &des
 	((AM1DProcessVariableDataSource *)rawSpectraSources_.first())->setScale(ai.increment);
 	((AM1DProcessVariableDataSource *)rawSpectraSources_.first())->setOffset(ai.start);
 
+	// Stuff specialized by SXRMBBrukerDetector
+	deadTimeControl_ = new AMReadOnlyPVControl("Dead Time", "mca1606-B10-03:mca1.DTIM", this);
+	connect(deadTimeControl_, SIGNAL(connected(bool)), this, SLOT(onDeadTimeControlConnected(bool)));
+	connect(deadTimeControl_, SIGNAL(valueChanged(double)), this, SIGNAL(deadTimeChanged()));
+	if (deadTimeControl_->isConnected())
+		emit deadTimeChanged();
+
 }
 
 SXRMBBrukerDetector::~SXRMBBrukerDetector()
 {
 
+}
+
+double SXRMBBrukerDetector::deadTime() const
+{
+	return deadTimeControl_->value();
+}
+
+double SXRMBBrukerDetector::deadTimeAt(int index) const
+{
+	Q_UNUSED(index)
+
+	return deadTime();
 }
 
 QString SXRMBBrukerDetector::synchronizedDwellKey() const
@@ -54,4 +73,10 @@ bool SXRMBBrukerDetector::setReadMode(AMDetectorDefinitions::ReadMode readMode)
 	Q_UNUSED(readMode)
 
 	return false;
+}
+
+void SXRMBBrukerDetector::onDeadTimeControlConnected(bool connected)
+{
+	if (connected)
+		emit deadTimeChanged();
 }

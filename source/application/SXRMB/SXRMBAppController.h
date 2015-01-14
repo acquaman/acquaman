@@ -58,6 +58,8 @@ public:
 protected slots:
 	/// slot to handle Beamline connected signal
 	void onBeamlineConnected(bool);
+	/// Helper slot that handles the workflow pausing/resuming when the beam dumps or is restored.
+	void onBeamAvailabilityChanged(bool beamAvailable);
 
 	/// Handles showing (or hiding) the scaler view when the scaler connects (disconnects)
 	void onScalerConnected(bool isConnected);

@@ -58,7 +58,7 @@ VESPERSSpatialLineScanConfiguration::VESPERSSpatialLineScanConfiguration(const V
 	: AMStepScanConfiguration(original), VESPERSScanConfiguration(original)
 {
 	setName(original.name());
-	setUserScanName(original.userScanName());
+	setUserScanName(original.name());
 	dbObject_->setParent(this);
 	setOtherPosition(original.otherPosition());
 	setExportSpectraSources(original.exportSpectraSources());
@@ -73,7 +73,9 @@ VESPERSSpatialLineScanConfiguration::VESPERSSpatialLineScanConfiguration(const V
 
 AMScanConfiguration *VESPERSSpatialLineScanConfiguration::createCopy() const
 {
-	return new VESPERSSpatialLineScanConfiguration(*this);
+	AMScanConfiguration *configuration = new VESPERSSpatialLineScanConfiguration(*this);
+	configuration->dissociateFromDb(true);
+	return configuration;
 }
 
 AMScanController *VESPERSSpatialLineScanConfiguration::createController()
@@ -87,6 +89,16 @@ AMScanController *VESPERSSpatialLineScanConfiguration::createController()
 AMScanConfigurationView *VESPERSSpatialLineScanConfiguration::createView()
 {
 	return new VESPERSSpatialLineScanConfigurationView(this);
+}
+
+QString VESPERSSpatialLineScanConfiguration::technique() const
+{
+	return "Line Scan";
+}
+
+QString VESPERSSpatialLineScanConfiguration::description() const
+{
+	return "Line Scan";
 }
 
 QString VESPERSSpatialLineScanConfiguration::detailedDescription() const

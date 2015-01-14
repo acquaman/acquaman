@@ -106,6 +106,7 @@ QString AMSMAKExporter::exportScan(const AMScan *scan, const QString &destinatio
 
 	// prepare export file
 	mainFileName_ = parseKeywordString( destinationFolderPath % "/" % option->fileName() );
+	mainFileName_ = removeNonPrintableCharacters(mainFileName_);
 
 	if(!openFile(mainFileName_)) {
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -3, "Export failed: Could not open the file '" % mainFileName_ % "' for writing.  Check that you have permission to save files there, and that a file with that name doesn't already exists."));
@@ -258,6 +259,7 @@ bool AMSMAKExporter::writeSeparateFiles(const QString &destinationFolderPath)
 
 		QFile output;
 		QString separateFileName = parseKeywordString( destinationFolderPath % "/" % option_->separateSectionFileName() );
+		separateFileName = removeNonPrintableCharacters(separateFileName);
 		separateFileName.replace(".dat", ".mca");
 
 		if(!openFile(&output, separateFileName)) {
@@ -316,7 +318,10 @@ void AMSMAKExporter::writeSMAKFile()
 
 	// This will return -1 if it fails.  This means any checks inside this loop will always fail if the CCD was not included.
 	int yRange = yRange_ == -1 ? currentScan_->scanSize(1) : yRange_;
-	int xRange = yRange_ > 1 ? currentScan_->scanSize(0) : xIndex_;
+	int xRange = currentScan_->scanSize(0);
+
+	if (yRange_ == 0)
+		xRange = xIndex_;
 
 	const AMExporterOptionSMAK *smakOption = qobject_cast<const AMExporterOptionSMAK *>(option_);
 	QList<AMDataSource *> sources;
@@ -352,7 +357,8 @@ void AMSMAKExporter::writeSMAKFile()
 	temp.append("\n* BLANK LINE\n* BLANK LINE\n* Energy points requested:\n*\t30000.0\n* BLANK LINE\n* DATA\n");
 	ts << temp;
 
-	yRange = yRange_-1;
+	if (yRange_ != -1)
+		yRange = yRange_-1;
 
 	for(int y = 0; y < yRange; y++) {
 

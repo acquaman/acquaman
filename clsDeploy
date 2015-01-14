@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export PATH=/home/sgm/bin:$PATH
+
 if [ -e build/AMDeploy.app ]
 then
 	build/AMDeploy.app/Contents/MacOS/AMDeploy "$@"
