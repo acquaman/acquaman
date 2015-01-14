@@ -18,8 +18,7 @@ HEADERS +=	source/application/IDEAS/IDEASAppController.h \
     source/ui/IDEAS/IDEASScalerView.h \
     source/ui/IDEAS/IDEASScanConfigurationViewHolder3.h \
     source/ui/IDEAS/IDEASSampleCameraPanel.h \
-    source/beamline/IDEAS/IDEAS13ElementGeDetector.h \
-    source/ui/IDEAS/IDEASSampleManipulatorMotorGroupView.h
+    source/beamline/IDEAS/IDEAS13ElementGeDetector.h
 
 SOURCES +=	source/application/IDEAS/IDEASAppController.cpp \
 	source/application/IDEAS/IDEASMain.cpp \
@@ -36,8 +35,7 @@ SOURCES +=	source/application/IDEAS/IDEASAppController.cpp \
     source/ui/IDEAS/IDEASScalerView.cpp \
     source/ui/IDEAS/IDEASScanConfigurationViewHolder3.cpp \
     source/ui/IDEAS/IDEASSampleCameraPanel.cpp \
-    source/beamline/IDEAS/IDEAS13ElementGeDetector.cpp \
-    source/ui/IDEAS/IDEASSampleManipulatorMotorGroupView.cpp
+    source/beamline/IDEAS/IDEAS13ElementGeDetector.cpp
 
 
 

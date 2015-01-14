@@ -1,7 +1,7 @@
 #include "beamline/IDEAS/IDEASBeamline.h"
 #include "IDEASSampleCameraPanel.h"
 #include "ui/AMMotorGroupView.h"
-#include "IDEASSampleManipulatorMotorGroupView.h"
+#include "ui/AMMotorGroupView.h"
 #include <QGroupBox>
 #include <QBoxLayout>
 #include <QtGui/QFormLayout>
@@ -16,9 +16,20 @@ IDEASSampleCameraPanel::IDEASSampleCameraPanel(QWidget *parent) :
 	QWidget(parent)
 {
 
-	sampleMotorGroupView_ = new IDEASSampleManipulatorMotorGroupView(IDEASBeamline::ideas()->samplePlatformMotorGroupObject());
+	sampleMotorGroupView_ = new AMMotorGroupObjectView(IDEASBeamline::ideas()->samplePlatformMotorGroupObject());
+	sampleMotorGroupView_->jogSpinBox()->setValue(1);
+	sampleMotorGroupView_->jogSpinBox()->setSingleStep(0.5);
+	sampleMotorGroupView_->jogSpinBox()->setDecimals(1);
+	foreach(QDoubleSpinBox *cSP, sampleMotorGroupView_->controlSetpointsSpinBoxes())
+		cSP->setDecimals(1);
 	sampleMotorGroupView_->setMaximumWidth(250);
-	vacuumMotorGroupView_ = new IDEASSampleManipulatorMotorGroupView(IDEASBeamline::ideas()->vacuumStageMotorGroupObject());
+
+	vacuumMotorGroupView_ = new AMMotorGroupObjectView(IDEASBeamline::ideas()->vacuumStageMotorGroupObject());
+	vacuumMotorGroupView_->jogSpinBox()->setValue(1);
+	vacuumMotorGroupView_->jogSpinBox()->setSingleStep(0.5);
+	vacuumMotorGroupView_->jogSpinBox()->setDecimals(1);
+	foreach(QDoubleSpinBox *cSP, vacuumMotorGroupView_->controlSetpointsSpinBoxes())
+		cSP->setDecimals(1);
 	vacuumMotorGroupView_->setMaximumWidth(250);
 
 

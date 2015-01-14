@@ -3,7 +3,7 @@
 
 #include <QWidget>
 
-class IDEASSampleManipulatorMotorGroupView;
+class AMMotorGroupObjectView;
 
 class IDEASSampleCameraPanel : public QWidget
 {
@@ -16,7 +16,8 @@ signals:
 public slots:
 
 private:
-    IDEASSampleManipulatorMotorGroupView *sampleMotorGroupView_, *vacuumMotorGroupView_;
+    AMMotorGroupObjectView *sampleMotorGroupView_;
+    AMMotorGroupObjectView *vacuumMotorGroupView_;
 
 
 };

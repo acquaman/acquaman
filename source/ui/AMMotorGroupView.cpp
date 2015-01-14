@@ -226,6 +226,14 @@ void AMMotorGroupObjectView::setControlSetpointPrecision(int controlSetpointsPre
 		controlSetpoints_.at(x)->setDecimals(controlSetpointsPrecision_);
 }
 
+QDoubleSpinBox* AMMotorGroupObjectView::jogSpinBox(){
+	return jog_;
+}
+
+QList<QDoubleSpinBox *> AMMotorGroupObjectView::controlSetpointsSpinBoxes(){
+	return controlSetpoints_;
+}
+
 void AMMotorGroupObjectView::onUpClicked()
 {
 	int index = motorGroupObject_->verticalIndex();
