@@ -38,7 +38,8 @@ public:
 
 		AlreadyExistsError = 0,		///< The file passed in already exists
 		CouldNotOpenError = 1,		///< The file could not be opened
-		InvalidError = 2			///< Catch all error.
+		FailedToWriteFile = 2,      ///< Failed to write to the file
+		InvalidError = 3			///< Catch all error.
 	};
 
 	/// Constructor.  Requires the file path for where the files should be stored.  \param filePath should have everything for the data file except the extension.  Also needs to be told whether it needs to open a separate file for spectral data.

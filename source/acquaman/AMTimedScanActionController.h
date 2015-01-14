@@ -38,6 +38,7 @@ Q_DECLARE_METATYPE(AMScanActionControllerBasicFileWriter::FileWriterError)
 #define AMTIMEDSCANACTIONCONTROLLER_FILE_ALREADY_EXISTS 265003
 #define AMTIMEDSCANACTIONCONTROLLER_COULD_NOT_OPEN_FILE 265004
 #define AMTIMEDSCANACTIONCONTROLLER_UNKNOWN_FILE_ERROR 265005
+#define AMTIMEDSCANACTIONCONTROLLER_FAILED_TO_WRITE_FILE 265006
 
 /// This class does most of the work of building a simple scan controller that uses time for the independent axis.
 class AMTimedScanActionController : public AMScanActionController

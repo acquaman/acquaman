@@ -78,8 +78,17 @@ void AMScanActionControllerBasicFileWriter::writeToFile(int fileRank, const QStr
 		qDebug() << "Stream (1) writing differential " << startTime.msecsTo(endTime) << " for size " << textToWrite.size();
 		*/
 
+		QFileInfo dataFileInfo(filePath_+".dat");
+		int sizeBeforeWrite = dataFileInfo.size();
+
 		AMTextStream dataStream(dataFile_);
 		dataStream << textToWrite;
+		dataStream.flush();
+
+		dataFileInfo.refresh();
+		if (textToWrite.length() > 0 && sizeBeforeWrite == dataFileInfo.size()) {
+			emit fileWriterError(FailedToWriteFile);
+		}
 
 		break;}
 
@@ -95,8 +104,17 @@ void AMScanActionControllerBasicFileWriter::writeToFile(int fileRank, const QStr
 			qDebug() << "Stream (2) writing differential " << startTime.msecsTo(endTime) << " for size " << textToWrite.size();
 			*/
 
+			QFileInfo spectraDataFileInfo(filePath_+"_spectra.dat");
+			int sizeBeforeWrite = spectraDataFileInfo.size();
+
 			AMTextStream spectraStream(spectraFile_);
 			spectraStream << textToWrite;
+			spectraStream.flush();
+
+			spectraDataFileInfo.refresh();
+			if (textToWrite.length() > 0 && sizeBeforeWrite == spectraDataFileInfo.size()) {
+				emit fileWriterError(FailedToWriteFile);
+			}
 		}
 
 		break;}
