@@ -183,9 +183,6 @@ bool VESPERSAppController::startup()
 		// Github setup for adding VESPERS specific comment.
 		additionalIssueTypesAndAssignees_.append("I think it's a VESPERS specific issue", "dretrex");
 
-		// THIS IS HERE TO PASS ALONG THE INFORMATION TO THE SUM AND CORRECTEDSUM PVS IN THE FOUR ELEMENT DETECTOR.
-		attoHack_ = new VESPERSAttoCubeHack(VESPERSBeamline::vespers()->attoStageRz());
-
 		return true;
 	}
 	else
@@ -207,9 +204,9 @@ bool VESPERSAppController::ensureProgramStructure()
 	return true;
 }
 
-void VESPERSAppController::shutdown() {
+void VESPERSAppController::shutdown()
+{
 	// Make sure we release/clean-up the beamline interface
-	attoHack_->deleteLater();
 	AMBeamline::releaseBl();
 	AMAppController::shutdown();
 }
