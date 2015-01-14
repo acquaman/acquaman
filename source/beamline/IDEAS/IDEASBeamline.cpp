@@ -27,6 +27,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/AMAdvancedControlDetectorEmulator.h"
 
+#include "actions3/AMActionSupport.h"
+
 IDEASBeamline::IDEASBeamline()
 	: AMBeamline("IDEAS Beamline")
 {
@@ -194,26 +196,16 @@ AMAction3 *IDEASBeamline::createBeamOnAction() const
 	// The correct order for turning the beam on is turning on the safety shutter and then the second photon shutter.
 	AMSequentialListAction3 *beamOnAction = new AMSequentialListAction3(new AMSequentialListActionInfo3("The beam on action.", "The beam on action."));
 
-	AMControlInfo setpoint = safetyShutter_->toInfo();
-	setpoint.setValue(1);
-	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
-	AMControlMoveAction3 *action = new AMControlMoveAction3(actionInfo, safetyShutter_);
-	beamOnAction->addSubAction(action);
+    AMAction3 *safetyShutterAction = AMActionSupport::buildControlMoveAction(safetyShutter_, 1);
+    beamOnAction->addSubAction(safetyShutterAction);
 
-	setpoint = photonShutter2_->toInfo();
-	setpoint.setValue(1);
-	actionInfo = new AMControlMoveActionInfo3(setpoint);
-	action = new AMControlMoveAction3(actionInfo, photonShutter2_);
-	beamOnAction->addSubAction(action);
+    AMAction3 *photonShutter2Action = AMActionSupport::buildControlMoveAction(photonShutter2_, 1);
+    beamOnAction->addSubAction(photonShutter2Action);
 
-	setpoint = safetyShutter2_->toInfo();
-	setpoint.setValue(1);
-	actionInfo = new AMControlMoveActionInfo3(setpoint);
-	action = new AMControlMoveAction3(actionInfo, safetyShutter2_);
-	beamOnAction->addSubAction(action);
+    AMAction3 *safetyShutter2Action = AMActionSupport::buildControlMoveAction(safetyShutter2_, 1);
+    beamOnAction->addSubAction(safetyShutter2Action);
 
-
-	return beamOnAction;
+    return beamOnAction;
 }
 
 AMAction3 *IDEASBeamline::createBeamOffAction() const
@@ -221,11 +213,8 @@ AMAction3 *IDEASBeamline::createBeamOffAction() const
 	// The correct order for turning the beam off is turning off the second photon shutter and then the safety shutter.
 	AMSequentialListAction3 *beamOffAction = new AMSequentialListAction3(new AMSequentialListActionInfo3("The beam off action.", "The beam off action."));
 
-	AMControlInfo setpoint = safetyShutter2_->toInfo();
-	setpoint.setValue(0);
-	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
-	AMControlMoveAction3 *action = new AMControlMoveAction3(actionInfo, safetyShutter2_);
-	beamOffAction->addSubAction(action);
+    AMAction3 *safetyShutter2Action = AMActionSupport::buildControlMoveAction(safetyShutter2_, 0);
+    beamOffAction->addSubAction(safetyShutter2Action);
 
 	return beamOffAction;
 }
