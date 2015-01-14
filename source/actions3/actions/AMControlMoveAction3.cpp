@@ -31,7 +31,7 @@ AMControlMoveAction3::AMControlMoveAction3(AMControlMoveActionInfo3 *info, AMCon
 	if (control)
 		control_ = control;
 	else
-		control_ = AMBeamline::bl()->exposedControlByInfo(*(info->controlInfo()));
+		control_ = AMBeamline::bl()->exposedControlByInfo(info->controlInfo());
 
 	retries_ = 1;
 	attempts_ = 0;
@@ -44,7 +44,7 @@ AMControlMoveAction3::AMControlMoveAction3(const AMControlMoveAction3 &other)
 	const AMControlMoveActionInfo3 *info = qobject_cast<const AMControlMoveActionInfo3*>(other.info());
 
 	if (info)
-		control_ = AMBeamline::bl()->exposedControlByInfo(*(info->controlInfo()));
+		control_ = AMBeamline::bl()->exposedControlByInfo(info->controlInfo());
 	else
 		control_ = 0;
 
@@ -77,11 +77,11 @@ void AMControlMoveAction3::setRetries(int retries)
 
 void AMControlMoveAction3::startImplementation()
 {
-	const AMControlInfo& setpoint = *(controlMoveInfo()->controlInfo());
+	const AMControlInfo& setpoint = controlMoveInfo()->controlInfo();
 
 	// If you still don't have a control, check the exposed controls one last time.
 	if (!control_)
-		control_ = AMBeamline::bl()->exposedControlByInfo(*(controlMoveInfo()->controlInfo()));
+		control_ = AMBeamline::bl()->exposedControlByInfo(controlMoveInfo()->controlInfo());
 
 	// Must have a control, and it must be able to move.
 	if(!control_) {
@@ -222,7 +222,7 @@ void AMControlMoveAction3::onMoveSucceeded()
 
 	if(generateScanActionMessages_){
 
-		AMAgnosticDataAPIControlMovedMessage controlMovedMessage(control_->name(), "INVALIDMOVEMENTTYPE", controlMoveInfo()->controlInfo()->value(), control_->value());
+		AMAgnosticDataAPIControlMovedMessage controlMovedMessage(control_->name(), "INVALIDMOVEMENTTYPE", controlMoveInfo()->controlInfo().value(), control_->value());
 		if(controlMoveInfo()->isRelativeMove())
 			controlMovedMessage.setControlMovementType("Relative");
 		else

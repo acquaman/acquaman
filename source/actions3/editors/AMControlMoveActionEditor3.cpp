@@ -129,7 +129,7 @@ void AMControlMoveActionEditor3::populateControls()
 		controlSelectorBox_->addItem(description, control->name());	// store the actual control name in the UserRole.
 
 		// Is this control the info's current control?
-		if(control->name() == info_->controlInfo()->name())
+		if(control->name() == info_->controlInfo().name())
 			currentIndex = i;
 	}
 
@@ -150,9 +150,9 @@ void AMControlMoveActionEditor3::populateControls()
 		if(info_->isRelativeMove())// don't apply the control's min/max limits to a relative move. For ex: control with (min 5 max 200) could do a relative move from 70 of -10.
 			setpointBox_->setRange(-999999, 999999);
 		else
-			setpointBox_->setRange(info_->controlInfo()->minimum(), info_->controlInfo()->maximum());
-		setpointBox_->setValue(info_->controlInfo()->value());
-		unitsLabel_->setText(info_->controlInfo()->units());
+			setpointBox_->setRange(info_->controlInfo().minimum(), info_->controlInfo().maximum());
+		setpointBox_->setValue(info_->controlInfo().value());
+		unitsLabel_->setText(info_->controlInfo().units());
 		relativeCheckBox_->setChecked(info_->isRelativeMove());
 	}
 }

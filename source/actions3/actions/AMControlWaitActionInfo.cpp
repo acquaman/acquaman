@@ -35,7 +35,7 @@ AMControlWaitActionInfo::~AMControlWaitActionInfo(){}
 AMControlWaitActionInfo::AMControlWaitActionInfo(const AMControlWaitActionInfo &other) :
 	AMActionInfo3(other)
 {
-	controlInfo_.setValuesFrom(*(other.controlInfo()));
+	controlInfo_.setValuesFrom(other.controlInfo());
 	timeout_ = other.timeout();
 	matchType_ = other.matchType();
 

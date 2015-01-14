@@ -31,7 +31,7 @@ AMControlStopActionInfo::AMControlStopActionInfo(const AMControlInfo &setpoint, 
 AMControlStopActionInfo::AMControlStopActionInfo(const AMControlStopActionInfo &other)
 	: AMActionInfo3(other)
 {
-	controlInfo_.setValuesFrom(*(other.controlInfo()));
+	controlInfo_.setValuesFrom(other.controlInfo());
 }
 
 AMActionInfo3 *AMControlStopActionInfo::createCopy() const
