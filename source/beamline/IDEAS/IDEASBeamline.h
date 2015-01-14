@@ -101,6 +101,15 @@ public:
 	/// Returns Sample Positions
 	AMControl *samplePlatformVertical() const { return samplePlatformVertical_ ; }
 	AMControl *samplePlatformHorizontal() const { return samplePlatformHorizontal_ ; }
+	/// Returns the  sample platform motor group object.
+	AMMotorGroupObject *samplePlatformMotorGroupObject() const { return motorGroup_->motorGroupObject("Sample Platform"); }
+	AMMotorGroupObject *vacuumStageMotorGroupObject() const { return motorGroup_->motorGroupObject("Vacuum Stage"); }
+
+
+
+	AMMotorGroup *motorGroup() const { return motorGroup_;}
+
+
 	AMControl *vacuumSampleStage() const { return vacuumSampleStage_ ; }
 
 	/// Returns the KETEK detector pointer.
@@ -206,6 +215,9 @@ protected:
 	AMControl *jjSlitHGap_, *jjSlitVGap_, *jjSlitHCenter_, *jjSlitVCenter_;
 	//Sample Platform
 	AMControl *samplePlatformVertical_, *samplePlatformHorizontal_;
+	//Sample Stage motor Group
+	AMMotorGroup *motorGroup_;
+
 	//Vacuum Sample Stage
 	AMControl *vacuumSampleStage_;
 

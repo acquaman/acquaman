@@ -56,6 +56,12 @@ public:
 	/// Sets the precision (number of decimals) for the control setpoint boxes (defaults to 3)
 	void setControlSetpointPrecision(int controlSetpointsPrecision);
 
+	/// Returns a pointer to the jog spin box in case you need to change it's properties
+	QDoubleSpinBox *jogSpinBox();
+
+	/// Returns the list of pointers to the control setpoint spin boxes in case you need to change their properties
+	QList<QDoubleSpinBox *> controlSetpointsSpinBoxes();
+
 protected slots:
 	/// Slot that handles going up.
 	virtual void onUpClicked();
