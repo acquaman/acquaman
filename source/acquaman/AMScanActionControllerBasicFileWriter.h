@@ -60,6 +60,8 @@ signals:
 	void fileWriterIsBusy(bool isBusy);
 
 protected slots:
+	/// Handles the timeout signale of dataFileSizeCheckTimer to make sure the file size is growning
+	void onDataFileSizeCheckTimerTimeout();
 	/// Handles all the work for emitting the given error.
 	void emitError(AMScanActionControllerBasicFileWriter::FileWriterError error);
 	/// Handles emitting all the errors that have been accumulated so far.
@@ -77,6 +79,11 @@ protected:
 	QFile *dataFile_;
 	/// The file for the spectral data file.
 	QFile *spectraFile_;
+
+	/// The size of the data file we checked last time
+	int dataFileSizeCheckPoint_;
+	/// The size of the spectra file we checked last time
+	int spectraFileSizeCheckPoint_;
 
 	/// A list of errors.
 	QList<AMScanActionControllerBasicFileWriter::FileWriterError> errorsList_;

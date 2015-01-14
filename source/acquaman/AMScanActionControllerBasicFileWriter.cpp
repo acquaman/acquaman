@@ -35,6 +35,9 @@ AMScanActionControllerBasicFileWriter::AMScanActionControllerBasicFileWriter(con
 	filePath_ = filePath;
 	hasSpectraData_ = hasSpectraData;
 
+	dataFileSizeCheckPoint_ = 0;
+	spectraFileSizeCheckPoint_ = 0;
+
 	QFileInfo dataFileInfo(filePath+".dat");
 
 	if(dataFileInfo.exists())
@@ -62,6 +65,12 @@ AMScanActionControllerBasicFileWriter::AMScanActionControllerBasicFileWriter(con
 		if(!spectraFile_->open(QIODevice::WriteOnly | QIODevice::Text))
 			emitError(AMScanActionControllerBasicFileWriter::CouldNotOpenError);
 	}
+
+	// start the timer (2mins) to check whether we are writing to the files consistently
+	QTimer *dataFileSizeCheckTimer = new QTimer(this);
+	dataFileSizeCheckTimer->setInterval(120*1000); // 2 mins
+	connect(dataFileSizeCheckTimer, SIGNAL(timeout()), this, SLOT(onDataFileSizeCheckerTimerTimeout()));
+	dataFileSizeCheckTimer->start();
 }
 
 void AMScanActionControllerBasicFileWriter::writeToFile(int fileRank, const QString &textToWrite)
@@ -77,18 +86,8 @@ void AMScanActionControllerBasicFileWriter::writeToFile(int fileRank, const QStr
 		QTime endTime = QTime::currentTime();
 		qDebug() << "Stream (1) writing differential " << startTime.msecsTo(endTime) << " for size " << textToWrite.size();
 		*/
-
-		QFileInfo dataFileInfo(filePath_+".dat");
-		int sizeBeforeWrite = dataFileInfo.size();
-
 		AMTextStream dataStream(dataFile_);
 		dataStream << textToWrite;
-		dataStream.flush();
-
-		dataFileInfo.refresh();
-		if (textToWrite.length() > 0 && sizeBeforeWrite == dataFileInfo.size()) {
-			emit fileWriterError(FailedToWriteFile);
-		}
 
 		break;}
 
@@ -103,18 +102,8 @@ void AMScanActionControllerBasicFileWriter::writeToFile(int fileRank, const QStr
 			QTime endTime = QTime::currentTime();
 			qDebug() << "Stream (2) writing differential " << startTime.msecsTo(endTime) << " for size " << textToWrite.size();
 			*/
-
-			QFileInfo spectraDataFileInfo(filePath_+"_spectra.dat");
-			int sizeBeforeWrite = spectraDataFileInfo.size();
-
 			AMTextStream spectraStream(spectraFile_);
 			spectraStream << textToWrite;
-			spectraStream.flush();
-
-			spectraDataFileInfo.refresh();
-			if (textToWrite.length() > 0 && sizeBeforeWrite == spectraDataFileInfo.size()) {
-				emit fileWriterError(FailedToWriteFile);
-			}
 		}
 
 		break;}
@@ -136,6 +125,25 @@ void AMScanActionControllerBasicFileWriter::finishWriting()
 	}
 
 	emit fileWriterIsBusy(false);
+}
+
+void AMScanActionControllerBasicFileWriter::onDataFileSizeCheckTimerTimeout()
+{
+	QFileInfo dataFileInfo(filePath_+".dat");
+	if (dataFileInfo.size() == dataFileSizeCheckPoint_) {
+		emit fileWriterError(FailedToWriteFile);
+	}
+
+	dataFileSizeCheckPoint_ = dataFileInfo.size();
+
+	if (hasSpectraData_) {
+		QFileInfo spectraDataFileInfo(filePath_+"_spectra.dat");
+		if (spectraDataFileInfo.size() == spectraFileSizeCheckPoint_) {
+			emit fileWriterError(FailedToWriteFile);
+		}
+
+		spectraFileSizeCheckPoint_ = spectraDataFileInfo.size();
+	}
 }
 
 void AMScanActionControllerBasicFileWriter::emitError(AMScanActionControllerBasicFileWriter::FileWriterError error)

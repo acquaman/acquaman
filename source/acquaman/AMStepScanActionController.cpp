@@ -205,7 +205,7 @@ void AMStepScanActionController::onFileWriterError(AMScanActionControllerBasicFi
 		break;
 
 	case AMScanActionControllerBasicFileWriter::FailedToWriteFile:
-		AMErrorMon::alert(this, AMSTEPSCANACTIONCONTROLLER_FAILE_TO_WRITE_FILE, QString("Error, the %1 Scan Action Controller failed to write your data. This is a serious problem, please contact the Acquaman developers.").arg(stepConfiguration_->technique()));
+		AMErrorMon::serious(this, AMSTEPSCANACTIONCONTROLLER_FAILE_TO_WRITE_FILE, QString("Error, the %1 Scan Action Controller failed to write your data. This is a serious problem, please contact the Acquaman developers.").arg(stepConfiguration_->technique()));
 		userErrorString = "Your scan has been aborted because Acquaman was unable to write to the desired file (for internal storage). This is a serious problem and would have resulted in collecting data but not saving it. Please contact the Acquaman developers immediately.";
 		break;
 
