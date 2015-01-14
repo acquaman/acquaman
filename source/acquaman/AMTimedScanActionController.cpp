@@ -177,7 +177,7 @@ void AMTimedScanActionController::onFileWriterError(AMScanActionControllerBasicF
 		break;
 
 	case AMScanActionControllerBasicFileWriter::FailedToWriteFile:
-		AMErrorMon::serious(this, AMTIMEDSCANACTIONCONTROLLER_FAILED_TO_WRITE_FILE, QString("Error, the %1 Scan Action Controller failed to write your data. This is a serious problem, please contact the Acquaman developers.").arg(timedRegionsConfiguration_->technique()));
+		AMErrorMon::error(this, AMTIMEDSCANACTIONCONTROLLER_FAILED_TO_WRITE_FILE, QString("Error, the %1 Scan Action Controller failed to write your data. This is a serious problem, please contact the Acquaman developers.").arg(timedRegionsConfiguration_->technique()));
 		userErrorString = "Your scan has been aborted because Acquaman was unable to write to the desired file (for internal storage). This is a serious problem and would have resulted in collecting data but not saving it. Please contact the Acquaman developers immediately.";
 		break;
 

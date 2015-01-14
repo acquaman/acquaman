@@ -37,6 +37,8 @@ AMScanActionControllerBasicFileWriter::AMScanActionControllerBasicFileWriter(con
 
 	dataFileSizeCheckPoint_ = 0;
 	spectraFileSizeCheckPoint_ = 0;
+	writeExecutedRank0_ = false;
+	writeExecutedRank1_ = false;
 
 	QFileInfo dataFileInfo(filePath+".dat");
 
@@ -89,6 +91,8 @@ void AMScanActionControllerBasicFileWriter::writeToFile(int fileRank, const QStr
 		AMTextStream dataStream(dataFile_);
 		dataStream << textToWrite;
 
+		writeExecutedRank0_ = true;
+
 		break;}
 
 	case 1:{
@@ -104,6 +108,8 @@ void AMScanActionControllerBasicFileWriter::writeToFile(int fileRank, const QStr
 			*/
 			AMTextStream spectraStream(spectraFile_);
 			spectraStream << textToWrite;
+
+			writeExecutedRank1_ = true;
 		}
 
 		break;}
@@ -130,18 +136,20 @@ void AMScanActionControllerBasicFileWriter::finishWriting()
 void AMScanActionControllerBasicFileWriter::onDataFileSizeCheckTimerTimeout()
 {
 	QFileInfo dataFileInfo(filePath_+".dat");
-	if (dataFileInfo.size() == dataFileSizeCheckPoint_) {
+	if(writeExecutedRank0_ && dataFileInfo.size() == dataFileSizeCheckPoint_) {
 		emit fileWriterError(FailedToWriteFile);
 	}
 
+	writeExecutedRank0_ = false;
 	dataFileSizeCheckPoint_ = dataFileInfo.size();
 
-	if (hasSpectraData_) {
+	if(hasSpectraData_) {
 		QFileInfo spectraDataFileInfo(filePath_+"_spectra.dat");
-		if (spectraDataFileInfo.size() == spectraFileSizeCheckPoint_) {
+		if(writeExecutedRank1_ && spectraDataFileInfo.size() == spectraFileSizeCheckPoint_) {
 			emit fileWriterError(FailedToWriteFile);
 		}
 
+		writeExecutedRank1_ = false;
 		spectraFileSizeCheckPoint_ = spectraDataFileInfo.size();
 	}
 }

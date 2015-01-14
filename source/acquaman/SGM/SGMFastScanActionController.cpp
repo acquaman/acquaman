@@ -122,7 +122,7 @@ void SGMFastScanActionController::onFileWriterError(AMScanActionControllerBasicF
 		break;
 
 	case AMScanActionControllerBasicFileWriter::FailedToWriteFile:
-		AMErrorMon::serious(this, SGMFASTSCANACTIONCONTROLLER_FAILED_TO_WRITE_FILE, QString("Error, SGM Fast Scan Action Controller failed to write your data. This is a serious problem, please contact the Acquaman developers."));
+		AMErrorMon::error(this, SGMFASTSCANACTIONCONTROLLER_FAILED_TO_WRITE_FILE, QString("Error, SGM Fast Scan Action Controller failed to write your data. This is a serious problem, please contact the Acquaman developers."));
 		userErrorString = "Your scan has been aborted because Acquaman was unable to write to the desired file (for internal storage). This is a serious problem and would have resulted in collecting data but not saving it. Please contact the Acquaman developers immediately.";
 		break;
 

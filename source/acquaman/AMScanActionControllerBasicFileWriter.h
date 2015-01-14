@@ -84,6 +84,10 @@ protected:
 	int dataFileSizeCheckPoint_;
 	/// The size of the spectra file we checked last time
 	int spectraFileSizeCheckPoint_;
+	/// Flag to make sure that when we check for the rank 0 file sizes at least one write has occured in the interim
+	bool writeExecutedRank0_;
+	/// Flag to make sure that when we check for the rank 1 file sizes at least one write has occured in the interim
+	bool writeExecutedRank1_;
 
 	/// A list of errors.
 	QList<AMScanActionControllerBasicFileWriter::FileWriterError> errorsList_;
