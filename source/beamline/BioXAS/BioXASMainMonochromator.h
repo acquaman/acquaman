@@ -51,8 +51,6 @@ public:
     CLSMAXvMotor* upperSlitBladeMotor() const { return upperSlitBladeMotor_; }
     /// Returns the lower slit blade motor.
     CLSMAXvMotor* lowerSlitBladeMotor() const { return lowerSlitBladeMotor_; }
-//    /// Returns the phosphor paddle motor.
-//    CLSMAXvMotor* phosphorPaddleMotor() const { return phosphorPaddleMotor_; }
     /// Returns the bragg motor.
     CLSMAXvMotor* braggMotor() const { return braggMotor_; }
     /// Returns the vertical motor.
@@ -115,10 +113,14 @@ public:
     AMAction3* createWaitForBrakeDisabledAction();
     /// Returns a new action that moves the crystal change motor by the given degrees (relative).
     AMAction3* createMoveCrystalChangeMotorAction(int relDestination);
+    /// Returns a new action that waits for the crystal change motor to reach a limit.
+    AMAction3* createWaitForCrystalChangeMotorLimitReached(bool cwLimit);
     /// Returns a new action that waits for the brake to be turned on, 0 if not connected.
     AMAction3* createWaitForBrakeEnabledAction();
     /// Returns a new action that sets the crystal stage to the given absolute destination angle.
     AMAction3* createMoveStageAction(double degDestination);
+    /// Returns a new actions that waits for the mono to reach a given destination.
+    AMAction3* createWaitForStageMoveComplete(double degDestination);
     /// Returns a new action that waits for the region key to be turned CW to Disabled, 0 if not connected.
     AMAction3* createWaitForCrystalChangeDisabledAction();
     /// Returns a new crystal change action, 0 if not connected.
