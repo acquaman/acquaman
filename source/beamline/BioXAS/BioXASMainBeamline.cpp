@@ -168,7 +168,7 @@ QList<AMControl *> BioXASMainBeamline::getMotorsByType(BioXASBeamlineDef::BioXAS
 		break;
 
     case BioXASBeamlineDef::MonoMotor:	// BioXAS Mono motors
-        matchedMotors.append(mono_->phosphorPaddleMotor());
+        matchedMotors.append(mono_->phosphorPaddleMotorControl());
         matchedMotors.append(mono_->braggMotor());
         matchedMotors.append(mono_->verticalMotor());
         matchedMotors.append(mono_->lateralMotor());
