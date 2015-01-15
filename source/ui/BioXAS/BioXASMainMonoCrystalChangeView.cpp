@@ -37,6 +37,10 @@ BioXASMainMonoCrystalChangeView::BioXASMainMonoCrystalChangeView(BioXASMainMonoc
 
     // initial settings.
 
+    startView_->hide();
+    actionsView_->hide();
+    finalView_->hide();
+
     startView_->setMessage(promptMessage_);
     startView_->setOKButtonShown(true);
     startView_->setOKButtonEnabled(true);
@@ -73,6 +77,7 @@ void BioXASMainMonoCrystalChangeView::setMono(BioXASMainMonochromator *newMono)
         mono_ = newMono;
 
         if (mono_) {
+
             connect( mono_, SIGNAL(connected(bool)), this, SLOT(onMonoConnectedChanged(bool)) );
             actionsView_->setActions(mono_->createCrystalChangeAction());
             onMonoConnectedChanged(mono_->isConnected());
@@ -128,6 +133,7 @@ void BioXASMainMonoCrystalChangeView::onMonoConnectedChanged(bool isConnected)
         showFinalView();
 
     } else if (isConnected) {
+        actionsView_->setActions(mono_->createCrystalChangeAction());
         showStartView();
     }
 }
@@ -220,15 +226,11 @@ BioXASMainMonoCrystalChangeViewActions::BioXASMainMonoCrystalChangeViewActions(Q
 
     // create and set layouts.
 
-    QHBoxLayout *progressLayout = new QHBoxLayout();
-    progressLayout->addStretch();
-    progressLayout->addWidget(progressBar_);
-    progressLayout->addStretch();
-
     QVBoxLayout *layout = new QVBoxLayout();
-    layout->setMargin(0);
-    layout->addLayout(progressLayout);
+    layout->addWidget(progressBar_);
     layout->addWidget(actionView_);
+
+    setLayout(layout);
 
     // initial settings.
 
@@ -277,6 +279,7 @@ void BioXASMainMonoCrystalChangeViewActions::setActions(AMAction3 *newActions)
 void BioXASMainMonoCrystalChangeViewActions::onCurrentSubActionChanged(int newIndex)
 {
     if (actions_) {
+
         // update the view to display the info for the new current action.
         actionView_->setAction(actions_->subActionAt(newIndex));
     }
@@ -342,6 +345,7 @@ void BioXASMainMonoCrystalChangeViewAction::update()
 void BioXASMainMonoCrystalChangeViewAction::setAction(AMAction3 *newAction)
 {
     if (action_ != newAction) {
+
         action_ = newAction;
 
         // update the view to reflect new action information.
