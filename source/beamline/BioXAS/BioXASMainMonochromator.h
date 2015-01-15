@@ -51,8 +51,8 @@ public:
     CLSMAXvMotor* upperSlitBladeMotor() const { return upperSlitBladeMotor_; }
     /// Returns the lower slit blade motor.
     CLSMAXvMotor* lowerSlitBladeMotor() const { return lowerSlitBladeMotor_; }
-    /// Returns the phosphor paddle motor.
-    CLSMAXvMotor* phosphorPaddleMotor() const { return phosphorPaddleMotor_; }
+//    /// Returns the phosphor paddle motor.
+//    CLSMAXvMotor* phosphorPaddleMotor() const { return phosphorPaddleMotor_; }
     /// Returns the bragg motor.
     CLSMAXvMotor* braggMotor() const { return braggMotor_; }
     /// Returns the vertical motor.
@@ -70,6 +70,8 @@ public:
     /// Returns the crystal 2 roll motor.
     CLSMAXvMotor* crystal2RollMotor() const { return crystal2RollMotor_; }
 
+    /// Returns the phosphor paddle motor control.
+    AMControl* phosphorPaddleMotorControl() const { return phosphorPaddle_; }
     /// Returns the control for whether the crystal change operation is enabled.
     AMControl* crystalChangeEnabledControl() const { return crystalChangeEnabled_; }
     /// Returns the control for whether the mono is at the crystal change position.
@@ -135,8 +137,6 @@ signals:
     void regionChanged(BioXASMainMonochromator::Region newRegion);
     /// Notifier that the bragg motor power status has changed.
     void braggMotorPowerChanged(bool isOn);
-//    /// Notifier that the slits closed general status has changed.
-//    void slitsClosedChanged(bool areClosed);
     /// Notifier that the paddle out status has changed.
     void paddleOutChanged(bool isOut);
     /// Notifier that crystal changes are enabled/disabled.
@@ -192,7 +192,6 @@ protected:
 
     CLSMAXvMotor *lowerSlitBladeMotor_;
     CLSMAXvMotor *upperSlitBladeMotor_;
-    CLSMAXvMotor *phosphorPaddleMotor_;
     CLSMAXvMotor *braggMotor_;
     CLSMAXvMotor *verticalMotor_;
     CLSMAXvMotor *lateralMotor_;
@@ -205,6 +204,7 @@ protected:
     // Controls
 
     AMControl* slitsClosed_;
+    AMControl* phosphorPaddle_;
     AMControl* phosphorPaddleOut_;
     AMControl* braggMotorPower_;
     AMControl* crystalChangeEnabled_;

@@ -7,9 +7,11 @@ BioXASMainMonochromator::BioXASMainMonochromator(QObject *parent) :
     connected_ = false;
     region_ = None;
 
+    // Motors
+
     upperSlitBladeMotor_ = new CLSMAXvMotor(QString("SMTR1607-5-I21-09 VERT UPPER BLADE"), QString("SMTR1607-5-I21-09"), QString("SMTR1607-5-I21-09 VERT UPPER BLADE"), true, 0.1, 2.0, this);
-    lowerSlitBladeMotor_ = new CLSMAXvMotor(QString("SMTR1607-I21-10 VERT LOWER BLADE"), QString("SMTR1607-5-I21-10"), QString("SMTR1607-5-I21-10 VERT LOWER BLADE"), true, 0.1, 2.0, this);
-    phosphorPaddleMotor_ = new CLSMAXvMotor(QString("SMTR1607-5-I21-11 PHOSPHOR PADDLE"), QString("SMTR1607-5-I21-11"), QString("SMTR1607-5-I21-11 PHOSPHOR PADDLE"), false, 0.1, 2.0, this);
+    lowerSlitBladeMotor_ = new CLSMAXvMotor(QString("SMTR1607-5-I21-10 VERT LOWER BLADE"), QString("SMTR1607-5-I21-10"), QString("SMTR1607-5-I21-10 VERT LOWER BLADE"), true, 0.1, 2.0, this);
+//    phosphorPaddleMotor_ = new CLSMAXvMotor(QString("SMTR1607-5-I21-11 PHOSPHOR PADDLE"), QString("SMTR1607-5-I21-11"), QString("SMTR1607-5-I21-11 PHOSPHOR PADDLE"), false, 0.1, 2.0, this);
     braggMotor_ = new CLSMAXvMotor(QString("SMTR1607-5-I21-12 BRAGG"), QString("SMTR1607-5-I21-12"), QString("SMTR1607-5-I21-12 BRAGG"), true, 0.05, 2.0, this, QString(":deg"));
     verticalMotor_ = new CLSMAXvMotor(QString("SMTR1607-5-I21-13 VERTICAL"), QString("SMTR1607-5-I21-13"), QString("SMTR1607-5-I21-13 VERTICAL"), true, 0.05, 2.0, this);
     lateralMotor_ = new CLSMAXvMotor(QString("SMTR1607-5-I21-14 LATERAL"), QString("SMTR1607-5-I21-14"), QString("SMTR1607-5-I21-14 LATERAL"), true, 0.05, 2.0, this);
@@ -19,7 +21,24 @@ BioXASMainMonochromator::BioXASMainMonochromator(QObject *parent) :
     crystal2PitchMotor_ = new CLSMAXvMotor(QString("SMTR1607-5-I21-25 XTAL 2 PITCH"), QString("SMTR1607-5-I21-25"), QString("SMTR1607-5-I21-25 XTAL 2 PITCH"), true, 0.05, 2.0, this, QString(":V"));
     crystal2RollMotor_ = new CLSMAXvMotor(QString("SMTR1607-5-I21-26 XTAL 2 ROLL"), QString("SMTR1607-5-I21-26"), QString("SMTR1607-5-I21-26 XTAL 2 ROLL"), true, 0.05, 2.0, this, QString(":V"));
 
+    // Listen to motors connection states.
+
+    connect( upperSlitBladeMotor_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
+    connect( lowerSlitBladeMotor_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
+//    connect( phosphorPaddleMotor_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
+    connect( braggMotor_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
+    connect( verticalMotor_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
+    connect( lateralMotor_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
+    connect( crystalExchangeMotor_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
+    connect( crystal1PitchMotor_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
+    connect( crystal1RollMotor_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
+    connect( crystal2PitchMotor_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
+    connect( crystal2RollMotor_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
+
+    // Controls
+
     slitsClosed_ = new AMReadOnlyPVControl(QString("SlitsClosed"), QString("BL1607-5-I21:Mono:SlitsClosed"), this);
+    phosphorPaddle_ = new AMPVControl(QString("PhosphorPaddle"), QString("SMTR1607-5-I21-11:mm"), QString("SMTR1607-5-I21-11:mm:sp"), QString(), this);
     phosphorPaddleOut_ = new AMReadOnlyPVControl("PhosphorPaddleOut", "BL1607-5-I21:Mono:PaddleExtracted", this);
     braggMotorPower_ = new AMPVControl("BraggMotorPower", "SMTR1607-5-I21-12:power", "SMTR1607-5-I21-12:power", QString(), this);
     crystalChangeEnabled_ = new AMReadOnlyPVControl("CrystalChangeEnabled", "BL1607-5-I21:Mono:KeyStatus", this);
@@ -31,33 +50,14 @@ BioXASMainMonochromator::BioXASMainMonochromator(QObject *parent) :
     crystalChangeMotorCCWLimit_ = new AMReadOnlyPVControl("CrystalChangeMotorCCWLimit", "SMTR1607-5-I21-22:ccw", this);
     regionAStatus_ = new AMReadOnlyPVControl("RegionAStatus", "BL1607-5-I21:Mono:Region:A", this);
     regionBStatus_ = new AMReadOnlyPVControl("RegionBStatus", "BL1607-5-I21:Mono:Region:B", this);
-
     energy_ = new BioXASMainMonochromatorControl("EnergyEV", "BL1607-5-I21:Energy:EV:fbk", "BL1607-5-I21:Energy:EV", "BL1607-5-I21:Energy:status", QString("BL1607-5-I21:Energy:stop"), this);
 
-    // Listen to controls value changes.
+    // Listen to controls connection states.
+
+    connect( slitsClosed_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
+    connect( phosphorPaddle_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
+    connect( phosphorPaddleOut_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
     connect( braggMotorPower_, SIGNAL(valueChanged(double)), this, SLOT(onBraggMotorPowerChanged(double)) );
-    connect( crystalChangeEnabled_, SIGNAL(valueChanged(double)), this, SLOT(onCrystalChangeEnabled(double)) );
-    connect( atCrystalChangePosition_, SIGNAL(valueChanged(double)), this, SLOT(onCrystalChangePositionStatusChanged(double)) );
-    connect( crystalChangeBrakeEnabled_, SIGNAL(valueChanged(double)), this, SLOT(onCrystalChangeBrakeEnabledChanged(double)) );
-    connect( crystalChangeMotorCCWLimit_, SIGNAL(valueChanged(double)), this, SLOT(onCrystalChangeMotorCCWLimitStatusChanged(double)) );
-    connect( crystalChangeMotorCWLimit_, SIGNAL(valueChanged(double)), this, SLOT(onCrystalChangeMotorCWLimitStatusChanged(double)) );
-    connect( regionAStatus_, SIGNAL(valueChanged(double)), this, SLOT(onRegionChanged()) );
-    connect( regionBStatus_, SIGNAL(valueChanged(double)), this, SLOT(onRegionChanged()) );
-
-    // Listen to motors connection state.
-    connect( upperSlitBladeMotor_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
-    connect( lowerSlitBladeMotor_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
-    connect( phosphorPaddleMotor_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
-    connect( braggMotor_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
-    connect( verticalMotor_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
-    connect( lateralMotor_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
-    connect( crystalExchangeMotor_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
-    connect( crystal1PitchMotor_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
-    connect( crystal1RollMotor_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
-    connect( crystal2PitchMotor_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
-    connect( crystal2RollMotor_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
-
-    // Listen to controls connection state.
     connect( crystalChangeEnabled_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
     connect( atCrystalChangePosition_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
     connect( crystalChangeBrakeEnabled_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
@@ -68,6 +68,18 @@ BioXASMainMonochromator::BioXASMainMonochromator(QObject *parent) :
     connect( regionAStatus_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
     connect( regionBStatus_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
     connect( energy_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
+
+    // Listen to controls value changes.
+
+    connect( crystalChangeEnabled_, SIGNAL(valueChanged(double)), this, SLOT(onCrystalChangeEnabled(double)) );
+    connect( atCrystalChangePosition_, SIGNAL(valueChanged(double)), this, SLOT(onCrystalChangePositionStatusChanged(double)) );
+    connect( crystalChangeBrakeEnabled_, SIGNAL(valueChanged(double)), this, SLOT(onCrystalChangeBrakeEnabledChanged(double)) );
+    connect( crystalChangeMotorCCWLimit_, SIGNAL(valueChanged(double)), this, SLOT(onCrystalChangeMotorCCWLimitStatusChanged(double)) );
+    connect( crystalChangeMotorCWLimit_, SIGNAL(valueChanged(double)), this, SLOT(onCrystalChangeMotorCWLimitStatusChanged(double)) );
+    connect( regionAStatus_, SIGNAL(valueChanged(double)), this, SLOT(onRegionChanged()) );
+    connect( regionBStatus_, SIGNAL(valueChanged(double)), this, SLOT(onRegionChanged()) );
+
+    // Current settings.
 
     onConnectedChanged();
 }
@@ -128,33 +140,24 @@ AMAction3* BioXASMainMonochromator::createWaitForSlitsClosedAction()
     AMControlInfo setpoint = slitsClosed_->toInfo();
     setpoint.setValue(1);
 
-    AMControlWaitActionInfo *actionInfo = new AMControlWaitActionInfo(setpoint, 20, AMControlWaitActionInfo::MatchEqual);
-    actionInfo->setShortDescription("Waiting for slits closed...");
-    actionInfo->setLongDescription("");
-
-    AMControlWaitAction *action = new AMControlWaitAction(actionInfo, slitsClosed_);
+    AMControlWaitAction *action = new AMControlWaitAction(new AMControlWaitActionInfo(setpoint, 20, AMControlWaitActionInfo::MatchEqual), slitsClosed_);
+    action->info()->setShortDescription("Waiting for slits closed...");
+    action->info()->setLongDescription("");
 
     return action;
 }
 
 AMAction3* BioXASMainMonochromator::createRemovePaddleAction()
-{
-    AMAction3 *action = 0;
+{    
+    if (!phosphorPaddle_->isConnected())
+        return 0;
 
-    qDebug() << "Phosphor paddle at CW Limit: " << (phosphorPaddleMotor_->atLimit() == CLSMAXvMotor::LimitCW);
-    qDebug() << "Phosphor paddle at CCW Limit: " << (phosphorPaddleMotor_->atLimit() == CLSMAXvMotor::LimitCCW);
+    AMControlInfo setpoint = phosphorPaddle_->toInfo();
+    setpoint.setValue(0);
 
-    if (phosphorPaddleMotor_->isConnected() && phosphorPaddleMotor_->atLimit() != CLSMAXvMotor::LimitCW) {
-
-        AMControlInfo setpoint = phosphorPaddleMotor_->toInfo();
-        setpoint.setValue(0);
-
-        AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
-        actionInfo->setShortDescription("Removing paddle...");
-        actionInfo->setLongDescription("");
-
-        action = new AMControlMoveAction3(actionInfo, phosphorPaddleMotor_);
-    }
+    AMControlMoveAction3 *action = new AMControlMoveAction3(new AMControlMoveActionInfo3(setpoint), phosphorPaddle_);
+    action->info()->setShortDescription("Removing paddle...");
+    action->info()->setLongDescription("");
 
     return action;
 }
@@ -167,11 +170,9 @@ AMAction3* BioXASMainMonochromator::createWaitForPaddleRemovedAction()
     AMControlInfo setpoint = phosphorPaddleOut_->toInfo();
     setpoint.setValue(1);
 
-    AMControlWaitActionInfo *actionInfo = new AMControlWaitActionInfo(setpoint, 30, AMControlWaitActionInfo::MatchEqual);
-    actionInfo->setShortDescription("Waiting for paddle removed...");
-    actionInfo->setLongDescription("");
-
-    AMControlWaitAction *action = new AMControlWaitAction(actionInfo, phosphorPaddleOut_);
+    AMControlWaitAction *action = new AMControlWaitAction(new AMControlWaitActionInfo(setpoint, 30, AMControlWaitActionInfo::MatchEqual), phosphorPaddleOut_);
+    action->info()->setShortDescription("Waiting for paddle removed...");
+    action->info()->setLongDescription("");
 
     return action;
 
@@ -186,11 +187,9 @@ AMAction3* BioXASMainMonochromator::createWaitForCrystalChangeEnabledAction()
     AMControlInfo setpoint = crystalChangeEnabled_->toInfo();
     setpoint.setValue(1);
 
-    AMControlWaitActionInfo *actionInfo = new AMControlWaitActionInfo(setpoint, 100, AMControlWaitActionInfo::MatchEqual);
-    actionInfo->setShortDescription("Enable crystal change.");
-    actionInfo->setLongDescription("Turn the crystal change status key to 'Enabled', counter-clockwise.");
-
-    AMControlWaitAction *action = new AMControlWaitAction(actionInfo, crystalChangeEnabled_);
+    AMControlWaitAction *action = new AMControlWaitAction(new AMControlWaitActionInfo(setpoint, 100, AMControlWaitActionInfo::MatchEqual), crystalChangeEnabled_);
+    action->info()->setShortDescription("Enable crystal change.");
+    action->info()->setLongDescription("Turn the crystal change status key to 'Enabled', counter-clockwise.");
 
     return action;
 }
@@ -215,11 +214,9 @@ AMAction3* BioXASMainMonochromator::createWaitForAtCrystalChangePositionAction()
     AMControlInfo setpoint = atCrystalChangePosition_->toInfo();
     setpoint.setValue(1);
 
-    AMControlWaitActionInfo *actionInfo = new AMControlWaitActionInfo(setpoint, 60, AMControlWaitActionInfo::MatchEqual);
-    actionInfo->setShortDescription("Waiting for move to crystal change position...");
-    actionInfo->setLongDescription("");
-
-    AMControlWaitAction *action = new AMControlWaitAction(actionInfo, atCrystalChangePosition_);
+    AMControlWaitAction *action = new AMControlWaitAction(new AMControlWaitActionInfo(setpoint, 60, AMControlWaitActionInfo::MatchEqual), atCrystalChangePosition_);
+    action->info()->setShortDescription("Waiting for move to crystal change position...");
+    action->info()->setLongDescription("");
 
     return action;
 }
@@ -232,11 +229,9 @@ AMAction3* BioXASMainMonochromator::createWaitForBrakeDisabledAction()
     AMControlInfo setpoint = crystalChangeBrakeEnabled_->toInfo();
     setpoint.setValue(1);
 
-    AMControlWaitActionInfo *actionInfo = new AMControlWaitActionInfo(setpoint, 10, AMControlWaitActionInfo::MatchEqual);
-    actionInfo->setShortDescription("Disable brake.");
-    actionInfo->setLongDescription("Flip the brake switch to 'Disabled'.");
-
-    AMControlWaitAction *action = new AMControlWaitAction(actionInfo, crystalChangeBrakeEnabled_);
+    AMControlWaitAction *action = new AMControlWaitAction(new AMControlWaitActionInfo(setpoint, 10, AMControlWaitActionInfo::MatchEqual), crystalChangeBrakeEnabled_);
+    action->info()->setShortDescription("Disable brake.");
+    action->info()->setLongDescription("Flip the brake switch to 'Disabled'.");
 
     return action;
 }
@@ -402,7 +397,7 @@ void BioXASMainMonochromator::onConnectedChanged()
                 // Motors
                 upperSlitBladeMotor_->isConnected() &&
                 lowerSlitBladeMotor_->isConnected() &&
-                phosphorPaddleMotor_->isConnected() &&
+//                phosphorPaddleMotor_->isConnected() &&
                 braggMotor_->isConnected() &&
                 verticalMotor_->isConnected() &&
                 lateralMotor_->isConnected() &&
@@ -413,6 +408,9 @@ void BioXASMainMonochromator::onConnectedChanged()
                 crystal2RollMotor_->isConnected() &&
 
                 // Controls
+                slitsClosed_->isConnected() &&
+                phosphorPaddle_->isConnected() &&
+                phosphorPaddleOut_->isConnected() &&
                 braggMotorPower_->isConnected() &&
                 crystalChangeEnabled_->isConnected() &&
                 atCrystalChangePosition_->isConnected() &&
