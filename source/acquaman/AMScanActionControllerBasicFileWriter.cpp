@@ -70,7 +70,7 @@ AMScanActionControllerBasicFileWriter::AMScanActionControllerBasicFileWriter(con
 	// start the timer (2mins) to check whether we are writing to the files consistently
 	dataFileSizeCheckTimer_ = new QTimer();
 	dataFileSizeCheckTimer_->setInterval(120*1000); // 2 mins
-	connect(dataFileSizeCheckTimer_, SIGNAL(timeout()), this, SLOT(onDataFileSizeCheckerTimerTimeout()));
+	connect(dataFileSizeCheckTimer_, SIGNAL(timeout()), this, SLOT(onDataFileSizeCheckTimerTimeout()));
 	dataFileSizeCheckTimer_->start();
 }
 
