@@ -91,10 +91,10 @@ AMCameraConfigurationWizard::AMCameraConfigurationWizard(QWidget* parent)
 	// should have points along x,y,z axis, makes the configuration better
 	coordinateListAppend(new  QVector3D(0,0,0));		// centre
 	coordinateListAppend(new  QVector3D(-7.5,0,7.5));		// close top left corner
-	coordinateListAppend(new  QVector3D(7.5,7.5,-4.5));		// far bottomr right corner
+	coordinateListAppend(new  QVector3D(7.5,7.5,-4.0));		// far bottomr right corner
 	coordinateListAppend(new  QVector3D(-7.5,0,0));		// x-axis
 	coordinateListAppend(new  QVector3D(0,7.5,0));		// y-axis
-	coordinateListAppend(new  QVector3D(0,0,-4.5));		// z-axis
+	coordinateListAppend(new  QVector3D(0,0,-4.0));		// z-axis
 }
 
 AMCameraConfigurationWizard::~AMCameraConfigurationWizard()

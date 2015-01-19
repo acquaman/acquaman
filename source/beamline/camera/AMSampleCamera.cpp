@@ -2319,6 +2319,7 @@ void AMSampleCamera::saveCamera()
 {
 	AMCameraConfiguration* cameraConfiguration = camera_->cameraConfiguration();
 	AMDatabase* db = AMDatabase::database("SGMPublic");
+	cameraConfiguration->dissociateFromDb(true);
 	cameraConfiguration->setName(QDateTime::currentDateTime().toString("dd MM yyyy - hh:mm:ss ap"));
 	cameraConfiguration->storeToDb(db);
 }

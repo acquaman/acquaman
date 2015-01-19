@@ -506,6 +506,9 @@ public slots:
 	/// saves the sample plate to the database
 	void saveSamplePlate();
 
+	void saveBeam();
+	void saveCamera();
+
 	void setCameraConfigurationShape();
 
 	void configureRotation(const QVector<QVector3D> coordinates, const QVector<QPointF> points, const QVector<AMAngle *> rotations, const int numberOfPoints);
@@ -614,9 +617,6 @@ protected slots:
 	void motorsFinishedMoving();
 
 	void onShapeDataChanged();
-
-	void saveBeam();
-	void saveCamera();
 
 protected:
 

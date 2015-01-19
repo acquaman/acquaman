@@ -44,7 +44,8 @@ AMCameraConfigurationView::AMCameraConfigurationView(AMCameraConfiguration *came
 		cameraModel_ = cameraConfiguration;
 
 	AMDatabase *dbSGM = AMDatabase::database("SGMPublic");
-	QList<int> matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMCameraConfiguration>(), "name", "defaultConfiguration");
+//	QList<int> matchIDs = dbSGM->objectsMatching(AMDbObjectSupport::s()->tableNameForClass<AMCameraConfiguration>(), "name", "defaultConfiguration");
+	QVariantList matchIDs = dbSGM->retrieve(AMDbObjectSupport::s()->tableNameForClass<AMCameraConfiguration>(),"id");
 	if(matchIDs.count() == 0)
 	{
 		cameraModel_->setName("defaultConfiguration");
@@ -61,7 +62,8 @@ AMCameraConfigurationView::AMCameraConfigurationView(AMCameraConfiguration *came
 			AMErrorMon::alert(this, AMCAMERACONFIGURATIONVIEW_SAVE_CONFIGURATION_FAILED_IN_CONSTRUCTOR, QString("AMCameraConfiguration failed to save its configuration in the constructor.") );
 	}
 	else{
-		cameraModel_->loadFromDb(dbSGM,matchIDs.first());
+		//cameraModel_->loadFromDb(dbSGM,matchIDs.first());
+		cameraModel_->loadFromDb(dbSGM,matchIDs.last().toInt());
 	}
 
 	cameraRotationCentre_ = cameraModel_->cameraRotation();

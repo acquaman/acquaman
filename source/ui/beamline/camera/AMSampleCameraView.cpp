@@ -536,9 +536,6 @@ void AMSampleCameraView::runCameraConfiguration()
 	shapeModel_->findCamera(points,coordinates);
 	cameraConfiguration_->updateAll();
 	refreshSceneView();
-
-
-
 }
 
 void AMSampleCameraView::deleteCalibrationPoints()
@@ -1117,6 +1114,9 @@ void AMSampleCameraView::reviewCameraConfiguration()
 		shapeModel_->findCamera(positions,coordinates);
 		shapeModel_->deleteCalibrationPoints();
 		cameraConfiguration_->updateAll();
+
+		shapeModel_->saveCamera();
+
 		shapeModel_->updateAllShapes();
 		refreshSceneView();
 	}
