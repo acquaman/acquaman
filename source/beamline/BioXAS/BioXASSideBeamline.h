@@ -207,6 +207,7 @@ public:
 	CLSBasicScalerChannelDetector* iTDetector() const { return iTDetector_; }
 	CLSBasicScalerChannelDetector* i2Detector() const { return i2Detector_; }
 	AMBasicControlDetectorEmulator* energyFeedbackDetector() const { return energyFeedbackDetector_; }
+	AMBasicControlDetectorEmulator* energySetpointDetector() const { return energySetpointDetector_; }
 	AMBasicControlDetectorEmulator* dwellTimeDetector() { return dwellTimeDetector_; }
 
 signals:

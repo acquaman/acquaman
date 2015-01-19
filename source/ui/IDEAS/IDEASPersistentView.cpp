@@ -24,8 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/IDEAS/IDEASBeamline.h"
 #include "ui/IDEAS/IDEASScalerView.h"
 #include "actions3/actions/AMWaitAction.h"
-
-
+#include "source/StripTool2/IDEAS/IDEASScalerStripTool.h"
 
 
 #include "ui/beamline/AMExtendedControlEditor.h"
@@ -35,15 +34,22 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QGroupBox>
+#include <QFormLayout>
 #include <QCheckBox>
 #include <QProgressBar>
 #include <QGridLayout>
 #include <QInputDialog>
+
+
 #include <QDebug>
+
 
 IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
 	QWidget(parent)
 {
+	stripTool_ = new IDEASScalerStripTool(this);
+	//stripTool_->variables_->addVariable("BL08B2-1:mcs00:fbk");
+
 	beamStatusLabel_ = new QLabel("Beam is off!");
 
 	beamOnButton_ = new QPushButton("Beam On");
@@ -82,100 +88,131 @@ IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
 
 	scalerContinuousButton_ = new QPushButton("Enable Continuous Updates");
 
-	QIcon iconUp, iconDown, iconLeft, iconRight, iconVerticalClose, iconVerticalOpen, iconHorizontalClose, iconHorizontalOpen;
-	iconUp.addFile(QString::fromUtf8(":/22x22/go-up-dark.png"), QSize(), QIcon::Normal, QIcon::Off);
-	iconDown.addFile(QString::fromUtf8(":/22x22/go-down-dark.png"), QSize(), QIcon::Normal, QIcon::Off);
-	iconLeft.addFile(QString::fromUtf8(":/22x22/go-previous-dark.png"), QSize(), QIcon::Normal, QIcon::Off);
-	iconRight.addFile(QString::fromUtf8(":/22x22/go-next-dark.png"), QSize(), QIcon::Normal, QIcon::Off);
-	iconVerticalClose.addFile(QString::fromUtf8(":/22x22/go-close-vert-dark.png"), QSize(), QIcon::Normal, QIcon::Off);
-	iconVerticalOpen.addFile(QString::fromUtf8(":/22x22/go-open-vert-dark.png"), QSize(), QIcon::Normal, QIcon::Off);
-	iconHorizontalClose.addFile(QString::fromUtf8(":/22x22/go-close-horiz-dark.png"), QSize(), QIcon::Normal, QIcon::Off);
-	iconHorizontalOpen.addFile(QString::fromUtf8(":/22x22/go-open-horiz-dark.png"), QSize(), QIcon::Normal, QIcon::Off);
-
-	jjSlitsVertClose_ = new AMControlMoveButton();
-	jjSlitsVertClose_->setControl(IDEASBeamline::ideas()->jjSlitVGap());
-	jjSlitsVertClose_->setStepSizes(QList<double>() << 0.1 << 0.5 << 1 << 5);
-	jjSlitsVertClose_->setStepSizeIndex(1);
-	jjSlitsVertClose_->setDirectionReversed(true);
-	jjSlitsVertClose_->setIcon(iconVerticalClose);
-	jjSlitsVertClose_->setIconSize(QSize(22, 22));
-	jjSlitsVertClose_->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-	jjSlitsVertClose_->setMinimumWidth(60);
-	jjSlitsVertClose_->setMinimumHeight(60);
-
-	jjSlitsVertOpen_ = new AMControlMoveButton();
-	jjSlitsVertOpen_->setControl(IDEASBeamline::ideas()->jjSlitVGap());
-	jjSlitsVertOpen_->setStepSizes(QList<double>() << 0.1 << 0.5 << 1 << 5);
-	jjSlitsVertOpen_->setStepSizeIndex(1);
-	jjSlitsVertOpen_->setIcon(iconVerticalOpen);
-	jjSlitsVertOpen_->setIconSize(QSize(22, 22));
-	jjSlitsVertOpen_->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-	jjSlitsVertOpen_->setMinimumWidth(60);
-	jjSlitsVertOpen_->setMinimumHeight(60);
-
-	jjSlitsHorizClose_ = new AMControlMoveButton();
-	jjSlitsHorizClose_->setControl(IDEASBeamline::ideas()->jjSlitHGap());
-	jjSlitsHorizClose_->setStepSizes(QList<double>() << 0.1 << 0.5 << 1 << 5);
-	jjSlitsHorizClose_->setStepSizeIndex(1);
-	jjSlitsHorizClose_->setDirectionReversed(true);
-	jjSlitsHorizClose_->setIcon(iconHorizontalClose);
-	jjSlitsHorizClose_->setIconSize(QSize(22, 22));
-	jjSlitsHorizClose_->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-	jjSlitsHorizClose_->setMinimumWidth(60);
-	jjSlitsHorizClose_->setMinimumHeight(60);
-
-	jjSlitsHorizOpen_ = new AMControlMoveButton();
-	jjSlitsHorizOpen_->setControl(IDEASBeamline::ideas()->jjSlitHGap());
-	jjSlitsHorizOpen_->setStepSizes(QList<double>() << 0.1 << 0.5 << 1 << 5);
-	jjSlitsHorizOpen_->setStepSizeIndex(1);
-	jjSlitsHorizOpen_->setIcon(iconHorizontalOpen);
-	jjSlitsHorizOpen_->setIconSize(QSize(22, 22));
-	jjSlitsHorizOpen_->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-	jjSlitsHorizOpen_->setMinimumWidth(60);
-	jjSlitsHorizOpen_->setMinimumHeight(60);
-
-	jjSlitsUp_ = new AMControlMoveButton();
-	jjSlitsUp_->setControl(IDEASBeamline::ideas()->jjSlitVCenter());
-	jjSlitsUp_->setStepSizes(QList<double>() << 0.1 << 0.5 << 1 << 5);
-	jjSlitsUp_->setStepSizeIndex(1);
-	jjSlitsUp_->setIcon(iconUp);
-	jjSlitsUp_->setIconSize(QSize(22, 22));
-	jjSlitsUp_->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-	jjSlitsUp_->setMinimumWidth(60);
-	jjSlitsUp_->setMinimumHeight(60);
+		QGroupBox *jjSlitGroupBox_ = new QGroupBox;
+		jjSlitGroupBox_->setTitle("JJ Sample Slits");
+			QGridLayout *jjSlitLayout_ = new QGridLayout;
+				jjSlitHorizontalGap_ = new AMExtendedControlEditor(IDEASBeamline::ideas()->jjSlitHGap());
+				jjSlitHorizontalGap_->setControlFormat('f', 1);
+				jjSlitLayout_->addWidget(jjSlitHorizontalGap_,0,1,2,1);
+				jjSlitHorizontalCenter_ = new AMExtendedControlEditor(IDEASBeamline::ideas()->jjSlitHCenter());
+				jjSlitHorizontalCenter_->setControlFormat('f', 1);
+				jjSlitLayout_->addWidget(jjSlitHorizontalCenter_,0,3,2,1);
+				jjSlitVerticalGap_ = new AMExtendedControlEditor(IDEASBeamline::ideas()->jjSlitVGap());
+				jjSlitVerticalGap_->setControlFormat('f', 1);
+				jjSlitLayout_->addWidget(jjSlitVerticalGap_,2,1,2,1);
+				jjSlitVerticalCenter_ = new AMExtendedControlEditor(IDEASBeamline::ideas()->jjSlitVCenter());
+				jjSlitVerticalCenter_->setControlFormat('f', 1);
+				jjSlitLayout_->addWidget(jjSlitVerticalCenter_,2,3,2,1);
 
 
-	jjSlitsDown_ = new AMControlMoveButton();
-	jjSlitsDown_->setControl(IDEASBeamline::ideas()->jjSlitVCenter());
-	jjSlitsDown_->setStepSizes(QList<double>() << 0.1 << 0.5 << 1 << 5);
-	jjSlitsDown_->setStepSizeIndex(1);
-	jjSlitsDown_->setDirectionReversed(true);
-	jjSlitsDown_->setIcon(iconDown);
-	jjSlitsDown_->setIconSize(QSize(22, 22));
-	jjSlitsDown_->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-	jjSlitsDown_->setMinimumWidth(60);
-	jjSlitsDown_->setMinimumHeight(60);
+				QIcon iconUp, iconDown, iconLeft, iconRight, iconVerticalClose, iconVerticalOpen, iconHorizontalClose, iconHorizontalOpen;
+					iconUp.addFile(QString::fromUtf8(":/22x22/go-up-dark.png"), QSize(), QIcon::Normal, QIcon::Off);
+					iconDown.addFile(QString::fromUtf8(":/22x22/go-down-dark.png"), QSize(), QIcon::Normal, QIcon::Off);
+					iconLeft.addFile(QString::fromUtf8(":/22x22/go-previous-dark.png"), QSize(), QIcon::Normal, QIcon::Off);
+					iconRight.addFile(QString::fromUtf8(":/22x22/go-next-dark.png"), QSize(), QIcon::Normal, QIcon::Off);
+					iconVerticalClose.addFile(QString::fromUtf8(":/22x22/go-close-vert-dark.png"), QSize(), QIcon::Normal, QIcon::Off);
+					iconVerticalOpen.addFile(QString::fromUtf8(":/22x22/go-open-vert-dark.png"), QSize(), QIcon::Normal, QIcon::Off);
+					iconHorizontalClose.addFile(QString::fromUtf8(":/22x22/go-close-horiz-dark.png"), QSize(), QIcon::Normal, QIcon::Off);
+					iconHorizontalOpen.addFile(QString::fromUtf8(":/22x22/go-open-horiz-dark.png"), QSize(), QIcon::Normal, QIcon::Off);
 
-	jjSlitsRight_ = new AMControlMoveButton();
-	jjSlitsRight_->setControl(IDEASBeamline::ideas()->jjSlitHCenter());
-	jjSlitsRight_->setStepSizes(QList<double>() << 0.1 << 0.5 << 1 << 5);
-	jjSlitsRight_->setStepSizeIndex(1);
-	jjSlitsRight_->setDirectionReversed(true);
-	jjSlitsRight_->setIcon(iconRight);
-	jjSlitsRight_->setIconSize(QSize(22, 22));
-	jjSlitsRight_->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-	jjSlitsRight_->setMinimumWidth(60);
-	jjSlitsRight_->setMinimumHeight(60);
 
-	jjSlitsLeft_ = new AMControlMoveButton();
-	jjSlitsLeft_->setControl(IDEASBeamline::ideas()->jjSlitHCenter());
-	jjSlitsLeft_->setStepSizes(QList<double>() << 0.1 << 0.5 << 1 << 5);
-	jjSlitsLeft_->setStepSizeIndex(1);
-	jjSlitsLeft_->setIcon(iconLeft);
-	jjSlitsLeft_->setIconSize(QSize(22, 22));
-	jjSlitsLeft_->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-	jjSlitsLeft_->setMinimumWidth(60);
-	jjSlitsLeft_->setMinimumHeight(60);
+				jjSlitsVertOpen_ = new AMControlMoveButton();
+				jjSlitsVertOpen_->setControl(IDEASBeamline::ideas()->jjSlitVGap());
+				jjSlitsVertOpen_->setStepSizes(QList<double>() << 0.1 << 0.5 << 1 << 5);
+				jjSlitsVertOpen_->setStepSizeIndex(2);
+				jjSlitsVertOpen_->setIcon(iconVerticalOpen);
+				jjSlitsVertOpen_->setIconSize(QSize(15, 15));
+				jjSlitsVertOpen_->setToolButtonStyle(Qt::ToolButtonIconOnly);
+				jjSlitsVertOpen_->setMinimumWidth(15);
+				jjSlitsVertOpen_->setMinimumHeight(15);
+				jjSlitLayout_->addWidget(jjSlitsVertOpen_,2,0,1,1);
+				jjSlitsVertClose_ = new AMControlMoveButton();
+				jjSlitsVertClose_->setControl(IDEASBeamline::ideas()->jjSlitVGap());
+				jjSlitsVertClose_->setStepSizes(QList<double>() << 0.1 << 0.5 << 1 << 5);
+				jjSlitsVertClose_->setStepSizeIndex(2);
+				jjSlitsVertClose_->setDirectionReversed(true);
+				jjSlitsVertClose_->setIcon(iconVerticalClose);
+				jjSlitsVertClose_->setIconSize(QSize(15, 15));
+				jjSlitsVertClose_->setToolButtonStyle(Qt::ToolButtonIconOnly);
+				jjSlitsVertClose_->setMinimumWidth(15);
+				jjSlitsVertClose_->setMinimumHeight(15);
+				jjSlitLayout_->addWidget(jjSlitsVertClose_,3,0,1,1);
+
+
+				jjSlitsHorizOpen_ = new AMControlMoveButton();
+				jjSlitsHorizOpen_->setControl(IDEASBeamline::ideas()->jjSlitHGap());
+				jjSlitsHorizOpen_->setStepSizes(QList<double>() << 0.1 << 0.5 << 1 << 5);
+				jjSlitsHorizOpen_->setStepSizeIndex(2);
+				jjSlitsHorizOpen_->setIcon(iconHorizontalOpen);
+				jjSlitsHorizOpen_->setIconSize(QSize(15, 15));
+				jjSlitsHorizOpen_->setToolButtonStyle(Qt::ToolButtonIconOnly);
+				jjSlitsHorizOpen_->setMinimumWidth(15);
+				jjSlitsHorizOpen_->setMinimumHeight(15);
+				jjSlitLayout_->addWidget(jjSlitsHorizOpen_,0,0,1,1);
+				jjSlitsHorizClose_ = new AMControlMoveButton();
+				jjSlitsHorizClose_->setControl(IDEASBeamline::ideas()->jjSlitHGap());
+				jjSlitsHorizClose_->setStepSizes(QList<double>() << 0.1 << 0.5 << 1 << 5);
+				jjSlitsHorizClose_->setStepSizeIndex(2);
+				jjSlitsHorizClose_->setDirectionReversed(true);
+				jjSlitsHorizClose_->setIcon(iconHorizontalClose);
+				jjSlitsHorizClose_->setIconSize(QSize(15, 15));
+				jjSlitsHorizClose_->setToolButtonStyle(Qt::ToolButtonIconOnly);
+				jjSlitsHorizClose_->setMinimumWidth(15);
+				jjSlitsHorizClose_->setMinimumHeight(15);
+				jjSlitLayout_->addWidget(jjSlitsHorizClose_,1,0,1,1);
+
+
+				jjSlitsUp_ = new AMControlMoveButton();
+				jjSlitsUp_->setControl(IDEASBeamline::ideas()->jjSlitVCenter());
+				jjSlitsUp_->setStepSizes(QList<double>() << 0.1 << 0.5 << 1 << 5);
+				jjSlitsUp_->setStepSizeIndex(2);
+				jjSlitsUp_->setIcon(iconUp);
+				jjSlitsUp_->setIconSize(QSize(15, 15));
+				jjSlitsUp_->setToolButtonStyle(Qt::ToolButtonIconOnly);
+				jjSlitsUp_->setMinimumWidth(15);
+				jjSlitsUp_->setMinimumHeight(15);
+				jjSlitLayout_->addWidget(jjSlitsUp_,2,2,1,1);
+				jjSlitsDown_ = new AMControlMoveButton();
+				jjSlitsDown_->setControl(IDEASBeamline::ideas()->jjSlitVCenter());
+				jjSlitsDown_->setStepSizes(QList<double>() << 0.1 << 0.5 << 1 << 5);
+				jjSlitsDown_->setStepSizeIndex(2);
+				jjSlitsDown_->setDirectionReversed(true);
+				jjSlitsDown_->setIcon(iconDown);
+				jjSlitsDown_->setIconSize(QSize(15, 15));
+				jjSlitsDown_->setToolButtonStyle(Qt::ToolButtonIconOnly);
+				jjSlitsDown_->setMinimumWidth(15);
+				jjSlitsDown_->setMinimumHeight(15);
+				jjSlitLayout_->addWidget(jjSlitsDown_,3,2,1,1);
+
+
+				jjSlitsLeft_ = new AMControlMoveButton();
+				jjSlitsLeft_->setControl(IDEASBeamline::ideas()->jjSlitHCenter());
+				jjSlitsLeft_->setStepSizes(QList<double>() << 0.1 << 0.5 << 1 << 5);
+				jjSlitsLeft_->setStepSizeIndex(2);
+				jjSlitsLeft_->setIcon(iconLeft);
+				jjSlitsLeft_->setIconSize(QSize(15, 15));
+				jjSlitsLeft_->setToolButtonStyle(Qt::ToolButtonIconOnly);
+				jjSlitsLeft_->setMinimumWidth(15);
+				jjSlitsLeft_->setMinimumHeight(15);
+				jjSlitLayout_->addWidget(jjSlitsLeft_,0,2,1,1);
+				jjSlitsRight_ = new AMControlMoveButton();
+				jjSlitsRight_->setControl(IDEASBeamline::ideas()->jjSlitHCenter());
+				jjSlitsRight_->setStepSizes(QList<double>() << 0.1 << 0.5 << 1 << 5);
+				jjSlitsRight_->setStepSizeIndex(2);
+				jjSlitsRight_->setDirectionReversed(true);
+				jjSlitsRight_->setIcon(iconRight);
+				jjSlitsRight_->setIconSize(QSize(15, 15));
+				jjSlitsRight_->setToolButtonStyle(Qt::ToolButtonIconOnly);
+				jjSlitsRight_->setMinimumWidth(15);
+				jjSlitsRight_->setMinimumHeight(15);
+				jjSlitLayout_->addWidget(jjSlitsRight_,1,2,1,1);
+
+
+
+
+
+			jjSlitGroupBox_->setLayout(jjSlitLayout_);
+
 
 
 	connect(IDEASBeamline::bl()->exposedControlByName("ringCurrent"), SIGNAL(valueChanged(double)), this, SLOT(onRingCurrentChanged(double)));
@@ -203,19 +240,7 @@ IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
 	mainPanelLayout->addWidget(monoCrystal_);
 	mainPanelLayout->addWidget(monoEnergyRange_);
 	mainPanelLayout->addStretch();
-
-	QGroupBox *jjSlitsPanel = new QGroupBox("Sample Slits");
-	QGridLayout *jjSlitsButtons = new QGridLayout;
-	jjSlitsButtons->addWidget(jjSlitsVertOpen_,0,0);
-	jjSlitsButtons->addWidget(jjSlitsVertClose_,1,0);
-	jjSlitsButtons->addWidget(jjSlitsHorizOpen_,0,1);
-	jjSlitsButtons->addWidget(jjSlitsHorizClose_,1,1);
-	jjSlitsButtons->addWidget(jjSlitsUp_,0,3);
-	jjSlitsButtons->addWidget(jjSlitsDown_,1,3);
-	jjSlitsButtons->addWidget(jjSlitsLeft_,0,4);
-	jjSlitsButtons->addWidget(jjSlitsRight_,1,4);
-	jjSlitsPanel->setLayout(jjSlitsButtons);
-
+	mainPanelLayout->addWidget(stripTool_);
 
 	QVBoxLayout *scalerPanelLayout = new QVBoxLayout;
 	scalerPanelLayout->addWidget(new IDEASScalerView());
@@ -230,7 +255,7 @@ IDEASPersistentView::IDEASPersistentView(QWidget *parent) :
 	QVBoxLayout *layout = new QVBoxLayout;
 	layout->addWidget(persistentPanel);
 
-	layout->addWidget(jjSlitsPanel);
+	layout->addWidget(jjSlitGroupBox_);
 	layout->addWidget(scalerPanel);
 
 	setLayout(layout);

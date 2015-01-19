@@ -124,6 +124,31 @@ protected slots:
 	void onOldRealAttoZStatusControlChanged();
 	void onOldRealAttoYStatusControlChanged();
 
+	// Atto rotation Rx, Rz, Ry
+
+	void onOldAttoRxSetpointControlChanged();
+	void onOldAttoRxFeedbackControlChanged();
+
+	void onOldAttoRzSetpointControlChanged();
+	void onOldAttoRzFeedbackControlChanged();
+
+	void onOldAttoRySetpointControlChanged();
+	void onOldAttoRyFeedbackControlChanged();
+
+	void onAddOnsAttoRxSetpointControlChanged();
+	void onAddOnsAttoRzSetpointControlChanged();
+	void onAddOnsAttoRySetpointControlChanged();
+
+	void restoreAddOnsAttoRxStatus();
+	void restoreAddOnsAttoRzStatus();
+	void restoreAddOnsAttoRyStatus();
+
+	// Atto rotation low level status
+
+	void onOldRealAttoRxStatusControlChanged();
+	void onOldRealAttoRzStatusControlChanged();
+	void onOldRealAttoRyStatusControlChanged();
+
 	// Wire H, V, N
 
 	void onOldWireHSetpointControlChanged();
@@ -257,6 +282,35 @@ protected:
 	AMReadOnlyPVControl *oldRealAttoXStatusControl_;
 	AMReadOnlyPVControl *oldRealAttoYStatusControl_;
 	AMReadOnlyPVControl *oldRealAttoZStatusControl_;
+
+	// Atto rotation controls
+
+	AMSinglePVControl *oldAttoRxSetpointControl_;
+	AMReadOnlyPVControl *oldAttoRxFeedbackControl_;
+
+	AMSinglePVControl *oldAttoRzSetpointControl_;
+	AMReadOnlyPVControl *oldAttoRzFeedbackControl_;
+
+	AMSinglePVControl *oldAttoRySetpointControl_;
+	AMReadOnlyPVControl *oldAttoRyFeedbackControl_;
+
+	AMSinglePVControl *addOnsAttoRxSetpointControl_;
+	AMSinglePVControl *addOnsAttoRxFeedbackControl_;
+	AMSinglePVControl *addOnsAttoRxStatusControl_;
+
+	AMSinglePVControl *addOnsAttoRzSetpointControl_;
+	AMSinglePVControl *addOnsAttoRzFeedbackControl_;
+	AMSinglePVControl *addOnsAttoRzStatusControl_;
+
+	AMSinglePVControl *addOnsAttoRySetpointControl_;
+	AMSinglePVControl *addOnsAttoRyFeedbackControl_;
+	AMSinglePVControl *addOnsAttoRyStatusControl_;
+
+	// Atto rotation low level status
+
+	AMReadOnlyPVControl *oldRealAttoRxStatusControl_;
+	AMReadOnlyPVControl *oldRealAttoRyStatusControl_;
+	AMReadOnlyPVControl *oldRealAttoRzStatusControl_;
 
 	// Wire H, V, N
 

@@ -27,6 +27,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/AMAdvancedControlDetectorEmulator.h"
 
+#include "actions3/AMActionSupport.h"
+
 IDEASBeamline::IDEASBeamline()
 	: AMBeamline("IDEAS Beamline")
 {
@@ -59,6 +61,26 @@ void IDEASBeamline::setupSampleStage()
 
 void IDEASBeamline::setupMotorGroup()
 {
+	AMMotorGroupObject *motorObject = 0;
+	motorGroup_ = new AMMotorGroup(this);
+	motorObject = new AMMotorGroupObject("Sample Platform",
+							       QStringList() << "X" << "Y",
+							       QStringList() << "mm" << "mm",
+							       QList<AMControl*>() << samplePlatformHorizontal_ << samplePlatformVertical_,
+							       QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Horizontal << AMMotorGroupObject::Vertical,
+							       QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational,
+							       this);
+	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
+
+	motorObject = new AMMotorGroupObject("Vacuum Stage",
+							       QStringList() << "Z",
+							       QStringList() << "mm",
+							       QList<AMControl*>() << vacuumSampleStage_,
+							       QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Vertical,
+							       QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Translational,
+							       this);
+	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
+
 
 }
 
@@ -119,10 +141,10 @@ void IDEASBeamline::setupComponents()
 	safetyShutter2_ = new CLSBiStateControl("SOE Safety Shutter", "The safety shutter for the SOE.", "SSH1608-9-B20-01:state", "SSH1608-9-B20-01:opr:open", "SSH1608-9-B20-01:opr:close", new AMControlStatusCheckerDefault(2), this);
 	photonShutter2_ = new CLSBiStateControl("Photon Shutter 2", "The second photon shutter for the beamline.The primary safety shutter for the beamline.", "PSH1409-B20-02:state", "PSH1409-B20-02:opr:open", "PSH1409-B20-02:opr:close", new AMControlStatusCheckerDefault(2), this);
 
-	jjSlitHGap_ = new AMPVwStatusControl("JJ Slit Horizontal Gap","SMTR1608-10-B20-01:mm:sp","SMTR1608-10-B20-01:mm","SMTR1608-10-B20-01:status","SMTR1608-10-B20-01:stop",this,0.1);
-	jjSlitHCenter_ = new AMPVwStatusControl("JJ Slit Horizontal Center","SMTR1608-10-B20-02:mm:sp","SMTR1608-10-B20-02:mm","SMTR1608-10-B20-02:status","SMTR1608-10-B20-02:stop",this,0.1);
-	jjSlitVGap_ = new AMPVwStatusControl("JJ Slit Vertical Gap","SMTR1608-10-B20-03:mm:sp","SMTR1608-10-B20-03:mm","SMTR1608-10-B20-03:status","SMTR1608-10-B20-03:stop",this,0.1);
-	jjSlitVCenter_ = new AMPVwStatusControl("JJ Slit Vertical Center","SMTR1608-10-B20-04:mm:sp","SMTR1608-10-B20-04:mm","SMTR1608-10-B20-04:status","SMTR1608-10-B20-04:stop",this,0.1);
+	jjSlitHGap_ = new AMPVwStatusControl("Sample Slit Width","SMTR1608-10-B20-01:mm:sp","SMTR1608-10-B20-01:mm","SMTR1608-10-B20-01:status","SMTR1608-10-B20-01:stop",this,0.1);
+	jjSlitHCenter_ = new AMPVwStatusControl("Horizontal Center","SMTR1608-10-B20-02:mm:sp","SMTR1608-10-B20-02:mm","SMTR1608-10-B20-02:status","SMTR1608-10-B20-02:stop",this,0.1);
+	jjSlitVGap_ = new AMPVwStatusControl("Sample Slit Height","SMTR1608-10-B20-03:mm:sp","SMTR1608-10-B20-03:mm","SMTR1608-10-B20-03:status","SMTR1608-10-B20-03:stop",this,0.1);
+	jjSlitVCenter_ = new AMPVwStatusControl("Vertical Center","SMTR1608-10-B20-04:mm:sp","SMTR1608-10-B20-04:mm","SMTR1608-10-B20-04:status","SMTR1608-10-B20-04:stop",this,0.1);
 
 	connect(safetyShutter_, SIGNAL(stateChanged(int)), this, SLOT(onShutterStatusChanged()));
 	connect(safetyShutter2_, SIGNAL(stateChanged(int)), this, SLOT(onShutterStatusChanged()));
@@ -194,26 +216,16 @@ AMAction3 *IDEASBeamline::createBeamOnAction() const
 	// The correct order for turning the beam on is turning on the safety shutter and then the second photon shutter.
 	AMSequentialListAction3 *beamOnAction = new AMSequentialListAction3(new AMSequentialListActionInfo3("The beam on action.", "The beam on action."));
 
-	AMControlInfo setpoint = safetyShutter_->toInfo();
-	setpoint.setValue(1);
-	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
-	AMControlMoveAction3 *action = new AMControlMoveAction3(actionInfo, safetyShutter_);
-	beamOnAction->addSubAction(action);
+    AMAction3 *safetyShutterAction = AMActionSupport::buildControlMoveAction(safetyShutter_, 1);
+    beamOnAction->addSubAction(safetyShutterAction);
 
-	setpoint = photonShutter2_->toInfo();
-	setpoint.setValue(1);
-	actionInfo = new AMControlMoveActionInfo3(setpoint);
-	action = new AMControlMoveAction3(actionInfo, photonShutter2_);
-	beamOnAction->addSubAction(action);
+    AMAction3 *photonShutter2Action = AMActionSupport::buildControlMoveAction(photonShutter2_, 1);
+    beamOnAction->addSubAction(photonShutter2Action);
 
-	setpoint = safetyShutter2_->toInfo();
-	setpoint.setValue(1);
-	actionInfo = new AMControlMoveActionInfo3(setpoint);
-	action = new AMControlMoveAction3(actionInfo, safetyShutter2_);
-	beamOnAction->addSubAction(action);
+    AMAction3 *safetyShutter2Action = AMActionSupport::buildControlMoveAction(safetyShutter2_, 1);
+    beamOnAction->addSubAction(safetyShutter2Action);
 
-
-	return beamOnAction;
+    return beamOnAction;
 }
 
 AMAction3 *IDEASBeamline::createBeamOffAction() const
@@ -221,11 +233,8 @@ AMAction3 *IDEASBeamline::createBeamOffAction() const
 	// The correct order for turning the beam off is turning off the second photon shutter and then the safety shutter.
 	AMSequentialListAction3 *beamOffAction = new AMSequentialListAction3(new AMSequentialListActionInfo3("The beam off action.", "The beam off action."));
 
-	AMControlInfo setpoint = safetyShutter2_->toInfo();
-	setpoint.setValue(0);
-	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
-	AMControlMoveAction3 *action = new AMControlMoveAction3(actionInfo, safetyShutter2_);
-	beamOffAction->addSubAction(action);
+    AMAction3 *safetyShutter2Action = AMActionSupport::buildControlMoveAction(safetyShutter2_, 0);
+    beamOffAction->addSubAction(safetyShutter2Action);
 
 	return beamOffAction;
 }

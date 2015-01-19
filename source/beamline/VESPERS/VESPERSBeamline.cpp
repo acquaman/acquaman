@@ -29,6 +29,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/AM1DControlDetectorEmulator.h"
 #include "beamline/CLS/CLSStorageRing.h"
 #include "beamline/AMScalerTimeControlDetector.h"
+#include "actions3/AMActionSupport.h"
 
 VESPERSBeamline::VESPERSBeamline()
 	: AMBeamline("VESPERS Beamline")
@@ -228,13 +229,22 @@ void VESPERSBeamline::setupSampleStage()
 //	attoStageX_ = new CLSPseudoMotorControl("Atto X Stage", "BL1607-B2-1:AddOns:AttoStage:X:mm:fbk", "BL1607-B2-1:AddOns:AttoStage:X:mm", "BL1607-B2-1:AddOns:AttoStage:X:status", "TS1607-2-B21-07:XYZ:stop.PROC", this, 0.01, 10.0);
 //	attoStageZ_ = new CLSPseudoMotorControl("Atto Z Stage", "BL1607-B2-1:AddOns:AttoStage:Z:mm:fbk", "BL1607-B2-1:AddOns:AttoStage:Z:mm", "BL1607-B2-1:AddOns:AttoStage:Z:status", "TS1607-2-B21-07:XYZ:stop.PROC", this, 0.01, 10.0);
 //	attoStageY_ = new CLSPseudoMotorControl("Atto Y Stage", "BL1607-B2-1:AddOns:AttoStage:Y:mm:fbk", "BL1607-B2-1:AddOns:AttoStage:Y:mm", "BL1607-B2-1:AddOns:AttoStage:Y:status", "TS1607-2-B21-07:XYZ:stop.PROC", this, 0.01, 10.0);
-	attoStageX_ = new AMPVwStatusControl("Atto X Stage", "BL1607-B2-1:AddOns:AttoStage:X:mm", "BL1607-B2-1:AddOns:AttoStage:X:mm", "BL1607-B2-1:AddOns:AttoStage:X:status", "TS1607-2-B21-07:XYZ:stop.PROC", this, 0.01, 10.0);
-	attoStageZ_ = new AMPVwStatusControl("Atto Z Stage", "BL1607-B2-1:AddOns:AttoStage:Z:mm", "BL1607-B2-1:AddOns:AttoStage:Z:mm", "BL1607-B2-1:AddOns:AttoStage:Z:status", "TS1607-2-B21-07:XYZ:stop.PROC", this, 0.01, 10.0);
-	attoStageY_ = new AMPVwStatusControl("Atto Y Stage", "BL1607-B2-1:AddOns:AttoStage:Y:mm", "BL1607-B2-1:AddOns:AttoStage:Y:mm", "BL1607-B2-1:AddOns:AttoStage:Y:status", "TS1607-2-B21-07:XYZ:stop.PROC", this, 0.01, 10.0);
+//	attoStageX_ = new AMPVwStatusControl("Atto X Stage", "BL1607-B2-1:AddOns:AttoStage:X:mm", "BL1607-B2-1:AddOns:AttoStage:X:mm", "BL1607-B2-1:AddOns:AttoStage:X:status", "TS1607-2-B21-07:XYZ:stop.PROC", this, 0.005, 10.0);
+//	attoStageZ_ = new AMPVwStatusControl("Atto Z Stage", "BL1607-B2-1:AddOns:AttoStage:Z:mm", "BL1607-B2-1:AddOns:AttoStage:Z:mm", "BL1607-B2-1:AddOns:AttoStage:Z:status", "TS1607-2-B21-07:XYZ:stop.PROC", this, 0.005, 10.0);
+//	attoStageY_ = new AMPVwStatusControl("Atto Y Stage", "BL1607-B2-1:AddOns:AttoStage:Y:mm", "BL1607-B2-1:AddOns:AttoStage:Y:mm", "BL1607-B2-1:AddOns:AttoStage:Y:status", "TS1607-2-B21-07:XYZ:stop.PROC", this, 0.005, 10.0);
+	attoStageX_ = new AMPVControl("Atto X Stage", "BL1607-B2-1:AddOns:AttoStage:X:mm", "BL1607-B2-1:AddOns:AttoStage:X:mm", "TS1607-2-B21-07:XYZ:stop.PROC", this, 0.002, 30.0);
+	attoStageZ_ = new AMPVControl("Atto Z Stage", "BL1607-B2-1:AddOns:AttoStage:Z:mm", "BL1607-B2-1:AddOns:AttoStage:Z:mm", "TS1607-2-B21-07:XYZ:stop.PROC", this, 0.002, 30.0);
+	attoStageY_ = new AMPVControl("Atto Y Stage", "BL1607-B2-1:AddOns:AttoStage:Y:mm", "BL1607-B2-1:AddOns:AttoStage:Y:mm", "TS1607-2-B21-07:XYZ:stop.PROC", this, 0.002, 30.0);
 
-	attoStageRz_ = new AMPVwStatusControl("Atto Phi Stage (Rz)", "SVM1607-2-B21-09:deg:sp", "SVM1607-2-B21-09:deg", "SVM1607-2-B21-09:status", "SVM1607-2-B21-09:stop.PROC", this, 0.01, 10.0);
-	attoStageRy_ = new AMPVwStatusControl("Atto Theta Stage (Ry)", "SVM1607-2-B21-07:deg:sp", "SVM1607-2-B21-07:deg", "SVM1607-2-B21-07:status", "SVM1607-2-B21-07:stop.PROC", this, 0.01, 10.0);
-	attoStageRx_ = new AMPVwStatusControl("Atto Psi Stage (Rx)", "SVM1607-2-B21-08:deg:sp", "SVM1607-2-B21-08:deg", "SVM1607-2-B21-08:status", "SVM1607-2-B21-08:stop.PROC", this, 0.01, 10.0);
+//	attoStageRz_ = new AMPVwStatusControl("Atto Phi Stage (Rz)", "SVM1607-2-B21-09:deg:sp", "SVM1607-2-B21-09:deg", "SVM1607-2-B21-09:status", "SVM1607-2-B21-09:stop.PROC", this, 0.01, 10.0);
+//	attoStageRy_ = new AMPVwStatusControl("Atto Theta Stage (Ry)", "SVM1607-2-B21-07:deg:sp", "SVM1607-2-B21-07:deg", "SVM1607-2-B21-07:status", "SVM1607-2-B21-07:stop.PROC", this, 0.01, 10.0);
+//	attoStageRx_ = new AMPVwStatusControl("Atto Psi Stage (Rx)", "SVM1607-2-B21-08:deg:sp", "SVM1607-2-B21-08:deg", "SVM1607-2-B21-08:status", "SVM1607-2-B21-08:stop.PROC", this, 0.01, 10.0);
+//	attoStageRz_ = new AMPVwStatusControl("Atto Phi Stage (Rz)", "BL1607-B2-1:AddOns:AttoStage:Rz:deg:fbk", "BL1607-B2-1:AddOns:AttoStage:Rz:deg", "BL1607-B2-1:AddOns:AttoStage:Rz:status", "SVM1607-2-B21-09:stop.PROC", this, 0.01, 10.0);
+//	attoStageRy_ = new AMPVwStatusControl("Atto Theta Stage (Ry)", "BL1607-B2-1:AddOns:AttoStage:Ry:deg:fbk", "BL1607-B2-1:AddOns:AttoStage:Ry:deg", "BL1607-B2-1:AddOns:AttoStage:Ry:status", "SVM1607-2-B21-07:stop.PROC", this, 0.01, 10.0);
+//	attoStageRx_ = new AMPVwStatusControl("Atto Psi Stage (Rx)", "BL1607-B2-1:AddOns:AttoStage:Rx:deg:fbk", "BL1607-B2-1:AddOns:AttoStage:Rx:deg", "BL1607-B2-1:AddOns:AttoStage:Rx:status", "SVM1607-2-B21-08:stop.PROC", this, 0.01, 10.0);
+	attoStageRz_ = new AMPVControl("Atto Phi Stage (Rz)", "BL1607-B2-1:AddOns:AttoStage:Rz:deg:fbk", "BL1607-B2-1:AddOns:AttoStage:Rz:deg", "SVM1607-2-B21-09:stop.PROC", this, 0.001, 30.0);
+	attoStageRy_ = new AMPVControl("Atto Theta Stage (Ry)", "BL1607-B2-1:AddOns:AttoStage:Ry:deg:fbk", "BL1607-B2-1:AddOns:AttoStage:Ry:deg", "SVM1607-2-B21-07:stop.PROC", this, 0.001, 30.0);
+	attoStageRx_ = new AMPVControl("Atto Psi Stage (Rx)", "BL1607-B2-1:AddOns:AttoStage:Rx:deg:fbk", "BL1607-B2-1:AddOns:AttoStage:Rx:deg", "SVM1607-2-B21-08:stop.PROC", this, 0.001, 30.0);
 
 	bigBeamX_ = new AMPVwStatusControl("Big Beam X", "SMTR1607-2-B21-36:mm:sp", "SMTR1607-2-B21-36:mm", "SMTR1607-2-B21-36:status", "SMTR1607-2-B21-36:stop.PROC", this, 0.01, 10.0);
 	bigBeamZ_ = new AMPVwStatusControl("Big Beam Z", "SMTR1607-2-B21-37:mm:sp", "SMTR1607-2-B21-37:mm", "SMTR1607-2-B21-37:status", "SMTR1607-2-B21-37:stop.PROC", this, 0.01, 10.0);
@@ -901,13 +911,9 @@ AMAction3 *VESPERSBeamline::createBeamChangeAction(VESPERS::Beam beam)
 	 */
 
 	AMListAction3 *changeBeamAction = new AMSequentialListAction3(new AMSequentialListActionInfo3("Change Beam Action", "Does all the necessary work to switch beams by ensuring all steps are done correctly."));
-	changeBeamAction->addSubAction(mono()->createAllowScanningAction(false));
 
-	AMControlInfo setpoint = beamSelectionMotor_->toInfo();
-	setpoint.setValue(beamPositions_.value(beam));
-	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
-	AMAction3 *action = new AMControlMoveAction3(actionInfo, beamSelectionMotor_);
-	changeBeamAction->addSubAction(action);
+    changeBeamAction->addSubAction(mono()->createAllowScanningAction(false));
+    changeBeamAction->addSubAction(AMActionSupport::buildControlMoveAction(beamSelectionMotor_, (beamPositions_.value(beam))));
 
 	if (beam != VESPERS::Pink)
 		changeBeamAction->addSubAction(mono()->createAllowScanningAction(true));
@@ -920,23 +926,9 @@ AMAction3 *VESPERSBeamline::createBeamOnAction()
 	// The correct order for turning the beam on is turning on the safety shutter and then the second photon shutter.
 	AMSequentialListAction3 *beamOnAction = new AMSequentialListAction3(new AMSequentialListActionInfo3("The beam on action.", "The beam on action."));
 
-	AMControlInfo setpoint = safetyShutter1_->toInfo();
-	setpoint.setValue(1);
-	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
-	AMControlMoveAction3 *action = new AMControlMoveAction3(actionInfo, safetyShutter1_);
-	beamOnAction->addSubAction(action);
-
-	setpoint = photonShutter2_->toInfo();
-	setpoint.setValue(1);
-	actionInfo = new AMControlMoveActionInfo3(setpoint);
-	action = new AMControlMoveAction3(actionInfo, photonShutter2_);
-	beamOnAction->addSubAction(action);
-
-	setpoint = safetyShutter2_->toInfo();
-	setpoint.setValue(1);
-	actionInfo = new AMControlMoveActionInfo3(setpoint);
-	action = new AMControlMoveAction3(actionInfo, safetyShutter2_);
-	beamOnAction->addSubAction(action);
+    beamOnAction->addSubAction(AMActionSupport::buildControlMoveAction(safetyShutter1_, 1));
+    beamOnAction->addSubAction(AMActionSupport::buildControlMoveAction(photonShutter2_, 1));
+    beamOnAction->addSubAction(AMActionSupport::buildControlMoveAction(safetyShutter2_, 1));
 
 	return beamOnAction;
 }
@@ -944,12 +936,10 @@ AMAction3 *VESPERSBeamline::createBeamOnAction()
 AMAction3 *VESPERSBeamline::createBeamOffAction()
 {
 	// The correct order for turning the beam off is turning off the second photon shutter and then the safety shutter.
-	AMControlInfo setpoint = safetyShutter2_->toInfo();
-	setpoint.setValue(0);
-	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
-	AMControlMoveAction3 *beamOffAction = new AMControlMoveAction3(actionInfo, safetyShutter2_);
 
-	return beamOffAction;
+    ///should this close photon shutter too?
+
+    return AMActionSupport::buildControlMoveAction(safetyShutter2_, 0);
 }
 
 void VESPERSBeamline::determineBeam()

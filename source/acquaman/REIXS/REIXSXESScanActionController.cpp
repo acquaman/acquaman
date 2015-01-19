@@ -491,7 +491,7 @@ void REIXSXESScanActionController::writeDataToFiles()
 	// This required a vertical mirroring and indexing vertically rather than horizontally.  I don't really like it, but you can't argue with working.
 	for (int j = mcpDataSize.j() - 1, jSize = j+1; j >= 0; j--)
 		for (int i = 0, iSize = mcpDataSize.i(); i < iSize; i++)
-			rank1String.append(QString("%1%2").arg(int(mcpData.at(j+i*jSize))).arg(i == (iSize-1) ? "\n" : "\t"));
+			rank1String.append(QString("%1%2").arg(double(mcpData.at(j+i*jSize)), 0, 'g', 19).arg(i == (iSize-1) ? "\n" : "\t"));
 
 	// Next is the total counts.
 	rank1String.append(QString("%1").arg(int(scan_->rawDataSources()->at(1)->value(AMnDIndex()))));

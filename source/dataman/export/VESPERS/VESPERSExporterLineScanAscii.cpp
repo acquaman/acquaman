@@ -57,6 +57,7 @@ QString VESPERSExporterLineScanAscii::exportScan(const AMScan *scan, const QStri
 
 	// prepare export file
 	mainFileName_ = parseKeywordString( destinationFolderPath % "/" % option->fileName() );
+	mainFileName_ = removeNonPrintableCharacters(mainFileName_);
 
 	if(!openFile(mainFileName_)) {
 		AMErrorMon::report(AMErrorReport(this, AMErrorReport::Alert, -3, "Export failed: Could not open the file '" % mainFileName_ % "' for writing.  Check that you have permission to save files there, and that a file with that name doesn't already exists."));

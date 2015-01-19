@@ -298,12 +298,12 @@ void AMTimedScanActionController::writeDataToFiles()
 	QTime startTime  = QTime::currentTime();
 	*/
 
-	rank1String.append(QString("%1 ").arg((double)scan_->rawDataSources()->at(0)->axisValue(0, currentAxisValueIndex_.i())));
+	rank1String.append(QString("%1 ").arg((double)scan_->rawDataSources()->at(0)->axisValue(0, currentAxisValueIndex_.i()), 0, 'g', 19));
 
 	foreach (AMRawDataSource *oneRawDataSource, scan_->rawDataSources()->toList()){
 
 		if (oneRawDataSource->rank() == 1)
-			rank1String.append(QString("%1 ").arg((double)oneRawDataSource->value(currentAxisValueIndex_)));
+			rank1String.append(QString("%1 ").arg((double)oneRawDataSource->value(currentAxisValueIndex_), 0, 'g', 19));
 
 		if (oneRawDataSource->rank() == 2){
 
@@ -314,7 +314,7 @@ void AMTimedScanActionController::writeDataToFiles()
 			oneRawDataSource->values(startIndex, endIndex, outputValues);
 
 			for(int y = 0; y < dataSourceSize; y++)
-				rank2String.append(QString("%1 ").arg(outputValues[y]));
+				rank2String.append(QString("%1 ").arg(outputValues[y], 0, 'g', 19));
 
 			rank2String.append("\n");
 		}
