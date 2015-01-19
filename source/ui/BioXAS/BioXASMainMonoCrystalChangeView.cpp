@@ -155,6 +155,8 @@ bool BioXASMainMonoCrystalChangeView::startCrystalChange()
 
     if (actionsView_->actions())
         result = actionsView_->actions()->start();
+    else
+        qDebug() << "No crystal change actions provided.";
 
     return result;
 }
