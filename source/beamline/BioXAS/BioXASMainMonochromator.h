@@ -119,8 +119,10 @@ public:
     AMAction3* createWaitForBrakeEnabledAction();
     /// Returns a new action that sets the crystal stage to the given absolute destination angle.
     AMAction3* createMoveStageAction(double degDestination);
+    /// Returns a new action that waits for the mono to move into a new region.
+    AMAction3* createWaitForMoveToNewRegion(BioXASMainMonochromator::Region destinationRegion);
     /// Returns a new actions that waits for the mono to reach a given destination.
-    AMAction3* createWaitForStageMoveComplete(double degDestination);
+//    AMAction3* createWaitForStageMoveComplete(double degDestination);
     /// Returns a new action that waits for the region key to be turned CW to Disabled, 0 if not connected.
     AMAction3* createWaitForCrystalChangeDisabledAction();
     /// Returns a new crystal change action, 0 if not connected.
