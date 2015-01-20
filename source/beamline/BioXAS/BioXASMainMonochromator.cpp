@@ -259,7 +259,7 @@ AMAction3* BioXASMainMonochromator::createWaitForCrystalChangeMotorLimitReached(
         AMControlInfo setpoint = crystalChangeMotorCWLimit_->toInfo();
         setpoint.setValue(1);
 
-        action = new AMControlWaitAction(new AMControlWaitActionInfo(setpoint, 30), crystalChangeMotorCWLimit_);
+        action = new AMControlWaitAction(new AMControlWaitActionInfo(setpoint, 60, AMControlWaitActionInfo::MatchEqual), crystalChangeMotorCWLimit_);
         action->info()->setShortDescription("Waiting for move to crystal change motor CW limit...");
         action->info()->setLongDescription("");
 
@@ -267,7 +267,7 @@ AMAction3* BioXASMainMonochromator::createWaitForCrystalChangeMotorLimitReached(
         AMControlInfo setpoint = crystalChangeMotorCCWLimit_->toInfo();
         setpoint.setValue(1);
 
-        action = new AMControlWaitAction(new AMControlWaitActionInfo(setpoint, 30), crystalChangeMotorCCWLimit_);
+        action = new AMControlWaitAction(new AMControlWaitActionInfo(setpoint, 60, AMControlWaitActionInfo::MatchEqual), crystalChangeMotorCCWLimit_);
         action->info()->setShortDescription("Waiting for move to crystal change motor CCW limit...");
         action->info()->setLongDescription("");
     }
@@ -353,7 +353,7 @@ AMAction3* BioXASMainMonochromator::createWaitForCrystalChangeDisabledAction()
     AMControlInfo setpoint = crystalChangeEnabled_->toInfo();
     setpoint.setValue(0);
 
-    AMControlWaitAction *action = new AMControlWaitAction(new AMControlWaitActionInfo(setpoint), crystalChangeEnabled_);
+    AMControlWaitAction *action = new AMControlWaitAction(new AMControlWaitActionInfo(setpoint, 130, AMControlWaitActionInfo::MatchEqual), crystalChangeEnabled_);
     action->info()->setShortDescription("Disable crystal change.");
     action->info()->setLongDescription("Turn crystal change status key to 'Disabled', clockwise.");
 
@@ -398,6 +398,9 @@ AMAction3* BioXASMainMonochromator::createCrystalChangeAction()
         AMAction3 *fromCrystalChangePosition = createMoveCrystalChangeMotorAction(crystalChangeMotorDestination);
         AMAction3 *waitForCrystalChangeMotorLimitReached = createWaitForCrystalChangeMotorLimitReached(false);
         AMAction3 *waitForBrakeEnabled = createWaitForBrakeEnabledAction();
+
+//        AMAction3 *waitForBraggLimitChanged
+
         AMAction3 *toNewRegion = createMoveStageAction(newRegionDestination);
         AMAction3 *waitForMoveToNewRegion = createWaitForMoveToNewRegion(newRegion);
         AMAction3 *waitForKeyTurnedCW = createWaitForCrystalChangeDisabledAction();
