@@ -35,13 +35,17 @@ public:
     /// Returns true if crystal change (key status) is enabled, false if disabled.
     bool crystalChangeEnabled() const { return ((int)crystalChangeEnabled_->value() == 1); }
     /// Returns true if the crystal stage is at the change position, false otherwise.
-    bool atCrystalChangePosition() const { return ((int)atCrystalChangePosition_->value() == 0); }
+    bool atCrystalChangePosition() const { return ((int)atCrystalChangePosition_->value() == 1); }
     /// Returns true if the brake is enabled, false otherwise.
     bool brakeEnabled() const { return ((int)crystalChangeBrakeEnabled_->value() == 1); }
     /// Returns true if the crystal change motor is at clockwise limit.
-    bool crystalChangeMotorAtCWLimit() const { return ((int)crystalChangeMotorCWLimit_->value() == 0); }
+    bool crystalChangeMotorAtCWLimit() const { return ((int)crystalChangeMotorCWLimit_->value() == 1); }
     /// Returns true if the crystal change motor is at the counterclockwise limit.
-    bool crystalChangeMotorAtCCWLimit() const { return ((int)crystalChangeMotorCCWLimit_->value() == 0); }
+    bool crystalChangeMotorAtCCWLimit() const { return ((int)crystalChangeMotorCCWLimit_->value() == 1); }
+    /// Returns true if the bragg motor is at the clockwise limit.
+    bool braggMotorAtCWLimit() const { return ((int)braggMotorCWLimit_->value() == 1); }
+    /// Returns true if the bragg motor is at the counterclockwise limit.
+    bool braggMotorAtCCWLimit() const { return ((int)braggMotorCCWLimit_->value() == 1); }
     /// Returns the energy setpoint.
     double energySetpoint() const { return energy_->setpoint(); }
     /// Returns the energy feedback.
@@ -82,6 +86,10 @@ public:
     AMControl* crystalStageCWLimitStatusControl() const { return crystalChangeMotorCWLimit_; }
     /// Returns the crystal stage counterclockwise limit control.
     AMControl* crystalStageCCWLimitStatusControl() const { return crystalChangeMotorCCWLimit_; }
+    /// Returns the bragg motor clockwise limit control.
+    AMControl* braggMotorCWLimitStatusControl() const { return braggMotorCWLimit_; }
+    /// Returns the bragg motor counterclockwise limit control.
+    AMControl* braggMotorCCWLimitStatusControl() const { return braggMotorCCWLimit_; }
     /// Returns the crystal change brake enabled control.
     AMControl* brakeEnabledStatusControl() const { return crystalChangeBrakeEnabled_; }
     /// Returns the region A status control.
@@ -117,6 +125,8 @@ public:
     AMAction3* createWaitForCrystalChangeMotorLimitReached(bool cwLimit);
     /// Returns a new action that waits for the brake to be turned on, 0 if not connected.
     AMAction3* createWaitForBrakeEnabledAction();
+    /// Returns a new action that waits for the bragg motor to reach a limit.
+    AMAction3* createWaitForBraggMotorLimitReachedAction(bool cwLimit);
     /// Returns a new action that sets the crystal stage to the given absolute destination angle.
     AMAction3* createMoveStageAction(double degDestination);
     /// Returns a new action that waits for the mono to move into a new region.
@@ -218,6 +228,8 @@ protected:
     AMControl* crystalChangeMotorRel_;
     AMControl* crystalChangeMotorCWLimit_;
     AMControl* crystalChangeMotorCCWLimit_;
+    AMControl* braggMotorCWLimit_;
+    AMControl* braggMotorCCWLimit_;
     AMControl* regionAStatus_;
     AMControl* regionBStatus_;
     AMControl* energy_;

@@ -46,6 +46,8 @@ BioXASMainMonochromator::BioXASMainMonochromator(QObject *parent) :
     crystalChangeMotorRel_ = new AMPVControl("CrystalChangeMotorRelative", "SMTR1607-5-I21-22:step:sp", "SMTR1607-5-I21-22:step:rel", QString(), this);
     crystalChangeMotorCWLimit_ = new AMReadOnlyPVControl("CrystalChangeMotorCWLimit", "SMTR1607-5-I21-22:cw", this);
     crystalChangeMotorCCWLimit_ = new AMReadOnlyPVControl("CrystalChangeMotorCCWLimit", "SMTR1607-5-I21-22:ccw", this);
+    braggMotorCWLimit_ = new AMReadOnlyPVControl("BraggMotorCWLimit", "SMTR1607-5-I21-12:cw", this);
+    braggMotorCCWLimit_ = new AMReadOnlyPVControl("BraggMotorCCWLimit", "SMTR1607-5-I21-12:ccw", this);
     regionAStatus_ = new AMReadOnlyPVControl("RegionAStatus", "BL1607-5-I21:Mono:Region:A", this);
     regionBStatus_ = new AMReadOnlyPVControl("RegionBStatus", "BL1607-5-I21:Mono:Region:B", this);
     energy_ = new BioXASMainMonochromatorControl("EnergyEV", "BL1607-5-I21:Energy:EV:fbk", "BL1607-5-I21:Energy:EV", "BL1607-5-I21:Energy:status", QString("BL1607-5-I21:Energy:stop"), this);
@@ -290,6 +292,11 @@ AMAction3* BioXASMainMonochromator::createWaitForBrakeEnabledAction()
     action->info()->setLongDescription("Flip the brake switch to 'Enabled'.");
 
     return action;
+}
+
+AMAction3* BioXASMainMonochromator::createWaitForBraggMotorLimitReachedAction(bool cwLimit)
+{
+    return 0;
 }
 
 AMAction3* BioXASMainMonochromator::createMoveStageAction(double degDestination)
