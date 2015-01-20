@@ -43,7 +43,7 @@ BioXASMainMonochromator::BioXASMainMonochromator(QObject *parent) :
     atCrystalChangePosition_ = new AMReadOnlyPVControl("AtCrystalChangePosition", "BL1607-5-I21:Mono:XtalChangePos", this);
     crystalChangeBrakeEnabled_ = new AMReadOnlyPVControl("BrakeEnabled", "BL1607-5-I21:Mono:BrakeOff", this);
     stageMotorAbs_ = new AMPVControl("StageMotorAbsolute", "SMTR1607-5-I21-12:deg:fbk", "SMTR1607-5-I21-12:deg", QString(), this);
-    crystalChangeMotorRel_ = new AMPVControl("CrystalChangeMotorRelative", "SMTR1607-5-I21-22:step:rel", "SMTR1607-5-I21-22:step:sp", QString(), this);
+    crystalChangeMotorRel_ = new AMPVControl("CrystalChangeMotorRelative", "SMTR1607-5-I21-22:step:sp", "SMTR1607-5-I21-22:step:rel", QString(), this);
     crystalChangeMotorCWLimit_ = new AMReadOnlyPVControl("CrystalChangeMotorCWLimit", "SMTR1607-5-I21-22:cw", this);
     crystalChangeMotorCCWLimit_ = new AMReadOnlyPVControl("CrystalChangeMotorCCWLimit", "SMTR1607-5-I21-22:ccw", this);
     regionAStatus_ = new AMReadOnlyPVControl("RegionAStatus", "BL1607-5-I21:Mono:Region:A", this);
@@ -237,6 +237,8 @@ AMAction3* BioXASMainMonochromator::createMoveCrystalChangeMotorAction(int relDe
     if (!crystalChangeMotorRel_->isConnected())
         return 0;
 
+    qDebug() << "Entering createMoveCrystalChangeMotorAction.";
+
     AMControlInfo setpoint = crystalChangeMotorRel_->toInfo();
     setpoint.setValue(relDestination);
 
@@ -250,6 +252,8 @@ AMAction3* BioXASMainMonochromator::createMoveCrystalChangeMotorAction(int relDe
 AMAction3* BioXASMainMonochromator::createWaitForCrystalChangeMotorLimitReached(bool cwLimit)
 {
     AMControlWaitAction *action = 0;
+
+    qDebug() << "Entering createWaitForCrystalChangeMotorLimitReached.";
 
     if (cwLimit && crystalChangeMotorCWLimit_->isConnected()) {
         AMControlInfo setpoint = crystalChangeMotorCWLimit_->toInfo();
@@ -276,6 +280,8 @@ AMAction3* BioXASMainMonochromator::createWaitForBrakeEnabledAction()
     if (!crystalChangeBrakeEnabled_->isConnected())
         return 0;
 
+    qDebug() << "Entering createWaitForBrakeEnabledAction.";
+
     AMControlInfo setpoint = crystalChangeBrakeEnabled_->toInfo();
     setpoint.setValue(0);
 
@@ -290,6 +296,8 @@ AMAction3* BioXASMainMonochromator::createMoveStageAction(double degDestination)
 {
     if (!stageMotorAbs_->isConnected())
         return 0;
+
+    qDebug() << "Entering createMoveStageAction.";
 
     AMControlInfo setpoint = stageMotorAbs_->toInfo();
     setpoint.setValue(degDestination);
@@ -306,6 +314,8 @@ AMAction3* BioXASMainMonochromator::createWaitForMoveToNewRegion(BioXASMainMonoc
     AMAction3 *action = 0;
 
     if (regionAStatus_->isConnected() && regionBStatus_->isConnected() && region_ != destinationRegion) {
+
+        qDebug() << "Entering createWaitForMoveToNewRegion.";
 
         if (destinationRegion == A) {
             AMControlInfo setpoint = regionAStatus_->toInfo();
@@ -386,7 +396,7 @@ AMAction3* BioXASMainMonochromator::createCrystalChangeAction()
         AMAction3 *waitForAtCrystalChangePosition = createWaitForAtCrystalChangePositionAction();
         AMAction3 *waitForBrakeDisabled = createWaitForBrakeDisabledAction();
         AMAction3 *fromCrystalChangePosition = createMoveCrystalChangeMotorAction(crystalChangeMotorDestination);
-        AMAction3 *waitForCrystalChangeMotorLimitReached = createWaitForCrystalChangeMotorLimitReached(true);
+        AMAction3 *waitForCrystalChangeMotorLimitReached = createWaitForCrystalChangeMotorLimitReached(false);
         AMAction3 *waitForBrakeEnabled = createWaitForBrakeEnabledAction();
         AMAction3 *toNewRegion = createMoveStageAction(newRegionDestination);
         AMAction3 *waitForMoveToNewRegion = createWaitForMoveToNewRegion(newRegion);
