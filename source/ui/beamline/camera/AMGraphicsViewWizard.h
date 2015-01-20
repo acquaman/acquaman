@@ -165,6 +165,10 @@ public:
 	/// returns the list of rotations
 	virtual const QList<double>* getRotationList() const;
 
+	virtual const QList<QVector3D*>* actualPositionsList() const;
+
+	virtual const QList<double>* actualRotationsList() const;
+
 
 
 public slots:
@@ -181,7 +185,13 @@ public slots:
 	/// this is only relevant if rotation is enabled
 	virtual void setRotation(double rotation, int index);
 
+	virtual void setActualPosition(QVector3D actualPosition, int index);
+	/// append coordinates to the list
+	void actualPositionListAppend(QVector3D *actualPosition);
 
+	virtual void setActualRotation(double actualRotation, int index);
+	/// append coordinates to the list
+	void actualRotationListAppend(double actualRotation);
 
 	/// shows the help message.
 	/// if message is not reimplemented it will only
@@ -281,6 +291,11 @@ protected:
 
 	void copyView(AMSampleCameraGraphicsView* newView, AMSampleCameraGraphicsView* viewToCopy);
 
+	/// a list of coordinates we actually went to
+	QList<QVector3D*>* actualPositionsList_;
+
+	/// a list of rotations we actually went to
+	QList<double>* actualRotationsList_;
 
 
 private slots:

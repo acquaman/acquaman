@@ -764,25 +764,39 @@ void AMSampleCameraView::rotationConfiguration()
 {
 	QList<QPointF*> pointList = *wizardManager_->rotationWizard()->getPointList();
 	QList<QVector3D*> coordinateList = *wizardManager_->rotationWizard()->getCoordinateList();
+	QList<QVector3D*> actualPositionList = *wizardManager_->rotationWizard()->actualPositionsList();
 	QList<double> rotationList = *wizardManager_->rotationWizard()->getRotationList();
+	QList<double> actualRotationList = *wizardManager_->rotationWizard()->actualRotationsList();
 	int numberOfPoints = wizardManager_->rotationWizard()->numberOfPoints();
 	QVector<QVector3D> coordinates;
 	QVector<AMAngle *> rotations;
-	foreach (QVector3D *coordinate, coordinateList)
+
+//	foreach (QVector3D *coordinate, coordinateList)
+	foreach (QVector3D *actualPosition, actualPositionList)
 	{
-		coordinates<<*coordinate;
+//		coordinates<<*coordinate;
+		coordinates<<*actualPosition;
 	}
 
 	QVector<QPointF> points = QVector<QPointF>(pointList.count());
 	for(int i = 0, size = pointList.count(); i < size; i++)
 		points[i] = *(pointList.at(i));
 
-	foreach (double rotation, rotationList)
+//	foreach (double rotation, rotationList)
+	foreach (double actualRotation, actualRotationList)
 	{
-		rotations<<new AMAngle(rotation, AMAngle::DEG);/// in degrees, from motor coord
+//		rotations<<new AMAngle(rotation, AMAngle::DEG);/// in degrees, from motor coord
+		rotations<<new AMAngle(actualRotation, AMAngle::DEG);/// in degrees, from motor coord
 	}
 
-	if(pointList.count() != numberOfPoints || rotationList.count() != numberOfPoints)
+	for(int x = 0, size = coordinateList.count(); x < size; x++)
+		qDebug() << "Rotation request vs actual: " << coordinateList.at(x)->x() << coordinates.at(x).x() << fabs(coordinateList.at(x)->x() - coordinates.at(x).x())
+			 << coordinateList.at(x)->y() << coordinates.at(x).y() << fabs(coordinateList.at(x)->y() - coordinates.at(x).y())
+			 << coordinateList.at(x)->z() << coordinates.at(x).z() << fabs(coordinateList.at(x)->z() - coordinates.at(x).z())
+			 << rotationList.at(x) << rotations.at(x)->degrees() << fabs(rotationList.at(x) - rotations.at(x)->degrees());
+
+//	if(pointList.count() != numberOfPoints || rotationList.count() != numberOfPoints)
+	if(pointList.count() != numberOfPoints || actualPositionList.count() != numberOfPoints)
 		AMErrorMon::alert(this, AMSAMPLECAMERAVIEW_ROTATIONCONFIGURATION_INCORRECT_NUMBER_OF_POINTS, QString("A call to rotationConfiguration had an incorrect number of points. Count of point list: %1 Number of points: %2 Count of rotation list: %3").arg(pointList.count()).arg(numberOfPoints).arg(rotationList.count()) );
 
 	shapeModel_->configureRotation( coordinates, points, rotations, wizardManager_->rotationWizard()->numberOfPoints());
@@ -1102,6 +1116,13 @@ void AMSampleCameraView::reviewCameraConfiguration()
 	}
 
 	const QList<QVector3D*>* coordinateList = wizardManager_->cameraWizard()->getCoordinateList();
+	const QList<QVector3D*>* actualPositionList = wizardManager_->cameraWizard()->actualPositionsList();
+
+	for(int x = 0, size = coordinateList->count(); x < size; x++)
+		qDebug() << "Compare requested to actual: " << coordinateList->at(x)->x() << actualPositionList->at(x)->x() << fabs(coordinateList->at(x)->x() - actualPositionList->at(x)->x())
+			 << coordinateList->at(x)->y() << actualPositionList->at(x)->y() << fabs(coordinateList->at(x)->y() - actualPositionList->at(x)->y())
+			 << coordinateList->at(x)->z() << actualPositionList->at(x)->z()<< fabs(coordinateList->at(x)->z() - actualPositionList->at(x)->z());
+
 	QPointF positions[SAMPLEPOINTS];
 	QVector3D coordinates[SAMPLEPOINTS];
 	if(review)
@@ -1109,7 +1130,8 @@ void AMSampleCameraView::reviewCameraConfiguration()
 		for(int i = 0; i < SAMPLEPOINTS; i++)
 		{
 			positions[i] = mapPointToVideo(*pointList->at(i));
-			coordinates[i] = *coordinateList->at(i);
+//			coordinates[i] = *coordinateList->at(i);
+			coordinates[i] = *actualPositionList->at(i);
 		}
 		shapeModel_->findCamera(positions,coordinates);
 		shapeModel_->deleteCalibrationPoints();

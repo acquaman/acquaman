@@ -56,6 +56,10 @@ AMGraphicsViewWizard::AMGraphicsViewWizard(QWidget* parent)
 	coordinateList_->clear();
 	rotations_ = new QList<double>();
 	rotations_->clear();
+	actualPositionsList_= new QList<QVector3D*>();
+	actualPositionsList_->clear();
+	actualRotationsList_ = new QList<double>();
+	actualRotationsList_->clear();
 	showOptionPage_ = false;
 	optionsPage_ = -1;
 	motorMovementEnabled_ = false;
@@ -190,6 +194,26 @@ void AMGraphicsViewWizard::setRotation(double rotation, int index)
 {
 	if(rotations_->count() > index)
 		rotations_->replace(index,rotation);
+}
+
+void AMGraphicsViewWizard::setActualPosition(QVector3D actualPosition, int index){
+	if(actualPositionsList_->count() > index)
+		(*actualPositionsList_->at(index)) = actualPosition;
+}
+
+void AMGraphicsViewWizard::actualPositionListAppend(QVector3D *actualPosition)
+{
+	actualPositionsList_->append(actualPosition);
+}
+
+void AMGraphicsViewWizard::setActualRotation(double actualRotation, int index){
+	if(actualRotationsList_->count() > index)
+		actualRotationsList_->replace(index,actualRotation);
+}
+
+void AMGraphicsViewWizard::actualRotationListAppend(double actualRotation)
+{
+	actualRotationsList_->append(actualRotation);
 }
 
 /// defines text in one location
@@ -607,6 +631,16 @@ const QList<QPointF *> *AMGraphicsViewWizard::getPointList() const
 const QList<double> *AMGraphicsViewWizard::getRotationList() const
 {
 	return rotations();
+}
+
+const QList<QVector3D *> *AMGraphicsViewWizard::actualPositionsList() const
+{
+	return actualPositionsList_;
+}
+
+const QList<double> *AMGraphicsViewWizard::actualRotationsList() const
+{
+	return actualRotationsList_;
 }
 
 void AMGraphicsViewWizard::setMotorMovementEnabled(bool motorMovementEnabled)

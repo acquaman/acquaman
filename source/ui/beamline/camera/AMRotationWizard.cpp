@@ -26,6 +26,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QAbstractButton>
 #include <QDebug>
 
+#include "beamline/SGM/SGMBeamline.h"
+#include "beamline/SGM/SGMMAXvMotor.h"
+
 AMRotationWizard::AMRotationWizard(QWidget *parent)
 	: AMGraphicsViewWizard(parent)
 {
@@ -278,6 +281,10 @@ void AMRotationWizard::addPoint(QPointF position)
 		newPoint = pointList()->at(index);
 		QPointF newPosition = mapPointToVideo(position);
 		*newPoint = newPosition;
+
+		QVector3D *oneActualPosition = new QVector3D(SGMBeamline::sgm()->ssaManipulatorX()->value(), SGMBeamline::sgm()->ssaManipulatorY()->value(), SGMBeamline::sgm()->ssaManipulatorZ()->value());
+		actualPositionListAppend(oneActualPosition);
+		actualRotationListAppend(SGMBeamline::sgm()->ssaManipulatorRot()->value());
 
 		next();
 	}
