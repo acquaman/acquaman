@@ -6,6 +6,7 @@ BioXASMainMonochromatorCrystalChangeControl::BioXASMainMonochromatorCrystalChang
     // Initialize variables.
 
     mono_ = 0;
+    crystalChangeRunning_ = false;
 
     // Current settings.
 
@@ -25,7 +26,7 @@ void BioXASMainMonochromatorCrystalChangeControl::setMono(BioXASMainMonochromato
 
 void BioXASMainMonochromatorCrystalChangeControl::startCrystalChange()
 {
-    if (mono_) {
+    if (mono_ && !crystalChangeRunning_) {
         AMListAction3 *crystalChangeAction = qobject_cast<AMListAction3*>(mono_->createCrystalChangeAction());
 
         if (crystalChangeAction) {
@@ -38,10 +39,19 @@ void BioXASMainMonochromatorCrystalChangeControl::startCrystalChange()
             connect( crystalChangeAction, SIGNAL(destroyed()), this, SLOT(onCrystalChangeActionsFailed()) );
             connect( crystalChangeAction, SIGNAL(failed()), this, SLOT(onCrystalChangeActionsFailed()) );
 
+            // update crystal change action running status.
+            setCrystalChangeRunning(true);
+
             // begin crystal change.
             crystalChangeAction->start();
         }
     }
+}
+
+void BioXASMainMonochromatorCrystalChangeControl::setCrystalChangeRunning(bool isRunning)
+{
+    if (crystalChangeRunning_ != isRunning)
+        emit crystalChangeRunningChanged(crystalChangeRunning_ = isRunning);
 }
 
 void BioXASMainMonochromatorCrystalChangeControl::onCrystalChangeSubActionChanged(int actionIndex)
@@ -59,12 +69,14 @@ void BioXASMainMonochromatorCrystalChangeControl::onCrystalChangeSubActionChange
 void BioXASMainMonochromatorCrystalChangeControl::onCrystalChangeActionsSucceeded()
 {
     deleteAction(sender());
+    setCrystalChangeRunning(false);
     emit crystalChangeEnded(true);
 }
 
 void BioXASMainMonochromatorCrystalChangeControl::onCrystalChangeActionsFailed()
 {
     deleteAction(sender());
+    setCrystalChangeRunning(false);
     emit crystalChangeEnded(false);
 }
 
