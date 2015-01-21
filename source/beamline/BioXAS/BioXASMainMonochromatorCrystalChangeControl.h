@@ -55,7 +55,7 @@ protected:
 
 private:
     /// Disconnects from the given action and marks it for deletion.
-    void deleteAction(QObject *listAction);
+    void deleteAction(QObject *crystalChangeAction);
 
 };
 

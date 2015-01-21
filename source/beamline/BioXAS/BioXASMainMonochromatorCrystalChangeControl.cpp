@@ -80,8 +80,8 @@ void BioXASMainMonochromatorCrystalChangeControl::onCrystalChangeActionsFailed()
     emit crystalChangeEnded(false);
 }
 
-void BioXASMainMonochromatorCrystalChangeControl::deleteAction(QObject *listAction)
+void BioXASMainMonochromatorCrystalChangeControl::deleteAction(QObject *crystalChangeAction)
 {
-    disconnect( listAction, 0, this, 0 );
-    listAction->deleteLater();
+    disconnect( crystalChangeAction, 0, this, 0 );
+    crystalChangeAction->deleteLater();
 }
