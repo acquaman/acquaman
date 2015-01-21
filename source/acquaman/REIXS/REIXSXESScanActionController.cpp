@@ -29,8 +29,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/datastore/AMCDFDataStore.h"
 #include "dataman/AMTextStream.h"
 
+#include "actions3/AMActionSupport.h"
 #include "actions3/AMListAction3.h"
-#include "actions3/actions/AMControlMoveAction3.h"
 #include "actions3/AMActionRunner3.h"
 #include "actions3/actions/AMWaitAction.h"
 #include "ui/util/AMMessageBoxWTimeout.h"
@@ -39,7 +39,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QFileInfo>
 #include <QStringBuilder>
 
-#include "actions3/AMActionSupport.h"
+
 
 REIXSXESScanActionController::REIXSXESScanActionController(REIXSXESScanConfiguration *configuration, QObject *parent) :
 	AMScanActionController(configuration, parent)

@@ -25,7 +25,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/REIXS/REIXSBeamline.h"
 
 #include "actions3/AMListAction3.h"
-#include "actions3/actions/AMControlMoveAction3.h"
 #include "actions3/actions/AMWaitAction.h"
 
 #include "dataman/AMSamplePre2013.h"

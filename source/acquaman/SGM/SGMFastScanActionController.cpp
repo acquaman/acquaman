@@ -27,7 +27,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/AMFastScan.h"
 #include "actions3/AMActionRunner3.h"
 #include "actions3/AMListAction3.h"
-#include "actions3/actions/AMControlMoveAction3.h"
+#include "actions3/AMActionSupport.h"
+
 #include "actions3/actions/AMAxisStartedAction.h"
 #include "actions3/actions/AMAxisFinishedAction.h"
 #include "actions3/actions/AMWaitAction.h"
@@ -38,7 +39,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/SGM/SGMMAXvMotor.h"
 #include "beamline/AMCurrentAmplifier.h"
 
-#include "actions3/AMActionSupport.h"
+
 
 SGMFastScanActionController::SGMFastScanActionController(SGMFastScanConfiguration2013 *configuration, QObject *parent) :
 	AMScanActionController(configuration, parent)

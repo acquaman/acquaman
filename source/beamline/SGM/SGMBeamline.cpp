@@ -51,10 +51,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSBiStateControl.h"
 
 #include "actions3/AMListAction3.h"
-#include "actions3/actions/AMControlMoveAction3.h"
+#include "actions3/AMActionSupport.h"
 #include "actions3/actions/AMControlWaitAction.h"
 
-#include "actions3/AMActionSupport.h"
 
 #include "util/AMErrorMonitor.h"
 

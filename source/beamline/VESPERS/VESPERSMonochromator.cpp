@@ -21,7 +21,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "VESPERSMonochromator.h"
 #include "beamline/AMPVControl.h"
-#include "actions3/actions/AMControlMoveAction3.h"
 #include "beamline/VESPERS/VESPERSMonochomatorControl.h"
 #include "actions3/AMActionSupport.h"
 
