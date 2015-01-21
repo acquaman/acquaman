@@ -39,6 +39,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QFileInfo>
 #include <QStringBuilder>
 
+#include "actions3/AMActionSupport.h"
+
 REIXSXESScanActionController::REIXSXESScanActionController(REIXSXESScanConfiguration *configuration, QObject *parent) :
 	AMScanActionController(configuration, parent)
 {
@@ -282,33 +284,20 @@ AMAction3* REIXSXESScanActionController::createInitializationActions(){
 
 
 	if(configuration_->applyPolarization() && configuration_->polarization() == 5 && configuration_->polarizationAngle() != REIXSBeamline::bl()->photonSource()->epuPolarizationAngle()->value()){
-		tmpControl = REIXSBeamline::bl()->photonSource()->epuPolarizationAngle();
-		AMControlInfo polarizationAngleSetpoint = tmpControl->toInfo();
-		polarizationAngleSetpoint.setValue(configuration_->polarizationAngle());
-		moveActionInfo = new AMControlMoveActionInfo3(polarizationAngleSetpoint);
-		moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
-		initializationPreActions->addSubAction(moveAction);
 
+        initializationPreActions->addSubAction(AMActionSupport::buildControlMoveAction(REIXSBeamline::bl()->photonSource()->epuPolarizationAngle(), configuration_->polarizationAngle()));
 	}
 
 	if(configuration_->applyPolarization() && REIXSBeamline::bl()->photonSource()->epuPolarization()->value() != configuration_->polarization()){
-		tmpControl = REIXSBeamline::bl()->photonSource()->epuPolarization();
-		AMControlInfo polarizationSetpoint = tmpControl->toInfo();
-		polarizationSetpoint.setValue(configuration_->polarization());
-		moveActionInfo = new AMControlMoveActionInfo3(polarizationSetpoint);
-		moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
-		initializationActions->addSubAction(moveAction);
+
+        initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(REIXSBeamline::bl()->photonSource()->epuPolarization(), configuration_->polarization());
 	}
 
 
 
 	if(configuration_->applySlitWidth()){
-		tmpControl = REIXSBeamline::bl()->photonSource()->monoSlit();
-		AMControlInfo monoSlitSetpoint = tmpControl->toInfo();
-		monoSlitSetpoint.setValue(configuration_->slitWidth());
-		moveActionInfo = new AMControlMoveActionInfo3(monoSlitSetpoint);
-		moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
-		initializationActions->addSubAction(moveAction);
+
+        initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(REIXSBeamline::bl()->photonSource()->monoSlit(), configuration_->slitWidth()));
 	}
 
 
@@ -317,28 +306,15 @@ AMAction3* REIXSXESScanActionController::createInitializationActions(){
 																					   "REIXS Mono Energy Initialization Actions"),
 																 AMListAction3::Sequential);
 
+        energyMoveAction->addSubAction(AMActionSupport::buildControlMoveAction(REIXSBeamline::bl()->photonSource()->energy(), configuration_->energy()));
+        energyMoveAction->addSubAction(new AMWaitAction(new AMWaitActionInfo(1.1)));  // for mono encoder time averaging to settle
 
-		tmpControl = REIXSBeamline::bl()->photonSource()->energy();
-		AMControlInfo energySetpoint = tmpControl->toInfo();
-		energySetpoint.setValue(configuration_->energy());
+        energyMoveAction->addSubAction(AMActionSupport::buildControlMoveAction(REIXSBeamline::bl()->photonSource()->energy(), configuration_->energy()));
+        //Yes, three times to be sure that we're         there, but REIXSBrokenMonoContorl will ignore latter moves if we already made it.
+        energyMoveAction->addSubAction(new AMWaitAction(new AMWaitActionInfo(1.1)));  // for mono encoder time averaging to settle
 
-		moveActionInfo = new AMControlMoveActionInfo3(energySetpoint);
-		moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
-		energyMoveAction->addSubAction(moveAction);
-
-		energyMoveAction->addSubAction(new AMWaitAction(new AMWaitActionInfo(1.1)));  // for mono encoder time averaging to settle
-
-
-		moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
-		energyMoveAction->addSubAction(moveAction);  //Yes, three times to be sure that we're there, but REIXSBrokenMonoContorl will ignore latter moves if we already made it.
-
-		energyMoveAction->addSubAction(new AMWaitAction(new AMWaitActionInfo(1.1)));  // for mono encoder time averaging to settle
-
-
-		moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
-		energyMoveAction->addSubAction(moveAction);
-
-		energyMoveAction->addSubAction(new AMWaitAction(new AMWaitActionInfo(1.1)));  // for mono encoder time averaging to settle
+        energyMoveAction->addSubAction(AMActionSupport::buildControlMoveAction(REIXSBeamline::bl()->photonSource()->energy(), configuration_->energy()));
+        energyMoveAction->addSubAction(new AMWaitAction(new AMWaitActionInfo(1.1)));  // for mono encoder time averaging to settle
 
 		initializationActions->addSubAction(energyMoveAction);
 
