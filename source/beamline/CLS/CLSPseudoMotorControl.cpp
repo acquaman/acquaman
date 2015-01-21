@@ -25,6 +25,7 @@ CLSPseudoMotorControl::CLSPseudoMotorControl(const QString &name, const QString 
 	: AMPVwStatusControl(name, readPVname, writePVname, movingPVname, stopPVname, parent, tolerance, moveStartTimeoutSeconds, statusChecker, stopValue, description)
 {
 	delayMove_ = false;
+	delayMoveSetpoint_ = 0.0;
 }
 
 AMControl::FailureExplanation CLSPseudoMotorControl::move(double setpoint)
