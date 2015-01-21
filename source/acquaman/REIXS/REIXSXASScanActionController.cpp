@@ -36,6 +36,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/CLS/CLSSIS3820Scaler.h"
 
+#include "actions3/AMActionSupport.h"
+
 REIXSXASScanActionController::~REIXSXASScanActionController(){}
 
 REIXSXASScanActionController::REIXSXASScanActionController(REIXSXASScanConfiguration *cfg, QObject *parent) :
@@ -199,9 +201,6 @@ void REIXSXASScanActionController::buildScanControllerImplementation()
 
 AMAction3* REIXSXASScanActionController::createInitializationActions(){
 
-	AMControlMoveActionInfo3 *moveActionInfo;
-	AMControlMoveAction3 *moveAction;
-	AMControl *tmpControl;
 
 	AMListAction3 *initializationActions = new AMListAction3(new AMListActionInfo3("REIXS XAS Initialization Actions", "REIXS XAS Initialization Actions"));
 
@@ -209,21 +208,13 @@ AMAction3* REIXSXASScanActionController::createInitializationActions(){
 	AMListAction3 *initializationStage1 = new AMListAction3(new AMListActionInfo3("REIXS XAS Initialization Stage 1", "REIXS XAS Initialization Stage 1"), AMListAction3::Parallel);
 
 	if(configuration_->applySlitWidth()){
-		tmpControl = REIXSBeamline::bl()->photonSource()->monoSlit();
-		AMControlInfo monoSlitSetpoint = tmpControl->toInfo();
-		monoSlitSetpoint.setValue(configuration_->slitWidth());
-		moveActionInfo = new AMControlMoveActionInfo3(monoSlitSetpoint);
-		moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
-		initializationStage1->addSubAction(moveAction);
+
+        initializationStage1->addSubAction(AMActionSupport::buildControlMoveAction((REIXSBeamline::bl()->photonSource()->monoSlit()), configuration_->slitWidth()));
 	}
 
 	if(configuration_->applyPolarization() && configuration_->polarization() == 5 && configuration_->polarizationAngle() != REIXSBeamline::bl()->photonSource()->epuPolarizationAngle()->value()){
-		tmpControl = REIXSBeamline::bl()->photonSource()->epuPolarizationAngle();
-		AMControlInfo polarizationAngleSetpoint = tmpControl->toInfo();
-		polarizationAngleSetpoint.setValue(configuration_->polarizationAngle());
-		moveActionInfo = new AMControlMoveActionInfo3(polarizationAngleSetpoint);
-		moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
-		initializationStage1->addSubAction(moveAction);
+
+        initializationStage1->addSubAction(AMActionSupport::buildControlMoveAction((REIXSBeamline::bl()->photonSource()->epuPolarizationAngle()),configuration_->polarizationAngle()));
 
 	}
 
@@ -231,19 +222,13 @@ AMAction3* REIXSXASScanActionController::createInitializationActions(){
 	initializationStage1->addSubAction(REIXSBeamline::bl()->scaler()->createContinuousEnableAction3(false));
 
 
-
-
-
 	AMListAction3 *initializationStage2 = new AMListAction3(new AMListActionInfo3("REIXS XAS Initialization Stage 2", "REIXS XAS Initialization Stage 2"), AMListAction3::Parallel);
 
 	if(configuration_->applyPolarization() && REIXSBeamline::bl()->photonSource()->epuPolarization()->value() != configuration_->polarization()){
-		tmpControl = REIXSBeamline::bl()->photonSource()->epuPolarization();
-		AMControlInfo polarizationSetpoint = tmpControl->toInfo();
-		polarizationSetpoint.setValue(configuration_->polarization());
-		moveActionInfo = new AMControlMoveActionInfo3(polarizationSetpoint);
-		moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
-		initializationStage2->addSubAction(moveAction);
-	}
+
+        initializationStage2->addSubAction(AMActionSupport::buildControlMoveAction((REIXSBeamline::bl()->photonSource()->epuPolarization()), configuration_->polarization()));
+
+    }
 
 	initializationStage2->addSubAction(REIXSBeamline::bl()->scaler()->createScansPerBufferAction3(1));
 	initializationStage2->addSubAction(REIXSBeamline::bl()->scaler()->createTotalScansAction3(1));
