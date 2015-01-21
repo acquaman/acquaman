@@ -264,9 +264,6 @@ void REIXSXESScanActionController::onInitializationActionsListFailed(){
 
 
 AMAction3* REIXSXESScanActionController::createInitializationActions(){
-	AMControlMoveActionInfo3 *moveActionInfo;
-	AMControlMoveAction3 *moveAction;
-	AMControl *tmpControl;
 
 	AMListAction3 *initializationActions = new AMListAction3(new AMListActionInfo3("REIXS XES Initialization Actions",
 																				   "REIXS XES Initialization Actions"),
