@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDebug>
 
 #include "actions3/actions/AMControlMoveAction3.h"
+#include "actions3/AMActionSupport.h"
 #include "actions3/actions/AMControlWaitAction.h"
 
 #include "beamline/CLS/CLSBiStateControl.h"
@@ -158,34 +159,13 @@ AMAction3* SXRMBBeamline::createBeamOnActions() const{
 
 	AMListAction3 *beamOnActionsList = new AMListAction3(new AMListActionInfo3("SXRMB Beam On", "SXRMB Beam On"), AMListAction3::Parallel);
 
-
 	AMListAction3 *valveOpenActionsList = new AMListAction3(new AMListActionInfo3("SXRMB Valve Open", "SXRMB Valve Open"), AMListAction3::Sequential);
 
-	AMControlInfo VVR16064B1003ValveSetpoint = VVR16064B1003Valve_->toInfo();
-	VVR16064B1003ValveSetpoint.setValue(1);
-	AMControlMoveAction3 *VVR16064B1003ValveSetpointOpenAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(VVR16064B1003ValveSetpoint), VVR16064B1003Valve_);
-	valveOpenActionsList->addSubAction(VVR16064B1003ValveSetpointOpenAction);
-
-	AMControlInfo VVR16064B1004ValveSetpoint = VVR16064B1004Valve_->toInfo();
-	VVR16064B1004ValveSetpoint.setValue(1);
-	AMControlMoveAction3 *VVR16064B1004ValveSetpointOpenAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(VVR16064B1004ValveSetpoint), VVR16064B1004Valve_);
-	valveOpenActionsList->addSubAction(VVR16064B1004ValveSetpointOpenAction);
-
-	AMControlInfo VVR16064B1006ValveSetpoint = VVR16064B1006Valve_->toInfo();
-	VVR16064B1006ValveSetpoint.setValue(1);
-	AMControlMoveAction3 *VVR16064B1006ValveSetpointOpenAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(VVR16064B1006ValveSetpoint), VVR16064B1006Valve_);
-	valveOpenActionsList->addSubAction(VVR16064B1006ValveSetpointOpenAction);
-
-	AMControlInfo VVR16064B1007ValveSetpoint = VVR16064B1007Valve_->toInfo();
-	VVR16064B1007ValveSetpoint.setValue(1);
-	AMControlMoveAction3 *VVR16064B1007ValveSetpointOpenAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(VVR16064B1007ValveSetpoint), VVR16064B1007Valve_);
-	valveOpenActionsList->addSubAction(VVR16064B1007ValveSetpointOpenAction);
-
-	AMControlInfo VVR16065B1001ValveSetpoint = VVR16065B1001Valve_->toInfo();
-	VVR16065B1001ValveSetpoint.setValue(1);
-	AMControlMoveAction3 *VVR16065B1001ValveSetpointOpenAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(VVR16065B1001ValveSetpoint), VVR16065B1001Valve_);
-	valveOpenActionsList->addSubAction(VVR16065B1001ValveSetpointOpenAction);
-
+	valveOpenActionsList->addSubAction(AMActionSupport::buildControlMoveAction(VVR16064B1003Valve_, 1));
+	valveOpenActionsList->addSubAction(AMActionSupport::buildControlMoveAction(VVR16064B1004Valve_, 1));
+	valveOpenActionsList->addSubAction(AMActionSupport::buildControlMoveAction(VVR16064B1006Valve_, 1));
+	valveOpenActionsList->addSubAction(AMActionSupport::buildControlMoveAction(VVR16064B1007Valve_, 1));
+	valveOpenActionsList->addSubAction(AMActionSupport::buildControlMoveAction(VVR16065B1001Valve_, 1));
 
 	AMListAction3 *valveWaitActionsList = new AMListAction3(new AMListActionInfo3("SXRMB Valve Wait", "SXRMB Valve Wait"), AMListAction3::Parallel);
 
@@ -228,15 +208,8 @@ AMAction3* SXRMBBeamline::createBeamOffActions() const{
 
 	AMListAction3 *beamOffActionsList = new AMListAction3(new AMListActionInfo3("SXRMB Beam Off", "SXRMB Beam Off"), AMListAction3::Parallel);
 
-	AMControlInfo PSH1406B1002ShutterSetpoint = PSH1406B1002Shutter_->toInfo();
-	PSH1406B1002ShutterSetpoint.setValue(0);
-	AMControlMoveAction3 *PSH1406B1002ShutterCloseAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(PSH1406B1002ShutterSetpoint), PSH1406B1002Shutter_);
-	beamOffActionsList->addSubAction(PSH1406B1002ShutterCloseAction);
-
-	AMControlInfo PSH1406B1002ShutterWaitSetpoint = PSH1406B1002Shutter_->toInfo();
-	PSH1406B1002ShutterWaitSetpoint.setValue(0);
-	AMControlWaitAction *PSH1406B1002ShutterWaitAction = new AMControlWaitAction(new AMControlWaitActionInfo(PSH1406B1002ShutterWaitSetpoint, 10, AMControlWaitActionInfo::MatchEqual), PSH1406B1002Shutter_);
-	beamOffActionsList->addSubAction(PSH1406B1002ShutterWaitAction);
+	beamOffActionsList->addSubAction(AMActionSupport::buildControlMoveAction(PSH1406B1002Shutter_, 0));
+	beamOffActionsList->addSubAction(AMActionSupport::buildControlMoveAction(PSH1406B1002Shutter_, 0));
 
 	return beamOffActionsList;
 }

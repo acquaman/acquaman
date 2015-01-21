@@ -170,7 +170,7 @@ bool SGMFastScanActionController::startImplementation(){
 	AMListAction3 *masterFastScanActionList = new AMListAction3(new AMListActionInfo3("SGM Fast Actions", "SGM Fast Actions"));
 
 	// Undulator Trigger Propogate to 1
-    masterFastScanActionList->addSubAction(AMActionSupport::buildControlMoveAction(SGMBeamline::sgm()->undulatorFastTrackingTrigger(), 1));
+	masterFastScanActionList->addSubAction(AMActionSupport::buildControlMoveAction(SGMBeamline::sgm()->undulatorFastTrackingTrigger(), 1));
 
 	// Read grating encoder start point
 	AMAction3 *readAction;
