@@ -10,11 +10,11 @@ FORMS +=
 HEADERS += \
 	source/beamline/BioXAS/BioXASMainMonochromator.h \
     source/beamline/BioXAS/BioXASMainMonochromatorControl.h \
-	source/ui/BioXAS/BioXASMainMonoCrystalChangeView.h \
-    source/beamline/BioXAS/BioXASMainMonochromatorCrystalChangeControl.h
+    source/beamline/BioXAS/BioXASMainMonochromatorCrystalChangeControl.h \
+    source/ui/BioXAS/BioXASMainMonochromatorCrystalChangeView.h
 
 SOURCES += \
 	source/beamline/BioXAS/BioXASMainMonochromator.cpp \
     source/beamline/BioXAS/BioXASMainMonochromatorControl.cpp \
-	source/ui/BioXAS/BioXASMainMonoCrystalChangeView.cpp \
-    source/beamline/BioXAS/BioXASMainMonochromatorCrystalChangeControl.cpp
+    source/beamline/BioXAS/BioXASMainMonochromatorCrystalChangeControl.cpp \
+    source/ui/BioXAS/BioXASMainMonochromatorCrystalChangeView.cpp

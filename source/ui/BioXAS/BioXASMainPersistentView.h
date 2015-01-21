@@ -28,7 +28,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/CLS/CLSMAXvMotor.h"
 
-#include "ui/BioXAS/BioXASMainMonoCrystalChangeView.h"
+#include "ui/BioXAS/BioXASMainMonochromatorCrystalChangeView.h"
 
 class AMExtendedControlEditor;
 

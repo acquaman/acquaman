@@ -1,4 +1,5 @@
 #include "BioXASMainMonochromator.h"
+#include "BioXASMainMonochromatorCrystalChangeControl.h"
 #include <QDebug>
 
 BioXASMainMonochromator::BioXASMainMonochromator(QObject *parent) :
@@ -51,6 +52,10 @@ BioXASMainMonochromator::BioXASMainMonochromator(QObject *parent) :
     regionAStatus_ = new AMReadOnlyPVControl("RegionAStatus", "BL1607-5-I21:Mono:Region:A", this);
     regionBStatus_ = new AMReadOnlyPVControl("RegionBStatus", "BL1607-5-I21:Mono:Region:B", this);
     energy_ = new BioXASMainMonochromatorControl("EnergyEV", "BL1607-5-I21:Energy:EV:fbk", "BL1607-5-I21:Energy:EV", "BL1607-5-I21:Energy:status", QString("BL1607-5-I21:Energy:stop"), this);
+
+    // Crystal change.
+
+    crystalChangeControl_ = new BioXASMainMonochromatorCrystalChangeControl(this, this);
 
     // Listen to controls connection states.
 

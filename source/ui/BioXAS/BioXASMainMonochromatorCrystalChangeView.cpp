@@ -1,4 +1,4 @@
-#include "BioXASMainMonoCrystalChangeView.h"
+#include "BioXASMainMonochromatorCrystalChangeView.h"
 #include <QDebug>
 
 BioXASMainMonoCrystalChangeView::BioXASMainMonoCrystalChangeView(BioXASMainMonochromator *mono, QWidget *parent) :

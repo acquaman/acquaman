@@ -13,6 +13,8 @@
 
 #include "beamline/BioXAS/BioXASMainMonochromatorControl.h"
 
+class BioXASMainMonochromatorCrystalChangeControl;
+
 class BioXASMainMonochromator : public QObject
 {
     Q_OBJECT
@@ -29,7 +31,6 @@ public:
     bool isConnected() const { return connected_; }
     /// Returns the current region.
     Region region() const { return region_; }
-
     /// Returns true if both slits are closed, false otherwise.
     bool slitsClosed() const { return ((int)slitsClosed_->value() == 1); }
     /// Returns true if crystal change (key status) is enabled, false if disabled.
@@ -98,6 +99,9 @@ public:
     AMControl* regionBStatusControl() const { return regionBStatus_; }
     /// Returns the energy setpoint control.
     AMControl* energyControl() const { return energy_; }
+
+    /// Returns the mono's crystal change control.
+    BioXASMainMonochromatorCrystalChangeControl* crystalChangeControl() const { return crystalChangeControl_; }
 
     /// Returns a new close upper slit action, 0 if not connected.
     AMAction3* createCloseUpperSlitAction();
@@ -231,6 +235,10 @@ protected:
     AMControl* regionAStatus_;
     AMControl* regionBStatus_;
     AMControl* energy_;
+
+    // Crystal change
+
+    BioXASMainMonochromatorCrystalChangeControl *crystalChangeControl_;
 };
 
 

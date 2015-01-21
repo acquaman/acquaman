@@ -23,7 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/BioXAS/BioXASMainBeamline.h"
 #include "ui/beamline/AMExtendedControlEditor.h"
-#include "ui/BioXAS/BioXASMainMonoCrystalChangeView.h"
+#include "ui/BioXAS/BioXASMainMonochromatorCrystalChangeView.h"
 
 BioXASMainPersistentView::BioXASMainPersistentView(QWidget *parent) :
     QWidget(parent)
