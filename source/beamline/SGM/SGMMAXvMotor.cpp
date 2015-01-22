@@ -20,10 +20,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "SGMMAXvMotor.h"
 
-#include "actions3/actions/AMControlMoveAction3.h"
+#include "actions3/AMActionSupport.h"
 #include "actions3/actions/AMControlStopAction.h"
 
-#include "actions3/AMActionSupport.h"
+
 
  SGMMAXvMotor::~SGMMAXvMotor(){}
 SGMMAXvMotor::SGMMAXvMotor(const QString &name, const QString &baseName, const QString &description, bool hasEncoder, double tolerance, double moveStartTimeoutSeconds, QObject *parent)

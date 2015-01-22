@@ -30,7 +30,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "application/IDEAS/IDEASAppController.h"
 
 #include "actions3/AMListAction3.h"
-#include "actions3/actions/AMControlMoveAction3.h"
+#include "actions3/AMActionSupport.h"
 #include "actions3/actions/AMWaitAction.h"
 #include "acquaman/AMEXAFSScanActionControllerAssembler.h"
 
@@ -199,17 +199,12 @@ void IDEASXASScanActionController::buildScanControllerImplementation()
 
 AMAction3* IDEASXASScanActionController::createInitializationActions(){
 
-	AMControlMoveActionInfo3 *moveActionInfo;
-	AMControlMoveAction3 *moveAction;
-	AMControl *tmpControl;
+
 
 	AMListAction3 *initializationActions = new AMListAction3(new AMListActionInfo3("IDEAS XAS Initialization Actions", "IDEAS XAS Initialization Actions"));
 
 
 	AMListAction3 *initializationStage1 = new AMListAction3(new AMListActionInfo3("IDEAS XAS Initialization Stage 1", "IDEAS XAS Initialization Stage 1"), AMListAction3::Parallel);
-
-	tmpControl = IDEASBeamline::ideas()->monoDirectEnergyControl();
-	AMControlInfo monoEnergy = tmpControl->toInfo();
 
 		double startE = double(configuration_->scanAxisAt(0)->regionAt(0)->regionStart());
 		double mono2d = IDEASBeamline::ideas()->mono2d()->value();
@@ -221,10 +216,8 @@ AMAction3* IDEASXASScanActionController::createInitializationActions(){
 		if(backlashE < IDEASBeamline::ideas()->monoLowEV()->value()) backlashE = IDEASBeamline::ideas()->monoLowEV()->value();
 
 
-	monoEnergy.setValue(backlashE);
-	moveActionInfo = new AMControlMoveActionInfo3(monoEnergy);
-	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
-	initializationStage1->addSubAction(moveAction);
+
+	initializationStage1->addSubAction(AMActionSupport::buildControlMoveAction(IDEASBeamline::ideas()->monoDirectEnergyControl(), backlashE));
 	//initializationStage1->addSubAction(IDEASBeamline::ideas()->scaler()->createContinuousEnableAction3(false));
 	initializationStage1->addSubAction(IDEASBeamline::ideas()->scaler()->createStartAction3(false));
 	initializationStage1->addSubAction(IDEASBeamline::ideas()->scaler()->createTotalScansAction3(1));
