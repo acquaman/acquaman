@@ -135,16 +135,12 @@ bool CLSAmptekSDD123DetectorNew::lastContinuousReading(double *outputValues) con
 	return false;
 }
 
-#include "actions3/actions/AMControlMoveAction3.h"
+#include "actions3/AMActionSupport.h"
 AMAction3* CLSAmptekSDD123DetectorNew::createEnableAction3(bool setEnabled){
 	if(!isConnected())
 		return 0; //NULL
 
-	AMControlInfo setpoint = isRequestedControl_->toInfo();
-	setpoint.setValue(setEnabled ? 1 : 0);
-	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
-	AMAction3 *action = new AMControlMoveAction3(actionInfo, isRequestedControl_);
-
+	AMActionSupport *action = AMActionSupport::buildControlMoveAction(isRequestedControl_, setEnabled ? 1 : 0);
 	if(!action)
 		return 0; //NULL
 
