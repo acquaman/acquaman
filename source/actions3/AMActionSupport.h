@@ -38,6 +38,33 @@ namespace AMActionSupport
 		AMControlMoveAction3 *action = new AMControlMoveAction3(actionInfo, control);
 		return action;
 	}
+
+	/// Helper method same as above but includes AMControlMoveActionInfo3::setIsRelativeMove
+	inline AMAction3 *buildControlMoveAction(AMControl *control, double setpoint, bool isRelative)
+	{
+		AMControlInfo info = control->toInfo();
+		info.setValue(setpoint);
+		AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(info);
+		actionInfo->setIsRelativeMove(isRelative);
+		AMControlMoveAction3 *action = new AMControlMoveAction3(actionInfo, control);
+		return action;
+	}
+
+	/// Helper method same as above but includes AMControlMoveActionInfo3::setIsRelativeMove and ::setIsRelativeFromSetpoint
+	inline AMAction3 *buildControlMoveAction(AMControl *control, double setpoint, bool isRelative, bool isRelativeFromSetPoint)
+	{
+		AMControlInfo info = control->toInfo();
+		info.setValue(setpoint);
+		AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(info);
+		actionInfo->setIsRelativeMove(isRelative);
+		actionInfo->setIsRelativeFromSetpoint(isRelativeFromSetPoint);
+		AMControlMoveAction3 *action = new AMControlMoveAction3(actionInfo, control);
+		return action;
+	}
+
+
+
+
 }
 
 #endif // AMACTIONSUPPORT_H

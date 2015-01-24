@@ -34,7 +34,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/beamline/AMControlButton.h"
 
 #include "actions3/AMListAction3.h"
-#include "actions3/actions/AMControlMoveAction3.h"
+#include "actions3/AMActionSupport.h"
 
 SGMSidebar::SGMSidebar(QWidget *parent) :
 	QWidget(parent)
@@ -378,17 +378,12 @@ void SGMSidebar::onVisibleLightClicked(){
 	else{
 		AMListAction3 *visibleLightOnListAction = new AMListAction3(new AMListActionInfo3("Move to visible light", "Move to visible light"));
 		if(SGMBeamline::sgm()->gratingVelocity()->value() != 10000){
-			AMControlInfo gratingControlInfo = SGMBeamline::sgm()->gratingVelocity()->toInfo();
-			gratingControlInfo.setValue(10000);
-			AMControlMoveActionInfo3 *gratingVelocityMoveActionInfo = new AMControlMoveActionInfo3(gratingControlInfo);
-			AMControlMoveAction3 *gratingVelocityMoveAction = new AMControlMoveAction3(gratingVelocityMoveActionInfo, SGMBeamline::sgm()->gratingVelocity());
+
+			AMActionSupport *gratingVelocityMoveAction = AMActionSupport::buildControlMoveAction(SGMBeamline::sgm()->gratingVelocity(), 10000);
 			visibleLightOnListAction->addSubAction(gratingVelocityMoveAction);
 		}
 
-		AMControlInfo visibleLightToggleInfo = SGMBeamline::sgm()->visibleLightToggle()->toInfo();
-		visibleLightToggleInfo.setValue(1);
-		AMControlMoveActionInfo3 *visibleLightToggleActionInfo = new AMControlMoveActionInfo3(visibleLightToggleInfo);
-		AMControlMoveAction3 *visibleLightToggleAction = new AMControlMoveAction3(visibleLightToggleActionInfo, SGMBeamline::sgm()->visibleLightToggle());
+		AMActionSupport *visibleLightToggleAction = AMActionSupport::buildControlMoveAction(SGMBeamline::sgm()->visibleLightToggle(), 1);
 		visibleLightOnListAction->addSubAction(visibleLightToggleAction);
 
 		visibleLightOnListAction->start();
