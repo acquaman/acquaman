@@ -287,7 +287,7 @@ void AMCrashReporter::onOneSymbolProcessed(){
 }
 
 void AMCrashReporter::onAllSymbolsProcessed(){
-	QFile reportFile(QString("%1/report_%2_%3_%4_%5.txt").arg(errorFilePath_).arg(executableFullPath_.section('/', -1)).arg(QHostInfo::localHostName()).arg(QDateTime::currentDateTime().toString("hhmmss_ddMMyyyy")).arg(watchingPID_));
+	QFile reportFile(QString("%1/report_%2_%3_%4_%5.txt").arg(errorFilePath_).arg(executableFullPath_.section('/', -1)).arg(QHostInfo::localHostName()).arg(QDateTime::currentDateTime().toString("ddMMyyyy_hhmmss")).arg(watchingPID_));
 	if(reportFile.open(QIODevice::WriteOnly | QIODevice::Text)){
 		QTextStream reportStream(&reportFile);
 		for(int x = 0; x < allProcessedLines_.count(); x++){
