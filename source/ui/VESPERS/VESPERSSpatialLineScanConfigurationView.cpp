@@ -431,7 +431,7 @@ void VESPERSSpatialLineScanConfigurationView::onItClicked(int index)
 	QStandardItemModel *model = qobject_cast<QStandardItemModel *>(i0ComboBox_->model());
 
 	for (int i = 0; i < i0ComboBox_->count(); i++)
-		model->item(i)->setFlags(i < index ? Qt::ItemIsEnabled : Qt::NoItemFlags);
+		model->item(i)->setFlags(i < index ? (Qt::ItemIsEnabled | Qt::ItemIsSelectable) : Qt::NoItemFlags);
 
 	configuration_->setTransmissionChoice(index);
 }
