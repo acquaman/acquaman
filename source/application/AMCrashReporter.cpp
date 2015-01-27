@@ -118,6 +118,12 @@ AMCrashMonitor::AMCrashMonitor(const QString &executableFullPath, const QString 
 	errorFilePath_ = errorFilePath;
 	watchingPID_ = watchingPID;
 
+	//check the current year directory exist or not, if not create one.
+	QString targetPath = QString("%1/%2").arg(errorFilePath_).arg(QDateTime::currentDateTime().toString("yyyy"));
+	if (!QDir(targetPath).exists()) {
+		QDir().mkdir(targetPath);
+	}
+
 	unixSignalHandler_ = new AMCrashReporterUnixSignalHandler();
 	connect(unixSignalHandler_, SIGNAL(sigusr1Detected()), this, SLOT(onSiguser1Detected()));
 	connect(unixSignalHandler_, SIGNAL(sigusr2Detected()), this, SLOT(onSiguser2Detected()));
