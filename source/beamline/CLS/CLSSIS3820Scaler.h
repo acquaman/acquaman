@@ -104,8 +104,8 @@ public:
 	AMAction3* createScansPerBufferAction3(int scansPerBuffer);
 	/// Creates an action that sets the total number of scans to \param totalScans.
 	AMAction3* createTotalScansAction3(int totalScans);
-
-	AMAction3* createWaitForDwellFinishedAction();
+	/// Creates an action that waits for the acquisition to finish.  Provide an acceptable time wait so that you don't hang up indefinitely.
+	AMAction3* createWaitForDwellFinishedAction(double timeoutTime = 10.0);
 
 	AMAction3* createDoingDarkCurrentCorrectionAction(int dwellTime);
 
