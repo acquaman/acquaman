@@ -140,7 +140,7 @@ AMAction3* CLSAmptekSDD123DetectorNew::createEnableAction3(bool setEnabled){
 	if(!isConnected())
 		return 0; //NULL
 
-	AMActionSupport *action = AMActionSupport::buildControlMoveAction(isRequestedControl_, setEnabled ? 1 : 0);
+	AMAction3 *action = AMActionSupport::buildControlMoveAction(isRequestedControl_, setEnabled ? 1 : 0);
 	if(!action)
 		return 0; //NULL
 

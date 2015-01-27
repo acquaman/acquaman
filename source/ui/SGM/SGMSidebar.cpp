@@ -379,11 +379,11 @@ void SGMSidebar::onVisibleLightClicked(){
 		AMListAction3 *visibleLightOnListAction = new AMListAction3(new AMListActionInfo3("Move to visible light", "Move to visible light"));
 		if(SGMBeamline::sgm()->gratingVelocity()->value() != 10000){
 
-			AMActionSupport *gratingVelocityMoveAction = AMActionSupport::buildControlMoveAction(SGMBeamline::sgm()->gratingVelocity(), 10000);
+			AMAction3 *gratingVelocityMoveAction = AMActionSupport::buildControlMoveAction(SGMBeamline::sgm()->gratingVelocity(), 10000);
 			visibleLightOnListAction->addSubAction(gratingVelocityMoveAction);
 		}
 
-		AMActionSupport *visibleLightToggleAction = AMActionSupport::buildControlMoveAction(SGMBeamline::sgm()->visibleLightToggle(), 1);
+		AMAction3 *visibleLightToggleAction = AMActionSupport::buildControlMoveAction(SGMBeamline::sgm()->visibleLightToggle(), 1);
 		visibleLightOnListAction->addSubAction(visibleLightToggleAction);
 
 		visibleLightOnListAction->start();

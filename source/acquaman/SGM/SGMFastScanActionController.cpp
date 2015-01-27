@@ -515,8 +515,8 @@ AMAction3* SGMFastScanActionController::createCleanupActions(){
 	// Exit Slit Tracking to current
 	AMListAction3 *fastActionsTrackingRestore = new AMListAction3(new AMListActionInfo3("SGM Fast Actions Tracking Restore", "SGM Fast Actions Tracking Restore"), AMListAction3::Parallel);
 
-    fastActionsTrackingRestore->addSubAction(AMActionSupport::buildControlMoveAction(SGMBeamline::sgm()->undulatorTracking(),  SGMBeamline::sgm()>undulatorTracking()->value()));
-    fastActionsTrackingRestore->addSubAction(AMActionSupport::buildControlMoveAction(SGMBeamline::sgm()->exitSlitTracking(), SGMBeamline::sgm()>exitSlitTracking()->value()));
+    fastActionsTrackingRestore->addSubAction(AMActionSupport::buildControlMoveAction(SGMBeamline::sgm()->undulatorTracking(),  SGMBeamline::sgm()->undulatorTracking()->value()));
+    fastActionsTrackingRestore->addSubAction(AMActionSupport::buildControlMoveAction(SGMBeamline::sgm()->exitSlitTracking(), SGMBeamline::sgm()->exitSlitTracking()->value()));
 	retVal->addSubAction(fastActionsTrackingRestore);
 	// End Tracking Off
 

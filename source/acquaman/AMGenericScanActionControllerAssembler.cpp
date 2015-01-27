@@ -121,7 +121,7 @@ AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForStepAxis
 		// generate axis initialization list
 		AMListAction3 *initializationActions = new AMListAction3(new AMListActionInfo3(QString("Initializing %1").arg(axisControl->name()), QString("Initializing Axis with Control %1").arg(axisControl->name())), AMListAction3::Sequential);
 
-		AMActionSupport *initializeControlPosition = AMActionSupport::buildControlMoveAction(axisControl, stepScanAxis->axisStart());
+		AMAction3 *initializeControlPosition = AMActionSupport::buildControlMoveAction(axisControl, stepScanAxis->axisStart());
 		initializeControlPosition->setGenerateScanActionMessage(true);
 		initializationActions->addSubAction(initializeControlPosition);
 		axisActions->addSubAction(initializationActions);
@@ -153,7 +153,7 @@ AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForStepAxis
 
 	if (axisControl){
 
-		AMActionSupport *regionStart = AMActionSupport::buildControlMoveAction(axisControl, stepScanAxisRegion->regionStart());
+		AMAction3 *regionStart = AMActionSupport::buildControlMoveAction(axisControl, stepScanAxisRegion->regionStart());
 
 		regionStart->setGenerateScanActionMessage(true);
 		regionList->addSubAction(regionStart);
@@ -180,7 +180,7 @@ AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForStepAxis
 	if (axisControl){
 
 		//setIsRelativeMove(true), setIsRelativeFromSetpoint(true)
-		AMActionSupport *controlLoopMove = AMActionSupport::buildControlMoveAction(axisControl, stepScanAxisRegion->regionStep(), true, true);
+		AMAction3 *controlLoopMove = AMActionSupport::buildControlMoveAction(axisControl, stepScanAxisRegion->regionStep(), true, true);
 
 		controlLoopMove->setGenerateScanActionMessage(true);
 		axisLoop->addSubAction(controlLoopMove);

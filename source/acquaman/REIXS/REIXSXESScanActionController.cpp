@@ -281,13 +281,11 @@ AMAction3* REIXSXESScanActionController::createInitializationActions(){
 
 
 	if(configuration_->applyPolarization() && configuration_->polarization() == 5 && configuration_->polarizationAngle() != REIXSBeamline::bl()->photonSource()->epuPolarizationAngle()->value()){
-
-        initializationPreActions->addSubAction(AMActionSupport::buildControlMoveAction(REIXSBeamline::bl()->photonSource()->epuPolarizationAngle(), configuration_->polarizationAngle()));
+		initializationPreActions->addSubAction(AMActionSupport::buildControlMoveAction(REIXSBeamline::bl()->photonSource()->epuPolarizationAngle(), configuration_->polarizationAngle()));
 	}
 
 	if(configuration_->applyPolarization() && REIXSBeamline::bl()->photonSource()->epuPolarization()->value() != configuration_->polarization()){
-
-        initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(REIXSBeamline::bl()->photonSource()->epuPolarization(), configuration_->polarization());
+		initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(REIXSBeamline::bl()->photonSource()->epuPolarization(), configuration_->polarization()));
 	}
 
 

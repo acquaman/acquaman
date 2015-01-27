@@ -207,23 +207,23 @@ QString SGMXASScanActionController::buildNotes()
 }
 
 AMAction3* SGMXASScanActionController::createInitializationActions(){
-	AMControlMoveActionInfo3 *moveActionInfo;
-	AMControlMoveAction3 *moveAction;
-	AMControl *tmpControl;
+//	AMControlMoveActionInfo3 *moveActionInfo;
+//	AMControlMoveAction3 *moveAction;
+//	AMControl *tmpControl;
 
 	AMListAction3 *initializationActions = new AMListAction3(new AMListActionInfo3("SGM XAS Initialization Actions", "SGM XAS Initialization Actions"));
 
 
 	AMListAction3 *initializationStage1 = new AMListAction3(new AMListActionInfo3("SGM XAS Initialization Stage 1", "SGM XAS Initialization Stage 1"), AMListAction3::Parallel);
 
-    tmpControl = SGMBeamline::sgm()->grating();
-    double gratingSetPoint = configuration_->fluxResolutionGroup().controlNamed(tmpControl->name()).value();
-    AMAction3 *gratingAction = AMActionSupport::buildControlMoveAction(tmpControl->grating(), gratingSetPoint);
+//    tmpControl = SGMBeamline::sgm()->grating();
+//    double gratingSetPoint = configuration_->fluxResolutionGroup().controlNamed(tmpControl->name()).value();
+    AMAction3 *gratingAction = AMActionSupport::buildControlMoveAction(SGMBeamline::sgm()->grating(), configuration_->fluxResolutionGroup().controlNamed(SGMBeamline::sgm()->grating()->name()).value());
     initializationStage1->addSubAction(gratingAction);
 
-    tmpControl = SGMBeamline::sgm()->exitSlitGap();
-    double exitSlitGapSetPoint = configuration_->fluxResolutionGroup().controlNamed(tmpControl->name()).value();
-    AMAction3 *exitSlipGapAction = AMActionSupport::buildControlMoveAction(SGMBeamline::sgm()->exitSlitGap(), exitSlitGapSetPoint);
+//    tmpControl = SGMBeamline::sgm()->exitSlitGap();
+//    double exitSlitGapSetPoint = configuration_->fluxResolutionGroup().controlNamed(SGMBeamline::sgm()->exitSlitGap()->name()).value();
+    AMAction3 *exitSlipGapAction = AMActionSupport::buildControlMoveAction(SGMBeamline::sgm()->exitSlitGap(), configuration_->fluxResolutionGroup().controlNamed(SGMBeamline::sgm()->exitSlitGap()->name()).value());
     initializationStage1->addSubAction(exitSlipGapAction);
 
 	CLSSynchronizedDwellTime *syncDwell = qobject_cast<CLSSynchronizedDwellTime*>(SGMBeamline::sgm()->synchronizedDwellTime());
@@ -263,32 +263,32 @@ AMAction3* SGMXASScanActionController::createInitializationActions(){
 
 	AMListAction3 *initializationStage3 = new AMListAction3(new AMListActionInfo3("SGM XAS Initialization Stage 3", "SGM XAS Initialization Stage 3"), AMListAction3::Parallel);
 
-    tmpControl = SGMBeamline::sgm()->undulatorTracking();
-    double undulatorSetPoint = configuration_->trackingGroup.controlNamed(tmpControl->name()).value();
-    AMAction3 *undulatorTrackingAction = AMActionSupport::buildControlMoveAction(tmpControl, undulatorSetPoint);
+//    tmpControl = SGMBeamline::sgm()->undulatorTracking();
+//    double undulatorSetPoint = configuration_->trackingGroup.controlNamed(SGMBeamline::sgm()->undulatorTracking()->name()).value();
+    AMAction3 *undulatorTrackingAction = AMActionSupport::buildControlMoveAction(SGMBeamline::sgm()->undulatorTracking(), configuration_->trackingGroup().controlNamed(SGMBeamline::sgm()->undulatorTracking()->name()).value());
     initializationStage3->addSubAction(undulatorTrackingAction);
 
 //	qDebug() << "Undulator tracking " << configuration_->trackingGroup().controlNamed(tmpControl->name()).value();
 
-    tmpControl = SGMBeamline::sgm()->exitSlitTracking();
-    double exitSlitTrackingSetPoint = configuration_->trackingGroup.controlNamed(tmpControl->name()).value();
-    AMAction3 *exitSlitAction = AMActionSupport::buildControlMoveAction(tmpControl, exitSlitTrackingSetPoint);
+//    tmpControl = SGMBeamline::sgm()->exitSlitTracking();
+//    double exitSlitTrackingSetPoint = configuration_->trackingGroup.controlNamed(SGMBeamline::sgm()->exitSlitTracking()->name()).value();
+    AMAction3 *exitSlitAction = AMActionSupport::buildControlMoveAction(SGMBeamline::sgm()->exitSlitTracking(), configuration_->trackingGroup().controlNamed(SGMBeamline::sgm()->exitSlitTracking()->name()).value());
     initializationStage3->addSubAction(exitSlitAction);
 
 //	qDebug() << "Exitslit tracking " << configuration_->trackingGroup().controlNamed(tmpControl->name()).value();
 
-    tmpControl = SGMBeamline::sgm()->monoTracking();
-    double monoTrackingSetpoint = configuration_->trackingGroup.controlNamed(tmpControl->name()).value();
-    AMAction3 *monoTrackingAction = AMActionSupport::buildControlMoveAction(tmpControl, monoTrackingSetpoint);
+//    tmpControl = SGMBeamline::sgm()->monoTracking();
+//    double monoTrackingSetpoint = configuration_->trackingGroup.controlNamed(SGMBeamline::sgm()->monoTracking()->name()).value();
+    AMAction3 *monoTrackingAction = AMActionSupport::buildControlMoveAction(SGMBeamline::sgm()->monoTracking(), configuration_->trackingGroup().controlNamed(SGMBeamline::sgm()->monoTracking()->name()).value());
     initializationStage3->addSubAction(monoTrackingAction);
 
 //	qDebug() << "Mono tracking " << configuration_->trackingGroup().controlNamed(tmpControl->name()).value();
 
 	//really? here?
 
-    tmpControl = SGMBeamline::sgm()->harmonic();
-    double harmonicSetPoint = configuration_->fluxResolutionGroup().controlNamed(tmpControl->name()).value();
-    AMAction3 *harmonicAction = AMActionSupport::buildControlMoveAction(tmpControl, harmonicSetPoint);
+//    tmpControl = SGMBeamline::sgm()->harmonic();
+//    double harmonicSetPoint = configuration_->fluxResolutionGroup().controlNamed(SGMBeamline::sgm()->harmonic()->name()).value();
+    AMAction3 *harmonicAction = AMActionSupport::buildControlMoveAction(SGMBeamline::sgm()->harmonic(), configuration_->fluxResolutionGroup().controlNamed(SGMBeamline::sgm()->harmonic()->name()).value());
     initializationStage3->addSubAction(harmonicAction);
 
 	/* Dark current correction testing

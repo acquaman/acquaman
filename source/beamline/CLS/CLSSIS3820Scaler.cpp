@@ -186,7 +186,7 @@ AMAction3* CLSSIS3820Scaler::createStartAction3(bool setScanning){
 	if(!isConnected())
 		return 0; //NULL
 
-	AMActionSupport *action = AMActionSupport::buildControlMoveAction(startToggle_, setScanning ? 1 : 0);
+	AMAction3 *action = AMActionSupport::buildControlMoveAction(startToggle_, setScanning ? 1 : 0);
 
 	if(!action)
 		return 0; //NULL
@@ -198,7 +198,7 @@ AMAction3* CLSSIS3820Scaler::createContinuousEnableAction3(bool enableContinuous
 	if(!isConnected())
 		return 0; //NULL
 
-	AMActionSupport *action = AMActionSupport::buildControlMoveAction(continuousToggle_, enableContinuous ? 1 : 0);
+	AMAction3 *action = AMActionSupport::buildControlMoveAction(continuousToggle_, enableContinuous ? 1 : 0);
 	if(!action)
 		return 0; //NULL
 
@@ -209,7 +209,7 @@ AMAction3* CLSSIS3820Scaler::createDwellTimeAction3(double dwellTime) {
 	if(!isConnected())
 		return 0; //NULL
 
-	AMActionSupport *action = AMActionSupport::buildControlMoveAction(dwellTime_, dwellTime*1000);
+	AMAction3 *action = AMActionSupport::buildControlMoveAction(dwellTime_, dwellTime*1000);
 	if(!action)
 		return 0; //NULL
 
@@ -220,7 +220,7 @@ AMAction3* CLSSIS3820Scaler::createScansPerBufferAction3(int scansPerBuffer) {
 	if(!isConnected())
 		return 0; //NULL
 
-	AMActionSupport *action = AMActionSupport::buildControlMoveAction(scanPerBuffer_, double(scansPerBuffer));
+	AMAction3 *action = AMActionSupport::buildControlMoveAction(scanPerBuffer_, double(scansPerBuffer));
 	if(!action)
 		return 0; //NULL
 
@@ -231,7 +231,7 @@ AMAction3* CLSSIS3820Scaler::createTotalScansAction3(int totalScans) {
 	if(!isConnected())
 		return 0; //NULL
 
-	AMActionSupport *action = AMActionSupport::buildControlMoveAction(totalScans_, double(totalScans));
+	AMAction3 *action = AMActionSupport::buildControlMoveAction(totalScans_, double(totalScans));
 	if(!action)
 		return 0; //NULL
 
@@ -638,7 +638,7 @@ AMAction3* CLSSIS3820ScalerChannel::createEnableAction3(bool setEnabled){
 	if(!isConnected())
 		return 0; //NULL
 
-	AMActionSupport *action = AMActionSupport::buildControlMoveAction(channelEnable_, setEnabled ? 1 : 0);
+	AMAction3 *action = AMActionSupport::buildControlMoveAction(channelEnable_, setEnabled ? 1 : 0);
 	if(!action)
 		return 0; //NULL
 
