@@ -86,7 +86,7 @@ AMAction3* BioXASSideXASScanActionController::createInitializationActions()
 
 	initializationAction->addSubAction(stage1);
 	initializationAction->addSubAction(stage2);
-	initializationAction->addSubAction(scaler->createDwellTimeAction3());
+	initializationAction->addSubAction(scaler->createDwellTimeAction3(double(configuration_->scanAxisAt(0)->regionAt(0)->regionTime())));
 	initializationAction->addSubAction(stage3);
 	initializationAction->addSubAction(stage4);
 
