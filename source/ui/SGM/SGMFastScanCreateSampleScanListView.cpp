@@ -232,14 +232,11 @@ void SGMFastScanCreateSampleScanListView::onAddToWorkflowButtonClicked(){
 			AMLoopAction3 *outerLoop = new AMLoopAction3(new AMLoopActionInfo3(columnsSpinBox_->value()-1, QString("First %1 Columns").arg(columnsSpinBox_->value()-1), QString("First %1 Columns").arg(rowsSpinBox_->value()-1)));
 			outerLoop->addSubAction(innerLoopHolder->createCopy());
 
-			//setIsRelativeMove(true), setIsRelativeFromSetpoint(true)
-			AMAction3 *moveActionX = AMActionSupport::buildControlMoveAction(SGMBeamline::sgm()->ssaManipulatorX(), -horizontalStepSpinBox_->value(), true, true);
-			outerLoop->addSubAction(moveActionX);
+			//move action X, setIsRelativeMove(true), setIsRelativeFromSetpoint(true)
+			outerLoop->addSubAction(AMActionSupport::buildControlMoveAction(SGMBeamline::sgm()->ssaManipulatorX(), -horizontalStepSpinBox_->value(), true, true));
 
-			//setIsRelativeMove(true), setIsRelativeFromSetpoint(true)
-			AMAction3 *moveActionZ = AMActionSupport::buildControlMoveAction(SGMBeamline::sgm()->ssaManipulatorZ(), -verticalStepSpinBox_->value()*rowsSpinBox_->value(), true, true);
-
-			outerLoop->addSubAction(moveActionZ);
+			//move action Z, setIsRelativeMove(true), setIsRelativeFromSetpoint(true)
+			outerLoop->addSubAction(AMActionSupport::buildControlMoveAction(SGMBeamline::sgm()->ssaManipulatorZ(), -verticalStepSpinBox_->value()*rowsSpinBox_->value(), true, true));
 
 			outerLoopHolder->addSubAction(outerLoop);
 		}

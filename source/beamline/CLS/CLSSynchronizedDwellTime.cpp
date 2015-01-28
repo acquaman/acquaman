@@ -103,7 +103,7 @@ AMAction3 *CLSSynchronizedDwellTime::createModeAction3(CLSSynchronizedDwellTime:
 	if (!mode_->isConnected())
 		return 0;
 
-	return AMActionSupport::buildControlMoveAction(mode_, Continuous ? 0.0 : 1.0);
+	return AMActionSupport::buildControlMoveAction(mode_, (mode == Continuous) ? 0.0 : 1.0);
 }
 
 AMAction3* CLSSynchronizedDwellTime::createEnableAtAction3(int index, bool isEnabled){
@@ -203,7 +203,7 @@ AMAction3 *CLSSynchronizedDwellTimeElement::createEnableAction3(bool enable)
 	if (!enable_->isConnected())
 		return 0;
 
-	return AMActionSupport::buildControlMoveAction(enable_, true ? 1.0 : 0.0);
+	return AMActionSupport::buildControlMoveAction(enable_, enable ? 1.0 : 0.0);
 }
 
 void CLSSynchronizedDwellTimeElement::configure(const CLSSynchronizedDwellTimeConfigurationInfo &info)
