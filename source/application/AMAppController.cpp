@@ -54,6 +54,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/actions/AMControlWaitActionInfo.h"
 #include "actions3/actions/AMWaitAction.h"
 #include "actions3/editors/AMWaitActionEditor.h"
+#include "actions3/actions/AMChangeToleranceAction.h"
 
 #include "application/AMAppControllerSupport.h"
 #include "acquaman/AMDetectorTriggerSourceScanOptimizer.h"
@@ -97,7 +98,7 @@ bool AMAppController::startup(){
 		success &= AMActionRegistry3::s()->registerInfoAndEditor<AMWaitActionInfo, AMWaitActionEditor>();
 
 		success &= AMActionRegistry3::s()->registerInfoAndAction<AMControlWaitActionInfo, AMControlWaitAction>("Wait for Control", "Wait for Control", ":system-run.png", false);
-
+		success &= AMActionRegistry3::s()->registerInfoAndAction<AMChangeToleranceActionInfo, AMChangeToleranceAction>("Change Tolerance Action", "Changes the tolerance of a specific control.", ":/user-away.png", false);
 		AMAgnosticDataMessageQEventHandler *scanActionMessager = new AMAgnosticDataMessageQEventHandler();
 		AMAgnosticDataAPISupport::registerHandler("ScanActions", scanActionMessager);
 
