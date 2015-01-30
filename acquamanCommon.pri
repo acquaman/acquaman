@@ -443,7 +443,9 @@ HEADERS += \
 	source/ui/util/AMEnergyListView.h \
 	source/dataman/export/AMExporterOptionSMAK.h \
 	source/ui/AMScanEditorsCloseView.h \
-	source/ui/util/AMSortFilterScansWidget.h
+	source/ui/util/AMSortFilterScansWidget.h \
+    source/ui/AMPenStyleComboBox.h \
+    source/ui/AMPlotMarkerComboBox.h
 
 FORMS += \
 	source/ui/dataman/AMImportControllerWidget.ui \
@@ -853,7 +855,9 @@ SOURCES += \
 	source/dataman/export/AMExporterOptionSMAK.cpp \
 	source/ui/AMScanEditorsCloseView.cpp \
 	source/ui/util/AMSortFilterScansWidget.cpp \
-	source/ui/dataman/AMImportControllerWidget.cpp
+	source/ui/dataman/AMImportControllerWidget.cpp \
+    source/ui/AMPenStyleComboBox.cpp \
+    source/ui/AMPlotMarkerComboBox.cpp
 
 RESOURCES *= source/icons/icons.qrc \
 		source/configurationFiles/configurationFiles.qrc \
