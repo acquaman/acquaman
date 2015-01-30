@@ -33,8 +33,9 @@ class AMPeriodicTableDialog : public QDialog
 	Q_OBJECT
 public:
 	/// Constructor.  Builds the dialog to look exactly like AMPeriodicTableView.
- 	virtual ~AMPeriodicTableDialog();
 	explicit AMPeriodicTableDialog(QWidget *parent = 0);
+	/// Destructor.
+	virtual ~AMPeriodicTableDialog();
 
 	/// Static member.  Builds a dialog and returns an AMElement *.  If the dialog is cancelled then the dialog returns 0.
 	static AMElement *getElement(QWidget *parent = 0);

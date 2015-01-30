@@ -68,7 +68,7 @@ AMChooseScanDialog::AMChooseScanDialog(AMDatabase* db, const QString& title, con
 	connect(browseScansView_, SIGNAL(childContextMenuRequested(const QPoint&)), this, SLOT(onContextMenuRequested(const QPoint&)));
 	connect(browseScansView_, SIGNAL(childViewDoubleClicked(const QModelIndex&)), this, SLOT(onDoubleClick()));
 	connect(dialogButtons_->button(0), SIGNAL(clicked()), this, SLOT(accept()));
-	connect(dialogButtons_->button(1), SIGNAL(clicked()), this, SLOT(reject()));	
+	connect(dialogButtons_->button(1), SIGNAL(clicked()), this, SLOT(reject()));
 }
 
 QList<QUrl> AMChooseScanDialog::getSelectedScans() const
@@ -103,4 +103,12 @@ void AMChooseScanDialog::setPrompt(const QString &prompt)
 	promptLabel_->setText(prompt);
 }
 
+void AMChooseScanDialog::setFilterRegExp(const QString &pattern)
+{
+	browseScansView_->setFilterRegExp(pattern);
+}
 
+void AMChooseScanDialog::setFilterKeyColumn(int column)
+{
+	browseScansView_->setFilterKeyColumn(column);
+}
