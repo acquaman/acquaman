@@ -65,7 +65,7 @@ void BioXASMainMonochromatorCrystalChangeControl::startCrystalChange()
         if (crystalChangeAction) {
 
             // Connect to action signals.
-            connect( crystalChangeAction, SIGNAL(started()), this, SLOT(onCrystalChangeStarted()) );
+            connect( crystalChangeAction, SIGNAL(started()), this, SLOT(onCrystalChangeActionsStarted()) );
             connect( crystalChangeAction, SIGNAL(currentSubActionChanged(int)), this, SLOT(onCrystalChangeSubActionChanged(int)) );
             connect( crystalChangeAction, SIGNAL(succeeded()), this, SLOT(onCrystalChangeActionsSucceeded()) );
             connect( crystalChangeAction, SIGNAL(cancelled()), this, SLOT(onCrystalChangeActionsFailed()) );
