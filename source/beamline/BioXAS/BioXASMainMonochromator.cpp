@@ -484,7 +484,6 @@ void BioXASMainMonochromator::onConnectedChanged()
 {
     bool currentState = (
 
-                // Motors
                 upperSlitBladeMotor_->isConnected() &&
                 lowerSlitBladeMotor_->isConnected() &&
                 braggMotor_->isConnected() &&
@@ -495,8 +494,6 @@ void BioXASMainMonochromator::onConnectedChanged()
                 crystal1RollMotor_->isConnected() &&
                 crystal2PitchMotor_->isConnected() &&
                 crystal2RollMotor_->isConnected() &&
-
-                // Controls
                 slitsClosed_->isConnected() &&
                 phosphorPaddle_->isConnected() &&
                 phosphorPaddleOut_->isConnected() &&
