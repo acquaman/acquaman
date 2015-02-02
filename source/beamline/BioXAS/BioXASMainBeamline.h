@@ -35,6 +35,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "beamline/BioXAS/BioXASPseudoMotorControl.h"
 #include "beamline/BioXAS/BioXASBeamlineDef.h"
+#include "beamline/CLS/CLSKeithley428.h"
 
 #include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
@@ -58,6 +59,14 @@ public:
 	/// Destructor.
 	virtual ~BioXASMainBeamline();
 
+    /// Returns the I0 amplifier.
+    CLSKeithley428* i0Amplifier() const { return i0Keithley_; }
+    /// Returns the IT amplifier.
+    CLSKeithley428* iTAmplifier() const { return iTKeithley_; }
+    /// Returns the I2 amplifier.
+    CLSKeithley428* i2Amplifier() const { return i2Keithley_; }
+
+    /// Return the set of BioXAS Motors by given motor category.
 	QList<AMControl *> getMotorsByType(BioXASBeamlineDef::BioXASMotorType category);
 
 protected:
@@ -140,6 +149,12 @@ protected:
 	BioXASPseudoMotorControl *m2PseudoLateral_;
 
 	BioXASPseudoMotorControl *monoPseudoEnergy_;
+
+protected:
+    /// Amplifiers
+    CLSKeithley428 *i0Keithley_;
+    CLSKeithley428 *iTKeithley_;
+    CLSKeithley428 *i2Keithley_;
 };
 
 #endif // BIOXASMAINBEAMLINE_H

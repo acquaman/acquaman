@@ -129,7 +129,11 @@ void BioXASMainBeamline::setupSynchronizedDwellTime()
 
 void BioXASMainBeamline::setupComponents()
 {
+    i0Keithley_ = new CLSKeithley428("I0 Channel", "AMP1607-701:Gain", this);
 
+    iTKeithley_ = new CLSKeithley428("IT Channel", "AMP1607-702:Gain", this);
+
+    i2Keithley_ = new CLSKeithley428("I2 Channel", "AMP1607-703:Gain", this);
 }
 
 void BioXASMainBeamline::setupControlsAsDetectors()
