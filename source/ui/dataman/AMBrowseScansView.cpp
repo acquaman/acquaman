@@ -37,7 +37,7 @@ AMBrowseScansView::AMBrowseScansView(AMDatabase *database, QWidget *parent) :
 	initializeChildViews();
 
 	// Signal/Slot connections
-	connect(viewButtonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(onChildViewChanged(int)));	
+	connect(viewButtonGroup_, SIGNAL(buttonClicked(int)), this, SLOT(onChildViewChanged(int)));
 	connect(sortFilterWidget_, SIGNAL(filterChanged(bool)), this, SIGNAL(filterChanged(bool)));
 }
 
@@ -180,4 +180,14 @@ QAbstractItemView *AMBrowseScansView::currentView()
 		return 0;
 
 	return childViews_.at(childViewDisplayArea_->currentIndex());
+}
+
+void AMBrowseScansView::setFilterRegExp(const QString &pattern)
+{
+	proxyModel_->setFilterRegExp(pattern);
+}
+
+void AMBrowseScansView::setFilterKeyColumn(int column)
+{
+	proxyModel_->setFilterKeyColumn(column);
 }

@@ -445,7 +445,8 @@ HEADERS += \
 	source/ui/AMScanEditorsCloseView.h \
 	source/ui/util/AMSortFilterScansWidget.h \
     source/actions3/actions/AMChangeToleranceActionInfo.h \
-    source/actions3/actions/AMChangeToleranceAction.h
+    source/actions3/actions/AMChangeToleranceAction.h \
+    source/ui/util/AMLineEditDialog.h
 
 FORMS += \
 	source/ui/dataman/AMImportControllerWidget.ui \
@@ -857,7 +858,8 @@ SOURCES += \
 	source/ui/util/AMSortFilterScansWidget.cpp \
 	source/ui/dataman/AMImportControllerWidget.cpp \
     source/actions3/actions/AMChangeToleranceActionInfo.cpp \
-    source/actions3/actions/AMChangeToleranceAction.cpp
+    source/actions3/actions/AMChangeToleranceAction.cpp \
+    source/ui/util/AMLineEditDialog.cpp
 
 RESOURCES *= source/icons/icons.qrc \
 		source/configurationFiles/configurationFiles.qrc \
@@ -874,6 +876,8 @@ contains(DEFINES, AM_BUILD_REPORTER_ENABLED){
 
 	SOURCES *= source/util/AMRunTimeBuildInfo.cpp
 }
+
+
 
 
 
