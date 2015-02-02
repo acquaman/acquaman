@@ -20,14 +20,17 @@ public:
     BioXASMainMonochromator* mono() const { return mono_; }
     /// Returns the current state of the control.
     State state() const { return state_; }
+    QString stateToString(BioXASMainMonochromatorCrystalChangeControl::State state) const;
 
 signals:
     /// Notifier that the mono being controlled has changed.
     void monoChanged(BioXASMainMonochromator *newMono);
     /// Notifier that the control's current state has changed.
-    void stateChanged(State newState);
+    void stateChanged(BioXASMainMonochromatorCrystalChangeControl::State newState);
     /// Notifier that the currently running action has changed, and so has the corresponding description and user information.
     void currentActionChanged(const QString &newDescription, const QString &newInformation);
+    /// Notifier that the action execution progress has changed. Contains info suitable for a progress bar.
+    void progressChanged(double value, double valueMax);
 
 public slots:
     /// Sets the monochromator.

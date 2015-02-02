@@ -19,14 +19,38 @@ BioXASMainMonochromatorCrystalChangeControl::~BioXASMainMonochromatorCrystalChan
 
 }
 
+QString BioXASMainMonochromatorCrystalChangeControl::stateToString(BioXASMainMonochromatorCrystalChangeControl::State state) const
+{
+    switch (state) {
+    case Initialized:
+        return "Initialized";
+    case Running:
+        return "Running";
+    case CompleteSuccess:
+        return "CompleteSuccess";
+    case CompleteFail:
+        return "CompleteFail";
+    default:
+        return "None";
+    }
+}
+
 void BioXASMainMonochromatorCrystalChangeControl::setMono(BioXASMainMonochromator *newMono)
 {
     if (mono_ != newMono) {
+
+        if (mono_)
+            disconnect( mono_, 0, this, 0 );
+
         mono_ = newMono;
 
-        onMonoConnectedChanged();
+        if (mono_) {
+            connect( mono_, SIGNAL(connected(bool)), this, SLOT(onMonoConnectedChanged()) );
+        }
 
         emit monoChanged(mono_);
+
+        onMonoConnectedChanged();
     }
 }
 
@@ -50,6 +74,9 @@ void BioXASMainMonochromatorCrystalChangeControl::startCrystalChange()
 
             // Begin crystal change.
             crystalChangeAction->start();
+
+        } else {
+            qDebug() << "Crystal change actions provided not valid.";
         }
 
     } else {
@@ -63,6 +90,12 @@ void BioXASMainMonochromatorCrystalChangeControl::setState(State newState)
         state_ = newState;
         emit stateChanged(state_);
     }
+
+    // There are certain states we don't want to dwell in (ie. CompleteSuccess, CompleteFail),
+    // and calling updateState() after a state change should make sure we always end up in the
+    // appropriate state, no matter what newState is.
+
+    updateState();
 }
 
 void BioXASMainMonochromatorCrystalChangeControl::onMonoConnectedChanged()
@@ -80,10 +113,13 @@ void BioXASMainMonochromatorCrystalChangeControl::onCrystalChangeSubActionChange
     AMListAction3 *crystalChangeAction = qobject_cast<AMListAction3*>(sender());
 
     if (crystalChangeAction) {
+        QPair<double, double> progress = crystalChangeAction->progress();
         AMAction3 *currentAction = crystalChangeAction->subActionAt(actionIndex);
 
-        if (currentAction)
+        if (currentAction) {
             emit currentActionChanged(currentAction->info()->shortDescription(), currentAction->info()->longDescription());
+            emit progressChanged(progress.first, progress.second);
+        }
     }
 }
 
@@ -91,14 +127,12 @@ void BioXASMainMonochromatorCrystalChangeControl::onCrystalChangeActionsSucceede
 {
     deleteAction(sender());
     setState(CompleteSuccess);
-    updateState();
 }
 
 void BioXASMainMonochromatorCrystalChangeControl::onCrystalChangeActionsFailed()
 {
     deleteAction(sender());
     setState(CompleteFail);
-    updateState();
 }
 
 void BioXASMainMonochromatorCrystalChangeControl::deleteAction(QObject *crystalChangeAction)
@@ -110,13 +144,14 @@ void BioXASMainMonochromatorCrystalChangeControl::deleteAction(QObject *crystalC
 void BioXASMainMonochromatorCrystalChangeControl::updateState()
 {
     if (mono_) {
+
         if (mono_->isConnected() && state_ == None) {
-            // The mono is valid and connected.
+            // The mono is valid and connected. No actions running.
             // The conditions for Initialize are fulfilled.
             setState(Initialized);
 
         } else if (mono_->isConnected() && (state_ == CompleteSuccess || state_ == CompleteFail)) {
-            // We have reached a crystal change terminal state,
+            // We have reached a crystal change terminal state, no actions running,
             // and the conditions for Initialize are fulfilled.
             setState(Initialized);
 
@@ -128,7 +163,7 @@ void BioXASMainMonochromatorCrystalChangeControl::updateState()
         } else if (!mono_->isConnected() && (state_ == CompleteSuccess || state_ == CompleteFail)) {
             // The mono is valid but not connected, and we have reached
             // a crystal change terminal state (not necessarily in that order).
-            // Cannot perform a crystal change.
+            // In any case, cannot perform a crystal change.
             setState(None);
         }
 
