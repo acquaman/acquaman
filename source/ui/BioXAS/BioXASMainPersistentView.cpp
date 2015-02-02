@@ -32,12 +32,15 @@ BioXASMainPersistentView::BioXASMainPersistentView(QWidget *parent) :
     energyControlEditor_ = new AMExtendedControlEditor(BioXASMainBeamline::bioXAS()->mono()->energyControl());
     energyControlEditor_->setControlFormat('f', 2);
 
+    crystalChangeView_ = new BioXASMainMonochromatorCrystalChangeView(0, this);
+
     crystalChange_ = new QPushButton("Crystal Change", this);
 
     // create and set layouts.
 
     QVBoxLayout *layout = new QVBoxLayout();
     layout->addWidget(energyControlEditor_);
+    layout->addWidget(crystalChangeView_);
     layout->addWidget(crystalChange_);
     layout->addStretch();
 

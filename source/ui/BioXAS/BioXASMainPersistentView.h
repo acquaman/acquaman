@@ -29,6 +29,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/CLS/CLSMAXvMotor.h"
 
 #include "ui/BioXAS/BioXASMainMonochromatorCrystalChangeControlView.h"
+#include "ui/BioXAS/BioXASMainMonochromatorCrystalChangeView.h"
 
 class AMExtendedControlEditor;
 
@@ -53,6 +54,8 @@ protected slots:
 protected:
     /// Basic editor for selecting mono energy.
     AMExtendedControlEditor *energyControlEditor_;
+    /// A view for the elements important to a crystal change.
+    BioXASMainMonochromatorCrystalChangeView *crystalChangeView_;
     /// Button that initiates the crystal change procedure.
     QPushButton *crystalChange_;
 };
