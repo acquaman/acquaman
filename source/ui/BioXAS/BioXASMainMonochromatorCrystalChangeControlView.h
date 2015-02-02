@@ -33,9 +33,9 @@ protected slots:
     /// Pokes the control to start crystal change procedure.
     void toStartCrystalChange();
     /// Updates the view in response to a change in the control's state.
-    void onControlStateChanged(BioXASMainMonochromatorCrystalChangeControl::State newState);
+    void onControlStateChanged();
     /// Updates the description and user information when the control reports a change in the current action.
-    void onControlCurrentActionChanged(const QString &newDescription, const QString &newInformation);
+    void onControlCurrentActionChanged(const QString &newDescription, const QString &newInstructions);
     /// Updates the progress bar when the control reports progress change.
     void onControlProgressChanged(double numerator, double denominator);
 
@@ -43,22 +43,33 @@ protected:
     /// The crystal change control being viewed.
     BioXASMainMonochromatorCrystalChangeControl *control_;
 
-    /// The intro display.
-    QDialog *introDisplay_;
+    /// The initialized display.
+    QWidget *initializedDisplay_;
     QString introMessage_;
 
-    /// The success display.
+    /// The running display.
+    QWidget *runningDisplay_;
+    QProgressBar *runningDisplayProgress_;
+    QLabel *runningDisplayDescription_;
+    QLabel *runningDisplayInstruction_;
+
+    /// The complete success display.
+    QWidget *completeSuccessDisplay_;
     QString successMessage_;
 
-    /// The fail display.
-    QDialog *failDisplay_;
+    /// The complete fail display.
+    QWidget *completeFailDisplay_;
     QString failMessage_;
 
 private:
     /// Shows the intro display and hides the others.
-    void showIntroDisplay();
+    void showInitializedDisplay();
+    /// Shows the actions running display and hides the others.
+    void showRunningDisplay();
+    /// Shows the success display and hides the others.
+    void showCompleteSuccessDisplay();
     /// Shows the fail display and hides the others.
-    void showFailDisplay();
+    void showCompleteFailDisplay();
 
 };
 
