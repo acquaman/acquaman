@@ -118,14 +118,14 @@ double BioXAS32ElementGeDetector::elapsedTime() const
 }
 
 void BioXAS32ElementGeDetector::startElapsedTime()
-{qDebug() << "Start elapsed time.";
+{
 	elapsedTime_.restart();
 	elapsedTimeTimer_.start();
 	emit elapsedTimeChanged(0.0);
 }
 
 void BioXAS32ElementGeDetector::stopElapsedTime()
-{qDebug() << "Stop elapsed time.";
+{
 	elapsedTimeTimer_.stop();
 	emit elapsedTimeChanged(double(elapsedTime_.elapsed())/1000.0);
 }
