@@ -178,13 +178,13 @@ protected:
 
 	/// Beamline valves
 	AMControl *PSH1406B1002Shutter_;
-	AMControl *VVR16064B1003Valve_;
-	AMControl *VVR16064B1004Valve_;
+	CLSBiStateControl *VVR16064B1003Valve_;
+	CLSBiStateControl *VVR16064B1004Valve_;
 	// NOT THIS ONE! It's connected to the pump on the mono
-//	AMControl *VVR16064B1005Valve_;
-	AMControl *VVR16064B1006Valve_;
-	AMControl *VVR16064B1007Valve_;
-	AMControl *VVR16065B1001Valve_;
+//	CLSBiStateControl *VVR16064B1005Valve_;
+	CLSBiStateControl *VVR16064B1006Valve_;
+	CLSBiStateControl *VVR16064B1007Valve_;
+	CLSBiStateControl *VVR16065B1001Valve_;
 };
 
 #endif // SXRMBBEAMLINE_H

@@ -128,68 +128,91 @@ AMAction3* SXRMBBeamline::createBeamOnActions() const
 	if(!isConnected())
 		return 0;
 
-	AMListAction3 *beamOnActionsList = new AMListAction3(new AMListActionInfo3("SXRMB Beam On", "SXRMB Beam On"), AMListAction3::Parallel);
-
-
+	// stage 1: open / wait the valves action list
 	AMListAction3 *valveOpenActionsList = new AMListAction3(new AMListActionInfo3("SXRMB Valve Open", "SXRMB Valve Open"), AMListAction3::Sequential);
-
-	AMControlInfo VVR16064B1003ValveSetpoint = VVR16064B1003Valve_->toInfo();
-	VVR16064B1003ValveSetpoint.setValue(1);
-	AMControlMoveAction3 *VVR16064B1003ValveSetpointOpenAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(VVR16064B1003ValveSetpoint), VVR16064B1003Valve_);
-	valveOpenActionsList->addSubAction(VVR16064B1003ValveSetpointOpenAction);
-
-	AMControlInfo VVR16064B1004ValveSetpoint = VVR16064B1004Valve_->toInfo();
-	VVR16064B1004ValveSetpoint.setValue(1);
-	AMControlMoveAction3 *VVR16064B1004ValveSetpointOpenAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(VVR16064B1004ValveSetpoint), VVR16064B1004Valve_);
-	valveOpenActionsList->addSubAction(VVR16064B1004ValveSetpointOpenAction);
-
-	AMControlInfo VVR16064B1006ValveSetpoint = VVR16064B1006Valve_->toInfo();
-	VVR16064B1006ValveSetpoint.setValue(1);
-	AMControlMoveAction3 *VVR16064B1006ValveSetpointOpenAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(VVR16064B1006ValveSetpoint), VVR16064B1006Valve_);
-	valveOpenActionsList->addSubAction(VVR16064B1006ValveSetpointOpenAction);
-
-	AMControlInfo VVR16064B1007ValveSetpoint = VVR16064B1007Valve_->toInfo();
-	VVR16064B1007ValveSetpoint.setValue(1);
-	AMControlMoveAction3 *VVR16064B1007ValveSetpointOpenAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(VVR16064B1007ValveSetpoint), VVR16064B1007Valve_);
-	valveOpenActionsList->addSubAction(VVR16064B1007ValveSetpointOpenAction);
-
-	AMControlInfo VVR16065B1001ValveSetpoint = VVR16065B1001Valve_->toInfo();
-	VVR16065B1001ValveSetpoint.setValue(1);
-	AMControlMoveAction3 *VVR16065B1001ValveSetpointOpenAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(VVR16065B1001ValveSetpoint), VVR16065B1001Valve_);
-	valveOpenActionsList->addSubAction(VVR16065B1001ValveSetpointOpenAction);
-
-
 	AMListAction3 *valveWaitActionsList = new AMListAction3(new AMListActionInfo3("SXRMB Valve Wait", "SXRMB Valve Wait"), AMListAction3::Parallel);
 
-	AMControlInfo VVR16064B1003ValveWaitSetpoint = VVR16064B1003Valve_->toInfo();
-	VVR16064B1003ValveWaitSetpoint.setValue(1);
-	AMControlWaitAction *VVR16064B1003ValveWaitAction = new AMControlWaitAction(new AMControlWaitActionInfo(VVR16064B1003ValveWaitSetpoint, 10, AMControlWaitActionInfo::MatchEqual), VVR16064B1003Valve_);
-	valveWaitActionsList->addSubAction(VVR16064B1003ValveWaitAction);
+	if (VVR16064B1003Valve_->state() != 1) { // 1: OPEN 0: CLOSE 2: BETWEEN?
+		AMControlInfo VVR16064B1003ValveSetpoint = VVR16064B1003Valve_->toInfo();
+		VVR16064B1003ValveSetpoint.setValue(1);
+		AMControlMoveAction3 *VVR16064B1003ValveSetpointOpenAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(VVR16064B1003ValveSetpoint), VVR16064B1003Valve_);
+		valveOpenActionsList->addSubAction(VVR16064B1003ValveSetpointOpenAction);
 
-	AMControlInfo VVR16064B1004ValveWaitSetpoint = VVR16064B1004Valve_->toInfo();
-	VVR16064B1004ValveWaitSetpoint.setValue(1);
-	AMControlWaitAction *VVR16064B1004ValveWaitAction = new AMControlWaitAction(new AMControlWaitActionInfo(VVR16064B1004ValveWaitSetpoint, 10, AMControlWaitActionInfo::MatchEqual), VVR16064B1004Valve_);
-	valveWaitActionsList->addSubAction(VVR16064B1004ValveWaitAction);
+		AMControlInfo VVR16064B1003ValveWaitSetpoint = VVR16064B1003Valve_->toInfo();
+		VVR16064B1003ValveWaitSetpoint.setValue(1);
+		AMControlWaitAction *VVR16064B1003ValveWaitAction = new AMControlWaitAction(new AMControlWaitActionInfo(VVR16064B1003ValveWaitSetpoint, 10, AMControlWaitActionInfo::MatchEqual), VVR16064B1003Valve_);
+		valveWaitActionsList->addSubAction(VVR16064B1003ValveWaitAction);
+	}
 
-	AMControlInfo VVR16064B1006ValveWaitSetpoint = VVR16064B1006Valve_->toInfo();
-	VVR16064B1006ValveWaitSetpoint.setValue(1);
-	AMControlWaitAction *VVR16064B1006ValveWaitAction = new AMControlWaitAction(new AMControlWaitActionInfo(VVR16064B1006ValveWaitSetpoint, 10, AMControlWaitActionInfo::MatchEqual), VVR16064B1006Valve_);
-	valveWaitActionsList->addSubAction(VVR16064B1006ValveWaitAction);
+	if (VVR16064B1004Valve_->state() != 1) { // 1: OPEN 0: CLOSE 2: BETWEEN?
+		AMControlInfo VVR16064B1004ValveSetpoint = VVR16064B1004Valve_->toInfo();
+		VVR16064B1004ValveSetpoint.setValue(1);
+		AMControlMoveAction3 *VVR16064B1004ValveSetpointOpenAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(VVR16064B1004ValveSetpoint), VVR16064B1004Valve_);
+		valveOpenActionsList->addSubAction(VVR16064B1004ValveSetpointOpenAction);
 
-	AMControlInfo VVR16064B1007ValveWaitSetpoint = VVR16064B1007Valve_->toInfo();
-	VVR16064B1007ValveWaitSetpoint.setValue(1);
-	AMControlWaitAction *VVR16064B1007ValveWaitAction = new AMControlWaitAction(new AMControlWaitActionInfo(VVR16064B1007ValveWaitSetpoint, 10, AMControlWaitActionInfo::MatchEqual), VVR16064B1007Valve_);
-	valveWaitActionsList->addSubAction(VVR16064B1007ValveWaitAction);
+		AMControlInfo VVR16064B1004ValveWaitSetpoint = VVR16064B1004Valve_->toInfo();
+		VVR16064B1004ValveWaitSetpoint.setValue(1);
+		AMControlWaitAction *VVR16064B1004ValveWaitAction = new AMControlWaitAction(new AMControlWaitActionInfo(VVR16064B1004ValveWaitSetpoint, 10, AMControlWaitActionInfo::MatchEqual), VVR16064B1004Valve_);
+		valveWaitActionsList->addSubAction(VVR16064B1004ValveWaitAction);
+	}
 
-	AMControlInfo VVR16065B1001ValveWaitSetpoint = VVR16065B1001Valve_->toInfo();
-	VVR16065B1001ValveWaitSetpoint.setValue(1);
-	AMControlWaitAction *VVR16065B1001ValveWaitAction = new AMControlWaitAction(new AMControlWaitActionInfo(VVR16065B1001ValveWaitSetpoint, 10, AMControlWaitActionInfo::MatchEqual), VVR16065B1001Valve_);
-	valveWaitActionsList->addSubAction(VVR16065B1001ValveWaitAction);
+	if (VVR16064B1006Valve_->state() != 1) { // 1: OPEN 0: CLOSE 2: BETWEEN?
+		AMControlInfo VVR16064B1006ValveSetpoint = VVR16064B1006Valve_->toInfo();
+		VVR16064B1006ValveSetpoint.setValue(1);
+		AMControlMoveAction3 *VVR16064B1006ValveSetpointOpenAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(VVR16064B1006ValveSetpoint), VVR16064B1006Valve_);
+		valveOpenActionsList->addSubAction(VVR16064B1006ValveSetpointOpenAction);
 
+		AMControlInfo VVR16064B1006ValveWaitSetpoint = VVR16064B1006Valve_->toInfo();
+		VVR16064B1006ValveWaitSetpoint.setValue(1);
+		AMControlWaitAction *VVR16064B1006ValveWaitAction = new AMControlWaitAction(new AMControlWaitActionInfo(VVR16064B1006ValveWaitSetpoint, 10, AMControlWaitActionInfo::MatchEqual), VVR16064B1006Valve_);
+		valveWaitActionsList->addSubAction(VVR16064B1006ValveWaitAction);
+	}
 
-	beamOnActionsList->addSubAction(valveOpenActionsList);
-	beamOnActionsList->addSubAction(valveWaitActionsList);
+	if (VVR16064B1007Valve_->state() != 1) { // 1: OPEN 0: CLOSE 2: BETWEEN?
+		AMControlInfo VVR16064B1007ValveSetpoint = VVR16064B1007Valve_->toInfo();
+		VVR16064B1007ValveSetpoint.setValue(1);
+		AMControlMoveAction3 *VVR16064B1007ValveSetpointOpenAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(VVR16064B1007ValveSetpoint), VVR16064B1007Valve_);
+		valveOpenActionsList->addSubAction(VVR16064B1007ValveSetpointOpenAction);
 
+		AMControlInfo VVR16064B1007ValveWaitSetpoint = VVR16064B1007Valve_->toInfo();
+		VVR16064B1007ValveWaitSetpoint.setValue(1);
+		AMControlWaitAction *VVR16064B1007ValveWaitAction = new AMControlWaitAction(new AMControlWaitActionInfo(VVR16064B1007ValveWaitSetpoint, 10, AMControlWaitActionInfo::MatchEqual), VVR16064B1007Valve_);
+		valveWaitActionsList->addSubAction(VVR16064B1007ValveWaitAction);
+	}
+
+	if (VVR16065B1001Valve_->state() != 1) { // 1: OPEN 0: CLOSE 2: BETWEEN?
+		AMControlInfo VVR16065B1001ValveSetpoint = VVR16065B1001Valve_->toInfo();
+		VVR16065B1001ValveSetpoint.setValue(1);
+		AMControlMoveAction3 *VVR16065B1001ValveSetpointOpenAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(VVR16065B1001ValveSetpoint), VVR16065B1001Valve_);
+		valveOpenActionsList->addSubAction(VVR16065B1001ValveSetpointOpenAction);
+
+		AMControlInfo VVR16065B1001ValveWaitSetpoint = VVR16065B1001Valve_->toInfo();
+		VVR16065B1001ValveWaitSetpoint.setValue(1);
+		AMControlWaitAction *VVR16065B1001ValveWaitAction = new AMControlWaitAction(new AMControlWaitActionInfo(VVR16065B1001ValveWaitSetpoint, 10, AMControlWaitActionInfo::MatchEqual), VVR16065B1001Valve_);
+		valveWaitActionsList->addSubAction(VVR16065B1001ValveWaitAction);
+	}
+
+	AMListAction3 *openValvesActionsList = new AMListAction3(new AMListActionInfo3("SXRMB Beam On", "SXRMB Beam On: stage 1"), AMListAction3::Parallel);
+	openValvesActionsList->addSubAction(valveOpenActionsList);
+	openValvesActionsList->addSubAction(valveWaitActionsList);
+
+	// stage 2: open/wait photon shutter action list, which MUST run after the valves open actions
+	AMControlInfo PSH1406B1002ShutterSetpoint = PSH1406B1002Shutter_->toInfo();
+	PSH1406B1002ShutterSetpoint.setValue(0);
+	AMControlMoveAction3 *PSH1406B1002ShutterOpenAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(PSH1406B1002ShutterSetpoint), PSH1406B1002Shutter_);
+
+	AMControlInfo PSH1406B1002ShutterWaitSetpoint = PSH1406B1002Shutter_->toInfo();
+	PSH1406B1002ShutterWaitSetpoint.setValue(0);
+	AMControlWaitAction *PSH1406B1002ShutterWaitAction = new AMControlWaitAction(new AMControlWaitActionInfo(PSH1406B1002ShutterWaitSetpoint, 10, AMControlWaitActionInfo::MatchEqual), PSH1406B1002Shutter_);
+
+	AMListAction3 *openPhotonShutterActionsList = new AMListAction3(new AMListActionInfo3("SXRMB Beam On", "SXRMB Beam On: stage 2"), AMListAction3::Parallel);
+	openPhotonShutterActionsList->addSubAction(PSH1406B1002ShutterOpenAction);
+	openPhotonShutterActionsList->addSubAction(PSH1406B1002ShutterWaitAction);
+
+	// create the beam on action list. The openValveActionsList and openPhotonShutterActionsList MUST run sequentially
+	AMListAction3 *beamOnActionsList = new AMListAction3(new AMListActionInfo3("SXRMB Beam On", "SXRMB Beam On"), AMListAction3::Sequential);
+	beamOnActionsList->addSubAction(openValvesActionsList);
+	beamOnActionsList->addSubAction(openPhotonShutterActionsList);
 
 	return beamOnActionsList;
 }
@@ -199,16 +222,16 @@ AMAction3* SXRMBBeamline::createBeamOffActions() const
 	if(!isConnected())
 		return 0;
 
-	AMListAction3 *beamOffActionsList = new AMListAction3(new AMListActionInfo3("SXRMB Beam Off", "SXRMB Beam Off"), AMListAction3::Parallel);
-
 	AMControlInfo PSH1406B1002ShutterSetpoint = PSH1406B1002Shutter_->toInfo();
 	PSH1406B1002ShutterSetpoint.setValue(0);
 	AMControlMoveAction3 *PSH1406B1002ShutterCloseAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(PSH1406B1002ShutterSetpoint), PSH1406B1002Shutter_);
-	beamOffActionsList->addSubAction(PSH1406B1002ShutterCloseAction);
 
 	AMControlInfo PSH1406B1002ShutterWaitSetpoint = PSH1406B1002Shutter_->toInfo();
 	PSH1406B1002ShutterWaitSetpoint.setValue(0);
 	AMControlWaitAction *PSH1406B1002ShutterWaitAction = new AMControlWaitAction(new AMControlWaitActionInfo(PSH1406B1002ShutterWaitSetpoint, 10, AMControlWaitActionInfo::MatchEqual), PSH1406B1002Shutter_);
+
+	AMListAction3 *beamOffActionsList = new AMListAction3(new AMListActionInfo3("SXRMB Beam Off", "SXRMB Beam Off"), AMListAction3::Parallel);
+	beamOffActionsList->addSubAction(PSH1406B1002ShutterCloseAction);
 	beamOffActionsList->addSubAction(PSH1406B1002ShutterWaitAction);
 
 	return beamOffActionsList;
