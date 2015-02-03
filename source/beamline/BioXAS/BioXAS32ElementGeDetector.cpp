@@ -149,3 +149,10 @@ void BioXAS32ElementGeDetector::onStatusMessageChanged()
 	statusMessage_ = name;
 	emit statusMessageChanged(statusMessage_);
 }
+
+bool BioXAS32ElementGeDetector::cancelAcquisitionImplementation()
+{
+	acquireControl_->move(0);
+	setAcquisitionCancelled();
+	return true;
+}

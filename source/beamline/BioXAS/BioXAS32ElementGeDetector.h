@@ -72,6 +72,9 @@ protected slots:
 	/// Handles getting the status message, which is an array of ascii characters and not a string.
 	void onStatusMessageChanged();
 
+	/// This function is called from the Cancelling (acquisition) state for detectors that support cancelling acquisitions. Once the detector has successfully cancelled the acquisition you must call setAcquisitionCancelled()
+	virtual bool cancelAcquisitionImplementation();
+
 protected:
 	/// Initializes the detector so that you can acquire. Changes the state from Idle or Aborting to Acquire.
 	bool initializeImplementation();
