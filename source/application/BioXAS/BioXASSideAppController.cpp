@@ -48,7 +48,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/BioXAS/BioXASSideXASScanConfigurationView.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
 #include "dataman/AMScanAxisEXAFSRegion.h"
-#include "ui/beamline/AMXRFBaseDetectorView.h"
+#include "ui/BioXAS/BioXAS32ElementGeDetectorView.h"
 
 BioXASSideAppController::BioXASSideAppController(QObject *parent)
 	: AMAppController(parent)
@@ -188,7 +188,7 @@ void BioXASSideAppController::setupUserInterface()
 		onScalerConnected();
 	}
 
-	AMXRFBaseDetectorView *view = new AMXRFBaseDetectorView(BioXASSideBeamline::bioXAS()->ge32ElementDetector());
+	BioXAS32ElementGeDetectorView *view = new BioXAS32ElementGeDetectorView(BioXASSideBeamline::bioXAS()->ge32ElementDetector());
 	view->buildDetectorView();
 	mw_->addPane(view, "Detectors", "Ge 32-el", ":/system-search.png");
 

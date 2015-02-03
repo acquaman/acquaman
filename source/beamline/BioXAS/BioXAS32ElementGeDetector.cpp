@@ -15,6 +15,7 @@ BioXAS32ElementGeDetector::BioXAS32ElementGeDetector(const QString &name, const 
 	acquireControl_ = new AMSinglePVControl("Acquisition Time", "BL1607-5-I22:SetPort_1", this, 0.5);
 	acquisitionStatusControl_ = new AMReadOnlyPVControl("Status", "DXP1607-I22-01:DetectorState_RBV", this);
 	acquireTimeControl_ = new AMSinglePVControl("Integration Time", "BL1607-5-I22:SetPort_1.HIGH", this, 0.001);
+	elapsedTimeControl_ = 0;
 
 	for (int i = 0; i < 1; i++){
 
@@ -34,6 +35,11 @@ BioXAS32ElementGeDetector::BioXAS32ElementGeDetector(const QString &name, const 
 	connect(this, SIGNAL(acquisitionCancelled()), this, SLOT(stopElapsedTime()));
 	connect(this, SIGNAL(acquisitionFailed()), this, SLOT(stopElapsedTime()));
 	connect(this, SIGNAL(acquisitionSucceeded()), this, SLOT(stopElapsedTime()));
+
+	statusMessage_ = "";
+	statusMessageControl_ = new AMReadOnlyPVControl("StatusMessage", "DXP1607-I22-01:StatusMessage_RBV", this);
+	connect(statusMessageControl_, SIGNAL(connected(bool)), this, SLOT(onStatusMessageChanged()));
+	connect(statusMessageControl_, SIGNAL(valueChanged(double)), this, SLOT(onStatusMessageChanged()));
 }
 
 BioXAS32ElementGeDetector::~BioXAS32ElementGeDetector()
@@ -43,7 +49,7 @@ BioXAS32ElementGeDetector::~BioXAS32ElementGeDetector()
 
 QString BioXAS32ElementGeDetector::synchronizedDwellKey() const
 {
-	return "dxp1607-B21-04:EraseStart NPP NMS";
+	return "";
 }
 
 bool BioXAS32ElementGeDetector::lastContinuousReading(double *outputValues) const
@@ -96,4 +102,23 @@ void BioXAS32ElementGeDetector::stopElapsedTime()
 void BioXAS32ElementGeDetector::onElapsedTimerTimeout()
 {
 	emit elapsedTimeChanged(double(elapsedTime_.elapsed())/1000.0);
+}
+
+void BioXAS32ElementGeDetector::onStatusMessageChanged()
+{
+	QString name;
+	const AMProcessVariable *pv = statusMessageControl_->readPV();
+
+	for (unsigned i = 0; i < pv->count(); i++){
+
+		int current = pv->getInt(i);
+
+		if (current == 0)
+			break;
+
+		name += QString::fromAscii((const char *) &current);
+	}
+	qDebug() << name;
+	statusMessage_ = name;
+	emit statusMessageChanged(statusMessage_);
 }

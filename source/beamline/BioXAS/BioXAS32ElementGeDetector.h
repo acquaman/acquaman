@@ -46,6 +46,13 @@ public:
 	/// The vortex detectors support elapsed time.
 	virtual bool supportsElapsedTime() const { return true; }
 
+	/// Returns the current status message.
+	QString statusMessage() const { return statusMessage_; }
+
+signals:
+	/// Notifier that the status message has changed.
+	void statusMessageChanged(const QString &);
+
 public slots:
 	/// The read mode cannot be changed for Amptek detectors
 	virtual bool setReadMode(AMDetectorDefinitions::ReadMode readMode);
@@ -62,12 +69,19 @@ protected slots:
 	void stopElapsedTime();
 	/// Emits a new elapsed time.
 	void onElapsedTimerTimeout();
+	/// Handles getting the status message, which is an array of ascii characters and not a string.
+	void onStatusMessageChanged();
 
 protected:
 	/// The elapsed time.  It has to be a timer since the Quantum electronics don't support elapsed time.
 	QTime elapsedTime_;
 	/// The elapsed time update timer.
 	QTimer elapsedTimeTimer_;
+	/// The status message.
+	QString statusMessage_;
+
+	/// The status message PV.
+	AMReadOnlyPVControl *statusMessageControl_;
 };
 
 #endif // BIOXAS32ELEMENTGEDETECTOR_H

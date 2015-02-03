@@ -10,6 +10,8 @@ class VESPERSXRFDetailedDetectorView : public AMXRFDetailedDetectorView
 public:
 	/// Constructor.  Takes a normal AMXRFDetector.
 	VESPERSXRFDetailedDetectorView(AMXRFDetector *detector, QWidget *parent = 0);
+	/// Destructor.
+	virtual ~VESPERSXRFDetailedDetectorView(){}
 
 protected slots:
 	/// Starts the acquisition.  Calls acquire() but subclasses can reimplement if there is a more sofisticated start routine.
