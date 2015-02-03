@@ -90,6 +90,8 @@ protected:
 	AMReadOnlyPVControl *statusMessageControl_;
 	/// The initialization control.
 	AMSinglePVControl *initializationControl_;
+	/// List of all the channel enable controls.
+	QList<AMPVControl *> channelEnableControls_;
 };
 
 #endif // BIOXAS32ELEMENTGEDETECTOR_H

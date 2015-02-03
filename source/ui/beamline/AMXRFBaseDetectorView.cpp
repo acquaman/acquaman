@@ -68,7 +68,9 @@ void AMXRFBaseDetectorView::buildDetectorView()
 
 	statusLabel_ = new QLabel;
 	statusLabel_->setPixmap(QIcon(":/OFF.png").pixmap(22));
+	connect(detector_, SIGNAL(initializationStateChanged(AMDetector::InitializationState)), this, SLOT(onInitializationStateChanged(AMDetector::InitializationState)));
 	connect(detector_, SIGNAL(acquisitionStateChanged(AMDetector::AcqusitionState)), this, SLOT(onAcquisitionStateChanged(AMDetector::AcqusitionState)));
+	connect(detector_, SIGNAL(cleanupStateChanged(AMDetector::CleanupState)), this, SLOT(onCleanupStateChanged(AMDetector::CleanupState)));
 
 	QHBoxLayout *startLayout = new QHBoxLayout;
 	startLayout->addWidget(statusLabel_);

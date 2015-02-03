@@ -21,8 +21,14 @@ public:
 protected slots:
 	void initializationStatusUpdate();
 	void acquisitionStatusUpdate();
+	/// Updates the status label when the detector initialization state changes.  By default does nothing.
+	virtual void onInitializationStateChanged(AMDetector::InitializationState state);
+	/// Updates the status label when the detector acquisition state changes.
+	virtual void onAcquisitionStateChanged(AMDetector::AcqusitionState state);
 
 protected:
+	/// Helper method that determines the state of the status label and ability to use the start/stop buttons.
+	void updateStatusAndAcquisitionButtons();
 	/// Returns a pointer to the detector as a BioXAS32ElementGeDetector rather than just an AMXRFDetector.
 	BioXAS32ElementGeDetector *bioXAS32ElementGeDetector() { return qobject_cast<BioXAS32ElementGeDetector *>(detector_); }
 
@@ -32,6 +38,8 @@ protected:
 	QLabel *initializationLabel_;
 	/// The acquisition status.
 	QLabel *acquisitionStatus_;
+	/// The initialize button.
+	QPushButton *initializeButton_;
 };
 
 #endif // BIOXAS32ELEMENTGEDETECTORVIEW_H

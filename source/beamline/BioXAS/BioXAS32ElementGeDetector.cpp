@@ -19,6 +19,7 @@ BioXAS32ElementGeDetector::BioXAS32ElementGeDetector(const QString &name, const 
 
 	for (int i = 0; i < 32; i++){
 
+		channelEnableControls_.append(new AMSinglePVControl(QString("Channel Enable %1").arg(i+1), QString("DXP1607-I22-01:C%1_PluginControlVal").arg(i+1), this, 0.1));
 		icrControls_.append(new AMReadOnlyPVControl(QString("Input Counts %1").arg(i+1), QString("DXP1607-I22-01:C%1_SCA3:Value_RBV").arg(i+1), this, QString("The input counts for element %1 of the four element.").arg(i+1)));
 		ocrControls_.append(new AMReadOnlyPVControl(QString("Output Counts %1").arg(i+1), QString("DXP1607-I22-01:C%1_SCA4:Value_RBV").arg(i+1), this, QString("The output counts for element %1 of the four element.").arg(i+1)));
 		spectraControls_.append(new AMReadOnlyPVControl(QString("Raw Spectrum %1").arg(i+1), QString("DXP1607-I22-01:ARR%1:ArrayData").arg(i+1), this));
@@ -80,13 +81,16 @@ bool BioXAS32ElementGeDetector::setReadMode(AMDetectorDefinitions::ReadMode read
 
 void BioXAS32ElementGeDetector::updateAcquisitionState()
 {
-	if (isInitializing() && (acquisitionStatusControl_->withinTolerance(1) && acquireControl_->withinTolerance(0))){
+	if (!isAcquiring() && initializationControl_->withinTolerance(0))
+		setInitializationRequired();
+
+	else if (isInitializing() && (acquisitionStatusControl_->withinTolerance(1) && acquireControl_->withinTolerance(0))){
 
 		setInitialized();
 		setReadyForAcquisition();
 	}
 
-	else if ((isAcquisitionSucceeded() ) && (acquisitionStatusControl_->withinTolerance(1) && acquireControl_->withinTolerance(0)))
+	else if (isAcquisitionSucceeded() && (acquisitionStatusControl_->withinTolerance(1) && acquireControl_->withinTolerance(0)))
 		setReadyForAcquisition();
 
 	else if (acquisitionStatusControl_->withinTolerance(1) && acquireControl_->withinTolerance(1))
@@ -101,7 +105,7 @@ void BioXAS32ElementGeDetector::updateAcquisitionState()
 		setInitializationRequired();
 	}
 
-	else if (acquisitionStatusControl_->withinTolerance(0) || acquisitionStatusControl_->withinTolerance(5))
+	else if (acquisitionStatusControl_->withinTolerance(0) || acquisitionStatusControl_->withinTolerance(5) || acquisitionStatusControl_->withinTolerance(10))
 		setNotReadyForAcquisition();
 
 	else if (isNotReadyForAcquisition() && requiresInitialization())
@@ -114,14 +118,14 @@ double BioXAS32ElementGeDetector::elapsedTime() const
 }
 
 void BioXAS32ElementGeDetector::startElapsedTime()
-{
+{qDebug() << "Start elapsed time.";
 	elapsedTime_.restart();
 	elapsedTimeTimer_.start();
 	emit elapsedTimeChanged(0.0);
 }
 
 void BioXAS32ElementGeDetector::stopElapsedTime()
-{
+{qDebug() << "Stop elapsed time.";
 	elapsedTimeTimer_.stop();
 	emit elapsedTimeChanged(double(elapsedTime_.elapsed())/1000.0);
 }
