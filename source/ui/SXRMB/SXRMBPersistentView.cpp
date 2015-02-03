@@ -34,9 +34,7 @@ SXRMBPersistentView::SXRMBPersistentView(QWidget *parent) :
 
 	//create and add beam on/off buttons
 	beamOnButton_ = new QPushButton("Beam On");
-	beamOnButton_->setDisabled(true);
 	beamOffButton_ = new QPushButton("Beam Off");
-	beamOffButton_->setDisabled(true);
 
 	QHBoxLayout *beamOnOffHL = new QHBoxLayout();
 	beamOnOffHL->addWidget(beamOnButton_);
@@ -97,11 +95,9 @@ SXRMBPersistentView::~SXRMBPersistentView()
 }
 
 void SXRMBPersistentView::onBeamOnButtonClicked(){
-	// DON'T DO ANYTHING RIGHT NOW
-	return;
-
 	if(beamOnAction_)
 		return;
+
 	beamOnAction_ = SXRMBBeamline::sxrmb()->createBeamOnActions();
 	connect(beamOnAction_, SIGNAL(succeeded()), this, SLOT(onBeamOnActionFinished()));
 	connect(beamOnAction_, SIGNAL(failed()), this, SLOT(onBeamOnActionFinished()));
@@ -111,16 +107,15 @@ void SXRMBPersistentView::onBeamOnButtonClicked(){
 void SXRMBPersistentView::onBeamOnActionFinished(){
 	disconnect(beamOnAction_, SIGNAL(succeeded()), this, SLOT(onBeamOnActionFinished()));
 	disconnect(beamOnAction_, SIGNAL(failed()), this, SLOT(onBeamOnActionFinished()));
+
 	beamOnAction_->deleteLater();
 	beamOnAction_ = 0; //NULL
 }
 
 void SXRMBPersistentView::onBeamOffButtonClicked(){
-	// DON'T DO ANYTHING RIGHT NOW
-	return;
-
 	if(beamOffAction_)
 		return;
+
 	beamOffAction_ = SXRMBBeamline::sxrmb()->createBeamOffActions();
 	connect(beamOffAction_, SIGNAL(succeeded()), this, SLOT(onBeamOffActionFinished()));
 	connect(beamOffAction_, SIGNAL(failed()), this, SLOT(onBeamOffActionFinished()));
@@ -130,6 +125,7 @@ void SXRMBPersistentView::onBeamOffButtonClicked(){
 void SXRMBPersistentView::onBeamOffActionFinished(){
 	disconnect(beamOffAction_, SIGNAL(succeeded()), this, SLOT(onBeamOffActionFinished()));
 	disconnect(beamOffAction_, SIGNAL(failed()), this, SLOT(onBeamOffActionFinished()));
+
 	beamOffAction_->deleteLater();
 	beamOffAction_ = 0; //NULL
 }
