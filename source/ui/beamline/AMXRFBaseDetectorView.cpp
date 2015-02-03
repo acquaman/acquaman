@@ -87,7 +87,7 @@ void AMXRFBaseDetectorView::buildDetectorView()
 	if(detector_->isConnected())
 		acquireTimeSpinBox_->setValue(detector_->acquisitionTime());
 
-	elapsedTimeLabel_ = new QLabel;
+	elapsedTimeLabel_ = new QLabel("0.00 s");
 	connect(detector_, SIGNAL(elapsedTimeChanged(double)), this, SLOT(onElapsedTimeChanged(double)));
 
 	QHBoxLayout *timeLayout = new QHBoxLayout;
