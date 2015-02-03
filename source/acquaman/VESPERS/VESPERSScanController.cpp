@@ -55,24 +55,24 @@ AMAction3 *VESPERSScanController::buildBaseInitializationAction(double firstRegi
 	stage2->addSubAction(scaler->createScansPerBufferAction3(1));
 	stage2->addSubAction(scaler->createTotalScansAction3(1));
 
-	AMListAction3 *stage3 = new AMListAction3(new AMListActionInfo3("VESPERS Initialization Stage 3", "VESPERS Initialization Stage 3"), AMListAction3::Parallel);
+	AMListAction3 *stage3 = new AMListAction3(new AMListActionInfo3("VESPERS Initialization Stage 3", "VESPERS Initialization Stage 3"), AMListAction3::Sequential);
 	stage3->addSubAction(scaler->createStartAction3(true));
-	stage3->addSubAction(scaler->createWaitForDwellFinishedAction());
+	stage3->addSubAction(scaler->createWaitForDwellFinishedAction(firstRegionTime + 5.0));
 
-	AMListAction3 *stage4 = new AMListAction3(new AMListActionInfo3("VESPERS Initialization Stage 4", "VESPERS Initialization Stage 4"), AMListAction3::Parallel);
-	stage4->addSubAction(scaler->createStartAction3(true));
-	stage4->addSubAction(scaler->createWaitForDwellFinishedAction());
+//	AMListAction3 *stage4 = new AMListAction3(new AMListActionInfo3("VESPERS Initialization Stage 4", "VESPERS Initialization Stage 4"), AMListAction3::Parallel);
+//	stage4->addSubAction(scaler->createStartAction3(true));
+//	stage4->addSubAction(scaler->createWaitForDwellFinishedAction());
 
 	initializationAction->addSubAction(stage1);
 	initializationAction->addSubAction(stage2);
 	initializationAction->addSubAction(scaler->createDwellTimeAction3(firstRegionTime));
 	initializationAction->addSubAction(stage3);
-	initializationAction->addSubAction(stage4);
+//	initializationAction->addSubAction(stage4);
 
 	return initializationAction;
 }
 
-AMAction3 *VESPERSScanController::buildCCDInitializationAction(VESPERS::CCDDetectors ccdChoice, const QString &ccdName)
+AMAction3 *VESPERSScanController::buildCCDInitializationAction(VESPERS::CCDDetectors ccdChoice, const QString &ccdName, int newScanNumber)
 {
 	AMParallelListAction3 *action = new AMParallelListAction3(new AMParallelListActionInfo3("CCD Setup Action", "Sets the path, base file name and file number to the detector."));
 
@@ -107,14 +107,11 @@ AMAction3 *VESPERSScanController::buildCCDInitializationAction(VESPERS::CCDDetec
 		QString dataFolder = AMUserSettings::userDataFolder;
 
 		if (dataFolder.contains(QRegExp("\\d{2,2}-\\d{4,4}")))
-			action->addSubAction(ccd->createFilePathAction("/ramdisk/" % dataFolder.mid(dataFolder.indexOf(QRegExp("\\d{2,2}-\\d{4,4}")), 7)));
+			action->addSubAction(ccd->createFilePathAction(QString("/ramdisk/%1/%2_%3").arg(dataFolder.mid(dataFolder.indexOf(QRegExp("\\d{2,2}-\\d{4,4}")), 7))
+													.arg(config_->ccdFileName())
+													.arg(newScanNumber)));
 
-		QString uniqueName = getUniqueCCDName(ccd->ccdFilePath(), ccdName);
-
-		if (config_->ccdFileName() != uniqueName)
-			config_->setCCDFileName(uniqueName);
-
-		action->addSubAction(ccd->createFileNameAction(uniqueName));
+		action->addSubAction(ccd->createFileNameAction(config_->ccdFileName()));
 		action->addSubAction(ccd->createFileNumberAction(1));
 	}
 

@@ -49,6 +49,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/actions/AMDoDarkCurrentCorrectionActionInfo.h"
 #include "actions3/actions/AMDoingDarkCurrentCorrectionActionInfo.h"
 #include "actions3/actions/AMWaitActionInfo.h"
+#include "actions3/actions/AMChangeToleranceActionInfo.h"
 
 #include "util/AMErrorMonitor.h"
 
@@ -173,9 +174,8 @@ bool AMDatamanAppControllerForActions3::startupRegisterDatabases()
 	AMDbObjectSupport::s()->registerClass<AMAxisFinishedActionInfo>();
 	AMDbObjectSupport::s()->registerClass<AMAxisValueFinishedActionInfo>();
 	AMDbObjectSupport::s()->registerClass<AMWaitActionInfo>();
-
+	AMDbObjectSupport::s()->registerClass<AMChangeToleranceActionInfo>();
 	AMDbObjectSupport::s()->registerClass<AMControlWaitActionInfo>();
-
 	AMDbObjectSupport::s()->registerClass<AMDoDarkCurrentCorrectionActionInfo>();
 	AMDbObjectSupport::s()->registerClass<AMDoingDarkCurrentCorrectionActionInfo>();
 

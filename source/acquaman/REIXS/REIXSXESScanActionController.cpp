@@ -491,7 +491,7 @@ void REIXSXESScanActionController::writeDataToFiles()
 	// This required a vertical mirroring and indexing vertically rather than horizontally.  I don't really like it, but you can't argue with working.
 	for (int j = mcpDataSize.j() - 1, jSize = j+1; j >= 0; j--)
 		for (int i = 0, iSize = mcpDataSize.i(); i < iSize; i++)
-			rank1String.append(QString("%1%2").arg(int(mcpData.at(j+i*jSize))).arg(i == (iSize-1) ? "\n" : "\t"));
+			rank1String.append(QString("%1%2").arg(double(mcpData.at(j+i*jSize)), 0, 'g', 19).arg(i == (iSize-1) ? "\n" : "\t"));
 
 	// Next is the total counts.
 	rank1String.append(QString("%1").arg(int(scan_->rawDataSources()->at(1)->value(AMnDIndex()))));
@@ -521,6 +521,11 @@ void REIXSXESScanActionController::onFileWriterError(AMScanActionControllerBasic
 	case AMScanActionControllerBasicFileWriter::CouldNotOpenError:
 		AMErrorMon::alert(this, REIXSXESSCANACTIONCONTROLLER_COULD_NOT_OPEN_FILE, QString("Error, the %1 Scan Action Controller failed to open the file to write your data. This is a serious problem, please contact the Acquaman developers.").arg(configuration_->technique()));
 		userErrorString = "Your scan has been aborted because Acquaman was unable to open the desired file for writing (for internal storage). This is a serious problem and would have resulted in collecting data but not saving it. Please contact the Acquaman developers immediately.";
+		break;
+
+	case AMScanActionControllerBasicFileWriter::FailedToWriteFile:
+		AMErrorMon::error(this, REIXSXESSCANACTIONCONTROLLER_FAILED_TO_WRITE_FILE, QString("Error, the %1 Scan Action Controller failed to write your data. This is a serious problem, please contact the Acquaman developers.").arg(configuration_->technique()));
+		userErrorString = "Your scan has been aborted because Acquaman was unable to write to the desired file (for internal storage). This is a serious problem and would have resulted in collecting data but not saving it. Please contact the Acquaman developers immediately.";
 		break;
 
 	default:

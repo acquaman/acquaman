@@ -23,12 +23,17 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AMLINESERIESPROPERTYEDITOR_H
 
 #include <QFrame>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QLabel>
 
-namespace Ui {
-	class AMLinePropertyEditor;
-}
+#include <QSlider>
+#include <QComboBox>
+#include <QSpacerItem>
+#include <QCheckBox>
 
 /// This widget provides an editor for pen settings (color, width, line style, fill enabled, and fill color).  At the moment, it only supports one-way communication: changes to its editor widgets result in the signals linePenChanged(), areaFilledChanged(), and areaFillBrushChanged(). However, there is no way to update its widgets programmatically -- it can only be user-driven.
+class AMColorPickerButton;
 class AMLinePropertyEditor : public QFrame
 {
 	Q_OBJECT
@@ -37,8 +42,6 @@ public:
 	explicit AMLinePropertyEditor(QWidget *parent = 0);
 	/// Construct an editor with its widgets initialized according to these settings
 	AMLinePropertyEditor(const QPen& initialPenSettings, bool areaFilled = false, const QBrush& areaFillColor = Qt::darkGray, QWidget* parent = 0);
-	/// Destructor
-	virtual ~AMLinePropertyEditor();
 
 signals:
 	void linePenChanged(const QPen& newPenSettings);
@@ -56,7 +59,25 @@ protected slots:
 
 
 protected:
-	Ui::AMLinePropertyEditor* ui_;
+	QVBoxLayout *verticalLayout;
+	QHBoxLayout *horizontalLayout;
+	QLabel *labelColor;
+	AMColorPickerButton *colorButton;
+	QHBoxLayout *horizontalLayout_2;
+	QLabel *labelWidth;
+	QSlider *widthSlider;
+	QComboBox *lineStyleBox;
+	QSpacerItem *verticalSpacer;
+	QHBoxLayout *horizontalLayout_3;
+	QLabel *labelFill;
+	QSpacerItem *horizontalSpacer;
+	QCheckBox *fillCheckBox;
+	QHBoxLayout *horizontalLayout_4;
+	QLabel *labelFillColor;
+	AMColorPickerButton *fillColorButton;
+
+private:
+	void setupUi();
 
 };
 

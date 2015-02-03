@@ -52,10 +52,6 @@ class AMRegionOfInterest;
 #define VESPERSAPPCONTROLLER_AURORA_PATH_NOT_FOUND 999001
 #define VESPERSAPPCONTROLLER_PILATUS_PATH_NOT_FOUND 999002
 
-// Helper classes that technically shouldn't need to exist.
-#include "util/VESPERS/VESPERSAttoCubeHack.h"
-
-
 class VESPERSAppController : public AMAppController {
 	Q_OBJECT
 
@@ -74,7 +70,7 @@ public:
 
 protected slots:
 	/// Helper slot that handles the workflow pausing/resuming when the beam dumps or is restored.
-	void onBeamAvailabilityChanged(bool beamAvailable);
+	void onBeamAvailabilityChanged(bool beamAvailable = false);
 
 	/// Helper slot that handles moving the status page to the front of the main window stack.
 	void onStatusViewRequrested();
@@ -216,8 +212,6 @@ protected:
 
 	/// Holds the user configuration used for automatically setting up some simple aspects of the user interface.
 	VESPERSUserConfiguration *userConfiguration_;
-
-	VESPERSAttoCubeHack *attoHack_;
 };
 
 #endif // VESPERSAPPCONTROLLER_H

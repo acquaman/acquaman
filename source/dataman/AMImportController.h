@@ -131,9 +131,12 @@ protected slots:
 	void onFinished();
 	/// while reviewing, the file type sets the method used to import. If it's changed, need to retry.
 	void onFileTypeComboBoxChanged(int index);
-	/// This slot is called from the signal mapper whenever any of the check-boxes are changed, indicating whether to get
-	void onGetInfoFromFileBoxChecked(const QString& key);
-
+	/// Called when the user changes the state of the Customize Name checkbox in the Widget
+	void onCustomizeNameChanged(bool);
+	/// Called when the user changes the state of the Customize Number checkbox in the Widget
+	void onCustomizeNumberChanged(bool);
+	/// Called when the user changes the state of the Customize DateTime checkbox in the Widget
+	void onCustomizeDateTimeChanged(bool);
 
 	/// Temporary solution only: Identifies what looks like a "spectra" file: an auxiliary file used by the CLS dacq library, which shouldn't be imported on its own.
 	bool isAuxiliaryFile(const QString& fullFileName);
@@ -151,7 +154,7 @@ protected:
 	bool applyToAll_;
 
 	QFileDialog* fileDialog_;
-	AMImportControllerWidget* w_;
+	AMImportControllerWidget* importWidget_;
 
 
 

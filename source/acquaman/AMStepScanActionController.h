@@ -39,6 +39,7 @@ Q_DECLARE_METATYPE(AMScanActionControllerBasicFileWriter::FileWriterError)
 #define AMSTEPSCANACTIONCONTROLLER_FILE_ALREADY_EXISTS 265003
 #define AMSTEPSCANACTIONCONTROLLER_COULD_NOT_OPEN_FILE 265004
 #define AMSTEPSCANACTIONCONTROLLER_UNKNOWN_FILE_ERROR 265005
+#define AMSTEPSCANACTIONCONTROLLER_FAILE_TO_WRITE_FILE 265006
 
 /// This class is the base class for all step based scan controllers.  It can handle any number of dimensions as long as they are all step axes.
 class AMStepScanActionController : public AMScanActionController

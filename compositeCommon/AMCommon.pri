@@ -54,6 +54,11 @@ QT *= core gui
 
 DESTDIR = build
 
+OBJECTS_DIR=build_files
+MOC_DIR=build_files
+UI_DIR=build_files
+RCC_DIR=build_files
+
 HEADERS *= \
 	source/AMQEvents.h \
 	source/AMQGraphics.h \

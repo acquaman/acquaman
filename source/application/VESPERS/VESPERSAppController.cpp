@@ -183,9 +183,6 @@ bool VESPERSAppController::startup()
 		// Github setup for adding VESPERS specific comment.
 		additionalIssueTypesAndAssignees_.append("I think it's a VESPERS specific issue", "dretrex");
 
-		// THIS IS HERE TO PASS ALONG THE INFORMATION TO THE SUM AND CORRECTEDSUM PVS IN THE FOUR ELEMENT DETECTOR.
-		attoHack_ = new VESPERSAttoCubeHack(VESPERSBeamline::vespers()->attoStageRz());
-
 		return true;
 	}
 	else
@@ -207,9 +204,9 @@ bool VESPERSAppController::ensureProgramStructure()
 	return true;
 }
 
-void VESPERSAppController::shutdown() {
+void VESPERSAppController::shutdown()
+{
 	// Make sure we release/clean-up the beamline interface
-	attoHack_->deleteLater();
 	AMBeamline::releaseBl();
 	AMAppController::shutdown();
 }
@@ -426,6 +423,7 @@ void VESPERSAppController::onCurrentScanActionStartedImplementation(AMScanAction
 		return;
 
 	connect(CLSStorageRing::sr1(), SIGNAL(beamAvaliability(bool)), this, SLOT(onBeamAvailabilityChanged(bool)));
+	connect(VESPERSBeamline::vespers(), SIGNAL(beamDumped()), this, SLOT(onBeamAvailabilityChanged()));
 	userConfiguration_->storeToDb(AMDatabase::database("user"));
 }
 
@@ -437,6 +435,7 @@ void VESPERSAppController::onCurrentScanActionFinishedImplementation(AMScanActio
 		return;
 
 	disconnect(CLSStorageRing::sr1(), SIGNAL(beamAvaliability(bool)), this, SLOT(onBeamAvailabilityChanged(bool)));
+	disconnect(VESPERSBeamline::vespers(), SIGNAL(beamDumped()), this, SLOT(onBeamAvailabilityChanged()));
 
 	// Save the current configuration to the database.
 	// Being explicit due to the nature of how many casts were necessary.  I could probably explicitly check to ensure each cast is successful, but I'll risk it for now.

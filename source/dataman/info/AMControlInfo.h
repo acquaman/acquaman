@@ -42,15 +42,23 @@ class AMControlInfo : public AMDbObject {
 
 
 public:
- 	virtual ~AMControlInfo();
+	/// Default constructor
 	Q_INVOKABLE AMControlInfo(const QString& name = "Invalid Control", double value = 0.0, double minimum = 0.0, double maximum = 0.0, const QString& units = "", double tolerance = 0.0, const QString &description = "", const QString &contextKnownDescription = "", const QString& enumString = QString(), QObject* parent = 0);
+	virtual ~AMControlInfo();
 
+	/// Returns the value of the control
 	double value() const { return value_; }
+	/// Returns the minimum value of the control
 	double minimum() const { return minimum_; }
+	/// Returns the maximum value of the control
 	double maximum() const { return maximum_; }
+	/// Returns the units of the control
 	QString units() const { return units_; }
+	/// Returns the tolerance of the control
 	double tolerance() const { return tolerance_; }
+	/// Returns the full description of the control
 	QString description() const { return description_; }
+	/// Returns the contextual description of the control
 	QString contextKnownDescription() const { return contextKnownDescription_; }
 	/// Returns true if this was derived from an "enum" control with discrete states. It means that enumString() contains the state corresponding to value().
 	bool isEnum() const { return !enumString_.isEmpty(); }
@@ -72,23 +80,39 @@ public:
 	}
 
 public slots:
+	/// Sets the value for this control info
 	void setValue(double value) { value_ = value; setModified(true); }
+	/// Sets the minimum possible value for this control info
 	void setMinimum(double minimum) { minimum_ = minimum; setModified(true); }
+	/// Sets the maximum possible value for this control info
 	void setMaximum(double maximum) { maximum_ = maximum; setModified(true); }
+	/// Sets the units for this control info
 	void setUnits(const QString &units) { units_ = units; setModified(true); }
+	/// Sets the tolerance for this control info
 	void setTolerance(double tolerance) { tolerance_ = tolerance; setModified(true); }
+	/// Sets the full description for this control info
 	void setDescription(const QString &description) { description_ = description; setModified(true); }
+	/// Sets the contextual descriptino for thie contorl info
 	void setContextKnownDescription(const QString &contextKnownDescription) { contextKnownDescription_ = contextKnownDescription; setModified(true); }
+	/// Sets the enum string for this control info (if applicable)
 	void setEnumString(const QString& enumString) { enumString_ = enumString; setModified(true); }
 
 protected:
+	/// Position of the control
 	double value_;
+	/// Minimum value of the control
 	double minimum_;
+	/// Maximum value of the control
 	double maximum_;
+	/// Units for this control
 	QString units_;
+	/// Tolerance for this control
 	double tolerance_;
+	/// Full description of this control
 	QString description_;
+	/// Contextual description of this control
 	QString contextKnownDescription_;
+	/// The enum string value of the control (if applicable)
 	QString enumString_;
 };
 

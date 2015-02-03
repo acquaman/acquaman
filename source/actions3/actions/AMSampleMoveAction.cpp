@@ -129,14 +129,14 @@ void AMSampleMoveAction::startImplementation(){
 	if(asListAction){
 		for(int x = 0, size = asListAction->subActionCount(); x < size; x++){
 			AMControlMoveAction3 *subAsControlMoveAction = qobject_cast<AMControlMoveAction3*>(asListAction->subActionAt(x));
-			if(subAsControlMoveAction && subAsControlMoveAction->controlMoveInfo()->controlInfo()->value() > subAsControlMoveAction->controlMoveInfo()->controlInfo()->maximum()){
-				AMControlInfo newValueInfo(*(subAsControlMoveAction->controlMoveInfo()->controlInfo()));
-				newValueInfo.setValue(subAsControlMoveAction->controlMoveInfo()->controlInfo()->maximum());
+			if(subAsControlMoveAction && subAsControlMoveAction->controlMoveInfo()->controlInfo().value() > subAsControlMoveAction->controlMoveInfo()->controlInfo().maximum()){
+				AMControlInfo newValueInfo(subAsControlMoveAction->controlMoveInfo()->controlInfo());
+				newValueInfo.setValue(subAsControlMoveAction->controlMoveInfo()->controlInfo().maximum());
 				subAsControlMoveAction->controlMoveInfo()->setControlInfo(newValueInfo);
 			}
-			else if(subAsControlMoveAction && subAsControlMoveAction->controlMoveInfo()->controlInfo()->value() < subAsControlMoveAction->controlMoveInfo()->controlInfo()->minimum()){
-				AMControlInfo newValueInfo(*(subAsControlMoveAction->controlMoveInfo()->controlInfo()));
-				newValueInfo.setValue(subAsControlMoveAction->controlMoveInfo()->controlInfo()->minimum());
+			else if(subAsControlMoveAction && subAsControlMoveAction->controlMoveInfo()->controlInfo().value() < subAsControlMoveAction->controlMoveInfo()->controlInfo().minimum()){
+				AMControlInfo newValueInfo(subAsControlMoveAction->controlMoveInfo()->controlInfo());
+				newValueInfo.setValue(subAsControlMoveAction->controlMoveInfo()->controlInfo().minimum());
 				subAsControlMoveAction->controlMoveInfo()->setControlInfo(newValueInfo);
 			}
 		}
