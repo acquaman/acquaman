@@ -114,11 +114,15 @@ AMScanSetItem1DPropertyEditor::AMScanSetItem1DPropertyEditor(AMScanSetModel* mod
 		  model->data(di, AM::LinePenRole).value<QPen>(),
 		  model->data(di, AMScanSetModel::FilledRole).toBool(),
 		  model->data(di, AMScanSetModel::FillColorRole).value<QColor>(),
+		  model->data(di, AMScanSetModel::MarkerColorRole).value<QColor>(),
+		  (MPlotMarkerShape::Shape)model->data(di, AMScanSetModel::MarkerShapeRole).toInt(),
 		  parent)
 {
 	model_ = model;
 	pi_ = di;
 	connect(this, SIGNAL(linePenChanged(QPen)), this, SLOT(onLinePenChanged(QPen)));
+	connect(this, SIGNAL(markerColorChanged(QColor)), this, SLOT(onMarkerColorChanged(QColor)));
+	connect(this, SIGNAL(markerShapeChanged(MPlotMarkerShape::Shape)), this, SLOT(onMarkerShapeChanged(MPlotMarkerShape::Shape)));
 }
 
 
@@ -127,6 +131,20 @@ void AMScanSetItem1DPropertyEditor::onLinePenChanged(const QPen &pen)
 {
 	if(pi_.isValid()) {
 		model_->setData(pi_, pen, AM::LinePenRole);
+	}
+}
+
+void AMScanSetItem1DPropertyEditor::onMarkerColorChanged(const QColor &color)
+{
+	if(pi_.isValid()) {
+		model_->setData(pi_, color, AMScanSetModel::MarkerColorRole);
+	}
+}
+
+void AMScanSetItem1DPropertyEditor::onMarkerShapeChanged(MPlotMarkerShape::Shape shape)
+{
+	if(pi_.isValid()) {
+		model_->setData(pi_, shape, AMScanSetModel::MarkerShapeRole);
 	}
 }
 

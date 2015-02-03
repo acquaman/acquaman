@@ -13,6 +13,7 @@ public:
 	explicit AMPlotMarkerComboBox(QWidget *parent = 0);
 
 	MPlotMarkerShape::Shape selectedMarkerShape() const;
+	void setSelectedMarkerShape(MPlotMarkerShape::Shape shape);
 signals:
 	void currentMarkerShapeChanged(MPlotMarkerShape::Shape newShape);
 public slots:

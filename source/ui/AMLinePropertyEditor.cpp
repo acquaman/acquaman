@@ -22,7 +22,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "AMLinePropertyEditor.h"
 #include "ui/dataman/AMColorPickerButton.h"
 #include "ui/AMPenStyleComboBox.h"
-#include "ui/AMPlotMarkerComboBox.h"
 
 #include <QPen>
 #include <QBrush>
@@ -37,14 +36,19 @@ AMLinePropertyEditor::AMLinePropertyEditor(QWidget *parent) :
 	connect(areaFillCheckBox_, SIGNAL(clicked(bool)), areaFillColorPickerButton_, SLOT(setEnabled(bool)));
 
 	connect(lineColorPickerButton_, SIGNAL(colorChanged(QColor)), this, SLOT(onPenSettingsChanged()));
-	connect(lineWidthSlider_, SIGNAL(valueChanged(int)), this, SLOT(onPenSettingsChanged()));
-	connect(lineStyleComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onPenSettingsChanged()));
+	connect(lineWidthSlider_, SIGNAL(valueChanged(int)), this, SLOT(onPenSettingsChanged()));	
+	connect(lineStyleComboBox_, SIGNAL(currentPenStyleChanged(Qt::PenStyle)), this, SLOT(onPenSettingsChanged()));
 
 	connect(areaFillCheckBox_, SIGNAL(clicked(bool)), this, SIGNAL(areaFilledChanged(bool)));
 	connect(areaFillColorPickerButton_, SIGNAL(colorChanged(QColor)), this, SLOT(onAreaFillColorChanged(QColor)));
+
+	connect(markerColorPickerButton_, SIGNAL(colorChanged(QColor)), this, SIGNAL(markerColorChanged(QColor)));
+	connect(markerShapeComboBox_, SIGNAL(currentMarkerShapeChanged(MPlotMarkerShape::Shape)), this, SIGNAL(markerShapeChanged(MPlotMarkerShape::Shape)));
 }
 
-AMLinePropertyEditor::AMLinePropertyEditor(const QPen& initialPen, bool areaFilled, const QBrush& areaFillColor, QWidget* parent) :
+AMLinePropertyEditor::AMLinePropertyEditor(const QPen& initialPen, bool areaFilled, const QBrush& areaFillColor,
+										   const QColor& markerColor, MPlotMarkerShape::Shape markerShape,
+										   QWidget* parent) :
 	QFrame(parent)
 {
 	setupUi();
@@ -57,21 +61,27 @@ AMLinePropertyEditor::AMLinePropertyEditor(const QPen& initialPen, bool areaFill
 	areaFillColorPickerButton_->setColor(areaFillColor.color());
 
 	areaFillColorPickerButton_->setEnabled(areaFilled);
+	markerColorPickerButton_->setColor(markerColor);
+	markerShapeComboBox_->setSelectedMarkerShape(markerShape);
+
 	connect(areaFillCheckBox_, SIGNAL(clicked(bool)), areaFillColorPickerButton_, SLOT(setEnabled(bool)));
 
 	connect(lineColorPickerButton_, SIGNAL(colorChanged(QColor)), this, SLOT(onPenSettingsChanged()));
 	connect(lineWidthSlider_, SIGNAL(valueChanged(int)), this, SLOT(onPenSettingsChanged()));
-	connect(lineStyleComboBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onPenSettingsChanged()));
+	connect(lineStyleComboBox_, SIGNAL(currentPenStyleChanged(Qt::PenStyle)), this, SLOT(onPenSettingsChanged()));
 
 	connect(areaFillCheckBox_, SIGNAL(clicked(bool)), this, SIGNAL(areaFilledChanged(bool)));
 	connect(areaFillColorPickerButton_, SIGNAL(colorChanged(QColor)), this, SLOT(onAreaFillColorChanged(QColor)));
+
+	connect(markerColorPickerButton_, SIGNAL(colorChanged(QColor)), this, SIGNAL(markerColorChanged(QColor)));
+	connect(markerShapeComboBox_, SIGNAL(currentMarkerShapeChanged(MPlotMarkerShape::Shape)), this, SIGNAL(markerShapeChanged(MPlotMarkerShape::Shape)));
 }
 
 void AMLinePropertyEditor::onPenSettingsChanged()
 {
 	emit linePenChanged(QPen(lineColorPickerButton_->color(),
 							 lineWidthSlider_->value(),
-							 (Qt::PenStyle)(lineStyleComboBox_->currentIndex()+1)));
+							 lineStyleComboBox_->selectedPenStyle()));
 }
 
 void AMLinePropertyEditor::onAreaFillColorChanged(const QColor &color)
@@ -123,24 +133,17 @@ void AMLinePropertyEditor::setupUi()
 					QString("QLabel { color: white }"));
 
 	// Marker Outline Color
-	markerOutlineColorPickerButton_ = new AMColorPickerButton();
-	mainLayout->addRow(QString("Marker Color:"), markerOutlineColorPickerButton_);
+	markerColorPickerButton_ = new AMColorPickerButton();
+	mainLayout->addRow(QString("Marker Color:"), markerColorPickerButton_);
 	mainLayout->labelForField(
-				markerOutlineColorPickerButton_)->setStyleSheet(
-					QString("QLabel { color: white }"));
-
-	// Marker Fill Color
-	markerFillColorPickerButton_ = new AMColorPickerButton();
-	mainLayout->addRow(QString("Marker Fill:"), markerFillColorPickerButton_);
-	mainLayout->labelForField(
-				markerFillColorPickerButton_)->setStyleSheet(
+				markerColorPickerButton_)->setStyleSheet(
 					QString("QLabel { color: white }"));
 
 	// Marker Style
-	markerStyleComboBox_ = new AMPlotMarkerComboBox();
-	mainLayout->addRow(QString("Marker Style:"), markerStyleComboBox_);
+	markerShapeComboBox_ = new AMPlotMarkerComboBox();
+	mainLayout->addRow(QString("Marker Style:"), markerShapeComboBox_);
 	mainLayout->labelForField(
-				markerStyleComboBox_)->setStyleSheet(
+				markerShapeComboBox_)->setStyleSheet(
 					QString("QLabel { color: white }"));
 
 	// Whether to fill the area of the plot (not yet supported in MPlot, therefore

@@ -30,12 +30,28 @@ AMPlotMarkerComboBox::AMPlotMarkerComboBox(QWidget *parent) :
 	}
 
 	setCurrentIndex(0);
+	connect(this, SIGNAL(currentIndexChanged(int)), this, SLOT(onCurrentIndexChanged(int)));
 }
 
 MPlotMarkerShape::Shape AMPlotMarkerComboBox::selectedMarkerShape() const
 {
-	int currentMarkerShape = itemData(currentIndex()).toInt();
+	int currentMarkerShape = itemData(currentIndex(), Qt::UserRole).toInt();
 	return (MPlotMarkerShape::Shape)currentMarkerShape;
+}
+
+void AMPlotMarkerComboBox::setSelectedMarkerShape(MPlotMarkerShape::Shape shape)
+{
+	int passedShapeInteger = (int)shape;
+
+	for (int iCurrentItem = 0, itemCount = this->count(); iCurrentItem < itemCount; ++iCurrentItem) {
+		int currentItemShapeInteger = itemData(iCurrentItem, Qt::UserRole).toInt();
+
+		if(currentItemShapeInteger == passedShapeInteger) {
+			setCurrentIndex(iCurrentItem);
+			return;
+		}
+
+	}
 }
 
 void AMPlotMarkerComboBox::onCurrentIndexChanged(int /*newIndex*/)

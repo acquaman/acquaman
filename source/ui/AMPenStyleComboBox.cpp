@@ -14,8 +14,9 @@ AMPenStyleComboBox::AMPenStyleComboBox(QWidget *parent) :
 	}
 
 	setItemDelegate(new AMPenStyleDelegate(this));
+	setCurrentIndex(1);
 	connect(this, SIGNAL(currentIndexChanged(int)), this, SLOT(onCurrentIndexChanged(int)));
-		setCurrentIndex(1);
+
 }
 
 Qt::PenStyle AMPenStyleComboBox::selectedPenStyle() const

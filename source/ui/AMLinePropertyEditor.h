@@ -31,10 +31,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QSpacerItem>
 #include <QCheckBox>
 
+#include "ui/AMPlotMarkerComboBox.h"
 /// This widget provides an editor for pen settings (color, width, line style, fill enabled, and fill color).  At the moment, it only supports one-way communication: changes to its editor widgets result in the signals linePenChanged(), areaFilledChanged(), and areaFillBrushChanged(). However, there is no way to update its widgets programmatically -- it can only be user-driven.
 class AMColorPickerButton;
 class AMPenStyleComboBox;
-class AMPlotMarkerComboBox;
 class AMLinePropertyEditor : public QFrame
 {
 	Q_OBJECT
@@ -42,13 +42,14 @@ public:
 	/// Default Constructor
 	explicit AMLinePropertyEditor(QWidget *parent = 0);
 	/// Construct an editor with its widgets initialized according to these settings
-	AMLinePropertyEditor(const QPen& initialPenSettings, bool areaFilled = false, const QBrush& areaFillColor = Qt::darkGray, QWidget* parent = 0);
+	AMLinePropertyEditor(const QPen& initialPenSettings, bool areaFilled = false, const QBrush& areaFillColor = Qt::darkGray, const QColor &markerColor = Qt::red, MPlotMarkerShape::Shape markerShape = MPlotMarkerShape::None, QWidget* parent = 0);
 
 signals:
 	void linePenChanged(const QPen& newPenSettings);
 	void areaFilledChanged(bool isFilled);
 	void areaFillBrushChanged(const QBrush& newFillBrush);
-
+	void markerColorChanged(const QColor& newColor);
+	void markerShapeChanged(MPlotMarkerShape::Shape shape);
 public slots:
 
 
@@ -69,9 +70,8 @@ protected:
 	AMColorPickerButton *areaFillColorPickerButton_;
 
 	// Marker plot details
-	AMColorPickerButton *markerOutlineColorPickerButton_;
-	AMColorPickerButton *markerFillColorPickerButton_;
-	AMPlotMarkerComboBox *markerStyleComboBox_;
+	AMColorPickerButton *markerColorPickerButton_;
+	AMPlotMarkerComboBox *markerShapeComboBox_;
 
 private:
 	void setupUi();

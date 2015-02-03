@@ -25,6 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QColor>
 
 #include "MPlot/MPlotColorMap.h"
+#include "MPlot/MPlotMarker.h"
 
 /// This class holds visualization information about AMDataSources, all the plot settings that are associated with a particular plot/layout, rather than with the AMDataSource itself.
 class AMDataSourcePlotSettings {
@@ -35,7 +36,9 @@ public:
 		: priority(Priority),
 		  visible(Visible),
 		  linePen(LinePen),
-		  colorMap(MPlotColorMap::Jet)
+		  colorMap(MPlotColorMap::Jet),
+		  markerShape(MPlotMarkerShape::None),
+		  markerColor(nextColor())
 	{
 
 		areaFilled = false;
@@ -59,6 +62,12 @@ public:
 	bool areaFilled;
 	/// The brush of the fill, if used (ie: areaFilled is true) \note These don't work yet, since MPlot doesn't yet support filled plots
 	QBrush fillBrush;
+
+	/// The shape to draw for the markers
+	MPlotMarkerShape::Shape markerShape;
+
+	/// The color of the markers
+	QColor markerColor;
 
 	// 2D plot settings:
 
