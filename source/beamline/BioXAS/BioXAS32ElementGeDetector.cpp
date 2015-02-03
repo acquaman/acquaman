@@ -15,7 +15,6 @@ BioXAS32ElementGeDetector::BioXAS32ElementGeDetector(const QString &name, const 
 	acquireControl_ = new AMSinglePVControl("Acquisition Time", "BL1607-5-I22:SetPort_1", this, 0.5);
 	acquisitionStatusControl_ = new AMReadOnlyPVControl("Status", "DXP1607-I22-01:DetectorState_RBV", this);
 	acquireTimeControl_ = new AMSinglePVControl("Integration Time", "BL1607-5-I22:SetPort_1.HIGH", this, 0.001);
-//	elapsedTimeControl_ = new AMReadOnlyPVControl("Elapsed Time", "dxp1607-B21-04:ElapsedReal", this);
 
 	for (int i = 0; i < 1; i++){
 
@@ -27,6 +26,14 @@ BioXAS32ElementGeDetector::BioXAS32ElementGeDetector(const QString &name, const 
 	disconnect(acquisitionStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(onStatusControlChanged()));
 	connect(acquireControl_, SIGNAL(valueChanged(double)), this, SLOT(updateAcquisitionState()));
 	connect(acquisitionStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(updateAcquisitionState()));
+
+	elapsedTime_.start();
+	elapsedTimeTimer_.setInterval(50);
+	connect(&elapsedTimeTimer_, SIGNAL(timeout()), this, SLOT(onElapsedTimerTimeout()));
+	connect(this, SIGNAL(acquiring()), this, SLOT(startElapsedTime()));
+	connect(this, SIGNAL(acquisitionCancelled()), this, SLOT(stopElapsedTime()));
+	connect(this, SIGNAL(acquisitionFailed()), this, SLOT(stopElapsedTime()));
+	connect(this, SIGNAL(acquisitionSucceeded()), this, SLOT(stopElapsedTime()));
 }
 
 BioXAS32ElementGeDetector::~BioXAS32ElementGeDetector()
@@ -66,4 +73,27 @@ void BioXAS32ElementGeDetector::updateAcquisitionState()
 
 	else if (acquisitionStatusControl_->withinTolerance(0) || acquisitionStatusControl_->withinTolerance(5))
 		setNotReadyForAcquisition();
+}
+
+double BioXAS32ElementGeDetector::elapsedTime() const
+{
+	return elapsedTime_.elapsed();
+}
+
+void BioXAS32ElementGeDetector::startElapsedTime()
+{
+	elapsedTime_.restart();
+	elapsedTimeTimer_.start();
+	emit elapsedTimeChanged(0.0);
+}
+
+void BioXAS32ElementGeDetector::stopElapsedTime()
+{
+	elapsedTimeTimer_.stop();
+	emit elapsedTimeChanged(double(elapsedTime_.elapsed())/1000.0);
+}
+
+void BioXAS32ElementGeDetector::onElapsedTimerTimeout()
+{
+	emit elapsedTimeChanged(double(elapsedTime_.elapsed())/1000.0);
 }

@@ -3,6 +3,9 @@
 
 #include "beamline/AMXRFDetector.h"
 
+#include <QTime>
+#include <QTimer>
+
 /// Implementation of AMXRFDetector for the 32-element Germanium detector on BioXAS.
 class BioXAS32ElementGeDetector : public AMXRFDetector
 {
@@ -16,6 +19,9 @@ public:
 
 	/// The Vortex doesn't explicitly require powering on
 	virtual bool requiresPower() const { return false; }
+
+	/// Returns the elapsed time from the elapsed time control.
+	virtual double elapsedTime() const;
 
 	/// Cancelling is implemented for the Vortex detectors
 	virtual bool canCancel() const { return true; }
@@ -38,10 +44,9 @@ public:
 	/// Returns false, because the Vortex detectors do not support continuous reads
 	virtual bool lastContinuousReading(double *outputValues) const;
 	/// The vortex detectors support elapsed time.
-	virtual bool supportsElapsedTime() const { return false; }
+	virtual bool supportsElapsedTime() const { return true; }
 
 public slots:
-
 	/// The read mode cannot be changed for Amptek detectors
 	virtual bool setReadMode(AMDetectorDefinitions::ReadMode readMode);
 
@@ -51,6 +56,18 @@ public slots:
 protected slots:
 	/// Handles updating the acquisition state of the detector.
 	void updateAcquisitionState();
+	/// Handles starting the elapsed time.
+	void startElapsedTime();
+	/// Handles stopping the elapsed time.
+	void stopElapsedTime();
+	/// Emits a new elapsed time.
+	void onElapsedTimerTimeout();
+
+protected:
+	/// The elapsed time.  It has to be a timer since the Quantum electronics don't support elapsed time.
+	QTime elapsedTime_;
+	/// The elapsed time update timer.
+	QTimer elapsedTimeTimer_;
 };
 
 #endif // BIOXAS32ELEMENTGEDETECTOR_H
