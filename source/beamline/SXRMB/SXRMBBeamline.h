@@ -100,34 +100,34 @@ public:
 	AMAction3* createBeamOffActions() const;
 
 protected:
+	/// Constructor. This is a singleton class, access it through SXRMBBeamline::sxrmb().
+	SXRMBBeamline();
+
 	/// Sets up the synchronized dwell time.
 	void setupSynchronizedDwellTime();
-	/// Sets up the readings such as pressure, flow switches, temperature, etc.
-	void setupDiagnostics();
-	/// Sets up logical groupings of controls into sets.
-	void setupControlSets();
-	/// Sets up all the detectors.
-	void setupDetectors();
-	/// Sets up the sample stage motors.
-	void setupSampleStage();
-	/// Sets up mono settings.
-	void setupMono();
 	/// Sets up various beamline components.
 	void setupComponents();
-	/// Sets up the exposed actions.
-	void setupExposedControls();
-	/// Sets up the exposed detectors.
-	void setupExposedDetectors();
+	/// Sets up the readings such as pressure, flow switches, temperature, etc.
+	void setupDiagnostics();
+	/// Sets up the sample stage motors.
+	void setupSampleStage();
+	/// Sets up all the detectors.
+	void setupDetectors();
+	/// Sets up logical groupings of controls into sets.
+	void setupControlSets();
+	/// Sets up mono settings.
+	void setupMono();
 	/// Sets up the motor group for the various sample stages.
 	void setupMotorGroup();
 	/// Sets up all of the detectors that need to be added to scans that aren't a part of typical detectors.  This may just be temporary, not sure.
 	void setupControlsAsDetectors();
+	/// Sets up the exposed actions.
+	void setupExposedControls();
+	/// Sets up the exposed detectors.
+	void setupExposedDetectors();
 
 	/// Helper function to check for changes in the connected state
 	void connectedHelper();
-
-	/// Constructor. This is a singleton class, access it through SXRMBBeamline::sxrmb().
-	SXRMBBeamline();
 
 protected slots:
 	/// Handles connected status of the energy
