@@ -73,6 +73,9 @@ protected slots:
 	void onStatusMessageChanged();
 
 protected:
+	/// Initializes the detector so that you can acquire. Changes the state from Idle or Aborting to Acquire.
+	bool initializeImplementation();
+
 	/// The elapsed time.  It has to be a timer since the Quantum electronics don't support elapsed time.
 	QTime elapsedTime_;
 	/// The elapsed time update timer.
@@ -82,6 +85,8 @@ protected:
 
 	/// The status message PV.
 	AMReadOnlyPVControl *statusMessageControl_;
+	/// The initialization control.
+	AMSinglePVControl *initializationControl_;
 };
 
 #endif // BIOXAS32ELEMENTGEDETECTOR_H

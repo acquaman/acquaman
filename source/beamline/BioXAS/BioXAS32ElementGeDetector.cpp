@@ -24,6 +24,9 @@ BioXAS32ElementGeDetector::BioXAS32ElementGeDetector(const QString &name, const 
 
 	allControlsCreated();
 
+	initializationControl_ = new AMSinglePVControl("Initialization", "DXP1607-I22-01:Acquire", this, 0.1);
+	connect(this, SIGNAL(initializationRequired()), this, SLOT(initialize()));
+
 	disconnect(acquisitionStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(onStatusControlChanged()));
 	connect(acquireControl_, SIGNAL(valueChanged(double)), this, SLOT(updateAcquisitionState()));
 	connect(acquisitionStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(updateAcquisitionState()));
@@ -47,6 +50,13 @@ BioXAS32ElementGeDetector::~BioXAS32ElementGeDetector()
 
 }
 
+bool BioXAS32ElementGeDetector::initializeImplementation()
+{
+	setInitializing();
+	initializationControl_->move(1);
+	return true;
+}
+
 QString BioXAS32ElementGeDetector::synchronizedDwellKey() const
 {
 	return "";
@@ -68,7 +78,13 @@ bool BioXAS32ElementGeDetector::setReadMode(AMDetectorDefinitions::ReadMode read
 
 void BioXAS32ElementGeDetector::updateAcquisitionState()
 {
-	if (isAcquisitionSucceeded() && (acquisitionStatusControl_->withinTolerance(1) && acquireControl_->withinTolerance(0)))
+	if (isInitializing() && (acquisitionStatusControl_->withinTolerance(1) && acquireControl_->withinTolerance(0))){
+
+		setInitialized();
+		setReadyForAcquisition();
+	}
+
+	else if ((isAcquisitionSucceeded() ) && (acquisitionStatusControl_->withinTolerance(1) && acquireControl_->withinTolerance(0)))
 		setReadyForAcquisition();
 
 	else if (acquisitionStatusControl_->withinTolerance(1) && acquireControl_->withinTolerance(1))
@@ -77,8 +93,17 @@ void BioXAS32ElementGeDetector::updateAcquisitionState()
 	else if (acquisitionStatusControl_->withinTolerance(2) && acquireControl_->withinTolerance(0))
 		setAcquisitionSucceeded();
 
+	else if (acquisitionStatusControl_->withinTolerance(0) && acquireControl_->withinTolerance(0)){
+
+		setAcquisitionSucceeded();
+		setInitializationRequired();
+	}
+
 	else if (acquisitionStatusControl_->withinTolerance(0) || acquisitionStatusControl_->withinTolerance(5))
 		setNotReadyForAcquisition();
+
+	else if (isNotReadyForAcquisition() && requiresInitialization())
+		initialize();
 }
 
 double BioXAS32ElementGeDetector::elapsedTime() const
@@ -118,7 +143,7 @@ void BioXAS32ElementGeDetector::onStatusMessageChanged()
 
 		name += QString::fromAscii((const char *) &current);
 	}
-	qDebug() << name;
+
 	statusMessage_ = name;
 	emit statusMessageChanged(statusMessage_);
 }

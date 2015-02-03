@@ -14,5 +14,24 @@ void BioXAS32ElementGeDetectorView::buildDetectorView()
 	statusMessageLabel_ = new QLabel("");
 	connect(bioXAS32ElementGeDetector(), SIGNAL(statusMessageChanged(QString)), statusMessageLabel_, SLOT(setText(QString)));
 
-	rightLayout_->addWidget(statusMessageLabel_);
+	initializationLabel_ = new QLabel("");
+	acquisitionStatus_ = new QLabel("");
+
+	connect(detector_, SIGNAL(initializationStateChanged(AMDetector::InitializationState)), this, SLOT(initializationStatusUpdate()));
+	connect(detector_, SIGNAL(acquisitionStateChanged(AMDetector::AcqusitionState)), this, SLOT(acquisitionStatusUpdate()));
+
+	rightLayout_->addWidget(statusMessageLabel_, 0, Qt::AlignCenter);
+	rightLayout_->addWidget(initializationLabel_, 0, Qt::AlignCenter);
+	rightLayout_->addWidget(acquisitionStatus_, 0, Qt::AlignCenter);
+	rightLayout_->addStretch();
+}
+
+void BioXAS32ElementGeDetectorView::initializationStatusUpdate()
+{
+	initializationLabel_->setText(QString("Init: %1").arg(detector_->initializationStateDescription(detector_->initializationState())));
+}
+
+void BioXAS32ElementGeDetectorView::acquisitionStatusUpdate()
+{
+	acquisitionStatus_->setText(QString("Acq: %1").arg(detector_->acquisitionStateDescription(detector_->acquisitionState())));
 }
