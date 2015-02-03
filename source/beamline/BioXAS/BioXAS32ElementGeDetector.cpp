@@ -17,8 +17,10 @@ BioXAS32ElementGeDetector::BioXAS32ElementGeDetector(const QString &name, const 
 	acquireTimeControl_ = new AMSinglePVControl("Integration Time", "BL1607-5-I22:SetPort_1.HIGH", this, 0.001);
 	elapsedTimeControl_ = 0;
 
-	for (int i = 0; i < 1; i++){
+	for (int i = 0; i < 32; i++){
 
+		icrControls_.append(new AMReadOnlyPVControl(QString("Input Counts %1").arg(i+1), QString("DXP1607-I22-01:C%1_SCA3:Value_RBV").arg(i+1), this, QString("The input counts for element %1 of the four element.").arg(i+1)));
+		ocrControls_.append(new AMReadOnlyPVControl(QString("Output Counts %1").arg(i+1), QString("DXP1607-I22-01:C%1_SCA4:Value_RBV").arg(i+1), this, QString("The output counts for element %1 of the four element.").arg(i+1)));
 		spectraControls_.append(new AMReadOnlyPVControl(QString("Raw Spectrum %1").arg(i+1), QString("DXP1607-I22-01:ARR%1:ArrayData").arg(i+1), this));
 	}
 
