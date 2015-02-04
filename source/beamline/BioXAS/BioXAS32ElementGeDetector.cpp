@@ -7,7 +7,7 @@ BioXAS32ElementGeDetector::BioXAS32ElementGeDetector(const QString &name, const 
 
 	AMAxisInfo ai("Energy", 2048, "Energy", "eV");
 	ai.start = AMNumber(0);
-	ai.increment = 1;
+	ai.increment = 10;
 	ai.isUniform = true;
 	axes_ << ai;
 
@@ -23,6 +23,8 @@ BioXAS32ElementGeDetector::BioXAS32ElementGeDetector(const QString &name, const 
 		icrControls_.append(new AMReadOnlyPVControl(QString("Input Counts %1").arg(i+1), QString("DXP1607-I22-01:C%1_SCA3:Value_RBV").arg(i+1), this, QString("The input counts for element %1 of the four element.").arg(i+1)));
 		ocrControls_.append(new AMReadOnlyPVControl(QString("Output Counts %1").arg(i+1), QString("DXP1607-I22-01:C%1_SCA4:Value_RBV").arg(i+1), this, QString("The output counts for element %1 of the four element.").arg(i+1)));
 		spectraControls_.append(new AMReadOnlyPVControl(QString("Raw Spectrum %1").arg(i+1), QString("DXP1607-I22-01:ARR%1:ArrayData").arg(i+1), this));
+
+		thresholdControls_.append(new AMSinglePVControl(QString("Threshold %1").arg(i+1), QString("DXP1607-I22-01:C%1_SCA4_THRESHOLD").arg(i+1), this, 0.5));
 	}
 
 	allControlsCreated();
@@ -46,6 +48,20 @@ BioXAS32ElementGeDetector::BioXAS32ElementGeDetector(const QString &name, const 
 	statusMessageControl_ = new AMReadOnlyPVControl("StatusMessage", "DXP1607-I22-01:StatusMessage_RBV", this);
 	connect(statusMessageControl_, SIGNAL(connected(bool)), this, SLOT(onStatusMessageChanged()));
 	connect(statusMessageControl_, SIGNAL(valueChanged(double)), this, SLOT(onStatusMessageChanged()));
+
+	currentFrameCountControl_ = new AMReadOnlyPVControl("CurrentFrame", "DXP1607-I22-01:ArrayCounter_RBV", this);
+	connect(currentFrameCountControl_, SIGNAL(valueChanged(double)), this, SIGNAL(currentFrameCountChanged()));
+
+	framesPerAcquisitionControl_ = new AMPVControl("FramesPerAcquisition", "DXP1607-I22-01:NumImages_RBV", "DXP1607-I22-01:NumImages", QString(), this, 0.5);
+	connect(framesPerAcquisitionControl_, SIGNAL(valueChanged(double)), this, SIGNAL(framesPerAcquisitionChanged()));
+
+	allControls_->addControl(initializationControl_);
+	allControls_->addControl(statusMessageControl_);
+	allControls_->addControl(currentFrameCountControl_);
+	allControls_->addControl(framesPerAcquisitionControl_);
+
+	foreach (AMDataSource *source, rawSpectraSources_)
+		((AM1DProcessVariableDataSource *)source)->setScale(10);
 }
 
 BioXAS32ElementGeDetector::~BioXAS32ElementGeDetector()
@@ -159,4 +175,16 @@ bool BioXAS32ElementGeDetector::cancelAcquisitionImplementation()
 	acquireControl_->move(0);
 	setAcquisitionCancelled();
 	return true;
+}
+
+void BioXAS32ElementGeDetector::setFramesPerAcquisition(int count)
+{
+	if (framesPerAcquisition() != count)
+		framesPerAcquisitionControl_->move(count);
+}
+
+void BioXAS32ElementGeDetector::setThreshold(int newThreshold)
+{
+	foreach (AMControl *control, thresholdControls_)
+		control->move(newThreshold);
 }

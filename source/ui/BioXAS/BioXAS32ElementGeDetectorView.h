@@ -26,6 +26,11 @@ protected slots:
 	/// Updates the status label when the detector acquisition state changes.
 	virtual void onAcquisitionStateChanged(AMDetector::AcqusitionState state);
 
+	/// Pushes the threshold to the detector.
+	void setThreshold();
+	/// Updates the number of frames we're at in the current acquisition.
+	void onFramesChanged();
+
 protected:
 	/// Helper method that determines the state of the status label and ability to use the start/stop buttons.
 	void updateStatusAndAcquisitionButtons();
@@ -40,6 +45,10 @@ protected:
 	QLabel *acquisitionStatus_;
 	/// The initialize button.
 	QPushButton *initializeButton_;
+	/// The frames label.
+	QLabel *framesLabel_;
+
+	QSpinBox *thresholdSpinBox_;
 };
 
 #endif // BIOXAS32ELEMENTGEDETECTORVIEW_H

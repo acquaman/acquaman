@@ -48,10 +48,20 @@ public:
 
 	/// Returns the current status message.
 	QString statusMessage() const { return statusMessage_; }
+	/// Returns the number of frames per acquisition.
+	int framesPerAcquisition() const { return int(framesPerAcquisitionControl_->value()); }
+	/// Returns the current frame index.
+	int currentFrame() const { return int(currentFrameCountControl_->value()); }
 
+	/// Returns the threshold (only returns the first element one).
+	int threshold() const { return int(thresholdControls_.at(0)->value()); }
 signals:
 	/// Notifier that the status message has changed.
 	void statusMessageChanged(const QString &);
+	/// Notifier that the current frame number has updated.
+	void currentFrameCountChanged();
+	/// Notifier that the number of frames for the next acquisition has changed.
+	void framesPerAcquisitionChanged();
 
 public slots:
 	/// The read mode cannot be changed for Amptek detectors
@@ -59,6 +69,11 @@ public slots:
 
 	/// Vortex detectors do not support clearing
 	virtual bool clear() { return false; }
+	/// Sets the number of frames to be used in the next acquisition.
+	void setFramesPerAcquisition(int count);
+
+	/// Sets the threshold of the individual elements.
+	void setThreshold(int newThreshold);
 
 protected slots:
 	/// Handles updating the acquisition state of the detector.
@@ -92,6 +107,13 @@ protected:
 	AMSinglePVControl *initializationControl_;
 	/// List of all the channel enable controls.
 	QList<AMPVControl *> channelEnableControls_;
+	/// The current array counter value for the number of frames.
+	AMReadOnlyPVControl *currentFrameCountControl_;
+	/// The number of frames control.
+	AMPVControl *framesPerAcquisitionControl_;
+
+	/// Thresholds
+	QList<AMSinglePVControl *> thresholdControls_;
 };
 
 #endif // BIOXAS32ELEMENTGEDETECTOR_H

@@ -1,9 +1,11 @@
 #include "BioXAS32ElementGeDetectorView.h"
 
+#include <QSpinBox>
+
 BioXAS32ElementGeDetectorView::BioXAS32ElementGeDetectorView(BioXAS32ElementGeDetector *detector, QWidget *parent)
 	: AMXRFDetailedDetectorView(detector, parent)
 {
-
+	deadTimeViewFactor_ = 8;
 }
 
 void BioXAS32ElementGeDetectorView::buildDetectorView()
@@ -23,10 +25,22 @@ void BioXAS32ElementGeDetectorView::buildDetectorView()
 	initializeButton_ = new QPushButton(QIcon(":/hammer-wrench.png"), "Initialize");
 	connect(initializeButton_, SIGNAL(clicked()), detector_, SLOT(initialize()));
 
-	rightLayout_->addWidget(statusMessageLabel_, 0, Qt::AlignCenter);
-	rightLayout_->addWidget(initializationLabel_, 0, Qt::AlignCenter);
-	rightLayout_->addWidget(acquisitionStatus_, 0, Qt::AlignCenter);
-	rightLayout_->addWidget(initializeButton_);
+	thresholdSpinBox_ = new QSpinBox;
+	thresholdSpinBox_->setPrefix("Threshold: ");
+	thresholdSpinBox_->setRange(0, 1000000);
+	thresholdSpinBox_->setValue(bioXAS32ElementGeDetector()->threshold());
+	connect(thresholdSpinBox_, SIGNAL(editingFinished()), this, SLOT(setThreshold()));
+
+	framesLabel_ = new QLabel();
+	connect(bioXAS32ElementGeDetector(), SIGNAL(currentFrameCountChanged()), this, SLOT(onFramesChanged()));
+	connect(bioXAS32ElementGeDetector(), SIGNAL(framesPerAcquisitionChanged()), this, SLOT(onFramesChanged()));
+
+	rightLayout_->addWidget(statusMessageLabel_, 0, Qt::AlignLeft);
+	rightLayout_->addWidget(initializationLabel_, 0, Qt::AlignLeft);
+	rightLayout_->addWidget(acquisitionStatus_, 0, Qt::AlignLeft);
+	rightLayout_->addWidget(initializeButton_, 0, Qt::AlignLeft);
+	rightLayout_->addWidget(thresholdSpinBox_, 0, Qt::AlignLeft);
+	rightLayout_->addWidget(framesLabel_, 0, Qt::AlignLeft);
 	rightLayout_->addStretch();
 }
 
@@ -85,4 +99,14 @@ void BioXAS32ElementGeDetectorView::updateStatusAndAcquisitionButtons()
 		cancelButton_->setEnabled(true);
 		initializeButton_->setVisible(false);
 	}
+}
+
+void BioXAS32ElementGeDetectorView::setThreshold()
+{
+	bioXAS32ElementGeDetector()->setThreshold(thresholdSpinBox_->value());
+}
+
+void BioXAS32ElementGeDetectorView::onFramesChanged()
+{
+	framesLabel_->setText(QString("# Frames: %1/%2").arg(bioXAS32ElementGeDetector()->currentFrame()).arg(bioXAS32ElementGeDetector()->framesPerAcquisition()));
 }
