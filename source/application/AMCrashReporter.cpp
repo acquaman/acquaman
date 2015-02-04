@@ -394,5 +394,5 @@ void AMProcessWatcher::onProcessReadReady(){
 }
 
 void AMProcessWatcher::onProcessFinished(){
-	emit foundWatchPID(foundProcess_, instanceID_);
+	emit foundWatchPID(foundProcess_, instanceID());
 }
