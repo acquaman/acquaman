@@ -5,9 +5,7 @@
 #include <QLabel>
 #include <QLayout>
 #include <QProgressBar>
-#include <QMessageBox>
-
-#include "ui/beamline/AMExtendedControlEditor.h"
+#include <QGroupBox>
 
 #include "beamline/BioXAS/BioXASMainMonochromator.h"
 
@@ -28,27 +26,55 @@ signals:
 public slots:
     /// Sets the monochromator being viewed.
     void setMono(BioXASMainMonochromator *newMono);
+    /// Updates the view by polling the mono for its current states.
+    void updateView();
+
+protected slots:
+    /// Handles updating the entire view when the mono connection state has changed.
+    void onMonoConnectedChanged();
+    /// Handles updating the region view when the region status changes.
+    void onRegionStatusChanged();
+    /// Handles updating the slits closed view when the closed status changes.
+    void onSlitsClosedChanged();
+    /// Handles updating the paddle view when the paddle in/out status changes.
+    void onPaddleOutChanged();
+    /// Handles updating the key status view when the key is turned.
+    void onKeyStatusChanged();
+    /// Handles updating the bragg motor view when the motor position changes.
+    void onBraggMotorPositionChanged();
+    /// Handles updating the bragg motor view when the motor arrives at/leaves the crystal change position.
+    void onBraggMotorAtCrystalChangePositionChanged();
+    /// Handles updating the brake status view when the brake switch is flipped.
+    void onBrakeStatusChanged();
+    /// Handles updating the crystal change position view when the motor position changes.
+    void onCrystalChangeMotorPositionChanged();
+    /// Handles updating the crystal change motor cw limit status view.
+    void onCrystalChangeMotorCWLimitStatusChanged();
+    /// Handles updating the crystal change motor ccw limit status view.
+    void onCrystalChangeMotorCCWLimitStatusChanged();
 
 protected:
     /// The monochromator being viewed.
     BioXASMainMonochromator *mono_;
-    /// Label contents indicate whether the mono slits are closed.
+    /// Label contains the region status.
+    QLabel *region_;
+    /// Label contains the slits closed status.
     QLabel *slitsClosed_;
-    /// Label contents indicate whether the mono phosphor paddle is out.
+    /// Label contains the paddle out status.
     QLabel *paddleOut_;
-    /// Label contents indicate whether the mono key is turned to 'Enabled'.
+    /// Label contains the key status.
     QLabel *keyStatus_;
-    /// Control view shows the position of the mono bragg motor.
-    AMExtendedControlEditor *braggMotorPosition_;
-    /// Label contents indicate whether the bragg motor is at the crystal change position.
+    /// Label contains the bragg motor position.
+    QLabel *braggMotorPosition_;
+    /// Label contains whether the bragg motor is at the crystal change position.
     QLabel *braggMotorAtCrystalChangePosition_;
-    /// Label contents indicate whether the mono brake is enabled.
+    /// Label contains the brake status.
     QLabel *brakeStatus_;
-    /// Control view shows the position of the mono crystal change motor.
-    AMExtendedControlEditor *crystalChangeMotorPosition_;
-    /// Label contents indicate whether the mono crystal change motor is at a CW limit.
+    /// Label contains the crystal change motor position.
+    QLabel *crystalChangeMotorPosition_;
+    /// Label contains the mono crystal change motor CW limit status.
     QLabel *crystalChangeMotorCWLimit_;
-    /// Label contents indicate whether the mono crystal change motor is at a CCW limit.
+    /// Label contains the mono crystal change motor CCW limit status.
     QLabel *crystalChangeMotorCCWLimit_;
 };
 
