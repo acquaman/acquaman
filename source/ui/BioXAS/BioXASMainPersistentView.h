@@ -26,8 +26,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QLayout>
 #include <QPushButton>
 
-#include "beamline/CLS/CLSMAXvMotor.h"
-
 #include "ui/BioXAS/BioXASMainMonochromatorCrystalChangeControlView.h"
 #include "ui/BioXAS/BioXASMainMonochromatorCrystalChangeView.h"
 
