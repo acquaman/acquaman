@@ -22,6 +22,8 @@ BioXASMainMonochromatorCrystalChangeControl::~BioXASMainMonochromatorCrystalChan
 QString BioXASMainMonochromatorCrystalChangeControl::stateToString(BioXASMainMonochromatorCrystalChangeControl::State state) const
 {
     switch (state) {
+    case None:
+        return "None";
     case Initialized:
         return "Initialized";
     case Running:
@@ -31,7 +33,7 @@ QString BioXASMainMonochromatorCrystalChangeControl::stateToString(BioXASMainMon
     case CompleteFail:
         return "CompleteFail";
     default:
-        return "None";
+        return "Unknown";
     }
 }
 
