@@ -33,12 +33,14 @@ public:
     Region region() const { return region_; }
     /// Returns true if both slits are closed, false otherwise.
     bool slitsClosed() const { return ((int)slitsClosed_->value() == 1); }
+    /// Returns true if the phosphor paddle is completely out, false otherwise.
+    bool paddleOut() const { return ((int)phosphorPaddleOut_->value() == 1); }
     /// Returns true if crystal change (key status) is enabled, false if disabled.
-    bool crystalChangeEnabled() const { return ((int)crystalChangeEnabled_->value() == 1); }
+    bool keyStatusEnabled() const { return ((int)crystalChangeEnabled_->value() == 1); }
     /// Returns true if the crystal stage is at the change position, false otherwise.
     bool atCrystalChangePosition() const { return ((int)atCrystalChangePosition_->value() == 1); }
     /// Returns true if the brake is enabled, false otherwise.
-    bool brakeEnabled() const { return ((int)crystalChangeBrakeEnabled_->value() == 1); }
+    bool brakeStatusEnabled() const { return ((int)crystalChangeBrakeEnabled_->value() == 1); }
     /// Returns true if the crystal change motor is at clockwise limit.
     bool crystalChangeMotorAtCWLimit() const { return ((int)crystalChangeMotorCWLimit_->value() == 1); }
     /// Returns true if the crystal change motor is at the counterclockwise limit.
@@ -63,7 +65,7 @@ public:
     /// Returns the lateral motor.
     CLSMAXvMotor* lateralMotor() const { return lateralMotor_; }
     /// Returns the crystal change motor.
-    CLSMAXvMotor* crystalExchangeMotor() const { return crystalExchangeMotor_; }
+    CLSMAXvMotor* crystalChangeMotor() const { return crystalExchangeMotor_; }
     /// Returns the crystal 1 pitch motor.
     CLSMAXvMotor* crystal1PitchMotor() const { return crystal1PitchMotor_; }
     /// Returns the crystal 1 roll motor.
@@ -153,10 +155,16 @@ signals:
     void regionChanged(BioXASMainMonochromator::Region newRegion);
     /// Notifier that the bragg motor power status has changed.
     void braggMotorPowerChanged(bool isOn);
+    /// Notifier that the bragg motor position has changed.
+    void braggMotorPositionChanged(double newPosition);
+    /// Notifier that the slits closed status has changed.
+    void slitsClosedStatusChanged(bool closed);
     /// Notifier that the paddle out status has changed.
     void paddleOutChanged(bool isOut);
     /// Notifier that crystal changes are enabled/disabled.
-    void crystalChangeEnabledChanged(bool isEnabled);
+    void keyStatusEnabledChanged(bool isEnabled);
+    /// Notifier that the crystal change motor position has changed.
+    void crystalChangeMotorPositionChanged(double newPosition);
     /// Notifier that the crystal change position status has changed.
     void crystalChangePositionStatusChanged(bool atPosition);
     /// Notifier that the brake enabled status has changed.
@@ -181,10 +189,14 @@ protected slots:
     void onRegionChanged();
     /// Emits the appropriate signal when the mono's bragg motor has changed power states.
     void onBraggMotorPowerChanged(double value) { emit braggMotorPowerChanged((int)value == 1); }
+    /// Emits the appropriate signal when the mono's bragg motor has changed position.
+    void onBraggMotorPositionChanged(double newPosition) { emit braggMotorPositionChanged(newPosition); }
+    /// Emits the appropriate signal when the slits closed status has changed.
+    void onSlitsClosedStatusChanged(double value) { emit slitsClosedStatusChanged((int)value == 1); }
     /// Emits the appropriate signal when the paddle is out.
     void onPaddleOutChanged(double value) { emit paddleOutChanged((int)value == 1); }
     /// Emits the appropriate signal when the crystal change motor is enabled/disabled.
-    void onCrystalChangeEnabled(double value) { emit crystalChangeEnabledChanged((int)value == 1); }
+    void onCrystalChangeEnabled(double value) { emit keyStatusEnabledChanged((int)value == 1); }
     /// Emits the appropriate signal when the crystal change position status has changed.
     void onCrystalChangePositionStatusChanged(double value) { emit crystalChangePositionStatusChanged((int)value == 0); }
     /// Emits the appropriate signal when the crystal change brake is enabled/disabled.

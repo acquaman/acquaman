@@ -172,7 +172,7 @@ QList<AMControl *> BioXASMainBeamline::getMotorsByType(BioXASBeamlineDef::BioXAS
         matchedMotors.append(mono_->braggMotor());
         matchedMotors.append(mono_->verticalMotor());
         matchedMotors.append(mono_->lateralMotor());
-        matchedMotors.append(mono_->crystalExchangeMotor());
+        matchedMotors.append(mono_->crystalChangeMotor());
         matchedMotors.append(mono_->crystal1PitchMotor());
         matchedMotors.append(mono_->crystal1RollMotor());
         matchedMotors.append(mono_->crystal2PitchMotor());

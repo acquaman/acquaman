@@ -34,6 +34,10 @@ BioXASMainMonochromator::BioXASMainMonochromator(QObject *parent) :
     connect( crystal2PitchMotor_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
     connect( crystal2RollMotor_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
 
+    // Listen to motor value changes.
+
+    connect( braggMotor_, SIGNAL(valueChanged(double)), this, SIGNAL(braggMotorPositionChanged(double)) );
+
     // Controls
 
     slitsClosed_ = new AMReadOnlyPVControl(QString("SlitsClosed"), QString("BL1607-5-I21:Mono:SlitsClosed"), this);
@@ -72,10 +76,12 @@ BioXASMainMonochromator::BioXASMainMonochromator(QObject *parent) :
     connect( crystalChangeMotorCCWLimit_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
     connect( regionAStatus_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
     connect( regionBStatus_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
+    connect( crystalChangeMotorRel_, SIGNAL(valueChanged(double)), this, SIGNAL(crystalChangeMotorPositionChanged(double)) );
     connect( energy_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
 
     // Listen to controls value changes.
 
+    connect( slitsClosed_, SIGNAL(valueChanged(double)), this, SLOT(onSlitsClosedStatusChanged(double)) );
     connect( crystalChangeEnabled_, SIGNAL(valueChanged(double)), this, SLOT(onCrystalChangeEnabled(double)) );
     connect( atCrystalChangePosition_, SIGNAL(valueChanged(double)), this, SLOT(onCrystalChangePositionStatusChanged(double)) );
     connect( crystalChangeBrakeEnabled_, SIGNAL(valueChanged(double)), this, SLOT(onCrystalChangeBrakeEnabledChanged(double)) );
