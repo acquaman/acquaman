@@ -75,33 +75,36 @@ public:
     /// Returns the crystal 2 roll motor.
     CLSMAXvMotor* crystal2RollMotor() const { return crystal2RollMotor_; }
 
+    /// Returns the slits closed motor control.
+    AMControl* slitsClosedControl() const { return slitsClosed_; }
+    /// Returns the paddle out control.
+    AMControl* phosphorPaddleOutControl() const { return phosphorPaddleOut_; }
     /// Returns the phosphor paddle motor control.
     AMControl* phosphorPaddleMotorControl() const { return phosphorPaddle_; }
     /// Returns the control for whether the crystal change operation is enabled.
-    AMControl* crystalChangeEnabledControl() const { return crystalChangeEnabled_; }
-    /// Returns the control for whether the mono is at the crystal change position.
-    AMControl* crystalChangePositionStatusControl() const { return atCrystalChangePosition_; }
+    AMControl* keyStatusControl() const { return crystalChangeEnabled_; }
+    /// Returns the control for whether the bragg motor is at the crystal change position.
+    AMControl* braggMotorAtCrystalChangePositionStatusControl() const { return atCrystalChangePosition_; }
     /// Returns the absolute crystal stage motor control.
-    AMControl* crystalStageMotorAbsControl() const { return stageMotorAbs_; }
+    AMControl* crystalChangeMotorAbsControl() const { return stageMotorAbs_; }
     /// Returns the relative crystal change motor control.
-    AMControl* crystalStageMotorRelControl() const { return crystalChangeMotorRel_; }
+    AMControl* crystalChangeMotorRelControl() const { return crystalChangeMotorRel_; }
     /// Returns the crystal stage clockwise limit control.
-    AMControl* crystalStageCWLimitStatusControl() const { return crystalChangeMotorCWLimit_; }
+    AMControl* crystalChangeMotorCWLimitStatusControl() const { return crystalChangeMotorCWLimit_; }
     /// Returns the crystal stage counterclockwise limit control.
-    AMControl* crystalStageCCWLimitStatusControl() const { return crystalChangeMotorCCWLimit_; }
+    AMControl* crystalChangeMotorCCWLimitStatusControl() const { return crystalChangeMotorCCWLimit_; }
     /// Returns the bragg motor clockwise limit control.
     AMControl* braggMotorCWLimitStatusControl() const { return braggMotorCWLimit_; }
     /// Returns the bragg motor counterclockwise limit control.
     AMControl* braggMotorCCWLimitStatusControl() const { return braggMotorCCWLimit_; }
     /// Returns the crystal change brake enabled control.
-    AMControl* brakeEnabledStatusControl() const { return crystalChangeBrakeEnabled_; }
+    AMControl* brakeStatusControl() const { return crystalChangeBrakeEnabled_; }
     /// Returns the region A status control.
     AMControl* regionAStatusControl() const { return regionAStatus_; }
     /// Returns the region B status control.
     AMControl* regionBStatusControl() const { return regionBStatus_; }
     /// Returns the energy setpoint control.
     AMControl* energyControl() const { return energy_; }
-
     /// Returns the mono's crystal change control.
     BioXASMainMonochromatorCrystalChangeControl* crystalChangeControl() const { return crystalChangeControl_; }
 
@@ -157,16 +160,16 @@ signals:
     void braggMotorPowerChanged(bool isOn);
     /// Notifier that the bragg motor position has changed.
     void braggMotorPositionChanged(double newPosition);
+    /// Notifier that the crystal change position status has changed.
+    void braggMotorAtCrystalChangePositionStatusChanged(bool atPosition);
     /// Notifier that the slits closed status has changed.
     void slitsClosedStatusChanged(bool closed);
     /// Notifier that the paddle out status has changed.
-    void paddleOutChanged(bool isOut);
+    void paddleOutStatusChanged(bool isOut);
     /// Notifier that crystal changes are enabled/disabled.
-    void keyStatusEnabledChanged(bool isEnabled);
+    void keyEnabledStatusChanged(bool isEnabled);
     /// Notifier that the crystal change motor position has changed.
     void crystalChangeMotorPositionChanged(double newPosition);
-    /// Notifier that the crystal change position status has changed.
-    void crystalChangePositionStatusChanged(bool atPosition);
     /// Notifier that the brake enabled status has changed.
     void crystalChangeBrakeEnabledChanged(bool isEnabled);
     /// Notifier that the crystal stage clockwise limit status has changed.
@@ -191,14 +194,14 @@ protected slots:
     void onBraggMotorPowerChanged(double value) { emit braggMotorPowerChanged((int)value == 1); }
     /// Emits the appropriate signal when the mono's bragg motor has changed position.
     void onBraggMotorPositionChanged(double newPosition) { emit braggMotorPositionChanged(newPosition); }
+    /// Emits the appropriate signal when the crystal change position status has changed.
+    void onCrystalChangePositionStatusChanged(double value) { emit braggMotorAtCrystalChangePositionStatusChanged((int)value == 0); }
     /// Emits the appropriate signal when the slits closed status has changed.
     void onSlitsClosedStatusChanged(double value) { emit slitsClosedStatusChanged((int)value == 1); }
     /// Emits the appropriate signal when the paddle is out.
-    void onPaddleOutChanged(double value) { emit paddleOutChanged((int)value == 1); }
+    void onPaddleOutChanged(double value) { emit paddleOutStatusChanged((int)value == 1); }
     /// Emits the appropriate signal when the crystal change motor is enabled/disabled.
-    void onCrystalChangeEnabled(double value) { emit keyStatusEnabledChanged((int)value == 1); }
-    /// Emits the appropriate signal when the crystal change position status has changed.
-    void onCrystalChangePositionStatusChanged(double value) { emit crystalChangePositionStatusChanged((int)value == 0); }
+    void onCrystalChangeEnabled(double value) { emit keyEnabledStatusChanged((int)value == 1); }
     /// Emits the appropriate signal when the crystal change brake is enabled/disabled.
     void onCrystalChangeBrakeEnabledChanged(double value) { emit crystalChangeBrakeEnabledChanged((int) value == 1); }
     /// Emits the appropriate signal when the crystal change motor reaches/leaves the CW limit.
