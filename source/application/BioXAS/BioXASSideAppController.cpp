@@ -190,6 +190,8 @@ void BioXASSideAppController::setupUserInterface()
 
 	BioXAS32ElementGeDetectorView *view = new BioXAS32ElementGeDetectorView(BioXASSideBeamline::bioXAS()->ge32ElementDetector());
 	view->buildDetectorView();
+	view->addEmissionLineNameFilter(QRegExp("1"));
+	view->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
 	mw_->addPane(view, "Detectors", "Ge 32-el", ":/system-search.png");
 
 	mw_->insertHeading("Scans", 2);
