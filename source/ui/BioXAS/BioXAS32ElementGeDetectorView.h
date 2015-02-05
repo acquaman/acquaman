@@ -28,8 +28,14 @@ protected slots:
 
 	/// Pushes the threshold to the detector.
 	void setThreshold();
+	/// Updates the threshold spin box.
+	void updateThresholdSpinBox();
 	/// Updates the number of frames we're at in the current acquisition.
 	void onFramesChanged();
+	/// Updates the frames per acquisition spin box.
+	void updateFramesPerAcquisiton();
+	/// Sets a new value for the number of frames to the detector.
+	void onFramesPerAcquisitionSpinBoxChanged();
 
 protected:
 	/// Helper method that determines the state of the status label and ability to use the start/stop buttons.
@@ -47,8 +53,13 @@ protected:
 	QPushButton *initializeButton_;
 	/// The frames label.
 	QLabel *framesLabel_;
+	/// The spin box that sets the number of frames per acquisition.
+	QSpinBox *framesPerAcquisitionSpinBox_;
 
+	/// Spin box that holds the threshold voltage.
 	QSpinBox *thresholdSpinBox_;
+	/// Button for disarming the detector.
+	QPushButton *disarmButton_;
 };
 
 #endif // BIOXAS32ELEMENTGEDETECTORVIEW_H

@@ -62,10 +62,15 @@ signals:
 	void currentFrameCountChanged();
 	/// Notifier that the number of frames for the next acquisition has changed.
 	void framesPerAcquisitionChanged();
+	/// Notifier that the threshold changed.
+	void thresholdChanged();
 
 public slots:
 	/// The read mode cannot be changed for Amptek detectors
 	virtual bool setReadMode(AMDetectorDefinitions::ReadMode readMode);
+
+	/// This disarms the detector.
+	void disarm();
 
 	/// Vortex detectors do not support clearing
 	virtual bool clear() { return false; }
@@ -111,9 +116,17 @@ protected:
 	AMReadOnlyPVControl *currentFrameCountControl_;
 	/// The number of frames control.
 	AMPVControl *framesPerAcquisitionControl_;
+	/// The erase control.
+	AMSinglePVControl *eraseControl_;
+	/// The update control.
+	AMSinglePVControl *updateControl_;
 
 	/// Thresholds
-	QList<AMSinglePVControl *> thresholdControls_;
+	QList<AMPVControl *> thresholdControls_;
+
+	/// Flag for whether the system should auto initialize after finishing an acquisition.
+	bool autoInitialize_;
+
 };
 
 #endif // BIOXAS32ELEMENTGEDETECTOR_H

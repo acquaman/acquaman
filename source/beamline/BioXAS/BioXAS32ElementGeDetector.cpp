@@ -1,8 +1,13 @@
 #include "BioXAS32ElementGeDetector.h"
 
+#include "actions3/AMActionSupport.h"
+#include "actions3/AMListAction3.h"
+
 BioXAS32ElementGeDetector::BioXAS32ElementGeDetector(const QString &name, const QString &description, QObject *parent)
 	: AMXRFDetector(name, description, parent)
 {
+	autoInitialize_ = false;
+
 	units_ = "Counts";
 
 	AMAxisInfo ai("Energy", 2048, "Energy", "eV");
@@ -24,13 +29,18 @@ BioXAS32ElementGeDetector::BioXAS32ElementGeDetector(const QString &name, const 
 		ocrControls_.append(new AMReadOnlyPVControl(QString("Output Counts %1").arg(i+1), QString("DXP1607-I22-01:C%1_SCA4:Value_RBV").arg(i+1), this, QString("The output counts for element %1 of the four element.").arg(i+1)));
 		spectraControls_.append(new AMReadOnlyPVControl(QString("Raw Spectrum %1").arg(i+1), QString("DXP1607-I22-01:ARR%1:ArrayData").arg(i+1), this));
 
-		thresholdControls_.append(new AMSinglePVControl(QString("Threshold %1").arg(i+1), QString("DXP1607-I22-01:C%1_SCA4_THRESHOLD").arg(i+1), this, 0.5));
+		thresholdControls_.append(new AMPVControl(QString("Threshold %1").arg(i+1), QString("DXP1607-I22-01:C%1_SCA4_THRESHOLD_RBV").arg(i+1), QString("DXP1607-I22-01:C%1_SCA4_THRESHOLD").arg(i+1), QString(), this, 0.5));
 	}
 
 	allControlsCreated();
 
+	connect(thresholdControls_.at(0), SIGNAL(valueChanged(double)), this, SIGNAL(thresholdChanged()));
+
 	initializationControl_ = new AMSinglePVControl("Initialization", "DXP1607-I22-01:Acquire", this, 0.1);
-	connect(this, SIGNAL(initializationRequired()), this, SLOT(initialize()));
+//	connect(this, SIGNAL(initializationRequired()), this, SLOT(initialize()));
+
+	eraseControl_ = new AMSinglePVControl("EraseControl", "DXP1607-I22-01:ERASE", this, 0.5);
+	updateControl_ = new AMSinglePVControl("UpdateControl", "DXP1607-I22-01:UPDATE", this, 0.5);
 
 	disconnect(acquisitionStatusControl_, SIGNAL(valueChanged(double)), this, SLOT(onStatusControlChanged()));
 	connect(acquireControl_, SIGNAL(valueChanged(double)), this, SLOT(updateAcquisitionState()));
@@ -62,6 +72,8 @@ BioXAS32ElementGeDetector::BioXAS32ElementGeDetector(const QString &name, const 
 
 	foreach (AMDataSource *source, rawSpectraSources_)
 		((AM1DProcessVariableDataSource *)source)->setScale(10);
+
+	connect(allControls_, SIGNAL(connected(bool)), this, SLOT(updateAcquisitionState()));
 }
 
 BioXAS32ElementGeDetector::~BioXAS32ElementGeDetector()
@@ -72,7 +84,24 @@ BioXAS32ElementGeDetector::~BioXAS32ElementGeDetector()
 bool BioXAS32ElementGeDetector::initializeImplementation()
 {
 	setInitializing();
-	initializationControl_->move(1);
+
+	AMListAction3 *initializeAction = new AMListAction3(new AMListActionInfo3("Arm detector", "Arm detector"));
+	initializeAction->addSubAction(AMActionSupport::buildControlMoveAction(eraseControl_, 1.0));
+	initializeAction->addSubAction(AMActionSupport::buildControlMoveAction(updateControl_, 1.0));
+	initializeAction->addSubAction(AMActionSupport::buildControlMoveAction(eraseControl_, 0.0));
+	initializeAction->addSubAction(AMActionSupport::buildControlMoveAction(updateControl_, 0.0));
+	initializeAction->addSubAction(AMActionSupport::buildControlMoveAction(initializationControl_, 1.0));
+
+	connect(initializeAction, SIGNAL(failed()), initializeAction, SLOT(scheduleForDeletion()));
+	connect(initializeAction, SIGNAL(cancelled()), initializeAction, SLOT(scheduleForDeletion()));
+	connect(initializeAction, SIGNAL(succeeded()), initializeAction, SLOT(scheduleForDeletion()));
+
+	connect(initializeAction, SIGNAL(failed()), this, SLOT(setInitializationRequired()));
+	connect(initializeAction, SIGNAL(cancelled()), this, SLOT(setInitializationRequired()));
+	connect(initializeAction, SIGNAL(succeeded()), this, SLOT(setInitialized()));
+
+	initializeAction->start();
+
 	return true;
 }
 
@@ -97,12 +126,15 @@ bool BioXAS32ElementGeDetector::setReadMode(AMDetectorDefinitions::ReadMode read
 
 void BioXAS32ElementGeDetector::updateAcquisitionState()
 {
-	if (!isAcquiring() && initializationControl_->withinTolerance(0))
+	if (!isAcquiring() && initializationControl_->withinTolerance(0)){
+
 		setInitializationRequired();
+		setNotReadyForAcquisition();
+	}
 
-	else if (isInitializing() && (acquisitionStatusControl_->withinTolerance(1) && acquireControl_->withinTolerance(0))){
+	else if (isInitialized() && (acquisitionStatusControl_->withinTolerance(1) && acquireControl_->withinTolerance(0))){
 
-		setInitialized();
+//		setInitialized();
 		setReadyForAcquisition();
 	}
 
@@ -124,7 +156,7 @@ void BioXAS32ElementGeDetector::updateAcquisitionState()
 	else if (acquisitionStatusControl_->withinTolerance(0) || acquisitionStatusControl_->withinTolerance(5) || acquisitionStatusControl_->withinTolerance(10))
 		setNotReadyForAcquisition();
 
-	else if (isNotReadyForAcquisition() && requiresInitialization())
+	else if (isNotReadyForAcquisition() && requiresInitialization() && autoInitialize_)
 		initialize();
 }
 
@@ -187,4 +219,11 @@ void BioXAS32ElementGeDetector::setThreshold(int newThreshold)
 {
 	foreach (AMControl *control, thresholdControls_)
 		control->move(newThreshold);
+}
+
+void BioXAS32ElementGeDetector::disarm()
+{
+	setInitializationRequired();
+	setNotReadyForAcquisition();
+	initializationControl_->move(0);
 }

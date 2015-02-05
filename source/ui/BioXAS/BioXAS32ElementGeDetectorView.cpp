@@ -30,27 +30,42 @@ void BioXAS32ElementGeDetectorView::buildDetectorView()
 	thresholdSpinBox_->setRange(0, 1000000);
 	thresholdSpinBox_->setValue(bioXAS32ElementGeDetector()->threshold());
 	connect(thresholdSpinBox_, SIGNAL(editingFinished()), this, SLOT(setThreshold()));
+	connect(bioXAS32ElementGeDetector(), SIGNAL(thresholdChanged()), this, SLOT(updateThresholdSpinBox()));
 
 	framesLabel_ = new QLabel();
 	connect(bioXAS32ElementGeDetector(), SIGNAL(currentFrameCountChanged()), this, SLOT(onFramesChanged()));
 	connect(bioXAS32ElementGeDetector(), SIGNAL(framesPerAcquisitionChanged()), this, SLOT(onFramesChanged()));
 
+	framesPerAcquisitionSpinBox_ = new QSpinBox;
+	framesPerAcquisitionSpinBox_->setPrefix("# Frames:");
+	framesPerAcquisitionSpinBox_->setRange(0, 16384);
+	framesPerAcquisitionSpinBox_->setValue(bioXAS32ElementGeDetector()->framesPerAcquisition());
+	connect(bioXAS32ElementGeDetector(), SIGNAL(framesPerAcquisitionChanged()), this, SLOT(updateFramesPerAcquisiton()));
+	connect(framesPerAcquisitionSpinBox_, SIGNAL(editingFinished()), this, SLOT(onFramesPerAcquisitionSpinBoxChanged()));
+
+	disarmButton_ = new QPushButton(QIcon(":/16x16/network-error.png"), "Disarm");
+	connect(disarmButton_, SIGNAL(clicked()), bioXAS32ElementGeDetector(), SLOT(disarm()));
+
 	rightLayout_->addWidget(statusMessageLabel_, 0, Qt::AlignLeft);
 	rightLayout_->addWidget(initializationLabel_, 0, Qt::AlignLeft);
 	rightLayout_->addWidget(acquisitionStatus_, 0, Qt::AlignLeft);
 	rightLayout_->addWidget(initializeButton_, 0, Qt::AlignLeft);
+	rightLayout_->addWidget(disarmButton_, 0, Qt::AlignLeft);
 	rightLayout_->addWidget(thresholdSpinBox_, 0, Qt::AlignLeft);
 	rightLayout_->addWidget(framesLabel_, 0, Qt::AlignLeft);
+	rightLayout_->addWidget(framesPerAcquisitionSpinBox_, 0, Qt::AlignLeft);
 	rightLayout_->addStretch();
 }
 
 void BioXAS32ElementGeDetectorView::initializationStatusUpdate()
 {
 	initializationLabel_->setText(QString("Init: %1").arg(detector_->initializationStateDescription(detector_->initializationState())));
+	acquisitionStatus_->setText(QString("Acq: %1").arg(detector_->acquisitionStateDescription(detector_->acquisitionState())));
 }
 
 void BioXAS32ElementGeDetectorView::acquisitionStatusUpdate()
 {
+	initializationLabel_->setText(QString("Init: %1").arg(detector_->initializationStateDescription(detector_->initializationState())));
 	acquisitionStatus_->setText(QString("Acq: %1").arg(detector_->acquisitionStateDescription(detector_->acquisitionState())));
 }
 
@@ -109,4 +124,19 @@ void BioXAS32ElementGeDetectorView::setThreshold()
 void BioXAS32ElementGeDetectorView::onFramesChanged()
 {
 	framesLabel_->setText(QString("# Frames: %1/%2").arg(bioXAS32ElementGeDetector()->currentFrame()).arg(bioXAS32ElementGeDetector()->framesPerAcquisition()));
+}
+
+void BioXAS32ElementGeDetectorView::updateThresholdSpinBox()
+{
+	thresholdSpinBox_->setValue(bioXAS32ElementGeDetector()->threshold());
+}
+
+void BioXAS32ElementGeDetectorView::updateFramesPerAcquisiton()
+{
+	framesPerAcquisitionSpinBox_->setValue(bioXAS32ElementGeDetector()->framesPerAcquisition());
+}
+
+void BioXAS32ElementGeDetectorView::onFramesPerAcquisitionSpinBoxChanged()
+{
+	bioXAS32ElementGeDetector()->setFramesPerAcquisition(framesPerAcquisitionSpinBox_->value());
 }
