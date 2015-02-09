@@ -794,4 +794,5 @@ void BioXASSideBeamline::setupExposedDetectors()
 	addExposedDetector(i2Detector_);
 	addExposedDetector(energySetpointDetector_);
 	addExposedDetector(energyFeedbackDetector_);
+	addExposedDetector(ge32ElementDetector_);
 }

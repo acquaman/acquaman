@@ -49,6 +49,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
 #include "dataman/AMScanAxisEXAFSRegion.h"
 #include "ui/BioXAS/BioXAS32ElementGeDetectorView.h"
+#include "acquaman/BioXASSide/BioXASSideXRFScanConfiguration.h"
 
 BioXASSideAppController::BioXASSideAppController(QObject *parent)
 	: AMAppController(parent)
@@ -139,6 +140,7 @@ void BioXASSideAppController::onBeamlineConnected()
 void BioXASSideAppController::registerClasses()
 {
 	AMDbObjectSupport::s()->registerClass<BioXASSideXASScanConfiguration>();
+	AMDbObjectSupport::s()->registerClass<BioXASSideXRFScanConfiguration>();
 }
 
 void BioXASSideAppController::setupExporterOptions()

@@ -1,5 +1,8 @@
 #include "BioXAS32ElementGeDetectorView.h"
 
+#include "acquaman/BioXASSide/BioXASSideXRFScanConfiguration.h"
+#include "actions3/actions/AMScanAction.h"
+
 #include <QSpinBox>
 
 BioXAS32ElementGeDetectorView::BioXAS32ElementGeDetectorView(BioXAS32ElementGeDetector *detector, QWidget *parent)
@@ -139,4 +142,19 @@ void BioXAS32ElementGeDetectorView::updateFramesPerAcquisiton()
 void BioXAS32ElementGeDetectorView::onFramesPerAcquisitionSpinBoxChanged()
 {
 	bioXAS32ElementGeDetector()->setFramesPerAcquisition(framesPerAcquisitionSpinBox_->value());
+}
+
+void BioXAS32ElementGeDetectorView::startAcquisition()
+{
+	BioXASSideXRFScanConfiguration *configuration = new BioXASSideXRFScanConfiguration;
+	AMDetectorInfoSet detectorSet;
+	detectorSet.addDetectorInfo(detector_->toInfo());
+	configuration->setDetectorConfigurations(detectorSet);
+	AMScanAction *scanAction = new AMScanAction(new AMScanActionInfo(configuration));
+
+	connect(scanAction, SIGNAL(cancelled()), scanAction, SLOT(scheduleForDeletion()));
+	connect(scanAction, SIGNAL(failed()), scanAction, SLOT(scheduleForDeletion()));
+	connect(scanAction, SIGNAL(succeeded()), scanAction, SLOT(scheduleForDeletion()));
+
+	scanAction->start();
 }

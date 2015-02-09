@@ -10,7 +10,7 @@ BioXAS32ElementGeDetector::BioXAS32ElementGeDetector(const QString &name, const 
 
 	units_ = "Counts";
 
-	AMAxisInfo ai("Energy", 2048, "Energy", "eV");
+	AMAxisInfo ai("Energy", 4096, "Energy", "eV");
 	ai.start = AMNumber(0);
 	ai.increment = 10;
 	ai.isUniform = true;
@@ -25,8 +25,8 @@ BioXAS32ElementGeDetector::BioXAS32ElementGeDetector(const QString &name, const 
 	for (int i = 0; i < 32; i++){
 
 		channelEnableControls_.append(new AMSinglePVControl(QString("Channel Enable %1").arg(i+1), QString("DXP1607-I22-01:C%1_PluginControlVal").arg(i+1), this, 0.1));
-		icrControls_.append(new AMReadOnlyPVControl(QString("Input Counts %1").arg(i+1), QString("DXP1607-I22-01:C%1_SCA3:Value_RBV").arg(i+1), this, QString("The input counts for element %1 of the four element.").arg(i+1)));
-		ocrControls_.append(new AMReadOnlyPVControl(QString("Output Counts %1").arg(i+1), QString("DXP1607-I22-01:C%1_SCA4:Value_RBV").arg(i+1), this, QString("The output counts for element %1 of the four element.").arg(i+1)));
+//		icrControls_.append(new AMReadOnlyPVControl(QString("Input Counts %1").arg(i+1), QString("DXP1607-I22-01:C%1_SCA3:Value_RBV").arg(i+1), this, QString("The input counts for element %1 of the four element.").arg(i+1)));
+//		ocrControls_.append(new AMReadOnlyPVControl(QString("Output Counts %1").arg(i+1), QString("DXP1607-I22-01:C%1_SCA4:Value_RBV").arg(i+1), this, QString("The output counts for element %1 of the four element.").arg(i+1)));
 		spectraControls_.append(new AMReadOnlyPVControl(QString("Raw Spectrum %1").arg(i+1), QString("DXP1607-I22-01:ARR%1:ArrayData").arg(i+1), this));
 
 		thresholdControls_.append(new AMPVControl(QString("Threshold %1").arg(i+1), QString("DXP1607-I22-01:C%1_SCA4_THRESHOLD_RBV").arg(i+1), QString("DXP1607-I22-01:C%1_SCA4_THRESHOLD").arg(i+1), QString(), this, 0.5));

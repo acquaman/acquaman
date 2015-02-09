@@ -19,7 +19,11 @@ public:
 	virtual void buildDetectorView();
 
 protected slots:
+	/// Starts the acquisition.  Calls acquire() but subclasses can reimplement if there is a more sofisticated start routine.
+	virtual void startAcquisition();
+	/// Updates the initialization status label.
 	void initializationStatusUpdate();
+	/// Updates the acquisition cleanup label.
 	void acquisitionStatusUpdate();
 	/// Updates the status label when the detector initialization state changes.  By default does nothing.
 	virtual void onInitializationStateChanged(AMDetector::InitializationState state);
