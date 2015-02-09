@@ -371,7 +371,7 @@ void AMScanAction::autoExportScan()
 
 			if (config->autoExportEnabled()){
 
-				AMExportController *exportController = new AMExportController(QList<AMScan *>() << controller_->scan());
+				AMExportController *exportController = new AMExportController(QList<AMScan *>() << controller_->scan(), this);
 
 				// This needs to be generalized so the user can set it (on beamlines where this is acceptable)
 				//QDir exportDir(AMUserSettings::userDataFolder);
