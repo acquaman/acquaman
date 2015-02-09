@@ -296,6 +296,9 @@ protected:
 	QDoubleSpinBox *minimumEnergySpinBox_;
 	/// The maximum energy spin box.
 	QDoubleSpinBox *maximumEnergySpinBox_;
+
+	/// A dead time view factor.  Should be customized in the constructor.
+	int deadTimeViewFactor_;
 };
 
 #endif // AMXRFDETAILEDDETECTORVIEW_H

@@ -14,6 +14,8 @@ class VESPERSXRFDetailedDetectorView : public AMXRFDetailedDetectorView
 public:
 	/// Constructor.  Takes a normal AMXRFDetector.
 	VESPERSXRFDetailedDetectorView(AMXRFDetector *detector, QWidget *parent = 0);
+	/// Destructor.
+	virtual ~VESPERSXRFDetailedDetectorView(){}
 
 	/// Re-implementing to add the save button.
 	virtual void buildDetectorView();
