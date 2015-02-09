@@ -444,9 +444,10 @@ HEADERS += \
 	source/dataman/export/AMExporterOptionSMAK.h \
 	source/ui/AMScanEditorsCloseView.h \
 	source/ui/util/AMSortFilterScansWidget.h \
-    source/actions3/actions/AMChangeToleranceActionInfo.h \
-    source/actions3/actions/AMChangeToleranceAction.h \
-    source/ui/util/AMLineEditDialog.h
+	source/actions3/actions/AMChangeToleranceActionInfo.h \
+	source/actions3/actions/AMChangeToleranceAction.h \
+	source/ui/util/AMLineEditDialog.h \
+	source/dataman/AMXRFScan.h
 
 FORMS += \
 	source/ui/dataman/AMImportControllerWidget.ui \
@@ -857,9 +858,10 @@ SOURCES += \
 	source/ui/AMScanEditorsCloseView.cpp \
 	source/ui/util/AMSortFilterScansWidget.cpp \
 	source/ui/dataman/AMImportControllerWidget.cpp \
-    source/actions3/actions/AMChangeToleranceActionInfo.cpp \
-    source/actions3/actions/AMChangeToleranceAction.cpp \
-    source/ui/util/AMLineEditDialog.cpp
+	source/actions3/actions/AMChangeToleranceActionInfo.cpp \
+	source/actions3/actions/AMChangeToleranceAction.cpp \
+	source/ui/util/AMLineEditDialog.cpp \
+	source/dataman/AMXRFScan.cpp
 
 RESOURCES *= source/icons/icons.qrc \
 		source/configurationFiles/configurationFiles.qrc \
