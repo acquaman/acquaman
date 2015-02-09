@@ -39,6 +39,7 @@ public:
 	void setExperimentId(int experimentId);
 	/// Returns the number of displayed roles in the model
 	int numberOfDisplayedRows();
+
 signals:
 	/// Emitted whenever the user changes the selected scans in the current child view
 	void selectionChanged();
@@ -48,11 +49,17 @@ signals:
 	void childContextMenuRequested(const QPoint& point);
 	/// Emitted whenever the user changes the filter
 	void filterChanged(bool);
+
 public slots:
 	/// Clears the current selection from all child views.
 	void clearSelection();
 	/// Selects all items in the current child view.
 	void selectAll();
+	/// Sets the RegExp pattern on the proxy model.
+	void setFilterRegExp(const QString &pattern);
+	/// Sets the filter key column on the proxy model.
+	void setFilterKeyColumn(int column);
+
 protected slots:
 	/// Slot which handles the user changing the selected items in the current child view
 	void onChildViewSelectionChanged();
@@ -60,6 +67,7 @@ protected slots:
 	void onChildViewChanged(int newIndex);
 	/// Slot which handles a request for a context menu from one of the child views
 	void onContextMenuRequested(const QPoint& point);
+
 protected:
 	/// Adds an QAbstractItemView to the ScanDataView
 	void addChildView(QAbstractItemView* childView, const QIcon &icon);
@@ -67,7 +75,9 @@ protected:
 	void initializeChildViews();
 	/// The child view which currently is showing. If there are no child views, 0 is returned.
 	QAbstractItemView* currentView();
+
 private slots:
+
 private:
 	QLabel* selectedItemCount_;
 	QStackedWidget* childViewDisplayArea_;
