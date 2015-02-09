@@ -49,7 +49,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
 #include "dataman/AMScanAxisEXAFSRegion.h"
 #include "ui/BioXAS/BioXAS32ElementGeDetectorView.h"
-#include "acquaman/BioXASSide/BioXASSideXRFScanConfiguration.h"
+#include "acquaman/BioXAS/BioXASXRFScanConfiguration.h"
 
 BioXASSideAppController::BioXASSideAppController(QObject *parent)
 	: AMAppController(parent)
@@ -140,7 +140,7 @@ void BioXASSideAppController::onBeamlineConnected()
 void BioXASSideAppController::registerClasses()
 {
 	AMDbObjectSupport::s()->registerClass<BioXASSideXASScanConfiguration>();
-	AMDbObjectSupport::s()->registerClass<BioXASSideXRFScanConfiguration>();
+	AMDbObjectSupport::s()->registerClass<BioXASXRFScanConfiguration>();
 }
 
 void BioXASSideAppController::setupExporterOptions()
@@ -199,11 +199,11 @@ void BioXASSideAppController::setupUserInterface()
 	mw_->insertHeading("Scans", 2);
 
 
-    persistentPanel_ = new BioXASSidePersistentView();
-    mw_->addRightWidget(persistentPanel_);
+	persistentPanel_ = new BioXASSidePersistentView();
+	mw_->addRightWidget(persistentPanel_);
 
-    connect( BioXASSideBeamline::bioXAS(), SIGNAL(connected(bool)), this, SLOT(onBeamlineConnected()) );
-    onBeamlineConnected();
+	connect( BioXASSideBeamline::bioXAS(), SIGNAL(connected(bool)), this, SLOT(onBeamlineConnected()) );
+	onBeamlineConnected();
 }
 
 void BioXASSideAppController::makeConnections()

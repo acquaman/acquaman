@@ -1,9 +1,9 @@
-#ifndef BIOXASSIDEXRFSCANCONFIGURATION_H
-#define BIOXASSIDEXRFSCANCONFIGURATION_H
+#ifndef BIOXASXRFSCANCONFIGURATION_H
+#define BIOXASXRFSCANCONFIGURATION_H
 
 #include "acquaman/AMScanConfiguration.h"
 
-class BioXASSideXRFScanConfiguration : public AMScanConfiguration
+class BioXASXRFScanConfiguration : public AMScanConfiguration
 {
 	Q_OBJECT
 
@@ -11,11 +11,11 @@ class BioXASSideXRFScanConfiguration : public AMScanConfiguration
 
 public:
 	/// Constructor.
-	Q_INVOKABLE BioXASSideXRFScanConfiguration(QObject *parent = 0);
+	Q_INVOKABLE BioXASXRFScanConfiguration(QObject *parent = 0);
 	/// Copy Constructor.
-	BioXASSideXRFScanConfiguration(const BioXASSideXRFScanConfiguration &other);
+	BioXASXRFScanConfiguration(const BioXASXRFScanConfiguration &other);
 	/// Destructor.
-	virtual ~BioXASSideXRFScanConfiguration();
+	virtual ~BioXASXRFScanConfiguration();
 
 	/// Returns a new instance of the scan configuration.
 	virtual AMScanConfiguration *createCopy() const;
@@ -32,4 +32,4 @@ public:
 	virtual QString detailedDescription() const;
 };
 
-#endif // BIOXASSIDEXRFSCANCONFIGURATION_H
+#endif // BIOXASXRFSCANCONFIGURATION_H

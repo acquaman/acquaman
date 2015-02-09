@@ -1,6 +1,6 @@
 #include "BioXAS32ElementGeDetectorView.h"
 
-#include "acquaman/BioXASSide/BioXASSideXRFScanConfiguration.h"
+#include "acquaman/BioXAS/BioXASXRFScanConfiguration.h"
 #include "actions3/actions/AMScanAction.h"
 
 #include <QSpinBox>
@@ -146,7 +146,7 @@ void BioXAS32ElementGeDetectorView::onFramesPerAcquisitionSpinBoxChanged()
 
 void BioXAS32ElementGeDetectorView::startAcquisition()
 {
-	BioXASSideXRFScanConfiguration *configuration = new BioXASSideXRFScanConfiguration;
+	BioXASXRFScanConfiguration *configuration = new BioXASXRFScanConfiguration;
 	AMDetectorInfoSet detectorSet;
 	detectorSet.addDetectorInfo(detector_->toInfo());
 	configuration->setDetectorConfigurations(detectorSet);

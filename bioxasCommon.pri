@@ -11,15 +11,15 @@ HEADERS += \
 	source/beamline/BioXAS/BioXASBeamlineDef.h \
 	source/beamline/BioXAS/BioXASPseudoMotorControl.h \
 	source/ui/BioXAS/BioXASCLSMAXvMotorControlEditor.h \
-    source/beamline/BioXAS/BioXAS32ElementGeDetector.h \
-    source/ui/BioXAS/BioXAS32ElementGeDetectorView.h
+	source/beamline/BioXAS/BioXAS32ElementGeDetector.h \
+	source/ui/BioXAS/BioXAS32ElementGeDetectorView.h \
+	source/acquaman/BioXAS/BioXASXRFScanConfiguration.h \
+	source/acquaman/BioXAS/BioXASXRFScanController.h
 
 SOURCES += \
 	source/beamline/BioXAS/BioXASPseudoMotorControl.cpp \
 	source/ui/BioXAS/BioXASCLSMAXvMotorControlEditor.cpp \
-    source/beamline/BioXAS/BioXAS32ElementGeDetector.cpp \
-    source/ui/BioXAS/BioXAS32ElementGeDetectorView.cpp
-
-
-
-
+	source/beamline/BioXAS/BioXAS32ElementGeDetector.cpp \
+	source/ui/BioXAS/BioXAS32ElementGeDetectorView.cpp \
+	source/acquaman/BioXAS/BioXASXRFScanConfiguration.cpp \
+	source/acquaman/BioXAS/BioXASXRFScanController.cpp

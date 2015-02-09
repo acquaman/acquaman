@@ -1,19 +1,19 @@
-#ifndef BIOXASSIDEXRFSCANCONTROLLER_H
-#define BIOXASSIDEXRFSCANCONTROLLER_H
+#ifndef BIOXASXRFSCANCONTROLLER_H
+#define BIOXASXRFSCANCONTROLLER_H
 
-#include "acquaman/BioXASSide/BioXASSideXRFScanConfiguration.h"
+#include "acquaman/BioXAS/BioXASXRFScanConfiguration.h"
 #include "acquaman/AMScanController.h"
 #include "beamline/AMXRFDetector.h"
 
-class BioXASSideXRFScanController : public AMScanController
+class BioXASXRFScanController : public AMScanController
 {
 	Q_OBJECT
 
 public:
 	/// Default constructor.
-	BioXASSideXRFScanController(BioXASSideXRFScanConfiguration *configuration, QObject *parent = 0);
+	BioXASXRFScanController(BioXASXRFScanConfiguration *configuration, QObject *parent = 0);
 	/// Destructor.
-	virtual ~BioXASSideXRFScanController();
+	virtual ~BioXASXRFScanController();
 
 protected slots:
 	/// Helper slot to finish up a scan.
@@ -39,4 +39,4 @@ protected:
 	AMXRFDetector *detector_;
 };
 
-#endif // BIOXASSIDEXRFSCANCONTROLLER_H
+#endif // BIOXASXRFSCANCONTROLLER_H

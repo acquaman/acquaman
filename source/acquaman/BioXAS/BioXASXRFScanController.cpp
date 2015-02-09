@@ -1,16 +1,17 @@
-#include "BioXASSideXRFScanController.h"
+#include "BioXASXRFScanController.h"
 
 #include "dataman/AMUser.h"
 #include "dataman/datasource/AMRawDataSource.h"
-#include "beamline/BioXAS/BioXASSideBeamline.h"
 #include "analysis/AM1DSummingAB.h"
+#include "beamline/AMBeamline.h"
+#include "beamline/BioXAS/BioXAS32ElementGeDetector.h"
 
 #include <QDir>
 
-BioXASSideXRFScanController::BioXASSideXRFScanController(BioXASSideXRFScanConfiguration *configuration, QObject *parent)
+BioXASXRFScanController::BioXASXRFScanController(BioXASXRFScanConfiguration *configuration, QObject *parent)
 	: AMScanController(configuration, parent)
 {
-	detector_ = qobject_cast<AMXRFDetector *>(BioXASSideBeamline::bioXAS()->exposedDetectorByInfo(configuration->detectorConfigurations().at(0)));
+	detector_ = qobject_cast<AMXRFDetector *>(AMBeamline::bl()->exposedDetectorByInfo(configuration->detectorConfigurations().at(0)));
 
 	scan_ = new AMScan;
 	scan_->setScanConfiguration(configuration);
@@ -22,7 +23,7 @@ BioXASSideXRFScanController::BioXASSideXRFScanController(BioXASSideXRFScanConfig
 
 	int elements = detector_->elements();
 
-	BioXAS32ElementGeDetector *geDetector = BioXASSideBeamline::bioXAS()->ge32ElementDetector();
+	BioXAS32ElementGeDetector *geDetector = qobject_cast<BioXAS32ElementGeDetector *>(detector_);
 
 	QString notes;
 
@@ -50,23 +51,23 @@ BioXASSideXRFScanController::BioXASSideXRFScanController(BioXASSideXRFScanConfig
 	scan_->addAnalyzedDataSource(summedSpectra, true, false);
 }
 
-BioXASSideXRFScanController::~BioXASSideXRFScanController()
+BioXASXRFScanController::~BioXASXRFScanController()
 {
 
 }
 
-void BioXASSideXRFScanController::onProgressUpdate()
+void BioXASXRFScanController::onProgressUpdate()
 {
 	emit progress(detector_->elapsedTime(), detector_->acquisitionTime());
 }
 
-void BioXASSideXRFScanController::onStatusChanged()
+void BioXASXRFScanController::onStatusChanged()
 {
 	if (!detector_->isAcquiring())
 		onDetectorAcquisitionFinished();
 }
 
-bool BioXASSideXRFScanController::startImplementation()
+bool BioXASXRFScanController::startImplementation()
 {
 	connect(detector_, SIGNAL(acquisitionStateChanged(AMDetector::AcqusitionState)), this, SLOT(onStatusChanged()));
 	connect(detector_, SIGNAL(elapsedTimeChanged(double)), this, SLOT(onProgressUpdate()));
@@ -77,7 +78,7 @@ bool BioXASSideXRFScanController::startImplementation()
 	return true;
 }
 
-void BioXASSideXRFScanController::onDetectorAcquisitionFinished()
+void BioXASXRFScanController::onDetectorAcquisitionFinished()
 {
 	disconnect(detector_, SIGNAL(acquisitionStateChanged(AMDetector::AcqusitionState)), this, SLOT(onStatusChanged()));
 	disconnect(detector_, SIGNAL(elapsedTimeChanged(double)), this, SLOT(onProgressUpdate()));
@@ -106,7 +107,7 @@ void BioXASSideXRFScanController::onDetectorAcquisitionFinished()
 	setFinished();
 }
 
-void BioXASSideXRFScanController::saveData()
+void BioXASXRFScanController::saveData()
 {
 	QFile file(AMUserSettings::userDataFolder + "/" + scan_->filePath());
 	if(!file.open(QIODevice::WriteOnly)) {
