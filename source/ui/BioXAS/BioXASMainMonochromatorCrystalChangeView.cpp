@@ -10,31 +10,31 @@ BioXASMainMonochromatorCrystalChangeView::BioXASMainMonochromatorCrystalChangeVi
 
     // Create UI elements.
 
+    QGroupBox *monoControls = new QGroupBox("Crystal change status");
+
     QLabel *regionPrompt = new QLabel("Region:");
     region_ = new QLabel();
 
-    QLabel *slitsClosedPrompt = new QLabel("Slits closed status:");
+    QLabel *slitsClosedPrompt = new QLabel("Slits:");
     slitsClosed_ = new QLabel();
 
-    QLabel *paddleOutPrompt = new QLabel("Paddle out status:");
+    QLabel *paddleOutPrompt = new QLabel("Paddle:");
     paddleOut_ = new QLabel();
 
-    QLabel *keyStatusPrompt = new QLabel("Key status:");
+    QLabel *keyStatusPrompt = new QLabel("Key:");
     keyStatus_ = new QLabel();
 
-    QLabel *brakeStatusPrompt = new QLabel("Brake status:");
+    QLabel *brakeStatusPrompt = new QLabel("Brake:");
     brakeStatus_ = new QLabel();
 
     QLabel *braggMotorPositionPrompt = new QLabel("Bragg motor:");
     braggMotorPosition_ = new QLabel();
     braggMotorAtCrystalChangePosition_ = new QLabel();
 
-    QLabel *crystalChangeMotorPositionPrompt = new QLabel("Crystal change motor:");
-    crystalChangeMotorPosition_ = new QLabel();
+    QLabel *crystalChangeMotorPositionPrompt = new QLabel("CC motor:");
+//    crystalChangeMotorPosition_ = new QLabel();
     crystalChangeMotorCWLimit_ = new QLabel();
     crystalChangeMotorCCWLimit_ = new QLabel();
-
-    QGroupBox *monoControls = new QGroupBox("Crystal change status");
 
     // Create and set layouts.
 
@@ -53,9 +53,9 @@ BioXASMainMonochromatorCrystalChangeView::BioXASMainMonochromatorCrystalChangeVi
     statusLayout->addWidget(brakeStatusPrompt, 6, 0);
     statusLayout->addWidget(brakeStatus_, 6, 1);
     statusLayout->addWidget(crystalChangeMotorPositionPrompt, 7, 0);
-    statusLayout->addWidget(crystalChangeMotorPosition_, 7, 1);
-    statusLayout->addWidget(crystalChangeMotorCWLimit_, 8, 1);
-    statusLayout->addWidget(crystalChangeMotorCCWLimit_, 9, 1);
+//    statusLayout->addWidget(crystalChangeMotorPosition_, 7, 1);
+    statusLayout->addWidget(crystalChangeMotorCWLimit_, 7, 1);
+    statusLayout->addWidget(crystalChangeMotorCCWLimit_, 8, 1);
 
     monoControls->setLayout(statusLayout);
 
@@ -90,15 +90,17 @@ void BioXASMainMonochromatorCrystalChangeView::setMono(BioXASMainMonochromator *
         if (mono_) {
             connect( mono_, SIGNAL(connected(bool)), this, SLOT(onMonoConnectedChanged()) );
 
+            connect( mono_, SIGNAL(regionChanged(BioXASMainMonochromator::Region)), this, SLOT(onRegionStatusChanged()) );
             connect( mono_, SIGNAL(slitsClosedStatusChanged(bool)), this, SLOT(onSlitsClosedChanged()) );
             connect( mono_, SIGNAL(paddleOutStatusChanged(bool)), this, SLOT(onPaddleOutChanged()) );
             connect( mono_, SIGNAL(keyEnabledStatusChanged(bool)), this, SLOT(onKeyStatusChanged()) );
             connect( mono_, SIGNAL(braggMotorPositionChanged(double)), this, SLOT(onBraggMotorPositionChanged()) );
             connect( mono_, SIGNAL(braggMotorAtCrystalChangePositionStatusChanged(bool)), this, SLOT(onBraggMotorAtCrystalChangePositionChanged()) );
             connect( mono_, SIGNAL(crystalChangeBrakeEnabledChanged(bool)), this, SLOT(onBrakeStatusChanged()) );
-            connect( mono_, SIGNAL(crystalChangeMotorPositionChanged(double)), this, SLOT(onCrystalChangeMotorPositionChanged()) );
+//            connect( mono_, SIGNAL(crystalChangeMotorPositionChanged(double)), this, SLOT(onCrystalChangeMotorPositionChanged()) );
             connect( mono_, SIGNAL(crystalChangeMotorCWLimitStatusChanged(bool)), this, SLOT(onCrystalChangeMotorCWLimitStatusChanged()) );
             connect( mono_, SIGNAL(crystalChangeMotorCCWLimitStatusChanged(bool)), this, SLOT(onCrystalChangeMotorCCWLimitStatusChanged()) );
+
         }
 
         onMonoConnectedChanged();
@@ -128,6 +130,8 @@ void BioXASMainMonochromatorCrystalChangeView::onMonoConnectedChanged()
 
 void BioXASMainMonochromatorCrystalChangeView::onRegionStatusChanged()
 {
+    qDebug() << "Updating mono region display.";
+
     QString text;
 
     if (mono_) {
@@ -232,7 +236,7 @@ void BioXASMainMonochromatorCrystalChangeView::onBrakeStatusChanged()
     QString text;
 
     if (mono_ && mono_->brakeStatusControl() && mono_->brakeStatusControl()->isConnected()) {
-        if (mono_->brakeStatusEnabled())
+        if (mono_->brakeStatusEnabled() == 0)
             text = "Enabled";
         else
             text = "Disabled";
@@ -246,14 +250,15 @@ void BioXASMainMonochromatorCrystalChangeView::onBrakeStatusChanged()
 
 void BioXASMainMonochromatorCrystalChangeView::onCrystalChangeMotorPositionChanged()
 {
-    QString newPosition;
+//    qDebug() << "Updating crystal change motor position display.";
+//    QString newPosition;
 
-    if (mono_ && mono_->crystalChangeMotor() && mono_->crystalChangeMotor()->isConnected())
-        newPosition = QString::number(mono_->crystalChangeMotor()->value(), 'f');
-    else
-        newPosition = "---";
+//    if (mono_ && mono_->crystalChangeMotor() && mono_->crystalChangeMotor()->isConnected())
+//        newPosition = QString::number(mono_->crystalChangeMotor()->value(), 'f');
+//    else
+//        newPosition = "POOP";
 
-    crystalChangeMotorPosition_->setText(newPosition);
+//    crystalChangeMotorPosition_->setText(newPosition);
 }
 
 void BioXASMainMonochromatorCrystalChangeView::onCrystalChangeMotorCWLimitStatusChanged()

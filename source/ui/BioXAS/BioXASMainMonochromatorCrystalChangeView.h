@@ -70,8 +70,8 @@ protected:
     QLabel *braggMotorAtCrystalChangePosition_;
     /// Label contains the brake status.
     QLabel *brakeStatus_;
-    /// Label contains the crystal change motor position.
-    QLabel *crystalChangeMotorPosition_;
+//    /// Label contains the crystal change motor position.
+//    QLabel *crystalChangeMotorPosition_;
     /// Label contains the mono crystal change motor CW limit status.
     QLabel *crystalChangeMotorCWLimit_;
     /// Label contains the mono crystal change motor CCW limit status.
