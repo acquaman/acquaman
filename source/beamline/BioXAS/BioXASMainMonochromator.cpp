@@ -205,7 +205,7 @@ AMAction3* BioXASMainMonochromator::createWaitForCrystalChangeEnabledAction()
 
 AMAction3* BioXASMainMonochromator::createMoveToCrystalChangePositionAction()
 {
-    AMAction3 *action = createMoveBraggMotorAction(55);
+    AMAction3 *action = createMoveBraggMotorAction(BRAGG_CRYSTAL_CHANGE_POSITION);
 
     if (action) {
         action->info()->setShortDescription("Moving to crystal change position...");
@@ -393,15 +393,17 @@ AMAction3* BioXASMainMonochromator::createCrystalChangeAction()
     Region newRegion;
 
     if (region_ == A) {
-        crystalChangeMotorDestination = -15000;
-        newRegionDestination = 330;
+        crystalChangeMotorDestination = CC_REGION_B_DESTINATION;
+        newRegionDestination = BRAGG_REGION_B_DESTINATION;
         regionOK = true;
         newRegion = B;
 
-    } else if (region_ == B) {
-        crystalChangeMotorDestination = 15000;
-        newRegionDestination = -10;
-        regionOK = true;
+    } else {
+
+//    } else if (region_ == B) {
+        crystalChangeMotorDestination = CC_REGION_A_DESTINATION;
+        newRegionDestination = BRAGG_REGION_A_DESTINATION;
+        regionOK = true; // not necessarily true. but here until we implement a smart way of dealing with starting a crystal change in a 'None' region.
         newRegion = A;
     }
 
@@ -442,6 +444,12 @@ AMAction3* BioXASMainMonochromator::createCrystalChangeAction()
         crystalChangeAction->addSubAction(toNewRegion);
         crystalChangeAction->addSubAction(waitForMoveToNewRegion);
         crystalChangeAction->addSubAction(waitForKeyTurnedCW);
+    }
+
+    if (crystalChangeAction) {
+        qDebug() << "Mono has produced valid crystal change action.";
+    } else {
+        qDebug() << "Mono has produced invalid action.";
     }
 
     return crystalChangeAction;

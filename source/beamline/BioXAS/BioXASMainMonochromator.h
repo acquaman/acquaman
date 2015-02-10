@@ -13,6 +13,12 @@
 
 #include "beamline/BioXAS/BioXASMainMonochromatorControl.h"
 
+#define BRAGG_CRYSTAL_CHANGE_POSITION 55
+#define BRAGG_REGION_A_DESTINATION -10
+#define BRAGG_REGION_B_DESTINATION 330
+#define CC_REGION_A_DESTINATION 15000
+#define CC_REGION_B_DESTINATION -15000
+
 class BioXASMainMonochromatorCrystalChangeControl;
 
 class BioXASMainMonochromator : public QObject
@@ -219,7 +225,7 @@ protected:
 
     Region region_;
 
-    // Motors
+    // Controls
 
     CLSMAXvMotor *lowerSlitBladeMotor_;
     CLSMAXvMotor *upperSlitBladeMotor_;
@@ -231,8 +237,6 @@ protected:
     CLSMAXvMotor *crystal1RollMotor_;
     CLSMAXvMotor *crystal2PitchMotor_;
     CLSMAXvMotor *crystal2RollMotor_;
-
-    // Controls
 
     AMControl* slitsClosed_;
     AMControl* phosphorPaddle_;
@@ -249,9 +253,12 @@ protected:
     AMControl* braggMotorCCWLimit_;
     AMControl* regionAStatus_;
     AMControl* regionBStatus_;
+
+    // Energy control.
+
     AMControl* energy_;
 
-    // Crystal change
+    // Crystal change control.
 
     BioXASMainMonochromatorCrystalChangeControl *crystalChangeControl_;
 };
