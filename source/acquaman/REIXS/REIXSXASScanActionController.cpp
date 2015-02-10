@@ -120,11 +120,11 @@ void REIXSXASScanActionController::onInitializationActionSucceeded(){
 	AMControlInfo polarization("beamlinePolarization", REIXSBeamline::bl()->photonSource()->epuPolarization()->value(), 0, 0, "[choice]", 0.1, "EPU Polarization");
 	polarization.setEnumString(REIXSBeamline::bl()->photonSource()->epuPolarization()->enumNameAt(REIXSBeamline::bl()->photonSource()->epuPolarization()->value()));
 	positions.append(polarization);
-		if(REIXSBeamline::bl()->photonSource()->epuPolarization()->value() == 5)
-		{
-			AMControlInfo polarizationAngle("beamlinePolarizationAngle", REIXSBeamline::bl()->photonSource()->epuPolarizationAngle()->value(), 0, 0, "degrees", 0.1, "EPU Polarization Angle");
-			positions.append(polarizationAngle);
-		}
+	if(REIXSBeamline::bl()->photonSource()->epuPolarization()->value() == 5)
+	{
+		AMControlInfo polarizationAngle("beamlinePolarizationAngle", REIXSBeamline::bl()->photonSource()->epuPolarizationAngle()->value(), 0, 0, "degrees", 0.1, "EPU Polarization Angle");
+		positions.append(polarizationAngle);
+	}
 	positions.append(REIXSBeamline::bl()->photonSource()->monoGratingSelector()->toInfo());
 	positions.append(REIXSBeamline::bl()->photonSource()->monoMirrorSelector()->toInfo());
 	positions.append(REIXSBeamline::bl()->spectrometer()->spectrometerRotationDrive()->toInfo());
@@ -206,16 +206,11 @@ AMAction3* REIXSXASScanActionController::createInitializationActions(){
 
 	AMListAction3 *initializationStage1 = new AMListAction3(new AMListActionInfo3("REIXS XAS Initialization Stage 1", "REIXS XAS Initialization Stage 1"), AMListAction3::Parallel);
 
-	if(configuration_->applySlitWidth()){
+	if(configuration_->applySlitWidth())
+		initializationStage1->addSubAction(AMActionSupport::buildControlMoveAction((REIXSBeamline::bl()->photonSource()->monoSlit()), configuration_->slitWidth()));
 
-        initializationStage1->addSubAction(AMActionSupport::buildControlMoveAction((REIXSBeamline::bl()->photonSource()->monoSlit()), configuration_->slitWidth()));
-	}
-
-	if(configuration_->applyPolarization() && configuration_->polarization() == 5 && configuration_->polarizationAngle() != REIXSBeamline::bl()->photonSource()->epuPolarizationAngle()->value()){
-
-        initializationStage1->addSubAction(AMActionSupport::buildControlMoveAction((REIXSBeamline::bl()->photonSource()->epuPolarizationAngle()),configuration_->polarizationAngle()));
-
-	}
+	if(configuration_->applyPolarization() && configuration_->polarization() == 5 && configuration_->polarizationAngle() != REIXSBeamline::bl()->photonSource()->epuPolarizationAngle()->value())
+		initializationStage1->addSubAction(AMActionSupport::buildControlMoveAction((REIXSBeamline::bl()->photonSource()->epuPolarizationAngle()),configuration_->polarizationAngle()));
 
 	initializationStage1->addSubAction(REIXSBeamline::bl()->scaler()->createStartAction3(false));
 	initializationStage1->addSubAction(REIXSBeamline::bl()->scaler()->createContinuousEnableAction3(false));
@@ -223,11 +218,8 @@ AMAction3* REIXSXASScanActionController::createInitializationActions(){
 
 	AMListAction3 *initializationStage2 = new AMListAction3(new AMListActionInfo3("REIXS XAS Initialization Stage 2", "REIXS XAS Initialization Stage 2"), AMListAction3::Parallel);
 
-	if(configuration_->applyPolarization() && REIXSBeamline::bl()->photonSource()->epuPolarization()->value() != configuration_->polarization()){
-
-        initializationStage2->addSubAction(AMActionSupport::buildControlMoveAction((REIXSBeamline::bl()->photonSource()->epuPolarization()), configuration_->polarization()));
-
-    }
+	if(configuration_->applyPolarization() && REIXSBeamline::bl()->photonSource()->epuPolarization()->value() != configuration_->polarization())
+		initializationStage2->addSubAction(AMActionSupport::buildControlMoveAction((REIXSBeamline::bl()->photonSource()->epuPolarization()), configuration_->polarization()));
 
 	initializationStage2->addSubAction(REIXSBeamline::bl()->scaler()->createScansPerBufferAction3(1));
 	initializationStage2->addSubAction(REIXSBeamline::bl()->scaler()->createTotalScansAction3(1));

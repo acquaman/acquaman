@@ -117,21 +117,21 @@ AMAction3* SGMMAXvMotor::createEncoderCalibrationAbsoluteOffsetAction(double enc
 	if(!isConnected())
 		return 0;
 
-    return AMActionSupport::buildControlMoveAction(encoderCalibrationAbsoluteOffset_, encoderCalibrationAbsoluteOffset);
+	return AMActionSupport::buildControlMoveAction(encoderCalibrationAbsoluteOffset_, encoderCalibrationAbsoluteOffset);
 }
 
 AMAction3* SGMMAXvMotor::createEncoderTypeAction(SGMMAXvMotor::EncoderType encoderType){
 	if(!isConnected())
 		return 0;
 
-    return AMActionSupport::buildControlMoveAction(encoderType_, encoderType);
+	return AMActionSupport::buildControlMoveAction(encoderType_, encoderType);
 }
 
 AMAction3* SGMMAXvMotor::createEncoderEncodingAction(SGMMAXvMotor::EncoderEncoding encoderEncoding){
 	if(!isConnected())
 		return 0;
 
-    return AMActionSupport::buildControlMoveAction(encoderEncoding_, encoderEncoding);
+	return AMActionSupport::buildControlMoveAction(encoderEncoding_, encoderEncoding);
 }
 
 void SGMMAXvMotor::setEncoderCalibrationAbsoluteOffset(double encoderCalibrationAbsoluteOffset){

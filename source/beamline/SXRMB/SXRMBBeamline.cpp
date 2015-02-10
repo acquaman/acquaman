@@ -208,7 +208,11 @@ AMAction3* SXRMBBeamline::createBeamOffActions() const{
 	AMListAction3 *beamOffActionsList = new AMListAction3(new AMListActionInfo3("SXRMB Beam Off", "SXRMB Beam Off"), AMListAction3::Parallel);
 
 	beamOffActionsList->addSubAction(AMActionSupport::buildControlMoveAction(PSH1406B1002Shutter_, 0));
-	beamOffActionsList->addSubAction(AMActionSupport::buildControlMoveAction(PSH1406B1002Shutter_, 0));
+
+	AMControlInfo PSH1406B1002ShutterWaitSetpoint = PSH1406B1002Shutter_->toInfo();
+	PSH1406B1002ShutterWaitSetpoint.setValue(0);
+	AMControlWaitAction *PSH1406B1002ShutterWaitAction = new AMControlWaitAction(new AMControlWaitActionInfo(PSH1406B1002ShutterWaitSetpoint, 10, AMControlWaitActionInfo::MatchEqual), PSH1406B1002Shutter_);
+	beamOffActionsList->addSubAction(PSH1406B1002ShutterWaitAction);
 
 	return beamOffActionsList;
 }

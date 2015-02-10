@@ -280,36 +280,32 @@ AMAction3* REIXSXESScanActionController::createInitializationActions(){
 
 
 
-	if(configuration_->applyPolarization() && configuration_->polarization() == 5 && configuration_->polarizationAngle() != REIXSBeamline::bl()->photonSource()->epuPolarizationAngle()->value()){
+	if(configuration_->applyPolarization() && configuration_->polarization() == 5 && configuration_->polarizationAngle() != REIXSBeamline::bl()->photonSource()->epuPolarizationAngle()->value())
 		initializationPreActions->addSubAction(AMActionSupport::buildControlMoveAction(REIXSBeamline::bl()->photonSource()->epuPolarizationAngle(), configuration_->polarizationAngle()));
-	}
 
-	if(configuration_->applyPolarization() && REIXSBeamline::bl()->photonSource()->epuPolarization()->value() != configuration_->polarization()){
+	if(configuration_->applyPolarization() && REIXSBeamline::bl()->photonSource()->epuPolarization()->value() != configuration_->polarization())
 		initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(REIXSBeamline::bl()->photonSource()->epuPolarization(), configuration_->polarization()));
-	}
 
 
 
-	if(configuration_->applySlitWidth()){
-
-        initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(REIXSBeamline::bl()->photonSource()->monoSlit(), configuration_->slitWidth()));
-	}
+	if(configuration_->applySlitWidth())
+		initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(REIXSBeamline::bl()->photonSource()->monoSlit(), configuration_->slitWidth()));
 
 
 	if(configuration_->applyEnergy()){
 		AMListAction3 *energyMoveAction = new AMListAction3(new AMListActionInfo3("REIXS Mono Energy Initialization Actions",
-																					   "REIXS Mono Energy Initialization Actions"),
-																 AMListAction3::Sequential);
+											  "REIXS Mono Energy Initialization Actions"),
+								    AMListAction3::Sequential);
 
-        energyMoveAction->addSubAction(AMActionSupport::buildControlMoveAction(REIXSBeamline::bl()->photonSource()->energy(), configuration_->energy()));
-        energyMoveAction->addSubAction(new AMWaitAction(new AMWaitActionInfo(1.1)));  // for mono encoder time averaging to settle
+		energyMoveAction->addSubAction(AMActionSupport::buildControlMoveAction(REIXSBeamline::bl()->photonSource()->energy(), configuration_->energy()));
+		energyMoveAction->addSubAction(new AMWaitAction(new AMWaitActionInfo(1.1)));  // for mono encoder time averaging to settle
 
-        energyMoveAction->addSubAction(AMActionSupport::buildControlMoveAction(REIXSBeamline::bl()->photonSource()->energy(), configuration_->energy()));
-        //Yes, three times to be sure that we're         there, but REIXSBrokenMonoContorl will ignore latter moves if we already made it.
-        energyMoveAction->addSubAction(new AMWaitAction(new AMWaitActionInfo(1.1)));  // for mono encoder time averaging to settle
+		energyMoveAction->addSubAction(AMActionSupport::buildControlMoveAction(REIXSBeamline::bl()->photonSource()->energy(), configuration_->energy()));
+		//Yes, three times to be sure that we're         there, but REIXSBrokenMonoContorl will ignore latter moves if we already made it.
+		energyMoveAction->addSubAction(new AMWaitAction(new AMWaitActionInfo(1.1)));  // for mono encoder time averaging to settle
 
-        energyMoveAction->addSubAction(AMActionSupport::buildControlMoveAction(REIXSBeamline::bl()->photonSource()->energy(), configuration_->energy()));
-        energyMoveAction->addSubAction(new AMWaitAction(new AMWaitActionInfo(1.1)));  // for mono encoder time averaging to settle
+		energyMoveAction->addSubAction(AMActionSupport::buildControlMoveAction(REIXSBeamline::bl()->photonSource()->energy(), configuration_->energy()));
+		energyMoveAction->addSubAction(new AMWaitAction(new AMWaitActionInfo(1.1)));  // for mono encoder time averaging to settle
 
 		initializationActions->addSubAction(energyMoveAction);
 

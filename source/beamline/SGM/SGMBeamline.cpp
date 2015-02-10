@@ -564,10 +564,10 @@ AMAction3* SGMBeamline::createBeamOnActions3(){
 
 	AMListAction3 *beamOnActionsList = new AMListAction3(new AMListActionInfo3("SGM Beam On", "SGM Beam On"), AMListAction3::Parallel);
 
-    beamOnActionsList->addSubAction(AMActionSupport::buildControlMoveAction(beamOn_, 1));
-    beamOnActionsList->addSubAction(AMActionSupport::buildControlMoveAction(fastShutterVoltage_, 0));
-    beamOnActionsList->addSubAction(AMActionSupport::buildControlMoveAction(frontBypassValve_, 1));
-    beamOnActionsList->addSubAction(AMActionSupport::buildControlMoveAction(backBypassValve_, 1));
+	beamOnActionsList->addSubAction(AMActionSupport::buildControlMoveAction(beamOn_, 1));
+	beamOnActionsList->addSubAction(AMActionSupport::buildControlMoveAction(fastShutterVoltage_, 0));
+	beamOnActionsList->addSubAction(AMActionSupport::buildControlMoveAction(frontBypassValve_, 1));
+	beamOnActionsList->addSubAction(AMActionSupport::buildControlMoveAction(backBypassValve_, 1));
 
 	AMControlInfo vvr1611_3_I10_01Info = vvr1611_3_I10_01Shutter_->toInfo();
 	vvr1611_3_I10_01Info.setValue(1);
@@ -677,7 +677,7 @@ AMAction3* SGMBeamline::createTurnOffBeamActions(){
 		return 0;
 	}
 
-    return AMActionSupport::buildControlMoveAction(fastShutterVoltage_, 5);
+	return AMActionSupport::buildControlMoveAction(fastShutterVoltage_, 5);
 }
 
 AMAction3* SGMBeamline::createStopMotorsActions3(){
@@ -711,10 +711,10 @@ AMAction3* SGMBeamline::createGoToTransferPositionActions3(){
 
 	AMListAction3 *goToTransferPostionActionsList = new AMListAction3(new AMListActionInfo3("SGM Go To Tranfer", "SGM Go To Tranfer"), AMListAction3::Parallel);
 
-    goToTransferPostionActionsList->addSubAction(AMActionSupport::buildControlMoveAction(ssaManipulatorX_, 0.0));
-    goToTransferPostionActionsList->addSubAction(AMActionSupport::buildControlMoveAction(ssaManipulatorY_, -9.1));
-    goToTransferPostionActionsList->addSubAction(AMActionSupport::buildControlMoveAction(ssaManipulatorZ_, 151.0));
-    goToTransferPostionActionsList->addSubAction(AMActionSupport::buildControlMoveAction(ssaManipulatorRot_, 0.0));
+	goToTransferPostionActionsList->addSubAction(AMActionSupport::buildControlMoveAction(ssaManipulatorX_, 0.0));
+	goToTransferPostionActionsList->addSubAction(AMActionSupport::buildControlMoveAction(ssaManipulatorY_, -9.1));
+	goToTransferPostionActionsList->addSubAction(AMActionSupport::buildControlMoveAction(ssaManipulatorZ_, 151.0));
+	goToTransferPostionActionsList->addSubAction(AMActionSupport::buildControlMoveAction(ssaManipulatorRot_, 0.0));
 
 	return goToTransferPostionActionsList;
 }
@@ -725,10 +725,10 @@ AMAction3* SGMBeamline::createGoToMeasurementPositionActions3(){
 
 	AMListAction3 *goToMeasurePostionActionsList = new AMListAction3(new AMListActionInfo3("SGM Go To Measure", "SGM Go To Measure"), AMListAction3::Parallel);
 
-    goToMeasurePostionActionsList->addSubAction(AMActionSupport::buildControlMoveAction(ssaManipulatorX_, 0.0));
-    goToMeasurePostionActionsList->addSubAction(AMActionSupport::buildControlMoveAction(ssaManipulatorY_, 0.0));
-    goToMeasurePostionActionsList->addSubAction(AMActionSupport::buildControlMoveAction(ssaManipulatorZ_, 0.0));
-    goToMeasurePostionActionsList->addSubAction(AMActionSupport::buildControlMoveAction(ssaManipulatorRot_, 0.0));
+	goToMeasurePostionActionsList->addSubAction(AMActionSupport::buildControlMoveAction(ssaManipulatorX_, 0.0));
+	goToMeasurePostionActionsList->addSubAction(AMActionSupport::buildControlMoveAction(ssaManipulatorY_, 0.0));
+	goToMeasurePostionActionsList->addSubAction(AMActionSupport::buildControlMoveAction(ssaManipulatorZ_, 0.0));
+	goToMeasurePostionActionsList->addSubAction(AMActionSupport::buildControlMoveAction(ssaManipulatorRot_, 0.0));
 
 	return goToMeasurePostionActionsList;
 }
@@ -739,16 +739,16 @@ AMAction3* SGMBeamline::createRestorePreFastScanDefaultActions(){
 
 	AMListAction3 *retVal = new AMListAction3(new AMListActionInfo3(QString("Restore beamline defaults"), QString("Restore beamline defaults")), AMListAction3::Parallel);
 
-    retVal->addSubAction(AMActionSupport::buildControlMoveAction(SGMBeamline::sgm()->gratingVelocity(), 10000));
-    retVal->addSubAction(AMActionSupport::buildControlMoveAction(SGMBeamline::sgm()->gratingBaseVelocity(), 0));
-    retVal->addSubAction(AMActionSupport::buildControlMoveAction(SGMBeamline::sgm()->gratingAcceleration(), 5000));
+	retVal->addSubAction(AMActionSupport::buildControlMoveAction(SGMBeamline::sgm()->gratingVelocity(), 10000));
+	retVal->addSubAction(AMActionSupport::buildControlMoveAction(SGMBeamline::sgm()->gratingBaseVelocity(), 0));
+	retVal->addSubAction(AMActionSupport::buildControlMoveAction(SGMBeamline::sgm()->gratingAcceleration(), 5000));
 
 	retVal->addSubAction(rawScaler()->createDwellTimeAction3(1.0));
 	retVal->addSubAction(rawScaler()->createScansPerBufferAction3(1));
 	retVal->addSubAction(rawScaler()->createTotalScansAction3(1));
 
-    retVal->addSubAction(AMActionSupport::buildControlMoveAction(SGMBeamline::sgm()->undulatorTracking(), 1));
-    retVal->addSubAction(AMActionSupport::buildControlMoveAction(SGMBeamline::sgm()->exitSlitTracking(), 1));
+	retVal->addSubAction(AMActionSupport::buildControlMoveAction(SGMBeamline::sgm()->undulatorTracking(), 1));
+	retVal->addSubAction(AMActionSupport::buildControlMoveAction(SGMBeamline::sgm()->exitSlitTracking(), 1));
 
 	return retVal;
 }
