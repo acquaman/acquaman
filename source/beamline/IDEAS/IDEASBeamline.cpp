@@ -64,7 +64,7 @@ void IDEASBeamline::setupMotorGroup()
 	AMMotorGroupObject *motorObject = 0;
 	motorGroup_ = new AMMotorGroup(this);
 	motorObject = new AMMotorGroupObject("Sample Platform",
-							       QStringList() << "X" << "Y",
+							       QStringList() << "X" << "Z",
 							       QStringList() << "mm" << "mm",
 							       QList<AMControl*>() << samplePlatformHorizontal_ << samplePlatformVertical_,
 							       QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Horizontal << AMMotorGroupObject::Vertical,
