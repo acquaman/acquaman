@@ -38,10 +38,14 @@ BioXASMainPersistentView::BioXASMainPersistentView(QWidget *parent) :
 
     // create and set layouts.
 
+    QHBoxLayout *buttonLayout = new QHBoxLayout();
+    buttonLayout->addStretch();
+    buttonLayout->addWidget(crystalChange_);
+
     QVBoxLayout *layout = new QVBoxLayout();
     layout->addWidget(energyControlEditor_);
     layout->addWidget(crystalChangeView_);
-    layout->addWidget(crystalChange_);
+    layout->addLayout(buttonLayout);
     layout->addStretch();
 
     setLayout(layout);
