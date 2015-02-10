@@ -189,7 +189,7 @@ void AMDataSourceSeriesData::updateCachedValues() const
 		double rangeMinimum = newData.first();
 		double rangeMaximum = newData.first();
 
-		for (int i = 0, iSize = axisSize_; i < iSize; i++){
+		for (int i = 0; i < size; i++){
 
 			double newValue = newData.at(i);
 
@@ -203,7 +203,7 @@ void AMDataSourceSeriesData::updateCachedValues() const
 		}
 
 		// The default range is invalid.
-		if (!dataRange_.isValid())
+		if (!dataRange_.isValid() || size == axisSize_)
 			dataRange_ = AMRange(rangeMinimum, rangeMaximum);
 
 		else {

@@ -64,6 +64,7 @@ AMAction3* BioXASSideXASScanActionController::createInitializationActions()
 {
 	AMSequentialListAction3 *initializationAction = new AMSequentialListAction3(new AMSequentialListActionInfo3("BioXAS Side Scan Initialization Actions", "BioXAS Side Scan Initialization Actions"));
 	CLSSIS3820Scaler *scaler = BioXASSideBeamline::bioXAS()->scaler();
+	double regionTime = double(configuration_->scanAxisAt(0)->regionAt(0)->regionTime());
 
 	AMListAction3 *stage1 = new AMListAction3(new AMListActionInfo3("BioXAS Side Initialization Stage 1", "BioXAS Side Initialization Stage 1"), AMListAction3::Parallel);
 	stage1->addSubAction(scaler->createContinuousEnableAction3(false));
@@ -77,11 +78,11 @@ AMAction3* BioXASSideXASScanActionController::createInitializationActions()
 
 	AMListAction3 *stage3 = new AMListAction3(new AMListActionInfo3("BioXAS Side Initialization Stage 3", "BioXAS Side Initialization Stage 3"), AMListAction3::Parallel);
 	stage3->addSubAction(scaler->createStartAction3(true));
-	stage3->addSubAction(scaler->createWaitForDwellFinishedAction());
+	stage3->addSubAction(scaler->createWaitForDwellFinishedAction(regionTime + 5.0));
 
 	AMListAction3 *stage4 = new AMListAction3(new AMListActionInfo3("BioXAS Side Initialization Stage 4", "BioXAS Side Initialization Stage 4"), AMListAction3::Parallel);
 	stage4->addSubAction(scaler->createStartAction3(true));
-	stage4->addSubAction(scaler->createWaitForDwellFinishedAction());
+	stage4->addSubAction(scaler->createWaitForDwellFinishedAction(regionTime + 5.0));
 
 	initializationAction->addSubAction(stage1);
 	initializationAction->addSubAction(stage2);

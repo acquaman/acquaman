@@ -76,8 +76,12 @@ protected slots:
 	/// Cancles the acquisition.  Calls cancel() but subclasses can reimplement if they need a more thorough cancel.
 	virtual void cancelAcquisition();
 
+	/// Updates the status label when the detector initialization state changes.  By default does nothing.
+	virtual void onInitializationStateChanged(AMDetector::InitializationState state) { Q_UNUSED(state); }
 	/// Updates the status label when the detector acquisition state changes.
-	void onAcquisitionStateChanged(AMDetector::AcqusitionState state);
+	virtual void onAcquisitionStateChanged(AMDetector::AcqusitionState state);
+	/// Updates the status label when the detector cleanup state changes.  By default does nothing.
+	virtual void onCleanupStateChanged(AMDetector::CleanupState state) { Q_UNUSED(state); }
 	/// Sets the detector acquisition time.
 	void onNewAcquisitionTimeSetpoint();
 	/// Handles updates to the elapsed time.

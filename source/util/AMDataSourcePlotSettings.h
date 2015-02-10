@@ -36,9 +36,9 @@ public:
 		: priority(Priority),
 		  visible(Visible),
 		  linePen(LinePen),
-		  colorMap(MPlotColorMap::Jet),
 		  markerShape(MPlotMarkerShape::None),
-		  markerColor(nextColor())
+		  markerColor(nextColor()),
+		  colorMap(MPlotColorMap::Jet)
 	{
 
 		areaFilled = false;

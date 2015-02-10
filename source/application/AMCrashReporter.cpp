@@ -158,24 +158,41 @@ void AMCrashMonitor::onSiguser2Detected(){
 
 void AMCrashMonitor::onWatchingPIDTimerTimeout(){
 	AMProcessWatcher *checkForWatchingPID = new AMProcessWatcher(watchingPID_);
-	connect(checkForWatchingPID, SIGNAL(foundWatchPID(bool)), this, SLOT(onWatchingPIDFoundProcess(bool)));
+	processWatchers_.insert(checkForWatchingPID->instanceID(), checkForWatchingPID);
+
+	connect(checkForWatchingPID, SIGNAL(foundWatchPID(bool, uint)), this, SLOT(onWatchingPIDFoundProcess(bool, uint)));
 	checkForWatchingPID->startWatching();
+
 }
 
 void AMCrashMonitor::onCrashReporterPIDTimerTimeout(){
 	AMProcessWatcher *checkForWatchingPID = new AMProcessWatcher(crashReporterPID_);
-	connect(checkForWatchingPID, SIGNAL(foundWatchPID(bool)), this, SLOT(onCrashReporterPIDFoundProcess(bool)));
+	processWatchers_.insert(checkForWatchingPID->instanceID(), checkForWatchingPID);
+
+	connect(checkForWatchingPID, SIGNAL(foundWatchPID(bool, uint)), this, SLOT(onCrashReporterPIDFoundProcess(bool, uint)));
 	checkForWatchingPID->startWatching();
 }
 
-void AMCrashMonitor::onWatchingPIDFoundProcess(bool wasFound){
+void AMCrashMonitor::onWatchingPIDFoundProcess(bool wasFound, uint instanceID){
 	if(!wasFound)
 		QTimer::singleShot(1000, QCoreApplication::instance(), SLOT(quit()));
+
+	AMProcessWatcher *processWatcherInstance = processWatchers_[instanceID];
+	processWatchers_.remove(instanceID);
+
+	disconnect(processWatcherInstance, SIGNAL(foundWatchPID(bool, uint)), this, SLOT(onWatchingPIDFoundProcess(bool, uint)));
+	processWatcherInstance->deleteLater();
 }
 
-void AMCrashMonitor::onCrashReporterPIDFoundProcess(bool wasFound){
+void AMCrashMonitor::onCrashReporterPIDFoundProcess(bool wasFound, uint instanceID){
 	if(!wasFound)
 		QTimer::singleShot(1000, QCoreApplication::instance(), SLOT(quit()));
+
+	AMProcessWatcher *processWatcherInstance = processWatchers_[instanceID];
+	processWatchers_.remove(instanceID);
+
+	disconnect(processWatcherInstance, SIGNAL(foundWatchPID(bool, uint)), this, SLOT(onCrashReporterPIDFoundProcess(bool, uint)));
+	processWatcherInstance->deleteLater();
 }
 
 AMCrashReporter::AMCrashReporter(const QString &executableFullPath, const QString &errorFilePath, int watchingPID, int monitorPID, QWidget *parent) :
@@ -287,7 +304,14 @@ void AMCrashReporter::onOneSymbolProcessed(){
 }
 
 void AMCrashReporter::onAllSymbolsProcessed(){
-	QFile reportFile(QString("%1/report_%2_%3_%4_%5.txt").arg(errorFilePath_).arg(executableFullPath_.section('/', -1)).arg(QHostInfo::localHostName()).arg(QDateTime::currentDateTime().toString("hhmmss_ddMMyyyy")).arg(watchingPID_));
+	//check the current year directory exist or not, if not create one.
+	QString targetPath = QString("%1/%2").arg(errorFilePath_).arg(QDateTime::currentDateTime().toString("yyyy"));
+	if (!QDir(targetPath).exists()) {
+		if (!QDir().mkdir(targetPath))
+			targetPath = errorFilePath_;
+	}
+
+	QFile reportFile(QString("%1/report_%2_%3_%4_%5.txt").arg(targetPath).arg(executableFullPath_.section('/', -1)).arg(QHostInfo::localHostName()).arg(QDateTime::currentDateTime().toString("MMddyyyy_hhmmss")).arg(watchingPID_));
 	if(reportFile.open(QIODevice::WriteOnly | QIODevice::Text)){
 		QTextStream reportStream(&reportFile);
 		for(int x = 0; x < allProcessedLines_.count(); x++){
@@ -336,8 +360,16 @@ void AMCrashReporter::closeEvent(QCloseEvent *e){
 AMProcessWatcher::AMProcessWatcher(qint64 watchPID, QObject *parent) :
 	QObject(parent)
 {
+	QDateTime timestamp(QDateTime::currentDateTime());
+	instanceID_ = timestamp.toTime_t();
+
 	watchPID_ = watchPID;
 	foundProcess_ = false;
+}
+
+uint AMProcessWatcher::instanceID() const
+{
+	return instanceID_;
 }
 
 void AMProcessWatcher::startWatching(){
@@ -362,5 +394,5 @@ void AMProcessWatcher::onProcessReadReady(){
 }
 
 void AMProcessWatcher::onProcessFinished(){
-	emit foundWatchPID(foundProcess_);
+	emit foundWatchPID(foundProcess_, instanceID());
 }

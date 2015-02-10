@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/VESPERS/VESPERSBeamline.h"
 #include "dataman/AMXASScan.h"
 #include "actions3/AMListAction3.h"
+#include "actions3/AMActionSupport.h"
 
 VESPERSEnergyScanActionController::~VESPERSEnergyScanActionController(){}
 
@@ -92,6 +93,8 @@ AMAction3* VESPERSEnergyScanActionController::createInitializationActions()
 	initializationActions->addSubAction(buildCCDInitializationAction(configuration_->ccdDetector(),
 									 configuration_->ccdFileName(),
 									 scan_->largestNumberInScansWhere(AMDatabase::database("user"), QString(" name = '%1'").arg(scan_->name()))+1));
+
+	initializationActions->addSubAction(AMActionSupport::buildChangeToleranceAction(VESPERSBeamline::vespers()->energy(), double(configuration_->scanAxisAt(0)->regionAt(0)->regionEnd())*0.05));
 
 	return initializationActions;
 }
