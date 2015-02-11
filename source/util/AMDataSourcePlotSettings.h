@@ -36,13 +36,12 @@ public:
 		: priority(Priority),
 		  visible(Visible),
 		  linePen(LinePen),
+		  areaFilled(false),
+		  fillBrush(),
+		  colorMap(MPlotColorMap::Jet),
 		  markerShape(MPlotMarkerShape::None),
-		  markerColor(nextColor()),
-		  colorMap(MPlotColorMap::Jet)
+		  markerColor(nextColor())
 	{
-
-		areaFilled = false;
-
 		colorMap.setContrast(2.1);
 		colorMap.setBrightness(0.08);
 		colorMap.setGamma(0.8);

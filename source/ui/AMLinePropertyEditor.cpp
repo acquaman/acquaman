@@ -96,7 +96,7 @@ void AMLinePropertyEditor::setupUi()
 	resize(159, 193);
 	setFrameShape(QFrame::NoFrame);
 	setFrameShadow(QFrame::Plain);
-
+	setStyleSheet(QString("AMLinePropertyEditor { background-color: black }"));
 
 	QFormLayout* mainLayout = new QFormLayout();
 
