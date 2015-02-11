@@ -239,13 +239,14 @@ AMAction3* CLSSIS3820Scaler::createTotalScansAction3(int totalScans) {
 }
 
 
-AMAction3* CLSSIS3820Scaler::createWaitForDwellFinishedAction() {
+AMAction3* CLSSIS3820Scaler::createWaitForDwellFinishedAction(double timeoutTime)
+{
 	if(!isConnected())
 		return 0; //NULL
 
 	AMControlInfo setpoint = startToggle_->toInfo();
 	setpoint.setValue(0);
-	AMControlWaitActionInfo *actionInfo = new AMControlWaitActionInfo(setpoint, 11.0 , AMControlWaitActionInfo::MatchEqual);
+	AMControlWaitActionInfo *actionInfo = new AMControlWaitActionInfo(setpoint, timeoutTime , AMControlWaitActionInfo::MatchEqual);
 	AMControlWaitAction *action = new AMControlWaitAction(actionInfo, startToggle_);
 
 	if(!action)

@@ -33,6 +33,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "analysis/AM1DNormalizationAB.h"
 #include "analysis/AM2DAdditionAB.h"
 #include "analysis/AM1DExpressionAB.h"
+#include "actions3/AMActionSupport.h"
 
 VESPERSXASScanActionController::~VESPERSXASScanActionController(){}
 
@@ -200,6 +201,7 @@ void VESPERSXASScanActionController::createScanAssembler()
 AMAction3* VESPERSXASScanActionController::createInitializationActions()
 {
 	AMListAction3 *initializationAction = qobject_cast<AMListAction3 *>(buildBaseInitializationAction(double(configuration_->scanAxisAt(0)->regionAt(0)->regionTime())));
+	initializationAction->addSubAction(AMActionSupport::buildChangeToleranceAction(VESPERSBeamline::vespers()->energy(), configuration_->energy()*0.005));
 
 	return initializationAction;
 }

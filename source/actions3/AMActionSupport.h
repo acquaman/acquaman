@@ -25,6 +25,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/AMAction3.h"
 #include "beamline/AMControl.h"
 #include "actions3/actions/AMControlMoveAction3.h"
+#include "actions3/actions/AMChangeToleranceAction.h"
 
 /// This namespace provides some convenience methods for using AMActions.
 namespace AMActionSupport
@@ -62,9 +63,15 @@ namespace AMActionSupport
 		return action;
 	}
 
-
-
-
+	/// Helper method that takes an AMControl and a desired tolerance and returns a valid AMChangeToleranceAction.  Caller is responsible for memory.
+	inline AMAction3 *buildChangeToleranceAction(AMControl *control, double tolerance)
+	{
+		AMControlInfo info = control->toInfo();
+		info.setTolerance(tolerance);
+		AMChangeToleranceActionInfo *actionInfo = new AMChangeToleranceActionInfo(info, tolerance);
+		AMChangeToleranceAction *action = new AMChangeToleranceAction(actionInfo, control);
+		return action;
+	}
 }
 
 #endif // AMACTIONSUPPORT_H

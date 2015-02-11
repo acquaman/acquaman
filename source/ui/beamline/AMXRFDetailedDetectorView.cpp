@@ -58,7 +58,9 @@ AMXRFDetailedDetectorView::AMXRFDetailedDetectorView(AMXRFDetector *detector, QW
 	combinationElement_ = periodicTable_->elementBySymbol("Ca");
 
 	regionOfInterestMapper_ = new QSignalMapper(this);
-	connect(regionOfInterestMapper_, SIGNAL(mapped(int)), this, SLOT(onRegionOfInterestBoundsChanged(int)));
+	connect(regionOfInterestMapper_, SIGNAL(mapped(QObject*)), this, SLOT(onRegionOfInterestBoundsChanged(QObject*)));
+
+	deadTimeViewFactor_ = int(sqrt(double(detector->elements())));
 }
 
 void AMXRFDetailedDetectorView::buildDetectorView()
@@ -99,12 +101,12 @@ void AMXRFDetailedDetectorView::buildDeadTimeView()
 	deadTimeButtons_->setExclusive(false);
 	QGridLayout *deadTimeButtonLayout = new QGridLayout;
 
-	for (int i = 0, elements = detector_->elements(), factor = int(sqrt(elements)); i < elements && deadTimeEnabled; i++){
+	for (int i = 0, elements = detector_->elements(); i < elements && deadTimeEnabled; i++){
 
 		AMDeadTimeButton *deadTimeButton = new AMDeadTimeButton(detector_->inputCountSourceAt(i), detector_->outputCountSourceAt(i), 30.0, 50.0);
 		deadTimeButton->setCheckable(true);
 		deadTimeButton->setFixedSize(20, 20);
-		deadTimeButtonLayout->addWidget(deadTimeButton, int(i/factor), i%factor);
+		deadTimeButtonLayout->addWidget(deadTimeButton, int(i/deadTimeViewFactor_), i%deadTimeViewFactor_);
 		deadTimeButtons_->addButton(deadTimeButton, i);
 	}
 
@@ -465,33 +467,22 @@ void AMXRFDetailedDetectorView::onEmissionLineSelected(const AMEmissionLine &emi
 		detector_->addRegionOfInterest(emissionLine);
 
 	AMRegionOfInterest *newRegion = detector_->regionOfInterest(emissionLine);
-	regionOfInterestMapper_->setMapping(newRegion, regionOfInterestMarkers_.size());
+	regionOfInterestMapper_->setMapping(newRegion, newRegion);
 	connect(newRegion, SIGNAL(boundingRangeChanged(AMRange)), regionOfInterestMapper_, SLOT(map()));
 
 	MPlotMarkerTransparentVerticalRectangle *newMarker = new MPlotMarkerTransparentVerticalRectangle(newRegion->name(), newRegion->energy(), newRegion->lowerBound(), newRegion->upperBound());
 	plot_->insertItem(newMarker);
 	newMarker->setYAxisTarget(plot_->axisScale(MPlot::VerticalRelative));
-	regionOfInterestMarkers_.insert(emissionLine, newMarker);
+	regionOfInterestMarkers_.insert(newRegion, newMarker);
 
-	updatePeriodicTableButtonColors(emissionLine);
+	updatePeriodicTableButtonColors(emissionLine.elementSymbol());
 	editRegionsOfInterestButton_->setEnabled(detector_->regionsOfInterestCount() > 0);
 }
 
 void AMXRFDetailedDetectorView::onEmissionLineDeselected(const AMEmissionLine &emissionLine)
 {
-	MPlotItem *itemToBeRemoved = regionOfInterestMarkers_.value(emissionLine);
-
-	if (itemToBeRemoved){
-
-			regionOfInterestMapper_->removeMappings(detector_->regionOfInterest(emissionLine));
-			detector_->removeRegionOfInterest(emissionLine);
-			plot_->removeItem(itemToBeRemoved);
-			regionOfInterestMarkers_.remove(emissionLine);
-			delete itemToBeRemoved;
-
-			updatePeriodicTableButtonColors(emissionLine);
-			editRegionsOfInterestButton_->setEnabled(detector_->regionsOfInterestCount() > 0);
-	}
+	AMRegionOfInterest *region = detector_->regionOfInterest(emissionLine);
+	removeRegionOfInterestItems(region);
 }
 
 void AMXRFDetailedDetectorView::onRegionOfInterestAdded(AMRegionOfInterest *newRegion)
@@ -540,19 +531,15 @@ void AMXRFDetailedDetectorView::removeAllEmissionLineMarkers()
 
 void AMXRFDetailedDetectorView::removeAllRegionsOfInterest()
 {
-	foreach (MPlotMarkerTransparentVerticalRectangle *item, regionOfInterestMarkers_){
-
-		AMEmissionLine line = regionOfInterestMarkers_.key(item);
-		AMSelectableElement *element = qobject_cast<AMSelectableElement *>(periodicTable_->elementBySymbol(line.elementSymbol()));
-		element->deselectEmissionLine(line);
-	}
+	foreach (AMRegionOfInterest *region, detector_->regionsOfInterest())
+		removeRegionOfInterestItems(region);
 
 	elementView_->setElement(elementView_->element());
 }
 
-void AMXRFDetailedDetectorView::updatePeriodicTableButtonColors(const AMEmissionLine &line)
+void AMXRFDetailedDetectorView::updatePeriodicTableButtonColors(const QString &symbol)
 {
-	AMSelectableElement *element = qobject_cast<AMSelectableElement *>(periodicTable_->elementBySymbol(line.elementSymbol()));
+	AMSelectableElement *element = qobject_cast<AMSelectableElement *>(periodicTable_->elementBySymbol(symbol));
 
 	if (element){
 
@@ -564,12 +551,12 @@ void AMXRFDetailedDetectorView::updatePeriodicTableButtonColors(const AMEmission
 				keyString << line.lineName().left(1);
 
 			keyString.removeDuplicates();
-			periodicTableView_->button(periodicTable_->elementBySymbol(line.elementSymbol()))->setStyleSheet(buildStyleSheet(keyString.join("")));
+			periodicTableView_->button(periodicTable_->elementBySymbol(symbol))->setStyleSheet(buildStyleSheet(keyString.join("")));
 		}
 
 		else{
 
-			periodicTableView_->button(periodicTable_->elementBySymbol(line.elementSymbol()))->setStyleSheet(buildStyleSheet("Default"));
+			periodicTableView_->button(periodicTable_->elementBySymbol(symbol))->setStyleSheet(buildStyleSheet("Default"));
 		}
 	}
 }
@@ -824,11 +811,11 @@ void AMXRFDetailedDetectorView::onDeadTimeButtonClicked()
 	}
 }
 
-void AMXRFDetailedDetectorView::onRegionOfInterestBoundsChanged(int id)
+void AMXRFDetailedDetectorView::onRegionOfInterestBoundsChanged(QObject *id)
 {
-	AMRegionOfInterest *region = qobject_cast<AMRegionOfInterest *>(regionOfInterestMapper_->mapping(id));
-	regionOfInterestMarkers_.values().at(id)->setLowEnd(region->lowerBound());
-	regionOfInterestMarkers_.values().at(id)->setHighEnd(region->upperBound());
+	AMRegionOfInterest *region = qobject_cast<AMRegionOfInterest *>(id);
+	regionOfInterestMarkers_.value(region)->setLowEnd(region->lowerBound());
+	regionOfInterestMarkers_.value(region)->setHighEnd(region->upperBound());
 }
 
 void AMXRFDetailedDetectorView::onLogScaleClicked(bool logScale)
@@ -870,5 +857,23 @@ void AMXRFDetailedDetectorView::hidePeriodicTableViews(bool setHidden){
 	else if(!setHidden && bottomLayoutWidget_->isHidden()){
 		periodicTableHeaderButton_->setArrowType(Qt::DownArrow);
 		bottomLayoutWidget_->show();
+	}
+}
+
+void AMXRFDetailedDetectorView::removeRegionOfInterestItems(AMRegionOfInterest *region)
+{
+	MPlotItem *itemToBeRemoved = regionOfInterestMarkers_.value(region);
+
+	if (itemToBeRemoved){
+
+		QString regionName = region->name();
+		regionOfInterestMapper_->removeMappings(region);
+		plot_->removeItem(itemToBeRemoved);
+		regionOfInterestMarkers_.remove(region);
+		delete itemToBeRemoved;
+		detector_->removeRegionOfInterest(region);
+
+		updatePeriodicTableButtonColors(regionName.split(" ").first());
+		editRegionsOfInterestButton_->setEnabled(detector_->regionsOfInterestCount() > 0);
 	}
 }

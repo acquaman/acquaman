@@ -7,7 +7,6 @@ FORMS +=
 HEADERS +=	source/application/VESPERS/VESPERSAppController.h \
 	source/beamline/VESPERS/VESPERSBeamline.h \
 	source/ui/VESPERS/VESPERSMotorView.h \
-	source/dataman/VESPERS/AMXRFScan.h \
 	source/dataman/VESPERS/VESPERSXRFDataLoader.h \
 	source/acquaman/VESPERS/VESPERSXRFScanConfiguration.h \
 	source/acquaman/VESPERS/VESPERSXRFScanController.h \
@@ -53,7 +52,6 @@ HEADERS +=	source/application/VESPERS/VESPERSAppController.h \
 	source/ui/VESPERS/VESPERS3DScanConfigurationView.h \
 	source/beamline/VESPERS/VESPERSPilatusCCDDetector.h \
 	source/ui/VESPERS/VESPERSPilatusCCDDetectorView.h \
-	source/util/VESPERS/VESPERSAttoCubeHack.h \
 	source/dataman/export/VESPERS/VESPERSExporter3DAscii.h \
 	source/beamline/VESPERS/VESPERSSingleElementVortexDetector.h \
 	source/beamline/VESPERS/VESPERSFourElementVortexDetector.h \
@@ -72,15 +70,14 @@ HEADERS +=	source/application/VESPERS/VESPERSAppController.h \
 	source/ui/VESPERS/VESPERSTimeScanConfigurationView.h \
 	source/dataman/VESPERS/VESPERSDbUpgrade1Pt6.h \
 	source/acquaman/VESPERS/VESPERS3DScanActionController.h \
-    source/ui/VESPERS/VESPERSXRFDetailedDetectorView.h \
-    source/ui/VESPERS/VESPERSSingleElementVortexDetectorView.h \
-    source/ui/VESPERS/VESPERSFourElementVortexDetectorView.h
+	source/ui/VESPERS/VESPERSXRFDetailedDetectorView.h \
+	source/ui/VESPERS/VESPERSSingleElementVortexDetectorView.h \
+	source/ui/VESPERS/VESPERSFourElementVortexDetectorView.h
 
 SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/application/VESPERS/VESPERSMain.cpp \
 	source/beamline/VESPERS/VESPERSBeamline.cpp \
 	source/ui/VESPERS/VESPERSMotorView.cpp \
-	source/dataman/VESPERS/AMXRFScan.cpp \
 	source/dataman/VESPERS/VESPERSXRFDataLoader.cpp \
 	source/acquaman/VESPERS/VESPERSXRFScanConfiguration.cpp \
 	source/acquaman/VESPERS/VESPERSXRFScanController.cpp \
@@ -125,7 +122,6 @@ SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/ui/VESPERS/VESPERS3DScanConfigurationView.cpp \
 	source/beamline/VESPERS/VESPERSPilatusCCDDetector.cpp \
 	source/ui/VESPERS/VESPERSPilatusCCDDetectorView.cpp \
-	source/util/VESPERS/VESPERSAttoCubeHack.cpp \
 	source/dataman/export/VESPERS/VESPERSExporter3DAscii.cpp \
 	source/beamline/VESPERS/VESPERSSingleElementVortexDetector.cpp \
 	source/beamline/VESPERS/VESPERSFourElementVortexDetector.cpp \
@@ -144,12 +140,14 @@ SOURCES +=	source/application/VESPERS/VESPERSAppController.cpp \
 	source/ui/VESPERS/VESPERSTimeScanConfigurationView.cpp \
 	source/dataman/VESPERS/VESPERSDbUpgrade1Pt6.cpp \
 	source/acquaman/VESPERS/VESPERS3DScanActionController.cpp \
-    source/ui/VESPERS/VESPERSXRFDetailedDetectorView.cpp \
-    source/ui/VESPERS/VESPERSSingleElementVortexDetectorView.cpp \
-    source/ui/VESPERS/VESPERSFourElementVortexDetectorView.cpp
+	source/ui/VESPERS/VESPERSXRFDetailedDetectorView.cpp \
+	source/ui/VESPERS/VESPERSSingleElementVortexDetectorView.cpp \
+	source/ui/VESPERS/VESPERSFourElementVortexDetectorView.cpp
 
 RESOURCES += \
 	source/icons/VESPERS/vespersIcons.qrc
+
+
 
 
 

@@ -301,7 +301,9 @@ AMAction3* VESPERSSpatialLineScanActionController::createInitializationActions()
 	initializationActions->addSubAction(buildBaseInitializationAction(double(configuration_->scanAxisAt(0)->regionAt(0)->regionTime())));
 
 	if (!configuration_->ccdDetector().testFlag(VESPERS::NoCCD))
-		initializationActions->addSubAction(buildCCDInitializationAction(configuration_->ccdDetector(), configuration_->ccdFileName()));
+		initializationActions->addSubAction(buildCCDInitializationAction(configuration_->ccdDetector(),
+										 configuration_->ccdFileName(),
+										 scan_->largestNumberInScansWhere(AMDatabase::database("user"), QString(" name = '%1'").arg(scan_->name()))+1));
 
 	if (configuration_->normalPosition() != 888888.88){
 

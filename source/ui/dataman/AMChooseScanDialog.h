@@ -50,7 +50,7 @@ public:
 	  \param multipleSelectionsAllowed Set this true if multiple selections are ok; otherwise, enforces choosing a single scan
 	  \param parent Parent widget for this QDialog
 	  */
- 	virtual ~AMChooseScanDialog();
+	virtual ~AMChooseScanDialog();
 	AMChooseScanDialog(AMDatabase* db, const QString& title, const QString& prompt, bool multipleSelectionAllowed = false, QWidget *parent = 0);
 
 	/// Access a list of the selected scans.  They are provided as amd (AcquaMan Database) URLs, in the format amd://databaseConnectionName/tableName/id.  (This is the same format we use throughout the Acquaman framework for drag-and-drop, specifying scans to open in scan editors, etc.)
@@ -62,6 +62,10 @@ signals:
 public slots:
 	/// Set the prompt shown at the top for user instructions:
 	void setPrompt(const QString& prompt);
+	/// Sets the RegExp for the filter in the scans view.
+	void setFilterRegExp(const QString &pattern);
+	/// Sets the filter key column for the sort filter.
+	void setFilterKeyColumn(int column);
 
 protected slots:
 	/// called when the selection in the data-view changes. We update the status text and enable/disable the OK button according to the number of scans selected.

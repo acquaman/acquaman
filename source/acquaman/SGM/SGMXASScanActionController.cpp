@@ -209,7 +209,6 @@ QString SGMXASScanActionController::buildNotes()
 AMAction3* SGMXASScanActionController::createInitializationActions(){
 	AMListAction3 *initializationActions = new AMListAction3(new AMListActionInfo3("SGM XAS Initialization Actions", "SGM XAS Initialization Actions"));
 
-
 	AMListAction3 *initializationStage1 = new AMListAction3(new AMListActionInfo3("SGM XAS Initialization Stage 1", "SGM XAS Initialization Stage 1"), AMListAction3::Parallel);
 
 	AMAction3 *gratingAction = AMActionSupport::buildControlMoveAction(SGMBeamline::sgm()->grating(), configuration_->fluxResolutionGroup().controlNamed(SGMBeamline::sgm()->grating()->name()).value());

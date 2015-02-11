@@ -34,7 +34,7 @@ class QStandardItemModel;
 class AMExporterInfo {
 public:
 	/// Constructor (Default values make an invalid AMExporterInfo)
- 	virtual ~AMExporterInfo();
+	virtual ~AMExporterInfo();
 	AMExporterInfo(const QMetaObject* exporterMetaObject = 0, QString exporterDescription = QString(), QString exporterOptionClassName = QString(), QString exporterLongDescription = QString() )
 		: description(exporterDescription),
 		  optionClassName(exporterOptionClassName),
@@ -92,9 +92,9 @@ public:
 	};
 
 	/// Construct an AMExportController with a list of Urls to the scan items you wish to export.  The URLs should be in the amd://databaseConnectionName/tableName/objectId format.  The controller will supervise the rest of the process, and delete itself when finished (or cancelled).
-	explicit AMExportController(const QList<QUrl>& scansToExport);
+	explicit AMExportController(const QList<QUrl>& scansToExport, QObject *parent = 0);
 
-	explicit AMExportController(const QList<AMScan*>& scansToExport);
+	explicit AMExportController(const QList<AMScan*>& scansToExport, QObject *parent = 0);
 
 	virtual ~AMExportController();
 

@@ -437,18 +437,21 @@ HEADERS += \
 	source/beamline/CLS/CLSSR570.h \
 	source/ui/dataman/AMBrowseScansView.h \
 	source/beamline/AMScalerTimeControlDetector.h \
-    source/dataman/export/AMSMAKExporter.h \
-    source/dataman/export/AMExporter2DAscii.h \
-    source/util/AMEnergyList.h \
-    source/ui/util/AMEnergyListView.h \
-    source/dataman/export/AMExporterOptionSMAK.h \
-    source/ui/AMScanEditorsCloseView.h \
-    source/ui/util/AMSortFilterScansWidget.h
+	source/dataman/export/AMSMAKExporter.h \
+	source/dataman/export/AMExporter2DAscii.h \
+	source/util/AMEnergyList.h \
+	source/ui/util/AMEnergyListView.h \
+	source/dataman/export/AMExporterOptionSMAK.h \
+	source/ui/AMScanEditorsCloseView.h \
+	source/ui/util/AMSortFilterScansWidget.h \
+	source/actions3/actions/AMChangeToleranceActionInfo.h \
+	source/actions3/actions/AMChangeToleranceAction.h \
+	source/ui/util/AMLineEditDialog.h \
+	source/dataman/AMXRFScan.h
 
 FORMS += \
 	source/ui/dataman/AMImportControllerWidget.ui \
 	source/ui/dataman/AMSamplePlateSelector.ui \
-	source/ui/AMLinePropertyEditor.ui \
 	source/ui/dataman/AMImagePropertyEditor.ui \
 	source/ui/AMTopFrame2.ui
 
@@ -847,13 +850,18 @@ SOURCES += \
 	source/beamline/CLS/CLSSR570.cpp \
 	source/ui/dataman/AMBrowseScansView.cpp \
 	source/beamline/AMScalerTimeControlDetector.cpp \
-    source/dataman/export/AMSMAKExporter.cpp \
-    source/dataman/export/AMExporter2DAscii.cpp \
-    source/util/AMEnergyList.cpp \
-    source/ui/util/AMEnergyListView.cpp \
-    source/dataman/export/AMExporterOptionSMAK.cpp \
-    source/ui/AMScanEditorsCloseView.cpp \
-    source/ui/util/AMSortFilterScansWidget.cpp
+	source/dataman/export/AMSMAKExporter.cpp \
+	source/dataman/export/AMExporter2DAscii.cpp \
+	source/util/AMEnergyList.cpp \
+	source/ui/util/AMEnergyListView.cpp \
+	source/dataman/export/AMExporterOptionSMAK.cpp \
+	source/ui/AMScanEditorsCloseView.cpp \
+	source/ui/util/AMSortFilterScansWidget.cpp \
+	source/ui/dataman/AMImportControllerWidget.cpp \
+	source/actions3/actions/AMChangeToleranceActionInfo.cpp \
+	source/actions3/actions/AMChangeToleranceAction.cpp \
+	source/ui/util/AMLineEditDialog.cpp \
+	source/dataman/AMXRFScan.cpp
 
 RESOURCES *= source/icons/icons.qrc \
 		source/configurationFiles/configurationFiles.qrc \
@@ -870,6 +878,12 @@ contains(DEFINES, AM_BUILD_REPORTER_ENABLED){
 
 	SOURCES *= source/util/AMRunTimeBuildInfo.cpp
 }
+
+
+
+
+
+
 
 
 

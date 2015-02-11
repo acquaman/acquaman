@@ -24,6 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/VESPERS/VESPERSBeamline.h"
 #include "dataman/AMXASScan.h"
 #include "actions3/AMListAction3.h"
+#include "actions3/AMActionSupport.h"
 
 VESPERSEnergyScanActionController::~VESPERSEnergyScanActionController(){}
 
@@ -87,11 +88,15 @@ void VESPERSEnergyScanActionController::buildScanControllerImplementation()
 
 AMAction3* VESPERSEnergyScanActionController::createInitializationActions()
 {
-	AMSequentialListAction3 *initializationList = new AMSequentialListAction3(new AMSequentialListActionInfo3("Initialization List"));
-	initializationList->addSubAction(buildBaseInitializationAction(double(configuration_->scanAxisAt(0)->regionAt(0)->regionTime())));
-	initializationList->addSubAction(buildCCDInitializationAction(configuration_->ccdDetector(), configuration_->ccdFileName()));
+	AMSequentialListAction3 *initializationActions = new AMSequentialListAction3(new AMSequentialListActionInfo3("Initialization List"));
+	initializationActions->addSubAction(buildBaseInitializationAction(double(configuration_->scanAxisAt(0)->regionAt(0)->regionTime())));
+	initializationActions->addSubAction(buildCCDInitializationAction(configuration_->ccdDetector(),
+									 configuration_->ccdFileName(),
+									 scan_->largestNumberInScansWhere(AMDatabase::database("user"), QString(" name = '%1'").arg(scan_->name()))+1));
 
-	return initializationList;
+	initializationActions->addSubAction(AMActionSupport::buildChangeToleranceAction(VESPERSBeamline::vespers()->energy(), double(configuration_->scanAxisAt(0)->regionAt(0)->regionEnd())*0.05));
+
+	return initializationActions;
 }
 
 AMAction3* VESPERSEnergyScanActionController::createCleanupActions()

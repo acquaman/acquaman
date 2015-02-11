@@ -630,6 +630,7 @@ void BioXASSideBeamline::setupDetectors()
 	i0Detector_ = new CLSBasicScalerChannelDetector("I0Detector", "I0 Detector", scaler_, 0, this);
 	iTDetector_ = new CLSBasicScalerChannelDetector("ITDetector", "IT Detector", scaler_, 1, this);
 	i2Detector_ = new CLSBasicScalerChannelDetector("I2Detector", "I2 Detector", scaler_, 15, this);
+	ge32ElementDetector_ = new BioXAS32ElementGeDetector("Ge32Element", "Ge 32 Element", this);
 }
 
 void BioXASSideBeamline::setupControlSets()
@@ -776,6 +777,8 @@ void BioXASSideBeamline::setupControlsAsDetectors()
 	energyFeedbackDetector_->setIsVisible(false);
 
 	dwellTimeDetector_ = new AMBasicControlDetectorEmulator("DwellTimeFeedback", "Dwell Time Feedback", scalerDwellTime_, 0, 0, 0, AMDetectorDefinitions::ImmediateRead, this);
+	dwellTimeDetector_->setHiddenFromUsers(true);
+	dwellTimeDetector_->setIsVisible(false);
 }
 
 void BioXASSideBeamline::setupExposedControls()
@@ -791,4 +794,5 @@ void BioXASSideBeamline::setupExposedDetectors()
 	addExposedDetector(i2Detector_);
 	addExposedDetector(energySetpointDetector_);
 	addExposedDetector(energyFeedbackDetector_);
+	addExposedDetector(ge32ElementDetector_);
 }

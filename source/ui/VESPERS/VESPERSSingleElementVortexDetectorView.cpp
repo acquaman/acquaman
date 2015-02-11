@@ -8,7 +8,7 @@ VESPERSSingleElementVortexDetectorView::VESPERSSingleElementVortexDetectorView(V
 
 void VESPERSSingleElementVortexDetectorView::buildDetectorView()
 {
-	AMXRFDetailedDetectorView::buildDetectorView();
+	VESPERSXRFDetailedDetectorView::buildDetectorView();
 
 	peakingTimeSpinBox_ = new QDoubleSpinBox;
 	peakingTimeSpinBox_->setMinimum(0);

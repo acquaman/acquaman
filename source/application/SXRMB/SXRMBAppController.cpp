@@ -21,21 +21,20 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "SXRMBAppController.h"
 
-#include "beamline/SXRMB/SXRMBBeamline.h"
+#include "application/AMAppControllerSupport.h"
 #include "application/SXRMB/SXRMB.h"
+#include "acquaman/SXRMB/SXRMBEXAFSScanConfiguration.h"
 
-#include "ui/AMMainWindow.h"
-#include "ui/dataman/AMGenericScanEditor.h"
+#include "beamline/CLS/CLSStorageRing.h"
+#include "beamline/SXRMB/SXRMBBeamline.h"
 
 #include "actions3/AMActionRunner3.h"
 #include "actions3/actions/AMScanAction.h"
 #include "actions3/AMListAction3.h"
 
-#include "acquaman/SXRMB/SXRMBEXAFSScanConfiguration.h"
-
-#include "application/AMAppControllerSupport.h"
-
+#include "dataman/AMRun.h"
 #include "dataman/AMScan.h"
+#include "dataman/AMRegionOfInterest.h"
 #include "dataman/database/AMDbObjectSupport.h"
 #include "dataman/export/AMExportController.h"
 #include "dataman/export/AMExporterOptionGeneralAscii.h"
@@ -43,17 +42,17 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "dataman/export/AMExporterAthena.h"
 #include "dataman/export/AMSMAKExporter.h"
 #include "dataman/export/AMExporter2DAscii.h"
-#include "dataman/AMRun.h"
 #include "dataman/SXRMB/SXRMBUserConfiguration.h"
-#include "dataman/AMRegionOfInterest.h"
 
+#include "ui/AMMainWindow.h"
+#include "ui/dataman/AMGenericScanEditor.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
+#include "ui/CLS/CLSSIS3820ScalerView.h"
 #include "ui/SXRMB/SXRMBXRFDetailedDetectorView.h"
 #include "ui/SXRMB/SXRMBPersistentView.h"
 #include "ui/SXRMB/SXRMBEXAFSScanConfigurationView.h"
 #include "ui/SXRMB/SXRMB2DMapScanConfigurationView.h"
 #include "ui/SXRMB/SXRMB2DOxidationMapScanConfigurationView.h"
-#include "ui/CLS/CLSSIS3820ScalerView.h"
 #include "ui/SXRMB/SXRMBChooseDataFolderDialog.h"
 #include "ui/acquaman/SXRMB/SXRMBOxidationMapScanConfigurationViewHolder.h"
 
@@ -82,6 +81,8 @@ bool SXRMBAppController::startup()
 		SXRMBBeamline::sxrmb();
 		// Initialize the periodic table object.
 		AMPeriodicTable::table();
+		// Initialize the storage ring
+		CLSStorageRing::sr1();
 
 		registerClasses();
 
@@ -205,6 +206,16 @@ void SXRMBAppController::onBeamlineConnected(bool connected)
 	}
 }
 
+void SXRMBAppController::onBeamAvailabilityChanged(bool beamAvailable)
+{
+	if (!beamAvailable && !AMActionRunner3::workflow()->pauseCurrentAction())
+		AMActionRunner3::workflow()->setQueuePaused(true);
+
+	// On SXRMB, we don't like having the scan restart on it's own.
+	else if (beamAvailable && AMActionRunner3::workflow()->queuedActionCount() > 0)
+		AMActionRunner3::workflow()->setQueuePaused(false);
+}
+
 void SXRMBAppController::onScalerConnected(bool isConnected){
 	if(isConnected && SXRMBBeamline::sxrmb()->isConnected()){
 		if(!scalerView_){
@@ -312,12 +323,20 @@ void SXRMBAppController::makeConnections()
 void SXRMBAppController::onCurrentScanActionStartedImplementation(AMScanAction *action)
 {
 	Q_UNUSED(action)
+
+	// start to listen to the beamAvaliability signal for scan auto-pause purpose
+	connect(CLSStorageRing::sr1(), SIGNAL(beamAvaliability(bool)), this, SLOT(onBeamAvailabilityChanged(bool)));
+
 	userConfiguration_->storeToDb(AMDatabase::database("user"));
 }
 
 void SXRMBAppController::onCurrentScanActionFinishedImplementation(AMScanAction *action)
 {
 	Q_UNUSED(action)
+
+	// stop listening to the beamAvaliability signal for scan auto-pause purpose
+	disconnect(CLSStorageRing::sr1(), SIGNAL(beamAvaliability(bool)), this, SLOT(onBeamAvailabilityChanged(bool)));
+
 	userConfiguration_->storeToDb(AMDatabase::database("user"));
 }
 

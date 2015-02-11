@@ -204,6 +204,11 @@ void AMStepScanActionController::onFileWriterError(AMScanActionControllerBasicFi
 		userErrorString = "Your scan has been aborted because Acquaman was unable to open the desired file for writing (for internal storage). This is a serious problem and would have resulted in collecting data but not saving it. Please contact the Acquaman developers immediately.";
 		break;
 
+	case AMScanActionControllerBasicFileWriter::FailedToWriteFile:
+		AMErrorMon::error(this, AMSTEPSCANACTIONCONTROLLER_FAILE_TO_WRITE_FILE, QString("Error, the %1 Scan Action Controller failed to write your data. This is a serious problem, please contact the Acquaman developers.").arg(stepConfiguration_->technique()));
+		userErrorString = "Your scan has been aborted because Acquaman was unable to write to the desired file (for internal storage). This is a serious problem and would have resulted in collecting data but not saving it. Please contact the Acquaman developers immediately.";
+		break;
+
 	default:
 		AMErrorMon::alert(this, AMSTEPSCANACTIONCONTROLLER_UNKNOWN_FILE_ERROR, QString("Error, the %1 Scan Action Controller encountered a serious, but unknown, file problem. This is a serious problem, please contact the Acquaman developers.").arg(stepConfiguration_->technique()));
 		userErrorString = "Your scan has been aborted because an unknown file error (for internal storage) has occured. This is a serious problem and would have resulted in collecting data but not saving it. Please contact the Acquaman developers immediately.";
@@ -396,12 +401,12 @@ void AMStepScanActionController::writeDataToFiles()
 	int scanRank = scan_->rawData()->scanRank();
 
 	for (int i = 0; i < scanRank; i++)
-		rank1String.append(QString("%1 ").arg((double)scan_->rawDataSources()->at(0)->axisValue(i, currentAxisValueIndex_.at(i))));
+		rank1String.append(QString("%1 ").arg((double)scan_->rawDataSources()->at(0)->axisValue(i, currentAxisValueIndex_.at(i)), 0, 'g', 19));
 
 	foreach (AMRawDataSource *oneRawDataSource, scan_->rawDataSources()->toList()){
 
 		if ((oneRawDataSource->rank() - scanRank) == 0)
-			rank1String.append(QString("%1 ").arg((double)oneRawDataSource->value(currentAxisValueIndex_)));
+			rank1String.append(QString("%1 ").arg((double)oneRawDataSource->value(currentAxisValueIndex_), 0, 'g', 19));
 
 		if ((oneRawDataSource->rank() - scanRank) == 1){
 
@@ -412,7 +417,7 @@ void AMStepScanActionController::writeDataToFiles()
 			oneRawDataSource->values(startIndex, endIndex, outputValues.data());
 
 			for(int y = 0; y < dataSourceSize; y++)
-				rank2String.append(QString("%1 ").arg(outputValues.at(y)));
+				rank2String.append(QString("%1 ").arg(outputValues.at(y), 0, 'g', 19));
 
 			rank2String.append("\n");
 		}

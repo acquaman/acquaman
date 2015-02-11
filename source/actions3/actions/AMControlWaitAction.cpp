@@ -31,7 +31,7 @@ AMControlWaitAction::AMControlWaitAction(AMControlWaitActionInfo *info, AMContro
    if (control)
        control_ = control;
    else
-       control_ = AMBeamline::bl()->exposedControlByInfo(*(info->controlInfo()));
+       control_ = AMBeamline::bl()->exposedControlByInfo(info->controlInfo());
 
    info->setShortDescription(QString("Wait for Control: %1").arg(control_->name()));
 }
@@ -45,7 +45,7 @@ AMControlWaitAction::AMControlWaitAction(const AMControlWaitAction &other)
    const AMControlWaitActionInfo *info = qobject_cast<const AMControlWaitActionInfo*>(other.info());
 
    if (info)
-       control_ = AMBeamline::bl()->exposedControlByInfo(*(info->controlInfo()));
+       control_ = AMBeamline::bl()->exposedControlByInfo(info->controlInfo());
    else
        control_ = 0;
 }
@@ -53,11 +53,11 @@ AMControlWaitAction::AMControlWaitAction(const AMControlWaitAction &other)
 
 void AMControlWaitAction::startImplementation()
 {
-    const AMControlInfo& setpoint = *(controlWaitInfo()->controlInfo());
+    const AMControlInfo& setpoint = controlWaitInfo()->controlInfo();
 
     // If you still don't have a control, check the exposed controls one last time.
     if (!control_)
-        control_ = AMBeamline::bl()->exposedControlByInfo(*(controlWaitInfo()->controlInfo()));
+	control_ = AMBeamline::bl()->exposedControlByInfo(controlWaitInfo()->controlInfo());
 
     // Must have a control, and it must be able to move.
     if(!control_) {
@@ -139,7 +139,7 @@ void AMControlWaitAction::onTimeoutTimerTimedOut()
 
 bool AMControlWaitAction::checkCurrentControlValue()
 {
-    const AMControlInfo& setpoint = *(controlWaitInfo()->controlInfo());
+    const AMControlInfo& setpoint = controlWaitInfo()->controlInfo();
 
     qDebug() << control_->name() << " Current: " << control_->value() << " New: " << setpoint.value();
 

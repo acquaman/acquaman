@@ -311,7 +311,7 @@ void AMDataSourceImageData::updateCachedValues() const
 		}
 
 		// The default range is invalid.
-		if (range_.isNull())
+		if (range_.isNull() || dirtyRectBottomLeft_.totalPointsTo(dirtyRectTopRight_) == xSize_*ySize_)
 			range_ = MPlotRange(rangeMinimum, rangeMaximum);
 
 		else {

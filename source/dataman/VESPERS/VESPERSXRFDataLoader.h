@@ -23,7 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define VESPERSXRFDATALOADER_H
 
 #include "dataman/AMAbstractFileLoader.h"
-#include "dataman/VESPERS/AMXRFScan.h"
+#include "dataman/AMXRFScan.h"
 
 /*! This class implements loading and saving of XRF data in a custom way.  This is because this data is typically not saved currently.
 	It consists of columns with the raw data from each element of the detector.

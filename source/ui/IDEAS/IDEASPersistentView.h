@@ -27,12 +27,15 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QTimer>
 
 #include "ui/beamline/AMControlMoveButton.h"
+#include "source/StripTool2/STWidget.h"
 
 
 class QPushButton;
 class QLabel;
 class QProgressBar;
 class QCheckBox;
+class QGroupBox;
+class IDEASScalerStripTool;
 
 class AMExtendedControlEditor;
 
@@ -85,7 +88,7 @@ protected:
 
 
 
-    AMExtendedControlEditor *energyControlEditor_;
+    AMExtendedControlEditor *energyControlEditor_, *jjSlitHorizontalGap_, *jjSlitHorizontalCenter_, *jjSlitVerticalGap_, *jjSlitVerticalCenter_;
 
     QLabel *ringCurrent_;
     QLabel *monoCrystal_;
@@ -106,7 +109,10 @@ protected:
     QProgressBar *ISampleBar_;
     QProgressBar *IReferenceBar_;
 
+
     AMControlMoveButton *jjSlitsVertOpen_, *jjSlitsVertClose_, *jjSlitsHorizClose_, *jjSlitsHorizOpen_, *jjSlitsRight_, *jjSlitsLeft_, *jjSlitsDown_, *jjSlitsUp_;
+
+    IDEASScalerStripTool *stripTool_;
 
 
 

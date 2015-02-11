@@ -43,6 +43,7 @@ QString SGMAxis2000Exporter::exportScan(const AMScan *scan, const QString &desti
 	setCurrentScan(scan);
 
 	mainFileName_ = parseKeywordString(QString("%1/%2").arg(destinationFolderPath).arg(option->fileName()));
+	mainFileName_ = removeNonPrintableCharacters(mainFileName_);
 
 	qDebug() << option->fileName() << destinationFolderPath;
 

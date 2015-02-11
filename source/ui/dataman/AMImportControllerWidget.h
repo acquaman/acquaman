@@ -23,25 +23,108 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AMIMPORTCONTROLLERWIDGET_H
 
 #include <QWidget>
-#include "ui_AMImportControllerWidget.h"
+#include <QVBoxLayout>
+#include <QFrame>
+#include <QHBoxLayout>
+#include <QSpacerItem>
+#include <QProgressBar>
+#include <QLabel>
+#include <QComboBox>
+#include <QGridLayout>
+#include <QCheckBox>
+#include <QLineEdit>
+#include <QSpinBox>
+#include <QDateTimeEdit>
+#include <QPushButton>
+#include <QApplication>
+
 #include "ui/AMThumbnailScrollViewer.h"
 #include "ui/dataman/AMRunSelector.h"
 
-class AMImportControllerWidget : public QWidget, public Ui::AMImportControllerWidget {
+class AMImportControllerWidget : public QWidget {
+	Q_OBJECT
 public:
  	virtual ~AMImportControllerWidget(){}
-	explicit AMImportControllerWidget(QWidget* parent = 0) : QWidget(parent) {
-		setupUi(this);
-		thumbnailViewer = new AMThumbnailScrollWidget();
-		verticalLayoutLeft->insertWidget(0, thumbnailViewer);
+	explicit AMImportControllerWidget(QWidget* parent = 0);
 
-		runEdit = new AMRunSelector(AMDatabase::database("user"));
-		gridLayout->addWidget(runEdit, 3, 2);
-	}
+	AMThumbnailScrollWidget* thumbnailViewer();
+	AMRunSelector* runEdit();
 
-	// UI elements (public within this widget class)
-	AMThumbnailScrollWidget* thumbnailViewer;
-	AMRunSelector* runEdit;
+	QProgressBar* progressBar();
+
+	void setName(const QString& name);
+	void setNumber(int number);
+	void setDateTime(QDateTime dateTime);
+	void setProgressLabel(const QString& progress);
+	void setLoadingStatus(const QString& status);
+	void addFormat(const QString& format);
+
+	QString name();
+	int number();
+	QDateTime dateTime();
+	int sampleId();
+	QString format();
+	int selectedFormatIndex();
+
+	bool isCustomizeNameChecked();
+	bool isCustomizeNumberChecked();
+	bool isCustomizeDataTimeChecked();
+	// UI elements
+signals:
+	void nextClicked();
+	void applyAllClicked();
+	void cancelClicked();
+	void selectedFormatChanged(int);
+	void customizeNameChanged(bool);
+	void customizeNumberChanged(bool);
+	void customizeDateTimeChanged(bool);
+
+protected:
+	AMThumbnailScrollWidget* thumbnailViewer_;
+	AMRunSelector* runEdit_;
+
+	QVBoxLayout *verticalLayout_3;
+	QFrame *AMImportControllerWidgetFrame1;
+	QHBoxLayout *horizontalLayout_2;
+	QVBoxLayout *verticalLayoutLeft;
+	QSpacerItem *verticalSpacer_2;
+	QProgressBar *progressBar_;
+	QLabel *progressLabel_;
+	QVBoxLayout *verticalLayoutRight;
+	QHBoxLayout *horizontalLayout;
+	QLabel *formatLabel_;
+	QComboBox *formatComboBox_;
+	QLabel *loadingStatusLabel_;
+	QSpacerItem *verticalSpacer;
+	QLabel *checkInstructionLabel_;
+	QGridLayout *gridLayout;
+	QCheckBox *checkName_;
+	QLabel *nameLabel_;
+	QLineEdit *nameEdit_;
+	QCheckBox *checkNumber_;
+	QLabel *numberLabel_;
+	QSpinBox *numberEdit_;
+	QCheckBox *checkDateTime_;
+	QLabel *dateTimeLabel_;
+	QDateTimeEdit *dateTimeEdit_;
+	QCheckBox *checkRun_;
+	QLabel *runLabel_;
+	QCheckBox *checkSample_;
+	QLabel *sampleLabel_;
+	QSpinBox *sampleEdit_;
+	QHBoxLayout *horizontalLayout_3;
+	QPushButton *cancelButton_;
+	QSpacerItem *horizontalSpacer;
+	QPushButton *nextButton_;
+	QPushButton *applyAllButton_;
+protected slots:
+	void onNameCustomizeCheckboxChecked(bool);
+	void onNumberCustomizeCheckboxChecked(bool);
+	void onDateTimeCustomizeCheckboxChanged(bool);
+
+private:
+	void setupUi();
+	void connectSignals();
 };
 
 #endif // AMIMPORTCONTROLLERWIDGET_H
