@@ -6,7 +6,7 @@
 #include "beamline/AMControl.h"
 #include "beamline/AMPVControl.h"
 #include "actions3/AMAction3.h"
-#include "actions3/actions/AMControlMoveAction3.h"
+#include "actions3/AMActionSupport.h"
 #include "actions3/actions/AMControlWaitAction.h"
 #include "actions3/AMListAction3.h"
 #include "beamline/CLS/CLSMAXvMotor.h"
