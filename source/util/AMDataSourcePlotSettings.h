@@ -63,17 +63,17 @@ public:
 	/// The brush of the fill, if used (ie: areaFilled is true) \note These don't work yet, since MPlot doesn't yet support filled plots
 	QBrush fillBrush;
 
-	/// The shape to draw for the markers
-	MPlotMarkerShape::Shape markerShape;
-
-	/// The color of the markers
-	QColor markerColor;
 
 	// 2D plot settings:
 
 	/// Resultant colormap used for multi-dimensional data
 	MPlotColorMap colorMap;
 
+	/// The shape to draw for the markers
+	MPlotMarkerShape::Shape markerShape;
+
+	/// The color of the markers
+	QColor markerColor;
 
 	/// Globally-accessible function to get the "next" data source color to use.
 	static QColor nextColor() {
