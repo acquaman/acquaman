@@ -35,7 +35,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "beamline/SXRMB/SXRMBBrukerDetector.h"
 #include "beamline/AMMotorGroup.h"
 
-#include "util/AMErrorMonitor.h"
 #include "util/AMBiHash.h"
 
 class AMBasicControlDetectorEmulator;
@@ -99,6 +98,9 @@ public:
 	/// Returns the list of actions to turn the beam off (just photon shutter 2 right now)
 	AMAction3* createBeamOffActions() const;
 
+signals:
+	void beamlineControlShuttersTimeout();
+
 protected:
 	/// Constructor. This is a singleton class, access it through SXRMBBeamline::sxrmb().
 	SXRMBBeamline();
@@ -125,6 +127,8 @@ protected:
 	void setupExposedControls();
 	/// Sets up the exposed detectors.
 	void setupExposedDetectors();
+	/// Sets up the SIGNAL and SLOT connections.
+	void setupConnections();
 
 	/// Helper function to check for changes in the connected state
 	void connectedHelper();
@@ -136,6 +140,8 @@ protected slots:
 	void onBeamlineStatusPVConnected(bool);
 	/// Handles connected status of all of the microprobe sample stage controls
 	void onMicroprobeSampleStagePVsConnected(bool);
+	/// Handles connected status of all of the beam on/off control shutters
+	void onBeamlineControlShuttersConnected(bool);
 
 protected:
 	/// Scaler for SXRMB
@@ -176,12 +182,13 @@ protected:
 	/// The bruker detector.
 	SXRMBBrukerDetector *brukerDetector_;
 
-	/// Beamline valves
+	/// Beamline valves, the valves involved in the Beam on/off action
+	AMControlSet * beamlineControlShutterSet_;
 	AMControl *PSH1406B1002Shutter_;
 	CLSBiStateControl *VVR16064B1003Valve_;
 	CLSBiStateControl *VVR16064B1004Valve_;
 	// NOT THIS ONE! It's connected to the pump on the mono
-//	CLSBiStateControl *VVR16064B1005Valve_;
+	//CLSBiStateControl *VVR16064B1005Valve_;
 	CLSBiStateControl *VVR16064B1006Valve_;
 	CLSBiStateControl *VVR16064B1007Valve_;
 	CLSBiStateControl *VVR16065B1001Valve_;

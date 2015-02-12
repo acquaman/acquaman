@@ -21,6 +21,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "SXRMBAppController.h"
 
+#include <QMessageBox>
+
 #include "application/AMAppControllerSupport.h"
 #include "application/SXRMB/SXRMB.h"
 #include "acquaman/SXRMB/SXRMBEXAFSScanConfiguration.h"
@@ -56,9 +58,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/SXRMB/SXRMBChooseDataFolderDialog.h"
 #include "ui/acquaman/SXRMB/SXRMBOxidationMapScanConfigurationViewHolder.h"
 
+#include "util/AMErrorMonitor.h"
 #include "util/AMPeriodicTable.h"
-
-#include <QMessageBox>
 
 SXRMBAppController::SXRMBAppController(QObject *parent)
 	: AMAppController(parent)
@@ -189,7 +190,6 @@ void SXRMBAppController::onBeamlineConnected(bool connected)
 	}
 
 	if (connected && !userConfiguration_){
-		qDebug() << "Going to set user configuration for the first time";
 		userConfiguration_ = new SXRMBUserConfiguration(this);
 
 		// It is sufficient to only connect the user configuration to the single element because the single element and four element are synchronized together.
@@ -204,6 +204,11 @@ void SXRMBAppController::onBeamlineConnected(bool connected)
 			connect(detector, SIGNAL(removedRegionOfInterest(AMRegionOfInterest*)), this, SLOT(onRegionOfInterestRemoved(AMRegionOfInterest*)));
 		}
 	}
+}
+
+void SXRMBAppController::onBeamControlShuttersTimeout()
+{
+	AMErrorMon::alert(this, SXRMB::ERR_SXRMB_BEAMLINE_SHUTTERS_TIMEOUT, QString("One (several) Beamline Valve/PSH shutter(s) can't be connected. Please contact beamline staff. This might affect your usage of Acuqaman."));
 }
 
 void SXRMBAppController::onBeamAvailabilityChanged(bool beamAvailable)
@@ -304,8 +309,14 @@ void SXRMBAppController::setupUserInterface()
 	mw_->addPane(brukerView, "Detectors", "Bruker", ":/system-search.png");
 
 	mw_->insertHeading("Scans", 2);
+}
+
+void SXRMBAppController::makeConnections()
+{
+	connect(this, SIGNAL(scanEditorCreated(AMGenericScanEditor*)), this, SLOT(onScanEditorCreated(AMGenericScanEditor*)));
 
 	connect(SXRMBBeamline::sxrmb(), SIGNAL(connected(bool)), this, SLOT(onBeamlineConnected(bool)));
+	connect(SXRMBBeamline::sxrmb(), SIGNAL(beamlineControlShuttersTimeout()), this, SLOT(onBeamControlShuttersTimeout()));
 	connect(SXRMBBeamline::sxrmb()->scaler(), SIGNAL(connectedChanged(bool)), this, SLOT(onScalerConnected(bool)));
 
 	if(SXRMBBeamline::sxrmb()->isConnected()){
@@ -313,11 +324,6 @@ void SXRMBAppController::setupUserInterface()
 		if(SXRMBBeamline::sxrmb()->scaler()->isConnected())
 			onScalerConnected(true);
 	}
-}
-
-void SXRMBAppController::makeConnections()
-{
-	connect(this, SIGNAL(scanEditorCreated(AMGenericScanEditor*)), this, SLOT(onScanEditorCreated(AMGenericScanEditor*)));
 }
 
 void SXRMBAppController::onCurrentScanActionStartedImplementation(AMScanAction *action)

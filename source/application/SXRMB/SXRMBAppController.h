@@ -58,6 +58,8 @@ public:
 protected slots:
 	/// slot to handle Beamline connected signal
 	void onBeamlineConnected(bool);
+	/// slot to handle Beamline control shutters timeout
+	void onBeamControlShuttersTimeout();
 	/// Helper slot that handles the workflow pausing/resuming when the beam dumps or is restored.
 	void onBeamAvailabilityChanged(bool beamAvailable);
 

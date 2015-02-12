@@ -44,10 +44,7 @@ SXRMBBeamline::SXRMBBeamline()
 	setupControlsAsDetectors();
 	setupExposedControls();
 	setupExposedDetectors();
-
-	connect(energy_, SIGNAL(connected(bool)), this, SLOT(onEnergyPVConnected(bool)));
-	connect(beamlineStatus_, SIGNAL(connected(bool)), this, SLOT(onBeamlineStatusPVConnected(bool)));
-	connect(microprobeSampleStageControlSet_, SIGNAL(connected(bool)), this, SLOT(onMicroprobeSampleStagePVsConnected(bool)));
+	setupConnections();
 
 	wasConnected_ = false;
 	connectedHelper();
@@ -100,7 +97,8 @@ AMReadOnlyPVControl* SXRMBBeamline::beamlineStatus() const
 
 bool SXRMBBeamline::isConnected() const
 {
-	return energy_->isConnected() && beamlineStatus_->isConnected() && microprobeSampleStageControlSet_->isConnected();
+	return energy_->isConnected() && beamlineStatus_->isConnected()
+			&& microprobeSampleStageControlSet_->isConnected() && beamlineControlShutterSet_->isConnected();
 }
 
 CLSBasicScalerChannelDetector* SXRMBBeamline::i0Detector() const
@@ -132,7 +130,7 @@ AMAction3* SXRMBBeamline::createBeamOnActions() const
 	AMListAction3 *valveOpenActionsList = new AMListAction3(new AMListActionInfo3("SXRMB Valve Open", "SXRMB Valve Open"), AMListAction3::Sequential);
 	AMListAction3 *valveWaitActionsList = new AMListAction3(new AMListActionInfo3("SXRMB Valve Wait", "SXRMB Valve Wait"), AMListAction3::Parallel);
 
-	if (VVR16064B1003Valve_->state() != 1) { // 1: OPEN 0: CLOSE 2: BETWEEN?
+	if (VVR16064B1003Valve_->isClosed()) {
 		AMControlInfo VVR16064B1003ValveSetpoint = VVR16064B1003Valve_->toInfo();
 		VVR16064B1003ValveSetpoint.setValue(1);
 		AMControlMoveAction3 *VVR16064B1003ValveSetpointOpenAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(VVR16064B1003ValveSetpoint), VVR16064B1003Valve_);
@@ -144,7 +142,7 @@ AMAction3* SXRMBBeamline::createBeamOnActions() const
 		valveWaitActionsList->addSubAction(VVR16064B1003ValveWaitAction);
 	}
 
-	if (VVR16064B1004Valve_->state() != 1) { // 1: OPEN 0: CLOSE 2: BETWEEN?
+	if (VVR16064B1004Valve_->isClosed()) {
 		AMControlInfo VVR16064B1004ValveSetpoint = VVR16064B1004Valve_->toInfo();
 		VVR16064B1004ValveSetpoint.setValue(1);
 		AMControlMoveAction3 *VVR16064B1004ValveSetpointOpenAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(VVR16064B1004ValveSetpoint), VVR16064B1004Valve_);
@@ -156,7 +154,7 @@ AMAction3* SXRMBBeamline::createBeamOnActions() const
 		valveWaitActionsList->addSubAction(VVR16064B1004ValveWaitAction);
 	}
 
-	if (VVR16064B1006Valve_->state() != 1) { // 1: OPEN 0: CLOSE 2: BETWEEN?
+	if (VVR16064B1006Valve_->isClosed()) {
 		AMControlInfo VVR16064B1006ValveSetpoint = VVR16064B1006Valve_->toInfo();
 		VVR16064B1006ValveSetpoint.setValue(1);
 		AMControlMoveAction3 *VVR16064B1006ValveSetpointOpenAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(VVR16064B1006ValveSetpoint), VVR16064B1006Valve_);
@@ -168,7 +166,7 @@ AMAction3* SXRMBBeamline::createBeamOnActions() const
 		valveWaitActionsList->addSubAction(VVR16064B1006ValveWaitAction);
 	}
 
-	if (VVR16064B1007Valve_->state() != 1) { // 1: OPEN 0: CLOSE 2: BETWEEN?
+	if (VVR16064B1007Valve_->isClosed()) {
 		AMControlInfo VVR16064B1007ValveSetpoint = VVR16064B1007Valve_->toInfo();
 		VVR16064B1007ValveSetpoint.setValue(1);
 		AMControlMoveAction3 *VVR16064B1007ValveSetpointOpenAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(VVR16064B1007ValveSetpoint), VVR16064B1007Valve_);
@@ -180,7 +178,7 @@ AMAction3* SXRMBBeamline::createBeamOnActions() const
 		valveWaitActionsList->addSubAction(VVR16064B1007ValveWaitAction);
 	}
 
-	if (VVR16065B1001Valve_->state() != 1) { // 1: OPEN 0: CLOSE 2: BETWEEN?
+	if (VVR16065B1001Valve_->isClosed()) {
 		AMControlInfo VVR16065B1001ValveSetpoint = VVR16065B1001Valve_->toInfo();
 		VVR16065B1001ValveSetpoint.setValue(1);
 		AMControlMoveAction3 *VVR16065B1001ValveSetpointOpenAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(VVR16065B1001ValveSetpoint), VVR16065B1001Valve_);
@@ -264,14 +262,21 @@ void SXRMBBeamline::setupComponents()
 
 void SXRMBBeamline::setupDiagnostics()
 {
-	// the shutters
+	// the shutters used for Beam on/off control
 	PSH1406B1002Shutter_ = new CLSBiStateControl("PhotonShutter2", "Photon Shutter 2", "PSH1406-B10-02:state", "PSH1406-B10-02:opr:open", "PSH1406-B10-02:opr:close", new AMControlStatusCheckerDefault(4), this);
-	VVR16064B1003Valve_ = new CLSBiStateControl("4B1003Valve", "4-B10-03 Valve", "VVR1606-4-B10-03:state", "VVR1606-4-B10-03:opr:open", "VVR1606-4-B10-03:opr:close", new AMControlStatusCheckerDefault(4), this);
-	VVR16064B1004Valve_ = new CLSBiStateControl("4B1004Valve", "4-B10-04 Valve", "VVR1606-4-B10-04:state", "VVR1606-4-B10-04:opr:open", "VVR1606-4-B10-04:opr:close", new AMControlStatusCheckerDefault(4), this);
-	VVR16064B1006Valve_ = new CLSBiStateControl("4B1006Valve", "4-B10-06 Valve", "VVR1606-4-B10-06:state", "VVR1606-4-B10-06:opr:open", "VVR1606-4-B10-06:opr:close", new AMControlStatusCheckerDefault(4), this);
-	VVR16064B1007Valve_ = new CLSBiStateControl("4B1007Valve", "4-B10-07 Valve", "VVR1606-4-B10-07:state", "VVR1606-4-B10-07:opr:open", "VVR1606-4-B10-07:opr:close", new AMControlStatusCheckerDefault(4), this);
-	VVR16065B1001Valve_ = new CLSBiStateControl("5B1001Valve", "5-B10-01 Valve", "VVR1606-5-B10-01:state", "VVR1606-5-B10-01:opr:open", "VVR1606-5-B10-01:opr:close", new AMControlStatusCheckerDefault(4), this);
+	VVR16064B1003Valve_ = new CLSBiStateControl("VVR16064B1003", "VVR1606-4-B10-03 Valve", "VVR1606-4-B10-03:state", "VVR1606-4-B10-03:opr:open", "VVR1606-4-B10-03:opr:close", new AMControlStatusCheckerDefault(4), this);
+	VVR16064B1004Valve_ = new CLSBiStateControl("VVR16064B1004", "VVR1606-4-B10-04 Valve", "VVR1606-4-B10-04:state", "VVR1606-4-B10-04:opr:open", "VVR1606-4-B10-04:opr:close", new AMControlStatusCheckerDefault(4), this);
+	VVR16064B1006Valve_ = new CLSBiStateControl("VVR16064B1006", "VVR1606-4-B10-06 Valve", "VVR1606-4-B10-06:state", "VVR1606-4-B10-06:opr:open", "VVR1606-4-B10-06:opr:close", new AMControlStatusCheckerDefault(4), this);
+	VVR16064B1007Valve_ = new CLSBiStateControl("VVR16064B1007", "VVR1606-4-B10-07 Valve", "VVR1606-4-B10-07:state", "VVR1606-4-B10-07:opr:open", "VVR1606-4-B10-07:opr:close", new AMControlStatusCheckerDefault(4), this);
+	VVR16065B1001Valve_ = new CLSBiStateControl("VVR16065B1001", "VVR1606-5-B10-01 Valve", "VVR1606-5-B10-01:state", "VVR1606-5-B10-01:opr:open", "VVR1606-5-B10-01:opr:close", new AMControlStatusCheckerDefault(4), this);
 
+	beamlineControlShutterSet_ = new AMControlSet(this);
+	beamlineControlShutterSet_->addControl(PSH1406B1002Shutter_);
+	beamlineControlShutterSet_->addControl(VVR16064B1003Valve_);
+	beamlineControlShutterSet_->addControl(VVR16064B1004Valve_);
+	beamlineControlShutterSet_->addControl(VVR16064B1006Valve_);
+	beamlineControlShutterSet_->addControl(VVR16064B1007Valve_);
+	beamlineControlShutterSet_->addControl(VVR16065B1001Valve_);
 }
 
 void SXRMBBeamline::setupSampleStage()
@@ -348,6 +353,15 @@ void SXRMBBeamline::setupExposedDetectors()
 	addExposedDetector(brukerDetector_);
 }
 
+void SXRMBBeamline::setupConnections()
+{
+	connect(energy_, SIGNAL(connected(bool)), this, SLOT(onEnergyPVConnected(bool)));
+	connect(beamlineStatus_, SIGNAL(connected(bool)), this, SLOT(onBeamlineStatusPVConnected(bool)));
+	connect(microprobeSampleStageControlSet_, SIGNAL(connected(bool)), this, SLOT(onMicroprobeSampleStagePVsConnected(bool)));
+	connect(beamlineControlShutterSet_, SIGNAL(connected(bool)), this, SLOT(onBeamlineControlShuttersConnected(bool)));
+	connect(beamlineControlShutterSet_, SIGNAL(controlSetTimedOut()), this, SIGNAL(beamlineControlShuttersTimeout()));
+}
+
 void SXRMBBeamline::connectedHelper(){
 	if (wasConnected_ && !isConnected()) {
 		emit connected(false);
@@ -367,5 +381,9 @@ void SXRMBBeamline::onBeamlineStatusPVConnected(bool) {
 }
 
 void SXRMBBeamline::onMicroprobeSampleStagePVsConnected(bool) {
+	connectedHelper();
+}
+
+void SXRMBBeamline::onBeamlineControlShuttersConnected(bool) {
 	connectedHelper();
 }
