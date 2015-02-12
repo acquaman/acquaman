@@ -37,6 +37,8 @@ public slots:
     void setMono(BioXASMainMonochromator *newMono);
     /// Starts the crystal change, if current mono is valid and there isn't a crytal change running already.
     void startCrystalChange();
+    /// Resets the state of the control. State goes to either None or Initialized, as conditions allow. The idea is to reset the state before and/or after a crystal change, to make sure we don't dwell in a CompleteSuccess or CompleteFail state from a previous change.
+    void reset();
 
 protected slots:
     /// Sets the control's current state.

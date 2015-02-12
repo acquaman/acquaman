@@ -86,18 +86,18 @@ void BioXASMainMonochromatorCrystalChangeControl::startCrystalChange()
     }
 }
 
+void BioXASMainMonochromatorCrystalChangeControl::reset()
+{
+    setState(None);
+    updateState();
+}
+
 void BioXASMainMonochromatorCrystalChangeControl::setState(State newState)
 {
     if (state_ != newState) {
         state_ = newState;
         emit stateChanged(state_);
     }
-
-    // There are certain states we don't want to dwell in (ie. CompleteSuccess, CompleteFail),
-    // and calling updateState() after a state change should make sure we always end up in the
-    // appropriate state, no matter what newState is.
-
-    updateState();
 }
 
 void BioXASMainMonochromatorCrystalChangeControl::onMonoConnectedChanged()
@@ -155,7 +155,7 @@ void BioXASMainMonochromatorCrystalChangeControl::updateState()
         } else if (mono_->isConnected() && (state_ == CompleteSuccess || state_ == CompleteFail)) {
             // We have reached a crystal change terminal state, no actions running,
             // and the conditions for Initialize are fulfilled.
-            setState(Initialized);
+//            setState(Initialized);
 
         } else if (!mono_->isConnected() && state_ == Initialized) {
             // The mono is valid but not connected.
@@ -176,5 +176,6 @@ void BioXASMainMonochromatorCrystalChangeControl::updateState()
     }
 
     // A note: we don't touch the Running state here, because it is set according
-    // to feedback from the running actions themselves.
+    // to feedback from the running actions themselves. Response to the running
+    // actions also handles setting the CompleteSuccess and CompleteFail states.
 }
