@@ -7,6 +7,7 @@ BioXASMainMonochromatorCrystalChangeView::BioXASMainMonochromatorCrystalChangeVi
     // Initialize variables.
 
     mono_ = 0;
+    disconnectedText_ = "---";
 
     // Create UI elements.
 
@@ -97,7 +98,6 @@ void BioXASMainMonochromatorCrystalChangeView::setMono(BioXASMainMonochromator *
             connect( mono_, SIGNAL(braggMotorPositionChanged(double)), this, SLOT(onBraggMotorPositionChanged()) );
             connect( mono_, SIGNAL(braggMotorAtCrystalChangePositionStatusChanged(bool)), this, SLOT(onBraggMotorAtCrystalChangePositionChanged()) );
             connect( mono_, SIGNAL(crystalChangeBrakeEnabledChanged(bool)), this, SLOT(onBrakeStatusChanged()) );
-//            connect( mono_, SIGNAL(crystalChangeMotorPositionChanged(double)), this, SLOT(onCrystalChangeMotorPositionChanged()) );
             connect( mono_, SIGNAL(crystalChangeMotorCWLimitStatusChanged(bool)), this, SLOT(onCrystalChangeMotorCWLimitStatusChanged()) );
             connect( mono_, SIGNAL(crystalChangeMotorCCWLimitStatusChanged(bool)), this, SLOT(onCrystalChangeMotorCCWLimitStatusChanged()) );
 
@@ -118,7 +118,6 @@ void BioXASMainMonochromatorCrystalChangeView::updateView()
     onBraggMotorPositionChanged();
     onBraggMotorAtCrystalChangePositionChanged();
     onBrakeStatusChanged();
-    onCrystalChangeMotorPositionChanged();
     onCrystalChangeMotorCWLimitStatusChanged();
     onCrystalChangeMotorCCWLimitStatusChanged();
 }
@@ -146,7 +145,7 @@ void BioXASMainMonochromatorCrystalChangeView::onRegionStatusChanged()
         }
 
     } else {
-        text = "---";
+        text = disconnectedText_;
     }
 
     region_->setText(text);
@@ -166,8 +165,7 @@ void BioXASMainMonochromatorCrystalChangeView::onSlitsClosedChanged()
 
     } else {
         // if either the mono or the slits closed control are disconnected, value shown is "---".
-
-        text = "---";
+        text = disconnectedText_;
     }
 
     slitsClosed_->setText(text);
@@ -184,7 +182,7 @@ void BioXASMainMonochromatorCrystalChangeView::onPaddleOutChanged()
             text = "Not out";
 
     } else {
-        text = "---";
+        text = disconnectedText_;
     }
 
     paddleOut_->setText(text);
@@ -201,7 +199,7 @@ void BioXASMainMonochromatorCrystalChangeView::onKeyStatusChanged()
             text = "Disabled";
 
     } else {
-        text = "---";
+        text = disconnectedText_;
     }
 
     keyStatus_->setText(text);
@@ -212,21 +210,27 @@ void BioXASMainMonochromatorCrystalChangeView::onBraggMotorPositionChanged()
     QString newPosition;
 
     if (mono_ && mono_->braggMotor() && mono_->braggMotor()->isConnected())
-        newPosition = QString::number(mono_->braggMotor()->value(), 'f');
+        newPosition = QString::number(mono_->braggMotor()->value(), 'f', 4);
     else
-        newPosition = "---";
+        newPosition = disconnectedText_;
 
     braggMotorPosition_->setText(newPosition);
 }
 
 void BioXASMainMonochromatorCrystalChangeView::onBraggMotorAtCrystalChangePositionChanged()
 {
+    qDebug() << "Update bragg motor crystal change position status display.";
+
     QString text;
 
-    if (mono_ && mono_->atCrystalChangePosition())
-        text = "In position";
-    else
-        text = "NOT in position";
+    if (mono_) {
+        if (mono_->braggMotorAtCrystalChangePositionStatusControl() && mono_->braggMotorAtCrystalChangePositionStatusControl()->isConnected() && mono_->atCrystalChangePosition())
+            text = "In position";
+        else
+            text = "NOT in position";
+    } else {
+        text = disconnectedText_;
+    }
 
     braggMotorAtCrystalChangePosition_->setText(text);
 }
@@ -242,23 +246,10 @@ void BioXASMainMonochromatorCrystalChangeView::onBrakeStatusChanged()
             text = "Disabled";
 
     } else {
-        text = "---";
+        text = disconnectedText_;
     }
 
     brakeStatus_->setText(text);
-}
-
-void BioXASMainMonochromatorCrystalChangeView::onCrystalChangeMotorPositionChanged()
-{
-//    qDebug() << "Updating crystal change motor position display.";
-//    QString newPosition;
-
-//    if (mono_ && mono_->crystalChangeMotor() && mono_->crystalChangeMotor()->isConnected())
-//        newPosition = QString::number(mono_->crystalChangeMotor()->value(), 'f');
-//    else
-//        newPosition = "POOP";
-
-//    crystalChangeMotorPosition_->setText(newPosition);
 }
 
 void BioXASMainMonochromatorCrystalChangeView::onCrystalChangeMotorCWLimitStatusChanged()
@@ -272,7 +263,7 @@ void BioXASMainMonochromatorCrystalChangeView::onCrystalChangeMotorCWLimitStatus
             text = "NOT at CW limit";
 
     } else {
-        text = "---";
+        text = disconnectedText_;
     }
 
     crystalChangeMotorCWLimit_->setText(text);
@@ -289,7 +280,7 @@ void BioXASMainMonochromatorCrystalChangeView::onCrystalChangeMotorCCWLimitStatu
             text = "NOT at CCW limit";
 
     } else {
-        text = "---";
+        text = disconnectedText_;
     }
 
     crystalChangeMotorCCWLimit_->setText(text);

@@ -46,8 +46,6 @@ protected slots:
     void onBraggMotorAtCrystalChangePositionChanged();
     /// Handles updating the brake status view when the brake switch is flipped.
     void onBrakeStatusChanged();
-    /// Handles updating the crystal change position view when the motor position changes.
-    void onCrystalChangeMotorPositionChanged();
     /// Handles updating the crystal change motor cw limit status view.
     void onCrystalChangeMotorCWLimitStatusChanged();
     /// Handles updating the crystal change motor ccw limit status view.
@@ -56,6 +54,8 @@ protected slots:
 protected:
     /// The monochromator being viewed.
     BioXASMainMonochromator *mono_;
+    /// The text displayed when a particular component is disconnected.
+    QString disconnectedText_;
     /// Label contains the region status.
     QLabel *region_;
     /// Label contains the slits closed status.
