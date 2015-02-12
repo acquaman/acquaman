@@ -25,11 +25,20 @@ IDEASSampleCameraPanel::IDEASSampleCameraPanel(QWidget *parent) :
 	sampleMotorGroupView_->setMaximumWidth(250);
 
 	vacuumMotorGroupView_ = new AMMotorGroupObjectView(IDEASBeamline::ideas()->vacuumStageMotorGroupObject());
+	vacuumMotorGroupView_->jogSpinBox()->setMaximum(25);
+	vacuumMotorGroupView_->jogSpinBox()->setMinimum(0);
 	vacuumMotorGroupView_->jogSpinBox()->setValue(1);
 	vacuumMotorGroupView_->jogSpinBox()->setSingleStep(0.5);
 	vacuumMotorGroupView_->jogSpinBox()->setDecimals(1);
+
+
 	foreach(QDoubleSpinBox *cSP, vacuumMotorGroupView_->controlSetpointsSpinBoxes())
+	{
 		cSP->setDecimals(1);
+		cSP->setMaximum(150);
+		cSP->setMinimum(-10);
+	}
+
 	vacuumMotorGroupView_->setMaximumWidth(250);
 
 

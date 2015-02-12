@@ -24,7 +24,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "acquaman/AMScanController.h"
 #include "beamline/AMXRFDetector.h"
-#include "dataman/VESPERS/AMXRFScan.h"
+#include "dataman/AMXRFScan.h"
 #include "acquaman/IDEAS/IDEASXRFScanConfiguration.h"
 
 class IDEASXRFScanController : public AMScanController

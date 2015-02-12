@@ -448,7 +448,8 @@ HEADERS += \
 	source/ui/AMPlotMarkerComboBox.h \
 	source/actions3/actions/AMChangeToleranceActionInfo.h \
 	source/actions3/actions/AMChangeToleranceAction.h \
-	source/ui/util/AMLineEditDialog.h
+	source/ui/util/AMLineEditDialog.h \
+	source/dataman/AMXRFScan.h
 
 FORMS += \
 	source/ui/dataman/AMImportControllerWidget.ui \
@@ -863,7 +864,8 @@ SOURCES += \
 	source/ui/AMPlotMarkerComboBox.cpp \
 	source/actions3/actions/AMChangeToleranceActionInfo.cpp \
 	source/actions3/actions/AMChangeToleranceAction.cpp \
-	source/ui/util/AMLineEditDialog.cpp
+	source/ui/util/AMLineEditDialog.cpp \
+	source/dataman/AMXRFScan.cpp
 
 RESOURCES *= source/icons/icons.qrc \
 		source/configurationFiles/configurationFiles.qrc \

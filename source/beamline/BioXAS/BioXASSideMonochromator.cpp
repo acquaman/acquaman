@@ -1,4 +1,5 @@
 #include "BioXASSideMonochromator.h"
+
 #include <QDebug>
 
 BioXASSideMonochromator::BioXASSideMonochromator(QObject *parent) :
@@ -82,12 +83,7 @@ AMAction3* BioXASSideMonochromator::createCloseSlitsAction()
 	if (!slitsClosed_->isConnected())
 		return 0;
 
-	AMControlInfo setpoint = slitsClosed_->toInfo();
-	setpoint.setValue(1);
-	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
-	AMControlMoveAction3 *action = new AMControlMoveAction3(actionInfo, slitsClosed_);
-
-	return action;
+	return AMActionSupport::buildControlMoveAction(slitsClosed_, 1);
 }
 
 AMAction3* BioXASSideMonochromator::createRemovePaddleAction()
@@ -95,12 +91,7 @@ AMAction3* BioXASSideMonochromator::createRemovePaddleAction()
 	if (!paddleOut_->isConnected())
 		return 0;
 
-	AMControlInfo setpoint = paddleOut_->toInfo();
-	setpoint.setValue(1);
-	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
-	AMControlMoveAction3 *action = new AMControlMoveAction3(actionInfo, paddleOut_);
-
-	return action;
+	return AMActionSupport::buildControlMoveAction(paddleOut_, 1);
 }
 
 AMAction3* BioXASSideMonochromator::createWaitForCrystalChangeEnabledAction()
@@ -139,12 +130,7 @@ AMAction3* BioXASSideMonochromator::createMoveCrystalChangeMotorAction(int relDe
 	if (!crystalChangeMotorRel_->isConnected())
 		return 0;
 
-	AMControlInfo setpoint = crystalChangeMotorRel_->toInfo();
-	setpoint.setValue(relDestination);
-	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
-	AMControlMoveAction3 *action = new AMControlMoveAction3(actionInfo, crystalChangeMotorRel_);
-
-	return action;
+	return AMActionSupport::buildControlMoveAction(crystalChangeMotorRel_, relDestination);
 }
 
 AMAction3* BioXASSideMonochromator::createWaitForBrakeEnabledAction()
@@ -165,12 +151,7 @@ AMAction3* BioXASSideMonochromator::createMoveStageAction(double degDestination)
 	if (!stageMotorAbs_->isConnected())
 		return 0;
 
-	AMControlInfo setpoint = stageMotorAbs_->toInfo();
-	setpoint.setValue(degDestination);
-	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
-	AMControlMoveAction3 *action = new AMControlMoveAction3(actionInfo, stageMotorAbs_);
-
-	return action;
+	return AMActionSupport::buildControlMoveAction(stageMotorAbs_, degDestination);
 }
 
 
@@ -236,32 +217,17 @@ AMAction3* BioXASSideMonochromator::createSetEnergyAction(double newEnergy)
 	if (!energy_->isConnected())
 		return 0;
 
-	AMControlInfo setpoint = energy_->toInfo();
-	setpoint.setValue(newEnergy);
-	AMControlMoveActionInfo3* actionInfo = new AMControlMoveActionInfo3(setpoint);
-	AMControlMoveAction3* action = new AMControlMoveAction3(actionInfo, energy_);
-
-	return action;
+	return AMActionSupport::buildControlMoveAction(energy_, newEnergy);
 }
 
 AMAction3* BioXASSideMonochromator::createSetBraggMotorPowerOnAction()
 {
-	AMControlInfo setpoint = braggMotorPower_->toInfo();
-	setpoint.setValue(1);
-	AMControlMoveActionInfo3 *info = new AMControlMoveActionInfo3(setpoint);
-	AMControlMoveAction3 *action = new AMControlMoveAction3(info, braggMotorPower_);
-
-	return action;
+	return AMActionSupport::buildControlMoveAction(braggMotorPower_, 1);
 }
 
 AMAction3* BioXASSideMonochromator::createSetBraggMotorPowerAutoAction()
 {
-	AMControlInfo setpoint = braggMotorPower_->toInfo();
-	setpoint.setValue(3);
-	AMControlMoveActionInfo3 *info = new AMControlMoveActionInfo3(setpoint);
-	AMControlMoveAction3 *action = new AMControlMoveAction3(info, braggMotorPower_);
-
-	return action;
+	return AMActionSupport::buildControlMoveAction(braggMotorPower_, 3);
 }
 
 void BioXASSideMonochromator::onConnectedChanged()
