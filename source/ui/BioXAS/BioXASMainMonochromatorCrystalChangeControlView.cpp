@@ -74,9 +74,9 @@ BioXASMainMonochromatorCrystalChangeControlView::BioXASMainMonochromatorCrystalC
     // Make connections.
 
     connect( initializedDisplayButtons, SIGNAL(accepted()), this, SLOT(toStartCrystalChange()) );
-    connect( initializedDisplayButtons, SIGNAL(rejected()), this, SLOT(close()) );
-    connect( completeSuccessDisplayButtons, SIGNAL(accepted()), this, SLOT(close()) );
-    connect( completeFailDisplayButtons, SIGNAL(accepted()), this, SLOT(close()) );
+    connect( initializedDisplayButtons, SIGNAL(rejected()), this, SLOT(toCloseView()) );
+    connect( completeSuccessDisplayButtons, SIGNAL(accepted()), this, SLOT(toCloseView()) );
+    connect( completeFailDisplayButtons, SIGNAL(accepted()), this, SLOT(toCloseView()) );
 
     // Current settings.
 
@@ -99,6 +99,7 @@ void BioXASMainMonochromatorCrystalChangeControlView::setControl(BioXASMainMonoc
         control_ = newControl;
 
         if (control_) {
+
             connect( control_, SIGNAL(stateChanged(BioXASMainMonochromatorCrystalChangeControl::State)), this, SLOT(onControlStateChanged()) );
             connect( control_, SIGNAL(currentActionChanged(QString,QString)), this, SLOT(onControlCurrentActionChanged(QString, QString)) );
             connect( control_, SIGNAL(progressChanged(double, double)), this, SLOT(onControlProgressChanged(double, double)) );
@@ -115,6 +116,14 @@ void BioXASMainMonochromatorCrystalChangeControlView::toStartCrystalChange()
 {
     if (control_)
         control_->startCrystalChange();
+}
+
+void BioXASMainMonochromatorCrystalChangeControlView::toCloseView()
+{
+    if (control_) {
+        control_->reset();
+        close();
+    }
 }
 
 void BioXASMainMonochromatorCrystalChangeControlView::onControlStateChanged()
@@ -152,8 +161,6 @@ void BioXASMainMonochromatorCrystalChangeControlView::onControlProgressChanged(d
 
 void BioXASMainMonochromatorCrystalChangeControlView::showInitializedDisplay()
 {
-    qDebug() << "Show initialized display.";
-
     // hide other displays.
 
     runningDisplay_->hide();
@@ -167,8 +174,6 @@ void BioXASMainMonochromatorCrystalChangeControlView::showInitializedDisplay()
 
 void BioXASMainMonochromatorCrystalChangeControlView::showRunningDisplay()
 {
-    qDebug() << "Show running display.";
-
     // hide other displays.
 
     initializedDisplay_->hide();
@@ -182,8 +187,6 @@ void BioXASMainMonochromatorCrystalChangeControlView::showRunningDisplay()
 
 void BioXASMainMonochromatorCrystalChangeControlView::showCompleteSuccessDisplay()
 {
-    qDebug() << "Show success display.";
-
     // hide other displays.
 
     initializedDisplay_->hide();
@@ -197,8 +200,6 @@ void BioXASMainMonochromatorCrystalChangeControlView::showCompleteSuccessDisplay
 
 void BioXASMainMonochromatorCrystalChangeControlView::showCompleteFailDisplay()
 {
-    qDebug() << "Show fail display.";
-
     // hide other displays.
 
     initializedDisplay_->hide();
