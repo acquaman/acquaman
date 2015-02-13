@@ -4,10 +4,12 @@
 #include <QWidget>
 #include <QLabel>
 #include <QLayout>
+#include <QPushButton>
 #include <QProgressBar>
 #include <QGroupBox>
 
 #include "beamline/BioXAS/BioXASMainMonochromator.h"
+#include "source/ui/BioXAS/BioXASMainMonochromatorCrystalChangeControlView.h"
 
 class BioXASMainMonochromatorCrystalChangeView : public QWidget
 {
@@ -50,6 +52,8 @@ protected slots:
     void onCrystalChangeMotorCWLimitStatusChanged();
     /// Handles updating the crystal change motor ccw limit status view.
     void onCrystalChangeMotorCCWLimitStatusChanged();
+    /// Handles creating and running the crystal change control view, in response to the crystal change button clicked.
+    void onCrystalChangeButtonClicked();
 
 protected:
     /// The monochromator being viewed.
@@ -76,6 +80,8 @@ protected:
     QLabel *crystalChangeMotorCWLimit_;
     /// Label contains the mono crystal change motor CCW limit status.
     QLabel *crystalChangeMotorCCWLimit_;
+    /// Button that opens the crystal change control view. It should be invalid/hidden if the mono is invalid or disconnected.
+    QPushButton *crystalChangeButton_;
 };
 
 

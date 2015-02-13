@@ -11,7 +11,7 @@ BioXASMainMonochromatorCrystalChangeView::BioXASMainMonochromatorCrystalChangeVi
 
     // Create UI elements.
 
-    QGroupBox *monoControls = new QGroupBox("Crystal change status");
+    QGroupBox *statusDisplay = new QGroupBox("Crystal change status");
 
     QLabel *regionPrompt = new QLabel("Region:");
     region_ = new QLabel();
@@ -33,8 +33,11 @@ BioXASMainMonochromatorCrystalChangeView::BioXASMainMonochromatorCrystalChangeVi
     braggMotorAtCrystalChangePosition_ = new QLabel();
 
     QLabel *crystalChangeMotorPositionPrompt = new QLabel("CC motor:");
+    crystalChangeMotorPositionPrompt->setToolTip("Crystal change motor");
     crystalChangeMotorCWLimit_ = new QLabel();
     crystalChangeMotorCCWLimit_ = new QLabel();
+
+    crystalChangeButton_ = new QPushButton("Crystal Change");
 
     // Create and set layouts.
 
@@ -55,14 +58,23 @@ BioXASMainMonochromatorCrystalChangeView::BioXASMainMonochromatorCrystalChangeVi
     statusLayout->addWidget(crystalChangeMotorPositionPrompt, 7, 0);
     statusLayout->addWidget(crystalChangeMotorCWLimit_, 7, 1);
     statusLayout->addWidget(crystalChangeMotorCCWLimit_, 8, 1);
+    statusDisplay->setLayout(statusLayout);
 
-    monoControls->setLayout(statusLayout);
+    QHBoxLayout *buttonLayout = new QHBoxLayout();
+    buttonLayout->setMargin(0);
+    buttonLayout->addStretch();
+    buttonLayout->addWidget(crystalChangeButton_);
 
     QVBoxLayout *layout = new QVBoxLayout();
     layout->setMargin(0);
-    layout->addWidget(monoControls);
+    layout->addWidget(statusDisplay);
+    layout->addLayout(buttonLayout);
 
     setLayout(layout);
+
+    // Make connections.
+
+    connect( crystalChangeButton_, SIGNAL(clicked()), this, SLOT(onCrystalChangeButtonClicked()) );
 
     // Initial settings.
 
@@ -123,6 +135,13 @@ void BioXASMainMonochromatorCrystalChangeView::updateView()
 
 void BioXASMainMonochromatorCrystalChangeView::onMonoConnectedChanged()
 {
+    if (mono_ && mono_->isConnected()) {
+        crystalChangeButton_->setEnabled(true);
+
+    } else {
+        crystalChangeButton_->setEnabled(false);
+    }
+
     updateView();
 }
 
@@ -281,4 +300,13 @@ void BioXASMainMonochromatorCrystalChangeView::onCrystalChangeMotorCCWLimitStatu
     }
 
     crystalChangeMotorCCWLimit_->setText(text);
+}
+
+void BioXASMainMonochromatorCrystalChangeView::onCrystalChangeButtonClicked()
+{
+    if (mono_) {
+        BioXASMainMonochromatorCrystalChangeControlView *controlView = new BioXASMainMonochromatorCrystalChangeControlView(mono_->crystalChangeControl(), this);
+        controlView->setWindowFlags(Qt::Sheet);
+        controlView->show();
+    }
 }
