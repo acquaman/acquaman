@@ -25,7 +25,9 @@ BioXASMainMonochromatorCrystalChangeControlView::BioXASMainMonochromatorCrystalC
     runningDisplayProgress_->setMaximum(10);
     runningDisplayProgress_->setValue(0);
     runningDisplayDescription_ = new QLabel(this);
+    runningDisplayDescription_->setWordWrap(true);
     runningDisplayInstruction_ = new QLabel(this);
+    runningDisplayInstruction_->setWordWrap(true);
 
     completeSuccessDisplay_ = new QWidget(this);
     QLabel *completeSuccessDisplayText = new QLabel(successMessage_);
@@ -40,22 +42,26 @@ BioXASMainMonochromatorCrystalChangeControlView::BioXASMainMonochromatorCrystalC
     QVBoxLayout *initializedDisplayLayout = new QVBoxLayout();
     initializedDisplayLayout->addWidget(initializedDisplayText);
     initializedDisplayLayout->addWidget(initializedDisplayButtons);
+    initializedDisplayLayout->addStretch();
     initializedDisplay_->setLayout(initializedDisplayLayout);
 
     QVBoxLayout *runningDisplayLayout = new QVBoxLayout();
     runningDisplayLayout->addWidget(runningDisplayProgress_);
     runningDisplayLayout->addWidget(runningDisplayDescription_);
     runningDisplayLayout->addWidget(runningDisplayInstruction_);
+    runningDisplayLayout->addStretch();
     runningDisplay_->setLayout(runningDisplayLayout);
 
     QVBoxLayout *completeSuccessDisplayLayout = new QVBoxLayout();
     completeSuccessDisplayLayout->addWidget(completeSuccessDisplayText);
     completeSuccessDisplayLayout->addWidget(completeSuccessDisplayButtons);
+    completeSuccessDisplayLayout->addStretch();
     completeSuccessDisplay_->setLayout(completeSuccessDisplayLayout);
 
     QVBoxLayout *completeFailDisplayLayout = new QVBoxLayout();
     completeFailDisplayLayout->addWidget(completeFailDisplayText);
     completeFailDisplayLayout->addWidget(completeFailDisplayButtons);
+    completeFailDisplayLayout->addStretch();
     completeFailDisplay_->setLayout(completeFailDisplayLayout);
 
     QVBoxLayout *layout = new QVBoxLayout();
@@ -66,6 +72,9 @@ BioXASMainMonochromatorCrystalChangeControlView::BioXASMainMonochromatorCrystalC
     layout->addWidget(completeFailDisplay_);
 
     setLayout(layout);
+
+    setMinimumWidth(200);
+    setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
 
     // Initial settings.
 
