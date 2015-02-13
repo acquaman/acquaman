@@ -26,7 +26,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QLayout>
 #include <QPushButton>
 
-#include "ui/BioXAS/BioXASMainMonochromatorCrystalChangeControlView.h"
+#include "beamline/BioXAS/BioXASMainBeamline.h"
+#include "ui/beamline/AMExtendedControlEditor.h"
 #include "ui/BioXAS/BioXASMainMonochromatorCrystalChangeView.h"
 
 class AMExtendedControlEditor;
@@ -45,17 +46,11 @@ signals:
 
 public slots:
 
-protected slots:
-    /// Handles initiating the crystal change procedure.
-    void onCrystalChangeButtonClicked();
-
 protected:
     /// Basic editor for selecting mono energy.
     AMExtendedControlEditor *energyControlEditor_;
     /// A view for the elements important to a crystal change.
     BioXASMainMonochromatorCrystalChangeView *crystalChangeView_;
-    /// Button that initiates the crystal change procedure.
-    QPushButton *crystalChange_;
 };
 
 #endif // BIOXASMAINPERSISTENTVIEW_H
