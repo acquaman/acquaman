@@ -28,12 +28,12 @@ signals:
 public slots:
     /// Sets the crystal change control being viewed.
     void setControl(BioXASMainMonochromatorCrystalChangeControl *newControl);
+    /// Resets the crystal change control state and closes the view.
+    void close();
 
 protected slots:
     /// Pokes the control to start crystal change procedure.
     void toStartCrystalChange();
-    /// Resets the crystal change control state and closes the view.
-    void toCloseView();
     /// Updates the view in response to a change in the control's state.
     void onControlStateChanged();
     /// Updates the description and user information when the control reports a change in the current action.

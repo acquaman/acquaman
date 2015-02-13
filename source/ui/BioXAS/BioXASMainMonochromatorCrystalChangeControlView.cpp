@@ -73,9 +73,6 @@ BioXASMainMonochromatorCrystalChangeControlView::BioXASMainMonochromatorCrystalC
 
     setLayout(layout);
 
-    setMinimumWidth(200);
-    setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
-
     // Initial settings.
 
     showCompleteFailDisplay();
@@ -83,9 +80,9 @@ BioXASMainMonochromatorCrystalChangeControlView::BioXASMainMonochromatorCrystalC
     // Make connections.
 
     connect( initializedDisplayButtons, SIGNAL(accepted()), this, SLOT(toStartCrystalChange()) );
-    connect( initializedDisplayButtons, SIGNAL(rejected()), this, SLOT(toCloseView()) );
-    connect( completeSuccessDisplayButtons, SIGNAL(accepted()), this, SLOT(toCloseView()) );
-    connect( completeFailDisplayButtons, SIGNAL(accepted()), this, SLOT(toCloseView()) );
+    connect( initializedDisplayButtons, SIGNAL(rejected()), this, SLOT(close()) );
+    connect( completeSuccessDisplayButtons, SIGNAL(accepted()), this, SLOT(close()) );
+    connect( completeFailDisplayButtons, SIGNAL(accepted()), this, SLOT(close()) );
 
     // Current settings.
 
@@ -100,7 +97,6 @@ BioXASMainMonochromatorCrystalChangeControlView::~BioXASMainMonochromatorCrystal
 void BioXASMainMonochromatorCrystalChangeControlView::setControl(BioXASMainMonochromatorCrystalChangeControl *newControl)
 {
     if (control_ != newControl) {
-        qDebug() << "Setting new control.";
 
         if (control_)
             disconnect( control_, 0, this, 0 );
@@ -121,18 +117,18 @@ void BioXASMainMonochromatorCrystalChangeControlView::setControl(BioXASMainMonoc
     }
 }
 
+void BioXASMainMonochromatorCrystalChangeControlView::close()
+{
+    if (control_)
+        control_->reset();
+
+    QWidget::close();
+}
+
 void BioXASMainMonochromatorCrystalChangeControlView::toStartCrystalChange()
 {
     if (control_)
         control_->startCrystalChange();
-}
-
-void BioXASMainMonochromatorCrystalChangeControlView::toCloseView()
-{
-    if (control_) {
-        control_->reset();
-        close();
-    }
 }
 
 void BioXASMainMonochromatorCrystalChangeControlView::onControlStateChanged()
