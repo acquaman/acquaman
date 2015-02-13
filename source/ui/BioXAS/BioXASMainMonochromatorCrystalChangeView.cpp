@@ -33,7 +33,6 @@ BioXASMainMonochromatorCrystalChangeView::BioXASMainMonochromatorCrystalChangeVi
     braggMotorAtCrystalChangePosition_ = new QLabel();
 
     QLabel *crystalChangeMotorPositionPrompt = new QLabel("CC motor:");
-//    crystalChangeMotorPosition_ = new QLabel();
     crystalChangeMotorCWLimit_ = new QLabel();
     crystalChangeMotorCCWLimit_ = new QLabel();
 
@@ -54,13 +53,13 @@ BioXASMainMonochromatorCrystalChangeView::BioXASMainMonochromatorCrystalChangeVi
     statusLayout->addWidget(brakeStatusPrompt, 6, 0);
     statusLayout->addWidget(brakeStatus_, 6, 1);
     statusLayout->addWidget(crystalChangeMotorPositionPrompt, 7, 0);
-//    statusLayout->addWidget(crystalChangeMotorPosition_, 7, 1);
     statusLayout->addWidget(crystalChangeMotorCWLimit_, 7, 1);
     statusLayout->addWidget(crystalChangeMotorCCWLimit_, 8, 1);
 
     monoControls->setLayout(statusLayout);
 
     QVBoxLayout *layout = new QVBoxLayout();
+    layout->setMargin(0);
     layout->addWidget(monoControls);
 
     setLayout(layout);
@@ -129,8 +128,6 @@ void BioXASMainMonochromatorCrystalChangeView::onMonoConnectedChanged()
 
 void BioXASMainMonochromatorCrystalChangeView::onRegionStatusChanged()
 {
-    qDebug() << "Updating mono region display.";
-
     QString text;
 
     if (mono_) {
