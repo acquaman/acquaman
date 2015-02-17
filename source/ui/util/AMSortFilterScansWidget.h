@@ -12,6 +12,7 @@ class AMSortFilterScansWidget : public AMSortFilterWidget
 public:
 	explicit AMSortFilterScansWidget(AMLightweightScanInfoFilterProxyModel *model, QWidget *parent = 0);
 	
+	void setRunId(int runId);
 signals:
 	
 public slots:

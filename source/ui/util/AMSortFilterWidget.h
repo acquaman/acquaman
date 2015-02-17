@@ -36,6 +36,13 @@ public:
 	void clearFields();
 	/// Returns the form layout used to hold the FilterBuilder's Widgets
 	QFormLayout* formLayout();
+	/// Sets the text to display as the filter pattern. Used when a pattern is
+	/// set programatically as there is no signal from a proxy model to indicate
+	/// that a change has been made to its filter criteria.
+	void setFilterRegExp(const QString& pattern);
+	/// Sets the selected column of the field combo box to the provided index.
+	/// Used when a FilterKeyColumn is specified programatically.
+	void setFilterKeyColumn(int columnIndex);
 public slots:
 	/// Clears the search criteria
 	void clear();
@@ -65,6 +72,13 @@ public:
 	/// aren't in the top level, and so aren't automatically added to the widget. Caution, this may require
 	/// the proxy model to be customized in a way to accept such criteria.
 	void addManualColumn(const QString& header);
+	/// Sets the text to display as the filter pattern. Used when a pattern is
+	/// set programatically as there is no signal from a proxy model to indicate
+	/// that a change has been made to its filter criteria.
+	void setFilterRegExp(const QString& pattern);
+	/// Sets the selected column of the field combo box to the provided index.
+	/// Used when a FilterKeyColumn is specified programatically.
+	void setFilterKeyColumn(int columnIndex);
 signals:
 	/// Emitted whenever the filter the Widget is applying is altered
 	void filterChanged(bool);
