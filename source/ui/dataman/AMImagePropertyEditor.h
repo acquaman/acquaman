@@ -23,16 +23,22 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AMIMAGEPROPERTYEDITOR_H
 
 #include <QFrame>
+#include <QGridLayout>
+#include <QRadioButton>
+#include <QComboBox>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+#include <QFrame>
+#include <QLabel>
+#include <QSlider>
+#include <QButtonGroup>
+
 #include "MPlot/MPlotColorMap.h"
-
-namespace Ui {
-	class AMImagePropertyEditor;
-}
-
 
 /// This widget provides an editor for color map settings (standard color map, custom colors, brightness, contrast, gamma).  At the moment, it only supports one-way communication: changes to its editor widgets result in ___Changed() signals. However, there is no way to update its widgets programmatically -- it can only be user-driven.
 /*! This widget can be used either with the MPlot library, where it can edit an MPlotColorMap directly via the colorMapChanged() signal.  It can also be used on its own, where the individual broken-out signals useStandardColorMapChanged(), standardColorMapChanged(), firstColorChanged(), secondColorChanged(), brightnessChanged(), contrastChanged(), and gammaChanged() are made available.
   */
+class AMColorPickerButton;
 class AMImagePropertyEditor : public QFrame
 {
 	Q_OBJECT
@@ -41,7 +47,6 @@ public:
 	explicit AMImagePropertyEditor(QWidget *parent = 0);
 	AMImagePropertyEditor(bool useStandardColorMap, int mplotStandardColorMap, const QColor& firstColor, const QColor& secondColor, double brightness, double contrast, double gamma, QWidget* parent = 0);
 	AMImagePropertyEditor(const MPlotColorMap& initialMap, QWidget* parent = 0);
-	virtual ~AMImagePropertyEditor();
 
 	bool useStandardColorMap() const;
 	int standardColorMap() const;
@@ -80,12 +85,32 @@ protected slots:
 	void onBlendModeChanged(bool blendModeIsHSV);
 
 protected:
-	Ui::AMImagePropertyEditor* ui_;
+	QGridLayout *gridLayout;
+	QRadioButton *useStandardColorMapButton;
+	QComboBox *standardColorMapComboBox;
+	QRadioButton *useCustomColorsButton;
+	QHBoxLayout *horizontalLayout;
+	AMColorPickerButton *firstColorButton;
+	AMColorPickerButton *secondColorButton;
+	QVBoxLayout *verticalLayout;
+	QRadioButton *rgbButton;
+	QRadioButton *hsvButton;
+	QFrame *line;
+	QLabel *brightnessText;
+	QLabel *labelBrightness;
+	QSlider *brightnessSlider;
+	QLabel *labelContrast;
+	QSlider *contrastSlider;
+	QLabel *contrastText;
+	QLabel *labelGamma;
+	QSlider *gammaSlider;
+	QLabel *gammaText;
 
 	MPlotColorMap currentMap_;
 
 	double brightness_, contrast_, gamma_;
 
+	void setupUi();
 	void makeConnections();
 };
 
