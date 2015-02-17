@@ -15,19 +15,20 @@ BioXASMainMonochromatorCrystalChangeControlView::BioXASMainMonochromatorCrystalC
 
     // Create UI elements.
 
-    initializedDisplay_ = new QWidget(this);
+    initializedDisplay_ = new QWidget();
+    initializedDisplay_->setMinimumSize(220, 80);
+    initializedDisplay_->setMaximumSize(220, 80);
     QLabel *initializedDisplayText = new QLabel(introMessage_);
     QDialogButtonBox *initializedDisplayButtons = new QDialogButtonBox(QDialogButtonBox::Ok |
                                                                  QDialogButtonBox::Cancel);
-    runningDisplay_ = new QWidget(this);
-    runningDisplayProgress_ = new QProgressBar(this);
+    runningDisplay_ = new QWidget();
+    runningDisplayProgress_ = new QProgressBar();
     runningDisplayProgress_->setMinimum(0);
     runningDisplayProgress_->setMaximum(10);
     runningDisplayProgress_->setValue(0);
-    runningDisplayDescription_ = new QLabel(this);
-    runningDisplayDescription_->setWordWrap(true);
-    runningDisplayInstruction_ = new QLabel(this);
-    runningDisplayInstruction_->setWordWrap(true);
+    runningDisplayDescription_ = new QLabel();
+    runningDisplayInstruction_ = new QTextEdit();
+    runningDisplayInstruction_->setEnabled(false);
 
     completeSuccessDisplay_ = new QWidget(this);
     QLabel *completeSuccessDisplayText = new QLabel(successMessage_);
@@ -70,8 +71,9 @@ BioXASMainMonochromatorCrystalChangeControlView::BioXASMainMonochromatorCrystalC
     layout->addWidget(runningDisplay_);
     layout->addWidget(completeSuccessDisplay_);
     layout->addWidget(completeFailDisplay_);
-
     setLayout(layout);
+
+    setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
     // Initial settings.
 

@@ -6,6 +6,7 @@
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QLabel>
+#include <QTextEdit>
 #include <QProgressBar>
 #include <QLayout>
 
@@ -53,7 +54,7 @@ protected:
     QWidget *runningDisplay_;
     QProgressBar *runningDisplayProgress_;
     QLabel *runningDisplayDescription_;
-    QLabel *runningDisplayInstruction_;
+    QTextEdit *runningDisplayInstruction_;
 
     /// The complete success display.
     QWidget *completeSuccessDisplay_;
