@@ -185,9 +185,11 @@ QAbstractItemView *AMBrowseScansView::currentView()
 void AMBrowseScansView::setFilterRegExp(const QString &pattern)
 {
 	proxyModel_->setFilterRegExp(pattern);
+	sortFilterWidget_->setFilterRegExp(pattern);
 }
 
 void AMBrowseScansView::setFilterKeyColumn(int column)
 {
 	proxyModel_->setFilterKeyColumn(column);
+	sortFilterWidget_->setFilterKeyColumn(column);
 }
