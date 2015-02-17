@@ -151,6 +151,8 @@ void AMTopFrame2::setupUi()
 	titleFrame_->raise();
 	statusFrame_->raise();
 
+	setLayout(verticalLayout_);
+
 	setWindowTitle(QApplication::translate("AMTopFrame2", "Form", 0, QApplication::UnicodeUTF8));
 			icon_->setText(QString());
 			title_->setText(QApplication::translate("AMTopFrame2", "Title", 0, QApplication::UnicodeUTF8));
