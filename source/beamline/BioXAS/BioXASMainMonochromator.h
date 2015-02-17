@@ -170,6 +170,31 @@ public:
     /// Returns a new action that sets the bragg motor power to auto-software.
     AMAction3* createSetBraggMotorPowerAutoAction();
 
+    /// Returns a text description of the 'wait for slits closed action.'
+    QString createWaitForSlitsClosedActionDescription() const { return "Waiting for slits to close..."; }
+    /// Returns a text description of the 'wait for paddle removed action.'
+    QString createWaitForPaddleRemovedActionDescription() const { return "Waiting for paddle removed..."; }
+    /// Returns a text description of the 'wait for crystal change enabled action.'
+    QString createWaitForKeyEnabledActionDescription() const { return "Enable crystal change."; }
+    /// Returns a text instruction related to the 'wait for crystal change enabled action.'
+    QString createWaitForKeyEnabledActionInstruction() const { return "Turn the crystal change key to 'Enabled', counter-clockwise."; }
+    /// Returns a text description of the 'wait for at crystal change position action.'
+    QString createWaitForAtCrystalChangePositionActionDescription() const { return "Waiting for move to crystal change position."; }
+    /// Returns a text description of the 'wait for brake disabled action.'
+    QString createWaitForBrakeDisabledActionDescription() const { return "Disable brake."; }
+    /// Returns a text instruction related to the 'wait for brake disabled action.'
+    QString createWaitForBrakeDisabledActionInstruction() const { return "Flip the brake switch to 'Disabled.' There is a mandatory 30s wait after the switch is flipped."; }
+    /// Returns a text description of the 'wait for move to crystal change motor ccw limit action.'
+    QString createWaitForCrystalChangeMotorCCWLimitReachedActionDescription() const { return "Waiting for move to crystal change motor CCW limit..."; }
+    /// Returns a text description of the 'wait for move to crystal change motor cw limit action.'
+    QString createWaitForCrystalChangeMotorCWLimitReachedActionDescription() const { return "Waiting for move to crystal change motor CW limit..."; }
+    /// Returns a text description of the 'wait for brake enabled action.'
+    QString createWaitForBrakeEnabledActionDescription() const { return "Enable brake."; }
+    /// Returns a text instruction related to the 'wait for brake enabled action.'
+    QString createWaitForBrakeEnabledActionInstruction() const { return "Flip brake switch to 'Enabled'. There is a mandatory 30s wait after the switch is flipped."; }
+    /// Returns a text description of the 'wait for move to bragg motor cw limit action.'
+    QString createWaitForBraggMotorLimitReachedActionDescription() const { return "Waiting for move to bragg motor CW limit..."; }
+
 signals:
     /// Notifier that the mono's connections with its pvs have changed.
     void connected(bool isConnected);

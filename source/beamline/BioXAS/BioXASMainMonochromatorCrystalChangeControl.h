@@ -11,7 +11,9 @@ class BioXASMainMonochromatorCrystalChangeControl : public QObject
 
 public:
     /// Enum marking possible different control states.
-    enum State { None = 0, Initialized, Running, CompleteSuccess, CompleteFail };
+    enum State { NotInitialized = 0, Initialized, Running, CompleteSuccess, CompleteFail };
+    /// Enum marking possible different crystal change steps.
+    enum Step { None = 0, KeyEnabled, BraggNotAtCrystalChangePosition, BraggAtCrystalChangePosition, BrakeDisabled, CrystalChangeMotorNotAtLimit, CrystalChangeMotorAtLimit, BrakeEnabled, BraggToNewRegion, KeyDisabled };
     /// Constructor.
     explicit BioXASMainMonochromatorCrystalChangeControl(BioXASMainMonochromator *mono, QObject *parent = 0);
     /// Destructor.
@@ -20,7 +22,16 @@ public:
     BioXASMainMonochromator* mono() const { return mono_; }
     /// Returns the current state of the control.
     State state() const { return state_; }
+    /// Returns the control's current step in a crystal change.
+    Step step() const { return step_; }
+    /// Returns a string representation of the current state.
     QString stateToString(BioXASMainMonochromatorCrystalChangeControl::State state) const;
+    /// Returns a string representation of the current step.
+    QString stepToString(BioXASMainMonochromatorCrystalChangeControl::Step step) const;
+    /// Returns a string with the current step's description.
+    QString stepDescription() const { return ""; }
+    /// Returns a string with the current step's instruction.
+    QString stepInstruction() const { return ""; }
 
 signals:
     /// Notifier that the mono being controlled has changed.
@@ -59,6 +70,8 @@ protected:
     BioXASMainMonochromator *mono_;
     /// The current state of the control.
     State state_;
+    /// The current step of a crystal change.
+    Step step_;
 
 private:
     /// Disconnects from the given action and marks it for deletion.

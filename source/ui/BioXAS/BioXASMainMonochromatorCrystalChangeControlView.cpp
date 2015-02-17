@@ -16,8 +16,6 @@ BioXASMainMonochromatorCrystalChangeControlView::BioXASMainMonochromatorCrystalC
     // Create UI elements.
 
     initializedDisplay_ = new QWidget();
-    initializedDisplay_->setMinimumSize(220, 80);
-    initializedDisplay_->setMaximumSize(220, 80);
     QLabel *initializedDisplayText = new QLabel(introMessage_);
     QDialogButtonBox *initializedDisplayButtons = new QDialogButtonBox(QDialogButtonBox::Ok |
                                                                  QDialogButtonBox::Cancel);

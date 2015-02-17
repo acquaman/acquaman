@@ -7,7 +7,7 @@ BioXASMainMonochromatorCrystalChangeControl::BioXASMainMonochromatorCrystalChang
     // Initialize variables.
 
     mono_ = 0;
-    state_ = None;
+    state_ = NotInitialized;
 
     // Current settings.
 
@@ -21,20 +21,71 @@ BioXASMainMonochromatorCrystalChangeControl::~BioXASMainMonochromatorCrystalChan
 
 QString BioXASMainMonochromatorCrystalChangeControl::stateToString(BioXASMainMonochromatorCrystalChangeControl::State state) const
 {
+    QString result = "";
+
     switch (state) {
-    case None:
-        return "None";
+    case NotInitialized:
+        result = "NotInitialized";
+        break;
     case Initialized:
-        return "Initialized";
+        result = "Initialized";
+        break;
     case Running:
-        return "Running";
+        result = "Running";
+        break;
     case CompleteSuccess:
-        return "CompleteSuccess";
+        result = "CompleteSuccess";
+        break;
     case CompleteFail:
-        return "CompleteFail";
+        result = "CompleteFail";
+        break;
     default:
-        return "Unknown";
+        result = "Unknown";
     }
+
+    return result;
+}
+
+QString BioXASMainMonochromatorCrystalChangeControl::stepToString(BioXASMainMonochromatorCrystalChangeControl::Step step) const
+{
+    QString result = "";
+
+    switch (step) {
+    case None:
+        result = "None";
+        break;
+    case KeyEnabled:
+        result = "KeyEnabled";
+        break;
+    case BraggNotAtCrystalChangePosition:
+        result = "BraggNotAtCrystalChangePosition";
+        break;
+    case BraggAtCrystalChangePosition:
+        result = "BraggAtCrystalChangePosition";
+        break;
+    case BrakeDisabled:
+        result = "BrakeDisabled";
+        break;
+    case CrystalChangeMotorNotAtLimit:
+        result = "CrystalChangeMotorNotAtLimit";
+        break;
+    case CrystalChangeMotorAtLimit:
+        result = "CrystalChangeMotorAtLimit";
+        break;
+    case BrakeEnabled:
+        result = "BrakeEnabled";
+        break;
+    case BraggToNewRegion:
+        result = "BraggToNewRegion";
+        break;
+    case KeyDisabled:
+        result = "KeyDisabled";
+        break;
+    default:
+        result = "Unknown";
+    }
+
+    return result;
 }
 
 void BioXASMainMonochromatorCrystalChangeControl::setMono(BioXASMainMonochromator *newMono)
@@ -88,7 +139,7 @@ void BioXASMainMonochromatorCrystalChangeControl::startCrystalChange()
 
 void BioXASMainMonochromatorCrystalChangeControl::reset()
 {
-    setState(None);
+    setState(NotInitialized);
     updateState();
 }
 
@@ -147,7 +198,7 @@ void BioXASMainMonochromatorCrystalChangeControl::updateState()
 {
     if (mono_) {
 
-        if (mono_->isConnected() && state_ == None) {
+        if (mono_->isConnected() && state_ == NotInitialized) {
             // The mono is valid and connected. No actions running.
             // The conditions for Initialize are fulfilled.
             setState(Initialized);
@@ -160,19 +211,19 @@ void BioXASMainMonochromatorCrystalChangeControl::updateState()
         } else if (!mono_->isConnected() && state_ == Initialized) {
             // The mono is valid but not connected.
             // Cannot perform a crystal change.
-            setState(None);
+            setState(NotInitialized);
 
         } else if (!mono_->isConnected() && (state_ == CompleteSuccess || state_ == CompleteFail)) {
             // The mono is valid but not connected, and we have reached
             // a crystal change terminal state (not necessarily in that order).
             // In any case, cannot perform a crystal change.
-            setState(None);
+            setState(NotInitialized);
         }
 
 
     } else {
         // If the current mono is not valid, set state to None.
-        setState(None);
+        setState(NotInitialized);
     }
 
     // A note: we don't touch the Running state here, because it is set according
