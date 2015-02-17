@@ -75,6 +75,7 @@ int AMBrowseScansView::numberOfSelectedItems()
 void AMBrowseScansView::setRunId(int runId)
 {
 	proxyModel_->setRunId(runId);
+	sortFilterWidget_->setRunId(runId);
 }
 
 void AMBrowseScansView::setExperimentId(int experimentId)
