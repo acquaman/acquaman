@@ -220,7 +220,7 @@ protected:
 /// This class provides a widget that can be used to select and load a sample plate object, out of the available set of user-defined sample plates. It can also be used to create new sample plates.
 /*! This widget operates on an "active" or "current" sample plate, and causes it to be re-loaded to become a different plate when activated by the user.  This active plate can be retrieved with samplePlate().  If an AMSamplePlate pointer is provided in the constructor, we use this as the active plate; otherwise we create an internal AMSamplePlate object.
   */
-class AMSamplePlatePre2013Selector : public QWidget, private Ui::AMSamplePlateSelector {
+class AMSamplePlatePre2013Selector : public QWidget {
 	Q_OBJECT
 public:
 	explicit AMSamplePlatePre2013Selector(AMSamplePlatePre2013* sourcePlate = 0, QWidget* parent = 0);
@@ -272,7 +272,18 @@ protected slots:
 
 
 protected:
-	Ui::AMSamplePlateSelector ui_;
+
+	void setupUi();
+
+	QGridLayout *gridLayout;
+	QComboBox *plateComboBox;
+	QLabel *nameLabel;
+	QLineEdit *nameEdit;
+	QLabel *createdLabelLabel;
+	QLabel *createdLabel;
+	QVBoxLayout *verticalLayout;
+	AMHeaderButton *notesHeaderButton;
+	AMWrappingLineEdit *notesEditor;
 
 	AMSamplePlatePre2013* plate_;
 
