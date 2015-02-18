@@ -29,8 +29,9 @@ class AMAxisFinishedActionInfo : public AMActionInfo3
 Q_OBJECT
 public:
 	/// Constructor
+	Q_INVOKABLE AMAxisFinishedActionInfo(const QString &axisName = "", QObject *parent = 0);
+	/// Destructor.
 	virtual ~AMAxisFinishedActionInfo();
-	Q_INVOKABLE AMAxisFinishedActionInfo(const QString &axisName, QObject *parent = 0);
 
 	/// Copy Constructor
 	AMAxisFinishedActionInfo(const AMAxisFinishedActionInfo &other);
