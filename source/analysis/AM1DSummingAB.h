@@ -33,8 +33,9 @@ class AM1DSummingAB : public AMStandardAnalysisBlock
 
 public:
 	/// Constructor.
-	virtual ~AM1DSummingAB();
 	Q_INVOKABLE AM1DSummingAB(const QString &outputName = "InvalidInput", QObject *parent = 0);
+	/// Destructor.
+	virtual ~AM1DSummingAB();
 
 	/// Description.
 	QString infoDescription() const { return QString(); }

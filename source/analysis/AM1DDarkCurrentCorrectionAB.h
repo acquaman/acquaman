@@ -51,6 +51,7 @@ class AM1DDarkCurrentCorrectionAB : public AMStandardAnalysisBlock
 public:
 	/// Constructor.
 	Q_INVOKABLE AM1DDarkCurrentCorrectionAB(const QString &outputName = "InvalidInput", QObject *parent = 0);
+	/// Destructor.
 	virtual ~AM1DDarkCurrentCorrectionAB();
 
 	QString infoDescription() const { return QString(); }

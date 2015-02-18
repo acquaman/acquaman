@@ -33,8 +33,9 @@ class AM2DDeadTimeCorrectionAB : public AMStandardAnalysisBlock
 
 public:
 	/// Constructor.
-	virtual ~AM2DDeadTimeCorrectionAB();
 	Q_INVOKABLE AM2DDeadTimeCorrectionAB(const QString &outputName = "InvalidInput", QObject *parent = 0);
+	/// Destructor.
+	virtual ~AM2DDeadTimeCorrectionAB();
 
 	/// Description.
 	QString infoDescription() const { return QString(); }

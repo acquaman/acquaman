@@ -33,8 +33,9 @@ class AM3DAdditionAB : public AMStandardAnalysisBlock
 
 public:
 	/// Constructor.
-	virtual ~AM3DAdditionAB();
 	Q_INVOKABLE AM3DAdditionAB(const QString &outputName = "InvalidInput", QObject *parent = 0);
+	/// Destructor.
+	virtual ~AM3DAdditionAB();
 
 	/// Description.
 	QString infoDescription() const { return QString(); }

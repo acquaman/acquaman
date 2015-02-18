@@ -43,8 +43,9 @@ class AM2DNormalizationAB : public AMStandardAnalysisBlock
 
 public:
 	/// Constructor.
-	virtual ~AM2DNormalizationAB();
 	Q_INVOKABLE AM2DNormalizationAB(const QString &outputName = "InvalidInput", QObject *parent = 0);
+	/// Destructor.
+	virtual ~AM2DNormalizationAB();
 
 	QString infoDescription() const { return QString(); }
 

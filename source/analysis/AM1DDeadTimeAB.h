@@ -33,8 +33,9 @@ class AM1DDeadTimeAB : public AMStandardAnalysisBlock
 
 public:
 	/// Constructor.
-	virtual ~AM1DDeadTimeAB();
 	Q_INVOKABLE AM1DDeadTimeAB(const QString &outputName = "InvalidInput", QObject *parent = 0);
+	/// Destructor.
+	virtual ~AM1DDeadTimeAB();
 
 	/// Description.
 	QString infoDescription() const { return QString(); }
