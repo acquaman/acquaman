@@ -19,6 +19,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <QMessageBox>
+#include <QComboBox>
+#include <QLineEdit>
+#include <QLabel>
 
 #include "AMSamplePlatePre2013View.h"
 #include "dataman/database/AMDbObjectSupport.h"

@@ -22,18 +22,18 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef AMSAMPLEPLATEVIEWPRE2013_H
 #define AMSAMPLEPLATEVIEWPRE2013_H
 
-
-
 #include <QListView>
 #include <QPushButton>
 #include <QStyledItemDelegate>
-
+#include <QApplication>
+#include <QGridLayout>
 
 #include "dataman/AMSamplePlatePre2013.h"
 #include "dataman/database/AMDatabase.h"
 
-#include "ui_AMSamplePlateSelector.h"
 #include "ui/dataman/AMSamplePre2013Editor.h"
+#include "ui/AMHeaderButton.h"
+#include "ui/AMWrappingLineEdit.h"
 
 #include "util/AMDeferredFunctionCall.h"
 #include "util/AMDateTimeUtils.h"
