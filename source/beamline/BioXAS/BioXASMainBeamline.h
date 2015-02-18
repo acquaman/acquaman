@@ -58,6 +58,8 @@ public:
 
 	/// Destructor.
 	virtual ~BioXASMainBeamline();
+    /// Returns true if all beamline components are connected, false otherwise.
+    virtual bool isConnected() const { return connected_; }
     /// Returns the scaler.
     CLSSIS3820Scaler* scaler() const { return scaler_; }
     /// Returns the I0 amplifier.
@@ -72,9 +74,12 @@ public:
     CLSBasicScalerChannelDetector* iTDetector() const { return iTDetector_; }
     /// Returns the I2 detector.
     CLSBasicScalerChannelDetector* i2Detector() const { return i2Detector_; }
-
     /// Return the set of BioXAS Motors by given motor category.
 	QList<AMControl *> getMotorsByType(BioXASBeamlineDef::BioXASMotorType category);
+
+protected slots:
+    /// Handles updating connected_ with changes in each components connection state.
+    void onComponentConnectedChanged(bool isConnected);
 
 protected:
 	/// Sets up the synchronized dwell time.
@@ -158,6 +163,9 @@ protected:
 	BioXASPseudoMotorControl *monoPseudoEnergy_;
 
 protected:
+    // Connected
+    bool connected_;
+
     // Detectors
     CLSBasicScalerChannelDetector *i0Detector_;
     CLSBasicScalerChannelDetector *iTDetector_;
