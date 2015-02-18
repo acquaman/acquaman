@@ -37,6 +37,10 @@ AMTopFrame2::AMTopFrame2(const QString& title, const QIcon& icon, QWidget *paren
 	statusTextRight_->setText(QString());
 }
 
+AMTopFrame2::~AMTopFrame2()
+{
+}
+
 QString AMTopFrame2::title() const
 {
 	return title_->text();
