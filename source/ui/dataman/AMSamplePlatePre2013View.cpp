@@ -46,6 +46,9 @@ AMSamplePlatePre2013ItemModel::AMSamplePlatePre2013ItemModel(AMSamplePlatePre201
 	connect(AMDatabase::database("user"), SIGNAL(removed(QString,int)), this, SLOT(onDatabaseItemRemoved(QString,int)), Qt::QueuedConnection);
 }
 
+AMSamplePlatePre2013ItemModel::~AMSamplePlatePre2013ItemModel()
+{
+}
 
 // Return the sample position, formatted as a string: ex: X: 33mm Y: 47.9mm Z: -92mm
 QString AMSamplePlatePre2013ItemModel::positionsString(int index) const {
@@ -289,6 +292,10 @@ AMSamplePlatePre2013Selector::AMSamplePlatePre2013Selector(AMSamplePlatePre2013*
 
 	// when our current sample plate is re-loaded out of the database, respond to update the GUI values
 	connect(plate_, SIGNAL(loadedFromDb()), this, SLOT(onSamplePlateChanged()), Qt::QueuedConnection);
+}
+
+AMSamplePlatePre2013Selector::~AMSamplePlatePre2013Selector()
+{
 }
 
 void AMSamplePlatePre2013Selector::onSamplePlateChanged(/*bool isValid*/) {
@@ -585,6 +592,10 @@ AMSamplePlatePre2013View::AMSamplePlatePre2013View(AMSamplePlatePre2013 *existin
 
 }
 
+AMSamplePlatePre2013View::~AMSamplePlatePre2013View()
+{
+}
+
 void AMSamplePlatePre2013View::onAddSampleButtonClicked() {
 
 	if(samplePlate_ &&  sampleSelector_->currentSampleId() != -1){
@@ -726,6 +737,10 @@ AMSamplePlatePre2013PositionInfo::AMSamplePlatePre2013PositionInfo(AMSamplePlate
 	}
 }
 
+AMSamplePlatePre2013PositionInfo::~AMSamplePlatePre2013PositionInfo()
+{
+}
+
 MPlotRectangle* AMSamplePlatePre2013PositionInfo::area() const{
 	return area_;
 }
@@ -824,6 +839,10 @@ AMSamplePlatePre2013PositionInfoView::AMSamplePlatePre2013PositionInfoView(AMSam
 	setLayout(vl);
 }
 
+AMSamplePlatePre2013PositionInfoView::~AMSamplePlatePre2013PositionInfoView()
+{
+}
+
 void AMSamplePlatePre2013PositionInfoView::mouseReleaseEvent(QMouseEvent *e){
 	setHighlighted(!isHighlighted_);
 	e->accept();
@@ -875,6 +894,10 @@ AMSamplePlatePre2013PositionInfoListView::AMSamplePlatePre2013PositionInfoListVi
 	setLayout(vl);
 }
 
+AMSamplePlatePre2013PositionInfoListView::~AMSamplePlatePre2013PositionInfoListView()
+{
+}
+
 void AMSamplePlatePre2013PositionInfoListView::onSamplePlatePositionInfoViewBecameHighlighted(bool isHighlighted){
 	AMSamplePlatePre2013PositionInfoView *infoView = qobject_cast<AMSamplePlatePre2013PositionInfoView*>(QObject::sender());
 	if(infoView && isHighlighted)
@@ -887,6 +910,10 @@ AMScrollViewWidget::AMScrollViewWidget(QLayout *layout, QWidget *parent) :
 	QWidget(parent)
 {
 	setLayout(layout);
+}
+
+AMScrollViewWidget::~AMScrollViewWidget()
+{
 }
 
 AMSamplePlatePre2013AdditionalInformationView::AMSamplePlatePre2013AdditionalInformationView(AMSamplePlatePre2013 *samplePlate, AMSamplePlatePre2013ItemModel *samplePlateModel, QWidget *parent) :
@@ -944,6 +971,10 @@ AMSamplePlatePre2013AdditionalInformationView::AMSamplePlatePre2013AdditionalInf
 	setLayout(hl);
 }
 
+AMSamplePlatePre2013AdditionalInformationView::~AMSamplePlatePre2013AdditionalInformationView()
+{
+}
+
 #include <QFormLayout>
 
 AMSamplePositionPre2013ManuallyEnterView::AMSamplePositionPre2013ManuallyEnterView(QWidget *parent) :
@@ -990,6 +1021,10 @@ AMSamplePositionPre2013ManuallyEnterView::AMSamplePositionPre2013ManuallyEnterVi
 	inOut_ = -999999;
 	upStDownSt_ = -999999;
 	rot_ = -999999;
+}
+
+AMSamplePositionPre2013ManuallyEnterView::~AMSamplePositionPre2013ManuallyEnterView()
+{
 }
 
 void AMSamplePositionPre2013ManuallyEnterView::onCancelButtonClicked(){
@@ -1085,6 +1120,10 @@ AMSamplePositionPre2013AdditionalInformationView::AMSamplePositionPre2013Additio
 
 	connect(cancelButton_, SIGNAL(clicked()), this, SLOT(onCancelButtonClicked()));
 	connect(applyButton_, SIGNAL(clicked()), this, SLOT(onApplyButtonClicked()));
+}
+
+AMSamplePositionPre2013AdditionalInformationView::~AMSamplePositionPre2013AdditionalInformationView()
+{
 }
 
 void AMSamplePositionPre2013AdditionalInformationView::onTopLeftSetFromManipulator(){

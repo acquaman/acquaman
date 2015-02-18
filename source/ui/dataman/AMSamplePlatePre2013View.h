@@ -58,6 +58,8 @@ public:
 	/// Constructor requires a valid \c plate to expose as a QAbstractListModel. The sample/position pairs (AMSamplePosition) will provide the data for the items in the list.
 	AMSamplePlatePre2013ItemModel(AMSamplePlatePre2013* plate, QObject* parent = 0);
 
+	virtual ~AMSamplePlatePre2013ItemModel();
+
 	/// Reimplemented from QAbstractListModel
 	int rowCount(const QModelIndex &parent) const {
 		if(parent.isValid())
@@ -224,6 +226,7 @@ class AMSamplePlatePre2013Selector : public QWidget {
 	Q_OBJECT
 public:
 	explicit AMSamplePlatePre2013Selector(AMSamplePlatePre2013* sourcePlate = 0, QWidget* parent = 0);
+	virtual ~AMSamplePlatePre2013Selector();
 
 	/// Returns the active sample plate object
 	AMSamplePlatePre2013* samplePlate() { return plate_; }
@@ -307,6 +310,7 @@ class AMSamplePlatePre2013View : public QWidget
 public:
 	/// Create a sample plate editor, to modify/view an existing sample plate \c existingPlate.  If \c existingPlate is 0, it will create a new sample plate to work with.
 	explicit AMSamplePlatePre2013View(AMSamplePlatePre2013* existingPlate = 0, QWidget *parent = 0);
+	virtual ~AMSamplePlatePre2013View();
 
 	/// Returns the current sample plate
 	AMSamplePlatePre2013* samplePlate() { return samplePlate_; }
@@ -366,6 +370,7 @@ class AMSamplePlatePre2013PositionInfo : public QObject
 Q_OBJECT
 public:
 	AMSamplePlatePre2013PositionInfo(AMSamplePlatePre2013 *samplePlate, int index, const QString &description, MPlotAxisScale *horizontalScale, MPlotAxisScale *verticalScale, QObject *parent = 0);
+	virtual ~AMSamplePlatePre2013PositionInfo();
 
 	MPlotRectangle* area() const;
 	MPlotPoint* position() const;
@@ -392,6 +397,7 @@ class AMSamplePlatePre2013PositionInfoView : public QFrame
 Q_OBJECT
 public:
 	AMSamplePlatePre2013PositionInfoView(AMSamplePlatePre2013PositionInfo *positionInfo, QWidget *parent = 0);
+	virtual ~AMSamplePlatePre2013PositionInfoView();
 
 public slots:
 	void setHighlighted(bool isHighlighted);
@@ -419,6 +425,7 @@ class AMSamplePlatePre2013PositionInfoListView : public QWidget
 Q_OBJECT
 public:
 	AMSamplePlatePre2013PositionInfoListView(QList<AMSamplePlatePre2013PositionInfoView*> infoViews, QWidget *parent = 0);
+	virtual ~AMSamplePlatePre2013PositionInfoListView();
 
 protected slots:
 	void onSamplePlatePositionInfoViewBecameHighlighted(bool isHighlighted);
@@ -432,6 +439,7 @@ class AMScrollViewWidget : public QWidget
 Q_OBJECT
 public:
 	AMScrollViewWidget(QLayout *layout, QWidget *parent = 0);
+	virtual ~AMScrollViewWidget();
 };
 
 #include "MPlot/MPlotWidget.h"
@@ -440,6 +448,7 @@ class AMSamplePlatePre2013AdditionalInformationView : public QWidget
 Q_OBJECT
 public:
 	AMSamplePlatePre2013AdditionalInformationView(AMSamplePlatePre2013 *samplePlate, AMSamplePlatePre2013ItemModel* samplePlateModel, QWidget *parent = 0);
+	virtual ~AMSamplePlatePre2013AdditionalInformationView();
 
 protected:
 	AMSamplePlatePre2013 *samplePlate_;
@@ -461,6 +470,7 @@ class AMSamplePositionPre2013ManuallyEnterView : public QDialog
 Q_OBJECT
 public:
 	AMSamplePositionPre2013ManuallyEnterView(QWidget *parent = 0);
+	virtual ~AMSamplePositionPre2013ManuallyEnterView();
 
 signals:
 	void finished(double upDown, double inOut, double upStDownSt, double rot);
@@ -491,6 +501,7 @@ class AMSamplePositionPre2013AdditionalInformationView : public QDialog
 Q_OBJECT
 public:
 	AMSamplePositionPre2013AdditionalInformationView(AMSampleManipulator *manipulator, AMSamplePositionPre2013 *samplePosition, QWidget *parent = 0);
+	virtual ~AMSamplePositionPre2013AdditionalInformationView();
 
 signals:
 	void finished();
