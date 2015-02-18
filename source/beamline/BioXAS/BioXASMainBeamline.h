@@ -58,13 +58,20 @@ public:
 
 	/// Destructor.
 	virtual ~BioXASMainBeamline();
-
+    /// Returns the scaler.
+    CLSSIS3820Scaler* scaler() const { return scaler_; }
     /// Returns the I0 amplifier.
-    CLSKeithley428* i0Amplifier() const { return i0Keithley_; }
+    CLSKeithley428* i0Keithley() const { return i0Keithley_; }
     /// Returns the IT amplifier.
-    CLSKeithley428* iTAmplifier() const { return iTKeithley_; }
+    CLSKeithley428* iTKeithley() const { return iTKeithley_; }
     /// Returns the I2 amplifier.
-    CLSKeithley428* i2Amplifier() const { return i2Keithley_; }
+    CLSKeithley428* i2Keithley() const { return i2Keithley_; }
+    /// Returns the I0 detector.
+    CLSBasicScalerChannelDetector* i0Detector() const { return i0Detector_; }
+    /// Returns the IT detector.
+    CLSBasicScalerChannelDetector* iTDetector() const { return iTDetector_; }
+    /// Returns the I2 detector.
+    CLSBasicScalerChannelDetector* i2Detector() const { return i2Detector_; }
 
     /// Return the set of BioXAS Motors by given motor category.
 	QList<AMControl *> getMotorsByType(BioXASBeamlineDef::BioXASMotorType category);
@@ -151,7 +158,16 @@ protected:
 	BioXASPseudoMotorControl *monoPseudoEnergy_;
 
 protected:
-    /// Amplifiers
+    // Detectors
+    CLSBasicScalerChannelDetector *i0Detector_;
+    CLSBasicScalerChannelDetector *iTDetector_;
+    CLSBasicScalerChannelDetector *i2Detector_;
+
+    // Scaler
+    CLSSIS3820Scaler *scaler_;
+    AMReadOnlyPVControl *scalerDwellTime_;
+
+    // Amplifiers
     CLSKeithley428 *i0Keithley_;
     CLSKeithley428 *iTKeithley_;
     CLSKeithley428 *i2Keithley_;

@@ -26,7 +26,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 BioXASMainBeamline::BioXASMainBeamline()
 	: AMBeamline("BioXAS Beamline - Main Endstation")
 {
-	setupSynchronizedDwellTime();
 	setupComponents();
 	setupDiagnostics();
 	setupSampleStage();
@@ -37,6 +36,11 @@ BioXASMainBeamline::BioXASMainBeamline()
 	setupControlsAsDetectors();
 	setupExposedControls();
 	setupExposedDetectors();
+}
+
+BioXASMainBeamline::~BioXASMainBeamline()
+{
+
 }
 
 void BioXASMainBeamline::setupDiagnostics()
@@ -109,7 +113,14 @@ void BioXASMainBeamline::setupMotorGroup()
 
 void BioXASMainBeamline::setupDetectors()
 {
+    i0Detector_ = new CLSBasicScalerChannelDetector("I0Detector", "I0 Detector", scaler_, 0, this);
+    scaler_->channelAt(0)->setDetector(i0Detector_);
 
+    iTDetector_ = new CLSBasicScalerChannelDetector("ITDetector", "IT Detector", scaler_, 1, this);
+    scaler_->channelAt(1)->setDetector(iTDetector_);
+
+    i2Detector_ = new CLSBasicScalerChannelDetector("I2Detector", "I2 Detector", scaler_, 15, this);
+    scaler_->channelAt(15)->setDetector(i2Detector_);
 }
 
 void BioXASMainBeamline::setupControlSets()
@@ -129,11 +140,21 @@ void BioXASMainBeamline::setupSynchronizedDwellTime()
 
 void BioXASMainBeamline::setupComponents()
 {
+    scaler_ = new CLSSIS3820Scaler("BL1607-5-I21:mcs00", this);
+
+    scalerDwellTime_ = new AMReadOnlyPVControl("ScalerDwellTime", "BL1607-5-I21:mcs00:delay", this, "Scaler dwell time");
+
     i0Keithley_ = new CLSKeithley428("I0 Channel", "AMP1607-701:Gain", this);
+    scaler_->channelAt(0)->setCustomChannelName("I0 Channel");
+    scaler_->channelAt(0)->setCurrentAmplifier(i0Keithley_);
 
     iTKeithley_ = new CLSKeithley428("IT Channel", "AMP1607-702:Gain", this);
+    scaler_->channelAt(1)->setCustomChannelName("IT Channel");
+    scaler_->channelAt(1)->setCurrentAmplifier(iTKeithley_);
 
     i2Keithley_ = new CLSKeithley428("I2 Channel", "AMP1607-703:Gain", this);
+    scaler_->channelAt(15)->setCustomChannelName("I2 Channel");
+    scaler_->channelAt(15)->setCurrentAmplifier(iTKeithley_);
 }
 
 void BioXASMainBeamline::setupControlsAsDetectors()
@@ -148,12 +169,9 @@ void BioXASMainBeamline::setupExposedControls()
 
 void BioXASMainBeamline::setupExposedDetectors()
 {
-
-}
-
-BioXASMainBeamline::~BioXASMainBeamline()
-{
-
+    addExposedDetector(i0Detector_);
+    addExposedDetector(iTDetector_);
+    addExposedDetector(i2Detector_);
 }
 
 QList<AMControl *> BioXASMainBeamline::getMotorsByType(BioXASBeamlineDef::BioXASMotorType category)
