@@ -40,10 +40,9 @@ class AM4DBinningAB : public AMStandardAnalysisBlock
 
 public:
 	/// Constructor.  \c outputName is the name() for the output data source.
+	Q_INVOKABLE AM4DBinningAB(const QString &outputName = "InvalidInput", QObject *parent = 0);
+	/// Destructor.
 	virtual ~AM4DBinningAB();
-	AM4DBinningAB(const QString &outputName, QObject *parent = 0);
-	/// This constructor is used to reload analysis blocks directly out of the database.
-	Q_INVOKABLE AM4DBinningAB(AMDatabase *db, int id);
 
 	QString infoDescription() const { return QString("(Axis %1 from %2 to %3)").arg(sumAxis_).arg(sumRangeMin_).arg(sumRangeMax_); }
 

@@ -108,9 +108,6 @@ public:
 	/// Reimplement the create widget method.
 	QWidget *createEditorWidget();
 
-	/// Re-implemented from AMDbObject to set the AMDataSource name once we have an AMDbObject::name()
-	bool loadFromDb(AMDatabase *db, int id);
-
 public slots:
 	/// Set the dark current correction value.
 	void setDarkCurrent(double newValue);

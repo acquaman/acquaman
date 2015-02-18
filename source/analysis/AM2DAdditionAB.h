@@ -65,9 +65,6 @@ public:
 	/// Performance optimization of axisValue():  instead of a single value, copies a block of values from \c startIndex to \c endIndex in \c outputValues.  The provided pointer must contain enough space for all the requested values.
 	virtual bool axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const;
 
-	/// Re-implemented from AMDbObject to set the AMDataSource name once we have an AMDbObject::name()
-	bool loadFromDb(AMDatabase *db, int id);
-
 protected slots:
 	/// Connected to be called when the values of the input data source change
 	void onInputSourceValuesChanged(const AMnDIndex& start, const AMnDIndex& end);

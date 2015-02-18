@@ -37,7 +37,7 @@ class ST0DTimestampAB : public AMStandardAnalysisBlock
 
 public:
 	/// Constructor.
-	Q_INVOKABLE ST0DTimestampAB(const QString &outputName, QObject *parent = 0);
+	Q_INVOKABLE ST0DTimestampAB(const QString &outputName = "InvalidInput", QObject *parent = 0);
 	/// Destructor.
 	virtual ~ST0DTimestampAB();
 
@@ -68,8 +68,6 @@ public:
 	virtual AMNumber axisValue(int axisNumber, int index) const;
 	/// Performance optimization of axisValue():  instead of a single value, copies a block of values from \c startIndex to \c endIndex in \c outputValues.  The provided pointer must contain enough space for all the requested values.
 	virtual bool axisValues(int axisNumber, int startIndex, int endIndex, AMNumber *outputValues) const;
-	/// Reimplemented from AMDbObject to set the AMDataSource name once we have an AMDbObject::name().
-	virtual bool loadFromDb(AMDatabase *db, int id);
 
 signals:
 	void dataStoredMaxChanged(int newMax);

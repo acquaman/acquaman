@@ -61,8 +61,8 @@ AMRawDataSource::AMRawDataSource(const AMDataStore* dataStore, int measurementId
 
 
 // This constructor re-loads a previously-stored source from the database.
-AMRawDataSource::AMRawDataSource(AMDatabase* db, int id)
-	: AMDbObject(0), AMDataSource("tempName")
+AMRawDataSource::AMRawDataSource(const QString &outputName, QObject *parent)
+	: AMDbObject(parent), AMDataSource(outputName)
 {
 	dataStore_ = 0;
 	measurementId_ = 0;
@@ -70,11 +70,6 @@ AMRawDataSource::AMRawDataSource(AMDatabase* db, int id)
 
 	// raw data sources shouldn't be visible in plots, usually. This is just a default. Programmers can always call setVisibleInPlots(), or use the AMScan::addRawDataSource() version which calls this internally.
 	visibleInPlots_ = false;
-
-	// restore the description(), rank(), measurementId(), scanRank(), and measurementRank() as stored in the database.  Our state() will remain Invalid until you call setDataStore() with a valid datastore that matches these dimensions.
-	loadFromDb(db, id);
-	AMDataSource::name_ = AMDbObject::name();
-
 }
 
 bool AMRawDataSource::setDataStore(const AMDataStore *dataStore) {
@@ -212,4 +207,12 @@ QWidget* AMRawDataSource::createEditorWidget()
 	return new AMSimpleDataSourceEditor(this);
 }
 
+bool AMRawDataSource::loadFromDb(AMDatabase *db, int id)
+{
+	bool success = AMDbObject::loadFromDb(db, id);
 
+	if(success)
+		AMDataSource::name_ = AMDbObject::name();	/// \todo This might change the name of a data-source in mid-life, which is technically not allowed.
+
+	return success;
+}
