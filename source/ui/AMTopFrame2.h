@@ -22,11 +22,14 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AMTOPFRAME2_H
 
 #include <QWidget>
+#include <QVBoxLayout>
+#include <QFrame>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QSpacerItem>
+#include <QFrame>
 #include <QIcon>
-
-namespace Ui {
-    class AMTopFrame2;
-}
+#include <QApplication>
 
 /// Standard header bar widget for main window panes
 class AMTopFrame2 : public QWidget
@@ -34,21 +37,32 @@ class AMTopFrame2 : public QWidget
     Q_OBJECT
 
 public:
-	explicit AMTopFrame2(const QString& title, const QIcon& icon = QIcon(), QWidget *parent = 0);
-    virtual ~AMTopFrame2();
+	explicit AMTopFrame2(const QString& title_, const QIcon& icon_ = QIcon(), QWidget *parent = 0);
 
 	QString title() const;
 	QString leftSubText() const;
 	QString rightSubText() const;
 
 public slots:
-	void setTitle(const QString& title);
-	void setIcon(const QIcon& icon);
+	void setTitle(const QString& title_);
+	void setIcon(const QIcon& icon_);
 	void setLeftSubText(const QString& subText);
 	void setRightSubText(const QString& subText);
 
-private:
-    Ui::AMTopFrame2 *ui;
+protected:
+	void setupUi();
+
+	QVBoxLayout *verticalLayout_;
+	QFrame *titleFrame_;
+	QHBoxLayout *horizontalLayout3_;
+	QLabel *icon_;
+	QLabel *title_;
+	QSpacerItem *horizontalSpacer_;
+	QFrame *statusFrame_;
+	QHBoxLayout *horizontalLayout4_;
+	QLabel *statusTextLeft_;
+	QSpacerItem *horizontalSpacer2_;
+	QLabel *statusTextRight_;
 };
 
 #endif // AMTOPFRAME2_H
