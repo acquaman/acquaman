@@ -91,9 +91,6 @@ bool REIXSAppController::startup()
 bool REIXSAppController::startupBeforeAnything() {
 	if(!AMAppController::startupBeforeAnything()) return false;
 
-	// If a command-line option has been specified to choose a new userDataFolder:
-//	getUserDataFolderFromDialog();
-
 	if (!AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/reixs", "/home/reixs", "users"))
 		return false;
 
