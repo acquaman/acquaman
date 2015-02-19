@@ -8,6 +8,7 @@ BioXASMainMonochromatorCrystalChangeControl::BioXASMainMonochromatorCrystalChang
 
     mono_ = 0;
     state_ = NotInitialized;
+    step_ = None;
 
     // Current settings.
 
@@ -54,6 +55,12 @@ QString BioXASMainMonochromatorCrystalChangeControl::stepToString(BioXASMainMono
     case None:
         result = "None";
         break;
+    case SlitsClosed:
+        result = "SlitsClosed";
+        break;
+    case PaddleOut:
+        result = "PaddleOut";
+        break;
     case KeyEnabled:
         result = "KeyEnabled";
         break;
@@ -75,8 +82,11 @@ QString BioXASMainMonochromatorCrystalChangeControl::stepToString(BioXASMainMono
     case BrakeEnabled:
         result = "BrakeEnabled";
         break;
-    case BraggToNewRegion:
-        result = "BraggToNewRegion";
+    case BraggNotAtNewRegion:
+        result = "BraggNotAtNewRegion";
+        break;
+    case BraggAtNewRegion:
+        result = "BraggAtNewRegion";
         break;
     case KeyDisabled:
         result = "KeyDisabled";

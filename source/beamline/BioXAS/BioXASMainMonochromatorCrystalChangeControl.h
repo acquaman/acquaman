@@ -13,7 +13,7 @@ public:
     /// Enum marking possible different control states.
     enum State { NotInitialized = 0, Initialized, Running, CompleteSuccess, CompleteFail };
     /// Enum marking possible different crystal change steps.
-    enum Step { None = 0, KeyEnabled, BraggNotAtCrystalChangePosition, BraggAtCrystalChangePosition, BrakeDisabled, CrystalChangeMotorNotAtLimit, CrystalChangeMotorAtLimit, BrakeEnabled, BraggToNewRegion, KeyDisabled };
+    enum Step { None = 0, SlitsClosed, PaddleOut, KeyEnabled, BraggNotAtCrystalChangePosition, BraggAtCrystalChangePosition, BrakeDisabled, CrystalChangeMotorNotAtLimit, CrystalChangeMotorAtLimit, BrakeEnabled, BraggNotAtNewRegion, BraggAtNewRegion, KeyDisabled };
     /// Constructor.
     explicit BioXASMainMonochromatorCrystalChangeControl(BioXASMainMonochromator *mono, QObject *parent = 0);
     /// Destructor.
