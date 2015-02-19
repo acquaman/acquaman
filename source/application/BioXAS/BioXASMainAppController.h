@@ -64,6 +64,8 @@ protected:
 	void setupUserInterface();
 	/// Sets up all of the connections.
 	void makeConnections();
+    /// Applies current settings.
+    void applyCurrentSettings();
 
 protected:
     /// Scaler view.

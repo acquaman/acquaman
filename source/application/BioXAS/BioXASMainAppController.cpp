@@ -90,6 +90,7 @@ bool BioXASMainAppController::startup()
 		setupExporterOptions();
 		setupUserInterface();
 		makeConnections();
+        applyCurrentSettings();
 
 		return true;
 
@@ -179,6 +180,14 @@ void BioXASMainAppController::setupUserInterface()
 
 void BioXASMainAppController::makeConnections()
 {
+    connect( BioXASMainBeamline::bioXAS()->scaler(), SIGNAL(connectedChanged(bool)), this, SLOT(onScalerConnected()) );
+    connect( BioXASMainBeamline::bioXAS(), SIGNAL(connected(bool)), this, SLOT(onBeamlineConnected()) );
+}
+
+void BioXASMainAppController::applyCurrentSettings()
+{
+    onScalerConnected();
+    onBeamlineConnected();
 }
 
 void BioXASMainAppController::onCurrentScanActionStartedImplementation(AMScanAction *action)
