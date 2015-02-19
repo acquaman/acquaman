@@ -82,8 +82,6 @@ protected slots:
     void onComponentConnectedChanged(bool isConnected);
 
 protected:
-	/// Sets up the synchronized dwell time.
-	void setupSynchronizedDwellTime();
 	/// Sets up the readings such as pressure, flow switches, temperature, etc.
 	void setupDiagnostics();
 	/// Sets up logical groupings of controls into sets.

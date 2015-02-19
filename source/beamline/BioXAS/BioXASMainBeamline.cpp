@@ -107,31 +107,24 @@ QList<AMControl *> BioXASMainBeamline::getMotorsByType(BioXASBeamlineDef::BioXAS
 void BioXASMainBeamline::onComponentConnectedChanged(bool isConnected)
 {
     if (connected_ != isConnected) {
+        bool actualConnected;
 
         // if isConnected is false, we know the beamline is disconnected right away.
         // we can't make the same assumption if isConnected is true, must check each component.
 
-        if (isConnected) {
-            isConnected = (
-                    scaler_->isConnected() &&
-                    i0Keithley_->isConnected() &&
-                    iTKeithley_->isConnected() &&
-                    i2Keithley_->isConnected() &&
-                    i0Detector_->isConnected() &&
-                    iTDetector_->isConnected() &&
-                    i2Detector_->isConnected()
+        if (!isConnected) {
+            actualConnected = isConnected;
+
+        } else {
+            actualConnected = (
+                    scaler_->isConnected()
                     );
         }
 
-        connected_ = isConnected;
+        connected_ = actualConnected;
 
         emit connected(connected_);
     }
-}
-
-void BioXASMainBeamline::setupSynchronizedDwellTime()
-{
-
 }
 
 void BioXASMainBeamline::setupDiagnostics()
@@ -171,6 +164,8 @@ void BioXASMainBeamline::setupComponents()
     // Scaler
 
     scaler_ = new CLSSIS3820Scaler("BL1607-5-I21:mcs", this);
+    connect( scaler_, SIGNAL(connectedChanged(bool)), this, SLOT(onComponentConnectedChanged(bool)) );
+
     scalerDwellTime_ = new AMReadOnlyPVControl("ScalerDwellTime", "BL1607-5-I21:mcs:delay", this, "Scaler dwell time");
 
     // Amplifiers
