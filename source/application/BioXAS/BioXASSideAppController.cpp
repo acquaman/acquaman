@@ -106,8 +106,6 @@ void BioXASSideAppController::shutdown()
 
 void BioXASSideAppController::onScalerConnected()
 {
-//	scalerView_ = 0;
-
 	if (BioXASSideBeamline::bioXAS()->scaler()->isConnected() && !scalerView_) {
 		scalerView_ = new CLSSIS3820ScalerView(BioXASSideBeamline::bioXAS()->scaler(), false);
 

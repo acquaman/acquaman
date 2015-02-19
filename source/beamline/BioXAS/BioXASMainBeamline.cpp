@@ -23,23 +23,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QDebug>
 
-BioXASMainBeamline::BioXASMainBeamline()
-	: AMBeamline("BioXAS Beamline - Main Endstation")
-{
-    connected_ = false;
-
-	setupComponents();
-	setupDiagnostics();
-	setupSampleStage();
-	setupDetectors();
-	setupControlSets();
-	setupMono();
-	setupMotorGroup();
-	setupControlsAsDetectors();
-	setupExposedControls();
-	setupExposedDetectors();
-}
-
 BioXASMainBeamline::~BioXASMainBeamline()
 {
 
@@ -275,4 +258,21 @@ void BioXASMainBeamline::setupMotorGroup()
 void BioXASMainBeamline::setupControlsAsDetectors()
 {
 
+}
+
+BioXASMainBeamline::BioXASMainBeamline()
+    : AMBeamline("BioXAS Beamline - Main Endstation")
+{
+    connected_ = false;
+
+    setupComponents();
+    setupDiagnostics();
+    setupSampleStage();
+    setupDetectors();
+    setupControlSets();
+    setupMono();
+    setupMotorGroup();
+    setupControlsAsDetectors();
+    setupExposedControls();
+    setupExposedDetectors();
 }

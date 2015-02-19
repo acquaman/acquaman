@@ -42,7 +42,6 @@ BioXASSideXASScanActionController::BioXASSideXASScanActionController(BioXASSideX
     scan_->rawData()->addScanAxis(AMAxisInfo("eV", 0, "Incident Energy", "eV"));
 
     AMControlInfoList list;
-    //list.append(BioXASSideBeamline::bioXAS()->m1UpperSlit()->toInfo());
     list.append(BioXASSideBeamline::bioXAS()->mono()->energyControl()->toInfo());
     configuration_->setAxisControlInfos(list);
 

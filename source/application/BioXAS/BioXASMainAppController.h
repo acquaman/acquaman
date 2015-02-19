@@ -24,6 +24,11 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "application/AMAppController.h"
 
+class CLSSIS3820ScalerView;
+class BioXASMainXASScanConfiguration;
+class BioXASMainXASScanConfigurationView;
+class AMScanConfigurationViewHolder3;
+
 class BioXASMainAppController  : public AMAppController
 {
 	Q_OBJECT
@@ -33,12 +38,16 @@ public:
 	explicit BioXASMainAppController(QObject *parent = 0);
 	/// Destructor.
 	virtual ~BioXASMainAppController() {}
-
 	/// create and setup all of the application windows, widgets, communication connections, and data objects that are needed on program startup. Returns true on success.  If reimplementing, must call the base-class startup() as the first thing it does.
 	virtual bool startup();
-
 	/// destroy all of the windows, widgets, and data objects created by applicationStartup(). Only call this if startup() has ran successfully.  If reimplementing, must call the base-class shutdown() as the last thing it does.
 	virtual void shutdown();
+
+protected slots:
+    /// Handles adding scaler view pane to the main window when the scaler is connected.
+    void onScalerConnected();
+    /// Handles adding the XAS scan configuration view pane to the main window when the beamline is connected.
+    void onBeamlineConnected();
 
 protected:
 	/// Implementation method that individual applications can flesh out if extra setup is required when a scan action is started.  This is not pure virtual because there is no requirement to do anything to scan actions.
@@ -55,6 +64,16 @@ protected:
 	void setupUserInterface();
 	/// Sets up all of the connections.
 	void makeConnections();
+
+protected:
+    /// Scaler view.
+    CLSSIS3820ScalerView *scalerView_;
+    /// XAS scan configuration.
+    BioXASMainXASScanConfiguration *configuration_;
+    /// XAS scan configuration view.
+    BioXASMainXASScanConfigurationView *configurationView_;
+    /// XAS scan configuration view holder.
+    AMScanConfigurationViewHolder3 *configurationViewHolder_;
 
 };
 
