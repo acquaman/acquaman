@@ -506,16 +506,6 @@ void AMOrderReductionAB::reviewState()
 		setState(0);
 }
 
-bool AMOrderReductionAB::loadFromDb(AMDatabase *db, int id)
-{
-	bool success = AMDbObject::loadFromDb(db, id);
-
-	if (success)
-		AMDataSource::name_ = AMDbObject::name();
-
-	return success;
-}
-
 #include "analysis/AMOrderReductionABEditor.h"
 
 QWidget *AMOrderReductionAB::createEditorWidget()
