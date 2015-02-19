@@ -229,6 +229,9 @@ void VESPERSAppController::registerClasses()
 	AMOldDetectorViewSupport::registerClass<VESPERSCCDDetectorView, VESPERSMarCCDDetector>();
 	AMOldDetectorViewSupport::registerClass<VESPERSPilatusCCDDetectorView, VESPERSPilatusCCDDetector>();
 
+	AMExportController::unregisterExporter<AMSMAKExporter>();
+	AMExportController::unregisterExporter<AMExporter2DAscii>();
+
 	AMExportController::registerExporter<VESPERSExporter3DAscii>();
 	AMExportController::registerExporter<VESPERSExporter2DAscii>();
 	AMExportController::registerExporter<VESPERSExporterSMAK>();

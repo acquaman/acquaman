@@ -133,6 +133,23 @@ public:
 		return true;
 	}
 
+	template <class T>
+	static bool unregisterExporter()
+	{
+		const QMetaObject* mo = &(T::staticMetaObject);
+
+		QString className(mo->className());
+
+		if(!registeredExporters_.contains(className)) {
+
+			AMErrorMon::debug(0, 0, QString("Export Support: The class '%1' was not registered as an Exporter. Skipping unregistration.").arg(className));
+			return false;
+		}
+
+		registeredExporters_.remove(className);
+
+		return true;
+	}
 
 	/// Access the set of currently-registered exporters
 	static const QHash<QString, AMExporterInfo>& registeredExporters() { return registeredExporters_; }

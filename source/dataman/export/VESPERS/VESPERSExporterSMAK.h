@@ -40,6 +40,9 @@ public:
 	/// Constructor.
 	virtual ~VESPERSExporterSMAK();
 
+	/// Description of the exporter.
+	virtual QString description() const { return "VESPERS SMAK 2D Map (plain text file)"; }
+
 protected:
 	/// Method that writes the data in the main table, including the function names.
 	virtual void writeMainTable();
