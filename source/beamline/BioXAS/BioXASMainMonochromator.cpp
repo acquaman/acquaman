@@ -9,8 +9,11 @@ BioXASMainMonochromator::BioXASMainMonochromator(QObject *parent) :
 
     connected_ = false;
     region_ = None;
+	braggMotorCrystalChangePosition_ = 135.0;
+	braggMotorRegionADestination_ = SETPOINT_BRAGG_MOTOR_REGION_A_DESTINATION + (braggMotorCrystalChangePosition_ - SETPOINT_BRAGG_MOTOR_CRYSTAL_CHANGE_POSITION);
+	braggMotorRegionBDestination_ = SETPOINT_BRAGG_MOTOR_REGION_B_DESTINATION + (braggMotorCrystalChangePosition_ - SETPOINT_BRAGG_MOTOR_CRYSTAL_CHANGE_POSITION);
 
-    // Control structures.
+	// Components.
 
     upperSlitBladeMotor_ = new CLSMAXvMotor(QString("SMTR1607-5-I21-09 VERT UPPER BLADE"), QString("SMTR1607-5-I21-09"), QString("SMTR1607-5-I21-09 VERT UPPER BLADE"), true, 0.1, 2.0, this);
     lowerSlitBladeMotor_ = new CLSMAXvMotor(QString("SMTR1607-5-I21-10 VERT LOWER BLADE"), QString("SMTR1607-5-I21-10"), QString("SMTR1607-5-I21-10 VERT LOWER BLADE"), true, 0.1, 2.0, this);
@@ -39,15 +42,11 @@ BioXASMainMonochromator::BioXASMainMonochromator(QObject *parent) :
     regionAStatus_ = new AMReadOnlyPVControl("RegionAStatus", "BL1607-5-I21:Mono:Region:A", this);
     regionBStatus_ = new AMReadOnlyPVControl("RegionBStatus", "BL1607-5-I21:Mono:Region:B", this);
 
-    // Energy control.
-
     energy_ = new BioXASMainMonochromatorControl("EnergyEV", "BL1607-5-I21:Energy:EV:fbk", "BL1607-5-I21:Energy:EV", "BL1607-5-I21:Energy:status", QString("BL1607-5-I21:Energy:stop"), this);
-
-    // Crystal change control.
 
     crystalChangeControl_ = new BioXASMainMonochromatorCrystalChangeControl(this, this);
 
-    // Listen connection states.
+	// Listen to component connection states.
 
     connect( upperSlitBladeMotor_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
     connect( lowerSlitBladeMotor_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
@@ -77,7 +76,7 @@ BioXASMainMonochromator::BioXASMainMonochromator(QObject *parent) :
 
     connect( energy_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
 
-    // Listen to value changes.
+	// Listen to component value changes.
 
     connect( braggMotor_, SIGNAL(valueChanged(double)), this, SIGNAL(braggMotorPositionChanged(double)) );
 

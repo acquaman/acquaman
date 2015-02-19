@@ -15,22 +15,21 @@
 
 // {setpoint}_{motor}_{property} VALUE
 #define SETPOINT_PADDLE_OUT -55.0
-#define SETPOINT_BRAGG_MOTOR_CRYSTAL_CHANGE_POSITION_ACTUAL 55.0
-#define SETPOINT_BRAGG_MOTOR_CRYSTAL_CHANGE_POSITION 135.0
-#define SETPOINT_BRAGG_MOTOR_REGION_A_DESTINATION -10.0 + SETPOINT_BRAGG_MOTOR_CRYSTAL_CHANGE_POSITION - SETPOINT_BRAGG_MOTOR_CRYSTAL_CHANGE_POSITION_ACTUAL
-#define SETPOINT_BRAGG_MOTOR_REGION_B_DESTINATION 330.0 + SETPOINT_BRAGG_MOTOR_CRYSTAL_CHANGE_POSITION - SETPOINT_BRAGG_MOTOR_CRYSTAL_CHANGE_POSITION_ACTUAL
+#define SETPOINT_BRAGG_MOTOR_CRYSTAL_CHANGE_POSITION 55.0
+#define SETPOINT_BRAGG_MOTOR_REGION_A_DESTINATION -10.0
+#define SETPOINT_BRAGG_MOTOR_REGION_B_DESTINATION 330.0
 #define SETPOINT_CRYSTAL_CHANGE_MOTOR_REGION_A_DESTINATION 15000.0
 #define SETPOINT_CRYSTAL_CHANGE_MOTOR_REGION_B_DESTINATION -15000.0
 
 // {timeout}_{component}_{condition} VALUE
 #define TIMEOUT_SLITS_CLOSED 20.0
 #define TIMEOUT_PADDLE_OUT 70.0
-#define TIMEOUT_KEY_STATUS_CHANGE 100.0
+#define TIMEOUT_KEY_STATUS_CHANGE 500.0
 #define TIMEOUT_CRYSTAL_CHANGE_POSITION_REACHED 220.0
 #define TIMEOUT_BRAKE_STATUS_CHANGE 500.0
 #define TIMEOUT_CRYSTAL_CHANGE_MOTOR_LIMIT_REACHED 60
-#define TIMEOUT_BRAGG_MOTOR_LIMIT_REACHED 200
-#define TIMEOUT_REGION_STATE_CHANGED 200
+#define TIMEOUT_BRAGG_MOTOR_LIMIT_REACHED 200.0
+#define TIMEOUT_REGION_STATE_CHANGED 200.0
 
 class BioXASMainMonochromatorCrystalChangeControl;
 
@@ -50,6 +49,12 @@ public:
     bool isConnected() const { return connected_; }
     /// Returns the current region.
     Region region() const { return region_; }
+    /// Returns the bragg motor crystal change position setpoint.
+    double braggMotorCrystalChangePosition() const { return braggMotorCrystalChangePosition_; }
+    /// Returns the bragg motor region A destination, for a crystal change to region A.
+    double braggMotorRegionADestination() const { return braggMotorRegionADestination_; }
+    /// Returns the bragg motor region B destination, for a crystal change to region B.
+    double braggMotorRegionBDestination() const { return braggMotorRegionBDestination_; }
     /// Returns true if both slits are closed, false otherwise.
     bool slitsClosed() const { return ((int)slitsClosed_->value() == 1); }
     /// Returns true if the phosphor paddle is completely out, false otherwise.
@@ -299,6 +304,12 @@ protected:
     // Crystal change control.
 
     BioXASMainMonochromatorCrystalChangeControl *crystalChangeControl_;
+
+    // Crystal change constants.
+
+    double braggMotorCrystalChangePosition_;
+    double braggMotorRegionADestination_;
+    double braggMotorRegionBDestination_;
 };
 
 
