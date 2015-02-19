@@ -40,11 +40,11 @@ class VESPERSExporterLineScanAscii : public AMExporterGeneralAscii
 
 public:
 	/// Constructor.
- 	virtual ~VESPERSExporterLineScanAscii();
+	virtual ~VESPERSExporterLineScanAscii();
 	Q_INVOKABLE explicit VESPERSExporterLineScanAscii(QObject *parent = 0);
 
 	/// Description of the exporter.
-	virtual QString description() const { return "Line Scan Style (plain text file)"; }
+	virtual QString description() const { return "VESPERS Line Scan Style (plain text file)"; }
 	/// More verbose description of the exporter.
 	virtual QString longDescription() const {
 		return "The Line Scan Style file format creates one table of data in a plain text file where each data source is in a single column.  You can choose which data sources to include.";
