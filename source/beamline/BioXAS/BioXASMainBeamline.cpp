@@ -170,8 +170,8 @@ void BioXASMainBeamline::setupComponents()
 {
     // Scaler
 
-    scaler_ = new CLSSIS3820Scaler("BL1607-5-I21:mcs00", this);
-    scalerDwellTime_ = new AMReadOnlyPVControl("ScalerDwellTime", "BL1607-5-I21:mcs00:delay", this, "Scaler dwell time");
+    scaler_ = new CLSSIS3820Scaler("BL1607-5-I21:mcs", this);
+    scalerDwellTime_ = new AMReadOnlyPVControl("ScalerDwellTime", "BL1607-5-I21:mcs:delay", this, "Scaler dwell time");
 
     // Amplifiers
 
