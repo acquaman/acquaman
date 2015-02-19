@@ -138,7 +138,7 @@ bool VESPERSAppController::startup()
 	// Get a destination folder.
 	if (!AMChooseDataFolderDialog::getDataFolder("/AcquamanLocalData/vespers", "/nas/vespers", "users", QStringList() << "XRD Images"))
 		return false;
-return false;
+
 	// Start up the main program.
 	if(AMAppController::startup()) {
 
