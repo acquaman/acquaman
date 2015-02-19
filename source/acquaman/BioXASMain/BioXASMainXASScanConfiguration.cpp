@@ -20,7 +20,7 @@ BioXASMainXASScanConfiguration::BioXASMainXASScanConfiguration(const BioXASMainX
     : AMStepScanConfiguration(original)
 {
     setName(original.name());
-    setUserScanName(original.userScanName());
+    setUserScanName(original.name());
 
     edgeEnergy_ = original.edgeEnergy();
 }
