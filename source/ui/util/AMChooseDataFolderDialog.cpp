@@ -117,16 +117,9 @@ bool AMChooseDataFolderDialog::getDataFolder(const QString &localRootDirectory, 
 					newPath.mkpath(QString("%1/%2").arg(dialogInput).arg(newExtraDestination));
 			}
 
-			if (dialog.isFullPath()){
+			if (isFirstTimeUser){
 
-				AMUserSettings::removeRemoteDataFolderEntry();
-				AMUserSettings::userDataFolder = dialogInput;
-				AMUserSettings::save();
-			}
-
-			else if (isFirstTimeUser){
-
-				AMUserSettings::userDataFolder = QString("%1/%2/%3").arg(remoteRootDirectory).arg(destination).arg(dialogInput);
+				AMUserSettings::userDataFolder = QString("%1/%2/%3/userData").arg(remoteRootDirectory).arg(destination).arg(dialogInput);
 				AMUserSettings::remoteDataFolder = "";
 				AMUserSettings::save(true);
 			}
@@ -137,6 +130,13 @@ bool AMChooseDataFolderDialog::getDataFolder(const QString &localRootDirectory, 
 				AMUserSettings::remoteDataFolder = QString("%1/%2/%3/userData").arg(remoteRootDirectory).arg(destination).arg(dialogInput);
 				AMUserSettings::save();
 			}
+		}
+
+		else {
+
+			AMUserSettings::removeRemoteDataFolderEntry();
+			AMUserSettings::userDataFolder = dialog.filePath();
+			AMUserSettings::save();
 		}
 
 		return true;
