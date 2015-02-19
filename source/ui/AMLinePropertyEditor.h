@@ -23,8 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #define AMLINESERIESPROPERTYEDITOR_H
 
 #include <QFrame>
-#include <QVBoxLayout>
-#include <QHBoxLayout>
+#include <QFormLayout>
 #include <QLabel>
 
 #include <QSlider>
@@ -32,8 +31,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QSpacerItem>
 #include <QCheckBox>
 
+#include "ui/AMPlotMarkerComboBox.h"
 /// This widget provides an editor for pen settings (color, width, line style, fill enabled, and fill color).  At the moment, it only supports one-way communication: changes to its editor widgets result in the signals linePenChanged(), areaFilledChanged(), and areaFillBrushChanged(). However, there is no way to update its widgets programmatically -- it can only be user-driven.
 class AMColorPickerButton;
+class AMPenStyleComboBox;
 class AMLinePropertyEditor : public QFrame
 {
 	Q_OBJECT
@@ -41,13 +42,14 @@ public:
 	/// Default Constructor
 	explicit AMLinePropertyEditor(QWidget *parent = 0);
 	/// Construct an editor with its widgets initialized according to these settings
-	AMLinePropertyEditor(const QPen& initialPenSettings, bool areaFilled = false, const QBrush& areaFillColor = Qt::darkGray, QWidget* parent = 0);
+	AMLinePropertyEditor(const QPen& initialPenSettings, bool areaFilled = false, const QBrush& areaFillColor = Qt::darkGray, const QColor &markerColor = Qt::red, MPlotMarkerShape::Shape markerShape = MPlotMarkerShape::None, QWidget* parent = 0);
 
 signals:
 	void linePenChanged(const QPen& newPenSettings);
 	void areaFilledChanged(bool isFilled);
 	void areaFillBrushChanged(const QBrush& newFillBrush);
-
+	void markerColorChanged(const QColor& newColor);
+	void markerShapeChanged(MPlotMarkerShape::Shape shape);
 public slots:
 
 
@@ -59,22 +61,17 @@ protected slots:
 
 
 protected:
-	QVBoxLayout *verticalLayout;
-	QHBoxLayout *horizontalLayout;
-	QLabel *labelColor;
-	AMColorPickerButton *colorButton;
-	QHBoxLayout *horizontalLayout_2;
-	QLabel *labelWidth;
-	QSlider *widthSlider;
-	QComboBox *lineStyleBox;
-	QSpacerItem *verticalSpacer;
-	QHBoxLayout *horizontalLayout_3;
-	QLabel *labelFill;
-	QSpacerItem *horizontalSpacer;
-	QCheckBox *fillCheckBox;
-	QHBoxLayout *horizontalLayout_4;
-	QLabel *labelFillColor;
-	AMColorPickerButton *fillColorButton;
+
+	// Line plot details
+	AMColorPickerButton *lineColorPickerButton_;
+	QSlider *lineWidthSlider_;
+	AMPenStyleComboBox *lineStyleComboBox_;
+	QCheckBox *areaFillCheckBox_;
+	AMColorPickerButton *areaFillColorPickerButton_;
+
+	// Marker plot details
+	AMColorPickerButton *markerColorPickerButton_;
+	AMPlotMarkerComboBox *markerShapeComboBox_;
 
 private:
 	void setupUi();

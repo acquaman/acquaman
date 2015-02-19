@@ -19,6 +19,9 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <QMessageBox>
+#include <QComboBox>
+#include <QLineEdit>
+#include <QLabel>
 
 #include "AMSamplePlatePre2013View.h"
 #include "dataman/database/AMDbObjectSupport.h"
@@ -46,6 +49,9 @@ AMSamplePlatePre2013ItemModel::AMSamplePlatePre2013ItemModel(AMSamplePlatePre201
 	connect(AMDatabase::database("user"), SIGNAL(removed(QString,int)), this, SLOT(onDatabaseItemRemoved(QString,int)), Qt::QueuedConnection);
 }
 
+AMSamplePlatePre2013ItemModel::~AMSamplePlatePre2013ItemModel()
+{
+}
 
 // Return the sample position, formatted as a string: ex: X: 33mm Y: 47.9mm Z: -92mm
 QString AMSamplePlatePre2013ItemModel::positionsString(int index) const {
@@ -253,18 +259,18 @@ AMSamplePlatePre2013Selector::AMSamplePlatePre2013Selector(AMSamplePlatePre2013*
 	// Either use an external plate (if specified in sourcePlate), or make an internal one.
 	plate_ = sourcePlate ? sourcePlate : new AMSamplePlatePre2013(this);
 
-	ui_.setupUi(this);
-	ui_.notesEditor->setObjectName("notesEditor");
-	ui_.notesEditor->setStyleSheet("#notesEditor { background-image: url(:/notepadBackground.png); font: bold 15px \"Marker Felt\";}");
+	setupUi();
+	notesEditor->setObjectName("notesEditor");
+	notesEditor->setStyleSheet("#notesEditor { background-image: url(:/notepadBackground.png); font: bold 15px \"Marker Felt\";}");
 
 	AMDetailedItemDelegate* del = new AMDetailedItemDelegate(this);
 	// Setting a new view fixes a grayed-menu-background drawing bug on mac
 	QListView* lview = new QListView(this);
 	lview->setItemDelegate(del);
 	lview->setAlternatingRowColors(true);
-	ui_.plateComboBox->setView(lview);
+	plateComboBox->setView(lview);
 
-	ui_.notesEditor->setMaximumHeight(80);
+	notesEditor->setMaximumHeight(80);
 	this->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 
 	connect(&plateRefreshScheduler_, SIGNAL(executed()), this, SLOT(populateSamplePlates()));
@@ -277,37 +283,41 @@ AMSamplePlatePre2013Selector::AMSamplePlatePre2013Selector(AMSamplePlatePre2013*
 	connect(AMDatabase::database("user"), SIGNAL(removed(QString,int)), this, SLOT(onDatabaseRemoved(QString,int)), Qt::QueuedConnection);
 
 	// GUI event connections
-	connect(ui_.plateComboBox, SIGNAL(activated(int)), this, SLOT(onComboBoxActivated(int)));
-	connect(ui_.nameEdit, SIGNAL(textEdited(QString)), this, SLOT(onNameEdited(QString)));
-	connect(ui_.nameEdit, SIGNAL(editingFinished()), this, SLOT(onPlateEditingFinished()));
-	connect(ui_.notesEditor, SIGNAL(textChanged()), this, SLOT(onNotesEdited()));
-	connect(ui_.notesEditor, SIGNAL(editingFinished(int)), this, SLOT(onPlateEditingFinished()));
+	connect(plateComboBox, SIGNAL(activated(int)), this, SLOT(onComboBoxActivated(int)));
+	connect(nameEdit, SIGNAL(textEdited(QString)), this, SLOT(onNameEdited(QString)));
+	connect(nameEdit, SIGNAL(editingFinished()), this, SLOT(onPlateEditingFinished()));
+	connect(notesEditor, SIGNAL(textChanged()), this, SLOT(onNotesEdited()));
+	connect(notesEditor, SIGNAL(editingFinished(int)), this, SLOT(onPlateEditingFinished()));
 
-	ui_.notesHeaderButton->setChecked(false);
-	ui_.notesEditor->setVisible(false);
-	connect(ui_.notesHeaderButton, SIGNAL(clicked(bool)), ui_.notesEditor, SLOT(setVisible(bool)));
+	notesHeaderButton->setChecked(false);
+	notesEditor->setVisible(false);
+	connect(notesHeaderButton, SIGNAL(clicked(bool)), notesEditor, SLOT(setVisible(bool)));
 
 	// when our current sample plate is re-loaded out of the database, respond to update the GUI values
 	connect(plate_, SIGNAL(loadedFromDb()), this, SLOT(onSamplePlateChanged()), Qt::QueuedConnection);
 }
 
+AMSamplePlatePre2013Selector::~AMSamplePlatePre2013Selector()
+{
+}
+
 void AMSamplePlatePre2013Selector::onSamplePlateChanged(/*bool isValid*/) {
 	if(/*isValid &&*/ plate_->id() > 0) {
-		ui_.nameEdit->setText(plate_->name());
-		ui_.createdLabel->setText(AMDateTimeUtils::prettyDateTime(plate_->dateTime()));
-		ui_.notesEditor->setText("todo");
+		nameEdit->setText(plate_->name());
+		createdLabel->setText(AMDateTimeUtils::prettyDateTime(plate_->dateTime()));
+		notesEditor->setText("todo");
 
 		// select as current in combo box. If this plate's id is not in the list, findData will return -1 and setCurrentIndex() will select nothing
-		ui_.plateComboBox->setCurrentIndex( ui_.plateComboBox->findData(plate_->id(), AM::IdRole) );
+		plateComboBox->setCurrentIndex(plateComboBox->findData(plate_->id(), AM::IdRole) );
 
 		emit samplePlateChanged();
 	}
 	else {
-		ui_.nameEdit->setText("[no sample plate selected]");
-		ui_.createdLabel->setText("");
-		ui_.notesEditor->setText("");
+		nameEdit->setText("[no sample plate selected]");
+		createdLabel->setText("");
+		notesEditor->setText("");
 
-		ui_.plateComboBox->setCurrentIndex( -1 );
+		plateComboBox->setCurrentIndex( -1 );
 	}
 }
 
@@ -317,9 +327,9 @@ void AMSamplePlatePre2013Selector::populateSamplePlates() {
 
 	plateRefreshScheduler_.unschedule();
 
-	ui_.plateComboBox->clear();
-	ui_.plateComboBox->addItem("Create New Sample Plate...");
-	ui_.plateComboBox->setItemData(0, -777);	// as a safety check, this makes sure that the "Sample Plate Id" of the "Create New..." item is an invalid index.
+	plateComboBox->clear();
+	plateComboBox->addItem("Create New Sample Plate...");
+	plateComboBox->setItemData(0, -777);	// as a safety check, this makes sure that the "Sample Plate Id" of the "Create New..." item is an invalid index.
 
 	QSqlQuery q2 = AMDatabase::database("user")->query();
 	q2.prepare(QString("SELECT id,name,dateTime FROM %1 ORDER BY dateTime DESC").arg(samplePlateTableName_));
@@ -333,15 +343,15 @@ void AMSamplePlatePre2013Selector::populateSamplePlates() {
 		id = q2.value(0).toInt();
 		name = q2.value(1).toString();
 		dateTime = q2.value(2).toDateTime();
-		ui_.plateComboBox->addItem(name);
-		ui_.plateComboBox->setItemData(index, id, AM::IdRole);
-		ui_.plateComboBox->setItemData(index, dateTime, AM::DateTimeRole);
-		ui_.plateComboBox->setItemData(index, "created " + AMDateTimeUtils::prettyDateTime(dateTime), AM::DescriptionRole);
+		plateComboBox->addItem(name);
+		plateComboBox->setItemData(index, id, AM::IdRole);
+		plateComboBox->setItemData(index, dateTime, AM::DateTimeRole);
+		plateComboBox->setItemData(index, "created " + AMDateTimeUtils::prettyDateTime(dateTime), AM::DescriptionRole);
 	}
 	q2.finish();
 
 	// highlight the item corresponding to our current plate index
-	ui_.plateComboBox->setCurrentIndex( ui_.plateComboBox->findData(plate_->id(), AM::IdRole) );
+	plateComboBox->setCurrentIndex(plateComboBox->findData(plate_->id(), AM::IdRole) );
 
 }
 
@@ -360,37 +370,37 @@ void AMSamplePlatePre2013Selector::onComboBoxActivated(int index){
 
 	// In this case, someone has chosen an existing sample plate
 	else {
-		changeSamplePlate(ui_.plateComboBox->itemData(index, AM::IdRole).toInt());
+		changeSamplePlate(plateComboBox->itemData(index, AM::IdRole).toInt());
 	}
 }
 
 
 void AMSamplePlatePre2013Selector::startCreatingNewPlate() {
 	// We're going to steal the name edit as the place for the user to enter the name of this new plate
-	disconnect(ui_.nameEdit, SIGNAL(textEdited(QString)), this, SLOT(onNameEdited(QString)));
-	disconnect(ui_.nameEdit, SIGNAL(editingFinished()), this, SLOT(onPlateEditingFinished()));
-	ui_.nameEdit->setText("[New Sample Plate Name]");
-	ui_.nameEdit->setFocus();
-	ui_.nameEdit->selectAll();
-	connect(ui_.nameEdit, SIGNAL(editingFinished()), this, SLOT(onFinishCreatingNewPlate()));
+	disconnect(nameEdit, SIGNAL(textEdited(QString)), this, SLOT(onNameEdited(QString)));
+	disconnect(nameEdit, SIGNAL(editingFinished()), this, SLOT(onPlateEditingFinished()));
+	nameEdit->setText("[New Sample Plate Name]");
+	nameEdit->setFocus();
+	nameEdit->selectAll();
+	connect(nameEdit, SIGNAL(editingFinished()), this, SLOT(onFinishCreatingNewPlate()));
 
 }
 
 void AMSamplePlatePre2013Selector::onFinishCreatingNewPlate() {
 
 	// restore usual connections for the name edit box...
-	disconnect(ui_.nameEdit, SIGNAL(editingFinished()), this, SLOT(onFinishCreatingNewPlate()));
+	disconnect(nameEdit, SIGNAL(editingFinished()), this, SLOT(onFinishCreatingNewPlate()));
 
-	ui_.nameEdit->clearFocus();
-	connect(ui_.nameEdit, SIGNAL(textEdited(QString)), this, SLOT(onNameEdited(QString)));
-	connect(ui_.nameEdit, SIGNAL(editingFinished()), this, SLOT(onPlateEditingFinished()));
+	nameEdit->clearFocus();
+	connect(nameEdit, SIGNAL(textEdited(QString)), this, SLOT(onNameEdited(QString)));
+	connect(nameEdit, SIGNAL(editingFinished()), this, SLOT(onPlateEditingFinished()));
 
-	QString newName = ui_.nameEdit->text();
+	QString newName = nameEdit->text();
 	if(newName.isEmpty())
 		return;
 
 	AMSamplePlatePre2013 newPlate;
-	newPlate.setName(ui_.nameEdit->text());
+	newPlate.setName(nameEdit->text());
 	if(newPlate.storeToDb(AMDatabase::database("user")))
 		changeSamplePlate(newPlate.id());
 
@@ -406,7 +416,7 @@ void AMSamplePlatePre2013Selector::onDatabaseUpdated(const QString &tableName, i
 	if(id < 1)	// invalid ids here mean need a full table update
 		return onDatabaseCreated(tableName, id);
 
-	int index = ui_.plateComboBox->findData(id, AM::IdRole);
+	int index = plateComboBox->findData(id, AM::IdRole);
 	// do we have it?
 	if(index == -1)
 		return;
@@ -414,22 +424,22 @@ void AMSamplePlatePre2013Selector::onDatabaseUpdated(const QString &tableName, i
 	/// \badcode Assuming here that it was this object that caused the update with a storeToDb, so the updated values are already inside it. This will be incorrect if someone else updated the database behind our back.  Maybe we need to implement some kind of locking, or some way to tell if this is "our" object's update or caused by another edit.
 	if(id == plate_->id()) {
 		// update combo box entries:
-		ui_.plateComboBox->setItemData(index, plate_->name(), Qt::DisplayRole);
-		ui_.plateComboBox->setItemData(index, plate_->dateTime(), AM::DateTimeRole);
-		ui_.plateComboBox->setItemData(index, "created " + AMDateTimeUtils::prettyDateTime(plate_->dateTime()), AM::DescriptionRole);
+		plateComboBox->setItemData(index, plate_->name(), Qt::DisplayRole);
+		plateComboBox->setItemData(index, plate_->dateTime(), AM::DateTimeRole);
+		plateComboBox->setItemData(index, "created " + AMDateTimeUtils::prettyDateTime(plate_->dateTime()), AM::DescriptionRole);
 
 		// update editor widgets
-		ui_.nameEdit->setText(plate_->name());
-		ui_.createdLabel->setText(AMDateTimeUtils::prettyDateTime(plate_->dateTime()));
-		ui_.notesEditor->setText("todo");
+		nameEdit->setText(plate_->name());
+		createdLabel->setText(AMDateTimeUtils::prettyDateTime(plate_->dateTime()));
+		notesEditor->setText("todo");
 	}
 	else {
 		AMSamplePlatePre2013 p;
 		/// \todo optimize to not require a full loadFromDb.  All we care about is the name and the dateTime... don't need to load all the samples and positions.
 		p.loadFromDb(AMDatabase::database("user"), id);
-		ui_.plateComboBox->setItemData(index, p.name(), Qt::DisplayRole);
-		ui_.plateComboBox->setItemData(index, p.dateTime(), AM::DateTimeRole);
-		ui_.plateComboBox->setItemData(index, "created " + AMDateTimeUtils::prettyDateTime(p.dateTime()), AM::DescriptionRole);
+		plateComboBox->setItemData(index, p.name(), Qt::DisplayRole);
+		plateComboBox->setItemData(index, p.dateTime(), AM::DateTimeRole);
+		plateComboBox->setItemData(index, "created " + AMDateTimeUtils::prettyDateTime(p.dateTime()), AM::DescriptionRole);
 	}
 }
 
@@ -442,6 +452,79 @@ void AMSamplePlatePre2013Selector::onDatabaseRemoved(const QString &tableName, i
 		}
 		plateRefreshScheduler_.schedule();
 	}
+}
+
+void AMSamplePlatePre2013Selector::setupUi()
+{
+	if (objectName().isEmpty())
+		setObjectName(QString::fromUtf8("AMSamplePlateSelector"));
+	resize(282, 209);
+	setStyleSheet(QString::fromUtf8("#AMSamplePlateSelector {\n"
+"background: white;\n"
+"}"));
+
+	gridLayout = new QGridLayout();
+	gridLayout->setObjectName(QString::fromUtf8("gridLayout"));
+	gridLayout->setContentsMargins(0, 0, 0, 2);
+
+	plateComboBox = new QComboBox();
+	plateComboBox->setObjectName(QString::fromUtf8("plateComboBox"));
+
+	gridLayout->addWidget(plateComboBox, 0, 0, 1, 2);
+
+	nameLabel = new QLabel();
+	nameLabel->setObjectName(QString::fromUtf8("nameLabel"));
+	nameLabel->setStyleSheet(QString::fromUtf8("color: rgb(121,121,121);\n"
+"font: bold \"Lucida Grande\";"));
+
+	gridLayout->addWidget(nameLabel, 1, 0, 1, 1);
+
+	nameEdit = new QLineEdit();
+	nameEdit->setObjectName(QString::fromUtf8("nameEdit"));
+	nameEdit->setStyleSheet(QString::fromUtf8("font: \"Lucida Grande\";"));
+	nameEdit->setFrame(false);
+
+	gridLayout->addWidget(nameEdit, 1, 1, 1, 1);
+
+	createdLabelLabel = new QLabel();
+	createdLabelLabel->setObjectName(QString::fromUtf8("createdLabelLabel"));
+	createdLabelLabel->setStyleSheet(QString::fromUtf8("color: rgb(121,121,121);\n"
+"font: bold \"Lucida Grande\";"));
+
+	gridLayout->addWidget(createdLabelLabel, 2, 0, 1, 1);
+
+	createdLabel = new QLabel();
+	createdLabel->setObjectName(QString::fromUtf8("createdLabel"));
+	createdLabel->setStyleSheet(QString::fromUtf8("font: \"Lucida Grande\";"));
+
+	gridLayout->addWidget(createdLabel, 2, 1, 1, 1);
+
+	verticalLayout = new QVBoxLayout();
+	verticalLayout->setSpacing(0);
+	verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
+	notesHeaderButton = new AMHeaderButton();
+	notesHeaderButton->setObjectName(QString::fromUtf8("notesHeaderButton"));
+	notesHeaderButton->setCheckable(true);
+	notesHeaderButton->setChecked(true);
+
+	verticalLayout->addWidget(notesHeaderButton);
+
+	notesEditor = new AMWrappingLineEdit();
+	notesEditor->setObjectName(QString::fromUtf8("notesEditor"));
+
+	verticalLayout->addWidget(notesEditor);
+
+
+	gridLayout->addLayout(verticalLayout, 3, 0, 1, 2);
+
+	setLayout(gridLayout);
+
+	setWindowTitle(QApplication::translate("AMSamplePlateSelector", "Form", 0, QApplication::UnicodeUTF8));
+	nameLabel->setText(QApplication::translate("AMSamplePlateSelector", "name", 0, QApplication::UnicodeUTF8));
+	nameEdit->setText(QApplication::translate("AMSamplePlateSelector", "My Sample Plate", 0, QApplication::UnicodeUTF8));
+	createdLabelLabel->setText(QApplication::translate("AMSamplePlateSelector", "created", 0, QApplication::UnicodeUTF8));
+	createdLabel->setText(QApplication::translate("AMSamplePlateSelector", "today at 4:45pm", 0, QApplication::UnicodeUTF8));
+	notesHeaderButton->setText(QApplication::translate("AMSamplePlateSelector", "Notes", 0, QApplication::UnicodeUTF8));
 }
 
 void AMSamplePlatePre2013Selector::onDatabaseCreated(const QString &tableName, int id) {
@@ -510,6 +593,10 @@ AMSamplePlatePre2013View::AMSamplePlatePre2013View(AMSamplePlatePre2013 *existin
 
 	addSampleButton_->setIcon(QIcon(":/add.png"));
 
+}
+
+AMSamplePlatePre2013View::~AMSamplePlatePre2013View()
+{
 }
 
 void AMSamplePlatePre2013View::onAddSampleButtonClicked() {
@@ -653,6 +740,10 @@ AMSamplePlatePre2013PositionInfo::AMSamplePlatePre2013PositionInfo(AMSamplePlate
 	}
 }
 
+AMSamplePlatePre2013PositionInfo::~AMSamplePlatePre2013PositionInfo()
+{
+}
+
 MPlotRectangle* AMSamplePlatePre2013PositionInfo::area() const{
 	return area_;
 }
@@ -751,6 +842,10 @@ AMSamplePlatePre2013PositionInfoView::AMSamplePlatePre2013PositionInfoView(AMSam
 	setLayout(vl);
 }
 
+AMSamplePlatePre2013PositionInfoView::~AMSamplePlatePre2013PositionInfoView()
+{
+}
+
 void AMSamplePlatePre2013PositionInfoView::mouseReleaseEvent(QMouseEvent *e){
 	setHighlighted(!isHighlighted_);
 	e->accept();
@@ -802,6 +897,10 @@ AMSamplePlatePre2013PositionInfoListView::AMSamplePlatePre2013PositionInfoListVi
 	setLayout(vl);
 }
 
+AMSamplePlatePre2013PositionInfoListView::~AMSamplePlatePre2013PositionInfoListView()
+{
+}
+
 void AMSamplePlatePre2013PositionInfoListView::onSamplePlatePositionInfoViewBecameHighlighted(bool isHighlighted){
 	AMSamplePlatePre2013PositionInfoView *infoView = qobject_cast<AMSamplePlatePre2013PositionInfoView*>(QObject::sender());
 	if(infoView && isHighlighted)
@@ -814,6 +913,10 @@ AMScrollViewWidget::AMScrollViewWidget(QLayout *layout, QWidget *parent) :
 	QWidget(parent)
 {
 	setLayout(layout);
+}
+
+AMScrollViewWidget::~AMScrollViewWidget()
+{
 }
 
 AMSamplePlatePre2013AdditionalInformationView::AMSamplePlatePre2013AdditionalInformationView(AMSamplePlatePre2013 *samplePlate, AMSamplePlatePre2013ItemModel *samplePlateModel, QWidget *parent) :
@@ -871,6 +974,10 @@ AMSamplePlatePre2013AdditionalInformationView::AMSamplePlatePre2013AdditionalInf
 	setLayout(hl);
 }
 
+AMSamplePlatePre2013AdditionalInformationView::~AMSamplePlatePre2013AdditionalInformationView()
+{
+}
+
 #include <QFormLayout>
 
 AMSamplePositionPre2013ManuallyEnterView::AMSamplePositionPre2013ManuallyEnterView(QWidget *parent) :
@@ -917,6 +1024,10 @@ AMSamplePositionPre2013ManuallyEnterView::AMSamplePositionPre2013ManuallyEnterVi
 	inOut_ = -999999;
 	upStDownSt_ = -999999;
 	rot_ = -999999;
+}
+
+AMSamplePositionPre2013ManuallyEnterView::~AMSamplePositionPre2013ManuallyEnterView()
+{
 }
 
 void AMSamplePositionPre2013ManuallyEnterView::onCancelButtonClicked(){
@@ -1012,6 +1123,10 @@ AMSamplePositionPre2013AdditionalInformationView::AMSamplePositionPre2013Additio
 
 	connect(cancelButton_, SIGNAL(clicked()), this, SLOT(onCancelButtonClicked()));
 	connect(applyButton_, SIGNAL(clicked()), this, SLOT(onApplyButtonClicked()));
+}
+
+AMSamplePositionPre2013AdditionalInformationView::~AMSamplePositionPre2013AdditionalInformationView()
+{
 }
 
 void AMSamplePositionPre2013AdditionalInformationView::onTopLeftSetFromManipulator(){

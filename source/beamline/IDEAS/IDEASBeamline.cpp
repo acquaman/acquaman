@@ -21,13 +21,13 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "IDEASBeamline.h"
 #include "beamline/CLS/CLSMAXvMotor.h"
 #include "actions3/AMListAction3.h"
-#include "actions3/actions/AMControlMoveAction3.h"
+#include "actions3/AMActionSupport.h"
 #include "beamline/CLS/CLSBiStateControl.h"
 #include "beamline/CLS/CLSSR570.h"
 
 #include "beamline/AMAdvancedControlDetectorEmulator.h"
 
-#include "actions3/AMActionSupport.h"
+
 
 IDEASBeamline::IDEASBeamline()
 	: AMBeamline("IDEAS Beamline")
@@ -64,7 +64,7 @@ void IDEASBeamline::setupMotorGroup()
 	AMMotorGroupObject *motorObject = 0;
 	motorGroup_ = new AMMotorGroup(this);
 	motorObject = new AMMotorGroupObject("Sample Platform",
-							       QStringList() << "X" << "Y",
+							       QStringList() << "X" << "Z",
 							       QStringList() << "mm" << "mm",
 							       QList<AMControl*>() << samplePlatformHorizontal_ << samplePlatformVertical_,
 							       QList<AMMotorGroupObject::Orientation>() << AMMotorGroupObject::Horizontal << AMMotorGroupObject::Vertical,

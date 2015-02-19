@@ -40,6 +40,8 @@ public:
 
 protected slots:
 	void onLinePenChanged(const QPen& pen);
+	void onMarkerColorChanged(const QColor& color);
+	void onMarkerShapeChanged(MPlotMarkerShape::Shape shape);
 
 protected:
 	AMScanSetModel* model_;

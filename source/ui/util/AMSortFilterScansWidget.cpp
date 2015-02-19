@@ -30,6 +30,14 @@ AMSortFilterScansWidget::AMSortFilterScansWidget(AMLightweightScanInfoFilterProx
 	filterBuilder_->formLayout()->addRow("Run: ", runComboBox_);
 }
 
+void AMSortFilterScansWidget::setRunId(int runId)
+{
+	if(runId == -1)
+		runComboBox_->setCurrentIndex(0);
+	else
+		runComboBox_->setCurrentIndex(runId);
+}
+
 void AMSortFilterScansWidget::onRunSelected(int index)
 {
 	AMLightweightScanInfoFilterProxyModel * scanModel =

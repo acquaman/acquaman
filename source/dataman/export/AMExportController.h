@@ -34,7 +34,7 @@ class QStandardItemModel;
 class AMExporterInfo {
 public:
 	/// Constructor (Default values make an invalid AMExporterInfo)
- 	virtual ~AMExporterInfo();
+	virtual ~AMExporterInfo();
 	AMExporterInfo(const QMetaObject* exporterMetaObject = 0, QString exporterDescription = QString(), QString exporterOptionClassName = QString(), QString exporterLongDescription = QString() )
 		: description(exporterDescription),
 		  optionClassName(exporterOptionClassName),
@@ -92,9 +92,9 @@ public:
 	};
 
 	/// Construct an AMExportController with a list of Urls to the scan items you wish to export.  The URLs should be in the amd://databaseConnectionName/tableName/objectId format.  The controller will supervise the rest of the process, and delete itself when finished (or cancelled).
-	explicit AMExportController(const QList<QUrl>& scansToExport);
+	explicit AMExportController(const QList<QUrl>& scansToExport, QObject *parent = 0);
 
-	explicit AMExportController(const QList<AMScan*>& scansToExport);
+	explicit AMExportController(const QList<AMScan*>& scansToExport, QObject *parent = 0);
 
 	virtual ~AMExportController();
 
@@ -133,6 +133,23 @@ public:
 		return true;
 	}
 
+	template <class T>
+	static bool unregisterExporter()
+	{
+		const QMetaObject* mo = &(T::staticMetaObject);
+
+		QString className(mo->className());
+
+		if(!registeredExporters_.contains(className)) {
+
+			AMErrorMon::debug(0, 0, QString("Export Support: The class '%1' was not registered as an Exporter. Skipping unregistration.").arg(className));
+			return false;
+		}
+
+		registeredExporters_.remove(className);
+
+		return true;
+	}
 
 	/// Access the set of currently-registered exporters
 	static const QHash<QString, AMExporterInfo>& registeredExporters() { return registeredExporters_; }

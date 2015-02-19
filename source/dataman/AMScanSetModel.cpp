@@ -188,7 +188,10 @@ QVariant AMScanSetModel::data(const QModelIndex & index, int role) const {
 				return dataSource->rank();
 			case AMScanSetModel::ColorMapRole:
 				return qVariantFromValue(sourcePlotSettings_.at(index.internalId()).at(index.row()).colorMap);
-
+			case AMScanSetModel::MarkerColorRole:
+				return qVariantFromValue(sourcePlotSettings_.at(index.internalId()).at(index.row()).markerColor);
+			case AMScanSetModel::MarkerShapeRole:
+				return QVariant(sourcePlotSettings_.at(index.internalId()).at(index.row()).markerShape);
 			default:
 				return QVariant();
 				break;
@@ -369,6 +372,13 @@ bool AMScanSetModel::setData ( const QModelIndex & index, const QVariant & value
 			sourcePlotSettings_[index.internalId()][index.row()].colorMap = value.value<MPlotColorMap>();
 			emit dataChanged(index, index);
 			return true;
+		case AMScanSetModel::MarkerColorRole:
+			sourcePlotSettings_[index.internalId()][index.row()].markerColor = value.value<QColor>();
+			emit dataChanged(index, index);
+			return true;
+		case AMScanSetModel::MarkerShapeRole:
+			sourcePlotSettings_[index.internalId()][index.row()].markerShape = (MPlotMarkerShape::Shape)value.toInt();
+			emit dataChanged(index, index);
 		default:
 			return false;
 		}

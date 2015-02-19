@@ -38,7 +38,6 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui/VESPERS/VESPERSXRFScanConfigurationView.h"
 #include "ui/VESPERS/VESPERSPersistentView.h"
-#include "dataman/VESPERS/AMXRFScan.h"
 #include "util/AMPeriodicTable.h"
 #include "ui/VESPERS/VESPERSDeviceStatusView.h"
 #include "ui/VESPERS/VESPERSEXAFSScanConfigurationView.h"
@@ -214,7 +213,6 @@ void VESPERSAppController::shutdown()
 void VESPERSAppController::registerClasses()
 {
 	AMDbObjectSupport::s()->registerClass<VESPERSXRFScanConfiguration>();
-	AMDbObjectSupport::s()->registerClass<AMXRFScan>();
 	AMDbObjectSupport::s()->registerClass<VESPERSEXAFSScanConfiguration>();
 	AMDbObjectSupport::s()->registerClass<VESPERS2DScanConfiguration>();
 	AMDbObjectSupport::s()->registerClass<VESPERSSpatialLineScanConfiguration>();
@@ -230,6 +228,9 @@ void VESPERSAppController::registerClasses()
 	AMOldDetectorViewSupport::registerClass<VESPERSCCDDetectorView, VESPERSRoperCCDDetector>();
 	AMOldDetectorViewSupport::registerClass<VESPERSCCDDetectorView, VESPERSMarCCDDetector>();
 	AMOldDetectorViewSupport::registerClass<VESPERSPilatusCCDDetectorView, VESPERSPilatusCCDDetector>();
+
+	AMExportController::unregisterExporter<AMSMAKExporter>();
+	AMExportController::unregisterExporter<AMExporter2DAscii>();
 
 	AMExportController::registerExporter<VESPERSExporter3DAscii>();
 	AMExportController::registerExporter<VESPERSExporter2DAscii>();

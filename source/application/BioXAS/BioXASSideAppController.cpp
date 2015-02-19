@@ -48,6 +48,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui/BioXAS/BioXASSideXASScanConfigurationView.h"
 #include "ui/acquaman/AMScanConfigurationViewHolder3.h"
 #include "dataman/AMScanAxisEXAFSRegion.h"
+#include "ui/BioXAS/BioXAS32ElementGeDetectorView.h"
+#include "acquaman/BioXAS/BioXASXRFScanConfiguration.h"
 
 BioXASSideAppController::BioXASSideAppController(QObject *parent)
 	: AMAppController(parent)
@@ -137,6 +139,7 @@ void BioXASSideAppController::onBeamlineConnected()
 void BioXASSideAppController::registerClasses()
 {
 	AMDbObjectSupport::s()->registerClass<BioXASSideXASScanConfiguration>();
+	AMDbObjectSupport::s()->registerClass<BioXASXRFScanConfiguration>();
 }
 
 void BioXASSideAppController::setupExporterOptions()
@@ -184,6 +187,12 @@ void BioXASSideAppController::setupUserInterface()
 	if (BioXASSideBeamline::bioXAS()->scaler()->isConnected()) {
 		onScalerConnected();
 	}
+
+	BioXAS32ElementGeDetectorView *view = new BioXAS32ElementGeDetectorView(BioXASSideBeamline::bioXAS()->ge32ElementDetector());
+	view->buildDetectorView();
+	view->addEmissionLineNameFilter(QRegExp("1"));
+	view->addPileUpPeakNameFilter(QRegExp("(K.1|L.1|Ma1)"));
+	mw_->addPane(view, "Detectors", "Ge 32-el", ":/system-search.png");
 
 	mw_->insertHeading("Scans", 2);
 

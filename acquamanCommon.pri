@@ -444,15 +444,16 @@ HEADERS += \
 	source/dataman/export/AMExporterOptionSMAK.h \
 	source/ui/AMScanEditorsCloseView.h \
 	source/ui/util/AMSortFilterScansWidget.h \
-    source/actions3/actions/AMChangeToleranceActionInfo.h \
-    source/actions3/actions/AMChangeToleranceAction.h \
-    source/ui/util/AMLineEditDialog.h
+	source/ui/AMPenStyleComboBox.h \
+	source/ui/AMPlotMarkerComboBox.h \
+	source/actions3/actions/AMChangeToleranceActionInfo.h \
+	source/actions3/actions/AMChangeToleranceAction.h \
+	source/ui/util/AMLineEditDialog.h \
+	source/dataman/AMXRFScan.h
 
 FORMS += \
 	source/ui/dataman/AMImportControllerWidget.ui \
-	source/ui/dataman/AMSamplePlateSelector.ui \
-	source/ui/dataman/AMImagePropertyEditor.ui \
-	source/ui/AMTopFrame2.ui
+	source/ui/dataman/AMImagePropertyEditor.ui
 
 SOURCES += \
 	source/acquaman/AMScanConfiguration.cpp \
@@ -857,9 +858,12 @@ SOURCES += \
 	source/ui/AMScanEditorsCloseView.cpp \
 	source/ui/util/AMSortFilterScansWidget.cpp \
 	source/ui/dataman/AMImportControllerWidget.cpp \
-    source/actions3/actions/AMChangeToleranceActionInfo.cpp \
-    source/actions3/actions/AMChangeToleranceAction.cpp \
-    source/ui/util/AMLineEditDialog.cpp
+	source/ui/AMPenStyleComboBox.cpp \
+	source/ui/AMPlotMarkerComboBox.cpp \
+	source/actions3/actions/AMChangeToleranceActionInfo.cpp \
+	source/actions3/actions/AMChangeToleranceAction.cpp \
+	source/ui/util/AMLineEditDialog.cpp \
+	source/dataman/AMXRFScan.cpp
 
 RESOURCES *= source/icons/icons.qrc \
 		source/configurationFiles/configurationFiles.qrc \

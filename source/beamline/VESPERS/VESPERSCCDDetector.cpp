@@ -21,10 +21,10 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "VESPERSCCDDetector.h"
 
-#include "actions3/actions/AMControlMoveAction3.h"
+#include "actions3/AMActionSupport.h"
 #include "actions3/VESPERS/VESPERSSetStringAction.h"
 #include "beamline/AMBeamline.h"
-#include "actions3/AMActionSupport.h"
+
 
 #include <QStringBuilder>
 

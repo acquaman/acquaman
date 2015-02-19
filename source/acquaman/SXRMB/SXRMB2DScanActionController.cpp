@@ -1,7 +1,7 @@
 #include "SXRMB2DScanActionController.h"
 
 #include "actions3/AMListAction3.h"
-#include "actions3/actions/AMControlMoveAction3.h"
+#include "actions3/AMActionSupport.h"
 
 #include "analysis/AM2DNormalizationAB.h"
 #include "application/SXRMB/SXRMB.h"
@@ -11,6 +11,8 @@
 #include "dataman/export/AMExporter2DAscii.h"
 #include "dataman/export/AMSMAKExporter.h"
 #include "dataman/export/AMExporterOptionSMAK.h"
+
+
 
 SXRMB2DScanActionController::SXRMB2DScanActionController(SXRMB2DMapScanConfiguration *configuration, QObject *parent)
 	: AMStepScanActionController(configuration, parent)
@@ -113,25 +115,11 @@ void SXRMB2DScanActionController::createAxisOrderMap()
 
 AMAction3* SXRMB2DScanActionController::createInitializationActions()
 {
-	AMControlMoveActionInfo3 *moveActionInfo;
-	AMControlMoveAction3 *moveAction;
-	AMControl *tmpControl;
-
 	AMListAction3 *initializationActions = new AMListAction3(new AMListActionInfo3("SXRMB 2D Map Initialization Actions", "SXRMB 2D Map Initialization Actions"));
 
-	tmpControl = SXRMBBeamline::sxrmb()->microprobeSampleStageY();
-	AMControlInfo normalSetpoint = tmpControl->toInfo();
-	normalSetpoint.setValue(configuration_->normalPosition());
-	moveActionInfo = new AMControlMoveActionInfo3(normalSetpoint);
-	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
-	initializationActions->addSubAction(moveAction);
+	initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SXRMBBeamline::sxrmb()->microprobeSampleStageY(), configuration_->normalPosition()));
 
-	tmpControl = SXRMBBeamline::sxrmb()->energy();
-	AMControlInfo energySetpoint = tmpControl->toInfo();
-	energySetpoint.setValue(configuration_->excitationEnergy());
-	moveActionInfo = new AMControlMoveActionInfo3(energySetpoint);
-	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
-	initializationActions->addSubAction(moveAction);
+	initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SXRMBBeamline::sxrmb()->energy(), configuration_->excitationEnergy()));
 
 	CLSSIS3820Scaler *scaler = SXRMBBeamline::sxrmb()->scaler();
 	initializationActions->addSubAction(scaler->createStartAction3(false));

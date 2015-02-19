@@ -23,7 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "actions3/AMListAction3.h"
 #include "actions3/AMLoopAction3.h"
-#include "actions3/actions/AMControlMoveAction3.h"
+#include "actions3/AMActionSupport.h"
 #include "actions3/actions/AMAxisStartedAction.h"
 #include "actions3/actions/AMAxisFinishedAction.h"
 #include "actions3/actions/AMAxisValueFinishedAction.h"
@@ -120,9 +120,8 @@ AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForStepAxis
 
 		// generate axis initialization list
 		AMListAction3 *initializationActions = new AMListAction3(new AMListActionInfo3(QString("Initializing %1").arg(axisControl->name()), QString("Initializing Axis with Control %1").arg(axisControl->name())), AMListAction3::Sequential);
-		AMControlInfo initializeControlPositionSetpoint = axisControl->toInfo();
-		initializeControlPositionSetpoint.setValue(stepScanAxis->axisStart());
-		AMControlMoveAction3 *initializeControlPosition = new AMControlMoveAction3(new AMControlMoveActionInfo3(initializeControlPositionSetpoint), axisControl);
+
+		AMAction3 *initializeControlPosition = AMActionSupport::buildControlMoveAction(axisControl, stepScanAxis->axisStart());
 		initializeControlPosition->setGenerateScanActionMessage(true);
 		initializationActions->addSubAction(initializeControlPosition);
 		axisActions->addSubAction(initializationActions);
@@ -154,9 +153,8 @@ AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForStepAxis
 
 	if (axisControl){
 
-		AMControlInfo regionStartSetpoint = axisControl->toInfo();
-		regionStartSetpoint.setValue(stepScanAxisRegion->regionStart());
-		AMControlMoveAction3 *regionStart = new AMControlMoveAction3(new AMControlMoveActionInfo3(regionStartSetpoint), axisControl);
+		AMAction3 *regionStart = AMActionSupport::buildControlMoveAction(axisControl, stepScanAxisRegion->regionStart());
+
 		regionStart->setGenerateScanActionMessage(true);
 		regionList->addSubAction(regionStart);
 	}
@@ -181,12 +179,9 @@ AMAction3* AMGenericScanActionControllerAssembler::generateActionTreeForStepAxis
 
 	if (axisControl){
 
-		AMControlInfo controlLoopMoveInfoSetpoint = axisControl->toInfo();
-		controlLoopMoveInfoSetpoint.setValue(stepScanAxisRegion->regionStep());
-		AMControlMoveActionInfo3 *controlLoopMoveInfo = new AMControlMoveActionInfo3(controlLoopMoveInfoSetpoint);
-		controlLoopMoveInfo->setIsRelativeMove(true);
-		controlLoopMoveInfo->setIsRelativeFromSetpoint(true);
-		AMControlMoveAction3 *controlLoopMove = new AMControlMoveAction3(controlLoopMoveInfo, axisControl);
+		//setIsRelativeMove(true), setIsRelativeFromSetpoint(true)
+		AMAction3 *controlLoopMove = AMActionSupport::buildControlMoveAction(axisControl, stepScanAxisRegion->regionStep(), true, true);
+
 		controlLoopMove->setGenerateScanActionMessage(true);
 		axisLoop->addSubAction(controlLoopMove);
 		AMAxisValueFinishedActionInfo *axisValueFinishedInfo = new AMAxisValueFinishedActionInfo;

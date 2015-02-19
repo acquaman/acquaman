@@ -150,7 +150,7 @@ protected slots:
 	/// Handles if one or more the controls times out.
 	virtual void onControlsTimedOut();
 	/// Handles changes in the status control.
-	void onStatusControlChanged();
+	virtual void onStatusControlChanged();
 	/// Handles emitting the bounding range changed signal for regions of interest.
 	void onRegionOfInterestBoundingRangeChanged(QObject *region);
 

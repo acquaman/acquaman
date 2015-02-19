@@ -1,6 +1,6 @@
 #include "SXRMBEXAFSScanActionController.h"
 
-#include "actions3/actions/AMControlMoveAction3.h"
+#include "actions3/AMActionSupport.h"
 
 #include "acquaman/SXRMB/SXRMBEXAFSScanConfiguration.h"
 #include "dataman/AMXASScan.h"
@@ -59,30 +59,12 @@ AMAction3* SXRMBEXAFSScanActionController::createInitializationActions()
 {
 	AMListAction3 *initializationActions = new AMListAction3(new AMListActionInfo3("SXRMB EXAFS Initialization Actions", "SXRMB EXAFS Initialization Actions"), AMListAction3::Sequential);
 
-	AMControlMoveActionInfo3 *moveActionInfo;
-	AMControlMoveAction3 *moveAction;
-	AMControl *tmpControl;
 
-	tmpControl = SXRMBBeamline::sxrmb()->microprobeSampleStageY();
-	AMControlInfo normalSetpoint = tmpControl->toInfo();
-	normalSetpoint.setValue(configuration_->normalPosition());
-	moveActionInfo = new AMControlMoveActionInfo3(normalSetpoint);
-	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
-	initializationActions->addSubAction(moveAction);
+	initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SXRMBBeamline::sxrmb()->microprobeSampleStageY(), configuration_->normalPosition()));
 
-	tmpControl = SXRMBBeamline::sxrmb()->microprobeSampleStageX();
-	AMControlInfo stageXSetpoint = tmpControl->toInfo();
-	stageXSetpoint.setValue(configuration_->microprobeSampleStageX());
-	moveActionInfo = new AMControlMoveActionInfo3(stageXSetpoint);
-	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
-	initializationActions->addSubAction(moveAction);
+	initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SXRMBBeamline::sxrmb()->microprobeSampleStageX(), configuration_->microprobeSampleStageX()));
 
-	tmpControl = SXRMBBeamline::sxrmb()->microprobeSampleStageZ();
-	AMControlInfo stageZSetpoint = tmpControl->toInfo();
-	stageZSetpoint.setValue(configuration_->microprobeSampleStageZ());
-	moveActionInfo = new AMControlMoveActionInfo3(stageZSetpoint);
-	moveAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
-	initializationActions->addSubAction(moveAction);
+	initializationActions->addSubAction(AMActionSupport::buildControlMoveAction(SXRMBBeamline::sxrmb()->microprobeSampleStageZ(), configuration_->microprobeSampleStageZ()));
 
 	CLSSIS3820Scaler *scaler = SXRMBBeamline::sxrmb()->scaler();
 	initializationActions->addSubAction(scaler->createStartAction3(false));
