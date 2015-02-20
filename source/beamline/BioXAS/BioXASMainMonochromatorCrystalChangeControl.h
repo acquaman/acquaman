@@ -5,6 +5,23 @@
 
 #include "BioXASMainMonochromator.h"
 
+// {setpoint}_{motor}_{property} VALUE
+#define SETPOINT_BRAGG_MOTOR_CRYSTAL_CHANGE_POSITION 55.0
+#define SETPOINT_BRAGG_MOTOR_REGION_A_DESTINATION -10.0
+#define SETPOINT_BRAGG_MOTOR_REGION_B_DESTINATION 330.0
+#define SETPOINT_CRYSTAL_CHANGE_MOTOR_REGION_A_DESTINATION 15000.0
+#define SETPOINT_CRYSTAL_CHANGE_MOTOR_REGION_B_DESTINATION -15000.0
+
+// {timeout}_{component}_{condition} VALUE
+#define TIMEOUT_SLITS_CLOSED 20.0
+#define TIMEOUT_PADDLE_OUT 70.0
+#define TIMEOUT_KEY_STATUS_CHANGE 500.0
+#define TIMEOUT_CRYSTAL_CHANGE_POSITION_REACHED 220.0
+#define TIMEOUT_BRAKE_STATUS_CHANGE 500.0
+#define TIMEOUT_CRYSTAL_CHANGE_MOTOR_LIMIT_REACHED 60
+#define TIMEOUT_BRAGG_MOTOR_LIMIT_REACHED 200.0
+#define TIMEOUT_REGION_STATE_CHANGED 200.0
+
 class BioXASMainMonochromatorCrystalChangeControl : public QObject
 {
     Q_OBJECT
@@ -25,9 +42,9 @@ public:
     /// Returns the control's current step in a crystal change.
     Step step() const { return step_; }
     /// Returns a string representation of the current state.
-    QString stateToString(BioXASMainMonochromatorCrystalChangeControl::State state) const;
+	static QString stateToString(BioXASMainMonochromatorCrystalChangeControl::State state);
     /// Returns a string representation of the current step.
-    QString stepToString(BioXASMainMonochromatorCrystalChangeControl::Step step) const;
+	static QString stepToString(BioXASMainMonochromatorCrystalChangeControl::Step step);
     /// Returns a string with the current step's description.
     QString stepDescription() const { return ""; }
     /// Returns a string with the current step's instruction.
@@ -64,6 +81,33 @@ protected slots:
     void onCrystalChangeActionsSucceeded();
     /// Handles updating the state when the crystal change actions report themselves cancelled/failed/destroyed.
     void onCrystalChangeActionsFailed();
+
+protected:
+	/// Returns a new action that waits for the mono slits to signal they are closed.
+	AMAction3* createWaitForSlitsClosedAction();
+	/// Returns a new action that waits for the mono paddle to confirm that it is removed.
+	AMAction3* createWaitForPaddleRemovedAction();
+	/// Returns a new action that waits for the mono region key to be turned CCW to Enabled, 0 if not connected.
+	AMAction3* createWaitForKeyEnabledAction();
+	/// Returns a new action that sends the mono bragg motor to the change position.
+	AMAction3* createMoveToCrystalChangePositionAction();
+	/// Returns a new action that waits for the mono to signal it has reached the crystal change position.
+	AMAction3* createWaitForAtCrystalChangePositionAction();
+	/// Returns a new action that waits for the mono brake to be disabled, 0 if not connected.
+	AMAction3* createWaitForBrakeDisabledAction();
+	/// Returns a new action that waits for the mono crystal change motor to reach a limit.
+	AMAction3* createWaitForCrystalChangeMotorLimitReached(bool cwLimit);
+	/// Returns a new action that waits for the mono brake to be turned on, 0 if not connected.
+	AMAction3* createWaitForBrakeEnabledAction();
+	/// Returns a new action that waits for the bragg motor to reach a limit.
+	AMAction3* createWaitForBraggMotorLimitReachedAction(bool cwLimit);
+	/// Returns a new action that waits for the mono to move into a new region.
+	AMAction3* createWaitForMoveToNewRegion(BioXASMainMonochromator::Region destinationRegion);
+	/// Returns a new action that waits for the mono region key to be turned CW to Disabled, 0 if not connected.
+	AMAction3* createWaitForKeyDisabledAction();
+	/// Returns a new crystal change action that changes the current mono crystal to the desired crystal, 0 if not connected. If no destination region is provided and current region is valid, the opposite region is the assumed destination. If the current region is invalid, the destination is automatically A.
+	AMAction3* createCrystalChangeAction(BioXASMainMonochromator::Region newRegion);
+	AMAction3* createCrystalChangeAction();
 
 protected:
     /// The monochromator being controlled.

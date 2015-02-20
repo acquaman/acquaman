@@ -15,21 +15,7 @@
 
 // {setpoint}_{motor}_{property} VALUE
 #define SETPOINT_PADDLE_OUT -55.0
-#define SETPOINT_BRAGG_MOTOR_CRYSTAL_CHANGE_POSITION 55.0
-#define SETPOINT_BRAGG_MOTOR_REGION_A_DESTINATION -10.0
-#define SETPOINT_BRAGG_MOTOR_REGION_B_DESTINATION 330.0
-#define SETPOINT_CRYSTAL_CHANGE_MOTOR_REGION_A_DESTINATION 15000.0
-#define SETPOINT_CRYSTAL_CHANGE_MOTOR_REGION_B_DESTINATION -15000.0
-
-// {timeout}_{component}_{condition} VALUE
-#define TIMEOUT_SLITS_CLOSED 20.0
-#define TIMEOUT_PADDLE_OUT 70.0
-#define TIMEOUT_KEY_STATUS_CHANGE 500.0
-#define TIMEOUT_CRYSTAL_CHANGE_POSITION_REACHED 220.0
-#define TIMEOUT_BRAKE_STATUS_CHANGE 500.0
-#define TIMEOUT_CRYSTAL_CHANGE_MOTOR_LIMIT_REACHED 60
-#define TIMEOUT_BRAGG_MOTOR_LIMIT_REACHED 200.0
-#define TIMEOUT_REGION_STATE_CHANGED 200.0
+#define SETPOINT_SLITS_CLOSED 0.0
 
 class BioXASMainMonochromatorCrystalChangeControl;
 
@@ -49,12 +35,6 @@ public:
     bool isConnected() const { return connected_; }
     /// Returns the current region.
     Region region() const { return region_; }
-    /// Returns the bragg motor crystal change position setpoint.
-    double braggMotorCrystalChangePosition() const { return braggMotorCrystalChangePosition_; }
-    /// Returns the bragg motor region A destination, for a crystal change to region A.
-    double braggMotorRegionADestination() const { return braggMotorRegionADestination_; }
-    /// Returns the bragg motor region B destination, for a crystal change to region B.
-    double braggMotorRegionBDestination() const { return braggMotorRegionBDestination_; }
     /// Returns true if both slits are closed, false otherwise.
     bool slitsClosed() const { return ((int)slitsClosed_->value() == 1); }
     /// Returns true if the phosphor paddle is completely out, false otherwise.
@@ -118,9 +98,9 @@ public:
     /// Returns the crystal stage counterclockwise limit control.
     AMControl* crystalChangeMotorCCWLimitStatusControl() const { return crystalChangeMotorCCWLimit_; }
     /// Returns the bragg motor clockwise limit control.
-    AMControl* braggMotorCWLimitStatusControl() const { return braggMotorCWLimit_; }
+	AMControl* braggMotorAtCWLimitStatusControl() const { return braggMotorCWLimit_; }
     /// Returns the bragg motor counterclockwise limit control.
-    AMControl* braggMotorCCWLimitStatusControl() const { return braggMotorCCWLimit_; }
+	AMControl* braggMotorAtCCWLimitStatusControl() const { return braggMotorCCWLimit_; }
     /// Returns the crystal change brake enabled control.
     AMControl* brakeStatusControl() const { return crystalChangeBrakeEnabled_; }
     /// Returns the region A status control.
@@ -138,36 +118,12 @@ public:
     AMAction3* createCloseLowerSlitAction();
     /// Returns a new close slits action, 0 if not connected.
     AMAction3* createCloseSlitsAction();
-    /// Returns a new action that waits for the slits to signal they are closed.
-    AMAction3 *createWaitForSlitsClosedAction();
     /// Returns a new remove paddle action, 0 if not connected.
     AMAction3* createRemovePaddleAction();
-    /// Returns a new action that waits for the paddle to confirm that it is removed.
-    AMAction3* createWaitForPaddleRemovedAction();
-    /// Returns a new action that waits for the region key to be turned CCW to Disabled, 0 if not connected.
-    AMAction3* createWaitForCrystalChangeEnabledAction();
-    /// Returns a new action that sends the crystal motor to the change position.
-    AMAction3* createMoveToCrystalChangePositionAction();
-    /// Returns a new action that waits for the mono to signal it has reached the crystal change position.
-    AMAction3* createWaitForAtCrystalChangePositionAction();
-    /// Returns a new action that waits for the brake to be disabled, 0 if not connected.
-    AMAction3* createWaitForBrakeDisabledAction();
     /// Returns a new action that moves the crystal change motor by the given degrees (relative).
     AMAction3* createMoveCrystalChangeMotorAction(int relDestination);
-    /// Returns a new action that waits for the crystal change motor to reach a limit.
-    AMAction3* createWaitForCrystalChangeMotorLimitReached(bool cwLimit);
-    /// Returns a new action that waits for the brake to be turned on, 0 if not connected.
-    AMAction3* createWaitForBrakeEnabledAction();
-    /// Returns a new action that waits for the bragg motor to reach a limit.
-    AMAction3* createWaitForBraggMotorLimitReachedAction(bool cwLimit);
     /// Returns a new action that sets the crystal stage to the given absolute destination angle.
     AMAction3* createMoveBraggMotorAction(double degDestination);
-    /// Returns a new action that waits for the mono to move into a new region.
-    AMAction3* createWaitForMoveToNewRegion(BioXASMainMonochromator::Region destinationRegion);
-    /// Returns a new action that waits for the region key to be turned CW to Disabled, 0 if not connected.
-    AMAction3* createWaitForCrystalChangeDisabledAction();
-    /// Returns a new crystal change action, 0 if not connected.
-    AMAction3* createCrystalChangeAction();
     /// Returns a new set energy action, 0 if not connected.
     AMAction3* createSetEnergyAction(double newEnergy);
     /// Returns a new action that turns on the bragg motor, 0 if not connected.
@@ -304,12 +260,6 @@ protected:
     // Crystal change control.
 
     BioXASMainMonochromatorCrystalChangeControl *crystalChangeControl_;
-
-    // Crystal change constants.
-
-    double braggMotorCrystalChangePosition_;
-    double braggMotorRegionADestination_;
-    double braggMotorRegionBDestination_;
 };
 
 
