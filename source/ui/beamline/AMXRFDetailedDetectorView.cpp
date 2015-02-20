@@ -101,13 +101,28 @@ void AMXRFDetailedDetectorView::buildDeadTimeView()
 	deadTimeButtons_->setExclusive(false);
 	QGridLayout *deadTimeButtonLayout = new QGridLayout;
 
-	for (int i = 0, elements = detector_->elements(); i < elements && deadTimeEnabled; i++){
+	if (deadTimeEnabled){
 
-		AMDeadTimeButton *deadTimeButton = new AMDeadTimeButton(detector_->inputCountSourceAt(i), detector_->outputCountSourceAt(i), 30.0, 50.0);
-		deadTimeButton->setCheckable(true);
-		deadTimeButton->setFixedSize(20, 20);
-		deadTimeButtonLayout->addWidget(deadTimeButton, int(i/deadTimeViewFactor_), i%deadTimeViewFactor_);
-		deadTimeButtons_->addButton(deadTimeButton, i);
+		for (int i = 0, elements = detector_->elements(); i < elements; i++){
+
+			AMDeadTimeButton *deadTimeButton = new AMDeadTimeButton(detector_->inputCountSourceAt(i), detector_->outputCountSourceAt(i), 30.0, 50.0);
+			deadTimeButton->setCheckable(true);
+			deadTimeButton->setFixedSize(20, 20);
+			deadTimeButtonLayout->addWidget(deadTimeButton, int(i/deadTimeViewFactor_), i%deadTimeViewFactor_);
+			deadTimeButtons_->addButton(deadTimeButton, i);
+		}
+	}
+
+	else {
+
+		for (int i = 0, elements = detector_->elements(); i < elements; i++){
+
+			AMDeadTimeButton *deadTimeButton = new AMDeadTimeButton;
+			deadTimeButton->setCheckable(true);
+			deadTimeButton->setFixedSize(20, 20);
+			deadTimeButtonLayout->addWidget(deadTimeButton, int(i/deadTimeViewFactor_), i%deadTimeViewFactor_);
+			deadTimeButtons_->addButton(deadTimeButton, i);
+		}
 	}
 
 	connect(deadTimeButtons_, SIGNAL(buttonClicked(int)), this, SLOT(onDeadTimeButtonClicked()));
