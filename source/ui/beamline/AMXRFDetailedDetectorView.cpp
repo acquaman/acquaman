@@ -125,7 +125,9 @@ void AMXRFDetailedDetectorView::buildDeadTimeView()
 		}
 	}
 
-	connect(deadTimeButtons_, SIGNAL(buttonClicked(int)), this, SLOT(onDeadTimeButtonClicked()));
+	connect(deadTimeButtons_, SIGNAL(buttonClicked(int)), this, SLOT(onDeadTimeButtonClicked(int)));
+	connect(detector_, SIGNAL(elementEnabled(int)), this, SLOT(onElementEnabledOrDisabled(int)));
+	connect(detector_, SIGNAL(elementDisabled(int)), this, SLOT(onElementEnabledOrDisabled(int)));
 
 	QHBoxLayout *squeezedDeadTimeButtonsLayout = new QHBoxLayout;
 	squeezedDeadTimeButtonsLayout->addStretch();
@@ -812,18 +814,20 @@ void AMXRFDetailedDetectorView::onDeadTimeChanged()
 		deadTimeLabel_->setText(QString("Dead Time:\t%1%").arg(detector_->deadTime()*100, 0, 'f', 0));
 }
 
-void AMXRFDetailedDetectorView::onDeadTimeButtonClicked()
+void AMXRFDetailedDetectorView::onDeadTimeButtonClicked(int deadTimeButtonId)
 {
-	if (detector_->elements() > 1){
+	if (detector_->isElementEnabled(deadTimeButtonId))
+		detector_->disableElement(deadTimeButtonId);
 
-		QList<AMDataSource *> newSum;
+	else
+		detector_->enableElement(deadTimeButtonId);
+}
 
-		for (int i = 0, size = deadTimeButtons_->buttons().size(); i < size; i++)
-			if (!deadTimeButtons_->button(i)->isChecked())
-				newSum << (detector_->hasDeadTimeCorrection() ? detector_->analyzedSpectrumSources().at(i) : detector_->rawSpectrumSources().at(i));
-
-		((AMAnalysisBlock *)detector_->dataSource())->setInputDataSources(newSum);
-	}
+void AMXRFDetailedDetectorView::onElementEnabledOrDisabled(int elementId)
+{
+	deadTimeButtons_->blockSignals(true);
+	deadTimeButtons_->button(elementId)->setChecked(!detector_->isElementEnabled(elementId));
+	deadTimeButtons_->blockSignals(false);
 }
 
 void AMXRFDetailedDetectorView::onRegionOfInterestBoundsChanged(QObject *id)
