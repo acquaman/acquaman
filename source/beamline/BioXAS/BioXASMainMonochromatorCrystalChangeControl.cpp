@@ -7,8 +7,13 @@ BioXASMainMonochromatorCrystalChangeControl::BioXASMainMonochromatorCrystalChang
     // Initialize variables.
 
     mono_ = 0;
-    state_ = NotInitialized;
     step_ = None;
+	nextRegion_ = BioXASMainMonochromator::None;
+	braggMotorCrystalChangePosition_ = 135.0;
+	braggMotorRegionADestination_ = SETPOINT_BRAGG_MOTOR_REGION_A_DESTINATION + (braggMotorCrystalChangePosition_ - SETPOINT_BRAGG_MOTOR_CRYSTAL_CHANGE_POSITION);
+	braggMotorRegionBDestination_ = SETPOINT_BRAGG_MOTOR_REGION_B_DESTINATION + (braggMotorCrystalChangePosition_ - SETPOINT_BRAGG_MOTOR_CRYSTAL_CHANGE_POSITION);
+	braggMotorRegionDestination_ = braggMotorRegionADestination_;
+	crystalChangeMotorLimit_ = Unknown;
 
     // Current settings.
 
@@ -18,33 +23,6 @@ BioXASMainMonochromatorCrystalChangeControl::BioXASMainMonochromatorCrystalChang
 BioXASMainMonochromatorCrystalChangeControl::~BioXASMainMonochromatorCrystalChangeControl()
 {
 
-}
-
-QString BioXASMainMonochromatorCrystalChangeControl::stateToString(BioXASMainMonochromatorCrystalChangeControl::State state)
-{
-    QString result = "";
-
-    switch (state) {
-    case NotInitialized:
-        result = "NotInitialized";
-        break;
-    case Initialized:
-        result = "Initialized";
-        break;
-    case Running:
-        result = "Running";
-        break;
-    case CompleteSuccess:
-        result = "CompleteSuccess";
-        break;
-    case CompleteFail:
-        result = "CompleteFail";
-        break;
-    default:
-        result = "Unknown";
-    }
-
-    return result;
 }
 
 QString BioXASMainMonochromatorCrystalChangeControl::stepDescription(BioXASMainMonochromatorCrystalChangeControl::Step step)
@@ -156,94 +134,99 @@ void BioXASMainMonochromatorCrystalChangeControl::setMono(BioXASMainMonochromato
         mono_ = newMono;
 
         if (mono_) {
-            connect( mono_, SIGNAL(connected(bool)), this, SLOT(onMonoConnectedChanged()) );
+			connect( mono_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
+			connect( mono_, SIGNAL(slitsClosedStatusChanged(bool)), this, SLOT(onConditionChanged()) );
+			connect( mono_, SIGNAL(paddleOutStatusChanged(bool)), this, SLOT(onConditionChanged()) );
+			connect( mono_, SIGNAL(keyEnabledStatusChanged(bool)), this, SLOT(onConditionChanged()) );
+			connect( mono_, SIGNAL(braggMotorAtCrystalChangePositionStatusChanged(bool)), this, SLOT(onConditionChanged()) );
+			connect( mono_, SIGNAL(crystalChangeBrakeEnabledChanged(bool)), this, SLOT(onConditionChanged()) );
+			connect( mono_, SIGNAL(crystalChangeMotorCCWLimitStatusChanged(bool)), this, SLOT(onConditionChanged()) );
+			connect( mono_, SIGNAL(crystalChangeMotorCWLimitStatusChanged(bool)), this, SLOT(onConditionChanged()) );
+			connect( mono_, SIGNAL(regionChanged(BioXASMainMonochromator::Region)), this, SLOT(onConditionChanged()) );
         }
 
         emit monoChanged(mono_);
 
-        onMonoConnectedChanged();
+		onConditionChanged();
     }
+}
+
+void BioXASMainMonochromatorCrystalChangeControl::setBraggMotorCrystalChangePosition(double newPosition)
+{
+	if (braggMotorCrystalChangePosition_ != newPosition) {
+		braggMotorCrystalChangePosition_ = newPosition;
+		braggMotorRegionADestination_ = SETPOINT_BRAGG_MOTOR_REGION_A_DESTINATION + (braggMotorCrystalChangePosition_ - SETPOINT_BRAGG_MOTOR_CRYSTAL_CHANGE_POSITION);
+		braggMotorRegionBDestination_ = SETPOINT_BRAGG_MOTOR_REGION_B_DESTINATION + (braggMotorCrystalChangePosition_ - SETPOINT_BRAGG_MOTOR_CRYSTAL_CHANGE_POSITION);
+
+		if (nextRegion_ == BioXASMainMonochromator::B)
+			setBraggMotorRegionDestination(braggMotorRegionBDestination_);
+		else
+			setBraggMotorRegionDestination(braggMotorRegionADestination_);
+
+		emit braggMotorCrystalChangePositionChanged(braggMotorCrystalChangePosition_);
+	}
+}
+
+void BioXASMainMonochromatorCrystalChangeControl::setNextRegion(BioXASMainMonochromator::Region newRegion)
+{
+	if (nextRegion_ != newRegion) {
+		nextRegion_ = newRegion;
+
+		if (nextRegion_ == BioXASMainMonochromator::B)
+			setBraggMotorRegionDestination(braggMotorRegionBDestination_);
+		else
+			setBraggMotorRegionDestination(braggMotorRegionADestination_);
+	}
 }
 
 void BioXASMainMonochromatorCrystalChangeControl::startCrystalChange()
 {
-    // The crystal change actions can only be executed once we are in the Initialized state.
-    // This pretty much just means we have a valid, connected mono to start with.
+	AMListAction3 *crystalChangeAction = qobject_cast<AMListAction3*>(createCrystalChangeAction());
 
-    if (state_ == Initialized) {
-		AMListAction3 *crystalChangeAction = qobject_cast<AMListAction3*>(createCrystalChangeAction());
+	if (crystalChangeAction) {
 
-        if (crystalChangeAction) {
+		// Connect to action signals.
+		connect( crystalChangeAction, SIGNAL(started()), this, SLOT(onCrystalChangeActionsStarted()) );
+		connect( crystalChangeAction, SIGNAL(currentSubActionChanged(int)), this, SLOT(onCrystalChangeSubActionChanged(int)) );
+		connect( crystalChangeAction, SIGNAL(succeeded()), this, SLOT(onCrystalChangeActionsSucceeded()) );
+		connect( crystalChangeAction, SIGNAL(cancelled()), this, SLOT(onCrystalChangeActionsFailed()) );
+		connect( crystalChangeAction, SIGNAL(destroyed()), this, SLOT(onCrystalChangeActionsFailed()) );
+		connect( crystalChangeAction, SIGNAL(failed()), this, SLOT(onCrystalChangeActionsFailed()) );
 
-            // Connect to action signals.
-            connect( crystalChangeAction, SIGNAL(started()), this, SLOT(onCrystalChangeActionsStarted()) );
-            connect( crystalChangeAction, SIGNAL(currentSubActionChanged(int)), this, SLOT(onCrystalChangeSubActionChanged(int)) );
-            connect( crystalChangeAction, SIGNAL(succeeded()), this, SLOT(onCrystalChangeActionsSucceeded()) );
-            connect( crystalChangeAction, SIGNAL(cancelled()), this, SLOT(onCrystalChangeActionsFailed()) );
-            connect( crystalChangeAction, SIGNAL(destroyed()), this, SLOT(onCrystalChangeActionsFailed()) );
-            connect( crystalChangeAction, SIGNAL(failed()), this, SLOT(onCrystalChangeActionsFailed()) );
-
-            // Begin crystal change.
-            crystalChangeAction->start();
-
-        } else {
-            qDebug() << "Crystal change actions provided not valid.";
-        }
-
-    } else {
-        qDebug() << "Control not initialized. Cannot start crystal change.";
-    }
+		// Begin crystal change.
+		crystalChangeAction->start();
+	}
 }
 
-void BioXASMainMonochromatorCrystalChangeControl::reset()
+void BioXASMainMonochromatorCrystalChangeControl::setStep(Step newStep)
 {
-    setState(NotInitialized);
-    updateState();
+	if (step_ != newStep) {
+		step_ = newStep;
+		emit stepChanged(step_);
+	}
 }
 
-void BioXASMainMonochromatorCrystalChangeControl::setState(State newState)
+void BioXASMainMonochromatorCrystalChangeControl::setBraggMotorRegionDestination(double newPosition)
 {
-    if (state_ != newState) {
-        state_ = newState;
-        emit stateChanged(state_);
-    }
+	if (braggMotorRegionDestination_ != newPosition) {
+		braggMotorRegionDestination_ = newPosition;
+		emit braggMotorRegionDestinationChanged(braggMotorRegionDestination_);
+	}
 }
 
-void BioXASMainMonochromatorCrystalChangeControl::onMonoConnectedChanged()
+void BioXASMainMonochromatorCrystalChangeControl::onConnectedChanged()
 {
-    updateState();
+	if (mono_ && mono_->isConnected()) {
+		setStep(nextStep(None));
+
+	} else {
+		setStep(None);
+	}
 }
 
-void BioXASMainMonochromatorCrystalChangeControl::onCrystalChangeActionsStarted()
+void BioXASMainMonochromatorCrystalChangeControl::onConditionChanged()
 {
-    setState(Running);
-}
-
-void BioXASMainMonochromatorCrystalChangeControl::onCrystalChangeSubActionChanged(int actionIndex)
-{
-    AMListAction3 *crystalChangeAction = qobject_cast<AMListAction3*>(sender());
-
-    if (crystalChangeAction) {
-        QPair<double, double> progress = crystalChangeAction->progress();
-        AMAction3 *currentAction = crystalChangeAction->subActionAt(actionIndex);
-
-        if (currentAction) {
-            emit currentActionChanged(currentAction->info()->shortDescription(), currentAction->info()->longDescription());
-            emit progressChanged(progress.first, progress.second);
-        }
-    }
-}
-
-void BioXASMainMonochromatorCrystalChangeControl::onCrystalChangeActionsSucceeded()
-{
-    deleteAction(sender());
-    setState(CompleteSuccess);
-}
-
-void BioXASMainMonochromatorCrystalChangeControl::onCrystalChangeActionsFailed()
-{
-    deleteAction(sender());
-    setState(CompleteFail);
+	setStep(findCurrentStep());
 }
 
 AMAction3* BioXASMainMonochromatorCrystalChangeControl::createWaitForSlitsClosedAction()
@@ -509,45 +492,198 @@ AMAction3* BioXASMainMonochromatorCrystalChangeControl::createCrystalChangeActio
 	return action;
 }
 
+void BioXASMainMonochromatorCrystalChangeControl::runAction(AMAction3 *action)
+{
+	Q_UNUSED(action)
+}
+
+BioXASMainMonochromatorCrystalChangeControl::Step BioXASMainMonochromatorCrystalChangeControl::nextStep(BioXASMainMonochromatorCrystalChangeControl::Step step)
+{
+	BioXASMainMonochromatorCrystalChangeControl::Step nextStep = None;
+
+	if (mono_) {
+
+		switch (step) {
+		case None:
+			if (mono_->isConnected())
+				nextStep = SlitsNotClosed;
+			else
+				nextStep = None;
+			break;
+
+		case SlitsNotClosed:
+			if (mono_->slitsClosed())
+				nextStep = SlitsClosed;
+			else
+				nextStep = SlitsNotClosed;
+			break;
+
+		case SlitsClosed:
+			if (mono_->paddleOut())
+				nextStep = PaddleOut;
+			else
+				nextStep = PaddleNotOut;
+			break;
+
+		case PaddleNotOut:
+			if (mono_->paddleOut())
+				nextStep = PaddleOut;
+			else
+				nextStep = PaddleNotOut;
+			break;
+
+		case PaddleOut:
+			if (mono_->keyStatusEnabled())
+				nextStep = KeyEnabled;
+			else
+				nextStep = KeyNotEnabled;
+			break;
+
+		case KeyNotEnabled:
+			if (mono_->keyStatusEnabled())
+				nextStep = KeyEnabled;
+			else
+				nextStep = KeyNotEnabled;
+			break;
+
+		case KeyEnabled:
+			if (mono_->atCrystalChangePosition())
+				nextStep = BraggAtCrystalChangePosition;
+			else
+				nextStep = BraggNotAtCrystalChangePosition;
+			break;
+
+		case BraggNotAtCrystalChangePosition:
+			if (mono_->atCrystalChangePosition())
+				nextStep = BraggAtCrystalChangePosition;
+			else
+				nextStep = BraggNotAtCrystalChangePosition;
+			break;
+
+		case BraggAtCrystalChangePosition:
+			if (!mono_->brakeStatusEnabled())
+				nextStep = BrakeDisabled;
+			else
+				nextStep = BrakeNotDisabled;
+			break;
+
+		case BrakeNotDisabled:
+			if (!mono_->brakeStatusEnabled())
+				nextStep = BrakeDisabled;
+			else
+				nextStep = BrakeNotDisabled;
+			break;
+
+		case BrakeDisabled:
+			if ((crystalChangeMotorLimit_ == CW) && mono_->crystalChangeMotorAtCWLimit())
+				nextStep = CrystalChangeMotorAtCWLimit;
+			else if ((crystalChangeMotorLimit_ == CW) && !mono_->crystalChangeMotorAtCWLimit())
+				nextStep = CrystalChangeMotorNotAtCWLimit;
+			else if ((crystalChangeMotorLimit_ == CCW) && mono_->crystalChangeMotorAtCCWLimit())
+				nextStep = CrystalChangeMotorAtCCWLimit;
+			else if ((crystalChangeMotorLimit_ == CCW) && !mono_->crystalChangeMotorAtCCWLimit())
+				nextStep = CrystalChangeMotorNotAtCCWLimit;
+			else
+				nextStep = BrakeDisabled;
+			break;
+
+		case CrystalChangeMotorNotAtCWLimit:
+			if (mono_->crystalChangeMotorAtCWLimit())
+				nextStep = CrystalChangeMotorAtCWLimit;
+			else
+				nextStep = CrystalChangeMotorNotAtCWLimit;
+			break;
+
+		case CrystalChangeMotorNotAtCCWLimit:
+			if (mono_->crystalChangeMotorAtCCWLimit())
+				nextStep = CrystalChangeMotorAtCCWLimit;
+			else
+				nextStep = CrystalChangeMotorNotAtCCWLimit;
+			break;
+
+		case CrystalChangeMotorAtCWLimit:
+			if (mono_->brakeStatusEnabled())
+				nextStep = BrakeEnabled;
+			else
+				nextStep = BrakeNotEnabled;
+			break;
+
+		case CrystalChangeMotorAtCCWLimit:
+			if (mono_->brakeStatusEnabled())
+				nextStep = BrakeEnabled;
+			else
+				nextStep = BrakeNotEnabled;
+			break;
+
+		case BrakeNotEnabled:
+			if (mono_->brakeStatusEnabled())
+				nextStep = BrakeEnabled;
+			else
+				nextStep = BrakeNotEnabled;
+			break;
+
+		case BrakeEnabled:
+			if (mono_->region() == nextRegion_)
+				nextStep = BraggAtNewRegion;
+			else
+				nextStep = BraggNotAtNewRegion;
+			break;
+
+		case BraggNotAtNewRegion:
+			if (mono_->region() == nextRegion_)
+				nextStep = BraggAtNewRegion;
+			else
+				nextStep = BraggNotAtNewRegion;
+			break;
+
+		case BraggAtNewRegion:
+			if (mono_->keyStatusEnabled())
+				nextStep = KeyNotDisabled;
+			else
+				nextStep = KeyDisabled;
+			break;
+
+		case KeyNotDisabled:
+			if (!mono_->keyStatusEnabled())
+				nextStep = KeyDisabled;
+			else
+				nextStep = KeyNotDisabled;
+			break;
+
+		default:
+			nextStep = None;
+
+		}
+	}
+
+	return nextStep;
+}
+
+BioXASMainMonochromatorCrystalChangeControl::Step BioXASMainMonochromatorCrystalChangeControl::findCurrentStep()
+{
+	BioXASMainMonochromatorCrystalChangeControl::Step step = None;
+	bool stepFound = false;
+	int tries = 0;
+	int maxTries = 20;
+
+	while (!stepFound && tries < maxTries) {
+		BioXASMainMonochromatorCrystalChangeControl::Step next = nextStep(step);
+		if (next == step)
+			stepFound = true;
+		else
+			step = next;
+
+		tries++;
+	}
+
+	if (!stepFound)
+		qDebug() << "Ran out of tries. The crystal change step could not be found properly in" << maxTries << "tries.";
+
+	return step;
+}
+
 void BioXASMainMonochromatorCrystalChangeControl::deleteAction(QObject *crystalChangeAction)
 {
     disconnect( crystalChangeAction, 0, this, 0 );
     crystalChangeAction->deleteLater();
-}
-
-void BioXASMainMonochromatorCrystalChangeControl::updateState()
-{
-    if (mono_) {
-
-        if (mono_->isConnected() && state_ == NotInitialized) {
-            // The mono is valid and connected. No actions running.
-            // The conditions for Initialize are fulfilled.
-            setState(Initialized);
-
-        } else if (mono_->isConnected() && (state_ == CompleteSuccess || state_ == CompleteFail)) {
-            // We have reached a crystal change terminal state, no actions running,
-            // and the conditions for Initialize are fulfilled.
-//            setState(Initialized);
-
-        } else if (!mono_->isConnected() && state_ == Initialized) {
-            // The mono is valid but not connected.
-            // Cannot perform a crystal change.
-            setState(NotInitialized);
-
-        } else if (!mono_->isConnected() && (state_ == CompleteSuccess || state_ == CompleteFail)) {
-            // The mono is valid but not connected, and we have reached
-            // a crystal change terminal state (not necessarily in that order).
-            // In any case, cannot perform a crystal change.
-            setState(NotInitialized);
-        }
-
-
-    } else {
-        // If the current mono is not valid, set state to None.
-        setState(NotInitialized);
-    }
-
-    // A note: we don't touch the Running state here, because it is set according
-    // to feedback from the running actions themselves. Response to the running
-    // actions also handles setting the CompleteSuccess and CompleteFail states.
 }

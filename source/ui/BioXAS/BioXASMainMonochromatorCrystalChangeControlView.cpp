@@ -105,24 +105,15 @@ void BioXASMainMonochromatorCrystalChangeControlView::setControl(BioXASMainMonoc
 
         if (control_) {
 
-            connect( control_, SIGNAL(stateChanged(BioXASMainMonochromatorCrystalChangeControl::State)), this, SLOT(onControlStateChanged()) );
-            connect( control_, SIGNAL(currentActionChanged(QString,QString)), this, SLOT(onControlCurrentActionChanged(QString, QString)) );
+			connect( control_, SIGNAL(stepChanged(BioXASMainMonochromatorCrystalChangeControl::Step)), this, SLOT(onControlStepChanged()) );
             connect( control_, SIGNAL(progressChanged(double, double)), this, SLOT(onControlProgressChanged(double, double)) );
 
-            onControlStateChanged();
+			onControlStepChanged();
         }
 
 
         emit controlChanged(control_);
     }
-}
-
-void BioXASMainMonochromatorCrystalChangeControlView::close()
-{
-    if (control_)
-        control_->reset();
-
-    QWidget::close();
 }
 
 void BioXASMainMonochromatorCrystalChangeControlView::toStartCrystalChange()
@@ -131,37 +122,20 @@ void BioXASMainMonochromatorCrystalChangeControlView::toStartCrystalChange()
         control_->startCrystalChange();
 }
 
-void BioXASMainMonochromatorCrystalChangeControlView::onControlStateChanged()
+void BioXASMainMonochromatorCrystalChangeControlView::onControlStepChanged()
 {
-    if (control_) {
 
-        switch (control_->state()) {
-        case BioXASMainMonochromatorCrystalChangeControl::Initialized:
-            showInitializedDisplay();
-            break;
-        case BioXASMainMonochromatorCrystalChangeControl::Running:
-            showRunningDisplay();
-            break;
-        case BioXASMainMonochromatorCrystalChangeControl::CompleteSuccess:
-            showCompleteSuccessDisplay();
-            break;
-        default:
-            showCompleteFailDisplay();
-            break;
-        }
-    }
-}
-
-void BioXASMainMonochromatorCrystalChangeControlView::onControlCurrentActionChanged(const QString &newDescription, const QString &newInstructions)
-{
-    runningDisplayDescription_->setText(newDescription);
-    runningDisplayInstruction_->setText(newInstructions);
 }
 
 void BioXASMainMonochromatorCrystalChangeControlView::onControlProgressChanged(double numerator, double denominator)
 {
     runningDisplayProgress_->setValue(numerator);
     runningDisplayProgress_->setMaximum(denominator);
+}
+
+void BioXASMainMonochromatorCrystalChangeControlView::onControlCrystalChangeComplete(bool success)
+{
+	Q_UNUSED(success)
 }
 
 void BioXASMainMonochromatorCrystalChangeControlView::showInitializedDisplay()

@@ -27,22 +27,22 @@ class BioXASMainMonochromatorCrystalChangeControl : public QObject
     Q_OBJECT
 
 public:
-    /// Enum marking possible different control states.
-    enum State { NotInitialized = 0, Initialized, Running, CompleteSuccess, CompleteFail };
     /// Enum marking possible different crystal change steps.
 	enum Step { None = 0, SlitsNotClosed, SlitsClosed, PaddleNotOut, PaddleOut, KeyNotEnabled, KeyEnabled, BraggNotAtCrystalChangePosition, BraggAtCrystalChangePosition, BrakeNotDisabled, BrakeDisabled, CrystalChangeMotorNotAtCWLimit, CrystalChangeMotorNotAtCCWLimit, CrystalChangeMotorAtCWLimit, CrystalChangeMotorAtCCWLimit, BrakeNotEnabled, BrakeEnabled, BraggNotAtNewRegion, BraggAtNewRegion, KeyNotDisabled, KeyDisabled };
-    /// Constructor.
+	/// Enum marking the possible different limit changes.
+	enum Limit { Unknown = 0, CW, CCW };
+	/// Constructor.
     explicit BioXASMainMonochromatorCrystalChangeControl(BioXASMainMonochromator *mono, QObject *parent = 0);
     /// Destructor.
     virtual ~BioXASMainMonochromatorCrystalChangeControl();
     /// Returns the monochromator being controlled.
     BioXASMainMonochromator* mono() const { return mono_; }
-    /// Returns the current state of the control.
-    State state() const { return state_; }
+	/// Returns the desired region.
+	BioXASMainMonochromator::Region nextRegion() const { return nextRegion_; }
+	/// Returns the bragg motor crystal change position.
+	double braggMotorCrystalChangePosition() const { return braggMotorCrystalChangePosition_; }
     /// Returns the control's current step in a crystal change.
     Step step() const { return step_; }
-	/// Returns a string representation of the given state.
-	static QString stateToString(BioXASMainMonochromatorCrystalChangeControl::State state);
 	/// Returns a string description of the given step.
 	static QString stepDescription(BioXASMainMonochromatorCrystalChangeControl::Step step);
 	/// Returns a string instruction related to the given step.
@@ -51,34 +51,40 @@ public:
 signals:
     /// Notifier that the mono being controlled has changed.
     void monoChanged(BioXASMainMonochromator *newMono);
-    /// Notifier that the control's current state has changed.
-    void stateChanged(BioXASMainMonochromatorCrystalChangeControl::State newState);
+	/// Notifier that the desired region has changed.
+	void nextRegionChanged(BioXASMainMonochromator::Region newRegion);
+	/// Notifier that the bragg motor crystal change position has changed.
+	void braggMotorCrystalChangePositionChanged(double newPosition);
+	/// Notifier that the bragg motor destination for the next region has changed.
+	void braggMotorRegionDestinationChanged(double newPosition);
+	/// Notifier that the control's current step has changed.
+	void stepChanged(BioXASMainMonochromatorCrystalChangeControl::Step newStep);
     /// Notifier that the currently running action has changed, and so has the corresponding description and user information.
     void currentActionChanged(const QString &newDescription, const QString &newInformation);
     /// Notifier that the action execution progress has changed. Contains info suitable for a progress bar.
     void progressChanged(double value, double valueMax);
+	/// Notifier that the crystal change process is complete. Argument is true if successful, false if failed.
+	void crystalChangeComplete(bool success);
 
 public slots:
     /// Sets the monochromator.
     void setMono(BioXASMainMonochromator *newMono);
-    /// Starts the crystal change, if current mono is valid and there isn't a crytal change running already.
+	/// Sets the bragg motor crystal change position.
+	void setBraggMotorCrystalChangePosition(double newPosition);
+	/// Sets the desired region.
+	void setNextRegion(BioXASMainMonochromator::Region newRegion);
+	/// Creates a new action and starts the crystal change.
     void startCrystalChange();
-    /// Resets the state of the control. State goes to either None or Initialized, as conditions allow. The idea is to reset the state before and/or after a crystal change, to make sure we don't dwell in a CompleteSuccess or CompleteFail state from a previous change.
-    void reset();
 
 protected slots:
-    /// Sets the control's current state.
-    void setState(State newState);
-    /// Handles updating the state when the mono's connection state has changed.
-    void onMonoConnectedChanged();
-    /// Handles updating the state when the crystal change actions have started.
-    void onCrystalChangeActionsStarted();
-    /// Handles when the currently executing subaction has changed.
-    void onCrystalChangeSubActionChanged(int actionIndex);
-    /// Handles updating the state when the crystal change actions have succeeded.
-    void onCrystalChangeActionsSucceeded();
-    /// Handles updating the state when the crystal change actions report themselves cancelled/failed/destroyed.
-    void onCrystalChangeActionsFailed();
+	/// Sets the control's current step.
+	void setStep(Step newStep);
+	/// Sets the bragg motor destination for the next region.
+	void setBraggMotorRegionDestination(double newPosition);
+	/// Handles updating the current step when the mono's connection state has changed.
+	void onConnectedChanged();
+	/// Handles updating the current step when some mono condition has changed. 'onConnectedChanged' would be the primary case of this more general slot.
+	void onConditionChanged();
 
 protected:
 	/// Returns a new action that waits for the mono slits to signal they are closed.
@@ -106,21 +112,34 @@ protected:
 	/// Returns a new crystal change action that changes the current mono crystal to the desired crystal, 0 if not connected. If no destination region is provided and current region is valid, the opposite region is the assumed destination. If the current region is invalid, the destination is automatically A.
 	AMAction3* createCrystalChangeAction(BioXASMainMonochromator::Region newRegion);
 	AMAction3* createCrystalChangeAction();
+	/// Connects to the given action and runs it.
+	void runAction(AMAction3 *action);
 
 protected:
     /// The monochromator being controlled.
     BioXASMainMonochromator *mono_;
-    /// The current state of the control.
-    State state_;
+	/// The desired region.
+	BioXASMainMonochromator::Region nextRegion_;
+	/// The bragg motor crystal change position.
+	double braggMotorCrystalChangePosition_;
+	/// The desired crystal change motor limit.
+	Limit crystalChangeMotorLimit_;
+	/// The destination for the bragg motor for change to crystal A.
+	double braggMotorRegionADestination_;
+	/// The destination for the bragg motor for change to crystal B.
+	double braggMotorRegionBDestination_;
+	/// The destination for the bragg motor in the next region.
+	double braggMotorRegionDestination_;
     /// The current step of a crystal change.
     Step step_;
 
 private:
+	/// Returns the next step in the crystal change process.
+	BioXASMainMonochromatorCrystalChangeControl::Step nextStep(BioXASMainMonochromatorCrystalChangeControl::Step step);
+	/// Returns the current step, testing all mono conditions to be sure.
+	BioXASMainMonochromatorCrystalChangeControl::Step findCurrentStep();
     /// Disconnects from the given action and marks it for deletion.
     void deleteAction(QObject *crystalChangeAction);
-    /// Handles updating the state to match present action and mono conditions.
-    void updateState();
-
 };
 
 #endif // BIOXASMAINMONOCHROMATORCRYSTALCHANGECONTROL_H
