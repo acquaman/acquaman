@@ -65,6 +65,8 @@ protected:
 	void setupUserInterface();
 	/// Sets up all of the connections.
 	void makeConnections();    
+    /// Applies the current settings.
+    void applyCurrentSettings();
 
 protected:
     /// View for the BioXAS Side scaler.
