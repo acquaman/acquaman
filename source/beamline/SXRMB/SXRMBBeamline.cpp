@@ -377,12 +377,9 @@ void SXRMBBeamline::setupConnections()
 	}
 }
 
-#include <QDebug>
 void SXRMBBeamline::beamAvailabilityHelper()
 {
 	bool beamOn = (CLSStorageRing::sr1()->beamAvailable()) && ( beamlineStatus_->value() == 0);
-	qDebug() << "==== CLSStorage availability: " << CLSStorageRing::sr1()->beamAvailable() ? "T" : "F";
-	qDebug() << "==== Bealine status value: " << beamlineStatus()->value();
 
 	emit beamAvaliability(beamOn);
 }
