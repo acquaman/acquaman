@@ -77,13 +77,10 @@ bool SXRMBAppController::startup()
 	// Start up the main program.
 	if(AMAppController::startup()) {
 
-
 		// Initialize central beamline object
 		SXRMBBeamline::sxrmb();
 		// Initialize the periodic table object.
 		AMPeriodicTable::table();
-		// Initialize the storage ring
-		CLSStorageRing::sr1();
 
 		registerClasses();
 
@@ -331,7 +328,7 @@ void SXRMBAppController::onCurrentScanActionStartedImplementation(AMScanAction *
 	Q_UNUSED(action)
 
 	// start to listen to the beamAvaliability signal for scan auto-pause purpose
-	connect(CLSStorageRing::sr1(), SIGNAL(beamAvaliability(bool)), this, SLOT(onBeamAvailabilityChanged(bool)));
+	connect(SXRMBBeamline::sxrmb(), SIGNAL(beamAvaliability(bool)), this, SLOT(onBeamAvailabilityChanged(bool)));
 
 	userConfiguration_->storeToDb(AMDatabase::database("user"));
 }
@@ -341,7 +338,7 @@ void SXRMBAppController::onCurrentScanActionFinishedImplementation(AMScanAction 
 	Q_UNUSED(action)
 
 	// stop listening to the beamAvaliability signal for scan auto-pause purpose
-	disconnect(CLSStorageRing::sr1(), SIGNAL(beamAvaliability(bool)), this, SLOT(onBeamAvailabilityChanged(bool)));
+	disconnect(SXRMBBeamline::sxrmb(), SIGNAL(beamAvaliability(bool)), this, SLOT(onBeamAvailabilityChanged(bool)));
 
 	userConfiguration_->storeToDb(AMDatabase::database("user"));
 }

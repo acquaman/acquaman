@@ -26,13 +26,17 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include "actions3/actions/AMControlMoveAction3.h"
 #include "actions3/actions/AMControlWaitAction.h"
 
+#include "beamline/CLS/CLSStorageRing.h"
 #include "beamline/CLS/CLSBiStateControl.h"
-#include "beamline/AMBasicControlDetectorEmulator.h"
 #include "beamline/CLS/CLSSR570.h"
+#include "beamline/AMBasicControlDetectorEmulator.h"
 
 SXRMBBeamline::SXRMBBeamline()
 	: AMBeamline("SXRMB Beamline")
 {
+	// initialize the instance of CLSStorageRing
+	CLSStorageRing::sr1();
+
 	setupSynchronizedDwellTime();
 	setupComponents();
 	setupDiagnostics();
@@ -52,7 +56,7 @@ SXRMBBeamline::SXRMBBeamline()
 
 SXRMBBeamline::~SXRMBBeamline()
 {
-
+	AMStorageRing::releaseStorageRing();
 }
 
 CLSSIS3820Scaler* SXRMBBeamline::scaler() const
@@ -124,6 +128,11 @@ SXRMBBrukerDetector* SXRMBBeamline::brukerDetector() const
 AMAction3* SXRMBBeamline::createBeamOnActions() const
 {
 	if(!isConnected())
+		return 0;
+
+	// if all the valves are already open, we don't need to do that again
+	if (VVR16064B1003Valve_->isOpen() && VVR16064B1004Valve_->isOpen() && VVR16064B1006Valve_->isOpen()
+		&& VVR16064B1007Valve_->isOpen() && VVR16065B1001Valve_->isOpen())
 		return 0;
 
 	// stage 1: open / wait the valves action list
@@ -237,7 +246,6 @@ AMAction3* SXRMBBeamline::createBeamOffActions() const
 
 void SXRMBBeamline::setupSynchronizedDwellTime()
 {
-
 }
 
 void SXRMBBeamline::setupComponents()
@@ -355,11 +363,28 @@ void SXRMBBeamline::setupExposedDetectors()
 
 void SXRMBBeamline::setupConnections()
 {
-	connect(energy_, SIGNAL(connected(bool)), this, SLOT(onEnergyPVConnected(bool)));
+	connect(CLSStorageRing::sr1(), SIGNAL(beamAvaliability(bool)), this, SLOT(onStorageRingBeamAvailabilityChanged(bool)));
+	connect(beamlineStatus_, SIGNAL(valueChanged(double)), this, SLOT(onBeamlineStatusPVValueChanged(double)));
 	connect(beamlineStatus_, SIGNAL(connected(bool)), this, SLOT(onBeamlineStatusPVConnected(bool)));
+
+	connect(energy_, SIGNAL(connected(bool)), this, SLOT(onEnergyPVConnected(bool)));
 	connect(microprobeSampleStageControlSet_, SIGNAL(connected(bool)), this, SLOT(onMicroprobeSampleStagePVsConnected(bool)));
 	connect(beamlineControlShutterSet_, SIGNAL(connected(bool)), this, SLOT(onBeamlineControlShuttersConnected(bool)));
 	connect(beamlineControlShutterSet_, SIGNAL(controlSetTimedOut()), this, SIGNAL(beamlineControlShuttersTimeout()));
+
+	if (beamlineStatus_->isConnected()) {
+		onBeamlineStatusPVConnected(true);
+	}
+}
+
+#include <QDebug>
+void SXRMBBeamline::beamAvailabilityHelper()
+{
+	bool beamOn = (CLSStorageRing::sr1()->beamAvailable()) && ( beamlineStatus_->value() == 0);
+	qDebug() << "==== CLSStorage availability: " << CLSStorageRing::sr1()->beamAvailable() ? "T" : "F";
+	qDebug() << "==== Bealine status value: " << beamlineStatus()->value();
+
+	emit beamAvaliability(beamOn);
 }
 
 void SXRMBBeamline::connectedHelper(){
@@ -372,11 +397,25 @@ void SXRMBBeamline::connectedHelper(){
 	}
 }
 
-void SXRMBBeamline::onEnergyPVConnected(bool) {
-	connectedHelper();
+void SXRMBBeamline::onStorageRingBeamAvailabilityChanged(bool)
+{
+	beamAvailabilityHelper();
 }
 
-void SXRMBBeamline::onBeamlineStatusPVConnected(bool) {
+void SXRMBBeamline::onBeamlineStatusPVValueChanged(double)
+{
+	beamAvailabilityHelper();
+}
+
+void SXRMBBeamline::onBeamlineStatusPVConnected(bool value) {
+	connectedHelper();
+
+	if (value) {
+		beamAvailabilityHelper();
+	}
+}
+
+void SXRMBBeamline::onEnergyPVConnected(bool) {
 	connectedHelper();
 }
 

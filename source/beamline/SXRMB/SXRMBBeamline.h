@@ -99,6 +99,7 @@ public:
 	AMAction3* createBeamOffActions() const;
 
 signals:
+	void beamAvaliability(bool beamOn);
 	void beamlineControlShuttersTimeout();
 
 protected:
@@ -130,14 +131,20 @@ protected:
 	/// Sets up the SIGNAL and SLOT connections.
 	void setupConnections();
 
+	/// Helper function to check for the beam availability
+	void beamAvailabilityHelper();
 	/// Helper function to check for changes in the connected state
 	void connectedHelper();
 
 protected slots:
-	/// Handles connected status of the energy
-	void onEnergyPVConnected(bool);
+	/// Handles the beamAvailability signal of the Storage ring
+	void onStorageRingBeamAvailabilityChanged(bool value);
+	/// Handles value changed signal of the beamline status
+	void onBeamlineStatusPVValueChanged(double value);
 	/// Handles connected status of the beamline status
 	void onBeamlineStatusPVConnected(bool);
+	/// Handles connected status of the energy
+	void onEnergyPVConnected(bool);
 	/// Handles connected status of all of the microprobe sample stage controls
 	void onMicroprobeSampleStagePVsConnected(bool);
 	/// Handles connected status of all of the beam on/off control shutters

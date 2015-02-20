@@ -9,6 +9,8 @@
 #include "ui/AMMotorGroupView.h"
 #include "ui/CLS/CLSSIS3820ScalerView.h"
 
+#include "util/AMErrorMonitor.h"
+
 SXRMBPersistentView::SXRMBPersistentView(QWidget *parent) :
 	QWidget(parent)
 {
@@ -99,9 +101,13 @@ void SXRMBPersistentView::onBeamOnButtonClicked(){
 		return;
 
 	beamOnAction_ = SXRMBBeamline::sxrmb()->createBeamOnActions();
-	connect(beamOnAction_, SIGNAL(succeeded()), this, SLOT(onBeamOnActionFinished()));
-	connect(beamOnAction_, SIGNAL(failed()), this, SLOT(onBeamOnActionFinished()));
-	beamOnAction_->start();
+	if (beamOnAction_) {
+		connect(beamOnAction_, SIGNAL(succeeded()), this, SLOT(onBeamOnActionFinished()));
+		connect(beamOnAction_, SIGNAL(failed()), this, SLOT(onBeamOnActionFinished()));
+		beamOnAction_->start();
+	} else {
+		AMErrorMon::information(this, 0, QString("Failed to create the beam on actions due to either unconnected or open valves"));
+	}
 }
 
 void SXRMBPersistentView::onBeamOnActionFinished(){
@@ -117,9 +123,13 @@ void SXRMBPersistentView::onBeamOffButtonClicked(){
 		return;
 
 	beamOffAction_ = SXRMBBeamline::sxrmb()->createBeamOffActions();
-	connect(beamOffAction_, SIGNAL(succeeded()), this, SLOT(onBeamOffActionFinished()));
-	connect(beamOffAction_, SIGNAL(failed()), this, SLOT(onBeamOffActionFinished()));
-	beamOffAction_->start();
+	if (beamOffAction_) {
+		connect(beamOffAction_, SIGNAL(succeeded()), this, SLOT(onBeamOffActionFinished()));
+		connect(beamOffAction_, SIGNAL(failed()), this, SLOT(onBeamOffActionFinished()));
+		beamOffAction_->start();
+	} else {
+		AMErrorMon::information(this, 0, QString("Failed to create the beam off actions due to either unconnected valves"));
+	}
 }
 
 void SXRMBPersistentView::onBeamOffActionFinished(){
