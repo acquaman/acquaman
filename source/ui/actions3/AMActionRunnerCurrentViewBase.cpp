@@ -212,6 +212,8 @@ void AMActionRunnerCurrentViewBase::onStateChanged(int state, int previousState)
 		pauseButton_->setToolTip("Pause the current action.");
 	}
 
+	skipButton_->setEnabled(state == AMAction3::Running);
+
 	// Can pause or resume from only these states:
 	if (actionRunner_->currentAction())
 		pauseButton_->setEnabled(actionRunner_->currentAction()->canPause() && (state == AMAction3::Running || state == AMAction3::Paused));
