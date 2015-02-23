@@ -333,10 +333,7 @@ void SXRMBBeamline::setupMono()
 
 void SXRMBBeamline::setupMotorGroup()
 {
-	AMMotorGroupObject *motorObject = 0;
-	motorGroup_ = new AMMotorGroup(this);
-
-	motorObject = new AMMotorGroupObject("Microprobe Stage - X, Z, Y",
+	AMMotorGroupObject *motorObject = new AMMotorGroupObject("Microprobe Stage - X, Z, Y",
 										 QStringList() << "X" << "Z" << "Y",
 										 QStringList() << "mm" << "mm" << "mm",
 										 QList<AMControl *>() << microprobeSampleStageX_ << microprobeSampleStageZ_ << microprobeSampleStageY_,
@@ -344,6 +341,7 @@ void SXRMBBeamline::setupMotorGroup()
 										 QList<AMMotorGroupObject::MotionType>() << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational << AMMotorGroupObject::Translational,
 										 this);
 
+	motorGroup_ = new AMMotorGroup(this);
 	motorGroup_->addMotorGroupObject(motorObject->name(), motorObject);
 }
 
