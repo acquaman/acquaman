@@ -191,7 +191,7 @@ protected:
 
 	/// Beamline valves, the valves involved in the Beam on/off action
 	AMControlSet * beamlineControlShutterSet_;
-	AMControl *PSH1406B1002Shutter_;
+	CLSBiStateControl *PSH1406B1002Shutter_;
 	CLSBiStateControl *VVR16064B1003Valve_;
 	CLSBiStateControl *VVR16064B1004Valve_;
 	// NOT THIS ONE! It's connected to the pump on the mono

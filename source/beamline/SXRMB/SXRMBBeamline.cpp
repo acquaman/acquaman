@@ -131,8 +131,7 @@ AMAction3* SXRMBBeamline::createBeamOnActions() const
 		return 0;
 
 	// if all the valves are already open, we don't need to do that again
-	if (VVR16064B1003Valve_->isOpen() && VVR16064B1004Valve_->isOpen() && VVR16064B1006Valve_->isOpen()
-		&& VVR16064B1007Valve_->isOpen() && VVR16065B1001Valve_->isOpen())
+	if (VVR16064B1003Valve_->isOpen() && VVR16064B1004Valve_->isOpen() && VVR16064B1006Valve_->isOpen() && VVR16064B1007Valve_->isOpen() && VVR16065B1001Valve_->isOpen() && PSH1406B1002Shutter_->isOpen())
 		return 0;
 
 	// stage 1: open / wait the valves action list
@@ -199,34 +198,44 @@ AMAction3* SXRMBBeamline::createBeamOnActions() const
 		valveWaitActionsList->addSubAction(VVR16065B1001ValveWaitAction);
 	}
 
-	AMListAction3 *openValvesActionsList = new AMListAction3(new AMListActionInfo3("SXRMB Beam On", "SXRMB Beam On: stage 1"), AMListAction3::Parallel);
-	openValvesActionsList->addSubAction(valveOpenActionsList);
-	openValvesActionsList->addSubAction(valveWaitActionsList);
+	AMListAction3 *openValvesActionsList = 0;
+	if (valveOpenActionsList->subActionCount() > 0) {
+		AMListAction3 *openValvesActionsList = new AMListAction3(new AMListActionInfo3("SXRMB Beam On", "SXRMB Beam On: stage 1"), AMListAction3::Parallel);
+		openValvesActionsList->addSubAction(valveOpenActionsList);
+		openValvesActionsList->addSubAction(valveWaitActionsList);
+	}
 
 	// stage 2: open/wait photon shutter action list, which MUST run after the valves open actions
-	AMControlInfo PSH1406B1002ShutterSetpoint = PSH1406B1002Shutter_->toInfo();
-	PSH1406B1002ShutterSetpoint.setValue(0);
-	AMControlMoveAction3 *PSH1406B1002ShutterOpenAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(PSH1406B1002ShutterSetpoint), PSH1406B1002Shutter_);
+	AMListAction3 *openPhotonShutterActionsList = 0;
+	if (PSH1406B1002Shutter_->isClosed()) {
+		AMControlInfo PSH1406B1002ShutterSetpoint = PSH1406B1002Shutter_->toInfo();
+		PSH1406B1002ShutterSetpoint.setValue(1);
+		AMControlMoveAction3 *PSH1406B1002ShutterOpenAction = new AMControlMoveAction3(new AMControlMoveActionInfo3(PSH1406B1002ShutterSetpoint), PSH1406B1002Shutter_);
 
-	AMControlInfo PSH1406B1002ShutterWaitSetpoint = PSH1406B1002Shutter_->toInfo();
-	PSH1406B1002ShutterWaitSetpoint.setValue(0);
-	AMControlWaitAction *PSH1406B1002ShutterWaitAction = new AMControlWaitAction(new AMControlWaitActionInfo(PSH1406B1002ShutterWaitSetpoint, 10, AMControlWaitActionInfo::MatchEqual), PSH1406B1002Shutter_);
+		AMControlInfo PSH1406B1002ShutterWaitSetpoint = PSH1406B1002Shutter_->toInfo();
+		PSH1406B1002ShutterWaitSetpoint.setValue(1);
+		AMControlWaitAction *PSH1406B1002ShutterWaitAction = new AMControlWaitAction(new AMControlWaitActionInfo(PSH1406B1002ShutterWaitSetpoint, 10, AMControlWaitActionInfo::MatchEqual), PSH1406B1002Shutter_);
 
-	AMListAction3 *openPhotonShutterActionsList = new AMListAction3(new AMListActionInfo3("SXRMB Beam On", "SXRMB Beam On: stage 2"), AMListAction3::Parallel);
-	openPhotonShutterActionsList->addSubAction(PSH1406B1002ShutterOpenAction);
-	openPhotonShutterActionsList->addSubAction(PSH1406B1002ShutterWaitAction);
+		openPhotonShutterActionsList = new AMListAction3(new AMListActionInfo3("SXRMB Beam On", "SXRMB Beam On: stage 2"), AMListAction3::Parallel);
+		openPhotonShutterActionsList->addSubAction(PSH1406B1002ShutterOpenAction);
+		openPhotonShutterActionsList->addSubAction(PSH1406B1002ShutterWaitAction);
+	}
 
 	// create the beam on action list. The openValveActionsList and openPhotonShutterActionsList MUST run sequentially
 	AMListAction3 *beamOnActionsList = new AMListAction3(new AMListActionInfo3("SXRMB Beam On", "SXRMB Beam On"), AMListAction3::Sequential);
-	beamOnActionsList->addSubAction(openValvesActionsList);
-	beamOnActionsList->addSubAction(openPhotonShutterActionsList);
+	if (openValvesActionsList) {
+		beamOnActionsList->addSubAction(openValvesActionsList);
+	}
+	if (openPhotonShutterActionsList) {
+		beamOnActionsList->addSubAction(openPhotonShutterActionsList);
+	}
 
 	return beamOnActionsList;
 }
 
 AMAction3* SXRMBBeamline::createBeamOffActions() const
 {
-	if(!isConnected())
+	if(!isConnected() || PSH1406B1002Shutter_->isClosed())
 		return 0;
 
 	AMControlInfo PSH1406B1002ShutterSetpoint = PSH1406B1002Shutter_->toInfo();
@@ -379,7 +388,7 @@ void SXRMBBeamline::setupConnections()
 
 void SXRMBBeamline::beamAvailabilityHelper()
 {
-	bool beamOn = (CLSStorageRing::sr1()->beamAvailable()) && ( beamlineStatus_->value() == 0);
+	bool beamOn = (CLSStorageRing::sr1()->beamAvailable()) && ( beamlineStatus_->value() == 1);
 
 	emit beamAvaliability(beamOn);
 }
