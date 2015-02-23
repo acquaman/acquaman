@@ -452,7 +452,6 @@ HEADERS += \
 
 FORMS += \
 	source/ui/dataman/AMImportControllerWidget.ui \
-	source/ui/dataman/AMImagePropertyEditor.ui
 
 SOURCES += \
 	source/acquaman/AMScanConfiguration.cpp \
