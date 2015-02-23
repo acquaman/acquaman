@@ -451,7 +451,6 @@ HEADERS += \
 	source/dataman/AMXRFScan.h
 
 FORMS += \
-	source/ui/dataman/AMImportControllerWidget.ui \
 
 SOURCES += \
 	source/acquaman/AMScanConfiguration.cpp \
@@ -877,6 +876,7 @@ contains(DEFINES, AM_BUILD_REPORTER_ENABLED){
 
 	SOURCES *= source/util/AMRunTimeBuildInfo.cpp
 }
+
 
 
 
