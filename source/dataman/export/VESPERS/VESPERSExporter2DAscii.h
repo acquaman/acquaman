@@ -44,6 +44,9 @@ public:
 	/// Destructor.
 	virtual ~VESPERSExporter2DAscii();
 
+	/// Description of the exporter.
+	virtual QString description() const { return "VESPERS 2D Map Style (plain text file)"; }
+
 protected:
 	/// Method that writes the data in the main table, including the function names.
 	virtual void writeMainTable();

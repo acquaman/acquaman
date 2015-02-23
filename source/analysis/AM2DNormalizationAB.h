@@ -43,8 +43,9 @@ class AM2DNormalizationAB : public AMStandardAnalysisBlock
 
 public:
 	/// Constructor.
-	virtual ~AM2DNormalizationAB();
 	Q_INVOKABLE AM2DNormalizationAB(const QString &outputName = "InvalidInput", QObject *parent = 0);
+	/// Destructor.
+	virtual ~AM2DNormalizationAB();
 
 	QString infoDescription() const { return QString(); }
 
@@ -94,9 +95,6 @@ public:
 
 	/// Reimplement the create widget method.
 	QWidget *createEditorWidget();
-
-	/// Re-implemented from AMDbObject to set the AMDataSource name once we have an AMDbObject::name()
-	bool loadFromDb(AMDatabase *db, int id);
 
 protected slots:
 	/// Connected to be called when the values of the input data source change

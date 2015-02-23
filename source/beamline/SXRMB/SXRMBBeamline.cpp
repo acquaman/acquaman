@@ -23,7 +23,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QDebug>
 
-#include "actions3/actions/AMControlMoveAction3.h"
+#include "actions3/AMActionSupport.h"
 #include "actions3/actions/AMControlWaitAction.h"
 
 #include "beamline/CLS/CLSStorageRing.h"
@@ -135,8 +135,8 @@ AMAction3* SXRMBBeamline::createBeamOnActions() const
 		return 0;
 
 	// stage 1: open / wait the valves action list
-	AMListAction3 *valveOpenActionsList = new AMListAction3(new AMListActionInfo3("SXRMB Valve Open", "SXRMB Valve Open"), AMListAction3::Sequential);
-	AMListAction3 *valveWaitActionsList = new AMListAction3(new AMListActionInfo3("SXRMB Valve Wait", "SXRMB Valve Wait"), AMListAction3::Parallel);
+	AMListAction3 *valveOpenActionsList = new AMListAction3(new AMListActionInfo3("SXRMB Valve Open action list", "SXRMB Valve Open"), AMListAction3::Sequential);
+	AMListAction3 *valveWaitActionsList = new AMListAction3(new AMListActionInfo3("SXRMB Valve Wait action list", "SXRMB Valve Wait"), AMListAction3::Parallel);
 
 	if (VVR16064B1003Valve_->isClosed()) {
 		AMControlInfo VVR16064B1003ValveSetpoint = VVR16064B1003Valve_->toInfo();

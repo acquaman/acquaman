@@ -40,8 +40,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 QHash<QString, AMExporterInfo> AMExportController::registeredExporters_;
 
-AMExportController::AMExportController(const QList<QUrl>& scansToExport) :
-	QObject()
+AMExportController::AMExportController(const QList<QUrl> &scansToExport, QObject *parent)
+	: QObject(parent)
 {
 	usingScanURLs_ = true;
 	usingScanObjects_ = false;
@@ -67,8 +67,8 @@ AMExportController::AMExportController(const QList<QUrl>& scansToExport) :
 		destinationFolderPath_ = QDir::toNativeSeparators(QDir::homePath());
 }
 
-AMExportController::AMExportController(const QList<AMScan*>& scansToExport) :
-	QObject()
+AMExportController::AMExportController(const QList<AMScan*>& scansToExport, QObject *parent)
+	: QObject(parent)
 {
 	usingScanObjects_ = true;
 	usingScanURLs_ = false;
@@ -351,9 +351,12 @@ void AMExportController::continueScanExport()
 
 }
 
-void AMExportController::setOption(AMExporterOption *option) {
+void AMExportController::setOption(AMExporterOption *option)
+{
 	option_->deleteLater();
 	option_ = option;
+	option_->setParent(this);
+
 	if(option_)
 		option_->setAvailableDataSourcesModel(availableDataSourcesModel());
 }

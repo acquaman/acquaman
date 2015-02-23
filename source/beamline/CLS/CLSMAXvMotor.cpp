@@ -21,7 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "CLSMAXvMotor.h"
 
-#include "actions3/actions/AMControlMoveAction3.h"
+#include "actions3/AMActionSupport.h"
 #include "actions3/actions/AMControlStopAction.h"
 
 CLSMAXvMotor::~CLSMAXvMotor(){}
@@ -495,12 +495,7 @@ AMAction3 *CLSMAXvMotor::createEGUMoveAction(double EGUPosition)
 	if(!isConnected())
 		return 0;
 
-	AMControlInfo setpoint = toInfo();
-	setpoint.setValue(EGUPosition);
-	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
-	AMAction3 *action = new AMControlMoveAction3(actionInfo, this);
-
-	return action;
+	return AMActionSupport::buildControlMoveAction(this, EGUPosition);
 }
 
 AMAction3 *CLSMAXvMotor::createEGUVelocityAction(double EGUVelocity)
@@ -508,12 +503,7 @@ AMAction3 *CLSMAXvMotor::createEGUVelocityAction(double EGUVelocity)
 	if(!isConnected())
 		return 0;
 
-	AMControlInfo setpoint = EGUVelocity_->toInfo();
-	setpoint.setValue(EGUVelocity);
-	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
-	AMAction3 *action = new AMControlMoveAction3(actionInfo, EGUVelocity_);
-
-	return action;
+	return AMActionSupport::buildControlMoveAction(EGUVelocity_, EGUVelocity);
 }
 
 AMAction3 *CLSMAXvMotor::createEGUBaseVelocityAction(double EGUBaseVelocity)
@@ -521,12 +511,7 @@ AMAction3 *CLSMAXvMotor::createEGUBaseVelocityAction(double EGUBaseVelocity)
 	if(!isConnected())
 		return 0;
 
-	AMControlInfo setpoint = EGUBaseVelocity_->toInfo();
-	setpoint.setValue(EGUBaseVelocity);
-	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
-	AMAction3 *action = new AMControlMoveAction3(actionInfo, EGUBaseVelocity_);
-
-	return action;
+	return AMActionSupport::buildControlMoveAction(EGUBaseVelocity_, EGUBaseVelocity);
 }
 
 AMAction3 *CLSMAXvMotor::createEGUAccelerationAction(double EGUAcceleration)
@@ -534,12 +519,7 @@ AMAction3 *CLSMAXvMotor::createEGUAccelerationAction(double EGUAcceleration)
 	if(!isConnected())
 		return 0;
 
-	AMControlInfo setpoint = EGUAcceleration_->toInfo();
-	setpoint.setValue(EGUAcceleration);
-	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
-	AMAction3 *action = new AMControlMoveAction3(actionInfo, EGUAcceleration_);
-
-	return action;
+	return AMActionSupport::buildControlMoveAction(EGUAcceleration_, EGUAcceleration);
 }
 
 AMAction3 *CLSMAXvMotor::createEGUOffsetAction(double EGUOffset)
@@ -547,12 +527,7 @@ AMAction3 *CLSMAXvMotor::createEGUOffsetAction(double EGUOffset)
 	if(!isConnected())
 		return 0;
 
-	AMControlInfo setpoint = EGUOffset_->toInfo();
-	setpoint.setValue(EGUOffset);
-	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
-	AMAction3 *action = new AMControlMoveAction3(actionInfo, EGUOffset_);
-
-	return action;
+	return AMActionSupport::buildControlMoveAction(EGUOffset_, EGUOffset);
 }
 
 AMAction3 *CLSMAXvMotor::createStepMoveAction(double stepPosition)
@@ -560,12 +535,7 @@ AMAction3 *CLSMAXvMotor::createStepMoveAction(double stepPosition)
 	if(!isConnected())
 		return 0;
 
-	AMControlInfo setpoint = step_->toInfo();
-	setpoint.setValue(stepPosition);
-	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
-	AMAction3 *action = new AMControlMoveAction3(actionInfo, step_);
-
-	return action;
+	return AMActionSupport::buildControlMoveAction(step_, stepPosition);
 }
 
 AMAction3 *CLSMAXvMotor::createStepVelocityAction(double stepVelocity)
@@ -573,12 +543,7 @@ AMAction3 *CLSMAXvMotor::createStepVelocityAction(double stepVelocity)
 	if(!isConnected())
 		return 0;
 
-	AMControlInfo setpoint = stepVelocity_->toInfo();
-	setpoint.setValue(stepVelocity);
-	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
-	AMAction3 *action = new AMControlMoveAction3(actionInfo, stepVelocity_);
-
-	return action;
+	return AMActionSupport::buildControlMoveAction(stepVelocity_, stepVelocity);
 }
 
 AMAction3 *CLSMAXvMotor::createStepBaseVelocityAction(double stepBaseVelocity)
@@ -586,12 +551,7 @@ AMAction3 *CLSMAXvMotor::createStepBaseVelocityAction(double stepBaseVelocity)
 	if(!isConnected())
 		return 0;
 
-	AMControlInfo setpoint = stepBaseVelocity_->toInfo();
-	setpoint.setValue(stepBaseVelocity);
-	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
-	AMAction3 *action = new AMControlMoveAction3(actionInfo, stepBaseVelocity_);
-
-	return action;
+	return AMActionSupport::buildControlMoveAction(stepBaseVelocity_, stepBaseVelocity);
 }
 
 AMAction3 *CLSMAXvMotor::createStepAccelerationAction(double stepAcceleration)
@@ -599,12 +559,7 @@ AMAction3 *CLSMAXvMotor::createStepAccelerationAction(double stepAcceleration)
 	if(!isConnected())
 		return 0;
 
-	AMControlInfo setpoint = stepAcceleration_->toInfo();
-	setpoint.setValue(stepAcceleration);
-	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
-	AMAction3 *action = new AMControlMoveAction3(actionInfo, stepAcceleration_);
-
-	return action;
+	return AMActionSupport::buildControlMoveAction(stepAcceleration_, stepAcceleration);
 }
 
 AMAction3 *CLSMAXvMotor::createStopAction()
@@ -624,12 +579,7 @@ AMAction3 *CLSMAXvMotor::createEncoderCalibrationSlopeAction(double encoderCalib
 	if(!isConnected())
 		return 0;
 
-	AMControlInfo setpoint = encoderCalibrationSlope_->toInfo();
-	setpoint.setValue(encoderCalibrationSlope);
-	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
-	AMAction3 *action = new AMControlMoveAction3(actionInfo, encoderCalibrationSlope_);
-
-	return action;
+	return AMActionSupport::buildControlMoveAction(encoderCalibrationSlope_, encoderCalibrationSlope);
 }
 
 AMAction3 *CLSMAXvMotor::createStepCalibrationSlopeAction(double stepCalibrationSlope)
@@ -637,12 +587,7 @@ AMAction3 *CLSMAXvMotor::createStepCalibrationSlopeAction(double stepCalibration
 	if(!isConnected())
 		return 0;
 
-	AMControlInfo setpoint = stepCalibrationSlope_->toInfo();
-	setpoint.setValue(stepCalibrationSlope);
-	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
-	AMAction3 *action = new AMControlMoveAction3(actionInfo, stepCalibrationSlope_);
-
-	return action;
+	return AMActionSupport::buildControlMoveAction(stepCalibrationSlope_, stepCalibrationSlope);
 }
 
 AMAction3 *CLSMAXvMotor::createEncoderCalibrationOffsetAction(double encoderCalibrationOffset)
@@ -650,12 +595,7 @@ AMAction3 *CLSMAXvMotor::createEncoderCalibrationOffsetAction(double encoderCali
 	if(!isConnected())
 		return 0;
 
-	AMControlInfo setpoint = encoderCalibrationOffset_->toInfo();
-	setpoint.setValue(encoderCalibrationOffset);
-	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
-	AMAction3 *action = new AMControlMoveAction3(actionInfo, encoderCalibrationOffset_);
-
-	return action;
+	return AMActionSupport::buildControlMoveAction(encoderCalibrationOffset_, encoderCalibrationOffset);
 }
 
 AMAction3 *CLSMAXvMotor::createStepCalibrationOffsetAction(double stepCalibrationOffset)
@@ -663,12 +603,7 @@ AMAction3 *CLSMAXvMotor::createStepCalibrationOffsetAction(double stepCalibratio
 	if(!isConnected())
 		return 0;
 
-	AMControlInfo setpoint = stepCalibrationOffset_->toInfo();
-	setpoint.setValue(stepCalibrationOffset);
-	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
-	AMAction3 *action = new AMControlMoveAction3(actionInfo, stepCalibrationOffset_);
-
-	return action;
+	return AMActionSupport::buildControlMoveAction(stepCalibrationOffset_, stepCalibrationOffset);
 }
 
 
@@ -677,12 +612,7 @@ AMAction3 *CLSMAXvMotor::createMotorTypeAction(CLSMAXvMotor::MotorType motorType
 	if(!isConnected())
 		return 0;
 
-	AMControlInfo setpoint = motorType_->toInfo();
-	setpoint.setValue(double(motorType));
-	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
-	AMAction3 *action = new AMControlMoveAction3(actionInfo, motorType_);
-
-	return action;
+	return AMActionSupport::buildControlMoveAction(motorType_, double(motorType));
 }
 
 AMAction3 *CLSMAXvMotor::createLimitActiveStateAction(CLSMAXvMotor::LimitActiveState limitActiveState)
@@ -690,12 +620,7 @@ AMAction3 *CLSMAXvMotor::createLimitActiveStateAction(CLSMAXvMotor::LimitActiveS
 	if(!isConnected())
 		return 0;
 
-	AMControlInfo setpoint = limitActiveState_->toInfo();
-	setpoint.setValue(double(limitActiveState));
-	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
-	AMAction3 *action = new AMControlMoveAction3(actionInfo, limitActiveState_);
-
-	return action;
+	return AMActionSupport::buildControlMoveAction(limitActiveState_, double(limitActiveState));
 }
 
 AMAction3 *CLSMAXvMotor::createLimitDisabledAction(bool limitDisabled)
@@ -703,12 +628,7 @@ AMAction3 *CLSMAXvMotor::createLimitDisabledAction(bool limitDisabled)
 	if(!isConnected())
 		return 0;
 
-	AMControlInfo setpoint = limitDisabled_->toInfo();
-	setpoint.setValue(limitDisabled ? 1.0 : 0.0);
-	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
-	AMAction3 *action = new AMControlMoveAction3(actionInfo, limitDisabled_);
-
-	return action;
+	return AMActionSupport::buildControlMoveAction(limitDisabled_, limitDisabled ? 1.0 : 0.0);
 }
 
 AMAction3 *CLSMAXvMotor::createClosedLoopEnabledAction(bool closedLoopEnabled)
@@ -716,12 +636,7 @@ AMAction3 *CLSMAXvMotor::createClosedLoopEnabledAction(bool closedLoopEnabled)
 	if(!isConnected())
 		return 0;
 
-	AMControlInfo setpoint = closedLoopEnabled_->toInfo();
-	setpoint.setValue(closedLoopEnabled ? 1.0 : 0.0);
-	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
-	AMAction3 *action = new AMControlMoveAction3(actionInfo, closedLoopEnabled_);
-
-	return action;
+	return AMActionSupport::buildControlMoveAction(closedLoopEnabled_, closedLoopEnabled ? 1.0 : 0.0);
 }
 
 AMAction3 *CLSMAXvMotor::createServoPIDEnabledAction(bool servoPIDEnabled)
@@ -729,12 +644,7 @@ AMAction3 *CLSMAXvMotor::createServoPIDEnabledAction(bool servoPIDEnabled)
 	if(!isConnected())
 		return 0;
 
-	AMControlInfo setpoint = servoPIDEnabled_->toInfo();
-	setpoint.setValue(servoPIDEnabled ? 1.0 : 0.0);
-	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
-	AMAction3 *action = new AMControlMoveAction3(actionInfo, servoPIDEnabled_);
-
-	return action;
+	return AMActionSupport::buildControlMoveAction(servoPIDEnabled_, servoPIDEnabled ? 1.0 : 0.0);
 }
 
 AMAction3 *CLSMAXvMotor::createEncoderMoveAction(double encoderPosition)
@@ -742,12 +652,7 @@ AMAction3 *CLSMAXvMotor::createEncoderMoveAction(double encoderPosition)
 	if(!isConnected())
 		return 0;
 
-	AMControlInfo setpoint = encoderTarget_->toInfo();
-	setpoint.setValue(encoderPosition);
-	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
-	AMAction3 *action = new AMControlMoveAction3(actionInfo, encoderTarget_);
-
-	return action;
+	return AMActionSupport::buildControlMoveAction(encoderTarget_, encoderPosition);
 }
 
 AMAction3 *CLSMAXvMotor::createEncoderMovementTypeAction(CLSMAXvMotor::EncoderMovementType encoderMovementType)
@@ -755,12 +660,7 @@ AMAction3 *CLSMAXvMotor::createEncoderMovementTypeAction(CLSMAXvMotor::EncoderMo
 	if(!isConnected())
 		return 0;
 
-	AMControlInfo setpoint = encoderMovementType_->toInfo();
-	setpoint.setValue(double(encoderMovementType));
-	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
-	AMAction3 *action = new AMControlMoveAction3(actionInfo, encoderMovementType_);
-
-	return action;
+	return AMActionSupport::buildControlMoveAction(encoderMovementType_, double(encoderMovementType));
 }
 
 AMAction3 *CLSMAXvMotor::createPreDeadBandAction(double preDeadBand)
@@ -768,12 +668,7 @@ AMAction3 *CLSMAXvMotor::createPreDeadBandAction(double preDeadBand)
 	if(!isConnected())
 		return 0;
 
-	AMControlInfo setpoint = preDeadBand_->toInfo();
-	setpoint.setValue(preDeadBand);
-	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
-	AMAction3 *action = new AMControlMoveAction3(actionInfo, preDeadBand_);
-
-	return action;
+	return AMActionSupport::buildControlMoveAction(preDeadBand_, preDeadBand);
 }
 
 AMAction3 *CLSMAXvMotor::createPostDeadBandAction(double postDeadBand)
@@ -781,12 +676,7 @@ AMAction3 *CLSMAXvMotor::createPostDeadBandAction(double postDeadBand)
 	if(!isConnected())
 		return 0;
 
-	AMControlInfo setpoint = postDeadBand_->toInfo();
-	setpoint.setValue(postDeadBand);
-	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
-	AMAction3 *action = new AMControlMoveAction3(actionInfo, postDeadBand_);
-
-	return action;
+	return AMActionSupport::buildControlMoveAction(postDeadBand_, postDeadBand);
 }
 
 AMAction3 *CLSMAXvMotor::createMaxRetriesAction(double maxRetries)
@@ -794,12 +684,7 @@ AMAction3 *CLSMAXvMotor::createMaxRetriesAction(double maxRetries)
 	if(!isConnected())
 		return 0;
 
-	AMControlInfo setpoint = maxRetries_->toInfo();
-	setpoint.setValue(maxRetries);
-	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
-	AMAction3 *action = new AMControlMoveAction3(actionInfo, maxRetries_);
-
-	return action;
+	return AMActionSupport::buildControlMoveAction(maxRetries_, maxRetries);
 }
 
 AMAction3 *CLSMAXvMotor::createEncoderPercentApproachAction(double encoderPercentApproach)
@@ -807,12 +692,7 @@ AMAction3 *CLSMAXvMotor::createEncoderPercentApproachAction(double encoderPercen
 	if(!isConnected())
 		return 0;
 
-	AMControlInfo setpoint = encoderPercentApproach_->toInfo();
-	setpoint.setValue(encoderPercentApproach);
-	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
-	AMAction3 *action = new AMControlMoveAction3(actionInfo, encoderPercentApproach_);
-
-	return action;
+	return AMActionSupport::buildControlMoveAction(encoderPercentApproach_, encoderPercentApproach);
 }
 
 AMAction3 *CLSMAXvMotor::createEncoderStepSoftRatioAction(double encoderStepSoftRatio)
@@ -820,12 +700,7 @@ AMAction3 *CLSMAXvMotor::createEncoderStepSoftRatioAction(double encoderStepSoft
 	if(!isConnected())
 		return 0;
 
-	AMControlInfo setpoint = encoderStepSoftRatio_->toInfo();
-	setpoint.setValue(encoderStepSoftRatio);
-	AMControlMoveActionInfo3 *actionInfo = new AMControlMoveActionInfo3(setpoint);
-	AMAction3 *action = new AMControlMoveAction3(actionInfo, encoderStepSoftRatio_);
-
-	return action;
+	return AMActionSupport::buildControlMoveAction(encoderStepSoftRatio_, encoderStepSoftRatio);
 }
 
 void CLSMAXvMotor::setEGUVelocity(double velocity){

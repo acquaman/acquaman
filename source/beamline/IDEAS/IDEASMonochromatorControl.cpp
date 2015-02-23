@@ -67,13 +67,6 @@ AMControl::FailureExplanation IDEASMonochromatorControl::move(double setpoint)
 
 
 	lastPositiveMove_ = setpoint;  //Else begin backlash corrected move action
-	AMControlMoveAction3 *moveSubAction;
-	AMControlMoveActionInfo3 *moveActionInfo;
-	AMControl *tmpControl;
-
-	tmpControl = IDEASBeamline::ideas()->monoDirectEnergyControl();
-	AMControlInfo monoEnergy = tmpControl->toInfo();
-
 
 	double mono2d = IDEASBeamline::ideas()->mono2d()->value();
 	double braggAngle = asin(12398.4193 / mono2d / setpoint);
@@ -86,15 +79,8 @@ AMControl::FailureExplanation IDEASMonochromatorControl::move(double setpoint)
 
 	moveAction_ = new AMListAction3(new AMListActionInfo3("IDEAS Mono Move", "IDEAS Backlash Corrected Mono Move"));
 
-	monoEnergy.setValue(backlashE);
-	moveActionInfo = new AMControlMoveActionInfo3(monoEnergy);
-	moveSubAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
-	moveAction_->addSubAction(moveSubAction);
-
-	monoEnergy.setValue(setpoint);
-	moveActionInfo = new AMControlMoveActionInfo3(monoEnergy);
-	moveSubAction = new AMControlMoveAction3(moveActionInfo, tmpControl);
-	moveAction_->addSubAction(moveSubAction);
+	moveAction_->addSubAction(AMActionSupport::buildControlMoveAction(IDEASBeamline::ideas()->monoDirectEnergyControl(), backlashE));
+	moveAction_->addSubAction(AMActionSupport::buildControlMoveAction(IDEASBeamline::ideas()->monoDirectEnergyControl(), setpoint));
 
 	connect(moveAction_, SIGNAL(failed()), this, SLOT(onMoveActionFailed()));
 	connect(moveAction_, SIGNAL(cancelled()), this, SLOT(onMoveActionFailed()));
