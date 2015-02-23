@@ -32,6 +32,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 #include <QLabel>
 #include <QSlider>
 #include <QButtonGroup>
+#include <QApplication>
 
 #include "MPlot/MPlotColorMap.h"
 

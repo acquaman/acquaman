@@ -523,6 +523,36 @@ void AMImagePropertyEditor::setupUi()
 	gridLayout->addWidget(gammaText, 8, 3, 1, 1);
 
 	setLayout(gridLayout);
+
+	setWindowTitle(QApplication::translate("AMImagePropertyEditor", "Frame", 0, QApplication::UnicodeUTF8));
+			useStandardColorMapButton->setText(QApplication::translate("AMImagePropertyEditor", "Default Color Map", 0, QApplication::UnicodeUTF8));
+			standardColorMapComboBox->clear();
+			standardColorMapComboBox->insertItems(0, QStringList()
+			 << QApplication::translate("AMImagePropertyEditor", "Autumn", 0, QApplication::UnicodeUTF8)
+			 << QApplication::translate("AMImagePropertyEditor", "Bone", 0, QApplication::UnicodeUTF8)
+			 << QApplication::translate("AMImagePropertyEditor", "Cool", 0, QApplication::UnicodeUTF8)
+			 << QApplication::translate("AMImagePropertyEditor", "Copper", 0, QApplication::UnicodeUTF8)
+			 << QApplication::translate("AMImagePropertyEditor", "Gray", 0, QApplication::UnicodeUTF8)
+			 << QApplication::translate("AMImagePropertyEditor", "Hot", 0, QApplication::UnicodeUTF8)
+			 << QApplication::translate("AMImagePropertyEditor", "HSV", 0, QApplication::UnicodeUTF8)
+			 << QApplication::translate("AMImagePropertyEditor", "Jet", 0, QApplication::UnicodeUTF8)
+			 << QApplication::translate("AMImagePropertyEditor", "Pink", 0, QApplication::UnicodeUTF8)
+			 << QApplication::translate("AMImagePropertyEditor", "Spring", 0, QApplication::UnicodeUTF8)
+			 << QApplication::translate("AMImagePropertyEditor", "Summer", 0, QApplication::UnicodeUTF8)
+			 << QApplication::translate("AMImagePropertyEditor", "White", 0, QApplication::UnicodeUTF8)
+			 << QApplication::translate("AMImagePropertyEditor", "Winter", 0, QApplication::UnicodeUTF8)
+			);
+			useCustomColorsButton->setText(QApplication::translate("AMImagePropertyEditor", "Custom Colors", 0, QApplication::UnicodeUTF8));
+			firstColorButton->setText(QApplication::translate("AMImagePropertyEditor", "...", 0, QApplication::UnicodeUTF8));
+			secondColorButton->setText(QApplication::translate("AMImagePropertyEditor", "...", 0, QApplication::UnicodeUTF8));
+			rgbButton->setText(QApplication::translate("AMImagePropertyEditor", "RGB", 0, QApplication::UnicodeUTF8));
+			hsvButton->setText(QApplication::translate("AMImagePropertyEditor", "HSV", 0, QApplication::UnicodeUTF8));
+			brightnessText->setText(QApplication::translate("AMImagePropertyEditor", "0.00", 0, QApplication::UnicodeUTF8));
+			labelBrightness->setText(QString());
+			labelContrast->setText(QString());
+			contrastText->setText(QApplication::translate("AMImagePropertyEditor", "1.00", 0, QApplication::UnicodeUTF8));
+			labelGamma->setText(QString());
+			gammaText->setText(QApplication::translate("AMImagePropertyEditor", "1.00", 0, QApplication::UnicodeUTF8));
 }
 
 
