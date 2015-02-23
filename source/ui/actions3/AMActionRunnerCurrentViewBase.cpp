@@ -214,6 +214,19 @@ void AMActionRunnerCurrentViewBase::onStateChanged(int state, int previousState)
 
 	skipButton_->setEnabled(state == AMAction3::Running);
 
+	AMAction3 *action = actionRunner_->currentAction();
+
+	if (action){
+
+		if (action->canSkip() && state == AMAction3::Paused)
+			skipButton_->setToolTip("Can not skip while paused");
+
+		else if (action->canSkip() && action->skipOptions().size() == 1)
+			skipButton_->setToolTip(action->skipOptions().first());
+
+		else
+			skipButton_->setToolTip("Finish: Click for options");
+	}
 	// Can pause or resume from only these states:
 	if (actionRunner_->currentAction())
 		pauseButton_->setEnabled(actionRunner_->currentAction()->canPause() && (state == AMAction3::Running || state == AMAction3::Paused));
