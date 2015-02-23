@@ -48,6 +48,7 @@ public:
 	explicit AMImagePropertyEditor(QWidget *parent = 0);
 	AMImagePropertyEditor(bool useStandardColorMap, int mplotStandardColorMap, const QColor& firstColor, const QColor& secondColor, double brightness, double contrast, double gamma, QWidget* parent = 0);
 	AMImagePropertyEditor(const MPlotColorMap& initialMap, QWidget* parent = 0);
+	virtual ~AMImagePropertyEditor() {}
 
 	bool useStandardColorMap() const;
 	int standardColorMap() const;
