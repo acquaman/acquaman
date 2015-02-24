@@ -280,12 +280,12 @@ void SXRMBBeamline::setupComponents()
 void SXRMBBeamline::setupDiagnostics()
 {
 	// the shutters used for Beam on/off control
-	PSH1406B1002Shutter_ = new CLSBiStateControl("PhotonShutter2", "Photon Shutter 2", "PSH1406-B10-02:state", "PSH1406-B10-02:opr:open", "PSH1406-B10-02:opr:close", new AMControlStatusCheckerDefault(4), this);
-	VVR16064B1003Valve_ = new CLSBiStateControl("VVR16064B1003", "VVR1606-4-B10-03 Valve", "VVR1606-4-B10-03:state", "VVR1606-4-B10-03:opr:open", "VVR1606-4-B10-03:opr:close", new AMControlStatusCheckerDefault(4), this);
-	VVR16064B1004Valve_ = new CLSBiStateControl("VVR16064B1004", "VVR1606-4-B10-04 Valve", "VVR1606-4-B10-04:state", "VVR1606-4-B10-04:opr:open", "VVR1606-4-B10-04:opr:close", new AMControlStatusCheckerDefault(4), this);
-	VVR16064B1006Valve_ = new CLSBiStateControl("VVR16064B1006", "VVR1606-4-B10-06 Valve", "VVR1606-4-B10-06:state", "VVR1606-4-B10-06:opr:open", "VVR1606-4-B10-06:opr:close", new AMControlStatusCheckerDefault(4), this);
-	VVR16064B1007Valve_ = new CLSBiStateControl("VVR16064B1007", "VVR1606-4-B10-07 Valve", "VVR1606-4-B10-07:state", "VVR1606-4-B10-07:opr:open", "VVR1606-4-B10-07:opr:close", new AMControlStatusCheckerDefault(4), this);
-	VVR16065B1001Valve_ = new CLSBiStateControl("VVR16065B1001", "VVR1606-5-B10-01 Valve", "VVR1606-5-B10-01:state", "VVR1606-5-B10-01:opr:open", "VVR1606-5-B10-01:opr:close", new AMControlStatusCheckerDefault(4), this);
+	PSH1406B1002Shutter_ = new CLSBiStateControl("PhotonShutter2", "Photon Shutter 2", "PSH1406-B10-02:state", "PSH1406-B10-02:opr:open", "PSH1406-B10-02:opr:close", new AMControlStatusCheckerDefault(2), this);
+	VVR16064B1003Valve_ = new CLSBiStateControl("VVR16064B1003", "VVR1606-4-B10-03 Valve", "VVR1606-4-B10-03:state", "VVR1606-4-B10-03:opr:open", "VVR1606-4-B10-03:opr:close", new AMControlStatusCheckerDefault(2), this);
+	VVR16064B1004Valve_ = new CLSBiStateControl("VVR16064B1004", "VVR1606-4-B10-04 Valve", "VVR1606-4-B10-04:state", "VVR1606-4-B10-04:opr:open", "VVR1606-4-B10-04:opr:close", new AMControlStatusCheckerDefault(2), this);
+	VVR16064B1006Valve_ = new CLSBiStateControl("VVR16064B1006", "VVR1606-4-B10-06 Valve", "VVR1606-4-B10-06:state", "VVR1606-4-B10-06:opr:open", "VVR1606-4-B10-06:opr:close", new AMControlStatusCheckerDefault(2), this);
+	VVR16064B1007Valve_ = new CLSBiStateControl("VVR16064B1007", "VVR1606-4-B10-07 Valve", "VVR1606-4-B10-07:state", "VVR1606-4-B10-07:opr:open", "VVR1606-4-B10-07:opr:close", new AMControlStatusCheckerDefault(2), this);
+	VVR16065B1001Valve_ = new CLSBiStateControl("VVR16065B1001", "VVR1606-5-B10-01 Valve", "VVR1606-5-B10-01:state", "VVR1606-5-B10-01:opr:open", "VVR1606-5-B10-01:opr:close", new AMControlStatusCheckerDefault(2), this);
 
 	beamlineControlShutterSet_ = new AMControlSet(this);
 	beamlineControlShutterSet_->addControl(PSH1406B1002Shutter_);
