@@ -9,14 +9,15 @@ BioXASMainMonochromatorCrystalChangeControl::BioXASMainMonochromatorCrystalChang
     mono_ = 0;
     step_ = None;
 	nextRegion_ = BioXASMainMonochromator::None;
-	braggMotorCrystalChangePosition_ = 135.0;
-	braggMotorRegionADestination_ = SETPOINT_BRAGG_MOTOR_REGION_A_DESTINATION + (braggMotorCrystalChangePosition_ - SETPOINT_BRAGG_MOTOR_CRYSTAL_CHANGE_POSITION);
-	braggMotorRegionBDestination_ = SETPOINT_BRAGG_MOTOR_REGION_B_DESTINATION + (braggMotorCrystalChangePosition_ - SETPOINT_BRAGG_MOTOR_CRYSTAL_CHANGE_POSITION);
+	braggMotorCrystalChangePosition_ = SETPOINT_BRAGG_MOTOR_CRYSTAL_CHANGE_POSITION;
+	braggMotorRegionADestination_ = SETPOINT_BRAGG_MOTOR_REGION_A_DESTINATION;
+	braggMotorRegionBDestination_ = SETPOINT_BRAGG_MOTOR_REGION_B_DESTINATION;
 	braggMotorRegionDestination_ = braggMotorRegionADestination_;
 	crystalChangeMotorLimit_ = Unknown;
 
     // Current settings.
 
+	setBraggMotorCrystalChangePosition(135.0);
     setMono(mono);
 }
 
@@ -31,7 +32,7 @@ QString BioXASMainMonochromatorCrystalChangeControl::stepDescription(BioXASMainM
 
 	switch (step) {
 	case None:
-		result = "";
+		result = "Waiting for valid, connected mono...";
 		break;
 	case SlitsNotClosed:
 		result = "Closing mono slits...";
@@ -134,20 +135,20 @@ void BioXASMainMonochromatorCrystalChangeControl::setMono(BioXASMainMonochromato
         mono_ = newMono;
 
         if (mono_) {
-			connect( mono_, SIGNAL(connected(bool)), this, SLOT(onConnectedChanged()) );
-			connect( mono_, SIGNAL(slitsClosedStatusChanged(bool)), this, SLOT(onConditionChanged()) );
-			connect( mono_, SIGNAL(paddleOutStatusChanged(bool)), this, SLOT(onConditionChanged()) );
-			connect( mono_, SIGNAL(keyEnabledStatusChanged(bool)), this, SLOT(onConditionChanged()) );
-			connect( mono_, SIGNAL(braggMotorAtCrystalChangePositionStatusChanged(bool)), this, SLOT(onConditionChanged()) );
-			connect( mono_, SIGNAL(crystalChangeBrakeEnabledChanged(bool)), this, SLOT(onConditionChanged()) );
-			connect( mono_, SIGNAL(crystalChangeMotorCCWLimitStatusChanged(bool)), this, SLOT(onConditionChanged()) );
-			connect( mono_, SIGNAL(crystalChangeMotorCWLimitStatusChanged(bool)), this, SLOT(onConditionChanged()) );
-			connect( mono_, SIGNAL(regionChanged(BioXASMainMonochromator::Region)), this, SLOT(onConditionChanged()) );
+			connect( mono_, SIGNAL(connected(bool)), this, SLOT(onMonoConditionChanged()) );
+			connect( mono_, SIGNAL(slitsClosedStatusChanged(bool)), this, SLOT(onMonoConditionChanged()) );
+			connect( mono_, SIGNAL(paddleOutStatusChanged(bool)), this, SLOT(onMonoConditionChanged()) );
+			connect( mono_, SIGNAL(keyEnabledStatusChanged(bool)), this, SLOT(onMonoConditionChanged()) );
+			connect( mono_, SIGNAL(braggMotorAtCrystalChangePositionStatusChanged(bool)), this, SLOT(onMonoConditionChanged()) );
+			connect( mono_, SIGNAL(crystalChangeBrakeEnabledChanged(bool)), this, SLOT(onMonoConditionChanged()) );
+			connect( mono_, SIGNAL(crystalChangeMotorCCWLimitStatusChanged(bool)), this, SLOT(onMonoConditionChanged()) );
+			connect( mono_, SIGNAL(crystalChangeMotorCWLimitStatusChanged(bool)), this, SLOT(onMonoConditionChanged()) );
+			connect( mono_, SIGNAL(regionChanged(BioXASMainMonochromator::Region)), this, SLOT(onMonoConditionChanged()) );
         }
 
         emit monoChanged(mono_);
 
-		onConditionChanged();
+		onMonoConditionChanged();
     }
 }
 
@@ -172,10 +173,12 @@ void BioXASMainMonochromatorCrystalChangeControl::setNextRegion(BioXASMainMonoch
 	if (nextRegion_ != newRegion) {
 		nextRegion_ = newRegion;
 
-		if (nextRegion_ == BioXASMainMonochromator::B)
-			setBraggMotorRegionDestination(braggMotorRegionBDestination_);
-		else
+		if (nextRegion_ == BioXASMainMonochromator::A)
 			setBraggMotorRegionDestination(braggMotorRegionADestination_);
+		else if (nextRegion_ == BioXASMainMonochromator::B)
+			setBraggMotorRegionDestination(braggMotorRegionBDestination_);
+
+		emit nextRegionChanged(nextRegion_);
 	}
 }
 
@@ -186,12 +189,10 @@ void BioXASMainMonochromatorCrystalChangeControl::startCrystalChange()
 	if (crystalChangeAction) {
 
 		// Connect to action signals.
-		connect( crystalChangeAction, SIGNAL(started()), this, SLOT(onCrystalChangeActionsStarted()) );
-		connect( crystalChangeAction, SIGNAL(currentSubActionChanged(int)), this, SLOT(onCrystalChangeSubActionChanged(int)) );
-		connect( crystalChangeAction, SIGNAL(succeeded()), this, SLOT(onCrystalChangeActionsSucceeded()) );
-		connect( crystalChangeAction, SIGNAL(cancelled()), this, SLOT(onCrystalChangeActionsFailed()) );
-		connect( crystalChangeAction, SIGNAL(destroyed()), this, SLOT(onCrystalChangeActionsFailed()) );
-		connect( crystalChangeAction, SIGNAL(failed()), this, SLOT(onCrystalChangeActionsFailed()) );
+		connect( crystalChangeAction, SIGNAL(started()), this, SLOT(onCrystalChangeStarted()) );
+		connect( crystalChangeAction, SIGNAL(succeeded()), this, SLOT(onCrystalChangeSucceeded()) );
+		connect( crystalChangeAction, SIGNAL(cancelled()), this, SLOT(onCrystalChangeFailed()) );
+		connect( crystalChangeAction, SIGNAL(failed()), this, SLOT(onCrystalChangeFailed()) );
 
 		// Begin crystal change.
 		crystalChangeAction->start();
@@ -214,17 +215,7 @@ void BioXASMainMonochromatorCrystalChangeControl::setBraggMotorRegionDestination
 	}
 }
 
-void BioXASMainMonochromatorCrystalChangeControl::onConnectedChanged()
-{
-	if (mono_ && mono_->isConnected()) {
-		setStep(nextStep(None));
-
-	} else {
-		setStep(None);
-	}
-}
-
-void BioXASMainMonochromatorCrystalChangeControl::onConditionChanged()
+void BioXASMainMonochromatorCrystalChangeControl::onMonoConditionChanged()
 {
 	setStep(findCurrentStep());
 }
@@ -238,8 +229,6 @@ AMAction3* BioXASMainMonochromatorCrystalChangeControl::createWaitForSlitsClosed
 		setpoint.setValue(1);
 
 		action = new AMControlWaitAction(new AMControlWaitActionInfo(setpoint, TIMEOUT_SLITS_CLOSED, AMControlWaitActionInfo::MatchEqual), mono_->slitsClosedControl());
-		action->info()->setShortDescription("Waiting for slits closed...");
-		action->info()->setLongDescription("");
 	}
 
 	return action;
@@ -254,8 +243,6 @@ AMAction3* BioXASMainMonochromatorCrystalChangeControl::createWaitForPaddleRemov
 		setpoint.setValue(1);
 
 		action = new AMControlWaitAction(new AMControlWaitActionInfo(setpoint, TIMEOUT_PADDLE_OUT, AMControlWaitActionInfo::MatchEqual), mono_->phosphorPaddleOutControl());
-		action->info()->setShortDescription("Waiting for paddle removed...");
-		action->info()->setLongDescription("");
 	}
 
 	return action;
@@ -270,8 +257,6 @@ AMAction3* BioXASMainMonochromatorCrystalChangeControl::createWaitForKeyEnabledA
 		setpoint.setValue(1);
 
 		action = new AMControlWaitAction(new AMControlWaitActionInfo(setpoint, TIMEOUT_KEY_STATUS_CHANGE, AMControlWaitActionInfo::MatchEqual), mono_->keyStatusControl());
-		action->info()->setShortDescription("Enable crystal change.");
-		action->info()->setLongDescription("Turn the crystal change status key to 'Enabled', counter-clockwise.");
 	}
 
 	return action;
@@ -283,11 +268,6 @@ AMAction3* BioXASMainMonochromatorCrystalChangeControl::createMoveToCrystalChang
 
 	if (mono_) {
 		action = mono_->createMoveBraggMotorAction(SETPOINT_BRAGG_MOTOR_CRYSTAL_CHANGE_POSITION);
-
-		if (action) {
-			action->info()->setShortDescription("Moving to crystal change position...");
-			action->info()->setLongDescription("");
-		}
 	}
 
 	return action;
@@ -302,8 +282,6 @@ AMAction3* BioXASMainMonochromatorCrystalChangeControl::createWaitForAtCrystalCh
 		setpoint.setValue(1);
 
 		action = new AMControlWaitAction(new AMControlWaitActionInfo(setpoint, TIMEOUT_CRYSTAL_CHANGE_POSITION_REACHED, AMControlWaitActionInfo::MatchEqual), mono_->braggMotorAtCrystalChangePositionStatusControl());
-		action->info()->setShortDescription("Waiting for move to crystal change position...");
-		action->info()->setLongDescription("");
 	}
 
 	return action;
@@ -318,8 +296,6 @@ AMAction3* BioXASMainMonochromatorCrystalChangeControl::createWaitForBrakeDisabl
 		setpoint.setValue(1);
 
 		action = new AMControlWaitAction(new AMControlWaitActionInfo(setpoint, TIMEOUT_BRAKE_STATUS_CHANGE, AMControlWaitActionInfo::MatchEqual), mono_->brakeStatusControl());
-		action->info()->setShortDescription("Disable brake.");
-		action->info()->setLongDescription("Flip the brake switch to 'Disabled'. There is a mandatory 30s wait after the switch is flipped.");
 	}
 
 	return action;
@@ -335,16 +311,12 @@ AMAction3* BioXASMainMonochromatorCrystalChangeControl::createWaitForCrystalChan
 			setpoint.setValue(1);
 
 			action = new AMControlWaitAction(new AMControlWaitActionInfo(setpoint, TIMEOUT_CRYSTAL_CHANGE_MOTOR_LIMIT_REACHED, AMControlWaitActionInfo::MatchEqual), mono_->crystalChangeMotorCWLimitStatusControl());
-			action->info()->setShortDescription("Waiting for move to crystal change motor CW limit...");
-			action->info()->setLongDescription("");
 
 		} else if (!cwLimit && mono_->crystalChangeMotorCCWLimitStatusControl() && mono_->crystalChangeMotorCCWLimitStatusControl()->isConnected()){
 			AMControlInfo setpoint = mono_->crystalChangeMotorCCWLimitStatusControl()->toInfo();
 			setpoint.setValue(1);
 
 			action = new AMControlWaitAction(new AMControlWaitActionInfo(setpoint, TIMEOUT_CRYSTAL_CHANGE_MOTOR_LIMIT_REACHED, AMControlWaitActionInfo::MatchEqual), mono_->crystalChangeMotorCCWLimitStatusControl());
-			action->info()->setShortDescription("Waiting for move to crystal change motor CCW limit...");
-			action->info()->setLongDescription("");
 		}
 	}
 
@@ -360,8 +332,6 @@ AMAction3* BioXASMainMonochromatorCrystalChangeControl::createWaitForBrakeEnable
 		setpoint.setValue(0);
 
 		action = new AMControlWaitAction(new AMControlWaitActionInfo(setpoint, TIMEOUT_BRAKE_STATUS_CHANGE, AMControlWaitActionInfo::MatchEqual), mono_->brakeStatusControl());
-		action->info()->setShortDescription("Enable brake.");
-		action->info()->setLongDescription("Flip the brake switch to 'Enabled'. There is a mandatory 30s wait after the switch is flipped.");
 	}
 
 	return action;
@@ -377,16 +347,12 @@ AMAction3* BioXASMainMonochromatorCrystalChangeControl::createWaitForBraggMotorL
 			setpoint.setValue(0);
 
 			action = new AMControlWaitAction(new AMControlWaitActionInfo(setpoint, TIMEOUT_BRAGG_MOTOR_LIMIT_REACHED, AMControlWaitActionInfo::MatchEqual), mono_->braggMotorAtCWLimitStatusControl());
-			action->info()->setShortDescription("Waiting for move to bragg motor CW limit...");
-			action->info()->setLongDescription("");
 
 		} else if (!cwLimit && mono_->braggMotorAtCCWLimitStatusControl() && mono_->braggMotorAtCCWLimitStatusControl()->isConnected()) {
 			AMControlInfo setpoint = mono_->braggMotorAtCCWLimitStatusControl()->toInfo();
 			setpoint.setValue(0);
 
 			action = new AMControlWaitAction(new AMControlWaitActionInfo(setpoint, TIMEOUT_BRAGG_MOTOR_LIMIT_REACHED, AMControlWaitActionInfo::MatchEqual), mono_->braggMotorAtCCWLimitStatusControl());
-			action->info()->setShortDescription("Waiting for move to bragg motor CCW limit...");
-			action->info()->setLongDescription("");
 		}
 	}
 
@@ -403,16 +369,12 @@ AMAction3* BioXASMainMonochromatorCrystalChangeControl::createWaitForMoveToNewRe
 			setpoint.setValue(1);
 
 			action = new AMControlWaitAction(new AMControlWaitActionInfo(setpoint, TIMEOUT_REGION_STATE_CHANGED, AMControlWaitActionInfo::MatchEqual), mono_->regionAStatusControl());
-			action->info()->setShortDescription("Waiting for move into region A...");
-			action->info()->setLongDescription("");
 
 		} else if (destinationRegion == BioXASMainMonochromator::B && mono_->regionBStatusControl() && mono_->regionBStatusControl()->isConnected()) {
 			AMControlInfo setpoint = mono_->regionBStatusControl()->toInfo();
 			setpoint.setValue(1);
 
 			action = new AMControlWaitAction(new AMControlWaitActionInfo(setpoint, TIMEOUT_REGION_STATE_CHANGED, AMControlWaitActionInfo::MatchEqual), mono_->regionBStatusControl());
-			action->info()->setShortDescription("Waiting for move into region B...");
-			action->info()->setLongDescription("");
 		}
 	}
 
@@ -428,8 +390,6 @@ AMAction3* BioXASMainMonochromatorCrystalChangeControl::createWaitForKeyDisabled
 		setpoint.setValue(0);
 
 		action = new AMControlWaitAction(new AMControlWaitActionInfo(setpoint, TIMEOUT_KEY_STATUS_CHANGE, AMControlWaitActionInfo::MatchEqual), mono_->keyStatusControl());
-		action->info()->setShortDescription("Disable crystal change.");
-		action->info()->setLongDescription("Turn crystal change status key to 'Disabled', clockwise.");
 	}
 
 	return action;
@@ -468,7 +428,6 @@ AMAction3* BioXASMainMonochromatorCrystalChangeControl::createCrystalChangeActio
 		action->addSubAction(mono_->createMoveBraggMotorAction(braggMotorDestination));
 		action->addSubAction(createWaitForMoveToNewRegion(newRegion));
 		action->addSubAction(createWaitForKeyDisabledAction());
-
 	}
 
 	return action;
@@ -478,23 +437,9 @@ AMAction3* BioXASMainMonochromatorCrystalChangeControl::createCrystalChangeActio
 {
 	AMAction3 *action = 0;
 
-	if (mono_) {
-		if (mono_->region() == BioXASMainMonochromator::A)
-			action = createCrystalChangeAction(BioXASMainMonochromator::B);
-
-		else if (mono_->region() == BioXASMainMonochromator::B)
-			action = createCrystalChangeAction(BioXASMainMonochromator::A);
-
-		else
-			action = createCrystalChangeAction(BioXASMainMonochromator::A);
-	}
+	action = createCrystalChangeAction(nextRegion_);
 
 	return action;
-}
-
-void BioXASMainMonochromatorCrystalChangeControl::runAction(AMAction3 *action)
-{
-	Q_UNUSED(action)
 }
 
 BioXASMainMonochromatorCrystalChangeControl::Step BioXASMainMonochromatorCrystalChangeControl::nextStep(BioXASMainMonochromatorCrystalChangeControl::Step step)
@@ -661,10 +606,16 @@ BioXASMainMonochromatorCrystalChangeControl::Step BioXASMainMonochromatorCrystal
 
 BioXASMainMonochromatorCrystalChangeControl::Step BioXASMainMonochromatorCrystalChangeControl::findCurrentStep()
 {
+	// Initialize local variables.
+
 	BioXASMainMonochromatorCrystalChangeControl::Step step = None;
 	bool stepFound = false;
 	int tries = 0;
 	int maxTries = 20;
+
+	// Starting with the base step of 'None', keep trying to find the next step until the next step
+	// and the initial step are equal--the signal that we are as far as we can go in the crystal
+	// change. This step is the global current step.
 
 	while (!stepFound && tries < maxTries) {
 		BioXASMainMonochromatorCrystalChangeControl::Step next = nextStep(step);
@@ -677,7 +628,7 @@ BioXASMainMonochromatorCrystalChangeControl::Step BioXASMainMonochromatorCrystal
 	}
 
 	if (!stepFound)
-		qDebug() << "Ran out of tries. The crystal change step could not be found properly in" << maxTries << "tries.";
+		qDebug() << "Ran out of tries. The current crystal change step could not be found properly in" << maxTries << "tries.";
 
 	return step;
 }

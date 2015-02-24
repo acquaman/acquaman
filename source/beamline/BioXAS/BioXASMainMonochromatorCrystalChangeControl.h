@@ -37,8 +37,6 @@ public:
     virtual ~BioXASMainMonochromatorCrystalChangeControl();
     /// Returns the monochromator being controlled.
     BioXASMainMonochromator* mono() const { return mono_; }
-	/// Returns the desired region.
-	BioXASMainMonochromator::Region nextRegion() const { return nextRegion_; }
 	/// Returns the bragg motor crystal change position.
 	double braggMotorCrystalChangePosition() const { return braggMotorCrystalChangePosition_; }
     /// Returns the control's current step in a crystal change.
@@ -57,6 +55,8 @@ signals:
 	void braggMotorCrystalChangePositionChanged(double newPosition);
 	/// Notifier that the bragg motor destination for the next region has changed.
 	void braggMotorRegionDestinationChanged(double newPosition);
+	/// Notifier that the crystal change process has started.
+	void crystalChangeStarted();
 	/// Notifier that the control's current step has changed.
 	void stepChanged(BioXASMainMonochromatorCrystalChangeControl::Step newStep);
     /// Notifier that the currently running action has changed, and so has the corresponding description and user information.
@@ -81,10 +81,14 @@ protected slots:
 	void setStep(Step newStep);
 	/// Sets the bragg motor destination for the next region.
 	void setBraggMotorRegionDestination(double newPosition);
-	/// Handles updating the current step when the mono's connection state has changed.
-	void onConnectedChanged();
-	/// Handles updating the current step when some mono condition has changed. 'onConnectedChanged' would be the primary case of this more general slot.
-	void onConditionChanged();
+	/// Handles updating the current step when some mono condition has changed.
+	void onMonoConditionChanged();
+	/// Handles emitting the crystal change started signal when the actions have started.
+	void onCrystalChangeActionsStarted() { emit crystalChangeStarted(); }
+	/// Handles emitting the crystal change succeeded signal when the actions have completed successfully.
+	void onCrystalChangeActionsSucceeded() { emit crystalChangeComplete(true); }
+	/// Handles emitting the crystal change failed signal when the actions have failed to complete.
+	void onCrystalChangeActionsFailed() { emit crystalChangeComplete(false); }
 
 protected:
 	/// Returns a new action that waits for the mono slits to signal they are closed.

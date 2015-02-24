@@ -9,16 +9,27 @@ BioXASMainMonochromatorCrystalChangeControlView::BioXASMainMonochromatorCrystalC
     // Initialize variables.
 
     control_ = 0;
-    introMessage_ = "Begin crystal change procedure?";
-    successMessage_ = "Crystal change completed successfully!";
-    failMessage_ = "Unable to complete crystal change procedure.";
+
+	QString introMessage = "Begin crystal change procedure?";
+	QString selectMessage = "Please select desired region:";
+	QString successMessage = "Crystal change completed successfully!";
+	QString failMessage = "Unable to complete crystal change procedure.";
 
     // Create UI elements.
 
     initializedDisplay_ = new QWidget();
-    QLabel *initializedDisplayText = new QLabel(introMessage_);
-    QDialogButtonBox *initializedDisplayButtons = new QDialogButtonBox(QDialogButtonBox::Ok |
-                                                                 QDialogButtonBox::Cancel);
+	QLabel *initializedDisplayText = new QLabel(introMessage);
+	QDialogButtonBox *initializedDisplayButtons = new QDialogButtonBox(QDialogButtonBox::Ok |
+																	   QDialogButtonBox::Cancel);
+
+	selectionDisplay_ = new QWidget();
+	QLabel *selectionDisplayText = new QLabel(selectMessage);
+	selectionDisplayOptions_ = new QComboBox();
+	selectionDisplayOptions_->addItem("A");
+	selectionDisplayOptions_->addItem("B");
+	QDialogButtonBox *selectionDisplayButtons = new QDialogButtonBox(QDialogButtonBox::Ok |
+																	 QDialogButtonBox::Cancel);
+
     runningDisplay_ = new QWidget();
     runningDisplayProgress_ = new QProgressBar();
     runningDisplayProgress_->setMinimum(0);
@@ -29,11 +40,11 @@ BioXASMainMonochromatorCrystalChangeControlView::BioXASMainMonochromatorCrystalC
     runningDisplayInstruction_->setEnabled(false);
 
     completeSuccessDisplay_ = new QWidget(this);
-    QLabel *completeSuccessDisplayText = new QLabel(successMessage_);
+	QLabel *completeSuccessDisplayText = new QLabel(successMessage);
     QDialogButtonBox *completeSuccessDisplayButtons = new QDialogButtonBox(QDialogButtonBox::Ok);
 
     completeFailDisplay_ = new QWidget(this);
-    QLabel *completeFailDisplayText = new QLabel(failMessage_);
+	QLabel *completeFailDisplayText = new QLabel(failMessage);
     QDialogButtonBox *completeFailDisplayButtons = new QDialogButtonBox(QDialogButtonBox::Ok);
 
     // Create and set layouts.
@@ -41,26 +52,35 @@ BioXASMainMonochromatorCrystalChangeControlView::BioXASMainMonochromatorCrystalC
     QVBoxLayout *initializedDisplayLayout = new QVBoxLayout();
     initializedDisplayLayout->addWidget(initializedDisplayText);
     initializedDisplayLayout->addWidget(initializedDisplayButtons);
-    initializedDisplayLayout->addStretch();
+
     initializedDisplay_->setLayout(initializedDisplayLayout);
+
+	QHBoxLayout *selectionDisplayWidgetsLayout = new QHBoxLayout();
+	selectionDisplayWidgetsLayout->addWidget(selectionDisplayText);
+	selectionDisplayWidgetsLayout->addWidget(selectionDisplayOptions_);
+	QVBoxLayout *selectionDisplayLayout = new QVBoxLayout();
+	selectionDisplayLayout->addLayout(selectionDisplayWidgetsLayout);
+	selectionDisplayLayout->addWidget(selectionDisplayButtons);
+
+	selectionDisplay_->setLayout(selectionDisplayLayout);
 
     QVBoxLayout *runningDisplayLayout = new QVBoxLayout();
     runningDisplayLayout->addWidget(runningDisplayProgress_);
     runningDisplayLayout->addWidget(runningDisplayDescription_);
     runningDisplayLayout->addWidget(runningDisplayInstruction_);
-    runningDisplayLayout->addStretch();
+
     runningDisplay_->setLayout(runningDisplayLayout);
 
     QVBoxLayout *completeSuccessDisplayLayout = new QVBoxLayout();
     completeSuccessDisplayLayout->addWidget(completeSuccessDisplayText);
     completeSuccessDisplayLayout->addWidget(completeSuccessDisplayButtons);
-    completeSuccessDisplayLayout->addStretch();
+
     completeSuccessDisplay_->setLayout(completeSuccessDisplayLayout);
 
     QVBoxLayout *completeFailDisplayLayout = new QVBoxLayout();
     completeFailDisplayLayout->addWidget(completeFailDisplayText);
     completeFailDisplayLayout->addWidget(completeFailDisplayButtons);
-    completeFailDisplayLayout->addStretch();
+
     completeFailDisplay_->setLayout(completeFailDisplayLayout);
 
     QVBoxLayout *layout = new QVBoxLayout();
@@ -69,9 +89,8 @@ BioXASMainMonochromatorCrystalChangeControlView::BioXASMainMonochromatorCrystalC
     layout->addWidget(runningDisplay_);
     layout->addWidget(completeSuccessDisplay_);
     layout->addWidget(completeFailDisplay_);
-    setLayout(layout);
 
-    setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    setLayout(layout);
 
     // Initial settings.
 
@@ -79,8 +98,10 @@ BioXASMainMonochromatorCrystalChangeControlView::BioXASMainMonochromatorCrystalC
 
     // Make connections.
 
-    connect( initializedDisplayButtons, SIGNAL(accepted()), this, SLOT(toStartCrystalChange()) );
+	connect( initializedDisplayButtons, SIGNAL(accepted()), this, SLOT(onInitializedDisplayAccepted()) );
     connect( initializedDisplayButtons, SIGNAL(rejected()), this, SLOT(close()) );
+	connect( selectionDisplayButtons, SIGNAL(accepted()), this, SLOT(onSelectionDisplayAccepted()) );
+	connect( selectionDisplayButtons, SIGNAL(rejected()), this, SLOT(close()) );
     connect( completeSuccessDisplayButtons, SIGNAL(accepted()), this, SLOT(close()) );
     connect( completeFailDisplayButtons, SIGNAL(accepted()), this, SLOT(close()) );
 
@@ -107,6 +128,7 @@ void BioXASMainMonochromatorCrystalChangeControlView::setControl(BioXASMainMonoc
 
 			connect( control_, SIGNAL(stepChanged(BioXASMainMonochromatorCrystalChangeControl::Step)), this, SLOT(onControlStepChanged()) );
             connect( control_, SIGNAL(progressChanged(double, double)), this, SLOT(onControlProgressChanged(double, double)) );
+			connect( control_, SIGNAL(crystalChangeComplete(bool)), this, SLOT(onControlCrystalChangeComplete(bool)) );
 
 			onControlStepChanged();
         }
@@ -116,15 +138,72 @@ void BioXASMainMonochromatorCrystalChangeControlView::setControl(BioXASMainMonoc
     }
 }
 
-void BioXASMainMonochromatorCrystalChangeControlView::toStartCrystalChange()
+void BioXASMainMonochromatorCrystalChangeControlView::setRunningDisplayDescription(const QString &newDescription)
 {
-    if (control_)
-        control_->startCrystalChange();
+	runningDisplayDescription_->setText(newDescription);
+}
+
+void BioXASMainMonochromatorCrystalChangeControlView::setRunningDisplayInstruction(const QString &newInstruction)
+{
+	if (newInstruction != "") {
+		runningDisplayInstruction_->setText(newInstruction);
+		runningDisplayInstruction_->show();
+
+	} else {
+		runningDisplayInstruction_->hide();
+	}
+}
+
+void BioXASMainMonochromatorCrystalChangeControlView::onInitializedDisplayAccepted()
+{
+	// If the mono is in a valid region (A or B), then set the crystal change destination to be
+	// the other region and begin a crystal change. If the current region isn't valid (None),
+	// bring up the selection display.
+
+	if (control_) {
+		BioXASMainMonochromator::Region currentRegion = control_->mono()->region();
+
+		if (currentRegion != BioXASMainMonochromator::None) {
+			BioXASMainMonochromator::Region nextRegion;
+
+			if (currentRegion == BioXASMainMonochromator::A)
+				nextRegion = BioXASMainMonochromator::B;
+			else
+				nextRegion = BioXASMainMonochromator::A;
+
+			control_->setNextRegion(nextRegion);
+			startCrystalChange();
+
+		} else {
+			showSelectionDisplay();
+		}
+	}
+}
+
+void BioXASMainMonochromatorCrystalChangeControlView::onSelectionDisplayAccepted()
+{
+	// The user's region selection has been confirmed. Set the control's next region and
+	// start a crystal change.
+
+	if (control_) {
+		QString selection = selectionDisplayOptions_->currentText();
+
+		if (selection == "A")
+			control_->setNextRegion(BioXASMainMonochromator::A);
+
+		else if (selection == "B")
+			control_->setNextRegion(BioXASMainMonochromator::B);
+	}
 }
 
 void BioXASMainMonochromatorCrystalChangeControlView::onControlStepChanged()
 {
+	if (control_) {
+		BioXASMainMonochromatorCrystalChangeControl::Step currentStep = control_->step();
 
+		runningDisplayDescription_->setText(control_->stepDescription(currentStep));
+		runningDisplayInstruction_->setText(control_->stepInstruction(currentStep));
+	}
 }
 
 void BioXASMainMonochromatorCrystalChangeControlView::onControlProgressChanged(double numerator, double denominator)
@@ -135,27 +214,52 @@ void BioXASMainMonochromatorCrystalChangeControlView::onControlProgressChanged(d
 
 void BioXASMainMonochromatorCrystalChangeControlView::onControlCrystalChangeComplete(bool success)
 {
-	Q_UNUSED(success)
+	if (success)
+		showCompleteSuccessDisplay();
+	else
+		showCompleteFailDisplay();
+}
+
+void BioXASMainMonochromatorCrystalChangeControlView::startCrystalChange()
+{
+	if (control_)
+		control_->startCrystalChange();
 }
 
 void BioXASMainMonochromatorCrystalChangeControlView::showInitializedDisplay()
 {
-    // hide other displays.
+	// Hide other displays.
 
+	selectionDisplay_->hide();
     runningDisplay_->hide();
     completeSuccessDisplay_->hide();
     completeFailDisplay_->hide();
 
-    // show initialized display.
+	// Show initialized display.
 
     initializedDisplay_->show();
 }
 
+void BioXASMainMonochromatorCrystalChangeControlView::showSelectionDisplay()
+{
+	// Hide other displays.
+
+	initializedDisplay_->hide();
+	runningDisplay_->hide();
+	completeSuccessDisplay_->hide();
+	completeFailDisplay_->hide();
+
+	// Show selection display.
+
+	selectionDisplay_->show();
+}
+
 void BioXASMainMonochromatorCrystalChangeControlView::showRunningDisplay()
 {
-    // hide other displays.
+	// Hide other displays.
 
     initializedDisplay_->hide();
+	selectionDisplay_->hide();
     completeSuccessDisplay_->hide();
     completeFailDisplay_->hide();
 
@@ -166,9 +270,10 @@ void BioXASMainMonochromatorCrystalChangeControlView::showRunningDisplay()
 
 void BioXASMainMonochromatorCrystalChangeControlView::showCompleteSuccessDisplay()
 {
-    // hide other displays.
+	// Hide other displays.
 
     initializedDisplay_->hide();
+	selectionDisplay_->hide();
     runningDisplay_->hide();
     completeFailDisplay_->hide();
 
@@ -179,13 +284,14 @@ void BioXASMainMonochromatorCrystalChangeControlView::showCompleteSuccessDisplay
 
 void BioXASMainMonochromatorCrystalChangeControlView::showCompleteFailDisplay()
 {
-    // hide other displays.
+	// Hide other displays.
 
     initializedDisplay_->hide();
+	selectionDisplay_->hide();
     runningDisplay_->hide();
     completeSuccessDisplay_->hide();
 
-    // show fail display.
+	// Show fail display.
 
     completeFailDisplay_->show();
 }
