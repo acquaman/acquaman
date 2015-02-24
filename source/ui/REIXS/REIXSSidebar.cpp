@@ -86,7 +86,9 @@ REIXSSidebar::REIXSSidebar(QWidget *parent) :
 
 	connect(REIXSBeamline::bl()->valvesAndShutters(), SIGNAL(beamOnChanged(bool)), this, SLOT(onBeamOnChanged(bool)));
 	connect(REIXSBeamline::bl()->mcpDetector(), SIGNAL(countsPerSecondChanged(double)), this, SLOT(onMCPCountsPerSecondChanged(double)));
-
+	
+	connect(REIXSBeamline::bl()->scaler()->channelAt(4), SIGNAL(readingChanged(int)), this, SLOT(onTFYCountsChanged(int)));
+	
 	connect(ui->beamOnButton, SIGNAL(clicked()), this, SLOT(onBeamOnButtonClicked()));
 	connect(ui->beamOffButton, SIGNAL(clicked()), this, SLOT(onBeamOffButtonClicked()));
 	connect(scalerContinuousButton, SIGNAL(clicked(bool)), this, SLOT(onScalerContinuousButtonToggled(bool)));
@@ -140,9 +142,10 @@ void REIXSSidebar::onBeamOnChanged(bool isOn)
 	}
 }
 
-void REIXSSidebar::onTFYCountsChanged(double counts)
+void REIXSSidebar::onTFYCountsChanged(int counts)
 {
-	TFYValue->setText("TFY\t\t" + QLocale(QLocale::English).toString(counts, 'f', 0) + " counts");
+	double counts_ = counts;
+	TFYValue->setText("TFY\t\t" + QLocale(QLocale::English).toString(counts_, 'f', 0) + " counts");
 
 }
 
