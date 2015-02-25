@@ -213,6 +213,17 @@ AMAction3* BioXASMainMonochromator::createSetBraggMotorPowerAutoAction()
     return action;
 }
 
+void BioXASMainMonochromator::setRegion(Region newRegion)
+{
+	Q_UNUSED(newRegion)
+}
+
+void BioXASMainMonochromator::setEnergy(double newEnergy)
+{
+	if (energy_->isConnected())
+		energy_->move(newEnergy);
+}
+
 void BioXASMainMonochromator::onConnectedChanged()
 {
     bool currentState = (

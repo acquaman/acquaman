@@ -162,8 +162,10 @@ signals:
     void energyFeedbackChanged(double newFeedback);
 
 public slots:
+	/// Sets the region to the given region, performing a crystal change if necessary.
+	void setRegion(Region newRegion);
     /// Sets the energy setpoint.
-    void setEnergy(double newEnergy) { energy_->move(newEnergy); }
+	void setEnergy(double newEnergy);
 
 protected slots:
     /// Updates the mono's general connected state based on the connected state of each of its pvs.
