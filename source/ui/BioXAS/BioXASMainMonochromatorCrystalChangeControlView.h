@@ -11,6 +11,7 @@
 #include <QComboBox>
 #include <QLayout>
 
+#include "beamline/BioXAS/BioXASMainBeamline.h"
 #include "beamline/BioXAS/BioXASMainMonochromatorCrystalChangeControl.h"
 
 class BioXASMainMonochromatorCrystalChangeControlView : public QWidget

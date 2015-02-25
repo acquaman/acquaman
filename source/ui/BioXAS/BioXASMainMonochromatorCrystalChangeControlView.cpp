@@ -222,8 +222,7 @@ void BioXASMainMonochromatorCrystalChangeControlView::onControlCrystalChangeComp
 
 void BioXASMainMonochromatorCrystalChangeControlView::startCrystalChange()
 {
-	if (control_)
-		control_->startCrystalChange();
+	// to do.
 }
 
 void BioXASMainMonochromatorCrystalChangeControlView::showInitializedDisplay()
