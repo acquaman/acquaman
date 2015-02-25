@@ -21,6 +21,7 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "BioXASSideAppController.h"
 
+#include "beamline/CLS/CLSBeamlines.h"
 #include "beamline/BioXAS/BioXASSideBeamline.h"
 
 #include "ui/AMMainWindow.h"
@@ -85,7 +86,7 @@ bool BioXASSideAppController::startup()
 		// We'll use loading a run from the db as a sign of whether this is the first time an application has been run because startupIsFirstTime will return false after the user data folder is created.
 		if (!existingRun.loadFromDb(AMDatabase::database("user"), 1)){
 
-			AMRun firstRun("BioXASSide", 6);	/// \todo For now, we know that 6 is the ID of the BioXAS Side endstation facility, but this is a hardcoded hack.
+			AMRun firstRun(CLSBeamline::BioXAS_Side_bl_name, CLSBeamline::BioXASSideBeamline); //6: BioXAS Side Beamline
 			firstRun.storeToDb(AMDatabase::database("user"));
 		}
 
