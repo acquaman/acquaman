@@ -120,12 +120,12 @@ AMAction3* BioXASSideMonochromator::createMoveCrystalChangeMotorAction(int relDe
 
 AMAction3* BioXASSideMonochromator::createSetBraggMotorPowerOnAction()
 {
-	return AMActionSupport::buildControlMoveAction(braggMotorPower_, 1);
+	return AMActionSupport::buildControlMoveAction(braggMotorPower_, CLSMAXvMotor::PowerOn);
 }
 
 AMAction3* BioXASSideMonochromator::createSetBraggMotorPowerAutoAction()
 {
-	return AMActionSupport::buildControlMoveAction(braggMotorPower_, 3);
+	return AMActionSupport::buildControlMoveAction(braggMotorPower_, CLSMAXvMotor::PowerAutoSoftware);
 }
 
 void BioXASSideMonochromator::setEnergy(double newEnergy)
@@ -172,7 +172,7 @@ AMAction3* BioXASSideMonochromator::createWaitForKeyEnabledAction()
 		return 0;
 
 	AMControlInfo setpoint = keyStatus_->toInfo();
-	setpoint.setValue(1);
+	setpoint.setValue(Key::Enabled);
 	AMControlWaitActionInfo *actionInfo = new AMControlWaitActionInfo(setpoint);
 	AMControlWaitAction *action = new AMControlWaitAction(actionInfo, keyStatus_);
 
@@ -190,7 +190,7 @@ AMAction3* BioXASSideMonochromator::createWaitForBrakeDisabledAction()
 		return 0;
 
 	AMControlInfo setpoint = brakeStatus_->toInfo();
-	setpoint.setValue(1);
+	setpoint.setValue(Brake::Disabled);
 	AMControlWaitActionInfo *actionInfo = new AMControlWaitActionInfo(setpoint);
 	AMControlWaitAction *action = new AMControlWaitAction(actionInfo, brakeStatus_);
 
@@ -203,7 +203,7 @@ AMAction3* BioXASSideMonochromator::createWaitForBrakeEnabledAction()
 		return 0;
 
 	AMControlInfo setpoint = brakeStatus_->toInfo();
-	setpoint.setValue(0);
+	setpoint.setValue(Brake::Enabled);
 	AMControlWaitActionInfo *actionInfo = new AMControlWaitActionInfo(setpoint);
 	AMControlWaitAction *action = new AMControlWaitAction(actionInfo, brakeStatus_);
 
@@ -216,7 +216,7 @@ AMAction3* BioXASSideMonochromator::createWaitForKeyDisabledAction()
 		return 0;
 
 	AMControlInfo setpoint = keyStatus_->toInfo();
-	setpoint.setValue(0);
+	setpoint.setValue(Key::Disabled);
 	AMControlWaitActionInfo *actionInfo = new AMControlWaitActionInfo(setpoint);
 	AMControlWaitAction *action = new AMControlWaitAction(actionInfo, keyStatus_);
 
