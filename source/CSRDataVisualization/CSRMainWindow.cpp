@@ -10,7 +10,8 @@ CSRMainWindow::CSRMainWindow(CSRDataModel *model, QWidget *parent)
 {
 	model_ = model;
 
-	setupPlot();
+	setupDataPlot();
+	setupDisplayPlot();
 
 	rangeMinimum_ = new QSpinBox;
 	rangeMinimum_->setRange(0, 2e7-1);
@@ -25,111 +26,192 @@ CSRMainWindow::CSRMainWindow(CSRDataModel *model, QWidget *parent)
 	connect(rangeMinimum_, SIGNAL(editingFinished()), this, SLOT(onRangeMinimumChanged()));
 	connect(rangeMaximum_, SIGNAL(editingFinished()), this, SLOT(onRangeMaximumChanged()));
 
+	revolution_ = new QSpinBox;
+	revolution_->setRange(0, 877);
+	revolution_->setValue(0);
+	revolution_->setPrefix("#: ");
+
+	connect(revolution_, SIGNAL(editingFinished()), this, SLOT(onRevolutionChanged()));
+
 	QHBoxLayout *editLayout = new QHBoxLayout;
 	editLayout->addWidget(rangeMinimum_);
 	editLayout->addWidget(rangeMaximum_);
+	editLayout->addWidget(revolution_);
 
 	QVBoxLayout *mainLayout = new QVBoxLayout;
 
 	mainLayout->addWidget(new QLabel(QString("Mean: %1, Std dev: %2\n").arg(model_->mean(), 0, 'g').arg(model_->standardDeviation(), 0, 'g')));
-	mainLayout->addWidget(plotView_);
+	mainLayout->addWidget(dataPlotView_);
 	mainLayout->addLayout(editLayout);
 
 	setLayout(mainLayout);
+
+	displayPlotView_->show();
 }
 
-void CSRMainWindow::setupPlot()
+void CSRMainWindow::setupDataPlot()
 {
 	// Create the plot window.
-	plotView_ = new MPlotWidget;
-	plotView_->enableAntiAliasing(true);
+	dataPlotView_ = new MPlotWidget;
+	dataPlotView_->enableAntiAliasing(true);
 
 	// Create the plot and setup all the axes.
-	plot_ = new MPlot;
-	plot_->axisBottom()->setAxisNameFont(QFont("Helvetica", 6));
-	plot_->axisBottom()->setTickLabelFont(QFont("Helvetica", 6));
-	plot_->axisBottom()->setAxisName("Time, s");
-	plot_->axisLeft()->setAxisNameFont(QFont("Helvetica", 6));
-	plot_->axisLeft()->setTickLabelFont(QFont("Helvetica", 6));
-	plot_->axisLeft()->setAxisName("Counts");
+	dataPlot_ = new MPlot;
+	dataPlot_->axisBottom()->setAxisNameFont(QFont("Helvetica", 6));
+	dataPlot_->axisBottom()->setTickLabelFont(QFont("Helvetica", 6));
+	dataPlot_->axisBottom()->setAxisName("Time, s");
+	dataPlot_->axisLeft()->setAxisNameFont(QFont("Helvetica", 6));
+	dataPlot_->axisLeft()->setTickLabelFont(QFont("Helvetica", 6));
+	dataPlot_->axisLeft()->setAxisName("Counts");
 
 	// Set the margins for the plot.
-	plot_->setMarginLeft(10);
-	plot_->setMarginBottom(15);
-	plot_->setMarginRight(2);
-	plot_->setMarginTop(2);
+	dataPlot_->setMarginLeft(10);
+	dataPlot_->setMarginBottom(15);
+	dataPlot_->setMarginRight(2);
+	dataPlot_->setMarginTop(2);
 
 	// Assumes that the dataSource() contains the spectrum most desired to view.
 	MPlotSeriesBasic *csrSeries = new MPlotSeriesBasic;
-	seriesData_ = new MPlotVectorSeriesData;
+	dataSeriesData_ = new MPlotVectorSeriesData;
 	QVector<double> x = QVector<double>(3000, 0);
 	QVector<double> y = QVector<double>(3000, 0);
 	model_->timeData(0, 2999, x.data());
 	model_->data(0, 2999, y.data());
-	seriesData_->setValues(x, y);
-	csrSeries->setModel(seriesData_, true);
+	dataSeriesData_->setValues(x, y);
+	csrSeries->setModel(dataSeriesData_, true);
 	csrSeries->setMarker(MPlotMarkerShape::None);
 	csrSeries->setDescription("CSR");
 	csrSeries->setLinePen(QPen(Qt::red));
-	plot_->addItem(csrSeries);
-
-//	MPlotSeriesBasic *smoothSeries = new MPlotSeriesBasic;
-//	MPlotVectorSeriesData *smoothSeriesData = new MPlotVectorSeriesData;
-//	model_->smoothData(y.data());
-//	smoothSeriesData->setValues(x, y);
-//	smoothSeries->setModel(smoothSeriesData, true);
-//	smoothSeries->setMarker(MPlotMarkerShape::None);
-//	smoothSeries->setDescription("Smooth CSR");
-//	smoothSeries->setLinePen(QPen(Qt::blue));
-//	plot_->addItem(smoothSeries);
-
-//	MPlotPoint *newLine = new MPlotPoint(QPointF(x.first(), model_->mean()));
-//	newLine->setMarker(MPlotMarkerShape::HorizontalBeam, 1e6, QPen(Qt::blue), QBrush(Qt::blue));
-//	newLine->setDescription("Mean");
-//	plot_->addItem(newLine);
-//	items_ << newLine;
-
-//	MPlotPoint *newLine = new MPlotPoint(QPointF(x.first(), -1*model_->standardDeviation()));
-//	newLine->setMarker(MPlotMarkerShape::HorizontalBeam, 1e6, QPen(Qt::blue), QBrush(Qt::blue));
-//	newLine->setDescription("Std Dev");
-//	plot_->addItem(newLine);
-//	items_ << newLine;
-
-//	newLine = new MPlotPoint(QPointF(x.first(), -2*model_->standardDeviation()));
-//	newLine->setMarker(MPlotMarkerShape::HorizontalBeam, 1e6, QPen(Qt::blue), QBrush(Qt::blue));
-//	newLine->setDescription("2x Std Dev");
-//	plot_->addItem(newLine);
-//	items_ << newLine;
-
-//	newLine = new MPlotPoint(QPointF(x.first(), -3*model_->standardDeviation()));
-//	newLine->setMarker(MPlotMarkerShape::HorizontalBeam, 1e6, QPen(Qt::blue), QBrush(Qt::blue));
-//	newLine->setDescription("3x Std Dev");
-//	plot_->addItem(newLine);
-//	items_ << newLine;
+	dataPlot_->addItem(csrSeries);
 
 	MPlotPoint *newLine = new MPlotPoint(QPointF(x.first(), -5*model_->standardDeviation()));
 	newLine->setMarker(MPlotMarkerShape::HorizontalBeam, 1e6, QPen(Qt::blue), QBrush(Qt::blue));
 	newLine->setDescription("5x Std Dev");
-	plot_->addItem(newLine);
+	dataPlot_->addItem(newLine);
 	items_ << newLine;
 
 	// Enable autoscaling of both axes.
-	plot_->axisScaleLeft()->setAutoScaleEnabled();
-	plot_->axisScaleBottom()->setAutoScaleEnabled();
+	dataPlot_->axisScaleLeft()->setAutoScaleEnabled();
+	dataPlot_->axisScaleBottom()->setAutoScaleEnabled();
 
 	// Enable some convenient zoom tools.
-	plot_->addTool(new MPlotDragZoomerTool());
-	plot_->addTool(new MPlotWheelZoomerTool());
-	plotView_->setPlot(plot_);
-	plotView_->setFixedHeight(450);
-	plotView_->setFixedWidth(600);
+	dataPlot_->addTool(new MPlotDragZoomerTool());
+	dataPlot_->addTool(new MPlotWheelZoomerTool());
+	dataPlotView_->setPlot(dataPlot_);
+	dataPlotView_->setFixedHeight(450);
+	dataPlotView_->setFixedWidth(600);
 
 	// Set the number of ticks.  A balance between readability and being practical.
-	plot_->axisBottom()->setTicks(3);
-	plot_->axisTop()->setTicks(0);
-	plot_->axisLeft()->setTicks(4);
-	plot_->axisRight()->setTicks(0);
+	dataPlot_->axisBottom()->setTicks(3);
+	dataPlot_->axisTop()->setTicks(0);
+	dataPlot_->axisLeft()->setTicks(4);
+	dataPlot_->axisRight()->setTicks(0);
 }
+
+void CSRMainWindow::setupDisplayPlot()
+{
+	// Create the plot window.
+	displayPlotView_ = new MPlotWidget;
+	displayPlotView_->enableAntiAliasing(true);
+
+	// Create the plot and setup all the axes.
+	displayPlot_ = new MPlot;
+	displayPlot_->axisBottom()->setAxisNameFont(QFont("Helvetica", 6));
+	displayPlot_->axisBottom()->setTickLabelFont(QFont("Helvetica", 6));
+	displayPlot_->axisBottom()->setAxisName("Revolutions, #");
+	displayPlot_->axisLeft()->setAxisNameFont(QFont("Helvetica", 6));
+	displayPlot_->axisLeft()->setTickLabelFont(QFont("Helvetica", 6));
+	displayPlot_->axisLeft()->setAxisName("Arb.");
+
+	// Set the margins for the plot.
+	displayPlot_->setMarginLeft(10);
+	displayPlot_->setMarginBottom(15);
+	displayPlot_->setMarginRight(2);
+	displayPlot_->setMarginTop(2);
+
+	// Assumes that the dataSource() contains the spectrum most desired to view.
+//	MPlotSeriesBasic *csrSeries = new MPlotSeriesBasic;
+//	mainToWakefieldSeriesData_ = new MPlotVectorSeriesData;
+//	QVector<double> x = QVector<double>(877, 0);
+
+//	for (int i = 0; i < 877; i++)
+//		x[i] = i;
+
+//	QVector<double> y = model_->mainToWakefieldDifferences();
+
+//	mainToWakefieldSeriesData_->setValues(x, y);
+//	csrSeries->setModel(mainToWakefieldSeriesData_, true);
+//	csrSeries->setMarker(MPlotMarkerShape::None);
+//	csrSeries->setDescription("Difference");
+//	csrSeries->setLinePen(QPen(Qt::red));
+//	displayPlot_->addItem(csrSeries);
+
+//	MPlotSeriesBasic *csrSeries = new MPlotSeriesBasic;
+//	mainToMainSeriesData_ = new MPlotVectorSeriesData;
+//	QVector<double> x = QVector<double>(876, 0);
+
+//	for (int i = 0; i < 876; i++)
+//		x[i] = i;
+
+//	QVector<double> y = model_->mainPeakSeparation();
+
+//	mainToMainSeriesData_->setValues(x, y);
+//	csrSeries->setModel(mainToMainSeriesData_, true);
+//	csrSeries->setMarker(MPlotMarkerShape::None);
+//	csrSeries->setDescription("Difference");
+//	csrSeries->setLinePen(QPen(Qt::blue));
+//	displayPlot_->addItem(csrSeries);
+
+//	MPlotSeriesBasic *csrSeries = new MPlotSeriesBasic;
+//	mainToWakefieldSeriesData_ = new MPlotVectorSeriesData;
+//	QVector<double> x = QVector<double>(877, 0);
+
+//	for (int i = 0; i < 877; i++)
+//		x[i] = i;
+
+//	QVector<double> y = model_->mainPeakMaxima();
+
+//	mainToWakefieldSeriesData_->setValues(x, y);
+//	csrSeries->setModel(mainToWakefieldSeriesData_, true);
+//	csrSeries->setMarker(MPlotMarkerShape::None);
+//	csrSeries->setDescription("Main Peak Maxima");
+//	csrSeries->setLinePen(QPen(Qt::red));
+//	displayPlot_->addItem(csrSeries);
+
+	MPlotSeriesBasic *csrSeries = new MPlotSeriesBasic;
+	mainToWakefieldSeriesData_ = new MPlotVectorSeriesData;
+	QVector<double> x = QVector<double>(877, 0);
+
+	for (int i = 0; i < 877; i++)
+		x[i] = i;
+
+	QVector<double> y = model_->wakefieldPeakMaxima();
+
+	mainToWakefieldSeriesData_->setValues(x, y);
+	csrSeries->setModel(mainToWakefieldSeriesData_, true);
+	csrSeries->setMarker(MPlotMarkerShape::None);
+	csrSeries->setDescription("Wakefield Maxima");
+	csrSeries->setLinePen(QPen(Qt::red));
+	displayPlot_->addItem(csrSeries);
+
+	// Enable autoscaling of both axes.
+	displayPlot_->axisScaleLeft()->setAutoScaleEnabled();
+	displayPlot_->axisScaleBottom()->setAutoScaleEnabled();
+
+	// Enable some convenient zoom tools.
+	displayPlot_->addTool(new MPlotDragZoomerTool());
+	displayPlot_->addTool(new MPlotWheelZoomerTool());
+	displayPlotView_->setPlot(displayPlot_);
+//	displayPlotView_->setFixedHeight(450);
+//	displayPlotView_->setFixedWidth(600);
+
+	// Set the number of ticks.  A balance between readability and being practical.
+	displayPlot_->axisBottom()->setTicks(3);
+	displayPlot_->axisTop()->setTicks(0);
+	displayPlot_->axisLeft()->setTicks(4);
+	displayPlot_->axisRight()->setTicks(0);
+}
+
 
 void CSRMainWindow::onRangeMinimumChanged()
 {
@@ -153,7 +235,7 @@ void CSRMainWindow::updatePlot()
 	QVector<double> y = QVector<double>(maximum-minimum+1, 0);
 	model_->timeData(minimum, maximum, x.data());
 	model_->data(minimum, maximum, y.data());
-	seriesData_->setValues(x, y);
+	dataSeriesData_->setValues(x, y);
 
 	foreach (MPlotPoint *item, items_)
 		item->setValue(QPointF(x.first(), item->value().y()));
@@ -164,7 +246,7 @@ void CSRMainWindow::updatePlot()
 
 	foreach (MPlotPoint *point, peakMarkers_){
 
-		plot_->removeItem(point);
+		dataPlot_->removeItem(point);
 		delete point;
 	}
 
@@ -174,8 +256,34 @@ void CSRMainWindow::updatePlot()
 
 		MPlotPoint *newLine = new MPlotPoint(QPointF(peakPositions.at(i), 0));
 		newLine->setMarker(MPlotMarkerShape::VerticalBeam, 1e6, QPen(Qt::black), QBrush(Qt::black));
-		newLine->setDescription("Peak");
-		plot_->addItem(newLine);
+		newLine->setDescription(QString("Peak - %1 s").arg(peakPositions.at(i)));
+		dataPlot_->addItem(newLine);
 		peakMarkers_ << newLine;
 	}
+
+	foreach (MPlotPoint *point, maximaMarkers_){
+
+		dataPlot_->removeItem(point);
+		delete point;
+	}
+
+	maximaMarkers_.clear();
+
+	QList<QPointF> maximaPoints = model_->maximaPoints();
+
+	for (int i = 0, size = maximaPoints.size(); i < size; i++){
+
+		MPlotPoint *newLine = new MPlotPoint(maximaPoints.at(i));
+		newLine->setMarker(MPlotMarkerShape::Square, 6, QPen(Qt::black), QBrush(Qt::black));
+		newLine->setDescription(QString("Maxima (%1,%2)").arg(maximaPoints.at(i).x()).arg(maximaPoints.at(i).y()));
+		dataPlot_->addItem(newLine);
+		maximaMarkers_ << newLine;
+	}
+}
+
+void CSRMainWindow::onRevolutionChanged()
+{
+	rangeMinimum_->setValue(revolution_->value()*22805);
+	rangeMaximum_->setValue(qMin((revolution_->value()+1)*22805-1, int(2e7-1)));
+	updatePlot();
 }

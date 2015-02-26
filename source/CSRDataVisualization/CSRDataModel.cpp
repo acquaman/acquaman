@@ -84,8 +84,8 @@ bool CSRDataModel::loadDataFile(const QString &filePath)
 
 void CSRDataModel::timeData(int start, int end, double *newData) const
 {
-	QTime time;
-	time.start();
+//	QTime time;
+//	time.start();
 
 	dataFile_->seek(start*sizeof(double));
 	int size = end-start+1;
@@ -98,13 +98,13 @@ void CSRDataModel::timeData(int start, int end, double *newData) const
 
 	memcpy(newData, data.data(), size*sizeof(double));
 
-	qDebug() << "Time to grab and copy" << size << "time elements:" << time.elapsed() << "ms";
+//	qDebug() << "Time to grab and copy" << size << "time elements:" << time.elapsed() << "ms";
 }
 
 void CSRDataModel::data(int start, int end, double *newData) const
 {
-	QTime time;
-	time.start();
+//	QTime time;
+//	time.start();
 
 	dataFile_->seek((2e7+start)*sizeof(double));
 	int size = end-start+1;
@@ -117,7 +117,7 @@ void CSRDataModel::data(int start, int end, double *newData) const
 
 	memcpy(newData, data.data(), size*sizeof(double));
 
-	qDebug() << "Time to grab and copy" << size << "data elements:" << time.elapsed() << "ms";
+//	qDebug() << "Time to grab and copy" << size << "data elements:" << time.elapsed() << "ms";
 }
 
 void CSRDataModel::computeMeanAndStandardDeviation()
@@ -155,33 +155,99 @@ void CSRDataModel::findPeaks(int start, int end)
 
 	data(start, end, values.data());
 	timeData(start, end, timeValues.data());
-	QList<double> validPositions;
+	QList<double> validTimePositions;
+	QList<double> validData;
 
 	for (int i = 0; i < size; i++)
-		if (fabs(values.at(i)) > fiveStandardDeviations)
-			validPositions << timeValues.at(i);
+		if (fabs(values.at(i)) > fiveStandardDeviations){
 
-	if (!validPositions.isEmpty()){
+			validTimePositions << timeValues.at(i);
+			validData << values.at(i);
+		}
 
+	if (!validTimePositions.isEmpty()){
+
+		// Get the indices that define peaks.
 		QList<int> peakDelimiters;
 
-		for (int i = 0; i < validPositions.size()-1; i++)
-			if ((validPositions.at(i+1)-validPositions.at(i)) > 1e-9)
+		for (int i = 0; i < validTimePositions.size()-1; i++)
+			if ((validTimePositions.at(i+1)-validTimePositions.at(i)) > 1e-9)
 				peakDelimiters << i;
 
+		// Get the maximum values per peak.
+		maximumValues_ = QList<double>();
+		double value = validData.first();
+		int peakIndex = 0;
+		int pointIndex = 0;
+		maximaPoints_ = QList<QPointF>();
+
+		for (int i = 1, validSize = validData.size(); i < validSize; i++){
+
+			if (i == peakDelimiters.at(peakIndex) || i == (validSize-1)){
+
+				maximumValues_ << value;
+				peakIndex++;
+				value = validData.at(i);
+				maximaPoints_ << QPointF(validTimePositions.at(pointIndex), validData.at(pointIndex));
+			}
+
+			else{
+
+				if (value > validData.at(i)){
+
+					value = validData.at(i);
+					pointIndex = i;
+				}
+			}
+		}
+
+		// Find the peak positions.
 		peakPositions_ = QList<double>();
 
 		if (peakDelimiters.isEmpty())
-			peakPositions_ << validPositions.at(int(validPositions.size()/2));
+			peakPositions_ << validTimePositions.at(int(validTimePositions.size()/2));
 
 		else{
 
 			peakDelimiters.prepend(0);
 
 			for (int i = 0, size = peakDelimiters.size()-1; i < size; i++)
-				peakPositions_ << validPositions.at(peakDelimiters.at(i) + int((peakDelimiters.at(i+1)-peakDelimiters.at(i))/2));
+				peakPositions_ << validTimePositions.at(peakDelimiters.at(i) + int((peakDelimiters.at(i+1)-peakDelimiters.at(i))/2));
 
-			peakPositions_ << validPositions.at(peakDelimiters.at(peakDelimiters.size()-1) + int((validPositions.size()-peakDelimiters.at(peakDelimiters.size()-1))/2));
+			peakPositions_ << validTimePositions.at(peakDelimiters.at(peakDelimiters.size()-1) + int((validTimePositions.size()-peakDelimiters.at(peakDelimiters.size()-1))/2));
 		}
 	}
+}
+
+void CSRDataModel::compute()
+{
+	QTime time;
+	time.start();
+
+	int size = 877;
+	int numberPerRevolution = 2e7/size;
+
+	mainToWakeFieldDifferences_ = QVector<double>(size, 0);
+	mainToMainDifferences_ = QVector<double>(size-1, 0);
+	mainPeakMaximum_ = QVector<double>(size, 0);
+	wakefieldPeakMaximum_ = QVector<double>(size, 0);
+
+	QList<double> mainPeakPositions;
+
+	for (int i = 0; i < size; i++){
+
+		findPeaks(i*numberPerRevolution, qMin((i+1)*numberPerRevolution-1, int(2e7-1)));
+		mainToWakeFieldDifferences_[i] = peakPositions_.at(1)-peakPositions_.at(0);
+		mainPeakPositions << peakPositions_.at(0);
+		mainPeakMaximum_[i] = maximumValues_.at(0);
+		wakefieldPeakMaximum_[i] = maximumValues_.at(1);
+
+		if (peakPositions_.size() != 2)
+			qDebug() << i;
+	}
+
+	for (int i = 0; i < size-1; i++)
+		mainToMainDifferences_[i] = mainPeakPositions.at(i+1)-mainPeakPositions.at(i);
+
+	qDebug() << "Time to find all the peak differences:" << time.elapsed() << "ms";
 }

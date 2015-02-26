@@ -29,10 +29,14 @@ protected slots:
 	void onRangeMinimumChanged();
 	/// Updates the maximum display value.
 	void onRangeMaximumChanged();
+	/// Updates the revolution.
+	void onRevolutionChanged();
 
 protected:
 	/// Sets up the plot.  Can add the plot widget to the layout after calling this function.  Can be reimplemented for customizing the plot as desired.  This is called inside of AMXRFBaseDetectorView::buildDetectorView().  If completely re-implementing buildDetectorView, you need to make sure to call this method inside your own buildDetectorView().
-	void setupPlot();
+	void setupDataPlot();
+	/// Sets up the display plot.
+	void setupDisplayPlot();
 	/// Update plot items and data.
 	void updatePlot();
 
@@ -43,16 +47,29 @@ protected:
 	QSpinBox *rangeMinimum_;
 	/// Spin box for defining the maximum display value.
 	QSpinBox *rangeMaximum_;
+	/// Spin box for looking at a full revolution.
+	QSpinBox *revolution_;
 	/// This is the plot widget that holds the plot used for viewing the spectra.
-	MPlotWidget *plotView_;
+	MPlotWidget *dataPlotView_;
 	/// This is the plot itself.
-	MPlot *plot_;
+	MPlot *dataPlot_;
 	/// The series data that lets us visualize the points.
-	MPlotVectorSeriesData *seriesData_;
+	MPlotVectorSeriesData *dataSeriesData_;
 	/// The list of point markers.
 	QList<MPlotPoint *> items_;
 	/// List of peak markers.
 	QList<MPlotPoint *> peakMarkers_;
+	/// Maximum markers.
+	QList<MPlotPoint *> maximaMarkers_;
+
+	/// This is the plot widget that holds the plot used for viewing the spectra.
+	MPlotWidget *displayPlotView_;
+	/// This is the plot itself.
+	MPlot *displayPlot_;
+	/// The series data that lets us visualize the points.
+	MPlotVectorSeriesData *mainToWakefieldSeriesData_;
+	/// The series data that lets us visualize the points.
+	MPlotVectorSeriesData *mainToMainSeriesData_;
 };
 
 #endif // CSRMAINWINDOW_H
