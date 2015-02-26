@@ -16,7 +16,7 @@ bool CSRAppController::start()
 {
 	CSRDataModel *model = new CSRDataModel(this);
 	model->loadDataFile("/home/hunterd/beamline/programming/CSR/CSR-50FBH-L-141208_235004_Ch1.txt");
-	model->compute();
+	model->computeMeanAndStandardDeviation();
 
 	CSRMainWindow *mainWindow = new CSRMainWindow(model);
 	mainWindow->show();

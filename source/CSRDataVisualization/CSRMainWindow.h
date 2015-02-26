@@ -11,6 +11,7 @@
 #include "MPlot/MPlot.h"
 #include "MPlot/MPlotWidget.h"
 #include "MPlot/MPlotSeries.h"
+#include "MPlot/MPlotPoint.h"
 
 class CSRMainWindow : public QWidget
 {
@@ -32,6 +33,8 @@ protected slots:
 protected:
 	/// Sets up the plot.  Can add the plot widget to the layout after calling this function.  Can be reimplemented for customizing the plot as desired.  This is called inside of AMXRFBaseDetectorView::buildDetectorView().  If completely re-implementing buildDetectorView, you need to make sure to call this method inside your own buildDetectorView().
 	void setupPlot();
+	/// Update plot items and data.
+	void updatePlot();
 
 	/// The data model.
 	CSRDataModel *model_;
@@ -47,7 +50,9 @@ protected:
 	/// The series data that lets us visualize the points.
 	MPlotVectorSeriesData *seriesData_;
 	/// The list of point markers.
-	QList<MPlotItem *> items_;
+	QList<MPlotPoint *> items_;
+	/// List of peak markers.
+	QList<MPlotPoint *> peakMarkers_;
 };
 
 #endif // CSRMAINWINDOW_H

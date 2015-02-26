@@ -48,7 +48,7 @@ void CSRMainWindow::setupPlot()
 	plot_ = new MPlot;
 	plot_->axisBottom()->setAxisNameFont(QFont("Helvetica", 6));
 	plot_->axisBottom()->setTickLabelFont(QFont("Helvetica", 6));
-	plot_->axisBottom()->setAxisName("Time, ns");
+	plot_->axisBottom()->setAxisName("Time, s");
 	plot_->axisLeft()->setAxisNameFont(QFont("Helvetica", 6));
 	plot_->axisLeft()->setTickLabelFont(QFont("Helvetica", 6));
 	plot_->axisLeft()->setAxisName("Counts");
@@ -89,11 +89,11 @@ void CSRMainWindow::setupPlot()
 //	plot_->addItem(newLine);
 //	items_ << newLine;
 
-	MPlotPoint *newLine = new MPlotPoint(QPointF(x.first(), -1*model_->standardDeviation()));
-	newLine->setMarker(MPlotMarkerShape::HorizontalBeam, 1e6, QPen(Qt::blue), QBrush(Qt::blue));
-	newLine->setDescription("Std Dev");
-	plot_->addItem(newLine);
-	items_ << newLine;
+//	MPlotPoint *newLine = new MPlotPoint(QPointF(x.first(), -1*model_->standardDeviation()));
+//	newLine->setMarker(MPlotMarkerShape::HorizontalBeam, 1e6, QPen(Qt::blue), QBrush(Qt::blue));
+//	newLine->setDescription("Std Dev");
+//	plot_->addItem(newLine);
+//	items_ << newLine;
 
 //	newLine = new MPlotPoint(QPointF(x.first(), -2*model_->standardDeviation()));
 //	newLine->setMarker(MPlotMarkerShape::HorizontalBeam, 1e6, QPen(Qt::blue), QBrush(Qt::blue));
@@ -107,7 +107,7 @@ void CSRMainWindow::setupPlot()
 //	plot_->addItem(newLine);
 //	items_ << newLine;
 
-	newLine = new MPlotPoint(QPointF(x.first(), -5*model_->standardDeviation()));
+	MPlotPoint *newLine = new MPlotPoint(QPointF(x.first(), -5*model_->standardDeviation()));
 	newLine->setMarker(MPlotMarkerShape::HorizontalBeam, 1e6, QPen(Qt::blue), QBrush(Qt::blue));
 	newLine->setDescription("5x Std Dev");
 	plot_->addItem(newLine);
@@ -133,25 +133,15 @@ void CSRMainWindow::setupPlot()
 
 void CSRMainWindow::onRangeMinimumChanged()
 {
-	int minimum = rangeMinimum_->value();
-	int maximum = rangeMaximum_->value();
-
-	if (minimum >= maximum)
-		return;
-
-	QVector<double> x = QVector<double>(maximum-minimum+1, 0);
-	QVector<double> y = QVector<double>(maximum-minimum+1, 0);
-	model_->timeData(minimum, maximum, x.data());
-	model_->data(minimum, maximum, y.data());
-	seriesData_->setValues(x, y);
-
-	foreach (MPlotItem *item, plot_->plotItems())
-		item->setX(x.first());
-
-	plot_->axisScaleBottom()->setDataRange(MPlotAxisRange(x.first(), x.last()));
+	updatePlot();
 }
 
 void CSRMainWindow::onRangeMaximumChanged()
+{
+	updatePlot();
+}
+
+void CSRMainWindow::updatePlot()
 {
 	int minimum = rangeMinimum_->value();
 	int maximum = rangeMaximum_->value();
@@ -165,8 +155,27 @@ void CSRMainWindow::onRangeMaximumChanged()
 	model_->data(minimum, maximum, y.data());
 	seriesData_->setValues(x, y);
 
-	foreach (MPlotItem *item, plot_->plotItems())
-		item->setX(x.first());
+	foreach (MPlotPoint *item, items_)
+		item->setValue(QPointF(x.first(), item->value().y()));
 
-	plot_->axisScaleBottom()->setDataRange(MPlotAxisRange(x.first(), x.last()));
+	model_->findPeaks(minimum, maximum);
+
+	QList<double> peakPositions = model_->peakPositions();
+
+	foreach (MPlotPoint *point, peakMarkers_){
+
+		plot_->removeItem(point);
+		delete point;
+	}
+
+	peakMarkers_.clear();
+
+	for (int i = 0, size = peakPositions.size(); i < size; i++){
+
+		MPlotPoint *newLine = new MPlotPoint(QPointF(peakPositions.at(i), 0));
+		newLine->setMarker(MPlotMarkerShape::VerticalBeam, 1e6, QPen(Qt::black), QBrush(Qt::black));
+		newLine->setDescription("Peak");
+		plot_->addItem(newLine);
+		peakMarkers_ << newLine;
+	}
 }

@@ -17,6 +17,12 @@ CSRDataModel::CSRDataModel(QObject *parent) :
 	dataFile_ = 0;
 }
 
+CSRDataModel::~CSRDataModel()
+{
+	dataFile_->close();
+	dataFile_->deleteLater();
+}
+
 bool CSRDataModel::loadDataFile(const QString &filePath)
 {
 	QString binaryPath = filePath;
@@ -40,9 +46,9 @@ bool CSRDataModel::loadDataFile(const QString &filePath)
 
 		for (int i = 0; i < 2e7; i++){
 
-			QStringList data = in.readLine().split("\t");
-			timeData[i] = data.at(3).toDouble();
-			data[i] = data.at(4).toDouble();
+			QStringList line = in.readLine().split("\t");
+			timeData[i] = line.at(3).toDouble();
+			data[i] = line.at(4).toDouble();
 		}
 
 		qDebug() << "Time to load: " << time.restart() << "ms";
@@ -67,7 +73,7 @@ bool CSRDataModel::loadDataFile(const QString &filePath)
 		binaryFile.close();
 	}
 
-	dataFile_ = new QFile(binaryPath, this);
+	dataFile_ = new QFile(binaryPath);
 
 	if(!dataFile_->open(QIODevice::ReadOnly)) {
 		return false;
@@ -114,12 +120,7 @@ void CSRDataModel::data(int start, int end, double *newData) const
 	qDebug() << "Time to grab and copy" << size << "data elements:" << time.elapsed() << "ms";
 }
 
-void CSRDataModel::smoothData(int start, int end, double *newData) const
-{
-	memcpy(newData, smoothData_.data()+start, (end-start+1)*sizeof(double));
-}
-
-void CSRDataModel::compute()
+void CSRDataModel::computeMeanAndStandardDeviation()
 {
 	QTime time;
 	time.start();
@@ -142,21 +143,45 @@ void CSRDataModel::compute()
 
 	standardDeviation_ = sqrt(meanSquared - mean_*mean_);
 	qDebug() << "Time to compute mean and std dev: " << time.restart() << "ms";
+}
 
-	// 5 point running average
-//	smoothData_ = QVector<double>(data_.size(), 0);
-//	int smoothingFactor = 2;
+void CSRDataModel::findPeaks(int start, int end)
+{
+	double fiveStandardDeviations = standardDeviation_*5;
 
-//	for (int i = 0, size = smoothData_.size(); i < size; i++){
+	int size = end-start+1;
+	QVector<double> values = QVector<double>(size, 0);
+	QVector<double> timeValues = QVector<double>(size, 0);
 
-//		for (int j = -1*smoothingFactor; j <= smoothingFactor; j++){
+	data(start, end, values.data());
+	timeData(start, end, timeValues.data());
+	QList<double> validPositions;
 
-//			if (((i+j) >= 0) && ((i+j) < size))
-//				smoothData_[i] += data_.at(i+j);
+	for (int i = 0; i < size; i++)
+		if (fabs(values.at(i)) > fiveStandardDeviations)
+			validPositions << timeValues.at(i);
 
-//			smoothData_[i] /= smoothingFactor*2;
-//		}
-//	}
+	if (!validPositions.isEmpty()){
 
-	qDebug() << "Time to smooth data:" << time.restart() << "ms";
+		QList<int> peakDelimiters;
+
+		for (int i = 0; i < validPositions.size()-1; i++)
+			if ((validPositions.at(i+1)-validPositions.at(i)) > 1e-9)
+				peakDelimiters << i;
+
+		peakPositions_ = QList<double>();
+
+		if (peakDelimiters.isEmpty())
+			peakPositions_ << validPositions.at(int(validPositions.size()/2));
+
+		else{
+
+			peakDelimiters.prepend(0);
+
+			for (int i = 0, size = peakDelimiters.size()-1; i < size; i++)
+				peakPositions_ << validPositions.at(peakDelimiters.at(i) + int((peakDelimiters.at(i+1)-peakDelimiters.at(i))/2));
+
+			peakPositions_ << validPositions.at(peakDelimiters.at(peakDelimiters.size()-1) + int((validPositions.size()-peakDelimiters.at(peakDelimiters.size()-1))/2));
+		}
+	}
 }
