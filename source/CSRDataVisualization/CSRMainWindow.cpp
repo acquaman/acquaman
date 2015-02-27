@@ -1,6 +1,7 @@
 #include "CSRMainWindow.h"
 
 #include <QVBoxLayout>
+#include <QGroupBox>
 
 #include "MPlot/MPlotAxisScale.h"
 #include "MPlot/MPlotTools.h"
@@ -27,7 +28,7 @@ CSRMainWindow::CSRMainWindow(CSRDataModel *model, QWidget *parent)
 	connect(rangeMaximum_, SIGNAL(editingFinished()), this, SLOT(onRangeMaximumChanged()));
 
 	revolution_ = new QSpinBox;
-	revolution_->setRange(0, 877);
+	revolution_->setRange(0, 876);
 	revolution_->setValue(0);
 	revolution_->setPrefix("#: ");
 
@@ -46,7 +47,35 @@ CSRMainWindow::CSRMainWindow(CSRDataModel *model, QWidget *parent)
 
 	setLayout(mainLayout);
 
-	displayPlotView_->show();
+	dataSelectionBox_ = new QComboBox;
+
+	for (int i = 0; i < dataSeries_.size(); i++)
+		dataSelectionBox_->addItem(dataSeries_.at(i)->description());
+
+	connect(dataSelectionBox_, SIGNAL(currentIndexChanged(int)), this, SLOT(onDataSelectionChanged(int)));
+	dataSelectionBox_->setCurrentIndex(0);
+
+	QGroupBox *displayPlotBox = new QGroupBox;
+	QVBoxLayout *displayPlotLayout = new QVBoxLayout;
+	displayPlotLayout->addWidget(dataSelectionBox_, 0, Qt::AlignLeft);
+	displayPlotLayout->addWidget(displayPlotView_);
+	displayPlotBox->setLayout(displayPlotLayout);
+	displayPlotBox->show();
+}
+
+CSRMainWindow::~CSRMainWindow()
+{
+	foreach (MPlotItem *item, dataPlot_->plotItems()){
+
+		dataPlot_->removeItem(item);
+		delete item;
+	}
+
+	foreach (MPlotItem *item, displayPlot_->plotItems()){
+
+		displayPlot_->removeItem(item);
+		delete item;
+	}
 }
 
 void CSRMainWindow::setupDataPlot()
@@ -130,69 +159,69 @@ void CSRMainWindow::setupDisplayPlot()
 	displayPlot_->setMarginTop(2);
 
 	// Assumes that the dataSource() contains the spectrum most desired to view.
-//	MPlotSeriesBasic *csrSeries = new MPlotSeriesBasic;
-//	mainToWakefieldSeriesData_ = new MPlotVectorSeriesData;
-//	QVector<double> x = QVector<double>(877, 0);
-
-//	for (int i = 0; i < 877; i++)
-//		x[i] = i;
-
-//	QVector<double> y = model_->mainToWakefieldDifferences();
-
-//	mainToWakefieldSeriesData_->setValues(x, y);
-//	csrSeries->setModel(mainToWakefieldSeriesData_, true);
-//	csrSeries->setMarker(MPlotMarkerShape::None);
-//	csrSeries->setDescription("Difference");
-//	csrSeries->setLinePen(QPen(Qt::red));
-//	displayPlot_->addItem(csrSeries);
-
-//	MPlotSeriesBasic *csrSeries = new MPlotSeriesBasic;
-//	mainToMainSeriesData_ = new MPlotVectorSeriesData;
-//	QVector<double> x = QVector<double>(876, 0);
-
-//	for (int i = 0; i < 876; i++)
-//		x[i] = i;
-
-//	QVector<double> y = model_->mainPeakSeparation();
-
-//	mainToMainSeriesData_->setValues(x, y);
-//	csrSeries->setModel(mainToMainSeriesData_, true);
-//	csrSeries->setMarker(MPlotMarkerShape::None);
-//	csrSeries->setDescription("Difference");
-//	csrSeries->setLinePen(QPen(Qt::blue));
-//	displayPlot_->addItem(csrSeries);
-
-//	MPlotSeriesBasic *csrSeries = new MPlotSeriesBasic;
-//	mainToWakefieldSeriesData_ = new MPlotVectorSeriesData;
-//	QVector<double> x = QVector<double>(877, 0);
-
-//	for (int i = 0; i < 877; i++)
-//		x[i] = i;
-
-//	QVector<double> y = model_->mainPeakMaxima();
-
-//	mainToWakefieldSeriesData_->setValues(x, y);
-//	csrSeries->setModel(mainToWakefieldSeriesData_, true);
-//	csrSeries->setMarker(MPlotMarkerShape::None);
-//	csrSeries->setDescription("Main Peak Maxima");
-//	csrSeries->setLinePen(QPen(Qt::red));
-//	displayPlot_->addItem(csrSeries);
-
 	MPlotSeriesBasic *csrSeries = new MPlotSeriesBasic;
-	mainToWakefieldSeriesData_ = new MPlotVectorSeriesData;
+	integralSeriesData_ = new MPlotVectorSeriesData;
 	QVector<double> x = QVector<double>(877, 0);
 
 	for (int i = 0; i < 877; i++)
 		x[i] = i;
 
-	QVector<double> y = model_->wakefieldPeakMaxima();
+	QVector<double> y = model_->integral();
 
-	mainToWakefieldSeriesData_->setValues(x, y);
-	csrSeries->setModel(mainToWakefieldSeriesData_, true);
+	integralSeriesData_->setValues(x, y);
+	csrSeries->setModel(integralSeriesData_, true);
+	csrSeries->setMarker(MPlotMarkerShape::None);
+	csrSeries->setDescription("Integral");
+	csrSeries->setLinePen(QPen(Qt::red));
+	dataSeries_ << csrSeries;
+
+	csrSeries = new MPlotSeriesBasic;
+	mainToMainSeriesData_ = new MPlotVectorSeriesData;
+	x = QVector<double>(876, 0);
+
+	for (int i = 0; i < 876; i++)
+		x[i] = i;
+
+	y = model_->mainPeakSeparation();
+
+	mainToMainSeriesData_->setValues(x, y);
+	csrSeries->setModel(mainToMainSeriesData_, true);
+	csrSeries->setMarker(MPlotMarkerShape::None);
+	csrSeries->setDescription("Main Peak Separation");
+	csrSeries->setLinePen(QPen(Qt::blue));
+	dataSeries_ << csrSeries;
+
+	csrSeries = new MPlotSeriesBasic;
+	mainPeakMaximaSeriesData_ = new MPlotVectorSeriesData;
+	x = QVector<double>(877, 0);
+
+	for (int i = 0; i < 877; i++)
+		x[i] = i;
+
+	y = model_->mainPeakMaxima();
+
+	mainPeakMaximaSeriesData_->setValues(x, y);
+	csrSeries->setModel(mainPeakMaximaSeriesData_, true);
+	csrSeries->setMarker(MPlotMarkerShape::None);
+	csrSeries->setDescription("Main Peak Maxima");
+	csrSeries->setLinePen(QPen(Qt::red));
+	dataSeries_ << csrSeries;
+
+	csrSeries = new MPlotSeriesBasic;
+	wakefieldPeakMaximaSeriesData_ = new MPlotVectorSeriesData;
+	x = QVector<double>(877, 0);
+
+	for (int i = 0; i < 877; i++)
+		x[i] = i;
+
+	y = model_->wakefieldPeakMaxima();
+
+	wakefieldPeakMaximaSeriesData_->setValues(x, y);
+	csrSeries->setModel(wakefieldPeakMaximaSeriesData_, true);
 	csrSeries->setMarker(MPlotMarkerShape::None);
 	csrSeries->setDescription("Wakefield Maxima");
 	csrSeries->setLinePen(QPen(Qt::red));
-	displayPlot_->addItem(csrSeries);
+	dataSeries_ << csrSeries;
 
 	// Enable autoscaling of both axes.
 	displayPlot_->axisScaleLeft()->setAutoScaleEnabled();
@@ -286,4 +315,11 @@ void CSRMainWindow::onRevolutionChanged()
 	rangeMinimum_->setValue(revolution_->value()*22805);
 	rangeMaximum_->setValue(qMin((revolution_->value()+1)*22805-1, int(2e7-1)));
 	updatePlot();
+}
+
+void CSRMainWindow::onDataSelectionChanged(int index)
+{
+	MPlotItem *displayItem = displayPlot_->item(0);
+	displayPlot_->removeItem(displayItem);
+	displayPlot_->addItem(dataSeries_.at(index));
 }

@@ -35,6 +35,8 @@ public:
 	const QVector<double> &mainPeakMaxima() const { return mainPeakMaximum_; }
 	/// Returns the maximum wakefield values.
 	const QVector<double> &wakefieldPeakMaxima() const { return wakefieldPeakMaximum_; }
+	/// Returns the integral of the data set where each point corresponds to a rotation.
+	const QVector<double> &integral() const { return integral_; }
 
 signals:
 
@@ -47,6 +49,8 @@ public slots:
 	void findPeaks(int start, int end);
 	/// Some maths.
 	void compute();
+	/// Compute the integral.
+	void computeIntegral();
 
 protected:
 	/// The mean.
@@ -69,6 +73,8 @@ protected:
 	QVector<double> wakefieldPeakMaximum_;
 	/// A list of points with maxima as (x,y) pair.
 	QList<QPointF> maximaPoints_;
+	/// The integral where each point is the integral over a single revolution.
+	QVector<double> integral_;
 };
 
 #endif // CSRDATAMODEL_H

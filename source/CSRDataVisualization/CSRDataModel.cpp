@@ -174,6 +174,9 @@ void CSRDataModel::findPeaks(int start, int end)
 			if ((validTimePositions.at(i+1)-validTimePositions.at(i)) > 1e-9)
 				peakDelimiters << i;
 
+		// If we got in here there is at least one peak, so add the last position.
+		peakDelimiters << (validData.size()-1);
+
 		// Get the maximum values per peak.
 		maximumValues_ = QList<double>();
 		double value = validData.first();
@@ -183,9 +186,9 @@ void CSRDataModel::findPeaks(int start, int end)
 
 		for (int i = 1, validSize = validData.size(); i < validSize; i++){
 
-			if (i == peakDelimiters.at(peakIndex) || i == (validSize-1)){
+			if (i == peakDelimiters.at(peakIndex)/* || i == (validSize-1)*/){
 
-				maximumValues_ << value;
+				maximumValues_ << validData.at(pointIndex);
 				peakIndex++;
 				value = validData.at(i);
 				maximaPoints_ << QPointF(validTimePositions.at(pointIndex), validData.at(pointIndex));
@@ -200,6 +203,9 @@ void CSRDataModel::findPeaks(int start, int end)
 				}
 			}
 		}
+
+		// Remove the extra piece we added for max value finding.
+		peakDelimiters.removeLast();
 
 		// Find the peak positions.
 		peakPositions_ = QList<double>();
@@ -239,15 +245,43 @@ void CSRDataModel::compute()
 		findPeaks(i*numberPerRevolution, qMin((i+1)*numberPerRevolution-1, int(2e7-1)));
 		mainToWakeFieldDifferences_[i] = peakPositions_.at(1)-peakPositions_.at(0);
 		mainPeakPositions << peakPositions_.at(0);
-		mainPeakMaximum_[i] = maximumValues_.at(0);
-		wakefieldPeakMaximum_[i] = maximumValues_.at(1);
-
-		if (peakPositions_.size() != 2)
-			qDebug() << i;
+		mainPeakMaximum_[i] = maximumValues_.first();
+		wakefieldPeakMaximum_[i] = maximumValues_.last();
 	}
 
 	for (int i = 0; i < size-1; i++)
 		mainToMainDifferences_[i] = mainPeakPositions.at(i+1)-mainPeakPositions.at(i);
 
 	qDebug() << "Time to find all the peak differences:" << time.elapsed() << "ms";
+}
+
+void CSRDataModel::computeIntegral()
+{
+	QTime time;
+	time.start();
+
+	int size = 877;
+	int numberPerRevolution = 2e7/size;
+
+	integral_ = QVector<double>(size, 0);
+
+	for (int i = 0; i < size; i++){
+
+		QVector<double> x = QVector<double>(numberPerRevolution, 0);
+		QVector<double> fx = QVector<double>(numberPerRevolution, 0);
+
+		data(i*numberPerRevolution, qMin((i+1)*numberPerRevolution-1, int(2e7-1)), fx.data());
+		timeData(i*numberPerRevolution, qMin((i+1)*numberPerRevolution-1, int(2e7-1)), x.data());
+
+		integral_[i] = fx.first()+fx.last();
+
+		for (int j = 1; j < numberPerRevolution-1; j++){
+
+			integral_[i] += 2*fx.at(j);
+		}
+
+		integral_[i] *= (x.last()-x.first())/(2*(numberPerRevolution-1));
+	}
+
+	qDebug() << "Time to find the integral: " << time.elapsed() << "ms";
 }
