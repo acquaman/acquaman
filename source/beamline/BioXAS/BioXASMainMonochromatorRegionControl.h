@@ -77,6 +77,10 @@ public:
 	virtual bool moveInProgress() const { return false; }
 
 signals:
+	/// Notifier that there has been progress in completing a move. Provides information needed for a progress bar display.
+	void moveProgressChanged(double numerator, double denominator);
+	/// Notifier that the current step in a move has changed.
+	void moveStepChanged();
 
 public slots:
 	/// Sets the new region setpoint and performs a crystal change, if necessary.
@@ -118,6 +122,14 @@ public slots:
 protected slots:
 	/// Sets the current region in response to a value change from one of the region controls.
 	void onRegionControlValueChanged();
+	/// Handles emitting the appropriate signals when the current step in a move has changed.
+	void onCurrentMoveStepChanged(int stepIndex);
+	/// Called when the internal crystal change action has been cancelled. Handles emitting moveFailed(...) with the WasStoppedFailure code and deleting the action.
+	void onRegionChangeCancelled();
+	/// Called when the internal crystal change action has failed. Handles emitting moveFailed(...) with the OtherFailure code and deleting the action.
+	void onRegionChangeFailed();
+	/// Called when the internal crystal change action has succeeded! Handles emitting moveSucceeded() and deleting the action.
+	void onRegionChangeSucceeded();
 
 protected:
 	/// Returns a new action that closes the upper slit, 0 if not connected.
@@ -169,7 +181,7 @@ protected:
 	/// Returns a new action that waits for the mono region key to be turned CW to Disabled, 0 if not connected.
 	AMAction3* createWaitForKeyDisabledAction();
 	/// Returns a new action that changes the current region to the new, desired region. Performs a crystal change.
-	AMAction3* createChangeRegionAction(Region::State newRegion);
+	AMListAction3 *createChangeRegionAction(Region::State newRegion);
 
 protected:
 	/// The current region state.

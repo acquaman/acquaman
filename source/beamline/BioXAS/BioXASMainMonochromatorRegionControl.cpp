@@ -48,8 +48,31 @@ bool BioXASMainMonochromatorRegionControl::canStop() const
 
 AMControl::FailureExplanation BioXASMainMonochromatorRegionControl::move(double setpoint)
 {
-	Q_UNUSED(setpoint)
-	return AMControl::NotConnectedFailure;
+	// Setup local vars.
+
+	int newRegion = (int)setpoint;
+	AMListAction3 *action = 0;
+
+	// Resolve the given setpoint to a Region.
+
+	if (newRegion == Region::A)
+		action = createChangeRegionAction(Region::A);
+	else if (newRegion == Region::B)
+		action = createChangeRegionAction(Region::B);
+
+	// If a valid action was generated, make connections and run it.
+
+	if (action) {
+		connect( action, SIGNAL(progressChanged(double, double)), this, SIGNAL(moveProgressChanged(double, double)) );
+		connect( action, SIGNAL(currentSubActionChanged(int)), this, SLOT(onCurrentMoveStepChanged(int)) );
+		connect( action, SIGNAL(cancelled()), this, SLOT(onRegionChangeCancelled()) );
+		connect( action, SIGNAL(failed()), this, SLOT(onRegionChangeFailed()) );
+		connect( action, SIGNAL(succeeded()), this, SLOT(onRegionChangeSucceeded()) );
+
+		action->start();
+	}
+
+	return AMControl::NoFailure;
 }
 
 AMControl::FailureExplanation BioXASMainMonochromatorRegionControl::moveRelative(double distance, RelativeMoveType relativeMoveType)
@@ -554,7 +577,7 @@ AMAction3* BioXASMainMonochromatorRegionControl::createWaitForRegionChangedActio
 	return action;
 }
 
-AMAction3* BioXASMainMonochromatorRegionControl::createChangeRegionAction(Region::State newRegion)
+AMListAction3* BioXASMainMonochromatorRegionControl::createChangeRegionAction(Region::State newRegion)
 {
 	AMListAction3 *changeRegion = 0;
 
@@ -603,4 +626,33 @@ void BioXASMainMonochromatorRegionControl::onRegionControlValueChanged()
 		region_ = newRegion;
 		emit valueChanged(region_);
 	}
+}
+
+void BioXASMainMonochromatorRegionControl::onCurrentMoveStepChanged(int stepIndex)
+{
+	Q_UNUSED(stepIndex)
+}
+
+void BioXASMainMonochromatorRegionControl::onRegionChangeCancelled()
+{
+	disconnect( sender(), 0, this, 0 );
+	sender()->deleteLater();
+
+	emit moveFailed(AMControl::WasStoppedFailure);
+}
+
+void BioXASMainMonochromatorRegionControl::onRegionChangeFailed()
+{
+	disconnect( sender(), 0, this, 0 );
+	sender()->deleteLater();
+
+	emit moveFailed(AMControl::OtherFailure);
+}
+
+void BioXASMainMonochromatorRegionControl::onRegionChangeSucceeded()
+{
+	disconnect( sender(), 0, this, 0 );
+	sender()->deleteLater();
+
+	emit moveSucceeded();
 }

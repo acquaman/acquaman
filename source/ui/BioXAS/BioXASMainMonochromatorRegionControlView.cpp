@@ -9,31 +9,53 @@ BioXASMainMonochromatorRegionControlView::BioXASMainMonochromatorRegionControlVi
 
 	// Create UI elements.
 
-	initializeView_ = new QWidget();
-	QLabel *initializeViewLabel = new QLabel("Begin crystal change procedure?");
-	QDialogButtonBox *initializeViewButtons = new QDialogButtonBox(QDialogButtonBox::Ok |
-																   QDialogButtonBox::Cancel);
+	movingView_ = new QWidget();
+	movingDescription_ = new QLabel();
+
+	failedView_ = new QWidget();
+	failedDescription_ = new QLabel();
+	QDialogButtonBox *failedButtons = new QDialogButtonBox(QDialogButtonBox::Ok);
+
+	succeededView_ = new QWidget();
+	QLabel *succeededMessage = new QLabel("Region change completed successfully!");
+	QDialogButtonBox *succeededButtons = new QDialogButtonBox(QDialogButtonBox::Ok);
 
 	// Create and set layouts.
 
-	QVBoxLayout *initializeViewLayout = new QVBoxLayout();
-	initializeViewLayout->setMargin(0);
-	initializeViewLayout->addWidget(initializeViewLabel);
-	initializeViewLayout->addWidget(initializeViewButtons);
+	QVBoxLayout *movingLayout = new QVBoxLayout();
+	movingLayout->addWidget(movingDescription_);
 
-	initializeView_->setLayout(initializeViewLayout);
+	movingView_->setLayout(movingLayout);
+
+	QVBoxLayout *failedLayout = new QVBoxLayout();
+	failedLayout->addWidget(failedDescription_);
+	failedLayout->addWidget(failedButtons);
+
+	failedView_->setLayout(failedLayout);
+
+	QVBoxLayout *succeededLayout = new QVBoxLayout();
+	succeededLayout->addWidget(succeededMessage);
+	succeededLayout->addWidget(succeededButtons);
+
+	succeededView_->setLayout(succeededLayout);
 
 	QVBoxLayout *layout = new QVBoxLayout();
-	layout->addWidget(initializeView_);
+	layout->addWidget(movingView_);
+	layout->addWidget(failedView_);
+	layout->addWidget(succeededView_);
 
 	setLayout(layout);
 
 	// Make connections.
 
-	connect( initializeViewButtons, SIGNAL(accepted()), this, SLOT(onInitializeViewAccepted()) );
-	connect( initializeViewButtons, SIGNAL(rejected()), this, SLOT(close()) );
+	connect( failedButtons, SIGNAL(accepted()), this, SLOT(close()) );
+	connect( succeededButtons, SIGNAL(accepted()), this, SLOT(close()) );
 
 	// Current settings.
+
+	movingView_->hide();
+	failedView_->hide();
+	succeededView_->hide();
 
 	setRegionControl(regionControl);
 }
@@ -46,12 +68,73 @@ BioXASMainMonochromatorRegionControlView::~BioXASMainMonochromatorRegionControlV
 void BioXASMainMonochromatorRegionControlView::setRegionControl(BioXASMainMonochromatorRegionControl *newControl)
 {
 	if (regionControl_ != newControl) {
+
+		if (regionControl_)
+			disconnect( regionControl_, 0, this, 0 );
+
 		regionControl_ = newControl;
+
+		if (regionControl_) {
+			connect( regionControl_, SIGNAL(moveStarted()), this, SLOT(onMoveStarted()) );
+			connect( regionControl_, SIGNAL(moveFailed(int)), this, SLOT(onMoveFailed(int)) );
+			connect( regionControl_, SIGNAL(moveSucceeded()), this, SLOT(onMoveSucceeded()) );
+		}
+
 		emit regionControlChanged(regionControl_);
 	}
 }
 
-void BioXASMainMonochromatorRegionControlView::onInitializeViewAccepted()
+void BioXASMainMonochromatorRegionControlView::onMoveStarted()
 {
-	close();
+	showMovingView();
+}
+
+void BioXASMainMonochromatorRegionControlView::onMoveFailed(int failureCode)
+{
+	showFailedView(AMControl::failureExplanation(failureCode));
+}
+
+void BioXASMainMonochromatorRegionControlView::onMoveSucceeded()
+{
+	showSucceededView();
+}
+
+void BioXASMainMonochromatorRegionControlView::showMovingView()
+{
+	// Hide other views.
+
+	failedView_->hide();
+	succeededView_->hide();
+
+	// Show moving view.
+
+	movingView_->show();
+}
+
+void BioXASMainMonochromatorRegionControlView::showFailedView(const QString &message)
+{
+	// Hide other views.
+
+	movingView_->hide();
+	succeededView_->hide();
+
+	// Set failure message.
+
+	failedDescription_->setText(message);
+
+	// Show failed view.
+
+	failedView_->show();
+}
+
+void BioXASMainMonochromatorRegionControlView::showSucceededView()
+{
+	// Hide other views.
+
+	movingView_->hide();
+	failedView_->hide();
+
+	// Show succeeded view.
+
+	succeededView_->show();
 }
