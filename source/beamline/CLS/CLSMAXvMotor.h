@@ -184,6 +184,12 @@ public:
 
 	/// Returns the status PV control, which can be used as the statusTagControl for control editor
 	AMReadOnlyPVControl *statusPVControl();
+	/// Returns the power state PV control.
+	AMPVControl *powerStatusControl() const { return powerState_; }
+	/// Returns the clockwise limit status PV control.
+	AMReadOnlyPVControl *cwLimitControl() const { return cwLimit_; }
+	/// Returns the counter-clockwise limit status PV control.
+	AMReadOnlyPVControl *ccwLimitControl() const { return ccwLimit_; }
 
 	/// Returns a newly created action to move the motor. This is a convenience function that calls the EGU move action. Returns 0 if the control is not connected.
 	AMAction3* createMotorMoveAction(double position);
