@@ -185,7 +185,7 @@ public:
 	/// Returns the status PV control, which can be used as the statusTagControl for control editor
 	AMReadOnlyPVControl *statusPVControl();
 	/// Returns the power state PV control.
-	AMPVControl *powerStatusControl() const { return powerState_; }
+	AMPVControl *powerStateControl() const { return powerState_; }
 	/// Returns the clockwise limit status PV control.
 	AMReadOnlyPVControl *cwLimitControl() const { return cwLimit_; }
 	/// Returns the counter-clockwise limit status PV control.

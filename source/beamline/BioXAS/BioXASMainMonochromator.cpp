@@ -129,6 +129,8 @@ void BioXASMainMonochromator::onConnectedChanged()
 
 void BioXASMainMonochromator::initializeRegionControl()
 {
+	regionControl_->setRegionAStatusControl(regionAStatus_);
+	regionControl_->setRegionBStatusControl(regionBStatus_);
 	regionControl_->setUpperSlitControl(upperSlitMotor_);
 	regionControl_->setLowerSlitControl(lowerSlitMotor_);
 	regionControl_->setSlitsStatusControl(slitsStatus_);
@@ -139,7 +141,7 @@ void BioXASMainMonochromator::initializeRegionControl()
 	regionControl_->setBraggAtCrystalChangePositionControl(braggMotorCrystalChangeStatus_);
 	regionControl_->setBrakeStatusControl(brakeStatus_);
 	regionControl_->setCrystalChangeControl(crystalChangeMotor_);
-	regionControl_->setRegionAStatusControl(regionAStatus_);
-	regionControl_->setRegionBStatusControl(regionBStatus_);
+	regionControl_->setCrystalChangeCWLimitControl(crystalChangeMotor_->cwLimitControl());
+	regionControl_->setCrystalChangeCCWLimitControl(crystalChangeMotor_->ccwLimitControl());
 }
 
