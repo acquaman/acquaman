@@ -45,7 +45,7 @@ public:
 	Q_INVOKABLE explicit VESPERSExporter3DAscii(QObject *parent = 0);
 
 	/// Description of the exporter.
-	virtual QString description() const { return "3D Map Style (plain text file)"; }
+	virtual QString description() const { return "VESPERS 3D Map Style (plain text file)"; }
 	/// More verbose description of the exporter.
 	virtual QString longDescription() const
 	{

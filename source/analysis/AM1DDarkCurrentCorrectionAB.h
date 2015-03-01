@@ -51,6 +51,7 @@ class AM1DDarkCurrentCorrectionAB : public AMStandardAnalysisBlock
 public:
 	/// Constructor.
 	Q_INVOKABLE AM1DDarkCurrentCorrectionAB(const QString &outputName = "InvalidInput", QObject *parent = 0);
+	/// Destructor.
 	virtual ~AM1DDarkCurrentCorrectionAB();
 
 	QString infoDescription() const { return QString(); }
@@ -107,9 +108,6 @@ public:
 
 	/// Reimplement the create widget method.
 	QWidget *createEditorWidget();
-
-	/// Re-implemented from AMDbObject to set the AMDataSource name once we have an AMDbObject::name()
-	bool loadFromDb(AMDatabase *db, int id);
 
 public slots:
 	/// Set the dark current correction value.

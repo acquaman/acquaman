@@ -360,10 +360,3 @@ QWidget *AM1DIntegralAB::createEditorWidget()
 {
 	 return new AM1DBasicIntegralABEditor(this);
 }
-
-bool AM1DIntegralAB::loadFromDb(AMDatabase *db, int id) {
-	bool success = AMDbObject::loadFromDb(db, id);
-	if(success)
-		AMDataSource::name_ = AMDbObject::name();	/// \todo This might change the name of a data-source in mid-life, which is technically not allowed.
-	return success;
-}

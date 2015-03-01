@@ -115,7 +115,6 @@ HEADERS += \
 	source/analysis/AM1DDerivativeAB.h \
 	source/analysis/AM1DInterpolationAB.h \
 	source/analysis/AM1DRunningAverageFilterAB.h \
-	source/analysis/AMExternalScanDataSourceAB.h \
 	source/analysis/AM1DSummingAB.h \
 	source/analysis/AMDeadTimeAB.h \
 	source/dataman/datasource/AMProcessVariableDataSource.h \
@@ -450,11 +449,9 @@ HEADERS += \
 	source/actions3/actions/AMChangeToleranceAction.h \
 	source/ui/util/AMLineEditDialog.h \
 	source/dataman/AMXRFScan.h \
-    source/ui/util/AMChooseDataFolderDialog.h
+	source/ui/util/AMChooseDataFolderDialog.h
 
 FORMS += \
-	source/ui/dataman/AMImportControllerWidget.ui \
-	source/ui/dataman/AMImagePropertyEditor.ui
 
 SOURCES += \
 	source/acquaman/AMScanConfiguration.cpp \
@@ -537,7 +534,6 @@ SOURCES += \
 	source/analysis/AM1DDerivativeAB.cpp \
 	source/analysis/AM1DInterpolationAB.cpp \
 	source/analysis/AM1DRunningAverageFilterAB.cpp \
-	source/analysis/AMExternalScanDataSourceAB.cpp \
 	source/analysis/AM1DSummingAB.cpp \
 	source/analysis/AMDeadTimeAB.cpp \
 	source/dataman/datasource/AMProcessVariableDataSource.cpp \
@@ -865,7 +861,7 @@ SOURCES += \
 	source/actions3/actions/AMChangeToleranceAction.cpp \
 	source/ui/util/AMLineEditDialog.cpp \
 	source/dataman/AMXRFScan.cpp \
-    source/ui/util/AMChooseDataFolderDialog.cpp
+	source/ui/util/AMChooseDataFolderDialog.cpp
 
 RESOURCES *= source/icons/icons.qrc \
 		source/configurationFiles/configurationFiles.qrc \
@@ -882,25 +878,3 @@ contains(DEFINES, AM_BUILD_REPORTER_ENABLED){
 
 	SOURCES *= source/util/AMRunTimeBuildInfo.cpp
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

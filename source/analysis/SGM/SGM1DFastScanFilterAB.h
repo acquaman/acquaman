@@ -62,9 +62,6 @@ public:
 	/// When the independent values along an axis is not simply the axis index, this returns the independent value along an axis (specified by axis number and index)
 	virtual AMNumber axisValue(int axisNumber, int index) const;
 
-	/// Re-implemented from AMDbObject to set the AMDataSource name once we have an AMDbObject::name()
-	bool loadFromDb(AMDatabase *db, int id);
-
 protected slots:
 	/// Connected to be called when the values of the input data source change
 	void onInputSourceValuesChanged(const AMnDIndex& start, const AMnDIndex& end);

@@ -29,10 +29,8 @@ along with Acquaman.  If not, see <http://www.gnu.org/licenses/>.
 BioXASSideBeamline::BioXASSideBeamline()
 	: AMBeamline("BioXAS Beamline - Side Endstation")
 {
-	// Before the beamline is set up, we assume it is not connected.
 	isConnected_ = false;
 
-//	setupSynchronizedDwellTime();
 	setupComponents();
 	setupDiagnostics();
 	setupSampleStage();

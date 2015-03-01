@@ -46,10 +46,11 @@ class AMRawDataSource : public AMDbObject, public AMDataSource
 
 public:
 	/// Construct a raw data source which exposes measurement number \c measurementId of the specified \c dataStore. Both \c dataStore and \c measurementId must be valid.
-	virtual ~AMRawDataSource();
 	AMRawDataSource(const AMDataStore* dataStore, int measurementId, QObject* parent = 0);
 	/// This constructor re-loads a previously-stored source from the database.
-	Q_INVOKABLE AMRawDataSource(AMDatabase* db, int id);
+	Q_INVOKABLE AMRawDataSource(const QString &outputName = "InvalidInput", QObject *parent = 0);
+	/// Destructor.
+	virtual ~AMRawDataSource();
 
 	/// Both AMDbObject() and AMDataSource() have a name(). Here we un-ambiguate those two.
 	QString name() const { return AMDataSource::name(); }
@@ -273,6 +274,8 @@ int outputSize = indexStart.totalPointsTo(indexEnd);
 	/*! Re-implemented from AMDataSource to call setModified().  */
 	virtual void setHiddenFromUsers(bool isHidden = true) { AMDataSource::setHiddenFromUsers(isHidden); setModified(true); }
 
+	/// Re-implemented from AMDbObject to set the AMDataSource name once we have an AMDbObject::name()
+	bool loadFromDb(AMDatabase *db, int id);
 
 	/// Creates an editor widget that reports the dimensions and size of the data source... And for 0D data sources, includes the value.
 	virtual QWidget* createEditorWidget();

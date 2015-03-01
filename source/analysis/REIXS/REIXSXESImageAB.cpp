@@ -59,38 +59,6 @@ REIXSXESImageAB::REIXSXESImageAB(const QString &outputName, QObject *parent) :
 	setDescription("XES Analyzed Spectrum");
 }
 
-REIXSXESImageAB::REIXSXESImageAB(AMDatabase *db, int id) :
-	AMStandardAnalysisBlock("tempName", 0)
-{
-	curveSmoother_ = 0;
-
-	sumRangeMinY_ = 3;
-	sumRangeMaxY_ = 60;
-	sumRangeMinX_ = 50;
-	sumRangeMaxX_ = 950;
-	rangeRound_ = 1.0;
-	correlationCenterPx_ = 512;
-	correlationHalfWidth_ = 40;
-	correlationSmoothing_ = QPair<int,int>(-1,1);
-	energyCalibrationOffset_ = 0;
-	tiltCalibrationOffset_ = 0;
-	liveCorrelation_ = false;
-	// shift values can start out empty.
-
-	inputSource_ = 0;
-	cacheInvalid_ = true;
-	axisValueCacheInvalid_ = true;
-
-	// leave sources_ empty for now.
-
-	axes_ << AMAxisInfo("invalid", 0, "No input data");
-
-	loadFromDb(db, id); // will restore the parameters sumRangeMin_, sumRangeMax_, correlation settings, and shift values. We'll remain invalid until we get connected to a data source.
-	AMDataSource::name_ = AMDbObject::name();	// normally it's not okay to change a dataSource's name. Here we get away with it because we're within the constructor, and nothing's watching us yet.
-
-	connect(&callCorrelation_, SIGNAL(executed()), this, SLOT(correlateNow()));
-}
-
 REIXSXESImageAB::~REIXSXESImageAB() {
 }
 
@@ -346,8 +314,8 @@ void REIXSXESImageAB::computeCachedValues() const
 	//Width and height of the sum region, in pixels
 	double numX = (double)(sumRangeMaxX_ - sumRangeMinX_);
 	double numY = (double)(sumRangeMaxY_ - sumRangeMinY_);
-	
-	
+
+
 	for(int i=0; i<maxI; ++i) {
 		double newVal = 0.0;
 		int contributingRows = 0;
@@ -362,7 +330,7 @@ void REIXSXESImageAB::computeCachedValues() const
 					}
 				}
 				else {
-					
+
 					double yVal = (double)j - originY;
 					if((fabs(xVal) <= numX/2.0*(1.0 - rangeRound_)) || (fabs(yVal) <= numY/2.0*(1.0 - rangeRound_)) || ((((xVal-(1-rangeRound_)*numX/2.0)/(rangeRound_*numX/2.0))*((xVal-(1-rangeRound_)*numX/2.0)/(rangeRound_*numX/2.0))+((yVal-(1-rangeRound_)*numY/2.0)/(rangeRound_*numY/2.0))*((yVal-(1-rangeRound_)*numY/2.0)/(rangeRound_*numY/2.0))) < 1)) { //within ellipse
 						int sourceI = i + shiftValues_.at(j);

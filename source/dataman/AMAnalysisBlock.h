@@ -126,6 +126,9 @@ public:
 	/*! Re-implemented from AMDataSource to call setModified().  */
 	virtual void setHiddenFromUsers(bool isHidden = true) { AMDataSource::setHiddenFromUsers(isHidden); setModified(true); }
 
+	/// Re-implemented from AMDbObject to set the AMDataSource name once we have an AMDbObject::name()
+	bool loadFromDb(AMDatabase *db, int id);
+
 	// New public functions
 	//////////////////////////////
 

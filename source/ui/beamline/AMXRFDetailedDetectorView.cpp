@@ -101,16 +101,33 @@ void AMXRFDetailedDetectorView::buildDeadTimeView()
 	deadTimeButtons_->setExclusive(false);
 	QGridLayout *deadTimeButtonLayout = new QGridLayout;
 
-	for (int i = 0, elements = detector_->elements(); i < elements && deadTimeEnabled; i++){
+	if (deadTimeEnabled){
 
-		AMDeadTimeButton *deadTimeButton = new AMDeadTimeButton(detector_->inputCountSourceAt(i), detector_->outputCountSourceAt(i), 30.0, 50.0);
-		deadTimeButton->setCheckable(true);
-		deadTimeButton->setFixedSize(20, 20);
-		deadTimeButtonLayout->addWidget(deadTimeButton, int(i/deadTimeViewFactor_), i%deadTimeViewFactor_);
-		deadTimeButtons_->addButton(deadTimeButton, i);
+		for (int i = 0, elements = detector_->elements(); i < elements; i++){
+
+			AMDeadTimeButton *deadTimeButton = new AMDeadTimeButton(detector_->inputCountSourceAt(i), detector_->outputCountSourceAt(i), 30.0, 50.0);
+			deadTimeButton->setCheckable(true);
+			deadTimeButton->setFixedSize(20, 20);
+			deadTimeButtonLayout->addWidget(deadTimeButton, int(i/deadTimeViewFactor_), i%deadTimeViewFactor_);
+			deadTimeButtons_->addButton(deadTimeButton, i);
+		}
 	}
 
-	connect(deadTimeButtons_, SIGNAL(buttonClicked(int)), this, SLOT(onDeadTimeButtonClicked()));
+	else {
+
+		for (int i = 0, elements = detector_->elements(); i < elements; i++){
+
+			AMDeadTimeButton *deadTimeButton = new AMDeadTimeButton;
+			deadTimeButton->setCheckable(true);
+			deadTimeButton->setFixedSize(20, 20);
+			deadTimeButtonLayout->addWidget(deadTimeButton, int(i/deadTimeViewFactor_), i%deadTimeViewFactor_);
+			deadTimeButtons_->addButton(deadTimeButton, i);
+		}
+	}
+
+	connect(deadTimeButtons_, SIGNAL(buttonClicked(int)), this, SLOT(onDeadTimeButtonClicked(int)));
+	connect(detector_, SIGNAL(elementEnabled(int)), this, SLOT(onElementEnabledOrDisabled(int)));
+	connect(detector_, SIGNAL(elementDisabled(int)), this, SLOT(onElementEnabledOrDisabled(int)));
 
 	QHBoxLayout *squeezedDeadTimeButtonsLayout = new QHBoxLayout;
 	squeezedDeadTimeButtonsLayout->addStretch();
@@ -797,18 +814,20 @@ void AMXRFDetailedDetectorView::onDeadTimeChanged()
 		deadTimeLabel_->setText(QString("Dead Time:\t%1%").arg(detector_->deadTime()*100, 0, 'f', 0));
 }
 
-void AMXRFDetailedDetectorView::onDeadTimeButtonClicked()
+void AMXRFDetailedDetectorView::onDeadTimeButtonClicked(int deadTimeButtonId)
 {
-	if (detector_->elements() > 1){
+	if (detector_->isElementEnabled(deadTimeButtonId))
+		detector_->disableElement(deadTimeButtonId);
 
-		QList<AMDataSource *> newSum;
+	else
+		detector_->enableElement(deadTimeButtonId);
+}
 
-		for (int i = 0, size = deadTimeButtons_->buttons().size(); i < size; i++)
-			if (!deadTimeButtons_->button(i)->isChecked())
-				newSum << (detector_->hasDeadTimeCorrection() ? detector_->analyzedSpectrumSources().at(i) : detector_->rawSpectrumSources().at(i));
-
-		((AMAnalysisBlock *)detector_->dataSource())->setInputDataSources(newSum);
-	}
+void AMXRFDetailedDetectorView::onElementEnabledOrDisabled(int elementId)
+{
+	deadTimeButtons_->blockSignals(true);
+	deadTimeButtons_->button(elementId)->setChecked(!detector_->isElementEnabled(elementId));
+	deadTimeButtons_->blockSignals(false);
 }
 
 void AMXRFDetailedDetectorView::onRegionOfInterestBoundsChanged(QObject *id)

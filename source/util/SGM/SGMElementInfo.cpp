@@ -513,12 +513,6 @@ SGMFastScanParameters::SGMFastScanParameters(const QString &name, const QString 
 	setFastScanSettings(fastScanSettings);
 }
 
-SGMFastScanParameters::SGMFastScanParameters(AMDatabase *db, int id) :
-	AMDbObject(0)
-{
-	loadFromDb(db, id);
-}
-
 SGMFastScanParameters& SGMFastScanParameters::operator =(const SGMFastScanParameters &other){
 	if(this != &other){
 		AMDbObject::operator=(other);
