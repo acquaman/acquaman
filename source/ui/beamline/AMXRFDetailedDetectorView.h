@@ -179,7 +179,9 @@ protected slots:
 	/// Handles updating the dead time label.
 	void onDeadTimeChanged();
 	/// Handles changing the data sources used for the corrected sum PV.
-	void onDeadTimeButtonClicked();
+	void onDeadTimeButtonClicked(int deadTimeButtonId);
+	/// Handles updating the look of a button if it is enabled or not.
+	void onElementEnabledOrDisabled(int elementId);
 	/// Handles updating the region of interest markers using the signal mapper.
 	void onRegionOfInterestBoundsChanged(QObject *id);
 	/// Handles changing the scale of the axis to logarithmic or linear.

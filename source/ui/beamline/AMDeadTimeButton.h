@@ -32,6 +32,8 @@ class AMDeadTimeButton : public QToolButton
 	Q_OBJECT
 
 public:
+	/// Constructor.  Makes a default button with no changing other than looking disabled.
+	AMDeadTimeButton(QWidget *parent = 0);
 	/// Constructor.  Takes two data sources (the data source is assumed to have rank 0), one for the input counts and one for the output counts, the good reference point, and the bad reference point.
 	AMDeadTimeButton(AMDataSource *inputCountSource, AMDataSource *outputCountSource, double goodReferencePoint, double badReferencePoint, QWidget *parent = 0);
 	/// Destructor.
@@ -45,7 +47,7 @@ public:
 	double badReferencecPoint() const { return badReferencecPoint_; }
 
 public slots:
-	/// Sets a new data source for the dead time (the data source is assumed to have rank 0).
+	/// Sets a new data source for the dead time (the data source is assumed to have rank 0).  Sources can be 0/null pointers.
 	void setDeadTimeSources(AMDataSource *inputCountSource, AMDataSource *outputCountSource);
 	/// Sets the good reference point.
 	void setGoodReferencePoint(double newReference);
@@ -57,6 +59,8 @@ protected slots:
 	void onDeadTimeUpdated();
 
 protected:
+	/// Helper method that returns whether there are valid data sources or not.
+	bool hasDeadTimeSources() const;
 	/// Re-implemented paint event.
 	void paintEvent(QPaintEvent *e);
 
